@@ -118,8 +118,9 @@ else
   fi
   AC_MSG_RESULT([$RTDIR set from command line]) # Spit out an error if/when it fails ??
 fi
-#FIXME Move setting of RTPREFIX & friends to a single location..
+
 # For RTAI-3.x $RTS = rtai-config
+if (test `echo $RTS | awk -F /'{print $NF }'`="rtai-config"); then
 #	 Option		Returns
 #	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree.
 #	--version	Version number of the installed RTAI (e.g. 3.1)
@@ -138,6 +139,7 @@ fi
     KERNELDIR=`$RTS --linux-dir`
 
 # For RTAI-24.1x $RTS = realtime-config
+elif (test `echo $RTS | awk -F /'{print $NF }'`="realtime-config"); then
 #	 Option		Returns
 #	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
 #	--version	Should return the version number - Appears to return 0.0.0 for most 24.1.x releases.
@@ -146,23 +148,34 @@ fi
 #	--cflags-fp	Flags to use when compiling realtime modules with floating point math.
 #	--dump		Dumps the .buildvars to screen - Grep for linuxdir
 
-# RTLinux
+    RTNAME=rtai
+    RTPREFIX=rtai
+    RTAI=1
+    RTDIR=`$RTS --prefix`
+    RTDIR=$(cd $RTDIR ; pwd -P )
+    RTFLAGS=`$RTS --cflags-fp`
+    RTFLAGS="$RTFLAGS -DRTAI=1"
+    KERNELDIR=$($RTS --dump | grep LINUXDIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2>/dev/null
+    KERNELDIR=$(cd $KERNELDIR ; pwd -P )
+
 # For RTLinux-3.? $RTS = rtl-config
+elif (test `echo $RTS | awk -F /'{print $NF }'`="rtl-config"); then
 #	 Option		Returns
 #	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
 #	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
 #	--cc		The compiler used for the C sources - Not necessarily the default cc
 #	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
 #	--linux		Path to the source directory f the patched kernel.
-#	--module-dir	Path to the directory where the rtai modules are installed
+#	--module_dir	Path to the directory where the RTLinux modules are installed
 #	--modules	A list of the available realtime modules.
 
     RTPREFIX=rtlinux
     RTDIR=`$RTS --prefix`
     RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --c-flags`
+    RTFLAGS=`$RTS --cflags`
     KERNELDIR=`$RTS --linux`
-
+# elif test for RTLinux-Pro ???
+fi
 
 AC_SUBST([RTNAME])
 AC_SUBST([RTAI])
@@ -195,9 +208,10 @@ AC_SUBST(AUTODIRS)
 
 # Check CC version - (P.C.) We need to verify the compiler is the same one used
 # for the realtime extensions... Hence the need to find the RT signature first.
+# $RTS --cc should return the C compiler used - Verify this is acceptable.
 # if version is gcc-2.96 check for alternative
 AC_MSG_CHECKING(for cc version)
-AC_PROG_CC(gcc)
+AC_PROG_CC(gcc) # The compiler MUST match the one used to compile the realtime modules.
 if test -z "$CC"; then
   AC_PROG_CC(egcs)
   test -z "$CC" && AC_MSG_ERROR([no acceptable cc found])
@@ -297,6 +311,7 @@ if (test -r $RTDIR/modules/rtai_libm.o ) || (test -r $($RTS --module-dir)/rtai_m
     USE_RTLIBM=1
     AC_MSG_RESULT([ok, using RTAI's libm kernel module])
 # Note: need to search /lib/modules/`uname -r` for the math modules..
+#       or `$RTS --module-dir`...
 else
     AC_MSG_RESULT([no])
     AC_MSG_CHECKING([for a suitable libm])
