@@ -358,6 +358,13 @@ else
   fi
 fi
 
+AC_MSG_CHECKING([for g++])
+AC_PROG_CXX
+AC_CHECK_PROG(TMP, $CXX, YES, NO, $PATH)
+if test "$TMP" = "NO"; then
+  AC_MSG_ERROR([No C++ compiler found.])
+fi
+TMP=""
 
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
@@ -492,7 +499,6 @@ AC_SUBST(GTK_CFLAGS)
 # Check for all the utility programs we need to build and install emc        #
 # as well as those we use in the emc scripts...                              #
 ##############################################################################
-AC_PROG_CXX
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar, "", /bin:/usr/bin:/usr/local/bin)
