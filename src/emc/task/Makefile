@@ -4,10 +4,12 @@
 include ../../../Makefile.inc
 
 SRCS =	emccanon.cc \
+	emcsh.cc \
 	emcsvr.cc \
 	emctask.cc \
 	emctaskmain.cc \
-	minimilltaskintf.cc
+	minimilltaskintf.cc \
+	iosh.cc
 
 HEADERS =
 
@@ -32,12 +34,12 @@ include ../../../Make.rules
 
 # Tcl emcsh
 $(TMP_DIR)/emcsh.o: emcsh.cc
-	@ echo "Compile '$<' to tmp dir using TCL flags"
-	$(CXX) $< -c $(ULFLAGS)  $(TCL_CFLAGS) -o $@
+	@ echo "Compile emcsh.cc to tmp dir using TCL flags"
+	$(CXX) emcsh.cc -c $(ULFLAGS) $(TCL_CFLAGS) -o $@
 
 $(TMP_DIR)/iosh.o: iosh.cc
-	@ echo "Compile '$<' to tmp dir using TCL flags"
-	$(CXX) $< -c $(ULFLAGS)  $(TCL_CFLAGS) -o $@
+	@ echo "Compile iosh.cc to tmp dir using TCL flags"
+	$(CXX) iosh.cc -c $(ULFLAGS)  $(TCL_CFLAGS) -o $@
 
 $(BIN_DIR)/emcsh: $(TMP_DIR)/emcsh.o \
 	$(LIB_DIR)/libemc.a \
@@ -61,7 +63,7 @@ $(BIN_DIR)/emcsvr: $(TMP_DIR)/emcsvr.o \
 	@ echo "Linking $@"
 	$(CXX) $^ $(ULFLAGS) -o $@
 
-$(BIN_DIR)/minimilltask:	\
+$(BIN_DIR)/minimilltask: \
 	$(TMP_DIR)/emcmotglb.o \
 	$(TMP_DIR)/emctask.o \
 	$(TMP_DIR)/emccanon.o \
@@ -84,5 +86,7 @@ indent: def_indent
 depend: def_depend
 
 clean: def_clean
+	rm -f $(BINS:%=$(BIN_DIR)/%)
+
 
 .PHONY: all clean install indent depend headers
