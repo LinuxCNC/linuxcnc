@@ -518,6 +518,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	motion_state_t motion_state; /* operating state: FREE, COORD, etc. */
 	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
 	EmcPose carte_pos_cmd;	/* commanded Cartesian position */
+	int carte_pos_cmd_ok;	/* non-zero if command is valid */
 	EmcPose carte_pos_fb;	/* actual Cartesian position */
 	int carte_pos_fb_ok;	/* non-zero if feedback is valid */
 	EmcPose world_home;	/* cartesean coords of home position */
