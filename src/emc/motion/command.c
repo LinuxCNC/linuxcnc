@@ -1127,30 +1127,6 @@ int emcmotCommandHandler(void)
 	    emcmot_config_change();
 	    break;
 
-	case EMCMOT_SET_AOUT:
-	    tpSetAout(&emcmotDebug->queue, emcmotCommand->index,
-		emcmotCommand->minLimit, emcmotCommand->maxLimit);
-	    break;
-
-	case EMCMOT_SET_DOUT:
-	    tpSetDout(&emcmotDebug->queue, emcmotCommand->index,
-		emcmotCommand->start, emcmotCommand->end);
-	    break;
-
-	case EMCMOT_SET_INDEX_BIT:
-	    if (emcmotCommand->level) {
-		/* Set bit */
-		extDioWrite(emcmotCommand->index, 1);
-	    } else {
-		/* Clear bit */
-		extDioWrite(emcmotCommand->index, 0);
-	    }
-	    break;
-
-	case EMCMOT_READ_INDEX_BIT:
-	    extDioRead(emcmotCommand->index, &(emcmotStatus->level));
-	    break;
-
 	case EMCMOT_SET_STEP_PARAMS:
 	    emcmot_config_change();
 	    /* configure the step pulse times */

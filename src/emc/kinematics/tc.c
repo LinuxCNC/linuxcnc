@@ -8,10 +8,6 @@
    30-Jan-2004 P.C. #idef'ed diagnostic output so that it only prints when
    compiled for user space.
    5-Jan-2004 MGS used this file to build a motion module for emc2.
-   16-Nov-2002 P.C. Changed dout stuff to call extDioWrite so that one bit
-   at a time can be used. Handy if only one port is available.
-   7-Dec-2001  FMP added tcDoutByte global
-   17-Aug-2001  FMP added aout,dout motion IO
    13-Mar-2000 WPS added unused attribute to ident to avoid 
    'defined but not used' compiler warning.
    23-Sep-1999 WPS replaced printf with rcs_print  which is supported under CE
@@ -65,7 +61,6 @@
 #include "posemath.h"
 #include "emcpos.h"
 #include "tc.h"
-#include "extintf.h"		/* extMotDout() */
 
 /* ident tag */
 #ifndef __GNUC__
@@ -76,10 +71,6 @@
 
 static char __attribute__ ((unused)) ident[] =
     "$Id$";
-
-/* the byte of output that gets written, persisting across all TC_STRUCTs,
-   also referenced in tp.c for aborting */
-unsigned char tcDoutByte = 0;
 
 #define TC_VEL_EPSILON 0.0001	/* number below which v is considered 0 */
 #define TC_SCALE_EPSILON 0.0001	/* number below which scale is considered 0 */
@@ -123,11 +114,6 @@ int tcInit(TC_STRUCT * tc)
     pmLineInit(&tc->line, zero, zero);
     pmLineInit(&tc->line_abc, zero, zero);
     /* since type is TC_LINEAR, don't need to set circle params */
-
-    tc->douts = 0;
-    tc->doutstarts = 0;
-    tc->doutends = 0;
-
     return 0;
 }
 
@@ -385,28 +371,12 @@ int tcRunCycle(TC_STRUCT * tc)
 	newVel = -0.5 * tc->aMax * tc->cycleTime + tc->aMax * sqrt(discr);
     }
 
-    if (tc->tcFlag == TC_IS_UNSET) {
-	/* it's the start of this segment, so set any start output bits */
-	if (tc->douts) {
-	    /* Fred's original code.. tcDoutByte |= (tc->douts &
-	       tc->doutstarts); tcDoutByte &= (~tc->douts | tc->doutstarts);
-	       extMotDout(tcDoutByte); */
-	    extDioWrite(tc->doutIndex, tc->doutstarts);
-	}
-    }
-
     if (newVel <= 0.0) {
 	newVel = 0.0;
 	newAccel = 0;
 	newPos = tc->targetPos;
 	tc->tcFlag = TC_IS_DONE;
 	/* set any end output bits */
-	if (tc->douts) {
-	    /* Fred's original code.. tcDoutByte |= (tc->douts &
-	       tc->doutends); tcDoutByte &= (~tc->douts | tc->doutends);
-	       extMotDout(tcDoutByte); */
-	    extDioWrite(tc->doutIndex, tc->doutends);
-	}
     } else {
 	/* clamp velocity to scaled max, and note if it's scaled back. This
 	   will cause a deceleration which we will NOT flag as a TC_IS_DECEL
@@ -990,19 +960,4 @@ PmCartesian tcGetUnitCart(TC_STRUCT * tc)
     }
     // It should never really get here.
     return fake;
-}
-
-int tcSetDout(TC_STRUCT * tc, int doutIndex, unsigned char starts,
-    unsigned char ends)
-{
-    if (0 == tc) {
-	return -1;
-    }
-
-    tc->douts = 1;
-    tc->doutIndex = doutIndex;
-    tc->doutstarts = starts;
-    tc->doutends = ends;
-
-    return 0;
 }

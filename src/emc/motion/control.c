@@ -1442,7 +1442,7 @@ void emcmotController(void *arg)
 	    }
 	}
 
-	extDioRead(emcmotConfig->probeIndex, &emcmotStatus->probeval);
+	extProbeCheck(&emcmotStatus->probeval);
 	if (emcmotStatus->probing && emcmotStatus->probeTripped) {
 	    tpClear(&emcmotDebug->queue);
 	    emcmotStatus->probing = 0;

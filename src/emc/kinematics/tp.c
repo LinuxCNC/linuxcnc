@@ -8,15 +8,10 @@
   30-Jan-2004 P.C. #idef'ed diagnostic output so that it only prints when
   compiled for user space.
   5-Jan-2004 MGS used this file to build a motion module for emc2.
-  16-Nov-2002 P.C. Changed dout to use extDioWrite so that one bit is used
-  at a time - Handy when IO is limited to one port (or card).
   13-Nov-2002  FMP moved some dereferences to thisTc in tpRunCycle to be
   after a check for thisTc being NULL
-  14-Dec-2001  FMP fixed some compile warnings: comparison of unsigned char
-  < zero, implicit def of extMotDout()
   7-Dec-2001  FMP took hard-coded 1e-6 values out and moved them
-  into tp.h as EPSILON defines; added setting of dout byte when aborted
-  17-Aug-2001  FMP added aout,dout motion IO
+  into tp.h as EPSILON defines.
   16-Nov-2000 WPS modified the algorithm to compute preAMax and
   preVMax, to elminate some velocity spikes, and ensure that the
   acceleration and velocity maximums were really honored.
@@ -58,7 +53,6 @@
 #include "posemath.h"
 #include "tc.h"
 #include "tp.h"
-#include "extintf.h"		/* extMotDout() */
 
 /* ident tag */
 #ifndef __GNUC__
@@ -389,12 +383,6 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tcSetLine(&tc, line, line_abc);
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
-    if (tp->douts) {
-	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
-	tp->douts = 0;
-	tp->doutstart = 0;
-	tp->doutend = 0;
-    }
 
     if (-1 == tcqPut(&tp->queue, tc)) {
 	return -1;
@@ -456,13 +444,6 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tcSetCircle(&tc, circle, line_abc);
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
-
-    if (tp->douts) {
-	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
-	tp->douts = 0;
-	tp->doutstart = 0;
-	tp->doutend = 0;
-    }
 
     if (-1 == tcqPut(&tp->queue, tc)) {
 	return -1;
@@ -642,12 +623,6 @@ int tpRunCycle(TP_STRUCT * tp)
 	/* all paused and we're aborting-- clear out the TP queue */
 	/* first set the motion outputs to the end values for the current
 	   move */
-	if (tp->douts && 0 != thisTc) {
-	    /* Fred's original code.. tcDoutByte |= (thisTc->douts &
-	       thisTc->doutends); tcDoutByte &= (~thisTc->douts |
-	       thisTc->doutends); extMotDout(tcDoutByte); */
-	    extDioWrite(thisTc->doutIndex, thisTc->doutends);
-	}
 	tcqInit(&tp->queue);
 	tp->goalPos = tp->currentPos;
 	tp->done = 1;
@@ -817,44 +792,4 @@ void tpPrint(TP_STRUCT * tp)
 	tcPrint(tcqItem(&tp->queue, t, 0));
     }
 #endif /* ULAPI */
-}
-
-int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end)
-{
-    /* FIXME-- unimplemented due to large size required for doubles */
-    return 0;
-}
-
-int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
-    unsigned char end)
-{
-    if (0 == tp) {
-	return -1;
-    }
-
-    tp->doutIndex = index;
-    tp->doutstart = start;
-    tp->doutend = end;
-    tp->douts = 1;
-
-/* Fred's original code..
-  if (index > 7) {
-    return -1;
-  }
-
-  tp->douts |= (1 << index);
-  if (start == 0) {
-    tp->doutstart &= (0xFF ^ (1 << index));
-  }
-  else {
-    tp->doutstart |= (1 << index);
-  }
-  if (end == 0) {
-    tp->doutend &= (0xFF ^ (1 << index));
-  }
-  else {
-    tp->doutend |= (1 << index);
-  } */
-
-    return 0;
 }

@@ -22,7 +22,6 @@
 #include "emcmotcfg.h"          /* EMCMOT_MAX_AXIS */
 #include "extintf.h"            /* these decls */
 #include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"                /* decls for HAL implementation */
 
 /* ident tag */
@@ -45,6 +44,7 @@ typedef struct {
     hal_bit_t *max;		/* max limit switch input */
     hal_bit_t *min;		/* min limit switch input */
     hal_bit_t *home;		/* home switch input */
+    hal_float_t *probe;		/* probe input */
     hal_bit_t *enable;		/* amp enable output */
     hal_bit_t *fault;		/* amp fault input */
     /* for now we control the index model through the mode
@@ -97,6 +97,12 @@ int export_axis(int num, axis_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.probe", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(addr->probe), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.enable", num);
     retval = hal_pin_bit_new(buf, HAL_WR, &(addr->enable), comp_id);
     if (retval != 0) {
@@ -169,9 +175,9 @@ int extMotInit(void)
 	/* init axis outputs */
 	*(axis_array[n].volts) = 0.0;
 	*(axis_array[n].enable) = 0;
-	*(axis_array[n].reset) = 0;
         /* We'll init the index model to manual for now */
         *(axis_array[n].mode) = EXT_ENCODER_INDEX_MODEL_MANUAL;
+	*(axis_array[n].reset) = 0;
     }
     /* Done! */
     rtapi_print_msg(RTAPI_MSG_INFO,
@@ -334,6 +340,43 @@ int extHomeSwitchRead(int axis, int * flag)
   }
 }
 
+/* Probe Functions */
+int extProbeCheck(int * flag)
+{
+  int n, f;
+  f = 0;
+  for (n = 0; n < (EMCMOT_MAX_AXIS - 1); n++) {
+    if (*(axis_array[n].probe) != 0.0) {
+      f = 1;
+    }
+  }
+  *flag = f;
+  return 0;
+}
+
+int extProbeRead(int axis, double * counts)
+{
+  if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
+    return -1;
+  } else {
+    *counts = *(axis_array[axis].probe);
+    return 0;
+  }
+}
+
+int extProbeReadAll(int max, double * counts)
+{
+  int n;
+  if (max > EMCMOT_MAX_AXIS || max < 1) {
+    return -1;
+  } else {
+    for (n = 0; n < (max - 1); n++) {
+      *(counts + n) = *(axis_array[n].probe);
+    }
+    return 0;
+  }
+}
+
 /* Amplifier Functions */
 int extAmpEnable(int axis, int enable)
 {
@@ -353,131 +396,4 @@ int extAmpFault(int axis, int * fault)
     *fault = *(axis_array[axis].fault);
     return 0;
   }
-}
-
-/* Digital I/O Functions */
-int extDioInit(const char * stuff)
-{
-  return 0;
-}
-
-int extDioQuit(void)
-{
-  return 0;
-}
-
-int extDioMaxInputs(void)
-{
-  return 0;
-}
-
-int extDioMaxOutputs(void)
-{
-  return 0;
-}
-
-int extDioRead(int index, int *value)
-{
-  return 0;
-}
-
-int extDioWrite(int index, int value)
-{
-  return 0;
-}
-
-int extDioCheck(int index, int *value)
-{
-  return 0;
-}
-
-int extDioByteRead(int index, unsigned char *byte)
-{
-  return 0;
-}
-
-int extDioShortRead(int index, unsigned short *sh)
-{
-  return 0;
-}
-
-int extDioWordRead(int index, unsigned int *word)
-{
-  return 0;
-}
-
-int extDioByteWrite(int index, unsigned char byte)
-{
-  return 0;
-}
-
-int extDioShortWrite(int index, unsigned short sh)
-{
-  return 0;
-}
-
-int extDioWordWrite(int index, unsigned int word)
-{
-  return 0;
-}
-
-int extDioByteCheck(int index, unsigned char *byte)
-{
-  return 0;
-}
-
-int extDioShortCheck(int index, unsigned short *sh)
-{
-  return 0;
-}
-
-int extDioWordCheck(int index, unsigned int *word)
-{
-  return 0;
-}
-
-/* Analog I/O Functions */
-int extAioInit(const char * stuff)
-{
-  return 0;
-}
-
-int extAioQuit(void)
-{
-  return 0;
-}
-
-int extAioMaxInputs(void)
-{
-  return 0;
-}
-
-int extAioMaxOutputs(void)
-{
-  return 0;
-}
-
-int extAioStart(int index)
-{
-  return 0;
-}
-
-void extAioWait(void)
-{
-  return;
-}
-
-int extAioRead(int index, double *volts)
-{
-  return 0;
-}
-
-int extAioWrite(int index, double volts)
-{
-  return 0;
-}
-
-int extAioCheck(int index, double *volts)
-{
-  return 0;
 }

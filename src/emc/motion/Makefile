@@ -5,7 +5,6 @@ include ../../../Makefile.inc
 SRCS = \
 	command.c \
 	control.c \
-	emcmot.c \
 	emcmotglb.c \
 	emcmotutil.c \
 	emcpid.c \
@@ -13,7 +12,6 @@ SRCS = \
 	usrmotintf.c
 
 HEADERS = \
-	emcmot.h \
 	emcmotcfg.h \
 	emcmotglb.h \
 	emcpid.h \
@@ -32,7 +30,6 @@ RT_OBJS  = \
 	command.o \
 	control.o \
 	cubic.o \
-	emcmot.o \
 	emcmotutil.o \
 	emcpid.o \
 	mmxavg.o \
@@ -41,8 +38,7 @@ RT_OBJS  = \
 	tp.o
 
 RTLIBS = \
-	motmod_orig.o \
-	motmod_new.o
+	motmod.o
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o)
@@ -51,25 +47,13 @@ all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 include ../../../Make.rules
 
 # Explicit rules.
-$(RTLIB_DIR)/motmod_orig.o: \
-	$(RTTMP_DIR)/cubic.o \
-	$(RTTMP_DIR)/emcmot.o \
-	$(RTTMP_DIR)/emcmotglb.o \
-	$(RTTMP_DIR)/emcmotlog.o \
-	$(RTTMP_DIR)/emcmotutil.o \
-	$(RTTMP_DIR)/emcpid.o \
-	$(RTTMP_DIR)/mmxavg.o \
-	$(RTTMP_DIR)/tc.o \
-	$(RTTMP_DIR)/tp.o \
-	$(RTTMP_DIR)/trivkins.o
-	ld -r -static $^ $(RTLIB_DIR)/libpm.a $(MATH_LIB) -o $@
 
 # Side note: MATH_LIB defines the linking and lib options for
 # libm. Linking to the glibc math lib may lead to unresolved
 # symbols without an additional stub module. RTAI provides a
 # kernel module, so RTLinux builds are the only ones at risk.
 
-$(RTLIB_DIR)/motmod_new.o: \
+$(RTLIB_DIR)/motmod.o: \
 	$(RTTMP_DIR)/cubic.o \
 	$(RTTMP_DIR)/motion.o \
 	$(RTTMP_DIR)/command.o \

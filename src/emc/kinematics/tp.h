@@ -3,27 +3,7 @@
 
 /*
   tp.h
-
   Trajectory planner based on TC elements
-
-  Modification history:
-
-  5-Jan-2004 MGS used this file to build a motion module for emc2.
-  7-Dec-2001  FMP took hard-coded 1e-6 values out of tp.c and moved them
-  here as EPSILON defines.
-  17-Aug-2001  FMP added aout,dout motion IO
-  13-Mar-2000 WPS added unused attribute to tp_h to avoid
-  'defined but not used' compiler warning.
-  8-Jun-1999  FMP added tpSetVlimit(), vLimit
-  8-Mar-1999  FMP added tcSpace arg to tpCreate()
-  18-Dec-1997  FMP took out C++ interface
-  18-Dec-1997  FMP changed to PmPose
-  18-Jul-1997  FMP added active depth
-  16-Jul-1997  FMP added ids
-  14-Jul-1997  FMP added C posemath changes (PM_POSE -> PmPose)
-  24-Jun-1997  FMP added tpClear()
-  13-Jun-1997  FMP added tpSetVscale(), tpIsPaused(), abort stuff
-  16-Apr-1997  FMP created from C and C++ headers
 */
 
 #include "posemath.h"
@@ -68,10 +48,6 @@ typedef struct {
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
-    unsigned char douts;	/* mask for douts to set */
-    int doutIndex;		/* index for dout values */
-    unsigned char doutstart;	/* mask for dout start vals */
-    unsigned char doutend;	/* mask for dout end vals */
 } TP_STRUCT;
 
 extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
@@ -104,9 +80,4 @@ extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
 extern void tpPrint(TP_STRUCT * tp);
-extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
-    double end);
-extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
-    unsigned char end);
-
 #endif /* TP_H */

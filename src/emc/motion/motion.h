@@ -96,7 +96,7 @@ extern "C" {
 	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
 					   world cartesian coordinates, not
 					   in joint space like EMCMOT_JOG_* */
-#ifdef ENABLE_PROBING
+
 	EMCMOT_SET_PROBE_INDEX,	/* set which wire the probe signal is on. */
 	EMCMOT_SET_PROBE_POLARITY,	/* probe tripped on 0 to 1 transition 
 					   or on 1 to 0 transition. */
@@ -104,12 +104,10 @@ extern "C" {
 	EMCMOT_PROBE,		/* go towards a position, stop if the probe
 				   is tripped, and record the position where
 				   the probe tripped */
-#endif
+
 	EMCMOT_SET_DEBUG,	/* sets the debug level */
 	EMCMOT_SET_AOUT,	/* sets an analog motion point for next move */
 	EMCMOT_SET_DOUT,	/* sets a digital motion point for next move */
-	EMCMOT_SET_INDEX_BIT,	/* Sets or clears a digital IO pin */
-	EMCMOT_READ_INDEX_BIT,	/* Reads a digital IO pin */
 	EMCMOT_SET_STEP_PARAMS	/* sets setup_time and hold_time for freqtask 
 				 */
     };
@@ -153,9 +151,7 @@ extern "C" {
 	EMCMOT_AXIS_FLAG axisFlag;	/* flag to set polarities */
 	int level;		/* flag for polarity level */
 	int index;		/* Digital IO pin index */
-#ifdef ENABLE_PROBING
 	int probeIndex;		/* which wire the probe signal is on */
-#endif
 	int debug;		/* debug level, from DEBUG in .ini file */
 	unsigned char out, start, end;	/* motion index, start, and end bits */
 	unsigned char tail;	/* flag count for mutex detect */

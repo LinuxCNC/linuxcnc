@@ -190,7 +190,8 @@ NML::NML(NML_FORMAT_PTR f_ptr, char *buf, char *proc, char *file,
     if (NULL != cms) {
 	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
 	if (forced_type_eq != NULL) {
-	    long temp = strtol(forced_type_eq + 11, NULL, 0);
+	    long temp = 0;
+	    temp = strtol(forced_type_eq + 11, NULL, 0);
 	    if (temp > 0) {
 		forced_type = temp;
 		fast_mode = 0;
@@ -213,7 +214,8 @@ int create_NML(NML ** nml, NML_FORMAT_PTR f_ptr,
 	char *forced_type_eq =
 	    strstr((*nml)->cms->buflineupper, "FORCE_TYPE=");
 	if (forced_type_eq != NULL) {
-	    long temp = strtol(forced_type_eq + 11, NULL, 0);
+	    long temp = 0;
+	    temp = strtol(forced_type_eq + 11, NULL, 0);
 	    if (temp > 0) {
 
 		(*nml)->forced_type = temp;

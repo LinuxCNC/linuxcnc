@@ -9,8 +9,6 @@
   Modification history:
 
   5-Jan-2004 MGS used this file to build a motion module for emc2.
-  7-Dec-2001  FMP added tcDoutByte global
-  17-Aug-2001  FMP added aout,dout motion IO
   17-Nov-2000 WPS added tcGetUnitCart(), wMax,wDotMax,rmag,tmag, etc.
   13-Mar-2000 WPS added unused attribute to ident to avoid 'defined but 
   not used' compiler warning.
@@ -90,13 +88,7 @@ typedef struct {
     double abc_vMax;		/* maximum rotational velocity */
     double abc_aMax;		/* maximum rotational accelleration */
     PmCartesian unitCart;
-    unsigned char douts;	/* mask for douts to set */
-    int doutIndex;		/* index for dout value */
-    unsigned char doutstarts;	/* mask for dout start vals */
-    unsigned char doutends;	/* mask for dout end vals */
 } TC_STRUCT;
-
-extern unsigned char tcDoutByte;
 
 /* TC_STRUCT functions */
 
@@ -130,8 +122,6 @@ extern int tcIsPaused(TC_STRUCT * tc);
 extern void tcPrint(TC_STRUCT * tc);
 extern double tcRunPreCycle(const TC_STRUCT * tc);
 extern int tcForceCycle(TC_STRUCT * tc, double ratio);
-extern int tcSetDout(TC_STRUCT * tc, int index, unsigned char starts,
-    unsigned char ends);
 
 /* queue of TC_STRUCT elements*/
 

@@ -188,9 +188,6 @@ if [ ! -f $RTDIR/rtl.mk ] ; then
     fi
 fi
 
-    if [ [ ! -f $RTDIR/bin/rtai-config ] || [ ! -f $RTDIR/.buildvars ]  ] ; then
-echo FOO
-fi
 # try to find out where man files are stored on this system.
 # 'man -w' returns the search paths used by older versions of man,
 # but not with man-2.4.1... Use manpath instead to print the search
