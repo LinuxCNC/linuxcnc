@@ -10,23 +10,6 @@ AC_CONFIG_SRCDIR([src/hal/hal_lib.c])
 
 # Checks for programs.
 
-# Check CC version
-# if version is gcc-2.96 check for alternative
-AC_MSG_CHECKING(for cc version)
-AC_PROG_CC(gcc)
-if test -z "$CC"; then
-  AC_PROG_CC(egcs)
-  test -z "$CC" && AC_MSG_ERROR([no acceptable cc found])
-else
-  if test `$CC -dumpversion` = "2.96"; then
-    AC_MSG_ERROR([gcc version 2.96 found, but not supported])
-  fi
-fi
-
-AC_PROG_CXX
-AC_PROG_MAKE_SET
-AC_PROG_RANLIB
-
 # Check for RT
 # FIXME - add RT-check script
 # accept rtai=path from commandline
@@ -102,6 +85,25 @@ else
 fi
 AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
+
+# Check CC version - (P.C.) We need to verify the compiler is the same one used
+# for the realtime extensions... Hence the need to find the RT signature first.
+# if version is gcc-2.96 check for alternative
+AC_MSG_CHECKING(for cc version)
+AC_PROG_CC(gcc)
+if test -z "$CC"; then
+  AC_PROG_CC(egcs)
+  test -z "$CC" && AC_MSG_ERROR([no acceptable cc found])
+else
+  if test `$CC -dumpversion` = "2.96"; then
+    AC_MSG_ERROR([gcc version 2.96 found, but not supported])
+  fi
+fi
+
+AC_PROG_CXX
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+
 
 # Check for GTK
 # accept GTK_VER from command line
