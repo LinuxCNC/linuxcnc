@@ -40,7 +40,6 @@ headers: tmp_dir
 # Reformat the sources using long format names to aid readability.
 indent :
 	indent --braces-on-if-line \
-	--braces-on-struct-decl-line \
 	--comment-line-length78 \
 	--continuation-indentation4 \
 	--cuddle-do-while \
@@ -53,7 +52,6 @@ indent :
 	--line-length78 \
 	--no-space-after-function-call-names \
 	--no-space-after-parentheses \
-	--no-space-after-function-call-names \
 	--space-after-cast \
 	--swallow-optional-blank-lines \
 	$(SRCS) $(RT_SRCS) $(HEADERS)
