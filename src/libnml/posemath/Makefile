@@ -17,15 +17,13 @@ include ../../../Makefile.inc
 LIB_OBJS =
 include Makefile.lib
 
-HEADERS = mathprnt.h \
+HEADERS = \
 	posemath.h \
 	sincos.h
 
 SRCS = \
-	_mathprnt.c \
 	_posemath.c \
 	sincos.c \
-	mathprnt.cc \
 	posemath.cc
 
 RT_OBJS = _posemath.o \
@@ -60,11 +58,9 @@ $(RTLIB_DIR)/libpm.a: $(RTTMP_DIR)/_posemath.o $(RTTMP_DIR)/sincos.o
 	ranlib $@
 
 $(LIB_DIR)/libpm.a: \
-	$(TMP_DIR)/_posemath.o $(TMP_DIR)/posemath.o  \
-	$(TMP_DIR)/_mathprnt.o $(TMP_DIR)/mathprnt.o $(TMP_DIR)/sincos.o
+	$(TMP_DIR)/_posemath.o $(TMP_DIR)/posemath.o $(TMP_DIR)/sincos.o
 	$(AR) $(ARFLAGS) $@ \
-	$(TMP_DIR)/_posemath.o $(TMP_DIR)/posemath.o \
-	$(TMP_DIR)/_mathprnt.o $(TMP_DIR)/mathprnt.o $(TMP_DIR)/sincos.o
+	$(TMP_DIR)/_posemath.o $(TMP_DIR)/posemath.o $(TMP_DIR)/sincos.o
 	ranlib $@
 
 .PHONY: all clean install indent depend headers
