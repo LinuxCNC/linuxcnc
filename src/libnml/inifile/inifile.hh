@@ -19,6 +19,8 @@
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
+#include "inifile.h"
+
 class INIFILE {
   public:
     INIFILE();
