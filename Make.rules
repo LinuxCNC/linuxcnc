@@ -250,7 +250,7 @@ def_depend:
 	touch .depend.c .depend.cc .depend.rt
 	(if [ ! -z "$(C_SRCS)" ] ; then \
 	  echo "User C: $(C_SRCS)" ; \
-	  $(CC) -M $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $(C_SRCS) | \
+	  $(CC) -MM $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $(C_SRCS) | \
 	  awk '{ \
 	    split($$0,FIELD," ") ; \
 	    for ( i = 1 ; i <= NF ; i++ ) { \
@@ -267,7 +267,7 @@ def_depend:
 	fi)
 	(if [ ! -z "$(CC_SRCS)" ] ; then \
 	  echo "User C++: $(CC_SRCS)" ; \
-	  $(CXX) -M $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $(CC_SRCS) | \
+	  $(CXX) -MM $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $(CC_SRCS) | \
 	  awk '{ \
 	    split($$0,FIELD," ") ; \
 	    for ( i = 1 ; i <= NF ; i++ ) { \
@@ -284,7 +284,7 @@ def_depend:
 	fi)
 	(if [ ! -z "$(RT_SRCS)" ] ; then \
 	  echo "Realtime C: $(RT_SRCS)" ; \
-	  $(CC) -M $(RTFLAGS) $(LOCAL_RTFLAGS) $(RT_SRCS) | \
+	  $(CC) -MM $(RTFLAGS) $(LOCAL_RTFLAGS) $(RT_SRCS) | \
 	  awk '{ \
 	    split($$0,FIELD," ") ; \
 	    for ( i = 1 ; i <= NF ; i++ ) { \
