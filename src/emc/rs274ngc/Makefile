@@ -23,7 +23,7 @@ MODULE = rs274ngc_new
 # plat/XXX/include,src,lib anyway?
 # SUB_DIR=rs274ngc_new
 
-include ../Makefile.inc
+include ../../Makefile.inc
 
 HEADERS = canon.hh \
 	rs274ngc.hh \
@@ -53,7 +53,7 @@ foo:
 	echo '$(OBJS)'
 
 # Generic rules.
-include ../Make.rules
+include ../../Make.rules
 
 $(TMP_DIR)/rs274abc.o:  $(TMP_DIR)/driver.o \
 			$(TMP_DIR)/rs274ngc_errors.o \

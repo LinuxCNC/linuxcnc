@@ -5,7 +5,7 @@
 LIB_OBJS =
 include Makefile.lib
 # make rules.
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 SRCS =	\
 	cms.cc \
@@ -34,12 +34,15 @@ HEADERS = \
 	tcp_opts.hh \
 	tcp_srv.hh \
 
+LOCAL_CFLAGS = -fPIC
+LOCAL_CXXFLAGS = -fPIC
+
 OBJS := $(CMS_OBJS)
 
-all: $(HEADERS) $(OBJS:%.o=$(TMP_DIR)/%.o)
+all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

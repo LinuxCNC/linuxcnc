@@ -5,7 +5,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -251,6 +251,11 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
 	case ENOSPC:
 	    rcs_print_error
 		("The system imposed limit on the maximum number of shared memory segments has been exceeded.\n");
+	    break;
+
+	case ENOENT:
+	    rcs_print_error
+		("No shared memory buffer exists for this key and the IPC_CREAT was not given.\n");
 	    break;
 	}
 	return (shm);

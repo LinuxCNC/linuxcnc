@@ -6,7 +6,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -17,8 +17,12 @@
 * $Date$
 ********************************************************************/
 
+#include <linux/types.h>
+#include <float.h>
+#ifdef __attribute_used__
+#undef __attribute_used__
+#endif
 #include <math.h>
-#include <float.h>		/* DBL_MAX */
 
 #if defined(PM_PRINT_ERROR) && defined(rtai)
 #undef PM_PRINT_ERROR

@@ -12,7 +12,7 @@
 # (with debug).
 
 # make rules.
-include ../../../Makefile.inc
+include ../../Makefile.inc
 # LIB_OBJS
 LIB_OBJS =
 include Makefile.lib
@@ -26,22 +26,34 @@ SRCS = \
 	sincos.c \
 	posemath.cc
 
+LIBS =	$(LIB_OBJS:%.o=$(TMP_DIR)/%.o) \
+	$(LIB_DIR)/libpm.a
+
+BINS =
+
+ifeq ($(KERNELRELEASE),2.4)
+RT_SRCS = \
+	_posemath.c \
+	sincos.c
+
 RT_OBJS = _posemath.o \
 	sincos.o
 
-LIBS =	$(LIB_OBJS:%.o=$(TMP_DIR)/%.o) \
-	$(LIB_DIR)/libpm.a \
-	$(RTLIB_DIR)/libpm.a
+LIBS +=	$(RTLIB_DIR)/libpm.a
 
-BINS =
+endif
+
 
 LOCAL_RTFLAGS = -ffast-math
 #LOCAL_CXXFLAGS = -Wno-deprecated
 
 all: headers $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) $(LIBS)
 
+LOCAL_CFLAGS = -fPIC
+LOCAL_CXXFLAGS = -fPIC
+
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

@@ -1,6 +1,6 @@
 
 # make rules.
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 # LIB_OBJS
 LIB_OBJS =
@@ -18,8 +18,11 @@ BINS=
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
 
+LOCAL_CFLAGS = -fPIC
+LOCAL_CXXFLAGS = -fPIC
+
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

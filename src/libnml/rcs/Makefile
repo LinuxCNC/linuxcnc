@@ -2,7 +2,7 @@
 LIB_OBJS =
 include Makefile.lib
 # make rules.
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 HEADERS = \
 	rcs.hh \
@@ -19,8 +19,11 @@ LIBS =
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
 
+LOCAL_CFLAGS = -fPIC
+LOCAL_CXXFLAGS = -fPIC
+
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

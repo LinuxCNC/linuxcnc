@@ -1,6 +1,6 @@
 # Makefile for compiling EMC NML code
 
-include ../Makefile.inc
+include ../../Makefile.inc
 HEADERS = emc.hh \
 	emccfg.h \
 	emcglb.h \
@@ -54,7 +54,7 @@ all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o) $(TMP_DIR)/libemc.a
 
 # Generic rules.
-include ../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

@@ -1,6 +1,6 @@
 # Makefile for compiling EMC IO controllers
 
-include ../Makefile.inc
+include ../../Makefile.inc
 
 HEADERS = emcio.hh \
 	usrmotintf.h
@@ -50,7 +50,7 @@ all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 LOCAL_CXXFLAGS := $(LOCAL_CFLAGS) $(TCL_CFLAGS)
 
 # Generic rules.
-include ../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 
