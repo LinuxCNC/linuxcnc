@@ -111,13 +111,13 @@ static int comp_id;		/* component ID */
 static int export_siggen(int num, hal_siggen_t * addr);
 static void calc_siggen(void *arg, long period);
 
-#ifndef MATH_H
+#ifndef _MATH_H
 /* FIXME - these are here because rtapi doesn't yet handle linking
    to the math library */
 
 #define PI 3.1415927
 
-double sin(double x)
+ouble sin(double x)
 {
     int flip;
     double retval, top;

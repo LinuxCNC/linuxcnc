@@ -227,7 +227,7 @@ if [ -r $RTDIR/modules/rtai_libm.o ] ; then
     USE_RTLIBM=1
     echo "Using RTAI's libm kernel module"
 else
-    echo "Testing for a suitable libm... Some symbols may be printed if a test fails."
+    echo "Testing for a suitable libm... Some symbols may be printed."
     # With RTAI we will assume that rtai_libm (or rtai_math) will
     # work. For RTLinux, a couple of tests need to be done.
     rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
@@ -255,7 +255,7 @@ else
             MATHLIB="-L/usr/lib -lm"
         else
             # We need to link to mathstubs if we are to use the glibc libm
-            echo "libm tests failed - Using glibc libm with mathstubs."
+            echo "Using glibc libm with mathstubs."
 	    echo "If unresolved symbols are reported when loading kernel modules"
 	    echo "please file a bug report."
             USE_LIBM=1
@@ -342,9 +342,9 @@ elif [ "$USE_RTLIBM" != "" ] ; then
     echo "USE_RTLIBM = $USE_RTLIBM" >> Makefile.inc
 elif [ "$USE_LIBM" != "" ] ; then
     if [ "$USE_STUBS" != "" ] ; then
-      echo "libm tests failed - Using glibc libm with mathstubs." >> Makefile.inc
-      echo "If unresolved symbols are reported when loading kernel modules" >> Makefile.inc
-      echo "please file a bug report." >> Makefile.inc
+      echo "# Using glibc libm with mathstubs." >> Makefile.inc
+      echo "# If unresolved symbols are reported when loading kernel modules" >> Makefile.inc
+      echo "# please file a bug report." >> Makefile.inc
     fi
     echo "USE_LIBM = $USE_LIBM" >> Makefile.inc
 fi
@@ -435,7 +435,7 @@ done
 
 # terminate normally
 echo
-echo " Configure finished - Please check Makefile.inc for errors."
+echo " Configure finished - Please check Makefile.inc for warnings."
 echo
 exit 0
 
