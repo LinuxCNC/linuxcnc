@@ -232,7 +232,7 @@ static int parse_cmd(char *cmd)
 	    /* no arrow */
 	    retval = do_link_cmd(tokens[2], tokens[1]);
 	}
-    } else if (strcmp(tokens[0], "unlinkp-") == 0) {
+    } else if (strcmp(tokens[0], "unlinkp") == 0) {
 	retval = do_link_cmd(tokens[1], "\0");
     } else if (strcmp(tokens[0], "newsig") == 0) {
 	retval = do_newsig_cmd(tokens[1], tokens[2]);
@@ -263,7 +263,8 @@ static int parse_cmd(char *cmd)
 	if (retval == 0) {
 	    /* print success message */
 	    rtapi_print_msg(RTAPI_MSG_INFO,
-		"Function '%s' removed from thread '%s'\n", tokens[1], tokens[2]);
+		"Function '%s' removed from thread '%s'\n", tokens[1],
+		tokens[2]);
 	}
     } else if (strcmp(tokens[0], "start") == 0) {
 	retval = hal_start_threads();
@@ -663,7 +664,7 @@ static void print_thread_list(void)
 	    comp->comp_id,
 	    tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name);
 	next_fentry = tptr->funct_list;
-	while ( next_fentry != 0 ) {
+	while (next_fentry != 0) {
 	    /* print the function info */
 	    fentry = SHMPTR(next_fentry);
 	    funct = SHMPTR(fentry->funct_ptr);
@@ -964,7 +965,7 @@ static void save_threads(void)
     while (next_thread != 0) {
 	tptr = SHMPTR(next_thread);
 	next_fentry = tptr->funct_list;
-	while ( next_fentry != 0 ) {
+	while (next_fentry != 0) {
 	    /* print the function info */
 	    fentry = SHMPTR(next_fentry);
 	    funct = SHMPTR(fentry->funct_ptr);
@@ -1021,7 +1022,8 @@ static void print_help(void)
     printf("  addf functname threadname\n");
     printf("         Adds function 'functname' to thread 'threadname'.\n\n");
     printf("  delf functname threadname\n");
-    printf("         Removes function 'functname' from thread 'threadname'.\n\n");
+    printf
+	("         Removes function 'functname' from thread 'threadname'.\n\n");
     printf("  show [type]\n");
     printf
 	("         Prints HAL items of the specified type in human readable form\n");
