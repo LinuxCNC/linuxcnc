@@ -32,11 +32,36 @@ include Makefile.inc
 
 
 LOCALDIR = `pwd`
+
+# SUBDIRS is a list of all of the sub directories that make should
+# look at when compiling
+
 SUBDIRS = src/rtapi src/hal src/libnml src/emc
 
+# SCRIPTS is a list of all of the scripts to be installed
+
 SCRIPTS = emc.run hal_demo 
+
+# BINARIES is a list of all of the binary executables to install
+ 
 BINARIES = emcsvr hal_skeleton halmeter inivar milltask usrmot emcsh hal_parport halcmd halscope iosh simio
 
+# The list of all of the configuration files we install...
+
+CONFIGS=emc.conf hal.conf rtapi.conf core_stepper.hal emc.ini emc.nml emc.var simulated_limits.hal standard_pinout.hal xylotex_pinout.hal
+
+# The target install location for configuration files:
+
+CONFIGTARGET=$(DESTDIR)$(TESTDIR)/$(sysconfdir)
+
+# The expected location of the emc.conf configuration file:
+
+EMCCONFIG=$(CONFIGTARGET)/emc.conf
+
+# install:
+# installs the EMC system
+# use DESTDIR=[chroot location] to allow for package building
+# into a root path other than /
 
 all headers indent install depend clean:
 	@@for subdir in $(SUBDIRS); \
@@ -69,10 +94,15 @@ $(DESTDIR)$(TESTDIR)$(mandir)/% : docs/man/%
 	@ echo "install man page $*"
 	@ cp $< $@
 
-# this rule handles the install target
-# its dependency installs all the man pages
+
+# Install the man pages:
 
 install_man: man_directories $(MAN_FILES)
+
+# install_bin:
+# Copy and install all of the binaries (listed in BINARIES,
+# and found in the various script directories) into their install
+# location
 
 install_bin: 
 	install -d $(DESTDIR)$(TESTDIR)/$(bindir)
@@ -88,19 +118,35 @@ install_bin:
 	cp tcl/bin/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
 	cp tcl/scripts/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
 
+# install_bin:
+# When we get EMC to where it can be run by normal users, and not
+# just root, the root-level binaries will go here:
+
 install_sbin:
 #	install -d $(DESTDIR)$(TESTDIR)/$(sbindir)
 	@ echo "sbin installed"
 
+# install_info:
+# If and when we move to doxygen or some other automated documetning
+# system that can produce info files, they'll be installed in this target
+
 install_info:
 #	install -d $(DESTDIR)$(TESTDIR)/$(infodir)
 	@ echo "info installed"
+
+# install_lib:
+# libraries get copied into their target location with this target
 
 install_lib: 
 	install -d $(DESTDIR)$(TESTDIR)/$(libdir)
 	cp lib/*.o lib/*.a $(DESTDIR)$(TESTDIR)/$(libdir)
 	@ echo "lib installed"
 
+# install_scripts:
+# scripts are copied, and reformated before being installed
+# with this target.  The "$TESTDIR" environment variable that
+# is used in the scripts gets replaced with an absolute path
+# to the install location.
 
 install_scripts:
 	install -d $(DESTDIR)$(TESTDIR)/$(bindir)
@@ -113,12 +159,11 @@ install_scripts:
 		chmod a+x $(DESTDIR)$(TESTDIR)/$(bindir)/$$script; \
 	done
 
-# Ugh... $sysconfdir seems right for this, but /usr/local/etc dosen't...
-CONFIGTARGET=$(DESTDIR)$(TESTDIR)/$(sysconfdir)
-#CONFIGTARGET=$(DESTDIR)/$(prefix)/configs
-CONFIGS=emc.conf hal.conf rtapi.conf core_stepper.hal emc.ini emc.nml emc.var simulated_limits.hal standard_pinout.hal xylotex_pinout.hal
 
-EMCCONFIG=$(CONFIGTARGET)/emc.conf
+# install_configs:
+# Copy and alter the configuration files
+# Replacements similar to those done on scripts occur ot the config
+# files.
 
 install_configs:
 	@ echo "Installing configs..."
@@ -133,6 +178,10 @@ install_configs:
 
 	@ echo "configs installed"
 
+
+# install_hal_module:
+# Installs hal kernel modules into their proper module directory
+# FIXME: There aren't any modules currently marked as HAL modules
 # John Kasunich has epxressed a preference to keep hal modules seperate
 # from emc modules
 
@@ -140,14 +189,23 @@ install_hal_modules:
 	install -d $(DESTDIR)$(TESTDIR)/$(halmoduledir)
 #	cp $(DESTDIR)/$(halmoduledir)
 
+# install_rt_modules:
+# Installs the realtime modules from rtlib in the module directory
+# (Also installs .runinfo, which is still a bit of a mystery to me)
+
 install_rt_modules:
 	install -d $(DESTDIR)$(TESTDIR)/$(moduledir)
 	cp rtlib/*.o rtlib/*.a $(DESTDIR)$(TESTDIR)/$(moduledir)
 	cp scripts/.runinfo $(DESTDIR)$(TESTDIR)/$(moduledir)
 
+# modules_install or install_modules:
+# Installs all of the kernel modules
 
 modules_install install_modules: install_rt_modules install_hal_modules
 	@ echo "modules installed"
+
+# install_init:
+# Installs the realtime init script in /etc/rc.d/init.d
 
 install_init:
 	install -d $(DESTDIR)$(TESTDIR)/etc/rc.d/init.d/
@@ -155,12 +213,16 @@ install_init:
 	chmod a+x $(DESTDIR)$(TESTDIR)/etc/rc.d/init.d/realtime
 	@ echo "Realtime script installed"
 
+# this rule handles the install target
+# its dependency installs all the man pages
+
 install : install_man install_bin install_lib\
 	install_modules install_scripts install_init install_sbin\
 	install_info install_configs
 
 # this rule handles the uninstall target
 # it removes all the man pages
+# TODO: make it uninstall the rest...
 
 uninstall :
 	@ rm $(MAN_FILES)
@@ -176,10 +238,8 @@ depend : headers
 examples :
 	make -C src/rtapi $@
 
-# this rule handles the clean target
-# it changes to all the source sub-directories, calls make there, and
-# then returns to the top level directory and cleans that up too.
-
+# topclean:
+# cleans the top level 
 topclean :
 	find . -name "*~" -exec rm -f {} \;
 	find . -name "*.bak" -exec rm -f {} \;
@@ -190,13 +250,31 @@ topclean :
 	(if [ -d $(GTKTMP_DIR) ] ; then rm -fR $(GTKTMP_DIR) ; fi)
 	rm -rf ./test
 
+# this rule handles the clean target
+# it changes to all the source sub-directories, calls make there, and
+# then returns to the top level directory and cleans that up too.
+
 clean: topclean
+
+# make test:
+# This tests emc.
+# For now, it installs into a test directory
+# TODO: Add real tests for the subsystems
 
 test:
 	make install TESTDIR=$(LOCALDIR)/test
 
+# make run:
+# make run is the 1 stop make target for emc.
+# TOOD: this will go away as soon as I figure out how to make
+# run-in-place work again.
+
 run: all test
 	./test/$(bindir)/emc.run
+
+# make fresh:
+# utility target that tests out the build scripts.
+# TODO: this will go away as soon as run-in-place gets fixed
 
 fresh:
 	rm -rf test
