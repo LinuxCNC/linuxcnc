@@ -81,7 +81,9 @@ if (test -z "$RTDIR" ); then
   if (test "$RTS" = "" ) ; then
     AC_MSG_ERROR([RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
   elif (test `echo "$RTS" | wc -l` != 1 ) ; then
-    AC_MSG_ERROR([Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
+    AC_MSG_WARN([Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
+    # It might be a case we have symlinks to the same file..
+    RTS=`echo "$RTS" | head -n 1`
   else
     AC_MSG_RESULT([Using $RTS as the RT signature])
   fi
@@ -169,8 +171,12 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     RTNAME=rtai
     RTPREFIX=rtai
     RTAI=1
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
+    TEMP=`$RTS --prefix`
+    if (test -d $TEMP) ; then
+	RTDIR=$(cd $RTDIR ; pwd -P )
+    else
+	RTDIR=$(RTS%%/bin/realtime-config)
+    fi
     RTFLAGS=`$RTS --cflags-fp | head -n 1`
     RTFLAGS="$RTFLAGS -DRTAI=1"
     KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
@@ -324,18 +330,18 @@ AC_MSG_CHECKING([for kernel math support])
 USE_LIBM=""
 USE_RTLIBM=""
 USE_STUBS=""
-MATHLIB=""
+MATHLIB=0
 MATHINC=""
 
 #we need to make sure that $RTS has a --module-dir option
-#only rtai-config has, well rtlinux-config has too... but lacks the rtai_* modules
+#only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
 if (test ${RTS##*/} = rtai-config ) ; then
     if (test -r $($RTS --module-dir)/rtai_math.o ) ; then
        USE_RTLIBM=1
     fi
 fi
 
-if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM) || (test -r /lib/modules/`uname -r`/rtai/rtai_libm.o) ; then
+if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM = 1) || (test -r /lib/modules/`uname -r`/rtai/rtai_libm.o) ; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
@@ -345,6 +351,7 @@ if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM) || (test -r /lib/m
 else
     AC_MSG_RESULT([no])
     AC_MSG_CHECKING([for a suitable libm])
+    MATHLIB=""
     rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
     # compile a sample first.
     $CC -O -c src/tests/mathtest.c -o src/tests/mathtest.o 2>/dev/null
@@ -392,11 +399,13 @@ AC_SUBST([MATHLIB])
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
+# FIXME Test for tcl/tk headers fails if they are not in /usr/include
 AC_CHECK_HEADERS([tcl.h tk.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
+# FIXME These tests fail with tcl/tk 8.0
 AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
 AC_SEARCH_LIBS(Tk_Init,[tk tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
 
