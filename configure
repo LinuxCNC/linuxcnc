@@ -172,7 +172,7 @@ echo "CXX = g++" >> Makefile.inc
 echo "CXXFLAGS = \$(CFLAGS)" >> Makefile.inc
 echo "LD = \$(CC)" >> Makefile.inc
 echo "LDFLAGS = " >> Makefile.inc
-echo "MAKEFLAGS = ks" >> Makefile.inc
+echo "MAKEFLAGS = $MAKEFLAGS" >> Makefile.inc
 echo "RANLIB = ranlib" >> Makefile.inc
 echo "RANLIBFLAGS = " >> Makefile.inc
 echo >> Makefile.inc
