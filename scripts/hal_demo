@@ -64,10 +64,10 @@ fi
 # We're almost ready for the real demos, first we must
 # make sure the rtapi core is loaded
 #
-RTAPI_STR=`/sbin/lsmod | awk '{print $1}' | grep -x rtapi `
-if [ ! "$RTAPI_STR" ] ; then
-    echo "All of the demos require the RTAPI modules to"
-    echo "be loaded.  Use 'hal_demo load' to load them."
+HAL_LIB_STR=`/sbin/lsmod | awk '{print $1}' | grep -x hal_lib `
+if [ ! "$HAL_LIB_STR" ] ; then
+    echo "All of the demos require the RTAPI and HAL_LIB modules"
+    echo "to be loaded.  Use 'hal_demo load' to load them."
     exit -1
 fi
 #
@@ -88,8 +88,8 @@ if [ $1 = parport1 ] ; then
     echo "Hit enter to install the parport module with a 1mS thread"
     read
     # change the 0278 if your port is at a different address
-    echo "$ /sbin/insmod rtlib/hal_parport.o period=1000000 cfg=\"0278\""
-    /sbin/insmod rtlib/hal_parport.o period=1000000 cfg="0278"
+    echo "$ bin/halcmd loadrt hal_parport period=1000000 cfg=\"0278\""
+    bin/halcmd loadrt hal_parport period=1000000 cfg="0278"
     echo "Hit enter see the component list"
     read
     echo "$ bin/halcmd show comp"
@@ -193,8 +193,8 @@ if [ $1 = parport1 ] ; then
     echo "$ bin/halcmd delsig jumper2"
     bin/halcmd delsig jumper2
     echo "(unloading the parport module)"
-    echo "$ /sbin/rmmod hal_parport"
-    /sbin/rmmod hal_parport
+    echo "$ bin/halcmd unloadrt hal_parport"
+    bin/halcmd unloadrt hal_parport
     exit 0
 fi
 #
@@ -208,8 +208,8 @@ if [ $1 = siggen ] ; then
     echo " see what each step does.  Echoed commands start with '$')"
     echo "Hit enter to install the siggen module with a 1mS thread"
     read
-    echo "$ /sbin/insmod rtlib/siggen.o fp_period=1000000"
-    /sbin/insmod rtlib/siggen.o fp_period=1000000
+    echo "$ bin/halcmd loadrt siggen fp_period=1000000"
+    bin/halcmd loadrt siggen fp_period=1000000
     echo "Hit enter see the component list"
     read
     echo "$ bin/halcmd show comp"
@@ -270,8 +270,8 @@ if [ $1 = siggen ] ; then
     echo "Hit enter to finish the demo"
     read
     echo "(unloading the siggen module)"
-    echo "$ /sbin/rmmod siggen"
-    /sbin/rmmod siggen
+    echo "$ bin/halcmd unloadrt siggen"
+    bin/halcmd unloadrt siggen
     exit 0
 fi
 #
@@ -286,14 +286,14 @@ if [ $1 = circle ] ; then
     read
     # install parport module
     # change the 0278 if your port is at a different address
-    /sbin/insmod rtlib/hal_parport.o cfg="0278"
+    bin/halcmd loadrt hal_parport cfg="0278"
     # install two frequency type step pulse generators, stepping type 0,
     # and also create two threads, one 50uS and one 1mS
-    /sbin/insmod rtlib/freqgen.o cfg="0 0" period=50000 fp_period=1000000
+    bin/halcmd -V loadrt freqgen cfg="0 0" period=50000 fp_period=1000000
     # install the siggen module
-    /sbin/insmod rtlib/siggen.o
+    bin/halcmd loadrt siggen
     # install two PID loops
-    /sbin/insmod rtlib/pid.o num_chan=2
+    bin/halcmd loadrt pid num_chan=2
     #
     bin/halcmd show comp
     echo "Hit enter set up the threads"
@@ -411,10 +411,7 @@ if [ $1 = circle ] ; then
     echo
     echo "Hit enter to finish the demo"
     read
-    /sbin/rmmod siggen
-    /sbin/rmmod hal_parport
-    /sbin/rmmod freqgen
-    /sbin/rmmod pid
+    bin/halcmd unloadrt all
     exit 0
 fi
 #
@@ -427,13 +424,13 @@ if [ $1 = scope ] ; then
     echo "demo.  Hit enter to get started"
     read
     echo "First we load the siggen demo (not echoed)"
-    /sbin/insmod rtlib/siggen.o fp_period=1000000
+    bin/halcmd loadrt siggen fp_period=1000000
     bin/halcmd addf siggen.0.update siggen.thread
     bin/halcmd start
     bin/halcmd setp siggen.0.frequency 10
     echo "Then we load the realtime component of halscope:"
-    echo "$ /sbin/insmod rtlib/scope_rt.o"
-    /sbin/insmod rtlib/scope_rt.o
+    echo "$ bin/halcmd loadrt scope_rt"
+    bin/halcmd loadrt scope_rt
     echo "Finally we start the user component (in the background"
     echo "so that the foreground can continue to give instructions):"
     echo "$ bin/halscope &"
@@ -524,8 +521,7 @@ if [ $1 = scope ] ; then
     echo "To shut down the scope, use the [X] button in the corner"
     echo "Hit enter to finish the demo"
     read
-    /sbin/rmmod scope_rt
-    /sbin/rmmod siggen
+    bin/halcmd unloadrt all
     exit 0
 fi
 #
