@@ -180,7 +180,7 @@ int rtapi_app_main(void)
 	counter_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "ENCODER: ERROR: count funct export failed\n", n + 1);
+	    "ENCODER: ERROR: count funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -188,7 +188,7 @@ int rtapi_app_main(void)
 	counter_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "ENCODER: ERROR: update funct export failed\n", n + 1);
+	    "ENCODER: ERROR: update funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
