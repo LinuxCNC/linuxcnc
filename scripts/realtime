@@ -99,7 +99,11 @@ CheckMem(){
 
 Load(){
     if [ $RTAI -eq 3 ] ; then
-	$RTAI_LOAD
+	if [ "$VERBOSE" = "1" ] ; then
+	    ( cd $EMC2_HOME/scripts ; $RTAI_LOAD --verbose )
+	else
+	    ( cd $EMC2_HOME/scripts ; $RTAI_LOAD )
+	fi
     fi
     for MOD in $MODULES_LOAD ; do
 	# check to see if the module is already installed
