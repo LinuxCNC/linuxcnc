@@ -20,6 +20,7 @@
 #define INIFILE_H
 
 #ifdef __cplusplus
+#include "inifile.hh"
 extern "C" {
 #endif
 
@@ -44,23 +45,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#ifdef __cplusplus
-class INIFILE {
-  public:
-    INIFILE();
-    INIFILE(const char *path);
-     ~INIFILE();
-
-    const int open(const char *path);
-    const int close();
-    const char *find(const char *tag, const char *section = NULL);
-    int section(const char *section, INIFILE_ENTRY array[], int max);
-    const int valid();
-
-  private:
-      FILE * fp;
-};
-
-#endif /* C++ part */
 
 #endif /* INIFILE_H */
