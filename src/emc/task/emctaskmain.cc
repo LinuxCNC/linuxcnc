@@ -2575,6 +2575,9 @@ int main(int argc, char *argv[])
 	emcMotionUpdate(&emcStatus->motion);
 
 	// synchronize subordinate states
+/* FIXME FIXME FIXME - temporarily ignore estop
+   make sure to re-enable this code! */
+#if 0
 	if (emcStatus->io.aux.estop) {
 	    if (emcStatus->motion.traj.enabled) {
 		if (EMC_DEBUG & EMC_DEBUG_IO_POINTS) {
@@ -2598,6 +2601,7 @@ int main(int argc, char *argv[])
 		emcSpindleOff();
 	    }
 	}
+#endif
 	// check for subordinate errors, and halt task if so
 	if (emcStatus->motion.status == RCS_ERROR ||
 	    emcStatus->io.status == RCS_ERROR) {

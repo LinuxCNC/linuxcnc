@@ -36,6 +36,7 @@
 /* axis data */
 
 typedef struct {
+    hal_float_t coarse_pos_cmd;	/* RPA: commanded position, w/o comp */
     hal_float_t joint_pos_cmd;	/* RPA: commanded position, w/o comp */
     hal_float_t joint_vel_cmd;	/* RPA: commanded velocity, w/o comp */
     hal_float_t backlash_corr;	/* RPA: correction for backlash */

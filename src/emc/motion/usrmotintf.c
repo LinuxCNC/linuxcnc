@@ -478,7 +478,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
     case 9:
     case 10:
     case 11:
-	printf("jointPos[%d]: %f\n", which - 6, d.jointPos[(which - 6)]);
+//      printf("jointPos[%d]: %f\n", which - 6, d.jointPos[(which - 6)]);
 	printf("coarseJointPos[%d]: %f\n",
 	    which - 6, d.coarseJointPos[(which - 6)]);
 	printf("jointVel[%d]: %f\n", which - 6, d.jointVel[(which - 6)]);
@@ -624,11 +624,38 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("act pos:      \t%f\t%f\t%f\t%f\t%f\t%f\n",
 	    s.actualPos.tran.x, s.actualPos.tran.y, s.actualPos.tran.z,
 	    s.actualPos.a, s.actualPos.b, s.actualPos.c);
-	printf("axis pos:     ");
+	printf("joint data:\n");
+	printf(" cmd: ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	    printf("\t%f", s.axisPos[t]);
+	    printf("\t%f", s.joint_pos_cmd[t]);
 	}
 	printf("\n");
+	printf(" fb:  ");
+	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	    printf("\t%f", s.joint_pos_fb[t]);
+	}
+	printf("\n");
+	printf(" vel: ");
+	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	    printf("\t%f", s.joint_vel_cmd[t]);
+	}
+	printf("\n");
+	printf(" ferr:");
+	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	    printf("\t%f", s.ferrorCurrent[t]);
+	}
+	printf("\n");
+	printf(" lim:");
+	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	    printf("\t%f", s.ferrorLimit[t]);
+	}
+	printf("\n");
+	printf(" max:");
+	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	    printf("\t%f", s.ferrorHighMark[t]);
+	}
+	printf("\n");
+
 	printf("velocity:     \t%f\n", s.vel);
 	printf("accel:        \t%f\n", s.acc);
 	printf("id:           \t%d\n", s.id);
@@ -660,6 +687,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	break;
 
     case 2:
+	/* print motion and axis flags */
 	htostr(m, s.motionFlag);
 	printf("motion:   %s\n", m);
 	printf("axes:     ");
@@ -730,6 +758,8 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	break;
 
     case 4:
+	printf("scales handled in HAL now!\n");
+#if 0
 	printf("output scales: ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", s.outputScale[t]);
@@ -738,11 +768,6 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("\noutput offsets:");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", s.outputOffset[t]);
-	}
-
-	printf("\nscaled outputs:");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	    printf("\t%f", s.output[t]);
 	}
 
 	printf("\ninput scales:  ");
@@ -755,12 +780,8 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	    printf("\t%f", s.inputOffset[t]);
 	}
 
-	printf("\nscaled inputs: ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	    printf("\t%f", s.input[t]);
-	}
-
 	printf("\n");
+#endif
 	break;
 
     default:

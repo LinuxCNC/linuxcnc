@@ -219,7 +219,6 @@ KILL_TASK=
 KILL_TIMEOUT=10
 #
 function KillTaskWithTimeout() {
-
     KILL_PIDS=`$PIDOF $KILL_TASK`
     if [ ! -n "$KILL_PIDS" ] ; then
 	echo "Could not find pid(s) for task $KILL_TASK"

@@ -419,6 +419,13 @@ static int export_axis(int num, axis_hal_t * addr)
     }
 
     /* export axis parameters */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.coarse-pos-cmd", num);
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(addr->coarse_pos_cmd),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-cmd", num);
     retval =
 	hal_param_float_new(buf, HAL_RD, &(addr->joint_pos_cmd), mot_comp_id);
@@ -828,7 +835,7 @@ static int init_comm_buffers(void)
 	emcmotDebug->rawInput[axis] = 0.0;
 	emcmotDebug->rawOutput[axis] = 0.0;
 	emcmotDebug->coarseJointPos[axis] = 0.0;
-	emcmotDebug->jointPos[axis] = 0.0;
+//      emcmotDebug->jointPos[axis] = 0.0;
 	emcmotDebug->jointVel[axis] = 0.0;
 	emcmotStatus->axisPos[axis] = 0.0;
 	emcmotDebug->oldJointPos[axis] = 0.0;
@@ -836,10 +843,8 @@ static int init_comm_buffers(void)
 	emcmotDebug->homingPhase[axis] = 0;
 	emcmotDebug->latchFlag[axis] = 0;
 	emcmotDebug->saveLatch[axis] = 0.0;
-	emcmotStatus->input[axis] = 0.0;
 	emcmotDebug->oldInput[axis] = 0.0;
 	emcmotDebug->oldInputValid[axis] = 0;
-	emcmotStatus->output[axis] = 0.0;
 	emcmotDebug->jointHome[axis] = 0.0;
 /* FIXME - enable is done differently now */
 #if 0

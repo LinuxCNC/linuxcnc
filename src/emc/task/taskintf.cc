@@ -768,12 +768,12 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
     for (axis = 0; axis < numAxes; axis++) {
 	stat[axis].axisType = localEmcAxisAxisType[axis];
 	stat[axis].units = localEmcAxisUnits[axis];
-
+#if 0
 	stat[axis].inputScale = emcmotStatus.inputScale[axis];
 	stat[axis].inputOffset = emcmotStatus.inputOffset[axis];
 	stat[axis].outputScale = emcmotStatus.outputScale[axis];
 	stat[axis].outputOffset = emcmotStatus.outputOffset[axis];
-
+#endif
 	if (new_config) {
 #if 0
 	    stat[axis].p = emcmotConfig.pid[axis].p;
@@ -827,8 +827,6 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	    stat[axis].ferrorHighMark = emcmotStatus.ferrorHighMark[axis];
 	}
 
-	stat[axis].output = emcmotStatus.output[axis];
-	stat[axis].input = emcmotStatus.input[axis];
 	stat[axis].homing =
 	    (emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_HOMING_BIT ? 1 : 0);
 	stat[axis].homed =

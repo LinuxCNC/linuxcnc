@@ -220,10 +220,12 @@ int main(int argc, char *argv[])
     printf("sizeof(emcmot_command_t) = %d\n", sizeof(emcmot_command_t));
     printf("sizeof(emcmot_status_t) = %d\n", sizeof(emcmot_status_t));
     printf("sizeof(emcmot_config_t) = %d\n", sizeof(emcmot_config_t));
+    printf("sizeof(emcmot_internal_t) = %d\n", sizeof(emcmot_internal_t));
     printf("sizeof(emcmot_debug_t) = %d\n", sizeof(emcmot_debug_t));
     printf("sizeof(emcmot_error_t) = %d\n", sizeof(emcmot_error_t));
     printf("sizeof(emcmot_log_t) = %d\n", sizeof(emcmot_log_t));
     printf("sizeof(emcmot_struct_t) = %d\n", sizeof(emcmot_struct_t));
+    printf("sizeof(TC_STRUCT) = %d\n", sizeof(TC_STRUCT));
 
     /* process command line args */
     emcmotGetArgs(argc, argv);

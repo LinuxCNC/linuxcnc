@@ -40,6 +40,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <ctype.h>
 #include <string.h>
 
@@ -79,6 +80,7 @@ static void init_run_mode_window(void);
 
 /* callback functions */
 static void exit_from_hal(void);
+static void quit(int sig);
 static int heartbeat(gpointer data);
 static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata);
 static void rm_single_button_clicked(GtkWidget * widget, gpointer * gdata);
@@ -99,7 +101,7 @@ int main(int argc, gchar * argv[])
     /* process halscope command line args (if any) here */
 
     /* connect to the HAL */
-    comp_id = hal_init("scope_gui");
+    comp_id = hal_init("halscope");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "SCOPE: ERROR: hal_init() failed\n");
 	return -1;
@@ -141,6 +143,9 @@ int main(int argc, gchar * argv[])
     init_trig();
     init_display();
     init_run_mode_window();
+    /* register signal handlers for ctrl-C and SIGTERM */
+    signal(SIGINT, quit);
+    signal(SIGTERM, quit);
 
     /* The interface is completely set up so we show the window and enter the
        gtk_main loop. */
@@ -471,6 +476,11 @@ static void exit_from_hal(void)
 {
     rtapi_shmem_delete(shm_id, comp_id);
     hal_exit(comp_id);
+}
+
+static void quit(int sig)
+{
+    gtk_main_quit();
 }
 
 static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)

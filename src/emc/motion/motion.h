@@ -303,8 +303,6 @@ Suggestion: Split this in to an Error and a Status flag register..
    It is used for jogging individual axes (joints), although
    it does not preclude multiple axes moving at once (I think).
 
-   
-
 
 */
 
@@ -346,6 +344,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferrorCurrent[EMCMOT_MAX_AXIS];	/* current following error */
 	double ferrorLimit[EMCMOT_MAX_AXIS];	/* allowable following error */
 	double ferrorHighMark[EMCMOT_MAX_AXIS];	/* max following error */
+	int onSoftLimit;	/* non-zero if any axis is on soft limit */
 
 	int probeVal;		/* debounced value of probe input */
 
@@ -358,9 +357,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double computeTime;
 	EmcPose pos;		/* calculated Cartesian position */
 	double axisPos[EMCMOT_MAX_AXIS];	/* calculated axis positions */
-	double output[EMCMOT_MAX_AXIS];	/* Calculated output velocity command 
-					 */
+#if 0
+	double output[EMCMOT_MAX_AXIS];	/* Calculated output velocity command */
 	double input[EMCMOT_MAX_AXIS];	/* actual input */
+#endif
 	EmcPose actualPos;	/* actual Cartesian position */
 	int id;			/* id for executing motion */
 	int depth;		/* motion queue depth */
@@ -371,7 +371,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int logPoints;		/* how many points currently in log */
 
 	/* static status-- only changes upon input commands, e.g., config */
-
+#if 0
 	double outputScale[EMCMOT_MAX_AXIS];	/* Used to set
 						   emcmotDebug->inverseOutputScale
 						   - then used to scale the DAC
@@ -385,10 +385,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 						   position in real world
 						   units */
 	double inputOffset[EMCMOT_MAX_AXIS];	/* encoder offsets */
-
+#endif
 	double qVscale;		/* traj velocity scale factor */
-	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor 
-						 */
+	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor */
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
 
@@ -422,6 +421,11 @@ Suggestion: Split this in to an Error and a Status flag register..
    put it in shared memory and manipulate it directly - not both.
    The structure contains static or rarely changed information that
    describes the machine configuration.
+
+   later: I think I get it now - the struct is in shared memory so
+   user space can read the config at any time, but commands are used
+   to change the config so they only take effect when the realtime
+   code processes the command.
 */
 
 /* FIXME - this struct is broken into two parts... at the top are
@@ -500,6 +504,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 /* This is the debug structure.  I guess it was intended to make some
    of the motion controller's internal variables visible from user
    space for debugging, but it has evolved into a monster.
+   180K last time I checked - most of it (174K or so) is the traj
+   planner queues... each entry is 720 bytes, and there are 210
+   entries in the main queue, plus 4 per axis times 8 axes in the
+   free motion queues.
    I'll figure it out eventually though.
    Low level things will be exported thru the HAL so they can be
    monitored with halscope.  High level things will remain here,
@@ -575,8 +583,11 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	double coarseJointPos[EMCMOT_MAX_AXIS];	/* trajectory point, in
 						   joints */
+/* FIXME - temporarily? moved to status struct */
+#if 0
 	double jointPos[EMCMOT_MAX_AXIS];	/* interpolated point, in
 						   joints */
+#endif
 	double jointVel[EMCMOT_MAX_AXIS];	/* joint velocity */
 	double oldJointPos[EMCMOT_MAX_AXIS];	/* ones from last cycle, for
 						   vel */
@@ -606,13 +617,14 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int enabling;		/* starts up disabled */
 	int coordinating;	/* starts up in free mode */
 	int teleoperating;	/* starts up in free mode */
-
+#if 0
 	int wasOnLimit;		/* non-zero means we already aborted
 				   everything due to a soft limit, and need
 				   not re-abort. It's cleared only when all
 				   limits are cleared. */
 	int onLimit;		/* non-zero means at least one axis is on a
 				   soft limit */
+#endif
 
 	int overriding;		/* non-zero means we've initiated an axis
 				   move while overriding limits */

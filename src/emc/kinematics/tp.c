@@ -336,6 +336,13 @@ int tpSetPos(TP_STRUCT * tp, EmcPose pos)
     return 0;
 }
 
+/* 'tpAddLine()' adds a straight line move to the motion
+    queue (I think).  Based on how it is called, tp is
+    a pointer to the queue where it should be added, and
+    end is the endpoint (the start point is presumed to
+    be the current location.
+*/
+
 int tpAddLine(TP_STRUCT * tp, EmcPose end)
 {
     TC_STRUCT tc;
@@ -404,12 +411,6 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     PmLine line_abc;
     PmPose endPose, circleGoalPose;
     PmPose abc_pose, goal_abc_pose;
-    endPose.tran = end.tran;
-    endPose.rot.s = 1.0;
-    endPose.rot.x = endPose.rot.y = endPose.rot.z = 0.0;
-    circleGoalPose.tran = tp->goalPos.tran;
-    circleGoalPose.rot.s = 1.0;
-    circleGoalPose.rot.x = circleGoalPose.rot.y = circleGoalPose.rot.z = 0.0;
 
     if (0 == tp) {
 	return -1;
@@ -418,6 +419,13 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     if (tp->aborting) {
 	return -1;
     }
+
+    endPose.tran = end.tran;
+    endPose.rot.s = 1.0;
+    endPose.rot.x = endPose.rot.y = endPose.rot.z = 0.0;
+    circleGoalPose.tran = tp->goalPos.tran;
+    circleGoalPose.rot.s = 1.0;
+    circleGoalPose.rot.x = circleGoalPose.rot.y = circleGoalPose.rot.z = 0.0;
 
     tcInit(&tc);
     pmCircleInit(&circle, circleGoalPose, endPose, center, normal, turn);

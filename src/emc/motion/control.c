@@ -79,6 +79,22 @@ static void check_soft_limits(void);
 */
 static void check_for_faults(void);
 
+/* 'set_operating_mode()' handles transitions between the operating
+   modes, which are free, coordinated, and teleop.  This stuff needs
+   to be better documented.  It is basically a state machine, with
+   a current state, a desired state, and rules determining when the
+   state can change.  It should be rewritten as such, but for now
+   it consists of code copied exactly from emc1.
+*/
+static void set_operating_mode(void);
+
+/* 'get_pos_cmds()' generates the position setpoints.  This includes
+   calling the trajectory planner and interpolating it's outputs.
+   Currently it is code copied directly from emc1.
+*/
+
+static void get_pos_cmds(void);
+
 /* 'compute_backlash()' is responsible for calculating backlash and
    lead screw error compensation.  (Leadscrew error compensation is
    a more sophisticated version that includes backlash comp.)  It uses
@@ -128,16 +144,17 @@ void emcmotController(void *arg, long period)
     /* calculate servo frequency for calcs like vel = Dpos / period */
     /* it's faster to do vel = Dpos * freq */
     servo_freq = 1.0 / servo_period;
-
+    /* increment head count to indicate work in progress */
+    emcmotStatus->head++;
+    /* here begins the core of the controller */
     process_inputs();
     check_soft_limits();
     check_for_faults();
+    set_operating_mode();
 
-/* FIXME - lots more stuff needs to be added here */
+/* FIXME - about the only major thing missing now is homing */
 
-/* FIXME - somewhere in here we need to call the TP and kinematics and
-           get new position commands
-*/
+    get_pos_cmds();
 
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	/* calculate joint velocity commands */
@@ -147,11 +164,15 @@ void emcmotController(void *arg, long period)
 	/* update old position */
 	emcmotInternal->old_joint_pos_cmd[axis] =
 	    emcmotStatus->joint_pos_cmd[axis];
-	/* calculate backlash (or leadscrew comp) */
     }
 
+    /* calculate backlash (or leadscrew comp) */
     compute_backlash();
     output_to_hal();
+    /* here ends the core of the controller */
+    emcmotStatus->heartbeat++;
+    /* set tail to head, to indicate work complete */
+    emcmotStatus->tail = emcmotStatus->head;
 
 /* end of controller function */
 }
@@ -299,6 +320,7 @@ static void process_inputs(void)
 static void check_soft_limits(void)
 {
     int axis;
+    int tmp;
 
     /* check for limits on all active axes */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
@@ -306,7 +328,7 @@ static void check_soft_limits(void)
 	SET_AXIS_PSL_FLAG(axis, 0);
 	SET_AXIS_NSL_FLAG(axis, 0);
 	/* skip inactive or unhomed axes */
-	if (GET_AXIS_ACTIVE_FLAG(axis) || GET_AXIS_HOMED_FLAG(axis)) {
+	if (GET_AXIS_ACTIVE_FLAG(axis) && GET_AXIS_HOMED_FLAG(axis)) {
 	    /* check for soft limits */
 	    if (emcmotStatus->joint_pos_fb[axis] >
 		emcmotConfig->maxLimit[axis]) {
@@ -316,6 +338,37 @@ static void check_soft_limits(void)
 		emcmotConfig->minLimit[axis]) {
 		SET_AXIS_NSL_FLAG(axis, 1);
 	    }
+	}
+    }
+
+    /* this part takes action when the limits are hit - it may eventually be
+       moved somewhere else */
+
+    /* check flags, see if any axis is in limit */
+    tmp = 0;
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+	if (GET_AXIS_PSL_FLAG(axis) || GET_AXIS_NSL_FLAG(axis)) {
+	    /* yes, on limit */
+	    tmp = 1;
+	}
+    }
+    /* check for transitions */
+    if (tmp) {
+	/* on limit now, were we before? */
+	if (!emcmotStatus->onSoftLimit) {
+	    /* no, update status */
+	    emcmotStatus->onSoftLimit = 1;
+	    /* abort everything, regardless of coord or free mode */
+	    tpAbort(&emcmotDebug->queue);
+	    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+		tpAbort(&emcmotDebug->freeAxis[axis]);
+	    }
+	}
+    } else {
+	/* off limit now, were we before? */
+	if (emcmotStatus->onSoftLimit) {
+	    /* no, update status */
+	    emcmotStatus->onSoftLimit = 0;
 	}
     }
 }
@@ -366,6 +419,506 @@ static void check_for_faults(void)
 	    /* end of if AXIS_ACTIVE_FLAG(axis) */
 	}
 	/* end of check for axis faults loop */
+    }
+}
+
+static void set_operating_mode(void)
+{
+    int axis;
+    axis_hal_t *axis_data;
+
+    /* check for disabling */
+    if (!emcmotDebug->enabling && GET_MOTION_ENABLE_FLAG()) {
+	/* clear out the motion emcmotDebug->queue and interpolators */
+	tpClear(&emcmotDebug->queue);
+	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+	    axis_data = &(machine_hal_data->axis[axis]);
+	    tpClear(&emcmotDebug->freeAxis[axis]);
+	    cubicDrain(&emcmotDebug->cubic[axis]);
+	    if (GET_AXIS_ACTIVE_FLAG(axis)) {
+		*(axis_data->amp_enable) = 0;
+		SET_AXIS_ENABLE_FLAG(axis, 0);
+		SET_AXIS_HOMING_FLAG(axis, 0);
+	    }
+	    /* don't clear the axis error flag, since that may signify why we
+	       just went into disabled state */
+	}
+	/* reset the trajectory interpolation counter, so that the kinematics
+	   functions called during the disabled state run at the nominal
+	   trajectory rate rather than the servo rate. It's loaded with
+	   emcmotConfig->interpolationRate when it goes to zero. */
+/* FIXME - interpolation is still under construction */
+#if 0
+	interpolationCounter = 0;
+#endif
+	SET_MOTION_ENABLE_FLAG(0);
+	/* don't clear the motion error flag, since that may signify why we
+	   just went into disabled state */
+    }
+
+    /* check for emcmotDebug->enabling */
+    if (emcmotDebug->enabling && !GET_MOTION_ENABLE_FLAG()) {
+	tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);
+	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+	    axis_data = &(machine_hal_data->axis[axis]);
+	    emcmotDebug->freePose.tran.x = emcmotStatus->joint_pos_cmd[axis];
+	    tpSetPos(&emcmotDebug->freeAxis[axis], emcmotDebug->freePose);
+	    if (GET_AXIS_ACTIVE_FLAG(axis)) {
+		*(axis_data->amp_enable) = 1;
+		SET_AXIS_ENABLE_FLAG(axis, 1);
+		SET_AXIS_HOMING_FLAG(axis, 0);
+	    }
+	    /* clear any outstanding axis errors when going into enabled
+	       state */
+	    SET_AXIS_ERROR_FLAG(axis, 0);
+	}
+	SET_MOTION_ENABLE_FLAG(1);
+	/* clear any outstanding motion errors when going into enabled state */
+	SET_MOTION_ERROR_FLAG(0);
+    }
+
+    /* check for entering teleop mode */
+    if (emcmotDebug->teleoperating && !GET_MOTION_TELEOP_FLAG()) {
+	if (GET_MOTION_INPOS_FLAG()) {
+
+	    /* update coordinated emcmotDebug->queue position */
+	    tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);
+	    /* drain the cubics so they'll synch up */
+	    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+		cubicDrain(&emcmotDebug->cubic[axis]);
+	    }
+	    /* Initialize things to do when starting teleop mode. */
+	    emcmotDebug->teleop_data.currentVel.tran.x = 0.0;
+	    emcmotDebug->teleop_data.currentVel.tran.y = 0.0;
+	    emcmotDebug->teleop_data.currentVel.tran.z = 0.0;
+	    emcmotDebug->teleop_data.currentVel.a = 0.0;
+	    emcmotDebug->teleop_data.currentVel.b = 0.0;
+	    emcmotDebug->teleop_data.currentVel.c = 0.0;
+	    emcmotDebug->teleop_data.desiredVel.tran.x = 0.0;
+	    emcmotDebug->teleop_data.desiredVel.tran.y = 0.0;
+	    emcmotDebug->teleop_data.desiredVel.tran.z = 0.0;
+	    emcmotDebug->teleop_data.desiredVel.a = 0.0;
+	    emcmotDebug->teleop_data.desiredVel.b = 0.0;
+	    emcmotDebug->teleop_data.desiredVel.c = 0.0;
+	    emcmotDebug->teleop_data.currentAccell.tran.x = 0.0;
+	    emcmotDebug->teleop_data.currentAccell.tran.y = 0.0;
+	    emcmotDebug->teleop_data.currentAccell.tran.z = 0.0;
+	    emcmotDebug->teleop_data.currentAccell.a = 0.0;
+	    emcmotDebug->teleop_data.currentAccell.b = 0.0;
+	    emcmotDebug->teleop_data.currentAccell.c = 0.0;
+	    emcmotDebug->teleop_data.desiredAccell.tran.x = 0.0;
+	    emcmotDebug->teleop_data.desiredAccell.tran.y = 0.0;
+	    emcmotDebug->teleop_data.desiredAccell.tran.z = 0.0;
+	    emcmotDebug->teleop_data.desiredAccell.a = 0.0;
+	    emcmotDebug->teleop_data.desiredAccell.b = 0.0;
+	    emcmotDebug->teleop_data.desiredAccell.c = 0.0;
+	    SET_MOTION_TELEOP_FLAG(1);
+	    SET_MOTION_ERROR_FLAG(0);
+	} else {
+	    /* not in position-- don't honor mode change */
+	    emcmotDebug->teleoperating = 0;
+	}
+    } else {
+	if (GET_MOTION_INPOS_FLAG()) {
+	    if (!emcmotDebug->teleoperating && GET_MOTION_TELEOP_FLAG()) {
+		SET_MOTION_TELEOP_FLAG(0);
+		if (!emcmotDebug->coordinating) {
+		    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+			/* update free planner positions */
+			emcmotDebug->freePose.tran.x =
+			    emcmotStatus->joint_pos_cmd[axis];
+			tpSetPos(&emcmotDebug->freeAxis[axis],
+			    emcmotDebug->freePose);
+			/* drain the cubics so they'll synch up */
+			cubicDrain(&emcmotDebug->cubic[axis]);
+		    }
+		}
+	    }
+	}
+
+	/* check for entering coordinated mode */
+	if (emcmotDebug->coordinating && !GET_MOTION_COORD_FLAG()) {
+	    if (GET_MOTION_INPOS_FLAG()) {
+		/* update coordinated emcmotDebug->queue position */
+		tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);
+		/* drain the cubics so they'll synch up */
+		for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+		    cubicDrain(&emcmotDebug->cubic[axis]);
+		}
+		/* clear the override limits flags */
+		emcmotDebug->overriding = 0;
+		emcmotStatus->overrideLimits = 0;
+		SET_MOTION_COORD_FLAG(1);
+		SET_MOTION_TELEOP_FLAG(0);
+		SET_MOTION_ERROR_FLAG(0);
+	    } else {
+		/* not in position-- don't honor mode change */
+		emcmotDebug->coordinating = 0;
+	    }
+	}
+
+	/* check entering free space mode */
+	if (!emcmotDebug->coordinating && GET_MOTION_COORD_FLAG()) {
+	    if (GET_MOTION_INPOS_FLAG()) {
+		for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+		    /* update free planner positions */
+		    emcmotDebug->freePose.tran.x =
+			emcmotStatus->joint_pos_cmd[axis];
+		    tpSetPos(&emcmotDebug->freeAxis[axis],
+			emcmotDebug->freePose);
+		    /* drain the cubics so they'll synch up */
+		    cubicDrain(&emcmotDebug->cubic[axis]);
+		}
+		SET_MOTION_COORD_FLAG(0);
+		SET_MOTION_TELEOP_FLAG(0);
+		SET_MOTION_ERROR_FLAG(0);
+	    } else {
+		/* not in position-- don't honor mode change */
+		emcmotDebug->coordinating = 1;
+	    }
+	}
+
+    }
+}
+
+static void get_pos_cmds(void)
+{
+    int axis;
+    static int interpolationCounter = 0;
+
+    /* RUN MOTION CALCULATIONS: */
+
+    /* run axis interpolations and outputs, but only if we're enabled. This
+       section is "suppressed" if we're not enabled, although the read/write
+       of encoders/dacs is still done. */
+#if 0				/* dunno what whichCycle is all about yet */
+    whichCycle = 0;
+#endif
+    if (GET_MOTION_ENABLE_FLAG()) {
+	/* set whichCycle to be at least a servo cycle, for calc time logging */
+#if 0				/* dunno what whichCycle is all about yet */
+	whichCycle = 1;
+#endif
+
+	/* check to see if the interpolators are empty */
+	while (cubicNeedNextPoint(&emcmotDebug->cubic[0])) {
+	    /* they're empty, so pull next point(s) off Cartesian or joint
+	       planner, depending upon coord or free mode. */
+
+	    /* check to see whether we're in teleop, coordinated or free
+	       mode, to decide which motion planner to call */
+
+	    if (GET_MOTION_TELEOP_FLAG()) {
+		/* teleop mode */
+		double accell_mag;
+
+		emcmotDebug->teleop_data.desiredAccell.tran.x =
+		    (emcmotDebug->teleop_data.desiredVel.tran.x -
+		    emcmotDebug->teleop_data.currentVel.tran.x) /
+		    emcmotConfig->trajCycleTime;
+		emcmotDebug->teleop_data.desiredAccell.tran.y =
+		    (emcmotDebug->teleop_data.desiredVel.tran.y -
+		    emcmotDebug->teleop_data.currentVel.tran.y) /
+		    emcmotConfig->trajCycleTime;
+		emcmotDebug->teleop_data.desiredAccell.tran.z =
+		    (emcmotDebug->teleop_data.desiredVel.tran.z -
+		    emcmotDebug->teleop_data.currentVel.tran.z) /
+		    emcmotConfig->trajCycleTime;
+
+		pmCartMag(emcmotDebug->teleop_data.desiredAccell.tran,
+		    &accell_mag);
+
+		emcmotDebug->teleop_data.desiredAccell.a =
+		    (emcmotDebug->teleop_data.desiredVel.a -
+		    emcmotDebug->teleop_data.currentVel.a) /
+		    emcmotConfig->trajCycleTime;
+		emcmotDebug->teleop_data.desiredAccell.b =
+		    (emcmotDebug->teleop_data.desiredVel.b -
+		    emcmotDebug->teleop_data.currentVel.b) /
+		    emcmotConfig->trajCycleTime;
+		emcmotDebug->teleop_data.desiredAccell.c =
+		    (emcmotDebug->teleop_data.desiredVel.c -
+		    emcmotDebug->teleop_data.currentVel.c) /
+		    emcmotConfig->trajCycleTime;
+		if (emcmotDebug->teleop_data.desiredAccell.a > accell_mag) {
+		    accell_mag = emcmotDebug->teleop_data.desiredAccell.a;
+		}
+		if (emcmotDebug->teleop_data.desiredAccell.b > accell_mag) {
+		    accell_mag = emcmotDebug->teleop_data.desiredAccell.b;
+		}
+		if (emcmotDebug->teleop_data.desiredAccell.c > accell_mag) {
+		    accell_mag = emcmotDebug->teleop_data.desiredAccell.c;
+		}
+		if (accell_mag > emcmotStatus->acc) {
+		    pmCartScalMult(emcmotDebug->teleop_data.desiredAccell.
+			tran, emcmotStatus->acc / accell_mag,
+			&emcmotDebug->teleop_data.currentAccell.tran);
+		    emcmotDebug->teleop_data.currentAccell.a =
+			emcmotDebug->teleop_data.desiredAccell.a *
+			emcmotStatus->acc / accell_mag;
+		    emcmotDebug->teleop_data.currentAccell.b =
+			emcmotDebug->teleop_data.desiredAccell.b *
+			emcmotStatus->acc / accell_mag;
+		    emcmotDebug->teleop_data.currentAccell.c =
+			emcmotDebug->teleop_data.desiredAccell.c *
+			emcmotStatus->acc / accell_mag;
+		    emcmotDebug->teleop_data.currentVel.tran.x +=
+			emcmotDebug->teleop_data.currentAccell.tran.x *
+			emcmotConfig->trajCycleTime;
+		    emcmotDebug->teleop_data.currentVel.tran.y +=
+			emcmotDebug->teleop_data.currentAccell.tran.y *
+			emcmotConfig->trajCycleTime;
+		    emcmotDebug->teleop_data.currentVel.tran.z +=
+			emcmotDebug->teleop_data.currentAccell.tran.z *
+			emcmotConfig->trajCycleTime;
+		    emcmotDebug->teleop_data.currentVel.a +=
+			emcmotDebug->teleop_data.currentAccell.a *
+			emcmotConfig->trajCycleTime;
+		    emcmotDebug->teleop_data.currentVel.b +=
+			emcmotDebug->teleop_data.currentAccell.b *
+			emcmotConfig->trajCycleTime;
+		    emcmotDebug->teleop_data.currentVel.c +=
+			emcmotDebug->teleop_data.currentAccell.c *
+			emcmotConfig->trajCycleTime;
+		} else {
+		    emcmotDebug->teleop_data.currentAccell =
+			emcmotDebug->teleop_data.desiredAccell;
+		    emcmotDebug->teleop_data.currentVel =
+			emcmotDebug->teleop_data.desiredVel;
+		}
+
+		emcmotStatus->pos.tran.x +=
+		    emcmotDebug->teleop_data.currentVel.tran.x *
+		    emcmotConfig->trajCycleTime;
+		emcmotStatus->pos.tran.y +=
+		    emcmotDebug->teleop_data.currentVel.tran.y *
+		    emcmotConfig->trajCycleTime;
+		emcmotStatus->pos.tran.z +=
+		    emcmotDebug->teleop_data.currentVel.tran.z *
+		    emcmotConfig->trajCycleTime;
+		emcmotStatus->pos.a +=
+		    emcmotDebug->teleop_data.currentVel.a *
+		    emcmotConfig->trajCycleTime;
+		emcmotStatus->pos.b +=
+		    emcmotDebug->teleop_data.currentVel.b *
+		    emcmotConfig->trajCycleTime;
+		emcmotStatus->pos.c +=
+		    emcmotDebug->teleop_data.currentVel.c *
+		    emcmotConfig->trajCycleTime;
+
+		/* convert to joints */
+		kinematicsInverse(&emcmotStatus->pos,
+		    emcmotDebug->coarseJointPos, &iflags, &fflags);
+
+		/* spline joints up-- note that we may be adding points that
+		   fail soft limits, but we'll abort at the end of this cycle
+		   so it doesn't really matter */
+		for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+		    cubicAddPoint(&emcmotDebug->cubic[axis],
+			emcmotDebug->coarseJointPos[axis]);
+		}
+
+		if (kinType == KINEMATICS_IDENTITY) {
+		    /* call forward kinematics on input points for actual
+		       pos, at trajectory rate to save bandwidth */
+		    kinematicsForward(emcmotStatus->joint_pos_fb,
+			&emcmotStatus->actualPos, &fflags, &iflags);
+		} else {
+		    /* fake it by setting actual pos to commanded pos */
+		    emcmotStatus->actualPos = emcmotStatus->pos;
+		}
+		/* end of teleop mode */
+	    } else if (GET_MOTION_COORD_FLAG()) {
+		/* coordinated mode */
+		/* we're in coordinated mode-- pull a pose off the Cartesian
+		   trajectory planner, run it through the inverse kinematics, 
+		   and spline up the joint points for interpolation in servo
+		   cycles. */
+
+		/* set whichCycle to be a Cartesian trajectory cycle, for
+		   calc time logging */
+#if 0				/* dunno what whichCycle is all about yet */
+		whichCycle = 2;
+#endif
+
+		/* run coordinated trajectory planning cycle */
+		tpRunCycle(&emcmotDebug->queue);
+
+		/* set new commanded traj pos */
+		emcmotStatus->pos = tpGetPos(&emcmotDebug->queue);
+
+		/* convert to joints */
+		kinematicsInverse(&emcmotStatus->pos,
+		    emcmotDebug->coarseJointPos, &iflags, &fflags);
+
+		/* spline joints up-- note that we may be adding points that
+		   fail soft limits, but we'll abort at the end of this cycle 
+		   so it doesn't really matter */
+		for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+		    cubicAddPoint(&emcmotDebug->cubic[axis],
+			emcmotDebug->coarseJointPos[axis]);
+		}
+
+		if (kinType == KINEMATICS_IDENTITY) {
+		    /* call forward kinematics on input points for actual
+		       pos, at trajectory rate to save bandwidth */
+		    kinematicsForward(emcmotStatus->joint_pos_fb,
+			&emcmotStatus->actualPos, &fflags, &iflags);
+		} else {
+		    /* fake it by setting actual pos to commanded pos */
+		    emcmotStatus->actualPos = emcmotStatus->pos;
+		}
+
+		/* now emcmotStatus->actualPos, emcmotStatus->pos, and
+		   emcmotDebug->coarseJointPos[] are set */
+
+		/* end of coord mode */
+	    } else {
+		/* free mode */
+		/* we're in free mode-- run joint planning cycles */
+		for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+		    /* set whichCycle to be a joint trajectory cycle, for
+		       calc time logging */
+		    /* note that this may include one or more joint
+		       trajectory cycles, so calc time may be inherently
+		       variable */
+#if 0				/* dunno what whichCycle is all about yet */
+		    whichCycle = 2;
+#endif
+
+		    /* run joint trajectory planning cycle */
+		    tpRunCycle(&emcmotDebug->freeAxis[axis]);
+
+		    /* set new coarse joint position. FIXME-- this uses only
+		       the tran.x field of the TP_STRUCT, which is overkill.
+		       We need a TP_STRUCT with a single scalar element. */
+		    emcmotDebug->coarseJointPos[axis] =
+			tpGetPos(&emcmotDebug->freeAxis[axis]).tran.x;
+
+		    /* spline joint up-- note that we may be adding a point
+		       that fails soft limit, but we'll abort at the end of
+		       this cycle so it doesn't really matter */
+		    cubicAddPoint(&emcmotDebug->cubic[axis],
+			emcmotDebug->coarseJointPos[axis]);
+		}		/* end of: axis for loop for joint planning
+				   cycle */
+
+		if (kinType == KINEMATICS_IDENTITY) {
+		    /* set actualPos from actual inputs */
+		    kinematicsForward(emcmotStatus->joint_pos_fb,
+			&emcmotStatus->actualPos, &fflags, &iflags);
+		    /* set pos from nominal joints, since we're in joint mode 
+		     */
+		    kinematicsForward(emcmotDebug->coarseJointPos,
+			&emcmotStatus->pos, &fflags, &iflags);
+		} else if (kinType != KINEMATICS_INVERSE_ONLY) {
+		    /* here is where we call the forward kinematics
+		       repeatedly, when we're in free mode, so that the world 
+		       coordinates are kept up to date when joints are
+		       moving. This is only done if we have the kinematics.
+		       emcmotStatus->pos needs to be set with an estimate for 
+		       the kinematics to converge, which is true when we
+		       enter free mode from coordinated mode or after the
+		       machine is homed. */
+		    EmcPose temp = emcmotStatus->pos;
+		    if (0 == kinematicsForward(emcmotStatus->joint_pos_fb,
+			    &temp, &fflags, &iflags)) {
+			emcmotStatus->pos = temp;
+			emcmotStatus->actualPos = temp;
+		    } else {
+			/* leave them alone */
+		    }
+		} else {
+		    /* no foward kins, and we're in joint mode, so we have no 
+		       estimate of world coords, and we have to leave them
+		       alone */
+		}
+		/* now emcmotStatus->actualPos, emcmotStatus->pos, and
+		   emcmotDebug->coarseJointPos[] are set */
+	    }			/* end of free mode */
+	}			/* end of: while (cubicNeedNextPoint(0)) */
+
+	/* at this point, there is data in the interpolators */
+
+	/* we're still in motion enabled section. For coordinated mode, the
+	   Cartesian trajectory cycle has been computed, if necessary, run
+	   through the inverse kinematics, and the joints have been splined
+	   up for interpolation. For free mode, the joint trajectory cycles
+	   have been computed, if necessary, and the joints have been splined
+	   up for interpolation. We still need to push the actual input
+	   through the forward kinematics, for actual pos.
+
+	   Effects:
+
+	   For coord mode, emcmotStatus->pos contains the commanded Cartesian
+	   pose, emcmotDebug->coarseJointPos[] contains the results of the
+	   inverse kinematics at the coarse (trajectory) rate, and the
+	   interpolators are not empty.
+
+	   For free mode, emcmotStatus->pos is unchanged, and needs to be
+	   updated via the forward kinematics. FIXME-- make sure this happens, 
+	   and note where in this comment. emcmotDebug->coarseJointPos[]
+	   contains the results of the joint trajectory calculations at the
+	   coarse (trajectory) rate, and the interpolators are not empty. */
+
+	/* run interpolation */
+	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+	    /* interpolate */
+	    emcmotDebug->oldJointPos[axis] =
+		emcmotStatus->joint_pos_cmd[axis];
+	    emcmotStatus->joint_pos_cmd[axis] =
+		cubicInterpolate(&emcmotDebug->cubic[axis], 0, 0, 0, 0);
+	    emcmotDebug->jointVel[axis] =
+		(emcmotStatus->joint_pos_cmd[axis] -
+		emcmotDebug->oldJointPos[axis]) * servo_freq;
+	}
+	/* end if enabled */
+    } else {
+	/* 
+	   we're not enabled, so no motion planning or interpolation has been
+	   done. emcmotStatus->joint_pos_cmd[] is set to
+	   emcmotStatus->input[], and likewise with
+	   emcmotDebug->coarseJointPos[], which is normally updated at the
+	   traj rate but it's convenient to do them here at the same time at
+	   the servo rate. emcmotStatus->pos, ->actualPos need to be run
+	   through forward kinematics.  Note that we are running at the servo
+	   rate, so we need to slow down by the interpolation factor to avoid
+	   soaking the CPU. If we were enabled, ->pos was set by calcs (coord
+	   mode) or forward kins (free mode), and ->actualPos was set by
+	   forward kins on ->input[], all at the trajectory rate. */
+	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+	    emcmotDebug->coarseJointPos[axis] =
+		emcmotStatus->joint_pos_fb[axis];
+	    emcmotDebug->oldJointPos[axis] =
+		emcmotStatus->joint_pos_cmd[axis];
+	    emcmotStatus->joint_pos_cmd[axis] =
+		emcmotDebug->coarseJointPos[axis];
+	    emcmotDebug->jointVel[axis] =
+		(emcmotStatus->joint_pos_cmd[axis] -
+		emcmotDebug->oldJointPos[axis]) * servo_freq;
+	}
+	/* synthesize the trajectory interpolation, via a counter that
+	   decrements from the interpolation rate. This causes the statements
+	   to execute at the trajectory rate instead of the servo rate at
+	   which this enclosing code is called. */
+	if (--interpolationCounter <= 0) {
+	    if (kinType != KINEMATICS_INVERSE_ONLY) {
+		/* call the forward kinematics, at the effective trajectory
+		   rate */
+		EmcPose temp = emcmotStatus->pos;
+		if (0 == kinematicsForward(emcmotStatus->joint_pos_fb, &temp,
+			&fflags, &iflags)) {
+		    emcmotStatus->pos = temp;
+		    emcmotStatus->actualPos = temp;
+		}
+	    }
+	    /* else can't generate Cartesian position, so leave it alone */
+
+	    /* reload the interpolation counter that simulates the
+	       interpolation done when enabled */
+	    interpolationCounter = emcmotConfig->interpolationRate;
+	}
+	/* end of not enabled */
     }
 }
 
@@ -436,6 +989,7 @@ static void output_to_hal(void)
 	/* point to axis data */
 	axis_data = &(machine_hal_data->axis[axis]);
 	/* add backlash comp to position command, send to PID */
+	axis_data->coarse_pos_cmd = emcmotDebug->coarseJointPos[axis];
 	axis_data->joint_pos_cmd = emcmotStatus->joint_pos_cmd[axis];
 	axis_data->joint_vel_cmd = emcmotStatus->joint_vel_cmd[axis];
 	*(axis_data->motor_pos_cmd) =

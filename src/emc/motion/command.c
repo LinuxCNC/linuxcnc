@@ -209,6 +209,13 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_ABORT:
 	    /* abort motion */
 	    /* can happen at any time */
+	    /* this command attempts to stop all machine motion. it looks at
+	       the current mode and acts accordingly, if in teleop mode, it
+	       sets the desired velocities to zero, if in coordinated mode,
+	       it calls the traj planner abort function (don't know what that 
+	       does yet), and if in free mode, it calls the same abort
+	       function for the specified axis (that seems strange - why
+	       should abort only affect one axis?) */
 	    /* check for coord or free space motion active */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ABORT");
 	    if (GET_MOTION_TELEOP_FLAG()) {
@@ -236,6 +243,8 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_FREE:
 	    /* change the mode to free axis motion */
 	    /* can be done at any time */
+	    /* this code doesn't actually make the transition, it merely
+	       requests the transition by clearing a couple of flags */
 	    /* reset the emcmotDebug->coordinating flag to defer transition
 	       to controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "FREE");
@@ -246,6 +255,9 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_COORD:
 	    /* change the mode to coordinated axis motion */
 	    /* can be done at any time */
+	    /* this code doesn't actually make the transition, it merely
+	       tests a condition and then sets a flag requesting the
+	       transition */
 	    /* set the emcmotDebug->coordinating flag to defer transition to
 	       controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "COORD");
@@ -264,6 +276,9 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_TELEOP:
 	    /* change the mode to teleop motion */
 	    /* can be done at any time */
+	    /* this code doesn't actually make the transition, it merely
+	       tests a condition and then sets a flag requesting the
+	       transition */
 	    /* set the emcmotDebug->teleoperating flag to defer transition to
 	       controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "TELEOP");
@@ -282,6 +297,8 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SET_NUM_AXES:
 	    /* set the global NUM_AXES, which must be between 1 and
 	       EMCMOT_MAX_AXIS, inclusive */
+	    /* this sets a global - I hate globals - hopefully this can be
+	       moved into the config structure, or dispensed with completely */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_AXES");
 	    axis = emcmotCommand->axis;
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", axis);
@@ -303,6 +320,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_JOINT_HOME:
+	    /* is joint home the same as home offset? */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_HOME");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    axis = emcmotCommand->axis;
@@ -314,6 +332,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_HOME_OFFSET:
+	    /* obviously I don't understand this yet, what is the
+	       relationship between joint home and home offset? */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_HOME_OFFSET");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
@@ -325,12 +345,18 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_OVERRIDE_LIMITS:
+	    /* how is limit override turned off? it looks like issuing this
+	       command with axis < 0 will do it, but that is rather obscure - 
+	       would be better to have another command, perhaps
+	       "ENABLE_LIMITS" or something. */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "OVERRIDE_LIMITS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    if (emcmotCommand->axis < 0) {
 		/* don't override limits */
+		rtapi_print_msg(RTAPI_MSG_DBG, "override off");
 		emcmotStatus->overrideLimits = 0;
 	    } else {
+		rtapi_print_msg(RTAPI_MSG_DBG, "override on");
 		emcmotStatus->overrideLimits = 1;
 	    }
 	    emcmotDebug->overriding = 0;
@@ -340,6 +366,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_POSITION_LIMITS:
+	    /* sets soft limits for an axis */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_POSITION_LIMITS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
@@ -427,7 +454,7 @@ void emcmotCommandHandler(void *arg, long period)
 			emcmotConfig->maxLimit[axis];
 		} else {
 		    emcmotDebug->freePose.tran.x =
-			emcmotDebug->jointPos[axis] + AXRANGE(axis);
+			emcmotStatus->joint_pos_cmd[axis] + AXRANGE(axis);
 		}
 	    } else {
 		if (GET_AXIS_HOMED_FLAG(axis)) {
@@ -435,7 +462,7 @@ void emcmotCommandHandler(void *arg, long period)
 			emcmotConfig->minLimit[axis];
 		} else {
 		    emcmotDebug->freePose.tran.x =
-			emcmotDebug->jointPos[axis] - AXRANGE(axis);
+			emcmotStatus->joint_pos_cmd[axis] - AXRANGE(axis);
 		}
 	    }
 
@@ -474,10 +501,10 @@ void emcmotCommandHandler(void *arg, long period)
 	    }
 
 	    if (emcmotCommand->vel > 0.0) {
-		emcmotDebug->freePose.tran.x = emcmotDebug->jointPos[axis] + emcmotCommand->offset;	/* FIXME--
-													   use
-													   'goal'
-													   instead */
+		emcmotDebug->freePose.tran.x = emcmotStatus->joint_pos_cmd[axis] + emcmotCommand->offset;	/* FIXME--
+														   use
+														   'goal'
+														   instead */
 		if (GET_AXIS_HOMED_FLAG(axis)) {
 		    if (emcmotDebug->freePose.tran.x >
 			emcmotConfig->maxLimit[axis]) {
@@ -486,10 +513,10 @@ void emcmotCommandHandler(void *arg, long period)
 		    }
 		}
 	    } else {
-		emcmotDebug->freePose.tran.x = emcmotDebug->jointPos[axis] - emcmotCommand->offset;	/* FIXME--
-													   use
-													   'goal'
-													   instead */
+		emcmotDebug->freePose.tran.x = emcmotStatus->joint_pos_cmd[axis] - emcmotCommand->offset;	/* FIXME--
+														   use
+														   'goal'
+														   instead */
 		if (GET_AXIS_HOMED_FLAG(axis)) {
 		    if (emcmotDebug->freePose.tran.x <
 			emcmotConfig->minLimit[axis]) {
@@ -906,11 +933,11 @@ void emcmotCommandHandler(void *arg, long period)
 			break;
 		    case EMCLOG_TRIGGER_ON_POS:
 			emcmotStatus->logStartVal =
-			    emcmotDebug->jointPos[loggingAxis];
+			    emcmotStatus->joint_pos_cmd[loggingAxis];
 			break;
 		    case EMCLOG_TRIGGER_ON_VEL:
 			emcmotStatus->logStartVal =
-			    emcmotDebug->jointPos[loggingAxis] -
+			    emcmotStatus->joint_pos_cmd[loggingAxis] -
 			    emcmotDebug->oldJointPos[loggingAxis];
 			break;
 
@@ -958,7 +985,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* home the specified axis */
 	    /* need to be in free mode, enable on */
 	    /* homing is basically a slow incremental jog to full range */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "NOME");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "HOME");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
