@@ -181,12 +181,6 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     RTNAME=rtai
     RTPREFIX=rtai
     RTAI=1
-    TEMP=`$RTS --prefix`
-    if (test -d $TEMP) ; then
-	RTDIR=$(cd $TEMP ; pwd -P )
-    else
-	RTDIR=${RTS%%/bin/realtime-config}
-    fi
 
     # on BDI-TNG there seems to be the problem,
     # that the /usr/src/linux/.config file is missing
@@ -201,12 +195,19 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
 	# now we default some values
 	CC="egcs"
 	RTFILE=/usr/src/rtai-24.1.10/.buildvars
+	RTDIR=/usr/src/rtai-24.1.10
 	KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "="); print A[[2]]}') 2>/dev/null #'
 	KERNELDIR=$(cd $KERNEL ; pwd -P )
 	RTFLAGS=$(cat $RTFILE | grep CFLAGS | awk '{split($1, A, "="); print A[[2]]}') 2>/dev/null #'
 	RTFLAGS="$RTFLAGS -DRTAI=1"
     else
 	# any other rtai-24.1.x system
+	TEMP=`$RTS --prefix`
+	if (test -d $TEMP) ; then
+	    RTDIR=$(cd $TEMP ; pwd -P )
+	else
+	    RTDIR=${RTS%%/bin/realtime-config}
+	fi
         RTFLAGS=`$RTS --cflags-fp | head -n 1`
 	RTFLAGS="$RTFLAGS -DRTAI=1"
 	KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
