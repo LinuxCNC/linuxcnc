@@ -4,11 +4,9 @@
 include ../../../Makefile.inc
 
 SRCS =	emccanon.cc \
-	emcsh.cc \
 	emcsvr.cc \
 	emctask.cc \
 	emctaskmain.cc \
-	iosh.cc \
 	minimilltaskintf.cc
 
 HEADERS =
