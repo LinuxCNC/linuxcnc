@@ -248,7 +248,7 @@ def_depend:
 	@ echo "Generating Dependencies in `pwd`"
 	rm -f .depend.c .depend.cc .depend.rt
 	touch .depend.c .depend.cc .depend.rt
-	(if [ ! -z "$(C_SRCS)" ] ; then \
+	@ (if [ ! -z "$(C_SRCS)" ] ; then \
 	  echo "User C: $(C_SRCS)" ; \
 	  $(CC) -MM $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $(C_SRCS) | \
 	  awk '{ \
@@ -265,7 +265,7 @@ def_depend:
 	    } \
 	  } END { printf ( "\n\n" ) }' > .depend.c ; \
 	fi)
-	(if [ ! -z "$(CC_SRCS)" ] ; then \
+	@ (if [ ! -z "$(CC_SRCS)" ] ; then \
 	  echo "User C++: $(CC_SRCS)" ; \
 	  $(CXX) -MM $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $(CC_SRCS) | \
 	  awk '{ \
@@ -282,7 +282,7 @@ def_depend:
 	    } \
 	  } END { printf ( "\n\n" ) }' > .depend.cc ; \
 	fi)
-	(if [ ! -z "$(RT_SRCS)" ] ; then \
+	@ (if [ ! -z "$(RT_SRCS)" ] ; then \
 	  echo "Realtime C: $(RT_SRCS)" ; \
 	  $(CC) -MM $(RTFLAGS) $(LOCAL_RTFLAGS) $(RT_SRCS) | \
 	  awk '{ \
