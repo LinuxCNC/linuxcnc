@@ -45,6 +45,6 @@ $(BIN_DIR)/inivar: $(TMP_DIR)/inivar.o $(LIB_DIR)/libnml.a
 clean:
 	- rm -f $(BIN_DIR)/inivar
 	- rm -f $(LIBS)
-	- rm -fR $(LIB_DIR)
+	- if [ ! -e $(LIB_DIR)/* ] ; then rm -fR $(LIB_DIR) ; fi
 
 .PHONY: all clean install indent depend headers

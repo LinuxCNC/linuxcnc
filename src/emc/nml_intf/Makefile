@@ -51,7 +51,7 @@ LIBS =	libemc.a
 
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
-	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o) $(TMP_DIR)/libemc.a
+	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o) $(LIB_DIR)/libemc.a
 
 # Generic rules.
 include ../../Make.rules
@@ -63,10 +63,11 @@ indent: def_indent
 depend: def_depend
 
 clean: def_clean
+	rm -f $(LIB_DIR)/libemc.a
 
 .PHONY: all clean depend headers indent install kclean
 
-$(TMP_DIR)/libemc.a:	\
+$(LIB_DIR)/libemc.a:	\
 	$(TMP_DIR)/emc.o \
 	$(TMP_DIR)/emcglb.o \
 	$(TMP_DIR)/emcargs.o \

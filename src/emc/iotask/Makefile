@@ -74,9 +74,8 @@ $(BIN_DIR)/bridgeportio: \
 	$(TMP_DIR)/extsimaio.o \
 	$(TMP_DIR)/simaio.o \
 	$(TMP_DIR)/extppt.o \
-	$(TMP_DIR)/parport.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+	$(TMP_DIR)/parport.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
 # simio uses fully simulated digital IO with Bridgeport logic
 $(BIN_DIR)/simio:	\
@@ -91,9 +90,8 @@ $(BIN_DIR)/simio:	\
 	$(TMP_DIR)/simdio.o \
 	$(TMP_DIR)/simaio.o \
 	$(TMP_DIR)/simbase.o \
-	$(TMP_DIR)/parport.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+	$(TMP_DIR)/parport.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
 # minimillio for NIST minimill uses fully simulated IO, but no spindle
 $(BIN_DIR)/minimillio:	\
@@ -103,18 +101,16 @@ $(BIN_DIR)/minimillio:	\
 	$(TMP_DIR)/extminimillio.o \
 	$(TMP_DIR)/simdio.o \
 	$(TMP_DIR)/simaio.o \
-	$(TMP_DIR)/simbase.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+	$(TMP_DIR)/simbase.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
 $(BIN_DIR)/iosh: \
 	$(TMP_DIR)/iosh.o \
 	$(TMP_DIR)/usrmotintf.o \
 	$(TMP_DIR)/emcmotglb.o \
 	$(TMP_DIR)/emcmotlog.o \
-	$(TMP_DIR)/emcmotutil.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) $(TCL_LIBS) -o $@
+	$(TMP_DIR)/emcmotutil.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) $(TCL_LIBS) -o $@
 
 $(BIN_DIR)/usrmot:	\
 	$(TMP_DIR)/usrmotintf.o \
@@ -132,7 +128,5 @@ $(BIN_DIR)/tkio: \
 	-(cat $<  | sed s/UNKNOWN_PLAT/nonrealtime/ > $@)
 	-\chmod a+x $@
 
-$(BIN_DIR)/dumbio: \
-	$(TMP_DIR)/dumbio.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+$(BIN_DIR)/dumbio: $(TMP_DIR)/dumbio.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@

@@ -81,9 +81,8 @@ $(BIN_DIR)/bridgeporttask:	\
 	$(TMP_DIR)/usrmotintf.o \
 	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \
-	$(TMP_DIR)/bridgeporttaskintf.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+	$(TMP_DIR)/bridgeporttaskintf.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
 $(BIN_DIR)/minimilltask:	\
 	$(TMP_DIR)/emcmotglb.o \
@@ -94,19 +93,14 @@ $(BIN_DIR)/minimilltask:	\
 	$(TMP_DIR)/usrmotintf.o \
 	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \
-	$(TMP_DIR)/minimilltaskintf.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+	$(TMP_DIR)/minimilltaskintf.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
-$(BIN_DIR)/emcpanel:	\
-	$(TMP_DIR)/emcpanel.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+$(BIN_DIR)/emcpanel: $(TMP_DIR)/emcpanel.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
-$(BIN_DIR)/emcsvr:	\
-	$(TMP_DIR)/emcsvr.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+$(BIN_DIR)/emcsvr: $(TMP_DIR)/emcsvr.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
 $(BIN_DIR)/inimot:	\
 	$(TMP_DIR)/inimot.o \
@@ -114,27 +108,20 @@ $(BIN_DIR)/inimot:	\
 	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \
 	$(TMP_DIR)/usrmotintf.o \
-	$(TMP_DIR)/minimilltaskintf.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+	$(TMP_DIR)/minimilltaskintf.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
-$(BIN_DIR)/emcdummy:	\
-	$(TMP_DIR)/emcdummy.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+$(BIN_DIR)/emcdummy: $(TMP_DIR)/emcdummy.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
-$(BIN_DIR)/emcsh: $(TMP_DIR)/emcsh.o $(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) $(TCL_LIBS) -o $@
+$(BIN_DIR)/emcsh: $(TMP_DIR)/emcsh.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) $(TCL_LIBS) -o $@
 
-$(BIN_DIR)/keystick:	\
-	$(TMP_DIR)/keystick.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -lncurses -o $@
+$(BIN_DIR)/keystick: $(TMP_DIR)/keystick.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -lncurses -o $@
 
-$(BIN_DIR)/emcprobe: \
-	$(TMP_DIR)/emcprobe.o \
-	$(TMP_DIR)/libemc.a
-	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+$(BIN_DIR)/emcprobe: $(TMP_DIR)/emcprobe.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
 $(BIN_DIR)/tkemc: \
 	tkemc.tcl

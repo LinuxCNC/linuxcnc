@@ -241,6 +241,8 @@ def_clean:
 	@ echo "Clean Up `pwd`"
 	- rm -f *.bak *~ .depend*
 	- rm -f $(OBJS) $(RT_OBJS) $(LIBS) $(HEADERS:%=$(INC_DIR)/%) $(BINS:%=$(BIN_DIR)/%)
+	- if [ ! -e $(LIB_DIR)/* ] ; then rm -fR $(LIB_DIR) ; fi
+	- if [ ! -e $(BIN_DIR)/* ] ; then rm -fR $(BIN_DIR) ; fi
 	rm -f .*.cmd *.o* *.mod.* *.ko
 	rm -fR .tmp_versions
 
