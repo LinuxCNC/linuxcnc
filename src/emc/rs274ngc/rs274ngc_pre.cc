@@ -7553,7 +7553,7 @@ static int read_one_item(	/* ARGUMENTS */
 
     letter = line[*counter];	/* check if in array range */
     CHK(((letter < 0) || (letter > 'z')), NCE_BAD_CHARACTER_USED);
-    function_pointer = _readers[letter];
+    function_pointer = _readers[(int)letter];
     CHK((function_pointer == 0), NCE_BAD_CHARACTER_USED);
     CHP(function_pointer(line, counter, block, parameters));
     return RS274NGC_OK;
@@ -10291,3 +10291,4 @@ void rs274ngc_stack_name(	/* ARGUMENTS */
 /***********************************************************************/
 /***********************************************************************/
 /* end of file */
+
