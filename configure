@@ -1492,7 +1492,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
 #	--linux		Path to the source directory f the patched kernel.
 #	--module_dir	Path to the directory where the RTLinux modules are installed
 #	--modules	A list of the available realtime modules.
-    RTPREFIX=rtlinux
+    RTPREFIX=rtl
     RTDIR=`$RTS --prefix`
     RTDIR=$(cd $RTDIR ; pwd -P )
     RTFLAGS=`$RTS --cflags`
