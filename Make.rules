@@ -49,7 +49,6 @@
 # INC_DIR    - public include files (emc2/include/)
 # TMP_DIR    - temporary user space object files (emc2/src/.tmp)
 # RTTMP_DIR  - temporary kernel space object files (emc2/src/.rt_tmp)
-# GTKTMP_DIR - temporary GTK+ object files (emc2/src/.gtk_tmp)
 #
 #
 # Variables:
