@@ -13,13 +13,14 @@ HEADERS = \
 
 SRCS =	\
 	_inifile.c \
-	inifile.cc
+	inifile.cc \
+        inivar.c
 
 OBJS := $(LIB_OBJS)
 
 LIBS =
 
-all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
+all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(TMP_DIR)/inivar.o
 
 # Generic rules.
 include ../../../Make.rules

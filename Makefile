@@ -33,6 +33,7 @@ include Makefile.inc
 all headers indent :
 	(cd src/rtapi; make $@)
 	(cd src/hal; make $@)
+	(cd src/libnml; make $@)
 
 # these variables are used to build a list of all
 # man pages that need to be installed
