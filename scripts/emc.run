@@ -433,7 +433,7 @@ fi
 echo Starting emc...
 
 # trap ^C so that it's called if user interrupts script
-trap 'Cleanup ; exit 0' SIGINT
+trap 'Cleanup ; exit 0' SIGINT SIGTERM
 
 # Create the lock file
 touch $LOCKFILE
@@ -642,3 +642,4 @@ esac
 Cleanup
 
 exit 0
+

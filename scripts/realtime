@@ -22,9 +22,6 @@ CheckConfig(){
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
 	exit -1
     fi
-    # Save the system variable MODPATH so that it can be
-    # re-exported on exit.
-    old_path=$MODPATH
     # Import the config
     source $RTAPICONF
     # Export the module path specified in the config.
@@ -32,10 +29,9 @@ CheckConfig(){
     # Generate module lists for loading and unloading
     # lists contain RTOS modules plus RTAPI and HAL
     # unload list is in reverse order
-    MODULES_LOAD=
+    MODULES_LOAD=$MODULES
     MODULES_UNLOAD=
     for module in $MODULES ; do
-	MODULES_LOAD="$MODULES_LOAD $module"
 	MODULES_UNLOAD="$module $MODULES_UNLOAD"
     done
     MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi.o $RTLIB_DIR/hal_lib.o"
@@ -112,7 +108,7 @@ Load(){
 	    if [ "$VERBOSE" = "1" ] ; then
 	        /sbin/insmod $MOD
 	    else
-	        /sbin/insmod $MOD 1>/dev/null 2>/dev/null
+	        /sbin/insmod $MOD 1>/dev/null
 	    fi
         fi
     done
@@ -142,7 +138,7 @@ CheckLoaded(){
 Unload(){
     # modprobe will unload *all* the modules in one hit
     # (as long as the ordering is the reverse of load order)
-    /sbin/modprobe -r $MODULES_UNLOAD 2>/dev/null
+    /sbin/modprobe -r $MODULES_UNLOAD
 }
 
 CheckUnloaded(){
@@ -162,8 +158,8 @@ CheckUnloaded(){
 }
 
 DoExit(){
-    # Export the original MODPATH
-    export MODPATH=$old_path
+    # Nothing here right now
+    :
 }
 
 if [ "$1" = "-v" ] ; then
@@ -212,3 +208,4 @@ case "$CMD" in
 esac
 
 exit 0
+
