@@ -53,6 +53,7 @@
 *                  LOCAL FUNCTION PROTOTYPES                           *
 ************************************************************************/
 
+static void create_probe_window(probe_t * probe);
 static void accept_selection(GtkWidget * widget, gpointer data);
 static void accept_selection_and_close(GtkWidget * widget, gpointer data);
 static void close_selection(GtkWidget * widget, gpointer data);
@@ -66,11 +67,6 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
 probe_t *probe_new(char *probe_name)
 {
     probe_t *new;
-    GtkWidget *vbox, *hbox, *notebk;
-    GtkWidget *button_OK, *button_accept, *button_cancel;
-    GtkWidget *tab_label, *scrolled_window;
-    gchar *tab_label_text[3];
-    gint n;
 
     if (probe_name != NULL) {
 	/* no name specified, fake it */
@@ -87,103 +83,10 @@ probe_t *probe_new(char *probe_name)
     new->type = 0;
     new->data = NULL;
     new->listnum = -1;
-    /* create window, set it's size, and leave it re-sizeable */
-    new->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_usize(GTK_WIDGET(new->window), 300, 400);
-    gtk_window_set_policy(GTK_WINDOW(new->window), TRUE, TRUE, FALSE);
-    /* window should appear in center of screen */
-    gtk_window_set_position(GTK_WINDOW(new->window), GTK_WIN_POS_CENTER);
-    /* set set_probe window title */
-    gtk_window_set_title(GTK_WINDOW(new->window), probe_name);
-
-    /* a vbox to hold everything */
-    vbox = gtk_vbox_new(FALSE, 3);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 2);
-    /* add the vbox to the window */
-    gtk_container_add(GTK_CONTAINER(new->window), vbox);
-    gtk_widget_show(vbox);
-
-    /* an hbox to hold the OK, accept, and cancel buttons */
-    hbox = gtk_hbox_new(TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(hbox), 0);
-    /* add the hbox to the vbox */
-    gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
-    gtk_widget_show(hbox);
-
-    /* create the buttons and add them to the hbox */
-    button_OK = gtk_button_new_with_label("OK");
-    button_accept = gtk_button_new_with_label("Accept");
-    button_cancel = gtk_button_new_with_label("Cancel");
-
-    gtk_box_pack_start(GTK_BOX(hbox), button_OK, TRUE, TRUE, 4);
-    gtk_box_pack_start(GTK_BOX(hbox), button_accept, TRUE, TRUE, 4);
-    gtk_box_pack_start(GTK_BOX(hbox), button_cancel, TRUE, TRUE, 4);
-
-    /* activate the new selection if 'OK' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_OK), "clicked",
-	GTK_SIGNAL_FUNC(accept_selection_and_close), new);
-
-    /* activate the new selection if 'accept' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_accept), "clicked",
-	GTK_SIGNAL_FUNC(accept_selection), new);
-
-    /* make the window disappear if 'cancel' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_cancel), "clicked",
-	GTK_SIGNAL_FUNC(close_selection), new);
-
-    gtk_widget_show(button_OK);
-    gtk_widget_show(button_accept);
-    gtk_widget_show(button_cancel);
-
-    /* create a notebook to hold pin, signal, and parameter lists */
-    notebk = gtk_notebook_new();
-    /* add the notebook to the window */
-    gtk_box_pack_start(GTK_BOX(vbox), notebk, TRUE, TRUE, 0);
-    /* set overall notebook parameters */
-    gtk_notebook_set_homogeneous_tabs(GTK_NOTEBOOK(notebk), TRUE);
-    /* text for tab labels */
-    tab_label_text[0] = "Pins";
-    tab_label_text[1] = "Signals";
-    tab_label_text[2] = "Parameters";
-    /* loop to create three identical tabs */
-    for (n = 0; n < 3; n++) {
-	/* Create a scrolled window to display the list */
-	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-	    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-	gtk_widget_show(scrolled_window);
-	/* create a list to hold the data */
-	new->lists[n] = gtk_clist_new(1);
-	/* set up a callback for when the user selects a line */
-	gtk_signal_connect(GTK_OBJECT(new->lists[n]), "select_row",
-	    GTK_SIGNAL_FUNC(selection_made), new);
-	/* It isn't necessary to shadow the border, but it looks nice :) */
-	gtk_clist_set_shadow_type(GTK_CLIST(new->lists[n]), GTK_SHADOW_OUT);
-	/* set list for single selection only */
-	gtk_clist_set_selection_mode(GTK_CLIST(new->lists[n]),
-	    GTK_SELECTION_BROWSE);
-	/* put the list into the scrolled window */
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW
-	    (scrolled_window), new->lists[n]);
-	gtk_widget_show(new->lists[n]);
-	/* create a label for the page */
-	tab_label = gtk_label_new(tab_label_text[n]);
-	gtk_label_set_justify(GTK_LABEL(tab_label), GTK_JUSTIFY_CENTER);
-	gtk_label_set_line_wrap(GTK_LABEL(tab_label), FALSE);
-	gtk_widget_show(tab_label);
-	/* create a box for the tab label */
-	hbox = gtk_hbox_new(TRUE, 0);
-	/* add the label to the box */
-	gtk_box_pack_start(GTK_BOX(hbox), tab_label, TRUE, TRUE, 0);
-	gtk_widget_show(hbox);
-	/* add page to the notebook */
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebk), scrolled_window, hbox);
-	/* set tab attributes */
-	gtk_notebook_set_tab_label_packing(GTK_NOTEBOOK(notebk), hbox,
-	    TRUE, TRUE, GTK_PACK_START);
-    }
+    strncpy(new->probe_name, probe_name, HAL_NAME_LEN);
+    /* window will be created just before it is displayed */
+    new->window = NULL;
     /* done */
-    gtk_widget_show(notebk);
     return new;
 }
 
@@ -200,6 +103,10 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     /* get a pointer to the probe data structure */
     probe = (probe_t *) data;
 
+    /* create window if needed */
+    if (probe->window == NULL) {
+	create_probe_window(probe);
+    }
     gtk_clist_clear(GTK_CLIST(probe->lists[0]));
     gtk_clist_clear(GTK_CLIST(probe->lists[1]));
     gtk_clist_clear(GTK_CLIST(probe->lists[2]));
@@ -232,6 +139,117 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 /***********************************************************************
 *                         LOCAL FUNCTION CODE                          *
 ************************************************************************/
+
+static void create_probe_window(probe_t * probe)
+{
+    GtkWidget *vbox, *hbox, *notebk;
+    GtkWidget *button_OK, *button_accept, *button_cancel;
+    GtkWidget *tab_label, *scrolled_window;
+    gchar *tab_label_text[3];
+    gint n;
+
+    /* create window, set it's size, and leave it re-sizeable */
+    probe->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_widget_set_usize(GTK_WIDGET(probe->window), 300, 400);
+    gtk_window_set_policy(GTK_WINDOW(probe->window), TRUE, TRUE, FALSE);
+    /* window should appear in center of screen */
+    gtk_window_set_position(GTK_WINDOW(probe->window), GTK_WIN_POS_CENTER);
+    /* set set_probe window title */
+    gtk_window_set_title(GTK_WINDOW(probe->window), probe->probe_name);
+
+    /* a vbox to hold everything */
+    vbox = gtk_vbox_new(FALSE, 3);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), 2);
+    /* add the vbox to the window */
+    gtk_container_add(GTK_CONTAINER(probe->window), vbox);
+    gtk_widget_show(vbox);
+
+    /* an hbox to hold the OK, accept, and cancel buttons */
+    hbox = gtk_hbox_new(TRUE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(hbox), 0);
+    /* add the hbox to the vbox */
+    gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
+    gtk_widget_show(hbox);
+
+    /* create the buttons and add them to the hbox */
+    button_OK = gtk_button_new_with_label("OK");
+    button_accept = gtk_button_new_with_label("Accept");
+    button_cancel = gtk_button_new_with_label("Cancel");
+
+    gtk_box_pack_start(GTK_BOX(hbox), button_OK, TRUE, TRUE, 4);
+    gtk_box_pack_start(GTK_BOX(hbox), button_accept, TRUE, TRUE, 4);
+    gtk_box_pack_start(GTK_BOX(hbox), button_cancel, TRUE, TRUE, 4);
+
+    /* activate the new selection if 'OK' button is clicked */
+    gtk_signal_connect(GTK_OBJECT(button_OK), "clicked",
+	GTK_SIGNAL_FUNC(accept_selection_and_close), probe);
+
+    /* activate the new selection if 'accept' button is clicked */
+    gtk_signal_connect(GTK_OBJECT(button_accept), "clicked",
+	GTK_SIGNAL_FUNC(accept_selection), probe);
+
+    /* make the window disappear if 'cancel' button is clicked */
+    gtk_signal_connect(GTK_OBJECT(button_cancel), "clicked",
+	GTK_SIGNAL_FUNC(close_selection), probe);
+
+    gtk_widget_show(button_OK);
+    gtk_widget_show(button_accept);
+    gtk_widget_show(button_cancel);
+
+    /* set probe->window to NULL if window is destroyed */
+    gtk_signal_connect(GTK_OBJECT(probe->window), "destroy",
+	GTK_SIGNAL_FUNC(gtk_widget_destroyed), &(probe->window));
+
+    /* create a notebook to hold pin, signal, and parameter lists */
+    notebk = gtk_notebook_new();
+    /* add the notebook to the window */
+    gtk_box_pack_start(GTK_BOX(vbox), notebk, TRUE, TRUE, 0);
+    /* set overall notebook parameters */
+    gtk_notebook_set_homogeneous_tabs(GTK_NOTEBOOK(notebk), TRUE);
+    /* text for tab labels */
+    tab_label_text[0] = "Pins";
+    tab_label_text[1] = "Signals";
+    tab_label_text[2] = "Parameters";
+    /* loop to create three identical tabs */
+    for (n = 0; n < 3; n++) {
+	/* Create a scrolled window to display the list */
+	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+	    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+	gtk_widget_show(scrolled_window);
+	/* create a list to hold the data */
+	probe->lists[n] = gtk_clist_new(1);
+	/* set up a callback for when the user selects a line */
+	gtk_signal_connect(GTK_OBJECT(probe->lists[n]), "select_row",
+	    GTK_SIGNAL_FUNC(selection_made), probe);
+	/* It isn't necessary to shadow the border, but it looks nice :) */
+	gtk_clist_set_shadow_type(GTK_CLIST(probe->lists[n]), GTK_SHADOW_OUT);
+	/* set list for single selection only */
+	gtk_clist_set_selection_mode(GTK_CLIST(probe->lists[n]),
+	    GTK_SELECTION_BROWSE);
+	/* put the list into the scrolled window */
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW
+	    (scrolled_window), probe->lists[n]);
+	gtk_widget_show(probe->lists[n]);
+	/* create a label for the page */
+	tab_label = gtk_label_new(tab_label_text[n]);
+	gtk_label_set_justify(GTK_LABEL(tab_label), GTK_JUSTIFY_CENTER);
+	gtk_label_set_line_wrap(GTK_LABEL(tab_label), FALSE);
+	gtk_widget_show(tab_label);
+	/* create a box for the tab label */
+	hbox = gtk_hbox_new(TRUE, 0);
+	/* add the label to the box */
+	gtk_box_pack_start(GTK_BOX(hbox), tab_label, TRUE, TRUE, 0);
+	gtk_widget_show(hbox);
+	/* add page to the notebook */
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebk), scrolled_window, hbox);
+	/* set tab attributes */
+	gtk_notebook_set_tab_label_packing(GTK_NOTEBOOK(notebk), hbox,
+	    TRUE, TRUE, GTK_PACK_START);
+    }
+    /* done */
+    gtk_widget_show(notebk);
+}
 
 static void accept_selection(GtkWidget * widget, gpointer data)
 {
@@ -309,7 +327,7 @@ static void close_selection(GtkWidget * widget, gpointer data)
 
     /* get a pointer to the probe data structure */
     probe = (probe_t *) data;
-
+    /* hide the window */
     gtk_widget_hide_all(probe->window);
 }
 

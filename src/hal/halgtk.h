@@ -2,7 +2,7 @@
 #define HALGTK_H
 
 /** This file, 'halgtk.h', contains declarations for various code
-    used by GTK based hal programs such as 'halmeter'.
+    used by GTK based hal programs such as 'halmeter' and 'halscope'.
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -42,6 +42,8 @@
     parameter.  The user may select the item that is to be probed.
 */
 
+#define PROBE_NAME_LEN 63
+
 typedef struct {
     int listnum;		/* 0 = pin, 1 = signal, 2 = parameter */
     char *pickname;		/* name from list, not validated */
@@ -50,6 +52,7 @@ typedef struct {
     void *data;			/* address of data */
     GtkWidget *window;		/* selection dialog window */
     GtkWidget *lists[3];	/* lists for pins, sigs, and params */
+    char probe_name[PROBE_NAME_LEN + 1];	/* name of this probe */
 } probe_t;
 
 /***********************************************************************
