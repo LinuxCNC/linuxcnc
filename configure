@@ -9230,3 +9230,26 @@ if test "$no_create" != yes; then
   $ac_cs_success || { (exit 1); exit 1; }
 fi
 
+
+echo ""
+echo ""
+echo "######################################################################"
+echo "#                  EMC2 - Enhanced Machine Controller                #"
+echo "######################################################################"
+echo "#                                                                    #"
+echo "#   EMC2 is a software system for computer control of machine tools, #"
+echo "#   such as milling machines. EMC2 is released under the GPL.        #"
+echo "#   Check out http://www.linuxcnc.org for more details.              #"
+echo "#                                                                    #"
+echo "#                                                                    #"
+echo "#   It seems that ./configure completed successfully                 #"
+echo "#   This means that RT is properly installed                         #"
+echo "#   If things don't work check config.log for errors & warnings      #"
+echo "#                                                                    #"
+echo "#   Next try to compile & test EMC2 by typing                        #"
+echo "#                                                                    #"
+echo "#         make && scripts/test.run                                   #"
+echo "#                                                                    #"
+echo "######################################################################"
+echo ""
+echo ""
