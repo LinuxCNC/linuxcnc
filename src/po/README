@@ -1,0 +1,8 @@
+
+Note for translators of the pot files.
+
+Please make a copy of the pot file renaming it to reflect the language it is
+being translated in to. For example, for a German translation of rs274_err.pot,
+your working file would be de_rs274_err.po - If the file does not exist within
+the CVS repository, then feel free to create one from a *.pot template.
+
