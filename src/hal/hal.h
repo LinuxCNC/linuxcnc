@@ -111,6 +111,11 @@
 
 */
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
+
 #if ( !defined RTAPI ) && ( !defined ULAPI )
 #error HAL needs RTAPI/ULAPI, check makefile and flags
 #endif
@@ -129,6 +134,8 @@
 #define HAL_FAIL         -9	/* operation failed */
 
 #define HAL_NAME_LEN     31	/* length for pin, signal, etc, names */
+
+
 
 /***********************************************************************
 *                   GENERAL PURPOSE FUNCTIONS                          *
@@ -630,4 +637,7 @@ extern int hal_start_threads(void);
 */
 extern int hal_stop_threads(void);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* HAL_H */

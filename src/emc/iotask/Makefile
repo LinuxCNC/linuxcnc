@@ -3,19 +3,29 @@
 # get all the platform and application definitions
 include ../../../Makefile.inc
 
-SRCS =	simIoControl.cc
+SRCS =	simIoControl.cc \
+	ioControl.cc
 
 HEADERS =
 
-BINS =  simio
+BINS =  simio \
+	io
 
-OBJS = simIoControl.o
+OBJS = simIoControl.o \
+	ioControl.o
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%)
 
 # Generic rules.
 include ../../../Make.rules
 
+$(BIN_DIR)/io: $(TMP_DIR)/ioControl.o \
+	$(LIB_DIR)/libemc.a \
+	$(LIB_DIR)/libnml.a \
+	$(LIB_DIR)/ulapi.o \
+	$(LIB_DIR)/hal_lib.o 
+	@ echo "Linking $@"
+	$(CXX) $^ $(CFLAGS) $(ULFLAGS) -o $@
 
 $(BIN_DIR)/simio: $(TMP_DIR)/simIoControl.o \
 	$(LIB_DIR)/libemc.a \
