@@ -22,7 +22,7 @@
     be executed in a fast thread to reduce pulse jitter.  The other
     two functions are normally called from a much slower thread.
     'stepgen.update_freq' reads the frequency command and sets
-    internal variables used by 'StepGen.MakePulses'.
+    internal variables used by 'stepgen.make_pulses'.
     'stepgen.capture_position' captures and scales the current
     values of the position feedback counters.  Both 'update_freq' and
     'capture_position' use floating point, 'make_pulses' does not.
@@ -30,9 +30,9 @@
     The component can optionally create two threads, one that
     supports floating point and one that does not.  The 'period'
     parameter (at insmod time) determines the period of the non-FP
-    thread, which is called 'StepGen.Thread'.  The 'fp_period'
+    thread, which is called 'stepgen.thread'.  The 'fp_period'
     parameter sets the period of the floating point thread, which
-    is called 'StepGen.ThreadFP'
+    is called 'stepgen.threadFP'
 
     Polarity:
 
@@ -54,16 +54,16 @@
     DIR   ____X___________________________________X_____________
 
     There are two output pins, STEP and DIR.  Timing is controlled
-    by HAL parameters.  The parameters are (1): 'StepGen.n.DirSetup'
+    by HAL parameters.  The parameters are (1): 'stepgen.n.dirsetup'
     minimum delay from a change on the DIR line to the beginning of
-    a step pulse, (2): 'StepGen.n.StepLen' length of the step pulse,
-    (3): 'StepGen.n.StepSpace', space between step pulses, and
-    (4): 'StepGen.n.DirHold', minimum delay after step pulse before
+    a step pulse, (2): 'stepgen.n.steplen' length of the step pulse,
+    (3): 'stepgen.n.stepspace', space between step pulses, and
+    (4): 'stepgen.n.dirhold', minimum delay after step pulse before
     DIR may change.  The default values for all four parameters are
     1, which means 1 period of the thread.  A positive frequency
     command results in DIR low, negative frequency command means
-    DIR high.  The minimum time between step pulses is 'PulseLen' +
-    'PulseSpace' periods, and the frequency command is clamped to
+    DIR high.  The minimum time between step pulses is 'steplen' +
+    'stepspace' periods, and the frequency command is clamped to
     avoid exceeding these limits.
 
     Type 1:  Up/Down (aka Pseudo-PWM)
