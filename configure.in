@@ -413,10 +413,10 @@ if test "x" = "x$MODULE_DIR";
 then
    # (P.C.) Only works if the kernel modules are installed - If we are compiling for a target
    # system, this test may fail...
-   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
+   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff.o" -o -name "rtai_shm.o" -o -name "rtai_ksched.ko" \) -printf "%h")`
 
    if test "x" = "x$MODULE_DIR"; then
-        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
+        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff.o" -o -name "rtai_shm.o" -o -name "rtai_ksched.ko" \) -printf "%h")`
    fi
 
    if test "x" = "x$MODULE_DIR"; then
@@ -535,7 +535,7 @@ MATHINC=""
 #we need to make sure that $RTS has a --module-dir option
 #only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
 if (test ${RTS##*/} = rtai-config ) ; then
-    if (test -r $($RTS --module-dir)/rtai_math.o ) ; then
+    if (test -r $($RTS --module-dir)/rtai_math.* ) ; then
        USE_RTLIBM=1
     fi
 fi
