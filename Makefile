@@ -193,6 +193,8 @@ install_hal_modules:
 # install_rt_modules:
 # Installs the realtime modules from rtlib in the module directory
 # (Also installs .runinfo, which is still a bit of a mystery to me)
+# [If we handle the loading/unloading of all kernel modules, .runinfo
+# can be ignored - It is an RTAI only thing]
 
 install_rt_modules:
 	install -d $(DESTDIR)$(TESTDIR)/$(moduledir)
@@ -224,7 +226,7 @@ install_po:
 	@@for file in $(LANGUAGES); \
 	do \
 		echo "Installing $$file"; \
-		cp lang/$$file $(DESTDIR)$(TESTDIR)/$(localedir); \
+		cp po/$$file $(DESTDIR)$(TESTDIR)/$(localedir); \
 	done
 	
 # this rule handles the install target
