@@ -538,7 +538,7 @@ if (test ${RTS##*/} = rtai-config ) ; then
     fi
 fi
 
-if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm.o) ; then
+if (test -r $RTDIR/modules/rtai_libm.o ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm.o) ; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
