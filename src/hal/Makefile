@@ -15,18 +15,24 @@ PRIVHDRS = \
 hal_priv.h
 
 SRCS = \
-hal_lib.c hal_cmds.c hal_procfs.c
+hal_lib.c hal_cmds.c hal_procfs.c avltree.c
 
 RT_SRCS = \
-hal_lib.c
+hal_lib.c avltree.c
 
 LIBS = \
 $(RTLIB_DIR)/hal_lib.o \
 $(LIB_DIR)/hal_lib.o \
+$(RTLIB_DIR)/avltree.o \
+$(LIB_DIR)/avltree.o \
 $(LIB_DIR)/hal_cmds.o \
 $(LIB_DIR)/hal_procfs.o
 
-all : headers $(LIBS)
+BINS = \
+$(BIN_DIR)/avltree
+
+
+all : headers $(LIBS) $(BINS)
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
@@ -53,6 +59,13 @@ clean :  def_clean
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+
+# rule to link avltree (test program)
+$(BIN_DIR)/avltree : $(TMP_DIR)/avltree.o
+	@ echo "Linking $@"
+	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
+
+
 
 .PHONY: all headers depend indent install clean
 
