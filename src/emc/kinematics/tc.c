@@ -158,6 +158,8 @@ int tcSetLine(TC_STRUCT * tc, PmLine line, PmLine line_abc)
 
 int tcSetCircle(TC_STRUCT * tc, PmCircle circle, PmLine line_abc)
 {
+    double zc;
+
     if (0 == tc) {
 	return -1;
     }
@@ -165,10 +167,14 @@ int tcSetCircle(TC_STRUCT * tc, PmCircle circle, PmLine line_abc)
     tc->circle = circle;
     tc->line_abc = line_abc;
 
-    /* for circular motion, path param is arc length */
-    tc->tmag = tc->targetPos = circle.angle * circle.radius;
+    /* get the z component of the helix (this is not necessarily the 
+       machine's z - this is z of the helix's cylindrical coordinate
+       system) */
+    pmCartMag(circle.rHelix, &zc);
 
-//   printf("tcSetCircle: circle.angle=%f\n",circle.angle);
+    /* for circular/helical motion, path param is the helical length */
+    tc->tmag = tc->targetPos =
+      pmSqrt(pmSq(circle.angle * circle.radius) + pmSq(zc));
 
     tc->currentPos = 0.0;
     tc->type = TC_CIRCULAR;
@@ -470,7 +476,8 @@ EmcPose tcGetPos(TC_STRUCT * tc)
     if (tc->type == TC_LINEAR) {
 	pmLinePoint(&tc->line, tc->currentPos, &v1);
     } else if (tc->type == TC_CIRCULAR) {
-	pmCirclePoint(&tc->circle, tc->currentPos / tc->circle.radius, &v1);
+	pmCirclePoint(&tc->circle,
+	    tc->currentPos * tc->circle.angle / tc->targetPos, &v1);
     } else {
 	v1.tran.x = v1.tran.y = v1.tran.z = 0.0;
 	v1.rot.s = 1.0;
