@@ -1,5 +1,5 @@
 
-emc_HAL/ (generic.run, configure script, directory.map (this file),
+ emc2/ (generic.run, configure script, directory.map (this file),
     |       top level makefile, Makefile.inc, etc.)
     |
     |--- docs/ (All the important and relevant Docs.)
