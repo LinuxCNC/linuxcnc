@@ -11,12 +11,12 @@ all: headers
 all headers clean indent install:
 	(cd linklist; make $@)
 	(cd rcs; make $@)
+	(cd inifile; make $@)
 	(cd posemath; make $@)
 	(cd os_intf; make $@)
 	(cd buffer; make $@)
 	(cd cms; make $@)
 	(cd nml; make $@)
-	(cd inifile; make $@)
 	(make -f Makefile.lib $@)
 
 .PHONY: all clean depend headers indent install
