@@ -9,6 +9,10 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
 ********************************************************************/
 #ifndef RTAPI
 #error This is a realtime component only!
@@ -82,7 +86,6 @@ EMCMOT_CONFIG *emcmotConfig;
 EMCMOT_DEBUG *emcmotDebug;
 EMCMOT_ERROR *emcmotError;	/* unused for RT_FIFO */
 EMCMOT_LOG *emcmotLog;		/* unused for RT_FIFO */
-EMCMOT_IO *emcmotIo;		/* new struct added 8/21/2001 JME */
 EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS];	/* unused for RT_FIFO */
 EMCMOT_LOG_STRUCT ls;
 
@@ -192,7 +195,6 @@ int init_module(void)
     emcmotDebug = 0;
     emcmotStatus = 0;
     emcmotCommand = 0;
-    emcmotIo = 0;
     emcmotConfig = 0;
 
     /* record the kinematics type of the machine */
@@ -248,7 +250,6 @@ int init_module(void)
     emcmotConfig = (EMCMOT_CONFIG *) & emcmotStruct->config;
     emcmotDebug = (EMCMOT_DEBUG *) & emcmotStruct->debug;
     emcmotError = (EMCMOT_ERROR *) & emcmotStruct->error;
-    emcmotIo = (EMCMOT_IO *) & emcmotStruct->io;
     emcmotLog = (EMCMOT_LOG *) & emcmotStruct->log;
 
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
@@ -263,13 +264,6 @@ int init_module(void)
 	emcmotDebug->bac_halfD[axis] = 0;
 	emcmotDebug->bac_incrincr[axis] = 0;
 	emcmotDebug->bac_incr[axis] = 0;
-    }
-
-    /* init locals */
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	emcmotDebug->maxLimitSwitchCount[axis] = 0;
-	emcmotDebug->minLimitSwitchCount[axis] = 0;
-	emcmotDebug->ampFaultCount[axis] = 0;
     }
 
     /* init compensation struct */
@@ -381,44 +375,12 @@ int init_module(void)
 
     /* FIXME-- add emcmotError */
 
-    /* init min-max-avg stats */
-    mmxavgInit(&emcmotDebug->tMmxavg, emcmotDebug->tMmxavgSpace, MMXAVG_SIZE);
-    mmxavgInit(&emcmotDebug->sMmxavg, emcmotDebug->sMmxavgSpace, MMXAVG_SIZE);
-    mmxavgInit(&emcmotDebug->nMmxavg, emcmotDebug->nMmxavgSpace, MMXAVG_SIZE);
-    mmxavgInit(&emcmotDebug->yMmxavg, emcmotDebug->yMmxavgSpace, MMXAVG_SIZE);
-    mmxavgInit(&emcmotDebug->fMmxavg, emcmotDebug->fMmxavgSpace, MMXAVG_SIZE);
-    mmxavgInit(&emcmotDebug->fyMmxavg, emcmotDebug->fyMmxavgSpace,
-	MMXAVG_SIZE);
-    emcmotDebug->tMin = 0.0;
-    emcmotDebug->tMax = 0.0;
-    emcmotDebug->tAvg = 0.0;
-    emcmotDebug->sMin = 0.0;
-    emcmotDebug->sMax = 0.0;
-    emcmotDebug->sAvg = 0.0;
-    emcmotDebug->nMin = 0.0;
-    emcmotDebug->nMax = 0.0;
-    emcmotDebug->nAvg = 0.0;
-    emcmotDebug->yMin = 0.0;
-    emcmotDebug->yMax = 0.0;
-    emcmotDebug->yAvg = 0.0;
-    emcmotDebug->fyMin = 0.0;
-    emcmotDebug->fyMax = 0.0;
-    emcmotDebug->fyAvg = 0.0;
-    emcmotDebug->fMin = 0.0;
-    emcmotDebug->fMax = 0.0;
-    emcmotDebug->fAvg = 0.0;
-
-    emcmotDebug->cur_time = emcmotDebug->last_time = 0.0;
-    emcmotDebug->start_time = etime();
-    emcmotDebug->running_time = 0.0;
-
     /* init motion emcmotDebug->queue */
     if (-1 == tpCreate(&emcmotDebug->queue, DEFAULT_TC_QUEUE_SIZE,
 	    emcmotDebug->queueTcSpace)) {
 	rtapi_print("can't create motion emcmotDebug->queue\n");
 	return -1;
     }
-
 //    tpInit(&emcmotDebug->queue); // tpInit called from tpCreate
     tpSetCycleTime(&emcmotDebug->queue, emcmotConfig->trajCycleTime);
     tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);

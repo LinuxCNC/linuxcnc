@@ -19,7 +19,6 @@
 #include "emcmotlog.h"
 #include "tp.h"			/* TP_STRUCT */
 #include "tc.h"			/* TC_STRUCT, TC_QUEUE_STRUCT */
-#include "mmxavg.h"		/* MMXAVG_STRUCT */
 #include "kinematics.h"
 
 #ifdef __cplusplus
@@ -67,7 +66,8 @@ extern "C" {
 	EMCMOT_DISABLE,		/* disable servos for active axes */
 	EMCMOT_SET_PID,		/* set PID gains */
 	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs and dac writes */
-	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs and dac writes */
+	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs and dac writes 
+					 */
 	EMCMOT_OPEN_LOG,	/* open a log */
 	EMCMOT_START_LOG,	/* start logging */
 	EMCMOT_STOP_LOG,	/* stop logging */
@@ -364,15 +364,6 @@ extern "C" {
 /* debug struct */
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
-	double tMin, tMax, tAvg;	/* trajectory min, max, avg times */
-	double sMin, sMax, sAvg;	/* servo min, max, avg times */
-	double nMin, nMax, nAvg;	/* min, max, avg times in DISABLED
-					   mode */
-	double yMin, yMax, yAvg;	/* min, max, avg times cycle times
-					   rather than compute */
-	double fMin, fMax, fAvg;	/* min, max, avg times frequency */
-	double fyMin, fyMax, fyAvg;	/* min, max, avg times frequency
-					   cycle times rather than compute */
 
 	EMC_TELEOP_DATA teleop_data;
 	double ferrorCurrent[EMCMOT_MAX_AXIS];	/* current following error */
@@ -410,10 +401,6 @@ extern "C" {
 
 	/* values for joint home positions */
 	double jointHome[EMCMOT_MAX_AXIS];
-
-	int maxLimitSwitchCount[EMCMOT_MAX_AXIS];
-	int minLimitSwitchCount[EMCMOT_MAX_AXIS];
-	int ampFaultCount[EMCMOT_MAX_AXIS];
 
 	TP_STRUCT queue;	/* coordinated mode planner */
 /* the freeAxis TP_STRUCTs are used to store the single joint value,
@@ -480,26 +467,6 @@ extern "C" {
 	int stepping;
 	int idForStep;
 
-	/* min-max-avg structs for traj and servo cycles */
-	MMXAVG_STRUCT tMmxavg;
-	MMXAVG_STRUCT sMmxavg;
-	MMXAVG_STRUCT nMmxavg;
-	MMXAVG_STRUCT yMmxavg;
-	MMXAVG_STRUCT fMmxavg;
-	MMXAVG_STRUCT fyMmxavg;
-
-	double tMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double sMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double nMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double yMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double fMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double fyMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-
-	double start_time;
-	double running_time;
-	double cur_time;
-	double last_time;
-
 	/* backlash stuff */
 	double bcomp[EMCMOT_MAX_AXIS];	/* backlash comp value */
 	char bcompdir[EMCMOT_MAX_AXIS];	/* 0=none, 1=pos, -1=neg */
@@ -525,17 +492,6 @@ extern "C" {
 	unsigned char tail;	/* flag count for mutex detect */
     } EMCMOT_ERROR;
 
-/* EMCMOT_IO  Communication block for digital I/O by RT section JE 7/x/2001 */
-#define EMCMOT_IO_SIZE 8	/* # of bytes emcmot will move out */
-    typedef struct {
-	unsigned short int NumWrite;	/* number of bytes to write */
-	unsigned short int NumRead;	/* number of bytes to read */
-	unsigned char OutBytes[EMCMOT_IO_SIZE];	/* reserve place for up to 8
-						   bytes to be written */
-	unsigned char InBytes[EMCMOT_IO_SIZE];	/* reserve place for up to 8
-						   bytes to be read */
-    } EMCMOT_IO;
-
 /* compensation structure */
 #define EMCMOT_COMP_SIZE 256
     typedef struct {
@@ -554,8 +510,6 @@ extern "C" {
 	EMCMOT_CONFIG config;
 	EMCMOT_DEBUG debug;
 	EMCMOT_ERROR error;
-	EMCMOT_IO io;		/* rt<=> Linux comm for digital output JE
-				   7/x/2001 */
 	EMCMOT_LOG log;
 	EMCMOT_COMP comp[EMCMOT_MAX_AXIS];
     } EMCMOT_STRUCT;

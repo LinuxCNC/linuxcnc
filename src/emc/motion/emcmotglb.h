@@ -23,6 +23,9 @@ static char __attribute__ ((unused)) emcmotglb_h[] =
 extern "C" {
 #endif
 
+#define TRUE 1
+#define FALSE 0
+
 #define EMCMOT_INIFILE_LEN 256
     extern char EMCMOT_INIFILE[EMCMOT_INIFILE_LEN];
 

@@ -22,6 +22,10 @@ static char __attribute__ ((unused)) extintf_h[] =
 extern "C" {
 #endif
 
+//#define LIMIT_SWITCH_DEBOUNCE 10
+//#define AMP_FAULT_DEBOUNCE 100
+#define POSITION_INPUT_DEBOUNCE 10
+
 /*
   extMotInit(const char * stuff)
   Call once before any of the other motion IO functions are called..
@@ -46,6 +50,9 @@ extern "C" {
   extDacWrite(int dac, double volts)
   writes the value to the DAC at indicated dac, 0 .. max DAC - 1.
   Value is in volts. Returns 0 if OK, -1 if dac is out of range.
+
+  Scale the outputs and add any DC offsets..
+  Clamp the outputs in the process of scaling...
   */
     extern int extDacWrite(int dac, double volts);
 
@@ -128,6 +135,9 @@ extern "C" {
   Stores the range of encoders' counts in counts array. Returns 0 if
   OK or -1 if the max is greater than number of encoders. max is
   number of encoders, so for encoders 0..3 max would be 4.
+
+  Scale the value so that motion sees Distance rather than counts.
+  (Handle offsets here ??)
   */
     extern int extEncoderReadAll(int max, double *counts);
 
@@ -160,6 +170,17 @@ extern "C" {
     extern int extEncoderReadLevel(int encoder, int *flag);
 
 /* Limit switch functions */
+
+ /* Use an array of u32 for the limit/fault flags (one for each axis). Define
+   a union so that each one can be addressed as io[axis].limit, and so on..
+   Debounce the the switches here instead of the control loop..
+
+   Home switches handled at the same time ?
+
+ */
+    extern int extSwitchReadAll(int max); /* We know where to store the data in the Status Struct... */
+
+
 /*
   extMaxLimitSwitchRead(int axis, int * flag)
   extMinLimitSwitchRead(int axis, int * flag)

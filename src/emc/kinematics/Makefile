@@ -4,7 +4,6 @@ include ../../../Makefile.inc
 
 SRCS = \
 	cubic.c \
-	mmxavg.c \
 	tc.c \
 	tp.c \
 	trivkins.c
@@ -12,7 +11,6 @@ SRCS = \
 HEADERS = \
 	cubic.h \
 	kinematics.h \
-	mmxavg.h \
 	tc.h \
 	tp.h
 
@@ -20,7 +18,6 @@ OBJS =
 
 RT_OBJS  = \
 	cubic.o \
-	mmxavg.o \
 	tc.o \
 	tp.o \
 	trivkins.o

@@ -32,7 +32,6 @@ RT_OBJS  = \
 	cubic.o \
 	emcmotutil.o \
 	emcpid.o \
-	mmxavg.o \
 	motion.o \
 	tc.o \
 	tp.o
@@ -67,7 +66,6 @@ $(RTLIB_DIR)/motmod.o: \
 	$(RTTMP_DIR)/emcmotlog.o \
 	$(RTTMP_DIR)/emcmotutil.o \
 	$(RTTMP_DIR)/emcpid.o \
-	$(RTTMP_DIR)/mmxavg.o \
 	$(RTTMP_DIR)/tc.o \
 	$(RTTMP_DIR)/tp.o \
 	$(RTTMP_DIR)/trivkins.o

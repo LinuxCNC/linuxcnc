@@ -10,6 +10,10 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
 ********************************************************************/
 
 #include <linux/types.h>
@@ -21,10 +25,6 @@
 #include "motion.h"
 #include "mot_priv.h"
 
-#define LIMIT_SWITCH_DEBOUNCE 10
-#define AMP_FAULT_DEBOUNCE 100
-#define POSITION_INPUT_DEBOUNCE 10
-
 /* FIXME-- testing output rounding to input resolution */
 #define NO_ROUNDING
 
@@ -35,9 +35,7 @@
 /* FIXME-- testing */
 static int debouncecount[EMCMOT_MAX_AXIS] = { 0 };
 
-#ifndef SIMULATED_MOTORS
 static double positionInputDebounce[EMCMOT_MAX_AXIS] = { 0.0 };
-#endif
 
 /* counter that triggers computation of forward kinematics during
    disabled state, making them run at the trajectory rate instead
@@ -55,7 +53,6 @@ static int interpolationCounter = 0;
    move that will in general move all joints. It's set back to zero when
    all joints have been rehomed. */
 int rehomeAll = 0;
-static int logIt = 0;
 
 /* isHoming() returns non-zero if any axes are homing, 0 if none are */
 static int isHoming(void)
@@ -179,7 +176,6 @@ static double axisComp(int axis, int dir, double nominput)
 void emcmotController(void *arg)
 {
     int first = 1;		/* true the first time thru, for initing */
-    double start, end, delta;	/* time stamping */
     int homeFlag;		/* result of ext read to home switch */
     int axis;			/* axis loop counter */
     int t;			/* loop counter if we're in axis loop */
@@ -202,8 +198,6 @@ void emcmotController(void *arg)
 #endif /* COMPING */
 
     for (;;) {
-	/* record start time */
-	start = etime();
 
 	/* READ COMMAND: */
 	emcmotCommandHandler();
@@ -217,17 +211,27 @@ void emcmotController(void *arg)
 	   for-loop on joints below, since it's a single call for all joints */
 	extEncoderReadAll(EMCMOT_MAX_AXIS, emcmotDebug->rawInput);
 
+	/* Use an array of u32 for the limit/fault flags (one for each axis). 
+	   Define a union so that each one can be addressed as
+	   io[axis].limit, and so on.. Debounce the the switches in HAL
+	   instead of the control loop..
+
+	   Home switches handled at the same time ?
+
+	 */
+	extSwitchReadAll(EMCMOT_MAX_AXIS);
+
 	/* process input and read limit switches */
 	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	    /* save old cycle's values */
 	    if (!first && emcmotDebug->oldInputValid[axis]) {
 		emcmotDebug->oldInput[axis] = emcmotStatus->input[axis];
 	    }
-	    /* set input, scaled according to input = (raw - offset) / scale */
+	    /* set input, scaled according to input = raw - offset - backlash 
+	       Scaling is done in the HAL */
 	    emcmotStatus->input[axis] =
-		(emcmotDebug->rawInput[axis] -
-		emcmotStatus->inputOffset[axis]) *
-		emcmotDebug->inverseInputScale[axis] -
+		emcmotDebug->rawInput[axis] -
+		emcmotStatus->inputOffset[axis] -
 		emcmotDebug->bcompincr[axis];
 
 #ifdef COMPING
@@ -243,9 +247,7 @@ void emcmotController(void *arg)
 		first = 0;
 	    }
 
-#if 0   /* FIX ME - Move in to the HAL layer and make sure it actually works */
 	    /* debounce bad feedback */
-#ifndef SIMULATED_MOTORS
 	    if (fabs(emcmotStatus->input[axis] -
 		    emcmotDebug->oldInput[axis]) /
 		emcmotConfig->servoCycleTime > emcmotDebug->bigVel[axis]) {
@@ -255,15 +257,13 @@ void emcmotController(void *arg)
 		    /* we haven't exceeded max number of debounces allowed,
 		       so interpolate off the velocity estimate */
 		    emcmotStatus->input[axis] = emcmotDebug->oldInput[axis] +
-			(emcmotDebug->jointVel[axis] *
-			emcmotConfig->servoCycleTime);
+			emcmotDebug->jointVel[axis] *
+			emcmotConfig->servoCycleTime;
 		} else {
 		    /* we've exceeded the max number of debounces allowed, so
 		       hold position. We should flag an error here, abort the
 		       move, disable motion, etc. but for now we'll rely on
 		       following error to do this */
-/* Looks like we drop straight through to here... Is bigVel being set anywhere 
-   and/or the correct value in oldInput ? */
 		    emcmotStatus->input[axis] = emcmotDebug->oldInput[axis];
 		}
 		/* FIXME-- testing */
@@ -272,8 +272,7 @@ void emcmotController(void *arg)
 		/* no debounce needed, so reset debounce counter */
 		positionInputDebounce[axis] = 0;
 	    }
-#endif
-#endif
+
 	    /* read limit switches and amp fault from external interface, and 
 	       set 'emcmotDebug->enabling' to zero if tripped to cause
 	       immediate stop */
@@ -281,56 +280,39 @@ void emcmotController(void *arg)
 	    /* handle limits */
 	    if (GET_AXIS_ACTIVE_FLAG(axis)) {
 		extMaxLimitSwitchRead(axis, &isLimit);
-		if (isLimit == GET_AXIS_PHL_POLARITY(axis)) {
-		    if (++emcmotDebug->maxLimitSwitchCount[axis] >
-			LIMIT_SWITCH_DEBOUNCE) {
-			SET_AXIS_PHL_FLAG(axis, 1);
-			emcmotDebug->maxLimitSwitchCount[axis] =
-			    LIMIT_SWITCH_DEBOUNCE;
-			if (emcmotStatus->overrideLimits || isHoming()) {
-			} else {
-			    SET_AXIS_ERROR_FLAG(axis, 1);
-			    emcmotDebug->enabling = 0;
-			}
+		if (isLimit == TRUE) {
+		    SET_AXIS_PHL_FLAG(axis, 1);
+		    if (emcmotStatus->overrideLimits || isHoming()) {
+		    } else {
+			SET_AXIS_ERROR_FLAG(axis, 1);
+			emcmotDebug->enabling = 0;
 		    }
 		} else {
 		    SET_AXIS_PHL_FLAG(axis, 0);
-		    emcmotDebug->maxLimitSwitchCount[axis] = 0;
 		}
 	    }
 	    if (GET_AXIS_ACTIVE_FLAG(axis)) {
 		extMinLimitSwitchRead(axis, &isLimit);
-		if (isLimit == GET_AXIS_NHL_POLARITY(axis)) {
-		    if (++emcmotDebug->minLimitSwitchCount[axis] >
-			LIMIT_SWITCH_DEBOUNCE) {
-			SET_AXIS_NHL_FLAG(axis, 1);
-			emcmotDebug->minLimitSwitchCount[axis] =
-			    LIMIT_SWITCH_DEBOUNCE;
-			if (emcmotStatus->overrideLimits || isHoming()) {
-			} else {
-			    SET_AXIS_ERROR_FLAG(axis, 1);
-			    emcmotDebug->enabling = 0;
-			}
+		if (isLimit == TRUE) {
+		    SET_AXIS_NHL_FLAG(axis, 1);
+		    if (emcmotStatus->overrideLimits || isHoming()) {
+		    } else {
+			SET_AXIS_ERROR_FLAG(axis, 1);
+			emcmotDebug->enabling = 0;
 		    }
 		} else {
 		    SET_AXIS_NHL_FLAG(axis, 0);
-		    emcmotDebug->minLimitSwitchCount[axis] = 0;
 		}
 	    }
 
 	    if (GET_AXIS_ACTIVE_FLAG(axis) && GET_AXIS_ENABLE_FLAG(axis)) {
 		extAmpFault(axis, &fault);
-		if (fault == GET_AXIS_FAULT_POLARITY(axis)) {
-		    if (++emcmotDebug->ampFaultCount[axis] >
-			AMP_FAULT_DEBOUNCE) {
-			SET_AXIS_ERROR_FLAG(axis, 1);
-			SET_AXIS_FAULT_FLAG(axis, 1);
-			emcmotDebug->ampFaultCount[axis] = AMP_FAULT_DEBOUNCE;
-			emcmotDebug->enabling = 0;
-		    }
+		if (fault == TRUE) {
+		    SET_AXIS_ERROR_FLAG(axis, 1);
+		    SET_AXIS_FAULT_FLAG(axis, 1);
+		    emcmotDebug->enabling = 0;
 		} else {
 		    SET_AXIS_FAULT_FLAG(axis, 0);
-		    emcmotDebug->ampFaultCount[axis] = 0;
 		}
 	    }
 
@@ -338,7 +320,7 @@ void emcmotController(void *arg)
 	       sequence is done later. */
 	    if (GET_AXIS_ACTIVE_FLAG(axis)) {
 		extHomeSwitchRead(axis, &homeFlag);
-		if (homeFlag == GET_AXIS_HOME_SWITCH_POLARITY(axis)) {
+		if (homeFlag == TRUE) {
 		    SET_AXIS_HOME_SWITCH_FLAG(axis, 1);
 		} else {
 		    SET_AXIS_HOME_SWITCH_FLAG(axis, 0);
@@ -347,61 +329,6 @@ void emcmotController(void *arg)
 
 	}			/* end of: loop on axes, for reading inputs,
 				   setting limit and home switch flags */
-
-	/* check to see if logging should be triggered */
-	if (emcmotStatus->logOpen &&
-	    !emcmotStatus->logStarted &&
-	    loggingAxis >= 0 && loggingAxis < EMCMOT_MAX_AXIS) {
-	    double val = 0.0;
-
-	    switch (emcmotStatus->logTriggerVariable) {
-	    case EMCLOG_TRIGGER_ON_FERROR:
-		val = emcmotDebug->ferrorCurrent[loggingAxis];
-		break;
-
-	    case EMCLOG_TRIGGER_ON_VOLT:
-		val = emcmotDebug->rawOutput[loggingAxis];
-		break;
-
-	    case EMCLOG_TRIGGER_ON_POS:
-		val = emcmotDebug->jointPos[loggingAxis];
-		break;
-
-	    case EMCLOG_TRIGGER_ON_VEL:
-		val =
-		    emcmotDebug->jointPos[loggingAxis] -
-		    emcmotDebug->oldJointPos[loggingAxis];
-		break;
-
-	    default:
-		break;
-	    }
-
-	    switch (emcmotStatus->logTriggerType) {
-	    case EMCLOG_MANUAL_TRIGGER:
-		break;
-
-	    case EMCLOG_DELTA_TRIGGER:
-		if (emcmotStatus->logStartVal - val <
-		    -emcmotStatus->logTriggerThreshold
-		    || emcmotStatus->logStartVal - val >
-		    emcmotStatus->logTriggerThreshold) {
-		    emcmotStatus->logStarted = 1;
-		}
-		break;
-
-	    case EMCLOG_OVER_TRIGGER:
-		if (val > emcmotStatus->logTriggerThreshold) {
-		    emcmotStatus->logStarted = 1;
-		}
-		break;
-
-	    case EMCLOG_UNDER_TRIGGER:
-		if (val < emcmotStatus->logTriggerThreshold) {
-		    emcmotStatus->logStarted = 1;
-		}
-	    }
-	}
 
 	/* now we're outside the axis loop, having just read input, scaled
 	   it, read the limit and home switches and amp faults. We need to
@@ -418,7 +345,7 @@ void emcmotController(void *arg)
 		tpClear(&emcmotDebug->freeAxis[axis]);
 		cubicDrain(&emcmotDebug->cubic[axis]);
 		if (GET_AXIS_ACTIVE_FLAG(axis)) {
-		    extAmpEnable(axis, !GET_AXIS_ENABLE_POLARITY(axis));
+		    extAmpEnable(axis, FALSE);
 		    SET_AXIS_ENABLE_FLAG(axis, 0);
 		    SET_AXIS_HOMING_FLAG(axis, 0);
 		    emcmotStatus->output[axis] = 0.0;
@@ -436,7 +363,6 @@ void emcmotController(void *arg)
 	    /* don't clear the motion error flag, since that may signify why
 	       we just went into disabled state */
 	}
-
 	/* check for emcmotDebug->enabling */
 	if (emcmotDebug->enabling && !GET_MOTION_ENABLE_FLAG()) {
 	    tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);
@@ -445,7 +371,7 @@ void emcmotController(void *arg)
 		tpSetPos(&emcmotDebug->freeAxis[axis], emcmotDebug->freePose);
 		pidReset(&emcmotConfig->pid[axis]);
 		if (GET_AXIS_ACTIVE_FLAG(axis)) {
-		    extAmpEnable(axis, GET_AXIS_ENABLE_POLARITY(axis));
+		    extAmpEnable(axis, TRUE);
 		    SET_AXIS_ENABLE_FLAG(axis, 1);
 		    SET_AXIS_HOMING_FLAG(axis, 0);
 		}
@@ -457,33 +383,6 @@ void emcmotController(void *arg)
 	    /* clear any outstanding motion errors when going into enabled
 	       state */
 	    SET_MOTION_ERROR_FLAG(0);
-
-	    /* init min-max-avg stats */
-	    mmxavgInit(&emcmotDebug->tMmxavg, emcmotDebug->tMmxavgSpace,
-		MMXAVG_SIZE);
-	    mmxavgInit(&emcmotDebug->sMmxavg, emcmotDebug->sMmxavgSpace,
-		MMXAVG_SIZE);
-	    mmxavgInit(&emcmotDebug->yMmxavg, emcmotDebug->yMmxavgSpace,
-		MMXAVG_SIZE);
-	    mmxavgInit(&emcmotDebug->fMmxavg, emcmotDebug->fMmxavgSpace,
-		MMXAVG_SIZE);
-	    mmxavgInit(&emcmotDebug->fyMmxavg, emcmotDebug->fyMmxavgSpace,
-		MMXAVG_SIZE);
-	    emcmotDebug->tMin = 0.0;
-	    emcmotDebug->tMax = 0.0;
-	    emcmotDebug->tAvg = 0.0;
-	    emcmotDebug->sMin = 0.0;
-	    emcmotDebug->sMax = 0.0;
-	    emcmotDebug->sAvg = 0.0;
-	    emcmotDebug->yMin = 0.0;
-	    emcmotDebug->yMax = 0.0;
-	    emcmotDebug->yAvg = 0.0;
-	    emcmotDebug->fyMin = 0.0;
-	    emcmotDebug->fyMax = 0.0;
-	    emcmotDebug->fyAvg = 0.0;
-	    emcmotDebug->fMin = 0.0;
-	    emcmotDebug->fMax = 0.0;
-	    emcmotDebug->fAvg = 0.0;
 	}
 
 	/* check for entering teleop mode */
@@ -972,18 +871,18 @@ void emcmotController(void *arg)
 	       planning abort and stop. */
 	    emcmotDebug->onLimit = 0;
 	    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-		SET_AXIS_PSL_FLAG(axis, 0);
-		SET_AXIS_NSL_FLAG(axis, 0);
+		SET_AXIS_PSL_FLAG(axis, FALSE);
+		SET_AXIS_NSL_FLAG(axis, FALSE);
 		if (GET_AXIS_HOMED_FLAG(axis)) {
 		    if (emcmotDebug->coarseJointPos[axis] >
 			emcmotConfig->maxLimit[axis]) {
-			SET_AXIS_ERROR_FLAG(axis, 1);
-			SET_AXIS_PSL_FLAG(axis, 1);
-			emcmotDebug->onLimit = 1;
+			SET_AXIS_ERROR_FLAG(axis, TRUE);
+			SET_AXIS_PSL_FLAG(axis, TRUE);
+			emcmotDebug->onLimit = TRUE;
 		    } else if (emcmotDebug->coarseJointPos[axis] <
 			emcmotConfig->minLimit[axis]) {
-			SET_AXIS_ERROR_FLAG(axis, 1);
-			SET_AXIS_NSL_FLAG(axis, 1);
+			SET_AXIS_ERROR_FLAG(axis, TRUE);
+			SET_AXIS_NSL_FLAG(axis, TRUE);
 		    }
 		}
 	    }
@@ -993,106 +892,20 @@ void emcmotController(void *arg)
 	       to do this for hard limits, since emcmotDebug->wasOnLimit only 
 	       prevents flurry of aborts while on a soft limit and hard
 	       limits don't abort, they disable. */
-	    if (emcmotDebug->onLimit) {
-		if (!emcmotDebug->wasOnLimit) {
+	    if (emcmotDebug->onLimit == TRUE) {
+		if (emcmotDebug->wasOnLimit == FALSE) {
 		    /* abort everything, regardless of coord or free mode */
 		    tpAbort(&emcmotDebug->queue);
 		    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 			tpAbort(&emcmotDebug->freeAxis[axis]);
-			emcmotDebug->wasOnLimit = 1;
+			emcmotDebug->wasOnLimit = TRUE;
 		    }
 		}
 		/* else we were on a limit, so inhibit firing of aborts */
 	    } else {
 		/* not on a limit, so clear emcmotDebug->wasOnLimit so aborts 
 		   fire next time we are on a limit */
-		emcmotDebug->wasOnLimit = 0;
-	    }
-
-	    if (whichCycle == 2) {
-		/* we're on a trajectory cycle, either Cartesian or joint
-		   planning, so log per-traj-cycle data if logging active */
-		logIt = 0;
-
-		if (emcmotStatus->logStarted && emcmotStatus->logSkip >= 0) {
-
-		    /* calculate current vel, accel, for logging */
-		    emcmotDebug->newVel.tran.x =
-			(emcmotStatus->pos.tran.x -
-			emcmotDebug->oldPos.tran.x) /
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->newVel.tran.y =
-			(emcmotStatus->pos.tran.y -
-			emcmotDebug->oldPos.tran.y) /
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->newVel.tran.z =
-			(emcmotStatus->pos.tran.z -
-			emcmotDebug->oldPos.tran.z) /
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->oldPos = emcmotStatus->pos;
-		    emcmotDebug->newAcc.tran.x =
-			(emcmotDebug->newVel.tran.x -
-			emcmotDebug->oldVel.tran.x) /
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->newAcc.tran.y =
-			(emcmotDebug->newVel.tran.y -
-			emcmotDebug->oldVel.tran.y) /
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->newAcc.tran.z =
-			(emcmotDebug->newVel.tran.z -
-			emcmotDebug->oldVel.tran.z) /
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->oldVel = emcmotDebug->newVel;
-
-		    /* save the type with the log item */
-		    ls.type = emcmotStatus->logType;
-
-		    /* now log type-specific data */
-		    switch (emcmotStatus->logType) {
-
-		    case EMCMOT_LOG_TYPE_TRAJ_POS:
-			if (logSkip-- <= 0) {
-			    ls.item.trajPos.time = start - logStartTime;
-			    ls.item.trajPos.pos = emcmotStatus->pos.tran;
-			    logSkip = emcmotStatus->logSkip;
-			    logIt = 1;
-			}
-			break;
-
-		    case EMCMOT_LOG_TYPE_TRAJ_VEL:
-			if (logSkip-- <= 0) {
-			    ls.item.trajVel.time = start - logStartTime;
-			    ls.item.trajVel.vel = emcmotDebug->newVel.tran;
-			    pmCartMag(emcmotDebug->newVel.tran,
-				&ls.item.trajVel.mag);
-			    logSkip = emcmotStatus->logSkip;
-			    logIt = 1;
-			}
-			break;
-
-		    case EMCMOT_LOG_TYPE_TRAJ_ACC:
-			if (logSkip-- <= 0) {
-			    ls.item.trajAcc.time = start - logStartTime;
-			    ls.item.trajAcc.acc = emcmotDebug->newAcc.tran;
-			    pmCartMag(emcmotDebug->newAcc.tran,
-				&ls.item.trajAcc.mag);
-			    logSkip = emcmotStatus->logSkip;
-			    logIt = 1;
-			}
-			break;
-
-		    default:
-			break;
-		    }		/* end of: switch on log type */
-
-		    /* now log it */
-		    if (logIt) {
-			emcmotLogAdd(emcmotLog, ls);
-			emcmotStatus->logPoints = emcmotLog->howmany;
-			logIt = 0;
-		    }
-		}		/* end of: if (emcmotStatus->logStarted &&
-				   emcmotStatus->logSkip >= 0) */
+		emcmotDebug->wasOnLimit = FALSE;
 	    }
 
 	    /* end of: if (whichCycle == 2), for trajectory cycle logging */
@@ -1107,7 +920,7 @@ void emcmotController(void *arg)
 		    emcmotDebug->oldJointPos[axis]) /
 		    emcmotConfig->servoCycleTime;
 #ifdef COMPING
-		/* set direction flag iff there's a direction change,
+		/* set direction flag if there's a direction change,
 		   otherwise leave it alone so that stops won't change dir */
 		if (emcmotDebug->jointVel[axis] > 0.0 && dir[axis] < 0) {
 		    dir[axis] = 1;
@@ -1228,20 +1041,6 @@ void emcmotController(void *arg)
 			emcmotDebug->jointPos[axis] +
 			emcmotDebug->bcompincr[axis];
 
-#ifndef NO_ROUNDING
-		    numres =
-			emcmotDebug->outJointPos[axis] *
-			emcmotStatus->inputScale[axis];
-		    if (numres < 0.0) {
-			emcmotDebug->outJointPos[axis] =
-			    emcmotDebug->inverseInputScale[axis] *
-			    ((int) (numres - 0.5));
-		    } else {
-			emcmotDebug->outJointPos[axis] =
-			    emcmotDebug->inverseInputScale[axis] *
-			    ((int) (numres + 0.5));
-		    }
-#endif
 
 		    /* Here's where binfunc_trajupdate() was called. */
 
@@ -1291,15 +1090,15 @@ void emcmotController(void *arg)
 		     */
 		    if (magFerror > limitFerror) {
 			/* abort! abort! following error exceeded */
-			SET_AXIS_ERROR_FLAG(axis, 1);
-			SET_AXIS_FERROR_FLAG(axis, 1);
+			SET_AXIS_ERROR_FLAG(axis, TRUE);
+			SET_AXIS_FERROR_FLAG(axis, TRUE);
 			if (emcmotDebug->enabling) {
 			    /* report the following error just this once */
 			    reportError("axis %d following error", axis);
 			}
 			emcmotDebug->enabling = 0;
 		    } else {
-			SET_AXIS_FERROR_FLAG(axis, 0);
+			SET_AXIS_FERROR_FLAG(axis, FALSE);
 		    }
 		} /* end of: if (GET_AXIS_ACTIVE_FLAG(axis)) */
 		else {
@@ -1308,21 +1107,7 @@ void emcmotController(void *arg)
 		       dac */
 		}
 
-		/* CLAMP OUTPUT: */
-
-		/* 
-		   clamp output means take 'emcmotStatus->output[]' and limit 
-		   to range 'emcmotConfig->minOutput[] ..
-		   emcmotConfig->maxOutput[]' */
-		if (emcmotStatus->output[axis] <
-		    emcmotConfig->minOutput[axis]) {
-		    emcmotStatus->output[axis] =
-			emcmotConfig->minOutput[axis];
-		} else if (emcmotStatus->output[axis] >
-		    emcmotConfig->maxOutput[axis]) {
-		    emcmotStatus->output[axis] =
-			emcmotConfig->maxOutput[axis];
-		}
+		/* CLAMP OUTPUT: - Part of the Dac write function. */
 
 		/* CHECK FOR LATCH CONDITION: */
 		/* 
@@ -1462,14 +1247,7 @@ void emcmotController(void *arg)
 	    }
 	}
 
-	/* SCALE OUTPUTS: */
-
-	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	    emcmotDebug->rawOutput[axis] =
-		(emcmotStatus->output[axis] -
-		emcmotStatus->outputOffset[axis]) *
-		emcmotDebug->inverseOutputScale[axis];
-	}
+	/* SCALE OUTPUTS: This is done in the HAL layer */
 
 	/* WRITE OUTPUTS: */
 
@@ -1477,7 +1255,8 @@ void emcmotController(void *arg)
 	   although in this case the pidOutputs are all zero unless manually
 	   overridden. They will not be set by any calculations if we're not
 	   enabled. */
-	extDacWriteAll(EMCMOT_MAX_AXIS, emcmotDebug->rawOutput);
+           /* This is a pure velocity command, not distance. */
+	extDacWriteAll(EMCMOT_MAX_AXIS, emcmotStatus->output);
 
 	/* UPDATE THE REST OF THE DYNAMIC STATUS: */
 
@@ -1502,14 +1281,14 @@ void emcmotController(void *arg)
 
 	/* axis status */
 	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	    SET_AXIS_INPOS_FLAG(axis, 0);
+	    SET_AXIS_INPOS_FLAG(axis, FALSE);
 	    if (tpIsDone(&emcmotDebug->freeAxis[axis])) {
-		SET_AXIS_INPOS_FLAG(axis, 1);
+		SET_AXIS_INPOS_FLAG(axis, TRUE);
 	    } else {
 		/* this axis, at least, is moving, so set
 		   emcmotDebug->overriding flag */
 		if (emcmotStatus->overrideLimits) {
-		    emcmotDebug->overriding = 1;
+		    emcmotDebug->overriding = TRUE;
 		}
 	    }
 	}
@@ -1517,15 +1296,15 @@ void emcmotController(void *arg)
 	/* reset overrideLimits flag if we have started a move and now are in 
 	   position */
 	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	    if (!GET_AXIS_INPOS_FLAG(axis)) {
+	    if (GET_AXIS_INPOS_FLAG(axis) == FALSE) {
 		break;
 	    }
 	}
 	if (axis == EMCMOT_MAX_AXIS) {
 	    /* ran through all axes, and all are in position */
-	    if (emcmotDebug->overriding) {
-		emcmotDebug->overriding = 0;
-		emcmotStatus->overrideLimits = 0;
+	    if (emcmotDebug->overriding == TRUE) {
+		emcmotDebug->overriding = FALSE;
+		emcmotStatus->overrideLimits = FALSE;
 	    }
 	}
 
@@ -1537,171 +1316,9 @@ void emcmotController(void *arg)
 		tpPause(&emcmotDebug->freeAxis[axis]);
 	    }
 	    tpPause(&emcmotDebug->queue);
-	    emcmotDebug->stepping = 0;
-	    emcmotStatus->paused = 1;
+	    emcmotDebug->stepping = FALSE;
+	    emcmotStatus->paused = TRUE;
 	}
-
-	/* calculate elapsed time and min/max/avg */
-	end = etime();
-	delta = end - start;
-
-	emcmotDebug->last_time = emcmotDebug->cur_time;
-	emcmotDebug->cur_time = end;
-
-	if (emcmotDebug->last_time != 0.0) {
-	    if (GET_MOTION_ENABLE_FLAG()) {
-		if (emcmotDebug->cur_time - emcmotDebug->last_time >
-		    10 * emcmotConfig->servoCycleTime) {
-		    reportError("controller missed realtime deadline.");
-		}
-	    }
-	    if (DEBUG_MOTION) {
-		mmxavgAdd(&emcmotDebug->yMmxavg,
-		    (emcmotDebug->cur_time - emcmotDebug->last_time));
-		emcmotDebug->yMin = mmxavgMin(&emcmotDebug->yMmxavg);
-		emcmotDebug->yMax = mmxavgMax(&emcmotDebug->yMmxavg);
-		emcmotDebug->yAvg = mmxavgAvg(&emcmotDebug->yMmxavg);
-	    }
-	}
-
-	emcmotStatus->computeTime = delta;
-	if (DEBUG_MOTION) {
-	    if (2 == whichCycle) {
-		/* traj calcs done this cycle-- use tMin,Max,Avg */
-		mmxavgAdd(&emcmotDebug->tMmxavg, delta);
-		emcmotDebug->tMin = mmxavgMin(&emcmotDebug->tMmxavg);
-		emcmotDebug->tMax = mmxavgMax(&emcmotDebug->tMmxavg);
-		emcmotDebug->tAvg = mmxavgAvg(&emcmotDebug->tMmxavg);
-	    } else if (1 == whichCycle) {
-		/* servo calcs only this cycle-- use sMin,Max,Avg */
-		mmxavgAdd(&emcmotDebug->sMmxavg, delta);
-		emcmotDebug->sMin = mmxavgMin(&emcmotDebug->sMmxavg);
-		emcmotDebug->sMax = mmxavgMax(&emcmotDebug->sMmxavg);
-		emcmotDebug->sAvg = mmxavgAvg(&emcmotDebug->sMmxavg);
-	    } else {
-		/* calcs disabled this cycle-- use nMin,Max,Avg */
-		mmxavgAdd(&emcmotDebug->nMmxavg, delta);
-		emcmotDebug->nMin = mmxavgMin(&emcmotDebug->nMmxavg);
-		emcmotDebug->nMax = mmxavgMax(&emcmotDebug->nMmxavg);
-		emcmotDebug->nAvg = mmxavgAvg(&emcmotDebug->nMmxavg);
-	    }
-	}
-
-	/* log per-servo-cycle data if logging active */
-	logIt = 0;
-	if (emcmotStatus->logStarted && emcmotStatus->logSkip >= 0) {
-
-	    /* record type here, since all will set this */
-	    ls.type = emcmotStatus->logType;
-
-	    /* now log type-specific data */
-	    switch (ls.type) {
-
-	    case EMCMOT_LOG_TYPE_AXIS_POS:
-		if (logSkip-- <= 0) {
-		    ls.item.axisPos.time = end - logStartTime;
-		    ls.item.axisPos.input = emcmotStatus->input[loggingAxis];
-		    ls.item.axisPos.output =
-			emcmotDebug->jointPos[loggingAxis];
-		    logSkip = emcmotStatus->logSkip;
-		    logIt = 1;
-		}
-		break;
-
-	    case EMCMOT_LOG_TYPE_ALL_INPOS:
-		if (logSkip-- <= 0) {
-		    ls.item.allInpos.time = end - logStartTime;
-		    for (axis = 0;
-			axis < EMCMOT_LOG_NUM_AXES &&
-			axis < EMCMOT_MAX_AXIS; axis++) {
-			ls.item.allInpos.input[axis] =
-			    emcmotStatus->input[axis];
-		    }
-		    logSkip = emcmotStatus->logSkip;
-		    logIt = 1;
-		}
-		break;
-
-	    case EMCMOT_LOG_TYPE_ALL_OUTPOS:
-		if (logSkip-- <= 0) {
-		    ls.item.allOutpos.time = end - logStartTime;
-		    for (axis = 0;
-			axis < EMCMOT_LOG_NUM_AXES &&
-			axis < EMCMOT_MAX_AXIS; axis++) {
-			ls.item.allOutpos.output[axis] =
-			    emcmotDebug->jointPos[axis];
-		    }
-		    logSkip = emcmotStatus->logSkip;
-		    logIt = 1;
-		}
-		break;
-
-	    case EMCMOT_LOG_TYPE_AXIS_VEL:
-		if (logSkip-- <= 0) {
-		    ls.item.axisVel.time = end - logStartTime;
-		    ls.item.axisVel.cmdVel =
-			emcmotDebug->jointPos[loggingAxis] -
-			emcmotDebug->oldJointPos[loggingAxis];
-		    ls.item.axisVel.actVel =
-			emcmotStatus->input[loggingAxis] -
-			emcmotDebug->oldInput[loggingAxis];
-		    logSkip = emcmotStatus->logSkip;
-		    logIt = 1;
-		}
-		break;
-
-	    case EMCMOT_LOG_TYPE_ALL_FERROR:
-		if (logSkip-- <= 0) {
-		    ls.item.allFerror.time = end - logStartTime;
-		    for (axis = 0;
-			axis < EMCMOT_LOG_NUM_AXES &&
-			axis < EMCMOT_MAX_AXIS; axis++) {
-			ls.item.allFerror.ferror[axis] =
-			    emcmotDebug->ferrorCurrent[axis];
-		    }
-		    logSkip = emcmotStatus->logSkip;
-		    logIt = 1;
-		}
-		break;
-
-	    case EMCMOT_LOG_TYPE_POS_VOLTAGE:
-		/* don't do a circular log-- suppress if full */
-		if (emcmotLog->howmany >= emcmotStatus->logSize) {
-		    emcmotStatus->output[loggingAxis] = 0.0;	/* drop the
-								   DAC to
-								   zero */
-		    emcmotStatus->logStarted = 0;	/* stop logging */
-		    logIt = 0;	/* should still be zero, reset anyway */
-		    break;
-		}
-		if (logSkip-- <= 0) {
-		    ls.item.posVoltage.time = end - logStartTime;
-		    for (axis = 0;
-			axis < EMCMOT_LOG_NUM_AXES &&
-			axis < EMCMOT_MAX_AXIS; axis++) {
-			ls.item.posVoltage.pos =
-			    emcmotStatus->input[loggingAxis];
-			ls.item.posVoltage.voltage =
-			    emcmotDebug->rawOutput[loggingAxis];
-		    }
-		    logSkip = emcmotStatus->logSkip;
-		    logIt = 1;
-		}
-		break;
-
-	    default:
-		break;
-	    }			/* end of: switch on log type */
-
-	    /* now log it */
-	    if (logIt) {
-		emcmotLogAdd(emcmotLog, ls);
-		emcmotStatus->logPoints = emcmotLog->howmany;
-		logIt = 0;
-	    }
-	}
-	/* end of: if logging */
-	emcmotDebug->running_time = etime() - emcmotDebug->start_time;
 
 	/* set tail to head, which has already been incremented */
 	emcmotStatus->tail = emcmotStatus->head;

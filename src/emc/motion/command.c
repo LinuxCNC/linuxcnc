@@ -16,6 +16,10 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
 ********************************************************************/
 
 #include <linux/types.h>
@@ -29,7 +33,8 @@
 
 /* value for world home position */
 EmcPose worldHome = { {0.0, 0.0, 0.0}
-, 0.0, 0.0, 0.0 };
+, 0.0, 0.0, 0.0
+};
 
 int logSkip = 0;		/* how many to skip, for per-cycle logging */
 int loggingAxis = 0;		/* record of which axis to log */
@@ -163,7 +168,6 @@ static void clearHomes(int axis)
 int emcmotCommandHandler(void)
 {
     int axis;
-    int valid;
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
 	emcmotDebug->split++;
@@ -181,18 +185,6 @@ int emcmotCommandHandler(void)
 
 	/* clear status value by default */
 	emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
-
-	/* log it, if appropriate */
-	if (emcmotStatus->logStarted &&
-	    emcmotStatus->logType == EMCMOT_LOG_TYPE_CMD) {
-	    ls.item.cmd.time = etime();	/* don't subtract off logStartTime,
-					   since we want an absolute time
-					   value */
-	    ls.item.cmd.command = emcmotCommand->command;
-	    ls.item.cmd.commandNum = emcmotCommand->commandNum;
-	    emcmotLogAdd(emcmotLog, ls);
-	    emcmotStatus->logPoints = emcmotLog->howmany;
-	}
 
 	/* ...and process command */
 	switch (emcmotCommand->command) {
@@ -480,11 +472,9 @@ int emcmotCommandHandler(void)
 	    }
 
 	    if (emcmotCommand->vel > 0.0) {
-		emcmotDebug->freePose.tran.x = emcmotDebug->jointPos[axis] + emcmotCommand->offset;	/* FIXME-- 
-													   use 
-													   'goal' 
-													   instead 
-													 */
+		/* FIXME-- use 'goal' instead */
+		emcmotDebug->freePose.tran.x =
+		    emcmotDebug->jointPos[axis] + emcmotCommand->offset;
 		if (GET_AXIS_HOMED_FLAG(axis)) {
 		    if (emcmotDebug->freePose.tran.x >
 			emcmotConfig->maxLimit[axis]) {
@@ -493,11 +483,9 @@ int emcmotCommandHandler(void)
 		    }
 		}
 	    } else {
-		emcmotDebug->freePose.tran.x = emcmotDebug->jointPos[axis] - emcmotCommand->offset;	/* FIXME-- 
-													   use 
-													   'goal' 
-													   instead 
-													 */
+		/* FIXME-- use 'goal' instead */
+		emcmotDebug->freePose.tran.x =
+		    emcmotDebug->jointPos[axis] - emcmotCommand->offset;
 		if (GET_AXIS_HOMED_FLAG(axis)) {
 		    if (emcmotDebug->freePose.tran.x <
 			emcmotConfig->minLimit[axis]) {
@@ -610,8 +598,8 @@ int emcmotCommandHandler(void)
 	    break;
 
 	case EMCMOT_SET_CIRCLE:
-	    /* emcmotDebug->queue up a circular move */
-	    /* requires coordinated mode, enable on, not on limits */
+	    /* emcmotDebug->queue up a circular move requires coordinated
+	       mode, enable on, not on limits */
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError
 		    ("need to be enabled, in coord mode for circular move");
@@ -863,102 +851,6 @@ int emcmotCommandHandler(void)
 		break;
 	    }
 	    extAmpEnable(axis, !GET_AXIS_ENABLE_POLARITY(axis));
-	    break;
-
-	case EMCMOT_OPEN_LOG:
-	    /* open a data log */
-	    axis = emcmotCommand->axis;
-	    valid = 0;
-	    if (emcmotCommand->logSize > 0 &&
-		emcmotCommand->logSize <= EMCMOT_LOG_MAX) {
-		/* handle log-specific data */
-		switch (emcmotCommand->logType) {
-		case EMCMOT_LOG_TYPE_AXIS_POS:
-		case EMCMOT_LOG_TYPE_AXIS_VEL:
-		case EMCMOT_LOG_TYPE_POS_VOLTAGE:
-		    if (axis >= 0 && axis < EMCMOT_MAX_AXIS) {
-			valid = 1;
-		    }
-		    break;
-
-		default:
-		    valid = 1;
-		    break;
-		}
-	    }
-
-	    if (valid) {
-		/* success */
-		loggingAxis = axis;
-		emcmotLogInit(emcmotLog,
-		    emcmotCommand->logType, emcmotCommand->logSize);
-		emcmotStatus->logOpen = 1;
-		emcmotStatus->logStarted = 0;
-		emcmotStatus->logSize = emcmotCommand->logSize;
-		emcmotStatus->logSkip = emcmotCommand->logSkip;
-		emcmotStatus->logType = emcmotCommand->logType;
-		emcmotStatus->logTriggerType = emcmotCommand->logTriggerType;
-		emcmotStatus->logTriggerVariable =
-		    emcmotCommand->logTriggerVariable;
-		emcmotStatus->logTriggerThreshold =
-		    emcmotCommand->logTriggerThreshold;
-		if (axis >= 0 && axis < EMCMOT_MAX_AXIS
-		    && emcmotStatus->logTriggerType == EMCLOG_DELTA_TRIGGER) {
-		    switch (emcmotStatus->logTriggerVariable) {
-		    case EMCLOG_TRIGGER_ON_FERROR:
-			emcmotStatus->logStartVal =
-			    emcmotDebug->ferrorCurrent[loggingAxis];
-			break;
-
-		    case EMCLOG_TRIGGER_ON_VOLT:
-			emcmotStatus->logStartVal =
-			    emcmotDebug->rawOutput[loggingAxis];
-			break;
-		    case EMCLOG_TRIGGER_ON_POS:
-			emcmotStatus->logStartVal =
-			    emcmotDebug->jointPos[loggingAxis];
-			break;
-		    case EMCLOG_TRIGGER_ON_VEL:
-			emcmotStatus->logStartVal =
-			    emcmotDebug->jointPos[loggingAxis] -
-			    emcmotDebug->oldJointPos[loggingAxis];
-			break;
-
-		    default:
-			break;
-		    }
-		}
-	    }
-	    break;
-
-	case EMCMOT_START_LOG:
-	    /* start logging */
-	    /* first ignore triggered log types */
-	    if (emcmotStatus->logType == EMCMOT_LOG_TYPE_POS_VOLTAGE) {
-		break;
-	    }
-	    /* set the global baseTime, to be subtracted off log times,
-	       otherwise time values are too large for the small increments
-	       to appear */
-	    if (emcmotStatus->logOpen &&
-		emcmotStatus->logTriggerType == EMCLOG_MANUAL_TRIGGER) {
-		logStartTime = etime();
-		emcmotStatus->logStarted = 1;
-		logSkip = 0;
-	    }
-	    break;
-
-	case EMCMOT_STOP_LOG:
-	    /* stop logging */
-	    emcmotStatus->logStarted = 0;
-	    break;
-
-	case EMCMOT_CLOSE_LOG:
-	    emcmotStatus->logOpen = 0;
-	    emcmotStatus->logStarted = 0;
-	    emcmotStatus->logSize = 0;
-	    emcmotStatus->logSkip = 0;
-	    emcmotStatus->logType = 0;
 	    break;
 
 	case EMCMOT_DAC_OUT:

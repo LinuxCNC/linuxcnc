@@ -57,7 +57,6 @@ static EMCMOT_COMMAND emcmotCommand;
 
 static int emcmotTrajInited = 0;	// non-zero means traj called init
 static int emcmotAxisInited = 0;	// non-zero means axis called init
-__attribute__ ((unused)) static int emcmotIoInited = 0;	// non-zero means io called init
 static int emcmotion_initialized = 0;	// non-zero means both
 						// emcMotionInit called.
 
