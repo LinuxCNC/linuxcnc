@@ -38,11 +38,11 @@
            |
            |--- posemath/
            |
-           |--- rcslib/
+           |--- libnml/
            |      |
-           |      |--- java/ (IF it is needed at all)
-           |      |--- nml/
            |      |--- cms/
+           |      |--- drivers/
+           |      |--- nml/
            |
            |--- emc/
            |      |

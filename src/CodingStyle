@@ -6,7 +6,8 @@ Version: $Id$
 
 Most of this style guide has been copied wholesale from the linux kernel
 documents - See linux/Documentation/CodingStyle for the full text.
-
+The C++ recommendations have been drawn from various sources such as the
+GTK headers, "C++ The Complete Reference" by Schildt, and IRC discussions.
 
 
  			Indentation
@@ -22,7 +23,7 @@ the code move too far to the right, and makes it hard to read on a
 indentations reduces the clarity. For EMC2, a compromise of 4-character
 indentation has been chosen. This still spreads the code out and causes
 lines to wrap round leading to difficulties in reading the sources. The 
-answer to that is that if you need more than 3 levels of indentation, you're 
+answer to that is that if you need more than 3 levels of indentation, you're
 screwed anyway, and should fix your program. 
 
 
@@ -70,6 +71,15 @@ Also, note that this brace-placement also minimizes the number of empty
 supply of new-lines on your screen is not a renewable resource (think
 25-line terminal screens here), you have more empty lines to put
 comments on. 
+
+A rule has been defined in the top level Make.rules (which should be included
+in all sub-makes) to assist in indenting and bracing. Invoke it by:
+
+ make indent foo.c bar.h
+
+The rule will also format C++ sources and headers in the same manner. By
+default, blank lines will be removed except for one seperating functions and
+those within comment blocks.
 
 
 			Naming
@@ -140,7 +150,9 @@ try to explain HOW your code works in a comment: it's much better to
 write the code so that the _working_ is obvious, and it's a waste of
 time to explain badly written code. 
 
-Generally, you want your comments to tell WHAT your code does, not HOW. 
+Generally, you want your comments to tell WHAT your code does, not HOW.
+A boxed comment describing the function, return value, and who calls it
+placed above the body is good. 
 Also, try to avoid putting comments inside a function body: if the
 function is so complex that you need to separately comment parts of it,
 you should probably re-read the Functions section again.  You can make
@@ -177,6 +189,14 @@ anyone wanting to use cvs. The chapters on tags, branching, and merging
 can appear daunting at first, so should be read several times. Chapters 
 covering administration, however, can be skipped.
 
+
+			CVS Commit Comments
+
+When committing a change or file to the repository, a short  note describing
+the changes is helpfull for future reference. "A small bug fix to foo" is
+more informative than a "." (which should be another shooting offense).
+
+
 			CVS Tags
 
 Tagging files within the cvs repository enables us to mark a set of files
@@ -188,6 +208,116 @@ Note: Tags prefixed with bdi or BDI are reserved for use in conjunction with
 the Brain Dead Install project.
 
 
+			C++ Conventions
+
+C++ coding styles are always likely to end up in heated debates (a bit like
+the emcacs versus vi arguments).  One thing is certain however, a common style
+used by everyone working on a project leads to uniform and readable code.
+
+Naming conventions:
+Constants either from #defines or enumerations should be in upper case through
+out.
+ e.g. EMC_MESSAGE_TYPE
+
+Classes and Namespaces should capitalise the first letter of each word.
+ e.g. GtkWidget
+
+Methods (or function names) should follow the C recommendations above and 
+should not include the class name.
+ e.g. get_foo_bar()
+
+However, boolean methods are easier to read if they avoid underscores and use
+an is prefix.
+ e.g. isOpen, isHomed
+
+Do NOT use "Not" in a boolean name, it leads only leads to confusion when doing
+logical tests.
+ e.g. isNotOnLimit is BAD.
+
+Variable names should avoid the use of upper case and underscores except for
+local or private names. The use of global variables should be avoided as much
+as possible.
+Public:
+ e.g. axislimt
+Private:
+ e.g. maxvelocity_
+
+Specific method naming conventions
+
+The terms get and set should be used where an attribute is accessed directly.
+ e.g. get_foo set_bar
+
+For methods involving boolean attributes, set & reset is prefered.
+ e.g. set_amp_enable reset_amp_fault
+
+Math intensive methods should use compute as a prefix.
+ e.g. compute_PID
+
+Abbreviations in names should be avoided where possible - The exception is for
+local variable names.
+ e.g. pointer is prefered over ptr
+      compute is prefered over cmp
+      compare is again prefered over cmp.
+
+Enumerates and other constants can be prefixed by a common type name
+ e.g. enum COLOUR {
+          COLOUR_RED,
+	  COLOUR_BLUE
+      };
+
+
+Include Statements
+Header files must be included at the top of a source file and not scattered
+throughout the body. They should be sorted and grouped by their hierarchical
+position within the system with the low level files included first.
+Include file paths should NEVER be absolute - Use the compiler -I flag instead.
+
+Pointers and references should have their reference symbol next to the variable
+name rather than the type name.
+ e.g. float *x or int &i
+
+Implicit tests for zero should not be used except for boolean variables.
+ e.g. if (spindle_speed != 0) NOT if (spindle_speed)
+
+Only loop control statements must be included in a for() construct.
+ e.g. sum = 0;
+      for (i = 0; i < 10; i++) {
+          sum += value[i];
+      }
+
+NOT
+      for (i = 0; sum =0; i < 10; i++) sum += value[i];
+
+Likewise, executeable statements in conditionals must be avoided.
+ e.g. if (fd = open(file_name) is bad.
+
+Complex conditional statements should be avoided - Introduce temporary boolean
+variables instead.
+
+The form while(true) should be used for infinite loops.
+ e.g. while (true) {
+          ...;
+      }
+
+NOT
+
+for (::) {
+    ...;
+}
+
+or
+
+while (1) {
+    ...;
+}
+ 
+
+Excessive use of macros and defines should be avoided - Using simple methods or
+functions is prefered.
+
+File names: C++ sources and headers use .cc and .hh extension. The use of .c
+and .h are reserved for plain C. Headers are for class, method, and structure
+declarations, not code (unless the functions are declared inline). 
 
 
 
@@ -197,6 +327,9 @@ Do not put anything below this point. The revision log is automatically appended
 ################################################################################
 
 $Log$
+Revision 1.5  2003/10/26 21:23:48  paul_c
+Start on a modified rcslib
+
 Revision 1.4  2003/10/26 15:02:55  paul_c
 Corrected an error on identation
 
