@@ -1,0 +1,189 @@
+#!/bin/bash
+#
+# This script is used to test/demo the Hardware Abstraction Layer
+#
+# There are actually a number of demos, and right now they may
+# change frequently.  To avoid cluttering up the scripts directory,
+# this file contains all the demos.  Select the one you want by
+# giving an argument.  For example, "hal_demo jogwheel" will run
+# the jogwheel demo.
+#
+# if you don't specify a demo, this prints a usage message
+if [ ! $1 ] ; then
+    echo "Usage:  scripts/hal_demo <demo_name>"
+    echo "Run from the emc2 directory only"
+    echo "Many demos require root privileges to load and/or"
+    echo "unload kernel modules - log in as root, or use:"
+    echo "  su -c \"scripts/hal_demo <demo_name>\""
+    # print the list of demos
+    scripts/hal_demo list
+    exit 0
+fi
+#
+# the first demo isn't a real demo - it simply lists all the demos
+#
+if [ $1 == list ] ; then
+    echo "Available demos are:"
+    echo "  list - prints this list"
+    echo "  load - loads hal core modules"
+    echo "  unload - unloads hal code modules"
+    echo "  parport1 - an introductory demo - step by step"
+    exit 0
+fi
+#
+# The next two demos aren't really demos either - they simply
+# load or unload the hal enviroment, which consists of the
+# RTOS modules, the RTAPI module, and the HAL module.
+#
+# here is the "load" command
+#
+if [ $1 == load ] ; then
+    # load the rtos and rtapi
+    if ! scripts/load_rtapi ; then
+        exit -1
+    fi
+    # load the hal library
+    if ! /sbin/insmod rtlib/hal_lib.o ; then
+        exit -1
+    fi
+    # done
+    echo "HAL core loaded"
+    exit 0
+fi
+#
+# here is the "unload" command
+#
+if [ $1 == unload ] ; then
+    # unload the hal library
+    if ! /sbin/rmmod hal_lib ; then
+        exit -1
+    fi
+    # unload the rtos and rtapi
+    if ! scripts/unload_rtapi ; then
+        exit -1
+    fi
+    # done
+    echo "HAL core unloaded"
+    exit 0
+fi
+#
+# We're almost ready for the real demos, first we must
+# make sure the hal core is loaded
+#
+HAL_STR=`/sbin/lsmod | awk '{print $1}' | grep -x hal_lib `
+if [ ! "$HAL_STR" ] ; then
+    echo "All of the demos require the hal core modules"
+    echo "to be loaded.  Use 'hal_demo load' to load them."
+    exit -1
+fi
+#
+# The first demo: "parport1" simply tests the parallel port
+# this one is a step by step, tutorial/intro to HAL concepts
+#
+if [ $1 == parport1 ] ; then
+    echo "(Comments that are part of the demo are in parenthesis.)"
+    echo "(This demo echos its commands to the screen so you can"
+    echo " see what each step does.  Echoed commands start with '$')"
+    read -p "Hit enter to install the parport module with a 1mS thread"
+    # change the 0278 if your port is at a different address
+    echo "$ /sbin/insmod rtlib/parport.o period=1000000 cfg=\"0278\""
+    /sbin/insmod rtlib/parport.o period=1000000 cfg="0278"
+    read -p "Hit enter see the threads and functions"
+    echo "$ bin/halcmd show thread"
+    bin/halcmd show thread
+    echo "(the period is in nano-seconds)"
+    echo "$ bin/halcmd show funct"
+    bin/halcmd show funct
+    read -p "Hit enter to continue"
+    echo "(connecting the parport read and write"
+    echo " functions to the 1mS thread)"
+    echo "$ bin/halcmd addf parport.1.read parport.thread"
+    bin/halcmd addf parport.1.read parport.thread
+    echo "$ bin/halcmd addf parport.1.write parport.thread"
+    bin/halcmd addf parport.1.write parport.thread
+    echo "(start the realtime thread)"
+    echo "$ bin/halcmd start"
+    bin/halcmd start
+    read -p "Hit enter see the threads and functions again"
+    echo "$ bin/halcmd show thread"
+    bin/halcmd show thread
+    echo "(thread now has functions attached)"
+    echo "$ bin/halcmd show funct"
+    bin/halcmd show funct
+    echo "(functions have a non-zero users count)"
+    read -p "Hit enter to see the pins"
+    echo "$ bin/halcmd show pin"
+    bin/halcmd show pin
+    read -p "Hit enter to see the parameters"
+    echo "$ bin/halcmd show param"
+    bin/halcmd show param
+    read -p "Hit enter to create some signals"
+    echo "$ bin/halcmd newsig jumper1 bit"
+    bin/halcmd newsig jumper1 bit
+    echo "$ bin/halcmd newsig jumper2 bit"
+    bin/halcmd newsig jumper2 bit
+    echo "(signals created - lets look at them)"
+    echo "$ bin/halcmd show sig"
+    bin/halcmd show sig
+    read -p "Hit enter to connect signals to pins"
+    echo "(use signal jumper1 to connect input pin 10 to output pin 2)"
+    echo "$ bin/halcmd linksp jumper1 parport.1.pin-10-in"
+    bin/halcmd linksp jumper1 parport.1.pin-10-in
+    echo "$ bin/halcmd linksp jumper1 parport.1.pin-02-out"
+    bin/halcmd linksp jumper1 parport.1.pin-02-out
+    echo "(connections made - lets take a look)"
+    echo "$ bin/halcmd show sig"
+    bin/halcmd show sig
+    echo "(If you have a breakout board or other access to the port"
+    echo " you can apply a signal to pin 10 and verify that pin 2"
+    echo " follows it - updated every 1mS )"
+    read -p "Hit enter to add another output"
+    echo "$ bin/halcmd linksp jumper1 parport.1.pin-03-out"
+    bin/halcmd linksp jumper1 parport.1.pin-03-out
+    echo "(input pin 10 is now routed to output pins 2 and 3 )"
+    echo "$ bin/halcmd show sig"
+    bin/halcmd show sig
+    read -p "Hit enter to invert the pin 3 output"
+    echo "(invert pin 3 by setting a parameter of the parport module)"
+    echo "$ bin/halcmd setp parport.1.pin-03-out-invert TRUE"
+    bin/halcmd setp parport.1.pin-03-out-invert TRUE
+    echo "(if you have access to the pins, you can verify"
+    echo " that pin 3 is now inverted)"
+    read -p "Hit enter to see the parameters"
+    echo "$ bin/halcmd show param"
+    bin/halcmd show param
+    read -p "Hit enter to try halmeter"
+    echo "(running halmeter, a GUI application - it should"
+    echo " appear in another window.)"
+    echo "(click on the select button, then select a pin, signal,"
+    echo " or parameter to observe.  You can change what you are"
+    echo " observing at any time.)"
+    echo "(the meter updates approx. every 0.1 seconds - if you"
+    echo " have access to the pins, change the input and halmeter"
+    echo " will show the changes.)"
+    echo "(an interesting paremeter to observe is parport.thread.time"
+    echo " which is the most recent execution time of the thread in"
+    echo " nanoseconds.  you should be able to see it change a little"
+    echo " due to jitter and other factors."
+    echo "(Click exit to shut down halmeter.)"
+    echo "$ bin/halmeter"
+    bin/halmeter
+    read -p "Hit enter to finish the demo"
+    echo "(deleting signals)"
+    echo "$ bin/halcmd delsig jumper1"
+    bin/halcmd delsig jumper1
+    echo "$ bin/halcmd delsig jumper2"
+    bin/halcmd delsig jumper2
+    echo "(unloading the parport module)"
+    echo "$ /sbin/rmmod parport"
+    /sbin/rmmod parport
+    exit 0
+fi
+#
+#
+# if we get here, the user asked for a non-existant demo
+#
+echo "Sorry, there is no demo called '$1'"
+scripts/hal_demo
+exit -1
+

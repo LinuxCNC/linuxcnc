@@ -1,6 +1,6 @@
-/** This file, 'miscgtk.c', contains code for generic items used
-    used by GTK based programs.  This includes new widgets
-    and other items of a general nature.
+/** This file, 'miscgtk.c', contains code for some generic GTK
+    functions as declared in 'miscgtk.h'.  This includes new
+    widgets and other items of a general nature.
 */
 
 /** Copyright (C) 2003 John Kasunich
