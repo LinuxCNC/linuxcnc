@@ -337,7 +337,12 @@ int main(int argc, char * argv[])
 
     case EMC_SPINDLE_ON_TYPE:
       emcioStatus.spindle.speed = ((EMC_SPINDLE_ON *) emcioCommand)->speed;
-      emcioStatus.spindle.direction = 1;
+      if (((EMC_SPINDLE_ON *) emcioCommand)->speed > 0) {
+         emcioStatus.spindle.direction = 1;
+      }
+      else {
+         emcioStatus.spindle.direction = 0;
+      }
       emcioStatus.spindle.brake = 0;
       emcioStatus.spindle.increasing = 0;
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_ON %f RPM\n", emcioStatus.spindle.speed);
