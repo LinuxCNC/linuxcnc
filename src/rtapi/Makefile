@@ -103,7 +103,7 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(EMC2_HOME)/Makefile.inc
 	@ echo >> $@
 	@ echo "# List of realtime kernel modules to be loaded" >> $@
 	@ if [ "$RTAI" = "3" ] ; then \
-	    RTAI_SCHED=`readlink $(MODPATH)/rtai_ksched.*` ; \
+	    RTAI_SCHED=`readlink $(MODPATH)/rtai_ksched.* | cut -d. -f1` ; \
 	    RTAI_MOD = "$(RTAI3_BASE) $(RTAI_SCHED) $(RTAI3_SUP)" ; \
 	  fi
 	@ if [ "$(RTPREFIX)" = "rtai" ] ; \
