@@ -1061,7 +1061,7 @@ proc iniLoad {} {
 iniLoad
 
 # convert CYCLE_TIME to milliseconds
-set cycletime [int [expr $CYCLE_TIME * 1000 + 0.5]]
+set cycletime [ expr {int($CYCLE_TIME * 1000 + 0.5)}]
 
 # connect to NML
 if {[emc_io_connect] == -1} {

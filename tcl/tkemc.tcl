@@ -122,7 +122,7 @@ set temp [emc_ini "CYCLE_TIME" "DISPLAY"]
 if {[string length $temp] == 0} {
     set temp 0.200
 }
-set displayCycleTime [int [expr $temp * 1000 + 0.5]]
+set displayCycleTime [expr {int($temp * 1000 + 0.5)}]
 
 # set the debounce time for key repeats
 set debounceTime 150
@@ -902,14 +902,14 @@ set temp [emc_ini "DEFAULT_VELOCITY" "TRAJ"]
 if {[string length $temp] == 0} {
     set temp 1
 }
-set jogSpeed [int [expr $temp * 60 + 0.5]]
+set jogSpeed [expr {int($temp * 60 + 0.5)}]
 
 # read the max jog speed
 set temp [emc_ini "MAX_VELOCITY" "TRAJ"]
 if {[string length $temp] == 0} {
     set temp 1
 }
-set maxJogSpeed [int [expr $temp * 60 + 0.5]]
+set maxJogSpeed [expr {int($temp * 60 + 0.5)}]
 
 set jogType continuous
 set jogIncrement 0.0010
@@ -1190,7 +1190,7 @@ proc incrJogSpeed {} {
     global jogSpeed maxJogSpeed
 
     if {$jogSpeed < $maxJogSpeed} {
-        set jogSpeed [int [expr $jogSpeed + 1.5]]
+        set jogSpeed [expr {int($jogSpeed + 1.5)}]
     }
 }
 
@@ -1198,7 +1198,7 @@ proc decrJogSpeed {} {
     global jogSpeed
 
     if {$jogSpeed > 1} {
-        set jogSpeed [int [expr $jogSpeed - 0.5]]
+        set jogSpeed [expr {int($jogSpeed - 0.5)}]
     }
 }
 
@@ -1272,7 +1272,7 @@ set temp [emc_ini "MAX_FEED_OVERRIDE" "DISPLAY"]
 if {[string length $temp] == 0} {
     set temp 1
 }
-set maxFeedOverride [int [expr $temp * 100 + 0.5]]
+set maxFeedOverride [expr {int($temp * 100 + 0.5)}]
 
 set controls [frame $top.controls]
 pack $controls -side top -anchor w
