@@ -299,6 +299,12 @@ int hal_exit(int comp_id)
     rtapi_snprintf(name, HAL_NAME_LEN, "%s", comp->name);
     /* get rid of the component */
     free_comp_struct(comp);
+    /* was that the last component? */
+    if ( hal_data->comp_list_ptr == 0 ) {
+	/* yes, invalidate "magic" number so shmem will
+	   be re-inited when a new component is loaded */
+	hal_data->magic = 0;
+    }
     /* release mutex */
     rtapi_mutex_give(&(hal_data->mutex));
     /* release RTAPI resources */
@@ -1566,33 +1572,21 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
 ************************************************************************/
 
 #ifdef RTAPI
-/* this code runs when the hal_lib module is insmod'ed, to set up
-   the HAL shared memory area.
+/* these functions are called when the hal_lib module is insmod'ed
+   or rmmod'ed - they do nothing, but Linux expects to see them.
 */
-static int hal_lib_module_id = -1;
 
 int rtapi_app_main(void)
 {
-    int retval;
-
-    hal_lib_module_id = hal_init("hal_lib");
-    if (hal_lib_module_id < 0) {
-	return -1;
-    }
-    /* export parameter for available shared memory */
-    retval =
-	hal_param_s32_new("hal_lib.shmem-avail", &(hal_data->shmem_avail),
-	hal_lib_module_id);
-    if (retval != 0) {
-	return retval;
-    }
-
+    /* nothing to do, since this is just a library...
+       all we accomplish at insmod time is to make the
+       functions available to modules loaded later. */
     return 0;
 }
 
 void rtapi_app_exit(void)
 {
-    hal_exit(hal_lib_module_id);
+    /* nothing to do here either */
 }
 
 /* this is the task function that implements threads in realtime */
