@@ -361,6 +361,21 @@ AC_SUBST(GTK_VER)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
 
+# Check for all the utility programs we need to build and install emc
+# as well as those we use in the emc scripts...
+
+AC_PATH_PROG(GREP, grep, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(INSTALL, install, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(SED, sed, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(PS, ps, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(KILL, kill, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(WHOAMI, whoami, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(AWK, awk, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(INSMOD, insmod, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(RMMOD, rmmod, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(LSMOD, lsmod, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(PIDOF, pidof, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
 
 # Check for math support
 # FIXME - still to be written

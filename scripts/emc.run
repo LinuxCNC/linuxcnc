@@ -8,8 +8,19 @@
 # if <ini-file> not specified, uses EMC2_DIR/configs/emc.ini
 # if path specified, looks there, else looks in $EMC2_DIR/configs
 
-#source $TESTDIR/etc/emc.conf
-source $EMCCONFIG
+# Source any config file we can find
+
+if [ -f ./emc.conf ] ; then
+   source ./emc.conf ;
+elif [ -f "$EMCCONFIG" ] ; then
+   source $EMCCONFIG ;
+elif [ -f /etc/emc.conf ] ; then
+   source /etc/emc.conf ;
+else
+    echo "Can't find emc.conf configuration file"
+    exit -1
+fi
+
 
 #echo "INIVAR is $INIVAR"
 #echo "EMC2_BIN_DIR is $EMC2_BIN_DIR"
@@ -17,48 +28,9 @@ source $EMCCONFIG
 DEBUG_FILE=/dev/null
 PRINT_FILE=/dev/null
 
-# check for some programs that we need
-if ! which grep >$DEBUG_FILE || \
-   ! which sed >$DEBUG_FILE || \
-   ! which ps >$DEBUG_FILE || \
-   ! which kill >$DEBUG_FILE || \
-   ! which whoami >$DEBUG_FILE || \
-   ! which awk >$DEBUG_FILE ; then
-    echo "Sorry, a neccessary program couldn't be found"
-    exit -1
-fi
-if [ -x /sbin/insmod ] ; then
-    INSMOD=/sbin/insmod
-else
-    echo "Can't find insmod"
-    exit -1
-fi
-if [ -x /sbin/rmmod ] ; then
-    RMMOD=/sbin/rmmod
-else
-    echo "Can't find rmmod"
-    exit -1
-fi
-if [ -x /sbin/lsmod ] ; then
-    LSMOD=/sbin/lsmod
-else
-    echo "Can't locate lsmod"
-    exit -1
-fi
-if [ -x /usr/bin/pidof ] ; then
-    PIDOF=/usr/bin/pidof ;
-elif [ -x /bin/pidof ] ; then
-    PIDOF=/bin/pidof ;
-elif [ -x /sbin/pidof ] ; then
-    PIDOF=/sbin/pidof ;
-else
-    echo "Can't find pidof"
-    exit -1
-fi
-
 # strip and process command line options
 #
-while echo $1 | grep ^- >$DEBUG_FILE ; do
+while echo $1 | $GREP ^- >$DEBUG_FILE ; do
     # found an option
     OPTION=$1
     # strip it
@@ -78,7 +50,7 @@ while echo $1 | grep ^- >$DEBUG_FILE ; do
 done
 
 # check for root privliges - hope to remove the need for this later
-if [ `whoami` != root ] ; then
+if [ `$WHOAMI` != root ] ; then
     echo "Sorry, you must be root to run EMC"
     exit -1
 fi
@@ -95,7 +67,7 @@ echo EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR >$PRINT_FILE
 INIFILE=
 if [ ! -n "$1" ] ; then
     INIFILE=$EMC2_CONFIG_DIR/emc.ini
-elif echo $1 | grep / >$DEBUG_FILE ; then
+elif echo $1 | $GREP / >$DEBUG_FILE ; then
     INIFILE=$1
 else
     INIFILE=$EMC2_CONFIG_DIR/$1
@@ -104,20 +76,10 @@ if [ ! -f $INIFILE ] ; then
     echo "Could not find ini file '$INIFILE'"
     exit -1
 fi
+
 echo INIFILE=$INIFILE >$PRINT_FILE
-
 echo INIVAR=$INIVAR >$PRINT_FILE
-
-# Find out where the halcmd program is
-if [ -x $EMC2_BIN_DIR/halcmd ] ; then
-    HALCMD=$EMC2_BIN_DIR/halcmd
-else
-    echo "Can't locate halcmd program - should be in $EMC2_BIN_DIR/halcmd"
-    exit -1
-fi
 echo HALCMD=$HALCMD >$PRINT_FILE
-
-# Find out where the realtime script is
 echo REALTIME=$REALTIME >$PRINT_FILE
 
 # extract info from the ini file that we will need later
@@ -190,7 +152,6 @@ echo NMLFILE=$NMLFILE >$PRINT_FILE
 # Execution resumes after function definitions...
 
 KILL_TASK=
-KILL_TIMEOUT=10
 #
 function KillTaskWithTimeout() {
     KILL_PIDS=`$PIDOF $KILL_TASK`
@@ -201,12 +162,12 @@ function KillTaskWithTimeout() {
     for KILL_PID in $KILL_PIDS ; do
 	echo "Killing task $KILL_TASK, PID=$KILL_PID" >$PRINT_FILE
 	# first a "gentle" kill with signal TERM
-	kill $KILL_PID
+	$KILL $KILL_PID
 	WAIT=$KILL_TIMEOUT
 	# wait and see if it dissappears
 	while [ $WAIT -gt 1 ] ; do
 	    # see if it's still alive
-	    if ps $KILL_PID >$DEBUG_FILE ; then
+	    if $PS $KILL_PID >$DEBUG_FILE ; then
 		WAIT=$(($WAIT-1))
 		sleep 1
 	    else
@@ -216,12 +177,12 @@ function KillTaskWithTimeout() {
 	if [ $WAIT -gt 0 ] ; then
 	    # gentle didn't work, get serious
 	    echo "Timeout, trying kill -9" >$PRINT_FILE
-	    kill -9 $KILL_PID
+	    $KILL -9 $KILL_PID
 	    WAIT=$KILL_TIMEOUT
 	    # wait and see if it dissappears
 	    while [ $WAIT -gt 1 ] ; do
 		# see if it's still alive
-		if ps $KILL_PID >$DEBUG_FILE ; then
+		if $PS $KILL_PID >$DEBUG_FILE ; then
 		    WAIT=$(($WAIT-1))
 		    sleep 1
 		else
@@ -263,9 +224,9 @@ function Cleanup() {
 
     # now the realtime stuff
     # check for rtapi
-    if [ -n "` $LSMOD | awk -- '$1 ~ /^rtapi$/ { print $1 }'`" ] ; then
+    if [ -n "` $LSMOD | $AWK -- '$1 ~ /^rtapi$/ { print $1 }'`" ] ; then
 	# rtapi loaded, check for hal_lib
-	if [ -n "` $LSMOD | awk -- '$1 ~ /^hal_lib$/ { print $1 }'`" ] ; then
+	if [ -n "` $LSMOD | $AWK -- '$1 ~ /^hal_lib$/ { print $1 }'`" ] ; then
 	    # hal_lib loaded, stop realtime threads
 	    $HALCMD stop
 	    # check for any hal_meters
@@ -275,7 +236,7 @@ function Cleanup() {
 		KillTaskWithTimeout
 	    fi
 	    # check for user space HAL components
-	    HAL_USR_COMPS=`$HALCMD show comp | grep -v halcmd | awk -- '$2 ~ /^User$/ { print $3 }'`
+	    HAL_USR_COMPS=`$HALCMD show comp | $GREP -v halcmd | $AWK -- '$2 ~ /^User$/ { print $3 }'`
 	    # remove them
 	    for HAL_COMP in $HAL_USR_COMPS ; do
 		echo "Removing user space HAL component $HAL_COMP" >$PRINT_FILE
@@ -283,7 +244,7 @@ function Cleanup() {
 		KillTaskWithTimeout
 	    done
 	    # check for realtime HAL components (including motion module)
-	    HAL_RT_COMPS=`$HALCMD show comp | awk -- '$2 ~ /^RT$/ { print $3 }'`
+	    HAL_RT_COMPS=`$HALCMD show comp | $AWK -- '$2 ~ /^RT$/ { print $3 }'`
 	    # remove them
 	    for HAL_COMP in $HAL_RT_COMPS ; do
 		echo "Removing realtime HAL component $HAL_COMP" >$PRINT_FILE
@@ -379,7 +340,7 @@ function Cleanup() {
 
 # Name of lock file to check for that signifies that EMC is up,
 # to prevent multiple copies of controller
-LOCKFILE=/tmp/emc.lock
+# LOCKFILE=/tmp/emc.lock # defined in emc.conf now...
 
 
 # I don't think this is needed - if Cleanup is called, emc is
@@ -458,21 +419,21 @@ if [ ! -n "$BASE_PERIOD_SEC" ] ; then
     Cleanup
     exit -1
 fi
-BASE_PERIOD_NSEC=`echo $BASE_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}'`
+BASE_PERIOD_NSEC=`echo $BASE_PERIOD_SEC | $AWK -- '{printf "%d\n", $1*1000000000}'`
 SERVO_PERIOD_SEC=`$INIVAR -ini $INIFILE -var SERVO_PERIOD -sec EMCMOT`
 if [ ! -n "$SERVO_PERIOD_SEC" ] ; then
     echo "Can't find variable SERVO_PERIOD in section [EMCMOT] of file $INIFILE."
     Cleanup
     exit -1
 fi
-SERVO_PERIOD_NSEC=`echo $SERVO_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}'`
+SERVO_PERIOD_NSEC=`echo $SERVO_PERIOD_SEC | $AWK -- '{printf "%d\n", $1*1000000000}'`
 TRAJ_PERIOD_SEC=`$INIVAR -ini $INIFILE -var TRAJ_PERIOD -sec EMCMOT`
 if [ ! -n "$TRAJ_PERIOD_SEC" ] ; then
     echo "Can't find variable TRAJ_PERIOD in section [EMCMOT] of file $INIFILE."
     Cleanup
     exit -1
 fi
-TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}'`
+TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | $AWK -- '{printf "%d\n", $1*1000000000}'`
 
 # load the motion module
 
@@ -566,9 +527,9 @@ if [ -n "$EMCSTRIP" ] ; then
 fi
 
 # Debugging information, remove later
-ps -ael >$DEBUG_FILE
+$PS -ael >$DEBUG_FILE
 ipcs >$DEBUG_FILE
-/sbin/lsmod >$DEBUG_FILE
+$LSMOD >$DEBUG_FILE
 
 sleep 1
 

@@ -2,38 +2,16 @@
 DEBUG_FILE=/dev/null
 PRINT_FILE=/dev/null
 
-if [ -x /sbin/insmod ] ; then
-    INSMOD=/sbin/insmod
-else
-    echo "Can't find insmod"
-    exit -1
-fi
-if [ -x /sbin/rmmod ] ; then
-    RMMOD=/sbin/rmmod
-else
-    echo "Can't find rmmod"
-    exit -1
-fi
-if [ -x /sbin/lsmod ] ; then
-    LSMOD=/sbin/lsmod
-else
-    echo "Can't locate lsmod"
-    exit -1
-fi
-if [ -x /usr/bin/pidof ] ; then
-    PIDOF=/usr/bin/pidof ;
-elif [ -x /bin/pidof ] ; then
-    PIDOF=/bin/pidof ;
-elif [ -x /sbin/pidof ] ; then
-    PIDOF=/sbin/pidof ;
-else
-    echo "Can't find pidof"
-    exit -1
-fi
-
-
-
-EMC2_DIR=`echo $SCRIPT_DIR | sed s#/scripts## `
+INSMOD=@INSMOD@
+RMMOD=@RMMOD@
+LSMOD=@LSMOD@
+PIDOF=@PIDOF@
+GREP=@GREP@
+SED=@SED@
+PS=@PS@
+WHOAMI=@WHOAMI@
+AWK=@AWK@
+IPCS=@IPCS@
 
 # make some useful paths
 prefix=@prefix@
@@ -47,6 +25,8 @@ EMC2_RTLIB_DIR=$TESTDIR@MODULE_DIR@
 
 EMC2_CONFIG_DIR=$TESTDIR/@sysconfdir@
 
+EMC2_DIR=`echo $SCRIPT_DIR | sed s#/scripts## `
+
 
 INIFILE=
 
@@ -54,12 +34,10 @@ INIVAR=$EMC2_BIN_DIR/inivar
 
 HALCMD=$EMC2_BIN_DIR/halcmd
 
-#REALTIME=$EMC2_SCRIPT_DIR/realtime
 REALTIME=$TESTDIR/etc/rc.d/init.d/realtime
 
 # extract info from the ini file that we will need later
 # get name of RS274NGC parameter file
-RS274NGC_PARAMFILE=`$INIVAR -ini $INIFILE -var PARAMETER_FILE -sec RS274NGC`
 
 KILL_TASK=
 KILL_TIMEOUT=10

@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP KERNEL_VERS MODULE_DIR CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GTK_VER GTK_LIBS GTK_CFLAGS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP KERNEL_VERS MODULE_DIR CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GTK_VER GTK_LIBS GTK_CFLAGS GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -5420,6 +5420,501 @@ fi
 
 
 
+# Check for all the utility programs we need to build and install emc
+# as well as those we use in the emc scripts...
+
+# Extract the first word of "grep", so it can be a program name with args.
+set dummy grep; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_GREP+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $GREP in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_GREP="$GREP" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_GREP="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_GREP" && ac_cv_path_GREP=""""
+  ;;
+esac
+fi
+GREP=$ac_cv_path_GREP
+
+if test -n "$GREP"; then
+  echo "$as_me:$LINENO: result: $GREP" >&5
+echo "${ECHO_T}$GREP" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "install", so it can be a program name with args.
+set dummy install; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_INSTALL+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $INSTALL in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_INSTALL="$INSTALL" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_INSTALL="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_INSTALL" && ac_cv_path_INSTALL=""""
+  ;;
+esac
+fi
+INSTALL=$ac_cv_path_INSTALL
+
+if test -n "$INSTALL"; then
+  echo "$as_me:$LINENO: result: $INSTALL" >&5
+echo "${ECHO_T}$INSTALL" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "sed", so it can be a program name with args.
+set dummy sed; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_SED+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $SED in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_SED="$SED" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_SED="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_SED" && ac_cv_path_SED=""""
+  ;;
+esac
+fi
+SED=$ac_cv_path_SED
+
+if test -n "$SED"; then
+  echo "$as_me:$LINENO: result: $SED" >&5
+echo "${ECHO_T}$SED" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "ps", so it can be a program name with args.
+set dummy ps; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_PS+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $PS in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PS="$PS" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PS="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_PS" && ac_cv_path_PS=""""
+  ;;
+esac
+fi
+PS=$ac_cv_path_PS
+
+if test -n "$PS"; then
+  echo "$as_me:$LINENO: result: $PS" >&5
+echo "${ECHO_T}$PS" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "kill", so it can be a program name with args.
+set dummy kill; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_KILL+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $KILL in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_KILL="$KILL" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_KILL="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_KILL" && ac_cv_path_KILL=""""
+  ;;
+esac
+fi
+KILL=$ac_cv_path_KILL
+
+if test -n "$KILL"; then
+  echo "$as_me:$LINENO: result: $KILL" >&5
+echo "${ECHO_T}$KILL" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "whoami", so it can be a program name with args.
+set dummy whoami; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_WHOAMI+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $WHOAMI in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_WHOAMI="$WHOAMI" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_WHOAMI="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_WHOAMI" && ac_cv_path_WHOAMI=""""
+  ;;
+esac
+fi
+WHOAMI=$ac_cv_path_WHOAMI
+
+if test -n "$WHOAMI"; then
+  echo "$as_me:$LINENO: result: $WHOAMI" >&5
+echo "${ECHO_T}$WHOAMI" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "awk", so it can be a program name with args.
+set dummy awk; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_AWK+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $AWK in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_AWK="$AWK" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_AWK="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_AWK" && ac_cv_path_AWK=""""
+  ;;
+esac
+fi
+AWK=$ac_cv_path_AWK
+
+if test -n "$AWK"; then
+  echo "$as_me:$LINENO: result: $AWK" >&5
+echo "${ECHO_T}$AWK" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "insmod", so it can be a program name with args.
+set dummy insmod; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_INSMOD+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $INSMOD in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_INSMOD="$INSMOD" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/sbin:/usr/sbin:/usr/local/sbin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_INSMOD="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_INSMOD" && ac_cv_path_INSMOD=""""
+  ;;
+esac
+fi
+INSMOD=$ac_cv_path_INSMOD
+
+if test -n "$INSMOD"; then
+  echo "$as_me:$LINENO: result: $INSMOD" >&5
+echo "${ECHO_T}$INSMOD" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "rmmod", so it can be a program name with args.
+set dummy rmmod; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_RMMOD+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $RMMOD in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_RMMOD="$RMMOD" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/sbin:/usr/sbin:/usr/local/sbin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_RMMOD="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_RMMOD" && ac_cv_path_RMMOD=""""
+  ;;
+esac
+fi
+RMMOD=$ac_cv_path_RMMOD
+
+if test -n "$RMMOD"; then
+  echo "$as_me:$LINENO: result: $RMMOD" >&5
+echo "${ECHO_T}$RMMOD" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "lsmod", so it can be a program name with args.
+set dummy lsmod; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_LSMOD+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $LSMOD in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_LSMOD="$LSMOD" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/sbin:/usr/sbin:/usr/local/sbin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_LSMOD="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_LSMOD" && ac_cv_path_LSMOD=""""
+  ;;
+esac
+fi
+LSMOD=$ac_cv_path_LSMOD
+
+if test -n "$LSMOD"; then
+  echo "$as_me:$LINENO: result: $LSMOD" >&5
+echo "${ECHO_T}$LSMOD" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "pidof", so it can be a program name with args.
+set dummy pidof; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_PIDOF+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $PIDOF in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PIDOF="$PIDOF" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/sbin:/usr/sbin:/usr/local/sbin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PIDOF="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_PIDOF" && ac_cv_path_PIDOF=""""
+  ;;
+esac
+fi
+PIDOF=$ac_cv_path_PIDOF
+
+if test -n "$PIDOF"; then
+  echo "$as_me:$LINENO: result: $PIDOF" >&5
+echo "${ECHO_T}$PIDOF" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+# Extract the first word of "ipcs", so it can be a program name with args.
+set dummy ipcs; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_IPCS+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $IPCS in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_IPCS="$IPCS" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_IPCS="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_IPCS" && ac_cv_path_IPCS=""""
+  ;;
+esac
+fi
+IPCS=$ac_cv_path_IPCS
+
+if test -n "$IPCS"; then
+  echo "$as_me:$LINENO: result: $IPCS" >&5
+echo "${ECHO_T}$IPCS" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
 
 # Check for math support
 # FIXME - still to be written
@@ -7001,6 +7496,18 @@ s,@AR@,$AR,;t t
 s,@GTK_VER@,$GTK_VER,;t t
 s,@GTK_LIBS@,$GTK_LIBS,;t t
 s,@GTK_CFLAGS@,$GTK_CFLAGS,;t t
+s,@GREP@,$GREP,;t t
+s,@INSTALL@,$INSTALL,;t t
+s,@SED@,$SED,;t t
+s,@PS@,$PS,;t t
+s,@KILL@,$KILL,;t t
+s,@WHOAMI@,$WHOAMI,;t t
+s,@AWK@,$AWK,;t t
+s,@INSMOD@,$INSMOD,;t t
+s,@RMMOD@,$RMMOD,;t t
+s,@LSMOD@,$LSMOD,;t t
+s,@PIDOF@,$PIDOF,;t t
+s,@IPCS@,$IPCS,;t t
 s,@USE_LIBM@,$USE_LIBM,;t t
 s,@USE_STUBS@,$USE_STUBS,;t t
 s,@USE_RTLIBM@,$USE_RTLIBM,;t t
