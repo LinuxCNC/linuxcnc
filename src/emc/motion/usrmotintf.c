@@ -21,6 +21,7 @@ static char __attribute__ ((unused)) ident[] =
     "$Id$";
 
 #include <sys/stat.h>
+#include <string.h>             /* memcpy() */
 #include <float.h>              /* DBL_MIN */
 #include "motion.h"		/* EMCMOT_STATUS,CMD */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */

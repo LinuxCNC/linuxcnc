@@ -20,12 +20,14 @@ SRCS = \
 $(RTPREFIX)_ulapi.c
 
 RT_SRCS = \
-$(RTPREFIX)_rtapi.c
+$(RTPREFIX)_rtapi.c \
+mathstubs.c
 
 # Libraries to be created
 LIBS = \
 $(RTLIB_DIR)/rtapi.o \
-$(LIB_DIR)/ulapi.o
+$(LIB_DIR)/ulapi.o \
+$(RTTMP_DIR)/mathstubs.o
 
 all: headers $(LIBS)
 	@ echo "Set up RTOS symlinks"

@@ -200,38 +200,6 @@ NML::NML(NML_FORMAT_PTR f_ptr, char *buf, char *proc, char *file,
     }
 }
 
-int create_NML(NML ** nml, NML_FORMAT_PTR f_ptr,
-    char *buf, char *proc, char *file)
-{
-    *nml = new NML(f_ptr, buf, proc, file);
-    if (NULL == nml) {
-	return -1;
-    }
-    if (!(*nml)->valid()) {
-	return -1;
-    }
-    if (NULL != (*nml)->cms) {
-	char *forced_type_eq =
-	    strstr((*nml)->cms->buflineupper, "FORCE_TYPE=");
-	if (forced_type_eq != NULL) {
-	    long temp = 0;
-	    temp = strtol(forced_type_eq + 11, NULL, 0);
-	    if (temp > 0) {
-
-		(*nml)->forced_type = temp;
-	    }
-	}
-    }
-    return 0;
-}
-
-void free_NML(NML * nml)
-{
-    if (NULL != nml) {
-	delete nml;
-    }
-}
-
 int NML::login(const char *name, const char *passwd)
 {
     if (NULL == cms) {
@@ -2293,7 +2261,7 @@ void nml_cleanup()
     }
     nmlClearHostAliases();
 }
-
+#if 0
 void nml_wipeout_lists()
 {
     if (NULL != NML_Main_Channel_List) {
@@ -2309,7 +2277,7 @@ void nml_wipeout_lists()
 	NML_Default_Super_Server = (NML_SUPER_SERVER *) NULL;
     }
 }
-
+#endif
 int NML::print_queue_info()
 {
     if (NULL == cms) {

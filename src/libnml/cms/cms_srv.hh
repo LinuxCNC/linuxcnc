@@ -191,8 +191,6 @@ class CMS_SERVER {
 
 };
 
-extern "C" void cms_print_servers();
-
 extern int (*detailed_security_check) (const char *user_name,
     const char *buffer_name, long msg_type, int access_type);
 

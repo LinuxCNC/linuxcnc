@@ -211,16 +211,11 @@ class NML:public virtual CMS_USER {
       NML(NML & nml);		// Don't copy me.
 };
 
-int create_NML(NML **, NML_FORMAT_PTR f_ptr,
-    char *buf, char *proc, char *file);
-
-void free_NML(NML *);
-
 extern LinkedList *NML_Main_Channel_List;
 extern "C" {
     extern void nml_start();
     extern void nml_cleanup();
-    extern void nml_wipeout_lists();
+//    extern void nml_wipeout_lists();
     extern void set_default_nml_config_file(const char *);
     extern const char *get_default_nml_config_file();
     extern NML *nmlWaitOpen(NML_FORMAT_PTR fPtr, char *buffer,

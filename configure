@@ -191,6 +191,9 @@ fi
 # 'man -w' returns the search paths used by older versions of man,
 # but not with man-2.4.1... Use manpath instead to print the search
 # path used by man - We take the first directory listed.
+#
+# Note: Need a CLI option for alternative man directories...
+#
 MANDIR=$(manpath | awk -F: '{ print $1 }')
 # test the result, make sure it's a directory
 if [ ! -d $MANDIR ] ; then
@@ -202,6 +205,9 @@ fi
 # Search for the tcl/tk headers.
 # Very simple to find out what flags & link options are required. Thoughtfully
 # provided in tclConfig.sh & tkConfig.sh - Just need to find them !
+#
+# Note: Need a CLI option for alternative tcl/tk directories...
+#
 TCLCONFIG=$(find /usr/lib -maxdepth 2 -name tclConfig.sh 2>/dev/null | head -n1)
 TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh 2>/dev/null | head -n1)
 if [ "$TCLCONFIG" != "" ] && [ "$TKCONFIG" != "" ] ; then
@@ -219,20 +225,33 @@ source "$TKCONFIG"
   fi
 fi
 
-
-# Test the compatability of libm for realtimr or kernel modules.
-if [ -r $RTDIR/modules/rtai_libm.o ] ; then
-    # RTAI_VER is set, so don't need to define MATHLIB
+# Because some of the realtime kernel modules use floating point math
+# which is not supported by standard kernel calls, we need to link to
+# libm. RTAI provides a loadable module derived from uclibc (a minimal
+# glibc implimentaion for embedded systems). Alternatively, we can link
+# to dietlibc - Most distros package this as diet or dietlibc. Debian
+# splits the headers and static libs into dietlibc-dev..
+# If neither of the two preferred options are available, then the default
+# GNU glibc math library will have to be used. This will cause problems
+# if certain functions found in libc.so are not stubbed, hence the following
+# tests and linking to mathstubs.o at a later stage.
+#
+# Note: Need to add a CLI option to pass the diet dir if it has been built
+# from source, or the distro doesn't install in /usr/lib.
+#
+if [ -r $RTDIR/modules/rtai_libm.o ] || [ -r $RTDIR/modules/rtai_math.o ]; then
+    # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
     echo "Using RTAI's libm kernel module"
+# Note: need to search /lib/modules/`uname -r` for the math modules..
 else
     echo "Testing for a suitable libm... Some symbols may be printed."
     # With RTAI we will assume that rtai_libm (or rtai_math) will
     # work. For RTLinux, a couple of tests need to be done.
     rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
     # compile a sample first.
-    gcc -O0 -c src/tests/mathtest.c -o src/tests/mathtest.o
+    gcc -O -c src/tests/mathtest.c -o src/tests/mathtest.o
 
     DIET_DIR=$(find /usr/lib -maxdepth 2 -name diet* | head -n1)
     if [ "$DIET_DIR" != "" ] ; then
