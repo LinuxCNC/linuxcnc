@@ -281,7 +281,7 @@ int main()
     /* STEP 4b: export read function parameter */
     rtapi_snprintf(name, HAL_NAME_LEN, "skeleton.%d.write", n + 1);
     retval =
-	hal_param_s8_new(name, HAL_RD, &write_funct_flags[n + 1], comp_id);
+	hal_param_s8_new(name, HAL_WR, &write_funct_flags[n + 1], comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SKELETON: ERROR: port %d write funct param failed\n", n + 1);
