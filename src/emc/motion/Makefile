@@ -55,7 +55,7 @@ include ../../../Make.rules
 # symbols without an additional stub module. RTAI provides a
 # kernel module, so RTLinux builds are the only ones at risk.
 #
-# An alternative would be to use ulibc's libm - Often packaged as
+# An alternative would be to use uClibc's libm - Often packaged as
 # part of dietlibc.
 $(RTLIB_DIR)/motmod.o: \
 	$(RTTMP_DIR)/cubic.o \
