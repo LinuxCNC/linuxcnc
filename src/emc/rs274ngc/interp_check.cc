@@ -245,6 +245,9 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
     CHK(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
         NCE_CANNOT_PUT_A_C_IN_CANNED_CYCLE);
   }
+#else
+  CHK(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
+	NCE_CANNED_CYCLES_NOT_SUPPORTED);
 #endif
   if (block->d_number != -1) {
     CHK(((block->g_modes[7] != G_41) && (block->g_modes[7] != G_42)),
@@ -270,8 +273,9 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (motion == G_33) {
-    CHK((block->k_flag == OFF),
-	NCE_K_WORD_MISSING_WITH_G33);
+    printf("\nG33 f=%f\n", block->f_number);
+    CHK((block->k_flag == OFF),	NCE_K_WORD_MISSING_WITH_G33);
+    CHK((block->f_number != -1), NCE_F_WORD_USED_WITH_G33);
   }
 
   if (block->l_number != -1) {

@@ -216,7 +216,9 @@ char * _rs274ngc_errors[] = {
 /* 196 */ "Zero or negative argument to ln", // execute_unary
 /* 197 */ "Zero radius arc", // arc_data_ijk
 /* 198 */ "K word missing with G33", // check_other_codes
-/* 199 */ "G33 not supported", // convert_straight ??
-/* 200 */ "No error", // dummy
+/* 199 */ "F word used with a G33", // check_other_codes
+/* 200 */ "G33 not supported", // convert_straight
+/* 201 */ "Canned cycles not supported", // check_other_codes
+/* 202 */ "Unknown error", // dummy
 "The End"};
 // *INDENT-ON*
