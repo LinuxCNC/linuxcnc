@@ -38,7 +38,7 @@ int rtapi_app_main(void)
     int shmem_prio;
     long period;
 
-    module = rtapi_init("SHMMTASK");
+    module = rtapi_init("SHMEMTASK");
     if (module < 0) {
 	rtapi_print("shmemtask init: rtapi_init returned %d\n", module);
 	return -1;
