@@ -1763,7 +1763,7 @@ static int emc_ini(ClientData clientdata,
 	return TCL_ERROR;
     }
     // open it
-    if (-1 == inifile.open(EMC_INIFILE)) {
+    if (inifile.open(EMC_INIFILE) == false) {
 	return TCL_OK;
     }
 
@@ -5352,7 +5352,7 @@ static int iniLoad(const char *filename)
     int i;
 
     // open it
-    if (-1 == inifile.open(filename)) {
+    if (inifile.open(filename) == false) {
 	return -1;
     }
 

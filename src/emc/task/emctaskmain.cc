@@ -2398,7 +2398,7 @@ static int iniLoad(const char *filename)
     double saveDouble;
 
     // open it
-    if (-1 == inifile.open(filename)) {
+    if (inifile.open(filename) == false) {
 	return -1;
     }
 
