@@ -24,16 +24,12 @@
 #define NML_ERROR_TYPE    ((NMLTYPE) 1)
 #define NML_TEXT_TYPE     ((NMLTYPE) 2)
 #define NML_DISPLAY_TYPE  ((NMLTYPE) 3)
-#define NML_OPERATOR_REQUEST_TYPE ((NMLTYPE) 4)
-#define NML_OPERATOR_REPLY_TYPE ((NMLTYPE) 5)
 
 // Sizes for strings for the above messages
 
 #define NML_ERROR_LEN 256
 #define NML_TEXT_LEN 256
 #define NML_DISPLAY_LEN 256
-#define NML_OPERATOR_REQUEST_LEN 256
-#define NML_OPERATOR_REPLY_LEN 256
 
 class NML_ERROR:public NMLmsg {
   public:
@@ -66,32 +62,6 @@ class NML_DISPLAY:public NMLmsg {
 
     void update(CMS * cms);
     char display[NML_DISPLAY_LEN];
-};
-
-class NML_OPERATOR_REQUEST:public NMLmsg {
-  public:
-    NML_OPERATOR_REQUEST():NMLmsg(NML_OPERATOR_REQUEST_TYPE,
-	sizeof(NML_OPERATOR_REQUEST)) {
-    };
-    ~NML_OPERATOR_REQUEST() {
-    };
-
-    void update(CMS * cms);
-    int key;
-    char request[NML_OPERATOR_REQUEST_LEN];
-};
-
-class NML_OPERATOR_REPLY:public NMLmsg {
-  public:
-    NML_OPERATOR_REPLY():NMLmsg(NML_OPERATOR_REPLY_TYPE,
-	sizeof(NML_OPERATOR_REPLY)) {
-    };
-    ~NML_OPERATOR_REPLY() {
-    };
-
-    void update(CMS * cms);
-    int key;
-    char reply[NML_OPERATOR_REPLY_LEN];
 };
 
 // NML format function

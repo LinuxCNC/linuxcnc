@@ -28,18 +28,6 @@ void NML_DISPLAY::update(CMS * cms)
     cms->update(display, NML_DISPLAY_LEN);
 }
 
-void NML_OPERATOR_REQUEST::update(CMS * cms)
-{
-    cms->update(key);
-    cms->update(request, NML_OPERATOR_REQUEST_LEN);
-}
-
-void NML_OPERATOR_REPLY::update(CMS * cms)
-{
-    cms->update(key);
-    cms->update(reply, NML_OPERATOR_REPLY_LEN);
-}
-
 int nmlErrorFormat(NMLTYPE type, void *buffer, CMS * cms)
 {
     switch (type) {
@@ -53,14 +41,6 @@ int nmlErrorFormat(NMLTYPE type, void *buffer, CMS * cms)
 
     case NML_DISPLAY_TYPE:
 	((NML_DISPLAY *) buffer)->update(cms);
-	break;
-
-    case NML_OPERATOR_REQUEST_TYPE:
-	((NML_OPERATOR_REQUEST *) buffer)->update(cms);
-	break;
-
-    case NML_OPERATOR_REPLY_TYPE:
-	((NML_OPERATOR_REPLY *) buffer)->update(cms);
 	break;
 
 	// unknown type

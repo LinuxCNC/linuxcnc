@@ -18,7 +18,14 @@
 #include "stat_msg.hh"		// RCS_STAT_MSG, RCS_STAT_CHANNEL
 //#include "wm_msg.hh"          // RCS_WM_MSG, RCS_WM_CHANNEL
 #include "nml_oi.hh"		// nmlErrorFormat(), NML_TEXT, NML_ERROR
-#include "nml_mod.hh"
+//#include "nml_mod.hh"
+
+enum RCS_STATUS {               /* Originally from nml_mod.hh */
+    UNINITIALIZED_STATUS = -1,
+    RCS_DONE = 1,
+    RCS_EXEC = 2,
+    RCS_ERROR = 3
+};
 
 #include "cmsdiag.hh"		// class CMS_DIAGNOSTICS_INFO
 #include "nmldiag.hh"		// class NML_DIAGNOSTICS_INFO
@@ -32,7 +39,7 @@
 //#include "inetfile.hh"		// inet_file_open(), inet_file_close()
 
 /* class NML_QR_SERVER, NML_QR_CLIENT, NML_QUERY_MSG */
-#include "nmlqr.hh"
+//#include "nmlqr.hh"
 #endif
 /* Pose/Vector/Matrix Math Classes */
 #include "posemath.h"

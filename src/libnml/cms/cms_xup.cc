@@ -14,7 +14,7 @@
 /* Includes */
 extern "C" {
 #include <stdlib.h>		/* malloc(), free() */
-};
+}
 
 #include "cms.hh"		/* class CMS */
 #include "cms_xup.hh"		/* class CMS_XDR_UPDATER */
@@ -373,7 +373,7 @@ CMS_STATUS CMS_XDR_UPDATER::update(unsigned char *x, unsigned int len)
 
 /* SHORT */
 
-CMS_STATUS CMS_XDR_UPDATER::update(short &x)
+CMS_STATUS CMS_XDR_UPDATER::update(short int &x)
 {
     /* Check to see if the pointers are in the proper range. */
     if (-1 == check_pointer((char *) &x, sizeof(short))) {
@@ -403,7 +403,7 @@ CMS_STATUS CMS_XDR_UPDATER::update(short *x, unsigned int len)
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned short &x)
+CMS_STATUS CMS_XDR_UPDATER::update(unsigned short int &x)
 {
     if (-1 == check_pointer((char *) &x, sizeof(unsigned short))) {
 	return (CMS_UPDATE_ERROR);
@@ -493,7 +493,7 @@ CMS_STATUS CMS_XDR_UPDATER::update(unsigned int *x, unsigned int len)
 
 /* LONG */
 
-CMS_STATUS CMS_XDR_UPDATER::update(long &x)
+CMS_STATUS CMS_XDR_UPDATER::update(long int &x)
 {
     if (-1 == check_pointer((char *) &x, sizeof(long))) {
 	return (CMS_UPDATE_ERROR);
@@ -521,7 +521,7 @@ CMS_STATUS CMS_XDR_UPDATER::update(long *x, unsigned int len)
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned long &x)
+CMS_STATUS CMS_XDR_UPDATER::update(unsigned long int &x)
 {
     if (-1 == check_pointer((char *) &x, sizeof(unsigned long))) {
 	return (CMS_UPDATE_ERROR);

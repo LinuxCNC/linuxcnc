@@ -105,12 +105,9 @@ enum CMS_INTERNAL_ACCESS_TYPE {
 /* What type of global memory buffer. */
 enum CMS_BUFFERTYPE {
     CMS_SHMEM_TYPE,
-    CMS_GLOBMEM_TYPE,
     CMS_PHANTOM_BUFFER,
     CMS_LOCMEM_TYPE,
     CMS_FILEMEM_TYPE,
-    CMS_BBDMEM_TYPE,
-    CMS_RTLMEM_TYPE
 };
 
 /* How will this process access the buffer. */
@@ -123,7 +120,6 @@ enum CMS_PROCESSTYPE {
 
 enum CMS_REMOTE_PORT_TYPE {
     CMS_NO_REMOTE_PORT_TYPE = 0,
-    CMS_RPC_REMOTE_PORT_TYPE,
     CMS_TTY_REMOTE_PORT_TYPE,
     CMS_TCP_REMOTE_PORT_TYPE,
     CMS_STCP_REMOTE_PORT_TYPE,
@@ -179,7 +175,6 @@ class CMS {
 					 */
     virtual int get_msg_count();	/* Has the buffer been read recently? 
 					 */
-    virtual int check_if_transfers_complete();	/* Has DMA completed */
     virtual CMS_STATUS read();	/* Read from buffer. */
     virtual CMS_STATUS blocking_read(double _timeout);	/* Read from buffer,
 							   wait for new data. 
@@ -250,34 +245,34 @@ class CMS {
     /* CMS UPDATE FUNCTIONS located in cms_up.cc */
   /***********************************************/
     /* Access functions for primitive C language data types */
-    CMS_STATUS update(char &x);
-    CMS_STATUS update(unsigned char &x);
+    CMS_STATUS update(char &x);                            /* Used by emc2 */
+    CMS_STATUS update(unsigned char &x);                   /* Used by emc2 */
     CMS_STATUS update(short int &x);
     CMS_STATUS update(unsigned short int &x);
-    CMS_STATUS update(int &x);
+    CMS_STATUS update(int &x);                             /* Used by emc2 */
     CMS_STATUS update(unsigned int &x);
-    CMS_STATUS update(long int &x);
-    CMS_STATUS update(unsigned long int &x);
+    CMS_STATUS update(long int &x);                        /* Used by emc2 */
+    CMS_STATUS update(unsigned long int &x);               /* Used by emc2 */
     CMS_STATUS update(float &x);
-    CMS_STATUS update(double &x);
+    CMS_STATUS update(double &x);                          /* Used by emc2 */
     CMS_STATUS update(long double &x);
-    CMS_STATUS update(char *x, unsigned int len);
-    CMS_STATUS update(unsigned char *x, unsigned int len);
+    CMS_STATUS update(char *x, unsigned int len);          /* Used by emc2 */
+    CMS_STATUS update(unsigned char *x, unsigned int len); /* Used by emc2 */
     CMS_STATUS update(short *x, unsigned int len);
     CMS_STATUS update(unsigned short *x, unsigned int len);
-    CMS_STATUS update(int *x, unsigned int len);
+    CMS_STATUS update(int *x, unsigned int len);           /* Used by emc2 */
     CMS_STATUS update(unsigned int *x, unsigned int len);
     CMS_STATUS update(long *x, unsigned int len);
     CMS_STATUS update(unsigned long *x, unsigned int len);
     CMS_STATUS update(float *x, unsigned int len);
-    CMS_STATUS update(double *x, unsigned int len);
+    CMS_STATUS update(double *x, unsigned int len);        /* Used by emc2 */
     CMS_STATUS update(long double *x, unsigned int len);
 
   /*************************************************************************
    * CMS UPDATE FUNCTIONS for POSEMATH classes, defined in cms_pm.cc       *
    ************************************************************************/
     // translation types
-    CMS_STATUS update(PM_CARTESIAN & x);	// Cart
+    CMS_STATUS update(PM_CARTESIAN & x);	// Cart /* Used by emc2 */
     CMS_STATUS update(PM_SPHERICAL & x);	// Sph
     CMS_STATUS update(PM_CYLINDRICAL & x);	// Cyl
 
@@ -430,7 +425,6 @@ class CMS {
 					   and cleanup PC-NFS Toolkit DLLs */
 
   public:
-    long sizeof_message_header;	/* Used by BBD protocol to strip off */
     double blocking_timeout;
     double min_compatible_version;
     int confirm_write;

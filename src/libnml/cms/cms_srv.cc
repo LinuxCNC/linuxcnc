@@ -40,9 +40,7 @@ extern "C" {
 #define NO_DCE_RPC
 #endif
 #include "tcp_srv.hh"		/* CMS_SERVER_TCP_PORT */
-//#include "inetfile.hh"		// INET_FILE, inet_file_open(), . . .
 #include "timer.hh"		// etime()
-//#include "crypt2.hh"		// crypt()
 #include "cmsdiag.hh"
 
 int cms_server_count = 0;

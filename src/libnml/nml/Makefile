@@ -7,22 +7,18 @@ include ../../../Makefile.inc
 # Declare which files are to be released
 HEADERS = cmd_msg.hh \
 	nml.hh \
-	nml_mod.hh \
 	nml_oi.hh \
 	nml_srv.hh \
 	nmldiag.hh \
 	nmlmsg.hh \
-	nmlqr.hh \
 	stat_msg.hh \
 
 SRCS =	cmd_msg.cc \
 	nml.cc \
-	nml_mod.cc \
 	nml_oi.cc \
 	nml_srv.cc \
 	nmldiag.cc \
 	nmlmsg.cc \
-	nmlqr.cc \
 	stat_msg.cc \
 
 OBJS := $(LIB_OBJS)

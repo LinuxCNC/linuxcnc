@@ -54,11 +54,6 @@ RCS_CMD_CHANNEL::RCS_CMD_CHANNEL(NML_FORMAT_PTR f_ptr, char *name,
     prefix_format_chain(f_ptr);
     prefix_format_chain(RCS_CMD_MSG_format);
     channel_type = RCS_CMD_CHANNEL_TYPE;
-    sizeof_message_header = sizeof(RCS_CMD_MSG);
-
-    if (NULL != cms) {
-	cms->sizeof_message_header = sizeof_message_header;
-    }
 
     register_with_server();
 

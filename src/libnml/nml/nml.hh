@@ -149,7 +149,6 @@ class NML:public virtual CMS_USER {
 
     /* Make just the check_if_read function from cms available to NML users. */
     int check_if_read();
-    int check_if_transfers_complete();
 
     /* Make just the clear function from cms available to NML users. */
     int clear();
@@ -198,7 +197,6 @@ class NML:public virtual CMS_USER {
 
   public:
       NML_CHANNEL_TYPE channel_type;
-    long sizeof_message_header;
     int forced_type;
 
   protected:

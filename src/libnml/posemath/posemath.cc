@@ -19,7 +19,6 @@
 static double noElement = 0.0;
 static PM_CARTESIAN *noCart = 0;
 
-//
 
 // PM_CARTESIAN class
 

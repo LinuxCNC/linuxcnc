@@ -41,10 +41,8 @@ LinkedList *cmsHostAliases = NULL;
 CMS_CONNECTION_MODE cms_connection_mode = CMS_NORMAL_CONNECTION_MODE;
 
 /* Static Class Data Members. */
-int
-  CMS::number_of_cms_objects = 0;
-int
-  cms_encoded_data_explosion_factor = 4;
+int CMS::number_of_cms_objects = 0;
+int cms_encoded_data_explosion_factor = 4;
 
 #if 0
 static int convert2lower(char *dest, char *src, int len)
@@ -76,7 +74,7 @@ static int convert2upper(char *dest, char *src, int len)
 
 /* Class CMS Member Functions */
 
-void *CMS::operator                          new(size_t size)
+void *CMS::operator new(size_t size)
 {
     if (size < sizeof(CMS)) {
 	rcs_print_error
@@ -94,7 +92,7 @@ void *CMS::operator                          new(size_t size)
     return space;
 }
 
-void CMS::operator                          delete(void *space)
+void CMS::operator delete(void *space)
 {
     rcs_print_debug(PRINT_CMS_DESTRUCTORS, " CMS::delete(%X)\n", space);
     free(space);
@@ -151,7 +149,6 @@ CMS::CMS(long s)
     fatal_error_occurred = 0;
     write_just_completed = 0;
     neutral_encoding_method = CMS_XDR_ENCODING;
-    sizeof_message_header = 0;
     blocking_timeout = 0;
     total_subdivisions = 1;
     subdiv_size = size;
@@ -187,7 +184,6 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     char *buffer_type_name;	/* pointer to buffer type name from bufline */
     char *proc_type_name;	/* pointer to process type from procline */
     int i;
-    sizeof_message_header = 0;
     min_compatible_version = 0;
     force_raw = 0;
     confirm_write = 0;
@@ -210,7 +206,6 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     fatal_error_occurred = 0;
     write_just_completed = 0;
     neutral_encoding_method = CMS_XDR_ENCODING;
-    sizeof_message_header = 0;
     blocking_timeout = 0;
     min_compatible_version = 0;
     enc_max_size = -1;
@@ -545,7 +540,7 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     } else {
 	write_permission_flag = 0;
     }
-    if (isserver && BufferType != CMS_BBDMEM_TYPE) {
+    if (isserver) {
 	read_permission_flag = 1;
 	write_permission_flag = 1;
     }
@@ -573,7 +568,7 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     }
 
     if (min_compatible_version <= 3.71 && min_compatible_version >= 1e-6) {
-rcs_print("NO DIAGNOSTICS\n");
+        rcs_print("NO DIAGNOSTICS\n");
 	enable_diagnostics = 0;
     }
 
@@ -585,8 +580,7 @@ rcs_print("NO DIAGNOSTICS\n");
 
 /* Function for allocating memory and initializing XDR streams, which */
 /*    is called from both CMS constructors.                           */
-void
-  CMS::open(void)
+void CMS::open(void)
 {
     int encode_header_ret;
     int encode_queuing_header_ret;
@@ -620,7 +614,6 @@ void
     header.was_read = 0;
     header.write_id = 0;
     header.in_buffer_size = 0;
-    sizeof_message_header = 0;
 
     number_of_cms_objects++;	/* Increment the static variable.  */
     /* Save some memory and time if this is a PHANTOMMEM object. */
@@ -972,11 +965,6 @@ int CMS::get_space_available()
     }
     main_access(data);
     return ((int) free_space);
-}
-
-int CMS::check_if_transfers_complete()
-{
-    return 1;
 }
 
 CMS_STATUS CMS::read()

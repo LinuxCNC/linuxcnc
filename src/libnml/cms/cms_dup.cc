@@ -342,7 +342,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned char *x,
 
 /* Short functions */
 
-CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(short &x)
+CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(short int &x)
 {
     /* Check to see if the pointers are in the proper range. */
     if (-1 == check_pointer((char *) &x, sizeof(short))) {
@@ -389,7 +389,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(short *x, unsigned int len)
     return (status);
 }
 
-CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned short &x)
+CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned short int &x)
 {
     /* Check to see if the pointers are in the proper range. */
     if (-1 == check_pointer((char *) &x, sizeof(short))) {
@@ -559,7 +559,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned int *x,
 
 /* Long functions */
 
-CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(long &x)
+CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(long int &x)
 {
     /* Check to see if the pointers are in the proper range. */
     if (-1 == check_pointer((char *) &x, sizeof(long))) {
@@ -611,7 +611,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(long *x, unsigned int len)
     return (status);
 }
 
-CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned long &x)
+CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned long int &x)
 {
     /* Check to see if the pointers are in the proper range. */
     if (-1 == check_pointer((char *) &x, sizeof(unsigned long))) {

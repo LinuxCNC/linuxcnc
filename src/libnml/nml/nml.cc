@@ -36,7 +36,7 @@ extern "C" {
 #endif
 #include "nmldiag.hh"		// NML_DIAGNOSTICS_INFO
 /* Pointer to a global list of NML channels. */
-    LinkedList *NML_Main_Channel_List = (LinkedList *) NULL;
+LinkedList *NML_Main_Channel_List = (LinkedList *) NULL;
 
 LinkedList *Dynamically_Allocated_NML_Objects = (LinkedList *) NULL;
 
@@ -79,7 +79,7 @@ const char *get_default_nml_config_file()
 /* Special new operator to allow the nml_cleanup function to
 distinguish between dynamically and statically allocated NML
 objects. */
-void *NML::operator    new(size_t size)
+void *NML::operator new(size_t size)
 {
     if (size < sizeof(NML)) {
 	rcs_print_error
@@ -111,7 +111,7 @@ void *NML::operator    new(size_t size)
     return nml_space;
 }
 
-void NML::operator    delete(void *nml_space)
+void NML::operator delete(void *nml_space)
 {
     int dynamic_list_id = 0;
     char *cptr = (char *) NULL;
@@ -167,6 +167,7 @@ NML::NML(NML_FORMAT_PTR f_ptr, char *buf, char *proc, char *file,
     info_printed = 0;
     blocking_read_poll_interval = -1.0;
     forced_type = 0;
+
     strncpy(bufname, buf, 40);
     strncpy(procname, proc, 40);
     if (NULL == file) {
@@ -183,12 +184,10 @@ NML::NML(NML_FORMAT_PTR f_ptr, char *buf, char *proc, char *file,
 
     already_deleted = 0;
     channel_type = NML_GENERIC_CHANNEL_TYPE;
-    sizeof_message_header = sizeof(NMLmsg);
 
     reconstruct(f_ptr, buf, proc, file, set_to_server, set_to_master);
 
     if (NULL != cms) {
-	cms->sizeof_message_header = sizeof_message_header;
 	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
 	if (forced_type_eq != NULL) {
 	    long temp = strtol(forced_type_eq + 11, NULL, 0);
@@ -211,7 +210,6 @@ int create_NML(NML ** nml, NML_FORMAT_PTR f_ptr,
 	return -1;
     }
     if (NULL != (*nml)->cms) {
-	(*nml)->cms->sizeof_message_header = (*nml)->sizeof_message_header;
 	char *forced_type_eq =
 	    strstr((*nml)->cms->buflineupper, "FORCE_TYPE=");
 	if (forced_type_eq != NULL) {
@@ -387,7 +385,6 @@ NML::NML(char *buf, char *proc, char *file, int set_to_server,
     fast_mode = 0;
 
     channel_type = NML_GENERIC_CHANNEL_TYPE;
-    sizeof_message_header = sizeof(NMLmsg);
 
     if (-1 == cms_config(&cms, buf, proc, file, set_to_server, set_to_master)) {
 	if (verbose_nml_error_messages) {
@@ -435,7 +432,6 @@ NML::NML(char *buf, char *proc, char *file, int set_to_server,
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
 
     if (NULL != cms) {
-	cms->sizeof_message_header = sizeof_message_header;
 	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
 	if (forced_type_eq != NULL) {
 	    long temp = 0;
@@ -501,7 +497,6 @@ NML::NML(char *buffer_line, char *proc_line)
     fast_mode = 0;
 
     channel_type = NML_GENERIC_CHANNEL_TYPE;
-    sizeof_message_header = sizeof(NMLmsg);
 
     if (-1 == cms_create_from_lines(&cms, buffer_line, proc_line)) {
 	if (verbose_nml_error_messages) {
@@ -545,7 +540,6 @@ NML::NML(char *buffer_line, char *proc_line)
     cms_status = (int *) &(cms->status);
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
     if (NULL != cms) {
-	cms->sizeof_message_header = sizeof_message_header;
 	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
 	if (forced_type_eq != NULL) {
 	    long temp = 0;
@@ -643,7 +637,6 @@ NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
     blocking_read_poll_interval = -1.0;
 
     channel_type = NML_GENERIC_CHANNEL_TYPE;
-    sizeof_message_header = sizeof(NMLmsg);
 
     if (NULL != nml_ptr) {
 	strncpy(bufname, nml_ptr->bufname, 40);
@@ -2003,20 +1996,6 @@ int NML::prefix_format_chain(NML_FORMAT_PTR f_ptr)
 	format_chain->store_at_head((void *) f_ptr, 0, 0);
     }
     return (0);
-}
-
-/**************************************************************************
-* NML member function: msg2str
-* Parameter: NMLmsg &msg -- Reference to message to be converted into a string.
-* Returns: Returns a pointer to the cms->encoded_data buffer if successful
-* since this should contain the string or NULL if there was an error.
-***************************************************************************/
-int NML::check_if_transfers_complete()
-{
-    if (NULL == cms) {
-	return 1;
-    }
-    return cms->check_if_transfers_complete();
 }
 
 /**************************************************************************

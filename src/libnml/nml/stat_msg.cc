@@ -61,11 +61,6 @@ RCS_STAT_CHANNEL::RCS_STAT_CHANNEL(NML_FORMAT_PTR f_ptr, char *name,
     prefix_format_chain(RCS_STAT_MSG_format);
 
     channel_type = RCS_STAT_CHANNEL_TYPE;
-    sizeof_message_header = sizeof(RCS_STAT_MSG);
-
-    if (NULL != cms) {
-	cms->sizeof_message_header = sizeof_message_header;
-    }
 
     register_with_server();
 }
