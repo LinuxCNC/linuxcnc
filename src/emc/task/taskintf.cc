@@ -274,12 +274,12 @@ int emcAxisSetMinOutputLimit(int axis, double limit)
     emcmotCommand.minLimit = limit;
     saveMinOutput[axis] = limit;
 
-#ifdef ISNAN_TRAP
+ #ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.maxLimit) || isnan(emcmotCommand.minLimit)) {
 	printf("isnan error in emcAxisSetMinOutputLimit\n");
 	return -1;
     }
-#endif
+ #endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }

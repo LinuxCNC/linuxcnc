@@ -45,60 +45,34 @@ static INIFILE *axisInifile = 0;
   HOME <float>                 home position
   MAX_VELOCITY <float>         max vel for axis
   MAX_ACCELERATION <float>     max accel for axis
-  P <float>                    proportional gain
-  I <float>                    integral gain
-  D <float>                    derivative gain
-  FF0 <float>                  0th order feedforward (position)
-  FF1 <float>                  1st order feedforward (velocity)
-  FF2 <float>                  2nd order feedforward (acceleration)
-  MAX_ERROR <float>            max cumulative error
   BACKLASH <float>             backlash
-  BIAS <float>                 constant bias
-  DEADBAND <float>             error deadband
   CYCLE_TIME <float>           cycle time
   INPUT_SCALE <float> <float>  scale, offset
   OUTPUT_SCALE <float> <float> scale, offset
   MIN_LIMIT <float>            minimum soft position limit
   MAX_LIMIT <float>            maximum soft position limit
-  MIN_OUTPUT <float>           minimum output value (voltage, typically)
-  MAX_OUTPUT <float>           maximum output value (voltage, typically)
   FERROR <float>               maximum following error, scaled to max vel
   MIN_FERROR <float>           minimum following error
   HOMING_VEL <float>           homing speed, positive
-  SETUP_TIME <float>             number of periods dir change preceeds step
-  HOLD_TIME <float>              number of periods step line is held low/high after active edge
-  ENABLE_POLARITY <0, 1>       polarity for amp enable output
-  MIN_LIMIT_SWITCH_POLARITY <0, 1> polarity for min limit switch input
-  MAX_LIMIT_SWITCH_POLARITY <0, 1> polarity for max limit switch input
-  HOME_SWITCH_POLARITY <0, 1>  polarity for home switch input
-  HOMING_POLARITY <0, 1>       direction for homing search
   HOME_OFFSET <float>          where to move axis after home
-  FAULT_POLARITY <0, 1>        polarity for amp fault input
   COMP_FILE <filename>         file of axis compensation points
 
   calls:
 
   emcAxisSetAxis(int axis, unsigned char axisType);
   emcAxisSetUnits(int axis, double units);
-  emcAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double backlash, double bias, double maxError, double deadband);
+// FIXME - most of the gains are no longer used, but backlash is and needs treated separately
+// emcAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double backlash, double bias, double maxError, double deadband);
   emcAxisSetCycleTime(int axis, double cycleTime);
   emcAxisSetInterpolationRate(int axis, int rate);
   emcAxisSetInputScale(int axis, double scale, double offset);
   emcAxisSetOutputScale(int axis, double scale, double offset);
   emcAxisSetMinPositionLimit(int axis, double limit);
   emcAxisSetMaxPositionLimit(int axis, double limit);
-  emcAxisSetMinOutputLimit(int axis, double limit);
-  emcAxisSetMaxOutputLimit(int axis, double limit);
   emcAxisSetFerror(int axis, double ferror);
   emcAxisSetMinFerror(int axis, double ferror);
+// FIXME - need several more homing parameters
   emcAxisSetHomingVel(int axis, double homingVel);
-  emcAxisSetStepParams(int axis, double setup_time, double hold_time);
-  emcAxisSetEnablePolarity(int axis, int level);
-  emcAxisSetMinLimitSwitchPolarity(int axis, int level);
-  emcAxisSetMaxLimitSwitchPolarity(int axis, int level);
-  emcAxisSetHomeSwitchPolarity(int axis, int level);
-  emcAxisSetHomingPolarity(int axis, int level);
-  emcAxisSetFaultPolarity(int axis, int level);
   emcAxisActivate(int axis);
   emcAxisDeactivate(int axis);
   emcAxisSetMaxVelocity(int axis, double vel);
@@ -114,29 +88,13 @@ static int loadAxis(int axis)
   const char *inistring;
   unsigned char axisType;
   double units;
-/* FIXME - variables no longer needed */
-#if 0
-  double p, i, d, ff0, ff1, ff2;
-#endif
   double backlash;
-#if 0
-  double bias;
-  double maxError;
-  double deadband;
-  double cycleTime;
-  double scale;
-#endif
   double offset;
   double limit;
   double homingVel;
-#if 0
-  double setup_time;
-  double hold_time;
-#endif
   double home;
   double maxVelocity;
   double maxAcceleration;
-//  int polarity;
   double maxFerror;
 
   // compose string to match, axis = 0 -> AXIS_1, etc.
@@ -203,136 +161,6 @@ static int loadAxis(int axis)
     return -1;
   }
 
-/* FIXME - PID gains no longer in ini file, this gets deleted */
-/* maybe.... perhaps the gains should be in the ini, but they */
-/* should be passed to the HAL pid block another way */
-#if 0
-
-  // set forward gains
-
-  if (NULL != (inistring = axisInifile->find("P", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &p)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] P: %s\n", axisString, inistring);
-      }
-      p = 0;                    // default
-    }
-  }
-  else {
-    // not found at all
-    p = 0;                      // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] P, using default\n", axisString);
-    }
-  }
-
-  if (NULL != (inistring = axisInifile->find("I", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &i)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] I: %s\n", axisString, inistring);
-      }
-      i = 0;                    // default
-    }
-  }
-  else {
-    // not found at all
-    i = 0;                      // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] I, using default\n", axisString);
-    }
-  }
-
-  if (NULL != (inistring = axisInifile->find("D", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &d)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] D: %s\n", axisString, inistring);
-      }
-      d = 0;                    // default
-    }
-  }
-  else {
-    // not found at all
-    d = 0;                      // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] D, using default\n", axisString);
-    }
-  }
-
-  if (NULL != (inistring = axisInifile->find("FF0", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &ff0)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] FF0: %s\n", axisString, inistring);
-      }
-      ff0 = 0;                  // default
-    }
-  }
-  else {
-    // not found at all
-    ff0 = 0;                    // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] FF0, using default\n", axisString);
-    }
-  }
-
-  if (NULL != (inistring = axisInifile->find("FF1", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &ff1)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] FF1: %s\n", axisString, inistring);
-      }
-      ff1 = 0;                  // default
-    }
-  }
-  else {
-    // not found at all
-    ff1 = 0;                    // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] FF1, using default\n", axisString);
-    }
-  }
-
-  if (NULL != (inistring = axisInifile->find("FF2", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &ff2)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] FF2: %s\n", axisString, inistring);
-      }
-      ff2 = 0;                  // default
-    }
-  }
-  else {
-    // not found at all
-    ff2 = 0;                    // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] FF2, using default\n", axisString);
-    }
-  }
-#endif
-
-/* FIXME - backlash is not a PID parameter, so we keep it */
-
   if (NULL != (inistring = axisInifile->find("BACKLASH", axisString))) {
     if (1 == sscanf(inistring, "%lf", &backlash)) {
       // found, and valid
@@ -352,74 +180,6 @@ static int loadAxis(int axis)
       rcs_print_error("can't find [%s] BACKLASH, using default\n", axisString);
     }
   }
-
-/* FIXME - more PID parameters, no longer needed */
-#if 0
-
-  if (NULL != (inistring = axisInifile->find("BIAS", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &bias)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] BIAS: %s\n", axisString, inistring);
-      }
-      bias = 0;                 // default
-    }
-  }
-  else {
-    // not found at all
-    bias = 0;                   // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] BIAS, using default\n", axisString);
-    }
-  }
-
-  // max cumulative error
-
-  if (NULL != (inistring = axisInifile->find("MAX_ERROR", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &maxError)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] MAX_ERROR: %s\n", axisString, inistring);
-      }
-      maxError = 0;                     // default
-    }
-  }
-  else {
-    // not found at all
-    maxError = 0;                       // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] MAX_ERROR, using default\n", axisString);
-    }
-  }
-
-  // deadband
-
-  if (NULL != (inistring = axisInifile->find("DEADBAND", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &deadband)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] DEADBAND: %s\n", axisString, inistring);
-      }
-      deadband = 0;                     // default
-    }
-  }
-  else {
-    // not found at all
-    deadband = 0;                       // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] DEADBAND, using default\n", axisString);
-    }
-  }
-#endif
 
   // now set them
 
@@ -581,59 +341,6 @@ static int loadAxis(int axis)
     }
     return -1;
   }
-#if 0  /* these commands no longer exist */
-  if (NULL != (inistring = axisInifile->find("MIN_OUTPUT", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &limit)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] MIN_OUTPUT: %s\n", axisString, inistring);
-      }
-      limit = -1;                       // default for min output
-    }
-  }
-  else {
-    // not found at all
-    limit = -1;                 // default for min output
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] MIN_OUTPUT, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetMinOutputLimit(axis, limit)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetMinOutputLimit\n");
-    }
-    return -1;
-  }
-
-  if (NULL != (inistring = axisInifile->find("MAX_OUTPUT", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &limit)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] MAX_OUTPUT: %s\n", axisString, inistring);
-      }
-      limit = 1;                        // default for max output
-    }
-  }
-  else {
-    // not found at all
-    limit = 1;                  // default for max output
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] MAX_OUTPUT, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetMaxOutputLimit(axis, limit)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetMaxOutputLimit\n");
-    }
-    return -1;
-  }
-#endif
 
   if (NULL != (inistring = axisInifile->find("FERROR", axisString))) {
     if (1 == sscanf(inistring, "%lf", &maxFerror)) {
@@ -714,55 +421,6 @@ static int loadAxis(int axis)
     return -1;
   }
 
-/* FIXME - step timing parameters no longer handled here */
-#if 0
-
-  if (NULL != (inistring = axisInifile->find("SETUP_TIME", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &setup_time)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] SETUP_TIME: %s\n", axisString, inistring);
-      }
-      setup_time = 1;                    // default for setup time
-    }
-  }
-  else {
-    // not found at all
-    setup_time = 1;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] SETUP_TIME, using default\n", axisString);
-    }
-  }
-  if (NULL != (inistring = axisInifile->find("HOLD_TIME", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &hold_time)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOLD_TIME: %s\n", axisString, inistring);
-      }
-      hold_time = 2;                    // default for setup time
-    }
-  }
-  else {
-    // not found at all
-    hold_time = 2;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOLD_TIME, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetStepParams(axis, setup_time, hold_time)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetStepParams\n");
-    }
-    return -1;
-  }
-#endif
-
   if (NULL != (inistring = axisInifile->find("HOME", axisString))) {
     if (1 == sscanf(inistring, "%lf", &home)) {
       // found, and valid
@@ -841,141 +499,6 @@ static int loadAxis(int axis)
     return -1;
   }
 
-/* FIXME - polarities for digital I/O bits now handled by HAL */
-/* FIXME FIXME - need to add SET_HOME_DIRECTION */
-#if 0
-
-  if (NULL != (inistring = axisInifile->find("ENABLE_POLARITY", axisString))) {
-    if (1 == sscanf(inistring, "%d", &polarity)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] ENABLE_POLARITY: %s\n", axisString, inistring);
-      }
-      polarity = 1;                     // default for polarities
-    }
-  }
-  else {
-    // not found at all
-    polarity = 1;                       // default for polarities
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] ENABLE_POLARITY, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetEnablePolarity(axis, polarity)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetEnablePolarity\n");
-    }
-    return -1;
-  }
-
-  if (NULL != (inistring = axisInifile->find("MIN_LIMIT_SWITCH_POLARITY", axisString))) {
-    if (1 == sscanf(inistring, "%d", &polarity)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] MIN_LIMIT_SWITCH_POLARITY: %s\n", axisString, inistring);
-      }
-      polarity = 1;                     // default for polarities
-    }
-  }
-  else {
-    // not found at all
-    polarity = 1;                       // default for polarities
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] MIN_LIMIT_SWITCH_POLARITY, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetMinLimitSwitchPolarity(axis, polarity)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetMinLimitSwitchPolarity\n");
-    }
-    return -1;
-  }
-
-  if (NULL != (inistring = axisInifile->find("MAX_LIMIT_SWITCH_POLARITY", axisString))) {
-    if (1 == sscanf(inistring, "%d", &polarity)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] MAX_LIMIT_SWITCH_POLARITY: %s\n", axisString, inistring);
-      }
-      polarity = 1;                     // default for polarities
-    }
-  }
-  else {
-    // not found at all
-    polarity = 1;                       // default for polarities
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] MAX_LIMIT_SWITCH_POLARITY, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetMaxLimitSwitchPolarity(axis, polarity)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetMaxLimitSwitchPolarity\n");
-    }
-    return -1;
-  }
-
-  if (NULL != (inistring = axisInifile->find("HOME_SWITCH_POLARITY", axisString))) {
-    if (1 == sscanf(inistring, "%d", &polarity)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOME_SWITCH_POLARITY: %s\n", axisString, inistring);
-      }
-      polarity = 1;                     // default for polarities
-    }
-  }
-  else {
-    // not found at all
-    polarity = 1;                       // default for polarities
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOME_SWITCH_POLARITY, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetHomeSwitchPolarity(axis, polarity)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetHomeSwitchPolarity\n");
-    }
-    return -1;
-  }
-
-  if (NULL != (inistring = axisInifile->find("HOMING_POLARITY", axisString))) {
-    if (1 == sscanf(inistring, "%d", &polarity)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOMING_POLARITY: %s\n", axisString, inistring);
-      }
-      polarity = 1;                     // default for polarities
-    }
-  }
-  else {
-    // not found at all
-    polarity = 1;                       // default for polarities
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOMING_POLARITY, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetHomingPolarity(axis, polarity)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetHomingPolarity\n");
-    }
-    return -1;
-  }
-#endif
-
   if (NULL != (inistring = axisInifile->find("HOME_OFFSET", axisString))) {
     if (1 == sscanf(inistring, "%lf", &offset)) {
       // found, and valid
@@ -1001,36 +524,6 @@ static int loadAxis(int axis)
     }
     return -1;
   }
-
-/* FIXME - more polarity stuff handled by HAL now */
-#if 0
-
-  if (NULL != (inistring = axisInifile->find("FAULT_POLARITY", axisString))) {
-    if (1 == sscanf(inistring, "%d", &polarity)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] FAULT_POLARITY: %s\n", axisString, inistring);
-      }
-      polarity = 1;                     // default for polarities
-    }
-  }
-  else {
-    // not found at all
-    polarity = 1;                       // default for polarities
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] FAULT_POLARITY, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetFaultPolarity(axis, polarity)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetFaultPolarity\n");
-    }
-    return -1;
-  }
-#endif
 
   if (NULL != (inistring = axisInifile->find("COMP_FILE", axisString))) {
     if (0 != emcAxisLoadComp(axis, inistring)) {
