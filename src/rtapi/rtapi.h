@@ -313,6 +313,9 @@ extern "C" {			/* Need this when the header is included in a
        for each task of the next highest priority, set their priorities
        to 'rtapi_prio_next_lower(previous)'.
 
+    N.B. A high priority task will pre-empt or interrupt a lower priority
+         task. Linux is always the lowest priority !
+
     Call these functions only from within init/cleanup code, not from
     realtime tasks.
 */

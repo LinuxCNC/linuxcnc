@@ -24,8 +24,10 @@ The major goals are:
     listed below.
 
 2)  Reduce complexity by eliminating support for platforms
-    other than Linux on x86, with either RTAI or RTLinux for
+    other than Linux, with either RTAI or RTLinux for
     realtime.
+    (P.C.: There is no reason why the code should not run on
+     architectures other than x86.)
 
 3)  Incorporate a Hardware Abstraction Layer that makes the
     realtime code more modular and allows pins and I/O devices
