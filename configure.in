@@ -254,7 +254,10 @@ AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.
 #KERNEL_VERS=`cat $KERNELDIR/include/linux/version.h | head -n 1 | cut -d '"' -f 2`
 
 # Unfortuantely, many distributions (redhat, mandrake) have #defines
-# inside versin.h, so the above test is too simplistic...
+# inside versin.h, so the above test is too simplistic... But then agsin,
+# RH & Mandrake kernels are notorious for their use of patches that break
+# the RT patching - Both RTAI and RTLinux strongly recommend using
+# a virgin source from kernel.org.
 
 # Get the kernel version from version.h
 
@@ -610,6 +613,7 @@ if test "$USE_NLS" = "yes"; then
   AC_SUBST(HAVE_LOCALE_H)  
 
 # Add langauges here when they are translated.
+# Grep the LINGUAS file.
   LANGUAGES=""
   AC_SUBST(LANGUAGES)  
   AC_CHECK_HEADERS(libintl.h)
@@ -618,7 +622,7 @@ if test "$USE_NLS" = "yes"; then
   AC_SUBST(HAVE_LIBINTL)
 
   dnl Handle localedir
-  LOCALEDIR='${datadir}/locale/${package}'
+  LOCALEDIR='${datadir}/locale'
   AC_ARG_WITH(locale-dir,
   [  --with-locale-dir=DIR   Location of the locale file(s)
                           [DATADIR/locale/${PACKAGE}]],[
