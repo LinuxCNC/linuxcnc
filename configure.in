@@ -1,6 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 # 
+# This file is released under GPL, refer to docs/README for details
+#
 # This file is adapted to replace the old ./configure script
 # therefor it includes parts of that script
 
@@ -745,9 +747,11 @@ echo "#   It seems that ./configure completed successfully                 #"
 echo "#   This means that RT is properly installed                         #"
 echo "#   If things don't work check config.log for errors & warnings      #"
 echo "#                                                                    #"
-echo "#   Next try to compile & test EMC2 by typing                        #"
+echo "#   Next try to compile by typing                                    #"
+echo "#         make                                                       #"
 echo "#                                                                    #"
-echo "#         make && scripts/emc.run                                    #"
+echo "#   to run the software you need to type                             #"
+echo "#         scripts/emc.run                                            #"
 echo "#                                                                    #"
 echo "######################################################################"
 echo ""

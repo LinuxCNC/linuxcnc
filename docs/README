@@ -40,21 +40,9 @@ The major goals are:
 The Build Process
 -----------------
 
-The build process follows the standard Linux convention:
-
-From the top level directory, run:
-
-./configure
-make clean
-make
-
-
-If you have multiple RTAI or RTLinux source directories in /usr/src,
-the correct one can be declared as a command line argument:
-
-./configure rtdir=/usr/src/stromboli
-
-configure also accepts other arguments. Use -help to view the list.
+Refer to the file 'docs/INSTALL' for information about building and 
+running the software.
+    
 
 Directory Layout
 ----------------
