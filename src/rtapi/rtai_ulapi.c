@@ -472,6 +472,8 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     shmem->ulusers = 1;
     shmem->size = size;
     rtapi_data->shmem_count++;
+    /* zero the first word of the shmem area */
+    *((long int *) (shmem_addr_array[shmem_id])) = 0;
     /* done */
     rtapi_mutex_give(&(rtapi_data->mutex));
     return shmem_id;

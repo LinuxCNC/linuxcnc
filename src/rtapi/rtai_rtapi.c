@@ -939,6 +939,8 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     shmem->ulusers = 0;
     shmem->size = size;
     rtapi_data->shmem_count++;
+    /* zero the first word of the shmem area */
+    *((long int *) (shmem_addr_array[shmem_id])) = 0;
     /* announce the birth of a brand new baby shmem */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"RTAPI: shmem %02d created by module %02d, key: %d, size: %lu\n",

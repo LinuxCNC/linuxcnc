@@ -419,6 +419,11 @@ extern "C" {			/* Need this when the header is included in a
     'module_id' is the ID of the module that is making the call (see
     rtapi_init).  The block will be at least 'size' bytes, and may
     be rounded up.  Allocating many small blocks may be very wasteful.
+    When a particular block is allocated for the first time, the first
+    4 bytes are zeroed.  Subsequent allocations of the same block
+    by other modules or processes will not touch the contents of the
+    block.  Applications can use those bytes to see if they need to
+    initialize the block, or if another module already did so.
     On success, it returns a positive integer ID, which is used for
     all subsequent calls dealing with the block.  On failure it
     returns a negative error code.  Call only from within user or
