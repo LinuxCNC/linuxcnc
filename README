@@ -40,6 +40,7 @@ the correct one can be declared as a command line argument:
 
 ./configure rtdir=/usr/src/stromboli
 
+configure also accepts other arguments. Use -help to view the list.
 
 Directory Layout
 ----------------
