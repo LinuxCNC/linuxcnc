@@ -11,9 +11,7 @@
   21-Jan-2004  P.C. Moved across from the original EMC source tree.
 */
 
-#define ENABLE_PROBING
-
-#include "posemath.h"		/* PmCartesian */
+#include "posemath.h"		/* PmCartesian, PmPose, pmCartMag() */
 #include "emcpos.h"
 #include "emcpid.h"		/* PID_STRUCT */
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
@@ -58,8 +56,7 @@ extern "C" {
 	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
 	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
 	EMCMOT_SET_VEL_LIMIT,	/* set the absolute max vel for all moves */
-	EMCMOT_SET_AXIS_VEL_LIMIT,	/* set the absolute max vel for each
-					   axis */
+	EMCMOT_SET_AXIS_VEL_LIMIT,	/* set the absolute max axis vel */
 	EMCMOT_SET_ACC,		/* set the acceleration for moves */
 	EMCMOT_PAUSE,		/* pause motion */
 	EMCMOT_RESUME,		/* resume motion */
@@ -70,8 +67,7 @@ extern "C" {
 	EMCMOT_DISABLE,		/* disable servos for active axes */
 	EMCMOT_SET_PID,		/* set PID gains */
 	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs and dac writes */
-	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs and dac writes 
-					 */
+	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs and dac writes */
 	EMCMOT_OPEN_LOG,	/* open a log */
 	EMCMOT_START_LOG,	/* start logging */
 	EMCMOT_STOP_LOG,	/* stop logging */
@@ -96,7 +92,6 @@ extern "C" {
 	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
 					   world cartesian coordinates, not
 					   in joint space like EMCMOT_JOG_* */
-
 	EMCMOT_SET_PROBE_INDEX,	/* set which wire the probe signal is on. */
 	EMCMOT_SET_PROBE_POLARITY,	/* probe tripped on 0 to 1 transition 
 					   or on 1 to 0 transition. */
@@ -104,7 +99,6 @@ extern "C" {
 	EMCMOT_PROBE,		/* go towards a position, stop if the probe
 				   is tripped, and record the position where
 				   the probe tripped */
-
 	EMCMOT_SET_DEBUG,	/* sets the debug level */
 	EMCMOT_SET_AOUT,	/* sets an analog motion point for next move */
 	EMCMOT_SET_DOUT,	/* sets a digital motion point for next move */

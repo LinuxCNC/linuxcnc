@@ -163,7 +163,7 @@ int extMotInit(void)
 	return -1;
     }
     /* export all the variables for each axis */
-    for (n = 0; n < (EMCMOT_MAX_AXIS - 1); n++) {
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
 	/* export all vars */
 	retval = export_axis(n, &(axis_array[n]));
 	if (retval != 0) {
@@ -175,8 +175,8 @@ int extMotInit(void)
 	/* init axis outputs */
 	*(axis_array[n].volts) = 0.0;
 	*(axis_array[n].enable) = 0;
-        /* We'll init the index model to manual for now */
-        *(axis_array[n].mode) = EXT_ENCODER_INDEX_MODEL_MANUAL;
+        /* We'll init the index model to zero (no model) for now */
+        *(axis_array[n].mode) = 0;
 	*(axis_array[n].reset) = 0;
     }
     /* Done! */
@@ -197,16 +197,20 @@ int extDacNum(void)
 /*
 This function isn't currently used, but if it were,
 we would need to return the number of DACs in the system.
+A possible way of doing this is:
+  return GetAxes();
 */
   return 0;
 }
 
 int extDacWrite(int dac, double volts)
 {
-  if (dac > (EMCMOT_MAX_AXIS - 1) || dac < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[dac]);
+  if (dac >= EMCMOT_MAX_AXIS || dac < 0) {
     return -1;
   } else {
-    *(axis_array[dac].volts) = volts;
+    *(axis_addr->volts) = volts;
     return 0;
   }
 }
@@ -214,31 +218,36 @@ int extDacWrite(int dac, double volts)
 int extDacWriteAll(int max, double * volts)
 {
   int n;
+  axis_t *axis_addr;
   if (max > EMCMOT_MAX_AXIS || max < 1) {
     return -1;
   } else {
-    for (n = 0; n < (max - 1); n++) {
-      *(axis_array[n].volts) = *(volts + n);
+    for (n = 0; n < max; n++) {
+      axis_addr = &(axis_array[n]);
+     *(axis_addr->volts) = volts[n];
     }
     return 0;
   }
 }
 
 /* Encoder Functions */
-
 unsigned int extEncoderIndexModel(void)
 {
-  return *(axis_array[0].model);
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[0]);
+  return *(axis_addr->model);
 }
 
 int extEncoderSetIndexModel(unsigned int model)
 {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[0]);
   /* test that the requested model is supported */
-  if ((model & *(axis_array[0].model)) == 0) {
+  if ((model & *(axis_addr->model)) == 0) {
     return -1;
   } else {
-  *(axis_array[0].mode) = model;
-  return 0;
+    (unsigned int *)axis_addr->mode = model;
+    return 0;
   }
 }
 
@@ -247,16 +256,20 @@ int extEncoderNum(void)
 /*
 This function isn't currently used, but if it were,
 we would need to return the number of encoders in the system.
+A possible way of doing this is:
+  return GetAxes();
 */
   return 0;
 }
 
 int extEncoderRead(int encoder, double * counts)
 {
-  if (encoder > (EMCMOT_MAX_AXIS - 1) || encoder < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[encoder]);
+  if (encoder >= EMCMOT_MAX_AXIS || encoder < 0) {
     return -1;
   } else {
-    *counts = *(axis_array[encoder].position);
+    *counts = *(axis_addr->position);
     return 0;
   }
 }
@@ -264,11 +277,13 @@ int extEncoderRead(int encoder, double * counts)
 int extEncoderReadAll(int max, double * counts)
 {
   int n;
+  axis_t *axis_addr;
   if (max > EMCMOT_MAX_AXIS || max < 1) {
     return -1;
   } else {
-    for (n = 0; n < (max - 1); n++) {
-      *(counts + n) = *(axis_array[n].position);
+    for (n = 0; n < max; n++) {
+      axis_addr = &(axis_array[n]);
+      counts[n] = *(axis_addr->position);
     }
     return 0;
   }
@@ -276,24 +291,28 @@ int extEncoderReadAll(int max, double * counts)
 
 int extEncoderResetIndex(int encoder)
 {
-  if (encoder > (EMCMOT_MAX_AXIS - 1) || encoder < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[encoder]);
+  if (encoder >= EMCMOT_MAX_AXIS || encoder < 0) {
     return -1;
   } else {
     /* each time this function is called, we set this bit */
-    *(axis_array[encoder].reset) = 1;
+    (int *)axis_addr->reset = 1;
     return 0;
   }
 }
 
 int extEncoderReadLatch(int encoder, int * flag)
 {
-  if (encoder > (EMCMOT_MAX_AXIS - 1) || encoder < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[encoder]);
+  if (encoder >= EMCMOT_MAX_AXIS || encoder < 0) {
     return -1;
   } else {
-    *flag = *(axis_array[encoder].latch);
+    *flag = *(axis_addr->latch);
     /* if the latch bit is set, we clear the reset bit */
     if (*flag == 1) {
-      *(axis_array[encoder].reset) = 0;
+      axis_addr->reset = 0;
     }
     return 0;
   }
@@ -301,10 +320,12 @@ int extEncoderReadLatch(int encoder, int * flag)
 
 int extEncoderReadLevel(int encoder, int * flag)
 {
-  if (encoder > (EMCMOT_MAX_AXIS - 1) || encoder < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[encoder]);
+  if (encoder >= EMCMOT_MAX_AXIS || encoder < 0) {
     return -1;
   } else {
-    *flag = *(axis_array[encoder].index);
+    *flag = *(axis_addr->index);
     return 0;
   }
 }
@@ -312,30 +333,36 @@ int extEncoderReadLevel(int encoder, int * flag)
 /* Switch Functions */
 int extMaxLimitSwitchRead(int axis, int * flag)
 {
-  if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[axis]);
+  if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
     return -1;
   } else {
-    *flag = *(axis_array[axis].max);
+    *flag = *(axis_addr->max);
     return 0;
   }
 }
 
 int extMinLimitSwitchRead(int axis, int * flag)
 {
-  if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[axis]);
+  if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
     return -1;
   } else {
-    *flag = *(axis_array[axis].min);
+    *flag = *(axis_addr->min);
     return 0;
   }
 }
 
 int extHomeSwitchRead(int axis, int * flag)
 {
-  if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[axis]);
+  if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
     return -1;
   } else {
-    *flag = *(axis_array[axis].home);
+    *flag = *(axis_addr->home);
     return 0;
   }
 }
@@ -344,9 +371,11 @@ int extHomeSwitchRead(int axis, int * flag)
 int extProbeCheck(int * flag)
 {
   int n, f;
+  axis_t *axis_addr;
   f = 0;
-  for (n = 0; n < (EMCMOT_MAX_AXIS - 1); n++) {
-    if (*(axis_array[n].probe) != 0.0) {
+  for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+    axis_addr = &(axis_array[n]);
+    if (*(axis_addr->probe) != 0.0) {
       f = 1;
     }
   }
@@ -356,10 +385,12 @@ int extProbeCheck(int * flag)
 
 int extProbeRead(int axis, double * counts)
 {
-  if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[axis]);
+  if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
     return -1;
   } else {
-    *counts = *(axis_array[axis].probe);
+    *counts = *(axis_addr->probe);
     return 0;
   }
 }
@@ -367,11 +398,13 @@ int extProbeRead(int axis, double * counts)
 int extProbeReadAll(int max, double * counts)
 {
   int n;
+  axis_t *axis_addr;
   if (max > EMCMOT_MAX_AXIS || max < 1) {
     return -1;
   } else {
-    for (n = 0; n < (max - 1); n++) {
-      *(counts + n) = *(axis_array[n].probe);
+    for (n = 0; n < max; n++) {
+      axis_addr = &(axis_array[n]);
+      counts[n] = *(axis_addr->probe);
     }
     return 0;
   }
@@ -380,20 +413,24 @@ int extProbeReadAll(int max, double * counts)
 /* Amplifier Functions */
 int extAmpEnable(int axis, int enable)
 {
-  if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[axis]);
+  if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
     return -1;
   } else {
-    *(axis_array[axis].enable) = enable;
+    (int *)axis_addr->enable = enable;
     return 0;
   }
 }
 
 int extAmpFault(int axis, int * fault)
 {
-  if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
+  axis_t *axis_addr;
+  axis_addr = &(axis_array[axis]);
+  if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
     return -1;
   } else {
-    *fault = *(axis_array[axis].fault);
+    *fault = *(axis_addr->fault);
     return 0;
   }
 }

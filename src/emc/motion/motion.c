@@ -14,24 +14,10 @@
 #error This is a realtime component only!
 #endif
 
-#include <linux/types.h>
-#include <stdarg.h>		/* va_list */
-#include <float.h>		/* DBL_MIN */
-#include <math.h>		/* fabs() */
-
-#include "posemath.h"		/* PmPose, pmCartMag() */
-#include "emcpos.h"
-#include "emcmotcfg.h"
 #include "emcmotglb.h"
 #include "motion.h"
 #include "mot_priv.h"
-#include "emcpid.h"
-#include "cubic.h"
-#include "tc.h"
-#include "tp.h"
 #include "extintf.h"
-#include "mmxavg.h"
-#include "emcmotlog.h"
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
@@ -91,7 +77,6 @@ EMCMOT_STRUCT *emcmotStruct;
 /* ptrs to either buffered copies or direct memory for
    command and status */
 EMCMOT_COMMAND *emcmotCommand;
-EMCMOT_STATUS *emcmotStatus;
 EMCMOT_STATUS *emcmotStatus;
 EMCMOT_CONFIG *emcmotConfig;
 EMCMOT_DEBUG *emcmotDebug;
@@ -262,10 +247,9 @@ int init_module(void)
     emcmotConfig = (EMCMOT_CONFIG *) & emcmotStruct->config;
     emcmotDebug = (EMCMOT_DEBUG *) & emcmotStruct->debug;
     emcmotError = (EMCMOT_ERROR *) & emcmotStruct->error;
-    emcmotIo = (EMCMOT_IO *) & emcmotStruct->io;	/* set address of
-							   struct JE
-							   8/21/2001 */
+    emcmotIo = (EMCMOT_IO *) & emcmotStruct->io;
     emcmotLog = (EMCMOT_LOG *) & emcmotStruct->log;
+
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = (EMCMOT_COMP *) & emcmotStruct->comp[axis];
 	emcmotDebug->bcomp[axis] = 0;	/* backlash comp value */
@@ -321,6 +305,7 @@ int init_module(void)
     emcmotStatus->heartbeat = 0;
     emcmotStatus->computeTime = 0.0;
     emcmotConfig->numAxes = EMCMOT_MAX_AXIS;
+
     emcmotConfig->trajCycleTime = TRAJ_CYCLE_TIME;
     emcmotConfig->servoCycleTime = SERVO_CYCLE_TIME;
     emcmotStatus->pos.tran.x = 0.0;
