@@ -448,8 +448,7 @@ static void create_probe_window(probe_t * probe)
 	/* create a box for the tab label */
 	hbox = gtk_hbox_new(TRUE, 0);
 	/* create a label for the page */
-	gtk_label_new_in_box(tab_label_text[n], GTK_JUSTIFY_CENTER, hbox,
-	    TRUE, TRUE, 0);
+	gtk_label_new_in_box(tab_label_text[n], hbox, TRUE, TRUE, 0);
 	gtk_widget_show(hbox);
 	/* add page to the notebook */
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebk), scrolled_window, hbox);

@@ -50,12 +50,17 @@
 /* this is the master kernel space control structure */
 
 typedef struct {
-    scope_shm_control_t *shared;	/* ptr to shared control struct */
     scope_data_t *buffer;	/* ptr to buffer (kernel mapping) */
+    int mult_cntr;		/* used to divide by 'mult' */
+    char data_len[16];		/* data size for each channel */
+    void *data_addr[16];	/* pointers to data for each channel */
 } scope_rt_control_t;
 
 /***********************************************************************
-*                          FUNCTIONS                                   *
+*                              GLOBALS                                 *
 ************************************************************************/
+
+extern scope_rt_control_t *ctrl_rt;	/* main RT control structure */
+extern scope_shm_control_t *ctrl_shm;	/* shared mem control struct */
 
 #endif /* HALSC_RT_H */

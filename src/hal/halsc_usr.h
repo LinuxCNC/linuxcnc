@@ -96,17 +96,16 @@ typedef struct {
 
 typedef struct {
     /* general data */
-    scope_shm_control_t *shared;	/* ptr to shared control struct */
     scope_data_t *buffer;	/* ptr to buffer (user mapping) */
     /* top level windows */
     GtkWidget *main_win;
     GtkWidget *hor_disp_win;
-
+    GtkWidget *chan_sel_win;
+    GtkWidget *chan_info_win;
     GtkWidget *waveform_win;
     GtkWidget *run_mode_win;
     GtkWidget *trig_mode_win;
     GtkWidget *menu_win;
-    int dialog_flag;		/* flag for exit state of dialogs */
     /* top level controls */
     GtkWidget *rm_normal_button;
     GtkWidget *rm_single_button;
@@ -122,12 +121,19 @@ typedef struct {
 } scope_usr_control_t;
 
 /***********************************************************************
+*                              GLOBALS                                 *
+************************************************************************/
+
+extern scope_usr_control_t *ctrl_usr;	/* main user control structure */
+extern scope_shm_control_t *ctrl_shm;	/* shared mem control struct */
+
+/***********************************************************************
 *                          FUNCTIONS                                   *
 ************************************************************************/
 
-void init_horiz(scope_usr_control_t * ctrl);
+void init_horiz(void);
 
-void handle_watchdog_timeout(scope_usr_control_t * ctrl);
-void refresh_state_info(scope_usr_control_t * ctrl);
+void handle_watchdog_timeout(void);
+void refresh_state_info(void);
 
 #endif /* HALSC_USR_H */

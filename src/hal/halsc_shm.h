@@ -50,6 +50,7 @@ typedef enum {
     PRE_TRIG,			/* acquiring pre-trigger data */
     TRIG_WAIT,			/* waiting for trigger */
     POST_TRIG,			/* acquiring post-trigger data */
+    FINISH,			/* finalizing captured data */
     DONE			/* data acquisition complete */
 } scope_state_t;
 
@@ -71,7 +72,6 @@ typedef struct {
     int buf_len;		/* I length of buffer */
     int watchdog;		/* RU rt sets to zero, user incs */
     int mult;			/* U sample period multiplier */
-    int mult_cntr;		/* R used to divide by 'mult' */
     int rec_len;		/* U total samples in record */
     int sample_len;		/* U channels in each sample */
     int pre_trig;		/* U number of samples before trigger */
@@ -82,6 +82,8 @@ typedef struct {
     scope_state_t state;	/* RU current state */
     short sample_request;	/* U bitmap of channels to sample */
     short samples_valid;	/* R bitmap of sampled channels */
+    int data_offset[16];	/* U data addr in shmem for each channel */
+    char data_len[16];		/* U data size for each channel */
 
 #if 0
     scope_state_t state;	/* ?current state */

@@ -52,7 +52,14 @@
 #include "halsc_usr.h"		/* scope related declarations */
 
 /***********************************************************************
-*                  GLOBAL VARIABLES DECLARATIONS                       *
+*                         GLOBAL VARIABLES                             *
+************************************************************************/
+
+scope_usr_control_t *ctrl_usr;	/* ptr to main user control structure */
+scope_shm_control_t *ctrl_shm;	/* ptr to shared mem control struct */
+
+/***********************************************************************
+*                         LOCAL VARIABLES                              *
 ************************************************************************/
 
 static int comp_id;		/* component ID */
@@ -64,38 +71,33 @@ static scope_usr_control_t ctrl_struct;	/* scope control structure */
 ************************************************************************/
 
 /* init functions */
-static void init_usr_control_struct(scope_usr_control_t * ctrl, void *shmem);
-static void init_shared_control_struct(scope_shm_control_t * ctrl);
+static void init_usr_control_struct(void *shmem);
+static void init_shared_control_struct(void);
 
-static void define_scope_windows(scope_usr_control_t * ctrl);
-static void init_run_mode_window(scope_usr_control_t * ctrl);
-static void init_trigger_mode_window(scope_usr_control_t * ctrl);
-static void init_menu_window(scope_usr_control_t * ctrl);
+static void define_scope_windows(void);
+static void init_run_mode_window(void);
+static void init_trigger_mode_window(void);
+static void init_menu_window(void);
 
-static void init_chan_select_window(scope_usr_control_t * ctrl);
+static void init_chan_select_window(void);
 
 /* callback functions */
 static void exit_from_hal(void);
 static int heartbeat(gpointer data);
-static void rm_normal_button_clicked(GtkWidget * widget,
-    scope_usr_control_t * ctrl);
-static void rm_stop_button_clicked(GtkWidget * widget,
-    scope_usr_control_t * ctrl);
-static void tm_force_button_clicked(GtkWidget * widget,
-    scope_usr_control_t * ctrl);
+static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata);
+static void rm_single_button_clicked(GtkWidget * widget, gpointer * gdata);
+static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata);
+static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata);
+static void tm_auto_button_clicked(GtkWidget * widget, gpointer * gdata);
+static void tm_normal_button_clicked(GtkWidget * widget, gpointer * gdata);
+static void tm_force_button_clicked(GtkWidget * widget, gpointer * gdata);
 
 /***********************************************************************
 *                        MAIN() FUNCTION                               *
 ************************************************************************/
 
-void foo(void)
-{
-    gtk_main_quit();
-}
-
 int main(int argc, gchar * argv[])
 {
-    scope_usr_control_t *ctrl;
     int retval;
     void *shm_base;
 
@@ -104,7 +106,7 @@ int main(int argc, gchar * argv[])
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
-    /* process my own command line args (if any) here */
+    /* process halscope command line args (if any) here */
 
     /* connect to the HAL */
     comp_id = hal_init("scope_gui");
@@ -132,36 +134,37 @@ int main(int argc, gchar * argv[])
     g_atexit(exit_from_hal);
 
     /* init control structure */
-    ctrl = &ctrl_struct;
-    init_usr_control_struct(ctrl, shm_base);
+    ctrl_usr = &ctrl_struct;
+    init_usr_control_struct(shm_base);
 
 /* FIXME - resume cleanup here */
 
     /* init watchdog */
-    ctrl->shared->watchdog = 10;
+    ctrl_shm->watchdog = 10;
     /* set main window */
-    define_scope_windows(ctrl);
+    define_scope_windows();
     /* this makes the application exit when the window is closed */
-    gtk_signal_connect(GTK_OBJECT(ctrl->main_win), "destroy",
-	GTK_SIGNAL_FUNC(foo), NULL);
+    gtk_signal_connect(GTK_OBJECT(ctrl_usr->main_win), "destroy",
+	GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
     /* define menu windows */
     /* do next level of init */
-    init_run_mode_window(ctrl);
-    init_trigger_mode_window(ctrl);
-    init_menu_window(ctrl);
-    init_chan_select_window(ctrl);
-    init_horiz(ctrl);
-/* test code - make labels to show the size of each box */
+    init_run_mode_window();
+    init_trigger_mode_window();
+    init_menu_window();
+    init_chan_select_window();
+    init_horiz();
 
+/* test code - make labels to show the size of each box */
     label = gtk_label_new("waveform_win");
-    gtk_box_pack_start(GTK_BOX(ctrl->waveform_win), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), label, TRUE, TRUE, 0);
     gtk_widget_show(label);
 
-    /* The interface is completely set up so we show the window and enter the
+    /* The interface is completely set up so we show the window and enter the 
        gtk_main loop. */
-    gtk_widget_show(ctrl->main_win);
+    gtk_widget_show(ctrl_usr->main_win);
     /* arrange for periodic call of heartbeat() */
-    gtk_timeout_add(100, heartbeat, ctrl);
+    gtk_timeout_add(100, heartbeat, NULL);
+    /* main loop */
     gtk_main();
 
     return (0);
@@ -176,102 +179,66 @@ int main(int argc, gchar * argv[])
 
 static int heartbeat(gpointer data)
 {
-    scope_usr_control_t *ctrl;
 
-    /* point to control structure */
-    ctrl = (scope_usr_control_t *) data;
-    refresh_state_info(ctrl);
+    refresh_state_info();
     /* check watchdog */
-    if (ctrl->shared->watchdog < 10) {
-	ctrl->shared->watchdog++;
+    if (ctrl_shm->watchdog < 10) {
+	ctrl_shm->watchdog++;
     } else {
-	handle_watchdog_timeout(ctrl);
+	handle_watchdog_timeout();
     }
     return 1;
 }
-
-#if 0
-meter_t *meter_new(void)
-{
-    meter_t *new;
-
-    /* allocate a meter object for the display */
-    new = malloc(sizeof(meter_t));
-    if (new == NULL) {
-	return NULL;
-    }
-    /* define a probe for the display item */
-    new->probe = probe_new("Select item to display");
-    if (new->probe == NULL) {
-	free(new);
-	return NULL;
-    }
-    /* create a label widget to hold the value */
-    new->value_label = gtk_label_new("----");
-    /* center justify text, no wordwrap */
-    gtk_label_set_justify(GTK_LABEL(new->value_label), GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap(GTK_LABEL(new->value_label), FALSE);
-
-    /* create a label widget to hold the name */
-    new->name_label = gtk_label_new("------");
-    /* center justify text, no wordwrap */
-    gtk_label_set_justify(GTK_LABEL(new->name_label), GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap(GTK_LABEL(new->name_label), FALSE);
-
-    return new;
-}
-#endif
 
 /***********************************************************************
 *                      LOCAL INIT FUNCTION CODE                        *
 ************************************************************************/
 
-static void init_usr_control_struct(scope_usr_control_t * ctrl, void *shmem)
+static void init_usr_control_struct(void *shmem)
 {
     char *cp;
     int n, skip;
     hal_comp_t *comp;
 
     /* first clear entire struct to all zeros */
-    cp = (char *) ctrl;
+    cp = (char *) ctrl_usr;
     for (n = 0; n < sizeof(scope_usr_control_t); n++) {
 	cp[n] = 0;
     }
     /* save pointer to shared control structure */
-    ctrl->shared = shmem;
+    ctrl_shm = shmem;
     /* round size of shared struct up to a multiple of 4 for alignment */
     skip = (sizeof(scope_shm_control_t) + 3) & !3;
     /* the rest of the shared memory area is the data buffer */
-    ctrl->buffer = (scope_data_t *) ((char *) (shmem)) + skip;
+    ctrl_usr->buffer = (scope_data_t *) ((char *) (shmem)) + skip;
     /* is the realtime component loaded already? */
     comp = halpr_find_comp_by_name("scope_rt");
     if (comp == NULL) {
 	/* no, must init shared structure */
-	init_shared_control_struct(ctrl->shared);
+	init_shared_control_struct();
     }
-    /* init remainder of local structure */
+    /* init any non-zero fields */
 
     /* done */
 }
 
-static void init_shared_control_struct(scope_shm_control_t * share)
+static void init_shared_control_struct(void)
 {
-    int skip;
+    char *cp;
+    int skip, n;
 
+    /* first clear entire struct to all zeros */
+    cp = (char *) ctrl_shm;
+    for (n = 0; n < sizeof(scope_shm_control_t); n++) {
+	cp[n] = 0;
+    }
     /* round size of shared struct up to a multiple of 4 for alignment */
     skip = (sizeof(scope_shm_control_t) + 3) & !3;
     /* remainder of shmem area is buffer */
-    share->buf_len = (SCOPE_SHM_SIZE - skip) / sizeof(scope_data_t);
-    share->watchdog = 0;
-    share->mult = 1;
-    share->mult_cntr = 0;
-    share->rec_len = 0;
-    share->sample_len = 0;
-    share->pre_trig = 0;
-    share->force_trig = 0;
-    share->start = 0;
-    share->curr = 0;
-    share->samples = 0;
+    ctrl_shm->buf_len = (SCOPE_SHM_SIZE - skip) / sizeof(scope_data_t);
+    /* init any non-zero fields */
+    ctrl_shm->mult = 1;
+    ctrl_shm->state = IDLE;
 }
 
 /** 'define_scope_windows()' defines the overall layout of the main
@@ -282,20 +249,20 @@ static void init_shared_control_struct(scope_shm_control_t * share)
     **************************************************************
     *                hor_disp_win                *               *
     **********************************************  run_mode_win *
-    *                                            *               *
-    *                                            *               *
-    *                                            *****************
-    *                                            * trig_mode_win *
-    *                                            *               *
-    *                waveform_win                *****************
-    *                                            *  state_win    *
-    *                                            *****************
-    *                                            *               *
-    *                                            *   menu_win    *
-    *                                            *               *
-    *                                            *               *
+    *                                        * c *               *
+    *                                        * h *               *
+    *                                        * a *****************
+    *                                        * n * trig_mode_win *
+    *                                        * _ *               *
+    *                waveform_win            * s *****************
+    *                                        * e *               *
+    *                                        * l *               *
+    *                                        * _ *               *
+    *                                        * w *   menu_win    *
+    *                                        * i *               *
+    *                                        * n *               *
     **********************************************               *
-    * hor_zoom_win * hor_scale_win * hor_pos_win *               *
+    *               chan_info_win                *               *
     **************************************************************
 
     Pointers to each of the windows named in the above diagram are
@@ -304,184 +271,147 @@ static void init_shared_control_struct(scope_shm_control_t * share)
     so pointers are not saved.
 */
 
-static void define_scope_windows(scope_usr_control_t * ctrl)
+static void define_scope_windows(void)
 {
-    GtkWidget *hbox1, *bar;
-    GtkWidget *vbox2l, *vbox2r;
-    GtkWidget *hbox3b, *hbox3c;
+    GtkWidget *hbox, *vboxleft, *vboxright;
 
     /* create main window, set it's size */
-    ctrl->main_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    ctrl_usr->main_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     /* set the minimum size */
-//    gtk_widget_set_usize(GTK_WIDGET(ctrl->main_win), 500, 350);
+//    gtk_widget_set_usize(GTK_WIDGET(ctrl_usr->main_win), 500, 350);
     /* allow the user to expand it */
-    gtk_window_set_policy(GTK_WINDOW(ctrl->main_win), TRUE, TRUE, FALSE);
+    gtk_window_set_policy(GTK_WINDOW(ctrl_usr->main_win), TRUE, TRUE, FALSE);
     /* set main window title */
-    gtk_window_set_title(GTK_WINDOW(ctrl->main_win), "HAL Oscilliscope");
+    gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), "HAL Oscilliscope");
 
     /* top level - one big hbox */
-    hbox1 = gtk_hbox_new(FALSE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(hbox1), 0);
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(hbox), 0);
     /* add the hbox to the main window */
-    gtk_container_add(GTK_CONTAINER(ctrl->main_win), hbox1);
-    gtk_widget_show(hbox1);
+    gtk_container_add(GTK_CONTAINER(ctrl_usr->main_win), hbox);
+    gtk_widget_show(hbox);
     /* end of top level */
 
-    /* start second level */
-    /* a vbox on the left */
-    vbox2l = gtk_vbox_new(FALSE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox2l), 0);
-    gtk_box_pack_start(GTK_BOX(hbox1), vbox2l, TRUE, TRUE, 0);
-    gtk_widget_show(vbox2l);
-    /* a separator between the left and right vboxes */
-    bar = gtk_vseparator_new();
-    gtk_box_pack_start(GTK_BOX(hbox1), bar, FALSE, FALSE, 0);
-    gtk_widget_show(bar);
-    /* a vbox on the right */
-    vbox2r = gtk_vbox_new(FALSE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox2r), 0);
-    gtk_box_pack_start(GTK_BOX(hbox1), vbox2r, FALSE, FALSE, 5);
-    gtk_widget_show(vbox2r);
-    /* end of second level */
+    /* second level of windows */
+    vboxleft = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
+    gtk_vseparator_new_in_box(hbox, 0);
+    vboxright = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, FALSE, FALSE, 5);
 
-    /* start of third level - left side */
-    /* a vbox at the top */
-    ctrl->hor_disp_win =
-	gtk_vbox_new_in_box(FALSE, 0, 0, vbox2l, FALSE, FALSE, 1);
-    /* separator */
-    gtk_hseparator_new_in_box(vbox2l, 0);
-    /* another hbox */
-    hbox3b = gtk_hbox_new_in_box(FALSE, 0, 0, vbox2l, FALSE, FALSE, 1);
-    /* separator */
-    gtk_hseparator_new_in_box(vbox2l, 0);
-    /* the main waveform window */
-    ctrl->waveform_win =
-	gtk_vbox_new_in_box(FALSE, 0, 0, vbox2l, TRUE, TRUE, 0);
-    /* another separater */
-    gtk_hseparator_new_in_box(vbox2l, 0);
-    /* an hbox at the bottom */
-    hbox3c = gtk_hbox_new_in_box(TRUE, 0, 0, vbox2l, FALSE, FALSE, 1);
-    /* end of third level - left side */
-
-    /* start of third level - right side */
-    /* run mode window */
-    ctrl->run_mode_win = gtk_vbox_new(TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(ctrl->run_mode_win), 0);
-    gtk_box_pack_start(GTK_BOX(vbox2r), ctrl->run_mode_win, FALSE, FALSE, 5);
-    gtk_widget_show(ctrl->run_mode_win);
-    /* separator */
-    bar = gtk_hseparator_new();
-    gtk_box_pack_start(GTK_BOX(vbox2r), bar, FALSE, FALSE, 0);
-    gtk_widget_show(bar);
-    /* trigger mode window */
-    ctrl->trig_mode_win = gtk_vbox_new(TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(ctrl->trig_mode_win), 0);
-    gtk_box_pack_start(GTK_BOX(vbox2r), ctrl->trig_mode_win, FALSE, FALSE, 5);
-    gtk_widget_show(ctrl->trig_mode_win);
-    /* another separator */
-    bar = gtk_hseparator_new();
-    gtk_box_pack_start(GTK_BOX(vbox2r), bar, FALSE, FALSE, 0);
-    gtk_widget_show(bar);
-    /* menu window */
-    ctrl->menu_win = gtk_vbox_new(TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(ctrl->menu_win), 0);
-    gtk_box_pack_start(GTK_BOX(vbox2r), ctrl->menu_win, TRUE, TRUE, 5);
-    gtk_widget_show(ctrl->menu_win);
-    /* end of third level - right side */
-
+    /* third level of windows */
+    /* left side */
+    ctrl_usr->hor_disp_win =
+	gtk_vbox_new_in_box(FALSE, 0, 0, vboxleft, FALSE, FALSE, 1);
+    gtk_hseparator_new_in_box(vboxleft, 0);
+    /* hbox for waveform and chan sel windows */
+    hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 1);
+    ctrl_usr->waveform_win =
+	gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
+    gtk_vseparator_new_in_box(hbox, 0);
+    ctrl_usr->chan_sel_win =
+	gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, FALSE, 0);
+    gtk_hseparator_new_in_box(vboxleft, 0);
+    ctrl_usr->chan_info_win =
+	gtk_hbox_new_in_box(FALSE, 0, 0, vboxleft, FALSE, FALSE, 0);
+    /* right side */
+    ctrl_usr->run_mode_win =
+	gtk_vbox_new_in_box(TRUE, 0, 0, vboxright, FALSE, FALSE, 0);
+    gtk_hseparator_new_in_box(vboxright, 0);
+    ctrl_usr->trig_mode_win =
+	gtk_vbox_new_in_box(TRUE, 0, 0, vboxright, FALSE, FALSE, 0);
+    gtk_hseparator_new_in_box(vboxright, 0);
+    ctrl_usr->menu_win =
+	gtk_vbox_new_in_box(FALSE, 0, 0, vboxright, TRUE, TRUE, 0);
     /* all windows are now defined */
 }
 
-static void init_run_mode_window(scope_usr_control_t * ctrl)
+static void init_run_mode_window(void)
 {
     GtkWidget *label;
 
     /* fill in the run mode window */
-    label = gtk_label_new("Run Mode");
-    /* center justify text, no wordwrap */
-    gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap(GTK_LABEL(label), FALSE);
-    /* add label to window */
-    gtk_box_pack_start(GTK_BOX(ctrl->run_mode_win), label, FALSE, FALSE, 0);
-    gtk_widget_show(label);
+    label =
+	gtk_label_new_in_box("Run Mode", ctrl_usr->run_mode_win, FALSE, FALSE,
+	0);
     /* now define the radio buttons */
-    ctrl->rm_stop_button = gtk_radio_button_new_with_label(NULL, "Stop");
-    ctrl->rm_normal_button =
+    ctrl_usr->rm_stop_button = gtk_radio_button_new_with_label(NULL, "Stop");
+    ctrl_usr->rm_normal_button =
 	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl->rm_stop_button)), "Normal");
-    ctrl->rm_single_button =
+	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), "Normal");
+    ctrl_usr->rm_single_button =
 	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl->rm_stop_button)), "Single");
-    ctrl->rm_roll_button =
+	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), "Single");
+    ctrl_usr->rm_roll_button =
 	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl->rm_stop_button)), "Roll");
+	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), "Roll");
     /* now put them into the box */
-    gtk_box_pack_start(GTK_BOX(ctrl->run_mode_win), ctrl->rm_normal_button,
-	FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(ctrl->run_mode_win), ctrl->rm_single_button,
-	FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(ctrl->run_mode_win), ctrl->rm_roll_button,
-	FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(ctrl->run_mode_win), ctrl->rm_stop_button,
-	FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->run_mode_win),
+	ctrl_usr->rm_normal_button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->run_mode_win),
+	ctrl_usr->rm_single_button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->run_mode_win),
+	ctrl_usr->rm_roll_button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->run_mode_win),
+	ctrl_usr->rm_stop_button, FALSE, FALSE, 0);
     /* hook callbacks to buttons */
-    gtk_signal_connect(GTK_OBJECT(ctrl->rm_normal_button), "clicked",
-	GTK_SIGNAL_FUNC(rm_normal_button_clicked), ctrl);
-    gtk_signal_connect(GTK_OBJECT(ctrl->rm_stop_button), "clicked",
-	GTK_SIGNAL_FUNC(rm_stop_button_clicked), ctrl);
+    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_normal_button), "clicked",
+	GTK_SIGNAL_FUNC(rm_normal_button_clicked), NULL);
+    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_single_button), "clicked",
+	GTK_SIGNAL_FUNC(rm_single_button_clicked), NULL);
+    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_roll_button), "clicked",
+	GTK_SIGNAL_FUNC(rm_roll_button_clicked), NULL);
+    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_stop_button), "clicked",
+	GTK_SIGNAL_FUNC(rm_stop_button_clicked), NULL);
     /* and make them visible */
-    gtk_widget_show(ctrl->rm_normal_button);
-    gtk_widget_show(ctrl->rm_single_button);
-    gtk_widget_show(ctrl->rm_roll_button);
-    gtk_widget_show(ctrl->rm_stop_button);
+    gtk_widget_show(ctrl_usr->rm_normal_button);
+    gtk_widget_show(ctrl_usr->rm_single_button);
+    gtk_widget_show(ctrl_usr->rm_roll_button);
+    gtk_widget_show(ctrl_usr->rm_stop_button);
 }
 
-static void init_trigger_mode_window(scope_usr_control_t * ctrl)
+static void init_trigger_mode_window(void)
 {
     GtkWidget *label;
 
-    /* fill in the trigger mode window */
-    label = gtk_label_new("Trig Mode");
-    /* center justify text, no wordwrap */
-    gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap(GTK_LABEL(label), FALSE);
-    /* add label to window */
-    gtk_box_pack_start(GTK_BOX(ctrl->trig_mode_win), label, FALSE, FALSE, 0);
-    gtk_widget_show(label);
-    /* now define the radio buttons */
-    ctrl->tm_normal_button = gtk_radio_button_new_with_label(NULL, "Normal");
-    ctrl->tm_auto_button =
+    /* label the trigger mode window */
+    label =
+	gtk_label_new_in_box("Trig Mode", ctrl_usr->trig_mode_win, FALSE,
+	FALSE, 0);
+    /* define the radio buttons */
+    ctrl_usr->tm_normal_button =
+	gtk_radio_button_new_with_label(NULL, "Normal");
+    ctrl_usr->tm_auto_button =
 	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl->tm_normal_button)), "Auto");
-    ctrl->tm_force_button = gtk_button_new_with_label("Force");
+	(GTK_RADIO_BUTTON(ctrl_usr->tm_normal_button)), "Auto");
+    /* and a regular button */
+    ctrl_usr->tm_force_button = gtk_button_new_with_label("Force");
     /* now put them into the box */
-    gtk_box_pack_start(GTK_BOX(ctrl->trig_mode_win), ctrl->tm_normal_button,
-	FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(ctrl->trig_mode_win), ctrl->tm_auto_button,
-	FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(ctrl->trig_mode_win), ctrl->tm_force_button,
-	FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_mode_win),
+	ctrl_usr->tm_normal_button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_mode_win),
+	ctrl_usr->tm_auto_button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_mode_win),
+	ctrl_usr->tm_force_button, FALSE, FALSE, 0);
     /* hook callbacks to buttons */
-    gtk_signal_connect(GTK_OBJECT(ctrl->tm_force_button), "clicked",
-	GTK_SIGNAL_FUNC(tm_force_button_clicked), ctrl);
+    gtk_signal_connect(GTK_OBJECT(ctrl_usr->tm_normal_button), "clicked",
+	GTK_SIGNAL_FUNC(tm_normal_button_clicked), NULL);
+    gtk_signal_connect(GTK_OBJECT(ctrl_usr->tm_auto_button), "clicked",
+	GTK_SIGNAL_FUNC(tm_auto_button_clicked), NULL);
+    gtk_signal_connect(GTK_OBJECT(ctrl_usr->tm_force_button), "clicked",
+	GTK_SIGNAL_FUNC(tm_force_button_clicked), NULL);
     /* and make them visible */
-    gtk_widget_show(ctrl->tm_normal_button);
-    gtk_widget_show(ctrl->tm_auto_button);
-    gtk_widget_show(ctrl->tm_force_button);
+    gtk_widget_show(ctrl_usr->tm_normal_button);
+    gtk_widget_show(ctrl_usr->tm_auto_button);
+    gtk_widget_show(ctrl_usr->tm_force_button);
 }
 
-static void init_menu_window(scope_usr_control_t * ctrl)
+static void init_menu_window(void)
 {
 
     GtkWidget *label;
 
     /* label the window */
-    label = gtk_label_new("Menus");
-    gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap(GTK_LABEL(label), FALSE);
-    gtk_box_pack_start(GTK_BOX(ctrl->menu_win), label, FALSE, FALSE, 0);
-    gtk_widget_show(label);
-
+    label =
+	gtk_label_new_in_box("Menus", ctrl_usr->menu_win, FALSE, FALSE, 0);
 }
 
 /* POP UP MENUS */
@@ -533,34 +463,36 @@ static void init_menu_window(scope_usr_control_t * ctrl)
     (can we eliminate sliders and let user click on the waveforms?)
 */
 
-static void init_chan_select_window(scope_usr_control_t * ctrl)
+static void init_chan_select_window(void)
 {
-    GtkWidget *vbox1 /* ,*vbox2, *bar */ ;
     GtkWidget *chk[16] /* , *rad[16] */ ;
     gint n;
     gchar buf[5];
 
+#if 0
     /* define two vboxes */
     vbox1 = gtk_hbox_new(TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(vbox1), 0);
-    gtk_box_pack_start(GTK_BOX(ctrl->waveform_win), vbox1, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), vbox1, FALSE, TRUE,
+	0);
     gtk_widget_show(vbox1);
-#if 0
     vbox2 = gtk_vbox_new(TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(vbox2), 0);
-    gtk_box_pack_start(GTK_BOX(ctrl->waveform_win), vbox2, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), vbox2, FALSE, TRUE,
+	0);
     gtk_widget_show(vbox2);
     /* and a separator */
     bar = gtk_vseparator_new();
-    gtk_box_pack_start(GTK_BOX(ctrl->waveform_win), bar, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), bar, FALSE, FALSE, 0);
     gtk_widget_show(bar);
 #endif
 
     for (n = 0; n < 16; n++) {
-	snprintf(buf, 4, "%d", n);
+	snprintf(buf, 4, "%d", n + 1);
 	/* define the check button */
 	chk[n] = gtk_button_new_with_label(buf);
-	gtk_box_pack_start(GTK_BOX(vbox1), chk[n], TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), chk[n], TRUE,
+	    TRUE, 0);
 	gtk_widget_show(chk[n]);
 #if 0
 	/* now define the radio buttons */
@@ -589,104 +521,65 @@ static void exit_from_hal(void)
     hal_exit(comp_id);
 }
 
-static void rm_normal_button_clicked(GtkWidget * widget,
-    scope_usr_control_t * ctrl)
+static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
 	return;
     }
     /* FIXME temporary, remove after trigger pos is working */
-    ctrl->shared->pre_trig = ctrl->shared->rec_len / 2;
-    if (ctrl->shared->state == IDLE) {
-	ctrl->shared->state = INIT;
+    ctrl_shm->pre_trig = ctrl_shm->rec_len / 2;
+    if (ctrl_shm->state == IDLE) {
+	ctrl_shm->state = INIT;
     }
 }
 
-static void rm_stop_button_clicked(GtkWidget * widget,
-    scope_usr_control_t * ctrl)
+static void rm_single_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
 	return;
     }
-    ctrl->shared->state = IDLE;
+    printf("RM_SINGLE clicked\n");
 }
 
-static void tm_force_button_clicked(GtkWidget * widget,
-    scope_usr_control_t * ctrl)
+static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
-    ctrl->shared->force_trig = 1;
-}
-
-#if 0
-/* this function refreshes the value display */
-static int refresh_value(gpointer data)
-{
-    meter_t *meter;
-    probe_t *probe;
-    char *value_str;
-
-    meter = (meter_t *) data;
-    probe = meter->probe;
-
-    if (probe->data == NULL) {
-	return 1;
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
+	/* not pressed, ignore it */
+	return;
     }
-    value_str = data_value(probe->type, probe->data);
-    gtk_label_set_text(GTK_LABEL(meter->value_label), value_str);
-    gtk_label_set_text(GTK_LABEL(meter->name_label), probe->name);
-    return 1;
+    printf("RM_ROLL clicked\n");
 }
 
-/* Switch function to return var value for the print_*_list functions  */
-static char *data_value(int type, void *valptr)
+static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
-    char *value_str;
-    static char buf[25];
-
-    switch (type) {
-    case HAL_BIT:
-	if (*((char *) valptr) == 0)
-	    value_str = "FALSE";
-	else
-	    value_str = "TRUE";
-	break;
-    case HAL_FLOAT:
-	snprintf(buf, 24, "%12.5e", *((float *) valptr));
-	value_str = buf;
-	break;
-    case HAL_S8:
-	snprintf(buf, 24, "%4d", *((signed char *) valptr));
-	value_str = buf;
-	break;
-    case HAL_U8:
-	snprintf(buf, 24, "%3u  (%02X)",
-	    *((unsigned char *) valptr), *((unsigned char *) valptr));
-	value_str = buf;
-	break;
-    case HAL_S16:
-	snprintf(buf, 24, "%6d", *((signed short *) valptr));
-	value_str = buf;
-	break;
-    case HAL_U16:
-	snprintf(buf, 24, "%5u (%04X)",
-	    *((unsigned short *) valptr), *((unsigned short *) valptr));
-	value_str = buf;
-	break;
-    case HAL_S32:
-	snprintf(buf, 24, "%10ld", *((signed long *) valptr));
-	value_str = buf;
-	break;
-    case HAL_U32:
-	snprintf(buf, 24, "%10lu (%08lX)", *((unsigned long *) valptr),
-	    *((unsigned long *) valptr));
-	value_str = buf;
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	value_str = "";
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
+	/* not pressed, ignore it */
+	return;
     }
-    return value_str;
+    ctrl_shm->state = IDLE;
 }
-#endif
+
+static void tm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
+{
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
+	/* not pressed, ignore it */
+	return;
+    }
+    printf("TM_NORMAL clicked\n");
+}
+
+static void tm_auto_button_clicked(GtkWidget * widget, gpointer * gdata)
+{
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
+	/* not pressed, ignore it */
+	return;
+    }
+    printf("TM_AUTO clicked\n");
+}
+
+static void tm_force_button_clicked(GtkWidget * widget, gpointer * gdata)
+{
+    ctrl_shm->force_trig = 1;
+}

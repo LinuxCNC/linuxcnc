@@ -54,13 +54,13 @@
 *                    PUBLIC FUNCTION DEFINITIONS                       *
 ************************************************************************/
 
-GtkWidget *gtk_label_new_in_box(gchar * text, GtkJustification justify,
-    GtkWidget * box, gboolean expand, gboolean fill, guint padding)
+GtkWidget *gtk_label_new_in_box(gchar * text, GtkWidget * box,
+    gboolean expand, gboolean fill, guint padding)
 {
     GtkWidget *label;
 
     label = gtk_label_new(text);
-    gtk_label_set_justify(GTK_LABEL(label), justify);
+    gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
     gtk_label_set_line_wrap(GTK_LABEL(label), FALSE);
     gtk_box_pack_start(GTK_BOX(box), label, expand, fill, padding);
     gtk_widget_show(label);

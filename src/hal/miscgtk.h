@@ -43,8 +43,8 @@
     a box.  It simply calls other GTK functions that do the real work.
     Normally it would take 4-5 lines of code to do the same thing.
 */
-GtkWidget *gtk_label_new_in_box(gchar * text, GtkJustification just,
-    GtkWidget * box, gboolean expand, gboolean fill, guint padding);
+GtkWidget *gtk_label_new_in_box(gchar * text, GtkWidget * box,
+    gboolean expand, gboolean fill, guint padding);
 
 /** more convenience functions - vertical and horizontal separators
     These functions set expand and fill to FALSE - if you don't like
