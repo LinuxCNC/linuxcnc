@@ -37,7 +37,7 @@ RT_OBJS  = \
 	\
 	command.o \
 	control.o \
-	motion.o
+	motion.o \
 	\
 	cubic.o \
 	emcmotutil.o \
