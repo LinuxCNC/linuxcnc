@@ -35,6 +35,40 @@ extern "C" {
 // inifile ref'ed by iniAxes(), loadAxis()
 static INIFILE *axisInifile = 0;
 
+
+/* a function that checks a string to see if it is one of:
+   "TRUE", "FALSE", "YES", "NO", "1", or "0" (case insensitive)
+   if it is, sets '*result' accordingly, and returns 1, else
+   returns 0 and leaves '*result' unchanged */
+static int strbool ( const char *str, int *result )
+{
+    if ( strcasecmp( str, "TRUE" ) == 0 ) {
+	*result = 1;
+	return 1;
+    }
+    if ( strcasecmp( str, "YES" ) == 0 ) {
+	*result = 1;
+	return 1;
+    }
+    if ( strcasecmp( str, "1" ) == 0 ) {
+	*result = 1;
+	return 1;
+    }
+    if ( strcasecmp( str, "FALSE" ) == 0 ) {
+	*result = 0;
+	return 1;
+    }
+    if ( strcasecmp( str, "NO" ) == 0 ) {
+	*result = 0;
+	return 1;
+    }
+    if ( strcasecmp( str, "0" ) == 0 ) {
+	*result = 0;
+	return 1;
+    }
+    return 0;
+}
+
 /*
   loadAxis(int axis)
 
@@ -42,7 +76,6 @@ static INIFILE *axisInifile = 0;
 
   TYPE <LINEAR ANGULAR>        type of axis
   UNITS <float>                units per mm or deg
-  HOME <float>                 home position
   MAX_VELOCITY <float>         max vel for axis
   MAX_ACCELERATION <float>     max accel for axis
   BACKLASH <float>             backlash
@@ -53,8 +86,12 @@ static INIFILE *axisInifile = 0;
   MAX_LIMIT <float>            maximum soft position limit
   FERROR <float>               maximum following error, scaled to max vel
   MIN_FERROR <float>           minimum following error
-  HOMING_VEL <float>           homing speed, positive
-  HOME_OFFSET <float>          where to move axis after home
+  HOME <float>                 home position (where to go after home)
+  HOME_OFFSET <float>          home switch/index pulse location
+  HOME_SEARCH_VEL <float>      homing speed, search phase
+  HOME_LATCH_VEL <float>       homing speed, latch phase
+  HOME_USE_INDEX <bool>        use index pulse when homing?
+  HOME_IGNORE_LIMITS <bool>    ignore limit switches when homing?
   COMP_FILE <filename>         file of axis compensation points
 
   calls:
@@ -62,7 +99,7 @@ static INIFILE *axisInifile = 0;
   emcAxisSetAxis(int axis, unsigned char axisType);
   emcAxisSetUnits(int axis, double units);
 // FIXME - these gains are no longer used
-// emcAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double bias, double maxError, double deadband);
+  emcAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double bias, double maxError, double deadband);
   emcAxisSetBacklash(int axis, double backlash);
   emcAxisSetCycleTime(int axis, double cycleTime);
   emcAxisSetInterpolationRate(int axis, int rate);
@@ -72,8 +109,8 @@ static INIFILE *axisInifile = 0;
   emcAxisSetMaxPositionLimit(int axis, double limit);
   emcAxisSetFerror(int axis, double ferror);
   emcAxisSetMinFerror(int axis, double ferror);
-// FIXME - need several more homing parameters
-  emcAxisSetHomingVel(int axis, double homingVel);
+  emcAxisSetHomingParams(int axis, double home, double offset,
+    double search_vel, double latch_vel, int use_index, int ignore_limits );
   emcAxisActivate(int axis);
   emcAxisDeactivate(int axis);
   emcAxisSetMaxVelocity(int axis, double vel);
@@ -92,8 +129,11 @@ static int loadAxis(int axis)
   double backlash;
   double offset;
   double limit;
-  double homingVel;
   double home;
+  double search_vel;
+  double latch_vel;
+  int use_index;
+  int ignore_limits;
   double maxVelocity;
   double maxAcceleration;
   double maxFerror;
@@ -283,6 +323,8 @@ static int loadAxis(int axis)
   }
 #endif
 
+  // set min position limit
+
   if (NULL != (inistring = axisInifile->find("MIN_LIMIT", axisString))) {
     if (1 == sscanf(inistring, "%lf", &limit)) {
       // found, and valid
@@ -310,6 +352,8 @@ static int loadAxis(int axis)
     return -1;
   }
 
+  // set max position limit
+
   if (NULL != (inistring = axisInifile->find("MAX_LIMIT", axisString))) {
     if (1 == sscanf(inistring, "%lf", &limit)) {
       // found, and valid
@@ -335,6 +379,8 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+
+  // set following error limit (at max speed)
 
   if (NULL != (inistring = axisInifile->find("FERROR", axisString))) {
     if (1 == sscanf(inistring, "%lf", &maxFerror)) {
@@ -363,6 +409,7 @@ static int loadAxis(int axis)
   }
 
   // do MIN_FERROR, if it's there. If not, use value of maxFerror above
+
   if (NULL != (inistring = axisInifile->find("MIN_FERROR", axisString))) {
     if (1 == sscanf(inistring, "%lf", &limit)) {
       // found, and valid
@@ -389,31 +436,7 @@ static int loadAxis(int axis)
     return -1;
   }
 
-  if (NULL != (inistring = axisInifile->find("HOMING_VEL", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &homingVel)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOMING_VEL: %s\n", axisString, inistring);
-      }
-      homingVel = 1;                    // default for homing vel
-    }
-  }
-  else {
-    // not found at all
-    homingVel = 1;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOMING_VEL, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetHomingVel(axis, homingVel)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetHomingVel\n");
-    }
-    return -1;
-  }
+  // set homing paramsters (total of 6)
 
   if (NULL != (inistring = axisInifile->find("HOME", axisString))) {
     if (1 == sscanf(inistring, "%lf", &home)) {
@@ -434,12 +457,117 @@ static int loadAxis(int axis)
       rcs_print_error("can't find [%s] HOME, using default\n", axisString);
     }
   }
-  if (0 != emcAxisSetHome(axis, home)) {
+
+  if (NULL != (inistring = axisInifile->find("HOME_OFFSET", axisString))) {
+    if (1 == sscanf(inistring, "%lf", &offset)) {
+      // found, and valid
+    }
+    else {
+      // found, but invalid
+      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+        rcs_print_error("invalid inifile value for [%s] HOME_OFFSET: %s\n", axisString, inistring);
+      }
+      offset = 0.0;                       // default
+    }
+  }
+  else {
+    // not found at all
+    offset = 0.0;
+    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+      rcs_print_error("can't find [%s] HOME_OFFSET, using default\n", axisString);
+    }
+  }
+
+  if (NULL != (inistring = axisInifile->find("HOME_SEARCH_VEL", axisString))) {
+    if (1 == sscanf(inistring, "%lf", &search_vel)) {
+      // found, and valid
+    }
+    else {
+      // found, but invalid
+      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+        rcs_print_error("invalid inifile value for [%s] HOME_SEARCH_VEL: %s\n", axisString, inistring);
+      }
+      search_vel = 0.0;   // default - skips entire homing process
+    }
+  }
+  else {
+    // not found at all
+    search_vel = 0.0;
+    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+      rcs_print_error("can't find [%s] HOME_SEARCH_VEL, using default\n", axisString);
+    }
+  }
+
+  if (NULL != (inistring = axisInifile->find("HOME_LATCH_VEL", axisString))) {
+    if (1 == sscanf(inistring, "%lf", &latch_vel)) {
+      // found, and valid
+    }
+    else {
+      // found, but invalid
+      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+        rcs_print_error("invalid inifile value for [%s] HOME_LATCH_VEL: %s\n", axisString, inistring);
+      }
+      latch_vel = 0.0;                       // default
+    }
+  }
+  else {
+    // not found at all
+    latch_vel = 0.0;
+    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+      rcs_print_error("can't find [%s] HOME_LATCH_VEL, using default\n", axisString);
+    }
+  }
+
+  if (NULL != (inistring = axisInifile->find("HOME_USE_INDEX", axisString))) {
+    if (1 == strbool(inistring, &use_index)) {
+      // found, and valid
+    }
+    else {
+      // found, but invalid
+      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+        rcs_print_error("invalid inifile value for [%s] HOME_USE_INDEX: %s\n", axisString, inistring);
+      }
+      use_index = 0;                       // default
+    }
+  }
+  else {
+    // not found at all
+    use_index = 0;
+    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+      rcs_print_error("can't find [%s] HOME_USE_INDEX, using default\n", axisString);
+    }
+  }
+
+  if (NULL != (inistring = axisInifile->find("HOME_IGNORE_LIMITS", axisString))) {
+    if (1 == strbool(inistring, &ignore_limits)) {
+      // found, and valid
+    }
+    else {
+      // found, but invalid
+      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+        rcs_print_error("invalid inifile value for [%s] HOME_IGNORE_LIMITS: %s\n", axisString, inistring);
+      }
+      ignore_limits = 0;                       // default
+    }
+  }
+  else {
+    // not found at all
+    ignore_limits = 0;
+    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+      rcs_print_error("can't find [%s] HOME_IGNORE_LIMITS, using default\n", axisString);
+    }
+  }
+  // issue NML message to set all params
+  if (0 != emcAxisSetHomingParams(axis, home, offset, search_vel,
+	latch_vel, use_index, ignore_limits)) {
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetHome\n");
+      rcs_print_error("bad return from emcAxisSetHomingParams\n");
     }
     return -1;
   }
+
+
+  // set maximum velocity
 
   if (NULL != (inistring = axisInifile->find("MAX_VELOCITY", axisString))) {
     if (1 == sscanf(inistring, "%lf", &maxVelocity)) {
@@ -489,32 +617,6 @@ static int loadAxis(int axis)
   if (0 != emcAxisSetMaxAcceleration(axis, maxAcceleration)) {
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
       rcs_print_error("bad return from emcAxisSetMaxAcceleration\n");
-    }
-    return -1;
-  }
-
-  if (NULL != (inistring = axisInifile->find("HOME_OFFSET", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &offset)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOME_OFFSET: %s\n", axisString, inistring);
-      }
-      offset = 0.0;
-    }
-  }
-  else {
-    // not found at all
-    offset = 0.0;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOME_OFFSET, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetHomeOffset(axis, offset)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetHomeOffset\n");
     }
     return -1;
   }

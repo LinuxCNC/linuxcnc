@@ -369,28 +369,43 @@ int emcAxisSetMinFerror(int axis, double ferror)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisSetHomingVel(int axis, double homingVel)
+
+int emcAxisSetHomingParams(int axis, double home, double offset,
+    double search_vel, double latch_vel, int use_index, int ignore_limits )
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_SET_HOMING_VEL;
+    emcmotCommand.command = EMCMOT_SET_HOMING_PARAMS;
     emcmotCommand.axis = axis;
-    emcmotCommand.vel = homingVel;
+    emcmotCommand.home = home;
+    emcmotCommand.offset = offset;
+    emcmotCommand.search_vel = search_vel;
+    emcmotCommand.latch_vel = latch_vel;
+    emcmotCommand.flags = 0;
+    if ( use_index ) {
+	emcmotCommand.flags |= HOME_USE_INDEX;
+    }
+    if ( ignore_limits ) {
+	emcmotCommand.flags |= HOME_IGNORE_LIMITS;
+    }
 
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.vel)) {
-	printf("isnan error in emcAxisSetHomingVel\n");
+ #ifdef ISNAN_TRAP
+    if (isnan(emcmotCommand.home) ||
+        isnan(emcmotCommand.offset) ||
+	isnan(emcmotCommand.search_vel) ||
+	isnan(emcmotCommand.latch_vel) ) {
+	printf("isnan error in emcAxisSetHoming\n");
 	return -1;
     }
-#endif
+ #endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-
 #if 0
+// FIXME - to be deleted eventually, these are configured thru HAL
 int emcAxisSetStepParams(int axis, double setup_time, double hold_time)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -437,26 +452,6 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
     emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
     emcmotCommand.axis = axis;
     emcmotCommand.acc = acc;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcAxisSetHomeOffset(int axis, double offset)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_HOME_OFFSET;
-    emcmotCommand.axis = axis;
-    emcmotCommand.offset = offset;
-
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.offset)) {
-	printf("isnan error in emcAxisSetHomeOffset\n");
-	return -1;
-    }
-#endif
-
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
@@ -622,19 +617,6 @@ int emcAxisHome(int axis)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcAxisSetHome(int axis, double home)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_JOINT_HOME;
-    emcmotCommand.axis = axis;
-    emcmotCommand.offset = home;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
 int emcAxisJog(int axis, double vel)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -758,6 +740,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	    stat[axis].maxPositionLimit = joint->max_pos_limit;
 	    stat[axis].minFerror = joint->min_ferror;
 	    stat[axis].maxFerror = joint->max_ferror;
+// FIXME - should all homing config params be included here?
 	    stat[axis].homeOffset = joint->home_offset;
 	}
 	stat[axis].setpoint = joint->pos_cmd;

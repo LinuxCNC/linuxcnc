@@ -150,11 +150,9 @@ extern "C" {
 	EMCMOT_SET_JOINT_ACC_LIMIT,	/* set the max axis accel */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
-	EMCMOT_SET_HOMING_VEL,	/* set the axis homing speed */
 	EMCMOT_SET_NUM_AXES,	/* set the number of axes */
 	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
-	EMCMOT_SET_JOINT_HOME,	/* set value for joint homes */
-	EMCMOT_SET_HOME_OFFSET,	/* where to go after a home */
+	EMCMOT_SET_HOMING_PARAMS,	/* sets axis homing parameters */
 	EMCMOT_SET_DEBUG	/* sets the debug level */
     } cmd_code_t;
 
@@ -206,7 +204,11 @@ extern "C" {
 	double logTriggerThreshold;	/* the value for non manual triggers */
 
 	double scale;		/* velocity scale arg */
-	double offset;		/* input or output offset arg */
+	double offset;		/* input, output, or home offset arg */
+	double home;		/* joint home position */
+	double search_vel;	/* home search velocity */
+	double latch_vel;	/* home latch velocity */
+	int flags;		/* homing config flags */
 	double minFerror;	/* min following error */
 	double maxFerror;	/* max following error */
 	int wdWait;		/* cycle to wait before toggling wd */

@@ -435,23 +435,18 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->world_home = emcmotCommand->pos;
 	    break;
 
-	case EMCMOT_SET_JOINT_HOME:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_HOME");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    if (joint == 0) {
-		break;
-	    }
-	    joint->home = emcmotCommand->offset;
-	    break;
-
-	case EMCMOT_SET_HOME_OFFSET:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_HOME_OFFSET");
+	case EMCMOT_SET_HOMING_PARAMS:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_HOMING_PARAMS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
 	    if (joint == 0) {
 		break;
 	    }
 	    joint->home_offset = emcmotCommand->offset;
+	    joint->home = emcmotCommand->home;
+	    joint->home_search_vel = emcmotCommand->search_vel;
+	    joint->home_latch_vel = emcmotCommand->latch_vel;
+	    joint->home_flags = emcmotCommand->flags;
 	    break;
 
 	case EMCMOT_OVERRIDE_LIMITS:
@@ -821,24 +816,6 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    joint->acc_limit = emcmotCommand->acc;
-	    break;
-
-	case EMCMOT_SET_HOMING_VEL:
-	    emcmot_config_change();
-	    /* set the homing velocity */
-	    /* can do it at any time */
-	    /* sign of vel should set polarity, and mag-sign are recorded */
-
-	    /* check axis range */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_HOMING_VEL");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    if (joint == 0) {
-		break;
-	    }
-
-	    joint->home_search_vel = emcmotCommand->vel;
-/* FIXME - add another for home_index_vel, for now use 1/10 search vel */
-	    joint->home_latch_vel = emcmotCommand->vel * 0.1;
 	    break;
 
 	case EMCMOT_SET_ACC:

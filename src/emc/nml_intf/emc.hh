@@ -42,6 +42,7 @@
 
 #define EMC_AXIS_SET_AXIS_TYPE                       ((NMLTYPE) 101)
 #define EMC_AXIS_SET_UNITS_TYPE                      ((NMLTYPE) 102)
+// FIXME - to be deleted later
 #define EMC_AXIS_SET_GAINS_TYPE                      ((NMLTYPE) 103)
 #define EMC_AXIS_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 104)
 #define EMC_AXIS_SET_INPUT_SCALE_TYPE                ((NMLTYPE) 105)
@@ -51,11 +52,12 @@
 #define EMC_AXIS_SET_MIN_OUTPUT_LIMIT_TYPE           ((NMLTYPE) 109)
 #define EMC_AXIS_SET_MAX_OUTPUT_LIMIT_TYPE           ((NMLTYPE) 110)
 #define EMC_AXIS_SET_FERROR_TYPE                     ((NMLTYPE) 111)
-#define EMC_AXIS_SET_HOMING_VEL_TYPE                 ((NMLTYPE) 112)
-#define EMC_AXIS_SET_HOME_TYPE                       ((NMLTYPE) 113)
-#define EMC_AXIS_SET_HOME_OFFSET_TYPE                ((NMLTYPE) 114)
+#define EMC_AXIS_SET_HOMING_PARAMS_TYPE              ((NMLTYPE) 112)
+// gap because of deleted message types
+
 #define EMC_AXIS_SET_MIN_FERROR_TYPE                 ((NMLTYPE) 115)
 #define EMC_AXIS_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 116)
+// gap because of deleted message types
 
 #define EMC_AXIS_INIT_TYPE                           ((NMLTYPE) 118)
 #define EMC_AXIS_HALT_TYPE                           ((NMLTYPE) 119)
@@ -418,13 +420,14 @@ extern int emcAxisSetMinOutputLimit(int axis, double limit);
 extern int emcAxisSetMaxOutputLimit(int axis, double limit);
 extern int emcAxisSetFerror(int axis, double ferror);
 extern int emcAxisSetMinFerror(int axis, double ferror);
-extern int emcAxisSetHomingVel(int axis, double homingVel);
+// FIXME - should be deleted
 extern int emcAxisSetStepParams(int axis, double setup_time,
     double hold_time);
-extern int emcAxisSetHome(int axis, double home);
-extern int emcAxisSetHomeOffset(int axis, double offset);
+extern int emcAxisSetHomingParams(int axis, double home, double offset,
+    double search_vel, double latch_vel, int use_index, int ignore_limits );
 extern int emcAxisSetMaxVelocity(int axis, double vel);
 extern int emcAxisSetMaxAcceleration(int axis, double acc);
+// FIXME - polarity messages should be deleted
 extern int emcAxisSetEnablePolarity(int axis, int level);
 extern int emcAxisSetMinLimitSwitchPolarity(int axis, int level);
 extern int emcAxisSetMaxLimitSwitchPolarity(int axis, int level);
@@ -1019,40 +1022,21 @@ class EMC_AXIS_SET_MIN_FERROR:public EMC_AXIS_CMD_MSG {
     double ferror;
 };
 
-class EMC_AXIS_SET_HOMING_VEL:public EMC_AXIS_CMD_MSG {
+class EMC_AXIS_SET_HOMING_PARAMS:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_SET_HOMING_VEL():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_HOMING_VEL_TYPE,
-	sizeof(EMC_AXIS_SET_HOMING_VEL)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double homingVel;
-};
-
-class EMC_AXIS_SET_HOME:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_SET_HOME():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_HOME_TYPE,
-	sizeof(EMC_AXIS_SET_HOME)) {
+    EMC_AXIS_SET_HOMING_PARAMS():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_HOMING_PARAMS_TYPE,
+	sizeof(EMC_AXIS_SET_HOMING_PARAMS)) {
     };
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
     double home;
-};
-
-class EMC_AXIS_SET_HOME_OFFSET:public EMC_AXIS_CMD_MSG {
-  public:
-    EMC_AXIS_SET_HOME_OFFSET():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_HOME_OFFSET_TYPE,
-	sizeof(EMC_AXIS_SET_HOME_OFFSET)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
     double offset;
+    double search_vel;
+    double latch_vel;
+    int use_index;
+    int ignore_limits;
 };
 
 class EMC_AXIS_SET_MAX_VELOCITY:public EMC_AXIS_CMD_MSG {
@@ -1292,6 +1276,7 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     double maxOutputLimit;
     double maxFerror;
     double minFerror;
+    // FIXME - homingVel has been superceded
     double homingVel;
     double setup_time;
     double hold_time;
