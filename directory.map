@@ -64,8 +64,7 @@
            |
            |--- .tmp/    (temp directory for intermediate objects.)
            |--- .rt_tmp/ (temp directory for RT objects.)
-           |--- .gtk_tmp/ (temp directory for GTK+ objects.)
-           |             (N.B. These three should not appear in CVS)
+           |             (N.B. These two should not appear in CVS)
            |             (and will be deleted during a 'make clean')
            |
            |

@@ -238,53 +238,68 @@ def_clean:
 
 # depend commands - I know it looks _really_ ugly, but it does strip away
 #                   most of the system headers.
-# Derived from the original rcslib Make system.
+#
+# For each group of sources, this target first calls the appropriate
+# compiler with the -MM option to generate a list of include files.
+# Then it pipes the list through an awk script that keeps only includes
+# that belong to emc - either in the source dir or in $(INC_DIR).
+#
 def_depend:
 	@ echo "Generating Dependencies in `pwd`"
 	rm -f .depend.c .depend.cc .depend.rt
 	touch .depend.c .depend.cc .depend.rt
-	(if [ ! -z "$(C_SRCS)" ] ; then echo "User C: $(C_SRCS)" ; \
-	($(CC) -MM $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) \
-	$(C_SRCS) >.depend.c) ; exit 0; fi)
-	(if [ -s .depend.c ] ; then cat .depend.c | \
-	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
-	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip && \
-	cat .depend.strip | \
-	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\$(TMP_DIR)/\&# | \
-	grep -v -E '^\\' > .depend.c && \
-	rm -f .depend.strip ; fi)
-	(if [ ! -z "$(CC_SRCS)" ] ; then echo "User C++: $(CC_SRCS)" ; \
-	($(CXX) -MM $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) \
-	$(CC_SRCS) >.depend.cc) ; exit 0; fi)
-	(if [ -s .depend.cc ] ; then cat .depend.cc | \
-	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
-	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip && \
-	cat .depend.strip | \
-	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\$(TMP_DIR)/\&# | \
-	grep -v -E '^\\' > .depend.cc && \
-	rm -f .depend.strip ; fi)
-	(if [ ! -z "$(RT_SRCS)" ] ; then echo "Realtime C: $(RT_SRCS)" ;\
-	($(CC) -MM $(RTFLAGS) $(LOCAL_RTFLAGS) \
-	$(RT_SRCS) >.depend.rt) ; exit 0; fi)
-	(if [ -s .depend.rt ] ; then cat .depend.rt | \
-	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
-	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip && \
-	cat .depend.strip | \
-	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\$(RTTMP_DIR)/\&# | \
-	grep -v -E '^\\' > .depend.rt && \
-	rm -f .depend.strip ; fi)
+	(if [ ! -z "$(C_SRCS)" ] ; then \
+	  echo "User C: $(C_SRCS)" ; \
+	  $(CC) -M $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $(C_SRCS) | \
+	  awk '{ \
+	    split($$0,FIELD," ") ; \
+	    for ( i = 1 ; i <= NF ; i++ ) { \
+	      if ( FIELD[i] ~ /[-a-zA-Z0-9_]*\.o:/ ) { \
+	        printf ( "\n%s/%s", "$(TMP_DIR)", FIELD[i] ) \
+	      } else { \
+	        if (( FIELD[i] ~ /^[-a-zA-Z0-9_]*\.h/ ) || \
+	            ( FIELD[i] ~ "^$(INC_DIR)\/[-a-zA-Z0-9_]*\.h" )) { \
+	          printf ( " \\\n  %s", FIELD[i] ) \
+	        } \
+	      } \
+	    } \
+	  } END { printf ( "\n\n" ) }' > .depend.c ; \
+	fi)
+	(if [ ! -z "$(CC_SRCS)" ] ; then \
+	  echo "User C++: $(CC_SRCS)" ; \
+	  $(CXX) -M $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $(CC_SRCS) | \
+	  awk '{ \
+	    split($$0,FIELD," ") ; \
+	    for ( i = 1 ; i <= NF ; i++ ) { \
+	      if ( FIELD[i] ~ /[-a-zA-Z0-9_]*\.o:/ ) { \
+	        printf ( "\n%s/%s", "$(TMP_DIR)", FIELD[i] ) \
+	      } else { \
+	        if (( FIELD[i] ~ /^[-a-zA-Z0-9_]*\.h/ ) || \
+	            ( FIELD[i] ~ "^$(INC_DIR)\/[-a-zA-Z0-9_]*\.h" )) { \
+	          printf ( " \\\n  %s", FIELD[i] ) \
+	        } \
+	      } \
+	    } \
+	  } END { printf ( "\n\n" ) }' > .depend.cc ; \
+	fi)
+	(if [ ! -z "$(RT_SRCS)" ] ; then \
+	  echo "Realtime C: $(RT_SRCS)" ; \
+	  $(CC) -M $(RTFLAGS) $(LOCAL_RTFLAGS) $(RT_SRCS) | \
+	  awk '{ \
+	    split($$0,FIELD," ") ; \
+	    for ( i = 1 ; i <= NF ; i++ ) { \
+	      if ( FIELD[i] ~ /[-a-zA-Z0-9_]*\.o:/ ) { \
+	        printf ( "\n%s/%s", "$(RTTMP_DIR)", FIELD[i] ) \
+	      } else { \
+	        if (( FIELD[i] ~ /^[-a-zA-Z0-9_]*\.h/ ) || \
+	            ( FIELD[i] ~ "^$(INC_DIR)\/[-a-zA-Z0-9_]*\.h" )) { \
+	          printf ( " \\\n  %s", FIELD[i] ) \
+	        } \
+	      } \
+	    } \
+	  } END { printf ( "\n\n" ) }' > .depend.rt ; \
+	fi)
+
 
 .PHONY : def_headers def_depend def_indent def_install def_clean
 
