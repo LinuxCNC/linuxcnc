@@ -33,7 +33,6 @@ include Makefile.inc
 all headers indent :
 	(cd src/rtapi; make $@)
 	(cd src/hal; make $@)
-	(cd src/libnml; make $@)
 
 # these variables are used to build a list of all
 # man pages that need to be installed
@@ -84,15 +83,15 @@ examples :
 # it changes to all the source sub-directories, calls make there, and
 # then returns to the top level directory and cleans that up too.
 clean :
-	@ (cd src/rtapi; make $@)
-	@ (cd src/hal; make $@)
-	@ find . -name "*~" -exec rm -f {} \;
-	@ find . -name "*.bak" -exec rm -f {} \;
-	@ find . -name core -exec rm -f {} \;
-	-@ (rm -f include/* lib/* rtlib/* bin/* 2>/dev/null)
-	@ (if [ -d $(TMP_DIR) ] ; then rm -fR $(TMP_DIR) ; fi)
-	@ (if [ -d $(RTTMP_DIR) ] ; then rm -fR $(RTTMP_DIR) ; fi)
-	@ (if [ -d $(GTKTMP_DIR) ] ; then rm -fR $(GTKTMP_DIR) ; fi)
+	(cd src/rtapi; make $@)
+	(cd src/hal; make $@)
+	find . -name "*~" -exec rm -f {} \;
+	find . -name "*.bak" -exec rm -f {} \;
+	find . -name core -exec rm -f {} \;
+	-(rm -f include/* lib/* rtlib/* bin/* 2>/dev/null)
+	(if [ -d $(TMP_DIR) ] ; then rm -fR $(TMP_DIR) ; fi)
+	(if [ -d $(RTTMP_DIR) ] ; then rm -fR $(RTTMP_DIR) ; fi)
+	(if [ -d $(GTKTMP_DIR) ] ; then rm -fR $(GTKTMP_DIR) ; fi)
 
 
 .PHONY : all examples headers depend indent install clean
