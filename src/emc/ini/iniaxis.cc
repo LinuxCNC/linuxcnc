@@ -17,14 +17,17 @@
 ********************************************************************/
 
 extern "C" {
+#include <unistd.h>
 #include <stdio.h>              // NULL
 #include <stdlib.h>             // atol(), _itoa()
 #include <string.h>             // strcmp()
 #include <ctype.h>              // isdigit()
+#include <sys/types.h>
+#include <sys/stat.h>
 }
 
 #include "emc.hh"
-#include "inifile.h"
+#include "inifile.hh"
 #include "iniaxis.hh"           // these decls
 #include "emcglb.h"             // EMC_DEBUG
 #include "emccfg.h"             // default values for globals
@@ -41,6 +44,7 @@ static INIFILE *axisInifile = 0;
   UNITS <float>                units per mm or deg
   HOME <float>                 home position
   MAX_VELOCITY <float>         max vel for axis
+  MAX_ACCELERATION <float>     max accel for axis
   P <float>                    proportional gain
   I <float>                    integral gain
   D <float>                    derivative gain
@@ -98,6 +102,8 @@ static INIFILE *axisInifile = 0;
   emcAxisActivate(int axis);
   emcAxisDeactivate(int axis);
   emcAxisSetMaxVelocity(int axis, double vel);
+  emcAxisSetMaxAcceleration(int axis, double acc);
+  emcAxisLoadComp(int axis, const char * file);
   emcAxisLoadComp(int axis, const char * file);
   */
 
@@ -108,19 +114,28 @@ static int loadAxis(int axis)
   const char *inistring;
   unsigned char axisType;
   double units;
+/* FIXME - variables no longer needed */
+#if 0
   double p, i, d, ff0, ff1, ff2;
+#endif
   double backlash;
+#if 0
   double bias;
   double maxError;
   double deadband;
   double cycleTime;
-  double scale, offset;
+  double scale;
+#endif
+  double offset;
   double limit;
   double homingVel;
+#if 0
   double setup_time;
   double hold_time;
+#endif
   double home;
   double maxVelocity;
+  double maxAcceleration;
   int polarity;
   double maxFerror;
 
@@ -187,6 +202,11 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+
+/* FIXME - PID gains no longer in ini file, this gets deleted */
+/* maybe.... perhaps the gains should be in the ini, but they */
+/* should be passed to the HAL pid block another way */
+#if 0
 
   // set forward gains
 
@@ -309,6 +329,9 @@ static int loadAxis(int axis)
       rcs_print_error("can't find [%s] FF2, using default\n", axisString);
     }
   }
+#endif
+
+/* FIXME - backlash is not a PID parameter, so we keep it */
 
   if (NULL != (inistring = axisInifile->find("BACKLASH", axisString))) {
     if (1 == sscanf(inistring, "%lf", &backlash)) {
@@ -329,6 +352,9 @@ static int loadAxis(int axis)
       rcs_print_error("can't find [%s] BACKLASH, using default\n", axisString);
     }
   }
+
+/* FIXME - more PID parameters, no longer needed */
+#if 0
 
   if (NULL != (inistring = axisInifile->find("BIAS", axisString))) {
     if (1 == sscanf(inistring, "%lf", &bias)) {
@@ -393,8 +419,12 @@ static int loadAxis(int axis)
       rcs_print_error("can't find [%s] DEADBAND, using default\n", axisString);
     }
   }
+#endif
 
   // now set them
+
+/* FIXME - need to handle backlash separately from the rest */
+#if 0
 
   if (0 != emcAxisSetGains(axis,
                            p, i, d, ff0, ff1, ff2,
@@ -404,7 +434,10 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
+/* FIXME - cycle times and scaling no longer needed */
+#if 0
   // set cycle time
 
   if (NULL != (inistring = axisInifile->find("CYCLE_TIME", axisString))) {
@@ -494,6 +527,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
   if (NULL != (inistring = axisInifile->find("MIN_LIMIT", axisString))) {
     if (1 == sscanf(inistring, "%lf", &limit)) {
@@ -547,7 +581,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
-
+#if 0  /* these commands no longer exist */
   if (NULL != (inistring = axisInifile->find("MIN_OUTPUT", axisString))) {
     if (1 == sscanf(inistring, "%lf", &limit)) {
       // found, and valid
@@ -599,6 +633,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
   if (NULL != (inistring = axisInifile->find("FERROR", axisString))) {
     if (1 == sscanf(inistring, "%lf", &maxFerror)) {
@@ -679,6 +714,9 @@ static int loadAxis(int axis)
     return -1;
   }
 
+/* FIXME - step timing parameters no longer handled here */
+#if 0
+
   if (NULL != (inistring = axisInifile->find("SETUP_TIME", axisString))) {
     if (1 == sscanf(inistring, "%lf", &setup_time)) {
       // found, and valid
@@ -723,6 +761,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
   if (NULL != (inistring = axisInifile->find("HOME", axisString))) {
     if (1 == sscanf(inistring, "%lf", &home)) {
@@ -772,6 +811,32 @@ static int loadAxis(int axis)
   if (0 != emcAxisSetMaxVelocity(axis, maxVelocity)) {
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
       rcs_print_error("bad return from emcAxisSetMaxVelocity\n");
+    }
+    return -1;
+  }
+
+  if (NULL != (inistring = axisInifile->find("MAX_ACCELERATION", axisString))) {
+    if (1 == sscanf(inistring, "%lf", &maxAcceleration)) {
+      // found, and valid
+    }
+    else {
+      // found, but invalid
+      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+        rcs_print_error("invalid inifile value for [%s] MAX_ACCELERATION: %s\n", axisString, inistring);
+      }
+      maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;  // default
+    }
+  }
+  else {
+    // not found at all
+    maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;
+    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+      rcs_print_error("can't find [%s] MAX_ACCELERATION, using default\n", axisString);
+    }
+  }
+  if (0 != emcAxisSetMaxAcceleration(axis, maxAcceleration)) {
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+      rcs_print_error("bad return from emcAxisSetMaxAcceleration\n");
     }
     return -1;
   }
@@ -932,6 +997,9 @@ static int loadAxis(int axis)
     return -1;
   }
 
+/* FIXME - more polarity stuff handled by HAL now */
+#if 0
+
   if (NULL != (inistring = axisInifile->find("FAULT_POLARITY", axisString))) {
     if (1 == sscanf(inistring, "%d", &polarity)) {
       // found, and valid
@@ -957,6 +1025,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
   if (NULL != (inistring = axisInifile->find("COMP_FILE", axisString))) {
     if (0 != emcAxisLoadComp(axis, inistring)) {
@@ -1288,14 +1357,14 @@ int iniFormatFloat2(char *fmt, const char *var, const char *val)
 // end temporary insert of ini file stuff
 
 /*
-  dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *stat)
+  dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *status)
 
   Takes the file name for the ini file, makes a backup copy, opens the
   backup copy, then overwrites the original with a line-by-line version
   of the original, parsing the lines for ones it understands and
   replacing the values with the current ones.
  */
-int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *stat)
+int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *status)
 {
   char ourAxisSection[256];
   int ourAxis = 0;
@@ -1305,6 +1374,13 @@ int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *stat)
   char section[256];
   char var[256], val[256];
   char fmt[256];
+  struct stat ini_stat;
+
+/* FIXME - stat() and chown() can disappear when we no longer need
+   to run as root. */
+printf ( "iniaxis: dumpAxis(%d, %s, %p)\n", axis, filename, status);
+
+    stat(filename, &ini_stat);		// save the ownership details.
 
   // rename with backup suffix
   strcpy(line, filename);
@@ -1349,52 +1425,52 @@ int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *stat)
       if (iniIsEntry(line, var, val)) {
         if (!strcmp(var, "P")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->p);
+          fprintf(outfp, fmt, status->p);
           continue;             // avoid fputs() below, since we wrote it
         }
         else if (!strcmp(var, "I")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->i);
+          fprintf(outfp, fmt, status->i);
           continue;
         }
         else if (!strcmp(var, "D")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->d);
+          fprintf(outfp, fmt, status->d);
           continue;
         }
         else if (!strcmp(var, "FF0")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->ff0);
+          fprintf(outfp, fmt, status->ff0);
           continue;
         }
         else if (!strcmp(var, "FF1")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->ff1);
+          fprintf(outfp, fmt, status->ff1);
           continue;
         }
         else if (!strcmp(var, "FF2")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->ff2);
+          fprintf(outfp, fmt, status->ff2);
           continue;
         }
         else if (!strcmp(var, "BACKLASH")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->backlash);
+          fprintf(outfp, fmt, status->backlash);
           continue;
         }
         else if (!strcmp(var, "BIAS")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->bias);
+          fprintf(outfp, fmt, status->bias);
           continue;
         }
         else if (!strcmp(var, "MAX_ERROR")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->maxError);
+          fprintf(outfp, fmt, status->maxError);
           continue;
         }
         else if (!strcmp(var, "DEADBAND")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->deadband);
+          fprintf(outfp, fmt, status->deadband);
           continue;
         }
         else if (!strcmp(var, "OUTPUT_SCALE")) {
@@ -1402,17 +1478,17 @@ int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *stat)
           // and iniFormatFloat2() will set fmt to convert 2 floats
           // at the precision of the first in the string
           iniFormatFloat2(fmt, var, val);
-          fprintf(outfp, fmt, stat->outputScale, stat->outputOffset);
+          fprintf(outfp, fmt, status->outputScale, status->outputOffset);
           continue;
         }
         else if (!strcmp(var, "FERROR")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->maxFerror);
+          fprintf(outfp, fmt, status->maxFerror);
           continue;
         }
         else if (!strcmp(var, "MIN_FERROR")) {
           iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, stat->minFerror);
+          fprintf(outfp, fmt, status->minFerror);
           continue;
         }
       }
@@ -1424,6 +1500,10 @@ int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *stat)
 
   fclose(infp);
   fclose(outfp);
+
+  /* Update the uid and gid of the new ini file - else it will end up
+     being owned by root */
+    chown(filename, ini_stat.st_uid, ini_stat.st_gid);
 
   return 0;
 }

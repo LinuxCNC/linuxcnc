@@ -8,7 +8,9 @@
 
     Other contributers:
                        Martin Kuhnle
-                       <martinkuhnle AT t-online DOT de>
+                       <mkuhnle AT users DOT sourceforge DOT net>
+                       Alex Joni
+                       <alex_joni AT users DOT sourceforge DOT net>
 */
 
 /** This program is free software; you can redistribute it and/or
@@ -71,6 +73,7 @@ static int do_setp_cmd(char *name, char *value);
 static int do_sets_cmd(char *name, char *value);
 static int do_show_cmd(char *type);
 static int do_loadrt_cmd(char *mod_name, char *args[]);
+static int do_delsig_cmd(char *mod_name);
 static int do_unloadrt_cmd(char *mod_name);
 static int unloadrt_comp(char *mod_name);
 static void print_comp_list(void);
@@ -105,6 +108,7 @@ int comp_id = 0;
 int main(int argc, char **argv)
 {
     int n, m, fd;
+    int keep_going, retval, errorcount;
     enum { BETWEEN_TOKENS,
            IN_TOKEN,
 	   SINGLE_QUOTE,
@@ -122,6 +126,8 @@ int main(int argc, char **argv)
     }
     /* set default level of output - 'quiet' */
     rtapi_set_msg_level(RTAPI_MSG_ERR);
+    /* set default for other options */
+    keep_going = 0;
     /* start parsing the command line, options first */
     n = 1;
     while ((n < argc) && (argv[n][0] == '-')) {
@@ -132,7 +138,11 @@ int main(int argc, char **argv)
 	    case 'h':
 		/* -h = help */
 		print_help();
-		exit(0);
+		return 0;
+		break;
+	    case 'k':
+		/* -k = keep going */
+		keep_going = 1;
 		break;
 	    case 'q':
 		/* -q = quiet (default) */
@@ -184,8 +194,10 @@ int main(int argc, char **argv)
     comp_id = hal_init("halcmd");
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed\n" );
-	return -1;
+	return 1;
     }
+    retval = 0;
+    errorcount = 0;
     /* HAL init is OK, let's process the command(s) */
     if (infile == NULL) {
 	/* the remaining command line args are parts of the command */
@@ -201,7 +213,10 @@ int main(int argc, char **argv)
 	   at least one empty one at the end... make it empty now */
 	tokens[MAX_TOK] = "";
 	/* process the command */
-	parse_cmd(tokens);
+	retval = parse_cmd(tokens);
+	if ( retval != 0 ) {
+	    errorcount++;
+	}
     } else {
 	/* read command line(s) from 'infile' */
 	while (fgets(cmd_buf, MAX_CMD_LEN, infile) != NULL) {
@@ -293,12 +308,23 @@ int main(int argc, char **argv)
 	       at least one empty one at the end... make it empty now */
 	    tokens[MAX_TOK] = "";
 	    /* process command */
-            parse_cmd(tokens);
+            retval = parse_cmd(tokens);
+	    if ( retval != 0 ) {
+		errorcount++;
+	    }
+	    if (( errorcount > 0 ) && ( keep_going == 0 )) {
+		/* exit from loop */
+		break;
+	    }
 	}
     }
     /* all done */
     hal_exit(comp_id);
-    return 0;
+    if ( errorcount > 0 ) {
+	return 1;
+    } else {
+	return 0;
+    }
 }
 
 /***********************************************************************
@@ -342,12 +368,7 @@ static int parse_cmd(char *tokens[])
     } else if (strcmp(tokens[0], "newsig") == 0) {
 	retval = do_newsig_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "delsig") == 0) {
-	retval = hal_signal_delete(tokens[1]);
-	if (retval == 0) {
-	    /* print success message */
-	    rtapi_print_msg(RTAPI_MSG_INFO, "Signal '%s' deleted'\n",
-		tokens[1]);
-	}
+	retval = do_delsig_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "setp") == 0) {
 	retval = do_setp_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[1], "=") == 0) {
@@ -808,26 +829,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
        directory tree being laid out per 'emc2/directory.map'.
        There is probably a better way of doing this... it will
        certainly need changed once we have a 'make install' that
-       puts modules somewhere else. 
-
-       JS- I'm going to suggest that the right thing to do here
-       is to find the emc.conf file and parse out the module
-       directory, so that we have 1 modifiable file which controls
-       the rtmod_dir setting here and in the scripts.
-
-       That said, I'm ignoring my advice for now and just adding
-       a test for the rtmod_dir from configure...
-
-       (I'd really rather not reimplement configuration file parsing)
-
-    */
-
-    if ( rtmod_dir == NULL ) {
-	if ( stat(moduledir, &stat_buf) == 0 ) {
-		rtmod_dir=moduledir;
-	}
-    }
-
+       puts modules somewhere else. */
     if ( rtmod_dir == NULL ) {
 	/* no env variable, try to locate the directory based on
 	   where this executable lives (should be in the emc2 tree) */
@@ -979,6 +981,69 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	mod_name);
     return 0;
 }
+
+static int do_delsig_cmd(char *mod_name)
+{
+    int next, retval, retval1, n;
+    hal_sig_t *sig;
+    char sigs[64][HAL_NAME_LEN+1];
+
+    /* check for "all" */
+    if ( strcmp(mod_name, "all" ) != 0 ) {
+	retval = hal_signal_delete(mod_name);
+	if (retval == 0) {
+	    /* print success message */
+	    rtapi_print_msg(RTAPI_MSG_INFO, "Signal '%s' deleted'\n",
+		mod_name);
+	}
+	return retval;
+    } else {
+	/* build a list of signal(s) to delete */
+	n = 0;
+	rtapi_mutex_get(&(hal_data->mutex));
+
+	next = hal_data->sig_list_ptr;
+	while (next != 0) {
+	    sig = SHMPTR(next);
+	    /* we want to unload this signal, remember it's name */
+	    if ( n < 63 ) {
+	        strncpy(sigs[n++], sig->name, HAL_NAME_LEN );
+	    }
+	    next = sig->next_ptr;
+	}
+	rtapi_mutex_give(&(hal_data->mutex));
+	sigs[n][0] = '\0';
+
+	if ( ( sigs[0][0] == '\0' )) {
+	    /* desired signals not found */
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: no signals found to be deleted\n");
+	    return -1;
+	}
+	/* we now have a list of components, unload them */
+	n = 0;
+	retval1 = 0;
+	while ( sigs[n][0] != '\0' ) {
+	    retval = hal_signal_delete(sigs[n]);
+	/* check for fatal error */
+	    if ( retval < -1 ) {
+		return retval;
+	    }
+	    /* check for other error */
+	    if ( retval != 0 ) {
+		retval1 = retval;
+	    }
+	    if (retval == 0) {
+		/* print success message */
+		rtapi_print_msg(RTAPI_MSG_INFO, "Signal '%s' deleted'\n",
+		sigs[n]);
+	    }
+	    n++;
+	}
+    }
+    return retval1;
+}
+
 
 static int do_unloadrt_cmd(char *mod_name)
 {
@@ -1598,6 +1663,8 @@ static void print_help(void)
 	("  -f [filename]    Read command(s) from 'filename' instead of command\n");
     printf
 	("                   line.  If no file is specified, read from stdin.\n\n");
+    printf("  -k               Keep going after failed command.  By default,\n");
+    printf("                   halcmd will exit if any command fails.\n\n");
     printf("  -q               Quiet - Display errors only (default).\n\n");
     printf("  -Q               Very quiet - Display nothing.\n\n");
     printf
@@ -1632,7 +1699,8 @@ static void print_help(void)
 	("         Creates a new signal called 'signame'.  Type is 'bit', 'float',\n");
     printf("         'u8', 's8', 'u16', 's16', 'u32', or 's32'.\n\n");
     printf("  delsig signame\n");
-    printf("         Deletes signal 'signame'.\n\n");
+    printf("         Deletes signal 'signame'.\n");
+    printf("         If 'signame' is 'all' deletes all signals\n\n");
     printf("  setp paramname value\n");
     printf("  paramname = value\n");
     printf

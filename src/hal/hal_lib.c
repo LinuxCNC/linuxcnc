@@ -10,6 +10,10 @@
 
 /** Copyright (C) 2003 John Kasunich
                        <jmkasunich AT users DOT sourceforge DOT net>
+
+    Other contributors:
+                       Paul Fox
+                       <pgf AT foxharp DOT boston DOT ma DOT us>
 */
 
 /** This library is free software; you can redistribute it and/or
@@ -436,6 +440,14 @@ int hal_pin_new(char *name, hal_type_t type, hal_dir_t dir,
 	    "HAL: ERROR: component %d not found\n", comp_id);
 	return HAL_INVAL;
     }
+    /* validate passed in pointer - must point to HAL shmem */
+    if (! SHMCHK(data_ptr_addr)) {
+	/* bad pointer */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: data_ptr_addr not in shared memory\n");
+	return HAL_INVAL;
+    }
     /* allocate a new variable structure */
     new = alloc_pin_struct();
     if (new == 0) {
@@ -800,6 +812,14 @@ int hal_param_new(char *name, hal_type_t type, hal_dir_t dir, void *data_addr,
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
+	return HAL_INVAL;
+    }
+    /* validate passed in pointer - must point to HAL shmem */
+    if (! SHMCHK(data_addr)) {
+	/* bad pointer */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: data_addr not in shared memory\n");
 	return HAL_INVAL;
     }
     /* allocate a new parameter structure */

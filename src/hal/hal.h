@@ -228,11 +228,11 @@ typedef enum {
     HAL_U32 = 8
 } hal_type_t;
 
-/** HAL pins also have a direction attribute.  Any number of RD_ONLY
-    or RD_WR pins may be connected to the same signal, but only one
-    WR_ONLY pin is permitted.  This is equivalent to connecting two
-    output pins together in an electronic circuit.  (RD_WR pins can
-    be thought of as tri-state outputs.)
+/** HAL pins also have a direction attribute.  Any number of HAL_RD
+    or HAL_RD_WR pins may be connected to the same signal, but only
+    one HAL_WR pin is permitted.  This is equivalent to connecting
+    two output pins together in an electronic circuit.  (HAL_RD_WR
+    pins can be thought of as tri-state outputs.)
 */
 typedef enum {
     HAL_RD = 16,

@@ -41,6 +41,10 @@ Ignore commands on command line, take input from \fIfile\fR
 instead.  If \fIfile\fR is not specified, take input from
 \fIstdin\fR.
 .TP
+\fB\-k\fR
+Keep going after failed command(s).  The default is to stop
+and return failure if any command fails.
+.TP
 \fB\-q\fR
 display errors only (default)
 .TP
@@ -62,6 +66,21 @@ If the '\fB-f\fR' option is used to read commands from a file,
 \fBhalcmd\fR reads each line of the file as a new command.
 Anything following '\fB#\fR' on a line is a comment.
 .TP
+\fBloadrt\fR \fImodname\fR
+(\fIload\fR \fIr\fReal\fIt\fRime module)  Loads a realtime HAL
+module called \fImodname\fR.  Halcmd looks in the directory
+specified by environment variable HAL_RTMOD_DIR for the module.
+It must be run with root privliges to install the module (which
+is done by forking and executing "insmod").  Fails if not root,
+or the module can't be found, or insmod can't load it.
+.TP
+\fBunloadrt\fR \fImodname\fR
+(\fIunload\fR \fIr\fReal\fIt\fRime module)  Unloads a realtime HAL
+module called \fImodname\fR.  If \fImodname\fR is "all", it will
+unload all currently loaded realtime HAL modules.  It must be run
+with root privliges.  Fails if not root, or if \fImodname\fR is
+not loaded, or if rmmod can't remove it.
+.TP
 \fBnewsig\fR \fIsigname\fR \fItype\fR
 (\fInew\fR \fIsig\fRnal)  Creates a new HAL signal called
 \fIsigname\fR that may later be used to connect two or more
@@ -74,6 +93,12 @@ Fails if a signal of the same name already exists.
 (\fIdel\fRete \fIsig\fRnal)  Deletes HAL signal \fIsigname\fR.
 Any pins currently linked to the signal will be unlinked.
 Fails if \fIsigname\fR does not exist.
+.TP
+\fBsets\fR \fIsigame\fR \fIvalue\fR
+(\fIset\fR \fIs\fRignal)  Sets the value of signal \fIsigname\fR
+to \fIvalue\fR.  Fails if \fIsigname\fR does not exist, if it
+already has a writer, or if \fIvalue\fR is not a legal value.
+Legal values depend on the signals's type.
 .TP
 \fBlinkps\fR \fIpinname\fR [\fIarrow\fR] \fIsigname\fR
 (\fIlink\fR \fIp\fRin to \fIs\fRignal)  Establishs a link
@@ -162,8 +187,21 @@ None known at this time.  There are a few things I might want
 to change - perhaps \fBsave\fR without \fIitem\fR should do
 the equivalent of net,param,thread.  Perhaps \fBsave param\fR
 should use the "=" form of the \fBsetp\fR command.  Etc.
+.PP
+The \fBloadrt\fR command contains some really crufty code that
+looks for the realtime module directory if the environment
+variable HAL_RTMOD_DIR is not present.  That code should
+probably be removed, but I need to come up with a better
+method first.
+.PP
+Eventually, I want to be able to make \fBhalcmd\fR setuid, so
+that normal users can configure the HAL.  Before that can happen,
+it must be re-written to get the HAL module directory in a
+secure way, so that it can't be used to load arbitrary kernel
+modules from a user specified directory.
 .SH AUTHOR
-Written by John Kasunich
+Written by John Kasunich, as part of the Enhanced Machine
+Controller (EMC) project.
 .SH REPORTING BUGS
 Report bugs to jmkasunich AT users DOT sourceforge DOT net
 .SH COPYRIGHT
