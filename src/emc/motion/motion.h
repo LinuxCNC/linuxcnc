@@ -460,21 +460,10 @@ Suggestion: Split this in to an Error and a Status flag register..
     typedef struct {
 
 	EMCMOT_AXIS_FLAG flag;	/* see above for bit details */
-	double coarse_pos;	/* trajectory point, before interp */
 	double pos_cmd;		/* commanded joint position */
-	double vel_cmd;		/* comanded joint velocity */
-	double backlash_corr;	/* correction for backlash */
-	double backlash_filt;	/* filtered backlash correction */
-	double motor_pos_cmd;	/* commanded position, with comp */
-	double motor_pos_fb;	/* position feedback, with comp */
 	double pos_fb;		/* position feedback, comp removed */
 	double ferror;		/* following error */
-	double ferror_limit;	/* limit depends on speed */
 	double ferror_high_mark;	/* max following error */
-	double free_pos_cmd;	/* position command for free mode TP */
-	double free_vel_lim;	/* velocity limit for free mode TP */
-	int free_tp_enable;	/* if zero, joint stops ASAP */
-	int free_tp_active;	/* if non-zero, move in progress */
 
 /* FIXME - the following are not really "status", but taskintf.cc expects
    them to be in the status structure.  I don't know how or if they are

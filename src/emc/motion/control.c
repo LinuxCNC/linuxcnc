@@ -1902,21 +1902,10 @@ static void update_status(void)
 	joint_status = &(emcmotStatus->joint_status[joint_num]);
 	/* copy stuff */
 	joint_status->flag = joint->flag;
-	joint_status->coarse_pos = joint->coarse_pos;
 	joint_status->pos_cmd = joint->pos_cmd;
-	joint_status->vel_cmd = joint->vel_cmd;
-	joint_status->backlash_corr = joint->backlash_corr;
-	joint_status->backlash_filt = joint->backlash_filt;
-	joint_status->motor_pos_cmd = joint->motor_pos_cmd;
-	joint_status->motor_pos_fb = joint->motor_pos_fb;
 	joint_status->pos_fb = joint->pos_fb;
 	joint_status->ferror = joint->ferror;
-	joint_status->ferror_limit = joint->ferror_limit;
 	joint_status->ferror_high_mark = joint->ferror_high_mark;
-	joint_status->free_pos_cmd = joint->free_pos_cmd;
-	joint_status->free_vel_lim = joint->free_vel_lim;
-	joint_status->free_tp_enable = joint->free_tp_enable;
-	joint_status->free_tp_active = joint->free_tp_active;
 	joint_status->backlash = joint->backlash;
 	joint_status->max_pos_limit = joint->max_pos_limit;
 	joint_status->min_pos_limit = joint->min_pos_limit;
