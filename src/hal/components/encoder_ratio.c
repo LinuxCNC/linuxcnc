@@ -39,6 +39,17 @@
     must be called in a high speed thread, at least twice the maximum
     desired count rate.  "encoder_ratio.update" can be called at a
     much slower rate, and updates the output pin(s).
+
+    When the enable pin is FALSE, the error pin simply reports the
+    slave axis position, in revolutions.  As such, it would normally
+    be connected to the feedback pin of a PID block for closed loop
+    control of the slave axis.  Normally the command input of the
+    PID block is left unconnected (zero), so the slave axis simply
+    sits still.  However when the enable input goes TRUE, the error
+    pin becomes the slave position minus the scaled master position.
+    The scale factor is the ratio of master teeth to slave teeth.
+    As the master moves, error becomes non-zero, and the PID loop
+    will drive the slave axis to track the master.
 */
 
 /** Copyright (C) 2004 John Kasunich
@@ -270,9 +281,9 @@ static void sample(void *arg, long period)
 	if ( *(pair->enable) != 0 ) {
 	    /* has an edge been detected? */
 	    if (state & SM_CNT_UP_MASK) {
-		pair->raw_error += pair->master_increment;
-	    } else if (state & SM_CNT_DN_MASK) {
 		pair->raw_error -= pair->master_increment;
+	    } else if (state & SM_CNT_DN_MASK) {
+		pair->raw_error += pair->master_increment;
 	    }
 	}
 	/* save state machine state */
@@ -291,9 +302,9 @@ static void sample(void *arg, long period)
 	state = lut[state & SM_LOOKUP_MASK];
 	/* has an edge been detected? */
 	if (state & SM_CNT_UP_MASK) {
-	    pair->raw_error -= pair->slave_increment;
-	} else if (state & SM_CNT_DN_MASK) {
 	    pair->raw_error += pair->slave_increment;
+	} else if (state & SM_CNT_DN_MASK) {
+	    pair->raw_error -= pair->slave_increment;
 	}
 	/* save state machine state */
 	pair->slave_state = state;
