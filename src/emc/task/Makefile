@@ -100,7 +100,6 @@ $(BIN_DIR)/minimilltask:	\
 
 $(BIN_DIR)/emcpanel:	\
 	$(TMP_DIR)/emcpanel.o \
-	$(TMP_DIR)/getinput.o \
 	$(TMP_DIR)/libemc.a
 	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
@@ -112,12 +111,9 @@ $(BIN_DIR)/emcsvr:	\
 $(BIN_DIR)/inimot:	\
 	$(TMP_DIR)/inimot.o \
 	$(TMP_DIR)/emcmotglb.o \
-	$(TMP_DIR)/emcglb.o \
 	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \
 	$(TMP_DIR)/usrmotintf.o \
-	$(TMP_DIR)/initraj.o \
-	$(TMP_DIR)/iniaxis.o \
 	$(TMP_DIR)/minimilltaskintf.o \
 	$(TMP_DIR)/libemc.a
 	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@

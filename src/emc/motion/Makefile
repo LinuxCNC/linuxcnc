@@ -92,7 +92,6 @@ $(BIN_DIR)/usrmot:	\
 	$(TMP_DIR)/usrmot.o \
 	$(TMP_DIR)/emcmotglb.o \
 	$(TMP_DIR)/pid.o \
-	$(TMP_DIR)/getinput.o \
 	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o
 	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
