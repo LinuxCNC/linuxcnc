@@ -10,6 +10,7 @@ HEADERS =
 PRIVHDRS =
 
 RT_SRCS = \
+debounce.c \
 encoder.c \
 stepgen.c \
 freqgen.c \
@@ -18,6 +19,7 @@ pid.c \
 supply.c
 
 LIBS = \
+$(RTLIB_DIR)/debounce.o \
 $(RTLIB_DIR)/encoder.o \
 $(RTLIB_DIR)/stepgen.o \
 $(RTLIB_DIR)/freqgen.o \
