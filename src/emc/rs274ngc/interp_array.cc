@@ -1,7 +1,8 @@
 /********************************************************************
 * Description: interp_array.cc
 *
-*   Derived from a work by Thomas Kramer
+*   This file just allocates space for the static arrays used by the
+*   interpreter.
 *
 * Author:
 * License: GPL Version 2
@@ -216,7 +217,12 @@ read_x, read_y, read_z};
 // And now indent can continue.
 /****************************************************************************/
 
-/* There are four global variables. The first three are _gees, _ems,
+/* There are four global variables*. The first three are _gees, _ems,
 and _readers. The last one, declared here, is for interpreter settings */
 
 setup _setup;
+
+/* The notion of "global variables" is a misnomer - These last four should only
+   be accessable by the interpreter and not exported to the rest of emc */
+
+
