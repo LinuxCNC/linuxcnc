@@ -55,6 +55,18 @@ setp stepgen.0.position-scale 5080
 setp stepgen.1.position-scale 5080
 setp stepgen.2.position-scale 5080
 
+# Set accel limits (note that these are not the same as
+# the limits in emc.ini).  The limits in emc.ini are in
+# machine units per second^2 (in this case inches/sec^2)
+# While the limits here are in steps per second^2, since
+# the stepgen module knows nothing about any units except
+# steps.  In addition, these limits must be set higher
+# than the machine limits, so that emc doesn't ask the
+# stepgen module to accelerate too fast.
+setp stepgen.0.maxaccel 150000
+setp stepgen.1.maxaccel 150000
+setp stepgen.2.maxaccel 150000
+
 # load realtime portion of scope, just to have it handy
 loadrt scope_rt
 

@@ -2,7 +2,7 @@
 # using a parport for I/O
 #
 # first load the parport driver
-loadrt hal_parport cfg="0x0378"
+loadrt hal_parport cfg="0x0278"
 #
 # next connect the parport functions to threads
 addf parport.0.read base-thread 1
@@ -15,4 +15,5 @@ linksp Ystep parport.0.pin-04-out
 linksp Ydir  parport.0.pin-05-out
 linksp Zstep parport.0.pin-06-out
 linksp Zdir  parport.0.pin-07-out
+
 
