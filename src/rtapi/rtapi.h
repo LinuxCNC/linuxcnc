@@ -162,6 +162,12 @@ extern int rtapi_get_msg_level(void);
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
 ************************************************************************/
+#ifdef RTAPI
+#include <linux/sched.h>	/* for blocking when needed */
+#else
+#include <sched.h>		/* for blocking when needed */
+#endif
+#include <asm/bitops.h>		/* atomic bit ops for lightweight mutex */
 
 /** These three functions provide a very simple way to do mutual
     exclusion around shared resources.  They do _not_ replace
@@ -177,7 +183,10 @@ extern int rtapi_get_msg_level(void);
     The release is unconditional, even if the caller doesn't have
     the mutex, it will be released.
 */
-extern void rtapi_mutex_give(int *mutex);
+static __inline__ void rtapi_mutex_give(int *mutex)
+{
+    test_and_clear_bit(0, mutex);
+}
 
 /** 'rtapi_mutex_try()' makes a non-blocking attempt to get the
     mutex pointed to by 'mutex'.  If the mutex was available, it
@@ -189,14 +198,26 @@ extern void rtapi_mutex_give(int *mutex);
     means doing something that will yield the CPU, so that whatever
     other process has the mutex gets a chance to release it.
 */
-extern int rtapi_mutex_try(int *mutex);
+static __inline__ int rtapi_mutex_try(int *mutex)
+{
+    return test_and_set_bit(0, mutex);
+}
 
 /** 'rtapi_mutex_get()' gets the mutex pointed to by 'mutex',
     blocking if the mutex is not available.  Because of this,
     calling it from a realtime task is a "very bad" thing to
     do.
 */
-extern void rtapi_mutex_get(int *mutex);
+static __inline__ void rtapi_mutex_get(int *mutex)
+{
+    while (test_and_set_bit(0, mutex)) {
+#ifdef RTAPI
+	schedule();
+#else
+	sched_yield();
+#endif
+    }
+}
 
 /***********************************************************************
 *                      TIME RELATED FUNCTIONS                          *

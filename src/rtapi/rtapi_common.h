@@ -201,38 +201,6 @@ sem_data *sem_array = NULL;
 fifo_data *fifo_array = NULL;
 irq_data *irq_array = NULL;
 
-/* Lightweight Mutexes - These functions are used to prevent
-   simultaneous access to RTAPI internal data by multiple threads.
-   The RTAPI uses them only during init, exit, init, and delete calls.
-   The 'give' and 'try' functions may be used in realtime code as
-   well, but the 'get' functions must not be called from realtime,
-   since they invoke the Linux scheduler.
-*/
-
-void rtapi_mutex_give(int *mutex)
-{
-    test_and_clear_bit(0, mutex);
-}
-
-int rtapi_mutex_try(int *mutex)
-{
-    return test_and_set_bit(0, mutex);
-}
-
-
-void rtapi_mutex_get(int *mutex)
-{
-    while (test_and_set_bit(0, mutex)) {
-	/* somebody else has the mutex, yield the CPU and try again later */
-#ifdef RTAPI
-	schedule();
-#else /* ULAPI */
-	sched_yield();
-#endif
-    }
-}
-
-
 /* generate 'rev_str' and 'rev_code' from 'rev'
    'rev' is updated by CVS whenever this file is updated
 */
