@@ -13,7 +13,6 @@ PRINT_FILE=/dev/null
 
 # some basic programs
 # configure replaces this values
-
 INSMOD=/sbin/insmod
 RMMOD=/sbin/rmmod
 LSMOD=/sbin/lsmod
@@ -101,7 +100,6 @@ if [ `$WHOAMI` != root ] ; then
     echo "Sorry, you must be root to run EMC"
     exit -1
 fi
-
 
 echo EMC2_DIR=$EMC2_DIR >$PRINT_FILE
 echo EMC2_BIN_DIR=$EMC2_BIN_DIR >$PRINT_FILE
@@ -423,6 +421,11 @@ echo Starting emc...
 # trap ^C so that it's called if user interrupts script
 trap 'Cleanup ; exit 0' SIGINT
 
+# go to the dir where the config files are
+# either configs/ when run-in-place
+# or /etc/emc2
+cd $EMC2_CONFIG_DIR
+
 # Create the lock file
 touch $LOCKFILE
 
@@ -547,7 +550,7 @@ fi
 $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 
 # Run emctask in background
-echo "Starting EMC TASK program: $EMCTASK" >$PRINT_FILE
+echo "Starting EMC TASK program: $EMCTASK in $EMC2_CONFIG_DIR" >$PRINT_FILE
 if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
     echo "Can't execute TASK program $EMC2_BIN_DIR/$EMCTASK"
     Cleanup

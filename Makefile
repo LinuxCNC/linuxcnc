@@ -97,11 +97,11 @@ install : all $(MAN_FILES)
 	@ echo "docs installed"
 	
 	install -d $(prefix)/share/emc2/nc_files
-	cp -R docs/* $(prefix)/share/emc2/nc_files
+	cp -R nc_files/* $(prefix)/share/emc2/nc_files
 	@ echo "nc_files installed"
 	
 	install -d $(prefix)/share/emc2/tcl
-	cp -R docs/* $(prefix)/share/emc2/tcl
+	cp -R tcl/* $(prefix)/share/emc2/tcl
 	@ echo "tcl installed"
 	
 	#install -d /usr/share/locale/$(locale)/LC_MESSAGES
