@@ -1,9 +1,25 @@
 # Pattern Rules
 # -------------
 
+# Non-Realtime C Object Files (Compile)
+%.o : %.c $(HEADERS)
+	$(CC) -c $(CFLAGS) $(LOCAL_CFLAGS) $(ULFLAGS) $< -o $@
+
+# Non-Realtime C++ Object Files (Compile)
+%.o : %.cc $(HEADERS)
+	$(CXX) -c $(CXXFLAGS) $(LOCAL_CXXFLAGS) $(ULFLAGS) $< -o $@
+
+# Realtime C Object Files (Compile)
+rt_%.o : %.c $(HEADERS)
+	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
+
 # Public Header Files
-$(INC_DIR)/%.h: %.h
+$(INC_DIR)/.h: %.h
 	- \install -p -m0664 $< $(INC_DIR)
+
+$(INC_DIR)/.hh: %.hh
+	- \install -p -m0664 $< $(INC_DIR)
+
 headers:
 	- \install -p -m0664 $(HEADERS) $(INC_DIR)
 
@@ -17,42 +33,52 @@ headers:
 	$(CC) -MM $(RTFLAGS) $< | sed s/\\.o:/.rt.o:/ > $@
 	cat $@ | sed s/\\.rt.o:/.rt.d:/ >> $@
 
-# Non-Realtime C Object Files (Compile)
-%.o : %.c $(HEADERS)
-	$(CC) -c $(CFLAGS) $(ULFLAGS) $< -o $@
+# Reformat the sources
+indent :
+	indent --braces-on-if-line \
+	--braces-on-struct-decl-line \
+	--dont-break-procedure-type \
+	--no-space-after-function-call-names \
+	--no-space-after-parentheses \
+	--cuddle-else $(SRCS) $(RT_SRCS) $(HEADERS)
+	rm *.*~
 
-# Realtime C Object Files (Compile)
-rt_%.o : %.c $(HEADERS)
-	$(CC) -c $(RTFLAGS) $< -o $@
+# Clean out objects, headers, and dep files.
+clean_up:
+	- \rm -f *.bak *~ .depend*
+	- \rm -f $(OBJS) $(RT_OBJS) $(DEPS) $(LIBS)
+	- (cd $(INC_DIR) ; \rm -f $(HEADERS))
 
 # depend commands - I know it looks _really_ ugly, but it does strip away
 #                   most of the system headers.
 # Derived from the original rcslib Make system.
-depend:
-	\rm -f .depend.rt .depend
+dep_command:
+	rm -f .depend.rt .depend
 	touch .depend.rt .depend
-	(if [ ! -z "$(RT_SRCS)" ] ; then ($(CC) -MM $(RTFLAGS) -I$(INC_DIR) \
-	$(RT_SRCS) >.depend.rt) 2>.depend_errors; exit 0; fi)
-	(if [ ! -s .depend_errors ] ; then \rm -f .depend_errors; fi;)
+	(if [ ! -z "$(RT_SRCS)" ] ; then ($(CC) -MM -I$(INC_DIR) $(RTFLAGS) \
+	$(RT_SRCS) >.depend.rt) 2>.depend_errors.rt ; exit 0; fi)
+	(if [ ! -s .depend_errors.rt ] ; then \rm -f .depend_errors.rt ; fi)
 	cat .depend.rt | \
 	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed 's/^[ \t]*//;s/[ \t]*/$//' \
-	> .depend.stripped
-	cat .depend.stripped | \
-	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\rt_\&# > .depend.rt
-	rm -f .depend.stripped
-	(if [ ! -z "$(SRCS)" ] ; then ($(CC) -MM $(ULFLAGS) -I$(INC_DIR) \
-	$(CPPFLAGS) $(SRCS) >.depend) 2>.depend_errors; exit 0; fi)
-	cat .depend | \
+	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip
+	(if [ -s .depend.strip ] ; then \
+	cat .depend.strip | sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\rt_\&# | \
+	grep -v -E '^\\' > .depend.rt ; fi)
+	rm -f .depend.strip
+	(if [ ! -z "$(SRCS)" ] ; then ($(CXX) -MM $(CXXFLAGS) -I$(INC_DIR) \
+	$(ULFLAGS) $(SRCS) >.depend) 2>.depend_errors; exit 0; fi)
+	(if [ ! -s .depend_errors ] ; then \rm -f .depend_errors ; fi)
+	(if [ -s .depend ] ; then cat .depend | \
 	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed 's/^[ \t]*//;s/[ \t]*/$//'> .depend.stripped
-	mv -f .depend.stripped .depend
+	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip ; fi)
+	cat .depend.strip | grep -v -E '^\\' > .depend
+	rm -f .depend.strip
 

@@ -19,39 +19,32 @@ $(LIB_DIR)/$(RTPREFIX)_ulapi.o
 # list of all the '*.o' files
 OBJS := $(patsubst %.c,%.o,$(SRCS))
 # list of all the '*.rt.o' files
-RT_OBJS := $(patsubst %.c,%.rt.o,$(RT_SRCS))
+RT_OBJS := $(patsubst %.c,rt_%.o,$(RT_SRCS))
 # list of all the dependency files (*.d and *.rt.d)
 DEPS := $(patsubst %.c,%.d,$(SRCS)) $(patsubst %.c,%.rt.d,$(RT_SRCS))
 # list of the public headers in their final location
 HDRS := $(patsubst %.h,$(INC_DIR)/%.h,$(HEADERS))
 
-all : $(HDRS) $(OBJS) $(RT_OBJS) $(LIBS)
-
+all : headers $(OBJS) $(RT_OBJS) $(LIBS)
 
 # explicit rules to make libraries and binaries
 
-$(RTLIB_DIR)/$(RTPREFIX)_rtapi.o : $(RTPREFIX)_rtapi.rt.o
-	- \install -p -m0664 $< $(RTLIB_DIR)
-	(cd $(RTLIB_DIR) ; ln -fs $(RTPREFIX)_rtapi.o rtapi.o)
+$(RTLIB_DIR)/$(RTPREFIX)_rtapi.o : rt_$(RTPREFIX)_rtapi.o
+	- \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
 
 $(LIB_DIR)/$(RTPREFIX)_ulapi.o : $(RTPREFIX)_ulapi.o
-	- \install -p -m0664 $< $(LIB_DIR)
-
+	- \install -p -m0664 $< $(LIB_DIR)/ulapi.o
 
 depend : headers $(DEPS)
 
-indent :
-	indent *.c *.h
-
-clean :
-	- \rm -f *.bak *~
-	- \rm -f $(OBJS) $(RT_OBJS) $(DEPS) $(LIBS)
-	- (cd $(INC_DIR) ; \rm -f $(HEADERS))
+clean : clean_up
+	- (rm -f $(LIB_DIR)/ulapi.o)
+	- (rm -f $(RTLIB_DIR)/rtapi.o)
 
 headers : $(HDRS)
 
 .PHONY: all depend indent install clean headers
 
 # get the dependency files
--include $(DEPS)
+#-include $(DEPS)
 
