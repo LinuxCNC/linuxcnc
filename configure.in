@@ -643,8 +643,11 @@ if test "$USE_NLS" = "yes"; then
   AC_SUBST(HAVE_LIBINTL_H)  
   AC_SUBST(HAVE_LIBINTL)
 
+# The default locale directory is /usr/share/locale - This is generally fixed
+# by the distribution....
+
   dnl Handle localedir
-  LOCALEDIR='${datadir}/locale'
+  LOCALEDIR='/usr/share/locale'
   AC_ARG_WITH(locale-dir,
   [  --with-locale-dir=DIR   Location of the locale file(s)
                           [DATADIR/locale]],[
@@ -660,8 +663,6 @@ if test "$USE_NLS" = "yes"; then
   ])
   AC_SUBST(LOCALEDIR)
 fi
-
-
 
 
 #AC_PROG_INTLTOOL(0.25)
