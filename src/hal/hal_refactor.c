@@ -35,7 +35,7 @@ static int strcmp(const char *cs, const char *ct)
 }
 #endif	// __HAVE_ARCH_STRCMP
 
-#include <linux/malloc.h>
+#include <linux/slab.h>		/* replaces malloc.h in recent kernels */
 #include <linux/mm.h>
 
 #include "rtapi_app.h"
@@ -289,7 +289,7 @@ int n;
 	thread->function_list=0;
 
 	for (n=0; n<HAL_NAME_LEN+1; n++)
-	    thread->name[n]=0;	
+	    thread->name[n]=0;
 
 	return(thread);
 }
@@ -2059,7 +2059,7 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
-int result;
+//    int result;  /* FIXME - currently unused */
 //    hal_thread_t *thread;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: removing kernel lib\n");
@@ -2067,7 +2067,7 @@ int result;
     #ifdef PROCFS
     hal_shutdown_procfs();
     #endif
- 
+
     /* Stop all the threads before removing them... */
 
     hal_stop_threads();
@@ -2076,7 +2076,7 @@ int result;
 
     while (global_thread_list)
 	hal_thread_delete(global_thread_list->name);
-	
+
     /* release RTAPI resources */
     rtapi_shmem_delete(lib_mem_id, lib_module_id);
     rtapi_exit(lib_module_id);

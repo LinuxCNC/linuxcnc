@@ -1326,7 +1326,7 @@ char *data_arrow2(int dir)
 /* Switch function to return var value for the print_*_list functions  */
 char *data_value(int type, void *valptr)
 {
-    char *value_str=NULL;;
+    char *value_str=NULL;
     static char buf[15];
 
     switch (type) {
