@@ -92,12 +92,18 @@ static void save_threads(void);
 static void print_help(void);
 
 /***********************************************************************
+*                         GLOBAL VARIABLES                             *
+************************************************************************/
+
+int comp_id = 0;
+
+/***********************************************************************
 *                            MAIN PROGRAM                              *
 ************************************************************************/
 
 int main(int argc, char **argv)
 {
-    int n, m, comp_id, fd;
+    int n, m, fd;
     enum { BETWEEN_TOKENS,
            IN_TOKEN,
 	   SINGLE_QUOTE,
@@ -176,6 +182,7 @@ int main(int argc, char **argv)
     /* at this point all options are parsed */
     comp_id = hal_init("halcmd");
     if (comp_id < 0) {
+	fprintf(stderr, "halcmd: hal_init() failed\n" );
 	return -1;
     }
     /* HAL init is OK, let's process the command(s) */
@@ -285,7 +292,7 @@ int main(int argc, char **argv)
 	       at least one empty one at the end... make it empty now */
 	    tokens[MAX_TOK] = "";
 	    /* process command */
-	    parse_cmd(tokens);
+            parse_cmd(tokens);
 	}
     }
     /* all done */
@@ -766,7 +773,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     static char *insmod_path = NULL;
     static char *rtmod_dir = NULL;
     struct stat stat_buf;
-    char path_buf[MAX_CMD_LEN];
+    static char path_buf[MAX_CMD_LEN];
     char mod_path[MAX_CMD_LEN];
     char *cp1, *cp2;
     char *argv[MAX_TOK+1];
@@ -886,6 +893,10 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	}
     }
     /* now we need to fork, and then exec insmod.... */
+    /* disconnect from the HAL shmem area before forking */
+    hal_exit(comp_id);
+    comp_id = 0;
+    /* now the fork() */
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -915,11 +926,18 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	execv(insmod_path, argv);
 	/* should never get here */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: waitpid(%d) failed\n", pid );
+	    "HAL: ERROR: execv(%s) failed\n", insmod_path );
 	exit(1);
     }
     /* this is the parent process, wait for child to end */
     retval = waitpid ( pid, &status, 0 );
+    /* reconnect to the HAL shmem area */
+    comp_id = hal_init("halcmd");
+    if (comp_id < 0) {
+	fprintf(stderr, "halcmd: hal_init() failed\n" );
+	exit(-1);
+    }
+    /* check result of waitpid() */
     if ( retval < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: waitpid(%d) failed\n", pid );
@@ -1024,6 +1042,10 @@ static int unloadrt_comp(char *mod_name)
 	return -2;
     }
     /* now we need to fork, and then exec rmmod.... */
+    /* disconnect from the HAL shmem area before forking */
+    hal_exit(comp_id);
+    comp_id = 0;
+    /* now the fork() */
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1042,11 +1064,18 @@ static int unloadrt_comp(char *mod_name)
 	execv(rmmod_path, argv);
 	/* should never get here */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: waitpid(%d) failed\n", pid );
+	    "HAL: ERROR: execv(%s) failed\n", rmmod_path );
 	exit(1);
     }
     /* this is the parent process, wait for child to end */
     retval = waitpid ( pid, &status, 0 );
+    /* reconnect to the HAL shmem area */
+    comp_id = hal_init("halcmd");
+    if (comp_id < 0) {
+	fprintf(stderr, "halcmd: hal_init() failed\n" );
+	exit(-1);
+    }
+    /* check result of waitpid() */
     if ( retval < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: waitpid(%d) failed\n", pid );
