@@ -1070,6 +1070,11 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
 	    "HAL: ERROR: create_thread called before init\n");
 	return HAL_INVAL;
     }
+    if (period_nsec == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: create_thread called with period of zero\n");
+	return HAL_INVAL;
+    }
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* make sure name is unique on thread list */
