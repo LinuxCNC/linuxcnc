@@ -66,7 +66,7 @@
 #include <linux/version.h>
 #endif
 #ifndef KERNEL_VERSION
-#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))*/
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
 
 /* get inb(), outb(), ioperm() */
@@ -87,6 +87,9 @@
 
 #include <rtai.h>
 #include <rtai_sched.h>
+#if RTAI > 2
+#include <rtai_sem.h>
+#endif
 #include <rtai_shm.h>
 #include <rtai_fifos.h>
 

@@ -116,10 +116,36 @@ else
 fi
 
 #
+# Test for RTAI-3.0
+RTAI_DIR=`$RTDIR/rtai-config --prefix 2> /dev/null`
+if [ "$RTAI_DIR" = "" ] ; then
+    RTAI_DIR=`$RTDIR/bin/rtai-config --prefix 2> /dev/null`
+    if [ "$RTAI_DIR" = "" ] ; then
+	# See if it is in the path...
+	RTAI_DIR=`rtai-config --prefix 2> /dev/null`
+	if [ "$RTAI_DIR" = "" ] ; then
+	    # try the default...
+	    RTAI_DIR=`/usr/realtime/bin/rtai-config --prefix 2> /dev/null`
+	fi
+    fi
+fi
+if [ "RTAI_DIR" != "" ] ; then
+    if [ "$RTDIR" = "" ] ; then
+	echo "RTDIR set to $RTAI_DIR by search"
+    fi
+    RTDIR=$RTAI_DIR
+    RTAI_VER=`$RTDIR/bin/rtai-config --version`
+    if [ $RTAI_VER = 3.0 ] ; then
+	RTAI_VER=3
+    fi
+fi
+
+#
 # check for RTDIR from command line
 #
 if [ "$RTDIR" = "" ] ; then
-    # None specified, so search for likely files..
+# None specified, so search for likely files..
+
     RTS=$(find /usr/src/ -maxdepth 2 -name "rtl.mk" -o -name ".buildvars" 2> /dev/null)
     if [ "$RTS" = "" ] ; then
 	usage
@@ -127,20 +153,21 @@ if [ "$RTDIR" = "" ] ; then
     fi
     # Found something, so check for rtl.mk
     for rtl in $RTS ; do
-        RTL=$(echo $rtl | grep rtl.mk | sed s^/rtl.mk^^g)
-        if [ "$RTL" != "" ] ; then
+	RTL=$(echo $rtl | grep rtl.mk | sed s^/rtl.mk^^g)
+	if [ "$RTL" != "" ] ; then
 	    RTDIR=$RTL
 	fi
     done
     if [ "$RTDIR" = "" ] ; then
-    # or .buildvars
+	# or .buildvars
 	for rtai in $RTS ; do
 	    RTAI=$(echo $rtai | grep buildvars | sed s^/.buildvars^^g)
 	    if [ "$RTAI" != "" ] ; then
-		RTDIR=$RTAI
+	        RTDIR=$RTAI
 	    fi
 	done
     fi
+
     # announce what we found
     echo "RTDIR set to $RTDIR by search"
 fi
@@ -151,11 +178,13 @@ fi
 # check RTDIR for a valid RTOS signature
 #
 if [ ! -f $RTDIR/rtl.mk ] ; then
-    if [ ! -f $RTDIR/.buildvars ] ; then
-    # no rtai or rtlinux signatures found, then exit..
-        echo "No RTAI or RTLinux signatures found in $RTDIR"
-        usage
-	exit -1
+    if [ ! -f $RTDIR/bin/rtai-config ] ; then
+        if [ ! -f $RTDIR/.buildvars ] ; then
+	# no rtai or rtlinux signatures found, then exit..
+    	    echo "No RTAI or RTLinux signatures found in $RTDIR"
+    	    usage
+	    exit -1
+	fi
     fi
 fi
 
@@ -229,6 +258,7 @@ echo "RTTMP_DIR = \$(EMC2_HOME)/src/.rt_tmp" >> Makefile.inc
 echo "MAN_DIR = $MANDIR" >> Makefile.inc
 echo "RTDIR = $RTDIR" >> Makefile.inc
 echo >> Makefile.inc
+
 if [ -f $RTDIR/.buildvars ] ; then
     RTFILE=$RTDIR/.buildvars
     echo found an RTAI installation in $RTDIR
@@ -238,28 +268,41 @@ if [ -f $RTDIR/.buildvars ] ; then
 # Added a "sed s/' = '/'='/" here (and elsewhere) because the awk split
 # fails when it finds "FOO = bar" - So we need to make sure it finds
 # "FOO=bar" instead.
-    KERNEL=$(cat $RTFILE | grep LINUXDIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
-#'
+    KERNEL=$(cat $RTFILE | grep LINUXDIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null #'
     KERNELDIR=$(cd $KERNEL ; pwd -P )
-else
-    if [ -f $RTDIR/rtl.mk ] ; then
-        RTFILE=$RTDIR/rtl.mk
-        echo found an RTLinux installation in $RTDIR
-        echo "RTNAME = RT-Linux" >> Makefile.inc
-        echo "RTPREFIX = rtl" >> Makefile.inc
-        echo "RTLINUX = 1" >> Makefile.inc
+elif [ -f $RTDIR/bin/rtai-config ] ; then
+#	RTFILE=$RTDIR/.buildvars
+    echo found an RTAI installation in $RTDIR
+    echo "RTNAME = rtai-3.0" >> Makefile.inc
+    echo "RTPREFIX = rtai" >> Makefile.inc
+    echo "RTAI = $RTAI_VER" >> Makefile.inc
+    KERNELDIR=`$RTDIR/bin/rtai-config --linux-dir`
+    echo "RTFLAGS = `$RTDIR/bin/rtai-config --module-cflags` -DRTAI=$RTAI_VER" >> Makefile.inc
+    CC=`$RTDIR/bin/rtai-config --cc`
+
+elif [ -f $RTDIR/rtl.mk ] ; then
+    RTFILE=$RTDIR/rtl.mk
+    echo found an RTLinux installation in $RTDIR
+    echo "RTNAME = RT-Linux" >> Makefile.inc
+    echo "RTPREFIX = rtl" >> Makefile.inc
+    echo "RTLINUX = 1" >> Makefile.inc
 # There is probably a better way of doing this without using sed !
-    KERNEL=$(cat $RTFILE | grep RTLINUX_DIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
-#'
+    KERNEL=$(cat $RTFILE | grep RTLINUX_DIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null #'
     KERNELDIR=$(cd $KERNEL ; pwd -P )
-    fi
 fi
+
 echo "KERNELDIR = $KERNELDIR" >> Makefile.inc
-cat $RTFILE | grep CFLAGS | sed s/CFLAGS/RTFLAGS/ >> Makefile.inc
+
+if [ "$RTFILE" != "" ] ; then
+    cat $RTFILE | grep CFLAGS | sed s/CFLAGS/RTFLAGS/ >> Makefile.inc
+fi
+
 echo "RTFLAGS := -I\$(INC_DIR) -I$RTDIR/include -I. \$(RTFLAGS) -DRTAPI" >> Makefile.inc
-CC=$(cat $RTFILE | grep CC | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
-#'
-if [ $CC="" ] ; then
+
+if [ "$RTFILE" != "" ] ; then
+    CC=$(cat $RTFILE | grep CC | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null #'
+fi
+if [ "$CC" = "" ] ; then
     CC=cc
 fi
 
@@ -283,7 +326,7 @@ if [ "$(echo $CCVER | grep 2.96)" ] ; then
 fi
 rm -f configure.tmp
 
-if [ $RTFILE = "$RTDIR/rtl.mk" ] ; then
+if [ -f $RTDIR/rtl.mk ] ; then
     echo "ULFLAGS = -Wall -g -I\$(INC_DIR) -I\$(INCLUDE) -I. -DULAPI -O2" >> Makefile.inc
 else
     echo "ULFLAGS = -Wall -g -I\$(INC_DIR) -I$RTDIR/include -I. -DULAPI -O2" >> Makefile.inc
@@ -291,10 +334,12 @@ fi
 
 echo "CC = $CC" >> Makefile.inc
 echo >> Makefile.inc
-echo "# Additional flags and settings from $RTFILE" >> Makefile.inc
-echo >> Makefile.inc
-cat $RTFILE | grep -v CFLAGS | grep -v CC >> Makefile.inc
-echo >> Makefile.inc
+if [ "$RTFILE" != "" ] ; then
+    echo "# Additional flags and settings from $RTFILE" >> Makefile.inc
+    echo >> Makefile.inc
+    cat $RTFILE | grep -v CFLAGS | grep -v CC >> Makefile.inc
+    echo >> Makefile.inc
+fi
 
 echo "# local flags for GTK includes" >> Makefile.inc
 if [ $GTK_VER = "1.2" ] ; then
@@ -312,7 +357,7 @@ else
 fi
 
 echo >> Makefile.inc
-if [ $TCL_VER != "" ] ; then
+if [ "$TCL_VER" != "" ] ; then
     echo "# local flags for Tcl/Tk" >> Makefile.inc
     echo "TCL_VERSION = $TCL_VER" >> Makefile.inc
     echo "TCL_CFLAGS = $TCL_FLAGS" >> Makefile.inc
