@@ -85,20 +85,24 @@ echo >> Makefile.inc
 if [ -f $RTDIR/.buildvars ] ; then
     RTFILE=$RTDIR/.buildvars
     echo found an RTAI installation in $RTDIR
-    echo "RTNAME=rtai" >> Makefile.inc
-    echo "RTPREFIX=rtai" >> Makefile.inc
+    echo "RTNAME = rtai" >> Makefile.inc
+    echo "RTPREFIX = rtai" >> Makefile.inc
     echo "RTAI = 1" >> Makefile.inc
-    KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
+# Added a "sed s/' = '/'='/" here (and elsewhere) because the awk split
+# fails when it finds "FOO = bar" - So we need to make sure it finds
+# "FOO=bar" instead.
+    KERNEL=$(cat $RTFILE | grep LINUXDIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
 #'
     KERNELDIR=$(cd $KERNEL ; pwd -P )
 else
     if [ -f $RTDIR/rtl.mk ] ; then
         RTFILE=$RTDIR/rtl.mk
         echo found an RTLinux installation in $RTDIR
-        echo "RTNAME=RTLinux" >> Makefile.inc
-        echo "RTPREFIX=rtl" >> Makefile.inc
+        echo "RTNAME = RT-Linux" >> Makefile.inc
+        echo "RTPREFIX = rtl" >> Makefile.inc
         echo "RTLINUX = 1" >> Makefile.inc
-    KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
+# There is probably a better way of doing this without using sed !
+    KERNEL=$(cat $RTFILE | grep RTLINUX_DIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
 #'
     KERNELDIR=$(cd $KERNEL ; pwd -P )
     fi
@@ -106,7 +110,7 @@ fi
 echo "KERNELDIR = $KERNELDIR" >> Makefile.inc
 cat $RTFILE | grep CFLAGS | sed s/CFLAGS/RTFLAGS/ >> Makefile.inc
 echo "RTFLAGS := -I\$(INC_DIR) -I$RTDIR/include -I. \$(RTFLAGS) -DRTAPI" >> Makefile.inc
-CC=$(cat $RTFILE | grep CC | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
+CC=$(cat $RTFILE | grep CC | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
 #'
 if [ $CC="" ] ; then
     CC=cc
