@@ -183,7 +183,7 @@ extern int rtapi_get_msg_level(void);
     The release is unconditional, even if the caller doesn't have
     the mutex, it will be released.
 */
-static __inline__ void rtapi_mutex_give(int *mutex)
+static __inline__ void rtapi_mutex_give(unsigned long *mutex)
 {
     test_and_clear_bit(0, mutex);
 }
@@ -198,7 +198,7 @@ static __inline__ void rtapi_mutex_give(int *mutex)
     means doing something that will yield the CPU, so that whatever
     other process has the mutex gets a chance to release it.
 */
-static __inline__ int rtapi_mutex_try(int *mutex)
+static __inline__ int rtapi_mutex_try(unsigned long *mutex)
 {
     return test_and_set_bit(0, mutex);
 }
@@ -208,7 +208,7 @@ static __inline__ int rtapi_mutex_try(int *mutex)
     calling it from a realtime task is a "very bad" thing to
     do.
 */
-static __inline__ void rtapi_mutex_get(int *mutex)
+static __inline__ void rtapi_mutex_get(unsigned long *mutex)
 {
     while (test_and_set_bit(0, mutex)) {
 #ifdef RTAPI

@@ -161,7 +161,7 @@ typedef struct {
 typedef struct {
     int magic;			/* magic number to validate data */
     int rev_code;		/* revision code for matching */
-    int mutex;			/* mutex against simultaneous access */
+    unsigned long mutex;	/* mutex against simultaneous access */
     int rt_module_count;	/* loaded RT modules */
     int ul_module_count;	/* running UL processes */
     int task_count;		/* task IDs in use */
