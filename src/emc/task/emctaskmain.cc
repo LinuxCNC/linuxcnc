@@ -1639,20 +1639,6 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 
 	// abort everything
 	emcTaskAbort();
-#if 0
-/* Part of Chris Radek's abort bug fix was to remove these lines.
-   For the time being, we'll use an ifdef */
-	// without emcTaskPlanClose(), a new run command resumes at
-	// aborted line-- feature that may be considered later
-	{
-	    int was_open = taskplanopen;
-	    emcTaskPlanClose();
-	    if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
-		rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
-		    __LINE__);
-	    }
-	}
-#endif
 	// clear out the pending command
 	emcTaskCommand = 0;
 	interp_list.clear();
@@ -1666,6 +1652,16 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 	// now queue up command to resynch interpreter
 	emcTaskQueueCommand(&taskPlanSynchCmd);
 
+	// without emcTaskPlanClose(), a new run command resumes at
+	// aborted line-- feature that may be considered later
+	{
+	    int was_open = taskplanopen;
+	    emcTaskPlanClose();
+	    if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
+		rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
+		    __LINE__);
+	    }
+	}
 	retval = 0;
 	break;
 
