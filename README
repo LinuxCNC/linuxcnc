@@ -1,51 +1,8 @@
-Mission Statement
------------------
+Please see the files in docs/
 
-EMC2 is an offshoot of the original NIST Enhanced Machine
-Controller.  The new version is (primarily) a GPL'd project.
-The major goals are:
-
-1)  Make the project more friendly to new developers.  This
-    means a simpler build process, as well as other changes
-    listed below.
-
-2)  Reduce complexity by eliminating support for platforms
-    other than Linux on x86, with either RTAI or RTLinux for
-    realtime.
-
-3)  Incorporate a Hardware Abstraction Layer that makes the
-    realtime code more modular and allows pins and I/O devices
-    to be reconfigured easily.
-
-4)  Add some of the features that were discussed at the 2003
-    NAMES show on EMC Monday - these include rigid tapping
-    and single point threading, improved contouring, a built-
-    in PLC using ClassicLadder, and others.
-
-
-The Build Process
------------------
-
-The build process follows the standard Linux convention:
-
-From the top level directory, run:
-
-./configure
-make clean
-make
-
-
-If you have multiple RTAI or RTLinux source directories in /usr/src,
-the correct one can be declared as a command line argument:
-
-./configure rtdir=/usr/src/stromboli
-
-configure also accepts other arguments. Use -help to view the list.
-
-Directory Layout
-----------------
-
-The directory tree for EMC2 is documented in 'directory.map' in the
-top level directory.
-
-
+    README  - general information
+    INSTALL - information about compiling and installing the software
+    COPYING - this software is released under the GPL
+    AUTHORS - information about authors
+    NEWS    - latest news
+    

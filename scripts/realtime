@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 CheckConfig(){
     RTAPICONF=
@@ -98,12 +98,23 @@ CheckMem(){
 }
 
 Load(){
+    if [ "$RTAI" = "3" ] ; then
+	if [ "$VERBOSE" = "1" ] ; then
+	    ( cd $EMC2_HOME/scripts ; $RTAI_LOAD --verbose )
+	else
+	    ( cd $EMC2_HOME/scripts ; $RTAI_LOAD )
+	fi
+    fi
     for MOD in $MODULES_LOAD ; do
 	# check to see if the module is already installed
 	if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
 	    # install the module - use insmod
-	    /sbin/insmod $MOD 2>/dev/null
-	fi
+	    if [ "$VERBOSE" = "1" ] ; then
+	        /sbin/insmod $MOD
+	    else
+	        /sbin/insmod $MOD 1>/dev/null 2>/dev/null
+	    fi
+        fi
     done
     if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
         echo "$DEBUG" > /proc/rtapi/debug
@@ -155,7 +166,15 @@ DoExit(){
     export MODPATH=$old_path
 }
 
-case "$1" in
+if [ "$1" = "-v" ] ; then
+  CMD=$2
+  VERBOSE=1
+else
+  CMD=$1
+  VERBOSE=0
+fi
+
+case "$CMD" in
   start|load)
 	CheckConfig
 	CheckRoot

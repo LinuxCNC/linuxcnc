@@ -1,0 +1,112 @@
+Basic description
+-----------------
+
+The build process follows the standard Linux convention:
+
+From the top level directory, run:
+
+./configure
+make clean
+make
+
+to run the software, issue:
+
+scripts/emc.run 
+
+
+Detailed description
+====================
+
+   The `configure' shell script attempts to guess correct values for
+various system-dependent variables used during compilation.  It uses
+those values to create a `Makefile.inc' file.
+Finally, it creates a shell script `config.status' that you can run 
+in the future to recreate the current configuration, a file
+`config.cache' that saves the results of its tests to speed up
+reconfiguring, and a file `config.log' containing compiler output
+(useful mainly for debugging `configure').
+
+   The file `configure.in' is used to create `configure' by a program
+called `autoconf'.  You only need `configure.in' if you want to change
+it or regenerate `configure' using a newer version of `autoconf'.
+
+The simplest way to compile this package is:
+
+  1. `cd' to the directory containing the package's source code and type
+     `./configure' to configure the package for your system.  If you're
+     using `csh' on an old version of System V, you might need to type
+     `sh ./configure' instead to prevent `csh' from trying to execute
+     `configure' itself.
+
+     Running `configure' takes awhile.  While running, it prints some
+     messages telling which features it is checking for.
+
+  2. Type `make' to compile the package.
+
+  3. Type `scripts/emc.run` to test the software. 
+  
+
+Compilers and Options
+=====================
+
+   Some systems require unusual options for compilation or linking that
+the `configure' script does not know about.  You can give `configure'
+initial values for variables by setting them in the environment.  Using
+a Bourne-compatible shell, you can do that on the command line like
+this:
+     CC=c89 CFLAGS=-O2 LIBS=-lposix ./configure
+
+Or on systems that have the `env' program, you can do it like this:
+     env CPPFLAGS=-I/usr/local/include LDFLAGS=-s ./configure
+
+
+Optional Features
+=================
+   EMC is a software that runs only if a real time system has been installed.
+Either RTLinux or RTAI. If you don't have any installed, please install one 
+(refer to the documentation of that project on how to achieve that).
+
+If you have multiple RTAI or RTLinux source directories in /usr/src,
+the correct one can be declared as a command line argument:
+
+./configure --with-rtai=/usr/src/rtai-24.1.12
+
+configure also accepts other arguments. Use --help to view the list.
+ 
+  --with-rtai=<path to RTAI>              path where RTAI is installed
+  --with-rtlinux=<path to RTLINUX>        path where RTLinux is installed
+  --with-rtlinuxpro=<path to RTLINUXPRO>  path where RTLinuxPro is installed
+  --with-module-dir=<module-dir>          Installation directory for kernel modules
+  --with-gtk_ver=<GTK-version>            GTK version
+  --with-make-quiet                       make will run quietly
+  --with-locale-dir=DIR                   Location of the locale file(s)
+                                          DATADIR/locale
+
+Operation Controls
+==================
+
+   `configure' recognizes the following options to control how it
+operates.
+
+`--cache-file=FILE'
+     Use and save the results of the tests in FILE instead of
+     `./config.cache'.  Set FILE to `/dev/null' to disable caching, for
+     debugging `configure'.
+
+`--help'
+     Print a summary of the options to `configure', and exit.
+
+`--quiet'
+`--silent'
+`-q'
+     Do not print messages saying which checks are being made.  To
+     suppress all normal output, redirect it to `/dev/null' (any error
+     messages will still be shown).
+
+`--srcdir=DIR'
+     Look for the package's source code in directory DIR.  Usually
+     `configure' can determine that directory automatically.
+
+`--version'
+     Print the version of Autoconf used to generate the `configure'
+     script, and exit.

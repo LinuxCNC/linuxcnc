@@ -485,6 +485,9 @@ long int rtapi_clock_set_period(long int nsecs)
     }
     /* limit period to 2 micro-seconds min, 1 second max */
     if ((nsecs < 2000) || (nsecs > 1000000000L)) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "RTAPI: ERR: clock_set_period: %ld nsecs,  out of range\n",
+	    nsecs);
 	return RTAPI_INVAL;
     }
     rt_set_periodic_mode();

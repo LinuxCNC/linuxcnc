@@ -210,9 +210,9 @@ static void setup_revision_info(void)
 
     /* point to start of revision number (skip text) */
     rev_str = &(rev[11]);
-    /* find end of number */
+    /* end of number is marked by a space... replace it with a '\0' */
     cp = rev_str;
-    while (*cp != ' ') {
+    while ((*cp != ' ') && (*cp != '\0' )){
 	cp++;
     }
     *cp = '\0';

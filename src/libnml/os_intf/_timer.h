@@ -25,11 +25,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*! clock tick resolution, in seconds */
+/* clock tick resolution, in seconds */
     extern double clk_tck(void);
-/*! number of seconds from standard epoch, to clock tick resolution */
+/* number of seconds from standard epoch, to clock tick resolution */
     extern double etime(void);
-/*! sleeps # of seconds, to clock tick resolution */
+/* sleeps # of seconds, to clock tick resolution */
     extern void esleep(double secs);
     void start_timer_server(int priority, int sem_id);
     void kill_timer_server(void);

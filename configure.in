@@ -1,0 +1,758 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+# 
+# This file is released under GPL, refer to docs/README for details
+#
+# This file is adapted to replace the old ./configure script
+# therefor it includes parts of that script
+
+##############################################################################
+# Section 1                                                                  #
+# Autoconf initialisation                                                    #
+##############################################################################
+
+AC_PREREQ(2.13)
+#AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
+#AC_CONFIG_SRCDIR(src/hal/hal_lib.c)
+AC_INIT(src/emc/hal_intf/exthalmot.c)
+
+# EMC2 internationalisation package name:
+PACKAGE="emc2"
+AC_SUBST([PACKAGE])
+
+##############################################################################
+# Section 2                                                                  #
+# RealTime checking (either RTAI, or RT-Linux)                               #
+# Subsection 2.1 - arguments to ./configure (--with-rtai,rtlinux,rtlinuxpro) #
+# Subsection 2.2 - if none specified above, RTDIR needs to be found by search#
+# Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
+##############################################################################
+
+AC_MSG_CHECKING(for RT dir)
+
+# set up some default values
+RTDIR=""
+RTNAME=""
+RTAI=""
+RTLINUX=""
+RTLINUXPRO=""
+RTPREFIX=""
+KERNELDIR=""
+RTFLAGS=""
+
+RTAI3_MOD=""
+RTAI_MOD=""
+RTL_MOD=""
+
+##############################################################################
+# Subsection 2.1                                                             #
+# Check for arguments to ./configure                                         #
+# accept --with-rtai=<path> from commandline                                 #
+# accept --with-rtlinux=<path> from commandline                              #
+# accept --with-rtlinuxpro=<path> from commandline                           #
+##############################################################################
+
+# check for path from --with-rtai=<path>
+AC_ARG_WITH(rtai,
+    [  --with-rtai=<path to RTAI>              path where RTAI is installed],
+    [	case "$withval" in
+	"" | y | ye | yes | n | no)
+	    AC_MSG_ERROR([You must supply an argument to --with-rtai.])
+	  ;;
+	esac
+	RTAIDIR="$withval"])
+
+if (! test -z "$RTAIDIR") ; then
+  RTDIR=$RTAIDIR
+  AC_MSG_CHECKING(specified rtai=$RTDIR)
+fi
+
+# check for path from --with-rtlinux=<path>
+AC_ARG_WITH(rtlinux,
+    [  --with-rtlinux=<path to RTLINUX>        path where RTLinux is installed],
+    [	case "$withval" in
+	"" | y | ye | yes | n | no)
+	    AC_MSG_ERROR([You must supply an argument to --with-rtlinux.])
+	  ;;
+	esac
+	RTLINUXDIR="$withval"])
+
+# check to see if rtai and rtlinux have been specified 
+# this is bad, and is reson for aborting ./configure
+if (! test -z "$RTLINUXDIR") ; then
+  if (! test -z "$RTDIR") ; then 
+    AC_MSG_ERROR([rtai=$RTAIDIR & rtlinux=$RTLINUXDIR defined. Only one is possible])
+  else
+    RTDIR=$RTLINUXDIR
+    AC_MSG_CHECKING(specified rtlinux=$RTDIR)
+  fi
+fi
+
+# check for path from --with-rtlinuxpro=<path>
+AC_ARG_WITH(rtlinuxpro,
+    [  --with-rtlinuxpro=<path to RTLINUXPRO>  path where RTLinuxPro is installed],
+    [	case "$withval" in
+	"" | y | ye | yes | n | no)
+	    AC_MSG_ERROR([You must supply an argument to --with-rtlinuxpro.])
+	  ;;
+	esac
+	RTLINUXPRODIR="$withval"])
+
+# check to see if rtai or rtlinux and rtlinuxpro have been specified 
+# this is bad, and is reson for aborting ./configure
+if (! test -z "$RTLINUXPRODIR") ; then
+  if (! test -z "$RTDIR") ; then 
+    AC_MSG_ERROR([rtdir=$RTDIR & rtlinuxpro=$RTLINUXPRODIR defined. Only one is possible])
+  else
+    RTDIR=$RTLINUXPRODIR
+    AC_MSG_CHECKING(specified rtlinuxpro=$RTDIR)
+  fi
+fi
+
+##############################################################################
+# Subsection 2.2                                                             #
+# 1. If a RT has been specified by the user it needs to be checked for       #
+# validity. That is done by checking default locations for a certain script  #
+# (similar to 2)                                                             #
+#                                                                            #
+# 2. If no RT has been specified explicitely by the user, one has to be      #
+# found by search. In order to do that the following code will search for a  #
+# RT-specific script:                                                        #
+# rtlinux-config for RTLinux                                                 #
+# realtime-config for RTAI 24.1.x                                            #
+# rtai-config for RTAI 3.x                                                   #
+##############################################################################
+
+#at this point if RTDIR is empty, we need to find RT ourselves
+if (test -z "$RTDIR" ); then
+  RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" -o -name "realtime-config" 2>/dev/null)
+  if (test "$RTS" = "" ) ; then
+    AC_MSG_ERROR([RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
+  elif (test `echo "$RTS" | wc -l` != 1 ) ; then
+    AC_MSG_WARN([Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
+    # It might be a case we have symlinks to the same file..
+    RTS=`echo "$RTS" | head -n 1`
+  fi
+else
+  # we have RTDIR from the user... let's check for rtai-config, realtime-config, and rtl-config
+  RTDIR=$(cd $RTDIR ; pwd -P )
+  if (! test "x$RTAIDIR" = "x") ; then
+    # Test for rtai-config - RTAI3.x
+    if (test -f $RTDIR/rtai-config); then
+       RTS=$RTDIR/rtai-config
+    elif (test -r $RTDIR/bin/rtai-config); then
+       RTS=$RTDIR/bin/rtai-config
+    elif (test `rtai-config --version 2> /dev/null`); then
+       RTS=rtai-config 
+       #we have RTDIR defined by the user, let's check if $RTS --prefix = $RTDIR
+       if (! test "$RTDIR" = `$RTS --prefix`); then
+	  AC_MSG_WARN([RTAIDIR=$RTDIR specified contains no rtai-config, however one was found in PATH]) 
+          RTDIR=`$RTS --prefix`
+	  AC_MSG_WARN([using RTAIDIR=$RTDIR from now on])
+       fi
+    # Test for realtime-config - RTAI24.1.x
+    elif (test -f $RTDIR/realtime-config); then
+       RTS=$RTDIR/realtime-config
+    elif (test -r $RTDIR/bin/realtime-config); then
+       RTS=$RTDIR/bin/realtime-config
+    elif (test -r $RTDIR/scripts/realtime-config); then
+       RTS=$RTDIR/scripts/realtime-config
+    elif (test `realtime-config --version 2> /dev/null`); then
+       RTS=realtime-config 
+       #we have RTDIR defined by the user, let's check if $RTS --prefix = $RTDIR
+       if (! test "$RTDIR" = `$RTS --prefix`); then
+	  AC_MSG_WARN([RTAIDIR=$RTDIR specified contains no realtime-config, however one was found in PATH]) 
+          RTDIR=`$RTS --prefix`
+	  AC_MSG_WARN([using RTAIDIR=$RTDIR from now on])
+       fi
+    else
+       AC_MSG_ERROR([RTAIDIR=$RTAIDIR specified, but neither rtai-config \(RTAI-3.x\) nor realtime-config \(rtai-24.1.x\) found. Check your RTAI install])
+    fi
+    
+  elif (! test "x$RTLINUXDIR" = "x") ; then
+    # test for rtl-config
+    if (test -f $RTLINUXDIR/rtl-config); then
+       RTS=$RTLINUXDIR/rtl-config
+    elif (test -r $RTLINUXDIR/bin/rtl-config); then
+       RTS=$RTLINUXDIR/bin/rtl-config
+    elif (test -r $RTLINUXDIR/scripts/rtl-config); then
+       RTS=$RTLINUXDIR/scripts/rtl-config
+    fi
+  elif (! test "x$RTLINUXPRODIR" = "x") ; then
+    # test for RTLinuxPro
+    # right now unsupported
+    AC_MSG_ERROR([RTLinuxPro support to be added])
+  fi
+  AC_MSG_RESULT([$RTDIR set from command line]) # Spit out an error if/when it fails ??
+fi
+
+AC_MSG_RESULT([Using $RTS as the RT signature])
+
+##############################################################################
+# Subsection 2.3                                                             #
+# we have the RT-script now, it's time to query it for some values           #
+# it can provide us with default values such as CC, CFLAGS, etc              #
+# see each case for more details                                             #
+##############################################################################
+
+# For RTAI-3.x $RTS = rtai-config
+if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
+# Options and their return values for rtai-config
+#	 Option		Returns
+#	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree.
+#	--version	Version number of the installed RTAI (e.g. 3.1, 3.0r4)
+#	--cc		The compiler used for the C sources - Not necessarily the default cc
+#	--module-cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
+#	--linux-dir	Path to the source directory f the patched kernel.
+#	--module-dir	Path to the directory where the rtai modules are installed
+    RTNAME=rtai-3.0
+    RTPREFIX=rtai
+    RTAI=3
+    RTDIR=`$RTS --prefix`
+    RTDIR=$(cd $RTDIR ; pwd -P )
+    RTFLAGS=`$RTS --module-cflags`
+    RTFLAGS="$RTFLAGS -DRTAI=3"
+    KERNELDIR=`$RTS --linux-dir`
+
+# For RTAI-24.1x $RTS = realtime-config
+elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
+# Options and their return values for realtime-config
+#	 Option		Returns
+#	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
+#	--version	Should return the version number - Appears to return 0.0.0 for most 24.1.x releases.
+#	--cc		The compiler used for the C sources - Not necessarily the default cc
+#	--cflags	Flags used to compile the realtime modules with.
+#	--cflags-fp	Flags to use when compiling realtime modules with floating point math.
+#	--dump		Dumps the .buildvars to screen - Grep for linuxdir
+    RTNAME=rtai
+    RTPREFIX=rtai
+    RTAI=1
+
+    # on BDI-TNG there seems to be the problem,
+    # that the /usr/src/linux/.config file is missing
+    # this file states that the kernel has been configured, 
+    # however it gets deleted when a make mrproper is run
+    # on BDI-TNG only the patched kernel source is included in order 
+    # to save space, so realtime-config is failing.
+    # the following is a workaround only for BDI-TNG
+    BDITNG=`cat /proc/version 2>/dev/null | grep Gariboldi`
+    if test -n "$BDITNG"; then
+	# we are certain to have BDI-TNG
+	# now we default some values
+	CC="egcs"
+	RTFILE=/usr/src/rtai-24.1.10/.buildvars
+	RTDIR=/usr/src/rtai-24.1.10
+	KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "="); print A[[2]]}') 2>/dev/null #'
+	KERNELDIR=$(cd $KERNEL ; pwd -P )
+	RTFLAGS=$(cat $RTFILE | grep CFLAGS | sed s/CFLAGS=//) 2>/dev/null #'
+
+	RTFLAGS="$RTFLAGS -DRTAI=1"
+    else
+	# any other rtai-24.1.x system
+	TEMP=`$RTS --prefix`
+	if (test -d $TEMP) ; then
+	    RTDIR=$(cd $TEMP ; pwd -P )
+	else
+	    RTDIR=${RTS%%/bin/realtime-config}
+	fi
+        RTFLAGS=`$RTS --cflags-fp | head -n 1`
+	RTFLAGS="$RTFLAGS -DRTAI=1"
+	KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
+	KERNELDIR=$(cd $KERNELDIR ; pwd -P )
+    fi
+
+
+# For RTLinux-3.? $RTS = rtl-config
+elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
+# Options and their return values for rtl-config
+#	 Option		Returns
+#	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
+#	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
+#	--cc		The compiler used for the C sources - Not necessarily the default cc
+#	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
+#	--linux		Path to the source directory of the patched kernel.
+#	--module_dir	Path to the directory where the RTLinux modules are installed
+#	--modules	A list of the available realtime modules.
+    RTPREFIX=rtl
+    RTDIR=`$RTS --prefix`
+    RTDIR=$(cd $RTDIR ; pwd -P )
+    RTFLAGS=`$RTS --cflags`
+    KERNELDIR=`$RTS --linux`
+# elif test for RTLinux-Pro ???
+fi
+
+AC_SUBST([RTNAME])
+AC_SUBST([RTAI])
+AC_SUBST([RTLINUX])
+AC_SUBST([RTLINUXPRO])
+AC_SUBST([RTPREFIX])
+AC_SUBST([KERNELDIR])
+AC_SUBST([RTFLAGS])
+AC_SUBST([RTDIR])
+
+# Check for emc2 dir
+# FIXME
+# right now... not done
+# just output the current directory as emc2 home
+# needs some discussions & adjustments
+
+EMC2_HOME=`pwd`
+AC_SUBST([EMC2_HOME])
+
+# Support some of the standard configure options for directories
+AC_PREFIX_DEFAULT(/usr/local)
+
+if test "x$prefix" = "xNONE"; then
+  prefix=$ac_default_prefix
+  ac_configure_args="$ac_configure_args --prefix $prefix"
+fi
+
+AC_SUBST(AUTODIRS)
+
+##############################################################################
+# Section 3                                                                  #
+# aditional checking                                                         #
+# Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
+# Subsection 3.2 - check for the kernel version, with RT patches             #
+# Subsection 3.3 - check the moduledir where modules can get installed       #
+# Subsection 3.4 - check for GTK                                             #
+# Subsection 3.5 - check for utility programs needed to build and run EMC    #
+##############################################################################
+
+
+##############################################################################
+# Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
+# Check CC version - (P.C.) We need to verify the compiler is the same one   #
+# used for the realtime extensions... Hence the need to find the RT signature# 
+# first.                                                                     #
+# $RTS --cc should return the C compiler used - Verify this is acceptable.   #
+# if version is gcc-2.96 check for alternative                               #
+##############################################################################
+AC_MSG_CHECKING([for cc version])
+
+# The compiler MUST match the one used to compile the realtime modules if the
+# kernel level code is to function correctly. But if the kernel has been
+# compiled with gcc-2.96, it is unlikely to ever work !
+# However realtime-config doesn't seem to have such an option
+if (test ${RTS##*/} = rtai-config ) ; then
+  RTSCC=`$RTS --cc`
+  AC_MSG_RESULT(found $RTSCC in rtai-config)
+elif (test ${RTS##*/} = rtl-config ) ; then
+  RTSCC=`$RTS --cc`
+  AC_MSG_RESULT(found $RTSCC in rtl-config)
+fi
+
+# seems there's a problem with autoconf if there are multiple
+# AC_PROG_CC's in this file
+# modified to test only once
+AC_PROG_CC([$RTSCC gcc egcs])
+
+if test -z "$CC"; then
+  AC_MSG_ERROR([no acceptable cc found])
+else
+  if test "$CC" = "gcc"; then
+    if test `$CC -dumpversion` = "2.96"; then
+      AC_MSG_ERROR([gcc version 2.96 found, but not supported. 
+		If there is another compiler available, set the envar CC.])
+    fi
+  fi
+fi
+
+
+##############################################################################
+# Subsection 3.2 - check for the kernel version, with RT patches             #
+#----------------------------------------------------------------------------#
+# Check with the version.h to find the uts-kernel version.                   #
+# This should be a more reliable way of determining the kernel that          #
+# is being used to compile against - `uname -r` only returns the             #
+# running kernel version which is may not be the one the code is             #
+# compiled against.                                                          #
+##############################################################################
+AC_MSG_CHECKING([for kernel version])
+
+AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
+# Unfortunately, many distributions (redhat, mandrake) have #defines
+# inside versin.h, so a simple cat|grep|cut test won't work... But then agsin,
+# RH & Mandrake kernels are notorious for their use of patches that break
+# the RT patching - Both RTAI and RTLinux strongly recommend using
+# a virgin source from kernel.org.
+
+# Get the kernel version from version.h
+AC_MSG_CHECKING([for kernel version string])
+
+VERSION_FILE=$KERNELDIR/include/linux/version.h
+KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
+
+AC_MSG_RESULT([$KERNEL_VERS])
+AC_SUBST([KERNEL_VERS])
+
+##############################################################################
+# Subsection 3.3 - check the moduledir where modules can get installed       #
+#                                                                            #
+# Provides the user the possibility to specify (--with-module-dir=<path>)    #
+# If not specified default inside /lib/modules/${KERNEL_VERS}/               #
+# to the location where a RT-module gets found (mbuff.o or rtai_shm.o)       #
+##############################################################################
+
+# Create a module-dir option, similar to rtai's...
+AC_MSG_CHECKING([for module installation directory])
+
+AC_ARG_WITH(module-dir,
+    [  --with-module-dir=<module-dir>          Installation directory for kernel modules],
+    [
+        case "$withval" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-module-dir.])
+          ;;
+        esac
+        MODULE_DIR="$withval"
+    ])
+
+# Set a default module dir if unspecified
+if test "x" = "x$MODULE_DIR";
+then
+   # (P.C.) Only works if the kernel modules are installed - If we are compiling for a target
+   # system, this test may fail...
+   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
+
+   if test "x" = "x$MODULE_DIR"; then
+        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
+   fi
+
+   if test "x" = "x$MODULE_DIR"; then
+       MODULE_DIR='${exec_prefix}/modules'
+   fi
+
+fi
+
+AC_SUBST([MODULE_DIR])
+AC_MSG_RESULT([$MODULE_DIR])
+
+##############################################################################
+# Subsection 3.4 - check for GTK                                             #
+#                                                                            #
+# Provides the user the possibility to specify (--with-gtk_ver=<version>)    #
+# If not specified a search for a gtk script is done:                        #
+# gtk-config  - GTK 1.2                                                      #
+# pkg-config and gtk+-2.0 - GTK 2.0                                          #
+# pkg-config and gtk+-2.2 - GTK 2.2                                          #
+##############################################################################
+
+# Check for GTK
+# accept GTK_VER from command line
+AC_MSG_CHECKING([for GTK version])
+
+AC_ARG_WITH(gtk_ver,
+    [  --with-gtk_ver=<GTK-version>            GTK version],
+    [
+	case "$withval" in
+	"" | y | ye | yes | n | no)
+	    AC_MSG_ERROR([You must supply an argument to --with-gtk_ver.])
+	  ;;
+	esac
+	GTK_VER="$withval"
+    ])
+
+if test "x" = "x$GTK_VER"; then
+  #we need to find out GTK_VER ourselves
+  GTK_VER="none"
+  if type gtk-config 2>/dev/null >/dev/null ; then
+    # found gtk-config, that means GTK 1.2 is installed
+    GTK_VER="1.2"
+  elif type pkg-config 2>/dev/null >/dev/null ; then
+    # found pkg-config, that means GTK 2.x _might_ be installed
+    if pkg-config gtk+-2.0 --exists ; then
+      # found the .pc file for gtk-2.0
+      GTK_VER="2.0"
+    elif pkg-config gtk+-2.2 --exists ; then
+      # found the .pc file for gtk-2.2
+      GTK_VER="2.2"
+    fi
+  fi
+fi
+AC_MSG_RESULT([$GTK_VER])
+if (test "1.2" = "$GTK_VER") ; then
+  GTK_CFLAGS=`gtk-config --cflags`
+  GTK_LIBS=`gtk-config --libs`
+elif ( (test "2.0" = "$GTK_VER") || (test "2.2" = "$GTK_VER") ) ; then
+  GTK_CFLAGS=`pkg-config gtk+-$GTK_VER --cflags`
+  GTK_LIBS=`pkg-config gtk+-$GTK_VER --libs`
+else
+  GTK_CFLAGS=""
+  GTK_LIBS=""
+  GTK_VER=""
+fi
+AC_SUBST(GTK_VER)
+AC_SUBST(GTK_LIBS)
+AC_SUBST(GTK_CFLAGS)
+
+##############################################################################
+# Subsection 3.5 - check for utility programs needed to build and run EMC    #
+#                                                                            #
+# Check for all the utility programs we need to build and install emc        #
+# as well as those we use in the emc scripts...                              #
+##############################################################################
+AC_PROG_CXX
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+AC_PATH_PROG(AR,ar, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(GREP, grep, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(INSTALL, install, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(SED, sed, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(PS, ps, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(KILL, kill, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(WHOAMI, whoami, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(AWK, awk, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(INSMOD, insmod, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(RMMOD, rmmod, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(LSMOD, lsmod, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(PIDOF, pidof, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
+
+
+##############################################################################
+# Section 4 - Check for math support                                         #
+#                                                                            #
+# Because some of the realtime kernel modules use floating point math        #
+# which is not supported by standard kernel calls, we need to link to        #
+# libm. RTAI provides a loadable module derived from uclibc (a minimal       #
+# glibc implimentaion for embedded systems). Alternatively, we can link      #
+# to dietlibc - Most distros package this as diet or dietlibc. Debian        #
+# splits the headers and static libs into dietlibc-dev..                     #
+# If neither of the two preferred options are available, then the default    #
+# GNU glibc math library will have to be used. This will cause problems      #
+# if certain functions found in libc.so are not stubbed, hence the following #
+# tests and linking to mathstubs.o at a later stage.                         #
+##############################################################################
+
+AC_MSG_CHECKING([for kernel math support])
+USE_LIBM=""
+USE_RTLIBM=""
+USE_STUBS=""
+MATHLIB=""
+MATHINC=""
+
+#we need to make sure that $RTS has a --module-dir option
+#only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
+if (test ${RTS##*/} = rtai-config ) ; then
+    if (test -r $($RTS --module-dir)/rtai_math.o ) ; then
+       USE_RTLIBM=1
+    fi
+fi
+
+if (test -r $RTDIR/modules/rtai_libm.o ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm.o) ; then
+    # Found a suitable kernel module..
+    MATHLIB=
+    USE_RTLIBM=1
+    AC_MSG_RESULT([ok, using RTAI's libm kernel module])
+# Note: need to search /lib/modules/$KERNEL_VER for the math modules..
+#       or `$RTS --module-dir`...
+else
+    AC_MSG_RESULT([no])
+    AC_MSG_CHECKING([for a suitable libm])
+    rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
+    # compile a sample first.
+    $CC -c src/tests/mathtest.c $RTFLAGS -o src/tests/mathtest.o 2>/dev/null
+
+    DIET_DIR=$(find /usr/lib -maxdepth 2 -name diet* | head -n1)
+    if (test "$DIET_DIR" != "" ) ; then
+        # Run a test to see if it will work...
+        ld -r -static src/tests/mathtest.o -o src/tests/mathtest -L$DIET_DIR/lib-i386 -lm 2>/dev/null
+        if (test "$(nm -u src/tests/mathtest | grep -v ende)" = "" ) ; then
+            AC_MSG_RESULT([diet lib OK to use.])
+            USE_DIET=1
+            MATHLIB="-L$DIET_DIR/lib-i386 -lm"
+            MATHINC="-I$DIET_DIR/include"
+        fi
+    fi
+    if (test "$USE_DIET" = "" ) ; then
+        # Test the standard libm
+    rm -f src/tests/mathtest 2>/dev/null
+    ld -r -static src/tests/mathtest.o -o src/tests/mathtest -L/usr/lib -lm 2>/dev/null
+        if ! nm -u src/tests/mathtest ; then
+            AC_MSG_RESULT([libm OK to use.])
+            USE_LIBM=1
+            MATHLIB="-L/usr/lib -lm"
+        else
+            # We need to link to mathstubs if we are to use the glibc libm
+            AC_MSG_WARN([Using glibc libm with mathstubs.
+			If unresolved symbols are reported when loading kernel modules
+			please file a bug report.])
+            USE_LIBM=1
+	    USE_STUBS=1
+            MATHLIB="\$(RTTMP_DIR)/mathstubs.o -L/usr/lib -lm"
+        fi
+    fi
+    rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
+fi
+
+AC_SUBST([USE_LIBM])
+AC_SUBST([USE_STUBS])
+AC_SUBST([USE_RTLIBM])
+AC_SUBST([MATHINC])
+AC_SUBST([MATHLIB])
+
+# Export substitution symbols for module loading
+AC_SUBST([RTAI3_MOD])
+AC_SUBST([RTAI_MOD])
+AC_SUBST([RTL_MOD])
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+
+##############################################################################
+# Section 5 - Check for tcl/tk support                                       #
+#                                                                            #
+# Test for tcl/tk headers fails if they are not in /usr/include              #
+# so testing is done by finding tclConfig.sh and tkConfig.sh                 #
+# if the search fails the traditional check is done                          #
+##############################################################################
+AC_MSG_CHECKING([for tcl])
+
+# search for tclConfig.sh
+TCLCONFIG=$(find /usr/lib -maxdepth 2 -name tclConfig.sh | head -n1)
+if (test "x$TCLCONFIG" = "x"); then
+    TCLCONFIG=$(find /usr/local/lib -maxdepth 2 -name tclConfig.sh | head -n1)
+fi
+
+if (test "x$TCLCONFIG" = "x"); then
+   AC_MSG_RESULT([tclConfig.sh not found, trying tcl.h and libs.
+		  If it doesn't work try running ./configure --with-tclConfig=<path to tclConfig.sh>])
+   AC_CHECK_HEADERS([tcl.h])
+   AC_SEARCH_LIBS(Tcl_Init,[tcl tcl80 tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
+else
+# tclConfig.sh found,
+# extracting vars
+   AC_MSG_RESULT([$TCLCONFIG found])
+   source "$TCLCONFIG"
+   TCL_CFLAGS="$TCL_INCLUDE_SPEC"
+   TCL_LIBS="$TCL_LIB_SPEC"
+fi
+
+# search for tkConfig.sh
+TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+if (test "x$TKCONFIG" = "x"); then
+    TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+fi
+
+if (test "x$TKCONFIG" = "x"); then
+   AC_MSG_RESULT([tkConfig.sh not found, trying tk.h and libs.
+		  If it doesn't work try running ./configure --with-tkConfig=<path to tkConfig.sh>])
+   AC_CHECK_HEADERS([tk.h])
+   AC_SEARCH_LIBS(Tk_Init,[tk tk80 tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
+else
+# tkConfig.sh found,
+# extracting vars
+   AC_MSG_RESULT([$TKCONFIG found])
+   source "$TKCONFIG"
+   TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES" 
+   TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
+fi
+
+AC_SUBST([TCL_DBGX])
+AC_SUBST([TK_DBGX])
+AC_SUBST([TCL_CFLAGS])
+AC_SUBST([TK_CFLAGS])
+AC_SUBST([TCL_LIBS])
+AC_SUBST([TK_LIBS])
+
+##############################################################################
+# Section 6 - Miscelaneous support                                           #
+#                                                                            #
+# Subsection 6.1. - provides DATE to output it to the generated files        #
+# Subsection 6.2. - user option to convince make to be quiet during make     #
+##############################################################################
+
+# provides DATE in order to output it to the generated files
+DATE=$(date)
+AC_SUBST([DATE])
+
+# user option to force make to be quiet during make
+AC_ARG_WITH(make-quiet,
+	    [  --with-make-quiet                       make will run quietly],
+	    MAKEFLAGS=s, MAKEFLAGS=) 
+AC_SUBST([MAKEFLAGS])
+
+
+##############################################################################
+# Section 7 - Language support                                               #
+#                                                                            #
+# i18n Language support:                                                     #
+# see http://cvs.gnome.org/viewcvs/intltool/doc/I18N-HOWTO?rev=1.3           #
+##############################################################################
+
+# if you don't have nls tools, allow a way out!
+AC_ARG_ENABLE(nls,
+              [  --disable-nls                  don't use NLS],
+              USE_NLS=no, USE_NLS=yes)
+AC_SUBST(USE_NLS)
+
+if test "$USE_NLS" = "yes"; then
+  AC_CHECK_HEADERS(locale.h)
+  AC_CHECK_FUNCS(setlocale)
+  AC_SUBST(HAVE_LOCALE_H)  
+
+# Add languages here when they are translated.
+# Grep the LINGUAS file.
+  LANGUAGES=""
+  AC_SUBST(LANGUAGES)  
+  AC_CHECK_HEADERS(libintl.h)
+  AC_CHECK_LIB(intl,gettext)
+  AC_SUBST(HAVE_LIBINTL_H)  
+  AC_SUBST(HAVE_LIBINTL)
+
+# The default locale directory is /usr/share/locale - This is generally fixed
+# by the distribution....
+  dnl Handle localedir
+  LOCALEDIR='/usr/share/locale'
+  AC_ARG_WITH(locale-dir,
+  [  --with-locale-dir=DIR   Location of the locale file(s)
+                          [DATADIR/locale]],[
+    if test x$withval = xyes; then
+      AC_MSG_WARN(Usage is: --with-locale-dir=basedir)
+    else
+      if test x$withval = xno; then
+        AC_MSG_WARN(Usage is: --with-locale-dir=basedir)
+      else
+        LOCALEDIR=$withval
+      fi
+    fi
+  ])
+  AC_SUBST(LOCALEDIR)
+fi
+
+
+##############################################################################
+# files that get created by ./configure                                      #
+##############################################################################
+#AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
+AC_OUTPUT(Makefile.inc)
+
+##############################################################################
+# message to the user what to do next, after a succesfull ./configure        #
+##############################################################################
+echo ""
+echo ""
+echo "######################################################################"
+echo "#                  EMC2 - Enhanced Machine Controller                #"
+echo "######################################################################"
+echo "#                                                                    #"
+echo "#   EMC2 is a software system for computer control of machine tools, #"
+echo "#   such as milling machines. EMC2 is released under the GPL.        #"
+echo "#   Check out http://www.linuxcnc.org/ for more details.             #"
+echo "#                                                                    #"
+echo "#                                                                    #"
+echo "#   It seems that ./configure completed successfully                 #"
+echo "#   This means that RT is properly installed                         #"
+echo "#   If things don't work check config.log for errors & warnings      #"
+echo "#                                                                    #"
+echo "#   Next try to compile by typing                                    #"
+echo "#         make                                                       #"
+echo "#                                                                    #"
+echo "#   to run the software you need to type                             #"
+echo "#         scripts/emc.run                                            #"
+echo "#                                                                    #"
+echo "######################################################################"
+echo ""
+echo ""

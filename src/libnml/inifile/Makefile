@@ -7,6 +7,7 @@ include ../../../Makefile.inc
 # Declare which files are to be released
 HEADERS = \
 	inifile.h \
+	inifile.hh
 
 SRCS =	\
 	_inifile.c \

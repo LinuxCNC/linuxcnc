@@ -280,6 +280,8 @@ int hal_exit(int comp_id)
     if (next == 0) {
 	/* list is empty - should never happen, but... */
 	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: component %d not found\n", comp_id);
 	return HAL_INVAL;
     }
     comp = SHMPTR(next);
@@ -984,12 +986,14 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
     int *prev, next, cmp;
     hal_funct_t *new, *fptr;
     hal_comp_t *comp;
+    char buf[HAL_NAME_LEN + 1];
 
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: export_funct called before init\n");
 	return HAL_INVAL;
     }
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: exporting function '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* validate comp_id */
@@ -997,11 +1001,15 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
     if (comp == 0) {
 	/* bad comp_id */
 	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: component %d not found\n", comp_id);
 	return HAL_INVAL;
     }
     if (comp->type == 0) {
 	/* not a realtime component */
 	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: component %d is not realtime\n", comp_id);
 	return HAL_INVAL;
     }
     /* allocate a new function structure */
@@ -1009,6 +1017,8 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
     if (new == 0) {
 	/* alloc failed */
 	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: insufficient memory for function '%s'\n", name);
 	return HAL_NOMEM;
     }
     /* initialize the structure */
@@ -1027,8 +1037,8 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
 	    /* reached end of list, insert here */
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    /* break out of loop and init the new function */
+	    break;
 	}
 	fptr = SHMPTR(next);
 	cmp = strcmp(fptr->name, new->name);
@@ -1036,8 +1046,8 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
 	    /* found the right place for it, insert here */
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    /* break out of loop and init the new function */
+	    break;
 	}
 	if (cmp == 0) {
 	    /* name already in list, can't insert */
@@ -1051,6 +1061,21 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
 	prev = &(fptr->next_ptr);
 	next = *prev;
     }
+    /* at this point we have a new function and can yield the mutex */
+    rtapi_mutex_give(&(hal_data->mutex));
+    /* init time logging variables */
+    new->runtime = 0;
+    new->maxtime = 0;
+    /* note that failure to successfully create the following params
+       does not cause the "export_funct()" call to fail - they are
+       for debugging and testing use only */
+    /* create a parameter with the function's runtime in it */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.time", name);
+    hal_param_s32_new(buf, HAL_RD, &(new->runtime), comp_id);
+    /* create a parameter with the function's maximum runtime in it */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
+    hal_param_s32_new(buf, HAL_RD_WR, &(new->maxtime), comp_id);
+    return HAL_SUCCESS;
 }
 
 int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
@@ -1068,6 +1093,11 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: create_thread called before init\n");
+	return HAL_INVAL;
+    }
+    if (period_nsec == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: create_thread called with period of zero\n");
 	return HAL_INVAL;
     }
     /* get mutex before accessing shared data */
@@ -1327,6 +1357,8 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name, int position)
     if (funct_entry == 0) {
 	/* alloc failed */
 	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: insufficient memory for thread->function link\n");
 	return HAL_NOMEM;
     }
     /* init struct contents */
@@ -1859,27 +1891,44 @@ void rtapi_app_exit(void)
 static void thread_task(void *arg)
 {
     hal_thread_t *thread;
+    hal_funct_t *funct;
     hal_funct_entry_t *funct_root, *funct_entry;
     long long int start_time, end_time;
+    long long int thread_start_time;
 
     thread = arg;
     while (1) {
-	start_time = rtapi_get_time();
 	if (hal_data->threads_running > 0) {
-	    /* run thru function list */
+	    /* point at first function on function list */
 	    funct_root = (hal_funct_entry_t *) & (thread->funct_list);
 	    funct_entry = SHMPTR(funct_root->links.next);
+	    /* execution time logging */
+	    start_time = rtapi_get_time();
+	    end_time = start_time;
+	    thread_start_time = start_time;
+	    /* run thru function list */
 	    while (funct_entry != funct_root) {
 		/* call the function */
 		funct_entry->funct(funct_entry->arg, thread->period);
+		/* capture execution time */
+		end_time = rtapi_get_time();
+		/* point to function structure */
+		funct = SHMPTR(funct_entry->funct_ptr);
+		/* update execution time data */
+		funct->runtime = (long int) (end_time - start_time);
+		if (funct->runtime > funct->maxtime) {
+		    funct->maxtime = funct->runtime;
+		}
 		/* point to next next entry in list */
 		funct_entry = SHMPTR(funct_entry->links.next);
+		/* prepare to measure time for next funct */
+		start_time = end_time;
 	    }
-	}
-	end_time = rtapi_get_time();
-	thread->runtime = (long int) (end_time - start_time);
-	if (thread->runtime > thread->maxtime) {
-	    thread->maxtime = thread->runtime;
+	    /* update thread execution time */
+	    thread->runtime = (long int) (end_time - thread_start_time);
+	    if (thread->runtime > thread->maxtime) {
+		thread->maxtime = thread->runtime;
+	    }
 	}
 	/* wait until next period */
 	rtapi_wait();

@@ -18,7 +18,6 @@
 
 #include "inifile.h"
 #include <stdio.h>		/* FILE *, fopen(), fclose(), NULL */
-#include <stdlib.h>		/* ralloc() */
 #include <string.h>		/* strlen(), etc. */
 #include <ctype.h>		/* isspace() */
 
@@ -41,13 +40,14 @@ static const char *afterequal(const char *string)
 
     for (;;) {
 	if (*spot == '=') {
+	    /* = is there-- return next non-white, or NULL if not there */
 	    for (;;) {
 		spot++;
 		if (0 == *spot) {
 		    /* ran out */
 		    return NULL;
 		} else if (*spot != ' ' && *spot != '\t' && *spot != '\r'
-			&& *spot != '\n') {
+		    && *spot != '\n') {
 		    /* matched! */
 		    return spot;
 		} else {
@@ -311,18 +311,30 @@ const char *iniFind(void *fp, const char *tag, const char *section)
     return NULL;
 }
 
-/*!
-    Given 'section' and an array of tags & strings, fills both with
-    the contents of that section, one line per string.
-    Comments and blank lines are omitted. 'array' is assumed to be
-    allocated, of 'max' entries of size INIFILE_MAX_LINELEN.
+/*
 
-    \param fp A valid file descriptor
-    \param section A valid section tag to locate
-    \param array[] of structs with members 'tag' and 'line'
-    \return Number of entries found, zero if none found, -1 if no section.
+   Returns number of entries found; 0 if section is there but no entries
+   in it, or -1 if section is not there.
 */
-int iniSection(void *fp, const char *section, inifile_line array[], int max)
+
+/********************************************************************
+*
+* Description: iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
+*		Given 'section' and array of strings, fills strings with
+*		what was found in the section, one line per string.
+*		Comments and blank lines are omitted. 'array' is assumed
+*		to be allocated, of 'max' entries of size 
+*		INIFILE_MAX_LINELEN.
+*
+* Return Value: Number of entries found, zero if none found, or
+*		-1 if no section.
+*
+* Side Effects:
+*
+* Called By: inifile.cc
+*
+********************************************************************/
+int iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
 {
     static char line[INIFILE_MAX_LINELEN + 2];	/* 1 for newline, 1 for NULL */
     int count = 0;
@@ -372,93 +384,15 @@ int iniSection(void *fp, const char *section, inifile_line array[], int max)
 	/* read first tag */
 	sscanf(line, "%s", array[count].tag);
 
-	/* copy everything after equal to the struct */
+	/* copy everything after equal to the rest */
 
 	entry = afterequal(line);
 	if (NULL != entry) {
-	    strcpy(array[count].line, afterequal(line));
+	    strcpy(array[count].rest, afterequal(line));
 	} else {
-	    array[count].line[0] = 0;	/* make it the empty string */
+	    array[count].rest[0] = 0;	/* make it the empty string */
 	}
 	count++;
-    }
-
-    /* got to end of file */
-    return count;
-}
-
-/*!
-    Fills the array with the contents of the file. One line per
-    array member. 'array' is assumed to be dynamically allocated
-    and will grow if it is not large enough to accomodate all the
-    lines.
-    
-    Side Effects: Memory allocated to array[] may grow or shrink.
-		  Use the return value to index the array.
-
-    \param fp A valid file descriptor
-    \param array[] of structs with members 'tag' and 'line'
-    \return Number of entries found, zero if none found, or -1 on error.
-*/
-int iniFill(void *fp, inifile_line array[])
-{
-    char line[INIFILE_MAX_LINELEN + 2];	/* 1 for newline, 1 for NULL */
-    int count = 0;
-    char *nonwhite;
-    int pos;
-    int tmp;
-
-    if ((fp == NULL) || (array == NULL)){
-	return -1;
-    }
-
-    /* Start from beginning */
-    rewind((FILE *) fp);
-
-    /* Start loading lines */
-
-    while (!feof((FILE *) fp)) {
-	if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
-	    /* got to end of file */
-	    return count;
-	}
-	/* Increase the space available for the array */
-	array = realloc(array, sizeof(inifile_line) * (count + 1));
-	if (array == NULL) {
-	    return -1;	// Error 
-	}
-	/* got a line-- check for blank */
-	if (NULL == (nonwhite = skipwhite(line))) {
-	    continue;
-	}
-
-	/* strip off newline */
-	pos = strlen(line) - 1;	/* newline is one back from 0 */
-	if (pos < 0) {
-	    pos = 0;
-	}
-	if (line[pos] == '\n') {
-	    line[pos] = 0;	/* make the newline 0 */
-	}
-
-	/* it's a valid line-- copy into entry struct */
-
-	/* read first tag */
-	sscanf(line, "%s", array[count].tag);
-
-	tmp = strlen(array[count].tag);
-
-	if (tmp != 0) {
-	// Re-use an existing variable (nonwhite) and test for comment char
-	nonwhite = strstr(line, "#");
-	if (nonwhite != NULL) {
-	    *nonwhite = 0;		// Replace # with a null terminator
-	}
-	    strcpy(array[count].line, line + tmp); // copy up to the null
-	    count++;	// Got a valid line, inc count ready for the next one
-	} else {
-	    array[count].line[0] = 0;	/* make it the empty string */
-	}
     }
 
     /* got to end of file */

@@ -199,6 +199,7 @@ CONFIG_FILE_INFO *get_loaded_nml_config_file(const char *file)
     return NULL;
 }
 
+#if 0
 int print_loaded_nml_config_file(const char *file)
 {
     CONFIG_FILE_INFO *info = get_loaded_nml_config_file(file);
@@ -249,6 +250,7 @@ int print_loaded_nml_config_file_list()
     }
     return 0;
 }
+#endif
 
 int unload_all_nml_config_file()
 {

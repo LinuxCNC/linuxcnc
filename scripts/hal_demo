@@ -64,10 +64,10 @@ fi
 # We're almost ready for the real demos, first we must
 # make sure the rtapi core is loaded
 #
-RTAPI_STR=`/sbin/lsmod | awk '{print $1}' | grep -x rtapi `
-if [ ! "$RTAPI_STR" ] ; then
-    echo "All of the demos require the RTAPI modules to"
-    echo "be loaded.  Use 'hal_demo load' to load them."
+HAL_LIB_STR=`/sbin/lsmod | awk '{print $1}' | grep -x hal_lib `
+if [ ! "$HAL_LIB_STR" ] ; then
+    echo "All of the demos require the RTAPI and HAL_LIB modules"
+    echo "to be loaded.  Use 'hal_demo load' to load them."
     exit -1
 fi
 #
@@ -88,8 +88,8 @@ if [ $1 = parport1 ] ; then
     echo "Hit enter to install the parport module with a 1mS thread"
     read
     # change the 0278 if your port is at a different address
-    echo "$ /sbin/insmod rtlib/hal_parport.o period=1000000 cfg=\"0278\""
-    /sbin/insmod rtlib/hal_parport.o period=1000000 cfg="0278"
+    echo "$ bin/halcmd loadrt hal_parport period=1000000 cfg=\"0278\""
+    bin/halcmd loadrt hal_parport period=1000000 cfg="0278"
     echo "Hit enter see the component list"
     read
     echo "$ bin/halcmd show comp"
@@ -105,10 +105,10 @@ if [ $1 = parport1 ] ; then
     read
     echo "(connecting the parport read and write"
     echo " functions to the 1mS thread)"
-    echo "$ bin/halcmd addf parport.1.read parport.thread"
-    bin/halcmd addf parport.1.read parport.thread
-    echo "$ bin/halcmd addf parport.1.write parport.thread"
-    bin/halcmd addf parport.1.write parport.thread
+    echo "$ bin/halcmd addf parport.0.read parport.thread"
+    bin/halcmd addf parport.0.read parport.thread
+    echo "$ bin/halcmd addf parport.0.write parport.thread"
+    bin/halcmd addf parport.0.write parport.thread
     echo "(start the realtime thread)"
     echo "$ bin/halcmd start"
     bin/halcmd start
@@ -140,10 +140,10 @@ if [ $1 = parport1 ] ; then
     echo "Hit enter to connect signals to pins"
     read
     echo "(use signal jumper1 to connect input pin 10 to output pin 2)"
-    echo "$ bin/halcmd linksp jumper1 parport.1.pin-10-in"
-    bin/halcmd linksp jumper1 parport.1.pin-10-in
-    echo "$ bin/halcmd linksp jumper1 parport.1.pin-02-out"
-    bin/halcmd linksp jumper1 parport.1.pin-02-out
+    echo "$ bin/halcmd linksp jumper1 parport.0.pin-10-in"
+    bin/halcmd linksp jumper1 parport.0.pin-10-in
+    echo "$ bin/halcmd linksp jumper1 parport.0.pin-02-out"
+    bin/halcmd linksp jumper1 parport.0.pin-02-out
     echo "(connections made - lets take a look)"
     echo "$ bin/halcmd show sig"
     bin/halcmd show sig
@@ -152,16 +152,16 @@ if [ $1 = parport1 ] ; then
     echo " follows it - updated every 1mS )"
     echo "Hit enter to add another output"
     read
-    echo "$ bin/halcmd linksp jumper1 parport.1.pin-03-out"
-    bin/halcmd linksp jumper1 parport.1.pin-03-out
+    echo "$ bin/halcmd linksp jumper1 parport.0.pin-03-out"
+    bin/halcmd linksp jumper1 parport.0.pin-03-out
     echo "(input pin 10 is now routed to output pins 2 and 3 )"
     echo "$ bin/halcmd show sig"
     bin/halcmd show sig
     echo "Hit enter to invert the pin 3 output"
     read
     echo "(invert pin 3 by setting a parameter of the parport module)"
-    echo "$ bin/halcmd setp parport.1.pin-03-out-invert TRUE"
-    bin/halcmd setp parport.1.pin-03-out-invert TRUE
+    echo "$ bin/halcmd setp parport.0.pin-03-out-invert TRUE"
+    bin/halcmd setp parport.0.pin-03-out-invert TRUE
     echo "(if you have access to the pins, you can verify"
     echo " that pin 3 is now inverted)"
     echo "Hit enter to see the parameters"
@@ -193,8 +193,8 @@ if [ $1 = parport1 ] ; then
     echo "$ bin/halcmd delsig jumper2"
     bin/halcmd delsig jumper2
     echo "(unloading the parport module)"
-    echo "$ /sbin/rmmod hal_parport"
-    /sbin/rmmod hal_parport
+    echo "$ bin/halcmd unloadrt hal_parport"
+    bin/halcmd unloadrt hal_parport
     exit 0
 fi
 #
@@ -208,8 +208,8 @@ if [ $1 = siggen ] ; then
     echo " see what each step does.  Echoed commands start with '$')"
     echo "Hit enter to install the siggen module with a 1mS thread"
     read
-    echo "$ /sbin/insmod rtlib/siggen.o fp_period=1000000"
-    /sbin/insmod rtlib/siggen.o fp_period=1000000
+    echo "$ bin/halcmd loadrt siggen fp_period=1000000"
+    bin/halcmd loadrt siggen fp_period=1000000
     echo "Hit enter see the component list"
     read
     echo "$ bin/halcmd show comp"
@@ -224,8 +224,8 @@ if [ $1 = siggen ] ; then
     echo "Hit enter to continue"
     read
     echo "(connecting the siggen update function to the 1mS thread)"
-    echo "$ bin/halcmd addf siggen.1.update siggen.thread"
-    bin/halcmd addf siggen.1.update siggen.thread
+    echo "$ bin/halcmd addf siggen.0.update siggen.thread"
+    bin/halcmd addf siggen.0.update siggen.thread
     echo "(start the realtime thread)"
     echo "$ bin/halcmd start"
     bin/halcmd start
@@ -247,8 +247,8 @@ if [ $1 = siggen ] ; then
     bin/halcmd show param
     echo "Hit enter to change the frequency to 0.1Hz"
     read
-    echo "$ bin/halcmd setp siggen.1.frequency 0.1"
-    bin/halcmd setp siggen.1.frequency 0.1
+    echo "$ bin/halcmd setp siggen.0.frequency 0.1"
+    bin/halcmd setp siggen.0.frequency 0.1
     echo "Hit enter to see the parameters"
     read
     echo "$ bin/halcmd show param"
@@ -270,8 +270,8 @@ if [ $1 = siggen ] ; then
     echo "Hit enter to finish the demo"
     read
     echo "(unloading the siggen module)"
-    echo "$ /sbin/rmmod siggen"
-    /sbin/rmmod siggen
+    echo "$ bin/halcmd unloadrt siggen"
+    bin/halcmd unloadrt siggen
     exit 0
 fi
 #
@@ -286,14 +286,14 @@ if [ $1 = circle ] ; then
     read
     # install parport module
     # change the 0278 if your port is at a different address
-    /sbin/insmod rtlib/hal_parport.o cfg="0278"
-    # install two step pulse generators, stepping type 0,
+    bin/halcmd loadrt hal_parport cfg="0278"
+    # install two frequency type step pulse generators, stepping type 0,
     # and also create two threads, one 50uS and one 1mS
-    /sbin/insmod rtlib/stepgen.o cfg="0 0" period=50000 fp_period=1000000
+    bin/halcmd -V loadrt freqgen cfg="0 0" period=50000 fp_period=1000000
     # install the siggen module
-    /sbin/insmod rtlib/siggen.o
+    bin/halcmd loadrt siggen
     # install two PID loops
-    /sbin/insmod rtlib/pid.o num_chan=2
+    bin/halcmd loadrt pid num_chan=2
     #
     bin/halcmd show comp
     echo "Hit enter set up the threads"
@@ -301,21 +301,21 @@ if [ $1 = circle ] ; then
     #
     # set up the high speed thread
     # first read the parport inputs
-    bin/halcmd addf parport.1.read stepgen.thread
+    bin/halcmd addf parport.0.read freqgen.thread
     # then run the step generator
-    bin/halcmd addf stepgen.make_pulses stepgen.thread
+    bin/halcmd addf freqgen.make_pulses freqgen.thread
     # then write the parport outputs
-    bin/halcmd addf parport.1.write stepgen.thread
+    bin/halcmd addf parport.0.write freqgen.thread
     # set up the low speed thread
     # first run the signal generator to generate position references
-    bin/halcmd addf siggen.1.update stepgen.threadFP
-    # next run stepgen position capture function to get position feedback
-    bin/halcmd addf stepgen.capture_position stepgen.threadFP
+    bin/halcmd addf siggen.0.update freqgen.threadFP
+    # next run freqgen position capture function to get position feedback
+    bin/halcmd addf freqgen.capture_position freqgen.threadFP
     # next run the pid loops
-    bin/halcmd addf pid.1.do_pid_calcs stepgen.threadFP
-    bin/halcmd addf pid.2.do_pid_calcs stepgen.threadFP
+    bin/halcmd addf pid.0.do_pid_calcs freqgen.threadFP
+    bin/halcmd addf pid.1.do_pid_calcs freqgen.threadFP
     # and finally run the step generator update function
-    bin/halcmd addf stepgen.update_freq stepgen.threadFP
+    bin/halcmd addf freqgen.update_freq freqgen.threadFP
     #
     bin/halcmd show thread
     bin/halcmd show funct
@@ -326,74 +326,74 @@ if [ $1 = circle ] ; then
     bin/halcmd newsig x_pos_cmd float
     bin/halcmd newsig y_pos_cmd float
     # connect them to their sources - the signal generator outputs
-    bin/halcmd linksp x_pos_cmd siggen.1.cosine
-    bin/halcmd linksp y_pos_cmd siggen.1.sine
+    bin/halcmd linksp x_pos_cmd siggen.0.cosine
+    bin/halcmd linksp y_pos_cmd siggen.0.sine
     # and connect them to their destinations - the PID command inputs
-    bin/halcmd linksp x_pos_cmd pid.1.command
-    bin/halcmd linksp y_pos_cmd pid.2.command
+    bin/halcmd linksp x_pos_cmd pid.0.command
+    bin/halcmd linksp y_pos_cmd pid.1.command
     # now the position feedback
     bin/halcmd newsig x_feedback float
     bin/halcmd newsig y_feedback float
-    # connect them to their sources - the stepgen position output
-    bin/halcmd linksp x_feedback stepgen.1.position
-    bin/halcmd linksp y_feedback stepgen.2.position
+    # connect them to their sources - the freqgen position output
+    bin/halcmd linksp x_feedback freqgen.0.position-fb
+    bin/halcmd linksp y_feedback freqgen.1.position-fb
     # and connect them to their destinations - the PID feedback inputs
-    bin/halcmd linksp x_feedback pid.1.feedback
-    bin/halcmd linksp y_feedback pid.2.feedback
+    bin/halcmd linksp x_feedback pid.0.feedback
+    bin/halcmd linksp y_feedback pid.1.feedback
     # the outputs of the PID loops are velocity commands
     bin/halcmd newsig x_vel_cmd float
     bin/halcmd newsig y_vel_cmd float
     # connect them to their sources - the PID outputs
-    bin/halcmd linksp x_vel_cmd pid.1.output
-    bin/halcmd linksp y_vel_cmd pid.2.output
-    # and connect them to their destinations - the stepgen frequency inputs
-    bin/halcmd linksp x_vel_cmd stepgen.1.velocity
-    bin/halcmd linksp y_vel_cmd stepgen.2.velocity
+    bin/halcmd linksp x_vel_cmd pid.0.output
+    bin/halcmd linksp y_vel_cmd pid.1.output
+    # and connect them to their destinations - the freqgen frequency inputs
+    bin/halcmd linksp x_vel_cmd freqgen.0.velocity
+    bin/halcmd linksp y_vel_cmd freqgen.1.velocity
     # now we need to route the step and direction signals
     bin/halcmd newsig x_step bit
     bin/halcmd newsig x_dir bit
     bin/halcmd newsig y_step bit
     bin/halcmd newsig y_dir bit
     # the sources - stepgen outputs
-    bin/halcmd linksp x_step stepgen.1.step
-    bin/halcmd linksp x_dir stepgen.1.dir
-    bin/halcmd linksp y_step stepgen.2.step
-    bin/halcmd linksp y_dir stepgen.2.dir
+    bin/halcmd linksp x_step freqgen.0.step
+    bin/halcmd linksp x_dir freqgen.0.dir
+    bin/halcmd linksp y_step freqgen.1.step
+    bin/halcmd linksp y_dir freqgen.1.dir
     # the destinations - parport pins
     # this set of lines configures for a Xylotex 3-axis card
-    #bin/halcmd linksp x_step parport.1.pin-02-out
-    #bin/halcmd linksp x_dir  parport.1.pin-03-out
-    #bin/halcmd linksp y_step parport.1.pin-04-out
-    #bin/halcmd linksp y_dir  parport.1.pin-05-out
+    #bin/halcmd linksp x_step parport.0.pin-02-out
+    #bin/halcmd linksp x_dir  parport.0.pin-03-out
+    #bin/halcmd linksp y_step parport.0.pin-04-out
+    #bin/halcmd linksp y_dir  parport.0.pin-05-out
     # this set of lines configures for the "standard" EMC pinout
-    bin/halcmd linksp x_dir  parport.1.pin-02-out
-    bin/halcmd linksp x_step parport.1.pin-03-out
-    bin/halcmd linksp y_dir  parport.1.pin-04-out
-    bin/halcmd linksp y_step parport.1.pin-05-out
+    bin/halcmd linksp x_dir  parport.0.pin-02-out
+    bin/halcmd linksp x_step parport.0.pin-03-out
+    bin/halcmd linksp y_dir  parport.0.pin-04-out
+    bin/halcmd linksp y_step parport.0.pin-05-out
     # there is one more signal to connect - the PID loops need
     # to be enabled
     bin/halcmd newsig enable bit
+    bin/halcmd linksp enable pid.0.enable
     bin/halcmd linksp enable pid.1.enable
-    bin/halcmd linksp enable pid.2.enable
     # we'll use a parport input as a source for a TRUE bit
-    bin/halcmd linksp enable parport.1.pin-10-in
+    bin/halcmd linksp enable parport.0.pin-10-in
     #
     bin/halcmd show sig
     echo "Hit enter to set the parameters"
     read
     # set the signal generator frequency to make a circle in 10 seconds
-    bin/halcmd setp siggen.1.frequency 0.1
+    bin/halcmd setp siggen.0.frequency 0.1
     # set the PID tuning
+    bin/halcmd setp pid.0.Pgain 10
+    bin/halcmd setp pid.0.FF1 1.0
     bin/halcmd setp pid.1.Pgain 10
     bin/halcmd setp pid.1.FF1 1.0
-    bin/halcmd setp pid.2.Pgain 10
-    bin/halcmd setp pid.2.FF1 1.0
     # set the position feedback scaling - 800 steps = 1 machine unit
-    bin/halcmd setp stepgen.1.position-scale 0.00125
-    bin/halcmd setp stepgen.2.position-scale 0.00125
+    bin/halcmd setp freqgen.0.position-scale 0.00125
+    bin/halcmd setp freqgen.1.position-scale 0.00125
     # set velocity scaling - 1 unit/sec = 800 steps/sec
-    bin/halcmd setp stepgen.1.velocity-scale 800
-    bin/halcmd setp stepgen.2.velocity-scale 800
+    bin/halcmd setp freqgen.0.velocity-scale 800
+    bin/halcmd setp freqgen.1.velocity-scale 800
     #
     bin/halcmd show param
     echo "Hit enter to start"
@@ -407,14 +407,11 @@ if [ $1 = circle ] ; then
     echo "modify them"
     echo "for example, to change from 1 circle every 10 seconds"
     echo "to one circle every five seconds:"
-    echo "bin/halcmd setp siggen.1.frequency 0.2"
+    echo "bin/halcmd setp siggen.0.frequency 0.2"
     echo
     echo "Hit enter to finish the demo"
     read
-    /sbin/rmmod siggen
-    /sbin/rmmod hal_parport
-    /sbin/rmmod stepgen
-    /sbin/rmmod pid
+    bin/halcmd unloadrt all
     exit 0
 fi
 #
@@ -427,13 +424,13 @@ if [ $1 = scope ] ; then
     echo "demo.  Hit enter to get started"
     read
     echo "First we load the siggen demo (not echoed)"
-    /sbin/insmod rtlib/siggen.o fp_period=1000000
-    bin/halcmd addf siggen.1.update siggen.thread
+    bin/halcmd loadrt siggen fp_period=1000000
+    bin/halcmd addf siggen.0.update siggen.thread
     bin/halcmd start
-    bin/halcmd setp siggen.1.frequency 10
+    bin/halcmd setp siggen.0.frequency 10
     echo "Then we load the realtime component of halscope:"
-    echo "$ /sbin/insmod rtlib/scope_rt.o"
-    /sbin/insmod rtlib/scope_rt.o
+    echo "$ bin/halcmd loadrt scope_rt"
+    bin/halcmd loadrt scope_rt
     echo "Finally we start the user component (in the background"
     echo "so that the foreground can continue to give instructions):"
     echo "$ bin/halscope &"
@@ -524,8 +521,7 @@ if [ $1 = scope ] ; then
     echo "To shut down the scope, use the [X] button in the corner"
     echo "Hit enter to finish the demo"
     read
-    /sbin/rmmod scope_rt
-    /sbin/rmmod siggen
+    bin/halcmd unloadrt all
     exit 0
 fi
 #
