@@ -224,6 +224,7 @@ extern "C" {
 #include <unistd.h>		// fork()
 #include <sys/wait.h>		// waitpid(), WNOHANG, WIFEXITED
 #include <ctype.h>		// isspace()
+#include <libintl.h>
 }
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
 #include "emc.hh"		// EMC NML
@@ -233,6 +234,13 @@ extern "C" {
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "emcglb.h"		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
 #include "rs274ngc_return.hh"	// NCE_FILE_NOT_OPEN
+
+#ifdef USE_NLS
+#define _(string) gettext(string)
+#else
+#define _(string) (string)
+#endif
+
 /* ident tag */
 #ifndef __GNUC__
 #ifndef __attribute__
@@ -560,54 +568,54 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * stat)
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
       if (linear_move->end.tran.x > stat->motion.axis[0].maxPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds +X limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds +X limit"));
 	return -1;
       }
       if (linear_move->end.tran.y > stat->motion.axis[1].maxPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds +Y limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds +Y limit"));
 	return -1;
       }
       if (linear_move->end.tran.z > stat->motion.axis[2].maxPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds +Z limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds +Z limit"));
 	return -1;
       }
       if (linear_move->end.tran.x < stat->motion.axis[0].minPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds -X limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds -X limit"));
 	return -1;
       }
       if (linear_move->end.tran.y < stat->motion.axis[1].minPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds -Y limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds -Y limit"));
 	return -1;
       }
       if (linear_move->end.tran.z < stat->motion.axis[2].minPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds -Z limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds -Z limit"));
 	return -1;
       }
       break;
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
       if (circular_move->end.tran.x > stat->motion.axis[0].maxPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds +X limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds +X limit"));
 	return -1;
       }
       if (circular_move->end.tran.y > stat->motion.axis[1].maxPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds +Y limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds +Y limit"));
 	return -1;
       }
       if (circular_move->end.tran.z > stat->motion.axis[2].maxPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds +Z limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds +Z limit"));
 	return -1;
       }
       if (circular_move->end.tran.x < stat->motion.axis[0].minPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds -X limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds -X limit"));
 	return -1;
       }
       if (circular_move->end.tran.y < stat->motion.axis[1].minPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds -Y limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds -Y limit"));
 	return -1;
       }
       if (circular_move->end.tran.z < stat->motion.axis[2].minPositionLimit) {
-	emcOperatorError(0, "%s\n%s", stat->task.command, "exceeds -Z limit");
+	emcOperatorError(0, "%s\n%s", stat->task.command, _("exceeds -Z limit"));
 	return -1;
       }
       break;
@@ -732,7 +740,7 @@ static int emcTaskPlan(void)
 
       default:
 	emcOperatorError(0,
-			 "command (%s) cannot be executed until the machine is out of E-stop and turned on",
+			_( "command (%s) cannot be executed until the machine is out of E-stop and turned on"),
 			 emc_symbol_lookup(type));
 	retval = -1;
 	break;
@@ -842,7 +850,7 @@ static int emcTaskPlan(void)
 
 	// otherwise we can't handle it
       default:
-	sprintf(errstring, "can't do that (%s) in manual mode",
+	sprintf(errstring, _("can't do that (%s) in manual mode"),
 		emc_symbol_lookup(type));
 	emcOperatorError(0, errstring);
 	retval = -1;
@@ -936,7 +944,7 @@ static int emcTaskPlan(void)
 	  // otherwise we can't handle it
 	default:
 	  sprintf(errstring,
-		  "can't do that (%s) in auto mode with the interpreter idle",
+		  _("can't do that (%s) in auto mode with the interpreter idle"),
 		  emc_symbol_lookup(type));
 	  emcOperatorError(0, errstring);
 	  retval = -1;
@@ -996,7 +1004,7 @@ static int emcTaskPlan(void)
 	  // otherwise we can't handle it
 	default:
 	  sprintf(errstring,
-		  "can't do that (%s) in auto mode with the interpreter reading",
+		  _("can't do that (%s) in auto mode with the interpreter reading"),
 		  emc_symbol_lookup(type));
 	  emcOperatorError(0, errstring);
 	  retval = -1;
@@ -1163,7 +1171,7 @@ static int emcTaskPlan(void)
 	  // otherwise we can't handle it
 	default:
 	  sprintf(errstring,
-		  "can't do that (%s) in auto mode with the interpreter paused",
+		  _("can't do that (%s) in auto mode with the interpreter paused"),
 		  emc_symbol_lookup(type));
 	  emcOperatorError(0, errstring);
 	  retval = -1;
@@ -1225,7 +1233,7 @@ static int emcTaskPlan(void)
 	  // otherwise we can't handle it
 	default:
 	  sprintf(errstring,
-		  "can't do that (%s) in auto mode with the interpreter waiting",
+		  _("can't do that (%s) in auto mode with the interpreter waiting"),
 		  emc_symbol_lookup(type));
 	  emcOperatorError(0, errstring);
 	  retval = -1;
@@ -1338,7 +1346,7 @@ static int emcTaskPlan(void)
 	// otherwise we can't handle it
       default:
 
-	sprintf(errstring, "can't do that (%s) in MDI mode",
+	sprintf(errstring, _("can't do that (%s) in MDI mode"),
 		emc_symbol_lookup(type));
 	emcOperatorError(0, errstring);
 	retval = -1;
@@ -1971,7 +1979,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
       retval = -1;
     }
     if (-1 == retval) {
-      emcOperatorError(0, "can't open %s", open_msg->file);
+      emcOperatorError(0, _("can't open %s"), open_msg->file);
     } else {
       strcpy(emcStatus->task.file, open_msg->file);
       retval = 0;
@@ -2998,30 +3006,30 @@ int main(int argc, char *argv[])
     for (int i = 0; i < EMC_AXIS_MAX; i++) {
       if (last_emc_status.motion.axis[i].fault == 0 &&
 	  emcStatus->motion.axis[i].fault == 1) {
-	emcOperatorError(0, "Amplifier fault on axis %d.", i);
+	emcOperatorError(0, _("Amplifier fault on axis %d."), i);
       }
       last_emc_status.motion.axis[i].fault = emcStatus->motion.axis[i].fault;
       if (last_emc_status.motion.axis[i].minSoftLimit == 0 &&
 	  emcStatus->motion.axis[i].minSoftLimit == 1) {
-	emcOperatorError(0, "Minimum Software Limit on axis %d exceeded.", i);
+	emcOperatorError(0, _("Minimum Software Limit on axis %d exceeded."), i);
       }
       last_emc_status.motion.axis[i].minSoftLimit =
 	emcStatus->motion.axis[i].minSoftLimit;
       if (last_emc_status.motion.axis[i].maxSoftLimit == 0
 	  && emcStatus->motion.axis[i].maxSoftLimit == 1) {
-	emcOperatorError(0, "Maximum Software Limit on axis %d exceeded.", i);
+	emcOperatorError(0, _("Maximum Software Limit on axis %d exceeded."), i);
       }
       last_emc_status.motion.axis[i].maxSoftLimit =
 	emcStatus->motion.axis[i].maxSoftLimit;
       if (last_emc_status.motion.axis[i].minHardLimit == 0
 	  && emcStatus->motion.axis[i].minHardLimit == 1) {
-	emcOperatorError(0, "Minimum Hardware Limit on axis %d exceeded.", i);
+	emcOperatorError(0, _("Minimum Hardware Limit on axis %d exceeded."), i);
       }
       last_emc_status.motion.axis[i].minHardLimit =
 	emcStatus->motion.axis[i].minHardLimit;
       if (last_emc_status.motion.axis[i].maxHardLimit == 0
 	  && emcStatus->motion.axis[i].maxHardLimit == 1) {
-	emcOperatorError(0, "Maximum Hardware Limit on axis %d exceeded.", i);
+	emcOperatorError(0, _("Maximum Hardware Limit on axis %d exceeded."), i);
       }
       last_emc_status.motion.axis[i].maxHardLimit =
 	emcStatus->motion.axis[i].maxHardLimit;
