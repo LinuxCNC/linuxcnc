@@ -3,8 +3,8 @@
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
 include ../../Makefile.inc
 
-# local flags for GTK includes
-LOCAL_CFLAGS = `gtk-config --cflags`
+# Set local flags with the GTK flags.
+LOCAL_CFLAGS = $(GTK_CFLAGS)
 
 # Public headers
 HEADERS = \
@@ -61,7 +61,7 @@ $(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 # rule to link halmeter
 $(BIN_DIR)/halmeter : $(TMP_DIR)/halmeter.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 	@ echo "Linking $@"
-	$(CC) `gtk-config --libs` $(CFLAGS) $(ULFLAGS) $^ -o $@
+	$(CC) $(GTK_LIBS) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 .PHONY: all headers depend indent install clean
 

@@ -196,7 +196,7 @@ static void define_select_window(void)
 	return;
     }
     /* create select window, set it's size, and leave it re-sizeable */
-    select_window = gtk_window_new(GTK_WINDOW_DIALOG);
+    select_window = gtk_window_new(GTK_WINDOW_POPUP);
     gtk_widget_set_usize(GTK_WIDGET(select_window), 300, 400);
     gtk_window_set_policy(GTK_WINDOW(select_window), TRUE, TRUE, FALSE);
     /* window should appear in center of screen */

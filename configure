@@ -13,12 +13,15 @@ usage(){
     echo "         quiet  - Silent running of make"
     echo "         silent - Silent running of make"
     echo
+    echo "         gtk-1.2 or gtk-2.0 - Preferred GTK lib version"
+    echo
     exit -1
 }
 
 echo
 
 # Set up a few defaults first...
+GTK_VER="1.2"
 MAKEFLAGS="k"
 RTDIR=""
 
@@ -40,6 +43,10 @@ do
     # test for 'silent' or 'quiet' options
     elif [ $CLI = "silent" ] || [ $CLI = "quiet" ] ; then
 	MAKEFLAGS="ks"
+    elif [ $CLI = "gtk-2.0" ] ; then
+	GTK_VER="2.0"
+    elif [ $CLI = "gtk-1.2" ] ; then
+	GTK_VER="1.2"
     # if we get here we have an invalid option...
     else
 	echo "Unknown option: $CLI"
@@ -173,6 +180,18 @@ echo >> Makefile.inc
 echo "# Additional flags and settings from $RTFILE" >> Makefile.inc
 echo >> Makefile.inc
 cat $RTFILE | grep -v CFLAGS | grep -v CC >> Makefile.inc
+echo >> Makefile.inc
+
+echo "# local flags for GTK includes" >> Makefile.inc
+if [ $GTK_VER = "2.0" ] ; then
+    echo "GTK_VERSION = 2.0" >> Makefile.inc
+    echo "GTK_CFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include" >> Makefile.inc
+    echo "GTK_LIBS = -Wl,--export-dynamic -lgtk-x11-2.0 -ldl" >> Makefile.inc
+else
+    echo "GTK_VERSION = 1.2" >> Makefile.inc
+    echo "GTK_CFLAGS = `gtk-config --cflags`" >> Makefile.inc
+    echo "GTK_LIBS = `gtk-config --libs`" >> Makefile.inc
+fi
 echo >> Makefile.inc
 echo "# Automatically generated default options." >> Makefile.inc
 echo >> Makefile.inc
