@@ -6,59 +6,31 @@
 sync
 
 #
-# Check for the symbols "rthal" or "adeos" in ksyms to verify the
-# presence of the kernel patches - then select the appropriate
-# list of kernel modules to load
-#
-# FIXME - this still isn't right.  It correctly decides when to
-# install the 'adeos' module, but the 'rt_mem_mgr' module is
-# only needed "sometimes".  'rt_mem_mgr' implements dynamic
-# allocation of shared memory from realtime tasks.  RTAPI does
-# not call any functions from 'rt_mem_mgr' (which are rt_malloc
-# and rt_free).  RTAPI uses rtai_malloc and rtai_free instead.
-# However, rtai_sched does call rt_malloc - at least on a TNG box.
-# But Paul has a box that doesn't have rt_mem_mgr at all - so
-# obviously rtai_sched must be different on that machine.  This
-# is making me crazy!
-# I suppose the last resort would be to replace the relatively
-# simple list of modules and install loop with the original
-# code from 'install_realtime_base' - it is longer and more
-# confusing, but it uses modprobe to install 'rt_mem_mgr'
-# only when needed.  I will think about this and decide later.
+# List of kernel modules to load
+# NOTE:  This list contains only the modules that must
+# always be loaded.  There are two other modules, "adeos"
+# and "rt_mem_mgr", that may or may not be needed.  They are
+# not in the list - instead modprobe automatically decides
+# whether or not to install them using its dependency file.
 #
 
-if /sbin/ksyms -a | grep rthal >/dev/null 2>/dev/null ; then
-    RTAI_MODULES="rtai rt_mem_mgr rtai_sched rtai_fifos rtai_shm"
-elif /sbin/ksyms -a | grep adeos >/dev/null 2>/dev/null ; then
-    RTAI_MODULES="adeos rtai rtai_sched rtai_fifos rtai_shm"
-else
-    echo "ERROR: 'rthal' or 'adeos' not present in kernel - cannot load RTAI"
-    exit -1
-fi
+RTAI_MODULES="rtai_sched rtai rtai_fifos rtai_shm"
 
 #
 # Load the modules
 #
 echo "Loading RTAI modules"
 for MOD in $RTAI_MODULES ; do
-    # ask modprobe if it knows where to find the module
-    MODLOC=`/sbin/modprobe --list $MOD.o`
-    if [ -z $MODLOC ] ; then
-	# can't find it - perhaps at a later date we can put a
-	#   more sophisticated search here, but for now, if
-	#   modprobe can't find it we simply abort
-	echo "ERROR: modprobe cannot find module '$MOD'"
-	exit -1
-    fi
     # check to see if the module is already installed
     if /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
 	echo "'$MOD' already loaded"
     else
-	# install the module (give insmod the full path)
-	if /sbin/insmod $MODLOC ; then
+	# install the module - use modprobe so it
+	# can install dependencies too
+	if /sbin/modprobe $MOD ; then
 	    echo "'$MOD' loaded successfully"
 	else
-	    echo "ERROR: Could not load '$MOD' - are you root?"
+	    echo "ERROR: Could not load '$MOD'"
 	    exit -1
 	fi
     fi

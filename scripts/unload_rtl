@@ -20,7 +20,7 @@ if [ -e /dev/mbuff ] ; then
 fi
 
 #
-# Generate list of kernel modules to be removed
+# List of kernel modules to be removed
 #
 
 RTL_MODULES="rtl_fifo rtl_posixio rtl_sched rtl_time mbuff rtl"
@@ -32,16 +32,16 @@ RTL_MODULES="rtl_fifo rtl_posixio rtl_sched rtl_time mbuff rtl"
 echo "Unloading RTLinux modules"
 for MOD in $RTL_MODULES ; do
     # check to see if the module is installed
-    if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
-	echo "'$MOD' already unloaded"
-    else
+    if /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
 	# remove the module
-	if /sbin/rmmod $MOD >/dev/null 2>/dev/null ; then
+	if /sbin/rmmod $MOD ; then
 	    echo "'$MOD' unloaded successfully"
 	else
-	    echo "ERROR: Could not unload '$MOD' - are you root?"
+	    echo "ERROR: Could not unload '$MOD'"
 	    exit -1
 	fi
+    else
+	echo "'$MOD' already unloaded"
     fi
 done
 

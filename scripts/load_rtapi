@@ -22,7 +22,7 @@ EMC2_DIR=`echo $SCRIPT_DIR | sed s#/scripts## `
 #
 # Call the 'load_rtos' script to load the realtime OS kernel modules
 #
-# 'load_rtos' is a symlink to either 'load_rtai' or 'load_rtlinux'
+# 'load_rtos' is a symlink to either 'load_rtai' or 'load_rtl'
 # as determined by the configure and make process
 #
 
@@ -41,16 +41,16 @@ if [ ! -f $EMC2_DIR/rtlib/rtapi.o ] ; then
     exit -1
 fi
 # check to see if the module is already loaded
-if /sbin/lsmod | awk '{print $1}' | grep -x rtapi >/dev/null ; then
-    echo "'rtapi' already loaded"
-else
+if ! /sbin/lsmod | awk '{print $1}' | grep -x rtapi >/dev/null ; then
     # install the module
     if /sbin/insmod $EMC2_DIR/rtlib/rtapi.o ; then
 	echo "'rtapi' loaded successfully"
     else
-	echo "ERROR: Could not load 'rtapi' - are you root?"
+	echo "ERROR: Could not load 'rtapi'"
 	exit -1
     fi
+else
+    echo "'rtapi' already loaded"
 fi
 
 exit 0

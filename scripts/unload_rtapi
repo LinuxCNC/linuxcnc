@@ -33,10 +33,10 @@ if [ "$RTAPI_STR" ] ; then
 	exit -1
     fi
     echo "Unloading RTAPI"
-    if /sbin/rmmod rtapi >/dev/null 2>/dev/null ; then
+    if /sbin/rmmod rtapi ; then
 	echo "'rtapi' unloaded successfully"
     else
-	echo "ERROR: Could not unload 'rtapi' - are you root?"
+	echo "ERROR: Could not unload 'rtapi'"
 	exit -1
     fi
 else
@@ -46,7 +46,7 @@ fi
 #
 # Call the 'unload_rtos' script to unload the realtime OS kernel modules
 #
-# 'unload_rtos' is a symlink to either 'unload_rtai' or 'unload_rtlinux'
+# 'unload_rtos' is a symlink to either 'unload_rtai' or 'unload_rtl'
 # as determined by the configure and make process
 #
 
