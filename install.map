@@ -77,3 +77,78 @@
             |-- stepgen.o
             `-- supply.o
 
+NOTE: This is a tentative layout that may replace the one above.
+
+This should be considered very preliminary and subject to change.
+Committed for discussion purposes only.
+
+
+
+   /  (file system root)
+   |
+   |
+   |--- etc/
+   |      |
+   |      |--- rtapi.conf (contains paths for running installed scripts)
+   |      |         (defines $BIN_DIR, $MAN_DIR, $PREFIX, $RTMOD_DIR)
+   |      |
+   |      |--- rc.d/
+   |      |      |
+   |      |      |--- init.d/
+   |      |      |      |
+   |      |      |      |--- realtime (realtime start/stop script)
+   |
+   |--- $BIN_DIR/  (default: /usr/local/bin)
+   |      |
+   |      |--- (symlinks to $PREFIX/bin files that must be in $PATH)
+   |
+   |--- $MAN_DIR/  (default: /usr/local/man)
+   |      |
+   |      |--- man1/
+   |      |      |
+   |      |      |
+   |      |
+   |      |--- man3/
+   |      |      |
+   |      |      |
+   |      |
+   |
+   |--- $PREFIX/  (default: /usr/local/emc)
+   |      |
+   |      |
+   |      |--- docs/
+   |      |      |
+   |      |      |---  (All the important and relevant Docs.)
+   |      |      |
+   |      |      |--- handbooks/
+   |      |      |      |
+   |      |      |      |--- (PDF versions of handbooks)
+   |      |
+   |      |--- nc_files/
+   |      |      |
+   |      |      |--- (Sample NC files)
+   |      |
+   |      |--- etc/  (emc configuration files)
+   |      |      |
+   |      |      |--- emc.ini
+   |      |      |--- core-stepper.hal
+   |      |      |--- and more
+   |      |
+   |      |--- lib/  (emc user space libraries?)
+   |      |      |
+   |      |      |
+   |      |
+   |      |--- bin/  (binaries and scripts)
+   |      |      |
+   |      |      |
+   |      |
+   |      |--- tcl/  (tcl/tk scripts)
+   |      |      |
+   |      |      |
+   |      |
+   |
+   |--- $RTMOD_DIR/  (default: /lib/modules/${KVER}/hal)
+                     (actually based on where ./configure finds
+                      the RTOS modules)
+
+

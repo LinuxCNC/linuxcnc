@@ -78,3 +78,103 @@
            |
            |
 
+NOTE: This is a tentative layout that may replace the one above
+      There are two goals here:
+      1) The program(s) should be runnable from this layout
+      2) The installed tree should look similar to this one
+         with some exceptions (like kernel modules, and binaries
+         that need to be in the users path, and things that go
+         in /etc/)
+
+This should be considered very preliminary and subject to change.
+Committed for discussion purposes only.
+
+
+
+  emc2/  (this is the CVS checkout or source tarball directory)
+    |
+    |
+    |--- (generic.run, configure script, directory.map (this file),
+    |       top level makefile, Makefile.inc, etc.)
+    |
+    |--- docs/ (All the important and relevant Docs.)
+    |      |   (API and source notes should be in each src dir.)
+    |      |
+    |      |--- handbooks/  (PDF versions of handbooks)
+    |      |                (LyX source is in the documents tree)
+    |      |
+    |      |--- man/  (man pages)
+    |            |
+    |            |--- man1/  (user man pages)
+    |            |--- man3/  (API man pages)
+    |
+    |--- nc_files/ (Sample NC files)
+    |
+    |--- etc/ (emc.ini, CL configs, etc),
+    |
+    |--- include/  (headers installed here - originals in src/xxx/)
+    |
+    |--- bin/  (user mode binaries)
+    |
+    |--- lib/  (user mode object files)
+    |
+    |--- rtlib/  (kernel mode object files)
+    |
+    |--- scripts/  (bash scripts like realtime, load_rtapi, unload_rtapi, etc.)
+    |       |
+    |       |--- rtapi.conf (contains paths for run-in-place execution of scripts)
+    |       |      (defines $BIN_DIR, $MAN_DIR, $PREFIX, $RTMOD_DIR)
+    |       |      (if a script can't find rtapi.conf here, it assumes it
+    |       |        is installed and uses /etc/rtapi.conf )
+    |
+    |--- tcl/ (both tkemc and any other tcl/tk scripts)
+    |
+    |--- src/  (source tree - each dir has a local Makefile)
+           |
+           |--- rtapi/  (*.c and *.h for RTAPI)
+           |      |
+           |      |--- examples/
+           |              |
+           |              |--- timer_example/  (*.c & *.h)
+           |              |--- shmem_example/  (*.c & *.h)
+           |              |--- etc.
+           |
+           |--- hal/  (hal_lib.c, hal.h, etc.)
+           |      |
+           |      |--- utils/       (halcmd, halscope, halmeter, etc)
+           |      |--- drivers/     (parport.c, STG.c, PPMC.c, USC.c, etc.)
+           |      |--- components/  (encoder.c, stepgen.c, PID.c, etc.)
+           |
+           |--- posemath/
+           |
+           |--- libnml/
+           |      |
+           |      |--- cms/
+           |      |--- os_intf/
+           |      |--- nml/
+           |
+           |--- emc/
+           |      |
+           |      |--- task/
+           |      |--- motion/
+           |      |--- io/
+           |      |--- interp/
+           |
+           |--- classicladder
+           |
+           |--- lang/  (stuff that uses/supports other languages)
+           |      |
+           |      |--- tcl/  (emcsh.cc, iosh.cc and other tcl support)
+           |      |
+           |      |--- python/ (?)
+           |      |--- perl/ (?)
+           |      |--- XML/ (?) <grin>
+           |      |
+           |
+           |--- .tmp/    (temp directory for intermediate objects.)
+           |--- .rt_tmp/ (temp directory for RT objects.)
+           |             (N.B. These two should not appear in CVS)
+           |             (and will be deleted during a 'make clean')
+           |
+           |
+
