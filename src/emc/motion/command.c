@@ -27,6 +27,7 @@
 #include <float.h>
 #include <math.h>
 #include "rtapi.h"
+#include "hal.h"
 #include "extintf.h"
 #include "motion.h"
 #include "emcmotglb.h"

@@ -653,7 +653,16 @@ static unsigned short parse_port_addr(char *cp)
 
 static int export_port(int portnum, parport_t * port)
 {
-    int retval;
+    int retval, msg;
+
+    /* This function exports a lot of stuff, which results
+       in a lot of logging if msg_level is at INFO or ALL.
+       So we save the current value of msg_level and restore
+       it later.  If you actually need to log this function's
+       actions, change the second line below
+    */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     retval = 0;
     /* declare input pins (status port) */
@@ -700,6 +709,8 @@ static int export_port(int portnum, parport_t * port)
 	port->control_out, port->control_inv, 2);
     retval += export_output_pin(portnum, 17,
 	port->control_out, port->control_inv, 3);
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
     return retval;
 }
 

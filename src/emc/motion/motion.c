@@ -907,7 +907,8 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-
+    
+    /* restore saved message level */
     rtapi_set_msg_level(msg);
 
     return 0;
