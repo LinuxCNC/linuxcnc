@@ -619,9 +619,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	double limitVel;	/* scalar upper limit on vel */
 	KINEMATICS_TYPE kinematics_type;
-	int STEPPING_TYPE;	/* 0 = step/direction, 1 = phasing */
-	int PERIOD;		/* fundamental period for timer interrupts */
-	unsigned long int IO_BASE_ADDRESS;
 	int debug;		/* copy of DEBUG, from .ini file */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_config_t;
