@@ -135,7 +135,9 @@ typedef struct {
     hal_s32_t shmem_avail;	/* amount of shmem left free */
     int shmem_bot;		/* bottom of free shmem (first free byte) */
     int shmem_top;		/* top of free shmem (1 past last free) */
+
     int comp_list_ptr;		/* root of linked list of components */
+
     int pin_list_ptr;		/* root of linked list of pins */
     int sig_list_ptr;		/* root of linked list of signals */
     int param_list_ptr;		/* root of linked list of parameters */
@@ -143,6 +145,7 @@ typedef struct {
     int thread_list_ptr;	/* root of linked list of threads */
     long base_period;		/* timer period for realtime tasks */
     int threads_running;	/* non-zero if threads are started */
+
     int comp_free_ptr;		/* list of free component structs */
     int pin_free_ptr;		/* list of free pin structs */
     int sig_free_ptr;		/* list of free signal structs */
@@ -152,10 +155,79 @@ typedef struct {
     int thread_free_ptr;	/* list of free thread structs */
 } hal_data_t;
 
+/* This struct is being used to stage data that I suspect
+   can live just in the kernel...
+   TODO: Remove everything in this struct from the struct above
+   after John tells me I got them right
+*/
+
+typedef struct {
+    unsigned long mutex;	/* Mutexes may actually go completely away? */
+    int comp_list_ptr;		/* root of linked list of components */
+
+/* If the kernel does all of the manipulation of connections, then
+   the list of free pointers doesn't need to be in shared memory: */
+
+    int comp_free_ptr;		/* list of free component structs */
+    int pin_free_ptr;		/* list of free pin structs */
+    int sig_free_ptr;		/* list of free signal structs */
+    int param_free_ptr;		/* list of free parameter structs */
+    int funct_free_ptr;		/* list of free function structs */
+    hal_list_t funct_entry_free;	/* list of free funct entry structs */
+    int thread_free_ptr;	/* list of free thread structs */
+} hal_kernel_data_t;
+
+/*
+ * Private structures for managing module info and block_type info
+ * within the kernel
+ * (RTAI only)
+ */
+
+typedef struct hal_block_type_list_t {
+    hal_block_type_info 	block;
+    struct hal_block_type_list_t	
+				*next;	/* linked list to next item in list */
+} hal_block_type_list_t; 
+
+typedef struct hal_module_list_t {
+    hal_module_info		module;
+    struct hal_module_list_t	*next;	/* linked list to next item in list */
+    hal_block_type_list_t		
+				*block_types; /* Types this module can create*/
+    int				module_id;	/* module identifier */
+} hal_module_list_t;
+
 typedef struct hal_block_list_t {
-    hal_block_type_info block;
-    struct hal_block_list_t	*next;	/* linked list to next item in list */
+    int				block_id;	/* Unique block id */
+    hal_module_list_t		*module;	/* owning module */
+    hal_block_type_list_t	*block_type;	/* module type */
+    struct hal_block_list_t	*next;		/* next instance */
 } hal_block_list_t;
+
+/* and some utilities for use on these structures... */
+
+
+hal_block_list_t *alloc_block_list(void);
+
+hal_block_type_list_t *alloc_block_type_list(void);
+
+void free_block_type_list(hal_block_type_list_t *l);
+void free_block_list(hal_block_list_t *l);
+
+int  copy_block_type(int client_id, hal_block_type_info *dest,
+        const hal_block_type_info *src);
+
+hal_module_list_t *alloc_module_list(void);
+void free_module_list(hal_module_list_t *m);
+void copy_module_info(hal_module_info *dest,
+        const hal_module_info *src);
+
+
+void free_module_list(hal_module_list_t *p);
+void copy_module_info(hal_module_info *dest, const hal_module_info *src);
+
+hal_module_list_t *find_module_by_id(int id);
+hal_module_list_t *find_module_by_name(const char *name);
 
 
 /** HAL 'component' data structure.
@@ -173,13 +245,15 @@ typedef struct {
 
 /* HAL REFACTOR 
     I think we want a dynamic name without fixed length?
+    But... this probably doesn't belong in shared memory.  It's
+    meta data?
 */
 
-    hal_module_info module_info; /* Our private copy of what the module
-				registered with */
+//    hal_module_info module_info; /* Our private copy of what the module
+//				registered with */
 
-    hal_block_list_t	*block_types; /* linked list of types this module
-					knows how to create */
+//    hal_block_type_list_t	*block_types; /* linked list of types this module
+//					knows how to create */
 } hal_comp_t;
 
 /** HAL 'pin' data structure.

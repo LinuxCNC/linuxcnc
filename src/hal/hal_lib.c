@@ -108,8 +108,9 @@ static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
 /* REALTIME GLOBALS ... needed for hal_lib to manage all of the
    realtime modules.. */
 
-hal_block_list_t *global_block_list=0;
-
+hal_module_list_t	*global_module_list=0;
+hal_block_list_t 	*global_block_list=0;	/* List of every object */
+int global_block_id=0;
 
 #endif
 
@@ -202,14 +203,12 @@ static void thread_task(void *arg);
 #endif /* RTAPI */
 
 
-void free_block_list_struct(hal_block_list_t *l);
-int copy_block_struct(int client_id, hal_block_type_info *dest, 
-	const hal_block_type_info *src);
-hal_block_list_t *alloc_block_list_struct(void);
 
 /***********************************************************************
 *                  PUBLIC (API) FUNCTION CODE                          *
 ************************************************************************/
+
+#ifdef RTAPI
 
 /*
 REFACTOR In process... hal_init to be replaced by hal_register_module
@@ -257,7 +256,6 @@ int hal_register_module(hal_module_info *mb)
 	return HAL_FAIL;
     }
     /* get HAL shared memory block from RTAPI */
-    /* TODO ... should this be postponed? */
 
     mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
     if (mem_id < 0) {
@@ -318,8 +316,32 @@ int hal_register_module(hal_module_info *mb)
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: component '%s' initialized, ID = %02d\n", hal_name, comp_id);
+
+/* HAL REFACTOR 
+   Much stuff being moved to kernel memory... */
+
+hal_module_list_t *newmodule;
+hal_module_list_t **module_handle;
+
+   newmodule=alloc_module_list();
+   /* It may be silly to copy this data here...  Will it usually
+      be a static block in the calling kernel module?  Is this wasteful? */
+   copy_module_info(&newmodule->module, mb);
+
+   newmodule->next=0;
+   newmodule->block_types=0;
+   newmodule->module_id=comp_id;	// Store the component id for later
+   
+/* Walk the linked list of module_list_t's until we reach the end... */
+    for (module_handle=&global_module_list; *module_handle;
+	module_handle=&( (*module_handle)->next ) );
+
+    *module_handle=newmodule;
+
     return comp_id;
 }
+
+#endif
  
 int hal_init(char *name)
 {
@@ -533,12 +555,28 @@ Registers a block type with the hal subsystem.
 */
 int hal_register_block_type(int module_id, hal_block_type_info *block_info)
 {
-hal_block_list_t *p;
-hal_block_list_t **block_list_handle;
+hal_block_type_list_t *p;
+hal_block_type_list_t **block_list_handle;
 
 int result;
+hal_module_list_t *module;
 
-    p= alloc_block_list_struct();
+    module=find_module_by_id(module_id);
+    if (!module)
+	{
+    	rtapi_print_msg(RTAPI_MSG_DBG,
+       	    "HAL: hal_register_block_type() failed - INVALID module_id! (%d)", 
+		module_id);
+	return HAL_INVAL;
+	}
+
+/*
+ TODO: Evaluate if it makes sense to copy all this data...
+ Most of the time it's likely to be setup in static structs
+ in the kernel module.  Perhaps that's reasonable, and we
+ should just use the kernel module's copy
+*/
+    p= alloc_block_type_list();
     if (!p)
 	{
     	rtapi_print_msg(RTAPI_MSG_DBG,
@@ -546,10 +584,10 @@ int result;
 	return HAL_NOMEM;
 	}
 	
-    result=copy_block_struct(module_id, &p->block, block_info);
+    result=copy_block_type(module_id, &p->block, block_info);
     if (result!=HAL_SUCCESS)
 	{
-        free_block_list_struct(p);
+        free_block_type_list(p);
     	rtapi_print_msg(RTAPI_MSG_DBG,
        	    "HAL: hal_register_block_type() failed - NOMEM! (1)");
 	return HAL_NOMEM;
@@ -557,10 +595,11 @@ int result;
 
     p->next=0;
 
-    
+/* TODO: /end */
+
 
 /* Walk the linked list of block_lists until we reach the end... */
-    for (block_list_handle=&global_block_list; *block_list_handle;
+    for (block_list_handle=&module->block_types; *block_list_handle;
 	block_list_handle=&( (*block_list_handle)->next ) );
 
     *block_list_handle=p;
@@ -569,6 +608,73 @@ int result;
         "HAL: hal_register_block_type: registered type %s\n", block_info->type_name);
     return HAL_SUCCESS;
 }
+
+
+/* 
+   Create a new block using the module pointed to by module and the
+   block_type pointed to by block_type
+*/
+
+int hal_create_block(hal_module_list_t *module, 
+	hal_block_type_list_t *block_type)
+{
+hal_block_list_t *newblock=0;
+int result;
+hal_block_list_t 	**block_list_handle;
+
+
+    if (!module)
+	{
+	rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_create_block: attempted to create a block without a module\n");
+	return HAL_INVAL;
+	}
+
+    if (!block_type)
+	{
+	rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_create_block: attempted to create a block without a block type\n");
+	return HAL_INVAL;
+	}
+
+    newblock=alloc_block_list();
+
+    if (!newblock)
+	{
+	rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_create_block: out of memory!\n");
+	return HAL_NOMEM;
+	}
+    newblock->module=module;
+    newblock->block_type=block_type;
+
+    result=block_type->block.create(global_block_id,
+	block_type->block.block_type_id);
+
+    if (result!=HAL_SUCCESS)
+	{
+	free_block_list(newblock);
+	rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_create function failed: %d!\n", result);
+	return result;
+	}
+
+    newblock->block_id=global_block_id;
+    global_block_id++;
+
+/* Walk the linked list of block_lists until we reach the end... */
+    for (block_list_handle=&global_block_list; *block_list_handle;
+	block_list_handle=&( (*block_list_handle)->next ) );
+
+    *block_list_handle=newblock;
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+        "HAL: hal_create_block: created new block %s\n", newblock->block_id);
+
+    return HAL_SUCCESS;
+}
+
+
 #endif // RTAPI
 
 
@@ -2365,13 +2471,14 @@ static hal_comp_t *alloc_comp_struct(void)
     return p;
 }
 
+#ifdef RTAPI
 
-hal_block_list_t *
-alloc_block_list_struct()
+hal_block_type_list_t *
+alloc_block_type_list()
 {
-    hal_block_list_t *p;
+    hal_block_type_list_t *p;
 
-    p = shmalloc_dn(sizeof(hal_block_list_t));
+    p = shmalloc_dn(sizeof(hal_block_type_list_t));
     if (p) {
 	/* make sure it's empty */
 	p->next = 0;
@@ -2383,26 +2490,20 @@ alloc_block_list_struct()
     return p;
 }
 
-void free_block_list_struct(hal_block_list_t *l)
+void free_block_type_list(hal_block_type_list_t *l)
 {
-/* TODO ... make this free shared memory or whatever...
-
-    if (l->block.type_name)
-    	free(l->block.type_name)
-    if (l->block.short_description)
-    	free(l->block.short_description)
-    free(l);
-*/
+	kfree(l);
 return;
 }
 
-
-
-
-
+void free_block_list(hal_block_list_t *l)
+{
+	kfree(l);
+return;
+}
 
 int
-copy_block_struct(int client_id, hal_block_type_info *dest, 
+copy_block_type(int client_id, hal_block_type_info *dest, 
 	const hal_block_type_info *src)
 {
 int size;
@@ -2424,8 +2525,107 @@ int size;
 return HAL_SUCCESS;
 }
 
+char *kstrdup(const char *string)
+{
+char *newstring;
+int length=strlen(string);
+ 
+    newstring=kmalloc(length+1, GFP_KERNEL);
+
+    if (newstring)
+	{
+	memcpy(newstring, string, length);
+	newstring[length]=0;
+	}
+
+    return newstring;
+}
 
 
+
+hal_module_list_t *alloc_module_list(void)
+{
+    hal_module_list_t *p;
+
+    p = kmalloc(sizeof(hal_module_list_t), GFP_KERNEL);
+    if (p) {
+	/* make sure it's empty */
+	p->next = 0;
+	p->block_types=0;
+
+	p->module.module_name=0;
+	p->module.author=0;
+	p->module.short_description=0;
+	p->module.info_link=0;
+	}
+    return p;
+}
+
+void free_module_list(hal_module_list_t *p)
+{
+    if (p)
+	{
+	if (p->module.module_name)
+		kfree(p->module.module_name);
+	if (p->module.author)
+		kfree(p->module.author);
+	if (p->module.short_description)
+		kfree(p->module.short_description);
+	if (p->module.info_link)
+		kfree(p->module.info_link);
+	kfree(p);
+	}
+}
+void copy_module_info(hal_module_info *dest,
+	const hal_module_info *src)
+{
+	if (src->module_name)
+		dest->module_name=kstrdup(src->module_name);
+	if (src->author)
+		dest->author=kstrdup(src->author);
+	if (src->short_description)
+		dest->short_description=kstrdup(src->short_description);
+	if (src->info_link)
+		dest->info_link=kstrdup(src->info_link);
+}
+
+
+hal_block_list_t *alloc_block_list(void)
+{
+    hal_block_list_t *p;
+
+    p = kmalloc(sizeof(hal_block_list_t), GFP_KERNEL);
+    if (p) {
+	/* make sure it's empty */
+	p->block_id=0;
+	p->next = 0;
+	p->module=0;
+	p->block_type=0;
+	}
+    return p;
+}
+
+
+
+hal_module_list_t *find_module_by_id(int id)
+{
+hal_module_list_t *p;
+    for (p=global_module_list; p && (p->module_id!=id); p=p->next);
+
+    return p;
+}
+
+hal_module_list_t *find_module_by_name(const char *name)
+{
+hal_module_list_t *p;
+    for (p=global_module_list; 
+	p && strcmp(p->module.module_name, name); 
+	p=p->next);
+
+    return p;
+}
+
+#endif
 
 static hal_pin_t *alloc_pin_struct(void)
 {

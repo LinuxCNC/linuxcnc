@@ -14,9 +14,7 @@ int hal_procfs_read_components(char *page, char **start, off_t off, int count,
 {
 int len=0;
 
-
-
-	hal_data->comp_list_ptr;
+//	hal_data->comp_list_ptr;
 
 	len+=snprintf(page+off, count-len, "%s", "test");
 return(len);
