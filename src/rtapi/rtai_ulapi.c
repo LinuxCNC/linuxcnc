@@ -77,7 +77,7 @@ static int fifo_delete(int fifo_id, int module_id);
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 static int fifo_fd_array[RTAPI_MAX_FIFOS + 1];
 
-static int msg_lvl = 7;		/* message printing level */
+static int msg_level = 7;	/* message printing level */
 
 /***********************************************************************
 *                      GENERAL PURPOSE FUNCTIONS                       *
@@ -241,7 +241,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
     char buffer[BUFFERLEN + 1];
     va_list args;
 
-    if ((level <= msg_lvl) && (msg_lvl != RTAPI_MSG_NONE)) {
+    if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
 	va_start(args, fmt);
 	/* call the normal library vnsprintf() */
 	vsnprintf(buffer, BUFFERLEN, fmt, args);
@@ -255,13 +255,13 @@ int rtapi_set_msg_lvl(int level)
     if ((level < RTAPI_MSG_NONE) || (level > RTAPI_MSG_ALL)) {
 	return RTAPI_INVAL;
     }
-    msg_lvl = level;
+    msg_level = level;
     return RTAPI_SUCCESS;
 }
 
 int rtapi_get_msg_lvl(void)
 {
-    return msg_lvl;
+    return msg_level;
 }
 
 void rtapi_printall(void)
@@ -551,8 +551,7 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
 
 int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 {
-    enum
-    { DEVSTR_LEN = 256 };
+    enum { DEVSTR_LEN = 256 };
     char devstr[DEVSTR_LEN];
     int n, flags;
     int fifo_id;

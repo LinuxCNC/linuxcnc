@@ -21,8 +21,8 @@
 # level code that might depend on it
 
 all headers depend indent install :
-	(cd src/rtapi; make -k $@)
-	(cd src/hal; make -k $@)
+	(cd src/rtapi; make $@)
+	(cd src/hal; make $@)
 
 # Include the Defines, Flags, etc..
 include Makefile.inc
@@ -31,8 +31,8 @@ include Makefile.inc
 # it changes to all the source sub-directories, calls make there, and
 # then returns to the top level directory and cleans that up too.
 clean :
-	@ (cd src/rtapi; make -k $@)
-	@ (cd src/hal; make -k $@)
+	@ (cd src/rtapi; make $@)
+	@ (cd src/hal; make $@)
 	@ find . -name "*~" -exec rm -f {} \;
 	@ find . -name "*.bak" -exec rm -f {} \;
 	@ find . -name core -exec rm -f {} \;

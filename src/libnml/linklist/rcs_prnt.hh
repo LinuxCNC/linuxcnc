@@ -2,8 +2,7 @@
 #define RCS_PRNT_HH
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdarg.h>		/* va_list */
@@ -11,10 +10,9 @@ extern "C"
 #ifdef __cplusplus
 }
 #include "linklist.hh"		/* RCS_LINKED_LIST */
-extern RCS_LINKED_LIST *get_rcs_print_list();
+extern LinkedList *get_rcs_print_list();
 
-extern "C"
-{
+extern "C" {
 #endif
 
     extern int rcs_vprint(char *_fmt, va_list va_args, int save_string);
@@ -66,13 +64,10 @@ extern "C"
 #define PRINT_UPDATER_ACTIVITY          0x20000000
 #define PRINT_MISC                      0x40000000
 #define PRINT_EVERYTHING                0xFFFFFFFF	/* 4294967295 */
-
 #ifdef __cplusplus
-enum RCS_PRINT_DESTINATION_TYPE
-{
+enum RCS_PRINT_DESTINATION_TYPE {
 #else
-typedef enum
-{
+typedef enum {
 #endif
     RCS_PRINT_TO_STDOUT,
     RCS_PRINT_TO_STDERR,
@@ -84,13 +79,11 @@ typedef enum
 #ifdef __cplusplus
 };
 #else
-}
-RCS_PRINT_DESTINATION_TYPE;
+} RCS_PRINT_DESTINATION_TYPE;
 #endif
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
     extern void set_rcs_print_destination(RCS_PRINT_DESTINATION_TYPE);
@@ -99,19 +92,16 @@ extern "C"
     extern int rcs_print_sys_error(int error_source, char *_fmt, ...);
 
 #ifdef __cplusplus
-    enum RCS_PRINT_ERROR_SOURCE_TYPE
-    {
+    enum RCS_PRINT_ERROR_SOURCE_TYPE {
 #else
-    typedef enum
-    {
+    typedef enum {
 #endif
 	ERRNO_ERROR_SOURCE = 1,
 	GETLASTERROR_ERROR_SOURCE
 #ifdef __cplusplus
     };
 #else
-    }
-    RCS_PRINT_ERROR_SOURCE_TYPE;
+    } RCS_PRINT_ERROR_SOURCE_TYPE;
 #endif
 
 #ifdef __cplusplus

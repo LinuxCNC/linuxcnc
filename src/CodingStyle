@@ -217,44 +217,54 @@ used by everyone working on a project leads to uniform and readable code.
 Naming conventions:
 Constants either from #defines or enumerations should be in upper case through
 out.
+Rational: Makes it easier to spot compile time consants in the source code.
  e.g. EMC_MESSAGE_TYPE
 
-Classes and Namespaces should capitalise the first letter of each word.
+Classes and Namespaces should capitalise the first letter of each word and
+avoid underscores.
+Rational: Identifies classes, constructors and destructors.
  e.g. GtkWidget
 
 Methods (or function names) should follow the C recommendations above and 
 should not include the class name.
+Rational: Maintains a common style across C and C++ sources.
  e.g. get_foo_bar()
 
 However, boolean methods are easier to read if they avoid underscores and use
-an is prefix.
+an 'is' prefix (not to be confused with methods that manipulate a boolean).
+Rational: Identifies the return value as TRUE or FALSE and nothing else.
  e.g. isOpen, isHomed
 
 Do NOT use "Not" in a boolean name, it leads only leads to confusion when doing
 logical tests.
- e.g. isNotOnLimit is BAD.
+ e.g. isNotOnLimit or is_not_on_limit are BAD.
 
 Variable names should avoid the use of upper case and underscores except for
 local or private names. The use of global variables should be avoided as much
 as possible.
+Rational: Clarifies which are variables and which are methods.
 Public:
- e.g. axislimt
+ e.g. axislimit
 Private:
  e.g. maxvelocity_
 
 Specific method naming conventions
 
 The terms get and set should be used where an attribute is accessed directly.
+Rational: Indicates the purpose of the function or method.
  e.g. get_foo set_bar
 
 For methods involving boolean attributes, set & reset is prefered.
+Rational: As above.
  e.g. set_amp_enable reset_amp_fault
 
 Math intensive methods should use compute as a prefix.
+Rational: Shows that it is computationally intensive and will hog the CPU.
  e.g. compute_PID
 
 Abbreviations in names should be avoided where possible - The exception is for
 local variable names.
+Rational: Clarity of code.
  e.g. pointer is prefered over ptr
       compute is prefered over cmp
       compare is again prefered over cmp.
@@ -265,16 +275,21 @@ Enumerates and other constants can be prefixed by a common type name
 	  COLOUR_BLUE
       };
 
+Excessive use of macros and defines should be avoided - Using simple methods or
+functions is prefered.
+Rational: Improves the debugging process.
 
 Include Statements
 Header files must be included at the top of a source file and not scattered
 throughout the body. They should be sorted and grouped by their hierarchical
 position within the system with the low level files included first.
 Include file paths should NEVER be absolute - Use the compiler -I flag instead.
+Rational: Headers may not be in the same place on all systems.
 
 Pointers and references should have their reference symbol next to the variable
 name rather than the type name.
- e.g. float *x or int &i
+Rational: Reduces confusion.
+  e.g. float *x or int &i
 
 Implicit tests for zero should not be used except for boolean variables.
  e.g. if (spindle_speed != 0) NOT if (spindle_speed)
@@ -310,10 +325,9 @@ or
 while (1) {
     ...;
 }
- 
 
-Excessive use of macros and defines should be avoided - Using simple methods or
-functions is prefered.
+Parentheses should be used in plenty in mathematial expresions - Do not rely
+on operator precedence when an extra parentheses would clarify things.
 
 File names: C++ sources and headers use .cc and .hh extension. The use of .c
 and .h are reserved for plain C. Headers are for class, method, and structure
@@ -327,6 +341,9 @@ Do not put anything below this point. The revision log is automatically appended
 ################################################################################
 
 $Log$
+Revision 1.6  2003/10/31 23:49:43  paul_c
+Removed the -k flag from the sub-makes (it is in MAKEFLAGS now)
+
 Revision 1.5  2003/10/26 21:23:48  paul_c
 Start on a modified rcslib
 

@@ -34,16 +34,16 @@ all : headers $(OBJS) $(LIBS)
 include $(EMC2_HOME)/Make.rules
 
 headers: def_headers
-	(cd drivers; make -k $@)
-	(cd components; make -k $@)
+	(cd drivers; make $@)
+	(cd components; make $@)
 
 indent: def_indent
-	(cd drivers; make -k $@)
-	(cd components; make -k $@)
+	(cd drivers; make $@)
+	(cd components; make $@)
 
 clean :  def_clean
-	(cd drivers; make -k $@)
-	(cd components; make -k $@)
+	(cd drivers; make $@)
+	(cd components; make $@)
 
 #$(BIN_DIR)/% : $(LIB_DIR)/%.o $(ULAPI) $(LIB_DIR)/hal_lib.o
 #	@ echo "Rule 3: Linking $@"

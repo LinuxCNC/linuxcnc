@@ -25,6 +25,8 @@ all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
 # Generic rules.
 include ../../../Make.rules
 
-clean: clean_up
+clean: def_clean
+
+indent: def_indent
 
 .PHONY: all clean install indent depend headers

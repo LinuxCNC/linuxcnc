@@ -170,6 +170,7 @@ $(INC_DIR)/.hh: %.hh
 def_indent:
 	@ echo "Re-format source and header files"
 	indent --braces-on-if-line \
+	--braces-on-struct-decl-line \
 	--comment-line-length78 \
 	--continuation-indentation4 \
 	--cuddle-do-while \

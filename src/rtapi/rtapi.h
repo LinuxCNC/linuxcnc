@@ -135,13 +135,18 @@ extern void rtapi_print(const char *fmt, ...);
     The defines below are used for RTAPI messages, and are recommended
     for user messages as well.  May be called from user, init/cleanup,
     and realtime code.
+    
+    N.B. New values should not be added before RTAPI_MSG_NONE or after
+    RTAPI_MSG_ALL.
 */
-#define RTAPI_MSG_NONE 0
-#define RTAPI_MSG_ERR  3
-#define RTAPI_MSG_WARN 4
-#define RTAPI_MSG_INFO 6
-#define RTAPI_MSG_DBG  7
-#define RTAPI_MSG_ALL  8
+typedef enum {
+    RTAPI_MSG_NONE = 0,
+    RTAPI_MSG_ERR,
+    RTAPI_MSG_WARN,
+    RTAPI_MSG_INFO,
+    RTAPI_MSG_DBG,
+    RTAPI_MSG_ALL
+} msg_level_t;
 
 extern void rtapi_print_msg(int level, const char *fmt, ...);
 

@@ -12,6 +12,7 @@ all: headers
 
 all headers clean indent install:
 	(cd linklist; make $@)
+	(cd inifile; make $@)
 	(make -f Makefile.lib $@)
 
 .PHONY: all clean depend headers indent install

@@ -40,7 +40,7 @@
   ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
   TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
   harming persons must have provisions for completely removing power
-  from all motors, etc, before persons enter any danger area.  All
+  from all motors, etc, before persons enter any danger area. All
   machinery must be designed to comply with local and national safety
   codes, and the authors of this software can not, and do not, take
   any responsibility for such compliance.
@@ -49,6 +49,19 @@
 /** This code was written as part of the EMC HAL project.  For more
   information, go to www.linuxcnc.org.
 */
+
+/* Keep the includes here - It might get messy.. */
+
+#ifdef RTAPI
+#include <linux/sched.h>	/* for blocking when needed */
+#else
+#include <sched.h>		/* for blocking when needed */
+#endif
+
+#include <asm/bitops.h>		/* atomic bit ops for lightweight mutex. This 
+				   will need checking - RH9.0 puts a warning
+				   in the header whilst 'normal' distros
+				   don't */
 
 /* maximum number of various resources */
 #define RTAPI_MAX_MODULES 64
@@ -73,87 +86,69 @@ static unsigned int rev_code;
 
 /* These structs hold data associated with objects like tasks, etc. */
 
-typedef enum
-{
+typedef enum {
     NO_MODULE = 0,
     REALTIME,
     USERSPACE
-}
-mod_type_t;
+} mod_type_t;
 
-typedef struct
-{
+typedef struct {
     mod_type_t state;
     char name[RTAPI_NAME_LEN + 1];
-}
-module_data;
+} module_data;
 
-typedef enum
-{
+typedef enum {
     EMPTY = 0,
     PAUSED,
     PERIODIC,
     FREERUN,
     ENDED
-}
-task_state_t;
+} task_state_t;
 
-typedef struct
-{
+typedef struct {
     task_state_t state;		/* task state */
     int prio;			/* priority */
     int owner;			/* owning module */
     void (*taskcode) (void *);	/* task code */
     void *arg;			/* task argument */
-}
-task_data;
+} task_data;
 
-typedef struct
-{
+typedef struct {
     int key;			/* key to shared memory area */
     int rtusers;		/* number of realtime modules using block */
     int ulusers;		/* number of user processes using block */
     unsigned long size;		/* size of shared memory area */
     char bitmap[(RTAPI_MAX_SHMEMS / 8) + 1];	/* which modules are using
 						   block */
-}
-shmem_data;
+} shmem_data;
 
-typedef struct
-{
+typedef struct {
     int users;			/* number of modules using the semaphore */
     int key;			/* key to semaphore */
     char bitmap[(RTAPI_MAX_SEMS / 8) + 1];	/* which modules are using
 						   sem */
-}
-sem_data;
+} sem_data;
 
-typedef enum
-{
+typedef enum {
     UNUSED = 0,
     HAS_READER = 1,
     HAS_WRITER = 2,
     HAS_BOTH = 3
-}
-fifo_state_t;			/* used as bitmasks */
+} fifo_state_t;			/* used as bitmasks */
 
-typedef struct
-{
+typedef struct {
     fifo_state_t state;		/* task state */
     int key;			/* key to fifo */
     int reader;			/* module ID of reader */
     int writer;			/* module ID of writer */
     unsigned long int size;	/* size of fifo area */
-}
-fifo_data;
+} fifo_data;
 
-typedef struct
-{
+typedef struct {
     int irq_num;		/* IRQ number */
     int owner;			/* owning module */
     void (*handler) (void);	/* interrupt handler function */
-}
-irq_data;
+} irq_data;
 
 /* Master RTAPI data structure
    There is a single instance of this structure in the machine.
@@ -163,8 +158,7 @@ irq_data;
    the associated resources (tasks, etc.).
 */
 
-typedef struct
-{
+typedef struct {
     int magic;			/* magic number to validate data */
     int rev_code;		/* revision code for matching */
     int mutex;			/* mutex against simultaneous access */
@@ -184,8 +178,7 @@ typedef struct
     sem_data sem_array[RTAPI_MAX_SEMS + 1];	/* data for semaphores */
     fifo_data fifo_array[RTAPI_MAX_FIFOS + 1];	/* data for fifos */
     irq_data irq_array[RTAPI_MAX_IRQS + 1];	/* data for hooked irqs */
-}
-rtapi_data_t;
+} rtapi_data_t;
 
 #define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */
 #define RTAPI_MAGIC 0x12601409	/* magic number used to verify shmem */
@@ -216,8 +209,6 @@ irq_data *irq_array = NULL;
    since they invoke the Linux scheduler.
 */
 
-#include <asm/bitops.h>		/* atomic bit ops for lightweight mutex */
-
 void rtapi_mutex_give(int *mutex)
 {
     test_and_clear_bit(0, mutex);
@@ -230,8 +221,6 @@ int rtapi_mutex_try(int *mutex)
 
 #ifdef RTAPI
 
-#include <linux/sched.h>	/* for blocking when needed */
-
 void rtapi_mutex_get(int *mutex)
 {
     while (test_and_set_bit(0, mutex)) {
@@ -241,8 +230,6 @@ void rtapi_mutex_get(int *mutex)
 }
 
 #else /* ULAPI */
-
-#include <sched.h>		/* for blocking when needed */
 
 void rtapi_mutex_get(int *mutex)
 {

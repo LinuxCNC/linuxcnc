@@ -2,8 +2,7 @@
 #define LINKED_LIST_HH
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stddef.h>
@@ -11,71 +10,110 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-
-enum LIST_SIZING_MODE
-{
+enum LIST_SIZING_MODE {
     DELETE_FROM_HEAD,
     DELETE_FROM_TAIL,
     STOP_AT_MAX,
     NO_MAXIMUM_SIZE
 };
 
-/** this is more of a struct.. */
-class RCS_LINKED_LIST_NODE
-{
+/** this is more of a struct..
+    But still need to add some comments... */
+class LinkedListNode {
   public:
     void *data;
     size_t size;
     int id;
     int copied;
-    RCS_LINKED_LIST_NODE *next;
-    RCS_LINKED_LIST_NODE *last;
-    friend class LINKED_LIST;
-      RCS_LINKED_LIST_NODE(void *_data, size_t _size);
-     ~RCS_LINKED_LIST_NODE();
+    LinkedListNode *next;
+    LinkedListNode *last;
+    friend class LinkedList;
+      LinkedListNode(void *_data, size_t _size);
+     ~LinkedListNode();
 };
 
-class RCS_LINKED_LIST
-{
+class LinkedList {
   protected:
-    RCS_LINKED_LIST_NODE * head;
-    RCS_LINKED_LIST_NODE *tail;
-    RCS_LINKED_LIST_NODE *current_node;
-    RCS_LINKED_LIST_NODE *extra_node;
-    int next_node_id;
+    LinkedListNode * head;
+    LinkedListNode *tail;
+    LinkedListNode *current_node;
+    LinkedListNode *extra_node;
+    int nextNodeId;
   public:
-    int get_current_id();
-    int list_size;
-    int max_list_size;
-    LIST_SIZING_MODE sizing_mode;
-    void set_list_sizing_mode(int, LIST_SIZING_MODE);
-    void set_max_list_size(int);
-    size_t last_size_retrieved;
-    int delete_data_not_copied;
-    void *last_data_retrieved;
-    int last_copied_retrieved;
-    void *retrieve_head();
-    size_t last_size_stored;
-    void *last_data_stored;
-    int store_at_head(void *_data, size_t _size, int _copy);
-    int store_at_tail(void *_data, size_t _size, int _copy);
-    int get_newest_id()
-    {
-	return (next_node_id - 1);
-    }
-    void *get_head();
-    void *get_tail();
-    void *get_next();
-    void *find_node(int _node_number);
-    void delete_node(int _id);
-    void delete_current_node();
-    void delete_members();
-    RCS_LINKED_LIST();
-    ~RCS_LINKED_LIST();
+    /** Deletes the current node
+        Used by CMS_SERVER & CMS_SERVER_REMOTE_XXX_PORT */
+    void deleteCurrentNode();
+
+    /** Flushes the list regardless of data still tagged uncopied */
+    void deleteMembers();
+
+    /** Deletes the specified node and frees the memory if it is tagged
+        as copied.
+        Used by NML and CMS classes */
+    void deleteNode(int _id);
+
+    /** Flushes all the nodes that have been copied out and frees up memory */
+    void flushList();
+
+    /** Returns the ID of the current node */
+    int getCurrentId();
+
+    /** Returns the first member of the list without deleting it. 
+    Called CMS_SERVER, CMS_SERVER_XXX_PORT, & NML classes */
+    void *getHead();
+
+    /** Returns the next member of the list */
+    void *getNext();
+
+    /** Returns the last member of the list 
+    Used by CMS & TCPMEM for diagnostics...*/
+    void *getTail();
+
+    /** Returns the first member of the list and deletes the node. */
+// Recommend: caller uses getHead() then deleteCurrentNode()
+    void *retrieveHead();
+
+    /** sets the limit on the list size and determines what happens when the list size hits maxListSize */
+    void setListSizingMode(int _size, LIST_SIZING_MODE);
+
+    /** Sets the limit to the list size */
+//    void setMaxListSize(int _size);
+
+    /** Stores the node at the begining of the list and may remove the
+        tail node depending on the status of sizingMode
+    Used by NML::prefix_format_chain() */
+    int storeAtHead(void *_data, size_t _size, int _copy);
+
+    /** Stores the node at the end of the list - May remove head node...
+    Used by CMS, NML and others. */
+    int storeAtTail(void *_data, size_t _size, int _copy);
+
+    /** Constructor */
+      LinkedList();
+
+     /** Destructor */
+     ~LinkedList();
+
+/** Public attributes - Most of these should be hidden */
+
+    /** Current size of the list */
+    int listSize;
+
+    /** Max size of the list */
+    int maxListSize;
+
+    /** See LISTING_SIZE_MODE for values */
+    LIST_SIZING_MODE sizingMode;
+
+    size_t lastSizeRetrieved;
+    int deleteDataNotCopied;
+    void *lastDataRetrieved;
+    int lastCopiedRetrieved;
+    size_t lastSizeStored;
+    void *lastDataStored;
 
   private:
-    RCS_LINKED_LIST(RCS_LINKED_LIST & list);	// Don't copy me.
-    void flush_list();
+      LinkedList(LinkedList & list);	// Is this required ??
 };
 
 #endif /* LINKED_LIST_HH */

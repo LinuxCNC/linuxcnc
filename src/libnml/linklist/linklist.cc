@@ -1,159 +1,157 @@
+
 /**
  linklist.cc allocates blocks of memory and keeps track of them in a list
  of pointers..
- RCS_LINKED_LIST->data contains the address of the memory block
- RCS_LINKED_LIST->size is the size of the memory block
- RCS_LINKED_LIST->id   a unique ID for each 'node'
- RCS_LINKED_LIST->next pointer to the next node ?
- RCS_LINKED_LIST->last pointer to the last node
+ LinkedList->data contains the address of the memory block
+ LinkedList->size is the size of the memory block
+ LinkedList->id   a unique ID for each 'node'
+ LinkedList->next pointer to the next node ?
+ LinkedList->last pointer to the previous node
 
 */
-extern "C"
-{
-
+extern "C" {
 #include <stdlib.h>		/* malloc() */
 #include <string.h>		/* memcpy() */
 #include <stdio.h>		/* fprintf(), stderr */
-
 }
-#include "linklist.hh"		/* class RCS_LINKED_LIST */
-RCS_LINKED_LIST_NODE::RCS_LINKED_LIST_NODE(void *_data, size_t _size)
+#include "linklist.hh"		/* class LinkedList */
+LinkedListNode::LinkedListNode(void *_data, size_t _size)
 {
     data = _data;
     size = _size;
-    next = (RCS_LINKED_LIST_NODE *) NULL;
-    last = (RCS_LINKED_LIST_NODE *) NULL;
+    next = (LinkedListNode *) NULL;
+    last = (LinkedListNode *) NULL;
 }
 
-RCS_LINKED_LIST_NODE::~RCS_LINKED_LIST_NODE()
+LinkedListNode::~LinkedListNode()
 {
 }
 
-RCS_LINKED_LIST::RCS_LINKED_LIST()
+LinkedList::LinkedList()
 {
-    head = (RCS_LINKED_LIST_NODE *) NULL;
-    tail = (RCS_LINKED_LIST_NODE *) NULL;
-    current_node = (RCS_LINKED_LIST_NODE *) NULL;
-    extra_node = (RCS_LINKED_LIST_NODE *) NULL;
-    last_data_retrieved = NULL;
-    last_size_retrieved = 0;
-    last_copied_retrieved = 0;
-    list_size = 0;
-    next_node_id = 1;
-    delete_data_not_copied = 0;
-    extra_node = new RCS_LINKED_LIST_NODE(NULL, 0);
-    max_list_size = 0;
-    sizing_mode = NO_MAXIMUM_SIZE;
+    head = (LinkedListNode *) NULL;
+    tail = (LinkedListNode *) NULL;
+    current_node = (LinkedListNode *) NULL;
+    extra_node = (LinkedListNode *) NULL;
+    lastDataRetrieved = NULL;
+    lastSizeRetrieved = 0;
+    lastCopiedRetrieved = 0;
+    listSize = 0;
+    nextNodeId = 1;
+    deleteDataNotCopied = 0;
+    extra_node = new LinkedListNode(NULL, 0);
+    maxListSize = 0;
+    sizingMode = NO_MAXIMUM_SIZE;
 }
 
-RCS_LINKED_LIST::~RCS_LINKED_LIST()
+LinkedList::~LinkedList()
 {
-    flush_list();
+    flushList();
     if (NULL != extra_node) {
 	delete extra_node;
-	extra_node = (RCS_LINKED_LIST_NODE *) NULL;
+	extra_node = (LinkedListNode *) NULL;
     }
 }
 
 /** Used once by print.cc rcs_fputs() for printing to a list */
-void RCS_LINKED_LIST::set_list_sizing_mode(int _new_max_size,
+void LinkedList::setListSizingMode(int _new_max_size,
     LIST_SIZING_MODE _new_sizing_mode)
 {
-    max_list_size = _new_max_size;
-    sizing_mode = _new_sizing_mode;
+    maxListSize = _new_max_size;
+    sizingMode = _new_sizing_mode;
 }
 
-/** Called by RCS_LINKED_LIST destructor and delete_members() 
+/** Called by LinkedList destructor and delete_members() 
     But nothing outside this file uses it */
-void RCS_LINKED_LIST::flush_list()
+void LinkedList::flushList()
 {
-    RCS_LINKED_LIST_NODE *next_node;
+    LinkedListNode *next_node;
     current_node = head;
     while (NULL != current_node) {
 	next_node = current_node->next;
-	if ((current_node->copied || delete_data_not_copied)
+	if ((current_node->copied || deleteDataNotCopied)
 	    && (NULL != current_node->data)) {
 	    free(current_node->data);
 	}
 	delete current_node;
 	current_node = next_node;
     }
-    if (last_copied_retrieved) {
-	if (last_data_retrieved != NULL) {
-	    free(last_data_retrieved);
-	    last_data_retrieved = NULL;
-	    last_size_retrieved = 0;
+    if (lastCopiedRetrieved) {
+	if (lastDataRetrieved != NULL) {
+	    free(lastDataRetrieved);
+	    lastDataRetrieved = NULL;
+	    lastSizeRetrieved = 0;
 	}
     }
-    head = (RCS_LINKED_LIST_NODE *) NULL;
-    tail = (RCS_LINKED_LIST_NODE *) NULL;
-    list_size = 0;
-    last_data_stored = NULL;
-    last_size_stored = 0;
+    head = (LinkedListNode *) NULL;
+    tail = (LinkedListNode *) NULL;
+    listSize = 0;
+    lastDataStored = NULL;
+    lastSizeStored = 0;
 }
 
 /** Used by CMS::internal_retrieve_diag_info() TCPMEM::get_diagnostics_info()
     and by the interp via NML_INTERP_LIST::clear() */
-void RCS_LINKED_LIST::delete_members()
+void LinkedList::deleteMembers()
 {
-    int old_delete_data_not_copied = delete_data_not_copied;
-    delete_data_not_copied = 1;
-    flush_list();
-    delete_data_not_copied = old_delete_data_not_copied;
+    int old_delete_data_not_copied = deleteDataNotCopied;
+    deleteDataNotCopied = 1;
+    flushList();
+    deleteDataNotCopied = old_delete_data_not_copied;
 }
 
 /** Called by NML_INTERP_LIST::get() */
 /** Removes the first node of the list and frees the memory */
-void *RCS_LINKED_LIST::retrieve_head()
+void *LinkedList::retrieveHead()
 {
-    RCS_LINKED_LIST_NODE *next_node;
+    LinkedListNode *next_node;
 
     if (NULL != head) {
-	if (last_copied_retrieved) {
-	    if (NULL != last_data_retrieved) {
-		free(last_data_retrieved);
-		last_data_retrieved = NULL;
-		last_size_retrieved = 0;
+	if (lastCopiedRetrieved) {
+	    if (NULL != lastDataRetrieved) {
+		free(lastDataRetrieved);
+		lastDataRetrieved = NULL;
+		lastSizeRetrieved = 0;
 	    }
 	}
-	last_data_retrieved = head->data;
-	last_size_retrieved = head->size;
-	last_copied_retrieved = head->copied;
+	lastDataRetrieved = head->data;
+	lastSizeRetrieved = head->size;
+	lastCopiedRetrieved = head->copied;
 	next_node = head->next;
 	delete head;
 	head = next_node;
 	if (NULL != head) {
-	    head->last = (RCS_LINKED_LIST_NODE *) NULL;
+	    head->last = (LinkedListNode *) NULL;
 	} else {
-	    tail = (RCS_LINKED_LIST_NODE *) NULL;
+	    tail = (LinkedListNode *) NULL;
 	}
-	list_size--;
-	return (last_data_retrieved);
+	listSize--;
+	return (lastDataRetrieved);
     }
     return (NULL);
 }
 
 /* Called by NML::prefix_format_chain() */
-int RCS_LINKED_LIST::store_at_head(void *_data, size_t _size, int _copy)
+int LinkedList::storeAtHead(void *_data, size_t _size, int _copy)
 {
-    RCS_LINKED_LIST_NODE *new_head;
-    RCS_LINKED_LIST_NODE *old_tail = tail;
+    LinkedListNode *new_head;
+    LinkedListNode *old_tail = tail;
 
-    if (list_size >= max_list_size) {
-	switch (sizing_mode) {
+    if (listSize >= maxListSize) {
+	switch (sizingMode) {
 	case DELETE_FROM_TAIL:
 	    if (NULL != tail) {
 		tail = tail->last;
 		if (NULL != tail) {
-		    tail->next = (RCS_LINKED_LIST_NODE *) NULL;
+		    tail->next = (LinkedListNode *) NULL;
 		} else {
-		    head = (RCS_LINKED_LIST_NODE *) NULL;
+		    head = (LinkedListNode *) NULL;
 		    delete old_tail;
-		    list_size = 0;
+		    listSize = 0;
 		    break;
 		}
 		delete old_tail;
-		list_size--;
+		listSize--;
 	    }
 	    break;
 
@@ -168,18 +166,18 @@ int RCS_LINKED_LIST::store_at_head(void *_data, size_t _size, int _copy)
     }
 
     if (_copy) {
-	last_data_stored = malloc(_size);
-	memcpy(last_data_stored, _data, _size);
-	last_size_stored = _size;
-	new_head = new RCS_LINKED_LIST_NODE(last_data_stored, _size);
+	lastDataStored = malloc(_size);
+	memcpy(lastDataStored, _data, _size);
+	lastSizeStored = _size;
+	new_head = new LinkedListNode(lastDataStored, _size);
     } else {
-	last_data_stored = _data;
-	last_size_stored = _size;
-	new_head = new RCS_LINKED_LIST_NODE(_data, _size);
+	lastDataStored = _data;
+	lastSizeStored = _size;
+	new_head = new LinkedListNode(_data, _size);
     }
     if (NULL != new_head) {
 	new_head->copied = _copy;
-	new_head->id = next_node_id++;
+	new_head->id = nextNodeId++;
 	if (NULL == head) {
 	    head = new_head;
 	    if (NULL != tail) {
@@ -188,11 +186,11 @@ int RCS_LINKED_LIST::store_at_head(void *_data, size_t _size, int _copy)
 	    tail = new_head;
 	} else {
 	    head->last = new_head;
-	    new_head->last = (RCS_LINKED_LIST_NODE *) NULL;
+	    new_head->last = (LinkedListNode *) NULL;
 	    new_head->next = head;
 	    head = new_head;
 	}
-	list_size++;
+	listSize++;
 	return (head->id);
     } else {
 	return (-1);
@@ -200,26 +198,26 @@ int RCS_LINKED_LIST::store_at_head(void *_data, size_t _size, int _copy)
 }
 
 /** Called by numerous functions */
-int RCS_LINKED_LIST::store_at_tail(void *_data, size_t _size, int _copy)
+int LinkedList::storeAtTail(void *_data, size_t _size, int _copy)
 {
-    RCS_LINKED_LIST_NODE *new_tail;
-    RCS_LINKED_LIST_NODE *old_head = head;
+    LinkedListNode *new_tail;
+    LinkedListNode *old_head = head;
 
-    if (list_size >= max_list_size) {
-	switch (sizing_mode) {
+    if (listSize >= maxListSize) {
+	switch (sizingMode) {
 	case DELETE_FROM_HEAD:
 	    if (NULL != head) {
 		head = head->next;
 		if (NULL != head) {
-		    head->last = (RCS_LINKED_LIST_NODE *) NULL;
+		    head->last = (LinkedListNode *) NULL;
 		} else {
-		    head = (RCS_LINKED_LIST_NODE *) NULL;
+		    head = (LinkedListNode *) NULL;
 		    delete old_head;
-		    list_size = 0;
+		    listSize = 0;
 		    break;
 		}
 		delete old_head;
-		list_size--;
+		listSize--;
 	    }
 	    break;
 
@@ -229,49 +227,49 @@ int RCS_LINKED_LIST::store_at_tail(void *_data, size_t _size, int _copy)
 	case DELETE_FROM_TAIL:
 	case STOP_AT_MAX:
 	default:
-	    fprintf(stderr, "RCS_LINKED_LIST: Invalid list_sizing_mode.\n");
+	    fprintf(stderr, "LinkedList: Invalid list sizing mode.\n");
 	    return (-1);
 	}
     }
 
     if (_copy) {
-	last_data_stored = malloc(_size);
-	memcpy(last_data_stored, _data, _size);
-	last_size_stored = _size;
-	new_tail = new RCS_LINKED_LIST_NODE(last_data_stored, _size);
+	lastDataStored = malloc(_size);
+	memcpy(lastDataStored, _data, _size);
+	lastSizeStored = _size;
+	new_tail = new LinkedListNode(lastDataStored, _size);
     } else {
-	last_data_stored = _data;
-	last_size_stored = _size;
-	new_tail = new RCS_LINKED_LIST_NODE(last_data_stored, _size);
+	lastDataStored = _data;
+	lastSizeStored = _size;
+	new_tail = new LinkedListNode(lastDataStored, _size);
     }
     if (NULL != new_tail) {
 	new_tail->copied = _copy;
-	new_tail->id = next_node_id++;
+	new_tail->id = nextNodeId++;
 	if (NULL == tail) {
 	    tail = new_tail;
 	    if (NULL != head) {
 		fprintf(stderr,
-		    "RCS_LINKED_LIST: Tail is NULL but head is not.\n");
+		    "LinkedList: Tail is NULL but head is not.\n");
 		return (-1);
 	    }
 	    head = new_tail;
 	} else {
 	    tail->next = new_tail;
 	    new_tail->last = tail;
-	    new_tail->next = (RCS_LINKED_LIST_NODE *) NULL;
+	    new_tail->next = (LinkedListNode *) NULL;
 	    tail = new_tail;
 	}
-	list_size++;
+	listSize++;
 	return (tail->id);
     } else {
 	fprintf(stderr,
-	    "RCS_LINKED_LIST: Couldn't create new node to store_at_tail.\n");
+	    "LinkedList: Couldn't create new node to store_at_tail.\n");
 	return (-1);
     }
 }
 
 /** Used by numerous functions */
-void *RCS_LINKED_LIST::get_head()
+void *LinkedList::getHead()
 {
     current_node = head;
     if (NULL != current_node) {
@@ -282,7 +280,7 @@ void *RCS_LINKED_LIST::get_head()
 }
 
 /** Called by CMS::internal_retrieve_diag_info() TCPMEM::get_diagnostics_info() */
-void *RCS_LINKED_LIST::get_tail()
+void *LinkedList::getTail()
 {
     current_node = tail;
     if (NULL != current_node) {
@@ -293,7 +291,7 @@ void *RCS_LINKED_LIST::get_tail()
 }
 
 /** Used by numerous functions */
-void *RCS_LINKED_LIST::get_next()
+void *LinkedList::getNext()
 {
     if (NULL != current_node) {
 	current_node = current_node->next;
@@ -306,14 +304,14 @@ void *RCS_LINKED_LIST::get_next()
 }
 
 /** Used by numerous functions */
-void RCS_LINKED_LIST::delete_node(int _id)
+void LinkedList::deleteNode(int _id)
 {
-    RCS_LINKED_LIST_NODE *temp;
+    LinkedListNode *temp;
 
     temp = head;
     while (NULL != temp) {
 	if (temp->id == _id) {
-	    list_size--;
+	    listSize--;
 	    if (temp == current_node) {
 		if (NULL != extra_node) {
 		    extra_node->next = current_node->next;
@@ -331,7 +329,7 @@ void RCS_LINKED_LIST::delete_node(int _id)
 	    } else {
 		head = temp->next;
 	    }
-	    if ((temp->copied || delete_data_not_copied)
+	    if ((temp->copied || deleteDataNotCopied)
 		&& (NULL != temp->data)) {
 		free(temp->data);
 	    }
@@ -343,10 +341,10 @@ void RCS_LINKED_LIST::delete_node(int _id)
 }
 
 /** Used by numerous functions */
-void RCS_LINKED_LIST::delete_current_node()
+void LinkedList::deleteCurrentNode()
 {
     if (NULL != current_node && (current_node != extra_node)) {
-	RCS_LINKED_LIST_NODE *temp;
+	LinkedListNode *temp;
 	temp = current_node;
 	if (NULL != extra_node) {
 	    extra_node->next = current_node->next;
@@ -363,16 +361,16 @@ void RCS_LINKED_LIST::delete_current_node()
 	} else {
 	    head = temp->next;
 	}
-	if ((temp->copied || delete_data_not_copied) && (NULL != temp->data)) {
+	if ((temp->copied || deleteDataNotCopied) && (NULL != temp->data)) {
 	    free(temp->data);
 	}
 	delete temp;
-	list_size--;
+	listSize--;
     }
 }
 
 /** Used by LOCMEM::LOCMEM() only */
-int RCS_LINKED_LIST::get_current_id()
+int LinkedList::getCurrentId()
 {
     if (current_node == NULL) {
 	return (-1);
@@ -381,6 +379,6 @@ int RCS_LINKED_LIST::get_current_id()
 }
 
 // Constructor defined private to prevent copying.
-RCS_LINKED_LIST::RCS_LINKED_LIST(RCS_LINKED_LIST & list)
+LinkedList::LinkedList(LinkedList & list)
 {
 }

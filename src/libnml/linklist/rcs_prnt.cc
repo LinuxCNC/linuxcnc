@@ -1,6 +1,5 @@
 
-extern "C"
-{
+extern "C" {
 #include <stdarg.h>		/* va_list, va_start(), va_end() */
 #include <stdio.h>		/* printf()'s */
 #include <string.h>		/* strchr(), memmove() */
@@ -17,23 +16,23 @@ extern "C" double etime(void);	/* This will disappear when rtapi is linked
 				   in as part of the RTLMEM buffer support */
 #endif
 
-RCS_LINKED_LIST *rcs_print_list = NULL;
-char **rcs_lines_table = NULL;
-void (*rcs_print_notify) () = NULL;
+LinkedList *rcs_print_list = NULL;
 RCS_PRINT_DESTINATION_TYPE rcs_print_destination = RCS_PRINT_TO_STDOUT;
 
-int max_rcs_errors_to_print = 30;
-int rcs_errors_printed = 0;
+int max_rcs_errors_to_print = 30;	/* Used by cms/nml.cc */
+int rcs_errors_printed = 0;	/* Used by cms/nml.cc */
 
-unsigned long rcs_print_mode_flags = PRINT_RCS_ERRORS;
-int rcs_debugging_enabled = 0;
+unsigned long rcs_print_mode_flags = PRINT_RCS_ERRORS;	/* Internal use */
+int rcs_debugging_enabled = 0;	/* Internal use */
 
-FILE *rcs_print_file_stream = NULL;
-char rcs_print_file_name[80] = "rcs_out.txt";
+FILE *rcs_print_file_stream = NULL;	/* Internal use for pointer to an o/p 
+					   stream */
+char rcs_print_file_name[80] = "rcs_out.txt";	/* Internal use */
 
-char last_error_bufs[4][100];
-int error_bufs_initialized = 0;
-int last_error_buf_filled = 0;
+char last_error_bufs[4][100];	/* record the last four lines of errors for
+				   use by nml.cc */
+int error_bufs_initialized = 0;	/* are the bufs initialised */
+int last_error_buf_filled = 0;	/* ?? */
 
 void set_rcs_print_destination(RCS_PRINT_DESTINATION_TYPE _dest)
 {
@@ -143,15 +142,14 @@ int rcs_fputs(char *_str)
 
 	case RCS_PRINT_TO_LIST:
 	    if (NULL == rcs_print_list) {
-		rcs_print_list = new RCS_LINKED_LIST;
+		rcs_print_list = new LinkedList;
 		if (NULL != rcs_print_list) {
-		    rcs_print_list->set_list_sizing_mode(256,
-			DELETE_FROM_HEAD);
+		    rcs_print_list->setListSizingMode(256, DELETE_FROM_HEAD);
 		}
 	    }
 	    if (NULL != rcs_print_list) {
 		if (-1 ==
-		    rcs_print_list->store_at_tail(_str,
+		    rcs_print_list->storeAtTail(_str,
 			(retval = strlen(_str)) + 1, 1)) {
 		    retval = EOF;
 		}
@@ -177,15 +175,12 @@ int rcs_fputs(char *_str)
 	default:
 	    break;
 	}
-	if (NULL != rcs_print_notify) {
-	    (*rcs_print_notify) ();
-	}
     }
     return (retval);
 }
 
 /** Used by rcs_print_debug(), rcs_print_sys_error(), rcs_print_error(), NML_MODULE::logText(), NML_MODULE::print_statistics(), autokey_getkey(), and assorted EMC functions.
-This WILL be repalced with rtapi_print() */
+This WILL be replaced with rtapi_print() */
 int rcs_print(char *_fmt, ...)
 {
     static char temp_buffer[1024];
@@ -297,14 +292,11 @@ int rcs_print_sys_error(int error_source, char *_fmt, ...)
     return (strlen(temp_string));
 }
 
-extern "C"
-{
+extern "C" {
     int rcs_print_error(char *_fmt, ...);
 }
-
 /** Used by just about everything !
-      Replace with rtapi_print_msg() */
-int rcs_print_error(char *_fmt, ...)
+      Replace with rtapi_print_msg() */ int rcs_print_error(char *_fmt, ...)
 {
     int retval = 0;
     va_list args;
