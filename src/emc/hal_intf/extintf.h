@@ -30,7 +30,6 @@ extern "C" {
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
 
-    extern int mot_comp_id;	/* HAL component ID for motion module */
 
 /***********************************************************************
 *                       FUNCTION PROTOTYPES                            *

@@ -6,7 +6,7 @@
 * License: GPL Version 2
 * Created on:
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -595,24 +595,7 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 
 /*
   function prototypes for emcmot code
-
-  built-in main() calls these functions; if main() is not used
-  they must be called by user processes directly. Control flow is:
-
-  init_module();
-  for (;;)
-  {
-    emcmotController(0);
-    if (userDoneFunction())
-      break;
-    else
-      userWaitCycle();
-  }
-  cleanup_module();
-
-  where userDoneFunction() tells when to stop, and userWaitCycle() should
-  sleep the process for the servo cycle time.
-  */
+*/
 
 /* error ring buffer access functions */
     extern int emcmotErrorInit(EMCMOT_ERROR * errlog);

@@ -36,7 +36,7 @@
 typedef struct {
     hal_float_t joint_pos_cmd;	/* RPA: commanded position, w/o comp */
     hal_float_t joint_vel_cmd;  /* RPA: commanded velocity, w/o comp */
-    hal_float_t backlash_comp;	/* RPA: current backlash comp */
+    hal_float_t backlash_corr;	/* RPA: correction for backlash */
     hal_float_t *motor_pos_cmd;	/* WP:  commanded position, with comp */
     hal_float_t *motor_pos_fb;	/* RP:  position feedback, with comp */
     hal_float_t joint_pos_fb;	/* RPA: position feedback, w/o comp */
@@ -60,47 +60,16 @@ typedef struct {
     hal_bit_t *index;		/* index input */
 } axis_hal_t;
 
-/* internal (motion module only) runtime data for a single axis */
-typedef struct {
-} axis_priv_t;
-
-
-
-
-
 
 /***********************************************************************
 *                   GLOBAL VARIABLE DECLARATIONS                       *
 ************************************************************************/
 
+/* HAL component ID for motion module */
+extern int mot_comp_id;
 
 /* pointer to array of axis_hal_t structs in HAL shmem, 1 per axis */
 extern axis_hal_t *axis_hal_array;
-
-#if 0
-/* FIXME - don't know if this is needed */
-/* pointer to array of axis_priv_t structs in normal memory, 1 per axis */
-extern axis_priv_t *axis_priv_array;
-#endif
-
-/***********************************************************************
-*                    PUBLIC FUNCTION PROTOTYPES                        *
-************************************************************************/
-
-
-
-/* function definitions */
-extern void emcmot_config_change(void);
-extern int emcmotCommandHandler(void);
-extern void emcmotController(void *arg, long period);
-extern void setTrajCycleTime(double secs);
-
- /* rtapi_get_time() returns a nanosecond value. In time, we should use a u64
-    value for all calcs and only do the conversion to seconds when it is
-    really needed. */
-#define etime() (((double) rtapi_get_time()) / 1.0e9)
-
-extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 
 /* Variable defs */
 extern int kinType;
@@ -124,6 +93,25 @@ extern EMCMOT_ERROR *emcmotError;
 extern EMCMOT_LOG *emcmotLog;
 extern EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS];
 extern EMCMOT_LOG_STRUCT ls;
+
+/***********************************************************************
+*                    PUBLIC FUNCTION PROTOTYPES                        *
+************************************************************************/
+
+
+
+/* function definitions */
+extern void emcmotCommandHandler(void *arg, long period);
+extern void emcmotController(void *arg, long period);
+
+extern void emcmot_config_change(void);
+extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
+
+ /* rtapi_get_time() returns a nanosecond value. In time, we should use a u64
+    value for all calcs and only do the conversion to seconds when it is
+    really needed. */
+#define etime() (((double) rtapi_get_time()) / 1.0e9)
+
 
 /* macros for reading, writing bit flags */
 

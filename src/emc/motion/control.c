@@ -21,8 +21,8 @@
 #include <float.h>
 #include <math.h>
 #include "rtapi.h"
-#include "hal.h"		/* decls for HAL implementation */
-#include "extintf.h"
+#include "hal.h"
+#include "extintf.h"	/* WORKING ON MAKING THIS GO AWAY */
 #include "emcmotglb.h"
 #include "motion.h"
 #include "mot_priv.h"
@@ -85,6 +85,9 @@ static int isHoming(void);
 */
 static double axisComp(int axis, int dir, double nominput);
 
+
+
+
 /***********************************************************************
 *                        PUBLIC FUNCTION CODE                          *
 ************************************************************************/
@@ -126,9 +129,6 @@ void emcmotController(void *arg, long period)
 
     /* record start time */
     start = etime();
-
-    /* READ COMMAND: */
-    emcmotCommandHandler();
 
     /* increment head count */
     emcmotStatus->head++;

@@ -167,17 +167,17 @@ static void clearHomes(int axis)
   emcmotCommandHandler() is called each main cycle to read the
   shared memory buffer
   */
-int emcmotCommandHandler(void)
+void emcmotCommandHandler(void *arg, long period)
 {
     int axis;
     int valid;
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
 	emcmotDebug->split++;
-	return 0;		/* not really an error */
+	return;		/* not really an error */
     }
-/*rtapi_print ( "c=%d, e=%d\n", emcmotCommand->commandNum, emcmotStatus->commandNumEcho );*/
-
+/* rtapi_print ( "c=%d, e=%d\n", emcmotCommand->commandNum, emcmotStatus->commandNumEcho );
+*/
     if (emcmotCommand->commandNum != emcmotStatus->commandNumEcho) {
 	/* increment head count-- we'll be modifying emcmotStatus */
 	emcmotStatus->head++;
@@ -303,18 +303,20 @@ int emcmotCommandHandler(void)
 	    /* really should be done only at startup before controller is
 	       run, but at least it requires no active motions and the
 	       interpolators need to be cleared */
-	    setTrajCycleTime(emcmotCommand->cycleTime);
+	    /* FIXME -- this command should be deleted */
+	    rtapi_print("COMMAND: got SET_TRAJ_CYCLE_TIME command\n" );
+	    /* do nothing - cycle times are fixed at startup */
 	    break;
 
 	case EMCMOT_SET_SERVO_CYCLE_TIME:
-	    /* set the cycle time for servo calculations, which is the period 
+	    /* set the cycle time for servo calculations, which is the period
 	       for emcmotController execution */
 	    /* really should be done only at startup before controller is
 	       run, but at least it requires no active motions and the
 	       interpolators need to be cleared */
-	    /* FIXME-- add re-timing a task to RTAPI */
-	    rtapi_print("emcmot: servo cycle time set to %d nsecs\n",
-		(int) (emcmotCommand->cycleTime * 1.0e9));
+	    /* FIXME -- this command should be deleted */
+	    rtapi_print("COMMAND: got SET_SERVO_CYCLE_TIME command\n" );
+	    /* do nothing - cycle times are fixed at startup */
 	    break;
 
 	case EMCMOT_SET_POSITION_LIMITS:
@@ -1168,5 +1170,5 @@ int emcmotCommandHandler(void)
 
     }
     /* end of: if-new-command */
-    return 0;
+    return;
 }
