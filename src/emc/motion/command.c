@@ -399,8 +399,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (joint == 0) {
 		break;
 	    }
-	    /* FIXME-- use 'home' instead */
-	    joint->joint_home = emcmotCommand->offset;
+	    joint->home = emcmotCommand->offset;
 	    break;
 
 	case EMCMOT_SET_HOME_OFFSET:

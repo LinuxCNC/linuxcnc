@@ -407,6 +407,11 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.index-pulse-in", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->index_pulse), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.amp-enable-out", num);
     retval = hal_pin_bit_new(buf, HAL_WR, &(addr->amp_enable), mot_comp_id);
     if (retval != 0) {
@@ -710,12 +715,15 @@ static int init_comm_buffers(void)
 	joint->acc_limit = 1.0;
 	joint->min_ferror = 0.01;
 	joint->max_ferror = 1.0;
-	joint->home_search_vel = 0.5;
-	joint->home_index_vel = 0.1;
+	joint->switch_flags = 0;
+	joint->home_search_vel = 0.0;
+	joint->home_latch_vel = 0.0;
 	joint->home_offset = 0.0;
+	joint->home = 0.0;
+	joint->home_flags = 0;
 	joint->backlash = 0.0;
-	/* init compensation struct - leave out the avgint, nominal, forward, 
-	   and reverse, since these can't be zero and the total flag prevents 
+	/* init compensation struct - leave out the avgint, nominal, forward,
+	   and reverse, since these can't be zero and the total flag prevents
 	   their use anyway */
 	/* FIXME - is this pointer needed? */
 	emcmotComp[joint_num] = &(joint->comp);
@@ -744,7 +752,6 @@ static int init_comm_buffers(void)
 	cubicInit(&(joint->cubic));
 
 	/* init misc other stuff in joint structure */
-	joint->joint_home = 0.0;
 	joint->big_vel = 10.0 * joint->vel_limit;
 	joint->home_state = 0;
 

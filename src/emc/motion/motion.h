@@ -341,12 +341,30 @@ Suggestion: Split this in to an Error and a Status flag register..
     typedef enum {
 	EMCMOT_NOT_HOMING = 0,
 	EMCMOT_HOME_START,
-	EMCMOT_SET_COARSE_HOME,
-	EMCMOT_SET_FINAL_HOME,
-	EMCMOT_START_MOVE_TO_HOME,
-	EMCMOT_WAITFOR_MOVE_TO_HOME,
-	EMCMOT_HOME_FINISHED
+	EMCMOT_HOME_START_PRE_SEARCH,
+	EMCMOT_HOME_WAIT_PRE_SEARCH,
+	EMCMOT_HOME_START_SEARCH,
+	EMCMOT_HOME_WAIT_SEARCH,
+	EMCMOT_HOME_SET_COARSE_POS,
+	EMCMOT_HOME_START_BACKOFF,
+	EMCMOT_HOME_WAIT_BACKOFF,
+	EMCMOT_HOME_START_LATCH,
+	EMCMOT_HOME_WAIT_LATCH_SWITCH,
+	EMCMOT_HOME_WAIT_LATCH_INDEX,
+	EMCMOT_HOME_SET_FINAL_POS,
+	EMCMOT_HOME_START_FINAL,
+	EMCMOT_HOME_WAIT_FINAL,
+	EMCMOT_HOME_FINISHED,
+	EMCMOT_HOME_ABORT
     } home_state_t;
+
+/* flags for homing */
+#define HOME_IGNORE_LIMITS  1
+//#define HOME_REVERSE_ON_LIMIT    2
+#define HOME_USE_INDEX           8
+
+/* flags for switch config */
+#define SWITCHES_LATCH_LIMITS   16
 
 /* NEW_STRUCTS  - I'm trying something different.  As it stands,
    per-axis (really per-joint) info is stored in a whole bunch of
@@ -373,9 +391,12 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double acc_limit;	/* upper limit of joint accel */
 	double min_ferror;	/* zero speed following error limit */
 	double max_ferror;	/* max speed following error limit */
+	int switch_flags;	/* config flags for limit switches */
 	double home_search_vel;	/* dir/spd to look for home switch */
-	double home_index_vel;	/* dir/spd to latch switch/index pulse */
-	double home_offset;	/* dir/dist from switch to zero point */
+	double home_latch_vel;	/* dir/spd to latch switch/index pulse */
+	double home_offset;	/* dir/dist from switch to home point */
+	double home;		/* joint coordinate of home point */
+	int home_flags;		/* flags for various homing options */
 	double backlash;	/* amount of backlash */
 	emcmot_comp_t comp;	/* leadscrew correction data */
 
@@ -394,11 +415,22 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferror_high_mark;	/* max following error */
 	double free_pos_cmd;	/* position command for free mode TP */
 	double free_vel_lim;	/* velocity limit for free mode TP */
-	int free_tp_enable;	/* if zero, axis stops ASAP */
+	int free_tp_enable;	/* if zero, joint stops ASAP */
+	int free_tp_active;	/* if non-zero, move in progress */
 
 	/* internal info - changes regularly, not usually accessed from user
 	   space */
 	CUBIC_STRUCT cubic;	/* cubic interpolator data */
+
+	double pos_limit_pos;	/* latched position of limit sw */
+	int pos_limit_latch;	/* non-zero if on limit */
+	double neg_limit_pos;	/* latched position of limit sw */
+	int neg_limit_latch;	/* non-zero if on limit */
+	double home_sw_pos;	/* latched position of home sw */
+	int home_sw_latch;	/* non-zero if on home */
+	int index_pulse;	/* current state of index pulse input */
+	int index_pulse_edge;	/* non-zero if rising edge detected */
+
 	int pos_limit_debounce;	/* debounce counters for switches */
 	int neg_limit_debounce;
 	int home_sw_debounce;
@@ -409,10 +441,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	/* stuff moved from the other structs that might be needed (or might
 	   not!) */
-	double joint_home;	/* how is this different than home_offset? */
 	double big_vel;		/* used for "debouncing" velocity */
-//	double vel_scale;	/* axis velocity scale factor */
-
     } emcmot_joint_t;
 
 /* FIXME - the beginnings of a state machine */
