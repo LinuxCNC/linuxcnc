@@ -712,9 +712,6 @@ static void get_pos_cmds(void)
     double old_pos_cmd;
 #endif
     motion_state_t motion_state;
-#if 0
-    double acc_req, pos_err, max_dv;
-#endif
     double max_dv, pos_err, vel_req, vel_lim;
 
     /* RUN MOTION CALCULATIONS: */
@@ -769,15 +766,15 @@ static void get_pos_cmds(void)
 	    } else {
 		/* planner disabled, request zero velocity */
 		vel_req = 0.0;
-		/* and set command to present position to avoid "strangeness" 
+		/* and set command to present position to avoid movement 
 		   when next enabled */
 		joint->free_pos_cmd = joint->pos_cmd;
 	    }
-	    /* determine velocity limit - lesser of joint limit and planner
-	       limit */
-	    if (joint->free_vel_lim < joint->vel_limit) {
-		vel_lim = joint->free_vel_lim;
-	    } else {
+	    /* velocity limit = planner limit * global scale factor */
+	    /* the global factor is used for feedrate override */
+	    vel_lim = joint->free_vel_lim * emcmotStatus->qVscale;
+	    /* must not be greater than the joint physical limit */
+	    if ( vel_lim > joint->vel_limit ) {
 		vel_lim = joint->vel_limit;
 	    }
 	    /* limit velocity request */

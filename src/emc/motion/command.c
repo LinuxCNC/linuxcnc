@@ -837,13 +837,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (emcmotCommand->scale < 0.0) {
 		emcmotCommand->scale = 0.0;	/* clamp it */
 	    }
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		/* point at joint data */
-		joint = &(emcmotStruct->joints[joint_num]);
-		joint->vel_scale = emcmotCommand->scale;
-	    }
-	    tpSetVscale(&emcmotDebug->queue, emcmotCommand->scale);
 	    emcmotStatus->qVscale = emcmotCommand->scale;
+	    tpSetVscale(&emcmotDebug->queue, emcmotCommand->scale);
 	    break;
 
 	case EMCMOT_DISABLE:

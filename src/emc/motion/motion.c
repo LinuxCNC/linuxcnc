@@ -747,7 +747,6 @@ static int init_comm_buffers(void)
 	joint->joint_home = 0.0;
 	joint->big_vel = 10.0 * joint->vel_limit;
 	joint->home_state = 0;
-	joint->vel_scale = 1.0;
 
 	/* init joint flags (reduntant, since flag = 0 */
 

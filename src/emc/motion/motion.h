@@ -411,7 +411,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	   not!) */
 	double joint_home;	/* how is this different than home_offset? */
 	double big_vel;		/* used for "debouncing" velocity */
-	double vel_scale;	/* axis velocity scale factor */
+//	double vel_scale;	/* axis velocity scale factor */
 
     } emcmot_joint_t;
 
@@ -447,6 +447,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	cmd_code_t commandEcho;	/* echo of input command */
 	int commandNumEcho;	/* echo of input command number */
 	cmd_status_t commandStatus;	/* result of most recent command */
+	/* these are config info, updated when a command changes them */
+	double qVscale;		/* velocity scale factor for all motion */
 	/* the rest are updated every cycle */
 	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
 #ifndef NEW_STRUCTS
@@ -481,7 +483,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int logPoints;		/* how many points currently in log */
 
 	/* static status-- only changes upon input commands, e.g., config */
-	double qVscale;		/* traj velocity scale factor */
 #ifndef NEW_STRUCTS
 	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor 
 						 */
