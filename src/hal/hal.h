@@ -148,10 +148,10 @@
   
 typedef struct hal_module_info
   {
-  	const char *module_name;		// Name of the module
-  	const char *author;			// Author who created this module
-  	const char *short_description;	// Description of what the module does
-  	const char *info_link;		// email and/or web reference info
+  	char *module_name;		// Name of the module
+  	char *author;			// Author who created this module
+  	char *short_description;	// Description of what the module does
+  	char *info_link;		// email and/or web reference info
   } hal_module_info;
 
 /*  
@@ -244,6 +244,28 @@ extern void *hal_malloc(int client_id, long int size);
 
 extern void *hal_malloc(long int size);
 
+extern void *new_hal_malloc(int client_id, long int size);
+
+
+/*
+ * hal_nsmalloc
+ *
+ * Malloc routine to acquire memory for a module or block
+ * which is not shared (ns).  This takes care of using
+ * kmalloc for kernel modules and malloc for user space
+ * modules, and also tracks block usage.
+ */
+
+extern void *hal_nsmalloc(int client_id, long int size);
+
+/*
+ * hal_nsfree
+ *
+ * Free's memory allocated with hal_nsmalloc
+ */
+
+extern void hal_nsfree(void *memory);
+
 /** The HAL maintains lists of variables, functions, and so on in
     a central database, located in shared memory so all components
     can access it.  To prevent contention, functions that may
@@ -324,7 +346,7 @@ extern void *hal_malloc(long int size);
   
   */
   
-typedef struct hal_block_type_info
+typedef struct
 {
 	int block_type_id;		// A unique (to this module) block id
 	const char *type_name;		// Name of the block type
@@ -347,7 +369,7 @@ typedef struct hal_block_type_info
 */
 
 extern int hal_register_block_type(int module_id, 
-	hal_block_type_info block_info);
+	hal_block_type_info *block_info);
 
 
 /***********************************************************************

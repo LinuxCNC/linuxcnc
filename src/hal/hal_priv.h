@@ -1,6 +1,8 @@
 #ifndef HAL_PRIV_H
 #define HAL_PRIV_H
 
+#include "hal.h"	// needed for new hal_module_info struct
+
 /** HAL stands for Hardware Abstraction Layer, and is used by EMC to
     transfer realtime data to and from I/O devices and other low-level
     modules.
@@ -150,6 +152,12 @@ typedef struct {
     int thread_free_ptr;	/* list of free thread structs */
 } hal_data_t;
 
+typedef struct hal_block_list_t {
+    hal_block_type_info block;
+    struct hal_block_list_t	*next;	/* linked list to next item in list */
+} hal_block_list_t;
+
+
 /** HAL 'component' data structure.
     This structure contains information that is unique to a HAL component.
     An instance of this structure is added to a linked list when the
@@ -162,6 +170,16 @@ typedef struct {
     int type;			/* 1 if realtime, 0 if not */
     void *shmem_base;		/* base of shmem for this component */
     char name[HAL_NAME_LEN + 1];	/* component name */
+
+/* HAL REFACTOR 
+    I think we want a dynamic name without fixed length?
+*/
+
+    hal_module_info module_info; /* Our private copy of what the module
+				registered with */
+
+    hal_block_list_t	*block_types; /* linked list of types this module
+					knows how to create */
 } hal_comp_t;
 
 /** HAL 'pin' data structure.

@@ -42,12 +42,16 @@
 
 */
 
+/* REALLY fix this... */
+#include "hal_procfs.c"
+
 #ifdef RTAPI
 /* includes for realtime config */
 /* Suspect only very early kernels are missing the basic string functions.
    To be sure, see what has been implimented by looking in linux/string.h
    and {linux_src_dir}/lib/string.c */
 #include <linux/string.h>
+
 #ifndef __HAVE_ARCH_STRCMP	/* This flag will be defined if we do */
 #define __HAVE_ARCH_STRCMP	/* have strcmp */
 /* some kernels don't have strcmp */
@@ -61,7 +65,10 @@ static int strcmp(const char *cs, const char *ct)
     }
     return __res;
 }
-#endif
+#endif	// __HAVE_ARCH_STRCMP
+
+#include <linux/malloc.h>
+#include <linux/mm.h>
 
 #include "rtapi_app.h"
 #ifdef MODULE
@@ -72,6 +79,8 @@ MODULE_DESCRIPTION("Hardware Abstraction Layer for EMC");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
+
+
 #endif /* RTAPI */
 
 #ifdef ULAPI
@@ -94,6 +103,14 @@ hal_data_t *hal_data = 0;
 #ifdef RTAPI
 static int lib_module_id = -1;	/* RTAPI module ID for library module */
 static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
+
+
+/* REALTIME GLOBALS ... needed for hal_lib to manage all of the
+   realtime modules.. */
+
+hal_block_list_t *global_block_list=0;
+
+
 #endif
 
 /***********************************************************************
@@ -131,6 +148,16 @@ static void init_hal_data(void);
 */
 static void *shmalloc_up(long int size);
 static void *shmalloc_dn(long int size);
+
+/*
+ * hal_nsmalloc and hal_nsfree handle allocation of memory
+ * for client's (modules or blocks) for blocks that are not
+ * shared/
+ */
+
+void *hal_nsmalloc(int client_id, long int size);
+void hal_nsfree(void *memory);
+
 
 /** The alloc_xxx_struct() functions allocate a structure of the
     appropriate type and return a pointer to it, or 0 if they fail.
@@ -174,13 +201,19 @@ static void free_thread_struct(hal_thread_t * thread);
 static void thread_task(void *arg);
 #endif /* RTAPI */
 
+
+void free_block_list_struct(hal_block_list_t *l);
+int copy_block_struct(int client_id, hal_block_type_info *dest, 
+	const hal_block_type_info *src);
+hal_block_list_t *alloc_block_list_struct(void);
+
 /***********************************************************************
 *                  PUBLIC (API) FUNCTION CODE                          *
 ************************************************************************/
 
-int hal_init(char *name)
 /*
-REFACTOR In process... hal_init to be repalced by hal_register_module
+REFACTOR In process... hal_init to be replaced by hal_register_module
+
 
 typedef struct hal_module_info
 {
@@ -189,10 +222,106 @@ typedef struct hal_module_info
 	const char *short_description;	// Description of what the module does
 	const char *info_link;		// email and/or web reference info
 } hal_module_info;
+*/
 
 int hal_register_module(hal_module_info *mb)
+{
+    int comp_id, mem_id, retval;
+    void *mem;
+    char rtapi_name[RTAPI_NAME_LEN + 1];
+    char hal_name[HAL_NAME_LEN + 1];
+    hal_comp_t *comp;
+
+
+   rtapi_set_msg_level(RTAPI_MSG_DBG);
+
+
+    if (mb == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no hal_module_info\n");
+	return HAL_INVAL;
+    }
+
+    if (mb->module_name == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no component name\n");
+	return HAL_INVAL;
+    }
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing component '%s'\n",
+	mb->module_name);
+    /* copy name to local vars, truncating if needed */
+    rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_%s", mb->module_name);
+    rtapi_snprintf(hal_name, HAL_NAME_LEN, "%s", mb->module_name);
+    /* do RTAPI init */
+    comp_id = rtapi_init(rtapi_name);
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: rtapi init failed\n");
+	return HAL_FAIL;
+    }
+    /* get HAL shared memory block from RTAPI */
+    /* TODO ... should this be postponed? */
+
+    mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
+    if (mem_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: could not open shared memory\n");
+	rtapi_exit(comp_id);
+	return HAL_FAIL;
+    }
+    /* get address of shared memory area */
+    retval = rtapi_shmem_getptr(mem_id, &mem);
+    if (retval != RTAPI_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: could not access shared memory\n");
+	rtapi_exit(comp_id);
+	return HAL_FAIL;
+    }
+    /* set up internal pointers to shared mem and data structure */
+    hal_shmem_base = (char *) mem;
+    hal_data = (hal_data_t *) mem;
+    /* perform a global init if needed */
+    init_hal_data();
+    /* get mutex before manipulating the shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* make sure name is unique in the system */
+    if (halpr_find_comp_by_name(hal_name) != 0) {
+	/* a component with this name already exists */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: duplicate component name '%s'\n", hal_name);
+	rtapi_exit(comp_id);
+	return HAL_FAIL;
+    }
+    /* allocate a new component structure */
+    comp = alloc_comp_struct();
+    if (comp == 0) {
+	/* couldn't allocate structure */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: insufficient memory for component '%s'\n", hal_name);
+	rtapi_exit(comp_id);
+	return HAL_NOMEM;
+    }
+    /* initialize the structure */
+    comp->comp_id = comp_id;
+    comp->mem_id = mem_id;
+#ifdef RTAPI
+    comp->type = 1;
+#else /* ULAPI */
+    comp->type = 0;
+#endif
+    comp->shmem_base = hal_shmem_base;
+    rtapi_snprintf(comp->name, HAL_NAME_LEN, "%s", hal_name);
+    /* insert new structure at head of list */
+    comp->next_ptr = hal_data->comp_list_ptr;
+    hal_data->comp_list_ptr = SHMOFF(comp);
+    /* done with list, release mutex */
+    rtapi_mutex_give(&(hal_data->mutex));
+    /* done */
+    rtapi_print_msg(RTAPI_MSG_DBG,
+	"HAL: component '%s' initialized, ID = %02d\n", hal_name, comp_id);
+    return comp_id;
+}
  
-*/
+int hal_init(char *name)
 {
     int comp_id, mem_id, retval;
     void *mem;
@@ -350,7 +479,6 @@ int hal_exit(int comp_id)
     return HAL_SUCCESS;
 }
 
-void *hal_malloc(long int size)
 /*
 REFACTOR In process... new hal_malloc
 
@@ -359,8 +487,17 @@ Allocates memory for a client, associating the allocated memory
 with the memory pool for the id specified by client_id.
 
 void *hal_malloc(int client_id, long int size)
- 
+
+TODO: change new_hal_malloc to just hal_malloc 
 */
+
+void *new_hal_malloc(int client_id, long int size)
+{
+/* TODO: track memory usage by client_id */
+	return(hal_malloc(size));
+}
+
+void *hal_malloc(long int size)
 {
     void *retval;
 
@@ -384,7 +521,8 @@ void *hal_malloc(int client_id, long int size)
 }
 
 
-
+#ifdef RTAPI
+/* This is only for realtime for now.... */
 
 /*
 hal_register_block_type
@@ -393,15 +531,45 @@ Registers a block type with the hal subsystem.
 
  
 */
-int hal_register_block_type(int module_id, hal_block_type_info block_info)
+int hal_register_block_type(int module_id, hal_block_type_info *block_info)
 {
+hal_block_list_t *p;
+hal_block_list_t **block_list_handle;
+
+int result;
+
+    p= alloc_block_list_struct();
+    if (!p)
+	{
+    	rtapi_print_msg(RTAPI_MSG_DBG,
+       	    "HAL: hal_register_block_type() failed - NOMEM! (0)");
+	return HAL_NOMEM;
+	}
+	
+    result=copy_block_struct(module_id, &p->block, block_info);
+    if (result!=HAL_SUCCESS)
+	{
+        free_block_list_struct(p);
+    	rtapi_print_msg(RTAPI_MSG_DBG,
+       	    "HAL: hal_register_block_type() failed - NOMEM! (1)");
+	return HAL_NOMEM;
+	}
+
+    p->next=0;
+
+    
+
+/* Walk the linked list of block_lists until we reach the end... */
+    for (block_list_handle=&global_block_list; *block_list_handle;
+	block_list_handle=&( (*block_list_handle)->next ) );
+
+    *block_list_handle=p;
 
     rtapi_print_msg(RTAPI_MSG_DBG,
-        "HAL: hal_register_block_type() unimplemented!");
-
+        "HAL: hal_register_block_type: registered type %s\n", block_info->type_name);
     return HAL_SUCCESS;
 }
-
+#endif // RTAPI
 
 
 /***********************************************************************
@@ -1922,6 +2090,15 @@ int rtapi_app_main(void)
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL_LIB: kernel lib installed successfully\n");
+
+    #ifdef PROCFS
+    hal_init_procfs();
+    rtapi_print_msg(RTAPI_MSG_DBG,
+	"HAL_LIB: Using proc\n");
+    #else
+    rtapi_print_msg(RTAPI_MSG_DBG,
+	"HAL_LIB: NOT Using proc\n");
+    #endif
     return 0;
 }
 
@@ -1930,6 +2107,11 @@ void rtapi_app_exit(void)
     hal_thread_t *thread;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: removing kernel lib\n");
+
+    #ifdef PROCFS
+    hal_shutdown_procfs();
+    #endif
+
     /* grab mutex before manipulating list */
     rtapi_mutex_get(&(hal_data->mutex));
     /* must remove all threads before unloading this module */
@@ -2094,6 +2276,68 @@ static void *shmalloc_dn(long int size)
     return retval;
 }
 
+
+void *hal_nsmalloc(int client_id, long int size)
+{
+void *memory;
+
+#ifdef RTAPI
+	memory=kmalloc(size, GFP_KERNEL);
+#else
+	malloc(size);
+#endif
+
+/* TODO REFACTOR
+   Make this actually track memory using the client_id
+*/
+	return memory;
+}
+
+void hal_nsfree(void *memory)
+{
+/* TODO REFACTOR
+   Make this actually track memory using the client_id and remove this
+   block from whatver pool/queue/struct tracks usage
+*/
+#ifdef RTAPI
+	kfree(memory);
+#else
+	free(memory);
+#endif
+
+}
+
+/*
+ * hal_nsfree_by_id(int client_id)
+ *
+ * Free all memory requested by the client_id
+ *
+ */
+
+void hal_nsfree_by_id(int client_id)
+{
+/* TODO REFACTOR */
+}
+
+
+
+char *hal_strdup(int client_id, const char *string)
+{
+char *newstring;
+int length=strlen(string);
+ 
+    newstring=hal_nsmalloc(client_id, length+1);
+
+    if (newstring)
+	{
+	memcpy(newstring, string, length);
+	newstring[length]=0;
+	}
+
+    return newstring;
+}
+
+
 static hal_comp_t *alloc_comp_struct(void)
 {
     hal_comp_t *p;
@@ -2120,6 +2364,68 @@ static hal_comp_t *alloc_comp_struct(void)
     }
     return p;
 }
+
+
+hal_block_list_t *
+alloc_block_list_struct()
+{
+    hal_block_list_t *p;
+
+    p = shmalloc_dn(sizeof(hal_block_list_t));
+    if (p) {
+	/* make sure it's empty */
+	p->next = 0;
+	p->block.block_type_id = -1;
+	p->block.type_name = 0;
+	p->block.short_description = 0;
+	p->block.create = 0;
+	}
+    return p;
+}
+
+void free_block_list_struct(hal_block_list_t *l)
+{
+/* TODO ... make this free shared memory or whatever...
+
+    if (l->block.type_name)
+    	free(l->block.type_name)
+    if (l->block.short_description)
+    	free(l->block.short_description)
+    free(l);
+*/
+return;
+}
+
+
+
+
+
+
+int
+copy_block_struct(int client_id, hal_block_type_info *dest, 
+	const hal_block_type_info *src)
+{
+int size;
+	dest->block_type_id = src->block_type_id;
+
+	size=strlen(src->type_name)+1;
+
+	dest->type_name=shmalloc_dn(size);
+	if (!dest->type_name) return HAL_NOMEM;
+	strncpy(dest->type_name, src->type_name, size);
+
+	size=strlen(src->short_description)+1;
+
+	dest->short_description=shmalloc_dn(size);
+	if (!dest->short_description) return HAL_NOMEM;
+	strncpy(dest->short_description, src->short_description, size);
+
+	dest->create=src->create;
+return HAL_SUCCESS;
+}
+
+
+
 
 static hal_pin_t *alloc_pin_struct(void)
 {

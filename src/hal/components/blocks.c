@@ -52,28 +52,15 @@ MODULE_DESCRIPTION("Functional blocks for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
-static int constant = 0;	/* number of constants */
-MODULE_PARM(constant, "i");
-MODULE_PARM_DESC(constant, "constants");
-static int wcomp = 0;		/* number of window comps */
-MODULE_PARM(wcomp, "i");
-MODULE_PARM_DESC(wcomp, "window comparators");
-static int comp = 0;		/* number of 2-input comps */
-MODULE_PARM(comp, "i");
-MODULE_PARM_DESC(comp, "2-input comparators");
-static int sum2 = 0;		/* number of 2-input summers */
-MODULE_PARM(sum2, "i");
-MODULE_PARM_DESC(sum2, "2-input summers");
-static int mux2 = 0;		/* number of 2-input muxes */
-MODULE_PARM(mux2, "i");
-MODULE_PARM_DESC(mux2, "2-input multiplexors");
-static int integ = 0;		/* number of integerators */
-MODULE_PARM(integ, "i");
-MODULE_PARM_DESC(integ, "integrators");
-static int ddt = 0;		/* number of differentiators */
-MODULE_PARM(ddt, "i");
-MODULE_PARM_DESC(ddt, "differentiators");
 #endif /* MODULE */
+
+
+/*
+TODO: undo this hack once hal_malloc is fully converted:
+
+*/
+
+#define hal_malloc new_hal_malloc
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -133,13 +120,13 @@ static int comp_id;		/* component ID */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_constant(int num);
-static int export_wcomp(int num);
-static int export_comp(int num);
-static int export_mux2(int num);
-static int export_sum2(int num);
-static int export_integ(int num);
-static int export_ddt(int num);
+static int create_constant(int module_id, int num);
+static int create_wcomp(int module_id, int num);
+static int create_comp(int module_id, int num);
+static int create_mux2(int module_id, int num);
+static int create_sum2(int module_id, int num);
+static int create_integ(int module_id, int num);
+static int create_ddt(int module_id, int num);
 
 static void constant_funct(void *arg, long period);
 static void wcomp_funct(void *arg, long period);
@@ -153,107 +140,101 @@ static void ddt_funct(void *arg, long period);
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
+hal_module_info blocks_module_info={
+	module_name: "blocks",
+	author: "John Kasunich (jmkasunich AT att DOT net)",
+	short_description: "An assortment of simple blocks.",
+	info_link: "Contact John Kasunich (jmkasunich AT att DOT net)"
+};
+
+enum {
+	BLOCKS_TYPE_CONSTANT=0,
+	BLOCKS_TYPE_WCOMP,
+	BLOCKS_TYPE_COMP,
+	BLOCKS_TYPE_SUM2,
+	BLOCKS_TYPE_MUX2,
+	BLOCKS_TYPE_INTEG,
+	BLOCKS_TYPE_DDT};
+
+
+hal_block_type_info blocks_block_types[]=
+{
+	{
+	block_type_id		:BLOCKS_TYPE_CONSTANT,
+	type_name		:"constant",
+        short_description	:"pin controlled by parameter",
+	create			:create_constant
+	},
+	{
+	block_type_id		:BLOCKS_TYPE_WCOMP,
+	type_name		:"wcomp",
+        short_description	:"window comparator - out is true if min < in < max",
+	create			:create_wcomp
+	},
+	{
+	block_type_id		:BLOCKS_TYPE_COMP,
+	type_name		:"comp",
+        short_description	:"2 input comparator - out is true if in1 > in0",
+	create			:create_comp
+	},
+	{
+	block_type_id		:BLOCKS_TYPE_SUM2,
+	type_name		:"sum2",
+        short_description	:"2 input summer - out = in1 * gain1 + in2 * gain2",
+	create			:create_sum2
+	},
+	{
+	block_type_id		:BLOCKS_TYPE_MUX2,
+	type_name		:"mux2",
+        short_description	:"two input analog mux - out = in1 if sel is true, else in0",
+	create			:create_mux2
+	},
+	{
+	block_type_id		:BLOCKS_TYPE_INTEG,
+	type_name		:"integ",
+        short_description	:"integrator, out = integral of in",
+	create			:create_integ
+	},
+	{
+	block_type_id		:BLOCKS_TYPE_DDT,
+	type_name		:"ddt",
+        short_description	:"differentiator, out = derivative of in",
+	create			:create_ddt
+	}
+};
+
+
+
 int rtapi_app_main(void)
 {
     int n;
+    int result;
 
     /* connect to the HAL */
-    comp_id = hal_init("blocks");
+
+
+//    comp_id = hal_init("blocks");
+    comp_id = hal_register_module(&blocks_module_info);
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "BLOCKS: ERROR: hal_init() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "BLOCKS: ERROR: hal_register_module() failed\n");
 	return -1;
     }
-    /* allocate and export constants */
-    if (constant > 0) {
-	for (n = 0; n < constant; n++) {
-	    if (export_constant(n) != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "BLOCKS: ERROR: export_constant(%d) failed\n", n);
+
+    /* Register our ability to create blocks... */
+
+    for (n=0; 
+	n < (sizeof( blocks_block_types ) / sizeof(hal_block_type_info)); 
+	n++)
+
+	{
+	result=hal_register_block_type(comp_id, &blocks_block_types[n]);
+	if (HAL_SUCCESS != result)
+		{
+		rtapi_print_msg(RTAPI_MSG_ERR, "BLOCKS: ERROR: failed to register ability to create blocks of type '%s'\n", blocks_block_types[n].type_name);
 		hal_exit(comp_id);
-		return -1;
-	    }
+		}
 	}
-	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "BLOCKS: installed %d constants\n", constant);
-    }
-    /* allocate and export window comparators */
-    if (wcomp > 0) {
-	for (n = 0; n < wcomp; n++) {
-	    if (export_wcomp(n) != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "BLOCKS: ERROR: export_wcomp(%d) failed\n", n);
-		hal_exit(comp_id);
-		return -1;
-	    }
-	}
-	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "BLOCKS: installed %d window comparators\n", wcomp);
-    }
-    /* allocate and export 2-input comparators */
-    if (comp > 0) {
-	for (n = 0; n < comp; n++) {
-	    if (export_comp(n) != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "BLOCKS: ERROR: export_comp(%d) failed\n", n);
-		hal_exit(comp_id);
-		return -1;
-	    }
-	}
-	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "BLOCKS: installed %d 2-input comparators\n", comp);
-    }
-    /* allocate and export 2 input multiplexors */
-    if (mux2 > 0) {
-	for (n = 0; n < mux2; n++) {
-	    if (export_mux2(n) != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "BLOCKS: ERROR: export_mux2(%d) failed\n", n);
-		hal_exit(comp_id);
-		return -1;
-	    }
-	}
-	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "BLOCKS: installed %d 2-input muxes\n", mux2);
-    }
-    /* allocate and export 2 input summers */
-    if (sum2 > 0) {
-	for (n = 0; n < sum2; n++) {
-	    if (export_sum2(n) != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "BLOCKS: ERROR: export_sum2(%d) failed\n", n);
-		hal_exit(comp_id);
-		return -1;
-	    }
-	}
-	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "BLOCKS: installed %d 2-input summers\n", sum2);
-    }
-    /* allocate and export integrators */
-    if (integ > 0) {
-	for (n = 0; n < integ; n++) {
-	    if (export_integ(n) != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "BLOCKS: ERROR: export_integ(%d) failed\n", n);
-		hal_exit(comp_id);
-		return -1;
-	    }
-	}
-	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "BLOCKS: installed %d 2 integrators\n", integ);
-    }
-    /* allocate and export differentiators */
-    if (ddt > 0) {
-	for (n = 0; n < ddt; n++) {
-	    if (export_ddt(n) != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "BLOCKS: ERROR: export_ddt(%d) failed\n", n);
-		hal_exit(comp_id);
-		return -1;
-	    }
-	}
-	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "BLOCKS: installed %d differentiators\n", ddt);
-    }
+
     return 0;
 }
 
@@ -363,10 +344,9 @@ static void ddt_funct(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_constant(int num)
+static int create_constant(int module_id, int block_id)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
     constant_t *constant;
 
     /* This function exports a lot of stuff, which results in a lot of
@@ -377,34 +357,31 @@ static int export_constant(int num)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* allocate shared memory for window comparator */
-    constant = hal_malloc(sizeof(constant_t));
+    constant = hal_malloc(block_id, sizeof(constant_t));
     if (constant == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: hal_malloc() failed\n");
 	return -1;
     }
     /* export pin for output */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "constant.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(constant->out), comp_id);
+    retval = hal_pin_float_new("out", HAL_WR, &(constant->out), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'out' pin export failed\n");
 	return retval;
     }
     /* export param for value */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "constant.%d.value", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(constant->value), comp_id);
+    retval = hal_param_float_new("value", HAL_WR, &(constant->value), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	    "BLOCKS: ERROR: 'value' param export failed\n");
 	return retval;
     }
     /* export function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "constant.%d", num);
-    retval = hal_export_funct(buf, constant_funct, constant, 1, 0, comp_id);
+    retval = hal_export_funct("constant", constant_funct, constant, 1, 0, block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	    "BLOCKS: ERROR: 'constant' funct export failed\n");
 	return -1;
     }
     /* set default parameter values */
@@ -414,10 +391,9 @@ static int export_constant(int num)
     return 0;
 }
 
-static int export_wcomp(int num)
+static int create_wcomp(int module_id, int block_id)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
     wcomp_t *wcomp;
 
     /* This function exports a lot of stuff, which results in a lot of
@@ -428,49 +404,44 @@ static int export_wcomp(int num)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* allocate shared memory for window comparator */
-    wcomp = hal_malloc(sizeof(wcomp_t));
+    wcomp = hal_malloc(block_id, sizeof(wcomp_t));
     if (wcomp == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: hal_malloc() failed\n");
 	return -1;
     }
     /* export pin for input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "wcomp.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(wcomp->in), comp_id);
+    retval = hal_pin_float_new("in", HAL_RD, &(wcomp->in), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'in' pin export failed\n");
 	return retval;
     }
     /* export pin for output */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "wcomp.%d.out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(wcomp->out), comp_id);
+    retval = hal_pin_bit_new("out", HAL_WR, &(wcomp->out), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'out' pin export failed\n");
 	return retval;
     }
     /* export params for min and max */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "wcomp.%d.min", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(wcomp->min), comp_id);
+    retval = hal_param_float_new("min", HAL_WR, &(wcomp->min), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	    "BLOCKS: ERROR: 'min' param export failed\n");
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "wcomp.%d.max", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(wcomp->max), comp_id);
+    retval = hal_param_float_new("max", HAL_WR, &(wcomp->max), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	    "BLOCKS: ERROR: 'max' param export failed\n");
 	return retval;
     }
     /* export function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "wcomp.%d", num);
-    retval = hal_export_funct(buf, wcomp_funct, wcomp, 1, 0, comp_id);
+    retval = hal_export_funct("wcomp", wcomp_funct, wcomp, 1, 0, block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	    "BLOCKS: ERROR: 'wcomp' funct export failed\n");
 	return -1;
     }
     /* set default parameter values */
@@ -481,7 +452,7 @@ static int export_wcomp(int num)
     return 0;
 }
 
-static int export_comp(int num)
+static int create_comp(int module_id, int num)
 {
     int retval, msg;
     char buf[HAL_NAME_LEN + 2];
@@ -495,7 +466,7 @@ static int export_comp(int num)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* allocate shared memory for 2-input comparator */
-    comp = hal_malloc(sizeof(comp_t));
+    comp = hal_malloc(num, sizeof(comp_t));
     if (comp == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: hal_malloc() failed\n");
@@ -547,10 +518,9 @@ static int export_comp(int num)
     return 0;
 }
 
-static int export_mux2(int num)
+static int create_mux2(int module_id, int block_id)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
     mux2_t *mux2;
 
     /* This function exports a lot of stuff, which results in a lot of
@@ -561,49 +531,44 @@ static int export_mux2(int num)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* allocate shared memory for 2 input multiplexor */
-    mux2 = hal_malloc(sizeof(mux2_t));
+    mux2 = hal_malloc(block_id, sizeof(mux2_t));
     if (mux2 == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: hal_malloc() failed\n");
 	return -1;
     }
     /* export pins for inputs */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mux2.%d.in0", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(mux2->in0), comp_id);
+    retval = hal_pin_float_new("in0", HAL_RD, &(mux2->in0), module_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'in0' pin export failed\n");
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mux2.%d.in1", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(mux2->in1), comp_id);
+    retval = hal_pin_float_new("in1", HAL_RD, &(mux2->in1), module_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'in1' pin export failed\n");
 	return retval;
     }
     /* export pin for output */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mux2.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(mux2->out), comp_id);
+    retval = hal_pin_float_new("out", HAL_WR, &(mux2->out), module_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'out' pin export failed\n");
 	return retval;
     }
     /* export pin for select input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mux2.%d.sel", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(mux2->sel), comp_id);
+    retval = hal_pin_bit_new("sel", HAL_RD, &(mux2->sel), module_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'sel' pin export failed\n");
 	return retval;
     }
     /* export function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mux2.%d", num);
-    retval = hal_export_funct(buf, mux2_funct, mux2, 1, 0, comp_id);
+    retval = hal_export_funct("mux2", mux2_funct, mux2, 1, 0, module_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	    "BLOCKS: ERROR: 'mux2' funct export failed\n");
 	return -1;
     }
     /* restore saved message level */
@@ -611,10 +576,9 @@ static int export_mux2(int num)
     return 0;
 }
 
-static int export_sum2(int num)
+static int create_sum2(int module_id, int block_id)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
     sum2_t *sum2;
 
     /* This function exports a lot of stuff, which results in a lot of
@@ -625,56 +589,50 @@ static int export_sum2(int num)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* allocate shared memory for 2-input summer */
-    sum2 = hal_malloc(sizeof(sum2_t));
+    sum2 = hal_malloc(block_id, sizeof(sum2_t));
     if (sum2 == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: hal_malloc() failed\n");
 	return -1;
     }
     /* export pins for inputs */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d.in0", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(sum2->in0), comp_id);
+    retval = hal_pin_float_new("in0", HAL_RD, &(sum2->in0), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'in0' pin export failed\n");
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d.in1", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(sum2->in1), comp_id);
+    retval = hal_pin_float_new("in1", HAL_RD, &(sum2->in1), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'in1' pin export failed\n");
 	return retval;
     }
     /* export pin for output */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(sum2->out), comp_id);
+    retval = hal_pin_float_new("out", HAL_RD, &(sum2->out), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'out' pin export failed\n");
 	return retval;
     }
     /* export params for gains */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d.gain0", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(sum2->gain0), comp_id);
+    retval = hal_param_float_new("gain0", HAL_WR, &(sum2->gain0), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	    "BLOCKS: ERROR: 'gain0' param export failed\n");
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d.gain1", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(sum2->gain1), comp_id);
+    retval = hal_param_float_new("gain1", HAL_WR, &(sum2->gain1), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	    "BLOCKS: ERROR: 'gain1' param export failed\n");
 	return retval;
     }
     /* export function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d", num);
-    retval = hal_export_funct(buf, sum2_funct, sum2, 1, 0, comp_id);
+    retval = hal_export_funct("sum2", sum2_funct, sum2, 1, 0, block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	    "BLOCKS: ERROR: 'sum2' funct export failed\n");
 	return -1;
     }
     /* set default parameter values */
@@ -685,10 +643,9 @@ static int export_sum2(int num)
     return 0;
 }
 
-static int export_integ(int num)
+static int create_integ(int module_id, int block_id)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
     integ_t *integ;
 
     /* This function exports a lot of stuff, which results in a lot of
@@ -699,34 +656,31 @@ static int export_integ(int num)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* allocate shared memory for integrator */
-    integ = hal_malloc(sizeof(integ_t));
+    integ = hal_malloc(block_id, sizeof(integ_t));
     if (integ == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: hal_malloc() failed\n");
 	return -1;
     }
     /* export pins for input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "integ.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(integ->in), comp_id);
+    retval = hal_pin_float_new("in", HAL_RD, &(integ->in), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'in' pin export failed\n");
 	return retval;
     }
     /* export pin for output */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "integ.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(integ->out), comp_id);
+    retval = hal_pin_float_new("out", HAL_WR, &(integ->out), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'out' pin export failed\n");
 	return retval;
     }
     /* export function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "integ.%d", num);
-    retval = hal_export_funct(buf, integ_funct, integ, 1, 0, comp_id);
+    retval = hal_export_funct("integ", integ_funct, integ, 1, 0, block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	    "BLOCKS: ERROR: 'integ' funct export failed\n");
 	return -1;
     }
     /* restore saved message level */
@@ -734,10 +688,9 @@ static int export_integ(int num)
     return 0;
 }
 
-static int export_ddt(int num)
+static int create_ddt(int module_id, int block_id)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
     ddt_t *ddt;
 
     /* This function exports a lot of stuff, which results in a lot of
@@ -748,34 +701,31 @@ static int export_ddt(int num)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* allocate shared memory for differentiator */
-    ddt = hal_malloc(sizeof(ddt_t));
+    ddt = hal_malloc(block_id, sizeof(ddt_t));
     if (ddt == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: hal_malloc() failed\n");
 	return -1;
     }
     /* export pins for input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ddt.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(ddt->in), comp_id);
+    retval = hal_pin_float_new("in", HAL_RD, &(ddt->in), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'in' pin export failed\n");
 	return retval;
     }
     /* export pin for output */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ddt.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(ddt->out), comp_id);
+    retval = hal_pin_float_new("out", HAL_WR, &(ddt->out), block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    "BLOCKS: ERROR: 'out' pin export failed\n");
 	return retval;
     }
     /* export function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ddt.%d", num);
-    retval = hal_export_funct(buf, ddt_funct, ddt, 1, 0, comp_id);
+    retval = hal_export_funct("ddt", ddt_funct, ddt, 1, 0, block_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	    "BLOCKS: ERROR: 'ddt' funct export failed\n");
 	return -1;
     }
     /* restore saved message level */
