@@ -5,6 +5,9 @@
     |--- docs/ (All the important and relevant Docs.)
     |      |   (API and source notes should be in each src dir.)
     |      |
+    |      |--- handbooks/  (PDF versions of handbooks)
+    |      |                (LyX source is in the documents tree)
+    |      |
     |      |--- man/  (man pages)
     |            |
     |            |--- man1/  (user man pages)
