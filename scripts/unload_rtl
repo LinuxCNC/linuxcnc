@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# This script removes rtai kernel modules
+#
+
+sync
+
+#
+# check for user space processes using RTLinux shared memory
+#
+
+if [ -e /dev/mbuff ] ; then
+    # device file exists, check for processes using it
+    if /sbin/fuser -s /dev/mbuff ; then
+	# at least one process is using it
+	echo "ERROR:  Can't remove RTLinux modules, kill the following process(es) first"
+	/sbin/fuser -v /dev/mbuff
+	exit -1
+    fi
+fi
+
+#
+# Generate list of kernel modules to be removed
+#
+
+RTL_MODULES="rtl_fifo rtl_posixio rtl_sched rtl_time mbuff rtl"
+
+#
+# Remove the modules
+#
+
+echo "Unloading RTLinux modules"
+for MOD in $RTL_MODULES ; do
+    # check to see if the module is installed
+    if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
+	echo "'$MOD' already unloaded"
+    else
+	# remove the module
+	if /sbin/rmmod $MOD >/dev/null 2>/dev/null ; then
+	    echo "'$MOD' unloaded successfully"
+	else
+	    echo "ERROR: Could not unload '$MOD' - are you root?"
+	    exit -1
+	fi
+    fi
+done
+
+exit 0

@@ -1,0 +1,46 @@
+#!/bin/bash
+#
+# This script installs the RTLinux kernel modules
+#
+
+sync
+
+#
+# Check for the symbols "rthal" or "adeos" in ksyms to verify the
+# presence of the kernel patches - then select the appropriate
+# list of kernel modules to load
+#
+
+RTL_MODULES="rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo"
+
+#
+# Load the modules
+#
+echo "Loading RTLinux modules"
+for MOD in $RTL_MODULES ; do
+    # ask modprobe if it knows where to find the module
+    MODLOC=`/sbin/modprobe --list $MOD.o`
+    if [ -z $MODLOC ] ; then
+	# can't find it - perhaps at a later date we can put a
+	#   more sophisticated search here, but for now, if
+	#   modprobe can't find it we simply abort
+	echo "ERROR: modprobe cannot find module '$MOD'"
+	exit -1
+    fi
+    # check to see if the module is already installed
+    if /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
+	echo "'$MOD' already loaded"
+    else
+	# install the module (give insmod the full path)
+	if /sbin/insmod $MODLOC ; then
+	    echo "'$MOD' loaded successfully"
+	else
+	    echo "ERROR: Could not load '$MOD' - are you root?"
+	    exit -1
+	fi
+    fi
+done
+
+exit 0
+
+

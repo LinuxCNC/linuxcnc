@@ -10,6 +10,22 @@ sync
 # presence of the kernel patches - then select the appropriate
 # list of kernel modules to load
 #
+# FIXME - this still isn't right.  It correctly decides when to
+# install the 'adeos' module, but the 'rt_mem_mgr' module is
+# only needed "sometimes".  'rt_mem_mgr' implements dynamic
+# allocation of shared memory from realtime tasks.  RTAPI does
+# not call any functions from 'rt_mem_mgr' (which are rt_malloc
+# and rt_free).  RTAPI uses rtai_malloc and rtai_free instead.
+# However, rtai_sched does call rt_malloc - at least on a TNG box.
+# But Paul has a box that doesn't have rt_mem_mgr at all - so
+# obviously rtai_sched must be different on that machine.  This
+# is making me crazy!
+# I suppose the last resort would be to replace the relatively
+# simple list of modules and install loop with the original
+# code from 'install_realtime_base' - it is longer and more
+# confusing, but it uses modprobe to install 'rt_mem_mgr'
+# only when needed.  I will think about this and decide later.
+#
 
 if /sbin/ksyms -a | grep rthal >/dev/null 2>/dev/null ; then
     RTAI_MODULES="rtai rt_mem_mgr rtai_sched rtai_fifos rtai_shm"

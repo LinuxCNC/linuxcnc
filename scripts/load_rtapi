@@ -45,7 +45,7 @@ if /sbin/lsmod | awk '{print $1}' | grep -x rtapi >/dev/null ; then
     echo "'rtapi' already loaded"
 else
     # install the module
-    if /sbin/insmod $EMC2_DIR/rtlib/rtapi.o >/dev/null 2>/dev/null ; then
+    if /sbin/insmod $EMC2_DIR/rtlib/rtapi.o ; then
 	echo "'rtapi' loaded successfully"
     else
 	echo "ERROR: Could not load 'rtapi' - are you root?"
