@@ -28,7 +28,7 @@
 #include "rcs.hh"               /* RCS_CMD_CHANNEL */
 #include "emc.hh"               /* EMC NML */
 #include "emcglb.h"             /* EMC_NMLFILE, EMC_INIFILE */
-#include "inifile.h"            /* INIFILE */
+#include "inifile.hh"            /* INIFILE */
 
 static RCS_CMD_CHANNEL * emcioCommandBuffer = 0;
 static RCS_CMD_MSG * emcioCommand = 0;

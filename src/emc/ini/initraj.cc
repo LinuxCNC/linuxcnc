@@ -25,7 +25,7 @@ extern "C" {
 
 #include "emc.hh"
 #include "posemath.h"           // PM_POSE, PM_RPY
-#include "inifile.h"
+#include "inifile.hh"
 #include "initraj.hh"           // these decls
 #include "emcglb.h"             // TRAVERSE_RATE (FIXME)
 

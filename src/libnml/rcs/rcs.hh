@@ -63,6 +63,7 @@ enum RCS_STATUS {               /* Originally from nml_mod.hh */
 
 /* class INIFILE */
 #include "inifile.h"
+#include "inifile.hh"
 
 #include "rcsversion.h"
 

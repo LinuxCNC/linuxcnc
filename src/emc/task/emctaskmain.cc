@@ -61,7 +61,7 @@ extern "C" {
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
 #include "emc.hh"		// EMC NML
 #include "canon.hh"		// CANON_TOOL_TABLE stuff
-#include "inifile.h"		// INIFILE
+#include "inifile.hh"		// INIFILE
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "emcglb.h"		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
 #include "rs274ngc_return.hh"	// NCE_FILE_NOT_OPEN

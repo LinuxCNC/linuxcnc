@@ -22,7 +22,7 @@ extern "C" {
 #include <string.h>		// strcpy()
 }
 #include "emc.hh"
-#include "inifile.h"
+#include "inifile.hh"
 #include "initool.hh"		// these decls
 #include "emcglb.h"		// TOOL_TABLE_FILE
 // inifile ref'ed by iniTool(), loadTool() 

@@ -20,7 +20,6 @@
 #define INIFILE_H
 
 #ifdef __cplusplus
-#include "inifile.hh"
 extern "C" {
 #endif
 

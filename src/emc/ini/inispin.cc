@@ -22,7 +22,7 @@ extern "C" {
 }
 
 #include "emc.hh"
-#include "inifile.h"
+#include "inifile.hh"
 #include "inispin.hh"           // these decls
 #include "emcglb.h"             // SPINDLE_FORWARD_INDEX, etc
 

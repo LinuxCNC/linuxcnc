@@ -27,7 +27,7 @@ extern "C" {
 }
 
 #include "emc.hh"
-#include "inifile.h"
+#include "inifile.hh"
 #include "iniaxis.hh"           // these decls
 #include "emcglb.h"             // EMC_DEBUG
 #include "emccfg.h"             // default values for globals
