@@ -194,8 +194,8 @@ Do not put anything below this point. The revision log is automatically appended
 ################################################################################
 
 $Log$
-Revision 1.1  2003/10/11 21:30:53  jmkasunich
-Initial revision
+Revision 1.1.1.1  2003/10/11 21:30:53  jmkasunich
+initial import of emc2 directory tree
 
 Revision 1.1  2003/07/26 22:06:26  paul_c
 Initial version
