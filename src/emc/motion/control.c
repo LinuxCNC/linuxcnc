@@ -753,6 +753,7 @@ void emcmotController(void *arg)
 			(emcmotDebug->teleop_data.desiredVel.c -
 			emcmotDebug->teleop_data.currentVel.c) /
 			emcmotConfig->trajCycleTime;
+
 		    if (emcmotDebug->teleop_data.desiredAccell.a > accell_mag) {
 			accell_mag = emcmotDebug->teleop_data.desiredAccell.a;
 		    }

@@ -13,8 +13,19 @@
 #include <string.h>		/* strlen(), etc. */
 #include <ctype.h>		/* isspace() */
 
-/* if the next non-whitespace character in string is '=', returns
-   ptr to next non-whitespace after that, or NULL. */
+/********************************************************************
+*
+* Description: const char *afterequal(const char *string)
+*		Ignoring any tabs, spaces or other white spaces,
+*		finds the first character after an '='.
+*
+* Return Value: NULL or pointer to first non-white char after an '='
+*
+* Side Effects: None.
+*
+* Called By: iniFind() and iniSection()
+*
+********************************************************************/
 static const char *afterequal(const char *string)
 {
     const char *spot = string;	/* non-reentrant */
@@ -48,6 +59,21 @@ static const char *afterequal(const char *string)
 }
 
 /* returns ptr to first non-white in string, or NULL if it's all white */
+/********************************************************************
+*
+* Description: char *skipwhite(char *string)
+*		Finds the first non-white character on a new line
+*		and returns a pointer.
+*		Ignores any line that starts with a comment char
+*		i.e. a ';' or '#'.
+*
+* Return Value: NULL if not found or a valid pointer.
+*
+* Side Effects: None.
+*
+* Called By: findSection() iniFind() iniSection()
+*
+********************************************************************/
 static char *skipwhite(char *string)
 {
     for (;;) {
@@ -68,10 +94,20 @@ static char *skipwhite(char *string)
     }
 }
 
-/*
-   Positions file at line after section tag. Returns 0 if section found;
-   -1 if not.
-   */
+/********************************************************************
+*
+* Description: findSection(void *fp, const char *section)
+*		Positions the pointer to the first line after a
+*		[section] tag.
+*
+* Return Value: Returns zero on success or -1 if tag not found or EOF reached.
+*
+* Side Effects: 
+*
+* Called By: iniSection()
+*
+********************************************************************/
+
 static int findSection(void *fp, const char *section)
 {
     static char line[INIFILE_MAX_LINELEN + 2];	/* 1 for newline, 1 for NULL */
@@ -122,23 +158,25 @@ static int findSection(void *fp, const char *section)
     return -1;
 }
 
-/* Returns string in file associated with tag, e.g., in a file that
-   contains
-
-   PRINTER=fred
-
-   iniFind("PRINTER");
-
-   would return "fred", and
-
-   iniFind("printer");
-
-   would return NULL.
-
-   The FILE * needs to have been opened; its position after the call
-   to iniFind is undefined.
- */
-
+/********************************************************************
+*
+* Description: char *iniFind(void *fp, const char *tag, const char *section)
+*		Locates the start of a string associated with a tag.
+*
+*		 e.g., in a file that contains
+*
+*		  PRINTER=fred
+*
+*		   iniFind("PRINTER");   would return "fred", and
+*		   iniFind("printer");   would return NULL.
+*
+* Return Value: NULL if not found or a string.
+*
+* Side Effects: The file pointer is undefined upon return.
+*
+* Called By: inivar.c inifile.cc usrmotintf.c
+*
+********************************************************************/
 const char *iniFind(void *fp, const char *tag, const char *section)
 {
     static char line[INIFILE_MAX_LINELEN + 2];	/* 1 for newline, 1 for NULL */
@@ -266,15 +304,28 @@ const char *iniFind(void *fp, const char *tag, const char *section)
 }
 
 /*
-   given 'section' and array of strings, fills strings with what was
-   found in the section, one line per string. Comments and blank lines
-   are omitted. 'array' is assumed to be allocated, of 'max' entries
-   of size INIFILE_MAX_LINELEN.
 
    Returns number of entries found; 0 if section is there but no entries
    in it, or -1 if section is not there.
 */
 
+/********************************************************************
+*
+* Description: iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
+*		Given 'section' and array of strings, fills strings with
+*		what was found in the section, one line per string.
+*		Comments and blank lines are omitted. 'array' is assumed
+*		to be allocated, of 'max' entries of size 
+*		INIFILE_MAX_LINELEN.
+*
+* Return Value: Number of entries found, zero if none found, or
+*		-1 if no section.
+*
+* Side Effects:
+*
+* Called By: inifile.cc
+*
+********************************************************************/
 int iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
 {
     static char line[INIFILE_MAX_LINELEN + 2];	/* 1 for newline, 1 for NULL */
