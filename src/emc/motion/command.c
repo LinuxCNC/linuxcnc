@@ -301,6 +301,7 @@ check_stuff ( "before command_handler()" );
 	       planners which stops axis motion */
 	    /* check for coord or free space motion active */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ABORT");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    if (GET_MOTION_TELEOP_FLAG()) {
 		emcmotDebug->teleop_data.desiredVel.tran.x = 0.0;
 		emcmotDebug->teleop_data.desiredVel.tran.y = 0.0;

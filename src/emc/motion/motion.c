@@ -172,10 +172,11 @@ void reportError(const char *fmt, ...)
     /* Don't use the rtapi_snprintf... */
     vsnprintf(error, EMCMOT_ERROR_LEN, fmt, args);
     va_end(args);
+/* FIXME - eventually should print _only_ to the RCS buffer, I think */
 /* print to the kernel buffer... */
     rtapi_print("%d: ERROR: %s\n", emcmotStatus->heartbeat, error);
-/* not to the RCS buffer (at least for now) */
-//    emcmotErrorPut(emcmotError, error);
+/* print to the RCS buffer... */
+    emcmotErrorPut(emcmotError, error);
 }
 
 int init_module(void)
