@@ -3,7 +3,7 @@
 CheckConfig(){
     # Will eventually check in /etc for rtapi.conf
     # as well as the local dir.
-    if [ ! -f rtapi.conf ] ; then
+    if [ ! -f scripts/rtapi.conf ] ; then
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
 	exit -1
     else
@@ -11,25 +11,21 @@ CheckConfig(){
         # re-exported on exit.
 	old_path=$MODPATH
         # Import the config
-	source rtapi.conf
+	source scripts/rtapi.conf
         # Export the module path specified in the config.
 	export MODPATH
+	# Generate module lists for loading and unloading
+	# lists contain RTOS modules plus RTAPI and HAL
+	# unload list is in reverse order
+	MODULES_LOAD=
+	MODULES_UNLOAD=
+	for module in $MODULES ; do
+	    MODULES_LOAD="$MODULES_LOAD $module"
+	    MODULES_UNLOAD="$module $MODULES_UNLOAD"
+	done
+	MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi.o $RTLIB_DIR/hal_lib.o"
+	MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
     fi
-}
-
-SortMod(){
-    # Reverses the order of the list so that it can be used
-    # by the load and unload routines - Also removes any newlines
-    # and other extra white spaces.
-    for module in $MODULES ; do
-	MODULE="$module $MODULE"
-    done
-    MODULES="$MODULE"
-}
-
-DoExit(){
-    # Export the original MODPATH
-    export MODPATH=$old_path
 }
 
 CheckMem(){
@@ -55,53 +51,86 @@ CheckMem(){
     fi
 }
 
-isLoaded(){
-    for module in $MODULES ; do
-	# check to see if the module is installed
-	if /sbin/lsmod | awk '{print $1}' | grep -x $module >/dev/null ; then
-	    echo "ERROR: Could not unload '$module'"
-	fi
-    done
-}
-
 Load(){
-    for MOD in $MODULES ; do
+    for MOD in $MODULES_LOAD ; do
 	# check to see if the module is already installed
 	if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
 	    # install the module - use insmod
 	    /sbin/insmod $MOD 2>/dev/null
 	fi
     done
-    /sbin/insmod $RTLIB_DIR/rtapi.o 2>/dev/null
-    /sbin/insmod $RTLIB_DIR/hal_lib.o 2>/dev/null
     if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
         echo "$DEBUG" > /proc/rtapi/debug
     fi
 }
 
+CheckLoaded(){
+
+    # checks to see if rtapi and hal_lib modules were loaded
+    # (would like to check all modules, but some may not actually
+    #  be required or present on all systems)
+    STATUS=
+    for module in rtapi hal_lib ; do
+	# check to see if the module is installed
+	if ! /sbin/lsmod | awk '{print $1}' | grep -x $module >/dev/null ; then
+	    echo "ERROR: Could not load '$module'"
+	    STATUS=error
+	fi
+    done
+    if [ -n "$STATUS" ] ; then
+	exit -1
+    fi
+}
+
 Unload(){
-    /sbin/rmmod hal_lib 2>/dev/null
-    /sbin/rmmod rtapi 2>/dev/null
     # modprobe will unload *all* the modules in one hit
     # (as long as the ordering is the reverse of load order)
-    /sbin/modprobe -r $MODULES 2>/dev/null
+    /sbin/modprobe -r $MODULES_UNLOAD 2>/dev/null
+}
+
+CheckUnloaded(){
+
+    # checks to see if all modules were unloaded
+    STATUS=
+    for module in $MODULES_UNLOAD ; do
+	# check to see if the module is installed
+	if /sbin/lsmod | awk '{print $1}' | grep -x $module >/dev/null ; then
+	    echo "ERROR: Could not unload '$module'"
+	    STATUS=error
+	fi
+    done
+    if [ -n "$STATUS" ] ; then
+	exit -1
+    fi
+}
+
+DoExit(){
+    # Export the original MODPATH
+    export MODPATH=$old_path
 }
 
 case "$1" in
-  start|reload|restart|reload)
+  start)
 	CheckConfig
 	CheckMem
-	SortMod
-	Unload
-	SortMod
 	Load
+	CheckLoaded
+	DoExit
+	;;
+  restart|reload)
+	CheckConfig
+	CheckMem
+	Unload
+	CheckUnloaded
+	Load
+	CheckLoaded
 	DoExit
 	;;
   stop)
 	CheckConfig
 	CheckMem
-	SortMod
 	Unload
+	CheckUnloaded
 	DoExit
 	;;
   *)
