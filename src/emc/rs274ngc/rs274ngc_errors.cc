@@ -122,7 +122,7 @@ char * _rs274ngc_errors[] = {
 /*  97 */ _("Left bracket missing after unary operation name"), // read_unary
 /*  98 */ _("Line number greater than 99999"), // read_line_number
 /*  99 */ _("Line with g10 does not have l2"), // check_g_codes
-/* 100 */ _("M code greater than 99"), // read_m
+/* 100 */ _("M code greater than 199"), // read_m
 /* 101 */ _("Mixed radius ijk format for arc"), // convert_arc
 /* 102 */ _("Multiple a words on one line"), // read_a
 /* 103 */ _("Multiple b words on one line"), // read_b

@@ -20,6 +20,7 @@
 
 extern "C" {
 #include <string.h>             /* memcpy() */
+#include <libintl.h>
 }
 
 #include "rcs.hh"               // LinkedList

@@ -424,8 +424,8 @@ msgid	"Line with g10 does not have l2"
 msgstr	"Zeile mit g10 enthält kein l2"
 
 #: ../emc/rs274ngc/rs274ngc_errors.cc:125
-msgid	"M code greater than 99"
-msgstr	"M-Kommando größer als 99"
+msgid	"M code greater than 199"
+msgstr	"M-Kommando größer als 199"
 
 #: ../emc/rs274ngc/rs274ngc_errors.cc:126
 msgid	"Mixed radius ijk format for arc"

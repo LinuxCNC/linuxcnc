@@ -405,7 +405,7 @@ msgid	"Line with g10 does not have l2"
 msgstr	""
 
 #: ../emc/rs274ngc/rs274ngc_errors.cc:125
-msgid	"M code greater than 99"
+msgid	"M code greater than 199"
 msgstr	""
 
 #: ../emc/rs274ngc/rs274ngc_errors.cc:126
