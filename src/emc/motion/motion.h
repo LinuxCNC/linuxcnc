@@ -337,10 +337,15 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double alter;		/* additive dynamic compensation */
     } emcmot_comp_t;
 
-/* states for homing */
+/* states for homing - this list is incomplete */
     typedef enum {
-	EMCMOT_NOT_HOMING = 0,	/* no homing activity */
-	EMCMOT_HOME_START	/* first state in homing process */
+	EMCMOT_NOT_HOMING = 0,
+	EMCMOT_HOME_START,
+	EMCMOT_SET_COARSE_HOME,
+	EMCMOT_SET_FINAL_HOME,
+	EMCMOT_START_MOVE_TO_HOME,
+	EMCMOT_WAITFOR_MOVE_TO_HOME,
+	EMCMOT_HOME_FINISHED
     } home_state_t;
 
 /* NEW_STRUCTS  - I'm trying something different.  As it stands,
@@ -399,6 +404,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int home_sw_debounce;
 	int amp_fault_debounce;	/* debounce counter for fault input */
 	home_state_t home_state;	/* state machine for homing */
+	double motor_offset;	/* diff between internal and motor pos, used
+				   to set position to zero during homing */
 
 	/* stuff moved from the other structs that might be needed (or might
 	   not!) */
@@ -615,8 +622,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    space for debugging, but it has evolved into a monster.
    180K last time I checked - most of it (174K or so) is the traj
    planner queues... each entry is 720 bytes, and there are 210
-   entries in the main queue, plus 4 per axis times 8 axes in the
-   free motion queues.
+   entries in the main queue.
    I'll figure it out eventually though.
    Low level things will be exported thru the HAL so they can be
    monitored with halscope.  High level things will remain here,
@@ -670,15 +676,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 //      int ampFaultCount[EMCMOT_MAX_AXIS];
 
 	TP_STRUCT queue;	/* coordinated mode planner */
-/* the freeAxis TP_STRUCTs are used to store the single joint value,
-   in tran.x, that enables us to use the TP_STRUCT functions for axis
-   planning. This is overkill, and we need to create a simpler TP_STRUCT
-   for single-joint motion planning. */
-	TP_STRUCT freeAxis[EMCMOT_MAX_AXIS];
-/* freePose is a EmcPose struct that is used to hold a joint value, in
-   tran.x, so that the TP_STRUCT functions can be called for scalar joint
-   planning */
-	EmcPose freePose;
 #ifndef NEW_STRUCTS
 	CUBIC_STRUCT cubic[EMCMOT_MAX_AXIS];
 #endif
@@ -686,10 +683,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 /* space for trajectory planner queues, plus 10 more for safety */
 /* FIXME-- default is used; dynamic is not honored */
 	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
-
-#define FREE_AXIS_QUEUE_SIZE 4	/* don't really queue free axis motion */
-
-	TC_STRUCT freeAxisTcSpace[EMCMOT_MAX_AXIS][FREE_AXIS_QUEUE_SIZE];
 
 #ifndef NEW_STRUCTS
 	double rawInput[EMCMOT_MAX_AXIS];	/* raw feedback from sensors */

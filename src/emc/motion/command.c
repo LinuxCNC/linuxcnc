@@ -733,10 +733,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL");
 	    emcmotStatus->vel = emcmotCommand->vel;
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		tpSetVmax(&emcmotDebug->freeAxis[joint_num],
-		    emcmotStatus->vel);
-	    }
 	    tpSetVmax(&emcmotDebug->queue, emcmotStatus->vel);
 	    break;
 
@@ -757,8 +753,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (joint == 0) {
 		break;
 	    }
-	    tpSetVlimit(&emcmotDebug->freeAxis[joint_num],
-		emcmotCommand->vel);
 	    joint->vel_limit = emcmotCommand->vel;
 	    joint->big_vel = 10 * emcmotCommand->vel;
 	    break;
@@ -771,7 +765,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (joint == 0) {
 		break;
 	    }
-	    tpSetAmax(&emcmotDebug->freeAxis[joint_num], emcmotCommand->acc);
 	    joint->acc_limit = emcmotCommand->acc;
 	    break;
 
@@ -814,9 +807,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* pause the motion */
 	    /* can happen at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "PAUSE");
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		tpPause(&emcmotDebug->freeAxis[joint_num]);
-	    }
 	    tpPause(&emcmotDebug->queue);
 	    emcmotStatus->paused = 1;
 	    break;
@@ -826,9 +816,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* can happen at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "RESUME");
 	    emcmotDebug->stepping = 0;
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		tpResume(&emcmotDebug->freeAxis[joint_num]);
-	    }
 	    tpResume(&emcmotDebug->queue);
 	    emcmotStatus->paused = 0;
 	    break;
@@ -839,9 +826,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "STEP");
 	    emcmotDebug->idForStep = emcmotStatus->id;
 	    emcmotDebug->stepping = 1;
-	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		tpResume(&emcmotDebug->freeAxis[joint_num]);
-	    }
 	    tpResume(&emcmotDebug->queue);
 	    emcmotStatus->paused = 0;
 	    break;
@@ -856,8 +840,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		/* point at joint data */
 		joint = &(emcmotStruct->joints[joint_num]);
-		tpSetVscale(&emcmotDebug->freeAxis[joint_num],
-		    emcmotCommand->scale);
 		joint->vel_scale = emcmotCommand->scale;
 	    }
 	    tpSetVscale(&emcmotDebug->queue, emcmotCommand->scale);

@@ -88,6 +88,17 @@ static void check_for_faults(void);
 */
 static void set_operating_mode(void);
 
+/* 'do_homing()' looks at the home_state field of each joint struct
+    to decide what, if anything, needs to be done related to homing
+    the joint.  Homing is implemented as a state machine, the exact
+    sequence of states depends on the machine configuration.  It
+    can be as simple as immediately setting the current position to
+    zero, or a it can be a multi-step process (find switch, set
+    approximate zero, back off switch, find index, set final zero,
+    rapid to home position), or anywhere in between.
+*/
+static void do_homing(void);
+
 /* 'get_pos_cmds()' generates the position setpoints.  This includes
    calling the trajectory planner and interpolating it's outputs.
    The teleop and coord mode code is copied directly from emc1 for
@@ -151,9 +162,7 @@ void emcmotController(void *arg, long period)
     check_soft_limits();
     check_for_faults();
     set_operating_mode();
-
-/* FIXME - about the only major thing missing now is homing */
-
+    do_homing();
     get_pos_cmds();
     compute_backlash();
     output_to_hal();
@@ -202,13 +211,13 @@ static void process_inputs(void)
 	axis_data = &(machine_hal_data->axis[joint_num]);
 	/* point to joint data */
 	joint = &(emcmotStruct->joints[joint_num]);
+	/* copy data from HAL to joint structure */
+	joint->motor_pos_fb = *(axis_data->motor_pos_fb);
 
-	/* get position feedback, subtract backlash comp */
-	axis_data->joint_pos_fb =
-	    *(axis_data->motor_pos_fb) - axis_data->backlash_filt;
-	/* copy to joint structure */
-	joint->pos_fb = axis_data->joint_pos_fb;
-
+	/* subtract backlash comp and motor offset */
+	joint->pos_fb =
+	    joint->motor_pos_fb - (joint->backlash_filt +
+	    joint->motor_offset);
 	/* calculate following error */
 	joint->ferror = joint->pos_cmd - joint->pos_fb;
 	abs_ferror = fabs(joint->ferror);
@@ -343,7 +352,10 @@ static void check_soft_limits(void)
 	    /* abort everything, regardless of coord or free mode */
 	    tpAbort(&emcmotDebug->queue);
 	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		tpAbort(&emcmotDebug->freeAxis[joint_num]);
+		/* point to joint data */
+		joint = &(emcmotStruct->joints[joint_num]);
+		/* shut off free mode planner */
+		joint->free_tp_enable = 0;
 	    }
 	}
     } else {
@@ -422,8 +434,9 @@ static void set_operating_mode(void)
 	    /* point to joint data */
 	    axis_data = &(machine_hal_data->axis[joint_num]);
 	    joint = &(emcmotStruct->joints[joint_num]);
-
-	    tpClear(&emcmotDebug->freeAxis[joint_num]);
+	    /* disable free mode planner */
+	    joint->free_tp_enable = 0;
+	    /* drain coord mode interpolators */
 	    cubicDrain(&(joint->cubic));
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		*(axis_data->amp_enable) = 0;
@@ -455,9 +468,7 @@ static void set_operating_mode(void)
 	    axis_data = &(machine_hal_data->axis[joint_num]);
 	    joint = &(emcmotStruct->joints[joint_num]);
 
-	    emcmotDebug->freePose.tran.x = joint->pos_cmd;
-	    tpSetPos(&emcmotDebug->freeAxis[joint_num],
-		emcmotDebug->freePose);
+	    joint->free_pos_cmd = joint->pos_cmd;
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		*(axis_data->amp_enable) = 1;
 		SET_JOINT_ENABLE_FLAG(joint, 1);
@@ -526,11 +537,7 @@ static void set_operating_mode(void)
 			/* point to joint data */
 			joint = &(emcmotStruct->joints[joint_num]);
 			/* update free planner positions */
-			emcmotDebug->freePose.tran.x = joint->pos_cmd;
-			tpSetPos(&emcmotDebug->freeAxis[joint_num],
-			    emcmotDebug->freePose);
-			/* drain the cubics so they'll synch up */
-			cubicDrain(&(joint->cubic));
+			joint->free_pos_cmd = joint->pos_cmd;
 		    }
 		}
 	    }
@@ -582,6 +589,119 @@ static void set_operating_mode(void)
     }
 }
 
+static void do_homing(void)
+{
+/* this is still very much under construction */
+    int joint_num, immediate_state;
+    emcmot_joint_t *joint;
+    double offset;
+
+    motion_state_t motion_state;
+
+    /* FIXME - this code is temporary - eventually 'motion_state' will be the
+       master for this info, instead of having to gather it from several flags 
+       - I need to re-write 'set_operating_mode()' because it's ugly */
+    if (!GET_MOTION_ENABLE_FLAG()) {
+	motion_state = EMCMOT_MOTION_DISABLED;
+    } else if (GET_MOTION_TELEOP_FLAG()) {
+	motion_state = EMCMOT_MOTION_TELEOP;
+    } else if (GET_MOTION_COORD_FLAG()) {
+	motion_state = EMCMOT_MOTION_COORD;
+    } else {
+	motion_state = EMCMOT_MOTION_FREE;
+    }
+
+    if (motion_state != EMCMOT_MOTION_FREE) {
+	/* can't home unless in free mode */
+	return;
+    }
+    /* loop thru axis, treat each one individually */
+    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	/* point to joint struct */
+	joint = &(emcmotStruct->joints[joint_num]);
+	/* implement state machine */
+	/* Some portions of the homing sequence can run thru two or more
+	   states during a single servo period.  This is done using
+	   'immediate_state'.  If a state transition sets it true (non-zero), 
+	   this do-while loop will loop executing switch(home_state)
+	   immediately to run the new state code.  Otherwise, the loop will
+	   fall thru, and switch(home_state) runs only once per servo period.
+	   Do _not_ set 'immediate_state' true unless you also change
+	   'home_state', unless you want an infinite loop! */
+	do {
+	    immediate_state = 0;
+	    switch (joint->home_state) {
+	    case EMCMOT_NOT_HOMING:
+		/* nothing to do */
+		break;
+	    case EMCMOT_HOME_START:
+		/* FIXME - need to add the early states */
+		joint->home_state = EMCMOT_NOT_HOMING;
+		break;
+/* A bunch more states are needed - tomorrow.  The exact sequence
+   will depend on the config, but in general it will be:  look for
+   switch at 'home_search_vel', when found do SET_COARSE_HOME, then
+   back off switch at 'home_index_vel', and look for index pulse at
+   the same velocity, when found transition to SET_FINAL_HOME.  The
+   remaining states are listed below.
+
+   The options include skipping the index pulse part, which direction
+   to do the final index search (same as initial search, or away from
+   switch), etc.  And of course if you have no home switch at all,
+   you will go straight from START to SET_FINAL_HOME.
+
+   This needs documentation, perhaps a state diagram.  A non-coder
+   type should be able to look at the docs and see exactly how his
+   particular machine will home
+*/
+	    case EMCMOT_SET_FINAL_HOME:
+		/* set the current position to 'home_offset' */
+		offset = joint->home_offset - joint->pos_fb;
+		/* this moves the internal position but does not affect the
+		   motor position */
+		joint->pos_cmd += offset;
+		joint->pos_fb += offset;
+		joint->free_pos_cmd += offset;
+		joint->motor_offset -= offset;
+		/* next state */
+		joint->home_state = EMCMOT_START_MOVE_TO_HOME;
+		immediate_state = 1;
+		break;
+	    case EMCMOT_START_MOVE_TO_HOME:
+		/* plan a move to position zero */
+		joint->free_pos_cmd = 0.0;
+		/* do the move at max speed */
+		/* FIXME - should this be search_vel? or another user
+		   specified speed? or is a rapid OK? */
+		joint->free_vel_lim = joint->vel_limit;
+		/* go! */
+		joint->free_tp_enable = 1;
+		/* next state */
+		joint->home_state = EMCMOT_WAITFOR_MOVE_TO_HOME;
+		break;
+	    case EMCMOT_WAITFOR_MOVE_TO_HOME:
+		/* have we arrived (and stopped) at zero? */
+		/* FIXME - need a non-zero tolerance on these compares */
+		if ((joint->pos_fb == 0.0) && (joint->vel_cmd == 0.0)) {
+		    /* we've arrived at home position */
+		    joint->home_state = EMCMOT_HOME_FINISHED;
+		    immediate_state = 1;
+		}
+		break;
+	    case EMCMOT_HOME_FINISHED:
+		/* FIXME - this should set various flags, etc not done yet */
+		joint->home_state = EMCMOT_NOT_HOMING;
+		break;
+	    default:
+		/* should never get here */
+		/* FIXME - should set an error flag or something here */
+		joint->home_state = EMCMOT_NOT_HOMING;
+		break;
+	    }			/* end of switch(joint->home_state) */
+	} while (immediate_state);
+    }
+}
+
 static void get_pos_cmds(void)
 {
     int joint_num;
@@ -599,9 +719,9 @@ static void get_pos_cmds(void)
 
     /* RUN MOTION CALCULATIONS: */
 
-    /* FIXME - this code is temporary - eventually 'motion_state' will be the 
-       master for this info, instead of having to gather it from several
-       flags */
+    /* FIXME - this code is temporary - eventually 'motion_state' will be the
+       master for this info, instead of having to gather it from several flags 
+       - I need to re-write 'set_operating_mode()' because it's ugly */
     if (!GET_MOTION_ENABLE_FLAG()) {
 	motion_state = EMCMOT_MOTION_DISABLED;
     } else if (GET_MOTION_TELEOP_FLAG()) {
@@ -697,7 +817,8 @@ static void get_pos_cmds(void)
     whichCycle = 0;
 #endif
     if (GET_MOTION_ENABLE_FLAG()) {
-	/* set whichCycle to be at least a servo cycle, for calc time logging */
+	/* set whichCycle to be at least a servo cycle, for calc time logging 
+	 */
 #if 0				/* dunno what whichCycle is all about yet */
 	whichCycle = 1;
 #endif
@@ -898,34 +1019,7 @@ static void get_pos_cmds(void)
 	    } else {
 		/* free mode */
 		/* we're in free mode-- run joint planning cycles */
-		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		    /* point to joint struct */
-		    joint = &(emcmotStruct->joints[joint_num]);
-		    /* set whichCycle to be a joint trajectory cycle, for
-		       calc time logging */
-		    /* note that this may include one or more joint
-		       trajectory cycles, so calc time may be inherently
-		       variable */
-#if 0				/* dunno what whichCycle is all about yet */
-		    whichCycle = 2;
-#endif
-
-		    /* run joint trajectory planning cycle */
-		    tpRunCycle(&emcmotDebug->freeAxis[joint_num]);
-
-		    /* set new coarse joint position. FIXME-- this uses only
-		       the tran.x field of the TP_STRUCT, which is overkill.
-		       We need a TP_STRUCT with a single scalar element. */
-		    joint->coarse_pos =
-			tpGetPos(&emcmotDebug->freeAxis[joint_num]).tran.x;
-
-		    /* spline joint up-- note that we may be adding a point
-		       that fails soft limit, but we'll abort at the end of
-		       this cycle so it doesn't really matter */
-		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-
-		    /* end of: joint_num loop for joint planning cycle */
-		}
+		/* position generating code that was here has been replaced */
 
 		if (kinType == KINEMATICS_IDENTITY) {
 		    /* copy position feedback to local array */
@@ -1073,402 +1167,6 @@ static void get_pos_cmds(void)
     }
 #endif
 }
-
-/* FIXME - this is here for reference only */
-#if 0
-
-static void old_get_pos_cmds(void)
-{
-    int joint_num;
-    emcmot_joint_t *joint;
-    double positions[EMCMOT_MAX_AXIS];
-    static int interpolationCounter = 0;
-
-    /* RUN MOTION CALCULATIONS: */
-
-    /* run axis interpolations and outputs, but only if we're enabled. This
-       section is "suppressed" if we're not enabled, although the read/write
-       of encoders/dacs is still done. */
-#if 0				/* dunno what whichCycle is all about yet */
-    whichCycle = 0;
-#endif
-    if (GET_MOTION_ENABLE_FLAG()) {
-	/* set whichCycle to be at least a servo cycle, for calc time logging */
-#if 0				/* dunno what whichCycle is all about yet */
-	whichCycle = 1;
-#endif
-
-	/* check joint 0 to see if the interpolators are empty */
-	while (cubicNeedNextPoint(&(emcmotStruct->joints[0].cubic))) {
-	    /* they're empty, so pull next point(s) off Cartesian or joint
-	       planner, depending upon coord or free mode. */
-
-	    /* check to see whether we're in teleop, coordinated or free
-	       mode, to decide which motion planner to call */
-
-	    if (GET_MOTION_TELEOP_FLAG()) {
-		/* teleop mode */
-		double accell_mag;
-
-		emcmotDebug->teleop_data.desiredAccell.tran.x =
-		    (emcmotDebug->teleop_data.desiredVel.tran.x -
-		    emcmotDebug->teleop_data.currentVel.tran.x) /
-		    emcmotConfig->trajCycleTime;
-		emcmotDebug->teleop_data.desiredAccell.tran.y =
-		    (emcmotDebug->teleop_data.desiredVel.tran.y -
-		    emcmotDebug->teleop_data.currentVel.tran.y) /
-		    emcmotConfig->trajCycleTime;
-		emcmotDebug->teleop_data.desiredAccell.tran.z =
-		    (emcmotDebug->teleop_data.desiredVel.tran.z -
-		    emcmotDebug->teleop_data.currentVel.tran.z) /
-		    emcmotConfig->trajCycleTime;
-
-		pmCartMag(emcmotDebug->teleop_data.desiredAccell.tran,
-		    &accell_mag);
-
-		emcmotDebug->teleop_data.desiredAccell.a =
-		    (emcmotDebug->teleop_data.desiredVel.a -
-		    emcmotDebug->teleop_data.currentVel.a) /
-		    emcmotConfig->trajCycleTime;
-		emcmotDebug->teleop_data.desiredAccell.b =
-		    (emcmotDebug->teleop_data.desiredVel.b -
-		    emcmotDebug->teleop_data.currentVel.b) /
-		    emcmotConfig->trajCycleTime;
-		emcmotDebug->teleop_data.desiredAccell.c =
-		    (emcmotDebug->teleop_data.desiredVel.c -
-		    emcmotDebug->teleop_data.currentVel.c) /
-		    emcmotConfig->trajCycleTime;
-		if (emcmotDebug->teleop_data.desiredAccell.a > accell_mag) {
-		    accell_mag = emcmotDebug->teleop_data.desiredAccell.a;
-		}
-		if (emcmotDebug->teleop_data.desiredAccell.b > accell_mag) {
-		    accell_mag = emcmotDebug->teleop_data.desiredAccell.b;
-		}
-		if (emcmotDebug->teleop_data.desiredAccell.c > accell_mag) {
-		    accell_mag = emcmotDebug->teleop_data.desiredAccell.c;
-		}
-		if (accell_mag > emcmotStatus->acc) {
-		    pmCartScalMult(emcmotDebug->teleop_data.desiredAccell.
-			tran, emcmotStatus->acc / accell_mag,
-			&emcmotDebug->teleop_data.currentAccell.tran);
-		    emcmotDebug->teleop_data.currentAccell.a =
-			emcmotDebug->teleop_data.desiredAccell.a *
-			emcmotStatus->acc / accell_mag;
-		    emcmotDebug->teleop_data.currentAccell.b =
-			emcmotDebug->teleop_data.desiredAccell.b *
-			emcmotStatus->acc / accell_mag;
-		    emcmotDebug->teleop_data.currentAccell.c =
-			emcmotDebug->teleop_data.desiredAccell.c *
-			emcmotStatus->acc / accell_mag;
-		    emcmotDebug->teleop_data.currentVel.tran.x +=
-			emcmotDebug->teleop_data.currentAccell.tran.x *
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->teleop_data.currentVel.tran.y +=
-			emcmotDebug->teleop_data.currentAccell.tran.y *
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->teleop_data.currentVel.tran.z +=
-			emcmotDebug->teleop_data.currentAccell.tran.z *
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->teleop_data.currentVel.a +=
-			emcmotDebug->teleop_data.currentAccell.a *
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->teleop_data.currentVel.b +=
-			emcmotDebug->teleop_data.currentAccell.b *
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->teleop_data.currentVel.c +=
-			emcmotDebug->teleop_data.currentAccell.c *
-			emcmotConfig->trajCycleTime;
-		} else {
-		    emcmotDebug->teleop_data.currentAccell =
-			emcmotDebug->teleop_data.desiredAccell;
-		    emcmotDebug->teleop_data.currentVel =
-			emcmotDebug->teleop_data.desiredVel;
-		}
-
-		emcmotStatus->pos.tran.x +=
-		    emcmotDebug->teleop_data.currentVel.tran.x *
-		    emcmotConfig->trajCycleTime;
-		emcmotStatus->pos.tran.y +=
-		    emcmotDebug->teleop_data.currentVel.tran.y *
-		    emcmotConfig->trajCycleTime;
-		emcmotStatus->pos.tran.z +=
-		    emcmotDebug->teleop_data.currentVel.tran.z *
-		    emcmotConfig->trajCycleTime;
-		emcmotStatus->pos.a +=
-		    emcmotDebug->teleop_data.currentVel.a *
-		    emcmotConfig->trajCycleTime;
-		emcmotStatus->pos.b +=
-		    emcmotDebug->teleop_data.currentVel.b *
-		    emcmotConfig->trajCycleTime;
-		emcmotStatus->pos.c +=
-		    emcmotDebug->teleop_data.currentVel.c *
-		    emcmotConfig->trajCycleTime;
-
-		/* convert to joint positions in local array */
-		kinematicsInverse(&emcmotStatus->pos, positions, &iflags,
-		    &fflags);
-		/* copy to joint structures and spline them up */
-		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		    /* point to joint struct */
-		    joint = &(emcmotStruct->joints[joint_num]);
-		    joint->coarse_pos = positions[joint_num];
-		    /* spline joints up-- note that we may be adding points
-		       that fail soft limits, but we'll abort at the end of
-		       this cycle so it doesn't really matter */
-		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-		}
-
-		if (kinType == KINEMATICS_IDENTITY) {
-		    /* copy position feedback to local array */
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
-			joint_num++) {
-			/* point to joint struct */
-			joint = &(emcmotStruct->joints[joint_num]);
-			/* copy feedback */
-			positions[joint_num] = joint->pos_fb;
-		    }
-		    /* call forward kinematics on input points for actual
-		       pos, at trajectory rate to save bandwidth */
-		    kinematicsForward(positions, &emcmotStatus->actualPos,
-			&fflags, &iflags);
-		} else {
-		    /* fake it by setting actual pos to commanded pos */
-		    emcmotStatus->actualPos = emcmotStatus->pos;
-		}
-		/* end of teleop mode */
-	    } else if (GET_MOTION_COORD_FLAG()) {
-		/* coordinated mode */
-		/* we're in coordinated mode-- pull a pose off the Cartesian
-		   trajectory planner, run it through the inverse kinematics,
-		   and spline up the joint points for interpolation in servo
-		   cycles. */
-
-		/* set whichCycle to be a Cartesian trajectory cycle, for
-		   calc time logging */
-#if 0				/* dunno what whichCycle is all about yet */
-		whichCycle = 2;
-#endif
-
-		/* run coordinated trajectory planning cycle */
-		tpRunCycle(&emcmotDebug->queue);
-
-		/* set new commanded traj pos */
-		emcmotStatus->pos = tpGetPos(&emcmotDebug->queue);
-
-		/* convert to joint positions in local array */
-		kinematicsInverse(&emcmotStatus->pos, positions, &iflags,
-		    &fflags);
-		/* copy to joint structures and spline them up */
-		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		    /* point to joint struct */
-		    joint = &(emcmotStruct->joints[joint_num]);
-		    joint->coarse_pos = positions[joint_num];
-		    /* spline joints up-- note that we may be adding points
-		       that fail soft limits, but we'll abort at the end of
-		       this cycle so it doesn't really matter */
-		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-		}
-
-		if (kinType == KINEMATICS_IDENTITY) {
-		    /* copy position feedback to local array */
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
-			joint_num++) {
-			/* point to joint struct */
-			joint = &(emcmotStruct->joints[joint_num]);
-			/* copy feedback */
-			positions[joint_num] = joint->pos_fb;
-		    }
-		    /* call forward kinematics on input points for actual
-		       pos, at trajectory rate to save bandwidth */
-		    kinematicsForward(positions, &emcmotStatus->actualPos,
-			&fflags, &iflags);
-		} else {
-		    /* fake it by setting actual pos to commanded pos */
-		    emcmotStatus->actualPos = emcmotStatus->pos;
-		}
-
-		/* now emcmotStatus->actualPos, emcmotStatus->pos, and
-		   emcmotDebug->coarseJointPos[] are set */
-
-		/* end of coord mode */
-	    } else {
-		/* free mode */
-		/* we're in free mode-- run joint planning cycles */
-		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		    /* point to joint struct */
-		    joint = &(emcmotStruct->joints[joint_num]);
-		    /* set whichCycle to be a joint trajectory cycle, for
-		       calc time logging */
-		    /* note that this may include one or more joint
-		       trajectory cycles, so calc time may be inherently
-		       variable */
-#if 0				/* dunno what whichCycle is all about yet */
-		    whichCycle = 2;
-#endif
-
-		    /* run joint trajectory planning cycle */
-		    tpRunCycle(&emcmotDebug->freeAxis[joint_num]);
-
-		    /* set new coarse joint position. FIXME-- this uses only
-		       the tran.x field of the TP_STRUCT, which is overkill.
-		       We need a TP_STRUCT with a single scalar element. */
-		    joint->coarse_pos =
-			tpGetPos(&emcmotDebug->freeAxis[joint_num]).tran.x;
-
-		    /* spline joint up-- note that we may be adding a point
-		       that fails soft limit, but we'll abort at the end of
-		       this cycle so it doesn't really matter */
-		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-
-		    /* end of: joint_num loop for joint planning cycle */
-		}
-
-		if (kinType == KINEMATICS_IDENTITY) {
-		    /* copy position feedback to local array */
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
-			joint_num++) {
-			/* point to joint struct */
-			joint = &(emcmotStruct->joints[joint_num]);
-			/* copy feedback */
-			positions[joint_num] = joint->pos_fb;
-		    }
-		    /* set actualPos from actual inputs */
-		    kinematicsForward(positions, &emcmotStatus->actualPos,
-			&fflags, &iflags);
-		    /* copy coarse position commands to local array */
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
-			joint_num++) {
-			/* point to joint struct */
-			joint = &(emcmotStruct->joints[joint_num]);
-			/* copy feedback */
-			positions[joint_num] = joint->coarse_pos;
-		    }
-		    /* set pos from nominal joints, we're in joint mode */
-		    kinematicsForward(positions, &emcmotStatus->pos, &fflags,
-			&iflags);
-		} else if (kinType != KINEMATICS_INVERSE_ONLY) {
-		    /* here is where we call the forward kinematics
-		       repeatedly, when we're in free mode, so that the world
-		       coordinates are kept up to date when joints are moving.
-		       This is only done if we have the kinematics.
-		       emcmotStatus->pos needs to be set with an estimate for
-		       the kinematics to converge, which is true when we enter
-		       free mode from coordinated mode or after the machine is
-		       homed. */
-		    EmcPose temp = emcmotStatus->pos;
-		    /* copy position feedback to local array */
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
-			joint_num++) {
-			/* point to joint struct */
-			joint = &(emcmotStruct->joints[joint_num]);
-			/* copy feedback */
-			positions[joint_num] = joint->pos_fb;
-		    }
-		    /* calculate a pose from the actual inputs */
-		    if (0 == kinematicsForward(positions, &temp, &fflags,
-			    &iflags)) {
-			emcmotStatus->pos = temp;
-			emcmotStatus->actualPos = temp;
-		    } else {
-			/* leave them alone */
-		    }
-		} else {
-		    /* no foward kins, and we're in joint mode, so we have no
-		       estimate of world coords, and we have to leave them
-		       alone */
-		}
-		/* now emcmotStatus->actualPos, emcmotStatus->pos, and
-		   joints[]->coarse_pos are set */
-	    }			/* end of free mode */
-	}			/* end of: while (cubicNeedNextPoint(0)) */
-
-	/* at this point, there is data in the interpolators */
-
-	/* we're still in motion enabled section. For coordinated mode, the
-	   Cartesian trajectory cycle has been computed, if necessary, run
-	   through the inverse kinematics, and the joints have been splined
-	   up for interpolation. For free mode, the joint trajectory cycles
-	   have been computed, if necessary, and the joints have been splined
-	   up for interpolation. We still need to push the actual input
-	   through the forward kinematics, for actual pos.
-
-	   Effects:
-
-	   For coord mode, emcmotStatus->pos contains the commanded Cartesian
-	   pose, emcmotDebug->coarseJointPos[] contains the results of the
-	   inverse kinematics at the coarse (trajectory) rate, and the
-	   interpolators are not empty.
-
-	   For free mode, emcmotStatus->pos is unchanged, and needs to be
-	   updated via the forward kinematics. FIXME-- make sure this happens,
-	   and note where in this comment. joints[]->coarse_pos[] contains the
-	   results of the joint trajectory calculations at the coarse
-	   (trajectory) rate, and the interpolators are not empty. */
-
-	/* run interpolation */
-	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-	    /* point to joint struct */
-	    joint = &(emcmotStruct->joints[joint_num]);
-	    /* save old command */
-	    old_pos_cmd = joint->pos_cmd;
-	    /* interpolate to get new one */
-	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, 0, 0, 0);
-	    joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
-	}
-	/* end if enabled */
-    } else {
-	/* 
-	   we're not enabled, so no motion planning or interpolation has been
-	   done. joint->pos_cmd is set to joint->pos_fb, and likewise with
-	   joint->coarse_pos, which is normally updated at the traj rate but
-	   it's convenient to do them here at the same time at the servo rate.
-	   emcmotStatus->pos, ->actualPos need to be run through forward
-	   kinematics.  Note that we are running at the servo rate, so we need
-	   to slow down by the interpolation factor to avoid soaking the CPU.
-	   If we were enabled, ->pos was set by calcs (coord mode) or forward
-	   kins (free mode), and ->actualPos was set by forward kins on
-	   ->pos_fb, all at the trajectory rate. */
-	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-	    /* point to joint struct */
-	    joint = &(emcmotStruct->joints[joint_num]);
-
-	    joint->coarse_pos = joint->pos_fb;
-	    old_pos_cmd = joint->pos_cmd;
-	    joint->pos_cmd = joint->coarse_pos;
-	    joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
-	}
-	/* synthesize the trajectory interpolation, via a counter that
-	   decrements from the interpolation rate. This causes the statements
-	   to execute at the trajectory rate instead of the servo rate at
-	   which this enclosing code is called. */
-	if (--interpolationCounter <= 0) {
-	    if (kinType != KINEMATICS_INVERSE_ONLY) {
-		/* call the forward kinematics, at the effective trajectory
-		   rate */
-		EmcPose temp = emcmotStatus->pos;
-		/* copy position feedback to local array */
-		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		    /* point to joint struct */
-		    joint = &(emcmotStruct->joints[joint_num]);
-		    /* copy feedback */
-		    positions[joint_num] = joint->pos_fb;
-		}
-		if (0 == kinematicsForward(positions, &temp, &fflags,
-			&iflags)) {
-		    emcmotStatus->pos = temp;
-		    emcmotStatus->actualPos = temp;
-		}
-	    }
-	    /* else can't generate Cartesian position, so leave it alone */
-
-	    /* reload the interpolation counter that simulates the
-	       interpolation done when enabled */
-	    interpolationCounter = emcmotConfig->interpolationRate;
-	}
-	/* end of not enabled */
-    }
-}
-#endif
 
 static void compute_backlash(void)
 {
@@ -1510,8 +1208,9 @@ static void compute_backlash(void)
 	    joint->backlash_filt = joint->backlash_corr;
 	}
 
-	/* apply backlash to output */
-	joint->motor_pos_cmd = joint->pos_cmd + joint->backlash_filt;
+	/* apply backlash (and motor offset) to output */
+	joint->motor_pos_cmd =
+	    joint->pos_cmd + joint->backlash_filt + joint->motor_offset;
 
 	/* end of axis loop */
     }
@@ -1540,13 +1239,14 @@ static void output_to_hal(void)
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint struct */
 	joint = &(emcmotStruct->joints[joint_num]);
+	/* apply backlash and motor offset to output */
+	joint->motor_pos_cmd =
+	    joint->pos_cmd + joint->backlash_filt + joint->motor_offset;
 	/* point to HAL data */
 	axis_data = &(machine_hal_data->axis[joint_num]);
-
 	/* write to HAL pins */
 	*(axis_data->motor_pos_cmd) = joint->motor_pos_cmd;
 	*(axis_data->amp_enable) = GET_JOINT_ENABLE_FLAG(joint);
-
 	/* output to parameters (for scoping, etc.) */
 	axis_data->coarse_pos_cmd = joint->coarse_pos;
 	axis_data->joint_pos_cmd = joint->pos_cmd;

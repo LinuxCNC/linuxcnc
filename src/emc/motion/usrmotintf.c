@@ -492,8 +492,6 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	printf("rawOutput[%d]: %f\n", which - 6, d.rawOutput[(which - 6)]);
 #endif
 //      printf("bcompincr[%d]: %f\n", which - 6, d.bcompincr[(which - 6)]);
-	printf("freeAxis[%d]:\n", which - 6);
-	printTPstruct(&d.freeAxis[which - 6]);
 	break;
 
     case 12:

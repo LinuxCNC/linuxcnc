@@ -764,23 +764,6 @@ static int init_comm_buffers(void)
 	SET_JOINT_FAULT_FLAG(joint, 0);
 	SET_JOINT_ERROR_FLAG(joint, 0);
 
-	/* init the axis components */
-	if (-1 == tpCreate(&emcmotDebug->freeAxis[joint_num],
-		FREE_AXIS_QUEUE_SIZE,
-		emcmotDebug->freeAxisTcSpace[joint_num])) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"MOTION: failed to create axis emcmotDebug->queue %d\n",
-		joint_num);
-	    return -1;
-	}
-	tpInit(&emcmotDebug->freeAxis[joint_num]);
-	tpSetCycleTime(&emcmotDebug->freeAxis[joint_num],
-	    emcmotConfig->trajCycleTime);
-	/* emcmotDebug->freePose is inited to 0's in decl */
-	tpSetPos(&emcmotDebug->freeAxis[joint_num], emcmotDebug->freePose);
-	tpSetVmax(&emcmotDebug->freeAxis[joint_num], emcmotStatus->vel);
-	tpSetAmax(&emcmotDebug->freeAxis[joint_num], emcmotStatus->acc);
-
     }
 
     /* FIXME-- add emcmotError */
@@ -996,7 +979,6 @@ static int setTrajCycleTime(double secs)
 
     /* set the free planners, cubic interpolation rate and segment time */
     for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	tpSetCycleTime(&emcmotDebug->freeAxis[t], secs);
 	cubicSetInterpolationRate(&(emcmotStruct->joints[t].cubic),
 	    emcmotConfig->interpolationRate);
     }
