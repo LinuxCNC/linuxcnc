@@ -43,7 +43,7 @@ BINS = 	bridgeporttask \
 	emctuning \
 	emcdebug \
 	genedit \
-#	keystick \
+	keystick \
 
 
 LOCAL_CXXFLAGS := $(LOCAL_CFLAGS) $(TCL_CFLAGS)

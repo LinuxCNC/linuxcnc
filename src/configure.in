@@ -610,10 +610,6 @@ AC_SUBST([RTAI3_MOD])
 AC_SUBST([RTAI_MOD])
 AC_SUBST([RTL_MOD])
 
-# Checks for header files.
-AC_HEADER_STDC
-AC_HEADER_SYS_WAIT
-
 ##############################################################################
 # Section 5 - Check for tcl/tk support                                       #
 #                                                                            #
@@ -671,10 +667,22 @@ AC_SUBST([TCL_LIBS])
 AC_SUBST([TK_LIBS])
 
 ##############################################################################
-# Section 6 - Miscelaneous support                                           #
+# Section 6 - Important headers                                              #
 #                                                                            #
-# Subsection 6.1. - provides DATE to output it to the generated files        #
-# Subsection 6.2. - user option to convince make to be quiet during make     #
+# Various headers that are needed for usr space interafaces such as          #
+# ncurses.                                                                   #
+##############################################################################
+
+# Checks for standard header files.
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADER(ncurses.h,[],[AC_MSG_ERROR([ncurses.h not found - Install ncurses-dev])])
+
+##############################################################################
+# Section 7 - Miscelaneous support                                           #
+#                                                                            #
+# Subsection 7.1. - provides DATE to output it to the generated files        #
+# Subsection 7.2. - user option to convince make to be quiet during make     #
 ##############################################################################
 
 # provides DATE in order to output it to the generated files
@@ -689,7 +697,7 @@ AC_SUBST([MAKEFLAGS])
 
 
 ##############################################################################
-# Section 7 - Language support                                               #
+# Section 8 - Language support                                               #
 #                                                                            #
 # i18n Language support:                                                     #
 # see http://cvs.gnome.org/viewcvs/intltool/doc/I18N-HOWTO?rev=1.3           #
