@@ -298,6 +298,8 @@ static void process_inputs(void)
 	/* read index pulse from HAL */
 	tmp = *(axis_data->index_pulse);
 	/* detect rising edge of index pulse */
+	/* FIXME - should this be done in the homing function?
+	   that is the only place it is used... */
 	if (tmp && !joint->index_pulse) {
 	    joint->index_pulse_edge = 1;
 	} else {

@@ -276,7 +276,8 @@ int usrmotReadEmcmotError(char *e)
 
  converts short int to 0-1 style string, in s. Assumes a short is 2 bytes.
 */
-#ifndef NEW_STRUCTS
+#if 0				/* FIXME - don't know if this is still needed 
+				 */
 
 static int htostr(char *s, unsigned short h)
 {
@@ -482,7 +483,8 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
     case 10:
     case 11:
 //      printf("jointPos[%d]: %f\n", which - 6, d.jointPos[(which - 6)]);
-#ifndef NEW_STRUCTS
+#if 0				/* FIXME - change to work with joint
+				   structures */
 	printf("coarseJointPos[%d]: %f\n",
 	    which - 6, d.coarseJointPos[(which - 6)]);
 	printf("jointVel[%d]: %f\n", which - 6, d.jointVel[(which - 6)]);
@@ -493,7 +495,8 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	break;
 
     case 12:
-#ifndef NEW_STRUCTS
+#if 0				/* FIXME - change to work with joint
+				   structures */
 	printf("\noldInput:  ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", d.oldInput[t]);
@@ -505,12 +508,6 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	printf("\ninverseInputScale:  ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", d.inverseInputScale[t]);
-	}
-#endif
-#if 0
-	printf("\nbcompincr:  ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	    printf("\t%f", d.bcompincr[t]);
 	}
 #endif
 	printf("\n");
@@ -626,7 +623,8 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("cmd num:      \t%d\n", s.commandNumEcho);
 	printf("heartbeat:    \t%u\n", s.heartbeat);
 	printf("compute time: \t%f\n", s.computeTime);
-#ifndef NEW_STRUCTS
+#if 0				/* FIXME - change to work with joint
+				   structures */
 	printf("axes enabled: \t");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("%d", s.axisFlag[t] & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0);
@@ -640,7 +638,8 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	    s.actualPos.tran.x, s.actualPos.tran.y, s.actualPos.tran.z,
 	    s.actualPos.a, s.actualPos.b, s.actualPos.c);
 	printf("joint data:\n");
-#ifndef NEW_STRUCTS
+#if 0				/* FIXME - change to work with joint
+				   structures */
 	printf(" cmd: ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", s.joint_pos_cmd[t]);
@@ -679,7 +678,8 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("active depth: \t%d\n", s.activeDepth);
 	printf("inpos:        \t%d\n",
 	    s.motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0);
-#ifndef NEW_STRUCTS
+#if 0				/* FIXME - change to work with joint
+				   structures */
 	printf("vscales:      \tQ: %.2f", s.qVscale);
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%d: %.2f", t, s.axVscale[t]);
@@ -690,7 +690,8 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	    s.logOpen == 0 ? "closed" : "open",
 	    s.logStarted == 0 ? "stopped" : "started",
 	    s.logSize, s.logSkip, s.logType);
-#ifndef NEW_STRUCTS
+#if 0				/* FIXME - change to work with joint
+				   structures */
 	printf("homing:       \t");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("%d", s.axisFlag[0] & EMCMOT_AXIS_HOMING_BIT ? 1 : 0);
@@ -708,7 +709,8 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 
     case 2:
 	/* print motion and axis flags */
-#ifndef NEW_STRUCTS
+#if 0				/* FIXME - change to work with joint
+				   structures */
 	htostr(m, s.motionFlag);
 	printf("motion:   %s\n", m);
 	printf("axes:     ");
@@ -838,15 +840,9 @@ int usrmotInit(char *modname)
     emcmotError = &(emcmotStruct->error);
     emcmotLog = &(emcmotStruct->log);
 
-#ifndef NEW_STRUCTS
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	emcmotComp[axis] = &(emcmotStruct->comp[axis]);
-    }
-#else
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = &(emcmotStatus->joints[axis].comp);
     }
-#endif
     emcmotshmem = emcmotStruct;
 
     inited = 1;

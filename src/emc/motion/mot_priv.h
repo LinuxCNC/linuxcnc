@@ -177,63 +177,6 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 
 /* axis flags */
 
-#ifndef NEW_STRUCTS
-
-#define GET_AXIS_ENABLE_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0)
-
-#define SET_AXIS_ENABLE_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_ENABLE_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_ENABLE_BIT;
-
-#define GET_AXIS_ACTIVE_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_ACTIVE_BIT ? 1 : 0)
-
-#define SET_AXIS_ACTIVE_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_ACTIVE_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_ACTIVE_BIT;
-
-#define GET_AXIS_INPOS_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_INPOS_BIT ? 1 : 0)
-
-#define SET_AXIS_INPOS_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_INPOS_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_INPOS_BIT;
-
-#define GET_AXIS_ERROR_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_ERROR_BIT ? 1 : 0)
-
-#define SET_AXIS_ERROR_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_ERROR_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_ERROR_BIT;
-
-#define GET_AXIS_PSL_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT ? 1 : 0)
-
-#define SET_AXIS_PSL_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT;
-
-#define GET_AXIS_NSL_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT ? 1 : 0)
-
-#define SET_AXIS_NSL_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT;
-
-#define GET_AXIS_PHL_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT ? 1 : 0)
-
-#define SET_AXIS_PHL_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_MAX_HARD_LIMIT_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_MAX_HARD_LIMIT_BIT;
-
-#define GET_AXIS_NHL_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT ? 1 : 0)
-
-#define SET_AXIS_NHL_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_MIN_HARD_LIMIT_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_MIN_HARD_LIMIT_BIT;
-
-#define GET_AXIS_HOME_SWITCH_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_HOME_SWITCH_BIT ? 1 : 0)
-
-#define SET_AXIS_HOME_SWITCH_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_HOME_SWITCH_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_HOME_SWITCH_BIT;
-
-#define GET_AXIS_HOMING_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_HOMING_BIT ? 1 : 0)
-
-#define SET_AXIS_HOMING_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_HOMING_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_HOMING_BIT;
-
-#define GET_AXIS_HOMED_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_HOMED_BIT ? 1 : 0)
-
-#define SET_AXIS_HOMED_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_HOMED_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_HOMED_BIT;
-
-#define GET_AXIS_FERROR_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_FERROR_BIT ? 1 : 0)
-
-#define SET_AXIS_FERROR_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_FERROR_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_FERROR_BIT;
-
-#define GET_AXIS_FAULT_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_FAULT_BIT ? 1 : 0)
-
-#define SET_AXIS_FAULT_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_FAULT_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_FAULT_BIT;
-
-#endif
-
-#ifdef NEW_STRUCTS
 /* joint flags */
 
 #define GET_JOINT_ENABLE_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0)
@@ -287,43 +230,5 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 #define GET_JOINT_FAULT_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_FAULT_BIT ? 1 : 0)
 
 #define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_FAULT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_FAULT_BIT;
-
-#endif
-
-/* polarity flags */
-/* FIXME - with HAL these go away */
-#if 0
-
-#define GET_AXIS_ENABLE_POLARITY(ax) (emcmotConfig->axisPolarity[ax] & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0)
-
-#define SET_AXIS_ENABLE_POLARITY(ax,fl) MARK_EMCMOT_CONFIG_CHANGE(); if (fl) emcmotConfig->axisPolarity[ax] |= EMCMOT_AXIS_ENABLE_BIT; else emcmotConfig->axisPolarity[ax] &= ~EMCMOT_AXIS_ENABLE_BIT;
-
-#define GET_AXIS_PHL_POLARITY(ax) (emcmotConfig->axisPolarity[ax] & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT ? 1 : 0)
-
-#define SET_AXIS_PHL_POLARITY(ax,fl) if (fl) emcmotConfig->axisPolarity[ax] |= EMCMOT_AXIS_MAX_HARD_LIMIT_BIT; else emcmotConfig->axisPolarity[ax] &= ~EMCMOT_AXIS_MAX_HARD_LIMIT_BIT;
-
-#define GET_AXIS_NHL_POLARITY(ax) (emcmotConfig->axisPolarity[ax] & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT ? 1 : 0)
-
-#define SET_AXIS_NHL_POLARITY(ax,fl) if (fl) emcmotConfig->axisPolarity[ax] |= EMCMOT_AXIS_MIN_HARD_LIMIT_BIT; else emcmotConfig->axisPolarity[ax] &= ~EMCMOT_AXIS_MIN_HARD_LIMIT_BIT;
-
-#define GET_AXIS_HOME_SWITCH_POLARITY(ax) (emcmotConfig->axisPolarity[ax] & EMCMOT_AXIS_HOME_SWITCH_BIT ? 1 : 0)
-
-#define SET_AXIS_HOME_SWITCH_POLARITY(ax,fl) if (fl) emcmotConfig->axisPolarity[ax] |= EMCMOT_AXIS_HOME_SWITCH_BIT; else emcmotConfig->axisPolarity[ax] &= ~EMCMOT_AXIS_HOME_SWITCH_BIT;
-
-#define GET_AXIS_HOMING_POLARITY(ax) (emcmotConfig->axisPolarity[ax] & EMCMOT_AXIS_HOMING_BIT ? 1 : 0)
-
-#define SET_AXIS_HOMING_POLARITY(ax,fl) if (fl) emcmotConfig->axisPolarity[ax] |= EMCMOT_AXIS_HOMING_BIT; else emcmotConfig->axisPolarity[ax] &= ~EMCMOT_AXIS_HOMING_BIT;
-
-#define GET_AXIS_FAULT_POLARITY(ax) (emcmotConfig->axisPolarity[ax] & EMCMOT_AXIS_FAULT_BIT ? 1 : 0)
-
-#define SET_AXIS_FAULT_POLARITY(ax,fl) if (fl) emcmotConfig->axisPolarity[ax] |= EMCMOT_AXIS_FAULT_BIT; else emcmotConfig->axisPolarity[ax] &= ~EMCMOT_AXIS_FAULT_BIT;
-#endif
-
-/* axis lengths */
-#ifndef NEW_STRUCTS
-#define AXRANGE(axis) ((emcmotConfig->joints[axis].max_pos_limit - emcmotConfig->joints[axis].min_pos_limit))
-#else
-#define AXRANGE(joint) ((joint)->max_pos_limit - (joint)->min_pos_limit)
-#endif
 
 #endif /* MOT_PRIV_H */
