@@ -148,12 +148,21 @@ static void init_chan_info_window(void)
 	gtk_label_new_in_box("--", ctrl_usr->chan_info_win, FALSE, FALSE, 5);
     gtk_label_size_to_fit(GTK_LABEL(vert->chan_num_label), "99");
     gtk_vseparator_new_in_box(ctrl_usr->chan_info_win, 3);
-    vert->source_name_label =
-	gtk_label_new_in_box("------", ctrl_usr->chan_info_win, FALSE, FALSE,
-	3);
+
+    /* a button to change the source */
+    vert->source_name_button = gtk_button_new_with_label("------");
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_info_win),
+	vert->source_name_button, FALSE, FALSE, 3);
+
+    vert->source_name_label = (GTK_BIN(vert->source_name_button))->child;
     gtk_label_set_justify(GTK_LABEL(vert->source_name_label),
 	GTK_JUSTIFY_LEFT);
-//    gtk_label_size_to_fit(GTK_LABEL(vert->source_name_label), "--longest possible source name--");
+    gtk_label_size_to_fit(GTK_LABEL(vert->source_name_label),
+	"--longest possible source name--");
+    /* activate the source selection dialog if button is clicked */
+    gtk_signal_connect(GTK_OBJECT(vert->source_name_button), "clicked",
+	GTK_SIGNAL_FUNC(change_source_button), NULL);
+    gtk_widget_show(vert->source_name_button);
 }
 
 static void init_vert_info_window(void)
@@ -227,14 +236,6 @@ static void init_vert_info_window(void)
 	GTK_SIGNAL_FUNC(offset_changed), NULL);
 #endif
 
-    /* a button to change the source */
-    button = gtk_button_new_with_label("Source");
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win), button, FALSE, FALSE,
-	3);
-    /* activate the source selection dialog if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(change_source_button), NULL);
-    gtk_widget_show(button);
     /* a button to turn off the channel */
     button = gtk_button_new_with_label("Chan Off");
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win), button, FALSE, FALSE,
@@ -243,6 +244,52 @@ static void init_vert_info_window(void)
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
 	GTK_SIGNAL_FUNC(channel_off_button), NULL);
     gtk_widget_show(button);
+}
+
+void format_signal_value(char *buf, int buflen, float value)
+{
+    char *units;
+    int decimals;
+    char sign, symbols[] = "pnum KMGT";
+
+    if (value < 0) {
+	value = -value;
+	sign = '-';
+    } else {
+	sign = '+';
+    }
+    if (value <= 1.0e-24) {
+	/* pretty damn small, call it zero */
+	snprintf(buf, buflen, "0.00");
+	return;
+    }
+    if (value <= 1.0e-12) {
+	/* less than pico units, use scientific notation */
+	snprintf(buf, buflen, "%c%10.3e", sign, value);
+	return;
+    }
+    if (value >= 1.0e+12) {
+	/* greater than tera-units, use scientific notation */
+	snprintf(buf, buflen, "%c%10.3e", sign, value);
+	return;
+    }
+    units = &(symbols[4]);
+    while (value < 1.0) {
+	value *= 1000.0;
+	units--;
+    }
+    while (value >= 1000.0) {
+	value /= 1000.0;
+	units++;
+    }
+    decimals = 2;
+    if (value >= 9.999) {
+	decimals = 1;
+    }
+    if (value >= 99.99) {
+	decimals = 0;
+    }
+    snprintf(buf, buflen, "%c%0.*f%c", sign, decimals, value, *units);
 }
 
 /***********************************************************************
@@ -293,6 +340,9 @@ static void scale_changed(GtkAdjustment * adj, gpointer gdata)
     chan->scale = scale;
     format_scale_value(buf, BUFLEN - 1, scale);
     gtk_label_set_text_if(vert->scale_label, buf);
+    if (chan_num == ctrl_usr->trig.trig_chan) {
+	refresh_trigger();
+    }
     request_display_refresh(1);
 }
 
@@ -309,6 +359,9 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
     }
     chan = &(ctrl_usr->chan[chan_num - 1]);
     chan->position = adj->value / VERT_POS_RESOLUTION;
+    if (chan_num == ctrl_usr->trig.trig_chan) {
+	refresh_trigger();
+    }
     request_display_refresh(1);
 }
 
@@ -329,6 +382,9 @@ static void offset_changed(GtkAdjustment * adj, gpointer gdata)
     chan->vert_offset =
 	gtk_spin_button_get_value_as_float(GTK_SPIN_BUTTON(vert->
 	    offset_spinbutton));
+    if (chan_num == ctrl_usr->trig.trig_chan) {
+	refresh_trigger();
+    }
     request_display_refresh();
 #endif
 }
@@ -356,9 +412,15 @@ static void offset_activated(GtkAdjustment * adj, gpointer gdata)
 }
 #endif
 
+/* FIXME - this global is ugly - it's the result of using toggle
+   buttons for the channel select.  I need a better way to show
+   not only which channel(s) are enabled, but also which one is
+   selected (highlighted) and which one is the trigger source. */
+static int ignore_click = 0;
+
 static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 {
-    int chan_num, n, count, prev;
+    int chan_num, n, count;
     scope_vert_t *vert;
     scope_chan_t *chan;
     char *title, *msg;
@@ -367,13 +429,12 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
     chan_num = (int) gdata;
     chan = &(ctrl_usr->chan[chan_num - 1]);
 
+    if (ignore_click != 0) {
+	ignore_click = 0;
+	return;
+    }
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
 	/* button was up when clicked */
-	if (vert->chan_enabled[chan_num - 1] != 0) {
-	    /* channel was enabled, but button was up */
-	    /* means click is from a force, ignore it */
-	    return;
-	}
 	/* want to enable the channel */
 	if (ctrl_shm->state != IDLE) {
 	    /* acquisition in progress, 'push' the stop button */
@@ -389,6 +450,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 	if (count >= ctrl_shm->sample_len) {
 	    /* max number of channels already enabled */
 	    /* force the button to pop back out */
+	    ignore_click = 1;
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
 	    title = "Too many channels";
 	    msg = "You cannot add another channel.\n\n"
@@ -400,29 +462,21 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 	}
 	if (chan->name == NULL) {
 	    /* need to assign a source */
-	    prev = vert->selected;
-	    vert->selected = chan_num;
 	    if (dialog_select_source(chan_num) != TRUE) {
 		/* user failed to assign a source */
 		/* force the button to pop back out */
-		vert->selected = prev;
-		channel_changed();
+		ignore_click = 1;
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
 		    FALSE);
 		return;
 	    }
-	    channel_changed();
 	}
 	vert->chan_enabled[chan_num - 1] = 1;
     } else {
-	/* button was down when clicked */
-	if (vert->chan_enabled[chan_num - 1] == 0) {
-	    /* channel was disabled, but button was down */
-	    /* means click is from a force, ignore it */
-	    return;
-	}
-	/* user clicked an already enabled channel to highlight it - button
-	   should stay down, so we force it */
+	/* button was down when clicked, which means user clicked */
+	/* an already enabled channel to highlight it. */
+	/* button should stay down, so we force it */
+	ignore_click = 1;
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), TRUE);
     }
     if (vert->selected != chan_num) {
@@ -444,6 +498,7 @@ static void channel_off_button(GtkWidget * widget, gpointer gdata)
     }
     vert->chan_enabled[chan_num - 1] = 0;
     /* force the button to pop out */
+    ignore_click = 1;
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vert->
 	    chan_sel_buttons[chan_num - 1]), FALSE);
     /* set new selected channel */
@@ -501,6 +556,7 @@ static gboolean dialog_select_source(int chan_num)
     /* create dialog window, disable resizing */
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
+    dialog.app_data = chan;
     /* set initial height of window */
     gtk_widget_set_usize(GTK_WIDGET(dialog.window), -2, 300);
     /* allow user to grow but not shrink the window */
@@ -648,7 +704,7 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
     }
     /* If we get here, it should be a valid selection */
     vert = &(ctrl_usr->vert);
-    chan = &(ctrl_usr->chan[vert->selected - 1]);
+    chan = dptr->app_data;
     /* figure out which notebook tab it was */
     listnum = -1;
     for (n = 0; n < 3; n++) {
@@ -663,7 +719,7 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
 	/* search the pin list */
 	pin = halpr_find_pin_by_name(name);
 	if (pin == NULL) {
-	    /* pin not found (can happen if pin is deleted after the list was 
+	    /* pin not found (can happen if pin is deleted after the list was
 	       generated) */
 	    /* error handling leaves a bit to be desired! */
 	    return;
@@ -831,40 +887,3 @@ static void format_scale_value(char *buf, int buflen, float value)
     }
     snprintf(buf, buflen, "%0.0f%c/div", value, *units);
 }
-
-#if 0
-static void format_signal_value(char *buf, int buflen, float value)
-{
-    char *units;
-    int decimals;
-    char symbols[] = "pnum KMGT";
-
-    if (value <= 1.0e-12) {
-	/* less than pico units, use scientific notation */
-	snprintf(buf, buflen, "%10.3e", value);
-	return;
-    }
-    if (value >= 1.0e+12) {
-	/* greater than tera-units, use scientific notation */
-	snprintf(buf, buflen, "%10.3e", value);
-	return;
-    }
-    units = &(symbols[4]);
-    while (value < 1.0) {
-	value *= 1000.0;
-	units--;
-    }
-    while (value >= 1000.0) {
-	value /= 1000.0;
-	units++;
-    }
-    decimals = 2;
-    if (value >= 9.999) {
-	decimals = 1;
-    }
-    if (value >= 99.99) {
-	decimals = 0;
-    }
-    snprintf(buf, buflen, "%0.*f%c", decimals, value, *units);
-}
-#endif

@@ -93,6 +93,7 @@ void gtk_label_size_to_fit(GtkLabel * label, gchar * str);
 typedef struct {
     GtkWidget *window;
     int retval;
+    void *app_data;
 } dialog_generic_t;
 
 /** dialog_generic_msg() generates a modal dialog box with a message

@@ -108,7 +108,7 @@ void init_horiz(void)
 static void init_horiz_window(void)
 {
     scope_horiz_t *horiz;
-    GtkWidget *button, *hbox, *vbox;
+    GtkWidget *hbox, *vbox;
 
     horiz = &(ctrl_usr->horiz);
 
@@ -147,27 +147,20 @@ static void init_horiz_window(void)
 	GTK_SIGNAL_FUNC(pos_changed), NULL);
     gtk_widget_show(horiz->pos_slider);
     /* third column - scale display */
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 3);
-    horiz->scale_label = gtk_label_new_in_box("----", vbox, TRUE, TRUE, 0);
+    horiz->scale_label = gtk_label_new_in_box("----", hbox, FALSE, FALSE, 5);
     gtk_label_size_to_fit(GTK_LABEL(horiz->scale_label),
 	"99.9 mSec\nper div");
-    /* fourth column - record length and sample rate */
-    gtk_vseparator_new_in_box(hbox, 3);
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 0);
-    horiz->record_label =
-	gtk_label_new_in_box("----- Samples\nat ---- KHz", vbox, FALSE, TRUE,
-	0);
+    /* fourth column - record length and sample rate button */
+    horiz->record_button =
+	gtk_button_new_with_label("----- Samples\nat ---- KHz");
+    horiz->record_label = (GTK_BIN(horiz->record_button))->child;
     gtk_label_size_to_fit(GTK_LABEL(horiz->record_label),
 	"99999 Samples\nat 99.9 MHz");
-    /* fifth column - change button */
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 3);
-    button = gtk_button_new_with_label(" Change \nRate/Len");
-    gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(hbox), horiz->record_button, FALSE, FALSE, 0);
     /* activate the acquire menu if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
+    gtk_signal_connect(GTK_OBJECT(horiz->record_button), "clicked",
 	GTK_SIGNAL_FUNC(acquire_popup), NULL);
-    gtk_widget_show(button);
-
+    gtk_widget_show(horiz->record_button);
     /* lower region, graphical status display */
     gtk_hseparator_new_in_box(ctrl_usr->horiz_info_win, 0);
     hbox =
@@ -273,9 +266,9 @@ static void dialog_realtime_not_loaded(void)
 	"to sample signals for display.  It is not currently loaded.\n\n"
 	"Please do one of the following:\n\n"
 	"Load the component (using insmod), then click 'OK'\n"
-	"or\n" "Click 'Cancel' to exit HALSCOPE";
+	"or\n" "Click 'Quit' to exit HALSCOPE";
     retval =
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Cancel",
+	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Quit",
 	NULL, NULL);
     if ((retval == 0) || (retval == 2)) {
 	/* user either closed dialog, or hit cancel - end the program */
@@ -309,11 +302,11 @@ static void dialog_realtime_not_linked(void)
 	    "determine the sampling rate.\n\n"
 	    "Please do one of the following:\n\n"
 	    "Select a thread name and multiplier then click 'OK'\n"
-	    "or\n" "Click 'Cancel' to exit HALSCOPE";
+	    "or\n" "Click 'Quit' to exit HALSCOPE";
     } else {
 	title = "Select Sample Rate";
 	msg = "Select a thread name and multiplier then click 'OK'\n"
-	    "or\n" "Click 'Cancel' to exit HALSCOPE";
+	    "or\n" "Click 'Quit' to exit HALSCOPE";
     }
     /* create dialog window, disable resizing */
     dialog.retval = 0;
@@ -488,9 +481,9 @@ static void dialog_realtime_not_linked(void)
     } else if (ctrl_shm->sample_len == 16) {
 	n = 4;
     } else {
-	n = 0;
-	ctrl_shm->sample_len = 1;
-	ctrl_shm->rec_len = ctrl_shm->buf_len;
+	n = 2;
+	ctrl_shm->sample_len = 4;
+	ctrl_shm->rec_len = ctrl_shm->buf_len / ctrl_shm->sample_len;
     }
     /* set the default button */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(buttons[n]), TRUE);
@@ -524,7 +517,7 @@ static void dialog_realtime_not_linked(void)
 	button, TRUE, TRUE, 4);
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
 	GTK_SIGNAL_FUNC(dialog_generic_button1), &dialog);
-    button = gtk_button_new_with_label("Cancel");
+    button = gtk_button_new_with_label("Quit");
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
@@ -569,9 +562,9 @@ static void dialog_realtime_not_running(void)
 	"attempting to run, or you can use the 'halcmd start' command.\n\n"
 	"Please do one of the following:\n\n"
 	"Start the threads, then click 'OK'\n"
-	"or\n" "Click 'Cancel' to exit HALSCOPE";
+	"or\n" "Click 'Quit' to exit HALSCOPE";
     retval =
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Cancel",
+	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Quit",
 	NULL, NULL);
     if ((retval == 0) || (retval == 2)) {
 	/* user either closed dialog, or hit cancel - end the program */
@@ -861,7 +854,7 @@ static void refresh_pos_disp(void)
     float disp_center, disp_start, disp_end;
     float rec_start, rec_curr, rec_end;
     float min, max, span, scale;
-
+    int pre_trig;
     int rec_line_y, rec_line_left, rec_line_right;
     int box_y_off, box_top, box_bot, box_right, box_left;
     int trig_y_off, trig_line_top, trig_line_bot, trig_line_x;
@@ -893,9 +886,10 @@ static void refresh_pos_disp(void)
     box_bot = rec_line_y + box_y_off;
 
     /* these need to be calculated */
+    pre_trig = ctrl_shm->rec_len * ctrl_usr->trig.position;
     /* times relative to trigger */
-    rec_start = -ctrl_shm->pre_trig * horiz->sample_period;
-    rec_end = (ctrl_shm->rec_len - ctrl_shm->pre_trig) * horiz->sample_period;
+    rec_start = -pre_trig * horiz->sample_period;
+    rec_end = (ctrl_shm->rec_len - pre_trig) * horiz->sample_period;
     rec_curr = rec_start + (ctrl_shm->samples * horiz->sample_period);
     disp_center = rec_start + horiz->pos_setting * (rec_end - rec_start);
     disp_start = disp_center - 5.0 * horiz->disp_scale;

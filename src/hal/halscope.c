@@ -76,7 +76,6 @@ static void init_shared_control_struct(void);
 
 static void define_scope_windows(void);
 static void init_run_mode_window(void);
-static void init_trigger_mode_window(void);
 
 /* callback functions */
 static void exit_from_hal(void);
@@ -85,9 +84,6 @@ static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata);
 static void rm_single_button_clicked(GtkWidget * widget, gpointer * gdata);
 static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata);
 static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata);
-static void tm_auto_button_clicked(GtkWidget * widget, gpointer * gdata);
-static void tm_normal_button_clicked(GtkWidget * widget, gpointer * gdata);
-static void tm_force_button_clicked(GtkWidget * widget, gpointer * gdata);
 
 /***********************************************************************
 *                        MAIN() FUNCTION                               *
@@ -142,9 +138,9 @@ int main(int argc, gchar * argv[])
     /* do next level of init */
     init_horiz();
     init_vert();
-    init_run_mode_window();
-    init_trigger_mode_window();
+    init_trig();
     init_display();
+    init_run_mode_window();
 
     /* The interface is completely set up so we show the window and enter the
        gtk_main loop. */
@@ -191,10 +187,6 @@ void start_capture(void)
     int n, mask;
     scope_chan_t *chan;
 
-    /* FIXME temporary, remove after trigger pos is working */
-    ctrl_shm->pre_trig = ctrl_shm->rec_len / 2;
-    /* end of FIXME */
-
     if (ctrl_shm->state != IDLE) {
 	/* already running! */
 	return;
@@ -211,6 +203,7 @@ void start_capture(void)
 	}
 	mask <<= 1;
     }
+    ctrl_shm->pre_trig = ctrl_shm->rec_len * ctrl_usr->trig.position;
     ctrl_shm->state = INIT;
 }
 
@@ -378,7 +371,7 @@ static void define_scope_windows(void)
     ctrl_usr->horiz_info_win =
 	gtk_vbox_framed_new_in_box("Horizontal", FALSE, 0, 0, vboxleft, FALSE,
 	FALSE, 1);
-#if 1				/* vertical row of select buttons */
+#if 0				/* vertical row of select buttons */
     /* hbox for waveform and chan sel windows */
     hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 1);
     ctrl_usr->waveform_win =
@@ -389,7 +382,7 @@ static void define_scope_windows(void)
 	gtk_hbox_framed_new_in_box("Selected Channel", FALSE, 0, 0, vboxleft,
 	FALSE, FALSE, 0);
 #endif
-#if 0				/* horizontal row of select buttons */
+#if 1				/* horizontal row of select buttons */
     ctrl_usr->waveform_win =
 	gtk_vbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 0);
     ctrl_usr->chan_sel_win =
@@ -454,69 +447,7 @@ static void init_run_mode_window(void)
     gtk_widget_show(ctrl_usr->rm_stop_button);
 }
 
-static void init_trigger_mode_window(void)
-{
-    /* define the radio buttons */
-    ctrl_usr->tm_normal_button =
-	gtk_radio_button_new_with_label(NULL, "Normal");
-    ctrl_usr->tm_auto_button =
-	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl_usr->tm_normal_button)), "Auto");
-    /* and a regular button */
-    ctrl_usr->tm_force_button = gtk_button_new_with_label("Force");
-    /* now put them into the box */
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_mode_win),
-	ctrl_usr->tm_normal_button, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_mode_win),
-	ctrl_usr->tm_auto_button, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_info_win),
-	ctrl_usr->tm_force_button, FALSE, FALSE, 0);
-    /* hook callbacks to buttons */
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->tm_normal_button), "clicked",
-	GTK_SIGNAL_FUNC(tm_normal_button_clicked), NULL);
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->tm_auto_button), "clicked",
-	GTK_SIGNAL_FUNC(tm_auto_button_clicked), NULL);
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->tm_force_button), "clicked",
-	GTK_SIGNAL_FUNC(tm_force_button_clicked), NULL);
-    /* and make them visible */
-    gtk_widget_show(ctrl_usr->tm_normal_button);
-    gtk_widget_show(ctrl_usr->tm_auto_button);
-    gtk_widget_show(ctrl_usr->tm_force_button);
-}
-
-/* POP UP MENUS */
-
-/** source menu - in this menu, the user selects what pin/signal/param
-    they wish to assign to a channel
-*/
-
-/** color menu - in this menu, the user selects the color for a trace
-    or for the background
-*/
-
-/* WINDOW REGIONS */
-
-/** channel select area - one button per channel in a row (vert or horiz?)
-    if off, click turns on and selects channel
-    if on, click selects channel
-    "select" means - trace is highlighted (brighter), channel is
-    active in vertical menu, cursor displays that channel's value
-    that channel's source name is displayed.
-*/
-
-/** vertical area - in this menu, the user selects vertical scaling
-    and positioning for a channel or channels
-    sliders - one for gain, from 1n/div to 500M/div in 1-2-5 steps
-                  (54 steps)
-            - one for position, from +5div to -5div in 0.1 div steps
-	          (100 steps)
-    entry - one for offset (default zero)
-    uses an untabbed notebook, with different scale and offset
-    entries for different data types
-    this menu also allows the user to popup the source menu
-    this menu also allows the user to popup the color menu
-
-*/
+/* FIXME - random notes - delete when finished */
 
 /** trigger area - in this menu, the user selects the triggering.
     this means they pick the trigger source (any vertical channel)
@@ -590,27 +521,4 @@ static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata)
 	ctrl_shm->state = RESET;
     }
     ctrl_usr->run_mode = STOP;
-}
-
-static void tm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
-{
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
-	/* not pressed, ignore it */
-	return;
-    }
-    ctrl_shm->auto_trig = 0;
-}
-
-static void tm_auto_button_clicked(GtkWidget * widget, gpointer * gdata)
-{
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
-	/* not pressed, ignore it */
-	return;
-    }
-    ctrl_shm->auto_trig = 1;
-}
-
-static void tm_force_button_clicked(GtkWidget * widget, gpointer * gdata)
-{
-    ctrl_shm->force_trig = 1;
 }

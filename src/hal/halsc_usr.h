@@ -63,6 +63,7 @@ typedef struct {
     GtkWidget *disp_area;
     GdkGC *disp_context;
     GtkWidget *state_label;
+    GtkWidget *record_button;
     GtkWidget *record_label;
     GtkWidget *zoom_slider;
     GtkObject *zoom_adj;
@@ -100,10 +101,14 @@ typedef struct {
     int chan_enabled[16];	/* chans user wants to display */
     int data_offset[16];	/* offset within sample, -1 if no data */
     int selected;		/* channel user has selected */
-    /* widgets for main window */
+    /* widgets for chan sel window */
     GtkWidget *chan_sel_buttons[16];
+    /* widgets for chan info window */
     GtkWidget *chan_num_label;
     GtkWidget *source_name_label;
+    GtkWidget *source_name_button;
+
+    /* widgets for vert info window */
     GtkWidget *scale_slider;
     GtkObject *scale_adj;
     GtkWidget *scale_label;
@@ -112,10 +117,34 @@ typedef struct {
     GtkWidget *offset_entry;
     GtkWidget *offset_spinbutton;
     GtkObject *offset_adj;
-
     /* widgets for source selection dialog */
     GtkWidget *lists[3];	/* lists for pins, signals, and params */
 } scope_vert_t;
+
+/* this struct holds control data related to triggering */
+/* it lives in user space (as part of the master control struct) */
+
+typedef struct {
+    /* general data */
+    int trig_chan;		/* channel to use for triggering */
+    float position;		/* horiz position of trigger (0.0-1.0) */
+    float level;		/* setting of level slider (0.0-1.0) */
+    int edge;			/* 0 = falling edge, 1 = rising edge */
+    /* widgets for trigger mode window */
+    GtkWidget *normal_button;
+    GtkWidget *auto_button;
+    GtkWidget *force_button;
+    /* widgets for trigger info window */
+    GtkWidget *source_button;
+    GtkWidget *source_label;
+    GtkWidget *edge_button;
+    GtkWidget *edge_label;
+    GtkWidget *level_slider;
+    GtkObject *level_adj;
+    GtkWidget *level_label;
+    GtkWidget *pos_slider;
+    GtkObject *pos_adj;
+} scope_trig_t;
 
 /* this struct holds control data related to the display */
 /* it lives in user space (as part of the master control struct) */
@@ -167,13 +196,11 @@ typedef struct {
     GtkWidget *rm_single_button;
     GtkWidget *rm_roll_button;
     GtkWidget *rm_stop_button;
-    GtkWidget *tm_normal_button;
-    GtkWidget *tm_auto_button;
-    GtkWidget *tm_force_button;
     /* subsection control data */
     scope_chan_t chan[16];	/* channel specific data */
     scope_horiz_t horiz;	/* horizontal control data */
     scope_vert_t vert;		/* vertical control data */
+    scope_trig_t trig;		/* triggering data */
     scope_disp_t disp;		/* display data */
 } scope_usr_control_t;
 
@@ -190,6 +217,7 @@ extern scope_shm_control_t *ctrl_shm;	/* shared mem control struct */
 
 void init_horiz(void);
 void init_vert(void);
+void init_trig(void);
 void init_display(void);
 
 void handle_watchdog_timeout(void);
@@ -198,7 +226,10 @@ void capture_complete(void);
 void start_capture(void);
 void request_display_refresh(int delay);
 void refresh_display(void);
+void refresh_trigger(void);
 void invalidate_channel(int chan);
 void invalidate_all_channels(void);
+
+void format_signal_value(char *buf, int buflen, float value);
 
 #endif /* HALSC_USR_H */

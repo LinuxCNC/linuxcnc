@@ -26,6 +26,7 @@ halmeter.c \
 halscope.c \
 halsc_horiz.c \
 halsc_vert.c \
+halsc_trig.c \
 halsc_disp.c
 
 RT_SRCS = \
@@ -93,6 +94,7 @@ HALSCOPE_OBJS = \
 $(TMP_DIR)/halscope.o \
 $(TMP_DIR)/halsc_horiz.o \
 $(TMP_DIR)/halsc_vert.o \
+$(TMP_DIR)/halsc_trig.o \
 $(TMP_DIR)/halsc_disp.o \
 $(TMP_DIR)/miscgtk.o \
 $(LIB_DIR)/ulapi.o \
