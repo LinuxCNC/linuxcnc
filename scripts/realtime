@@ -98,16 +98,19 @@ CheckMem(){
 }
 
 Load(){
+    if [ $RTAI -eq 3 ] ; then
+	$RTAI_LOAD
+    fi
     for MOD in $MODULES_LOAD ; do
 	# check to see if the module is already installed
 	if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
 	    # install the module - use insmod
 	    if [ "$VERBOSE" = "1" ] ; then
-		/sbin/insmod $MOD
+	        /sbin/insmod $MOD
 	    else
-		/sbin/insmod $MOD 1>/dev/null 2>/dev/null
+	        /sbin/insmod $MOD 1>/dev/null 2>/dev/null
 	    fi
-	fi
+        fi
     done
     if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
         echo "$DEBUG" > /proc/rtapi/debug
