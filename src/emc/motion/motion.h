@@ -240,12 +240,11 @@ extern "C" {
 
   MSB                                                          LSB
   ----------v-----------------v-----------------------v-------------------v
-  | AF | FE |   | HD | H | HS | NHL | PHL | NSL | PSL | ER | IP | AC | EN |
+  | AF | FE | AH | HD | H | HS | NHL | PHL | NSL | PSL | ER | IP | AC | EN |
   ----------^-----------------^-----------------------^-------------------^
-    *         x        *   *     *     *                               *
+               
 
   x = unused
-  * = has a polarity associated with it
 
   where:
 
@@ -262,6 +261,7 @@ extern "C" {
   HS  is 1 if axis home switch is tripped, 0 if not
   H   is 1 if axis is homing, 0 if not
   HD  is 1 if axis has been homed, 0 if not
+  AH  is 1 if axis is at home position, 0 if not
 
   FE  is 1 if axis exceeded following error, 0 if not
   AF  is 1 if amplifier is faulted, 0 if not
@@ -286,6 +286,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define EMCMOT_AXIS_HOME_SWITCH_BIT    0x0100
 #define EMCMOT_AXIS_HOMING_BIT         0x0200
 #define EMCMOT_AXIS_HOMED_BIT          0x0400
+#define EMCMOT_AXIS_AT_HOME_BIT        0x0800
 
 #define EMCMOT_AXIS_FERROR_BIT         0x1000
 #define EMCMOT_AXIS_FAULT_BIT          0x2000
@@ -332,6 +333,15 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double reverse[EMCMOT_COMP_SIZE];	/* reverse comp points */
 	double alter;		/* additive dynamic compensation */
     } emcmot_comp_t;
+
+/* motion controller states */
+
+    typedef enum {
+	EMCMOT_MOTION_DISABLED = 0,
+	EMCMOT_MOTION_FREE,
+	EMCMOT_MOTION_TELEOP,
+	EMCMOT_MOTION_COORD
+    } motion_state_t;
 
 /* states for homing */
     typedef enum {
@@ -446,15 +456,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double big_vel;		/* used for "debouncing" velocity */
     } emcmot_joint_t;
 
-/* FIXME - the beginnings of a state machine */
-
-    typedef enum {
-	EMCMOT_MOTION_DISABLED = 0,
-	EMCMOT_MOTION_FREE,
-	EMCMOT_MOTION_TELEOP,
-	EMCMOT_MOTION_COORD
-    } motion_state_t;
-
 /*********************************
         STATUS STRUCTURE
 *********************************/
@@ -472,9 +473,6 @@ Suggestion: Split this in to an Error and a Status flag register..
    evaluated - either they move up, or they go away.
 */
 
-/* FIXME - I don't know if this is the right thing to do yet, but
-   for now I'm moving the joint structures into the status struct */
-
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
 	/* these three are updated only when a new command is handled */
@@ -485,6 +483,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double qVscale;		/* velocity scale factor for all motion */
 	/* the rest are updated every cycle */
 	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
+	EmcPose carte_pos_cmd;	/* commanded Cartesian position */
+	EmcPose carte_pos_fb;	/* actual Cartesian position */
+	int carte_pos_fb_ok;	/* non-zero if feedback is valid */
+	EmcPose world_home;	/* cartesean coords of home position */
 	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* all joint related data */
 
 	int onSoftLimit;	/* non-zero if any axis is on soft limit */
@@ -498,8 +500,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int config_num;		/* incremented whenever configuration
 				   changed. */
 	double computeTime;
-	EmcPose pos;		/* calculated Cartesian position */
-	EmcPose actualPos;	/* actual Cartesian position */
 	int id;			/* id for executing motion */
 	int depth;		/* motion queue depth */
 	int activeDepth;	/* depth of active blend elements */
@@ -510,7 +510,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	/* static status-- only changes upon input commands, e.g., config */
 #if 0
-	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor */
+	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor 
+						 */
 #endif
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */

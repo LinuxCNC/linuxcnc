@@ -118,7 +118,6 @@ extern int DEBUG_MOTION;
 extern int logSkip;
 extern int loggingAxis;
 extern int logStartTime;
-extern EmcPose worldHome;
 extern int EMCMOT_NO_FORWARD_KINEMATICS;
 extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
@@ -222,6 +221,10 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 #define GET_JOINT_HOMED_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_HOMED_BIT ? 1 : 0)
 
 #define SET_JOINT_HOMED_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_HOMED_BIT; else (joint)->flag &= ~EMCMOT_AXIS_HOMED_BIT;
+
+#define GET_JOINT_AT_HOME_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_AT_HOME_BIT ? 1 : 0)
+
+#define SET_JOINT_AT_HOME_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_AT_HOME_BIT; else (joint)->flag &= ~EMCMOT_AXIS_AT_HOME_BIT;
 
 #define GET_JOINT_FERROR_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_FERROR_BIT ? 1 : 0)
 

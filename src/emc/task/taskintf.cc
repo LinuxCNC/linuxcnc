@@ -1292,9 +1292,9 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->paused = emcmotStatus.paused;
     stat->scale = emcmotStatus.qVscale;
 
-    stat->position = emcmotStatus.pos;
+    stat->position = emcmotStatus.carte_pos_cmd;
 
-    stat->actualPosition = emcmotStatus.actualPos;
+    stat->actualPosition = emcmotStatus.carte_pos_fb;
 
     stat->velocity = emcmotStatus.vel;
     stat->acceleration = emcmotStatus.acc;

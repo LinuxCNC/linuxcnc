@@ -311,8 +311,7 @@ void emcmotCommandHandler(void *arg, long period)
 		    /* tell joint planner to stop */
 		    joint->free_tp_enable = 0;
 		    /* update status flags */
-		    joint->home_state = HOME_IDLE;
-		    SET_JOINT_HOMING_FLAG(joint, 0);
+		    joint->home_state = HOME_ABORT;
 		    SET_JOINT_ERROR_FLAG(joint, 0);
 		}
 	    }
@@ -394,11 +393,10 @@ void emcmotCommandHandler(void *arg, long period)
 
 	case EMCMOT_SET_WORLD_HOME:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_WORLD_HOME");
-	    worldHome = emcmotCommand->pos;
+	    emcmotStatus->world_home = emcmotCommand->pos;
 	    break;
 
 	case EMCMOT_SET_JOINT_HOME:
-	    /* is joint home the same as home offset? */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_HOME");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (joint == 0) {
@@ -408,8 +406,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_HOME_OFFSET:
-	    /* obviously I don't understand this yet, what is the
-	       relationship between joint home and home offset? */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_HOME_OFFSET");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
@@ -1032,9 +1028,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    }
 	    /* abort any movememt (jog, etc) that is in progress */
 	    joint->free_tp_enable = 0;
-	    /* set flags that communicate with the rest of EMC */
-	    SET_JOINT_HOMING_FLAG(joint, 1);
-	    SET_JOINT_HOMED_FLAG(joint, 0);
 	    /* prime the homing state machine */
 	    joint->home_state = HOME_START;
 	    break;

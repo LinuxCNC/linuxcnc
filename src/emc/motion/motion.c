@@ -700,12 +700,12 @@ static int init_comm_buffers(void)
     emcmotStatus->computeTime = 0.0;
     emcmotConfig->numAxes = EMCMOT_MAX_AXIS;
 
-    emcmotStatus->pos.tran.x = 0.0;
-    emcmotStatus->pos.tran.y = 0.0;
-    emcmotStatus->pos.tran.z = 0.0;
-    emcmotStatus->actualPos.tran.x = 0.0;
-    emcmotStatus->actualPos.tran.y = 0.0;
-    emcmotStatus->actualPos.tran.z = 0.0;
+    emcmotStatus->carte_pos_cmd.tran.x = 0.0;
+    emcmotStatus->carte_pos_cmd.tran.y = 0.0;
+    emcmotStatus->carte_pos_cmd.tran.z = 0.0;
+    emcmotStatus->carte_pos_fb.tran.x = 0.0;
+    emcmotStatus->carte_pos_fb.tran.y = 0.0;
+    emcmotStatus->carte_pos_fb.tran.z = 0.0;
     emcmotStatus->vel = VELOCITY;
     emcmotConfig->limitVel = VELOCITY;
     emcmotStatus->acc = ACCELERATION;
@@ -724,7 +724,7 @@ static int init_comm_buffers(void)
     SET_MOTION_ENABLE_FLAG(0);
     emcmotConfig->kinematics_type = kinType;
 
-    emcmotDebug->oldPos = emcmotStatus->pos;
+    emcmotDebug->oldPos = emcmotStatus->carte_pos_cmd;
     emcmotDebug->oldVel.tran.x = 0.0;
     emcmotDebug->oldVel.tran.y = 0.0;
     emcmotDebug->oldVel.tran.z = 0.0;
@@ -840,7 +840,7 @@ static int init_comm_buffers(void)
     }
 //    tpInit(&emcmotDebug->queue); // tpInit called from tpCreate
     tpSetCycleTime(&emcmotDebug->queue, emcmotConfig->trajCycleTime);
-    tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);
+    tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
     tpSetVmax(&emcmotDebug->queue, emcmotStatus->vel);
     tpSetAmax(&emcmotDebug->queue, emcmotStatus->acc);
 

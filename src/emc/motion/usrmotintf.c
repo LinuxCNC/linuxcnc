@@ -632,11 +632,13 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("\n");
 #endif
 	printf("cmd pos:      \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    s.pos.tran.x, s.pos.tran.y, s.pos.tran.z,
-	    s.pos.a, s.pos.b, s.pos.c);
+	    s.carte_pos_cmd.tran.x, s.carte_pos_cmd.tran.y,
+	    s.carte_pos_cmd.tran.z, s.carte_pos_cmd.a, s.carte_pos_cmd.b,
+	    s.carte_pos_cmd.c);
 	printf("act pos:      \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    s.actualPos.tran.x, s.actualPos.tran.y, s.actualPos.tran.z,
-	    s.actualPos.a, s.actualPos.b, s.actualPos.c);
+	    s.carte_pos_fb.tran.x, s.carte_pos_fb.tran.y,
+	    s.carte_pos_fb.tran.z, s.carte_pos_fb.a, s.carte_pos_fb.b,
+	    s.carte_pos_fb.c);
 	printf("joint data:\n");
 #if 0				/* FIXME - change to work with joint
 				   structures */

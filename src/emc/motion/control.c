@@ -57,6 +57,14 @@ static double servo_freq;
 */
 static void process_inputs(void);
 
+/* 'do forward kins()' takes the position feedback in joint coords
+   and applies the forward kinematics to it to generate feedback
+   in Cartesean coordinates.  It has code to handle machines that
+   don't have forward kins, and other special cases, such as when
+   the joints have not been homed.
+*/
+static void do_forward_kins(void);
+
 /* 'check_soft_limits()' checks the position of active axes against
    their soft limits, and sets flags accordingly.  It does not check
    limits on axes that have not been homed, since their position is
@@ -154,6 +162,7 @@ void emcmotController(void *arg, long period)
     emcmotStatus->head++;
     /* here begins the core of the controller */
     process_inputs();
+    do_forward_kins();
     check_soft_limits();
     check_for_faults();
     set_operating_mode();
@@ -298,8 +307,8 @@ static void process_inputs(void)
 	/* read index pulse from HAL */
 	tmp = *(axis_data->index_pulse);
 	/* detect rising edge of index pulse */
-	/* FIXME - should this be done in the homing function?
-	   that is the only place it is used... */
+	/* FIXME - should this be done in the homing function? that is the
+	   only place it is used... */
 	if (tmp && !joint->index_pulse) {
 	    joint->index_pulse_edge = 1;
 	} else {
@@ -307,6 +316,125 @@ static void process_inputs(void)
 	}
 	joint->index_pulse = tmp;
 	/* end of read and process axis inputs loop */
+    }
+}
+
+static void do_forward_kins(void)
+{
+/* there are four possibilities for kinType:
+
+   IDENTITY: Both forward and inverse kins are available, and they
+   can used without an initial guess, even if one or more joints
+   are not homed.  In this case, we apply the forward kins to the
+   joint->pos_fb to produce carte_pos_fb, and if all axes are homed
+   we set carte_pos_fb_ok to 1 to indicate that the feedback data
+   is good.
+
+   BOTH: Both forward and inverse kins are available, but the forward
+   kins need an initial guess, and/or the kins require all joints to
+   be homed before they work properly.  Here we must tread carefully.
+   IF all the joints have been homed, we apply the forward kins to
+   the joint->pos_fb to produce carte_pos_fb, and set carte_pos_fb_ok
+   to indicate that the feedback is good.  We use the previous value
+   of carte_pos_fb as the initial guess.  If all joints have not been
+   homed, we don't call the kinematics, instead we set carte_pos_fb to
+   the cartesean coordinates of home, as stored in the global worldHome,
+   and we set carte_fb_ok to 0 to indicate that the feedback is invalid.
+   FIXME - maybe setting to home isn't the right thing to do.  We need
+   it to be set to home eventually, (right before the first attemt to
+   run the kins), but that doesn't mean we should say we're at home
+   when we're not.
+
+   INVERSE_ONLY: Only inverse kinematics are available, forward
+   kinematics cannot be used.  So we have to fake it, the question is
+   simply "what way of faking it is best".  In free mode, or if all
+   axes have not been homed, the feedback position is unknown.  If
+   we are in teleop or coord mode, or if we are in free mode and all
+   axes are homed, and haven't been moved since they were homed, then
+   we set carte_pos_fb to carte_pos_cmd, and set carte_pos_fb_ok to 1.
+   If we are in free mode, and any axis is not homed, or any axis has
+   moved since it was homed, we leave cart_pos_fb alone, and set
+   carte_pos_fb_ok to 0.
+
+   FORWARD_ONLY: Only forward kinematics are available, inverse kins
+   cannot be used.  This exists for completeness only, since EMC won't
+   work without inverse kinematics.
+
+*/
+
+/* FIXME FIXME FIXME - need to put a rate divider in here, run it
+   at the traj rate */
+
+    double joint_pos[EMCMOT_MAX_AXIS];
+    int joint_num, all_homed, all_at_home, result;
+    emcmot_joint_t *joint;
+
+    all_homed = 1;
+    all_at_home = 1;
+    /* copy joint position feedback to local array */
+    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	/* point to joint struct */
+	joint = &(emcmotStatus->joints[joint_num]);
+	/* copy feedback */
+	joint_pos[joint_num] = joint->pos_fb;
+	/* check for homed */
+	if (!GET_JOINT_HOMED_FLAG(joint)) {
+	    all_homed = 0;
+	    all_at_home = 0;
+	} else if (!GET_JOINT_AT_HOME_FLAG(joint)) {
+	    all_at_home = 0;
+	}
+    }
+    switch (kinType) {
+
+    case KINEMATICS_IDENTITY:
+	kinematicsForward(joint_pos, &emcmotStatus->carte_pos_fb, &fflags,
+	    &iflags);
+	if (all_homed) {
+	    emcmotStatus->carte_pos_fb_ok = 1;
+	} else {
+	    emcmotStatus->carte_pos_fb_ok = 0;
+	}
+	break;
+
+    case KINEMATICS_BOTH:
+	if (all_homed) {
+	    /* is previous value suitable for use as initial guess? */
+	    if (!emcmotStatus->carte_pos_fb_ok) {
+		/* no, use home position as initial guess */
+		emcmotStatus->carte_pos_fb = emcmotStatus->world_home;
+	    }
+	    /* calculate Cartesean position feedback from joint pos fb */
+	    result =
+		kinematicsForward(joint_pos, &emcmotStatus->carte_pos_fb,
+		&fflags, &iflags);
+	    /* check to make sure kinematics converged */
+	    if (result < 0) {
+		/* error during kinematics calculations */
+		emcmotStatus->carte_pos_fb_ok = 0;
+	    } else {
+		/* it worked! */
+		emcmotStatus->carte_pos_fb_ok = 1;
+	    }
+	} else {
+	    emcmotStatus->carte_pos_fb_ok = 0;
+	}
+	break;
+
+    case KINEMATICS_INVERSE_ONLY:
+
+	if ((GET_MOTION_COORD_FLAG()) || (GET_MOTION_TELEOP_FLAG())) {
+	    /* use Cartesean position command as feedback value */
+	    emcmotStatus->carte_pos_fb = emcmotStatus->carte_pos_cmd;
+	    emcmotStatus->carte_pos_fb_ok = 1;
+	} else {
+	    emcmotStatus->carte_pos_fb_ok = 0;
+	}
+	break;
+
+    default:
+	emcmotStatus->carte_pos_fb_ok = 0;
+	break;
     }
 }
 
@@ -467,7 +595,7 @@ static void set_operating_mode(void)
 
     /* check for emcmotDebug->enabling */
     if (emcmotDebug->enabling && !GET_MOTION_ENABLE_FLAG()) {
-	tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);
+	tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	    /* point to joint data */
 	    axis_data = &(machine_hal_data->axis[joint_num]);
@@ -494,7 +622,7 @@ static void set_operating_mode(void)
 	if (GET_MOTION_INPOS_FLAG()) {
 
 	    /* update coordinated emcmotDebug->queue position */
-	    tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);
+	    tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 	    /* drain the cubics so they'll synch up */
 	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		/* point to joint data */
@@ -552,7 +680,7 @@ static void set_operating_mode(void)
 	if (emcmotDebug->coordinating && !GET_MOTION_COORD_FLAG()) {
 	    if (GET_MOTION_INPOS_FLAG()) {
 		/* update coordinated emcmotDebug->queue position */
-		tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);
+		tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 		/* drain the cubics so they'll synch up */
 		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		    /* point to joint data */
@@ -728,8 +856,14 @@ static void do_homing(void)
 		/* This state is responsible for getting the homing process
 		   started.  It doesn't actually do anything, it simply
 		   determines what state is next */
+		/* set flags that communicate with the rest of EMC */
+		SET_JOINT_HOMING_FLAG(joint, 1);
+		SET_JOINT_HOMED_FLAG(joint, 0);
+		SET_JOINT_AT_HOME_FLAG(joint, 0);
 		/* stop any existing motion */
 		joint->free_tp_enable = 0;
+		/* reset delay counter */
+		joint->home_pause_timer = 0;
 		/* figure out exactly what homing sequence is needed */
 		if (joint->home_search_vel == 0.0) {
 		    /* vel == 0 means no switch, home at current position */
@@ -1106,6 +1240,7 @@ static void do_homing(void)
 	    case HOME_FINISHED:
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		SET_JOINT_HOMED_FLAG(joint, 1);
+		SET_JOINT_AT_HOME_FLAG(joint, 1);
 		joint->home_state = HOME_IDLE;
 		immediate_state = 1;
 		break;
@@ -1113,6 +1248,7 @@ static void do_homing(void)
 	    case HOME_ABORT:
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		SET_JOINT_HOMED_FLAG(joint, 0);
+		SET_JOINT_AT_HOME_FLAG(joint, 0);
 		joint->free_tp_enable = 0;
 		joint->home_state = HOME_IDLE;
 		immediate_state = 1;
@@ -1207,6 +1343,10 @@ static void get_pos_cmds(void)
 		   next enabled */
 		joint->free_pos_cmd = joint->pos_cmd;
 	    }
+	    /* if we move at all, clear AT_HOME flag */
+	    if (joint->free_tp_active) {
+		SET_JOINT_AT_HOME_FLAG(joint, 0);
+	    }
 	    /* velocity limit = planner limit * global scale factor */
 	    /* the global factor is used for feedrate override */
 	    vel_lim = joint->free_vel_lim * emcmotStatus->qVscale;
@@ -1246,6 +1386,91 @@ static void get_pos_cmds(void)
 	break;
     }
 
+/* NOTES:  These notes are just my understanding of how things work.
+
+There are seven sets of position information.
+
+1) emcmotStatus->carte_pos_cmd
+2) emcmotStatus->joints[n].coarse_pos
+3) emcmotStatus->joints[n].pos_cmd
+4) emcmotStatus->joints[n].motor_pos_cmd
+5) emcmotStatus->joints[n].motor_pos_fb
+6) emcmotStatus->joints[n].pos_fb
+7) emcmotStatus->carte_pos_fb
+
+Their exact contents and meaning are as follows:
+
+1) This is the desired position, in Cartesean coordinates.  It is
+   updated at the traj rate, not the servo rate.
+   In coord mode, it is determined by the traj planner
+   In teleop mode, it is determined by the traj planner?
+   In free mode, it is either copied from actualPos, or generated
+     by applying forward kins to (2) or (3).
+
+2) This is the desired position, in joint coordinates, but
+   before interpolation.  It is updated at the traj rate, not
+   the servo rate..
+   In coord mode, it is generated by applying inverse kins to (1)
+   In teleop mode, it is generated by applying inverse kins to (1)
+   In free mode, it is copied from (3), I think...
+
+3) This is the desired position, in joint coords, after interpolation.
+   A new set of these coords is generated every servo period.
+   In coord mode, it is generated from (2) by the interpolator.
+   In teleop mode, it is generated from (2) by the interpolator.
+   In free mode, it is generated by the simple free mode traj planner.
+
+4) This is the desired position, in motor coords.  Motor coords are
+   generated by adding backlash compensation, lead screw error
+   compensation, and offset (for homing) to (3).
+   It is generated the same way regardless of the mode, and is the
+   output to the PID loop or other position loop.
+
+5) This is the actual position, in motor coords.  It is the input from
+   encoders or other feedback device (or from virtual encoders on open
+   loop machines).  It is "generated" by reading the feedback device.
+
+6) This is the actual position, in joint coordinates.  It is generated
+   by subtracting offset, lead screw error compensation, and backlash
+   compensation from (5).  It is generated the same way regardless of
+   the operating mode.
+
+7) This is the actual position, in Cartesean coordinates.  It is updated
+   at the traj rate, not the servo rate.
+   OLD VERSION:
+   In the old version, there are four sets of code to generate actualPos.
+   One for each operating mode, and one for when motion is disabled.
+   The code for coord and teleop modes is identical.  The code for free
+   mode is somewhat different, in particular to deal with the case where
+   one or more axes are not homed.  The disabled code is quite similar,
+   but not identical, to the coord mode code.  In general, the code
+   calculates actualPos by applying the forward kins to (6).  However,
+   where forward kins are not available, actualPos is either copied
+   from (1) (assumes no following error), or simply left alone.
+   These special cases are handled differently for each operating mode.
+   NEW VERSION:
+   I would like to both simplify and relocate this.  As far as I can
+   tell, actualPos should _always_ be the best estimate of the actual
+   machine position in Cartesean coordinates.  So it should always be
+   calculated the same way.
+   In addition to always using the same code to calculate actualPos,
+   I want to move that code.  It is really a feedback calculation, and
+   as such it belongs with the rest of the feedback calculations early
+   in control.c, not as part of the output generation code as it is now.
+   Ideally, actualPos would always be calculated by applying forward
+   kinematics to (6).  However, forward kinematics may not be available,
+   or they may be unusable because one or more axes aren't homed.  In
+   that case, the options are: A) fake it by copying (1), or B) admit
+   that we don't really know the Cartesean coordinates, and simply
+   don't update actualPos.  Whatever approach is used, I can see no
+   reason not to do it the same way regardless of the operating mode.
+   I would propose the following:  If there are forward kins, use them,
+   unless they don't work because of unhomed axes or other problems,
+   in which case do (B).  If no forward kins, do (A), since otherwise
+   actualPos would _never_ get updated.
+
+*/
+
 #if 0
 /* FIXME - disables old code */
 
@@ -1256,8 +1481,7 @@ static void get_pos_cmds(void)
     whichCycle = 0;
 #endif
     if (GET_MOTION_ENABLE_FLAG()) {
-	/* set whichCycle to be at least a servo cycle, for calc time logging 
-	 */
+	/* set whichCycle to be at least a servo cycle, for calc time logging */
 #if 0				/* dunno what whichCycle is all about yet */
 	whichCycle = 1;
 #endif
@@ -1349,28 +1573,29 @@ static void get_pos_cmds(void)
 			emcmotDebug->teleop_data.desiredVel;
 		}
 
-		emcmotStatus->pos.tran.x +=
+		emcmotStatus->carte_pos_cmd.tran.x +=
 		    emcmotDebug->teleop_data.currentVel.tran.x *
 		    emcmotConfig->trajCycleTime;
-		emcmotStatus->pos.tran.y +=
+		emcmotStatus->carte_pos_cmd.tran.y +=
 		    emcmotDebug->teleop_data.currentVel.tran.y *
 		    emcmotConfig->trajCycleTime;
-		emcmotStatus->pos.tran.z +=
+		emcmotStatus->carte_pos_cmd.tran.z +=
 		    emcmotDebug->teleop_data.currentVel.tran.z *
 		    emcmotConfig->trajCycleTime;
-		emcmotStatus->pos.a +=
+		emcmotStatus->carte_pos_cmd.a +=
 		    emcmotDebug->teleop_data.currentVel.a *
 		    emcmotConfig->trajCycleTime;
-		emcmotStatus->pos.b +=
+		emcmotStatus->carte_pos_cmd.b +=
 		    emcmotDebug->teleop_data.currentVel.b *
 		    emcmotConfig->trajCycleTime;
-		emcmotStatus->pos.c +=
+		emcmotStatus->carte_pos_cmd.c +=
 		    emcmotDebug->teleop_data.currentVel.c *
 		    emcmotConfig->trajCycleTime;
 
+		/* OUTPUT KINEMATICS */
 		/* convert to joint positions in local array */
-		kinematicsInverse(&emcmotStatus->pos, positions, &iflags,
-		    &fflags);
+		kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
+		    &iflags, &fflags);
 		/* copy to joint structures and spline them up */
 		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		    /* point to joint struct */
@@ -1381,24 +1606,8 @@ static void get_pos_cmds(void)
 		       this cycle so it doesn't really matter */
 		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
 		}
-
-		if (kinType == KINEMATICS_IDENTITY) {
-		    /* copy position feedback to local array */
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
-			joint_num++) {
-			/* point to joint struct */
-			joint = &(emcmotStruct->joints[joint_num]);
-			/* copy feedback */
-			positions[joint_num] = joint->pos_fb;
-		    }
-		    /* call forward kinematics on input points for actual
-		       pos, at trajectory rate to save bandwidth */
-		    kinematicsForward(positions, &emcmotStatus->actualPos,
-			&fflags, &iflags);
-		} else {
-		    /* fake it by setting actual pos to commanded pos */
-		    emcmotStatus->actualPos = emcmotStatus->pos;
-		}
+		/* END OF OUTPUT KINS */
+		/* FEEDBACK KINS was here, moved to do_forward_kins() */
 		/* end of teleop mode */
 	    } else if (GET_MOTION_COORD_FLAG()) {
 		/* coordinated mode */
@@ -1417,11 +1626,12 @@ static void get_pos_cmds(void)
 		tpRunCycle(&emcmotDebug->queue);
 
 		/* set new commanded traj pos */
-		emcmotStatus->pos = tpGetPos(&emcmotDebug->queue);
+		emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->queue);
 
+		/* OUTPUT KINEMATICS */
 		/* convert to joint positions in local array */
-		kinematicsInverse(&emcmotStatus->pos, positions, &iflags,
-		    &fflags);
+		kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
+		    &iflags, &fflags);
 		/* copy to joint structures and spline them up */
 		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		    /* point to joint struct */
@@ -1432,26 +1642,10 @@ static void get_pos_cmds(void)
 		       this cycle so it doesn't really matter */
 		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
 		}
-
-		if (kinType == KINEMATICS_IDENTITY) {
-		    /* copy position feedback to local array */
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
-			joint_num++) {
-			/* point to joint struct */
-			joint = &(emcmotStruct->joints[joint_num]);
-			/* copy feedback */
-			positions[joint_num] = joint->pos_fb;
-		    }
-		    /* call forward kinematics on input points for actual
-		       pos, at trajectory rate to save bandwidth */
-		    kinematicsForward(positions, &emcmotStatus->actualPos,
-			&fflags, &iflags);
-		} else {
-		    /* fake it by setting actual pos to commanded pos */
-		    emcmotStatus->actualPos = emcmotStatus->pos;
-		}
-
-		/* now emcmotStatus->actualPos, emcmotStatus->pos, and
+		/* END OF OUTPUT KINS */
+		/* FEEDBACK KINS was here, moved to do_forward_kins() */
+		/* now emcmotStatus->carte_pos_fb,
+		   emcmotStatus->carte_pos_cmd, and
 		   emcmotDebug->coarseJointPos[] are set */
 
 		/* end of coord mode */
@@ -1459,63 +1653,11 @@ static void get_pos_cmds(void)
 		/* free mode */
 		/* we're in free mode-- run joint planning cycles */
 		/* position generating code that was here has been replaced */
-
-		if (kinType == KINEMATICS_IDENTITY) {
-		    /* copy position feedback to local array */
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
-			joint_num++) {
-			/* point to joint struct */
-			joint = &(emcmotStruct->joints[joint_num]);
-			/* copy feedback */
-			positions[joint_num] = joint->pos_fb;
-		    }
-		    /* set actualPos from actual inputs */
-		    kinematicsForward(positions, &emcmotStatus->actualPos,
-			&fflags, &iflags);
-		    /* copy coarse position commands to local array */
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
-			joint_num++) {
-			/* point to joint struct */
-			joint = &(emcmotStruct->joints[joint_num]);
-			/* copy feedback */
-			positions[joint_num] = joint->coarse_pos;
-		    }
-		    /* set pos from nominal joints, we're in joint mode */
-		    kinematicsForward(positions, &emcmotStatus->pos, &fflags,
-			&iflags);
-		} else if (kinType != KINEMATICS_INVERSE_ONLY) {
-		    /* here is where we call the forward kinematics
-		       repeatedly, when we're in free mode, so that the world
-		       coordinates are kept up to date when joints are moving.
-		       This is only done if we have the kinematics.
-		       emcmotStatus->pos needs to be set with an estimate for
-		       the kinematics to converge, which is true when we enter
-		       free mode from coordinated mode or after the machine is
-		       homed. */
-		    EmcPose temp = emcmotStatus->pos;
-		    /* copy position feedback to local array */
-		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
-			joint_num++) {
-			/* point to joint struct */
-			joint = &(emcmotStruct->joints[joint_num]);
-			/* copy feedback */
-			positions[joint_num] = joint->pos_fb;
-		    }
-		    /* calculate a pose from the actual inputs */
-		    if (0 == kinematicsForward(positions, &temp, &fflags,
-			    &iflags)) {
-			emcmotStatus->pos = temp;
-			emcmotStatus->actualPos = temp;
-		    } else {
-			/* leave them alone */
-		    }
-		} else {
-		    /* no foward kins, and we're in joint mode, so we have no
-		       estimate of world coords, and we have to leave them
-		       alone */
-		}
-		/* now emcmotStatus->actualPos, emcmotStatus->pos, and
-		   joints[]->coarse_pos are set */
+		/* THERE IS NO OUTPUT KINS IN FREE MODE */
+		/* FEEDBACK KINS was here, moved to do_forward_kins() */
+		/* now emcmotStatus->carte_pos_fb,
+		   emcmotStatus->carte_pos_cmd, and joints[]->coarse_pos are
+		   set */
 	    }			/* end of free mode */
 	}			/* end of: while (cubicNeedNextPoint(0)) */
 
@@ -1531,16 +1673,16 @@ static void get_pos_cmds(void)
 
 	   Effects:
 
-	   For coord mode, emcmotStatus->pos contains the commanded Cartesian
-	   pose, emcmotDebug->coarseJointPos[] contains the results of the
-	   inverse kinematics at the coarse (trajectory) rate, and the
+	   For coord mode, emcmotStatus->carte_pos_cmd contains the commanded
+	   Cartesian pose, emcmotDebug->coarseJointPos[] contains the results
+	   of the inverse kinematics at the coarse (trajectory) rate, and the
 	   interpolators are not empty.
 
-	   For free mode, emcmotStatus->pos is unchanged, and needs to be
-	   updated via the forward kinematics. FIXME-- make sure this happens,
-	   and note where in this comment. joints[]->coarse_pos[] contains the
-	   results of the joint trajectory calculations at the coarse
-	   (trajectory) rate, and the interpolators are not empty. */
+	   For free mode, emcmotStatus->carte_pos_cmd is unchanged, and needs
+	   to be updated via the forward kinematics. FIXME-- make sure this
+	   happens, and note where in this comment. joints[]->coarse_pos[]
+	   contains the results of the joint trajectory calculations at the
+	   coarse (trajectory) rate, and the interpolators are not empty. */
 
 	/* run interpolation */
 	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
@@ -1559,49 +1701,14 @@ static void get_pos_cmds(void)
 	   done. joint->pos_cmd is set to joint->pos_fb, and likewise with
 	   joint->coarse_pos, which is normally updated at the traj rate but
 	   it's convenient to do them here at the same time at the servo rate.
-	   emcmotStatus->pos, ->actualPos need to be run through forward
-	   kinematics.  Note that we are running at the servo rate, so we need
-	   to slow down by the interpolation factor to avoid soaking the CPU.
-	   If we were enabled, ->pos was set by calcs (coord mode) or forward
-	   kins (free mode), and ->actualPos was set by forward kins on
-	   ->pos_fb, all at the trajectory rate. */
-	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-	    /* point to joint struct */
-	    joint = &(emcmotStruct->joints[joint_num]);
+	   emcmotStatus->carte_pos_cmd, ->carte_pos_fb need to be run through
+	   forward kinematics.  Note that we are running at the servo rate, so
+	   we need to slow down by the interpolation factor to avoid soaking
+	   the CPU. If we were enabled, ->pos was set by calcs (coord mode) or
+	   forward kins (free mode), and ->carte_pos_fb was set by forward kins 
+	   on ->pos_fb, all at the trajectory rate. */
+	/* FEEDBACK KINS was here, moved to do_forward_kins() */
 
-	    joint->coarse_pos = joint->pos_fb;
-	    old_pos_cmd = joint->pos_cmd;
-	    joint->pos_cmd = joint->coarse_pos;
-	    joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
-	}
-	/* synthesize the trajectory interpolation, via a counter that
-	   decrements from the interpolation rate. This causes the statements
-	   to execute at the trajectory rate instead of the servo rate at
-	   which this enclosing code is called. */
-	if (--interpolationCounter <= 0) {
-	    if (kinType != KINEMATICS_INVERSE_ONLY) {
-		/* call the forward kinematics, at the effective trajectory
-		   rate */
-		EmcPose temp = emcmotStatus->pos;
-		/* copy position feedback to local array */
-		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		    /* point to joint struct */
-		    joint = &(emcmotStruct->joints[joint_num]);
-		    /* copy feedback */
-		    positions[joint_num] = joint->pos_fb;
-		}
-		if (0 == kinematicsForward(positions, &temp, &fflags,
-			&iflags)) {
-		    emcmotStatus->pos = temp;
-		    emcmotStatus->actualPos = temp;
-		}
-	    }
-	    /* else can't generate Cartesian position, so leave it alone */
-
-	    /* reload the interpolation counter that simulates the
-	       interpolation done when enabled */
-	    interpolationCounter = emcmotConfig->interpolationRate;
-	}
 	/* end of not enabled */
     }
 #endif

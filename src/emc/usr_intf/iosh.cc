@@ -1216,9 +1216,9 @@ static int emc_mot_move(ClientData clientdata,
 	emcmotCommand.command = EMCMOT_SET_VEL;
 	usrmotWriteEmcmotCommand(&emcmotCommand);
 // Get the current position
-	emcmotCommand.pos.tran.x = emcmotshmem->status.actualPos.tran.x;
-	emcmotCommand.pos.tran.y = emcmotshmem->status.actualPos.tran.y;
-	emcmotCommand.pos.tran.z = emcmotshmem->status.actualPos.tran.z;
+	emcmotCommand.pos.tran.x = emcmotshmem->status.carte_pos_fb.tran.x;
+	emcmotCommand.pos.tran.y = emcmotshmem->status.carte_pos_fb.tran.y;
+	emcmotCommand.pos.tran.z = emcmotshmem->status.carte_pos_fb.tran.z;
 // Program the move
 	switch (axis) {
 	case 0:
