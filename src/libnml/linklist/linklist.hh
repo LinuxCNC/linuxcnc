@@ -20,6 +20,7 @@ enum LIST_SIZING_MODE
     NO_MAXIMUM_SIZE
 };
 
+/** this is more of a struct.. */
 class RCS_LINKED_LIST_NODE
 {
   public:
@@ -68,13 +69,13 @@ class RCS_LINKED_LIST
     void *find_node(int _node_number);
     void delete_node(int _id);
     void delete_current_node();
-    void flush_list();
     void delete_members();
     RCS_LINKED_LIST();
     ~RCS_LINKED_LIST();
 
   private:
     RCS_LINKED_LIST(RCS_LINKED_LIST & list);	// Don't copy me.
+    void flush_list();
 };
 
 #endif /* LINKED_LIST_HH */

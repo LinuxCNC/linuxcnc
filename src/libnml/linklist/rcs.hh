@@ -38,7 +38,6 @@
 const int lib_major_version = LIB_MAJOR_VERSION;
 const int lib_minor_version = LIB_MINOR_VERSION;
 
-
 #endif
 
 /* defined(RCS_HH) */

@@ -1,4 +1,13 @@
+/**
+ linklist.cc allocates blocks of memory and keeps track of them in a list
+ of pointers..
+ RCS_LINKED_LIST->data contains the address of the memory block
+ RCS_LINKED_LIST->size is the size of the memory block
+ RCS_LINKED_LIST->id   a unique ID for each 'node'
+ RCS_LINKED_LIST->next pointer to the next node ?
+ RCS_LINKED_LIST->last pointer to the last node
 
+*/
 extern "C"
 {
 
@@ -94,6 +103,7 @@ void RCS_LINKED_LIST::delete_members()
 }
 
 /** Called by NML_INTERP_LIST::get() */
+/** Removes the first node of the list and frees the memory */
 void *RCS_LINKED_LIST::retrieve_head()
 {
     RCS_LINKED_LIST_NODE *next_node;

@@ -43,11 +43,13 @@ void set_rcs_print_destination(RCS_PRINT_DESTINATION_TYPE _dest)
     rcs_print_destination = _dest;
 }
 
+/** Called by various functions - Replace with rtapi_print_msg functions */
 RCS_PRINT_DESTINATION_TYPE get_rcs_print_destination()
 {
     return (rcs_print_destination);
 }
 
+/** Used by rcs_vprint() */
 void bad_char_to_print(char *ptr)
 {
     if (ptr) {
@@ -55,6 +57,7 @@ void bad_char_to_print(char *ptr)
     }
 }
 
+/** Used by rcs_print_error() and rcs_print_debug() */
 int rcs_vprint(char *_fmt, va_list _args, int save_string)
 {
     static char temp_string[4096];
@@ -99,6 +102,7 @@ int rcs_vprint(char *_fmt, va_list _args, int save_string)
     return (rcs_fputs(temp_string));
 }
 
+/** Used by rcs_print_sys_error(), rcs_sem_init() , rcs_sem_open(), rcs_sem_post(), &  rcs_sem_flush() */
 int rcs_puts(char *_str)
 {
     int retval, retval2;
@@ -114,6 +118,7 @@ int rcs_puts(char *_str)
     return (retval);
 }
 
+/** Used by rcs_vprint(), rcs_puts(), & rcs_print() */
 int rcs_fputs(char *_str)
 {
     int retval = EOF;
@@ -179,6 +184,8 @@ int rcs_fputs(char *_str)
     return (retval);
 }
 
+/** Used by rcs_print_debug(), rcs_print_sys_error(), rcs_print_error(), NML_MODULE::logText(), NML_MODULE::print_statistics(), autokey_getkey(), and assorted EMC functions.
+This WILL be repalced with rtapi_print() */
 int rcs_print(char *_fmt, ...)
 {
     static char temp_buffer[1024];
@@ -198,6 +205,7 @@ int rcs_print(char *_fmt, ...)
     return (retval);
 }
 
+/** Used by assorted functions - WILL be replaced with rtapi_print_msg() */
 int rcs_print_debug(long flag_to_check, char *_fmt, ...)
 {
     int retval = 0;
@@ -214,6 +222,8 @@ int rcs_print_debug(long flag_to_check, char *_fmt, ...)
     return (retval);
 }
 
+/** Only called by some of the XML EMS test routines...
+      Replace with rtapi_set_msg_lvl */
 void set_rcs_print_flag(unsigned long flag_to_set)
 {
     rcs_print_mode_flags |= flag_to_set;
@@ -223,6 +233,7 @@ void set_rcs_print_flag(unsigned long flag_to_set)
     }
 }
 
+/** Used by CMS::CMS constructor, [cms_cfg.cc] get_buffer_line(), hostname_matches_bufferline(), find_proc_and_buffer_lines(), & cms_create_from_lines() */
 int separate_words(char **_dest, int _max, char *_src)
 {
     static char word_buffer[256];
@@ -244,6 +255,7 @@ int separate_words(char **_dest, int _max, char *_src)
     return (i + 1);
 }
 
+/** Not used */
 int rcs_print_sys_error(int error_source, char *_fmt, ...)
 {
     static char temp_string[256];
@@ -290,6 +302,8 @@ extern "C"
     int rcs_print_error(char *_fmt, ...);
 }
 
+/** Used by just about everything !
+      Replace with rtapi_print_msg() */
 int rcs_print_error(char *_fmt, ...)
 {
     int retval = 0;
