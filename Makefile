@@ -44,10 +44,10 @@ all headers indent install depend clean:
 # these variables are used to build a list of all
 # man pages that need to be installed
 
-ifneq ($(strip $(MAN_DIR)),)
+ifneq ($(strip $(DESTDIR)$(MAN_DIR)),)
 # MAN_DIR exists, generate list of man pages
-MAN1_FILES := $(patsubst docs/man/%,$(MAN_DIR)/%,$(wildcard docs/man/man1/*.1))
-MAN3_FILES := $(patsubst docs/man/%,$(MAN_DIR)/%,$(wildcard docs/man/man3/*.3))
+MAN1_FILES := $(patsubst docs/man/%,$(DESTDIR)$(MAN_DIR)/%,$(wildcard docs/man/man1/*.1))
+MAN3_FILES := $(patsubst docs/man/%,$(DESTDIR)$(MAN_DIR)/%,$(wildcard docs/man/man3/*.3))
 MAN_FILES = $(MAN1_FILES) $(MAN3_FILES)
 else
 # no man dir, do nothing
@@ -56,16 +56,18 @@ endif
 
 # this rule installs a single man page
 
-$(MAN_DIR)/% : docs/man/%
+man_directories:
+	install -d $(DESTDIR)$(MAN_DIR)/man1
+	install -d $(DESTDIR)$(MAN_DIR)/man3
+
+$(DESTDIR)$(MAN_DIR)/% : docs/man/%
 	@ echo "install man page $*"
 	@ cp $< $@
 
 # this rule handles the install target
 # its dependency installs all the man pages
 
-install_man: $(MAN_FILES)
-	install -d $(DESTDIR)/$(mandir)
-	cp $(MAN_FILES) $(DESTDIR)/$(mandir)
+install_man: man_directories $(MAN_FILES)
 
 install_bin: 
 	install -d $(DESTDIR)/$(bindir)
