@@ -198,7 +198,8 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
 	RTDIR=/usr/src/rtai-24.1.10
 	KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "="); print A[[2]]}') 2>/dev/null #'
 	KERNELDIR=$(cd $KERNEL ; pwd -P )
-	RTFLAGS=$(cat $RTFILE | grep CFLAGS | awk '{split($1, A, "="); print A[[2]]}') 2>/dev/null #'
+	RTFLAGS=$(cat $RTFILE | grep CFLAGS | sed s/CFLAGS/RTFLAGS/) 2>/dev/null #'
+
 	RTFLAGS="$RTFLAGS -DRTAI=1"
     else
 	# any other rtai-24.1.x system
