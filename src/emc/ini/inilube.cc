@@ -146,7 +146,7 @@ int iniLube(const char *filename)
 
   lubeInifile = new Inifile;
 
-  if (-1 == lubeInifile->open(filename))
+  if (lubeInifile->open(filename) == false)
     {
       return -1;
     }

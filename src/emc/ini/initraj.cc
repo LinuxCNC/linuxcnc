@@ -457,7 +457,7 @@ int iniTraj(const char *filename)
 
   trajInifile = new Inifile;
 
-  if (-1 == trajInifile->open(filename))
+  if (trajInifile->open(filename) == false)
     {
       return -1;
     }

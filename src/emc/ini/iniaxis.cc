@@ -1064,7 +1064,7 @@ int iniAxis(int axis, const char *filename)
   int axes;
 
   axisInifile = new Inifile;
-  if (-1 == axisInifile->open(filename)) {
+  if (axisInifile->open(filename) == false) {
     return -1;
   }
 

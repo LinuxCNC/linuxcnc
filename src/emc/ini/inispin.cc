@@ -433,7 +433,7 @@ int iniSpindle(const char *filename)
 
   spindleInifile = new Inifile;
 
-  if (-1 == spindleInifile->open(filename))
+  if (spindleInifile->open(filename) == false)
     {
       return -1;
     }

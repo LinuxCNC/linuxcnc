@@ -126,7 +126,7 @@ int iniTool(const char *filename)
 
   toolInifile = new Inifile;
 
-  if (-1 == toolInifile->open(filename)) {
+  if (toolInifile->open(filename) == false) {
     return -1;
   }
   // load tool values

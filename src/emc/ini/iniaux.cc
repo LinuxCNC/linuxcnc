@@ -148,7 +148,7 @@ int iniAux(const char *filename)
 
   auxInifile = new Inifile;
 
-  if (-1 == auxInifile->open(filename))
+  if (auxInifile->open(filename) == false)
     {
       return -1;
     }
