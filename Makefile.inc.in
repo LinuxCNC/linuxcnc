@@ -33,6 +33,8 @@ localstatedir = @localstatedir@
 libdir = @libdir@
 infodir = @infodir@
 mandir = @mandir@
+moduledir = @MODULE_DIR@
+kernelvers = @KERNEL_VERS@
 
 # /Standard configure directories
 

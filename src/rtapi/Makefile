@@ -91,12 +91,8 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(EMC2_HOME)/Makefile.inc
 	@ echo  >> $@
 	@ echo "# Sets the default DEBUG level" >> $@
 	@ echo "DEBUG='3'" >> $@
-	mod_dir=$$(find /lib/modules/`uname -r` -name "mbuff.o" -o -name "rtai_shm.o") ; \
-	  if [ "$$mod_dir" = "" ] ; then \
-	     echo  >> $@ ;\
-	     echo "# Path to the realtime kernel modules" >> $@; \
-	     echo "MODPATH='$(RTDIR)/modules'"  >> $@ ; \
-	  fi
+	@ echo  >> $@ ;
+	@ echo "MODPATH='$(MODULE_DIR)'"  >> $@ 
 	@ echo >> $@
 	@ echo "# List of realtime kernel modules to be loaded" >> $@
 	@ if [ "$(RTAI)" = "3" ] ; then \
@@ -132,12 +128,7 @@ install:
 	@ echo  >> $(RTAPICONF)
 	@ echo "# Sets the default DEBUG level" >> $(RTAPICONF)
 	@ echo "DEBUG='3'" >> $(RTAPICONF)
-	mod_dir=$$(find /lib/modules/`uname -r` -name "mbuff.o" -o -name "rtai_shm.o") ; \
-	  if [ "$$mod_dir" = "" ] ; then \
-	     echo  >> $(RTAPICONF) ;\
-	     echo "# Path to the realtime kernel modules" >> $(RTAPICONF); \
-	     echo "MODPATH='$(RTDIR)/modules'"  >> $(RTAPICONF) ; \
-	  fi
+	@ echo "MODPATH='$(MODULE_DIR)'"  >> $@
 	@ echo >> $(RTAPICONF)
 	@ echo "# List of realtime kernel modules to be loaded" >> $(RTAPICONF)
 	@ if [ "$(RTAI)" = "3" ] ; then \

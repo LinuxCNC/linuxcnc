@@ -228,6 +228,67 @@ fi
 
 AC_SUBST(AUTODIRS)
 
+# Allow the user to compile for a kernel other than the currently
+# running kernel with --with-kernel=
+
+
+AC_ARG_WITH(kernel,
+    [  --with-kernel=<kernel version>	Kernel version (ie, 2.4.20-8) to compile for],
+    [
+        case "$withval" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-kernel.])
+          ;;
+        esac
+        KERNEL_VERS="$withval"
+  	AC_MSG_NOTICE([specified kernel=$KERNEL_VERS])
+    ])
+
+AC_MSG_CHECKING([for kernel version])
+
+# Set the kernel to the currently running kernel if not overridden.
+if test "x" = "x$KERNEL_VERS";
+then
+   KERNEL_VERS=`uname -r`
+fi
+
+AC_SUBST([KERNEL_VERS])
+
+AC_MSG_RESULT([$KERNEL_VERS])
+
+# Create a module-dir option, similar to rtai's...
+
+AC_MSG_CHECKING([for module installation directory])
+
+AC_ARG_WITH(module-dir,
+    [  --with-module-dir=<module-dir>	Installation directory for kernel modules],
+    [
+        case "$withval" in
+        "" | y | ye | yes | n | no)
+            AC_MSG_ERROR([You must supply an argument to --with-module-dir.])
+          ;;
+        esac
+        MODULE_DIR="$withval"
+    ])
+
+# Set a default module dir if unspecified
+if test "x" = "x$MODULE_DIR";
+then
+   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} -name "mbuff.o" -o -name "rtai_shm.o" -printf "%h")`
+
+   if test "x" = "x$MODULE_DIR"; then
+        MODULE_DIR=`(find /usr/realtime/ -name "mbuff.o" -o -name "rtai_shm.o" -printf "%h")`
+   fi
+
+   if test "x" = "x$MODULE_DIR"; then
+       MODULE_DIR='${exec_prefix}/modules'
+   fi
+
+fi
+
+AC_SUBST([MODULE_DIR])
+AC_MSG_RESULT([$MODULE_DIR])
+
 
 # Check CC version - (P.C.) We need to verify the compiler is the same one used
 # for the realtime extensions... Hence the need to find the RT signature first.
@@ -341,7 +402,7 @@ if (test ${RTS##*/} = rtai-config ) ; then
     fi
 fi
 
-if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM) || (test -r /lib/modules/`uname -r`/rtai/rtai_libm.o) ; then
+if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm.o) ; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1

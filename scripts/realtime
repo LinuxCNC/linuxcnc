@@ -1,4 +1,12 @@
-#! /bin/bash
+#!/bin/bash
+#
+# realtime	This shell script takes care of starting and stopping
+#		realtime services
+#
+# chkconfig: - 97 97
+# description: realtime loades modules for RTOS functionality
+
+
 
 CheckConfig(){
     RTAPICONF=

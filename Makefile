@@ -88,15 +88,18 @@ install_scripts:
 	cp -r scripts/* $(DESTDIR)/$(prefix)/scripts
 
 MODPATH=$(RTDIR)/modules 
+MODPATH=$(moduledir)
 
-install_modules:
-	mod_dir=$$(find /lib/modules/`uname -r` -name "mbuff.o" -o -name "rtai_shm.o") ; 
-	
+modules_install install_modules:
 	install -d $(DESTDIR)/$(MODPATH) ;
 	cp rtlib/* $(DESTDIR)/$(MODPATH) ;
 
+install_init:
+	install -d $(DESTDIR)/etc/rc.d/init.d/
+	cp scripts/realtime $(DESTDIR)/etc/rc.d/init.d/
+
 install : install_man install_bin install_lib install_configs \
-	install_modules install_scripts
+	install_modules install_scripts install_init
 
 
 
