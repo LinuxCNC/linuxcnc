@@ -136,10 +136,10 @@ fi
 if [ "$RTAI_DIR" != "" ] ; then
     if [ "$RTDIR" = "" ] ; then
 	echo "RTDIR set to $RTAI_DIR (Kilauea) by search"
+	RTAI_VER=3
     fi
     RTDIR=$RTAI_DIR
-    RTAI_VER=$($RTDIR/bin/rtai-config --version)
-    if [ $RTAI_VER = 3.0 ] ; then
+    if [ -f $RTDIR/bin/rtai-config ] ; then
 	RTAI_VER=3
     fi
 fi
