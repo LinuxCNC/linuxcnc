@@ -762,40 +762,39 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
 	    /* pin not found (can happen if pin is deleted after the list was
 	       generated) */
 	    /* error handling leaves a bit to be desired! */
+	    chan->data_source_type = -1;
 	    return;
 	}
+	chan->data_source_type = 0;
+	chan->data_source = SHMOFF(pin);
 	chan->data_type = pin->type;
 	chan->name = pin->name;
-	if (pin->signal == 0) {
-	    /* pin is unlinked, get data from dummysig */
-	    chan->data_addr = &(pin->dummysig);
-	} else {
-	    /* pin is linked to a signal */
-	    sig = SHMPTR(pin->signal);
-	    chan->data_addr = SHMPTR(sig->data_ptr);
-	}
     } else if (listnum == 1) {
 	/* search the signal list */
 	sig = halpr_find_sig_by_name(name);
 	if (sig == NULL) {
 	    /* signal not found (can happen if signal is deleted after the
 	       list was generated) */
+	    chan->data_source_type = -1;
 	    return;
 	}
+	chan->data_source_type = 1;
+	chan->data_source = SHMOFF(sig);
 	chan->data_type = sig->type;
 	chan->name = sig->name;
-	chan->data_addr = SHMPTR(sig->data_ptr);
     } else if (listnum == 2) {
 	/* search the parameter list */
 	param = halpr_find_param_by_name(name);
 	if (param == NULL) {
 	    /* parameter not found (can happen if param is deleted after the
 	       list was generated) */
+	    chan->data_source_type = -1;
 	    return;
 	}
+	chan->data_source_type = 2;
+	chan->data_source = SHMOFF(param);
 	chan->data_type = param->type;
 	chan->name = param->name;
-	chan->data_addr = SHMPTR(param->data_ptr);
     }
     switch (chan->data_type) {
     case HAL_BIT:

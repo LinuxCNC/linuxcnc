@@ -189,24 +189,73 @@ static int heartbeat(gpointer data)
 
 void start_capture(void)
 {
-    int n, mask;
+    int n;
     scope_chan_t *chan;
+    hal_pin_t *pin;
+    hal_sig_t *sig;
+    hal_param_t *param;
 
     if (ctrl_shm->state != IDLE) {
 	/* already running! */
 	return;
     }
-    mask = 1;
     for (n = 0; n < 16; n++) {
+	/* point to user space channel data */
 	chan = &(ctrl_usr->chan[n]);
-	ctrl_shm->data_offset[n] = SHMOFF(chan->data_addr);
+	/* find address of data in shared memory */
+	if ( chan->data_source_type == 0 ) {
+	    /* channel source is a pin, point at it */
+	    pin = SHMPTR(chan->data_source);
+	    /* make sure it's still valid */
+	    if ( pin->name[0] == '\0' ) {
+		/* pin has been deleted */
+		chan->data_source_type = -1;
+		chan->data_len = 0;
+		break;
+	    }
+	    /* point at pin data */
+	    if (pin->signal == 0) {
+		/* pin is unlinked, get data from dummysig */
+		ctrl_shm->data_offset[n] = SHMOFF(&(pin->dummysig));
+	    } else {
+		/* pin is linked to a signal */
+		sig = SHMPTR(pin->signal);
+		ctrl_shm->data_offset[n] = sig->data_ptr;
+	    }
+	} else if ( chan->data_source_type == 1 ) {
+	    /* channel source is a signal, point at it */
+	    sig = SHMPTR(chan->data_source);
+	    /* make sure it's still valid */
+	    if ( sig->name[0] == '\0' ) {
+		/* signal has been deleted */
+		chan->data_source_type = -1;
+		chan->data_len = 0;
+		break;
+	    }
+	    ctrl_shm->data_offset[n] = sig->data_ptr;
+	} else if ( chan->data_source_type == 2 ) {
+	    /* channel source is a parameter, point at it */
+	    param = SHMPTR(chan->data_source);
+	    /* make sure it's still valid */
+	    if ( param->name[0] == '\0' ) {
+		/* param has been deleted */
+		chan->data_source_type = -1;
+		chan->data_len = 0;
+		break;
+	    }
+	    ctrl_shm->data_offset[n] = param->data_ptr;
+	} else {
+	    /* channel source is invalid */
+	    chan->data_len = 0;
+	}
+	/* set data type */
 	ctrl_shm->data_type[n] = chan->data_type;
+	/* set data length - zero means don't sample */
 	if (ctrl_usr->vert.chan_enabled[n]) {
 	    ctrl_shm->data_len[n] = chan->data_len;
 	} else {
 	    ctrl_shm->data_len[n] = 0;
 	}
-	mask <<= 1;
     }
     ctrl_shm->pre_trig = ctrl_shm->rec_len * ctrl_usr->trig.position;
     ctrl_shm->state = INIT;

@@ -83,9 +83,10 @@ typedef struct {
 /* it lives in user space (as part of the master control struct) */
 
 typedef struct {
+    int data_source_type;	/* 0 = pin, 1 = signa, 2 = param */
+    int data_source;		/* points to pin/param/signal struct */
     char *name;			/* name of pin/sig/parameter */
     hal_type_t data_type;	/* data type */
-    void *data_addr;		/* data address (user mapping) */
     int data_len;		/* data length */
     float vert_offset;		/* offset to be applied */
     int scale_index;		/* scaling (slider setting) */
