@@ -84,10 +84,10 @@ setp wcomp.5.max 9.75
 # set min limit switch to trip at -2.1, release at -1000
 setp wcomp.6.max -2.1
 setp wcomp.6.min -1000
-# set max limit switch to trip at +4,release at +5
-setp wcomp.7.min 4
+# set max limit switch to trip at +4.05,release at +5
+setp wcomp.7.min 4.05
 setp wcomp.7.max 5
-# set home switch to trip at 3.95 and release at 4.1
-setp wcomp.8.min 3.95
+# set home switch to trip at 3.9 and release at 4.1
+setp wcomp.8.min 3.9
 setp wcomp.8.max 4.1
 

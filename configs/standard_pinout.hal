@@ -1,8 +1,14 @@
 # standard pinout config file for 3-axis steppers
-linksp Xstep parport.1.pin-03-out
-linksp Xdir  parport.1.pin-02-out
-linksp Ystep parport.1.pin-05-out
-linksp Ydir  parport.1.pin-04-out
-linksp Zstep parport.1.pin-07-out
-linksp Zdir  parport.1.pin-06-out
+#
+# first connect the parport functions
+addf parport.0.read base-thread 1
+addf parport.0.write base-thread -1
+#
+# next connect physical pins to the signals
+linksp Xstep parport.0.pin-03-out
+linksp Xdir  parport.0.pin-02-out
+linksp Ystep parport.0.pin-05-out
+linksp Ydir  parport.0.pin-04-out
+linksp Zstep parport.0.pin-07-out
+linksp Zdir  parport.0.pin-06-out
 

@@ -652,11 +652,13 @@ int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc)
 {
     /* check for initialized */
     if (0 == tcq || 0 == tcq->queue) {
+rtapi_print ( "tcqPut() fail 1\n" );
 	return -1;
     }
 
     /* check for allFull, so we don't overflow the queue */
     if (tcq->allFull) {
+rtapi_print ( "tcqPut() fail 2\n" );
 	return -1;
     }
 

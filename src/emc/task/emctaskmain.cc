@@ -1262,10 +1262,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     int retval = 0;
     int execRetval = 0;
 
+/* FIXME - debug */
+printf ( "emcTaskIssueCommand()\n" );
     if (0 == cmd) {
 	return 0;
     }
-
     if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	rcs_print("Issuing %s -- \t (%s)\n", emcSymbolLookup(cmd->type),
 	    emcCommandBuffer->msg2str(cmd));
@@ -1431,6 +1432,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
+/* FIXME - debug */
+printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
 	retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end);
 	break;
@@ -1858,7 +1861,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		emc_symbol_lookup(cmd->type));
 	}
     }
-
+/* FIXME - debug */
+printf ( "emcTaskIssueCommand() returning: %d\n", retval );
     return retval;
 }
 
@@ -2010,7 +2014,7 @@ static int emcTaskExecute(void)
 	    if (0 == emcTaskCommand) {
 		// need a new command
 		emcTaskCommand = interp_list.get();
-		// interp_list now has line number associated with this-- get 
+		// interp_list now has line number associated with this-- get
 		// it
 		if (0 != emcTaskCommand) {
 		    emcStatus->task.currentLine =

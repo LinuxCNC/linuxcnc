@@ -180,6 +180,13 @@ static void compute_backlash(void);
 */
 static void output_to_hal(void);
 
+/* 'update_status()' copies assorted status information to shared
+   memory (the emcmotStatus structure) so that it is available to
+   higher level code.
+*/
+static void update_status(void);
+
+
 /***********************************************************************
 *                        PUBLIC FUNCTION CODE                          *
 ************************************************************************/
@@ -225,6 +232,8 @@ check_stuff ( "after get_pos_cmds()" );
 check_stuff ( "after compute_backlash()" );
     output_to_hal();
 check_stuff ( "after output_to_hal()" );
+    update_status();
+check_stuff ( "after update_status()" );
     /* here ends the core of the controller */
     emcmotStatus->heartbeat++;
     /* set tail to head, to indicate work complete */
@@ -1878,4 +1887,66 @@ static void output_to_hal(void)
 	axis_data->faulted = GET_JOINT_FAULT_FLAG(joint);
 	axis_data->home_state = joint->home_state;
     }
+}
+
+static void update_status(void)
+{
+
+    /* FIXME - this function contains some stuff that was apparently
+       dropped in the initial move from emcmot.c to control.c.  I
+       don't know how much it is still needed, and how much is baggage.
+    */
+
+    /* motion emcmotDebug->queue status */
+    emcmotStatus->depth = tpQueueDepth(&emcmotDebug->queue);
+    emcmotStatus->activeDepth = tpActiveDepth(&emcmotDebug->queue);
+    emcmotStatus->id = tpGetExecId(&emcmotDebug->queue);
+    emcmotStatus->queueFull = tcqFull(&emcmotDebug->queue.queue);
+    SET_MOTION_INPOS_FLAG(0);
+    if (tpIsDone(&emcmotDebug->queue)) {
+      SET_MOTION_INPOS_FLAG(1);
+    }
+#if 0
+    /* FIXME - convert to joint format and new free TP */
+    /* axis status */
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+      SET_JOINT_INPOS_FLAG(axis, 0);
+      if (tpIsDone(&emcmotDebug->freeAxis[axis])) {
+	SET_JOINT_INPOS_FLAG(axis, 1);
+      } else {
+	/* this axis, at least, is moving, so set emcmotDebug->overriding flag */
+	if (emcmotStatus->overrideLimits) {
+	  emcmotDebug->overriding = 1;
+	}
+      }
+    }
+#endif
+
+#if 0
+    /* FIXME - need to double check overides */
+    /* reset overrideLimits flag if we have started a move and now
+       are in position */
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+      if (!GET_AXIS_INPOS_FLAG(axis)) {
+	break;
+      }
+    }
+    if (axis == EMCMOT_MAX_AXIS) {
+      /* ran through all axes, and all are in position */
+      if (emcmotDebug->overriding) {
+	emcmotDebug->overriding = 0;
+	emcmotStatus->overrideLimits = 0;
+      }
+    }
+#endif
+    /* check to see if we should pause in order to implement
+       single emcmotDebug->stepping */
+    if (emcmotDebug->stepping && emcmotDebug->idForStep != emcmotStatus->id) {
+      tpPause(&emcmotDebug->queue);
+      emcmotDebug->stepping = 0;
+      emcmotStatus->paused = 1;
+    }
+
+
+
 }

@@ -313,10 +313,12 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     PmPose abc_pose, goal_abc_pose;
 
     if (0 == tp) {
+rtapi_print ( "tpAddLine() fail 1\n" );
 	return -1;
     }
 
     if (tp->aborting) {
+rtapi_print ( "tpAddLine() fail 2\n" );
 	return -1;
     }
 
@@ -354,6 +356,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tcSetTermCond(&tc, tp->termCond);
 
     if (-1 == tcqPut(&tp->queue, tc)) {
+rtapi_print ( "tpAddLine() fail 3\n" );
 	return -1;
     }
 

@@ -1149,6 +1149,7 @@ int emcTrajSetTermCond(int cond)
 
 int emcTrajLinearMove(EmcPose end)
 {
+
     emcmotCommand.command = EMCMOT_SET_LINE;
 
     emcmotCommand.pos = end;

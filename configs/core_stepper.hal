@@ -42,8 +42,13 @@ linkps stepgen.2.step Zstep
 linkps stepgen.2.dir  Zdir
 
 # set scaling - 1600 steps / rev * 5 turns per inch = 8000
-setp stepgen.0.position-scale 8000
-setp stepgen.1.position-scale 8000
-setp stepgen.2.position-scale 8000
+#setp stepgen.0.position-scale 8000
+#setp stepgen.1.position-scale 8000
+#setp stepgen.2.position-scale 8000
+
+# set scaling - 200 steps / mm = 5080 steps/in
+setp stepgen.0.position-scale 5080
+setp stepgen.1.position-scale 5080
+setp stepgen.2.position-scale 5080
 
 

@@ -131,12 +131,16 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     static unsigned char headCount = 0;
     double end;
 
+/* FIXME - debug 5 lines */
+printf ( "usrmotWriteEmcmotCommand()\n" );
+
     c->head = ++headCount;
     c->tail = c->head;
     c->commandNum = ++commandNum;
 
     /* check for mapped mem still around */
     if (0 == emcmotCommand) {
+printf ( "usrmotWriteEmcmotCommand() COMM_ERROR_CONNECT (%d)\n", EMCMOT_COMM_ERROR_CONNECT );
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
 
@@ -154,9 +158,11 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 	if (0 == usrmotReadEmcmotStatus(&s) && s.commandNumEcho == commandNum) {
 	    /* now check emcmot status flag */
 	    if (s.commandStatus == EMCMOT_COMMAND_OK) {
+printf ( "usrmotWriteEmcmotCommand() success (%d)\n", EMCMOT_COMMAND_OK );
 		return EMCMOT_COMM_OK;
 	    } /* end of if */
 	    else {
+printf ( "usrmotWriteEmcmotCommand() COMM_ERROR_COMMAND (%d)\n", EMCMOT_COMM_ERROR_COMMAND );
 		return EMCMOT_COMM_ERROR_COMMAND;
 	    }			/* end of else */
 	}
@@ -168,6 +174,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     emcmot_comm_timeout_count++;
     /* rtapi_print("emcmot_comm_timeout_count=%d\n",
        emcmot_comm_timeout_count); */
+printf ( "usrmotWriteEmcmotCommand() COMM_ERROR_TIMEOUT (%d)\n", EMCMOT_COMM_ERROR_TIMEOUT );
     return EMCMOT_COMM_ERROR_TIMEOUT;
 }
 
