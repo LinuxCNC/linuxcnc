@@ -636,7 +636,6 @@ static void set_operating_mode(void)
 	    /* drain coord mode interpolators */
 	    cubicDrain(&(joint->cubic));
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
-		*(axis_data->amp_enable) = 0;
 		SET_JOINT_ENABLE_FLAG(joint, 0);
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		joint->home_state = HOME_IDLE;
@@ -667,7 +666,6 @@ static void set_operating_mode(void)
 
 	    joint->free_pos_cmd = joint->pos_cmd;
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
-		*(axis_data->amp_enable) = 1;
 		SET_JOINT_ENABLE_FLAG(joint, 1);
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		joint->home_state = HOME_IDLE;
@@ -1950,3 +1948,4 @@ static void update_status(void)
 
 
 }
+

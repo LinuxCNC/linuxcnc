@@ -29,6 +29,13 @@
 #include "emcpos.h"
 #include "tc.h"
 
+#if 0
+/* FIXME - needed for synchronous I/O */
+/* the byte of output that gets written, persisting across all TC_STRUCTs,
+   also referenced in tp.c for aborting */
+ unsigned char tcDoutByte = 0;
+#endif
+
 #define TC_VEL_EPSILON 0.0001	/* number below which v is considered 0 */
 #define TC_SCALE_EPSILON 0.0001	/* number below which scale is considered 0 */
 
@@ -71,6 +78,12 @@ int tcInit(TC_STRUCT * tc)
     pmLineInit(&tc->line, zero, zero);
     pmLineInit(&tc->line_abc, zero, zero);
     /* since type is TC_LINEAR, don't need to set circle params */
+#if 0
+/* FIXME - needed for synchronous I/O */
+    tc->douts = 0;
+    tc->doutstarts = 0;
+    tc->doutends = 0;
+#endif
     return 0;
 }
 
@@ -327,13 +340,33 @@ int tcRunCycle(TC_STRUCT * tc)
 	discr = 0.25 * tc->cycleTime * tc->cycleTime - 2.0 / tc->aMax * discr;
 	newVel = -0.5 * tc->aMax * tc->cycleTime + tc->aMax * sqrt(discr);
     }
-
+#if 0
+/* FIXME - needed for synchronous I/O */
+     if (tc->tcFlag == TC_IS_UNSET) {
+	/* it's the start of this segment, so set any start output bits */
+	if (tc->douts) {
+	    /* Fred's original code.. tcDoutByte |= (tc->douts &
+	      tc->doutstarts); tcDoutByte &= (~tc->douts | tc->doutstarts);
+	      extMotDout(tcDoutByte); */
+	    extDioWrite(tc->doutIndex, tc->doutstarts);
+	}
+    }
+#endif
     if (newVel <= 0.0) {
 	newVel = 0.0;
 	newAccel = 0;
 	newPos = tc->targetPos;
 	tc->tcFlag = TC_IS_DONE;
 	/* set any end output bits */
+#if 0
+/* FIXME - needed for synchronous I/O */
+	if (tc->douts) {
+	    /* Fred's original code.. tcDoutByte |= (tc->douts &
+	      tc->doutends); tcDoutByte &= (~tc->douts | tc->doutends);
+	      extMotDout(tcDoutByte); */
+	    extDioWrite(tc->doutIndex, tc->doutends);
+	}
+#endif
     } else {
 	/* clamp velocity to scaled max, and note if it's scaled back. This
 	   will cause a deceleration which we will NOT flag as a TC_IS_DECEL
@@ -918,3 +951,19 @@ PmCartesian tcGetUnitCart(TC_STRUCT * tc)
     // It should never really get here.
     return fake;
 }
+
+#if 0
+/* FIXME - needed for synchronous I/O */
+int tcSetDout(TC_STRUCT * tc, int doutIndex, unsigned char starts, unsigned char ends)
+{
+    if (0 == tc) {
+	return -1;
+    }
+    tc->douts = 1;
+    tc->doutIndex = doutIndex;
+    tc->doutstarts = starts;
+    tc->doutends = ends;
+    return 0;
+}
+#endif
+

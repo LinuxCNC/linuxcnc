@@ -791,19 +791,9 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 
-/* FIXME - deleted the concept of homing polarity, use signed velocity */
 	    joint->home_search_vel = emcmotCommand->vel;
 /* FIXME - add another for home_index_vel, for now use 1/10 search vel */
 	    joint->home_latch_vel = emcmotCommand->vel * 0.1;
-#if 0
-	    if (emcmotCommand->vel < 0.0) {
-		emcmotConfig->homingVel[axis] = -emcmotCommand->vel;
-		SET_JOINT_HOMING_POLARITY(axis, 0);
-	    } else {
-		emcmotConfig->homingVel[axis] = emcmotCommand->vel;
-		SET_JOINT_HOMING_POLARITY(axis, 1);
-	    }
-#endif
 	    break;
 
 	case EMCMOT_SET_ACC:
@@ -1150,7 +1140,42 @@ check_stuff ( "before command_handler()" );
 	    emcmotConfig->debug = emcmotCommand->debug;
 	    emcmot_config_change();
 	    break;
+#if 0
+/* FIXME - needed for synchronous I/O */
+	case EMCMOT_SET_AOUT:
+	    if (emcmotCommand->now) {
+		extAioWrite(emcmotCommand->index, emcmotCommand->minLimit);
+	    } else {
+		tpSetAout(&emcmotDebug->queue, emcmotCommand->index,
+		    emcmotCommand->minLimit, emcmotCommand->maxLimit);
+	    }
+	    break;
 
+	case EMCMOT_SET_DOUT:
+	    if (emcmotCommand->now) {
+		extDioWrite(emcmotCommand->index, emcmotCommand->start);
+	    } else {
+		tpSetDout(&emcmotDebug->queue, emcmotCommand->index,
+		    emcmotCommand->start, emcmotCommand->end);
+	    }
+	    break;
+#endif
+#if 0
+/* FIXME - needed for M62/M63 */
+	case EMCMOT_SET_INDEX_BIT:
+	    if (emcmotCommand->level) {
+		/* Set bit */
+		extDioWrite(emcmotCommand->index, 1);
+	    } else {
+		/* Clear bit */
+		extDioWrite(emcmotCommand->index, 0);
+	    }
+	    break;
+
+	case EMCMOT_READ_INDEX_BIT:
+	    extDioRead(emcmotCommand->index, &(emcmotStatus->level));
+	    break;
+#endif
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
 	    reportError("unrecognized command %d", emcmotCommand->command);

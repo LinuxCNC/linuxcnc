@@ -352,7 +352,15 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tcSetLine(&tc, line, line_abc);
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
-
+#if 0
+/* FIXME - this is part of synchronous I/O*/
+    if (tp->douts) {
+	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
+	tp->douts = 0;
+	tp->doutstart = 0;
+	tp->doutend = 0;
+    }
+#endif
     if (-1 == tcqPut(&tp->queue, tc)) {
 	return -1;
     }
@@ -414,7 +422,15 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tcSetCircle(&tc, circle, line_abc);
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
-
+#if 0
+/* FIXME - this is part of synchronous I/O*/
+    if (tp->douts) {
+	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
+	tp->douts = 0;
+	tp->doutstart = 0;
+	tp->doutend = 0;
+    }
+#endif
     if (-1 == tcqPut(&tp->queue, tc)) {
 	return -1;
     }
@@ -484,7 +500,7 @@ int tpRunCycle(TP_STRUCT * tp)
 	if (thisTc->currentPos <= 0.0 && (tp->pausing || tp->aborting)) {
 	    continue;
 	}
-	/* If either this move or the last move was a pure rotation reset the 
+	/* If either this move or the last move was a pure rotation reset the
 	   velocity and acceleration and block any blending */
 	if (lastTcWasPureRotation || thisTcIsPureRotation) {
 	    velCart.x = velCart.y = velCart.z = 0.0;
@@ -597,6 +613,15 @@ int tpRunCycle(TP_STRUCT * tp)
 	/* all paused and we're aborting-- clear out the TP queue */
 	/* first set the motion outputs to the end values for the current
 	   move */
+#if 0
+/* FIXME - this is part of synchronous I/O*/
+	if (tp->douts && 0 != thisTc) {
+	    /* Fred's original code.. tcDoutByte |= (thisTc->douts &
+	      thisTc->doutends); tcDoutByte &= (~thisTc->douts |
+	      thisTc->doutends); extMotDout(tcDoutByte); */
+	    extDioWrite(thisTc->doutIndex, thisTc->doutends);
+	}
+#endif
 	tcqInit(&tp->queue);
 	tp->goalPos = tp->currentPos;
 	tp->done = 1;
@@ -623,7 +648,7 @@ int tpPause(TP_STRUCT * tp)
 	/* apply 0 scale to queued motions */
 	tpSetVscale(tp, 0);
 
-	/* mark us pausing-- do this after the call to toSetVscale since this 
+	/* mark us pausing-- do this after the call to toSetVscale since this
 	   looks at the pausing flag to decide whether to set vRestore (if
 	   pausing) or vScale (if not). We want vScale to be set in the call
 	   for this one */
@@ -641,7 +666,7 @@ int tpResume(TP_STRUCT * tp)
 
     if (tp->pausing) {
 	/* mark us not pausing-- this must be done before the call to
-	   tpSetVscale since that function will only apply the restored scale 
+	   tpSetVscale since that function will only apply the restored scale
 	   value if we're not pausing */
 	tp->pausing = 0;
 
@@ -675,9 +700,9 @@ EmcPose tpGetPos(TP_STRUCT * tp)
 
     if (0 == tp) {
 
-	/* FIXME - this is a bug waiting to happen... it returns a pointer to 
+	/* FIXME - this is a bug waiting to happen... it returns a pointer to
 	   an EmcPose structure that is declared locally, ie. on the stack!
-	   That struct goes out of scope as soon as this function returns.  I 
+	   That struct goes out of scope as soon as this function returns.  I
 	   expect the only reason it hasn't caused problems is that nobody
 	   ever calls this function with tp = 0 */
 	retval.tran.x = retval.tran.y = retval.tran.z = 0.0;
@@ -773,3 +798,47 @@ void tpPrint(TP_STRUCT * tp)
     }
 #endif /* ULAPI */
 }
+
+
+#if 0
+/* FIXME - this is part of synchronous I/O */
+
+int tpSetAout(TP_STRUCT *tp, unsigned char index, double start, double end)
+{
+    /* FIXME-- unimplemented due to large size required for doubles */
+    return 0;
+}
+
+int tpSetDout(TP_STRUCT *tp, int index, unsigned char start, unsigned char end)
+{
+    if (0 == tp) {
+	return -1;
+    }
+
+    tp->doutIndex = index;
+    tp->doutstart = start;
+    tp->doutend = end;
+    tp->douts = 1;
+
+/* Fred's original code..
+    if (index > 7) {
+	return -1;
+    }
+
+    tp->douts |= (1 << index);
+    if (start == 0) {
+	tp->doutstart &= (0xFF ^ (1 << index));
+    } else {
+	tp->doutstart |= (1 << index);
+    }
+    if (end == 0) {
+	tp->doutend &= (0xFF ^ (1 << index));
+    } else {
+	tp->doutend |= (1 << index);
+    } */
+
+    return 0;
+}
+
+#endif
+
