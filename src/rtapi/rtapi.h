@@ -69,6 +69,12 @@
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
+#ifdef __cplusplus
+extern "C" {                    /* Need this when the header is included in a
+                                   C++ source. If we don't, the linker
+				   bitches about undefined references to the
+				   rtapi functions. */
+#endif
 /***********************************************************************
 *                   GENERAL PURPOSE FUNCTIONS                          *
 ************************************************************************/
@@ -639,4 +645,7 @@ extern void rtapi_outb(unsigned char byte, unsigned int port);
 */
 extern unsigned char rtapi_inb(unsigned int port);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* RTAPI_H */
