@@ -77,6 +77,13 @@ MODULE_LICENSE("GPL");
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private decls */
 
+#ifndef LINUX_VERSION_CODE
+#include <linux/version.h>
+#endif
+#ifndef KERNEL_VERSION
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))*/
+#endif
+
 char *hal_shmem_base = 0;
 hal_data_t *hal_data = 0;
 
