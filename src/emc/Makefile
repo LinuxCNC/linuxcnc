@@ -15,6 +15,7 @@ all headers clean depend indent install:
 	(cd hal_intf; make $@)
 	(cd kinematics; make $@)
 	(cd motion; make $@)
+	(cd iotask; make $@)
 	(cd task; make $@)
 	(cd usr_intf; make $@)
 
