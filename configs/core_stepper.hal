@@ -1,5 +1,9 @@
 # core HAL config file for steppers
 
+# first load the stepper module
+loadrt stepgen cfg="0 0 0"
+
+# hook its functions to realtime threads
 addf stepgen.capture_position servo-thread 1
 addf stepgen.update_freq servo-thread -1
 addf stepgen.make_pulses base-thread -1
@@ -51,4 +55,6 @@ setp stepgen.0.position-scale 5080
 setp stepgen.1.position-scale 5080
 setp stepgen.2.position-scale 5080
 
+# load realtime portion of scope, just to have it handy
+loadrt scope_rt
 

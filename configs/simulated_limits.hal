@@ -1,6 +1,7 @@
 # HAL config file to simulate limit switches using window comparators
-# must install 9 window comparators (insmod blocks wcomp=9) before
-# running these commands
+#
+# first install nine comparators
+loadrt blocks wcomp=9
 
 # add comparators to servo thread so they will be evaluated
 # every servo period

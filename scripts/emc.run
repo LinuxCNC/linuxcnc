@@ -513,85 +513,31 @@ if ! $INSMOD $EMC2_DIR/rtlib/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
     exit -1
 fi
 
-# Load HAL realtime modules
-#
-NUM=1
-MAX=`$INIVAR -ini $INIFILE -var RTMODMAX -sec HAL`
-while [ $NUM -le $MAX ] ; do
-    # get name of module from ini file
-    MODNAME=`$INIVAR -ini $INIFILE -var RTMOD$NUM -sec HAL`
-    if [ -n "$MODNAME" ] ; then
-	if [ ! -f $EMC2_RTLIB_DIR/$MODNAME.o ] ; then
-	    echo "Can't find RT HAL module $EMC2_RTLIB_DIR/$MODNAME.o"
-	    Cleanup
-	    exit -1
-	fi
-	# get module config info from ini file
-	MODCFG=`$INIVAR -ini $INIFILE -var RTMODCFG$NUM -sec HAL`
-	echo "Loading realtime HAL module: $MODNAME.o $MODCFG" >$PRINT_FILE
-	if ! $INSMOD $EMC2_DIR/rtlib/$MODNAME.o "$MODCFG" ; then
-	    echo "Realtime HAL module $MODNAME $MODCFG did not load..."
-	    echo "check system log for error messages"
-	    Cleanup
-	   exit -1
-	fi
-    fi
-    # move on to next module
-    NUM=$(($NUM+1))
-done
-
-# Load HAL user space modules
-NUM=1
-MAX=`$INIVAR -ini $INIFILE -var USRMODMAX -sec HAL`
-while [ $NUM -le $MAX ] ; do
-    # get module name from ini file
-    MODNAME=`$INIVAR -ini $INIFILE -var USRMOD$NUM -sec HAL`
-    if [ -n "$MODNAME" ] ; then
-	if [ ! -x $EMC2_BIN_DIR/$MODNAME ] ; then
-	    echo "Can't find user space HAL module $EMC2_BIN_DIR/$MODNAME"
-	    Cleanup
-	    exit -1
-	fi
-	# get module arguments from ini file
-	MODARG=`$INIVAR -ini $INIFILE -var USRMODARG$NUM -sec HAL`
-	echo "Loading user space HAL module: $MODNAME $MODARG" >$PRINT_FILE
-	$EMC2_BIN_DIR/$MODNAME $MODARG &
-    fi
-    # move on to next module
-    NUM=$(($NUM+1))
-done
-
 # execute HALCMD config files (if any)
 NUM=1
-MAX=`$INIVAR -ini $INIFILE -var HALCFGMAX -sec HAL`
-while [ $NUM -le $MAX ] ; do
-    # get config file name from ini file
-    CFGFILE=`$INIVAR -ini $INIFILE -var HALCFG$NUM -sec HAL`
-    if [ -n "$CFGFILE" ] ; then
-	if [ ! -f $EMC2_CONFIG_DIR/$CFGFILE ] ; then
-	    echo "Can't find HAL config file: $EMC2_CONFIG_DIR/$CFGFILE"
-	    Cleanup
-	    exit -1
-	fi
-	echo "Running HAL config file $CFGFILE" >$PRINT_FILE
-	$HALCMD -f $EMC2_CONFIG_DIR/$CFGFILE
+HAL_FILE=`$INIVAR -ini $INIFILE -sec HAL -var HAL_FILE -num $NUM 2>$DEBUG_FILE`
+while [ -n "$HAL_FILE" ] ; do
+    if [ ! -f $EMC2_CONFIG_DIR/$HAL_FILE ] ; then
+	echo "Can't find HAL config file: $EMC2_CONFIG_DIR/$HAL_FILE"
+	Cleanup
+	exit -1
     fi
-    # move on to next module
+    echo "Running HAL config file $HAL_FILE" >$PRINT_FILE
+    $HALCMD -f $EMC2_CONFIG_DIR/$HAL_FILE
+    # move on to next file
     NUM=$(($NUM+1))
+    HAL_FILE=`$INIVAR -ini $INIFILE -sec HAL -var HAL_FILE -num $NUM 2>$DEBUG_FILE`
 done
 
 # execute discrete HAL commands from ini file (if any)
 NUM=1
-MAX=`$INIVAR -ini $INIFILE -var HALCMDMAX -sec HAL`
-while [ $NUM -le $MAX ] ; do
-    # get command from ini file
-    HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD$NUM -sec HAL`
-    if [ -n "$HALCOMMAND" ] ; then
-	echo "Running HAL command: $HALCOMMAND" >$PRINT_FILE
-	$HALCMD $HALCOMMAND
-    fi
-    # move on to next module
+HAL_CMD=`$INIVAR -ini $INIFILE -sec HAL -var HAL_CMD -num $NUM 2>$DEBUG_FILE`
+while [ -n "$HAL_CMD" ] ; do
+    echo "Running HAL command: $HAL_CMD" >$PRINT_FILE
+    $HALCMD $HAL_CMD
+    # move on to next command
     NUM=$(($NUM+1))
+    HAL_CMD=`$INIVAR -ini $INIFILE -sec HAL -var HAL_CMD -num $NUM 2>$DEBUG_FILE`
 done
 
 # start the realtime stuff ticking
