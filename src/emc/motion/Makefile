@@ -62,7 +62,12 @@ $(RTLIB_DIR)/motmod_orig.o: \
 	$(RTTMP_DIR)/tc.o \
 	$(RTTMP_DIR)/tp.o \
 	$(RTTMP_DIR)/trivkins.o
-	ld -r -static $^ $(RTLIB_DIR)/libpm.a -L/usr/lib -lm -o $@
+	ld -r -static $^ $(RTLIB_DIR)/libpm.a $MATH_LIB -o $@
+
+# Side note: MATH_LIB defines the linking and lib options for
+# libm. Linking to the glibc math lib may lead to unresolved
+# symbols without an additional stub module. RTAI provides a
+# kernel module, so RTLinux builds are the only ones at risk.
 
 $(RTLIB_DIR)/motmod_new.o: \
 	$(RTTMP_DIR)/cubic.o \

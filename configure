@@ -131,7 +131,7 @@ if [ "$RTAI_DIR" = "" ] ; then
 fi
 if [ "$RTAI_DIR" != "" ] ; then
     if [ "$RTDIR" = "" ] ; then
-	echo "RTDIR set to $RTAI_DIR by search"
+	echo "RTDIR set to $RTAI_DIR (Kilauea) by search"
     fi
     RTDIR=$RTAI_DIR
     RTAI_VER=`$RTDIR/bin/rtai-config --version`
@@ -188,6 +188,9 @@ if [ ! -f $RTDIR/rtl.mk ] ; then
     fi
 fi
 
+    if [ [ ! -f $RTDIR/bin/rtai-config ] || [ ! -f $RTDIR/.buildvars ]  ] ; then
+echo FOO
+fi
 # try to find out where man files are stored on this system.
 # 'man -w' returns the search paths used by older versions of man,
 # but not with man-2.4.1... Use manpath instead to print the search
@@ -270,6 +273,8 @@ if [ -f $RTDIR/.buildvars ] ; then
 # "FOO=bar" instead.
     KERNEL=$(cat $RTFILE | grep LINUXDIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null #'
     KERNELDIR=$(cd $KERNEL ; pwd -P )
+    MATHLIB=""
+
 elif [ -f $RTDIR/bin/rtai-config ] ; then
 #	RTFILE=$RTDIR/.buildvars
     echo found an RTAI installation in $RTDIR
@@ -279,6 +284,7 @@ elif [ -f $RTDIR/bin/rtai-config ] ; then
     KERNELDIR=`$RTDIR/bin/rtai-config --linux-dir`
     echo "RTFLAGS = `$RTDIR/bin/rtai-config --module-cflags` -DRTAI=$RTAI_VER" >> Makefile.inc
     CC=`$RTDIR/bin/rtai-config --cc`
+    MATHLIB=""
 
 elif [ -f $RTDIR/rtl.mk ] ; then
     RTFILE=$RTDIR/rtl.mk
@@ -289,6 +295,7 @@ elif [ -f $RTDIR/rtl.mk ] ; then
 # There is probably a better way of doing this without using sed !
     KERNEL=$(cat $RTFILE | grep RTLINUX_DIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null #'
     KERNELDIR=$(cd $KERNEL ; pwd -P )
+    MATHLIB="-L/usr/lib -lm"
 fi
 
 echo "KERNELDIR = $KERNELDIR" >> Makefile.inc
@@ -298,6 +305,7 @@ if [ "$RTFILE" != "" ] ; then
 fi
 
 echo "RTFLAGS := -I\$(INC_DIR) -I$RTDIR/include -I. \$(RTFLAGS) -DRTAPI" >> Makefile.inc
+echo "MATH_LIB = $MATHLIB" >> Makefile.inc
 
 if [ "$RTFILE" != "" ] ; then
     CC=$(cat $RTFILE | grep CC | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null #'
