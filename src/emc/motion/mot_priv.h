@@ -19,12 +19,10 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 /* Variable defs */
 extern int kinType;
 extern int rehomeAll;
-extern int debug_motion;	/* set via an insmod param */
 extern int logSkip;
 extern int loggingAxis;
 extern int logStartTime;
 extern EmcPose worldHome;
-extern int EMCMOT_NO_FORWARD_KINEMATICS;
 extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
 

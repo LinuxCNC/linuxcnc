@@ -1,13 +1,48 @@
-#define _XOPEN_SOURCE
+#ifndef RTAPI
+#error This is a realtime component only!
+#endif
+
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "hal.h"		/* HAL public API decls */
+
+#ifdef MODULE
+/* module information */
+/* register symbols to be modified by insmod
+   see "Linux Device Drivers", Alessandro Rubini, p. 385
+   (p.42-44 in 2nd edition) */
+MODULE_AUTHOR("Matt Shaver");
+MODULE_DESCRIPTION("Motion Controller for EMC");
+#ifdef MODULE_LICENSE
+MODULE_LICENSE("GPL");
+#endif /* MODULE_LICENSE */
+static int PERIOD = 0;	/* fundamental period for timer interrupts */
+                        /* thread period - default = no thread */
+static int PERIOD_NSEC = 0;
+MODULE_PARM(PERIOD, "l");
+MODULE_PARM_DESC(PERIOD, "thread period (nsecs)");
+/* RTAPI shmem stuff */
+static int key = 100;           /* the shared memory key */
+static int shmem_mem;		/* the shared memory ID */
+MODULE_PARM(SHMEM_KEY, "i");
+MODULE_PARM_DESC(SHMEM_KEY, "shared memory key");
+static int EMCMOT_TASK_STACKSIZE = 8192; /* default stacksize */
+MODULE_PARM(EMCMOT_TASK_STACKSIZE, "i");
+MODULE_PARM_DESC(, "motion stack size");
+#endif /* MODULE */
+
+/* rtapi stuff */
+static int module;
+static int emcmot_task;		/* the task ID */
+static int emcmot_prio;
+typedef void (*RTAPI_FUNC) (void *);
+
+int kinType = 0;
 
 #include <linux/types.h>
 #include <stdarg.h>		/* va_list */
 #include <float.h>		/* DBL_MIN */
 #include <math.h>		/* fabs() */
-
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
 
 #include "posemath.h"		/* PmPose, pmCartMag() */
 #include "emcpos.h"
@@ -22,17 +57,6 @@
 #include "extintf.h"
 #include "mmxavg.h"
 #include "emcmotlog.h"
-
-/* RTAPI shmem stuff */
-static int key = 101;
-static int shmem_mem;		/* the shared memory ID */
-static EMCMOT_DEBUG localEmcmotDebug;
-/* lpg changed period from 20000 to avoid flattening a P133                */
-/* this is programmable in the .ini file, so faster boxes can use 16us     */
-static int PERIOD = 48000;	/* fundamental period for timer interrupts */
-static int PERIOD_NSEC = 48000000;
-
-int debug_motion = 0;
 
 /*
   Principles of communication:
@@ -61,12 +85,6 @@ EMCMOT_LOG *emcmotLog;		/* unused for RT_FIFO */
 EMCMOT_IO *emcmotIo;		/* new struct added 8/21/2001 JME */
 EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS];	/* unused for RT_FIFO */
 EMCMOT_LOG_STRUCT ls;
-
-/* FIXME */
-int EMCMOT_NO_FORWARD_KINEMATICS = 0;
-
-/* the type of kinematics, from emcmot.h */
-int kinType = 0;
 
 void emcmot_config_change(void)
 {
@@ -148,35 +166,6 @@ static void setServoCycleTime(double secs)
     emcmotConfig->servoCycleTime = secs;
 }
 
-/* register symbols to be modified by insmod
-   see "Linux Device Drivers", Alessandro Rubini, p. 385
-   (p.42-44 in 2nd edition) */
-MODULE_PARM(PERIOD, "i");
-MODULE_PARM(debug_motion, "i");
-MODULE_PARM(SHMEM_BASE_ADDRESS, "l");
-MODULE_PARM(SHMEM_KEY, "i");
-MODULE_PARM(MOTION_IO_ADDRESS, "i");
-
-MODULE_PARM(IO_BASE_ADDRESS, "l");
-MODULE_PARM(FIND_IO_BASE_ADDRESS, "i");
-
-MODULE_PARM(EMCMOT_TASK_PRIORITY, "i");
-MODULE_PARM(EMCMOT_TASK_STACK_SIZE, "i");
-MODULE_PARM(EMCMOT_NO_FORWARD_KINEMATICS, "i");
-
-#ifdef MODULE_LICENSE
-// The additional rights are you can do anything you want. -- meaning the code is public domain.
-MODULE_LICENSE("GPL and additional rights");
-#endif
-
-/* rtapi stuff */
-static int module;
-static int emcmot_task;		/* the task ID */
-static int emcmot_prio;
-#define EMCMOT_TASK_STACKSIZE 8192
-
-typedef void (*RTAPI_FUNC) (void *);
-
 int init_module(void)
 {
     int axis;
@@ -185,9 +174,11 @@ int init_module(void)
     int retval;
     long period;
 
-    module = rtapi_init("EMCMOT");
+    rtapi_print("motion: initializing...\n");
+
+    module = rtapi_init("motion");
     if (module < 0) {
-	rtapi_print("emcmot init: rtapi_init returned %d\n", module);
+	rtapi_print("motion init: rtapi_init returned %d\n", module);
 	return -1;
     }
 
@@ -200,20 +191,17 @@ int init_module(void)
 
     /* record the kinematics type of the machine */
     kinType = kinematicsType();
-    if (EMCMOT_NO_FORWARD_KINEMATICS) {
-	kinType = KINEMATICS_INVERSE_ONLY;
-    }
 
     /* allocate and initialize the shared memory structure */
     shmem_mem = rtapi_shmem_new(key, module, sizeof(EMCMOT_STRUCT));
     if (shmem_mem < 0) {
-	rtapi_print("emcmot init: rtapi_shmem_new returned %d\n", shmem_mem);
+	rtapi_print("motion init: rtapi_shmem_new returned %d\n", shmem_mem);
 	rtapi_exit(module);
 	return -1;
     }
     retval = rtapi_shmem_getptr(shmem_mem, (void **) &emcmotStruct);
     if (retval != RTAPI_SUCCESS) {
-	rtapi_print("emcmot init: rtapi_shmem_getptr returned %d\n", retval);
+	rtapi_print("motion init: rtapi_shmem_getptr returned %d\n", retval);
 	rtapi_exit(module);
 	return -1;
     }
@@ -223,12 +211,12 @@ int init_module(void)
     period = rtapi_clock_set_period(0);
     if (period == 0) {
 	/* not running, start it */
-	rtapi_print("emcmot init: starting timer with period %ld\n",
+	rtapi_print("motion init: starting timer with period %ld\n",
 	    PERIOD_NSEC);
 	period = rtapi_clock_set_period(PERIOD_NSEC);
 	if (period < 0) {
 	    rtapi_print
-		("emcmot init: rtapi_clock_set_period failed with %ld\n",
+		("motion init: rtapi_clock_set_period failed with %ld\n",
 		period);
 	    rtapi_exit(module);
 	    return -1;
@@ -237,42 +225,36 @@ int init_module(void)
     /* make sure period <= desired period (allow 1% roundoff error) */
     if (period > (PERIOD_NSEC + (PERIOD_NSEC / 100))) {
 	/* timer period too long */
-	rtapi_print("emcmot init: clock period too long: %ld\n", period);
+	rtapi_print("motion init: clock period too long: %ld\n", period);
 	rtapi_exit(module);
 	return -1;
     }
-    rtapi_print("emcmot init: desired clock %ld, actual %ld\n", PERIOD_NSEC,
+    rtapi_print("motion init: desired clock %ld, actual %ld\n", PERIOD_NSEC,
 	period);
 
     /* we'll reference emcmotStruct directly */
     emcmotCommand = (EMCMOT_COMMAND *) & emcmotStruct->command;
     emcmotStatus = (EMCMOT_STATUS *) & emcmotStruct->status;
     emcmotConfig = (EMCMOT_CONFIG *) & emcmotStruct->config;
-    if (debug_motion) {
-	emcmotDebug = (EMCMOT_DEBUG *) & emcmotStruct->debug;
-    } else {
-	emcmotDebug = &localEmcmotDebug;
-    }
-
+    emcmotDebug = (EMCMOT_DEBUG *) & emcmotStruct->debug;
     emcmotError = (EMCMOT_ERROR *) & emcmotStruct->error;
     emcmotIo = (EMCMOT_IO *) & emcmotStruct->io;	/* set address of
 							   struct JE
 							   8/21/2001 */
     emcmotLog = (EMCMOT_LOG *) & emcmotStruct->log;
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+      for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = (EMCMOT_COMP *) & emcmotStruct->comp[axis];
-
-	emcmotDebug->bcomp[axis] = 0;	/* backlash comp value */
-	emcmotDebug->bcompdir[axis] = 0;	/* 0=none, 1=pos, -1=neg */
-	emcmotDebug->bcompincr[axis] = 0;	/* incremental backlash comp */
-	emcmotDebug->bac_done[axis] = 0;
-	emcmotDebug->bac_d[axis] = 0;
-	emcmotDebug->bac_di[axis] = 0;
-	emcmotDebug->bac_D[axis] = 0;
-	emcmotDebug->bac_halfD[axis] = 0;
-	emcmotDebug->bac_incrincr[axis] = 0;
-	emcmotDebug->bac_incr[axis] = 0;
-    }
+        emcmotDebug->bcomp[axis] = 0;	/* backlash comp value */
+        emcmotDebug->bcompdir[axis] = 0;	/* 0=none, 1=pos, -1=neg */
+        emcmotDebug->bcompincr[axis] = 0;	/* incremental backlash comp */
+        emcmotDebug->bac_done[axis] = 0;
+        emcmotDebug->bac_d[axis] = 0;
+        emcmotDebug->bac_di[axis] = 0;
+        emcmotDebug->bac_D[axis] = 0;
+        emcmotDebug->bac_halfD[axis] = 0;
+        emcmotDebug->bac_incrincr[axis] = 0;
+        emcmotDebug->bac_incr[axis] = 0;
+      }
 
     /* zero shared memory */
     for (t = 0; t < sizeof(EMCMOT_STRUCT); t++) {
@@ -281,9 +263,9 @@ int init_module(void)
 
     /* init locals */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	emcmotDebug->maxLimitSwitchCount[axis] = 0;
-	emcmotDebug->minLimitSwitchCount[axis] = 0;
-	emcmotDebug->ampFaultCount[axis] = 0;
+      emcmotDebug->maxLimitSwitchCount[axis] = 0;
+      emcmotDebug->minLimitSwitchCount[axis] = 0;
+      emcmotDebug->ampFaultCount[axis] = 0;
     }
 
     /* init compensation struct */
@@ -481,24 +463,19 @@ int init_module(void)
 	emcmotStatus->axisPos[axis] = 0.0;
 	emcmotDebug->oldJointPos[axis] = 0.0;
 	emcmotDebug->outJointPos[axis] = 0.0;
-
 	emcmotDebug->homingPhase[axis] = 0;
 	emcmotDebug->latchFlag[axis] = 0;
 	emcmotDebug->saveLatch[axis] = 0.0;
-
 	emcmotStatus->input[axis] = 0.0;
 	emcmotDebug->oldInput[axis] = 0.0;
 	emcmotDebug->oldInputValid[axis] = 0;
 	emcmotStatus->output[axis] = 0.0;
-
 	emcmotDebug->jointHome[axis] = 0.0;
 
 	extAmpEnable(axis, !GET_AXIS_ENABLE_POLARITY(axis));
     }
 
     emcmotStatus->tail = 0;
-
-    rtapi_print("emcmot: initializing emcmotTask\n");
 
     /* set the task priority to second lowest, since we only have one task */
     emcmot_prio = rtapi_prio_next_higher(rtapi_prio_lowest());
@@ -511,19 +488,20 @@ int init_module(void)
 	EMCMOT_TASK_STACKSIZE, RTAPI_USES_FP);
     if (emcmot_task < 0) {
 	/* See rtapi.h for the error codes returned */
-	rtapi_print("emcmot init: rtapi_task_new returned %d\n", emcmot_task);
+	rtapi_print("motion init: rtapi_task_new returned %d\n", emcmot_task);
 	rtapi_exit(module);
 	return -1;
     }
     /* start the task running */
+    rtapi_print("motion init: starting timer task...\n");
     retval = rtapi_task_start(emcmot_task, (int) (SERVO_CYCLE_TIME * 1.0e9));
     if (retval != RTAPI_SUCCESS) {
-	rtapi_print("emcmot init: rtapi_task_start returned %d\n", retval);
+	rtapi_print("motion init: rtapi_task_start returned %d\n", retval);
 	rtapi_exit(module);
 	return -1;
     }
-    rtapi_print("emcmot init: started timer task\n");
-    rtapi_print("emcmot: init_module finished\n");
+
+    rtapi_print("motion: init_module finished\n");
 
     return 0;
 }
@@ -533,23 +511,23 @@ void cleanup_module(void)
     int axis;
     int retval;
 
-    rtapi_print("emcmot: cleanup started.\n");
+    rtapi_print("motion: cleanup started.\n");
 
     retval = rtapi_task_pause(emcmot_task);
     if (retval != RTAPI_SUCCESS) {
-	rtapi_print("emcmot exit: rtapi_task_pause returned %d\n", retval);
+	rtapi_print("motion exit: rtapi_task_pause returned %d\n", retval);
     }
     /* Remove the task from the list */
     retval = rtapi_task_delete(emcmot_task);
     if (retval != RTAPI_SUCCESS) {
-	rtapi_print("emcmot exit: rtapi_task_delete returned %d\n", retval);
+	rtapi_print("motion exit: rtapi_task_delete returned %d\n", retval);
     }
 
     /* WPS these were moved from above to avoid a possible mutex problem. */
     /* There is no point in clearing the trajectory queue since the planner
        should be dead by now anyway. */
     if (emcmotStruct != 0 && emcmotDebug != 0 && emcmotConfig != 0) {
-	rtapi_print("emcmot: disabling amps\n");
+	rtapi_print("motion: disabling amps\n");
 	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	    extAmpEnable(axis, !GET_AXIS_ENABLE_POLARITY(axis));
 	}
@@ -558,10 +536,10 @@ void cleanup_module(void)
     /* free shared memory */
     retval = rtapi_shmem_delete(shmem_mem, module);
     if (retval != RTAPI_SUCCESS) {
-	rtapi_print("emcmot exit: rtapi_shmem_delete returned %d\n", retval);
+	rtapi_print("motion exit: rtapi_shmem_delete returned %d\n", retval);
     }
 
-    rtapi_print("emcmot: cleanup finished.\n");
+    rtapi_print("motion: cleanup finished.\n");
 
     /* Clean up and exit */
     rtapi_exit(module);

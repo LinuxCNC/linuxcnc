@@ -8,6 +8,7 @@ SRCS = \
 	command.c \
 	control.c \
 	motion.c \
+	exthalmot.c \
 	\
 	emcmotglb.c \
 	emcmotutil.c \
@@ -38,6 +39,7 @@ RT_OBJS  = \
 	command.o \
 	control.o \
 	motion.o \
+	exthalmot.o \
 	\
 	cubic.o \
 	emcmotutil.o \
@@ -47,8 +49,8 @@ RT_OBJS  = \
 	tp.o
 
 RTLIBS = \
-	motion.o \
-	motmod.o
+	motmod_orig.o \
+	motmod_new.o
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) \
 	$(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%) \
@@ -58,7 +60,7 @@ all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) \
 include ../../../Make.rules
 
 # Explicit rules.
-$(RTLIB_DIR)/motion.o: \
+$(RTLIB_DIR)/motmod_orig.o: \
 	$(RTTMP_DIR)/cubic.o \
 	$(RTTMP_DIR)/emcmot.o \
 	$(RTTMP_DIR)/emcmotglb.o \
@@ -71,11 +73,12 @@ $(RTLIB_DIR)/motion.o: \
 	$(RTTMP_DIR)/trivkins.o
 	ld -r -static $^ $(RTLIB_DIR)/libpm.a -L/usr/lib -lm -o $@
 
-$(RTLIB_DIR)/motmod.o: \
+$(RTLIB_DIR)/motmod_new.o: \
 	$(RTTMP_DIR)/cubic.o \
 	$(RTTMP_DIR)/motion.o \
 	$(RTTMP_DIR)/command.o \
 	$(RTTMP_DIR)/control.o \
+	$(RTTMP_DIR)/exthalmot.o \
 	$(RTTMP_DIR)/emcmotglb.o \
 	$(RTTMP_DIR)/emcmotlog.o \
 	$(RTTMP_DIR)/emcmotutil.o \
@@ -85,9 +88,6 @@ $(RTLIB_DIR)/motmod.o: \
 	$(RTTMP_DIR)/tp.o \
 	$(RTTMP_DIR)/trivkins.o
 	ld -r -static $^ $(RTLIB_DIR)/libpm.a -L/usr/lib -lm -o $@
-
-# This one needs to be coded before adding to the above list.
-#	$(RTTMP_DIR)/extintf.o \
 
 headers: def_headers
 
