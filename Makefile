@@ -53,7 +53,6 @@ all headers indent install depend clean:
 	done
 
 
-
 # these variables are used to build a list of all
 # man pages that need to be installed
 
@@ -163,38 +162,24 @@ install_lib:
 
 # SCRIPTS is a list of all of the scripts to be installed
 
-SCRIPTS = scripts/emc.run scripts/hal_demo tcl/tkemc.tcl \
+SCRIPTS = scripts/emc2.run scripts/hal_demo 
+TCL_SCRIPTS = tcl/tkemc.tcl \
 tcl/bin/emcdebug.tcl tcl/bin/emctesting.tcl tcl/bin/genedit.tcl \
 tcl/bin/tkio.tcl tcl/bin/emccalib.tcl tcl/bin/emclog.tcl \
 tcl/bin/emctuning.tcl tcl/bin/tkbackplot.tcl \
 tcl/scripts/DIO_Exercise.tcl tcl/scripts/IO_Exercise.tcl \
 tcl/scripts/IO_Show.tcl tcl/scripts/balloon.tcl tcl/scripts/emchelp.tcl
 
-
-
-
 install_scripts:
 	install -d $(DESTDIR)$(TESTDIR)/$(bindir)
-#	(cd scripts ; cp -r $(SCRIPTS) $(DESTDIR)/$(bindir))
-	
-	@@for script in $(SCRIPTS); \
+
+	cp $(SCRIPTS) $(DESTDIR)$(TESTDIR)/$(bindir)
+	@@for script in $(TCL_SCRIPTS); \
 	do \
 		echo "Transfering $$script"; \
-		cat $$script | sed "s%\$$TESTDIR%$(TESTDIR)%;\
-		s%\$$EMC2CONFIGDIR%$(TESTDIR)$(CONFIGDIR)%;\
-		s%\$$HALCONFIGDIR%$(TESTDIR)$(CONFIGDIR)%;\
-		s%tcl/bin/%$(TESTDIR)/$(bindir)%;\
-		s%tcl/scripts%$(TESTDIR)/$(bindir)%;\
-		s%bin/iosh%$(TESTDIR)/$(bindir)/iosh%;\
-		s%bin/emcsh%$(TESTDIR)/$(bindir)/emcsh%;\
-		s%bin/halcmd%$(TESTDIR)/$(bindir)/halcmd%;\
-		s%scripts/hal_demo%$(TESTDIR)/$(bindir)/hal_demo%;\
-		s%bin/halmeter%$(TESTDIR)/$(bindir)/halmeter%;\
-		s%bin/halscope%$(TESTDIR)/$(bindir)/halscope%;\
-		s%configs/TkEmc%$(TESTDIR)$(CONFIGDIR)/TkEmc%;\
-		s%scripts/realtime%$(TESTDIR)/etc/rc.d/init.d/realtime%;\
-		s%tcl/scripts/%$(TESTDIR)/$(bindir)%;" > $(DESTDIR)$(TESTDIR)/$(bindir)/`basename $$script`; \
-		chmod a+x $(DESTDIR)$(TESTDIR)/$(bindir)/`basename $$script`; \
+		DIR="`dirname $$script`"; \
+		install -d $(DESTDIR)$(TESTDIR)/$(bindir)/$$DIR ; \
+		cp $$script $(DESTDIR)$(TESTDIR)/$(bindir)/$$DIR ; \
 	done
 
 

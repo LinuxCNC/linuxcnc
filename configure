@@ -5443,8 +5443,7 @@ fi
 ##############################################################################
 # files that get created by ./configure                                      #
 ##############################################################################
-#AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
-          ac_config_files="$ac_config_files rpm/emc2.spec"
+                              ac_config_files="$ac_config_files rpm/emc2.spec scripts/emc2.run scripts/realtime"
 
           ac_config_files="$ac_config_files Makefile.inc"
 cat >confcache <<\_ACEOF
@@ -5997,6 +5996,8 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "rpm/emc2.spec" ) CONFIG_FILES="$CONFIG_FILES rpm/emc2.spec" ;;
+  "scripts/emc2.run" ) CONFIG_FILES="$CONFIG_FILES scripts/emc2.run" ;;
+  "scripts/realtime" ) CONFIG_FILES="$CONFIG_FILES scripts/realtime" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -6380,6 +6381,9 @@ if test "$no_create" != yes; then
 fi
 
 
+chmod a+x scripts/realtime
+chmod a+x scripts/emc2.run
+
 ##############################################################################
 # message to the user what to do next, after a succesfull ./configure        #
 ##############################################################################
@@ -6402,7 +6406,7 @@ echo "#   Next try to compile by typing                                    #"
 echo "#         make                                                       #"
 echo "#                                                                    #"
 echo "#   to run the software you need to type                             #"
-echo "#         scripts/emc.run                                            #"
+echo "#         scripts/emc2.run                                           #"
 echo "#                                                                    #"
 echo "######################################################################"
 echo ""

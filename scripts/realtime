@@ -1,4 +1,13 @@
-#! /bin/bash
+#!/bin/bash
+#
+# realtime      This shell script takes care of starting and stopping
+#               realtime services
+#
+# chkconfig: - 97 97
+# description: realtime loads modules for RTOS functionality
+
+RTLIB_DIR=/usr/realtime/modules
+SYSCONFDIR=/usr/local/etc/
 
 CheckConfig(){
     RTAPICONF=
@@ -9,15 +18,21 @@ CheckConfig(){
 	# check in the emc2 scripts directory
 	# $0 is the command to run this script
 	# strip the script name to leave the path
-	SCRIPT_DIR=`echo $0 | sed s#realtime## `
+	RTAPICONFIGDIR=`echo $0 | sed s#realtime## `
 	# the path might be relative
 	# convert it to an absolute path
-	SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
+	RTAPICONFIGDIR=$(cd $RTAPICONFIGDIR/../configs ; pwd -P)
 	# now look for rtapi.conf there
-	if [ -f $SCRIPT_DIR/rtapi.conf ] ; then
-	    RTAPICONF=$SCRIPT_DIR/rtapi.conf
+	if [ -f $RTAPICONFIGDIR/rtapi.conf ] ; then
+	    RTAPICONF=$RTAPICONFIGDIR/rtapi.conf
 	fi
     fi
+    if [ -z "$RTAPICONF" ] ; then
+	if [ -f $SYSCONFDIR/rtapi.conf ] ; then
+	    RTAPICONF=$SYSCONFDIR/rtapi.conf
+	fi
+    fi
+    # Import the config
     if [ -z "$RTAPICONF" ] ; then
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
 	exit -1

@@ -119,6 +119,9 @@ extern "C" {
     extern int emcGetArgs(int argc, char *argv[]);
     extern void emcInitGlobals();
 
+    extern int GetRelativePath(char *destination, int maxsize, const char *basefile, const char *relativefile);
+
+
 #ifdef __cplusplus
 }				/* matches extern "C" at top */
 #endif

@@ -726,9 +726,11 @@ fi
 ##############################################################################
 # files that get created by ./configure                                      #
 ##############################################################################
-#AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
-AC_CONFIG_FILES([rpm/emc2.spec])
+AC_CONFIG_FILES([rpm/emc2.spec scripts/emc2.run scripts/realtime])
 AC_OUTPUT(Makefile.inc)
+
+chmod a+x scripts/realtime
+chmod a+x scripts/emc2.run
 
 ##############################################################################
 # message to the user what to do next, after a succesfull ./configure        #
@@ -752,7 +754,7 @@ echo "#   Next try to compile by typing                                    #"
 echo "#         make                                                       #"
 echo "#                                                                    #"
 echo "#   to run the software you need to type                             #"
-echo "#         scripts/emc.run                                            #"
+echo "#         scripts/emc2.run                                           #"
 echo "#                                                                    #"
 echo "######################################################################"
 echo ""

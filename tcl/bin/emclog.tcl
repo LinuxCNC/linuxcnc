@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec bin/emcsh "$0" "$@"
+exec emcsh "$0" "$@"
 
 # emclog.tcl
 # EMC data logger

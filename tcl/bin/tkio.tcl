@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using iosh \
-exec bin/iosh "$0" "$@"
+exec iosh "$0" "$@"
 
 # FIXME
 # Change EMC_TOOL_ABORT in bridgeport,minimill,tkio to EMC_IO_ABORT

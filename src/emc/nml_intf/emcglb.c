@@ -96,3 +96,40 @@ void emcInitGlobals()
 	AXIS_MAX_VELOCITY[t] = DEFAULT_AXIS_MAX_VELOCITY;
     }
 }
+
+/*
+ * This is a utility functoin for use primarily with EMC_INIFILE
+ * and EMC_NMLFILE
+ *
+ * Create and store in "destination", with maximum size 'maxsize',
+ * a filename for the possibly relative file 'relativefile' such
+ * that it uses the same basefilename as 'basefile'.
+ *
+ * If relativefile starts with a /, then it's absolute, and
+ * we copy it as is.
+ *
+ * If the relativefile does not start with a /, then it's relative,
+ * and we assume it has the same path as basefile. 
+ *
+ */
+
+int GetRelativePath(char *destination, int maxsize, const char *basefile, const char *relativefile)
+{
+	if ( (NULL==relativefile) || (maxsize<1) )
+		return(-1);
+
+	if ( (relativefile[0]=='/') || (NULL==basefile) )
+		strncpy(destination, relativefile, maxsize);
+	else
+		{	/* Relative path; prefix it with the basefile path */
+		char *ptr;
+		strncpy(destination, basefile, maxsize);
+		ptr=strrchr(destination, '/');
+		if ( (ptr) && ( (ptr-destination+1) < maxsize) )
+			ptr[1]=0;	/* terminate after the / */
+		else
+		   destination[0]=0;	/* The INI dir is the current pwd */
+		strncat(destination, relativefile, maxsize); 
+		}
+return(0);
+}

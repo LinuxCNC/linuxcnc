@@ -5368,7 +5368,20 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.find("NML_FILE", "EMC"))) {
 	// copy to global
-	strcpy(EMC_NMLFILE, inistring);
+
+/* 
+   New logic:
+   If the EMC_NMLFILE starts with a /, then it's absolute, and
+   we copy it as is.
+
+   If the EMC_NMLFILE does not start with a /, then it's relative,
+   and we assume it has the same path as the INIFILE, which obviously
+   was a good path, as we read a valid INIFILE.
+
+*/
+	GetRelativePath(EMC_NMLFILE, EMC_NMLFILE_LEN, EMC_INIFILE, inistring);
+
+	printf("SET EMC_NMLFILE to %s\n", EMC_NMLFILE);
     } else {
 	// not found, use default
     }

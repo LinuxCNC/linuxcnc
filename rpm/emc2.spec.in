@@ -47,6 +47,7 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 %post
 chkconfig --add realtime
+/sbin/depmod -a
 
 %preun
 chkconfig --del realtime

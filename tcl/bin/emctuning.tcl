@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec bin/emcsh "$0" "$@"
+exec emcsh "$0" "$@"
 
 # emctuning.tcl
 # EMC system identification and autotuning program

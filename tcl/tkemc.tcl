@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec bin/emcsh "$0" "$@"
+exec emcsh "$0" "$@"
 
 # Tk GUI for the Enhanced Machine Controller
 
@@ -129,26 +129,26 @@ set debounceTime 150
 
 if { $windows == 0 } {
     # load the generic editor "startEditor <name>"
-    source tcl/bin/genedit.tcl
+    source bin/genedit.tcl
 
     # load the EMC calibrator
-    source tcl/bin/emccalib.tcl
+    source bin/emccalib.tcl
 
     # load the EMC data logger
-    source tcl/bin/emclog.tcl
+    source bin/emclog.tcl
 
     # load the EMC performance tester
-    source tcl/bin/emctesting.tcl
+    source bin/emctesting.tcl
 
     # load the EMC debug level setter
-    source tcl/bin/emcdebug.tcl
+    source bin/emcdebug.tcl
 
     # load the backplotter
-    source tcl/bin/tkbackplot.tcl
+    source bin/tkbackplot.tcl
 
     # load balloon help
-    source tcl/scripts/balloon.tcl
-    source tcl/scripts/emchelp.tcl
+    source scripts/balloon.tcl
+    source scripts/emchelp.tcl
     set do_balloons [emc_ini "BALLOON_HELP" "DISPLAY"]
     if {$do_balloons == ""} {
         set do_balloons 0
@@ -721,7 +721,7 @@ $unitsmenu add command -label "cm" -command {emc_linear_unit_conversion cm} -und
 # Add a scripts menu that looks for *.tcl files in tcl/scripts subdirectory
 set scriptsmenu [menu $menubar.scripts -tearoff 1]
 $menubar add cascade -label "Scripts" -menu $scriptsmenu -underline 1
-set scriptdir tcl/scripts
+set scriptdir scripts
 
 if { $windows == 0 } {
     set files [exec /bin/ls $scriptdir]
@@ -742,7 +742,7 @@ $menubar add cascade -label "Help" -menu $helpmenu -underline 0
 $helpmenu add command -label "Help..." -command {popupHelp} -underline 0
 $helpmenu add check -label "Balloon help" -variable do_balloons
 $helpmenu add separator
-$helpmenu add command -label "Info..." -command {catch {exec tcl/sysinfo.tcl -- -ini $EMC_INIFILE}} -underline 0
+$helpmenu add command -label "Info..." -command {catch {exec sysinfo.tcl -- -ini $EMC_INIFILE}} -underline 0
 $helpmenu add separator
 $helpmenu add command -label "About..." -command {popupAbout} -underline 0
 
