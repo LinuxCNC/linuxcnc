@@ -62,7 +62,7 @@ $(RTLIB_DIR)/motmod_orig.o: \
 	$(RTTMP_DIR)/tc.o \
 	$(RTTMP_DIR)/tp.o \
 	$(RTTMP_DIR)/trivkins.o
-	ld -r -static $^ $(RTLIB_DIR)/libpm.a $MATH_LIB -o $@
+	ld -r -static $^ $(RTLIB_DIR)/libpm.a $(MATH_LIB) -o $@
 
 # Side note: MATH_LIB defines the linking and lib options for
 # libm. Linking to the glibc math lib may lead to unresolved
