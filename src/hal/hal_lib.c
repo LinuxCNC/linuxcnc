@@ -1063,6 +1063,8 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     char buf[HAL_NAME_LEN + 1];
 #endif
 
+    rtapi_print_msg(RTAPI_MSG_INFO,
+	"HAL: creating thread %s, %d nsec\n", name, period_nsec);
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: create_thread called before init\n");
@@ -1078,6 +1080,8 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
 	if (cmp == 0) {
 	    /* name already in list, can't insert */
 	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: duplicate thread name %s\n", name);
 	    return HAL_INVAL;
 	}
 	/* didn't find it yet, look at next one */
@@ -1088,6 +1092,8 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     if (new == 0) {
 	/* alloc failed */
 	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: insufficient memory to create thread\n");
 	return HAL_NOMEM;
     }
     /* initialize the structure */
@@ -1168,6 +1174,7 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
     hal_param_s32_new(buf, HAL_RD_WR, &(new->maxtime), lib_module_id);
 #endif
+    rtapi_print_msg(RTAPI_MSG_INFO, "HAL: thread created\n");
     return HAL_SUCCESS;
 }
 

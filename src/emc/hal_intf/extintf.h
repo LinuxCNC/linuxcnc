@@ -26,25 +26,15 @@
 extern "C" {
 #endif
 
-/*
-  extMotInit(const char * stuff)
-  Call once before any of the other motion IO functions are called..
-*/
-    extern int extMotInit(void);
+/***********************************************************************
+*                STRUCTURES AND GLOBAL VARIABLES                       *
+************************************************************************/
 
-/*
-  extMotQuit()
-  Call once, after which point no other functions will be called until
-  after a call to extMotInit().
-  */
-    extern int extMotQuit(void);
+    extern int mot_comp_id;	/* HAL component ID for motion module */
 
-/* DAC functions */
-/*
-  extDacNum()
-  returns number of DACs in system.
-*/
-    extern int extDacNum(void);
+/***********************************************************************
+*                       FUNCTION PROTOTYPES                            *
+************************************************************************/
 
 /*
   extDacWrite(int dac, double volts)

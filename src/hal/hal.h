@@ -144,7 +144,9 @@
     which is used for subsequent calls to hal_xxx_new() and
     hal_exit().  On failure, returns an error code (see above).
     'hal_init()' calls rtapi_init(), so after calling hal_init(), a
-    component can use any rtapi functions.
+    component can use any rtapi functions.  The component ID returned
+    by 'hal_init()' is also the RTAPI module ID for the associated
+    module, and can be used when calling rtapi functions.
     Call only from within user space or init/cleanup code, not from
     realtime code.
 */
@@ -163,7 +165,7 @@ extern int hal_init(char *name);
     crashes when the component's code and data is unmapped.
     'hal_exit()' calls 'rtapi_exit()', so any rtapi reaources
     allocated should be discarded before calling hal_exit(), and
-    rtapi functiosn should not be called afterwards.
+    rtapi functios should not be called afterwards.
     On success, hal_exit() returns HAL_SUCCESS, on failure it
     returns a negative error code.
 */

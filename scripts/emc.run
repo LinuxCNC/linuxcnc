@@ -309,6 +309,8 @@ function Cleanup() {
 		KILL_TASK=$HAL_COMP
 		KillTaskWithTimeout
 	    done
+	    # temporary - remove motion module (name mismatch)
+	    $RMMOD motmod
 	    # check for realtime HAL components (including motion module)
 	    HAL_RT_COMPS=`$HALCMD show comp | awk -- '$2 ~ /^RT$/ { print $3 }'`
 	    # remove them
@@ -463,10 +465,17 @@ if ! $EMC2_SCRIPT_DIR/realtime start ; then
     exit -1
 fi
 
-# Load real time motion module
+# Prepare to load real time motion module
 echo "Loading EMC Motion module: $EMCMOT" >$PRINT_FILE
 if [ ! -f $EMC2_RTLIB_DIR/$EMCMOT ] ; then
     echo "Can't find motion controller $EMC2_RTLIB_DIR/$EMCMOT"
+    Cleanup
+    exit -1
+fi
+# get SHMEM_KEY for user/emcmot shared memory area
+SHMEM_KEY=`$INIVAR -ini $INIFILE -var SHMEM_KEY -sec EMCMOT`
+if [ ! -n "$SHMEM_KEY" ] ; then
+    echo "Can't find variable SHMEM_KEY in section [EMCMOT] of file $INIFILE."
     Cleanup
     exit -1
 fi
@@ -492,15 +501,20 @@ if [ ! -n "$TRAJ_PERIOD_SEC" ] ; then
     exit -1
 fi
 TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}'`
+
 # load the motion module
 
-# DON'T ACTUALLY LOAD IT!
-#if ! $INSMOD $EMC2_DIR/rtlib/$EMCMOT base_period=$BASE_PERIOD_NSEC servo_period=$SERVO_PERIOD_NSEC traj_period=$TRAJ_PERIOD_NSEC ; then
-#    echo "Motion module $EMCMOT did not load..."
-#    echo "check system log for error messages"
-#    Cleanup
-#    exit -1
-#fi
+echo "$EMC2_DIR/rtlib/$EMCMOT base_period=$BASE_PERIOD_NSEC servo_period=$SERVO_PERIOD_NSEC traj_period=$TRAJ_PERIOD_NSEC key=$SHMEM_KEY"
+
+if ! $INSMOD $EMC2_DIR/rtlib/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
+				     servo_period_nsec=$SERVO_PERIOD_NSEC \
+				     traj_period_nsec=$TRAJ_PERIOD_NSEC \
+				     key=$SHMEM_KEY ; then
+    echo "Motion module $EMCMOT did not load..."
+    echo "check system log for error messages"
+    Cleanup
+    exit -1
+fi
 
 # Load HAL realtime modules
 #
@@ -583,6 +597,9 @@ while [ $NUM -le $MAX ] ; do
     NUM=$(($NUM+1))
 done
 
+# start the realtime stuff ticking
+$HALCMD start
+
 # Run emcio in background
 echo "Starting EMC IO program: $EMCIO" >$PRINT_FILE
 if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
@@ -599,7 +616,8 @@ if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
     Cleanup
     exit 1
 fi
-#$EMC2_BIN_DIR/$EMCTASK -ini $INIFILE &
+$EMC2_BIN_DIR/$EMCTASK -ini $INIFILE &
+
 
 # Run emcserver in background, if necessary
 if [ -n "$EMCSERVER" ] ; then
@@ -635,12 +653,12 @@ echo "Starting EMC DISPLAY program: $EMCDISPLAY" >$PRINT_FILE
 case $EMCDISPLAY in
   tkemc)
     # tkemc is in the tcl directory, not the bin directory
-    if [ ! -x $EMC2_TCL_DIR/$EMCDISPLAY ] ; then
-	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCTASK"
+    if [ ! -x $EMC2_TCL_DIR/$EMCDISPLAY.tcl ] ; then
+	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl"
 	Cleanup
 	exit 1
     fi
-    $EMC2_TCL_DIR/$EMCTASK -ini $INIFILE
+    $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE
   ;;
   dummy)
     # dummy display just waits for <ENTER>
@@ -650,22 +668,16 @@ case $EMCDISPLAY in
   *)
     # all other displays are assumed to be in the bin directory
     if [ ! -x $EMC2_BIN_DIR/$EMCDISPLAY ] ; then
-	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCTASK"
+	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY"
 	Cleanup
 	exit 1
     fi
-    $EMC2_BIN_DIR/$EMCTASK -ini $INIFILE
+    $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE
   ;;
 esac
 
 # the display won't return until you shut it down,
 # so when you get here it's time to clean up
-
-echo "DISPLAY has finished, press <ENTER> to continue."
-read foo;
-
-
-# Now display finished, so let's clean up
 Cleanup
 
 exit 0

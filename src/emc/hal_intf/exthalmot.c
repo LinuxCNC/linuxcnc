@@ -24,10 +24,13 @@
   01-Feb-2004  MGS created from extstgmot.c..
   */
 
-#include "emcmotcfg.h"		/* EMCMOT_MAX_AXIS */
-#include "extintf.h"		/* these decls */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* decls for HAL implementation */
+#include "emcmotcfg.h"		/* EMCMOT_MAX_AXIS */
+#include "extintf.h"		/* these decls */
+//#include "emcmotglb.h"
+#include "motion.h"
+#include "../motion/mot_priv.h"		/* motion module decls */
 
 /* ident tag */
 #ifndef __GNUC__
@@ -42,178 +45,17 @@ static char __attribute__ ((unused)) ident[] = "";
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
 
-/* this structure contains the runtime data for a single axis */
-typedef struct {
-    hal_float_t *volts;		/* pin: voltage output */
-    hal_float_t *position;	/* pin: position input */
-    hal_bit_t *max;		/* max limit switch input */
-    hal_bit_t *min;		/* min limit switch input */
-    hal_bit_t *home;		/* home switch input */
-    hal_float_t *probe;		/* probe input */
-    hal_bit_t *enable;		/* amp enable output */
-    hal_bit_t *fault;		/* amp fault input */
-    /* for now we control the index model through the mode and model pins on
-       axis 0, later this may be done on a per axis basis */
-    hal_u32_t *mode;		/* index model output */
-    hal_u32_t *model;		/* index model input */
-    hal_bit_t *reset;		/* index latch reset output */
-    hal_bit_t *latch;		/* index latch input */
-    hal_bit_t *index;		/* index input */
-} axis_t;
-
-/* pointer to array of axis_t structs in shmem, 1 per axis */
-static axis_t *axis_array;
-
-/* component ID */
-static int comp_id;
-
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
-int export_axis(int num, axis_t * addr)
-{
-    int retval;
-    char buf[HAL_NAME_LEN + 2];
-
-    /* export pins for the axis I/O */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.volts", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->volts), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(addr->position), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.max", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->max), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.min", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->min), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->home), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.probe", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(addr->probe), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.enable", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->enable), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.fault", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->fault), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.mode", num);
-    retval = hal_pin_u32_new(buf, HAL_WR, &(addr->mode), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.model", num);
-    retval = hal_pin_u32_new(buf, HAL_RD, &(addr->model), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.reset", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->reset), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.latch", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->latch), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.index", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->index), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    return 0;
-}
 
 /***********************************************************************
 *                REALTIME EXTERNAL INTERFACE FUNCTIONS                 *
 ************************************************************************/
-int extMotInit(void)
-{
-    int n, retval;
-
-    rtapi_print_msg(RTAPI_MSG_ERR, "HALMOT: Initializing...\n");
-
-    /* connect to the HAL */
-    comp_id = hal_init("halmot");
-    if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "HALMOT: ERROR: hal_init() failed\n");
-	return -1;
-    }
-    /* allocate shared memory for axis data */
-    axis_array = hal_malloc(EMCMOT_MAX_AXIS * sizeof(axis_t));
-    if (axis_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HALMOT: ERROR: AXIS: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    /* export all the variables for each axis */
-    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-	/* export all vars */
-	retval = export_axis(n, &(axis_array[n]));
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HALMOT: ERROR: axis %d var export failed\n", n);
-	    hal_exit(comp_id);
-	    return -1;
-	}
-	/* init axis outputs */
-	*(axis_array[n].volts) = 0.0;
-	*(axis_array[n].enable) = 0;
-	/* We'll init the index model to EXT_ENCODER_INDEX_MODEL_RAW for now, 
-	   because it is always supported. */
-	*(axis_array[n].mode) = EXT_ENCODER_INDEX_MODEL_RAW;
-	*(axis_array[n].reset) = 0;
-    }
-    /* Done! */
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"HALMOT: Done! Installed %d axes.\n", EMCMOT_MAX_AXIS);
-    return 0;
-}
-
-int extMotQuit(void)
-{
-    hal_exit(comp_id);
-    return 0;
-}
-
-/* DAC Functions */
-int extDacNum(void)
-{
-/*
-This function isn't currently used, but if it were,
-we would need to return the number of DACs in the system.
-A possible way of doing this is:
-  return GetAxes();
-*/
-    return 0;
-}
-
 int extDacWrite(int dac, double volts)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[dac]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[dac]);
     if (dac >= EMCMOT_MAX_AXIS || dac < 0) {
 	return -1;
     } else {
@@ -225,12 +67,12 @@ int extDacWrite(int dac, double volts)
 int extDacWriteAll(int max, double *volts)
 {
     int n;
-    axis_t *axis_addr;
+    axis_hal_t *axis_addr;
     if (max > EMCMOT_MAX_AXIS || max < 1) {
 	return -1;
     } else {
 	for (n = 0; n < max; n++) {
-	    axis_addr = &(axis_array[n]);
+	    axis_addr = &(axis_hal_array[n]);
 	    *(axis_addr->volts) = volts[n];
 	}
 	return 0;
@@ -240,15 +82,15 @@ int extDacWriteAll(int max, double *volts)
 /* Encoder Functions */
 unsigned int extEncoderIndexModel(void)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[0]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[0]);
     return *(axis_addr->model);
 }
 
 int extEncoderSetIndexModel(unsigned int model)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[0]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[0]);
     /* test that the requested model is supported */
     if ((model & *(axis_addr->model)) == 0) {
 	return -1;
@@ -271,8 +113,8 @@ A possible way of doing this is:
 
 int extEncoderRead(int encoder, double *counts)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[encoder]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[encoder]);
     if (encoder >= EMCMOT_MAX_AXIS || encoder < 0) {
 	return -1;
     } else {
@@ -288,7 +130,7 @@ int extEncoderReadAll(int max, double *counts)
 	return -1;
     } else {
 	for (n = 0; n < max; n++) {
-	    counts[n] = (double) *axis_array[n].position;
+	    counts[n] = (double) *axis_hal_array[n].position;
 	}
 	return 0;
     }
@@ -296,8 +138,8 @@ int extEncoderReadAll(int max, double *counts)
 
 int extEncoderResetIndex(int encoder)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[encoder]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[encoder]);
     if (encoder >= EMCMOT_MAX_AXIS || encoder < 0) {
 	return -1;
     } else {
@@ -309,8 +151,8 @@ int extEncoderResetIndex(int encoder)
 
 int extEncoderReadLatch(int encoder, int *flag)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[encoder]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[encoder]);
     if (encoder >= EMCMOT_MAX_AXIS || encoder < 0) {
 	return -1;
     } else {
@@ -325,8 +167,8 @@ int extEncoderReadLatch(int encoder, int *flag)
 
 int extEncoderReadLevel(int encoder, int *flag)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[encoder]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[encoder]);
     if (encoder >= EMCMOT_MAX_AXIS || encoder < 0) {
 	return -1;
     } else {
@@ -338,8 +180,8 @@ int extEncoderReadLevel(int encoder, int *flag)
 /* Switch Functions */
 int extMaxLimitSwitchRead(int axis, int *flag)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[axis]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[axis]);
     if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
 	return -1;
     } else {
@@ -350,8 +192,8 @@ int extMaxLimitSwitchRead(int axis, int *flag)
 
 int extMinLimitSwitchRead(int axis, int *flag)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[axis]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[axis]);
     if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
 	return -1;
     } else {
@@ -362,8 +204,8 @@ int extMinLimitSwitchRead(int axis, int *flag)
 
 int extHomeSwitchRead(int axis, int *flag)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[axis]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[axis]);
     if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
 	return -1;
     } else {
@@ -376,10 +218,10 @@ int extHomeSwitchRead(int axis, int *flag)
 int extProbeCheck(int *flag)
 {
     int n, f;
-    axis_t *axis_addr;
+    axis_hal_t *axis_addr;
     f = 0;
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-	axis_addr = &(axis_array[n]);
+	axis_addr = &(axis_hal_array[n]);
 	if (*(axis_addr->probe) != 0.0) {
 	    f = 1;
 	}
@@ -390,8 +232,8 @@ int extProbeCheck(int *flag)
 
 int extProbeRead(int axis, double *counts)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[axis]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[axis]);
     if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
 	return -1;
     } else {
@@ -403,12 +245,12 @@ int extProbeRead(int axis, double *counts)
 int extProbeReadAll(int max, double *counts)
 {
     int n;
-    axis_t *axis_addr;
+    axis_hal_t *axis_addr;
     if (max > EMCMOT_MAX_AXIS || max < 1) {
 	return -1;
     } else {
 	for (n = 0; n < max; n++) {
-	    axis_addr = &(axis_array[n]);
+	    axis_addr = &(axis_hal_array[n]);
 	    counts[n] = *(axis_addr->probe);
 	}
 	return 0;
@@ -418,8 +260,8 @@ int extProbeReadAll(int max, double *counts)
 /* Amplifier Functions */
 int extAmpEnable(int axis, int enable)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[axis]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[axis]);
     if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
 	return -1;
     } else {
@@ -430,8 +272,8 @@ int extAmpEnable(int axis, int enable)
 
 int extAmpFault(int axis, int *fault)
 {
-    axis_t *axis_addr;
-    axis_addr = &(axis_array[axis]);
+    axis_hal_t *axis_addr;
+    axis_addr = &(axis_hal_array[axis]);
     if (axis >= EMCMOT_MAX_AXIS || axis < 0) {
 	return -1;
     } else {

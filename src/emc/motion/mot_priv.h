@@ -18,13 +18,84 @@
 *
 ********************************************************************/
 
+
+/***********************************************************************
+*                       TYPEDEFS, ENUMS, ETC.                          *
+************************************************************************/
+
+/* HAL visible data notations:
+   RPA:  read only parameter
+   WPA:  write only parameter
+   PA:   read/write parameter
+   RP:   read only pin
+   WP:   write only pin
+   P:    read/write pin
+*/
+
+/* HAL-visible runtime data for a single axis */
+typedef struct {
+    hal_float_t joint_pos_cmd;	/* RPA: commanded position, w/o comp */
+    hal_float_t joint_vel_cmd;  /* RPA: commanded velocity, w/o comp */
+    hal_float_t backlash_comp;	/* RPA: current backlash comp */
+    hal_float_t *motor_pos_cmd;	/* WP:  commanded position, with comp */
+    hal_float_t *motor_pos_fb;	/* RP:  position feedback, with comp */
+    hal_float_t joint_pos_fb;	/* RPA: position feedback, w/o comp */
+
+/* OLD PINS */
+
+    hal_float_t *volts;		/* pin: voltage output */
+    hal_float_t *position;	/* pin: position input */
+    hal_bit_t *max;		/* max limit switch input */
+    hal_bit_t *min;		/* min limit switch input */
+    hal_bit_t *home;		/* home switch input */
+    hal_float_t *probe;		/* probe input */
+    hal_bit_t *enable;		/* amp enable output */
+    hal_bit_t *fault;		/* amp fault input */
+    /* for now we control the index model through the mode and model pins on
+       axis 0, later this may be done on a per axis basis */
+    hal_u32_t *mode;		/* index model output */
+    hal_u32_t *model;		/* index model input */
+    hal_bit_t *reset;		/* index latch reset output */
+    hal_bit_t *latch;		/* index latch input */
+    hal_bit_t *index;		/* index input */
+} axis_hal_t;
+
+/* internal (motion module only) runtime data for a single axis */
+typedef struct {
+} axis_priv_t;
+
+
+
+
+
+
+/***********************************************************************
+*                   GLOBAL VARIABLE DECLARATIONS                       *
+************************************************************************/
+
+
+/* pointer to array of axis_hal_t structs in HAL shmem, 1 per axis */
+extern axis_hal_t *axis_hal_array;
+
+#if 0
+/* FIXME - don't know if this is needed */
+/* pointer to array of axis_priv_t structs in normal memory, 1 per axis */
+extern axis_priv_t *axis_priv_array;
+#endif
+
+/***********************************************************************
+*                    PUBLIC FUNCTION PROTOTYPES                        *
+************************************************************************/
+
+
+
 /* function definitions */
 extern void emcmot_config_change(void);
 extern int emcmotCommandHandler(void);
-extern void emcmotController(void *arg);
+extern void emcmotController(void *arg, long period);
 extern void setTrajCycleTime(double secs);
 
- /* rtapi_get_time() returns a nanosecond value. In time, we should use a u64 
+ /* rtapi_get_time() returns a nanosecond value. In time, we should use a u64
     value for all calcs and only do the conversion to seconds when it is
     really needed. */
 #define etime() (((double) rtapi_get_time()) / 1.0e9)

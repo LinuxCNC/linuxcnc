@@ -175,6 +175,7 @@ int emcmotCommandHandler(void)
 	emcmotDebug->split++;
 	return 0;		/* not really an error */
     }
+/*rtapi_print ( "c=%d, e=%d\n", emcmotCommand->commandNum, emcmotStatus->commandNumEcho );*/
 
     if (emcmotCommand->commandNum != emcmotStatus->commandNumEcho) {
 	/* increment head count-- we'll be modifying emcmotStatus */

@@ -6,13 +6,13 @@ include ../../../Makefile.inc
 SRCS =	\
 	emcsh.cc \
 	iosh.cc \
-	usrmot.c \
+	usrmot.c
 
 HEADERS =
 
 BINS =  emcsh \
 	iosh \
-	usrmot
+	usrmot \
 
 OBJS = \
 	emcsh.o \
