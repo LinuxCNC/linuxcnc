@@ -57,9 +57,13 @@ void print_pose ( EmcPose *pos )
 
 
 /* debugging function - it watches a particular variable and
-   prints a message when the value changes.
+   prints a message when the value changes.  Right now there are
+   calls to this scattered throughout this and other files.
+   To disable them, comment out the following define:
 */
+// #define ENABLE_CHECK_STUFF
 
+#ifdef ENABLE_CHECK_STUFF
 void check_stuff(char *location)
 {
    static short *target, old = 0xFF;
@@ -83,6 +87,14 @@ void check_stuff(char *location)
 	old = *target;
     }
 }
+#else /* make it disappear */
+void check_stuff(char *location)
+{
+/* do nothing (I wonder if gcc is smart
+   enough to optimize the calls away?) */
+}
+#endif /* ENABLE_CHECK_STUFF */
+
 
 /***********************************************************************
 *                      LOCAL FUNCTION PROTOTYPES                       *
@@ -213,6 +225,7 @@ void emcmotController(void *arg, long period)
     /* increment head count to indicate work in progress */
     emcmotStatus->head++;
     /* here begins the core of the controller */
+
 check_stuff ( "before process_inputs()" );
     process_inputs();
 check_stuff ( "after process_inputs()" );
