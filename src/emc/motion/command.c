@@ -3,11 +3,15 @@
 *   emcmotCommandhandler() takes commands passed from user space and
 *   performs various functions based on the value in emcmotCommand->command.
 *   For the full list, see the EMCMOT_COMMAND enum in motion.h
-*   
+*
+* pc says:
+*
 *   Most of the configs would be better off being passed via an ioctl
 *   implimentation leaving pure realtime data to be handled by
 *   emcmotCommmandHandler() - This would provide a small performance
 *   increase on slower systems.
+*
+* jmk says:
 *
 *   Using commands to set config parameters is "undesireable", because
 *   of the large amount of code needed for each parameter.  Today you
