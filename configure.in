@@ -77,43 +77,49 @@ fi
 
 #at this point if RTDIR is empty, we need to find RT ourselves
 if (test -z "$RTDIR" ); then
-  RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" 2>/dev/null)
+  RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" -o -name "realtime-config" 2>/dev/null)
   if (test "$RTS" = "" ) ; then
     AC_MSG_ERROR([RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
   elif (test `echo "$RTS" | wc -l` != 1 ) ; then
     AC_MSG_ERROR([Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
-  elif (test `echo $RTS | awk -F / ' {print $NF}'` = "rtai-config") ; then
-    #we have found rtai-config
-    #probably version 3
-    RTNAME=rtai-3.0
-    RTPREFIX=rtai
-    RTAI=3
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --module-cflags` 
-    RTFLAGS="$RTFLAGS -DRTAI=3"
-    KERNELDIR=`$RTS --linux-dir`
-    AC_MSG_RESULT([rtai=$RTDIR set from search])
   else
-    #we have found rtl-config
-    RTPREFIX=rtlinux
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --c-flags`
-    KERNELDIR=`$RTS --linux`
+    AC_MSG_RESULT([Using $RTDIR as the RT signature])
   fi
 else
-  # we have RTDIR from the user... let's check for rtai-config, rtl-config
+  # we have RTDIR from the user... let's check for rtai-config, realtime-config, and rtl-config
   RTDIR=$(cd $RTDIR ; pwd -P )
   if (! test "x$RTAIDIR" = "x") ; then
-    if (test -r $RTDIR/rtai-config); then
-       # found rtai-config
+    # Test for rtai-config
+    if (test -f $RTDIR/rtai-config); then
        RTS=$RTDIR/rtai-config
     elif (test -r $RTDIR/bin/rtai-config); then
        RTS=$RTDIR/bin/rtai-config
     elif (test `rtai-config --version 2> /dev/null`); then
-       RTS=rtai-config
+       RTS=rtai-config  # If this final test is true, then we need to check
+                        # that `rtai-config --prefix` == $RTDIR
+    # Test for rtai-config
+    elif (test -f $RTDIR/realtime-config); then
+       RTS=$RTDIR/realtime-config
+    elif (test -r $RTDIR/bin/realtime-config); then
+       RTS=$RTDIR/bin/realtime-config
+    elif (test -r $RTDIR/scripts/realtime-config); then
+       RTS=$RTDIR/scripts/realtime-config
     fi
+
+  elif (! test "x$RTLINUXDIR" = "x") ; then
+    # test for rtl-config
+    if (test -f $RTLINUXDIR/rtl-config); then
+       RTS=$RTLINUXDIR/rtl-config
+    elif (test -r $RTLINUXDIR/bin/rtl-config); then
+       RTS=$RTLINUXDIR/bin/rtl-config
+    elif (test -r $RTLINUXDIR/scripts/rtl-config); then
+       RTS=$RTLINUXDIR/scripts/rtl-config
+    fi
+  fi
+  AC_MSG_RESULT([$RTDIR set from command line])
+fi
+#FIXME Move setting of RTPREFIX & friends to a single location..
+# RTAI-3.x
     RTNAME=rtai-3.0
     RTPREFIX=rtai
     RTAI=3
@@ -122,14 +128,14 @@ else
     RTFLAGS=`$RTS --module-cflags`
     RTFLAGS="$RTFLAGS -DRTAI=3"
     KERNELDIR=`$RTS --linux-dir`
-  elif (! test "x$RTLINUXDIR" = "x") ; then
-    #FIXME add rtl-config
-    RTNAME=rtlinux
+# RTLinux
     RTPREFIX=rtlinux
+    RTDIR=`$RTS --prefix`
     RTDIR=$(cd $RTDIR ; pwd -P )
-  fi
-  AC_MSG_RESULT([$RTDIR set from command line])
-fi
+    RTFLAGS=`$RTS --c-flags`
+    KERNELDIR=`$RTS --linux`
+
+
 AC_SUBST([RTNAME])
 AC_SUBST([RTAI])
 AC_SUBST([RTLINUX])
