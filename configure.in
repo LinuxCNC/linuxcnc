@@ -26,6 +26,12 @@ RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
 
+
+RTAI3_MOD=""
+RTAI_MOD=""
+RTL_MOD=""
+
+
 AC_ARG_WITH(rtai,
     [  --with-rtai=<path to RTAI>			path where RTAI is installed],
     [	case "$withval" in
@@ -355,25 +361,6 @@ AC_SUBST(GTK_VER)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
 
-# Check for Man dir
-AC_MSG_CHECKING([for directory to install man-pages])
-
-#check for $MANPATH
-if test -z "$MANPATH"; then
-  MANDIR=`manpath | awk -F: '{ print $1 }'`
-  # test the result, make sure it's a directory
-  if ( ! test  -d $MANDIR ) ; then
-    MANDIR=
-  fi
-else
-  MANDIR=`echo $MANPATH | awk -F: '{ print $1 }'`
-fi
-if test -z "$MANDIR"; then
-  AC_MSG_WARN([not found])
-else
-  AC_MSG_RESULT([$MANDIR])
-fi
-AC_SUBST([MANDIR])
 
 # Check for math support
 # FIXME - still to be written
@@ -479,6 +466,11 @@ AC_SUBST([MATHLIB])
 # AC_SUBST(TCL_SRC_DIR)
 #--------------------------------------------------------------------
 
+# Export substitution symbols for module loading
+
+AC_SUBST([RTAI3_MOD])
+AC_SUBST([RTAI_MOD])
+AC_SUBST([RTL_MOD])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -544,5 +536,9 @@ AC_SUBST([TK_LIBS])
 DATE=$(date)
 AC_SUBST([DATE])
 
-#AC_CONFIG_FILES(Makefile.inc)
+AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf])
 AC_OUTPUT(Makefile.inc)
+
+
+
+

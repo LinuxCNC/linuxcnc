@@ -31,7 +31,10 @@ include Makefile.inc
 # level code that might depend on it
 
 
+LOCALDIR = `pwd`
 SUBDIRS = src/rtapi src/hal src/libnml src/emc
+
+SCRIPTS = emc.run hal_demo 
 
 all headers indent install depend clean:
 	@@for subdir in $(SUBDIRS); \
@@ -44,10 +47,10 @@ all headers indent install depend clean:
 # these variables are used to build a list of all
 # man pages that need to be installed
 
-ifneq ($(strip $(DESTDIR)$(MAN_DIR)),)
+ifneq ($(strip $(mandir)),)
 # MAN_DIR exists, generate list of man pages
-MAN1_FILES := $(patsubst docs/man/%,$(DESTDIR)$(MAN_DIR)/%,$(wildcard docs/man/man1/*.1))
-MAN3_FILES := $(patsubst docs/man/%,$(DESTDIR)$(MAN_DIR)/%,$(wildcard docs/man/man3/*.3))
+MAN1_FILES := $(patsubst docs/man/%,$(DESTDIR)$(TESTDIR)$(mandir)/%,$(wildcard docs/man/man1/*.1))
+MAN3_FILES := $(patsubst docs/man/%,$(DESTDIR)$(TESTDIR)$(mandir)/%,$(wildcard docs/man/man3/*.3))
 MAN_FILES = $(MAN1_FILES) $(MAN3_FILES)
 else
 # no man dir, do nothing
@@ -57,10 +60,10 @@ endif
 # this rule installs a single man page
 
 man_directories:
-	install -d $(DESTDIR)$(MAN_DIR)/man1
-	install -d $(DESTDIR)$(MAN_DIR)/man3
+	install -d $(DESTDIR)$(TESTDIR)$(mandir)/man1
+	install -d $(DESTDIR)$(TESTDIR)$(mandir)/man3
 
-$(DESTDIR)$(MAN_DIR)/% : docs/man/%
+$(DESTDIR)$(TESTDIR)$(mandir)/% : docs/man/%
 	@ echo "install man page $*"
 	@ cp $< $@
 
@@ -70,40 +73,82 @@ $(DESTDIR)$(MAN_DIR)/% : docs/man/%
 install_man: man_directories $(MAN_FILES)
 
 install_bin: 
-	install -d $(DESTDIR)/$(bindir)
-	cp bin/* $(DESTDIR)/$(bindir)
+	install -d $(DESTDIR)$(TESTDIR)/$(bindir)
+	cp bin/* $(DESTDIR)$(TESTDIR)/$(bindir)
+	cp -R tcl/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
+	cp -R tcl/bin/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
+	cp -R tcl/scripts/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
+
+install_sbin:
+#	install -d $(DESTDIR)$(TESTDIR)/$(sbindir)
+	@ echo "sbin installed"
+
+install_info:
+#	install -d $(DESTDIR)$(TESTDIR)/$(infodir)
+	@ echo "info installed"
 
 install_lib: 
-	install -d $(DESTDIR)/$(libdir)
-	cp lib/* $(DESTDIR)/$(libdir)
+	install -d $(DESTDIR)$(TESTDIR)/$(libdir)
+	cp lib/* $(DESTDIR)$(TESTDIR)/$(libdir)
+	@ echo "lib installed"
 
-# Ugh... $sysconfdir seems right for this, but /usr/local/etc dosen't...
-CONFIGTARGET=$(DESTDIR)/$(sysconfdir)
-#CONFIGTARGET=$(DESTDIR)/$(prefix)/configs
-
-install_configs:
-	install -d $(CONFIGTARGET)
-	cp configs/*.hal configs/*.ini configs/*.nml configs/*.var $(CONFIGTARGET)
 
 install_scripts:
-	install -d $(DESTDIR)/$(prefix)/scripts
-	cp -r scripts/* $(DESTDIR)/$(prefix)/scripts
+	install -d $(DESTDIR)$(TESTDIR)/$(bindir)
+#	(cd scripts ; cp -r $(SCRIPTS) $(DESTDIR)/$(bindir))
+	
+	@@for script in $(SCRIPTS); \
+	do \
+		echo "Creating $$script"; \
+		cat scripts/$$script | sed "s%\$$TESTDIR%$(TESTDIR)%;s%\$$EMCCONFIG%$(EMCCONFIG)%;" > $(DESTDIR)$(TESTDIR)/$(bindir)/$$script; \
+		chmod a+x $(DESTDIR)$(TESTDIR)/$(bindir)/$$script; \
+	done
 
-MODPATH=$(RTDIR)/modules 
-MODPATH=$(moduledir)
+# Ugh... $sysconfdir seems right for this, but /usr/local/etc dosen't...
+CONFIGTARGET=$(DESTDIR)$(TESTDIR)/$(sysconfdir)
+#CONFIGTARGET=$(DESTDIR)/$(prefix)/configs
+CONFIGS=emc.conf hal.conf rtapi.conf core_stepper.hal emc.ini emc.nml emc.var simulated_limits.hal standard_pinout.hal xylotex_pinout.hal
 
-modules_install install_modules:
-	install -d $(DESTDIR)/$(MODPATH) ;
-	cp rtlib/* $(DESTDIR)/$(MODPATH) ;
+EMCCONFIG=$(CONFIGTARGET)/emc.conf
+
+install_configs:
+	@ echo "Installing configs..."
+	install -d $(CONFIGTARGET)
+#	(cd scripts ; cp -r $(SCRIPTS) $(DESTDIR)/$(bindir))
+	
+	@@for config in $(CONFIGS); \
+	do \
+		echo "Creating $$config"; \
+		cat configs/$$config | sed "s%\$$TESTDIR%$(TESTDIR)%;s%\$$EMCCONFIG%$(EMCCONFIG)%;" > $(CONFIGTARGET)/$$config; \
+	done
+
+	@ echo "configs installed"
+
+# John Kasunich has epxressed a preference to keep hal modules seperate
+# from emc modules
+
+install_hal_modules:
+	install -d $(DESTDIR)$(TESTDIR)/$(halmoduledir)
+#	cp $(DESTDIR)/$(halmoduledir)
+
+install_rt_modules:
+	install -d $(DESTDIR)$(TESTDIR)/$(moduledir)
+	cp rtlib/* $(DESTDIR)$(TESTDIR)/$(moduledir)
+	cp scripts/.runinfo $(DESTDIR)$(TESTDIR)/$(moduledir)
+
+
+modules_install install_modules: install_rt_modules install_hal_modules
+	@ echo "modules installed"
 
 install_init:
-	install -d $(DESTDIR)/etc/rc.d/init.d/
-	cp scripts/realtime $(DESTDIR)/etc/rc.d/init.d/
+	install -d $(DESTDIR)$(TESTDIR)/etc/rc.d/init.d/
+	cat scripts/realtime | sed "s%\$$EMC_RTAPICONF%$(CONFIGTARGET)/rtapi.conf%;" > $(DESTDIR)$(TESTDIR)/etc/rc.d/init.d/realtime
+	chmod a+x $(DESTDIR)$(TESTDIR)/etc/rc.d/init.d/realtime
+	@ echo "Realtime script installed"
 
-install : install_man install_bin install_lib install_configs \
-	install_modules install_scripts install_init
-
-
+install : install_man install_bin install_lib\
+	install_modules install_scripts install_init install_sbin\
+	install_info install_configs
 
 # this rule handles the uninstall target
 # it removes all the man pages
@@ -134,7 +179,20 @@ topclean :
 	(if [ -d $(TMP_DIR) ] ; then rm -fR $(TMP_DIR) ; fi)
 	(if [ -d $(RTTMP_DIR) ] ; then rm -fR $(RTTMP_DIR) ; fi)
 	(if [ -d $(GTKTMP_DIR) ] ; then rm -fR $(GTKTMP_DIR) ; fi)
+	rm -rf ./test
 
 clean: topclean
+
+test:
+	make install TESTDIR=$(LOCALDIR)/test
+
+run: all test
+	./test/$(bindir)/emc.run
+
+fresh:
+	rm -rf test
+	./configure
+	make run
+
 
 .PHONY : all examples headers depend indent install clean

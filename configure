@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP KERNEL_VERS MODULE_DIR CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GTK_VER GTK_LIBS GTK_CFLAGS MANDIR USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP KERNEL_VERS MODULE_DIR CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GTK_VER GTK_LIBS GTK_CFLAGS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1289,6 +1289,12 @@ RTLINUXPRO=""
 RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
+
+
+RTAI3_MOD=""
+RTAI_MOD=""
+RTL_MOD=""
+
 
 
 # Check whether --with-rtai or --without-rtai was given.
@@ -5414,28 +5420,6 @@ fi
 
 
 
-# Check for Man dir
-echo "$as_me:$LINENO: checking for directory to install man-pages" >&5
-echo $ECHO_N "checking for directory to install man-pages... $ECHO_C" >&6
-
-#check for $MANPATH
-if test -z "$MANPATH"; then
-  MANDIR=`manpath | awk -F: '{ print $1 }'`
-  # test the result, make sure it's a directory
-  if ( ! test  -d $MANDIR ) ; then
-    MANDIR=
-  fi
-else
-  MANDIR=`echo $MANPATH | awk -F: '{ print $1 }'`
-fi
-if test -z "$MANDIR"; then
-  { echo "$as_me:$LINENO: WARNING: not found" >&5
-echo "$as_me: WARNING: not found" >&2;}
-else
-  echo "$as_me:$LINENO: result: $MANDIR" >&5
-echo "${ECHO_T}$MANDIR" >&6
-fi
-
 
 # Check for math support
 # FIXME - still to be written
@@ -5549,6 +5533,11 @@ fi
 # AC_SUBST(TCL_DEFS)
 # AC_SUBST(TCL_SRC_DIR)
 #--------------------------------------------------------------------
+
+# Export substitution symbols for module loading
+
+
+
 
 
 # Checks for header files.
@@ -6342,7 +6331,8 @@ fi
 DATE=$(date)
 
 
-#AC_CONFIG_FILES(Makefile.inc)
+                              ac_config_files="$ac_config_files configs/rtapi.conf configs/emc.conf configs/hal.conf"
+
           ac_config_files="$ac_config_files Makefile.inc"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6893,6 +6883,9 @@ for ac_config_target in $ac_config_targets
 do
   case "$ac_config_target" in
   # Handling of arguments.
+  "configs/rtapi.conf" ) CONFIG_FILES="$CONFIG_FILES configs/rtapi.conf" ;;
+  "configs/emc.conf" ) CONFIG_FILES="$CONFIG_FILES configs/emc.conf" ;;
+  "configs/hal.conf" ) CONFIG_FILES="$CONFIG_FILES configs/hal.conf" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -7008,12 +7001,14 @@ s,@AR@,$AR,;t t
 s,@GTK_VER@,$GTK_VER,;t t
 s,@GTK_LIBS@,$GTK_LIBS,;t t
 s,@GTK_CFLAGS@,$GTK_CFLAGS,;t t
-s,@MANDIR@,$MANDIR,;t t
 s,@USE_LIBM@,$USE_LIBM,;t t
 s,@USE_STUBS@,$USE_STUBS,;t t
 s,@USE_RTLIBM@,$USE_RTLIBM,;t t
 s,@MATHINC@,$MATHINC,;t t
 s,@MATHLIB@,$MATHLIB,;t t
+s,@RTAI3_MOD@,$RTAI3_MOD,;t t
+s,@RTAI_MOD@,$RTAI_MOD,;t t
+s,@RTL_MOD@,$RTL_MOD,;t t
 s,@TCL_DBGX@,$TCL_DBGX,;t t
 s,@TK_DBGX@,$TK_DBGX,;t t
 s,@TCL_CFLAGS@,$TCL_CFLAGS,;t t
@@ -7252,4 +7247,8 @@ if test "$no_create" != yes; then
   # would make configure fail if this is the last instruction.
   $ac_cs_success || { (exit 1); exit 1; }
 fi
+
+
+
+
 

@@ -6,14 +6,15 @@
 # chkconfig: - 97 97
 # description: realtime loades modules for RTOS functionality
 
+RTAPICONF=$EMC_RTAPICONF
 
 
 CheckConfig(){
-    RTAPICONF=
     # check for rtapi.conf in /etc/ first...
-    if [ -f /etc/rtapi.conf ] ; then
-	RTAPICONF=/etc/rtapi.conf
-    else
+    if ! [[ -f "$RTAPICONF" ]]; then
+        if [ -f /etc/rtapi.conf ] ; then
+	    RTAPICONF=/etc/rtapi.conf
+        else
 	# check in the emc2 scripts directory
 	# $0 is the command to run this script
 	# strip the script name to leave the path
@@ -22,10 +23,12 @@ CheckConfig(){
 	# convert it to an absolute path
 	SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
 	# now look for rtapi.conf there
-	if [ -f $SCRIPT_DIR/rtapi.conf ] ; then
-	    RTAPICONF=$SCRIPT_DIR/rtapi.conf
-	fi
+	    if [ -f $SCRIPT_DIR/rtapi.conf ] ; then
+	        RTAPICONF=$SCRIPT_DIR/rtapi.conf
+	    fi
+        fi
     fi
+
     if [ -z "$RTAPICONF" ] ; then
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
 	exit -1
@@ -107,10 +110,11 @@ CheckMem(){
 
 Load(){
     if [ "$RTAI" = "3" ] ; then
+#	echo "RTLIB_DIR: $RTLIB_DIR"
 	if [ "$VERBOSE" = "1" ] ; then
-	    ( cd $EMC2_HOME/scripts ; $RTAI_LOAD --verbose )
+	    ( cd $RTLIB_DIR ;  $RTAI_LOAD --verbose )
 	else
-	    ( cd $EMC2_HOME/scripts ; $RTAI_LOAD )
+	    ( cd $RTLIB_DIR ; $RTAI_LOAD )
 	fi
     fi
     for MOD in $MODULES_LOAD ; do

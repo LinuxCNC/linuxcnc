@@ -92,7 +92,7 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(EMC2_HOME)/Makefile.inc
 	@ echo "# Sets the default DEBUG level" >> $@
 	@ echo "DEBUG='3'" >> $@
 	@ echo  >> $@ ;
-	@ echo "MODPATH='$(MODULE_DIR)'"  >> $@ 
+	@ echo "MODPATH='$(RTLIB_DIR)'"  >> $@ 
 	@ echo >> $@
 	@ echo "# List of realtime kernel modules to be loaded" >> $@
 	@ if [ "$(RTAI)" = "3" ] ; then \
@@ -111,7 +111,7 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(EMC2_HOME)/Makefile.inc
 # For installation, the fully qualified paths in the scripts need
 # to get changed. 
 
-RTAPICONFDIR=$(DESTDIR)/$(prefix)/scripts
+RTAPICONFDIR=$(DESTDIR)/etc
 RTAPICONF=$(RTAPICONFDIR)/rtapi.conf
 
 install:
@@ -124,11 +124,11 @@ install:
 	@ echo "EMC2_HOME='$(prefix)'" >>$(RTAPICONF)
 	@ echo "MAN_DIR='$(mandir)'" >> $(RTAPICONF)
 	@ echo "KERNELDIR='$(KERNELDIR)'" >> $(RTAPICONF)
-	@ echo "RTLIB_DIR='$(RTLIB_DIR)'" >> $(RTAPICONF)
+	@ echo "RTLIB_DIR='$(moduledir)'" >> $(RTAPICONF)
 	@ echo  >> $(RTAPICONF)
 	@ echo "# Sets the default DEBUG level" >> $(RTAPICONF)
 	@ echo "DEBUG='3'" >> $(RTAPICONF)
-	@ echo "MODPATH='$(MODULE_DIR)'"  >> $@
+	@ echo "MODPATH='$(moduledir)'"  >> $@
 	@ echo >> $(RTAPICONF)
 	@ echo "# List of realtime kernel modules to be loaded" >> $(RTAPICONF)
 	@ if [ "$(RTAI)" = "3" ] ; then \

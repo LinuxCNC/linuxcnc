@@ -8,6 +8,11 @@
 # if <ini-file> not specified, uses EMC2_DIR/configs/emc.ini
 # if path specified, looks there, else looks in $EMC2_DIR/configs
 
+#source $TESTDIR/etc/emc.conf
+source $EMCCONFIG
+
+#echo "INIVAR is $INIVAR"
+#echo "EMC2_BIN_DIR is $EMC2_BIN_DIR"
 
 DEBUG_FILE=/dev/null
 PRINT_FILE=/dev/null
@@ -78,25 +83,6 @@ if [ `whoami` != root ] ; then
     exit -1
 fi
 
-# Determine the EMC2 root directory
-# get name and (possibly relative) path of this script
-SCRIPT=`which $0 | grep $0`
-# name of script
-SCRIPT_NAME=`echo $SCRIPT | sed s#\^.\*/##`
-# delete name to get path
-SCRIPT_DIR=`echo $SCRIPT | sed s/$SCRIPT_NAME//`
-# path might be relative - convert to absolute
-SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
-# strip the "/scripts" part to get the root of the
-# EMC2 directory tree
-EMC2_DIR=`echo $SCRIPT_DIR | sed s#/scripts## `
-
-# make some useful paths
-EMC2_BIN_DIR=$EMC2_DIR/bin
-EMC2_TCL_DIR=$EMC2_DIR/tcl
-EMC2_SCRIPT_DIR=$EMC2_DIR/scripts
-EMC2_RTLIB_DIR=$EMC2_DIR/rtlib
-EMC2_CONFIG_DIR=$EMC2_DIR/configs
 
 echo EMC2_DIR=$EMC2_DIR >$PRINT_FILE
 echo EMC2_BIN_DIR=$EMC2_BIN_DIR >$PRINT_FILE
@@ -120,13 +106,6 @@ if [ ! -f $INIFILE ] ; then
 fi
 echo INIFILE=$INIFILE >$PRINT_FILE
 
-# Find out where the inivar program is
-if [ -x $EMC2_BIN_DIR/inivar ] ; then
-    INIVAR=$EMC2_BIN_DIR/inivar
-else
-    echo "Can't locate inivar program - should be in $EMC2_BIN_DIR/inivar"
-    exit -1
-fi
 echo INIVAR=$INIVAR >$PRINT_FILE
 
 # Find out where the halcmd program is
@@ -139,12 +118,6 @@ fi
 echo HALCMD=$HALCMD >$PRINT_FILE
 
 # Find out where the realtime script is
-if [ -x $EMC2_SCRIPT_DIR/realtime ] ; then
-    REALTIME=$EMC2_SCRIPT_DIR/realtime
-else
-    echo "Can't locate realtime script - should be in $EMC2_SCRIPTS_DIR/realtime"
-    exit -1
-fi
 echo REALTIME=$REALTIME >$PRINT_FILE
 
 # extract info from the ini file that we will need later
@@ -158,6 +131,7 @@ echo RS274NGC_PARAMFILE=$RS274NGC_PARAMFILE >$PRINT_FILE
 
 # get emcmot information
 EMCMOT=`$INIVAR -ini $INIFILE -var EMCMOT -sec EMCMOT`
+
 if [ ! -n "$EMCMOT" ] ; then
     echo "Can't find variable EMCMOT in section [EMCMOT] of file $INIFILE."
     exit -1
@@ -317,7 +291,8 @@ function Cleanup() {
 	    done
 	fi
 	# remove rtapi and RTOS modules
-	$EMC2_SCRIPT_DIR/realtime stop
+#	$EMC2_SCRIPT_DIR/realtime stop
+        $REALTIME stop
     fi
 
     # remove lock file
@@ -456,7 +431,7 @@ echo "Hi!  Pretend this message is a nice popup graphic"
 # Now we can finally start loading EMC
 
 echo "Loading RealTime OS, RTAPI, and HAL_LIB" >$PRINT_FILE
-if ! $EMC2_SCRIPT_DIR/realtime start ; then
+if ! $REALTIME start ; then
     echo "Realtime system did not load"
     Cleanup
     exit -1
@@ -501,9 +476,9 @@ TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}
 
 # load the motion module
 
-echo "$EMC2_DIR/rtlib/$EMCMOT base_period=$BASE_PERIOD_NSEC servo_period=$SERVO_PERIOD_NSEC traj_period=$TRAJ_PERIOD_NSEC key=$SHMEM_KEY"
+echo "$EMC2_RTLIB_DIR/$EMCMOT base_period=$BASE_PERIOD_NSEC servo_period=$SERVO_PERIOD_NSEC traj_period=$TRAJ_PERIOD_NSEC key=$SHMEM_KEY"
 
-if ! $INSMOD $EMC2_DIR/rtlib/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
+if ! $INSMOD $EMC2_RTLIB_DIR/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
 				     servo_period_nsec=$SERVO_PERIOD_NSEC \
 				     traj_period_nsec=$TRAJ_PERIOD_NSEC \
 				     key=$SHMEM_KEY ; then

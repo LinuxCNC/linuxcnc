@@ -1,0 +1,79 @@
+|-- etc
+|   `-- rc.d
+|       `-- init.d
+|           `-- realtime
+`-- usr
+    |-- local
+    |   |-- bin
+    |   |   |-- DIO_Exercise.tcl
+    |   |   |-- IO_Exercise.tcl
+    |   |   |-- IO_Show.tcl
+    |   |   |-- balloon.tcl
+    |   |   |-- emc.run
+    |   |   |-- emccalib.tcl
+    |   |   |-- emcdebug.tcl
+    |   |   |-- emchelp.tcl
+    |   |   |-- emclog.tcl
+    |   |   |-- emcsh
+    |   |   |-- emcsvr
+    |   |   |-- emctesting.tcl
+    |   |   |-- emctuning.tcl
+    |   |   |-- genedit.tcl
+    |   |   |-- hal_demo
+    |   |   |-- hal_parport
+    |   |   |-- hal_skeleton
+    |   |   |-- halcmd
+    |   |   |-- halmeter
+    |   |   |-- halscope
+    |   |   |-- inivar
+    |   |   |-- iosh
+    |   |   |-- milltask
+    |   |   |-- simio
+    |   |   |-- tkbackplot.tcl
+    |   |   |-- tkemc.tcl
+    |   |   |-- tkio.tcl
+    |   |   `-- usrmot
+    |   |-- etc
+    |   |   |-- core_stepper.hal
+    |   |   |-- emc.conf
+    |   |   |-- emc.ini
+    |   |   |-- emc.ini.bak
+    |   |   |-- emc.nml
+    |   |   |-- emc.var
+    |   |   |-- hal.conf
+    |   |   |-- rtapi.conf
+    |   |   |-- simulated_limits.hal
+    |   |   |-- standard_pinout.hal
+    |   |   `-- xylotex_pinout.hal
+    |   |-- lib
+    |   |   |-- hal_lib.o
+    |   |   |-- libemc.a
+    |   |   |-- libnml.a
+    |   |   |-- libnmld.a
+    |   |   |-- libpm.a
+    |   |   `-- ulapi.o
+    |   `-- man
+    |       |-- man1
+    |       |   `-- halcmd.1
+    |       `-- man3
+    `-- realtime
+        `-- modules
+            |-- blocks.o
+            |-- debounce.o
+            |-- encoder.o
+            |-- encoder_ratio.o
+            |-- freqgen.o
+            |-- hal_evoreg.o
+            |-- hal_lib.o
+            |-- hal_parport.o
+            |-- hal_skeleton.o
+            |-- hal_tiro.o
+            |-- libpm.a
+            |-- motmod.o
+            |-- pid.o
+            |-- rtapi.o
+            |-- scope_rt.o
+            |-- siggen.o
+            |-- stepgen.o
+            `-- supply.o
+

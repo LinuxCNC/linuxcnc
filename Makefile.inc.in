@@ -13,7 +13,6 @@ RTLIB_DIR = @EMC2_HOME@/rtlib
 INC_DIR   = @EMC2_HOME@/include
 TMP_DIR   = @EMC2_HOME@/src/.tmp
 RTTMP_DIR = @EMC2_HOME@/src/.rt_tmp
-MAN_DIR   = @MANDIR@
 RTDIR     = @RTDIR@
 
 # Standard configure directories
@@ -70,6 +69,6 @@ CXX = @CXX@
 CXXFLAGS = $(CFLAGS)
 LD = $(CC)
 LDFLAGS = 
-MAKEFLAGS = k
+#MAKEFLAGS = k # Eeeek.. clean compiles don't need this...
 RANLIB = @RANLIB@
 RANLIBFLAGS = 
