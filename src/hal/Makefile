@@ -12,43 +12,20 @@ hal.h
 
 # Private headers
 PRIVHDRS = \
-hal_priv.h \
-miscgtk.h \
-halsc_shm.h \
-halsc_rt.h \
-halsc_usr.h
+hal_priv.h
 
 SRCS = \
-hal_lib.c \
-halcmd.c \
-miscgtk.c \
-halmeter.c \
-halscope.c \
-halsc_horiz.c \
-halsc_vert.c \
-halsc_trig.c \
-halsc_disp.c
+hal_lib.c
 
 RT_SRCS = \
-hal_lib.c \
-halscope_rt.c
+hal_lib.c
 
 LIBS = \
 $(RTLIB_DIR)/hal_lib.o \
-$(LIB_DIR)/hal_lib.o \
-$(RTLIB_DIR)/halscope_rt.o
+$(LIB_DIR)/hal_lib.o
 
-ifdef GTK_VERSION
-GTK_BINS = \
-$(BIN_DIR)/halmeter \
-$(BIN_DIR)/halscope
-endif
-
-BINS = \
-$(BIN_DIR)/halcmd \
-$(GTK_BINS)
-
-all : headers $(LIBS) $(BINS)
+all : headers $(LIBS)
+	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
 
@@ -56,53 +33,24 @@ all : headers $(LIBS) $(BINS)
 include $(EMC2_HOME)/Make.rules
 
 headers: def_headers
+	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
 
 indent: def_indent
+	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
 
 depend: def_depend
+	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
 
 clean :  def_clean
+	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
-
-# rule to link halcmd
-$(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
-	@ echo "Linking $@"
-	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
-
-# rule to link halmeter
-
-HALMETER_OBJS = \
-$(TMP_DIR)/halmeter.o \
-$(TMP_DIR)/miscgtk.o \
-$(LIB_DIR)/ulapi.o \
-$(LIB_DIR)/hal_lib.o
-
-$(BIN_DIR)/halmeter : $(HALMETER_OBJS)
-	@ echo "Linking $@"
-	$(CC) $(GTK_LIBS) $(CFLAGS) $(ULFLAGS) $^ -o $@
-
-# rule to link halscope
-
-HALSCOPE_OBJS = \
-$(TMP_DIR)/halscope.o \
-$(TMP_DIR)/halsc_horiz.o \
-$(TMP_DIR)/halsc_vert.o \
-$(TMP_DIR)/halsc_trig.o \
-$(TMP_DIR)/halsc_disp.o \
-$(TMP_DIR)/miscgtk.o \
-$(LIB_DIR)/ulapi.o \
-$(LIB_DIR)/hal_lib.o
-
-$(BIN_DIR)/halscope : $(HALSCOPE_OBJS)
-	@ echo "Linking $@"
-	$(CC) $(GTK_LIBS) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 .PHONY: all headers depend indent install clean
 

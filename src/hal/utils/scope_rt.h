@@ -41,7 +41,7 @@
 #endif
 
 /* import the shared declarations */
-#include "halsc_shm.h"
+#include "scope_shm.h"
 
 /***********************************************************************
 *                         TYPEDEFS AND DEFINES                         *

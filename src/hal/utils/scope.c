@@ -45,11 +45,11 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"		/* HAL private API decls */
+#include "../hal_priv.h"	/* HAL private API decls */
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
-#include "halsc_usr.h"		/* scope related declarations */
+#include "scope_usr.h"		/* scope related declarations */
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *

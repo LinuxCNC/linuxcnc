@@ -43,11 +43,11 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"		/* private HAL decls */
+#include "../hal_priv.h"	/* private HAL decls */
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
-#include "halsc_usr.h"		/* scope related declarations */
+#include "scope_usr.h"		/* scope related declarations */
 
 #define BUFLEN 80		/* length for sprintf buffers */
 

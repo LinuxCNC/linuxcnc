@@ -44,11 +44,11 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"		/* private HAL decls */
+#include "../hal_priv.h"	/* private HAL decls */
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
-#include "halsc_usr.h"		/* scope related declarations */
+#include "scope_usr.h"		/* scope related declarations */
 
 #define BUFLEN 80		/* length for sprintf buffers */
 
@@ -262,7 +262,7 @@ static void dialog_realtime_not_loaded(void)
     gint retval;
 
     title = "Realtime component not loaded";
-    msg = "HALSCOPE uses a realtime component called 'halscope_rt.o'\n"
+    msg = "HALSCOPE uses a realtime component called scope_rt.o'\n"
 	"to sample signals for display.  It is not currently loaded.\n\n"
 	"Please do one of the following:\n\n"
 	"Load the component (using insmod), then click 'OK'\n"

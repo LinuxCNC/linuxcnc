@@ -432,8 +432,8 @@ if [ $1 = scope ] ; then
     bin/halcmd start
     bin/halcmd setp siggen.1.frequency 10
     echo "Then we load the realtime component of halscope:"
-    echo "$ /sbin/insmod rtlib/halscope_rt.o"
-    /sbin/insmod rtlib/halscope_rt.o
+    echo "$ /sbin/insmod rtlib/scope_rt.o"
+    /sbin/insmod rtlib/scope_rt.o
     echo "Finally we start the user component (in the background"
     echo "so that the foreground can continue to give instructions):"
     echo "$ bin/halscope &"
@@ -524,7 +524,7 @@ if [ $1 = scope ] ; then
     echo "To shut down the scope, use the [X] button in the corner"
     echo "Hit enter to finish the demo"
     read
-    /sbin/rmmod halscope_rt
+    /sbin/rmmod scope_rt
     /sbin/rmmod siggen
     exit 0
 fi
