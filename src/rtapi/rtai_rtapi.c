@@ -433,7 +433,7 @@ void rtapi_print(const char *fmt, ...)
 
     va_start(args, fmt);
     /* call our own vsn_printf(), which is #defined to vsnprintf() if the
-       kernel supplies one. */
+       kernel supplied one. */
     vsn_printf(buffer, BUFFERLEN, fmt, args);
     rt_printk(buffer);
     va_end(args);
@@ -447,7 +447,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
     if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
 	va_start(args, fmt);
 	/* call our own vsn_printf(), which is #defined to vsnprintf() if the 
-	   kernel supplies one. */
+	   kernel supplied one. */
 	vsn_printf(buffer, BUFFERLEN, fmt, args);
 	rt_printk(buffer);
 	va_end(args);

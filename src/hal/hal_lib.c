@@ -320,6 +320,11 @@ void *hal_malloc(long int size)
 {
     void *retval;
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: hal_malloc called before init\n");
+	return 0;
+    }
     /* get the mutex */
     rtapi_mutex_get(&(hal_data->mutex));
     /* allocate memory */
@@ -398,6 +403,11 @@ int hal_pin_new(char *name, hal_type_t type, hal_dir_t dir,
     hal_pin_t *new, *ptr;
     hal_comp_t *comp;
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin_new called before init\n");
+	return HAL_INVAL;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating pin '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -474,6 +484,11 @@ int hal_signal_new(char *name, hal_type_t type)
     hal_sig_t *new, *ptr;
     void *data_addr;
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: signal_new called before init\n");
+	return HAL_INVAL;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating signal '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -573,6 +588,11 @@ int hal_signal_delete(char *name)
     hal_sig_t *sig;
     int *prev, next;
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: signal_delete called before init\n");
+	return HAL_INVAL;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting signal '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -608,6 +628,11 @@ int hal_link(char *pin_name, char *sig_name)
     hal_comp_t *comp;
     void **data_ptr_addr, *data_addr;
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: link called before init\n");
+	return HAL_INVAL;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: linking pin '%s' to '%s'\n", pin_name, sig_name);
     /* get mutex before accessing data structures */
@@ -735,6 +760,11 @@ int hal_param_new(char *name, hal_type_t type, void *data_addr, int comp_id)
     hal_param_t *new, *ptr;
     hal_comp_t *comp;
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param_new called before init\n");
+	return HAL_INVAL;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -844,6 +874,11 @@ int hal_param_set(char *name, hal_type_t type, void *value_addr)
     hal_param_t *param;
     void *d_ptr;
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param_set called before init\n");
+	return HAL_INVAL;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -919,6 +954,11 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
     hal_funct_t *new, *fptr;
     hal_comp_t *comp;
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: export_funct called before init\n");
+	return HAL_INVAL;
+    }
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* validate comp_id */
@@ -992,6 +1032,11 @@ int hal_create_thread(char *name, unsigned long period_nsec,
     long curr_period;
     char buf[HAL_NAME_LEN + 1];
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: create_thread called before init\n");
+	return HAL_INVAL;
+    }
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* validate comp_id */
@@ -1110,6 +1155,11 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name)
     hal_funct_t *funct;
     hal_funct_entry_t *funct_entry;
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: add_funct called before init\n");
+	return HAL_INVAL;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: adding function '%s' to thread '%s'\n",
 	funct_name, thread_name);
@@ -1194,6 +1244,11 @@ int hal_del_funct_from_thread(char *funct_name, char *thread_name)
     hal_funct_t *funct;
     hal_funct_entry_t *funct_entry;
 
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: del_funct called before init\n");
+	return HAL_INVAL;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: removing function '%s' from thread '%s'\n",
 	funct_name, thread_name);
@@ -1269,6 +1324,11 @@ int hal_del_funct_from_thread(char *funct_name, char *thread_name)
 int hal_start_threads(void)
 {
     /* a trivial function for a change! */
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: start_threads called before init\n");
+	return HAL_INVAL;
+    }
     hal_data->threads_running = 1;
     return HAL_SUCCESS;
 }
@@ -1276,6 +1336,11 @@ int hal_start_threads(void)
 int hal_stop_threads(void)
 {
     /* wow, two in a row! */
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: stop_threads called before init\n");
+	return HAL_INVAL;
+    }
     hal_data->threads_running = 0;
     return HAL_SUCCESS;
 }
