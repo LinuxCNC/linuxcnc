@@ -175,7 +175,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     if (test -d $TEMP) ; then
 	RTDIR=$(cd $RTDIR ; pwd -P )
     else
-	RTDIR=$(RTS%%/bin/realtime-config)
+	RTDIR=${RTS%%/bin/realtime-config}
     fi
     RTFLAGS=`$RTS --cflags-fp | head -n 1`
     RTFLAGS="$RTFLAGS -DRTAI=1"
@@ -234,7 +234,7 @@ AC_SUBST(AUTODIRS)
 # $RTS --cc should return the C compiler used - Verify this is acceptable.
 # if version is gcc-2.96 check for alternative
 AC_MSG_CHECKING(for cc version)
-AC_PROG_CC(gcc) # The compiler MUST match the one used to compile the realtime modules.
+AC_PROG_CC(`$RTS --cc`) # The compiler MUST match the one used to compile the realtime modules.
 if test -z "$CC"; then
   AC_PROG_CC(egcs)
   test -z "$CC" && AC_MSG_ERROR([no acceptable cc found])
@@ -330,7 +330,7 @@ AC_MSG_CHECKING([for kernel math support])
 USE_LIBM=""
 USE_RTLIBM=""
 USE_STUBS=""
-MATHLIB=0
+MATHLIB=""
 MATHINC=""
 
 #we need to make sure that $RTS has a --module-dir option
@@ -341,7 +341,7 @@ if (test ${RTS##*/} = rtai-config ) ; then
     fi
 fi
 
-if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM = 1) || (test -r /lib/modules/`uname -r`/rtai/rtai_libm.o) ; then
+if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM) || (test -r /lib/modules/`uname -r`/rtai/rtai_libm.o) ; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
@@ -351,7 +351,6 @@ if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM = 1) || (test -r /l
 else
     AC_MSG_RESULT([no])
     AC_MSG_CHECKING([for a suitable libm])
-    MATHLIB=""
     rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
     # compile a sample first.
     $CC -O -c src/tests/mathtest.c -o src/tests/mathtest.o 2>/dev/null

@@ -1523,7 +1523,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     if (test -d $TEMP) ; then
 	RTDIR=$(cd $RTDIR ; pwd -P )
     else
-	RTDIR=$(RTS%%/bin/realtime-config)
+	RTDIR=${RTS%%/bin/realtime-config}
     fi
     RTFLAGS=`$RTS --cflags-fp | head -n 1`
     RTFLAGS="$RTFLAGS -DRTAI=1"
@@ -1589,7 +1589,7 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test -n "$ac_tool_prefix"; then
-  for ac_prog in gcc
+  for ac_prog in `$RTS --cc`
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
@@ -1631,7 +1631,7 @@ fi
 fi
 if test -z "$CC"; then
   ac_ct_CC=$CC
-  for ac_prog in gcc
+  for ac_prog in `$RTS --cc`
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -3401,7 +3401,7 @@ echo $ECHO_N "checking for kernel math support... $ECHO_C" >&6
 USE_LIBM=""
 USE_RTLIBM=""
 USE_STUBS=""
-MATHLIB=0
+MATHLIB=""
 MATHINC=""
 
 #we need to make sure that $RTS has a --module-dir option
@@ -3412,7 +3412,7 @@ if (test ${RTS##*/} = rtai-config ) ; then
     fi
 fi
 
-if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM = 1) || (test -r /lib/modules/`uname -r`/rtai/rtai_libm.o) ; then
+if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM) || (test -r /lib/modules/`uname -r`/rtai/rtai_libm.o) ; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
@@ -3425,7 +3425,6 @@ else
 echo "${ECHO_T}no" >&6
     echo "$as_me:$LINENO: checking for a suitable libm" >&5
 echo $ECHO_N "checking for a suitable libm... $ECHO_C" >&6
-    MATHLIB=""
     rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
     # compile a sample first.
     $CC -O -c src/tests/mathtest.c -o src/tests/mathtest.o 2>/dev/null
