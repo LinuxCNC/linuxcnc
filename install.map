@@ -89,18 +89,44 @@ Committed for discussion purposes only.
    |
    |--- etc/
    |      |
-   |      |--- rtapi.conf (contains paths for running installed scripts)
-   |      |         (defines $BIN_DIR, $MAN_DIR, $PREFIX, $RTMOD_DIR)
-   |      |
    |      |--- rc.d/
-   |      |      |
-   |      |      |--- init.d/
-   |      |      |      |
-   |      |      |      |--- realtime (realtime start/stop script)
+   |             |
+   |             |--- init.d/
+   |                    |
+   |                    |--- realtime (realtime start/stop script)
    |
-   |--- $BIN_DIR/  (default: /usr/local/bin)
+   |
+   |--- $(prefix)  (default: /usr/local)
+   |      |          (all the following $xxxxdir are configurable through autoconf   
    |      |
-   |      |--- (symlinks to $PREFIX/bin files that must be in $PATH)
+   |      |--- bin/  (known as $bindir, files from EMC2/bin)
+   |      |
+   |      |--- sbin/ (known as $sbindir, )
+   |      |
+   |      |--- etc/  (known as $sysconfdir, config files from configs/)
+   |      |      |
+   |      |      |--- emc.ini
+   |      |      |--- core-stepper.hal
+   |      |      |--- and more
+   |      |
+   |      |--- lib/  (known as $libdir, lib files *.so from libs/)
+   |      |
+   |      |--- share/
+   |             |
+   |             |--- emc/
+   |                    |
+   |                    |
+   |                    |--- docs/
+   |                    |      |
+   |                    |      |---  (All the important and relevant Docs.)
+   |                    |
+   |                    |--- handbooks/
+   |                    |      |
+   |                    |      |--- (PDF versions of handbooks)
+   |                    |
+   |                    |--- nc_files/
+   |                           |
+   |                           |--- (Sample NC files)
    |
    |--- $MAN_DIR/  (default: /usr/local/man)
    |      |
@@ -109,45 +135,10 @@ Committed for discussion purposes only.
    |      |      |
    |      |
    |      |--- man3/
-   |      |      |
-   |      |      |
-   |      |
-   |
-   |--- $PREFIX/  (default: /usr/local/emc)
-   |      |
-   |      |
-   |      |--- docs/
-   |      |      |
-   |      |      |---  (All the important and relevant Docs.)
-   |      |      |
-   |      |      |--- handbooks/
-   |      |      |      |
-   |      |      |      |--- (PDF versions of handbooks)
-   |      |
-   |      |--- nc_files/
-   |      |      |
-   |      |      |--- (Sample NC files)
-   |      |
-   |      |--- etc/  (emc configuration files)
-   |      |      |
-   |      |      |--- emc.ini
-   |      |      |--- core-stepper.hal
-   |      |      |--- and more
-   |      |
-   |      |--- lib/  (emc user space libraries?)
-   |      |      |
-   |      |      |
-   |      |
-   |      |--- bin/  (binaries and scripts)
-   |      |      |
-   |      |      |
-   |      |
-   |      |--- tcl/  (tcl/tk scripts)
-   |      |      |
-   |      |      |
-   |      |
-   |
-   |--- $RTMOD_DIR/  (default: /lib/modules/${KVER}/hal)
+   |             |
+   |             |
+   |       
+   |--- $moduledir/  (default: /lib/modules/${KVER}/hal)
                      (actually based on where ./configure finds
                       the RTOS modules)
 

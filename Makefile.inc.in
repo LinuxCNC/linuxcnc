@@ -16,10 +16,9 @@ RTTMP_DIR = @EMC2_HOME@/src/.rt_tmp
 RTDIR     = @RTDIR@
 
 # Standard configure directories
-
+# mixed with emc2 specific dirs
+# these are all stuck here, in order to be changed easily
 prefix = @prefix@
-
-
 exec_prefix = @exec_prefix@
 
 bindir = @bindir@
@@ -32,7 +31,14 @@ localstatedir = @localstatedir@
 libdir = @libdir@
 infodir = @infodir@
 mandir = @mandir@
+
+#still needs discussion
+initd_dir = /etc/init.d
 moduledir = @MODULE_DIR@
+docsdir = ${prefix}/share/emc/docs
+ncfilesdir = ${prefix}/share/emc/ncfiles
+tcldir = ${prefix}/share/emc/tcl
+
 kernelvers = @KERNEL_VERS@
 
 # i18n variables:

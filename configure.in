@@ -662,8 +662,6 @@ if test "$USE_NLS" = "yes"; then
 fi
 
 
-
-
 #AC_PROG_INTLTOOL(0.25)
 #AM_GNU_GETTEXT([external])
 #ALL_LINGUAS="en"
@@ -671,5 +669,5 @@ fi
 #AM_GLIB_GNU_GETTEXT
 
 
-AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
+AC_CONFIG_FILES([src/config.h scripts/test.run scripts/emc.run])
 AC_OUTPUT(Makefile.inc)

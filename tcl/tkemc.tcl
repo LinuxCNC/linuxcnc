@@ -1,9 +1,18 @@
 #!/bin/sh
+# we need to find the tcl dir, it was exported from emc.run or test.run \
+export EMC2_TCL_DIR
 # the next line restarts using emcsh \
-exec bin/emcsh "$0" "$@"
+exec $EMC2_EMCSH "$0" "$@"
 
-set TCLBIN tcl/bin/
-set TCLSCRIPTS tcl/scripts/
+set TCLBIN tcl/bin
+set TCLSCRIPTS tcl/scripts
+
+if {[info exists env(EMC2_TCL_DIR)]} {
+    set TCLBIN $env(EMC2_TCL_DIR)
+    set TCLSCRIPTS $env(EMC2_TCL_DIR)
+    set TCLBIN $TCLBIN/bin
+    set TCLSCRIPTS $TCLSCRIPTS/scripts
+}
 
 # Tk GUI for the Enhanced Machine Controller
 
@@ -724,7 +733,7 @@ $unitsmenu add command -label "cm" -command {emc_linear_unit_conversion cm} -und
 # Add a scripts menu that looks for *.tcl files in tcl/scripts subdirectory
 set scriptsmenu [menu $menubar.scripts -tearoff 1]
 $menubar add cascade -label "Scripts" -menu $scriptsmenu -underline 1
-set scriptdir tcl/scripts
+set scriptdir $TCLSCRIPTS
 
 if { $windows == 0 } {
     set files [exec /bin/ls $scriptdir]

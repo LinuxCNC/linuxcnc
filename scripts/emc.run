@@ -1,42 +1,37 @@
 #!/bin/bash
-# usage: emc.run [options] [<ini-file>]
+#
+# scripts/emc.run.  Generated from emc.run.in by configure. 
+# on Sun Nov 21 03:10:39 EET 2004
+#
+# usage: test.run [options] [<ini-file>]
 #
 # options:
 #     -v = verbose - prints info as it works
 #     -d = echos script commands to screen for debugging
 #
+# this file (test.run) is intended for run-in-place
+# another file (emc.run) is used when the system is installed
+#
 # if <ini-file> not specified, uses EMC2_DIR/configs/emc.ini
 # if path specified, looks there, else looks in $EMC2_DIR/configs
-
-# Source any config file we can find
-
-if [ -f ./emc.conf ] ; then
-   source ./emc.conf ;
-elif [ -f "$EMC2CONFIGDIR/emc.conf" ] ; then
-   source $EMC2CONFIGDIR/emc.conf ;
-elif [ -f /etc/emc.conf ] ; then
-   source /etc/emc.conf ;
-else
-    echo "Can't find emc.conf configuration file"
-    exit -1
-fi
-
-if [ -f ./hal.conf ] ; then
-   source ./hal.conf ;
-elif [ -f "$HALCONFIGDIR/hal.conf" ] ; then
-   source $HALCONFIGDIR/hal.conf ;
-elif [ -f /etc/hal.conf ] ; then
-   source /etc/hal.conf ;
-else
-    echo "Can't find hal.conf configuration file"
-    exit -1
-fi
-
-#echo "INIVAR is $INIVAR"
-#echo "EMC2_BIN_DIR is $EMC2_BIN_DIR"
+# 
 
 DEBUG_FILE=/dev/null
 PRINT_FILE=/dev/null
+
+# some basic programs
+# configure replaces this values
+INSMOD=/sbin/insmod
+RMMOD=/sbin/rmmod
+LSMOD=/sbin/lsmod
+PIDOF=/sbin/pidof
+GREP=/bin/grep
+SED=/bin/sed
+PS=/bin/ps
+WHOAMI=/usr/bin/whoami
+AWK=/bin/awk
+IPCS=/usr/bin/ipcs
+KILL=/bin/kill
 
 # strip and process command line options
 #
@@ -59,14 +54,61 @@ while echo $1 | $GREP ^- >$DEBUG_FILE ; do
     fi
 done
 
+# Directories
+# these values 
+# get replaced by configure
+###########################
+prefix=/usr/local
+exec_prefix=${prefix}
+
+bindir=${exec_prefix}/bin
+sbindir=${exec_prefix}/sbin
+libexecdir=${exec_prefix}/libexec
+datadir=${prefix}/share
+sysconfdir=${prefix}/etc
+sharedstatedir=${prefix}/com
+localstatedir=${prefix}/var
+libdir=${exec_prefix}/lib
+infodir=${prefix}/info
+mandir=${prefix}/man
+
+#still needs discussion
+initd_dir=/etc/init.d
+moduledir=/lib/modules/2.4.21-adeos/rtai
+docsdir=${prefix}/share/emc/docs
+ncfilesdir=${prefix}/share/emc/ncfiles
+tcldir=${prefix}/share/emc/tcl
+
+EMC2_BIN_DIR=$bindir
+EMC2_TCL_DIR=$tcldir
+EMC2_RTLIB_DIR=$moduledir
+EMC2_CONFIG_DIR=$sysconfdir
+
+INIFILE=
+
+INIVAR=$EMC2_BIN_DIR/inivar
+HALCMD=$EMC2_BIN_DIR/halcmd
+REALTIME=/etc/init.d/realtime
+
+# extract info from the ini file that we will need later
+# get name of RS274NGC parameter file
+
+LOCKFILE=emc.lock
+KILL_TIMEOUT=10
+# when run-in-place we find the hal modules in rtlib
+HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
+
+# emc2 default bins
+
+INIVAR=$EMC2_BIN_DIR/inivar
+HALCMD=$EMC2_BIN_DIR/halcmd
+
 # check for root privliges - hope to remove the need for this later
 if [ `$WHOAMI` != root ] ; then
     echo "Sorry, you must be root to run EMC"
     exit -1
 fi
 
-
-echo EMC2_DIR=$EMC2_DIR >$PRINT_FILE
 echo EMC2_BIN_DIR=$EMC2_BIN_DIR >$PRINT_FILE
 echo EMC2_TCL_DIR=$EMC2_TCL_DIR >$PRINT_FILE
 echo EMC2_SCRIPT_DIR=$EMC2_SCRIPT_DIR >$PRINT_FILE
@@ -156,11 +198,8 @@ NMLFILE=`$INIVAR -ini $INIFILE -var NML_FILE -sec EMC`
 if [ ! -n "$NMLFILE" ] ; then
     echo "Can't find variable NML_FILE in section [EMC] of file $INIFILE.";
 fi
+NMLFILE=$EMC2_CONFIG_DIR/$NMLFILE
 echo NMLFILE=$NMLFILE >$PRINT_FILE
-
-# DON'T KNOW WHAT THIS IS FOR
-#
-# ipckeys=`grep SHMEM $NMLFILE | gawk '{printf("%x ",$10);}'`
 
 # Done gathering information, define a few functions
 # Execution resumes after function definitions...
@@ -385,6 +424,11 @@ echo Starting emc...
 # trap ^C so that it's called if user interrupts script
 trap 'Cleanup ; exit 0' SIGINT
 
+# go to the dir where the config files are
+# either configs/ when run-in-place
+# or /etc/emc2
+cd $EMC2_CONFIG_DIR
+
 # Create the lock file
 touch $LOCKFILE
 
@@ -509,7 +553,7 @@ fi
 $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 
 # Run emctask in background
-echo "Starting EMC TASK program: $EMCTASK" >$PRINT_FILE
+echo "Starting EMC TASK program: $EMCTASK in $EMC2_CONFIG_DIR" >$PRINT_FILE
 if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
     echo "Can't execute TASK program $EMC2_BIN_DIR/$EMCTASK"
     Cleanup
@@ -557,6 +601,8 @@ case $EMCDISPLAY in
 	Cleanup
 	exit 1
     fi
+    export EMC2_TCL_DIR=$EMC2_TCL_DIR
+    export EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
     $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE
   ;;
   dummy)
