@@ -3331,6 +3331,11 @@ static int convert_cycle_g83( /* ARGUMENTS                        */
   double current_depth;
   double rapid_delta;
 
+  /* Moved the check for negative Q values here as a sign
+     may be used with user defined M functions
+     Thanks to Billy Singleton for pointing it out... */
+  CHK((delta <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
+
   rapid_delta SET_TO G83_RAPID_DELTA;
   if (_setup.length_units IS CANON_UNITS_MM)
     rapid_delta SET_TO (rapid_delta * 25.4);
