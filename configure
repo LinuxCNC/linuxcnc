@@ -121,36 +121,41 @@ fi
 # check for RTDIR from command line
 #
 # Test for RTAI-3.0
-RTAI_DIR=$($RTDIR/rtai-config --prefix 2> /dev/null)
-if [ "$RTAI_DIR" = "" ] ; then
-    RTAI_DIR=$($RTDIR/bin/rtai-config --prefix 2> /dev/null)
-    if [ "$RTAI_DIR" = "" ] ; then
-	# See if it is in the path...
-	RTAI_DIR=$(rtai-config --prefix 2> /dev/null)
-	if [ "$RTAI_DIR" = "" ] ; then
-	    # try the default...
-	    RTAI_DIR=$(/usr/realtime/bin/rtai-config --prefix 2> /dev/null)
-	fi
-    fi
+if [ `$RTDIR/rtai-config --version 2>/dev/null` ] ; then
+    RTAI_EXEC=$RTDIR/
+elif [ `$RTDIR/bin/rtai-config --version 2>/dev/null` ] ; then
+    RTAI_EXEC=$RTDIR/bin/
+elif [ `rtai-config --version 2>/dev/null` ] ; then
+    RTAI_EXEC=
 fi
+
+RTAI_DIR=$("$RTAI_EXEC"rtai-config --prefix 2>/dev/null)
+#if [ "$RTAI_DIR" = "" ] ; then
+#    RTAI_DIR=$($RTDIR/bin/rtai-config --prefix 2>/dev/null)
+#    if [ "$RTAI_DIR" = "" ] ; then
+#	# See if it is in the path...
+#	RTAI_DIR=$(rtai-config --prefix 2>/dev/null)
+#	if [ "$RTAI_DIR" = "" ] ; then
+#	    # try the default...
+#	    RTAI_DIR=$(/usr/realtime/bin/rtai-config --prefix 2>/dev/null)
+#	fi
+#    fi
+#fi
+
 if [ "$RTAI_DIR" != "" ] ; then
     if [ "$RTDIR" = "" ] ; then
-	echo "RTDIR set to $RTAI_DIR (Kilauea) by search"
-	RTAI_VER=3
+	echo "RTDIR set to $RTAI_DIR by search"
     fi
     RTDIR=$RTAI_DIR
-    if [ -f $RTDIR/bin/rtai-config ] ; then
-	RTAI_VER=3
-    fi
 fi
 
 if [ "$RTDIR" = "" ] ; then
 # None specified, so search for likely files..
     # Check for RTLinux installed in it's default dir /usr/rtlinux
-    RTS=$(find /usr/rtlinux* -maxdepth 1 -name "rtl.mk" 2> /dev/null | head -n1)
+    RTS=$(find /usr/rtlinux* -maxdepth 1 -name "rtl.mk" 2>/dev/null | head -n1)
     if [ "$RTS" = "" ] ; then
         # Else check the /usr/src dir..
-        RTS=$(find /usr/src/ -maxdepth 2 -name "rtl.mk" -o -name ".buildvars" 2> /dev/null)
+        RTS=$(find /usr/src/ -maxdepth 2 -name "rtl.mk" -o -name ".buildvars" 2>/dev/null)
         if [ "$RTS" = "" ] ; then
 	    usage
 	    exit 1
@@ -169,7 +174,6 @@ if [ "$RTDIR" = "" ] ; then
 	    RTAI=$(echo $rtai | grep buildvars | sed s^/.buildvars^^g)
 	    if [ "$RTAI" != "" ] ; then
 	        RTDIR=$RTAI
-                RTAI_VER=1
 	    fi
 	done
     fi
@@ -181,7 +185,7 @@ fi
 # check RTDIR for a valid RTOS signature
 #
 if [ ! -f $RTDIR/rtl.mk ] && \
-    [ ! -f $RTDIR/bin/rtai-config ] && \
+    [ ! -f $RTAI_DIR/include/rtai.h ] && \
     [ ! -f $RTDIR/.buildvars ] ; then
 	# no rtai or rtlinux signatures found, then exit..
     echo "No RTAI or RTLinux signatures found in $RTDIR"
@@ -217,11 +221,11 @@ source "$TCLCONFIG"
 source "$TKCONFIG"
 #  echo "Reading from tclConfig.sh $(cat $TCLCONFIG | grep TCL_VERSION)"
   echo "Found tcl$TCL_VERSION"
-  TCL_INC="-I$(find /usr/include/ -maxdepth 2 -name "tcl.h" 2> /dev/null | grep tcl.h | head -n1 | sed s^/tcl.h^^g)"
+  TCL_INC="-I$(find /usr/include/ -maxdepth 2 -name "tcl.h" 2>/dev/null | grep tcl.h | head -n1 | sed s^/tcl.h^^g)"
   if [ "$TCL_INC" = "-I/usr/include" ] || [ "$TCL_INC" = "-I" ] ; then
     TCL_INC=""  # No point in including the standard path..
   fi
-  TK_INC="-I$(find /usr/include/ -maxdepth 2 -name "tk.h" 2> /dev/null | grep tk.h | head -n1 | sed s^/tk.h^^g)"
+  TK_INC="-I$(find /usr/include/ -maxdepth 2 -name "tk.h" 2>/dev/null | grep tk.h | head -n1 | sed s^/tk.h^^g)"
   if [ "$TK_INC" = "-I/usr/include" ] || [ "$TK_INC" = "-I" ] ; then
     TK_INC=""
   fi
@@ -241,7 +245,7 @@ fi
 # Note: Need to add a CLI option to pass the diet dir if it has been built
 # from source, or the distro doesn't install in /usr/lib.
 #
-if [ -r $RTDIR/modules/rtai_libm.o ] || [ -r $RTDIR/modules/rtai_math.o ]; then
+if [ -r $RTDIR/modules/rtai_libm.o ] || [ -r $("$RTAI_EXEC"rtai-config --module-dir)/rtai_math.o ] ; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
@@ -253,12 +257,12 @@ else
     # work. For RTLinux, a couple of tests need to be done.
     rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
     # compile a sample first.
-    gcc -O -c src/tests/mathtest.c -o src/tests/mathtest.o
+    gcc -O -c src/tests/mathtest.c -o src/tests/mathtest.o 2>/dev/null
 
     DIET_DIR=$(find /usr/lib -maxdepth 2 -name diet* | head -n1)
     if [ "$DIET_DIR" != "" ] ; then
         # Run a test to see if it will work...
-        ld -r -static src/tests/mathtest.o -o src/tests/mathtest -L$DIET_DIR/lib-i386 -lm
+        ld -r -static src/tests/mathtest.o -o src/tests/mathtest -L$DIET_DIR/lib-i386 -lm 2>/dev/null
         if [ "$(nm -u src/tests/mathtest | grep -v ende)" = "" ] ; then
             echo "diet lib OK to use."
             USE_DIET=1
@@ -269,7 +273,7 @@ else
     if [ "$USE_DIET" = "" ] ; then
         # Test the standard libm
     rm -f src/tests/mathtest 2>/dev/null
-    ld -r -static src/tests/mathtest.o -o src/tests/mathtest -L/usr/lib -lm
+    ld -r -static src/tests/mathtest.o -o src/tests/mathtest -L/usr/lib -lm 2>/dev/null
         if ! nm -u src/tests/mathtest ; then
             echo "libm OK to use."
             USE_LIBM=1
@@ -316,21 +320,21 @@ if [ -f $RTDIR/.buildvars ] ; then
     echo found an RTAI installation in $RTDIR
     echo "RTNAME = rtai" >> Makefile.inc
     echo "RTPREFIX = rtai" >> Makefile.inc
-    echo "RTAI = $RTAI_VER" >> Makefile.inc
+    echo "RTAI = 1" >> Makefile.inc
 # Added a "sed s/' = '/'='/" here (and elsewhere) because the awk split
 # fails when it finds "FOO = bar" - So we need to make sure it finds
 # "FOO=bar" instead.
-    KERNEL=$(cat $RTFILE | grep LINUXDIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null #'
+    KERNEL=$(cat $RTFILE | grep LINUXDIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2>/dev/null #'
     KERNELDIR=$(cd $KERNEL ; pwd -P )
 
-elif [ -f $RTDIR/bin/rtai-config ] ; then
+elif [ -f $RTDIR/include/rtai.h ] ; then
     echo found an RTAI installation in $RTDIR
     echo "RTNAME = rtai-3.0" >> Makefile.inc
     echo "RTPREFIX = rtai" >> Makefile.inc
-    echo "RTAI = $RTAI_VER" >> Makefile.inc
-    KERNELDIR=$($RTDIR/bin/rtai-config --linux-dir)
-    echo "RTFLAGS = `$RTDIR/bin/rtai-config --module-cflags` -DRTAI=$RTAI_VER" >> Makefile.inc
-    CC=$($RTDIR/bin/rtai-config --cc)
+    echo "RTAI = 3" >> Makefile.inc
+    KERNELDIR=$("$RTAI_EXEC"rtai-config --linux-dir)
+    echo "RTFLAGS = $("$RTAI_EXEC"rtai-config --module-cflags) -DRTAI=3" >> Makefile.inc
+    CC=$("$RTAI_EXEC"rtai-config --cc)
     MATHLIB=""
 
 elif [ -f $RTDIR/rtl.mk ] ; then
@@ -340,7 +344,7 @@ elif [ -f $RTDIR/rtl.mk ] ; then
     echo "RTPREFIX = rtl" >> Makefile.inc
     echo "RTLINUX = 1" >> Makefile.inc
 # There is probably a better way of doing this without using sed !
-    KERNEL=$(cat $RTFILE | grep RTLINUX_DIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null #'
+    KERNEL=$(cat $RTFILE | grep RTLINUX_DIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2>/dev/null #'
     KERNELDIR=$(cd $KERNEL ; pwd -P )
 fi
 
@@ -353,7 +357,7 @@ fi
 echo "RTFLAGS := $MATHINC -I\$(INC_DIR) -I$RTDIR/include -I. \$(RTFLAGS) -DRTAPI" >> Makefile.inc
 
 if [ "$RTFILE" != "" ] ; then
-    CC=$(cat $RTFILE | grep CC | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null #'
+    CC=$(cat $RTFILE | grep CC | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2>/dev/null #'
 fi
 
 # Set the MATHLIB link options.
@@ -379,7 +383,7 @@ fi
 if [ `$CC -dumpversion | cut -d. -f2` = 96 ] ; then
     echo "RTAI doesn't like $CCVER"
     echo "Looking for alternate"
-    if [ `egcs -dumpversion 2> /dev/null` ] ; then
+    if [ `egcs -dumpversion 2>/dev/null` ] ; then
         echo "Found "`egcs -dumpversion`
         CC=egcs
     else
