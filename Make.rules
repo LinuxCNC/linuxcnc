@@ -1,0 +1,58 @@
+# Pattern Rules
+# -------------
+
+# Public Header Files
+$(INC_DIR)/%.h: %.h
+	- \install -p -m0664 $< $(INC_DIR)
+headers:
+	- \install -p -m0664 $(HEADERS) $(INC_DIR)
+
+#Non-Realtime C Dependency Files
+%.d: %.c
+	$(CC) -MM $(CFLAGS) $(ULFLAGS) $< > $@
+	cat $@ | sed s/\\.o:/.d:/ >> $@
+
+# Realtime C Dependency Files
+%.rt.d: %.c
+	$(CC) -MM $(RTFLAGS) $< | sed s/\\.o:/.rt.o:/ > $@
+	cat $@ | sed s/\\.rt.o:/.rt.d:/ >> $@
+
+# Non-Realtime C Object Files (Compile)
+%.o : %.c $(HEADERS)
+	$(CC) -c $(CFLAGS) $(ULFLAGS) $< -o $@
+
+# Realtime C Object Files (Compile)
+rt_%.o : %.c $(HEADERS)
+	$(CC) -c $(RTFLAGS) $< -o $@
+
+# depend commands - I know it looks _really_ ugly, but it does strip away
+#                   most of the system headers.
+# Derived from the original rcslib Make system.
+depend:
+	\rm -f .depend.rt .depend
+	touch .depend.rt .depend
+	(if [ ! -z "$(RT_SRCS)" ] ; then ($(CC) -MM $(RTFLAGS) -I$(INC_DIR) \
+	$(RT_SRCS) >.depend.rt) 2>.depend_errors; exit 0; fi)
+	(if [ ! -s .depend_errors ] ; then \rm -f .depend_errors; fi;)
+	cat .depend.rt | \
+	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
+	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed 's/^[ \t]*//;s/[ \t]*/$//' \
+	> .depend.stripped
+	cat .depend.stripped | \
+	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\rt_\&# > .depend.rt
+	rm -f .depend.stripped
+	(if [ ! -z "$(SRCS)" ] ; then ($(CC) -MM $(ULFLAGS) -I$(INC_DIR) \
+	$(CPPFLAGS) $(SRCS) >.depend) 2>.depend_errors; exit 0; fi)
+	cat .depend | \
+	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
+	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed 's/^[ \t]*//;s/[ \t]*/$//'> .depend.stripped
+	mv -f .depend.stripped .depend
+

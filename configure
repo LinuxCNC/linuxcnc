@@ -48,7 +48,7 @@ if [ "$1" = "" ] ; then
 #' A quick'n'dirty hack just in case we were passed a relative path.
 # As noted by Jonathan Stark, makes will fail further up the tree
 # when a -I../foo is encountered.
-	RTDIR=$(cd $RTDIR ; pwd)
+	RTDIR=$(cd $RTDIR ; pwd -P )
 	echo $RTDIR
     fi
 fi
@@ -76,38 +76,10 @@ echo "BIN_DIR = \$(EMC2_HOME)/bin" >> Makefile.inc
 echo "LIB_DIR = \$(EMC2_HOME)/lib" >> Makefile.inc
 echo "RTLIB_DIR = \$(EMC2_HOME)/rtlib" >> Makefile.inc
 echo "INC_DIR = \$(EMC2_HOME)/include" >> Makefile.inc
-
+echo "RTDIR = $RTDIR" >> Makefile.inc
 echo >> Makefile.inc
-echo "# Pattern Rules" >> Makefile.inc
-echo "# -------------" >> Makefile.inc
-echo >> Makefile.inc
-
-echo "# Public Header Files" >> Makefile.inc
-echo "\$(INC_DIR)/%.h: %.h" >> Makefile.inc
-echo "	- \install -p -m0664 $< \$(INC_DIR)" >> Makefile.inc
-echo >> Makefile.inc
-
-echo "# Non-Realtime C Dependency Files" >> Makefile.inc
-echo "%.d: %.c" >> Makefile.inc
-echo "	\$(CC) -M \$(CFLAGS) \$(ULFLAGS) $< > \$@" >> Makefile.inc
-echo "	cat \$@ | sed s/\\\.o:/.d:/ >> \$@" >> Makefile.inc
-echo >> Makefile.inc
-
-echo "# Realtime C Dependency Files" >> Makefile.inc
-echo "%.rt.d: %.c" >> Makefile.inc
-echo "	\$(CC) -M \$(RTFLAGS) $< | sed s/\\\.o:/.rt.o:/ > \$@" >> Makefile.inc
-echo "	cat \$@ | sed s/\\\.rt\\\.o:/.rt.d:/ >> \$@" >> Makefile.inc
-echo >> Makefile.inc
-
-echo "# Non-Realtime C Object Files (Compile)" >> Makefile.inc
-echo "%.o : %.c" >> Makefile.inc
-echo "	\$(CC) -c \$(CFLAGS) \$(ULFLAGS) $< -o \$@" >> Makefile.inc
-echo >> Makefile.inc
-
-echo "# Realtime C Object Files (Compile)" >> Makefile.inc
-echo "%.rt.o : %.c" >> Makefile.inc
-echo "	\$(CC) -c \$(RTFLAGS) $< -o \$@" >> Makefile.inc
-echo >> Makefile.inc
+echo "# Default rules in Make.rules to be included in all makefiles" >> Makefile.inc
+echo "include \$(EMC2_HOME)/Make.rules" >> Makefile.inc
 
 echo >> Makefile.inc
 echo >> Makefile.inc
@@ -117,6 +89,9 @@ if [ -f $RTDIR/.buildvars ] ; then
     echo "RTNAME=rtai" >> Makefile.inc
     echo "RTPREFIX=rtai" >> Makefile.inc
     echo "RTAI = 1" >> Makefile.inc
+    KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
+#'
+    KERNELDIR=$(cd $KERNEL ; pwd -P )
 else
     if [ -f $RTDIR/rtl.mk ] ; then
         RTFILE=$RTDIR/rtl.mk
@@ -124,9 +99,12 @@ else
         echo "RTNAME=RTLinux" >> Makefile.inc
         echo "RTPREFIX=rtl" >> Makefile.inc
         echo "RTLINUX = 1" >> Makefile.inc
+    KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
+#'
+    KERNELDIR=$(cd $KERNEL ; pwd -P )
     fi
 fi
-
+echo "KERNELDIR = $KERNELDIR" >> Makefile.inc
 cat $RTFILE | grep CFLAGS | sed s/CFLAGS/RTFLAGS/ >> Makefile.inc
 echo "RTFLAGS := -I\$(INC_DIR) -I$RTDIR/include -I. \$(RTFLAGS) -DRTAPI" >> Makefile.inc
 CC=$(cat $RTFILE | grep CC | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null
@@ -170,6 +148,7 @@ echo >> Makefile.inc
 echo "# Additional flags and settings from $RTFILE" >> Makefile.inc
 echo >> Makefile.inc
 cat $RTFILE | grep -v CFLAGS | grep -v CC >> Makefile.inc
+echo >> Makefile.inc
 
 if [ "$1" = "" ] ; then
     echo
