@@ -7,7 +7,7 @@
 
 all: headers
 
-all headers clean depend indent install:
+all headers kclean clean depend indent install:
 	(cd rs274ngc; make $@)
 	(cd nml_intf; make $@)
 	(cd drivers; make $@)
@@ -17,4 +17,4 @@ all headers clean depend indent install:
 	(cd iotask; make $@)
 	(cd task; make $@)
 
-.PHONY: all clean depend headers indent install
+.PHONY: all clean depend headers indent install kclean

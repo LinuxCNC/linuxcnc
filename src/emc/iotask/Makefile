@@ -60,8 +60,7 @@ depend: def_depend
 
 clean: def_clean
 
-.PHONY: all clean install indent depend headers
-
+.PHONY: all clean depend headers indent install kclean
 
 # bridgeportio for Bridgeport-class machines uses parallel port digital IO,
 # null stubbed analog IO

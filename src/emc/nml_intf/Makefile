@@ -64,8 +64,7 @@ depend: def_depend
 
 clean: def_clean
 
-.PHONY: all clean install indent depend headers
-
+.PHONY: all clean depend headers indent install kclean
 
 $(TMP_DIR)/libemc.a:	\
 	$(TMP_DIR)/emc.o \

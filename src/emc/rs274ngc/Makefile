@@ -40,10 +40,8 @@ OBJS = driver.o \
 RT_OBJS =
 
 BINS =
-#	rs274 \
-#	rs274_all
 
-#LOCAL_CXXFLAGS= -Wno_unused
+LOCAL_CXXFLAGS= -Wno_unused
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o) \
@@ -71,5 +69,4 @@ depend: def_depend
 
 clean: def_clean
 
-.PHONY: all clean install indent depend headers
-
+.PHONY: all clean depend headers indent install kclean
