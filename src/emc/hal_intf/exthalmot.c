@@ -280,13 +280,11 @@ int extEncoderRead(int encoder, double * counts)
 int extEncoderReadAll(int max, double * counts)
 {
   int n;
-  axis_t *axis_addr;
   if (max > EMCMOT_MAX_AXIS || max < 1) {
     return -1;
   } else {
     for (n = 0; n < max; n++) {
-      axis_addr = &(axis_array[n]);
-      counts[n] = *(axis_addr->position);
+      counts[n] = * axis_array[n].position;
     }
     return 0;
   }
