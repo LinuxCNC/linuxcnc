@@ -8,7 +8,7 @@
 * Author: 
 * Created at: Mon Feb 23 11:41:51 UTC 2004
 * Computer: Babylon
-* System: Linux
+* System: LinuxEMCNMLFILE
 *    
 * Copyright (c) 2004 root  All rights reserved.
 *
@@ -248,6 +248,8 @@ int main(int argc, char * argv[])
   done = 0;
   /* Register the routine that catches the SIGINT signal */
   signal(SIGINT, quit);
+  /* catch SIGTERM too - the run script uses it to shut things down */
+  signal(SIGTERM, quit);
 
   /* set status values to 'normal' */
   emcioStatus.aux.estop = 1;
@@ -504,7 +506,7 @@ int main(int argc, char * argv[])
     
     esleep(EMC_IO_CYCLE_TIME);
   }
-  
+
   if (emcErrorBuffer != 0) {
     delete emcErrorBuffer;
     emcErrorBuffer = 0;
