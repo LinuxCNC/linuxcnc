@@ -148,6 +148,17 @@ AC_SUBST([RTDIR])
 EMC2_HOME=`pwd`
 AC_SUBST([EMC2_HOME])
 
+# Support some of the standard configure options for directories
+AC_PREFIX_DEFAULT(/usr/local)	# Does this become /opt/emc2 ?
+
+if test "x$prefix" = "xNONE"; then
+  prefix=$ac_default_prefix
+  ac_configure_args="$ac_configure_args --prefix $prefix"
+fi
+
+AC_SUBST(AUTODIRS)
+
+
 # Check CC version - (P.C.) We need to verify the compiler is the same one used
 # for the realtime extensions... Hence the need to find the RT signature first.
 # if version is gcc-2.96 check for alternative

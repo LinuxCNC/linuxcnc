@@ -27,31 +27,20 @@ $(LIB_DIR)/hal_lib.o
 # Generic rules
 include ../../Make.rules
 
-all : TARGET_DIRS headers $(LIBS)
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
+SUBDIRS=utils drivers components
 
-
+all: TARGET_DIRS headers $(LIBS)
 headers: def_headers
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
-
 indent: def_indent
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
-
 depend: def_depend
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
+clean: def_clean
 
-clean :  def_clean
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
+all headers indent:
+	@@for subdir in $(SUBDIRS); \
+	do \
+		echo "Making $@ in $$subdir"; \
+		make -C $$subdir $@ ; \
+	done
 
 .PHONY: all headers depend indent install clean
 

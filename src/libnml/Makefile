@@ -6,17 +6,17 @@
 # make rules.
 include ../../Makefile.inc
 
+SUBDIRS=linklist rcs inifile posemath os_intf buffer cms nml
+
 all: headers
 
 all headers clean depend indent install:
-	(cd linklist; make $@)
-	(cd rcs; make $@)
-	(cd inifile; make $@)
-	(cd posemath; make $@)
-	(cd os_intf; make $@)
-	(cd buffer; make $@)
-	(cd cms; make $@)
-	(cd nml; make $@)
+	@@for subdir in $(SUBDIRS); \
+	do \
+		echo "Making $@ in $$subdir"; \
+		make -C $$subdir $@ ; \
+	done
+
 	(make -f Makefile.lib $@)
 
 .PHONY: all clean depend headers indent install

@@ -16,6 +16,26 @@ RTTMP_DIR = @EMC2_HOME@/src/.rt_tmp
 MAN_DIR   = @MANDIR@
 RTDIR     = @RTDIR@
 
+# Standard configure directories
+
+prefix = @prefix@
+
+
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+
+# /Standard configure directories
+
 RTNAME = @RTNAME@
 RTPREFIX = @RTPREFIX@
 RTAI = @RTAI@
