@@ -9,9 +9,7 @@
 #include "mot_priv.h"
 
 /* value for world home position */
-EmcPose worldHome = { {0.0, 0.0, 0.0}
-,
-0.0, 0.0, 0.0
+EmcPose worldHome = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0
 };
 
 int logSkip = 0;		/* how many to skip, for per-cycle logging */
@@ -35,9 +33,8 @@ static int checkLimits(void)
 	    continue;
 	}
 
-	if (GET_AXIS_PSL_FLAG(axis) ||
-	    GET_AXIS_NSL_FLAG(axis) ||
-	    GET_AXIS_PHL_FLAG(axis) || GET_AXIS_NHL_FLAG(axis)) {
+	if (GET_AXIS_PSL_FLAG(axis) || GET_AXIS_NSL_FLAG(axis)
+	    || GET_AXIS_PHL_FLAG(axis) || GET_AXIS_NHL_FLAG(axis)) {
 	    return 0;
 	}
     }

@@ -591,9 +591,6 @@ extern "C" {
   sleep the process for the servo cycle time.
   */
 
-    extern int init_module(void);
-    extern void cleanup_module(void);
-
 /* error ring buffer access functions */
     extern int emcmotErrorInit(EMCMOT_ERROR * errlog);
     extern int emcmotErrorPut(EMCMOT_ERROR * errlog, const char *error);
