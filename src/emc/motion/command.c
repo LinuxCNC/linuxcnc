@@ -28,7 +28,8 @@
 #include "mot_priv.h"
 
 /* value for world home position */
-EmcPose worldHome = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0};
+EmcPose worldHome = { {0.0, 0.0, 0.0}
+, 0.0, 0.0, 0.0 };
 
 int logSkip = 0;		/* how many to skip, for per-cycle logging */
 int loggingAxis = 0;		/* record of which axis to log */
@@ -538,11 +539,7 @@ int emcmotCommandHandler(void)
 		SET_AXIS_ERROR_FLAG(axis, 1);
 		break;
 	    }
-            	/* FIXME-- 
-									   use 
-									   'goal' 
-									   instead 
-									 */
+	    /* FIXME-- use 'goal' instead */
 	    emcmotDebug->freePose.tran.x = emcmotCommand->offset;
 	    if (GET_AXIS_HOMED_FLAG(axis)) {
 		if (emcmotDebug->freePose.tran.x >

@@ -47,7 +47,8 @@ MODULE_DESCRIPTION("Motion Controller for EMC");
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
 int DEBUG_MOTION = 0;
-static int PERIOD = 0;		/* fundamental period for timer interrupts */
+static int PERIOD = 50;		/* fundamental period for timer interrupts in 
+				   microseconds */
 			/* thread period - default = no thread */
 static int PERIOD_NSEC = 0;
 #define DEFAULT_PERIOD 100
