@@ -105,6 +105,8 @@ int emcAxisSetUnits(int axis, double units)
     return 0;
 }
 
+
+#ifndef NEW_STRUCTS
 int emcAxisSetGains(int axis, double p, double i, double d,
     double ff0, double ff1, double ff2,
     double backlash, double bias, double maxError, double deadband)
@@ -203,6 +205,9 @@ int emcAxisSetOutputScale(int axis, double scale, double offset)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+
+#endif /* NEW_STRUCTS */
+
 
 // saved values of limits, since emcmot expects them to be set in
 // pairs and we set them individually.
@@ -362,6 +367,9 @@ int emcAxisSetHomingVel(int axis, double homingVel)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+
+#ifndef NEW_STRUCTS
+
 int emcAxisSetStepParams(int axis, double setup_time, double hold_time)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -375,6 +383,8 @@ int emcAxisSetStepParams(int axis, double setup_time, double hold_time)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+
+#endif
 
 int emcAxisSetMaxVelocity(int axis, double vel)
 {
@@ -415,6 +425,8 @@ int emcAxisSetHomeOffset(int axis, double offset)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+
+#ifndef NEW_STRUCTS
 int emcAxisSetEnablePolarity(int axis, int level)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -500,6 +512,8 @@ int emcAxisSetFaultPolarity(int axis, int level)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+
+#endif /* NEW_STRUCTS */
 
 int emcAxisInit(int axis)
 {
@@ -593,6 +607,8 @@ int emcAxisOverrideLimits(int axis)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+
+#ifndef NEW_STRUCTS
 int emcAxisSetOutput(int axis, double output)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -605,6 +621,7 @@ int emcAxisSetOutput(int axis, double output)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+#endif
 
 int emcAxisEnable(int axis)
 {
@@ -773,6 +790,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	    stat[axis].minFerror = emcmotConfig.minFerror[axis];
 	    stat[axis].maxFerror = emcmotConfig.maxFerror[axis];
 	    stat[axis].homeOffset = emcmotConfig.homeOffset[axis];
+#if 0
 	    stat[axis].enablePolarity = (emcmotConfig.axisPolarity[axis] &
 		EMCMOT_AXIS_ENABLE_BIT) ? 1 : 0;
 	    stat[axis].minLimitSwitchPolarity =
@@ -790,13 +808,14 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	    stat[axis].faultPolarity =
 		(emcmotConfig.
 		axisPolarity[axis] & EMCMOT_AXIS_FAULT_BIT) ? 1 : 0;
+#endif
 	}
 
 	stat[axis].setpoint = emcmotStatus.axisPos[axis];
 
 	if (get_emcmot_debug_info) {
-	    stat[axis].ferrorCurrent = emcmotDebug.ferrorCurrent[axis];
-	    stat[axis].ferrorHighMark = emcmotDebug.ferrorHighMark[axis];
+	    stat[axis].ferrorCurrent = emcmotStatus.ferrorCurrent[axis];
+	    stat[axis].ferrorHighMark = emcmotStatus.ferrorHighMark[axis];
 	}
 
 	stat[axis].output = emcmotStatus.output[axis];
@@ -876,6 +895,8 @@ int emcTrajSetUnits(double linearUnits, double angularUnits)
     return 0;
 }
 
+
+#ifndef NEW_STRUCTS
 int emcTrajSetCycleTime(double cycleTime)
 {
     if (cycleTime <= 0.0) {
@@ -887,6 +908,7 @@ int emcTrajSetCycleTime(double cycleTime)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+#endif
 
 int emcTrajSetMode(int mode)
 {
@@ -1180,6 +1202,7 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+#ifndef NEW_STRUCTS
 int emcTrajSetProbeIndex(int index)
 {
     emcmotCommand.command = EMCMOT_SET_PROBE_INDEX;
@@ -1195,6 +1218,8 @@ int emcTrajSetProbePolarity(int polarity)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+#endif /* NEW_STRUCTS */
+
 
 int emcTrajClearProbeTrippedFlag()
 {
@@ -1392,7 +1417,8 @@ int emcMotionSetDebug(int debug)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
-
+/* FIXME - these are obsolete */
+#if 0
 int emcMotionSetAout(unsigned char index, double start, double end)
 {
     emcmotCommand.command = EMCMOT_SET_AOUT;
@@ -1415,6 +1441,7 @@ int emcMotionSetDout(unsigned char index, unsigned char start,
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+#endif
 
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {

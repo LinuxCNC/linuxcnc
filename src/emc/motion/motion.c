@@ -77,8 +77,8 @@ MODULE_PARM_DESC(traj_period_nsec, "trajectory planner period (nsecs)");
 *                  GLOBAL VARIABLE DEFINITIONS                         *
 ************************************************************************/
 
-/* pointer to array of axis_hal_t structs in HAL shmem, 1 per axis */
-axis_hal_t *axis_hal_array;
+/* pointer to machine_hal_t struct in HAL shmem, with all HAL data */
+machine_hal_t *machine_hal_data;
 
 int mot_comp_id;		/* component ID for motion module */
 
@@ -105,6 +105,7 @@ emcmot_command_t *emcmotCommand;
 emcmot_status_t *emcmotStatus;
 emcmot_config_t *emcmotConfig;
 emcmot_debug_t *emcmotDebug;
+emcmot_internal_t *emcmotInternal;
 emcmot_error_t *emcmotError;	/* unused for RT_FIFO */
 emcmot_log_t *emcmotLog;		/* unused for RT_FIFO */
 emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS];	/* unused for RT_FIFO */
@@ -276,32 +277,85 @@ void cleanup_module(void)
 static int init_hal_io(void)
 {
     int n, retval;
+    axis_hal_t *axis_data;
+    char buf[HAL_NAME_LEN + 2];
 
     rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: init_hal_io() starting...\n");
 
-    /* allocate shared memory for axis data */
-    axis_hal_array = hal_malloc(EMCMOT_MAX_AXIS * sizeof(axis_hal_t));
-    if (axis_hal_array == 0) {
+    /* allocate shared memory for machine data */
+    machine_hal_data = hal_malloc(sizeof(machine_hal_t));
+    if (machine_hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: axis_hal_array malloc failed\n");
+	    "MOTION: machine_hal_data malloc failed\n");
 	return -1;
     }
-    /* export all the variables for each axis */
+
+    /* export machine wide hal pins */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.probe");
+    retval = hal_pin_bit_new(buf, HAL_RD, &(machine_hal_data->probe), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
+    /* export machine wide hal parameters */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-enable");
+    retval = hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->motion_enable), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.in-position");
+    retval = hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->in_position), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.coord-mode");
+    retval = hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->coord_mode), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.teleop-mode");
+    retval = hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->teleop_mode), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.coord-error");
+    retval = hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->coord_error), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
+    /* initialize machine wide pins and parameters */
+    *(machine_hal_data->probe) = 0;
+    /* FIXME - these don't really need initialized, since
+       they are written with data from the emcmotStatus struct */
+    machine_hal_data->motion_enable = 0;
+    machine_hal_data->in_position = 0;
+    machine_hal_data->coord_mode = 0;
+    machine_hal_data->teleop_mode = 0;
+    machine_hal_data->coord_error = 0;
+
+    /* export axis pins and parameters */
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+	/* point to axis data */
+	axis_data = &(machine_hal_data->axis[n]);
 	/* export all vars */
-	retval = export_axis(n, &(axis_hal_array[n]));
+	retval = export_axis(n, axis_data);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"MOTION: axis %d pin/param export failed\n", n);
 	    return -1;
 	}
-	/* init axis outputs */
-	*(axis_hal_array[n].volts) = 0.0;
-	*(axis_hal_array[n].enable) = 0;
+	/* init axis pins and parameters */
+	/* FIXME - struct members are in a state of flux - make sure
+	   to update this - most won't need initing anyway */
+	*(axis_data->amp_enable) = 0;
+	axis_data->home_state = 0;
 	/* We'll init the index model to EXT_ENCODER_INDEX_MODEL_RAW for now,
 	   because it is always supported. */
-	*(axis_hal_array[n].mode) = EXT_ENCODER_INDEX_MODEL_RAW;
-	*(axis_hal_array[n].reset) = 0;
+#if 0
+	*(axis_data->mode) = EXT_ENCODER_INDEX_MODEL_RAW;
+	*(axis_data->reset) = 0;
+#endif
     }
     /* Done! */
     rtapi_print_msg(RTAPI_MSG_INFO,
@@ -323,7 +377,44 @@ static int export_axis(int num, axis_hal_t * addr)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-    /* export axis pins and parameters */
+    /* export axis pins */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(addr->motor_pos_cmd), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-fb", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(addr->motor_pos_fb), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.pos-lim-sw-in", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->pos_lim_sw), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.neg-lim-sw-in", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->neg_lim_sw), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home-sw-in", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->home_sw), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.amp-enable-out", num);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->amp_enable), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.amp-fault-in", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->amp_fault), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
+    /* export axis parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-cmd", num);
     retval = hal_param_float_new(buf, HAL_RD, &(addr->joint_pos_cmd), mot_comp_id);
     if (retval != 0) {
@@ -344,66 +435,85 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->motor_pos_cmd), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-fb", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(addr->motor_pos_fb), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-fb", num);
     retval = hal_param_float_new(buf, HAL_RD, &(addr->joint_pos_fb), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.f-error", num);
+    retval = hal_param_float_new(buf, HAL_RD, &(addr->f_error), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.active", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->active), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.in-position", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->in_position), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.error", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->error), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.pos-soft-limit", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->psl), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.neg-soft-limit", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->nsl), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.pos-hard-limit", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->phl), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.neg-hard-limit", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->nhl), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home-sw-tripped", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->home_sw_flag), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.homing", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->homing), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.homed", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->homed), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.f-errored", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->f_errored), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.faulted", num);
+    retval = hal_param_bit_new(buf, HAL_RD, &(addr->faulted), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home-state", num);
+    retval = hal_param_s8_new(buf, HAL_RD, &(addr->home_state), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
 
-/* OLD PINS */
 
-    /* export pins for the axis I/O */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.volts", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->volts), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(addr->position), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.max", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->max), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.min", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->min), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->home), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.probe", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(addr->probe), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.enable", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->enable), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.fault", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->fault), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+/* FIXME - these have been temporarily? deleted */
+#if 0
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.mode", num);
     retval = hal_pin_u32_new(buf, HAL_WR, &(addr->mode), mot_comp_id);
     if (retval != 0) {
@@ -429,7 +539,8 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    
+#endif
+
     /* restore saved message level */
     rtapi_set_msg_level(msg);
 
@@ -477,15 +588,18 @@ static int init_comm_buffers(void)
     memset(emcmotStruct, 0, sizeof(emcmot_struct_t));
 
     /* we'll reference emcmotStruct directly */
-    emcmotCommand = (emcmot_command_t *) & emcmotStruct->command;
-    emcmotStatus = (emcmot_status_t *) & emcmotStruct->status;
-    emcmotConfig = (emcmot_config_t *) & emcmotStruct->config;
-    emcmotDebug = (emcmot_debug_t *) & emcmotStruct->debug;
-    emcmotError = (emcmot_error_t *) & emcmotStruct->error;
-    emcmotLog = (emcmot_log_t *) & emcmotStruct->log;
+    emcmotCommand = & emcmotStruct->command;
+    emcmotStatus = & emcmotStruct->status;
+    emcmotConfig = & emcmotStruct->config;
+    emcmotDebug = & emcmotStruct->debug;
+    emcmotInternal = & emcmotStruct->internal;
+    emcmotError = & emcmotStruct->error;
+    emcmotLog = & emcmotStruct->log;
 
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = (emcmot_comp_t *) & emcmotStruct->comp[axis];
+/* FIXME - old backlash stuff */
+#if 0
 	emcmotDebug->bcomp[axis] = 0;	/* backlash comp value */
 	emcmotDebug->bcompdir[axis] = 0;	/* 0=none, 1=pos, -1=neg */
 	emcmotDebug->bcompincr[axis] = 0;	/* incremental backlash comp */
@@ -496,6 +610,7 @@ static int init_comm_buffers(void)
 	emcmotDebug->bac_halfD[axis] = 0;
 	emcmotDebug->bac_incrincr[axis] = 0;
 	emcmotDebug->bac_incr[axis] = 0;
+#endif
     }
 
     /* init locals */
@@ -523,8 +638,14 @@ static int init_comm_buffers(void)
     emcmotCommand->tail = 0;
 
     /* init status struct */
-
     emcmotStatus->head = 0;
+    emcmotStatus->commandEcho = 0;
+    emcmotStatus->commandNumEcho = 0;
+    emcmotStatus->commandStatus = 0;
+
+
+    /* init more stuff */
+
     emcmotDebug->head = 0;
     emcmotConfig->head = 0;
 
@@ -533,9 +654,6 @@ static int init_comm_buffers(void)
     SET_MOTION_COORD_FLAG(0);
     SET_MOTION_TELEOP_FLAG(0);
     emcmotDebug->split = 0;
-    emcmotStatus->commandEcho = 0;
-    emcmotStatus->commandNumEcho = 0;
-    emcmotStatus->commandStatus = 0;
     emcmotStatus->heartbeat = 0;
     emcmotStatus->computeTime = 0.0;
     emcmotConfig->numAxes = EMCMOT_MAX_AXIS;
@@ -573,7 +691,24 @@ static int init_comm_buffers(void)
 
     emcmot_config_change();
 
+    /* init per-axis stuff */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+
+	emcmotStatus->joint_pos_cmd[axis] = 0.0;
+	emcmotStatus->joint_pos_fb[axis] = 0.0;
+	emcmotStatus->joint_vel_cmd[axis] = 0.0;
+	emcmotStatus->ferrorCurrent[axis] = 0.0;
+	emcmotStatus->ferrorLimit[axis] = 0.0;
+	emcmotStatus->ferrorHighMark[axis] = 0.0;
+
+	emcmotInternal->old_joint_pos_cmd[axis] = 0.0;
+	emcmotInternal->pos_limit_debounce_cntr[axis] = 0;
+	emcmotInternal->neg_limit_debounce_cntr[axis] = 0;
+	emcmotInternal->home_sw_debounce_cntr[axis] = 0;
+	emcmotInternal->amp_fault_debounce_cntr[axis] = 0;
+	emcmotInternal->ferrorAbs[axis] = 0.0;
+
+
 	emcmotConfig->homingVel[axis] = VELOCITY;
 	emcmotConfig->homeOffset[axis] = 0.0;
 	emcmotStatus->axisFlag[axis] = 0;
@@ -584,8 +719,6 @@ static int init_comm_buffers(void)
 	emcmotConfig->minFerror[axis] = 0.0;	/* gives a true linear ferror
 						 */
 	emcmotConfig->maxFerror[axis] = MAX_FERROR;
-	emcmotDebug->ferrorCurrent[axis] = 0.0;
-	emcmotDebug->ferrorHighMark[axis] = 0.0;
 	emcmotStatus->outputScale[axis] = OUTPUT_SCALE;
 	emcmotStatus->outputOffset[axis] = OUTPUT_OFFSET;
 	emcmotStatus->inputScale[axis] = INPUT_SCALE;
@@ -608,7 +741,9 @@ static int init_comm_buffers(void)
 	SET_AXIS_FERROR_FLAG(axis, 0);
 	SET_AXIS_FAULT_FLAG(axis, 0);
 	SET_AXIS_ERROR_FLAG(axis, 0);
+#if 0
 	emcmotConfig->axisPolarity[axis] = (EMCMOT_AXIS_FLAG) 0xFFFFFFFF;
+#endif
 	/* will read encoders directly, so don't set them here */
     }
 
@@ -707,7 +842,7 @@ static int init_comm_buffers(void)
 	emcmotStatus->output[axis] = 0.0;
 	emcmotDebug->jointHome[axis] = 0.0;
 
-	extAmpEnable(axis, !GET_AXIS_ENABLE_POLARITY(axis));
+	extAmpEnable(axis, 0);
     }
     emcmotStatus->tail = 0;
 

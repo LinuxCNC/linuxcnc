@@ -23,35 +23,52 @@
 *                       TYPEDEFS, ENUMS, ETC.                          *
 ************************************************************************/
 
+/* First we define structures for data shared with the HAL */
+
 /* HAL visible data notations:
    RPA:  read only parameter
    WPA:  write only parameter
-   PA:   read/write parameter
-   RP:   read only pin
-   WP:   write only pin
-   P:    read/write pin
+   WRPA: read/write parameter
+   RPI:  read only pin
+   WPI:  write only pin
+   WRPI: read/write pin
 */
 
-/* HAL-visible runtime data for a single axis */
+/* axis data */
+
 typedef struct {
     hal_float_t joint_pos_cmd;	/* RPA: commanded position, w/o comp */
     hal_float_t joint_vel_cmd;  /* RPA: commanded velocity, w/o comp */
     hal_float_t backlash_corr;	/* RPA: correction for backlash */
     hal_float_t backlash_filt;	/* RPA: filtered backlash correction */
-    hal_float_t *motor_pos_cmd;	/* WP:  commanded position, with comp */
-    hal_float_t *motor_pos_fb;	/* RP:  position feedback, with comp */
+    hal_float_t *motor_pos_cmd;	/* WPI: commanded position, with comp */
+    hal_float_t *motor_pos_fb;	/* RPI: position feedback, with comp */
     hal_float_t joint_pos_fb;	/* RPA: position feedback, w/o comp */
+    hal_float_t f_error;	/* RPA: following error */
+//    hal_float_t f_error_min;    /* RPA: negative following error limit */
+//    hal_float_t f_error_max;    /* RPA: positive following error limit */
 
-/* OLD PINS */
+    hal_bit_t active;		/* RPA: axis is active, whatever that means */
+    hal_bit_t in_position;	/* RPA: axis is in position */
+    hal_bit_t error;		/* RPA: axis has an error */
+    hal_bit_t psl;		/* RPA: axis is at positive soft limit */
+    hal_bit_t nsl;		/* RPA: axis is at negative soft limit */
+    hal_bit_t phl;		/* RPA: axis is at positive hard limit */
+    hal_bit_t nhl;		/* RPA: axis is at negative hard limit */
+    hal_bit_t home_sw_flag;	/* RPA: home switch triggered */
+    hal_bit_t homing;		/* RPA: axis is homing */
+    hal_bit_t homed;		/* RPA: axis was homed */
+    hal_bit_t f_errored;	/* RPA: axis had too much following error */
+    hal_bit_t faulted;		/* RPA: axis amp faulted */
+    hal_bit_t *pos_lim_sw;	/* RPI: positive limit switch input */
+    hal_bit_t *neg_lim_sw;	/* RPI: negative limit switch input */
+    hal_bit_t *home_sw;		/* RPI: home switch input */
+    hal_bit_t *amp_fault;	/* RPI: amp fault input */
+    hal_bit_t *amp_enable;	/* WPI: amp enable output */
+    hal_s8_t  home_state;	/* RPA: homing state machine state */
 
-    hal_float_t *volts;		/* pin: voltage output */
-    hal_float_t *position;	/* pin: position input */
-    hal_bit_t *max;		/* max limit switch input */
-    hal_bit_t *min;		/* min limit switch input */
-    hal_bit_t *home;		/* home switch input */
-    hal_float_t *probe;		/* probe input */
-    hal_bit_t *enable;		/* amp enable output */
-    hal_bit_t *fault;		/* amp fault input */
+/* FIXME - these have been temporarily? deleted */
+#if 0
     /* for now we control the index model through the mode and model pins on
        axis 0, later this may be done on a per axis basis */
     hal_u32_t *mode;		/* index model output */
@@ -59,7 +76,29 @@ typedef struct {
     hal_bit_t *reset;		/* index latch reset output */
     hal_bit_t *latch;		/* index latch input */
     hal_bit_t *index;		/* index input */
+#endif
 } axis_hal_t;
+
+
+/* machine data */
+
+typedef struct {
+    hal_bit_t *probe;		/* RPI: probe input */
+    hal_bit_t motion_enable;	/* RPA: motion enable for all axis */
+    hal_bit_t in_position;	/* RPA: all axis are in position */
+    hal_bit_t coord_mode;	/* RPA: TRUE if coord, FALSE if free */
+    hal_bit_t teleop_mode;	/* RPA: TRUE if teleop mode */
+    hal_bit_t coord_error;	/* RPA: TRUE if coord mode error */
+
+
+
+    axis_hal_t axis[EMCMOT_MAX_AXIS];	/* data for each axis */
+
+} machine_hal_t;
+
+
+
+
 
 
 /***********************************************************************
@@ -69,8 +108,8 @@ typedef struct {
 /* HAL component ID for motion module */
 extern int mot_comp_id;
 
-/* pointer to array of axis_hal_t structs in HAL shmem, 1 per axis */
-extern axis_hal_t *axis_hal_array;
+/* pointer to machine_hal_t struct in HAL shmem, with all HAL data */
+extern machine_hal_t *machine_hal_data;
 
 /* Variable defs */
 extern int kinType;
@@ -90,6 +129,7 @@ extern emcmot_command_t *emcmotCommand;
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_config_t *emcmotConfig;
 extern emcmot_debug_t *emcmotDebug;
+extern emcmot_internal_t *emcmotInternal;
 extern emcmot_error_t *emcmotError;
 extern emcmot_log_t *emcmotLog;
 extern emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS];
@@ -193,6 +233,8 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 #define SET_AXIS_FAULT_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_FAULT_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_FAULT_BIT;
 
 /* polarity flags */
+/* FIXME - with HAL these go away */
+#if 0
 
 #define GET_AXIS_ENABLE_POLARITY(ax) (emcmotConfig->axisPolarity[ax] & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0)
 
@@ -217,6 +259,7 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 #define GET_AXIS_FAULT_POLARITY(ax) (emcmotConfig->axisPolarity[ax] & EMCMOT_AXIS_FAULT_BIT ? 1 : 0)
 
 #define SET_AXIS_FAULT_POLARITY(ax,fl) if (fl) emcmotConfig->axisPolarity[ax] |= EMCMOT_AXIS_FAULT_BIT; else emcmotConfig->axisPolarity[ax] &= ~EMCMOT_AXIS_FAULT_BIT;
+#endif
 
 /* axis lengths */
 #define AXRANGE(axis) ((emcmotConfig->maxLimit[axis] - emcmotConfig->minLimit[axis]))

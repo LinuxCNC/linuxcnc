@@ -100,20 +100,28 @@ static int loadAxis(int axis)
   const char *inistring;
   unsigned char axisType;
   double units;
+/* FIXME - variables no longer needed */
+#if 0
   double p, i, d, ff0, ff1, ff2;
+#endif
   double backlash;
+#if 0
   double bias;
   double maxError;
   double deadband;
   double cycleTime;
-  double scale, offset;
+  double scale;
+#endif
+  double offset;
   double limit;
   double homingVel;
+#if 0
   double setup_time;
   double hold_time;
+#endif
   double home;
   double maxVelocity;
-  int polarity;
+//  int polarity;
   double maxFerror;
 
   // compose string to match, axis = 0 -> AXIS_1, etc.
@@ -179,6 +187,11 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+
+/* FIXME - PID gains no longer in ini file, this gets deleted */
+/* maybe.... perhaps the gains should be in the ini, but they */
+/* should be passed to the HAL pid block another way */
+#if 0
 
   // set forward gains
 
@@ -301,6 +314,9 @@ static int loadAxis(int axis)
       rcs_print_error("can't find [%s] FF2, using default\n", axisString);
     }
   }
+#endif
+
+/* FIXME - backlash is not a PID parameter, so we keep it */
 
   if (NULL != (inistring = axisInifile->find("BACKLASH", axisString))) {
     if (1 == sscanf(inistring, "%lf", &backlash)) {
@@ -321,6 +337,9 @@ static int loadAxis(int axis)
       rcs_print_error("can't find [%s] BACKLASH, using default\n", axisString);
     }
   }
+
+/* FIXME - more PID parameters, no longer needed */
+#if 0
 
   if (NULL != (inistring = axisInifile->find("BIAS", axisString))) {
     if (1 == sscanf(inistring, "%lf", &bias)) {
@@ -385,8 +404,12 @@ static int loadAxis(int axis)
       rcs_print_error("can't find [%s] DEADBAND, using default\n", axisString);
     }
   }
+#endif
 
   // now set them
+
+/* FIXME - need to handle backlash separately from the rest */
+#if 0
 
   if (0 != emcAxisSetGains(axis,
                            p, i, d, ff0, ff1, ff2,
@@ -396,7 +419,10 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
+/* FIXME - cycle times and scaling no longer needed */
+#if 0
   // set cycle time
 
   if (NULL != (inistring = axisInifile->find("CYCLE_TIME", axisString))) {
@@ -486,6 +512,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
   if (NULL != (inistring = axisInifile->find("MIN_LIMIT", axisString))) {
     if (1 == sscanf(inistring, "%lf", &limit)) {
@@ -671,6 +698,9 @@ static int loadAxis(int axis)
     return -1;
   }
 
+/* FIXME - step timing parameters no longer handled here */
+#if 0
+
   if (NULL != (inistring = axisInifile->find("SETUP_TIME", axisString))) {
     if (1 == sscanf(inistring, "%lf", &setup_time)) {
       // found, and valid
@@ -715,6 +745,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
   if (NULL != (inistring = axisInifile->find("HOME", axisString))) {
     if (1 == sscanf(inistring, "%lf", &home)) {
@@ -767,6 +798,10 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+
+/* FIXME - polarities for digital I/O bits now handled by HAL */
+/* FIXME FIXME - need to add SET_HOME_DIRECTION */
+#if 0
 
   if (NULL != (inistring = axisInifile->find("ENABLE_POLARITY", axisString))) {
     if (1 == sscanf(inistring, "%d", &polarity)) {
@@ -897,6 +932,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
   if (NULL != (inistring = axisInifile->find("HOME_OFFSET", axisString))) {
     if (1 == sscanf(inistring, "%lf", &offset)) {
@@ -924,6 +960,9 @@ static int loadAxis(int axis)
     return -1;
   }
 
+/* FIXME - more polarity stuff handled by HAL now */
+#if 0
+
   if (NULL != (inistring = axisInifile->find("FAULT_POLARITY", axisString))) {
     if (1 == sscanf(inistring, "%d", &polarity)) {
       // found, and valid
@@ -949,6 +988,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
   if (NULL != (inistring = axisInifile->find("COMP_FILE", axisString))) {
     if (0 != emcAxisLoadComp(axis, inistring)) {

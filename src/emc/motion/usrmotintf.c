@@ -355,6 +355,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	    d.teleop_data.currentAccell.a,
 	    d.teleop_data.currentAccell.b, d.teleop_data.currentAccell.c);
 	break;
+#if 0
 	printf("\nferror:        ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", d.ferrorCurrent[t]);
@@ -367,7 +368,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	}
 	printf("\n");
 	break;
-
+#endif
     case 5:
 	printf("traj  m/m/a:\t%f\t%f\t%f\n", d.tMin, d.tMax, d.tAvg);
 	printf("tMmxavg : sum=%f, in=%d, size=%d, index=%d\n",
@@ -483,7 +484,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	printf("jointVel[%d]: %f\n", which - 6, d.jointVel[(which - 6)]);
 	printf("rawInput[%d]: %f\n", which - 6, d.rawInput[(which - 6)]);
 	printf("rawOutput[%d]: %f\n", which - 6, d.rawOutput[(which - 6)]);
-	printf("bcompincr[%d]: %f\n", which - 6, d.bcompincr[(which - 6)]);
+//	printf("bcompincr[%d]: %f\n", which - 6, d.bcompincr[(which - 6)]);
 	printf("freeAxis[%d]:\n", which - 6);
 	printTPstruct(&d.freeAxis[which - 6]);
 	break;
@@ -501,10 +502,12 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", d.inverseInputScale[t]);
 	}
+#if 0
 	printf("\nbcompincr:  ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", d.bcompincr[t]);
 	}
+#endif
 	printf("\n");
 
     default:
@@ -516,7 +519,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 {
     int t;
-    char m[32];
+//    char m[32];
 
     switch (which) {
     case 0:
@@ -532,10 +535,12 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	printf("\n");
 	printf("probe index: %d\n", c.probeIndex);
 	printf("probe polarity: %d\n", c.probePolarity);
+#if 0
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    htostr(m, c.axisPolarity[t]);
 	    printf("%s ", m);
 	}
+#endif
 	printf("\n");
 	break;
 
@@ -761,6 +766,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", s.input[t]);
 	}
+
 	printf("\n");
 	break;
 

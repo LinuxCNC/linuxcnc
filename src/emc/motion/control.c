@@ -27,12 +27,19 @@
 #include "motion.h"
 #include "mot_priv.h"
 
+
+
+/* these determine the debounce delay for the hardware inputs */
+/* a setting of zero reacts immediately */
 #define LIMIT_SWITCH_DEBOUNCE 10
-#define AMP_FAULT_DEBOUNCE 100
+#define AMP_FAULT_DEBOUNCE 10
+#define HOME_SW_DEBOUNCE 0
+
 #define POSITION_INPUT_DEBOUNCE 10
 
-/* FIXME-- testing output rounding to input resolution */
-#define NO_ROUNDING
+
+#define HIDE_OLD_CONTROLLER
+
 
 /* FIXME-- testing axis comping */
 #define COMPING
@@ -45,14 +52,7 @@
 static double servo_period;
 static double servo_freq;
 
-/* counter that triggers computation of forward kinematics during
-   disabled state, making them run at the trajectory rate instead
-   of the servo rate. In the disabled state the interpolators are
-   not queried so we don't know when a trajectory cycle would occur,
-   so we use this counter. It's loaded with emcmotConfig->interpolationRate
-   whenever it goes to zero, during the code executed in the disabled
-   state. */
-static int interpolationCounter = 0;
+#ifndef HIDE_OLD_CONTROLLER
 
 /* flag to handle need to re-home when joints have moved outside purview
    of Cartesian control, for machines with no forward kinematics.
@@ -60,28 +60,38 @@ static int interpolationCounter = 0;
    if any axis has been jogged. Initially 0, it's set to 1 for any coordinated
    move that will in general move all joints. It's set back to zero when
    all joints have been rehomed. */
-int rehomeAll = 0;
-static int logIt = 0;
+static int rehomeAll = 0;
+
+/* counter that triggers computation of forward kinematics during
+   disabled state, making them run at the trajectory rate instead
+   of the servo rate. In the disabled state the interpolators are
+   not queried so we don't know when a trajectory cycle would occur,
+   so we use this counter. It's loaded with emcmotConfig->interpolationRate
+   whenever it goes to zero, during the code executed in the disabled
+   state. */
+    static int interpolationCounter = 0;
+    static int logIt = 0;
+#ifdef COMPING
+    static int dir[EMCMOT_MAX_AXIS] = { 1 };	/* flag for direction, used for axis
+					   comp */
+#endif /* COMPING */
+#endif /* ! HIDE_OLD_CONTROLLER */
+
+
 
 
 /***********************************************************************
 *                      LOCAL FUNCTION PROTOTYPES                       *
 ************************************************************************/
 
+
+#ifndef HIDE_OLD_CONTROLLER
 /* isHoming() returns non-zero if any axes are homing, 0 if none are */
 static int isHoming(void);
 
-/* axisComp(int axis, int dir, double nominal) looks up the real axis
-   position value, given the nominal value and the direction of motion,
-   based on the emcmotComp tables. It returns the comped value. If there's
-   an error, the comped value is set to the nominal value. The alter value
-   is added regardless of whether the comp table is active (total > 1),
-   but if it is active it's added before the comping since the alter is
-   a nominal delta.
-*/
-static double axisComp(int axis, int dir, double nominput);
+#endif
 
-static int backlash(int axis);
+static void compute_backlash(int axis);
 
 
 
@@ -99,7 +109,250 @@ static int backlash(int axis);
   Inactive axes are still calculated, but the PIDs are inhibited and
   the amp enable/disable are inhibited
   */
+
 void emcmotController(void *arg, long period)
+{
+    int axis;
+    double tmpd;
+    axis_hal_t *axis_data;
+
+    /* calculate servo period as a double - period is in integer nsec */
+    servo_period = period * 0.000000001;
+    /* calculate servo frequency for calcs like vel = Dpos / period */
+    /* it's faster to do vel = Dpos * freq */
+    servo_freq = 1.0 / servo_period;
+
+    /* read and process axis inputs */
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+	/* point to axis data */
+	axis_data = &(machine_hal_data->axis[axis]);
+
+	/* get position feedback, subtract backlash comp */
+	axis_data->joint_pos_fb = *(axis_data->motor_pos_fb) - axis_data->backlash_filt;
+	/* copy to status structure */
+	emcmotStatus->joint_pos_fb[axis] = axis_data->joint_pos_fb;
+
+	/* calculate following error */
+	emcmotStatus->ferrorCurrent[axis] = emcmotStatus->joint_pos_cmd - emcmotStatus->joint_pos_fb;
+
+	/* absolute value of ferror */
+	if ( emcmotStatus->ferrorCurrent[axis] < 0.0 ) {
+	    tmpd = -emcmotStatus->ferrorCurrent[axis];
+	} else {
+	    tmpd = emcmotStatus->ferrorCurrent[axis];
+	}
+	emcmotInternal->ferrorAbs[axis] = tmpd;
+
+	/* update maximum ferror if needed */
+	if ( tmpd > emcmotStatus->ferrorHighMark[axis] ) {
+	    emcmotStatus->ferrorHighMark[axis] = tmpd;
+	}
+
+	/* calculate following error limit */
+	/* FIXME - should this use per axis max velocity instead of limitVel? */
+	tmpd = emcmotConfig->maxFerror[axis] *
+	    ( emcmotStatus->joint_vel_cmd[axis] / emcmotConfig->limitVel );
+	if (tmpd < emcmotConfig->minFerror[axis]) {
+	    tmpd = emcmotConfig->minFerror[axis];
+	}
+	emcmotStatus->ferrorLimit[axis] = tmpd;
+
+	/* update following error flag */
+	if ( emcmotInternal->ferrorAbs[axis] > emcmotStatus->ferrorLimit[axis] ) {
+	    SET_AXIS_FERROR_FLAG(axis, 1);
+	} else {
+	    SET_AXIS_FERROR_FLAG(axis, 0);
+	}
+	/* read and debounce limit switches */
+	if ( *(axis_data->pos_lim_sw) ) {
+	    if (emcmotInternal->pos_limit_debounce_cntr[axis] < LIMIT_SWITCH_DEBOUNCE ) {
+		emcmotInternal->pos_limit_debounce_cntr[axis]++;
+	    } else {
+		SET_AXIS_PHL_FLAG(axis, 1);
+	    }
+	} else {
+	    if (emcmotInternal->pos_limit_debounce_cntr[axis] > 0 ) {
+		emcmotInternal->pos_limit_debounce_cntr[axis]--;
+	    } else {
+		SET_AXIS_PHL_FLAG(axis, 0);
+	    }
+	}
+	if ( *(axis_data->neg_lim_sw) ) {
+	    if (emcmotInternal->neg_limit_debounce_cntr[axis] < LIMIT_SWITCH_DEBOUNCE ) {
+		emcmotInternal->neg_limit_debounce_cntr[axis]++;
+	    } else {
+		SET_AXIS_NHL_FLAG(axis, 1);
+	    }
+	} else {
+	    if (emcmotInternal->neg_limit_debounce_cntr[axis] > 0 ) {
+		emcmotInternal->neg_limit_debounce_cntr[axis]--;
+	    } else {
+		SET_AXIS_NHL_FLAG(axis, 0);
+	    }
+	}
+
+	/* read and debounce amp fault input */
+	if ( *(axis_data->amp_fault) ) {
+	    if (emcmotInternal->amp_fault_debounce_cntr[axis] < AMP_FAULT_DEBOUNCE ) {
+		emcmotInternal->amp_fault_debounce_cntr[axis]++;
+	    } else {
+		SET_AXIS_FAULT_FLAG(axis, 1);
+	    }
+	} else {
+	    if (emcmotInternal->amp_fault_debounce_cntr[axis] > 0 ) {
+		emcmotInternal->amp_fault_debounce_cntr[axis]--;
+	    } else {
+		SET_AXIS_FAULT_FLAG(axis, 0);
+	    }
+	}
+
+	/* read and debounce home switch input */
+	if ( *(axis_data->home_sw) ) {
+	    if (emcmotInternal->home_sw_debounce_cntr[axis] < HOME_SW_DEBOUNCE ) {
+		emcmotInternal->home_sw_debounce_cntr[axis]++;
+	    } else {
+		SET_AXIS_HOME_SWITCH_FLAG(axis, 1);
+	    }
+	} else {
+	    if (emcmotInternal->home_sw_debounce_cntr[axis] > 0 ) {
+		emcmotInternal->home_sw_debounce_cntr[axis]--;
+	    } else {
+		SET_AXIS_HOME_SWITCH_FLAG(axis, 0);
+	    }
+	}
+    /* end of read and process inputs loop */
+    }
+
+    /* check for various fault conditions */
+    /* FIXME - this should also handle displaying fault messages */
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+	/* skip inactive axes */
+	if ( GET_AXIS_ACTIVE_FLAG(axis) ) {
+	    /* check for hard limits */
+	    /* FIXME - should we also be checking soft limits here? */
+	    if ( GET_AXIS_PHL_FLAG(axis) || GET_AXIS_NHL_FLAG(axis) ) {
+		/* axis is on limit switch, should we trip? */
+		if ( emcmotStatus->overrideLimits || GET_AXIS_HOMING_FLAG(axis) ) {
+		    /* no, ignore limits */
+		} else {
+		    /* trip on limits */
+		    SET_AXIS_ERROR_FLAG(axis, 1);
+		    if (emcmotDebug->enabling) {
+			/* report the error just this once */
+			reportError("axis %d on limit switch error", axis);
+		    }
+		    emcmotDebug->enabling = 0;
+		}
+	    }
+	    /* check for amp fault */
+	    if ( GET_AXIS_FAULT_FLAG(axis) ) {
+		/* axis is faulted, trip */
+		SET_AXIS_ERROR_FLAG(axis, 1);
+		if (emcmotDebug->enabling) {
+		    /* report the error just this once */
+		    reportError("axis %d amplifier fault", axis);
+		}
+		emcmotDebug->enabling = 0;
+	    }
+	    /* check for excessive following error */
+	    if ( GET_AXIS_FERROR_FLAG(axis) ) {
+		SET_AXIS_ERROR_FLAG(axis, 1);
+		if (emcmotDebug->enabling) {
+		    /* report the error just this once */
+		    reportError("axis %d following error", axis);
+		}
+		emcmotDebug->enabling = 0;
+	    }
+	/* end of if AXIS_ACTIVE_FLAG(axis) */
+	}
+    /* end of check for axis faults loop */
+    }
+
+
+
+/* FIXME - lots more stuff needs to be added here */
+
+
+/* FIXME - somewhere in here we need to call the TP and kinematics and
+           get new position commands
+*/
+
+
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+	/* calculate joint velocity commands */
+	emcmotStatus->joint_vel_cmd[axis] =
+	    ( emcmotStatus->joint_pos_cmd[axis] -
+	      emcmotInternal->old_joint_pos_cmd[axis] ) * servo_freq;
+	/* update old position */
+	emcmotInternal->old_joint_pos_cmd[axis] = emcmotStatus->joint_pos_cmd[axis];
+	/* calculate backlash (or leadscrew comp) */
+	compute_backlash(axis);
+    }
+
+    /* output status flags to HAL for scoping, etc */
+    /* FIXME - copying these things to the HAL is a pain... I'd
+       rather have only one copy (on the HAL side, so they can be
+       scoped).  However, it seems that the user space code also
+       looks at them. (maybe - everything including the kitchen
+       sink is in the status struct, but there's no way to tell
+       if any user space code actually uses it)  So it looks like
+       I'm stuck with duplicates of all these things (and with
+       the annoying macros to read and write them, because the
+       user side uses bits packed into a word, instead of
+       independent variables.
+    */
+    machine_hal_data->motion_enable = GET_MOTION_ENABLE_FLAG();
+    machine_hal_data->in_position = GET_MOTION_INPOS_FLAG();
+    machine_hal_data->coord_mode = GET_MOTION_COORD_FLAG();
+    machine_hal_data->teleop_mode = GET_MOTION_TELEOP_FLAG();
+    machine_hal_data->coord_error = GET_MOTION_ERROR_FLAG();
+    /* output axis flags to HAL for scoping, etc */
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+	/* point to axis data */
+	axis_data = &(machine_hal_data->axis[axis]);
+	/* add backlash comp to position command, send to PID */
+	axis_data->joint_pos_cmd = emcmotStatus->joint_pos_cmd[axis];
+	axis_data->joint_vel_cmd = emcmotStatus->joint_vel_cmd[axis];
+	*(axis_data->motor_pos_cmd) = axis_data->joint_pos_cmd + axis_data->backlash_filt;
+	/* output to amp_enable pin */
+	*(axis_data->amp_enable) = GET_AXIS_ENABLE_FLAG(axis);
+	/* output to parameters (for scoping, etc.) */
+	axis_data->active = GET_AXIS_ACTIVE_FLAG(axis);
+	axis_data->in_position = GET_AXIS_INPOS_FLAG(axis);
+	axis_data->error = GET_AXIS_ERROR_FLAG(axis);
+	axis_data->psl = GET_AXIS_PSL_FLAG(axis);
+	axis_data->nsl = GET_AXIS_NSL_FLAG(axis);
+	axis_data->phl = GET_AXIS_PHL_FLAG(axis);
+	axis_data->nhl = GET_AXIS_NHL_FLAG(axis);
+	axis_data->home_sw_flag = GET_AXIS_HOME_SWITCH_FLAG(axis);
+	axis_data->homing = GET_AXIS_HOMING_FLAG(axis);
+	axis_data->homed = GET_AXIS_HOMED_FLAG(axis);
+	axis_data->f_errored = GET_AXIS_FERROR_FLAG(axis);
+	axis_data->faulted = GET_AXIS_FAULT_FLAG(axis);
+    }
+
+/* end of controller function */
+}
+
+
+/* FIXME - a dummy function to catch bracketing errors rather
+   than having them show up hundreds of lines later after the
+   old controller function
+*/
+
+void foo ( int n )
+{
+    rtapi_print ( "%d\n", n );
+}
+
+/* FIXME - this is the old controller - I kept it here for reference,
+   and as backup if I fsck things up...  eventually it will be deleted
+*/
+
+
+#ifndef HIDE_OLD_CONTROLLER
+
+void OLDemcmotController(void *arg, long period)
 {
     int first = 1;		/* true the first time thru, for initing */
     double start, end, delta;	/* time stamping */
@@ -109,21 +362,11 @@ void emcmotController(void *arg, long period)
     int isLimit;		/* result of ext read to limit sw */
     int whichCycle;		/* 0=none, 1=servo, 2=traj */
     int fault;
-#ifndef NO_ROUNDING
-    double numres;
-#endif
     double thisFerror[EMCMOT_MAX_AXIS] = { 0.0 };
     double limitFerror;		/* current scaled ferror */
     double magFerror;
-    double oldbcomp;
+//    double oldbcomp;
     int retval;
-    /* end of backlash stuff */
-
-
-#ifdef COMPING
-    int dir[EMCMOT_MAX_AXIS] = { 1 };	/* flag for direction, used for axis
-					   comp */
-#endif /* COMPING */
 
 
     /* calculate period and frequency - period is in nsec */
@@ -136,9 +379,14 @@ void emcmotController(void *arg, long period)
     emcmotStatus->head++;
     /* READ INPUTS: */
 
+/* FIXME - this stuff is done by read_hal */
+
     /* latch all encoder feedback into raw input array, done outside of
        for-loop on joints below, since it's a single call for all joints */
     extEncoderReadAll(EMCMOT_MAX_AXIS, emcmotDebug->rawInput);
+
+/* FIXME - scaling done in HAL? */
+
     /* process input and read limit switches */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	/* save old cycle's values */
@@ -149,9 +397,9 @@ void emcmotController(void *arg, long period)
 	emcmotStatus->input[axis] =
 	    (emcmotDebug->rawInput[axis] -
 	    emcmotStatus->inputOffset[axis]) *
-	    emcmotDebug->inverseInputScale[axis] -
-	    emcmotDebug->bcompincr[axis];
+	    emcmotDebug->inverseInputScale[axis];
 
+#if 0 /* FIXME - comping to be moved to backlash function */
 #ifdef COMPING
 	/* adjust feedback using compensation tables */
 	if (GET_AXIS_HOMED_FLAG(axis)) {
@@ -159,13 +407,16 @@ void emcmotController(void *arg, long period)
 		axisComp(axis, dir[axis], emcmotStatus->input[axis]);
 	}
 #endif /* COMPING */
+#endif /* 0 */
+
 	if (first || !emcmotDebug->oldInputValid[axis]) {
 	    emcmotDebug->oldInput[axis] = emcmotStatus->input[axis];
 	    emcmotDebug->oldInputValid[axis] = 1;
 	    first = 0;
 	}
-#if 0				/* FIX ME - Move in to the HAL layer and make
-				   sure it actually works */
+#if 0 /* FIXME - Detecting/discarding bad encoder samples should be
+         done in the encoder driver.
+	 Move to the HAL layer and make sure it actually works */
 	/* debounce bad feedback */
 #ifndef SIMULATED_MOTORS
 	if (fabs(emcmotStatus->input[axis] -
@@ -199,6 +450,8 @@ void emcmotController(void *arg, long period)
 #endif /* SIMULATED MOTORS */
 #endif /* if 0 */
 
+/* FIXME - move this stuff to check_limits() */
+
 	/* read limit switches and amp fault from external interface, and set
 	   'emcmotDebug->enabling' to zero if tripped to cause immediate stop
 	 */
@@ -206,7 +459,7 @@ void emcmotController(void *arg, long period)
 	/* handle limits */
 	if (GET_AXIS_ACTIVE_FLAG(axis)) {
 	    extMaxLimitSwitchRead(axis, &isLimit);
-	    if (isLimit == GET_AXIS_PHL_POLARITY(axis)) {
+	    if (isLimit == 1) {
 		if (++emcmotDebug->maxLimitSwitchCount[axis] >
 		    LIMIT_SWITCH_DEBOUNCE) {
 		    SET_AXIS_PHL_FLAG(axis, 1);
@@ -225,7 +478,7 @@ void emcmotController(void *arg, long period)
 	}
 	if (GET_AXIS_ACTIVE_FLAG(axis)) {
 	    extMinLimitSwitchRead(axis, &isLimit);
-	    if (isLimit == GET_AXIS_NHL_POLARITY(axis)) {
+	    if (isLimit == 1) {
 		if (++emcmotDebug->minLimitSwitchCount[axis] >
 		    LIMIT_SWITCH_DEBOUNCE) {
 		    SET_AXIS_NHL_FLAG(axis, 1);
@@ -243,9 +496,11 @@ void emcmotController(void *arg, long period)
 	    }
 	}
 
+/* FIXME - should this be part of check_limits() or detect_faults()? */
+
 	if (GET_AXIS_ACTIVE_FLAG(axis) && GET_AXIS_ENABLE_FLAG(axis)) {
 	    extAmpFault(axis, &fault);
-	    if (fault == GET_AXIS_FAULT_POLARITY(axis)) {
+	    if (fault == 1) {
 		if (++emcmotDebug->ampFaultCount[axis] > AMP_FAULT_DEBOUNCE) {
 		    SET_AXIS_ERROR_FLAG(axis, 1);
 		    SET_AXIS_FAULT_FLAG(axis, 1);
@@ -258,19 +513,23 @@ void emcmotController(void *arg, long period)
 	    }
 	}
 
+/* FIXME - with HAL, reading is trivial, this code vanishes */
+
 	/* read home switch and set flag if tripped. Handling of home
 	   sequence is done later. */
 	if (GET_AXIS_ACTIVE_FLAG(axis)) {
 	    extHomeSwitchRead(axis, &homeFlag);
-	    if (homeFlag == GET_AXIS_HOME_SWITCH_POLARITY(axis)) {
+	    if (homeFlag == 1) {
 		SET_AXIS_HOME_SWITCH_FLAG(axis, 1);
 	    } else {
 		SET_AXIS_HOME_SWITCH_FLAG(axis, 0);
 	    }
 	}
 
-    }				/* end of: loop on axes, for reading inputs,
-				   setting limit and home switch flags */
+    }	/* end of: loop on axes, for reading inputs, setting limit and home switch flags */
+
+#if 0  /* FIXME - logging to be handled by halscope? */
+
     /* check to see if logging should be triggered */
     if (emcmotStatus->logOpen &&
 	!emcmotStatus->logStarted &&
@@ -324,6 +583,7 @@ void emcmotController(void *arg, long period)
 	    }
 	}
     }
+#endif  /* LOGGING - #if 0 */
 
     /* now we're outside the axis loop, having just read input, scaled it,
        read the limit and home switches and amp faults. We need to abort all
@@ -331,6 +591,9 @@ void emcmotController(void *arg, long period)
        state transitions. */
 
     /* RUN STATE LOGIC: */
+
+/* FIXME - enable disable stuff */
+
 
     /* check for disabling */
     if (!emcmotDebug->enabling && GET_MOTION_ENABLE_FLAG()) {
@@ -340,7 +603,7 @@ void emcmotController(void *arg, long period)
 	    tpClear(&emcmotDebug->freeAxis[axis]);
 	    cubicDrain(&emcmotDebug->cubic[axis]);
 	    if (GET_AXIS_ACTIVE_FLAG(axis)) {
-		extAmpEnable(axis, !GET_AXIS_ENABLE_POLARITY(axis));
+		extAmpEnable(axis, 0);
 		SET_AXIS_ENABLE_FLAG(axis, 0);
 		SET_AXIS_HOMING_FLAG(axis, 0);
 		emcmotStatus->output[axis] = 0.0;
@@ -366,7 +629,7 @@ void emcmotController(void *arg, long period)
 	    tpSetPos(&emcmotDebug->freeAxis[axis], emcmotDebug->freePose);
 	    pidReset(&emcmotConfig->pid[axis]);
 	    if (GET_AXIS_ACTIVE_FLAG(axis)) {
-		extAmpEnable(axis, GET_AXIS_ENABLE_POLARITY(axis));
+		extAmpEnable(axis, 1);
 		SET_AXIS_ENABLE_FLAG(axis, 1);
 		SET_AXIS_HOMING_FLAG(axis, 0);
 	    }
@@ -405,6 +668,10 @@ void emcmotController(void *arg, long period)
 	emcmotDebug->fMax = 0.0;
 	emcmotDebug->fAvg = 0.0;
     }
+
+/* FIXME -
+   this whole section badly needs to be documented. */
+
     /* check for entering teleop mode */
     if (emcmotDebug->teleoperating && !GET_MOTION_TELEOP_FLAG()) {
 	if (GET_MOTION_INPOS_FLAG()) {
@@ -507,6 +774,9 @@ void emcmotController(void *arg, long period)
 	}
 
     }
+
+/* FIXME - move this stuff to do_homing(), and document it with
+   a state diagram */
 
     /* check for homing sequences */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
@@ -611,6 +881,11 @@ void emcmotController(void *arg, long period)
 	}			/* end of: if axis is homing */
     }				/* end of: axis loop that checks for homing */
 
+/* end of homing */
+
+/* FIXME - this block of code gets position setpoints - it IS (or calls)
+   the trajectory planner  */
+
     /* RUN MOTION CALCULATIONS: */
 
     /* run axis interpolations and outputs, but only if we're enabled. This
@@ -629,6 +904,8 @@ void emcmotController(void *arg, long period)
 
 	    /* check to see whether we're in teleop, coordinated or free
 	       mode, to decide which motion planner to call */
+
+/* FIXME - teleop mode */
 	    if (GET_MOTION_TELEOP_FLAG()) {
 		double accell_mag;
 
@@ -644,8 +921,10 @@ void emcmotController(void *arg, long period)
 		    (emcmotDebug->teleop_data.desiredVel.tran.z -
 		    emcmotDebug->teleop_data.currentVel.tran.z) /
 		    emcmotConfig->trajCycleTime;
+
 		pmCartMag(emcmotDebug->teleop_data.desiredAccell.tran,
 		    &accell_mag);
+
 		emcmotDebug->teleop_data.desiredAccell.a =
 		    (emcmotDebug->teleop_data.desiredVel.a -
 		    emcmotDebug->teleop_data.currentVel.a) /
@@ -658,7 +937,6 @@ void emcmotController(void *arg, long period)
 		    (emcmotDebug->teleop_data.desiredVel.c -
 		    emcmotDebug->teleop_data.currentVel.c) /
 		    emcmotConfig->trajCycleTime;
-
 		if (emcmotDebug->teleop_data.desiredAccell.a > accell_mag) {
 		    accell_mag = emcmotDebug->teleop_data.desiredAccell.a;
 		}
@@ -730,7 +1008,7 @@ void emcmotController(void *arg, long period)
 		    emcmotDebug->coarseJointPos, &iflags, &fflags);
 
 		/* spline joints up-- note that we may be adding points that
-		   fail soft limits, but we'll abort at the end of this cycle 
+		   fail soft limits, but we'll abort at the end of this cycle
 		   so it doesn't really matter */
 		for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 		    cubicAddPoint(&emcmotDebug->cubic[axis],
@@ -747,13 +1025,16 @@ void emcmotController(void *arg, long period)
 		    emcmotStatus->actualPos = emcmotStatus->pos;
 		}
 	    } else {
+
+/* FIXME - coordinated mode */
+
 		if (GET_MOTION_COORD_FLAG()) {
 		    /* we're in coordinated mode-- pull a pose off the
 		       Cartesian trajectory planner, run it through the
-		       inverse kinematics, and spline up the joint points for 
+		       inverse kinematics, and spline up the joint points for
 		       interpolation in servo cycles. */
 
-		    /* set whichCycle to be a Cartesian trajectory cycle, for 
+		    /* set whichCycle to be a Cartesian trajectory cycle, for
 		       calc time logging */
 		    whichCycle = 2;
 
@@ -776,7 +1057,7 @@ void emcmotController(void *arg, long period)
 		    }
 
 		    if (kinType == KINEMATICS_IDENTITY) {
-			/* call forward kinematics on input points for actual 
+			/* call forward kinematics on input points for actual
 			   pos, at trajectory rate to save bandwidth */
 			kinematicsForward(emcmotStatus->input,
 			    &emcmotStatus->actualPos, &fflags, &iflags);
@@ -790,9 +1071,12 @@ void emcmotController(void *arg, long period)
 
 		} /* end of: coord mode */
 		else {
+
+/* FIXME - free mode */
+
 		    /* we're in free mode-- run joint planning cycles */
 		    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-			/* set whichCycle to be a joint trajectory cycle, for 
+			/* set whichCycle to be a joint trajectory cycle, for
 			   calc time logging */
 			/* note that this may include one or more joint
 			   trajectory cycles, so calc time may be inherently
@@ -804,7 +1088,7 @@ void emcmotController(void *arg, long period)
 
 			/* set new coarse joint position. FIXME-- this uses
 			   only the tran.x field of the TP_STRUCT, which is
-			   overkill. We need a TP_STRUCT with a single scalar 
+			   overkill. We need a TP_STRUCT with a single scalar
 			   element. */
 			emcmotDebug->coarseJointPos[axis] =
 			    tpGetPos(&emcmotDebug->freeAxis[axis]).tran.x;
@@ -830,7 +1114,7 @@ void emcmotController(void *arg, long period)
 			   repeatedly, when we're in free mode, so that the
 			   world coordinates are kept up to date when joints
 			   are moving. This is only done if we have the
-			   kinematics. emcmotStatus->pos needs to be set with 
+			   kinematics. emcmotStatus->pos needs to be set with
 			   an estimate for the kinematics to converge, which
 			   is true when we enter free mode from coordinated
 			   mode or after the machine is homed. */
@@ -852,17 +1136,20 @@ void emcmotController(void *arg, long period)
 	    }			/* end of: not teleop mode */
 	}			/* end of: while (cubicNeedNextPoint(0)) */
 
+
+/* FIXME - at this point, there is data in the interpolators */
+
 	/* we're still in motion enabled section. For coordinated mode, the
 	   Cartesian trajectory cycle has been computed, if necessary, run
 	   through the inverse kinematics, and the joints have been splined
 	   up for interpolation. For free mode, the joint trajectory cycles
-	   have been computed, if necessary, and the joints have been splined 
+	   have been computed, if necessary, and the joints have been splined
 	   up for interpolation. We still need to push the actual input
 	   through the forward kinematics, for actual pos.
 
 	   Effects:
 
-	   For coord mode, emcmotStatus->pos contains the commanded Cartesian 
+	   For coord mode, emcmotStatus->pos contains the commanded Cartesian
 	   pose, emcmotDebug->coarseJointPos[] contains the results of the
 	   inverse kinematics at the coarse (trajectory) rate, and the
 	   interpolators are not empty.
@@ -873,6 +1160,8 @@ void emcmotController(void *arg, long period)
 	   emcmotDebug->coarseJointPos[] contains the results of the joint
 	   trajectory calculations at the coarse (trajectory) rate, and the
 	   interpolators are not empty. */
+
+/* FIXME - move this to check_soft_limits() ? */
 
 	/* check for soft joint limits. If so, abort all motion. The
 	   interpolators will pick this up further down and begin planning
@@ -917,6 +1206,8 @@ void emcmotController(void *arg, long period)
 	    emcmotDebug->wasOnLimit = 0;
 	}
 
+/* FIXME - logging stuff */
+#if 0
 	if (whichCycle == 2) {
 	    /* we're on a trajectory cycle, either Cartesian or joint
 	       planning, so log per-traj-cycle data if logging active */
@@ -997,6 +1288,9 @@ void emcmotController(void *arg, long period)
 				   emcmotStatus->logSkip >= 0) */
 	}
 	/* end of: if (whichCycle == 2), for trajectory cycle logging */
+#endif /* traj logging ( #if 0 ) */
+
+/* FIXME - here is where we finally get a position */
 
 	/* run interpolation and compensation */
 	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
@@ -1011,7 +1305,7 @@ void emcmotController(void *arg, long period)
 
 	    /* compute backlash */
 
-
+/* FIXME - call backlash from here */
 
 #ifdef COMPING
 	    /* set direction flag iff there's a direction change, otherwise
@@ -1027,6 +1321,8 @@ void emcmotController(void *arg, long period)
 	    /* run output calculations */
 	    if (GET_AXIS_ACTIVE_FLAG(axis)) {
 		/* BACKLASH COMPENSATION */
+/* FIXME - backlash completely redone */
+#if 0
 		/* FIXME-- make backlash part of the EMC status proper, not
 		   the PID structure */
 		if (emcmotDebug->jointPos[axis] -
@@ -1131,21 +1427,10 @@ void emcmotController(void *arg, long period)
 		emcmotDebug->outJointPos[axis] =
 		    emcmotDebug->jointPos[axis] +
 		    emcmotDebug->bcompincr[axis];
-
-#ifndef NO_ROUNDING
-		numres =
-		    emcmotDebug->outJointPos[axis] *
-		    emcmotStatus->inputScale[axis];
-		if (numres < 0.0) {
-		    emcmotDebug->outJointPos[axis] =
-			emcmotDebug->inverseInputScale[axis] *
-			((int) (numres - 0.5));
-		} else {
-		    emcmotDebug->outJointPos[axis] =
-			emcmotDebug->inverseInputScale[axis] *
-			((int) (numres + 0.5));
-		}
 #endif
+/* end of backlash stuff */
+
+/* FIXME - we no longer do PID here, we just spit out position commands */
 
 		/* Here's where binfunc_trajupdate() was called. */
 
@@ -1155,19 +1440,23 @@ void emcmotController(void *arg, long period)
 
 		   Currently the source calls for PID compensation. FIXME--
 		   add wrapper for compensator, with ptr to emcmotStatus
-		   struct, with semantics that ->output[] needs to be filled. 
+		   struct, with semantics that ->output[] needs to be filled.
 		 */
 
 		/* here is PID compensation */
-		/* note that we have to compare adjusted output 'outJointPos' 
+		/* note that we have to compare adjusted output 'outJointPos'
 		   with the input, but the input has already had backlash
-		   comp taken out, while the output has just had it added in. 
+		   comp taken out, while the output has just had it added in.
 		   So, we need to add it to the input for this calculation */
 		emcmotStatus->output[axis] =
 		    pidRunCycle(&emcmotConfig->pid[axis],
-		    emcmotStatus->input[axis] +
-		    emcmotDebug->bcompincr[axis],
+		    emcmotStatus->input[axis] /* +
+		    emcmotDebug->bcompincr[axis]*/,
 		    emcmotDebug->outJointPos[axis]);
+
+/* FIXME - here we need to read the following error from the PID block
+           and trip if it's too high.
+*/
 
 		/* COMPUTE FOLLOWING ERROR: */
 
@@ -1204,14 +1493,16 @@ void emcmotController(void *arg, long period)
 		}
 	    } /* end of: if (GET_AXIS_ACTIVE_FLAG(axis)) */
 	    else {
-		/* axis is not active-- leave the pid output where it is-- if 
+		/* axis is not active-- leave the pid output where it is-- if
 		   axis is not active one can still write to the dac */
 	    }
+
+/* FIXME - this clamping is applied to the DAC - goes away */
 
 	    /* CLAMP OUTPUT: */
 
 	    /* clamp output means take 'emcmotStatus->output[]' and limit to
-	       range 'emcmotConfig->minOutput[] .. emcmotConfig->maxOutput[]' 
+	       range 'emcmotConfig->minOutput[] .. emcmotConfig->maxOutput[]'
 	     */
 	    if (emcmotStatus->output[axis] < emcmotConfig->minOutput[axis]) {
 		emcmotStatus->output[axis] = emcmotConfig->minOutput[axis];
@@ -1220,17 +1511,19 @@ void emcmotController(void *arg, long period)
 		emcmotStatus->output[axis] = emcmotConfig->maxOutput[axis];
 	    }
 
+/* FIXME - more homing info, move to the home function */
+
 	    /* CHECK FOR LATCH CONDITION: */
-	    /* 
-	       check for latch condition means if we're waiting for a latched 
+	    /*
+	       check for latch condition means if we're waiting for a latched
 	       index pulse, and we see the pulse switch, we read the raw
-	       input and abort. The offset is set above in the homing section 
-	       by noting that if we're homing, and emcmotDebug->homingPhase[] 
+	       input and abort. The offset is set above in the homing section
+	       by noting that if we're homing, and emcmotDebug->homingPhase[]
 	       is 3, we latched.
 
 	       This presumes an encoder index pulse. FIXME-- remove explicit
 	       calls to encoder index pulse, to allow for open-loop control
-	       latching via switches only. Open-loop control can be achieved, 
+	       latching via switches only. Open-loop control can be achieved,
 	       at least for STG boards, by defining NO_INDEX_PULSE in
 	       extstgmot.c */
 	    if (emcmotDebug->homingPhase[axis] == 3) {
@@ -1253,7 +1546,7 @@ void emcmotController(void *arg, long period)
 	    /* end of: if (emcmotDebug->homingPhase[axis] == 3 */
 	    /* CHECK FOR HOMING PHASE 2, COMMAND THE MOVE TO THE INDEX PULSE */
 	    if (emcmotDebug->homingPhase[axis] == 2) {
-		if (GET_AXIS_HOMING_POLARITY(axis)) {
+		if (emcmotConfig->homingVel[axis] > 0.0) {
 		    emcmotDebug->freePose.tran.x = -2.0 * AXRANGE(axis);
 		} else {
 		    emcmotDebug->freePose.tran.x = +2.0 * AXRANGE(axis);
@@ -1326,6 +1619,9 @@ void emcmotController(void *arg, long period)
 	    interpolationCounter = emcmotConfig->interpolationRate;
 	}
     }
+
+/* FIXME - check probe input */
+
     extProbeCheck(&emcmotStatus->probeval);
     if (emcmotStatus->probing && emcmotStatus->probeTripped) {
 	tpClear(&emcmotDebug->queue);
@@ -1351,6 +1647,8 @@ void emcmotController(void *arg, long period)
 	}
     }
 
+/* FIXME - output scaling, goes away */
+
     /* SCALE OUTPUTS: */
 
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
@@ -1360,12 +1658,16 @@ void emcmotController(void *arg, long period)
 	    emcmotDebug->inverseOutputScale[axis];
     }
 
+/* FIXME - output to dacs, goes away */
+
     /* WRITE OUTPUTS: */
 
-    /* write DACs-- note that this is done even when not enabled, although in 
-       this case the pidOutputs are all zero unless manually overridden. They 
+    /* write DACs-- note that this is done even when not enabled, although in
+       this case the pidOutputs are all zero unless manually overridden. They
        will not be set by any calculations if we're not enabled. */
     extDacWriteAll(EMCMOT_MAX_AXIS, emcmotDebug->rawOutput);
+
+/* FIXME - clean this up */
 
     /* UPDATE THE REST OF THE DYNAMIC STATUS: */
 
@@ -1394,13 +1696,15 @@ void emcmotController(void *arg, long period)
 	if (tpIsDone(&emcmotDebug->freeAxis[axis])) {
 	    SET_AXIS_INPOS_FLAG(axis, 1);
 	} else {
-	    /* this axis, at least, is moving, so set emcmotDebug->overriding 
+	    /* this axis, at least, is moving, so set emcmotDebug->overriding
 	       flag */
 	    if (emcmotStatus->overrideLimits) {
 		emcmotDebug->overriding = 1;
 	    }
 	}
     }
+
+/* FIXME - axis limits over-ride - should probably be in limits function */
 
     /* reset overrideLimits flag if we have started a move and now are in
        position */
@@ -1417,6 +1721,8 @@ void emcmotController(void *arg, long period)
 	}
     }
 
+/* FIXME - single-stepping?  do we need to keep this? */
+
     /* check to see if we should pause in order to implement single
        emcmotDebug->stepping */
     if (emcmotDebug->stepping && emcmotDebug->idForStep != emcmotStatus->id) {
@@ -1427,6 +1733,8 @@ void emcmotController(void *arg, long period)
 	emcmotDebug->stepping = 0;
 	emcmotStatus->paused = 1;
     }
+
+/* FIXME - housekeeping - some of this goes away */
 
     /* calculate elapsed time and min/max/avg */
     end = etime();
@@ -1451,6 +1759,9 @@ void emcmotController(void *arg, long period)
 	}
     }
 
+/* FIXME - time logging - HAL should do this instead */
+
+
     emcmotStatus->computeTime = delta;
     if (DEBUG_MOTION) {
 	if (2 == whichCycle) {
@@ -1473,6 +1784,8 @@ void emcmotController(void *arg, long period)
 	    emcmotDebug->nAvg = mmxavgAvg(&emcmotDebug->nMmxavg);
 	}
     }
+
+/* FIXME - more logging.... delete? */
 
     /* log per-servo-cycle data if logging active */
     logIt = 0;
@@ -1586,6 +1899,8 @@ void emcmotController(void *arg, long period)
     }				/* end of: if logging */
     emcmotDebug->running_time = etime() - emcmotDebug->start_time;
 
+/* WOW - finally the end */
+
     /* set tail to head, which has already been incremented */
     emcmotStatus->tail = emcmotStatus->head;
     emcmotDebug->tail = emcmotDebug->head;
@@ -1593,31 +1908,35 @@ void emcmotController(void *arg, long period)
 
 }/* end of: emcmotController() function */
 
+#endif /* ! HIDE_OLD_CONTROLLER */
 
 /***********************************************************************
 *                         LOCAL FUNCTION CODE                          *
 ************************************************************************/
 
-/* backlash() assumes that axis_hal_array[axis].joint_pos_cmd is the
-   desired joint position.  It computes and applies backlash comp,
-   updating the values of axis_hal_array[axis].backlash_corr,
-   .backlash_filt, .joint_vel_cmd, .motor_pos_cmd, and .joint_pos_fb
+
+
+/* compute_backlash() determines which way the axis is moving, and
+   calculates the amount of backlash comp to be applied.  The comp
+   is written to backlash_corr.  Since that value makes step changes
+   when the axis reverses direction, a ramped version is calculated
+   and written to backlash_filt.
 */
 
-static int backlash(int axis)
+static void compute_backlash(int axis)
 {
     axis_hal_t *axis_data;
     double max_delta_pos, dist_to_go;
 
-    axis_data = &(axis_hal_array[axis]);
+    axis_data = &(machine_hal_data->axis[axis]);
 
     /* determine which way the compensation should be applied */
-    if ( emcmotDebug->jointVel[axis] > 0.0 ) {
+    if ( emcmotStatus->joint_vel_cmd[axis] > 0.0 ) {
 	/* moving "up". apply positive backlash comp */
 	/* FIXME - the more sophisticated axisComp should be applied
 	   here, if available */
 	axis_data->backlash_corr = 0.5 * emcmotConfig->pid[axis].backlash;
-    } else if ( emcmotDebug->jointVel[axis] < 0.0 ) {
+    } else if ( emcmotStatus->joint_vel_cmd[axis] < 0.0 ) {
 	/* moving "down". apply negative backlash comp */
 	/* FIXME - the more sophisticated axisComp should be applied
 	   here, if available */
@@ -1641,14 +1960,10 @@ static int backlash(int axis)
 	/* within one step of final value, go there now */
 	axis_data->backlash_filt = axis_data->backlash_corr;
     }
-
-    /* apply filtered backlash to output and feeback */
-    
-    return 0;
 }
 
 
-
+#ifndef HIDE_OLD_CONTROLLER
 /* isHoming() returns non-zero if any axes are homing, 0 if none are */
 static int isHoming(void)
 {
@@ -1662,7 +1977,12 @@ static int isHoming(void)
     /* got here, so none are homing */
     return 0;
 }
+#endif
 
+/* FIXME - this will be re-instated (or revised) later, for now
+   we just use simple backlash comp only.
+*/
+#if 0
 /*
   axisComp(int axis, int dir, double nominal) looks up the real axis
   position value, given the nominal value and the direction of motion,
@@ -1761,4 +2081,5 @@ static double axisComp(int axis, int dir, double nominput)
     return compin;
 }
 
+#endif
 

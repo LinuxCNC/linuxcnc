@@ -2,7 +2,7 @@
 
 include ../../../Makefile.inc
 
-SRCS = \
+RT_SRCS = \
 	cubic.c \
 	mmxavg.c \
 	tc.c \

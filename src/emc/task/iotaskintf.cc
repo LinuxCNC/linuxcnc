@@ -323,7 +323,7 @@ int emcSpindleAbort()
 
 int emcSpindleOn(double speed)
 {
-    double dacout = 0;
+//    double dacout = 0;
 
     spindleSpeed = speed;
     // do digital IO stuff to enable spindle
@@ -331,6 +331,9 @@ int emcSpindleOn(double speed)
     EMC_SPINDLE_ON spindleOnMsg;
     spindleOnMsg.speed = speed;
     sendCommand(&spindleOnMsg);
+/* FIXME - this needs to be changed to use the HAL */
+/* probably want a spindleSpdMsg */
+#if 0
 /* Convert speed to an analogue voltage */
     dacout = (speed > 0.0 ? (fabs(speed) * MAX_VOLTS_PER_RPM) :
 	speed < 0.0 ? (fabs(speed) * MIN_VOLTS_PER_RPM) : 0);
@@ -338,7 +341,7 @@ int emcSpindleOn(double speed)
     emcAxisSetOutput(SPINDLE_ON_INDEX, dacout);
 /* and enable the DAC */
     emcAxisEnable(SPINDLE_ON_INDEX);
-
+#endif
     return 0;
 }
 
@@ -348,11 +351,12 @@ int emcSpindleOff()
 
     sendCommand(&spindleOffMsg);
 
-/* Disable the DAC and set the output to zero 
+#if 0
+/* Disable the DAC and set the output to zero
    (just in case it is enabled else where !) */
     emcAxisDisable(SPINDLE_ON_INDEX);
     emcAxisSetOutput(SPINDLE_ON_INDEX, 0);
-
+#endif
     return 0;
 }
 

@@ -59,7 +59,8 @@ static int loadTraj()
   int axes;
   double linearUnits;
   double angularUnits;
-  double cycleTime;
+/* FIXME - variables no longer needed */
+//  double cycleTime;
   double vel;
   double acc;
   unsigned char coordinateMark[6] = {1, 1, 1, 0, 0, 0};
@@ -69,8 +70,8 @@ static int loadTraj()
   char home[INIFILE_MAX_LINELEN];
   EmcPose homePose ={ { 0.0, 0.0, 0.0 } , 0.0, 0.0, 0.0};
   double d;
-  int index;
-  int polarity;
+//  int index;
+//  int polarity;
 
   if (NULL != (inistring = trajInifile->find("AXES", "TRAJ"))) {
     if (1 == sscanf(inistring, "%d", &axes)) {
@@ -144,7 +145,8 @@ static int loadTraj()
     }
     return -1;
   }
-
+/* FIXME - cycle time now set by run script */
+#if 0
   if (NULL != (inistring = trajInifile->find("CYCLE_TIME", "TRAJ"))) {
     if (1 == sscanf(inistring, "%lf", &cycleTime)) {
       // found, and valid
@@ -170,6 +172,7 @@ static int loadTraj()
     }
     return -1;
   }
+#endif
 
   if (NULL != (inistring = trajInifile->find("DEFAULT_VELOCITY", "TRAJ"))) {
     if (1 == sscanf(inistring, "%lf", &vel)) {
@@ -377,6 +380,8 @@ static int loadTraj()
     return -1;
   }
 
+/* FIXME - polarities and probe pin selection now handled by HAL */
+#if 0
   if (NULL != (inistring = trajInifile->find("PROBE_POLARITY", "TRAJ"))) {
     if (1 == sscanf(inistring, "%d", &polarity)) {
       // found, and valid
@@ -428,6 +433,7 @@ static int loadTraj()
     }
     return -1;
   }
+#endif
 
   return 0;
 }

@@ -3,13 +3,15 @@
 include ../../../Makefile.inc
 
 SRCS = \
-	command.c \
-	control.c \
 	emcmotglb.c \
 	emcmotutil.c \
 	emcpid.c \
-	motion.c \
 	usrmotintf.c
+
+RT_SRCS = \
+	command.c \
+	control.c \
+	motion.c
 
 HEADERS = \
 	emcmotcfg.h \

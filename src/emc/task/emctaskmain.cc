@@ -213,19 +213,19 @@ static EMC_AXIS_JOG *jog_msg;
 static EMC_AXIS_ABORT *axis_abort_msg;
 static EMC_AXIS_INCR_JOG *incr_jog_msg;
 static EMC_AXIS_ABS_JOG *abs_jog_msg;
-static EMC_AXIS_SET_CYCLE_TIME *set_cycle_time_msg;
-static EMC_AXIS_SET_GAINS *set_gains_msg;
-static EMC_AXIS_SET_INPUT_SCALE *set_input_scale_msg;
-static EMC_AXIS_SET_OUTPUT_SCALE *set_output_scale_msg;
+//static EMC_AXIS_SET_CYCLE_TIME *set_cycle_time_msg;
+//static EMC_AXIS_SET_GAINS *set_gains_msg;
+//static EMC_AXIS_SET_INPUT_SCALE *set_input_scale_msg;
+//static EMC_AXIS_SET_OUTPUT_SCALE *set_output_scale_msg;
 static EMC_AXIS_SET_FERROR *set_ferror_msg;
 static EMC_AXIS_SET_MIN_FERROR *set_min_ferror_msg;
 static EMC_AXIS_SET_MAX_POSITION_LIMIT *set_max_limit_msg;
 static EMC_AXIS_SET_MIN_POSITION_LIMIT *set_min_limit_msg;
 static EMC_AXIS_OVERRIDE_LIMITS *axis_lim_msg;
-static EMC_AXIS_SET_OUTPUT *axis_output_msg;
+//static EMC_AXIS_SET_OUTPUT *axis_output_msg;
 static EMC_AXIS_LOAD_COMP *axis_load_comp_msg;
 static EMC_AXIS_ALTER *axis_alter_msg;
-static EMC_AXIS_SET_STEP_PARAMS *set_step_params_msg;
+//static EMC_AXIS_SET_STEP_PARAMS *set_step_params_msg;
 
 static EMC_TRAJ_SET_SCALE *emcTrajSetScaleMsg;
 static EMC_TRAJ_SET_VELOCITY *emcTrajSetVelocityMsg;
@@ -1328,7 +1328,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcAxisAbsJog(abs_jog_msg->axis,
 	    abs_jog_msg->pos, abs_jog_msg->vel);
 	break;
-
+#if 0
     case EMC_AXIS_SET_GAINS_TYPE:
 	set_gains_msg = (EMC_AXIS_SET_GAINS *) cmd;
 	retval = emcAxisSetGains(set_gains_msg->axis,
@@ -1342,7 +1342,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    set_gains_msg->bias,
 	    set_gains_msg->maxError, set_gains_msg->deadband);
 	break;
+#endif
 
+#if 0
     case EMC_AXIS_SET_CYCLE_TIME_TYPE:
 	set_cycle_time_msg = (EMC_AXIS_SET_CYCLE_TIME *) cmd;
 	retval = emcAxisSetCycleTime(set_cycle_time_msg->axis,
@@ -1360,7 +1362,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcAxisSetOutputScale(set_output_scale_msg->axis,
 	    set_output_scale_msg->scale, set_output_scale_msg->offset);
 	break;
-
+#endif
     case EMC_AXIS_SET_FERROR_TYPE:
 	set_ferror_msg = (EMC_AXIS_SET_FERROR *) cmd;
 	retval = emcAxisSetFerror(set_ferror_msg->axis,
@@ -1394,13 +1396,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	axis_lim_msg = (EMC_AXIS_OVERRIDE_LIMITS *) cmd;
 	retval = emcAxisOverrideLimits(axis_lim_msg->axis);
 	break;
-
+#if 0
     case EMC_AXIS_SET_OUTPUT_TYPE:
 	axis_output_msg = (EMC_AXIS_SET_OUTPUT *) cmd;
 	retval = emcAxisSetOutput(axis_output_msg->axis,
 	    axis_output_msg->output);
 	break;
-
+#endif
     case EMC_AXIS_LOAD_COMP_TYPE:
 	axis_load_comp_msg = (EMC_AXIS_LOAD_COMP *) cmd;
 	retval = emcAxisLoadComp(axis_load_comp_msg->axis,
@@ -1411,13 +1413,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	axis_alter_msg = (EMC_AXIS_ALTER *) cmd;
 	retval = emcAxisAlter(axis_alter_msg->axis, axis_alter_msg->alter);
 	break;
-
+#if 0
     case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 	set_step_params_msg = (EMC_AXIS_SET_STEP_PARAMS *) cmd;
 	retval = emcAxisSetStepParams(set_step_params_msg->axis,
 	    set_step_params_msg->setup_time, set_step_params_msg->hold_time);
 	break;
-
+#endif
 	// traj commands
 
     case EMC_TRAJ_SET_SCALE_TYPE:
@@ -1483,7 +1485,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcStatus->task.origin = ((EMC_TRAJ_SET_ORIGIN *) cmd)->origin;
 	retval = 0;
 	break;
-
+#if 0
     case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 	retval =
 	    emcTrajSetProbeIndex(((EMC_TRAJ_SET_PROBE_INDEX *) cmd)->index);
@@ -1494,7 +1496,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    emcTrajSetProbePolarity(((EMC_TRAJ_SET_PROBE_POLARITY *) cmd)->
 	    polarity);
 	break;
-
+#endif
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	retval = emcTrajClearProbeTrippedFlag();
 	break;
@@ -1516,7 +1518,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    emcTrajSetTeleopVector(((EMC_TRAJ_SET_TELEOP_VECTOR *) cmd)->
 	    vector);
 	break;
-
+#if 0
     case EMC_MOTION_SET_AOUT_TYPE:
 	retval = emcMotionSetAout(((EMC_MOTION_SET_AOUT *) cmd)->index,
 	    ((EMC_MOTION_SET_AOUT *) cmd)->start,
@@ -1528,7 +1530,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    ((EMC_MOTION_SET_DOUT *) cmd)->start,
 	    ((EMC_MOTION_SET_DOUT *) cmd)->end);
 	break;
-
+#endif
     case EMC_SET_DEBUG_TYPE:
 	/* set the debug level here */
 	EMC_DEBUG = ((EMC_SET_DEBUG *) cmd)->debug;

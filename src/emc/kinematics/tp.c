@@ -457,6 +457,10 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     return 0;
 }
 
+/* what the hell does this do?  It is one of the key functions in
+   the whole planner, and it doesn't have any overall comments :-(
+*/
+
 int tpRunCycle(TP_STRUCT * tp)
 {
     EmcPose sumPos;
@@ -700,6 +704,14 @@ EmcPose tpGetPos(TP_STRUCT * tp)
     EmcPose retval;
 
     if (0 == tp) {
+
+	/* FIXME - this is a bug waiting to happen... it returns
+	   a pointer to an EmcPose structure that is declared
+	   locally, ie. on the stack!  That struct goes out of
+	   scope as soon as this function returns.  I expect the
+	   only reason it hasn't caused problems is that nobody
+	   ever calls this function with tp = 0
+	*/
 	retval.tran.x = retval.tran.y = retval.tran.z = 0.0;
 	retval.a = retval.b = retval.c = 0.0;
 	return retval;

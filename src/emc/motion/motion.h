@@ -15,11 +15,50 @@
 * $Date$
 *
 ********************************************************************/
+
+/* This file is a mess! */
+
+
+/*
+
+Misc ramblings:
+
+There are three main kinds of data needed by the motion controller
+
+1) data shared with higher level stuff - commands, status, etc.
+2) data that is local to the motion controller
+3) data shared with lower level stuff - hal pins
+
+In addition, some internal data (2) should be shared for trouble
+shooting purposes, even though it is "internal" to the motion
+controller.  Depending on the type of data, it can either be
+treated as type (1), and made available to the higher level
+code, or it can be treated as type (3), and made available to
+the hal, so that halscope can monitor it.
+
+This file should ONLY contain structures and declarations for
+type (1) items - those that are shared with higher level code.
+
+Type (2) items should be declared in mot_priv.h, along
+with type (3) items.
+
+In the interest of retaining my sanity, I'm not gonna attempt
+to move everything to its proper location yet....
+
+However, all new items will be defined in the proper place,
+and some existing items may be moved from one struct definition
+to another.
+
+*/
+
+
+
+
 #ifndef MOTION_H
 #define MOTION_H
 
 #include "posemath.h"		/* PmCartesian, PmPose, pmCartMag() */
-#include "emcpos.h"
+#include "emcpos.h"		/* EmcPose */
 #include "emcpid.h"		/* PID_STRUCT */
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
 #include "emcmotcfg.h"		/* EMCMOT_MAX_AXIS */
@@ -29,9 +68,19 @@
 #include "mmxavg.h"		/* MMXAVG_STRUCT */
 #include "kinematics.h"
 
+/* define NEW_STRUCTS if you want to use the new
+   structure definitions - eventually the old ones
+   will be deleted, and this line and the #ifdefs
+   can be removed.
+*/
+
+#define NEW_STRUCTS
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 
     typedef struct _EMC_TELEOP_DATA {
 	EmcPose currentVel;
@@ -40,20 +89,11 @@ extern "C" {
 	EmcPose desiredAccell;
     } EMC_TELEOP_DATA;
 
-/* motion flag type */
-    typedef unsigned short EMCMOT_MOTION_FLAG;
+/* This enum lists all the possible commands */
 
-/* axis flag type */
-    typedef unsigned short EMCMOT_AXIS_FLAG;
-
-/* commands */
-    enum {
-	EMCMOT_SET_TRAJ_CYCLE_TIME = 1,	/* set the cycle time */
-	EMCMOT_SET_SERVO_CYCLE_TIME,	/* set the interpolation rate */
-	EMCMOT_SET_POSITION_LIMITS,	/* set the axis position +/- limits */
+    typedef enum {
+	EMCMOT_SET_POSITION_LIMITS = 1,	/* set the axis position +/- limits */
 	EMCMOT_SET_OUTPUT_LIMITS,	/* set the axis output +/- limits */
-	EMCMOT_SET_OUTPUT_SCALE,	/* scale factor for outputs */
-	EMCMOT_SET_INPUT_SCALE,	/* scale factor for inputs */
 	EMCMOT_SET_MIN_FERROR,	/* minimum following error, input units */
 	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
 	EMCMOT_JOG_CONT,	/* continuous jog */
@@ -62,9 +102,10 @@ extern "C" {
 	EMCMOT_SET_LINE,	/* queue up a linear move */
 	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
 	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
-	EMCMOT_SET_VEL_LIMIT,	/* set the absolute max vel for all moves */
-	EMCMOT_SET_AXIS_VEL_LIMIT,	/* set the absolute max axis vel */
-	EMCMOT_SET_ACC,		/* set the acceleration for moves */
+	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
+	EMCMOT_SET_AXIS_VEL_LIMIT,	/* set the max axis vel */
+	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
+//	EMCMOT_SET_AXIS_ACC,	/* NEW set the max accel for axis */
 	EMCMOT_PAUSE,		/* pause motion */
 	EMCMOT_RESUME,		/* resume motion */
 	EMCMOT_STEP,		/* resume motion until id encountered */
@@ -72,22 +113,18 @@ extern "C" {
 	EMCMOT_SCALE,		/* scale the speed */
 	EMCMOT_ENABLE,		/* enable servos for active axes */
 	EMCMOT_DISABLE,		/* disable servos for active axes */
-	EMCMOT_SET_PID,		/* set PID gains */
-	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs and dac writes */
-	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs and dac writes 
-					 */
+	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs */
+	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs */
 	EMCMOT_OPEN_LOG,	/* open a log */
 	EMCMOT_START_LOG,	/* start logging */
 	EMCMOT_STOP_LOG,	/* stop logging */
 	EMCMOT_CLOSE_LOG,	/* close log */
-	EMCMOT_DAC_OUT,		/* write directly to the dacs */
 	EMCMOT_HOME,		/* home an axis */
 	EMCMOT_FREE,		/* set mode to free (joint) motion */
 	EMCMOT_COORD,		/* set mode to coordinated motion */
 	EMCMOT_TELEOP,		/* set mode to teleop */
 	EMCMOT_ENABLE_WATCHDOG,	/* enable watchdog sound, parport */
 	EMCMOT_DISABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_SET_POLARITY,	/* set polarity for axis flags */
 	EMCMOT_ACTIVATE_AXIS,	/* make axis active */
 	EMCMOT_DEACTIVATE_AXIS,	/* make axis inactive */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
@@ -100,30 +137,36 @@ extern "C" {
 	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
 					   world cartesian coordinates, not
 					   in joint space like EMCMOT_JOG_* */
-	EMCMOT_SET_PROBE_INDEX,	/* set which wire the probe signal is on. */
-	EMCMOT_SET_PROBE_POLARITY,	/* probe tripped on 0 to 1 transition 
-					   or on 1 to 0 transition. */
 	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
 	EMCMOT_PROBE,		/* go towards a position, stop if the probe
 				   is tripped, and record the position where
 				   the probe tripped */
-	EMCMOT_SET_DEBUG,	/* sets the debug level */
-	EMCMOT_SET_AOUT,	/* sets an analog motion point for next move */
-	EMCMOT_SET_DOUT,	/* sets a digital motion point for next move */
-	EMCMOT_SET_STEP_PARAMS	/* sets setup_time and hold_time for freqtask 
-				 */
-    };
+	EMCMOT_SET_DEBUG	/* sets the debug level */
+    } cmd_code_t;
+
+/* this enum lists the possible results of a command */
+
+    typedef enum {
+	EMCMOT_COMMAND_OK = 0,		/* cmd honored */
+	EMCMOT_COMMAND_UNKNOWN_COMMAND,	/* cmd not understood */
+	EMCMOT_COMMAND_INVALID_COMMAND,	/* cmd can't be handled now */
+	EMCMOT_COMMAND_INVALID_PARAMS,	/* bad cmd params */
+	EMCMOT_COMMAND_BAD_EXEC		/* error trying to initiate */
+    } cmd_status_t;
+
+
 
 /* termination conditions for queued motions */
 #define EMCMOT_TERM_COND_STOP 1
 #define EMCMOT_TERM_COND_BLEND 2
 
-/* command struct */
+/* This is the command structure.  There is one of these in shared
+   memory, and all commands from higher level code come thru it.
+*/
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
-	int command;		/* one of the command enums above */
+	cmd_code_t command;	/* command code (enum) */
 	int commandNum;		/* increment this for new command */
-	double cycleTime;	/* planning time (not servo time) */
 	double maxLimit;	/* pos value for position limit, output */
 	double minLimit;	/* neg value for position limit, output */
 	EmcPose pos;		/* end for line, circle */
@@ -135,7 +178,7 @@ extern "C" {
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
 	int axis;		/* which index to use for below */
-	PID_STRUCT pid;		/* gains */
+/* FIXME - logging stuff will be radically reduced later */
 	int logSize;		/* size for log fifo */
 	int logSkip;		/* how many to skip, 0 means log all, -1
 				   means don't log on cycles */
@@ -144,24 +187,26 @@ extern "C" {
 	int logTriggerVariable;	/* the variable(s) that can cause the log to
 				   trigger. se enum LOG_TRIGGER_VARS */
 	double logTriggerThreshold;	/* the value for non manual triggers */
-	double dacOut;		/* output to DAC */
-	double scale;		/* input or output scale arg */
+
+	double scale;		/* velocity scale arg */
+/* FIXME - offset might go away */
 	double offset;		/* input or output offset arg */
 	double minFerror;	/* min following error */
 	double maxFerror;	/* max following error */
 	int wdWait;		/* cycle to wait before toggling wd */
-	EMCMOT_AXIS_FLAG axisFlag;	/* flag to set polarities */
-	int level;		/* flag for polarity level */
-	int index;		/* Digital IO pin index */
-	int probeIndex;		/* which wire the probe signal is on */
 	int debug;		/* debug level, from DEBUG in .ini file */
 	unsigned char out, start, end;	/* motion index, start, and end bits */
 	unsigned char tail;	/* flag count for mutex detect */
-	double setup_time;	/* number of periods before step occurs that
-				   dir changes */
-	double hold_time;	/* number of periods that step line is held
-				   low/high after transition */
     } emcmot_command_t;
+
+
+/* FIXME - these packed bits might be replaced with chars
+   memory is cheap, and being able to access them without those
+   damn macros would be nice
+*/
+
+/* motion flag type */
+    typedef unsigned short EMCMOT_MOTION_FLAG;
 
 /*
   motion status flag structure-- looks like:
@@ -185,8 +230,11 @@ extern "C" {
 #define EMCMOT_MOTION_INPOS_BIT       0x0002
 #define EMCMOT_MOTION_COORD_BIT       0x0004
 #define EMCMOT_MOTION_ERROR_BIT       0x0008
-#define EMCMOT_MOTION_TELEOP_BIT       0x0010
+#define EMCMOT_MOTION_TELEOP_BIT      0x0010
 
+
+/* axis flag type */
+    typedef unsigned short EMCMOT_AXIS_FLAG;
 /*
   axis status flag structure-- looks like:
 
@@ -242,39 +290,38 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define EMCMOT_AXIS_FERROR_BIT         0x1000
 #define EMCMOT_AXIS_FAULT_BIT          0x2000
 
-/* axis flag polarities-- for those axis flag bits that are subject
-   to polarity (e.g., EN is, IP, H are not)-- are referenced to these
-   bit masks above.
 
-   Note that 1 is normal, 0 is inverted, for sensing. They are reported
-   in the axis status flag as documented, regardless of polarity. That
-   is, AF will be 1 in the axis status flag for an amp fault, if the
-   amp is faulted, regardless of the polarity.
-
-   They default to 1, normal polarity.
-
-   To set them, send EMCMOT_SET_POLARITY, with axis set to
-   0..EMCMOT_MAX_AXIS - 1, axisFlag set to polarity bits for axis.
-
-Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
-            HAL layer.
-   
+/* This is the status structure.  There is one of these in shared
+   memory, and it reports motion controller status to higher level
+   code in user space.  For the most part, this structure contains
+   higher level variables - low level stuff is made visible to the
+   HAL and troubleshooting, etc, is done using the HAL oscilliscope.
 */
 
-/* values for commandStatus */
-#define EMCMOT_COMMAND_OK 0	/* cmd honored */
-#define EMCMOT_COMMAND_UNKNOWN_COMMAND 1	/* cmd not understood */
-#define EMCMOT_COMMAND_INVALID_COMMAND 2	/* cmd can't be handled now */
-#define EMCMOT_COMMAND_INVALID_PARAMS 3	/* bad cmd params */
-#define EMCMOT_COMMAND_BAD_EXEC 4	/* error trying to initiate */
-/* deprecated symbols */
-#define KINEMATICS_SERIAL KINEMATICS_FORWARD_ONLY
-#define KINEMATICS_PARALLEL KINEMATICS_INVERSE_ONLY
-#define KINEMATICS_CUSTOM KINEMATICS_BOTH
+/* FIXME - this struct is broken into two parts... at the top are
+   structure members that I understand, and that are needed for emc2.
+   Other structure members follow.  All the later ones need to be
+   evaluated - either they move up, or they go away.
+*/
 
-/* status struct */
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
+	/* these three are updated only when a new command is handled */
+	cmd_code_t commandEcho;	/* echo of input command */
+	int commandNumEcho;	/* echo of input command number */
+	cmd_status_t commandStatus;	/* result of most recent command */
+	/* the rest are updated every cycle */
+	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
+	EMCMOT_AXIS_FLAG axisFlag[EMCMOT_MAX_AXIS];	/* see above for bit
+							   details */
+	double joint_pos_cmd[EMCMOT_MAX_AXIS];	/* replaces "axisPos" */
+	double joint_pos_fb[EMCMOT_MAX_AXIS];	/* replaces "input" */
+	double joint_vel_cmd[EMCMOT_MAX_AXIS];	/* replaces "output" */
+	double ferrorCurrent[EMCMOT_MAX_AXIS];	/* current following error */
+	double ferrorLimit[EMCMOT_MAX_AXIS];	/* allowable following error */
+	double ferrorHighMark[EMCMOT_MAX_AXIS];	/* max following error */
+
+/* FIXME - all structure members beyond this point are in limbo */
 
 	/* dynamic status-- changes every cycle */
 	unsigned int heartbeat;
@@ -283,28 +330,21 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	double computeTime;
 	EmcPose pos;		/* calculated Cartesian position */
 	double axisPos[EMCMOT_MAX_AXIS];	/* calculated axis positions */
-	double output[EMCMOT_MAX_AXIS];	/* Calculated output velocity command 
-					 */
+	double output[EMCMOT_MAX_AXIS];	/* Calculated output velocity command */
 	double input[EMCMOT_MAX_AXIS];	/* actual input */
 	EmcPose actualPos;	/* actual Cartesian position */
 	int id;			/* id for executing motion */
 	int depth;		/* motion queue depth */
 	int activeDepth;	/* depth of active blend elements */
 	int queueFull;		/* Flag to indicate the tc queue is full */
-	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
-	EMCMOT_AXIS_FLAG axisFlag[EMCMOT_MAX_AXIS];	/* see above for bit
-							   details */
 	int paused;		/* Flag to signal motion paused */
 	int overrideLimits;	/* non-zero means limits are ignored */
 	int logPoints;		/* how many points currently in log */
 
 	/* static status-- only changes upon input commands, e.g., config */
-	int commandEcho;	/* echo of input command */
-	int commandNumEcho;	/* echo of input command number */
-	unsigned char commandStatus;	/* one of EMCMOT_COMMAND_ defined
-					   above */
+
 	double outputScale[EMCMOT_MAX_AXIS];	/* Used to set
-						   emcmotDebug->inverseOutputScale 
+						   emcmotDebug->inverseOutputScale
 						   - then used to scale the
 						   DAC outputs */
 	double outputOffset[EMCMOT_MAX_AXIS];	/* DC offset applied to the
@@ -316,8 +356,9 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 						   position in real world
 						   units */
 	double inputOffset[EMCMOT_MAX_AXIS];	/* encoder offsets */
+
 	double qVscale;		/* traj velocity scale factor */
-	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor 
+	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor
 						 */
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
@@ -332,7 +373,7 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 				   2=var < threshold, 3 var>threshold */
 	int logTriggerVariable;	/* The variable(s) that can cause the log to
 				   trigger. */
-	double logTriggerThreshold;	/* The value for non manual triggers. 
+	double logTriggerThreshold;	/* The value for non manual triggers.
 					 */
 	double logStartVal;	/* value use for delta trigger */
 
@@ -346,21 +387,42 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_status_t;
 
-/* config struct */
+
+/* This is the config structure.  This is currently in shared memory,
+   but I have no idea why... there are commands to set most of the
+   items in this structure.  It seems we should either put the struct
+   in private memory and manipulate it with commands, or we should
+   put it in shared memory and manipulate it directly - not both.
+   The structure contains static or rarely changed information that
+   describes the machine configuration.
+*/
+
+/* FIXME - this struct is broken into two parts... at the top are
+   structure members that I understand, and that are needed for emc2.
+   Other structure members follow.  All the later ones need to be
+   evaluated - either they move up, or they go away.
+*/
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
+
+/* FIXME - all structure members beyond this point are in limbo */
+
 	int config_num;		/* Incremented everytime configuration
 				   changed, should match status.config_num */
+#if 0
 	EMCMOT_AXIS_FLAG axisPolarity[EMCMOT_MAX_AXIS];
+#endif
 	int numAxes;		/* The number of axes in the system (which
 				   must be between 1 and EMCMOT_MAX_AXIS,
-				   inclusive). Allegedly, holds a copy of the 
+				   inclusive). Allegedly, holds a copy of the
 				   global NUM_AXES - seems daft to maintain
 				   duplicates ! */
+
 	double trajCycleTime;	/* the rate at which the trajectory loop
 				   runs.... (maybe) */
 	double servoCycleTime;	/* the rate of the servo loop - Not the same
 				   as the traj time */
+
 	int interpolationRate;	/* grep control.c for an explanation....
 				   approx line 50 */
 	double maxLimit[EMCMOT_MAX_AXIS];	/* maximum axis limits,
@@ -376,7 +438,7 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	double maxFerror[EMCMOT_MAX_AXIS];	/* maximum allowable
 						   following error */
 	double limitVel;	/* scalar upper limit on vel */
-	double axisLimitVel[EMCMOT_MAX_AXIS];	/* scalar upper limit on axis 
+	double axisLimitVel[EMCMOT_MAX_AXIS];	/* scalar upper limit on axis
 						   vels */
 	double homingVel[EMCMOT_MAX_AXIS];	/* scalar max homing vels */
 	double homeOffset[EMCMOT_MAX_AXIS];	/* where to go after home,
@@ -399,10 +461,50 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_config_t;
 
-/* debug struct */
-/* FIXME - this has become a dumping ground for all kinds of stuff */
+
+/* This is the internal structure.  It contains stuff that is used
+   internally by the motion controller that does not need to be in
+   shared memory.  It will wind up with a lot of the stuff that got
+   tossed into the debug structure.
+*/
+
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
+
+	double old_joint_pos_cmd[EMCMOT_MAX_AXIS];
+	int pos_limit_debounce_cntr[EMCMOT_MAX_AXIS];
+	int neg_limit_debounce_cntr[EMCMOT_MAX_AXIS];
+	int home_sw_debounce_cntr[EMCMOT_MAX_AXIS];
+	int amp_fault_debounce_cntr[EMCMOT_MAX_AXIS];
+	double ferrorAbs[EMCMOT_MAX_AXIS];	/* absolute val of ferror */
+
+	unsigned char tail;	/* flag count for mutex detect */
+    } emcmot_internal_t;
+
+
+
+/* This is the debug structure.  I guess it was intended to make some
+   of the motion controller's internal variables visible from user
+   space for debugging, but it has evolved into a monster.
+   I'll figure it out eventually though.
+   Low level things will be exported thru the HAL so they can be
+   monitored with halscope.  High level things will remain here,
+   and things that are internal will be moved to a private structure.
+*/
+
+/* FIXME - this struct is broken into two parts... at the top are
+   structure members that I understand, and that are needed for emc2.
+   Other structure members follow.  All the later ones need to be
+   evaluated - either they move up, or they go away.
+*/
+
+/* FIXME - this has become a dumping ground for all kinds of stuff */
+
+    typedef struct {
+	unsigned char head;	/* flag count for mutex detect */
+
+/* FIXME - all structure members beyond this point are in limbo */
+
 	double tMin, tMax, tAvg;	/* trajectory min, max, avg times */
 	double sMin, sMax, sAvg;	/* servo min, max, avg times */
 	double nMin, nMax, nAvg;	/* min, max, avg times in DISABLED
@@ -414,27 +516,8 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 					   cycle times rather than compute */
 
 	EMC_TELEOP_DATA teleop_data;
-	double ferrorCurrent[EMCMOT_MAX_AXIS];	/* current following error */
-	double ferrorHighMark[EMCMOT_MAX_AXIS];	/* magnitude of max following 
-						   error */
 	int split;		/* number of split command reads */
-	/* 
-	   stepperCount[] contains the accumulated pulses that have been
-	   output, which are used as the "encoder feedback" for open-loop
-	   stepping. */
-	int stepperCount[EMCMOT_MAX_AXIS];	/* and rest are 0 */
 
-	/* 
-	 * 'pdmult' is a global that sets value to be loaded into decrement
-	 * counters, for freqfunc() task function. Set this to 0 or 1 for full-out
-	 * frequency, 2 for half, 3 for a third, etc.
-	 * lpg -
-	 * for rtl2x
-	 *             1,193,180    / ( +-10          1.0         48000ns)
-	 * pdmult = HRTICKS_PER_SEC / (rawoutput * output_scale * PERIOD);
-	 * 
-	 */
-	int pdmult[EMCMOT_MAX_AXIS];
 	int enable[EMCMOT_MAX_AXIS];
 
 	/* flag for enabling, disabling watchdog; multiple for down-stepping */
@@ -450,9 +533,8 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	/* values for joint home positions */
 	double jointHome[EMCMOT_MAX_AXIS];
 
-	int maxLimitSwitchCount[EMCMOT_MAX_AXIS];	/* Counters used for
-							   software debounce
-							   of the inputs */
+	/* Counters used for software debounce of the inputs */
+	int maxLimitSwitchCount[EMCMOT_MAX_AXIS];
 	int minLimitSwitchCount[EMCMOT_MAX_AXIS];
 	int ampFaultCount[EMCMOT_MAX_AXIS];
 
@@ -543,7 +625,7 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	double running_time;
 	double cur_time;
 	double last_time;
-
+#if 0
 	/* backlash stuff */
 	double bcomp[EMCMOT_MAX_AXIS];	/* backlash comp value */
 	char bcompdir[EMCMOT_MAX_AXIS];	/* 0=none, 1=pos, -1=neg */
@@ -555,7 +637,7 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	double bac_halfD[EMCMOT_MAX_AXIS];
 	double bac_incrincr[EMCMOT_MAX_AXIS];
 	double bac_incr[EMCMOT_MAX_AXIS];
-
+#endif
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_debug_t;
 
@@ -588,6 +670,7 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	emcmot_config_t config;	/* Struct used to store RT config */
 	emcmot_debug_t debug;	/* Struct used to store RT status and debug
 				   data - 2nd largest block */
+	emcmot_internal_t internal;	/* FIXME - doesn't need to be in shared memory */
 	emcmot_error_t error;	/* ring buffer for error messages */
 	emcmot_log_t log;		/* a massive ring buffer for logging RT data */
 	emcmot_comp_t comp[EMCMOT_MAX_AXIS];	/* corrections to be applied

@@ -335,8 +335,13 @@ int main(int argc, char *argv[])
 		    ("cw <x> <y> <z> <cx> <cy> <cz> <turn>\tput CW circle on queue\n");
 		printf
 		    ("ccw <x> <y> <z> <cx> <cy> <cz> <turn>\tput CCW circle on queue\n");
+/* FIXME old set command
 		printf
 		    ("set t <traj t> | s <servo t> | v <vel> | a <acc>\tset params\n");
+*/
+		printf
+		    ("set v <vel> | a <acc>\tset params\n");
+/* FIXME
 		printf
 		    ("oscale <axis 0..n-1> <a> <b>\traw[n] = a(out[n]-b)\n");
 		printf("iscale <axis 0..n-1> <a> <b>\tin[n] = a(raw[n]-b)\n");
@@ -344,6 +349,7 @@ int main(int argc, char *argv[])
 		    ("pol <axis 0..n-1> <enable nhl phl homedir homesw fault> <0 1>\n");
 		printf
 		    ("pid <axis 0..n-1> <ini file>\tset PID gains for motor n\n");
+*/
 		printf("limit <axis> <min> <max>\tset position limits\n");
 		printf("clamp <axis> <min> <max>\tset output limits\n");
 		printf("ferror <axis> <value>\tset max following error\n");
@@ -353,18 +359,22 @@ int main(int argc, char *argv[])
 		printf("deactivate <axis 0..n-1>\tdeactivate axis n\n");
 		printf
 		    ("log open <type ...> | start | stop | close | dump <file>\tlog data\n");
+/* FIXME
 		printf
 		    ("dac <axis 0..n-1> <-10.0 .. 10.0>\toutput value to DAC\n");
+*/
 		printf("home <axis 0..n-1>\thome axis\n");
 		printf("nolim             \toverride hardware limits\n");
 		printf("wd on | off\tenable or disable watchdog toggle\n");
 		printf
 		    ("probe <x> <y> <z>\tMove toward x,y,z, if probe is tripped on the way the probe position will be updated and motion stopped.\n");
 		printf("probeclear\tClear the probeTripped status flag.\n");
+/* FIXME
 		printf
 		    ("probeindex <index>\tSet which input is checked for probe status.\n");
 		printf
 		    ("probepolarity <polarity>\tSet whether a probe is tripped on a 0 or 1.\n");
+*/
 	    } else if (!strcmp(cmd, ">")) {
 		disablePrompt = !disablePrompt;
 	    } else if (!strcmp(cmd, ";")) {
@@ -633,6 +643,8 @@ int main(int argc, char *argv[])
 		}
 	    } else if (!strcmp(cmd, "set")) {
 		sscanf(input, "%*s %s", cmd);
+/* FIXME - obsolete commands */
+#if 0
 		if (!strcmp(cmd, "t")) {
 		    if (1 != sscanf(input, "%*s %*s %lf",
 			    &emcmotCommand.cycleTime)) {
@@ -658,6 +670,8 @@ int main(int argc, char *argv[])
 			}
 		    }
 		} else if (!strcmp(cmd, "v")) {
+#endif
+		if (!strcmp(cmd, "v")) {
 		    if (1 != sscanf(input, "%*s %*s %lf", &emcmotCommand.vel)) {
 			/* invalid parameter */
 			fprintf(stderr, "bad value for velocity\n");
@@ -681,9 +695,13 @@ int main(int argc, char *argv[])
 		    }
 		} else {
 		    /* invalid parameter */
-		    printf
+/* FIXME	    printf
 			("syntax: set t <traj t> | s <servo t> | v <vel> | a <acc>\n");
+*/
+		    printf
+			("syntax: set v <vel> | a <acc>\n");
 		}
+#if 0
 	    } else if (!strcmp(cmd, "oscale")) {
 		if (3 != sscanf(input, "%*s %d %lf %lf",
 			&emcmotCommand.axis,
@@ -762,6 +780,7 @@ int main(int argc, char *argv[])
 			}
 		    }
 		}
+#endif
 	    } else if (!strcmp(cmd, "limit")) {
 		if (3 != sscanf(input, "%*s %d %lf %lf",
 			&emcmotCommand.axis,
@@ -866,7 +885,7 @@ int main(int argc, char *argv[])
 			    break;
 
 			case EMCMOT_LOG_TYPE_CMD:
-			    /* force logSkip negative to avoid per-cycle logs 
+			    /* force logSkip negative to avoid per-cycle logs
 			     */
 			    emcmotCommand.logSkip = -1;
 			    valid = 1;
@@ -912,6 +931,7 @@ int main(int argc, char *argv[])
 		    printf
 			("syntax: log open | start | stop | close | dump <file>\n");
 		}
+#if 0
 	    } else if (!strcmp(cmd, "dac")) {
 		if (2 == sscanf(input, "%*s %d %lf",
 			&emcmotCommand.axis, &emcmotCommand.dacOut)) {
@@ -922,6 +942,7 @@ int main(int argc, char *argv[])
 		} else {
 		    printf("syntax: dac <num> <-10.0 .. 10.0>\n");
 		}
+#endif
 	    } else if (!strcmp(cmd, "home")) {
 		if (1 == sscanf(input, "%*s %d", &emcmotCommand.axis)) {
 		    emcmotCommand.command = EMCMOT_HOME;
@@ -943,6 +964,7 @@ int main(int argc, char *argv[])
 		if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 		    fprintf(stderr, "Can't send a command to RT-task\n");
 		}
+#if 0
 	    } else if (!strcmp(cmd, "probeindex")) {
 		if (1 == sscanf(input, "%*s %d", &emcmotCommand.probeIndex)) {
 		    emcmotCommand.command = EMCMOT_SET_PROBE_INDEX;
@@ -961,6 +983,7 @@ int main(int argc, char *argv[])
 		} else {
 		    printf("syntax: probepolarity <polarity>\n");
 		}
+#endif
 	    } else if (!strcmp(cmd, "probe")) {
 		if (3 == sscanf(input, "%*s %lf %lf %lf",
 			&emcmotCommand.pos.tran.x,
