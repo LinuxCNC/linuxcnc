@@ -5,6 +5,19 @@ ifeq ($(RTFLAGS),)
 include $(PWD)/Makefile.inc
 endif
 
+# To disable compilation of any particular module,
+# edit the following lines replacing "m" with "n".
+#
+# In time, we may have some fancy dohicky to set
+# these options at compile time.
+CONFIG_FREQMOD = m
+CONFIG_SMDROMOD = m
+CONFIG_VITALMOD = m
+CONFIG_PPMCMOD = m
+CONFIG_UNIVSTEPMOD = m
+CONFIG_UNIVPWMMOD = m
+CONFIG_SENSORAY526MOD = n
+
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
 
 EMC-CORE = \
@@ -25,7 +38,7 @@ EMC-CORE = \
 	libnml/posemath/_posemath.o \
 	libnml/posemath/sincos.o
 
-obj-m := freqmod.o
+obj-$(CONFIG_FREQMOD) := freqmod.o
 freqmod-objs := $(EMC-CORE)
 freqmod-objs += emc/drivers/extsmmot.o
 freqmod-objs += emc/motion/emcstepper.o
@@ -34,7 +47,8 @@ freqmod-objs += emc/drivers/simio/simaio.o
 freqmod-objs += emc/drivers/extppt.o
 freqmod-objs += emc/drivers/parport.o
 
-obj-m += smdromod.o
+
+obj-$(CONFIG_SMDROMOD) += smdromod.o
 smdromod-objs := $(EMC-CORE)
 smdromod-objs += emc/motion/emcstepper.o
 smdromod-objs += emc/drivers/dro.o
@@ -44,13 +58,13 @@ smdromod-objs += emc/drivers/parport.o
 smdromod-objs += emc/drivers/simio/extsimaio.o
 smdromod-objs += emc/drivers/simio/simaio.o
 
-obj-m += vitalmod.o
+obj-$(CONFIG_VITALMOD) += vitalmod.o
 vitalmod-objs := $(EMC-CORE)
 vitalmod-objs += emc/motion/emcservo.o
 vitalmod-objs += emc/drivers/extvitalmot.o
 vitalmod-objs += emc/drivers/vital.o
 
-obj-m += ppmcmod.o
+obj-$(CONFIG_PPMCMOD) += ppmcmod.o
 ppmcmod-objs := $(EMC-CORE)
 ppmcmod-objs += emc/motion/emcservo.o
 ppmcmod-objs += emc/drivers/ppmc/extppmcmot.o
@@ -60,7 +74,7 @@ ppmcmod-objs += emc/drivers/ppmc/ppmc_aio.o
 ppmcmod-objs += emc/drivers/ppmc/ppmc_dio.o
 ppmcmod-objs += emc/drivers/ppmc/ppmc_internal.o
 
-obj-m += univstepmod.o
+obj-$(CONFIG_UNIVSTEPMOD) += univstepmod.o
 univstepmod-objs := $(EMC-CORE)
 univstepmod-objs += emc/motion/emcservo.o
 univstepmod-objs += emc/drivers/ppmc/extppmcmot.o
@@ -70,7 +84,7 @@ univstepmod-objs += emc/drivers/ppmc/ppmc_aio.o
 univstepmod-objs += emc/drivers/ppmc/univstep_dio.o
 univstepmod-objs += emc/drivers/ppmc/ppmc_internal.o
 
-obj-m += univpwmmod.o
+obj-$(CONFIG_UNIVPWMMOD) += univpwmmod.o
 univpwmmod-objs := $(EMC-CORE)
 univpwmmod-objs += emc/motion/emcservo.o
 univpwmmod-objs += emc/drivers/ppmc/extppmcmot.o
@@ -79,6 +93,12 @@ univpwmmod-objs += emc/drivers/ppmc/ppmc_pwm.o
 univpwmmod-objs += emc/drivers/ppmc/ppmc_aio.o
 univpwmmod-objs += emc/drivers/ppmc/univstep_dio.o
 univpwmmod-objs += emc/drivers/ppmc/ppmc_internal.o
+
+obj-$(CONFIG_SENSORAY526MOD) += sensoray526mod.o
+sensoray526mod-objs := $(EMC-CORE)
+sensoray526mod-objs += emc/motion/emcservo.o
+sensoray526mod-objs += emc/drivers/sensoray/ext526mot.o
+sensoray526mod-objs += emc/drivers/sensoray/sensoray526.o
 
 else
 
@@ -140,6 +160,5 @@ clean: kclean
 kclean:
 	- rm -f .*.cmd *.o* *.mod.* *.ko
 	- rm -fR .tmp_versions 
-
 
 endif
