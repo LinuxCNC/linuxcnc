@@ -201,7 +201,44 @@ extern void *hal_malloc(long int size);
     In general, realtime code won't call _any_ hal functions.
     Instead, realtime code simply does its job, accessing data
     using pointers that were set up by hal functions at startup.
+
 */
+
+
+/*  HAL modules, when loaded, register their ability to create
+    "block" objects, or "blocks".  Blocks can be thought of as
+    components, or IC's on a breadboard.  Each type of block which
+    a module can create (instantiate) is described to hal by
+    a call to hal_register_block_type.  The call passes a block_type_id, 
+    and a create function pointer.  The block_type_id must be unique 
+    within the module, and tells the module what type of 
+    block to create when the create function is called.  (This allows 
+    one create function to be used to create multiple block_types.  
+    Note that this is not required; you can pass in a different create 
+    method for each different block_type that your module supports.)
+
+    The block record also contains a block_type_name which is a short
+    typically one word name for the type of block.
+
+    The create function pointer points at a function that hal will
+    call when it wants to create a new block.  Hal will pass in
+    the comp_id of the module that registered this block, as well
+    as the block_type_id found in this block.  create is expected
+    to do whatever it needs to do to create a new block instance.
+    If an error occurs, it should return an appropriate negative HAL_*
+    error message.  Otherwise, it should return a positive (>=0) 
+    block_id number which is unique within the scope of this comp_id.
+    (NOTE: A comp_id and a block_id must together uniquely define
+    an object.  Objects with the same comp_id may NOT share the
+    same block_id, even if they have different types!)
+
+    hal_register_block returns an appropriate HAL_* status code
+*/
+
+
+int hal_register_block_type(int comp_id, int block_type_id, const char *name, 
+	int (*create)(int comp_id, int block_type_id));
+
 
 /***********************************************************************
 *                     DATA RELATED TYPEDEFS                            *
