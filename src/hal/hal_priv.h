@@ -103,7 +103,7 @@
 */
 typedef struct {
     int magic;			/* magic number to tag the struct */
-    unsigned long  mutex;	/* protection for linked lists, etc. */
+    unsigned long mutex;	/* protection for linked lists, etc. */
     hal_s32_t shmem_avail;	/* amount of shmem left free */
     int shmem_bot;		/* bottom of free shmem (first free byte) */
     int shmem_top;		/* top of free shmem (1 past last free) */

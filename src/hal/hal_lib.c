@@ -44,8 +44,8 @@
    To be sure, see what has been implimented by looking in linux/string.h
    and {linux_src_dir}/lib/string.c */
 #include <linux/string.h>
-#ifndef __HAVE_ARCH_STRCMP      /* This flag will be defined if we do */
-#define __HAVE_ARCH_STRCMP      /* have strcmp */
+#ifndef __HAVE_ARCH_STRCMP	/* This flag will be defined if we do */
+#define __HAVE_ARCH_STRCMP	/* have strcmp */
 /* some kernels don't have strcmp */
 static int strcmp(const char *cs, const char *ct)
 {
@@ -471,6 +471,13 @@ int hal_signal_new(char *name, hal_type_t type)
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating signal '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
+    /* check for an existing signal with the same name */
+    if (halpr_find_sig_by_name(name) != 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: duplicate signal '%s'\n", name);
+	return HAL_INVAL;
+    }
     /* allocate memory for the signal value */
     switch (type) {
     case HAL_BIT:
@@ -548,14 +555,6 @@ int hal_signal_new(char *name, hal_type_t type)
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    return HAL_SUCCESS;
-	}
-	if (cmp == 0) {
-	    /* name already in list, can't insert */
-	    free_sig_struct(new);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: duplicate signal '%s'\n", name);
-	    return HAL_INVAL;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
@@ -967,6 +966,8 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
 	    /* name already in list, can't insert */
 	    free_funct_struct(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: duplicate function '%s'\n", name);
 	    return HAL_INVAL;
 	}
 	/* didn't find it yet, look at next one */
@@ -1098,7 +1099,7 @@ int hal_create_thread(char *name, unsigned long period_nsec,
 
 int hal_add_funct_to_thread(char *funct_name, char *thread_name)
 {
-    int *prev, next, cmp;
+    int *prev;
     hal_thread_t *thread;
     hal_funct_t *funct;
     hal_funct_entry_t *funct_entry;
@@ -1123,19 +1124,14 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name)
 	return HAL_INVAL;
     }
     /* search function list for the function */
-    next = hal_data->funct_list_ptr;
-    do {
-	if (next == 0) {
-	    /* reached end of list, function not found */
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: function '%s' not found\n", funct_name);
-	    return HAL_INVAL;
-	}
-	funct = SHMPTR(next);
-	next = funct->next_ptr;
-	cmp = strcmp(funct->name, funct_name);
-    } while (cmp != 0);
+    funct = halpr_find_funct_by_name(funct_name);
+    if (funct == 0) {
+	/* function not found */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: function '%s' not found\n", funct_name);
+	return HAL_INVAL;
+    }
     /* found the function, is it available? */
     if ((funct->users > 0) && (funct->reentrant == 0)) {
 	rtapi_mutex_give(&(hal_data->mutex));
@@ -1144,19 +1140,14 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name)
 	return HAL_INVAL;
     }
     /* search thread list for thread_name */
-    next = hal_data->thread_list_ptr;
-    do {
-	if (next == 0) {
-	    /* reached end of list, thread not found */
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: thread '%s' not found\n", thread_name);
-	    return HAL_INVAL;
-	}
-	thread = SHMPTR(next);
-	next = thread->next_ptr;
-	cmp = strcmp(thread->name, thread_name);
-    } while (cmp != 0);
+    thread = halpr_find_thread_by_name(thread_name);
+    if (thread == 0) {
+	/* thread not found */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: thread '%s' not found\n", thread_name);
+	return HAL_INVAL;
+    }
     /* ok, we have thread and function, are they compatible? */
     if ((funct->uses_fp) && (!thread->uses_fp)) {
 	rtapi_mutex_give(&(hal_data->mutex));
@@ -1192,7 +1183,7 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name)
 
 int hal_del_funct_from_thread(char *funct_name, char *thread_name)
 {
-    int *prev, next, cmp;
+    int *prev, next;
     hal_thread_t *thread;
     hal_funct_t *funct;
     hal_funct_entry_t *funct_entry;
@@ -1217,19 +1208,14 @@ int hal_del_funct_from_thread(char *funct_name, char *thread_name)
 	return HAL_INVAL;
     }
     /* search function list for the function */
-    next = hal_data->funct_list_ptr;
-    do {
-	if (next == 0) {
-	    /* reached end of list, function not found */
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: function '%s' not found\n", funct_name);
-	    return HAL_INVAL;
-	}
-	funct = SHMPTR(next);
-	next = funct->next_ptr;
-	cmp = strcmp(funct->name, funct_name);
-    } while (cmp != 0);
+    funct = halpr_find_funct_by_name(funct_name);
+    if (funct == 0) {
+	/* function not found */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: function '%s' not found\n", funct_name);
+	return HAL_INVAL;
+    }
     /* found the function, is it in use? */
     if (funct->users == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
@@ -1238,19 +1224,14 @@ int hal_del_funct_from_thread(char *funct_name, char *thread_name)
 	return HAL_INVAL;
     }
     /* search thread list for thread_name */
-    next = hal_data->thread_list_ptr;
-    do {
-	if (next == 0) {
-	    /* reached end of list, thread not found */
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: thread '%s' not found\n", thread_name);
-	    return HAL_INVAL;
-	}
-	thread = SHMPTR(next);
-	next = thread->next_ptr;
-	cmp = strcmp(thread->name, thread_name);
-    } while (cmp != 0);
+    thread = halpr_find_thread_by_name(thread_name);
+    if (thread == 0) {
+	/* thread not found */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: thread '%s' not found\n", thread_name);
+	return HAL_INVAL;
+    }
     /* ok, we have thread and function, does thread use funct? */
     prev = &(thread->funct_list);
     next = *prev;

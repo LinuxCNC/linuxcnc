@@ -50,7 +50,7 @@ MODULE_LICENSE("GPL");
 static int num_chan = 1;	/* number of channels - default = 1 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(chan, "number of channels");
-static long period = 0;	/* thread period, default = none */
+static long period = 0;		/* thread period, default = none */
 MODULE_PARM(period, "l");
 MODULE_PARM_DESC(period, "thread period (nsecs)");
 #endif /* MODULE */
@@ -63,12 +63,12 @@ MODULE_PARM_DESC(period, "thread period (nsecs)");
 */
 
 typedef struct {
-    hal_bit_t *q;         	/* pin: q output of simulated flip-flop */
-    hal_bit_t *_q;         	/* pin: /q output of simulated flip-flop */
-    hal_float_t *variable;      /* pin: output set by param "value" */
-    hal_float_t *_variable;      /* pin: output set by param "value" * -1.0 */
-    hal_bit_t d;         	/* param: d input to simulated flip-flop */
-    hal_float_t value;      	/* param: value of float pin "variable" */
+    hal_bit_t *q;		/* pin: q output of simulated flip-flop */
+    hal_bit_t *_q;		/* pin: /q output of simulated flip-flop */
+    hal_float_t *variable;	/* pin: output set by param "value" */
+    hal_float_t *_variable;	/* pin: output set by param "value" * -1.0 */
+    hal_bit_t d;		/* param: d input to simulated flip-flop */
+    hal_float_t value;		/* param: value of float pin "variable" */
 } hal_supply_t;
 
 /* pointer to supply_t struct */
@@ -81,7 +81,7 @@ static int comp_id;		/* component ID */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_supply(int num,hal_supply_t * addr);
+static int export_supply(int num, hal_supply_t * addr);
 static void update_supply(void *arg, long l);
 
 /***********************************************************************
@@ -123,7 +123,8 @@ int rtapi_app_main(void)
 	    return -1;
 	}
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "SUPPLY:installed %d supplies\n", num_chan);
+    rtapi_print_msg(RTAPI_MSG_INFO, "SUPPLY:installed %d supplies\n",
+	num_chan);
     if (period > 0) {
 	/* create thread */
 	retval = hal_create_thread("supply.thread", period, 1, comp_id);
@@ -213,7 +214,9 @@ static int export_supply(int num, hal_supply_t * addr)
     addr->value = 0.0;
     /* export function for this loop */
     rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.update", num);
-    retval = hal_export_funct(buf, update_supply, &(supply_array[num - 1]), 1, 0, comp_id);
+    retval =
+	hal_export_funct(buf, update_supply, &(supply_array[num - 1]), 1, 0,
+	comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SUPPLY: ERROR: update funct export failed\n");
@@ -222,5 +225,3 @@ static int export_supply(int num, hal_supply_t * addr)
     }
     return 0;
 }
-
-
