@@ -1,0 +1,98 @@
+#! /bin/sh
+
+CheckConfig(){
+    # Will eventually check in /etc for rtapi.conf
+    # as well as the local dir.
+    if [ ! -f rtapi.conf ] ; then
+	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
+	exit -1
+    else
+	old_path=$MODPATH
+	source rtapi.conf
+	export MODPATH
+    fi
+}
+
+SortMod(){
+    for module in $MODULES ; do
+	MODULE="$module $MODULE"
+    done
+    MODULES="$MODULE"
+}
+
+DoExit(){
+    export MODPATH=$old_path
+}
+
+CheckMem(){
+# check for user space processes using shared memory
+    if [ -e /dev/mbuff ] ; then
+	# device file exists, check for processes using it
+	if /sbin/fuser -s /dev/mbuff 2>/dev/null; then
+	    # at least one process is using it
+	    echo "ERROR:  Can't remove RTLinux modules, kill the following process(es) first"
+	    /sbin/fuser -v /dev/mbuff 2>/dev/null
+	    DoExit
+	    exit -1
+	fi
+    elif [ -e /dev/rtai_shm ] ; then
+	# device file exists, check for processes using it
+	if /sbin/fuser -s /dev/rtai_shm 2>/dev/null; then
+	    # at least one process is using it
+	    echo "ERROR:  Can't remove RTAI modules, kill the following process(es) first"
+	    /sbin/fuser -v /dev/rtai_shm 2>/dev/null
+	    DoExit
+	    exit -1
+	fi
+    fi
+}
+
+isLoaded(){
+    for module in $MODULES ; do
+	# check to see if the module is installed
+	if /sbin/lsmod | awk '{print $1}' | grep -x $module >/dev/null ; then
+	    echo "ERROR: Could not unload '$module'"
+	fi
+    done
+}
+
+Load(){
+    for MOD in $MODULES ; do
+	# check to see if the module is already installed
+	if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
+	    # install the module - use insmod
+	    /sbin/modprobe $MOD 2>/dev/null
+	fi
+    done
+}
+
+Unload(){
+    /sbin/modprobe -r $MODULES 2>/dev/null
+}
+
+case "$1" in
+  start|reload|restart|reload)
+	# 
+	CheckConfig
+	CheckMem
+	SortMod
+	Unload
+	SortMod
+	Load
+	DoExit
+	;;
+  stop)
+	CheckConfig
+	CheckMem
+	SortMod
+	Unload
+	DoExit
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart|reload}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
+
