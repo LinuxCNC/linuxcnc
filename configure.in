@@ -33,9 +33,10 @@ AC_PROG_RANLIB
 # accept rtlinux=path from commandline
 # accept rtlinuxpro=path from commandline
 AC_MSG_CHECKING([for RT dir])
+RTDIR=""
 
 AC_ARG_WITH(rtai,
-    [  --with-rtai=<path to RTAI>	path where RTAI is installed],
+    [  --with-rtai=<path to RTAI>			path where RTAI is installed],
     [	case "$withval" in
 	"" | y | ye | yes | n | no)
 	    AC_MSG_ERROR([You must supply an argument to --with-rtai.])
@@ -45,10 +46,11 @@ AC_ARG_WITH(rtai,
 
 if (! test -z "$RTAIDIR") ; then
   RTDIR=$RTAIDIR
+  AC_MSG_NOTICE([specified rtai=$RTDIR])
 fi
 
 AC_ARG_WITH(rtlinux,
-    [  --with-rtlinux=<path to RTLINUX>	path where RTLinux is installed],
+    [  --with-rtlinux=<path to RTLINUX>		path where RTLinux is installed],
     [	case "$withval" in
 	"" | y | ye | yes | n | no)
 	    AC_MSG_ERROR([You must supply an argument to --with-rtlinux.])
@@ -61,6 +63,7 @@ if (! test -z "$RTLINUXDIR") ; then
     AC_MSG_ERROR([rtai=$RTAIDIR & rtlinux=$RTLINUXDIR defined. Only one is possible])
   else
     RTDIR=$RTLINUXDIR
+    AC_MSG_NOTICE([specified rtlinux=$RTDIR])
   fi
 fi
 
@@ -78,16 +81,25 @@ if (! test -z "$RTLINUXPRODIR") ; then
     AC_MSG_ERROR([rtdir=$RTDIR & rtlinuxpro=$RTLINUXPRODIR defined. Only one is possible])
   else
     RTDIR=$RTLINUXPRODIR
+    AC_MSG_NOTICE([specified rtlinuxpro=$RTDIR])
   fi
 fi
 
-#convert to absolute dir
-if (! test -z "$RTDIR" ); then
+#at this point if RTDIR is empty, we need to find RT ourselves
+if (test -z "$RTDIR" ); then
+  RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" 2>/dev/null)
+  if (test "$RTS" = "" ) ; then
+    AC_MSG_ERROR([RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
+  else
+    RTDIR=`$RTS --prefix`
+    RTDIR=$(cd $RTDIR ; pwd -P )
+    AC_MSG_RESULT([$RTDIR set from search])
+  fi
+else
   RTDIR=$(cd $RTDIR ; pwd -P )
   AC_MSG_RESULT([$RTDIR set from command line])
-else
-  AC_MSG_ERROR(RTDIR not found)
 fi
+
 AC_SUBST([RTDIR])
 
 # Check for GTK
