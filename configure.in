@@ -174,7 +174,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     RTAI=1
     TEMP=`$RTS --prefix`
     if (test -d $TEMP) ; then
-	RTDIR=$(cd $RTDIR ; pwd -P )
+	RTDIR=$(cd $TEMP ; pwd -P )
     else
 	RTDIR=${RTS%%/bin/realtime-config}
     fi
