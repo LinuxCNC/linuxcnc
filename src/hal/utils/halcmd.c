@@ -70,6 +70,7 @@ static int do_setp_cmd(char *name, char *value);
 static int do_sets_cmd(char *name, char *value);
 static int do_show_cmd(char *type);
 static int do_loadrt_cmd(char *mod_name, char *args[]);
+static int do_delsig_cmd(char *mod_name);
 static int do_unloadrt_cmd(char *mod_name);
 static int unloadrt_comp(char *mod_name);
 static void print_comp_list(void);
@@ -341,12 +342,7 @@ static int parse_cmd(char *tokens[])
     } else if (strcmp(tokens[0], "newsig") == 0) {
 	retval = do_newsig_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "delsig") == 0) {
-	retval = hal_signal_delete(tokens[1]);
-	if (retval == 0) {
-	    /* print success message */
-	    rtapi_print_msg(RTAPI_MSG_INFO, "Signal '%s' deleted'\n",
-		tokens[1]);
-	}
+	retval = do_delsig_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "setp") == 0) {
 	retval = do_setp_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[1], "=") == 0) {
@@ -959,6 +955,69 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	mod_name);
     return 0;
 }
+
+static int do_delsig_cmd(char *mod_name)
+{
+    int next, retval, retval1, n;
+    hal_sig_t *sig;
+    char sigs[64][HAL_NAME_LEN+1];
+
+    /* check for "all" */
+    if ( strcmp(mod_name, "all" ) != 0 ) {
+	retval = hal_signal_delete(mod_name);
+	if (retval == 0) {
+	    /* print success message */
+	    rtapi_print_msg(RTAPI_MSG_INFO, "Signal '%s' deleted'\n",
+		mod_name);
+	}
+	return retval;
+    } else {
+	/* build a list of signal(s) to delete */
+	n = 0;
+	rtapi_mutex_get(&(hal_data->mutex));
+
+	next = hal_data->sig_list_ptr;
+	while (next != 0) {
+	    sig = SHMPTR(next);
+	    /* we want to unload this signal, remember it's name */
+	    if ( n < 63 ) {
+	        strncpy(sigs[n++], sig->name, HAL_NAME_LEN );
+	    }
+	    next = sig->next_ptr;
+	}
+	rtapi_mutex_give(&(hal_data->mutex));
+	sigs[n][0] = '\0';
+
+	if ( ( sigs[0][0] == '\0' )) {
+	    /* desired signals not found */
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: no signals found to be deleted\n");
+	    return -1;
+	}
+	/* we now have a list of components, unload them */
+	n = 0;
+	retval1 = 0;
+	while ( sigs[n][0] != '\0' ) {
+	    retval = hal_signal_delete(sigs[n]);
+	/* check for fatal error */
+	    if ( retval < -1 ) {
+		return retval;
+	    }
+	    /* check for other error */
+	    if ( retval != 0 ) {
+		retval1 = retval;
+	    }
+	    if (retval == 0) {
+		/* print success message */
+		rtapi_print_msg(RTAPI_MSG_INFO, "Signal '%s' deleted'\n",
+		sigs[n]);
+	    }
+	    n++;
+	}
+    }
+    return retval1;
+}
+
 
 static int do_unloadrt_cmd(char *mod_name)
 {
@@ -1612,7 +1671,8 @@ static void print_help(void)
 	("         Creates a new signal called 'signame'.  Type is 'bit', 'float',\n");
     printf("         'u8', 's8', 'u16', 's16', 'u32', or 's32'.\n\n");
     printf("  delsig signame\n");
-    printf("         Deletes signal 'signame'.\n\n");
+    printf("         Deletes signal 'signame'.\n");
+    printf("         If 'signame' is 'all' deletes all signals\n\n");
     printf("  setp paramname value\n");
     printf("  paramname = value\n");
     printf
