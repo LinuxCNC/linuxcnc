@@ -36,18 +36,26 @@ extern "C" {
 #include "timer.hh"
 #include "_timer.h"
 
-/* RCS_TIMER class */
-RCS_TIMER::RCS_TIMER(char *process_name, char *config_file)
+/* Timer class */
+Timer::Timer(double _timeout)
 {
+    zero_timer();
+
+    if (_timeout < clk_tck_val) {
+	counts_per_real_sleep = (int) (clk_tck_val / _timeout);
+	/* bump interval up to minimum system clock tick */
+	timeout = clk_tck_val;
+    } else {
+	timeout = _timeout;
+    }
+
+    last_time = etime();	/* initialize start time and last time called
+				   to current time since epoch */
+    start_time = etime();	/* set creation time to now */
+    time_since_real_sleep = start_time;
 }
 
-RCS_TIMER::RCS_TIMER(double _timeout, char *process_name, char *config_file)
-{
-    set_timeout(_timeout);
-}
-
-void
-  RCS_TIMER::set_timeout(double _timeout)
+void Timer::set_timeout(double _timeout)
 {
     timeout = _timeout;
     if (timeout < clk_tck()) {
@@ -57,11 +65,8 @@ void
     }
 }
 
-
-void RCS_TIMER::zero_timer()
+void Timer::zero_timer()
 {
-    id = 0;
-    function = NULL;
     idle = 0.0;			/* set accumulated idle time to 0.0 */
     counts = 0;			/* set accumulated waits to 0 */
     start_time = etime();	/* set creation time to now */
@@ -72,66 +77,29 @@ void RCS_TIMER::zero_timer()
     timeout = clk_tck_val;
 }
 
-void RCS_TIMER::init(double _timeout, int _id)
+void Timer::init(double _timeout)
 {
     zero_timer();
-    id = _id;
     set_timeout(_timeout);
 
 }
 
-RCS_TIMER::RCS_TIMER(double _timeout, RCS_TIMERFUNC _function, void *_arg)
-{
-    zero_timer();
-    counts_per_real_sleep = 0;
-    counts_since_real_sleep = 0;
-
-    if (_timeout < clk_tck_val) {
-	counts_per_real_sleep = (int) (clk_tck_val / _timeout);
-	/* bump interval up to minimum system clock tick */
-	timeout = clk_tck_val;
-    } else {
-	timeout = _timeout;
-    }
-    function = _function;
-    arg = _arg;
-    last_time = etime();	/* initialize start time and last time called
-				   to current time since epoch */
-    idle = 0.0;			/* set accumulated idle time to 0.0 */
-    counts = 0;			/* set accumulated waits to 0 */
-    start_time = etime();	/* set creation time to now */
-    time_since_real_sleep = start_time;
-}
-
 /* Restart the timing interval. */
-void
-  RCS_TIMER::sync()
+void Timer::sync()
 {
     last_time = etime();	/* initialize start time and last time called
 				   to current time since epoch */
 }
 
-int RCS_TIMER::wait()
+int Timer::wait()
 {
     double interval;		/* interval between this and last wakeup */
     double numcycles;		/* interval, in units of timeout */
     int missed = 0;		/* cycles missed */
     double remaining = 0.0;	/* time remaining until timeout */
     double time_in = 0.0;	/* time wait() was entered */
-    double time_done = 0.0;	/* time user function finished */
-    /* first call the user timing function, if any */
-    if (function != NULL) {
-	/* set time in */
-	time_in = etime();
 
-	if ((*function) (arg) == -1) {
-	    return -1;		/* fatal error in timing function */
-	}
-	time_done = etime();
-    } else {
-	/* set time in, time done not used */
-	time_in = etime();
-    }
+    time_in = etime();
 
     /* calculate the interval-- for user timing functions, this is how long
        between this wakeup and the last wakeup.  For internal timers, this is 
@@ -141,27 +109,22 @@ int RCS_TIMER::wait()
 
     /* synchronize and set last_time correctly; update idle time */
     counts++;
-    if (function != NULL) {
-	missed = (int) (numcycles - (clk_tck_val / timeout));
-	idle += interval;
-	last_time = time_done;
-    } else {
-	missed = (int) (numcycles); 
-	remaining = timeout * (1.0 - (numcycles - (int) numcycles));
-	idle += interval;
-    }
+    missed = (int) (numcycles); 
+    remaining = timeout * (1.0 - (numcycles - (int) numcycles));
+    idle += interval;
     esleep(remaining);
     last_time = etime();
     return missed;
 }
 
-double RCS_TIMER::load()
+double Timer::load()
 {
     if (counts * timeout != 0.0)
 	return idle / (counts * timeout);
     return -1.0;
 }
 
-RCS_TIMER::~RCS_TIMER()
+Timer::~Timer()
 {
+printf("Timer destructor\n");
 }

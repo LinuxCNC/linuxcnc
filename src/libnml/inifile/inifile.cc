@@ -33,7 +33,7 @@ extern "C" {
 #include "inifile.h"
 #include "rcs_print.hh"
 
-/********************************************************************
+/*********************************************************************
 *
 * Description: Constructor.
 *
@@ -45,12 +45,12 @@ extern "C" {
 * Called By: 
 *
 ********************************************************************/
-INIFILE::INIFILE()
+IniFile::IniFile()
 {
     fp = NULL;
 }
 
-/********************************************************************
+/*!*******************************************************************
 *
 * Description: Constructor with a file name.
 *
@@ -61,14 +61,14 @@ INIFILE::INIFILE()
 * Called By: 
 *
 ********************************************************************/
-INIFILE::INIFILE(const char *path)
+IniFile::IniFile(const char *path)
 {
     if (NULL == (fp = fopen(path, "r"))) {
 	fprintf(stderr, "can't open %s\n", path);
     }
 }
 
-/********************************************************************
+/*!*******************************************************************
 *
 * Description: Destructor
 *
@@ -79,14 +79,14 @@ INIFILE::INIFILE(const char *path)
 * Called By: 
 *
 ********************************************************************/
-INIFILE::~INIFILE()
+IniFile::~IniFile()
 {
     if (NULL != fp) {
 	fclose(fp);
     }
 }
 
-/********************************************************************
+/*!*******************************************************************
 *
 * Description: Opens the file for reading.
 *
@@ -99,7 +99,7 @@ INIFILE::~INIFILE()
 * Called By: 
 *
 ********************************************************************/
-const int INIFILE::open(const char *path)
+const int IniFile::open(const char *path)
 {
     if (NULL == (fp = fopen(path, "r"))) {
 	return -1;
@@ -107,7 +107,7 @@ const int INIFILE::open(const char *path)
     return 0;
 }
 
-/********************************************************************
+/*!******************************************************************
 *
 * Description: Closes the file descriptor..
 *
@@ -119,7 +119,7 @@ const int INIFILE::open(const char *path)
 * Called By: 
 *
 ********************************************************************/
-const int INIFILE::close()
+const int IniFile::close()
 {
     int retval = 0;
     if (fp != NULL) {
@@ -129,63 +129,67 @@ const int INIFILE::close()
     return retval;
 }
 
-/********************************************************************
-*
-* Description: Finds the tag in section.
-*
-* Return Value: First item after an '=' as a string.
-*               NULL if not found.
-*
+/*! Locates a tag in [section] of file
+  \param tag The tag to be searched for
+  \param section the section to search in
+  \return pointer to the first non-white char after an = or NULL if not found or eof reached.
+
+/*
 * Side Effects:
 *
 * Called By: 
 *
-********************************************************************/
-const char *INIFILE::find(const char *tag, const char *section)
+*/
+const char *IniFile::find(const char *tag, const char *section)
 {
     return iniFind(fp, tag, section);
 }
 
-/********************************************************************
-*
-* Description: section(const char *section, INIFILE_ENTRY array[], int max)
-*               given 'section' and array of strings, fills strings
-*               with what was found in the section, one line per string.
-*               Comments and blank lines are omitted. 'array' is assumed
-*               to be allocated, of 'max' entries of size INIFILE_MAX_LINELEN.
-*
-* Return Value: Returns number of entries found
-*               0 if section is there but no entries in it, or
-*               -1 if section is not found.
-*
-* Side Effects:
-*
-* Called By: 
-*
-********************************************************************/
-int INIFILE::section(const char *section, INIFILE_ENTRY array[], int max)
+/*! Given 'section' and array of strings, fills array[] with the contents
+    of the section, one line per string. Comments and blank lines are
+    omitted. 'array' is assumed to be allocated, of 'max' entries of
+    size INIFILE_MAX_LINELEN.
+\param section to use
+\param array[] Array of 'max' lines of INIFILE_MAX_LINE_LEN
+\param max Maximum number of lines to copy in to the array
+
+\return Number of entries found - 0 if section is there but no entries
+	 in it, or -1 if section is not found.
+*/
+int IniFile::section(const char *section, INIFILE_ENTRY array[], int max)
 {
     return iniSection(fp, section, array, max);
 }
 
-/********************************************************************
-*
-* Description: valid()
-*               Reports if the file descriptor used in the constructor
-*               is valid.
-*
-* Return Value: 1 if the fd is valid and file open.
-*               0 if not valid.
-*
-* Side Effects:
-*
-* Called By: 
-*
-********************************************************************/
-const int INIFILE::valid()
+/*!
+    Fills the array with the contents of the file. One line per
+    array member. 'array' is assumed to be dynamically allocated
+    and will grow if it is not large enough to accomodate all the
+    lines.
+    
+    Side Effects: Memory allocated to array[] may grow or shrink.
+		  Use the return value to index the array.
+
+    \param array[] of iniile_lines allocated with malloc()
+    \return Number of entries found, zero if none found, or -1 on error.
+*/
+int IniFile::fill(INIFILE_ENTRY array[])
 {
-    if (NULL == fp) {
-	return 0;
+    if (array == NULL) {
+	return -1;
+    
+    return iniFill(fp, array);
+}
+
+/*! Reports if the file descriptor used in the constructor is valid.
+
+\return TRUE if the fd is valid and file open or FALSE if not valid.
+
+*/
+const bool IniFile::valid()
+{
+    if (fp == NULL) {
+	return false;
     }
-    return 1;
+    return true;
 }

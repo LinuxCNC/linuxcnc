@@ -29,8 +29,8 @@ extern "C" {
 
     typedef struct {
 	char tag[INIFILE_MAX_LINELEN];
-	char rest[INIFILE_MAX_LINELEN];
-    } INIFILE_ENTRY;
+	char line[INIFILE_MAX_LINELEN];
+    } inifile_line;
 
     extern const char *iniFind(void *fp,	/* already opened file ptr */
 	const char *tag,	/* string to find */
@@ -38,29 +38,18 @@ extern "C" {
 
     extern int iniSection(void *fp,	/* already opened file ptr */
 	const char *section,	/* section you want */
-	INIFILE_ENTRY array[],	/* entries to fill */
+	inifile_line array[],	/* entries to fill */
 	int max);		/* how many you can hold */
+    extern int iniFill(void *fp, 
+	inifile_line array[]);
 
+    extern int findSection(void *fp, const char *section);
 #ifdef __cplusplus
 }
 #endif
+
 #ifdef __cplusplus
-class INIFILE {
-  public:
-    INIFILE();
-    INIFILE(const char *path);
-     ~INIFILE();
-
-    const int open(const char *path);
-    const int close();
-    const char *find(const char *tag, const char *section = NULL);
-    int section(const char *section, INIFILE_ENTRY array[], int max);
-    const int valid();
-
-  private:
-      FILE * fp;
-};
-
+#include "inifile.hh"
 #endif /* C++ part */
 
 #endif /* INIFILE_H */
