@@ -76,11 +76,9 @@ extern "C" {
 /*
   extMotInit(const char * stuff)
 
-  Call once before any of the other motion IO functions are called.
-  'stuff' argument can be used to pass board-specific stuff like config
-  files.
-  */
-    extern int extMotInit(const char *stuff);
+  Call once before any of the other motion IO functions are called..
+*/
+    extern int extMotInit(void);
 
 /*
   extMotQuit()

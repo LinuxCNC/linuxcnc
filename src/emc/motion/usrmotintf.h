@@ -100,9 +100,6 @@ extern int usrmotWriteIO(int index, unsigned char val);
 extern unsigned char usrmotReadIO(int index);
 
 #ifdef __cplusplus
-#if 0
-{
-#endif
 }
 #endif
 

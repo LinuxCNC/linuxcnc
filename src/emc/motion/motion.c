@@ -188,6 +188,8 @@ int init_module(void)
     int retval;
     long period;
 
+    extMotInit();
+
     rtapi_print("motion: initializing...\n");
     if (PERIOD <= 0) {
 	rtapi_print("motion: PERIOD is not set, using default value of %i\n",
