@@ -76,7 +76,7 @@ CXX = @CXX@
 CXXFLAGS = $(CFLAGS)
 LD = $(CC)
 LDFLAGS = 
-#MAKEFLAGS = k # Eeeek.. clean compiles don't need this...
+MAKEFLAGS = @MAKEFLAGS@
 RANLIB = @RANLIB@
 RANLIBFLAGS = 
 
