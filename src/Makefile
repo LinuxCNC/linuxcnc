@@ -60,6 +60,26 @@ ppmcmod-objs += emc/drivers/ppmc/ppmc_aio.o
 ppmcmod-objs += emc/drivers/ppmc/ppmc_dio.o
 ppmcmod-objs += emc/drivers/ppmc/ppmc_internal.o
 
+obj-m += univstepmod.o
+univstepmod-objs := $(EMC-CORE)
+univstepmod-objs += emc/motion/emcservo.o
+univstepmod-objs += emc/drivers/ppmc/extppmcmot.o
+univstepmod-objs += emc/drivers/ppmc/ppmc_encoder.o
+univstepmod-objs += emc/drivers/ppmc/ppmc_rate.o
+univstepmod-objs += emc/drivers/ppmc/ppmc_aio.o
+univstepmod-objs += emc/drivers/ppmc/univstep_dio.o
+univstepmod-objs += emc/drivers/ppmc/ppmc_internal.o
+
+obj-m += univpwmmod.o
+univpwmmod-objs := $(EMC-CORE)
+univpwmmod-objs += emc/motion/emcservo.o
+univpwmmod-objs += emc/drivers/ppmc/extppmcmot.o
+univpwmmod-objs += emc/drivers/ppmc/ppmc_encoder.o
+univpwmmod-objs += emc/drivers/ppmc/ppmc_pwm.o
+univpwmmod-objs += emc/drivers/ppmc/ppmc_aio.o
+univpwmmod-objs += emc/drivers/ppmc/univstep_dio.o
+univpwmmod-objs += emc/drivers/ppmc/ppmc_internal.o
+
 else
 
 include Makefile.inc
@@ -87,7 +107,7 @@ PWD := $(shell pwd)
 default: headers all modules
 
 modules: headers
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=1 modules
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
 	@ echo -e "\033[31m\033[5m#####################################################################\033[0m"
 	@ echo ""
 	@ echo -e "\033[31m\033[5m Important notice. \033[0m"
