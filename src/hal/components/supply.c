@@ -64,7 +64,9 @@ MODULE_PARM_DESC(period, "thread period (nsecs)");
 
 typedef struct {
     hal_bit_t *q;         	/* pin: q output of simulated flip-flop */
+    hal_bit_t *_q;         	/* pin: /q output of simulated flip-flop */
     hal_float_t *variable;      /* pin: output set by param "value" */
+    hal_float_t *_variable;      /* pin: output set by param "value" * -1.0 */
     hal_bit_t d;         	/* param: d input to simulated flip-flop */
     hal_float_t value;      	/* param: value of float pin "variable" */
 } hal_supply_t;
@@ -155,7 +157,9 @@ static void update_supply(void *arg, long l)
     supply = arg;
     /* set pin = param */
     *(supply->q) = supply->d;
+    *(supply->_q) = !(supply->d);
     *(supply->variable) = supply->value;
+    *(supply->_variable) = supply->value * -1.0;
     /* done */
 }
 
@@ -174,8 +178,18 @@ static int export_supply(int num, hal_supply_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d._q", num);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->_q), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.variable", num);
     retval = hal_pin_float_new(buf, HAL_WR, &(addr->variable), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d._variable", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(addr->_variable), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -192,7 +206,9 @@ static int export_supply(int num, hal_supply_t * addr)
     }
     /* init all structure members */
     *(addr->q) = 0;
+    *(addr->_q) = 1;
     *(addr->variable) = 0.0;
+    *(addr->_variable) = 0.0;
     addr->d = 0;
     addr->value = 0.0;
     /* export function for this loop */
