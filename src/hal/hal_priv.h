@@ -120,6 +120,7 @@ typedef struct {
     int sig_free_ptr;		/* list of free signal structs */
     int param_free_ptr;		/* list of free parameter structs */
     int funct_free_ptr;		/* list of free function structs */
+    int funct_entry_free_ptr;	/* list of free funct entry structs */
     int thread_free_ptr;	/* list of free thread structs */
 } hal_data_t;
 
@@ -186,6 +187,8 @@ typedef struct {
     The following structures implement the function/thread portion
     of the HAL API.  There are two linked lists, one of functions,
     sorted by name, and one of threads, sorted by execution freqency.
+    Each thread has a linked list of 'function entries', structs
+    that identify the functions connected to that thread.
 */
 
 typedef struct {
@@ -199,7 +202,13 @@ typedef struct {
     char name[HAL_NAME_LEN + 1];	/* function name */
 } hal_funct_t;
 
-#define MAX_FUNCTS 64		/* functions per thread */
+typedef struct {
+    int next_ptr;		/* next function entry */
+    void *arg;			/* argument for function */
+    void (*funct) (void *, long);	/* ptr to function code */
+    int funct_ptr;		/* pointer to function */
+} hal_funct_entry_t;
+
 #define HAL_STACKSIZE 16384	/* realtime task stacksize */
 
 typedef struct {
@@ -211,8 +220,7 @@ typedef struct {
     int task_id;		/* ID of the task that runs this thread */
     hal_s32_t runtime;		/* duration of last run, in nsec */
     hal_s32_t maxtime;		/* duration of longest run, in nsec */
-    int funct_count;		/* number of functions in array */
-    int funct_ptrs[MAX_FUNCTS];	/* functions in thread */
+    int funct_list;		/* first function to execute */
     char name[HAL_NAME_LEN + 1];	/* thread name */
 } hal_thread_t;
 

@@ -557,6 +557,17 @@ extern int hal_create_thread(char *name, unsigned long period_nsec,
 */
 extern int hal_add_funct_to_thread(char *funct_name, char *thread_name);
 
+/** hal_del_funct_from_thread() removes a function from a thread.
+    'funct_name' is the name of the function, as specified in
+    a call to hal_export_funct().
+    'thread_name' is the name of a thread which currently calls
+    the function.
+    Returns HAL_SUCCESS, or a negative error code.    Call
+    only from within user space or init code, not from
+    realtime code.
+*/
+extern int hal_del_funct_from_thread(char *funct_name, char *thread_name);
+
 /** hal_start_threads() starts all threads that have been created.
     This is the point at which realtime functions start being called.
     On success it returns HAL_SUCCESS, on failure a negative

@@ -125,6 +125,9 @@ static hal_sig_t *alloc_sig_struct(void);
 static hal_param_t *alloc_param_struct(void);
 #ifdef RTAPI
 static hal_funct_t *alloc_funct_struct(void);
+#endif /* RTAPI */
+static hal_funct_entry_t *alloc_funct_entry_struct(void);
+#ifdef RTAPI
 static hal_thread_t *alloc_thread_struct(void);
 #endif /* RTAPI */
 
@@ -135,6 +138,9 @@ static void free_sig_struct(hal_sig_t * sig);
 static void free_param_struct(hal_param_t * param);
 #ifdef RTAPI
 static void free_funct_struct(hal_funct_t * funct);
+#endif /* RTAPI */
+static void free_funct_entry_struct(hal_funct_entry_t * funct_entry);
+#ifdef RTAPI
 static void free_thread_struct(hal_thread_t * thread);
 #endif /* RTAPI */
 
@@ -1078,9 +1084,10 @@ int hal_create_thread(char *name, unsigned long period_nsec,
 
 int hal_add_funct_to_thread(char *funct_name, char *thread_name)
 {
-    int next, cmp;
+    int *prev, next, cmp;
     hal_thread_t *thread;
     hal_funct_t *funct;
+    hal_funct_entry_t *funct_entry;
 
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: adding function '%s' to thread '%s'\n",
@@ -1143,12 +1150,118 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name)
 	    "HAL: ERROR: function '%s' needs FP\n", funct_name);
 	return HAL_INVAL;
     }
-    /* add the function to the thread */
-    thread->funct_ptrs[thread->funct_count] = SHMOFF(funct);
-    thread->funct_count++;
+    /* find end of function entry list */
+    prev = &(thread->funct_list);
+    while ( *prev != 0 ) {
+        funct_entry = SHMPTR(*prev);
+        prev = &(funct_entry->next_ptr);
+    }
+    /* allocate a funct entry structure */
+    funct_entry = alloc_funct_entry_struct();
+    if (funct_entry == 0) {
+	/* alloc failed */
+	rtapi_mutex_give(&(hal_data->mutex));
+	return HAL_NOMEM;
+    }
+    /* init struct contents */
+    funct_entry->next_ptr = 0;
+    funct_entry->funct_ptr = SHMOFF(funct);
+    funct_entry->arg = funct->arg;
+    funct_entry->funct = funct->funct;
+    /* add the entry to the list */
+    *prev = SHMOFF(funct_entry);
+    /* update the function usage count */
     funct->users++;
     rtapi_mutex_give(&(hal_data->mutex));
     return HAL_SUCCESS;
+}
+
+int hal_del_funct_from_thread(char *funct_name, char *thread_name)
+{
+    int *prev, next, cmp;
+    hal_thread_t *thread;
+    hal_funct_t *funct;
+    hal_funct_entry_t *funct_entry;
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+	"HAL: removing function '%s' from thread '%s'\n",
+	funct_name, thread_name);
+    /* get mutex before accessing data structures */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* make sure we were given a function name */
+    if (funct_name == 0) {
+	/* no name supplied */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing function name\n");
+	return HAL_INVAL;
+    }
+    /* make sure we were given a thread name */
+    if (thread_name == 0) {
+	/* no name supplied */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing thread name\n");
+	return HAL_INVAL;
+    }
+    /* search function list for the function */
+    next = hal_data->funct_list_ptr;
+    do {
+	if (next == 0) {
+	    /* reached end of list, function not found */
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: function '%s' not found\n", funct_name);
+	    return HAL_INVAL;
+	}
+	funct = SHMPTR(next);
+	next = funct->next_ptr;
+	cmp = strcmp(funct->name, funct_name);
+    } while (cmp != 0);
+    /* found the function, is it in use? */
+    if (funct->users == 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: function '%s' is not in use\n", funct_name);
+	return HAL_INVAL;
+    }
+    /* search thread list for thread_name */
+    next = hal_data->thread_list_ptr;
+    do {
+	if (next == 0) {
+	    /* reached end of list, thread not found */
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: thread '%s' not found\n", thread_name);
+	    return HAL_INVAL;
+	}
+	thread = SHMPTR(next);
+	next = thread->next_ptr;
+	cmp = strcmp(thread->name, thread_name);
+    } while (cmp != 0);
+    /* ok, we have thread and function, does thread use funct? */
+    prev = &(thread->funct_list);
+    next = *prev;
+    while ( 1 ) {
+	if (next == 0) {
+	    /* reached end of list, funct not found */
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: thread '%s' doesn't use %s\n", thread_name, funct_name);
+	    return HAL_INVAL;
+	}
+	funct_entry = SHMPTR(next);
+	if ( SHMPTR(funct_entry->funct_ptr) == funct ) {
+	    /* this funct entry points to our funct, unlink */
+	    *prev = funct_entry->next_ptr;
+	    /* and delete it */
+	    free_funct_entry_struct(funct_entry);
+	    /* done */
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return HAL_SUCCESS;
+	}
+	/* try next one */
+	prev = &(funct_entry->next_ptr);
+	next = *prev;
+    }
 }
 
 int hal_start_threads(void)
@@ -1490,9 +1603,9 @@ void rtapi_app_exit(void)
 
 static void thread_task(void *arg)
 {
-    int n;
+    int next_entry;
     hal_thread_t *thread;
-    hal_funct_t *fptr;
+    hal_funct_entry_t *funct_entry;
     long long int start_time, end_time;
 
     thread = arg;
@@ -1500,14 +1613,14 @@ static void thread_task(void *arg)
 	start_time = rtapi_get_time();
 	if (hal_data->threads_running > 0) {
 	    /* run thru function list */
-	    for (n = 0; n < thread->funct_count; n++) {
-		/* is there a function in this list position? */
-		if (thread->funct_ptrs[n] != 0) {
-		    /* yes, point to it */
-		    fptr = SHMPTR(thread->funct_ptrs[n]);
-		    /* and call it */
-		    fptr->funct(fptr->arg, thread->period);
-		}
+	    next_entry = thread->funct_list;
+	    while ( next_entry != 0 ) {
+		/* point at function entry */
+		funct_entry = SHMPTR(next_entry);
+		/* get next entry in list (for use later) */
+		next_entry = funct_entry->next_ptr;
+		/* call the function */
+		funct_entry->funct(funct_entry->arg, thread->period);
 	    }
 	}
 	end_time = rtapi_get_time();
@@ -1551,6 +1664,7 @@ static void init_hal_data(void)
     hal_data->sig_free_ptr = 0;
     hal_data->param_free_ptr = 0;
     hal_data->funct_free_ptr = 0;
+    hal_data->funct_entry_free_ptr = 0;
     hal_data->thread_free_ptr = 0;
     /* set up for shmalloc_xx() */
     hal_data->shmem_bot = sizeof(hal_data_t);
@@ -1751,11 +1865,37 @@ static hal_funct_t *alloc_funct_struct(void)
     }
     return p;
 }
+#endif /* RTAPI */
 
+static hal_funct_entry_t *alloc_funct_entry_struct(void)
+{
+    hal_funct_entry_t *p;
+
+    /* check the free list */
+    if (hal_data->funct_entry_free_ptr != 0) {
+	/* found a free structure, point to it */
+	p = SHMPTR(hal_data->funct_entry_free_ptr);
+	/* unlink it from the free list */
+	hal_data->funct_entry_free_ptr = p->next_ptr;
+	p->next_ptr = 0;
+    } else {
+	/* nothing on free list, allocate a brand new one */
+	p = shmalloc_dn(sizeof(hal_funct_entry_t));
+    }
+    if (p) {
+	/* make sure it's empty */
+	p->next_ptr = 0;
+	p->funct_ptr = 0;
+	p->arg = 0;
+	p->funct = 0;
+    }
+    return p;
+}
+
+#ifdef RTAPI
 static hal_thread_t *alloc_thread_struct(void)
 {
     hal_thread_t *p;
-    int n;
 
     /* check the free list */
     if (hal_data->thread_free_ptr != 0) {
@@ -1776,15 +1916,12 @@ static hal_thread_t *alloc_thread_struct(void)
 	p->priority = 0;
 	p->owner_ptr = 0;
 	p->task_id = 0;
-	p->funct_count = 0;
-	for (n = 0; n < MAX_FUNCTS; n++) {
-	    p->funct_ptrs[n] = 0;
-	}
+	p->funct_list = 0;
 	p->name[0] = '\0';
     }
     return p;
 }
-#endif
+#endif /* RTAPI */
 
 static void free_comp_struct(hal_comp_t * comp)
 {
@@ -1792,7 +1929,7 @@ static void free_comp_struct(hal_comp_t * comp)
 #ifdef RTAPI
     hal_thread_t *thread;
     hal_funct_t *funct;
-#endif
+#endif /* RTAPI */
     hal_pin_t *pin;
     hal_param_t *param;
 
@@ -1831,7 +1968,7 @@ static void free_comp_struct(hal_comp_t * comp)
 	}
 	next = *prev;
     }
-#endif
+#endif /* RTAPI */
     /* search the pin list for this component's pins */
     prev = &(hal_data->pin_list_ptr);
     next = *prev;
@@ -1958,24 +2095,43 @@ static void free_param_struct(hal_param_t * p)
 #ifdef RTAPI
 static void free_funct_struct(hal_funct_t * funct)
 {
+    int *prev_entry, next_thread, next_entry;
     hal_thread_t *thread;
-    int next, n;
+    hal_funct_entry_t *funct_entry;
+
+/*  int next_thread, next_entry;*/
 
     if (funct->users > 0) {
-	/* We can't casually delete the function, there are thread(s) which
-	   will call it.  So we must check all the threads and NULL out any
-	   pointers to this function that we find. */
+	/* We can't casually delete the function, there are thread(s)
+	   which will call it.  So we must check all the threads and
+	   remove any funct_entrys that call this function */
 	/* start at root of thread list */
-	next = hal_data->thread_list_ptr;
-	while (next != 0) {
-	    thread = SHMPTR(next);
-	    for (n = 0; n < MAX_FUNCTS; n++) {
-		if (thread->funct_ptrs[n] == SHMOFF(funct)) {
-		    thread->funct_ptrs[n] = 0;
+	next_thread = hal_data->thread_list_ptr;
+	/* run through thread list */
+	while (next_thread != 0) {
+	    /* point to thread */
+	    thread = SHMPTR(next_thread);
+	    /* start at root of funct_entry list */
+	    prev_entry = &(thread->funct_list);
+	    next_entry = *prev_entry;
+	    /*run thru funct_entry list */
+	    while (next_entry != 0) {
+		/* point to funct entry */
+		funct_entry = SHMPTR(next_entry);
+		/* test it */
+		if (SHMPTR(funct_entry->funct_ptr) == funct) {
+		    /* this funct entry points to our funct, unlink */
+		    *prev_entry = funct_entry->next_ptr;
+		    /* and delete it */
+		    free_funct_entry_struct(funct_entry);
+		} else {
+		    /* no match, try the next one */
+		    prev_entry = &(funct_entry->next_ptr);
 		}
+		next_entry = *prev_entry;
 	    }
 	    /* move on to the next thread */
-	    next = thread->next_ptr;
+	    next_thread = thread->next_ptr;
 	}
     }
     /* clear contents of struct */
@@ -1990,11 +2146,30 @@ static void free_funct_struct(hal_funct_t * funct)
     funct->next_ptr = hal_data->funct_free_ptr;
     hal_data->funct_free_ptr = SHMOFF(funct);
 }
+#endif /* RTAPI */
 
+static void free_funct_entry_struct(hal_funct_entry_t * funct_entry)
+{
+    hal_funct_t *funct;
+
+    if (funct_entry->funct_ptr > 0) {
+	/* entry points to a function, update the function struct */
+	funct = SHMPTR(funct_entry->funct_ptr);
+	funct->users--;
+    }
+    /* clear contents of struct */
+    funct_entry->funct_ptr = 0;
+    funct_entry->arg = 0;
+    funct_entry->funct = 0;
+    /* add it to free list */
+    funct_entry->next_ptr = hal_data->funct_entry_free_ptr;
+    hal_data->funct_entry_free_ptr = SHMOFF(funct_entry);
+}
+
+#ifdef RTAPI
 static void free_thread_struct(hal_thread_t * thread)
 {
-    int n;
-    hal_funct_t *fptr;
+    hal_funct_entry_t *funct_entry;
 
     /* if we're deleting a thread, we need to stop all threads */
     hal_data->threads_running = 0;
@@ -2007,18 +2182,13 @@ static void free_thread_struct(hal_thread_t * thread)
     thread->priority = 0;
     thread->owner_ptr = 0;
     thread->task_id = 0;
-    thread->funct_count = 0;
-    /* loop through the function list */
-    for (n = 0; n < MAX_FUNCTS; n++) {
-	/* is there a function in this slot? */
-	if (thread->funct_ptrs[n] != 0) {
-	    /* yes, point to it */
-	    fptr = SHMPTR(thread->funct_ptrs[n]);
-	    /* this thread is no longer using the function */
-	    fptr->users--;
-	    /* remove function from list */
-	    thread->funct_ptrs[n] = 0;
-	}
+    /* clear the function entry list */
+    while ( thread->funct_list != 0 ) {
+	/* entry found, unlink it */
+	funct_entry = SHMPTR(thread->funct_list);
+	thread->funct_list = funct_entry->next_ptr;
+	/* and free it */
+	free_funct_entry_struct(funct_entry);
     }
     thread->name[0] = '\0';
     /* add thread to free list */
@@ -2026,3 +2196,4 @@ static void free_thread_struct(hal_thread_t * thread)
     hal_data->thread_free_ptr = SHMOFF(thread);
 }
 #endif /* RTAPI */
+

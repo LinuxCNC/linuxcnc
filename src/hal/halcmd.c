@@ -258,6 +258,13 @@ static int parse_cmd(char *cmd)
 	    rtapi_print_msg(RTAPI_MSG_INFO,
 		"Function '%s' added to thread '%s'\n", tokens[1], tokens[2]);
 	}
+    } else if (strcmp(tokens[0], "delf") == 0) {
+	retval = hal_del_funct_from_thread(tokens[1], tokens[2]);
+	if (retval == 0) {
+	    /* print success message */
+	    rtapi_print_msg(RTAPI_MSG_INFO,
+		"Function '%s' removed from thread '%s'\n", tokens[1], tokens[2]);
+	}
     } else if (strcmp(tokens[0], "start") == 0) {
 	retval = hal_start_threads();
 	if (retval == 0) {
@@ -639,29 +646,31 @@ static void print_funct_list(void)
 
 static void print_thread_list(void)
 {
-    int next, n;
+    int next_thread, next_fentry;
     hal_thread_t *tptr;
+    hal_funct_entry_t *fentry;
     hal_funct_t *funct;
     hal_comp_t *comp;
 
     rtapi_print("Realtime Threads:\n");
     rtapi_print("Owner    Period   FP  Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->thread_list_ptr;
-    while (next != 0) {
-	tptr = SHMPTR(next);
+    next_thread = hal_data->thread_list_ptr;
+    while (next_thread != 0) {
+	tptr = SHMPTR(next_thread);
 	comp = SHMPTR(tptr->owner_ptr);
 	rtapi_print(" %02d   %11d %s %s\n",
 	    comp->comp_id,
 	    tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name);
-	for (n = 0; n < tptr->funct_count; n++) {
-	    /* print the functions, in order */
-	    if (tptr->funct_ptrs[n] != 0) {
-		funct = SHMPTR(tptr->funct_ptrs[n]);
-		rtapi_print("                          %s\n", funct->name);
-	    }
+	next_fentry = tptr->funct_list;
+	while ( next_fentry != 0 ) {
+	    /* print the function info */
+	    fentry = SHMPTR(next_fentry);
+	    funct = SHMPTR(fentry->funct_ptr);
+	    rtapi_print("                          %s\n", funct->name);
+	    next_fentry = fentry->next_ptr;
 	}
-	next = tptr->next_ptr;
+	next_thread = tptr->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
@@ -944,23 +953,25 @@ static void save_params(void)
 
 static void save_threads(void)
 {
-    int next, n;
+    int next_thread, next_fentry;
     hal_thread_t *tptr;
+    hal_funct_entry_t *fentry;
     hal_funct_t *funct;
 
     rtapi_print("# realtime thread/function links\n");
     rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->thread_list_ptr;
-    while (next != 0) {
-	tptr = SHMPTR(next);
-	for (n = 0; n < tptr->funct_count; n++) {
-	    /* print the functions, in order */
-	    funct = SHMPTR(tptr->funct_ptrs[n]);
-	    if (funct != 0) {
-		rtapi_print("addf %s %s\n", funct->name, tptr->name);
-	    }
+    next_thread = hal_data->thread_list_ptr;
+    while (next_thread != 0) {
+	tptr = SHMPTR(next_thread);
+	next_fentry = tptr->funct_list;
+	while ( next_fentry != 0 ) {
+	    /* print the function info */
+	    fentry = SHMPTR(next_fentry);
+	    funct = SHMPTR(fentry->funct_ptr);
+	    rtapi_print("addf %s %s\n", funct->name, tptr->name);
+	    next_fentry = fentry->next_ptr;
 	}
-	next = tptr->next_ptr;
+	next_thread = tptr->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
 }
@@ -1009,6 +1020,8 @@ static void print_help(void)
 	("         (Both forms are equivalent, don't use '=' on command line.)\n\n");
     printf("  addf functname threadname\n");
     printf("         Adds function 'functname' to thread 'threadname'.\n\n");
+    printf("  delf functname threadname\n");
+    printf("         Removes function 'functname' from thread 'threadname'.\n\n");
     printf("  show [type]\n");
     printf
 	("         Prints HAL items of the specified type in human readable form\n");
