@@ -95,20 +95,21 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(EMC2_HOME)/Makefile.inc
 	@ echo "# Sets the default DEBUG level" >> $@
 	@ echo "DEBUG='3'" >> $@
 	mod_dir=$$(find /lib/modules/`uname -r` -name "mbuff.o" -o -name "rtai_sched.o" -o -name "rtai_ksched.o") ; \
+	echo "mod_dir is $$mod_dir" ; \
 	  if [ "$$mod_dir" = "" ] ; then \
-	     echo  >> $@ \
+	     echo  >> $@ ;\
 	     echo "# Path to the realtime kernel modules" >> $@; \
 	     echo "MODPATH='$(RTDIR)/modules'"  >> $@ ; \
 	  fi
 	@ echo >> $@
 	@ echo "# List of realtime kernel modules to be loaded" >> $@
-	@ if [ $(RTAI) -eq 3 ] ; then \
+	@ if [ "$(RTAI)" = "3" ] ; then \
 	    RTAI_SCHED=`readlink $(RTDIR)/modules/rtai_ksched.* | cut -d. -f1` ; \
 	    echo "MODULES='$(RTAI3_BASE) $$RTAI_SCHED $(RTAI3_SUP)'" >> $@ ; \
-	@ elif [ "$(RTPREFIX)" = "rtai" ] ; \
-	    then echo "MODULES='$(RTAI_MOD)'" >> $@ ; \
-	@  elif [ "$(RTPREFIX)" = "rtl" ] ; \
-	    then echo "MODULES='$(RTL_MOD)'" >> $@ ; \
+	elif [ "$(RTPREFIX)" = "rtai" ] ; then \
+	    echo "MODULES='$(RTAI_MOD)'" >> $@ ; \
+	elif [ "$(RTPREFIX)" = "rtl" ] ; then \
+	    echo "MODULES='$(RTL_MOD)'" >> $@ ; \
 	  fi
 
 .PHONY: all examples headers depend indent install clean
