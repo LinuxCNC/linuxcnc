@@ -85,8 +85,6 @@ if (test -z "$RTDIR" ); then
     AC_MSG_WARN([Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
     # It might be a case we have symlinks to the same file..
     RTS=`echo "$RTS" | head -n 1`
-  else
-    AC_MSG_RESULT([Using $RTS as the RT signature])
   fi
 else
   # we have RTDIR from the user... let's check for rtai-config, realtime-config, and rtl-config
@@ -140,6 +138,8 @@ else
   fi
   AC_MSG_RESULT([$RTDIR set from command line]) # Spit out an error if/when it fails ??
 fi
+
+AC_MSG_RESULT([Using $RTS as the RT signature])
 
 
 # For RTAI-3.x $RTS = rtai-config
@@ -229,33 +229,20 @@ fi
 
 AC_SUBST(AUTODIRS)
 
-# Allow the user to compile for a kernel other than the currently
-# running kernel with --with-kernel=
-
-
-AC_ARG_WITH(kernel,
-    [  --with-kernel=<kernel version>	Kernel version (ie, 2.4.20-8) to compile for],
-    [
-        case "$withval" in
-        "" | y | ye | yes | n | no)
-            AC_MSG_ERROR([You must supply an argument to --with-kernel.])
-          ;;
-        esac
-        KERNEL_VERS="$withval"
-  	AC_MSG_ERROR([specified kernel=$KERNEL_VERS])
-    ])
-
+#--------------------------------------------------------------------
+# Check with the version.h to find the uts-kernel version.
+# This should be a more reliable way of determining the kernel that
+# is being used to compile against - `uname -r` only returns the
+# running kernel version which is may not be the one the code is
+# compiled against.
+#--------------------------------------------------------------------
 AC_MSG_CHECKING([for kernel version])
-
-# Set the kernel to the currently running kernel if not overridden.
-if test "x" = "x$KERNEL_VERS";
-then
-   KERNEL_VERS=`uname -r`
-fi
+AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
+# Use " as the delimiter so that we don't confuse make during the compile.
+KERNEL_VERS=`cat $KERNELDIR/include/linux/version.h | head -n 1 | cut -d '"' -f 2`
 
 AC_SUBST([KERNEL_VERS])
 
-AC_MSG_RESULT([$KERNEL_VERS])
 
 # Create a module-dir option, similar to rtai's...
 
@@ -275,6 +262,8 @@ AC_ARG_WITH(module-dir,
 # Set a default module dir if unspecified
 if test "x" = "x$MODULE_DIR";
 then
+   # (P.C.) Only works if the kernel modules are installed - If we are compiling for a target
+   # system, this test may fail...
    MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} -name "mbuff.o" -o -name "rtai_shm.o" -printf "%h")`
 
    if test "x" = "x$MODULE_DIR"; then
