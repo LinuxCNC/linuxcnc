@@ -121,6 +121,7 @@ modules: headers
 
 modules_install: modules
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+	depmod 2>/dev/null
 
 #headers clean depend indent install:
 all headers:
