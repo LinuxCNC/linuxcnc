@@ -349,7 +349,7 @@ static int export_pid(int num, hal_pid_t * addr)
     char buf[HAL_NAME_LEN + 2];
 
     /* export pins */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.enable", num);
     retval = hal_pin_bit_new(buf, HAL_RD, &(addr->enable), comp_id);
     if (retval != 0) {
 	return retval;
