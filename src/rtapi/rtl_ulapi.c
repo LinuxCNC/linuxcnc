@@ -286,7 +286,7 @@ void rtapi_printall(void)
     printf("rtapi_data = %p\n", rtapi_data);
     printf("  magic = %d\n", rtapi_data->magic);
     printf("  rev_code = %08x\n", rtapi_data->rev_code);
-    printf("  mutex = %d\n", rtapi_data->mutex);
+    printf("  mutex = %lu\n", rtapi_data->mutex);
     printf("  rt_module_count = %d\n", rtapi_data->rt_module_count);
     printf("  ul_module_count = %d\n", rtapi_data->ul_module_count);
     printf("  task_count  = %d\n", rtapi_data->task_count);
