@@ -1043,12 +1043,15 @@ begins with n, so no read function is included in the "_readers" array
 for the letter n. Thus, if an n word is encountered in the middle of
 a line, this function reports NCE_BAD_CHARACTER_USED.
 
-The function looks for a letter or special character and calls a
-selected function according to what the letter or character is.  The
-selected function will be responsible to consider all the characters
-that comprise the remainder of the item, and reset the pointer so that
-it points to the next character after the end of the item (which may be
-the end of the line or the first character of another item).
+The function looks for a letter or special character and matches it to
+a pointer to a function in _readers[] - The position of the function
+pointers in the array match their ASCII number.
+Once the character has been matched, the function calls a selected function
+according to what the letter or character is.  The selected function will
+be responsible to consider all the characters that comprise the remainder
+of the item, and reset the pointer so that it points to the next character
+after the end of the item (which may be the end of the line or the first
+character of another item).
 
 After an item is read, the counter is set at the index of the
 next unread character. The item data is stored in the block.
@@ -1070,12 +1073,13 @@ int Interp::read_one_item(char *line,    //!< string: line of RS274/NGC code bei
   int status;
   read_function_pointer function_pointer;
   char letter;
+  Interp interp;
 
   letter = line[*counter];      /* check if in array range */
   CHK(((letter < 0) || (letter > 'z')), NCE_BAD_CHARACTER_USED);
-  function_pointer = _readers[letter];
+  function_pointer = _readers[(int) letter]; /* Find the function pointer in the array */
   CHK((function_pointer == 0), NCE_BAD_CHARACTER_USED);
-  CHP(function_pointer(line, counter, block, parameters));
+  CHP((interp.*function_pointer)(line, counter, block, parameters)); /* Call the function */ 
   return RS274NGC_OK;
 }
 

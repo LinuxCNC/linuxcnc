@@ -202,26 +202,49 @@ const int Interp::_required_parameters[] = {
  RS274NGC_MAX_PARAMETERS
 };
 
-/*
+/* _readers is an array of pointers to functions that read.
+   It is used by read_one_item.
 
-_readers is an array of pointers to functions that read.
-It is used by read_one_item.
-
-*/
+   Each read function is placed in the array according to the ASCII character it
+   corresponds to. Whilst a switch statement could have been used in read_one_item,
+   using an array of function pointers allows a new read_foo to be added quickly
+   in this one table.
+   
+   At some point, it may be advantageous to add a read_$ or read_n for perhaps
+   macro or jump labels..
+   */
 const read_function_pointer Interp::_readers[] = {
-0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
-0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
-0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
-0,      0,      0, 0, 0, read_parameter_setting,0,      0,      0,      0,
-read_comment, 0, 0,     0,      0,      0,      0,      0,      0,      0,
-0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
-0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
-0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
-0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
-0,      0,      0,      0,      0,      0,      0,      read_a, read_b, read_c,
-read_d, 0,      read_f, read_g, read_h, read_i, read_j, read_k, read_l, read_m,
-0,      0,      read_p, read_q, read_r, read_s, read_t, 0     , 0,      0,
-read_x, read_y, read_z};
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+&Interp::read_parameter_setting, // reads # or ASCII 0x23
+0, 0, 0, 0,
+&Interp::read_comment, // reads ( or ASCII 0x28
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+&Interp::read_a, // reads a or ASCII 0x61
+&Interp::read_b, // reads b or ASCII 0x62
+&Interp::read_c, // reads c or ASCII 0x63
+&Interp::read_d, // reads d or ASCII 0x64
+0,
+&Interp::read_f, // reads f or ASCII 0x66
+&Interp::read_g, // reads g or ASCII 0x67
+&Interp::read_h, // reads h or ASCII 0x68
+&Interp::read_i, // reads i or ASCII 0x69
+&Interp::read_j, // reads j or ASCII 0x6A
+&Interp::read_k, // reads k or ASCII 0x6B
+&Interp::read_l, // reads l or ASCII 0x6C
+&Interp::read_m, // reads m or ASCII 0x6D
+0, 0,
+&Interp::read_p, // reads p or ASCII 0x70
+&Interp::read_q, // reads q or ASCII 0x71
+&Interp::read_r, // reads r or ASCII 0x72
+&Interp::read_s, // reads s or ASCII 0x73
+&Interp::read_t, // reads t or ASCII 0x74
+0, 0, 0,
+&Interp::read_x, // reads x or ASCII 0x78
+&Interp::read_y, // reads y or ASCII 0x79
+&Interp::read_z}; // reads z or ASCII 0x7A
 // *INDENT-ON*
 // And now indent can continue.
 /****************************************************************************/

@@ -54,7 +54,7 @@
 
 // English - Metric conversion (long number keeps error buildup down)
 #define MM_PER_INCH 25.4
-#define INCH_PER_MM 0.039370078740157477
+//#define INCH_PER_MM 0.039370078740157477
 
 // on-off switch settings
 #define OFF 0
@@ -223,6 +223,10 @@ typedef struct block_struct
 block;
 
 typedef block *block_pointer;
+
+// Declare class so that we can use it in the typedef.
+class Interp;
+typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, double *);
 
 /*
 

@@ -27,10 +27,6 @@
 #include "interp_internal.hh"
 
 #define DEBUG_EMC
-//typedef block *block_pointer;
-//typedef setup *setup_pointer;
-// pointer to function that reads
-typedef int (*read_function_pointer) (char *, int *, block_pointer, double *);
 
 class Interp {
 
@@ -374,13 +370,12 @@ private:
  int write_m_codes(block_pointer block, setup_pointer settings);
  int write_settings(setup_pointer settings);
 
-/* Private arrays */
-
+/* Internal arrays */
  static const int _gees[];
  static const int _ems[];
  static const int _required_parameters[];
-
  static const read_function_pointer _readers[];
+
  static setup _setup;
 
 };
