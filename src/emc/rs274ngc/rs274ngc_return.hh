@@ -1,19 +1,3 @@
-/********************************************************************
-* Description: rs274ngc_return.hh
-*
-*   Derived from a work by Thomas Kramer
-*
-* Author:
-* License: GPL Version 2
-* System: Linux
-*    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-********************************************************************/
 #ifndef RS274NGC_RETURN_H
 #define RS274NGC_RETURN_H
 
@@ -117,7 +101,7 @@
 #define NCE_LEFT_BRACKET_MISSING_AFTER_UNARY_OPERATION_NAME 97
 #define NCE_LINE_NUMBER_GREATER_THAN_99999 98
 #define NCE_LINE_WITH_G10_DOES_NOT_HAVE_L2 99
-#define NCE_M_CODE_GREATER_THAN_99 100
+#define NCE_M_CODE_GREATER_THAN_199 100
 #define NCE_MIXED_RADIUS_IJK_FORMAT_FOR_ARC 101
 #define NCE_MULTIPLE_A_WORDS_ON_ONE_LINE 102
 #define NCE_MULTIPLE_B_WORDS_ON_ONE_LINE 103

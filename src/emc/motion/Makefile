@@ -1,75 +1,75 @@
-# Makefile for compiling EMC motion code
+# EMC motion control code
 
-include ../../../Makefile.inc
+include ../Makefile.inc
 
-SRCS = \
-	emcmotglb.c \
-	emcmotutil.c \
-	usrmotintf.c
-
-RT_SRCS = \
-	command.c \
-	control.c \
-	motion.c
-
-HEADERS = \
+HEADERS =cubic.h \
+	emcmot.h \
 	emcmotcfg.h \
 	emcmotglb.h \
-	motion.h \
-	usrmotintf.h
+	emcmotlog.h \
+	kinematics.h \
+	mmxavg.h \
+	pid.h \
+	tc.h \
+	tp.h \
+	emcprocfs.h
 
-PRIVHDRS = \
-	mot_priv.h
+SRCS =
 
-OBJS = \
+OBJS =  pid.o \
+	emcmotutil.o \
+	emcmotlog.o \
+	emcmotglb.o
+
+ifeq ($(KERNELRELEASE),2.4)
+
+RT_SRCS = cubic.c \
+	emcmot.c \
+	emcmotglb.c \
+	emcmotlog.c \
+	emcmotutil.c \
+	mmxavg.c \
+	pid.c \
+	tc.c \
+	tp.c \
+	trivkins.c \
+	\
+	emcmodule.c \
+	emcstepper.c \
+	emccommand.c \
+	emcprocfs.c \
+	test_module.c
+
+RT_OBJS = cubic.o \
+	emcmot.o \
 	emcmotglb.o \
-	emcmotutil.o \
-	usrmotintf.o
-
-RT_OBJS  = \
-	command.o \
-	control.o \
-	cubic.o \
-	emcmotutil.o \
+	trivkins.o \
 	mmxavg.o \
-	motion.o \
+	emcmotlog.o \
+	emcmotutil.o \
 	tc.o \
-	tp.o
+	tp.o \
+	pid.o \
+	\
+	emcmodule.o\
+	emcstepper.o \
+	emccommand.o \
+	emcprocfs.o
 
-RTLIBS = \
-	motmod.o
+RTLIBS = freqmod.o \
+	smdromod.o \
+	vitalmod.o \
+	test_module.o
+
+endif
 
 BINS =
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
-	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o)
+	$(RTLIBS:%.o=$(RTLIB_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
-
-# Explicit rules.
-
-# Side note: MATHLIB defines the linking and lib options for
-# libm. Linking to the glibc math lib may lead to unresolved
-# symbols without an additional stub module. RTAI provides a
-# kernel module, so RTLinux builds are the only ones at risk.
-#
-# An alternative would be to use uClibc's libm - Often packaged as
-# part of dietlibc.
-$(RTLIB_DIR)/motmod.o: \
-	$(RTTMP_DIR)/cubic.o \
-	$(RTTMP_DIR)/motion.o \
-	$(RTTMP_DIR)/command.o \
-	$(RTTMP_DIR)/control.o \
-	$(RTTMP_DIR)/emcmotglb.o \
-	$(RTTMP_DIR)/emcmotlog.o \
-	$(RTTMP_DIR)/emcmotutil.o \
-	$(RTTMP_DIR)/mmxavg.o \
-	$(RTTMP_DIR)/tc.o \
-	$(RTTMP_DIR)/tp.o \
-	$(RTTMP_DIR)/trivkins.o
-	@ echo "Linking kernel module $@"
-	ld -r -static -S -O2 $^ $(RTLIB_DIR)/libpm.a $(MATHLIB) -o $@
+include ../Make.rules
 
 headers: def_headers
 
@@ -80,3 +80,82 @@ depend: def_depend
 clean: def_clean
 
 .PHONY: all clean install indent depend headers
+
+$(BIN_DIR)/usrmot:	\
+	$(TMP_DIR)/usrmotintf.o \
+	$(TMP_DIR)/usrmot.o \
+	$(TMP_DIR)/emcmotglb.o \
+	$(TMP_DIR)/pid.o \
+	$(TMP_DIR)/getinput.o \
+	$(TMP_DIR)/emcmotlog.o \
+	$(TMP_DIR)/emcmotutil.o
+	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+
+# frequency stepping and other types
+$(RTLIB_DIR)/freqmod.o: \
+	$(RTTMP_DIR)/emcmot.o \
+	$(RTTMP_DIR)/emcmotglb.o \
+	$(RTTMP_DIR)/tp.o \
+	$(RTTMP_DIR)/tc.o \
+	$(RTTMP_DIR)/trivkins.o \
+	$(RTTMP_DIR)/cubic.o \
+	$(RTTMP_DIR)/pid.o \
+	$(RTTMP_DIR)/extsmmot.o \
+	$(RTTMP_DIR)/extppt.o \
+	$(RTTMP_DIR)/parport.o \
+	$(RTTMP_DIR)/extsimaio.o \
+	$(RTTMP_DIR)/simaio.o \
+	$(RTTMP_DIR)/mmxavg.o \
+	$(RTTMP_DIR)/emcmotlog.o \
+	$(RTTMP_DIR)/emcmotutil.o \
+	\
+	$(RTTMP_DIR)/emcmodule.o \
+	$(RTTMP_DIR)/emcstepper.o \
+	$(RTTMP_DIR)/emccommand.o \
+	$(RTTMP_DIR)/emcprocfs.o
+	ld -r -static $^ $(RTLIB_DIR)/libpm.a -o $@
+
+# frequency stepping with DRO board
+$(RTLIB_DIR)/smdromod.o: \
+	$(RTTMP_DIR)/emcmot.o \
+	$(RTTMP_DIR)/emcmotglb.o \
+	$(RTTMP_DIR)/tp.o \
+	$(RTTMP_DIR)/tc.o \
+	$(RTTMP_DIR)/trivkins.o \
+	$(RTTMP_DIR)/cubic.o \
+	$(RTTMP_DIR)/pid.o \
+	$(RTTMP_DIR)/extsmdromot.o \
+	$(RTTMP_DIR)/dro.o \
+	$(RTTMP_DIR)/parport.o \
+	$(RTTMP_DIR)/extsimdio.o \
+	$(RTTMP_DIR)/extsimaio.o \
+	$(RTTMP_DIR)/simdio.o \
+	$(RTTMP_DIR)/simaio.o \
+	$(RTTMP_DIR)/mmxavg.o \
+	$(RTTMP_DIR)/emcmotlog.o \
+	$(RTTMP_DIR)/emcmotutil.o \
+	\
+	$(RTTMP_DIR)/emcmodule.o \
+	$(RTTMP_DIR)/emcstepper.o \
+	$(RTTMP_DIR)/emccommand.o \
+	$(RTTMP_DIR)/emcprocfs.o
+	ld -r -static $^ $(RTLIB_DIR)/libpm.a -o $@
+
+$(RTLIB_DIR)/vitalmod.o: \
+	$(RTTMP_DIR)/vital.o \
+	$(RTTMP_DIR)/extvitalmot.o \
+	$(RTTMP_DIR)/emcmot.o \
+	$(RTTMP_DIR)/emcmotglb.o \
+	$(RTTMP_DIR)/tp.o \
+	$(RTTMP_DIR)/tc.o \
+	$(RTTMP_DIR)/trivkins.o \
+	$(RTTMP_DIR)/cubic.o \
+	$(RTTMP_DIR)/pid.o \
+	$(RTTMP_DIR)/mmxavg.o \
+	$(RTTMP_DIR)/emcmotlog.o \
+	$(RTTMP_DIR)/emcmotutil.o \
+	\
+	$(RTTMP_DIR)/emcmodule.o \
+	$(RTTMP_DIR)/emccommand.o \
+	$(RTTMP_DIR)/emcprocfs.o
+	ld -r -static $^ $(RTLIB_DIR)/libpm.a -o $@

@@ -1,22 +1,29 @@
-/********************************************************************
-* Description: emcglb.h
-*   Declarations for globals found in emcglb.c
-*
-*   Derived from a work by Fred Proctor & Will Shackleford
-*
-* Author:
-* License: GPL Version 2
-* System: Linux
-*    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-********************************************************************/
 #ifndef EMCGLB_H
 #define EMCGLB_H
+
+/*
+  declarations for globals found in emcglb.c
+
+  Modification history:
+
+  4-May-2004  FMP added AXIS_MAX_ACCELERATION[]
+  31-May-2001  FMP changed decl of EMC_DEBUG_INTERP_LIST to be bit-shifted 
+  over so that it's consistent number-wise with the rest
+  25-May-2001  FMP added EMC_DEBUG_TRAJ
+  19-May-2000  FMP added LUBE_WRITE_INDEX,POLARITY
+  6-Mar-2000  FMP added EMC_DEBUG_NML
+  25-Feb-2000  FMP added decl of emcInitGlobals()
+  23-Feb-2000  FMP added AXIS_MAX_VELOCITY[]; moved EMC_AXIS_MAX here from
+  emc.hh
+  15-Sep-1999  FMP added EMC_DEBUG_IO_POINTS
+  3-Sep-1999  FMP added EMC_DEBUG_VERSIONS
+  15-Jun-1999  FMP added EMC_DEBUG_DEFAULTS, etc.
+  2-Jun-1999  FMP added TRAJ_DEFAULT_VELOCITY
+  6-Jul-1998  FMP added EMC_DEBUG, emcGetArgs decl
+  15-May-1998  FMP added TRAJ_MAX_VELOCITY
+  23-Apr-1998  FMP added TOOL_TABLE_FILE
+  1-Apr-1998 FMP added SPINDLE_ON_INDEX, SPINDLE_ENABLE_INDEX,POLARITY
+  */
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,24 +31,37 @@ extern "C" {
 
 #include "emcpos.h"		/* EmcPose */
 
+enum {
+  ENABLE_INDEX = 1,
+  MIN_LIMIT_SWITCH_INDEX,
+  MAX_LIMIT_SWITCH_INDEX,
+  HOME_SWITCH_INDEX,
+  STEP_INDEX,
+  DIRECTION_INDEX,
+  FAULT_INDEX
+};
+
 #define EMC_AXIS_MAX 8
 
+#ifndef __KERNEL__
+
 #define EMC_INIFILE_LEN 256
-    extern char EMC_INIFILE[EMC_INIFILE_LEN];
+extern char EMC_INIFILE[EMC_INIFILE_LEN];
 
 #define EMC_NMLFILE_LEN 256
-    extern char EMC_NMLFILE[EMC_NMLFILE_LEN];
+extern char EMC_NMLFILE[EMC_NMLFILE_LEN];
 
 #define DEFAULT_RS274NGC_STARTUP_CODE ""
 #define RS274NGC_STARTUP_CODE_MAX 256
-    extern char RS274NGC_STARTUP_CODE[RS274NGC_STARTUP_CODE_MAX];
+extern char RS274NGC_STARTUP_CODE[RS274NGC_STARTUP_CODE_MAX];
+
 
 /* debug bitflags */
 /* Note: these may be hard-code referenced by the GUI (e.g., emcdebug.tcl).
    If you change the assignments here, make sure and reflect that in
    the GUI scripts that use these. Unfortunately there's no easy way to
    get these into Tk automatically */
-    extern int EMC_DEBUG;
+extern int EMC_DEBUG;
 #define EMC_DEBUG_INVALID           0x00000001
 #define EMC_DEBUG_CONFIG            0x00000002
 #define EMC_DEBUG_DEFAULTS          0x00000004
@@ -54,72 +74,74 @@ extern "C" {
 #define EMC_DEBUG_RCS               0x00000200
 #define EMC_DEBUG_TRAJ              0x00000400
 #define EMC_DEBUG_INTERP_LIST       0x00000800
-#define EMC_DEBUG_ALL               0x7FFFFFFF	/* it's an int for %i to work 
-						 */
+#define EMC_DEBUG_ALL               0x7FFFFFFF /* it's an int for %i to work */
 
-    extern double EMC_TASK_CYCLE_TIME;
+extern double EMC_TASK_CYCLE_TIME;
 
-    extern double EMC_IO_CYCLE_TIME;
+extern double EMC_IO_CYCLE_TIME;
 
 #define TOOL_TABLE_FILE_LEN 256
-    extern char TOOL_TABLE_FILE[TOOL_TABLE_FILE_LEN];
+extern char TOOL_TABLE_FILE[TOOL_TABLE_FILE_LEN];
 
-    extern double TRAJ_DEFAULT_VELOCITY;
-    extern double TRAJ_MAX_VELOCITY;
+extern double TRAJ_DEFAULT_VELOCITY;
+extern double TRAJ_MAX_VELOCITY;
 
-    extern double AXIS_MAX_VELOCITY[EMC_AXIS_MAX];
-    extern double AXIS_MAX_ACCELERATION[EMC_AXIS_MAX];
+extern double AXIS_MAX_VELOCITY[EMC_AXIS_MAX];
+extern double AXIS_MAX_ACCELERATION[EMC_AXIS_MAX];
 
-    extern double SPINDLE_OFF_WAIT;
-    extern double SPINDLE_ON_WAIT;
+extern double SPINDLE_OFF_WAIT;
+extern double SPINDLE_ON_WAIT;
 
-    extern int ESTOP_SENSE_INDEX;
-    extern int LUBE_SENSE_INDEX;
+extern int ESTOP_SENSE_INDEX;
+extern int LUBE_SENSE_INDEX;
 
-    extern int ESTOP_SENSE_POLARITY;
-    extern int LUBE_SENSE_POLARITY;
+extern int ESTOP_SENSE_POLARITY;
+extern int LUBE_SENSE_POLARITY;
 
-    extern int SPINDLE_ON_INDEX;
-    extern double MIN_VOLTS_PER_RPM;
-    extern double MAX_VOLTS_PER_RPM;
+extern int SPINDLE_ON_INDEX;
+extern double MIN_VOLTS_PER_RPM;
+extern double MAX_VOLTS_PER_RPM;
 
-    extern int SPINDLE_FORWARD_INDEX;
-    extern int SPINDLE_REVERSE_INDEX;
-    extern int SPINDLE_BRAKE_INDEX;
-    extern int SPINDLE_DECREASE_INDEX;
-    extern int SPINDLE_INCREASE_INDEX;
-    extern int SPINDLE_ENABLE_INDEX;
-    extern int MIST_COOLANT_INDEX;
-    extern int FLOOD_COOLANT_INDEX;
-    extern int ESTOP_WRITE_INDEX;
-    extern int LUBE_WRITE_INDEX;
+extern int SPINDLE_FORWARD_INDEX;
+extern int SPINDLE_REVERSE_INDEX;
+extern int SPINDLE_BRAKE_INDEX;
+extern int SPINDLE_DECREASE_INDEX;
+extern int SPINDLE_INCREASE_INDEX;
+extern int SPINDLE_ENABLE_INDEX;
+extern int MIST_COOLANT_INDEX;
+extern int FLOOD_COOLANT_INDEX;
+extern int ESTOP_WRITE_INDEX;
+extern int LUBE_WRITE_INDEX;
 
-    extern int SPINDLE_FORWARD_POLARITY;
-    extern int SPINDLE_REVERSE_POLARITY;
-    extern int MIST_COOLANT_POLARITY;
-    extern int FLOOD_COOLANT_POLARITY;
-    extern int SPINDLE_DECREASE_POLARITY;
-    extern int SPINDLE_INCREASE_POLARITY;
-    extern int ESTOP_WRITE_POLARITY;
-    extern int SPINDLE_BRAKE_POLARITY;
-    extern int SPINDLE_ENABLE_POLARITY;
-    extern int LUBE_WRITE_POLARITY;
+extern int SPINDLE_FORWARD_POLARITY;
+extern int SPINDLE_REVERSE_POLARITY;
+extern int MIST_COOLANT_POLARITY;
+extern int FLOOD_COOLANT_POLARITY;
+extern int SPINDLE_DECREASE_POLARITY;
+extern int SPINDLE_INCREASE_POLARITY;
+extern int ESTOP_WRITE_POLARITY;
+extern int SPINDLE_BRAKE_POLARITY;
+extern int SPINDLE_ENABLE_POLARITY;
+extern int LUBE_WRITE_POLARITY;
 
-    extern EmcPose TOOL_CHANGE_POSITION;
-    extern unsigned char HAVE_TOOL_CHANGE_POSITION;
-    extern EmcPose TOOL_HOLDER_CLEAR;
-    extern unsigned char HAVE_TOOL_HOLDER_CLEAR;
+extern EmcPose TOOL_CHANGE_POSITION;
+extern unsigned char HAVE_TOOL_CHANGE_POSITION;
+extern EmcPose TOOL_HOLDER_CLEAR;  
+extern unsigned char HAVE_TOOL_HOLDER_CLEAR;
 
 #define DEFAULT_EMCLOG_INCLUDE_HEADER (1)
-    extern int EMCLOG_INCLUDE_HEADER;
+extern int EMCLOG_INCLUDE_HEADER;
 
 /*just used to keep track of unneccessary debug printing. */
-    extern int taskplanopen;
+extern int taskplanopen; 
 
-    extern int emcGetArgs(int argc, char *argv[]);
-    extern void emcInitGlobals();
+extern int emcGetArgs(int argc, char *argv[]);
+extern void emcInitGlobals();
+
+#endif
 
 #ifdef __cplusplus
-}				/* matches extern "C" at top */
+} /* matches extern "C" at top */
 #endif
-#endif				/* EMCGLB_H */
+
+#endif /* EMCGLB_H */

@@ -1,24 +1,23 @@
-/********************************************************************
-* Description: interpl.hh
-*   Mechanism for building lists of arbitrary NML messages, used by
-*   the canonical interface and interpreter to pass planned sequences
-*   to the HME.
-*
-*   Derived from a work by Fred Proctor & Will Shackleford
-*
-* Author:
-* License: GPL Version 2
-* System: Linux
-*    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-********************************************************************/
+
 #ifndef INTERP_LIST_HH
 #define INTERP_LIST_HH
+
+/*
+  Mechanism for building lists of arbitrary NML messages, used by
+  the canonical interface and interpreter to pass planned sequences
+  to the HME.
+
+  Modification history:
+
+  25-Jun-2001 made commandbuf part of a union and add dummy variable
+  to ensure alignment.
+  25-Jul-1997  FMP changed line number stuff;
+  changed MAX_EMC_NML_COMMAND_SIZE to MAX_NML_COMMAND_SIZE (I'm trying
+  to get the EMC prejudice out of here)
+  22-Oct-1996 WPS attempted to fix alignment problems by moving the
+  command member of NML_INTERP_LIST_NODE to the begining of the structure.
+  16-Nov-1995  Fred Proctor created
+  */
 
 #define MAX_NML_COMMAND_SIZE 1000
 

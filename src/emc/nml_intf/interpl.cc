@@ -1,28 +1,28 @@
-/********************************************************************
-* Description: interpl.cc
-*   Mechanism for queueing NML messages, used by the interpreter and
-*   canonical interface to report list of NML statements from program
-*   files to HME.
-*
-*   Derived from a work by Fred Proctor & Will Shackleford
-*
-* Author:
-* License: GPL Version 2
-* System: Linux
-*    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-********************************************************************/
+
+/*
+  interplist.cc
+
+  Mechanism for queueing NML messages, used by the interpreter and
+  canonical interface to report list of NML statements from program
+  files to HME.
+
+  Modification history:
+
+  11-Dec-2000 WPS put in some checks in NML_INTERP_LIST append to catch invalid
+changes to the node structure and command messages that are too big. Also modified things so that we conserve memory by not always storing 1000 bytes for every message.
+  25-Jul-1997  FMP removed nml_emc.hh dependency, changing how line
+  numbers are done. Now they need to be given via set_line_number instead
+  of read by interp_wm_line(). Got rid of non-reentrant get_last()
+  14-Nov-1996 WPS corrected the size passed to store_at_tail which caused
+  a "Read Invalid" error from TestCenter
+  16-Nov-1995  Fred Proctor created
+  */
 
 extern "C" {
 #include <string.h>             /* memcpy() */
 }
 
-#include "rcs.hh"               // LinkedList
+#include "rcs.hh"               // RCS_LINKED_LIST
 #include "interpl.hh"           // these decls
 #include "emcglb.h"
 
