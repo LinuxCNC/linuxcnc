@@ -13,7 +13,7 @@
   21-Jan-2004  P.C. Moved across from the original EMC source tree.
 */
 
-#include "motion.h"		/* EMCMOT_STATUS,CMD */
+#include "motion.h"		/* emcmot_status_t,CMD */
 
 /* ident tag */
 #ifndef __GNUC__
@@ -35,15 +35,15 @@ extern "C" {
 
 /* usrmotReadEmcmotStatus() gets the status info out of
    the emcmot controller and puts it in arg */
-    extern int usrmotReadEmcmotStatus(EMCMOT_STATUS * s);
+    extern int usrmotReadEmcmotStatus(emcmot_status_t * s);
 
 /* usrmotReadEmcmotConfig() gets the config info out of
    the emcmot controller and puts it in arg */
-    extern int usrmotReadEmcmotConfig(EMCMOT_CONFIG * s);
+    extern int usrmotReadEmcmotConfig(emcmot_config_t * s);
 
 /* usrmotReadEmcmotDebug() gets the debug info out of
    the emcmot controller and puts it in arg */
-    extern int usrmotReadEmcmotDebug(EMCMOT_DEBUG * s);
+    extern int usrmotReadEmcmotDebug(emcmot_debug_t * s);
 
 /* usrmotReadEmcmotError() gets the earliest queued error string out of
    the emcmot controller and puts it in arg */
@@ -51,15 +51,15 @@ extern "C" {
 
 /* usrmotPrintEmcmotStatus() prints the status in s, using which
    arg to select sub-prints */
-    extern void usrmotPrintEmcmotStatus(EMCMOT_STATUS s, int which);
+    extern void usrmotPrintEmcmotStatus(emcmot_status_t s, int which);
 
 /* usrmotPrintEmcmotConfig() prints the config in s, using which
    arg to select sub-prints */
-    extern void usrmotPrintEmcmotConfig(EMCMOT_CONFIG s, int which);
+    extern void usrmotPrintEmcmotConfig(emcmot_config_t s, int which);
 
 /* usrmotPrintEmcmotDebug() prints the debug in s, using which
    arg to select sub-prints */
-    extern void usrmotPrintEmcmotDebug(EMCMOT_DEBUG s, int which);
+    extern void usrmotPrintEmcmotDebug(emcmot_debug_t s, int which);
 
 /* values returned by usrmotWriteEmcmotCommand; negative values
    are all errors */
@@ -71,7 +71,7 @@ extern "C" {
 
 /* usrmotWriteEmcmotCommand() writes the command to the emcmot process.
    Return values are as per the #defines above */
-    extern int usrmotWriteEmcmotCommand(EMCMOT_COMMAND * c);
+    extern int usrmotWriteEmcmotCommand(emcmot_command_t * c);
 
 /* usrmotInit() initializes communication with the emcmot process */
     extern int usrmotInit(char *name);

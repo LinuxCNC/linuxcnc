@@ -190,10 +190,10 @@ static void usrmotQuit(int sig)
 */
 int main(int argc, char *argv[])
 {
-    EMCMOT_COMMAND emcmotCommand;
-    EMCMOT_STATUS emcmotStatus;
-    EMCMOT_CONFIG emcmotConfig;
-    EMCMOT_DEBUG emcmotDebug;
+    emcmot_command_t emcmotCommand;
+    emcmot_status_t emcmotStatus;
+    emcmot_config_t emcmotConfig;
+    emcmot_debug_t emcmotDebug;
     char input[INPUTLEN];
     char cmd[INPUTLEN];
     char errorString[EMCMOT_ERROR_LEN];
@@ -218,13 +218,13 @@ int main(int argc, char *argv[])
 
     /* print the sizes first, so that even if emcmot isn't up and running we
        can use usrmot to simply print the size and fail */
-    printf("sizeof(EMCMOT_COMMAND) = %d\n", sizeof(EMCMOT_COMMAND));
-    printf("sizeof(EMCMOT_STATUS) = %d\n", sizeof(EMCMOT_STATUS));
-    printf("sizeof(EMCMOT_CONFIG) = %d\n", sizeof(EMCMOT_CONFIG));
-    printf("sizeof(EMCMOT_DEBUG) = %d\n", sizeof(EMCMOT_DEBUG));
-    printf("sizeof(EMCMOT_ERROR) = %d\n", sizeof(EMCMOT_ERROR));
-    printf("sizeof(EMCMOT_LOG) = %d\n", sizeof(EMCMOT_LOG));
-    printf("sizeof(EMCMOT_STRUCT) = %d\n", sizeof(EMCMOT_STRUCT));
+    printf("sizeof(emcmot_command_t) = %d\n", sizeof(emcmot_command_t));
+    printf("sizeof(emcmot_status_t) = %d\n", sizeof(emcmot_status_t));
+    printf("sizeof(emcmot_config_t) = %d\n", sizeof(emcmot_config_t));
+    printf("sizeof(emcmot_debug_t) = %d\n", sizeof(emcmot_debug_t));
+    printf("sizeof(emcmot_error_t) = %d\n", sizeof(emcmot_error_t));
+    printf("sizeof(emcmot_log_t) = %d\n", sizeof(emcmot_log_t));
+    printf("sizeof(emcmot_struct_t) = %d\n", sizeof(emcmot_struct_t));
 
     /* process command line args */
     emcmotGetArgs(argc, argv);

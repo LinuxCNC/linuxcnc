@@ -131,8 +131,8 @@ static EMC_IO_STAT emcioStatus;
 static NML *emcErrorBuffer = 0;
 
 // Shared memory to communicate with emcmot
-static EMCMOT_COMMAND emcmotCommand;
-extern EMCMOT_STRUCT *emcmotshmem;
+static emcmot_command_t emcmotCommand;
+extern emcmot_struct_t *emcmotshmem;
 static long shmem = 0;		// Shared memory flag
 
 // "defined but not used"...

@@ -23,11 +23,11 @@ static char __attribute__ ((unused)) ident[] =
 #include <sys/stat.h>
 #include <string.h>		/* memcpy() */
 #include <float.h>		/* DBL_MIN */
-#include "motion.h"		/* EMCMOT_STATUS,CMD */
+#include "motion.h"		/* emcmot_status_t,CMD */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
-#include "emcmotlog.h"		/* EMCMOT_LOG */
+#include "emcmotlog.h"		/* emcmot_log_t */
 #include "_timer.h"
 #include "inifile.h"		/* iniFind() */
 
@@ -42,15 +42,15 @@ static char __attribute__ ((unused)) ident[] =
 
 static int inited = 0;		/* flag if inited */
 
-static EMCMOT_COMMAND *emcmotCommand = 0;
-static EMCMOT_STATUS *emcmotStatus = 0;
-static EMCMOT_CONFIG *emcmotConfig = 0;
-static EMCMOT_DEBUG *emcmotDebug = 0;
-static EMCMOT_ERROR *emcmotError = 0;
-static EMCMOT_LOG *emcmotLog = 0;
-static EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS] = { 0 };
-static EMCMOT_STRUCT *emcmotStruct = 0;
-EMCMOT_STRUCT *emcmotshmem = NULL;	// Shared memory base address.
+static emcmot_command_t *emcmotCommand = 0;
+static emcmot_status_t *emcmotStatus = 0;
+static emcmot_config_t *emcmotConfig = 0;
+static emcmot_debug_t *emcmotDebug = 0;
+static emcmot_error_t *emcmotError = 0;
+static emcmot_log_t *emcmotLog = 0;
+static emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS] = { 0 };
+static emcmot_struct_t *emcmotStruct = 0;
+emcmot_struct_t *emcmotshmem = NULL;	// Shared memory base address.
 
 /* usrmotIniLoad() loads params (SHMEM_KEY, COMM_TIMEOUT, COMM_WAIT)
    from named ini file */
@@ -126,9 +126,9 @@ int usrmotIniLoad(const char *filename)
 int emcmot_comm_timeout_count = 0;
 
 /* writes command from c */
-int usrmotWriteEmcmotCommand(EMCMOT_COMMAND * c)
+int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 {
-    EMCMOT_STATUS s;
+    emcmot_status_t s;
     static int commandNum = 0;
     static unsigned char headCount = 0;
     double end;
@@ -176,13 +176,13 @@ int emcmot_config_split_count = 0;
 int emcmot_debug_split_count = 0;
 
 /* copies status to s */
-int usrmotReadEmcmotStatus(EMCMOT_STATUS * s)
+int usrmotReadEmcmotStatus(emcmot_status_t * s)
 {
     /* check for shmem still around */
     if (0 == emcmotStatus) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
-    memcpy(s, emcmotStatus, sizeof(EMCMOT_STATUS));
+    memcpy(s, emcmotStatus, sizeof(emcmot_status_t));
 
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
@@ -204,13 +204,13 @@ int usrmotReadEmcmotStatus(EMCMOT_STATUS * s)
 }
 
 /* copies config to s */
-int usrmotReadEmcmotConfig(EMCMOT_CONFIG * s)
+int usrmotReadEmcmotConfig(emcmot_config_t * s)
 {
     /* check for shmem still around */
     if (0 == emcmotConfig) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
-    memcpy(s, emcmotConfig, sizeof(EMCMOT_CONFIG));
+    memcpy(s, emcmotConfig, sizeof(emcmot_config_t));
 
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
@@ -232,13 +232,13 @@ int usrmotReadEmcmotConfig(EMCMOT_CONFIG * s)
 }
 
 /* copies debug to s */
-int usrmotReadEmcmotDebug(EMCMOT_DEBUG * s)
+int usrmotReadEmcmotDebug(emcmot_debug_t * s)
 {
     /* check for shmem still around */
     if (0 == emcmotDebug) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
-    memcpy(s, emcmotDebug, sizeof(EMCMOT_DEBUG));
+    memcpy(s, emcmotDebug, sizeof(emcmot_debug_t));
 
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
@@ -322,7 +322,7 @@ void printTPstruct(TP_STRUCT * tp)
     printf("pausing=%d\n", tp->pausing);
 }
 
-void usrmotPrintEmcmotDebug(EMCMOT_DEBUG d, int which)
+void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 {
     int t;
 
@@ -513,7 +513,7 @@ void usrmotPrintEmcmotDebug(EMCMOT_DEBUG d, int which)
 
 }
 
-void usrmotPrintEmcmotConfig(EMCMOT_CONFIG c, int which)
+void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 {
     int t;
     char m[32];
@@ -600,7 +600,7 @@ void usrmotPrintEmcmotConfig(EMCMOT_CONFIG c, int which)
 }
 
 /* status printing function */
-void usrmotPrintEmcmotStatus(EMCMOT_STATUS s, int which)
+void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 {
     int t;
     char m[32];
@@ -777,14 +777,14 @@ int usrmotInit(char *modname)
     int axis;
 
     module_id = rtapi_init(modname);
-    shmem_id = rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(EMCMOT_STRUCT));
+    shmem_id = rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(emcmot_struct_t));
 
     rtapi_shmem_getptr(shmem_id, (void **) &emcmotStruct);
     if (emcmotStruct == NULL) {
 	fprintf(stderr,
 	    "rtapi shmem alloc(%d (0x%X), %d (0x%X) ) failed\n",
-	    SHMEM_KEY, SHMEM_KEY, sizeof(EMCMOT_STRUCT),
-	    sizeof(EMCMOT_STRUCT));
+	    SHMEM_KEY, SHMEM_KEY, sizeof(emcmot_struct_t),
+	    sizeof(emcmot_struct_t));
 	return -1;
     }
 
@@ -832,7 +832,7 @@ int usrmotExit(void)
 int usrmotDumpLog(const char *filename, int include_header)
 {
     FILE *fp;
-    EMCMOT_LOG_STRUCT ls;
+    emcmot_log_struct_t ls;
     int axis;
     int first_point = 1;
     double start_time = 0;
@@ -1216,9 +1216,9 @@ int usrmotLoadComp(int axis, const char *file)
 	    emcmotComp[axis]->nominal[0]) / (total - 1);
     }
 
-    /* ->total is the flag to emcmot that the comp table is valid, so only
-       set this to be >1 if the data is really valid: total > 1 and avgint >
-       0 */
+    /* ->total is the flag to emcmot that the comp table is valid, so
+       only set this to be >1 if the data is really valid: total > 1
+       and avgint > 0 */
     if (total > 1 && emcmotComp[axis]->avgint > DBL_MIN) {
 	emcmotComp[axis]->total = total;
     } else {

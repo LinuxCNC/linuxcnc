@@ -161,7 +161,7 @@ extern "C" {
 				   dir changes */
 	double hold_time;	/* number of periods that step line is held
 				   low/high after transition */
-    } EMCMOT_COMMAND;
+    } emcmot_command_t;
 
 /*
   motion status flag structure-- looks like:
@@ -344,7 +344,7 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 				   after last probeTripped */
 	int level;
 	unsigned char tail;	/* flag count for mutex detect */
-    } EMCMOT_STATUS;
+    } emcmot_status_t;
 
 /* config struct */
     typedef struct {
@@ -397,9 +397,10 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	int debug;		/* copy of DEBUG, from .ini file */
 
 	unsigned char tail;	/* flag count for mutex detect */
-    } EMCMOT_CONFIG;
+    } emcmot_config_t;
 
 /* debug struct */
+/* FIXME - this has become a dumping ground for all kinds of stuff */
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
 	double tMin, tMax, tAvg;	/* trajectory min, max, avg times */
@@ -556,7 +557,7 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	double bac_incr[EMCMOT_MAX_AXIS];
 
 	unsigned char tail;	/* flag count for mutex detect */
-    } EMCMOT_DEBUG;
+    } emcmot_debug_t;
 
 /* error structure - A ring buffer used to pass formatted printf stings to usr space */
     typedef struct {
@@ -566,7 +567,7 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	int end;		/* index of newest error */
 	int num;		/* number of items */
 	unsigned char tail;	/* flag count for mutex detect */
-    } EMCMOT_ERROR;
+    } emcmot_error_t;
 
 /* compensation structure */
 #define EMCMOT_COMP_SIZE 256
@@ -577,30 +578,30 @@ Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
 	double forward[EMCMOT_COMP_SIZE];	/* forward comp points */
 	double reverse[EMCMOT_COMP_SIZE];	/* reverse comp points */
 	double alter;		/* additive dynamic compensation */
-    } EMCMOT_COMP;
+    } emcmot_comp_t;
 
 /* big comm structure, for upper memory */
     typedef struct {
-	EMCMOT_COMMAND command;	/* struct used to pass commands/data to the
+	emcmot_command_t command;	/* struct used to pass commands/data to the
 				   RT module from usr space */
-	EMCMOT_STATUS status;	/* Struct used to store RT status */
-	EMCMOT_CONFIG config;	/* Struct used to store RT config */
-	EMCMOT_DEBUG debug;	/* Struct used to store RT status and debug
+	emcmot_status_t status;	/* Struct used to store RT status */
+	emcmot_config_t config;	/* Struct used to store RT config */
+	emcmot_debug_t debug;	/* Struct used to store RT status and debug
 				   data - 2nd largest block */
-	EMCMOT_ERROR error;	/* ring buffer for error messages */
-	EMCMOT_LOG log;		/* a massive ring buffer for logging RT data */
-	EMCMOT_COMP comp[EMCMOT_MAX_AXIS];	/* corrections to be applied
+	emcmot_error_t error;	/* ring buffer for error messages */
+	emcmot_log_t log;		/* a massive ring buffer for logging RT data */
+	emcmot_comp_t comp[EMCMOT_MAX_AXIS];	/* corrections to be applied
 						   to input pos */
-    } EMCMOT_STRUCT;
+    } emcmot_struct_t;
 
 /*
   function prototypes for emcmot code
 */
 
 /* error ring buffer access functions */
-    extern int emcmotErrorInit(EMCMOT_ERROR * errlog);
-    extern int emcmotErrorPut(EMCMOT_ERROR * errlog, const char *error);
-    extern int emcmotErrorGet(EMCMOT_ERROR * errlog, char *error);
+    extern int emcmotErrorInit(emcmot_error_t * errlog);
+    extern int emcmotErrorPut(emcmot_error_t * errlog, const char *error);
+    extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
 
 #ifdef __cplusplus
 }

@@ -20,7 +20,7 @@
 
 #include "usrmotintf.h"		// usrmotInit(), usrmotReadEmcmotStatus(),
 				// etc.
-#include "motion.h"		// EMCMOT_COMMAND,STATUS, etc.
+#include "motion.h"		// emcmot_command_t,STATUS, etc.
 #include "emcglb.h"		// EMC_INIFILE
 
 #include "iniaxis.hh"
@@ -53,7 +53,7 @@ static char __attribute__ ((unused)) ident[] =
   been called.
   */
 
-static EMCMOT_COMMAND emcmotCommand;
+static emcmot_command_t emcmotCommand;
 
 static int emcmotTrajInited = 0;	// non-zero means traj called init
 static int emcmotAxisInited = 0;	// non-zero means axis called init
@@ -724,15 +724,15 @@ int emcAxisAlter(int axis, double alter)
     return usrmotAlter(axis, alter);
 }
 
-static EMCMOT_CONFIG emcmotConfig;
+static emcmot_config_t emcmotConfig;
 int get_emcmot_debug_info = 0;
 
 /*
   these globals are set in emcMotionUpdate(), then referenced in
   emcAxisUpdate(), emcTrajUpdate() to save calls to usrmotReadEmcmotStatus
  */
-static EMCMOT_STATUS emcmotStatus;
-static EMCMOT_DEBUG emcmotDebug;
+static emcmot_status_t emcmotStatus;
+static emcmot_debug_t emcmotDebug;
 static char errorString[EMCMOT_ERROR_LEN];
 static int new_config = 0;
 

@@ -98,17 +98,17 @@ int kinType = 0;
   emcmotLog points to emcmotStruct->log.
   emcmotComp[] points to emcmotStruct->comp[].
  */
-EMCMOT_STRUCT *emcmotStruct;
+emcmot_struct_t *emcmotStruct;
 /* ptrs to either buffered copies or direct memory for
    command and status */
-EMCMOT_COMMAND *emcmotCommand;
-EMCMOT_STATUS *emcmotStatus;
-EMCMOT_CONFIG *emcmotConfig;
-EMCMOT_DEBUG *emcmotDebug;
-EMCMOT_ERROR *emcmotError;	/* unused for RT_FIFO */
-EMCMOT_LOG *emcmotLog;		/* unused for RT_FIFO */
-EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS];	/* unused for RT_FIFO */
-EMCMOT_LOG_STRUCT ls;
+emcmot_command_t *emcmotCommand;
+emcmot_status_t *emcmotStatus;
+emcmot_config_t *emcmotConfig;
+emcmot_debug_t *emcmotDebug;
+emcmot_error_t *emcmotError;	/* unused for RT_FIFO */
+emcmot_log_t *emcmotLog;		/* unused for RT_FIFO */
+emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS];	/* unused for RT_FIFO */
+emcmot_log_struct_t ls;
 
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *
@@ -339,6 +339,11 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-filt", num);
+    retval = hal_param_float_new(buf, HAL_RD, &(addr->backlash_filt), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
     retval = hal_pin_float_new(buf, HAL_WR, &(addr->motor_pos_cmd), mot_comp_id);
     if (retval != 0) {
@@ -455,7 +460,7 @@ static int init_comm_buffers(void)
     kinType = kinematicsType();
 
     /* allocate and initialize the shared memory structure */
-    emc_shmem_id = rtapi_shmem_new(key, mot_comp_id, sizeof(EMCMOT_STRUCT));
+    emc_shmem_id = rtapi_shmem_new(key, mot_comp_id, sizeof(emcmot_struct_t));
     if (emc_shmem_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: rtapi_shmem_new failed, returned %d\n", emc_shmem_id);
@@ -469,18 +474,18 @@ static int init_comm_buffers(void)
     }
 
     /* zero shared memory before doing anything else. */
-    memset(emcmotStruct, 0, sizeof(EMCMOT_STRUCT));
+    memset(emcmotStruct, 0, sizeof(emcmot_struct_t));
 
     /* we'll reference emcmotStruct directly */
-    emcmotCommand = (EMCMOT_COMMAND *) & emcmotStruct->command;
-    emcmotStatus = (EMCMOT_STATUS *) & emcmotStruct->status;
-    emcmotConfig = (EMCMOT_CONFIG *) & emcmotStruct->config;
-    emcmotDebug = (EMCMOT_DEBUG *) & emcmotStruct->debug;
-    emcmotError = (EMCMOT_ERROR *) & emcmotStruct->error;
-    emcmotLog = (EMCMOT_LOG *) & emcmotStruct->log;
+    emcmotCommand = (emcmot_command_t *) & emcmotStruct->command;
+    emcmotStatus = (emcmot_status_t *) & emcmotStruct->status;
+    emcmotConfig = (emcmot_config_t *) & emcmotStruct->config;
+    emcmotDebug = (emcmot_debug_t *) & emcmotStruct->debug;
+    emcmotError = (emcmot_error_t *) & emcmotStruct->error;
+    emcmotLog = (emcmot_log_t *) & emcmotStruct->log;
 
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	emcmotComp[axis] = (EMCMOT_COMP *) & emcmotStruct->comp[axis];
+	emcmotComp[axis] = (emcmot_comp_t *) & emcmotStruct->comp[axis];
 	emcmotDebug->bcomp[axis] = 0;	/* backlash comp value */
 	emcmotDebug->bcompdir[axis] = 0;	/* 0=none, 1=pos, -1=neg */
 	emcmotDebug->bcompincr[axis] = 0;	/* incremental backlash comp */

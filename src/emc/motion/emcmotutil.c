@@ -21,7 +21,7 @@
 static char __attribute__ ((unused)) ident[] =
     "$Id$";
 
-int emcmotErrorInit(EMCMOT_ERROR * errlog)
+int emcmotErrorInit(emcmot_error_t * errlog)
 {
     if (errlog == 0) {
 	return -1;
@@ -36,7 +36,7 @@ int emcmotErrorInit(EMCMOT_ERROR * errlog)
     return 0;
 }
 
-int emcmotErrorPut(EMCMOT_ERROR * errlog, const char *error)
+int emcmotErrorPut(emcmot_error_t * errlog, const char *error)
 {
     char *p1;
     const char *p2;
@@ -70,7 +70,7 @@ int emcmotErrorPut(EMCMOT_ERROR * errlog, const char *error)
     return 0;
 }
 
-int emcmotErrorGet(EMCMOT_ERROR * errlog, char *error)
+int emcmotErrorGet(emcmot_error_t * errlog, char *error)
 {
     char *p1;
     const char *p2;

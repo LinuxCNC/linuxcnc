@@ -20,7 +20,7 @@
 static char __attribute__ ((unused)) ident[] =
     "$Id$";
 
-int emcmotLogInit(EMCMOT_LOG * log, int type, int size)
+int emcmotLogInit(emcmot_log_t * log, int type, int size)
 {
     log->type = type;
     log->size = size;
@@ -31,7 +31,7 @@ int emcmotLogInit(EMCMOT_LOG * log, int type, int size)
     return 0;
 }
 
-int emcmotLogAdd(EMCMOT_LOG * log, EMCMOT_LOG_STRUCT val)
+int emcmotLogAdd(emcmot_log_t * log, emcmot_log_struct_t val)
 {
     log->log[log->end] = val;
 
@@ -52,7 +52,7 @@ int emcmotLogAdd(EMCMOT_LOG * log, EMCMOT_LOG_STRUCT val)
     return 0;
 }
 
-int emcmotLogGet(EMCMOT_LOG * log, EMCMOT_LOG_STRUCT * val)
+int emcmotLogGet(emcmot_log_t * log, emcmot_log_struct_t * val)
 {
     if (log->howmany == 0) {
 	return -1;

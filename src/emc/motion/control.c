@@ -7,7 +7,7 @@
 * License: GPL Version 2
 * Created on:
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -40,6 +40,11 @@
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *
 ************************************************************************/
+
+/* these variables have the servo cycle time and 1/cycle time */
+static double servo_period;
+static double servo_freq;
+
 
 /* debouncing */
 /* FIXME-- testing */
@@ -85,6 +90,7 @@ static int isHoming(void);
 */
 static double axisComp(int axis, int dir, double nominput);
 
+static int backlash(int axis);
 
 
 
@@ -122,23 +128,26 @@ void emcmotController(void *arg, long period)
     int retval;
     /* end of backlash stuff */
 
+
 #ifdef COMPING
     int dir[EMCMOT_MAX_AXIS] = { 1 };	/* flag for direction, used for axis
 					   comp */
 #endif /* COMPING */
 
+
+    /* calculate period and frequency - period is in nsec */
+    servo_period = period * 0.000000001;
+    servo_freq = 1.0 / servo_period;
+
     /* record start time */
     start = etime();
-
     /* increment head count */
     emcmotStatus->head++;
-
     /* READ INPUTS: */
 
     /* latch all encoder feedback into raw input array, done outside of
        for-loop on joints below, since it's a single call for all joints */
     extEncoderReadAll(EMCMOT_MAX_AXIS, emcmotDebug->rawInput);
-
     /* process input and read limit switches */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	/* save old cycle's values */
@@ -169,7 +178,7 @@ void emcmotController(void *arg, long period)
 	/* debounce bad feedback */
 #ifndef SIMULATED_MOTORS
 	if (fabs(emcmotStatus->input[axis] -
-		emcmotDebug->oldInput[axis]) / emcmotConfig->servoCycleTime >
+		emcmotDebug->oldInput[axis]) * servo_freq >
 	    /* IF we are at the point where the encoder needs debouncing, the
 	       max velocity of the axis has been exceeded by a major margin !
 	       bigVel = 10 * emcmotConfig->axisLimitVel[axis] .... Well
@@ -182,7 +191,7 @@ void emcmotController(void *arg, long period)
 		   interpolate off the velocity estimate */
 		emcmotStatus->input[axis] = emcmotDebug->oldInput[axis] +
 		    (emcmotDebug->jointVel[axis] *
-		    emcmotConfig->servoCycleTime);
+		    servo_period);
 	    } else {
 		/* we've exceeded the max number of debounces allowed, so
 		   hold position. We should flag an error here, abort the
@@ -271,7 +280,6 @@ void emcmotController(void *arg, long period)
 
     }				/* end of: loop on axes, for reading inputs,
 				   setting limit and home switch flags */
-
     /* check to see if logging should be triggered */
     if (emcmotStatus->logOpen &&
 	!emcmotStatus->logStarted &&
@@ -406,7 +414,6 @@ void emcmotController(void *arg, long period)
 	emcmotDebug->fMax = 0.0;
 	emcmotDebug->fAvg = 0.0;
     }
-
     /* check for entering teleop mode */
     if (emcmotDebug->teleoperating && !GET_MOTION_TELEOP_FLAG()) {
 	if (GET_MOTION_INPOS_FLAG()) {
@@ -880,6 +887,7 @@ void emcmotController(void *arg, long period)
 	   interpolators will pick this up further down and begin planning
 	   abort and stop. */
 	emcmotDebug->onLimit = 0;
+
 	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	    SET_AXIS_PSL_FLAG(axis, 0);
 	    SET_AXIS_NSL_FLAG(axis, 0);
@@ -998,6 +1006,7 @@ void emcmotController(void *arg, long period)
 				   emcmotStatus->logSkip >= 0) */
 	}
 	/* end of: if (whichCycle == 2), for trajectory cycle logging */
+
 	/* run interpolation and compensation */
 	for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	    /* interpolate */
@@ -1006,8 +1015,10 @@ void emcmotController(void *arg, long period)
 		cubicInterpolate(&emcmotDebug->cubic[axis], 0, 0, 0, 0);
 	    emcmotDebug->jointVel[axis] =
 		(emcmotDebug->jointPos[axis] -
-		emcmotDebug->oldJointPos[axis]) /
-		emcmotConfig->servoCycleTime;
+		emcmotDebug->oldJointPos[axis]) *
+		servo_freq;
+
+	    /* compute backlash */
 
 
 
@@ -1043,8 +1054,8 @@ void emcmotController(void *arg, long period)
 			    0.5 * emcmotDebug->bac_D[axis];
 			emcmotDebug->bac_incrincr[axis] =
 			    emcmotStatus->acc *
-			    emcmotConfig->servoCycleTime *
-			    emcmotConfig->servoCycleTime;
+			    servo_period *
+			    servo_period;
 			emcmotDebug->bac_incr[axis] =
 			    -0.5 * emcmotDebug->bac_incrincr[axis];
 			emcmotDebug->bcompdir[axis] = +1;
@@ -1065,8 +1076,8 @@ void emcmotController(void *arg, long period)
 			    0.5 * emcmotDebug->bac_D[axis];
 			emcmotDebug->bac_incrincr[axis] =
 			    emcmotStatus->acc *
-			    emcmotConfig->servoCycleTime *
-			    emcmotConfig->servoCycleTime;
+			    servo_period *
+			    servo_period;
 			emcmotDebug->bac_incr[axis] =
 			    -0.5 * emcmotDebug->bac_incrincr[axis];
 			emcmotDebug->bcompdir[axis] = -1;
@@ -1299,8 +1310,8 @@ void emcmotController(void *arg, long period)
 	    emcmotDebug->jointPos[axis] = emcmotDebug->coarseJointPos[axis];
 	    emcmotDebug->jointVel[axis] =
 		(emcmotDebug->jointPos[axis] -
-		emcmotDebug->oldJointPos[axis]) /
-		emcmotConfig->servoCycleTime;
+		emcmotDebug->oldJointPos[axis]) *
+		servo_freq;
 	}
 	/* synthesize the trajectory interpolation, via a counter that
 	   decrements from the interpolation rate. This causes the statements 
@@ -1324,7 +1335,6 @@ void emcmotController(void *arg, long period)
 	    interpolationCounter = emcmotConfig->interpolationRate;
 	}
     }
-
     extProbeCheck(&emcmotStatus->probeval);
     if (emcmotStatus->probing && emcmotStatus->probeTripped) {
 	tpClear(&emcmotDebug->queue);
@@ -1437,7 +1447,7 @@ void emcmotController(void *arg, long period)
     if (emcmotDebug->last_time != 0.0) {
 	if (GET_MOTION_ENABLE_FLAG()) {
 	    if (emcmotDebug->cur_time - emcmotDebug->last_time >
-		10 * emcmotConfig->servoCycleTime) {
+		10 * servo_period) {
 		reportError("controller missed realtime deadline.");
 	    }
 	}
@@ -1589,14 +1599,62 @@ void emcmotController(void *arg, long period)
     emcmotStatus->tail = emcmotStatus->head;
     emcmotDebug->tail = emcmotDebug->head;
     emcmotConfig->tail = emcmotConfig->head;
-}				/* end of: emcmotController() function */
+
+}/* end of: emcmotController() function */
 
 
 /***********************************************************************
 *                         LOCAL FUNCTION CODE                          *
 ************************************************************************/
 
+/* backlash() assumes that axis_hal_array[axis].joint_pos_cmd is the
+   desired joint position.  It computes and applies backlash comp,
+   updating the values of axis_hal_array[axis].backlash_corr,
+   .backlash_filt, .joint_vel_cmd, .motor_pos_cmd, and .joint_pos_fb
+*/
 
+static int backlash(int axis)
+{
+    axis_hal_t *axis_data;
+    double max_delta_pos, dist_to_go;
+
+    axis_data = &(axis_hal_array[axis]);
+
+    /* determine which way the compensation should be applied */
+    if ( emcmotDebug->jointVel[axis] > 0.0 ) {
+	/* moving "up". apply positive backlash comp */
+	/* FIXME - the more sophisticated axisComp should be applied
+	   here, if available */
+	axis_data->backlash_corr = 0.5 * emcmotConfig->pid[axis].backlash;
+    } else if ( emcmotDebug->jointVel[axis] < 0.0 ) {
+	/* moving "down". apply negative backlash comp */
+	/* FIXME - the more sophisticated axisComp should be applied
+	   here, if available */
+	axis_data->backlash_corr = -0.5 * emcmotConfig->pid[axis].backlash;
+    } else {
+	/* not moving, use whatever was there before */
+    }
+
+    /* filter backlash_corr to avoid position steps */
+    /* FIXME - this is a linear ramp - an S-ramp would be better
+       because it would limit acceleration */
+    max_delta_pos = emcmotConfig->axisLimitVel[axis] * servo_period;
+    dist_to_go = axis_data->backlash_corr - axis_data->backlash_filt;
+    if ( dist_to_go > max_delta_pos ) {
+	/* need to go up, can't get there in one jump, take a step */
+	axis_data->backlash_filt += max_delta_pos;
+    } else if ( dist_to_go < -max_delta_pos ) {
+	/* need to go down, can't get there in one jump, take a step */
+	axis_data->backlash_filt -= max_delta_pos;
+    } else {
+	/* within one step of final value, go there now */
+	axis_data->backlash_filt = axis_data->backlash_corr;
+    }
+
+    /* apply filtered backlash to output and feeback */
+    
+    return 0;
+}
 
 
 

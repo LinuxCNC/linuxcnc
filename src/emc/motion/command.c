@@ -171,13 +171,14 @@ void emcmotCommandHandler(void *arg, long period)
 {
     int axis;
     int valid;
+
+int foo;
+
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
 	emcmotDebug->split++;
 	return;		/* not really an error */
     }
-/* rtapi_print ( "c=%d, e=%d\n", emcmotCommand->commandNum, emcmotStatus->commandNumEcho );
-*/
     if (emcmotCommand->commandNum != emcmotStatus->commandNumEcho) {
 	/* increment head count-- we'll be modifying emcmotStatus */
 	emcmotStatus->head++;
@@ -203,6 +204,9 @@ void emcmotCommandHandler(void *arg, long period)
 	}
 
 	/* ...and process command */
+#if 0
+rtapi_print ( "CMD: %d\n", emcmotCommand->command );
+#endif
 	switch (emcmotCommand->command) {
 	case EMCMOT_FREE:
 	    /* change the mode to free axis motion */
@@ -688,6 +692,9 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
 	    }
+foo = emcmotCommand->vel*1000000.0;
+rtapi_print_msg(RTAPI_MSG_INFO,
+    "COMMAND: axis %d vel limit set to %d/1000000\n", axis, foo );
 	    tpSetVlimit(&emcmotDebug->freeAxis[axis], emcmotCommand->vel);
 	    emcmotConfig->axisLimitVel[axis] = emcmotCommand->vel;
 	    emcmotDebug->bigVel[axis] = 10 * emcmotCommand->vel;

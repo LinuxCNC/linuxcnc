@@ -37,6 +37,7 @@ typedef struct {
     hal_float_t joint_pos_cmd;	/* RPA: commanded position, w/o comp */
     hal_float_t joint_vel_cmd;  /* RPA: commanded velocity, w/o comp */
     hal_float_t backlash_corr;	/* RPA: correction for backlash */
+    hal_float_t backlash_filt;	/* RPA: filtered backlash correction */
     hal_float_t *motor_pos_cmd;	/* WP:  commanded position, with comp */
     hal_float_t *motor_pos_fb;	/* RP:  position feedback, with comp */
     hal_float_t joint_pos_fb;	/* RPA: position feedback, w/o comp */
@@ -84,15 +85,15 @@ extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
 
 /* Struct pointers */
-extern EMCMOT_STRUCT *emcmotStruct;
-extern EMCMOT_COMMAND *emcmotCommand;
-extern EMCMOT_STATUS *emcmotStatus;
-extern EMCMOT_CONFIG *emcmotConfig;
-extern EMCMOT_DEBUG *emcmotDebug;
-extern EMCMOT_ERROR *emcmotError;
-extern EMCMOT_LOG *emcmotLog;
-extern EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS];
-extern EMCMOT_LOG_STRUCT ls;
+extern emcmot_struct_t *emcmotStruct;
+extern emcmot_command_t *emcmotCommand;
+extern emcmot_status_t *emcmotStatus;
+extern emcmot_config_t *emcmotConfig;
+extern emcmot_debug_t *emcmotDebug;
+extern emcmot_error_t *emcmotError;
+extern emcmot_log_t *emcmotLog;
+extern emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS];
+extern emcmot_log_struct_t ls;
 
 /***********************************************************************
 *                    PUBLIC FUNCTION PROTOTYPES                        *

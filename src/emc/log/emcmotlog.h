@@ -124,7 +124,7 @@ typedef struct {
     double voltage;
 } EMCMOT_LOG_POS_VOLTAGE_STRUCT;
 
-/* full EMCMOT_LOG_STRUCT union */
+/* full emcmot_log_struct_t union */
 typedef struct {
     int type;
     union {
@@ -139,7 +139,7 @@ typedef struct {
 	EMCMOT_LOG_TRAJ_ACC_STRUCT trajAcc;
 	EMCMOT_LOG_POS_VOLTAGE_STRUCT posVoltage;
     } item;
-} EMCMOT_LOG_STRUCT;
+} emcmot_log_struct_t;
 
 /* full log, with header and union of types */
 typedef struct {
@@ -148,11 +148,11 @@ typedef struct {
     int start;			/* index of start */
     int end;			/* index of end */
     int howmany;		/* how many in log */
-    EMCMOT_LOG_STRUCT log[EMCMOT_LOG_MAX];
-} EMCMOT_LOG;
+    emcmot_log_struct_t log[EMCMOT_LOG_MAX];
+} emcmot_log_t;
 
-extern int emcmotLogInit(EMCMOT_LOG * log, int type, int size);
-extern int emcmotLogAdd(EMCMOT_LOG * log, EMCMOT_LOG_STRUCT val);
-extern int emcmotLogGet(EMCMOT_LOG * log, EMCMOT_LOG_STRUCT * val);
+extern int emcmotLogInit(emcmot_log_t * log, int type, int size);
+extern int emcmotLogAdd(emcmot_log_t * log, emcmot_log_struct_t val);
+extern int emcmotLogGet(emcmot_log_t * log, emcmot_log_struct_t * val);
 
 #endif /* EMCMOTLOG_H */
