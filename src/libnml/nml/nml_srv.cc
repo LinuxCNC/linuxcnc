@@ -7,7 +7,6 @@
 *          1. class NML_SERVER member functions.                         *
 *************************************************************************/
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -55,7 +55,7 @@ static char *skipwhite(char *string)
 	    return NULL;
 	}
 
-	if (*string == COMMENT_CHAR) {
+	if ((*string == ';') || ((*string == '#')) {
 	    return NULL;
 	}
 

@@ -10,7 +10,6 @@
 #ifndef NML_SERVER_HH
 #define NML_SERVER_HH
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif

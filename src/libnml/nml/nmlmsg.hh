@@ -10,7 +10,6 @@
 #ifndef NMLMSG_HH
 #define NMLMSG_HH
 
-
 /* Include Files */
 #ifdef __cplusplus
 extern "C" {
@@ -35,7 +34,7 @@ typedef long NMLTYPE;		/* Also defined in nml.hh */
 /* Class NMLmsg */
 /* Base class for all types that can be written to NML. */
 /* The constructor is protected so that to users cannot send messages */
-/*  without deriving thier own classes from NMLmsg.  */
+/*  without deriving their own classes from NMLmsg.  */
 /* Derived classes should pass the type and size to the NMLmsg constructor. */
 /*  and define their own update function. */
 class NMLmsg {
@@ -43,9 +42,9 @@ class NMLmsg {
     NMLmsg(NMLTYPE t, long s);
       NMLmsg(NMLTYPE t, size_t s);
 
-    // This second constructor never clears the message regardless of what is
-    // in nmlmsg. The value of noclear is irrelevent but adding it changes
-    // which constructor is called.
+    /* This second constructor never clears the message regardless of what is
+       in nmlmsg. The value of noclear is irrelevent but adding it changes
+       which constructor is called. */
       NMLmsg(NMLTYPE t, long s, int noclear);
 
   public:
@@ -54,8 +53,8 @@ class NMLmsg {
     static int automatically_clear;	/* controls whether NMLmsgs are set
 					   to zero in the constructor. */
     NMLTYPE type;		/* Each derived type should have a unique id */
-    long size;			/* The size is used so that the entire */
-    /* buffer is not copied unneccesarily. */
+    long size;			/* The size is used so that the entire buffer 
+				   is not copied unneccesarily. */
 
     void update(CMS *);
 };

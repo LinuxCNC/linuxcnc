@@ -23,7 +23,6 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
 #include "cms_user.hh"		/* class CMS_USER */
 #include "linklist.hh"		/* class LinkedList */
 /* Generic NML Stuff */
@@ -72,8 +71,8 @@ class NML:public virtual CMS_USER {
     int format_output();	/* Decode message if neccessary. */
 
   public:
-    void *operator                         new(size_t);
-    void operator                         delete(void *);
+    void *operator                          new(size_t);
+    void operator                          delete(void *);
     LinkedList *format_chain;
     void register_with_server();	/* Add this channel to the server's
 					   list. */

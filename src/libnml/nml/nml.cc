@@ -36,7 +36,7 @@ extern "C" {
 #endif
 #include "nmldiag.hh"		// NML_DIAGNOSTICS_INFO
 /* Pointer to a global list of NML channels. */
-LinkedList *NML_Main_Channel_List = (LinkedList *) NULL;
+    LinkedList *NML_Main_Channel_List = (LinkedList *) NULL;
 
 LinkedList *Dynamically_Allocated_NML_Objects = (LinkedList *) NULL;
 
@@ -79,7 +79,7 @@ const char *get_default_nml_config_file()
 /* Special new operator to allow the nml_cleanup function to
 distinguish between dynamically and statically allocated NML
 objects. */
-void *NML::operator   new(size_t size)
+void *NML::operator    new(size_t size)
 {
     if (size < sizeof(NML)) {
 	rcs_print_error
@@ -111,7 +111,7 @@ void *NML::operator   new(size_t size)
     return nml_space;
 }
 
-void NML::operator   delete(void *nml_space)
+void NML::operator    delete(void *nml_space)
 {
     int dynamic_list_id = 0;
     char *cptr = (char *) NULL;
