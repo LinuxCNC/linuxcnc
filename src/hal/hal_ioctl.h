@@ -168,6 +168,13 @@ typedef struct HAL_IOCTL_GET_PINS_LIST {
 //	HAL_IOCTL_LIST_PARTS,           // Return a list of loaded parts
 //	HAL_IOCTL_LIST_TYPES,           // Return part type list
 //	HAL_IOCTL_LIST_SIGNALS.    // Return a list of signals
+// param=
+typedef struct HAL_IOCTL_SIGNAL_LIST {
+	int count;
+	int start;
+	hal_signal_t *items;
+} HAL_IOCTL_SIGNAL_LIST;
+
 
 
 #endif

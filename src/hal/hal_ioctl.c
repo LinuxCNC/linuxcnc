@@ -201,6 +201,38 @@ hal_part_t *part;
 return HAL_SUCCESS;
 }
 
+int send_signals(HAL_IOCTL_SIGNAL_LIST *list)
+{
+HAL_IOCTL_NAME_LIST kernellist;
+int count;
+int start;
+hal_signal_t *sig;
+
+    user_to_kernel(list, &kernellist, sizeof(HAL_IOCTL_NAME_LIST));
+    start=kernellist.start;
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+	"HAL: Requested to send signals from %d, max %d!\n", start,
+	kernellist.count);
+    sig=global_signal_list;
+       
+    while (sig && start)
+	{
+	sig=sig->next;
+	start--;
+	} 
+
+    for (count=0; (count<kernellist.count) && sig; count++)
+	{
+	kernel_to_user(sig, &kernellist.items[count], sizeof(hal_signal_t));
+	/* Todo... correct above shmem values */
+	sig=sig->next;
+	}
+    rtapi_print_msg(RTAPI_MSG_DBG,
+	"HAL: Setting user count to %d!\n", count);
+    kernel_to_user(&count, &list->count, sizeof(int));
+return HAL_SUCCESS;
+}
 
 int device_ioctl(
     struct inode *inode,
@@ -296,6 +328,7 @@ int device_ioctl(
 	case HAL_IOCTL_LIST_TYPES:		// Return part type list
 	    break;
 	case HAL_IOCTL_LIST_SIGNALS:		// Return a list of signals
+	    result=send_signals(param);
 	    break;
 	case HAL_IOCTL_GET_PINS:		// Return a list of pins
 	    result=send_pins(param);

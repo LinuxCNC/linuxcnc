@@ -243,10 +243,10 @@ int n;
 	if (!signal)
 	    {
     	    rtapi_print_msg(RTAPI_MSG_ERR,
-       	        "HAL: hal_alloc_new_signal() failed - out of memory!");
+       	        "HAL: hal_alloc_new_signal() failed - out of memory!\n");
 	    return 0;
 	    }
-	signal->shm_data=0;
+	signal->shm_data=hal_shmalloc(sizeof(hal_shm_signal_t));
 	if (!signal->shm_data)
 	    {
 	    kfree(signal);
@@ -303,15 +303,15 @@ int n;
 	if (!param)
 	    {
     	    rtapi_print_msg(RTAPI_MSG_ERR,
-       	        "HAL: hal_alloc_new_parameter() failed - out of memory!");
+       	        "HAL: hal_alloc_new_parameter() failed - out of memory!\n");
 	    return 0;
 	    }
-	param->shm_data=0;
+	param->shm_data=hal_shmalloc(sizeof(hal_shm_signal_t));
 	if (!param->shm_data)
 	    {
 	    kfree(param);
     	    rtapi_print_msg(RTAPI_MSG_ERR,
-       	        "HAL: hal_alloc_new_parameter() failed - out of shared memory!");
+       	        "HAL: hal_alloc_new_parameter() failed - out of shared memory!\n");
 	    return 0;
 	    }
 
@@ -1045,8 +1045,6 @@ int result;
 hal_part_t **part_handle;
 hal_part_t *part;
 hal_pin_t *pin;
-hal_signal_t **signal_handle;
-hal_signal_t *signal;
 
 part_handle=find_part_by_id(part_id);
 
@@ -1100,7 +1098,7 @@ int hal_signal_new(char *name, hal_type_t type)
     if (*signal_handle)
 	{
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: hal_signal_new called to create signal'%s' which already exists", name);
+	    "HAL: ERROR: hal_signal_new called to create signal'%s' which already exists\n", name);
 	return HAL_INVAL;
 	}
 
@@ -2038,6 +2036,7 @@ int rtapi_app_main(void)
     shared_memory->start=mem;
     shared_memory->size=HAL_SIZE;
 
+    global_shared_memory=shared_memory;
 
 
 
@@ -2069,11 +2068,6 @@ int result;
     hal_shutdown_procfs();
     #endif
  
-    /* If there's an error, report it */ 
-  if (result< 0)
-    rtapi_print_msg(RTAPI_MSG_ERR, "HAL_LIB: unable to unregister device %d\n", result);
-
-
     /* Stop all the threads before removing them... */
 
     hal_stop_threads();

@@ -191,7 +191,6 @@ int parse_cmd(char *tokens[])
 	    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime threads started\n");
 	}
     } else if (strcmp(tokens[0], "stop") == 0) {
-/* TODO */
 	retval=ioctl(haldev, HAL_IOCTL_STOP);
 	if (retval == HAL_SUCCESS) {
 	    /* print success message */
@@ -256,30 +255,38 @@ return result;
 /* TODO: */
 int do_newsig_cmd(char *name, char *type)
 {
+NEW_SIGNAL_PARAM      signal_pb;
     int retval=0;
-#if 0
+    int itype;
 
     if (strcasecmp(type, "bit") == 0) {
-	retval = hal_signal_new(name, HAL_BIT);
+	itype=HAL_BIT;
     } else if (strcasecmp(type, "float") == 0) {
-	retval = hal_signal_new(name, HAL_FLOAT);
+	itype=HAL_FLOAT;
     } else if (strcasecmp(type, "u8") == 0) {
-	retval = hal_signal_new(name, HAL_U8);
+	itype=HAL_U8;
     } else if (strcasecmp(type, "s8") == 0) {
-	retval = hal_signal_new(name, HAL_S8);
+	itype=HAL_S8;
     } else if (strcasecmp(type, "u16") == 0) {
-	retval = hal_signal_new(name, HAL_U16);
+	itype=HAL_U16;
     } else if (strcasecmp(type, "s16") == 0) {
-	retval = hal_signal_new(name, HAL_S16);
+	itype=HAL_S16;
     } else if (strcasecmp(type, "u32") == 0) {
-	retval = hal_signal_new(name, HAL_U32);
+	itype=HAL_U32;
     } else if (strcasecmp(type, "s32") == 0) {
-	retval = hal_signal_new(name, HAL_S32);
+	itype=HAL_S32;
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown signal type '%s'\n", type);
-	retval = HAL_INVAL;
+	return HAL_INVAL;
     }
-#endif
+
+    signal_pb.type=itype;
+    strncpy(signal_pb.name, name, HAL_NAME_LEN);
+
+    retval=ioctl(haldev, HAL_IOCTL_NEW_SIGNAL, &signal_pb);
+    if (retval!=HAL_SUCCESS) 
+	rtapi_print_msg(RTAPI_MSG_ERR, "Create signal failed!\n");
+
     return retval;
 }
 
@@ -1027,7 +1034,6 @@ void print_comp_list(void)
     rtapi_print("\n");
 }
 
-/* TODO: */
 void print_pin_list(void)
 {
     HAL_IOCTL_NAME_LIST namelist;
@@ -1036,7 +1042,6 @@ void print_pin_list(void)
     hal_pin_t pins[1];
 
     int result;
-int a;
 
     namelist.count=1;
     namelist.start=0;
@@ -1083,24 +1088,33 @@ TODO
     rtapi_print("\n");
 }
 
-/* TODO: */
 void print_sig_list(void)
 {
-#if 0
-    int next;
-    hal_sig_t *sig;
-    void *dptr;
-    hal_pin_t *pin;
+    HAL_IOCTL_SIGNAL_LIST siglist;
+    hal_signal_t sig[1];
+
+    int result;
+
+    siglist.count=1;
+    siglist.start=0;
+    siglist.items=sig;
+
+//    rtapi_mutex_get(&(hal_data->mutex));
+// The new way of doing things requires itterating over every
+// part to list it's pins...
 
     rtapi_print("Signals:\n");
     rtapi_print("Type      Value      Name\n");
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->sig_list_ptr;
-    while (next != 0) {
-	sig = SHMPTR(next);
-	dptr = SHMPTR(sig->data_ptr);
-	rtapi_print("%s  %s  %s\n", data_type((int) sig->type),
-	    data_value((int) sig->type, dptr), sig->name);
+
+    while (siglist.count) 
+	{
+	result=ioctl(haldev, HAL_IOCTL_LIST_SIGNALS, &siglist);
+	if ((result==HAL_SUCCESS) && (siglist.count))
+		{
+	rtapi_print("%s  %s  %s\n", data_type((int) sig[0].type),
+	    0, sig[0].name);
+#if 0
+/* TODO */
 	/* look for pin(s) linked to this signal */
 	pin = halpr_find_pin_by_sig(sig, 0);
 	while (pin != 0) {
@@ -1108,11 +1122,12 @@ void print_sig_list(void)
 		data_arrow2((int) pin->dir), pin->name);
 	    pin = halpr_find_pin_by_sig(sig, pin);
 	}
-	next = sig->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    rtapi_print("\n");
 #endif
+
+		}
+	siglist.start++;
+    	}
+    rtapi_print("\n");
 }
 
 /* TODO: */
