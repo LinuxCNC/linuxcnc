@@ -38,7 +38,7 @@ headers: tmp_dir
 	- \install -p -m0664 $(HEADERS) $(INC_DIR)
 
 # Reformat the sources using long format names to aid readability.
-indent :
+indent:
 	indent --braces-on-if-line \
 	--comment-line-length78 \
 	--continuation-indentation4 \
@@ -48,6 +48,7 @@ indent :
 	--dont-break-procedure-type \
 	--dont-line-up-parentheses \
 	--format-all-comments \
+	--ignore-profile \
 	--indent-level4 \
 	--line-length78 \
 	--no-space-after-function-call-names \
@@ -56,6 +57,7 @@ indent :
 	--swallow-optional-blank-lines \
 	$(SRCS) $(RT_SRCS) $(HEADERS)
 	@ rm *.*~
+
 
 # Clean out objects, headers, and dep files.
 clean_up:
