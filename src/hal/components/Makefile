@@ -12,6 +12,7 @@ PRIVHDRS =
 RT_SRCS = \
 encoder.c \
 stepgen.c \
+freqgen.c \
 siggen.c \
 pid.c \
 supply.c
@@ -19,6 +20,7 @@ supply.c
 LIBS = \
 $(RTLIB_DIR)/encoder.o \
 $(RTLIB_DIR)/stepgen.o \
+$(RTLIB_DIR)/freqgen.o \
 $(RTLIB_DIR)/siggen.o \
 $(RTLIB_DIR)/pid.o \
 $(RTLIB_DIR)/supply.o

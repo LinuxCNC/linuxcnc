@@ -267,6 +267,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
+#include <math.h>
 
 #ifdef MODULE
 /* module information */
@@ -290,7 +291,7 @@ MODULE_PARM_DESC(fp_period, "floating point thread period (nsecs)");
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
 
-/** These structures contains the runtime data for a single counter.
+/** These structures contains the runtime data for a single generator.
     The 'st0_t' struct has data needed for stepping type 0 only, and
     'st2_t' has data needed for stepping types 2 and higher only.  A
     union is used so the two structs can share space in the main
@@ -327,6 +328,7 @@ typedef struct {
     signed long newaddval;	/* desired freq generator add value */
     signed long addval;		/* actual frequency generator add value */
     unsigned long accum;	/* frequency generator accumulator */
+    float old_pos_cmd;		/* previous position command */
     union {
 	st0_t st0;		/* working data for step type 0 */
 	st2_t st2;		/* working data for step types 2 and up */
@@ -335,16 +337,16 @@ typedef struct {
     hal_s32_t rawcount;		/* param: current position (feedback) */
     hal_s32_t *count;		/* captured binary count value */
     hal_float_t pos_scale;	/* parameter: scaling factor for pos */
-    hal_float_t *pos;		/* scaled position (floating point) */
-    hal_float_t *vel;		/* velocity command */
-    hal_float_t vel_scale;	/* parameter: scaling for vel to Hz */
+    hal_float_t *pos_cmd;	/* scaled position command (float) */
+    hal_float_t *pos_fb;	/* scaled position feedback (float) */
+    hal_float_t pos_err;	/* position error, in counts */
+    hal_float_t vel_err;	/* velocity error, in counts per sec */
+    hal_float_t freq;		/* parameter: frequency command */
     hal_float_t maxfreq;	/* parameter: max frequency in Hz */
-    hal_float_t freq;		/* parameter: velocity cmd scaled to Hz */
     hal_float_t maxaccel;	/* parameter: max accel rate in Hz/sec */
-
 } stepgen_t;
 
-/* ptr to array of stepgenr_t structs in shared memory, 1 per channel */
+/* ptr to array of stepgen_t structs in shared memory, 1 per channel */
 static stepgen_t *stepgen_array;
 
 /* lookup tables for stepping types 2 and higher - phase A is the LSB */
@@ -387,6 +389,9 @@ static float periodfp;		/* makepulses function period in seconds */
 static float maxf;		/* maximum frequency, step types 1 & up */
 static float freqscale;		/* conv. factor from Hz to addval counts */
 static float accelscale;	/* conv. Hz/sec to addval cnts/period */
+static long old_dtns;		/* update_freq funct period in nsec */
+static float dt;		/* update_freq period in seconds */
+static float recip_dt;		/* recprocal of period, avoids divides */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -482,17 +487,15 @@ int rtapi_app_main(void)
        the first time.  We load a default value here to avoid glitches at
        startup, but all these 'constants' are recomputed inside
        'update_freq()' using the real period. */
-    if (period > 0) {
-	periodns = period;
-    } else {
-	periodns = 50000;
-    }
+    old_periodns = periodns = 50000;
+    old_dtns = 1000000;
     /* precompute some constants */
     periodfp = periodns * 0.000000001;
     maxf = 1.0 / periodfp;
     freqscale = ((1L << 30) * 2.0) / maxf;
     accelscale = freqscale * periodfp;
-    old_periodns = periodns;
+    dt = old_dtns * 0.000000001;
+    recip_dt = 1.0 / dt;
     /* have good config info, connect to the HAL */
     comp_id = hal_init("stepgen");
     if (comp_id < 0) {
@@ -739,7 +742,8 @@ static void update_freq(void *arg, long period)
 {
     stepgen_t *stepgen;
     int n;
-    float tmpf, limf;
+    float max_freq, max_ac, max_dv;
+    float pos_cmd, pos_err, vel_cmd, vel_err, accel;
 
     /* this periodns stuff is a little convoluted because we need to
        calculate some constants here in this relatively slow thread but the
@@ -753,51 +757,117 @@ static void update_freq(void *arg, long period)
 	accelscale = freqscale * periodfp;
 	old_periodns = periodns;
     }
-    /* update the step generators */
+    /* now recalc constants related to the period of this funct */
+    if (period != old_dtns) {
+	/* dT is the period of this thread, used for the position loop */
+	dt = period * 0.000000001;
+	old_dtns = period;
+	/* calc the reciprocal once here, to avoid multiple divides later */
+	recip_dt = 1.0 / dt;
+    }
+    /* point at stepgen data */
     stepgen = arg;
+    /* loop thru generators */
     for (n = 0; n < num_chan; n++) {
 	/* calculate frequency limit */
 	if (stepgen->wd.st0.step_type == 0) {
 	    /* stepping type 0 limit depends on timing params that may change 
 	     */
-	    limf =
+	    max_freq =
 		maxf / (stepgen->wd.st0.step_len +
 		stepgen->wd.st0.step_space);
+	} else if (stepgen->wd.st0.step_type == 1) {
+	    /* stepping type 1 limit is thread freq / 2 */
+	    max_freq = maxf * 0.5;
 	} else {
-	    limf = maxf;
+	    max_freq = maxf;
 	}
-	/* check for illegal (negative) maxfreq parameter */
+	/* check for illegal (negative) or zero maxfreq parameter */
 	if (stepgen->maxfreq <= 0.0) {
 	    /* set to zero if negative */
 	    stepgen->maxfreq = 0.0;
-	}
-	/* check limf against maxfreq parameter */
-	if (stepgen->maxfreq > limf) {
-	    /* parameter is too high, lower it */
-	    stepgen->maxfreq = limf;
 	} else {
-	    /* lower limit to match parameter */
-	    limf = stepgen->maxfreq;
+	    /* parameter is non-zero, compare to max_freq */
+	    if (stepgen->maxfreq > max_freq) {
+		/* parameter is too high, lower it */
+		stepgen->maxfreq = max_freq;
+	    } else {
+		/* lower limit to match parameter */
+		max_freq = stepgen->maxfreq;
+	    }
 	}
-	/* convert velocity command to Hz */
-	tmpf = *(stepgen->vel) * stepgen->vel_scale;
-	/* limit the commanded frequency */
-	if (tmpf > limf) {
-	    tmpf = limf;
-	} else if (tmpf < -limf) {
-	    tmpf = -limf;
+	/* set internal accel limit to its absolute max, which is zero to
+	   full speed in one thread period */
+	max_ac = max_freq * recip_dt;
+	/* check for illegal (negative) or zero maxaccel parameter */
+	if (stepgen->maxaccel <= 0.0) {
+	    /* set to zero if negative */
+	    stepgen->maxaccel = 0.0;
+	} else {
+	    /* parameter is non-zero, compare to max_ac */
+	    if (stepgen->maxaccel > max_ac) {
+		/* parameter is too high, lower it */
+		stepgen->maxaccel = max_ac;
+	    } else {
+		/* lower limit to match parameter */
+		max_ac = stepgen->maxaccel;
+	    }
 	}
-	/* save limited frequency */
-	stepgen->freq = tmpf;
+	/* compute a value that will be used later */
+	max_dv = max_ac * dt;
+
+	/* calculate position command in counts, and position error */
+	pos_cmd = *stepgen->pos_cmd * stepgen->pos_scale;
+	pos_err = pos_cmd - *stepgen->count;
+	/* and apply 1 count of deadband (+/- 1/2 count) */
+	if ((pos_err < 0.5) && (pos_err > -0.5)) {
+	    pos_err = 0;
+	}
+	stepgen->pos_err = pos_err;
+
+	/* calc velocity command and velocity error */
+	vel_cmd = (pos_cmd - stepgen->old_pos_cmd) * recip_dt;
+	vel_err = vel_cmd - stepgen->freq;
+	stepgen->vel_err = vel_err;
+	stepgen->old_pos_cmd = pos_cmd;
+
+	/* calculate an acceleration that will result in pos_err and vel_err
+	   both reaching zero at the same time */
+	/* calculate the position term first.  positive and negative errors
+	   require some sign flipping */
+	if (pos_err > 0.0) {
+	    accel = max_dv - sqrt(2.0 * max_ac * pos_err + max_dv * max_dv);
+	} else if (pos_err < 0.0) {
+	    accel = -max_dv + sqrt(-2.0 * max_ac * pos_err + max_dv * max_dv);
+	} else {
+	    accel = 0.0;
+	}
+	/* add in the velocity term, and divide by -dt */
+	accel = (accel - vel_err) * -recip_dt;
+	/* now apply accel limit */
+	if (accel > max_ac) {
+	    accel = max_ac;
+	} else if (accel < -max_ac) {
+	    accel = -max_ac;
+	}
+	/* calculate new frequency */
+	stepgen->freq += accel * dt;
+	/* apply frequency limit */
+	if (stepgen->freq > max_freq) {
+	    stepgen->freq = max_freq;
+	} else if (stepgen->freq < -max_freq) {
+	    stepgen->freq = -max_freq;
+	}
+
 	/* calculate new addval */
-	stepgen->newaddval = tmpf * freqscale;
+	stepgen->newaddval = stepgen->freq * freqscale;
 	/* check for illegal (negative) maxaccel parameter */
 	if (stepgen->maxaccel <= 0.0) {
 	    /* set to zero if negative */
 	    stepgen->maxaccel = 0.0;
 	}
 	/* calculate new deltalim */
-	stepgen->deltalim = stepgen->maxaccel * accelscale;
+	stepgen->deltalim = max_ac * accelscale;
 	/* move on to next channel */
 	stepgen++;
     }
@@ -814,7 +884,7 @@ static void update_pos(void *arg, long period)
 	/* capture raw counts to latches */
 	*(stepgen->count) = stepgen->rawcount;
 	/* scale count to make floating point position */
-	*(stepgen->pos) = *(stepgen->count) * stepgen->pos_scale;
+	*(stepgen->pos_fb) = *(stepgen->count) / stepgen->pos_scale;
 	/* move on to next channel */
 	stepgen++;
     }
@@ -874,39 +944,45 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     if (retval != 0) {
 	return retval;
     }
-    /* export pin for scaled position captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->pos), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
     /* export parameter for position scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position-scale", num);
     retval = hal_param_float_new(buf, HAL_WR, &(addr->pos_scale), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export pin for frequency command */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.velocity", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(addr->vel), comp_id);
+    /* export pin for position command command */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position-cmd", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(addr->pos_cmd), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export parameter for frequency scaling */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.velocity-scale", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->vel_scale), comp_id);
+    /* export pin for scaled position captured by update() */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position-fb", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(addr->pos_fb), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export parameter for max frequency */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.maxfreq", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->maxfreq), comp_id);
+    /* export parameter for position error */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.pos-err", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(addr->pos_err), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameter for velocity error */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.vel-err", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(addr->vel_err), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export param for scaled velocity (frequency in Hz) */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.frequency", num);
     retval = hal_param_float_new(buf, HAL_RD, &(addr->freq), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameter for max frequency */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.maxfreq", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(addr->maxfreq), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -917,10 +993,12 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	return retval;
     }
     /* set default parameter values */
-    addr->pos_scale = 1.0;
-    addr->vel_scale = 1.0;
-    /* set maxfreq very high - let update_freq() fix it */
-    addr->maxfreq = 1e15;
+    addr->pos_scale = 100.0;
+    addr->freq = 0.0;
+    addr->pos_err = 0.0;
+    addr->vel_err = 0.0;
+    addr->old_pos_cmd = 0.0;
+    addr->maxfreq = 0.0;
     addr->maxaccel = 0.0;
     addr->wd.st0.step_type = step_type;
     /* init the step generator core to zero output */
@@ -929,6 +1007,8 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     addr->newaddval = 0;
     addr->deltalim = 0;
     addr->rawcount = 0;
+    /* init the position controller */
+
     if (step_type == 0) {
 	/* setup for stepping type 0 - step/dir */
 	addr->wd.st0.need_step = 0;
@@ -1018,8 +1098,8 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     }
     /* set initial pin values */
     *(addr->count) = 0;
-    *(addr->pos) = 0.0;
-    *(addr->vel) = 0.0;
+    *(addr->pos_fb) = 0.0;
+    *(addr->pos_cmd) = 0.0;
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;

@@ -335,7 +335,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double alter;		/* additive dynamic compensation */
     } emcmot_comp_t;
 
-
 /* NEW_STRUCTS  - I'm trying something different.  As it stands,
    per-axis (really per-joint) info is stored in a whole bunch of
    individual arrays, each with [EMCMOT_MAX_AXIS] values.  Some
@@ -483,7 +482,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 				   2=var < threshold, 3 var>threshold */
 	int logTriggerVariable;	/* The variable(s) that can cause the log to
 				   trigger. */
-	double logTriggerThreshold;	/* The value for non manual triggers. */
+	double logTriggerThreshold;	/* The value for non manual triggers. 
+					 */
 	double logStartVal;	/* value use for delta trigger */
 
 	int probeTripped;	/* Has the probe signal changed since start
