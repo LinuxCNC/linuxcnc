@@ -148,6 +148,8 @@ int extMotInit(void)
 {
     int n, retval;
 
+    rtapi_print_msg(RTAPI_MSG_ERR, "HALMOT: Initializing...\n");
+
     /* connect to the HAL */
     comp_id = hal_init("halmot");
     if (comp_id < 0) {
@@ -175,13 +177,14 @@ int extMotInit(void)
 	/* init axis outputs */
 	*(axis_array[n].volts) = 0.0;
 	*(axis_array[n].enable) = 0;
-        /* We'll init the index model to zero (no model) for now */
-        *(axis_array[n].mode) = 0;
+        /* We'll init the index model to EXT_ENCODER_INDEX_MODEL_RAW
+           for now, because it is always supported. */
+        *(axis_array[n].mode) = EXT_ENCODER_INDEX_MODEL_RAW;
 	*(axis_array[n].reset) = 0;
     }
     /* Done! */
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"HALMOT: installed %d axes\n", EMCMOT_MAX_AXIS);
+	"HALMOT: Done! Installed %d axes.\n", EMCMOT_MAX_AXIS);
     return 0;
 }
 

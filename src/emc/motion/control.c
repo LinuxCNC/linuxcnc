@@ -67,7 +67,6 @@ static int isHoming(void)
 	    return 1;
 	}
     }
-
     /* got here, so none are homing */
     return 0;
 }
@@ -202,14 +201,7 @@ void emcmotController(void *arg)
 					   comp */
 #endif /* COMPING */
 
-#ifdef RTAPI
     for (;;) {
-#endif
-
-	/* 
-	   This function does nothing in any of the external function
-	   implementations, except simmot.c extMotCycle(0); */
-
 	/* record start time */
 	start = etime();
 
@@ -1718,7 +1710,5 @@ void emcmotController(void *arg)
 	while (0 == emcmotStruct) {
 	    rtapi_wait();
 	}
-#ifdef RTAPI
     }				/* end of: forever loop for RT task */
-#endif
 }				/* end of: emcmotController() function */

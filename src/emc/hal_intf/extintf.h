@@ -65,28 +65,38 @@ extern "C" {
   Returns the type of encoder indexing done by the board.
 
   The handling of index pulses for encoder homing is problematic. There
-  are two models (at least) for how incremental encoders can be homed
-  off the index pulse. The first assumes the encoder index pulse sets
-  a flag when it occurs, but the count value doesn't change. The controller
-  polls on this flag, and when it is seen to be latched the controller
-  reads the position and uses this as an offset. There is a latency that
-  makes this less accurate than the second method, in which the occurrence
-  of the index pulse resets the count automatically. The problem is that
-  the controller logic is different for the two methods, so if you replace
-  a board which does it the first way with one that does it the second,
-  you need to recode the logic. The function "extEncoderIndexModel()"
-  returns the model used by the board, so at least you can detect it
-  and if you have coded up both types you can switch automatically.
+  are four models (at least) for how incremental encoders can be homed
+  off the index pulse.
+
+  EXT_ENCODER_INDEX_MODEL_RAW
+  indicates that the index pulse is not latchable, so you have to
+  poll the index input and read the encoder value while the index input
+  is active. This is the least accurate method due to the latency between
+  detecting the index pulse and reading the position value. If the axis
+  speed is high enough, the index pulse may be missed entirely if the
+  polling rate is too slow.
 
   EXT_ENCODER_INDEX_MODEL_MANUAL
   indicates that the index pulse sets a latch flag, but you have to
   read this and then the encoder value and handle offsets yourself.
-  The board won't change its count value on the index pulse.
+  The encoder won't latch or change its count value on the index pulse.
+  This method still suffers from the latency problem, but latching the
+  encoder pulse ensures that it won't be missed.
+
   EXT_ENCODER_INDEX_MODEL_AUTO
   indicates that the index pulse zeros the encoder count automatically.
-  */
+  in which the occurrence of the index pulse resets the count automatically.
 
-/* flags defined bit-exclusive for OR'ing if board can do multiple ways */
+  The problem is that the controller logic is different for each method, so
+  if you replace an encoder or interface board which does it one way with
+  one that does it another way, you need to recode the logic. The function
+  "extEncoderIndexModel()" returns the models supported by the installed
+  interface, so at least you can detect it and if it supports multiple models
+  you can select the most appropriate one.
+*/
+
+/* flags defined bit-exclusive for OR'ing if encoder can do multiple ways */
+#define EXT_ENCODER_INDEX_MODEL_RAW    0x00000000
 #define EXT_ENCODER_INDEX_MODEL_MANUAL 0x00000001
 #define EXT_ENCODER_INDEX_MODEL_AUTO   0x00000002
 
@@ -94,7 +104,7 @@ extern "C" {
 
 /*
   extEncoderSetIndexModel(unsigned int model)
-  For boards that support multiple index models, select which one
+  For interfaces that support multiple index models, select which one
   is to be used. Returns 0 if OK, -1 if model can't be supported.
   */
     extern int extEncoderSetIndexModel(unsigned int model);
