@@ -31,10 +31,10 @@ do
 	RTDIR=$(echo $1 | awk '{split($1, A, "=")}{print A[2]}')
 	#' A quick'n'dirty hack just in case we were passed a relative path.
 	# As noted by Jonathan Stark, makes will fail further up the tree
-	# when a -I../foo is encountered.
+	# when a -I../foo is encountered, so convert to an absolute.
+	# Even if an invalid path is used, the error will be trapped when
+	# the marker file is not found.
 	RTDIR=$(cd $RTDIR ; pwd -P )
-	# FIXME - if the directory doesn't exist, the 'cd' will fail and
-	#   the 'pwd' will list the current directory
 	# announce that we parsed the rtdir
 	echo "RTDIR set to $RTDIR from command line"
     # test for 'silent' or 'quiet' options
