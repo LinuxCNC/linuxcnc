@@ -1,0 +1,1124 @@
+/*
+  usrmot.c
+
+  Linux user-level process for communicating with RT motion controller
+
+  Modification history:
+
+  16-Aug-2000  FMP added alter
+  14-Aug-2000  FMP moved printing of status struct sizes to be first
+  8-Aug-2000  FMP added loading the comp table; changed INPUTLEN from
+  80 to 256
+  28-Jul-2000 WPS added stuff in ifdef ENABLE_PROBING
+  28-Jun-2000 WPS added __attribute__((unused)) to ident.
+  3-Nov-1999  FMP added logging of pos-vel
+  8-Oct-1999  FMP took out call to emcGetArgs() since it's EMC-level and
+  not focused on motion, as the code in here is.
+  2-Sep-1999  FMP called emcGetArgs() instead of duplicating its code here
+  20-Aug-1998  FMP took log size out of call to usrmotDumpLog
+  8-Jul-1998  FMP added -gini override for EMCMOT_INIFILE
+  29-Jun-1998  FMP changed %d to %i so -shm command line arg can be in
+  various bases
+  26-Mar-1998  FMP replaced usleep() with esleep()
+  3-Mar-1998  FMP added -shm to main() process
+  2-Mar-1998  FMP printed sizeof error struct at main beginning
+  6-Feb-1998  FMP added log types
+  10-Oct-1997  FMP added getinput() non-blocking read on stdin
+  2-Oct-1997  FMP added offset to iscale,oscale
+  18-Sep-1997  FMP removed piezo hack
+  21-Aug-1997  FMP added input,output scale
+  1-Aug-1997  FMP added "counts" to set counts per unit
+  10-Jul-1997  FMP pulled out read, write, init, exit, log functions
+  into usrmotintf.c so that other programs (e.g., nce) could use them
+  2-May-1997  FMP added logging; shared memory
+  17-Apr-1997  FMP added computeTime; interp rate to "set"
+  16-Apr-1997  FMP created
+  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>              /* isspace() */
+#include "_timer.h"             /* rcslib esleep() */
+#include "motion.h"
+#include "usrmotintf.h"         /* usrmotInit(), etc */
+#include "posemath.h"
+#include "emcpid.h"                /* pidIniLoad() */
+#include "getinput.h"           /* getinput() */
+#include "emcmotcfg.h"          /* EMCMOT_ERROR_LEN,NUM */
+#include "emcmotglb.h"          /* SHMEM_KEY */
+
+/* ident tag */
+#ifndef __GNUC__
+#ifndef __attribute__
+#define __attribute__(x)
+#endif
+#endif
+
+static char __attribute__((unused)) ident[] = "$Id$";
+
+/* size of input buffer */
+#define INPUTLEN 256
+
+/* max numbers allowed */
+#define MAX_NUMBERS 8
+
+/* microseconds to sleep between calls to getinput() */
+#define SLEEP_SECS 0.100
+
+/* takes a string, and returns 0 if all whitespace, 1 otherwise */
+static int anyprintable(const char *string)
+{
+  int cnt = 0;
+  char c;
+
+  while (0 != (c = string[cnt++]))
+    if (!isspace(c))
+      return 1;
+  return 0;
+}
+
+static char * skipWhite(char *s)
+{
+  while (isspace(*s))
+    {
+      s++;
+    }
+  return s;
+}
+
+static char * skipNonwhite(char *s)
+{
+  while (! isspace(*s))
+    {
+      s++;
+    }
+  return s;
+}
+
+static int scanNumbers(char *string, double *numbers, int max)
+{
+  char *ptr = string;
+  int count = 0;
+
+  while (count < max)
+    {
+      if (1 != sscanf(ptr, "%lf", &numbers[count]))
+        {
+          return count;
+        }
+      count++;
+      ptr = skipNonwhite(ptr);
+      ptr = skipWhite(ptr);
+    }
+
+  return count;
+}
+
+/*
+  emcmotGetArgs() looks for -ini <inifile>, and sets the global
+  EMCMOT_INIFILE (not to be confused with the EMC-level EMC_INIFILE).
+*/
+
+int emcmotGetArgs(int argc, char *argv[])
+{
+  int t;
+
+  /* process command line args, indexing argv[] from [1] */
+  for (t = 1; t < argc; t++) {
+    if (!strcmp(argv[t], "-ini")) {
+      if (t == argc - 1) {
+        return -1;
+      }
+      else {
+        strcpy(EMCMOT_INIFILE, argv[t+1]);
+        t++;            /* step over following arg */
+      }
+    }
+    /* else not recognized-- ignore */
+  }
+
+  return 0;
+}
+
+/*
+   syntax:  usrmot
+*/
+int main(int argc, char *argv[])
+{
+  EMCMOT_COMMAND emcmotCommand;
+  EMCMOT_STATUS emcmotStatus;
+  EMCMOT_CONFIG emcmotConfig;
+  EMCMOT_DEBUG emcmotDebug;
+  char input[INPUTLEN];
+  char cmd[INPUTLEN];
+  char errorString[EMCMOT_ERROR_LEN];
+  int valid;
+  int done;
+  int nchars;
+  int printPrompt;
+  int disablePrompt = 0;        /* flag for disabling prompt printing via > */
+  double numbers[MAX_NUMBERS];  /* space for number input data  */
+  int num;                      /* how many there are  */
+  int numNumbers = 0;           /* established number of input numbers  */
+  char filename[INPUTLEN];
+  int linenum;
+  FILE *fp;                     /* ini file ptr */
+  int lastPrint = 0;            /* flag for which status subset to print */
+  int statconfigdebug = 0;            /* 0 for stat, 1 for debug, 2 for config*/
+  int motionId = 0;             /* motion id sent down with moves */
+  int axis;                     /* axis selected for command */
+  int errCode;                  /* returned from usrmotWrite,Read... */
+  char compfile[INPUTLEN];      /* name of the compensation file */
+  double alter;                 /* value for external alter */
+
+  /* print the sizes first, so that even if emcmot isn't up and running
+     we can use usrmot to simply print the size and fail */
+  printf("sizeof(EMCMOT_COMMAND) = %d\n", sizeof(EMCMOT_COMMAND));
+  printf("sizeof(EMCMOT_STATUS) = %d\n", sizeof(EMCMOT_STATUS));
+  printf("sizeof(EMCMOT_CONFIG) = %d\n", sizeof(EMCMOT_CONFIG));
+  printf("sizeof(EMCMOT_DEBUG) = %d\n", sizeof(EMCMOT_DEBUG));
+  printf("sizeof(EMCMOT_ERROR) = %d\n", sizeof(EMCMOT_ERROR));
+  printf("sizeof(EMCMOT_LOG) = %d\n", sizeof(EMCMOT_LOG));
+  printf("sizeof(EMCMOT_STRUCT) = %d\n", sizeof(EMCMOT_STRUCT));
+
+  /* process command line args */
+  emcmotGetArgs(argc, argv);
+
+  /* read comm parameters */
+  if (-1 == usrmotIniLoad(EMCMOT_INIFILE)) {
+    fprintf(stderr, "can't load ini file %s\n", EMCMOT_INIFILE);
+    exit(1);
+  }
+
+  /* init comm */
+  if (-1 == usrmotInit()) {
+    fprintf(stderr, "can't initialize comm interface\n");
+    exit(1);
+  }
+
+  emcmotCommand.pos.a = 0.0;
+  emcmotCommand.pos.b = 0.0;
+  emcmotCommand.pos.c = 0.0;
+
+  /* loop on input */
+  done = 0;
+  printPrompt = 1;
+  while (! feof(stdin) &&
+         ! done) {
+    /* read errors */
+    while (0 == usrmotReadEmcmotError(errorString)) {
+      printf("error: %s\n", errorString);
+    }
+
+    /* check if we need to print a prompt */
+    if (printPrompt) {
+      if (! disablePrompt) {
+        printf("motion> ");
+        fflush(stdout);
+      }
+      printPrompt = 0;
+    }
+
+    /* get the next input line, if any */
+    nchars = getinput(input, INPUTLEN);
+    if (nchars > 0) {
+      printPrompt = 1;
+    }
+    else if (nchars == -1) {
+      /* no new input-- cycle again */
+      esleep(SLEEP_SECS);
+      continue;         /* the while(!feof(stdin)) loop */
+    }
+    else {
+      /* nchars == 0, EOF */
+      break;
+    }
+
+    /* got input-- check for a number first */
+    num = scanNumbers(input, numbers, MAX_NUMBERS);
+    if (num > 0) {
+      if (numNumbers == 0) {
+        numNumbers = num;
+      }
+      else if (numNumbers != num) {
+        fprintf(stderr, "need %d numbers\n", numNumbers);
+        /* ignore 'em  */
+        continue;
+      }
+
+      /* write out command */
+
+      emcmotCommand.command = EMCMOT_SET_LINE;
+      emcmotCommand.pos.tran.x = numbers[0];
+      emcmotCommand.pos.tran.y = numbers[1];
+      emcmotCommand.pos.tran.z = numbers[2];
+      emcmotCommand.id = motionId++;
+
+      if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+        fprintf(stderr, "Can't send a command to RT-task\n");
+      }
+    }
+    else {
+      /* read first arg in */
+      cmd[0] = 0;
+      sscanf(input, "%s", cmd);
+
+      /* match it in the big if loop */
+      if (! strcmp(cmd, "help") ||
+          ! strcmp(cmd, "?")) {
+        printf("? or help\tprint help\n");
+        printf(">\ttoggle prompt on or off\n");
+        printf(";\tcomment follows\n");
+        printf("quit\tquit\n");
+        printf("show {pids} {flags} {limits} {scales} {times}\tshow status\n");
+        printf("show debug <screen>\tshow debug\n");
+        printf("show config <screen>\tshow config\n");
+        printf("free\tset mode to free\n");
+        printf("teleop\tset mode to teleop\n");
+        printf("coord\tset mode to coordinated\n");
+        printf("pause\tpause motion controller\n");
+        printf("resume\tresume motion controller\n");
+        printf("a\tabort motion controller\n");
+        printf("scale <0..1>\tscale velocity\n");
+        printf("enable | disable\tenable or disable motion controller\n");
+        printf("jog <axis> + | -\tjog axis pos or neg\n");
+        printf("jog <axis> + | -\tjog axis pos or neg\n");
+        printf("id <num>   \tset base id for subsequent moves\n");
+        printf("<x> <y> <z>\tput motion on queue\n");
+        printf("load <file>\tput motions from file on queue\n");
+        printf("cw <x> <y> <z> <cx> <cy> <cz> <turn>\tput CW circle on queue\n");
+        printf("ccw <x> <y> <z> <cx> <cy> <cz> <turn>\tput CCW circle on queue\n");
+        printf("set t <traj t> | s <servo t> | v <vel> | a <acc>\tset params\n");
+        printf("oscale <axis 0..n-1> <a> <b>\traw[n] = a(out[n]-b)\n");
+        printf("iscale <axis 0..n-1> <a> <b>\tin[n] = a(raw[n]-b)\n");
+        printf("pol <axis 0..n-1> <enable nhl phl homedir homesw fault> <0 1>\n");
+        printf("pid <axis 0..n-1> <ini file>\tset PID gains for motor n\n");
+        printf("limit <axis> <min> <max>\tset position limits\n");
+        printf("clamp <axis> <min> <max>\tset output limits\n");
+        printf("ferror <axis> <value>\tset max following error\n");
+        printf("live <axis 0..n-1>\tenable amp n\n");
+        printf("kill <axis 0..n-1>\tkill amp n\n");
+        printf("activate <axis 0..n-1>\tactivate axis n\n");
+        printf("deactivate <axis 0..n-1>\tdeactivate axis n\n");
+        printf("log open <type ...> | start | stop | close | dump <file>\tlog data\n");
+        printf("dac <axis 0..n-1> <-10.0 .. 10.0>\toutput value to DAC\n");
+        printf("home <axis 0..n-1>\thome axis\n");
+        printf("nolim             \toverride hardware limits\n");
+        printf("wd on | off\tenable or disable watchdog toggle\n");
+        printf("probe <x> <y> <z>\tMove toward x,y,z, if probe is tripped on the way the probe position will be updated and motion stopped.\n");
+        printf("probeclear\tClear the probeTripped status flag.\n");
+        printf("probeindex <index>\tSet which input is checked for probe status.\n");
+        printf("probepolarity <polarity>\tSet whether a probe is tripped on a 0 or 1.\n");
+      }
+      else if (! strcmp(cmd, ">")) {
+        disablePrompt = !disablePrompt;
+      }
+      else if (! strcmp(cmd, ";")) {
+        /* comment  */
+      }
+      else if (! strcmp(cmd, "quit")) {
+        done = 1;
+      }
+      else if (! strcmp(cmd, "show")) {
+        if (1 == sscanf(input, "%*s %s", cmd)) {
+	  statconfigdebug = 0;
+          if (! strcmp(cmd, "pids")) {
+            lastPrint = 1;
+	    statconfigdebug = 2; /* config */
+          }
+          else if (! strcmp(cmd, "flags")) {
+            lastPrint = 2;
+          }
+          else if (! strcmp(cmd, "limits")) {
+            lastPrint = 3;
+	    statconfigdebug = 2; /* config */
+          }
+          else if (! strcmp(cmd, "scales")) {
+            lastPrint = 4;
+          }
+          else if (! strcmp(cmd, "times")) {
+            lastPrint = 5;
+	    statconfigdebug = 1; /* debug */
+          }
+          else if (! strcmp(cmd, "stat")) {
+	    statconfigdebug = 0;
+            lastPrint = strtol(strstr(input,"stat")+4,0,0);
+          } 
+	  else if (! strcmp(cmd, "debug")) {
+	    statconfigdebug = 1;
+            lastPrint = strtol(strstr(input,"debug")+5,0,0);
+          }
+          else if (! strcmp(cmd, "config")) {
+	    statconfigdebug = 2;
+            lastPrint = strtol(strstr(input,"config")+6,0,0);
+          }
+          else {
+            /* invalid parameter  */
+            printf("syntax: show {pids} {flags} {limits} {scales} {times}\n");
+            continue;   /* to while loop on stdin */
+          }
+        }
+        else {
+          lastPrint = 0;
+	  statconfigdebug = 0;
+        }
+
+        /* print status */
+	switch (statconfigdebug) {
+	case 0:
+	  if (0 == (errCode = usrmotReadEmcmotStatus(&emcmotStatus))) {
+	    usrmotPrintEmcmotStatus(emcmotStatus, lastPrint);
+	  }
+	  else {
+	    fprintf(stderr, "can't read status: %s\n",
+		    errCode == EMCMOT_COMM_ERROR_CONNECT ? "EMCMOT_COMM_ERROR_CONNECT" :
+		    errCode == EMCMOT_COMM_ERROR_TIMEOUT ? "EMCMOT_COMM_ERROR_TIMEOUT" :
+		    errCode == EMCMOT_COMM_ERROR_COMMAND ? "EMCMOT_COMM_ERROR_COMMAND" :
+		    errCode == EMCMOT_COMM_SPLIT_READ_TIMEOUT ? "EMCMOT_COMM_SPLIT_READ_TIMEOUT" : "?");
+	  }
+	  break;
+
+	case 1:
+	  if (0 == (errCode = usrmotReadEmcmotDebug(&emcmotDebug))) {
+	    usrmotPrintEmcmotDebug(emcmotDebug, lastPrint);
+	  }
+	  else {
+	    fprintf(stderr, "can't read debug: %s\n",
+		    errCode == EMCMOT_COMM_ERROR_CONNECT ? "EMCMOT_COMM_ERROR_CONNECT" :
+		    errCode == EMCMOT_COMM_ERROR_TIMEOUT ? "EMCMOT_COMM_ERROR_TIMEOUT" :
+		    errCode == EMCMOT_COMM_ERROR_COMMAND ? "EMCMOT_COMM_ERROR_COMMAND" :
+		    errCode == EMCMOT_COMM_SPLIT_READ_TIMEOUT ? "EMCMOT_COMM_SPLIT_READ_TIMEOUT" : "?");
+	  }
+	  break;
+
+	case 2:
+	  if (0 == (errCode = usrmotReadEmcmotConfig(&emcmotConfig))) {
+	    usrmotPrintEmcmotConfig(emcmotConfig, lastPrint);
+	  }
+	  else {
+	    fprintf(stderr, "can't read config: %s\n",
+		    errCode == EMCMOT_COMM_ERROR_CONNECT ? "EMCMOT_COMM_ERROR_CONNECT" :
+		    errCode == EMCMOT_COMM_ERROR_TIMEOUT ? "EMCMOT_COMM_ERROR_TIMEOUT" :
+		    errCode == EMCMOT_COMM_ERROR_COMMAND ? "EMCMOT_COMM_ERROR_COMMAND" :
+		    errCode == EMCMOT_COMM_SPLIT_READ_TIMEOUT ? "EMCMOT_COMM_SPLIT_READ_TIMEOUT" : "?");
+	  }
+	  break;
+	}
+      }
+      else if (! strcmp(cmd, "pause")) {
+        emcmotCommand.command = EMCMOT_PAUSE;
+        if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+          fprintf(stderr, "Can't send a command to RT-task\n");
+        }
+      }
+      else if (! strcmp(cmd, "resume")) {
+        emcmotCommand.command = EMCMOT_RESUME;
+        if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+          fprintf(stderr, "Can't send a command to RT-task\n");
+        }
+      }
+      else if (! strcmp(cmd, "a")) {
+        /* set the axis field, if provided. If not provided, it
+           will default to the last one used. In coord mode it's
+           not used at all. */
+        valid = 0;
+        if (1 == sscanf(input, "%*s %d", &axis)) {
+          if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+            fprintf(stderr, "bad axis %d to abort\n", axis);
+          }
+          else {
+            emcmotCommand.axis = axis;
+            valid = 1;
+          }
+        }
+        else {
+          /* axis not provided, so leave last one in
+             emcmotCommand.axs alone */
+          valid = 1;
+        }
+
+        if (valid) {
+          emcmotCommand.command = EMCMOT_ABORT;
+
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+      }
+      else if (! strcmp(cmd, "scale")) {
+        if (1 == sscanf(input, "%*s %lf",
+                        &emcmotCommand.scale)) {
+          emcmotCommand.command = EMCMOT_SCALE;
+          if (emcmotCommand.scale < 0.0) {
+            emcmotCommand.scale = 0.0; /* clamp it */
+          }
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else {
+          /* invalid parameter  */
+          printf("syntax: scale <0..1>\n");
+        }
+      }
+      else if (! strcmp(cmd, "enable")) {
+        emcmotCommand.command = EMCMOT_ENABLE;
+        if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+          fprintf(stderr, "Can't send a command to RT-task\n");
+        }
+      }
+      else if (! strcmp(cmd, "disable")) {
+        emcmotCommand.command = EMCMOT_DISABLE;
+        if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+          fprintf(stderr, "Can't send a command to RT-task\n");
+        }
+      }
+      else if (! strcmp(cmd, "free")) {
+        emcmotCommand.command = EMCMOT_FREE;
+        if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+          fprintf(stderr, "Can't send a command to RT-task\n");
+        }
+      }
+      else if (! strcmp(cmd, "teleop")) {
+        emcmotCommand.command = EMCMOT_TELEOP;
+        if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+          fprintf(stderr, "Can't send a command to RT-task\n");
+        }
+      }
+      else if (! strcmp(cmd, "coord")) {
+        emcmotCommand.command = EMCMOT_COORD;
+        if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+          fprintf(stderr, "Can't send a command to RT-task\n");
+        }
+      }
+      else if (! strcmp(cmd, "jog")) {
+        if (2 == sscanf(input, "%*s %d %s",
+                        &emcmotCommand.axis, cmd)) {
+          emcmotCommand.command = EMCMOT_JOG_CONT;
+          if (cmd[0] == '+') {
+            emcmotCommand.vel = emcmotStatus.vel;
+          }
+          else if (cmd[0] == '-') {
+            emcmotCommand.vel = - emcmotStatus.vel;
+          }
+          else {
+            fprintf(stderr, "syntax: jog <axis> + | -\n");
+            break;
+          }
+
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else {
+          fprintf(stderr, "syntax: jog <axis> + | -\n");
+        }
+      }
+      else if (! strcmp(cmd, "id")) {
+        int newId;
+        if (1 == sscanf(input, "%*s %d", &newId)) {
+          motionId = newId;
+          printf("setting id to %d\n", motionId);
+        }
+        else {
+          fprintf(stderr, "syntax: id <num>\n");
+        }
+      }
+      else if (! strcmp(cmd, "load")) {
+        if (1 == sscanf(input, "%*s %s", filename)) {
+          if (NULL != (fp = fopen(filename, "r"))) {
+            linenum = 0;
+            while (! feof(fp)) {
+              if (NULL != fgets(input, INPUTLEN, fp)) {
+                linenum++;
+                if (3 == sscanf(input, "%lf %lf %lf",
+                                &emcmotCommand.pos.tran.x,
+                                &emcmotCommand.pos.tran.y,
+                                &emcmotCommand.pos.tran.z)) {
+                  printf("sending %f %f %f\n",
+                         emcmotCommand.pos.tran.x,
+                         emcmotCommand.pos.tran.y,
+                         emcmotCommand.pos.tran.z);
+                  emcmotCommand.command = EMCMOT_SET_LINE;
+                  emcmotCommand.id = motionId++;
+                  if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+                    fprintf(stderr, "Can't send a command to RT-task\n");
+                  }
+                }
+                else {
+                  /* input error */
+                  if (anyprintable(input)) {
+                    fprintf(stderr, "bad input on line %d of file %s\n",
+                            linenum, filename);
+                    fclose(fp);
+                    break; /* out of while (! feof(fp)) */
+                  }
+                }
+              }
+              else {
+                /* end of input */
+                fclose(fp);
+                break; /* out of while (! feof(fp)) */
+              }
+            } /* end while (! feof(fp)) */
+          } /* end if file open success */
+          else {
+            fprintf(stderr, "can't open %s\n", filename);
+          }
+        } /* end if correct arg to "load" */
+        else {
+          fprintf(stderr, "syntax: load <filename>\n");
+        }
+      } /* end match on "load" */
+      else if (! strcmp(cmd, "cw") ||
+               ! strcmp(cmd, "ccw")) {
+        if (7 == sscanf(input, "%*s %lf %lf %lf %lf %lf %lf %d",
+                        &emcmotCommand.pos.tran.x,
+                        &emcmotCommand.pos.tran.y,
+                        &emcmotCommand.pos.tran.z,
+                        &emcmotCommand.center.x,
+                        &emcmotCommand.center.y,
+                        &emcmotCommand.center.z,
+                        &emcmotCommand.turn)) {
+          emcmotCommand.command = EMCMOT_SET_CIRCLE;
+          emcmotCommand.normal.x = 0.0;
+          emcmotCommand.normal.y = 0.0;
+          if (!strcmp(cmd, "cw")) {
+            emcmotCommand.normal.z = -1.0;
+          }
+          else {
+            emcmotCommand.normal.z = 1.0;
+          }
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else {
+          fprintf(stderr, "syntax: cw <x> <y> <z> <cx> <cy> <cz> <turn>\n");
+        }
+      }
+      else if (! strcmp(cmd, "set")) {
+        sscanf(input, "%*s %s", cmd);
+        if (! strcmp(cmd, "t")) {
+          if (1 != sscanf(input, "%*s %*s %lf",
+                          &emcmotCommand.cycleTime)) {
+            /* invalid parameter */
+            fprintf(stderr, "bad value for cycle time\n");
+          }
+          else {
+            emcmotCommand.command = EMCMOT_SET_TRAJ_CYCLE_TIME;
+            if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+              fprintf(stderr, "Can't send a command to RT-task\n");
+            }
+          }
+        }
+        else if (! strcmp(cmd, "s")) {
+          if (1 != sscanf(input, "%*s %*s %lf", &emcmotCommand.cycleTime)) {
+            /* invalid parameter */
+            fprintf(stderr, "bad value for interpolation rate\n");
+          }
+          else {
+            emcmotCommand.command = EMCMOT_SET_SERVO_CYCLE_TIME;
+            if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+              fprintf(stderr, "Can't send a command to RT-task\n");
+            }
+          }
+        }
+        else if (! strcmp(cmd, "v")) {
+          if (1 != sscanf(input, "%*s %*s %lf", &emcmotCommand.vel)) {
+            /* invalid parameter */
+            fprintf(stderr, "bad value for velocity\n");
+          }
+          else {
+            emcmotCommand.command = EMCMOT_SET_VEL;
+            if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+              fprintf(stderr, "Can't send a command to RT-task\n");
+            }
+          }
+        }
+        else if (! strcmp(cmd, "a")) {
+          if (1 != sscanf(input, "%*s %*s %lf", &emcmotCommand.acc)) {
+            /* invalid parameter */
+            fprintf(stderr, "bad value for acceleration\n");
+          }
+          else {
+            emcmotCommand.command = EMCMOT_SET_ACC;
+            if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+              fprintf(stderr, "Can't send a command to RT-task\n");
+            }
+          }
+        }
+        else {
+          /* invalid parameter  */
+          printf("syntax: set t <traj t> | s <servo t> | v <vel> | a <acc>\n");
+        }
+      }
+      else if (! strcmp(cmd, "oscale")) {
+        if (3 != sscanf(input, "%*s %d %lf %lf",
+                        &emcmotCommand.axis,
+                        &emcmotCommand.scale,
+                        &emcmotCommand.offset)) {
+          printf("syntax: oscale <axis 0..n-1> <a> <b>\n");
+        }
+        else {
+          emcmotCommand.command = EMCMOT_SET_OUTPUT_SCALE;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+      }
+      else if (! strcmp(cmd, "iscale")) {
+        if (3 != sscanf(input, "%*s %d %lf %lf",
+                        &emcmotCommand.axis,
+                        &emcmotCommand.scale,
+                        &emcmotCommand.offset)) {
+          printf("syntax: iscale <axis 0..n-1> <a> <b>\n");
+        }
+        else {
+          emcmotCommand.command = EMCMOT_SET_INPUT_SCALE;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+      }
+      else if (! strcmp(cmd, "pol")) {
+        if (3 != sscanf(input, "%*s %d %s %d",
+                        &emcmotCommand.axis,
+                        cmd,
+                        &emcmotCommand.level)) {
+          printf("syntax: pol <axis 0..n-1> <enable nhl phl homedir homesw fault> <0 1>\n");
+        }
+        else {
+          valid = 1;
+
+          if (! strcmp(cmd, "enable")) {
+            emcmotCommand.axisFlag = EMCMOT_AXIS_ENABLE_BIT;
+          }
+          else if (! strcmp(cmd, "nhl")) {
+            emcmotCommand.axisFlag = EMCMOT_AXIS_MIN_HARD_LIMIT_BIT;
+          }
+          else if (! strcmp(cmd, "phl")) {
+            emcmotCommand.axisFlag = EMCMOT_AXIS_MAX_HARD_LIMIT_BIT;
+          }
+          else if (! strcmp(cmd, "homedir")) {
+            emcmotCommand.axisFlag = EMCMOT_AXIS_HOMING_BIT;
+          }
+          else if (! strcmp(cmd, "homesw")) {
+            emcmotCommand.axisFlag = EMCMOT_AXIS_HOME_SWITCH_BIT;
+          }
+          else if (! strcmp(cmd, "fault")) {
+            emcmotCommand.axisFlag = EMCMOT_AXIS_FAULT_BIT;
+          }
+          else {
+            valid = 0;
+          }
+
+          if (valid) {
+            emcmotCommand.command = EMCMOT_SET_POLARITY;
+            if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+              fprintf(stderr, "Can't send a command to RT-task\n");
+            }
+          }
+          else {
+            printf("syntax: pol <axis 0..n-1> <enable nhl phl homedir homesw fault> <0 1>\n");
+          }
+        }
+      }
+      else if (! strcmp(cmd, "pid")) {
+        if (1 != sscanf(input, "%*s %d", &emcmotCommand.axis) ||
+            emcmotCommand.axis < 0 ||
+            emcmotCommand.axis >= EMCMOT_MAX_AXIS ||
+            1 != sscanf(input, "%*s %*s %s", filename)) {
+          printf("syntax: pid <n> <ini file>\n");
+        }
+        else {
+          /* load params into pid struct from inifile */
+          if (0 != pidIniLoad(&emcmotCommand.pid, filename)) {
+            fprintf(stderr, "error loading pid params from %s\n", filename);
+          }
+          else {
+            emcmotCommand.command = EMCMOT_SET_PID;
+            if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+              fprintf(stderr, "Can't send a command to RT-task\n");
+            }
+          }
+        }
+      }
+      else if (! strcmp(cmd, "limit")) {
+        if (3 != sscanf(input, "%*s %d %lf %lf",
+                        &emcmotCommand.axis,
+                        &emcmotCommand.minLimit,
+                        &emcmotCommand.maxLimit)) {
+          printf("syntax: limit <axis> <min> <max>\n");
+        }
+        else {
+          emcmotCommand.command = EMCMOT_SET_POSITION_LIMITS;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+      }
+      else if (! strcmp(cmd, "clamp")) {
+        if (3 != sscanf(input, "%*s %d %lf %lf",
+                        &emcmotCommand.axis,
+                        &emcmotCommand.minLimit,
+                        &emcmotCommand.maxLimit)) {
+          printf("syntax: clamp <axis> <min> <max>\n");
+        }
+        else {
+          emcmotCommand.command = EMCMOT_SET_OUTPUT_LIMITS;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+      }
+      else if (! strcmp(cmd, "ferror")) {
+        if (2 != sscanf(input, "%*s %d %lf",
+                        &emcmotCommand.axis,
+                        &emcmotCommand.maxFerror)) {
+          printf("syntax: ferror <axis> <ferror>\n");
+        }
+        else {
+          emcmotCommand.command = EMCMOT_SET_MAX_FERROR;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+      }
+      else if (! strcmp(cmd, "live")) {
+        if (1 != sscanf(input, "%*s %d", &emcmotCommand.axis) ||
+            emcmotCommand.axis < 0 ||
+            emcmotCommand.axis >= EMCMOT_MAX_AXIS) {
+          printf("syntax: live <n>\n");
+        }
+        else {
+          emcmotCommand.command = EMCMOT_ENABLE_AMPLIFIER;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+      }
+      else if (! strcmp(cmd, "kill")) {
+        if (1 != sscanf(input, "%*s %d", &emcmotCommand.axis) ||
+            emcmotCommand.axis < 0 ||
+            emcmotCommand.axis >= EMCMOT_MAX_AXIS) {
+          printf("syntax: kill <n>\n");
+        }
+        else {
+          emcmotCommand.command = EMCMOT_DISABLE_AMPLIFIER;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1)
+            {
+              fprintf(stderr, "Can't send a command to RT-task\n");
+            }
+        }
+      }
+      else if (! strcmp(cmd, "activate")) {
+        if (1 != sscanf(input, "%*s %d", &emcmotCommand.axis) ||
+            emcmotCommand.axis < 0 ||
+            emcmotCommand.axis >= EMCMOT_MAX_AXIS) {
+          printf("syntax: activate <n>\n");
+        }
+        else {
+          emcmotCommand.command = EMCMOT_ACTIVATE_AXIS;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+      }
+      else if (! strcmp(cmd, "deactivate")) {
+        if (1 != sscanf(input, "%*s %d", &emcmotCommand.axis) ||
+            emcmotCommand.axis < 0 ||
+            emcmotCommand.axis >= EMCMOT_MAX_AXIS) {
+          printf("syntax: deactivate <n>\n");
+        }
+        else {
+          emcmotCommand.command = EMCMOT_DEACTIVATE_AXIS;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+      }
+      else if (! strcmp(cmd, "log")) {
+        sscanf(input, "%*s %s", cmd);
+        if (! strcmp(cmd, "open")) {
+          /* syntax is "log open <size> <skip> <type> <type args> */
+          valid = 0;
+          if (3 != sscanf(input, "%*s %*s %d %d %d",
+                          &emcmotCommand.logSize,
+                          &emcmotCommand.logSkip,
+                          &emcmotCommand.logType) ||
+              emcmotCommand.logSize <= 0) {
+            printf("syntax: log open <size> <skip> <type> <...>\n");
+          }
+          else {
+            /* look at type and read any remaining args */
+            switch (emcmotCommand.logType) {
+            case EMCMOT_LOG_TYPE_AXIS_POS:
+            case EMCMOT_LOG_TYPE_AXIS_VEL:
+            case EMCMOT_LOG_TYPE_POS_VOLTAGE:
+              if (1 != sscanf(input, "%*s %*s %*s %*s %*s %d",
+                              &emcmotCommand.axis)) {
+                printf("syntax: log open <size> <skip> <type> <axis>\n");
+              }
+              else {
+                valid = 1;
+              }
+              break;
+
+            case EMCMOT_LOG_TYPE_CMD:
+              /* force logSkip negative to avoid per-cycle logs */
+              emcmotCommand.logSkip = -1;
+              valid = 1;
+              break;
+
+            default:
+              valid = 1;
+              break;
+            }
+          }
+
+          /* now send it */
+          if (valid) {
+            emcmotCommand.command = EMCMOT_OPEN_LOG;
+            if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+              fprintf(stderr, "Can't send a command to RT-task\n");
+            }
+          }
+        }
+        else if (! strcmp(cmd, "start")) {
+          emcmotCommand.command = EMCMOT_START_LOG;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else if (! strcmp(cmd, "stop")) {
+          emcmotCommand.command = EMCMOT_STOP_LOG;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else if (! strcmp(cmd, "close")) {
+          emcmotCommand.command = EMCMOT_CLOSE_LOG;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else if (! strcmp(cmd, "dump")) {
+	  int include_header=1;
+          sscanf(input, "%*s %*s %s %d", filename, include_header);
+          if (-1 == usrmotDumpLog(filename,include_header)) {
+            fprintf(stderr, "Can't dump log to %s\n", filename);
+          }
+        }
+        else {
+          /* invalid parameter  */
+          printf("syntax: log open | start | stop | close | dump <file>\n");
+        }
+      }
+      else if (! strcmp(cmd, "dac")) {
+        if (2 == sscanf(input, "%*s %d %lf",
+                        &emcmotCommand.axis,
+                        &emcmotCommand.dacOut)) {
+          emcmotCommand.command = EMCMOT_DAC_OUT;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else {
+          printf("syntax: dac <num> <-10.0 .. 10.0>\n");
+        }
+      }
+      else if (! strcmp(cmd, "home")) {
+        if (1 == sscanf(input, "%*s %d", &emcmotCommand.axis)) {
+          emcmotCommand.command = EMCMOT_HOME;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else {
+          printf("syntax: home <axis>\n");
+        }
+      }
+      else if (! strcmp(cmd, "nolim")) {
+        emcmotCommand.command = EMCMOT_OVERRIDE_LIMITS;
+        if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+          fprintf(stderr, "Can't send a command to RT-task\n");
+        }
+      }
+#ifdef ENABLE_PROBING
+      else if (! strcmp(cmd, "probeclear")) {
+        emcmotCommand.command = EMCMOT_CLEAR_PROBE_FLAGS;
+        if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+          fprintf(stderr, "Can't send a command to RT-task\n");
+        }
+      }
+      else if (! strcmp(cmd, "probeindex")) {
+        if (1 == sscanf(input, "%*s %d", &emcmotCommand.probeIndex)) {
+          emcmotCommand.command = EMCMOT_SET_PROBE_INDEX;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else {
+          printf("syntax: probeindex <index>\n");
+        }
+      }
+      else if (! strcmp(cmd, "probepolarity")) {
+        if (1 == sscanf(input, "%*s %d", &emcmotCommand.level)) {
+          emcmotCommand.command = EMCMOT_SET_PROBE_POLARITY;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else {
+          printf("syntax: probepolarity <polarity>\n");
+        }
+      }
+      else if (! strcmp(cmd, "probe")) {
+        if (3 == sscanf(input, "%*s %lf %lf %lf",
+                        &emcmotCommand.pos.tran.x,
+                        &emcmotCommand.pos.tran.y,
+                        &emcmotCommand.pos.tran.z)) {
+          emcmotCommand.command = EMCMOT_PROBE;
+          emcmotCommand.id = motionId++;
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else {
+          printf("syntax: probe <x> <y> <z>\n");
+        }
+      }
+#endif /* ENABLE_PROBING */
+      else if (!strcmp(cmd, "wd")) {
+        valid = 0;
+
+        if (1 == sscanf(input, "%*s %s", cmd)) {
+          if (!strcmp(cmd, "on")) {
+            if (1 != sscanf(input, "%*s %*s %d",
+                            &emcmotCommand.wdWait) ||
+                emcmotCommand.wdWait < 0) {
+              /* no or bad submultiple arg-- use 1 */
+              emcmotCommand.wdWait = 0;
+            }
+            emcmotCommand.command = EMCMOT_ENABLE_WATCHDOG;
+            valid = 1;
+          }
+          else if (!strcmp(cmd, "off")) {
+            emcmotCommand.command = EMCMOT_DISABLE_WATCHDOG;
+            valid = 1;
+          }
+        }
+
+        if (valid) {
+          if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
+            fprintf(stderr, "Can't send a command to RT-task\n");
+          }
+        }
+        else {
+          printf("syntax: wd on {<waits>} | off\n");
+        }
+      }
+      else if (! strcmp(cmd, "comp")) {
+        if (1 != sscanf(input, "%*s %d", &axis)) {
+          fprintf(stderr, "syntax: comp <axis> {<file>}\n");
+        }
+        else {
+          /* try a string for the compfile, else it's blank which
+             means print */
+          if (1 == sscanf(input, "%*s %*d %s", compfile)) {
+            if (0 != usrmotLoadComp(axis, compfile)) {
+              fprintf(stderr, "Can't load comp file %s\n", compfile);
+            }
+          }
+          else {
+            if (0 != usrmotPrintComp(axis)) {
+              fprintf(stderr, "Can't print comp table\n");
+            }
+          }
+        }
+      }
+      else if (! strcmp(cmd, "alter")) {
+        if (1 != sscanf(input, "%*s %d", &axis)) {
+          fprintf(stderr, "syntax: alter <axis> {<value>}\n");
+        }
+        else {
+          /* try a double for the alter val, else it's blank which
+             means print */
+          if (1 == sscanf(input, "%*s %*d %lf", &alter)) {
+            if (0 != usrmotAlter(axis, alter)) {
+              fprintf(stderr, "Can't set alter value %f\n", alter);
+            }
+          }
+          else {
+            if (0 != usrmotQueryAlter(axis, &alter)) {
+              fprintf(stderr, "Can't print alter value\n");
+            }
+            else {
+              printf("axis %d alter: %f\n", axis, alter);
+            }
+          }
+        }
+      }
+      else {
+        if (anyprintable(input)) {
+          printf("huh? : %s", input); /* input will have newline */
+        }
+        else {
+          /* blank line was typed  */
+
+        /* print status */
+	switch(statconfigdebug)
+	  {
+	  case 0:
+#if 0
+	    if (0 == (errCode = usrmotReadEmcmotStatus(&emcmotStatus))) {
+	      usrmotPrintEmcmotStatus(emcmotStatus, lastPrint);
+	    }
+	    else {
+	      fprintf(stderr, "can't read status: %s\n",
+		      errCode == EMCMOT_COMM_ERROR_CONNECT ? "EMCMOT_COMM_ERROR_CONNECT" :
+		      errCode == EMCMOT_COMM_ERROR_TIMEOUT ? "EMCMOT_COMM_ERROR_TIMEOUT" :
+		      errCode == EMCMOT_COMM_ERROR_COMMAND ? "EMCMOT_COMM_ERROR_COMMAND" :
+		      errCode == EMCMOT_COMM_SPLIT_READ_TIMEOUT ? "EMCMOT_COMM_SPLIT_READ_TIMEOUT" : "?");
+	    }
+#endif
+	    break;
+
+	  case 1:
+	    if (0 == (errCode = usrmotReadEmcmotDebug(&emcmotDebug))) {
+	      usrmotPrintEmcmotDebug(emcmotDebug, lastPrint);
+	    }
+	    else {
+	      fprintf(stderr, "can't read debug: %s\n",
+		      errCode == EMCMOT_COMM_ERROR_CONNECT ? "EMCMOT_COMM_ERROR_CONNECT" :
+		      errCode == EMCMOT_COMM_ERROR_TIMEOUT ? "EMCMOT_COMM_ERROR_TIMEOUT" :
+		      errCode == EMCMOT_COMM_ERROR_COMMAND ? "EMCMOT_COMM_ERROR_COMMAND" :
+		      errCode == EMCMOT_COMM_SPLIT_READ_TIMEOUT ? "EMCMOT_COMM_SPLIT_READ_TIMEOUT" : "?");
+	    }
+	    break;
+
+	  case 2:
+	    if (0 == (errCode = usrmotReadEmcmotConfig(&emcmotConfig))) {
+	      usrmotPrintEmcmotConfig(emcmotConfig, lastPrint);
+	    }
+	    else {
+	      fprintf(stderr, "can't read config: %s\n",
+		      errCode == EMCMOT_COMM_ERROR_CONNECT ? "EMCMOT_COMM_ERROR_CONNECT" :
+		      errCode == EMCMOT_COMM_ERROR_TIMEOUT ? "EMCMOT_COMM_ERROR_TIMEOUT" :
+		      errCode == EMCMOT_COMM_ERROR_COMMAND ? "EMCMOT_COMM_ERROR_COMMAND" :
+		      errCode == EMCMOT_COMM_SPLIT_READ_TIMEOUT ? "EMCMOT_COMM_SPLIT_READ_TIMEOUT" : "?");
+	    }
+	    break;
+	  }
+        }
+      } /* end of big-if input matching  */
+
+    } /* end of non-number input processing  */
+
+  } /* end of while stdin  */
+
+  usrmotExit();
+  exit(0);
+}
