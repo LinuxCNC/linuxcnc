@@ -56,6 +56,10 @@
 *                  GLOBAL VARIABLES DECLARATIONS                       *
 ************************************************************************/
 
+/* FIXME - spinbutton doesn't work well with large or small numbers,
+           and entry is too wide (messes up layout) */
+#define SPINBUTTON
+
 /***********************************************************************
 *                  LOCAL FUNCTION PROTOTYPES                           *
 ************************************************************************/
@@ -64,39 +68,19 @@ static void init_chan_sel_window(void);
 static void init_chan_info_window(void);
 static void init_vert_info_window(void);
 
-static void change_source_button(GtkWidget * widget, gpointer gdata);
-static void channel_off_button(GtkWidget * widget, gpointer gdata);
 static gboolean dialog_select_source(int chan_num);
 static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, dialog_generic_t * dptr);
+static void change_source_button(GtkWidget * widget, gpointer gdata);
+static void channel_off_button(GtkWidget * widget, gpointer gdata);
 static void channel_changed(void);
-static void refresh_chan_info(void);
-#if 0
-static void refresh_vert_info(void);
-#endif
-
-/*
-static void init_acquire_function(void);
-static void acquire_popup(GtkWidget * widget, gpointer gdata);
-
-static void dialog_realtime_not_linked(void);
-static void dialog_realtime_not_running(void);
-static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, gpointer gdata);
-*/
 static void scale_changed(GtkAdjustment * adj, gpointer gdata);
 static void offset_changed(GtkAdjustment * adj, gpointer gdata);
+#ifdef ENTRY
 static void offset_activated(GtkAdjustment * adj, gpointer gdata);
+#endif
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
 static void chan_sel_button(GtkWidget * widget, gpointer gdata);
-
-/*
-static void calc_horiz_scaling(void);
-
-static void refresh_horiz_info(void);
-static void refresh_pos_disp(void);
-
-*/
 
 /* helper functions */
 static void format_scale_value(char *buf, int buflen, float value);
@@ -125,11 +109,6 @@ void init_vert(void)
     init_chan_sel_window();
     init_chan_info_window();
     init_vert_info_window();
-#if 0
-    /* make sure displays are up to date */
-    calc_horiz_scaling();
-    refresh_vert_info();
-#endif
 }
 
 static void init_chan_sel_window(void)
@@ -220,9 +199,6 @@ static void init_vert_info_window(void)
     gtk_hseparator_new_in_box(ctrl_usr->vert_info_win, 3);
     gtk_label_new_in_box("Offset  ", ctrl_usr->vert_info_win, FALSE, FALSE,
 	0);
-/* FIXME - spinbutton doesn't work well with large or small numbers,
-           and entry is too wide (messes up layout) */
-#define SPINBUTTON
 #ifdef ENTRY
     vert->offset_entry = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win), vert->offset_entry,
@@ -262,152 +238,12 @@ static void init_vert_info_window(void)
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
 	GTK_SIGNAL_FUNC(channel_off_button), NULL);
     gtk_widget_show(button);
-
-#if 0
-    vert->chan_num_label =
-	gtk_label_new_in_box("Chan --:", ctrl_usr->chan_info_win, FALSE,
-	FALSE, 0);
-    gtk_label_size_to_fit(GTK_LABEL(vert->chan_num_label), "Chan 99:");
-    vert->source_name_label =
-	gtk_label_new_in_box("------", ctrl_usr->chan_info_win, FALSE, FALSE,
-	0);
-    gtk_label_set_justify(GTK_LABEL(vert->source_name_label),
-	GTK_JUSTIFY_LEFT);
-    gtk_label_size_to_fit(GTK_LABEL(vert->source_name_label),
-	"--longest possible source name--");
-    gtk_vseparator_new_in_box(ctrl_usr->chan_info_win, 0);
-    /* a button to turn off the channel */
-    button = gtk_button_new_with_label("OFF");
-    gtk_box_pack_end(GTK_BOX(ctrl_usr->chan_info_win), button, FALSE, FALSE,
-	0);
-    /* turn off the channel if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(channel_off_button), NULL);
-    gtk_widget_show(button);
-    /* a button to change things */
-    button = gtk_button_new_with_label(" Change Source ");
-    gtk_box_pack_end(GTK_BOX(ctrl_usr->chan_info_win), button, FALSE, FALSE,
-	0);
-    /* activate the source selection dialog if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(change_source_button), NULL);
-    gtk_widget_show(button);
-#endif
 }
 
 /***********************************************************************
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
 
-#if 0
-static void dialog_realtime_not_running(void)
-{
-    gchar *title, *msg;
-    gint retval;
-
-    title = "Realtime thread(s) not running";
-    msg = "HALSCOPE uses code in a realtime HAL thread to sample\n"
-	"signals for display.  The HAL thread(s) are not running.\n"
-	"Threads are usually started by the application you are\n"
-	"attempting to run, or you can use the 'halcmd start' command.\n\n"
-	"Please do one of the following:\n\n"
-	"Start the threads, then click 'OK'\n"
-	"or\n" "Click 'Cancel' to exit HALSCOPE";
-    retval =
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Cancel",
-	NULL, NULL);
-    if ((retval == 0) || (retval == 2)) {
-	/* user either closed dialog, or hit cancel - end the program */
-	gtk_main_quit();
-    }
-}
-#endif
-
-#if 0
-static void acquire_popup(GtkWidget * widget, gpointer gdata)
-{
-    scope_horiz_t *horiz;
-
-    /** This function doesn't directly cause the acquire menu to
-        pop up.  Instead is disconnects the acquire function from
-        whatever thread is calling it.  This will result in a
-        watchdog timeout, and that in turn will pop up the dialog
-        requesting you to reconnect it.
-    */
-    horiz = &(ctrl_usr->horiz);
-    if (horiz->thread_name != NULL) {
-	hal_del_funct_from_thread("scope.sample", horiz->thread_name);
-    }
-    /* presetting the watchdog to 10 avoids the delay that would otherwise
-       take place while the watchdog times out. */
-    ctrl_shm->watchdog = 10;
-    return;
-}
-
-#endif
-
-#if 0
-static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, gpointer gdata)
-{
-    scope_horiz_t *horiz;
-    GdkEventType type;
-    gchar *picked;
-    hal_thread_t *thread;
-    long max_mult;
-
-    /* get a pointer to the horiz data structure */
-    horiz = &(ctrl_usr->horiz);
-
-    if (clist == NULL) {
-	/* spurious event, ignore it */
-	return;
-    }
-    type = 4;
-    if (event != NULL) {
-	type = event->type;
-    }
-    if (type != 4) {
-	/* We get bad callbacks if you drag the mouse across the list with
-	   the button held down.  They can be distinguished because their
-	   event type is 3, not 4. */
-	return;
-    }
-    if (column < 0) {
-	/* this is the initial selection automatically made by GTK */
-	/* we don't want to act on it */
-	return;
-    }
-    /* must be a valid user selection or preselection */
-    /* Get the text from the list */
-    gtk_clist_get_text(GTK_CLIST(clist), row, 0, &picked);
-    /* find thread */
-    thread = halpr_find_thread_by_name(picked);
-    if (thread == NULL) {
-	horiz->thread_name = NULL;
-	calc_horiz_scaling();
-	refresh_horiz_info();
-	return;
-    }
-    horiz->thread_name = thread->name;
-    horiz->thread_period_ns = thread->period;
-    /* calc max possible mult (to keep sample period <= 1 sec */
-    max_mult = (1000000000 / horiz->thread_period_ns);
-    if (max_mult > 1000) {
-	max_mult = 1000;
-    }
-    /* update limit on mult spinbox */
-    GTK_ADJUSTMENT(horiz->mult_adjustment)->upper = max_mult;
-    gtk_adjustment_changed(GTK_ADJUSTMENT(horiz->mult_adjustment));
-    if (ctrl_shm->mult > max_mult) {
-	ctrl_shm->mult = max_mult;
-	gtk_spin_button_set_value(GTK_SPIN_BUTTON(horiz->mult_spinbutton),
-	    max_mult);
-    }
-    calc_horiz_scaling();
-    refresh_horiz_info();
-}
-#endif
 
 static void scale_changed(GtkAdjustment * adj, gpointer gdata)
 {
@@ -453,9 +289,7 @@ static void scale_changed(GtkAdjustment * adj, gpointer gdata)
     chan->scale = scale;
     format_scale_value(buf, BUFLEN - 1, scale);
     gtk_label_set_text_if(vert->scale_label, buf);
-#if 0
-    refresh_display();
-#endif
+    request_display_refresh();
 }
 
 static void pos_changed(GtkAdjustment * adj, gpointer gdata)
@@ -471,9 +305,7 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
     }
     chan = &(vert->chan[chan_num - 1]);
     chan->position = adj->value;
-#if 0
-    refresh_display();
-#endif
+    request_display_refresh();
 }
 
 static void offset_changed(GtkAdjustment * adj, gpointer gdata)
@@ -493,10 +325,11 @@ static void offset_changed(GtkAdjustment * adj, gpointer gdata)
     chan->offset =
 	gtk_spin_button_get_value_as_float(GTK_SPIN_BUTTON(vert->
 	    offset_spinbutton));
-    refresh_display();
+    request_display_refresh();
 #endif
 }
 
+#ifdef ENTRY
 static void offset_activated(GtkAdjustment * adj, gpointer gdata)
 {
     scope_vert_t *vert;
@@ -514,10 +347,11 @@ static void offset_activated(GtkAdjustment * adj, gpointer gdata)
     chan->offset =
 	gtk_spin_button_get_value_as_float(GTK_SPIN_BUTTON(vert->
 	    offset_spinbutton));
-    calc_vert_scaling();
-    refresh_vert_info();
+    request_display_refresh();
 #endif
 }
+#endif
+
 
 static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 {
@@ -539,6 +373,18 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 	    return;
 	}
 	/* want to enable the channel */
+	if ( ctrl_shm->state != IDLE ) {
+	    /* acquisition in progress */
+	    /* force the button to pop back out */
+	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
+	    title = "Scope Busy";
+	    msg = "Acquisition in progress!\n\n"
+		"Wait for it to finish or click 'stop'\n"
+		"before adding another channel";
+	    dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", NULL,
+		NULL, NULL);
+	    return;
+	}
 	count = 0;
 	mask = 1;
 	for (n = 0; n < 16; n++) {
@@ -568,7 +414,6 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 		/* force the button to pop back out */
 		vert->selected = prev;
 		channel_changed();
-		refresh_chan_info();
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
 		    FALSE);
 		return;
@@ -592,7 +437,6 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 	vert->selected = chan_num;
 	channel_changed();
     }
-    refresh_chan_info();
 }
 
 static void channel_off_button(GtkWidget * widget, gpointer gdata)
@@ -626,20 +470,29 @@ static void channel_off_button(GtkWidget * widget, gpointer gdata)
 	}
     } while ((++n < 16) && (vert->selected == 0));
     channel_changed();
-    refresh_chan_info();
 }
 
 static void change_source_button(GtkWidget * widget, gpointer gdata)
 {
     int chan_num;
+    char *title, *msg;
 
     chan_num = ctrl_usr->vert.selected;
     if ((chan_num < 1) || (chan_num > 16)) {
 	return;
     }
+    if ( ctrl_shm->state != IDLE ) {
+	/* acquisition in progress */
+	title = "Scope Busy";
+	msg = "Acquisition in progress!\n\n"
+	    "Wait for it to finish or click 'stop'\n"
+	    "before changing a signal source";
+	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", NULL,
+	    NULL, NULL);
+	return;
+    }
     dialog_select_source(chan_num);
     channel_changed();
-    refresh_chan_info();
 }
 
 static gboolean dialog_select_source(int chan_num)
@@ -647,7 +500,7 @@ static gboolean dialog_select_source(int chan_num)
     scope_vert_t *vert;
     scope_chan_t *chan;
     dialog_generic_t dialog;
-    gchar *title, *msg;
+    gchar *title, msg[BUFLEN];
     int next, n, len;
     gchar *tab_label_text[3], *name;
     GtkWidget *hbox, *label, *notebk, *button;
@@ -659,8 +512,8 @@ static gboolean dialog_select_source(int chan_num)
     vert = &(ctrl_usr->vert);
     chan = &(vert->chan[chan_num - 1]);
     title = "Select Channel Source";
-    msg = "Select a pin, signal, or parameter\n"
-	"as the source for this channel.";
+    snprintf ( msg, BUFLEN-1,"Select a pin, signal, or parameter\n"
+	"as the source for channel %d.", chan_num);
     /* create dialog window, disable resizing */
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
@@ -779,6 +632,8 @@ static gboolean dialog_select_source(int chan_num)
 	return FALSE;
     }
     /* user made a selection */
+    /* invalidate any data in the buffer for this channel */
+    vert->data_valid &= ~(1 << (chan_num-1));
     /* set values in ctrl_shm struct */
     ctrl_shm->data_offset[chan_num - 1] = SHMOFF(chan->addr);
     switch (chan->type) {
@@ -901,79 +756,20 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
     return;
 }
 
-#if 0
-static void calc_horiz_scaling(void)
-{
-    scope_horiz_t *horiz;
-    float total_rec_time;
-    long int desired_usec_per_div, actual_usec_per_div;
-    int n, decade, sub_decade;
-
-    horiz = &(ctrl_usr->horiz);
-    if (horiz->thread_name == NULL) {
-	horiz->thread_period_ns = 0;
-	ctrl_shm->mult = 1;
-	horiz->sample_period_ns = 0;
-	horiz->sample_period = 0.0;
-	horiz->disp_scale = 0.0;
-	return;
-    }
-    horiz->sample_period_ns = horiz->thread_period_ns * ctrl_shm->mult;
-    horiz->sample_period = horiz->sample_period_ns / 1000000000.0;
-    total_rec_time = ctrl_shm->rec_len * horiz->sample_period;
-    if (total_rec_time < 0.000010) {
-	/* out of range, set to 1uS per div */
-	horiz->disp_scale = 0.000001;
-	return;
-    }
-    desired_usec_per_div = (total_rec_time / 10.0) * 1000000.0;
-    /* find scaling to display entire record */
-    decade = 1;
-    sub_decade = 1;
-    actual_usec_per_div = decade * sub_decade;
-    while (actual_usec_per_div < desired_usec_per_div) {
-	if (sub_decade == 1) {
-	    sub_decade = 2;
-	} else if (sub_decade == 2) {
-	    sub_decade = 5;
-	} else {
-	    sub_decade = 1;
-	    decade *= 10;
-	}
-	actual_usec_per_div = decade * sub_decade;
-    }
-    /* now correct for zoom factor */
-    for (n = 1; n < horiz->zoom_setting; n++) {
-	if (sub_decade == 1) {
-	    sub_decade = 5;
-	    decade /= 10;
-	} else if (sub_decade == 2) {
-	    sub_decade = 1;
-	} else {		/* sub_decade == 5 */
-
-	    sub_decade = 2;
-	}
-    }
-    if (decade == 0) {
-	/* underflow from zoom, set to minimum */
-	decade = 1;
-	sub_decade = 1;
-    }
-    actual_usec_per_div = decade * sub_decade;
-    /* convert to floating point */
-    horiz->disp_scale = actual_usec_per_div / 1000000.0;
-}
-#endif
-
 static void channel_changed(void)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;
     GtkAdjustment *adj;
+    gchar *name;
+    gchar num[BUFLEN + 1];
 
     vert = &(ctrl_usr->vert);
     if ((vert->selected < 1) || (vert->selected > 16)) {
 	gtk_label_set_text_if(vert->scale_label, "----");
+	gtk_label_set_text_if(vert->chan_num_label, "--");
+	gtk_label_set_text_if(vert->source_name_label, "------");
+	request_display_refresh();
 	return;
     }
     chan = &(vert->chan[vert->selected - 1]);
@@ -1019,136 +815,13 @@ static void channel_changed(void)
     adj->value = chan->scale_index;
     gtk_adjustment_changed(adj);
     gtk_adjustment_value_changed(adj);
-}
-
-static void refresh_chan_info(void)
-{
-    scope_vert_t *vert;
-    scope_chan_t *chan;
-    gchar *name;
-    gchar num[BUFLEN + 1];
-
-    vert = &(ctrl_usr->vert);
-    if ((vert->selected < 1) || (vert->selected > 16)) {
-	snprintf(num, BUFLEN, "--");
-	name = "----";
-    } else {
-	chan = &(vert->chan[vert->selected - 1]);
-	snprintf(num, BUFLEN, "%2d", vert->selected);
-	name = chan->name;
-    }
+    /* update the channel number and name display */
+    snprintf(num, BUFLEN, "%2d", vert->selected);
+    name = chan->name;
     gtk_label_set_text_if(vert->chan_num_label, num);
     gtk_label_set_text_if(vert->source_name_label, name);
+    request_display_refresh();
 }
-
-#if 0
-void refresh_state_info(void)
-{
-    scope_horiz_t *horiz;
-    static gchar *state_names[] = { "IDLE",
-	"INIT",
-	"PRE-TRIG",
-	"TRIG?",
-	"TRIGGERED",
-	"FINISH",
-	"DONE"
-    };
-
-    horiz = &(ctrl_usr->horiz);
-    if (ctrl_shm->state > DONE) {
-	ctrl_shm->state = IDLE;
-    }
-    gtk_label_set_text_if(horiz->state_label, state_names[ctrl_shm->state]);
-    refresh_pos_disp();
-}
-
-static void refresh_pos_disp(void)
-{
-    scope_horiz_t *horiz;
-    GdkDrawable *w;
-    int width, height, depth;
-    GdkGC *c;
-    float disp_center, disp_start, disp_end;
-    float rec_start, rec_curr, rec_end;
-    float min, max, span, scale;
-
-    int rec_line_y, rec_line_left, rec_line_right;
-    int box_y_off, box_top, box_bot, box_right, box_left;
-    int trig_y_off, trig_line_top, trig_line_bot, trig_line_x;
-    int rec_curr_x;
-
-    horiz = &(ctrl_usr->horiz);
-    /* get window to local var */
-    w = horiz->disp_area->window;
-    if (w == NULL) {
-	/* window isn't visible yet, do nothing */
-	return;
-    }
-    /* create drawing context if needed */
-    if (horiz->disp_context == NULL) {
-	horiz->disp_context = gdk_gc_new(w);
-    }
-    /* get context to local var */
-    c = horiz->disp_context;
-    /* get window dimensions */
-    gdk_window_get_geometry(w, NULL, NULL, &width, &height, &depth);
-
-    /* these are based only on window dims */
-    rec_line_y = (height - 1) / 2;
-    box_y_off = rec_line_y / 2;
-    trig_y_off = rec_line_y;
-    trig_line_top = rec_line_y - trig_y_off;
-    trig_line_bot = rec_line_y + trig_y_off;
-    box_top = rec_line_y - box_y_off;
-    box_bot = rec_line_y + box_y_off;
-
-    /* these need to be calculated */
-    /* times relative to trigger */
-    rec_start = -ctrl_shm->pre_trig * horiz->sample_period;
-    rec_end = (ctrl_shm->rec_len - ctrl_shm->pre_trig) * horiz->sample_period;
-    rec_curr = rec_start + (ctrl_shm->samples * horiz->sample_period);
-    disp_center = rec_start + horiz->pos_setting * (rec_end - rec_start);
-    disp_start = disp_center - 5.0 * horiz->disp_scale;
-    disp_end = disp_center + 5.0 * horiz->disp_scale;
-    if (rec_start < disp_start) {
-	min = rec_start;
-    } else {
-	min = disp_start;
-    }
-    if (rec_end > disp_end) {
-	max = rec_end;
-    } else {
-	max = disp_end;
-    }
-    span = max - min;
-    scale = (width - 1) / span;
-
-    trig_line_x = scale * (0 - min);
-    rec_line_left = scale * (rec_start - min);
-    rec_line_right = scale * (rec_end - min);
-    rec_curr_x = scale * (rec_curr - min);
-    box_left = scale * (disp_start - min);
-    box_right = scale * (disp_end - min);
-
-    /* draw stuff */
-    gdk_window_clear(w);
-    gdk_draw_line(w, c, rec_line_left, rec_line_y + 1, rec_line_left,
-	rec_line_y - 1);
-    gdk_draw_line(w, c, rec_line_right, rec_line_y + 1, rec_line_right,
-	rec_line_y - 1);
-    gdk_draw_line(w, c, rec_line_left, rec_line_y + 1, rec_line_right,
-	rec_line_y + 1);
-    gdk_draw_line(w, c, rec_line_left, rec_line_y - 1, rec_line_right,
-	rec_line_y - 1);
-    gdk_draw_line(w, c, rec_line_left, rec_line_y, rec_curr_x, rec_line_y);
-    gdk_draw_line(w, c, trig_line_x, trig_line_top, trig_line_x,
-	trig_line_bot);
-    gdk_draw_line(w, c, box_left, box_top, box_right, box_top);
-    gdk_draw_line(w, c, box_left, box_bot, box_right, box_bot);
-    gdk_draw_line(w, c, box_left, box_top, box_left, box_bot);
-    gdk_draw_line(w, c, box_right, box_top, box_right, box_bot);
-}
-#endif
 
 static void format_scale_value(char *buf, int buflen, float value)
 {

@@ -183,6 +183,18 @@ static int heartbeat(gpointer data)
     } else {
 	handle_watchdog_timeout();
     }
+    if ( ctrl_usr->display_refresh_timer > 0 ) {
+	/* decrement timer, did it time out? */
+	if ( --ctrl_usr->display_refresh_timer == 0 ) {
+	    /* yes, refresh the display */
+	    refresh_display();
+	}
+    }
+    if ( ctrl_shm->state == DONE ) {
+	ctrl_usr->vert.data_valid = ctrl_shm->samples_valid;
+	refresh_display();
+	ctrl_shm->state = IDLE;
+    }
     return 1;
 }
 
@@ -204,9 +216,9 @@ static void init_usr_control_struct(void *shmem)
     /* save pointer to shared control structure */
     ctrl_shm = shmem;
     /* round size of shared struct up to a multiple of 4 for alignment */
-    skip = (sizeof(scope_shm_control_t) + 3) & !3;
+    skip = (sizeof(scope_shm_control_t) + 3) & ~3;
     /* the rest of the shared memory area is the data buffer */
-    ctrl_usr->buffer = (scope_data_t *) ((char *) (shmem)) + skip;
+    ctrl_usr->buffer = (scope_data_t *) (((char *) (shmem)) + skip);
     /* is the realtime component loaded already? */
     comp = halpr_find_comp_by_name("scope_rt");
     if (comp == NULL) {
@@ -229,7 +241,7 @@ static void init_shared_control_struct(void)
 	cp[n] = 0;
     }
     /* round size of shared struct up to a multiple of 4 for alignment */
-    skip = (sizeof(scope_shm_control_t) + 3) & !3;
+    skip = (sizeof(scope_shm_control_t) + 3) & ~3;
     /* remainder of shmem area is buffer */
     ctrl_shm->buf_len = (SCOPE_SHM_SIZE - skip) / sizeof(scope_data_t);
     /* init any non-zero fields */
@@ -455,6 +467,7 @@ static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
     /* FIXME temporary, remove after trigger pos is working */
     ctrl_shm->pre_trig = ctrl_shm->rec_len / 2;
     if (ctrl_shm->state == IDLE) {
+	ctrl_shm->sample_request = ctrl_usr->vert.enabled;
 	ctrl_shm->state = INIT;
     }
 }

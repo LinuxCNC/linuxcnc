@@ -301,9 +301,9 @@ static void init_rt_control_struct(void *shmem)
     /* save pointer to shared control structure */
     ctrl_shm = shmem;
     /* round size of shared struct up to a multiple of 4 for alignment */
-    skip = (sizeof(scope_shm_control_t) + 3) & !3;
+    skip = (sizeof(scope_shm_control_t) + 3) & ~3;
     /* the rest of the shared memory area is the data buffer */
-    ctrl_rt->buffer = (scope_data_t *) ((char *) (shmem)) + skip;
+    ctrl_rt->buffer = (scope_data_t *) (((char *) (shmem)) + skip);
     /* is the user space component loaded already? */
     comp = halpr_find_comp_by_name("scope_gui");
     if (comp == NULL) {
@@ -326,7 +326,7 @@ static void init_shm_control_struct(void)
 	cp[n] = 0;
     }
     /* round size of shared struct up to a multiple of 4 for alignment */
-    skip = (sizeof(scope_shm_control_t) + 3) & !3;
+    skip = (sizeof(scope_shm_control_t) + 3) & ~3;
     /* remainder of shmem area is buffer */
     ctrl_shm->buf_len = (SCOPE_SHM_SIZE - skip) / sizeof(scope_data_t);
     /* init any non-zero fields */

@@ -1,6 +1,5 @@
-/** This file, 'halsc_horiz.c', contains the portion of halscope
-    that deals with horizontal stuff - sample rate, scaling,
-    position and such.
+/** This file, 'halsc_disp.c', contains the portion of halscope
+    that actually displays waveforms.
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -60,6 +59,7 @@
 *                  LOCAL FUNCTION PROTOTYPES                           *
 ************************************************************************/
 
+/*
 static void init_horiz_window(void);
 static void init_acquire_function(void);
 static void acquire_popup(GtkWidget * widget, gpointer gdata);
@@ -78,17 +78,16 @@ static void calc_horiz_scaling(void);
 
 static void refresh_horiz_info(void);
 static void refresh_pos_disp(void);
+*/
 
-/* helper functions */
-static void format_time_value(char *buf, int buflen, float timeval);
-static void format_freq_value(char *buf, int buflen, float freqval);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
 ************************************************************************/
 
-void init_horiz(void)
+void init_display(void)
 {
+#if 0
     scope_horiz_t *horiz;
 
     /* stop sampling */
@@ -103,8 +102,48 @@ void init_horiz(void)
     /* make sure displays are up to date */
     calc_horiz_scaling();
     refresh_horiz_info();
+#endif
 }
 
+void request_display_refresh(void)
+{
+    /* request a refresh after 0.2 seconds of idleness */
+    ctrl_usr->display_refresh_timer = 2;
+}
+
+
+void refresh_display(void)
+{
+    int n;
+    int mask;
+
+printf ( "Time to refresh the display!\n" );
+printf ( "Request: " );
+mask = 1;
+for ( n = 0 ; n < 16 ; n++ ) {
+    if ( mask & ctrl_usr->vert.enabled ) {
+	printf ( "1" );
+    } else {
+	printf ( "0" );
+    }
+    mask <<= 1;
+}
+printf ( "  Valid: " );
+mask = 1;
+for ( n = 0 ; n < 16 ; n++ ) {
+    if ( mask & ctrl_usr->vert.data_valid ) {
+	printf ( "1" );
+    } else {
+	printf ( "0" );
+    }
+    mask <<= 1;
+}
+printf ( "\n" );
+
+}
+
+
+#if 0
 static void init_horiz_window(void)
 {
     scope_horiz_t *horiz;
@@ -258,11 +297,13 @@ void handle_watchdog_timeout(void)
 	return;
     }
 }
+#endif
 
 /***********************************************************************
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
 
+#if 0
 static void dialog_realtime_not_loaded(void)
 {
     gchar *title, *msg;
@@ -551,7 +592,6 @@ static void dialog_realtime_not_linked(void)
 	    hal_add_funct_to_thread("scope.sample", horiz->thread_name);
 	    /* give the code some time to get started */
 	    ctrl_shm->watchdog = 0;
-	    request_display_refresh();
 	}
     }
 }
@@ -679,7 +719,6 @@ static void zoom_changed(GtkAdjustment * adj, gpointer gdata)
     horiz->zoom_setting = adj->value;
     calc_horiz_scaling();
     refresh_horiz_info();
-    request_display_refresh();
 }
 
 static void pos_changed(GtkAdjustment * adj, gpointer gdata)
@@ -689,7 +728,6 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
     horiz = &(ctrl_usr->horiz);
     horiz->pos_setting = adj->value / 1000.0;
     refresh_horiz_info();
-    request_display_refresh();
 }
 
 static void rec_len_button(GtkWidget * widget, gpointer gdata)
@@ -990,3 +1028,4 @@ static void format_freq_value(char *buf, int buflen, float freqval)
     }
     snprintf(buf, buflen, "%0.*f %s", decimals, freqval, units);
 }
+#endif

@@ -97,7 +97,7 @@ typedef struct {
 typedef struct {
     /* general data */
     short enabled;		/* bitmap of chans user wants to display */
-    short data_valid;		/* bitmap of chans with data in usr mem */
+    short data_valid;		/* bitmap of chans with valid data */
     int selected;		/* channel user has selected */
     scope_chan_t chan[16];	/* channel data */
     /* widgets for main window */
@@ -122,6 +122,7 @@ typedef struct {
 typedef struct {
     /* general data */
     scope_data_t *buffer;	/* ptr to buffer (user mapping) */
+    int display_refresh_timer;	/* flag for display refresh */
     /* top level windows */
     GtkWidget *main_win;
     GtkWidget *horiz_info_win;
@@ -139,8 +140,7 @@ typedef struct {
     GtkWidget *tm_normal_button;
     GtkWidget *tm_auto_button;
     GtkWidget *tm_force_button;
-    /* top level displays */
-    /* menu control data */
+    /* subsection control data */
     scope_horiz_t horiz;
     scope_vert_t vert;
 } scope_usr_control_t;
@@ -158,8 +158,11 @@ extern scope_shm_control_t *ctrl_shm;	/* shared mem control struct */
 
 void init_horiz(void);
 void init_vert(void);
+void init_display(void);
 
 void handle_watchdog_timeout(void);
 void refresh_state_info(void);
+void request_display_refresh(void);
+void refresh_display(void);
 
 #endif /* HALSC_USR_H */
