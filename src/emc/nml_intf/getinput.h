@@ -11,10 +11,9 @@ extern "C" {
   repeatedly and when it returns non-zero you have that many chars,
   not including the added NULL.
   */
-extern int getinput(char *buffer, int maxchars);
+    extern int getinput(char *buffer, int maxchars);
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif

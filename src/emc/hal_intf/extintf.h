@@ -203,7 +203,7 @@ extern "C" {
   int extProbeCheck(void)
   Sets flag to 1 if any probe input is tripped, 0 if not.
 */
-  extern int extProbeCheck(int * flag);
+    extern int extProbeCheck(int *flag);
 
 /*
   int extProbeRead(int axis, double * counts)
@@ -211,7 +211,7 @@ extern "C" {
   OK or -1 if encoder is out of range. axis is in range
   0 .. max axis - 1.
 */
-  extern int extProbeRead(int axis, double * counts);
+    extern int extProbeRead(int axis, double *counts);
 
 /*
   int extProbeReadAll(int max, double * counts)
@@ -219,7 +219,7 @@ extern "C" {
   OK or -1 if the max is greater than number of axes. max is
   number of axes, so for axes 0..3 max would be 4.
 */
-  extern int extProbeReadAll(int max, double * counts);
+    extern int extProbeReadAll(int max, double *counts);
 
 /* Amp functions */
 /*

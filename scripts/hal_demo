@@ -78,10 +78,10 @@ if [ $1 = parport1 ] ; then
     echo "(Comments that are part of the demo are in parenthesis.)"
     echo "(This demo echos its commands to the screen so you can"
     echo " see what each step does.  Echoed commands start with '$')"
-    echo "Hit enter to install the hal_lib module"
-    read
-    echo "$ /sbin/insmod rtlib/hal_lib.o"
-    /sbin/insmod rtlib/hal_lib.o
+#    echo "Hit enter to install the hal_lib module"
+#    read
+#    echo "$ /sbin/insmod rtlib/hal_lib.o"
+#    /sbin/insmod rtlib/hal_lib.o
     echo "Hit enter to install the parport module with a 1mS thread"
     read
     # change the 0278 if your port is at a different address
@@ -192,8 +192,8 @@ if [ $1 = parport1 ] ; then
     echo "(unloading the parport module)"
     echo "$ /sbin/rmmod parport"
     /sbin/rmmod parport
-    echo "$ /sbin/rmmod hal_lib"
-    /sbin/rmmod hal_lib
+#    echo "$ /sbin/rmmod hal_lib"
+#    /sbin/rmmod hal_lib
     exit 0
 fi
 #
@@ -205,10 +205,10 @@ if [ $1 = siggen ] ; then
     echo "(Comments that are part of the demo are in parenthesis.)"
     echo "(This demo echos its commands to the screen so you can"
     echo " see what each step does.  Echoed commands start with '$')"
-    echo "Hit enter to install the hal_lib module"
-    read
-    echo "$ /sbin/insmod rtlib/hal_lib.o"
-    /sbin/insmod rtlib/hal_lib.o
+#    echo "Hit enter to install the hal_lib module"
+#    read
+#    echo "$ /sbin/insmod rtlib/hal_lib.o"
+#    /sbin/insmod rtlib/hal_lib.o
     echo "Hit enter to install the siggen module with a 1mS thread"
     read
     echo "$ /sbin/insmod rtlib/siggen.o fp_period=1000000"
@@ -275,8 +275,8 @@ if [ $1 = siggen ] ; then
     echo "(unloading the siggen module)"
     echo "$ /sbin/rmmod siggen"
     /sbin/rmmod siggen
-    echo "$ /sbin/rmmod hal_lib"
-    /sbin/rmmod hal_lib
+#    echo "$ /sbin/rmmod hal_lib"
+#    /sbin/rmmod hal_lib
     exit 0
 fi
 #
@@ -289,8 +289,8 @@ if [ $1 = circle ] ; then
     echo " extensively commented)"
     echo "Hit enter to install the hal components"
     read
-    # install the hal library module
-    /sbin/insmod rtlib/hal_lib.o
+#    # install the hal library module
+#    /sbin/insmod rtlib/hal_lib.o
     # install parport module with a 50uS thread
     # change the 0278 if your port is at a different address
     /sbin/insmod rtlib/parport.o period=50000 cfg="0278"
@@ -421,7 +421,7 @@ if [ $1 = circle ] ; then
     /sbin/rmmod parport
     /sbin/rmmod stepgen
     /sbin/rmmod pid
-    /sbin/rmmod hal_lib
+#    /sbin/rmmod hal_lib
     exit 0
 fi
 #
@@ -434,7 +434,7 @@ if [ $1 = scope ] ; then
     echo "demo.  Hit enter to get started"
     read
     echo "First we load the siggen demo (not echoed)"
-    /sbin/insmod rtlib/hal_lib.o
+#    /sbin/insmod rtlib/hal_lib.o
     /sbin/insmod rtlib/siggen.o fp_period=1000000
     bin/halcmd addf siggen.1.update siggen.thread
     bin/halcmd start
@@ -534,7 +534,7 @@ if [ $1 = scope ] ; then
     read
     /sbin/rmmod halscope_rt
     /sbin/rmmod siggen
-    /sbin/rmmod hal_lib
+#    /sbin/rmmod hal_lib
     exit 0
 fi
 #
