@@ -28,6 +28,7 @@ SRCS =  emc.cc \
 	iniaux.cc \
 	interpl.cc \
 	emcops.cc \
+	emcpos.cc \
 
 OBJS =  emc.o \
 	emcglb.o \
@@ -42,6 +43,7 @@ OBJS =  emc.o \
 	iniaux.o \
 	interpl.o \
 	emcops.o \
+	emcpos.o
 
 RT_OBJS =
 
@@ -80,7 +82,8 @@ $(LIB_DIR)/libemc.a:	\
 	$(TMP_DIR)/inilube.o \
 	$(TMP_DIR)/iniaux.o \
 	$(TMP_DIR)/interpl.o \
-	$(TMP_DIR)/emcops.o
+	$(TMP_DIR)/emcops.o \
+	$(TMP_DIR)/emcpos.o
 	rm -f $@
 	ar rc $@ $^
 	ranlib $@
