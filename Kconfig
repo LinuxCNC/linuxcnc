@@ -1,0 +1,220 @@
+#
+# For a description of the syntax of this configuration file,
+# see /usr/src/linux/Documentation/kbuild/kconfig-language.txt.
+#
+
+# Description: Kconfig
+#	EMC configuration based on the kernel build system (KBuild / CML2)
+#	grossly hacked together EMC configuration using the kernel build configurator
+#	To use this, you must make two new subdirectories in the emc2/src/scripts directory:
+#	kconfig and lxdialog
+#	lxdialog is only necessary if you want to use the text-mode configurator (mconf)
+#	then, copy all executables from the corresponding directories in /usr/src/linux/scripts/{lxdialog,kbuild}
+#	into the new directories you just created.
+#	this file should be saved as "Kconfig" in the emc2 directory
+#	run menuconfig from the emc2 source directory with the following command:
+#		scripts/kconfig/mconf Kconfig for text mode configuration
+#		or scripts/kconfig/{qconf,gconf} Kconfig for graphic configuration (Qt / GTK, respectively)
+#
+# Author: Stephen Wille Padnos
+# License: GPL Version 2
+# System: Linux
+#
+# Copyright (c) 2005 All rights reserved.
+#
+# Last change: 
+# $Revision$
+# $Author$
+# $Date$
+#
+
+mainmenu "EMC Configuration"
+
+choice
+	prompt "Display program"
+	default TKEMC
+
+config TKEMC
+	bool "TKEMC - the large TK display"
+	help
+	  Choose this option if you prefer the larger display with more information.
+	  If you have a low resolution screen (below 800x600), then this may not fit
+	  on your screen.  In that case, choose mini
+
+config AXIS
+	bool "Axis - a new display program"
+	help
+	  AXIS is a new user interface for EMC.  It provides a live toolpath display,
+	  enhanced graphic displays, and a host of other features.
+
+	  This is experimental software!  It may not work, it may crash!
+
+	  If unsure, choose "TKEMC" instead.
+
+config MINI
+	bool "MINI - the Sherline mini display"
+	help
+	  This is a small, uncluttered display program.
+	  It was developed by Sherline, for thsir minimill, but everyone is free
+	  to use it.
+
+config KEYSTICK
+	bool "KeyStick - the text mode machine program"
+	help
+	  This is the tried and true text mode control program.  It doesn't require
+	  the X-window system.  If you have a computer without X, a relatively slow
+	  computer, or you just prefer a text interface, KeyStick is the interface
+	  for you.
+
+endchoice
+
+menu "EMC system configuration"
+
+config DEBUG
+	hex "Debug Level"
+	default 0x00000003
+	help
+	  This is a bitfield variable - choose the bits you want on, then add (or
+	  logical OR) them together to get the correct value for this setting.
+	  
+	  Bits have the following meanings:
+	  Only show invalid commands		0x00000001
+	  Show configuration errors		0x00000002
+	  Show when default values are used	0x00000004
+	  Show versions of EMC modules		0x00000008
+	  Show when task commands are issued	0x00000010
+	  Show when I/O occurs			0x00000020
+	  Show all NML messages			0x00000040
+	  Show all motion commands		0x00000080
+	  Show all motion planner info		0x00000100
+	  Show RCSLIB nessages			0x00000200
+	  Show all trajectory planner messages	0x00000400
+	  Show Interpreter listings		0x00000800
+	  Show all possible messages		0x7FFFFFFF
+
+config MACHINE
+	string "Machine Name"
+	default "Generic"
+	help
+	  You can name your machine here.
+
+config NML_FILE
+	string "NML Configuration file"
+	default "generic.nml"
+	help
+	  This is a list of NML tasks and various parameters controlling how the
+	  tasks are run.
+	  
+	  It's VERY unlikely that you want to change this.
+
+config RS274NGC_STARTUP_CODE
+	string "G-Code Initialization string"
+	default "G20"
+	help
+	  The commands listed here will be issued to the G-Code interpreter when
+	  EMC is started.  If you want to insure that certain modes are set (such
+	  as metric / imperial, absolute / relative, etc.), then those codes
+	  should be entered here.
+
+endmenu
+
+menu "Task Controller Setup"
+
+choice
+	prompt "Task Controller Program"
+	default MINIMILLTASK
+
+config BRIDGEPORTTASK
+	bool "Bridgeport Task Controller"
+	help
+	  I have no idea how this differs from the minimill task controller.
+	  I'm sure it does, though.  If your machine weighs more than 900
+	  pounds, then select this.  If your machine weighs exactly 900 pounds,
+	  flip a coin - heads it's Bridgeport Task, tails it's MiniMill Task.
+
+config MINIMILLTASK
+	bool "MiniMill Task Controller"
+	help
+	  This must do less in some way than the Bridgeport task.  I'm not sure
+	  exactly what is different.  If your machine weighs less than 900
+	  pounds then choose this task controller.  If your machine weighs
+	  exactly 900 pounds, flip a coin - heads it's Bridgeport Task, tails
+	  it's MiniMill Task.
+
+endchoice
+
+config CYCLETIME
+	int "Update period in milliseconds"
+	default 200
+	help
+	  This is the update speed for the display program.  This doesn't have
+	  any effect on the speed of the real-time tasks or the machine.  It
+	  only changes how fast the information is shown on the screen.  If you
+	  have a relatively slow computer, or a very old graphics card (or you
+	  know that X is unaccelerated with your graphocs card), then select a
+	  longer number for this.  The displayed values may appear to "jump" if
+	  this is set too high (slow updates).  The display may not update at
+	  all if it's set too low (fast updates).
+	  
+	  If you're unsure, set this to 200
+
+endmenu
+
+menu "I/O Setup"
+choice
+	prompt "I/O Control Program"
+	default MINIMILLIO
+	help
+	  This option is used to select the appropriate driver for your hardware.
+
+config BRIDGEPORTIO
+	bool "Bridgeport I/O controller"
+	help
+	  Select this if you want to use the Bridgeport I/O module.  This module
+	  provides outputs for Spindle control, lubricant system, mist and flood
+	  cooling, etc.  This program needs two parallel ports to support all
+	  functions.
+
+config MINIMILLIO
+	bool "MimiMill I/O Controller"
+	help
+	  Select this if you have a basic machine that doesn't need the extra
+	  functions of the Bridgeport IO controller.  This module uses a
+	  parallel port for spindle and coolant control.
+
+config SIMIO
+	bool "Use Simulated I/O"
+	help
+	  If you don't have a machine, or you just want to test the functionality
+	  of EMC, then choose this.  Nothing will be output to any hardware.
+
+config PPMCIO
+	bool "Universal Stepper Controller I/O"
+	help
+	  This uses the Pico Systems USC board for all velocity and I/O functions.
+	  see http://www.pico-systems.com for more information.
+
+endchoice
+
+menu "PPMCIO Setup"
+	depends PPMCIO
+#	help
+#	  Set up configuration parameters for the PPMC IO control program.  There
+#	  are a number of functions that the PPMC card provides, and these have
+#	  to be communicated to the driver.
+
+config PPMC_PORT
+	hex "Address of Parallel Port"
+	default 0x378
+	help
+	  The Universal Stepper Controller must be connected to a parallel port.
+	  This is where you specify the I/O address of the port to which it is
+	  connected.
+	  The standard parallel ports are:
+	  LPT1: 0x378
+	  LPT2: 0x278
+	  LPT3: 0x3BC (usually found only on monochrome graphic cards)
+
+endmenu
+
+endmenu
