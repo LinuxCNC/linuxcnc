@@ -1,10 +1,14 @@
 # standard pinout config file for 3-axis steppers
+# using a parport for I/O
 #
-# first connect the parport functions
+# first load the parport driver
+loadrt hal_parport cfg="0x0378"
+#
+# next connect the parport functions to threads
 addf parport.0.read base-thread 1
 addf parport.0.write base-thread -1
 #
-# next connect physical pins to the signals
+# finally connect physical pins to the signals
 linksp Xstep parport.0.pin-03-out
 linksp Xdir  parport.0.pin-02-out
 linksp Ystep parport.0.pin-05-out
