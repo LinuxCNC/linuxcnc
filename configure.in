@@ -14,7 +14,7 @@ AC_PREREQ(2.13)
 #AC_CONFIG_SRCDIR(src/hal/hal_lib.c)
 AC_INIT(src/emc/hal_intf/exthalmot.c)
 
-# EMC2 internatinolization package name:
+# EMC2 internationalisation package name:
 PACKAGE="emc2"
 AC_SUBST([PACKAGE])
 
@@ -195,6 +195,7 @@ AC_MSG_RESULT([Using $RTS as the RT signature])
 
 # For RTAI-3.x $RTS = rtai-config
 if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
+# Options and their return values for rtai-config
 #	 Option		Returns
 #	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree.
 #	--version	Version number of the installed RTAI (e.g. 3.1, 3.0r4)
@@ -213,6 +214,7 @@ if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
 
 # For RTAI-24.1x $RTS = realtime-config
 elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
+# Options and their return values for realtime-config
 #	 Option		Returns
 #	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
 #	--version	Should return the version number - Appears to return 0.0.0 for most 24.1.x releases.
@@ -260,6 +262,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
 
 # For RTLinux-3.? $RTS = rtl-config
 elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
+# Options and their return values for rtl-config
 #	 Option		Returns
 #	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
 #	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
@@ -325,7 +328,9 @@ AC_SUBST(AUTODIRS)
 ##############################################################################
 AC_MSG_CHECKING([for cc version])
 
-# The compiler MUST match the one used to compile the realtime modules.
+# The compiler MUST match the one used to compile the realtime modules if the
+# kernel level code is to function correctly. But if the kernel has been
+# compiled with gcc-2.96, it is unlikely to ever work !
 # However realtime-config doesn't seem to have such an option
 if (test ${RTS##*/} = rtai-config ) ; then
   RTSCC=`$RTS --cc`
@@ -364,8 +369,8 @@ fi
 AC_MSG_CHECKING([for kernel version])
 
 AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
-# Unfortuantely, many distributions (redhat, mandrake) have #defines
-# inside versin.h, so the above test is too simplistic... But then agsin,
+# Unfortunately, many distributions (redhat, mandrake) have #defines
+# inside versin.h, so a simple cat|grep|cut test won't work... But then agsin,
 # RH & Mandrake kernels are notorious for their use of patches that break
 # the RT patching - Both RTAI and RTLinux strongly recommend using
 # a virgin source from kernel.org.
@@ -542,7 +547,7 @@ else
     AC_MSG_CHECKING([for a suitable libm])
     rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
     # compile a sample first.
-    $CC -O -c src/tests/mathtest.c -o src/tests/mathtest.o 2>/dev/null
+    $CC -c src/tests/mathtest.c $RTFLAGS -o src/tests/mathtest.o 2>/dev/null
 
     DIET_DIR=$(find /usr/lib -maxdepth 2 -name diet* | head -n1)
     if (test "$DIET_DIR" != "" ) ; then
@@ -658,7 +663,7 @@ AC_SUBST([TK_LIBS])
 DATE=$(date)
 AC_SUBST([DATE])
 
-# user option to convince make to be quiet during make
+# user option to force make to be quiet during make
 AC_ARG_WITH(make-quiet,
 	    [  --with-make-quiet                       make will run quietly],
 	    MAKEFLAGS=s, MAKEFLAGS=) 
