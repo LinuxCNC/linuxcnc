@@ -42,8 +42,6 @@
 
 */
 
-/* REALLY fix this... */
-#include "hal_procfs.c"
 
 #ifdef RTAPI
 /* includes for realtime config */
@@ -112,7 +110,10 @@ hal_module_list_t	*global_module_list=0;
 hal_block_list_t 	*global_block_list=0;	/* List of every object */
 int global_block_id=0;
 
+/* REALLY fix this... */
+#include "hal_procfs.c"
 #endif
+
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
