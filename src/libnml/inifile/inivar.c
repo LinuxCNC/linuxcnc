@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     char *variable = 0;
     char _section[LINELEN] = "";
     char *section = 0;
-    char INIFILE[256] = "generic.ini";
+    char INIFILE[LINELEN] = "emc.ini";
     FILE *fp;
     const char *inistring;
 
