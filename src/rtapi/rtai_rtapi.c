@@ -90,7 +90,7 @@
 #include <rtai_shm.h>
 #include <rtai_fifos.h>
 
-#include <rtapi.h>		/* public RTAPI decls */
+#include "rtapi.h"		/* public RTAPI decls */
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 
 /* resource data unique to kernel space */

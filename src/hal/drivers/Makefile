@@ -9,7 +9,7 @@ HEADERS =
 # Private headers
 PRIVHDRS =
 
-SRCS = \
+RT_SRCS = \
 parport.c
 
 LIBS =

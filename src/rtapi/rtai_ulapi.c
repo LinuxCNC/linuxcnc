@@ -59,7 +59,7 @@
 #include <malloc.h>		/* malloc(), free() */
 #include <asm/io.h>		/* inb(), outb() */
 
-#include <rtapi.h>		/* public RTAPI decls */
+#include "rtapi.h"		/* public RTAPI decls */
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 
 /* the following are internal functions that do the real work associated

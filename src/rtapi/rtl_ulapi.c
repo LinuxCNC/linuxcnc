@@ -60,7 +60,7 @@
 #include <asm/io.h>
 #include <mbuff.h>
 
-#include <rtapi.h>		/* public RTAPI decls */
+#include "rtapi.h"		/* public RTAPI decls */
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
 
 /* the following are internal functions that do the real work associated

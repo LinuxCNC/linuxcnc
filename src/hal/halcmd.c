@@ -40,7 +40,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#include <rtapi.h>		/* RTAPI realtime OS API */
+#include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* private HAL decls */
 

@@ -63,14 +63,7 @@ MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
 #endif /* RTAPI */
 
-#ifdef ULAPI
-/* includes for user space config */
-//#include <stdlib.h>
-//#include <stdio.h>  /* for debugging only */
-//#include <string.h>
-#endif
-
-#include <rtapi.h>		/* RTAPI realtime OS API */
+#include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "hal_priv.h"		/* HAL private decls */
 

@@ -12,7 +12,7 @@
 #include <unistd.h>		/* usleep() */
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
-#include <rtapi.h>		/* these decls */
+#include "rtapi.h"		/* these decls */
 
 
 /* These structs hold data associated with objects like tasks, etc. */
