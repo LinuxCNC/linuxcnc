@@ -201,39 +201,38 @@ else
 fi
 
 # Search for the tcl/tk headers.
-TCL_VER=$(tcl -c "echo [info tclversion]")
-# Need to include Xlibs to link emcsh and iosh.
-TCL_LIB="-lXext -lX11 -ldl"
-TCL_FLAGS="-L/usr/X11R6/lib"
+# The following line only works if tclx is installed..
+TCL_VER=$(tcl -c "echo [info tclversion]" 2> /dev/null)
 if [ "$TCL_VER" != "" ] ; then
   echo "Found tcl$TCL_VER installed"
-  TCL=$(find /usr/include/ -maxdepth 2 -name "tcl.h" 2> /dev/null)
-      for tcl in $TCL ; do
-          TCL=$(echo $tcl | grep tcl.h | sed s^/tcl.h^^g)
-      done
-  if [ "$TCL" = "" ] ; then
-      echo "tcl headers not found."
-  else
-      echo "tcl headers found in $TCL"
-      TCL_LIB="$TCL_LIB -ltcl$TCL_VER"
+fi
+TCL=`find /usr/include -maxdepth 2 -name tcl.h 2>/dev/null | grep tcl.h | head -n1 | sed s^/tcl.h^^g`
+TCL_LIB=`ls /usr/lib/libtcl*.a 2> /dev/null | grep -v tclx |  head -n1 | sed s#^.\*tcl#tcl# | sed s/.a.\*\$//`
+if [ "$TCL" = "" ] ; then
+    echo "tcl headers not found."
+else
+    echo "tcl headers found in $TCL"
+    # Need to include Xlibs to link emcsh and iosh.
+    TCL_LIB="-lXext -lX11 -ldl -l$TCL_LIB"
+    TCL_FLAGS="-L/usr/X11R6/lib"
     if [ "$TCL" != "/usr/include" ] ; then
         # No point in including the default dir...
         TCL_FLAGS="$TCL_FLAGS -I$TCL"
     fi
-  fi
-  TK=$(find /usr/include/ -maxdepth 2 -name "tk.h" 2> /dev/null)
-      for tk in $TK ; do
-          TK=$(echo $tk | grep tk.h | sed s^/tk.h^^g)
-      done
-  if [ "$TK" = "" ] ; then
-      echo "tk headers not found."
-  else
-      echo "tk headers found in $TK"
-      TCL_LIB="$TCL_LIB -ltk$TCL_VER"
+fi
+TK=`find /usr/include -maxdepth 2 -name tk.h 2>/dev/null | grep tk.h | head -n1 | sed s^/tk.h^^g`
+TK_LIB=`ls /usr/lib/libtk*.a 2> /dev/null | grep -v tkx | head -n1 | sed s#^.\*tk#tk# | sed s/.a.\*\$//`
+if [ "$TK" = "" ] ; then
+    echo "tk headers not found."
+else
+    echo "tk headers found in $TK"
+    TCL_LIB="$TCL_LIB -l$TK_LIB"
     if [ "$TK" != "/usr/include" ] ; then
-        TCL_FLAGS="$TCL_FLAGS -I$TK"
+        # Don't need to include the same dir twice...
+        if [ "$TK" != "$TCL" ] ; then
+            TCL_FLAGS="$TCL_FLAGS -I$TK"
+        fi
     fi
-  fi
 fi
 
 # Go on to write out the Makefile.inc
@@ -362,7 +361,7 @@ else
 fi
 
 echo >> Makefile.inc
-if [ "$TCL_VER" != "" ] ; then
+if [ "$TCL" != "" ] ; then
     echo "# local flags for Tcl/Tk" >> Makefile.inc
     echo "TCL_VERSION = $TCL_VER" >> Makefile.inc
     echo "TCL_CFLAGS = $TCL_FLAGS" >> Makefile.inc
