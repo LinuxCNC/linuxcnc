@@ -4,8 +4,6 @@
 # This file is adapted to replace the old ./configure script
 # therefor it includes parts of that script
 
-
-
 AC_PREREQ(2.13)
 #AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
 #AC_CONFIG_SRCDIR(src/hal/hal_lib.c)
@@ -18,11 +16,11 @@ AC_SUBST([PACKAGE])
 # Checks for programs.
 
 # Check for RT
-# FIXME - add RT-check script
 # accept rtai=path from commandline
 # accept rtlinux=path from commandline
 # accept rtlinuxpro=path from commandline
 AC_MSG_CHECKING(for RT dir)
+CC=""
 RTDIR=""
 RTNAME=""
 RTAI=""
@@ -31,7 +29,6 @@ RTLINUXPRO=""
 RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
-
 
 RTAI3_MOD=""
 RTAI_MOD=""
@@ -190,10 +187,32 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     else
 	RTDIR=${RTS%%/bin/realtime-config}
     fi
-    RTFLAGS=`$RTS --cflags-fp | head -n 1`
-    RTFLAGS="$RTFLAGS -DRTAI=1"
-    KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
-    KERNELDIR=$(cd $KERNELDIR ; pwd -P )
+
+    # on BDI-TNG there seems to be the problem,
+    # that the /usr/src/linux/.config file is missing
+    # this file states that the kernel has been configured, 
+    # however it gets deleted when a make mrproper is run
+    # on BDI-TNG only the patched kernel source is included in order 
+    # to save space, so realtime-config is failing.
+    # the following is a workaround only for BDI-TNG
+    $BDITNG=`cat /etc/redhat-release 2>/dev/null | head n 1`
+    if test "x$BDITNG" = "xBDI-TNG Linux release 7.2 (minbar)"; then
+	# we are certain to have BDI-TNG
+	# now we default some values
+	CC="egcs"
+	RTFILE=/usr/src/rtai-24.1.10/.buildvars
+	KERNEL=$(cat $RTFILE | grep LINUXDIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2>/dev/null #'
+	KERNELDIR=$(cd $KERNEL ; pwd -P )
+	RTFLAGS=$(cat $RTFILE | grep CFLAGS | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2>/dev/null #'
+	RTFLAGS="$RTFLAGS -DRTAI=1"
+    else
+	# any other rtai-24.1.x system
+        RTFLAGS=`$RTS --cflags-fp | head -n 1`
+	RTFLAGS="$RTFLAGS -DRTAI=1"
+	KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
+	KERNELDIR=$(cd $KERNELDIR ; pwd -P )
+    fi
+
 
 # For RTLinux-3.? $RTS = rtl-config
 elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
@@ -202,7 +221,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
 #	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
 #	--cc		The compiler used for the C sources - Not necessarily the default cc
 #	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
-#	--linux		Path to the source directory f the patched kernel.
+#	--linux		Path to the source directory of the patched kernel.
 #	--module_dir	Path to the directory where the RTLinux modules are installed
 #	--modules	A list of the available realtime modules.
     RTPREFIX=rtl
@@ -249,6 +268,8 @@ AC_SUBST(AUTODIRS)
 # compiled against.
 #--------------------------------------------------------------------
 AC_MSG_CHECKING([for kernel version])
+
+
 AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
 # Use " as the delimiter so that we don't confuse make during the compile.
 #KERNEL_VERS=`cat $KERNELDIR/include/linux/version.h | head -n 1 | cut -d '"' -f 2`
@@ -274,15 +295,16 @@ AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.
 #
 # We don't really care which version of GCC we have here, though,
 # so maybe we should find any old gcc here and reset it later?
-#
 # FIXME
 
 
 # Do a quick search for any old gcc...
-AC_PROG_CC(gcc)
 if test -z "$CC"; then
-  AC_PROG_CC(egcs)
-  test -z "$CC" && AC_MSG_ERROR([no acceptable cc found])
+    AC_PROG_CC(gcc)
+    if test -z "$CC"; then
+	AC_PROG_CC(egcs)
+	test -z "$CC" && AC_MSG_ERROR([no acceptable cc found])
+    fi
 fi
 
 AC_MSG_CHECKING([for kernel version string])
@@ -291,8 +313,8 @@ VERSION_FILE=$KERNELDIR/include/linux/version.h
 #KERNEL_VERS = `gcc -E -dM $(VERSION_FILE) | grep UTS | awk '{ print $$3; }' | sed -e 's/\"//g')`
 KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
 
-AC_SUBST([KERNEL_VERS])
 AC_MSG_RESULT([$KERNEL_VERS])
+AC_SUBST([KERNEL_VERS])
 
 
 # Create a module-dir option, similar to rtai's...
@@ -341,8 +363,12 @@ AC_MSG_CHECKING(for cc version)
 # However realtime-config doesn't seem to have such an option
 
 if (test ${RTS##*/} = rtai-config ) ; then
+  RTSCC=`$RTS --cc`
+  AC_MSG_RESULT(found $RTSCC in rtai-config)
   AC_PROG_CC(`$RTS --cc`)
 elif (test ${RTS##*/} = rtl-config ) ; then
+  RTSCC=`$RTS --cc`
+  AC_MSG_RESULT(found $RTSCC in rtl-config)
   AC_PROG_CC(`$RTS --cc`)
 else
   AC_PROG_CC(gcc)
@@ -355,6 +381,7 @@ else
     AC_MSG_ERROR([gcc version 2.96 found, but not supported])
   fi
 fi
+
 
 AC_PROG_CXX
 AC_PROG_MAKE_SET
@@ -423,7 +450,6 @@ AC_PATH_PROG(PIDOF, pidof, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
 
 # Check for math support
-# FIXME - still to be written
 # Because some of the realtime kernel modules use floating point math
 # which is not supported by standard kernel calls, we need to link to
 # libm. RTAI provides a loadable module derived from uclibc (a minimal
@@ -503,14 +529,6 @@ AC_SUBST([MATHLIB])
 
 # Checks for libraries.
 
-#--------------------------------------------------------------------
-# Load the tclConfig.sh file
-# (P.C.) Ripped this section from another config.in as an example.
-# Delete when we have one that works..
-#--------------------------------------------------------------------
-# tclconfig=$(find /usr/* -maxdepth 2 -name "tclConfig.sh" 2>/dev/null | head -n 1)
-# . $tclconfig
-
 # AC_SUBST(INSTALL)
 # AC_SUBST(INSTALL_PROGRAM)
 # AC_SUBST(INSTALL_DATA)
@@ -535,7 +553,9 @@ AC_SUBST([RTL_MOD])
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-# FIXME Test for tcl/tk headers fails if they are not in /usr/include
+# Test for tcl/tk headers fails if they are not in /usr/include
+# so testing is done by finding tclConfig.sh and tkConfig.sh
+# if the search fails the traditional check is done
 AC_MSG_CHECKING([for tcl])
 
 #search for tclConfig.sh
@@ -588,11 +608,6 @@ AC_SUBST([TK_LIBS])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
-# Checks for library functions.
-# FIXME These tests fail with tcl/tk 8.0
-#AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
-#AC_SEARCH_LIBS(Tk_Init,[tk tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
-
 DATE=$(date)
 AC_SUBST([DATE])
 
@@ -612,7 +627,7 @@ if test "$USE_NLS" = "yes"; then
   AC_CHECK_FUNCS(setlocale)
   AC_SUBST(HAVE_LOCALE_H)  
 
-# Add langauges here when they are translated.
+# Add languages here when they are translated.
 # Grep the LINGUAS file.
   LANGUAGES=""
   AC_SUBST(LANGUAGES)  
@@ -642,7 +657,6 @@ fi
 
 
 
-
 #AC_PROG_INTLTOOL(0.25)
 #AM_GNU_GETTEXT([external])
 #ALL_LINGUAS="en"
@@ -652,7 +666,3 @@ fi
 
 AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
 AC_OUTPUT(Makefile.inc)
-
-
-
-

@@ -1494,10 +1494,32 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     else
 	RTDIR=${RTS%%/bin/realtime-config}
     fi
-    RTFLAGS=`$RTS --cflags-fp | head -n 1`
-    RTFLAGS="$RTFLAGS -DRTAI=1"
-    KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[ ="]+' '{print $2}')
-    KERNELDIR=$(cd $KERNELDIR ; pwd -P )
+
+    # on BDI-TNG there seems to be the problem,
+    # that the /usr/src/linux/.config file is missing
+    # this file states that the kernel has been configured,
+    # however it gets deleted when a make mrproper is run
+    # on BDI-TNG only the patched kernel source is included in order
+    # to save space, so realtime-config is failing.
+    # the following is a workaround only for BDI-TNG
+    $BDITNG=`cat /etc/redhat-release 2>/dev/null | head n 1`
+    if test "x$BDITNG" = "xBDI-TNG Linux release 7.2 (minbar)"; then
+	# we are certain to have BDI-TNG
+	# now we default some values
+	CC="egcs"
+	RTFILE=/usr/src/rtai-24.1.10/.buildvars
+	KERNEL=$(cat $RTFILE | grep LINUXDIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A2}') 2>/dev/null #'
+	KERNELDIR=$(cd $KERNEL ; pwd -P )
+	RTFLAGS=$(cat $RTFILE | grep CFLAGS | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A2}') 2>/dev/null #'
+	RTFLAGS="$RTFLAGS -DRTAI=1"
+    else
+	# any other rtai-24.1.x system
+        RTFLAGS=`$RTS --cflags-fp | head -n 1`
+	RTFLAGS="$RTFLAGS -DRTAI=1"
+	KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[ ="]+' '{print $2}')
+	KERNELDIR=$(cd $KERNELDIR ; pwd -P )
+    fi
+
 
 # For RTLinux-3.? $RTS = rtl-config
 elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
@@ -1506,7 +1528,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
 #	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
 #	--cc		The compiler used for the C sources - Not necessarily the default cc
 #	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
-#	--linux		Path to the source directory f the patched kernel.
+#	--linux		Path to the source directory of the patched kernel.
 #	--module_dir	Path to the directory where the RTLinux modules are installed
 #	--modules	A list of the available realtime modules.
     RTPREFIX=rtl
@@ -1554,6 +1576,8 @@ fi
 #--------------------------------------------------------------------
 echo "$as_me:$LINENO: checking for kernel version" >&5
 echo $ECHO_N "checking for kernel version... $ECHO_C" >&6
+
+
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3066,12 +3090,12 @@ done
 #
 # We don't really care which version of GCC we have here, though,
 # so maybe we should find any old gcc here and reset it later?
-#
 # FIXME
 
 
 # Do a quick search for any old gcc...
-ac_ext=c
+if test -z "$CC"; then
+    ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
@@ -3519,8 +3543,8 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-if test -z "$CC"; then
-  ac_ext=c
+    if test -z "$CC"; then
+	ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
@@ -3968,9 +3992,10 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-  test -z "$CC" && { { echo "$as_me:$LINENO: error: no acceptable cc found" >&5
+	test -z "$CC" && { { echo "$as_me:$LINENO: error: no acceptable cc found" >&5
 echo "$as_me: error: no acceptable cc found" >&2;}
    { (exit 1); exit 1; }; }
+    fi
 fi
 
 echo "$as_me:$LINENO: checking for kernel version string" >&5
@@ -3980,9 +4005,9 @@ VERSION_FILE=$KERNELDIR/include/linux/version.h
 #KERNEL_VERS = `gcc -E -dM $(VERSION_FILE) | grep UTS | awk '{ print $$3; }' | sed -e 's/\"//g')`
 KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
 
-
 echo "$as_me:$LINENO: result: $KERNEL_VERS" >&5
 echo "${ECHO_T}$KERNEL_VERS" >&6
+
 
 
 # Create a module-dir option, similar to rtai's...
@@ -4039,6 +4064,9 @@ echo $ECHO_N "checking for cc version... $ECHO_C" >&6
 # However realtime-config doesn't seem to have such an option
 
 if (test ${RTS##*/} = rtai-config ) ; then
+  RTSCC=`$RTS --cc`
+  echo "$as_me:$LINENO: result: found $RTSCC in rtai-config" >&5
+echo "${ECHO_T}found $RTSCC in rtai-config" >&6
   ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -4488,6 +4516,9 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 elif (test ${RTS##*/} = rtl-config ) ; then
+  RTSCC=`$RTS --cc`
+  echo "$as_me:$LINENO: result: found $RTSCC in rtl-config" >&5
+echo "${ECHO_T}found $RTSCC in rtl-config" >&6
   ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -5846,6 +5877,7 @@ echo "$as_me: error: gcc version 2.96 found, but not supported" >&2;}
   fi
 fi
 
+
 ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -6865,7 +6897,6 @@ fi
 
 
 # Check for math support
-# FIXME - still to be written
 # Because some of the realtime kernel modules use floating point math
 # which is not supported by standard kernel calls, we need to link to
 # libm. RTAI provides a loadable module derived from uclibc (a minimal
@@ -6953,14 +6984,6 @@ fi
 
 
 # Checks for libraries.
-
-#--------------------------------------------------------------------
-# Load the tclConfig.sh file
-# (P.C.) Ripped this section from another config.in as an example.
-# Delete when we have one that works..
-#--------------------------------------------------------------------
-# tclconfig=$(find /usr/* -maxdepth 2 -name "tclConfig.sh" 2>/dev/null | head -n 1)
-# . $tclconfig
 
 # AC_SUBST(INSTALL)
 # AC_SUBST(INSTALL_PROGRAM)
@@ -7766,11 +7789,6 @@ fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 
-# Checks for library functions.
-# FIXME These tests fail with tcl/tk 8.0
-#AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
-#AC_SEARCH_LIBS(Tk_Init,[tk tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
-
 DATE=$(date)
 
 
@@ -8018,7 +8036,7 @@ done
 
 
 
-# Add langauges here when they are translated.
+# Add languages here when they are translated.
 # Grep the LINGUAS file.
   LANGUAGES=""
 
@@ -8252,7 +8270,6 @@ echo "$as_me: WARNING: Usage is: --with-locale-dir=basedir" >&2;}
 fi;
 
 fi
-
 
 
 
