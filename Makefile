@@ -15,17 +15,25 @@
 # install - right now this does nothing
 # clean - cleans up temp files, backups, object files, binaries, etc.
 
-# this rule handles most targets, except clean
+# this rule handles most targets, except clean and depend
 # it simply changes to all the source sub-directories and calls make there
 # note the order - low level code like rtapi is made first, before higher
 # level code that might depend on it
 
-all headers depend indent install :
+all headers indent install :
 	(cd src/rtapi; make $@)
 	(cd src/hal; make $@)
 
 # Include the Defines, Flags, etc..
 include Makefile.inc
+
+# this rule handles the depend target
+# it first updates the headers target to ensure that the header
+# files are installed, then runs the depend target in each directory
+
+depend : headers
+	(cd src/rtapi; make $@)
+	(cd src/hal; make $@)
 
 # this rule handles the clean target
 # it changes to all the source sub-directories, calls make there, and

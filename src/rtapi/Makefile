@@ -27,12 +27,7 @@ LIBS = \
 $(RTLIB_DIR)/rtapi.o \
 $(LIB_DIR)/ulapi.o
 
-# Object files to be created
-OBJS = \
-$(TMP_DIR)/$(RTPREFIX)_ulapi.o \
-$(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
-
-all: headers $(OBJS) $(LIBS)
+all: headers $(LIBS)
 
 # Generic rules
 include ../../Make.rules
@@ -51,7 +46,6 @@ $(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
 	@ echo "Install ulapi.o in lib"
 	- \install -p -m0664 $< $(LIB_DIR)/ulapi.o
-
 
 .PHONY: all headers depend indent install clean
 

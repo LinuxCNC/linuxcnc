@@ -12,12 +12,10 @@ PRIVHDRS =
 RT_SRCS = \
 parport.c
 
-LIBS =
-
-OBJS = \
+LIBS = \
 $(RTLIB_DIR)/parport.o
 
-all : headers $(OBJS) $(LIBS)
+all : headers $(LIBS)
 
 # Generic rules
 include $(EMC2_HOME)/Make.rules

@@ -14,14 +14,12 @@ encoder.c \
 stepgen.c \
 pid.c
 
-LIBS =
-
-OBJS = \
+LIBS = \
 $(RTLIB_DIR)/encoder.o \
 $(RTLIB_DIR)/stepgen.o \
 $(RTLIB_DIR)/pid.o
 
-all : headers $(OBJS) $(LIBS)
+all : headers $(LIBS)
 
 # Generic rules
 include $(EMC2_HOME)/Make.rules

@@ -36,7 +36,7 @@
 # Directories:
 #
 # During the make, targets are placed in several different directories.
-# See directory.map in for the default directory tree.  The following
+# See directory.map for the default directory tree.  The following
 # variables are used instead of actual directory names throughout the
 # makefiles.  Makefile.inc sets these variables to the actual directory
 # names.
@@ -55,54 +55,84 @@
 # Variables:
 #
 # The rules in this file use a number of variables to determine which
-# targets are to be made and where they go.  The variables and how they
-# are used by this file are as follows:
+# targets are to be made and where they go.  These variables should be
+# defined in the individual makefiles before Make.rules is included.
+# The variables and how they are used by this file are as follows:
 #
-# HEADERS  - list of public headers - the names should not include
-#            paths - the 'def_headers' target will copy these headers
-#            to INC_DIR - the 'def_indent' target will reformat them -
-#            the 'def_clean' target will remove them from INC_DIR
+# HEADERS  - List of public headers.  The names should not include
+#            paths.  The 'def_headers' target will copy these headers
+#            to INC_DIR.  The 'def_indent' target will reformat them,
+#            and the 'def_clean' target will remove them from INC_DIR.
 #
-# PRIVHDRS - list of private headers - the names should not include
-#            paths - the 'def_indent' target will reformat these files
+# PRIVHDRS - List of private headers.  The names should not include
+#            paths.  The 'def_indent' target will reformat these files.
 #
-# SRCS     - list of all C and C++ source files - the names should
-#            not include paths - the 'def_indent' target will reformat
-#            these files
+# SRCS     - List of all user-space C and C++ source files.  The names
+#            should not include paths.  The 'def_indent' target will
+#            reformat these files.  The C_SRCS and CC_SRCS variables
+#            will be made from this variable, and therefore the OBJS
+#            variable will include the corresponding object files.
 #
-# OBJS     - list of individual object files created by the make -
-#            these are files that are made from a single source file.
-#            The names should include the directory where the files
-#            are to be created.  The pattern rules in this file handle
-#            compilation of these files - the 'def_clean' target will
-#            remove them
+# RT_SRCS  - List of all real-time C source files.  The names should
+#            not include paths.  The 'def_indent' target will reformat
+#            these files.  The OBJS variable will include the
+#            corresponding object files.
 #
-# LIBS     - list of all libraries created by the make - the names
-#            should include the directory where the files are to be
-#            created - the makefile should  provide an explicit
-#            or pattern rule to make these files - the 'def_clean'
-#            target will remove them
+# LIBS     - List of all libraries created by the make.  The names
+#            should include the directory: "$(LIB_DIR)/foo.o" or
+#            "$(RTLIB_DIR)/foo.o".  This file contains pattern rules
+#            for the case where a LIB is made by copying a single .o
+#            file from the temp directory.  The makefile should provide
+#            an explicit or pattern rule for any LIB that requires more
+#            complex linking.  The 'def_clean' target will remove all
+#            files listed in LIBS.
 #
+# BINS     - List of all user space binaries created by the make.
+#            The names should include the directory: "$(BIN_DIR)/foo".
+#            The makefile should  provide an explicit or pattern rule
+#            to make these files.  The 'def_clean' target will remove
+#            them.
+#
+#
+# Other variables are set inside this file, based on the ones above.
+# These should _not_ be defined inside the individual makefiles:
+#
+# C_SRCS   - List of all C sources from SRCS.
+# CC_SRCS  - List of all C++ sources from SRCS.  SRCS is split into
+#            two lists to allow the appropriate compiler and flags
+#            to be used when generating the dependency files.  These
+#            two variables are used to make the OBJS variable.
+
+C_SRCS = $(filter-out %.cc,$(SRCS))
+CC_SRCS = $(filter %.cc,$(SRCS))
+
+#
+# OBJS     - List of individual object files created by the make.  The
+#            list consists of the files in SRCS and RT_SRCS, with the
+#            appropriate temp directory prepended, and with their suffix
+#            changed to ".o".  The pattern rules in this file handle
+#            compilation of these files, and the 'def_clean' target will
+#            remove them.
+
+OBJS = $(C_SRCS:%.c=$(TMP_DIR)/%.o) \
+       $(CC_SRCS:%.cc=$(TMP_DIR)/%.o) \
+       $(RT_SRCS:%.c=$(RTTMP_DIR)/%.o)
+
 #
 # Compile Rules:
 #
-# Depending on the situation, source files may be compiled to .o files
-# in a temporary directory, for later linking into larger libraries or
-# programs.  Or they may be compiled directly to .o files in the lib/
-# or rtlib/ directories, for those cases where a library or module only
-# needs a single source file.  This file contains pattern rules for both
-# cases.
+# Source files are always compiled to .o files in a temporary directory,
+# for later linking into larger libraries or programs.  This file contains
+# pattern rules to do the compilation.
 #
-# There are three temp directories, one for ordinary user space code,
-# one for GTK+ user space code, and one for realtime code.  Since
-# these directories hold object files from all over the source tree,
-# duplicate source file names (even in different parts of the source
-# tree) are not permitted.
+# There are two temp directories, one for ordinary user space code
+# and one for realtime code.  Since these directories hold object
+# files from all over the source tree, duplicate source file names
+# (even in different parts of the tree) are not permitted.
 #
 # The compile flags used for a target depend on its destination directory.
-# Targets in TMP_DIR or LIB are compiled with normal user space flags.
-# Those in RTTMP_DIR or RTLIB are compiled with realtime flags.  Those
-# in GTKTMP_DIR are compiled with flags suitable for GTK+ programs.
+# Targets in TMP_DIR are compiled with normal user space flags.
+# Those in RTTMP_DIR are compiled with realtime flags.
 #
 # This set of rules is for targets in the temporary directories - they
 # create the directory if it is not already present.
@@ -122,25 +152,21 @@ $(RTTMP_DIR)/%.o : %.c
 	@ echo "Compile '$<' to tmp dir using realtime C rule"
 	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
 
-$(GTKTMP_DIR)/%.o : %.c
-	@ (if [ ! -d "$(GTKTMP_DIR)" ] ; then echo "Create temp directory '$(GTKTMP_DIR)'" ; mkdir $(GTKTMP_DIR) ; fi)
-	@ echo "Compile '$<' to tmp dir using GTK+ C rule"
-	$(CC) `gtk-config --cflags` -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
-
 #
-# This set is for targets in the lib/ and rtlib/ directories:
+# Some targets in LIB_DIR and RTLIB_DIR are simply single .o files
+# copied from TMP_DIR and RTTMP_DIR respectively.  Others are the
+# result of linking multiple .o files together.  Those that need
+# multiple .o files should have explicit rules in the makefile.
+# The following pattern rules handle those that simply need to copy
+# a single .o file from the temp directory.
 #
-$(LIB_DIR)/%.o : %.c
-	@ echo "Compile '$<' to lib dir using non-realtime C rule"
-	$(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
+$(LIB_DIR)/%.o : $(TMP_DIR)/%.o
+	@ echo "Install user space library $@"
+	\install -p -m0664 $< $(LIB_DIR)
 
-$(LIB_DIR)/%.o : %.cc
-	@ echo "Compile '$<' to lib dir using default C++ rule"
-	$(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
-
-$(RTLIB_DIR)/%.o : %.c
-	@ echo "Compile '$<' to lib dir using realtime C rule"
-	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
+$(RTLIB_DIR)/%.o : $(RTTMP_DIR)/%.o
+	@ echo "Install realtime library $@"
+	\install -p -m0664 $< $(RTLIB_DIR)
 
 #
 # This creates a 'def_headers' target whose dependencies are each of
@@ -166,9 +192,9 @@ $(INC_DIR)/.hh: %.hh
 	@ echo "Install C++ header $<"
 	\install -p -m0664 $< $(INC_DIR)
 
-
-
+#
 # Reformat the sources using long format names to aid readability.
+#
 def_indent:
 	@ echo "Re-format source and header files"
 	indent --braces-on-if-line \
@@ -191,42 +217,36 @@ def_indent:
 	$(SRCS) $(HEADERS) $(PRIVHDRS)
 	@ rm *.*~
 
-
+#
 # Clean out objects, headers, and dep files.
+#
 def_clean:
 	@ echo "Clean Up `pwd`"
 	- rm -f *.bak *~ .depend*
 	- rm -f $(OBJS) $(LIBS) $(HEADERS:%=$(INC_DIR)/%)
 
 
+#
+# This line includes the dependency files (.depend.c, .depend.cc, and
+# .depend.rt).  The '-' tells make to include the files only if they
+# already exist.  A normal include would look for a rule to create the
+# files if they don't already exist, and abort the make if such a rule
+# could not be found.
+#
+
+-include .depend.c .depend.cc .depend.rt
+
 # depend commands - I know it looks _really_ ugly, but it does strip away
 #                   most of the system headers.
-# It also doesn't work right....
-# This needs work :-(
 # Derived from the original rcslib Make system.
 def_depend:
-	@ echo "Generating Dependencies"
-	rm -f .depend.rt .depend
-	touch .depend.rt .depend
-	(if [ ! -z "$(RT_SRCS)" ] ; then ($(CC) -MM -I$(INC_DIR) $(RTFLAGS) \
-	$(RT_SRCS) >.depend.rt) 2>.depend_errors.rt ; exit 0; fi)
-	(if [ ! -s .depend_errors.rt ] ; then \rm -f .depend_errors.rt ; fi)
-	cat .depend.rt | \
-	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
-	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip
-	(if [ -s .depend.strip ] ; then \
-	cat .depend.strip | \
-	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\$(RTTMP_DIR)/\&# | \
-	grep -v -E '^\\' > .depend.rt && \
-	rm -f .depend.strip ; fi)
-	(if [ ! -z "$(SRCS)" ] ; then ($(CXX) -MM $(CXXFLAGS) -I$(INC_DIR) \
-	$(ULFLAGS) $(SRCS) >.depend) 2>.depend_errors; exit 0; fi)
-	(if [ ! -s .depend_errors ] ; then \rm -f .depend_errors ; fi)
-	(if [ -s .depend ] ; then cat .depend | \
+	@ echo "Generating Dependencies in `pwd`"
+	rm -f .depend.c .depend.cc .depend.rt
+	touch .depend.c .depend.cc .depend.rt
+	(if [ ! -z "$(C_SRCS)" ] ; then echo "User C: $(C_SRCS)" ; \
+	($(CC) -MM $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) \
+	$(C_SRCS) >.depend.c) ; exit 0; fi)
+	(if [ -s .depend.c ] ; then cat .depend.c | \
 	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
@@ -235,9 +255,36 @@ def_depend:
 	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip && \
 	cat .depend.strip | \
 	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\$(TMP_DIR)/\&# | \
-	grep -v -E '^\\' > .depend && \
+	grep -v -E '^\\' > .depend.c && \
 	rm -f .depend.strip ; fi)
-
+	(if [ ! -z "$(CC_SRCS)" ] ; then echo "User C++: $(CC_SRCS)" ; \
+	($(CXX) -MM $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) \
+	$(CC_SRCS) >.depend.cc) ; exit 0; fi)
+	(if [ -s .depend.cc ] ; then cat .depend.cc | \
+	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
+	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip && \
+	cat .depend.strip | \
+	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\$(TMP_DIR)/\&# | \
+	grep -v -E '^\\' > .depend.cc && \
+	rm -f .depend.strip ; fi)
+	(if [ ! -z "$(RT_SRCS)" ] ; then echo "Realtime C: $(RT_SRCS)" ;\
+	($(CC) -MM $(RTFLAGS) $(LOCAL_RTFLAGS) \
+	$(RT_SRCS) >.depend.rt) ; exit 0; fi)
+	(if [ -s .depend.rt ] ; then cat .depend.rt | \
+	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
+	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
+	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip && \
+	cat .depend.strip | \
+	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\$(RTTMP_DIR)/\&# | \
+	grep -v -E '^\\' > .depend.rt && \
+	rm -f .depend.strip ; fi)
 
 .PHONY : def_headers def_depend def_indent def_install def_clean
 

@@ -106,7 +106,6 @@ echo "RTLIB_DIR = \$(EMC2_HOME)/rtlib" >> Makefile.inc
 echo "INC_DIR = \$(EMC2_HOME)/include" >> Makefile.inc
 echo "TMP_DIR = \$(EMC2_HOME)/src/.tmp" >> Makefile.inc
 echo "RTTMP_DIR = \$(EMC2_HOME)/src/.rt_tmp" >> Makefile.inc
-echo "GTKTMP_DIR = \$(EMC2_HOME)/src/.gtk_tmp" >> Makefile.inc
 echo "RTDIR = $RTDIR" >> Makefile.inc
 echo >> Makefile.inc
 if [ -f $RTDIR/.buildvars ] ; then
