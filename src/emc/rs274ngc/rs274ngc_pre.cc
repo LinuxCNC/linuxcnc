@@ -13,6 +13,10 @@
 * $Revision$
 * $Author$
 * $Date$
+*
+* FIX-ME - Need to split this file down in to smaller sections to make
+*	   easier to digest.
+*
 ********************************************************************/
 /* rs274ngc.cc
 
