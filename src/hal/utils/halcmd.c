@@ -763,6 +763,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     static char *rtmod_dir = NULL;
     struct stat stat_buf;
     char path_buf[MAX_CMD_LEN];
+    char mod_path[MAX_CMD_LEN];
     char *cp1, *cp2;
     char *argv[MAX_TOK+1];
     int n, m, retval, status;
@@ -864,18 +865,17 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	return -1;
     }
     /* make full module name '<path>/<name>.o' */
-    strcpy (path_buf, rtmod_dir);
-    strcat (path_buf, "/");
-    strcat (path_buf, mod_name);
-    strcat (path_buf, ".o");
+    strcpy (mod_path, rtmod_dir);
+    strcat (mod_path, "/");
+    strcat (mod_path, mod_name);
+    strcat (mod_path, ".o");
     /* is there a file with that name? */
-    if ( stat(path_buf, &stat_buf) != 0 ) {
+    if ( stat(mod_path, &stat_buf) != 0 ) {
 	/* nope, try .ko (for kernel 2.6 */
-	cp2 = strrchr(path_buf, '.' );
+	cp2 = strrchr(mod_path, '.' );
 	strcpy(cp2, ".ko" );
-	if ( stat(path_buf, &stat_buf) != 0 ) {
+	if ( stat(mod_path, &stat_buf) != 0 ) {
 	    /* can't find it */
-	    *(strrchr(path_buf, '/' )) = '\0';
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: Can't find module '%s' in %s\n", mod_name, path_buf);
 	    return -1;
@@ -891,7 +891,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     if ( pid == 0 ) {
 	/* this is the child process - prepare to exec() insmod */
 	argv[0] = insmod_path;
-	argv[1] = path_buf;
+	argv[1] = mod_path;
 	/* loop thru remaining arguments */
 	n = 0;
 	m = 2;
