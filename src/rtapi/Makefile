@@ -27,12 +27,6 @@ LIBS = \
 $(RTLIB_DIR)/rtapi.o \
 $(LIB_DIR)/ulapi.o
 
-ifeq ($(EXAMPLES),yes)
-    EXAMPLES_CMD = (cd examples; make $@)
-else
-    EXAMPLES_CMD =
-endif
-
 all: headers $(LIBS)
 	@ echo "Set up RTOS symlinks"
 	@ if [ -f $(EMC2_HOME)/scripts/load_$(RTPREFIX) ] ; \
@@ -49,13 +43,15 @@ all: headers $(LIBS)
 	else \
 	  echo "ERROR: $(EMC2_HOME)/scripts/unload_$(RTPREFIX) not found" ; \
 	fi
-	$(EXAMPLES_CMD)
 
 # Generic rules
 include ../../Make.rules
 
+examples:
+	(cd examples; make all)
+
 headers: def_headers
-	$(EXAMPLES_CMD)
+	(cd examples; make $@)
 
 indent: def_indent
 	(cd examples; make $@)
@@ -82,5 +78,5 @@ $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
 	@ echo "Install ulapi.o in lib"
 	- \install -p -m0664 $< $(LIB_DIR)/ulapi.o
 
-.PHONY: all headers depend indent install clean
+.PHONY: all examples headers depend indent install clean
 

@@ -8,7 +8,8 @@
 #
 # Notes on targets:
 #
-# all - default target, makes the whole thing
+# all - default target, makes the whole thing except examples
+# examples - makes rtapi examples, run after "make all"
 # headers - copies public header files to INC_DIR (emc2/include)
 # depend - generate dependency file(s)
 # indent - formats source code
@@ -35,6 +36,11 @@ depend : headers
 	(cd src/rtapi; make $@)
 	(cd src/hal; make $@)
 
+# this rule handles the examples target
+# it only enters directories that have examples
+examples :
+	(cd src/rtapi; make $@)
+
 # this rule handles the clean target
 # it changes to all the source sub-directories, calls make there, and
 # then returns to the top level directory and cleans that up too.
@@ -50,4 +56,4 @@ clean :
 	@ (if [ -d $(GTKTMP_DIR) ] ; then rm -fR $(GTKTMP_DIR) ; fi)
 
 
-.PHONY : all headers depend indent install clean
+.PHONY : all examples headers depend indent install clean
