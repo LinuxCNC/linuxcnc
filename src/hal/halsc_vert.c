@@ -56,10 +56,6 @@
 *                  GLOBAL VARIABLES DECLARATIONS                       *
 ************************************************************************/
 
-/* FIXME - spinbutton doesn't work well with large or small numbers,
-           and entry is too wide (messes up layout) */
-#define SPINBUTTON
-
 #define VERT_POS_RESOLUTION 100.0
 
 /***********************************************************************
@@ -75,12 +71,11 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, dialog_generic_t * dptr);
 static void change_source_button(GtkWidget * widget, gpointer gdata);
 static void channel_off_button(GtkWidget * widget, gpointer gdata);
+static void offset_button(GtkWidget * widget, gpointer gdata);
+static gboolean dialog_set_offset(int chan_num);
 static void channel_changed(void);
 static void scale_changed(GtkAdjustment * adj, gpointer gdata);
-static void offset_changed(GtkAdjustment * adj, gpointer gdata);
-#ifdef ENTRY
-static void offset_activated(GtkAdjustment * adj, gpointer gdata);
-#endif
+static void offset_changed(GtkEditable * editable, gchar * buf);
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
 static void chan_sel_button(GtkWidget * widget, gpointer gdata);
 
@@ -106,13 +101,63 @@ void init_vert(void)
     /* init non-zero members of the channel structures */
     for (n = 1; n <= 16; n++) {
 	chan = &(ctrl_usr->chan[n - 1]);
-	chan->position = n / 17.0;
+	chan->position = 0.5;
     }
     /* set up the windows */
     init_chan_sel_window();
     init_chan_info_window();
     init_vert_info_window();
 }
+
+void format_signal_value(char *buf, int buflen, float value)
+{
+    char *units;
+    int decimals;
+    char sign, symbols[] = "pnum KMGT";
+
+    if (value < 0) {
+	value = -value;
+	sign = '-';
+    } else {
+	sign = '+';
+    }
+    if (value <= 1.0e-24) {
+	/* pretty damn small, call it zero */
+	snprintf(buf, buflen, "0.000");
+	return;
+    }
+    if (value <= 1.0e-12) {
+	/* less than pico units, use scientific notation */
+	snprintf(buf, buflen, "%c%10.3e", sign, value);
+	return;
+    }
+    if (value >= 1.0e+12) {
+	/* greater than tera-units, use scientific notation */
+	snprintf(buf, buflen, "%c%10.3e", sign, value);
+	return;
+    }
+    units = &(symbols[4]);
+    while (value < 1.0) {
+	value *= 1000.0;
+	units--;
+    }
+    while (value >= 1000.0) {
+	value /= 1000.0;
+	units++;
+    }
+    decimals = 3;
+    if (value >= 9.999) {
+	decimals--;
+    }
+    if (value >= 99.99) {
+	decimals--;
+    }
+    snprintf(buf, buflen, "%c%0.*f%c", sign, decimals, value, *units);
+}
+
+/***********************************************************************
+*                       LOCAL FUNCTIONS                                *
+************************************************************************/
 
 static void init_chan_sel_window(void)
 {
@@ -210,32 +255,13 @@ static void init_vert_info_window(void)
 	gtk_label_new_in_box(" ---- ", ctrl_usr->vert_info_win, FALSE, FALSE,
 	0);
     /* Offset control */
-    gtk_hseparator_new_in_box(ctrl_usr->vert_info_win, 3);
-    gtk_label_new_in_box("Offset  ", ctrl_usr->vert_info_win, FALSE, FALSE,
-	0);
-#ifdef ENTRY
-    vert->offset_entry = gtk_entry_new();
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win), vert->offset_entry,
-	FALSE, TRUE, 0);
-    gtk_widget_show(vert->offset_entry);
-    /* connect the offset entry to a function */
-    gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "changed",
-	GTK_SIGNAL_FUNC(offset_changed), NULL);
-    gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "activate",
-	GTK_SIGNAL_FUNC(offset_activated), NULL);
-#endif
-#ifdef SPINBUTTON
-    vert->offset_adj = gtk_adjustment_new(0, -100, 100, 1, 1, 0);
-    vert->offset_spinbutton =
-	gtk_spin_button_new(GTK_ADJUSTMENT(vert->offset_adj), 1, 2);
+    vert->offset_button = gtk_button_new_with_label("Offset\n----");
+    vert->offset_label = (GTK_BIN(vert->offset_button))->child;
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win),
-	vert->offset_spinbutton, FALSE, TRUE, 0);
-    gtk_widget_show(vert->offset_spinbutton);
-    /* connect the offset spinbutton to a function */
-    gtk_signal_connect(GTK_OBJECT(vert->offset_adj), "value_changed",
-	GTK_SIGNAL_FUNC(offset_changed), NULL);
-#endif
-
+	vert->offset_button, FALSE, FALSE, 0);
+    gtk_signal_connect(GTK_OBJECT(vert->offset_button), "clicked",
+	GTK_SIGNAL_FUNC(offset_button), NULL);
+    gtk_widget_show(vert->offset_button);
     /* a button to turn off the channel */
     button = gtk_button_new_with_label("Chan Off");
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win), button, FALSE, FALSE,
@@ -245,56 +271,6 @@ static void init_vert_info_window(void)
 	GTK_SIGNAL_FUNC(channel_off_button), NULL);
     gtk_widget_show(button);
 }
-
-void format_signal_value(char *buf, int buflen, float value)
-{
-    char *units;
-    int decimals;
-    char sign, symbols[] = "pnum KMGT";
-
-    if (value < 0) {
-	value = -value;
-	sign = '-';
-    } else {
-	sign = '+';
-    }
-    if (value <= 1.0e-24) {
-	/* pretty damn small, call it zero */
-	snprintf(buf, buflen, "0.00");
-	return;
-    }
-    if (value <= 1.0e-12) {
-	/* less than pico units, use scientific notation */
-	snprintf(buf, buflen, "%c%10.3e", sign, value);
-	return;
-    }
-    if (value >= 1.0e+12) {
-	/* greater than tera-units, use scientific notation */
-	snprintf(buf, buflen, "%c%10.3e", sign, value);
-	return;
-    }
-    units = &(symbols[4]);
-    while (value < 1.0) {
-	value *= 1000.0;
-	units--;
-    }
-    while (value >= 1000.0) {
-	value /= 1000.0;
-	units++;
-    }
-    decimals = 2;
-    if (value >= 9.999) {
-	decimals = 1;
-    }
-    if (value >= 99.99) {
-	decimals = 0;
-    }
-    snprintf(buf, buflen, "%c%0.*f%c", sign, decimals, value, *units);
-}
-
-/***********************************************************************
-*                       LOCAL FUNCTIONS                                *
-************************************************************************/
 
 static void scale_changed(GtkAdjustment * adj, gpointer gdata)
 {
@@ -365,7 +341,7 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
     request_display_refresh(1);
 }
 
-static void offset_changed(GtkAdjustment * adj, gpointer gdata)
+static void offset_button(GtkWidget * widget, gpointer gdata)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;
@@ -377,40 +353,100 @@ static void offset_changed(GtkAdjustment * adj, gpointer gdata)
 	return;
     }
     chan = &(ctrl_usr->chan[chan_num - 1]);
-    printf("Channel %d offset changed\n", chan_num);
-#if 0
-    chan->vert_offset =
-	gtk_spin_button_get_value_as_float(GTK_SPIN_BUTTON(vert->
-	    offset_spinbutton));
-    if (chan_num == ctrl_usr->trig.trig_chan) {
-	refresh_trigger();
+    if (chan->data_type == HAL_BIT) {
+	/* no offset for bits */
+	return;
     }
-    request_display_refresh();
-#endif
+    if (dialog_set_offset(chan_num)) {
+	if (chan_num == ctrl_shm->trig_chan) {
+	    refresh_trigger();
+	}
+	channel_changed();
+	request_display_refresh(1);
+    }
 }
 
-#ifdef ENTRY
-static void offset_activated(GtkAdjustment * adj, gpointer gdata)
+static gboolean dialog_set_offset(int chan_num)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;
-    int chan_num;
+    dialog_generic_t dialog;
+    gchar *title, msg[BUFLEN], buf[BUFLEN], *cptr;
+    GtkWidget *label, *button;
+    float tmp;
 
     vert = &(ctrl_usr->vert);
-    chan_num = vert->selected;
-    if ((chan_num < 1) || (chan_num > 16)) {
-	return;
+    chan = &(ctrl_usr->chan[chan_num - 1]);
+    title = "Set Offset";
+    snprintf(msg, BUFLEN - 1, "Set the vertical offset\n"
+	"for channel %d.", chan_num);
+    /* create dialog window, disable resizing */
+    dialog.retval = 0;
+    dialog.window = gtk_dialog_new();
+    dialog.app_data = buf;
+    /* allow user to grow but not shrink the window */
+    gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
+    /* window should appear in center of screen */
+    gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
+    /* set title */
+    gtk_window_set_title(GTK_WINDOW(dialog.window), title);
+    /* display message */
+    label = gtk_label_new(msg);
+    gtk_misc_set_padding(GTK_MISC(label), 15, 5);
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), label, FALSE,
+	TRUE, 0);
+    /* a separator */
+    gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
+    vert->offset_entry = gtk_entry_new();
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
+	vert->offset_entry, FALSE, TRUE, 0);
+    snprintf(buf, BUFLEN, "%f", chan->vert_offset);
+    gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), buf);
+    gtk_widget_show(vert->offset_entry);
+    /* connect the offset entry to a function */
+    gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "changed",
+	GTK_SIGNAL_FUNC(offset_changed), buf);
+    /* set up a callback function when the window is destroyed */
+    gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
+	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
+    /* make OK and Cancel buttons */
+    button = gtk_button_new_with_label("OK");
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
+	button, TRUE, TRUE, 4);
+    gtk_signal_connect(GTK_OBJECT(button), "clicked",
+	GTK_SIGNAL_FUNC(dialog_generic_button1), &dialog);
+    button = gtk_button_new_with_label("Cancel");
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
+	button, TRUE, TRUE, 4);
+    gtk_signal_connect(GTK_OBJECT(button), "clicked",
+	GTK_SIGNAL_FUNC(dialog_generic_button2), &dialog);
+    /* make window transient and modal */
+    gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
+	GTK_WINDOW(ctrl_usr->main_win));
+    gtk_window_set_modal(GTK_WINDOW(dialog.window), TRUE);
+    gtk_widget_show_all(dialog.window);
+    gtk_main();
+    /* we get here when the user makes a selection, hits Cancel, or closes
+       the window */
+    if ((dialog.retval == 0) || (dialog.retval == 2)) {
+	/* user either closed dialog, or hit cancel */
+	return FALSE;
     }
-    chan = &(vert->chan[chan_num - 1]);
-    printf("Channel %d offset activated\n", chan_num);
-#if 0
-    chan->vert_offset =
-	gtk_spin_button_get_value_as_float(GTK_SPIN_BUTTON(vert->
-	    offset_spinbutton));
-    request_display_refresh();
-#endif
+    tmp = strtod(buf, &cptr);
+    if (cptr == buf) {
+	return FALSE;
+    }
+    chan->vert_offset = tmp;
+    return TRUE;
 }
-#endif
+
+static void offset_changed(GtkEditable * editable, gchar * buf)
+{
+    char *text;
+
+    text = gtk_entry_get_text(GTK_ENTRY(ctrl_usr->vert.offset_entry));
+    strncpy(buf, text, BUFLEN);
+}
 
 /* FIXME - this global is ugly - it's the result of using toggle
    buttons for the channel select.  I need a better way to show
@@ -674,6 +710,10 @@ static gboolean dialog_select_source(int chan_num)
     /* user made a selection */
     /* invalidate any data in the buffer for this channel */
     vert->data_offset[chan_num - 1] = -1;
+    /* set scale and offset to nominal values */
+    chan->vert_offset = 0.0;
+    chan->scale_index = 0;
+    channel_changed();
     return TRUE;
 }
 
@@ -799,7 +839,7 @@ static void channel_changed(void)
     scope_chan_t *chan;
     GtkAdjustment *adj;
     gchar *name;
-    gchar num[BUFLEN + 1];
+    gchar buf1[BUFLEN + 1], buf2[BUFLEN + 1];
 
     vert = &(ctrl_usr->vert);
     if ((vert->selected < 1) || (vert->selected > 16)) {
@@ -854,10 +894,18 @@ static void channel_changed(void)
     gtk_adjustment_changed(adj);
     gtk_adjustment_value_changed(adj);
     /* update the channel number and name display */
-    snprintf(num, BUFLEN, "%2d", vert->selected);
+    snprintf(buf1, BUFLEN, "%2d", vert->selected);
     name = chan->name;
-    gtk_label_set_text_if(vert->chan_num_label, num);
+    gtk_label_set_text_if(vert->chan_num_label, buf1);
     gtk_label_set_text_if(vert->source_name_label, name);
+    /* update the offset display */
+    if (chan->data_type == HAL_BIT) {
+	snprintf(buf1, BUFLEN, "----");
+    } else {
+	format_signal_value(buf1, BUFLEN, chan->vert_offset);
+    }
+    snprintf(buf2, BUFLEN, "Offset\n%s", buf1);
+    gtk_label_set_text_if(vert->offset_label, buf2);
     request_display_refresh(1);
 }
 

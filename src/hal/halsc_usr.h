@@ -107,16 +107,16 @@ typedef struct {
     GtkWidget *chan_num_label;
     GtkWidget *source_name_label;
     GtkWidget *source_name_button;
-
     /* widgets for vert info window */
     GtkWidget *scale_slider;
     GtkObject *scale_adj;
     GtkWidget *scale_label;
     GtkWidget *pos_slider;
     GtkObject *pos_adj;
+    GtkWidget *offset_button;
+    GtkWidget *offset_label;
+    /* widgets for offset dialog */
     GtkWidget *offset_entry;
-    GtkWidget *offset_spinbutton;
-    GtkObject *offset_adj;
     /* widgets for source selection dialog */
     GtkWidget *lists[3];	/* lists for pins, signals, and params */
 } scope_vert_t;

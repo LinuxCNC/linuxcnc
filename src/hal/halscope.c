@@ -449,15 +449,6 @@ static void init_run_mode_window(void)
 
 /* FIXME - things not yet finished */
 
-/** vertical offset - replace spinbutton/entry with a button that
-    displays the current offset value.  when clicked, it should
-    pop up a dialog containing an entry to change the value.
-    Also, offset should be zeroed (and gain set to 1) when the
-    source of a channel is changed.
-*/
-
-/** vertical positions should all default to 1/2 screen height */
-
 /** roll mode - display updates as frequently as possible, not just
     when acquisition is complete.  Also need to revisit pretrig
     logic - would like to have a full buffer of pretrig samples
