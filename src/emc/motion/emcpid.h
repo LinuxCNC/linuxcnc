@@ -1,3 +1,7 @@
+// NOTE: emcpid.h is no longer used by emc2, the PID function is
+// supplied by the HAL when needed.  Stepper based systems don't
+// use PID at all.  This file will eventually be deleted, but is
+// being kept for reference for now.
 /********************************************************************
 * Description: emcpid.h
 *   Decls for PID control law data structure and class
