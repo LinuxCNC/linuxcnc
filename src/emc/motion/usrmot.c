@@ -39,12 +39,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>              /* isspace() */
-#include "_timer.h"             /* rcslib esleep() */
+#include <unistd.h>             /* STDIN_FILENO */
+#include <fcntl.h>              /* F_GETFL, O_NONBLOCK */
+#include "_timer.h"             /* esleep() */
 #include "motion.h"
 #include "usrmotintf.h"         /* usrmotInit(), etc */
 #include "posemath.h"
 #include "emcpid.h"                /* pidIniLoad() */
-#include "getinput.h"           /* getinput() */
 #include "emcmotcfg.h"          /* EMCMOT_ERROR_LEN,NUM */
 #include "emcmotglb.h"          /* SHMEM_KEY */
 
@@ -140,6 +141,50 @@ int emcmotGetArgs(int argc, char *argv[])
 
   return 0;
 }
+
+/*
+  getinput() returns the number of chars read, -1 if no chars were available,
+  or 0 if EOF. It doesn't block, so you can call this repeatedly and when
+  it returns non-zero you have that many chars, not including the added NULL.
+  */
+int getinput(char *buffer, int maxchars)
+{
+  int flags;
+  int nchars;
+  int index = 0;
+
+  /* save the flags */
+  flags = fcntl(STDIN_FILENO, F_GETFL);
+
+  /* make terminal non-blocking */
+  fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
+
+  /* read the outstanding chars, one by one, until newline or no more */
+  while (1 == (nchars = read(STDIN_FILENO, &buffer[index], 1)))
+    {
+      if (buffer[index++] == '\n')
+        {
+          buffer[index] = 0;    /* null terminate */
+          break;
+        }
+    }
+
+  /* restore the terminal */
+  fcntl(STDIN_FILENO, F_SETFL, flags);
+
+  if (nchars == -1)
+    {
+      return -1;                /* nothing new */
+    }
+
+  if (nchars == 0)
+    {
+      return 0;                 /* end of file */
+    }
+
+  return index;
+}
+
 
 /*
    syntax:  usrmot
@@ -905,9 +950,9 @@ int main(int argc, char *argv[])
           }
         }
         else if (! strcmp(cmd, "dump")) {
-	  int include_header=1;
-          sscanf(input, "%*s %*s %s %d", filename, include_header);
-          if (-1 == usrmotDumpLog(filename,include_header)) {
+	  int include_header = 1;
+          sscanf(input, "%*s %*s %s %d", filename, &include_header);
+          if (-1 == usrmotDumpLog(filename, include_header)) {
             fprintf(stderr, "Can't dump log to %s\n", filename);
           }
         }

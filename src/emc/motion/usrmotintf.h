@@ -91,6 +91,8 @@ extern int usrmotAlter(int axis, double alter);
 extern int usrmotQueryAlter(int axis, double *alter);
 
 /* usrmotPrintComp() prints the axis compensation data for axis */
+extern int usrmotPrintComp(int axis);
+
 extern int usrmotSetIOWriteCount(unsigned short int count);
 extern int usrmotSetIOReadCount(unsigned short int count);
 extern int usrmotWriteIO(int index, unsigned char val);

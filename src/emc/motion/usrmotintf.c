@@ -27,6 +27,7 @@ static char __attribute__ ((unused)) ident[] =
 #include "emcmotglb.h"		/* SHMEM_BASE_ADDRESS, SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
 #include "emcmotlog.h"		/* EMCMOT_LOG */
+#include "_timer.h"
 #include "inifile.h"		/* iniFind() */
 
 #define READ_TIMEOUT_SEC 0	/* seconds for timeout */
