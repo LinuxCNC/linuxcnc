@@ -93,13 +93,14 @@ if (test -z "$RTDIR" ); then
   else
     RTDIR=`$RTS --prefix`
     RTDIR=$(cd $RTDIR ; pwd -P )
+    RTFLAGS=`$RTS --module-cflags`
     AC_MSG_RESULT([$RTDIR set from search])
   fi
 else
   RTDIR=$(cd $RTDIR ; pwd -P )
   AC_MSG_RESULT([$RTDIR set from command line])
 fi
-
+AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
 
 # Check for GTK
