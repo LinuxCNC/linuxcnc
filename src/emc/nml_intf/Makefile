@@ -15,7 +15,6 @@ HEADERS = \
 	emccfg.h \
 	emcglb.h \
 	emcpos.h \
-	getinput.h \
 	interpl.hh
 
 BINS =
@@ -25,8 +24,7 @@ OBJS = 	\
 	emcargs.o \
 	emcglb.o \
 	emcops.o \
-	interpl.o \
-	getinput.o
+	interpl.o
 
 LIBS =	libemc.a
 
