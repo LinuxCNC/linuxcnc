@@ -8,7 +8,7 @@
     |      |--- man/  (man pages)
     |            |
     |            |--- man1/  (user man pages)
-    |            |--- man3/  (API man pages)
+    |            |--- man3/  (programmer man pages)
     |
     |--- nc_files/ (Sample NC files)
     |
