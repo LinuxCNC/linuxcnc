@@ -1421,8 +1421,13 @@ int emcMotionSetDebug(int debug)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
-/* FIXME - these are obsolete */
+
 #if 0
+/* FIXME - These are essential if you are to coordinate IO with
+          motion. For example, turning a laser on or off at the
+	  correct point during a move.
+	  Abandon this, and you alienate part of the user base.
+*/
 int emcMotionSetAout(unsigned char index, double start, double end)
 {
     emcmotCommand.command = EMCMOT_SET_AOUT;

@@ -24,16 +24,6 @@
    a * x^3 + b * x^2 + c * x + d
 */
 
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) cubic_h[] =
-    "$Id$";
-
 typedef struct {
     double a;
     double b;
