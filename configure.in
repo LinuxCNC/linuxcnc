@@ -4,9 +4,10 @@
 # This file is adapted to replace the old ./configure script
 # therefor it includes parts of that script
 
-AC_PREREQ(2.57)
-AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
-AC_CONFIG_SRCDIR([src/hal/hal_lib.c])
+AC_PREREQ(2.13)
+#AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
+#AC_CONFIG_SRCDIR(src/hal/hal_lib.c)
+AC_INIT(src/emc/hal_intf/exthalmot.c)
 
 # Checks for programs.
 
@@ -15,7 +16,7 @@ AC_CONFIG_SRCDIR([src/hal/hal_lib.c])
 # accept rtai=path from commandline
 # accept rtlinux=path from commandline
 # accept rtlinuxpro=path from commandline
-AC_MSG_CHECKING([for RT dir])
+AC_MSG_CHECKING(for RT dir)
 RTDIR=""
 RTNAME=""
 RTAI=""
@@ -36,7 +37,7 @@ AC_ARG_WITH(rtai,
 
 if (! test -z "$RTAIDIR") ; then
   RTDIR=$RTAIDIR
-  AC_MSG_NOTICE([specified rtai=$RTDIR])
+  AC_MSG_CHECKING(specified rtai=$RTDIR)
 fi
 
 AC_ARG_WITH(rtlinux,
@@ -53,7 +54,7 @@ if (! test -z "$RTLINUXDIR") ; then
     AC_MSG_ERROR([rtai=$RTAIDIR & rtlinux=$RTLINUXDIR defined. Only one is possible])
   else
     RTDIR=$RTLINUXDIR
-    AC_MSG_NOTICE([specified rtlinux=$RTDIR])
+    AC_MSG_CHECKING(specified rtlinux=$RTDIR)
   fi
 fi
 
@@ -71,7 +72,7 @@ if (! test -z "$RTLINUXPRODIR") ; then
     AC_MSG_ERROR([rtdir=$RTDIR & rtlinuxpro=$RTLINUXPRODIR defined. Only one is possible])
   else
     RTDIR=$RTLINUXPRODIR
-    AC_MSG_NOTICE([specified rtlinuxpro=$RTDIR])
+    AC_MSG_CHECKING(specified rtlinuxpro=$RTDIR)
   fi
 fi
 
@@ -241,7 +242,7 @@ AC_ARG_WITH(kernel,
           ;;
         esac
         KERNEL_VERS="$withval"
-  	AC_MSG_NOTICE([specified kernel=$KERNEL_VERS])
+  	AC_MSG_ERROR([specified kernel=$KERNEL_VERS])
     ])
 
 AC_MSG_CHECKING([for kernel version])
@@ -460,17 +461,17 @@ AC_SUBST([MATHLIB])
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 # FIXME Test for tcl/tk headers fails if they are not in /usr/include
-AC_CHECK_HEADERS([tcl.h tk.h])
+#AC_CHECK_HEADERS([tcl.h tk.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
 # FIXME These tests fail with tcl/tk 8.0
-AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
-AC_SEARCH_LIBS(Tk_Init,[tk tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
+#AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
+#AC_SEARCH_LIBS(Tk_Init,[tk tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
 
 DATE=$(date)
 AC_SUBST([DATE])
 
-AC_CONFIG_FILES([Makefile.inc])
-AC_OUTPUT
+#AC_CONFIG_FILES(Makefile.inc)
+AC_OUTPUT(Makefile.inc)
