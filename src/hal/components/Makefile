@@ -13,6 +13,7 @@ RT_SRCS = \
 blocks.c \
 debounce.c \
 encoder.c \
+encoder_ratio.c \
 stepgen.c \
 freqgen.c \
 siggen.c \
@@ -23,6 +24,7 @@ LIBS = \
 $(RTLIB_DIR)/blocks.o \
 $(RTLIB_DIR)/debounce.o \
 $(RTLIB_DIR)/encoder.o \
+$(RTLIB_DIR)/encoder_ratio.o \
 $(RTLIB_DIR)/stepgen.o \
 $(RTLIB_DIR)/freqgen.o \
 $(RTLIB_DIR)/siggen.o \

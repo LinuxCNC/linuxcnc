@@ -1,0 +1,401 @@
+/** This file, 'encoder_ratio.c', is a HAL component that can be used
+    to synchronize two axes (like an "electronic gear").  It counts
+    encoder pulses from both axes in software, and produces an error
+    value that can be used with a PID loop to make the slave encoder
+    track the master encoder with a specific ratio. The maximum count
+    rate will depend on the speed of the PC, but is expected to exceed
+    5KHz for even the slowest computers, and may reach 10-15KHz on fast
+    ones.  It is a realtime component.
+
+    This module supports up to eight axis pairs.  The number of pairs
+    is set by the module parameter 'num_chan' when the component is
+    insmod'ed.  The module can optionally create a realtime thread,
+    which is useful if a free-running module is desired.  The module
+    parameter 'period' is a long int, corresponding to the thread
+    period in nano-seconds.  If omitted, no thread will be created.
+
+    The module exports pins and parameters for each axis pair as follows:
+
+    Input Pins:
+
+    encoder_ratio.N.master-A   (bit) Phase A of master axis encoder
+    encoder_ratio.N.master-B   (bit) Phase B of master axis encoder
+    encoder_ratio.N.slave-A    (bit) Phase A of slave axis encoder
+    encoder_ratio.N.slave-B    (bit) Phase B of slave axis encoder
+    encoder_ratio.N.enable     (bit) Enables master-slave tracking
+
+    Output Pins:
+
+    encoder_ratio.N.error      (float) Position error of slave (in revs)
+
+    Parameters:
+
+    encoder_ratio.N.master-ppr     (u32) Master axis PPR
+    encoder_ratio.N.slave-ppr      (u32) Slave axis PPR
+    encoder_ratio.N.master-teeth   (u32) "teeth" on master "gear"
+    encoder_ratio.N.slave-teeth    (u32) "teeth" on slave "gear"
+
+    The module also exports two functions.  "encoder_ratio.sample"
+    must be called in a high speed thread, at least twice the maximum
+    desired count rate.  "encoder_ratio.update" can be called at a
+    much slower rate, and updates the output pin(s).
+*/
+
+/** Copyright (C) 2004 John Kasunich
+                       <jmkasunich AT users DOT sourceforge DOT net>
+*/
+
+/** This program is free software; you can redistribute it and/or
+    modify it under the terms of version 2.1 of the GNU General
+    Public License as published by the Free Software Foundation.
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+
+    THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
+    ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
+    TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
+    harming persons must have provisions for completely removing power
+    from all motors, etc, before persons enter any danger area.  All
+    machinery must be designed to comply with local and national safety
+    codes, and the authors of this software can not, and do not, take
+    any responsibility for such compliance.
+
+    This code was written as part of the EMC HAL project.  For more
+    information, go to www.linuxcnc.org.
+*/
+
+#ifndef RTAPI
+#error This is a realtime component only!
+#endif
+
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "hal.h"		/* HAL public API decls */
+
+#ifdef MODULE
+/* module information */
+MODULE_AUTHOR("John Kasunich");
+MODULE_DESCRIPTION("Encoder Ratio Module for HAL");
+#ifdef MODULE_LICENSE
+MODULE_LICENSE("GPL");
+#endif /* MODULE_LICENSE */
+static int num_chan = 1;	/* number of channels - default = 1 */
+MODULE_PARM(num_chan, "i");
+MODULE_PARM_DESC(num_chan, "number of channels");
+static long period = 0;		/* thread period - default = no thread */
+MODULE_PARM(period, "l");
+MODULE_PARM_DESC(period, "thread period (nsecs)");
+#endif /* MODULE */
+
+/***********************************************************************
+*                STRUCTURES AND GLOBAL VARIABLES                       *
+************************************************************************/
+
+/* this structure contains the runtime data for a single counter */
+
+typedef struct {
+    hal_bit_t *master_A;	/* quadrature input */
+    hal_bit_t *master_B;	/* quadrature input */
+    hal_bit_t *slave_A;		/* quadrature input */
+    hal_bit_t *slave_B;		/* quadrature input */
+    hal_bit_t *enable;		/* enable input */
+    unsigned char master_state;	/* quad decode state machine state */
+    unsigned char slave_state;	/* quad decode state machine state */
+    int raw_error;		/* internal data */
+    int master_increment;	/* internal data */
+    int slave_increment;	/* internal data */
+    float output_scale;		/* internal data */
+    hal_float_t *error;		/* error output */
+    hal_u32_t master_ppr;	/* parameter: master encoder PPR */
+    hal_u32_t slave_ppr;	/* parameter: slave encoder PPR */
+    hal_u32_t master_teeth;	/* parameter: master "gear" tooth count */
+    hal_u32_t slave_teeth;	/* parameter: slave "gear" tooth count */
+} encoder_pair_t;
+
+/* pointer to array of counter_t structs in shmem, 1 per counter */
+static encoder_pair_t *encoder_pair_array;
+
+/* bitmasks for quadrature decode state machine */
+#define SM_PHASE_A_MASK 0x01
+#define SM_PHASE_B_MASK 0x02
+#define SM_LOOKUP_MASK  0x0F
+#define SM_CNT_UP_MASK  0x40
+#define SM_CNT_DN_MASK  0x80
+
+/* Lookup table for quadrature decode state machine.  This machine
+   will reject glitches on either input (will count up 1 on glitch,
+   down 1 after glitch), and on both inputs simultaneously (no count
+   at all)  In theory, it can count once per cycle, in practice the
+   maximum count rate should be at _least_ 10% below the sample rate,
+   and preferrable around half the sample rate.  It counts every
+   edge of the quadrature waveform, 4 counts per complete cycle.
+*/
+static const unsigned char lut[16] = {
+    0x00, 0x44, 0x88, 0x0C, 0x80, 0x04, 0x08, 0x4C,
+    0x40, 0x04, 0x08, 0x8C, 0x00, 0x84, 0x48, 0x0C
+};
+
+/* other globals */
+static int comp_id;		/* component ID */
+
+/***********************************************************************
+*                  LOCAL FUNCTION DECLARATIONS                         *
+************************************************************************/
+
+static int export_encoder_pair(int num, encoder_pair_t * addr);
+static void sample(void *arg, long period);
+static void update(void *arg, long period);
+
+/***********************************************************************
+*                       INIT AND EXIT CODE                             *
+************************************************************************/
+
+#define MAX_CHAN 8
+
+int rtapi_app_main(void)
+{
+    int n, retval;
+
+    /* test for number of channels */
+    if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "ENCODER_RATIO: ERROR: invalid num_chan: %d\n", num_chan);
+	return -1;
+    }
+    /* have good config info, connect to the HAL */
+    comp_id = hal_init("encoder_ratio");
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "ENCODER_RATIO: ERROR: hal_init() failed\n");
+	return -1;
+    }
+    /* allocate shared memory for encoder data */
+    encoder_pair_array = hal_malloc(num_chan * sizeof(encoder_pair_t));
+    if (encoder_pair_array == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "ENCODER_RATIO: ERROR: hal_malloc() failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+    /* set up each encoder pair */
+    for (n = 0; n < num_chan; n++) {
+	/* export all vars */
+	retval = export_encoder_pair(n, &(encoder_pair_array[n]));
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"ENCODER_RATIO: ERROR: counter %d var export failed\n", n);
+	    hal_exit(comp_id);
+	    return -1;
+	}
+	/* init encoder pair */
+	encoder_pair_array[n].master_state = 0;
+	encoder_pair_array[n].slave_state = 0;
+	encoder_pair_array[n].master_increment = 0;
+	encoder_pair_array[n].slave_increment = 0;
+	encoder_pair_array[n].raw_error = 0;
+	encoder_pair_array[n].output_scale = 1.0;
+	*(encoder_pair_array[n].error) = 0.0;
+    }
+    /* export functions */
+    retval = hal_export_funct("encoder_ratio.sample", sample,
+	encoder_pair_array, 0, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "ENCODER_RATIO: ERROR: sample funct export failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+    retval = hal_export_funct("encoder_ratio.update", update,
+	encoder_pair_array, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "ENCODER_RATIO: ERROR: update funct export failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+    rtapi_print_msg(RTAPI_MSG_INFO,
+	"ENCODER_RATIO: installed %d encoder_ratio blocks\n", num_chan);
+    /* was 'period' specified in the insmod command? */
+    if (period > 0) {
+	/* create a thread */
+	retval = hal_create_thread("encoder_ratio.thread", period, 0);
+	if (retval < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"ENCODER_RATIO: ERROR: could not create thread\n");
+	    hal_exit(comp_id);
+	    return -1;
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_INFO, "ENCODER_RATIO: created %d uS thread\n",
+		period / 1000);
+	}
+    }
+    return 0;
+}
+
+void rtapi_app_exit(void)
+{
+    hal_exit(comp_id);
+}
+
+/***********************************************************************
+*            REALTIME ENCODER COUNTING AND UPDATE FUNCTIONS            *
+************************************************************************/
+
+static void sample(void *arg, long period)
+{
+    encoder_pair_t *pair;
+    int n;
+    unsigned char state;
+
+    pair = arg;
+    for (n = 0; n < num_chan; n++) {
+	/* detect transitions on master encoder */
+	/* get state machine current state */
+	state = pair->master_state;
+	/* add input bits to state code */
+	if (*(pair->master_A)) {
+	    state |= SM_PHASE_A_MASK;
+	}
+	if (*(pair->master_B)) {
+	    state |= SM_PHASE_B_MASK;
+	}
+	/* look up new state */
+	state = lut[state & SM_LOOKUP_MASK];
+	/* are we enabled? */
+	if ( *(pair->enable) != 0 ) {
+	    /* has an edge been detected? */
+	    if (state & SM_CNT_UP_MASK) {
+		pair->raw_error += pair->master_increment;
+	    } else if (state & SM_CNT_DN_MASK) {
+		pair->raw_error -= pair->master_increment;
+	    }
+	}
+	/* save state machine state */
+	pair->master_state = state;
+	/* detect transitions on slave encoder */
+	/* get state machine current state */
+	state = pair->slave_state;
+	/* add input bits to state code */
+	if (*(pair->slave_A)) {
+	    state |= SM_PHASE_A_MASK;
+	}
+	if (*(pair->slave_B)) {
+	    state |= SM_PHASE_B_MASK;
+	}
+	/* look up new state */
+	state = lut[state & SM_LOOKUP_MASK];
+	/* has an edge been detected? */
+	if (state & SM_CNT_UP_MASK) {
+	    pair->raw_error -= pair->slave_increment;
+	} else if (state & SM_CNT_DN_MASK) {
+	    pair->raw_error += pair->slave_increment;
+	}
+	/* save state machine state */
+	pair->slave_state = state;
+	/* move on to next pair */
+	pair++;
+    }
+    /* done */
+}
+
+static void update(void *arg, long period)
+{
+    encoder_pair_t *pair;
+    int n;
+
+    pair = arg;
+    for (n = 0; n < num_chan; n++) {
+	/* scale raw error to output pin */
+	if ( pair->output_scale > 0 ) {
+	    *(pair->error) = pair->raw_error / pair->output_scale;
+	}
+	/* update scale factors (only needed if params change, but
+	   it's faster to do it every time than to detect changes.) */
+	pair->master_increment = pair->master_teeth * pair->slave_ppr;
+	pair->slave_increment = pair->slave_teeth * pair->master_ppr;
+	pair->output_scale = pair->master_ppr * pair->slave_ppr * pair->slave_teeth;
+	/* move on to next pair */
+	pair++;
+    }
+    /* done */
+}
+
+/***********************************************************************
+*                   LOCAL FUNCTION DEFINITIONS                         *
+************************************************************************/
+
+static int export_encoder_pair(int num, encoder_pair_t * addr)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* export pins for the quadrature inputs */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.master-A", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->master_A), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.master-B", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->master_B), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.slave-A", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->slave_A), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.slave-B", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->slave_B), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export pin for the enable input */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.enable", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->enable), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.error", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(addr->error), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameters for config info() */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.master-ppr", num);
+    retval = hal_param_u32_new(buf, HAL_WR, &(addr->master_ppr), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.slave-ppr", num);
+    retval = hal_param_u32_new(buf, HAL_WR, &(addr->slave_ppr), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.master-teeth", num);
+    retval = hal_param_u32_new(buf, HAL_WR, &(addr->master_teeth), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.slave-teeth", num);
+    retval = hal_param_u32_new(buf, HAL_WR, &(addr->slave_teeth), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
