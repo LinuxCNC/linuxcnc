@@ -296,7 +296,17 @@ AC_MSG_RESULT([$MODULE_DIR])
 # $RTS --cc should return the C compiler used - Verify this is acceptable.
 # if version is gcc-2.96 check for alternative
 AC_MSG_CHECKING(for cc version)
-AC_PROG_CC(`$RTS --cc`) # The compiler MUST match the one used to compile the realtime modules.
+
+# The compiler MUST match the one used to compile the realtime modules.
+# However realtime-config doesn't seem to have such an option
+
+if (test ${RTS##*/} = rtai-config ) ; then
+  AC_PROG_CC(`$RTS --cc`)
+elif (test ${RTS##*/} = rtl-config ) ; then
+  AC_PROG_CC(`$RTS --cc`)
+else
+  AC_PROG_CC(gcc)
+fi
 if test -z "$CC"; then
   AC_PROG_CC(egcs)
   test -z "$CC" && AC_MSG_ERROR([no acceptable cc found])
@@ -461,7 +471,55 @@ AC_SUBST([MATHLIB])
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 # FIXME Test for tcl/tk headers fails if they are not in /usr/include
-#AC_CHECK_HEADERS([tcl.h tk.h])
+AC_MSG_CHECKING([for tcl])
+
+#search for tclConfig.sh
+TCLCONFIG=$(find /usr/lib -maxdepth 1 -name tclConfig.sh | head -n1)
+if (test "x$TCLCONFIG" = "x"); then
+    TCLCONFIG=$(find /usr/local/lib -maxdepth 2 -name tclConfig.sh | head -n1)
+fi
+
+if (test "x$TCLCONFIG" = "x"); then
+   AC_MSG_RESULT([tclConfig.sh not found, trying tcl.h and libs.
+		  If it doesn't work try running ./configure --with-tclConfig=<path to tclConfig.sh>])
+   AC_CHECK_HEADERS([tcl.h])
+   AC_SEARCH_LIBS(Tcl_Init,[tcl tcl80 tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
+else
+#tclConfig.sh found,
+#extracting vars
+   AC_MSG_RESULT([$TCLCONFIG found])
+   source "$TCLCONFIG"
+   TCL_CFLAGS="$TCL_INC"
+   TCL_LIBS="$TCL_LIB_SPEC"
+fi
+
+#search for tkConfig.sh
+TKCONFIG=$(find /usr/lib -maxdepth 1 -name tkConfig.sh | head -n1)
+if (test "x$TKCONFIG" = "x"); then
+    TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+fi
+
+if (test "x$TKCONFIG" = "x"); then
+   AC_MSG_RESULT([tkConfig.sh not found, trying tk.h and libs.
+		  If it doesn't work try running ./configure --with-tkConfig=<path to tkConfig.sh>])
+   AC_CHECK_HEADERS([tk.h])
+   AC_SEARCH_LIBS(Tk_Init,[tk tk80 tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
+else
+#tkConfig.sh found,
+#extracting vars
+   AC_MSG_RESULT([$TKCONFIG found])
+   source "$TKCONFIG"
+   TK_CFLAGS="$TK_INC $TK_XINCLUDES" 
+   TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
+fi
+
+
+AC_SUBST([TCL_DBGX])
+AC_SUBST([TK_DBGX])
+AC_SUBST([TCL_CFLAGS])
+AC_SUBST([TK_CFLAGS])
+AC_SUBST([TCL_LIBS])
+AC_SUBST([TK_LIBS])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
