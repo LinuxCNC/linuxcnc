@@ -180,6 +180,69 @@ if [ $1 == parport1 ] ; then
     exit 0
 fi
 #
+# The next demo: "siggen" tests the signal generator component
+# and halmeter.
+# this one is also a step by step tutorial
+#
+if [ $1 == siggen ] ; then
+    echo "(Comments that are part of the demo are in parenthesis.)"
+    echo "(This demo echos its commands to the screen so you can"
+    echo " see what each step does.  Echoed commands start with '$')"
+    read -p "Hit enter to install the siggen module with a 1mS thread"
+    echo "$ /sbin/insmod rtlib/siggen.o fp_period=1000000"
+    /sbin/insmod rtlib/siggen.o fp_period=1000000
+    read -p "Hit enter see the threads and functions"
+    echo "$ bin/halcmd show thread"
+    bin/halcmd show thread
+    echo "(the period is in nano-seconds)"
+    echo "$ bin/halcmd show funct"
+    bin/halcmd show funct
+    read -p "Hit enter to continue"
+    echo "(connecting the siggen update function to the 1mS thread)"
+    echo "$ bin/halcmd addf siggen.1.update siggen.thread"
+    bin/halcmd addf siggen.1.update siggen.thread
+    echo "(start the realtime thread)"
+    echo "$ bin/halcmd start"
+    bin/halcmd start
+    read -p "Hit enter see the threads and functions again"
+    echo "$ bin/halcmd show thread"
+    bin/halcmd show thread
+    echo "(thread now has function attached)"
+    echo "$ bin/halcmd show funct"
+    bin/halcmd show funct
+    echo "(function has a non-zero users count)"
+    read -p "Hit enter to see the pins"
+    echo "$ bin/halcmd show pin"
+    bin/halcmd show pin
+    read -p "Hit enter to see the parameters"
+    echo "$ bin/halcmd show param"
+    bin/halcmd show param
+    read -p "Hit enter to change the frequency to 0.1Hz"
+    echo "$ bin/halcmd setp siggen.1.frequency 0.1"
+    bin/halcmd setp siggen.1.frequency 0.1
+    read -p "Hit enter to see the parameters"
+    echo "$ bin/halcmd show param"
+    bin/halcmd show param
+    read -p "Hit enter to try halmeter"
+    echo "(running halmeter, a GUI application - it should"
+    echo " appear in another window.)"
+    echo "(click on the select button, then select a pin, signal,"
+    echo " or parameter to observe.  You can change what you are"
+    echo " observing at any time.)"
+    echo "(the meter updates approx. every 0.1 seconds - if you"
+    echo " select one of the output pins, you should see it go"
+    echo " through a complete cycle every 10 seconds, since we"
+    echo " set the frequency to 0.1Hz.)"
+    echo "(Click exit to shut down halmeter.)"
+    echo "$ bin/halmeter"
+    bin/halmeter
+    read -p "Hit enter to finish the demo"
+    echo "(unloading the siggen module)"
+    echo "$ /sbin/rmmod siggen"
+    /sbin/rmmod siggen
+    exit 0
+fi
+#
 #
 # if we get here, the user asked for a non-existant demo
 #

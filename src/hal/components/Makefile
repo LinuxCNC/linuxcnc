@@ -12,11 +12,13 @@ PRIVHDRS =
 RT_SRCS = \
 encoder.c \
 stepgen.c \
+siggen.c \
 pid.c
 
 LIBS = \
 $(RTLIB_DIR)/encoder.o \
 $(RTLIB_DIR)/stepgen.o \
+$(RTLIB_DIR)/siggen.o \
 $(RTLIB_DIR)/pid.o
 
 all : headers $(LIBS)
