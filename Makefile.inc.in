@@ -35,6 +35,12 @@ mandir = @mandir@
 moduledir = @MODULE_DIR@
 kernelvers = @KERNEL_VERS@
 
+# i18n variables:
+
+package = @PACKAGE@
+localedir = @LOCALEDIR@
+LANGUAGES = @LANGUAGES@
+
 # /Standard configure directories
 
 RTNAME = @RTNAME@
@@ -48,7 +54,8 @@ USE_LIBM = @USE_LIBM@
 USE_STUBS = @USE_STUBS@
 MATHINC = @MATHINC@
 MATHLIB = @MATHLIB@
-ULFLAGS = -Wall -g -I$(INC_DIR) -I@RTDIR@/include -I. -DULAPI -O2
+ULFLAGS = -Wall -g -I$(INC_DIR) -I@RTDIR@/include -I. -DULAPI -O2 -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
+
 CC = @CC@
 
 # local flags for GTK include
@@ -72,3 +79,10 @@ LDFLAGS =
 #MAKEFLAGS = k # Eeeek.. clean compiles don't need this...
 RANLIB = @RANLIB@
 RANLIBFLAGS = 
+
+#
+# i18n
+#
+
+
+

@@ -46,6 +46,7 @@ SCRIPTS = emc.run hal_demo
  
 BINARIES = emcsvr hal_skeleton halmeter inivar milltask usrmot emcsh hal_parport halcmd halscope iosh simio
 
+
 # The list of all of the configuration files we install...
 
 CONFIGS=emc.conf hal.conf rtapi.conf core_stepper.hal emc.ini emc.nml emc.var simulated_limits.hal standard_pinout.hal xylotex_pinout.hal
@@ -213,12 +214,25 @@ install_init:
 	chmod a+x $(DESTDIR)$(TESTDIR)/etc/rc.d/init.d/realtime
 	@ echo "Realtime script installed"
 
+# install_po:
+# install language speciifc po files into their directory
+# The list of all supported i18n languages that have .po files
+# is defined in the Maekfile.inc as LANGUAGES
+
+install_po:
+	install -d $(DESTDIR)$(TESTDIR)/$(localedir)
+	@@for file in $(LANGUAGES); \
+	do \
+		echo "Installing $$file"; \
+		cp lang/$$file $(DESTDIR)$(TESTDIR)/$(localedir); \
+	done
+	
 # this rule handles the install target
 # its dependency installs all the man pages
 
 install : install_man install_bin install_lib\
 	install_modules install_scripts install_init install_sbin\
-	install_info install_configs
+	install_info install_configs install_po
 
 # this rule handles the uninstall target
 # it removes all the man pages
