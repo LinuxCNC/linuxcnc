@@ -13,7 +13,8 @@ usage(){
     echo "         quiet  - Silent running of make"
     echo "         silent - Silent running of make"
     echo
-    echo "         gtk-1.2 or gtk-2.0 - Preferred GTK lib version"
+    echo "         gtk=xxx - Set preferred GTK lib version"
+    echo "            xxx can be '1.2', '2.0', '2.2', or 'none'"
     echo
     exit -1
 }
@@ -21,9 +22,9 @@ usage(){
 echo
 
 # Set up a few defaults first...
-GTK_VER="1.2"
 MAKEFLAGS="k"
 RTDIR=""
+GTK_VER=""
 
 # Test for command line arg(s)
 for CLI in "$@"
@@ -40,13 +41,21 @@ do
 	RTDIR=$(cd $RTDIR ; pwd -P )
 	# announce that we parsed the rtdir
 	echo "RTDIR set to $RTDIR from command line"
+    #
     # test for 'silent' or 'quiet' options
     elif [ $CLI = "silent" ] || [ $CLI = "quiet" ] ; then
 	MAKEFLAGS="ks"
-    elif [ $CLI = "gtk-2.0" ] ; then
-	GTK_VER="2.0"
-    elif [ $CLI = "gtk-1.2" ] ; then
+    #
+    # test for GTK version
+    elif [ $CLI = "gtk=1.2" ] ; then
 	GTK_VER="1.2"
+    elif [ $CLI = "gtk=2.0" ] ; then
+	GTK_VER="2.0"
+    elif [ $CLI = "gtk=2.2" ] ; then
+	GTK_VER="2.2"
+    elif [ $CLI = "gtk=none" ] ; then
+	GTK_VER="none"
+    #
     # if we get here we have an invalid option...
     else
 	echo "Unknown option: $CLI"
@@ -55,7 +64,59 @@ do
     fi
 done
 
+#
+# take care of GTK config
+#
+if [ $GTK_VER ] ; then
+    # user specified something
+    echo "GTK version set to '$GTK_VER' from command line"
+    # make sure the requested version is available
+    if [ $GTK_VER = "1.2" ] ; then
+	# check for the presence of gtk-config
+	if ! type gtk-config 2>1 >/dev/null ; then
+	    echo "ERROR: GTK+ version 1.2 not installed"
+	    usage
+	    exit 1
+	fi
+    elif [ $GTK_VER = "2.0" ] || [ $GTK_VER = "2.2" ] ; then
+	# first make sure pkg-config is installed
+	if ! type pkg-config 2>1 >/dev/null ; then
+	    # if pkg-config is absent, then GTK-2.x is also absent
+	    echo "ERROR:  GTK+ version $GTK_VER not installed"
+	    usage
+	    exit 1
+	elif ! pkg-config gtk+-$GTK_VER --exists ; then
+	    # pkg-config can't find the .pc file
+	    echo "ERROR:  GTK+ version $GTK_VER not installed"
+	    usage
+	    exit 1
+	fi
+    fi
+    # if we get here, the GTK version specified by the user exists,
+    # (or the user specified "none")
+else
+    # user didn't indicate a preference, find out what's installed
+    GTK_VER="none"
+    # check for 1.2 installed
+    if type gtk-config 2>1 >/dev/null ; then
+	# found gtk-config, that means GTK 1.2 is installed
+	GTK_VER="1.2"
+    elif type pkg-config 2>1 >/dev/null ; then
+	# found pkg-config, that means GTK 2.x _might_ be installed
+	if pkg-config gtk+-2.0 --exists ; then
+	    # found the .pc file for gtk-2.0
+	    GTK_VER="2.0"
+	elif pkg-config gtk+-2.2 --exists ; then
+	    # found the .pc file for gtk-2.2
+	    GTK_VER="2.2"
+	fi
+    fi
+    echo "GTK version set to '$GTK_VER' by search"
+fi
+
+#
 # check for RTDIR from command line
+#
 if [ "$RTDIR" = "" ] ; then
     # None specified, so search for likely files..
     RTS=$(find /usr/src/ -maxdepth 2 -name "rtl.mk" -o -name ".buildvars" 2> /dev/null)
@@ -82,9 +143,12 @@ if [ "$RTDIR" = "" ] ; then
     # announce what we found
     echo "RTDIR set to $RTDIR by search"
 fi
+
 # command line parsing finished
 
+#
 # check RTDIR for a valid RTOS signature
+#
 if [ ! -f $RTDIR/rtl.mk ] ; then
     if [ ! -f $RTDIR/.buildvars ] ; then
     # no rtai or rtlinux signatures found, then exit..
@@ -183,14 +247,18 @@ cat $RTFILE | grep -v CFLAGS | grep -v CC >> Makefile.inc
 echo >> Makefile.inc
 
 echo "# local flags for GTK includes" >> Makefile.inc
-if [ $GTK_VER = "2.0" ] ; then
-    echo "GTK_VERSION = 2.0" >> Makefile.inc
-    echo "GTK_CFLAGS = `pkg-config gtk+-2.0 --cflags`" >> Makefile.inc
-    echo "GTK_LIBS = `pkg-config gtk+-2.0 --libs`" >> Makefile.inc
-else
+if [ $GTK_VER = "1.2" ] ; then
     echo "GTK_VERSION = 1.2" >> Makefile.inc
     echo "GTK_CFLAGS = `gtk-config --cflags`" >> Makefile.inc
     echo "GTK_LIBS = `gtk-config --libs`" >> Makefile.inc
+elif [ $GTK_VER = "2.0" ] || [ $GTK_VER = "2.2" ] ; then
+    echo "GTK_VERSION = $GTK_VER" >> Makefile.inc
+    echo "GTK_CFLAGS = `pkg-config gtk+-$GTK_VER --cflags`" >> Makefile.inc
+    echo "GTK_LIBS = `pkg-config gtk+-$GTK_VER --libs`" >> Makefile.inc
+else
+    echo "GTK_VERSION = " >> Makefile.inc
+    echo "GTK_CFLAGS = " >> Makefile.inc
+    echo "GTK_LIBS = " >> Makefile.inc
 fi
 echo >> Makefile.inc
 echo "# Automatically generated default options." >> Makefile.inc
