@@ -12,7 +12,8 @@ HEADERS =cubic.h \
 	pid.h \
 	tc.h \
 	tp.h \
-	emcprocfs.h
+	emcprocfs.h \
+	emcioctl.h
 
 SRCS =
 
