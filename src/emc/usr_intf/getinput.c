@@ -10,33 +10,6 @@ Modifications:
 
   */
 
-#ifdef WIN32
-
-// WIN32 but not CE, ( ie. Windows 95,98,2000, or NT)
-
-#include <stdio.h>
-#include <string.h>
-
-/*
-  getinput() blocks on stdin, returning number of chars read, -1
-  if EOF.
-  */
-int getinput(char *buffer, int maxchars)
-{
-  if (NULL == fgets(buffer, maxchars, stdin))
-    {
-      if (feof(stdin))
-        {
-          return 0;
-        }
-
-      return -1;
-    }
-
-  return strlen(buffer);
-}
-
-#else
 
 #include <unistd.h>             /* STDIN_FILENO */
 #include <fcntl.h>              /* F_GETFL, O_NONBLOCK */
@@ -84,4 +57,3 @@ int getinput(char *buffer, int maxchars)
   return index;
 }
 
-#endif /* not WIN32 */
