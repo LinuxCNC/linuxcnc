@@ -23,7 +23,8 @@ exec_prefix = @exec_prefix@
 infodir = @infodir@
 mandir = @mandir@
 
-sysconfdir=/etc
+initd_dir = /etc/init.d
+sysconfdir = /etc
 moduledir = @MODULE_DIR@
 kernelvers = @KERNEL_VERS@
 

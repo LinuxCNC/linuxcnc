@@ -13,18 +13,17 @@ PRINT_FILE=/dev/null
 
 # some basic programs
 # configure replaces this values
-
-INSMOD=/sbin/insmod
-RMMOD=/sbin/rmmod
-LSMOD=/sbin/lsmod
-PIDOF=/sbin/pidof
-GREP=/bin/grep
-SED=/bin/sed
-PS=/bin/ps
-WHOAMI=/usr/bin/whoami
-AWK=/bin/awk
-IPCS=/usr/bin/ipcs
-KILL=/bin/kill
+INSMOD=@INSMOD@
+RMMOD=@RMMOD@
+LSMOD=@LSMOD@
+PIDOF=@PIDOF@
+GREP=@GREP@
+SED=@SED@
+PS=@PS@
+WHOAMI=@WHOAMI@
+AWK=@AWK@
+IPCS=@IPCS@
+KILL=@KILL@
 
 # strip and process command line options
 #
@@ -86,7 +85,7 @@ if [ -f $EMC2_DIR/configs/hal.conf ] ; then
    source $EMC2_DIR/configs/hal.conf ;
    HALCONFSRC=$EMC2_DIR/configs/hal.conf
 elif [ -f /etc/emc2/hal.conf ] ; then
-   source /etc/emc2/hal.conf ;
+   source /etc/hal.conf ;
    HALCONFSRC=/etc/emc2/hal.conf
 else
     echo "Can't find hal.conf configuration file"
@@ -101,7 +100,6 @@ if [ `$WHOAMI` != root ] ; then
     echo "Sorry, you must be root to run EMC"
     exit -1
 fi
-
 
 echo EMC2_DIR=$EMC2_DIR >$PRINT_FILE
 echo EMC2_BIN_DIR=$EMC2_BIN_DIR >$PRINT_FILE

@@ -640,7 +640,7 @@ fi
 #AM_GLIB_GNU_GETTEXT
 
 
-AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
+AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/emc.conf.install configs/hal.conf.install configs/hal.conf src/config.h])
 AC_OUTPUT(Makefile.inc)
 
 

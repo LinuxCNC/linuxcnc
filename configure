@@ -8254,7 +8254,7 @@ fi
 #AM_GLIB_GNU_GETTEXT
 
 
-                                        ac_config_files="$ac_config_files configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h"
+                                                            ac_config_files="$ac_config_files configs/rtapi.conf configs/emc.conf configs/emc.conf.install configs/hal.conf.install configs/hal.conf src/config.h"
 
           ac_config_files="$ac_config_files Makefile.inc"
 cat >confcache <<\_ACEOF
@@ -8808,6 +8808,8 @@ do
   # Handling of arguments.
   "configs/rtapi.conf" ) CONFIG_FILES="$CONFIG_FILES configs/rtapi.conf" ;;
   "configs/emc.conf" ) CONFIG_FILES="$CONFIG_FILES configs/emc.conf" ;;
+  "configs/emc.conf.install" ) CONFIG_FILES="$CONFIG_FILES configs/emc.conf.install" ;;
+  "configs/hal.conf.install" ) CONFIG_FILES="$CONFIG_FILES configs/hal.conf.install" ;;
   "configs/hal.conf" ) CONFIG_FILES="$CONFIG_FILES configs/hal.conf" ;;
   "src/config.h" ) CONFIG_FILES="$CONFIG_FILES src/config.h" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;

@@ -33,6 +33,7 @@ include Makefile.inc
 LOCALDIR = $(EMC2_HOME)
 
 all headers indent :
+	chmod +x scripts/emc.run
 	(cd src/rtapi; make $@)
 	(cd src/hal; make $@)
 	(cd src/libnml; make $@)
@@ -60,18 +61,25 @@ $(MAN_DIR)/% : docs/man/%
 # this rule handles the install target
 # its dependency installs all the man pages
 
-install : $(MAN_FILES)
+install : all $(MAN_FILES)
 	
 	# waiting for emc to be "rock solid" (quote by P.C.)
-	#cp scripts/realtime $(initd_dir)
-	#@ echo "realtime script installed"
+	cp scripts/realtime $(initd_dir)/
+	@ echo "realtime script installed"
 	
 	install -d $(moduledir)
 	cp -R rtlib/*.o $(moduledir)
+	cp scripts/.runinfo $(moduledir)
 	@ echo "kernel modules installed"
 	
 	install -d /etc/emc2
 	cp -R configs/*.conf /etc/emc2
+	cp configs/*.hal /etc/emc2
+	cp configs/emc.conf.install /etc/emc2/emc.conf
+	cp configs/hal.conf.install /etc/emc2/hal.conf
+	#cp configs/emc.conf.install /etc/emc2/emc.conf
+	install -d $(prefix)/etc
+	cp configs/*.ini configs/*.var configs/*.nml /etc/emc2
 	@ echo "configs installed"
 	
 	install -d $(prefix)/bin
@@ -80,8 +88,8 @@ install : $(MAN_FILES)
 	@ echo "bin installed"
 	
 	install -d $(prefix)/lib
-	cp lib/*.so $(prefix)/lib
-	rm lib/*.a lib/*.o
+	(if (test -f lib/*.so) ; then cp lib/*.so $(prefix)/lib; fi)
+	-(rm -f lib/*.a lib/*.o 2>/dev/null)
 	@ echo "lib installed"
 	
 	install -d $(prefix)/share/emc2/docs
