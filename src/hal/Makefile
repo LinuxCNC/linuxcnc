@@ -13,29 +13,32 @@ hal.h
 # Private headers
 PRIVHDRS = \
 hal_priv.h \
-halgtk.h \
-#halscope.h
+miscgtk.h \
+halsc_shm.h \
+halsc_rt.h \
+halsc_usr.h
 
 SRCS = \
 hal_lib.c \
 halcmd.c \
+miscgtk.c \
 halmeter.c \
-probe.c \
-#halscope.c
+halscope.c \
+halsc_horiz.c
 
 RT_SRCS = \
 hal_lib.c \
-#halscope_rt.c
+halscope_rt.c
 
 LIBS = \
 $(RTLIB_DIR)/hal_lib.o \
-$(LIB_DIR)/hal_lib.o
-
+$(LIB_DIR)/hal_lib.o \
+$(RTLIB_DIR)/halscope_rt.o
 
 ifdef GTK_VERSION
 GTK_BINS = \
 $(BIN_DIR)/halmeter \
-#$(BIN_DIR)/halscope
+$(BIN_DIR)/halscope
 endif
 
 BINS = \
@@ -71,12 +74,27 @@ $(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 # rule to link halmeter
-$(BIN_DIR)/halmeter : $(TMP_DIR)/halmeter.o $(TMP_DIR)/probe.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
+
+HALMETER_OBJS = \
+$(TMP_DIR)/halmeter.o \
+$(TMP_DIR)/miscgtk.o \
+$(LIB_DIR)/ulapi.o \
+$(LIB_DIR)/hal_lib.o
+
+$(BIN_DIR)/halmeter : $(HALMETER_OBJS)
 	@ echo "Linking $@"
 	$(CC) $(GTK_LIBS) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 # rule to link halscope
-$(BIN_DIR)/halscope : $(TMP_DIR)/halscope.o $(TMP_DIR)/probe.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
+
+HALSCOPE_OBJS = \
+$(TMP_DIR)/halscope.o \
+$(TMP_DIR)/halsc_horiz.o \
+$(TMP_DIR)/miscgtk.o \
+$(LIB_DIR)/ulapi.o \
+$(LIB_DIR)/hal_lib.o
+
+$(BIN_DIR)/halscope : $(HALSCOPE_OBJS)
 	@ echo "Linking $@"
 	$(CC) $(GTK_LIBS) $(CFLAGS) $(ULFLAGS) $^ -o $@
 

@@ -1,8 +1,10 @@
-#ifndef HALGTK_H
-#define HALGTK_H
-
-/** This file, 'halgtk.h', contains declarations for various code
-    used by GTK based hal programs such as 'halmeter' and 'halscope'.
+#ifndef HALSC_RT_H
+#define HALSC_RT_H
+/** This file, 'halsc_rt.h', contains declarations used by
+    'halscope_rt.c' to implement the real-time portion of
+    the HAL oscilliscope.  Declarations that are common to the
+    realtime and user parts are in 'halsc_shm.h', and those used
+    only by the user part are in 'halsc_usr.h'.
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -34,45 +36,26 @@
     information, go to www.linuxcnc.org.
 */
 
+#if ( !defined RTAPI )
+#error This file needs RTAPI!
+#endif
+
+/* import the shared declarations */
+#include "halsc_shm.h"
+
 /***********************************************************************
-*                            TYPEDEFS                                  *
+*                         TYPEDEFS AND DEFINES                         *
 ************************************************************************/
 
-/** a 'probe' is an object that references a HAL pin, signal, or
-    parameter.  The user may select the item that is to be probed.
-*/
-
-#define PROBE_NAME_LEN 63
+/* this is the master kernel space control structure */
 
 typedef struct {
-    int listnum;		/* 0 = pin, 1 = signal, 2 = parameter */
-    char *pickname;		/* name from list, not validated */
-    char *name;			/* name of pin/sig/param */
-    hal_type_t type;		/* type of pin/sig/param */
-    void *data;			/* address of data */
-    GtkWidget *window;		/* selection dialog window */
-    GtkWidget *lists[3];	/* lists for pins, sigs, and params */
-    char probe_name[PROBE_NAME_LEN + 1];	/* name of this probe */
-} probe_t;
+    scope_shm_control_t *shared;	/* ptr to shared control struct */
+    scope_data_t *buffer;	/* ptr to buffer (kernel mapping) */
+} scope_rt_control_t;
 
 /***********************************************************************
-*                  LOCAL FUNCTION PROTOTYPES                           *
+*                          FUNCTIONS                                   *
 ************************************************************************/
 
-/** 'probe_new()' creates a new probe structure.  It also creates
-    a dialog window for the probe that allows the user to pick the
-    pin, signal, or parameter that the probe will attach to.  It
-    should be called during the init phase of the program, before
-    the main event loop is started.
-*/
-
-probe_t *probe_new(char *probe_name);
-
-/** 'popup_probe_window()' is an event handler function that opens
-    the selection dialog for a probe.  'data' must be a pointer to
-    a probe_t structure that was allocated by 'probe_new'.
-*/
-
-void popup_probe_window(GtkWidget * widget, gpointer data);
-
-#endif /* HALGTK_H */
+#endif /* HALSC_RT_H */

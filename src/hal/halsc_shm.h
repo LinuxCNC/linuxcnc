@@ -1,0 +1,98 @@
+#ifndef HALSC_SHM_H
+#define HALSC_SHM_H
+/** This file, 'halsc_shm.h', contains declarations used by both
+    'halscope.c' and 'halscope_rt.c' to implement an oscilliscope.
+    The declarations in this file are used by both the realtime
+    and user space components of the scope.  Those used only in
+    realtime are in 'halsc_rt.h', and those used only in user
+    space are in 'halsc_usr.h'.
+*/
+
+/** Copyright (C) 2003 John Kasunich
+                       <jmkasunich AT users DOT sourceforge DOT net>
+*/
+
+/** This program is free software; you can redistribute it and/or
+    modify it under the terms of version 2.1 of the GNU General
+    Public License as published by the Free Software Foundation.
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+
+    THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
+    ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
+    TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
+    harming persons must have provisions for completely removing power
+    from all motors, etc, before persons enter any danger area.  All
+    machinery must be designed to comply with local and national safety
+    codes, and the authors of this software can not, and do not, take
+    any responsibility for such compliance.
+
+    This code was written as part of the EMC HAL project.  For more
+    information, go to www.linuxcnc.org.
+*/
+
+/***********************************************************************
+*                         TYPEDEFS AND DEFINES                         *
+************************************************************************/
+
+#define SCOPE_SHM_KEY  0x130CF405
+#define SCOPE_SHM_SIZE 65000
+
+typedef enum {
+    IDLE = 0,			/* waiting for run command */
+    INIT,			/* run command received */
+    PRE_TRIG,			/* acquiring pre-trigger data */
+    TRIG_WAIT,			/* waiting for trigger */
+    POST_TRIG,			/* acquiring post-trigger data */
+    DONE			/* data acquisition complete */
+} scope_state_t;
+
+/* this struct holds a single value - one sample of one channel */
+
+typedef union {
+    unsigned char d1;		/* variable for 1-byte data */
+    unsigned short d2;		/* variable for 2-byte data */
+    unsigned long d4;		/* variable for 4-byte data */
+} scope_data_t;
+
+/** This struct holds control data needed by both realtime and GUI code.
+    It lives in shared memory.  The codes for each field identify which
+    module(s) set the field.  "I" set at init only, "R" set by realtime
+    code, "U" set by user code, "RU" set/modified by both.
+*/
+
+typedef struct {
+    int buf_len;		/* I length of buffer */
+    int watchdog;		/* RU rt sets to zero, user incs */
+    int mult;			/* U sample period multiplier */
+    int mult_cntr;		/* R used to divide by 'mult' */
+    int rec_len;		/* U total samples in record */
+    int sample_len;		/* U channels in each sample */
+    int pre_trig;		/* U number of samples before trigger */
+    int force_trig;		/* RU U sets non-zero to force trigger */
+    int start;			/* R first sample in record */
+    int curr;			/* R next sample to be acquired */
+    int samples;		/* R number of valid samples */
+    scope_state_t state;	/* RU current state */
+    short sample_request;	/* U bitmap of channels to sample */
+    short samples_valid;	/* R bitmap of sampled channels */
+
+#if 0
+    scope_state_t state;	/* ?current state */
+    unsigned char size[NUM_CHAN];	/* ?size of each signal, bytes */
+    void *data[NUM_CHAN];	/* ?pointer to each signal */
+    int active_chans;		/* ?number of active channels */
+    int start;			/* ?index of first sample */
+    int curr;			/* ?index of current sample */
+    int samples;		/* ?number of samples captured */
+    int pre_trig;		/* ?number of pre-trigger samples */
+#endif
+} scope_shm_control_t;
+
+#endif /* HALSC_SHM_H */
