@@ -50,8 +50,7 @@
 #ifndef _HAL_CMDS_H_
 #define _HAL_CMDS_H_
 
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"		/* private HAL decls */
+#include "hal_refactor.h"		/* HAL public API decls */
 
 /***********************************************************************
 *                        FUNCTION DECLARATIONS                         *
@@ -91,6 +90,11 @@ extern void save_threads(void);
 extern int run_command(const char *command);
 extern int run_script(const char *filename);
 extern int run_script_file(FILE *infile);
+
+extern int do_newpart_cmd(char *module, char *type, char *name);
+extern int do_delpart_cmd(int part_id);
+
+int open_hal_dev();
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *

@@ -57,8 +57,6 @@ int result;
 static char command[MAX_COMMAND_LENGTH];
 char *type=NULL;
 int offset;
-hal_module_list_t *module;
-hal_block_type_list_t *block_type;
 
     if (len>MAX_COMMAND_LENGTH)
 	len=MAX_COMMAND_LENGTH;

@@ -18,25 +18,26 @@ scope_usr.h
 
 SRCS = \
 halcmd.c \
-miscgtk.c \
-meter.c \
-scope.c \
-scope_horiz.c \
-scope_vert.c \
-scope_trig.c \
-scope_disp.c
+#miscgtk.c \
+#meter.c \
+#scope.c \
+#scope_horiz.c \
+#scope_vert.c \
+#scope_trig.c \
+#scope_disp.c
 
 RT_SRCS = \
 scope_rt.c
 
-LIBS = \
-$(RTLIB_DIR)/scope_rt.o
+#LIBS = \
+#$(RTLIB_DIR)/scope_rt.o
 
 ifdef GTK_VERSION
 GTK_BINS = \
-$(BIN_DIR)/halmeter \
-$(BIN_DIR)/halscope
+
+#$(BIN_DIR)/halscope 
 endif
+#$(BIN_DIR)/halmeter 
 
 BINS = \
 $(BIN_DIR)/halcmd \
@@ -57,17 +58,17 @@ clean :  def_clean
 
 # rule to link halcmd
 $(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o \
-		$(LIB_DIR)/hal_lib.o $(LIB_DIR)/hal_cmds.o
+		$(LIB_DIR)/hal_cmds.o
 	@ echo "Linking $@"
 	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 # rule to link halmeter
 
 HALMETER_OBJS = \
-$(TMP_DIR)/meter.o \
 $(TMP_DIR)/miscgtk.o \
 $(LIB_DIR)/ulapi.o \
-$(LIB_DIR)/hal_lib.o
+#$(LIB_DIR)/hal_lib.o \
+#$(TMP_DIR)/meter.o \
 
 $(BIN_DIR)/halmeter : $(HALMETER_OBJS)
 	@ echo "Linking $@"

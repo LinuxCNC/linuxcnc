@@ -8,57 +8,51 @@ LOCAL_CFLAGS = $(GTK_CFLAGS)
 
 # Public headers
 HEADERS = \
-hal.h
+hal_refactor.h
 
-# Private headers
-PRIVHDRS = \
-hal_priv.h
-
+# We're not compiling user space anymore for the time being...
 SRCS = \
-hal_lib.c \
-hal_cmds.c \
-hal_procfs.c \
-avltree.c
+avltree.c hal_cmds.c 
 
 RT_SRCS = \
-hal_lib.c \
-avltree.c
+avltree.c hal_refactor.c hal_ioctl.c
 
-LIBS = \
-$(RTLIB_DIR)/hal_lib.o \
-$(LIB_DIR)/hal_lib.o \
-$(RTLIB_DIR)/avltree.o \
+LIBS = $(RTLIB_DIR)/avltree.o \
+$(RTLIB_DIR)/hal_refactor.o \
+$(RTLIB_DIR)/hal_ioctl.o \
 $(LIB_DIR)/avltree.o \
 $(LIB_DIR)/hal_cmds.o \
-$(LIB_DIR)/hal_procfs.o
-
+# We're not compiling user space anymore for the time being...
+#$(RTLIB_DIR)/hal_lib.o \
+#$(LIB_DIR)/hal_lib.o \
+#$(LIB_DIR)/hal_procfs.o
 
 all : headers $(LIBS)
-	(cd utils; make $@)
-	(cd drivers; make $@)
+#	(cd utils; make $@)
+#	(cd drivers; make $@)
 	(cd components; make $@)
 
 # Generic rules
 include $(EMC2_HOME)/Make.rules
 
 headers: def_headers
-	(cd utils; make $@)
-	(cd drivers; make $@)
+#	(cd utils; make $@)
+#	(cd drivers; make $@)
 	(cd components; make $@)
 
 indent: def_indent
-	(cd utils; make $@)
-	(cd drivers; make $@)
+#	(cd utils; make $@)
+#	(cd drivers; make $@)
 	(cd components; make $@)
 
 depend: def_depend
-	(cd utils; make $@)
-	(cd drivers; make $@)
+#	(cd utils; make $@)
+#	(cd drivers; make $@)
 	(cd components; make $@)
 
 clean :  def_clean
-	(cd utils; make $@)
-	(cd drivers; make $@)
+#	(cd utils; make $@)
+#	(cd drivers; make $@)
 	(cd components; make $@)
 
 # rule to make avltree (test program)

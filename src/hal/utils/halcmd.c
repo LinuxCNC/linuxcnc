@@ -52,8 +52,7 @@
 #include <fcntl.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
+#include "../hal_refactor.h"		/* HAL public API decls */
 #include "../hal_cmds.h"	/* HAL command processing utilities */
 
 static void print_help(void);
@@ -75,6 +74,8 @@ int main(int argc, char **argv)
     FILE *infile = NULL;
     char cmd_buf[MAX_CMD_LEN+1];
     char *tokens[MAX_TOK+1];
+
+    open_hal_dev();
 
     if (argc < 2) {
 	/* no args specified, print help */
@@ -148,11 +149,13 @@ int main(int argc, char **argv)
 	}
     }
     /* at this point all options are parsed */
+#if 0
     comp_id = hal_init("halcmd");
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed\n" );
 	return 1;
     }
+#endif
     retval = 0;
     errorcount = 0;
     /* HAL init is OK, let's process the command(s) */
@@ -179,7 +182,9 @@ int main(int argc, char **argv)
 	errorcount=run_script_file(infile);
     }
     /* all done */
+#if 0
     hal_exit(comp_id);
+#endif
     if ( errorcount > 0 ) {
 	return 1;
     } else {

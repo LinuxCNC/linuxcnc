@@ -40,10 +40,16 @@
 #error This is a realtime component only!
 #endif
 
+
+#define RTAPI_MSGLEVEL RTAPI_MSG_DBG
+
+
+
+
 #include <linux/ctype.h>	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include "../hal_refactor.h"	/* HAL public API decls */
 
 #ifdef MODULE
 /* module information */
@@ -54,13 +60,6 @@ MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
 #endif /* MODULE */
 
-
-/*
-TODO: undo this hack once hal_malloc is fully converted:
-
-*/
-
-#define hal_malloc new_hal_malloc
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -114,7 +113,7 @@ typedef struct {
 } ddt_t;
 
 /* other globals */
-static int comp_id;		/* component ID */
+static int module_id;		/* module ID */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -141,10 +140,10 @@ static void ddt_funct(void *arg, long period);
 ************************************************************************/
 
 hal_module_info blocks_module_info={
-	module_name: "blocks",
-	author: "John Kasunich (jmkasunich AT att DOT net)",
-	short_description: "An assortment of simple blocks.",
-	info_link: "Contact John Kasunich (jmkasunich AT att DOT net)"
+	name: 		"blocks",
+	author: 	"John Kasunich (jmkasunich AT att DOT net)",
+	description: 	"An assortment of simple blocks.",
+	info_link: 	"Contact John Kasunich (jmkasunich AT att DOT net)"
 };
 
 enum {
@@ -157,49 +156,49 @@ enum {
 	BLOCKS_TYPE_DDT};
 
 
-hal_block_type_info blocks_block_types[]=
+hal_part_type_info blocks_part_types[]=
 {
 	{
-	block_type_id		:BLOCKS_TYPE_CONSTANT,
-	type_name		:"constant",
-        short_description	:"pin controlled by parameter",
-	create			:create_constant
+	type_id		:BLOCKS_TYPE_CONSTANT,
+	name		:"constant",
+        description	:"pin controlled by parameter",
+	create		:create_constant
 	},
 	{
-	block_type_id		:BLOCKS_TYPE_WCOMP,
-	type_name		:"wcomp",
-        short_description	:"window comparator - out is true if min < in < max",
+	type_id		:BLOCKS_TYPE_WCOMP,
+	name		:"wcomp",
+        description	:"window comparator - out is true if min < in < max",
 	create			:create_wcomp
 	},
 	{
-	block_type_id		:BLOCKS_TYPE_COMP,
-	type_name		:"comp",
-        short_description	:"2 input comparator - out is true if in1 > in0",
-	create			:create_comp
+	type_id		:BLOCKS_TYPE_COMP,
+	name		:"comp",
+        description	:"2 input comparator - out is true if in1 > in0",
+	create		:create_comp
 	},
 	{
-	block_type_id		:BLOCKS_TYPE_SUM2,
-	type_name		:"sum2",
-        short_description	:"2 input summer - out = in1 * gain1 + in2 * gain2",
-	create			:create_sum2
+	type_id		:BLOCKS_TYPE_SUM2,
+	name		:"sum2",
+        description	:"2 input summer - out = in1 * gain1 + in2 * gain2",
+	create		:create_sum2
 	},
 	{
-	block_type_id		:BLOCKS_TYPE_MUX2,
-	type_name		:"mux2",
-        short_description	:"two input analog mux - out = in1 if sel is true, else in0",
-	create			:create_mux2
+	type_id		:BLOCKS_TYPE_MUX2,
+	name		:"mux2",
+        description	:"two input analog mux - out = in1 if sel is true, else in0",
+	create		:create_mux2
 	},
 	{
-	block_type_id		:BLOCKS_TYPE_INTEG,
-	type_name		:"integ",
-        short_description	:"integrator, out = integral of in",
-	create			:create_integ
+	type_id		:BLOCKS_TYPE_INTEG,
+	name		:"integ",
+        description	:"integrator, out = integral of in",
+	create		:create_integ
 	},
 	{
-	block_type_id		:BLOCKS_TYPE_DDT,
-	type_name		:"ddt",
-        short_description	:"differentiator, out = derivative of in",
-	create			:create_ddt
+	type_id		:BLOCKS_TYPE_DDT,
+	name		:"ddt",
+        description	:"differentiator, out = derivative of in",
+	create		:create_ddt
 	}
 };
 
@@ -213,25 +212,24 @@ int rtapi_app_main(void)
     /* connect to the HAL */
 
 
-//    comp_id = hal_init("blocks");
-    comp_id = hal_register_module(&blocks_module_info);
-    if (comp_id < 0) {
+    module_id = hal_register_module(&blocks_module_info);
+    if (module_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "BLOCKS: ERROR: hal_register_module() failed\n");
 	return -1;
     }
 
-    /* Register our ability to create blocks... */
+    /* Register our ability to create parts... */
 
     for (n=0; 
-	n < (sizeof( blocks_block_types ) / sizeof(hal_block_type_info)); 
+	n < (sizeof( blocks_part_types ) / sizeof(hal_part_type_info)); 
 	n++)
 
 	{
-	result=hal_register_block_type(comp_id, &blocks_block_types[n]);
+	result=hal_register_part_type(module_id, &blocks_part_types[n]);
 	if (HAL_SUCCESS != result)
 		{
-		rtapi_print_msg(RTAPI_MSG_ERR, "BLOCKS: ERROR: failed to register ability to create blocks of type '%s'\n", blocks_block_types[n].type_name);
-		hal_exit(comp_id);
+		rtapi_print_msg(RTAPI_MSG_ERR, "BLOCKS: ERROR: failed to register ability to create blocks of type '%s'\n", blocks_part_types[n].name);
+		hal_unregister_module(module_id);
 		}
 	}
 
@@ -240,7 +238,7 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
-    hal_exit(comp_id);
+    hal_unregister_module(module_id);
 }
 
 /***********************************************************************
@@ -354,7 +352,7 @@ static int create_constant(int new_block_id, int block_type)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level(RTAPI_MSGLEVEL);
 
     /* allocate shared memory for window comparator */
     constant = hal_malloc(new_block_id, sizeof(constant_t));
@@ -370,6 +368,10 @@ static int create_constant(int new_block_id, int block_type)
 	    "BLOCKS: ERROR: 'out' pin export failed\n");
 	return retval;
     }
+
+
+/* TODO TODO TODO ... fix this...*/
+
     /* export param for value */
     retval = hal_param_float_new("value", HAL_WR, &(constant->value), new_block_id);
     if (retval != 0) {
@@ -384,6 +386,8 @@ static int create_constant(int new_block_id, int block_type)
 	    "BLOCKS: ERROR: 'constant' funct export failed\n");
 	return -1;
     }
+
+
     /* set default parameter values */
     constant->value = 1.0;
     /* restore saved message level */
@@ -401,7 +405,7 @@ static int create_wcomp(int new_block_id, int block_type)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level(RTAPI_MSGLEVEL);
 
     /* allocate shared memory for window comparator */
     wcomp = hal_malloc(new_block_id, sizeof(wcomp_t));
@@ -462,7 +466,7 @@ static int create_comp(int new_block_id, int block_type)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level(RTAPI_MSGLEVEL);
 
     /* allocate shared memory for 2-input comparator */
     comp = hal_malloc(new_block_id, sizeof(comp_t));
@@ -522,7 +526,7 @@ static int create_mux2(int new_block_id, int block_type)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level(RTAPI_MSGLEVEL);
 
     /* allocate shared memory for 2 input multiplexor */
     mux2 = hal_malloc(new_block_id, sizeof(mux2_t));
@@ -580,7 +584,7 @@ static int create_sum2(int new_block_id, int block_type)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level(RTAPI_MSGLEVEL);
 
     /* allocate shared memory for 2-input summer */
     sum2 = hal_malloc(new_block_id, sizeof(sum2_t));
@@ -647,7 +651,7 @@ static int create_integ(int new_block_id, int block_type)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level(RTAPI_MSGLEVEL);
 
     /* allocate shared memory for integrator */
     integ = hal_malloc(new_block_id, sizeof(integ_t));
@@ -692,7 +696,7 @@ static int create_ddt(int new_block_id, int block_type)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    rtapi_set_msg_level(RTAPI_MSGLEVEL);
 
     /* allocate shared memory for differentiator */
     ddt = hal_malloc(new_block_id, sizeof(ddt_t));

@@ -58,8 +58,15 @@
 
 #include "hal_cmds.h"		/* HAL command parsing utilities */
 #include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"		/* private HAL decls */
+#include "hal_refactor.h"	/* HAL public API decls */
+
+#include "hal_ioctl.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
@@ -67,10 +74,34 @@
 
 int comp_id = 0;
 
+int haldev;	// I wish this weren't a global...
+
+
+int open_hal_dev()
+{
+long version;
+int result;
+
+	haldev=open("/dev/hal", O_RDWR);
+        perror("open");
+	return(HAL_NOTFND);
+
+        result=ioctl(haldev, HAL_IOCTL_GET_VERSION, &version);
+        printf("haldev opened: ioctl for  version returned %d: %ld\n",
+                result, version);
+return(HAL_SUCCESS);
+}
+
+int close_hal_dev()
+{
+	close(haldev);
+return(HAL_SUCCESS);
+}
+
 
 int parse_cmd(char *tokens[])
 {
-    int retval;
+    int retval=0;
 
 #if 0
     int n;
@@ -104,6 +135,10 @@ int parse_cmd(char *tokens[])
 	retval = do_link_cmd(tokens[1], "\0");
     } else if (strcmp(tokens[0], "newsig") == 0) {
 	retval = do_newsig_cmd(tokens[1], tokens[2]);
+    } else if (strcmp(tokens[0], "newpart") == 0) {
+	retval = do_newpart_cmd(tokens[1],tokens[2],tokens[3]);
+    } else if (strcmp(tokens[0], "delpart") == 0) {
+	retval = do_delpart_cmd(atoi(tokens[1]));
     } else if (strcmp(tokens[0], "delsig") == 0) {
 	retval = do_delsig_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "setp") == 0) {
@@ -122,6 +157,8 @@ int parse_cmd(char *tokens[])
 	retval = do_save_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "addf") == 0) {
 	/* did the user specify a position? */
+/*TODO*/
+#if 0
 	if (tokens[3][0] == '\0') {
 	    /* no - add function at end of thread */
 	    retval = hal_add_funct_to_thread(tokens[1], tokens[2], -1);
@@ -130,12 +167,15 @@ int parse_cmd(char *tokens[])
 		hal_add_funct_to_thread(tokens[1], tokens[2],
 		atoi(tokens[3]));
 	}
+#endif
 	if (retval == 0) {
 	    /* print success message */
 	    rtapi_print_msg(RTAPI_MSG_INFO,
 		"Function '%s' added to thread '%s'\n", tokens[1], tokens[2]);
 	}
     } else if (strcmp(tokens[0], "delf") == 0) {
+/* TODO */
+#if 0
 	retval = hal_del_funct_from_thread(tokens[1], tokens[2]);
 	if (retval == 0) {
 	    /* print success message */
@@ -143,15 +183,17 @@ int parse_cmd(char *tokens[])
 		"Function '%s' removed from thread '%s'\n", tokens[1],
 		tokens[2]);
 	}
+#endif
     } else if (strcmp(tokens[0], "start") == 0) {
-	retval = hal_start_threads();
-	if (retval == 0) {
+	retval=ioctl(haldev, HAL_IOCTL_START);
+	if (retval == HAL_SUCCESS) {
 	    /* print success message */
 	    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime threads started\n");
 	}
     } else if (strcmp(tokens[0], "stop") == 0) {
-	retval = hal_stop_threads();
-	if (retval == 0) {
+/* TODO */
+	retval=ioctl(haldev, HAL_IOCTL_STOP);
+	if (retval == HAL_SUCCESS) {
 	    /* print success message */
 	    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime threads stopped\n");
 	}
@@ -162,9 +204,12 @@ int parse_cmd(char *tokens[])
     return retval;
 }
 
+/* TODO: */
+
 int do_link_cmd(char *pin, char *sig)
 {
-    int retval;
+    int retval=0;
+#if 0
 
     /* if sig is blank, want to unlink pin */
     if (*sig == '\0') {
@@ -182,12 +227,37 @@ int do_link_cmd(char *pin, char *sig)
 	    rtapi_print_msg(RTAPI_MSG_INFO, "Pin '%s' unlinked\n", pin);
 	}
     }
+#endif
     return retval;
 }
 
+int do_newpart_cmd(char *module, char *type, char *name)
+{
+NEW_PART_PARAM p;
+int result;
+
+	strncpy(p.module, module, HAL_NAME_LEN);
+	strncpy(p.part_type, type, HAL_NAME_LEN);
+	strncpy(p.name, name, HAL_NAME_LEN);
+	result=ioctl(haldev, HAL_IOCTL_NEW_PART, &p);
+
+return result;
+}
+
+int do_delpart_cmd(int part_id)
+{
+int result;
+	result=ioctl(haldev, HAL_IOCTL_DEL_PART, part_id);
+return result;
+}
+
+
+
+/* TODO: */
 int do_newsig_cmd(char *name, char *type)
 {
-    int retval;
+    int retval=0;
+#if 0
 
     if (strcasecmp(type, "bit") == 0) {
 	retval = hal_signal_new(name, HAL_BIT);
@@ -209,12 +279,15 @@ int do_newsig_cmd(char *name, char *type)
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown signal type '%s'\n", type);
 	retval = HAL_INVAL;
     }
+#endif
     return retval;
 }
 
+/* TODO: */
 int do_setp_cmd(char *name, char *value)
 {
-    int retval;
+    int retval=HAL_SUCCESS;
+#if 0
     hal_param_t *param;
     hal_type_t type;
     void *d_ptr;
@@ -349,13 +422,15 @@ int do_setp_cmd(char *name, char *value)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "Parameter '%s' set to %s\n", name, value);
     }
+#endif
     return retval;
-
 }
 
+/* TODO: */
 int do_sets_cmd(char *name, char *value)
 {
-    int retval;
+    int retval=HAL_SUCCESS;
+#if 0
     hal_sig_t *sig;
     hal_type_t type;
     void *d_ptr;
@@ -489,13 +564,12 @@ int do_sets_cmd(char *name, char *value)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "Signal '%s' set to %s\n", name, value);
     }
+#endif
     return retval;
-
 }
 
 int do_show_cmd(char *type)
 {
-
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
 	/* must be -Q, don't print anything */
 	return 0;
@@ -653,7 +727,10 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     }
     /* now we need to fork, and then exec insmod.... */
     /* disconnect from the HAL shmem area before forking */
+/* TODO */
+#if 0
     hal_exit(comp_id);
+#endif
     comp_id = 0;
     /* now the fork() */
     pid = fork();
@@ -691,11 +768,15 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     /* this is the parent process, wait for child to end */
     retval = waitpid ( pid, &status, 0 );
     /* reconnect to the HAL shmem area */
+
+#if 0 //TODO TODO
     comp_id = hal_init("halcmd");
+
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed\n" );
 	exit(-1);
     }
+#endif 
     /* check result of waitpid() */
     if ( retval < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -719,8 +800,11 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     return 0;
 }
 
+/* TODO: */
 int do_delsig_cmd(char *mod_name)
 {
+int retval1=HAL_SUCCESS;
+#if 0  
     int next, retval, retval1, n;
     hal_sig_t *sig;
     char sigs[64][HAL_NAME_LEN+1];
@@ -778,14 +862,17 @@ int do_delsig_cmd(char *mod_name)
 	    n++;
 	}
     }
+#endif
     return retval1;
 }
 
 
+/* TODO: */
 int do_unloadrt_cmd(char *mod_name)
 {
+int retval1=HAL_SUCCESS;
+#if 0
     int next, retval, retval1, n, all;
-    hal_comp_t *comp;
     char comps[64][HAL_NAME_LEN+1];
 
     /* check for "all" */
@@ -798,19 +885,6 @@ int do_unloadrt_cmd(char *mod_name)
     n = 0;
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
-	    /* found a realtime component */
-	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
-		/* we want to unload this component, remember it's name */
-		if ( n < 63 ) {
-		    strncpy(comps[n++], comp->name, HAL_NAME_LEN );
-		}
-	    }
-	}
-	next = comp->next_ptr;
-    }
     rtapi_mutex_give(&(hal_data->mutex));
     /* mark end of list */
     comps[n][0] = '\0';
@@ -834,9 +908,11 @@ int do_unloadrt_cmd(char *mod_name)
 	    retval1 = retval;
 	}
     }
+#endif
     return retval1;
 }
 
+/* TODO: */
 int unloadrt_comp(char *mod_name)
 {
     static char *rmmod_path = NULL;
@@ -865,7 +941,8 @@ int unloadrt_comp(char *mod_name)
     }
     /* now we need to fork, and then exec rmmod.... */
     /* disconnect from the HAL shmem area before forking */
-    hal_exit(comp_id);
+//    hal_exit(comp_id);
+
     comp_id = 0;
     /* now the fork() */
     pid = fork();
@@ -891,12 +968,18 @@ int unloadrt_comp(char *mod_name)
     }
     /* this is the parent process, wait for child to end */
     retval = waitpid ( pid, &status, 0 );
+
+/*
+TODO TODO
+*/
+#if 0
     /* reconnect to the HAL shmem area */
     comp_id = hal_init("halcmd");
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed\n" );
 	exit(-1);
     }
+#endif
     /* check result of waitpid() */
     if ( retval < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -922,62 +1005,88 @@ int unloadrt_comp(char *mod_name)
 
 void print_comp_list(void)
 {
-    int next;
-    hal_comp_t *comp;
+    HAL_IOCTL_NAME_LIST namelist;
+    HAL_IOCTL_NAME_ITEM nameitem[1];
+    int result;
+
+    namelist.count=1;
+    namelist.start=0;
+    namelist.items=nameitem;
 
     rtapi_print("Loaded HAL Components:\n");
     rtapi_print("ID  Type  Name\n");
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
+//    rtapi_mutex_get(&(hal_data->mutex));
+    while (namelist.count) {
+	result=ioctl(haldev, HAL_IOCTL_LIST_PARTS, &namelist);
+	if ((result==HAL_SUCCESS) && (namelist.count))
 	rtapi_print("%02d  %s  %s\n",
-	    comp->comp_id, (comp->type ? "RT  " : "User"), comp->name);
-	next = comp->next_ptr;
+	   nameitem->id, (1 ? "RT  " : "User"), nameitem->name);
+	namelist.start++;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
+//    rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
 }
 
+/* TODO: */
 void print_pin_list(void)
 {
-    int next;
-    hal_pin_t *pin;
-    hal_comp_t *comp;
-    hal_sig_t *sig;
-    void *dptr;
+    HAL_IOCTL_NAME_LIST namelist;
+    HAL_IOCTL_NAME_ITEM nameitem[1];
+    HAL_IOCTL_GET_PINS_LIST pinlist;
+    hal_pin_t pins[1];
 
-    rtapi_print("Component Pins:\n");
-    rtapi_print("Owner  Type  Dir    Value      Name\n");
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
-	comp = SHMPTR(pin->owner_ptr);
-	if (pin->signal != 0) {
-	    sig = SHMPTR(pin->signal);
-	    dptr = SHMPTR(sig->data_ptr);
-	} else {
-	    sig = 0;
-	    dptr = &(pin->dummysig);
-	}
-	rtapi_print(" %02d    %s %s  %s  %s",
-	    comp->comp_id, data_type((int) pin->type),
-	    data_dir((int) pin->dir),
-	    data_value((int) pin->type, dptr), pin->name);
-	if (sig == 0) {
-	    rtapi_print("\n");
-	} else {
-	    rtapi_print(" %s %s\n", data_arrow1((int) pin->dir), sig->name);
-	}
-	next = pin->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
+    int result;
+int a;
+
+    namelist.count=1;
+    namelist.start=0;
+    namelist.items=nameitem;
+
+//    rtapi_mutex_get(&(hal_data->mutex));
+// The new way of doing things requires itterating over every
+// part to list it's pins...
+    rtapi_print("Part Pins:\n");
+    rtapi_print("%s %27s %6s %6s %6s %10s\n",
+	"PartID", "PartName", "Type", "Dir", "Value", "Name");
+
+    while (namelist.count) 
+	{
+	result=ioctl(haldev, HAL_IOCTL_LIST_PARTS, &namelist);
+	if ((result==HAL_SUCCESS) && (namelist.count))
+		{
+
+
+		pinlist.count=1;
+    		pinlist.start=0;
+    		pinlist.pins=pins;
+		pinlist.part_id=nameitem[0].id;
+
+    		while (pinlist.count) 
+		    {
+        	    result=ioctl(haldev, HAL_IOCTL_GET_PINS, &pinlist);
+		    if ((result==HAL_SUCCESS) && (pinlist.count))
+			rtapi_print("%02d %32s %6s %6s %6s %10s\n",
+		    	nameitem[0].id, nameitem[0].name, data_type((int) pins[0].type),
+		    	data_dir((int) pins[0].dir),
+/*
+TODO
+		    	data_value((int) pin->type, dptr), 
+*/
+			0,
+			pins[0].name);
+	 	    pinlist.start++;
+		    }
+		}
+	namelist.start++;
+    	}
+//    rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
 }
 
+/* TODO: */
 void print_sig_list(void)
 {
+#if 0
     int next;
     hal_sig_t *sig;
     void *dptr;
@@ -1003,10 +1112,13 @@ void print_sig_list(void)
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
+#endif
 }
 
+/* TODO: */
 void print_param_list(void)
 {
+#if 0
     int next;
     hal_param_t *param;
     hal_comp_t *comp;
@@ -1027,10 +1139,13 @@ void print_param_list(void)
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
+#endif
 }
 
+/* TODO: */
 void print_funct_list(void)
 {
+#if 0
     int next;
     hal_funct_t *fptr;
     hal_comp_t *comp;
@@ -1051,10 +1166,13 @@ void print_funct_list(void)
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
+#endif
 }
 
+/* TODO: */
 void print_thread_list(void)
 {
+#if 0
     int next_thread, n;
     hal_thread_t *tptr;
     hal_list_t *list_root, *list_entry;
@@ -1084,6 +1202,7 @@ void print_thread_list(void)
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
+#endif
 }
 
 /* Switch function for pin/sig/param type for the print_*_list functions */
@@ -1192,7 +1311,7 @@ char *data_arrow2(int dir)
 /* Switch function to return var value for the print_*_list functions  */
 char *data_value(int type, void *valptr)
 {
-    char *value_str;
+    char *value_str=NULL;;
     static char buf[15];
 
     switch (type) {
@@ -1239,8 +1358,10 @@ char *data_value(int type, void *valptr)
     return value_str;
 }
 
+/* TODO: */
 int do_save_cmd(char *type)
 {
+#if 0
 
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
 	/* must be -Q, don't print anything */
@@ -1270,11 +1391,14 @@ int do_save_cmd(char *type)
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'save' type '%s'\n", type);
 	return -1;
     }
+#endif
     return 0;
 }
 
+/* TODO: */
 void save_signals(void)
 {
+#if 0
     int next;
     hal_sig_t *sig;
 
@@ -1287,10 +1411,13 @@ void save_signals(void)
 	next = sig->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
+#endif 
 }
 
+/* TODO: */
 void save_links(int arrow)
 {
+#if 0
     int next;
     hal_pin_t *pin;
     hal_sig_t *sig;
@@ -1313,10 +1440,13 @@ void save_links(int arrow)
 	next = pin->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
+#endif 
 }
 
+/* TODO: */
 void save_nets(int arrow)
 {
+#if 0
     int next;
     hal_pin_t *pin;
     hal_sig_t *sig;
@@ -1341,10 +1471,13 @@ void save_nets(int arrow)
 	next = sig->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
+#endif
 }
 
+/* TODO: */
 void save_params(void)
 {
+#if 0
     int next;
     hal_param_t *param;
 
@@ -1361,10 +1494,13 @@ void save_params(void)
 	next = param->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
+#endif
 }
 
+/* TODO: */
 void save_threads(void)
 {
+#if 0
     int next_thread;
     hal_thread_t *tptr;
     hal_list_t *list_root, *list_entry;
@@ -1388,6 +1524,7 @@ void save_threads(void)
 	next_thread = tptr->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
+#endif
 }
 
 /***********************************************************************
@@ -1602,6 +1739,6 @@ int run_script(const char *filename)
 	/* make sure file is closed on exec() */
 	fd = fileno(infile);
 	fcntl(fd, F_SETFD, FD_CLOEXEC);
-
+return HAL_SUCCESS;
 }
 
