@@ -56,7 +56,7 @@ include ../../../Make.rules
 # kernel module, so RTLinux builds are the only ones at risk.
 #
 # An alternative would be to use ulibc's libm - Often packaged as
-# part of dietlibc. 
+# part of dietlibc.
 $(RTLIB_DIR)/motmod.o: \
 	$(RTTMP_DIR)/cubic.o \
 	$(RTTMP_DIR)/motion.o \
@@ -71,6 +71,7 @@ $(RTLIB_DIR)/motmod.o: \
 	$(RTTMP_DIR)/tc.o \
 	$(RTTMP_DIR)/tp.o \
 	$(RTTMP_DIR)/trivkins.o
+	@ echo "Linking kernel module $@"
 	ld -r -static -S -O2 $^ $(RTLIB_DIR)/libpm.a $(MATHLIB) -o $@
 
 headers: def_headers

@@ -38,14 +38,15 @@ done
 
 # Handle the math module seperately, as there are two variants depending
 # on the RTAI version installed.
-if /sbin/modprobe  rtai_libm ; then
+# In some cases, there may be no math module at all (if libm is
+# statically linked to realtime modules)
+if /sbin/modprobe -q rtai_libm ; then
     echo "rtai_libm loaded successfully"
 else
-    if /sbin/modprobe  rtai_math ; then
+    if /sbin/modprobe -q rtai_math ; then
 	echo "rtai_math loaded successfully"
     else
-	echo "ERROR: Could not load rtai_libm or rtai_math"
-	exit -1
+	echo "WARNING: Could not load rtai_libm or rtai_math"
     fi
 fi
 

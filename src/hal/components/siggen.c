@@ -64,6 +64,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
+#include <math.h>
 
 #ifdef MODULE
 /* module information */
@@ -111,7 +112,9 @@ static int comp_id;		/* component ID */
 static int export_siggen(int num, hal_siggen_t * addr);
 static void calc_siggen(void *arg, long period);
 
-#ifndef _MATH_H
+#if 0
+/* FIXME - these are no longer used, they should be deleted once
+   we're sure we don't need them */
 /* FIXME - these are here because rtapi doesn't yet handle linking
    to the math library */
 
