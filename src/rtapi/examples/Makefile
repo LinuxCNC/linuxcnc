@@ -5,8 +5,10 @@
 #
 all headers depend indent install clean:
 	(cd extint; make $@)
+	(cd timer; make $@)
 	(cd shmem; make $@)
 	(cd semaphore; make $@)
+	(cd fifo; make $@)
 
 
 .PHONY : all headers depend indent install clean
