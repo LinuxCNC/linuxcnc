@@ -15,6 +15,10 @@
 
 /** Copyright (C) 2003 John Kasunich
                        <jmkasunich AT users DOT sourceforge DOT net>
+
+    Other contributors:
+                       Paul Fox
+                       <pgf AT foxharp DOT boston DOT ma DOT us>
 */
 
 /** This library is free software; you can redistribute it and/or
@@ -82,7 +86,13 @@
 #define SHMPTR(offset)  ( (void *)( hal_shmem_base + (offset) ) )
 
 /* SHMOFF(ptr) converts 'ptr' to an offset from shared mem base.  */
-#define SHMOFF(ptr)          ( ((char *)(ptr)) - hal_shmem_base )
+#define SHMOFF(ptr)     ( ((char *)(ptr)) - hal_shmem_base )
+
+/* SHMCHK(ptr) verifies that a pointer actually points to a
+   location that is part of the HAL shared memory block. */
+
+#define SHMCHK(ptr)  ( ((char *)(ptr)) > (hal_shmem_base) && \
+                       ((char *)(ptr)) < (hal_shmem_base + HAL_SIZE) )
 
 /** The good news is that none of this linked list complexity is
     visible to the components that use this API.  Complexity here

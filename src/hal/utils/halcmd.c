@@ -8,7 +8,9 @@
 
     Other contributers:
                        Martin Kuhnle
-                       <martinkuhnle AT t-online DOT de>
+                       <mkuhnle AT users DOT sourceforge DOT net>
+                       Alex Joni
+                       <alex_joni AT users DOT sourceforge DOT net>
 */
 
 /** This program is free software; you can redistribute it and/or
