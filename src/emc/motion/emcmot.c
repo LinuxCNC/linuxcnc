@@ -373,6 +373,7 @@
   16-Apr-1997  FMP created
   */
 
+#include <linux/types.h>
 #include <stdarg.h>		/* va_list */
 #include <float.h>              /* DBL_MIN */
 #include <math.h>               /* fabs */

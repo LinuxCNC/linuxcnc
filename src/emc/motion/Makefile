@@ -22,6 +22,7 @@ HEADERS = \
 	emcpid.h \
 	mmxavg.h \
 	cubic.h \
+	kinematics.h \
 	tc.h \
 	tp.h \
 	emcmot.h
