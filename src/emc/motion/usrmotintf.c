@@ -41,7 +41,6 @@ static char __attribute__ ((unused)) ident[] =
 #endif
 
 static int inited = 0;		/* flag if inited */
-static int usingShmem = 0;
 
 static EMCMOT_COMMAND *emcmotCommand = 0;
 static EMCMOT_STATUS *emcmotStatus = 0;
@@ -53,10 +52,6 @@ static EMCMOT_LOG *emcmotLog = 0;
 static EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS] = { 0 };
 static EMCMOT_STRUCT *emcmotStruct = 0;
 EMCMOT_STRUCT *emcmotshmem = NULL;	// Shared memory base address.
-
-#ifndef USE_RCS_SHM_GET_ADDR
-#define rcs_shm_get_addr(x) ((x)->addr)
-#endif
 
 /* usrmotIniLoad() loads params (SHMEM_KEY, SHMEM_BASE_ADDRESS,
    COMM_TIMEOUT, COMM_WAIT) from named ini file */
@@ -162,22 +157,11 @@ int usrmotWriteEmcmotCommand(EMCMOT_COMMAND * c)
     c->tail = c->head;
     c->commandNum = ++commandNum;
 
-    if (usingShmem) {
-	/* check for shmem still around */
-	if (0 == emcmotCommand) {
-	    return EMCMOT_COMM_ERROR_CONNECT;
-	}
-	/* end of if */
-	*emcmotCommand = *c;
-    } /* end of if */
-    else {
-	/* check for mapped mem still around */
-	if (0 == emcmotCommand) {
-	    return EMCMOT_COMM_ERROR_CONNECT;
-	}
-	/* end of if */
-	*emcmotCommand = *c;
-    }				/* end of else */
+    /* check for mapped mem still around */
+    if (0 == emcmotCommand) {
+      return EMCMOT_COMM_ERROR_CONNECT;
+    }
+    *emcmotCommand = *c;
 
     /* poll for receipt of command */
 
@@ -214,21 +198,11 @@ int emcmot_debug_split_count = 0;
 /* copies status to s */
 int usrmotReadEmcmotStatus(EMCMOT_STATUS * s)
 {
-    if (usingShmem) {
-	/* check for shmem still around */
-	if (0 == emcmotStatus) {
-	    return EMCMOT_COMM_ERROR_CONNECT;
-	}
-
-	memcpy(s, emcmotStatus, sizeof(EMCMOT_STATUS));
-    } else {
-	/* check for shmem still around */
-	if (0 == emcmotStatus) {
-	    return EMCMOT_COMM_ERROR_CONNECT;
-	}
-
-	memcpy(s, emcmotStatus, sizeof(EMCMOT_STATUS));
-    }
+  /* check for shmem still around */
+  if (0 == emcmotStatus) {
+    return EMCMOT_COMM_ERROR_CONNECT;
+  }
+  memcpy(s, emcmotStatus, sizeof(EMCMOT_STATUS));
 
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
@@ -252,21 +226,11 @@ int usrmotReadEmcmotStatus(EMCMOT_STATUS * s)
 /* copies config to s */
 int usrmotReadEmcmotConfig(EMCMOT_CONFIG * s)
 {
-    if (usingShmem) {
-	/* check for shmem still around */
-	if (0 == emcmotConfig) {
-	    return EMCMOT_COMM_ERROR_CONNECT;
-	}
-
-	memcpy(s, emcmotConfig, sizeof(EMCMOT_CONFIG));
-    } else {
-	/* check for shmem still around */
-	if (0 == emcmotConfig) {
-	    return EMCMOT_COMM_ERROR_CONNECT;
-	}
-
-	memcpy(s, emcmotConfig, sizeof(EMCMOT_CONFIG));
-    }
+  /* check for shmem still around */
+  if (0 == emcmotConfig) {
+    return EMCMOT_COMM_ERROR_CONNECT;
+  }
+  memcpy(s, emcmotConfig, sizeof(EMCMOT_CONFIG));
 
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
@@ -290,21 +254,11 @@ int usrmotReadEmcmotConfig(EMCMOT_CONFIG * s)
 /* copies debug to s */
 int usrmotReadEmcmotDebug(EMCMOT_DEBUG * s)
 {
-    if (usingShmem) {
-	/* check for shmem still around */
-	if (0 == emcmotDebug) {
-	    return EMCMOT_COMM_ERROR_CONNECT;
-	}
-
-	memcpy(s, emcmotDebug, sizeof(EMCMOT_DEBUG));
-    } else {
-	/* check for shmem still around */
-	if (0 == emcmotDebug) {
-	    return EMCMOT_COMM_ERROR_CONNECT;
-	}
-
-	memcpy(s, emcmotDebug, sizeof(EMCMOT_DEBUG));
-    }
+  /* check for shmem still around */
+  if (0 == emcmotDebug) {
+    return EMCMOT_COMM_ERROR_CONNECT;
+  }
+  memcpy(s, emcmotDebug, sizeof(EMCMOT_DEBUG));
 
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
@@ -720,13 +674,11 @@ void usrmotPrintEmcmotStatus(EMCMOT_STATUS s, int which)
 	printf("\n");
 	printf("enabled:     \t%s\n",
 	    s.motionFlag & EMCMOT_MOTION_ENABLE_BIT ? "ENABLED" : "DISABLED");
-#ifdef ENABLE_PROBING
 	printf("probe value: %d\n", s.probeval);
 	printf("probe Tripped: %d\n", s.probeTripped);
 	printf("probing: %d\n", s.probing);
 	printf("probed pos:      \t%f\t%f\t%f\n",
 	    s.probedPos.tran.x, s.probedPos.tran.y, s.probedPos.tran.z);
-#endif
 	break;
 
     case 2:
