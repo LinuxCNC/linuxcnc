@@ -88,13 +88,6 @@ int RCS_SEMAPHORE::flush()
     return rcs_sem_flush(sem);
 }
 
-int RCS_SEMAPHORE::getvalue()
-{
-    if (sem == NULL)
-	return -1;
-    return rcs_sem_getvalue(sem, &sval);
-}
-
 int RCS_SEMAPHORE::setflag(int _oflag)
 {
     oflag = _oflag;		/* we can reset whether this was the one who

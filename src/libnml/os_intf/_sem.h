@@ -10,12 +10,6 @@ typedef void rcs_sem_t;
 extern "C" {
 #endif
 
-#if 0
-    // sem_init is for unnamed posix semaphores which should never be used.
-    // We need to communicate between unrelated processes.
-    int rcs_sem_init(rcs_sem_t * sem, int pshared, unsigned int value);
-#endif
-
     int rcs_sem_destroy(rcs_sem_t * sem);
     rcs_sem_t *rcs_sem_open(const char *name, int oflag,	/* , int mode 
 								 */ ...);
@@ -25,7 +19,6 @@ extern "C" {
     int rcs_sem_trywait(rcs_sem_t * sem);
     int rcs_sem_flush(rcs_sem_t * sem);
     int rcs_sem_post(rcs_sem_t * sem);
-    int rcs_sem_getvalue(rcs_sem_t * sem, unsigned int *sval);
     int rcs_sem_clear(rcs_sem_t * sem);
 
 /* additions */

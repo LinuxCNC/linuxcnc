@@ -16,8 +16,6 @@ extern "C" {
 
 #define INIFILE_MAX_LINELEN 256	/* max number of chars in a line */
 
-#define COMMENT_CHAR ';'	/* signifies a comment */
-
     typedef struct {
 	char tag[INIFILE_MAX_LINELEN];
 	char rest[INIFILE_MAX_LINELEN];

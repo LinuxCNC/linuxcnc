@@ -8,22 +8,17 @@
 #include <sys/ipc.h>		/* IPC_CREATE, IPC_NOWAIT */
 
 /* There are two types of posix semaphores named and unnamed.
-  unamed semaphores can either have the pshared flag set or not
- determining whether it can be shared between processes.  Currently (12/27/02),
-Linux 
-implements only unnamed posix semaphores that are not shared between
-processes. This is useless to RCSLIB so on Linux System V semaphores
-will be used instead.
+   unamed semaphores can either have the pshared flag set or not
+   determining whether it can be shared between processes.
+   Currently (12/27/02), Linux implements only unnamed posix semaphores
+   that are not shared between processes. This is useless to RCSLIB so
+   on Linux System V semaphores will be used instead.
 */
 
 #include <sys/sem.h>		/* struct sembuf */
 #include <math.h>		/* fmod() */
-
-#define USE_ITIMER_SIGNALS
-#ifdef USE_ITIMER_SIGNALS
 #include <signal.h>
 #include <sys/time.h>
-#endif /* USE_TIMER_SIGNALS */
 
 typedef int rcs_sem_t;
 #define rcs_sem_t_defined
@@ -49,27 +44,6 @@ union semun {
 };
 
 #endif
-
-int rcs_sem_init(rcs_sem_t * sem, int pshared, unsigned int value)
-{
-    struct sembuf sops;
-    union semun sem_arg;
-
-    /* ignore pshared */
-
-    sops.sem_num = 0;
-    sops.sem_flg = 0;		/* default is wait for it */
-    sops.sem_op = (value == 0 ? 0 : 1);
-
-    if (NULL == sem) {
-	rcs_print_error("sem_init: Pointer to semaphore object is NULL.\n");
-	return -1;
-    }
-    sem_arg.val = value;
-    semctl(*sem, 0, SETVAL, sem_arg);
-
-    return 0;
-}
 
 /* remove semaphore from OS-- this must be done *before* sem_close,
    since rcs_sem_close frees the storage allocated for the rcs_sem_t */
@@ -151,13 +125,11 @@ int rcs_sem_close(rcs_sem_t * sem)
     return 0;
 }
 
-int rcs_sem_unlink(const char *name)
-{
-    return 0;			/* we didn't create anything */
-}
-
-#ifdef USE_ITIMER_SIGNALS
 static int semwait_alarm_count = 0;
+/* Linux has the ability to call a function when a timer expires. This timer
+   is set via a call to setitimer() in rcs_sem_wait to time out a wait on a
+   semaphore. 
+*/
 static void semwait_alarm_handler(int sig)
 {
     rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY,
@@ -167,7 +139,6 @@ static void semwait_alarm_handler(int sig)
     // Hope this isn't necessary.
     signal(SIGALRM, semwait_alarm_handler);
 }
-#endif
 
 int rcs_sem_wait_notimeout(rcs_sem_t * sem)
 {
@@ -181,11 +152,7 @@ int rcs_sem_wait_notimeout(rcs_sem_t * sem)
     retval = semop(*sem, &sops, 1);
     if (errno == EINTR) {
 	rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY, "semop interrupted! %d\n",
-#ifdef USE_ITIMER_SIGNALS
 	    semwait_alarm_count
-#else
-	    -1
-#endif
 	    );
 	return retval;
     }
@@ -211,7 +178,6 @@ int rcs_sem_trywait(rcs_sem_t * sem)
 
 int rcs_sem_wait(rcs_sem_t * sem, double timeout)
 {
-#ifdef USE_ITIMER_SIGNALS
     int last_semwait_alarm_count = semwait_alarm_count;
     int retval = -1;
     double start_time = 0.0;
@@ -296,59 +262,6 @@ int rcs_sem_wait(rcs_sem_t * sem, double timeout)
     }
     signal(SIGALRM, old_sigalarm_handler);
     return (retval);
-
-#else
-
-    struct sembuf sops;
-    double elapsed_time, current_time, start_time;
-    start_time = current_time = 0.0;
-    if (timeout >= 0.0) {
-	start_time = etime();
-    }
-
-    sops.sem_num = 0;		/* only one semaphore in set */
-    sops.sem_op = SEM_TAKE;
-    if (timeout < 0.0) {
-	sops.sem_flg = 0;	/* wait indefinitely */
-    } else {
-	sops.sem_flg = IPC_NOWAIT;	/* Do not wait, I'll pole the
-					   semaphore. */
-    }
-    if (timeout >= 0.0) {
-	current_time = etime();
-    }
-    elapsed_time = current_time - start_time;
-    while (elapsed_time < timeout || timeout < 0.0) {
-	if (timeout >= 0.0) {
-	    current_time = etime();
-	    elapsed_time = current_time - start_time;
-	    if (elapsed_time > timeout) {
-		return -2;
-	    }
-	}
-	if (semop(*sem, &sops, 1) == -1) {
-	    if (errno == EINTR) {
-		/* interrupted system call-- restart it */
-		if (timeout != 0.0) {
-		    continue;
-		} else {
-		    return -1;
-		}
-	    } else if (errno == EAGAIN) {	/* Not waiting. */
-		continue;
-	    } else {
-		rcs_print_error
-		    ("semop(semid=%d, {sem_num=%d,sem_op=%d,sem_flg=%d},nsops=1)",
-		    *sem, sops.sem_num, sops.sem_op, sops.sem_flg);
-		rcs_print_error("errno=%d : %s\n", errno, strerror(errno));
-		return -1;
-	    }
-	} else {
-	    return 0;
-	}
-    }
-    return (0);
-#endif /* USE_ITIMER_SIGNALS */
 }
 
 int rcs_sem_post(rcs_sem_t * sem)
@@ -440,13 +353,6 @@ int rcs_sem_flush(rcs_sem_t * sem)
 	sems_to_give -= sops.sem_op;
     }
     return (0);
-}
-
-int rcs_sem_getvalue(rcs_sem_t * sem, unsigned int *sval)
-{
-    union semun sem_arg;
-    sem_arg.val = 0;
-    return (*sval = (unsigned int) semctl(*sem, 0, GETVAL, sem_arg));
 }
 
 rcs_sem_t *rcs_sem_create(unsigned long int id, int mode, int state)

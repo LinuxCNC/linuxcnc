@@ -52,10 +52,10 @@ class RCS_SEMAPHORE {
     /* Release the semaphore. Returns 0 for success or -1 for failure. */
 
     int flush();
-    int getvalue();
     /* Test to see if the semaphore is available but don't take it even if it 
        is. Returns a positive integer if the semaphore is available or 0 if
        it is not. */
+
     /* additional non-POSIX functions */
 
     int setflag(int oflag);	/* change oflag-- one can toggle the state of 
