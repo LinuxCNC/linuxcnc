@@ -1,12 +1,14 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
+# 
+# This file is adapted to replace the old ./configure script
+# therefor it includes parts of that script
 
 AC_PREREQ(2.57)
 AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
 AC_CONFIG_SRCDIR([src/hal/hal_lib.c])
 
 # Checks for programs.
-AC_PROG_CXX
 
 # Check CC version
 # if version is gcc-2.96 check for alternative
@@ -21,23 +23,83 @@ else
   fi
 fi
 
+AC_PROG_CXX
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
 # Check for RT
 # FIXME - add RT-check script
-# accept rtdir=path from commandline
+# accept rtaidir=path from commandline
+# accept rtlinuxdir=path from commandline
+# accept rtlinuxprodir=path from commandline
+AC_MSG_CHECKING([for RT dir])
+
+AC_ARG_WITH(rtaidir,
+    [  --with-rtaidir=<path to RTAI>	path where RTAI is installed],
+    [	case "$withval" in
+	"" | y | ye | yes | n | no)
+	    AC_MSG_ERROR([You must supply an argument to --with-rtaidir.])
+	  ;;
+	esac
+	RTAIDIR="$withval"])
+
+if (! test -z "$RTAIDIR") ; then
+  RTDIR=$RTAIDIR
+fi
+
+AC_ARG_WITH(rtlinuxdir,
+    [  --with-rtlinuxdir=<path to RTLINUX>	path where RTLinux is installed],
+    [	case "$withval" in
+	"" | y | ye | yes | n | no)
+	    AC_MSG_ERROR([You must supply an argument to --with-rtlinuxdir.])
+	  ;;
+	esac
+	RTLINUXDIR="$withval"])
+
+if (! test -z "$RTLINUXDIR") ; then
+  if (! test -z "$RTDIR") ; then 
+    AC_MSG_ERROR([rtaidir=$RTAIDIR & rtlinuxdir=$RTLINUXDIR defined. Only one is possible])
+  else
+    RTDIR=$RTLINUXDIR
+  fi
+fi
+
+AC_ARG_WITH(rtlinuxprodir,
+    [  --with-rtlinuxprodir=<path to RTLINUXPRO>	path where RTLinuxPro is installed],
+    [	case "$withval" in
+	"" | y | ye | yes | n | no)
+	    AC_MSG_ERROR([You must supply an argument to --with-rtlinuxprodir.])
+	  ;;
+	esac
+	RTLINUXPRODIR="$withval"])
+
+if (! test -z "$RTLINUXPRODIR") ; then
+  if (! test -z "$RTDIR") ; then 
+    AC_MSG_ERROR([rtdir=$RTDIR & rtlinuxprodir=$RTLINUXPRODIR defined. Only one is possible])
+  else
+    RTDIR=$RTLINUXPRODIR
+  fi
+fi
+
+#convert to absolute dir
+if (! test -z "$RTDIR" ); then
+  RTDIR=$(cd $RTDIR ; pwd -P )
+  AC_MSG_RESULT([$RTDIR set from command line])
+else
+  AC_MSG_ERROR(RTDIR not found)
+fi
+AC_SUBST([RTDIR])
 
 # Check for GTK
 # accept GTK_VER from command line
 AC_MSG_CHECKING([for GTK version])
 
-AC_ARG_WITH(GTK_VER,
-    [  --with-GTK_VER=<GTK-version>      GTK version],
+AC_ARG_WITH(gtk_ver,
+    [  --with-gtk_ver=<GTK-version>      GTK version],
     [
 	case "$withval" in
 	"" | y | ye | yes | n | no)
-	    AC_MSG_ERROR([You must supply an argument to --with-GTK_VER.])
+	    AC_MSG_ERROR([You must supply an argument to --with-gtk_ver.])
 	  ;;
 	esac
 	GTK_VER="$withval"
@@ -89,9 +151,22 @@ fi
 if test -z "$MANDIR"; then
   AC_MSG_WARN([not found])
 else
-  AC_MSG_RESULT([$MANDIR"])
+  AC_MSG_RESULT([$MANDIR])
 fi
 AC_SUBST([MANDIR])
+
+# Check for math support
+# FIXME - still to be written
+# Because some of the realtime kernel modules use floating point math
+# which is not supported by standard kernel calls, we need to link to
+# libm. RTAI provides a loadable module derived from uclibc (a minimal
+# glibc implimentaion for embedded systems). Alternatively, we can link
+# to dietlibc - Most distros package this as diet or dietlibc. Debian
+# splits the headers and static libs into dietlibc-dev..
+# If neither of the two preferred options are available, then the default
+# GNU glibc math library will have to be used. This will cause problems
+# if certain functions found in libc.so are not stubbed, hence the following
+# tests and linking to mathstubs.o at a later stage.
 
 
 # Checks for libraries.
