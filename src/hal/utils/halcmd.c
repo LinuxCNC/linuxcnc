@@ -107,6 +107,7 @@ int comp_id = 0;
 int main(int argc, char **argv)
 {
     int n, m, fd;
+    int keep_going, retval, errorcount;
     enum { BETWEEN_TOKENS,
            IN_TOKEN,
 	   SINGLE_QUOTE,
@@ -124,6 +125,8 @@ int main(int argc, char **argv)
     }
     /* set default level of output - 'quiet' */
     rtapi_set_msg_level(RTAPI_MSG_ERR);
+    /* set default for other options */
+    keep_going = 0;
     /* start parsing the command line, options first */
     n = 1;
     while ((n < argc) && (argv[n][0] == '-')) {
@@ -134,7 +137,11 @@ int main(int argc, char **argv)
 	    case 'h':
 		/* -h = help */
 		print_help();
-		exit(0);
+		return 0;
+		break;
+	    case 'k':
+		/* -k = keep going */
+		keep_going = 1;
 		break;
 	    case 'q':
 		/* -q = quiet (default) */
@@ -186,8 +193,10 @@ int main(int argc, char **argv)
     comp_id = hal_init("halcmd");
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed\n" );
-	return -1;
+	return 1;
     }
+    retval = 0;
+    errorcount = 0;
     /* HAL init is OK, let's process the command(s) */
     if (infile == NULL) {
 	/* the remaining command line args are parts of the command */
@@ -203,7 +212,10 @@ int main(int argc, char **argv)
 	   at least one empty one at the end... make it empty now */
 	tokens[MAX_TOK] = "";
 	/* process the command */
-	parse_cmd(tokens);
+	retval = parse_cmd(tokens);
+	if ( retval != 0 ) {
+	    errorcount++;
+	}
     } else {
 	/* read command line(s) from 'infile' */
 	while (fgets(cmd_buf, MAX_CMD_LEN, infile) != NULL) {
@@ -295,12 +307,23 @@ int main(int argc, char **argv)
 	       at least one empty one at the end... make it empty now */
 	    tokens[MAX_TOK] = "";
 	    /* process command */
-            parse_cmd(tokens);
+            retval = parse_cmd(tokens);
+	    if ( retval != 0 ) {
+		errorcount++;
+	    }
+	    if (( errorcount > 0 ) && ( keep_going == 0 )) {
+		/* exit from loop */
+		break;
+	    }
 	}
     }
     /* all done */
     hal_exit(comp_id);
-    return 0;
+    if ( errorcount > 0 ) {
+	return 1;
+    } else {
+	return 0;
+    }
 }
 
 /***********************************************************************
@@ -1639,6 +1662,8 @@ static void print_help(void)
 	("  -f [filename]    Read command(s) from 'filename' instead of command\n");
     printf
 	("                   line.  If no file is specified, read from stdin.\n\n");
+    printf("  -k               Keep going after failed command.  By default,\n");
+    printf("                   halcmd will exit if any command fails.\n\n");
     printf("  -q               Quiet - Display errors only (default).\n\n");
     printf("  -Q               Very quiet - Display nothing.\n\n");
     printf
