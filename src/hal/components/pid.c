@@ -166,10 +166,10 @@ typedef struct {
     hal_float_t ff1gain;	/* param: feedforward derivative */
     hal_float_t maxoutput;	/* param: limit for PID output */
     hal_float_t *output;	/* pin: the output value */
-} pid_t;
+} hal_pid_t;
 
 /* pointer to array of pid_t structs in shared memory, 1 per loop */
-static pid_t *pid_array;
+static hal_pid_t *pid_array;
 
 /* other globals */
 static int comp_id;		/* component ID */
@@ -178,7 +178,7 @@ static int comp_id;		/* component ID */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_pid(int num, pid_t * addr);
+static int export_pid(int num, hal_pid_t * addr);
 static void calc_pid(void *arg, long period);
 
 /***********************************************************************
@@ -204,7 +204,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* allocate shared memory for pid loop data */
-    pid_array = hal_malloc(num_chan * sizeof(pid_t));
+    pid_array = hal_malloc(num_chan * sizeof(hal_pid_t));
     if (pid_array == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "PID: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
@@ -250,7 +250,7 @@ void rtapi_app_exit(void)
 
 static void calc_pid(void *arg, long period)
 {
-    pid_t *pid;
+    hal_pid_t *pid;
     float tmp1;
     int enable;
     float periodfp, periodrecip;
@@ -344,7 +344,7 @@ static void calc_pid(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_pid(int num, pid_t * addr)
+static int export_pid(int num, hal_pid_t * addr)
 {
     int retval;
     char buf[HAL_NAME_LEN + 2];

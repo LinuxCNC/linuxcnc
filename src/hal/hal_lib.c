@@ -40,6 +40,11 @@
 
 #ifdef RTAPI
 /* includes for realtime config */
+/* Suspect only very early kernels are missing the basic string functions.
+   To be sure, see what has been implimented by looking in linux/string.h
+   and {linux_src_dir}/lib/string.c */
+#include <linux/string.h>
+#ifdef strcmp
 /* some kernels don't have strcmp */
 static int strcmp(const char *cs, const char *ct)
 {
@@ -51,6 +56,7 @@ static int strcmp(const char *cs, const char *ct)
     }
     return __res;
 }
+#endif
 
 #include "rtapi_app.h"
 #ifdef MODULE
