@@ -284,7 +284,7 @@ int extEncoderReadAll(int max, double * counts)
     return -1;
   } else {
     for (n = 0; n < max; n++) {
-      counts[n] = * axis_array[n].position;
+      counts[n] = (double) * axis_array[n].position;
     }
     return 0;
   }
