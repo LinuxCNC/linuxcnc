@@ -30,7 +30,7 @@
 #include "canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "inifile.h"		// INIFILE
+#include "inifile.hh"		// INIFILE
 #include "emcmotlog.h"		// EMCLOG_TRIGGER_TYPE, EMCLOG_TRIGGER_VAR
 
 /*
@@ -3035,6 +3035,7 @@ static int emc_jog_stop(ClientData clientdata,
 
     return TCL_OK;
 }
+static int lastJogAxis = 0;
 
 static int emc_jog(ClientData clientdata,
     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
@@ -3056,6 +3057,11 @@ static int emc_jog(ClientData clientdata,
 	Tcl_SetResult(interp, "emc_jog: need speed as real number",
 	    TCL_VOLATILE);
 	return TCL_ERROR;
+    }
+
+    if (lastJogAxis != axis) {
+	sendJogStop(lastJogAxis);
+	lastJogAxis = axis;
     }
 
     if (0 != sendJogCont(axis, speed)) {

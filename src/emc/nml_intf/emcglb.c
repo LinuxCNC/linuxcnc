@@ -1,34 +1,52 @@
-/********************************************************************
-* Description: emcglb.c
-*   Globals initialized to values in emccfg.h
-*
-*   Derived from a work by Fred Proctor & Will Shackleford
-*
-* Author:
-* License: GPL Version 2
-* System: Linux
-*    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-********************************************************************/
+/*
+  emcglb.c
 
-#include <string.h>		/* strcpy() */
-#include "emcglb.h"		/* these decls */
-#include "emccfg.h"		/* their initial values */
+  Globals initialized to values in emccfg.h
+
+  Modification history:
+
+  4-May-2004  FMP added AXIS_MAX_ACCELERATION[]
+  31-May-2001  FMP took extern off decl of taskplanopen, making it a def.
+  How did this work before?
+  19-May-2000  FMP added LUBE_WRITE_INDEX,POLARITY
+  23-Feb-2000  FMP added AXIS_MAX_VELOCITY[], emcInitGlobals()
+  17-Nov-1999 WPS removed emcGetArgs function to put it in emcargs.cc.
+  10-Nov-1999 WPS added -host option to emcGetArgs.
+  16-Sep-1999  FMP took out errors in emcGetArgs for unrecognized args
+  31-Aug-1999  FMP took out EMC_NMLFILE for -nml, since this is in ini file
+  19-Aug-1999  FMP tidied up indenting
+  21-Jul-1999  FMP removed -d from emcGetArgs() since DEBUG is now in
+  ini file; added EMC_NMLFILE in emcGetArgs()
+  2-Jun-1999  FMP added TRAJ_DEFAULT_VELOCITY
+  6-Jul-1998  FMP added EMC_DEBUG, emcGetArgs()
+  15-May-1998  FMP added TRAJ_MAX_VELOCITY
+  23-Apr-1998  FMP added TOOL_TABLE_FILE
+  1-Apr-1998 FMP added SPINDLE_ON_INDEX, SPINDLE_ENABLE_INDEX,POLARITY
+  15-Nov-1997 FMP created
+  */
+
+#include <string.h>             /* strcpy() */
+#include "emcglb.h"             /* these decls */
+#include "emccfg.h"             /* their initial values */
 #include "emcpos.h"		/* EmcPose */
+
+// ident tag
+#ifndef __GNUC__
+#ifndef __attribute__
+#define __attribute__(x)
+#endif
+#endif
+
+static char __attribute__((unused)) ident[] = "$Id$";
 
 char EMC_INIFILE[EMC_INIFILE_LEN] = DEFAULT_EMC_INIFILE;
 
 char EMC_NMLFILE[EMC_NMLFILE_LEN] = DEFAULT_EMC_NMLFILE;
 
-char RS274NGC_STARTUP_CODE[RS274NGC_STARTUP_CODE_MAX] =
-    DEFAULT_RS274NGC_STARTUP_CODE;
+char RS274NGC_STARTUP_CODE[RS274NGC_STARTUP_CODE_MAX]= DEFAULT_RS274NGC_STARTUP_CODE;
 
-int EMC_DEBUG = 0;		/* initially no debug messages */
+
+int EMC_DEBUG = 0;      /* initially no debug messages */
 
 double EMC_TASK_CYCLE_TIME = DEFAULT_EMC_TASK_CYCLE_TIME;
 
@@ -39,7 +57,8 @@ char TOOL_TABLE_FILE[TOOL_TABLE_FILE_LEN] = DEFAULT_TOOL_TABLE_FILE;
 double TRAJ_DEFAULT_VELOCITY = DEFAULT_TRAJ_DEFAULT_VELOCITY;
 double TRAJ_MAX_VELOCITY = DEFAULT_TRAJ_MAX_VELOCITY;
 
-double AXIS_MAX_VELOCITY[EMC_AXIS_MAX] = { 0.0 };
+double AXIS_MAX_VELOCITY[EMC_AXIS_MAX] = {1.0};
+double AXIS_MAX_ACCELERATION[EMC_AXIS_MAX] = {1.0};
 
 double SPINDLE_OFF_WAIT = DEFAULT_SPINDLE_OFF_WAIT;
 double SPINDLE_ON_WAIT = DEFAULT_SPINDLE_ON_WAIT;
@@ -79,17 +98,17 @@ int SPINDLE_ENABLE_POLARITY = DEFAULT_SPINDLE_ENABLE_POLARITY;
 int EMCLOG_INCLUDE_HEADER = DEFAULT_EMCLOG_INCLUDE_HEADER;
 
 EmcPose TOOL_CHANGE_POSITION;	/* no defaults */
-unsigned char HAVE_TOOL_CHANGE_POSITION = 0;	/* default is 'not there' */
-EmcPose TOOL_HOLDER_CLEAR;	/* no defaults */
-unsigned char HAVE_TOOL_HOLDER_CLEAR;	/* default is 'not there' */
+unsigned char HAVE_TOOL_CHANGE_POSITION = 0; /* default is 'not there' */
+EmcPose TOOL_HOLDER_CLEAR;  	/* no defaults */
+unsigned char HAVE_TOOL_HOLDER_CLEAR; /* default is 'not there' */
 
 int taskplanopen = 0;
 
 void emcInitGlobals()
 {
-    int t;
+  int t;
 
-    for (t = 0; t < EMC_AXIS_MAX; t++) {
-	AXIS_MAX_VELOCITY[t] = DEFAULT_AXIS_MAX_VELOCITY;
-    }
+  for (t = 0; t < EMC_AXIS_MAX; t++) {
+    AXIS_MAX_VELOCITY[t] = DEFAULT_AXIS_MAX_VELOCITY;
+  }
 }

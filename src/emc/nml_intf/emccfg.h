@@ -1,24 +1,22 @@
-/********************************************************************
-* Description: emccfg.h
-*   Compile-time defaults for EMC application. Defaults are used to
-*   initialize globals in emcglb.c. Include emcglb.h to access these
-*   globals.
-*
-*   Derived from a work by Fred Proctor & Will Shackleford
-*
-* Author:
-* License: GPL Version 2
-* System: Linux
-*    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-********************************************************************/
 #ifndef EMCCFG_H
 #define EMCCFG_H
+
+/*
+  emccfg.h
+
+  Compile-time defaults for EMC application. Defaults are used to initialize
+  globals in emcglb.c. Include emcglb.h to access these globals.
+
+  Modification history:
+
+  4-May-2004  FMP added DEFAULT_AXIS_MAX_ACCELERATION
+  19-May-2000  FMP added DEFAULT_LUBE_WRITE_INDEX,POLARITY
+  23-Feb-2000  FMP added DEFAULT_AXIS_MAX_VELOCITY
+  2-Jun-1999  FMP added DEFAULT_TRAJ_DEFAULT_VELOCITY
+  15-May-1998  FMP added DEFAULT_TRAJ_MAX_VELOCITY
+  23-Apr-1998 FMP changed DEFAULT_EMC_TOOL_TABLE to DEFAULT_TOOL_TABLE_FILE
+  1-Apr-1998 FMP added SPINDLE_ON_INDEX, SPINDLE_ENABLE_INDEX,POLARITY
+  */
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,6 +45,9 @@ extern "C" {
 
 /* default axis traverse rate, in user units per second */
 #define DEFAULT_AXIS_MAX_VELOCITY 1.0
+
+/* default axis acceleration, in user units per second per second */
+#define DEFAULT_AXIS_MAX_ACCELERATION 1.0
 
 /* seconds after speed off to apply brake */
 #define DEFAULT_SPINDLE_OFF_WAIT 2.0
@@ -93,6 +94,7 @@ extern "C" {
 #define DEFAULT_LUBE_WRITE_POLARITY        1
 
 #ifdef __cplusplus
-}				/* matches extern "C" at top */
+} /* matches extern "C" at top */
 #endif
+
 #endif

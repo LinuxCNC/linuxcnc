@@ -1,30 +1,44 @@
-/********************************************************************
-* Description: emcmotglb.c
-*   Compile-time configuration parameters
-*
-*   Set the values in emcmotcfg.h; these vars will be set to those values
-*   and emcmot.c can reference the variables with their defaults. This file
-*   exists to avoid having to recompile emcmot.c every time a default is
-*   changed.
-*
-*   Derived from a work by Fred Proctor & Will Shackleford
-*
-* Author:
-* License: GPL Version 2
-* System: Linux
-*    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-********************************************************************/
+/*
+  emcmotglb.c
 
-#include "emcmotglb.h"		/* these decls */
-#include "emcmotcfg.h"		/* initial values */
+  Compile-time configuration parameters
+
+  Set the values in emcmotcfg.h; these vars will be set to those values
+  and emcmot.c can reference the variables with their defaults. This file
+  exists to avoid having to recompile emcmot.c every time a default is
+  changed.
+
+  Modification history:
+
+  20-Mar-2000 WPS added unused attribute to ident to avoid 'defined but not used' compiler warning.
+  28-Jul-1999  FMP added NUM_AXES
+  8-Jun-1999  FMP took out SM_CYCLE_TIME decl since we're now using
+  servo cycle time / 2 for this
+  18-Aug-1998  FMP added BIAS, MAX_ERROR
+  6-Aug-1998  FMP added SM_CYCLE_TIME
+  8-Jul-1998  FMP added EMCMOT_INIFILE defs
+  5-Jun-1998  FMP added BACKLASH
+  1-Apr-1998  FMP added EMCMOT_COMM_TIMEOUT, EMCMOT_COMM_WAIT
+  6-Jan-1998  FMP added PID gains, input/output offsets, base address/key
+  15-Nov-1997  FMP changed to emcmotglb.c
+  16-Oct-1997  FMP created
+  */
+
+#include "emcmotglb.h"          /* these decls */
+#include "emcmotcfg.h"          /* initial values */
+
+/* ident tag */
+#ifndef __GNUC__
+#ifndef __attribute__
+#define __attribute__(x)
+#endif
+#endif
+
+static char __attribute__((unused)) ident[] = "$Id$";
 
 char EMCMOT_INIFILE[EMCMOT_INIFILE_LEN] = DEFAULT_EMCMOT_INIFILE;
+
+// unsigned long int SHMEM_BASE_ADDRESS = DEFAULT_SHMEM_BASE_ADDRESS;
 
 unsigned int SHMEM_KEY = DEFAULT_SHMEM_KEY;
 
