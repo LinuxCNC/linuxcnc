@@ -1,2 +1,0 @@
-# Put some juicy hal config stuff in here.
-HAL_RTMOD_DIR=$TESTDIR@MODULE_DIR@
