@@ -566,7 +566,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
-
+#if 0  /* these commands no longer exist */
   if (NULL != (inistring = axisInifile->find("MIN_OUTPUT", axisString))) {
     if (1 == sscanf(inistring, "%lf", &limit)) {
       // found, and valid
@@ -618,6 +618,7 @@ static int loadAxis(int axis)
     }
     return -1;
   }
+#endif
 
   if (NULL != (inistring = axisInifile->find("FERROR", axisString))) {
     if (1 == sscanf(inistring, "%lf", &maxFerror)) {

@@ -705,13 +705,11 @@ EmcPose tpGetPos(TP_STRUCT * tp)
 
     if (0 == tp) {
 
-	/* FIXME - this is a bug waiting to happen... it returns
-	   a pointer to an EmcPose structure that is declared
-	   locally, ie. on the stack!  That struct goes out of
-	   scope as soon as this function returns.  I expect the
-	   only reason it hasn't caused problems is that nobody
-	   ever calls this function with tp = 0
-	*/
+	/* FIXME - this is a bug waiting to happen... it returns a pointer to 
+	   an EmcPose structure that is declared locally, ie. on the stack!
+	   That struct goes out of scope as soon as this function returns.  I 
+	   expect the only reason it hasn't caused problems is that nobody
+	   ever calls this function with tp = 0 */
 	retval.tran.x = retval.tran.y = retval.tran.z = 0.0;
 	retval.a = retval.b = retval.c = 0.0;
 	return retval;

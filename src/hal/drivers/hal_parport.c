@@ -567,7 +567,7 @@ static int pins_and_params(char *argv[])
 	if (argv[n] != 0) {
 	    /* is the next token 'in' or 'out' ? */
 	    if ((argv[n][0] == 'i') || (argv[n][0] == 'I')) {
-		/* we aren't picky, anything starting with 'i' means 'in' ;-)
+		/* we aren't picky, anything starting with 'i' means 'in' ;-) 
 		 */
 		data_dir[num_ports] = 1;
 		n++;
@@ -655,12 +655,10 @@ static int export_port(int portnum, parport_t * port)
 {
     int retval, msg;
 
-    /* This function exports a lot of stuff, which results
-       in a lot of logging if msg_level is at INFO or ALL.
-       So we save the current value of msg_level and restore
-       it later.  If you actually need to log this function's
-       actions, change the second line below
-    */
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 

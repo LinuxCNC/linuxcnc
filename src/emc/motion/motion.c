@@ -26,7 +26,6 @@
 #include "emcmotglb.h"
 #include "motion.h"
 #include "mot_priv.h"
-#include "extintf.h"
 
 /***********************************************************************
 *                    KERNEL MODULE PARAMETERS                          *
@@ -107,7 +106,7 @@ emcmot_config_t *emcmotConfig;
 emcmot_debug_t *emcmotDebug;
 emcmot_internal_t *emcmotInternal;
 emcmot_error_t *emcmotError;	/* unused for RT_FIFO */
-emcmot_log_t *emcmotLog;		/* unused for RT_FIFO */
+emcmot_log_t *emcmotLog;	/* unused for RT_FIFO */
 emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS];	/* unused for RT_FIFO */
 emcmot_log_struct_t ls;
 
@@ -130,7 +129,6 @@ static int init_hal_io(void);
 /* functions called by init_hal_io() */
 static int export_axis(int num, axis_hal_t * addr);
 
-
 /* init_comm_buffers() allocates and initializes the command,
    status, and error buffers used to communicate witht the user
    space parts of emc.
@@ -138,7 +136,6 @@ static int export_axis(int num, axis_hal_t * addr);
 static int init_comm_buffers(void);
 
 /* functions called by init_comm_buffers() */
-
 
 /* init_threads() creates realtime threads, exports functions to
    do the realtime control, and adds the functions to the threads.
@@ -148,7 +145,6 @@ static int init_threads(void);
 /* functions called by init_threads() */
 static int setTrajCycleTime(double secs);
 static int setServoCycleTime(double secs);
-
 
 /***********************************************************************
 *                     PUBLIC FUNCTION CODE                             *
@@ -183,8 +179,7 @@ int init_module(void)
     /* FIXME - debug only */
     rtapi_set_msg_level(RTAPI_MSG_ALL);
 
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: init_module() starting...\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_module() starting...\n");
 
     /* connect to the HAL and RTAPI */
     mot_comp_id = hal_init("motmod");
@@ -195,16 +190,15 @@ int init_module(void)
 
     /* initialize/export HAL pins and parameters */
     retval = init_hal_io();
-    if (retval != 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: init_hal_io() failed\n");
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: init_hal_io() failed\n");
 	hal_exit(mot_comp_id);
 	return -1;
     }
 
     /* allocate/initialize user space comm buffers (cmd/status/err) */
     retval = init_comm_buffers();
-    if (retval != 0 ) {
+    if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: init_comm_buffers() failed\n");
 	hal_exit(mot_comp_id);
@@ -213,15 +207,13 @@ int init_module(void)
 
     /* set up for realtime execution of code */
     retval = init_threads();
-    if (retval != 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: init_threads() failed\n");
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: init_threads() failed\n");
 	hal_exit(mot_comp_id);
 	return -1;
     }
 
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: init_module() complete\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_module() complete\n");
 
     return 0;
 }
@@ -231,8 +223,7 @@ void cleanup_module(void)
 //    int axis;
     int retval;
 
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: cleanup_module() started.\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: cleanup_module() started.\n");
 
     retval = hal_stop_threads();
     if (retval != HAL_SUCCESS) {
@@ -263,8 +254,7 @@ void cleanup_module(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: hal_exit() failed, returned %d\n", retval);
     }
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: cleanup_module() finished.\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: cleanup_module() finished.\n");
 }
 
 /***********************************************************************
@@ -291,43 +281,55 @@ static int init_hal_io(void)
     }
 
     /* export machine wide hal pins */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.probe");
-    retval = hal_pin_bit_new(buf, HAL_RD, &(machine_hal_data->probe), mot_comp_id);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.probe-input");
+    retval =
+	hal_pin_bit_new(buf, HAL_RD, &(machine_hal_data->probe_input),
+	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
 
     /* export machine wide hal parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-enable");
-    retval = hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->motion_enable), mot_comp_id);
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->motion_enable),
+	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.in-position");
-    retval = hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->in_position), mot_comp_id);
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->in_position),
+	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.coord-mode");
-    retval = hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->coord_mode), mot_comp_id);
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->coord_mode),
+	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.teleop-mode");
-    retval = hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->teleop_mode), mot_comp_id);
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->teleop_mode),
+	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.coord-error");
-    retval = hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->coord_error), mot_comp_id);
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->coord_error),
+	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
 
     /* initialize machine wide pins and parameters */
-    *(machine_hal_data->probe) = 0;
-    /* FIXME - these don't really need initialized, since
-       they are written with data from the emcmotStatus struct */
+    *(machine_hal_data->probe_input) = 0;
+    /* FIXME - these don't really need initialized, since they are written
+       with data from the emcmotStatus struct */
     machine_hal_data->motion_enable = 0;
     machine_hal_data->in_position = 0;
     machine_hal_data->coord_mode = 0;
@@ -346,8 +348,8 @@ static int init_hal_io(void)
 	    return -1;
 	}
 	/* init axis pins and parameters */
-	/* FIXME - struct members are in a state of flux - make sure
-	   to update this - most won't need initing anyway */
+	/* FIXME - struct members are in a state of flux - make sure to
+	   update this - most won't need initing anyway */
 	*(axis_data->amp_enable) = 0;
 	axis_data->home_state = 0;
 	/* We'll init the index model to EXT_ENCODER_INDEX_MODEL_RAW for now,
@@ -368,23 +370,23 @@ static int export_axis(int num, axis_hal_t * addr)
     int retval, msg;
     char buf[HAL_NAME_LEN + 2];
 
-    /* This function exports a lot of stuff, which results
-       in a lot of logging if msg_level is at INFO or ALL.
-       So we save the current value of msg_level and restore
-       it later.  If you actually need to log this function's
-       actions, change the second line below
-    */
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export axis pins */
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->motor_pos_cmd), mot_comp_id);
+    retval =
+	hal_pin_float_new(buf, HAL_WR, &(addr->motor_pos_cmd), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-fb", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(addr->motor_pos_fb), mot_comp_id);
+    retval =
+	hal_pin_float_new(buf, HAL_RD, &(addr->motor_pos_fb), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -416,27 +418,32 @@ static int export_axis(int num, axis_hal_t * addr)
 
     /* export axis parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-cmd", num);
-    retval = hal_param_float_new(buf, HAL_RD, &(addr->joint_pos_cmd), mot_comp_id);
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(addr->joint_pos_cmd), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-vel-cmd", num);
-    retval = hal_param_float_new(buf, HAL_RD, &(addr->joint_vel_cmd), mot_comp_id);
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(addr->joint_vel_cmd), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-corr", num);
-    retval = hal_param_float_new(buf, HAL_RD, &(addr->backlash_corr), mot_comp_id);
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(addr->backlash_corr), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-filt", num);
-    retval = hal_param_float_new(buf, HAL_RD, &(addr->backlash_filt), mot_comp_id);
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(addr->backlash_filt), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-fb", num);
-    retval = hal_param_float_new(buf, HAL_RD, &(addr->joint_pos_fb), mot_comp_id);
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(addr->joint_pos_fb), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -451,7 +458,8 @@ static int export_axis(int num, axis_hal_t * addr)
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.in-position", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->in_position), mot_comp_id);
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(addr->in_position), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -481,7 +489,8 @@ static int export_axis(int num, axis_hal_t * addr)
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home-sw-tripped", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->home_sw_flag), mot_comp_id);
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(addr->home_sw_flag), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -510,7 +519,6 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-
 
 /* FIXME - these have been temporarily? deleted */
 #if 0
@@ -547,7 +555,6 @@ static int export_axis(int num, axis_hal_t * addr)
     return 0;
 }
 
-
 /* init_comm_buffers() allocates and initializes the command,
    status, and error buffers used to communicate with the user
    space parts of emc.
@@ -555,11 +562,10 @@ static int export_axis(int num, axis_hal_t * addr)
 static int init_comm_buffers(void)
 {
     int axis;
-    PID_STRUCT pid;
     int retval;
 
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: init_comm_buffers() starting...\n" );
+	"MOTION: init_comm_buffers() starting...\n");
 
     emcmotStruct = 0;
     emcmotDebug = 0;
@@ -588,13 +594,13 @@ static int init_comm_buffers(void)
     memset(emcmotStruct, 0, sizeof(emcmot_struct_t));
 
     /* we'll reference emcmotStruct directly */
-    emcmotCommand = & emcmotStruct->command;
-    emcmotStatus = & emcmotStruct->status;
-    emcmotConfig = & emcmotStruct->config;
-    emcmotDebug = & emcmotStruct->debug;
-    emcmotInternal = & emcmotStruct->internal;
-    emcmotError = & emcmotStruct->error;
-    emcmotLog = & emcmotStruct->log;
+    emcmotCommand = &emcmotStruct->command;
+    emcmotStatus = &emcmotStruct->status;
+    emcmotConfig = &emcmotStruct->config;
+    emcmotDebug = &emcmotStruct->debug;
+    emcmotInternal = &emcmotStruct->internal;
+    emcmotError = &emcmotStruct->error;
+    emcmotLog = &emcmotStruct->log;
 
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = (emcmot_comp_t *) & emcmotStruct->comp[axis];
@@ -643,7 +649,6 @@ static int init_comm_buffers(void)
     emcmotStatus->commandNumEcho = 0;
     emcmotStatus->commandStatus = 0;
 
-
     /* init more stuff */
 
     emcmotDebug->head = 0;
@@ -658,8 +663,6 @@ static int init_comm_buffers(void)
     emcmotStatus->computeTime = 0.0;
     emcmotConfig->numAxes = EMCMOT_MAX_AXIS;
 
-    emcmotConfig->trajCycleTime = TRAJ_CYCLE_TIME;
-    emcmotConfig->servoCycleTime = SERVO_CYCLE_TIME;
     emcmotStatus->pos.tran.x = 0.0;
     emcmotStatus->pos.tran.y = 0.0;
     emcmotStatus->pos.tran.z = 0.0;
@@ -708,23 +711,20 @@ static int init_comm_buffers(void)
 	emcmotInternal->amp_fault_debounce_cntr[axis] = 0;
 	emcmotInternal->ferrorAbs[axis] = 0.0;
 
-
 	emcmotConfig->homingVel[axis] = VELOCITY;
 	emcmotConfig->homeOffset[axis] = 0.0;
 	emcmotStatus->axisFlag[axis] = 0;
 	emcmotConfig->maxLimit[axis] = MAX_LIMIT;
 	emcmotConfig->minLimit[axis] = MIN_LIMIT;
-	emcmotConfig->maxOutput[axis] = MAX_OUTPUT;
-	emcmotConfig->minOutput[axis] = MIN_OUTPUT;
-	emcmotConfig->minFerror[axis] = 0.0;	/* gives a true linear ferror
-						 */
+	emcmotConfig->backlash[axis] = BACKLASH;
+	emcmotConfig->minFerror[axis] = 0.0;	/* gives a true linear ferror */
 	emcmotConfig->maxFerror[axis] = MAX_FERROR;
-	emcmotStatus->outputScale[axis] = OUTPUT_SCALE;
-	emcmotStatus->outputOffset[axis] = OUTPUT_OFFSET;
-	emcmotStatus->inputScale[axis] = INPUT_SCALE;
-	emcmotDebug->inverseInputScale[axis] = 1.0 / INPUT_SCALE;
-	emcmotStatus->inputOffset[axis] = INPUT_OFFSET;
-	emcmotDebug->inverseOutputScale[axis] = 1.0 / OUTPUT_SCALE;
+//      emcmotStatus->outputScale[axis] = OUTPUT_SCALE;
+//      emcmotStatus->outputOffset[axis] = OUTPUT_OFFSET;
+//      emcmotStatus->inputScale[axis] = INPUT_SCALE;
+//      emcmotDebug->inverseInputScale[axis] = 1.0 / INPUT_SCALE;
+//      emcmotStatus->inputOffset[axis] = INPUT_OFFSET;
+//      emcmotDebug->inverseOutputScale[axis] = 1.0 / OUTPUT_SCALE;
 	emcmotStatus->axVscale[axis] = 1.0;
 	emcmotConfig->axisLimitVel[axis] = 1.0;
 	emcmotDebug->bigVel[axis] = 1.0;
@@ -794,16 +794,6 @@ static int init_comm_buffers(void)
     tpSetAmax(&emcmotDebug->queue, emcmotStatus->acc);
 
     /* init the axis components */
-    pid.p = P_GAIN;
-    pid.i = I_GAIN;
-    pid.d = D_GAIN;
-    pid.ff0 = FF0_GAIN;
-    pid.ff1 = FF1_GAIN;
-    pid.ff2 = FF2_GAIN;
-    pid.backlash = BACKLASH;
-    pid.bias = BIAS;
-    pid.maxError = MAX_ERROR;
-
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	if (-1 == tpCreate(&emcmotDebug->freeAxis[axis], FREE_AXIS_QUEUE_SIZE,
 		emcmotDebug->freeAxisTcSpace[axis])) {
@@ -819,11 +809,12 @@ static int init_comm_buffers(void)
 	tpSetPos(&emcmotDebug->freeAxis[axis], emcmotDebug->freePose);
 	tpSetVmax(&emcmotDebug->freeAxis[axis], emcmotStatus->vel);
 	tpSetAmax(&emcmotDebug->freeAxis[axis], emcmotStatus->acc);
-	pidInit(&emcmotConfig->pid[axis]);
-	pidSetGains(&emcmotConfig->pid[axis], pid);
 	cubicInit(&emcmotDebug->cubic[axis]);
     }
+/* FIXME - this is changing */
+#if 0
     extEncoderSetIndexModel(EXT_ENCODER_INDEX_MODEL_MANUAL);
+#endif
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotDebug->rawInput[axis] = 0.0;
 	emcmotDebug->rawOutput[axis] = 0.0;
@@ -841,13 +832,14 @@ static int init_comm_buffers(void)
 	emcmotDebug->oldInputValid[axis] = 0;
 	emcmotStatus->output[axis] = 0.0;
 	emcmotDebug->jointHome[axis] = 0.0;
-
+/* FIXME - enable is done differently now */
+#if 0
 	extAmpEnable(axis, 0);
+#endif
     }
     emcmotStatus->tail = 0;
 
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: init_comm_buffers() complete\n" );
+    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_comm_buffers() complete\n");
     return 0;
 }
 
@@ -860,8 +852,7 @@ static int init_threads(void)
     int servo_base_ratio, traj_servo_ratio;
     int retval;
 
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: init_threads() starting...\n" );
+    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_threads() starting...\n");
 
     /* if base_period not specified, assume same as servo_period */
     if (base_period_nsec == 0) {
@@ -916,15 +907,15 @@ static int init_threads(void)
     }
 
     /* export realtime functions that do the real work */
-    retval = hal_export_funct("motion-controller", emcmotController,
-	0 /* arg */, 1 /* uses_fp */, 0 /* reentrant */, mot_comp_id);
+    retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg 
+	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export controller function\n");
 	return -1;
     }
-    retval = hal_export_funct("motion-command-handler", emcmotCommandHandler,
-	0 /* arg */, 1 /* uses_fp */, 0 /* reentrant */, mot_comp_id);
+    retval = hal_export_funct("motion-command-handler", emcmotCommandHandler, 0	/* arg 
+	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export command handler function\n");
@@ -933,7 +924,7 @@ static int init_threads(void)
 #if 0
     /* FIXME - currently the traj planner is called from the controller */
     /* eventually it will be a separate function */
-    retval = hal_export_funct("motion-traj-planner", emcmotTrajPlanner, 0	/* arg
+    retval = hal_export_funct("motion-traj-planner", emcmotTrajPlanner, 0	/* arg 
 	 */ , 1 /* uses_fp */ ,
 	0 /* reentrant */ , mot_comp_id);
     if (retval != HAL_SUCCESS) {
@@ -969,28 +960,24 @@ static int init_threads(void)
     }
 #endif
 
-    /* init the time and rate using functions to affect traj, the pids,
-       and the cubics properly, since they're coupled */
+    /* init the time and rate using functions to affect traj, and the cubics
+       properly, since they're coupled */
 
-    retval = setTrajCycleTime(TRAJ_CYCLE_TIME);
+    retval = setTrajCycleTime(traj_period_nsec * 0.000000001);
     if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: setTrajCycleTime() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: setTrajCycleTime() failed\n");
 	return -1;
     }
 
-    retval = setServoCycleTime(SERVO_CYCLE_TIME);
+    retval = setServoCycleTime(servo_period_nsec * 0.000000001);
     if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: setTrajCycleTime() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: setTrajCycleTime() failed\n");
 	return -1;
     }
 
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: init_threads() complete\n" );
+    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_threads() complete\n");
     return 0;
 }
-
 
 /* call this when setting the trajectory cycle time */
 static int setTrajCycleTime(double secs)
@@ -998,7 +985,7 @@ static int setTrajCycleTime(double secs)
     static int t;
 
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: setting Traj cycle time to %d nsecs\n", secs*1e9 );
+	"MOTION: setting Traj cycle time to %d nsecs\n", secs * 1e9);
 
     /* make sure it's not zero */
     if (secs <= 0.0) {
@@ -1034,7 +1021,7 @@ static int setServoCycleTime(double secs)
     static int t;
 
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: setting Servo cycle time to %d nsecs\n", secs*1e9 );
+	"MOTION: setting Servo cycle time to %d nsecs\n", secs * 1e9);
 
     /* make sure it's not zero */
     if (secs <= 0.0) {
@@ -1052,7 +1039,6 @@ static int setServoCycleTime(double secs)
 	cubicSetInterpolationRate(&emcmotDebug->cubic[t],
 	    emcmotConfig->interpolationRate);
 	cubicSetSegmentTime(&emcmotDebug->cubic[t], secs);
-	pidSetCycleTime(&emcmotConfig->pid[t], secs);
     }
 
     /* copy into status out */
@@ -1060,6 +1046,3 @@ static int setServoCycleTime(double secs)
 
     return 0;
 }
-
-
-

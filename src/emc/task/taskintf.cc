@@ -79,8 +79,7 @@ static int emcmotion_initialized = 0;	// non-zero means both
 
 /*
   In emcmot, we need to set the cycle time for traj, and the interpolation
-  rate, in any order, but both need to be done. The PID cycle time will
-  be set by emcmot automatically.
+  rate, in any order, but both need to be done. 
  */
 
      int emcAxisSetAxis(int axis, unsigned char axisType)
@@ -258,6 +257,8 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+#if 0
+
 // saved values of limits, since emcmot expects them to be set in
 // pairs and we set them individually.
 static double saveMinOutput[EMCMOT_MAX_AXIS];
@@ -306,6 +307,8 @@ int emcAxisSetMaxOutputLimit(int axis, double limit)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+#endif
+
 
 int emcAxisSetFerror(int axis, double ferror)
 {
@@ -772,21 +775,27 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	stat[axis].outputOffset = emcmotStatus.outputOffset[axis];
 
 	if (new_config) {
+#if 0
 	    stat[axis].p = emcmotConfig.pid[axis].p;
 	    stat[axis].i = emcmotConfig.pid[axis].i;
 	    stat[axis].d = emcmotConfig.pid[axis].d;
 	    stat[axis].ff0 = emcmotConfig.pid[axis].ff0;
 	    stat[axis].ff1 = emcmotConfig.pid[axis].ff1;
 	    stat[axis].ff2 = emcmotConfig.pid[axis].ff2;
-	    stat[axis].backlash = emcmotConfig.pid[axis].backlash;
+#endif
+	    stat[axis].backlash = emcmotConfig.backlash[axis];
+#if 0
 	    stat[axis].bias = emcmotConfig.pid[axis].bias;
 	    stat[axis].maxError = emcmotConfig.pid[axis].maxError;
 	    stat[axis].deadband = emcmotConfig.pid[axis].deadband;
 	    stat[axis].cycleTime = emcmotConfig.servoCycleTime;
+#endif
 	    stat[axis].minPositionLimit = emcmotConfig.minLimit[axis];
 	    stat[axis].maxPositionLimit = emcmotConfig.maxLimit[axis];
+#if 0
 	    stat[axis].minOutputLimit = emcmotConfig.minOutput[axis];
 	    stat[axis].maxOutputLimit = emcmotConfig.maxOutput[axis];
+#endif
 	    stat[axis].minFerror = emcmotConfig.minFerror[axis];
 	    stat[axis].maxFerror = emcmotConfig.maxFerror[axis];
 	    stat[axis].homeOffset = emcmotConfig.homeOffset[axis];
@@ -1333,13 +1342,15 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->probedPosition.tran.x = emcmotStatus.probedPos.tran.x;
     stat->probedPosition.tran.y = emcmotStatus.probedPos.tran.y;
     stat->probedPosition.tran.z = emcmotStatus.probedPos.tran.z;
-    stat->probeval = emcmotStatus.probeval;
+    stat->probeval = emcmotStatus.probeVal;
     stat->probe_tripped = emcmotStatus.probeTripped;
 
     if (new_config) {
 	stat->cycleTime = emcmotConfig.trajCycleTime;
+#if 0
 	stat->probe_index = emcmotConfig.probeIndex;
 	stat->probe_polarity = emcmotConfig.probePolarity;
+#endif
 	stat->kinematics_type = emcmotConfig.kinematics_type;
 	stat->maxVelocity = emcmotConfig.limitVel;
     }

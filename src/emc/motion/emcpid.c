@@ -1,4 +1,7 @@
-/* 
+/* FIXME - this has been replaced by HAL PID loop - remove from CVS
+   once emc2 is working */
+
+/*
      pid.c
 
      C definitions for PID code

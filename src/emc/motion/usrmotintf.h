@@ -103,4 +103,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif	/* USRMOTINTF_H */
+#endif				/* USRMOTINTF_H */

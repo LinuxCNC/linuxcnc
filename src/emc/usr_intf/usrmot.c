@@ -46,7 +46,6 @@
 #include "motion.h"
 #include "usrmotintf.h"		/* usrmotInit(), etc */
 #include "posemath.h"
-#include "emcpid.h"		/* pidIniLoad() */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_LEN,NUM */
 #include "emcmotglb.h"		/* SHMEM_KEY */
 
@@ -314,7 +313,7 @@ int main(int argc, char *argv[])
 		printf(";\tcomment follows\n");
 		printf("quit\tquit\n");
 		printf
-		    ("show {pids} {flags} {limits} {scales} {times}\tshow status\n");
+		    ("show {flags} {limits} {scales} {times}\tshow status\n");
 		printf("show debug <screen>\tshow debug\n");
 		printf("show config <screen>\tshow config\n");
 		printf("free\tset mode to free\n");
@@ -339,8 +338,7 @@ int main(int argc, char *argv[])
 		printf
 		    ("set t <traj t> | s <servo t> | v <vel> | a <acc>\tset params\n");
 */
-		printf
-		    ("set v <vel> | a <acc>\tset params\n");
+		printf("set v <vel> | a <acc>\tset params\n");
 /* FIXME
 		printf
 		    ("oscale <axis 0..n-1> <a> <b>\traw[n] = a(out[n]-b)\n");
@@ -644,8 +642,9 @@ int main(int argc, char *argv[])
 	    } else if (!strcmp(cmd, "set")) {
 		sscanf(input, "%*s %s", cmd);
 /* FIXME - obsolete commands */
-#if 0
 		if (!strcmp(cmd, "t")) {
+		    fprintf(stderr, "'set t' command is obsolete\n");
+#if 0
 		    if (1 != sscanf(input, "%*s %*s %lf",
 			    &emcmotCommand.cycleTime)) {
 			/* invalid parameter */
@@ -657,7 +656,10 @@ int main(int argc, char *argv[])
 				"Can't send a command to RT-task\n");
 			}
 		    }
+#endif
 		} else if (!strcmp(cmd, "s")) {
+		    fprintf(stderr, "'set t' command is obsolete\n");
+#if 0
 		    if (1 != sscanf(input, "%*s %*s %lf",
 			    &emcmotCommand.cycleTime)) {
 			/* invalid parameter */
@@ -669,9 +671,8 @@ int main(int argc, char *argv[])
 				"Can't send a command to RT-task\n");
 			}
 		    }
-		} else if (!strcmp(cmd, "v")) {
 #endif
-		if (!strcmp(cmd, "v")) {
+		} else if (!strcmp(cmd, "v")) {
 		    if (1 != sscanf(input, "%*s %*s %lf", &emcmotCommand.vel)) {
 			/* invalid parameter */
 			fprintf(stderr, "bad value for velocity\n");
@@ -698,8 +699,7 @@ int main(int argc, char *argv[])
 /* FIXME	    printf
 			("syntax: set t <traj t> | s <servo t> | v <vel> | a <acc>\n");
 */
-		    printf
-			("syntax: set v <vel> | a <acc>\n");
+		    printf("syntax: set v <vel> | a <acc>\n");
 		}
 #if 0
 	    } else if (!strcmp(cmd, "oscale")) {
@@ -770,8 +770,8 @@ int main(int argc, char *argv[])
 		} else {
 		    /* load params into pid struct from inifile */
 		    if (0 != pidIniLoad(&emcmotCommand.pid, filename)) {
-			fprintf(stderr, "error loading pid params from %s\n",
-			    filename);
+			fprintf(stderr,
+			    "error loading pid params from %s\n", filename);
 		    } else {
 			emcmotCommand.command = EMCMOT_SET_PID;
 			if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
@@ -792,6 +792,7 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "Can't send a command to RT-task\n");
 		    }
 		}
+#if 0				/* obsolete command */
 	    } else if (!strcmp(cmd, "clamp")) {
 		if (3 != sscanf(input, "%*s %d %lf %lf",
 			&emcmotCommand.axis,
@@ -803,6 +804,7 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "Can't send a command to RT-task\n");
 		    }
 		}
+#endif
 	    } else if (!strcmp(cmd, "ferror")) {
 		if (2 != sscanf(input, "%*s %d %lf",
 			&emcmotCommand.axis, &emcmotCommand.maxFerror)) {
@@ -875,7 +877,8 @@ int main(int argc, char *argv[])
 			case EMCMOT_LOG_TYPE_AXIS_POS:
 			case EMCMOT_LOG_TYPE_AXIS_VEL:
 			case EMCMOT_LOG_TYPE_POS_VOLTAGE:
-			    if (1 != sscanf(input, "%*s %*s %*s %*s %*s %d",
+			    if (1 != sscanf(input,
+				    "%*s %*s %*s %*s %*s %d",
 				    &emcmotCommand.axis)) {
 				printf
 				    ("syntax: log open <size> <skip> <type> <axis>\n");
@@ -885,7 +888,7 @@ int main(int argc, char *argv[])
 			    break;
 
 			case EMCMOT_LOG_TYPE_CMD:
-			    /* force logSkip negative to avoid per-cycle logs
+			    /* force logSkip negative to avoid per-cycle logs 
 			     */
 			    emcmotCommand.logSkip = -1;
 			    valid = 1;
@@ -1066,7 +1069,6 @@ int main(int argc, char *argv[])
 		    printf("huh? : %s", input);	/* input will have newline */
 		} else {
 		    /* blank line was typed */
-
 		    /* print status */
 		    switch (statconfigdebug) {
 		    case 0:
@@ -1124,12 +1126,14 @@ int main(int argc, char *argv[])
 				"EMCMOT_COMM_SPLIT_READ_TIMEOUT" : "?");
 			}
 			break;
-		    }
-		}
+		    default:
+			break;
+		    }		/* end of switch */
+		}		/* end of else blank line */
 	    }			/* end of big-if input matching */
 
-	}			/* end of non-number input processing */
-
+	}
+	/* end of non-number input processing */
     }				/* end of while stdin */
 
     usrmotExit();

@@ -855,12 +855,10 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     int n, retval, msg;
     char buf[HAL_NAME_LEN + 2];
 
-    /* This function exports a lot of stuff, which results
-       in a lot of logging if msg_level is at INFO or ALL.
-       So we save the current value of msg_level and restore
-       it later.  If you actually need to log this function's
-       actions, change the second line below
-    */
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 

@@ -5,7 +5,6 @@ include ../../../Makefile.inc
 SRCS = \
 	emcmotglb.c \
 	emcmotutil.c \
-	emcpid.c \
 	usrmotintf.c
 
 RT_SRCS = \
@@ -16,7 +15,6 @@ RT_SRCS = \
 HEADERS = \
 	emcmotcfg.h \
 	emcmotglb.h \
-	emcpid.h \
 	motion.h \
 	usrmotintf.h
 
@@ -33,7 +31,6 @@ RT_OBJS  = \
 	control.o \
 	cubic.o \
 	emcmotutil.o \
-	emcpid.o \
 	mmxavg.o \
 	motion.o \
 	tc.o \
@@ -64,11 +61,9 @@ $(RTLIB_DIR)/motmod.o: \
 	$(RTTMP_DIR)/motion.o \
 	$(RTTMP_DIR)/command.o \
 	$(RTTMP_DIR)/control.o \
-	$(RTTMP_DIR)/exthalmot.o \
 	$(RTTMP_DIR)/emcmotglb.o \
 	$(RTTMP_DIR)/emcmotlog.o \
 	$(RTTMP_DIR)/emcmotutil.o \
-	$(RTTMP_DIR)/emcpid.o \
 	$(RTTMP_DIR)/mmxavg.o \
 	$(RTTMP_DIR)/tc.o \
 	$(RTTMP_DIR)/tp.o \

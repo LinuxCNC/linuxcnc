@@ -18,7 +18,6 @@
 
 /* This file is a mess! */
 
-
 /*
 
 Misc ramblings:
@@ -51,15 +50,11 @@ to another.
 
 */
 
-
-
-
 #ifndef MOTION_H
 #define MOTION_H
 
 #include "posemath.h"		/* PmCartesian, PmPose, pmCartMag() */
 #include "emcpos.h"		/* EmcPose */
-#include "emcpid.h"		/* PID_STRUCT */
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
 #include "emcmotcfg.h"		/* EMCMOT_MAX_AXIS */
 #include "emcmotlog.h"
@@ -80,8 +75,6 @@ to another.
 extern "C" {
 #endif
 
-
-
     typedef struct _EMC_TELEOP_DATA {
 	EmcPose currentVel;
 	EmcPose currentAccell;
@@ -93,7 +86,6 @@ extern "C" {
 
     typedef enum {
 	EMCMOT_SET_POSITION_LIMITS = 1,	/* set the axis position +/- limits */
-	EMCMOT_SET_OUTPUT_LIMITS,	/* set the axis output +/- limits */
 	EMCMOT_SET_MIN_FERROR,	/* minimum following error, input units */
 	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
 	EMCMOT_JOG_CONT,	/* continuous jog */
@@ -105,7 +97,7 @@ extern "C" {
 	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
 	EMCMOT_SET_AXIS_VEL_LIMIT,	/* set the max axis vel */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
-//	EMCMOT_SET_AXIS_ACC,	/* NEW set the max accel for axis */
+//      EMCMOT_SET_AXIS_ACC,    /* NEW set the max accel for axis */
 	EMCMOT_PAUSE,		/* pause motion */
 	EMCMOT_RESUME,		/* resume motion */
 	EMCMOT_STEP,		/* resume motion until id encountered */
@@ -147,14 +139,12 @@ extern "C" {
 /* this enum lists the possible results of a command */
 
     typedef enum {
-	EMCMOT_COMMAND_OK = 0,		/* cmd honored */
+	EMCMOT_COMMAND_OK = 0,	/* cmd honored */
 	EMCMOT_COMMAND_UNKNOWN_COMMAND,	/* cmd not understood */
 	EMCMOT_COMMAND_INVALID_COMMAND,	/* cmd can't be handled now */
 	EMCMOT_COMMAND_INVALID_PARAMS,	/* bad cmd params */
-	EMCMOT_COMMAND_BAD_EXEC		/* error trying to initiate */
+	EMCMOT_COMMAND_BAD_EXEC	/* error trying to initiate */
     } cmd_status_t;
-
-
 
 /* termination conditions for queued motions */
 #define EMCMOT_TERM_COND_STOP 1
@@ -199,7 +189,6 @@ extern "C" {
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
 
-
 /* FIXME - these packed bits might be replaced with chars
    memory is cheap, and being able to access them without those
    damn macros would be nice
@@ -231,7 +220,6 @@ extern "C" {
 #define EMCMOT_MOTION_COORD_BIT       0x0004
 #define EMCMOT_MOTION_ERROR_BIT       0x0008
 #define EMCMOT_MOTION_TELEOP_BIT      0x0010
-
 
 /* axis flag type */
     typedef unsigned short EMCMOT_AXIS_FLAG;
@@ -290,7 +278,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define EMCMOT_AXIS_FERROR_BIT         0x1000
 #define EMCMOT_AXIS_FAULT_BIT          0x2000
 
-
 /* This is the status structure.  There is one of these in shared
    memory, and it reports motion controller status to higher level
    code in user space.  For the most part, this structure contains
@@ -321,6 +308,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferrorLimit[EMCMOT_MAX_AXIS];	/* allowable following error */
 	double ferrorHighMark[EMCMOT_MAX_AXIS];	/* max following error */
 
+	int probeVal;		/* debounced value of probe input */
+
 /* FIXME - all structure members beyond this point are in limbo */
 
 	/* dynamic status-- changes every cycle */
@@ -330,7 +319,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double computeTime;
 	EmcPose pos;		/* calculated Cartesian position */
 	double axisPos[EMCMOT_MAX_AXIS];	/* calculated axis positions */
-	double output[EMCMOT_MAX_AXIS];	/* Calculated output velocity command */
+	double output[EMCMOT_MAX_AXIS];	/* Calculated output velocity command 
+					 */
 	double input[EMCMOT_MAX_AXIS];	/* actual input */
 	EmcPose actualPos;	/* actual Cartesian position */
 	int id;			/* id for executing motion */
@@ -345,8 +335,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	double outputScale[EMCMOT_MAX_AXIS];	/* Used to set
 						   emcmotDebug->inverseOutputScale
-						   - then used to scale the
-						   DAC outputs */
+						   - then used to scale the DAC
+						   outputs */
 	double outputOffset[EMCMOT_MAX_AXIS];	/* DC offset applied to the
 						   DAC outputs to achieve 0V
 						   when commanded output is
@@ -358,7 +348,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double inputOffset[EMCMOT_MAX_AXIS];	/* encoder offsets */
 
 	double qVscale;		/* traj velocity scale factor */
-	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor
+	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor 
 						 */
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
@@ -373,19 +363,19 @@ Suggestion: Split this in to an Error and a Status flag register..
 				   2=var < threshold, 3 var>threshold */
 	int logTriggerVariable;	/* The variable(s) that can cause the log to
 				   trigger. */
-	double logTriggerThreshold;	/* The value for non manual triggers.
+	double logTriggerThreshold;	/* The value for non manual triggers. 
 					 */
 	double logStartVal;	/* value use for delta trigger */
 
 	int probeTripped;	/* Has the probe signal changed since start
 				   of probe command? */
-	int probeval;		/* current value of probe wire */
 	int probing;		/* Currently looking for a probe signal? */
 	EmcPose probedPos;	/* Axis positions stored as soon as possible
 				   after last probeTripped */
 	int level;
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_status_t;
+
 
 
 /* This is the config structure.  This is currently in shared memory,
@@ -415,7 +405,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int numAxes;		/* The number of axes in the system (which
 				   must be between 1 and EMCMOT_MAX_AXIS,
 				   inclusive). Allegedly, holds a copy of the
-				   global NUM_AXES - seems daft to maintain
+				   global num_axes - seems daft to maintain
 				   duplicates ! */
 
 	double trajCycleTime;	/* the rate at which the trajectory loop
@@ -429,10 +419,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 						   counts */
 	double minLimit[EMCMOT_MAX_AXIS];	/* minimum axis limits,
 						   counts */
-	double minOutput[EMCMOT_MAX_AXIS];	/* minimum output value
-						   allowed, volts */
-	double maxOutput[EMCMOT_MAX_AXIS];	/* maximum output value
-						   allowed, volts */
 	double minFerror[EMCMOT_MAX_AXIS];	/* minimum allowable
 						   following error */
 	double maxFerror[EMCMOT_MAX_AXIS];	/* maximum allowable
@@ -443,24 +429,15 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double homingVel[EMCMOT_MAX_AXIS];	/* scalar max homing vels */
 	double homeOffset[EMCMOT_MAX_AXIS];	/* where to go after home,
 						   user units */
-	int probeIndex;		/* Which wire has the probe signal? */
-	int probePolarity;	/* Look for 0 or 1. */
 	KINEMATICS_TYPE kinematics_type;
-	PID_STRUCT pid[EMCMOT_MAX_AXIS];
+	double backlash[EMCMOT_MAX_AXIS];
 	int STEPPING_TYPE;	/* 0 = step/direction, 1 = phasing */
-	double setup_time[EMCMOT_MAX_AXIS];	/* number of periods before
-						   step occurs that dir
-						   changes */
-	double hold_time[EMCMOT_MAX_AXIS];	/* number of periods that
-						   step line is held low/high 
-						   after transition */
 	int PERIOD;		/* fundamental period for timer interrupts */
 	unsigned long int IO_BASE_ADDRESS;
 	int debug;		/* copy of DEBUG, from .ini file */
 
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_config_t;
-
 
 /* This is the internal structure.  It contains stuff that is used
    internally by the motion controller that does not need to be in
@@ -471,6 +448,8 @@ Suggestion: Split this in to an Error and a Status flag register..
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
 
+	int probe_debounce_cntr;
+
 	double old_joint_pos_cmd[EMCMOT_MAX_AXIS];
 	int pos_limit_debounce_cntr[EMCMOT_MAX_AXIS];
 	int neg_limit_debounce_cntr[EMCMOT_MAX_AXIS];
@@ -480,8 +459,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_internal_t;
-
-
 
 /* This is the debug structure.  I guess it was intended to make some
    of the motion controller's internal variables visible from user
@@ -664,15 +641,16 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 /* big comm structure, for upper memory */
     typedef struct {
-	emcmot_command_t command;	/* struct used to pass commands/data to the
-				   RT module from usr space */
+	emcmot_command_t command;	/* struct used to pass commands/data
+					   to the RT module from usr space */
 	emcmot_status_t status;	/* Struct used to store RT status */
 	emcmot_config_t config;	/* Struct used to store RT config */
 	emcmot_debug_t debug;	/* Struct used to store RT status and debug
 				   data - 2nd largest block */
-	emcmot_internal_t internal;	/* FIXME - doesn't need to be in shared memory */
+	emcmot_internal_t internal;	/* FIXME - doesn't need to be in
+					   shared memory */
 	emcmot_error_t error;	/* ring buffer for error messages */
-	emcmot_log_t log;		/* a massive ring buffer for logging RT data */
+	emcmot_log_t log;	/* a massive ring buffer for logging RT data */
 	emcmot_comp_t comp[EMCMOT_MAX_AXIS];	/* corrections to be applied
 						   to input pos */
     } emcmot_struct_t;

@@ -1,3 +1,6 @@
+/* FIXME - this has been obsoleted by HAL - remove from CVS after
+   emc2 is working */
+
 /********************************************************************
 * Description: exthalmot.c
 *   Dispatcher of external motion functions for HAL drivers.
@@ -30,7 +33,7 @@
 #include "extintf.h"		/* these decls */
 //#include "emcmotglb.h"
 #include "motion.h"
-#include "../motion/mot_priv.h"		/* motion module decls */
+#include "../motion/mot_priv.h"	/* motion module decls */
 
 /* ident tag */
 #ifndef __GNUC__

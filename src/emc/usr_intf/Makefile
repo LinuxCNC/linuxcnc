@@ -53,15 +53,13 @@ $(BIN_DIR)/iosh: $(TMP_DIR)/iosh.o \
 $(BIN_DIR)/usrmot : \
 	$(TMP_DIR)/usrmotintf.o \
 	$(TMP_DIR)/usrmot.o \
-	$(RTTMP_DIR)/emcpid.o \
-	$(RTTMP_DIR)/emcmotglb.o \
-	$(RTTMP_DIR)/emcmotlog.o \
-	$(RTTMP_DIR)/emcmotutil.o \
+	$(TMP_DIR)/emcmotglb.o \
+	$(TMP_DIR)/emcmotlog.o \
+	$(TMP_DIR)/emcmotutil.o \
 	$(LIB_DIR)/ulapi.o \
 	$(LIB_DIR)/libnml.a
 	@ echo "Linking $@"
 	$(CXX) $(CFLAGS) $(ULFLAGS) $^ -o $@
-
 
 headers: def_headers
 

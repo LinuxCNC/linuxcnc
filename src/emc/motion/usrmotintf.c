@@ -484,7 +484,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	printf("jointVel[%d]: %f\n", which - 6, d.jointVel[(which - 6)]);
 	printf("rawInput[%d]: %f\n", which - 6, d.rawInput[(which - 6)]);
 	printf("rawOutput[%d]: %f\n", which - 6, d.rawOutput[(which - 6)]);
-//	printf("bcompincr[%d]: %f\n", which - 6, d.bcompincr[(which - 6)]);
+//      printf("bcompincr[%d]: %f\n", which - 6, d.bcompincr[(which - 6)]);
 	printf("freeAxis[%d]:\n", which - 6);
 	printTPstruct(&d.freeAxis[which - 6]);
 	break;
@@ -533,9 +533,9 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	    printf("%f ", c.axisLimitVel[t]);
 	}
 	printf("\n");
+#if 0
 	printf("probe index: %d\n", c.probeIndex);
 	printf("probe polarity: %d\n", c.probePolarity);
-#if 0
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    htostr(m, c.axisPolarity[t]);
 	    printf("%s ", m);
@@ -545,6 +545,8 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	break;
 
     case 1:
+	printf("pid stuff is obsolete\n");
+#if 0
 	printf
 	    ("pid:\tP\tI\tD\tFF0\tFF1\tFF2\tBCKLSH\tBIAS\tMAXI\tDEADBAND\tCYCLE TIME\n");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
@@ -555,6 +557,7 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 		c.pid[t].maxError, c.pid[t].deadband, c.pid[t].cycleTime);
 	}
 	printf("\n");
+#endif
 	break;
 
     case 3:
@@ -566,16 +569,6 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	printf("\nneg limits:   ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", c.minLimit[t]);
-	}
-
-	printf("\nmax output:   ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	    printf("\t%f", c.maxOutput[t]);
-	}
-
-	printf("\nmin output:   ");
-	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	    printf("\t%f", c.minOutput[t]);
 	}
 
 	printf("\nmax ferror:   ");
@@ -659,7 +652,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("\n");
 	printf("enabled:     \t%s\n",
 	    s.motionFlag & EMCMOT_MOTION_ENABLE_BIT ? "ENABLED" : "DISABLED");
-	printf("probe value: %d\n", s.probeval);
+	printf("probe value: %d\n", s.probeVal);
 	printf("probe Tripped: %d\n", s.probeTripped);
 	printf("probing: %d\n", s.probing);
 	printf("probed pos:      \t%f\t%f\t%f\n",
@@ -1222,9 +1215,9 @@ int usrmotLoadComp(int axis, const char *file)
 	    emcmotComp[axis]->nominal[0]) / (total - 1);
     }
 
-    /* ->total is the flag to emcmot that the comp table is valid, so
-       only set this to be >1 if the data is really valid: total > 1
-       and avgint > 0 */
+    /* ->total is the flag to emcmot that the comp table is valid, so only
+       set this to be >1 if the data is really valid: total > 1 and avgint >
+       0 */
     if (total > 1 && emcmotComp[axis]->avgint > DBL_MIN) {
 	emcmotComp[axis]->total = total;
     } else {

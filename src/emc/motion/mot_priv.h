@@ -18,7 +18,6 @@
 *
 ********************************************************************/
 
-
 /***********************************************************************
 *                       TYPEDEFS, ENUMS, ETC.                          *
 ************************************************************************/
@@ -38,7 +37,7 @@
 
 typedef struct {
     hal_float_t joint_pos_cmd;	/* RPA: commanded position, w/o comp */
-    hal_float_t joint_vel_cmd;  /* RPA: commanded velocity, w/o comp */
+    hal_float_t joint_vel_cmd;	/* RPA: commanded velocity, w/o comp */
     hal_float_t backlash_corr;	/* RPA: correction for backlash */
     hal_float_t backlash_filt;	/* RPA: filtered backlash correction */
     hal_float_t *motor_pos_cmd;	/* WPI: commanded position, with comp */
@@ -65,7 +64,7 @@ typedef struct {
     hal_bit_t *home_sw;		/* RPI: home switch input */
     hal_bit_t *amp_fault;	/* RPI: amp fault input */
     hal_bit_t *amp_enable;	/* WPI: amp enable output */
-    hal_s8_t  home_state;	/* RPA: homing state machine state */
+    hal_s8_t home_state;	/* RPA: homing state machine state */
 
 /* FIXME - these have been temporarily? deleted */
 #if 0
@@ -79,27 +78,19 @@ typedef struct {
 #endif
 } axis_hal_t;
 
-
 /* machine data */
 
 typedef struct {
-    hal_bit_t *probe;		/* RPI: probe input */
+    hal_bit_t *probe_input;	/* RPI: probe switch input */
     hal_bit_t motion_enable;	/* RPA: motion enable for all axis */
     hal_bit_t in_position;	/* RPA: all axis are in position */
     hal_bit_t coord_mode;	/* RPA: TRUE if coord, FALSE if free */
     hal_bit_t teleop_mode;	/* RPA: TRUE if teleop mode */
     hal_bit_t coord_error;	/* RPA: TRUE if coord mode error */
 
-
-
     axis_hal_t axis[EMCMOT_MAX_AXIS];	/* data for each axis */
 
 } machine_hal_t;
-
-
-
-
-
 
 /***********************************************************************
 *                   GLOBAL VARIABLE DECLARATIONS                       *
@@ -139,8 +130,6 @@ extern emcmot_log_struct_t ls;
 *                    PUBLIC FUNCTION PROTOTYPES                        *
 ************************************************************************/
 
-
-
 /* function definitions */
 extern void emcmotCommandHandler(void *arg, long period);
 extern void emcmotController(void *arg, long period);
@@ -152,7 +141,6 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
     value for all calcs and only do the conversion to seconds when it is
     really needed. */
 #define etime() (((double) rtapi_get_time()) / 1.0e9)
-
 
 /* macros for reading, writing bit flags */
 

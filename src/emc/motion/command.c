@@ -13,7 +13,7 @@
 * License: GPL Version 2
 * Created on:
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -28,7 +28,6 @@
 #include <math.h>
 #include "rtapi.h"
 #include "hal.h"
-#include "extintf.h"
 #include "motion.h"
 #include "emcmotglb.h"
 #include "mot_priv.h"
@@ -175,7 +174,7 @@ void emcmotCommandHandler(void *arg, long period)
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
 	emcmotDebug->split++;
-	return;		/* not really an error */
+	return;			/* not really an error */
     }
     if (emcmotCommand->commandNum != emcmotStatus->commandNumEcho) {
 	/* increment head count-- we'll be modifying emcmotStatus */
@@ -203,7 +202,7 @@ void emcmotCommandHandler(void *arg, long period)
 
 	/* ...and process command */
 #if 0
-rtapi_print ( "CMD: %d\n", emcmotCommand->command );
+	rtapi_print("CMD: %d\n", emcmotCommand->command);
 #endif
 	switch (emcmotCommand->command) {
 	case EMCMOT_FREE:
@@ -261,7 +260,7 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 	    if (axis <= 0 || axis > EMCMOT_MAX_AXIS) {
 		break;
 	    }
-	    NUM_AXES = axis;
+	    num_axes = axis;
 	    emcmotConfig->numAxes = axis;
 	    break;
 
@@ -299,28 +298,7 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 		SET_AXIS_ERROR_FLAG(axis, 0);
 	    }
 	    break;
-#ifndef NEW_STRUCTS
-	case EMCMOT_SET_TRAJ_CYCLE_TIME:
-	    /* set the cycle time for trajectory calculations */
-	    /* really should be done only at startup before controller is
-	       run, but at least it requires no active motions and the
-	       interpolators need to be cleared */
-	    /* FIXME -- this command should be deleted */
-	    rtapi_print("COMMAND: got SET_TRAJ_CYCLE_TIME command\n" );
-	    /* do nothing - cycle times are fixed at startup */
-	    break;
 
-	case EMCMOT_SET_SERVO_CYCLE_TIME:
-	    /* set the cycle time for servo calculations, which is the period
-	       for emcmotController execution */
-	    /* really should be done only at startup before controller is
-	       run, but at least it requires no active motions and the
-	       interpolators need to be cleared */
-	    /* FIXME -- this command should be deleted */
-	    rtapi_print("COMMAND: got SET_SERVO_CYCLE_TIME command\n" );
-	    /* do nothing - cycle times are fixed at startup */
-	    break;
-#endif
 	case EMCMOT_SET_POSITION_LIMITS:
 	    emcmot_config_change();
 	    /* set the position limits for the axis */
@@ -333,58 +311,12 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 	    emcmotConfig->maxLimit[axis] = emcmotCommand->maxLimit;
 	    break;
 
-	case EMCMOT_SET_OUTPUT_LIMITS:
-	    emcmot_config_change();
-	    /* set the output limits for the axis */
-	    /* can be done at any time */
-	    axis = emcmotCommand->axis;
-	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-		break;
-	    }
-
-	    emcmotConfig->minOutput[axis] = emcmotCommand->minLimit;
-	    emcmotConfig->maxOutput[axis] = emcmotCommand->maxLimit;
-	    break;
-#ifndef NEW_STRUCTS
-	case EMCMOT_SET_OUTPUT_SCALE:
-	    axis = emcmotCommand->axis;
-	    if (axis < 0 ||
-		axis >= EMCMOT_MAX_AXIS || emcmotCommand->scale == 0) {
-		break;
-	    }
-	    emcmotStatus->outputScale[axis] = emcmotCommand->scale;
-	    emcmotStatus->outputOffset[axis] = emcmotCommand->offset;
-	    emcmotDebug->inverseOutputScale[axis] =
-		1.0 / emcmotStatus->outputScale[axis];
-	    break;
-
-	case EMCMOT_SET_INPUT_SCALE:
-	    /*
-	       change the scale factor for the position input, e.g., encoder
-	       counts per unit. Note that this is not a good idea once things
-	       have gotten underway, since the axis will jump servo to the
-	       "new" position, the gains will no longer be appropriate, etc. */
-	    axis = emcmotCommand->axis;
-	    if (axis < 0 ||
-		axis >= EMCMOT_MAX_AXIS || emcmotCommand->scale == 0.0) {
-		break;
-	    }
-	    emcmotDebug->oldInputValid[axis] = 0;
-
-	    /* now make them active */
-	    emcmotStatus->inputScale[axis] = emcmotCommand->scale;
-	    emcmotStatus->inputOffset[axis] = emcmotCommand->offset;
-	    emcmotDebug->inverseInputScale[axis] =
-		1.0 / emcmotStatus->inputScale[axis];
-	    break;
-#endif
-	    /*
+	    /* 
 	       Max and min ferror work like this: limiting ferror is
 	       determined by slope of ferror line, = maxFerror/limitVel ->
 	       limiting ferror = maxFerror/limitVel * vel. If ferror <
 	       minFerror then OK else if ferror < limiting ferror then OK
 	       else ERROR */
-
 	case EMCMOT_SET_MAX_FERROR:
 	    emcmot_config_change();
 	    axis = emcmotCommand->axis;
@@ -495,8 +427,7 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 		emcmotDebug->freePose.tran.x = emcmotDebug->jointPos[axis] + emcmotCommand->offset;	/* FIXME--
 													   use
 													   'goal'
-													   instead 
-													 */
+													   instead */
 		if (GET_AXIS_HOMED_FLAG(axis)) {
 		    if (emcmotDebug->freePose.tran.x >
 			emcmotConfig->maxLimit[axis]) {
@@ -506,7 +437,7 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 		}
 	    } else {
 		emcmotDebug->freePose.tran.x = emcmotDebug->jointPos[axis] - emcmotCommand->offset;	/* FIXME-- 
-													   use 
+													   use
 													   'goal' 
 													   instead 
 													 */
@@ -827,17 +758,7 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 		emcmotDebug->coordinating = 0;
 	    }
 	    break;
-#ifndef NEW_STRUCTS
-	case EMCMOT_SET_PID:
-	    emcmot_config_change();
-	    /* configure the PID gains */
-	    axis = emcmotCommand->axis;
-	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-		break;
-	    }
-	    pidSetGains(&emcmotConfig->pid[axis], emcmotCommand->pid);
-	    break;
-#endif
+
 	case EMCMOT_ACTIVATE_AXIS:
 	    /* make axis active, so that amps will be enabled when system is
 	       enabled or disabled */
@@ -859,7 +780,8 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 	    }
 	    SET_AXIS_ACTIVE_FLAG(axis, 0);
 	    break;
-
+/* FIXME - need to replace the ext function */
+#if 0
 	case EMCMOT_ENABLE_AMPLIFIER:
 	    /* enable the amplifier directly, but don't enable calculations */
 	    /* can be done at any time */
@@ -871,7 +793,7 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 	    break;
 
 	case EMCMOT_DISABLE_AMPLIFIER:
-	    /* disable the axis calculations and amplifier, but don't disable 
+	    /* disable the axis calculations and amplifier, but don't disable
 	       calculations */
 	    /* can be done at any time */
 	    axis = emcmotCommand->axis;
@@ -880,7 +802,7 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 	    }
 	    extAmpEnable(axis, 0);
 	    break;
-
+#endif
 	case EMCMOT_OPEN_LOG:
 	    /* open a data log */
 	    axis = emcmotCommand->axis;
@@ -976,23 +898,7 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 	    emcmotStatus->logSkip = 0;
 	    emcmotStatus->logType = 0;
 	    break;
-#ifndef NEW_STRUCTS
-	case EMCMOT_DAC_OUT:
-	    /* write output to dacs directly */
-	    /* will only persist if amplifiers are disabled */
-	    axis = emcmotCommand->axis;
-	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-		break;
-	    }
-	    /* trigger log, if active */
-	    if (emcmotStatus->logType == EMCMOT_LOG_TYPE_POS_VOLTAGE &&
-		loggingAxis == axis && emcmotStatus->logOpen != 0) {
-		emcmotStatus->logStarted = 1;
-		logSkip = 0;
-	    }
-	    emcmotStatus->output[axis] = emcmotCommand->dacOut;
-	    break;
-#endif
+
 	case EMCMOT_HOME:
 	    /* home the specified axis */
 	    /* need to be in free mode, enable on */
@@ -1030,32 +936,7 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 	case EMCMOT_DISABLE_WATCHDOG:
 	    emcmotDebug->wdEnabling = 0;
 	    break;
-#ifndef NEW_STRUCTS
-	case EMCMOT_SET_POLARITY:
-	    emcmot_config_change();
-	    axis = emcmotCommand->axis;
-	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-		break;
-	    }
-	    if (emcmotCommand->level) {
-		/* normal */
-		emcmotConfig->axisPolarity[axis] |= emcmotCommand->axisFlag;
-	    } else {
-		/* inverted */
-		emcmotConfig->axisPolarity[axis] &= ~emcmotCommand->axisFlag;
-	    }
-	    break;
 
-	case EMCMOT_SET_PROBE_INDEX:
-	    emcmot_config_change();
-	    emcmotConfig->probeIndex = emcmotCommand->probeIndex;
-	    break;
-
-	case EMCMOT_SET_PROBE_POLARITY:
-	    emcmot_config_change();
-	    emcmotConfig->probePolarity = emcmotCommand->level;
-	    break;
-#endif
 	case EMCMOT_CLEAR_PROBE_FLAGS:
 	    emcmotStatus->probeTripped = 0;
 	    emcmotStatus->probing = 1;
@@ -1142,26 +1023,7 @@ rtapi_print ( "CMD: %d\n", emcmotCommand->command );
 	    emcmotConfig->debug = emcmotCommand->debug;
 	    emcmot_config_change();
 	    break;
-#ifndef NEW_STRUCTS
-	case EMCMOT_SET_STEP_PARAMS:
-	    emcmot_config_change();
-	    /* configure the step pulse times */
-	    axis = emcmotCommand->axis;
-	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-		break;
-	    }
 
-	    emcmotConfig->setup_time[axis] = emcmotCommand->setup_time;
-	    emcmotConfig->hold_time[axis] = emcmotCommand->hold_time;
-	    if (emcmotConfig->setup_time[axis] < 1.0) {
-		emcmotConfig->setup_time[axis] = 1.0;
-	    }
-
-	    if (emcmotConfig->hold_time[axis] < 1.0) {
-		emcmotConfig->hold_time[axis] = 1.0;
-	    }
-	    break;
-#endif
 	default:
 	    reportError("unrecognized command %d", emcmotCommand->command);
 	    emcmotStatus->commandStatus = EMCMOT_COMMAND_UNKNOWN_COMMAND;

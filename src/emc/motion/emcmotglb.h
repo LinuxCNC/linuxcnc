@@ -24,6 +24,15 @@ extern "C" {
 #endif
 
 #define EMCMOT_INIFILE_LEN 256
+
+/* FIXME - eventually want to convert all of these to lowercase,
+   uppercase is for constants only
+*/
+
+/* FIXME - want to move some of these out of here completely...
+   too many globals - put in emcmotXXX structs instead, perhaps?
+*/
+
     extern char EMCMOT_INIFILE[EMCMOT_INIFILE_LEN];
 
     extern unsigned int SHMEM_KEY;
@@ -31,10 +40,7 @@ extern "C" {
     extern double EMCMOT_COMM_TIMEOUT;	/* seconds until timeout */
     extern double EMCMOT_COMM_WAIT;	/* seconds to delay between tries */
 
-    extern int NUM_AXES;
-
-    extern double TRAJ_CYCLE_TIME;
-    extern double SERVO_CYCLE_TIME;
+    extern int num_axes;
 
     extern double VELOCITY;
     extern double ACCELERATION;
@@ -58,20 +64,24 @@ extern "C" {
 
     extern double MAX_FERROR;
 
+#if 0
     extern double P_GAIN;
     extern double I_GAIN;
     extern double D_GAIN;
     extern double FF0_GAIN;
     extern double FF1_GAIN;
     extern double FF2_GAIN;
-    extern double BACKLASH;
     extern double BIAS;
     extern double MAX_ERROR;
+#endif
+    extern double BACKLASH;
 
+#if 0
     extern double INPUT_SCALE;
     extern double INPUT_OFFSET;
     extern double OUTPUT_SCALE;
     extern double OUTPUT_OFFSET;
+#endif
 
 #ifdef __cplusplus
 }				/* matches extern "C" at top */

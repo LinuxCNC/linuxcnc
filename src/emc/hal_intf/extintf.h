@@ -1,3 +1,6 @@
+/* FIXME - this has been obsoleted by HAL - remove from CVS after
+   emc2 is working */
+
 /********************************************************************
 * Description: extintf.h
 *   Declarations of external interfaces to encoders, DACs, limit
@@ -29,7 +32,6 @@ extern "C" {
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
-
 
 /***********************************************************************
 *                       FUNCTION PROTOTYPES                            *

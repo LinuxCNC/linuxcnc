@@ -1432,8 +1432,7 @@ int hal_start_threads(void)
 	    "HAL: ERROR: start_threads called before init\n");
 	return HAL_INVAL;
     }
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"HAL: starting threads\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "HAL: starting threads\n");
     hal_data->threads_running = 1;
     return HAL_SUCCESS;
 }
@@ -1447,8 +1446,7 @@ int hal_stop_threads(void)
 	return HAL_INVAL;
     }
     hal_data->threads_running = 0;
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"HAL: threads stopped\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "HAL: threads stopped\n");
     return HAL_SUCCESS;
 }
 
