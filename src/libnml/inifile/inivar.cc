@@ -33,6 +33,7 @@ extern "C" {
 int main(int argc, char *argv[])
 {
     int t;
+    int num = 1;
     char _variable[LINELEN] = "";
     char *variable = 0;
     char _section[LINELEN] = "";
@@ -74,10 +75,24 @@ int main(int argc, char *argv[])
 		section = _section;
 		t++;		/* step over following arg */
 	    }
-	} else {
+	} else if (!strcmp(argv[t], "-num")) {
+	    if (t == argc - 1) {
+		/* no arg following -num, so abort */
+		fprintf(stderr,
+		    "%s: line not specified after -num\n", argv[0]);
+		exit(1);
+	    } else {
+		if (sscanf(argv[t + 1], "%i", &num) != 1) {
+		    fprintf(stderr,
+			"%s: invalid number after -num\n", argv[0]);
+		    exit(1);
+		}
+		t++;		/* step over following arg */
+	    }
+	} else{
 	    /* invalid argument */
 	    fprintf(stderr,
-		"%s: -var <variable> {-sec <section>} {<-ini inifile>}\n",
+		"%s: -var <variable> {-sec <section>} {<-ini inifile>} [-num <nth item>]\n",
 		argv[0]);
 	    exit(1);
 	}
@@ -98,7 +113,7 @@ int main(int argc, char *argv[])
 	exit(-1);
     }
 
-    inistring = inifile->find(variable, section);
+    inistring = inifile->find(variable, section, num);
     if (inistring != NULL) {
 	printf("%s\n", inistring);
     }

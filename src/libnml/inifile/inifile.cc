@@ -149,7 +149,7 @@ bool Inifile::valid()
 * Called By: 
 *
 ********************************************************************/
-const char* Inifile::find(const char *tag, const char *section)
+const char* Inifile::find(const char *tag, const char *section, int num)
 {
     static char line[LINELEN + 2] = "";	/* 1 for newline, 1 for NULL */
     char bracketsection[LINELEN + 2] = "";
@@ -197,8 +197,7 @@ const char* Inifile::find(const char *tag, const char *section)
 	    }
 
 	    /* not a blank line, and nonwhite is first char */
-	    if (0 !=
-		strncmp(bracketsection, nonwhite, strlen(bracketsection))) {
+	    if (strncmp(bracketsection, nonwhite, strlen(bracketsection)) != 0) {
 		/* not on this line */
 		continue;
 	    }
@@ -238,9 +237,13 @@ const char* Inifile::find(const char *tag, const char *section)
 	}
 
 	len = strlen(tag);
-
-	if (0 != strncmp(tag, nonwhite, len)) {
+	if (strncmp(tag, nonwhite, len) != 0) {
 	    /* not on this line */
+	    continue;
+	}
+
+	if (--num > 0) {
+	    /* Not looking for the first one, so skip it... */
 	    continue;
 	}
 

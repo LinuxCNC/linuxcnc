@@ -35,7 +35,7 @@ class Inifile {
     bool open(const char *path);
     bool close();
     bool valid();
-    const char *find(const char *tag, const char *section = NULL);
+    const char *find(const char *tag, const char *section = NULL, int num = 1);
     int section(const char *section, inifile_entry array[], int max);
 
   private:
