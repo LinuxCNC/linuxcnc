@@ -1,10 +1,23 @@
-/************************************************************************
-* File: sendn.c
-* Purpose: Provides a C file for the sendn function from
-* the book Advanced Programming in the UNIX Environment by Richard Stevens.
-* The sendn function calls the send function repeatedly until n bytes
-* have been written to the file descriptor.
-*************************************************************************/
+/********************************************************************
+* Description: sendn.c
+*   Provides a C file for the sendn function from the book Advanced
+*   Programming in the UNIX Environment by Richard Stevens.
+*   The sendn function calls the send function repeatedly until n bytes
+*   have been written to the file descriptor.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <string.h>		/* strerror */
 #include <stdlib.h>		/* memset() */

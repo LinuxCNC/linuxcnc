@@ -1,11 +1,21 @@
-/**********************************************************************
-* File: memsem.hh
-* Purpose: Provides function prototypes that let programmers
-* use a block of memory to implement a mutual exclusion semaphore.
+/********************************************************************
+* Description: memsem.hh
+*   Provides function prototypes that let programmers use a block of
+*   memory to implement a mutual exclusion semaphore.
 *
-* With LynxOs and SunOs using semop is very inefficient if the semaphore will
-* ussually be available. Other platforms may give you no semaphore operations.
-*************************************************************************/
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef MEMSEM_HH
 #define MEMSEM_HH

@@ -1,14 +1,22 @@
-/*
-   _inifile.c
+/********************************************************************
+* Description: _inifile.c
+*   C INI file reader
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
-   C INI file reader
-
-   Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-   */
 #include "inifile.h"
-
 #include <stdio.h>		/* FILE *, fopen(), fclose(), NULL */
 #include <string.h>		/* strlen(), etc. */
 #include <ctype.h>		/* isspace() */

@@ -1,16 +1,26 @@
-/***************************************************************
-* File: rem_msg.hh
-* Purpose: Defines the structs passed between REMOTE clients and servers
-*  as part of CMS.
-* Includes:
-*         1. struct REMOTE_READ_REQUEST,  REMOTE_READ_REPLY,
-*       REMOTE_WRITE_REPLY, REMOTE_WRITE_REQUEST.
-*       2. Function prototypes for functions that XDR encode and decode these
-*       structs.
-* NOTES:
-*  In windows, these XDR functions need to use the Pascal calling convention
-* so that the PC-NFS Toolkit DLL can call them.
-*****************************************************************/
+/********************************************************************
+* Description: rem_msg.hh
+*   Defines the structs passed between REMOTE clients and servers
+*   as part of CMS.
+*  Includes:
+*   1. struct REMOTE_READ_REQUEST,  REMOTE_READ_REPLY,
+*      REMOTE_WRITE_REPLY, REMOTE_WRITE_REQUEST.
+*   2. Function prototypes for functions that XDR encode and decode these
+*      structs.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef REM_MSG_HH
 #define REM_MSG_HH

@@ -1,27 +1,31 @@
-/**********************************************************************
-* File: memsem.cc
-* Purpose: Uses a block of memory to implement a mutual exclusion semaphore.
-* With LynxOs and SunOs using semop is very inefficient if the semaphore will
-* ussually be available. Other platforms may give you no semaphore operations.
+/********************************************************************
+* Description: memsem.cc
+*   Uses a block of memory to implement a mutual exclusion semaphore.
+*   With LynxOs and SunOs using semop is very inefficient if the semaphore 
+*   will usually be available. Other platforms may give you no semaphore
+*   operations.
 *
-* Example: You are communicating with another process via shared memory. You
-* need a mutual exclusion semaphore because you don't want the reader to
-* occasionally read the buffer while the writer has written only part of the
-* message, but most of the time when the writer won't be using buffer and
-* the reader should get access immediately. semop will take 100 to 150
-* microseconds to return access, while mem_get_access should take less than
-* a microsecond with less than 10 total_connections.
+*   Example: You are communicating with another process via shared memory.
+*   You need a mutual exclusion semaphore because you don't want the reader
+*   to occasionally read the buffer while the writer has written only part
+*   of the message, but most of the time when the writer won't be using
+*   buffer and the reader should get access immediately. semop will take
+*   100 to 150 microseconds to return access, while mem_get_access should
+*   take less than a microsecond with less than 10 total_connections.
 *
-* On 1/23/95 Will Shackleford began additions to allow for the buffer to
-* be split. Splitting the buffer between doubles the ammount of memory
-* required, but means that readers will never have to wait for a semaphore
-* and decreases the percentage of time a writer will have to wait.
+*   Derived from a work by Fred Proctor & Will Shackleford
 *
-* This code will be obsolete when all operating systems provide efficient
-* semaphore functions and all microprocessors have effective test and
-* set instructions.
-*************************************************************************/
-
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifdef  __cplusplus
 extern "C" {

@@ -1,15 +1,28 @@
-/************************************************************************
-* File: recvn.c
-* Purpose: Provides a C file for the recvn function from
-* the book Advanced Programming in the UNIX Environment  by Richard Stevens.
-* The recvn function calls the recv function repeatedly until n bytes
-* have been recv from the file descriptor.
-* It uses select and FIONREAD checks ahead of time to guarantee that even
-* if the socket is blocking the timeout will be enforced.
-* To retry a socket to for the data missed during past timeouts the
-* application should pass recvn the same buffer and address of a variable
-* storing the number of bytes read on previous attempts.
-*************************************************************************/
+/********************************************************************
+* Description: recvn.c
+*   Provides a C file for the recvn function from the book Advanced
+*   Programming in the UNIX Environment by Richard Stevens.
+*   The recvn function is called repeatedly until n bytes have been
+*   received from the file descriptor. It uses select and FIONREAD
+*   checks ahead of time to guarantee that even if the socket is
+*   blocking the timeout will be enforced. To retry a socket to for
+*   the data missed during past timeouts the application should pass
+*   recvn the same buffer and address of a variable storing the number
+*   of bytes read on previous attempts.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "recvn.h"		/* recvn(int, void *, int, double) */
 #include <stddef.h>		/* size_t */

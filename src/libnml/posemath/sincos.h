@@ -1,26 +1,27 @@
+/********************************************************************
+* Description: sincos.h
+*   support for native sincos functions
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef SINCOS_H
 #define SINCOS_H
-
-/*
-  sincos.h
-
-  support for native sincos functions
-*/
 
 /*
   for each platform that has built-in support for the sincos function,
   define SINCOS_SUPPORT here
 */
-
-#ifdef sunos4
-#define SINCOS_SUPPORT
-#endif
-
-#ifdef VXWORKS
-#ifndef POWERPC
-#define SINCOS_SUPPORT
-#endif
-#endif
 
 #if defined (__GLIBC__) && defined(__USE_GNU) && defined(__FAST_MATH__)
 #define SINCOS_SUPPORT

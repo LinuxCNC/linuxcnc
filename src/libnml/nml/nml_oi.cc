@@ -1,16 +1,22 @@
-/***************************************************************
-* File: nml_oi.cc
-***************************************************************/
-
-/*
-   MODIFICATIONS:
-
-   29-May-1997 WPS took functions from nml_emc.cc
-*/
+/********************************************************************
+* Description: nml_oi.cc
+*   NML operator interface messages for errors, text, and display
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "nml_oi.hh"
-
-// NML operator interface messages for errors, text, and display
 
 void
   NML_ERROR::update(CMS * cms)

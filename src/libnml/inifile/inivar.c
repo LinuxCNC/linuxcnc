@@ -1,19 +1,28 @@
-/*
-  inivar.c
-
-  prints to stdout the INI file result of a variable-in-section search,
-  useful for scripts that want to pick things out of INI files.
-
-  syntax:  inivar -var <variable> {-sec <section>} {<-ini inifile>}
-
-  Uses emc.ini as default. <variable> needs to be supplied. If <section>
-  is omitted, first instance of <variable> will be looked for in any section.
-  Otherwise only a match of the variable in <section> will be returned.
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-*/
+/********************************************************************
+* Description: inivar.c
+*   prints to stdout the INI file result of a variable-in-section
+*   search, useful for scripts that want to pick things out of INI files.
+*
+*   syntax:  inivar -var <variable> {-sec <section>} {<-ini inifile>}
+*
+*   Uses emc.ini as default. <variable> needs to be supplied. If <section>
+*   is omitted, first instance of <variable> will be looked for in any
+*   section. Otherwise only a match of the variable in <section> will
+*   be returned.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <stdio.h>		/* printf(), fprintf(), FILE, fopen(),
 				   fclose() */

@@ -1,16 +1,21 @@
-/***********************************************************************
-* File: physmem.cc
-* Purpose: Provides the member functions for the PHYSMEM_HANDLE class. This is
-* a C++ interface for portable access to physical memory.
-* NOTES:
-*  On some platforms accessing a block of physical memory is a simple as
-* intitializing a pointer and then dereferencing it, but accessing specific
-* sections of extended memory under DOS or Windows requires changing the
-* descriptor tables and therefore circumventing protected mode security.
-* Other platforms require the use of mmap() on memory device files to choose
-* a section of memory mapped IO.
-***********************************************************************/
-
+/********************************************************************
+* Description: physmem.cc
+*   Provides the member functions for the PHYSMEM_HANDLE class. This
+*   is a C++ interface for portable access to physical memory.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifdef __cplusplus
 extern "C" {

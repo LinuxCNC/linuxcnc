@@ -1,17 +1,21 @@
-/*
-  timer.cc -- interval timer code.  A TIMER object lets you wait on
-  the expiration of a cyclic period, to the resolution of the system
-  clock.
-
-  Ideally, we'd like to use the POSIX struct timespec, in timers.h,
-  for second-nanosecond resolution in real time.  However, at the
-  moment, most OSes do not have this interface since the POSIX realtime
-  draft is still out.
-
-  These functions use the BSD 'gettimeofday' interface for LynxOS and
-  SunOS, and the tickLib and taskLib interface on VxWorks.
-  */
-
+/********************************************************************
+* Description: timer.cc
+*   A TIMER object lets you wait on the expiration of a cyclic
+*   period, to the resolution of the system clock.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 extern "C" {
 #include <stdlib.h>		// atof()

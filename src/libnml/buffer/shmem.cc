@@ -1,16 +1,23 @@
-/*************************************************************************
-* File: shmem.cc                                                         *
-* Authors: Fred Proctor, Will Shackleford                                *
-* Purpose: C++ file for the Communication Management System (CMS).       *
-*          Includes:                                                     *
-*                    1. Member Functions for class SHMEM.                *
-* Notes: The class SHMEM should be used by procedures accessing a shared *
-*  memory buffer on the same processor.                                  *
-* The RCS_SEMAPHORE is no longer used. Instead a section of the shared   *
-* memory buffer itself is used to guarantee mutual exclusion.            *
-*************************************************************************/
-
-/* Include Files */
+/********************************************************************
+* Description: shmem.cc
+*   C++ file for the Communication Management System (CMS).
+*   Includes member Functions for class SHMEM.
+*   Notes: The class SHMEM should be used by procedures accessing a
+*   shared memory buffer on the same processor.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifdef __cplusplus
 extern "C" {

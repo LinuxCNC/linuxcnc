@@ -1,9 +1,22 @@
-/**********************************************************************
-* File: rcs_exit.cc
-* This module provides a portable way to make sure multiple
-* functions are called before exiting.
-* These functions should be written to take an int  and return void.
-***********************************************************************/
+/********************************************************************
+* Description: rcs_exit.cc
+*   This module provides a portable way to make sure multiple
+*   functions are called before exiting.
+*   These functions should be written to take an int  and return void.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 /* Forward Function Prototypes */
 #include "rcs_exit.hh"

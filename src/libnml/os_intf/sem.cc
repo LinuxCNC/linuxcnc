@@ -1,11 +1,19 @@
-/*
-  This software was produced by the National Institute of Standards and
-  Technology (NIST), an agency of the U.S. government, and by statute is
-  not subject to copyright in the United States.  Recipients of this
-  software assume all responsibility associated with its operation,
-  modification, maintenance, and subsequent redistribution.
-  */
-
+/********************************************************************
+* Description: sem.cc
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 extern "C" {
 #include <stdio.h>		/* NULL */

@@ -1,16 +1,21 @@
-/*********************************************************************
-*  File: nml_oi.hh
+/********************************************************************
+* Description: nml_oi.cc
+*   Defines Generic NML Message structures used to log errors and
+*   interact with an Operator Interface from within an NML_MODULE.
 *
-*  Defines Generic NML Message structures used to log errors and interact
-*  with an Operator Interface from within an NML_MODULE.
+*   Derived from a work by Fred Proctor & Will Shackleford
 *
-**********************************************************************/
-
-/*
-   MODIFICATIONS:
-
-   29-May-1997 WPS took definitions from nml_emc.hh
-*/
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef NML_OI_HH
 #define NML_OI_HH

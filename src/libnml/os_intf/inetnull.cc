@@ -1,11 +1,23 @@
-/**********************************************************************
-* FILE: inetnull.cc
-* Purpose: This file provides the same set of functions as inetfile.cc
-* but with local file reading capabilities only.
-***********************************************************************/
+/********************************************************************
+* Description: inetnull.cc
+*   This file provides a set of functions to read from a local
+*   password file
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "inetfile.hh"
-
 #include <stdio.h>
 
 class INET_FILE {

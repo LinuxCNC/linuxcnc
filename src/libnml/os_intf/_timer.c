@@ -1,8 +1,22 @@
-/*
-  timer.cc -- interval timer code.  A TIMER object lets you wait on
-  the expiration of a cyclic period, to the resolution of the system
-  clock.
-*/
+/********************************************************************
+* Description: _timer.c
+*   timer.cc -- interval timer code.  A TIMER object lets you wait
+*   on the expiration of a cyclic period, to the resolution of the
+*   system clock.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "rcs_print.hh"		/* rcs_print_error */
 

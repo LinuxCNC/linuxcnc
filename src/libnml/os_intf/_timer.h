@@ -1,3 +1,22 @@
+/********************************************************************
+* Description: _timer.h
+*   timer.cc -- interval timer code.  A TIMER object lets you wait
+*   on the expiration of a cyclic period, to the resolution of the
+*   system clock.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef _TIMER_H
 #define _TIMER_H
 

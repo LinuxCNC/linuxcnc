@@ -1,11 +1,20 @@
-/*
-  _shm.c
-
-  C implementation of rcslib shared memory API
-
-*/
-
-/* Unix shared memory */
+/********************************************************************
+* Description: _shm.c
+*   C implementation of rcslib shared memory API
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "_shm.h"
 #include "rcs_print.hh"

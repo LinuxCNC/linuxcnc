@@ -1,11 +1,19 @@
-/*************************************************************************
-* File:nml_srv.cc                                                        *
-* Authors: Fred Proctor, Will Shackleford                                *
-* Purpose: C++  file for RPC server that reads and writes                *
-*          to a local NML buffer for remote processes.                   *
-* Includes:                                                              *
-*          1. class NML_SERVER member functions.                         *
-*************************************************************************/
+/********************************************************************
+* Description: nml_srv.cc
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,11 +1,25 @@
-/************************************************************************
-File: locmem.hh
-Purpose: Defines LOCMEM which is a derived class of CMS that serves primarily
-to provide addresses that match when matching buffer names are passed to
-the constructor. It is useful in allowing control modules to use the
-same inteface to communicate as would be required if they were not
-running in the same process even though to use LOCMEM they must be.
-**********************************************************************/
+/********************************************************************
+* Description: locmem.hh
+*   Implements LOCMEM which is a derived class of CMS that serves
+*   primarily to provide addresses that match when matching buffer
+*   names are passed to the constructor. It is useful in allowing
+*   control modules to use the same inteface to communicate as would
+*   be required if they were not running in the same process even
+*   though to use LOCMEM they must be.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef LOCMEM_HH
 #define LOCMEM_HH

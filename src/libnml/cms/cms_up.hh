@@ -1,10 +1,23 @@
-/**************************************************************************
-* File: cms_up.hh
-* This C++ header file defines the abstract CMS_UPDATER class that defines the
-* interface used by CMS to convert between local machine-specific data
-* representations and network machine-independant represantations such as XDR
-*  via the derived classes of CMS_UPDATER.
-***************************************************************************/
+/********************************************************************
+* Description: cms_up.hh
+*   This C++ header file defines the abstract CMS_UPDATER class
+*   that defines the interface used by CMS to convert between local
+*   machine-specific data representations and network machine-independant
+*   represantations such as XDR via the derived classes of CMS_UPDATER.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef CMS_UP_HH
 #define CMS_UP_HH
