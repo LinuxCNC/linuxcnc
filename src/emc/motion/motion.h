@@ -100,7 +100,8 @@ extern "C" {
 /* This enum lists all the possible commands */
 
     typedef enum {
-	EMCMOT_ABORT = 1,	/* abort motion */
+	EMCMOT_ABORT = 1,	/* abort all motion */
+	EMCMOT_AXIS_ABORT,	/* abort one axis */
 	EMCMOT_ENABLE,		/* enable servos for active axes */
 	EMCMOT_DISABLE,		/* disable servos for active axes */
 	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs */
@@ -261,7 +262,7 @@ extern "C" {
 
   EN  is 1 if axis amplifier is enabled, 0 if not
   AC  is 1 if axis is active for calculations, 0 if not
-  IP  is 1 if axis is in position, 0 if not
+  IP  is 1 if axis is in position, 0 if not (free mode only)
   ER  is 1 if axis has an error, 0 if not
 
   PSL is 1 if axis is on maximum software limit, 0 if not
@@ -297,6 +298,12 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define EMCMOT_AXIS_HOME_SWITCH_BIT    0x0100
 #define EMCMOT_AXIS_HOMING_BIT         0x0200
 #define EMCMOT_AXIS_HOMED_BIT          0x0400
+
+/* FIXME - I'm not sure AT_HOME is being reported correctly.
+   AT_HOME is cleared when you jog in free mode, but not if
+   you do a coordinated move... perhaps that is the intended
+   behavior.
+*/
 #define EMCMOT_AXIS_AT_HOME_BIT        0x0800
 
 #define EMCMOT_AXIS_FERROR_BIT         0x1000

@@ -1969,6 +1969,7 @@ static int emcTaskExecute(void)
 {
     int retval = 0;
 
+
     switch (emcStatus->task.execState) {
     case EMC_TASK_EXEC_ERROR:
 
@@ -2129,7 +2130,6 @@ static int emcTaskExecute(void)
 	retval = -1;
 	break;
     }
-
     return retval;
 }
 
@@ -2573,7 +2573,6 @@ int main(int argc, char *argv[])
 
 	emcIoUpdate(&emcStatus->io);
 	emcMotionUpdate(&emcStatus->motion);
-
 	// synchronize subordinate states
 /* FIXME FIXME FIXME - temporarily ignore estop
    make sure to re-enable this code! */

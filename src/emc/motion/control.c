@@ -56,6 +56,11 @@ void print_pose ( EmcPose *pos )
 }
 
 
+/* FIXME - debugging - uncomment the following line to log changes in
+   AXIS_FLAG and MOTION_FLAG */
+// #define WATCH_FLAGS 1
+
+
 /* debugging function - it watches a particular variable and
    prints a message when the value changes.  Right now there are
    calls to this scattered throughout this and other files.
@@ -1356,12 +1361,14 @@ static void get_pos_cmds(void)
     switch ( emcmotStatus->motion_state) {
     case EMCMOT_MOTION_FREE:
 	/* in free mode, each joint is planned independently */
-	/* Each joint has a very simple "trajectory planner".  If the planner 
+	/* Each joint has a very simple "trajectory planner".  If the planner
 	   is enabled (free_tp_enable), then it moves toward free_pos_cmd at
 	   free_vel_lim, obeying the joint's accel and velocity limits, and
 	   stopping when it gets there.  If it is not enabled, it stops as
 	   quickly as possible, again obeying the accel limit.  When
 	   disabled, free_pos_cmd is set to the current position. */
+	/* initial value for flag, if needed it will be cleared below */
+	SET_MOTION_INPOS_FLAG(1);
 	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
@@ -1435,6 +1442,24 @@ static void get_pos_cmds(void)
 	    joint->pos_cmd += joint->vel_cmd * servo_period;
 	    /* copy to coarse_pos */
 	    joint->coarse_pos = joint->pos_cmd;
+	    /* update joint status flag and overall status flag */
+	    if ( joint->free_tp_active ) {
+		/* active TP means we're moving, so not in position */
+		SET_JOINT_INPOS_FLAG(joint, 0);
+		SET_MOTION_INPOS_FLAG(0);
+		/* check to see if this move is with limits disabled */
+		if ( emcmotStatus->overrideLimits ) {
+		    emcmotDebug->overriding = 1;
+		}
+	    } else {
+		SET_JOINT_INPOS_FLAG(joint, 1);
+	    }
+	}
+	/* if overriding is true and we're in position, the jog
+	   is complete, and the limits should be re-enabled */
+	if ( (emcmotDebug->overriding ) && ( GET_MOTION_INPOS_FLAG() ) ) {
+	    emcmotStatus->overrideLimits = 0;
+	    emcmotDebug->overriding = 0;
 	}
 	/* FIXME - this should run at the traj rate */
 	all_homed = 1;
@@ -1495,7 +1520,7 @@ static void get_pos_cmds(void)
 	    emcmotStatus->carte_pos_cmd_ok = 0;
 	    break;
 	}
-
+        /* end of FREE mode */
 	break;
     case EMCMOT_MOTION_COORD:
 	/* check joint 0 to see if the interpolators are empty */
@@ -1530,6 +1555,11 @@ static void get_pos_cmds(void)
 	    /* interpolate to get new one */
 	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, 0, 0, 0);
 	    joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
+	}
+	/* report motion status */
+	SET_MOTION_INPOS_FLAG(0);
+	if (tpIsDone(&emcmotDebug->queue)) {
+	    SET_MOTION_INPOS_FLAG(1);
 	}
 	break;
     case EMCMOT_MOTION_TELEOP:
@@ -1972,6 +2002,10 @@ static void update_status(void)
     int joint_num;
     emcmot_joint_t *joint;
     emcmot_joint_status_t *joint_status;
+#ifdef WATCH_FLAGS
+    static int old_joint_flags[8];
+    static int old_motion_flag;
+#endif
 
     /* copy status info from private joint structure to status
        struct in shared memory */
@@ -1981,6 +2015,13 @@ static void update_status(void)
 	/* point to joint status */
 	joint_status = &(emcmotStatus->joint_status[joint_num]);
 	/* copy stuff */
+#ifdef WATCH_FLAGS
+	/* FIXME - this is for debugging */
+	if ( old_joint_flags[joint_num] != joint->flag ) {
+	    rtapi_print ( "Joint %d flag %04X -> %04X\n", joint_num, old_joint_flags[joint_num], joint->flag );
+	    old_joint_flags[joint_num] = joint->flag;
+	}
+#endif
 	joint_status->flag = joint->flag;
 	joint_status->pos_cmd = joint->pos_cmd;
 	joint_status->pos_fb = joint->pos_fb;
@@ -2004,43 +2045,7 @@ static void update_status(void)
     emcmotStatus->activeDepth = tpActiveDepth(&emcmotDebug->queue);
     emcmotStatus->id = tpGetExecId(&emcmotDebug->queue);
     emcmotStatus->queueFull = tcqFull(&emcmotDebug->queue.queue);
-    SET_MOTION_INPOS_FLAG(0);
-    if (tpIsDone(&emcmotDebug->queue)) {
-      SET_MOTION_INPOS_FLAG(1);
-    }
-#if 0
-    /* FIXME - convert to joint format and new free TP */
-    /* axis status */
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-      SET_JOINT_INPOS_FLAG(axis, 0);
-      if (tpIsDone(&emcmotDebug->freeAxis[axis])) {
-	SET_JOINT_INPOS_FLAG(axis, 1);
-      } else {
-	/* this axis, at least, is moving, so set emcmotDebug->overriding flag */
-	if (emcmotStatus->overrideLimits) {
-	  emcmotDebug->overriding = 1;
-	}
-      }
-    }
-#endif
 
-#if 0
-    /* FIXME - need to double check overides */
-    /* reset overrideLimits flag if we have started a move and now
-       are in position */
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-      if (!GET_AXIS_INPOS_FLAG(axis)) {
-	break;
-      }
-    }
-    if (axis == EMCMOT_MAX_AXIS) {
-      /* ran through all axes, and all are in position */
-      if (emcmotDebug->overriding) {
-	emcmotDebug->overriding = 0;
-	emcmotStatus->overrideLimits = 0;
-      }
-    }
-#endif
     /* check to see if we should pause in order to implement
        single emcmotDebug->stepping */
     if (emcmotDebug->stepping && emcmotDebug->idForStep != emcmotStatus->id) {
@@ -2048,8 +2053,12 @@ static void update_status(void)
       emcmotDebug->stepping = 0;
       emcmotStatus->paused = 1;
     }
-
-
-
+#ifdef WATCH_FLAGS
+    /* FIXME - this is for debugging */
+    if ( old_motion_flag != emcmotStatus->motionFlag ) {
+	rtapi_print ( "Motion flag %04X -> %04X\n", old_motion_flag, emcmotStatus->motionFlag );
+	old_motion_flag = emcmotStatus->motionFlag;
+    }
+#endif
 }
 

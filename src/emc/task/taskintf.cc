@@ -591,7 +591,7 @@ int emcAxisAbort(int axis)
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
-    emcmotCommand.command = EMCMOT_ABORT;
+    emcmotCommand.command = EMCMOT_AXIS_ABORT;
     emcmotCommand.axis = axis;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -781,6 +781,12 @@ static emcmot_debug_t emcmotDebug;
 static char errorString[EMCMOT_ERROR_LEN];
 static int new_config = 0;
 
+
+/* FIXME - debugging - uncomment the following line to log changes in
+   AXIS_FLAG */
+// #define WATCH_FLAGS 1
+
+
 int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 {
 /* FIXME - this function accesses data that has been
@@ -788,6 +794,9 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 
     int axis;
     emcmot_joint_status_t *joint;
+#ifdef WATCH_FLAGS
+    static int old_joint_flag[8];
+#endif
 
     // check for valid range
     if (numAxes <= 0 || numAxes > EMCMOT_MAX_AXIS) {
@@ -850,7 +859,12 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	stat[axis].scale = emcmotStatus.axVscale[axis];
 #endif
 	usrmotQueryAlter(axis, &stat[axis].alter);
-
+#ifdef WATCH_FLAGS
+	if ( old_joint_flag[axis] != joint->flag ) {
+	    printf ( "joint %d flag: %04X -> %04X\n", axis, old_joint_flag[axis], joint->flag );
+	    old_joint_flag[axis] = joint->flag;
+	}
+#endif
 	if (joint->flag & EMCMOT_AXIS_ERROR_BIT) {
 	    if (stat[axis].status != RCS_ERROR) {
 		rcs_print_error("Error on axis %d, command number %d\n", axis, emcmotStatus.commandNumEcho );
@@ -1419,7 +1433,8 @@ int emcMotionAbort()
 
 int emcMotionSetDebug(int debug)
 {
-    emcmotCommand.command = EMCMOT_ABORT;
+    emcmotCommand.command = EMCMOT_SET_DEBUG;
+    emcmotCommand.debug = debug;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -1516,7 +1531,6 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 	    break;
 	}
     }
-
     if (stat->traj.status == RCS_ERROR) {
 	error = 1;
     } else if (stat->traj.status == RCS_EXEC) {
@@ -1530,7 +1544,6 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     } else {
 	stat->status = RCS_DONE;
     }
-
     return (r1 == 0 && r2 == 0) ? 0 : -1;
 }
 

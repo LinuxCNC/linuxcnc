@@ -299,9 +299,9 @@ check_stuff ( "before command_handler()" );
 	       it calls the traj planner abort function (don't know what that
 	       does yet), and if in free mode, it disables the free mode traj
 	       planners which stops axis motion */
-	    /* check for coord or free space motion active */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ABORT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
 		emcmotDebug->teleop_data.desiredVel.tran.x = 0.0;
 		emcmotDebug->teleop_data.desiredVel.tran.y = 0.0;
@@ -325,6 +325,34 @@ check_stuff ( "before command_handler()" );
 		    /* update status flags */
 		    SET_JOINT_ERROR_FLAG(joint, 0);
 		}
+	    }
+	    break;
+
+	case EMCMOT_AXIS_ABORT:
+	    /* abort one axis */
+	    /* can happen at any time */
+	    /* this command stops a single axis.  It is only usefull
+	       in free mode, so in coord or teleop mode it does
+	       nothing. */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "AXIS_ABORT");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    if (GET_MOTION_TELEOP_FLAG()) {
+		/* do nothing in teleop mode */
+	    } else if (GET_MOTION_COORD_FLAG()) {
+		/* do nothing in coord mode */
+	    } else {
+		/* validate joint */
+		if (joint == 0) {
+		    break;
+		}
+		/* tell joint planner to stop */
+		joint->free_tp_enable = 0;
+		/* stop homing if in progress */
+		if ( joint->home_state != HOME_IDLE ) {
+		    joint->home_state = HOME_ABORT;
+		}
+		/* update status flags */
+		SET_JOINT_ERROR_FLAG(joint, 0);
 	    }
 	    break;
 
@@ -427,10 +455,9 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_OVERRIDE_LIMITS:
-	    /* how is limit override turned off? it looks like issuing this
-	       command with axis < 0 will do it, but that is rather obscure -
-	       would be better to have another command, perhaps
-	       "ENABLE_LIMITS" or something. */
+	    /* this command can be issued with axix < 0 to re-enable
+	       limits, but they are automatically re-enabled at the
+	       end of the next jog */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "OVERRIDE_LIMITS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    if (emcmotCommand->axis < 0) {
@@ -501,19 +528,12 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 
-	    /* requires no motion, in free mode, enable on */
+	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError("Can't jog axis in coordinated mode.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-
-	    if (!GET_MOTION_INPOS_FLAG()) {
-		reportError("Can't jog axis when not in position.");
-		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
-
 	    if (!GET_MOTION_ENABLE_FLAG()) {
 		reportError("Can't jog axis when not enabled.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
@@ -546,6 +566,7 @@ check_stuff ( "before command_handler()" );
 	    joint->free_vel_lim = fabs(emcmotCommand->vel);
 	    /* and let it go */
 	    joint->free_tp_enable = 1;
+	    /* FIXME - should we really be clearing errors here? */
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear axis homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -564,9 +585,14 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 
-	    /* requires no motion, in free mode, enable on */
-	    if (GET_MOTION_COORD_FLAG() ||
-		!GET_MOTION_INPOS_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
+	    /* must be in free mode and enabled */
+	    if (GET_MOTION_COORD_FLAG()) {
+		reportError("Can't jog axis in coordinated mode.");
+		SET_JOINT_ERROR_FLAG(joint, 1);
+		break;
+	    }
+	    if (!GET_MOTION_ENABLE_FLAG()) {
+		reportError("Can't jog axis when not enabled.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
@@ -612,9 +638,14 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
-	    /* requires no motion, in free mode, enable on */
-	    if (GET_MOTION_COORD_FLAG() ||
-		!GET_MOTION_INPOS_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
+	    /* must be in free mode and enabled */
+	    if (GET_MOTION_COORD_FLAG()) {
+		reportError("Can't jog axis in coordinated mode.");
+		SET_JOINT_ERROR_FLAG(joint, 1);
+		break;
+	    }
+	    if (!GET_MOTION_ENABLE_FLAG()) {
+		reportError("Can't jog axis when not enabled.");
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
