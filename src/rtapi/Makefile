@@ -27,6 +27,12 @@ LIBS = \
 $(RTLIB_DIR)/rtapi.o \
 $(LIB_DIR)/ulapi.o
 
+ifeq ($(EXAMPLES),yes)
+    EXAMPLES_CMD = (cd examples; make $@)
+else
+    EXAMPLES_CMD =
+endif
+
 all: headers $(LIBS)
 	@ echo "Set up RTOS symlinks"
 	@ if [ -f $(EMC2_HOME)/scripts/load_$(RTPREFIX) ] ; \
@@ -43,26 +49,27 @@ all: headers $(LIBS)
 	else \
 	  echo "ERROR: $(EMC2_HOME)/scripts/unload_$(RTPREFIX) not found" ; \
 	fi
-	(cd examples; make $@)
+	$(EXAMPLES_CMD)
 
 # Generic rules
 include ../../Make.rules
 
 headers: def_headers
-	(cd examples; make $@)
+	$(EXAMPLES_CMD)
 
 indent: def_indent
-	(cd examples; make $@)
+	$(EXAMPLES_CMD)
 
 depend: def_depend
-	(cd examples; make $@)
+	$(EXAMPLES_CMD)
 
 clean: def_clean
 	@ echo "Remove RTOS symlinks"
 	- rm $(EMC2_HOME)/scripts/load_realtime_base 2> /dev/null
 	- rm $(EMC2_HOME)/scripts/unload_realtime_base 2> /dev/null
+	# note that we always clean the examples, even if not
+	# configured to make them
 	(cd examples; make $@)
-
 
 # explicit rules to make libs from objs
 

@@ -16,6 +16,8 @@ usage(){
     echo "         gtk=xxx - Set preferred GTK lib version"
     echo "            xxx can be '1.2', '2.0', '2.2', or 'none'"
     echo
+    echo "         examples - Build RTAPI example programs"
+    echo
     exit -1
 }
 
@@ -25,6 +27,7 @@ echo
 MAKEFLAGS="k"
 RTDIR=""
 GTK_VER=""
+EXAMPLES="no"
 
 # Test for command line arg(s)
 for CLI in "$@"
@@ -55,6 +58,10 @@ do
 	GTK_VER="2.2"
     elif [ $CLI = "gtk=none" ] ; then
 	GTK_VER="none"
+    #
+    # test for examples
+    elif [ $CLI = "examples" ] ; then
+	EXAMPLES="yes"
     #
     # if we get here we have an invalid option...
     else
@@ -260,6 +267,8 @@ else
     echo "GTK_CFLAGS = " >> Makefile.inc
     echo "GTK_LIBS = " >> Makefile.inc
 fi
+echo >> Makefile.inc
+echo "EXAMPLES = $EXAMPLES" >> Makefile.inc
 echo >> Makefile.inc
 echo "# Automatically generated default options." >> Makefile.inc
 echo >> Makefile.inc
