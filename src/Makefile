@@ -61,8 +61,8 @@ smdromod-objs += emc/drivers/simio/simaio.o
 obj-$(CONFIG_VITALMOD) += vitalmod.o
 vitalmod-objs := $(EMC-CORE)
 vitalmod-objs += emc/motion/emcservo.o
-vitalmod-objs += emc/drivers/extvitalmot.o
-vitalmod-objs += emc/drivers/vital.o
+vitalmod-objs += emc/drivers/vital/extvitalmot.o
+vitalmod-objs += emc/drivers/vital/vital.o
 
 obj-$(CONFIG_PPMCMOD) += ppmcmod.o
 ppmcmod-objs := $(EMC-CORE)

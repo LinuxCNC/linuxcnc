@@ -13,6 +13,7 @@ all headers kclean clean depend indent install:
 	(cd drivers; make $@)
 	(cd drivers/ppmc; make $@)
 	(cd drivers/simio; make $@)
+	(cd drivers/vital; make $@)
 	(cd motion; make $@)
 	(cd iotask; make $@)
 	(cd task; make $@)
