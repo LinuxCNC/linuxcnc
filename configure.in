@@ -80,6 +80,8 @@ if (test -z "$RTDIR" ); then
   RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" 2>/dev/null)
   if (test "$RTS" = "" ) ; then
     AC_MSG_ERROR([RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
+  elif (test `echo "$RTS" | wc -l` != 1 ) ; then
+    AC_MSG_ERROR([Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
   elif (test `echo $RTS | awk -F / ' {print $NF}'` = "rtai-config") ; then
     #we have found rtai-config
     #probably version 3
