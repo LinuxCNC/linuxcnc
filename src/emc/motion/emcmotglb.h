@@ -26,7 +26,6 @@ extern "C" {
 #define EMCMOT_INIFILE_LEN 256
     extern char EMCMOT_INIFILE[EMCMOT_INIFILE_LEN];
 
-    extern unsigned long int SHMEM_BASE_ADDRESS;
     extern unsigned int SHMEM_KEY;
 
     extern double EMCMOT_COMM_TIMEOUT;	/* seconds until timeout */

@@ -28,8 +28,10 @@ static char __attribute__ ((unused)) usrmotintf_h[] =
 #ifdef __cplusplus
 extern "C" {
 #endif
-/* usrmotIniLoad() loads params (SHMEM_KEY, SHMEM_BASE_ADDRESS) from
-   named ini file */ extern int usrmotIniLoad(const char *file);
+
+/* usrmotIniLoad() loads params (SHMEM_KEY) from
+   named ini file */
+    extern int usrmotIniLoad(const char *file);
 
 /* usrmotReadEmcmotStatus() gets the status info out of
    the emcmot controller and puts it in arg */
@@ -101,4 +103,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif				/* USRMOTINTF_H */
+#endif	/* USRMOTINTF_H */
