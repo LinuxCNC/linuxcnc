@@ -72,9 +72,6 @@
 typedef struct {
     int listnum;		/* 0 = pin, 1 = signal, 2 = parameter */
     char *pickname;		/* name from list, not validated */
-//    char *name;                       /* name of pin/sig/param */
-//    hal_type_t type;          /* type of pin/sig/param */
-//    void *data;                       /* address of data */
     hal_pin_t *pin;		/* metadata (if it's a pin) */
     hal_sig_t *sig;		/* metadata (if it's a signal) */
     hal_param_t *param;		/* merafata (if it's a parameter) */
@@ -300,6 +297,9 @@ probe_t *probe_new(char *probe_name)
     /* init the fields */
     new->pickname = NULL;
     new->listnum = -1;
+    new->pin = NULL;
+    new->sig = NULL;
+    new->param = NULL;
     strncpy(new->probe_name, probe_name, HAL_NAME_LEN);
     /* window will be created just before it is displayed */
     new->window = NULL;
@@ -374,6 +374,11 @@ static int refresh_value(gpointer data)
     probe = meter->probe;
 
     if (probe->pin != NULL) {
+	if ( probe->pin->name[0] == '\0' ) {
+	    /* pin has been deleted, can't display it any more */
+	    probe->pin = NULL;
+	    return 1;
+	}
 	name_str = probe->pin->name;
 	if (probe->pin->signal == 0) {
 	    /* pin is unlinked, get data from dummysig */
@@ -384,10 +389,20 @@ static int refresh_value(gpointer data)
 	    value_str = data_value(probe->pin->type, SHMPTR(sig->data_ptr));
 	}
     } else if (probe->sig != NULL) {
+	if ( probe->sig->name[0] == '\0' ) {
+	    /* signal has been deleted, can't display it any more */
+	    probe->sig = NULL;
+	    return 1;
+	}
 	name_str = probe->sig->name;
 	value_str =
 	    data_value(probe->sig->type, SHMPTR(probe->sig->data_ptr));
     } else if (probe->param != NULL) {
+	if ( probe->param->name[0] == '\0' ) {
+	    /* parameter has been deleted, can't display it any more */
+	    probe->param = NULL;
+	    return 1;
+	}
 	name_str = probe->param->name;
 	value_str =
 	    data_value(probe->param->type, SHMPTR(probe->param->data_ptr));
