@@ -31,7 +31,7 @@ static char __attribute__ ((unused)) ident[] =
 #include <string.h>		/* memcpy() */
 #include <stdlib.h>		/* sizeof() */
 #include <float.h>		/* DBL_MIN */
-#include "_timer.h"		/* rcslib esleep() */
+#include "_timer.h"		/* rcslib esleep() etime() */
 #include "_shm.h"		/* rcslib shm_t, rcs_shm_open(), ... */
 #include "rcs_print.hh"		/* set_rcs_print_destination(), ... */
 #include "emcmot.h"		/* EMCMOT_STATUS,CMD */

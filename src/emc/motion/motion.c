@@ -77,11 +77,6 @@ void emcmot_config_change(void)
     }
 }
 
-double etime(void)
-{
-    return ((double) rtapi_get_time()) / 1.0e9;
-}
-
 void reportError(const char *fmt, ...)
 {
     /* use the rtapi_snprintf function where vsprintf is called for. */

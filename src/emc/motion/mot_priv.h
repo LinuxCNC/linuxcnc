@@ -9,8 +9,12 @@ extern int emcmotCommandHandler(void);
 extern void emcmotController(void *arg);
 extern void setTrajCycleTime(double secs);
 
-extern double etime(void);	/* replace with rtapi call ? */
-extern void reportError(const char *fmt, ...);	/* and again... */
+ /* rtapi_get_time() returns a nanosecond value. In time, we should use a u64 
+    value for all calcs and only do the conversion to seconds when it is
+    really needed. */
+#define etime() (((double) rtapi_get_time()) / 1.0e9)
+
+extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 
 /* Variable defs */
 extern int kinType;
