@@ -24,12 +24,12 @@
 * $Date$
 ********************************************************************/
 
-#include <stdio.h>		/* printf(), fprintf(), FILE, fopen(),
-				   fclose() */
+extern "C" {
+#include <stdio.h>		/* printf(), fprintf(), FILE, fopen(),*/
 #include <stdlib.h>		/* exit() */
 #include <string.h>		/* strcmp(), strcpy() */
-#include "inifile.h"		/* iniFind() */
-
+}
+#include "inifile.hh"
 int main(int argc, char *argv[])
 {
     int t;
@@ -37,8 +37,7 @@ int main(int argc, char *argv[])
     char *variable = 0;
     char _section[LINELEN] = "";
     char *section = 0;
-    char INIFILE[LINELEN] = "emc.ini";
-    FILE *fp;
+    char path[LINELEN] = "emc.ini";
     const char *inistring;
 
     /* process command line args, indexing argv[] from [1] */
@@ -50,7 +49,7 @@ int main(int argc, char *argv[])
 		    "%s: ini file not specified after -ini\n", argv[0]);
 		exit(1);
 	    } else {
-		strcpy(INIFILE, argv[t + 1]);
+		strncpy(path, argv[t + 1], LINELEN);
 		t++;		/* step over following arg */
 	    }
 	} else if (!strcmp(argv[t], "-var")) {
@@ -60,7 +59,7 @@ int main(int argc, char *argv[])
 		    "%s: variable name not specified after -var\n", argv[0]);
 		exit(1);
 	    } else {
-		strcpy(_variable, argv[t + 1]);
+		strncpy(_variable, argv[t + 1], LINELEN);
 		variable = _variable;
 		t++;		/* step over following arg */
 	    }
@@ -71,7 +70,7 @@ int main(int argc, char *argv[])
 		    "%s: section name not specified after -sec\n", argv[0]);
 		exit(1);
 	    } else {
-		strcpy(_section, argv[t + 1]);
+		strncpy(_section, argv[t + 1], LINELEN);
 		section = _section;
 		t++;		/* step over following arg */
 	    }
@@ -90,18 +89,21 @@ int main(int argc, char *argv[])
 	exit(1);
     }
 
+    Inifile *inifile;
     /* open the inifile */
-    if (NULL == (fp = fopen(INIFILE, "r"))) {
-	fprintf(stderr, "%s: can't open %s\n", argv[0], INIFILE);
-	exit(1);
+    inifile = new Inifile(path);
+    if (inifile->valid() == false) {
+	fprintf(stderr, "%s: can't open %s\n", argv[0], path);
+	delete inifile;
+	exit(-1);
     }
 
-    inistring = iniFind(fp, variable, section);
-    if (NULL != inistring) {
+    inistring = inifile->find(variable, section);
+    if (inistring != NULL) {
 	printf("%s\n", inistring);
     }
 
-    fclose(fp);
+    delete inifile;
 
     exit(0);
 }
