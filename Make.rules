@@ -208,7 +208,6 @@ old_depend:
 	touch .depend.rt .depend
 	(if [ ! -z "$(RT_SRCS)" ] ; then ($(CC) -MM -I$(INC_DIR) $(RTFLAGS) \
 	$(RT_SRCS) >.depend.rt) 2>.depend_errors.rt ; exit 0; fi)
-	cp .depend.rt depend.1st
 	(if [ ! -s .depend_errors.rt ] ; then \rm -f .depend_errors.rt ; fi)
 	cat .depend.rt | \
 	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
@@ -218,9 +217,10 @@ old_depend:
 	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip
 	(if [ -s .depend.strip ] ; then \
-	cat .depend.strip | sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\rt_\&# | \
-	grep -v -E '^\\' > .depend.rt ; fi)
-	rm -f .depend.strip
+	cat .depend.strip | \
+	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\$(RTTMP_DIR)/\&# | \
+	grep -v -E '^\\' > .depend.rt && \
+	rm -f .depend.strip ; fi)
 	(if [ ! -z "$(SRCS)" ] ; then ($(CXX) -MM $(CXXFLAGS) -I$(INC_DIR) \
 	$(ULFLAGS) $(SRCS) >.depend) 2>.depend_errors; exit 0; fi)
 	(if [ ! -s .depend_errors ] ; then \rm -f .depend_errors ; fi)
@@ -230,9 +230,11 @@ old_depend:
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
-	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip ; fi)
-	cat .depend.strip | grep -v -E '^\\' > .depend
-	rm -f .depend.strip
+	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip && \
+	cat .depend.strip | \
+	sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\$(TMP_DIR)/\&# | \
+	grep -v -E '^\\' > .depend && \
+	rm -f .depend.strip ; fi)
 
 
 .PHONY : def_headers def_depend def_indent def_install def_clean
