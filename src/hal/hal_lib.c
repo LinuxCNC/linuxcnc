@@ -179,6 +179,20 @@ static void thread_task(void *arg);
 ************************************************************************/
 
 int hal_init(char *name)
+/*
+REFACTOR In process... hal_init to be repalced by hal_register_module
+
+typedef struct hal_module_info
+{
+	const char *module_name;		// Name of the module
+	const char *author;			// Author who created this module
+	const char *short_description;	// Description of what the module does
+	const char *info_link;		// email and/or web reference info
+} hal_module_info;
+
+int hal_register_module(hal_module_info *mb)
+ 
+*/
 {
     int comp_id, mem_id, retval;
     void *mem;
@@ -337,6 +351,16 @@ int hal_exit(int comp_id)
 }
 
 void *hal_malloc(long int size)
+/*
+REFACTOR In process... new hal_malloc
+
+Malloc-
+Allocates memory for a client, associating the allocated memory
+with the memory pool for the id specified by client_id.
+
+void *hal_malloc(int client_id, long int size)
+ 
+*/
 {
     void *retval;
 
@@ -358,6 +382,27 @@ void *hal_malloc(long int size)
     }
     return retval;
 }
+
+
+
+
+/*
+hal_register_block_type
+
+Registers a block type with the hal subsystem.
+
+ 
+*/
+int hal_register_block_type(int module_id, hal_block_type_info block_info)
+{
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+        "HAL: hal_register_block_type() unimplemented!");
+
+    return HAL_SUCCESS;
+}
+
+
 
 /***********************************************************************
 *                        "PIN" FUNCTIONS                               *

@@ -134,6 +134,49 @@
 *                   GENERAL PURPOSE FUNCTIONS                          *
 ************************************************************************/
 
+/*
+  hal_module_info
+
+  Info required to register a new module with the hal subsystem
+
+  module_name - the name of the module (ie, 'motmod')
+  author - the name of the person responsible (duck) for the module
+  short_description - what this module does
+  info_link - a URL or email address with where to get more information/help
+*/
+
+  
+typedef struct hal_module_info
+  {
+  	const char *module_name;		// Name of the module
+  	const char *author;			// Author who created this module
+  	const char *short_description;	// Description of what the module does
+  	const char *info_link;		// email and/or web reference info
+  } hal_module_info;
+
+/*  
+  hal_register_module
+  
+  Registers a module with the hal subsystem.
+  On successful call, returns a positive module_id for use in
+  subsequent calls to the hal subsystem.  On error, returns
+  a HAL_* error.
+  
+  The module_id, like a block_id, is a valid globally unique
+  client_id which can be used to acquire memory for thie module
+  from the memory routines.  This id should be used *only* for
+  memory which will be used by the module generally, and *not*
+  for memory which will used by a particular block instance.
+  Memory for blocks should be allocated using the block_id for
+  that specific block, and not the module_id.
+
+NOTE:REFACTOR: this will replace hal_init()  
+*/
+
+extern int hal_register_module(hal_module_info *mb);
+
+
+
 /** 'hal_init()' is called by a HAL component before any other hal
     function is called, to open the HAL shared memory block and
     do other initialization.
@@ -149,7 +192,9 @@
     module, and can be used when calling rtapi functions.
     Call only from within user space or init/cleanup code, not from
     realtime code.
+
 */
+
 extern int hal_init(char *name);
 
 /** 'hal_exit()' must be called before a HAL component exits, to
@@ -187,7 +232,16 @@ extern int hal_exit(int comp_id);
     up the shared memory and an install will fail.  Removing
     all components completely clears memory and you start
     fresh.
+
+NOTE:REFACTOR hal_malloc will change to something like this:
+
+extern void *hal_malloc(int client_id, long int size);
+
+    client_id - the module_id or object_id provided by either
+    hal_register_module or passed to the create callback when
+    the block object was created.
 */
+
 extern void *hal_malloc(long int size);
 
 /** The HAL maintains lists of variables, functions, and so on in
@@ -217,7 +271,7 @@ extern void *hal_malloc(long int size);
     Note that this is not required; you can pass in a different create 
     method for each different block_type that your module supports.)
 
-    The block record also contains a block_type_name which is a short
+    The block record also contains a type_name which is a short
     typically one word name for the type of block.
 
     The create function pointer points at a function that hal will
@@ -228,16 +282,72 @@ extern void *hal_malloc(long int size);
     If an error occurs, it should return an appropriate negative HAL_*
     error message.  Otherwise, it should return a positive (>=0) 
     block_id number which is unique within the scope of this comp_id.
-    (NOTE: A comp_id and a block_id must together uniquely define
-    an object.  Objects with the same comp_id may NOT share the
-    same block_id, even if they have different types!)
-
-    hal_register_block returns an appropriate HAL_* status code
 */
 
 
-int hal_register_block_type(int comp_id, int block_type_id, const char *name, 
-	int (*create)(int comp_id, int block_type_id));
+/*
+  hal_block_type_info
+  
+  This structure holds the information required to register the ability
+  of a module to create a new block type.
+  
+  block_type_id is a module specified id which must be unique to the
+  type of block being registered.  It must only be unique within the
+  scope of the calling module; (*Every* module is fairly likely to
+  register at least 1 type of block it can create, and almost every
+  module will probably register a block_type_id of 0 for the id of
+  the first block type they can create, though this is not a requirement)
+  
+  This number will be passed back in the create callback function to let
+  the module know which type of module should be created.
+  
+  type_name is a short, one word name for the type of block that
+  can be created using this id.  Examples might be "and" or "or" or
+  "8-bit-counter".
+  
+  short_description is a short human readable description about what
+  this block type does.   An example might be "Provides a counter with
+  8 bits of output and a clock input"
+  
+  int (*create)(int new_block_id, int block_type_id);
+  
+  create is a callback routine that the module must implement.  This module
+  will be called by hal_lib when hal needs to create a new block object.
+  The call takes a new_block_id, which is the unique block_id that
+  the newly created object should use for all hal calls that require a
+  client_id (like malloc) and a block_type_id, which will be the value the 
+  module passed in for block_type_id in the  hal_block_type_info struct.
+  The block_type_id allows the module implementor to use one "create"
+  callback function to create multiple differen block types, if he
+  so chooses.
+  
+  
+  */
+  
+typedef struct hal_block_type_info
+{
+	int block_type_id;		// A unique (to this module) block id
+	const char *type_name;		// Name of the block type
+	const char *short_description;	// Description of what the block does
+	int (*create)(int new_block_id, int block_type_id);
+} hal_block_type_info;
+ 
+/*
+  hal_register_block_type
+  
+  Registers a block type with the hal subsystem.
+  
+  This call tells the HAL subsystem that the module that was assigned
+  module_id can create blocks with the attributes specified in the
+  hal_block_type_info block.
+  
+  Returns a HAL_* error or HAL_SUCCESS.
+  
+   
+*/
+
+extern int hal_register_block_type(int module_id, 
+	hal_block_type_info block_info);
 
 
 /***********************************************************************
