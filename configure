@@ -117,15 +117,15 @@ fi
 
 #
 # Test for RTAI-3.0
-RTAI_DIR=`$RTDIR/rtai-config --prefix 2> /dev/null`
+RTAI_DIR=$($RTDIR/rtai-config --prefix 2> /dev/null)
 if [ "$RTAI_DIR" = "" ] ; then
-    RTAI_DIR=`$RTDIR/bin/rtai-config --prefix 2> /dev/null`
+    RTAI_DIR=$($RTDIR/bin/rtai-config --prefix 2> /dev/null)
     if [ "$RTAI_DIR" = "" ] ; then
 	# See if it is in the path...
-	RTAI_DIR=`rtai-config --prefix 2> /dev/null`
+	RTAI_DIR=$(rtai-config --prefix 2> /dev/null)
 	if [ "$RTAI_DIR" = "" ] ; then
 	    # try the default...
-	    RTAI_DIR=`/usr/realtime/bin/rtai-config --prefix 2> /dev/null`
+	    RTAI_DIR=$(/usr/realtime/bin/rtai-config --prefix 2> /dev/null)
 	fi
     fi
 fi
@@ -134,7 +134,7 @@ if [ "$RTAI_DIR" != "" ] ; then
 	echo "RTDIR set to $RTAI_DIR (Kilauea) by search"
     fi
     RTDIR=$RTAI_DIR
-    RTAI_VER=`$RTDIR/bin/rtai-config --version`
+    RTAI_VER=$($RTDIR/bin/rtai-config --version)
     if [ $RTAI_VER = 3.0 ] ; then
 	RTAI_VER=3
     fi
@@ -201,39 +201,25 @@ else
 fi
 
 # Search for the tcl/tk headers.
-# The following line only works if tclx is installed..
-TCL_VER=$(tcl -c "echo [info tclversion]" 2> /dev/null)
-if [ "$TCL_VER" != "" ] ; then
-  echo "Found tcl$TCL_VER installed"
+# Very simple to find out what flags & link options are required. Thoughtfully
+# provided in tclConfig.sh & tkConfig.sh - Just need to find them !
+TCLCONFIG=$(find /usr/lib -maxdepth 2 -name tclConfig.sh 2>/dev/null | head -n1)
+TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh 2>/dev/null | head -n1)
+if [ "$TCLCONFIG" != "" ] && [ "$TKCONFIG" != "" ] ; then
+source "$TCLCONFIG"
+source "$TKCONFIG"
+#  echo "Reading from tclConfig.sh $(cat $TCLCONFIG | grep TCL_VERSION)"
+  echo "Found tcl$TCL_VERSION"
+  TCL_INC="-L$(find /usr/include/ -maxdepth 2 -name "tcl.h" 2> /dev/null | grep tcl.h | head -n1 | sed s^/tcl.h^^g)"
+  if [ "$TCL_INC" = "-L/usr/include" ] || ["$TCL_INC" = "-L" ] ; then
+    TCL_INC=""  # No point in including the standard path..
+  fi
+  TK_INC="-L$(find /usr/include/ -maxdepth 2 -name "tk.h" 2> /dev/null | grep tk.h | head -n1 | sed s^/tk.h^^g)"
+  if [ "$TK_INC" = "-L/usr/include" ] || ["$TK_INC" = "-L" ] ; then
+    TK_INC=""
+  fi
 fi
-TCL=`find /usr/include -maxdepth 2 -name tcl.h 2>/dev/null | grep tcl.h | head -n1 | sed s^/tcl.h^^g`
-TCL_LIB=`ls /usr/lib/libtcl*.a 2> /dev/null | grep -v tclx |  head -n1 | sed s#^.\*tcl#tcl# | sed s/.a.\*\$//`
-if [ "$TCL" = "" ] ; then
-    echo "tcl headers not found."
-else
-    echo "tcl headers found in $TCL"
-    # Need to include Xlibs to link emcsh and iosh.
-    TCL_LIB="-lXext -lX11 -ldl -l$TCL_LIB"
-    TCL_FLAGS="-L/usr/X11R6/lib"
-    if [ "$TCL" != "/usr/include" ] ; then
-        # No point in including the default dir...
-        TCL_FLAGS="$TCL_FLAGS -I$TCL"
-    fi
-fi
-TK=`find /usr/include -maxdepth 2 -name tk.h 2>/dev/null | grep tk.h | head -n1 | sed s^/tk.h^^g`
-TK_LIB=`ls /usr/lib/libtk*.a 2> /dev/null | grep -v tkx | head -n1 | sed s#^.\*tk#tk# | sed s/.a.\*\$//`
-if [ "$TK" = "" ] ; then
-    echo "tk headers not found."
-else
-    echo "tk headers found in $TK"
-    TCL_LIB="$TCL_LIB -l$TK_LIB"
-    if [ "$TK" != "/usr/include" ] ; then
-        # Don't need to include the same dir twice...
-        if [ "$TK" != "$TCL" ] ; then
-            TCL_FLAGS="$TCL_FLAGS -I$TK"
-        fi
-    fi
-fi
+
 
 # Go on to write out the Makefile.inc
 DATE=$(date)
@@ -277,9 +263,9 @@ elif [ -f $RTDIR/bin/rtai-config ] ; then
     echo "RTNAME = rtai-3.0" >> Makefile.inc
     echo "RTPREFIX = rtai" >> Makefile.inc
     echo "RTAI = $RTAI_VER" >> Makefile.inc
-    KERNELDIR=`$RTDIR/bin/rtai-config --linux-dir`
+    KERNELDIR=$($RTDIR/bin/rtai-config --linux-dir)
     echo "RTFLAGS = `$RTDIR/bin/rtai-config --module-cflags` -DRTAI=$RTAI_VER" >> Makefile.inc
-    CC=`$RTDIR/bin/rtai-config --cc`
+    CC=$($RTDIR/bin/rtai-config --cc)
     MATHLIB=""
 
 elif [ -f $RTDIR/rtl.mk ] ; then
@@ -361,11 +347,12 @@ else
 fi
 
 echo >> Makefile.inc
-if [ "$TCL" != "" ] ; then
-    echo "# local flags for Tcl/Tk" >> Makefile.inc
-    echo "TCL_VERSION = $TCL_VER" >> Makefile.inc
-    echo "TCL_CFLAGS = $TCL_FLAGS" >> Makefile.inc
-    echo "TCL_LIBS = $TCL_LIB" >> Makefile.inc
+if [ "$TCLCONFIG" != "" ] && [ "$TKCONFIG" != "" ] ; then
+    echo "# include the Tcl/Tk Config.sh files" >> Makefile.inc
+    echo "TCL_DBGX = $TCL_DBGX" >> Makefile.inc
+    echo "TK_DBGX = $TK_DBGX" >> Makefile.inc
+    echo "TCL_CFLAGS = $TCL_INC $TK_INC $TK_XINCLUDES" >> Makefile.inc
+    echo "TCL_LIBS = $TK_LIBS $TCL_LIB_SPEC $TK_LIB_SPEC" >> Makefile.inc
 fi
 
 echo >> Makefile.inc
