@@ -1921,6 +1921,8 @@ static void thread_task(void *arg)
 		}
 		/* point to next next entry in list */
 		funct_entry = SHMPTR(funct_entry->links.next);
+		/* prepare to measure time for next funct */
+		start_time = end_time;
 	    }
 	    /* update thread execution time */
 	    thread->runtime = (long int) (end_time - thread_start_time);
