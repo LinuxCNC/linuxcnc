@@ -331,23 +331,23 @@ int main(int argc, char *argv[])
 	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.read", n);
 	/* export read function parameter */
 	retval =
-	    hal_param_s8_new(name, HAL_RD_WR, &read_funct_flags[n],
+	    hal_param_s8_new(name, HAL_RD_WR, &read_funct_flags[n + 1],
 	    comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PARPORT: ERROR: port %d read funct param failed\n", n + 1);
+		"PARPORT: ERROR: port %d read funct param failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
 	/* make write function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n + 1);
+	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n);
 	/* export read function parameter */
 	retval =
 	    hal_param_s8_new(name, HAL_RD_WR, &write_funct_flags[n + 1],
 	    comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PARPORT: ERROR: port %d write funct param failed\n", n + 1);
+		"PARPORT: ERROR: port %d write funct param failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}

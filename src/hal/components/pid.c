@@ -198,7 +198,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* have good config info, connect to the HAL */
-    comp_id = hal_init("pid_loop");
+    comp_id = hal_init("pid");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "PID: ERROR: hal_init() failed\n");
 	return -1;
@@ -489,7 +489,7 @@ static int export_pid(int num, hal_pid_t * addr)
     /* export function for this loop */
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.do_pid_calcs", num);
     retval =
-	hal_export_funct(buf, calc_pid, &(pid_array[num - 1]), 1, 0, comp_id);
+	hal_export_funct(buf, calc_pid, &(pid_array[num]), 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PID: ERROR: do_pid_calcs funct export failed\n");
