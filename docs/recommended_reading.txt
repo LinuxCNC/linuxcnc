@@ -1,6 +1,8 @@
 A small collection of useful links for anyone contemplating involvement
 
-http://cvsbook.red-bean.com/ - CVS Guide and essential reading
+The CVS guide from http://cvsbook.red-bean.com/ is mandatory reading. Study the
+first 100 pages, then read it again. Check out the source code, and read the
+book again.
 
 http://www.tldp.org/ - Assorted online guides and a mine of information.
 
