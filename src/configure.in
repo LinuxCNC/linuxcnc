@@ -14,7 +14,7 @@
 AC_PREREQ(2.13)
 #AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
 #AC_CONFIG_SRCDIR(src/hal/hal_lib.c)
-AC_INIT(src/emc/hal_intf/exthalmot.c)
+AC_INIT(emc/motion/emcmot.c)
 
 # EMC2 internationalisation package name:
 PACKAGE="emc2"

@@ -271,7 +271,7 @@ PACKAGE_VERSION=
 PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
-ac_unique_file="src/emc/hal_intf/exthalmot.c"
+ac_unique_file="emc/motion/emcmot.c"
 ac_default_prefix=/usr/local
 # Factoring default headers for most tests.
 ac_includes_default="\
