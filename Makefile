@@ -77,11 +77,13 @@ install_lib:
 	install -d $(DESTDIR)/$(libdir)
 	cp lib/* $(DESTDIR)/$(libdir)
 
+# Ugh... $sysconfdir seems right for this, but /usr/local/etc dosen't...
+CONFIGTARGET=$(DESTDIR)/$(sysconfdir)
+#CONFIGTARGET=$(DESTDIR)/$(prefix)/configs
+
 install_configs:
-#	install -d $(DESTDIR)/$(sysconfdir)
-#	cp -r configs/* $(DESTDIR)/$(sysconfdir)
-	install -d $(DESTDIR)/$(prefix)/configs
-	cp -r configs/* $(DESTDIR)/$(prefix)/configs
+	install -d $(CONFIGTARGET)
+	cp configs/*.hal configs/*.ini configs/*.nml configs/*.var $(CONFIGTARGET)
 
 install_scripts:
 	install -d $(DESTDIR)/$(prefix)/scripts
