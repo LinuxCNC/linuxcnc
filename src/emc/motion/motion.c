@@ -217,6 +217,7 @@ int init_module(void)
 
     /* is timer started? if so, what period? */
     PERIOD_NSEC = PERIOD * 1000;	/* convert from uSec to nSec */
+
     period = rtapi_clock_set_period(0);
     if (period == 0) {
 	/* not running, start it */
@@ -417,7 +418,8 @@ int init_module(void)
 	rtapi_print("can't create motion emcmotDebug->queue\n");
 	return -1;
     }
-    tpInit(&emcmotDebug->queue);
+
+//    tpInit(&emcmotDebug->queue); // tpInit called from tpCreate
     tpSetCycleTime(&emcmotDebug->queue, emcmotConfig->trajCycleTime);
     tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);
     tpSetVmax(&emcmotDebug->queue, emcmotStatus->vel);
@@ -497,7 +499,6 @@ int init_module(void)
 	return -1;
     }
     /* start the task running */
-    rtapi_print("motion init: starting timer task...\n");
     retval = rtapi_task_start(emcmot_task, (int) (SERVO_CYCLE_TIME * 1.0e9));
     if (retval != RTAPI_SUCCESS) {
 	rtapi_print("motion init: rtapi_task_start returned %d\n", retval);
@@ -536,6 +537,8 @@ void cleanup_module(void)
 	    extAmpEnable(axis, !GET_AXIS_ENABLE_POLARITY(axis));
 	}
     }
+
+    extMotQuit();
 
     /* free shared memory */
     retval = rtapi_shmem_delete(shmem_mem, module);

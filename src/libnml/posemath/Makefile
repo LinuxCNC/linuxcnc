@@ -52,15 +52,13 @@ depend: def_depend
 clean: def_clean
 
 # explicit rules to make libraries and binaries
-
 $(RTLIB_DIR)/libpm.a: $(RTTMP_DIR)/_posemath.o $(RTTMP_DIR)/sincos.o
-	$(AR) $(ARFLAGS) $@ $(RTTMP_DIR)/_posemath.o $(RTTMP_DIR)/sincos.o
+	$(AR) $(ARFLAGS) $@ $^
 	ranlib $@
 
 $(LIB_DIR)/libpm.a: \
 	$(TMP_DIR)/_posemath.o $(TMP_DIR)/posemath.o $(TMP_DIR)/sincos.o
-	$(AR) $(ARFLAGS) $@ \
-	$(TMP_DIR)/_posemath.o $(TMP_DIR)/posemath.o $(TMP_DIR)/sincos.o
+	$(AR) $(ARFLAGS) $@ $^
 	ranlib $@
 
 .PHONY: all clean install indent depend headers

@@ -301,7 +301,7 @@ if [ "$RTFILE" != "" ] ; then
 fi
 
 echo "RTFLAGS := -I\$(INC_DIR) -I$RTDIR/include -I. \$(RTFLAGS) -DRTAPI" >> Makefile.inc
-echo "MATH_LIB = $MATHLIB" >> Makefile.inc
+echo "MATHLIB = $MATHLIB" >> Makefile.inc
 
 if [ "$RTFILE" != "" ] ; then
     CC=$(cat $RTFILE | grep CC | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2> /dev/null #'
