@@ -26,8 +26,6 @@
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_errors.cc"
-#include "interp_internal.hh"
-
 
 /* Interpreter global arrays for g_codes and m_codes. The nth entry
 in each array is the modal group number corresponding to the nth
@@ -210,12 +208,11 @@ _readers is an array of pointers to functions that read.
 It is used by read_one_item.
 
 */
-
 const read_function_pointer Interp::_readers[] = {
 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
-0,      0,      0, 0, 0, read_parameter_setting ,0,      0,      0,      0,
+0,      0,      0, 0, 0, read_parameter_setting,0,      0,      0,      0,
 read_comment, 0, 0,     0,      0,      0,      0,      0,      0,      0,
 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,

@@ -50,7 +50,7 @@ LOCAL_CXXFLAGS = -Wno-unused -DLATHE
 
 $(TMP_DIR)/rs274.o: $(OBJS)
 	rm -f $@
-	$(AR) $(ARFLAGS) $^ $@
+	$(AR) $(ARFLAGS) $@ $^
 
 headers: def_headers
 

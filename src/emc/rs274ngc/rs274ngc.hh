@@ -22,14 +22,13 @@
 /**********************/
 
 #include <stdio.h>
-#include "interp_internal.hh"
 #include "emc.hh"
 #include "canon.hh"
+#include "interp_internal.hh"
 
 #define DEBUG_EMC
-
-
-typedef setup *setup_pointer;
+//typedef block *block_pointer;
+//typedef setup *setup_pointer;
 // pointer to function that reads
 typedef int (*read_function_pointer) (char *, int *, block_pointer, double *);
 
@@ -78,7 +77,6 @@ public:
 // synchronize your internal model with the external world
  int rs274ngc_synch();
 
-private:
 /* Interface functions to call to get information from the interpreter.
    If a function has a return value, the return value contains the information.
    If a function returns nothing, information is copied into one of the
@@ -122,6 +120,7 @@ private:
 // Get the parameter file name from the ini file.
  int rs274ngc_ini_load(const char *filename);
 
+#if 0
  inline int rs274ngc_line() { return rs274ngc_sequence_number(); }
 
  inline const char *rs274ngc_command() {
@@ -133,6 +132,9 @@ private:
    char buf[100];
   rs274ngc_file_name(buf, 100);
   return buf; }
+#endif
+
+private:
 
 /* Function prototypes for all  functions */
 
@@ -380,6 +382,7 @@ private:
 
  static const read_function_pointer _readers[];
  static setup _setup;
+
 };
 
 

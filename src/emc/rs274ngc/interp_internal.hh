@@ -318,6 +318,8 @@ typedef struct setup_struct
 }
 setup;
 
+typedef setup *setup_pointer;
+
 /*
 
 The _setup model includes a stack array for the names of function
