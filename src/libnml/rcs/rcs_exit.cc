@@ -1,0 +1,69 @@
+/**********************************************************************
+* File: rcs_exit.cc
+* This module provides a portable way to make sure multiple
+* functions are called before exiting.
+* These functions should be written to take an int  and return void.
+***********************************************************************/
+
+/* Forward Function Prototypes */
+#include "rcs_exit.hh"
+#include "linklist.hh"		/* LinkedList */
+#include "rcs_print.hh"		/* rcs_print_error() */
+#include "timer.hh"		/* esleep() */
+
+extern "C" {
+
+#include <stdlib.h>		/* exit() */
+#include <signal.h>		/* signal() , SIGINT */
+
+} static LinkedList *exit_list = (LinkedList *) NULL;
+
+struct RCS_EXIT_LIST_ENTRY {
+    long process_id;
+    void (*fptr) (int);
+};
+
+void rcs_cleanup(int code)
+{
+    RCS_EXIT_LIST_ENTRY *entry;
+    long process_id = 0;
+
+    if (NULL == exit_list) {
+	return;
+    }
+    entry = (RCS_EXIT_LIST_ENTRY *) exit_list->get_head();
+    while (NULL != entry) {
+	if (entry->process_id == process_id && entry->fptr != NULL) {
+	    entry->fptr(code);
+	}
+	entry = (RCS_EXIT_LIST_ENTRY *) exit_list->get_next();
+    }
+    if (exit_list->list_size == 0) {
+	delete exit_list;
+	exit_list = (LinkedList *) NULL;
+    }
+}
+
+static int rcs_ready_for_exit = 0;
+static int rcs_exit_sig = 0;
+
+static void rcs_exit_signal_handler(int sig)
+{
+    rcs_ready_for_exit = 1;
+    rcs_exit_sig = sig;
+}
+
+void rcs_exit(int code)
+{
+    rcs_cleanup(code);
+    if (code == -1) {
+	rcs_print_error("\n Errors Reported!!!\n Press ^C to exit.\n");
+	signal(SIGINT, rcs_exit_signal_handler);
+	int secs = 0;
+	while (!rcs_ready_for_exit && secs < 600) {
+	    esleep(1.0);
+	    secs++;
+	}
+    }
+    exit(code);
+}

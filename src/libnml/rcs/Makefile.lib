@@ -1,0 +1,2 @@
+LIB_OBJS := $(LIB_OBJS) \
+	rcs_print.o

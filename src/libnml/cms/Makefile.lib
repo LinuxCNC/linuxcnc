@@ -1,0 +1,13 @@
+CMS_OBJS := \
+	cms.o \
+	cms_aup.o \
+	cms_cfg.o \
+	cms_in.o \
+	cms_dup.o \
+	cms_srv.o \
+	cms_up.o \
+	cms_xup.o \
+	cmsdiag.o \
+
+LIB_OBJS := $(LIB_OBJS) \
+	$(CMS_OBJS)
