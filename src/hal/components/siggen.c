@@ -72,7 +72,7 @@ MODULE_DESCRIPTION("Signal Generator Component for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
-static int num_chan = 1;	/* number of channels - default = 3 */
+static int num_chan = 1;	/* number of channels - default = 1 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(chan, "number of channels");
 static long fp_period = 0;	/* float pt thread period, default = none */
@@ -204,7 +204,7 @@ int rtapi_app_main(void)
     /* test for number of channels */
     if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PID: ERROR: invalid num_chan: %d\n", num_chan);
+	    "SIGGEN: ERROR: invalid num_chan: %d\n", num_chan);
 	return -1;
     }
     /* have good config info, connect to the HAL */
@@ -221,7 +221,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    /* export variables and function for each siggen */
+    /* export variables and functions for each siggen */
     for (n = 0; n < num_chan; n++) {
 	/* export everything for this loop */
 	retval = export_siggen(n + 1, &(siggen_array[n]));
@@ -256,7 +256,7 @@ void rtapi_app_exit(void)
 }
 
 /***********************************************************************
-*                   REALTIME PID LOOP CALCULATIONS                     *
+*                       REALTIME LOOP CALCULATIONS                     *
 ************************************************************************/
 
 static void calc_siggen(void *arg, long period)
