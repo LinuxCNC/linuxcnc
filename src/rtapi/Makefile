@@ -56,11 +56,13 @@ clean: def_clean
 
 $(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 	@ echo "Install rtapi.o in rtlib"
+	- \install -d $(RTLIB_DIR)
 	- \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
 
 
 $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
 	@ echo "Install ulapi.o in lib"
+	- \install -d $(LIB_DIR)
 	- \install -p -m0664 $< $(LIB_DIR)/ulapi.o
 
 # This is a list of the realtime modules provided by the OS

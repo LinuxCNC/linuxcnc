@@ -159,6 +159,11 @@ $(RTTMP_DIR)/%.o : %.c
 	@ echo "Compile '$<' to tmp dir using realtime C rule"
 	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
 
+TARGET_DIRS:
+	install -d $(BIN_DIR) $(LIB_DIR) $(RTLIB_DIR) $(INC_DIR) $(TMP_DIR) $(RTTMP_DIR)
+
+
+
 #
 # Some targets in LIB_DIR and RTLIB_DIR are simply single .o files
 # copied from TMP_DIR and RTTMP_DIR respectively.  Others are the
@@ -169,10 +174,12 @@ $(RTTMP_DIR)/%.o : %.c
 #
 $(LIB_DIR)/%.o : $(TMP_DIR)/%.o
 	@ echo "Install user space library $@"
+	\install -d $(LIB_DIR)
 	\install -p -m0664 $< $(LIB_DIR)
 
 $(RTLIB_DIR)/%.o : $(RTTMP_DIR)/%.o
 	@ echo "Install realtime module $@"
+	\install -d $(LIB_DIR)
 	\install -p -m0664 $< $(RTLIB_DIR)
 
 #
@@ -193,10 +200,12 @@ def_headers: $(HEADERS:%=$(INC_DIR)/%)
 #
 $(INC_DIR)/%.h: %.h
 	@ echo "Install C header $<"
+	\install -d $(INC_DIR)
 	\install -p -m0664 $< $(INC_DIR)
 
 $(INC_DIR)/%.hh: %.hh
 	@ echo "Install C++ header $<"
+	\install -d $(INC_DIR)
 	\install -p -m0664 $< $(INC_DIR)
 
 #

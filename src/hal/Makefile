@@ -24,13 +24,14 @@ LIBS = \
 $(RTLIB_DIR)/hal_lib.o \
 $(LIB_DIR)/hal_lib.o
 
-all : headers $(LIBS)
+# Generic rules
+include ../../Make.rules
+
+all : TARGET_DIRS headers $(LIBS)
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
 
-# Generic rules
-include $(EMC2_HOME)/Make.rules
 
 headers: def_headers
 	(cd utils; make $@)
