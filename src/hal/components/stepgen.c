@@ -510,10 +510,10 @@ int rtapi_app_main(void)
     /* export all the variables for each pulse generator */
     for (n = 0; n < num_chan; n++) {
 	/* export all vars */
-	retval = export_stepgen(n + 1, &(stepgen_array[n]), step_type[n]);
+	retval = export_stepgen(n, &(stepgen_array[n]), step_type[n]);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STEPGEN: ERROR: stepgen %d var export failed\n", n + 1);
+		"STEPGEN: ERROR: stepgen %d var export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
@@ -523,7 +523,7 @@ int rtapi_app_main(void)
 	stepgen_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STEPGEN: ERROR: makepulses funct export failed\n", n + 1);
+	    "STEPGEN: ERROR: makepulses funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -531,7 +531,7 @@ int rtapi_app_main(void)
 	stepgen_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STEPGEN: ERROR: freq update funct export failed\n", n + 1);
+	    "STEPGEN: ERROR: freq update funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -539,7 +539,7 @@ int rtapi_app_main(void)
 	stepgen_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STEPGEN: ERROR: pos update funct export failed\n", n + 1);
+	    "STEPGEN: ERROR: pos update funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }

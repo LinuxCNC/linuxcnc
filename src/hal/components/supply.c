@@ -115,7 +115,7 @@ int rtapi_app_main(void)
     }
     /* export variables and functions for each supply */
     for (n = 0; n < num_chan; n++) {
-	retval = export_supply(n + 1, &(supply_array[n]));
+	retval = export_supply(n, &(supply_array[n]));
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"SUPPLY: ERROR: var export failed\n");

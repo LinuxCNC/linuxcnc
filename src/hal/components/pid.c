@@ -9,7 +9,8 @@
     such as speed loops, torch height control, and others.
 
     Each loop has a number of pins and parameters, whose names begin
-    with 'pid.x.', where 'x' is the channel number.
+    with 'pid.x.', where 'x' is the channel number.  Channel numbers
+    start at zero.
 
     The three most important pins are 'command', 'feedback', and
     'output'.  For a position loop, 'command' and 'feedback' are
@@ -212,10 +213,10 @@ int rtapi_app_main(void)
     /* export variables and function for each PID loop */
     for (n = 0; n < num_chan; n++) {
 	/* export everything for this loop */
-	retval = export_pid(n + 1, &(pid_array[n]));
+	retval = export_pid(n, &(pid_array[n]));
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PID: ERROR: loop %d var export failed\n", n + 1);
+		"PID: ERROR: loop %d var export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
