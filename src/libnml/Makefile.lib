@@ -42,4 +42,9 @@ $(LIB_DIR)/libnml.so: $(LIB_OBJS:%=$(TMP_DIR)/%)
 $(BIN_DIR)/inivar: $(TMP_DIR)/inivar.o $(LIB_DIR)/libnml.a
 	$(CXX) $(TMP_DIR)/inivar.o -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
+clean:
+	- rm -f $(BIN_DIR)/inivar
+	- rm -f $(LIBS)
+	- rm -fR $(LIB_DIR)
+
 .PHONY: all clean install indent depend headers
