@@ -1,29 +1,56 @@
 /** This file, 'parport.c', is a HAL component that provides a driver
-    for the standard PC parallel port.  It is a realtime component.
-    (It could be modified to work as a non-realtime component as well,
-    but I don't feel like arguing with Linux's ioperm for permission
-    to access the I/O ports.)
+    for the standard PC parallel port.
+
     It supports up to eight parallel ports, and if the port hardware
     is bidirectional, the eight data bits can be configured as inputs
     or outputs.
-    The configuration is determined by a config string, passed into
-    the module parameter 'cfg'.  The string format consists of a
-    port address, followed by an optional direction, repeated for
-    each port.  The direction is either "in" or "out" and determines
-    the direction of the 8 bit data port.  The default is out.  The
-    5 bits of the status port are always inputs, and the 4 bits of
-    the control port are always outputs.  An example command line is:
-                   insmod parport.o cfg="378 in 278"
-    This installs the driver, and configures parports at base addresses
-    0x0378 (using data port as input) and 0x0278 (using data port as
-    output).
-    The driver can optionally create a realtime thread, which is
-    useful if a free-running driver is desired.  The module parameter
-    'period' is a long int, corresponding to the thread period in
-    nano-seconds.  If omitted, no thread will be created.
-    The driver creates HAL pins for each port pin, and functions to
-    read and write each port, as well as functions that read and write
-    all the ports.
+
+    The configuration is determined by command line arguments for the
+    user space version of the driver, and by a config string passed
+    to insmod for the realtime version.  The format is similar for
+    both, and consists of a port address, followed by an optional
+    direction, repeated for each port.  The direction is either "in"
+    or "out" and determines the direction of the 8 bit data port.
+    The default is out.  The 5 bits of the status port are always
+    inputs, and the 4 bits of the control port are always outputs.
+    Example command lines are as follows:
+
+    user:        parport 378 in 278
+    realtime:    insmod parport.o cfg="378 in 278"
+
+    Both of these commands install the driver and configure parports
+    at base addresses 0x0378 (using data port as input) and 0x0278
+    (using data port as output).
+
+    The driver creates HAL pins and parameters for each port pin
+    as follows:
+    Each physical output has a correspinding HAL pin, named
+    'parport.<portnum>.pin-<pinnum>-out', and a HAL parameter
+    'parport.<portnum>.pin-<pinnum>-out-invert'.
+    Each physical input has two corresponding HAL pins, named
+    'parport.<portnum>.pin-<pinnum>-in' and
+    'parport.<portnum>.pin-<pinnum>-in-not'.
+
+    <portnum> is the port number, starting from 1.  <pinnum> is
+    the physical pin number on the DB-25 connector.
+
+    The realtime version of the driver exports two HAL functions for
+    each port, 'parport.<portnum>.read' and 'parport.<portnum>.write'.
+    It also exports two additional functions, 'parport.read_all' and
+    'parport.write_all'.  Any or all of these functions can be added
+    to realtime HAL threads to update the port data periodically.
+
+    The user space version of the driver cannot export functions,
+    instead it exports parameters with the same names.  The main()
+    function sits in a loop checking the parameters.  If they are
+    zero, it does nothing.  If any parameter is greater than zero,
+    the corresponding function runs once, then the parameter is
+    reset to zero.  If any parameter is less than zero, the
+    corresponding function runs on every pass through the loop.
+    The driver will loop forever, until it receives either
+    SIGINT (ctrl-C) or SIGTERM, at which point it cleans up and
+    exits.
+
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -55,13 +82,22 @@
     information, go to www.linuxcnc.org.
 */
 
-#ifndef RTAPI
-#error This is a realtime component only!
+#if ( !defined RTAPI ) && ( !defined ULAPI )
+#error parport needs RTAPI/ULAPI, check makefile and flags
 #endif
 
+#ifdef RTAPI   /* realtime */
 #include <linux/ctype.h>	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#else   /* user space */
+#include <ctype.h>		/* isspace() */
+#include <signal.h>		/* signal() */
+#include <sched.h>		/* sched_yield() */
+#include <sys/io.h>		/* iopl() */
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#endif
+
 #include "hal.h"		/* HAL public API decls */
 
 /* If FASTIO is defined, uses outb() and inb() from <asm.io>,
@@ -73,9 +109,12 @@
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
+#ifdef RTAPI  /* for ULAPI, sys/io.h defines these functs */
 #include <asm/io.h>
 #endif
+#endif
 
+#ifdef RTAPI  /* realtime */
 #ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -86,10 +125,8 @@ MODULE_LICENSE("GPL");
 static char *cfg = 0;		/* config string */
 MODULE_PARM(cfg, "s");
 MODULE_PARM_DESC(cfg, "config string");
-static long period = 0;		/* thread period */
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "thread period (nsecs)");
 #endif /* MODULE */
+#endif /* RTAPI */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -126,6 +163,8 @@ static void write_port(void *arg, long period);
 static void read_all(void *arg, long period);
 static void write_all(void *arg, long period);
 
+static int pins_and_params(char *argv[]);
+
 static unsigned short parse_port_addr(char *cp);
 static int export_port(int portnum, parport_t * addr);
 static int export_input_pin(int portnum, int pin, hal_bit_t ** base, int n);
@@ -137,14 +176,15 @@ static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
 ************************************************************************/
 
 #define MAX_PORTS 8
-#define MAX_TOK ((MAX_PORTS*2)+2)
+
+#ifdef RTAPI  /* realtime */
+
+#define MAX_TOK ((MAX_PORTS*2)+3)
 
 int rtapi_app_main(void)
 {
     char *cp;
-    char *tokens[MAX_TOK];
-    unsigned short port_addr[MAX_PORTS];
-    int data_dir[MAX_PORTS];
+    char *argv[MAX_TOK];
     char name[HAL_NAME_LEN + 2];
     int n, retval;
 
@@ -153,15 +193,15 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR, "PARPORT: ERROR: no config string\n");
 	return -1;
     }
-    /* point to config string */
+    /* as a RT module, we don't get a nice argc/argv command line, we
+       only get a single string... so we need to tokenize it ourselves */
     cp = cfg;
-    /* break it into tokens */
     for (n = 0; n < MAX_TOK; n++) {
 	/* strip leading whitespace */
 	while ((*cp != '\0') && (isspace(*cp)))
 	    cp++;
 	/* mark beginning of token */
-	tokens[n] = cp;
+	argv[n] = cp;
 	/* find end of token */
 	while ((*cp != '\0') && (!isspace(*cp)))
 	    cp++;
@@ -171,73 +211,17 @@ int rtapi_app_main(void)
 	    cp++;
 	}
     }
-    /* clear port_addr and data_dir arrays */
-    for (n = 0; n < MAX_PORTS; n++) {
-	port_addr[n] = 0;
-	data_dir[n] = 0;
-    }
-    /* parse config string, results in port_addr[] and data_dir[] arrays */
-    num_ports = 0;
-    n = 0;
-    while ((num_ports < MAX_PORTS) && (n < MAX_TOK)) {
-	if (tokens[n][0] != '\0') {
-	    /* something here, is it a port address? */
-	    port_addr[num_ports] = parse_port_addr(tokens[n]);
-	    if (port_addr[num_ports] == 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "PARPORT: ERROR: bad port address '%s'\n", tokens[n]);
-		return -1;
-	    }
-	    /* is the next one 'in' or 'out' ? */
-	    n++;
-	    if ((tokens[n][0] == 'i') || (tokens[n][0] == 'I')) {
-		/* we aren't picky, anything starting with 'i' means 'in' ;-) 
-		 */
-		data_dir[num_ports] = 1;
-		n++;
-	    } else if ((tokens[n][0] == 'o') || (tokens[n][0] == 'O')) {
-		/* anything starting with 'o' means 'out' */
-		data_dir[num_ports] = 0;
-		n++;
-	    }
-	    num_ports++;
-	} else {
-	    n++;
+    for (n = 0; n < MAX_TOK; n++) {
+	/* is token empty? */
+	if ( argv[n][0] == '\0') {
+	    /* yes - make pointer NULL */
+	    argv[n] = NULL;
 	}
     }
-    /* OK, now we've parsed everything */
-    if (num_ports == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PARPORT: ERROR: no ports configured\n");
-	return -1;
-    }
-    /* have good config info, connect to the HAL */
-    comp_id = hal_init("parport");
-    if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "PARPORT: ERROR: hal_init() failed\n");
-	return -1;
-    }
-    /* allocate shared memory for parport data */
-    port_data_array = hal_malloc(num_ports * sizeof(parport_t));
-    if (port_data_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PARPORT: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    /* export all the pins and params for each port */
-    for (n = 0; n < num_ports; n++) {
-	/* config addr and direction */
-	port_data_array[n].base_addr = port_addr[n];
-	port_data_array[n].data_dir = data_dir[n];
-	/* export all vars */
-	retval = export_port(n + 1, &(port_data_array[n]));
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PARPORT: ERROR: port %d var export failed\n", n + 1);
-	    hal_exit(comp_id);
-	    return -1;
-	}
+    /* parse "command line", set up pins and parameters */
+    retval = pins_and_params( argv );
+    if ( retval != 0 ) {
+	return retval;
     }
     /* export functions for each port */
     for (n = 0; n < num_ports; n++) {
@@ -283,20 +267,6 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"PARPORT: installed driver for %d ports\n", num_ports);
-    /* was 'period' specified in the insmod command? */
-    if (period > 0) {
-	/* create a thread */
-	retval = hal_create_thread("parport.thread", period, 0, comp_id);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PARPORT: ERROR: could not create thread\n");
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "PARPORT: created %d uS thread\n",
-		period / 1000);
-	}
-    }
     return 0;
 }
 
@@ -304,6 +274,133 @@ void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
 }
+
+#else  /* user space */
+
+static int done = 0;
+static void quit(int sig)
+{
+    done = 1;
+}
+
+int main ( int argc, char *argv[] )
+{
+    char name[HAL_NAME_LEN + 2];
+    int n, retval;
+    hal_s8_t *read_funct_flags;
+    hal_s8_t *write_funct_flags;
+
+    /* parse command line, set up pins and parameters */
+    retval = pins_and_params( &(argv[1]) );
+    if ( retval != 0 ) {
+	return retval;
+    }
+    /* ask linux for permission to use the I/O ports */
+    retval = iopl(3);
+    if ( retval != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PARPORT: ERROR: could not get I/O permission\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+    /* allocate space for function run/stop parameters */
+    read_funct_flags = hal_malloc((num_ports+1) * sizeof(hal_s8_t) * 2);
+    if (read_funct_flags == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PARPORT: ERROR: hal_malloc() failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+    write_funct_flags = read_funct_flags + (num_ports+1);
+    /* export function run/stop parameters for each port */
+    for (n = 0; n < num_ports; n++) {
+	/* make read function name */
+	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.read", n + 1);
+	/* export read function parameter */
+	retval = hal_param_s8_new(name, &read_funct_flags[n+1], comp_id);
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"PARPORT: ERROR: port %d read funct param failed\n", n + 1);
+	    hal_exit(comp_id);
+	    return -1;
+	}
+	/* make write function name */
+	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n + 1);
+	/* export read function parameter */
+	retval = hal_param_s8_new(name, &write_funct_flags[n+1], comp_id);
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"PARPORT: ERROR: port %d write funct param failed\n", n + 1);
+	    hal_exit(comp_id);
+	    return -1;
+	}
+    }
+    /* export parameters for read/write all port functuons */
+    retval = hal_param_s8_new("parport.read_all", &read_funct_flags[0], comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PARPORT: ERROR: read all funct param failed\n", n + 1);
+	hal_exit(comp_id);
+	return -1;
+    }
+    retval = hal_param_s8_new("parport.write_all", &write_funct_flags[0], comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PARPORT: ERROR: write all funct param failed\n", n + 1);
+	hal_exit(comp_id);
+	return -1;
+    }
+    rtapi_print_msg(RTAPI_MSG_INFO,
+	"PARPORT: installed driver for %d ports\n", num_ports);
+    /* capture INT (ctrl-C) and TERM signals */
+    signal(SIGINT, quit);
+    signal(SIGTERM, quit);
+    /* main loop */
+    while (!done) {
+	if ( read_funct_flags[0] ) {
+	    /* run the function */
+	    read_all ( port_data_array, 0 );
+	    /* if flag is positive, reset it */
+	    if ( read_funct_flags[0] > 0 ) {
+		read_funct_flags[0] = 0;
+	    }
+	}
+	for ( n = 0 ; n < num_ports ; n++ ) {
+	    if ( read_funct_flags[n+1] ) {
+		/* run the function */
+		read_port ( &(port_data_array[n]), 0 );
+		/* if flag is positive, reset it */
+		if ( read_funct_flags[n+1] > 0 ) {
+		    read_funct_flags[n+1] = 0;
+		}
+	    }
+	}
+	if ( write_funct_flags[0] ) {
+	    /* run the function */
+	    write_all ( port_data_array, 0 );
+	    /* if flag is positive, reset it */
+	    if ( write_funct_flags[0] > 0 ) {
+		write_funct_flags[0] = 0;
+	    }
+	}
+	for ( n = 0 ; n < num_ports ; n++ ) {
+	    if ( write_funct_flags[n+1] ) {
+		/* run the function */
+		write_port ( &(port_data_array[n]), 0 );
+		/* if flag is positive, reset it */
+		if ( write_funct_flags[n+1] > 0 ) {
+		    write_funct_flags[n+1] = 0;
+		}
+	    }
+	}
+	/* give up the CPU so other processes can run */
+	sched_yield();
+    }
+    hal_exit(comp_id);
+    return 0;
+}
+
+#endif
 
 /***********************************************************************
 *                  REALTIME PORT READ AND WRITE FUNCTIONS              *
@@ -415,6 +512,82 @@ void write_all(void *arg, long period)
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
+
+
+static int pins_and_params(char *argv[])
+{
+    unsigned short port_addr[MAX_PORTS];
+    int data_dir[MAX_PORTS];
+    int n, retval;
+
+    /* clear port_addr and data_dir arrays */
+    for (n = 0; n < MAX_PORTS; n++) {
+	port_addr[n] = 0;
+	data_dir[n] = 0;
+    }
+    /* parse config string, results in port_addr[] and data_dir[] arrays */
+    num_ports = 0;
+    n = 0;
+    while ((num_ports < MAX_PORTS) && (argv[n] != 0)) {
+	port_addr[num_ports] = parse_port_addr(argv[n]);
+	if (port_addr[num_ports] == 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"PARPORT: ERROR: bad port address '%s'\n", argv[n]);
+	    return -1;
+	}
+	n++;
+	if ( argv[n] != 0 ) {
+	    /* is the next token 'in' or 'out' ? */
+	    if ((argv[n][0] == 'i') || (argv[n][0] == 'I')) {
+		/* we aren't picky, anything starting with 'i' means 'in' ;-)
+		 */
+		data_dir[num_ports] = 1;
+		n++;
+	    } else if ((argv[n][0] == 'o') || (argv[n][0] == 'O')) {
+		/* anything starting with 'o' means 'out' */
+		data_dir[num_ports] = 0;
+		n++;
+	    }
+	}
+	num_ports++;
+    }
+    /* OK, now we've parsed everything */
+    if (num_ports == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PARPORT: ERROR: no ports configured\n");
+	return -1;
+    }
+    /* have good config info, connect to the HAL */
+    comp_id = hal_init("parport");
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "PARPORT: ERROR: hal_init() failed\n");
+	return -1;
+    }
+    /* allocate shared memory for parport data */
+    port_data_array = hal_malloc(num_ports * sizeof(parport_t));
+    if (port_data_array == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PARPORT: ERROR: hal_malloc() failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+    /* export all the pins and params for each port */
+    for (n = 0; n < num_ports; n++) {
+	/* config addr and direction */
+	port_data_array[n].base_addr = port_addr[n];
+	port_data_array[n].data_dir = data_dir[n];
+	/* export all vars */
+	retval = export_port(n + 1, &(port_data_array[n]));
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"PARPORT: ERROR: port %d var export failed\n", n + 1);
+	    hal_exit(comp_id);
+	    return -1;
+	}
+    }
+    return 0;
+}
+
 
 static unsigned short parse_port_addr(char *cp)
 {

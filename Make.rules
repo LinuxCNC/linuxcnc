@@ -123,7 +123,6 @@ CC_PHDRS = $(filter %.hh,$(PRIVHDRS))
 
 OBJS = $(C_SRCS:%.c=$(TMP_DIR)/%.o) \
        $(CC_SRCS:%.cc=$(TMP_DIR)/%.o) \
-       $(C_SRCS:%.c=$(RTTMP_DIR)/%.o) \
        $(RT_SRCS:%.c=$(RTTMP_DIR)/%.o)
 
 #
