@@ -818,13 +818,13 @@ static int emcTaskPlan(void)
 				    execRetval);
 			    }
 			    if (execRetval == -1 /* RS274NGC_ERROR */  ||
-				execRetval > RS274NGC_MIN_ERROR || execRetval == 1	/* RS274NGC_EXIT 
+				execRetval > RS274NGC_MIN_ERROR || execRetval == 1	/* RS274NGC_EXIT
 											 */ ) {
 				// end of file
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP_WAITING;
-			    } else if (execRetval == 2	/* RS274NGC_EXECUTE_FINISH 
-							 */ ) {
+			    } else if (execRetval == 2	/* RS274NGC_EXECUTE_FINISH
+						         */ ) {
 				// RS274NGC_EXECUTE_FINISH signifies
 				// that no more reading should be done until
 				// everything
@@ -2610,7 +2610,6 @@ int main(int argc, char *argv[])
 	    if (!taskAborted) {
 		// abort everything
 		emcTaskAbort();
-
 		// without emcTaskPlanClose(), a new run command resumes at
 		// aborted line-- feature that may be considered later
 		{

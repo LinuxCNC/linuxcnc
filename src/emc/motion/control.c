@@ -40,17 +40,46 @@ static double servo_period;
 static double servo_freq;
 
 
+/* debugging function - prints a cartesean pose (multplies the floating
+   point numbers by 1 million since kernel printf doesn't handle floats
+*/
+
+void print_pose ( EmcPose *pos )
+{
+    rtapi_print(" (%d, %d, %d):(%d, %d, %d) ",
+	(int)(pos->tran.x*1000000.0),
+	(int)(pos->tran.y*1000000.0),
+	(int)(pos->tran.z*1000000.0),
+	(int)(pos->a*1000000.0),
+	(int)(pos->b*1000000.0),
+	(int)(pos->c*1000000.0) );
+}
+
+
 /* debugging function - it watches a particular variable and
    prints a message when the value changes.
 */
 
 void check_stuff(char *location)
 {
-    static double *target, old = 0.1;
+   static short *target, old = 0xFF;
+#if 0
+/* kludge to look at emcmotDebug->enabling and emcmotStatus->motionFlag
+   at the same time - we simply use a high bit of the flags to
+   hold "enabling" */
+   short tmp;
+   if ( emcmotDebug->enabling )
+     tmp = 0x1000;
+   else
+     tmp = 0x0;
+   tmp |= emcmotStatus->motionFlag;
+   target = &tmp;
+/* end of kluge */
+#endif
 
-    target = &(emcmotStatus->joints[0].min_ferror);
+    target = &(emcmotStatus->joints[2].flag);
     if ( old != *target ) {
-	rtapi_print ( "%d at %s\n", (int)(*target*1000), location );
+	rtapi_print ( "%d: watch value %04X (%s)\n", emcmotStatus->heartbeat, *target, location );
 	old = *target;
     }
 }
@@ -535,8 +564,8 @@ static void check_for_faults(void)
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint data */
 	joint = &(emcmotStatus->joints[joint_num]);
-	/* skip inactive axes */
-	if (GET_JOINT_ACTIVE_FLAG(joint)) {
+	/* only check active, enabled axes */
+	if ( GET_JOINT_ACTIVE_FLAG(joint) && GET_JOINT_ENABLE_FLAG(joint) ) {
 	    /* check for hard limits */
 	    if (GET_JOINT_PHL_FLAG(joint) || GET_JOINT_NHL_FLAG(joint)) {
 		/* joint is on limit switch, should we trip? */
@@ -705,8 +734,8 @@ static void set_operating_mode(void)
 	/* check for entering coordinated mode */
 	if (emcmotDebug->coordinating && !GET_MOTION_COORD_FLAG()) {
 	    if (GET_MOTION_INPOS_FLAG()) {
-		/* update coordinated emcmotDebug->queue position */
-		tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
+		/* preset traj planner to current position */
+		tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_fb);
 		/* drain the cubics so they'll synch up */
 		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		    /* point to joint data */
@@ -1280,7 +1309,6 @@ static void do_homing(void)
 
 	    default:
 		/* should never get here */
-		/* FIXME - should set an error flag or something here */
 		reportError("unknown state '%d' during homing",
 		    joint->home_state);
 		joint->home_state = EMCMOT_ABORT;

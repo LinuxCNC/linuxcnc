@@ -606,11 +606,6 @@ if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
 fi
 $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 
-
-echo "HAL and realtime stuff loaded, hit enter to load task"
-
-read
-
 # Run emctask in background
 echo "Starting EMC TASK program: $EMCTASK" >$PRINT_FILE
 if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then

@@ -736,10 +736,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 					   shared memory */
 	emcmot_error_t error;	/* ring buffer for error messages */
 	emcmot_log_t log;	/* a massive ring buffer for logging RT data */
-#if 0				/* FIXME - moved (at least for now) to status
-				   structure */
-	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* all joint related data */
-#endif
     } emcmot_struct_t;
 
 /*

@@ -167,7 +167,7 @@ void reportError(const char *fmt, ...)
     vsnprintf(error, EMCMOT_ERROR_LEN, fmt, args);
     va_end(args);
 /* print to the kernel buffer... */
-    rtapi_print(" ERR: %s\n");
+    rtapi_print("%d: ERROR: %s\n", emcmotStatus->heartbeat, error);
 /* not to the RCS buffer (at least for now) */
 //    emcmotErrorPut(emcmotError, error);
 }

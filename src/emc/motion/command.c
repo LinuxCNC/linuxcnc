@@ -70,7 +70,8 @@
 #include "mot_priv.h"
 
 
-/* debugging function */
+/* debugging functions */
+extern void print_pose ( EmcPose *pos );
 extern void check_stuff(char *msg);
 
 
@@ -273,7 +274,7 @@ check_stuff ( "before command_handler()" );
 	/* Many commands uses "command->axis" to indicate which joint they
 	   wish to operate on.  This code eliminates the need to copy
 	   command->axis to "joint_num", limit check it, and then set "joint"
-	   to point to the joint data.  All the individual commands need to do 
+	   to point to the joint data.  All the individual commands need to do
 	   is verify that "joint" is non-zero. */
 	joint_num = emcmotCommand->axis;
 	if (joint_num >= 0 && joint_num < EMCMOT_MAX_AXIS) {
@@ -285,8 +286,8 @@ check_stuff ( "before command_handler()" );
 	}
 
 /* printing of commands for troubleshooting */
-	rtapi_print_msg(RTAPI_MSG_DBG, "%5d %3d ", emcmotCommand->commandNum,
-	    emcmotCommand->command);
+	rtapi_print_msg(RTAPI_MSG_DBG, "%d: CMD %d, code %3d ", emcmotStatus->heartbeat,
+	    emcmotCommand->commandNum, emcmotCommand->command);
 
 	switch (emcmotCommand->command) {
 	case EMCMOT_ABORT:
@@ -316,8 +317,11 @@ check_stuff ( "before command_handler()" );
 		    joint = &(emcmotStatus->joints[joint_num]);
 		    /* tell joint planner to stop */
 		    joint->free_tp_enable = 0;
+		    /* stop homing if in progress */
+		    if ( joint->home_state != HOME_IDLE ) {
+			joint->home_state = HOME_ABORT;
+		    }
 		    /* update status flags */
-		    joint->home_state = HOME_ABORT;
 		    SET_JOINT_ERROR_FLAG(joint, 0);
 		}
 	    }

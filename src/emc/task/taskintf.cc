@@ -34,6 +34,12 @@
 
 // MOTION INTERFACE
 
+/* FIXME - this decl was originally much later in the file, moved
+here temporarily for debugging */
+static emcmot_status_t emcmotStatus;
+
+
+
 /*
   Implementation notes:
 
@@ -563,9 +569,6 @@ int emcAxisInit(int axis)
 
 int emcAxisHalt(int axis)
 {
-/* FIXME */
-printf ( "taskintf.cc: emcAxisHalt(%d)\n", axis );
-
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
@@ -588,7 +591,6 @@ int emcAxisAbort(int axis)
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
-
     emcmotCommand.command = EMCMOT_ABORT;
     emcmotCommand.axis = axis;
 
@@ -773,7 +775,8 @@ int get_emcmot_debug_info = 0;
   these globals are set in emcMotionUpdate(), then referenced in
   emcAxisUpdate(), emcTrajUpdate() to save calls to usrmotReadEmcmotStatus
  */
-static emcmot_status_t emcmotStatus;
+/* FIXME - next line commented out and moved to top of file for debugging */
+//static emcmot_status_t emcmotStatus;*/
 static emcmot_debug_t emcmotDebug;
 static char errorString[EMCMOT_ERROR_LEN];
 static int new_config = 0;
