@@ -56,13 +56,13 @@ CheckStatus(){
 CheckRoot(){
     # checks to see if the user is root
     # first try whoami, then id
-    if type whoami 1>/dev/null 2>1 ; then
+    if type whoami >/dev/null 2>/dev/null ; then
 	if [ ! `whoami` = root ] ; then
 	    echo "ERROR:  You must be root to run this command"
 	    DoExit
 	    exit -1
 	fi
-    elif type id 1>/dev/null 2>1 ; then
+    elif type id >/dev/null 2>/dev/null ; then
 	if [ ! `id -u` = 0 ] ; then
 	    echo "ERROR:  You must be root to run this command"
 	    DoExit
