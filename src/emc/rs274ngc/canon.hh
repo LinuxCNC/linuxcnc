@@ -39,14 +39,6 @@
 */
 
 /*
-  Modification history:
-
-  7-Jan-2004  FMP added the NO_AA, NO_BB and NO_CC flags to simplify
-  building of the ABC interpreter by default and allow overriding to
-  build interpreters that exclude one or more rotary axes.
-*/
-
-/*
   The RS274NGC compiler references canon.hh, and here we switch on the
   symbols AA, BB and CC to declare the position structures. The EMC
   uses AA, BB and CC, and thus by default will get these.
@@ -55,18 +47,6 @@
   compile flags to force the exclusion of some axes. Note that these
   interpreters won't work with the EMC.
  */
-
-#ifndef NO_AA
-#define AA
-#endif
-
-#ifndef NO_BB
-#define BB
-#endif
-
-#ifndef NO_CC
-#define CC
-#endif
 
 typedef int CANON_PLANE;
 #define CANON_PLANE_XY 1
@@ -123,60 +103,83 @@ typedef enum {CANON_AXIS_X, CANON_AXIS_Y, CANON_AXIS_Z, CANON_AXIS_A,
               CANON_AXIS_B, CANON_AXIS_C} CANON_AXIS;
 */
 
-struct CANON_VECTOR {
-    CANON_VECTOR() { } CANON_VECTOR(double _x, double _y, double _z) {
-	x = _x;
-	y = _y;
-	z = _z;
-    }
-    double x, y, z;
+struct CANON_VECTOR
+{
+  CANON_VECTOR ()
+  {
+  }
+  CANON_VECTOR (double _x, double _y, double _z)
+  {
+    x = _x;
+    y = _y;
+    z = _z;
+  }
+  double x, y, z;
 };
 
-struct CANON_POSITION {
-    CANON_POSITION() { } CANON_POSITION(
-            double _x, double _y, double _z,
-            double _a, double _b, double _c) {
-	x = _x;
-	y = _y;
-	z = _z;
-	a = _a;
-	b = _b;
-	c = _c;
-    }
-    double x, y, z, a, b, c;
+struct CANON_POSITION
+{
+  CANON_POSITION ()
+  {
+  }
+  CANON_POSITION (double _x, double _y, double _z
+#ifndef LATHE
+		  , double _a, double _b, double _c
+#endif
+    )
+  {
+    x = _x;
+    y = _y;
+    z = _z;
+#ifndef LATHE
+    a = _a;
+    b = _b;
+    c = _c;
+#endif
+  }
+  double x, y, z
+#ifndef LATHE
+   , a, b, c
+#endif
+   ;
 };
 
 /* Tools are numbered 1..CANON_TOOL_MAX, with tool 0 meaning no tool. */
 #define CANON_TOOL_MAX 128	// max size of carousel handled
 #define CANON_TOOL_ENTRY_LEN 256	// how long each file line can be
 
-struct CANON_TOOL_TABLE {
-    int id;
-    double length;
-    double diameter;
+struct CANON_TOOL_TABLE
+{
+  int id;
+  double length;
+  double diameter;
 };
 
 /* Initialization */
 
 /* reads world model data into the canonical interface */
-extern void INIT_CANON();
+extern void INIT_CANON ();
 
 /* Representation */
 
-extern void SET_ORIGIN_OFFSETS(double x, double y, double z,
-                                double a, double b, double c);
+extern void SET_ORIGIN_OFFSETS (double x, double y, double z
+#ifndef LATHE
+				, double a, double b, double c
+#endif
+  );
 
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, and c. Values of x, y, z, a, b, and c are real numbers. The units
 are whatever length units are being used at the time this command is
 given. */
 
-extern void USE_LENGTH_UNITS(CANON_UNITS u);
+extern void USE_LENGTH_UNITS (CANON_UNITS u);
 
 /* Use the specified units for length. Conceptually, the units must
 be either inches or millimeters. */
 
-extern void SELECT_PLANE(CANON_PLANE pl);
+
+extern void SELECT_PLANE (CANON_PLANE pl);
 
 /* Use the plane designated by selected_plane as the selected plane.
 Conceptually, the selected_plane must be the XY-plane, the XZ-plane, or
@@ -184,14 +187,18 @@ the YZ-plane. */
 
 /* Free Space Motion */
 
-extern void SET_TRAVERSE_RATE(double rate);
+extern void SET_TRAVERSE_RATE (double rate);
 
 /* Set the traverse rate that will be used when the spindle traverses. It
 is expected that no cutting will occur while a traverse move is being
 made. */
 
-extern void STRAIGHT_TRAVERSE(double x, double y, double z,
-    double a_position, double b_position, double c_position);
+extern void STRAIGHT_TRAVERSE (double x, double y, double z
+#ifndef LATHE
+			       , double a_position, double b_position,
+			       double c_position
+#endif
+  );
 /*
 
 Move at traverse rate so that at any time during the move, all axes
@@ -212,7 +219,7 @@ workpiece.
 
 /* Machining Attributes */
 
-extern void SET_FEED_RATE(double rate);
+extern void SET_FEED_RATE (double rate);
 
 /*
 
@@ -245,7 +252,7 @@ C. For motion involving one or more of the XYZ axes (with or without
 
 */
 
-extern void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference);
+extern void SET_FEED_REFERENCE (CANON_FEED_REFERENCE reference);
 
 /*
 
@@ -298,7 +305,7 @@ for the same motions.
 
 */
 
-extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode);
+extern void SET_MOTION_CONTROL_MODE (CANON_MOTION_MODE mode);
 
 /*
 
@@ -307,28 +314,34 @@ CANON_EXACT_PATH, or CANON_CONTINUOUS.
 
 */
 
-extern void SET_CUTTER_RADIUS_COMPENSATION(double radius);
+extern void SET_CUTTER_RADIUS_COMPENSATION (double radius);
 
 /* Set the radius to use when performing cutter radius compensation. */
 
-extern void START_CUTTER_RADIUS_COMPENSATION(int direction);
+extern void START_CUTTER_RADIUS_COMPENSATION (int direction);
 
 /* Conceptually, the direction must be left (meaning the cutter
 stays to the left of the programmed path) or right. */
 
-extern void STOP_CUTTER_RADIUS_COMPENSATION();
+extern void STOP_CUTTER_RADIUS_COMPENSATION ();
 
 /* Do not apply cutter radius compensation when executing spindle
 translation commands. */
 
-extern void START_SPEED_FEED_SYNCH();
-extern void STOP_SPEED_FEED_SYNCH();
+extern void START_SPEED_FEED_SYNCH ();
+extern void STOP_SPEED_FEED_SYNCH ();
 
 /* Machining Functions */
 
-extern void ARC_FEED(double first_end, double second_end,
-    double first_axis, double second_axis, int rotation, double axis_end_point,
-    double a_position, double b_position, double c_position);
+extern void ARC_FEED (double first_end,
+		      double second_end,
+		      double first_axis,
+		      double second_axis, int rotation, double axis_end_point
+#ifndef LATHE
+		      , double a_position, double b_position,
+		      double c_position
+#endif
+  );
 
 /* Move in a helical arc from the current location at the existing feed
 rate. The axis of the helix is parallel to the x, y, or z axis,
@@ -381,67 +394,75 @@ a point moving along the arc has of its total motion.
 
 */
 
-extern void STRAIGHT_FEED(double x, double y, double z,
-                double a_position, double b_position, double c_position);
+extern void STRAIGHT_FEED (double x, double y, double z
+#ifndef LATHE
+			   , double a_position, double b_position,
+			   double c_position
+#endif
+  );
 
 /* Move at existing feed rate so that at any time during the move,
 all axes have covered the same proportion of their required motion.
 The meanings of the parameters is the same as for STRAIGHT_TRAVERSE.*/
 
-extern void STRAIGHT_PROBE(double x, double y, double z,
-                double a_position, double b_position, double c_position);
+extern void STRAIGHT_PROBE (double x, double y, double z
+#ifndef LATHE
+			    , double a_position, double b_position,
+			    double c_position
+#endif
+  );
 
 /* Perform a probing operation. This is a temporary addition to the
 canonical machining functions and its semantics are not defined.
 When the operation is finished, all axes should be back where they
 started. */
 
-extern void STOP();
+extern void STOP ();
 
 /* stop motion after current feed */
 
-extern void DWELL(double seconds);
+extern void DWELL (double seconds);
 
 /* freeze x,y,z for a time */
 
 /* Spindle Functions */
 
-extern void SPINDLE_RETRACT_TRAVERSE();
+extern void SPINDLE_RETRACT_TRAVERSE ();
 
 /* Retract the spindle at traverse rate to the fully retracted position. */
 
-extern void START_SPINDLE_CLOCKWISE();
+extern void START_SPINDLE_CLOCKWISE ();
 
 /* Turn the spindle clockwise at the currently set speed rate. If the
 spindle is already turning that way, this command has no effect. */
 
-extern void START_SPINDLE_COUNTERCLOCKWISE();
+extern void START_SPINDLE_COUNTERCLOCKWISE ();
 
 /* Turn the spindle counterclockwise at the currently set speed rate. If
 the spindle is already turning that way, this command has no effect. */
 
-extern void SET_SPINDLE_SPEED(double r);
+extern void SET_SPINDLE_SPEED (double r);
 
 /* Set the spindle speed that will be used when the spindle is turning.
 This is usually given in rpm and refers to the rate of spindle
 rotation. If the spindle is already turning and is at a different
 speed, change to the speed given with this command. */
 
-extern void STOP_SPINDLE_TURNING();
+extern void STOP_SPINDLE_TURNING ();
 
 /* Stop the spindle from turning. If the spindle is already stopped, this
 command may be given, but it will have no effect. */
 
-extern void SPINDLE_RETRACT();
-extern void ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction);
-extern void LOCK_SPINDLE_Z();
-extern void USE_SPINDLE_FORCE();
-extern void USE_NO_SPINDLE_FORCE();
+extern void SPINDLE_RETRACT ();
+extern void ORIENT_SPINDLE (double orientation, CANON_DIRECTION direction);
+extern void LOCK_SPINDLE_Z ();
+extern void USE_SPINDLE_FORCE ();
+extern void USE_NO_SPINDLE_FORCE ();
 
 /* Tool Functions */
-extern void USE_TOOL_LENGTH_OFFSET(double length);
+extern void USE_TOOL_LENGTH_OFFSET (double length);
 
-extern void CHANGE_TOOL(int slot);	/* slot is slot number */
+extern void CHANGE_TOOL (int slot);	/* slot is slot number */
 
 /* It is assumed that each cutting tool in the machine is assigned to a
 slot (intended to correspond to a slot number in a tool carousel).
@@ -474,11 +495,11 @@ a change_tool command, the select_tool command must have been given
 before the change_tool command, and the value of slot must be the slot
 number of the selected tool. */
 
-extern void SELECT_TOOL(int i);	/* i is slot number */
+extern void SELECT_TOOL (int i);	/* i is slot number */
 
 /* Miscellaneous Functions */
 
-extern void CLAMP_AXIS(CANON_AXIS axis);
+extern void CLAMP_AXIS (CANON_AXIS axis);
 
 /* Clamp the given axis. If the machining center does not have a clamp
 for that axis, this command should result in an error condition in the
@@ -487,31 +508,33 @@ controller.
 An attempt to move an axis while it is clamped should result in an
 error condition in the controller. */
 
-extern void COMMENT(char *s);
+extern void COMMENT (char *s);
 
 /* This function has no physical effect. If commands are being printed or
 logged, the comment command is printed or logged, including the string
 which is the value of comment_text. This serves to allow formal
 comments at specific locations in programs or command files. */
 
-extern void DISABLE_FEED_OVERRIDE();
-extern void ENABLE_FEED_OVERRIDE();
-extern void DISABLE_SPEED_OVERRIDE();
-extern void ENABLE_SPEED_OVERRIDE();
-extern void FLOOD_OFF();
+extern void DISABLE_FEED_OVERRIDE ();
+extern void ENABLE_FEED_OVERRIDE ();
+extern void DISABLE_SPEED_OVERRIDE ();
+extern void ENABLE_SPEED_OVERRIDE ();
+extern void FLOOD_OFF ();
 /* Turn flood coolant off. */
-extern void FLOOD_ON();
+extern void FLOOD_ON ();
 /* Turn flood coolant on. */
 
-extern void MESSAGE(char *s);
+extern void MESSAGE (char *s);
 
-extern void MIST_OFF();
+extern void SYSTEM (char *s);
+
+extern void MIST_OFF ();
 /* Turn mist coolant off. */
 
-extern void MIST_ON();
+extern void MIST_ON ();
 /* Turn mist coolant on. */
 
-extern void PALLET_SHUTTLE();
+extern void PALLET_SHUTTLE ();
 
 /* If the machining center has a pallet shuttle mechanism (a mechanism
 which switches the position of two pallets), this command should cause
@@ -521,22 +544,23 @@ this will not result in an error condition in the controller.
 If the machining center does not have a pallet shuttle, this command
 should result in an error condition in the controller. */
 
-extern void TURN_PROBE_OFF();
-extern void TURN_PROBE_ON();
+extern void TURN_PROBE_OFF ();
+extern void TURN_PROBE_ON ();
 
-extern void UNCLAMP_AXIS(CANON_AXIS axis);
+extern void UNCLAMP_AXIS (CANON_AXIS axis);
 
 /* Unclamp the given axis. If the machining center does not have a clamp
 for that axis, this command should result in an error condition in the
 controller. */
 
 /* NURB Functions */
-extern void NURB_KNOT_VECTOR();	/* double knot values, -1.0 signals done */
-extern void NURB_CONTROL_POINT(int i, double x, double y, double z, double w);
-extern void NURB_FEED(double sStart, double sEnd);
+extern void NURB_KNOT_VECTOR ();	/* double knot values, -1.0 signals done */
+extern void NURB_CONTROL_POINT (int i, double x, double y, double z,
+				double w);
+extern void NURB_FEED (double sStart, double sEnd);
 
 /* Program Functions */
-extern void OPTIONAL_PROGRAM_STOP();
+extern void OPTIONAL_PROGRAM_STOP ();
 
 /* If the machining center has an optional stop switch, and it is on
 when this command is read from a program, stop executing the program
@@ -546,16 +570,17 @@ switch, or commands are being executed with a stop after each one
 already (such as when the interpreter is being used with keyboard
 input), this command has no effect. */
 
-extern void PROGRAM_END();
+extern void PROGRAM_END ();
 /* If a program is being read, stop executing the program and be prepared
 to accept a new program or to be shut down. */
 
-extern void PROGRAM_STOP();
+extern void PROGRAM_STOP ();
 /* If this command is read from a program, stop executing the program at
 this point, but be prepared to resume with the next line of the
 program. If commands are being executed with a stop after each one
 already (such as when the interpreter is being used with keyboard
 input), this command has no effect. */
+
 
 /*************************************************************************/
 
@@ -574,35 +599,42 @@ extern double GET_EXTERNAL_ANGLE_UNIT_FACTOR();
 */
 
 // Returns the system feed rate
-extern double GET_EXTERNAL_FEED_RATE();
+extern double GET_EXTERNAL_FEED_RATE ();
 
 // Returns the system value for flood coolant, zero = off, non-zero = on
-extern int GET_EXTERNAL_FLOOD();
+extern int GET_EXTERNAL_FLOOD ();
 
 /* The interpreter is not using this function
 // Returns the system length unit factor, in units / mm
 extern double GET_EXTERNAL_LENGTH_UNIT_FACTOR();
 */
 
+
 // Returns the system length unit type
-CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE();
+CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE ();
 
 // Returns the system value for mist coolant, zero = off, non-zero = on
-extern int GET_EXTERNAL_MIST();
+extern int GET_EXTERNAL_MIST ();
 
 // Returns the current motion control mode
-extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
+extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE ();
 
 /* The interpreter is not using these six GET_EXTERNAL_ORIGIN functions
 
+#ifdef AA
 // returns the current a-axis origin offset
 extern double GET_EXTERNAL_ORIGIN_A();
+#endif
 
+#ifdef BB
 // returns the current b-axis origin offset
 extern double GET_EXTERNAL_ORIGIN_B();
+#endif
 
+#ifdef CC
 // returns the current c-axis origin offset
 extern double GET_EXTERNAL_ORIGIN_C();
+#endif
 
 // returns the current x-axis origin offset
 extern double GET_EXTERNAL_ORIGIN_X();
@@ -618,82 +650,106 @@ extern double GET_EXTERNAL_ORIGIN_Z();
 // returns nothing but copies the name of the parameter file into
 // the filename array, stopping at max_size if the name is longer
 // An empty string may be placed in filename.
-extern void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size);
+extern void GET_EXTERNAL_PARAMETER_FILE_NAME (char *filename, int max_size);
 
 // returns the currently active plane
-extern CANON_PLANE GET_EXTERNAL_PLANE();
+extern CANON_PLANE GET_EXTERNAL_PLANE ();
 
+#ifndef LATHE
 // returns the current a-axis position
-extern double GET_EXTERNAL_POSITION_A();
+extern double GET_EXTERNAL_POSITION_A ();
 
 // returns the current b-axis position
-extern double GET_EXTERNAL_POSITION_B();
+extern double GET_EXTERNAL_POSITION_B ();
 
 // returns the current c-axis position
-extern double GET_EXTERNAL_POSITION_C();
-
-// returns the current x-axis position
-extern double GET_EXTERNAL_POSITION_X();
-
-// returns the current y-axis position
-extern double GET_EXTERNAL_POSITION_Y();
-
-// returns the current z-axis position
-extern double GET_EXTERNAL_POSITION_Z();
+extern double GET_EXTERNAL_POSITION_C ();
 
 // Returns the machine A-axis position at the last probe trip.
-extern double GET_EXTERNAL_PROBE_POSITION_A();
+extern double GET_EXTERNAL_PROBE_POSITION_A ();
 
 // Returns the machine B-axis position at the last probe trip.
-extern double GET_EXTERNAL_PROBE_POSITION_B();
+extern double GET_EXTERNAL_PROBE_POSITION_B ();
 
 // Returns the machine C-axis position at the last probe trip.
-extern double GET_EXTERNAL_PROBE_POSITION_C();
+extern double GET_EXTERNAL_PROBE_POSITION_C ();
+#endif
+
+// returns the current x-axis position
+extern double GET_EXTERNAL_POSITION_X ();
+
+// returns the current y-axis position
+extern double GET_EXTERNAL_POSITION_Y ();
+
+// returns the current z-axis position
+extern double GET_EXTERNAL_POSITION_Z ();
 
 // Returns the machine X-axis position at the last probe trip.
-extern double GET_EXTERNAL_PROBE_POSITION_X();
+extern double GET_EXTERNAL_PROBE_POSITION_X ();
 
 // Returns the machine Y-axis position at the last probe trip.
-extern double GET_EXTERNAL_PROBE_POSITION_Y();
+extern double GET_EXTERNAL_PROBE_POSITION_Y ();
 
 // Returns the machine Z-axis position at the last probe trip.
-extern double GET_EXTERNAL_PROBE_POSITION_Z();
+extern double GET_EXTERNAL_PROBE_POSITION_Z ();
 
 // Returns the value for any analog non-contact probing.
-extern double GET_EXTERNAL_PROBE_VALUE();
+extern double GET_EXTERNAL_PROBE_VALUE ();
 
 // Returns zero if queue is not empty, non-zero if the queue is empty
 // This always returns a valid value
-extern int GET_EXTERNAL_QUEUE_EMPTY();
+extern int GET_EXTERNAL_QUEUE_EMPTY ();
 
 // Returns the system value for spindle speed in rpm
-extern double GET_EXTERNAL_SPEED();
+extern double GET_EXTERNAL_SPEED ();
 
 // Returns the system value for direction of spindle turning
-extern CANON_DIRECTION GET_EXTERNAL_SPINDLE();
+extern CANON_DIRECTION GET_EXTERNAL_SPINDLE ();
 
 // returns current tool length offset
-extern double GET_EXTERNAL_TOOL_LENGTH_OFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_OFFSET ();
 
 // Returns number of slots in carousel
-extern int GET_EXTERNAL_TOOL_MAX();
+extern int GET_EXTERNAL_TOOL_MAX ();
 
 // Returns the system value for the carousel slot in which the tool
 // currently in the spindle belongs. Return value zero means there is no
 // tool in the spindle.
-extern int GET_EXTERNAL_TOOL_SLOT();
+extern int GET_EXTERNAL_TOOL_SLOT ();
 
 // Returns the CANON_TOOL_TABLE structure associated with the tool
 // in the given pocket
-extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket);
+extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE (int pocket);
 
 // Returns the system traverse rate
-extern double GET_EXTERNAL_TRAVERSE_RATE();
+extern double GET_EXTERNAL_TRAVERSE_RATE ();
 
 extern FILE *_outfile;		/* where to print, set in main */
 extern CANON_TOOL_TABLE _tools[];	/* in canon.cc */
 extern int _tool_max;		/* in canon.cc */
 extern char _parameter_file_name[];	/* in canon.cc */
 #define PARAMETER_FILE_NAME_LENGTH 100
+
+#define USER_DEFINED_FUNCTION_NUM 100
+typedef void (*USER_DEFINED_FUNCTION_TYPE) (int num, double arg1,
+					    double arg2);
+extern USER_DEFINED_FUNCTION_TYPE
+  USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
+extern int USER_DEFINED_FUNCTION_ADD (USER_DEFINED_FUNCTION_TYPE func,
+				      int num);
+
+// set a digital output high
+extern void SET_MOTION_OUTPUT_BIT (int index);
+// set a digital output low
+extern void CLEAR_MOTION_OUTPUT_BIT (int index);
+// set an analong output
+extern void SET_MOTION_OUTPUT_VALUE (int index, double value);
+
+// set a digital output high
+extern void SET_AUX_OUTPUT_BIT (int index);
+// set a digital output low
+extern void CLEAR_AUX_OUTPUT_BIT (int index);
+// set an analong output
+extern void SET_AUX_OUTPUT_VALUE (int index, double value);
 
 #endif /* ifndef CANON_HH */

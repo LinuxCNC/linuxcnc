@@ -18,7 +18,7 @@ OBJS = rs274.o \
 all: headers $(SRCS:%.cc=$(TMP_DIR)/%.o) $(OBJS:%=$(TMP_DIR)/%)
 
 include ../../../Make.rules
-LOCAL_CXXFLAGS = -Wno-unused
+LOCAL_CXXFLAGS = -Wno-unused -DLATHE
 
 $(TMP_DIR)/rs274.o: $(TMP_DIR)/rs274ngc_pre.o
 	cp $< $@
