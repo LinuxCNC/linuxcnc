@@ -79,16 +79,17 @@ typedef struct {
 } scope_horiz_t;
 
 /* this struct holds control data related to a single channel */
-/* it lives in user space (as part of the vertical struct) */
+/* it lives in user space (as part of the master control struct) */
 
 typedef struct {
     char *name;			/* name of pin/sig/parameter */
-    hal_type_t type;		/* data type */
-    void *addr;			/* data address (user mapping) */
-    float offset;		/* offset to be applied */
+    hal_type_t data_type;	/* data type */
+    void *data_addr;		/* data address (user mapping) */
+    int data_len;		/* data length */
+    float vert_offset;		/* offset to be applied */
     int scale_index;		/* scaling (slider setting) */
     float scale;		/* scaling (units/div) */
-    int position;		/* vertical pos (0-100) */
+    float position;		/* vertical pos (0.0-1.0) */
 } scope_chan_t;
 
 /* this struct holds control data related to vertical control */
@@ -99,7 +100,6 @@ typedef struct {
     int chan_enabled[16];	/* chans user wants to display */
     int data_offset[16];	/* offset within sample, -1 if no data */
     int selected;		/* channel user has selected */
-    scope_chan_t chan[16];	/* channel data */
     /* widgets for main window */
     GtkWidget *chan_sel_buttons[16];
     GtkWidget *chan_num_label;
@@ -117,7 +117,33 @@ typedef struct {
     GtkWidget *lists[3];	/* lists for pins, signals, and params */
 } scope_vert_t;
 
+/* this struct holds control data related to the display */
+/* it lives in user space (as part of the master control struct) */
+
+typedef struct {
+    /* general data */
+    int width;			/* height in pixels */
+    int height;			/* width in pixels */
+    float pixels_per_sample;	/* horizontal scaling */
+    float horiz_offset;		/* offset in pixels */
+    int start_sample;		/* first displayable sample */
+    int end_sample;		/* last displayable sample */
+    /* widgets */
+    GtkWidget *drawing;		/* drawing area for display */
+    /* drawing objects (GDK) */
+    GdkDrawable *win;		/* the window */
+    GdkColormap *map;		/* the colormap for the window */
+    GdkColor color_bg;		/* background color */
+    GdkColor color_grid;	/* the grid color */
+    GdkColor color_normal;	/* the color for normal waveforms */
+    GdkColor color_selected;	/* the color for selected waveforms */
+
+    GdkGC *context;		/* graphics context for drawing */
+} scope_disp_t;
+
 /* this is the master user space control structure */
+
+typedef enum { STOP = 0, NORMAL, SINGLE } scope_run_mode_t;
 
 typedef struct {
     /* general data */
@@ -125,7 +151,7 @@ typedef struct {
     scope_data_t *disp_buf;	/* ptr to user buffer for display */
     int samples;		/* number of samples in display buffer */
     int display_refresh_timer;	/* flag for display refresh */
-
+    scope_run_mode_t run_mode;	/* current run mode */
     /* top level windows */
     GtkWidget *main_win;
     GtkWidget *horiz_info_win;
@@ -144,8 +170,10 @@ typedef struct {
     GtkWidget *tm_auto_button;
     GtkWidget *tm_force_button;
     /* subsection control data */
-    scope_horiz_t horiz;
-    scope_vert_t vert;
+    scope_chan_t chan[16];	/* channel specific data */
+    scope_horiz_t horiz;	/* horizontal control data */
+    scope_vert_t vert;		/* vertical control data */
+    scope_disp_t disp;		/* display data */
 } scope_usr_control_t;
 
 /***********************************************************************
@@ -166,7 +194,8 @@ void init_display(void);
 void handle_watchdog_timeout(void);
 void refresh_state_info(void);
 void capture_complete(void);
-void request_display_refresh(void);
+void start_capture(void);
+void request_display_refresh(int delay);
 void refresh_display(void);
 void invalidate_channel(int chan);
 void invalidate_all_channels(void);

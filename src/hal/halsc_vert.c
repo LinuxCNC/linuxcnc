@@ -60,6 +60,8 @@
            and entry is too wide (messes up layout) */
 #define SPINBUTTON
 
+#define VERT_POS_RESOLUTION 100.0
+
 /***********************************************************************
 *                  LOCAL FUNCTION PROTOTYPES                           *
 ************************************************************************/
@@ -103,8 +105,8 @@ void init_vert(void)
     invalidate_all_channels();
     /* init non-zero members of the channel structures */
     for (n = 1; n <= 16; n++) {
-	chan = &(vert->chan[n - 1]);
-	chan->position = (n * 1000) / 17;
+	chan = &(ctrl_usr->chan[n - 1]);
+	chan->position = n / 17.0;
     }
     /* set up the windows */
     init_chan_sel_window();
@@ -181,7 +183,9 @@ static void init_vert_info_window(void)
     /* box for the position slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
     gtk_label_new_in_box("Pos", vbox, FALSE, FALSE, 0);
-    vert->pos_adj = gtk_adjustment_new(500, 0, 1000, 1, 1, 0);
+    vert->pos_adj =
+	gtk_adjustment_new(VERT_POS_RESOLUTION / 2, 0, VERT_POS_RESOLUTION, 1,
+	1, 0);
     vert->pos_slider = gtk_vscale_new(GTK_ADJUSTMENT(vert->pos_adj));
     gtk_scale_set_digits(GTK_SCALE(vert->pos_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(vert->pos_slider), FALSE);
@@ -258,7 +262,7 @@ static void scale_changed(GtkAdjustment * adj, gpointer gdata)
     if ((chan_num < 1) || (chan_num > 16)) {
 	return;
     }
-    chan = &(vert->chan[chan_num - 1]);
+    chan = &(ctrl_usr->chan[chan_num - 1]);
     chan->scale_index = adj->value;
     scale = 1.0;
     index = chan->scale_index;
@@ -289,7 +293,7 @@ static void scale_changed(GtkAdjustment * adj, gpointer gdata)
     chan->scale = scale;
     format_scale_value(buf, BUFLEN - 1, scale);
     gtk_label_set_text_if(vert->scale_label, buf);
-    request_display_refresh();
+    request_display_refresh(1);
 }
 
 static void pos_changed(GtkAdjustment * adj, gpointer gdata)
@@ -303,9 +307,9 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
     if ((chan_num < 1) || (chan_num > 16)) {
 	return;
     }
-    chan = &(vert->chan[chan_num - 1]);
-    chan->position = adj->value;
-    request_display_refresh();
+    chan = &(ctrl_usr->chan[chan_num - 1]);
+    chan->position = adj->value / VERT_POS_RESOLUTION;
+    request_display_refresh(1);
 }
 
 static void offset_changed(GtkAdjustment * adj, gpointer gdata)
@@ -319,10 +323,10 @@ static void offset_changed(GtkAdjustment * adj, gpointer gdata)
     if ((chan_num < 1) || (chan_num > 16)) {
 	return;
     }
-    chan = &(vert->chan[chan_num - 1]);
+    chan = &(ctrl_usr->chan[chan_num - 1]);
     printf("Channel %d offset changed\n", chan_num);
 #if 0
-    chan->offset =
+    chan->vert_offset =
 	gtk_spin_button_get_value_as_float(GTK_SPIN_BUTTON(vert->
 	    offset_spinbutton));
     request_display_refresh();
@@ -344,7 +348,7 @@ static void offset_activated(GtkAdjustment * adj, gpointer gdata)
     chan = &(vert->chan[chan_num - 1]);
     printf("Channel %d offset activated\n", chan_num);
 #if 0
-    chan->offset =
+    chan->vert_offset =
 	gtk_spin_button_get_value_as_float(GTK_SPIN_BUTTON(vert->
 	    offset_spinbutton));
     request_display_refresh();
@@ -361,7 +365,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 
     vert = &(ctrl_usr->vert);
     chan_num = (int) gdata;
-    chan = &(vert->chan[chan_num - 1]);
+    chan = &(ctrl_usr->chan[chan_num - 1]);
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
 	/* button was up when clicked */
@@ -372,16 +376,9 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 	}
 	/* want to enable the channel */
 	if (ctrl_shm->state != IDLE) {
-	    /* acquisition in progress */
-	    /* force the button to pop back out */
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
-	    title = "Scope Busy";
-	    msg = "Acquisition in progress!\n\n"
-		"Wait for it to finish or click 'stop'\n"
-		"before adding another channel";
-	    dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", NULL,
-		NULL, NULL);
-	    return;
+	    /* acquisition in progress, 'push' the stop button */
+	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->
+		    rm_stop_button), TRUE);
 	}
 	count = 0;
 	for (n = 0; n < 16; n++) {
@@ -467,21 +464,15 @@ static void channel_off_button(GtkWidget * widget, gpointer gdata)
 static void change_source_button(GtkWidget * widget, gpointer gdata)
 {
     int chan_num;
-    char *title, *msg;
 
     chan_num = ctrl_usr->vert.selected;
     if ((chan_num < 1) || (chan_num > 16)) {
 	return;
     }
     if (ctrl_shm->state != IDLE) {
-	/* acquisition in progress */
-	title = "Scope Busy";
-	msg = "Acquisition in progress!\n\n"
-	    "Wait for it to finish or click 'stop'\n"
-	    "before changing a signal source";
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", NULL,
-	    NULL, NULL);
-	return;
+	/* acquisition in progress, 'push' the stop button */
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->
+		rm_stop_button), TRUE);
     }
     invalidate_channel(chan_num);
     dialog_select_source(chan_num);
@@ -494,7 +485,7 @@ static gboolean dialog_select_source(int chan_num)
     scope_chan_t *chan;
     dialog_generic_t dialog;
     gchar *title, msg[BUFLEN];
-    int next, n, len;
+    int next, n;
     gchar *tab_label_text[3], *name;
     GtkWidget *hbox, *label, *notebk, *button;
     GtkWidget *scrolled_window;
@@ -503,7 +494,7 @@ static gboolean dialog_select_source(int chan_num)
     hal_param_t *param;
 
     vert = &(ctrl_usr->vert);
-    chan = &(vert->chan[chan_num - 1]);
+    chan = &(ctrl_usr->chan[chan_num - 1]);
     title = "Select Channel Source";
     snprintf(msg, BUFLEN - 1, "Select a pin, signal, or parameter\n"
 	"as the source for channel %d.", chan_num);
@@ -627,38 +618,6 @@ static gboolean dialog_select_source(int chan_num)
     /* user made a selection */
     /* invalidate any data in the buffer for this channel */
     vert->data_offset[chan_num - 1] = -1;
-    /* set values in ctrl_shm struct */
-    ctrl_shm->data_offset[chan_num - 1] = SHMOFF(chan->addr);
-    switch (chan->type) {
-    case HAL_BIT:
-	len = sizeof(hal_bit_t);
-	break;
-    case HAL_FLOAT:
-	len = sizeof(hal_float_t);
-	break;
-    case HAL_S8:
-	len = sizeof(hal_s8_t);
-	break;
-    case HAL_U8:
-	len = sizeof(hal_u8_t);
-	break;
-    case HAL_S16:
-	len = sizeof(hal_s16_t);
-	break;
-    case HAL_U16:
-	len = sizeof(hal_u16_t);
-	break;
-    case HAL_S32:
-	len = sizeof(hal_s32_t);
-	break;
-    case HAL_U32:
-	len = sizeof(hal_u32_t);
-	break;
-    default:
-	/* Shouldn't get here, but just in case... */
-	len = 0;
-    }
-    ctrl_shm->data_len[chan_num - 1] = len;
     return TRUE;
 }
 
@@ -689,7 +648,7 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
     }
     /* If we get here, it should be a valid selection */
     vert = &(ctrl_usr->vert);
-    chan = &(vert->chan[vert->selected - 1]);
+    chan = &(ctrl_usr->chan[vert->selected - 1]);
     /* figure out which notebook tab it was */
     listnum = -1;
     for (n = 0; n < 3; n++) {
@@ -709,15 +668,15 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
 	    /* error handling leaves a bit to be desired! */
 	    return;
 	}
-	chan->type = pin->type;
+	chan->data_type = pin->type;
 	chan->name = pin->name;
 	if (pin->signal == 0) {
 	    /* pin is unlinked, get data from dummysig */
-	    chan->addr = &(pin->dummysig);
+	    chan->data_addr = &(pin->dummysig);
 	} else {
 	    /* pin is linked to a signal */
 	    sig = SHMPTR(pin->signal);
-	    chan->addr = SHMPTR(sig->data_ptr);
+	    chan->data_addr = SHMPTR(sig->data_ptr);
 	}
     } else if (listnum == 1) {
 	/* search the signal list */
@@ -727,9 +686,9 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
 	       list was generated) */
 	    return;
 	}
-	chan->type = sig->type;
+	chan->data_type = sig->type;
 	chan->name = sig->name;
-	chan->addr = SHMPTR(sig->data_ptr);
+	chan->data_addr = SHMPTR(sig->data_ptr);
     } else if (listnum == 2) {
 	/* search the parameter list */
 	param = halpr_find_param_by_name(name);
@@ -738,9 +697,38 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
 	       list was generated) */
 	    return;
 	}
-	chan->type = param->type;
+	chan->data_type = param->type;
 	chan->name = param->name;
-	chan->addr = SHMPTR(param->data_ptr);
+	chan->data_addr = SHMPTR(param->data_ptr);
+    }
+    switch (chan->data_type) {
+    case HAL_BIT:
+	chan->data_len = sizeof(hal_bit_t);
+	break;
+    case HAL_FLOAT:
+	chan->data_len = sizeof(hal_float_t);
+	break;
+    case HAL_S8:
+	chan->data_len = sizeof(hal_s8_t);
+	break;
+    case HAL_U8:
+	chan->data_len = sizeof(hal_u8_t);
+	break;
+    case HAL_S16:
+	chan->data_len = sizeof(hal_s16_t);
+	break;
+    case HAL_U16:
+	chan->data_len = sizeof(hal_u16_t);
+	break;
+    case HAL_S32:
+	chan->data_len = sizeof(hal_s32_t);
+	break;
+    case HAL_U32:
+	chan->data_len = sizeof(hal_u32_t);
+	break;
+    default:
+	/* Shouldn't get here, but just in case... */
+	chan->data_len = 0;
     }
     /* set return value of dialog */
     dptr->retval = 1;
@@ -762,14 +750,15 @@ static void channel_changed(void)
 	gtk_label_set_text_if(vert->scale_label, "----");
 	gtk_label_set_text_if(vert->chan_num_label, "--");
 	gtk_label_set_text_if(vert->source_name_label, "------");
-	request_display_refresh();
+	request_display_refresh(1);
 	return;
     }
-    chan = &(vert->chan[vert->selected - 1]);
+    chan = &(ctrl_usr->chan[vert->selected - 1]);
     /* set position slider based on new channel */
-    gtk_adjustment_set_value(GTK_ADJUSTMENT(vert->pos_adj), chan->position);
+    gtk_adjustment_set_value(GTK_ADJUSTMENT(vert->pos_adj),
+	chan->position * VERT_POS_RESOLUTION);
     adj = GTK_ADJUSTMENT(vert->scale_adj);
-    switch (chan->type) {
+    switch (chan->data_type) {
     case HAL_BIT:
 	adj->lower = -2;
 	adj->upper = 2;
@@ -813,7 +802,7 @@ static void channel_changed(void)
     name = chan->name;
     gtk_label_set_text_if(vert->chan_num_label, num);
     gtk_label_set_text_if(vert->source_name_label, name);
-    request_display_refresh();
+    request_display_refresh(1);
 }
 
 static void format_scale_value(char *buf, int buflen, float value)

@@ -98,9 +98,6 @@ int main(int argc, gchar * argv[])
     int retval;
     void *shm_base;
 
-    /* generic widgets */
-    GtkWidget *label;
-
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
     /* process halscope command line args (if any) here */
@@ -134,8 +131,6 @@ int main(int argc, gchar * argv[])
     ctrl_usr = &ctrl_struct;
     init_usr_control_struct(shm_base);
 
-/* FIXME - resume cleanup here */
-
     /* init watchdog */
     ctrl_shm->watchdog = 10;
     /* set main window */
@@ -151,12 +146,7 @@ int main(int argc, gchar * argv[])
     init_trigger_mode_window();
     init_display();
 
-/* test code - make labels to show the size of each box */
-    label = gtk_label_new("waveform_win");
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), label, TRUE, TRUE, 0);
-    gtk_widget_show(label);
-
-    /* The interface is completely set up so we show the window and enter the 
+    /* The interface is completely set up so we show the window and enter the
        gtk_main loop. */
     gtk_widget_show(ctrl_usr->main_win);
     /* arrange for periodic call of heartbeat() */
@@ -194,6 +184,87 @@ static int heartbeat(gpointer data)
 	capture_complete();
     }
     return 1;
+}
+
+void start_capture(void)
+{
+    int n, mask;
+    scope_chan_t *chan;
+
+    /* FIXME temporary, remove after trigger pos is working */
+    ctrl_shm->pre_trig = ctrl_shm->rec_len / 2;
+    /* end of FIXME */
+
+    if (ctrl_shm->state != IDLE) {
+	/* already running! */
+	return;
+    }
+    mask = 1;
+    for (n = 0; n < 16; n++) {
+	chan = &(ctrl_usr->chan[n]);
+	ctrl_shm->data_offset[n] = SHMOFF(chan->data_addr);
+	ctrl_shm->data_type[n] = chan->data_type;
+	if (ctrl_usr->vert.chan_enabled[n]) {
+	    ctrl_shm->data_len[n] = chan->data_len;
+	} else {
+	    ctrl_shm->data_len[n] = 0;
+	}
+	mask <<= 1;
+    }
+    ctrl_shm->state = INIT;
+}
+
+void capture_complete(void)
+{
+    int n, offs;
+    scope_data_t *src, *dst, *src_end;
+    int samp_len, samp_size;
+
+    offs = 0;
+    for (n = 0; n < 16; n++) {
+	if (ctrl_shm->data_len[n] > 0) {
+	    /* this channel has valid data */
+	    ctrl_usr->vert.data_offset[n] = offs;
+	    offs++;
+	} else {
+	    /* this channel was not acquired */
+	    ctrl_usr->vert.data_offset[n] = -1;
+	}
+    }
+    /* copy data from shared buffer to display buffer */
+    ctrl_usr->samples = ctrl_shm->samples;
+    samp_len = ctrl_shm->sample_len;
+    samp_size = samp_len * sizeof(scope_data_t);
+    dst = ctrl_usr->disp_buf;
+    src = ctrl_usr->buffer + ctrl_shm->start;
+    src_end = ctrl_usr->buffer + (ctrl_shm->rec_len * samp_len);
+    n = 0;
+    while (n < ctrl_usr->samples) {
+	/* copy one sample */
+	memcpy(dst, src, samp_size);
+	n++;
+	dst += samp_len;
+	src += samp_len;
+	if (src >= src_end) {
+	    src = ctrl_usr->buffer;
+	}
+    }
+    ctrl_shm->state = IDLE;
+    switch (ctrl_usr->run_mode) {
+    case STOP:
+	break;
+    case NORMAL:
+	start_capture();
+	break;
+    case SINGLE:
+	/* 'push' the stop button */
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->
+		rm_stop_button), TRUE);
+	break;
+    default:
+	break;
+    }
+    refresh_display();
 }
 
 /***********************************************************************
@@ -458,23 +529,13 @@ static void exit_from_hal(void)
 
 static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
-    int n, mask;
-
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
 	return;
     }
-    /* FIXME temporary, remove after trigger pos is working */
-    ctrl_shm->pre_trig = ctrl_shm->rec_len / 2;
+    ctrl_usr->run_mode = NORMAL;
     if (ctrl_shm->state == IDLE) {
-	mask = 1;
-	for (n = 0; n < 16; n++) {
-	    if (ctrl_usr->vert.chan_enabled[n]) {
-		ctrl_shm->sample_request |= mask;
-	    }
-	    mask <<= 1;
-	}
-	ctrl_shm->state = INIT;
+	start_capture();
     }
 }
 
@@ -484,7 +545,10 @@ static void rm_single_button_clicked(GtkWidget * widget, gpointer * gdata)
 	/* not pressed, ignore it */
 	return;
     }
-    printf("RM_SINGLE clicked\n");
+    ctrl_usr->run_mode = SINGLE;
+    if (ctrl_shm->state == IDLE) {
+	start_capture();
+    }
 }
 
 static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata)
@@ -493,7 +557,10 @@ static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata)
 	/* not pressed, ignore it */
 	return;
     }
-    printf("RM_ROLL clicked\n");
+    printf("Sorry, ROLL mode is not supported yet\n");
+    /* 'push' the stop button */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->rm_stop_button),
+	TRUE);
 }
 
 static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata)
@@ -502,7 +569,11 @@ static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata)
 	/* not pressed, ignore it */
 	return;
     }
-    ctrl_shm->state = IDLE;
+    if (ctrl_shm->state != IDLE) {
+	/* RT code is sampling, tell it to stop */
+	ctrl_shm->state = RESET;
+    }
+    ctrl_usr->run_mode = STOP;
 }
 
 static void tm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)

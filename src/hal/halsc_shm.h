@@ -42,7 +42,7 @@
 ************************************************************************/
 
 #define SCOPE_SHM_KEY  0x130CF405
-#define SCOPE_SHM_SIZE 650
+#define SCOPE_SHM_SIZE 65000
 
 typedef enum {
     IDLE = 0,			/* waiting for run command */
@@ -51,15 +51,20 @@ typedef enum {
     TRIG_WAIT,			/* waiting for trigger */
     POST_TRIG,			/* acquiring post-trigger data */
     FINISH,			/* finalizing captured data */
-    DONE			/* data acquisition complete */
+    DONE,			/* data acquisition complete */
+    RESET			/* data acquisition interrupted */
 } scope_state_t;
 
 /* this struct holds a single value - one sample of one channel */
 
 typedef union {
-    unsigned char d1;		/* variable for 1-byte data */
-    unsigned short d2;		/* variable for 2-byte data */
-    unsigned long d4;		/* variable for 4-byte data */
+    unsigned char d_u8;		/* variable for u8 and bit */
+    signed char d_s8;		/* variable for s8 */
+    unsigned short d_u16;	/* variable for u16 */
+    signed short d_s16;		/* variable for s16 */
+    unsigned long d_u32;	/* variable for u32 */
+    signed long d_s32;		/* variable for s32 */
+    float d_float;		/* variable for float */
 } scope_data_t;
 
 /** This struct holds control data needed by both realtime and GUI code.
@@ -80,10 +85,9 @@ typedef struct {
     int curr;			/* R next sample to be acquired */
     int samples;		/* R number of valid samples */
     scope_state_t state;	/* RU current state */
-    short sample_request;	/* U bitmap of channels to sample */
-    short samples_valid;	/* R bitmap of sampled channels */
     int data_offset[16];	/* U data addr in shmem for each channel */
-    char data_len[16];		/* U data size for each channel */
+    hal_type_t data_type[16];	/* U data type for each channel */
+    char data_len[16];		/* U data size, 0 if not to be acquired */
 
 #if 0
     scope_state_t state;	/* ?current state */

@@ -137,9 +137,18 @@ void rtapi_app_exit(void)
 
 static void sample(void *arg, long period)
 {
-    int n, mask;
+    int n;
 
     ctrl_shm->watchdog = 0;
+    if (ctrl_shm->state == RESET) {
+	/* sampling interrupted, reset everything */
+	ctrl_shm->curr = 0;
+	ctrl_shm->start = ctrl_shm->curr;
+	ctrl_shm->samples = 0;
+	ctrl_shm->force_trig = 0;
+	/* reset completed, set new state */
+	ctrl_shm->state = IDLE;
+    }
     ctrl_rt->mult_cntr++;
     if (ctrl_rt->mult_cntr < ctrl_shm->mult) {
 	/* not time to do anything yet */
@@ -158,20 +167,11 @@ static void sample(void *arg, long period)
 	ctrl_shm->start = ctrl_shm->curr;
 	ctrl_shm->samples = 0;
 	ctrl_shm->force_trig = 0;
-	ctrl_shm->samples_valid = 0;
-	/* get info about channels to acquire */
-	mask = 1;
+	/* get info about channels */
 	for (n = 0; n < 16; n++) {
-	    if ((ctrl_shm->sample_request & mask) == 0) {
-		/* nothing to sample */
-		ctrl_rt->data_len[n] = 0;
-	    } else {
-		/* need to sample this channel */
-		ctrl_rt->data_len[n] = ctrl_shm->data_len[n];
-		ctrl_rt->data_addr[n] = SHMPTR(ctrl_shm->data_offset[n]);
-	    }
-	    /* shift mask to test next bit */
-	    mask <<= 1;
+	    ctrl_rt->data_addr[n] = SHMPTR(ctrl_shm->data_offset[n]);
+	    ctrl_rt->data_type[n] = ctrl_shm->data_type[n];
+	    ctrl_rt->data_len[n] = ctrl_shm->data_len[n];
 	}
 	/* set next state */
 	ctrl_shm->state = PRE_TRIG;
@@ -215,23 +215,8 @@ static void sample(void *arg, long period)
 	/* check if all post-trigger samples captured */
 	if (ctrl_shm->samples >= ctrl_shm->rec_len) {
 	    /* yes - stop sampling and cleanup */
-	    ctrl_shm->state = FINISH;
+	    ctrl_shm->state = DONE;
 	}
-	break;
-    case FINISH:
-	/* update samples_valid bitmask */
-	mask = 1;
-	ctrl_shm->samples_valid = 0;
-	for (n = 0; n < 16; n++) {
-	    if (ctrl_rt->data_len[n] != 0) {
-		/* this channel has valid data */
-		ctrl_shm->samples_valid |= mask;
-	    }
-	    /* shift mask to next bit */
-	    mask <<= 1;
-	}
-	/* set next state */
-	ctrl_shm->state = DONE;
 	break;
     case DONE:
 	/* do nothing while GUI displays waveform */
@@ -255,15 +240,15 @@ static void capture_sample(void)
 	/* capture 1, 2, or 4 bytes, based on data size */
 	switch (ctrl_rt->data_len[n]) {
 	case 1:
-	    dest->d1 = *((unsigned char *) (ctrl_rt->data_addr[n]));
+	    dest->d_u8 = *((unsigned char *) (ctrl_rt->data_addr[n]));
 	    dest++;
 	    break;
 	case 2:
-	    dest->d2 = *((unsigned short *) (ctrl_rt->data_addr[n]));
+	    dest->d_u16 = *((unsigned short *) (ctrl_rt->data_addr[n]));
 	    dest++;
 	    break;
 	case 4:
-	    dest->d4 = *((unsigned long *) (ctrl_rt->data_addr[n]));
+	    dest->d_u32 = *((unsigned long *) (ctrl_rt->data_addr[n]));
 	    dest++;
 	    break;
 	default:

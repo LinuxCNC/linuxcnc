@@ -54,6 +54,7 @@ typedef struct {
     int mult_cntr;		/* used to divide by 'mult' */
     char data_len[16];		/* data size for each channel */
     void *data_addr[16];	/* pointers to data for each channel */
+    hal_type_t data_type[16];	/* data type for each channel */
 } scope_rt_control_t;
 
 /***********************************************************************

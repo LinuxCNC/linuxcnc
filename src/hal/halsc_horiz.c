@@ -552,7 +552,7 @@ static void dialog_realtime_not_linked(void)
 	    /* give the code some time to get started */
 	    ctrl_shm->watchdog = 0;
 	    invalidate_all_channels();
-	    request_display_refresh();
+	    request_display_refresh(1);
 	}
     }
 }
@@ -582,6 +582,10 @@ static void dialog_realtime_not_running(void)
 static void acquire_popup(GtkWidget * widget, gpointer gdata)
 {
     scope_horiz_t *horiz;
+
+    /* 'push' the stop button */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->rm_stop_button),
+	TRUE);
 
     /** This function doesn't directly cause the acquire menu to
         pop up.  Instead is disconnects the acquire function from
@@ -680,7 +684,7 @@ static void zoom_changed(GtkAdjustment * adj, gpointer gdata)
     horiz->zoom_setting = adj->value;
     calc_horiz_scaling();
     refresh_horiz_info();
-    request_display_refresh();
+    request_display_refresh(1);
 }
 
 static void pos_changed(GtkAdjustment * adj, gpointer gdata)
@@ -690,7 +694,7 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
     horiz = &(ctrl_usr->horiz);
     horiz->pos_setting = adj->value / 1000.0;
     refresh_horiz_info();
-    request_display_refresh();
+    request_display_refresh(1);
 }
 
 static void rec_len_button(GtkWidget * widget, gpointer gdata)
@@ -834,14 +838,15 @@ void refresh_state_info(void)
     static gchar *state_names[] = { "IDLE",
 	"INIT",
 	"PRE-TRIG",
-	"TRIG?",
+	"TRIGGER?",
 	"TRIGGERED",
 	"FINISH",
-	"DONE"
+	"DONE",
+	"RESET"
     };
 
     horiz = &(ctrl_usr->horiz);
-    if (ctrl_shm->state > DONE) {
+    if (ctrl_shm->state > RESET) {
 	ctrl_shm->state = IDLE;
     }
     gtk_label_set_text_if(horiz->state_label, state_names[ctrl_shm->state]);
