@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     char *variable = 0;
     char _section[INIFILE_MAX_LINELEN] = "";
     char *section = 0;
-    char INIFILE[256] = "generic.ini";
+    char INIFILE[256] = "emc.ini";
     FILE *fp;
     const char *inistring;
 
@@ -105,3 +105,4 @@ int main(int argc, char *argv[])
 
     exit(0);
 }
+
