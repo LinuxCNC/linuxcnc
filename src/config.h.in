@@ -20,7 +20,7 @@
 
 #define exec_prefix "@exec_prefix@"
 
-#define bindir "@@bindir@@"
+#define bindir "@bindir@"
 #define sbindir "@sbindir@"
 #define libexecdir "@libexecdir@"
 #define datadir "@datadir@"
