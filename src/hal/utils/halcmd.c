@@ -4,6 +4,10 @@
 
 /** Copyright (C) 2003 John Kasunich
                        <jmkasunich AT users DOT sourceforge DOT net>
+
+    Other contributers:
+                       Martin Kuhnle
+                       <martinkuhnle AT t-online DOT de>
 */
 
 /** This program is free software; you can redistribute it and/or
@@ -51,7 +55,7 @@
 /* These functions are used internally by this file.  The code is at
    the end of the file.  */
 
-#define MAX_TOK 5
+#define MAX_TOK 6
 #define MAX_CMD_LEN 255
 
 static int parse_cmd(char *cmd);
@@ -59,6 +63,7 @@ static void stripnewline(char *s);
 static int do_link_cmd(char *pin, char *sig);
 static int do_newsig_cmd(char *name, char *type);
 static int do_setp_cmd(char *name, char *value);
+static int do_sets_cmd(char *name, char *value);
 static int do_show_cmd(char *type);
 static void print_comp_list(void);
 static void print_pin_list(void);
@@ -247,12 +252,20 @@ static int parse_cmd(char *cmd)
 	retval = do_setp_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[1], "=") == 0) {
 	retval = do_setp_cmd(tokens[0], tokens[2]);
+    } else if (strcmp(tokens[0], "sets") == 0) {
+	retval = do_sets_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "show") == 0) {
 	retval = do_show_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "save") == 0) {
 	retval = do_save_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "addf") == 0) {
-	retval = hal_add_funct_to_thread(tokens[1], tokens[2]);
+        /* did the user specify a position? */
+	if ( tokens[3][0] == '\0' ) {
+	    /* no - add function at end of thread */
+	    retval = hal_add_funct_to_thread(tokens[1], tokens[2], -1);
+	} else {
+	    retval = hal_add_funct_to_thread(tokens[1], tokens[2], atoi(tokens[3]));
+	}
 	if (retval == 0) {
 	    /* print success message */
 	    rtapi_print_msg(RTAPI_MSG_INFO,
@@ -370,6 +383,13 @@ static int do_setp_cmd(char *name, char *value)
     }
     /* found it */
     type = param->type;
+    /* is it writable? */
+    if (param->dir == HAL_RD) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param '%s' is not writable\n", name);
+	return HAL_INVAL;
+    }
     d_ptr = SHMPTR(param->data_ptr);
     retval = 0;
     switch (type) {
@@ -479,6 +499,149 @@ static int do_setp_cmd(char *name, char *value)
 
 }
 
+static int do_sets_cmd(char *name, char *value)
+{
+    int retval;
+    hal_sig_t *sig;
+    hal_type_t type;
+    void *d_ptr;
+    char *cp;
+    float fval;
+    long lval;
+    unsigned long ulval;
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting signal '%s'\n", name);
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+
+    /* search signal list for name */
+    sig = halpr_find_sig_by_name(name);
+    if (sig == 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: signal '%s' not found\n", name);
+	return HAL_INVAL;
+    }
+    /* found it - does it have a writer? */
+    if (sig->writers > 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+        rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: signal '%s' already has writer(s)\n", name);
+	return HAL_INVAL;
+    }
+    /* no writer, so we can safely set it */
+    type = sig->type;
+    d_ptr = SHMPTR(sig->data_ptr);
+    retval = 0;
+    switch (type) {
+    case HAL_BIT:
+	if ((strcmp("1", value) == 0) || (strcasecmp("TRUE", value) == 0)) {
+	    *(hal_bit_t *) (d_ptr) = 1;
+	} else if ((strcmp("0", value) == 0)
+	    || (strcasecmp("FALSE", value)) == 0) {
+	    *(hal_bit_t *) (d_ptr) = 0;
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: value '%s' invalid for bit signal\n", value);
+	    retval = HAL_INVAL;
+	}
+	break;
+    case HAL_FLOAT:
+	fval = strtod(value, &cp);
+	if (*cp != '\0') {
+	    /* invalid chars in string */
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: value '%s' invalid for float signal\n",
+		value);
+	    retval = HAL_INVAL;
+	} else {
+	    *((hal_float_t *) (d_ptr)) = fval;
+	}
+	break;
+    case HAL_S8:
+	lval = strtol(value, &cp, 0);
+	if ((*cp != '\0') || (lval > 127) || (lval < -128)) {
+	    /* invalid chars in string, or outside limits of S8 */
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: value '%s' invalid for S8 signal\n", value);
+	    retval = HAL_INVAL;
+	} else {
+	    *((hal_s8_t *) (d_ptr)) = lval;
+	}
+	break;
+    case HAL_U8:
+	ulval = strtoul(value, &cp, 0);
+	if ((*cp != '\0') || (ulval > 255)) {
+	    /* invalid chars in string, or outside limits of U8 */
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: value '%s' invalid for U8 signal\n", value);
+	    retval = HAL_INVAL;
+	} else {
+	    *((hal_u8_t *) (d_ptr)) = ulval;
+	}
+	break;
+    case HAL_S16:
+	lval = strtol(value, &cp, 0);
+	if ((*cp != '\0') || (lval > 32767) || (lval < -32768)) {
+	    /* invalid chars in string, or outside limits of S16 */
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: value '%s' invalid for S16 signal\n", value);
+	    retval = HAL_INVAL;
+	} else {
+	    *((hal_s16_t *) (d_ptr)) = lval;
+	}
+	break;
+    case HAL_U16:
+	ulval = strtoul(value, &cp, 0);
+	if ((*cp != '\0') || (ulval > 65535)) {
+	    /* invalid chars in string, or outside limits of U16 */
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: value '%s' invalid for U16 signal\n", value);
+	    retval = HAL_INVAL;
+	} else {
+	    *((hal_u16_t *) (d_ptr)) = ulval;
+	}
+	break;
+    case HAL_S32:
+	lval = strtol(value, &cp, 0);
+	if (*cp != '\0') {
+	    /* invalid chars in string */
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: value '%s' invalid for S32 signal\n", value);
+	    retval = HAL_INVAL;
+	} else {
+	    *((hal_s32_t *) (d_ptr)) = lval;
+	}
+	break;
+    case HAL_U32:
+	ulval = strtoul(value, &cp, 0);
+	if (*cp != '\0') {
+	    /* invalid chars in string */
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: value '%s' invalid for U32 signal\n", value);
+	    retval = HAL_INVAL;
+	} else {
+	    *((hal_u32_t *) (d_ptr)) = ulval;
+	}
+	break;
+    default:
+	/* Shouldn't get here, but just in case... */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: bad type %d setting signal '%s'\n", type, name);
+	retval = HAL_INVAL;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    if (retval == 0) {
+	/* print success message */
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "Signal '%s' set to %s\n", name, value);
+    }
+    return retval;
+
+}
+
+
+
 static int do_show_cmd(char *type)
 {
 
@@ -554,7 +717,7 @@ static void print_pin_list(void)
 	    sig = 0;
 	    dptr = &(pin->dummysig);
 	}
-	rtapi_print(" %03d   %s %s  %s  %s",
+	rtapi_print(" %02d    %s %s  %s  %s",
 	    comp->comp_id, data_type((int) pin->type),
 	    data_dir((int) pin->dir),
 	    data_value((int) pin->type, dptr), pin->name);
@@ -605,14 +768,15 @@ static void print_param_list(void)
     hal_comp_t *comp;
 
     rtapi_print("Parameters:\n");
-    rtapi_print("Owner  Type       Value      Name\n");
+    rtapi_print("Owner  Type  Dir    Value      Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
 	comp = SHMPTR(param->owner_ptr);
-	rtapi_print("%02d     %s  %s  %s\n",
+	rtapi_print(" %02d    %s  %s  %s  %s\n",
 	    comp->comp_id, data_type((int) param->type),
+	    data_dir((int) param->dir),
 	    data_value((int) param->type, SHMPTR(param->data_ptr)),
 	    param->name);
 	next = param->next_ptr;
@@ -647,8 +811,9 @@ static void print_funct_list(void)
 
 static void print_thread_list(void)
 {
-    int next_thread, next_fentry;
+    int next_thread, n;
     hal_thread_t *tptr;
+    hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *fentry;
     hal_funct_t *funct;
     hal_comp_t *comp;
@@ -663,13 +828,16 @@ static void print_thread_list(void)
 	rtapi_print(" %02d   %11d %s %s\n",
 	    comp->comp_id,
 	    tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name);
-	next_fentry = tptr->funct_list;
-	while (next_fentry != 0) {
+	list_root = &(tptr->funct_list);
+	list_entry = list_next(list_root);
+	n = 1;
+	while (list_entry != list_root) {
 	    /* print the function info */
-	    fentry = SHMPTR(next_fentry);
+	    fentry = (hal_funct_entry_t *) list_entry;
 	    funct = SHMPTR(fentry->funct_ptr);
-	    rtapi_print("                          %s\n", funct->name);
-	    next_fentry = fentry->next_ptr;
+	    rtapi_print("                       %2d  %s\n", n, funct->name);
+	    n++;
+	    list_entry = list_next(list_entry);
 	}
 	next_thread = tptr->next_ptr;
     }
@@ -954,8 +1122,9 @@ static void save_params(void)
 
 static void save_threads(void)
 {
-    int next_thread, next_fentry;
+    int next_thread;
     hal_thread_t *tptr;
+    hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *fentry;
     hal_funct_t *funct;
 
@@ -964,13 +1133,14 @@ static void save_threads(void)
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
 	tptr = SHMPTR(next_thread);
-	next_fentry = tptr->funct_list;
-	while (next_fentry != 0) {
+	list_root = &(tptr->funct_list);
+	list_entry = list_next(list_root);
+	while (list_entry != list_root) {
 	    /* print the function info */
-	    fentry = SHMPTR(next_fentry);
+	    fentry = (hal_funct_entry_t *) list_entry;
 	    funct = SHMPTR(fentry->funct_ptr);
 	    rtapi_print("addf %s %s\n", funct->name, tptr->name);
-	    next_fentry = fentry->next_ptr;
+	    list_entry = list_next(list_entry);
 	}
 	next_thread = tptr->next_ptr;
     }
@@ -983,14 +1153,11 @@ static void print_help(void)
     printf("Hardware Abstraction Layer command line utility\n\n");
     printf("Usage:   halcmd [options] [cmd [args]]\n\n");
     printf("options:\n\n");
-    printf
-	("  -f [filename]    Read command(s) from 'filename' instead of command\n");
-    printf
-	("                   line.  If no file is specified, read from stdin.\n\n");
+    printf("  -f [filename]    Read command(s) from 'filename' instead of command\n");
+    printf("                   line.  If no file is specified, read from stdin.\n\n");
     printf("  -q               Quiet - Display errors only (default).\n\n");
     printf("  -Q               Very quiet - Display nothing.\n\n");
-    printf
-	("  -v               Verbose - Display results of every command.\n\n");
+    printf("  -v               Verbose - Display results of every command.\n\n");
     printf("  -V               Very verbose - Display lots of junk.\n\n");
     printf("  -h               Help - Print this help screen and exit.\n\n");
     printf("If reading commands from a file or stdin, they are one per\n");
@@ -998,49 +1165,38 @@ static void print_help(void)
     printf("Commands and their args are as follows:\n\n");
     printf("  linkps pinname [arrow] signame\n");
     printf("  linksp signame [arrow] pinname\n");
-    printf
-	("         Links pin 'pinname' to signal 'signame'.  Both forms do the same\n");
-    printf
-	("         thing.  Use whichever makes sense.  Likewise, 'arrow' can be '=>',\n");
-    printf
-	("         '<=', or '<=>' and is ignored (use in command files to document\n");
-    printf
-	("         the direction of data flow to/from pin - don't use on cmd line).\n\n");
+    printf("         Links pin 'pinname' to signal 'signame'.  Both forms do the same\n");
+    printf("         thing.  Use whichever makes sense.  Likewise, 'arrow' can be '=>',\n");
+    printf("         '<=', or '<=>' and is ignored (use in command files to document\n");
+    printf("         the direction of data flow to/from pin - don't use on cmd line).\n\n");
     printf("  unlinkp pinname\n");
     printf("         Unlinks pin 'pinname'\n\n");
     printf("  newsig signame type\n");
-    printf
-	("         Creates a new signal called 'signame'.  Type is 'bit', 'float',\n");
+    printf("         Creates a new signal called 'signame'.  Type is 'bit', 'float',\n");
     printf("         'u8', 's8', 'u16', 's16', 'u32', or 's32'.\n\n");
     printf("  delsig signame\n");
     printf("         Deletes signal 'signame'.\n\n");
     printf("  setp paramname value\n");
     printf("  paramname = value\n");
-    printf("         Sets the value of parameter 'paramname' to 'value'.\n");
-    printf
-	("         (Both forms are equivalent, don't use '=' on command line.)\n\n");
-    printf("  addf functname threadname\n");
-    printf("         Adds function 'functname' to thread 'threadname'.\n\n");
+    printf("         Sets parameter 'paramname' to 'value' (only if writable).\n");
+    printf("         (Both forms are equivalent, don't use '=' on command line.)\n\n");
+    printf("  sets signame value\n");
+    printf("         Sets signal 'signame' to 'value' (only if sig has no writers).\n\n");
+    printf("  addf functname threadname [position]\n");
+    printf("         Adds function 'functname' to thread 'threadname'.  If 'position'\n");
+    printf("         is specified, add function to that spot in thread.\n\n");
     printf("  delf functname threadname\n");
-    printf
-	("         Removes function 'functname' from thread 'threadname'.\n\n");
+    printf("         Removes function 'functname' from thread 'threadname'.\n\n");
     printf("  show [type]\n");
-    printf
-	("         Prints HAL items of the specified type in human readable form\n");
-    printf
-	("         'type' is 'comp', 'pin', 'sig', 'param', 'funct', or 'thread'.\n");
+    printf("         Prints HAL items of the specified type in human readable form\n");
+    printf("         'type' is 'comp', 'pin', 'sig', 'param', 'funct', or 'thread'.\n");
     printf("         If 'type' is omitted, prints everything.\n\n");
     printf("  save [type]\n");
-    printf
-	("         Prints HAL items in a format that can be redirected to a file,\n");
-    printf
-	("         and later restored using \"halcmd -f filename\".  Type can be\n");
-    printf
-	("         'sig', 'link[a]', 'net[a]', 'param', or 'thread'.  ('linka' and\n");
-    printf
-	("         'neta' show arrows for pin direction.)  If 'type' is omitted,\n");
-    printf
-	("         it does the equivalend of 'sig', 'link', 'param', and 'thread'.\n\n");
+    printf("         Prints HAL items in a format that can be redirected to a file,\n");
+    printf("         and later restored using \"halcmd -f filename\".  Type can be\n");
+    printf("         'sig', 'link[a]', 'net[a]', 'param', or 'thread'.  ('linka' and\n");
+    printf("         'neta' show arrows for pin direction.)  If 'type' is omitted,\n");
+    printf("         it does the equivalend of 'sig', 'link', 'param', and 'thread'.\n\n");
     printf("  start\n");
     printf("         Starts all realtime threads.\n\n");
     printf("  stop\n");

@@ -393,6 +393,14 @@ extern int hal_link(char *pin_name, char *sig_name);
     'name' is the name of the new parameter.  If longer than HAL_NAME_LEN
     it will be truncated.  If there is already a parameter with the same
     name the call will fail.
+    'dir' is the parameter direction.  HAL_WR parameters may be written
+    from outside the component, and are not modified by the component
+    itself.  They are typically used for tuning or configuring the
+    component.  HAL_RD paramters are read only from outside, and are
+    written to by the component itself, typically to provide a view
+    "into" the component for testing or troubleshooting.  HAL_RD_WR
+    parameters are writable from outside and also sometimes modified
+    by the component itself as well.
     'data_addr' is the address where the value of the parameter is to be
     stored.  'data_addr' must point to memory allocated by hal_malloc().
     Typically the component allocates space for a data structure with
@@ -408,15 +416,22 @@ extern int hal_link(char *pin_name, char *sig_name);
     If successful, the hal_param_xxx_new() functions return HAL_SUCCESS.
     On failure they return a negative error code.
 */
-extern int hal_param_bit_new(char *name, hal_bit_t * data_addr, int comp_id);
-extern int hal_param_float_new(char *name, hal_float_t * data_addr,
+extern int hal_param_bit_new(char *name, hal_dir_t dir, hal_bit_t * data_addr,
     int comp_id);
-extern int hal_param_u8_new(char *name, hal_u8_t * data_addr, int comp_id);
-extern int hal_param_s8_new(char *name, hal_s8_t * data_addr, int comp_id);
-extern int hal_param_u16_new(char *name, hal_u16_t * data_addr, int comp_id);
-extern int hal_param_s16_new(char *name, hal_s16_t * data_addr, int comp_id);
-extern int hal_param_u32_new(char *name, hal_u32_t * data_addr, int comp_id);
-extern int hal_param_s32_new(char *name, hal_s32_t * data_addr, int comp_id);
+extern int hal_param_float_new(char *name, hal_dir_t dir,
+    hal_float_t * data_addr, int comp_id);
+extern int hal_param_u8_new(char *name, hal_dir_t dir, hal_u8_t * data_addr,
+    int comp_id);
+extern int hal_param_s8_new(char *name, hal_dir_t dir, hal_s8_t * data_addr,
+    int comp_id);
+extern int hal_param_u16_new(char *name, hal_dir_t dir, hal_u16_t * data_addr,
+    int comp_id);
+extern int hal_param_s16_new(char *name, hal_dir_t dir, hal_s16_t * data_addr,
+    int comp_id);
+extern int hal_param_u32_new(char *name, hal_dir_t dir, hal_u32_t * data_addr,
+    int comp_id);
+extern int hal_param_s32_new(char *name, hal_dir_t dir, hal_s32_t * data_addr,
+    int comp_id);
 
 /** 'hal_param_new()' creates a new 'parameter' object.  It is a generic
     version of the eight functions above.  It is provided ONLY for those
@@ -429,10 +444,18 @@ extern int hal_param_s32_new(char *name, hal_s32_t * data_addr, int comp_id);
     functions above.
     'type' is the hal type of the new parameter - the type of data
     that will be stored in the parameter.
+    'dir' is the parameter direction.  HAL_WR parameters may be written
+    from outside the component, and are not modified by the component
+    itself.  They are typically used for tuning or configuring the
+    component.  HAL_RD paramters are read only from outside, and are
+    written to by the component itself, typically to provide a view
+    "into" the component for testing or troubleshooting.  HAL_RD_WR
+    parameters are writable from outside and also sometimes modified
+    by the component itself as well.
     If successful, hal_param_new() returns HAL_SUCCESS.  On failure
     it returns a negative error code.
 */
-extern int hal_param_new(char *name, hal_type_t type,
+extern int hal_param_new(char *name, hal_type_t type, hal_dir_t dir,
     void *data_addr, int comp_id);
 
 /** There is no 'hal_param_delete()' function.  Once a component has
@@ -443,7 +466,8 @@ extern int hal_param_new(char *name, hal_type_t type,
 
 /** The 'hal_param_xxx_set()' functions modify the value of a parameter.
     'name' is the name of the parameter that is to be set.  The
-    parameter type must match the function type.
+    parameter type must match the function type, and the parameter
+    must not be read-only.
     'value' is the value to be loaded into the parameter.
     On success, the hal_param_xxx_set() functions return HAL_SUCCESS,
     and on failure they return a negative error code.
@@ -464,7 +488,8 @@ extern int hal_param_s32_set(char *name, signed long value);
     prone to errors.
     'name', is the same as in the functions above.
     'type' is the hal type of the the data at *value_addr, and must
-    match the type of the parameter.
+    match the type of the parameter.  The parameter must not be
+    read only.
     'value_addr' is a pointer to the new value of the parameter.
     The data at that location will be interpreted according to the
     type of the parameter.
@@ -552,11 +577,19 @@ extern int hal_create_thread(char *name, unsigned long period_nsec,
     should be added.  When the thread runs, the functions will
     be executed in the order in which they were added to the
     thread.
+    'position' is the desired location within the thread. This
+    determines when the function will run, in relation to other
+    functions in the thread.  A positive number indicates the
+    desired location as measured from the beginning of the thread,
+    and a negative is measured from the end.  So +1 means this
+    function will become the first one to run, +5 means it will
+    be the fifth one to run, -2 means it will be next to last,
+    and -1 means it will be last.  Zero is illegal.
     Returns HAL_SUCCESS, or a negative error code.    Call
     only from within user space or init code, not from
     realtime code.
 */
-extern int hal_add_funct_to_thread(char *funct_name, char *thread_name);
+extern int hal_add_funct_to_thread(char *funct_name, char *thread_name, int position);
 
 /** hal_del_funct_from_thread() removes a function from a thread.
     'funct_name' is the name of the function, as specified in

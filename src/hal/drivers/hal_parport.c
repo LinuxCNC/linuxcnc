@@ -330,7 +330,9 @@ int main(int argc, char *argv[])
 	/* make read function name */
 	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.read", n + 1);
 	/* export read function parameter */
-	retval = hal_param_s8_new(name, &read_funct_flags[n + 1], comp_id);
+	retval =
+	    hal_param_s8_new(name, HAL_RD_WR, &read_funct_flags[n + 1],
+	    comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d read funct param failed\n", n + 1);
@@ -340,7 +342,9 @@ int main(int argc, char *argv[])
 	/* make write function name */
 	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n + 1);
 	/* export read function parameter */
-	retval = hal_param_s8_new(name, &write_funct_flags[n + 1], comp_id);
+	retval =
+	    hal_param_s8_new(name, HAL_RD_WR, &write_funct_flags[n + 1],
+	    comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d write funct param failed\n", n + 1);
@@ -350,7 +354,8 @@ int main(int argc, char *argv[])
     }
     /* export parameters for read/write all port functuons */
     retval =
-	hal_param_s8_new("parport.read_all", &read_funct_flags[0], comp_id);
+	hal_param_s8_new("parport.read_all", HAL_RD_WR, &read_funct_flags[0],
+	comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: read all funct param failed\n", n + 1);
@@ -358,7 +363,8 @@ int main(int argc, char *argv[])
 	return -1;
     }
     retval =
-	hal_param_s8_new("parport.write_all", &write_funct_flags[0], comp_id);
+	hal_param_s8_new("parport.write_all", HAL_RD_WR,
+	&write_funct_flags[0], comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: write all funct param failed\n", n + 1);
@@ -372,7 +378,7 @@ int main(int argc, char *argv[])
     signal(SIGTERM, quit);
 
     /*************************************/
-    /* main loop - loops forever until   */
+    /* main loop - loops forever until */
     /* SIGINT (ctrl-C) or SIGTERM (kill) */
     /*************************************/
     while (!done) {
@@ -412,14 +418,14 @@ int main(int argc, char *argv[])
 		}
 	    }
 	}
-	/* set timeout to 0.05 seconds (20 Hz update rate
-	   if nothing else is running) */
+	/* set timeout to 0.05 seconds (20 Hz update rate if nothing else is
+	   running) */
 	tv.tv_sec = 0;
 	tv.tv_usec = 50000;
-	/* call select() with no file descriptors and a timeout
-	   to yield the CPU for (at least) 0,05 seconds - see
-	   NOTES section of man 2 select for details */
-	select ( 0, 0, 0, 0, &tv );
+	/* call select() with no file descriptors and a timeout to yield the
+	   CPU for (at least) 0,05 seconds - see NOTES section of man 2
+	   select for details */
+	select(0, 0, 0, 0, &tv);
     }
     hal_exit(comp_id);
     return 0;
@@ -731,6 +737,6 @@ static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
     /* export parameter for polarity */
     rtapi_snprintf(buf, HAL_NAME_LEN, "parport.%d.pin-%02d-out-invert",
 	portnum, pin);
-    retval = hal_param_bit_new(buf, pbase + n, comp_id);
+    retval = hal_param_bit_new(buf, HAL_WR, pbase + n, comp_id);
     return retval;
 }

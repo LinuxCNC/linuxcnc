@@ -152,8 +152,7 @@ int rcs_sem_wait_notimeout(rcs_sem_t * sem)
     retval = semop(*sem, &sops, 1);
     if (errno == EINTR) {
 	rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY, "semop interrupted! %d\n",
-	    semwait_alarm_count
-	    );
+	    semwait_alarm_count);
 	return retval;
     }
 

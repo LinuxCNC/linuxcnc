@@ -93,6 +93,22 @@
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
 ************************************************************************/
 
+/** HAL "list element" data structure.
+    This structure is used to implement generic double linked circular
+    lists.  Such lists have the following characteristics:
+    1) One "dummy" element that serves as the root of the list.
+    2) 'next' and 'previous' pointers are never NULL.
+    3) Insertion and removal of elements is clean and fast.
+    4) No special case code to deal with empty lists, etc.
+    5) Easy traversal of the list in either direction.
+    This structure has no data, only links.  To use it, include it
+    inside a larger structure.
+*/
+typedef struct {
+    int next;			/* next element in list */
+    int prev;			/* previous element in list */
+} hal_list_t;
+
 /* Master HAL data structure
    There is a single instance of this structure in the machine.
    It resides at the base of the HAL shared memory block, where it
@@ -120,7 +136,7 @@ typedef struct {
     int sig_free_ptr;		/* list of free signal structs */
     int param_free_ptr;		/* list of free parameter structs */
     int funct_free_ptr;		/* list of free function structs */
-    int funct_entry_free_ptr;	/* list of free funct entry structs */
+    hal_list_t funct_entry_free;/* list of free funct entry structs */
     int thread_free_ptr;	/* list of free thread structs */
 } hal_data_t;
 
@@ -145,10 +161,10 @@ typedef struct {
     int next_ptr;		/* next pin in linked list */
     int data_ptr_addr;		/* address of pin data pointer */
     int owner_ptr;		/* component that owns this pin */
-    hal_type_t type;		/* data type */
-    hal_dir_t dir;		/* pin direction */
     int signal;			/* signal to which pin is linked */
     long dummysig;		/* if unlinked, data_ptr points here */
+    hal_type_t type;		/* data type */
+    hal_dir_t dir;		/* pin direction */
     char name[HAL_NAME_LEN + 1];	/* pin name */
 } hal_pin_t;
 
@@ -172,6 +188,7 @@ typedef struct {
     int data_ptr;		/* offset of parameter value */
     int owner_ptr;		/* component that owns this signal */
     hal_type_t type;		/* data type */
+    hal_dir_t dir;		/* data direction */
     char name[HAL_NAME_LEN + 1];	/* parameter name */
 } hal_param_t;
 
@@ -203,7 +220,7 @@ typedef struct {
 } hal_funct_t;
 
 typedef struct {
-    int next_ptr;		/* next function entry */
+    hal_list_t links;		/* linked list data */
     void *arg;			/* argument for function */
     void (*funct) (void *, long);	/* ptr to function code */
     int funct_ptr;		/* pointer to function */
@@ -220,7 +237,7 @@ typedef struct {
     int task_id;		/* ID of the task that runs this thread */
     hal_s32_t runtime;		/* duration of last run, in nsec */
     hal_s32_t maxtime;		/* duration of longest run, in nsec */
-    int funct_list;		/* first function to execute */
+    hal_list_t funct_list;	/* list of functions to run */
     char name[HAL_NAME_LEN + 1];	/* thread name */
 } hal_thread_t;
 
@@ -248,6 +265,37 @@ extern hal_data_t *hal_data;
     having the mutex may give incorrect results if other processes are
     accessing the data structures at the same time.
 */
+
+/** These functions are used to manipulate double-linked circular lists.
+    Every list entry has pointers to the next and previous entries.
+    The pointers are never NULL.  If an entry is not in a list its
+    pointers point back to itself (which effectively makes it a list
+    with only one entry)
+
+    'list_init_entry()' sets the pointers in the list entry to point
+    to itself - making it a legal list with only one entry. It should
+    be called when a list entry is first allocated.
+
+    'list_prev()' and 'list_next()' simply return a pointer to the
+    list entry that precedes or follows 'entry' in the list. If there
+    is only one element in the list, they return 'entry'.
+
+    'list_add_after()' adds 'entry' immediately after 'prev'.
+    Entry must be a single entry, not in a larger list.
+
+    'list_add_before()' adds 'entry' immediately before 'next'.
+    Entry must be a single entry, not in a larger list.
+
+    'list_remove_entry()' removes 'entry' from any list it may be in.
+    It returns a pointer to the next entry in the list.  If 'entry'
+    was the only entry in the list, it returns 'entry'.
+*/
+void list_init_entry ( hal_list_t *entry );
+hal_list_t *list_prev ( hal_list_t *entry );
+hal_list_t *list_next ( hal_list_t *entry );
+void list_add_after ( hal_list_t *entry, hal_list_t *prev );
+void list_add_before ( hal_list_t *entry, hal_list_t *next );
+hal_list_t *list_remove_entry ( hal_list_t *entry );
 
 /** The 'find_xxx_by_name()' functions search the appropriate list for
     an object that matches 'name'.  They return a pointer to the object,

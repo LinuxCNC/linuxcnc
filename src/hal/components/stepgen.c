@@ -857,7 +857,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 
     /* export param variable for raw counts */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.rawcounts", num);
-    retval = hal_param_s32_new(buf, &(addr->rawcount), comp_id);
+    retval = hal_param_s32_new(buf, HAL_RD, &(addr->rawcount), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -875,7 +875,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     }
     /* export parameter for position scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position-scale", num);
-    retval = hal_param_float_new(buf, &(addr->pos_scale), comp_id);
+    retval = hal_param_float_new(buf, HAL_WR, &(addr->pos_scale), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -887,25 +887,25 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     }
     /* export parameter for frequency scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.velocity-scale", num);
-    retval = hal_param_float_new(buf, &(addr->vel_scale), comp_id);
+    retval = hal_param_float_new(buf, HAL_WR, &(addr->vel_scale), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for max frequency */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.maxfreq", num);
-    retval = hal_param_float_new(buf, &(addr->maxfreq), comp_id);
+    retval = hal_param_float_new(buf, HAL_WR, &(addr->maxfreq), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export param for scaled velocity (frequency in Hz) */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.frequency", num);
-    retval = hal_param_float_new(buf, &(addr->freq), comp_id);
+    retval = hal_param_float_new(buf, HAL_RD, &(addr->freq), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for max accel/decel */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.maxaccel", num);
-    retval = hal_param_float_new(buf, &(addr->maxaccel), comp_id);
+    retval = hal_param_float_new(buf, HAL_WR, &(addr->maxaccel), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -931,22 +931,27 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	addr->wd.st0.len_timer = 0;
 	/* export parameters for step/dir pulse timing */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.dirsetup", num);
-	retval = hal_param_u8_new(buf, &(addr->wd.st0.dir_setup), comp_id);
+	retval =
+	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.dir_setup), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.dirhold", num);
-	retval = hal_param_u8_new(buf, &(addr->wd.st0.dir_hold), comp_id);
+	retval =
+	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.dir_hold), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.steplen", num);
-	retval = hal_param_u8_new(buf, &(addr->wd.st0.step_len), comp_id);
+	retval =
+	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.step_len), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.stepspace", num);
-	retval = hal_param_u8_new(buf, &(addr->wd.st0.step_space), comp_id);
+	retval =
+	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.step_space),
+	    comp_id);
 	if (retval != 0) {
 	    return retval;
 	}

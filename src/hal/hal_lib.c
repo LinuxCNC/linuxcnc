@@ -712,49 +712,58 @@ int hal_link(char *pin_name, char *sig_name)
 
 /* wrapper functs for typed params - these call the generic funct below */
 
-int hal_param_bit_new(char *name, hal_bit_t * data_addr, int comp_id)
+int hal_param_bit_new(char *name, hal_dir_t dir, hal_bit_t * data_addr,
+    int comp_id)
 {
-    return hal_param_new(name, HAL_BIT, (void *) data_addr, comp_id);
+    return hal_param_new(name, HAL_BIT, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_float_new(char *name, hal_float_t * data_addr, int comp_id)
+int hal_param_float_new(char *name, hal_dir_t dir, hal_float_t * data_addr,
+    int comp_id)
 {
-    return hal_param_new(name, HAL_FLOAT, (void *) data_addr, comp_id);
+    return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u8_new(char *name, hal_u8_t * data_addr, int comp_id)
+int hal_param_u8_new(char *name, hal_dir_t dir, hal_u8_t * data_addr,
+    int comp_id)
 {
-    return hal_param_new(name, HAL_U8, (void *) data_addr, comp_id);
+    return hal_param_new(name, HAL_U8, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_s8_new(char *name, hal_s8_t * data_addr, int comp_id)
+int hal_param_s8_new(char *name, hal_dir_t dir, hal_s8_t * data_addr,
+    int comp_id)
 {
-    return hal_param_new(name, HAL_S8, (void *) data_addr, comp_id);
+    return hal_param_new(name, HAL_S8, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u16_new(char *name, hal_u16_t * data_addr, int comp_id)
+int hal_param_u16_new(char *name, hal_dir_t dir, hal_u16_t * data_addr,
+    int comp_id)
 {
-    return hal_param_new(name, HAL_U16, (void *) data_addr, comp_id);
+    return hal_param_new(name, HAL_U16, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_s16_new(char *name, hal_s16_t * data_addr, int comp_id)
+int hal_param_s16_new(char *name, hal_dir_t dir, hal_s16_t * data_addr,
+    int comp_id)
 {
-    return hal_param_new(name, HAL_S16, (void *) data_addr, comp_id);
+    return hal_param_new(name, HAL_S16, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u32_new(char *name, hal_u32_t * data_addr, int comp_id)
+int hal_param_u32_new(char *name, hal_dir_t dir, hal_u32_t * data_addr,
+    int comp_id)
 {
-    return hal_param_new(name, HAL_U32, (void *) data_addr, comp_id);
+    return hal_param_new(name, HAL_U32, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_s32_new(char *name, hal_s32_t * data_addr, int comp_id)
+int hal_param_s32_new(char *name, hal_dir_t dir, hal_s32_t * data_addr,
+    int comp_id)
 {
-    return hal_param_new(name, HAL_S32, (void *) data_addr, comp_id);
+    return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
 }
 
 /* this is a generic function that does the majority of the work. */
 
-int hal_param_new(char *name, hal_type_t type, void *data_addr, int comp_id)
+int hal_param_new(char *name, hal_type_t type, hal_dir_t dir, void *data_addr,
+    int comp_id)
 {
     int *prev, next, cmp;
     hal_param_t *new, *ptr;
@@ -790,6 +799,7 @@ int hal_param_new(char *name, hal_type_t type, void *data_addr, int comp_id)
     new->owner_ptr = SHMOFF(comp);
     new->data_ptr = SHMOFF(data_addr);
     new->type = type;
+    new->dir = dir;
     rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", name);
     /* search list for 'name' and insert new structure */
     prev = &(hal_data->param_list_ptr);
@@ -897,6 +907,13 @@ int hal_param_set(char *name, hal_type_t type, void *value_addr)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: type mismatch setting param '%s'\n", name);
+	return HAL_INVAL;
+    }
+    /* is it writable? */
+    if (param->dir == HAL_RD) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param '%s' is not writable\n", name);
 	return HAL_INVAL;
     }
     /* everything is OK, set the value */
@@ -1139,20 +1156,21 @@ int hal_create_thread(char *name, unsigned long period_nsec,
     new->maxtime = 0;
     /* create a parameter with the thread's runtime in it */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.time", name);
-    hal_param_s32_new(buf, &(new->runtime), comp_id);
+    hal_param_s32_new(buf, HAL_RD, &(new->runtime), comp_id);
     /* create a parameter with the thread's maximum runtime in it */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
-    hal_param_s32_new(buf, &(new->maxtime), comp_id);
+    hal_param_s32_new(buf, HAL_RD_WR, &(new->maxtime), comp_id);
     return HAL_SUCCESS;
 }
 
 #endif /* RTAPI */
 
-int hal_add_funct_to_thread(char *funct_name, char *thread_name)
+int hal_add_funct_to_thread(char *funct_name, char *thread_name, int position)
 {
-    int *prev;
     hal_thread_t *thread;
     hal_funct_t *funct;
+    hal_list_t *list_root, *list_entry;
+    int n;
     hal_funct_entry_t *funct_entry;
 
     if (hal_data == 0) {
@@ -1165,6 +1183,13 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name)
 	funct_name, thread_name);
     /* get mutex before accessing data structures */
     rtapi_mutex_get(&(hal_data->mutex));
+    /* make sure position is valid */
+    if (position == 0) {
+	/* zero is not allowed */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: bad position: 0\n");
+	return HAL_INVAL;
+    }
     /* make sure we were given a function name */
     if (funct_name == 0) {
 	/* no name supplied */
@@ -1211,11 +1236,38 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name)
 	    "HAL: ERROR: function '%s' needs FP\n", funct_name);
 	return HAL_INVAL;
     }
-    /* find end of function entry list */
-    prev = &(thread->funct_list);
-    while (*prev != 0) {
-	funct_entry = SHMPTR(*prev);
-	prev = &(funct_entry->next_ptr);
+    /* find insertion point */
+    list_root = &(thread->funct_list);
+    list_entry = list_root;
+    n = 0;
+    if ( position > 0 ) {
+	/* insertion is relative to start of list */
+	while ( ++n < position ) {
+	    /* move further into list */
+	    list_entry = list_next(list_entry);
+	    if ( list_entry == list_root ) {
+		/* reached end of list */
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: ERROR: position '%d' is too high\n", position);
+		return HAL_INVAL;
+	    }
+	}
+    } else {
+	/* insertion is relative to end of list */
+	while ( --n > position ) {
+	    /* move further into list */
+	    list_entry = list_prev(list_entry);
+	    if ( list_entry == list_root ) {
+		/* reached end of list */
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: ERROR: position '%d' is too low\n", position);
+		return HAL_INVAL;
+	    }
+	}
+	/* want to insert before list_entry, so back up one more step */
+	list_entry = list_prev(list_entry);
     }
     /* allocate a funct entry structure */
     funct_entry = alloc_funct_entry_struct();
@@ -1225,12 +1277,11 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name)
 	return HAL_NOMEM;
     }
     /* init struct contents */
-    funct_entry->next_ptr = 0;
     funct_entry->funct_ptr = SHMOFF(funct);
     funct_entry->arg = funct->arg;
     funct_entry->funct = funct->funct;
     /* add the entry to the list */
-    *prev = SHMOFF(funct_entry);
+    list_add_after((hal_list_t *) funct_entry, list_entry);
     /* update the function usage count */
     funct->users++;
     rtapi_mutex_give(&(hal_data->mutex));
@@ -1239,9 +1290,9 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name)
 
 int hal_del_funct_from_thread(char *funct_name, char *thread_name)
 {
-    int *prev, next;
     hal_thread_t *thread;
     hal_funct_t *funct;
+    hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *funct_entry;
 
     if (hal_data == 0) {
@@ -1294,10 +1345,10 @@ int hal_del_funct_from_thread(char *funct_name, char *thread_name)
 	return HAL_INVAL;
     }
     /* ok, we have thread and function, does thread use funct? */
-    prev = &(thread->funct_list);
-    next = *prev;
+    list_root = &(thread->funct_list);
+    list_entry = list_next(list_root);
     while (1) {
-	if (next == 0) {
+	if (list_entry == list_root) {
 	    /* reached end of list, funct not found */
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1305,10 +1356,10 @@ int hal_del_funct_from_thread(char *funct_name, char *thread_name)
 		funct_name);
 	    return HAL_INVAL;
 	}
-	funct_entry = SHMPTR(next);
+	funct_entry = (hal_funct_entry_t *) list_entry;
 	if (SHMPTR(funct_entry->funct_ptr) == funct) {
 	    /* this funct entry points to our funct, unlink */
-	    *prev = funct_entry->next_ptr;
+	    list_remove_entry(list_entry);
 	    /* and delete it */
 	    free_funct_entry_struct(funct_entry);
 	    /* done */
@@ -1316,8 +1367,7 @@ int hal_del_funct_from_thread(char *funct_name, char *thread_name)
 	    return HAL_SUCCESS;
 	}
 	/* try next one */
-	prev = &(funct_entry->next_ptr);
-	next = *prev;
+	list_entry = list_next(list_entry);
     }
 }
 
@@ -1348,6 +1398,78 @@ int hal_stop_threads(void)
 /***********************************************************************
 *                    PRIVATE FUNCTION CODE                             *
 ************************************************************************/
+
+hal_list_t *list_prev ( hal_list_t *entry )
+{
+    /* this function is only needed because of memory mapping */
+    return SHMPTR(entry->prev);
+}
+
+hal_list_t *list_next ( hal_list_t *entry )
+{
+    /* this function is only needed because of memory mapping */
+    return SHMPTR(entry->next);
+}
+
+void list_init_entry ( hal_list_t *entry )
+{
+    int entry_n;
+
+    entry_n = SHMOFF(entry);
+    entry->next = entry_n;
+    entry->prev = entry_n;
+}
+
+void list_add_after ( hal_list_t *entry, hal_list_t *prev )
+{
+    int entry_n, prev_n, next_n;
+    hal_list_t *next;
+
+    /* messiness needed because of memory mapping */
+    entry_n = SHMOFF(entry);
+    prev_n = SHMOFF(prev);
+    next_n = prev->next;
+    next = SHMPTR(next_n);
+    /* insert the entry */
+    entry->next = next_n;
+    entry->prev = prev_n;
+    prev->next = entry_n;
+    next->prev = entry_n;
+}
+
+void list_add_before ( hal_list_t *entry, hal_list_t *next )
+{
+    int entry_n, prev_n, next_n;
+    hal_list_t *prev;
+
+    /* messiness needed because of memory mapping */
+    entry_n = SHMOFF(entry);
+    next_n = SHMOFF(next);
+    prev_n = next->prev;
+    prev = SHMPTR(prev_n);
+    /* insert the entry */
+    entry->next = next_n;
+    entry->prev = prev_n;
+    prev->next = entry_n;
+    next->prev = entry_n;
+}
+
+hal_list_t *list_remove_entry ( hal_list_t *entry )
+{
+    int entry_n;
+    hal_list_t *prev, *next;
+
+    /* messiness needed because of memory mapping */
+    entry_n = SHMOFF(entry);
+    prev = SHMPTR(entry->prev);
+    next = SHMPTR(entry->next);
+    /* remove the entry */
+    prev->next = entry->next;
+    next->prev = entry->prev;
+    entry->next = entry_n;
+    entry->prev = entry_n;
+    return next;
+}
 
 hal_comp_t *halpr_find_comp_by_name(char *name)
 {
@@ -1658,9 +1780,8 @@ void rtapi_app_exit(void)
 
 static void thread_task(void *arg)
 {
-    int next_entry;
     hal_thread_t *thread;
-    hal_funct_entry_t *funct_entry;
+    hal_funct_entry_t *funct_root, *funct_entry;
     long long int start_time, end_time;
 
     thread = arg;
@@ -1668,14 +1789,13 @@ static void thread_task(void *arg)
 	start_time = rtapi_get_time();
 	if (hal_data->threads_running > 0) {
 	    /* run thru function list */
-	    next_entry = thread->funct_list;
-	    while (next_entry != 0) {
-		/* point at function entry */
-		funct_entry = SHMPTR(next_entry);
-		/* get next entry in list (for use later) */
-		next_entry = funct_entry->next_ptr;
+	    funct_root = (hal_funct_entry_t *) &(thread->funct_list);
+	    funct_entry = SHMPTR(funct_root->links.next);
+	    while (funct_entry != funct_root) {
 		/* call the function */
 		funct_entry->funct(funct_entry->arg, thread->period);
+		/* point to next next entry in list */
+		funct_entry = SHMPTR(funct_entry->links.next);
 	    }
 	}
 	end_time = rtapi_get_time();
@@ -1719,7 +1839,7 @@ static void init_hal_data(void)
     hal_data->sig_free_ptr = 0;
     hal_data->param_free_ptr = 0;
     hal_data->funct_free_ptr = 0;
-    hal_data->funct_entry_free_ptr = 0;
+    list_init_entry(&(hal_data->funct_entry_free));
     hal_data->thread_free_ptr = 0;
     /* set up for shmalloc_xx() */
     hal_data->shmem_bot = sizeof(hal_data_t);
@@ -1924,22 +2044,24 @@ static hal_funct_t *alloc_funct_struct(void)
 
 static hal_funct_entry_t *alloc_funct_entry_struct(void)
 {
+    hal_list_t *freelist, *l;
     hal_funct_entry_t *p;
 
     /* check the free list */
-    if (hal_data->funct_entry_free_ptr != 0) {
-	/* found a free structure, point to it */
-	p = SHMPTR(hal_data->funct_entry_free_ptr);
-	/* unlink it from the free list */
-	hal_data->funct_entry_free_ptr = p->next_ptr;
-	p->next_ptr = 0;
+    freelist = &(hal_data->funct_entry_free);
+    l = list_next(freelist);
+    if ( l != freelist ) {
+	/* found a free structure, unlink from the free list */
+	list_remove_entry(l);
+	p = (hal_funct_entry_t *) l;
     } else {
 	/* nothing on free list, allocate a brand new one */
 	p = shmalloc_dn(sizeof(hal_funct_entry_t));
+	l = (hal_list_t *) p;
+	list_init_entry(l);
     }
     if (p) {
 	/* make sure it's empty */
-	p->next_ptr = 0;
 	p->funct_ptr = 0;
 	p->arg = 0;
 	p->funct = 0;
@@ -1971,7 +2093,7 @@ static hal_thread_t *alloc_thread_struct(void)
 	p->priority = 0;
 	p->owner_ptr = 0;
 	p->task_id = 0;
-	p->funct_list = 0;
+	list_init_entry(&(p->funct_list));
 	p->name[0] = '\0';
     }
     return p;
@@ -2150,8 +2272,9 @@ static void free_param_struct(hal_param_t * p)
 #ifdef RTAPI
 static void free_funct_struct(hal_funct_t * funct)
 {
-    int *prev_entry, next_thread, next_entry;
+    int next_thread;
     hal_thread_t *thread;
+    hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *funct_entry;
 
 /*  int next_thread, next_entry;*/
@@ -2167,23 +2290,22 @@ static void free_funct_struct(hal_funct_t * funct)
 	    /* point to thread */
 	    thread = SHMPTR(next_thread);
 	    /* start at root of funct_entry list */
-	    prev_entry = &(thread->funct_list);
-	    next_entry = *prev_entry;
+	    list_root = &(thread->funct_list);
+	    list_entry = list_next(list_root);
 	    /* run thru funct_entry list */
-	    while (next_entry != 0) {
+	    while (list_entry != list_root) {
 		/* point to funct entry */
-		funct_entry = SHMPTR(next_entry);
+		funct_entry = (hal_funct_entry_t *) list_entry;
 		/* test it */
 		if (SHMPTR(funct_entry->funct_ptr) == funct) {
 		    /* this funct entry points to our funct, unlink */
-		    *prev_entry = funct_entry->next_ptr;
+		    list_entry = list_remove_entry(list_entry);
 		    /* and delete it */
 		    free_funct_entry_struct(funct_entry);
 		} else {
 		    /* no match, try the next one */
-		    prev_entry = &(funct_entry->next_ptr);
+		    list_entry = list_next(list_entry);
 		}
-		next_entry = *prev_entry;
 	    }
 	    /* move on to the next thread */
 	    next_thread = thread->next_ptr;
@@ -2217,14 +2339,14 @@ static void free_funct_entry_struct(hal_funct_entry_t * funct_entry)
     funct_entry->arg = 0;
     funct_entry->funct = 0;
     /* add it to free list */
-    funct_entry->next_ptr = hal_data->funct_entry_free_ptr;
-    hal_data->funct_entry_free_ptr = SHMOFF(funct_entry);
+    list_add_after ( (hal_list_t *) funct_entry, &(hal_data->funct_entry_free) );
 }
 
 #ifdef RTAPI
 static void free_thread_struct(hal_thread_t * thread)
 {
     hal_funct_entry_t *funct_entry;
+    hal_list_t *list_root, *list_entry;
 
     /* if we're deleting a thread, we need to stop all threads */
     hal_data->threads_running = 0;
@@ -2238,11 +2360,14 @@ static void free_thread_struct(hal_thread_t * thread)
     thread->owner_ptr = 0;
     thread->task_id = 0;
     /* clear the function entry list */
-    while (thread->funct_list != 0) {
-	/* entry found, unlink it */
-	funct_entry = SHMPTR(thread->funct_list);
-	thread->funct_list = funct_entry->next_ptr;
-	/* and free it */
+    list_root = &(thread->funct_list);
+    list_entry = list_next(list_root);
+    while (list_entry != list_root) {
+	/* entry found, save pointer to it */
+	funct_entry = (hal_funct_entry_t *) list_entry;
+	/* unlink it, point to the next one */
+	list_entry = list_remove_entry(list_entry);
+	/* free the removed entry */
 	free_funct_entry_struct(funct_entry);
     }
     thread->name[0] = '\0';

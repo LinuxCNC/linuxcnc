@@ -181,8 +181,9 @@ static void init_horiz_window(void)
 static void init_acquire_function(void)
 {
     hal_funct_t *funct;
-    int next_thread, next_fentry;
+    int next_thread;
     hal_thread_t *thread;
+    hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *fentry;
     scope_horiz_t *horiz;
 
@@ -206,9 +207,10 @@ static void init_acquire_function(void)
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
 	thread = SHMPTR(next_thread);
-	next_fentry = thread->funct_list;
-	while (next_fentry != 0) {
-	    fentry = SHMPTR(next_fentry);
+	list_root = &(thread->funct_list);
+	list_entry = list_next(list_root);
+	while (list_entry != list_root) {
+	    fentry = (hal_funct_entry_t *) list_entry;
 	    if (funct == SHMPTR(fentry->funct_ptr)) {
 		/* found a match, update structure members */
 		horiz->thread_name = thread->name;
@@ -219,7 +221,7 @@ static void init_acquire_function(void)
 		ctrl_shm->watchdog = 1;
 		return;
 	    }
-	    next_fentry = fentry->next_ptr;
+	    list_entry = list_next(list_entry);
 	}
 	next_thread = thread->next_ptr;
     }
@@ -545,7 +547,7 @@ static void dialog_realtime_not_linked(void)
 	    strncpy(ctrl_shm->thread_name, horiz->thread_name,
 		HAL_NAME_LEN + 1);
 	    /* hook sampling function to thread */
-	    hal_add_funct_to_thread("scope.sample", horiz->thread_name);
+	    hal_add_funct_to_thread("scope.sample", horiz->thread_name, -1);
 	    /* give the code some time to get started */
 	    ctrl_shm->watchdog = 0;
 	    invalidate_all_channels();
