@@ -1,31 +1,77 @@
 #! /bin/sh
 
 CheckConfig(){
-    # Will eventually check in /etc for rtapi.conf
-    # as well as the local dir.
-    if [ ! -f scripts/rtapi.conf ] ; then
+    RTAPICONF=
+    # check for rtapi.conf in /etc/ first...
+    if [ -f /etc/rtapi.conf ] ; then
+	RTAPICONF=/etc/rtapi.conf
+    else
+	# check in the emc2 scripts directory
+	# $0 is the command to run this script
+	# strip the script name to leave the path
+	SCRIPT_DIR=`echo $0 | sed s#realtime## `
+	# the path might be relative
+	# convert it to an absolute path
+	SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
+	# now look for rtapi.conf there
+	if [ -f $SCRIPT_DIR/rtapi.conf ] ; then
+	    RTAPICONF=$SCRIPT_DIR/rtapi.conf
+	fi
+    fi
+    if [ -z "$RTAPICONF" ] ; then
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
 	exit -1
-    else
-        # Save the system variable MODPATH so that it can be
-        # re-exported on exit.
-	old_path=$MODPATH
-        # Import the config
-	source scripts/rtapi.conf
-        # Export the module path specified in the config.
-	export MODPATH
-	# Generate module lists for loading and unloading
-	# lists contain RTOS modules plus RTAPI and HAL
-	# unload list is in reverse order
-	MODULES_LOAD=
-	MODULES_UNLOAD=
-	for module in $MODULES ; do
-	    MODULES_LOAD="$MODULES_LOAD $module"
-	    MODULES_UNLOAD="$module $MODULES_UNLOAD"
-	done
-	MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi.o $RTLIB_DIR/hal_lib.o"
-	MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
     fi
+    # Save the system variable MODPATH so that it can be
+    # re-exported on exit.
+    old_path=$MODPATH
+    # Import the config
+    source $RTAPICONF
+    # Export the module path specified in the config.
+    export MODPATH
+    # Generate module lists for loading and unloading
+    # lists contain RTOS modules plus RTAPI and HAL
+    # unload list is in reverse order
+    MODULES_LOAD=
+    MODULES_UNLOAD=
+    for module in $MODULES ; do
+	MODULES_LOAD="$MODULES_LOAD $module"
+	MODULES_UNLOAD="$module $MODULES_UNLOAD"
+    done
+    MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi.o $RTLIB_DIR/hal_lib.o"
+    MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
+}
+
+CheckStatus(){
+    # check loaded/unloaded status of modules
+    for MOD in $MODULES_UNLOAD ; do
+	if /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
+	    echo "$MOD is loaded"
+	else
+	    echo "$MOD is not loaded"
+	fi
+    done
+}
+
+CheckRoot(){
+    # checks to see if the user is root
+    # first try whoami, then id
+    if type whoami 1>/dev/null 2>1 ; then
+	if [ ! `whoami` = root ] ; then
+	    echo "ERROR:  You must be root to run this command"
+	    DoExit
+	    exit -1
+	fi
+    elif type id 1>/dev/null 2>1 ; then
+	if [ ! `id -u` = 0 ] ; then
+	    echo "ERROR:  You must be root to run this command"
+	    DoExit
+	    exit -1
+	fi
+    fi
+    # if we get here, either the user is root, or both whoami
+    # and id don't exist on this system... in either case we
+    # should attempt to load/unload modules, so we return
 }
 
 CheckMem(){
@@ -65,10 +111,9 @@ Load(){
 }
 
 CheckLoaded(){
-
-    # checks to see if rtapi and hal_lib modules were loaded
-    # (would like to check all modules, but some may not actually
-    #  be required or present on all systems)
+# checks to see if rtapi and hal_lib modules were loaded
+# (would like to check all modules, but some may not actually
+#  be required or present on all systems)
     STATUS=
     for module in rtapi hal_lib ; do
 	# check to see if the module is installed
@@ -78,6 +123,7 @@ CheckLoaded(){
 	fi
     done
     if [ -n "$STATUS" ] ; then
+	DoExit
 	exit -1
     fi
 }
@@ -89,8 +135,7 @@ Unload(){
 }
 
 CheckUnloaded(){
-
-    # checks to see if all modules were unloaded
+# checks to see if all modules were unloaded
     STATUS=
     for module in $MODULES_UNLOAD ; do
 	# check to see if the module is installed
@@ -100,6 +145,7 @@ CheckUnloaded(){
 	fi
     done
     if [ -n "$STATUS" ] ; then
+	DoExit
 	exit -1
     fi
 }
@@ -110,15 +156,16 @@ DoExit(){
 }
 
 case "$1" in
-  start)
+  start|load)
 	CheckConfig
-	CheckMem
+	CheckRoot
 	Load
 	CheckLoaded
 	DoExit
 	;;
   restart|reload)
 	CheckConfig
+	CheckRoot
 	CheckMem
 	Unload
 	CheckUnloaded
@@ -126,15 +173,21 @@ case "$1" in
 	CheckLoaded
 	DoExit
 	;;
-  stop)
+  stop|unload)
 	CheckConfig
+	CheckRoot
 	CheckMem
 	Unload
 	CheckUnloaded
 	DoExit
 	;;
+  status)
+	CheckConfig
+	CheckStatus
+	DoExit
+	;;
   *)
-	echo "Usage: $0 {start|stop|restart|reload}" >&2
+	echo "Usage: $0 {start|load|stop|unload|restart|reload|status}" >&2
 	exit 1
 	;;
 esac

@@ -41,7 +41,7 @@ fi
 #
 if [ $1 = load ] ; then
     # load the rtos and rtapi
-    if ! scripts/load_rtapi ; then
+    if ! scripts/realtime start ; then
         exit -1
     fi
     # done
@@ -53,7 +53,7 @@ fi
 #
 if [ $1 = unload ] ; then
     # unload the rtos and rtapi
-    if ! scripts/unload_rtapi ; then
+    if ! scripts/realtime stop ; then
         exit -1
     fi
     # done
