@@ -171,7 +171,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     RTAI=1
     RTDIR=`$RTS --prefix`
     RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --cflags-fp`
+    RTFLAGS=`$RTS --cflags-fp | head -n 1`
     RTFLAGS="$RTFLAGS -DRTAI=1"
     KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
     KERNELDIR=$(cd $KERNELDIR ; pwd -P )

@@ -1379,7 +1379,7 @@ fi
 
 #at this point if RTDIR is empty, we need to find RT ourselves
 if (test -z "$RTDIR" ); then
-  RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" 2>/dev/null)
+  RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" -o -name "realtime-config" 2>/dev/null)
   if (test "$RTS" = "" ) ; then
     { { echo "$as_me:$LINENO: error: RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&5
 echo "$as_me: error: RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&2;}
@@ -1388,39 +1388,82 @@ echo "$as_me: error: RT not found, try to specify one by --with-rtai=<path>, --w
     { { echo "$as_me:$LINENO: error: Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&5
 echo "$as_me: error: Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&2;}
    { (exit 1); exit 1; }; }
-  elif (test `echo $RTS | awk -F / ' {print $NF}'` = "rtai-config") ; then
-    #we have found rtai-config
-    #probably version 3
-    RTNAME=rtai-3.0
-    RTPREFIX=rtai
-    RTAI=3
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --module-cflags`
-    RTFLAGS="$RTFLAGS -DRTAI=3"
-    KERNELDIR=`$RTS --linux-dir`
-    echo "$as_me:$LINENO: result: rtai=$RTDIR set from search" >&5
-echo "${ECHO_T}rtai=$RTDIR set from search" >&6
   else
-    #we have found rtl-config
-    RTPREFIX=rtlinux
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --c-flags`
-    KERNELDIR=`$RTS --linux`
+    echo "$as_me:$LINENO: result: Using $RTS as the RT signature" >&5
+echo "${ECHO_T}Using $RTS as the RT signature" >&6
   fi
 else
-  # we have RTDIR from the user... let's check for rtai-config, rtl-config
+  # we have RTDIR from the user... let's check for rtai-config, realtime-config, and rtl-config
   RTDIR=$(cd $RTDIR ; pwd -P )
   if (! test "x$RTAIDIR" = "x") ; then
-    if (test -r $RTDIR/rtai-config); then
-       # found rtai-config
+    # Test for rtai-config - RTAI3.x
+    if (test -f $RTDIR/rtai-config); then
        RTS=$RTDIR/rtai-config
     elif (test -r $RTDIR/bin/rtai-config); then
        RTS=$RTDIR/bin/rtai-config
     elif (test `rtai-config --version 2> /dev/null`); then
        RTS=rtai-config
+       #we have RTDIR defined by the user, let's check if $RTS --prefix = $RTDIR
+       if (! test "$RTDIR" = `$RTS --prefix`); then
+	  { echo "$as_me:$LINENO: WARNING: RTAIDIR=$RTDIR specified contains no rtai-config, however one was found in PATH" >&5
+echo "$as_me: WARNING: RTAIDIR=$RTDIR specified contains no rtai-config, however one was found in PATH" >&2;}
+          RTDIR=`$RTS --prefix`
+	  { echo "$as_me:$LINENO: WARNING: using RTAIDIR=$RTDIR from now on" >&5
+echo "$as_me: WARNING: using RTAIDIR=$RTDIR from now on" >&2;}
+       fi
+    # Test for realtime-config - RTAI24.1.x
+    elif (test -f $RTDIR/realtime-config); then
+       RTS=$RTDIR/realtime-config
+    elif (test -r $RTDIR/bin/realtime-config); then
+       RTS=$RTDIR/bin/realtime-config
+    elif (test -r $RTDIR/scripts/realtime-config); then
+       RTS=$RTDIR/scripts/realtime-config
+    elif (test `realtime-config --version 2> /dev/null`); then
+       RTS=realtime-config
+       #we have RTDIR defined by the user, let's check if $RTS --prefix = $RTDIR
+       if (! test "$RTDIR" = `$RTS --prefix`); then
+	  { echo "$as_me:$LINENO: WARNING: RTAIDIR=$RTDIR specified contains no realtime-config, however one was found in PATH" >&5
+echo "$as_me: WARNING: RTAIDIR=$RTDIR specified contains no realtime-config, however one was found in PATH" >&2;}
+          RTDIR=`$RTS --prefix`
+	  { echo "$as_me:$LINENO: WARNING: using RTAIDIR=$RTDIR from now on" >&5
+echo "$as_me: WARNING: using RTAIDIR=$RTDIR from now on" >&2;}
+       fi
+    else
+       { { echo "$as_me:$LINENO: error: RTAIDIR=$RTAIDIR specified, but neither rtai-config \(RTAI-3.x\) nor realtime-config \(rtai-24.1.x\) found. Check your RTAI install" >&5
+echo "$as_me: error: RTAIDIR=$RTAIDIR specified, but neither rtai-config \(RTAI-3.x\) nor realtime-config \(rtai-24.1.x\) found. Check your RTAI install" >&2;}
+   { (exit 1); exit 1; }; }
     fi
+
+  elif (! test "x$RTLINUXDIR" = "x") ; then
+    # test for rtl-config
+    if (test -f $RTLINUXDIR/rtl-config); then
+       RTS=$RTLINUXDIR/rtl-config
+    elif (test -r $RTLINUXDIR/bin/rtl-config); then
+       RTS=$RTLINUXDIR/bin/rtl-config
+    elif (test -r $RTLINUXDIR/scripts/rtl-config); then
+       RTS=$RTLINUXDIR/scripts/rtl-config
+    fi
+  elif (! test "x$RTLINUXPRODIR" = "x") ; then
+    # test for RTLinuxPro
+    # right now unsupported
+    { { echo "$as_me:$LINENO: error: RTLinuxPro support to be added" >&5
+echo "$as_me: error: RTLinuxPro support to be added" >&2;}
+   { (exit 1); exit 1; }; }
+  fi
+  echo "$as_me:$LINENO: result: $RTDIR set from command line" >&5
+echo "${ECHO_T}$RTDIR set from command line" >&6 # Spit out an error if/when it fails ??
+fi
+
+
+# For RTAI-3.x $RTS = rtai-config
+if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
+#	 Option		Returns
+#	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree.
+#	--version	Version number of the installed RTAI (e.g. 3.1, 3.0r4)
+#	--cc		The compiler used for the C sources - Not necessarily the default cc
+#	--module-cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
+#	--linux-dir	Path to the source directory f the patched kernel.
+#	--module-dir	Path to the directory where the rtai modules are installed
     RTNAME=rtai-3.0
     RTPREFIX=rtai
     RTAI=3
@@ -1429,15 +1472,44 @@ else
     RTFLAGS=`$RTS --module-cflags`
     RTFLAGS="$RTFLAGS -DRTAI=3"
     KERNELDIR=`$RTS --linux-dir`
-  elif (! test "x$RTLINUXDIR" = "x") ; then
-    #FIXME add rtl-config
-    RTNAME=rtlinux
-    RTPREFIX=rtlinux
+
+# For RTAI-24.1x $RTS = realtime-config
+elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
+#	 Option		Returns
+#	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
+#	--version	Should return the version number - Appears to return 0.0.0 for most 24.1.x releases.
+#	--cc		The compiler used for the C sources - Not necessarily the default cc
+#	--cflags	Flags used to compile the realtime modules with.
+#	--cflags-fp	Flags to use when compiling realtime modules with floating point math.
+#	--dump		Dumps the .buildvars to screen - Grep for linuxdir
+    RTNAME=rtai
+    RTPREFIX=rtai
+    RTAI=1
+    RTDIR=`$RTS --prefix`
     RTDIR=$(cd $RTDIR ; pwd -P )
-  fi
-  echo "$as_me:$LINENO: result: $RTDIR set from command line" >&5
-echo "${ECHO_T}$RTDIR set from command line" >&6
+    RTFLAGS=`$RTS --cflags-fp | head -n 1`
+    RTFLAGS="$RTFLAGS -DRTAI=1"
+    KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[ ="]+' '{print $2}')
+    KERNELDIR=$(cd $KERNELDIR ; pwd -P )
+
+# For RTLinux-3.? $RTS = rtl-config
+elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
+#	 Option		Returns
+#	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
+#	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
+#	--cc		The compiler used for the C sources - Not necessarily the default cc
+#	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
+#	--linux		Path to the source directory f the patched kernel.
+#	--module_dir	Path to the directory where the RTLinux modules are installed
+#	--modules	A list of the available realtime modules.
+    RTPREFIX=rtlinux
+    RTDIR=`$RTS --prefix`
+    RTDIR=$(cd $RTDIR ; pwd -P )
+    RTFLAGS=`$RTS --cflags`
+    KERNELDIR=`$RTS --linux`
+# elif test for RTLinux-Pro ???
 fi
+
 
 
 
@@ -1469,6 +1541,7 @@ fi
 
 # Check CC version - (P.C.) We need to verify the compiler is the same one used
 # for the realtime extensions... Hence the need to find the RT signature first.
+# $RTS --cc should return the C compiler used - Verify this is acceptable.
 # if version is gcc-2.96 check for alternative
 echo "$as_me:$LINENO: checking for cc version" >&5
 echo $ECHO_N "checking for cc version... $ECHO_C" >&6
@@ -2122,7 +2195,7 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
+ # The compiler MUST match the one used to compile the realtime modules.
 if test -z "$CC"; then
   ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -3142,6 +3215,11 @@ fi
 # tests and linking to mathstubs.o at a later stage.
 echo "$as_me:$LINENO: checking for kernel math support" >&5
 echo $ECHO_N "checking for kernel math support... $ECHO_C" >&6
+USE_LIBM=""
+USE_RTLIBM=""
+USE_STUBS=""
+MATHLIB=""
+MATHINC=""
 
 if (test -r $RTDIR/modules/rtai_libm.o ) || (test -r $($RTS --module-dir)/rtai_math.o ) ; then
     # Found a suitable kernel module..
@@ -3150,6 +3228,7 @@ if (test -r $RTDIR/modules/rtai_libm.o ) || (test -r $($RTS --module-dir)/rtai_m
     echo "$as_me:$LINENO: result: ok, using RTAI's libm kernel module" >&5
 echo "${ECHO_T}ok, using RTAI's libm kernel module" >&6
 # Note: need to search /lib/modules/`uname -r` for the math modules..
+#       or `$RTS --module-dir`...
 else
     echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
@@ -3938,7 +4017,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 if test "$ac_cv_search_Tcl_Init" = no; then
-  for ac_lib in tcl tcl8.4; do
+  for ac_lib in tcl tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4; do
     LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
     cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
@@ -4048,7 +4127,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
 if test "$ac_cv_search_Tk_Init" = no; then
-  for ac_lib in tk tk8.4; do
+  for ac_lib in tk tk8.0 tk8.1 tk8.2 tk8.3 tk8.4; do
     LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
     cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
