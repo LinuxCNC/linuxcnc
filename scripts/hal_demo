@@ -22,7 +22,7 @@ fi
 #
 # the first demo isn't a real demo - it simply lists all the demos
 #
-if [ $1 == list ] ; then
+if [ $1 = list ] ; then
     echo "Available demos are:"
     echo "  list - prints this list"
     echo "  load - loads hal core modules"
@@ -38,7 +38,7 @@ fi
 #
 # here is the "load" command
 #
-if [ $1 == load ] ; then
+if [ $1 = load ] ; then
     # load the rtos and rtapi
     if ! scripts/load_rtapi ; then
         exit -1
@@ -50,7 +50,7 @@ fi
 #
 # here is the "unload" command
 #
-if [ $1 == unload ] ; then
+if [ $1 = unload ] ; then
     # unload the rtos and rtapi
     if ! scripts/unload_rtapi ; then
         exit -1
@@ -73,27 +73,32 @@ fi
 # The first demo: "parport1" simply tests the parallel port
 # this one is a step by step, tutorial/intro to HAL concepts
 #
-if [ $1 == parport1 ] ; then
+if [ $1 = parport1 ] ; then
     echo "(Comments that are part of the demo are in parenthesis.)"
     echo "(This demo echos its commands to the screen so you can"
     echo " see what each step does.  Echoed commands start with '$')"
-    read -p "Hit enter to install the hal_lib module"
+    echo "Hit enter to install the hal_lib module"
+    read
     echo "$ /sbin/insmod rtlib/hal_lib.o"
     /sbin/insmod rtlib/hal_lib.o
-    read -p "Hit enter to install the parport module with a 1mS thread"
+    echo "Hit enter to install the parport module with a 1mS thread"
+    read
     # change the 0278 if your port is at a different address
     echo "$ /sbin/insmod rtlib/parport.o period=1000000 cfg=\"0278\""
     /sbin/insmod rtlib/parport.o period=1000000 cfg="0278"
-    read -p "Hit enter see the component list"
+    echo "Hit enter see the component list"
+    read
     echo "$ bin/halcmd show comp"
     bin/halcmd show comp
-    read -p "Hit enter see the threads and functions"
+    echo "Hit enter see the threads and functions"
+    read
     echo "$ bin/halcmd show thread"
     bin/halcmd show thread
     echo "(the period is in nano-seconds)"
     echo "$ bin/halcmd show funct"
     bin/halcmd show funct
-    read -p "Hit enter to continue"
+    echo "Hit enter to continue"
+    read
     echo "(connecting the parport read and write"
     echo " functions to the 1mS thread)"
     echo "$ bin/halcmd addf parport.1.read parport.thread"
@@ -103,20 +108,24 @@ if [ $1 == parport1 ] ; then
     echo "(start the realtime thread)"
     echo "$ bin/halcmd start"
     bin/halcmd start
-    read -p "Hit enter see the threads and functions again"
+    echo "Hit enter see the threads and functions again"
+    read
     echo "$ bin/halcmd show thread"
     bin/halcmd show thread
     echo "(thread now has functions attached)"
     echo "$ bin/halcmd show funct"
     bin/halcmd show funct
     echo "(functions have a non-zero users count)"
-    read -p "Hit enter to see the pins"
+    echo "Hit enter to see the pins"
+    read
     echo "$ bin/halcmd show pin"
     bin/halcmd show pin
-    read -p "Hit enter to see the parameters"
+    echo "Hit enter to see the parameters"
+    read
     echo "$ bin/halcmd show param"
     bin/halcmd show param
-    read -p "Hit enter to create some signals"
+    echo "Hit enter to create some signals"
+    read
     echo "$ bin/halcmd newsig jumper1 bit"
     bin/halcmd newsig jumper1 bit
     echo "$ bin/halcmd newsig jumper2 bit"
@@ -124,7 +133,8 @@ if [ $1 == parport1 ] ; then
     echo "(signals created - lets look at them)"
     echo "$ bin/halcmd show sig"
     bin/halcmd show sig
-    read -p "Hit enter to connect signals to pins"
+    echo "Hit enter to connect signals to pins"
+    read
     echo "(use signal jumper1 to connect input pin 10 to output pin 2)"
     echo "$ bin/halcmd linksp jumper1 parport.1.pin-10-in"
     bin/halcmd linksp jumper1 parport.1.pin-10-in
@@ -136,22 +146,26 @@ if [ $1 == parport1 ] ; then
     echo "(If you have a breakout board or other access to the port"
     echo " you can apply a signal to pin 10 and verify that pin 2"
     echo " follows it - updated every 1mS )"
-    read -p "Hit enter to add another output"
+    echo "Hit enter to add another output"
+    read
     echo "$ bin/halcmd linksp jumper1 parport.1.pin-03-out"
     bin/halcmd linksp jumper1 parport.1.pin-03-out
     echo "(input pin 10 is now routed to output pins 2 and 3 )"
     echo "$ bin/halcmd show sig"
     bin/halcmd show sig
-    read -p "Hit enter to invert the pin 3 output"
+    echo "Hit enter to invert the pin 3 output"
+    read
     echo "(invert pin 3 by setting a parameter of the parport module)"
     echo "$ bin/halcmd setp parport.1.pin-03-out-invert TRUE"
     bin/halcmd setp parport.1.pin-03-out-invert TRUE
     echo "(if you have access to the pins, you can verify"
     echo " that pin 3 is now inverted)"
-    read -p "Hit enter to see the parameters"
+    echo "Hit enter to see the parameters"
+    read
     echo "$ bin/halcmd show param"
     bin/halcmd show param
-    read -p "Hit enter to try halmeter"
+    echo "Hit enter to try halmeter"
+    read
     echo "(running halmeter, a GUI application - it should"
     echo " appear in another window.)"
     echo "(click on the select button, then select a pin, signal,"
@@ -167,7 +181,8 @@ if [ $1 == parport1 ] ; then
     echo "(Click exit to shut down halmeter.)"
     echo "$ bin/halmeter"
     bin/halmeter
-    read -p "Hit enter to finish the demo"
+    echo "Hit enter to finish the demo"
+    read
     echo "(deleting signals)"
     echo "$ bin/halcmd delsig jumper1"
     bin/halcmd delsig jumper1
@@ -185,52 +200,63 @@ fi
 # and halmeter.
 # this one is also a step by step tutorial
 #
-if [ $1 == siggen ] ; then
+if [ $1 = siggen ] ; then
     echo "(Comments that are part of the demo are in parenthesis.)"
     echo "(This demo echos its commands to the screen so you can"
     echo " see what each step does.  Echoed commands start with '$')"
-    read -p "Hit enter to install the hal_lib module"
+    echo "Hit enter to install the hal_lib module"
+    read
     echo "$ /sbin/insmod rtlib/hal_lib.o"
     /sbin/insmod rtlib/hal_lib.o
-    read -p "Hit enter to install the siggen module with a 1mS thread"
+    echo "Hit enter to install the siggen module with a 1mS thread"
+    read
     echo "$ /sbin/insmod rtlib/siggen.o fp_period=1000000"
     /sbin/insmod rtlib/siggen.o fp_period=1000000
-    read -p "Hit enter see the component list"
+    echo "Hit enter see the component list"
+    read
     echo "$ bin/halcmd show comp"
     bin/halcmd show comp
-    read -p "Hit enter see the threads and functions"
+    echo "Hit enter see the threads and functions"
+    read
     echo "$ bin/halcmd show thread"
     bin/halcmd show thread
     echo "(the period is in nano-seconds)"
     echo "$ bin/halcmd show funct"
     bin/halcmd show funct
-    read -p "Hit enter to continue"
+    echo "Hit enter to continue"
+    read
     echo "(connecting the siggen update function to the 1mS thread)"
     echo "$ bin/halcmd addf siggen.1.update siggen.thread"
     bin/halcmd addf siggen.1.update siggen.thread
     echo "(start the realtime thread)"
     echo "$ bin/halcmd start"
     bin/halcmd start
-    read -p "Hit enter see the threads and functions again"
+    echo "Hit enter see the threads and functions again"
+    read
     echo "$ bin/halcmd show thread"
     bin/halcmd show thread
     echo "(thread now has function attached)"
     echo "$ bin/halcmd show funct"
     bin/halcmd show funct
     echo "(function has a non-zero users count)"
-    read -p "Hit enter to see the pins"
+    echo "Hit enter to see the pins"
+    read
     echo "$ bin/halcmd show pin"
     bin/halcmd show pin
-    read -p "Hit enter to see the parameters"
+    echo "Hit enter to see the parameters"
+    read
     echo "$ bin/halcmd show param"
     bin/halcmd show param
-    read -p "Hit enter to change the frequency to 0.1Hz"
+    echo "Hit enter to change the frequency to 0.1Hz"
+    read
     echo "$ bin/halcmd setp siggen.1.frequency 0.1"
     bin/halcmd setp siggen.1.frequency 0.1
-    read -p "Hit enter to see the parameters"
+    echo "Hit enter to see the parameters"
+    read
     echo "$ bin/halcmd show param"
     bin/halcmd show param
-    read -p "Hit enter to try halmeter"
+    echo "Hit enter to try halmeter"
+    read
     echo "(running halmeter, a GUI application - it should"
     echo " appear in another window.)"
     echo "(click on the select button, then select a pin, signal,"
@@ -243,7 +269,8 @@ if [ $1 == siggen ] ; then
     echo "(Click exit to shut down halmeter.)"
     echo "$ bin/halmeter"
     bin/halmeter
-    read -p "Hit enter to finish the demo"
+    echo "Hit enter to finish the demo"
+    read
     echo "(unloading the siggen module)"
     echo "$ /sbin/rmmod siggen"
     /sbin/rmmod siggen
@@ -255,11 +282,12 @@ fi
 # The next demo: "circle" puts a bunch of components together
 # to move in a circle.
 #
-if [ $1 == circle ] ; then
+if [ $1 = circle ] ; then
     echo "(This demo does not show each command step by step)"
     echo "(Examine the script to see how it works, it is"
     echo " extensively commented)"
-    read -p "Hit enter to install the hal components"
+    echo "Hit enter to install the hal components"
+    read
     # install the hal library module
     /sbin/insmod rtlib/hal_lib.o
     # install parport module with a 50uS thread
@@ -273,7 +301,8 @@ if [ $1 == circle ] ; then
     /sbin/insmod rtlib/stepgen.o cfg="0 0"
     #
     bin/halcmd show comp
-    read -p "Hit enter set up the threads"
+    echo "Hit enter set up the threads"
+    read
     #
     # set up the high speed thread
     # first read the parport inputs
@@ -295,7 +324,8 @@ if [ $1 == circle ] ; then
     #
     bin/halcmd show thread
     bin/halcmd show funct
-    read -p "Hit enter to create signals and connect pins"
+    echo "Hit enter to create signals and connect pins"
+    read
     #
     # start with the position references - declare the signals
     bin/halcmd newsig x_pos_cmd float
@@ -335,12 +365,12 @@ if [ $1 == circle ] ; then
     bin/halcmd linksp y_step stepgen.2.step
     bin/halcmd linksp y_dir stepgen.2.dir
     # the destinations - parport pins
-    # this set if lines configures for a Xylotex 3-axis card
+    # this set of lines configures for a Xylotex 3-axis card
     #bin/halcmd linksp x_step parport.1.pin-02-out
     #bin/halcmd linksp x_dir  parport.1.pin-03-out
     #bin/halcmd linksp y_step parport.1.pin-04-out
     #bin/halcmd linksp y_dir  parport.1.pin-05-out
-    # this set if lines configures for the "standard" EMC pinout
+    # this set of lines configures for the "standard" EMC pinout
     bin/halcmd linksp x_dir  parport.1.pin-02-out
     bin/halcmd linksp x_step parport.1.pin-03-out
     bin/halcmd linksp y_dir  parport.1.pin-04-out
@@ -354,7 +384,8 @@ if [ $1 == circle ] ; then
     bin/halcmd linksp enable parport.1.pin-10-in
     #
     bin/halcmd show sig
-    read -p "Hit enter to set the parameters"
+    echo "Hit enter to set the parameters"
+    read
     # set the signal generator frequency to make a circle in 10 seconds
     bin/halcmd setp siggen.1.frequency 0.1
     # set the PID tuning
@@ -370,7 +401,8 @@ if [ $1 == circle ] ; then
     bin/halcmd setp stepgen.2.velocity-scale 800
     #
     bin/halcmd show param
-    read -p "Hit enter to start"
+    echo "Hit enter to start"
+    read
     #
     bin/halcmd start
     #
@@ -382,7 +414,8 @@ if [ $1 == circle ] ; then
     echo "to one circle every five seconds:"
     echo "bin/halcmd setp siggen.1.frequency 0.2"
     echo
-    read -p "Hit enter to finish the demo"
+    echo "Hit enter to finish the demo"
+    read
     /sbin/rmmod siggen
     /sbin/rmmod parport
     /sbin/rmmod stepgen
