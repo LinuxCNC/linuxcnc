@@ -1053,15 +1053,15 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
     }
 }
 
-int hal_create_thread(char *name, unsigned long period_nsec,
-    int uses_fp, int comp_id)
+int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
 {
     int next, cmp, prev_priority;
     int retval, n;
     hal_thread_t *new, *tptr;
-    hal_comp_t *comp;
     long curr_period;
+#if 0
     char buf[HAL_NAME_LEN + 1];
+#endif
 
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1070,18 +1070,6 @@ int hal_create_thread(char *name, unsigned long period_nsec,
     }
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
-    /* validate comp_id */
-    comp = halpr_find_comp_by_id(comp_id);
-    if (comp == 0) {
-	/* bad comp_id */
-	rtapi_mutex_give(&(hal_data->mutex));
-	return HAL_INVAL;
-    }
-    if (comp->type == 0) {
-	/* not a realtime component */
-	rtapi_mutex_give(&(hal_data->mutex));
-	return HAL_INVAL;
-    }
     /* make sure name is unique on thread list */
     next = hal_data->thread_list_ptr;
     while (next != 0) {
@@ -1167,12 +1155,19 @@ int hal_create_thread(char *name, unsigned long period_nsec,
     /* init time logging variables */
     new->runtime = 0;
     new->maxtime = 0;
+#if 0
+/* These params need to be re-visited when I refactor HAL.  Right
+   now they cause problems - they can no longer be owned by the calling
+   component, and they can't be owned by the hal_lib because it isn't
+   actually a component.
+*/
     /* create a parameter with the thread's runtime in it */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.time", name);
-    hal_param_s32_new(buf, HAL_RD, &(new->runtime), comp_id);
+    hal_param_s32_new(buf, HAL_RD, &(new->runtime), lib_module_id);
     /* create a parameter with the thread's maximum runtime in it */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
-    hal_param_s32_new(buf, HAL_RD_WR, &(new->maxtime), comp_id);
+    hal_param_s32_new(buf, HAL_RD_WR, &(new->maxtime), lib_module_id);
+#endif
     return HAL_SUCCESS;
 }
 
@@ -2403,6 +2398,11 @@ static void free_thread_struct(hal_thread_t * thread)
 {
     hal_funct_entry_t *funct_entry;
     hal_list_t *list_root, *list_entry;
+#if 0
+    int *prev, next;
+    char time[HAL_NAME_LEN + 5], tmax[HAL_NAME_LEN + 5];
+    hal_param_t *param;
+#endif
 
     /* if we're deleting a thread, we need to stop all threads */
     hal_data->threads_running = 0;
@@ -2425,6 +2425,34 @@ static void free_thread_struct(hal_thread_t * thread)
 	/* free the removed entry */
 	free_funct_entry_struct(funct_entry);
     }
+#if 0
+/* Currently these don't get created, so we don't have to worry
+   about deleting them.  They will come back when the HAL refactor
+   is done, at that time this code or something like it will be
+   needed.
+*/
+    /* need to delete <thread>.time and <thread>.tmax params */
+    rtapi_snprintf(time, HAL_NAME_LEN, "%s.time", thread->name);
+    rtapi_snprintf(tmax, HAL_NAME_LEN, "%s.tmax", thread->name);
+    /* search the parameter list for those parameters */
+    prev = &(hal_data->param_list_ptr);
+    next = *prev;
+    while (next != 0) {
+	param = SHMPTR(next);
+	/* does this param match either name? */
+	if ((strcmp(param->name, time) == 0)
+	    || (strcmp(param->name, tmax) == 0)) {
+	    /* yes, unlink from list */
+	    *prev = param->next_ptr;
+	    /* and delete it */
+	    free_param_struct(param);
+	} else {
+	    /* no match, try the next one */
+	    prev = &(param->next_ptr);
+	}
+	next = *prev;
+    }
+#endif
     thread->name[0] = '\0';
     /* add thread to free list */
     thread->next_ptr = hal_data->thread_free_ptr;

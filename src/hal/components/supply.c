@@ -127,7 +127,7 @@ int rtapi_app_main(void)
 	num_chan);
     if (period > 0) {
 	/* create thread */
-	retval = hal_create_thread("supply.thread", period, 1, comp_id);
+	retval = hal_create_thread("supply.thread", period, 1);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"SUPPLY: ERROR: could not create thread\n");

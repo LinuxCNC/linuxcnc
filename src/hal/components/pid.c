@@ -224,7 +224,7 @@ int rtapi_app_main(void)
 	num_chan);
     if (fp_period > 0) {
 	/* create a floating point thread */
-	retval = hal_create_thread("pid.threadFP", fp_period, 1, comp_id);
+	retval = hal_create_thread("pid.threadFP", fp_period, 1);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PID: ERROR: could not create FP thread\n");

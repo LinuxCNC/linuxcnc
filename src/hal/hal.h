@@ -556,15 +556,13 @@ extern int hal_export_funct(char *name, void (*funct) (void *, long),
     functions that use floating point.  In general, it should
     be non-zero for most threads, with the possible exception
     of the very fastest, most critical thread in a system.
-    'comp_id' is the ID of the calling component, as returned by
-    a call to hal_init().
     On success, hal_create_thread() returns a positive integer
     thread ID.  On failure, returns an error code as defined
     above.  Call only from realtime init code, not from user
     space or realtime code.
 */
 extern int hal_create_thread(char *name, unsigned long period_nsec,
-    int uses_fp, int comp_id);
+    int uses_fp);
 
 /** hal_thread_delete() deletes a realtime thread.
     'name' is the name of the thread, which must have been created

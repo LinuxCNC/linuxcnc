@@ -197,7 +197,7 @@ int rtapi_app_main(void)
     /* was 'period' specified in the insmod command? */
     if (period > 0) {
 	/* create a thread */
-	retval = hal_create_thread("encoder.thread", period, 0, comp_id);
+	retval = hal_create_thread("encoder.thread", period, 0);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"ENCODER: ERROR: could not create thread\n");

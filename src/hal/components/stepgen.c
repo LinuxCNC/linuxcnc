@@ -547,7 +547,7 @@ int rtapi_app_main(void)
 	"STEPGEN: installed %d step pulse generators\n", num_chan);
     if (period > 0) {
 	/* create a thread */
-	retval = hal_create_thread("stepgen.thread", period, 0, comp_id);
+	retval = hal_create_thread("stepgen.thread", period, 0);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"STEPGEN: ERROR: could not create non-FP thread\n");
@@ -560,7 +560,7 @@ int rtapi_app_main(void)
     }
     if (fp_period > 0) {
 	/* create a floating point thread */
-	retval = hal_create_thread("stepgen.threadFP", fp_period, 1, comp_id);
+	retval = hal_create_thread("stepgen.threadFP", fp_period, 1);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"STEPGEN: ERROR: could not create FP thread\n");

@@ -1109,9 +1109,11 @@ static void save_params(void)
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
-	rtapi_print("setp %s %s\n",
-	    param->name,
-	    data_value((int) param->type, SHMPTR(param->data_ptr)));
+	if (param->dir != HAL_RD) {
+	    /* param is writable, save it's value */
+	    rtapi_print("setp %s %s\n", param->name,
+		data_value((int) param->type, SHMPTR(param->data_ptr)));
+	}
 	next = param->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
