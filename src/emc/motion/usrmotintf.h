@@ -13,7 +13,7 @@
   21-Jan-2004  P.C. Moved across from the original EMC source tree.
 */
 
-#include "emcmot.h"		/* EMCMOT_STATUS,CMD */
+#include "motion.h"		/* EMCMOT_STATUS,CMD */
 
 /* ident tag */
 #ifndef __GNUC__

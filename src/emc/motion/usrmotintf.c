@@ -34,7 +34,7 @@ static char __attribute__ ((unused)) ident[] =
 #include "_timer.h"		/* rcslib esleep() etime() */
 #include "_shm.h"		/* rcslib shm_t, rcs_shm_open(), ... */
 #include "rcs_print.hh"		/* set_rcs_print_destination(), ... */
-#include "emcmot.h"		/* EMCMOT_STATUS,CMD */
+#include "motion.h"		/* EMCMOT_STATUS,CMD */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_BASE_ADDRESS, SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */

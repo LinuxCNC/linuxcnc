@@ -9,7 +9,7 @@
   */
 
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
-#include "emcmot.h"		/* these decls */
+#include "motion.h"		/* these decls */
 
 /* ident tag */
 #ifndef __GNUC__

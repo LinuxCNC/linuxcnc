@@ -12,7 +12,7 @@
   16-Oct-1997  FMP created
   */
 
-#include "emcmot.h"		/* these decls */
+#include "motion.h"		/* these decls */
 
 /* ident tag */
 #ifndef __GNUC__

@@ -30,7 +30,7 @@
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.h"		// INIFILE
 
-#include "emcmot.h"		// emc struct and commands
+#include "motion.h"		// emc struct and commands
 #include "usrmotintf.h"		// usrmot interface
 
 #include <unistd.h>		/* iopl() */

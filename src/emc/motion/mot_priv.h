@@ -1,7 +1,7 @@
 #ifndef MOT_PRIV_H
 #define MOT_PRIV_H
 
-#include "emcmot.h"
+#include "motion.h"
 
 /* function definitions */
 extern void emcmot_config_change(void);

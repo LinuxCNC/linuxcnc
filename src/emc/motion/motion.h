@@ -1,8 +1,8 @@
-#ifndef EMCMOT_H
-#define EMCMOT_H
+#ifndef MOTION_H
+#define MOTION_H
 
 /*
-  emcmot.h
+  motion.h
 
   Decls of data structures for motion controller
 
