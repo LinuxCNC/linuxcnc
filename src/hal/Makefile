@@ -15,14 +15,15 @@ PRIVHDRS = \
 hal_priv.h
 
 SRCS = \
-hal_lib.c
+hal_lib.c hal_cmds.c
 
 RT_SRCS = \
 hal_lib.c
 
 LIBS = \
 $(RTLIB_DIR)/hal_lib.o \
-$(LIB_DIR)/hal_lib.o
+$(LIB_DIR)/hal_lib.o \
+$(LIB_DIR)/hal_cmds.o
 
 all : headers $(LIBS)
 	(cd utils; make $@)

@@ -56,7 +56,8 @@ depend: def_depend
 clean :  def_clean
 
 # rule to link halcmd
-$(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
+$(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o \
+		$(LIB_DIR)/hal_lib.o $(LIB_DIR)/hal_cmds.o
 	@ echo "Linking $@"
 	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
