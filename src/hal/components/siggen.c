@@ -91,6 +91,7 @@ MODULE_PARM_DESC(fp_period, "floating point thread period (nsecs)");
 
 typedef struct {
     hal_float_t *square;	/* pin: output */
+    hal_float_t *sawtooth;	/* pin: output */
     hal_float_t *triangle;	/* pin: output */
     hal_float_t *sine;		/* pin: output */
     hal_float_t *cosine;	/* pin: output */
@@ -183,16 +184,6 @@ double cos(double x)
     return sin(x + (PI / 2.0));
 }
 
-double floor(double x)
-{
-    /* NOTE: this implementation of floor only works for positive numbers -
-       that's good enough here */
-    int tmp;
-
-    tmp = x;
-    return tmp;
-}
-
 #endif
 
 /***********************************************************************
@@ -273,20 +264,39 @@ static void calc_siggen(void *arg, long period)
     /* calculate the time since last execution */
     tmp1 = period * 0.000000001;
 
+    /* calculate how much of an output cycle that has passed */
+    tmp2 = siggen->frequency * tmp1;
+    /* limit frequency to comply with Nyquist limit */
+    if ( tmp2 > 0.5 ) {
+	siggen->frequency = 0.5 / tmp1;
+	tmp2 = 0.5;
+    }
     /* index ramps from 0.0 to 0.99999 for each output cycle */
-    siggen->index += (siggen->frequency * tmp1);
+    siggen->index += tmp2;
     /* wrap index if it is >= 1.0 */
-    siggen->index -= floor(siggen->index);
+    if ( siggen->index >= 1.0 ) {
+	siggen->index -= 1.0;
+    }
 
     /* generate the square wave output */
     /* tmp1 steps from -1.0 to +1.0 when index passes 0.5 */
-    tmp1 = (2.0 * floor(siggen->index * 2.0)) - 1.0;
+    if ( siggen->index > 0.5 ) {
+	tmp1 = 1.0;
+    } else {
+	tmp1 = -1.0;
+    }
     /* apply scaling and offset, and write to output */
     *(siggen->square) = (tmp1 * siggen->amplitude) + siggen->offset;
 
+    /* generate the sawtooth wave output */
+    /* tmp2 ramps from -1.0 to +1.0 as index goes from 0 to 1 */
+    tmp2 = (siggen->index * 2.0) - 1.0;
+    /* apply scaling and offset, and write to output */
+    *(siggen->sawtooth) = (tmp2 * siggen->amplitude) + siggen->offset;
+
     /* generate the triangle wave output */
     /* tmp2 ramps from -2.0 to +2.0 as index goes from 0 to 1 */
-    tmp2 = (siggen->index * 4.0) - 2.0;
+    tmp2 *= 2.0;
     /* flip first half of ramp, now goes from +1 to -1 to +1 */
     tmp2 = (tmp2 * tmp1) - 1.0;
     /* apply scaling and offset, and write to output */
@@ -316,6 +326,11 @@ static int export_siggen(int num, hal_siggen_t * addr)
     /* export pins */
     rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.square", num);
     retval = hal_pin_float_new(buf, HAL_WR, &(addr->square), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.sawtooth", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(addr->sawtooth), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -352,12 +367,14 @@ static int export_siggen(int num, hal_siggen_t * addr)
     }
     /* init all structure members */
     *(addr->square) = 0.0;
+    *(addr->sawtooth) = 0.0;
     *(addr->triangle) = 0.0;
     *(addr->sine) = 0.0;
     *(addr->cosine) = 0.0;
     addr->frequency = 1.0;
     addr->amplitude = 1.0;
     addr->offset = 0.0;
+    addr->index = 0.0;
     /* export function for this loop */
     rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.update", num);
     retval =

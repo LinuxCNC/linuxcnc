@@ -188,7 +188,7 @@ int rtapi_app_main(void)
 	counter_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "ENCODER: ERROR: update funct export failed\n");
+	    "ENCODER: ERROR: capture funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -346,13 +346,13 @@ static int export_counter(int num, counter_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    /* export pin for counts captured by update() */
+    /* export pin for counts captured by capture() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.counts", num);
     retval = hal_pin_s32_new(buf, HAL_WR, &(addr->count), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export pin for scaled position captured by update() */
+    /* export pin for scaled position captured by capture() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.position", num);
     retval = hal_pin_float_new(buf, HAL_WR, &(addr->pos), comp_id);
     if (retval != 0) {
