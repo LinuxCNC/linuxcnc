@@ -63,6 +63,7 @@ static INIFILE *axisInifile = 0;
   emcAxisSetUnits(int axis, double units);
 // FIXME - most of the gains are no longer used, but backlash is and needs treated separately
 // emcAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double backlash, double bias, double maxError, double deadband);
+  emcAxisSetBacklash(int axis, double backlash);
   emcAxisSetCycleTime(int axis, double cycleTime);
   emcAxisSetInterpolationRate(int axis, int rate);
   emcAxisSetInputScale(int axis, double scale, double offset);
@@ -161,6 +162,8 @@ static int loadAxis(int axis)
     return -1;
   }
 
+  // set backlash
+
   if (NULL != (inistring = axisInifile->find("BACKLASH", axisString))) {
     if (1 == sscanf(inistring, "%lf", &backlash)) {
       // found, and valid
@@ -180,21 +183,12 @@ static int loadAxis(int axis)
       rcs_print_error("can't find [%s] BACKLASH, using default\n", axisString);
     }
   }
-
-  // now set them
-
-/* FIXME - need to handle backlash separately from the rest */
-#if 0
-
-  if (0 != emcAxisSetGains(axis,
-                           p, i, d, ff0, ff1, ff2,
-                           backlash, bias, maxError, deadband)) {
+  if (0 != emcAxisSetBacklash(axis, backlash)) {
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetGains\n");
+      rcs_print_error("bad return from emcAxisSetBacklash\n");
     }
     return -1;
   }
-#endif
 
 /* FIXME - cycle times and scaling no longer needed */
 #if 0

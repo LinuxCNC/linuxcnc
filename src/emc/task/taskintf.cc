@@ -144,7 +144,31 @@ int emcAxisSetGains(int axis, double p, double i, double d,
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
+#endif
 
+int emcAxisSetBacklash(int axis, double backlash)
+{
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+	return 0;
+    }
+
+    emcmotCommand.command = EMCMOT_SET_BACKLASH;
+    emcmotCommand.axis = axis;
+
+    emcmotCommand.backlash = backlash;
+
+ #ifdef ISNAN_TRAP
+    if (isnan(emcmotCommand.backlash)) {
+	printf("isnan error in emcAxisSetBacklash\n");
+	return -1;
+    }
+ #endif
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+
+#if 0
 int emcAxisSetCycleTime(int axis, double cycleTime)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {

@@ -146,12 +146,15 @@ proc popupCalibration {{w .calibwindow}} {
     pack $lw.deadband.ent -side right
 
     frame $lw.buttons
-    button $lw.buttons.ok -text OK -default active -command "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$backlash \$bias \$maxerror \$deadband; popdownCalibration $w"
+#    button $lw.buttons.ok -text OK -default active -command "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$backlash \$bias \$maxerror \$deadband; popdownCalibration $w"
+    button $lw.buttons.ok -text OK -default active -command "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$backlash \$bias \$maxerror \$deadband; emc_axis_set_backlash \$activeAxis \$backlash; popdownCalibration $w"
     button $lw.buttons.cancel -text Cancel -command "popdownCalibration $w"
 
     pack $lw.buttons -side bottom -fill x -pady 2m
     pack $lw.buttons.ok $lw.buttons.cancel -side left -expand 1
-    bind $w <Return> "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$backlash \$bias \$maxerror \$deadband; popdownCalibration $w"
+#    bind $w <Return> "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$backlash \$bias \$maxerror \$deadband; popdownCalibration $w"
+    bind $w <Return> "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$backlash \$bias \$maxerror \$deadband; emc_axis_set_backlash \$activeAxis \$backlash; popdownCalibration $w"
+
 }
 
 # if we're not running inside tkemc, then pop us up in root window

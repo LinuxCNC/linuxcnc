@@ -214,6 +214,7 @@ static EMC_AXIS_INCR_JOG *incr_jog_msg;
 static EMC_AXIS_ABS_JOG *abs_jog_msg;
 //static EMC_AXIS_SET_CYCLE_TIME *set_cycle_time_msg;
 //static EMC_AXIS_SET_GAINS *set_gains_msg;
+static EMC_AXIS_SET_BACKLASH *set_backlash_msg;
 //static EMC_AXIS_SET_INPUT_SCALE *set_input_scale_msg;
 //static EMC_AXIS_SET_OUTPUT_SCALE *set_output_scale_msg;
 static EMC_AXIS_SET_FERROR *set_ferror_msg;
@@ -427,6 +428,7 @@ static int emcTaskPlan(void)
 		// immediate commands
 	    case EMC_AXIS_SET_CYCLE_TIME_TYPE:
 	    case EMC_AXIS_SET_GAINS_TYPE:
+	    case EMC_AXIS_SET_BACKLASH_TYPE:
 	    case EMC_AXIS_DISABLE_TYPE:
 	    case EMC_AXIS_ENABLE_TYPE:
 	    case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
@@ -523,6 +525,7 @@ static int emcTaskPlan(void)
 	    case EMC_AXIS_ENABLE_TYPE:
 	    case EMC_AXIS_SET_CYCLE_TIME_TYPE:
 	    case EMC_AXIS_SET_GAINS_TYPE:
+	    case EMC_AXIS_SET_BACKLASH_TYPE:
 	    case EMC_AXIS_SET_INPUT_SCALE_TYPE:
 	    case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 	    case EMC_AXIS_SET_FERROR_TYPE:
@@ -625,6 +628,7 @@ static int emcTaskPlan(void)
 
 		case EMC_AXIS_SET_CYCLE_TIME_TYPE:
 		case EMC_AXIS_SET_GAINS_TYPE:
+		case EMC_AXIS_SET_BACKLASH_TYPE:
 		case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
@@ -719,6 +723,7 @@ static int emcTaskPlan(void)
 
 		case EMC_AXIS_SET_CYCLE_TIME_TYPE:
 		case EMC_AXIS_SET_GAINS_TYPE:
+		case EMC_AXIS_SET_BACKLASH_TYPE:
 		case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
@@ -883,6 +888,7 @@ static int emcTaskPlan(void)
 
 		case EMC_AXIS_SET_CYCLE_TIME_TYPE:
 		case EMC_AXIS_SET_GAINS_TYPE:
+		case EMC_AXIS_SET_BACKLASH_TYPE:
 		case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
@@ -968,6 +974,7 @@ static int emcTaskPlan(void)
 
 		case EMC_AXIS_SET_CYCLE_TIME_TYPE:
 		case EMC_AXIS_SET_GAINS_TYPE:
+		case EMC_AXIS_SET_BACKLASH_TYPE:
 		case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 		case EMC_AXIS_SET_FERROR_TYPE:
 		case EMC_AXIS_SET_MIN_FERROR_TYPE:
@@ -1064,6 +1071,7 @@ static int emcTaskPlan(void)
 
 	    case EMC_AXIS_SET_CYCLE_TIME_TYPE:
 	    case EMC_AXIS_SET_GAINS_TYPE:
+	    case EMC_AXIS_SET_BACKLASH_TYPE:
 	    case EMC_AXIS_SET_OUTPUT_SCALE_TYPE:
 	    case EMC_AXIS_SET_FERROR_TYPE:
 	    case EMC_AXIS_SET_MIN_FERROR_TYPE:
@@ -1343,6 +1351,10 @@ printf ( "emcTaskIssueCommand()\n" );
 	    set_gains_msg->maxError, set_gains_msg->deadband);
 	break;
 #endif
+    case EMC_AXIS_SET_BACKLASH_TYPE:
+	set_backlash_msg = (EMC_AXIS_SET_BACKLASH *) cmd;
+	retval = emcAxisSetBacklash(set_backlash_msg->axis,set_backlash_msg->backlash);
+	break;
 
 #if 0
     case EMC_AXIS_SET_CYCLE_TIME_TYPE:

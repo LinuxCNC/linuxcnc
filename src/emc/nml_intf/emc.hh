@@ -7,7 +7,7 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -73,6 +73,7 @@
 #define EMC_AXIS_LOAD_COMP_TYPE                      ((NMLTYPE) 131)
 #define EMC_AXIS_ALTER_TYPE                          ((NMLTYPE) 132)
 #define EMC_AXIS_SET_STEP_PARAMS_TYPE                ((NMLTYPE) 133)
+#define EMC_AXIS_SET_BACKLASH_TYPE                   ((NMLTYPE) 134)
 
 #define EMC_AXIS_STAT_TYPE                           ((NMLTYPE) 199)
 
@@ -402,9 +403,11 @@ extern int emcOperatorDisplay(int id, const char *fmt, ...);
 
 extern int emcAxisSetAxis(int axis, unsigned char axisType);
 extern int emcAxisSetUnits(int axis, double units);
+/* FIXME - soon to be deleted */
 extern int emcAxisSetGains(int axis, double p, double i, double d,
     double ff0, double ff1, double ff2,
     double backlash, double bias, double maxError, double deadband);
+extern int emcAxisSetBacklash(int axis, double backlash);
 extern int emcAxisSetCycleTime(int axis, double cycleTime);
 extern int emcAxisSetInterpolationRate(int axis, int rate);
 extern int emcAxisSetInputScale(int axis, double scale, double offset);
@@ -838,6 +841,22 @@ class EMC_AXIS_SET_GAINS:public EMC_AXIS_CMD_MSG {
     double bias;
     double maxError;
     double deadband;
+};
+
+/**
+ * Set the Axis backlash.
+ * This command sets the backlash value.
+ */
+class EMC_AXIS_SET_BACKLASH:public EMC_AXIS_CMD_MSG {
+  public:
+    EMC_AXIS_SET_BACKLASH():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_BACKLASH_TYPE,
+	sizeof(EMC_AXIS_SET_BACKLASH)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    double backlash;
 };
 
 /**

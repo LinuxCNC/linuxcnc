@@ -125,6 +125,9 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_AXIS_SET_GAINS_TYPE:
 	((EMC_AXIS_SET_GAINS *) buffer)->update(cms);
 	break;
+    case EMC_AXIS_SET_BACKLASH_TYPE:
+	((EMC_AXIS_SET_BACKLASH *) buffer)->update(cms);
+	break;
     case EMC_AXIS_SET_HOME_TYPE:
 	((EMC_AXIS_SET_HOME *) buffer)->update(cms);
 	break;
@@ -574,6 +577,8 @@ const char *emc_symbol_lookup(long type)
 	return "EMC_AXIS_SET_FERROR";
     case EMC_AXIS_SET_GAINS_TYPE:
 	return "EMC_AXIS_SET_GAINS";
+    case EMC_AXIS_SET_BACKLASH_TYPE:
+	return "EMC_AXIS_SET_BACKLASH";
     case EMC_AXIS_SET_HOME_TYPE:
 	return "EMC_AXIS_SET_HOME";
     case EMC_AXIS_SET_HOME_OFFSET_TYPE:
@@ -2542,6 +2547,14 @@ void EMC_AXIS_SET_GAINS::update(CMS * cms)
     cms->update(bias);
     cms->update(maxError);
     cms->update(deadband);
+
+}
+
+void EMC_AXIS_SET_BACKLASH::update(CMS * cms)
+{
+
+    EMC_AXIS_CMD_MSG::update(cms);
+    cms->update(backlash);
 
 }
 

@@ -141,6 +141,7 @@ extern "C" {
 				   trip pos */
 
 	EMCMOT_SET_POSITION_LIMITS,	/* set the axis position +/- limits */
+	EMCMOT_SET_BACKLASH,	/* set the axis backlash */
 	EMCMOT_SET_MIN_FERROR,	/* minimum following error, input units */
 	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
 	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
@@ -190,6 +191,7 @@ extern "C" {
 	int turn;		/* turns for circle */
 	double vel;		/* max velocity */
 	double acc;		/* max acceleration */
+	double backlash;	/* amount of backlash */
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
 	int axis;		/* which index to use for below */

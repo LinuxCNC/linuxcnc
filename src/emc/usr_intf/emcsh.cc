@@ -1511,6 +1511,23 @@ static int sendAxisSetGains(int axis, double p, double i, double d,
     return 0;
 }
 
+static int sendAxisSetBacklash(int axis, double backlash)
+{
+    EMC_AXIS_SET_BACKLASH emc_axis_set_backlash_msg;
+
+    emc_axis_set_backlash_msg.axis = axis;
+    emc_axis_set_backlash_msg.backlash = backlash;
+    emc_axis_set_backlash_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_axis_set_backlash_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
 static int sendAxisSetOutput(int axis, double output)
 {
     EMC_AXIS_SET_OUTPUT emc_axis_set_output_msg;
@@ -4307,6 +4324,38 @@ static int emc_axis_gains(ClientData clientdata,
     return TCL_OK;
 }
 
+static int emc_axis_set_backlash(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    double backlash;
+
+    // syntax is emc_axis_backlash <axis> <backlash>
+
+    if (objc != 3) {
+	Tcl_SetResult(interp, "emc_axis_set_backlash: need <axis> <backlash>",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
+	axis < 0 || axis >= EMC_AXIS_MAX) {
+	Tcl_SetResult(interp,
+	    "emc_axis_set_backlash: need axis as integer, 0..EMC_AXIS_MAX-1",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &backlash)) {
+	Tcl_SetResult(interp,
+	    "emc_axis_set_backlash: need backlash as real number", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    // now write it out
+    sendAxisSetBacklash(axis, backlash);
+    return TCL_OK;
+}
+
 static int emc_axis_set_output(ClientData clientdata,
     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
@@ -5259,6 +5308,9 @@ int Tcl_AppInit(Tcl_Interp * interp)
 	(Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_axis_gains", emc_axis_gains,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_axis_set_backlash", emc_axis_set_backlash,
 	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_axis_set_output", emc_axis_set_output,

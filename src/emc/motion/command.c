@@ -491,7 +491,20 @@ check_stuff ( "before command_handler()" );
 	    joint->max_pos_limit = emcmotCommand->maxLimit;
 	    break;
 
-	    /* 
+	case EMCMOT_SET_BACKLASH:
+	    /* sets backlash for an axis */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_BACKLASH");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
+	    emcmot_config_change();
+	    /* set the backlash for the axis */
+	    /* can be done at any time */
+	    if (joint == 0) {
+		break;
+	    }
+	    joint->backlash = emcmotCommand->backlash;
+	    break;
+
+	    /*
 	       Max and min ferror work like this: limiting ferror is
 	       determined by slope of ferror line, = maxFerror/limitVel ->
 	       limiting ferror = maxFerror/limitVel * vel. If ferror <
