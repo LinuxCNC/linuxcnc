@@ -210,12 +210,12 @@ source "$TCLCONFIG"
 source "$TKCONFIG"
 #  echo "Reading from tclConfig.sh $(cat $TCLCONFIG | grep TCL_VERSION)"
   echo "Found tcl$TCL_VERSION"
-  TCL_INC="-L$(find /usr/include/ -maxdepth 2 -name "tcl.h" 2> /dev/null | grep tcl.h | head -n1 | sed s^/tcl.h^^g)"
-  if [ "$TCL_INC" = "-L/usr/include" ] || ["$TCL_INC" = "-L" ] ; then
+  TCL_INC="-I$(find /usr/include/ -maxdepth 2 -name "tcl.h" 2> /dev/null | grep tcl.h | head -n1 | sed s^/tcl.h^^g)"
+  if [ "$TCL_INC" = "-I/usr/include" ] || [ "$TCL_INC" = "-I" ] ; then
     TCL_INC=""  # No point in including the standard path..
   fi
-  TK_INC="-L$(find /usr/include/ -maxdepth 2 -name "tk.h" 2> /dev/null | grep tk.h | head -n1 | sed s^/tk.h^^g)"
-  if [ "$TK_INC" = "-L/usr/include" ] || ["$TK_INC" = "-L" ] ; then
+  TK_INC="-I$(find /usr/include/ -maxdepth 2 -name "tk.h" 2> /dev/null | grep tk.h | head -n1 | sed s^/tk.h^^g)"
+  if [ "$TK_INC" = "-I/usr/include" ] || [ "$TK_INC" = "-I" ] ; then
     TK_INC=""
   fi
 fi
