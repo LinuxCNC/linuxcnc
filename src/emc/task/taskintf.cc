@@ -54,7 +54,7 @@ static emcmot_status_t emcmotStatus;
 static emcmot_command_t emcmotCommand;
 
 static int emcmotTrajInited = 0;	// non-zero means traj called init
-static int emcmotAxisInited = 0;	// non-zero means axis called init
+static int emcmotAxisInited[EMCMOT_MAX_AXIS] = {0};	// non-zero means axis called init
 __attribute__ ((unused)) static int emcmotIoInited = 0;	// non-zero means io called init
 static int emcmotion_initialized = 0;	// non-zero means both
 						// emcMotionInit called.
@@ -106,7 +106,7 @@ int emcAxisSetUnits(int axis, double units)
 #if 0
 int emcAxisSetGains(int axis, double p, double i, double d,
     double ff0, double ff1, double ff2,
-    double backlash, double bias, double maxError, double deadband)
+    double bias, double maxError, double deadband)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
@@ -121,7 +121,6 @@ int emcAxisSetGains(int axis, double p, double i, double d,
     emcmotCommand.pid.ff0 = ff0;
     emcmotCommand.pid.ff1 = ff1;
     emcmotCommand.pid.ff2 = ff2;
-    emcmotCommand.pid.backlash = backlash;
     emcmotCommand.pid.bias = bias;
     emcmotCommand.pid.maxError = maxError;
     emcmotCommand.pid.deadband = deadband;
@@ -133,7 +132,6 @@ int emcAxisSetGains(int axis, double p, double i, double d,
 	isnan(emcmotCommand.pid.ff0) ||
 	isnan(emcmotCommand.pid.ff1) ||
 	isnan(emcmotCommand.pid.ff2) ||
-	isnan(emcmotCommand.pid.backlash) ||
 	isnan(emcmotCommand.pid.bias) ||
 	isnan(emcmotCommand.pid.maxError) ||
 	isnan(emcmotCommand.pid.deadband)) {
@@ -462,110 +460,28 @@ int emcAxisSetHomeOffset(int axis, double offset)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-
-#if 0
-int emcAxisSetEnablePolarity(int axis, int level)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_POLARITY;
-    emcmotCommand.axis = axis;
-    emcmotCommand.level = level;
-    emcmotCommand.axisFlag = EMCMOT_AXIS_ENABLE_BIT;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcAxisSetMinLimitSwitchPolarity(int axis, int level)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_POLARITY;
-    emcmotCommand.axis = axis;
-    emcmotCommand.level = level;
-    emcmotCommand.axisFlag = EMCMOT_AXIS_MIN_HARD_LIMIT_BIT;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcAxisSetMaxLimitSwitchPolarity(int axis, int level)
-{
-    if (axis < 0) {
-	axis = 0;
-    } else if (axis >= EMCMOT_MAX_AXIS) {
-	axis = EMCMOT_MAX_AXIS - 1;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_POLARITY;
-    emcmotCommand.axis = axis;
-    emcmotCommand.level = level;
-    emcmotCommand.axisFlag = EMCMOT_AXIS_MAX_HARD_LIMIT_BIT;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcAxisSetHomeSwitchPolarity(int axis, int level)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_POLARITY;
-    emcmotCommand.axis = axis;
-    emcmotCommand.level = level;
-    emcmotCommand.axisFlag = EMCMOT_AXIS_HOME_SWITCH_BIT;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcAxisSetHomingPolarity(int axis, int level)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_POLARITY;
-    emcmotCommand.axis = axis;
-    emcmotCommand.level = level;
-    emcmotCommand.axisFlag = EMCMOT_AXIS_HOMING_BIT;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcAxisSetFaultPolarity(int axis, int level)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_POLARITY;
-    emcmotCommand.axis = axis;
-    emcmotCommand.level = level;
-    emcmotCommand.axisFlag = EMCMOT_AXIS_FAULT_BIT;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-#endif /* #if 0 */
-
-
-/* FIXME - there seems to be some strangeness here, maybe I just
-   don't understand it.  emcAxisInit is called once for each axis.
-   It in turn calls iniAxis for that axis, and sets ONE shared
-   flag called emcmotAxisInited...
-
-   Then on exit, emcAxisHalt is also called once for each axis,
-   however, it only calls dumpAxis() for the very first axis,
-   because after the first axis, it clears that flag.  It seems
-   to me there should be a flag for each axis, so that each one
-   calls dumpAxis.  Either that, or dumpAxis should be called
-   regardless of the state of the flag.
-
-   But I'm not gonna dig into this now....
+/* This function checks to see if any axis or the traj has
+   been inited already.  At startup, if none have been inited,
+   usrmotIniLoad and usrmotInit must be called first.  At
+   shutdown, after all have been halted, the usrmotExit must
+   be called.
 */
+
+static int AxisOrTrajInited (void)
+{
+    int axis;
+
+    for ( axis = 0 ; axis < EMCMOT_MAX_AXIS ; axis++ ) {
+	if ( emcmotAxisInited[axis] ) {
+	    return 1;
+	}
+    }
+    if ( emcmotTrajInited ) {
+	return 1;
+    }
+    return 0;
+}
+
 
 int emcAxisInit(int axis)
 {
@@ -575,19 +491,16 @@ int emcAxisInit(int axis)
 	return 0;
     }
     // init emcmot interface
-    if (!emcmotAxisInited && !emcmotTrajInited) {
+    if (!AxisOrTrajInited()) {
 	usrmotIniLoad(EMC_INIFILE);
-
 	if (0 != usrmotInit("emc2_task")) {
 	    return -1;
 	}
     }
-    emcmotAxisInited = 1;
-
+    emcmotAxisInited[axis] = 1;
     if (0 != iniAxis(axis, EMC_INIFILE)) {
 	retval = -1;
     }
-
     return retval;
 }
 
@@ -597,15 +510,14 @@ int emcAxisHalt(int axis)
 	return 0;
     }
     // FIXME-- refs global emcStatus; should make EMC_AXIS_STAT an arg here
-    if (NULL != emcStatus && emcmotion_initialized && emcmotAxisInited) {
+    if (NULL != emcStatus && emcmotion_initialized && emcmotAxisInited[axis]) {
 	dumpAxis(axis, EMC_INIFILE, &emcStatus->motion.axis[axis]);
     }
+    emcmotAxisInited[axis] = 0;
 
-    if (!emcmotTrajInited)	// traj clears its inited flag on exit
-    {
+    if (!AxisOrTrajInited()) {
 	usrmotExit();		// ours is final exit
     }
-    emcmotAxisInited = 0;
 
     return 0;
 }
@@ -1097,30 +1009,27 @@ int emcTrajInit()
     int retval = 0;
 
     // init emcmot interface
-    if (!emcmotAxisInited && !emcmotTrajInited) {
+    if (!AxisOrTrajInited()) {
 	usrmotIniLoad(EMC_INIFILE);
-
 	if (0 != usrmotInit("emc2_task")) {
 	    return -1;
 	}
     }
     emcmotTrajInited = 1;
-
     // initialize parameters from ini file
     if (0 != iniTraj(EMC_INIFILE)) {
 	retval = -1;
     }
-
     return retval;
 }
 
 int emcTrajHalt()
 {
-    if (!emcmotAxisInited)	// axis clears its inited flag on exit
-    {
+    emcmotTrajInited = 0;
+
+    if (!AxisOrTrajInited()) {
 	usrmotExit();		// ours is final exit
     }
-    emcmotTrajInited = 0;
 
     return 0;
 }
@@ -1404,7 +1313,6 @@ int emcMotionInit()
 	    r1 = 0;		// at least one is okay
 	}
     }
-
     r2 = emcTrajInit();
 
     if (r1 == 0 && r2 == 0) {

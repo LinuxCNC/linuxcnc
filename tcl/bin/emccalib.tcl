@@ -60,7 +60,7 @@ proc popupCalibration {{w .calibwindow}} {
     set ff0 [emc_axis_gains $activeAxis ff0]
     set ff1 [emc_axis_gains $activeAxis ff1]
     set ff2 [emc_axis_gains $activeAxis ff2]
-    set backlash [emc_axis_gains $activeAxis backlash]
+    set backlash [emc_axis_backlash $activeAxis]
     set bias [emc_axis_gains $activeAxis bias]
     set maxerror [emc_axis_gains $activeAxis maxerror]
     set deadband [emc_axis_gains $activeAxis deadband]
@@ -146,14 +146,12 @@ proc popupCalibration {{w .calibwindow}} {
     pack $lw.deadband.ent -side right
 
     frame $lw.buttons
-#    button $lw.buttons.ok -text OK -default active -command "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$backlash \$bias \$maxerror \$deadband; popdownCalibration $w"
-    button $lw.buttons.ok -text OK -default active -command "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$backlash \$bias \$maxerror \$deadband; emc_axis_set_backlash \$activeAxis \$backlash; popdownCalibration $w"
+    button $lw.buttons.ok -text OK -default active -command "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$bias \$maxerror \$deadband; emc_axis_backlash \$activeAxis \$backlash; popdownCalibration $w"
     button $lw.buttons.cancel -text Cancel -command "popdownCalibration $w"
 
     pack $lw.buttons -side bottom -fill x -pady 2m
     pack $lw.buttons.ok $lw.buttons.cancel -side left -expand 1
-#    bind $w <Return> "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$backlash \$bias \$maxerror \$deadband; popdownCalibration $w"
-    bind $w <Return> "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$backlash \$bias \$maxerror \$deadband; emc_axis_set_backlash \$activeAxis \$backlash; popdownCalibration $w"
+    bind $w <Return> "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$bias \$maxerror \$deadband; emc_axis_backlash \$activeAxis \$backlash; popdownCalibration $w"
 
 }
 

@@ -61,8 +61,8 @@ static INIFILE *axisInifile = 0;
 
   emcAxisSetAxis(int axis, unsigned char axisType);
   emcAxisSetUnits(int axis, double units);
-// FIXME - most of the gains are no longer used, but backlash is and needs treated separately
-// emcAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double backlash, double bias, double maxError, double deadband);
+// FIXME - these gains are no longer used
+// emcAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double bias, double maxError, double deadband);
   emcAxisSetBacklash(int axis, double backlash);
   emcAxisSetCycleTime(int axis, double cycleTime);
   emcAxisSetInterpolationRate(int axis, int rate);
@@ -870,7 +870,6 @@ int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *status)
 
 /* FIXME - stat() and chown() can disappear when we no longer need
    to run as root. */
-printf ( "iniaxis: dumpAxis(%d, %s, %p)\n", axis, filename, status);
 
     stat(filename, &ini_stat);		// save the ownership details.
 
@@ -893,7 +892,6 @@ printf ( "iniaxis: dumpAxis(%d, %s, %p)\n", axis, filename, status);
     fprintf(stderr, "can't open original copy of INI file %s\n", line);
     return -1;
   }
-
   // set our axis string and flag that we're in that section
   sprintf(ourAxisSection, "AXIS_%d", axis);
   ourAxis = 0;
@@ -915,54 +913,9 @@ printf ( "iniaxis: dumpAxis(%d, %s, %p)\n", axis, filename, status);
 
     if (ourAxis) {
       if (iniIsEntry(line, var, val)) {
-        if (!strcmp(var, "P")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->p);
-          continue;             // avoid fputs() below, since we wrote it
-        }
-        else if (!strcmp(var, "I")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->i);
-          continue;
-        }
-        else if (!strcmp(var, "D")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->d);
-          continue;
-        }
-        else if (!strcmp(var, "FF0")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->ff0);
-          continue;
-        }
-        else if (!strcmp(var, "FF1")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->ff1);
-          continue;
-        }
-        else if (!strcmp(var, "FF2")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->ff2);
-          continue;
-        }
-        else if (!strcmp(var, "BACKLASH")) {
+        if (!strcmp(var, "BACKLASH")) {
           iniFormatFloat(fmt, var, val);
           fprintf(outfp, fmt, status->backlash);
-          continue;
-        }
-        else if (!strcmp(var, "BIAS")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->bias);
-          continue;
-        }
-        else if (!strcmp(var, "MAX_ERROR")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->maxError);
-          continue;
-        }
-        else if (!strcmp(var, "DEADBAND")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->deadband);
           continue;
         }
         else if (!strcmp(var, "OUTPUT_SCALE")) {

@@ -1346,7 +1346,6 @@ printf ( "emcTaskIssueCommand()\n" );
 	    set_gains_msg->ff0,
 	    set_gains_msg->ff1,
 	    set_gains_msg->ff2,
-	    set_gains_msg->backlash,
 	    set_gains_msg->bias,
 	    set_gains_msg->maxError, set_gains_msg->deadband);
 	break;

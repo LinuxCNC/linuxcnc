@@ -2543,7 +2543,6 @@ void EMC_AXIS_SET_GAINS::update(CMS * cms)
     cms->update(ff0);
     cms->update(ff1);
     cms->update(ff2);
-    cms->update(backlash);
     cms->update(bias);
     cms->update(maxError);
     cms->update(deadband);

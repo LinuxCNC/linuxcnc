@@ -406,7 +406,7 @@ extern int emcAxisSetUnits(int axis, double units);
 /* FIXME - soon to be deleted */
 extern int emcAxisSetGains(int axis, double p, double i, double d,
     double ff0, double ff1, double ff2,
-    double backlash, double bias, double maxError, double deadband);
+    double bias, double maxError, double deadband);
 extern int emcAxisSetBacklash(int axis, double backlash);
 extern int emcAxisSetCycleTime(int axis, double cycleTime);
 extern int emcAxisSetInterpolationRate(int axis, int rate);
@@ -837,7 +837,6 @@ class EMC_AXIS_SET_GAINS:public EMC_AXIS_CMD_MSG {
     double ff0;
     double ff1;
     double ff2;
-    double backlash;
     double bias;
     double maxError;
     double deadband;

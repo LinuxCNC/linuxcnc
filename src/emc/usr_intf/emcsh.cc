@@ -1484,7 +1484,7 @@ static int sendToolSetOffset(int tool, double length, double diameter)
 }
 
 static int sendAxisSetGains(int axis, double p, double i, double d,
-    double ff0, double ff1, double ff2, double backlash, double bias,
+    double ff0, double ff1, double ff2, double bias,
     double maxError, double deadband)
 {
     EMC_AXIS_SET_GAINS emc_axis_set_gains_msg;
@@ -1496,7 +1496,6 @@ static int sendAxisSetGains(int axis, double p, double i, double d,
     emc_axis_set_gains_msg.ff0 = ff0;
     emc_axis_set_gains_msg.ff1 = ff1;
     emc_axis_set_gains_msg.ff2 = ff2;
-    emc_axis_set_gains_msg.backlash = backlash;
     emc_axis_set_gains_msg.bias = bias;
     emc_axis_set_gains_msg.maxError = maxError;
     emc_axis_set_gains_msg.deadband = deadband;
@@ -4108,14 +4107,14 @@ static int emc_axis_gains(ClientData clientdata,
     int axis;
     const char *varstr;
     double val;
-    double p, i, d, ff0, ff1, ff2, backlash, bias, maxError, deadband;
+    double p, i, d, ff0, ff1, ff2, bias, maxError, deadband;
 
     // syntax is emc_axis_gains <axis> <var> {<val>}
     // or emc_axis_gains <axis> all <p> <i> ... <deadband>
     // without <val> only, returns value of <var> for <axis>
     // otherwise sets <var> to <value> for <axis>
     // <axis> is 0,1,...
-    // <var> is p i d ff0 ff1 ff2 backlash bias maxerror deadband
+    // <var> is p i d ff0 ff1 ff2 bias maxerror deadband
     // <val> is floating point number
 
     if (objc < 3) {
@@ -4163,10 +4162,6 @@ static int emc_axis_gains(ClientData clientdata,
 	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].ff2);
 	    Tcl_SetObjResult(interp, valobj);
 	    return TCL_OK;
-	} else if (!strcmp(varstr, "backlash")) {
-	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].backlash);
-	    Tcl_SetObjResult(interp, valobj);
-	    return TCL_OK;
 	} else if (!strcmp(varstr, "bias")) {
 	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].bias);
 	    Tcl_SetObjResult(interp, valobj);
@@ -4199,7 +4194,6 @@ static int emc_axis_gains(ClientData clientdata,
 	ff0 = emcStatus->motion.axis[axis].ff0;
 	ff1 = emcStatus->motion.axis[axis].ff1;
 	ff2 = emcStatus->motion.axis[axis].ff2;
-	backlash = emcStatus->motion.axis[axis].backlash;
 	bias = emcStatus->motion.axis[axis].bias;
 	maxError = emcStatus->motion.axis[axis].maxError;
 	deadband = emcStatus->motion.axis[axis].deadband;
@@ -4216,16 +4210,14 @@ static int emc_axis_gains(ClientData clientdata,
 	    ff1 = val;
 	} else if (!strcmp(varstr, "ff2")) {
 	    ff2 = val;
-	} else if (!strcmp(varstr, "backlash")) {
-	    backlash = val;
 	} else if (!strcmp(varstr, "bias")) {
 	    bias = val;
 	} else if (!strcmp(varstr, "maxerror")) {
 	    maxError = val;
 	} else if (!strcmp(varstr, "deadband")) {
 	    deadband = val;
-	} else if (!strcmp(varstr, "all") && objc == 13) {
-	    // it's "emc_axis_gains axis all p i d ff0 ff1 ff2 backlash bias
+	} else if (!strcmp(varstr, "all") && objc == 12) {
+	    // it's "emc_axis_gains axis all p i d ff0 ff1 ff2 bias
 	    // maxerror deadband"
 
 	    // P
@@ -4276,16 +4268,8 @@ static int emc_axis_gains(ClientData clientdata,
 		return TCL_ERROR;
 	    }
 	    ff2 = val;
-	    // backlash
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[9], &val)) {
-		Tcl_SetResult(interp,
-		    "emc_axis_gains: need backlash as floating point number",
-		    TCL_VOLATILE);
-		return TCL_ERROR;
-	    }
-	    backlash = val;
 	    // bias
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[10], &val)) {
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[9], &val)) {
 		Tcl_SetResult(interp,
 		    "emc_axis_gains: need bias as floating point number",
 		    TCL_VOLATILE);
@@ -4293,7 +4277,7 @@ static int emc_axis_gains(ClientData clientdata,
 	    }
 	    bias = val;
 	    // maxerror
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[11], &val)) {
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[10], &val)) {
 		Tcl_SetResult(interp,
 		    "emc_axis_gains: need maxerror as floating point number",
 		    TCL_VOLATILE);
@@ -4301,7 +4285,7 @@ static int emc_axis_gains(ClientData clientdata,
 	    }
 	    maxError = val;
 	    // deadband
-	    if (0 != Tcl_GetDoubleFromObj(0, objv[12], &val)) {
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[11], &val)) {
 		Tcl_SetResult(interp,
 		    "emc_axis_gains: need deadband as floating point number",
 		    TCL_VOLATILE);
@@ -4316,7 +4300,7 @@ static int emc_axis_gains(ClientData clientdata,
 	}
 
 	// now write it out
-	sendAxisSetGains(axis, p, i, d, ff0, ff1, ff2, backlash, bias,
+	sendAxisSetGains(axis, p, i, d, ff0, ff1, ff2, bias,
 	    maxError, deadband);
 	return TCL_OK;
     }
@@ -4324,36 +4308,48 @@ static int emc_axis_gains(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_axis_set_backlash(ClientData clientdata,
+static int emc_axis_backlash(ClientData clientdata,
     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
+    Tcl_Obj *valobj;
     int axis;
     double backlash;
 
-    // syntax is emc_axis_backlash <axis> <backlash>
+    // syntax is emc_axis_backlash <axis> {<backlash>}
+    // if <backlash> is not specified, returns current value,
+    // otherwise, sets backlash to specified value
 
-    if (objc != 3) {
-	Tcl_SetResult(interp, "emc_axis_set_backlash: need <axis> <backlash>",
+    // check number of args supplied
+    if ((objc < 2) || (objc > 3 )) {
+	Tcl_SetResult(interp, "emc_axis_backlash: need <axis> {<backlash>}",
 	    TCL_VOLATILE);
 	return TCL_ERROR;
     }
-
+    // get axis number
     if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
 	axis < 0 || axis >= EMC_AXIS_MAX) {
 	Tcl_SetResult(interp,
-	    "emc_axis_set_backlash: need axis as integer, 0..EMC_AXIS_MAX-1",
+	    "emc_axis_backlash: need axis as integer, 0..EMC_AXIS_MAX-1",
 	    TCL_VOLATILE);
 	return TCL_ERROR;
     }
-
-    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &backlash)) {
-	Tcl_SetResult(interp,
-	    "emc_axis_set_backlash: need backlash as real number", TCL_VOLATILE);
-	return TCL_ERROR;
+    // test for get or set
+    if ( objc == 2 ) {
+	// want to get present value
+	valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].backlash);
+	Tcl_SetObjResult(interp, valobj);
+	return TCL_OK;
+    } else {
+	// want to set new value
+	if (0 != Tcl_GetDoubleFromObj(0, objv[2], &backlash)) {
+	    Tcl_SetResult(interp,
+		"emc_axis_backlash: need backlash as real number", TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+	// write it out
+	sendAxisSetBacklash(axis, backlash);
+	return TCL_OK;
     }
-    // now write it out
-    sendAxisSetBacklash(axis, backlash);
-    return TCL_OK;
 }
 
 static int emc_axis_set_output(ClientData clientdata,
@@ -5310,7 +5306,7 @@ int Tcl_AppInit(Tcl_Interp * interp)
     Tcl_CreateObjCommand(interp, "emc_axis_gains", emc_axis_gains,
 	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_axis_set_backlash", emc_axis_set_backlash,
+    Tcl_CreateObjCommand(interp, "emc_axis_backlash", emc_axis_backlash,
 	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_axis_set_output", emc_axis_set_output,

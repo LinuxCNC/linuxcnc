@@ -120,7 +120,6 @@ int usrmotIniLoad(const char *filename)
     }
 
     fclose(fp);
-
     return 0;
 }
 
@@ -831,7 +830,7 @@ int usrmotInit(char *modname)
 {
     int retval;
 
-    module_id = rtapi_init(modname);
+    module_id = rtapi_init(modname);\
     if (module_id < 0) {
 	fprintf(stderr,
 	    "usrmotintf: ERROR: rtapi init failed\n");
@@ -861,7 +860,8 @@ int usrmotInit(char *modname)
     emcmotError = &(emcmotStruct->error);
     emcmotLog = &(emcmotStruct->log);
 
-/* FIXME - testing code */
+#if 0
+/* FIXME - for testing, remove later */
     printf ( "sizeof(emcmot_struct_t) (total shmem): %d\n", sizeof(emcmot_struct_t) );
     printf ( "sizeof(emcmot_command_t):      %d\n", sizeof(emcmot_command_t) );
     printf ( "sizeof(emcmot_status_t):       %d\n", sizeof(emcmot_status_t) );
@@ -873,7 +873,7 @@ int usrmotInit(char *modname)
     printf ( "sizeof(emcmot_joint_status_t): %d\n", sizeof(emcmot_joint_status_t) );
     printf ( "sizeof(CUBIC_STRUCT):          %d\n", sizeof(CUBIC_STRUCT) );
     printf ( "sizeof(emcmot_comp_t):         %d\n", sizeof(emcmot_comp_t) );
-
+#endif
 
 #if 0
 /* FIXME - comp structs no longer part of status structure */
