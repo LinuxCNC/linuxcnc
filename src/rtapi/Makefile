@@ -3,48 +3,52 @@
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
 include ../../Makefile.inc
 
-# Public headers (will be copied to INC_DIR)
+# Public headers
 HEADERS = \
 rtapi.h \
-rtapi_app.h \
+rtapi_app.h
+
+# Private headers
+PRIVHDRS = \
 rtapi_common.h \
 procfs_macros.h \
 rtapi_proc.h \
 vsnprintf.h
 
-# Non-Realtime Sources - will be compiled to '*.o'
-SRCS = $(RTPREFIX)_ulapi.c
-
-# Realtime Sources - will be compiled to '*.o'
-RT_SRCS = $(RTPREFIX)_rtapi.c
+# Sources
+SRCS = \
+$(RTPREFIX)_ulapi.c \
+$(RTPREFIX)_rtapi.c
 
 # Libraries to be created
-LIBS = $(RTLIB_DIR)/$(RTPREFIX)_rtapi.o \
-$(LIB_DIR)/$(RTPREFIX)_ulapi.o
+LIBS = \
+$(RTLIB_DIR)/rtapi.o \
+$(LIB_DIR)/ulapi.o
 
-# list of all the non-realtime '*.o' files
-OBJS = $(RTPREFIX)_ulapi.o
+# Object files to be created
+OBJS = \
+$(TMP_DIR)/$(RTPREFIX)_ulapi.o \
+$(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 
-# list of all the realtime '*.o' files
-RT_OBJS = $(RTPREFIX)_rtapi.o
-
-
-all: headers $(LIBS)
+all: headers $(OBJS) $(LIBS)
 
 # Generic rules
 include ../../Make.rules
 
-# explicit rules to make libraries and binaries
+headers: def_headers
+indent: def_indent
+clean: def_clean
 
-$(RTLIB_DIR)/$(RTPREFIX)_rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
-	- \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
+# explicit rules to make libraries
 
-$(LIB_DIR)/$(RTPREFIX)_ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
-	- \install -p -m0664 $< $(LIB_DIR)/ulapi.o
+$(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
+	@ echo "Install rtapi.o in rtlib"
+	@ - \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
 
-clean: clean_up
-	- (rm -f $(LIB_DIR)/ulapi.o)
-	- (rm -f $(RTLIB_DIR)/rtapi.o)
+$(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
+	@ echo "Install ulapi.o in lib"
+	@ - \install -p -m0664 $< $(LIB_DIR)/ulapi.o
 
-.PHONY: all clean depend headers indent install
+
+.PHONY: all headers depend indent install clean
 

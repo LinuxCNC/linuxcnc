@@ -80,6 +80,7 @@ echo "RTLIB_DIR = \$(EMC2_HOME)/rtlib" >> Makefile.inc
 echo "INC_DIR = \$(EMC2_HOME)/include" >> Makefile.inc
 echo "TMP_DIR = \$(EMC2_HOME)/src/.tmp" >> Makefile.inc
 echo "RTTMP_DIR = \$(EMC2_HOME)/src/.rt_tmp" >> Makefile.inc
+echo "GTKTMP_DIR = \$(EMC2_HOME)/src/.gtk_tmp" >> Makefile.inc
 echo "RTDIR = $RTDIR" >> Makefile.inc
 echo >> Makefile.inc
 if [ -f $RTDIR/.buildvars ] ; then
@@ -138,12 +139,8 @@ rm -f configure.tmp
 
 if [ $RTFILE = "$RTDIR/rtl.mk" ] ; then
     echo "ULFLAGS = -Wall -g -I\$(INC_DIR) -I\$(INCLUDE) -I. -DULAPI -O2" >> Makefile.inc
-    echo "RTAPI = \$(RTLIB_DIR)/rtl_rtapi.o" >> Makefile.inc
-    echo "ULAPI = \$(LIB_DIR)/rtl_ulapi.o" >> Makefile.inc
 else
     echo "ULFLAGS = -Wall -g -I\$(INC_DIR) -I$RTDIR/include -I. -DULAPI -O2" >> Makefile.inc
-    echo "RTAPI = \$(RTLIB_DIR)/rtai_rtapi.o" >> Makefile.inc
-    echo "ULAPI = \$(LIB_DIR)/rtai_ulapi.o" >> Makefile.inc
 fi
 
 echo "CC = $CC" >> Makefile.inc

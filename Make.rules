@@ -1,40 +1,174 @@
-# Pattern Rules
-# -------------
+# Make.rules
+#
+# This file contains pattern rules and default targets - items that
+# will be used by most or all makefiles.  This file will be included
+# in most or all of the lower level makefiles.  The include should be
+# after the default target in the makefile (normally 'all').
 #
 # Notes on syntax:
 # @ causes each command NOT to be echoed to the console.
 # - allows the rule to continue after an error.
 #
+# $@  expands to the filename of the target of the rule
+# $<  expands to the name of the first dependency
+# $?  expands to the names of all dependencies that are newer than the target
+# $^  expands to all the dependencies
+#
+# Targets:
+#
+# This file defines a number of default targets.  Their names all begin
+# with 'def_'.  Normaly the regular targets such as 'indent' and 'clean'
+# will simply invoke these default targets like this:
+#
+# indent : def_indent
+#
+# However, the default actions can be extended or replaced:
+#
+# indent : def_indent
+#	<additional commands>
+#
+# or:
+#
+# indent :
+#	<replacement commands>
+#
+#
+# Directories:
+#
+# During the make, targets are placed in several different directories.
+# See directory.map in for the default directory tree.  The following
+# variables are used instead of actual directory names throughout the
+# makefiles.  Makefile.inc sets these variables to the actual directory
+# names.
+#
+# EMC2_HOME - the root of the tree (emc2/ in the map)
+#
+# BIN_DIR    - user space executable programs (emc2/bin/ in the map)
+# LIB_DIR    - user space libraries (emc2/lib/)
+# RTLIB_DIR  - realtime kernel modules (emc2/rtlib/)
+# INC_DIR    - public include files (emc2/include/)
+# TMP_DIR    - temporary user space object files (emc2/src/.tmp)
+# RTTMP_DIR  - temporary kernel space object files (emc2/src/.rt_tmp)
+# GTKTMP_DIR - temporary GTK+ object files (emc2/src/.gtk_tmp)
+#
+#
+# Variables:
+#
+# The rules in this file use a number of variables to determine which
+# targets are to be made and where they go.  The variables and how they
+# are used by this file are as follows:
+#
+# HEADERS  - list of public headers - the names should not include
+#            paths - the 'def_headers' target will copy these headers
+#            to INC_DIR - the 'def_indent' target will reformat them -
+#            the 'def_clean' target will remove them from INC_DIR
+#
+# PRIVHDRS - list of private headers - the names should not include
+#            paths - the 'def_indent' target will reformat these files
+#
+# SRCS     - list of all C and C++ source files - the names should
+#            not include paths - the 'def_indent' target will reformat
+#            these files
+#
+# OBJS     - list of all object files created by the make - the names
+#            should include the directory where the files are to be
+#            created - the compile rules in this file can create the
+#            files - the 'def_clean' target will remove them
+#
+# LIBS     - list of all libraries created by the make - the names
+#            should include the directory where the files are to be
+#            created - the makefile should  provide an explicit
+#            or pattern rule to make these files - the 'def_clean'
+#            target will remove them
+#
+#
+# Compile Rules:
+#
+# Depending on the situation, source files may be compiled to .o files
+# in a temporary directory, for later linking into larger libraries or
+# programs.  Or they may be compiled directly to .o files in the lib/
+# or rtlib/ directories, for those cases where a library or module only
+# needs a single source file.  This file contains pattern rules for both
+# cases.
+#
+# There are three temp directories, one for ordinary user space code,
+# one for GTK+ user space code, and one for realtime code.  Since
+# these directories hold object files from all over the source tree,
+# duplicate source file names (even in different parts of the source
+# tree) are not permitted.
+#
+# The compile flags used for a target depend on its destination directory.
+# Targets in TMP_DIR or LIB are compiled with normal user space flags.
+# Those in RTTMP_DIR or RTLIB are compiled with realtime flags.  Those
+# in GTKTMP_DIR are compiled with flags suitable for GTK+ programs.
+#
+# This set of rules is for targets in the temporary directories - they
+# create the directory if it is not already present.
+#
+$(TMP_DIR)/%.o : %.c
+	@ (if [ ! -d "$(TMP_DIR)" ] ; then echo "Create temp directory '$(TMP_DIR)'" ; mkdir $(TMP_DIR) ; fi)
+	@ echo "Compile '$<' to tmp dir using non-realtime C rule"
+	@ $(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
 
-# Non-Realtime C Object Files (Compile)
-%.o : %.c $(HEADERS)
-	$(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
+$(TMP_DIR)/%.o : %.cc
+	@ (if [ ! -d "$(TMP_DIR)" ] ; then echo "Create temp directory '$(TMP_DIR)'" ; mkdir $(TMP_DIR) ; fi)
+	@ echo "Compile '$<' to tmp dir using default C++ rule"
+	@ $(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
 
-# Non-Realtime C++ Object Files (Compile)
-%.o : %.cc $(HEADERS)
-	$(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
+$(RTTMP_DIR)/%.o : %.c
+	@ (if [ ! -d "$(RTTMP_DIR)" ] ; then echo "Create temp directory '$(RTTMP_DIR)'" ; mkdir $(RTTMP_DIR) ; fi)
+	@ echo "Compile '$<' to tmp dir using realtime C rule"
+	@ $(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
 
-$(TMP_DIR)/%.o : %.c $(HEADERS)
-	$(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
+$(GTKTMP_DIR)/%.o : %.c
+	@ (if [ ! -d "$(GTKTMP_DIR)" ] ; then echo "Create temp directory '$(GTKTMP_DIR)'" ; mkdir $(GTKTMP_DIR) ; fi)
+	@ echo "Compile '$<' to tmp dir using GTK+ C rule"
+	@ $(CC) `gtk-config --cflags` -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
 
-$(TMP_DIR)/%.o : %.cc $(HEADERS)
-	$(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
+#
+# This set is for targets in the lib/ and rtlib/ directories:
+#
+$(LIB_DIR)/%.o : %.c
+	@ echo "Compile '$<' to lib dir using non-realtime C rule"
+	@ $(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
 
-$(RTTMP_DIR)/%.o : %.c $(HEADERS)
-	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
+$(LIB_DIR)/%.o : %.cc
+	@ echo "Compile '$<' to lib dir using default C++ rule"
+	@ $(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
 
-# Public Header Files
-$(INC_DIR)/%.h: %.h tmp_dir
-	- \install -p -m0664 $< $(INC_DIR)
+$(RTLIB_DIR)/%.o : %.c
+	@ echo "Compile '$<' to lib dir using realtime C rule"
+	@ $(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
 
-$(INC_DIR)/.hh: %.hh tmp_dir
-	- \install -p -m0664 $< $(INC_DIR)
+#
+# This creates a 'def_headers' target whose dependencies are each of
+# the public headers in $(HEADERS) with the include directory $(INC_DIR)
+# prepended to their names.  In order to satisfy these dependencies,
+# make will execute one of the next two rules which do the real work
+# of copying the files to the include directory.
+#
+# Note that header files in $(PRIVHDRS) are not affected in any way
+# by the 'def_headers' target.  However, both $(HEADERS) and $(PRIVHDRS)
+# are affected by the 'def_indent' target.
+#
+def_headers: $(HEADERS:%=$(INC_DIR)/%)
 
-headers: tmp_dir
-	- \install -p -m0664 $(HEADERS) $(INC_DIR)
+# These rules create a public header in the include directory by
+# copying it from the source directory.
+#
+$(INC_DIR)/%.h: %.h
+	@ echo "Install C header $<"
+	@ \install -p -m0664 $< $(INC_DIR)
+
+$(INC_DIR)/.hh: %.hh
+	@ echo "Install C++ header $<"
+	@ \install -p -m0664 $< $(INC_DIR)
+
+
 
 # Reformat the sources using long format names to aid readability.
-indent:
+def_indent:
+	@ echo "Re-format source and header files"
 	indent --braces-on-if-line \
 	--comment-line-length78 \
 	--continuation-indentation4 \
@@ -51,31 +185,30 @@ indent:
 	--no-space-after-parentheses \
 	--space-after-cast \
 	--swallow-optional-blank-lines \
-	$(SRCS) $(RT_SRCS) $(HEADERS)
+	$(SRCS) $(HEADERS) $(PRIVHDRS)
 	@ rm *.*~
 
 
 # Clean out objects, headers, and dep files.
-clean_up:
+def_clean:
+	@ echo "Clean Up `pwd`"
 	- rm -f *.bak *~ .depend*
-	- rm -f $(OBJS) $(RT_OBJS) $(DEPS) $(LIBS) \
-	- $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o)
-	- (cd $(INC_DIR) ; \rm -f $(HEADERS))
+	- rm -f $(OBJS) $(LIBS) $(HEADERS:%=$(INC_DIR)/%)
 
-# Check and create the temp dirs if they are missing.
-tmp_dir:
-	@ (if [ ! -d "$(TMP_DIR)" ] ; then mkdir $(TMP_DIR) ; fi)
-	@ (if [ ! -d "$(RTTMP_DIR)" ] ; then mkdir $(RTTMP_DIR) ; fi)
 
 # depend commands - I know it looks _really_ ugly, but it does strip away
 #                   most of the system headers.
+# It also doesn't work right....
+# This needs work :-(
 # Derived from the original rcslib Make system.
-dep_command:
+old_depend:
+	@ echo "Generating Dependencies"
 	rm -f .depend.rt .depend
 	touch .depend.rt .depend
-	@ (if [ ! -z "$(RT_SRCS)" ] ; then ($(CC) -MM -I$(INC_DIR) $(RTFLAGS) \
+	(if [ ! -z "$(RT_SRCS)" ] ; then ($(CC) -MM -I$(INC_DIR) $(RTFLAGS) \
 	$(RT_SRCS) >.depend.rt) 2>.depend_errors.rt ; exit 0; fi)
-	@ (if [ ! -s .depend_errors.rt ] ; then \rm -f .depend_errors.rt ; fi)
+	cp .depend.rt depend.1st
+	(if [ ! -s .depend_errors.rt ] ; then \rm -f .depend_errors.rt ; fi)
 	cat .depend.rt | \
 	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
@@ -83,20 +216,23 @@ dep_command:
 	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip
-	@ (if [ -s .depend.strip ] ; then \
+	(if [ -s .depend.strip ] ; then \
 	cat .depend.strip | sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\rt_\&# | \
 	grep -v -E '^\\' > .depend.rt ; fi)
 	rm -f .depend.strip
-	@ (if [ ! -z "$(SRCS)" ] ; then ($(CXX) -MM $(CXXFLAGS) -I$(INC_DIR) \
+	(if [ ! -z "$(SRCS)" ] ; then ($(CXX) -MM $(CXXFLAGS) -I$(INC_DIR) \
 	$(ULFLAGS) $(SRCS) >.depend) 2>.depend_errors; exit 0; fi)
-	@  (if [ ! -s .depend_errors ] ; then \rm -f .depend_errors ; fi)
-	@ (if [ -s .depend ] ; then cat .depend | \
+	(if [ ! -s .depend_errors ] ; then \rm -f .depend_errors ; fi)
+	(if [ -s .depend ] ; then cat .depend | \
 	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip ; fi)
-	@ cat .depend.strip | grep -v -E '^\\' > .depend
-	@ rm -f .depend.strip
+	cat .depend.strip | grep -v -E '^\\' > .depend
+	rm -f .depend.strip
+
+
+.PHONY : def_headers def_depend def_indent def_install def_clean
 
