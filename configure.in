@@ -29,10 +29,70 @@ AC_PROG_RANLIB
 # accept rtdir=path from commandline
 
 # Check for GTK
-# FIXME - add GTK-check script
 # accept GTK_VER from command line
+AC_MSG_CHECKING([for GTK version])
 
-# Check for ManPath
+AC_ARG_WITH(GTK_VER,
+    [  --with-GTK_VER=<GTK-version>      GTK version],
+    [
+	case "$withval" in
+	"" | y | ye | yes | n | no)
+	    AC_MSG_ERROR([You must supply an argument to --with-GTK_VER.])
+	  ;;
+	esac
+	GTK_VER="$withval"
+    ])
+
+if test "x" = "x$GTK_VER"; then
+  #we need to find out GTK_VER ourselves
+  GTK_VER="none"
+  if type gtk-config 2>/dev/null >/dev/null ; then
+    # found gtk-config, that means GTK 1.2 is installed
+    GTK_VER="1.2"
+  elif type pkg-config 2>/dev/null >/dev/null ; then
+    # found pkg-config, that means GTK 2.x _might_ be installed
+    if pkg-config gtk+-2.0 --exists ; then
+      # found the .pc file for gtk-2.0
+      GTK_VER="2.0"
+    elif pkg-config gtk+-2.2 --exists ; then
+      # found the .pc file for gtk-2.2
+      GTK_VER="2.2"
+    fi
+  fi
+fi
+AC_MSG_RESULT([$GTK_VER])
+if (! test "none" = "$GTK_VER") ; then
+  GTK_CFLAGS=`gtk-config --cflags`
+  GTK_LIBS=`gtk-config --libs`
+else
+  GTK_CFLAGS=""
+  GTK_LIBS=""
+  GTK_VER=""
+fi
+AC_SUBST(GTK_VER)
+AC_SUBST(GTK_LIBS)
+AC_SUBST(GTK_CFLAGS)
+
+# Check for Man dir
+AC_MSG_CHECKING([for directory to install man-pages])
+
+#check for $MANPATH
+if test -z "$MANPATH"; then
+  MANDIR=`manpath | awk -F: '{ print $1 }'`
+  # test the result, make sure it's a directory
+  if ( ! test  -d $MANDIR ) ; then
+    MANDIR=
+  fi
+else
+  MANDIR=`echo $MANPATH | awk -F: '{ print $1 }'`
+fi
+if test -z "$MANDIR"; then
+  AC_MSG_WARN([not found])
+else
+  AC_MSG_RESULT([$MANDIR"])
+fi
+AC_SUBST([MANDIR])
+
 
 # Checks for libraries.
 
