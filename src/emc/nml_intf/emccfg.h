@@ -23,10 +23,10 @@ extern "C" {
 #endif
 
 /* default name of EMC ini file */
-#define DEFAULT_EMC_INIFILE "emc.ini"
+#define DEFAULT_EMC_INIFILE "generic.ini"
 
 /* default name of EMC NML file */
-#define DEFAULT_EMC_NMLFILE "emc.nml"
+#define DEFAULT_EMC_NMLFILE "generic.nml"
 
 /* cycle time for emctask, in seconds */
 #define DEFAULT_EMC_TASK_CYCLE_TIME 0.100

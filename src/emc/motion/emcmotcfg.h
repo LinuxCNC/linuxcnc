@@ -46,7 +46,7 @@
 static char __attribute__((unused)) emcmotcfg_h[] = "$Id$";
 
 /* default name of EMCMOT ini file */
-#define DEFAULT_EMCMOT_INIFILE "emc.ini"/* same as for EMC-- we're in touch */
+#define DEFAULT_EMCMOT_INIFILE "generic.ini"/* same as for EMC-- we're in touch */
 
 /* number of axes supported
    Note: this is not a global variable but a compile-time parameter
