@@ -1506,7 +1506,7 @@ int main(int argc, char *argv[])
 
     // Enable shared memory comms.
     usrmotIniLoad(EMC_INIFILE);
-    if (-1 != (shmem = usrmotInit())) {
+    if (-1 != (shmem = usrmotInit("iosh"))) {
 	shmem = (long) emcmotshmem;
     }
     // turn on port access

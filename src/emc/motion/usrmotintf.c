@@ -840,11 +840,11 @@ void usrmotPrintEmcmotStatus(EMCMOT_STATUS s, int which)
 static int module_id;
 static int shmem_id;
 
-int usrmotInit(void)
+int usrmotInit(char *modname)
 {
     int axis;
 
-	module_id = rtapi_init("usrmotintf");
+	module_id = rtapi_init(modname);
 	shmem_id =
 	    rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(EMCMOT_STRUCT));
 

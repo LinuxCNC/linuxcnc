@@ -41,6 +41,7 @@
 #include <ctype.h>              /* isspace() */
 #include <unistd.h>             /* STDIN_FILENO */
 #include <fcntl.h>              /* F_GETFL, O_NONBLOCK */
+#include <signal.h>             /* signal(), SIGINT */
 #include "_timer.h"             /* esleep() */
 #include "motion.h"
 #include "usrmotintf.h"         /* usrmotInit(), etc */
@@ -185,7 +186,12 @@ int getinput(char *buffer, int maxchars)
   return index;
 }
 
-
+static void usrmotQuit(int sig)
+{
+  printf("Received %i SIGINT - Detaching from motion\n", sig);
+  usrmotExit();
+  exit(0);
+}
 /*
    syntax:  usrmot
 */
@@ -237,10 +243,14 @@ int main(int argc, char *argv[])
   }
 
   /* init comm */
-  if (-1 == usrmotInit()) {
+  if (-1 == usrmotInit("usrmot")) {
     fprintf(stderr, "can't initialize comm interface\n");
     exit(1);
   }
+  
+  /* Now that we have connected to shared memory via rtapi
+     register a SIGINT handler */
+  signal(SIGINT, usrmotQuit);
 
   emcmotCommand.pos.a = 0.0;
   emcmotCommand.pos.b = 0.0;

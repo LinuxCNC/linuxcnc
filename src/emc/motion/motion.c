@@ -13,7 +13,7 @@
 #ifndef RTAPI
 #error This is a realtime component only!
 #endif
-
+#include <stdarg.h>
 #include "emcmotglb.h"
 #include "motion.h"
 #include "mot_priv.h"
@@ -97,12 +97,12 @@ void emcmot_config_change(void)
 
 void reportError(const char *fmt, ...)
 {
-    /* use the rtapi_snprintf function where vsprintf is called for. */
     va_list args;
     char error[EMCMOT_ERROR_LEN];
 
     va_start(args, fmt);
-    rtapi_snprintf(error, EMCMOT_ERROR_LEN, fmt, args);
+    /* Don't use the rtapi_snprintf... */
+    vsprintf(error, fmt, args);
     va_end(args);
 
     emcmotErrorPut(emcmotError, error);

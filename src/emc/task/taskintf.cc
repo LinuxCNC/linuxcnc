@@ -512,7 +512,7 @@ int emcAxisInit(int axis)
     if (!emcmotAxisInited && !emcmotTrajInited) {
 	usrmotIniLoad(EMC_INIFILE);
 
-	if (0 != usrmotInit()) {
+	if (0 != usrmotInit("emc2_task")) {
 	    return -1;
 	}
     }
@@ -1038,7 +1038,7 @@ int emcTrajInit()
     if (!emcmotAxisInited && !emcmotTrajInited) {
 	usrmotIniLoad(EMC_INIFILE);
 
-	if (0 != usrmotInit()) {
+	if (0 != usrmotInit("emc2_task")) {
 	    return -1;
 	}
     }

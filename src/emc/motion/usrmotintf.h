@@ -72,7 +72,7 @@ extern void usrmotPrintEmcmotDebug(EMCMOT_DEBUG s, int which);
 extern int usrmotWriteEmcmotCommand(EMCMOT_COMMAND * c);
 
 /* usrmotInit() initializes communication with the emcmot process */
-extern int usrmotInit(void);
+extern int usrmotInit(char *name);
 
 /* usrmotExit() terminates communication with the emcmot process */
 extern int usrmotExit(void);
