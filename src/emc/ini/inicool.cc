@@ -22,7 +22,7 @@ extern "C" {
 }
 
 #include "emc.hh"
-#include "inifile.h"
+#include "inifile.hh"
 #include "inicool.hh"           // these decls
 #include "emcglb.h"             // MIST_COOLANT_INDEX, etc
 

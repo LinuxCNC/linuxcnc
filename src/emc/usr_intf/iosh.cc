@@ -35,7 +35,7 @@
 #include "emc.hh"		// EMC NML
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "inifile.h"		// INIFILE
+#include "inifile.hh"		// INIFILE
 
 #include "motion.h"		// emc struct and commands
 #include "usrmotintf.h"		// usrmot interface

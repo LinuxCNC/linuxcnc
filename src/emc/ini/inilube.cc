@@ -22,7 +22,7 @@ extern "C" {
 }
 
 #include "emc.hh"
-#include "inifile.h"
+#include "inifile.hh"
 #include "inilube.hh"           // these decls
 #include "emcglb.h"             // LUBE_SENSE_INDEX, etc
 

@@ -30,7 +30,7 @@
 #include "canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "inifile.h"		// INIFILE
+#include "inifile.hh"		// INIFILE
 #include "emcmotlog.h"		// EMCLOG_TRIGGER_TYPE, EMCLOG_TRIGGER_VAR
 
 /*

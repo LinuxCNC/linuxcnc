@@ -1447,7 +1447,7 @@ VARIABLE_FILE = rs274ngc.var
 
 */
 
-#include "inifile.h"		// INIFILE
+#include "inifile.hh"		// INIFILE
 
 int rs274ngc_ini_load(const char *filename)
 {

@@ -21,7 +21,7 @@ extern "C" {
 }
 
 #include "emc.hh"
-#include "inifile.h"
+#include "inifile.hh"
 #include "iniaux.hh"            // these decls
 #include "emcglb.h"             // ESTOP_SENSE_INDEX, etc
 

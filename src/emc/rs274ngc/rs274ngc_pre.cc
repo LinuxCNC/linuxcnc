@@ -202,25 +202,20 @@ static int convert_arc(int move, block_pointer block, setup_pointer settings);
 static int convert_arc2(int move, block_pointer block,
                         setup_pointer settings, double *current1,
                         double *current2, double *current3, double end1,
-                        double end2, double end3
-#ifndef LATHE
-                        , double AA_end, double BB_end, double CC_end
-#endif
-                        , double offset1, double offset2);
+                        double end2, double end3, double AA_end,
+                        double BB_end, double CC_end, double offset1,
+                        double offset2);
+
 static int convert_arc_comp1(int move, block_pointer block,
                              setup_pointer settings, double end_x,
-                             double end_y, double end_z
-#ifndef LATHE
-                             , double AA_end, double BB_end, double CC_end
-#endif
-  );
+                             double end_y, double end_z, double AA_end,
+                             double BB_end, double CC_end);
+
 static int convert_arc_comp2(int move, block_pointer block,
                              setup_pointer settings, double end_x,
-                             double end_y, double end_z
-#ifndef LATHE
-                             , double AA_end, double BB_end, double CC_end
-#endif
-  );
+                             double end_y, double end_z, double AA_end,
+                             double BB_end, double CC_end);
+
 static int convert_axis_offsets(int g_code, block_pointer block,
                                 setup_pointer settings);
 static int convert_comment(char *comment);
@@ -287,20 +282,12 @@ static int convert_straight(int move, block_pointer block,
                             setup_pointer settings);
 static int convert_straight_comp1(int move, block_pointer block,
                                   setup_pointer settings, double px,
-                                  double py, double end_z
-#ifndef LATHE
-                                  , double AA_end, double BB_end,
-                                  double CC_end
-#endif
-  );
+                                  double py, double end_z, double AA_end,
+                                  double BB_end, double CC_end);
 static int convert_straight_comp2(int move, block_pointer block,
                                   setup_pointer settings, double px,
-                                  double py, double end_z
-#ifndef LATHE
-                                  , double AA_end, double BB_end,
-                                  double CC_end
-#endif
-  );
+                                  double py, double end_z, double AA_end,
+                                  double BB_end, double CC_end);
 static int convert_tool_change(setup_pointer settings);
 static int convert_tool_length_offset(int g_code, block_pointer block,
                                       setup_pointer settings);
@@ -319,29 +306,16 @@ static double find_arc_length(double x1, double y1, double z1,
                               double center_x, double center_y, int turn,
                               double x2, double y2, double z2);
 static int find_ends(block_pointer block, setup_pointer settings, double *px,
-                     double *py, double *pz
-#ifndef LATHE
-                     , double *AA_p, double *BB_p, double *CC_p
-#endif
-  );
-static int find_relative(double x1, double y1, double z1
-#ifndef LATHE
-                         , double AA_1, double BB_1, double CC_1
-#endif
-                         , double *x2, double *y2, double *z2
-#ifndef LATHE
-                         , double *AA_2, double *BB_2, double *CC_2
-#endif
-                         , setup_pointer settings);
-static double find_straight_length(double x2, double y2, double z2
-#ifndef LATHE
-                                   , double AA_2, double BB_2, double CC_2
-#endif
-                                   , double x1, double y1, double z1
-#ifndef LATHE
-                                   , double AA_1, double BB_1, double CC_1
-#endif
-  );
+                     double *py, double *pz, double *AA_p, double *BB_p,
+                     double *CC_p);
+static int find_relative(double x1, double y1, double z1, double AA_1,
+                         double BB_1, double CC_1, double *x2, double *y2,
+                         double *z2, double *AA_2, double *BB_2, double *CC_2,
+                         setup_pointer settings);
+static double find_straight_length(double x2, double y2, double z2,
+                                   double AA_2, double BB_2, double CC_2,
+                                   double x1, double y1, double z1,
+                                   double AA_1, double BB_1, double CC_1);
 static double find_turn(double x1, double y1, double center_x,
                         double center_y, int turn, double x2, double y2);
 static int init_block(block_pointer block);
@@ -357,18 +331,13 @@ static int inverse_time_rate_arc2(double start_x, double start_y, int turn1,
                                   setup_pointer settings);
 static int inverse_time_rate_as(double start_x, double start_y, int turn,
                                 double mid_x, double mid_y, double end_x,
-                                double end_y, double end_z
-#ifndef LATHE
-                                , double AA_end, double BB_end, double CC_end
-#endif
-                                , block_pointer block,
-                                setup_pointer settings);
-static int inverse_time_rate_straight(double end_x, double end_y, double end_z
-#ifndef LATHE
-                                      , double AA_end, double BB_end,
-                                      double CC_end
-#endif
-                                      , block_pointer block,
+                                double end_y, double end_z, double AA_end,
+                                double BB_end, double CC_end,
+                                block_pointer block, setup_pointer settings);
+static int inverse_time_rate_straight(double end_x, double end_y,
+                                      double end_z, double AA_end,
+                                      double BB_end, double CC_end,
+                                      block_pointer block,
                                       setup_pointer settings);
 static int parse_line(char *line, block_pointer block,
                       setup_pointer settings);
@@ -592,54 +561,30 @@ rs274ngc_save_parameters function.
 
 static const int _required_parameters[] = {
  5161, 5162, 5163,   /* G28 home */
-#ifndef LATHE
  5164, 5165, 5166, /* A, B, & C */
-#endif
  5181, 5182, 5183,   /* G30 home */
-#ifndef LATHE
  5184, 5185, 5186, /*A, B, & C */
-#endif
  5211, 5212, 5213,   /* G92 offsets */
-#ifndef LATHE
  5214, 5215, 5216, /*A, B. & C */
-#endif
  5220,               /* selected coordinate */
  5221, 5222, 5223,   /* coordinate system 1 */
-#ifndef LATHE
  5224, 5225, 5226, /* A, B, & C */
-#endif
  5241, 5242, 5243,   /* coordinate system 2 */
-#ifndef LATHE
  5244, 5245, 5246, /* A, B, & C */
-#endif
  5261, 5262, 5263,   /* coordinate system 3 */
-#ifndef LATHE
  5264, 5265, 5266, /* A, B, & C */
-#endif
  5281, 5282, 5283,   /* coordinate system 4 */
-#ifndef LATHE
  5284, 5285, 5286, /* A, B, & C */
-#endif
  5301, 5302, 5303,   /* coordinate system 5 */
-#ifndef LATHE
  5304, 5305, 5306, /* A, B, & C */
-#endif
  5321, 5322, 5323,   /* coordinate system 6 */
-#ifndef LATHE
  5324, 5325, 5326, /* A, B, & C */
-#endif
  5341, 5342, 5343,   /* coordinate system 7 */
-#ifndef LATHE
  5344, 5345, 5346, /* A, B, & C */
-#endif
  5361, 5362, 5363,   /* coordinate system 8 */
-#ifndef LATHE
  5364, 5365, 5366, /* A, B, & C */
-#endif
  5381, 5382, 5383,   /* coordinate system 9 */
-#ifndef LATHE
  5384, 5385, 5386, /* A, B, & C */
-#endif
  RS274NGC_MAX_PARAMETERS
 };
 
@@ -1461,11 +1406,12 @@ static int convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw arc
         NCE_X_AND_Z_WORDS_MISSING_FOR_ARC_IN_XZ_PLANE);
   }
 
-  find_ends(block, settings, &end_x, &end_y, &end_z
+  find_ends(block, settings, &end_x, &end_y, &end_z,
 #ifndef LATHE
-            , &AA_end, &BB_end, &CC_end
+            &AA_end, &BB_end, &CC_end);
+#else
+            0, 0, 0);
 #endif
-    );
   settings->motion_mode = move;
 
   if (settings->plane == CANON_PLANE_XY) {
@@ -1474,25 +1420,29 @@ static int convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw arc
       status =
         convert_arc2(move, block, settings,
                      &(settings->current_x), &(settings->current_y),
-                     &(settings->current_z), end_x, end_y, end_z
+                     &(settings->current_z), end_x, end_y, end_z,
 #ifndef LATHE
-                     , AA_end, BB_end, CC_end
+                     AA_end, BB_end, CC_end,
+#else
+                     0, 0, 0,
 #endif
-                     , block->i_number, block->j_number);
+                     block->i_number, block->j_number);
       CHP(status);
     } else if (first) {
-      status = convert_arc_comp1(move, block, settings, end_x, end_y, end_z
+      status = convert_arc_comp1(move, block, settings, end_x, end_y, end_z,
 #ifndef LATHE
-                                 , AA_end, BB_end, CC_end
+                                 AA_end, BB_end, CC_end);
+#else
+                                 0, 0, 0);
 #endif
-        );
       CHP(status);
     } else {
-      status = convert_arc_comp2(move, block, settings, end_x, end_y, end_z
+      status = convert_arc_comp2(move, block, settings, end_x, end_y, end_z,
 #ifndef LATHE
-                                 , AA_end, BB_end, CC_end
+                                 AA_end, BB_end, CC_end);
+#else
+                                 0, 0, 0);
 #endif
-        );
 
       CHP(status);
     }
@@ -1500,21 +1450,25 @@ static int convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw arc
     status =
       convert_arc2(move, block, settings,
                    &(settings->current_z), &(settings->current_x),
-                   &(settings->current_y), end_z, end_x, end_y
+                   &(settings->current_y), end_z, end_x, end_y,
 #ifndef LATHE
-                   , AA_end, BB_end, CC_end
+                   AA_end, BB_end, CC_end,
+#else
+                   0, 0, 0,
 #endif
-                   , block->k_number, block->i_number);
+                   block->k_number, block->i_number);
     CHP(status);
   } else if (settings->plane == CANON_PLANE_YZ) {
     status =
       convert_arc2(move, block, settings,
                    &(settings->current_y), &(settings->current_z),
-                   &(settings->current_x), end_y, end_z, end_x
+                   &(settings->current_x), end_y, end_z, end_x,
 #ifndef LATHE
-                   , AA_end, BB_end, CC_end
+                   AA_end, BB_end, CC_end,
+#else
+                   0, 0, 0,
 #endif
-                   , block->j_number, block->k_number);
+                   block->j_number, block->k_number);
     CHP(status);
   } else
     ERM(NCE_BUG_PLANE_NOT_XY_YZ_OR_XZ);
@@ -1550,11 +1504,9 @@ static int convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw arc
                         double end1,    //!< coordinate 1 value at end of arc        
                         double end2,    //!< coordinate 2 value at end of arc        
                         double end3,    //!< coordinate 3 value at end of arc        
-#ifndef LATHE
                         double AA_end,  //!< a-value at end of arc                   
                         double BB_end,  //!< b-value at end of arc                   
                         double CC_end,  //!< c-value at end of arc                   
-#endif
                         double offset1, //!< offset of center from current1          
                         double offset2) //!< offset of center from current2          
 {
@@ -1579,11 +1531,11 @@ static int convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw arc
   if (settings->feed_mode == INVERSE_TIME)
     inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
                           turn, end1, end2, end3, block, settings);
-  ARC_FEED(end1, end2, center1, center2, turn, end3
+  ARC_FEED(end1, end2, center1, center2, turn, end3,
 #ifndef LATHE
-           , AA_end, BB_end, CC_end);
+           AA_end, BB_end, CC_end);
 #else
-    );
+           0, 0, 0);
 #endif
   *current1 = end1;
   *current2 = end2;
@@ -1629,13 +1581,10 @@ static int convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw arc
                              setup_pointer settings,    //!< pointer to machine settings                     
                              double end_x,      //!< x-value at end of programmed (then actual) arc  
                              double end_y,      //!< y-value at end of programmed (then actual) arc  
-                             double end_z       //!< z-value at end of arc                           
-#ifndef LATHE
-                             , double AA_end    //!< a-value at end of arc                     
-                             , double BB_end    //!< b-value at end of arc                     
-                             , double CC_end    //!< c-value at end of arc                     
-#endif
-  )
+                             double end_z,      //!< z-value at end of arc                           
+                             double AA_end,     //!< a-value at end of arc                     
+                             double BB_end,     //!< b-value at end of arc                     
+                             double CC_end)     //!< c-value at end of arc                     
 {
   static char name[] = "convert_arc_comp1";
   double center_x;
@@ -1682,11 +1631,11 @@ static int convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw arc
     inverse_time_rate_arc(settings->current_x, settings->current_y,
                           settings->current_z, center_x, center_y, turn,
                           end_x, end_y, end_z, block, settings);
-  ARC_FEED(end_x, end_y, center_x, center_y, turn, end_z
+  ARC_FEED(end_x, end_y, center_x, center_y, turn, end_z,
 #ifndef LATHE
-           , AA_end, BB_end, CC_end);
+           AA_end, BB_end, CC_end);
 #else
-    );
+           0, 0, 0);
 #endif
   settings->current_x = end_x;
   settings->current_y = end_y;
@@ -1744,13 +1693,10 @@ static int convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw arc
                              setup_pointer settings,    //!< pointer to machine settings                   
                              double end_x,      //!< x-value at end of programmed (then actual) arc
                              double end_y,      //!< y-value at end of programmed (then actual) arc
-                             double end_z       //!< z-value at end of arc                         
-#ifndef LATHE
-                             , double AA_end    //!< a-value at end of arc
-                             , double BB_end    //!< b-value at end of arc
-                             , double CC_end    //!< c-value at end of arc
-#endif
-  )
+                             double end_z,      //!< z-value at end of arc                         
+                             double AA_end,     //!< a-value at end of arc
+                             double BB_end,     //!< b-value at end of arc
+                             double CC_end)     //!< c-value at end of arc
 {
   static char name[] = "convert_arc_comp2";
   double alpha;                 /* direction of tangent to start of arc */
@@ -1826,17 +1772,17 @@ static int convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw arc
                              mid_x, mid_y, center_x, center_y, turn,
                              end_x, end_y, end_z, block, settings);
     ARC_FEED(mid_x, mid_y, start_x, start_y, ((side == LEFT) ? -1 : 1),
-             settings->current_z
+             settings->current_z,
 #ifndef LATHE
-             , AA_end, BB_end, CC_end);
+             AA_end, BB_end, CC_end);
 #else
-      );
+             0, 0, 0);
 #endif
-    ARC_FEED(end_x, end_y, center_x, center_y, turn, end_z
+    ARC_FEED(end_x, end_y, center_x, center_y, turn, end_z,
 #ifndef LATHE
-             , AA_end, BB_end, CC_end);
+             AA_end, BB_end, CC_end);
 #else
-      );
+             0, 0, 0);
 #endif
   } else {                      /* one arc needed */
 
@@ -1844,11 +1790,11 @@ static int convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw arc
       inverse_time_rate_arc(settings->current_x, settings->current_y,
                             settings->current_z, center_x, center_y, turn,
                             end_x, end_y, end_z, block, settings);
-    ARC_FEED(end_x, end_y, center_x, center_y, turn, end_z
+    ARC_FEED(end_x, end_y, center_x, center_y, turn, end_z,
 #ifndef LATHE
-             , AA_end, BB_end, CC_end);
+             AA_end, BB_end, CC_end);
 #else
-      );
+             0, 0, 0);
 #endif
   }
 
@@ -1971,16 +1917,17 @@ static int convert_axis_offsets(int g_code,     //!< g_code being executed (must
 
     SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
                        settings->origin_offset_y + settings->axis_offset_y,
-                       settings->origin_offset_z + settings->axis_offset_z
+                       settings->origin_offset_z + settings->axis_offset_z,
 #ifndef LATHE
-                       ,
                        (settings->AA_origin_offset +
                         settings->AA_axis_offset),
                        (settings->BB_origin_offset +
                         settings->BB_axis_offset),
-                       (settings->CC_origin_offset + settings->CC_axis_offset)
+                       (settings->CC_origin_offset +
+                        settings->CC_axis_offset));
+#else
+                       0, 0, 0);
 #endif
-      );
     pars[5211] = settings->axis_offset_x;
     pars[5212] = settings->axis_offset_y;
     pars[5213] = settings->axis_offset_z;
@@ -2000,12 +1947,14 @@ static int convert_axis_offsets(int g_code,     //!< g_code being executed (must
     settings->CC_current = (settings->CC_current + settings->CC_axis_offset);
 #endif
     SET_ORIGIN_OFFSETS(settings->origin_offset_x,
-                       settings->origin_offset_y, settings->origin_offset_z
+                       settings->origin_offset_y, settings->origin_offset_z,
 #ifndef LATHE
-                       , settings->AA_origin_offset,
-                       settings->BB_origin_offset, settings->CC_origin_offset
+                       settings->AA_origin_offset,
+                       settings->BB_origin_offset,
+                       settings->CC_origin_offset);
+#else
+                       0, 0, 0);
 #endif
-      );
 
     settings->axis_offset_x = 0.0;
     settings->axis_offset_y = 0.0;
@@ -2050,16 +1999,18 @@ static int convert_axis_offsets(int g_code,     //!< g_code being executed (must
 #endif
     SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
                        settings->origin_offset_y + settings->axis_offset_y,
-                       settings->origin_offset_z + settings->axis_offset_z
+                       settings->origin_offset_z + settings->axis_offset_z,
 #ifndef LATHE
-                       ,
                        (settings->AA_origin_offset +
                         settings->AA_axis_offset),
                        (settings->BB_origin_offset +
                         settings->BB_axis_offset),
-                       (settings->CC_origin_offset + settings->CC_axis_offset)
+                       (settings->CC_origin_offset +
+                        settings->CC_axis_offset));
+#else
+                       0, 0, 0);
 #endif
-      );
+
   } else
     ERM(NCE_BUG_CODE_NOT_IN_G92_SERIES);
 
@@ -2115,8 +2066,11 @@ static int convert_comment(char *comment)       //!< string with comment
     MESSAGE(comment + start + strlen(MSG_STR));
     return RS274NGC_OK;
   } else if (!strncmp(lc, SYSTEM_STR, strlen(SYSTEM_STR))) {
+#if 0
+/* FIX-ME Impliment these at a later stage... */
     SYSTEM(comment + start + strlen(SYSTEM_STR));
     return RS274NGC_EXECUTE_FINISH;     // inhibit read-ahead until this is done
+#endif
   }
   // else it's a real comment
   COMMENT(comment + start);
@@ -2343,13 +2297,13 @@ static int convert_coordinate_system(int g_code,        //!< g_code called (must
 #endif
 
   SET_ORIGIN_OFFSETS(x + settings->axis_offset_x,
-                     y + settings->axis_offset_y, z + settings->axis_offset_z
+                     y + settings->axis_offset_y, z + settings->axis_offset_z,
 #ifndef LATHE
-                     , a + settings->AA_axis_offset,
+                     a + settings->AA_axis_offset,
                      b + settings->BB_axis_offset,
                      c + settings->CC_axis_offset);
 #else
-    );
+                     0, 0, 0);
 #endif
   return RS274NGC_OK;
 }
@@ -3234,12 +3188,13 @@ static int convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a c
   CHK((r < cc), NCE_R_LESS_THAN_Z_IN_CYCLE_IN_XY_PLANE);
 
   if (old_cc < r) {
-    STRAIGHT_TRAVERSE(settings->current_x, settings->current_y, r
+    STRAIGHT_TRAVERSE(settings->current_x, settings->current_y, r,
 #ifndef LATHE
-                      , settings->AA_current, settings->BB_current,
-                      settings->CC_current
+                      settings->AA_current, settings->BB_current,
+                      settings->CC_current);
+#else
+                      0, 0, 0);
 #endif
-      );
     old_cc = r;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
@@ -3436,12 +3391,13 @@ static int convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a c
   CHK((r < cc), NCE_R_LESS_THAN_X_IN_CYCLE_IN_YZ_PLANE);
 
   if (old_cc < r) {
-    STRAIGHT_TRAVERSE(r, settings->current_y, settings->current_z
+    STRAIGHT_TRAVERSE(r, settings->current_y, settings->current_z,
 #ifndef LATHE
-                      , settings->AA_current, settings->BB_current,
-                      settings->CC_current
+                      settings->AA_current, settings->BB_current,
+                      settings->CC_current);
+#else
+                      0, 0, 0);
 #endif
-      );
     old_cc = r;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
@@ -3646,12 +3602,13 @@ static int convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a c
   CHK((r < cc), NCE_R_LESS_THAN_Y_IN_CYCLE_IN_XZ_PLANE);
 
   if (old_cc < r) {
-    STRAIGHT_TRAVERSE(settings->current_x, r, settings->current_z
+    STRAIGHT_TRAVERSE(settings->current_x, r, settings->current_z,
 #ifndef LATHE
-                      , settings->AA_current, settings->BB_current,
-                      settings->CC_current
+                      settings->AA_current, settings->BB_current,
+                      settings->CC_current);
+#else
+                      0, 0, 0);
 #endif
-      );
     old_cc = r;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
@@ -4016,57 +3973,52 @@ static int convert_home(int move,       //!< G code, must be G_28 or G_30
   double end_x;
   double end_y;
   double end_z;
-#ifndef LATHE
   double AA_end;
   double AA_end2;
   double BB_end;
   double BB_end2;
   double CC_end;
   double CC_end2;
-#endif
   double *parameters;
 
   parameters = settings->parameters;
-  find_ends(block, settings, &end_x, &end_y, &end_z
-#ifndef LATHE
-            , &AA_end, &BB_end, &CC_end
-#endif
-    );
+  find_ends(block, settings, &end_x, &end_y, &end_z,
+            &AA_end, &BB_end, &CC_end);
 
   CHK((settings->cutter_comp_side != OFF),
       NCE_CANNOT_USE_G28_OR_G30_WITH_CUTTER_RADIUS_COMP);
-  STRAIGHT_TRAVERSE(end_x, end_y, end_z
+  STRAIGHT_TRAVERSE(end_x, end_y, end_z,
 #ifndef LATHE
-                    , AA_end, BB_end, CC_end
+                    AA_end, BB_end, CC_end);
+#else
+                    0, 0, 0);
 #endif
-    );
   if (move == G_28) {
     find_relative(parameters[5161], parameters[5162], parameters[5163],
 #ifndef LATHE
                   parameters[5164], parameters[5165], parameters[5166],
+#else
+                  0, 0, 0,
 #endif
                   &end_x, &end_y, &end_z,
-#ifndef LATHE
-                  &AA_end2, &BB_end2, &CC_end2,
-#endif
-                  settings);
+                  &AA_end2, &BB_end2, &CC_end2, settings);
   } else if (move == G_30) {
     find_relative(parameters[5181], parameters[5182], parameters[5183],
 #ifndef LATHE
                   parameters[5184], parameters[5185], parameters[5186],
+#else
+                  0, 0, 0,
 #endif
                   &end_x, &end_y, &end_z,
-#ifndef LATHE
-                  &AA_end2, &BB_end2, &CC_end2,
-#endif
-                  settings);
+                  &AA_end2, &BB_end2, &CC_end2, settings);
   } else
     ERM(NCE_BUG_CODE_NOT_G28_OR_G30);
-  STRAIGHT_TRAVERSE(end_x, end_y, end_z
+  STRAIGHT_TRAVERSE(end_x, end_y, end_z,
 #ifndef LATHE
-                    , AA_end, BB_end, CC_end
+                    AA_end, BB_end, CC_end);
+#else
+                    0, 0, 0);
 #endif
-    );
   settings->current_x = end_x;
   settings->current_y = end_y;
   settings->current_z = end_z;
@@ -4193,7 +4145,8 @@ static int convert_m(block_pointer block,       //!< pointer to a block of RS274
   static char name[] = "convert_m";
   int status;
   int index;
-
+#if 0
+/* FIX-ME Impliment these at a later stage... */
   if (block->m_modes[5] == 62) {
     SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 63) {
@@ -4203,7 +4156,7 @@ static int convert_m(block_pointer block,       //!< pointer to a block of RS274
   } else if (block->m_modes[5] == 65) {
     CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   }
-
+#endif
   if (block->m_modes[6] != -1) {
     CHP(convert_tool_change(settings));
   }
@@ -4260,7 +4213,8 @@ static int convert_m(block_pointer block,       //!< pointer to a block of RS274
     settings->feed_override = OFF;
     settings->speed_override = OFF;
   }
-
+#if 0
+/* FIX-ME Impliment these at a later stage... */
   /* user-defined M codes */
   for (index = 100; index < 200; index++) {
     if (block->m_modes[index] == index) {
@@ -4273,7 +4227,7 @@ static int convert_m(block_pointer block,       //!< pointer to a block of RS274
       }
     }
   }
-
+#endif
   return RS274NGC_OK;
 }
 
@@ -4429,11 +4383,12 @@ static int convert_probe(block_pointer block,   //!< pointer to a block of RS274
   CHK((settings->cutter_comp_side != OFF),
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);
   CHK((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
-  find_ends(block, settings, &end_x, &end_y, &end_z
+  find_ends(block, settings, &end_x, &end_y, &end_z,
 #ifndef LATHE
-            , &AA_end, &BB_end, &CC_end
+            &AA_end, &BB_end, &CC_end);
+#else
+            0, 0, 0);
 #endif
-    );
   if (0
 #ifndef LATHE
       || (AA_end != settings->AA_current)
@@ -4448,11 +4403,11 @@ static int convert_probe(block_pointer block,   //!< pointer to a block of RS274
        ((settings->length_units == CANON_UNITS_MM) ? 0.254 : 0.01)),
       NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT);
   TURN_PROBE_ON();
-  STRAIGHT_PROBE(end_x, end_y, end_z
+  STRAIGHT_PROBE(end_x, end_y, end_z,
 #ifndef LATHE
-                 , AA_end, BB_end, CC_end);
+                 AA_end, BB_end, CC_end);
 #else
-    );
+                 0, 0, 0);
 #endif
 
   TURN_PROBE_OFF();
@@ -4620,13 +4575,13 @@ static int convert_setup(block_pointer block,   //!< pointer to a block of RS274
 
     SET_ORIGIN_OFFSETS(x + settings->axis_offset_x,
                        y + settings->axis_offset_y,
-                       z + settings->axis_offset_z
+                       z + settings->axis_offset_z,
 #ifndef LATHE
-                       , a + settings->AA_axis_offset,
+                       a + settings->AA_axis_offset,
                        b + settings->BB_axis_offset,
                        c + settings->CC_axis_offset);
 #else
-      );
+                       0, 0, 0);
 #endif
   }
 #ifdef DEBUG_EMC
@@ -4825,13 +4780,13 @@ static int convert_stop(block_pointer block,    //!< pointer to a block of RS274
 #endif
 
     SET_ORIGIN_OFFSETS(settings->origin_offset_x,
-                       settings->origin_offset_y, settings->origin_offset_z
+                       settings->origin_offset_y, settings->origin_offset_z,
 #ifndef LATHE
-                       , settings->AA_origin_offset,
+                       settings->AA_origin_offset,
                        settings->BB_origin_offset,
                        settings->CC_origin_offset);
 #else
-      );
+                       0, 0, 0);
 #endif
 
 /*2*/ if (settings->plane != CANON_PLANE_XY) {
@@ -4951,11 +4906,9 @@ static int convert_straight(int move,   //!< either G_0 or G_1
   double end_x;
   double end_y;
   double end_z;
-#ifndef LATHE
   double AA_end;
   double BB_end;
   double CC_end;
-#endif
   int status;
 
   if (move == G_1) {
@@ -4968,11 +4921,8 @@ static int convert_straight(int move,   //!< either G_0 or G_1
   }
 
   settings->motion_mode = move;
-  find_ends(block, settings, &end_x, &end_y, &end_z
-#ifndef LATHE
-            , &AA_end, &BB_end, &CC_end
-#endif
-    );
+  find_ends(block, settings, &end_x, &end_y, &end_z,
+            &AA_end, &BB_end, &CC_end);
 
   if ((settings->cutter_comp_side != OFF) &&    /* ! "== ON" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
@@ -4980,43 +4930,47 @@ static int convert_straight(int move,   //!< either G_0 or G_1
         NCE_CANNOT_USE_G53_WITH_CUTTER_RADIUS_COMP);
     if (settings->program_x == UNKNOWN) {
       status =
-        convert_straight_comp1(move, block, settings, end_x, end_y, end_z
+        convert_straight_comp1(move, block, settings, end_x, end_y, end_z,
 #ifndef LATHE
-                               , AA_end, BB_end, CC_end
+                               AA_end, BB_end, CC_end);
+#else
+                               0, 0, 0);
 #endif
-        );
 
       CHP(status);
     } else {
       status =
-        convert_straight_comp2(move, block, settings, end_x, end_y, end_z
+        convert_straight_comp2(move, block, settings, end_x, end_y, end_z,
 #ifndef LATHE
-                               , AA_end, BB_end, CC_end
+                               AA_end, BB_end, CC_end);
+#else
+                               0, 0, 0);
 #endif
-        );
       CHP(status);
     }
   } else if (move == G_0) {
-    STRAIGHT_TRAVERSE(end_x, end_y, end_z
+    STRAIGHT_TRAVERSE(end_x, end_y, end_z,
 #ifndef LATHE
-                      , AA_end, BB_end, CC_end);
+                      AA_end, BB_end, CC_end);
 #else
-      );
+                      0, 0, 0);
 #endif
     settings->current_x = end_x;
     settings->current_y = end_y;
   } else if (move == G_1) {
     if (settings->feed_mode == INVERSE_TIME)
-      inverse_time_rate_straight(end_x, end_y, end_z
+      inverse_time_rate_straight(end_x, end_y, end_z,
 #ifndef LATHE
-                                 , AA_end, BB_end, CC_end
-#endif
-                                 , block, settings);
-    STRAIGHT_FEED(end_x, end_y, end_z
-#ifndef LATHE
-                  , AA_end, BB_end, CC_end);
+                                 AA_end, BB_end, CC_end,
 #else
-      );
+                                 0, 0, 0,
+#endif
+                                 block, settings);
+    STRAIGHT_FEED(end_x, end_y, end_z,
+#ifndef LATHE
+                  AA_end, BB_end, CC_end);
+#else
+                  0, 0, 0);
 #endif
     settings->current_x = end_x;
     settings->current_y = end_y;
@@ -5073,13 +5027,10 @@ static int convert_straight_comp1(int move,     //!< either G_0 or G_1
                                   setup_pointer settings,       //!< pointer to machine settings              
                                   double px,    //!< X coordinate of end point                
                                   double py,    //!< Y coordinate of end point                
-                                  double end_z  //!< Z coordinate of end point                
-#ifndef LATHE
-                                  , double AA_end       //!< A coordinate of end point          
-                                  , double BB_end       //!< B coordinate of end point          
-                                  , double CC_end       //!< C coordinate of end point          
-#endif
-  )
+                                  double end_z, //!< Z coordinate of end point                
+                                  double AA_end,        //!< A coordinate of end point          
+                                  double BB_end,        //!< B coordinate of end point          
+                                  double CC_end)        //!< C coordinate of end point          
 {
   static char name[] = "convert_straight_comp1";
   double alpha;
@@ -5106,24 +5057,26 @@ static int convert_straight_comp1(int move,     //!< either G_0 or G_1
   cx = (px + (radius * cos(alpha)));    /* reset to end location */
   cy = (py + (radius * sin(alpha)));
   if (move == G_0)
-    STRAIGHT_TRAVERSE(cx, cy, end_z
+    STRAIGHT_TRAVERSE(cx, cy, end_z,
 #ifndef LATHE
-                      , AA_end, BB_end, CC_end);
+                      AA_end, BB_end, CC_end);
 #else
-      );
+                      0, 0, 0);
 #endif
   else if (move == G_1) {
     if (settings->feed_mode == INVERSE_TIME)
-      inverse_time_rate_straight(cx, cy, end_z
+      inverse_time_rate_straight(cx, cy, end_z,
 #ifndef LATHE
-                                 , AA_end, BB_end, CC_end
-#endif
-                                 , block, settings);
-    STRAIGHT_FEED(cx, cy, end_z
-#ifndef LATHE
-                  , AA_end, BB_end, CC_end);
+                                 AA_end, BB_end, CC_end,
 #else
-      );
+                                 0, 0, 0,
+#endif
+                                 block, settings);
+    STRAIGHT_FEED(cx, cy, end_z,
+#ifndef LATHE
+                  AA_end, BB_end, CC_end);
+#else
+                  0, 0, 0);
 #endif
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
@@ -5212,13 +5165,10 @@ static int convert_straight_comp2(int move,     //!< either G_0 or G_1
                                   setup_pointer settings,       //!< pointer to machine settings              
                                   double px,    //!< X coordinate of programmed end point     
                                   double py,    //!< Y coordinate of programmed end point     
-                                  double end_z  //!< Z coordinate of end point                
-#ifndef LATHE
-                                  , double AA_end       //!< A coordinate of end point
-                                  , double BB_end       //!< B coordinate of end point
-                                  , double CC_end       //!< C coordinate of end point
-#endif
-  )
+                                  double end_z, //!< Z coordinate of end point                
+                                  double AA_end,        //!< A coordinate of end point
+                                  double BB_end,        //!< B coordinate of end point
+                                  double CC_end)        //!< C coordinate of end point
 {
   static char name[] = "convert_straight_comp2";
   double alpha;
@@ -5240,24 +5190,26 @@ static int convert_straight_comp2(int move,     //!< either G_0 or G_1
     end_x = settings->current_x;
     end_y = settings->current_y;
     if (move == G_0)
-      STRAIGHT_TRAVERSE(end_x, end_y, end_z
+      STRAIGHT_TRAVERSE(end_x, end_y, end_z,
 #ifndef LATHE
-                        , AA_end, BB_end, CC_end);
+                        AA_end, BB_end, CC_end);
 #else
-        );
+                        0, 0, 0);
 #endif
     else if (move == G_1) {
       if (settings->feed_mode == INVERSE_TIME)
-        inverse_time_rate_straight(end_x, end_y, end_z
+        inverse_time_rate_straight(end_x, end_y, end_z,
 #ifndef LATHE
-                                   , AA_end, BB_end, CC_end
-#endif
-                                   , block, settings);
-      STRAIGHT_FEED(end_x, end_y, end_z
-#ifndef LATHE
-                    , AA_end, BB_end, CC_end);
+                                   AA_end, BB_end, CC_end,
 #else
-        );
+                                   0, 0, 0,
+#endif
+                                   block, settings);
+      STRAIGHT_FEED(end_x, end_y, end_z,
+#ifndef LATHE
+                    AA_end, BB_end, CC_end);
+#else
+                    0, 0, 0);
 #endif
     } else
       ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
@@ -5288,47 +5240,51 @@ static int convert_straight_comp2(int move,     //!< either G_0 or G_1
     CHK(((beta < -small) || (beta > (PI + small))),
         NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP);
     if (move == G_0)
-      STRAIGHT_TRAVERSE(end_x, end_y, end_z
+      STRAIGHT_TRAVERSE(end_x, end_y, end_z,
 #ifndef LATHE
-                        , AA_end, BB_end, CC_end);
+                        AA_end, BB_end, CC_end);
 #else
-        );
+                        0, 0, 0);
 #endif
     else if (move == G_1) {
       if (beta > small) {       /* ARC NEEDED */
         if (settings->feed_mode == INVERSE_TIME)
           inverse_time_rate_as(start_x, start_y,
                                (side == LEFT) ? -1 : 1, mid_x,
-                               mid_y, end_x, end_y, end_z
+                               mid_y, end_x, end_y, end_z,
 #ifndef LATHE
-                               , AA_end, BB_end, CC_end
+                               AA_end, BB_end, CC_end,
+#else
+                               0, 0, 0,
 #endif
-                               , block, settings);
+                               block, settings);
         ARC_FEED(mid_x, mid_y, start_x, start_y,
-                 ((side == LEFT) ? -1 : 1), settings->current_z
+                 ((side == LEFT) ? -1 : 1), settings->current_z,
 #ifndef LATHE
-                 , AA_end, BB_end, CC_end);
+                 AA_end, BB_end, CC_end);
 #else
-          );
+                 0, 0, 0);
 #endif
-        STRAIGHT_FEED(end_x, end_y, end_z
+        STRAIGHT_FEED(end_x, end_y, end_z,
 #ifndef LATHE
-                      , AA_end, BB_end, CC_end);
+                      AA_end, BB_end, CC_end);
 #else
-          );
+                      0, 0, 0);
 #endif
       } else {
         if (settings->feed_mode == INVERSE_TIME)
-          inverse_time_rate_straight(end_x, end_y, end_z
+          inverse_time_rate_straight(end_x, end_y, end_z,
 #ifndef LATHE
-                                     , AA_end, BB_end, CC_end
-#endif
-                                     , block, settings);
-        STRAIGHT_FEED(end_x, end_y, end_z
-#ifndef LATHE
-                      , AA_end, BB_end, CC_end);
+                                     AA_end, BB_end, CC_end,
 #else
-          );
+                                     0, 0, 0,
+#endif
+                                     block, settings);
+        STRAIGHT_FEED(end_x, end_y, end_z,
+#ifndef LATHE
+                      AA_end, BB_end, CC_end);
+#else
+                      0, 0, 0);
 #endif
       }
     } else
@@ -5542,25 +5498,25 @@ static int cycle_feed(CANON_PLANE plane,        //!< currently selected plane
   static char name[] = "cycle_feed";
 
   if (plane == CANON_PLANE_XY)
-    STRAIGHT_FEED(end1, end2, end3
+    STRAIGHT_FEED(end1, end2, end3,
 #ifndef LATHE
-                  , _setup.AA_current, _setup.BB_current, _setup.CC_current);
+                  _setup.AA_current, _setup.BB_current, _setup.CC_current);
 #else
-      );
+                  0, 0, 0);
 #endif
   else if (plane == CANON_PLANE_YZ)
-    STRAIGHT_FEED(end3, end1, end2
+    STRAIGHT_FEED(end3, end1, end2,
 #ifndef LATHE
-                  , _setup.AA_current, _setup.BB_current, _setup.CC_current);
+                  _setup.AA_current, _setup.BB_current, _setup.CC_current);
 #else
-      );
+                  0, 0, 0);
 #endif
   else                          /* if (plane == CANON_PLANE_XZ) */
-    STRAIGHT_FEED(end2, end3, end1
+    STRAIGHT_FEED(end2, end3, end1,
 #ifndef LATHE
-                  , _setup.AA_current, _setup.BB_current, _setup.CC_current);
+                  _setup.AA_current, _setup.BB_current, _setup.CC_current);
 #else
-      );
+                  0, 0, 0);
 #endif
   return RS274NGC_OK;
 }
@@ -5597,29 +5553,29 @@ static int cycle_traverse(CANON_PLANE plane,    //!< currently selected plane
 {
   static char name[] = "cycle_traverse";
   if (plane == CANON_PLANE_XY)
-    STRAIGHT_TRAVERSE(end1, end2, end3
+    STRAIGHT_TRAVERSE(end1, end2, end3,
 #ifndef LATHE
-                      , _setup.AA_current, _setup.BB_current,
+                      _setup.AA_current, _setup.BB_current,
                       _setup.CC_current);
 #else
-      );
+                      0, 0, 0);
 #endif
   else if (plane == CANON_PLANE_YZ)
-    STRAIGHT_TRAVERSE(end3, end1, end2
+    STRAIGHT_TRAVERSE(end3, end1, end2,
 #ifndef LATHE
-                      , _setup.AA_current, _setup.BB_current,
+                      _setup.AA_current, _setup.BB_current,
                       _setup.CC_current);
 #else
-      );
+                      0, 0, 0);
 #endif
 
   else                          /* if (plane == CANON_PLANE_XZ) */
-    STRAIGHT_TRAVERSE(end2, end3, end1
+    STRAIGHT_TRAVERSE(end2, end3, end1,
 #ifndef LATHE
-                      , _setup.AA_current, _setup.BB_current,
+                      _setup.AA_current, _setup.BB_current,
                       _setup.CC_current);
 #else
-      );
+                      0, 0, 0);
 #endif
 
   return RS274NGC_OK;
@@ -6112,13 +6068,10 @@ static int find_ends(block_pointer block,       //!< pointer to a block of RS274
                      setup_pointer settings,    //!< pointer to machine settings                 
                      double *px,        //!< pointer to end_x                            
                      double *py,        //!< pointer to end_y                            
-                     double *pz //!< pointer to end_z                            
-#ifndef LATHE
-                     , double *AA_p     //!< pointer to end_a                      
-                     , double *BB_p     //!< pointer to end_b                      
-                     , double *CC_p     //!< pointer to end_c                      
-#endif
-  )
+                     double *pz,        //!< pointer to end_z                            
+                     double *AA_p,      //!< pointer to end_a                      
+                     double *BB_p,      //!< pointer to end_b                      
+                     double *CC_p)      //!< pointer to end_c                      
 {
   int mode;
   int middle;
@@ -6234,19 +6187,15 @@ Don't confuse this with the inverse operation.
 static int find_relative(double x1,     //!< absolute x position        
                          double y1,     //!< absolute y position        
                          double z1,     //!< absolute z position        
-#ifndef LATHE
                          double AA_1,   //!< absolute a position         
                          double BB_1,   //!< absolute b position         
                          double CC_1,   //!< absolute c position         
-#endif
                          double *x2,    //!< pointer to relative x      
                          double *y2,    //!< pointer to relative y      
                          double *z2,    //!< pointer to relative z      
-#ifndef LATHE
                          double *AA_2,  //!< pointer to relative a       
                          double *BB_2,  //!< pointer to relative b       
                          double *CC_2,  //!< pointer to relative c       
-#endif
                          setup_pointer settings)        //!< pointer to machine settings
 {
   *x2 = (x1 - (settings->origin_offset_x + settings->axis_offset_x));
@@ -6578,11 +6527,9 @@ static int inverse_time_rate_as(double start_x, //!< x coord of last program poi
                                 double end_x,   //!< x coord of end point of straight line            
                                 double end_y,   //!< y coord of end point of straight line            
                                 double end_z,   //!< z coord of end point of straight line            
-#ifndef LATHE
                                 double AA_end,  //!< A coord of end point of straight line      
                                 double BB_end,  //!< B coord of end point of straight line      
                                 double CC_end,  //!< C coord of end point of straight line      
-#endif
                                 block_pointer block,    //!< pointer to a block of RS274 instructions         
                                 setup_pointer settings) //!< pointer to machine settings                      
 {
@@ -6631,11 +6578,9 @@ of the work here is in finding the length of the line.
 static int inverse_time_rate_straight(double end_x,     //!< x coordinate of end point of straight line
                                       double end_y,     //!< y coordinate of end point of straight line
                                       double end_z,     //!< z coordinate of end point of straight line
-#ifndef LATHE
                                       double AA_end,    //!< A coordinate of end point of straight line/*AA*/
                                       double BB_end,    //!< B coordinate of end point of straight line/*BB*/
                                       double CC_end,    //!< C coordinate of end point of straight line/*CC*/
-#endif
                                       block_pointer block,      //!< pointer to a block of RS274 instructions  
                                       setup_pointer settings)   //!< pointer to machine settings               
 {
@@ -7770,7 +7715,7 @@ static int read_one_item(char *line,    //!< string: line of RS274/NGC code bein
 
   letter = line[*counter];      /* check if in array range */
   CHK(((letter < 0) || (letter > 'z')), NCE_BAD_CHARACTER_USED);
-  function_pointer = _readers[(int)letter];
+  function_pointer = _readers[(int) letter];
   CHK((function_pointer == 0), NCE_BAD_CHARACTER_USED);
   CHP(function_pointer(line, counter, block, parameters));
   return RS274NGC_OK;
@@ -9609,12 +9554,12 @@ int rs274ngc_init()
       NCE_COORDINATE_SYSTEM_INDEX_PARAMETER_5220_OUT_OF_RANGE);
   k = (5200 + (_setup.origin_index * 20));
   SET_ORIGIN_OFFSETS((pars[k + 1] + pars[5211]),
-                     (pars[k + 2] + pars[5212]), (pars[k + 3] + pars[5213])
+                     (pars[k + 2] + pars[5212]), (pars[k + 3] + pars[5213]),
 #ifndef LATHE
-                     , (pars[k + 4] + pars[5214]),
+                     (pars[k + 4] + pars[5214]),
                      (pars[k + 5] + pars[5215]), (pars[k + 6] + pars[5216]));
 #else
-    );
+                     0, 0, 0);
 #endif
   SET_FEED_REFERENCE(CANON_XYZ);
 #ifndef LATHE
