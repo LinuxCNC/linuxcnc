@@ -1,0 +1,43 @@
+#!/bin/sh
+
+if [ -f ~/.debug_scripts ] ; then
+    set -x
+fi
+
+if [ -e /dev/rtai_shm ] ; then 
+    /sbin/fuser -v /dev/rtai_shm 2>/dev/null && echo "Can't remove realtime modules, kill the above processes first". && exit 0
+fi
+
+# Get a list of currently installed modules.
+modules=`/sbin/lsmod  |  awk '{print $1}'`
+
+for mod in $modules ; do
+   case $mod in
+   rtai | rt_mem_mgr | rtai_sched | rtai_ksched | rtai_shm | rtai_fifos | rtai_up | rtai_hal | adeos )
+	if ! /sbin/lsmod | grep $mod 1> /dev/null 2> /dev/null ; then
+	    continue;
+	fi
+	depends=`/sbin/lsmod | sed 'y/\[/ /' | sed 'y/\]/ /' | sed 's#(unused)##' | sed 's#unused##' |  awk '/^'$mod'/ {print $4 " " $5 " " $6 " " $7 " " $8}'`
+	dependcount=`echo $depends | wc -w`  
+	if [ $dependcount -gt 0 ] ; then 
+	    echo Removing kernel module $mod and anything that depends on it.
+	    echo Including  $depends
+	    /sbin/rmmod  $depends $mod
+	else
+	    echo Removing kernel module $mod
+	    /sbin/rmmod  $mod
+	fi   
+	;;
+     *)
+	;;
+    esac
+done
+ 
+     
+exit 0
+
+
+
+
+
+ 
