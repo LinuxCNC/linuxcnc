@@ -21,6 +21,16 @@ else
     exit -1
 fi
 
+if [ -f ./hal.conf ] ; then
+   source ./hal.conf ;
+elif [ -f "$HALCONFIGDIR/hal.conf" ] ; then
+   source $HALCONFIGDIR/hal.conf ;
+elif [ -f /etc/hal.conf ] ; then
+   source /etc/hal.conf ;
+else
+    echo "Can't find hal.conf configuration file"
+    exit -1
+fi
 
 #echo "INIVAR is $INIVAR"
 #echo "EMC2_BIN_DIR is $EMC2_BIN_DIR"
@@ -62,6 +72,10 @@ echo EMC2_TCL_DIR=$EMC2_TCL_DIR >$PRINT_FILE
 echo EMC2_SCRIPT_DIR=$EMC2_SCRIPT_DIR >$PRINT_FILE
 echo EMC2_RTLIB_DIR=$EMC2_RTLIB_DIR >$PRINT_FILE
 echo EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR >$PRINT_FILE
+echo HAL_RTMOD_DIR=$HAL_RTMOD_DIR >$PRINT_FILE
+
+#FIXME, a hack for now in order for halcmd to find modules to load when loadrt
+export HAL_RTMOD_DIR=$HAL_RTMOD_DIR
 
 # look for ini file
 INIFILE=

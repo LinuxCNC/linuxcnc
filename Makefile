@@ -168,6 +168,7 @@ install_scripts:
 		echo "Transfering $$script"; \
 		cat $$script | sed "s%\$$TESTDIR%$(TESTDIR)%;\
 		s%\$$EMC2CONFIGDIR%$(TESTDIR)$(CONFIGDIR)%;\
+		s%\$$HALCONFIGDIR%$(TESTDIR)$(CONFIGDIR)%;\
 		s%tcl/bin/%$(TESTDIR)/$(bindir)%;\
 		s%tcl/scripts%$(TESTDIR)/$(bindir)%;\
 		s%bin/iosh%$(TESTDIR)/$(bindir)/iosh%;\
