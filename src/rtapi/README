@@ -1,5 +1,8 @@
 README for RTAPI
 
+Note for ioctl_branch - This is development work only, and intended to
+ demonstrate the ioctl methods.
+
 RTAPI is a wrapper API that allows realtime programs to use either
 RTLinux or RTAI with no code changes.
 

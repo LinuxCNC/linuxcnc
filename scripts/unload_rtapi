@@ -54,4 +54,8 @@ if ! $SCRIPT_DIR/unload_rtos ; then
     exit -1
 fi
 
+# remove /dev/rtapi
+rm -f /dev/rtapi
+
+
 exit 0

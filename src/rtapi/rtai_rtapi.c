@@ -138,6 +138,13 @@ int init_module(void)
 {
     int n;
 
+    n=rtapi_dev_init();
+    if (n != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "RTAPI: ERROR: could not register /dev/%s\n", MODULE_NAME);
+	return RTAPI_FAIL;
+    }
+
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Init\n");
     /* setup revision string and code, and print opening message */
@@ -264,6 +271,8 @@ void cleanup_module(void)
 #endif
     /* release master shared memory block */
     rtai_kfree(RTAPI_KEY);
+
+    rtapi_dev_clean();
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Exit complete\n");
     return;
 }

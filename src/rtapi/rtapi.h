@@ -639,4 +639,57 @@ extern void rtapi_outb(unsigned char byte, unsigned int port);
 */
 extern unsigned char rtapi_inb(unsigned int port);
 
+/***********************************************************************
+*                           IOCTL INTERFACE                            *
+************************************************************************/
+#ifdef RTAPI
+#include <stdarg.h>
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+#ifndef LINUX_VERSION_CODE
+#include <linux/version.h>
+#endif
+#ifndef KERNEL_VERSION
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))*/
+#endif
+#include <linux/errno.h>
+#include <linux/slab.h>
+#include <linux/ctype.h>
+#include <asm/uaccess.h>
+#include <linux/fcntl.h>
+#include <asm/uaccess.h>
+#include <linux/string.h>
+#else
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sched.h>		/* for blocking when needed */
+#include <sys/ioctl.h>
+#endif
+
+#define RTAPI_MAJOR 0
+#define RTAPI_MINOR 0
+#define MODULE_NAME "rtapi"
+
+#define RTAPI_IOC_MAGIC  'r'
+
+#define RTAPI_IOC_GET_MSG     _IOR(RTAPI_IOC_MAGIC, 0, msg_level)
+#define RTAPI_IOC_SET_MSG     _IOW(RTAPI_IOC_MAGIC, 1, msg_level)
+
+#define RTAPI_IOC_MAXNR 1
+
+#ifdef RTAPI
+extern int rtapi_dev_init(void);
+extern void rtapi_dev_clean(void);
+
+/* ioctl command handler */
+extern int command_handler(struct inode *inode, struct file *filp,
+    unsigned int cmd, unsigned long argp);
+#endif
+
+
 #endif /* RTAPI_H */

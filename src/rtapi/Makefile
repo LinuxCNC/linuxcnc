@@ -17,17 +17,22 @@ vsnprintf.h
 
 # Sources
 SRCS = \
-$(RTPREFIX)_ulapi.c
+$(RTPREFIX)_ulapi.c \
+usrtest.c
 
 RT_SRCS = \
-$(RTPREFIX)_rtapi.c
+$(RTPREFIX)_rtapi.c \
+ratpi_dev.c
 
 # Libraries to be created
 LIBS = \
 $(RTLIB_DIR)/rtapi.o \
 $(LIB_DIR)/ulapi.o
 
-all: headers $(LIBS)
+# Binaries to be created
+BINS = $(BIN_DIR)/usrtest
+
+all: headers $(LIBS) $(BINS)
 	@ echo "Set up RTOS symlinks"
 	@ if [ -f $(EMC2_HOME)/scripts/load_$(RTPREFIX) ] ; \
 	then \
@@ -69,14 +74,17 @@ clean: def_clean
 
 # explicit rules to make libs from objs
 
-$(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
+$(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o $(RTTMP_DIR)/rtapi_dev.o
+	ld -r $^ -o $@
 	@ echo "Install rtapi.o in rtlib"
-	- \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
-
 
 $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
 	@ echo "Install ulapi.o in lib"
 	- \install -p -m0664 $< $(LIB_DIR)/ulapi.o
+
+$(BIN_DIR)/usrtest : $(TMP_DIR)/usrtest.o
+	@ echo "Linking $@"
+	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 .PHONY: all examples headers depend indent install clean
 
