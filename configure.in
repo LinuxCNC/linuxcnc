@@ -727,6 +727,7 @@ fi
 # files that get created by ./configure                                      #
 ##############################################################################
 #AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
+AC_CONFIG_FILES([rpm/emc2.spec])
 AC_OUTPUT(Makefile.inc)
 
 ##############################################################################

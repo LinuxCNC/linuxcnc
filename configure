@@ -5444,6 +5444,8 @@ fi
 # files that get created by ./configure                                      #
 ##############################################################################
 #AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
+          ac_config_files="$ac_config_files rpm/emc2.spec"
+
           ac_config_files="$ac_config_files Makefile.inc"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5994,6 +5996,7 @@ for ac_config_target in $ac_config_targets
 do
   case "$ac_config_target" in
   # Handling of arguments.
+  "rpm/emc2.spec" ) CONFIG_FILES="$CONFIG_FILES rpm/emc2.spec" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
