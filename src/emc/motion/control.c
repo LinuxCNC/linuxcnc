@@ -592,6 +592,12 @@ static void set_operating_mode(void)
     }
 }
 
+/* Length of delay between homing motions - this is intended to
+   ensure that all motion has ceased and switch bouncing has
+   ended.  We might want to make this user adjustable, but for
+   now it's a constant.  It is in seconds */
+#define HOME_DELAY 0.100
+
 /* variable used internally by do_homing, but global so that
    'home_do_moving_checks()' can access it */
 static int immediate_state;
@@ -679,37 +685,6 @@ static void do_homing(void)
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint struct */
 	joint = &(emcmotStatus->joints[joint_num]);
-#if 0				/* FIXME - eliminating latching in favor of
-				   edge triggered home switch delete this
-				   stuff once it's tested */
-	/* Some machines have home switches that only trip for a short
-	   distance.  Overshoot after the search move could cause the joint
-	   to move past the switch, which would mess up the remaining steps
-	   of the homing process. To avoid this problem, we latch the
-	   position when the switch first trips, and we don't allow the
-	   switch to reset if it is beyond that position.  We use motor
-	   position because joint position makes step changes during homing */
-	if (GET_JOINT_HOME_SWITCH_FLAG(joint)) {
-	    if (!joint->home_sw_latch) {
-		/* on switch and not latched, latch it */
-		joint->home_sw_latch = 1;
-		joint->home_sw_pos = joint->motor_pos_fb;
-	    }
-	} else {
-	    if (joint->home_sw_latch) {
-		/* off switch but latch is set, can we clear it? */
-		if (joint->home_search_vel > 0.0) {
-		    if (joint->motor_pos_fb < joint->home_sw_pos) {
-			joint->home_sw_latch = 0;
-		    }
-		} else {
-		    if (joint->motor_pos_fb > joint->home_sw_pos) {
-			joint->home_sw_latch = 0;
-		    }
-		}
-	    }
-	}
-#endif
 	/* detect rising and falling edges on home switch */
 	home_sw_rise = 0;
 	home_sw_fall = 0;
@@ -773,9 +748,17 @@ static void do_homing(void)
 		   starts a move away from the switch. */
 		/* is the joint still moving? */
 		if (joint->free_tp_active) {
-		    /* yes, wait until it stops */
+		    /* yes, reset delay, wait until joint stops */
+		    joint->home_pause_timer = 0;
 		    break;
 		}
+		/* has delay timed out? */
+		if (joint->home_pause_timer < (HOME_DELAY * servo_freq)) {
+		    /* no, update timer and wait some more */
+		    joint->home_pause_timer++;
+		    break;
+		}
+		joint->home_pause_timer = 0;
 		/* set up a move at '-search_vel' to back off of switch */
 		home_start_move(joint, -joint->home_search_vel);
 		/* next state */
@@ -784,7 +767,7 @@ static void do_homing(void)
 
 	    case HOME_INITIAL_BACKOFF_WAIT:
 		/* This state is called while the machine is moving off of
-		   the home switch.  It terminates when the switch is cleared 
+		   the home switch.  It terminates when the switch is cleared
 		   successfully.  If the move ends or hits a limit before it
 		   clears the switch, the home is aborted. */
 		/* are we off home switch yet? */
@@ -806,9 +789,17 @@ static void do_homing(void)
 		   slower move will be used to set the exact home position. */
 		/* is the joint already moving? */
 		if (joint->free_tp_active) {
-		    /* yes, wait until it stops */
+		    /* yes, reset delay, wait until joint stops */
+		    joint->home_pause_timer = 0;
 		    break;
 		}
+		/* has delay timed out? */
+		if (joint->home_pause_timer < (HOME_DELAY * servo_freq)) {
+		    /* no, update timer and wait some more */
+		    joint->home_pause_timer++;
+		    break;
+		}
+		joint->home_pause_timer = 0;
 		/* make sure we aren't already on home switch */
 		if (GET_JOINT_HOME_SWITCH_FLAG(joint)) {
 		    /* already on switch, need to back off it first */
@@ -841,9 +832,9 @@ static void do_homing(void)
 
 	    case HOME_SET_COARSE_POSITION:
 		/* This state is called after the first time the switch is
-		   found.  At this point, we are approximately home. Although 
+		   found.  At this point, we are approximately home. Although
 		   we will do another slower pass to get the exact home
-		   location, we reset the joint coordinates now so that screw 
+		   location, we reset the joint coordinates now so that screw
 		   error comp will be appropriate for this portion of the
 		   screw (previously we didn't know where we were at all). */
 		/* set the current position to 'home_offset' */
@@ -879,13 +870,21 @@ static void do_homing(void)
 	    case HOME_FINAL_BACKOFF_START:
 		/* This state is called once the approximate location of the
 		   switch has been found.  It is responsible for starting a
-		   move that will back off of the switch in preparation for a 
+		   move that will back off of the switch in preparation for a
 		   final slow move that captures the exact switch location. */
 		/* is the joint already moving? */
 		if (joint->free_tp_active) {
-		    /* yes, wait until it stops */
+		    /* yes, reset delay, wait until joint stops */
+		    joint->home_pause_timer = 0;
 		    break;
 		}
+		/* has delay timed out? */
+		if (joint->home_pause_timer < (HOME_DELAY * servo_freq)) {
+		    /* no, update timer and wait some more */
+		    joint->home_pause_timer++;
+		    break;
+		}
+		joint->home_pause_timer = 0;
 		/* set up a move at '-search_vel' to back off of switch */
 		home_start_move(joint, -joint->home_search_vel);
 		/* next state */
@@ -895,8 +894,8 @@ static void do_homing(void)
 	    case HOME_FINAL_BACKOFF_WAIT:
 		/* This state is called while the machine is moving off of
 		   the home switch after finding it's approximate location.
-		   It terminates when the switch is cleared successfully.  If 
-		   the move ends or hits a limit before it clears the switch, 
+		   It terminates when the switch is cleared successfully.  If
+		   the move ends or hits a limit before it clears the switch,
 		   the home is aborted. */
 		/* are we off home switch yet? */
 		if (home_sw_fall) {
@@ -916,9 +915,17 @@ static void do_homing(void)
 		   'latch_vel' and looks for a rising edge on the switch */
 		/* is the joint already moving? */
 		if (joint->free_tp_active) {
-		    /* yes, wait until it stops */
+		    /* yes, reset delay, wait until joint stops */
+		    joint->home_pause_timer = 0;
 		    break;
 		}
+		/* has delay timed out? */
+		if (joint->home_pause_timer < (HOME_DELAY * servo_freq)) {
+		    /* no, update timer and wait some more */
+		    joint->home_pause_timer++;
+		    break;
+		}
+		joint->home_pause_timer = 0;
 		/* set up a move at 'latch_vel' to locate the switch */
 		home_start_move(joint, joint->home_latch_vel);
 		/* next state */
@@ -957,9 +964,17 @@ static void do_homing(void)
 		   'latch_vel' and looks for a falling edge on the switch */
 		/* is the joint already moving? */
 		if (joint->free_tp_active) {
-		    /* yes, wait until it stops */
+		    /* yes, reset delay, wait until joint stops */
+		    joint->home_pause_timer = 0;
 		    break;
 		}
+		/* has delay timed out? */
+		if (joint->home_pause_timer < (HOME_DELAY * servo_freq)) {
+		    /* no, update timer and wait some more */
+		    joint->home_pause_timer++;
+		    break;
+		}
+		joint->home_pause_timer = 0;
 		/* set up a move at 'latch_vel' to locate the switch */
 		home_start_move(joint, joint->home_latch_vel);
 		/* next state */
@@ -967,9 +982,9 @@ static void do_homing(void)
 		break;
 
 	    case HOME_FALL_SEARCH_WAIT:
-		/* This state is called while the machine is moving away from 
+		/* This state is called while the machine is moving away from
 		   the home switch on it's final, low speed pass.  It
-		   terminates when the switch is cleared. If the move ends or 
+		   terminates when the switch is cleared. If the move ends or
 		   hits a limit before it clears the switch, the home is
 		   aborted. */
 		/* have we cleared the home switch yet? */
@@ -996,9 +1011,9 @@ static void do_homing(void)
 		/* This state is called after the machine has made a low
 		   speed pass to determine the limit switch location. It
 		   continues at low speed until an index pulse is detected,
-		   at which point it latches the final home position.  If the 
-		   move ends or hits a limit before an index pulse occurs,
-		   the home is aborted. */
+		   at which point it latches the final home position.  If the
+		   move ends or hits a limit before an index pulse occurs, the 
+		   home is aborted. */
 		/* have we gotten an index pulse yet? */
 		if (joint->index_pulse_edge) {
 		    /* yes, stop motion */
@@ -1037,9 +1052,17 @@ static void do_homing(void)
 		   or index pulse. */
 		/* is the joint already moving? */
 		if (joint->free_tp_active) {
-		    /* yes, wait until it stops */
+		    /* yes, reset delay, wait until joint stops */
+		    joint->home_pause_timer = 0;
 		    break;
 		}
+		/* has delay timed out? */
+		if (joint->home_pause_timer < (HOME_DELAY * servo_freq)) {
+		    /* no, update timer and wait some more */
+		    joint->home_pause_timer++;
+		    break;
+		}
+		joint->home_pause_timer = 0;
 		/* plan a move to home position */
 		joint->free_pos_cmd = joint->home;
 		/* do the move at max speed */
@@ -1079,7 +1102,6 @@ static void do_homing(void)
 		break;
 
 	    case HOME_FINISHED:
-		/* FIXME - this should set various flags, etc not done yet */
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		SET_JOINT_HOMED_FLAG(joint, 1);
 		joint->home_state = HOME_IDLE;
@@ -1087,7 +1109,6 @@ static void do_homing(void)
 		break;
 
 	    case HOME_ABORT:
-		/* FIXME - this should set various flags, etc not done yet */
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		SET_JOINT_HOMED_FLAG(joint, 0);
 		joint->free_tp_enable = 0;

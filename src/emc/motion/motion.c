@@ -914,8 +914,8 @@ static int init_threads(void)
     }
 
     /* export realtime functions that do the real work */
-    retval = hal_export_funct("motion-controller", emcmotController, 0 /* arg */ , 1	/* uses_fp 
-	 */ , 0 /* reentrant */ , mot_comp_id);
+    retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg 
+	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export controller function\n");

@@ -341,7 +341,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double alter;		/* additive dynamic compensation */
     } emcmot_comp_t;
 
-/* states for homing - this list is incomplete */
+/* states for homing */
     typedef enum {
 	HOME_IDLE = 0,
 	HOME_START,		// 1
@@ -384,7 +384,9 @@ Suggestion: Split this in to an Error and a Status flag register..
    The code can be cleaner and easier to read, and it will run
    faster because the array indexing overhead is gone and things
    that are accessed together are near each other in memory and
-   thus in cache.
+   thus in cache.  It also would lend itself to a more object
+   oriented approach - all the data associated with a joint
+   object is in one place.
 */
     typedef struct {
 
@@ -435,7 +437,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double neg_limit_pos;	/* latched position of limit sw */
 	int neg_limit_latch;	/* non-zero if on limit */
 	double home_sw_pos;	/* latched position of home sw */
-//      int home_sw_latch;      /* non-zero if on home */
+	int home_pause_timer;	/* used to delay between homing states */
 	char home_sw_old;	/* previous value, for edge detection */
 	int index_pulse;	/* current state of index pulse input */
 	int index_pulse_edge;	/* non-zero if rising edge detected */
