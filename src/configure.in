@@ -535,12 +535,12 @@ MATHINC=""
 #we need to make sure that $RTS has a --module-dir option
 #only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
 if (test ${RTS##*/} = rtai-config ) ; then
-    if (test -r $($RTS --module-dir)/rtai_math.o ) ; then
+    if (test -r $($RTS --module-dir)/rtai_math.* ) ; then
        USE_RTLIBM=1
     fi
 fi
 
-if (test -r $RTDIR/modules/rtai_libm.o ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm.o) ; then
+if (test -r $RTDIR/modules/rtai_libm.* ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm.*) ; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
