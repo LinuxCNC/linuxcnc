@@ -6,6 +6,8 @@
 #
 # ########################################
 
+# Launch the setup script to make sure hardware setup looks good
+loadusr -w /home/linuxcnc/linuxcnc/configs/BeagleBone/K9.3D/setup.sh
 
 # ###################################
 # Core EMC/HAL Loads

@@ -29,11 +29,6 @@ for DTBO in BB-LCNC-K93D ; do
 	fi
 done;
 
-if [ ! -r /sys/devices/ocp.*/helper.*/AIN0 ] ; then
-	echo Analog input files not found in /sys/devices/ocp.*/helper.* >&2
-	exit 1;
-fi
-
 if [ ! -r /sys/class/uio/uio0 ] ; then
 	echo PRU control files not found in /sys/class/uio/uio0 >&2
 	exit 1;
