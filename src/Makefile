@@ -88,6 +88,16 @@ default: headers all modules
 
 modules: headers
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=1 modules
+	@ echo -e "\033[31m\033[5m#####################################################################\033[0m"
+	@ echo ""
+	@ echo -e "\033[31m\033[5m Important notice. \033[0m"
+	@ echo " Ignore any \" *** Warning:\" messages and continue to the next stage."
+	@ echo ""
+	@ echo " Do NOT file a bug report."
+	@ echo ""
+	@ echo -e "\033[31m\033[5m#####################################################################\033[0m"
+
+
 
 modules_install: modules
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
