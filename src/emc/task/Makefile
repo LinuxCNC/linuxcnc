@@ -34,14 +34,17 @@ include ../../../Make.rules
 
 # Tcl emcsh
 $(TMP_DIR)/emcsh.o: emcsh.cc
-	$(CXX) $^ -c $(ULFLAGS)  $(TCL_CFLAGS) -o $@
+	@ echo "Compile '$<' to tmp dir using TCL flags"
+	$(CXX) $< -c $(ULFLAGS)  $(TCL_CFLAGS) -o $@
 
 $(TMP_DIR)/iosh.o: iosh.cc
-	$(CXX) $^ -c $(ULFLAGS)  $(TCL_CFLAGS) -o $@
+	@ echo "Compile '$<' to tmp dir using TCL flags"
+	$(CXX) $< -c $(ULFLAGS)  $(TCL_CFLAGS) -o $@
 
 $(BIN_DIR)/emcsh: $(TMP_DIR)/emcsh.o \
 	$(LIB_DIR)/libemc.a \
 	$(LIB_DIR)/libnml.a
+	@ echo "Linking $@"
 	$(CXX) $^ $(ULFLAGS)  $(TCL_CFLAGS) $(TCL_LIBS) -o $@
 
 $(BIN_DIR)/iosh: $(TMP_DIR)/iosh.o \
@@ -51,11 +54,13 @@ $(BIN_DIR)/iosh: $(TMP_DIR)/iosh.o \
 	$(LIB_DIR)/libemc.a \
 	$(LIB_DIR)/libnml.a \
 	$(LIB_DIR)/ulapi.o
+	@ echo "Linking $@"
 	$(CXX) $^ $(ULFLAGS)  $(TCL_CFLAGS) $(TCL_LIBS) -o $@
 
 $(BIN_DIR)/emcsvr: $(TMP_DIR)/emcsvr.o \
 	$(LIB_DIR)/libemc.a \
 	$(LIB_DIR)/libnml.a
+	@ echo "Linking $@"
 	$(CXX) $^ $(ULFLAGS) -o $@
 
 $(BIN_DIR)/minimilltask:	\
@@ -71,6 +76,7 @@ $(BIN_DIR)/minimilltask:	\
 	$(LIB_DIR)/libemc.a \
 	$(LIB_DIR)/libnmld.a \
 	$(LIB_DIR)/ulapi.o
+	@ echo "Linking $@"
 	$(CXX) $^ $(CXXFLAGS) -o $@
 
 headers: def_headers
