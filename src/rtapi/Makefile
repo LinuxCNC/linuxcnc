@@ -69,8 +69,8 @@ $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
 # them are to work.
 RTAI_MOD="adeos rtai rt_mem_mgr rtai_sched rtai_fifos rtai_shm rtai_libm"
 # For RTAI-3, we need to condsider using the RTAI scripts to load these modules.
-RTAI3_BASE="adeos rtai_hal rtai_ksched"
-RTAI3_SUP="rtai_fifos rtai_shm rtai_sem rtai_math"
+RTAI3_MOD="adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math"
+RTAI3_RUN="emc2:ksched+fifos+shm+sem+math"
 RTL_MOD="rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo"
 
 # This rule allows the user to type "make rtapi.conf".
@@ -103,8 +103,10 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(EMC2_HOME)/Makefile.inc
 	@ echo >> $@
 	@ echo "# List of realtime kernel modules to be loaded" >> $@
 	@ if [ "$(RTAI)" = "3" ] ; then \
-	    RTAI_SCHED=`readlink $(RTDIR)/modules/rtai_ksched.* | cut -d. -f1` ; \
-	    echo "MODULES='$(RTAI3_BASE) $$RTAI_SCHED $(RTAI3_SUP)'" >> $@ ; \
+	    echo "MODULES='$(RTAI3_MOD)'" >> $@ ; \
+	    echo "$(RTAI3_RUN)" > $(EMC2_HOME)/scripts/.runinfo ; \
+	    echo "RTAI='$(RTAI)'" >> $@ ; \
+	    echo "RTAI_LOAD='$(RTDIR)/bin/rtai-load'" >> $@ ; \
 	elif [ "$(RTPREFIX)" = "rtai" ] ; then \
 	    echo "MODULES='$(RTAI_MOD)'" >> $@ ; \
 	elif [ "$(RTPREFIX)" = "rtl" ] ; then \
