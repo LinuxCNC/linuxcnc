@@ -110,8 +110,7 @@ typedef enum {CANON_AXIS_X, CANON_AXIS_Y, CANON_AXIS_Z, CANON_AXIS_A,
 */
 
 struct CANON_VECTOR {
-    CANON_VECTOR() {
-    } CANON_VECTOR(double _x, double _y, double _z) {
+    CANON_VECTOR() { } CANON_VECTOR(double _x, double _y, double _z) {
 	x = _x;
 	y = _y;
 	z = _z;
@@ -120,42 +119,17 @@ struct CANON_VECTOR {
 };
 
 struct CANON_POSITION {
-    CANON_POSITION() {
-    } CANON_POSITION(double _x, double _y, double _z
-#ifdef AA
-	, double _a
-#endif
-#ifdef BB
-	, double _b
-#endif
-#ifdef CC
-	, double _c
-#endif
-	) {
+    CANON_POSITION() { } CANON_POSITION(
+            double _x, double _y, double _z,
+            double _a, double _b, double _c) {
 	x = _x;
 	y = _y;
 	z = _z;
-#ifdef AA
 	a = _a;
-#endif
-#ifdef BB
 	b = _b;
-#endif
-#ifdef CC
 	c = _c;
-#endif
     }
-    double x, y, z
-#ifdef AA
-     , a
-#endif
-#ifdef BB
-     , b
-#endif
-#ifdef CC
-     , c
-#endif
-     ;
+    double x, y, z, a, b, c;
 };
 
 /* Tools are numbered 1..CANON_TOOL_MAX, with tool 0 meaning no tool. */
@@ -175,29 +149,8 @@ extern void INIT_CANON();
 
 /* Representation */
 
-extern void SET_ORIGIN_OFFSETS(double x, double y, double z
-#ifdef AA
-    , double a
-#else
-#ifdef ALL_AXES
-    , double a
-#endif
-#endif
-#ifdef BB
-    , double b
-#else
-#ifdef ALL_AXES
-    , double b
-#endif
-#endif
-#ifdef CC
-    , double c
-#else
-#ifdef ALL_AXES
-    , double c
-#endif
-#endif
-    );
+extern void SET_ORIGIN_OFFSETS(double x, double y, double z,
+                                double a, double b, double c);
 
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, and c. Values of x, y, z, a, b, and c are real numbers. The units
@@ -223,29 +176,8 @@ extern void SET_TRAVERSE_RATE(double rate);
 is expected that no cutting will occur while a traverse move is being
 made. */
 
-extern void STRAIGHT_TRAVERSE(double x, double y, double z
-#ifdef AA
-    , double a_position
-#else
-#ifdef ALL_AXES
-    , double a_position
-#endif
-#endif
-#ifdef BB
-    , double b_position
-#else
-#ifdef ALL_AXES
-    , double b_position
-#endif
-#endif
-#ifdef CC
-    , double c_position
-#else
-#ifdef ALL_AXES
-    , double c_position
-#endif
-#endif
-    );
+extern void STRAIGHT_TRAVERSE(double x, double y, double z,
+    double a_position, double b_position, double c_position);
 /*
 
 Move at traverse rate so that at any time during the move, all axes
@@ -380,31 +312,9 @@ extern void STOP_SPEED_FEED_SYNCH();
 
 /* Machining Functions */
 
-extern void ARC_FEED(double first_end,
-    double second_end,
-    double first_axis, double second_axis, int rotation, double axis_end_point
-#ifdef AA
-    , double a_position
-#else
-#ifdef ALL_AXES
-    , double a_position
-#endif
-#endif
-#ifdef BB
-    , double b_position
-#else
-#ifdef ALL_AXES
-    , double b_position
-#endif
-#endif
-#ifdef CC
-    , double c_position
-#else
-#ifdef ALL_AXES
-    , double c_position
-#endif
-#endif
-    );
+extern void ARC_FEED(double first_end, double second_end,
+    double first_axis, double second_axis, int rotation, double axis_end_point,
+    double a_position, double b_position, double c_position);
 
 /* Move in a helical arc from the current location at the existing feed
 rate. The axis of the helix is parallel to the x, y, or z axis,
@@ -457,57 +367,15 @@ a point moving along the arc has of its total motion.
 
 */
 
-extern void STRAIGHT_FEED(double x, double y, double z
-#ifdef AA
-    , double a_position
-#else
-#ifdef ALL_AXES
-    , double a_position
-#endif
-#endif
-#ifdef BB
-    , double b_position
-#else
-#ifdef ALL_AXES
-    , double b_position
-#endif
-#endif
-#ifdef CC
-    , double c_position
-#else
-#ifdef ALL_AXES
-    , double c_position
-#endif
-#endif
-    );
+extern void STRAIGHT_FEED(double x, double y, double z,
+                double a_position, double b_position, double c_position);
 
 /* Move at existing feed rate so that at any time during the move,
 all axes have covered the same proportion of their required motion.
 The meanings of the parameters is the same as for STRAIGHT_TRAVERSE.*/
 
-extern void STRAIGHT_PROBE(double x, double y, double z
-#ifdef AA
-    , double a_position
-#else
-#ifdef ALL_AXES
-    , double a_position
-#endif
-#endif
-#ifdef BB
-    , double b_position
-#else
-#ifdef ALL_AXES
-    , double b_position
-#endif
-#endif
-#ifdef CC
-    , double c_position
-#else
-#ifdef ALL_AXES
-    , double c_position
-#endif
-#endif
-    );
+extern void STRAIGHT_PROBE(double x, double y, double z,
+                double a_position, double b_position, double c_position);
 
 /* Perform a probing operation. This is a temporary addition to the
 canonical machining functions and its semantics are not defined.
@@ -713,20 +581,14 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
 
 /* The interpreter is not using these six GET_EXTERNAL_ORIGIN functions
 
-#ifdef AA
 // returns the current a-axis origin offset
 extern double GET_EXTERNAL_ORIGIN_A();
-#endif
 
-#ifdef BB
 // returns the current b-axis origin offset
 extern double GET_EXTERNAL_ORIGIN_B();
-#endif
 
-#ifdef CC
 // returns the current c-axis origin offset
 extern double GET_EXTERNAL_ORIGIN_C();
-#endif
 
 // returns the current x-axis origin offset
 extern double GET_EXTERNAL_ORIGIN_X();
@@ -747,20 +609,14 @@ extern void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size);
 // returns the currently active plane
 extern CANON_PLANE GET_EXTERNAL_PLANE();
 
-#ifdef AA
 // returns the current a-axis position
 extern double GET_EXTERNAL_POSITION_A();
-#endif
 
-#ifdef BB
 // returns the current b-axis position
 extern double GET_EXTERNAL_POSITION_B();
-#endif
 
-#ifdef CC
 // returns the current c-axis position
 extern double GET_EXTERNAL_POSITION_C();
-#endif
 
 // returns the current x-axis position
 extern double GET_EXTERNAL_POSITION_X();
@@ -771,20 +627,14 @@ extern double GET_EXTERNAL_POSITION_Y();
 // returns the current z-axis position
 extern double GET_EXTERNAL_POSITION_Z();
 
-#ifdef AA
 // Returns the machine A-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_A();
-#endif
 
-#ifdef BB
 // Returns the machine B-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_B();
-#endif
 
-#ifdef CC
 // Returns the machine C-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_C();
-#endif
 
 // Returns the machine X-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_X();

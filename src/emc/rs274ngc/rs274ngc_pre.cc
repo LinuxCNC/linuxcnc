@@ -95,10 +95,6 @@ axes not compiled in.
 
 /****************************************************************************/
 
-#define AA
-#define BB
-#define CC
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -412,7 +408,8 @@ The groups are:
 group  0 = {g4,g10,g28,g30,g53,g92,g92.1,g92.2,g92.3} - NON-MODAL
             dwell, setup, return to ref1, return to ref2,
             motion in machine coordinates, set and unset axis offsets
-group  1 = {g0,g1,g2,g3,g38.2,g80,g81,g82,g83,g84,g85,g86,g87,g88,g89} - motion
+group  1 = {g0,g1,g2,g3,g33,g38.2,
+            g80,g81,g82,g83,g84,g85,g86,g87,g88,g89} - motion
 group  2 = {g17,g18,g19}   - plane selection
 group  3 = {g90,g91}       - distance mode
 group  5 = {g93,g94}       - feed rate mode
@@ -442,7 +439,7 @@ static const int _gees[] = {
 /* 260 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 280 */   0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 300 */   0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-/* 320 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+/* 320 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 340 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 360 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 380 */  -1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -495,16 +492,16 @@ group 9 = {m48,m49}          - feed and speed override switch bypass
 */
 
 static const int _ems[] = {
-   4,  4,  4,  7,  7,  7,  6,  8,  8,  8,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   4, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-  -1, -1, -1, -1, -1, -1, -1, -1,  9,  9,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   4, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+/* M00 */   4,  4,  4,  7,  7,  7,  6,  8,  8,  8, /* M09 */
+/* M10 */  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+/* M20 */  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+/* M30 */   4, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+/* M40 */  -1, -1, -1, -1, -1, -1, -1, -1,  9,  9,
+/* M50 */  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+/* M60 */   4, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+/* M70 */  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+/* M80 */  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+/* M90 */  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 /*
 
@@ -991,14 +988,12 @@ static int check_g_codes(	/* ARGUMENTS */
     } else if (mode0 == G_28) {
     } else if (mode0 == G_30) {
     } else if (mode0 == G_53) {
-	CHK(((block->motion_to_be != G_0) && (block->
-		    motion_to_be != G_1)), NCE_MUST_USE_G0_OR_G1_WITH_G53);
-	CHK(((block->
-		    g_modes[3] == G_91) || ((block->
-			g_modes[3] != G_90) && (settings->
-			distance_mode
-			==
-			MODE_INCREMENTAL))), NCE_CANNOT_USE_G53_INCREMENTAL);
+	CHK(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)), 
+            NCE_MUST_USE_G0_OR_G1_WITH_G53);
+	CHK(((block->g_modes[3] == G_91) || 
+            ((block->g_modes[3] != G_90) && 
+            (settings->distance_mode == MODE_INCREMENTAL))), 
+            NCE_CANNOT_USE_G53_INCREMENTAL);
     } else if (mode0 == G_92) {
     } else if ((mode0 == G_92_1) || (mode0 == G_92_2) || (mode0 == G_92_3)) {
     } else
@@ -1251,7 +1246,8 @@ static int close_and_downcase(	/* ARGUMENTS */
 		ERM(NCE_NESTED_COMMENT_FOUND);
 	} else if ((item == ' ') || (item == '\t') || (item == '\r'));
 	/* don't copy blank or tab or CR */
-	else if (item == '\n') {	/* don't copy newline *//* but check null follows */
+	else if (item == '\n') {	/* don't copy newline
+                                           but check null follows */
 	    CHK((line[m + 1] != 0), NCE_NULL_MISSING_AFTER_NEWLINE);
 	} else if ((64 < item) && (item < 91)) {	/* downcase upper
 							   case letters */
@@ -4219,6 +4215,10 @@ static int convert_motion(	/* ARGUMENTS */
 	settings->motion_mode = G_80;
     } else if ((motion > G_80) && (motion < G_90)) {
 	CHP(convert_cycle(motion, block, settings));
+    /* FIX ME -- Add G33 check here..
+    } else if (motion == G_33) {
+	CHP(convert_thread(motion, block, settings));
+    */
     } else
 	ERM(NCE_BUG_UNKNOWN_MOTION_CODE);
 
@@ -8863,31 +8863,15 @@ static int read_text(		/* ARGUMENTS */
 	}
 	_setup.sequence_number++;	/* moved from version1, was outside
 					   if */
-	if (strlen(raw_line) == (RS274NGC_TEXT_SIZE - 1)) {	// line is
-	    // too long.
-	    // need to
-	    // finish
-	    // reading
-	    // the line
-	    // to recover
+	if (strlen(raw_line) == (RS274NGC_TEXT_SIZE - 1)) {	/* line is
+	    too long. need to finish reading the line to recover */
 	    for (; fgetc(inport) != '\n';) {
 	    }			// could also look for EOF
 	    ERM(NCE_COMMAND_TOO_LONG);
 	}
-	for (index = (strlen(raw_line) - 1);	// index set on last
-	    // char
-	    (index >= 0) && (isspace(raw_line[index])); index--) {	// remove 
-									// 
-	    // 
-	    // space 
-	    // at 
-	    // end 
-	    // of 
-	    // raw_line, 
-	    // especially 
-	    // CR 
-	    // &
-	    // LF
+	for (index = (strlen(raw_line) - 1);	/* index set on last char */
+	    (index >= 0) && (isspace(raw_line[index])); index--) { /* remove 
+	     space at end of raw_line, especially CR & LF */
 	    raw_line[index] = 0;
 	}
 	strcpy(line, raw_line);
@@ -9380,15 +9364,8 @@ int rs274ngc_execute(const char *command)
 	status = rs274ngc_read(command);
     }
 
-    for (n = 0; n < _setup.parameter_occurrence; n++) {	// copy
-	// parameter
-	// settings
-	// from
-	// parameter
-	// buffer
-	// into
-	// parameter
-	// table
+    for (n = 0; n < _setup.parameter_occurrence; n++) {	/* copy
+	parameter settings from parameter buffer into parameter table */
 	_setup.parameters[_setup.parameter_numbers[n]]
 	    = _setup.parameter_values[n];
     }
@@ -9669,14 +9646,9 @@ int rs274ngc_open(		/* ARGUMENTS */
 	CHK((fgets(line, RS274NGC_TEXT_SIZE, _setup.file_pointer) == NULL),
 	    NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN);
 	length = strlen(line);
-	if (length == (RS274NGC_TEXT_SIZE - 1)) {	// line is too long.
-	    // need to finish
-	    // reading the line
-	    // to recover
-	    for (; fgetc(_setup.file_pointer) != '\n';);	// could look 
-								// 
-	    // 
-	    // for EOF
+	if (length == (RS274NGC_TEXT_SIZE - 1)) {	/* line is too long.
+	     need to finish reading the line to recover */
+	    for (; fgetc(_setup.file_pointer) != '\n';); /* could look for EOF */
 	    ERM(NCE_COMMAND_TOO_LONG);
 	}
 	for (index = (length - 1);	// index set on last char
@@ -9686,9 +9658,8 @@ int rs274ngc_open(		/* ARGUMENTS */
 	for (index--; (index >= 0) && (isspace(line[index])); index--);
 	if (index == -1) {
 	    _setup.percent_flag = ON;
-	    _setup.sequence_number = 1;	// We have already read the first
-	    // line
-	    // and we are not going back to it.
+	    _setup.sequence_number = 1;	/* We have already read the first
+	     line and we are not going back to it. */
 	} else {
 	    fseek(_setup.file_pointer, 0, SEEK_SET);
 	    _setup.percent_flag = OFF;
