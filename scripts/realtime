@@ -120,11 +120,17 @@ Load(){
     for MOD in $MODULES_LOAD ; do
 	# check to see if the module is already installed
 	if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
-	    # install the module - use insmod
+	    # install the module - use insmod for an absolute path,
+	    # modprobe otherwise
+	    case $MOD in 
+	        */*) COMMAND=/sbin/insmod;;
+	        *) COMMAND=/sbin/modprobe;;
+	    esac
 	    if [ "$VERBOSE" = "1" ] ; then
-	        /sbin/insmod $MOD
+		echo $COMMAND $MOD
+		$COMMAND $MOD
 	    else
-	        /sbin/insmod $MOD 1>/dev/null 2>/dev/null
+		$COMMAND $MOD 1>/dev/null 2>/dev/null
 	    fi
         fi
     done
