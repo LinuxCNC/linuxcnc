@@ -1,0 +1,88 @@
+#
+# @configure_input@ 
+# on @DATE@
+#
+
+# Directories
+#############
+
+EMC2_HOME = @EMC2_HOME@
+BIN_DIR   = @EMC2_HOME@/bin
+LIB_DIR   = @EMC2_HOME@/lib
+RTLIB_DIR = @EMC2_HOME@/rtlib
+INC_DIR   = @EMC2_HOME@/include
+TMP_DIR   = @EMC2_HOME@/src/.tmp
+RTTMP_DIR = @EMC2_HOME@/src/.rt_tmp
+RTDIR     = @RTDIR@
+
+# Standard configure directories
+
+prefix = @prefix@
+
+
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+moduledir = @MODULE_DIR@
+kernelvers = @KERNEL_VERS@
+
+# i18n variables:
+
+package = @PACKAGE@
+localedir = @LOCALEDIR@
+LANGUAGES = @LANGUAGES@
+
+# /Standard configure directories
+
+RTNAME = @RTNAME@
+RTPREFIX = @RTPREFIX@
+RTAI = @RTAI@
+RTFLAGS = @RTFLAGS@
+KERNELDIR = @KERNELDIR@
+RTFLAGS := -I$(INC_DIR) -I@RTDIR@/include -I. $(RTFLAGS) -DRTAPI
+USE_RTLIBM = @USE_RTLIBM@
+USE_LIBM = @USE_LIBM@
+USE_STUBS = @USE_STUBS@
+MATHINC = @MATHINC@
+MATHLIB = @MATHLIB@
+ULFLAGS = -Wall -g -I$(INC_DIR) -I@RTDIR@/include -I. -DULAPI -O2 -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
+
+CC = @CC@
+
+# local flags for GTK include
+GTK_VERSION = @GTK_VER@
+GTK_CFLAGS = @GTK_CFLAGS@
+GTK_LIBS = @GTK_LIBS@
+
+# tcl tk cflags, includes and libs
+TCL_DBGX=@TCL_DBGX@
+TK_DBGX=@TK_DBGX@
+TCL_CFLAGS=@TCL_CFLAGS@ @TK_CFLAGS@
+TCL_LIBS=@TCL_LIBS@ @TK_LIBS@ @LIBS@
+
+
+AR = @AR@
+ARFLAGS = cr
+CXX = @CXX@
+CXXFLAGS = $(CFLAGS)
+LD = $(CC)
+LDFLAGS = 
+MAKEFLAGS = @MAKEFLAGS@
+RANLIB = @RANLIB@
+RANLIBFLAGS = 
+
+#
+# i18n
+#
+
+
+
