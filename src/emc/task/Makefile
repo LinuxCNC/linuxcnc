@@ -14,7 +14,8 @@ SRCS =	\
 	bridgeporttaskintf.cc \
 	emcsh.cc \
 	emcprobe.cc \
-	keystick.cc
+	keystick.cc \
+	emcprobe.cc
 
 OBJS =	emccanon.o \
 	emcsvr.o \
@@ -24,7 +25,8 @@ OBJS =	emccanon.o \
 	minimilltaskintf.o \
 	bridgeporttaskintf.o \
 	emcsh.o \
-#	keystick.o
+	keystick.o \
+	emcprobe.o
 
 
 BINS = 	bridgeporttask \
@@ -44,9 +46,10 @@ BINS = 	bridgeporttask \
 	emcdebug \
 	genedit \
 	keystick \
+	emcprobe \
+	emcpanel
 
-
-LOCAL_CXXFLAGS := $(LOCAL_CFLAGS) $(TCL_CFLAGS)
+LOCAL_CXXFLAGS := $(LOCAL_CFLAGS) $(TCL_CFLAGS) -Wno-unused
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o)
@@ -62,7 +65,7 @@ depend: def_depend
 
 clean: def_clean
 
-.PHONY: all clean install indent depend headers
+.PHONY: all clean depend headers indent install kclean
 
 rs274-interp: $(TMP_DIR)/driver.o \
 	$(TMP_DIR)/canon_pre.o \
@@ -124,10 +127,6 @@ $(BIN_DIR)/emcdummy:	\
 	$(TMP_DIR)/libemc.a
 	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
-# Tcl emcsh
-
-emcsh: $(BIN_DIR)/emcsh
-
 $(BIN_DIR)/emcsh: $(TMP_DIR)/emcsh.o $(TMP_DIR)/libemc.a
 	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) $(TCL_LIBS) -o $@
 
@@ -136,28 +135,10 @@ $(BIN_DIR)/keystick:	\
 	$(TMP_DIR)/libemc.a
 	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -lncurses -o $@
 
-# emcprobe
-
-$(TMP_DIR)/emcprobe.o: \
-	emcprobe.cc
-	( $(COMPILER_SETUP); \
-	$(CXX) $< -c $(LOCAL_CFLAGS)  $(LOCAL_CXXFLAGS)\
-	-I$(DEVP_INCLUDE_DIR) -I$(RELEASE_INCLUDE_DIR) -I$(RCS_INCLUDE) \
-	$(TCL_INC) \
-	$(CFLAGS) $(CXXFLAGS) -o $@ )
-
-emcprobe: $(BIN_DIR)/emcprobe
-.PHONY: emcprobe
-
 $(BIN_DIR)/emcprobe: \
 	$(TMP_DIR)/emcprobe.o \
 	$(TMP_DIR)/libemc.a
-	$(COMPILER_SETUP); \
-	$(CXX) \
-	$^ \
-	$(RCS_LINK_FLAG) \
-	$(TK_LINK) $(TCL_LINK) $(XLINK) \
-	$(CXXLINK) -o $@
+	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
 $(BIN_DIR)/tkemc: \
 	tkemc.tcl
