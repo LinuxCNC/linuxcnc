@@ -28,12 +28,6 @@
 #include "motion.h"
 #include "mot_priv.h"
 
-/* these determine the debounce delay for the hardware inputs */
-/* a setting of zero reacts immediately */
-#define LIMIT_SWITCH_DEBOUNCE 10
-#define AMP_FAULT_DEBOUNCE 10
-#define HOME_SW_DEBOUNCE 0
-#define PROBE_DEBOUNCE 0
 
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *
@@ -192,19 +186,11 @@ static void process_inputs(void)
     axis_hal_t *axis_data;
     emcmot_joint_t *joint;
 
-    /* read and debounce probe input */
+    /* read probe input */
     if (*(machine_hal_data->probe_input)) {
-	if (emcmotInternal->probe_debounce_cntr < PROBE_DEBOUNCE) {
-	    emcmotInternal->probe_debounce_cntr++;
-	} else {
-	    emcmotStatus->probeVal = 1;
-	}
+	emcmotStatus->probeVal = 1;
     } else {
-	if (emcmotInternal->probe_debounce_cntr > 0) {
-	    emcmotInternal->probe_debounce_cntr--;
-	} else {
-	    emcmotStatus->probeVal = 0;
-	}
+	emcmotStatus->probeVal = 0;
     }
 
     /* read and process per-joint inputs */
@@ -245,32 +231,16 @@ static void process_inputs(void)
 	    SET_JOINT_FERROR_FLAG(joint, 0);
 	}
 
-	/* read and debounce limit switches */
+	/* read limit switches */
 	if (*(axis_data->pos_lim_sw)) {
-	    if (joint->pos_limit_debounce < LIMIT_SWITCH_DEBOUNCE) {
-		joint->pos_limit_debounce++;
-	    } else {
-		SET_JOINT_PHL_FLAG(joint, 1);
-	    }
+	    SET_JOINT_PHL_FLAG(joint, 1);
 	} else {
-	    if (joint->pos_limit_debounce > 0) {
-		joint->pos_limit_debounce--;
-	    } else {
-		SET_JOINT_PHL_FLAG(joint, 0);
-	    }
+	    SET_JOINT_PHL_FLAG(joint, 0);
 	}
 	if (*(axis_data->neg_lim_sw)) {
-	    if (joint->neg_limit_debounce < LIMIT_SWITCH_DEBOUNCE) {
-		joint->neg_limit_debounce++;
-	    } else {
-		SET_JOINT_NHL_FLAG(joint, 1);
-	    }
+	    SET_JOINT_NHL_FLAG(joint, 1);
 	} else {
-	    if (joint->neg_limit_debounce > 0) {
-		joint->neg_limit_debounce--;
-	    } else {
-		SET_JOINT_NHL_FLAG(joint, 0);
-	    }
+	    SET_JOINT_NHL_FLAG(joint, 0);
 	}
 	/* Some machines can coast past the limit switches - this makes EMC
 	   think the machine is no longer on the limit. To avoid this
@@ -312,34 +282,18 @@ static void process_inputs(void)
 	    joint->pos_limit_latch = GET_JOINT_PHL_FLAG(joint);
 	    joint->neg_limit_latch = GET_JOINT_NHL_FLAG(joint);
 	}
-	/* read and debounce amp fault input */
+	/* read amp fault input */
 	if (*(axis_data->amp_fault)) {
-	    if (joint->amp_fault_debounce < AMP_FAULT_DEBOUNCE) {
-		joint->amp_fault_debounce++;
-	    } else {
-		SET_JOINT_FAULT_FLAG(joint, 1);
-	    }
+	    SET_JOINT_FAULT_FLAG(joint, 1);
 	} else {
-	    if (joint->amp_fault_debounce > 0) {
-		joint->amp_fault_debounce--;
-	    } else {
-		SET_JOINT_FAULT_FLAG(joint, 0);
-	    }
+	    SET_JOINT_FAULT_FLAG(joint, 0);
 	}
 
-	/* read and debounce home switch input */
+	/* read home switch input */
 	if (*(axis_data->home_sw)) {
-	    if (joint->home_sw_debounce < HOME_SW_DEBOUNCE) {
-		joint->home_sw_debounce++;
-	    } else {
-		SET_JOINT_HOME_SWITCH_FLAG(joint, 1);
-	    }
+	    SET_JOINT_HOME_SWITCH_FLAG(joint, 1);
 	} else {
-	    if (joint->home_sw_debounce > 0) {
-		joint->home_sw_debounce--;
-	    } else {
-		SET_JOINT_HOME_SWITCH_FLAG(joint, 0);
-	    }
+	    SET_JOINT_HOME_SWITCH_FLAG(joint, 0);
 	}
 
 	/* read index pulse from HAL */
@@ -697,9 +651,9 @@ static void do_homing(void)
 	    }
 	}
 	/* when an axis is homing, 'check_for_faults()' ignores its limit
-	   switches, so that this code can do the right thing with them.
-	   Once the homing process is finished, the 'check_for_faults()'
-	   resumes checking */
+	   switches, so that this code can do the right thing with them. Once 
+	   the homing process is finished, the 'check_for_faults()' resumes
+	   checking */
 
 	/* homing state machine */
 

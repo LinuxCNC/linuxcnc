@@ -429,10 +429,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int index_pulse;	/* current state of index pulse input */
 	int index_pulse_edge;	/* non-zero if rising edge detected */
 
-	int pos_limit_debounce;	/* debounce counters for switches */
-	int neg_limit_debounce;
-	int home_sw_debounce;
-	int amp_fault_debounce;	/* debounce counter for fault input */
 	home_state_t home_state;	/* state machine for homing */
 	double motor_offset;	/* diff between internal and motor pos, used
 				   to set position to zero during homing */

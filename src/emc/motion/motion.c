@@ -743,10 +743,6 @@ static int init_comm_buffers(void)
 	joint->ferror_high_mark = 0.0;
 
 	/* init internal info */
-	joint->pos_limit_debounce = 0;
-	joint->neg_limit_debounce = 0;
-	joint->home_sw_debounce = 0;
-	joint->amp_fault_debounce = 0;
 	cubicInit(&(joint->cubic));
 
 	/* init misc other stuff in joint structure */
