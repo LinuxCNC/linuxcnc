@@ -5,13 +5,13 @@ include ../../Makefile.inc
 
 # Public headers
 HEADERS = \
+procfs_macros.h \
 rtapi.h \
 rtapi_app.h
 
 # Private headers
 PRIVHDRS = \
 rtapi_common.h \
-procfs_macros.h \
 rtapi_proc.h \
 vsnprintf.h
 
