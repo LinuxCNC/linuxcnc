@@ -69,6 +69,7 @@ static void channel_off_button(GtkWidget * widget, gpointer gdata);
 static gboolean dialog_select_source(int chan_num);
 static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, dialog_generic_t * dptr);
+static void channel_changed(void);
 static void refresh_chan_info(void);
 #if 0
 static void refresh_vert_info(void);
@@ -98,9 +99,7 @@ static void refresh_pos_disp(void);
 */
 
 /* helper functions */
-#if 0
-static void format_signal_value(char *buf, int buflen, float signal);
-#endif
+static void format_scale_value(char *buf, int buflen, float value);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -109,12 +108,19 @@ static void format_signal_value(char *buf, int buflen, float signal);
 void init_vert(void)
 {
     scope_vert_t *vert;
+    scope_chan_t *chan;
+    int n;
 
     /* stop sampling */
     ctrl_shm->state = IDLE;
     /* make a pointer to the horiz structure */
     vert = &(ctrl_usr->vert);
     /* init non-zero members of the vertical structure */
+    /* init non-zero members of the channel structures */
+    for (n = 1; n <= 16; n++) {
+	chan = &(vert->chan[n - 1]);
+	chan->position = (n * 1000) / 17;
+    }
     /* set up the windows */
     init_chan_sel_window();
     init_chan_info_window();
@@ -188,8 +194,6 @@ static void init_vert_info_window(void)
     gtk_scale_set_digits(GTK_SCALE(vert->scale_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(vert->scale_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), vert->scale_slider, TRUE, TRUE, 0);
-    /* store the current value of the slider */
-    vert->scale_setting = GTK_ADJUSTMENT(vert->scale_adj)->value;
     /* connect the slider to a function that re-calcs vertical scale */
     gtk_signal_connect(GTK_OBJECT(vert->scale_adj), "value_changed",
 	GTK_SIGNAL_FUNC(scale_changed), NULL);
@@ -202,8 +206,6 @@ static void init_vert_info_window(void)
     gtk_scale_set_digits(GTK_SCALE(vert->pos_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(vert->pos_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), vert->pos_slider, TRUE, TRUE, 0);
-    /* store the current value of the slider */
-    vert->pos_setting = GTK_ADJUSTMENT(vert->pos_adj)->value / 1000.0;
     /* connect the slider to a function that re-calcs vertical pos */
     gtk_signal_connect(GTK_OBJECT(vert->pos_adj), "value_changed",
 	GTK_SIGNAL_FUNC(pos_changed), NULL);
@@ -298,28 +300,6 @@ static void init_vert_info_window(void)
 ************************************************************************/
 
 #if 0
-static void dialog_realtime_not_loaded(void)
-{
-    gchar *title, *msg;
-    gint retval;
-
-    title = "Realtime component not loaded";
-    msg = "HALSCOPE uses a realtime component called 'halscope_rt.o'\n"
-	"to sample signals for display.  It is not currently loaded.\n\n"
-	"Please do one of the following:\n\n"
-	"Load the component (using insmod), then click 'OK'\n"
-	"or\n" "Click 'Cancel' to exit HALSCOPE";
-    retval =
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Cancel",
-	NULL, NULL);
-    if ((retval == 0) || (retval == 2)) {
-	/* user either closed dialog, or hit cancel - end the program */
-	gtk_main_quit();
-    }
-}
-#endif
-
-#if 0
 static void dialog_realtime_not_running(void)
 {
     gchar *title, *msg;
@@ -341,7 +321,9 @@ static void dialog_realtime_not_running(void)
 	gtk_main_quit();
     }
 }
+#endif
 
+#if 0
 static void acquire_popup(GtkWidget * widget, gpointer gdata)
 {
     scope_horiz_t *horiz;
@@ -362,6 +344,9 @@ static void acquire_popup(GtkWidget * widget, gpointer gdata)
     return;
 }
 
+#endif
+
+#if 0
 static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, gpointer gdata)
 {
@@ -428,7 +413,9 @@ static void scale_changed(GtkAdjustment * adj, gpointer gdata)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;
-    int chan_num;
+    int chan_num, index;
+    float scale;
+    gchar buf[BUFLEN];
 
     vert = &(ctrl_usr->vert);
     chan_num = vert->selected;
@@ -436,11 +423,38 @@ static void scale_changed(GtkAdjustment * adj, gpointer gdata)
 	return;
     }
     chan = &(vert->chan[chan_num - 1]);
-    printf("Channel %d scale changed\n", chan_num);
+    chan->scale_index = adj->value;
+    scale = 1.0;
+    index = chan->scale_index;
+    while (index >= 3) {
+	scale *= 10.0;
+	index -= 3;
+    }
+    while (index <= -3) {
+	scale *= 0.1;
+	index += 3;
+    }
+    switch (index) {
+    case 2:
+	scale *= 5.0;
+	break;
+    case 1:
+	scale *= 2.0;
+	break;
+    case -1:
+	scale *= 0.5;
+	break;
+    case -2:
+	scale *= 0.2;
+	break;
+    default:
+	break;
+    }
+    chan->scale = scale;
+    format_scale_value(buf, BUFLEN - 1, scale);
+    gtk_label_set_text_if(vert->scale_label, buf);
 #if 0
-    vert->scale_setting = adj->value;
-    calc_vert_scaling();
-    refresh_vert_info();
+    refresh_display();
 #endif
 }
 
@@ -456,11 +470,9 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 	return;
     }
     chan = &(vert->chan[chan_num - 1]);
-    printf("Channel %d position changed\n", chan_num);
+    chan->position = adj->value;
 #if 0
-    vert->pos_setting = adj->value;
-    calc_vert_scaling();
-    refresh_vert_info();
+    refresh_display();
 #endif
 }
 
@@ -481,8 +493,7 @@ static void offset_changed(GtkAdjustment * adj, gpointer gdata)
     chan->offset =
 	gtk_spin_button_get_value_as_float(GTK_SPIN_BUTTON(vert->
 	    offset_spinbutton));
-    calc_vert_scaling();
-    refresh_vert_info();
+    refresh_display();
 #endif
 }
 
@@ -556,11 +567,13 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 		/* user failed to assign a source */
 		/* force the button to pop back out */
 		vert->selected = prev;
+		channel_changed();
 		refresh_chan_info();
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),
 		    FALSE);
 		return;
 	    }
+	    channel_changed();
 	}
 	vert->enabled |= chan_mask;
     } else {
@@ -577,6 +590,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
     if (vert->selected != chan_num) {
 	/* make chan_num the selected channel */
 	vert->selected = chan_num;
+	channel_changed();
     }
     refresh_chan_info();
 }
@@ -611,6 +625,7 @@ static void channel_off_button(GtkWidget * widget, gpointer gdata)
 	    vert->selected = chan_num;
 	}
     } while ((++n < 16) && (vert->selected == 0));
+    channel_changed();
     refresh_chan_info();
 }
 
@@ -623,6 +638,7 @@ static void change_source_button(GtkWidget * widget, gpointer gdata)
 	return;
     }
     dialog_select_source(chan_num);
+    channel_changed();
     refresh_chan_info();
 }
 
@@ -949,6 +965,62 @@ static void calc_horiz_scaling(void)
 }
 #endif
 
+static void channel_changed(void)
+{
+    scope_vert_t *vert;
+    scope_chan_t *chan;
+    GtkAdjustment *adj;
+
+    vert = &(ctrl_usr->vert);
+    if ((vert->selected < 1) || (vert->selected > 16)) {
+	gtk_label_set_text_if(vert->scale_label, "----");
+	return;
+    }
+    chan = &(vert->chan[vert->selected - 1]);
+    /* set position slider based on new channel */
+    gtk_adjustment_set_value(GTK_ADJUSTMENT(vert->pos_adj), chan->position);
+    adj = GTK_ADJUSTMENT(vert->scale_adj);
+    switch (chan->type) {
+    case HAL_BIT:
+	adj->lower = -2;
+	adj->upper = 2;
+	break;
+    case HAL_FLOAT:
+	adj->lower = -36;
+	adj->upper = 36;
+	break;
+    case HAL_S8:
+	adj->lower = -2;
+	adj->upper = 8;
+	break;
+    case HAL_U8:
+	adj->lower = -2;
+	adj->upper = 8;
+	break;
+    case HAL_S16:
+	adj->lower = -2;
+	adj->upper = 15;
+	break;
+    case HAL_U16:
+	adj->lower = -2;
+	adj->upper = 15;
+	break;
+    case HAL_S32:
+	adj->lower = -2;
+	adj->upper = 30;
+	break;
+    case HAL_U32:
+	adj->lower = -2;
+	adj->upper = 30;
+	break;
+    default:
+	break;
+    }
+    adj->value = chan->scale_index;
+    gtk_adjustment_changed(adj);
+    gtk_adjustment_value_changed(adj);
+}
+
 static void refresh_chan_info(void)
 {
     scope_vert_t *vert;
@@ -1078,6 +1150,33 @@ static void refresh_pos_disp(void)
 }
 #endif
 
+static void format_scale_value(char *buf, int buflen, float value)
+{
+    char *units;
+    char symbols[] = "pnum KMGT";
+
+    if (value < 0.9e-12) {
+	/* less than pico units, shouldn't happen */
+	snprintf(buf, buflen, "tiny");
+	return;
+    }
+    if (value > 1.1e+12) {
+	/* greater than tera-units, shouldn't happen */
+	snprintf(buf, buflen, "huge");
+	return;
+    }
+    units = &(symbols[4]);
+    while (value < 1.0) {
+	value *= 1000.0;
+	units--;
+    }
+    while (value >= 999.99) {
+	value *= 0.001;
+	units++;
+    }
+    snprintf(buf, buflen, "%0.0f%c/div", value, *units);
+}
+
 #if 0
 static void format_signal_value(char *buf, int buflen, float value)
 {
@@ -1085,30 +1184,32 @@ static void format_signal_value(char *buf, int buflen, float value)
     int decimals;
     char symbols[] = "pnum KMGT";
 
-    if (value < 1.0e-12) {
+    if (value <= 1.0e-12) {
 	/* less than pico units, use scientific notation */
 	snprintf(buf, buflen, "%10.3e", value);
 	return;
     }
-    /* convert to pico-units */
-    value *= 1.0e+12;
-    units = symbols;
-    while ((value > 1000.0) && (*units != '\0')) {
-	value /= 1000.0;
-	units++;
-    }
-    if (*units == '\0') {
-	/* greatern than tera-units, use scientific notation */
+    if (value >= 1.0e+12) {
+	/* greater than tera-units, use scientific notation */
 	snprintf(buf, buflen, "%10.3e", value);
 	return;
     }
+    units = &(symbols[4]);
+    while (value < 1.0) {
+	value *= 1000.0;
+	units--;
+    }
+    while (value >= 1000.0) {
+	value /= 1000.0;
+	units++;
+    }
     decimals = 2;
-    if (value >= 10.0) {
+    if (value >= 9.999) {
 	decimals = 1;
     }
-    if (value >= 100.0) {
+    if (value >= 99.99) {
 	decimals = 0;
     }
-    snprintf(buf, buflen, "%0.*f %s", decimals, value, units);
+    snprintf(buf, buflen, "%0.*f%c", decimals, value, *units);
 }
 #endif

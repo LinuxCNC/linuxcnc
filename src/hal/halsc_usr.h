@@ -86,6 +86,7 @@ typedef struct {
     hal_type_t type;		/* data type */
     void *addr;			/* data address (user mapping) */
     float offset;		/* offset to be applied */
+    int scale_index;		/* scaling (slider setting) */
     float scale;		/* scaling (units/div) */
     int position;		/* vertical pos (0-100) */
 } scope_chan_t;
@@ -99,8 +100,6 @@ typedef struct {
     short data_valid;		/* bitmap of chans with data in usr mem */
     int selected;		/* channel user has selected */
     scope_chan_t chan[16];	/* channel data */
-    int scale_setting;		/* setting of scale slider (-? to +?) */
-    float pos_setting;		/* setting of position slider (0.0-1.0) */
     /* widgets for main window */
     GtkWidget *chan_sel_buttons[16];
     GtkWidget *chan_num_label;
