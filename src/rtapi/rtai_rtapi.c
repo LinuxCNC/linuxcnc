@@ -103,8 +103,8 @@ static long int max_delay = DEFAULT_MAX_DELAY;
 
 /* module parameters */
 
-static int msg_lvl = 7;		/* message printing level */
-MODULE_PARM(msg_lvl, "i");
+static int msg_level = RTAPI_MSG_INFO; 	/* message printing level */
+MODULE_PARM(msg_level, "i");
 MODULE_PARM_DESC(msg, "debug message level (default=7)");
 
 /* other module information */
@@ -441,7 +441,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
     char buffer[BUFFERLEN];
     va_list args;
 
-    if ((level <= msg_lvl) && (msg_lvl != RTAPI_MSG_NONE)) {
+    if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
 	va_start(args, fmt);
 	/* call our own vsn_printf(), which is #defined to vsnprintf() if the 
 	   kernel supplies one. */
@@ -451,18 +451,18 @@ void rtapi_print_msg(int level, const char *fmt, ...)
     }
 }
 
-int rtapi_set_msg_lvl(int level)
+int rtapi_set_msg_level(int level)
 {
     if ((level < RTAPI_MSG_NONE) || (level > RTAPI_MSG_ALL)) {
 	return RTAPI_INVAL;
     }
-    msg_lvl = level;
+    msg_level = level;
     return RTAPI_SUCCESS;
 }
 
-int rtapi_get_msg_lvl(void)
+int rtapi_get_msg_level(void)
 {
-    return msg_lvl;
+    return msg_level;
 }
 
 /***********************************************************************

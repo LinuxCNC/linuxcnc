@@ -131,10 +131,10 @@ extern void rtapi_print(const char *fmt, ...);
 
 /** 'rtapi_print_msg()' prints debug messages.  Works like rtapi_print
     but only prints if 'level' is less than or equal to the current
-    message level. The default message level is 7, but it may be changed.
-    The defines below are used for RTAPI messages, and are recommended
-    for user messages as well.  May be called from user, init/cleanup,
-    and realtime code.
+    message level. The default message level is RTAPI_MSG_INFO, but it may
+    be changed. The defines below are used for RTAPI messages, and are
+    recommended for user messages as well.  May be called from user, 
+    init/cleanup, and realtime code.
     
     N.B. New values should not be added before RTAPI_MSG_NONE or after
     RTAPI_MSG_ALL.
@@ -150,13 +150,14 @@ typedef enum {
 
 extern void rtapi_print_msg(int level, const char *fmt, ...);
 
-/** 'rtapi_set_msg_lvl()' and rtapi_get_msg_lvl() access the message
-    level used by rtapi_print_msg().  The default is 7, and the legal
-    range is 0 thru 8.  rtapi_set_msg_lvl() returns a status code, and
-    rtapi__get_msg_lvl() returns the current level.
+/** 'rtapi_set_msg_level()' and rtapi_get_msg_level() access the message
+    level used by rtapi_print_msg().  The default is RTAPI_MSG_INFO, and
+    the legal range is defined in the enumerate msg_level_t.
+    rtapi_set_msg_level() returns a status code, and rtapi__get_msg_level()
+    returns the current level.
 */
-extern int rtapi_set_msg_lvl(int level);
-extern int rtapi_get_msg_lvl(void);
+extern int rtapi_set_msg_level(int level);
+extern int rtapi_get_msg_level(void);
 
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *

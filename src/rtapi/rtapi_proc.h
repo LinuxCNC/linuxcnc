@@ -104,7 +104,7 @@ static int proc_read_status(char *page, char **start, off_t off,
     } else {
 	PROC_PRINT(" Timer status = Stopped\n");
     }
-    PROC_PRINT("Message level = %i\n", msg_lvl);
+    PROC_PRINT("Message level = %i\n", msg_level);
     PROC_PRINT("\n");
     PROC_PRINT_DONE;
 }
@@ -250,15 +250,15 @@ static int proc_read_debug(char *page, char **start, off_t off,
 {
     PROC_PRINT_VARS;
     PROC_PRINT("******* RTAPI MESSAGES ******\n");
-    PROC_PRINT("  Message Level  = %i\n", msg_lvl);
+    PROC_PRINT("  Message Level  = %i\n", msg_level);
     PROC_PRINT("  ERROR messages = %s\n",
-	msg_lvl > RTAPI_MSG_ERR ? "ON" : "OFF");
+	msg_level > RTAPI_MSG_ERR ? "ON" : "OFF");
     PROC_PRINT("WARNING messages = %s\n",
-	msg_lvl > RTAPI_MSG_WARN ? "ON" : "OFF");
+	msg_level > RTAPI_MSG_WARN ? "ON" : "OFF");
     PROC_PRINT("   INFO messages = %s\n",
-	msg_lvl > RTAPI_MSG_INFO ? "ON" : "OFF");
+	msg_level > RTAPI_MSG_INFO ? "ON" : "OFF");
     PROC_PRINT("  DEBUG messages = %s\n",
-	msg_lvl > RTAPI_MSG_DBG ? "ON" : "OFF");
+	msg_level > RTAPI_MSG_DBG ? "ON" : "OFF");
     PROC_PRINT("\n");
     PROC_PRINT_DONE;
 }
@@ -275,7 +275,7 @@ static int proc_write_debug(struct file *file,
     /* check it is a digit */
     if (isdigit(c)) {
 	/* convert to a number */
-	msg_lvl = (int) (c - '0');
+	msg_level = (int) (c - '0');
     }
     /* tell whoever called us that we used all the data, even though we
        really only used the first byte */

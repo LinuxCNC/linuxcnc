@@ -77,7 +77,7 @@ static int fifo_delete(int fifo_id, int module_id);
 static void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 static int fifo_fd_array[RTAPI_MAX_FIFOS + 1];
 
-static int msg_level = 7;	/* message printing level */
+static int msg_level = RTAPI_MSG_INFO;	/* message printing level */
 
 /***********************************************************************
 *                      GENERAL PURPOSE FUNCTIONS                       *
@@ -250,7 +250,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
     }
 }
 
-int rtapi_set_msg_lvl(int level)
+int rtapi_set_msg_level(int level)
 {
     if ((level < RTAPI_MSG_NONE) || (level > RTAPI_MSG_ALL)) {
 	return RTAPI_INVAL;
@@ -259,7 +259,7 @@ int rtapi_set_msg_lvl(int level)
     return RTAPI_SUCCESS;
 }
 
-int rtapi_get_msg_lvl(void)
+int rtapi_get_msg_level(void)
 {
     return msg_level;
 }
