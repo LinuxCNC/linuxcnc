@@ -22,8 +22,11 @@ fi
 #
 # List of kernel modules to be removed
 #
-
-RTAI_MODULES="rtai_shm rtai_fifos rtai_sched rt_mem_mgr rtai"
+# Check if we need to add adeos to the list.
+if /sbin/ksyms -a | grep adeos >/dev/null 2>/dev/null ; then
+    RTAI_MODULES=" adeos "
+fi
+RTAI_MODULES="rtai_shm rtai_fifos rtai_sched rtai"$RTAI_MODULES
 
 #
 # Remove the modules
@@ -46,43 +49,3 @@ for MOD in $RTAI_MODULES ; do
 done
 
 exit 0
-
-
-
-
-
-
-
-# Get a list of currently installed modules.
-MODULES=`/sbin/lsmod  |  awk '{print $1}'`
-
-for MOD in $MODULES ; do
-   case $MOD in
-   rtai | rt_mem_mgr | rtai_sched | rtai_shm | rtai_fifos )
-	if ! /sbin/lsmod | grep $MOD 1> ${nullfile} 2> ${nullfile} ; then
-	    continue;
-	fi
-	DEPENDS=`/sbin/lsmod | sed 'y/[/ /' | sed 'y/]/ /' | sed 's#(unused)##' | sed 's#unused##' |  gawk '/^'$mod'/ {print $4 " " $5 " " $6 " " $7 " " $8}'`
-	dependcount=`echo $DEPENDS | wc -w`
-	if [ $dependcount -gt 0 ] ; then
-	    echo Removing kernel module $MOD and anything that depends on it.
-	    echo Including  $DEPENDS
-	    /sbin/rmmod  $DEPENDS $MOD
-	else
-	    echo Removing kernel module $MOD
-	    /sbin/rmmod  $MOD
-	fi
-	;;
-     *)
-	;;
-    esac
-done
-
-
-exit 0
-
-
-
-
-
-

@@ -18,13 +18,17 @@ fi
 #
 # List of kernel modules to be installed
 #
+# Check if we need adeos first..
+if /sbin/ksyms -a | grep adeos >/dev/null 2>/dev/null ; then
+    RTAI_MODULES="adeos "
+fi
 
-RTAI_MODULES="rtai rt_mem_mgr rtai_sched rtai_fifos rtai_shm"
+RTAI_MODULES=$RTAI_MODULES"rtai rtai_sched rtai_fifos rtai_shm"
 
 #
 # Load the modules
 #
-
+echo $RTAI_MODULES
 echo "Loading RTAI modules"
 for MOD in $RTAI_MODULES ; do
     # ask modprobe if it knows where to find the module
@@ -41,7 +45,7 @@ for MOD in $RTAI_MODULES ; do
 	echo "'$MOD' already loaded"
     else
 	# install the module (give insmod the full path)
-	if /sbin/insmod $MODLOC >/dev/null 2>/dev/null ; then
+	if /sbin/insmod $MODLOC ; then
 	    echo "'$MOD' loaded successfully"
 	else
 	    echo "ERROR: Could not load '$MOD' - are you root?"
