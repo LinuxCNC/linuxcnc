@@ -1536,7 +1536,7 @@ EMC2_HOME=`pwd`
 
 
 # Support some of the standard configure options for directories
-	# Does this become /opt/emc2 ?
+	# Does this become /opt ?
 
 if test "x$prefix" = "xNONE"; then
   prefix=$ac_default_prefix
@@ -3066,7 +3066,6 @@ done
 #
 # We don't really care which version of GCC we have here, though,
 # so maybe we should find any old gcc here and reset it later?
-#
 # FIXME
 
 
@@ -4017,8 +4016,14 @@ then
         MODULE_DIR=`(find /usr/realtime/ -name "mbuff.o" -o -name "rtai_shm.o" -printf "%h")`
    fi
 
+   # go up one dir, in order to not install hal, emc modules in the same dir as rtai
+   if ! test "x" = "x$MODULE_DIR"; then
+	MODULE_DIR=$(cd $MODULE_DIR/.. ; pwd -P)
+	MODULE_DIR=$MODULE_DIR/hal
+   fi
+
    if test "x" = "x$MODULE_DIR"; then
-       MODULE_DIR='${exec_prefix}/modules'
+	MODULE_DIR='${exec_prefix}/modules'
    fi
 
 fi
@@ -6865,7 +6870,6 @@ fi
 
 
 # Check for math support
-# FIXME - still to be written
 # Because some of the realtime kernel modules use floating point math
 # which is not supported by standard kernel calls, we need to link to
 # libm. RTAI provides a loadable module derived from uclibc (a minimal
@@ -6953,14 +6957,6 @@ fi
 
 
 # Checks for libraries.
-
-#--------------------------------------------------------------------
-# Load the tclConfig.sh file
-# (P.C.) Ripped this section from another config.in as an example.
-# Delete when we have one that works..
-#--------------------------------------------------------------------
-# tclconfig=$(find /usr/* -maxdepth 2 -name "tclConfig.sh" 2>/dev/null | head -n 1)
-# . $tclconfig
 
 # AC_SUBST(INSTALL)
 # AC_SUBST(INSTALL_PROGRAM)
@@ -7766,11 +7762,6 @@ fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 
-# Checks for library functions.
-# FIXME These tests fail with tcl/tk 8.0
-#AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
-#AC_SEARCH_LIBS(Tk_Init,[tk tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
-
 DATE=$(date)
 
 
@@ -8018,7 +8009,7 @@ done
 
 
 
-# Add langauges here when they are translated.
+# Add languages here when they are translated.
 # Grep the LINGUAS file.
   LANGUAGES=""
 
@@ -8252,7 +8243,6 @@ echo "$as_me: WARNING: Usage is: --with-locale-dir=basedir" >&2;}
 fi;
 
 fi
-
 
 
 

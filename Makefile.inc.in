@@ -7,31 +7,23 @@
 #############
 
 EMC2_HOME = @EMC2_HOME@
-BIN_DIR   = @EMC2_HOME@/bin
-LIB_DIR   = @EMC2_HOME@/lib
-RTLIB_DIR = @EMC2_HOME@/rtlib
-INC_DIR   = @EMC2_HOME@/include
-TMP_DIR   = @EMC2_HOME@/src/.tmp
-RTTMP_DIR = @EMC2_HOME@/src/.rt_tmp
+BIN_DIR   = $(EMC2_HOME)/bin
+LIB_DIR   = $(EMC2_HOME)/lib
+RTLIB_DIR = $(EMC2_HOME)/rtlib
+INC_DIR   = $(EMC2_HOME)/include
+TMP_DIR   = $(EMC2_HOME)/src/.tmp
+RTTMP_DIR = $(EMC2_HOME)/src/.rt_tmp
 RTDIR     = @RTDIR@
 
 # Standard configure directories
 
 prefix = @prefix@
-
-
 exec_prefix = @exec_prefix@
 
-bindir = @bindir@
-sbindir = @sbindir@
-libexecdir = @libexecdir@
-datadir = @datadir@
-sysconfdir = @sysconfdir@
-sharedstatedir = @sharedstatedir@
-localstatedir = @localstatedir@
-libdir = @libdir@
 infodir = @infodir@
 mandir = @mandir@
+
+sysconfdir=/etc
 moduledir = @MODULE_DIR@
 kernelvers = @KERNEL_VERS@
 
