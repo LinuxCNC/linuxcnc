@@ -116,7 +116,7 @@ static char *skipwhite(char *string)
 *
 ********************************************************************/
 
-static int findSection(void *fp, const char *section)
+int findSection(void *fp, const char *section)
 {
     static char line[INIFILE_MAX_LINELEN + 2];	/* 1 for newline, 1 for NULL */
     static char bracketsection[INIFILE_MAX_LINELEN + 2];
