@@ -1453,7 +1453,7 @@ static int iniLoad(const char *filename)
 {
     INIFILE inifile;
     const char *inistring;
-    char version[INIFILE_MAX_LINELEN];
+    char version[LINELEN];
 
     // open it
     if (-1 == inifile.open(filename)) {

@@ -21,6 +21,9 @@
 
 #ifdef __cplusplus
 
+/* Common global defines */
+#include "global_defs.h"
+
 /* Portable Print functions. */
 #include "rcs_print.hh"		/* rcs_print_ functions */
 /* Linked Lists etc. */
@@ -63,6 +66,7 @@ enum RCS_STATUS {               /* Originally from nml_mod.hh */
 
 /* class INIFILE */
 #include "inifile.h"
+#include "inifile.hh"
 
 #include "rcsversion.h"
 

@@ -19,17 +19,17 @@
 #ifndef INIFILE_H
 #define INIFILE_H
 
+#include "global_defs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stdio.h>		/* FILE, NULL */
 
-#define INIFILE_MAX_LINELEN 256	/* max number of chars in a line */
-
     typedef struct {
-	char tag[INIFILE_MAX_LINELEN];
-	char rest[INIFILE_MAX_LINELEN];
+	char tag[LINELEN];
+	char rest[LINELEN];
     } INIFILE_ENTRY;
 
     extern const char *iniFind(void *fp,	/* already opened file ptr */

@@ -33,9 +33,9 @@
 int main(int argc, char *argv[])
 {
     int t;
-    char _variable[INIFILE_MAX_LINELEN] = "";
+    char _variable[LINELEN] = "";
     char *variable = 0;
-    char _section[INIFILE_MAX_LINELEN] = "";
+    char _section[LINELEN] = "";
     char *section = 0;
     char INIFILE[256] = "generic.ini";
     FILE *fp;

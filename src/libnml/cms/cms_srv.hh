@@ -29,7 +29,7 @@
 #define CMS_SERVER_HH
 
 #include "cms_user.hh"		/* class CMS, CMS_STATUS */
-#include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
+#include "cms_cfg.hh"
 #include "linklist.hh"		/* class LinkedList */
 #include "rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 				/* struct REMOTE_WRITE_REQUEST, */

@@ -8,6 +8,7 @@ SRCS = \
 
 HEADERS = \
 	canon.hh \
+	interp_internal.hh \
 	rs274ngc.hh \
 	rs274ngc_return.hh
 

@@ -107,9 +107,7 @@ if the input RS274 code has a value for an axis not compiled in. If
 this flag is not used, the interpreter will read and ignore values for
 axes not compiled in.
 
-*/
-
-/****************************************************************************/
+****************************************************************************/
 
 #include <unistd.h>
 #include <stdio.h>
@@ -4833,12 +4831,12 @@ static int convert_stop(block_pointer block,    //!< pointer to a block of RS274
       CHK((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE);
       line = _setup.linetext;
       for (;;) {                /* check for ending percent sign and comment if missing */
-        if (fgets(line, RS274NGC_TEXT_SIZE, _setup.file_pointer) == NULL) {
+        if (fgets(line, LINELEN, _setup.file_pointer) == NULL) {
           COMMENT("interpreter: percent sign missing from end of file");
           break;
         }
         length = strlen(line);
-        if (length == (RS274NGC_TEXT_SIZE - 1)) {       // line is too long. need to finish reading the line
+        if (length == (LINELEN - 1)) {       // line is too long. need to finish reading the line
           for (; fgetc(_setup.file_pointer) != '\n';);
           continue;
         }
@@ -8971,14 +8969,14 @@ static int read_text(const char *command,       //!< a string which may have inp
   int index;
 
   if (command == NULL) {
-    if (fgets(raw_line, RS274NGC_TEXT_SIZE, inport) == NULL) {
+    if (fgets(raw_line, LINELEN, inport) == NULL) {
       if (_setup.percent_flag == ON)
         ERM(NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN);
       else
         ERM(NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN_OR_PROGRAM_END);
     }
     _setup.sequence_number++;   /* moved from version1, was outside if */
-    if (strlen(raw_line) == (RS274NGC_TEXT_SIZE - 1)) { // line is too long. need to finish reading the line to recover
+    if (strlen(raw_line) == (LINELEN - 1)) { // line is too long. need to finish reading the line to recover
       for (; fgetc(inport) != '\n';) {
       }                         // could also look for EOF
       ERM(NCE_COMMAND_TOO_LONG);
@@ -8992,7 +8990,7 @@ static int read_text(const char *command,       //!< a string which may have inp
     if ((line[0] == '%') && (line[1] == 0) && (_setup.percent_flag == ON))
       return RS274NGC_ENDFILE;
   } else {
-    CHK((strlen(command) >= RS274NGC_TEXT_SIZE), NCE_COMMAND_TOO_LONG);
+    CHK((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
     strcpy(raw_line, command);
     strcpy(line, command);
     CHP(close_and_downcase(line));
@@ -9494,9 +9492,9 @@ written. Otherwise, the default parameter file name is used.
 
 int rs274ngc_exit()
 {
-  char file_name[RS274NGC_TEXT_SIZE];
+  char file_name[LINELEN];
 
-  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (RS274NGC_TEXT_SIZE - 1));
+  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
   rs274ngc_save_parameters(((file_name[0] ==
                              0) ?
                             RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
@@ -9538,13 +9536,13 @@ int rs274ngc_init()
   static char name[] = "rs274ngc_init";
   int k;                        // starting index in parameters of origin offsets
   int status;
-  char filename[RS274NGC_TEXT_SIZE];
+  char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
 
   INIT_CANON();
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   USE_LENGTH_UNITS(_setup.length_units);
-  GET_EXTERNAL_PARAMETER_FILE_NAME(filename, RS274NGC_TEXT_SIZE);
+  GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
   if (filename[0] == 0)
     strcpy(filename, RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
   CHP(rs274ngc_restore_parameters(filename));
@@ -9734,15 +9732,15 @@ int rs274ngc_open(const char *filename) //!< string: the name of the input NC-pr
   int length;
 
   CHK((_setup.file_pointer != NULL), NCE_A_FILE_IS_ALREADY_OPEN);
-  CHK((strlen(filename) > (RS274NGC_TEXT_SIZE - 1)), NCE_FILE_NAME_TOO_LONG);
+  CHK((strlen(filename) > (LINELEN - 1)), NCE_FILE_NAME_TOO_LONG);
   _setup.file_pointer = fopen(filename, "r");
   CHK((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE);
   line = _setup.linetext;
   for (index = -1; index == -1;) {      /* skip blank lines */
-    CHK((fgets(line, RS274NGC_TEXT_SIZE, _setup.file_pointer) ==
+    CHK((fgets(line, LINELEN, _setup.file_pointer) ==
          NULL), NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN);
     length = strlen(line);
-    if (length == (RS274NGC_TEXT_SIZE - 1)) {   // line is too long. need to finish reading the line to recover
+    if (length == (LINELEN - 1)) {   // line is too long. need to finish reading the line to recover
       for (; fgetc(_setup.file_pointer) != '\n';);      // could look for EOF
       ERM(NCE_COMMAND_TOO_LONG);
     }
@@ -10141,7 +10139,7 @@ void rs274ngc_active_g_codes(int *codes)        //!< array of codes to copy into
 {
   int n;
 
-  for (n = 0; n < RS274NGC_ACTIVE_G_CODES; n++) {
+  for (n = 0; n < ACTIVE_G_CODES; n++) {
     codes[n] = _setup.active_g_codes[n];
   }
 }
@@ -10164,7 +10162,7 @@ void rs274ngc_active_m_codes(int *codes)        //!< array of codes to copy into
 {
   int n;
 
-  for (n = 0; n < RS274NGC_ACTIVE_M_CODES; n++) {
+  for (n = 0; n < ACTIVE_M_CODES; n++) {
     codes[n] = _setup.active_m_codes[n];
   }
 }
@@ -10187,7 +10185,7 @@ void rs274ngc_active_settings(double *settings) //!< array of settings to copy i
 {
   int n;
 
-  for (n = 0; n < RS274NGC_ACTIVE_SETTINGS; n++) {
+  for (n = 0; n < ACTIVE_SETTINGS; n++) {
     settings[n] = _setup.active_settings[n];
   }
 }

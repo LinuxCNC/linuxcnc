@@ -22,9 +22,6 @@
 #include "cms_user.hh"
 
 /* Config File Definitions. */
-#ifndef CMS_CONFIG_LINELEN
-#define CMS_CONFIG_LINELEN 200
-#endif
 #ifndef CMS_CONFIG_COMMENTCHAR
 #define CMS_CONFIG_COMMENTCHAR '#'
 #endif

@@ -74,8 +74,8 @@ static int loadTraj()
   unsigned char coordinateMark[6] = {1, 1, 1, 0, 0, 0};
   int t;
   int len;
-  char homes[INIFILE_MAX_LINELEN];
-  char home[INIFILE_MAX_LINELEN];
+  char homes[LINELEN];
+  char home[LINELEN];
   EmcPose homePose ={ { 0.0, 0.0, 0.0 } , 0.0, 0.0, 0.0};
   double d;
 //  int index;
@@ -359,10 +359,10 @@ static int loadTraj()
         len += strlen(home);
         // and at start of next value
         while ((homes[len] == ' ' || home[len] == '\t') &&
-               len < INIFILE_MAX_LINELEN) {
+               len < LINELEN) {
           len++;
         }
-        if (len >= INIFILE_MAX_LINELEN) {
+        if (len >= LINELEN) {
           break;                // out of for loop
         }
       }

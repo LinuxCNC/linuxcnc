@@ -22,52 +22,18 @@
 /**********************/
 
 #include <stdio.h>
+#include "interp_internal.hh"
+#include "emc.hh"
 #include "canon.hh"
-
-/**********************/
-/*   COMPILER MACROS  */
-/**********************/
-
-#define MAX(x, y)        ((x) > (y) ? (x) : (y))
-
-#define round_to_int(x) ((int) ((x) < 0.0 ? ((x) - 0.5) : ((x) + 0.5)))
-/* how far above hole bottom for rapid return, in inches */
-#define G83_RAPID_DELTA 0.010
-
-#define RS274NGC_TEXT_SIZE 256
 
 /* numerical constants */
 #define TOLERANCE_INCH 0.0005
 #define TOLERANCE_MM 0.005
-#define TOLERANCE_CONCAVE_CORNER 0.05   /* angle threshold for concavity for
-                                           cutter compensation, in radians */
-#define TINY 1e-12              /* for arc_data_r */
-#define UNKNOWN 1e-20
-#define TWO_PI  6.2831853071795864
-
-#ifndef PI
-#define PI      3.1415926535897932
-#endif
-
-#ifndef PI2
-#define PI2     1.5707963267948966
-#endif
-
-// array sizes
-#define RS274NGC_ACTIVE_G_CODES 12
-#define RS274NGC_ACTIVE_M_CODES 7
-#define RS274NGC_ACTIVE_SETTINGS 3
+#define TOLERANCE_CONCAVE_CORNER 0.05
 
 // name of parameter file for saving/restoring interpreter variables
 #define RS274NGC_PARAMETER_FILE_NAME_DEFAULT "rs274ngc.var"
 #define RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX ".bak"
-
-// max number of m codes on one line
-#define MAX_EMS  4
-
-// English - Metric conversion (long number keeps error buildup down)
-#define MM_PER_INCH 25.4
-#define INCH_PER_MM 0.039370078740157477
 
 // on-off switch settings
 #define OFF 0
@@ -172,6 +138,7 @@
 #define G_98   980
 #define G_99   990
 
+
 /**********************/
 /*      TYPEDEFS      */
 /**********************/
@@ -260,14 +227,14 @@ typedef struct setup_struct
   double CC_current;            // current C-axis position
   double CC_origin_offset;      // C-axis origin offset
 #endif
-  int active_g_codes[RS274NGC_ACTIVE_G_CODES];  // array of active G codes
-  int active_m_codes[RS274NGC_ACTIVE_M_CODES];  // array of active M codes
-  double active_settings[RS274NGC_ACTIVE_SETTINGS];     // array of feed, speed, etc.
+  int active_g_codes[ACTIVE_G_CODES];  // array of active G codes
+  int active_m_codes[ACTIVE_M_CODES];  // array of active M codes
+  double active_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
   double axis_offset_x;         // X-axis g92 offset
   double axis_offset_y;         // Y-axis g92 offset
   double axis_offset_z;         // Z-axis g92 offset
   block block1;                 // parsed next block
-  char blocktext[RS274NGC_TEXT_SIZE];   // linetext downcased, white space gone
+  char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
   int current_slot;             // carousel slot number of current tool
   double current_x;             // current X-axis position
@@ -287,13 +254,13 @@ typedef struct setup_struct
   int feed_mode;                // G_93 (inverse time) or G_94 units/min
   ON_OFF feed_override;         // whether feed override is enabled
   double feed_rate;             // feed rate in current units/min
-  char filename[RS274NGC_TEXT_SIZE];    // name of currently open NC code file
+  char filename[LINELEN];    // name of currently open NC code file
   FILE *file_pointer;           // file pointer for open NC code file
   ON_OFF flood;                 // whether flood coolant is on
   int length_offset_index;      // for use with tool length offsets
   CANON_UNITS length_units;     // millimeters or inches
   int line_length;              // length of line last read
-  char linetext[RS274NGC_TEXT_SIZE];    // text of most recent line read
+  char linetext[LINELEN];    // text of most recent line read
   ON_OFF mist;                  // whether mist coolant is on
   int motion_mode;              // active G-code for motion
   int origin_index;             // active origin (1=G54 to 9=G59.3)

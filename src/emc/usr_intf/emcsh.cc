@@ -3353,7 +3353,7 @@ static int emc_program_codes(ClientData clientdata,
     }
     // fill in the active G codes
     codes_string[0] = 0;
-    for (t = 1; t < EMC_TASK_ACTIVE_G_CODES; t++) {
+    for (t = 1; t < ACTIVE_G_CODES; t++) {
 	code = emcStatus->task.activeGCodes[t];
 	if (code == -1) {
 	    continue;
@@ -3367,7 +3367,7 @@ static int emc_program_codes(ClientData clientdata,
     }
 
     // fill in the active M codes, settings too
-    for (t = 1; t < EMC_TASK_ACTIVE_M_CODES; t++) {
+    for (t = 1; t < ACTIVE_M_CODES; t++) {
 	code = emcStatus->task.activeMCodes[t];
 	if (code == -1) {
 	    continue;
@@ -5347,7 +5347,7 @@ static int iniLoad(const char *filename)
 {
     INIFILE inifile;
     const char *inistring;
-    char displayString[INIFILE_MAX_LINELEN] = "";
+    char displayString[LINELEN] = "";
     int t;
     int i;
 

@@ -28,7 +28,8 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
+#include "global_defs.h"
+#include "cms_cfg.hh"
 #include "linklist.hh"		// LinkedList
 #include "physmem.hh"		/* PHYSMEM_HANDLE */
 #include "posemath.h"		// PM_CARTESIAN, etc ...
@@ -341,15 +342,15 @@ class CMS {
     void *subdiv_data;		/* pointer to current subdiv; */
 
     /* Intersting Info Saved from the Configuration File. */
-    char BufferName[CMS_CONFIG_LINELEN];
-    char BufferHost[CMS_CONFIG_LINELEN];
-    char ProcessName[CMS_CONFIG_LINELEN];
-    char BufferLine[CMS_CONFIG_LINELEN];
-    char ProcessLine[CMS_CONFIG_LINELEN];
-    char ProcessHost[CMS_CONFIG_LINELEN];
-    char buflineupper[CMS_CONFIG_LINELEN];
-    char proclineupper[CMS_CONFIG_LINELEN];
-    char PermissionString[CMS_CONFIG_LINELEN];
+    char BufferName[LINELEN];
+    char BufferHost[LINELEN];
+    char ProcessName[LINELEN];
+    char BufferLine[LINELEN];
+    char ProcessLine[LINELEN];
+    char ProcessHost[LINELEN];
+    char buflineupper[LINELEN];
+    char proclineupper[LINELEN];
+    char PermissionString[LINELEN];
     int is_local_master;
     int force_raw;
     int split_buffer;		/* Will the buffer be split into two areas so 

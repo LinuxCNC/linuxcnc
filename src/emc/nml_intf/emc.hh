@@ -356,16 +356,6 @@ enum EMC_TRAJ_MODE_ENUM {
     EMC_TRAJ_MODE_TELEOP = 3	// velocity based world coordinates motion,
 };
 
-#define EMC_TASK_ACTIVE_G_CODES 12	// FIXME-- Java code gen can't
-					// resolve
-				// RS274NGC_ACTIVE_G_CODES in rs274ngc.hh
-#define EMC_TASK_ACTIVE_M_CODES 7	// FIXME-- Java code gen can't
-					// resolve
-				// RS274NGC_ACTIVE_M_CODES in rs274ngc.hh
-#define EMC_TASK_ACTIVE_SETTINGS 3	// FIXME-- Java code gen can't
-					// resolve
-				// RS274NGC_ACTIVE_SETTINGS in rs274ngc.hh
-
 // --------------
 // EMC VOCABULARY
 // --------------
@@ -2055,10 +2045,9 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     char command[EMC_TASK_COMMAND_LEN];
     EmcPose origin;		// origin, in user units, currently active
     EmcPose toolOffset;		// tool offset, in general pose form
-    int activeGCodes[EMC_TASK_ACTIVE_G_CODES];	// FIXME-- dialect-specific
-    int activeMCodes[EMC_TASK_ACTIVE_M_CODES];	// FIXME-- dialect-specific
-    double activeSettings[EMC_TASK_ACTIVE_SETTINGS];	// FIXME--
-    // dialect-specific
+    int activeGCodes[ACTIVE_G_CODES];
+    int activeMCodes[ACTIVE_M_CODES];
+    double activeSettings[ACTIVE_SETTINGS];
     CANON_UNITS programUnits;	// CANON_UNITS_INCHES,MM,CM
 
     int interpreter_errcode;	// return value from rs274ngc function 
