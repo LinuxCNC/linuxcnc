@@ -33,10 +33,11 @@
 #ifndef SINCOS_SUPPORT
 
 #include <linux/types.h>
-#include <float.h>
 #ifdef __attribute_used__
 #undef __attribute_used__
 #endif
+#include <sys/cdefs.h>
+#include <float.h>
 #include <math.h>
 
 void sincos(double x, double *sx, double *cx)

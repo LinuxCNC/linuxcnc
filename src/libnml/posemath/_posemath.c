@@ -18,10 +18,11 @@
 ********************************************************************/
 
 #include <linux/types.h>
-#include <float.h>
 #ifdef __attribute_used__
 #undef __attribute_used__
 #endif
+#include <sys/cdefs.h>
+#include <float.h>
 #include <math.h>
 
 #if defined(PM_PRINT_ERROR) && defined(rtai)
