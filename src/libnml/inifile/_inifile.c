@@ -95,8 +95,7 @@ static int findSection(void *fp, const char *section)
     sprintf(bracketsection, "[%s]", section);
 
     /* find [section], and position fp just after it */
-    while (!feof((FILE *) fp))
-    {
+    while (!feof((FILE *) fp)) {
 
 	if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
 	    /* got to end of file without finding it */
@@ -164,8 +163,7 @@ const char *iniFind(void *fp, const char *tag, const char *section)
 
 	/* find [section], and position fp just after it */
 
-	while (!feof((FILE *) fp))
-	{
+	while (!feof((FILE *) fp)) {
 
 	    if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
 		/* got to end of file without finding it */
@@ -198,8 +196,7 @@ const char *iniFind(void *fp, const char *tag, const char *section)
 	    break;
 	}
     }
-    while (!feof((FILE *) fp))
-    {
+    while (!feof((FILE *) fp)) {
 	/* check for end of file */
 	if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
 	    /* got to end of file without finding it */
@@ -298,8 +295,7 @@ int iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
 
     /* found section-- start loading lines */
 
-    while (!feof((FILE *) fp) &&
-	count < max) {
+    while (!feof((FILE *) fp) && count < max) {
 	if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
 	    /* got to end of file without finding it */
 	    return count;

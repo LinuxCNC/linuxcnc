@@ -1,7 +1,6 @@
 #ifndef _RCS_SEMAPHORE_H
 #define _RCS_SEMAPHORE_H
 
-
 #ifndef rcs_sem_t_defined
 typedef void rcs_sem_t;
 #define rcs_sem_t_defined

@@ -12,7 +12,7 @@
   16-Oct-1997  FMP created
   */
 
-#include "emcmot.h"             /* these decls */
+#include "emcmot.h"		/* these decls */
 
 /* ident tag */
 #ifndef __GNUC__
@@ -21,51 +21,51 @@
 #endif
 #endif
 
-static char __attribute__((unused)) ident[] = "$Id$";
+static char __attribute__ ((unused)) ident[] =
+    "$Id$";
 
-int kinematicsForward(const double * joints,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
+int kinematicsForward(const double *joints,
+    EmcPose * pos,
+    const KINEMATICS_FORWARD_FLAGS * fflags,
+    KINEMATICS_INVERSE_FLAGS * iflags)
 {
-  pos->tran.x = joints[0];
-  pos->tran.y = joints[1];
-  pos->tran.z = joints[2];
-  pos->a = joints[3];
-  pos->b = joints[4];
-  pos->c = joints[5];
+    pos->tran.x = joints[0];
+    pos->tran.y = joints[1];
+    pos->tran.z = joints[2];
+    pos->a = joints[3];
+    pos->b = joints[4];
+    pos->c = joints[5];
 
-  return 0;
+    return 0;
 }
 
 int kinematicsInverse(const EmcPose * pos,
-                      double * joints,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+    double *joints,
+    const KINEMATICS_INVERSE_FLAGS * iflags,
+    KINEMATICS_FORWARD_FLAGS * fflags)
 {
-  joints[0] = pos->tran.x;
-  joints[1] = pos->tran.y;
-  joints[2] = pos->tran.z;
-  joints[3] = pos->a;
-  joints[4] = pos->b;
-  joints[5] = pos->c;
+    joints[0] = pos->tran.x;
+    joints[1] = pos->tran.y;
+    joints[2] = pos->tran.z;
+    joints[3] = pos->a;
+    joints[4] = pos->b;
+    joints[5] = pos->c;
 
-  return 0;
+    return 0;
 }
 
 /* implemented for these kinematics as giving joints preference */
 int kinematicsHome(EmcPose * world,
-                   double * joint,
-                   KINEMATICS_FORWARD_FLAGS * fflags,
-                   KINEMATICS_INVERSE_FLAGS * iflags)
+    double *joint,
+    KINEMATICS_FORWARD_FLAGS * fflags, KINEMATICS_INVERSE_FLAGS * iflags)
 {
-  *fflags = 0;
-  *iflags = 0;
+    *fflags = 0;
+    *iflags = 0;
 
-  return kinematicsForward(joint, world, fflags, iflags);
+    return kinematicsForward(joint, world, fflags, iflags);
 }
 
 KINEMATICS_TYPE kinematicsType()
 {
-  return KINEMATICS_IDENTITY;
+    return KINEMATICS_IDENTITY;
 }

@@ -9,7 +9,6 @@
 #ifndef WRITEN_H
 #define WRITEN_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif

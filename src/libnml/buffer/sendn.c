@@ -6,14 +6,13 @@
 * have been written to the file descriptor.
 *************************************************************************/
 
-
 #include <string.h>		/* strerror */
 #include <stdlib.h>		/* memset() */
 #include <errno.h>		/* errno */
 #include <math.h>		/* fabs() */
 #include <sys/socket.h>		/* send(), recv(), socket(), accept(),
 				   bind(), listen() */
-#include <sys/time.h>           /* struct timeval */
+#include <sys/time.h>		/* struct timeval */
 #include "sendn.h"		/* sendn() */
 #include "rcs_print.hh"		/* rcs_print_error() */
 #include "_timer.h"		/* etime(), esleep() */

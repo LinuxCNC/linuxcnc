@@ -33,26 +33,20 @@
 #endif
 #endif
 
-static char __attribute__((unused)) extintf_h[] = "$Id$";
+static char __attribute__ ((unused)) extintf_h[] =
+    "$Id$";
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if 0
-} /* a dummy match on one above */
-#endif
-  
-/* Init/quit functions */
+/* Init/quit functions *//*
+   extDioInit(const char * stuff)
 
-/*
-  extDioInit(const char * stuff)
-
-  Call once before any of the other digital IO functions are called.
-  'stuff' argument can be used to pass board-specific stuff like config
-  files.
-  */
-extern int extDioInit(const char * stuff);
+   Call once before any of the other digital IO functions are called.
+   'stuff' argument can be used to pass board-specific stuff like config
+   files.
+ */ extern int extDioInit(const char *stuff);
 
 /*
   extDioQuit()
@@ -60,7 +54,7 @@ extern int extDioInit(const char * stuff);
   Call once, after which point no other functions will be called until
   after a call to extDioInit().
   */
-extern int extDioQuit(void);
+    extern int extDioQuit(void);
 
 /*
   extAioInit(const char * stuff)
@@ -69,7 +63,7 @@ extern int extDioQuit(void);
   'stuff' argument can be used to pass board-specific stuff like config
   files.
   */
-extern int extAioInit(const char * stuff);
+    extern int extAioInit(const char *stuff);
 
 /*
   extAioQuit()
@@ -77,7 +71,7 @@ extern int extAioInit(const char * stuff);
   Call once, after which point no other functions will be called until
   after a call to extAioInit().
   */
-extern int extAioQuit(void);
+    extern int extAioQuit(void);
 
 /*
   extMotInit(const char * stuff)
@@ -86,7 +80,7 @@ extern int extAioQuit(void);
   'stuff' argument can be used to pass board-specific stuff like config
   files.
   */
-extern int extMotInit(const char * stuff);
+    extern int extMotInit(const char *stuff);
 
 /*
   extMotQuit()
@@ -94,7 +88,7 @@ extern int extMotInit(const char * stuff);
   Call once, after which point no other functions will be called until
   after a call to extMotInit().
   */
-extern int extMotQuit(void);
+    extern int extMotQuit(void);
 
 /* DAC functions */
 
@@ -103,7 +97,7 @@ extern int extMotQuit(void);
 
   returns number of DACs in system.
   */
-extern int extDacNum(void);
+    extern int extDacNum(void);
 
 /*
   extDacWrite(int dac, double volts)
@@ -111,7 +105,7 @@ extern int extDacNum(void);
   writes the value to the DAC at indicated dac, 0 .. max DAC - 1.
   Value is in volts. Returns 0 if OK, -1 if dac is out of range.
   */
-extern int extDacWrite(int dac, double volts);
+    extern int extDacWrite(int dac, double volts);
 
 /*
   extDacWriteAll(int max, double * volts)
@@ -122,7 +116,7 @@ extern int extDacWrite(int dac, double volts);
   speed or synchronicity. max is number of DACs, so for dacs 0..3
   max would be 4.
   */
-extern int extDacWriteAll(int max, double * volts);
+    extern int extDacWriteAll(int max, double *volts);
 
 /* Encoder functions */
 
@@ -158,7 +152,7 @@ extern int extDacWriteAll(int max, double * volts);
 #define EXT_ENCODER_INDEX_MODEL_MANUAL 0x00000001
 #define EXT_ENCODER_INDEX_MODEL_AUTO   0x00000002
 
-extern unsigned int extEncoderIndexModel(void);
+    extern unsigned int extEncoderIndexModel(void);
 
 /*
   extEncoderSetIndexModel(unsigned int model)
@@ -166,14 +160,14 @@ extern unsigned int extEncoderIndexModel(void);
   For boards that support multiple index models, select which one
   is to be used. Returns 0 if OK, -1 if model can't be supported.
   */
-extern int extEncoderSetIndexModel(unsigned int model);
+    extern int extEncoderSetIndexModel(unsigned int model);
 
 /*
   extEncoderNum()
 
   returns number of encoders in system.
   */
-extern int extEncoderNum(void);
+    extern int extEncoderNum(void);
 
 /*
   extEncoderRead(int encoder, double * counts)
@@ -182,7 +176,7 @@ extern int extEncoderNum(void);
   OK or -1 if encoder is out of range. encoder is in range
   0 .. max encoder - 1.
   */
-extern int extEncoderRead(int encoder, double * counts);
+    extern int extEncoderRead(int encoder, double *counts);
 
 /*
   extEncoderReadAll(int max, double * counts)
@@ -191,7 +185,7 @@ extern int extEncoderRead(int encoder, double * counts);
   OK or -1 if the max is greater than number of encoders. max is
   number of encoders, so for encoders 0..3 max would be 4.
   */
-extern int extEncoderReadAll(int max, double * counts);
+    extern int extEncoderReadAll(int max, double *counts);
 
 /*
   extEncoderResetIndex(int encoder)
@@ -202,7 +196,7 @@ extern int extEncoderReadAll(int max, double * counts);
   For the first, it resets the latch flag. For the second, it enables
   zeroing on the next index. encoder is range 0..max encoder - 1.
   */
-extern int extEncoderResetIndex(int encoder);
+    extern int extEncoderResetIndex(int encoder);
 
 /*
   extEncoderReadLatch(int encoder, int * flag)
@@ -211,7 +205,7 @@ extern int extEncoderResetIndex(int encoder);
   the flag, 0 if not. For EXT_ENCODER_INDEX_MODEL_AUTO, stores 1 if
   the encoder has been zeroed. Returns 0 if OK, -1 if not valid.
   */
-extern int extEncoderReadLatch(int encoder, int * flag);
+    extern int extEncoderReadLatch(int encoder, int *flag);
 
 /*
   extEncoderReadLevel(int encoder, int * index)
@@ -223,7 +217,7 @@ extern int extEncoderReadLatch(int encoder, int * flag);
   Not valid for EXT_ENCODER_INDEX_MODEL_AUTO. Returns 0 if OK,
   -1 if not valid.
   */
-extern int extEncoderReadLevel(int encoder, int * flag);
+    extern int extEncoderReadLevel(int encoder, int *flag);
 
 /* Limit switch functions */
 
@@ -240,8 +234,8 @@ extern int extEncoderReadLevel(int encoder, int * flag);
 
   Returns 0 if OK, -1 if not valid (axis is out of range).
   */
-extern int extMaxLimitSwitchRead(int axis, int * flag);
-extern int extMinLimitSwitchRead(int axis, int * flag);
+    extern int extMaxLimitSwitchRead(int axis, int *flag);
+    extern int extMinLimitSwitchRead(int axis, int *flag);
 
 /*
   extHomeSwitchRead(int axis, int * flag)
@@ -251,7 +245,7 @@ extern int extMinLimitSwitchRead(int axis, int * flag);
 
   Returns 0 if OK, -1 if not valid (axis is out of range).
   */
-extern int extHomeSwitchRead(int axis, int * flag);
+    extern int extHomeSwitchRead(int axis, int *flag);
 
 /* Amp functions */
 
@@ -263,7 +257,7 @@ extern int extHomeSwitchRead(int axis, int * flag);
 
    Returns 0 if OK, -1 if not valid (axis is out of range)
    */
-extern int extAmpEnable(int axis, int enable);
+    extern int extAmpEnable(int axis, int enable);
 
 /*
   extAmpFault(int axis, int * fault)
@@ -273,7 +267,7 @@ extern int extAmpEnable(int axis, int enable);
 
   Returns 0 if OK, -1 if not valid (axis out of range)
   */
-extern int extAmpFault(int axis, int * fault);
+    extern int extAmpFault(int axis, int *fault);
 
 /*
   Digital I/O model
@@ -290,75 +284,75 @@ extern int extAmpFault(int axis, int * fault);
   */
 
 /* returns the max input index, output index; max bytes, shorts, and words */
-extern int extDioMaxInputs(void);       /* index < this for extDioRead() */
-extern int extDioMaxOutputs(void);      /* index < this for extDioWrite(),Check() */
+    extern int extDioMaxInputs(void);	/* index < this for extDioRead() */
+    extern int extDioMaxOutputs(void);	/* index < this for
+					   extDioWrite(),Check() */
 
 /* reads value of digital input at index, stores in value */
-extern int extDioRead(int index, int *value);
+    extern int extDioRead(int index, int *value);
 
 /* writes value (non-zero means 1, 0 is 0) at digital out at index */
-extern int extDioWrite(int index, int value);
+    extern int extDioWrite(int index, int value);
 
 /* reads value of digital OUT at index, stores in value. Useful
    for checking values of previous writes. Returns 0 if OK, -1 if
    bad index or can't read if they're write-only. */
-extern int extDioCheck(int index, int *value);
+    extern int extDioCheck(int index, int *value);
 
 /* byte, short, and word reads, writes. Index starts at 0, indexes up
    through bytes, short ints, and ints */
-extern int extDioByteRead(int index, unsigned char *byte);
-extern int extDioShortRead(int index, unsigned short *sh);
-extern int extDioWordRead(int index, unsigned int *word);
-extern int extDioByteWrite(int index, unsigned char byte);
-extern int extDioShortWrite(int index, unsigned short sh);
-extern int extDioWordWrite(int index, unsigned int word);
-extern int extDioByteCheck(int index, unsigned char *byte);
-extern int extDioShortCheck(int index, unsigned short *sh);
-extern int extDioWordCheck(int index, unsigned int *word);
+    extern int extDioByteRead(int index, unsigned char *byte);
+    extern int extDioShortRead(int index, unsigned short *sh);
+    extern int extDioWordRead(int index, unsigned int *word);
+    extern int extDioByteWrite(int index, unsigned char byte);
+    extern int extDioShortWrite(int index, unsigned short sh);
+    extern int extDioWordWrite(int index, unsigned int word);
+    extern int extDioByteCheck(int index, unsigned char *byte);
+    extern int extDioShortCheck(int index, unsigned short *sh);
+    extern int extDioWordCheck(int index, unsigned int *word);
 
-  /*
-    Analog I/O model
+    /* 
+       Analog I/O model
 
-    Analog I/O presumes units of volts. In your implementations of these
-    functions you need to linearize as appropriate.
+       Analog I/O presumes units of volts. In your implementations of these
+       functions you need to linearize as appropriate.
 
-    If you need to call board-specific code to set up the analog I/O
-    registers, do it in extInit().
+       If you need to call board-specific code to set up the analog I/O
+       registers, do it in extInit().
 
-    "index" begins at 0.
+       "index" begins at 0.
 
-    Code for each implementation should shift index up into appropriate
-    register so that it matches initialization and R/W setup in extInit().
+       Code for each implementation should shift index up into appropriate
+       register so that it matches initialization and R/W setup in extInit().
 
-    Returns 0 if OK, -1 if error (invalid index).
-  */
+       Returns 0 if OK, -1 if error (invalid index). */
 
-  /* returns the max input index, output index */
-  extern int extAioMaxInputs(void);       /* index < this for extAioRead() */
-  extern int extAioMaxOutputs(void);      /* index < this for extAioWrite(),Check() */
+    /* returns the max input index, output index */
+    extern int extAioMaxInputs(void);	/* index < this for extAioRead() */
+    extern int extAioMaxOutputs(void);	/* index < this for
+					   extAioWrite(),Check() */
 
 /* starts an analog input conversion */
-extern int extAioStart(int index);
+    extern int extAioStart(int index);
 
 /* waits for conversion */
-extern void extAioWait(void);
+    extern void extAioWait(void);
 
 /* reads value of analog input at index, stores in volts */
-extern int extAioRead(int index, double *value);
+    extern int extAioRead(int index, double *value);
 
 /* writes value in volts to analog out at index */
-extern int extAioWrite(int index, double volts);
+    extern int extAioWrite(int index, double volts);
 
 /* reads value of analog OUT at index, stores in volts. Useful
    for checking values of previous writes. Returns 0 if OK, -1 if
    bad index or can't read if they're write-only. */
-extern int extAioCheck(int index, double *volts);
+    extern int extAioCheck(int index, double *volts);
 
 /* writes a byte of IO synched with motion start/end */
-extern int extMotDout(unsigned char byte);
+    extern int extMotDout(unsigned char byte);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* EXTINTF_H */
+#endif				/* EXTINTF_H */

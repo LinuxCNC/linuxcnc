@@ -1,7 +1,6 @@
 #ifndef _SHAREDMEM_H
 #define _SHAREDMEM_H
 
-
 /* Purely local shared memory functions-- converting System V shared
    memory to POSIX shared memory required something intermediate in
    System V IPC that returned a file descriptor suitable for mmap(),
@@ -33,7 +32,6 @@ extern "C" {
     extern int rcs_shm_close(shm_t * shm);
     extern int rcs_shm_delete(shm_t * shm);
     extern int rcs_shm_nattch(shm_t * shm);
-
 
 #ifdef __cplusplus
 }

@@ -9,7 +9,6 @@
 #ifndef RECVN_H
 #define RECVN_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -132,22 +132,6 @@ void request_display_refresh(int delay)
     ctrl_usr->display_refresh_timer = delay;
 }
 
-/* FIXME - this was used for debug - delete once everything works */
-#if 0
-static void dump_mem(void *addr, int len)
-{
-    int n;
-    unsigned int *a;
-
-    a = addr;
-    for (n = 0; n < len; n++) {
-	printf("%08X ", *a);
-	a++;
-    }
-    printf("\n");
-}
-#endif
-
 void refresh_display(void)
 {
     int n;
