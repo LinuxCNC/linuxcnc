@@ -35,6 +35,8 @@ LOCALDIR = `pwd`
 SUBDIRS = src/rtapi src/hal src/libnml src/emc
 
 SCRIPTS = emc.run hal_demo 
+BINARIES = emcsvr hal_skeleton halmeter inivar milltask usrmot emcsh hal_parport halcmd halscope iosh simio
+
 
 all headers indent install depend clean:
 	@@for subdir in $(SUBDIRS); \
@@ -74,10 +76,17 @@ install_man: man_directories $(MAN_FILES)
 
 install_bin: 
 	install -d $(DESTDIR)$(TESTDIR)/$(bindir)
-	cp bin/* $(DESTDIR)$(TESTDIR)/$(bindir)
-	cp -R tcl/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
-	cp -R tcl/bin/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
-	cp -R tcl/scripts/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
+
+	@@for file in $(BINARIES); \
+	do \
+		echo "Installing $$file"; \
+		cp bin/$$file $(DESTDIR)$(TESTDIR)/$(bindir); \
+	done
+
+	#cp -R bin/* $(DESTDIR)$(TESTDIR)/$(bindir)
+	cp tcl/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
+	cp tcl/bin/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
+	cp tcl/scripts/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
 
 install_sbin:
 #	install -d $(DESTDIR)$(TESTDIR)/$(sbindir)
@@ -89,7 +98,7 @@ install_info:
 
 install_lib: 
 	install -d $(DESTDIR)$(TESTDIR)/$(libdir)
-	cp lib/* $(DESTDIR)$(TESTDIR)/$(libdir)
+	cp lib/*.o lib/*.a $(DESTDIR)$(TESTDIR)/$(libdir)
 	@ echo "lib installed"
 
 
@@ -133,7 +142,7 @@ install_hal_modules:
 
 install_rt_modules:
 	install -d $(DESTDIR)$(TESTDIR)/$(moduledir)
-	cp rtlib/* $(DESTDIR)$(TESTDIR)/$(moduledir)
+	cp rtlib/*.o rtlib/*.a $(DESTDIR)$(TESTDIR)/$(moduledir)
 	cp scripts/.runinfo $(DESTDIR)$(TESTDIR)/$(moduledir)
 
 
