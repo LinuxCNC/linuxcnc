@@ -173,6 +173,9 @@ fi
 
 # Search for the tcl/tk headers.
 TCL_VER=$(tcl -c "echo [info tclversion]")
+# Need to include Xlibs to link emcsh and iosh.
+TCL_LIB="-lXext -lX11 -ldl"
+TCL_FLAGS="-L/usr/X11R6/lib"
 if [ "$TCL_VER" != "" ] ; then
   echo "Found tcl$TCL_VER installed"
   TCL=$(find /usr/include/ -maxdepth 2 -name "tcl.h" 2> /dev/null)
@@ -183,10 +186,10 @@ if [ "$TCL_VER" != "" ] ; then
       echo "tcl headers not found."
   else
       echo "tcl headers found in $TCL"
-      TCL_LIB="-ltcl$TCL_VER"
+      TCL_LIB="$TCL_LIB -ltcl$TCL_VER"
     if [ "$TCL" != "/usr/include" ] ; then
         # No point in including the default dir...
-        TCL_FLAGS="-I$TCL"
+        TCL_FLAGS="$TCL_FLAGS -I$TCL"
     fi
   fi
   TK=$(find /usr/include/ -maxdepth 2 -name "tk.h" 2> /dev/null)
