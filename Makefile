@@ -288,6 +288,7 @@ topclean :
 	(if [ -d $(RTTMP_DIR) ] ; then rm -fR $(RTTMP_DIR) ; fi)
 	(if [ -d $(GTKTMP_DIR) ] ; then rm -fR $(GTKTMP_DIR) ; fi)
 	rm -rf ./test
+	rm -f ./emc2.tar.bz2
 
 # this rule handles the clean target
 # it changes to all the source sub-directories, calls make there, and
@@ -319,6 +320,25 @@ fresh:
 	rm -rf test
 	./configure
 	make run
+
+
+emc2.tar.bz2: clean
+	rm -rf /tmp/emc2-build-pkg/emc2
+	install -d /tmp/emc2-build-pkg/emc2/
+	
+	cp -R ./ /tmp/emc2-build-pkg/emc2/
+	rm -f /tmp/emc2-build-pkg/emc2/emc2.tar.bz2
+	cd /tmp/emc2-build-pkg ; tar -cjf emc2.tar.bz2 emc2
+	mv /tmp/emc2-build-pkg/emc2.tar.bz2 ./
+	rm -rf /tmp/emc2-build-pkg
+
+rpm: emc2.tar.bz2
+	sudo cp emc2.tar.bz2 /usr/src/redhat/SOURCES/
+
+	date > rpm_build_log
+	(sudo rpmbuild -ba -v rpm/emc2.spec 2>&1) | tee -a rpm_build_log
+	date >> rpm_build_log
+
 
 
 .PHONY : all examples headers depend indent install clean
