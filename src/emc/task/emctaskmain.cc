@@ -747,6 +747,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_PROBE_TYPE:
 		case EMC_SET_DEBUG_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
+		    return retval;
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
@@ -996,7 +997,6 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_PROBE_TYPE:
 		case EMC_SET_DEBUG_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
-		    return retval;
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
