@@ -93,7 +93,9 @@
 #else /* user space */
 #include <ctype.h>		/* isspace() */
 #include <signal.h>		/* signal() */
-#include <sched.h>		/* sched_yield() */
+#include <sys/time.h>		/* stuct timeval */
+#include <sys/types.h>		/* for select() */
+#include <unistd.h>		/* for select() */
 #include <sys/io.h>		/* iopl() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #endif
@@ -300,6 +302,7 @@ int main(int argc, char *argv[])
     int n, retval;
     hal_s8_t *read_funct_flags;
     hal_s8_t *write_funct_flags;
+    struct timeval tv;
 
     /* ask linux for permission to use the I/O ports */
     retval = iopl(3);
@@ -409,8 +412,14 @@ int main(int argc, char *argv[])
 		}
 	    }
 	}
-	/* give up the CPU so other processes can run */
-	sched_yield();
+	/* set timeout to 0.05 seconds (20 Hz update rate
+	   if nothing else is running) */
+	tv.tv_sec = 0;
+	tv.tv_usec = 50000;
+	/* call select() with no file descriptors and a timeout
+	   to yield the CPU for (at least) 0,05 seconds - see
+	   NOTES section of man 2 select for details */
+	select ( 0, 0, 0, 0, &tv );
     }
     hal_exit(comp_id);
     return 0;
@@ -507,7 +516,6 @@ void read_all(void *arg, long period)
 {
     parport_t *port;
     int n;
-
     port = arg;
     for (n = 0; n < num_ports; n++) {
 	read_port(&(port[n]), period);
@@ -518,7 +526,6 @@ void write_all(void *arg, long period)
 {
     parport_t *port;
     int n;
-
     port = arg;
     for (n = 0; n < num_ports; n++) {
 	write_port(&(port[n]), period);
