@@ -4,23 +4,28 @@ include ../../../Makefile.inc
 
 SRCS = \
 	emcmot.c \
-	emcmotglb.c \
-	emcmotutil.c \
-	emcpid.c \
-	usrmotintf.c \
 	\
 	command.c \
 	control.c \
-	motion.c
+	motion.c \
+	\
+	emcmotglb.c \
+	emcmotutil.c \
+	emcpid.c \
+	usrmotintf.c
 
 HEADERS = \
 	emcmot.h \
+	\
+	motion.h \
+	\
 	emcmotcfg.h \
 	emcmotglb.h \
 	emcpid.h \
-	usrmotintf.h \
-	\
-	motion.h
+	usrmotintf.h
+
+PRIVHDRS = \
+	mot_priv.h
 
 OBJS = \
 	emcmotglb.o \
@@ -28,17 +33,18 @@ OBJS = \
 	usrmotintf.o
 
 RT_OBJS  = \
-	cubic.o \
 	emcmot.o \
-	emcmotutil.o \
-	emcpid.o \
-	mmxavg.o \
-	tc.o \
-	tp.o \
 	\
 	command.o \
 	control.o \
 	motion.o
+	\
+	cubic.o \
+	emcmotutil.o \
+	emcpid.o \
+	mmxavg.o \
+	tc.o \
+	tp.o
 
 RTLIBS = \
 	motion.o \
@@ -55,36 +61,6 @@ include ../../../Make.rules
 $(RTLIB_DIR)/motion.o: \
 	$(RTTMP_DIR)/cubic.o \
 	$(RTTMP_DIR)/emcmot.o \
-	$(RTTMP_DIR)/emcmotglb.o \
-	$(RTTMP_DIR)/emcmotlog.o \
-	$(RTTMP_DIR)/emcmotutil.o \
-	$(RTTMP_DIR)/emcpid.o \
-	$(RTTMP_DIR)/mmxavg.o \
-	$(RTTMP_DIR)/tc.o \
-	$(RTTMP_DIR)/tp.o \
-	$(RTTMP_DIR)/trivkins.o
-	ld -r -static $^ $(RTLIB_DIR)/libpm.a -L/usr/lib -lm -o $@
-
-$(RTLIB_DIR)/motmod.o: \
-	$(RTTMP_DIR)/cubic.o \
-	$(RTTMP_DIR)/motion.o \
-	$(RTTMP_DIR)/command.o \
-	$(RTTMP_DIR)/control.o \
-	$(RTTMP_DIR)/emcmotglb.o \
-	$(RTTMP_DIR)/emcmotlog.o \
-	$(RTTMP_DIR)/emcmotutil.o \
-	$(RTTMP_DIR)/emcpid.o \
-	$(RTTMP_DIR)/mmxavg.o \
-	$(RTTMP_DIR)/tc.o \
-	$(RTTMP_DIR)/tp.o \
-	$(RTTMP_DIR)/trivkins.o
-	ld -r -static $^ $(RTLIB_DIR)/libpm.a -L/usr/lib -lm -o $@
-
-$(RTLIB_DIR)/motmod.o: \
-	$(RTTMP_DIR)/cubic.o \
-	$(RTTMP_DIR)/motion.o \
-	$(RTTMP_DIR)/command.o \
-	$(RTTMP_DIR)/control.o \
 	$(RTTMP_DIR)/emcmotglb.o \
 	$(RTTMP_DIR)/emcmotlog.o \
 	$(RTTMP_DIR)/emcmotutil.o \
