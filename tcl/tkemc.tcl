@@ -468,7 +468,7 @@ proc loadProgramText {} {
     catch {close $programin}
     # open the new program, if it's not "none"
     if {[catch {open $programnamestring} programin]} {
-        puts stdout [msgcat::mc "can't open"] "$programnamestring"
+        puts stdout [msgcat::mc "can't open"]"$programnamestring"
     } else {
         $programfiletext insert end [read $programin]
         $programfiletext config -state disabled
