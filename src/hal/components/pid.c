@@ -157,6 +157,7 @@ typedef struct {
     float prev_error;		/* previous error for differentiator */
     hal_float_t error_d;	/* opt. param: differentiated error */
     float prev_cmd;		/* previous command for differentiator */
+    float limit_state;		/* +1 or -1 if in limit, else 0.0 */
     hal_float_t cmd_d;		/* opt. param: differentiated command */
     hal_float_t bias;		/* param: steady state offset */
     hal_float_t pgain;		/* param: proportional gain */
@@ -280,8 +281,11 @@ static void calc_pid(void *arg, long period)
     *(pid->error) = tmp1;
     /* do integrator calcs only if enabled */
     if (enable != 0) {
-	/* compute integral term */
-	pid->error_i += tmp1 * periodfp;
+	/* if output is in limit, don't let integrator wind up */
+	if ( ( tmp1 * pid->limit_state ) <= 0.0 ) {
+	    /* compute integral term */
+	    pid->error_i += tmp1 * periodfp;
+	}
 	/* apply integrator limits */
 	if (pid->maxerror_i != 0.0) {
 	    if (pid->error_i > pid->maxerror_i) {
@@ -327,13 +331,18 @@ static void calc_pid(void *arg, long period)
 	if (pid->maxoutput != 0.0) {
 	    if (tmp1 > pid->maxoutput) {
 		tmp1 = pid->maxoutput;
+		pid->limit_state = 1.0;
 	    } else if (tmp1 < -pid->maxoutput) {
 		tmp1 = -pid->maxoutput;
+		pid->limit_state = -1.0;
+	    } else {
+		pid->limit_state = 0.0;
 	    }
 	}
     } else {
 	/* not enabled, force output to zero */
 	tmp1 = 0.0;
+	pid->limit_state = 0.0;
     }
     /* write final output value to output pin */
     *(pid->output) = tmp1;
@@ -476,6 +485,7 @@ static int export_pid(int num, hal_pid_t * addr)
     addr->prev_error = 0.0;
     addr->error_d = 0.0;
     addr->prev_cmd = 0.0;
+    addr->limit_state = 0.0;
     addr->cmd_d = 0.0;
     addr->bias = 0.0;
     addr->pgain = 1.0;
