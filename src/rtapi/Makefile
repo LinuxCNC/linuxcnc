@@ -67,7 +67,7 @@ $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
 # that are to be loaded - Some will not be present on certain
 # systems, but they still need to be listed if systems that do have
 # them are to work.
-RTAI_MOD="adeos rtai rt_mem_mgr rtai_sched rtai_fifos rtai_shm rtai_libm rtai_math"
+RTAI_MOD="adeos rtai rtai_hal rt_mem_mgr rtai_sched rtai_ksched rtai_fifos rtai_shm rtai_libm rtai_math"
 RTL_MOD="rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo"
 
 # This rule allows the user to type "make rtapi.conf".
