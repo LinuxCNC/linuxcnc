@@ -42,7 +42,7 @@ if /sbin/modprobe  rtai_libm ; then
     echo "rtai_libm loaded successfully"
 else
     if /sbin/modprobe  rtai_math ; then
-	echo "rtai_libm loaded successfully"
+	echo "rtai_math loaded successfully"
     else
 	echo "ERROR: Could not load rtai_libm or rtai_math"
 	exit -1
