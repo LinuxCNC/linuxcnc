@@ -227,7 +227,6 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
 
 /* this can be 'stdout' or 'stderr', whichever you prefer... */
 #define PRINT_DEST stdout
-#define BUFFERLEN 80
 
 void rtapi_print(const char *fmt, ...)
 {
