@@ -37,13 +37,20 @@ all headers indent :
 # these variables are used to build a list of all
 # man pages that need to be installed
 
+ifneq ($(strip $(MAN_DIR)),)
+# MAN_DIR exists, generate list of man pages
 MAN1_FILES := $(patsubst docs/man/%,$(MAN_DIR)/%,$(wildcard docs/man/man1/*.1))
 MAN3_FILES := $(patsubst docs/man/%,$(MAN_DIR)/%,$(wildcard docs/man/man3/*.3))
 MAN_FILES = $(MAN1_FILES) $(MAN3_FILES)
+else
+# no man dir, do nothing
+MAN_FILES =
+endif
 
 # this rule installs a single man page
 
 $(MAN_DIR)/% : docs/man/%
+	@ echo "install man page $*"
 	@ cp $< $@
 
 # this rule handles the install target

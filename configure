@@ -160,9 +160,11 @@ if [ ! -f $RTDIR/rtl.mk ] ; then
 fi
 
 # try to find out where man files are stored on this system
-MANDIR=
-if [ -d /usr/share/man ] ; then
-    MANDIR=/usr/share/man
+# man -w prints the search path used by man, we take the first dir
+MANDIR=$(man -w | awk -F: '{ print $1 }')
+# test the result, make sure it's a directory
+if [ ! -d /usr/share/man ] ; then
+    MANDIR=
 fi
 
 # Go on to write out the Makefile.inc
