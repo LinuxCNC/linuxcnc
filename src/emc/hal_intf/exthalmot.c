@@ -47,6 +47,11 @@ typedef struct {
     hal_bit_t *home;		/* home switch input */
     hal_bit_t *enable;		/* amp enable output */
     hal_bit_t *fault;		/* amp fault input */
+    /* for now we control the index model through the mode
+       and model pins on axis 0, later this may be done on
+       a per axis basis */
+    hal_u32_t *mode;		/* index model output */
+    hal_u32_t *model;		/* index model input */
     hal_bit_t *reset;		/* index latch reset output */
     hal_bit_t *latch;		/* index latch input */
     hal_bit_t *index;		/* index input */
@@ -55,22 +60,13 @@ typedef struct {
 /* pointer to array of axis_t structs in shmem, 1 per axis */
 static axis_t *axis_array;
 
-/* this structure contains the control data for all axes */
-typedef struct {
-    hal_u32_t *mode;		/* index model output */
-    hal_u32_t *model;		/* index model input */
-} control_t;
-
-/* pointer to control_t struct in shmem */
-static control_t *control_array;
-
 /* component ID */
 static int comp_id;
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
-static int export_axis(int num, axis_t * addr)
+int export_axis(int num, axis_t * addr)
 {
     int retval;
     char buf[HAL_NAME_LEN + 2];
@@ -111,6 +107,16 @@ static int export_axis(int num, axis_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.mode", num);
+    retval = hal_pin_u32_new(buf, HAL_WR, &(addr->mode), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.model", num);
+    retval = hal_pin_u32_new(buf, HAL_RD, &(addr->model), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.reset", num);
     retval = hal_pin_bit_new(buf, HAL_WR, &(addr->reset), comp_id);
     if (retval != 0) {
@@ -126,30 +132,13 @@ static int export_axis(int num, axis_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    return 0;
 }
-
-static int export_control(control_t * addr)
-{
-    int retval;
-    char buf[HAL_NAME_LEN + 2];
-
-    /* export control pins */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "control.mode");
-    retval = hal_pin_u32_new(buf, HAL_WR, &(addr->mode), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "control.model");
-    retval = hal_pin_u32_new(buf, HAL_RD, &(addr->model), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-)
 
 /***********************************************************************
 *                REALTIME EXTERNAL INTERFACE FUNCTIONS                 *
 ************************************************************************/
-static int extMotInit(void)
+int extMotInit(void)
 {
     int n, retval;
 
@@ -167,14 +156,6 @@ static int extMotInit(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    /* allocate shared memory for control data */
-    control_array = hal_malloc(sizeof(control_t));
-    if (control_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HALMOT: ERROR: CONTROL: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
     /* export all the variables for each axis */
     for (n = 0; n < (EMCMOT_MAX_AXIS - 1); n++) {
 	/* export all vars */
@@ -185,36 +166,27 @@ static int extMotInit(void)
 	    hal_exit(comp_id);
 	    return -1;
 	}
-	/* init axis */
+	/* init axis outputs */
 	*(axis_array[n].volts) = 0.0;
 	*(axis_array[n].enable) = 0;
 	*(axis_array[n].reset) = 0;
+        /* We'll init the index model to manual for now */
+        *(axis_array[n].mode) = EXT_ENCODER_INDEX_MODEL_MANUAL;
     }
-    /* export the control variables */
-    retval = export_control(&(control_array[n]));
-    if (retval != 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HALMOT: ERROR: control var export failed\n", n);
-	hal_exit(comp_id);
-	return -1;
-    }
-    /* init control variables */
-    /* We'll init the index model to manual for now */
-    *(axis_array[n].mode) = EXT_ENCODER_INDEX_MODEL_MANUAL;
     /* Done! */
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"HALMOT: installed %d axes & control vars\n", EMCMOT_MAX_AXIS);
+	"HALMOT: installed %d axes\n", EMCMOT_MAX_AXIS);
     return 0;
 }
 
-static int extMotQuit(void)
+int extMotQuit(void)
 {
   hal_exit(comp_id);
   return 0;
 }
 
 /* DAC Functions */
-static int extDacNum(void)
+int extDacNum(void)
 {
 /*
 This function isn't currently used, but if it were,
@@ -223,7 +195,7 @@ we would need to return the number of DACs in the system.
   return 0;
 }
 
-static int extDacWrite(int dac, double volts)
+int extDacWrite(int dac, double volts)
 {
   if (dac > (EMCMOT_MAX_AXIS - 1) || dac < 0) {
     return -1;
@@ -233,7 +205,7 @@ static int extDacWrite(int dac, double volts)
   }
 }
 
-static int extDacWriteAll(int max, double * volts)
+int extDacWriteAll(int max, double * volts)
 {
   int n;
   if (max > EMCMOT_MAX_AXIS || max < 1) {
@@ -248,23 +220,23 @@ static int extDacWriteAll(int max, double * volts)
 
 /* Encoder Functions */
 
-static unsigned int extEncoderIndexModel(void)
+unsigned int extEncoderIndexModel(void)
 {
-  return *(control_array.model);
+  return *(axis_array[0].model);
 }
 
-static int extEncoderSetIndexModel(unsigned int model)
+int extEncoderSetIndexModel(unsigned int model)
 {
   /* test that the requested model is supported */
-  if ((model & *(control_array.model)) == 0) {
+  if ((model & *(axis_array[0].model)) == 0) {
     return -1;
   } else {
-  *(control_array.mode) = model;
+  *(axis_array[0].mode) = model;
   return 0;
   }
 }
 
-static int extEncoderNum(void)
+int extEncoderNum(void)
 {
 /*
 This function isn't currently used, but if it were,
@@ -273,7 +245,7 @@ we would need to return the number of encoders in the system.
   return 0;
 }
 
-static int extEncoderRead(int encoder, double * counts)
+int extEncoderRead(int encoder, double * counts)
 {
   if (encoder > (EMCMOT_MAX_AXIS - 1) || encoder < 0) {
     return -1;
@@ -283,7 +255,7 @@ static int extEncoderRead(int encoder, double * counts)
   }
 }
 
-static int extEncoderReadAll(int max, double * counts)
+int extEncoderReadAll(int max, double * counts)
 {
   int n;
   if (max > EMCMOT_MAX_AXIS || max < 1) {
@@ -296,43 +268,43 @@ static int extEncoderReadAll(int max, double * counts)
   }
 }
 
-static int extEncoderResetIndex(int encoder)
+int extEncoderResetIndex(int encoder)
 {
   if (encoder > (EMCMOT_MAX_AXIS - 1) || encoder < 0) {
     return -1;
   } else {
     /* each time this function is called, we set this bit */
-    *(axis_array[axis].reset) = 1;
+    *(axis_array[encoder].reset) = 1;
     return 0;
   }
 }
 
-static int extEncoderReadLatch(int encoder, int * flag)
+int extEncoderReadLatch(int encoder, int * flag)
 {
-  if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
+  if (encoder > (EMCMOT_MAX_AXIS - 1) || encoder < 0) {
     return -1;
   } else {
-    *flag = *(axis_array[axis].latch);
+    *flag = *(axis_array[encoder].latch);
     /* if the latch bit is set, we clear the reset bit */
     if (*flag == 1) {
-      *(axis_array[axis].reset) = 0;
+      *(axis_array[encoder].reset) = 0;
     }
     return 0;
   }
 }
 
-static int extEncoderReadLevel(int encoder, int * flag)
+int extEncoderReadLevel(int encoder, int * flag)
 {
-  if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
+  if (encoder > (EMCMOT_MAX_AXIS - 1) || encoder < 0) {
     return -1;
   } else {
-    *flag = *(axis_array[axis].index);
+    *flag = *(axis_array[encoder].index);
     return 0;
   }
 }
 
 /* Switch Functions */
-static int extMaxLimitSwitchRead(int axis, int * flag)
+int extMaxLimitSwitchRead(int axis, int * flag)
 {
   if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
     return -1;
@@ -342,7 +314,7 @@ static int extMaxLimitSwitchRead(int axis, int * flag)
   }
 }
 
-static int extMinLimitSwitchRead(int axis, int * flag)
+int extMinLimitSwitchRead(int axis, int * flag)
 {
   if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
     return -1;
@@ -352,7 +324,7 @@ static int extMinLimitSwitchRead(int axis, int * flag)
   }
 }
 
-static int extHomeSwitchRead(int axis, int * flag)
+int extHomeSwitchRead(int axis, int * flag)
 {
   if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
     return -1;
@@ -363,7 +335,7 @@ static int extHomeSwitchRead(int axis, int * flag)
 }
 
 /* Amplifier Functions */
-static int extAmpEnable(int axis, int enable)
+int extAmpEnable(int axis, int enable)
 {
   if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
     return -1;
@@ -373,7 +345,7 @@ static int extAmpEnable(int axis, int enable)
   }
 }
 
-static int extAmpFault(int axis, int * fault)
+int extAmpFault(int axis, int * fault)
 {
   if (axis > (EMCMOT_MAX_AXIS - 1) || axis < 0) {
     return -1;
@@ -384,128 +356,128 @@ static int extAmpFault(int axis, int * fault)
 }
 
 /* Digital I/O Functions */
-static int extDioInit(const char * stuff)
+int extDioInit(const char * stuff)
 {
   return 0;
 }
 
-static int extDioQuit(void)
+int extDioQuit(void)
 {
   return 0;
 }
 
-static int extDioMaxInputs(void)
+int extDioMaxInputs(void)
 {
   return 0;
 }
 
-static int extDioMaxOutputs(void)
+int extDioMaxOutputs(void)
 {
   return 0;
 }
 
-static int extDioRead(int index, int *value)
+int extDioRead(int index, int *value)
 {
   return 0;
 }
 
-static int extDioWrite(int index, int value)
+int extDioWrite(int index, int value)
 {
   return 0;
 }
 
-static int extDioCheck(int index, int *value)
+int extDioCheck(int index, int *value)
 {
   return 0;
 }
 
-static int extDioByteRead(int index, unsigned char *byte)
+int extDioByteRead(int index, unsigned char *byte)
 {
   return 0;
 }
 
-static int extDioShortRead(int index, unsigned short *sh)
+int extDioShortRead(int index, unsigned short *sh)
 {
   return 0;
 }
 
-static int extDioWordRead(int index, unsigned int *word)
+int extDioWordRead(int index, unsigned int *word)
 {
   return 0;
 }
 
-static int extDioByteWrite(int index, unsigned char byte)
+int extDioByteWrite(int index, unsigned char byte)
 {
   return 0;
 }
 
-static int extDioShortWrite(int index, unsigned short sh)
+int extDioShortWrite(int index, unsigned short sh)
 {
   return 0;
 }
 
-static int extDioWordWrite(int index, unsigned int word)
+int extDioWordWrite(int index, unsigned int word)
 {
   return 0;
 }
 
-static int extDioByteCheck(int index, unsigned char *byte)
+int extDioByteCheck(int index, unsigned char *byte)
 {
   return 0;
 }
 
-static int extDioShortCheck(int index, unsigned short *sh)
+int extDioShortCheck(int index, unsigned short *sh)
 {
   return 0;
 }
 
-static int extDioWordCheck(int index, unsigned int *word)
+int extDioWordCheck(int index, unsigned int *word)
 {
   return 0;
 }
 
 /* Analog I/O Functions */
-static int extAioInit(const char * stuff)
+int extAioInit(const char * stuff)
 {
   return 0;
 }
 
-static int extAioQuit(void)
+int extAioQuit(void)
 {
   return 0;
 }
 
-static int extAioMaxInputs(void)
+int extAioMaxInputs(void)
 {
   return 0;
 }
 
-static int extAioMaxOutputs(void)
+int extAioMaxOutputs(void)
 {
   return 0;
 }
 
-static int extAioStart(int index)
+int extAioStart(int index)
 {
   return 0;
 }
 
-static void extAioWait(void)
+void extAioWait(void)
 {
   return;
 }
 
-static int extAioRead(int index, double *volts)
+int extAioRead(int index, double *volts)
 {
   return 0;
 }
 
-static int extAioWrite(int index, double volts)
+int extAioWrite(int index, double volts)
 {
   return 0;
 }
 
-static int extAioCheck(int index, double *volts)
+int extAioCheck(int index, double *volts)
 {
   return 0;
 }
