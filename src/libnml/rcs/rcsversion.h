@@ -22,10 +22,10 @@
 #define LIB_MAJOR_VERSION (5)
 #define LIB_MINOR_VERSION (1)
 
-const static int lib_major_version = LIB_MAJOR_VERSION;
-const static int lib_minor_version = LIB_MINOR_VERSION;
+static const int lib_major_version = LIB_MAJOR_VERSION;
+static const int lib_minor_version = LIB_MINOR_VERSION;
 
-const static char __attribute__ ((unused)) * rcs_version_info_string =
+static const char __attribute__ ((unused)) * rcs_version_info_string =
     "@(#)" " $Info: NML Library version " LIB_VERSION " Compiled on  "
     __DATE__ " at " __TIME__ " for Linux. $ \n";
 
