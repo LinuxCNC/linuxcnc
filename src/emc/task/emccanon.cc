@@ -236,7 +236,7 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
 double getStraightVelocity(double x, double y, double z,
                            double a, double b, double c)
 {
-  double dx, dy, dz, da, db, dc, dmin;
+  double dx, dy, dz, da, db, dc;
   double tx, ty, tz, ta, tb, tc, tmax;
   double vel, dtot;
 
@@ -561,6 +561,10 @@ void ARC_FEED(double first_end, double second_end,
   EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
   int full_circle_in_active_plane = 0;
   double v1, v2, vel;
+
+  // Since there's no default case here,
+  // we need to initialise vel to something safe!
+  vel = currentLinearFeedRate;
 
   // convert to absolute mm units
   first_axis = FROM_PROG_LEN(first_axis);
