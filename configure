@@ -241,11 +241,14 @@ fi
 # Note: Need to add a CLI option to pass the diet dir if it has been built
 # from source, or the distro doesn't install in /usr/lib.
 #
-if [ -r $RTDIR/modules/rtai_libm.o ] || [ -r $RTDIR/modules/rtai_math.o ]; then
+if [ -r $RTDIR/modules/rtai_libm.o ] || [ -r $RTDIR/modules/rtai_math.o ] || [ -r $RTDIR/modules/rtai_math.ko ]; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
     echo "Using RTAI's libm kernel module"
+    if [ -r $RTDIR/modules/rtai_math.ko ]; then
+      echo "Warning - You are compiling against a 2.6 series kernel."
+    fi
 # Note: need to search /lib/modules/`uname -r` for the math modules..
 else
     echo "Testing for a suitable libm... Some symbols may be printed."
