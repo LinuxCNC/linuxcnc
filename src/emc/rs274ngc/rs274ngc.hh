@@ -116,19 +116,11 @@ public:
 // Get the parameter file name from the ini file.
  int rs274ngc_ini_load(const char *filename);
 
-#if 0
- inline int rs274ngc_line() { return rs274ngc_sequence_number(); }
+ int rs274ngc_line() { return rs274ngc_sequence_number(); }
 
- inline const char *rs274ngc_command() {
-   char buf[100];
-  rs274ngc_line_text(buf, 100);
-  return buf; }
+ char *rs274ngc_command(char *buf, int len) { rs274ngc_line_text(buf, len); return buf; }
 
- inline const char *rs274ngc_file() {
-   char buf[100];
-  rs274ngc_file_name(buf, 100);
-  return buf; }
-#endif
+ char *rs274ngc_file(char *buf, int len) { rs274ngc_file_name(buf, len); return buf; }
 
 private:
 

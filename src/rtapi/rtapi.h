@@ -136,6 +136,9 @@ extern "C" {			/* Need this when the header is included in a
 */
     extern void rtapi_print(const char *fmt, ...);
 
+// Define BUFFERLEN here rather than at multiple points across the code base.
+#define BUFFERLEN 80
+
 /** 'rtapi_print_msg()' prints debug messages.  Works like rtapi_print
     but only prints if 'level' is less than or equal to the current
     message level. The default message level is RTAPI_MSG_INFO, but it may

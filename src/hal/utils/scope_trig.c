@@ -49,8 +49,6 @@
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
 
-#define BUFLEN 80		/* length for sprintf buffers */
-
 /***********************************************************************
 *                  GLOBAL VARIABLES DECLARATIONS                       *
 ************************************************************************/
@@ -103,15 +101,15 @@ void refresh_trigger(void)
 {
     scope_trig_t *trig;
     scope_chan_t *chan;
-    gchar buf[BUFLEN + 1];
+    gchar buf[BUFFERLEN + 1];
     float fp_level;
 
     trig = &(ctrl_usr->trig);
     /* display edge */
     if (ctrl_shm->trig_edge == 0) {
-	snprintf(buf, BUFLEN, "Falling");
+	snprintf(buf, BUFFERLEN, "Falling");
     } else {
-	snprintf(buf, BUFLEN, "Rising");
+	snprintf(buf, BUFFERLEN, "Rising");
     }
     gtk_label_set_text_if(trig->edge_label, buf);
     /* display source */
@@ -123,7 +121,7 @@ void refresh_trigger(void)
 	/* nothing left to do */
 	return;
     }
-    snprintf(buf, BUFLEN, "Source\nChan %2d", ctrl_shm->trig_chan);
+    snprintf(buf, BUFFERLEN, "Source\nChan %2d", ctrl_shm->trig_chan);
     gtk_label_set_text_if(trig->source_label, buf);
     /* point to source channel data */
     chan = &(ctrl_usr->chan[ctrl_shm->trig_chan - 1]);
@@ -193,9 +191,9 @@ void refresh_trigger(void)
 	break;
     }
     if (chan->data_type == HAL_BIT) {
-	snprintf(buf, BUFLEN, "  ----  ");
+	snprintf(buf, BUFFERLEN, "  ----  ");
     } else {
-	format_signal_value(buf, BUFLEN, fp_level);
+	format_signal_value(buf, BUFFERLEN, fp_level);
     }
     gtk_label_set_text_if(trig->level_label, buf);
 #if 0
@@ -203,7 +201,7 @@ void refresh_trigger(void)
     gtk_adjustment_changed(adj);
     gtk_adjustment_value_changed(adj);
     /* update the channel number and name display */
-    snprintf(num, BUFLEN, "%2d", trig->selected);
+    snprintf(num, BUFFERLEN, "%2d", trig->selected);
     name = chan->name;
     gtk_label_set_text_if(trig->chan_num_label, num);
     gtk_label_set_text_if(trig->source_name_label, name);
@@ -328,7 +326,7 @@ static void dialog_select_trigger_source(void)
     gchar *title, *msg;
     int n, colwidth;
     gchar *strs[2], *titles[2];
-    gchar buf[BUFLEN + 1];
+    gchar buf[BUFFERLEN + 1];
     GtkWidget *label, *button, *scrolled_window, *trig_list;
 
     /* is acquisition in progress? */
@@ -382,7 +380,7 @@ static void dialog_select_trigger_source(void)
     /* populate the trigger source list */
     gtk_clist_clear(GTK_CLIST(trig_list));
     for (n = 0; n < 16; n++) {
-	snprintf(buf, BUFLEN, "%d", n + 1);
+	snprintf(buf, BUFFERLEN, "%d", n + 1);
 	strs[0] = buf;
 	if (ctrl_usr->chan[n].name != NULL) {
 	    strs[1] = ctrl_usr->chan[n].name;

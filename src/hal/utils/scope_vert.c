@@ -50,8 +50,6 @@
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
 
-#define BUFLEN 80		/* length for sprintf buffers */
-
 /***********************************************************************
 *                  GLOBAL VARIABLES DECLARATIONS                       *
 ************************************************************************/
@@ -278,7 +276,7 @@ static void scale_changed(GtkAdjustment * adj, gpointer gdata)
     scope_chan_t *chan;
     int chan_num, index;
     float scale;
-    gchar buf[BUFLEN];
+    gchar buf[BUFFERLEN];
 
     vert = &(ctrl_usr->vert);
     chan_num = vert->selected;
@@ -314,7 +312,7 @@ static void scale_changed(GtkAdjustment * adj, gpointer gdata)
 	break;
     }
     chan->scale = scale;
-    format_scale_value(buf, BUFLEN - 1, scale);
+    format_scale_value(buf, BUFFERLEN - 1, scale);
     gtk_label_set_text_if(vert->scale_label, buf);
     if (chan_num == ctrl_shm->trig_chan) {
 	refresh_trigger();
@@ -371,14 +369,14 @@ static gboolean dialog_set_offset(int chan_num)
     scope_vert_t *vert;
     scope_chan_t *chan;
     dialog_generic_t dialog;
-    gchar *title, msg[BUFLEN], buf[BUFLEN], *cptr;
+    gchar *title, msg[BUFFERLEN], buf[BUFFERLEN], *cptr;
     GtkWidget *label, *button;
     float tmp;
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
     title = "Set Offset";
-    snprintf(msg, BUFLEN - 1, "Set the vertical offset\n"
+    snprintf(msg, BUFFERLEN - 1, "Set the vertical offset\n"
 	"for channel %d.", chan_num);
     /* create dialog window, disable resizing */
     dialog.retval = 0;
@@ -400,7 +398,7 @@ static gboolean dialog_set_offset(int chan_num)
     vert->offset_entry = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
 	vert->offset_entry, FALSE, TRUE, 0);
-    snprintf(buf, BUFLEN, "%f", chan->vert_offset);
+    snprintf(buf, BUFFERLEN, "%f", chan->vert_offset);
     gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), buf);
     gtk_widget_show(vert->offset_entry);
     /* connect the offset entry to a function */
@@ -445,7 +443,7 @@ static void offset_changed(GtkEditable * editable, gchar * buf)
     const char *text;
 
     text = gtk_entry_get_text(GTK_ENTRY(ctrl_usr->vert.offset_entry));
-    strncpy(buf, text, BUFLEN);
+    strncpy(buf, text, BUFFERLEN);
 }
 
 /* FIXME - this global is ugly - it's the result of using toggle
@@ -575,7 +573,7 @@ static gboolean dialog_select_source(int chan_num)
     scope_vert_t *vert;
     scope_chan_t *chan;
     dialog_generic_t dialog;
-    gchar *title, msg[BUFLEN];
+    gchar *title, msg[BUFFERLEN];
     int next, n;
     gchar *tab_label_text[3], *name;
     GtkWidget *hbox, *label, *notebk, *button;
@@ -587,7 +585,7 @@ static gboolean dialog_select_source(int chan_num)
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
     title = "Select Channel Source";
-    snprintf(msg, BUFLEN - 1, "Select a pin, signal, or parameter\n"
+    snprintf(msg, BUFFERLEN - 1, "Select a pin, signal, or parameter\n"
 	"as the source for channel %d.", chan_num);
     /* create dialog window, disable resizing */
     dialog.retval = 0;
@@ -839,7 +837,7 @@ static void channel_changed(void)
     scope_chan_t *chan;
     GtkAdjustment *adj;
     gchar *name;
-    gchar buf1[BUFLEN + 1], buf2[BUFLEN + 1];
+    gchar buf1[BUFFERLEN + 1], buf2[BUFFERLEN + 1];
 
     vert = &(ctrl_usr->vert);
     if ((vert->selected < 1) || (vert->selected > 16)) {
@@ -894,17 +892,17 @@ static void channel_changed(void)
     gtk_adjustment_changed(adj);
     gtk_adjustment_value_changed(adj);
     /* update the channel number and name display */
-    snprintf(buf1, BUFLEN, "%2d", vert->selected);
+    snprintf(buf1, BUFFERLEN, "%2d", vert->selected);
     name = chan->name;
     gtk_label_set_text_if(vert->chan_num_label, buf1);
     gtk_label_set_text_if(vert->source_name_label, name);
     /* update the offset display */
     if (chan->data_type == HAL_BIT) {
-	snprintf(buf1, BUFLEN, "----");
+	snprintf(buf1, BUFFERLEN, "----");
     } else {
-	format_signal_value(buf1, BUFLEN, chan->vert_offset);
+	format_signal_value(buf1, BUFFERLEN, chan->vert_offset);
     }
-    snprintf(buf2, BUFLEN, "Offset\n%s", buf1);
+    snprintf(buf2, BUFFERLEN, "Offset\n%s", buf1);
     gtk_label_set_text_if(vert->offset_label, buf2);
     request_display_refresh(1);
 }

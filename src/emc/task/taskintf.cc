@@ -1593,8 +1593,8 @@ int emcLogOpen(char *file, int type, int size, int skip, int which,
     r1 = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (r1 == 0) {
-	strncpy(emcStatus->logFile, file, EMC_LOG_FILENAME_LEN - 1);
-	emcStatus->logFile[EMC_LOG_FILENAME_LEN - 1] = 0;
+	strncpy(emcStatus->logFile, file, LINELEN - 1);
+	emcStatus->logFile[LINELEN - 1] = 0;
     }
     // type, size, skip, open, and started will be gotten out of
     // subsystem status, e.g., emcTrajUpdate()

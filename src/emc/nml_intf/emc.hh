@@ -18,6 +18,7 @@
 #ifndef EMC_HH
 #define EMC_HH
 
+#include "global_defs.h"
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, etc.
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
@@ -286,8 +287,6 @@ enum {
 #define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699)
 
 // EMC aggregate class type declaration
-
-#define EMC_LOG_FILENAME_LEN 256	// how long a file name can be
 
 // types of data that can be logged
 #define EMC_LOG_TYPE_AXIS_POS     1	// single axis cmd/actual pos
@@ -659,8 +658,6 @@ extern int emcUpdate(EMC_STAT * stat);
 
 // declarations for EMC general classes
 
-#define EMC_OPERATOR_ERROR_LEN 256
-
 /**
  * Send a textual error message to the operator.
  * The message is put in the errlog buffer to be read by the GUI.
@@ -677,10 +674,8 @@ class EMC_OPERATOR_ERROR:public RCS_CMD_MSG {
     void update(CMS * cms);
 
     int id;
-    char error[EMC_OPERATOR_ERROR_LEN];
+    char error[LINELEN];
 };
-
-#define EMC_OPERATOR_TEXT_LEN 256
 
 /**
  * Send a textual information message to the operator.
@@ -697,10 +692,8 @@ class EMC_OPERATOR_TEXT:public RCS_CMD_MSG {
     void update(CMS * cms);
 
     int id;
-    char text[EMC_OPERATOR_TEXT_LEN];
+    char text[LINELEN];
 };
-
-#define EMC_OPERATOR_DISPLAY_LEN 256
 
 /**
  * Send the URL or filename of a document to display.
@@ -721,7 +714,7 @@ class EMC_OPERATOR_DISPLAY:public RCS_CMD_MSG {
     void update(CMS * cms);
 
     int id;
-    char display[EMC_OPERATOR_DISPLAY_LEN];
+    char display[LINELEN];
 };
 
 class EMC_NULL:public RCS_CMD_MSG {
@@ -1188,7 +1181,7 @@ class EMC_AXIS_LOAD_COMP:public EMC_AXIS_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char file[EMC_TASK_FILENAME_LEN];
+    char file[LINELEN];
 };
 
 class EMC_AXIS_ALTER:public EMC_AXIS_CMD_MSG {
@@ -1905,7 +1898,7 @@ class EMC_TASK_PLAN_OPEN:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char file[EMC_TASK_FILENAME_LEN];
+    char file[LINELEN];
 };
 
 class EMC_TASK_PLAN_RUN:public EMC_TASK_CMD_MSG {
@@ -1940,7 +1933,7 @@ class EMC_TASK_PLAN_EXECUTE:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char command[EMC_TASK_COMMAND_LEN];
+    char command[LINELEN];
 };
 
 class EMC_TASK_PLAN_PAUSE:public EMC_TASK_CMD_MSG {
@@ -2041,8 +2034,8 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int motionLine;		// line motion is executing-- may lag
     int currentLine;		// line currently executing
     int readLine;		// line interpreter has read to
-    char file[EMC_TASK_FILENAME_LEN];
-    char command[EMC_TASK_COMMAND_LEN];
+    char file[LINELEN];
+    char command[LINELEN];
     EmcPose origin;		// origin, in user units, currently active
     EmcPose toolOffset;		// tool offset, in general pose form
     int activeGCodes[ACTIVE_G_CODES];
@@ -2137,7 +2130,7 @@ class EMC_TOOL_LOAD_TOOL_TABLE:public EMC_TOOL_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char file[EMC_TASK_FILENAME_LEN];	// name of tool table, empty means
+    char file[LINELEN];	// name of tool table, empty means
     // default
 };
 
@@ -2850,7 +2843,7 @@ class EMC_LOG_OPEN:public EMC_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char file[EMC_LOG_FILENAME_LEN];	// file to contain data when log
+    char file[LINELEN];	// file to contain data when log
     // closed
     int type;			// EMC_LOG_TYPE_AXIS_POS, etc.
     int size;			// how many data points in file
@@ -2915,7 +2908,7 @@ class EMC_STAT:public EMC_STAT_MSG {
     EMC_IO_STAT io;
 
     // logging status
-    char logFile[EMC_LOG_FILENAME_LEN];	// name of file to log to upon close
+    char logFile[LINELEN];	// name of file to log to upon close
     int logType;		// type being logged
     int logSize;		// size in entries, not bytes
     int logSkip;		// how many are being skipped

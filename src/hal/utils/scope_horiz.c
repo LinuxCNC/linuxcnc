@@ -50,8 +50,6 @@
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
 
-#define BUFLEN 80		/* length for sprintf buffers */
-
 /***********************************************************************
 *                  GLOBAL VARIABLES DECLARATIONS                       *
 ************************************************************************/
@@ -287,7 +285,7 @@ static void dialog_realtime_not_linked(void)
     float period;
     hal_thread_t *thread;
     gchar *strs[2];
-    gchar buf[BUFLEN + 1];
+    gchar buf[BUFFERLEN + 1];
     GtkWidget *hbox, *label;
     GtkWidget *button;
     GtkWidget *buttons[5];
@@ -392,7 +390,7 @@ static void dialog_realtime_not_linked(void)
 	    /* period is less than 1 sec, add to list */
 	    period = thread->period / 1000000000.0;
 	    /* create a string for display */
-	    format_time_value(buf, BUFLEN, period);
+	    format_time_value(buf, BUFFERLEN, period);
 	    strs[1] = buf;
 	    /* get thread name */
 	    strs[0] = thread->name;
@@ -445,22 +443,22 @@ static void dialog_realtime_not_linked(void)
 	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
 	FALSE, TRUE, 5);
     /* now define the radio buttons */
-    snprintf(buf, BUFLEN, "%5d samples (1 channel)", ctrl_shm->buf_len);
+    snprintf(buf, BUFFERLEN, "%5d samples (1 channel)", ctrl_shm->buf_len);
     buttons[0] = gtk_radio_button_new_with_label(NULL, buf);
     buttongroup = gtk_radio_button_group(GTK_RADIO_BUTTON(buttons[0]));
-    snprintf(buf, BUFLEN, "%5d samples (2 channels)", ctrl_shm->buf_len / 2);
+    snprintf(buf, BUFFERLEN, "%5d samples (2 channels)", ctrl_shm->buf_len / 2);
     buttons[1] =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
 	    [0]), buf);
-    snprintf(buf, BUFLEN, "%5d samples (4 channels)", ctrl_shm->buf_len / 4);
+    snprintf(buf, BUFFERLEN, "%5d samples (4 channels)", ctrl_shm->buf_len / 4);
     buttons[2] =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
 	    [0]), buf);
-    snprintf(buf, BUFLEN, "%5d samples (8 channels)", ctrl_shm->buf_len / 8);
+    snprintf(buf, BUFFERLEN, "%5d samples (8 channels)", ctrl_shm->buf_len / 8);
     buttons[3] =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
 	    [0]), buf);
-    snprintf(buf, BUFLEN, "%5d samples (16 channels)",
+    snprintf(buf, BUFFERLEN, "%5d samples (16 channels)",
 	ctrl_shm->buf_len / 16);
     buttons[4] =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
@@ -796,8 +794,8 @@ static void refresh_horiz_info(void)
 {
     scope_horiz_t *horiz;
     gchar *name;
-    static gchar tmp[BUFLEN + 1], rate[BUFLEN + 1], period[BUFLEN + 1];
-    static gchar scale[BUFLEN + 1], rec_len[BUFLEN + 1], msg[BUFLEN + 1];
+    static gchar tmp[BUFFERLEN + 1], rate[BUFFERLEN + 1], period[BUFFERLEN + 1];
+    static gchar scale[BUFFERLEN + 1], rec_len[BUFFERLEN + 1], msg[BUFFERLEN + 1];
     float freqval;
 
     horiz = &(ctrl_usr->horiz);
@@ -807,25 +805,25 @@ static void refresh_horiz_info(void)
 	name = horiz->thread_name;
     }
     if (horiz->disp_scale == 0.0) {
-	snprintf(scale, BUFLEN, "----");
+	snprintf(scale, BUFFERLEN, "----");
     } else {
-	format_time_value(tmp, BUFLEN, horiz->disp_scale);
-	snprintf(scale, BUFLEN, "%s\nper div", tmp);
+	format_time_value(tmp, BUFFERLEN, horiz->disp_scale);
+	snprintf(scale, BUFFERLEN, "%s\nper div", tmp);
     }
     if (horiz->sample_period == 0.0) {
-	snprintf(period, BUFLEN, "----");
-	snprintf(rate, BUFLEN, "----");
+	snprintf(period, BUFFERLEN, "----");
+	snprintf(rate, BUFFERLEN, "----");
     } else {
-	format_time_value(period, BUFLEN, horiz->sample_period);
+	format_time_value(period, BUFFERLEN, horiz->sample_period);
 	freqval = 1.0 / horiz->sample_period;
-	format_freq_value(rate, BUFLEN, freqval);
+	format_freq_value(rate, BUFFERLEN, freqval);
     }
     if (ctrl_shm->rec_len == 0) {
-	snprintf(rec_len, BUFLEN, "----");
+	snprintf(rec_len, BUFFERLEN, "----");
     } else {
-	snprintf(rec_len, BUFLEN, "%d", ctrl_shm->rec_len);
+	snprintf(rec_len, BUFFERLEN, "%d", ctrl_shm->rec_len);
     }
-    snprintf(msg, BUFLEN, "%s samples\nat %s", rec_len, rate);
+    snprintf(msg, BUFFERLEN, "%s samples\nat %s", rec_len, rate);
     gtk_label_set_text_if(horiz->thread_name_label, name);
     gtk_label_set_text_if(horiz->sample_rate_label, rate);
     gtk_label_set_text_if(horiz->scale_label, scale);

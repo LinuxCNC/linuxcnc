@@ -1034,8 +1034,8 @@ void MESSAGE(char *s)
     EMC_OPERATOR_DISPLAY operator_display_msg;
 
     operator_display_msg.id = 0;
-    strncpy(operator_display_msg.display, s, EMC_OPERATOR_DISPLAY_LEN);
-    operator_display_msg.display[EMC_OPERATOR_DISPLAY_LEN - 1] = 0;
+    strncpy(operator_display_msg.display, s, LINELEN);
+    operator_display_msg.display[LINELEN - 1] = 0;
 
     interp_list.append(operator_display_msg);
 }
@@ -1407,7 +1407,7 @@ int GET_EXTERNAL_TOOL_MAX()
     return CANON_TOOL_MAX;
 }
 
-char _parameter_file_name[PARAMETER_FILE_NAME_LENGTH];	/* Not static.Driver
+char _parameter_file_name[LINELEN];	/* Not static.Driver
 							   writes */
 
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
@@ -1425,51 +1425,6 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
 	strcpy(file_name, _parameter_file_name);
     else
 	file_name[0] = 0;
-}
-
-/***********************************************************************/
-
-/* rs274ngc_ini_load()
-
-Returned Value: RS274NGC_OK, RS274NGC_ERROR
-
-Side Effects:
-   An INI file containing values for global variables is used to
-   update the globals
-
-Called By:
-   rs274ngc_init()
-
-The file looks like this:
-
-[RS274NGC]
-VARIABLE_FILE = rs274ngc.var
-
-*/
-
-#include "inifile.hh"		// INIFILE
-
-int rs274ngc_ini_load(const char *filename)
-{
-    INIFILE inifile;
-    const char *inistring;
-
-    // open it
-    if (-1 == inifile.open(filename)) {
-	return -1;
-    }
-
-    if (NULL != (inistring = inifile.find("PARAMETER_FILE", "RS274NGC"))) {
-	// found it
-	strncpy(_parameter_file_name, inistring, PARAMETER_FILE_NAME_LENGTH);
-    } else {
-	// not found, leave RS274NGC_PARAMETER_FILE alone
-    }
-
-    // close it
-    inifile.close();
-
-    return 0;
 }
 
 double GET_EXTERNAL_POSITION_X(void)

@@ -21,6 +21,7 @@
 #include <sys/stat.h>
 #include <string.h>		/* memcpy() */
 #include <float.h>		/* DBL_MIN */
+#include "global_defs.h"	/* LINELEN definition */
 #include "motion.h"		/* emcmot_status_t,CMD */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_KEY */
@@ -1259,8 +1260,7 @@ return -1;
 #if 0
 
     FILE *fp;
-#define BUFFERLEN 256
-    char buffer[BUFFERLEN];
+    char buffer[LINELEN];
     double nom, fwd, rev;
     int index = 0;
     int total = 0;
@@ -1284,7 +1284,7 @@ return -1;
     }
 
     while (!feof(fp)) {
-	if (NULL == fgets(buffer, BUFFERLEN, fp)) {
+	if (NULL == fgets(buffer, LINELEN, fp)) {
 	    break;
 	}
 	/*

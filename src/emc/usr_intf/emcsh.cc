@@ -345,9 +345,9 @@ EMC_STAT *emcStatus = 0;
 
 // the NML channel for errors
 static NML *emcErrorBuffer = 0;
-static char error_string[EMC_OPERATOR_ERROR_LEN] = "";
-static char operator_text_string[EMC_OPERATOR_TEXT_LEN] = "";
-static char operator_display_string[EMC_OPERATOR_DISPLAY_LEN] = "";
+static char error_string[LINELEN] = "";
+static char operator_text_string[LINELEN] = "";
+static char operator_display_string[LINELEN] = "";
 
 // the current command numbers, set up updateStatus(), used in main()
 static int emcCommandSerialNumber = 0;
@@ -525,22 +525,22 @@ static int updateError()
     case EMC_OPERATOR_ERROR_TYPE:
 	strncpy(error_string,
 	    ((EMC_OPERATOR_ERROR *) (emcErrorBuffer->get_address()))->error,
-	    EMC_OPERATOR_ERROR_LEN - 1);
-	error_string[EMC_OPERATOR_ERROR_LEN - 1] = 0;
+	    LINELEN - 1);
+	error_string[LINELEN - 1] = 0;
 	break;
 
     case EMC_OPERATOR_TEXT_TYPE:
 	strncpy(operator_text_string,
 	    ((EMC_OPERATOR_TEXT *) (emcErrorBuffer->get_address()))->text,
-	    EMC_OPERATOR_TEXT_LEN - 1);
-	operator_text_string[EMC_OPERATOR_TEXT_LEN - 1] = 0;
+	    LINELEN - 1);
+	operator_text_string[LINELEN - 1] = 0;
 	break;
 
     case EMC_OPERATOR_DISPLAY_TYPE:
 	strncpy(operator_display_string,
 	    ((EMC_OPERATOR_DISPLAY *) (emcErrorBuffer->get_address()))->
-	    display, EMC_OPERATOR_DISPLAY_LEN - 1);
-	operator_display_string[EMC_OPERATOR_DISPLAY_LEN - 1] = 0;
+	    display, LINELEN - 1);
+	operator_display_string[LINELEN - 1] = 0;
 	break;
 
     case NML_ERROR_TYPE:
@@ -1336,7 +1336,7 @@ static int sendTaskPlanInit()
 }
 
 // saved value of last program opened
-static char lastProgramFile[EMC_TASK_FILENAME_LEN] = "";
+static char lastProgramFile[LINELEN] = "";
 
 static int sendProgramOpen(char *program)
 {

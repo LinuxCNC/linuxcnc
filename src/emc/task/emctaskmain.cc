@@ -150,7 +150,7 @@ int emcOperatorError(int id, const char *fmt, ...)
     va_end(ap);
 
     // force a NULL at the end for safety
-    error_msg.error[EMC_OPERATOR_ERROR_LEN - 1] = 0;
+    error_msg.error[LINELEN - 1] = 0;
 
     // write it
     rcs_print("%s\n", error_msg.error);
@@ -174,7 +174,7 @@ int emcOperatorText(int id, const char *fmt, ...)
     va_end(ap);
 
     // force a NULL at the end for safety
-    text_msg.text[EMC_OPERATOR_TEXT_LEN - 1] = 0;
+    text_msg.text[LINELEN - 1] = 0;
 
     // write it
     return emcErrorBuffer->write(text_msg);
@@ -197,7 +197,7 @@ int emcOperatorDisplay(int id, const char *fmt, ...)
     va_end(ap);
 
     // force a NULL at the end for safety
-    display_msg.display[EMC_OPERATOR_DISPLAY_LEN - 1] = 0;
+    display_msg.display[LINELEN - 1] = 0;
 
     // write it
     return emcErrorBuffer->write(display_msg);

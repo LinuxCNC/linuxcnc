@@ -77,6 +77,7 @@ include an option for suppressing superfluous commands.
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "inifile.hh"		// INIFILE
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_errors.cc"
@@ -1053,3 +1054,44 @@ void Interp::rs274ngc_stack_name(int stack_index,       //!< index into stack of
 }
 
 /***********************************************************************/
+
+/* rs274ngc_ini_load()
+
+Returned Value: RS274NGC_OK, RS274NGC_ERROR
+
+Side Effects:
+   An INI file containing values for global variables is used to
+   update the globals
+
+Called By:
+   rs274ngc_init()
+
+The file looks like this:
+
+[RS274NGC]
+VARIABLE_FILE = rs274ngc.var
+
+*/
+
+int Interp::rs274ngc_ini_load(const char *filename)
+{
+    INIFILE inifile;
+    const char *inistring;
+
+    // open it
+    if (-1 == inifile.open(filename)) {
+	return -1;
+    }
+
+    if (NULL != (inistring = inifile.find("PARAMETER_FILE", "RS274NGC"))) {
+	// found it
+	strncpy(_parameter_file_name, inistring, LINELEN);
+    } else {
+	// not found, leave RS274NGC_PARAMETER_FILE alone
+    }
+
+    // close it
+    inifile.close();
+
+    return 0;
+}

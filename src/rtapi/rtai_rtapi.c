@@ -424,8 +424,6 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
     return i;
 }
 
-#define BUFFERLEN 80
-
 void rtapi_print(const char *fmt, ...)
 {
     char buffer[BUFFERLEN];
