@@ -108,37 +108,37 @@
 $(TMP_DIR)/%.o : %.c
 	@ (if [ ! -d "$(TMP_DIR)" ] ; then echo "Create temp directory '$(TMP_DIR)'" ; mkdir $(TMP_DIR) ; fi)
 	@ echo "Compile '$<' to tmp dir using non-realtime C rule"
-	@ $(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
 
 $(TMP_DIR)/%.o : %.cc
 	@ (if [ ! -d "$(TMP_DIR)" ] ; then echo "Create temp directory '$(TMP_DIR)'" ; mkdir $(TMP_DIR) ; fi)
 	@ echo "Compile '$<' to tmp dir using default C++ rule"
-	@ $(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
 
 $(RTTMP_DIR)/%.o : %.c
 	@ (if [ ! -d "$(RTTMP_DIR)" ] ; then echo "Create temp directory '$(RTTMP_DIR)'" ; mkdir $(RTTMP_DIR) ; fi)
 	@ echo "Compile '$<' to tmp dir using realtime C rule"
-	@ $(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
+	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
 
 $(GTKTMP_DIR)/%.o : %.c
 	@ (if [ ! -d "$(GTKTMP_DIR)" ] ; then echo "Create temp directory '$(GTKTMP_DIR)'" ; mkdir $(GTKTMP_DIR) ; fi)
 	@ echo "Compile '$<' to tmp dir using GTK+ C rule"
-	@ $(CC) `gtk-config --cflags` -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
+	$(CC) `gtk-config --cflags` -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
 
 #
 # This set is for targets in the lib/ and rtlib/ directories:
 #
 $(LIB_DIR)/%.o : %.c
 	@ echo "Compile '$<' to lib dir using non-realtime C rule"
-	@ $(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
 
 $(LIB_DIR)/%.o : %.cc
 	@ echo "Compile '$<' to lib dir using default C++ rule"
-	@ $(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
 
 $(RTLIB_DIR)/%.o : %.c
 	@ echo "Compile '$<' to lib dir using realtime C rule"
-	@ $(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
+	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
 
 #
 # This creates a 'def_headers' target whose dependencies are each of
@@ -158,11 +158,11 @@ def_headers: $(HEADERS:%=$(INC_DIR)/%)
 #
 $(INC_DIR)/%.h: %.h
 	@ echo "Install C header $<"
-	@ \install -p -m0664 $< $(INC_DIR)
+	\install -p -m0664 $< $(INC_DIR)
 
 $(INC_DIR)/.hh: %.hh
 	@ echo "Install C++ header $<"
-	@ \install -p -m0664 $< $(INC_DIR)
+	\install -p -m0664 $< $(INC_DIR)
 
 
 

@@ -43,11 +43,11 @@ clean: def_clean
 
 $(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 	@ echo "Install rtapi.o in rtlib"
-	@ - \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
+	- \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
 
 $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
 	@ echo "Install ulapi.o in lib"
-	@ - \install -p -m0664 $< $(LIB_DIR)/ulapi.o
+	- \install -p -m0664 $< $(LIB_DIR)/ulapi.o
 
 
 .PHONY: all headers depend indent install clean

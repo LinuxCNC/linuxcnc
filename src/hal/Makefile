@@ -27,8 +27,8 @@ $(GTKTMP_DIR)/halmeter.o
 BINS = $(BIN_DIR)/test_comp $(BIN_DIR)/halcmd $(BIN_DIR)/halmeter
 
 all : headers $(OBJS) $(LIBS)
-	(cd drivers; make -k $@)
-	(cd components; make -k $@)
+	(cd drivers; make $@)
+	(cd components; make $@)
 
 # Generic rules
 include $(EMC2_HOME)/Make.rules
