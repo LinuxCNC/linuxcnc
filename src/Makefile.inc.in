@@ -7,10 +7,10 @@
 #############
 
 EMC2_HOME = @EMC2_HOME@
-BIN_DIR   = @EMC2_HOME@/bin
-LIB_DIR   = @EMC2_HOME@/lib
+BIN_DIR   = @EMC2_HOME@/plat/nonrealtime/bin
+LIB_DIR   = @EMC2_HOME@/plat/nonrealtime/lib
 RTLIB_DIR = @EMC2_HOME@/rtlib
-INC_DIR   = @EMC2_HOME@/include
+INC_DIR   = @EMC2_HOME@/src/include
 TMP_DIR   = @EMC2_HOME@/src/.tmp
 RTTMP_DIR = @EMC2_HOME@/src/.rt_tmp
 RTDIR     = @RTDIR@
@@ -46,15 +46,14 @@ LANGUAGES = @LANGUAGES@
 RTNAME = @RTNAME@
 RTPREFIX = @RTPREFIX@
 RTAI = @RTAI@
-RTFLAGS = @RTFLAGS@
+RTFLAGS = -I. -I$(INC_DIR) @RTFLAGS@ -Drealtime
 KERNELDIR = @KERNELDIR@
-RTFLAGS := -I$(INC_DIR) -I@RTDIR@/include -I. $(RTFLAGS) -DRTAPI
 USE_RTLIBM = @USE_RTLIBM@
 USE_LIBM = @USE_LIBM@
 USE_STUBS = @USE_STUBS@
 MATHINC = @MATHINC@
 MATHLIB = @MATHLIB@
-ULFLAGS = -Wall -g -I$(INC_DIR) -I@RTDIR@/include -I. -DULAPI -O2 -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
+ULFLAGS = -Wall -g -I$(INC_DIR) -I@RTDIR@/include -I. -Dnonrealtime -O2
 
 CC = @CC@
 

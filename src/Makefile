@@ -84,7 +84,7 @@ modules: headers
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(shell rtai-config --cc) V=0 modules
 
 modules_install: modules
-	( $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) V=0 modules_install ) 2>/dev/null
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) V=0 modules_install
 
 #headers clean depend indent install:
 all headers:

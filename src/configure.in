@@ -296,7 +296,7 @@ AC_SUBST([RTDIR])
 # just output the current directory as emc2 home
 # needs some discussions & adjustments
 
-EMC2_HOME=`pwd`
+EMC2_HOME=`cd ../ ; pwd`
 AC_SUBST([EMC2_HOME])
 
 # Support some of the standard configure options for directories
