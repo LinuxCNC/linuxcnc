@@ -101,8 +101,7 @@
    in the area, as well as some housekeeping data.  It is the root
    structure for all data in the HAL.
 */
-typedef struct
-{
+typedef struct {
     int magic;			/* magic number to tag the struct */
     int mutex;			/* protection for linked lists, etc. */
     hal_s32_t shmem_avail;	/* amount of shmem left free */
@@ -122,30 +121,26 @@ typedef struct
     int param_free_ptr;		/* list of free parameter structs */
     int funct_free_ptr;		/* list of free function structs */
     int thread_free_ptr;	/* list of free thread structs */
-}
-hal_data_t;
+} hal_data_t;
 
 /** HAL 'component' data structure.
     This structure contains information that is unique to a HAL component.
     An instance of this structure is added to a linked list when the
     component calls hal_init().
 */
-typedef struct
-{
+typedef struct {
     int next_ptr;		/* next component in the list */
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
     int type;			/* 1 if realtime, 0 if not */
     void *shmem_base;		/* base of shmem for this component */
     char name[HAL_NAME_LEN + 1];	/* component name */
-}
-hal_comp_t;
+} hal_comp_t;
 
 /** HAL 'pin' data structure.
     This structure contains information about a 'pin' object.
 */
-typedef struct
-{
+typedef struct {
     int next_ptr;		/* next pin in linked list */
     int data_ptr_addr;		/* address of pin data pointer */
     int owner_ptr;		/* component that owns this pin */
@@ -154,35 +149,30 @@ typedef struct
     int signal;			/* signal to which pin is linked */
     long dummysig;		/* if unlinked, data_ptr points here */
     char name[HAL_NAME_LEN + 1];	/* pin name */
-}
-hal_pin_t;
+} hal_pin_t;
 
 /** HAL 'signal' data structure.
     This structure contains information about a 'signal' object.
 */
-typedef struct
-{
+typedef struct {
     int next_ptr;		/* next signal in linked list */
     int data_ptr;		/* offset of signal value */
     hal_type_t type;		/* data type */
     int readers;		/* number of read pins linked */
     int writers;		/* number of write pins linked */
     char name[HAL_NAME_LEN + 1];	/* signal name */
-}
-hal_sig_t;
+} hal_sig_t;
 
 /** HAL 'parameter' data structure.
     This structure contains information about a 'parameter' object.
 */
-typedef struct
-{
+typedef struct {
     int next_ptr;		/* next parameter in linked list */
     int data_ptr;		/* offset of parameter value */
     int owner_ptr;		/* component that owns this signal */
     hal_type_t type;		/* data type */
     char name[HAL_NAME_LEN + 1];	/* parameter name */
-}
-hal_param_t;
+} hal_param_t;
 
 /** the HAL uses functions and threads to handle synchronization of
     code.  In general, most control systems need to read inputs,
@@ -198,8 +188,7 @@ hal_param_t;
     sorted by name, and one of threads, sorted by execution freqency.
 */
 
-typedef struct
-{
+typedef struct {
     int next_ptr;		/* next function in linked list */
     int uses_fp;		/* floating point flag */
     int owner_ptr;		/* component that added this funct */
@@ -208,14 +197,12 @@ typedef struct
     void *arg;			/* argument for function */
     void (*funct) (void *, long);	/* ptr to function code */
     char name[HAL_NAME_LEN + 1];	/* function name */
-}
-hal_funct_t;
+} hal_funct_t;
 
 #define MAX_FUNCTS 64		/* functions per thread */
 #define HAL_STACKSIZE 16384	/* realtime task stacksize */
 
-typedef struct
-{
+typedef struct {
     int next_ptr;		/* next thread in linked list */
     int uses_fp;		/* floating point flag */
     long int period;		/* period of the thread, in nsec */
@@ -227,8 +214,7 @@ typedef struct
     int funct_count;		/* number of functions in array */
     int funct_ptrs[MAX_FUNCTS];	/* functions in thread */
     char name[HAL_NAME_LEN + 1];	/* thread name */
-}
-hal_thread_t;
+} hal_thread_t;
 
 #define HAL_KEY   0x48414C21	/* key used to open HAL shared memory */
 #define HAL_MAGIC 0x84328212	/* magic number used to verify shmem */

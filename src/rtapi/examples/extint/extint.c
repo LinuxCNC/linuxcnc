@@ -16,67 +16,68 @@ static int timer_count = 0;	/* the output variable */
 
 static void parport_irq_handler(void)
 {
-  timer_count++;
+    timer_count++;
 
-  rtapi_enable_interrupt(PARPORT_IRQ);
+    rtapi_enable_interrupt(PARPORT_IRQ);
 
-  return;
+    return;
 }
 
 int rtapi_app_main(void)
 {
-  int retval;
+    int retval;
 
-  module = rtapi_init("EXTINT");
-  if (module != RTAPI_SUCCESS) {
-    rtapi_print("extint init: rtapi_init returned %d\n", module);
-    return -1;
-  }
-  /* set up ISR */
-  retval = rtapi_irq_new(PARPORT_IRQ, module, parport_irq_handler);
-  if (retval != RTAPI_SUCCESS) {
-    rtapi_print("extint init: rtapi_irq_new returned %d\n", retval);
-    return -1;
-  }
-  retval = rtapi_enable_interrupt(PARPORT_IRQ);
-  if (retval != RTAPI_SUCCESS) {
-    rtapi_print("extint init: rtapi_enable_interrupt returned %d\n", retval);
-    return -1;
-  }
+    module = rtapi_init("EXTINT");
+    if (module != RTAPI_SUCCESS) {
+	rtapi_print("extint init: rtapi_init returned %d\n", module);
+	return -1;
+    }
+    /* set up ISR */
+    retval = rtapi_irq_new(PARPORT_IRQ, module, parport_irq_handler);
+    if (retval != RTAPI_SUCCESS) {
+	rtapi_print("extint init: rtapi_irq_new returned %d\n", retval);
+	return -1;
+    }
+    retval = rtapi_enable_interrupt(PARPORT_IRQ);
+    if (retval != RTAPI_SUCCESS) {
+	rtapi_print("extint init: rtapi_enable_interrupt returned %d\n",
+	    retval);
+	return -1;
+    }
 
-  /* enable parallel port hardware interrupts */
-  rtapi_outb(rtapi_inb(PARPORT_BASE_ADDRESS + 2) | 0x10,
-	     PARPORT_BASE_ADDRESS + 2);
+    /* enable parallel port hardware interrupts */
+    rtapi_outb(rtapi_inb(PARPORT_BASE_ADDRESS + 2) | 0x10,
+	PARPORT_BASE_ADDRESS + 2);
 
-  return 0;
+    return 0;
 }
-
 
 void rtapi_app_exit(void)
 {
-  int retval;
+    int retval;
 
-  /* disable parallel port hardware interrupts */
-  rtapi_outb(rtapi_inb(PARPORT_BASE_ADDRESS + 2) & (~0x10),
-	     PARPORT_BASE_ADDRESS + 2);
+    /* disable parallel port hardware interrupts */
+    rtapi_outb(rtapi_inb(PARPORT_BASE_ADDRESS + 2) & (~0x10),
+	PARPORT_BASE_ADDRESS + 2);
 
-  /* clear ISR */
-  retval = rtapi_disable_interrupt(PARPORT_IRQ);
-  if (retval < 0) {
-    rtapi_print("extint exit: rtapi_disable_interrupt returned %d\n", retval);
-    return;
-  }
-  retval = rtapi_irq_delete(PARPORT_IRQ);
-  if (retval != RTAPI_SUCCESS) {
-    rtapi_print("extint exit: rtapi_irq_delete returned %d\n", retval);
-    return;
-  }
+    /* clear ISR */
+    retval = rtapi_disable_interrupt(PARPORT_IRQ);
+    if (retval < 0) {
+	rtapi_print("extint exit: rtapi_disable_interrupt returned %d\n",
+	    retval);
+	return;
+    }
+    retval = rtapi_irq_delete(PARPORT_IRQ);
+    if (retval != RTAPI_SUCCESS) {
+	rtapi_print("extint exit: rtapi_irq_delete returned %d\n", retval);
+	return;
+    }
 
-  rtapi_print("extint exit: interrupt count is %d\n", timer_count);
+    rtapi_print("extint exit: interrupt count is %d\n", timer_count);
 
-  retval = rtapi_exit(module);
-  if (retval != RTAPI_SUCCESS) {
-    rtapi_print("extint exit: rtapi_exit returned %d\n", retval);
-    return;
-  }
+    retval = rtapi_exit(module);
+    if (retval != RTAPI_SUCCESS) {
+	rtapi_print("extint exit: rtapi_exit returned %d\n", retval);
+	return;
+    }
 }

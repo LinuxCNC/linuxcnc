@@ -301,8 +301,7 @@ MODULE_PARM_DESC(fp_period, "floating point thread period (nsecs)");
     accessed, so fetching one item will load the next item(s) into cache.
 */
 
-typedef struct
-{
+typedef struct {
     unsigned char step_type;	/* stepping type - see list above */
     unsigned char need_step;	/* non-zero if we need to step */
     unsigned char setup_timer;	/* timer for dir setup time */
@@ -313,31 +312,25 @@ typedef struct
     hal_u8_t dir_hold;		/* parameter: direction hold time */
     hal_u8_t step_len;		/* parameter: step pulse length */
     hal_u8_t step_space;	/* parameter: min step pulse spacing */
-}
-st0_t;
+} st0_t;
 
-typedef struct
-{
+typedef struct {
     unsigned char step_type;	/* stepping type - see list above */
     unsigned char state;	/* current position in state table */
     unsigned char cycle_max;	/* cycle length for step types 2 and up */
     unsigned char num_phases;	/* number of phases for types 2 and up */
     unsigned char *lut;		/* pointer to lookup table */
-}
-st2_t;
+} st2_t;
 
-typedef struct
-{
+typedef struct {
     signed long deltalim;	/* max allowed change per period */
     signed long newaddval;	/* desired freq generator add value */
     signed long addval;		/* actual frequency generator add value */
     unsigned long accum;	/* frequency generator accumulator */
-    union
-    {
+    union {
 	st0_t st0;		/* working data for step type 0 */
 	st2_t st2;		/* working data for step types 2 and up */
-    }
-    wd;
+    } wd;
     hal_bit_t *phase[5];	/* pins for output signals */
     hal_s32_t rawcount;		/* param: current position (feedback) */
     hal_s32_t *count;		/* captured binary count value */
@@ -349,8 +342,7 @@ typedef struct
     hal_float_t freq;		/* parameter: velocity cmd scaled to Hz */
     hal_float_t maxaccel;	/* parameter: max accel rate in Hz/sec */
 
-}
-stepgen_t;
+} stepgen_t;
 
 /* ptr to array of stepgenr_t structs in shared memory, 1 per channel */
 static stepgen_t *stepgen_array;

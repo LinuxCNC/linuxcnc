@@ -12,12 +12,14 @@ hal.h
 
 # Private headers
 PRIVHDRS = \
-hal_priv.h
+hal_priv.h \
+halgtk.h
 
 SRCS = \
 hal_lib.c \
 halcmd.c \
-halmeter.c
+halmeter.c \
+probe.c
 
 RT_SRCS = \
 hal_lib.c
@@ -64,7 +66,7 @@ $(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 # rule to link halmeter
-$(BIN_DIR)/halmeter : $(TMP_DIR)/halmeter.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
+$(BIN_DIR)/halmeter : $(TMP_DIR)/halmeter.o $(TMP_DIR)/probe.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 	@ echo "Linking $@"
 	$(CC) $(GTK_LIBS) $(CFLAGS) $(ULFLAGS) $^ -o $@
 

@@ -58,10 +58,10 @@ headers: def_headers
 	$(EXAMPLES_CMD)
 
 indent: def_indent
-	$(EXAMPLES_CMD)
+	(cd examples; make $@)
 
 depend: def_depend
-	$(EXAMPLES_CMD)
+	(cd examples; make $@)
 
 clean: def_clean
 	@ echo "Remove RTOS symlinks"

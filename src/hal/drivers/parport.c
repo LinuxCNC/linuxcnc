@@ -99,8 +99,7 @@ MODULE_PARM_DESC(period, "thread period (nsecs)");
    parallel port driver for a single port
 */
 
-typedef struct
-{
+typedef struct {
     unsigned short base_addr;	/* base I/O address (0x378, etc.) */
     unsigned short data_dir;	/* non-zero if pins 2-9 are input */
     hal_bit_t *status_in[10];	/* ptrs for in pins 15, 13, 12, 10, 11 */
@@ -109,8 +108,7 @@ typedef struct
     hal_bit_t data_inv[8];	/* polarity params for output pins 2 - 9 */
     hal_bit_t *control_out[4];	/* ptrs for out pins 1, 14, 16, 17 */
     hal_bit_t control_inv[4];	/* pol. params for pins 1, 14, 16, 17 */
-}
-parport_t;
+} parport_t;
 
 /* pointer to array of parport_t structs in shared memory, 1 per port */
 static parport_t *port_data_array;

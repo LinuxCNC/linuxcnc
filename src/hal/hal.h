@@ -213,8 +213,7 @@ extern void *hal_malloc(long int size);
     'hal_type_t' is an enum used to identify the type of a pin, signal,
     or parameter.
 */
-typedef enum
-{
+typedef enum {
     HAL_BIT = 1,
     HAL_FLOAT = 2,
     HAL_S8 = 3,
@@ -223,8 +222,7 @@ typedef enum
     HAL_U16 = 6,
     HAL_S32 = 7,
     HAL_U32 = 8
-}
-hal_type_t;
+} hal_type_t;
 
 /** HAL pins also have a direction attribute.  Any number of RD_ONLY
     or RD_WR pins may be connected to the same signal, but only one
@@ -232,13 +230,11 @@ hal_type_t;
     output pins together in an electronic circuit.  (RD_WR pins can
     be thought of as tri-state outputs.)
 */
-typedef enum
-{
+typedef enum {
     HAL_RD = 16,
     HAL_WR = 32,
     HAL_RD_WR = (HAL_RD | HAL_WR),
-}
-hal_dir_t;
+} hal_dir_t;
 
 #if 1
 /* Use these for x86 machines, and anything else that can write to

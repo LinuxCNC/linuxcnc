@@ -76,8 +76,7 @@ MODULE_PARM_DESC(period, "thread period (nsecs)");
 
 /* this structure contains the runtime data for a single counter */
 
-typedef struct
-{
+typedef struct {
     unsigned char state;	/* quad decode state machine state */
     unsigned char oldZ;		/* previous value of phase Z */
     unsigned char Zmask;	/* mask for oldZ, based on index_ena */
@@ -91,8 +90,7 @@ typedef struct
     hal_s32_t *count;		/* captured binary count value */
     hal_float_t *pos;		/* scaled position (floating point) */
     hal_float_t pos_scale;	/* parameter: scaling factor for pos */
-}
-counter_t;
+} counter_t;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
 static counter_t *counter_array;

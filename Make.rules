@@ -214,7 +214,7 @@ def_indent:
 	--no-space-after-parentheses \
 	--space-after-cast \
 	--swallow-optional-blank-lines \
-	$(SRCS) $(HEADERS) $(PRIVHDRS)
+	$(SRCS) $(RT_SRCS) $(HEADERS) $(PRIVHDRS)
 	@ rm *.*~
 
 #

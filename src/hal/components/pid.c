@@ -143,8 +143,7 @@ MODULE_PARM_DESC(fp_period, "floating point thread period (nsecs)");
     a few cache lines will need to be written back to main memory.
 */
 
-typedef struct
-{
+typedef struct {
     hal_bit_t *enable;		/* pin: enable input */
     hal_float_t *command;	/* pin: commanded value */
     hal_float_t *feedback;	/* pin: feedback value */
@@ -167,8 +166,7 @@ typedef struct
     hal_float_t ff1gain;	/* param: feedforward derivative */
     hal_float_t maxoutput;	/* param: limit for PID output */
     hal_float_t *output;	/* pin: the output value */
-}
-pid_t;
+} pid_t;
 
 /* pointer to array of pid_t structs in shared memory, 1 per loop */
 static pid_t *pid_array;

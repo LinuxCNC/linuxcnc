@@ -53,6 +53,7 @@
 #include "hal_priv.h"		/* private HAL decls */
 
 #include <gtk/gtk.h>
+#include "halgtk.h"		/* HAL related GTK stuff */
 
 /***********************************************************************
 *                  GLOBAL VARIABLES DECLARATIONS                       *
@@ -61,29 +62,24 @@
 int comp_id;			/* HAL component ID */
 
 GtkWidget *main_window;
-GtkWidget *select_window = NULL;
-GtkWidget *value_label;
-GtkWidget *name_label;
-GtkWidget *lists[3];
-char *selected_name = NULL;
-int selected_list = -1;
-hal_type_t selected_type = -1;
-void *selected_data = NULL;
+
+typedef struct {
+    probe_t *probe;		/* probe that locates the data */
+    GtkWidget *value_label;	/* label object to display value */
+    GtkWidget *name_label;	/* label object to display name */
+} meter_t;
+
+meter_t *meter;
 
 /***********************************************************************
 *                  LOCAL FUNCTION PROTOTYPES                           *
 ************************************************************************/
 
+meter_t *meter_new(void);
+
 static void exit_from_hal(void);
 static int refresh_value(gpointer data);
 static char *data_value(int type, void *valptr);
-static void define_select_window(void);
-static void popup_select_window(GtkWidget * widget, gpointer data);
-static void accept_selection(GtkWidget * widget, gpointer data);
-static void accept_selection_and_close(GtkWidget * widget, gpointer data);
-static void close_selection(GtkWidget * widget, gpointer data);
-void selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, gpointer data);
 
 /***********************************************************************
 *                        MAIN() FUNCTION                               *
@@ -126,25 +122,22 @@ int main(int argc, gchar * argv[])
     gtk_container_add(GTK_CONTAINER(main_window), vbox);
     gtk_widget_show(vbox);
 
-    /* create a label widget to hold the value */
-    value_label = gtk_label_new("----");
-    /* center justify text, no wordwrap */
-    gtk_label_set_justify(GTK_LABEL(value_label), GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap(GTK_LABEL(value_label), FALSE);
-    /* add the label to the vbox */
-    gtk_box_pack_start(GTK_BOX(vbox), value_label, TRUE, TRUE, 0);
+    /* create a meter object */
+    meter = meter_new();
+    if (meter == NULL) {
+	exit(-1);
+    }
+
+    /* add the meter's value label to the vbox */
+    gtk_box_pack_start(GTK_BOX(vbox), meter->value_label, TRUE, TRUE, 0);
+    gtk_widget_show(meter->value_label);
+
+    /* add the meter's name label to the vbox */
+    gtk_box_pack_start(GTK_BOX(vbox), meter->name_label, TRUE, TRUE, 0);
+    gtk_widget_show(meter->name_label);
+
     /* arrange for periodic refresh of the value */
-    gtk_timeout_add(100, refresh_value, value_label);
-    gtk_widget_show(value_label);
-
-    /* create a label widget to hold the name */
-    name_label = gtk_label_new("------");
-    /* center justify text, no wordwrap */
-    gtk_label_set_justify(GTK_LABEL(name_label), GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap(GTK_LABEL(name_label), FALSE);
-
-    gtk_box_pack_start(GTK_BOX(vbox), name_label, TRUE, TRUE, 0);
-    gtk_widget_show(name_label);
+    gtk_timeout_add(100, refresh_value, meter);
 
     /* an hbox to hold the select and exit buttons */
     hbox = gtk_hbox_new(FALSE, 0);
@@ -166,15 +159,12 @@ int main(int argc, gchar * argv[])
 
     /* activate the selection window when the 'select' button is clicked */
     gtk_signal_connect(GTK_OBJECT(button_select), "clicked",
-	GTK_SIGNAL_FUNC(popup_select_window), NULL);
+	GTK_SIGNAL_FUNC(popup_probe_window), meter->probe);
 
     gtk_widget_show(button_select);
     gtk_widget_show(button_exit);
 
-    /* set up (but do not display) the selection window */
-    define_select_window();
-
-    /* The interface is completely set up so we show the window and enter the 
+    /* The interface is completely set up so we show the window and enter the
        gtk_main loop. */
     gtk_widget_show(main_window);
     gtk_main();
@@ -182,116 +172,34 @@ int main(int argc, gchar * argv[])
     return (0);
 }
 
-/* this function implements the select window */
-static void define_select_window(void)
+meter_t *meter_new(void)
 {
-    GtkWidget *vbox, *hbox, *notebk;
-    GtkWidget *button_OK, *button_accept, *button_cancel;
-    GtkWidget *tab_label, *scrolled_window;
-    gchar *tab_label_text[3];
-    gint n;
+    meter_t *new;
 
-    if (select_window != NULL) {
-	/* window already exists, don't create another one */
-	return;
+    /* allocate a meter object for the display */
+    new = malloc(sizeof(meter_t));
+    if (new == NULL) {
+	return NULL;
     }
-    /* create select window, set it's size, and leave it re-sizeable */
-    select_window = gtk_window_new(GTK_WINDOW_POPUP);
-    gtk_widget_set_usize(GTK_WIDGET(select_window), 300, 400);
-    gtk_window_set_policy(GTK_WINDOW(select_window), TRUE, TRUE, FALSE);
-    /* window should appear in center of screen */
-    gtk_window_set_position(GTK_WINDOW(select_window), GTK_WIN_POS_CENTER);
-    /* set select window title */
-    gtk_window_set_title(GTK_WINDOW(select_window), "Select Item");
-
-    /* a vbox to hold stuff */
-    vbox = gtk_vbox_new(FALSE, 3);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 2);
-    /* add the vbox to the window */
-    gtk_container_add(GTK_CONTAINER(select_window), vbox);
-    gtk_widget_show(vbox);
-
-    /* an hbox to hold the OK, accept, and cancel buttons */
-    hbox = gtk_hbox_new(TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(hbox), 0);
-    /* add the hbox to the vbox */
-    gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
-    gtk_widget_show(hbox);
-
-    /* create the buttons and add them to the hbox */
-    button_OK = gtk_button_new_with_label("OK");
-    button_accept = gtk_button_new_with_label("Accept");
-    button_cancel = gtk_button_new_with_label("Cancel");
-
-    gtk_box_pack_start(GTK_BOX(hbox), button_OK, TRUE, TRUE, 4);
-    gtk_box_pack_start(GTK_BOX(hbox), button_accept, TRUE, TRUE, 4);
-    gtk_box_pack_start(GTK_BOX(hbox), button_cancel, TRUE, TRUE, 4);
-
-    /* activate the new selection 'OK' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_OK), "clicked",
-	GTK_SIGNAL_FUNC(accept_selection_and_close), NULL);
-
-    /* activate the new selection 'accept' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_accept), "clicked",
-	GTK_SIGNAL_FUNC(accept_selection), NULL);
-
-    /* make the window disappear 'cancel' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_cancel), "clicked",
-	GTK_SIGNAL_FUNC(close_selection), NULL);
-
-    gtk_widget_show(button_OK);
-    gtk_widget_show(button_accept);
-    gtk_widget_show(button_cancel);
-
-    /* create a notebook to hold pin, signal, and parameter lists */
-    notebk = gtk_notebook_new();
-    /* add the notebook to the window */
-    gtk_box_pack_start(GTK_BOX(vbox), notebk, TRUE, TRUE, 0);
-    /* set overall notebook parameters */
-    gtk_notebook_set_homogeneous_tabs(GTK_NOTEBOOK(notebk), TRUE);
-    /* text for tab labels */
-    tab_label_text[0] = "Pins";
-    tab_label_text[1] = "Signals";
-    tab_label_text[2] = "Parameters";
-    /* loop to create three identical tabs */
-    for (n = 0; n < 3; n++) {
-	/* Create a scrolled window to display the list */
-	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-	    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-	gtk_widget_show(scrolled_window);
-	/* create a list to hold the data */
-	lists[n] = gtk_clist_new(1);
-	/* set up a callback for when the user selects a line */
-	gtk_signal_connect(GTK_OBJECT(lists[n]), "select_row",
-	    GTK_SIGNAL_FUNC(selection_made), (gpointer) n);
-	/* It isn't necessary to shadow the border, but it looks nice :) */
-	gtk_clist_set_shadow_type(GTK_CLIST(lists[n]), GTK_SHADOW_OUT);
-	/* set list for single selection only */
-	gtk_clist_set_selection_mode(GTK_CLIST(lists[n]),
-	    GTK_SELECTION_BROWSE);
-	/* put the list into the scrolled window */
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW
-	    (scrolled_window), lists[n]);
-	gtk_widget_show(lists[n]);
-	/* create a label for the page */
-	tab_label = gtk_label_new(tab_label_text[n]);
-	gtk_label_set_justify(GTK_LABEL(tab_label), GTK_JUSTIFY_CENTER);
-	gtk_label_set_line_wrap(GTK_LABEL(tab_label), FALSE);
-	gtk_widget_show(tab_label);
-	/* create a box for the tab label */
-	hbox = gtk_hbox_new(TRUE, 0);
-	/* add the label to the box */
-	gtk_box_pack_start(GTK_BOX(hbox), tab_label, TRUE, TRUE, 0);
-	gtk_widget_show(hbox);
-	/* add page to the notebook */
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebk), scrolled_window, hbox);
-	/* set tab attributes */
-	gtk_notebook_set_tab_label_packing(GTK_NOTEBOOK(notebk), hbox,
-	    TRUE, TRUE, GTK_PACK_START);
+    /* define a probe for the display item */
+    new->probe = probe_new("Select item to display");
+    if (new->probe == NULL) {
+	free(new);
+	return NULL;
     }
-    /* done */
-    gtk_widget_show(notebk);
+    /* create a label widget to hold the value */
+    new->value_label = gtk_label_new("----");
+    /* center justify text, no wordwrap */
+    gtk_label_set_justify(GTK_LABEL(new->value_label), GTK_JUSTIFY_CENTER);
+    gtk_label_set_line_wrap(GTK_LABEL(new->value_label), FALSE);
+
+    /* create a label widget to hold the name */
+    new->name_label = gtk_label_new("------");
+    /* center justify text, no wordwrap */
+    gtk_label_set_justify(GTK_LABEL(new->name_label), GTK_JUSTIFY_CENTER);
+    gtk_label_set_line_wrap(GTK_LABEL(new->name_label), FALSE);
+
+    return new;
 }
 
 /***********************************************************************
@@ -306,13 +214,19 @@ static void exit_from_hal(void)
 /* this function refreshes the value display */
 static int refresh_value(gpointer data)
 {
+    meter_t *meter;
+    probe_t *probe;
     char *value_str;
 
-    if (selected_data == NULL) {
+    meter = (meter_t *) data;
+    probe = meter->probe;
+
+    if (probe->data == NULL) {
 	return 1;
     }
-    value_str = data_value(selected_type, selected_data);
-    gtk_label_set_text(GTK_LABEL(data), value_str);
+    value_str = data_value(probe->type, probe->data);
+    gtk_label_set_text(GTK_LABEL(meter->value_label), value_str);
+    gtk_label_set_text(GTK_LABEL(meter->name_label), probe->name);
     return 1;
 }
 
@@ -365,138 +279,4 @@ static char *data_value(int type, void *valptr)
 	value_str = "";
     }
     return value_str;
-}
-
-/* this function displays the select window */
-static void popup_select_window(GtkWidget * widget, gpointer data)
-{
-    int next;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_param_t *param;
-    gchar *name;
-
-    gtk_clist_clear(GTK_CLIST(lists[0]));
-    gtk_clist_clear(GTK_CLIST(lists[1]));
-    gtk_clist_clear(GTK_CLIST(lists[2]));
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
-	name = pin->name;
-	gtk_clist_append(GTK_CLIST(lists[0]), &name);
-	next = pin->next_ptr;
-    }
-    next = hal_data->sig_list_ptr;
-    while (next != 0) {
-	sig = SHMPTR(next);
-	name = sig->name;
-	gtk_clist_append(GTK_CLIST(lists[1]), &name);
-	next = sig->next_ptr;
-    }
-    next = hal_data->param_list_ptr;
-    while (next != 0) {
-	param = SHMPTR(next);
-	name = param->name;
-	gtk_clist_append(GTK_CLIST(lists[2]), &name);
-	next = param->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    gtk_widget_show_all(select_window);
-}
-
-static void accept_selection(GtkWidget * widget, gpointer data)
-{
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_param_t *param;
-
-    if (selected_name == NULL) {
-	/* not a valid selection */
-	/* should pop up a message or something here, instead we ignore it */
-	return;
-    }
-    if (selected_list == 0) {
-	/* search the pin list */
-	pin = halpr_find_pin_by_name(selected_name);
-	if (pin == NULL) {
-	    /* pin not found (can happen if pin is deleted after the list was 
-	       generated) */
-	    /* again, error handling leaves a bit to be desired! */
-	    return;
-	}
-	selected_type = pin->type;
-	if (pin->signal == 0) {
-	    /* pin is unlinked, get data from dummysig */
-	    selected_data = &(pin->dummysig);
-	} else {
-	    /* pin is linked to a signal */
-	    sig = SHMPTR(pin->signal);
-	    selected_data = SHMPTR(sig->data_ptr);
-	}
-    } else if (selected_list == 1) {
-	/* search the signal list */
-	sig = halpr_find_sig_by_name(selected_name);
-	if (sig == NULL) {
-	    /* signal not found (can happen if signal is deleted after the
-	       list was generated) */
-	    return;
-	}
-	selected_type = sig->type;
-	selected_data = SHMPTR(sig->data_ptr);
-    } else if (selected_list == 2) {
-	/* search the parameter list */
-	param = halpr_find_param_by_name(selected_name);
-	if (param == NULL) {
-	    /* parameter not found (can happen if param is deleted after the
-	       list was generated) */
-	    return;
-	}
-	selected_type = param->type;
-	selected_data = SHMPTR(param->data_ptr);
-    } else {
-	/* not one of our three lists - bad */
-	return;
-    }
-    /* at this point, the selected_xxx globals identify the item we wish to
-       display */
-    gtk_label_set_text(GTK_LABEL(name_label), selected_name);
-    refresh_value(value_label);
-}
-
-static void accept_selection_and_close(GtkWidget * widget, gpointer data)
-{
-    accept_selection(widget, data);
-    close_selection(widget, data);
-}
-
-static void close_selection(GtkWidget * widget, gpointer data)
-{
-    gtk_widget_hide_all(select_window);
-}
-
-/* If we come here, then the user has selected a row in the list. */
-void selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, gpointer data)
-{
-    GdkEventType type;
-
-    if ((event == NULL) || (clist == NULL)) {
-	/* We get spurious events when the lists are populated I don't know
-	   why.  If either clist or event is null, it's a bad one! */
-	return;
-    }
-    type = event->type;
-    if (type != 4) {
-	/* We also get bad callbacks if you drag the mouse across the list
-	   with the button held down.  They can be distinguished because
-	   their event type is 3, not 4. */
-	return;
-    }
-    /* If we get here, it should be a valid selection */
-    /* Get the text from the list, to the global 'selected_name' */
-    gtk_clist_get_text(GTK_CLIST(clist), row, column, &selected_name);
-    /* also store the list number (passed in 'data') */
-    selected_list = (int) data;
-    return;
 }

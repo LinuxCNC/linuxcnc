@@ -103,7 +103,7 @@ static long int max_delay = DEFAULT_MAX_DELAY;
 
 /* module parameters */
 
-static int msg_level = RTAPI_MSG_INFO; 	/* message printing level */
+static int msg_level = RTAPI_MSG_INFO;	/* message printing level */
 MODULE_PARM(msg_level, "i");
 MODULE_PARM_DESC(msg, "debug message level (default=7)");
 
