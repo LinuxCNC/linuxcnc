@@ -41,7 +41,7 @@ RT_OBJS =
 
 BINS =
 
-LOCAL_CXXFLAGS= -Wno_unused
+LOCAL_CXXFLAGS= -Wno-unused
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o) \
