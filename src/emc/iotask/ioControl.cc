@@ -37,11 +37,39 @@ static EMC_IO_STAT emcioStatus;
 static NML * emcErrorBuffer = 0;
 
 typedef struct {
-    hal_bit_t *estop_out;	/* estop pin */
-    hal_bit_t *estop_in;	/* estop pin */
+    hal_bit_t *estop_out;	/* estop pin output (from EMC to the actual machine) */
+    hal_bit_t *estop_in;	/* estop pin input (e.g. machine estop) */
+    hal_bit_t *coolant_mist;	/* coolant mist output pin */
+    hal_bit_t *coolant_flood;	/* coolant flood output pin */
+    hal_bit_t *lube;		/* lube output pin */
+    hal_bit_t *lube_level;	/* lube level input pin */
+    
+
+    // creating a lot of pins for spindle control to be very flexible
+    // the user needs only a subset of these
+
+    // simplest way of spindle control (output start/stop)
+    hal_bit_t *spindle_on;		/* spindle spin output */
+    
+    // same thing for 2 directions
+    hal_bit_t *spindle_forward;		/* spindle spin-forward output */
+    hal_bit_t *spindle_reverse;		/* spindle spin-reverse output */
+    
+    // simple velocity control (as long as the output is active the spindle
+    //				should accelerate/decelerate
+    hal_bit_t *spindle_incr_speed;	/* spindle spin-increase output */
+    hal_bit_t *spindle_decr_speed;	/* spindle spin-decrease output */
+    
+    // simple output for brake
+    hal_bit_t *spindle_break;		/* spindle break output */
+
+    // output of a prescribed speed (to hook-up to a velocity controller)
+    hal_float_t *spindle_speed_out;	/* spindle speed output */
+    hal_float_t *spindle_speed_in; 	/* spindle speed measured */
+    
 } iocontrol_t;
 
-static iocontrol_t *iocontrol_data_array;
+static iocontrol_t *iocontrol_data; //pointer to teh HAL-struct
 static int comp_id;		/* component ID */
 
 
@@ -208,6 +236,7 @@ static void quit(int sig)
   done = 1;
 }
 
+
 /********************************************************************
 *
 * Description: iocontrol_hal_init(void)
@@ -228,9 +257,9 @@ int iocontrol_hal_init(void) {
 	return -1;
     }
 
-    /* STEP 2: allocate shared memory for skeleton data */
-    iocontrol_data_array = (iocontrol_t *)hal_malloc(sizeof(iocontrol_t));
-    if (iocontrol_data_array == 0) {
+    /* STEP 2: allocate shared memory for iocontrol data */
+    iocontrol_data = (iocontrol_t *)hal_malloc(sizeof(iocontrol_t));
+    if (iocontrol_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "IOCONTROL: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
@@ -238,25 +267,136 @@ int iocontrol_hal_init(void) {
     }
 
     /* STEP 3a: export the out-pin(s) */
+
+    // estop-out
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.estop-out", n);
+    retval = hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->estop_out), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"IOCONTROL: ERROR: iocontrol %d pin estop-out export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    // coolant-flood
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.coolant-flood", n);
+    retval = hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->coolant_flood), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin coolant-flood export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    // coolant-mist
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.coolant-mist", n);
+    retval = hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->coolant_mist), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin coolant-mist export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    // lube
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.lube", n);
+    retval = hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->lube), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin lube export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    // spindle-on
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.spindle-on", n);
+    retval = hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->spindle_on), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin spindle-on export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    // spindle-forward
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.spindle-forward", n);
+    retval = hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->spindle_forward), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin spindle-forward export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    // spindle-reverse
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.spindle-reverse", n);
+    retval = hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->spindle_reverse), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin spindle-reverse export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    // spindle-incr-speed
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.spindle-incr-speed", n);
+    retval = hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->spindle_incr_speed), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin spindle-incr-speed export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    // spindle-decr-speed
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.spindle-decr-speed", n);
+    retval = hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->spindle_decr_speed), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin spindle-decr-speed export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    
+    // spindle-break
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.spindle-break", n);
+    retval = hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->spindle_break), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin spindle-break export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    
+    // spindle-speed-out
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.spindle-speed-out", n);
+    retval = hal_pin_float_new(name, HAL_WR, &(iocontrol_data->spindle_speed_out), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin spindle-speed-out export failed with err=%i\n", n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    /* STEP 3b: export the in-pin(s) */
+
+    // estop-in
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.estop-in", n);
     retval =
-	hal_pin_bit_new(name, HAL_WR, &(iocontrol_data_array->estop_out), comp_id);
+	hal_pin_bit_new(name, HAL_RD, &(iocontrol_data->estop_in), comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "IOCONTROL: ERROR: iocontrol %d pin estop-out export failed with err=%i\n", n,
+	    "IOCONTROL: ERROR: iocontrol %d pin estop-in export failed with err=%i\n", n,
 	    retval);
 	hal_exit(comp_id);
 	return -1;
     }
 
-    /* STEP 3b: export the in-pin(s) */
-    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.estop-in", n);
+    // lube_level
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.lube_level", n);
     retval =
-	hal_pin_bit_new(name, HAL_RD, &(iocontrol_data_array->estop_in), comp_id);
+	hal_pin_bit_new(name, HAL_RD, &(iocontrol_data->lube_level), comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "IOCONTROL: ERROR: iocontrol %d pin estop-in export failed with err=%i\n", n,
+	    "IOCONTROL: ERROR: iocontrol %d pin lube_level export failed with err=%i\n", n,
 	    retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    // spindle-speed-in
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.spindle-speed-in", n);
+    retval = hal_pin_float_new(name, HAL_RD, &(iocontrol_data->spindle_speed_in), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: iocontrol %d pin spindle-speed-in export failed with err=%i\n", n, retval);
 	hal_exit(comp_id);
 	return -1;
     }
@@ -283,9 +423,15 @@ int read_hal_inputs(void) {
 
     oldval = emcioStatus.aux.estop;
     if (oldval==0) //no estop commanded
-	emcioStatus.aux.estop = *(iocontrol_data_array->estop_in); //check for estop from HW
+	emcioStatus.aux.estop = *(iocontrol_data->estop_in); //check for estop from HW
 
     if (oldval != emcioStatus.aux.estop)
+	retval=1;
+
+    oldval = emcioStatus.lube.level;
+    emcioStatus.lube.level = *(iocontrol_data->lube_level); //check for lube_level from HW
+
+    if (oldval != emcioStatus.lube.level)
 	retval=1;
     
     return retval;
@@ -366,7 +512,7 @@ int main(int argc, char * argv[])
     // returns 1 if any of the HAL pins changed from the last time we checked
     // FIXME
     // I'm not sure the code here is the NML way to go
-    // if an external ESTOP is activated
+    // if an external ESTOP is activated (or another hal-pin has changed)
     // a NML message has to be forced to EMC
     // the way it was done status was only checked at the end of a command
     if (read_hal_inputs()>0) {
@@ -428,6 +574,11 @@ int main(int argc, char * argv[])
       emcioStatus.spindle.direction = 0;
       emcioStatus.spindle.brake = 1;
       emcioStatus.spindle.increasing = 0;
+      *(iocontrol_data->spindle_speed_out) = 0;
+      *(iocontrol_data->spindle_on) = 0;
+      *(iocontrol_data->spindle_forward) = 0;
+      *(iocontrol_data->spindle_reverse) = 0;
+      *(iocontrol_data->spindle_break) = 1;
       break;
 
     case EMC_SPINDLE_HALT_TYPE:
@@ -436,6 +587,11 @@ int main(int argc, char * argv[])
       emcioStatus.spindle.direction = 0;
       emcioStatus.spindle.brake = 1;
       emcioStatus.spindle.increasing = 0;
+      *(iocontrol_data->spindle_speed_out) = 0;
+      *(iocontrol_data->spindle_on) = 0;
+      *(iocontrol_data->spindle_forward) = 0;
+      *(iocontrol_data->spindle_reverse) = 0;
+      *(iocontrol_data->spindle_break) = 1;
       break;
 
     case EMC_SPINDLE_ABORT_TYPE:
@@ -444,14 +600,33 @@ int main(int argc, char * argv[])
       emcioStatus.spindle.direction = 0;
       emcioStatus.spindle.brake = 1;
       emcioStatus.spindle.increasing = 0;
+      *(iocontrol_data->spindle_speed_out) = 0;
+      *(iocontrol_data->spindle_on) = 0;
+      *(iocontrol_data->spindle_forward) = 0;
+      *(iocontrol_data->spindle_reverse) = 0;
+      *(iocontrol_data->spindle_break) = 1;
       break;
 
     case EMC_SPINDLE_ON_TYPE:
       emcioStatus.spindle.speed = ((EMC_SPINDLE_ON *) emcioCommand)->speed;
-      emcioStatus.spindle.direction = 1;
       emcioStatus.spindle.brake = 0;
       emcioStatus.spindle.increasing = 0;
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_ON %f RPM\n", emcioStatus.spindle.speed);
+      if (((EMC_SPINDLE_ON *) emcioCommand)->speed > 0) {
+         emcioStatus.spindle.direction = 1;
+         *(iocontrol_data->spindle_speed_out) = ((EMC_SPINDLE_ON *) emcioCommand)->speed;
+         *(iocontrol_data->spindle_on) = 1;
+         *(iocontrol_data->spindle_forward) = 1;
+         *(iocontrol_data->spindle_reverse) = 0;
+      }
+      else {
+         emcioStatus.spindle.direction = -1;
+         *(iocontrol_data->spindle_speed_out) = -((EMC_SPINDLE_ON *) emcioCommand)->speed;
+         *(iocontrol_data->spindle_on) = 1;
+         *(iocontrol_data->spindle_forward) = 0;
+         *(iocontrol_data->spindle_reverse) = 1;
+      }
+      *(iocontrol_data->spindle_break) = 0;
       break;
 
     case EMC_SPINDLE_OFF_TYPE:
@@ -460,24 +635,36 @@ int main(int argc, char * argv[])
       emcioStatus.spindle.direction = 0;
       emcioStatus.spindle.brake = 1;
       emcioStatus.spindle.increasing = 0;
+      *(iocontrol_data->spindle_speed_out) = 0;
+      *(iocontrol_data->spindle_on) = 0;
+      *(iocontrol_data->spindle_forward) = 0;
+      *(iocontrol_data->spindle_reverse) = 0;
+      *(iocontrol_data->spindle_break) = 1;
       break;
 
     case EMC_SPINDLE_FORWARD_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_FORWARD %f RPM\n", emcioStatus.spindle.speed);
       emcioStatus.spindle.direction = 1;
       emcioStatus.spindle.brake = 0;
+      *(iocontrol_data->spindle_forward) = 1;
       break;
 
     case EMC_SPINDLE_REVERSE_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_REVERSE %f RPM\n", emcioStatus.spindle.speed);
       emcioStatus.spindle.direction = -1;
       emcioStatus.spindle.brake = 0;
+      *(iocontrol_data->spindle_reverse) = 1;
       break;
 
     case EMC_SPINDLE_STOP_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_STOP\n");
       emcioStatus.spindle.direction = 0;
       emcioStatus.spindle.brake = 1;
+      *(iocontrol_data->spindle_speed_out) = 0;
+      *(iocontrol_data->spindle_on) = 0;
+      *(iocontrol_data->spindle_forward) = 0;
+      *(iocontrol_data->spindle_reverse) = 0;
+      *(iocontrol_data->spindle_break) = 1;
       break;
 
     case EMC_SPINDLE_INCREASE_TYPE:
@@ -485,6 +672,8 @@ int main(int argc, char * argv[])
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_INCREASE %f RPM\n", emcioStatus.spindle.speed);
       emcioStatus.spindle.increasing = 1;
       emcioStatus.spindle.brake = 0;
+      *(iocontrol_data->spindle_speed_out)+=1.0;
+      *(iocontrol_data->spindle_incr_speed) = 1;
       break;
 
     case EMC_SPINDLE_DECREASE_TYPE:
@@ -492,118 +681,146 @@ int main(int argc, char * argv[])
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_DECREASE %f RPM\n", emcioStatus.spindle.speed);
       emcioStatus.spindle.increasing = -1;
       emcioStatus.spindle.brake = 0;
+      *(iocontrol_data->spindle_speed_out)-=1.0;
+      *(iocontrol_data->spindle_decr_speed) = 1;
       break;
 
     case EMC_SPINDLE_CONSTANT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_CONSTANT %f RPM\n", emcioStatus.spindle.speed);
       emcioStatus.spindle.increasing = 0;
       emcioStatus.spindle.brake = 0;
+      *(iocontrol_data->spindle_decr_speed) = 0;
+      *(iocontrol_data->spindle_incr_speed) = 0;
       break;
 
     case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_BRAKE_RELEASE\n");
       emcioStatus.spindle.brake = 0;
+      *(iocontrol_data->spindle_break) = 0;
       break;
 
     case EMC_SPINDLE_BRAKE_ENGAGE_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_BRAKE_ENGAGE\n");
       emcioStatus.spindle.brake = 1;
+      *(iocontrol_data->spindle_break) = 1;
       break;
 
     case EMC_COOLANT_INIT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_INIT\n");
       emcioStatus.coolant.mist = 0;
       emcioStatus.coolant.flood = 0;
-      break;
+      *(iocontrol_data->coolant_mist) = 0;
+      *(iocontrol_data->coolant_flood) = 0;
+    break;
 
     case EMC_COOLANT_HALT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_HALT\n");
       emcioStatus.coolant.mist = 0;
       emcioStatus.coolant.flood = 0;
+      *(iocontrol_data->coolant_mist) = 0;
+      *(iocontrol_data->coolant_flood) = 0;
       break;
 
     case EMC_COOLANT_ABORT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_ABORT\n");
       emcioStatus.coolant.mist = 0;
       emcioStatus.coolant.flood = 0;
+      *(iocontrol_data->coolant_mist) = 0;
+      *(iocontrol_data->coolant_flood) = 0;
       break;
 
     case EMC_COOLANT_MIST_ON_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_MIST_ON\n");
       emcioStatus.coolant.mist = 1;
+      *(iocontrol_data->coolant_mist) = 1;
       break;
 
     case EMC_COOLANT_MIST_OFF_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_MIST_OFF\n");
       emcioStatus.coolant.mist = 0;
+      *(iocontrol_data->coolant_mist) = 0;
       break;
 
     case EMC_COOLANT_FLOOD_ON_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_FLOOD_ON\n");
       emcioStatus.coolant.flood = 1;
+      *(iocontrol_data->coolant_flood) = 1;
       break;
 
     case EMC_COOLANT_FLOOD_OFF_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_FLOOD_OFF\n");
       emcioStatus.coolant.flood = 0;
+      *(iocontrol_data->coolant_flood) = 0;
       break;
 
     case EMC_AUX_INIT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_INIT\n");
       emcioStatus.aux.estop = 1;
-      emcioStatus.aux.estopIn = *(iocontrol_data_array->estop_in);
+      emcioStatus.aux.estopIn = *(iocontrol_data->estop_in);
+      *(iocontrol_data->estop_out) = 1;
       break;
 
     case EMC_AUX_HALT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_HALT\n");
       emcioStatus.aux.estop = 1;
-      emcioStatus.aux.estopIn = *(iocontrol_data_array->estop_in);
+      emcioStatus.aux.estopIn = *(iocontrol_data->estop_in);
+      *(iocontrol_data->estop_out) = 1;
       break;
 
     case EMC_AUX_ABORT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ABORT\n");
       emcioStatus.aux.estop = 1;
-      emcioStatus.aux.estopIn = *(iocontrol_data_array->estop_in);
+      emcioStatus.aux.estopIn = *(iocontrol_data->estop_in);
+      *(iocontrol_data->estop_out) = 1;
       break;
 
     case EMC_AUX_ESTOP_ON_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_ON\n");
       emcioStatus.aux.estop = 1;
-      *(iocontrol_data_array->estop_out) = 1;
+      *(iocontrol_data->estop_out) = 1;
       break;
 
     case EMC_AUX_ESTOP_OFF_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_OFF\n");
-      *(iocontrol_data_array->estop_out) = 0;
-      emcioStatus.aux.estop = *(iocontrol_data_array->estop_in);
+      *(iocontrol_data->estop_out) = 0;
+      emcioStatus.aux.estop = *(iocontrol_data->estop_in);
       break;
 
     case EMC_LUBE_INIT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_INIT\n");
       emcioStatus.lube.on = 0;
-      emcioStatus.lube.level = 1;
+      //get the lube-level from hal
+      emcioStatus.lube.level = *(iocontrol_data->lube_level);
+      *(iocontrol_data->lube) = 0;
       break;
 
     case EMC_LUBE_HALT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_HALT\n");
       emcioStatus.lube.on = 0;
-      emcioStatus.lube.level = 1;
+      //get the lube-level from hal
+      emcioStatus.lube.level = *(iocontrol_data->lube_level);
+      *(iocontrol_data->lube) = 0;
       break;
 
     case EMC_LUBE_ABORT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_ABORT\n");
       emcioStatus.lube.on = 0;
       emcioStatus.lube.level = 1;
+      //get the lube-level from hal
+      emcioStatus.lube.level = *(iocontrol_data->lube_level);
+      *(iocontrol_data->lube) = 0;
       break;
 
     case EMC_LUBE_ON_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_ON\n");
       emcioStatus.lube.on = 1;
+      *(iocontrol_data->lube) = 1;
       break;
 
     case EMC_LUBE_OFF_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_OFF\n");
       emcioStatus.lube.on = 0;
+      *(iocontrol_data->lube) = 0;
       break;
 
     default:
