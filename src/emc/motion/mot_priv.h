@@ -99,7 +99,7 @@ typedef struct {
 
     axis_hal_t axis[EMCMOT_MAX_AXIS];	/* data for each axis */
 
-} machine_hal_t;
+} emcmot_hal_data_t;
 
 /***********************************************************************
 *                   GLOBAL VARIABLE DECLARATIONS                       *
@@ -108,8 +108,8 @@ typedef struct {
 /* HAL component ID for motion module */
 extern int mot_comp_id;
 
-/* pointer to machine_hal_t struct in HAL shmem, with all HAL data */
-extern machine_hal_t *machine_hal_data;
+/* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
+extern emcmot_hal_data_t *emcmot_hal_data;
 
 /* Variable defs */
 extern int kinType;

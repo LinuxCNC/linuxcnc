@@ -172,7 +172,7 @@ extern "C" {
 	int commandNum;		/* increment this for new command */
 	double maxLimit;	/* pos value for position limit, output */
 	double minLimit;	/* neg value for position limit, output */
-	EmcPose pos;		/* end for line, circle */
+	EmcPose pos;		/* line/circle endpt, or teleop vector */
 	PmCartesian center;	/* center for circle */
 	PmCartesian normal;	/* normal vec for circle */
 	int turn;		/* turns for circle */
@@ -482,6 +482,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	/* these are config info, updated when a command changes them */
 	double qVscale;		/* velocity scale factor for all motion */
 	/* the rest are updated every cycle */
+	motion_state_t motion_state; /* operating state: FREE, COORD, etc. */
 	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
 	EmcPose carte_pos_cmd;	/* commanded Cartesian position */
 	EmcPose carte_pos_fb;	/* actual Cartesian position */

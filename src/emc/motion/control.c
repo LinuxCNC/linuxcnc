@@ -39,6 +39,22 @@ int rehomeAll;
 static double servo_period;
 static double servo_freq;
 
+
+/* debugging function - it watches a particular variable and
+   prints a message when the value changes.
+*/
+
+void check_stuff(char *location)
+{
+    static double *target, old = 0.1;
+
+    target = &(emcmotStatus->joints[0].min_ferror);
+    if ( old != *target ) {
+	rtapi_print ( "%d at %s\n", (int)(*target*1000), location );
+	old = *target;
+    }
+}
+
 /***********************************************************************
 *                      LOCAL FUNCTION PROTOTYPES                       *
 ************************************************************************/
@@ -161,15 +177,25 @@ void emcmotController(void *arg, long period)
     /* increment head count to indicate work in progress */
     emcmotStatus->head++;
     /* here begins the core of the controller */
+check_stuff ( "before process_inputs()" );
     process_inputs();
+check_stuff ( "after process_inputs()" );
     do_forward_kins();
+check_stuff ( "after do_forward_kins()" );
     check_soft_limits();
+check_stuff ( "after check_soft_limits()" );
     check_for_faults();
+check_stuff ( "after check_for_faults()" );
     set_operating_mode();
+check_stuff ( "after set_operating_mode()" );
     do_homing();
+check_stuff ( "after do_homing()" );
     get_pos_cmds();
+check_stuff ( "after get_pos_cmds()" );
     compute_backlash();
+check_stuff ( "after compute_backlash()" );
     output_to_hal();
+check_stuff ( "after output_to_hal()" );
     /* here ends the core of the controller */
     emcmotStatus->heartbeat++;
     /* set tail to head, to indicate work complete */
@@ -195,7 +221,7 @@ static void process_inputs(void)
     emcmot_joint_t *joint;
 
     /* read probe input */
-    if (*(machine_hal_data->probe_input)) {
+    if (*(emcmot_hal_data->probe_input)) {
 	emcmotStatus->probeVal = 1;
     } else {
 	emcmotStatus->probeVal = 0;
@@ -204,7 +230,7 @@ static void process_inputs(void)
     /* read and process per-joint inputs */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to axis HAL data */
-	axis_data = &(machine_hal_data->axis[joint_num]);
+	axis_data = &(emcmot_hal_data->axis[joint_num]);
 	/* point to joint data */
 	joint = &(emcmotStatus->joints[joint_num]);
 	/* copy data from HAL to joint structure */
@@ -565,7 +591,7 @@ static void set_operating_mode(void)
 	tpClear(&emcmotDebug->queue);
 	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	    /* point to joint data */
-	    axis_data = &(machine_hal_data->axis[joint_num]);
+	    axis_data = &(emcmot_hal_data->axis[joint_num]);
 	    joint = &(emcmotStatus->joints[joint_num]);
 	    /* disable free mode planner */
 	    joint->free_tp_enable = 0;
@@ -598,7 +624,7 @@ static void set_operating_mode(void)
 	tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	    /* point to joint data */
-	    axis_data = &(machine_hal_data->axis[joint_num]);
+	    axis_data = &(emcmot_hal_data->axis[joint_num]);
 	    joint = &(emcmotStatus->joints[joint_num]);
 
 	    joint->free_pos_cmd = joint->pos_cmd;
@@ -718,9 +744,22 @@ static void set_operating_mode(void)
 		emcmotDebug->coordinating = 1;
 	    }
 	}
-
+    }
+    /* FIXME - this code is temporary - eventually this function will be
+       cleaned up and simplified, and 'motion_state' will become the master
+       for this info, instead of having to gather it from several flags */
+    if (!GET_MOTION_ENABLE_FLAG()) {
+	emcmotStatus->motion_state = EMCMOT_MOTION_DISABLED;
+    } else if (GET_MOTION_TELEOP_FLAG()) {
+	emcmotStatus->motion_state = EMCMOT_MOTION_TELEOP;
+    } else if (GET_MOTION_COORD_FLAG()) {
+	emcmotStatus->motion_state = EMCMOT_MOTION_COORD;
+    } else {
+	emcmotStatus->motion_state = EMCMOT_MOTION_FREE;
     }
 }
+
+/* Beginning of homing related code */
 
 /* Length of delay between homing motions - this is intended to
    ensure that all motion has ceased and switch bouncing has
@@ -792,22 +831,7 @@ static void do_homing(void)
     double offset, tmp;
     int home_sw_new, home_sw_rise, home_sw_fall;
 
-    motion_state_t motion_state;
-
-    /* FIXME - this code is temporary - eventually 'motion_state' will be the
-       master for this info, instead of having to gather it from several flags
-       - I need to re-write 'set_operating_mode()' because it's ugly */
-    if (!GET_MOTION_ENABLE_FLAG()) {
-	motion_state = EMCMOT_MOTION_DISABLED;
-    } else if (GET_MOTION_TELEOP_FLAG()) {
-	motion_state = EMCMOT_MOTION_TELEOP;
-    } else if (GET_MOTION_COORD_FLAG()) {
-	motion_state = EMCMOT_MOTION_COORD;
-    } else {
-	motion_state = EMCMOT_MOTION_FREE;
-    }
-
-    if (motion_state != EMCMOT_MOTION_FREE) {
+    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
 	/* can't home unless in free mode */
 	return;
     }
@@ -1271,31 +1295,17 @@ static void get_pos_cmds(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
-#if 0
     double positions[EMCMOT_MAX_AXIS];
+#if 0
     static int interpolationCounter = 0;
-    double old_pos_cmd;
 #endif
-    motion_state_t motion_state;
+    double old_pos_cmd;
     double max_dv, tiny_dp, pos_err, vel_req, vel_lim;
 
     /* RUN MOTION CALCULATIONS: */
 
-    /* FIXME - this code is temporary - eventually 'motion_state' will be the
-       master for this info, instead of having to gather it from several flags
-       - I need to re-write 'set_operating_mode()' because it's ugly */
-    if (!GET_MOTION_ENABLE_FLAG()) {
-	motion_state = EMCMOT_MOTION_DISABLED;
-    } else if (GET_MOTION_TELEOP_FLAG()) {
-	motion_state = EMCMOT_MOTION_TELEOP;
-    } else if (GET_MOTION_COORD_FLAG()) {
-	motion_state = EMCMOT_MOTION_COORD;
-    } else {
-	motion_state = EMCMOT_MOTION_FREE;
-    }
-
     /* run traj planner code depending on the state */
-    switch (motion_state) {
+    switch ( emcmotStatus->motion_state) {
     case EMCMOT_MOTION_FREE:
 	/* in free mode, each joint is planned independently */
 	/* Each joint has a very simple "trajectory planner".  If the planner 
@@ -1378,6 +1388,39 @@ static void get_pos_cmds(void)
 	}
 	break;
     case EMCMOT_MOTION_COORD:
+	/* check joint 0 to see if the interpolators are empty */
+	while (cubicNeedNextPoint(&(emcmotStatus->joints[0].cubic))) {
+	    /* they're empty, pull next point(s) off Cartesian planner */
+	    /* run coordinated trajectory planning cycle */
+	    tpRunCycle(&emcmotDebug->queue);
+	    /* gt new commanded traj pos */
+	    emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->queue);
+	    /* OUTPUT KINEMATICS - convert to joints in local array */
+	    kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
+		&iflags, &fflags);
+	    /* copy to joint structures and spline them up */
+	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+		/* point to joint struct */
+		joint = &(emcmotStatus->joints[joint_num]);
+		joint->coarse_pos = positions[joint_num];
+		/* spline joints up-- note that we may be adding points
+		   that fail soft limits, but we'll abort at the end of
+		   this cycle so it doesn't really matter */
+		cubicAddPoint(&(joint->cubic), joint->coarse_pos);
+	    }
+	    /* END OF OUTPUT KINS */
+	}
+	/* there is data in the interpolators */
+	/* run interpolation */
+	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	    /* point to joint struct */
+	    joint = &(emcmotStatus->joints[joint_num]);
+	    /* save old command */
+	    old_pos_cmd = joint->pos_cmd;
+	    /* interpolate to get new one */
+	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, 0, 0, 0);
+	    joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
+	}
 	break;
     case EMCMOT_MOTION_TELEOP:
 	break;
@@ -1477,14 +1520,14 @@ Their exact contents and meaning are as follows:
     /* run axis interpolations and outputs, but only if we're enabled. This
        section is "suppressed" if we're not enabled, although the read/write
        of encoders/dacs is still done. */
-#if 0				/* dunno what whichCycle is all about yet */
+ #if 0				/* dunno what whichCycle is all about yet */
     whichCycle = 0;
-#endif
+ #endif
     if (GET_MOTION_ENABLE_FLAG()) {
 	/* set whichCycle to be at least a servo cycle, for calc time logging */
-#if 0				/* dunno what whichCycle is all about yet */
+ #if 0				/* dunno what whichCycle is all about yet */
 	whichCycle = 1;
-#endif
+ #endif
 
 	/* check joint 0 to see if the interpolators are empty */
 	while (cubicNeedNextPoint(&(emcmotStruct->joints[0].cubic))) {
@@ -1618,31 +1661,12 @@ Their exact contents and meaning are as follows:
 
 		/* set whichCycle to be a Cartesian trajectory cycle, for
 		   calc time logging */
-#if 0				/* dunno what whichCycle is all about yet */
+ #if 0				/* dunno what whichCycle is all about yet */
 		whichCycle = 2;
-#endif
-
-		/* run coordinated trajectory planning cycle */
-		tpRunCycle(&emcmotDebug->queue);
-
-		/* set new commanded traj pos */
-		emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->queue);
-
-		/* OUTPUT KINEMATICS */
-		/* convert to joint positions in local array */
-		kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
-		    &iflags, &fflags);
-		/* copy to joint structures and spline them up */
-		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		    /* point to joint struct */
-		    joint = &(emcmotStruct->joints[joint_num]);
-		    joint->coarse_pos = positions[joint_num];
-		    /* spline joints up-- note that we may be adding points
-		       that fail soft limits, but we'll abort at the end of
-		       this cycle so it doesn't really matter */
-		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-		}
-		/* END OF OUTPUT KINS */
+ #endif
+		/* Calls to tpRunCycle() and tpGetPos() were here, now
+		   in COORD case of switch */
+		/* OUTPUT KINEMATICS were here, now in COORD case of switch */
 		/* FEEDBACK KINS was here, moved to do_forward_kins() */
 		/* now emcmotStatus->carte_pos_fb,
 		   emcmotStatus->carte_pos_cmd, and
@@ -1772,20 +1796,20 @@ static void output_to_hal(void)
     axis_hal_t *axis_data;
 
     /* output machine info to HAL for scoping, etc */
-    machine_hal_data->motion_enable = GET_MOTION_ENABLE_FLAG();
-    machine_hal_data->in_position = GET_MOTION_INPOS_FLAG();
-    machine_hal_data->coord_mode = GET_MOTION_COORD_FLAG();
-    machine_hal_data->teleop_mode = GET_MOTION_TELEOP_FLAG();
-    machine_hal_data->coord_error = GET_MOTION_ERROR_FLAG();
+    emcmot_hal_data->motion_enable = GET_MOTION_ENABLE_FLAG();
+    emcmot_hal_data->in_position = GET_MOTION_INPOS_FLAG();
+    emcmot_hal_data->coord_mode = GET_MOTION_COORD_FLAG();
+    emcmot_hal_data->teleop_mode = GET_MOTION_TELEOP_FLAG();
+    emcmot_hal_data->coord_error = GET_MOTION_ERROR_FLAG();
     /* These params can be used to examine any internal variable. */
     /* Change the following lines to assign the variable you want to observe
        to one of the debug parameters.  You can also comment out these lines
        and copy elsewhere if you want to observe an automatic variable that
        isn't in scope here. */
-    machine_hal_data->debug_bit_0 = emcmotStatus->joints[1].free_tp_active;
-    machine_hal_data->debug_bit_1 = 0;
-    machine_hal_data->debug_float_0 = 0.0;
-    machine_hal_data->debug_float_1 = 0.0;
+    emcmot_hal_data->debug_bit_0 = emcmotStatus->joints[1].free_tp_active;
+    emcmot_hal_data->debug_bit_1 = 0;
+    emcmot_hal_data->debug_float_0 = 0.0;
+    emcmot_hal_data->debug_float_1 = 0.0;
 
     /* output axis info to HAL for scoping, etc */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
@@ -1795,7 +1819,7 @@ static void output_to_hal(void)
 	joint->motor_pos_cmd =
 	    joint->pos_cmd + joint->backlash_filt + joint->motor_offset;
 	/* point to HAL data */
-	axis_data = &(machine_hal_data->axis[joint_num]);
+	axis_data = &(emcmot_hal_data->axis[joint_num]);
 	/* write to HAL pins */
 	*(axis_data->motor_pos_cmd) = joint->motor_pos_cmd;
 	*(axis_data->amp_enable) = GET_JOINT_ENABLE_FLAG(joint);

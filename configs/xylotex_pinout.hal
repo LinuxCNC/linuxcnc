@@ -1,0 +1,8 @@
+# pinout config file for 3 channel Xylotex drive
+linksp Xstep parport.1.pin-02-out
+linksp Xdir  parport.1.pin-03-out
+linksp Ystep parport.1.pin-04-out
+linksp Ydir  parport.1.pin-05-out
+linksp Zstep parport.1.pin-06-out
+linksp Zdir  parport.1.pin-07-out
+

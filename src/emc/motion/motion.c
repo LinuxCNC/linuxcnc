@@ -74,8 +74,8 @@ MODULE_PARM_DESC(traj_period_nsec, "trajectory planner period (nsecs)");
 *                  GLOBAL VARIABLE DEFINITIONS                         *
 ************************************************************************/
 
-/* pointer to machine_hal_t struct in HAL shmem, with all HAL data */
-machine_hal_t *machine_hal_data;
+/* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
+emcmot_hal_data_t *emcmot_hal_data;
 
 int mot_comp_id;		/* component ID for motion module */
 
@@ -273,17 +273,17 @@ static int init_hal_io(void)
     rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: init_hal_io() starting...\n");
 
     /* allocate shared memory for machine data */
-    machine_hal_data = hal_malloc(sizeof(machine_hal_t));
-    if (machine_hal_data == 0) {
+    emcmot_hal_data = hal_malloc(sizeof(emcmot_hal_data_t));
+    if (emcmot_hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: machine_hal_data malloc failed\n");
+	    "MOTION: emcmot_hal_data malloc failed\n");
 	return -1;
     }
 
     /* export machine wide hal pins */
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.probe-input");
     retval =
-	hal_pin_bit_new(buf, HAL_RD, &(machine_hal_data->probe_input),
+	hal_pin_bit_new(buf, HAL_RD, &(emcmot_hal_data->probe_input),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
@@ -292,35 +292,35 @@ static int init_hal_io(void)
     /* export machine wide hal parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-enable");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->motion_enable),
+	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->motion_enable),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.in-position");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->in_position),
+	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->in_position),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.coord-mode");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->coord_mode),
+	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->coord_mode),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.teleop-mode");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->teleop_mode),
+	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->teleop_mode),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.coord-error");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->coord_error),
+	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->coord_error),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
@@ -330,14 +330,14 @@ static int init_hal_io(void)
        in control.c:output_to_hal() and recompile */
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-bit-0");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->debug_bit_0),
+	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->debug_bit_0),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-bit-1");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->debug_bit_1),
+	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->debug_bit_1),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
@@ -345,39 +345,39 @@ static int init_hal_io(void)
 
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-float-0");
     retval =
-	hal_param_float_new(buf, HAL_RD, &(machine_hal_data->debug_float_0),
+	hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->debug_float_0),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-float-1");
     retval =
-	hal_param_float_new(buf, HAL_RD, &(machine_hal_data->debug_float_1),
+	hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->debug_float_1),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
 
     /* initialize machine wide pins and parameters */
-    *(machine_hal_data->probe_input) = 0;
+    *(emcmot_hal_data->probe_input) = 0;
     /* FIXME - these don't really need initialized, since they are written
        with data from the emcmotStatus struct */
-    machine_hal_data->motion_enable = 0;
-    machine_hal_data->in_position = 0;
-    machine_hal_data->coord_mode = 0;
-    machine_hal_data->teleop_mode = 0;
-    machine_hal_data->coord_error = 0;
+    emcmot_hal_data->motion_enable = 0;
+    emcmot_hal_data->in_position = 0;
+    emcmot_hal_data->coord_mode = 0;
+    emcmot_hal_data->teleop_mode = 0;
+    emcmot_hal_data->coord_error = 0;
 
     /* init debug parameters */
-    machine_hal_data->debug_bit_0 = 0;
-    machine_hal_data->debug_bit_1 = 0;
-    machine_hal_data->debug_float_0 = 0.0;
-    machine_hal_data->debug_float_1 = 0.0;
+    emcmot_hal_data->debug_bit_0 = 0;
+    emcmot_hal_data->debug_bit_1 = 0;
+    emcmot_hal_data->debug_float_0 = 0.0;
+    emcmot_hal_data->debug_float_1 = 0.0;
 
     /* export axis pins and parameters */
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
 	/* point to axis data */
-	axis_data = &(machine_hal_data->axis[n]);
+	axis_data = &(emcmot_hal_data->axis[n]);
 	/* export all vars */
 	retval = export_axis(n, axis_data);
 	if (retval != 0) {

@@ -1,0 +1,49 @@
+# core HAL config file for steppers
+
+addf stepgen.capture_position servo-thread 1
+addf stepgen.update_freq servo-thread -1
+addf stepgen.make_pulses base-thread -1
+
+# connect position commands from motion module to step generator
+newsig Xpos-cmd float
+linksp Xpos-cmd <= axis.0.motor-pos-cmd
+linksp Xpos-cmd => stepgen.0.position-cmd
+newsig Ypos-cmd float
+linksp Ypos-cmd <= axis.1.motor-pos-cmd
+linksp Ypos-cmd => stepgen.1.position-cmd
+newsig Zpos-cmd float
+linksp Zpos-cmd <= axis.2.motor-pos-cmd
+linksp Zpos-cmd => stepgen.2.position-cmd
+
+# connect position feedback from step generators
+# to motion module
+newsig Xpos-fb float
+linksp Xpos-fb <= stepgen.0.position-fb
+linksp Xpos-fb => axis.0.motor-pos-fb
+newsig Ypos-fb float
+linksp Ypos-fb <= stepgen.1.position-fb
+linksp Ypos-fb => axis.1.motor-pos-fb
+newsig Zpos-fb float
+linksp Zpos-fb <= stepgen.2.position-fb
+linksp Zpos-fb => axis.2.motor-pos-fb
+
+# connect signals to step pulse generator outputs
+newsig Xstep bit
+newsig Xdir  bit
+newsig Ystep bit
+newsig Ydir  bit
+newsig Zstep bit
+newsig Zdir  bit
+linkps stepgen.0.step Xstep
+linkps stepgen.0.dir  Xdir
+linkps stepgen.1.step Ystep
+linkps stepgen.1.dir  Ydir
+linkps stepgen.2.step Zstep
+linkps stepgen.2.dir  Zdir
+
+# set scaling - 1600 steps / rev * 5 turns per inch = 8000
+setp stepgen.0.position-scale 8000
+setp stepgen.1.position-scale 8000
+setp stepgen.2.position-scale 8000
+
+

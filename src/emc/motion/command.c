@@ -69,6 +69,11 @@
 #include "emcmotglb.h"
 #include "mot_priv.h"
 
+
+/* debugging function */
+extern void check_stuff(char *msg);
+
+
 /* value for world home position */
 EmcPose worldHome = { {0.0, 0.0, 0.0}
 , 0.0, 0.0, 0.0
@@ -179,9 +184,8 @@ static int inRange(EmcPose pos)
 	    /* if joint is not active, don't even look at its limits */
 	    continue;
 	}
-
 	if ((joint_pos[joint_num] > joint->max_pos_limit) ||
-	    (joint_pos[joint_num] < joint->max_pos_limit)) {
+	    (joint_pos[joint_num] < joint->min_pos_limit)) {
 	    return 0;		/* can't move further past limit */
 	}
     }
@@ -232,6 +236,8 @@ void emcmotCommandHandler(void *arg, long period)
     int valid;
     double tmp;
     emcmot_joint_t *joint;
+
+check_stuff ( "before command_handler()" );
 
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
@@ -1034,16 +1040,20 @@ void emcmotCommandHandler(void *arg, long period)
 
 	case EMCMOT_ENABLE_WATCHDOG:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE_WATCHDOG");
+#if 0
 	    emcmotDebug->wdEnabling = 1;
 	    emcmotDebug->wdWait = emcmotCommand->wdWait;
 	    if (emcmotDebug->wdWait < 0) {
 		emcmotDebug->wdWait = 0;
 	    }
+#endif
 	    break;
 
 	case EMCMOT_DISABLE_WATCHDOG:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE_WATCHDOG");
+#if 0
 	    emcmotDebug->wdEnabling = 0;
+#endif
 	    break;
 
 	case EMCMOT_CLEAR_PROBE_FLAGS:
@@ -1156,5 +1166,7 @@ void emcmotCommandHandler(void *arg, long period)
 
     }
     /* end of: if-new-command */
+check_stuff ( "after command_handler()" );
+
     return;
 }
