@@ -12,15 +12,21 @@ SRCS =	\
 	memsem.cc \
 	phantom.cc \
 	physmem.cc \
+	recvn.c \
+	sendn.c \
 	shmem.cc \
+	tcpmem.cc \
 
 HEADERS = \
 	locmem.hh \
 	memsem.hh \
 	phantom.hh \
 	physmem.hh \
+	recvn.h \
 	rem_msg.hh \
+	sendn.h \
 	shmem.hh \
+	tcpmem.hh \
 
 
 OBJS := $(CMS_OBJS)

@@ -1,6 +1,7 @@
 #ifndef LINKED_LIST_HH
 #define LINKED_LIST_HH
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -10,6 +11,11 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+enum IS_EMPTY {
+    LIST_EMPTY,
+    LIST_NOT_EMPTY
+};
+
 enum LIST_SIZING_MODE {
     DELETE_FROM_HEAD,
     DELETE_FROM_TAIL,
@@ -17,8 +23,6 @@ enum LIST_SIZING_MODE {
     NO_MAXIMUM_SIZE
 };
 
-/** this is more of a struct..
-    But still need to add some comments... */
 class LinkedListNode {
   public:
     void *data;
@@ -38,82 +42,206 @@ class LinkedList {
     LinkedListNode *tail;
     LinkedListNode *current_node;
     LinkedListNode *extra_node;
-    int nextNodeId;
+    int next_node_id;
   public:
-    /** Deletes the current node
-        Used by CMS_SERVER & CMS_SERVER_REMOTE_XXX_PORT */
-    void deleteCurrentNode();
+    int get_current_id();
+    /* 
 
-    /** Flushes the list regardless of data still tagged uncopied */
-    void deleteMembers();
+     */
+    int list_size;
+    /* 
 
-    /** Deletes the specified node and frees the memory if it is tagged
-        as copied.
-        Used by NML and CMS classes */
-    void deleteNode(int _id);
+     */
+    int max_list_size;
+    /* 
 
-    /** Flushes all the nodes that have been copied out and frees up memory */
-    void flushList();
+     */
+    LIST_SIZING_MODE sizing_mode;
+    /* 
 
-    /** Returns the ID of the current node */
-    int getCurrentId();
+     */
+    void set_list_sizing_mode(int, LIST_SIZING_MODE);
+    /* 
+       Sets a sizing mode and the maximum number of nodes allowed on the
+       list. The sizing mode determines what happens when there is an attempt 
+       to add another node to the list after it has reached the
+       _maximum_size. The following are the possible values for _new_mode:
 
-    /** Returns the first member of the list without deleting it. 
-    Called CMS_SERVER, CMS_SERVER_XXX_PORT, & NML classes */
-    void *getHead();
+       DELETE_FROM_TAIL: Remove one node from the tail of the list to make
+       room for the new node.
 
-    /** Returns the next member of the list */
-    void *getNext();
+       DELETE_FROM_HEAD: Remove one node from the head of the list to make
+       room for the new node.
 
-    /** Returns the last member of the list 
-    Used by CMS & TCPMEM for diagnostics...*/
-    void *getTail();
+       STOP_AT_MAX: Return -1 if an attempt is made to add a new node when
+       the list is full.
 
-    /** Returns the first member of the list and deletes the node. */
-// Recommend: caller uses getHead() then deleteCurrentNode()
-    void *retrieveHead();
+       NO_MAXIMUM_SIZE: Allow the list to grow until all available memory is
+       used up. */
 
-    /** sets the limit on the list size and determines what happens when the list size hits maxListSize */
-    void setListSizingMode(int _size, LIST_SIZING_MODE);
+    void set_max_list_size(int);
+    /* 
 
-    /** Sets the limit to the list size */
-//    void setMaxListSize(int _size);
+     */
+    size_t last_size_retrieved;
+    /* 
 
-    /** Stores the node at the begining of the list and may remove the
-        tail node depending on the status of sizingMode
-    Used by NML::prefix_format_chain() */
-    int storeAtHead(void *_data, size_t _size, int _copy);
+     */
+    int delete_data_not_copied;
+    /* 
 
-    /** Stores the node at the end of the list - May remove head node...
-    Used by CMS, NML and others. */
-    int storeAtTail(void *_data, size_t _size, int _copy);
+     */
+    void *last_data_retrieved;
+    /* 
 
-    /** Constructor */
-      LinkedList();
+     */
+    int last_copied_retrieved;
+    /* 
 
-     /** Destructor */
-     ~LinkedList();
+     */
+    void *retrieve_head();
+    /* 
 
-/** Public attributes - Most of these should be hidden */
+     */
+    void *retrieve_tail();
+    /* 
 
-    /** Current size of the list */
-    int listSize;
+     */
+    size_t last_size_stored;
+    /* 
 
-    /** Max size of the list */
-    int maxListSize;
+     */
+    void *last_data_stored;
+    /* 
 
-    /** See LISTING_SIZE_MODE for values */
-    LIST_SIZING_MODE sizingMode;
+     */
 
-    size_t lastSizeRetrieved;
-    int deleteDataNotCopied;
-    void *lastDataRetrieved;
-    int lastCopiedRetrieved;
-    size_t lastSizeStored;
-    void *lastDataStored;
+    int store_at_head(void *_data, size_t _size, int _copy);
+    /* Creates a new node and places it at the beginning of the list. If
+       _copy is nonzero then this function will malloc _size bytes and copy
+       _size bytes from the address starting at _data there and the get
+       functions will return a pointer to the copy of the object. If _copy is 
+       zero then the _data pointer will be stored and the get functions will
+       return a pointer to the original object.
+
+       Returns a positive integer id that can be used to select this node
+       later if successful or -1 if an error occurred. */
+
+    int store_at_tail(void *_data, size_t _size, int _copy);
+    /* Creates a new node and places it at the end of the list. If _copy is
+       nonzero then this function will malloc _size bytes and copy _size
+       bytes from the address starting at _data there and the get functions
+       will return a pointer to the copy of the object. If _copy is zero then 
+       the _data pointer will be stored and the get functions will return a
+       pointer to the original object.
+
+       Returns a positive integer id that can be used to select this node
+       later if successful or -1 if an error occurred. */
+
+    int store_after_current_node(void *_data, size_t _size, int _copy);
+    /* Creates a new node and places it after the current node. If _copy is
+       nonzero then this function will malloc _size bytes and copy _size
+       bytes from the address starting at _data there and the get functions
+       will return a pointer to the copy of the object. If _copy is zero then 
+       the _data pointer will be stored and the get functions will return a
+       pointer to the original object.
+
+       Returns a positive integer id that can be used to select this node
+       later if successful or -1 if an error occurred. */
+
+    int store_before_current_node(void *_data, size_t _size, int _copy);
+    /* Creates a new node and places it before the current node. If _copy is
+       nonzero then this function will malloc _size bytes and copy _size
+       bytes from the address starting at _data there and the get functions
+       will return a pointer to the copy of the object. If _copy is zero then 
+       the _data pointer will be stored and the get functions will return a
+       pointer to the original object.
+
+       Returns a positive integer id that can be used to select this node
+       later if successful or -1 if an error occurred. */
+
+    int get_newest_id() {
+	return (next_node_id - 1);
+    }
+    void *get_head();
+    /* 
+       Get the address of the first object on the list and set the current
+       node to the beginning of the list.
+
+       If the list is empty get_head returns null. Depending on how the
+       object was stored the address this function returns may be the address 
+       of the original object or of a copy. */
+
+    void *get_tail();
+    /* 
+       Get the address of the object at the end of the list and set the
+       current node to the end of the list. If the list is empty get_tail
+       returns null. Depending on how the object was stored the address this
+       function returns may be the address of the original object or of a
+       copy. */
+
+    void *get_next();
+    /* 
+       Get the address of the next object on the list and move the current
+       node one step closer to the tail.. If the list is empty get_tail
+       returns null. Depending on how the object was stored the address this
+       function returns may be the address of the original object or of a
+       copy. */
+
+    void *get_last();
+    /* 
+       Get the address of the previous object on the list and move the
+       current node one step closer to the head.. If the list is empty
+       get_tail returns null. Depending on how the object was stored the
+       address this function returns may be the address of the original
+       object or of a copy. */
+
+    void *find_node(int _node_number);
+    /* 
+
+     */
+    void delete_node(int _id);
+    /* 
+       Delete the node with the associated id. */
+
+    void delete_current_node();
+    /* 
+       Remove the current node from the list and free any memory associated
+       with it. Some extra pointers keep track of the node that was before
+       and after the deleted node so that the next call to get_next or
+       get_last will return the same object as if the current node was not
+       deleted. */
+
+    void *get_by_id(int _id);
+    /* 
+
+     */
+    void *get_first_newer(int _id);
+    /* 
+
+     */
+    void *get_last_newer(int _id);
+    /* 
+
+     */
+    IS_EMPTY is_empty();
+    /* 
+
+     */
+    void flush_list();
+    /* 
+
+     */
+    void delete_members();
+    /* 
+
+     */
+
+    LinkedList();
+    ~LinkedList();
 
   private:
-      LinkedList(LinkedList & list);	// Is this required ??
+    LinkedList(LinkedList & list);	// Don't copy me.
 };
 
 #endif /* LINKED_LIST_HH */

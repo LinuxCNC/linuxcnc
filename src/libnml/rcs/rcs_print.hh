@@ -1,6 +1,7 @@
 #ifndef RCS_PRNT_HH
 #define RCS_PRNT_HH
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -9,25 +10,90 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
+#ifdef __cplusplus
 #include "linklist.hh"		/* LinkedList */
 extern LinkedList *get_rcs_print_list();
+  /* Returns the address of the linked list where messages may have been
+     stored. */
 
+extern void set_rcs_print_list_sizing_mode(int, LIST_SIZING_MODE);
+  /* The print list will have a default maximum size of 256 and it will
+     delete nodes from the head of the list to make room for new nodes. To
+     change these settings it is preferable to use this function rather than
+     getting the print list and using RCS_LINKED_LIST::set_list_sizing_mode() 
+     since it works regardless of whether the print list has been initialized 
+     yet. */
+#endif
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-    extern int rcs_vprint(char *_fmt, va_list va_args, int save_string);
-    extern int rcs_print(char *_fmt, ...);
-    extern int rcs_print_debug(long, char *_fmt, ...);
-    extern int rcs_print_error(char *_fmt, ...);
-    extern void set_rcs_print_flag(unsigned long flags_to_set);
+    extern void clean_print_list(void);
+    /* Deletes the linked list where messages may have been stored. */
 
-/* Tokenizes the string _src up to a maximum of _max.
-   Returns the total number of tokens and pointers to each one in _dest[i]
-   or -1 if the string is NULL or greater than 255 chars.
-*/
+    extern void output_print_list(int output_func(char *));
+    extern int count_characters_in_print_list(void);
+    extern int count_lines_in_print_list(void);
+    extern void convert_print_list_to_lines(void);
+    extern void update_lines_table(void);
+    extern int rcs_vprint(char *_fmt, va_list va_args, int save_string);
+    /* Prints a message using the _fmt format string and the _va_args using
+       the vprintf conventions. */
+
+    extern int rcs_print(char *_fmt, ...);
+    /* 
+       Prints a message using the _fmt format string and optional additional
+       arguments using the printf conventions. */
+
+    extern int rcs_print_debug(long, char *_fmt, ...);
+    /* 
+       Prints a message using the _fmt format string and optional additional
+       arguments using the printf conventions if the corresponding flag to
+       _flag_to_check is set. (See set_rcs_print_flag().) */
+#ifdef DO_NOT_USE_RCS_PRINT_ERROR_NEW
+    extern int rcs_print_error(char *_fmt, ...);
+#else
+    extern int set_print_rcs_error_info(const char *file, int line);
+    extern int print_rcs_error_new(char *_fmt, ...);
+#define rcs_print_error set_print_rcs_error_info( __FILE__, __LINE__); print_rcs_error_new
+#endif
+
+    extern void set_rcs_print_flag(long flags_to_set);
+    /* An internal 32 bit integer contains a set of flags that are checked
+       whenever an rcs_print_debug or rcs_print_error occurs to determine if
+       the message should be printed or not. Programmers can define their own 
+       flags in the most significant byte or turn on or off several NODE or
+       CMS/NML debug messages.
+
+       See the Print MODE flags defined below for messages that can be turned 
+       on or off. */
+
+    extern void clear_rcs_print_flag(long flags_to_set);
+    /* Clears a flag set with set_rcs_print_flag. */
+
+    extern char *strip_control_characters(char *_dest, char *_src);
+    /* Removes new lines, carriage returns and tabs from the _src string and
+       stores the result in the _dest string if the _dest pointer does not
+       equal NULL. If the _dest pointer equals NULL the new string is stored
+       in an internal array.
+
+       Returns the dest pointer or the address of the internal array where
+       the new string was stored. */
+
     extern int separate_words(char **_dest, int _max, char *_src);
     extern int rcs_puts(char *);
+    /* Prints the string _str and adds a new line character at the end
+       following the puts convention. */
+
     extern int rcs_fputs(char *);
+    extern char **get_rcs_lines_table(void);
+    extern int get_rcs_print_list_size(void);
+    typedef void (*RCS_PRINT_NOTIFY_FUNC_PTR) (void);
+    extern void set_rcs_print_notify(RCS_PRINT_NOTIFY_FUNC_PTR);
+    extern int set_rcs_print_file(char *_file_name);
+    extern void close_rcs_printing(void);
 
 #ifdef __cplusplus
 }
@@ -61,8 +127,6 @@ extern "C" {
 #define PRINT_SERVER_SUBSCRIPTION_ACTIVITY    0x04000000	// 67108864
 #define PRINT_SHARED_MEMORY_ACTIVITY    0x08000000
 #define PRINT_ALL_SOCKET_REQUESTS       0x10000000
-#define PRINT_UPDATER_ACTIVITY          0x20000000
-#define PRINT_MISC                      0x40000000
 #define PRINT_EVERYTHING                0xFFFFFFFF	/* 4294967295 */
 #ifdef __cplusplus
 enum RCS_PRINT_DESTINATION_TYPE {
@@ -87,8 +151,25 @@ extern "C" {
 #endif
 
     extern void set_rcs_print_destination(RCS_PRINT_DESTINATION_TYPE);
-    extern RCS_PRINT_DESTINATION_TYPE get_rcs_print_destination(void);
+    /* Changes where the output of the rcs_print functions is directed. The
+       following choices are available:
 
+       RCS_PRINT_TO_STDOUT Print to stdout.
+
+       RCS_PRINT_TO_LOGGER Currently prints to stdout, except under VxWorks
+       where it uses the logMsg function, which is non-blocking.
+
+       RCS_PRINT_TO_STDERR Print to stderr
+
+       RCS_PRINT_TO_NULL Make all rcs_print functions return without doing
+       anything.
+
+       RCS_PRINT_TO_LIST Store all rcs_print messages in a linked list, so
+       that later they can be displayed in a separate window, or used in some 
+       other way. The current list sizing mode defaults to a maximum size of
+       256 with excess nodes being deleted from the head. */
+
+    extern RCS_PRINT_DESTINATION_TYPE get_rcs_print_destination(void);
     extern int rcs_print_sys_error(int error_source, char *_fmt, ...);
 
 #ifdef __cplusplus
@@ -97,7 +178,8 @@ extern "C" {
     typedef enum {
 #endif
 	ERRNO_ERROR_SOURCE = 1,
-	GETLASTERROR_ERROR_SOURCE
+	GETLASTERROR_ERROR_SOURCE,
+	WSAGETLASTERROR_ERROR_SOURCE
 #ifdef __cplusplus
     };
 #else

@@ -8,14 +8,18 @@
 
 /* Include Files */
 
+#ifdef __cplusplus
 extern "C" {
-#include <string.h>		/* memset */
+#endif
+#include <string.h>		// memset
 
+#ifdef __cplusplus
 }
+#endif
 #include "cms.hh"
 #include "nmlmsg.hh"
 #include "rcs_print.hh"		/* rcs_error_print() */
-int NMLmsg::automatically_clear = 1;
+/* NMLmsg Functions. */ int NMLmsg::automatically_clear = 1;
 
 /* Constructor */
 NMLmsg::NMLmsg(NMLTYPE t, long s)

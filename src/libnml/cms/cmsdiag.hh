@@ -6,7 +6,7 @@
 
 class CMS_DIAG_STATIC_PROC_INFO {
   public:
-    char name[16];		/* process name */
+    char name[16];		// process name
     char host_sysinfo[32];
     long pid;			/* Process, Thread or Task Id. */
     double rcslib_ver;		/* Version of the rcslib used by this

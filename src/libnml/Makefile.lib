@@ -5,13 +5,14 @@ include ../../Makefile.inc
 # Include definitions of LIB_OBJS
 include linklist/Makefile.lib
 include rcs/Makefile.lib
+include posemath/Makefile.lib
 include os_intf/Makefile.lib
 include buffer/Makefile.lib
 include cms/Makefile.lib
 include nml/Makefile.lib
 include inifile/Makefile.lib
 
-LIBS = $(LIB_DIR)/libnml.so \
+LIBS = $(LIB_DIR)/libnmld.a \
 	$(LIB_DIR)/libnml.a
 
 
@@ -20,16 +21,10 @@ all: $(LIBS) lib_gen $(BIN_DIR)/inivar
 # include ../../Make.rules
 lib_gen: $(LIBS)
 
-
-$(LIB_DIR)/libnml.so: $(LIB_DIR)/libnmld.a
-	$(CXX) -shared $(LIB_OBJS:%=$(TMP_DIR)/%) -o $@
-	strip --strip-debug $(LIB_DIR)/libnml.so
-
 $(LIB_DIR)/libnml.a: $(LIB_DIR)/libnmld.a
 	rm -f $@
-	cp $(LIB_DIR)/libnmld.a $(LIB_DIR)/libnml.a
-	strip --strip-debug $(LIB_DIR)/libnml.a
-	$(AR) -ts $@
+	cp $< $@
+	strip --strip-debug $@
 	chmod 664 $@
 
 $(LIB_DIR)/libnmld.a: $(LIB_OBJS:%=$(TMP_DIR)/%)

@@ -7,21 +7,48 @@
 
 /* Forward Function Prototypes */
 #include "rcs_exit.hh"
-#include "linklist.hh"		/* LinkedList */
-#include "rcs_print.hh"		/* rcs_print_error() */
-#include "timer.hh"		/* esleep() */
 
+#include "linklist.hh"		// LinkedList
+#include "rcs_print.hh"		// rcs_print_error()
+#include "timer.hh"		// esleep()
+
+#ifdef __cplusplus
 extern "C" {
+#endif
 
-#include <stdlib.h>		/* exit() */
-#include <signal.h>		/* signal() , SIGINT */
+#include <stdlib.h>		// exit()
+#include <signal.h>		// signal() , SIGINT
 
-} static LinkedList *exit_list = (LinkedList *) NULL;
+#ifdef __cplusplus
+}
+#endif
+
+static LinkedList *exit_list = (LinkedList *) NULL;
 
 struct RCS_EXIT_LIST_ENTRY {
     long process_id;
     void (*fptr) (int);
 };
+
+// NOTE --
+// the GNU VxWorks C++ cross-compiler (g++68k) has a bug, that
+// prevents me from passing a pointer to a function as the first
+// argument of a function.
+
+int attach_rcs_exit_list(void (*fptr) (int))
+{
+    RCS_EXIT_LIST_ENTRY entry;
+    if (NULL == exit_list) {
+	exit_list = new LinkedList;
+    }
+    if (NULL == exit_list) {
+	rcs_print_error("attach_rcs_exit_list:: Out of Memory.\n");
+	return -1;
+    }
+    entry.process_id = 0;
+    entry.fptr = fptr;
+    return exit_list->store_at_tail(&entry, sizeof(entry), 1);
+}
 
 void rcs_cleanup(int code)
 {
@@ -46,7 +73,6 @@ void rcs_cleanup(int code)
 
 static int rcs_ready_for_exit = 0;
 static int rcs_exit_sig = 0;
-
 static void rcs_exit_signal_handler(int sig)
 {
     rcs_ready_for_exit = 1;

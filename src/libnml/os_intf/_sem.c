@@ -1,0 +1,473 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>		/* errno */
+#include <string.h>		/* strerror() */
+#include <stdarg.h>		/* va_list, va_arg(), va_start(), va_end() */
+#include <sys/types.h>
+#include <sys/ipc.h>		/* IPC_CREATE, IPC_NOWAIT */
+
+/* There are two types of posix semaphores named and unnamed.
+  unamed semaphores can either have the pshared flag set or not
+ determining whether it can be shared between processes.  Currently (12/27/02),
+Linux 
+implements only unnamed posix semaphores that are not shared between
+processes. This is useless to RCSLIB so on Linux System V semaphores
+will be used instead.
+*/
+
+#include <sys/sem.h>		/* struct sembuf */
+#include <math.h>		/* fmod() */
+
+#define USE_ITIMER_SIGNALS
+#ifdef USE_ITIMER_SIGNALS
+#include <signal.h>
+#include <sys/time.h>
+#endif /* USE_TIMER_SIGNALS */
+
+typedef int rcs_sem_t;
+#define rcs_sem_t_defined
+
+#include "_sem.h"
+#include "_timer.h"		/* etime() */
+#include "rcs_print.hh"
+
+#define SEM_TAKE (-1)		/* decrement sembuf.sem_op */
+#define SEM_GIVE (1)		/* increment sembuf.sem_op */
+
+#ifdef _SEM_SEMUN_UNDEFINED
+/* The user should define a union like the following to use it for arguments
+   for `semctl'. Previous versions of bits/sem.h used to define this union 
+   but this is incorrect.  One can test the macro _SEM_SEMUN_UNDEFINED to 
+   see whether one must define the union or not.  */
+
+union semun {
+    int val;			/* value for SETVAL */
+    struct semid_ds *buf;	/* buffer for IPC_STAT, IPC_SET */
+    unsigned short int *array;	/* array for GETALL, SETALL */
+    struct seminfo *__buf;	/* buffer for IPC_INFO */
+};
+
+#endif
+
+int rcs_sem_init(rcs_sem_t * sem, int pshared, unsigned int value)
+{
+    struct sembuf sops;
+    union semun sem_arg;
+
+    /* ignore pshared */
+
+    sops.sem_num = 0;
+    sops.sem_flg = 0;		/* default is wait for it */
+    sops.sem_op = (value == 0 ? 0 : 1);
+
+    if (NULL == sem) {
+	rcs_print_error("sem_init: Pointer to semaphore object is NULL.\n");
+	return -1;
+    }
+    sem_arg.val = value;
+    semctl(*sem, 0, SETVAL, sem_arg);
+
+    return 0;
+}
+
+/* remove semaphore from OS-- this must be done *before* sem_close,
+   since rcs_sem_close frees the storage allocated for the rcs_sem_t */
+int rcs_sem_destroy(rcs_sem_t * sem)
+{
+    /* remove OS semaphore */
+    if (semctl(*sem, 0, IPC_RMID) == -1) {
+	rcs_print_error("semctl(%d,0,%d) failed: (errno = %d) %s\n",
+	    *sem, IPC_RMID, errno, strerror(errno));
+	return -1;
+    }
+    return 0;
+}
+
+int sem_clear_bus_errors = 0;
+void sem_clear_bus_error_handler(int sig)
+{
+    sem_clear_bus_errors++;
+}
+
+int rcs_sem_clear(rcs_sem_t * sem)
+{
+    union semun sem_arg;
+    sem_arg.val = 1;
+    semctl(*sem, 1, SETVAL, sem_arg);
+    return (0);
+}
+
+static int rcs_sem_open_val = 0;
+
+/* create a named binary semaphore */
+rcs_sem_t *rcs_sem_open(const char *name, int oflag, /* int mode */ ...)
+{
+    va_list ap;
+    int mode;			/* optional last arg */
+    key_t key;			/* name converted to a key */
+    rcs_sem_t semid, *retval;	/* semaphore id returned */
+    int semflg = 0;		/* flag for perms, create, etc. */
+
+    /* if IPC_CREAT is specified for creating the sempahore, then the
+       optional arg is the mode */
+    if (oflag & IPC_CREAT) {
+	va_start(ap, oflag);
+	mode = va_arg(ap, int);
+	va_end(ap);
+	semflg |= mode;
+	semflg |= IPC_CREAT;
+    } else {
+	semflg &= ~IPC_CREAT;
+    }
+
+    /* change the char* name to a key_t-- this is impossible, so let's just
+       consider the value of the char* as a key_t */
+    key = (key_t) name;		/* ugh */
+    if (key < 1) {
+	rcs_print_error("rcs_sem_open: invalid key %d\n", key);
+	return NULL;
+    }
+
+    if ((semid = (rcs_sem_t) semget((key_t) key, 1, semflg)) == -1) {
+	rcs_print_error("semget");
+	rcs_puts((char *) strerror(errno));
+	return NULL;
+    }
+
+    /* we have a valid semid-- semantics say we return a pointer to the id,
+       so we need to allocate space that users will free later with
+       rcs_sem_close */
+    retval = (rcs_sem_t *) malloc(sizeof(rcs_sem_t));
+    *retval = semid;
+    return retval;
+}
+
+int rcs_sem_close(rcs_sem_t * sem)
+{
+    if (sem != 0) {
+	free(sem);
+    }
+    return 0;
+}
+
+int rcs_sem_unlink(const char *name)
+{
+    return 0;			/* we didn't create anything */
+}
+
+#ifdef USE_ITIMER_SIGNALS
+static int semwait_alarm_count = 0;
+static void semwait_alarm_handler(int sig)
+{
+    rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY,
+	"semwait_alarm_handler:: alarm_count=%d\n", semwait_alarm_count);
+    semwait_alarm_count++;
+
+    // Hope this isn't necessary.
+    signal(SIGALRM, semwait_alarm_handler);
+}
+#endif
+
+int rcs_sem_wait_notimeout(rcs_sem_t * sem)
+{
+    int retval = -1;
+    struct sembuf sops;
+    union semun sem_arg;
+    sem_arg.val = 0;
+    sops.sem_num = 0;		/* only one semaphore in set */
+    sops.sem_op = SEM_TAKE;
+    sops.sem_flg = 0;		/* wait forever */
+    retval = semop(*sem, &sops, 1);
+    if (errno == EINTR) {
+	rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY, "semop interrupted! %d\n",
+#ifdef USE_ITIMER_SIGNALS
+	    semwait_alarm_count
+#else
+	    -1
+#endif
+	    );
+	return retval;
+    }
+
+    if (retval == -1) {
+	rcs_print_error
+	    ("semop(semid=%d, {sem_num=%d,sem_op=%d,sem_flg=%d},nsops=1): ERROR: %s %d\n",
+	    *sem, sops.sem_num, sops.sem_op, sops.sem_flg, strerror(errno),
+	    errno);
+    }
+
+    return retval;
+}
+
+int rcs_sem_trywait(rcs_sem_t * sem)
+{
+    struct sembuf sops;
+    sops.sem_num = 0;		/* only one semaphore in set */
+    sops.sem_op = SEM_TAKE;
+    sops.sem_flg = IPC_NOWAIT;	/* wait forever */
+    return semop(*sem, &sops, 1);
+}
+
+int rcs_sem_wait(rcs_sem_t * sem, double timeout)
+{
+#ifdef USE_ITIMER_SIGNALS
+    int last_semwait_alarm_count = semwait_alarm_count;
+    int retval = -1;
+    double start_time = 0.0;
+    double elapsed_time = 0.0;
+    double time_left = 0.0;
+    double current_time = 0.0;
+    struct itimerval sem_itimer;
+    struct itimerval sem_itimer_backup;
+    void (*old_sigalarm_handler) (int);
+    old_sigalarm_handler = SIG_ERR;
+    time_left = timeout;
+    if (0 == sem) {
+	return -1;
+    }
+    rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY, "rcs_sem_wait(%d,%f) called.\n",
+	*sem, timeout);
+    if (timeout < 0) {
+	retval = rcs_sem_wait_notimeout(sem);
+	if (retval == -1) {
+	    rcs_print_error("semwait: ERROR -- %s %d\n", strerror(errno),
+		errno);
+	}
+	return retval;
+    }
+    if (timeout < clk_tck() / 2) {
+	retval = rcs_sem_trywait(sem);
+	if (retval == -1) {
+	    rcs_print_error("semifwait: ERROR -- %s %d\n", strerror(errno),
+		errno);
+	}
+	return retval;
+    }
+    start_time = etime();
+    old_sigalarm_handler = signal(SIGALRM, semwait_alarm_handler);
+
+    if (old_sigalarm_handler == SIG_ERR) {
+	rcs_print_error("Can't setup SIGALRM. errno = %d, %s\n",
+	    errno, strerror(errno));
+	return -1;
+    }
+    sem_itimer.it_interval.tv_sec = 0;
+    sem_itimer.it_interval.tv_usec = 0;
+    sem_itimer.it_value.tv_sec = 0;
+    sem_itimer.it_value.tv_usec = 0;
+    getitimer(ITIMER_REAL, &sem_itimer_backup);
+    sem_itimer_backup.it_value.tv_sec = 0;
+    sem_itimer_backup.it_value.tv_usec = 0;
+    do {
+	sem_itimer.it_interval.tv_sec = time_left;
+	sem_itimer.it_interval.tv_usec = (fmod(time_left + 1.0, 1.0) * 1E6);
+	sem_itimer.it_value.tv_sec = sem_itimer.it_interval.tv_sec;
+	sem_itimer.it_value.tv_usec = sem_itimer.it_interval.tv_usec;
+	setitimer(ITIMER_REAL, &sem_itimer, &sem_itimer_backup);
+	rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY,
+	    "Semaphore itimer setup: \n\tit_interval {%d secs and %d usecs}\n\tit_value {%d secs and %d  usecs}\n",
+	    sem_itimer.it_interval.tv_sec,
+	    sem_itimer.it_interval.tv_usec,
+	    sem_itimer.it_value.tv_sec, sem_itimer.it_value.tv_usec);
+	retval = rcs_sem_wait_notimeout(sem);
+	setitimer(ITIMER_REAL, &sem_itimer_backup, &sem_itimer);
+	rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY,
+	    "Semaphore itimer removed.\n");
+	current_time = etime();
+	elapsed_time = current_time - start_time;
+	time_left = timeout - elapsed_time;
+	if (retval == -1) {
+	    if (EINTR == errno
+		&& last_semwait_alarm_count < semwait_alarm_count) {
+		retval = -2;
+		last_semwait_alarm_count = semwait_alarm_count;
+		continue;
+	    }
+	    rcs_print_error("sem_wait: ERROR: %s %d\n", strerror(errno),
+		errno);
+	    return -1;
+	}
+    }
+    while (time_left > 5e-3 && retval < 0);
+    setitimer(ITIMER_REAL, &sem_itimer_backup, NULL);
+    if (old_sigalarm_handler == SIG_ERR || old_sigalarm_handler == SIG_DFL) {
+	old_sigalarm_handler = SIG_IGN;
+    }
+    signal(SIGALRM, old_sigalarm_handler);
+    return (retval);
+
+#else
+
+    struct sembuf sops;
+    double elapsed_time, current_time, start_time;
+    start_time = current_time = 0.0;
+    if (timeout >= 0.0) {
+	start_time = etime();
+    }
+
+    sops.sem_num = 0;		/* only one semaphore in set */
+    sops.sem_op = SEM_TAKE;
+    if (timeout < 0.0) {
+	sops.sem_flg = 0;	/* wait indefinitely */
+    } else {
+	sops.sem_flg = IPC_NOWAIT;	/* Do not wait, I'll pole the
+					   semaphore. */
+    }
+    if (timeout >= 0.0) {
+	current_time = etime();
+    }
+    elapsed_time = current_time - start_time;
+    while (elapsed_time < timeout || timeout < 0.0) {
+	if (timeout >= 0.0) {
+	    current_time = etime();
+	    elapsed_time = current_time - start_time;
+	    if (elapsed_time > timeout) {
+		return -2;
+	    }
+	}
+	if (semop(*sem, &sops, 1) == -1) {
+	    if (errno == EINTR) {
+		/* interrupted system call-- restart it */
+		if (timeout != 0.0) {
+		    continue;
+		} else {
+		    return -1;
+		}
+	    } else if (errno == EAGAIN) {	/* Not waiting. */
+		continue;
+	    } else {
+		rcs_print_error
+		    ("semop(semid=%d, {sem_num=%d,sem_op=%d,sem_flg=%d},nsops=1)",
+		    *sem, sops.sem_num, sops.sem_op, sops.sem_flg);
+		rcs_print_error("errno=%d : %s\n", errno, strerror(errno));
+		return -1;
+	    }
+	} else {
+	    return 0;
+	}
+    }
+    return (0);
+#endif /* USE_ITIMER_SIGNALS */
+}
+
+int rcs_sem_post(rcs_sem_t * sem)
+{
+    struct sembuf sops;
+    union semun sem_arg;
+    sem_arg.val = 0;
+
+    rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY, "rcs_sem_post(%d) called.\n",
+	*sem);
+
+    sops.sem_num = 0;		/* only one semaphore in set */
+    sops.sem_flg = 0;		/* wait indefinitely */
+    sops.sem_op = SEM_GIVE;
+
+    if (semctl(*sem, 0, GETVAL, sem_arg) == 1) {
+	/* it's given-- leave it alone */
+	return 0;
+    }
+
+    /* it's taken-- suppose now others take it again before we give it? they
+       block, and this semgive will release one of them */
+    while (1) {
+	if (semop(*sem, &sops, 1) == -1) {
+	    if (errno == EINTR) {
+		/* interrupted system call-- restart it */
+		rcs_print_error("semop:");
+		rcs_print_error("errno=%d : %s\n", errno, strerror(errno));
+		rcs_puts("restarting");
+		continue;
+	    } else {
+		rcs_print_error("semop");
+		rcs_print_error("errno=%d : %s\n", errno, strerror(errno));
+		return -1;
+	    }
+	} else {
+	    return 0;
+	}
+    }
+    return (0);
+}
+
+int rcs_sem_flush(rcs_sem_t * sem)
+{
+    int semval;
+    int sems_to_give;
+    int ncount = -1;
+    struct sembuf sops;
+    union semun sem_arg;
+    sem_arg.val = 0;
+
+    sops.sem_num = 0;		/* only one semaphore in set */
+    sops.sem_flg = IPC_NOWAIT;	/* wait indefinitely */
+    sops.sem_op = SEM_GIVE;
+    semval = semctl(*sem, 0, GETVAL, sem_arg);
+    ncount = semctl(*sem, 0, GETNCNT, sem_arg);
+
+    /* Neither ncount nor semval should ever be less than zero any way, so
+       this is just paranoid */
+    if (semval < 0) {
+	semval = 0;
+    }
+    if (ncount < 0) {
+	ncount = 0;
+    }
+    if (semval > ncount) {
+	return 0;
+    }
+
+    sems_to_give = ncount - semval + 1;
+
+    /* it's taken-- suppose now others take it again before we give it? they
+       block, and this semgive will release one of them until semval = 1; */
+    sops.sem_op = sems_to_give;
+    while (sems_to_give > 0) {
+	if (semop(*sem, &sops, 1) == -1) {
+	    if (errno == EINTR) {
+		/* interrupted system call-- restart it */
+		rcs_print_error("semop:");
+		rcs_print_error("errno=%d : %s\n", errno, strerror(errno));
+		rcs_puts("restarting");
+		continue;
+	    } else {
+		rcs_print_error("semop");
+		rcs_print_error("errno=%d : %s\n", errno, strerror(errno));
+		return -1;
+	    }
+	}
+	sems_to_give -= sops.sem_op;
+    }
+    return (0);
+}
+
+int rcs_sem_getvalue(rcs_sem_t * sem, unsigned int *sval)
+{
+    union semun sem_arg;
+    sem_arg.val = 0;
+    return (*sval = (unsigned int) semctl(*sem, 0, GETVAL, sem_arg));
+}
+
+rcs_sem_t *rcs_sem_create(unsigned long int id, int mode, int state)
+{
+    union semun sem_arg;
+    rcs_sem_t *sem;
+
+    if (id < 1) {
+	rcs_print_error("rcs_sem_create: invalid id %d\n", id);
+	return NULL;
+    }
+
+    rcs_sem_open_val = state;
+
+    sem = rcs_sem_open((char *) id, IPC_CREAT, mode);
+
+    if (NULL == sem) {
+	rcs_print_error("sem_init: Pointer to semaphore object is NULL.\n");
+	return NULL;
+    }
+    sem_arg.val = state;
+    semctl(*sem, 0, SETVAL, sem_arg);
+    return sem;
+}

@@ -11,17 +11,16 @@
 #ifndef CMS_SERVER_HH
 #define CMS_SERVER_HH
 
-//#include "sokintrf.h"         // all the socket junk
 #include "cms_user.hh"		/* class CMS, CMS_STATUS */
 #include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
 #include "linklist.hh"		/* class LinkedList */
 #include "rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 				/* struct REMOTE_WRITE_REQUEST, */
-
 extern int cms_server_count;
 extern void wait_for_servers(int);
 
 extern LinkedList *cms_server_list;
+
 class CMS_SERVER;
 class CMS_DIAG_PROC_INFO;
 
@@ -29,7 +28,6 @@ class CMS_SERVER_LOCAL_PORT:public virtual CMS_USER {
   protected:
     long buffer_number;
     int list_id;
-    int security_enabled;
     friend class CMS_SERVER;
     CMS_DIAG_PROC_INFO *orig_info;
 
@@ -80,7 +78,6 @@ class CMS_SERVER_REMOTE_PORT {
   protected:
       LinkedList * connected_users;
     CMS_USER_CONNECT_STRUCT *current_connected_user_struct;
-    int security_enabled;
     CMS_SERVER *cms_server_parent;
     static CMS_SERVER *find_server(long _pid, long _tid = 0);
     static void print_servers();
@@ -97,7 +94,6 @@ class CMS_SERVER_REMOTE_PORT {
 
 class CMS_SERVER {
   public:
-    int security_enabled;
     REMOTE_CMS_REQUEST *request;
     int server_spawned;
     int server_registered;
@@ -115,10 +111,16 @@ class CMS_SERVER {
     long get_message_type();
     const char *get_buffer_name(int _buf_num);
     int requests_processed;
+//    void read_passwd_file();
 
   public:
     int get_total_subdivisions(long _buffer_num);
     CMS_SERVER_REMOTE_PORT *remote_port;
+    void gen_random_key(char key[], int len);
+    int security_check(CMS_USER_INFO * user_info, int _buf_num);
+    int is_using_passwd_file();
+    CMS_USER_INFO *get_user_info(const char *name, const char *passwd);
+//    int get_user_keys(const char *name, char *key1, char *key2);
 
     static void clean(int);
 
@@ -188,5 +190,10 @@ class CMS_SERVER {
     int guest_can_write;
 
 };
+
+extern "C" void cms_print_servers();
+
+extern int (*detailed_security_check) (const char *user_name,
+    const char *buffer_name, long msg_type, int access_type);
 
 #endif /* !CMS_SERVER_HH */

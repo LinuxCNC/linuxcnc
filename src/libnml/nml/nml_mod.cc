@@ -7,29 +7,12 @@
 /*
    Modification history:
 
-    9-Sep-1997 WPS eliminated LOAL_LOCAL_VARIABLES, UNLOAD_LOCAL_VARIABLES,
-    READ_CHILD_BUFFERS, WRITE_CHILD_BUFFERS, and DETERMINE_CHILD_STATUS
-   29-May-1997 WPS replaced include nml_emc.hh with nml_oi.hh
-    3-Apr-1997 WPS brought over the functions from RCS_MODULE_C
-   11-Feb-1997 WPS modified  calc_avg_time, update_line_history, and
-   stop_timing all use exec_history but fail to check to
-   see if it is initialized.
-   I override them here minimize changes to rcs_module.cc
-   3-Dec-1996  FMP changed NML to RCS_CMD/STAT_CHANNEL for commandIn,
-   statusOut, etc.
-   112696-hui, changed the base class for commandInData, etc., from NMLmsg
-   to RCS_CMD_MSG and RCS_STAT_MSG.
-   16-Oct-1996  FMP inited done to 0 in ctor
-   29-Jul-1996  FMP moved NML_ERROR, NML_TEXT, NML_DISPLAY, and NML_STATUS
-   into nml_emc.cc
-   29-Jul-1996  FMP added NML_TEXT and NML_DISPLAY classes
-   10-Jun-1996  Fred Proctor added malloc/free of cmdOutstanding array
-   5-Jun-1996  Fred Proctor added NML error stuff
-   16-Apr-1996  Fred Proctor added NMLmsg * initing
-   5-Apr-1996  Fred Proctor created
+  21-Jan-2004  P.C. Moved across from the original EMC source tree.
     */
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 #include <stdlib.h>		// malloc()
 #include <string.h>		// strcpy()
@@ -37,7 +20,9 @@ extern "C" {
 #include <stdarg.h>
 #include <math.h>		// fabs()
 
+#ifdef __cplusplus
 }
+#endif
 #include "nml_mod.hh"
 #include "nml_oi.hh"		// NML_ERROR, NML_TEXT, NML_DISPLAY
 #include "rcs_print.hh"
@@ -161,7 +146,8 @@ NML_MODULE::NML_MODULE()
     zero_common_vars();
 }
 
-void NML_MODULE::zero_common_vars()
+void
+  NML_MODULE::zero_common_vars()
 {
     commandIn = 0;
     force_command = 0;
@@ -285,6 +271,7 @@ NML_MODULE::~NML_MODULE()
 	}
 
 	free(subs);
+
 #if 0
 	if (NULL != ini) {
 	    delete ini;
@@ -316,7 +303,8 @@ NML_MODULE::~NML_MODULE()
 
 }
 
-void NML_MODULE::setCmdChannel(RCS_CMD_CHANNEL * cmd_channel)
+void
+  NML_MODULE::setCmdChannel(RCS_CMD_CHANNEL * cmd_channel)
 {
     if (NULL == cmd_channel) {
 	rcs_print_error("Command channel is NULL.\n");
@@ -524,6 +512,18 @@ int NML_MODULE::setSubordinates(int number)
     return 0;
 }
 
+/*
+   Error, text, and display functions. Note that all these go to
+   the errorLog channel
+   */
+
+int NML_MODULE::setLogInfo(const char *src, int l)
+{
+    log_line = l;
+    log_src = src;
+    return (0);
+};
+
 int NML_MODULE::logError(const char *fmt, ...)
 {
     NML_ERROR error_msg;
@@ -541,8 +541,8 @@ int NML_MODULE::logError(const char *fmt, ...)
     // force a NULL at the end for safety
     error_msg.error[NML_ERROR_LEN - 1] = 0;
 
-//    set_print_rcs_error_info(NULL, -1);
-//    print_rcs_error_new("%s\n", error_msg.error);
+    set_print_rcs_error_info(NULL, -1);
+    print_rcs_error_new("%s\n", error_msg.error);
 
     // check channel for validity
     if (errorLog == NULL)
@@ -579,6 +579,33 @@ int NML_MODULE::logText(const char *fmt, ...)
 
     // write it
     errorLog->write(text_msg);
+
+    return 0;
+}
+
+int logTextToNML(NML * errorLog, const char *fmt, ...)
+{
+    NML_TEXT text_msg;
+    va_list ap;
+
+    // check channel for validity
+    if (errorLog == NULL)
+	return -1;
+
+    // write args to NML message
+    va_start(ap, fmt);
+    vsprintf(text_msg.text, fmt, ap);
+    va_end(ap);
+
+    // rcs_print("%s\n", text_msg.text);
+
+    // force a NULL at the end for safety
+    text_msg.text[NML_TEXT_LEN - 1] = 0;
+
+    // write it
+    if (errorLog->write(text_msg) < 0) {
+	return -1;
+    }
 
     return 0;
 }
@@ -939,6 +966,7 @@ int NML_MODULE::stateMatch(int st, int conds)
 	    statusOutData->line++;
 	}
     }
+
     // see if we match state and conditions
     if (state == st && conds) {
 	matched = 1;

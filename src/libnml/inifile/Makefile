@@ -1,15 +1,12 @@
-# Makefile for the Operating System interface  modules of the
-# RCS Library
 
-# LIB_OBJS
 LIB_OBJS =
 include Makefile.lib
-# make definitions.
+
 include ../../../Makefile.inc
 
 # Declare which files are to be released
 HEADERS = \
-	inifile.hh \
+	inifile.h \
 
 SRCS =	\
 	_inifile.c \

@@ -1,5 +1,5 @@
 
-#include "nml.hh"		/* NML_MAIN_Channel_List */
+#include "nml.hh"		// NML_MAIN_Channel_List
 #include "nmldiag.hh"
 #include "rcs_print.hh"
 #include <time.h>
@@ -16,8 +16,7 @@ static char access_name[9][40] = {
     "GET_DIAG_INFO"
 };
 
-void
-  NML_DIAGNOSTICS_INFO::print()
+void NML_DIAGNOSTICS_INFO::print()
 {
     if (NULL != last_writer_dpi) {
 	rcs_print("Last writer = %d (%s)\n", last_writer,
@@ -30,7 +29,7 @@ void
     if (NULL == dpis) {
 	return;
     }
-    CMS_DIAG_PROC_INFO *dpi = (CMS_DIAG_PROC_INFO *) dpis->getHead();
+    CMS_DIAG_PROC_INFO *dpi = (CMS_DIAG_PROC_INFO *) dpis->get_head();
     while (NULL != dpi) {
 	rcs_print("\n");
 	rcs_print("Info for process %s:\n", dpi->name);
@@ -102,18 +101,18 @@ void
 	    rcs_print("\t Average bytes moved per message: %f\n",
 		dpi->bytes_moved / (dpi->number_of_new_messages));
 	}
-	dpi = (CMS_DIAG_PROC_INFO *) dpis->getNext();
+	dpi = (CMS_DIAG_PROC_INFO *) dpis->get_next();
     }
 }
 
 int nml_print_diag_list()
 {
     if (NULL != NML_Main_Channel_List) {
-	NML *nml = (NML *) NML_Main_Channel_List->getHead();
+	NML *nml = (NML *) NML_Main_Channel_List->get_head();
 	while (NULL != nml) {
 	    if (NULL != nml->cms) {
 		if (!nml->cms->enable_diagnostics) {
-		    nml = (NML *) NML_Main_Channel_List->getNext();
+		    nml = (NML *) NML_Main_Channel_List->get_next();
 		    continue;
 		}
 		rcs_print
@@ -128,7 +127,7 @@ int nml_print_diag_list()
 		rcs_print
 		    ("*********************************************\n\n");
 	    }
-	    nml = (NML *) NML_Main_Channel_List->getNext();
+	    nml = (NML *) NML_Main_Channel_List->get_next();
 	}
     }
     return (0);

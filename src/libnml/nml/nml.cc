@@ -7,19 +7,26 @@
 *************************************************************************/
 
 /* Include Files */
-#include "rcsversion.h"		/* lib version */
 
+#include "rcsversion.h"
+
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 #include <string.h>		/* memcpy() */
 #include <stdlib.h>		/* atexit() */
-#include <sys/param.h>		/* MAXHOSTNAMELEN */
+#include <sys/param.h>		// MAXHOSTNAMELEN
+#include <netdb.h>
+#include <arpa/inet.h>		/* inet_ntoa */
 
+#ifdef __cplusplus
 }
+#endif
 #include "nml.hh"		/* class NML */
 #include "nmlmsg.hh"		/* class NMLmsg */
 #include "cms.hh"		/* class CMS */
-#include "timer.hh"		/* esleep() */
+#include "timer.hh"		// esleep()
 #include "nml_srv.hh"		/* NML_Default_Super_Server */
 #include "cms_cfg.hh"		/* cms_config(), cms_copy() */
 #include "linklist.hh"		/* class LinkedList */
@@ -27,12 +34,15 @@ extern "C" {
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
 #endif
-#include "nmldiag.hh"		/* NML_DIAGNOSTICS_INFO */
+#include "nmldiag.hh"		// NML_DIAGNOSTICS_INFO
 /* Pointer to a global list of NML channels. */
-    LinkedList *NML_Main_Channel_List = (LinkedList *) NULL;
+LinkedList *NML_Main_Channel_List = (LinkedList *) NULL;
+
 LinkedList *Dynamically_Allocated_NML_Objects = (LinkedList *) NULL;
 
 int nml_print_hostname_on_error = 0;
+
+int verbose_nml_error_messages = 1;
 
 char NML_ERROR_TYPE_STRINGS[8][80] = {
     "NML_NO_ERROR",
@@ -69,7 +79,7 @@ const char *get_default_nml_config_file()
 /* Special new operator to allow the nml_cleanup function to
 distinguish between dynamically and statically allocated NML
 objects. */
-void *NML::operator                          new(size_t size)
+void *NML::operator   new(size_t size)
 {
     if (size < sizeof(NML)) {
 	rcs_print_error
@@ -89,7 +99,7 @@ void *NML::operator                          new(size_t size)
     }
     if (NULL != Dynamically_Allocated_NML_Objects) {
 	dynamic_list_id =
-	    Dynamically_Allocated_NML_Objects->storeAtTail(nml_space,
+	    Dynamically_Allocated_NML_Objects->store_at_tail(nml_space,
 	    sizeof(NML), 0);
 	cptr = ((char *) nml_space) + sizeof(NML);
 	// guarantee alignment
@@ -101,7 +111,7 @@ void *NML::operator                          new(size_t size)
     return nml_space;
 }
 
-void NML::operator                          delete(void *nml_space)
+void NML::operator   delete(void *nml_space)
 {
     int dynamic_list_id = 0;
     char *cptr = (char *) NULL;
@@ -117,8 +127,8 @@ void NML::operator                          delete(void *nml_space)
 	cptr = ((char *) nml_space) + sizeof(NML);
 	cptr += sizeof(int) - (((int) cptr) % sizeof(int));
 	dynamic_list_id = *((int *) cptr);
-	Dynamically_Allocated_NML_Objects->deleteNode(dynamic_list_id);
-	if (Dynamically_Allocated_NML_Objects->listSize == 0) {
+	Dynamically_Allocated_NML_Objects->delete_node(dynamic_list_id);
+	if (Dynamically_Allocated_NML_Objects->list_size == 0) {
 	    delete Dynamically_Allocated_NML_Objects;
 	    Dynamically_Allocated_NML_Objects = (LinkedList *) NULL;
 	}
@@ -149,9 +159,10 @@ void NML::operator                          delete(void *nml_space)
 *  later if the constructor returned before creating the objects
 *  the pointers are intended to point at.
 ******************************************************************/
-NML::NML(NML_FORMAT_PTR f_ptr,
-    char *buf, char *proc, char *file, int set_to_server, int set_to_master)
+NML::NML(NML_FORMAT_PTR f_ptr, char *buf, char *proc, char *file,
+    int set_to_server, int set_to_master)
 {
+    registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
     info_printed = 0;
     blocking_read_poll_interval = -1.0;
@@ -221,6 +232,14 @@ void free_NML(NML * nml)
     }
 }
 
+int NML::login(const char *name, const char *passwd)
+{
+    if (NULL == cms) {
+	return 1;
+    }
+    return cms->login(name, passwd);
+}
+
 void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
     char *file, int set_to_server, int set_to_master)
 {
@@ -284,9 +303,11 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
 	register_with_server();
     }
     add_to_channel_list();
-    /* FAST MODE is a combination of options which allow certian checks
-       during a read or write operation to be avoided and therefore reduce
-       the NML/CMS overhead. */
+    // FAST MODE is a combination of options which allow certian checks
+    // during
+    // a read or write operation to be avoided and therefore reduce the
+    // NML/CMS
+    // overhead.
     if (!cms->is_phantom &&
 	cms->ProcessType == CMS_LOCAL_TYPE &&
 	!cms->neutral && !cms->isserver && !cms->enable_diagnostics) {
@@ -336,12 +357,13 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
 * the format_chain is constructed. (This may be done by
 * derived classes. )
 ******************************************************************/
-NML::NML(char *buf, char *proc, char *file,
-    int set_to_server, int set_to_master)
+NML::NML(char *buf, char *proc, char *file, int set_to_server,
+    int set_to_master)
 {
     if (NULL == file) {
 	file = default_nml_config_file;
     }
+    registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
     strncpy(bufname, buf, 40);
     strncpy(procname, proc, 40);
@@ -426,6 +448,7 @@ NML::NML(char *buf, char *proc, char *file,
 	    blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
 	}
     }
+
 }
 
 /******************************************************************
@@ -456,6 +479,7 @@ NML::NML(char *buf, char *proc, char *file,
 ******************************************************************/
 NML::NML(char *buffer_line, char *proc_line)
 {
+    registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
     cms = (CMS *) NULL;
     blocking_read_poll_interval = -1.0;
@@ -532,7 +556,9 @@ NML::NML(char *buffer_line, char *proc_line)
 	if (brpi_eq != NULL) {
 	    blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
 	}
+	register_with_server();
     }
+
 }
 
 /***************************************************************
@@ -545,15 +571,14 @@ NML::NML(char *buffer_line, char *proc_line)
 * remember which process (also known as a task) added it to the list.
 * (This is a great reason for tossing VxWorks in the circular file!)
 *****************************************************************/
-void
-  NML::add_to_channel_list()
+void NML::add_to_channel_list()
 {
     if (NULL == NML_Main_Channel_List) {
 	NML_Main_Channel_List = new LinkedList;
     }
     if (NULL != NML_Main_Channel_List) {
 	channel_list_id =
-	    NML_Main_Channel_List->storeAtTail(this, sizeof(NML), 0);
+	    NML_Main_Channel_List->store_at_tail(this, sizeof(NML), 0);
     }
 }
 
@@ -568,12 +593,13 @@ void
 ********************************************************************/
 void NML::register_with_server()
 {
-    if (NULL != cms) {
+    if (NULL != cms && !registered_with_server) {
 	if (cms->spawn_server) {
 	    if (NULL == NML_Default_Super_Server) {
 		NML_Default_Super_Server = new NML_SUPER_SERVER;
 	    }
 	    NML_Default_Super_Server->add_to_list(this);
+	    registered_with_server = 1;
 	}
     }
 }
@@ -600,6 +626,7 @@ void NML::register_with_server()
 *************************************************************/
 NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
 {
+    registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
     already_deleted = 0;
     forced_type = 0;
@@ -620,9 +647,9 @@ NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
 	strncpy(procname, nml_ptr->procname, 40);
 	strncpy(cfgfilename, nml_ptr->cfgfilename, 160);
 	if (NULL != nml_ptr->cms) {
-	    /* Create a CMS channel identitical to the one from the argument
-	       NML channel accept that the channel may be set_to_server or
-	       set_to_master differently. */
+	    // Create a CMS channel identitical to the one from the argument
+	    // NML channel accept that the channel may be set_to_server or
+	    // set_to_master differently.
 	    cms_copy(&cms, nml_ptr->cms, set_to_server, set_to_master);
 	    if (NULL != cms) {
 		cms->current_subdivision = nml_ptr->cms->current_subdivision;
@@ -636,10 +663,10 @@ NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
 	    NML_FORMAT_PTR format_func_ptr;
 	    from = nml_ptr->format_chain;
 	    to = format_chain;
-	    format_func_ptr = (NML_FORMAT_PTR) from->getHead();
+	    format_func_ptr = (NML_FORMAT_PTR) from->get_head();
 	    while (NULL != format_func_ptr) {
-		to->storeAtTail((void *) format_func_ptr, 0, 0);
-		format_func_ptr = (NML_FORMAT_PTR) from->getNext();
+		to->store_at_tail((void *) format_func_ptr, 0, 0);
+		format_func_ptr = (NML_FORMAT_PTR) from->get_next();
 	    }
 	}
     }
@@ -683,8 +710,7 @@ NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
 * NML Reset Function
 * Can be used instead of deleting and recreating an NML channel.
 *************************************************************/
-int
-  NML::reset()
+int NML::reset()
 {
     int cms_copy_ret = 0;
     if (valid()) {
@@ -704,9 +730,11 @@ int
 	}
 	register_with_server();
 	add_to_channel_list();
-	/* FAST MODE is a combination of options which allow certian checks
-	   during a read or write operation to be avoided and therefore
-	   reduce the NML/CMS overhead. */
+	// FAST MODE is a combination of options which allow certian checks
+	// during
+	// a read or write operation to be avoided and therefore reduce the
+	// NML/CMS
+	// overhead.
 	if (!cms->is_phantom &&
 	    cms->ProcessType == CMS_LOCAL_TYPE &&
 	    !cms->neutral && !cms->isserver && !cms->enable_diagnostics) {
@@ -780,7 +808,7 @@ void NML::delete_channel()
 	format_chain = (LinkedList *) NULL;
     }
     if (NULL != NML_Main_Channel_List && (0 != channel_list_id)) {
-	NML_Main_Channel_List->deleteNode(channel_list_id);
+	NML_Main_Channel_List->delete_node(channel_list_id);
     }
     rcs_print_debug(PRINT_NML_DESTRUCTORS, "Leaving ~NML()\n");
 }
@@ -803,6 +831,167 @@ NMLmsg *NML::get_address()
 	return ((NMLmsg *) NULL);
     } else {
 	return ((NMLmsg *) cms->subdiv_data);
+    }
+}
+
+/*************************************************************
+* NML Member Function: get_address_subdivision(int subdiv)
+* Purpose:
+*  Returns the address of the local copy of the buffer.
+*  Use this function instead of nml->cms->subdiv_data directly to prevent
+*   users from pointing nml->cms->subdiv_data at something else. Or getting
+*   a segmentation fault if cms was not properly constructed.
+***************************************************************/
+NMLmsg *NML::get_address_subdivision(int subdiv)
+{
+    if (NULL == cms) {
+	error_type = NML_INVALID_CONFIGURATION;
+	return ((NMLmsg *) NULL);
+    } else {
+	cms->set_subdivision(subdiv);
+	return ((NMLmsg *) cms->subdiv_data);
+    }
+}
+
+/*************************************************************
+* NML Member Function: get_address_subdivision(int subdiv)
+* Purpose:
+*  Returns the total number of subdivisions configured for this
+* NML channel.
+***************************************************************/
+int NML::get_total_subdivisions()
+{
+    if (NULL == cms) {
+	return (1);
+    } else {
+	return (cms->total_subdivisions);
+    }
+}
+
+/***********************************************************
+* NML Member Function: clear()
+* Purpose:
+*  Clears the CMS buffer associated with this NML channel.
+*
+*  Returns:
+* 0 if no error occured or -1 if error occured.
+*
+* Notes:
+*  1. Some buffers can be identified as PHANTOM in the config file.
+* this will cause cms->is_phantom to be set. This will cause this
+* function to call the function pointed to by phantom_clear
+* if it is not NULL rather than using CMS.
+*  2. If an error occurs, users can check error_type before
+* making any other NML calls
+************************************************************/
+int NML::clear()
+{
+    if (NULL == cms) {
+	error_type = NML_INVALID_CONFIGURATION;
+	return (-1);
+    } else {
+	if (cms->is_phantom) {
+	    if (NULL != phantom_clear) {
+		return ((*phantom_clear) ());
+	    } else {
+		return (0);
+	    }
+	}
+	CMS_STATUS return_value;
+	error_type = NML_NO_ERROR;
+	if (((int) (return_value = cms->clear())) > 0) {
+	    error_type = NML_INTERNAL_CMS_ERROR;
+	}
+	if (cms->status == CMS_TIMED_OUT) {
+	    error_type = NML_TIMED_OUT;
+	}
+	return (((int) return_value < 0) ? -1 : 0);
+    }
+}
+
+/************************************************************
+* NML Member Function: clean_buffers()
+*  Tells cms to set buffers to zero so that we eliminate strange
+* history effects. -- Should only be used by progams testing CMS/NML.
+************************************************************/
+void NML::clean_buffers()
+{
+    if (NULL != cms) {
+	cms->clean_buffers();
+    }
+}
+
+/***********************************************************
+* NML Member Function: check_if_read()
+* Purpose:
+*  Returns 1 if the buffer has been read since the last write,
+* 0 if it hadn't, or -1 if some communications error prevented
+* it from finding out.
+* Notes:
+*  1. Some buffers can be identified as PHANTOM in the config file.
+* this will cause cms->is_phantom to be set. This will cause this
+* function to call the function pointed to by phantom_check_if_read
+* if it is not NULL rather than using CMS.
+*  2. If an error occurs, users can check error_type before
+* making any other NML calls
+************************************************************/
+int NML::check_if_read()
+{
+    if (NULL == cms) {
+	error_type = NML_INVALID_CONFIGURATION;
+	return (-1);
+    } else {
+	if (cms->is_phantom) {
+	    if (NULL != phantom_check_if_read) {
+		return ((*phantom_check_if_read) ());
+	    } else {
+		return (0);
+	    }
+	}
+	int return_value;
+	error_type = NML_NO_ERROR;
+	if ((return_value = cms->check_if_read()) == -1) {
+	    error_type = NML_INTERNAL_CMS_ERROR;
+	}
+	if (cms->status == CMS_TIMED_OUT) {
+	    error_type = NML_TIMED_OUT;
+	}
+	return (return_value);
+    }
+}
+
+/***********************************************************
+* NML Member Function: get_queue_length()
+* Purpose:
+*  Returns the number of messages queued in the buffer if queing
+* was enabled for this buffer. 0 otherwise.
+************************************************************/
+int NML::get_queue_length()
+{
+    if (NULL == cms) {
+	error_type = NML_INVALID_CONFIGURATION;
+	return (-1);
+    } else {
+	error_type = NML_NO_ERROR;
+	return cms->get_queue_length();
+    }
+}
+
+/***********************************************************
+* NML Member Function: get_space_available()
+* Purpose:
+*  Returns the approximate number of bytes that can be written
+* to a queued buffer.
+*
+************************************************************/
+int NML::get_space_available()
+{
+    if (NULL == cms) {
+	error_type = NML_INVALID_CONFIGURATION;
+	return (-1);
+    } else {
+	error_type = NML_NO_ERROR;
+	return cms->get_space_available();
     }
 }
 
@@ -1073,6 +1262,20 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
 	return (-1);
     }
 
+}
+
+void NML::reconnect()
+{
+    if (NULL != cms) {
+	cms->reconnect();
+    }
+}
+
+void NML::disconnect()
+{
+    if (NULL != cms) {
+	cms->disconnect();
+    }
 }
 
 /* Same as the read with no arguments except that the data is
@@ -1772,7 +1975,7 @@ int NML::run_format_chain(NMLTYPE type, void *buf)
 {
     NML_FORMAT_PTR format_function;
 
-    format_function = (NML_FORMAT_PTR) format_chain->getHead();
+    format_function = (NML_FORMAT_PTR) format_chain->get_head();
     while (NULL != format_function) {
 	switch ((*format_function) (type, buf, cms)) {
 	case -1:
@@ -1782,7 +1985,7 @@ int NML::run_format_chain(NMLTYPE type, void *buf)
 	case 1:
 	    return (0);
 	}
-	format_function = (NML_FORMAT_PTR) format_chain->getNext();
+	format_function = (NML_FORMAT_PTR) format_chain->get_next();
     }
     return (0);
 }
@@ -1793,9 +1996,23 @@ int NML::prefix_format_chain(NML_FORMAT_PTR f_ptr)
 	format_chain = new LinkedList;
     }
     if (NULL != format_chain) {
-	format_chain->storeAtHead((void *) f_ptr, 0, 0);
+	format_chain->store_at_head((void *) f_ptr, 0, 0);
     }
     return (0);
+}
+
+/**************************************************************************
+* NML member function: msg2str
+* Parameter: NMLmsg &msg -- Reference to message to be converted into a string.
+* Returns: Returns a pointer to the cms->encoded_data buffer if successful
+* since this should contain the string or NULL if there was an error.
+***************************************************************************/
+int NML::check_if_transfers_complete()
+{
+    if (NULL == cms) {
+	return 1;
+    }
+    return cms->check_if_transfers_complete();
 }
 
 /**************************************************************************
@@ -1852,9 +2069,84 @@ const char *NML::msg2str(NMLmsg * nml_msg)
     return (const char *) str;
 }
 
+/**************************************************************************
+* NML member function: str2msg
+* Parameter: NMLmsg *msg -- Pointer to message to be converted into a NMLmsg.
+* Returns: Returns a pointer to the cms->encoded_data buffer if successful
+* since this should contain the string or NULL if there was an error.
+***************************************************************************/
+NMLTYPE NML::str2msg(const char *string)
+{
+    CMS *orig_cms = cms;
+    if (NULL == string) {
+	return -1;
+    }
+    if (NULL == cms) {
+	int string_length = strlen(string);
+	if (NULL != cms_for_msg_string_conversions) {
+	    if ((cms_for_msg_string_conversions->size > 16 * string_length &&
+		    cms_for_msg_string_conversions->size > 2048) ||
+		cms_for_msg_string_conversions->size < 4 * string_length) {
+		delete cms_for_msg_string_conversions;
+		cms_for_msg_string_conversions = 0;
+	    }
+	}
+	if (NULL == cms_for_msg_string_conversions) {
+	    cms_for_msg_string_conversions =
+		new CMS(string_length * 4 + 16 + (16 - (string_length % 16)));
+	}
+	cms = cms_for_msg_string_conversions;
+    }
+    cms->set_temp_updater(CMS_DISPLAY_ASCII_ENCODING);
+    cms->set_mode(CMS_DECODE);
+    strcpy((char *) cms->encoded_data, (const char *) string);
+    cms->status = CMS_READ_OK;
+    if (-1 == format_output()) {
+	cms->restore_normal_updater();
+	error_type = NML_FORMAT_ERROR;
+	cms = orig_cms;
+	return -1;
+    }
+    cms->restore_normal_updater();
+    cms = orig_cms;
+
+    switch (cms->status) {
+    case CMS_READ_OLD:
+	error_type = NML_NO_ERROR;
+	return (0);
+    case CMS_READ_OK:
+	error_type = NML_NO_ERROR;
+	return (((NMLmsg *) cms->subdiv_data)->type);
+    case CMS_TIMED_OUT:
+	error_type = NML_TIMED_OUT;
+	return -1;
+    case CMS_MISC_ERROR:
+    case CMS_NO_MASTER_ERROR:
+	error_type = NML_INTERNAL_CMS_ERROR;
+    default:
+	return -1;
+    }
+
+}
+
 static int info_message_printed = 0;
 char cwd_buf[256];
 char host_name_buf[MAXHOSTNAMELEN];
+
+char *get_ip_address(char *hostname)
+{
+    struct sockaddr_in socket_address;
+    /* Get the IP address of the server using it's BufferHost. */
+    struct hostent *host_entry;
+    host_entry = gethostbyname(hostname);
+    if (NULL == host_entry) {
+	return "UNKNOWN";
+    }
+    socket_address.sin_addr.s_addr = *((int *) host_entry->h_addr_list[0]);
+    socket_address.sin_family = host_entry->h_addrtype;
+    return inet_ntoa(socket_address.sin_addr);
+}
+
 char last_bufname[10];
 char last_procname[10];
 char last_cfg_file[40];
@@ -1901,12 +2193,10 @@ void NML::print_info(char *bufname, char *procname, char *cfg_file)
 	    ("\n**********************************************************\n");
 	rcs_print("* Current Directory = %s\n", getcwd(cwd_buf, 256));
 	if (nml_print_hostname_on_error) {
-#if 0
-	    dl_gethostname(host_name_buf, MAXHOSTNAMELEN);
+	    gethostname(host_name_buf, MAXHOSTNAMELEN);
 	    if (host_name_buf[0] != 0) {
 		rcs_print("* Host = %s\n", host_name_buf);
 	    }
-#endif
 	}
 	rcs_print("* ");
 	info_message_printed = 1;
@@ -1959,7 +2249,6 @@ void NML::print_info(char *bufname, char *procname, char *cfg_file)
 
 void nml_start()
 {
-
     spawn_nml_servers();
 }
 
@@ -1967,11 +2256,12 @@ void nml_cleanup()
 {
     NML *nml;
     nml_server_cleanup();
+
     if (NULL != NML_Main_Channel_List) {
 	rcs_print_debug(PRINT_NML_DESTRUCTORS,
 	    "Deleting %d channels from the NML_Main_Channel_List.\n",
-	    NML_Main_Channel_List->listSize);
-	nml = (NML *) NML_Main_Channel_List->getHead();
+	    NML_Main_Channel_List->list_size);
+	nml = (NML *) NML_Main_Channel_List->get_head();
 	while (NULL != nml) {
 	    if (nml->cms != NULL) {
 		rcs_print_debug(PRINT_NML_DESTRUCTORS,
@@ -1985,8 +2275,8 @@ void nml_cleanup()
 	    if (NULL == NML_Main_Channel_List) {
 		return;
 	    }
-	    NML_Main_Channel_List->deleteCurrentNode();
-	    nml = (NML *) NML_Main_Channel_List->getNext();
+	    NML_Main_Channel_List->delete_current_node();
+	    nml = (NML *) NML_Main_Channel_List->get_next();
 	}
 	if (NULL != NML_Main_Channel_List) {
 	    delete NML_Main_Channel_List;
@@ -1994,7 +2284,7 @@ void nml_cleanup()
 	}
     }
     if (NULL != Dynamically_Allocated_NML_Objects) {
-	nml = (NML *) Dynamically_Allocated_NML_Objects->getHead();
+	nml = (NML *) Dynamically_Allocated_NML_Objects->get_head();
 	while (NULL != nml) {
 	    if (nml->cms != NULL) {
 		rcs_print_debug(PRINT_NML_DESTRUCTORS,
@@ -2008,8 +2298,8 @@ void nml_cleanup()
 	    if (NULL == Dynamically_Allocated_NML_Objects) {
 		return;
 	    }
-	    Dynamically_Allocated_NML_Objects->deleteCurrentNode();
-	    nml = (NML *) Dynamically_Allocated_NML_Objects->getNext();
+	    Dynamically_Allocated_NML_Objects->delete_current_node();
+	    nml = (NML *) Dynamically_Allocated_NML_Objects->get_next();
 	}
 	if (NULL != Dynamically_Allocated_NML_Objects) {
 	    delete Dynamically_Allocated_NML_Objects;
@@ -2035,9 +2325,164 @@ void nml_wipeout_lists()
     }
 }
 
+int NML::print_queue_info()
+{
+    if (NULL == cms) {
+	rcs_print_error("NML::print_queue_info() - NULL == cms\n");
+	return (-1);
+    }
+    if (!cms->queuing_enabled) {
+	rcs_print_error("NML::print_queue_info() - Queing Not Enabled.\n");
+	return (-1);
+    }
+    if (cms->ProcessType != CMS_LOCAL_TYPE) {
+	rcs_print_error
+	    ("NML::print_queue_info() - REMOTE Connection: Queing Data Not Available.\n");
+	return (-1);
+    }
+    rcs_print
+	("head = %d(0x%X); tail=%d(0x%X); queue_length=%d,end_queue_space=%d(0x%X); write_id=%d\n",
+	cms->queuing_header.head, cms->queuing_header.head,
+	cms->queuing_header.tail, cms->queuing_header.tail,
+	cms->queuing_header.queue_length, cms->queuing_header.end_queue_space,
+	cms->queuing_header.end_queue_space, cms->queuing_header.write_id);
+    return (0);
+}
+
+// Function added at Steve Balakirsky's request. Polls a channel indefinitely
+// waiting for it to open.
+NML *nmlWaitOpen(NML_FORMAT_PTR fPtr, char *buffer, char *name, char *file,
+    double sleepTime)
+{
+    NML *nmlChannel = 0;
+
+    RCS_PRINT_DESTINATION_TYPE olddest = get_rcs_print_destination();
+    set_rcs_print_destination(RCS_PRINT_TO_NULL);
+    nmlChannel = new NML(fPtr, buffer, name, file);
+    while (!nmlChannel->reset()) {
+	esleep(sleepTime);
+    }
+    set_rcs_print_destination(olddest);
+    return (nmlChannel);
+}
+
+// Special functions for dealing with subdivisions
+
+/* Write a message. (Use reference) */
+int NML::write_subdivision(int subdiv, NMLmsg & nml_msg)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return write(nml_msg);
+}
+
+/* Write a message. (Use pointer) */
+int NML::write_subdivision(int subdiv, NMLmsg * nml_msg)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return write(nml_msg);
+}
+
+/* Write to subdivision only if buffer was_read. (Use reference) */
+int NML::write_if_read_subdivision(int subdiv, NMLmsg & nml_msg)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return write_if_read(nml_msg);
+}
+
+/* Write to subdivision only if buffer was_read. (Use pointer) */
+int NML::write_if_read_subdivision(int subdiv, NMLmsg * nml_msg)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return write_if_read(nml_msg);
+}
+
+/* Read from a particular subdivision. */
+NMLTYPE NML::read_subdivision(int subdiv)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return read();
+}
+
+/* Read from a particular subdivision. (Wait for new data). */
+NMLTYPE NML::blocking_read_subdivision(int subdiv, double timeout)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return blocking_read(timeout);
+}
+
+/* Read buffer without changing was_read */
+NMLTYPE NML::peek_subdivision(int subdiv)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return peek();
+}
+
 // This constructor declared private to prevent copying.
 NML::NML(NML & nml)
 {
+}
+
+NMLTYPE NML::blocking_read_extended(double timeout, double poll_interval)
+{
+    if (cms == NULL) {
+	return -1;
+    }
+
+    if (cms->BufferType == CMS_SHMEM_TYPE) {
+	return blocking_read(timeout);
+    } else {
+	NMLTYPE type = 0;
+	double time_elapsed = 0.0;
+	double start_time = etime();
+	while (!type && (time_elapsed < timeout || timeout < 0.0)) {
+	    esleep(poll_interval);
+	    type = read();
+	    if (timeout > 0.0 && !type) {
+		time_elapsed = etime() - start_time;
+	    }
+	    if (time_elapsed < 0.0) {
+		break;
+	    }
+	}
+	return type;
+    }
+}
+
+/* Get the number of messages written to this buffer so far. */
+int NML::get_msg_count()
+{
+    if (NULL == cms) {
+	return -1;
+    }
+    return cms->get_msg_count();
 }
 
 /* Get Diagnostics Information. */
@@ -2057,7 +2502,7 @@ void nmlSetHostAlias(const char *hostName, const char *hostAlias)
     CMS_HOST_ALIAS_ENTRY entry;
     strncpy(entry.host, hostName, 64);
     strncpy(entry.alias, hostAlias, 64);
-    cmsHostAliases->storeAtTail(&entry, sizeof(entry), 1);
+    cmsHostAliases->store_at_tail(&entry, sizeof(entry), 1);
 }
 
 void nmlClearHostAliases()

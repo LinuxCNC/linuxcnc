@@ -12,7 +12,8 @@
 
 // NML operator interface messages for errors, text, and display
 
-void NML_ERROR::update(CMS * cms)
+void
+  NML_ERROR::update(CMS * cms)
 {
     cms->update(error, NML_ERROR_LEN);
 }

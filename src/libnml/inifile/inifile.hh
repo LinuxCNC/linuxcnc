@@ -2,15 +2,10 @@
 #define INIFILE_HH
 
 /*
-   inifile.hh
+   inifile.h
 
    Decls for INI file format functions
 
-   Modification history:
-
-   24-Feb-1998  FMP replaced __CPLUSPLUS__ with __cplusplus
-   18-Dec-1997  FMP set up as C/C++ split for emcnml directory
-   24-Apr-1997  FMP split into C and C++ parts
 */
 
 #ifdef __cplusplus

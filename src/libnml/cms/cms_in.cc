@@ -7,26 +7,25 @@
 * The following applies to the member functions in this file:
 * They work through a handle to a shared physical memory object.
 * They should only be called when this process has sole access to
-* this shared physical memory object. This is normally achieved by taking
-* a mutual-exclusion semaphore before calling the internal_access function
-* above from the main_access function of a derived class.
+ this shared physical memory object. This is normally achieved by taking
+ a mutual-exclusion semaphore before calling the internal_access function
+ above from the main_access function of a derived class.
 * If they begin with "queue" then they are for buffers where messages are
-* to be queued, other wise they are for buffers with will have only 1
-* message at a time.
-*
+ to be queued, other wise they are for buffers with will have only 1
+ message at a time.*
 * Queuing buffers store a CMS_QUEUING_HEADER at the beginning and a
-* CMS_HEADER before each message. Non-queuing buffers have only a
-* CMS_HEADER before the only message.
+ CMS_HEADER before each message. Non-queuing buffers have only a
+ CMS_HEADER before the only message.
 * If they end in "encoded" they are for buffers that will neutrally encoded
-* in some processor architecture independant data format such as XDR
-* (eXternal Data Representation), otherwise the buffer must be in the
-* format used by the same compiler as this is compiled in and for the same
-* processor architecture and the function name will end in "raw".
+ in some processor architecture independant data format such as XDR
+ (eXternal Data Representation), otherwise the buffer must be in the
+ format used by the same compiler as this is compiled in and for the same
+ processor architecture and the function name will end in "raw".
 *****************************************************************************/
 
 /* Include Files */
 #include "cms.hh"		/* class CMS */
-#include "cmsdiag.hh"		/* CMS_DIAG_PROC_INFO, CMS_DIAG_HEADER */
+#include "cmsdiag.hh"		// class CMS_DIAG_PROC_INFO, CMS_DIAG_HEADER
 #include "rcs_print.hh"		/* rcs_print_error() */
 #include "physmem.hh"		/* class PHYSMEM_HANDLE */
 
@@ -69,8 +68,8 @@ CMS_STATUS CMS::internal_access(void *_global, long _global_size,
     return (status);
 }
 
-/* This function should be called by classes which overload the 
-   main_access function. */
+ /* This function should be called by classes which overload the main_access
+    function. */
 CMS_STATUS CMS::internal_access(PHYSMEM_HANDLE * _global, void *_local)
 {
     status = CMS_STATUS_NOT_SET;
@@ -318,8 +317,8 @@ int CMS::check_if_read_raw()
     return ((int) header.was_read);
 }
 
-/* Determine if all of the messages in the buffer have been read. */
-/* This means the queue is empty. */
+ /* Determine if all of the messages in the buffer have been read. This means 
+    the queue is empty. */
 int CMS::queue_check_if_read_raw()
 {
     /* Check that the handle to global memory exists. */
@@ -368,8 +367,8 @@ int CMS::check_if_read_encoded()
     return ((int) header.was_read);
 }
 
-/* Determine if all of the messages in the buffer have been read.
-   This means the queue is empty. */
+ /* Determine if all of the messages in the buffer have been read. This means 
+    the queue is empty. */
 int CMS::queue_check_if_read_encoded()
 {
     /* Check that the handle to global memory exists. */
@@ -416,7 +415,8 @@ int CMS::get_msg_count_raw()
     return (header.write_id);
 }
 
-/* Determine if all of the messages in the buffer have been read. This means the queue is empty. */
+ /* Determine if all of the messages in the buffer have been read. This means 
+    the queue is empty. */
 int CMS::queue_get_msg_count_raw()
 {
     /* Check that the handle to global memory exists. */
@@ -465,8 +465,8 @@ int CMS::get_msg_count_encoded()
     return ((int) header.write_id);
 }
 
-/* Determine if all of the messages in the buffer have been read.
-   This means the queue is empty. */
+ /* Determine if all of the messages in the buffer have been read. This means 
+    the queue is empty. */
 int CMS::queue_get_msg_count_encoded()
 {
     /* Check that the handle to global memory exists. */
@@ -492,8 +492,8 @@ int CMS::queue_get_msg_count_encoded()
     return (header.write_id = queuing_header.write_id);
 }
 
-/* Determine if all of the messages in the buffer have been read.
-   This means the queue is empty. */
+ /* Determine if all of the messages in the buffer have been read. This means 
+    the queue is empty. */
 int CMS::queue_get_queue_length_raw()
 {
     /* Check that the handle to global memory exists. */
@@ -516,8 +516,8 @@ int CMS::queue_get_queue_length_raw()
     return (queuing_header.queue_length);
 }
 
-/* Determine if all of the messages in the buffer have been read.
-   This means the queue is empty. */
+ /* Determine if all of the messages in the buffer have been read. This means 
+    the queue is empty. */
 int CMS::queue_get_queue_length_encoded()
 {
     /* Check that the handle to global memory exists. */
@@ -543,8 +543,8 @@ int CMS::queue_get_queue_length_encoded()
     return (queuing_header.queue_length);
 }
 
-/* Determine if all of the messages in the buffer have been read.
-   This means the queue is empty. */
+ /* Determine if all of the messages in the buffer have been read. This means 
+    the queue is empty. */
 int CMS::queue_get_space_available_raw()
 {
     long queuing_header_offset;
@@ -602,8 +602,8 @@ int CMS::queue_get_space_available_raw()
     return (free_space);
 }
 
-/* Determine if all of the messages in the buffer have been read.
-   This means the queue is empty. */
+ /* Determine if all of the messages in the buffer have been read. This means 
+    the queue is empty. */
 int CMS::queue_get_space_available_encoded()
 {
     long queuing_header_offset;
@@ -733,8 +733,8 @@ CMS_STATUS CMS::read_raw()
 /* 3. Read the message header at the head of the queue. */
 /* 4. Check the id and size. */
 /* 5. If id and size are ok, */
- /* then read the message and update both the queuing header and message
-    header. */
+/* then read the message and */
+/* update both the queuing header and message header. */
 CMS_STATUS CMS::queue_read_raw()
 {
     long queuing_header_offset;
@@ -1231,8 +1231,8 @@ CMS_STATUS CMS::peek_encoded()
 /* 4. Read the message header at the head of the queue. */
 /* 5. Decode the message header. */
 /* 6. Check the id and size. */
-/* 7. If id and size are ok, then read the message */
- /* */
+/* 7. If id and size are ok, */
+ /* then read the message */
 CMS_STATUS CMS::queue_peek_encoded()
 {
     long queuing_header_offset;
@@ -1334,6 +1334,15 @@ CMS_STATUS CMS::write_raw(void *user_data)
 	rcs_print_error("CMS: handle_to_global_data is NULL.\n");
 	return (status = CMS_INTERNAL_ACCESS_ERROR);
     }
+#if 0
+    /* Check that buffer is large enough for this message. */
+    if (header.in_buffer_size > max_message_size) {
+	rcs_print_error
+	    ("CMS:(%s) Message size %ld exceeds maximum for this buffer of %ld.\n",
+	    BufferName, header.in_buffer_size, max_message_size);
+	return (status = CMS_INTERNAL_ACCESS_ERROR);
+    }
+#endif
 
     /* Read the header. */
     if (-1 == handle_to_global_data->read(&header, sizeof(header))) {

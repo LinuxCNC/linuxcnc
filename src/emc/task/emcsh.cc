@@ -1,0 +1,5461 @@
+/*
+  emcsh.cc
+
+  Extended-Tcl-based EMC automatic test interface
+
+  Modification history:
+
+  21-Jan-2004  P.C. Moved across from the original EMC source tree.
+  */
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <math.h>
+#include "tcl.h"
+#include "tk.h"
+
+#include "rcs.hh"
+#include "posemath.h"		// PM_POSE, TO_RAD
+#include "emc.hh"		// EMC NML
+#include "canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
+#include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
+#include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
+#include "inifile.h"		// INIFILE
+#include "emcmotlog.h"		// EMCLOG_TRIGGER_TYPE, EMCLOG_TRIGGER_VAR
+
+// ident tag
+#ifndef __GNUC__
+#ifndef __attribute__
+#define __attribute__(x)
+#endif
+#endif
+
+static char __attribute__ ((unused)) ident[] =
+    "$Id$";
+
+/*
+  Using emcsh:
+
+  emcsh {<filename>} {-- -ini <ini file>}
+
+  With filename, it opens NML buffers to the EMC, runs the script, closes
+  the buffers, and quits.
+
+  With -- -ini <inifile>, uses inifile instead of emc.ini. Note that
+  the two dashes prevents Tcl from looking at the remaining args, which
+  would otherwise trigger a Tcl error that it doesn't understand what
+  -ini means.
+
+  Without filename, it runs interactively.
+
+  The files (or manual input) are Tcl scripts, extended with EMC-specific
+  commands. These commands are all prefixed with "emc_", which makes them
+  somewhat inconvenient for typing but avoids name conflicts, e.g., open.
+
+  Some commands take 0 or more arguments. 0 arguments means they return
+  the associated value; the argument would be to set the value.
+
+  Commands are sent to the EMC, and control resumes immediately. You can
+  call a timed wait until the command got there, or a timed wait until the
+  command completed, or not wait at all.
+
+  EMC commands:
+
+  EMC_INIFILE
+  Exported values of the EMC global of the same name
+
+  emc_plat
+  Returns the platform for which this was compiled, e.g., linux_2_0_36
+
+  emc_ini <var> <section>
+  Returns the string value of <var> in section <section>, in EMC_INIFILE
+
+  emc_debug {<new value>}
+  With no arg, returns the integer value of EMC_DEBUG, in the EMC. Note that
+  it may not be true that the local EMC_DEBUG variable here (in emcsh and
+  the GUIs that use it) is the same as the EMC_DEBUG value in the EMC. This
+  can happen if the EMC is started from one .ini file, and the GUI is started
+  with another that has a different value for DEBUG.
+  With an arg, sends a command to the EMC to set the new debug level,
+  and sets the EMC_DEBUG global here to the same value. This will make
+  the two values the same, since they really ought to be the same.
+
+  emc_set_wait none | received | done
+  Set the wait for commands to return to be right away (none), after the
+  command was sent and received (received), or after the command was
+  done (done).
+
+  emc_wait received | done
+  Force a wait for the previous command to be received, or done. This lets
+  you wait in the event that "emc_set_wait none" is in effect.
+
+  emc_set_timeout <timeout>
+  Set the timeout for commands to return to <timeout>, in seconds. Timeout
+  is a real number. If it's <= 0.0, it means wait forever. Default is 0.0,
+  wait forever.
+
+  emc_update (none) | none | auto
+  With no arg, forces an update of the EMC status. With "none", doesn't
+  cause an automatic update of status with other emc_ words. With "auto",
+  makes emc_ words automatically update status before they return values.
+
+  emc_error
+  Returns the current EMC error string, or "ok" if no error.
+
+  emc_operator_display
+  Returns the current EMC operator display string, or "ok" if none.
+
+  emc_operator_text
+  Returns the current EMC operator text string, or "ok" if none.
+
+  emc_time
+  Returns the time, in seconds, from the start of the epoch. This starting
+  time depends on the platform.
+
+  emc_estop (none) | on | off
+  With no arg, returns the estop setting as "on" or "off". Otherwise,
+  sends an estop on or off command.
+
+  emc_estop_in
+  Returns the estop input setting as "on" or "off".
+
+  emc_machine (none) | on | off
+  With no arg, returns the machine setting as "on" or "off". Otherwise,
+  sends a machine on or off command.
+
+  emc_mode (none) | manual | auto | mdi
+  With no arg, returns the mode setting as "manual", "auto", or "mdi".
+  Otherwise, sends a mode manual, auto, or mdi command.
+
+  emc_mist (none) | on | off
+  With no arg, returns the mist setting as "on" or "off". Otherwise,
+  sends a mist on or off command.
+
+  emc_flood (none) | on | off
+  With no arg, returns the flood setting as "on" or "off". Otherwise,
+  sends a flood on or off command.
+
+  emc_lube (none) | on | off
+  With no arg, returns the lubricant pump setting as "on" or "off".
+  Otherwise, sends a lube on or off command.
+
+  emc_lube_level
+  Returns the lubricant level sensor reading as "ok" or "low".
+
+  emc_spindle (none) | forward | reverse | increase | decrease | constant | off
+  With no arg, returns the value of the spindle state as "forward",
+  "reverse", "increase", "decrease", or "off". With arg, sends the spindle
+  command. Note that "increase" and "decrease" will cause a speed change in
+  the corresponding direction until a "constant" command is sent.
+
+  emc_brake (none) | on | off
+  With no arg, returns the brake setting. Otherwise sets the brake.
+
+  emc_tool
+  Returns the id of the currently loaded tool
+
+  emc_tool_offset
+  Returns the currently applied tool length offset
+
+  emc_load_tool_table <file>
+  Loads the tool table specified by <file>
+
+  emc_home 0 | 1 | 2 | ...
+  Homes the indicated axis.
+
+  emc_jog_stop 0 | 1 | 2 | ...
+  Stop the axis jog
+
+  emc_jog 0 | 1 | 2 | ... <speed>
+  Jog the indicated axis at <speed>; sign of speed is direction
+
+  emc_jog_incr 0 | 1 | 2 | ... <speed> <incr>
+  Jog the indicated axis by increment <incr> at the <speed>; sign of
+  speed is direction
+
+  emc_feed_override {<percent>}
+  With no args, returns the current feed override, as a percent. With
+  argument, set the feed override to be the percent value
+
+  emc_abs_cmd_pos 0 | 1 | ...
+  Returns double obj containing the XYZ-SXYZ commanded pos in abs coords,
+  at given index, 0 = X, etc.
+
+  emc_abs_act_pos
+  Returns double objs containing the XYZ-SXYZ actual pos in abs coords
+
+  emc_rel_cmd_pos 0 | 1 | ...
+  Returns double obj containing the XYZ-SXYZ commanded pos in rel coords,
+  at given index, 0 = X, etc., including tool length offset
+
+  emc_rel_act_pos
+  Returns double objs containing the XYZ-SXYZ actual pos in rel coords,
+  including tool length offset
+
+  emc_joint_pos
+  Returns double objs containing the actual pos in absolute coords of individual
+  joint/slider positions, excludes tool length offset
+
+  emc_pos_offset X | Y | Z | R | P | W
+  Returns the position offset associated with the world coordinate provided
+
+  emc_joint_limit 0 | 1 | ...
+  Returns "ok", "minsoft", "minhard", "maxsoft", "maxhard"
+
+  emc_joint_fault 0 | 1 | ...
+  Returns "ok" or "fault"
+
+  emc_joint_homed 0 | 1 | ...
+  Returns "homed", "not"
+
+  emc_mdi <string>
+  Sends the <string> as an MDI command
+
+  emc_task_plan_init
+  Initializes the program interpreter
+
+  emc_open <filename>
+  Opens the named file
+
+  emc_run {<start line>}
+  Without start line, runs the opened program from the beginning. With
+  start line, runs from that line. A start line of -1 runs in verify mode.
+
+  emc_pause
+  Pause program execution
+
+  emc_resume
+  Resume program execution
+
+  emc_step
+  Step the program one line
+
+  emc_program
+  Returns the name of the currently opened program, or "none"
+
+  emc_program_line
+  Returns the currently executing line of the program
+
+  emc_program_status
+  Returns "idle", "running", or "paused"
+
+  emc_program_codes
+  Returns the string for the currently active program codes
+
+  emc_joint_type <joint>
+  Returns "linear", "angular", or "custom" for the type of the specified joint
+
+  emc_joint_units <joint>
+  Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
+  for the corresponding native units of the specified axis. The type
+  of the axis (linear or angular) is used to resolve which type of units
+  are returned. The units are obtained heuristically, based on the
+  EMC_AXIS_STAT::units numerical value of user units per mm or deg.
+  For linear joints, something close to 0.03937 is deemed "inch",
+  1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
+  For angular joints, something close to 1.000 is deemed "deg",
+  PI/180 is "rad", 100/90 is "grad", otherwise it's "custom".
+ 
+  emc_program_units
+  emc_program_linear_units
+  Returns "inch", "mm", "cm", or "none", for the corresponding linear 
+  units that are active in the program interpreter.
+
+  emc_program_angular_units
+  Returns "deg", "rad", "grad", or "none" for the corresponding angular
+  units that are active in the program interpreter.
+
+  emc_user_linear_units
+  Returns "inch", "mm", "cm", or "custom", for the
+  corresponding native user linear units of the EMC trajectory
+  level. This is obtained heuristically, based on the
+  EMC_TRAJ_STAT::linearUnits numerical value of user units per mm.
+  Something close to 0.03937 is deemed "inch", 1.000 is "mm", 0.1 is
+  "cm", otherwise it's "custom".
+
+  emc_user_angular_units
+  Returns "deg", "rad", "grad", or "custom" for the corresponding native
+  user angular units of the EMC trajectory level. Like with linear units,
+  this is obtained heuristically.
+
+  emc_display_linear_units
+  emc_display_angular_units
+  Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
+  for the linear or angular units that are active in the display. 
+  This is effectively the value of linearUnitConversion or
+  angularUnitConversion, resp.
+
+  emc_linear_unit_conversion {inch | mm | cm | auto}
+  With no args, returns the unit conversion active. With arg, sets the
+  units to be displayed. If it's "auto", the units to be displayed match
+  the program units.
+ 
+  emc_angular_unit_conversion {deg | rad | grad | auto}
+  With no args, returns the unit conversion active. With arg, sets the
+  units to be displayed. If it's "auto", the units to be displayed match
+  the program units.
+
+  emc_log_open <file> <type> <size> <skip> <triggertype> <triggervar> <triggerthreshold> {<axis>}
+  Open a log into file named <file>. <type> is one of axis_pos, axes_inpos,
+  axes_outpos, axis_vel, axes_ferror, traj_pos, traj_vel, traj_acc,
+  pos_voltage. <size> is size in entries. <skip> is how many to skip.
+  <axis> pertains only to axis_pos and axis_vel types.
+
+  emc_log_start
+  emc_log_stop
+  Starts or stops logging into the log, which must be already opened
+  with emc_log_open.
+
+  emc_log_close
+  Close the log and dump contents to the file specified in emc_log_open.
+
+  emc_probe_index
+  Which wire is the probe on or which bit of digital IO to use? (No args
+  gets it, one arg sets it.)
+
+  emc_probe_polarity
+  Value to look for for probe tripped? (0 args gets it, one arg sets it.)
+
+  emc_probe_clear
+  Clear the probe tripped flag.
+
+  emc_probe_tripped
+  Has the probe been tripped since the last clear.
+
+  emc_probe_value
+  Value of current probe signal. (read-only)
+
+  emc_probe
+  Move toward a certain location. If the probe is tripped on the way stop
+  motion, record the position and raise the probe tripped flag.
+
+  emc_teleop_enable
+  Should motion run in teleop mode? (No args
+  gets it, one arg sets it.)
+
+  emc_kinematics_type
+  returns the type of kinematics functions used identity=1, serial=2,
+  parallel=3, custom=4
+*/
+
+// the NML channels to the EMC task
+static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
+static RCS_STAT_CHANNEL *emcStatusBuffer = 0;
+EMC_STAT *emcStatus = 0;
+
+// the NML channel for errors
+static NML *emcErrorBuffer = 0;
+static char error_string[EMC_OPERATOR_ERROR_LEN] = "";
+static char operator_text_string[EMC_OPERATOR_TEXT_LEN] = "";
+static char operator_display_string[EMC_OPERATOR_DISPLAY_LEN] = "";
+
+// the current command numbers, set up updateStatus(), used in main()
+static int emcCommandSerialNumber = 0;
+static int saveEmcCommandSerialNumber = 0;
+
+// default value for timeout, 0 means wait forever
+static double emcTimeout = 0.0;
+
+static enum {
+    EMC_WAIT_NONE = 1,
+    EMC_WAIT_RECEIVED,
+    EMC_WAIT_DONE
+} emcWaitType = EMC_WAIT_DONE;
+
+static enum {
+    EMC_UPDATE_NONE = 1,
+    EMC_UPDATE_AUTO
+} emcUpdateType = EMC_UPDATE_AUTO;
+
+static int emcTaskNmlGet()
+{
+    int retval = 0;
+
+    // try to connect to EMC cmd
+    if (emcCommandBuffer == 0) {
+	emcCommandBuffer =
+	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc", EMC_NMLFILE);
+	if (!emcCommandBuffer->valid()) {
+	    delete emcCommandBuffer;
+	    emcCommandBuffer = 0;
+	    retval = -1;
+	}
+    }
+    // try to connect to EMC status
+    if (emcStatusBuffer == 0) {
+	emcStatusBuffer =
+	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", EMC_NMLFILE);
+	if (!emcStatusBuffer->valid()
+	    || EMC_STAT_TYPE != emcStatusBuffer->peek()) {
+	    delete emcStatusBuffer;
+	    emcStatusBuffer = 0;
+	    emcStatus = 0;
+	    retval = -1;
+	} else {
+	    emcStatus = (EMC_STAT *) emcStatusBuffer->get_address();
+	}
+    }
+
+    return retval;
+}
+
+static int emcErrorNmlGet()
+{
+    int retval = 0;
+
+    if (emcErrorBuffer == 0) {
+	emcErrorBuffer =
+	    new NML(nmlErrorFormat, "emcError", "xemc", EMC_NMLFILE);
+	if (!emcErrorBuffer->valid()) {
+	    delete emcErrorBuffer;
+	    emcErrorBuffer = 0;
+	    retval = -1;
+	}
+    }
+
+    return retval;
+}
+
+static int tryNml()
+{
+    double end;
+    int good;
+#define RETRY_TIME 10.0		// seconds to wait for subsystems to come up
+#define RETRY_INTERVAL 1.0	// seconds between wait tries for a subsystem
+
+    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
+	// messages
+    }
+    end = RETRY_TIME;
+    good = 0;
+    do {
+	if (0 == emcTaskNmlGet()) {
+	    good = 1;
+	    break;
+	}
+	esleep(RETRY_INTERVAL);
+	end -= RETRY_INTERVAL;
+    } while (end > 0.0);
+    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
+	// messages
+    }
+    if (!good) {
+	return -1;
+    }
+
+    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
+	// messages
+    }
+    end = RETRY_TIME;
+    good = 0;
+    do {
+	if (0 == emcErrorNmlGet()) {
+	    good = 1;
+	    break;
+	}
+	esleep(RETRY_INTERVAL);
+	end -= RETRY_INTERVAL;
+    } while (end > 0.0);
+    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
+	// messages
+    }
+    if (!good) {
+	return -1;
+    }
+
+    return 0;
+
+#undef RETRY_TIME
+#undef RETRY_INTERVAL
+}
+
+static int updateStatus()
+{
+    NMLTYPE type;
+
+    if (0 == emcStatus || 0 == emcStatusBuffer || !emcStatusBuffer->valid()) {
+	return -1;
+    }
+
+    switch (type = emcStatusBuffer->peek()) {
+    case -1:
+	// error on CMS channel
+	return -1;
+	break;
+
+    case 0:			// no new data
+    case EMC_STAT_TYPE:	// new data
+	// new data
+	break;
+
+    default:
+	return -1;
+	break;
+    }
+
+    return 0;
+}
+
+/*
+  updateError() updates "errors," which are true errors and also
+  operator display and text messages.
+*/
+static int updateError()
+{
+    NMLTYPE type;
+
+    if (0 == emcErrorBuffer || !emcErrorBuffer->valid()) {
+	return -1;
+    }
+
+    switch (type = emcErrorBuffer->read()) {
+    case -1:
+	// error reading channel
+	return -1;
+	break;
+
+    case 0:
+	// nothing new
+	break;
+
+    case EMC_OPERATOR_ERROR_TYPE:
+	strncpy(error_string,
+	    ((EMC_OPERATOR_ERROR *) (emcErrorBuffer->get_address()))->error,
+	    EMC_OPERATOR_ERROR_LEN - 1);
+	error_string[EMC_OPERATOR_ERROR_LEN - 1] = 0;
+	break;
+
+    case EMC_OPERATOR_TEXT_TYPE:
+	strncpy(operator_text_string,
+	    ((EMC_OPERATOR_TEXT *) (emcErrorBuffer->get_address()))->text,
+	    EMC_OPERATOR_TEXT_LEN - 1);
+	operator_text_string[EMC_OPERATOR_TEXT_LEN - 1] = 0;
+	break;
+
+    case EMC_OPERATOR_DISPLAY_TYPE:
+	strncpy(operator_display_string,
+	    ((EMC_OPERATOR_DISPLAY *) (emcErrorBuffer->get_address()))->
+	    display, EMC_OPERATOR_DISPLAY_LEN - 1);
+	operator_display_string[EMC_OPERATOR_DISPLAY_LEN - 1] = 0;
+	break;
+
+    case NML_ERROR_TYPE:
+	strncpy(error_string,
+	    ((NML_ERROR *) (emcErrorBuffer->get_address()))->error,
+	    NML_ERROR_LEN - 1);
+	error_string[NML_ERROR_LEN - 1] = 0;
+	break;
+
+    case NML_TEXT_TYPE:
+	strncpy(operator_text_string,
+	    ((NML_TEXT *) (emcErrorBuffer->get_address()))->text,
+	    NML_TEXT_LEN - 1);
+	operator_text_string[NML_TEXT_LEN - 1] = 0;
+	break;
+
+    case NML_DISPLAY_TYPE:
+	strncpy(operator_display_string,
+	    ((NML_DISPLAY *) (emcErrorBuffer->get_address()))->display,
+	    NML_DISPLAY_LEN - 1);
+	operator_display_string[NML_DISPLAY_LEN - 1] = 0;
+	break;
+
+    default:
+	// if not recognized, set the error string
+	sprintf(error_string, "unrecognized error %ld", type);
+	return -1;
+	break;
+    }
+
+    return 0;
+}
+
+#define EMC_COMMAND_DELAY   0.1	// how long to sleep between checks
+
+/*
+  emcCommandWaitReceived() waits until the EMC reports that it got
+  the command with the indicated serial_number.
+  emcCommandWaitDone() waits until the EMC reports that it got the
+  command with the indicated serial_number, and it's done, or error.
+*/
+
+static int emcCommandWaitReceived(int serial_number)
+{
+    double end = 0.0;
+
+    while (emcTimeout <= 0.0 || end < emcTimeout) {
+	updateStatus();
+
+	if (emcStatus->echo_serial_number == serial_number) {
+	    return 0;
+	}
+
+	esleep(EMC_COMMAND_DELAY);
+	end += EMC_COMMAND_DELAY;
+    }
+
+    return -1;
+}
+
+static int emcCommandWaitDone(int serial_number)
+{
+    double end = 0.0;
+
+    // first get it there
+    if (0 != emcCommandWaitReceived(serial_number)) {
+	return -1;
+    }
+    // now wait until it, or subsequent command (e.g., abort) is done
+    while (emcTimeout <= 0.0 || end < emcTimeout) {
+	updateStatus();
+
+	if (emcStatus->status == RCS_DONE) {
+	    return 0;
+	}
+
+	if (emcStatus->status == RCS_ERROR) {
+	    return -1;
+	}
+
+	esleep(EMC_COMMAND_DELAY);
+	end += EMC_COMMAND_DELAY;
+    }
+
+    return -1;
+}
+
+static void thisQuit(ClientData clientData)
+{
+    EMC_NULL emc_null_msg;
+
+    if (0 != emcStatusBuffer) {
+	// wait until current message has been received
+	emcCommandWaitReceived(emcCommandSerialNumber);
+    }
+
+    if (0 != emcCommandBuffer) {
+	// send null message to reset serial number to original
+	emc_null_msg.serial_number = saveEmcCommandSerialNumber;
+	emcCommandBuffer->write(emc_null_msg);
+    }
+    // clean up NML buffers
+
+    if (emcErrorBuffer != 0) {
+	delete emcErrorBuffer;
+	emcErrorBuffer = 0;
+    }
+
+    if (emcStatusBuffer != 0) {
+	delete emcStatusBuffer;
+	emcStatusBuffer = 0;
+	emcStatus = 0;
+    }
+
+    if (emcCommandBuffer != 0) {
+	delete emcCommandBuffer;
+	emcCommandBuffer = 0;
+    }
+
+    Tcl_Exit(0);
+    exit(0);
+}
+
+/*
+  Unit conversion
+
+  Length and angle units in the EMC status buffer are in user units, as
+  defined in the INI file in [TRAJ] LINEAR,ANGULAR_UNITS. These may differ
+  from the program units, and when they are the display is confusing.
+
+  It may be desirable to synchronize the display units with the program
+  units automatically, and also to break this sync and allow independent
+  display of position values.
+
+  The global variable "linearUnitConversion" is set by the Tcl commands
+  emc_linear_unit_conversion to correspond to either "inch",
+  "mm", "cm", "auto", or "custom". This forces numbers to be returned in the
+  units specified, in program units when "auto" is set, or not converted
+  at all if "custom" is specified.
+
+  Ditto for "angularUnitConversion", set by emc_angular_unit_conversion
+  to "deg", "rad", "grad", "auto", or "custom".
+
+  With no args, emc_linear/angular_unit_conversion return the setting.
+
+  The functions convertLinearUnits and convertAngularUnits take a length
+  or angle value, typically from the emcStatus structure, and convert it
+  as indicated by linearUnitConversion and angularUnitConversion, resp.
+*/
+
+static enum {
+    LINEAR_UNITS_CUSTOM = 1,
+    LINEAR_UNITS_AUTO,
+    LINEAR_UNITS_MM,
+    LINEAR_UNITS_INCH,
+    LINEAR_UNITS_CM
+} linearUnitConversion = LINEAR_UNITS_AUTO;
+
+static enum {
+    ANGULAR_UNITS_CUSTOM = 1,
+    ANGULAR_UNITS_AUTO,
+    ANGULAR_UNITS_DEG,
+    ANGULAR_UNITS_RAD,
+    ANGULAR_UNITS_GRAD
+} angularUnitConversion = ANGULAR_UNITS_AUTO;
+
+#define CLOSE(a,b,eps) ((a)-(b) < +(eps) && (a)-(b) > -(eps))
+#define LINEAR_CLOSENESS 0.0001
+#define ANGULAR_CLOSENESS 0.0001
+#define INCH_PER_MM (1.0/25.4)
+#define CM_PER_MM 0.1
+#define GRAD_PER_DEG (100.0/90.0)
+#define RAD_PER_DEG TO_RAD	// from posemath.h
+
+/*
+  to convert linear units, values are converted to mm, then to desired
+  units
+*/
+static double convertLinearUnits(double u)
+{
+    double in_mm;
+
+    /* convert u to mm */
+    in_mm = u / emcStatus->motion.traj.linearUnits;
+
+    /* convert u to display units */
+    switch (linearUnitConversion) {
+    case LINEAR_UNITS_MM:
+	return in_mm;
+	break;
+    case LINEAR_UNITS_INCH:
+	return in_mm * INCH_PER_MM;
+	break;
+    case LINEAR_UNITS_CM:
+	return in_mm * CM_PER_MM;
+	break;
+    case LINEAR_UNITS_AUTO:
+	switch (emcStatus->task.programUnits) {
+	case CANON_UNITS_MM:
+	    return in_mm;
+	    break;
+	case CANON_UNITS_INCHES:
+	    return in_mm * INCH_PER_MM;
+	    break;
+	case CANON_UNITS_CM:
+	    return in_mm * CM_PER_MM;
+	    break;
+	}
+	break;
+
+    case LINEAR_UNITS_CUSTOM:
+	return u;
+	break;
+    }
+
+    // If it ever gets here we have an error.
+
+    return u;
+}
+
+#if 0
+static double convertAngularUnits(double u)
+{
+    double in_deg;
+
+    /* convert u to deg */
+    in_deg = u / emcStatus->motion.traj.angularUnits;
+
+    /* convert u to display units */
+    switch (angularUnitConversion) {
+    case ANGULAR_UNITS_DEG:
+	return in_deg;
+	break;
+    case ANGULAR_UNITS_RAD:
+	return in_deg * RAD_PER_DEG;
+	break;
+    case ANGULAR_UNITS_GRAD:
+	return in_deg * GRAD_PER_DEG;
+	break;
+    case ANGULAR_UNITS_AUTO:
+	return in_deg;		// FIXME-- program units always degrees now
+	break;
+
+    case ANGULAR_UNITS_CUSTOM:
+	return u;
+	break;
+
+    }
+
+    /* should never get here */
+    return u;
+}
+#endif
+
+// polarities for axis jogging, from ini file
+static int jogPol[EMC_AXIS_MAX];
+
+static int sendDebug(int level)
+{
+    EMC_SET_DEBUG debug_msg;
+
+    debug_msg.debug = level;
+    debug_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(debug_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendEstop()
+{
+    EMC_TASK_SET_STATE state_msg;
+
+    state_msg.state = EMC_TASK_STATE_ESTOP;
+    state_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(state_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendEstopReset()
+{
+    EMC_TASK_SET_STATE state_msg;
+
+    state_msg.state = EMC_TASK_STATE_ESTOP_RESET;
+    state_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(state_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendMachineOn()
+{
+    EMC_TASK_SET_STATE state_msg;
+
+    state_msg.state = EMC_TASK_STATE_ON;
+    state_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(state_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendMachineOff()
+{
+    EMC_TASK_SET_STATE state_msg;
+
+    state_msg.state = EMC_TASK_STATE_OFF;
+    state_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(state_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendManual()
+{
+    EMC_TASK_SET_MODE mode_msg;
+
+    mode_msg.mode = EMC_TASK_MODE_MANUAL;
+    mode_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(mode_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendAuto()
+{
+    EMC_TASK_SET_MODE mode_msg;
+
+    mode_msg.mode = EMC_TASK_MODE_AUTO;
+    mode_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(mode_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendMdi()
+{
+    EMC_TASK_SET_MODE mode_msg;
+
+    mode_msg.mode = EMC_TASK_MODE_MDI;
+    mode_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(mode_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendOverrideLimits(int axis)
+{
+    EMC_AXIS_OVERRIDE_LIMITS lim_msg;
+
+    lim_msg.axis = axis;	// neg means off, else on for all
+    lim_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(lim_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+static int axisJogging = -1;
+
+static int sendJogStop(int axis)
+{
+    EMC_AXIS_ABORT emc_axis_abort_msg;
+
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+	return -1;
+    }
+
+    emc_axis_abort_msg.serial_number = ++emcCommandSerialNumber;
+    emc_axis_abort_msg.axis = axis;
+    emcCommandBuffer->write(emc_axis_abort_msg);
+
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    axisJogging = -1;
+    return 0;
+}
+
+static int sendJogCont(int axis, double speed)
+{
+    EMC_AXIS_JOG emc_axis_jog_msg;
+    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
+
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+	return -1;
+    }
+
+    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
+	if (0 == jogPol[axis]) {
+	    speed = -speed;
+	}
+
+	emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
+	emc_axis_jog_msg.axis = axis;
+	emc_axis_jog_msg.vel = speed / 60.0;
+	emcCommandBuffer->write(emc_axis_jog_msg);
+    } else {
+	emc_set_teleop_vector.serial_number = ++emcCommandSerialNumber;
+	emc_set_teleop_vector.vector.tran.x = 0.0;
+	emc_set_teleop_vector.vector.tran.y = 0.0;
+	emc_set_teleop_vector.vector.tran.z = 0.0;
+
+	switch (axis) {
+	case 0:
+	    emc_set_teleop_vector.vector.tran.x = speed / 60.0;
+	    break;
+	case 1:
+	    emc_set_teleop_vector.vector.tran.y = speed / 60.0;
+	    break;
+	case 2:
+	    emc_set_teleop_vector.vector.tran.z = speed / 60.0;
+	    break;
+	case 3:
+	    emc_set_teleop_vector.vector.a = speed / 60.0;
+	    break;
+	case 4:
+	    emc_set_teleop_vector.vector.b = speed / 60.0;
+	    break;
+	case 5:
+	    emc_set_teleop_vector.vector.c = speed / 60.0;
+	    break;
+	}
+	emcCommandBuffer->write(emc_set_teleop_vector);
+    }
+
+    axisJogging = axis;
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendJogIncr(int axis, double speed, double incr)
+{
+    EMC_AXIS_INCR_JOG emc_axis_incr_jog_msg;
+
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+	return -1;
+    }
+
+    if (0 == jogPol[axis]) {
+	speed = -speed;
+    }
+
+    emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
+    emc_axis_incr_jog_msg.axis = axis;
+    emc_axis_incr_jog_msg.vel = speed / 60.0;
+    emc_axis_incr_jog_msg.incr = incr;
+    emcCommandBuffer->write(emc_axis_incr_jog_msg);
+
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+    axisJogging = -1;
+
+    return 0;
+}
+
+static int sendMistOn()
+{
+    EMC_COOLANT_MIST_ON emc_coolant_mist_on_msg;
+
+    emc_coolant_mist_on_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_coolant_mist_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendMistOff()
+{
+    EMC_COOLANT_MIST_OFF emc_coolant_mist_off_msg;
+
+    emc_coolant_mist_off_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_coolant_mist_off_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendFloodOn()
+{
+    EMC_COOLANT_FLOOD_ON emc_coolant_flood_on_msg;
+
+    emc_coolant_flood_on_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_coolant_flood_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendFloodOff()
+{
+    EMC_COOLANT_FLOOD_OFF emc_coolant_flood_off_msg;
+
+    emc_coolant_flood_off_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_coolant_flood_off_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendLubeOn()
+{
+    EMC_LUBE_ON emc_lube_on_msg;
+
+    emc_lube_on_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_lube_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendLubeOff()
+{
+    EMC_LUBE_OFF emc_lube_off_msg;
+
+    emc_lube_off_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_lube_off_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleForward()
+{
+    EMC_SPINDLE_ON emc_spindle_on_msg;
+    if (emcStatus->task.activeSettings[2] != 0) {
+	emc_spindle_on_msg.speed = fabs(emcStatus->task.activeSettings[2]);
+    } else {
+	emc_spindle_on_msg.speed = +500;
+    }
+    emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleReverse()
+{
+    EMC_SPINDLE_ON emc_spindle_on_msg;
+    if (emcStatus->task.activeSettings[2] != 0) {
+	emc_spindle_on_msg.speed =
+	    -1 * fabs(emcStatus->task.activeSettings[2]);
+    } else {
+	emc_spindle_on_msg.speed = -500;
+    }
+    emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleOff()
+{
+    EMC_SPINDLE_OFF emc_spindle_off_msg;
+
+    emc_spindle_off_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_off_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleIncrease()
+{
+    EMC_SPINDLE_INCREASE emc_spindle_increase_msg;
+
+    emc_spindle_increase_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_increase_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleDecrease()
+{
+    EMC_SPINDLE_DECREASE emc_spindle_decrease_msg;
+
+    emc_spindle_decrease_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_decrease_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleConstant()
+{
+    EMC_SPINDLE_CONSTANT emc_spindle_constant_msg;
+
+    emc_spindle_constant_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_constant_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendBrakeEngage()
+{
+    EMC_SPINDLE_BRAKE_ENGAGE emc_spindle_brake_engage_msg;
+
+    emc_spindle_brake_engage_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_brake_engage_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendBrakeRelease()
+{
+    EMC_SPINDLE_BRAKE_RELEASE emc_spindle_brake_release_msg;
+
+    emc_spindle_brake_release_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_brake_release_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendAbort()
+{
+    EMC_TASK_ABORT task_abort_msg;
+
+    task_abort_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(task_abort_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendHome(int axis)
+{
+    EMC_AXIS_HOME emc_axis_home_msg;
+
+    emc_axis_home_msg.serial_number = ++emcCommandSerialNumber;
+    emc_axis_home_msg.axis = axis;
+    emcCommandBuffer->write(emc_axis_home_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendFeedOverride(double override)
+{
+    EMC_TRAJ_SET_SCALE emc_traj_set_scale_msg;
+
+    if (override < 0.0) {
+	override = 0.0;
+    }
+
+    emc_traj_set_scale_msg.serial_number = ++emcCommandSerialNumber;
+    emc_traj_set_scale_msg.scale = override;
+    emcCommandBuffer->write(emc_traj_set_scale_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendTaskPlanInit()
+{
+    EMC_TASK_PLAN_INIT task_plan_init_msg;
+
+    task_plan_init_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(task_plan_init_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+// saved value of last program opened
+static char lastProgramFile[EMC_TASK_FILENAME_LEN] = "";
+
+static int sendProgramOpen(char *program)
+{
+    EMC_TASK_PLAN_OPEN emc_task_plan_open_msg;
+
+    // save this to run again
+    strcpy(lastProgramFile, program);
+
+    emc_task_plan_open_msg.serial_number = ++emcCommandSerialNumber;
+    strcpy(emc_task_plan_open_msg.file, program);
+    emcCommandBuffer->write(emc_task_plan_open_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+// programStartLine is the saved valued of the line that
+// sendProgramRun(int line) sent
+static int programStartLine = 0;
+
+static int sendProgramRun(int line)
+{
+    EMC_TASK_PLAN_RUN emc_task_plan_run_msg;
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+    // first reopen program if it's not open
+    if (0 == emcStatus->task.file[0]) {
+	// send a request to open last one
+	sendProgramOpen(lastProgramFile);
+    }
+    // save the start line, to compare against active line later
+    programStartLine = line;
+
+    emc_task_plan_run_msg.serial_number = ++emcCommandSerialNumber;
+    emc_task_plan_run_msg.line = line;
+    emcCommandBuffer->write(emc_task_plan_run_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendProgramPause()
+{
+    EMC_TASK_PLAN_PAUSE emc_task_plan_pause_msg;
+
+    emc_task_plan_pause_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_task_plan_pause_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendProgramResume()
+{
+    EMC_TASK_PLAN_RESUME emc_task_plan_resume_msg;
+
+    emc_task_plan_resume_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_task_plan_resume_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendProgramStep()
+{
+    EMC_TASK_PLAN_STEP emc_task_plan_step_msg;
+
+    emc_task_plan_step_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_task_plan_step_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendMdiCmd(char *mdi)
+{
+    EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
+
+    strcpy(emc_task_plan_execute_msg.command, mdi);
+    emc_task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_task_plan_execute_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendLoadToolTable(const char *file)
+{
+    EMC_TOOL_LOAD_TOOL_TABLE emc_tool_load_tool_table_msg;
+
+    strcpy(emc_tool_load_tool_table_msg.file, file);
+    emc_tool_load_tool_table_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_tool_load_tool_table_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendToolSetOffset(int tool, double length, double diameter)
+{
+    EMC_TOOL_SET_OFFSET emc_tool_set_offset_msg;
+
+    emc_tool_set_offset_msg.tool = tool;
+    emc_tool_set_offset_msg.length = length;
+    emc_tool_set_offset_msg.diameter = diameter;
+    emc_tool_set_offset_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_tool_set_offset_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendAxisSetGains(int axis, double p, double i, double d,
+    double ff0, double ff1, double ff2, double backlash, double bias,
+    double maxError, double deadband)
+{
+    EMC_AXIS_SET_GAINS emc_axis_set_gains_msg;
+
+    emc_axis_set_gains_msg.axis = axis;
+    emc_axis_set_gains_msg.p = p;
+    emc_axis_set_gains_msg.i = i;
+    emc_axis_set_gains_msg.d = d;
+    emc_axis_set_gains_msg.ff0 = ff0;
+    emc_axis_set_gains_msg.ff1 = ff1;
+    emc_axis_set_gains_msg.ff2 = ff2;
+    emc_axis_set_gains_msg.backlash = backlash;
+    emc_axis_set_gains_msg.bias = bias;
+    emc_axis_set_gains_msg.maxError = maxError;
+    emc_axis_set_gains_msg.deadband = deadband;
+    emc_axis_set_gains_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_axis_set_gains_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendAxisSetOutput(int axis, double output)
+{
+    EMC_AXIS_SET_OUTPUT emc_axis_set_output_msg;
+
+    emc_axis_set_output_msg.axis = axis;
+    emc_axis_set_output_msg.output = output;
+    emc_axis_set_output_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_axis_set_output_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendAxisEnable(int axis, int val)
+{
+    EMC_AXIS_ENABLE emc_axis_enable_msg;
+    EMC_AXIS_DISABLE emc_axis_disable_msg;
+
+    if (val) {
+	emc_axis_enable_msg.axis = axis;
+	emc_axis_enable_msg.serial_number = ++emcCommandSerialNumber;
+	emcCommandBuffer->write(emc_axis_enable_msg);
+    } else {
+	emc_axis_disable_msg.axis = axis;
+	emc_axis_disable_msg.serial_number = ++emcCommandSerialNumber;
+	emcCommandBuffer->write(emc_axis_disable_msg);
+    }
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendAxisLoadComp(int axis, const char *file)
+{
+    EMC_AXIS_LOAD_COMP emc_axis_load_comp_msg;
+
+    strcpy(emc_axis_load_comp_msg.file, file);
+    emc_axis_load_comp_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_axis_load_comp_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendAxisAlter(int axis, double alter)
+{
+    EMC_AXIS_ALTER emc_axis_alter_msg;
+
+    emc_axis_alter_msg.alter = alter;
+    emc_axis_alter_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_axis_alter_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendLogOpen(char *file, int type, int size, int skip,
+    enum EMCLOG_TRIGGER_TYPE triggerType, enum EMCLOG_TRIGGER_VAR triggerVar,
+    double triggerThreshold, int which)
+{
+    EMC_LOG_OPEN emc_log_open_msg;
+
+    strcpy(emc_log_open_msg.file, file);
+    emc_log_open_msg.type = type;
+    emc_log_open_msg.size = size;
+    emc_log_open_msg.skip = skip;
+    emc_log_open_msg.which = which;
+    emc_log_open_msg.triggerType = triggerType;
+    emc_log_open_msg.triggerVar = triggerVar;
+    emc_log_open_msg.triggerThreshold = triggerThreshold;
+    emc_log_open_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_log_open_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendLogStart()
+{
+    EMC_LOG_START emc_log_start_msg;
+
+    emc_log_start_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_log_start_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendLogStop()
+{
+    EMC_LOG_STOP emc_log_stop_msg;
+
+    emc_log_stop_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_log_stop_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+};
+
+static int sendLogClose()
+{
+    EMC_LOG_CLOSE emc_log_close_msg;
+
+    emc_log_close_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_log_close_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSetTeleopEnable(int enable)
+{
+    EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;
+
+    emc_set_teleop_enable_msg.enable = enable;
+    emc_set_teleop_enable_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_set_teleop_enable_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSetProbeIndex(int index)
+{
+    EMC_TRAJ_SET_PROBE_INDEX emc_set_probe_index_msg;
+
+    emc_set_probe_index_msg.index = index;
+    emc_set_probe_index_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_set_probe_index_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSetProbePolarity(int polarity)
+{
+    EMC_TRAJ_SET_PROBE_POLARITY emc_set_probe_polarity_msg;
+
+    emc_set_probe_polarity_msg.serial_number = ++emcCommandSerialNumber;
+    emc_set_probe_polarity_msg.polarity = polarity;
+    emcCommandBuffer->write(emc_set_probe_polarity_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendClearProbeTrippedFlag()
+{
+    EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG emc_clear_probe_tripped_flag_msg;
+
+    emc_clear_probe_tripped_flag_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_clear_probe_tripped_flag_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendProbe(double x, double y, double z)
+{
+    EMC_TRAJ_PROBE emc_probe_msg;
+
+    emc_probe_msg.pos.tran.x = x;
+    emc_probe_msg.pos.tran.y = y;
+    emc_probe_msg.pos.tran.z = z;
+
+    emc_probe_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_probe_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+/* EMC command functions */
+
+static int emc_plat(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc == 1) {
+	Tcl_SetResult(interp, "Linux", TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_plat: need no args", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_ini(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    INIFILE inifile;
+    const char *inistring;
+    const char *varstr, *secstr, *defaultstr;
+    defaultstr = 0;
+
+    if (objc != 3 && objc != 4) {
+	Tcl_SetResult(interp, "emc_ini: need 'var' and 'section'",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    // open it
+    if (-1 == inifile.open(EMC_INIFILE)) {
+	return TCL_OK;
+    }
+
+    varstr = Tcl_GetStringFromObj(objv[1], 0);
+    secstr = Tcl_GetStringFromObj(objv[2], 0);
+
+    if (objc == 4) {
+	defaultstr = Tcl_GetStringFromObj(objv[3], 0);
+    }
+
+    if (NULL == (inistring = inifile.find(varstr, secstr))) {
+	if (defaultstr != 0) {
+	    Tcl_SetResult(interp, (char *) defaultstr, TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, (char *) inistring, TCL_VOLATILE);
+
+    // close it
+    inifile.close();
+
+    return TCL_OK;
+}
+
+static int emc_debug(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *debug_obj;
+    int debug;
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (objc == 1) {
+	// no arg-- return current value
+	debug_obj = Tcl_NewIntObj(emcStatus->debug);
+	Tcl_SetObjResult(interp, debug_obj);
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	if (0 != Tcl_GetIntFromObj(0, objv[1], &debug)) {
+	    Tcl_SetResult(interp, "emc_debug: need debug level as integer",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+	sendDebug(debug);
+	EMC_DEBUG = debug;
+	return TCL_OK;
+    }
+    // wrong number of args
+    Tcl_SetResult(interp, "emc_debug: need zero or one arg", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_set_wait(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	switch (emcWaitType) {
+	case EMC_WAIT_NONE:
+	    Tcl_SetResult(interp, "none", TCL_VOLATILE);
+	    break;
+	case EMC_WAIT_RECEIVED:
+	    Tcl_SetResult(interp, "received", TCL_VOLATILE);
+	    break;
+	case EMC_WAIT_DONE:
+	    Tcl_SetResult(interp, "done", TCL_VOLATILE);
+	    break;
+	default:
+	    Tcl_SetResult(interp, "(invalid)", TCL_VOLATILE);
+	    break;
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "none")) {
+	    emcWaitType = EMC_WAIT_NONE;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "received")) {
+	    emcWaitType = EMC_WAIT_RECEIVED;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "done")) {
+	    emcWaitType = EMC_WAIT_DONE;
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp,
+	"emc_set_wait: need 'none', 'received', 'done', or no args",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_wait(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "received")) {
+	    if (0 != emcCommandWaitReceived(emcCommandSerialNumber)) {
+		Tcl_SetResult(interp, "timeout", TCL_VOLATILE);
+	    }
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "done")) {
+	    if (0 != emcCommandWaitDone(emcCommandSerialNumber)) {
+		Tcl_SetResult(interp, "timeout", TCL_VOLATILE);
+	    }
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_wait: need 'received' or 'done'",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_set_timeout(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    double timeout;
+    Tcl_Obj *timeout_obj;
+
+    if (objc == 1) {
+	timeout_obj = Tcl_NewDoubleObj(emcTimeout);
+	Tcl_SetObjResult(interp, timeout_obj);
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	if (TCL_OK == Tcl_GetDoubleFromObj(0, objv[1], &timeout)) {
+	    emcTimeout = timeout;
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_set_timeout: need time as real number",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_update(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return status
+	updateStatus();
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "none")) {
+	    emcUpdateType = EMC_UPDATE_NONE;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "auto")) {
+	    emcUpdateType = EMC_UPDATE_AUTO;
+	    return TCL_OK;
+	}
+    }
+
+    return TCL_OK;
+}
+
+static int emc_time(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc == 1) {
+#if defined(LINUX_KERNEL_2_2)
+	// FIXME-- Linux 2.2 has gettimeofday() bug, so return 0
+	Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
+#else
+	Tcl_SetObjResult(interp, Tcl_NewDoubleObj(etime()));
+#endif
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_time: needs no arguments", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_error(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+
+    if (objc == 1) {
+	// get any new error, it's saved in global error_string[]
+	if (0 != updateError()) {
+	    Tcl_SetResult(interp, "emc_error: bad status from EMC",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+	// put error on result list
+	if (error_string[0] == 0) {
+	    Tcl_SetResult(interp, "ok", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, error_string, TCL_VOLATILE);
+	    error_string[0] = 0;
+	}
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_error: need no args", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_operator_text(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+
+    if (objc == 1) {
+	// get any new string, it's saved in global operator_text_string[]
+	if (0 != updateError()) {
+	    Tcl_SetResult(interp, "emc_operator_text: bad status from EMC",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+	// put error on result list
+	if (operator_text_string[0] == 0) {
+	    Tcl_SetResult(interp, "ok", TCL_VOLATILE);
+	    operator_text_string[0] = 0;
+	} else {
+	    Tcl_SetResult(interp, operator_text_string, TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_operator_text: need no args", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_operator_display(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+
+    if (objc == 1) {
+	// get any new string, it's saved in global operator_display_string[]
+	if (0 != updateError()) {
+	    Tcl_SetResult(interp, "emc_operator_display: bad status from EMC",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+	// put error on result list
+	if (operator_display_string[0] == 0) {
+	    Tcl_SetResult(interp, "ok", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, operator_display_string, TCL_VOLATILE);
+	    operator_display_string[0] = 0;
+	}
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_operator_display: need no args", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_estop(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
+	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "on")) {
+	    sendEstop();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "off")) {
+	    sendEstopReset();
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_estop: need 'on', 'off', or no args",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_estop_in(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	if (emcStatus->io.aux.estopIn == 0) {
+	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_estop_in: need no args", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_machine(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	if (emcStatus->task.state == EMC_TASK_STATE_ON) {
+	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "on")) {
+	    sendMachineOn();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "off")) {
+	    sendMachineOff();
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_machine: need 'on', 'off', or no args",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_mode(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	switch (emcStatus->task.mode) {
+	case EMC_TASK_MODE_MANUAL:
+	    Tcl_SetResult(interp, "manual", TCL_VOLATILE);
+	    break;
+	case EMC_TASK_MODE_AUTO:
+	    Tcl_SetResult(interp, "auto", TCL_VOLATILE);
+	    break;
+	case EMC_TASK_MODE_MDI:
+	    Tcl_SetResult(interp, "mdi", TCL_VOLATILE);
+	    break;
+	default:
+	    Tcl_SetResult(interp, "?", TCL_VOLATILE);
+	    break;
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "manual")) {
+	    sendManual();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "auto")) {
+	    sendAuto();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "mdi")) {
+	    sendMdi();
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp,
+	"emc_mode: need 'manual', 'auto', 'mdi', or no args", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_mist(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	if (emcStatus->io.coolant.mist == 1) {
+	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "on")) {
+	    sendMistOn();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "off")) {
+	    sendMistOff();
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_mist: need 'on', 'off', or no args",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_flood(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	if (emcStatus->io.coolant.flood == 1) {
+	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "on")) {
+	    sendFloodOn();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "off")) {
+	    sendFloodOff();
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_flood: need 'on', 'off', or no args",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_lube(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	if (emcStatus->io.lube.on == 0) {
+	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "on")) {
+	    sendLubeOn();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "off")) {
+	    sendLubeOff();
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_flood: need 'on', 'off', or no args",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_lube_level(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	if (emcStatus->io.lube.level == 0) {
+	    Tcl_SetResult(interp, "low", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, "ok", TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_lube_level: need no args", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_spindle(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	if (emcStatus->io.spindle.increasing > 0) {
+	    Tcl_SetResult(interp, "increase", TCL_VOLATILE);
+	} else if (emcStatus->io.spindle.increasing < 0) {
+	    Tcl_SetResult(interp, "decrease", TCL_VOLATILE);
+	} else if (emcStatus->io.spindle.direction > 0) {
+	    Tcl_SetResult(interp, "forward", TCL_VOLATILE);
+	} else if (emcStatus->io.spindle.direction < 0) {
+	    Tcl_SetResult(interp, "reverse", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "forward")) {
+	    sendSpindleForward();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "reverse")) {
+	    sendSpindleReverse();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "increase")) {
+	    sendSpindleIncrease();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "decrease")) {
+	    sendSpindleDecrease();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "constant")) {
+	    sendSpindleConstant();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "off")) {
+	    sendSpindleOff();
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_spindle: need 'on', 'off', or no args",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_brake(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	if (emcStatus->io.spindle.brake == 1) {
+	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
+	} else {
+	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "on")) {
+	    sendBrakeEngage();
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "off")) {
+	    sendBrakeRelease();
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_brake: need 'on', 'off', or no args",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_tool(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *toolobj;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_tool: need no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    toolobj = Tcl_NewIntObj(emcStatus->io.tool.toolInSpindle);
+
+    Tcl_SetObjResult(interp, toolobj);
+    return TCL_OK;
+}
+
+static int emc_tool_offset(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *tlobj;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_tool_offset: need no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    tlobj =
+	Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.toolOffset.tran.
+	    z));
+
+    Tcl_SetObjResult(interp, tlobj);
+    return TCL_OK;
+}
+
+static int emc_load_tool_table(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 2) {
+	Tcl_SetResult(interp, "emc_load_tool_table: need file", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != sendLoadToolTable(Tcl_GetStringFromObj(objv[1], 0))) {
+	Tcl_SetResult(interp, "emc_load_tool_table: can't open file",
+	    TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_set_tool_offset(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int tool;
+    double length;
+    double diameter;
+
+    if (objc != 4) {
+	Tcl_SetResult(interp,
+	    "emc_set_tool_offset: need <tool> <length> <diameter>",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &tool)) {
+	Tcl_SetResult(interp,
+	    "emc_set_tool_offset: need tool as integer, 0..", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &length)) {
+	Tcl_SetResult(interp,
+	    "emc_set_tool_offset: need length as real number", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &diameter)) {
+	Tcl_SetResult(interp,
+	    "emc_set_tool_offset: need diameter as real number",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != sendToolSetOffset(tool, length, diameter)) {
+	Tcl_SetResult(interp, "emc_set_tool_offset: can't set it",
+	    TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_abs_cmd_pos(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    Tcl_Obj *posobj;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_abs_cmd_pos: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	if (axis == 0) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    position.tran.x));
+	} else if (axis == 1) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    position.tran.y));
+	} else if (axis == 2) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    position.tran.z));
+	} else {
+	    if (axis == 3) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.position.a));
+	    } else if (axis == 4) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.position.b));
+	    } else if (axis == 5) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.position.c));
+	    } else {
+		posobj = Tcl_NewDoubleObj(0.0);
+	    }
+	}
+    } else {
+	Tcl_SetResult(interp, "emc_abs_cmd_pos: bad integer argument",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult(interp, posobj);
+    return TCL_OK;
+}
+
+static int emc_abs_act_pos(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    Tcl_Obj *posobj;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_abs_act_pos: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	if (axis == 0) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    actualPosition.tran.x));
+	} else if (axis == 1) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    actualPosition.tran.y));
+	} else if (axis == 2) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    actualPosition.tran.z));
+	} else {
+	    if (axis == 3) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.actualPosition.a));
+	    } else if (axis == 4) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.actualPosition.b));
+	    } else if (axis == 5) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.actualPosition.c));
+	    } else {
+		posobj = Tcl_NewDoubleObj(0.0);
+	    }
+	}
+    } else {
+	Tcl_SetResult(interp, "emc_abs_act_pos: bad integer argument",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult(interp, posobj);
+    return TCL_OK;
+}
+
+static int emc_rel_cmd_pos(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    Tcl_Obj *posobj;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_rel_cmd_pos: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	if (axis == 0) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    position.tran.x - emcStatus->task.origin.tran.x));
+	} else if (axis == 1) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    position.tran.y - emcStatus->task.origin.tran.y));
+	} else if (axis == 2) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    position.tran.z - emcStatus->task.origin.tran.z -
+		    emcStatus->task.toolOffset.tran.z));
+	} else {
+	    // FIXME-- no rotational offsets yet
+	    if (axis == 3) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.position.a - emcStatus->task.origin.a));
+	    } else if (axis == 4) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.position.b - emcStatus->task.origin.b));
+	    } else if (axis == 5) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.position.c - emcStatus->task.origin.c));
+	    } else {
+		posobj = Tcl_NewDoubleObj(0.0);
+	    }
+	}
+    } else {
+	Tcl_SetResult(interp, "emc_rel_cmd_pos: bad integer argument",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult(interp, posobj);
+    return TCL_OK;
+}
+
+static int emc_rel_act_pos(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    Tcl_Obj *posobj;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_rel_act_pos: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	if (axis == 0) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    actualPosition.tran.x - emcStatus->task.origin.tran.x));
+	} else if (axis == 1) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    actualPosition.tran.y - emcStatus->task.origin.tran.y));
+	} else if (axis == 2) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    actualPosition.tran.z - emcStatus->task.origin.tran.z -
+		    emcStatus->task.toolOffset.tran.z));
+	} else {
+	    if (axis == 3) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.actualPosition.a - emcStatus->task.origin.a));
+	    } else if (axis == 4) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.actualPosition.b - emcStatus->task.origin.b));
+	    } else if (axis == 5) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.actualPosition.c - emcStatus->task.origin.c));
+	    } else {
+		posobj = Tcl_NewDoubleObj(0.0);
+	    }
+	}
+    } else {
+	Tcl_SetResult(interp, "emc_rel_act_pos: bad integer argument",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult(interp, posobj);
+    return TCL_OK;
+}
+
+static int emc_joint_pos(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    Tcl_Obj *posobj;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_rel_act_pos: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	posobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].input);
+    } else {
+	Tcl_SetResult(interp, "emc_joint_pos: bad integer argument",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult(interp, posobj);
+    return TCL_OK;
+}
+
+static int emc_pos_offset(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char string[256];
+    Tcl_Obj *posobj;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_pos_offset: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    strcpy(string, Tcl_GetStringFromObj(objv[1], 0));
+
+    if (string[0] == 'X') {
+	posobj =
+	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.tran.
+		x));
+    } else if (string[0] == 'Y') {
+	posobj =
+	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.tran.
+		y));
+    } else if (string[0] == 'Z') {
+	posobj =
+	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.tran.
+		z));
+    } else if (string[0] == 'A') {
+	posobj =
+	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.a));
+    } else if (string[0] == 'B') {
+	posobj =
+	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.b));
+    } else if (string[0] == 'C') {
+	posobj =
+	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.c));
+    } else {
+	Tcl_SetResult(interp, "emc_pos_offset: bad integer argument",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult(interp, posobj);
+    return TCL_OK;
+}
+
+static int emc_joint_limit(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int joint;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_joint_limit: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	    Tcl_SetResult(interp,
+		"emc_joint_limit: joint out of bounds", TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+
+	if (emcStatus->motion.axis[joint].minHardLimit) {
+	    Tcl_SetResult(interp, "minhard", TCL_VOLATILE);
+	    return TCL_OK;
+	} else if (emcStatus->motion.axis[joint].minSoftLimit) {
+	    Tcl_SetResult(interp, "minsoft", TCL_VOLATILE);
+	    return TCL_OK;
+	} else if (emcStatus->motion.axis[joint].maxSoftLimit) {
+	    Tcl_SetResult(interp, "maxsoft", TCL_VOLATILE);
+	    return TCL_OK;
+	} else if (emcStatus->motion.axis[joint].maxHardLimit) {
+	    Tcl_SetResult(interp, "maxsoft", TCL_VOLATILE);
+	    return TCL_OK;
+	} else {
+	    Tcl_SetResult(interp, "ok", TCL_VOLATILE);
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp,
+	"emc_joint_limit: joint out of bounds", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_joint_fault(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int joint;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_joint_fault: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	    Tcl_SetResult(interp,
+		"emc_joint_fault: joint out of bounds", TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+
+	if (emcStatus->motion.axis[joint].fault) {
+	    Tcl_SetResult(interp, "fault", TCL_VOLATILE);
+	    return TCL_OK;
+	} else {
+	    Tcl_SetResult(interp, "ok", TCL_VOLATILE);
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp,
+	"emc_joint_fault: joint out of bounds", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_override_limit(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *obj;
+    int on;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	// motion overrides all axes at same time, so just reference index 0
+	obj = Tcl_NewIntObj(emcStatus->motion.axis[0].overrideLimits);
+	Tcl_SetObjResult(interp, obj);
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &on)) {
+	    if (on) {
+		if (0 != sendOverrideLimits(0)) {
+		    Tcl_SetResult(interp,
+			"emc_override_limit: can't send command",
+			TCL_VOLATILE);
+		    return TCL_OK;
+		}
+	    } else {
+		if (0 != sendOverrideLimits(-1)) {
+		    Tcl_SetResult(interp,
+			"emc_override_limit: can't send command",
+			TCL_VOLATILE);
+		    return TCL_OK;
+		}
+	    }
+	    return TCL_OK;
+	} else {
+	    Tcl_SetResult(interp, "emc_override_limit: need 0 or 1",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_override_limit: need no args, 0 or 1",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_joint_homed(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int joint;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_joint_homed: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	    Tcl_SetResult(interp,
+		"emc_joint_homed: joint out of bounds", TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+
+	if (emcStatus->motion.axis[joint].homed) {
+	    Tcl_SetResult(interp, "homed", TCL_VOLATILE);
+	    return TCL_OK;
+	} else {
+	    Tcl_SetResult(interp, "not", TCL_VOLATILE);
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp,
+	"emc_joint_homed: joint out of bounds", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_mdi(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char string[256];
+    int t;
+
+    if (objc < 2) {
+	Tcl_SetResult(interp, "emc_mdi: need command", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    // bug-- check for string overflow
+    strcpy(string, Tcl_GetStringFromObj(objv[1], 0));
+    for (t = 2; t < objc; t++) {
+	strcat(string, " ");
+	strcat(string, Tcl_GetStringFromObj(objv[t], 0));
+    }
+
+    if (0 != sendMdiCmd(string)) {
+	Tcl_SetResult(interp, "emc_mdi: error executing command",
+	    TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_home(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp, "emc_home: need axis", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	sendHome(axis);
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_home: need axis as integer, 0..",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_jog_stop(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp, "emc_jog_stop: need axis", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	Tcl_SetResult(interp, "emc_jog_stop: need axis as integer, 0..",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != sendJogStop(axis)) {
+	Tcl_SetResult(interp, "emc_jog_stop: can't send jog stop msg",
+	    TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_jog(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    double speed;
+
+    if (objc != 3) {
+	Tcl_SetResult(interp, "emc_jog: need axis and speed", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	Tcl_SetResult(interp, "emc_jog: need axis as integer, 0..",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &speed)) {
+	Tcl_SetResult(interp, "emc_jog: need speed as real number",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != sendJogCont(axis, speed)) {
+	Tcl_SetResult(interp, "emc_jog: can't jog", TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_jog_incr(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    double speed;
+    double incr;
+
+    if (objc != 4) {
+	Tcl_SetResult(interp, "emc_jog_incr: need axis, speed, and increment",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	Tcl_SetResult(interp, "emc_jog_incr: need axis as integer, 0..",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &speed)) {
+	Tcl_SetResult(interp, "emc_jog_incr: need speed as real number",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &incr)) {
+	Tcl_SetResult(interp, "emc_jog_incr: need increment as real number",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != sendJogIncr(axis, speed, incr)) {
+	Tcl_SetResult(interp, "emc_jog_incr: can't jog", TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_feed_override(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *feedobj;
+    int percent;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	feedobj =
+	    Tcl_NewIntObj((int) (emcStatus->motion.traj.scale * 100.0 + 0.5));
+	Tcl_SetObjResult(interp, feedobj);
+	return TCL_OK;
+    }
+
+    if (objc != 2) {
+	Tcl_SetResult(interp, "emc_feed_override: need percent",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &percent)) {
+	sendFeedOverride(((double) percent) / 100.0);
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_feed_override: need percent", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_task_plan_init(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (0 != sendTaskPlanInit()) {
+	Tcl_SetResult(interp, "emc_task_plan_init: can't init interpreter",
+	    TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_open(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 2) {
+	Tcl_SetResult(interp, "emc_open: need file", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != sendProgramOpen(Tcl_GetStringFromObj(objv[1], 0))) {
+	Tcl_SetResult(interp, "emc_open: can't open file", TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_run(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int line;
+
+    if (objc == 1) {
+	if (0 != sendProgramRun(0)) {
+	    Tcl_SetResult(interp, "emc_run: can't execute program",
+		TCL_VOLATILE);
+	    return TCL_OK;
+	}
+    }
+
+    if (objc == 2) {
+	if (0 != Tcl_GetIntFromObj(0, objv[1], &line)) {
+	    Tcl_SetResult(interp, "emc_run: need integer start line",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+	if (0 != sendProgramRun(line)) {
+	    Tcl_SetResult(interp, "emc_run: can't execute program",
+		TCL_VOLATILE);
+	    return TCL_OK;
+	}
+    }
+
+    return TCL_OK;
+}
+
+static int emc_pause(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (0 != sendProgramPause()) {
+	Tcl_SetResult(interp, "emc_pause: can't pause program", TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_resume(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (0 != sendProgramResume()) {
+	Tcl_SetResult(interp, "emc_resume: can't resume program",
+	    TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_step(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (0 != sendProgramStep()) {
+	Tcl_SetResult(interp, "emc_step: can't step program", TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_abort(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (0 != sendAbort()) {
+	Tcl_SetResult(interp, "emc_abort: can't execute program",
+	    TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_program(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_program: need no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (0 != emcStatus->task.file[0]) {
+	Tcl_SetResult(interp, emcStatus->task.file, TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "none", TCL_VOLATILE);
+    return TCL_OK;
+}
+
+static int emc_program_status(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_program_status: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    switch (emcStatus->task.interpState) {
+    case EMC_TASK_INTERP_READING:
+    case EMC_TASK_INTERP_WAITING:
+	Tcl_SetResult(interp, "running", TCL_VOLATILE);
+	return TCL_OK;
+	break;
+
+    case EMC_TASK_INTERP_PAUSED:
+	Tcl_SetResult(interp, "paused", TCL_VOLATILE);
+	return TCL_OK;
+	break;
+
+    default:
+	Tcl_SetResult(interp, "idle", TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "idle", TCL_VOLATILE);
+    return TCL_OK;
+}
+
+static int emc_program_line(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *lineobj;
+    int programActiveLine = 0;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_program_line: need no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (programStartLine < 0 || emcStatus->task.readLine < programStartLine) {
+	// controller is skipping lines
+	programActiveLine = emcStatus->task.readLine;
+    } else {			// controller is not skipping lines
+	if (emcStatus->task.currentLine > 0) {
+	    if (emcStatus->task.motionLine > 0 &&
+		emcStatus->task.motionLine < emcStatus->task.currentLine) {
+		// active line is the motion line, which lags
+		programActiveLine = emcStatus->task.motionLine;
+	    } else {
+		// active line is the current line-- no motion lag
+		programActiveLine = emcStatus->task.currentLine;
+	    }
+	} else {
+	    // no active line at all
+	    programActiveLine = 0;
+	}
+    }				// end of else controller is not skipping
+    // lines
+
+    lineobj = Tcl_NewIntObj(programActiveLine);
+
+    Tcl_SetObjResult(interp, lineobj);
+    return TCL_OK;
+}
+
+static int emc_program_codes(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char codes_string[256];
+    char string[256];
+    int t;
+    int code;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_program_codes: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+    // fill in the active G codes
+    codes_string[0] = 0;
+    for (t = 1; t < EMC_TASK_ACTIVE_G_CODES; t++) {
+	code = emcStatus->task.activeGCodes[t];
+	if (code == -1) {
+	    continue;
+	}
+	if (code % 10) {
+	    sprintf(string, "G%.1f ", (double) code / 10.0);
+	} else {
+	    sprintf(string, "G%d ", code / 10);
+	}
+	strcat(codes_string, string);
+    }
+
+    // fill in the active M codes, settings too
+    for (t = 1; t < EMC_TASK_ACTIVE_M_CODES; t++) {
+	code = emcStatus->task.activeMCodes[t];
+	if (code == -1) {
+	    continue;
+	}
+	sprintf(string, "M%d ", code);
+	strcat(codes_string, string);
+    }
+
+    // fill in F and S codes also
+    sprintf(string, "F%.0f ", emcStatus->task.activeSettings[1]);
+    strcat(codes_string, string);
+    sprintf(string, "S%.0f", fabs(emcStatus->task.activeSettings[2]));
+    strcat(codes_string, string);
+
+    Tcl_SetResult(interp, codes_string, TCL_VOLATILE);
+    return TCL_OK;
+}
+
+static int emc_joint_type(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int joint;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_joint_type: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	    Tcl_SetResult(interp,
+		"emc_joint_type: joint out of bounds", TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+
+	switch (emcStatus->motion.axis[joint].axisType) {
+	case EMC_AXIS_LINEAR:
+	    Tcl_SetResult(interp, "linear", TCL_VOLATILE);
+	    break;
+	case EMC_AXIS_ANGULAR:
+	    Tcl_SetResult(interp, "angular", TCL_VOLATILE);
+	    break;
+	default:
+	    Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+	    break;
+	}
+
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_joint_type: invalid joint number",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_joint_units(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int joint;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_joint_units: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
+	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	    Tcl_SetResult(interp,
+		"emc_joint_type: joint out of bounds", TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+
+	switch (emcStatus->motion.axis[joint].axisType) {
+	case EMC_AXIS_LINEAR:
+	    /* try mm */
+	    if (CLOSE(emcStatus->motion.axis[joint].units, 1.0,
+		    LINEAR_CLOSENESS)) {
+		Tcl_SetResult(interp, "mm", TCL_VOLATILE);
+		return TCL_OK;
+	    }
+	    /* now try inch */
+	    else if (CLOSE(emcStatus->motion.axis[joint].units, INCH_PER_MM,
+		    LINEAR_CLOSENESS)) {
+		Tcl_SetResult(interp, "inch", TCL_VOLATILE);
+		return TCL_OK;
+	    }
+	    /* now try cm */
+	    else if (CLOSE(emcStatus->motion.axis[joint].units, CM_PER_MM,
+		    LINEAR_CLOSENESS)) {
+		Tcl_SetResult(interp, "cm", TCL_VOLATILE);
+		return TCL_OK;
+	    }
+	    /* else it's custom */
+	    Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+	    return TCL_OK;
+	    break;
+
+	case EMC_AXIS_ANGULAR:
+	    /* try degrees */
+	    if (CLOSE(emcStatus->motion.axis[joint].units, 1.0,
+		    ANGULAR_CLOSENESS)) {
+		Tcl_SetResult(interp, "deg", TCL_VOLATILE);
+		return TCL_OK;
+	    }
+	    /* now try radians */
+	    else if (CLOSE(emcStatus->motion.axis[joint].units, RAD_PER_DEG,
+		    ANGULAR_CLOSENESS)) {
+		Tcl_SetResult(interp, "rad", TCL_VOLATILE);
+		return TCL_OK;
+	    }
+	    /* now try grads */
+	    else if (CLOSE(emcStatus->motion.axis[joint].units, GRAD_PER_DEG,
+		    ANGULAR_CLOSENESS)) {
+		Tcl_SetResult(interp, "grad", TCL_VOLATILE);
+		return TCL_OK;
+	    }
+	    /* else it's custom */
+	    Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+	    return TCL_OK;
+	    break;
+
+	default:
+	    Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+	    return TCL_OK;
+	    break;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_joint_units: invalid joint number",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_program_linear_units(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_program_linear_units: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    switch (emcStatus->task.programUnits) {
+    case CANON_UNITS_INCHES:
+	Tcl_SetResult(interp, "inch", TCL_VOLATILE);
+	return TCL_OK;
+	break;
+
+    case CANON_UNITS_MM:
+	Tcl_SetResult(interp, "mm", TCL_VOLATILE);
+	return TCL_OK;
+	break;
+
+    case CANON_UNITS_CM:
+	Tcl_SetResult(interp, "cm", TCL_VOLATILE);
+	return TCL_OK;
+	break;
+
+    default:
+	Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+	return TCL_OK;
+	break;
+    }
+
+    Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+    return TCL_OK;
+}
+
+static int emc_program_angular_units(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_program_angular_units: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+    // currently the EMC doesn't have separate program angular units, so
+    // these are simply "deg"
+    Tcl_SetResult(interp, "deg", TCL_VOLATILE);
+    return TCL_OK;
+}
+
+static int emc_user_linear_units(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_user_linear_units: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    /* try mm */
+    if (CLOSE(emcStatus->motion.traj.linearUnits, 1.0, LINEAR_CLOSENESS)) {
+	Tcl_SetResult(interp, "mm", TCL_VOLATILE);
+	return TCL_OK;
+    }
+    /* now try inch */
+    else if (CLOSE(emcStatus->motion.traj.linearUnits, INCH_PER_MM,
+	    LINEAR_CLOSENESS)) {
+	Tcl_SetResult(interp, "inch", TCL_VOLATILE);
+	return TCL_OK;
+    }
+    /* now try cm */
+    else if (CLOSE(emcStatus->motion.traj.linearUnits, CM_PER_MM,
+	    LINEAR_CLOSENESS)) {
+	Tcl_SetResult(interp, "cm", TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    /* else it's custom */
+    Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+    return TCL_OK;
+}
+
+static int emc_user_angular_units(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_user_angular_units: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    /* try degrees */
+    if (CLOSE(emcStatus->motion.traj.angularUnits, 1.0, ANGULAR_CLOSENESS)) {
+	Tcl_SetResult(interp, "deg", TCL_VOLATILE);
+	return TCL_OK;
+    }
+    /* now try radians */
+    else if (CLOSE(emcStatus->motion.traj.angularUnits, RAD_PER_DEG,
+	    ANGULAR_CLOSENESS)) {
+	Tcl_SetResult(interp, "rad", TCL_VOLATILE);
+	return TCL_OK;
+    }
+    /* now try grads */
+    else if (CLOSE(emcStatus->motion.traj.angularUnits, GRAD_PER_DEG,
+	    ANGULAR_CLOSENESS)) {
+	Tcl_SetResult(interp, "grad", TCL_VOLATILE);
+	return TCL_OK;
+    }
+
+    /* else it's an abitrary number, so just return it */
+    Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+    return TCL_OK;
+}
+
+static int emc_display_linear_units(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_display_linear_units: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    switch (linearUnitConversion) {
+    case LINEAR_UNITS_INCH:
+	Tcl_SetResult(interp, "inch", TCL_VOLATILE);
+	break;
+    case LINEAR_UNITS_MM:
+	Tcl_SetResult(interp, "mm", TCL_VOLATILE);
+	break;
+    case LINEAR_UNITS_CM:
+	Tcl_SetResult(interp, "cm", TCL_VOLATILE);
+	break;
+    case LINEAR_UNITS_AUTO:
+	switch (emcStatus->task.programUnits) {
+	case CANON_UNITS_MM:
+	    Tcl_SetResult(interp, "(mm)", TCL_VOLATILE);
+	    break;
+	case CANON_UNITS_INCHES:
+	    Tcl_SetResult(interp, "(inch)", TCL_VOLATILE);
+	    break;
+	case CANON_UNITS_CM:
+	    Tcl_SetResult(interp, "(cm)", TCL_VOLATILE);
+	    break;
+	}
+	break;
+    default:
+	Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+	break;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_display_angular_units(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_display_angular_units: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    switch (angularUnitConversion) {
+    case ANGULAR_UNITS_DEG:
+	Tcl_SetResult(interp, "deg", TCL_VOLATILE);
+	break;
+    case ANGULAR_UNITS_RAD:
+	Tcl_SetResult(interp, "rad", TCL_VOLATILE);
+	break;
+    case ANGULAR_UNITS_GRAD:
+	Tcl_SetResult(interp, "grad", TCL_VOLATILE);
+	break;
+    case ANGULAR_UNITS_AUTO:
+	Tcl_SetResult(interp, "(deg)", TCL_VOLATILE);	// FIXME-- always
+	// deg?
+	break;
+    default:
+	Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+	break;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_linear_unit_conversion(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return unit setting
+	switch (linearUnitConversion) {
+	case LINEAR_UNITS_INCH:
+	    Tcl_SetResult(interp, "inch", TCL_VOLATILE);
+	    break;
+	case LINEAR_UNITS_MM:
+	    Tcl_SetResult(interp, "mm", TCL_VOLATILE);
+	    break;
+	case LINEAR_UNITS_CM:
+	    Tcl_SetResult(interp, "cm", TCL_VOLATILE);
+	    break;
+	case LINEAR_UNITS_AUTO:
+	    Tcl_SetResult(interp, "auto", TCL_VOLATILE);
+	    break;
+	default:
+	    Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+	    break;
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "inch")) {
+	    linearUnitConversion = LINEAR_UNITS_INCH;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "mm")) {
+	    linearUnitConversion = LINEAR_UNITS_MM;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "cm")) {
+	    linearUnitConversion = LINEAR_UNITS_CM;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "auto")) {
+	    linearUnitConversion = LINEAR_UNITS_AUTO;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "custom")) {
+	    linearUnitConversion = LINEAR_UNITS_CUSTOM;
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp,
+	"emc_linear_unit_conversion: need 'inch', 'mm', 'cm', 'auto', 'custom', or no args",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_angular_unit_conversion(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char *objstr;
+
+    if (objc == 1) {
+	// no arg-- return unit setting
+	switch (angularUnitConversion) {
+	case ANGULAR_UNITS_DEG:
+	    Tcl_SetResult(interp, "deg", TCL_VOLATILE);
+	    break;
+	case ANGULAR_UNITS_RAD:
+	    Tcl_SetResult(interp, "rad", TCL_VOLATILE);
+	    break;
+	case ANGULAR_UNITS_GRAD:
+	    Tcl_SetResult(interp, "grad", TCL_VOLATILE);
+	    break;
+	case ANGULAR_UNITS_AUTO:
+	    Tcl_SetResult(interp, "auto", TCL_VOLATILE);
+	    break;
+	default:
+	    Tcl_SetResult(interp, "custom", TCL_VOLATILE);
+	    break;
+	}
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	objstr = Tcl_GetStringFromObj(objv[1], 0);
+	if (!strcmp(objstr, "deg")) {
+	    angularUnitConversion = ANGULAR_UNITS_DEG;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "rad")) {
+	    angularUnitConversion = ANGULAR_UNITS_RAD;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "grad")) {
+	    angularUnitConversion = ANGULAR_UNITS_GRAD;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "auto")) {
+	    angularUnitConversion = ANGULAR_UNITS_AUTO;
+	    return TCL_OK;
+	}
+	if (!strcmp(objstr, "custom")) {
+	    angularUnitConversion = ANGULAR_UNITS_CUSTOM;
+	    return TCL_OK;
+	}
+    }
+
+    Tcl_SetResult(interp,
+	"emc_angular_unit_conversion: need 'deg', 'rad', 'grad', 'auto', 'custom', or no args",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_task_heartbeat(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *hbobj;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_task_heartbeat: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    hbobj = Tcl_NewIntObj(emcStatus->task.heartbeat);
+
+    Tcl_SetObjResult(interp, hbobj);
+    return TCL_OK;
+}
+
+static int emc_task_command(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *commandobj;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_task_command: need no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    commandobj = Tcl_NewIntObj(emcStatus->task.command_type);
+
+    Tcl_SetObjResult(interp, commandobj);
+    return TCL_OK;
+}
+
+static int emc_task_command_number(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *commandnumber;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_task_command_number: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    commandnumber = Tcl_NewIntObj(emcStatus->task.echo_serial_number);
+
+    Tcl_SetObjResult(interp, commandnumber);
+    return TCL_OK;
+}
+
+static int emc_task_command_status(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *commandstatus;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_task_command_status: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    commandstatus = Tcl_NewIntObj(emcStatus->task.status);
+
+    Tcl_SetObjResult(interp, commandstatus);
+    return TCL_OK;
+}
+
+static int emc_io_heartbeat(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *hbobj;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_io_heartbeat: need no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    hbobj = Tcl_NewIntObj(emcStatus->io.heartbeat);
+
+    Tcl_SetObjResult(interp, hbobj);
+    return TCL_OK;
+}
+
+static int emc_io_command(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *commandobj;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_io_command: need no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    commandobj = Tcl_NewIntObj(emcStatus->io.command_type);
+
+    Tcl_SetObjResult(interp, commandobj);
+    return TCL_OK;
+}
+
+static int emc_io_command_number(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *commandnumber;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_io_command_number: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    commandnumber = Tcl_NewIntObj(emcStatus->io.echo_serial_number);
+
+    Tcl_SetObjResult(interp, commandnumber);
+    return TCL_OK;
+}
+
+static int emc_io_command_status(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *commandstatus;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_io_command_status: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    commandstatus = Tcl_NewIntObj(emcStatus->io.status);
+
+    Tcl_SetObjResult(interp, commandstatus);
+    return TCL_OK;
+}
+
+static int emc_motion_heartbeat(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *hbobj;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_motion_heartbeat: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    hbobj = Tcl_NewIntObj(emcStatus->motion.heartbeat);
+
+    Tcl_SetObjResult(interp, hbobj);
+    return TCL_OK;
+}
+
+static int emc_motion_command(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *commandobj;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_motion_command: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    commandobj = Tcl_NewIntObj(emcStatus->motion.command_type);
+
+    Tcl_SetObjResult(interp, commandobj);
+    return TCL_OK;
+}
+
+static int emc_motion_command_number(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *commandnumber;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_motion_command_number: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    commandnumber = Tcl_NewIntObj(emcStatus->motion.echo_serial_number);
+
+    Tcl_SetObjResult(interp, commandnumber);
+    return TCL_OK;
+}
+
+static int emc_motion_command_status(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *commandstatus;
+
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_motion_command_status: need no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    commandstatus = Tcl_NewIntObj(emcStatus->motion.status);
+
+    Tcl_SetObjResult(interp, commandstatus);
+    return TCL_OK;
+}
+
+static int emc_axis_gains(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *valobj;
+    int axis;
+    const char *varstr;
+    double val;
+    double p, i, d, ff0, ff1, ff2, backlash, bias, maxError, deadband;
+
+    // syntax is emc_axis_gains <axis> <var> {<val>}
+    // or emc_axis_gains <axis> all <p> <i> ... <deadband>
+    // without <val> only, returns value of <var> for <axis>
+    // otherwise sets <var> to <value> for <axis>
+    // <axis> is 0,1,...
+    // <var> is p i d ff0 ff1 ff2 backlash bias maxerror deadband
+    // <val> is floating point number
+
+    if (objc < 3) {
+	Tcl_SetResult(interp, "emc_axis_gains: need <axis> <var> {<val>}",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
+	axis < 0 || axis >= EMC_AXIS_MAX) {
+	Tcl_SetResult(interp,
+	    "emc_axis_gains: need axis as integer, 0..EMC_AXIS_MAX-1",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    varstr = Tcl_GetStringFromObj(objv[2], 0);
+
+    if (objc == 3) {
+	if (!strcmp(varstr, "p")) {
+	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].p);
+	    Tcl_SetObjResult(interp, valobj);
+	    return TCL_OK;
+	} else if (!strcmp(varstr, "i")) {
+	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].i);
+	    Tcl_SetObjResult(interp, valobj);
+	    return TCL_OK;
+	} else if (!strcmp(varstr, "d")) {
+	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].d);
+	    Tcl_SetObjResult(interp, valobj);
+	    return TCL_OK;
+	} else if (!strcmp(varstr, "ff0")) {
+	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].ff0);
+	    Tcl_SetObjResult(interp, valobj);
+	    return TCL_OK;
+	} else if (!strcmp(varstr, "ff1")) {
+	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].ff1);
+	    Tcl_SetObjResult(interp, valobj);
+	    return TCL_OK;
+	} else if (!strcmp(varstr, "ff2")) {
+	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].ff2);
+	    Tcl_SetObjResult(interp, valobj);
+	    return TCL_OK;
+	} else if (!strcmp(varstr, "backlash")) {
+	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].backlash);
+	    Tcl_SetObjResult(interp, valobj);
+	    return TCL_OK;
+	} else if (!strcmp(varstr, "bias")) {
+	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].bias);
+	    Tcl_SetObjResult(interp, valobj);
+	    return TCL_OK;
+	} else if (!strcmp(varstr, "maxerror")) {
+	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].maxError);
+	    Tcl_SetObjResult(interp, valobj);
+	    return TCL_OK;
+	} else if (!strcmp(varstr, "deadband")) {
+	    valobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].deadband);
+	    Tcl_SetObjResult(interp, valobj);
+	    return TCL_OK;
+	} else {
+	    Tcl_SetResult(interp, "emc_axis_gains: bad value for <val>",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+    } else {
+	// <val> is provided, so set it and use current values for others
+	if (0 != Tcl_GetDoubleFromObj(0, objv[3], &val)) {
+	    Tcl_SetResult(interp,
+		"emc_axis_gains: need value as floating point number",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+
+	p = emcStatus->motion.axis[axis].p;
+	i = emcStatus->motion.axis[axis].i;
+	d = emcStatus->motion.axis[axis].d;
+	ff0 = emcStatus->motion.axis[axis].ff0;
+	ff1 = emcStatus->motion.axis[axis].ff1;
+	ff2 = emcStatus->motion.axis[axis].ff2;
+	backlash = emcStatus->motion.axis[axis].backlash;
+	bias = emcStatus->motion.axis[axis].bias;
+	maxError = emcStatus->motion.axis[axis].maxError;
+	deadband = emcStatus->motion.axis[axis].deadband;
+
+	if (!strcmp(varstr, "p")) {
+	    p = val;
+	} else if (!strcmp(varstr, "i")) {
+	    i = val;
+	} else if (!strcmp(varstr, "d")) {
+	    d = val;
+	} else if (!strcmp(varstr, "ff0")) {
+	    ff0 = val;
+	} else if (!strcmp(varstr, "ff1")) {
+	    ff1 = val;
+	} else if (!strcmp(varstr, "ff2")) {
+	    ff2 = val;
+	} else if (!strcmp(varstr, "backlash")) {
+	    backlash = val;
+	} else if (!strcmp(varstr, "bias")) {
+	    bias = val;
+	} else if (!strcmp(varstr, "maxerror")) {
+	    maxError = val;
+	} else if (!strcmp(varstr, "deadband")) {
+	    deadband = val;
+	} else if (!strcmp(varstr, "all") && objc == 13) {
+	    // it's "emc_axis_gains axis all p i d ff0 ff1 ff2 backlash bias
+	    // maxerror deadband"
+
+	    // P
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &val)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_gains: need P gain as floating point number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    p = val;
+	    // I
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[4], &val)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_gains: need I gain as floating point number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    i = val;
+	    // D
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[5], &val)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_gains: need D gain as floating point number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    d = val;
+	    // FF0
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[6], &val)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_gains: need FF0 gain as floating point number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    ff0 = val;
+	    // FF1
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[7], &val)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_gains: need FF1 gain as floating point number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    ff1 = val;
+	    // FF2
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[8], &val)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_gains: need FF2 gain as floating point number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    ff2 = val;
+	    // backlash
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[9], &val)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_gains: need backlash as floating point number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    backlash = val;
+	    // bias
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[10], &val)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_gains: need bias as floating point number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    bias = val;
+	    // maxerror
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[11], &val)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_gains: need maxerror as floating point number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    maxError = val;
+	    // deadband
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[12], &val)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_gains: need deadband as floating point number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    deadband = val;
+	} else {
+	    Tcl_SetResult(interp,
+		"emc_axis_gains: not enough values for all gains",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+
+	// now write it out
+	sendAxisSetGains(axis, p, i, d, ff0, ff1, ff2, backlash, bias,
+	    maxError, deadband);
+	return TCL_OK;
+    }
+
+    return TCL_OK;
+}
+
+static int emc_axis_set_output(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    double output;
+
+    // syntax is emc_axis_output <axis> <output>
+
+    if (objc != 3) {
+	Tcl_SetResult(interp, "emc_axis_set_output: need <axis> <output>",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
+	axis < 0 || axis >= EMC_AXIS_MAX) {
+	Tcl_SetResult(interp,
+	    "emc_axis_set_output: need axis as integer, 0..EMC_AXIS_MAX-1",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &output)) {
+	Tcl_SetResult(interp,
+	    "emc_axis_set_output: need output as real number", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    // now write it out
+    sendAxisSetOutput(axis, output);
+    return TCL_OK;
+}
+
+static int emc_axis_enable(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    int val;
+    Tcl_Obj *enobj;
+
+    // syntax is emc_axis_output <axis> {0 | 1}
+
+    if (objc < 2) {
+	Tcl_SetResult(interp, "emc_axis_enable: need <axis>", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
+	axis < 0 || axis >= EMC_AXIS_MAX) {
+	Tcl_SetResult(interp,
+	    "emc_axis_enable: need axis as integer, 0..EMC_AXIS_MAX-1",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (objc == 2) {
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	enobj = Tcl_NewIntObj(emcStatus->motion.axis[axis].enabled);
+	Tcl_SetObjResult(interp, enobj);
+	return TCL_OK;
+    }
+    // else we were given 0 or 1 to enable/disable it
+    if (0 != Tcl_GetIntFromObj(0, objv[2], &val)) {
+	Tcl_SetResult(interp,
+	    "emc_axis_enable: need 0, 1 for disable, enable", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    sendAxisEnable(axis, val);
+    return TCL_OK;
+}
+
+static int emc_axis_load_comp(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    char file[256];
+
+    // syntax is emc_axis_load_comp <axis> <file>
+
+    if (objc != 3) {
+	Tcl_SetResult(interp, "emc_axis_load_comp: need <axis> <file>",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
+	axis < 0 || axis >= EMC_AXIS_MAX) {
+	Tcl_SetResult(interp,
+	    "emc_axis_load_comp: need axis as integer, 0..EMC_AXIS_MAX-1",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    // copy objv[1] to file arg, to make sure it's not modified
+    strcpy(file, Tcl_GetStringFromObj(objv[2], 0));
+
+    // now write it out
+    sendAxisLoadComp(axis, file);
+    return TCL_OK;
+}
+
+static int emc_axis_alter(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    double alter;
+    Tcl_Obj *alterobj;
+
+    if (objc > 1) {
+	// try for first arg as axis value
+	if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
+	    axis < 0 || axis >= EMC_AXIS_MAX) {
+	    Tcl_SetResult(interp,
+		"emc_axis_alter: need axis as integer, 0..EMC_AXIS_MAX-1",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+	// axis arg OK, so try for next arg, returning current alter val if
+	// it's not there, setting it if it is
+
+	if (objc == 2) {
+	    if (emcUpdateType == EMC_UPDATE_AUTO) {
+		updateStatus();
+	    }
+	    alterobj = Tcl_NewDoubleObj(emcStatus->motion.axis[axis].alter);
+	    Tcl_SetObjResult(interp, alterobj);
+	    return TCL_OK;
+	}
+
+	if (objc == 3) {
+	    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &alter)) {
+		Tcl_SetResult(interp,
+		    "emc_axis_alter: need alter as real number",
+		    TCL_VOLATILE);
+		return TCL_ERROR;
+	    }
+	    if (0 != sendAxisAlter(axis, alter)) {
+		Tcl_SetResult(interp, "emc_axis_alter: can't set alter value",
+		    TCL_VOLATILE);
+		return TCL_OK;	// no TCL_ERROR, which is a syntax error
+	    }
+	    // sent it OK
+	    return TCL_OK;
+	}
+    }
+    // else no args, or more than 2 args, so syntax error
+    Tcl_SetResult(interp, "emc_axis_alter: need axis, optional alter value",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+int emc_log_open(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    char file[256];
+    const char *typestr;
+    const char *triggerTypeStr;
+    const char *triggerVarStr;
+    int type = 0;
+    int size = 0;
+    int skip = 0;
+    int which = 0;
+    enum EMCLOG_TRIGGER_TYPE triggerType = EMCLOG_MANUAL_TRIGGER;
+    enum EMCLOG_TRIGGER_VAR triggerVar = EMCLOG_TRIGGER_ON_FERROR;
+    double triggerThreshold;
+
+    // need at least cmd and 4 args, file-type-size-skip, and maybe one more
+    if (objc < 8) {
+	Tcl_SetResult(interp,
+	    "emc_log_open: need <file> <type> <size> <skip> <triggerType> <triggerVar> <triggerThreshold> {<which>}",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    // copy objv[1] to file arg, to make sure it's not modified
+    strcpy(file, Tcl_GetStringFromObj(objv[1], 0));
+
+    // fill in the type number by string
+    typestr = Tcl_GetStringFromObj(objv[2], 0);
+    if (!strcmp(typestr, "axis_pos")) {
+	type = EMC_LOG_TYPE_AXIS_POS;
+    } else if (!strcmp(typestr, "axis_vel")) {
+	type = EMC_LOG_TYPE_AXIS_VEL;
+    } else if (!strcmp(typestr, "axes_inpos")) {
+	type = EMC_LOG_TYPE_AXES_INPOS;
+    } else if (!strcmp(typestr, "axes_outpos")) {
+	type = EMC_LOG_TYPE_AXES_OUTPOS;
+    } else if (!strcmp(typestr, "axes_ferror")) {
+	type = EMC_LOG_TYPE_AXES_FERROR;
+    } else if (!strcmp(typestr, "traj_pos")) {
+	type = EMC_LOG_TYPE_TRAJ_POS;
+    } else if (!strcmp(typestr, "traj_vel")) {
+	type = EMC_LOG_TYPE_TRAJ_VEL;
+    } else if (!strcmp(typestr, "traj_acc")) {
+	type = EMC_LOG_TYPE_TRAJ_ACC;
+    } else if (!strcmp(typestr, "pos_voltage")) {
+	type = EMC_LOG_TYPE_POS_VOLTAGE;
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[3], &size) || size <= 0) {
+	Tcl_SetResult(interp,
+	    "emc_log_open: <size> must be greater than zero", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetIntFromObj(0, objv[4], &skip) || skip < 0) {
+	Tcl_SetResult(interp, "emc_log_open: <skip> must not be negative",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+    // fill in the type number by string
+    triggerTypeStr = Tcl_GetStringFromObj(objv[5], 0);
+    if (!strcmp(triggerTypeStr, "manual")) {
+	triggerType = EMCLOG_MANUAL_TRIGGER;
+    } else if (!strcmp(triggerTypeStr, "delta")) {
+	triggerType = EMCLOG_DELTA_TRIGGER;
+    } else if (!strcmp(triggerTypeStr, "over")) {
+	triggerType = EMCLOG_OVER_TRIGGER;
+    } else if (!strcmp(triggerTypeStr, "under")) {
+	triggerType = EMCLOG_UNDER_TRIGGER;
+    }
+    // fill in the type number by string
+    triggerVarStr = Tcl_GetStringFromObj(objv[6], 0);
+    if (!strcmp(triggerVarStr, "ferror")) {
+	triggerVar = EMCLOG_TRIGGER_ON_FERROR;
+    } else if (!strcmp(triggerVarStr, "volt")) {
+	triggerVar = EMCLOG_TRIGGER_ON_VOLT;
+    } else if (!strcmp(triggerVarStr, "pos")) {
+	triggerVar = EMCLOG_TRIGGER_ON_POS;
+    } else if (!strcmp(triggerVarStr, "vel")) {
+	triggerVar = EMCLOG_TRIGGER_ON_VEL;
+    }
+
+    if (0 != Tcl_GetDoubleFromObj(0, objv[7], &triggerThreshold)) {
+	Tcl_SetResult(interp,
+	    "emc_log_open: <triggerThreshold> must be a double",
+	    TCL_VOLATILE);
+    }
+    if (objc > 8) {
+	if (0 != Tcl_GetIntFromObj(0, objv[8], &which)) {
+	    Tcl_SetResult(interp, "emc_log_open: <which> must be an integer",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+    }
+
+    sendLogOpen(file, type, size, skip, triggerType, triggerVar,
+	triggerThreshold, which);
+    return TCL_OK;
+}
+
+int emc_log_start(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_log_start: needs no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    sendLogStart();
+
+    return TCL_OK;
+}
+
+int emc_log_stop(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_log_stop: needs no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    sendLogStop();
+
+    return TCL_OK;
+}
+
+int emc_log_close(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_log_close: needs no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    sendLogClose();
+
+    return TCL_OK;
+}
+
+int emc_log_isopen(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_log_isopen: needs no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(emcStatus->logOpen));
+    return TCL_OK;
+}
+
+int emc_log_islogging(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_log_islogging: needs no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(emcStatus->logStarted));
+    return TCL_OK;
+}
+
+int emc_log_numpoints(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_log_numpoints: needs no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(emcStatus->logPoints));
+    return TCL_OK;
+}
+
+int emc_teleop_enable(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int enable;
+
+    if (objc != 1) {
+	if (0 != Tcl_GetIntFromObj(0, objv[1], &enable)) {
+	    Tcl_SetResult(interp,
+		"emc_teleop_enable: <enable> must be an integer",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+	sendSetTeleopEnable(enable);
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    Tcl_SetObjResult(interp,
+	Tcl_NewIntObj(emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP));
+    // FIXME
+    if (EMC_DEBUG & EMC_DEBUG_TRAJ) {
+	printf("emcStatus->motion.traj.mode = %d\n",
+	    emcStatus->motion.traj.mode);
+    }
+    return TCL_OK;
+}
+
+int emc_kinematics_type(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    Tcl_SetObjResult(interp,
+	Tcl_NewIntObj(emcStatus->motion.traj.kinematics_type));
+    // FIXME
+    if (EMC_DEBUG & EMC_DEBUG_TRAJ) {
+	printf("emcStatus->motion.traj.mode = %d\n",
+	    emcStatus->motion.traj.mode);
+    }
+    return TCL_OK;
+}
+
+int emc_probe_index(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int index;
+
+    if (objc != 1) {
+	if (0 != Tcl_GetIntFromObj(0, objv[1], &index)) {
+	    Tcl_SetResult(interp,
+		"emc_probe_index: <index> must be an integer", TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+	sendSetProbeIndex(index);
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    Tcl_SetObjResult(interp,
+	Tcl_NewIntObj(emcStatus->motion.traj.probe_index));
+    return TCL_OK;
+}
+
+int emc_probe_polarity(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int polarity;
+
+    if (objc != 1) {
+	if (0 != Tcl_GetIntFromObj(0, objv[1], &polarity)) {
+	    Tcl_SetResult(interp,
+		"emc_probe_polarity: <which> must be an integer",
+		TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+	sendSetProbePolarity(polarity);
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    Tcl_SetObjResult(interp,
+	Tcl_NewIntObj(emcStatus->motion.traj.probe_polarity));
+    return TCL_OK;
+}
+
+int emc_probe_clear(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_probe_clear: needs no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(sendClearProbeTrippedFlag()));
+    return TCL_OK;
+}
+
+int emc_probe_value(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_probe_value: needs no args", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(emcStatus->motion.traj.probeval));
+    return TCL_OK;
+}
+
+int emc_probe_tripped(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_probe_tripped: needs no args",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    Tcl_SetObjResult(interp,
+	Tcl_NewIntObj(emcStatus->motion.traj.probe_tripped));
+    return TCL_OK;
+}
+
+int emc_probe_move(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    double x, y, z;
+
+    if (objc != 4) {
+	Tcl_SetResult(interp, "emc_probe_move: <x> <y> <z>", TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetDoubleFromObj(0, objv[1], &x)) {
+	Tcl_SetResult(interp, "emc_probe_move: <x> must be a double",
+	    TCL_VOLATILE);
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[2], &y)) {
+	Tcl_SetResult(interp, "emc_probe_move: <y> must be a double",
+	    TCL_VOLATILE);
+    }
+    if (0 != Tcl_GetDoubleFromObj(0, objv[3], &z)) {
+	Tcl_SetResult(interp, "emc_probe_move: <z> must be a double",
+	    TCL_VOLATILE);
+    }
+
+    Tcl_SetObjResult(interp, Tcl_NewIntObj(sendProbe(x, y, z)));
+    return TCL_OK;
+}
+
+static int emc_probed_pos(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    int axis;
+    Tcl_Obj *posobj;
+
+    if (objc != 2) {
+	Tcl_SetResult(interp,
+	    "emc_probed_pos: need exactly 1 non-negative integer",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (emcUpdateType == EMC_UPDATE_AUTO) {
+	updateStatus();
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	if (axis == 0) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    probedPosition.tran.x));
+	} else if (axis == 1) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    probedPosition.tran.y));
+	} else if (axis == 2) {
+	    posobj =
+		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
+		    probedPosition.tran.z));
+	} else {
+	    if (axis == 3) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.probedPosition.a));
+	    } else if (axis == 4) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.probedPosition.b));
+	    } else if (axis == 5) {
+		posobj =
+		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+			traj.probedPosition.c));
+	    } else {
+		posobj = Tcl_NewDoubleObj(0.0);
+	    }
+	}
+    } else {
+	Tcl_SetResult(interp, "emc_probed_pos: bad integer argument",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult(interp, posobj);
+    return TCL_OK;
+}
+
+// ********************************************************************
+//      Pendant read routine from /dev/psaux, /dev/ttyS0, or /dev/ttyS1
+// *********************************************************************
+
+static int emc_pendant(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    FILE *inFile;
+
+    char inBytes[5];
+    const char *port;
+
+    inBytes[0] = 0;
+    inBytes[1] = 0;
+    inBytes[2] = 0;
+    inBytes[3] = 0;
+    inBytes[4] = 0;
+
+    if (objc == 2) {
+	port = Tcl_GetStringFromObj(objv[1], 0);
+	if ((!strcmp(port, "/dev/psaux")) | (!strcmp(port,
+		    "/dev/ttyS0")) | (!strcmp(port, "/dev/ttyS1"))) {
+	    inFile = fopen(port, "r+b");
+
+	    if (inFile) {
+		if (strcmp(port, "/dev/psaux")) {	// For Serial mice
+		    inBytes[1] = fgetc(inFile);	// read the first Byte
+		    if (inBytes[1] != 77) {	// If first byte not "M"
+			fputc(77, inFile);	// Request data resent
+			fflush(inFile);
+			inBytes[1] = fgetc(inFile);	// and hope it is
+			// correct
+		    }
+		}
+		inBytes[4] = fgetc(inFile);	// Status byte
+		inBytes[2] = fgetc(inFile);	// Horizontal movement
+		inBytes[3] = fgetc(inFile);	// Vertical Movement
+	    }
+	    fclose(inFile);
+
+	    if (!strcmp(port, "/dev/psaux")) {	// For PS/2
+		inBytes[0] = (inBytes[4] & 0x01);	// Left button
+		inBytes[1] = (inBytes[4] & 0x02) >> 1;	// Right button
+	    } else {		// For serial mice
+		inBytes[0] = (inBytes[4] & 0x20) >> 5;	// Left button
+		inBytes[1] = (inBytes[4] & 0x10) >> 4;	// Right button
+		if (inBytes[4] & 0x02) {
+		    inBytes[2] = inBytes[2] | 0xc0;
+		}
+		if (inBytes[4] & 0x08) {
+		    inBytes[3] = inBytes[3] | 0xc0;
+		}
+	    }
+
+	    sprintf(interp->result, "%i %i %d %d %i", inBytes[0], inBytes[1],
+		inBytes[2], inBytes[3], inBytes[4]);
+	    return TCL_OK;
+	}
+    }
+    Tcl_SetResult(interp, "Need /dev/psaux, /dev/ttyS0 or /dev/ttyS1 as Arg",
+	TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+// *******************************************************************
+
+// provide some of the extended Tcl builtins not available for various plats
+// "int", as in "int 3.9" which returns 3
+static int localint(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    double val;
+    char resstring[80];
+
+    if (objc != 2) {
+	// need exactly one arg
+	Tcl_SetResult(interp, "wrong # args: should be \"int value\"",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetDoubleFromObj(0, objv[1], &val)) {
+	resstring[0] = 0;
+	strcat(resstring, "expected number but got \"");
+	strncat(resstring, Tcl_GetStringFromObj(objv[1], 0),
+	    sizeof(resstring) - strlen(resstring) - 2);
+	strcat(resstring, "\"");
+	Tcl_SetResult(interp, resstring, TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult(interp, Tcl_NewIntObj((int) val));
+    return TCL_OK;
+}
+
+// "round", as in "round 3.9" which returns 4
+static int localround(ClientData clientdata,
+    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+{
+    double val;
+    char resstring[80];
+
+    if (objc != 2) {
+	// need exactly one arg
+	Tcl_SetResult(interp, "wrong # args: should be \"round value\"",
+	    TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 != Tcl_GetDoubleFromObj(0, objv[1], &val)) {
+	resstring[0] = 0;
+	strcat(resstring, "expected number but got \"");
+	strncat(resstring, Tcl_GetStringFromObj(objv[1], 0),
+	    sizeof(resstring) - strlen(resstring) - 2);
+	strcat(resstring, "\"");
+	Tcl_SetResult(interp, resstring, TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult(interp,
+	Tcl_NewIntObj(val < 0.0 ? (int) (val - 0.5) : (int) (val + 0.5)));
+    return TCL_OK;
+}
+
+int Tcl_AppInit(Tcl_Interp * interp)
+{
+    /* 
+     * Call the init procedures for included packages.  Each call should
+     * look like this:
+     *
+     * if (Mod_Init(interp) == TCL_ERROR) {
+     *     return TCL_ERROR;
+     * }
+     *
+     * where "Mod" is the name of the module.
+     */
+
+    if (Tcl_Init(interp) == TCL_ERROR) {
+	return TCL_ERROR;
+    }
+
+    if (Tk_Init(interp) == TCL_ERROR) {
+	return TCL_ERROR;
+    }
+
+    /* 
+     * Call Tcl_CreateCommand for application-specific commands, if
+     * they weren't already created by the init procedures called above.
+     */
+
+    Tcl_CreateObjCommand(interp, "emc_plat", emc_plat, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_ini", emc_ini, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_debug", emc_debug, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_set_wait", emc_set_wait,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_wait", emc_wait, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_set_timeout", emc_set_timeout,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_update", emc_update, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_time", emc_time, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_error", emc_error, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_operator_text", emc_operator_text,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_operator_display", emc_operator_display,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_estop", emc_estop, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_estop_in", emc_estop_in,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_machine", emc_machine,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_mode", emc_mode, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_mist", emc_mist, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_flood", emc_flood, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_lube", emc_lube, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_lube_level", emc_lube_level,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_spindle", emc_spindle,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_brake", emc_brake, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_tool", emc_tool, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_tool_offset", emc_tool_offset,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_load_tool_table", emc_load_tool_table,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_set_tool_offset", emc_set_tool_offset,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_abs_cmd_pos", emc_abs_cmd_pos,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_abs_act_pos", emc_abs_act_pos,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_rel_cmd_pos", emc_rel_cmd_pos,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_rel_act_pos", emc_rel_act_pos,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_joint_pos", emc_joint_pos,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_pos_offset", emc_pos_offset,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_joint_limit", emc_joint_limit,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_joint_fault", emc_joint_fault,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_override_limit", emc_override_limit,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_joint_homed", emc_joint_homed,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_mdi", emc_mdi, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_home", emc_home, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_jog_stop", emc_jog_stop,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_jog", emc_jog, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_jog_incr", emc_jog_incr,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_feed_override", emc_feed_override,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_task_plan_init", emc_task_plan_init,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_open", emc_open, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_run", emc_run, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_pause", emc_pause, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_resume", emc_resume, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_step", emc_step, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_abort", emc_abort, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_program", emc_program,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_program_line", emc_program_line,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_program_status", emc_program_status,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_program_codes", emc_program_codes,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_joint_type", emc_joint_type,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_joint_units", emc_joint_units,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_program_linear_units",
+	emc_program_linear_units, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_program_angular_units",
+	emc_program_angular_units, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_user_linear_units",
+	emc_user_linear_units, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_user_angular_units",
+	emc_user_angular_units, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_display_linear_units",
+	emc_display_linear_units, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_display_angular_units",
+	emc_display_angular_units, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_linear_unit_conversion",
+	emc_linear_unit_conversion, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_angular_unit_conversion",
+	emc_angular_unit_conversion, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_task_heartbeat", emc_task_heartbeat,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_task_command", emc_task_command,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_task_command_number",
+	emc_task_command_number, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_task_command_status",
+	emc_task_command_status, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_io_heartbeat", emc_io_heartbeat,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_io_command", emc_io_command,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_io_command_number",
+	emc_io_command_number, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_io_command_status",
+	emc_io_command_status, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_motion_heartbeat", emc_motion_heartbeat,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_motion_command", emc_motion_command,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_motion_command_number",
+	emc_motion_command_number, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_motion_command_status",
+	emc_motion_command_status, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_axis_gains", emc_axis_gains,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_axis_set_output", emc_axis_set_output,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_axis_load_comp", emc_axis_load_comp,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_axis_alter", emc_axis_alter,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_axis_enable", emc_axis_enable,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_log_open", emc_log_open,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_log_start", emc_log_start,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_log_stop", emc_log_stop,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_log_close", emc_log_close,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_log_isopen", emc_log_isopen,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_log_islogging", emc_log_islogging,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_log_numpoints", emc_log_numpoints,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_teleop_enable", emc_teleop_enable,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_kinematics_type", emc_kinematics_type,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_probe_index", emc_probe_index,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_probe_polarity", emc_probe_polarity,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_probe_clear", emc_probe_clear,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "emc_probe_value", emc_probe_value,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "emc_probe_tripped", emc_probe_tripped,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "emc_probe_move", emc_probe_move,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "emc_probed_pos", emc_probed_pos,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_pendant", emc_pendant,
+	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    // provide builtins that may have been left out
+
+    Tcl_CreateObjCommand(interp, "int", localint, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "round", localround, (ClientData) NULL,
+	(Tcl_CmdDeleteProc *) NULL);
+
+    /* 
+     * Specify a user-specific startup file to invoke if the application
+     * is run interactively.  Typically the startup file is "~/.apprc"
+     * where "app" is the name of the application.  If this line is deleted
+     * then no user-specific startup file will be run under any conditions.
+     */
+
+    Tcl_SetVar(interp, "tcl_rcFileName", "~/.emcshrc", TCL_GLOBAL_ONLY);
+
+    // set app-specific global variables
+    Tcl_SetVar(interp, "EMC_INIFILE", EMC_INIFILE, TCL_GLOBAL_ONLY);
+
+    return TCL_OK;
+}
+
+static int iniLoad(const char *filename)
+{
+    INIFILE inifile;
+    const char *inistring;
+    char displayString[INIFILE_MAX_LINELEN] = "";
+    int t;
+    int i;
+
+    // open it
+    if (-1 == inifile.open(filename)) {
+	return -1;
+    }
+
+    if (NULL != (inistring = inifile.find("DEBUG", "EMC"))) {
+	// copy to global
+	if (1 != sscanf(inistring, "%i", &EMC_DEBUG)) {
+	    EMC_DEBUG = 0;
+	}
+    } else {
+	// not found, use default
+	EMC_DEBUG = 0;
+    }
+
+    if (NULL != (inistring = inifile.find("NML_FILE", "EMC"))) {
+	// copy to global
+	strcpy(EMC_NMLFILE, inistring);
+    } else {
+	// not found, use default
+    }
+
+    for (t = 0; t < EMC_AXIS_MAX; t++) {
+	jogPol[t] = 1;		// set to default
+	sprintf(displayString, "AXIS_%d", t);
+	if (NULL != (inistring =
+		inifile.find("JOGGING_POLARITY", displayString)) &&
+	    1 == sscanf(inistring, "%d", &i) && i == 0) {
+	    // it read as 0, so override default
+	    jogPol[t] = 0;
+	}
+    }
+
+    if (NULL != (inistring = inifile.find("LINEAR_UNITS", "DISPLAY"))) {
+	if (!strcmp(inistring, "AUTO")) {
+	    linearUnitConversion = LINEAR_UNITS_AUTO;
+	} else if (!strcmp(inistring, "INCH")) {
+	    linearUnitConversion = LINEAR_UNITS_INCH;
+	} else if (!strcmp(inistring, "MM")) {
+	    linearUnitConversion = LINEAR_UNITS_MM;
+	} else if (!strcmp(inistring, "CM")) {
+	    linearUnitConversion = LINEAR_UNITS_CM;
+	}
+    } else {
+	// not found, leave default alone
+    }
+
+    if (NULL != (inistring = inifile.find("ANGULAR_UNITS", "DISPLAY"))) {
+	if (!strcmp(inistring, "AUTO")) {
+	    angularUnitConversion = ANGULAR_UNITS_AUTO;
+	} else if (!strcmp(inistring, "DEG")) {
+	    angularUnitConversion = ANGULAR_UNITS_DEG;
+	} else if (!strcmp(inistring, "RAD")) {
+	    angularUnitConversion = ANGULAR_UNITS_RAD;
+	} else if (!strcmp(inistring, "GRAD")) {
+	    angularUnitConversion = ANGULAR_UNITS_GRAD;
+	}
+    } else {
+	// not found, leave default alone
+    }
+
+    // close it
+    inifile.close();
+
+    return 0;
+}
+
+static void sigQuit(int sig)
+{
+    thisQuit((ClientData) 0);
+}
+
+int main(int argc, char *argv[])
+{
+
+    // process command line args
+    if (0 != emcGetArgs(argc, argv)) {
+	rcs_print_error("error in argument list\n");
+	exit(1);
+    }
+    // get configuration information
+    iniLoad(EMC_INIFILE);
+
+    // init NML
+    if (0 != tryNml()) {
+	rcs_print_error("can't connect to emc\n");
+	thisQuit(NULL);
+	exit(1);
+    }
+    // get current serial number, and save it for restoring when we quit
+    // so as not to interfere with real operator interface
+    updateStatus();
+    emcCommandSerialNumber = emcStatus->echo_serial_number;
+    saveEmcCommandSerialNumber = emcStatus->echo_serial_number;
+
+    // attach our quit function to exit
+    Tcl_CreateExitHandler(thisQuit, (ClientData) 0);
+
+    // attach our quit function to SIGINT
+    signal(SIGINT, sigQuit);
+
+    // TclX_Main(argc, argv, Tcl_AppInit);
+    Tk_Main(argc, argv, Tcl_AppInit);
+
+    return 0;
+}

@@ -7,22 +7,30 @@
 *          1. class NML_SERVER member functions.                         *
 *************************************************************************/
 
+
+#ifdef __cplusplus
 extern "C" {
+#endif
+
 #include <string.h>		/* memcpy() */
+
 #include <signal.h>		/* kill() */
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
 #include <sys/wait.h>		/* waitpid() */
 #include <stdlib.h>		/* atexit() */
+
+#ifdef __cplusplus
 }
+#endif
 #include "nml.hh"
 #include "nmlmsg.hh"
 #include "cms.hh"
 #include "nml_srv.hh"
-#include "rem_msg.hh"
+#include "rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 #include "rcs_print.hh"		/* rcs_print_error() */
-#include "timer.hh"		/* esleep() */
-#include "rcs_exit.hh"		/* rcs_exit */
+#include "timer.hh"		// esleep()
+#include "rcs_exit.hh"		// rcs_exit
 #include "cmsdiag.hh"
 NML_SERVER::NML_SERVER(NML * _nml, int _set_to_master):CMS_SERVER()
 {
@@ -88,7 +96,7 @@ void NML_SERVER::delete_from_list()
     if (NULL != NML_Default_Super_Server) {
 	if (NULL != NML_Default_Super_Server->servers) {
 	    NML_Default_Super_Server->servers->
-		deleteNode(super_server_list_id);
+		delete_node(super_server_list_id);
 	}
     }
 }
@@ -359,12 +367,12 @@ void NML_SUPER_SERVER::add_to_list(NML * _nml)
     NML *new_nml = (NML *) NULL;
 
     if (NULL != servers) {
-	server = (NML_SERVER *) servers->getHead();
+	server = (NML_SERVER *) servers->get_head();
 	while (NULL != server) {
 	    if (server->accept_local_port_cms(_nml->cms)) {
 		break;
 	    }
-	    server = (NML_SERVER *) servers->getNext();
+	    server = (NML_SERVER *) servers->get_next();
 	}
 	if (NULL == server) {
 	    server = new NML_SERVER(_nml);
@@ -395,7 +403,7 @@ void NML_SUPER_SERVER::add_to_list(NML_SERVER * _server)
 {
     if ((NULL != servers) && (NULL != _server)) {
 	_server->super_server_list_id
-	    = servers->storeAtTail(_server, sizeof(NML_SERVER), 0);
+	    = servers->store_at_tail(_server, sizeof(NML_SERVER), 0);
 	unspawned_servers++;
     }
 }
@@ -405,12 +413,12 @@ void NML_SUPER_SERVER::spawn_all_servers()
     NML_SERVER *server;
 
     if (NULL != servers) {
-	server = (NML_SERVER *) servers->getHead();
+	server = (NML_SERVER *) servers->get_head();
 	while (NULL != server) {
 	    if (server->spawn() > 0 && unspawned_servers > 0) {
 		unspawned_servers--;
 	    }
-	    server = (NML_SERVER *) servers->getNext();
+	    server = (NML_SERVER *) servers->get_next();
 	}
     }
 }
@@ -420,12 +428,12 @@ void NML_SUPER_SERVER::kill_all_servers()
     NML_SERVER *server;
 
     if (NULL != servers) {
-	server = (NML_SERVER *) servers->getHead();
+	server = (NML_SERVER *) servers->get_head();
 	while (NULL != server) {
 	    if (server->server_spawned) {
 		server->kill_server();
 	    }
-	    server = (NML_SERVER *) servers->getNext();
+	    server = (NML_SERVER *) servers->get_next();
 	}
     }
 }
@@ -434,13 +442,13 @@ void NML_SUPER_SERVER::delete_all_servers()
 {
     NML_SERVER *server;
     if (NULL != servers) {
-	server = (NML_SERVER *) servers->getHead();
+	server = (NML_SERVER *) servers->get_head();
 	while (NULL != server) {
 	    if (!server->server_spawned && unspawned_servers > 0) {
 		unspawned_servers--;
 	    }
 	    delete server;
-	    server = (NML_SERVER *) servers->getNext();
+	    server = (NML_SERVER *) servers->get_next();
 	}
     }
 }
@@ -455,6 +463,7 @@ static void catch_control_C1(int sig)
 {
     nmlsrv_last_sig = sig;
     nml_sigint_count++;
+    signal(SIGINT, SIG_DFL);
     if (NULL != NML_Default_Super_Server) {
 	delete NML_Default_Super_Server;
 	NML_Default_Super_Server = (NML_SUPER_SERVER *) NULL;
@@ -483,10 +492,10 @@ void run_nml_servers()
 {
     if (NULL != NML_Default_Super_Server) {
 	if (NML_Default_Super_Server->servers != NULL) {
-	    if (NML_Default_Super_Server->servers->listSize <
+	    if (NML_Default_Super_Server->servers->list_size <
 		NML_Default_Super_Server->unspawned_servers) {
 		NML_Default_Super_Server->unspawned_servers =
-		    NML_Default_Super_Server->servers->listSize;
+		    NML_Default_Super_Server->servers->list_size;
 	    }
 	    if (NML_Default_Super_Server->unspawned_servers <= 0) {
 		rcs_print_error
@@ -498,7 +507,7 @@ void run_nml_servers()
 		NML_SERVER *sole_server;
 		sole_server =
 		    (NML_SERVER *) NML_Default_Super_Server->servers->
-		    getHead();
+		    get_head();
 		while (sole_server != NULL) {
 		    if (NULL != sole_server->remote_port) {
 			if (!sole_server->remote_port->running &&
@@ -508,7 +517,7 @@ void run_nml_servers()
 		    }
 		    sole_server =
 			(NML_SERVER *) NML_Default_Super_Server->servers->
-			getNext();
+			get_next();
 		}
 		if (NULL == sole_server) {
 		    rcs_print_error

@@ -1,6 +1,7 @@
 #ifndef RCS_STAT_HH
 #define RCS_STAT_HH
 
+
 #include "nml.hh"
 #include "nmlmsg.hh"
 

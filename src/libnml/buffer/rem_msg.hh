@@ -15,6 +15,7 @@
 #ifndef REM_MSG_HH
 #define REM_MSG_HH
 
+
 class CMS_DIAGNOSTICS_INFO;
 struct CMS_HEADER;
 
@@ -69,8 +70,9 @@ struct REMOTE_BLOCKING_READ_REQUEST:public REMOTE_CMS_REQUEST {
     };
     int access_type;		/* read or just peek */
     long last_id_read;		/* The server can compare with id from buffer 
-				   to determine if the buffer is new to this
-				   client */
+				 */
+    /* to determine if the buffer is new */
+    /* to this client */
     long timeout_millis;	/* Milliseconds for blocking_timeout or -1 to 
 				   wait forever */
     void *_nml;
@@ -90,8 +92,9 @@ struct REMOTE_READ_REQUEST:public REMOTE_CMS_REQUEST {
     };
     int access_type;		/* read or just peek */
     long last_id_read;		/* The server can compare with id from buffer 
-				   to determine if the buffer is new to this
-				   client */
+				 */
+    /* to determine if the buffer is new */
+    /* to this client */
 };
 
 /* Structure returned by server to client after a read. */
@@ -197,9 +200,9 @@ struct REMOTE_SET_SUBSCRIPTION_REQUEST:public REMOTE_CMS_REQUEST {
 };
 
 struct REMOTE_SET_SUBSCRIPTION_REPLY:public REMOTE_CMS_REPLY {
-    int success;		/* 1 = logged in, 0 = not */
-    int subscription_id;	/* used by UDP clients to cancel a
-				   subscription. */
+    int success;		// 1 = logged in, 0 = not
+    int subscription_id;	// used by UDP clients to cancel a
+    // subscription.
 };
 
 struct REMOTE_CANCEL_SUBSCRIPTION_REQUEST:public REMOTE_CMS_REQUEST {
@@ -210,9 +213,9 @@ struct REMOTE_CANCEL_SUBSCRIPTION_REQUEST:public REMOTE_CMS_REQUEST {
 };
 
 struct REMOTE_CANCEL_SUBSCRIPTION_REPLY:public REMOTE_CMS_REPLY {
-    int success;		/* 1 = logged in, 0 = not */
-    int subscription_id;	/* used by UDP clients to cancel a
-				   subscription. */
+    int success;		// 1 = logged in, 0 = not
+    int subscription_id;	// used by UDP clients to cancel a
+    // subscription.
 };
 
 struct REMOTE_SET_DIAG_INFO_REQUEST:public REMOTE_CMS_REQUEST {
@@ -276,5 +279,40 @@ struct REMOTE_GET_SPACE_AVAILABLE_REQUEST:public REMOTE_CMS_REQUEST {
 struct REMOTE_GET_SPACE_AVAILABLE_REPLY:public REMOTE_CMS_REPLY {
     long space_available;
 };
+
+#if 0
+#define MAX_BUFFERS_FOR_COMBINED_READ 32
+
+/* Structure sent by client to server to initiate a read of multiple buffers. */
+struct REMOTE_READ_COMBINED_REQUEST:public REMOTE_CMS_REQUEST {
+    REMOTE_READ_COMBINED_REQUEST():REMOTE_CMS_REQUEST
+	(REMOTE_CMS_READ_COMBINED_REQUEST_TYPE) {
+    };
+    int access_type;		/* read or just peek */
+    int num_buffers;
+
+    struct combined_read_buf_req_info_struct {
+	long buffer_number;
+	long last_id_read;	/* The server can compare with id from buffer 
+				 */
+	/* to determine if the buffer is new */
+	/* to this client */
+	int header_only;	// non-zero means send only the header
+    } combined_read_buf_req_info[MAX_BUFFERS_FOR_COMBINED_READ];
+
+};
+
+/* Structure returned by server to client after a read. */
+struct REMOTE_READ_COMBINED_REPLY:public REMOTE_CMS_REPLY {
+    int num_buffers;
+
+    struct combined_read_buf_reply_info_struct {
+	int size;		/* size of message stored in data. */
+	long write_id;		/* Id from the buffer. */
+	long was_read;		/* Was this message already read? */
+	void *data;		/* Location of stored message. */
+    } combined_read_buf_reply_info[MAX_BUFFERS_FOR_COMBINED_READ];
+};
+#endif
 
 #endif

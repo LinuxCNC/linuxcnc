@@ -1,14 +1,13 @@
-#include "cmsdiag.hh"
-#include "rcsversion.h"		/* lib version */
 
+#include "cmsdiag.hh"
+#include "rcsversion.h"
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
-
-#include "timer.hh"		/* etime() */
-#include <stdlib.h>		/* memset() */
-#include <string.h>		/* strncpy() */
-#include <time.h>		/* time_t, time() */
-#include <math.h>		/* floor() */
+#include "timer.hh"		// etime()
+#include <stdlib.h>		// memset()
+#include <string.h>		// strncpy()
+#include <time.h>		// time_t, time()
+#include <math.h>		// floor()
 
 CMS_DIAGNOSTICS_INFO::CMS_DIAGNOSTICS_INFO()
 {
@@ -54,23 +53,21 @@ void CMS::setup_diag_proc_info()
     dpi->host_sysinfo[sysinfo_len++] = ',';
     dpi->host_sysinfo[sysinfo_len++] = ' ';
 
-    // Version of the rcslib used by this component.
     if (lib_minor_version < 100) {
 	dpi->rcslib_ver = (lib_major_version + (lib_minor_version * 1e-2));
-	printf("Small minor_ver\n");
     } else {
 	dpi->rcslib_ver = (lib_major_version + (lib_minor_version * 1e-3));
-	printf("Large minor_ver\n");
     }
 
     dpi->pid = getpid();
-    dpi->access_type = CMS_ZERO_ACCESS;	/* access type of last operation */
-    dpi->msg_id = 0;		/* id of the message written or at time of
-				   read. */
-    dpi->msg_size = 0;		/* size of the message written or at time of
-				   read. */
-    dpi->msg_type = 0;		/* id of the message written or at time of
-				   read. */
+
+    dpi->access_type = CMS_ZERO_ACCESS;	// access type of last operation
+    dpi->msg_id = 0;		// id of the message written or at time of
+    // read.
+    dpi->msg_size = 0;		// size of the message written or at time of
+    // read.
+    dpi->msg_type = 0;		// id of the message written or at time of
+    // read.
 
     dpi->number_of_accesses = 0;
     dpi->number_of_new_messages = 0;
@@ -80,6 +77,11 @@ void CMS::setup_diag_proc_info()
     dpi->max_difference = 0;
     dpi->min_difference = 0;
     first_diag_store = 1;
+    if (!cmsdiag_timebias_set) {
+	cmsdiag_timebias_set = 1;
+	time_t ttime = time(NULL);
+	cmsdiag_timebias = floor(etime() - ttime);
+    }
 }
 
 void CMS::calculate_and_store_diag_info(PHYSMEM_HANDLE * _handle,
@@ -116,23 +118,23 @@ void CMS::calculate_and_store_diag_info(PHYSMEM_HANDLE * _handle,
     if (!first_diag_store) {
 	_handle->read(dpi, sizeof(CMS_DIAG_PROC_INFO));
     }
-    dpi->access_type = internal_access_type;	/* access type of last
-						   operation */
-    dpi->msg_id = header.write_id;	/* id of the message written or at
-					   time of read. */
+    dpi->access_type = internal_access_type;	// access type of last
+    // operation
+    dpi->msg_id = header.write_id;	// id of the message written or at
+    // time of read.
     dpi->msg_size = header.in_buffer_size;
     if (internal_access_type == CMS_WRITE_ACCESS ||
 	internal_access_type == CMS_WRITE_IF_READ_ACCESS) {
 	if (NULL != _user_data) {
-	    dpi->msg_type = *((long *) _user_data);	/* id of the message
-							   written or at time 
-							   of read. */
+	    dpi->msg_type = *((long *) _user_data);	// id of the message
+	    // written or at time 
+	    // of read.
 	}
     } else {
 	if (NULL != subdiv_data) {
-	    dpi->msg_type = *((long *) subdiv_data);	/* id of the message
-							   written or at time 
-							   of read. */
+	    dpi->msg_type = *((long *) subdiv_data);	// id of the message
+	    // written or at time 
+	    // of read.
 	}
     }
     if (!disable_diag_store) {
@@ -221,7 +223,7 @@ void CMS::internal_retrieve_diag_info(PHYSMEM_HANDLE * _handle,
 	di = new CMS_DIAGNOSTICS_INFO();
 	di->dpis = new LinkedList();
     } else {
-	di->dpis->deleteMembers();
+	di->dpis->delete_members();
     }
     _handle->read(di, sizeof(CMS_DIAG_HEADER));
     _handle->offset += sizeof(CMS_DIAG_HEADER);
@@ -231,14 +233,14 @@ void CMS::internal_retrieve_diag_info(PHYSMEM_HANDLE * _handle,
 	_handle->read(&cms_dpi, sizeof(CMS_DIAG_PROC_INFO));
 	_handle->offset += sizeof(CMS_DIAG_PROC_INFO);
 	if (cms_dpi.name[0] != 0 || cms_dpi.number_of_accesses != 0) {
-	    di->dpis->storeAtTail(&cms_dpi, sizeof(CMS_DIAG_PROC_INFO), 1);
+	    di->dpis->store_at_tail(&cms_dpi, sizeof(CMS_DIAG_PROC_INFO), 1);
 	    if (i == di->last_writer) {
 		di->last_writer_dpi =
-		    (CMS_DIAG_PROC_INFO *) di->dpis->getTail();
+		    (CMS_DIAG_PROC_INFO *) di->dpis->get_tail();
 	    }
 	    if (i == di->last_reader) {
 		di->last_reader_dpi =
-		    (CMS_DIAG_PROC_INFO *) di->dpis->getTail();
+		    (CMS_DIAG_PROC_INFO *) di->dpis->get_tail();
 	    }
 	}
     }

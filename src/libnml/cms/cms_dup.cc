@@ -11,7 +11,10 @@
 * the increased range and precision of long doubles will be lost anyway.
 ****************************************************************************/
 
+
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 #include <errno.h>		/* errno global variable */
 #include <limits.h>		/* SHORT_MIN, SHOR_MAX, . . . */
@@ -21,7 +24,9 @@ extern "C" {
 #include <stdio.h>		/* sprintf() */
 #include <ctype.h>		/* isspace() */
 
+#ifdef __cplusplus
 }
+#endif
 #include "cms.hh"		/* class CMS */
 #include "cms_dup.hh"		/* class CMS_DISPLAY_ASCII_UPDATER */
 #include "rcs_print.hh"		/* rcs_print_error() */

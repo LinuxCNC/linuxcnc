@@ -15,22 +15,27 @@
 #define CMS_HH
 
 /* Include Files */
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 #include <stddef.h>		/* size_t */
 
+#ifdef __cplusplus
 }
+#endif
 #include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
-#include "linklist.hh"		/* LinkedList */
+#include "linklist.hh"		// LinkedList
 #include "physmem.hh"		/* PHYSMEM_HANDLE */
+#include "posemath.h"		// PM_CARTESIAN, etc ...
 enum CMS_STATUS {
 /* ERROR conditions */
     CMS_MISC_ERROR = -1,	/* A miscellaneous error occured. */
     CMS_UPDATE_ERROR = -2,	/* An error occured during an update. */
     CMS_INTERNAL_ACCESS_ERROR = -3,	/* An error occured during an
 					   internal access function. */
-    CMS_NO_MASTER_ERROR = -4,	/* An error occured becouse */
-    /* the master was not started */
+    CMS_NO_MASTER_ERROR = -4,	/* An error occured becouse the master was
+				   not started */
     CMS_CONFIG_ERROR = -5,	/* There was an error in the configuration */
     CMS_TIMED_OUT = -6,		/* operation timed out. */
     CMS_QUEUE_FULL = -7,	/* A write failed because queuing was enabled 
@@ -125,8 +130,7 @@ enum CMS_REMOTE_PORT_TYPE {
     CMS_UDP_REMOTE_PORT_TYPE
 };
 
-/* This structure will be placed at the beginning of every */
- /* CMS buffer. */
+/* This structure will be placed at the beginning of every CMS buffer. */
 struct CMS_HEADER {
     long was_read;		/* Has the buffer been read since the last
 				   write? */
@@ -160,8 +164,8 @@ class CMS_UPDATER;
 /* CMS class definition. */
 class CMS {
   public:
-    void *operator                          new(size_t);
-    void operator                          delete(void *);
+    void *operator                         new(size_t);
+    void operator                         delete(void *);
 
   public:
     /* Constructors and Destructors. */
@@ -199,7 +203,7 @@ class CMS {
     /* Buffer access control functions. */
     void set_mode(CMSMODE im);	/* Determine read/write mode.(check neutral) */
 
-    /* Select a temparary updator -- This is used by the nml msg2string and
+    /* Select a temporary updator -- This is used by the nml msg2string and
        string2msg functions. */
     void set_temp_updater(CMS_NEUTRAL_ENCODING_METHOD);
 
@@ -269,6 +273,44 @@ class CMS {
     CMS_STATUS update(double *x, unsigned int len);
     CMS_STATUS update(long double *x, unsigned int len);
 
+  /*************************************************************************
+   * CMS UPDATE FUNCTIONS for POSEMATH classes, defined in cms_pm.cc       *
+   ************************************************************************/
+    // translation types
+    CMS_STATUS update(PM_CARTESIAN & x);	// Cart
+    CMS_STATUS update(PM_SPHERICAL & x);	// Sph
+    CMS_STATUS update(PM_CYLINDRICAL & x);	// Cyl
+
+    // rotation types
+    CMS_STATUS update(PM_ROTATION_VECTOR & x);	// Rot
+    CMS_STATUS update(PM_ROTATION_MATRIX & x);	// Mat
+    CMS_STATUS update(PM_QUATERNION & x);	// Quat
+    CMS_STATUS update(PM_EULER_ZYZ & x);	// Zyz
+    CMS_STATUS update(PM_EULER_ZYX & x);	// Zyx
+    CMS_STATUS update(PM_RPY & x);	// Rpy
+
+    // pose types
+    CMS_STATUS update(PM_POSE & x);	// Pose
+    CMS_STATUS update(PM_HOMOGENEOUS & x);	// Hom
+
+    // CMS UPDATE FUNCTIONS for arrays of POSEMATH types.
+    // translation types
+    CMS_STATUS update(PM_CARTESIAN * x, int n);	// Cart
+    CMS_STATUS update(PM_SPHERICAL * x, int n);	// Sph
+    CMS_STATUS update(PM_CYLINDRICAL * x, int n);	// Cyl
+
+    // rotation types
+    CMS_STATUS update(PM_ROTATION_VECTOR * x, int n);	// Rot
+    CMS_STATUS update(PM_ROTATION_MATRIX * x, int n);	// Mat
+    CMS_STATUS update(PM_QUATERNION * x, int n);	// Quat
+    CMS_STATUS update(PM_EULER_ZYZ * x, int n);	// Zyz
+    CMS_STATUS update(PM_EULER_ZYX * x, int n);	// Zyx
+    CMS_STATUS update(PM_RPY * x, int n);	// Rpy
+
+    // pose types
+    CMS_STATUS update(PM_POSE * x, int n);	// Pose
+    CMS_STATUS update(PM_HOMOGENEOUS * x, int n);	// Hom
+
     /* comm protocol parameters shared by all protocols */
     int fatal_error_occurred;
     int consecutive_timeouts;
@@ -279,8 +321,8 @@ class CMS {
     CMSMODE mode;		/* This process is reading or writing? */
     long size;			/* size of cms */
     long free_space;
-    long max_message_size;	/* size of cms buffer available for user
-				   messages = size - CMS Header space */
+    long max_message_size;	/* size of cms buffer available for user */
+    /* messages = size - CMS Header space */
     long max_encoded_message_size;	/* Maximum size of message after
 					   being encoded. */
     long guaranteed_message_space;	/* Largest size message before being
@@ -313,7 +355,7 @@ class CMS {
     int force_raw;
     int split_buffer;		/* Will the buffer be split into two areas so 
 				   that one area can be read while the other
-				   is written to? */
+				   is written to ? */
     char toggle_bit;
     int first_read_done;
     int first_write_done;
@@ -384,6 +426,8 @@ class CMS {
     unsigned long encode_state;	/* Store position for save, restore. */
     unsigned long decode_state;	/* Store position for save, restore. */
     void open(void);		/* Allocate memory and intialize XDR streams */
+    static int number_of_cms_objects;	/* Used to decide when to initialize
+					   and cleanup PC-NFS Toolkit DLLs */
 
   public:
     long sizeof_message_header;	/* Used by BBD protocol to strip off */
@@ -422,6 +466,8 @@ class CMS {
     long diag_offset;
     int last_id_side0;
     int last_id_side1;
+    int use_autokey_for_connection_number;
+    /* RCS_CMD_MSG, RCS_STAT_MSG stuff */
 
   private:
       CMS(CMS & cms);		// Don't copy me.

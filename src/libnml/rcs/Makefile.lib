@@ -1,2 +1,3 @@
 LIB_OBJS := $(LIB_OBJS) \
-	rcs_print.o
+	rcs_print.o \
+	rcs_exit.o

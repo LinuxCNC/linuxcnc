@@ -9,27 +9,42 @@
 *             cms_server_clean.                                          *
 *************************************************************************/
 
+
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 #include <stdio.h>		/* sscanf(),NULL, FILE, fopen(), fgets() */
 #include <string.h>		/* strchr(), memcpy() */
 #include <stdlib.h>		/* malloc(), free(), exit() */
-#include <ctype.h>		/* isgraph() */
+#include <ctype.h>		// isgraph()
 #include <math.h>		/* fmod() */
+
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
 #include <sys/wait.h>		/* waitpid() */
-#include <signal.h>		/* sigvec(), struct sigvec, SIGINT, kill() */
+
+#include <signal.h>		/* sigvec(), struct sigvec, SIGINT */
+    /* kill() */
+
+#ifdef __cplusplus
 }
+#endif
 #include "cms.hh"		/* class CMS */
 #include "rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 				/* struct REMOTE_WRITE_REQUEST, */
 #include "cms_srv.hh"		/* class CMS_SERVER */
 #include "cms_cfg.hh"		/* cms_config() */
 #include "rcs_print.hh"		/* rcs_print_error() */
-//#include "tcp_srv.hh"         /* CMS_SERVER_TCP_PORT *///#include "tty_srv.hh"//#include "udp_srv.hh"         /* CMS_SERVER_UDP_PORT */
-#include "timer.hh"		/* etime() */
+#ifndef NO_DCE_RPC
+#define NO_DCE_RPC
+#endif
+#include "tcp_srv.hh"		/* CMS_SERVER_TCP_PORT */
+//#include "inetfile.hh"		// INET_FILE, inet_file_open(), . . .
+#include "timer.hh"		// etime()
+//#include "crypt2.hh"		// crypt()
 #include "cmsdiag.hh"
+
 int cms_server_count = 0;
 int cms_server_task_priority = 100;
 int cms_server_task_stack_size = 32768;
@@ -86,7 +101,6 @@ LinkedList *cms_server_list = NULL;
 CMS_SERVER_LOCAL_PORT::CMS_SERVER_LOCAL_PORT(CMS * _cms)
 {
     local_channel_reused = 1;
-    security_enabled = 0;
     cms = _cms;
     orig_info = NULL;
     if (NULL != cms) {
@@ -155,7 +169,6 @@ CMS_SERVER_REMOTE_PORT::CMS_SERVER_REMOTE_PORT(CMS_SERVER *
     port_registered = 0;
     cms_server_parent = _cms_server_parent;
     connected_users = NULL;
-    security_enabled = 0;
     confirm_write = 0;
     min_compatible_version = 0.0;
     current_user_info = NULL;
@@ -167,21 +180,20 @@ CMS_SERVER_REMOTE_PORT::~CMS_SERVER_REMOTE_PORT()
 {
     if (NULL != connected_users) {
 	CMS_USER_CONNECT_STRUCT *connected_user_struct =
-	    (CMS_USER_CONNECT_STRUCT *) connected_users->getHead();
+	    (CMS_USER_CONNECT_STRUCT *) connected_users->get_head();
 	while (NULL != connected_user_struct) {
 	    delete connected_user_struct;
 	    connected_user_struct = NULL;
-	    connected_users->deleteCurrentNode();
+	    connected_users->delete_current_node();
 	    connected_user_struct =
-		(CMS_USER_CONNECT_STRUCT *) connected_users->getNext();
+		(CMS_USER_CONNECT_STRUCT *) connected_users->get_next();
 	}
 	delete connected_users;
     }
     current_connected_user_struct = NULL;
 }
 
-void
-  CMS_SERVER_REMOTE_PORT::add_connected_user(int _fd)
+void CMS_SERVER_REMOTE_PORT::add_connected_user(int _fd)
 {
     current_connected_user_struct = NULL;
     rcs_print_debug(PRINT_SOCKET_CONNECT, "Adding connected user %d\n", _fd);
@@ -197,7 +209,7 @@ void
     if (NULL == connected_users) {
 	return;
     }
-    connected_users->storeAtTail(connected_user_struct,
+    connected_users->store_at_tail(connected_user_struct,
 	sizeof(connected_user_struct), 0);
     current_connected_user_struct = connected_user_struct;
     // delete connected_user_struct;
@@ -213,14 +225,14 @@ CMS_USER_INFO *CMS_SERVER_REMOTE_PORT::get_connected_user(int _fd)
 	return NULL;
     }
     CMS_USER_CONNECT_STRUCT *connected_user_struct =
-	(CMS_USER_CONNECT_STRUCT *) connected_users->getHead();
+	(CMS_USER_CONNECT_STRUCT *) connected_users->get_head();
     while (NULL != connected_user_struct) {
 	if (connected_user_struct->fd == _fd) {
 	    current_connected_user_struct = connected_user_struct;
 	    return connected_user_struct->user_info;
 	}
 	connected_user_struct =
-	    (CMS_USER_CONNECT_STRUCT *) connected_users->getNext();
+	    (CMS_USER_CONNECT_STRUCT *) connected_users->get_next();
     }
     add_connected_user(_fd);
     return NULL;
@@ -260,13 +272,14 @@ CMS_SERVER *CMS_SERVER_REMOTE_PORT::find_server(long _pid, long _tid	/* =0
 	return NULL;
     }
 
-    cms_server = (CMS_SERVER *) cms_server_list->getHead();
+    cms_server = (CMS_SERVER *) cms_server_list->get_head();
     while (NULL != cms_server) {
 	if (cms_server->server_pid == _pid && cms_server->server_tid == _tid) {
 	    break;
 	}
-	cms_server = (CMS_SERVER *) cms_server_list->getNext();
+	cms_server = (CMS_SERVER *) cms_server_list->get_next();
     }
+
     return (cms_server);
 }
 
@@ -279,17 +292,16 @@ void CMS_SERVER_REMOTE_PORT::print_servers()
 	return;
     }
 
-    cms_server = (CMS_SERVER *) cms_server_list->getHead();
+    cms_server = (CMS_SERVER *) cms_server_list->get_head();
     rcs_print("Server Tasks for this remote port.\n");
     while (NULL != cms_server) {
 	rcs_print(" \t(%d (0x%X), %d (0x%X))\n",
 	    cms_server->server_pid, cms_server->server_pid,
 	    cms_server->server_tid, cms_server->server_tid);
 
-	cms_server = (CMS_SERVER *) cms_server_list->getNext();
+	cms_server = (CMS_SERVER *) cms_server_list->get_next();
     }
 }
-
 #if 0
 void CMS_SERVER::read_passwd_file()
 {
@@ -345,7 +357,7 @@ void CMS_SERVER::read_passwd_file()
 	}
 	gen_random_key(user_info->key2, 2);
 	strcpy(user_info->epasswd,
-	    rcs_crypt(user_info->passwd, user_info->key2));
+	    crypt(user_info->passwd, user_info->key2));
 	user_info->allow_read = (NULL != strstr(buf, "read=true"));
 	user_info->allow_write = (NULL != strstr(buf, "write=true"));
 	user_info->user_number =
@@ -359,6 +371,7 @@ void CMS_SERVER::read_passwd_file()
 	user_info = NULL;
     }
 }
+#endif
 
 void CMS_SERVER::gen_random_key(char key[], int len)
 {
@@ -374,19 +387,19 @@ CMS_USER_INFO *CMS_SERVER::find_user(const char *name)
     if (NULL == known_users) {
 	return NULL;
     }
-    CMS_USER_INFO *user_info = (CMS_USER_INFO *) known_users->getHead();
+    CMS_USER_INFO *user_info = (CMS_USER_INFO *) known_users->get_head();
     while (NULL != user_info) {
 	rcs_print("CMS_SERVER::find_user: strcmp(%s,%s)\n", name,
 	    user_info->name);
 	if (!strcmp(name, user_info->name)) {
 	    return user_info;
 	}
-	user_info = (CMS_USER_INFO *) known_users->getNext();
+	user_info = (CMS_USER_INFO *) known_users->get_next();
     }
     rcs_print_error("CMS_SERVER: Can't find entry for user %s.\n", name);
     return NULL;
 }
-
+#if 0
 int CMS_SERVER::get_user_keys(const char *name, char *key1, char *key2)
 {
     if (NULL == known_users) {
@@ -406,12 +419,13 @@ int CMS_SERVER::get_user_keys(const char *name, char *key1, char *key2)
 	memset(user_info->epasswd, 0, 16);
 	gen_random_key(user_info->key2, 2);
 	strcpy(user_info->epasswd,
-	    rcs_crypt(user_info->passwd, user_info->key2));
+	    crypt(user_info->passwd, user_info->key2));
     }
     strcpy(key2, user_info->key2);
     time_of_last_key_request = etime();
     return 0;
 }
+#endif
 
 CMS_USER_INFO *CMS_SERVER::get_user_info(const char *name,
     const char *epasswd)
@@ -455,17 +469,21 @@ void CMS_SERVER::add_local_port(CMS_SERVER_LOCAL_PORT * _local_port)
 
     if (NULL == remote_port) {
 	switch (_local_port->cms->remote_port_type) {
+
 	case CMS_TCP_REMOTE_PORT_TYPE:
 	    remote_port = new CMS_SERVER_REMOTE_TCP_PORT(this);
 	    break;
-
+#if 0
+	case CMS_STCP_REMOTE_PORT_TYPE:
+	    remote_port = new CMS_SERVER_REMOTE_STCP_PORT(this);
+	    break;
 	case CMS_TTY_REMOTE_PORT_TYPE:
 	    remote_port = new CMS_SERVER_REMOTE_TTY_PORT(this);
 	    break;
-
 	case CMS_UDP_REMOTE_PORT_TYPE:
 	    remote_port = new CMS_SERVER_REMOTE_UDP_PORT(this);
 	    break;
+#endif
 	default:
 	    rcs_print_error("CMS_SERVER: Invalid remote port type. (%d)\n",
 		_local_port->cms->remote_port_type);
@@ -482,6 +500,21 @@ void CMS_SERVER::add_local_port(CMS_SERVER_LOCAL_PORT * _local_port)
     }
     char *passwd_eq = strstr(_local_port->cms->BufferLine, "passwd=");
     if (NULL != passwd_eq) {
+	if (!using_passwd_file) {
+	    memset(passwd_file, 0, 256);
+	    for (int i = 0; i < 256 && passwd_eq[i + 7]; i++) {
+		if (passwd_eq[i + 7] == ' ' || passwd_eq[i + 7] == '\t'
+		    || passwd_eq[i + 7] == '\n' || passwd_eq[i + 7] == '\r') {
+		    break;
+		}
+		passwd_file[i] = passwd_eq[i + 7];
+	    }
+#if 0
+	    if (strlen(passwd_file) > 0) {
+		read_passwd_file();
+	    }
+#endif
+	}
     }
 
     _local_port->list_id =
@@ -577,6 +610,10 @@ REMOTE_CMS_REPLY *CMS_SERVER::process_request(REMOTE_CMS_REQUEST * _request)
 	    request->buffer_number);
 	return (NULL);
     }
+    if (!security_check
+	(remote_port->current_user_info, request->buffer_number)) {
+	return NULL;
+    }
 
     local_port->cms->set_subdivision(_request->subdiv);
     _request->subdiv = 0;
@@ -651,14 +688,14 @@ REMOTE_CMS_REPLY *CMS_SERVER::process_request(REMOTE_CMS_REQUEST * _request)
 	local_port->cms->clear();
 	clear_reply_struct.status = local_port->cms->status;
 	return (&clear_reply_struct);
-
+#if 0
     case REMOTE_CMS_GET_KEYS_REQUEST_TYPE:
 	get_keys_reply = &perm_get_keys_reply;
 	get_user_keys(
 	    ((REMOTE_GET_KEYS_REQUEST *) request)->name,
 	    get_keys_reply->key1, get_keys_reply->key2);
 	return (&perm_get_keys_reply);
-
+#endif
     case REMOTE_CMS_LOGIN_REQUEST_TYPE:
 	login_reply = &perm_login_reply;
 	if (NULL == remote_port->current_connected_user_struct) {
@@ -854,7 +891,6 @@ CMS_SERVER::CMS_SERVER()
     max_total_subdivisions = 1;
     memset(passwd_file, 0, 256);
     creator_pid = getpid();
-
 }
 
 CMS_SERVER::~CMS_SERVER()
@@ -917,6 +953,7 @@ void CMS_SERVER::clean(int signum)
 	}
 	cms_server = (CMS_SERVER *) cms_server_list->get_next();
     }
+
     exit(0);
 }
 
@@ -974,9 +1011,6 @@ int CMS_SERVER::security_check(CMS_USER_INFO * user_info, int buffer_number)
     if (!using_passwd_file) {
 	return 1;
     }
-    if (!local_port->security_enabled) {
-	return 1;
-    }
     if (request->type == REMOTE_CMS_GET_KEYS_REQUEST_TYPE ||
 	request->type == REMOTE_CMS_LOGIN_REQUEST_TYPE) {
 	return 1;
@@ -1032,4 +1066,3 @@ int CMS_SERVER::security_check(CMS_USER_INFO * user_info, int buffer_number)
 
 int (*detailed_security_check) (const char *user_name,
     const char *buffer_name, long msg_type, int access_type) = NULL;
-#endif

@@ -11,7 +11,10 @@
 * the increased range and precision of long doubles will be lost anyway.
 ****************************************************************************/
 
+
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 #include <errno.h>		/* errno global variable */
 #include <limits.h>		/* SHORT_MIN, SHOR_MAX, . . . */
@@ -21,13 +24,16 @@ extern "C" {
 #include <stdio.h>		/* sprintf() */
 #include <ctype.h>		/* isspace() */
 
+#ifdef __cplusplus
 }
+#endif
 #include "cms.hh"		/* class CMS */
 #include "cms_aup.hh"		/* class CMS_ASCII_UPDATER */
 #include "rcs_print.hh"		/* rcs_print_error() */
 #define DEFAULT_WARNING_COUNT_MAX 100
 /* Member functions for CMS_ASCII_UPDATER Class */
-    CMS_ASCII_UPDATER::CMS_ASCII_UPDATER(CMS * _cms_parent):CMS_UPDATER
+
+CMS_ASCII_UPDATER::CMS_ASCII_UPDATER(CMS * _cms_parent):CMS_UPDATER
 (_cms_parent)
 {
     /* Set pointers to NULL. */

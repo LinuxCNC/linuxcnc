@@ -1,4 +1,3 @@
-#include "rcs.hh"
 
 extern "C" void cms_print_servers();
 

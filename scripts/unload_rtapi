@@ -11,7 +11,7 @@ sync
 
 # $0 is the command to run this script - strip the
 # script name to leave the path
-SCRIPT_DIR=`echo $0 | sed s#unload_rtapi## `
+SCRIPT_DIR=`echo $0 | sed s#unload_rtapi##`
 # the path might be relative - this converts it
 # to an absolute path
 SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)

@@ -6,10 +6,6 @@
 *                    1. class SHMEM.                                     *
 * Notes: The class SHMEM should be used by procedures accessing a shared *
 *  memory buffer on the same processor.                                  *
-
-  The SHMEM class inherits much of it functionality from the CMS class
-  as defined in cms.hh - See the cms files for full documentation..
-
 *************************************************************************/
 
 #ifndef SHMEM_HH
@@ -17,16 +13,22 @@
 
 /* Include Files */
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
 #include <stdio.h>		/* NULL */
 #include <stddef.h>		/* size_t */
 #include <sys/types.h>		/* key_t */
+
+#ifdef __cplusplus
 }
-#include "cms.hh"		/* CMS */
-#include "shm.hh"		/* RCS_SHAREDMEM */
-#include "memsem.hh"		/* mem_access_object */
-#include "sem.hh"		/* RCS_SEMAPHORE */
-class SHMEM:public CMS {
+#endif
+#include "cms.hh"		/* class CMS */
+#include "shm.hh"		/* class RCS_SHAREDMEM */
+#include "memsem.hh"		/* struct mem_access_object */
+// #include "sem.hh"            /* class RCS_SEMAPHORE *//* Class Definitions */
+    class SHMEM:public CMS {
   public:
     SHMEM(char *name, long size, int neutral, key_t key, int m = 0);
       SHMEM(char *bufline, char *procline, int set_to_server = 0,
@@ -42,12 +44,13 @@ class SHMEM:public CMS {
     int open();			/* get shared mem and sem */
     int close();		/* detach from shared mem and sem */
     key_t key;			/* key for shared mem and sem */
-    int second_read;		/* true only if the first read returned no
-				   new data */
+    key_t bsem_key;		// key for blocking semaphore
+    int second_read;		// true only if the first read returned no
+    // new data
     RCS_SHAREDMEM *shm;		/* shared memory */
     RCS_SEMAPHORE *sem;		/* semaphore */
-    int master;			/* Is this process responsible for clearing
-				   memory & semaphores? */
+    int master;			/* Is this process responsible for */
+    /* clearing memory & semaphores? */
     double sem_delay;		/* Time to wait between polling the
 				   semaphore. */
     struct mem_access_object mao;	/* passed to mem_get_access() */
@@ -65,6 +68,9 @@ class SHMEM:public CMS {
 
     SHMEM_MUTEX_TYPE mutex_type;
     void *shm_addr_offset;
+
+    RCS_SEMAPHORE *bsem;	// blocking semaphore
+    int autokey_table_size;
 
 };
 

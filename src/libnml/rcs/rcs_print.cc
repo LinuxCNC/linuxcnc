@@ -1,14 +1,20 @@
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
 #include <stdarg.h>		/* va_list, va_start(), va_end() */
-#include <stdio.h>		/* printf()'s */
+#include <stdio.h>		/* __printf()'s */
 #include <string.h>		/* strchr(), memmove() */
 #include <stdlib.h>		/* malloc(), free(), realloc() */
-#include <errno.h>		/* errno() */
+#include <errno.h>		// errno()
+
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
-#include <ctype.h>
+
+#ifdef __cplusplus
 }
+#endif
 #include "rcs_print.hh"
 #include "linklist.hh"
 #ifndef _TIMER_H
@@ -23,9 +29,7 @@ RCS_PRINT_DESTINATION_TYPE rcs_print_destination = RCS_PRINT_TO_STDOUT;
 int max_rcs_errors_to_print = 30;
 int rcs_errors_printed = 0;
 
-unsigned long rcs_print_mode_flags = PRINT_RCS_ERRORS;
-int rcs_debugging_enabled = 0;
-
+long rcs_print_mode_flags = PRINT_RCS_ERRORS;
 FILE *rcs_print_file_stream = NULL;
 char rcs_print_file_name[80] = "rcs_out.txt";
 
@@ -46,31 +50,240 @@ RCS_PRINT_DESTINATION_TYPE get_rcs_print_destination()
     return (rcs_print_destination);
 }
 
-void bad_char_to_print(char *ptr)
+char **get_rcs_lines_table()
 {
-    if (ptr) {
-	*ptr = '?';
+    return (rcs_lines_table);
+}
+
+LinkedList *get_rcs_print_list()
+{
+    return (rcs_print_list);
+}
+
+int get_rcs_print_list_size()
+{
+    if (NULL != rcs_print_list) {
+	return (rcs_print_list->list_size);
+    } else {
+	return (-1);
     }
+}
+void
+set_rcs_print_list_sizing(int _new_max_size,
+    LIST_SIZING_MODE _new_sizing_mode)
+{
+    if (NULL == rcs_print_list) {
+	rcs_print_list = new LinkedList;
+    }
+    if (NULL != rcs_print_list) {
+	rcs_print_list->set_list_sizing_mode(_new_max_size, _new_sizing_mode);
+    }
+}
+void set_rcs_print_notify(RCS_PRINT_NOTIFY_FUNC_PTR _rcs_print_notify)
+{
+    rcs_print_notify = _rcs_print_notify;
+}
+
+void clean_print_list()
+{
+    if (NULL != rcs_print_list) {
+	delete rcs_print_list;
+	rcs_print_list = NULL;
+    }
+}
+
+void output_print_list(int output_func(char *))
+{
+    if (NULL != rcs_print_list) {
+	char *string_from_list;
+	string_from_list = (char *) rcs_print_list->get_head();
+	while (NULL != string_from_list) {
+	    if (output_func(string_from_list) != EOF) {
+		break;
+	    }
+	    string_from_list = (char *) rcs_print_list->get_next();
+	}
+    }
+}
+
+int count_characters_in_print_list()
+{
+    int count = 0;
+    if (NULL != rcs_print_list) {
+	char *string_from_list;
+	string_from_list = (char *) rcs_print_list->get_head();
+	while (NULL != string_from_list) {
+	    count += strlen(string_from_list);
+	    string_from_list = (char *) rcs_print_list->get_next();
+	}
+    }
+    return (count);
+}
+
+int count_lines_in_print_list()
+{
+    int count = 1;
+    if (NULL != rcs_print_list) {
+	char *string_from_list;
+	string_from_list = (char *) rcs_print_list->get_head();
+	while (NULL != string_from_list) {
+	    char *line;
+	    line = strchr(string_from_list, '\n');
+	    while (NULL != line) {
+		count++;
+		line = strchr(line + 1, '\n');
+	    }
+	    string_from_list = (char *) rcs_print_list->get_next();
+	}
+    }
+    return (count);
+}
+
+void convert_print_list_to_lines()
+{
+    char *temp_buf = NULL;
+    static int last_id_converted = -1;
+    if (NULL != rcs_print_list) {
+	char *string_from_list;
+	if (-1 == last_id_converted) {
+	    string_from_list = (char *) rcs_print_list->get_head();
+	} else {
+	    string_from_list =
+		(char *) rcs_print_list->get_first_newer(last_id_converted);
+	}
+	while (NULL != string_from_list) {
+	    char *next_line;
+	    next_line = strchr(string_from_list, '\n');
+	    if (NULL == next_line) {
+		if (NULL == temp_buf) {
+		    temp_buf = (char *) malloc(strlen(string_from_list) + 1);
+		    strcpy(temp_buf, string_from_list);
+		} else {
+		    temp_buf = (char *) realloc(temp_buf, strlen(temp_buf)
+			+ strlen(string_from_list) + 1);
+		    strcat(temp_buf, string_from_list);
+		}
+		rcs_print_list->delete_current_node();
+	    } else {
+		if (temp_buf != NULL) {
+		    temp_buf = (char *) realloc(temp_buf, strlen(temp_buf)
+			+ strlen(string_from_list) + 1);
+		    strcat(temp_buf, string_from_list);
+		    rcs_print_list->delete_current_node();
+		    rcs_print_list->store_after_current_node(temp_buf,
+			strlen(temp_buf)
+			+ 1, 1);
+		    free(temp_buf);
+		    temp_buf = NULL;
+		} else if (next_line[1] != 0) {
+		    rcs_print_list->store_after_current_node(next_line + 1,
+			strlen(next_line + 1) + 1, 1);
+		    next_line[1] = 0;
+		}
+	    }
+	    string_from_list = (char *) rcs_print_list->get_next();
+	}
+    }
+    last_id_converted = rcs_print_list->get_newest_id();
+    if (temp_buf != NULL) {
+	rcs_print_list->store_at_tail(temp_buf, strlen(temp_buf) + 1, 1);
+	free(temp_buf);
+	temp_buf = NULL;
+    }
+}
+
+void update_lines_table()
+{
+    if (NULL != rcs_lines_table) {
+	free(rcs_lines_table);
+	rcs_lines_table = NULL;
+    }
+    if (NULL != rcs_print_list) {
+	convert_print_list_to_lines();
+	rcs_lines_table = (char **) malloc(sizeof(char *)
+	    * rcs_print_list->list_size);
+	if (NULL != rcs_print_list) {
+	    char *string_from_list;
+	    string_from_list = (char *) rcs_print_list->get_head();
+	    int i = 0;
+	    while (NULL != string_from_list) {
+		rcs_lines_table[i] = string_from_list;
+		i++;
+		string_from_list = (char *) rcs_print_list->get_next();
+	    }
+	}
+    }
+}
+
+char *strip_control_characters(char *_dest, char *_src)
+{
+    static char line_buffer[255];
+    char *destination;
+    char *control_char_loc;
+    if (NULL == _dest) {
+	destination = line_buffer;
+	if (strlen(_src) < 255) {
+	    strcpy(line_buffer, _src);
+	} else {
+	    if (NULL == strpbrk(_src, "\n\r\t\b")) {
+		return (_src);
+	    } else {
+		return (NULL);
+	    }
+	}
+    } else {
+	destination = _dest;
+	if (_dest != _src) {
+	    memmove(_dest, _src, strlen(_src));
+	}
+    }
+    control_char_loc = strpbrk(destination, "\n\r\t\b");
+    while (NULL != control_char_loc) {
+	*control_char_loc = ' ';	/* Replace control character with
+					   SPACE */
+	control_char_loc = strpbrk(control_char_loc, "\n\r\t\b");
+    }
+    return (destination);
+
+}
+
+/* In windows DLLs for Microsoft Visual C++ sscanf is not supported so
+use separate_words to parse the string followed by commands like strtod to
+convert each word. */
+int separate_words(char **_dest, int _max, char *_src)
+{
+    static char word_buffer[256];
+    int i;
+    if (NULL == _dest || NULL == _src) {
+	return -1;
+    }
+    if (strlen(_src) > 255) {
+	return -1;
+    }
+    strcpy(word_buffer, _src);
+    _dest[0] = strtok(word_buffer, " \n\r\t");
+    for (i = 0; NULL != _dest[i] && i < _max - 1; i++) {
+	_dest[i + 1] = strtok(NULL, " \n\r\t");
+    }
+    if (_dest[_max - 1] == NULL && i == _max - 1) {
+	i--;
+    }
+    return (i + 1);
 }
 
 int rcs_vprint(char *_fmt, va_list _args, int save_string)
 {
-    static char temp_string[4096];
-    char *ptr = 0;
-    char *endptr = 0;
+    static char temp_string[256];
 
     if (NULL == _fmt) {
 	return (EOF);
     }
-
-    /* Return EOF if we are likely overflow temp_string. */
-    if (strlen(_fmt) > sizeof(temp_string) / 2) {
+    if (strlen(_fmt) > 200) {	/* Might overflow temp_string. */
 	return (EOF);
     }
     if (EOF == (int) vsprintf(temp_string, _fmt, _args)) {
 	return (EOF);
     }
-
     if (save_string) {
 	if (!error_bufs_initialized) {
 	    memset(last_error_bufs[0], 0, 100);
@@ -83,17 +296,6 @@ int rcs_vprint(char *_fmt, va_list _args, int save_string)
 	last_error_buf_filled %= 4;
 	strncpy(last_error_bufs[last_error_buf_filled], temp_string, 99);
     }
-    ptr = temp_string;
-    endptr = temp_string + sizeof(temp_string);
-    while (*ptr && ptr < endptr) {
-	if (!isprint(*ptr)) {
-	    if (!isspace(*ptr)) {
-		bad_char_to_print(ptr);
-	    }
-	}
-	ptr++;
-    }
-    *ptr = 0;
     return (rcs_fputs(temp_string));
 }
 
@@ -120,11 +322,9 @@ int rcs_fputs(char *_str)
 	    return (0);
 	}
 	switch (rcs_print_destination) {
-
 	case RCS_PRINT_TO_LOGGER:
 
 	case RCS_PRINT_TO_STDOUT:
-
 	    retval = fputs(_str, stdout);
 	    fflush(stdout);
 	    break;
@@ -138,12 +338,13 @@ int rcs_fputs(char *_str)
 	    if (NULL == rcs_print_list) {
 		rcs_print_list = new LinkedList;
 		if (NULL != rcs_print_list) {
-		    rcs_print_list->setListSizingMode(256, DELETE_FROM_HEAD);
+		    rcs_print_list->set_list_sizing_mode(256,
+			DELETE_FROM_HEAD);
 		}
 	    }
 	    if (NULL != rcs_print_list) {
 		if (-1 ==
-		    rcs_print_list->storeAtTail(_str,
+		    rcs_print_list->store_at_tail(_str,
 			(retval = strlen(_str)) + 1, 1)) {
 		    retval = EOF;
 		}
@@ -176,9 +377,47 @@ int rcs_fputs(char *_str)
     return (retval);
 }
 
+void close_rcs_printing()
+{
+    switch (rcs_print_destination) {
+    case RCS_PRINT_TO_LIST:
+	clean_print_list();
+	break;
+
+    case RCS_PRINT_TO_FILE:
+	if (NULL != rcs_print_file_stream) {
+	    fclose(rcs_print_file_stream);
+	    rcs_print_file_stream = NULL;
+	}
+	break;
+    default:
+	break;
+    }
+    return;
+}
+
+int set_rcs_print_file(char *_file_name)
+{
+    if (_file_name == NULL) {
+	return -1;
+    }
+    if (strlen(_file_name) > 80) {
+	return -1;
+    }
+    strcpy(rcs_print_file_name, _file_name);
+    if (NULL != rcs_print_file_stream) {
+	fclose(rcs_print_file_stream);
+    }
+    rcs_print_file_stream = fopen(rcs_print_file_name, "a+");
+    if (NULL == rcs_print_file_stream) {
+	return -1;
+    }
+    return 0;
+}
+
 int rcs_print(char *_fmt, ...)
 {
-    static char temp_buffer[1024];
+    static char temp_buffer[256];
     int retval;
     va_list args;
     if (strlen(_fmt) > 250) {
@@ -190,10 +429,47 @@ int rcs_print(char *_fmt, ...)
     if (retval == (EOF)) {
 	return EOF;
     }
-    temp_buffer[(sizeof(temp_buffer) - 1)] = 0;
     retval = rcs_fputs(temp_buffer);
     return (retval);
 }
+
+#ifndef DO_NOT_USE_RCS_PRINT_ERROR_NEW
+static const char *rcs_error_filename = NULL;
+static int rcs_error_linenum = -1;
+int set_print_rcs_error_info(const char *file, int line)
+{
+    rcs_error_filename = file;
+    rcs_error_linenum = line;
+    return (0);
+}
+
+int print_rcs_error_new(char *_fmt, ...)
+{
+    int retval = 0;
+    va_list args;
+    va_start(args, _fmt);
+    if ((rcs_print_mode_flags & PRINT_RCS_ERRORS)
+	&& ((max_rcs_errors_to_print >= rcs_errors_printed)
+	    || max_rcs_errors_to_print < 0)) {
+	if (NULL != rcs_error_filename && rcs_error_linenum > 0) {
+	    rcs_print("%s %d: ", rcs_error_filename, rcs_error_linenum);
+	    rcs_error_filename = NULL;
+	    rcs_error_linenum = -1;
+	}
+	retval = rcs_vprint(_fmt, args, 1);
+	if (max_rcs_errors_to_print == rcs_errors_printed &&
+	    max_rcs_errors_to_print >= 0) {
+	    rcs_print("\nMaximum number of errors to print exceeded!\n");
+	}
+    }
+    if (rcs_print_destination != RCS_PRINT_TO_NULL) {
+	rcs_errors_printed++;
+    }
+    va_end(args);
+    return (retval);
+}
+
+#endif
 
 int rcs_print_debug(long flag_to_check, char *_fmt, ...)
 {
@@ -211,34 +487,14 @@ int rcs_print_debug(long flag_to_check, char *_fmt, ...)
     return (retval);
 }
 
-void set_rcs_print_flag(unsigned long flag_to_set)
+void set_rcs_print_flag(long flag_to_set)
 {
     rcs_print_mode_flags |= flag_to_set;
-    unsigned long debug_masked_flag_to_set = flag_to_set & ~(1);
-    if (0 != debug_masked_flag_to_set) {
-	rcs_debugging_enabled = 1;
-    }
 }
 
-int separate_words(char **_dest, int _max, char *_src)
+void clear_rcs_print_flag(long flag_to_clear)
 {
-    static char word_buffer[256];
-    int i;
-    if (NULL == _dest || NULL == _src) {
-	return -1;
-    }
-    if (strlen(_src) > 255) {
-	return -1;
-    }
-    strcpy(word_buffer, _src);
-    _dest[0] = strtok(word_buffer, " \n\r\t");
-    for (i = 0; NULL != _dest[i] && i < _max - 1; i++) {
-	_dest[i + 1] = strtok(NULL, " \n\r\t");
-    }
-    if (_dest[_max - 1] == NULL && i == _max - 1) {
-	i--;
-    }
-    return (i + 1);
+    rcs_print_mode_flags &= ~(flag_to_clear);
 }
 
 int rcs_print_sys_error(int error_source, char *_fmt, ...)
@@ -282,6 +538,9 @@ int rcs_print_sys_error(int error_source, char *_fmt, ...)
     return (strlen(temp_string));
 }
 
+#ifdef rcs_print_error
+#undef rcs_print_error
+#endif
 extern "C" int rcs_print_error(char *_fmt, ...);
 
 int rcs_print_error(char *_fmt, ...)

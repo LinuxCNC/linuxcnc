@@ -5,22 +5,11 @@
 
    Modification history:
 
-   11-Oct-2000 WPS added code to eliminate white space after the variable.
-   23-Sep-1999 WPS removed isspace which is not supported under CE.
-   16-Jun-1999  FMP fixed bug in which, for example, "I" matched "INPUT"
-   if "I" were not present but "INPUT" were
-   18-Dec-1997  FMP set up as C/C++ split for emcnml directory
-   7-Nov-1997  FMP fixed bug in afterequal so that it terminates at a 0
-   24-Apr-1997  FMP split into C and C++ sections; changed ini_find to
-   iniFind; put iniSection into C part
-   25-Jul-1996  FMP added find_section() and ::section()
-   11-Jul-1996  Fred Proctor made sure ini_find() returned NULL if a
-   section were provided and no match was detected when the section
-   was left; fixed bug which required the last line to have a newline
+  21-Jan-2004  P.C. Moved across from the original EMC source tree.
    */
+#include "inifile.h"
 
-#include "inifile.hh"
-#include <stdio.h>		/* FILE, fopen(), fclose(), NULL */
+#include <stdio.h>		/* FILE *, fopen(), fclose(), NULL */
 #include <string.h>		/* strlen(), etc. */
 #include <ctype.h>		/* isspace() */
 
@@ -66,7 +55,7 @@ static char *skipwhite(char *string)
 	    return NULL;
 	}
 
-	if ((*string == ';') || (*string == '#')) {
+	if (*string == COMMENT_CHAR) {
 	    return NULL;
 	}
 
@@ -106,7 +95,8 @@ static int findSection(void *fp, const char *section)
     sprintf(bracketsection, "[%s]", section);
 
     /* find [section], and position fp just after it */
-    while (!feof((FILE *) fp)) {
+    while (!feof((FILE *) fp))
+    {
 
 	if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
 	    /* got to end of file without finding it */
@@ -174,7 +164,8 @@ const char *iniFind(void *fp, const char *tag, const char *section)
 
 	/* find [section], and position fp just after it */
 
-	while (!feof((FILE *) fp)) {
+	while (!feof((FILE *) fp))
+	{
 
 	    if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
 		/* got to end of file without finding it */
@@ -207,14 +198,16 @@ const char *iniFind(void *fp, const char *tag, const char *section)
 	    break;
 	}
     }
-
-    while (!feof((FILE *) fp)) {
+    while (!feof((FILE *) fp))
+    {
 	/* check for end of file */
 	if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
 	    /* got to end of file without finding it */
 	    return NULL;
 	}
+
 	/* got a line */
+
 	/* strip off newline */
 	newlinepos = strlen(line) - 1;	/* newline is on back from 0 */
 	if (newlinepos < 0) {
@@ -271,10 +264,11 @@ const char *iniFind(void *fp, const char *tag, const char *section)
 	}
 	/* else continue */
     }
+
     return NULL;
 }
 
-/*!
+/*
    given 'section' and array of strings, fills strings with what was
    found in the section, one line per string. Comments and blank lines
    are omitted. 'array' is assumed to be allocated, of 'max' entries
@@ -303,11 +297,14 @@ int iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
     }
 
     /* found section-- start loading lines */
-    while (!feof((FILE *) fp) && count < max) {
+
+    while (!feof((FILE *) fp) &&
+	count < max) {
 	if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
 	    /* got to end of file without finding it */
 	    return count;
 	}
+
 	/* got a line-- check for blank */
 	if (NULL == (nonwhite = skipwhite(line))) {
 	    continue;
@@ -317,6 +314,7 @@ int iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
 	if ('[' == *nonwhite) {
 	    return count;
 	}
+
 	/* strip off newline */
 	newlinepos = strlen(line) - 1;	/* newline is one back from 0 */
 	if (newlinepos < 0) {
@@ -325,11 +323,14 @@ int iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
 	if (line[newlinepos] == '\n') {
 	    line[newlinepos] = 0;	/* make the newline 0 */
 	}
+
 	/* it's a valid line-- copy into entry struct */
+
 	/* read first tag */
 	sscanf(line, "%s", array[count].tag);
 
 	/* copy everything after equal to the rest */
+
 	entry = afterequal(line);
 	if (NULL != entry) {
 	    strcpy(array[count].rest, afterequal(line));
@@ -338,6 +339,7 @@ int iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
 	}
 	count++;
     }
+
     /* got to end of file */
     return count;
 }

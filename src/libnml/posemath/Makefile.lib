@@ -1,0 +1,8 @@
+LIB_OBJS := $(LIB_OBJS) \
+	_mathprnt.o \
+	_posemath.o \
+	mathprnt.o \
+	posemath.o \
+	sincos.o
+
+

@@ -9,30 +9,55 @@
 
 /* Include Files */
 
-int verbose_nml_error_messages = 1;
 
+extern int verbose_nml_error_messages;
+
+#ifdef __cplusplus
 extern "C" {
+#endif
 
-#include <stdio.h>		/* sscanf(), NULL, FILE, fopen(), fgets() */
-#include <string.h>		/* strcpy(), strlen(),memcpy(),
+#include <stdio.h>		/* sscanf(), NULL FILE, fopen(), fgets() */
+#include <unistd.h>		/* gethostname() */
+#include <string.h>		/* strcpy(), strlen(),memcpy()
 				   strcmp(),strchr() */
 #include <errno.h>		/* errno */
 #include <ctype.h>		/* toupper(), tolower() */
+#include <netdb.h>
+#include <arpa/inet.h>		/* inet_ntoa */
 
+#ifdef __cplusplus
 }
+#endif
 #include "cms.hh"		/* class CMS */
 #include "cms_cfg.hh"
-//#include "tcpmem.hh"          /* class TCPMEM *///#include "udpmem.hh"          /* class UDPMEM */
+
+ /* TCP stands for "Transmission Control Protocol". This is the recommended
+    method for remote connection, for most applications. It is more reliable
+    and can handle larger messages than UDP and is more widely available than 
+    RPC. */
+#include "tcpmem.hh"		/* class TCPMEM */
+ /* If the buffer type or process type specified in the configuration file is 
+    "PHANTOM" then every NML call of that type will result in calling your
+    phantom function. */
 #include "phantom.hh"		/* class PHANTOMMEM */
+ /* LOCMEM is useful when many modules are linked together in one thread of
+    execution but you want to write them such that each module uses the NML
+    API just as it would if it needed to communicate with the other modules
+    running separately. There is no need for any mutual exclusion mechanism
+    and memory is obtained with a simple malloc so the operating system will
+    not exceed its limits for semaphores or shared memory segments. */
 #include "locmem.hh"		/* class LOCMEM */
+ /* SHMEM is intended for communications between tasks managed by the same
+    operating system. The operating system allocates the memory to be shared
+    so users do not need to specify one. Users have a choice of mutual
+    exclusion techniques with include something similar to GLOBMEM's method,
+    using an operating system semaphore or mutex, or disabling and enabling
+    context switching or interrupts during the appropriate critical sections. 
+  */
 #include "shmem.hh"		/* class SHMEM */
-//#include "ttymem.hh"
-#ifdef USE_RTLMEM
-#include "rtlmem.hh"		/* class RTLMEM */
-#endif
 #include "rcs_print.hh"		/* rcs_print_error() */
 #include "linklist.hh"		/* LinkedList */
-#include <unistd.h>		/* gethostname() */
+
 struct CONFIG_FILE_INFO {
     CONFIG_FILE_INFO() {
 	lines_list = NULL;
@@ -109,14 +134,14 @@ int load_nml_config_file(const char *file)
 	if (line[0] == '#') {
 	    continue;
 	}
-	info->lines_list->storeAtTail(line, linelen + 1, 1);
+	info->lines_list->store_at_tail(line, linelen + 1, 1);
     }
 
     if (NULL != fp) {
 	fclose(fp);
 	fp = NULL;
     }
-    config_file_list->storeAtTail(info, sizeof(info), 0);
+    config_file_list->store_at_tail(info, sizeof(info), 0);
     loading_config_file = 0;
     return 0;
 }
@@ -132,14 +157,15 @@ int unload_nml_config_file(const char *file)
     if (NULL == config_file_list) {
 	return -1;
     }
-    CONFIG_FILE_INFO *info = (CONFIG_FILE_INFO *) config_file_list->getHead();
+    CONFIG_FILE_INFO *info =
+	(CONFIG_FILE_INFO *) config_file_list->get_head();
     while (NULL != info) {
 	if (!strncmp(info->file_name, file, 80)) {
-	    config_file_list->deleteCurrentNode();
+	    config_file_list->delete_current_node();
 	    delete info;
 	    return 0;
 	}
-	info = (CONFIG_FILE_INFO *) config_file_list->getNext();
+	info = (CONFIG_FILE_INFO *) config_file_list->get_next();
     }
     return -1;
 }
@@ -152,12 +178,13 @@ CONFIG_FILE_INFO *get_loaded_nml_config_file(const char *file)
     if (NULL == config_file_list) {
 	return NULL;
     }
-    CONFIG_FILE_INFO *info = (CONFIG_FILE_INFO *) config_file_list->getHead();
+    CONFIG_FILE_INFO *info =
+	(CONFIG_FILE_INFO *) config_file_list->get_head();
     while (NULL != info) {
 	if (!strncmp(info->file_name, file, 80)) {
 	    return info;
 	}
-	info = (CONFIG_FILE_INFO *) config_file_list->getNext();
+	info = (CONFIG_FILE_INFO *) config_file_list->get_next();
     }
     return NULL;
 }
@@ -172,7 +199,7 @@ int print_loaded_nml_config_file(const char *file)
     if (NULL == info->lines_list) {
 	return -1;
     }
-    char *line = (char *) info->lines_list->getHead();
+    char *line = (char *) info->lines_list->get_head();
     while (NULL != line) {
 	rcs_print("%s", line);
 	int linelen = strlen(line);
@@ -182,7 +209,7 @@ int print_loaded_nml_config_file(const char *file)
 		rcs_print("\n");
 	    }
 	}
-	line = (char *) info->lines_list->getNext();
+	line = (char *) info->lines_list->get_next();
     }
     rcs_print("\n");
     return 0;
@@ -199,15 +226,16 @@ int print_loaded_nml_config_file_list()
 	rcs_print("No Configuration files loaded.\n");
 	return 0;
     }
-    CONFIG_FILE_INFO *info = (CONFIG_FILE_INFO *) config_file_list->getHead();
+    CONFIG_FILE_INFO *info =
+	(CONFIG_FILE_INFO *) config_file_list->get_head();
     while (NULL != info) {
 	if (NULL != info->lines_list) {
 	    rcs_print("%s \t- - \t%d lines\n", info->file_name,
-		info->lines_list->listSize);
+		info->lines_list->list_size);
 	} else {
 	    rcs_print("%s \t-1 lines", info->file_name);
 	}
-	info = (CONFIG_FILE_INFO *) config_file_list->getNext();
+	info = (CONFIG_FILE_INFO *) config_file_list->get_next();
     }
     return 0;
 }
@@ -220,13 +248,14 @@ int unload_all_nml_config_file()
     if (NULL == config_file_list) {
 	return -1;
     }
-    CONFIG_FILE_INFO *info = (CONFIG_FILE_INFO *) config_file_list->getHead();
+    CONFIG_FILE_INFO *info =
+	(CONFIG_FILE_INFO *) config_file_list->get_head();
     while (NULL != info) {
-	config_file_list->deleteCurrentNode();
+	config_file_list->delete_current_node();
 	delete info;
-	info = (CONFIG_FILE_INFO *) config_file_list->getNext();
+	info = (CONFIG_FILE_INFO *) config_file_list->get_next();
     }
-    if (config_file_list->listSize <= 0) {
+    if (config_file_list->list_size <= 0) {
 	delete config_file_list;
 	config_file_list = NULL;
     }
@@ -274,7 +303,7 @@ extern char *get_buffer_line(const char *bufname, const char *filename)
     CONFIG_FILE_INFO *info = get_loaded_nml_config_file(filename);
     if (NULL != info) {
 	lines_list = info->lines_list;
-	line = (char *) lines_list->getHead();
+	line = (char *) lines_list->get_head();
     }
 
     if (NULL == lines_list) {
@@ -287,15 +316,15 @@ extern char *get_buffer_line(const char *bufname, const char *filename)
 	}
     }
 
-    /* Read the configuration file line by line until the lines matching
-       bufname and procname are found.  */
+    /* Read the configuration file line by line until the lines matching */
+    /* bufname and procname are found.  */
     line_number = 0;
     int first_line = 1;
 
     while (1) {
 	if (NULL != lines_list) {
 	    if (!first_line) {
-		line = (char *) lines_list->getNext();
+		line = (char *) lines_list->get_next();
 	    }
 	    first_line = 0;
 	    if (NULL == line) {
@@ -471,7 +500,6 @@ int cms_config(CMS ** cms, char *bufname, char *procname, char *filename,
 
 int hostname_matches_bufferline(char *bufline)
 {
-#if 0
     char my_hostname[256];
     struct hostent *my_hostent_ptr = 0;
     struct hostent *buffer_hostent_ptr = 0;
@@ -499,16 +527,16 @@ int hostname_matches_bufferline(char *bufline)
     if (!strncmp(buffer_host, "localhost", 9)) {
 	return 1;
     }
-    dl_gethostname(my_hostname, 256);
+    gethostname(my_hostname, 256);
     if (!strcmp(buffer_host, my_hostname)) {
 	return 1;
     }
-    dl_gethostbyname(my_hostname, &my_hostent_ptr);
+    my_hostent_ptr = gethostbyname(my_hostname);
     if (0 == my_hostent_ptr) {
 	return 0;
     }
     myaddress.s_addr = *((int *) my_hostent_ptr->h_addr_list[0]);
-    if (!strcmp(buffer_host, dl_inet_ntoa(myaddress))) {
+    if (!strcmp(buffer_host, inet_ntoa(myaddress))) {
 	return 1;
     }
     if (my_hostent_ptr->h_length < 1 || my_hostent_ptr->h_length > 16) {
@@ -527,7 +555,7 @@ int hostname_matches_bufferline(char *bufline)
     if (num_my_hostent_addresses < 1) {
 	return 0;
     }
-    dl_gethostbyname(buffer_host, &buffer_hostent_ptr);
+    buffer_hostent_ptr = gethostbyname(buffer_host);
     if (0 == buffer_hostent_ptr) {
 	return 0;
     }
@@ -549,7 +577,7 @@ int hostname_matches_bufferline(char *bufline)
 	}
 	j++;
     }
-#endif
+
     return 0;
 }
 
@@ -574,7 +602,7 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
     CONFIG_FILE_INFO *info = get_loaded_nml_config_file(s->filename);
     if (NULL != info) {
 	lines_list = info->lines_list;
-	line = (char *) lines_list->getHead();
+	line = (char *) lines_list->get_head();
     }
 
     if (NULL == lines_list) {
@@ -595,7 +623,7 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
     while (1) {
 	if (NULL != lines_list) {
 	    if (!first_line) {
-		line = (char *) lines_list->getNext();
+		line = (char *) lines_list->get_next();
 	    }
 	    first_line = 0;
 	    if (NULL == line) {
@@ -722,7 +750,8 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
     return;
 }
 
-int cms_create_from_lines(CMS ** cms, char *buffer_line, char *proc_line,
+int
+cms_create_from_lines(CMS ** cms, char *buffer_line, char *proc_line,
     int set_to_server, int set_to_master)
 {
     char proc_type[CMS_CONFIG_LINELEN];
@@ -774,8 +803,8 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 	}
     }
     if (!strcmp(proc_type, "REMOTE")) {
-#if 0
 	if (NULL != strstr(proc_line, "serialPortDevName=")) {
+#if 0
 	    *cms = new TTYMEM(buffer_line, proc_line);
 	    rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%X = new TTYMEM(%s,%s)\n",
 		*cms, buffer_line, proc_line);
@@ -794,6 +823,31 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 		}
 		return (-1);
 	    }
+#else
+	    rcs_print_error("TTYMEM not supported on this platform.\n");
+	    return (-1);
+#endif
+	} else if (NULL != strstr(buffer_line, "STCP=")) {
+#if 0
+	    *cms = new STCPMEM(buffer_line, proc_line);
+	    rcs_print_debug(PRINT_CMS_CONFIG_INFO,
+		"%X = new STCPMEM(%s,%s)\n", *cms, buffer_line, proc_line);
+	    if (NULL == *cms) {
+		if (verbose_nml_error_messages) {
+		    rcs_print_error
+			("cms_config: Can't create new STPCMEM object.\n");
+		}
+		return (-1);
+	    } else if ((*cms)->status < 0) {
+		if (verbose_nml_error_messages) {
+		    rcs_print_error
+			("cms_config: Error  %d(%s) occured during STPCMEM create.\n",
+			(*cms)->status,
+			(*cms)->status_string((*cms)->status));
+		}
+		return (-1);
+	    }
+#endif
 	} else if (NULL != strstr(buffer_line, "TCP=")) {
 	    *cms = new TCPMEM(buffer_line, proc_line);
 	    rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%X = new TCPMEM(%s,%s)\n",
@@ -814,31 +868,14 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 		return (-1);
 	    }
 	} else if (NULL != strstr(buffer_line, "UDP=")) {
-	    *cms = new UDPMEM(buffer_line, proc_line);
-	    rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%X = new UDPMEM(%s,%s)\n",
-		*cms, buffer_line, proc_line);
-	    if (NULL == *cms) {
-		if (verbose_nml_error_messages) {
-		    rcs_print_error
-			("cms_config: Can't create new UDPMEM object.\n");
-		}
-		return (-1);
-	    } else if ((*cms)->status < 0) {
-		if (verbose_nml_error_messages) {
-		    rcs_print_error
-			("cms_config: Error %d(%s) occured during UDPMEM create.\n",
-			(*cms)->status,
-			(*cms)->status_string((*cms)->status));
-		}
-		return (-1);
-	    }
-	    return (0);
+	    rcs_print_error("UPDMEM not supported.\n");
+	    return (-1);
 	} else {
 	    rcs_print_error("No remote connection configured.\n");
 	    return (-1);
 	}
-#endif
     } else if (!strcmp(proc_type, "LOCAL")) {
+
 	if (!strcmp(buffer_type, "SHMEM")) {
 	    *cms = new SHMEM(buffer_line, proc_line, set_to_server,
 		set_to_master);
@@ -863,32 +900,12 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 		return (0);
 	    }
 	}
-#ifdef USE_RTLMEM
+
 	if (!strcmp(buffer_type, "RTLMEM")) {
-	    *cms = new RTLMEM(buffer_line, proc_line, set_to_server,
-		set_to_master);
-	    rcs_print_debug(PRINT_CMS_CONFIG_INFO,
-		"%X = new RTLMEM(%s,%s,%d,%d)\n", *cms,
-		buffer_line, proc_line, set_to_server, set_to_master);
-	    if (NULL == *cms) {
-		if (verbose_nml_error_messages) {
-		    rcs_print_error
-			("cms_config: Can't create new RTLMEM object.\n");
-		}
-		return (-1);
-	    } else if ((*cms)->status < 0) {
-		if (verbose_nml_error_messages) {
-		    rcs_print_error
-			("cms_config: %d(%s) Error occured during RTLMEM create.\n",
-			(*cms)->status,
-			(*cms)->status_string((*cms)->status));
-		}
-		return (-1);
-	    } else {
-		return (0);
-	    }
+	    rcs_print_error("RTLMEM not supported.\n");
+	    return (-1);
 	}
-#endif
+
 	if (!strcmp(buffer_type, "LOCMEM")) {
 	    *cms =
 		new LOCMEM(buffer_line, proc_line, set_to_server,
@@ -914,6 +931,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 	    }
 	    return (0);
 	}
+
 	rcs_print_error("cms_config: invalid buffer_type (%s)\n",
 	    buffer_type);
 	rcs_print_error("cms_config: buffer_line = (%s)\n", buffer_line);

@@ -1,7 +1,4 @@
-# Makefile for the NODE modules of the
-# RCS Library
 
-# LIB_OBJS
 LIB_OBJS =
 include Makefile.lib
 # make rules.
@@ -15,6 +12,7 @@ HEADERS = cmd_msg.hh \
 	nml_srv.hh \
 	nmldiag.hh \
 	nmlmsg.hh \
+	nmlqr.hh \
 	stat_msg.hh \
 
 SRCS =	cmd_msg.cc \
@@ -24,6 +22,7 @@ SRCS =	cmd_msg.cc \
 	nml_srv.cc \
 	nmldiag.cc \
 	nmlmsg.cc \
+	nmlqr.cc \
 	stat_msg.cc \
 
 OBJS := $(LIB_OBJS)

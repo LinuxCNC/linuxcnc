@@ -10,8 +10,8 @@ running in the same process even though to use LOCMEM they must be.
 #ifndef LOCMEM_HH
 #define LOCMEM_HH
 
-#include "cms.hh"		/* class CMS */
-#include "linklist.hh"		/* class LinkedList */
+#include "cms.hh"		// class CMS
+#include "linklist.hh"		// class LinkedList
 
 struct BUFFERS_LIST_NODE {
     void *addr;

@@ -10,14 +10,20 @@
 #ifndef NML_SERVER_HH
 #define NML_SERVER_HH
 
+
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 #include <sys/types.h>
 #include <unistd.h>		/* pid_t */
+
+#ifdef __cplusplus
 }
+#endif
 #include "cms_srv.hh"		/* class CMS_SERVER */
 #include "nml.hh"		/* class NML */
-#include "rem_msg.hh"
+#include "rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 class NML_SERVER_LOCAL_PORT:public CMS_SERVER_LOCAL_PORT {
   protected:
     NML * nml;
@@ -71,7 +77,6 @@ extern NML_SUPER_SERVER *NML_Default_Super_Server;
 extern void run_nml_servers();
 extern void spawn_nml_servers();
 extern void kill_nml_servers();
-
 extern "C" {
     extern void nml_server_cleanup();
 }

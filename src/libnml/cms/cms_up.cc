@@ -13,12 +13,15 @@
 #include "cms_up.hh"		/* class CMS_UPDATER */
 #include "rcs_print.hh"		/* rcs_print_error() */
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 #include <stdlib.h>		// malloc(), free()
 #include <string.h>		// memset()
+#ifdef __cplusplus
 }
-/* Member functions for CMS_UPDATER */
-    CMS_UPDATER::CMS_UPDATER(CMS * _cms_parent, int create_encoded_data,
+#endif
+CMS_UPDATER::CMS_UPDATER(CMS * _cms_parent, int create_encoded_data,
     long _neutral_size_factor):
   /**********************************************
   * Aliases to variables in the CMS parent

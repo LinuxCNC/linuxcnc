@@ -14,7 +14,6 @@
 /* Includes */
 extern "C" {
 #include <stdlib.h>		/* malloc(), free() */
-
 };
 
 #include "cms.hh"		/* class CMS */
@@ -53,8 +52,8 @@ CMS_XDR_UPDATER::CMS_XDR_UPDATER(CMS * _cms_parent):CMS_UPDATER(_cms_parent,
     /* - XDR streams. */
     /* (Also initialize the XDR streams.) */
 
-    /* Allocate the encoded header too large, and find out what size it
-       really is. */
+    /* Allocate the encoded header too large, */
+    /* and find out what size it really is. */
     encoded_header = malloc(neutral_size_factor * sizeof(CMS_HEADER));
     if (encoded_header == NULL) {
 	rcs_print_error("CMS:can't malloc encoded_header");
@@ -80,11 +79,11 @@ CMS_XDR_UPDATER::CMS_XDR_UPDATER(CMS * _cms_parent):CMS_UPDATER(_cms_parent,
     xdrmem_create((XDR *) decode_header_stream, (char *) encoded_header,
 	(int) neutral_size_factor * sizeof(CMS_HEADER), XDR_DECODE);
 
-    /* If queuing is enabled, then initialize streams for encoding and
-       decoding the header with the queue information. */
+    /* If queuing is enabled, then initialize streams for */
+    /* encoding and decoding the header with the queue information. */
     if (cms_parent->queuing_enabled) {
-	/* Allocate the encoded header too large, and find out what size it
-	   really is. */
+	/* Allocate the encoded header too large, */
+	/* and find out what size it really is. */
 	encoded_queuing_header =
 	    malloc(neutral_size_factor * sizeof(CMS_QUEUING_HEADER));
 	if (encoded_queuing_header == NULL) {

@@ -25,4 +25,9 @@ struct mem_access_object {
     RCS_SEMAPHORE *sem;
 };
 
+extern int mem_get_access(struct mem_access_object *mo);
+
+/* Give up the mutual exclusion semaphore. */
+extern int mem_release_access(struct mem_access_object *mo);
+
 #endif

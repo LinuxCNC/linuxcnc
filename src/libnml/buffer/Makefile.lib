@@ -3,7 +3,10 @@ CMS_OBJS := \
 	memsem.o \
 	phantom.o \
 	physmem.o \
+	recvn.o \
+	sendn.o \
 	shmem.o \
+	tcpmem.o \
 
 LIB_OBJS := $(LIB_OBJS) \
 	$(CMS_OBJS)

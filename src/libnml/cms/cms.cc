@@ -12,32 +12,54 @@
 /* SCCS identification. (Used by what. See UNIX man pages section 1.) */
 
 /* Include Files */
-#include "rcsversion.h"		/* lib version */
 
+#include "rcsversion.h"
+
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 #include <stdlib.h>		/* malloc(), free() */
 #include <stddef.h>		/* size_t */
-
-#include <string.h>		/* strcpy(), strlen(), memcpy(),
-				   strcmp(),strchr() */
-#include <ctype.h>		/* tolower(), toupper() */
+#include <string.h>		/* strcpy(), strlen(),memcpy() */
+    /* strcmp(),strchr() */
+#include <ctype.h>		// tolower(), toupper()
 #include <errno.h>		/* errno, ERANGE */
 
+#ifdef __cplusplus
 }
+#endif
 #include "cms.hh"		/* class CMS */
 #include "cms_up.hh"		/* class CMS_UPDATER */
 #include "cms_xup.hh"		/* class CMS_XDR_UPDATER */
 #include "cms_aup.hh"		/* class CMS_ASCII_UPDATER */
 #include "cms_dup.hh"		/* class CMS_DISPLAY_ASCII_UPDATER */
-#include "rcs_print.hh"		/* rcs_print_error(), separate_words(),
-				   rcs_print_debug() */
+#include "rcs_print.hh"		/* rcs_print_error(), separate_words() */
+				/* rcs_print_debug() */
 #include "cmsdiag.hh"
 LinkedList *cmsHostAliases = NULL;
 CMS_CONNECTION_MODE cms_connection_mode = CMS_NORMAL_CONNECTION_MODE;
 
 /* Static Class Data Members. */
-int cms_encoded_data_explosion_factor = 4;
+int
+  CMS::number_of_cms_objects = 0;
+int
+  cms_encoded_data_explosion_factor = 4;
+
+#if 0
+static int convert2lower(char *dest, char *src, int len)
+{
+    int i;
+    for (i = 0; i < len; i++) {
+	if (src[i] == 0) {
+	    dest[i] = 0;
+	    return i;
+	}
+	dest[i] = tolower(src[i]);
+    }
+    return i;
+}
+#endif
 
 static int convert2upper(char *dest, char *src, int len)
 {
@@ -54,7 +76,7 @@ static int convert2upper(char *dest, char *src, int len)
 
 /* Class CMS Member Functions */
 
-void *CMS::operator                        new(size_t size)
+void *CMS::operator                          new(size_t size)
 {
     if (size < sizeof(CMS)) {
 	rcs_print_error
@@ -72,7 +94,7 @@ void *CMS::operator                        new(size_t size)
     return space;
 }
 
-void CMS::operator                        delete(void *space)
+void CMS::operator                          delete(void *space)
 {
     rcs_print_debug(PRINT_CMS_DESTRUCTORS, " CMS::delete(%X)\n", space);
     free(space);
@@ -139,12 +161,13 @@ CMS::CMS(long s)
     last_id_side0 = 0;
     last_id_side1 = 0;
     handle_to_global_data = NULL;
-    dummy_handle = (PHYSMEM_HANDLE *) NULL;	/* Set pointers to NULL so
-						   we'll know whether it
-						   really points to something 
-						 */
-    delete_totally = 0;		/* If this object is deleted only do normal
-				   delete instead of deleting totally. */
+    dummy_handle = (PHYSMEM_HANDLE *) NULL;	/* Set pointers to NULL */
+    /* so we'll know whether it really */
+    /* points to something */
+
+    delete_totally = 0;		/* If this object is deleted only do */
+    /* normal delete instead of deleting totally. */
+
     mode = CMS_NOT_A_MODE;	/* Force user to set the mode before using. */
 
     open();			/* Allocate memory and intialize XDR streams */
@@ -197,6 +220,7 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     di = NULL;
     disable_diag_store = 0;
     diag_offset = 0;
+    use_autokey_for_connection_number = 0;
 
     if ((NULL == bufline) || (NULL == procline)) {
 	rcs_print_error("CMS: Pointer to bufline or procline is NULL.\n");
@@ -258,8 +282,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     strcpy(BufferName, word[1]);
     rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "new CMS (%s)\n", BufferName);
 
-    /* Clear errno so we can determine if all of the parameters in the buffer 
-       line were in an acceptable form. */
+    /* Clear errno so we can determine if all of the parameters in the */
+    /* buffer line were in an acceptable form. */
     if (errno == ERANGE) {
 	errno = 0;
     }
@@ -273,11 +297,11 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     buffer_type_name = word[2];
 
     /* strtol should allow us to use the C syntax for specifying the radix of 
-       the numbers in the configuration file. (i.e. 0x???? for hexadecimal,
+       the numbers in the configuration file. (i.e. 0x???? for hexidecimal,
        0??? for octal and ???? for decimal.) */
     size = (long) strtol(word[4], (char **) NULL, 0);
     neutral = (int) strtol(word[5], (char **) NULL, 0);
-    rpc_program_number = strtol(word[6], (char **) NULL, 0);	/* Delete Me */
+    rpc_program_number = strtol(word[6], (char **) NULL, 0);
     buffer_number = strtol(word[7], (char **) NULL, 0);
     total_connections = strtol(word[8], (char **) NULL, 0);
     free_space = size;
@@ -289,6 +313,7 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	status = CMS_CONFIG_ERROR;
 	return;
     }
+
     /* Determine the BufferType. */
     if (!strcmp(buffer_type_name, "SHMEM")) {
 	BufferType = CMS_SHMEM_TYPE;
@@ -297,8 +322,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	is_phantom = 1;
     } else if (!strcmp(buffer_type_name, "LOCMEM")) {
 	BufferType = CMS_LOCMEM_TYPE;
-    } else if (!strcmp(buffer_type_name, "RTLMEM")) {
-	BufferType = CMS_RTLMEM_TYPE;
+    } else if (!strcmp(buffer_type_name, "FILEMEM")) {
+	BufferType = CMS_FILEMEM_TYPE;
     } else {
 	rcs_print_error("CMS: invalid buffer type (%s)\n", buffer_type_name);
 	status = CMS_CONFIG_ERROR;
@@ -345,7 +370,12 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	}
 
 	char *port_string;
-	if (NULL != (port_string = strstr(word[i], "TCP="))) {
+	if (NULL != (port_string = strstr(word[i], "STCP="))) {
+	    remote_port_type = CMS_STCP_REMOTE_PORT_TYPE;
+	    stcp_port_number =
+		(int) strtol(port_string + 5, (char **) NULL, 0);
+	    continue;
+	} else if (NULL != (port_string = strstr(word[i], "TCP="))) {
 	    remote_port_type = CMS_TCP_REMOTE_PORT_TYPE;
 	    tcp_port_number =
 		(int) strtol(port_string + 4, (char **) NULL, 0);
@@ -356,14 +386,14 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 		(int) strtol(port_string + 4, (char **) NULL, 0);
 	    continue;
 	}
-/* Don't care about the version either..*/
+
 	char *version_string;
 	if (NULL != (version_string = strstr(word[i], "VERSION="))) {
 	    min_compatible_version =
 		strtod(version_string + 8, (char **) NULL);
 	    continue;
 	}
-/* We dont do SUBDIV */
+
 	char *subdiv_string;
 	if (NULL != (subdiv_string = strstr(word[i], "SUBDIV="))) {
 	    total_subdivisions = strtol(subdiv_string + 7, (char **) NULL, 0);
@@ -386,15 +416,29 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	    force_raw = 1;
 	    continue;
 	}
+	if (!strcmp(word[i], "AUTOCNUM")) {
+	    use_autokey_for_connection_number = 1;
+	    continue;
+	}
     }
 
     /* Get parameters from the process's line in the config file. */
-    if (separate_words(word, 10, procline) != 10) {
-	rcs_print_error
-	    ("CMS: Error parsing process line from config file.\n");
-	rcs_print_error("%s\n", procline);
-	status = CMS_CONFIG_ERROR;
-	return;
+    if (use_autokey_for_connection_number) {
+	if (separate_words(word, 9, procline) != 9) {
+	    rcs_print_error
+		("CMS: Error parsing process line from config file.\n");
+	    rcs_print_error("%s\n", procline);
+	    status = CMS_CONFIG_ERROR;
+	    return;
+	}
+    } else {
+	if (separate_words(word, 10, procline) != 10) {
+	    rcs_print_error
+		("CMS: Error parsing process line from config file.\n");
+	    rcs_print_error("%s\n", procline);
+	    status = CMS_CONFIG_ERROR;
+	    return;
+	}
     }
     /* Clear errno so we can determine if all of the parameters in the */
     /* buffer line were in an acceptable form. */
@@ -424,16 +468,18 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 
     is_local_master = (int) atol(word[8]);
 
-    connection_number = atol(word[9]);
+    if (!use_autokey_for_connection_number) {
 
-    if (total_connections <= connection_number) {
-	rcs_print_error
-	    ("CMS: connection number(%d) must be less than total connections (%d).\n",
-	    connection_number, total_connections);
-	status = CMS_CONFIG_ERROR;
-	return;
+	connection_number = atol(word[9]);
+
+	if (total_connections <= connection_number) {
+	    rcs_print_error
+		("CMS: connection number(%d) must be less than total connections (%d).\n",
+		connection_number, total_connections);
+	    status = CMS_CONFIG_ERROR;
+	    return;
+	}
     }
-
     /* Check errno to see if all of the strtol's were sucessful. */
     if (ERANGE == errno) {
 	rcs_print_error("CMS: Error in proc line from config file.\n");
@@ -527,6 +573,7 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     }
 
     if (min_compatible_version <= 3.71 && min_compatible_version >= 1e-6) {
+rcs_print("NO DIAGNOSTICS\n");
 	enable_diagnostics = 0;
     }
 
@@ -538,7 +585,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 
 /* Function for allocating memory and initializing XDR streams, which */
 /*    is called from both CMS constructors.                           */
-void CMS::open(void)
+void
+  CMS::open(void)
 {
     int encode_header_ret;
     int encode_queuing_header_ret;
@@ -574,6 +622,7 @@ void CMS::open(void)
     header.in_buffer_size = 0;
     sizeof_message_header = 0;
 
+    number_of_cms_objects++;	/* Increment the static variable.  */
     /* Save some memory and time if this is a PHANTOMMEM object. */
     if (!is_phantom) {
 	/* Allocate memory for the local copy of global buffer. */
@@ -657,7 +706,7 @@ void CMS::open(void)
 	nfactor = updater->neutral_size_factor;
     }
 
-    /* Set some variables to let the user know how much space is left. */
+    /* Set some varaibles to let the user know how much space is left. */
     size_without_diagnostics = size;
     diag_offset = 0;
     if (enable_diagnostics) {
@@ -805,6 +854,7 @@ CMS::~CMS()
 	    encoded_data = NULL;
 	}
     }
+    number_of_cms_objects--;
 
     if (NULL != dummy_handle) {
 	delete dummy_handle;
@@ -1532,7 +1582,8 @@ CMS::CMS(CMS & cms)
 {
 }
 
-int CMS::get_msg_count()
+int
+  CMS::get_msg_count()
 {
     internal_access_type = CMS_GET_MSG_COUNT_ACCESS;
     status = CMS_STATUS_NOT_SET;
@@ -1550,11 +1601,12 @@ char *cms_check_for_host_alias(char *in)
 	return NULL;
     }
     CMS_HOST_ALIAS_ENTRY *entry =
-	(CMS_HOST_ALIAS_ENTRY *) cmsHostAliases->getHead();
+	(CMS_HOST_ALIAS_ENTRY *) cmsHostAliases->get_head();
     while (NULL != entry) {
 	if (!strncmp(entry->alias, in, 64)) {
 	    return entry->host;
 	}
+	entry = (CMS_HOST_ALIAS_ENTRY *) cmsHostAliases->get_next();
     }
     return NULL;
 }

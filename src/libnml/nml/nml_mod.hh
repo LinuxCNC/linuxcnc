@@ -1,4 +1,3 @@
-
 #ifndef NML_MODULE_H
 #define NML_MODULE_H
 
@@ -9,40 +8,11 @@
    NML channels and an RCS_TIMER.
    */
 
-/*
-   Modification history:
-
-     9-Sep-1997 WPS eliminated LOAL_LOCAL_VARIABLES, UNLOAD_LOCAL_VARIABLES,
-    READ_CHILD_BUFFERS, WRITE_CHILD_BUFFERS, and DETERMINE_CHILD_STATUS
-   3-Apr-1997 WPS made NML_MODULE no longer the subordinate of RCS_MODULE_C
-    and brought those functions, variables from RCS_MODULE_C we want in
-    here directly.
-    7-Mar-1997 WPS changed header files to 8.3 format.
-   11-Feb-1997 WPS modified --  calc_avg_time, update_line_history, and
-   stop_timing all use exec_history but fail to check to
-   see if it is initialized.
-   I override them here minimize changes to rcs_module.cc
-   3-Dec-1996  FMP changed NML to RCS_CMD/STAT_CHANNEL for commandIn,
-   statusOut, etc.
-   112696  hui, changed the base class for commandInData, etc., from NMLmsg
-   to RCS_CMD_MSG and RCS_STAT_MSG.
-   29-Jul-1996  FMP moved NML_ERROR, NML_TEXT, NML_DISPLAY, and NML_STATUS
-   into nml_emc.hh
-   29-Jul-1996  FMP added NML_TEXT and NML_DISPLAY classes; added member
-   functions for logText and requestDisplay
-   10-Jun-1996  Fred Proctor added commandOutstanding, commandLastNum arrays;
-   NML_STATUS struct
-   5-Jun-1996  Fred Proctor added errorLog, logError()
-   29-Apr-1996  Fred Proctor moved 'done' from RCS_MODULE_C to here.
-   16-Apr-1996  Fred Proctor added NMLmsg *'s
-   5-Apr-1996  Fred Proctor created
-    */
-
 #include "nml.hh"		// NML, NMLmsg
 #include "stat_msg.hh"		// RCS_STAT_CHANNEL, RCS_STAT_MSG
 #include "cmd_msg.hh"		// RCS_CMD_CHANNEL, RCS_CMD_MSG
 #include "timer.hh"		// RCS_TIMER
-#include "inifile.hh"		// class INIFILE
+#include "inifile.h"		// class INIFILE
 
 #define STATE_MATCH (set_file_and_line(__FILE__,__LINE__)),stateMatch
 
@@ -257,6 +227,7 @@ class NML_MODULE {
     int done;			// non-zero means stop calling controller()
 
     int setSubordinates(int number);
+    int setLogInfo(const char *src, int l);
     int logError(const char *fmt, ...);
     int logText(const char *fmt, ...);
     int requestDisplay(const char *display);
@@ -302,9 +273,14 @@ class NML_MODULE {
 
   public:
 
+    // 1 if realloc works and we should use, 0 if we need to avoid lame NT
+    // problem.
     int subs_allocated;
     static int use_realloc;
 
 };
+
+#define NML_MOD_LOG_ERROR setLogInfo(__FILE__,__LINE__); logError
+extern int logTextToNML(NML *, const char *fmt, ...);
 
 #endif

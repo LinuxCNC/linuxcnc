@@ -11,6 +11,7 @@ all: headers
 all headers clean indent install:
 	(cd linklist; make $@)
 	(cd rcs; make $@)
+	(cd posemath; make $@)
 	(cd os_intf; make $@)
 	(cd buffer; make $@)
 	(cd cms; make $@)

@@ -1,6 +1,3 @@
-#
-# Makefile for the RCS C++ Storage Class Utilities
-#
 
 # make rules.
 include ../../../Makefile.inc
@@ -9,7 +6,6 @@ include ../../../Makefile.inc
 LIB_OBJS =
 include Makefile.lib
 
-# Declare which files are to be released
 HEADERS = linklist.hh
 
 SRCS =	linklist.cc

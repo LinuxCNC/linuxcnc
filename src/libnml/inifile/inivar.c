@@ -12,14 +12,14 @@
 
   Modification history:
 
-  3-Sep-1999  FMP created
+  21-Jan-2004  P.C. Moved across from the original EMC source tree.
 */
 
 #include <stdio.h>		/* printf(), fprintf(), FILE, fopen(),
 				   fclose() */
 #include <stdlib.h>		/* exit() */
 #include <string.h>		/* strcmp(), strcpy() */
-#include "inifile.hh"		/* iniFind() */
+#include "inifile.h"		/* iniFind() */
 
 int main(int argc, char *argv[])
 {

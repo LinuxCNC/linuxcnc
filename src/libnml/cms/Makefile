@@ -13,10 +13,13 @@ SRCS =	\
 	cms_cfg.cc \
 	cms_dup.cc \
 	cms_in.cc \
+	cms_pm.cc \
 	cms_srv.cc \
 	cms_up.cc \
 	cms_xup.cc \
 	cmsdiag.cc \
+	tcp_opts.cc \
+	tcp_srv.cc \
 
 HEADERS = \
 	cms.hh \
@@ -28,6 +31,8 @@ HEADERS = \
 	cms_user.hh \
 	cms_xup.hh \
 	cmsdiag.hh \
+	tcp_opts.hh \
+	tcp_srv.hh \
 
 OBJS := $(CMS_OBJS)
 

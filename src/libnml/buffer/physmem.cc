@@ -11,11 +11,18 @@
 * a section of memory mapped IO.
 ***********************************************************************/
 
+
+#ifdef __cplusplus
 extern "C" {
+#endif
+
 #include <string.h>		/* memcpy(), memset() */
-#include <stdio.h>		/* sprintf() */
+#include <stdio.h>		// sprintf()
 #include <stdlib.h>		/* malloc() */
+
+#ifdef __cplusplus
 }
+#endif
 #include "physmem.hh"		/* class PHYSMEM_HANDLE */
 #include "rcs_print.hh"
 PHYSMEM_HANDLE::PHYSMEM_HANDLE()
@@ -23,15 +30,15 @@ PHYSMEM_HANDLE::PHYSMEM_HANDLE()
     size = 0;
     offset = 0;
     temp_buf = NULL;
-    local_address = (char *) NULL;
+    local_address = (LOCAL_ADDRESS_TYPE) NULL;
     physical_address = 0;
+    using_bit3 = 0;
     isvalid = 1;
     total_bytes_moved = 0;
     enable_byte_counting = 0;
 
 }
 
-#if 0
 PHYSMEM_HANDLE::PHYSMEM_HANDLE(unsigned long _physical_address,
     long _address_code, long _size)
 {
@@ -39,28 +46,28 @@ PHYSMEM_HANDLE::PHYSMEM_HANDLE(unsigned long _physical_address,
     physical_address = _physical_address;
     size = _size;
     address_code = _address_code;
-    local_address = (char *) NULL;
+    local_address = (LOCAL_ADDRESS_TYPE) NULL;
     isvalid = 1;
     offset = 0;
+    using_bit3 = 0;
 
     if (0 == physical_address) {
-	local_address = (char *) NULL;
+	local_address = (LOCAL_ADDRESS_TYPE) NULL;
 	return;
     }
-    local_address = (char *) physical_address;
+    local_address = (LOCAL_ADDRESS_TYPE) physical_address;
 }
-#endif
+
 /* Destructor. */
 PHYSMEM_HANDLE::~PHYSMEM_HANDLE()
 {
-
 }
 
 /* Use an ordinary pointer to access memory. */
 void
   PHYSMEM_HANDLE::set_to_ptr(void *_ptr, long _size)
 {
-    local_address = (char *) _ptr;
+    local_address = (LOCAL_ADDRESS_TYPE) _ptr;
     size = _size;
     offset = 0;
 }
@@ -139,7 +146,6 @@ int PHYSMEM_HANDLE::write(void *_from, long _write_size)
     if (enable_byte_counting) {
 	total_bytes_moved += _write_size;
     }
-
     /* If local_address has been initialized use it as an ordinary pointer. */
     if (NULL != local_address) {
 	char *to;
@@ -163,6 +169,46 @@ int PHYSMEM_HANDLE::write(void *_from, long _write_size)
     }
     physmem_write_local_address_is_null_error_print_count++;
     return (-1);
+}
+
+void PHYSMEM_HANDLE::memsetf(long _memset_offset, char _byte,
+    long _memset_size)
+{
+    /* Check sizes. */
+    if (_memset_size + _memset_offset > size) {
+	return;
+    }
+
+    /* If local_address has been initialized use it as an ordinary pointer. */
+    if (NULL != local_address) {
+	char *temp_addr;
+	temp_addr = ((char *) local_address) + _memset_offset;
+	memset(temp_addr, _byte, _memset_size);
+	return;
+    } else {
+	/* Since local address is not initialized use temp_buf and write to
+	   access the physical memory in an platform specific way. */
+	if (NULL == temp_buf) {
+	    temp_buf = (char *) malloc(size);
+	}
+	if (NULL != temp_buf) {
+	    if (_memset_size + _memset_offset <= size) {
+		memset(temp_buf, _byte, _memset_size);
+		unsigned long old_offset;
+		old_offset = offset;
+		offset = _memset_offset;
+		write(temp_buf, _memset_size);
+		offset = old_offset;
+	    } else {
+		memset(temp_buf, _byte, size - _memset_offset);
+		unsigned long old_offset;
+		old_offset = offset;
+		offset = _memset_offset;
+		write(temp_buf, size - offset);
+		offset = old_offset;
+	    }
+	}
+    }
 }
 
 int PHYSMEM_HANDLE::clear_memory()

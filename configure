@@ -202,19 +202,6 @@ if [ "$TCL_VER" != "" ] ; then
         TCL_FLAGS="$TCL_FLAGS -I$TK"
     fi
   fi
-  TCLX=$(find /usr/include/ -maxdepth 2 -name "tclExtend.h" 2> /dev/null)
-      for tclx in $TCLX ; do
-          TCLX=$(echo $tclx | grep tclExtend.h | sed s^/tclExtend.h^^g)
-      done
-  if [ "$TCLX" = "" ] ; then
-      echo "tclx headers not found."
-  else
-      echo "tclx headers found in $TCLX"
-      TCL_LIB="$TCL_LIB -ltclx$TCL_VER -ltkx$TCL_VER"
-    if [ "$TCLX" != "/usr/include" ] ; then
-        TCL_FLAGS="$TCL_FLAGS -I$TCLX"
-    fi
-  fi
 fi
 
 # Go on to write out the Makefile.inc
