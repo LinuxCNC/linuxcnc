@@ -96,6 +96,10 @@
 ::msgcat::mcset ro "Break on" "Frana pornita"
 ::msgcat::mcset ro "Break off" "Frana oprita"
 
+#Bremse
+::msgcat::mcset ro "Brake on" "Frana pornita"
+::msgcat::mcset ro "Brake off" "Frana oprita"
+
 ::msgcat::mcset ro "ABORT" "ABORTARE"
 
 ::msgcat::mcset ro "Offset:" "Ofset:"
@@ -125,6 +129,11 @@
 ::msgcat::mcset ro "Feed Override:" "Depasire viteza:"
 
 ::msgcat::mcset ro "MDI:" "MDI:"
+
+#modes
+::msgcat::mcset ro "MDI" "MDI"
+::msgcat::mcset ro "AUTO" "AUTO"
+::msgcat::mcset ro "MANUAL" "MANUAL"
 
 ::msgcat::mcset ro "Program: " "Program: "
 ::msgcat::mcset ro " - Status: " " - Stare: "
