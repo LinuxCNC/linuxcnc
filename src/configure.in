@@ -514,8 +514,15 @@ AC_PATH_PROG(RMMOD, rmmod, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(LSMOD, lsmod, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(PIDOF, pidof, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
-
-
+AC_PATH_PROG(SUDO, sudo, "", $PATH)
+if test -z "$SUDO"; then
+  echo "######################################################################"
+  echo "#                                                                    #"
+  echo "#           Please install sudo before proceeding any further        #"
+  echo "#                                                                    #"
+  echo "######################################################################"
+  echo
+fi
 ##############################################################################
 # Section 4 - Check for math support                                         #
 #                                                                            #
