@@ -128,7 +128,7 @@ static int num_ports;		/* number of ports configured */
 /* These is the functions that actually do the I/O
    everything else is just init code
 */
-static void write_port(void *arg, long period);
+static void update_port(void *arg, long period);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -261,7 +261,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	return retval;
     }
-    
+
 
     /* STEP 4: export function */
     rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.update", n + 1);
@@ -286,9 +286,9 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
-#else
+#else /* !RTAPI - non-realtime version would go here */
 
-#endif
+#endif /* !RTAPI */
 
 /**************************************************************
 * REALTIME PORT WRITE FUNCTION                                *
