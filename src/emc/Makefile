@@ -18,5 +18,6 @@ all headers clean depend indent install:
 	(cd iotask; make $@)
 	(cd task; make $@)
 	(cd usr_intf; make $@)
+	(cd drivers; make $@)
 
 .PHONY: all clean depend headers indent install

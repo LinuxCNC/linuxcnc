@@ -16,11 +16,11 @@ HEADERS = \
 	emcmotglb.h \
 	emcpid.h \
 	motion.h \
-	usrmotintf.h
-
-PRIVHDRS = \
+	usrmotintf.h \
 	mot_priv.h
 
+
+PRIVHDRS =
 OBJS = \
 	emcmotglb.o \
 	emcmotutil.o \
