@@ -484,9 +484,9 @@ proc fileDialog {} {
     global programnamestring
 
     set types {
-        {[msgcat::mc "All files"] *}
-        {[msgcat::mc "Text files"] {.txt}}
-        {[msgcat::mc "NC files"] {.nc .ngc}}
+        {{msgcat::mc "All files"} *}
+        {{msgcat::mc "Text files"} {.txt}}
+        {{msgcat::mc "NC files"} {.nc .ngc}}
     }
     set f [tk_getOpenFile -filetypes $types -initialdir $programDirectory]
     if {[string len $f] > 0} {
