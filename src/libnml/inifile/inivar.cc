@@ -116,6 +116,8 @@ int main(int argc, char *argv[])
     inistring = inifile->find(variable, section, num);
     if (inistring != NULL) {
 	printf("%s\n", inistring);
+    } else {
+	fprintf(stderr, "Can not find -sec %s -var %s -num %i \n", section, variable, num);
     }
 
     delete inifile;
