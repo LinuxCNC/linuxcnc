@@ -404,7 +404,22 @@ int emcAxisSetMaxVelocity(int axis, double vel)
     emcmotCommand.command = EMCMOT_SET_AXIS_VEL_LIMIT;
     emcmotCommand.axis = axis;
     emcmotCommand.vel = vel;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
 
+int emcAxisSetMaxAcceleration(int axis, double acc)
+{
+
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+	return 0;
+    }
+    if ( acc < 0.0 ) {
+	acc = 0.0;
+    }
+    AXIS_MAX_ACCELERATION[axis] = acc;
+    emcmotCommand.command = EMCMOT_SET_AXIS_ACC_LIMIT;
+    emcmotCommand.axis = axis;
+    emcmotCommand.acc = acc;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

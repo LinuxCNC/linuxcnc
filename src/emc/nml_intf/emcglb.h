@@ -59,6 +59,7 @@ extern "C" {
     extern double TRAJ_MAX_VELOCITY;
 
     extern double AXIS_MAX_VELOCITY[EMC_AXIS_MAX];
+    extern double AXIS_MAX_ACCELERATION[EMC_AXIS_MAX];
 
     extern double SPINDLE_OFF_WAIT;
     extern double SPINDLE_ON_WAIT;

@@ -711,6 +711,19 @@ void emcmotCommandHandler(void *arg, long period)
 	    emcmotDebug->bigVel[axis] = 10 * emcmotCommand->vel;
 	    break;
 
+	case EMCMOT_SET_AXIS_ACC_LIMIT:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_ACC_LIMIT");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    emcmot_config_change();
+	    /* check axis range */
+	    axis = emcmotCommand->axis;
+	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+		break;
+	    }
+	    tpSetAmax(&emcmotDebug->freeAxis[axis], emcmotCommand->acc);
+	    emcmotConfig->axisLimitAcc[axis] = emcmotCommand->acc;
+	    break;
+
 	case EMCMOT_SET_HOMING_VEL:
 	    emcmot_config_change();
 	    /* set the homing velocity */
@@ -743,8 +756,14 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_ACCEL");
 	    emcmotStatus->acc = emcmotCommand->acc;
+	    /* set axis accel limit to global limit, IF there isn't already a 
+	       value there.  Global limits do not replace individual limits. */
 	    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-		tpSetAmax(&emcmotDebug->freeAxis[axis], emcmotStatus->acc);
+		if (emcmotConfig->axisLimitAcc[axis] == 0.0) {
+		    tpSetAmax(&emcmotDebug->freeAxis[axis],
+			emcmotStatus->acc);
+		    emcmotConfig->axisLimitAcc[axis] = emcmotStatus->acc;
+		}
 	    }
 	    tpSetAmax(&emcmotDebug->queue, emcmotStatus->acc);
 	    break;

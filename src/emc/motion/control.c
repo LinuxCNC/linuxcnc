@@ -595,7 +595,8 @@ static void get_pos_cmds(void)
     whichCycle = 0;
 #endif
     if (GET_MOTION_ENABLE_FLAG()) {
-	/* set whichCycle to be at least a servo cycle, for calc time logging */
+	/* set whichCycle to be at least a servo cycle, for calc time logging 
+	 */
 #if 0				/* dunno what whichCycle is all about yet */
 	whichCycle = 1;
 #endif

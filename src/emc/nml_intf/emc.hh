@@ -424,6 +424,7 @@ extern int emcAxisSetStepParams(int axis, double setup_time,
 extern int emcAxisSetHome(int axis, double home);
 extern int emcAxisSetHomeOffset(int axis, double offset);
 extern int emcAxisSetMaxVelocity(int axis, double vel);
+extern int emcAxisSetMaxAcceleration(int axis, double acc);
 extern int emcAxisSetEnablePolarity(int axis, int level);
 extern int emcAxisSetMinLimitSwitchPolarity(int axis, int level);
 extern int emcAxisSetMaxLimitSwitchPolarity(int axis, int level);

@@ -533,6 +533,11 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	    printf("%f ", c.axisLimitVel[t]);
 	}
 	printf("\n");
+	printf("axis acc:  \t");
+	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
+	    printf("%f ", c.axisLimitAcc[t]);
+	}
+	printf("\n");
 #if 0
 	printf("probe index: %d\n", c.probeIndex);
 	printf("probe polarity: %d\n", c.probePolarity);

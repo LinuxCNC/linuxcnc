@@ -130,8 +130,8 @@ extern "C" {
 	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
 	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
 	EMCMOT_SET_AXIS_VEL_LIMIT,	/* set the max axis vel */
+	EMCMOT_SET_AXIS_ACC_LIMIT,	/* set the max axis accel */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
-//      EMCMOT_SET_AXIS_ACC,    /* NEW set the max accel for axis */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
 	EMCMOT_SET_HOMING_VEL,	/* set the axis homing speed */
 	EMCMOT_SET_NUM_AXES,	/* set the number of axes */
@@ -358,7 +358,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EmcPose pos;		/* calculated Cartesian position */
 	double axisPos[EMCMOT_MAX_AXIS];	/* calculated axis positions */
 #if 0
-	double output[EMCMOT_MAX_AXIS];	/* Calculated output velocity command */
+	double output[EMCMOT_MAX_AXIS];	/* Calculated output velocity command 
+					 */
 	double input[EMCMOT_MAX_AXIS];	/* actual input */
 #endif
 	EmcPose actualPos;	/* actual Cartesian position */
@@ -387,7 +388,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double inputOffset[EMCMOT_MAX_AXIS];	/* encoder offsets */
 #endif
 	double qVscale;		/* traj velocity scale factor */
-	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor */
+	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor 
+						 */
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
 
@@ -467,6 +469,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double limitVel;	/* scalar upper limit on vel */
 	double axisLimitVel[EMCMOT_MAX_AXIS];	/* scalar upper limit on axis
 						   vels */
+	double axisLimitAcc[EMCMOT_MAX_AXIS];	/* scalar upper limit on axis
+						   accels */
 	double homingVel[EMCMOT_MAX_AXIS];	/* scalar max homing vels */
 	double homeOffset[EMCMOT_MAX_AXIS];	/* where to go after home,
 						   user units */

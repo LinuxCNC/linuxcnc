@@ -742,7 +742,10 @@ static int init_comm_buffers(void)
 //      emcmotStatus->inputOffset[axis] = INPUT_OFFSET;
 //      emcmotDebug->inverseOutputScale[axis] = 1.0 / OUTPUT_SCALE;
 	emcmotStatus->axVscale[axis] = 1.0;
-	emcmotConfig->axisLimitVel[axis] = 1.0;
+	emcmotConfig->axisLimitVel[axis] = 1.0;	/* FIXME - I think this
+						   should be 0.0 */
+	emcmotConfig->axisLimitAcc[axis] = 1.0;	/* FIXME - I think this
+						   should be 0.0 */
 	emcmotDebug->bigVel[axis] = 1.0;
 	SET_AXIS_ENABLE_FLAG(axis, 0);
 	SET_AXIS_ACTIVE_FLAG(axis, 0);	/* default is not to use it; need an

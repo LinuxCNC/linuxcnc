@@ -33,6 +33,7 @@ static INIFILE *axisInifile = 0;
   UNITS <float>                units per mm or deg
   HOME <float>                 home position
   MAX_VELOCITY <float>         max vel for axis
+  MAX_ACCELERATION <float>     max accel for axis
   P <float>                    proportional gain
   I <float>                    integral gain
   D <float>                    derivative gain
@@ -90,6 +91,8 @@ static INIFILE *axisInifile = 0;
   emcAxisActivate(int axis);
   emcAxisDeactivate(int axis);
   emcAxisSetMaxVelocity(int axis, double vel);
+  emcAxisSetMaxAcceleration(int axis, double acc);
+  emcAxisLoadComp(int axis, const char * file);
   emcAxisLoadComp(int axis, const char * file);
   */
 
@@ -121,6 +124,7 @@ static int loadAxis(int axis)
 #endif
   double home;
   double maxVelocity;
+  double maxAcceleration;
 //  int polarity;
   double maxFerror;
 
@@ -796,6 +800,32 @@ static int loadAxis(int axis)
   if (0 != emcAxisSetMaxVelocity(axis, maxVelocity)) {
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
       rcs_print_error("bad return from emcAxisSetMaxVelocity\n");
+    }
+    return -1;
+  }
+
+  if (NULL != (inistring = axisInifile->find("MAX_ACCELERATION", axisString))) {
+    if (1 == sscanf(inistring, "%lf", &maxAcceleration)) {
+      // found, and valid
+    }
+    else {
+      // found, but invalid
+      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+        rcs_print_error("invalid inifile value for [%s] MAX_ACCELERATION: %s\n", axisString, inistring);
+      }
+      maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION; // default
+    }
+  }
+  else {
+    // not found at all
+    maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;
+    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+      rcs_print_error("can't find [%s] MAX_ACCELERATION, using default\n", axisString);
+    }
+  }
+  if (0 != emcAxisSetMaxAcceleration(axis, maxAcceleration)) {
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+      rcs_print_error("bad return from emcAxisSetMaxAcceleration\n");
     }
     return -1;
   }
