@@ -541,6 +541,10 @@ static void dialog_realtime_not_linked(void)
 	gtk_main_quit();
     } else {
 	if (horiz->thread_name != NULL) {
+	    /* store name of thread in shared memory */
+	    strncpy(ctrl_shm->thread_name, horiz->thread_name,
+		HAL_NAME_LEN + 1);
+	    /* hook sampling function to thread */
 	    hal_add_funct_to_thread("scope.sample", horiz->thread_name);
 	    /* give the code some time to get started */
 	    ctrl_shm->watchdog = 0;
@@ -588,7 +592,10 @@ static void acquire_popup(GtkWidget * widget, gpointer gdata)
     */
     horiz = &(ctrl_usr->horiz);
     if (horiz->thread_name != NULL) {
+	/* disconnect sample funct from thread */
 	hal_del_funct_from_thread("scope.sample", horiz->thread_name);
+	/* clear thread name from shared memory */
+	ctrl_shm->thread_name[0] = '\0';
     }
     /* presetting the watchdog to 10 avoids the delay that would otherwise
        take place while the watchdog times out. */

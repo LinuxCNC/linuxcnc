@@ -126,10 +126,8 @@ typedef struct {
 
 typedef struct {
     /* general data */
-    int trig_chan;		/* channel to use for triggering */
     float position;		/* horiz position of trigger (0.0-1.0) */
     float level;		/* setting of level slider (0.0-1.0) */
-    int edge;			/* 0 = falling edge, 1 = rising edge */
     /* widgets for trigger mode window */
     GtkWidget *normal_button;
     GtkWidget *auto_button;

@@ -127,6 +127,11 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
+    /* is sample function linked to a thread? */
+    if (ctrl_shm->thread_name[0] != '\0') {
+	/* need to unlink it before we release the scope shared memory */
+	hal_del_funct_from_thread("scope.sample", ctrl_shm->thread_name);
+    }
     rtapi_shmem_delete(shm_id, comp_id);
     hal_exit(comp_id);
 }
@@ -186,6 +191,8 @@ static void sample(void *arg, long period)
 	if (ctrl_shm->samples >= ctrl_shm->pre_trig) {
 	    /* yes - start waiting for trigger */
 	    ctrl_shm->state = TRIG_WAIT;
+	    /* dummy call to preset 'compare_result' */
+	    check_trigger();
 	}
 	break;
     case TRIG_WAIT:
@@ -267,15 +274,106 @@ static void capture_sample(void)
 
 static int check_trigger(void)
 {
+    static int compare_result = 0;
+    int prev_compare_result;
+    scope_data_t *value, *level;
+    unsigned long tmp1, tmp2;
+
+    /* has user forced trigger? */
     if (ctrl_shm->force_trig != 0) {
 	return 1;
     }
+    /* is auto trigger enabled? */
     if (ctrl_shm->auto_trig != 0) {
+	/* yes, has the delay time expired? */
 	if (++ctrl_rt->auto_timer >= ctrl_shm->rec_len) {
 	    return 1;
 	}
     } else {
+	/* no auto, reset delay timer */
 	ctrl_rt->auto_timer = 0;
+    }
+    /* if no trigger channel is selected we're done */
+    if (ctrl_shm->trig_chan == 0) {
+	return 0;
+    }
+    /* point a scope_data_t union at the signal value */
+    value = ctrl_rt->data_addr[ctrl_shm->trig_chan - 1];
+    /* and at the trigger level */
+    level = &(ctrl_shm->trig_level);
+    /* save previous compare result */
+    prev_compare_result = compare_result;
+    /* compare actual value to trigger level */
+    switch (ctrl_rt->data_type[ctrl_shm->trig_chan - 1]) {
+    case HAL_BIT:
+	/* for bits, we don't even look at the trigger level */
+	compare_result = value->d_u8;
+	break;
+    case HAL_FLOAT:
+	/* don't want to use the FPU in this function, so we use */
+	/* a hack - see http://en.wikipedia.org/wiki/IEEE_754 */
+	/* this _only_ works with IEEE-754 floating point numbers */
+	/* and will probably fail for infinities, NANs, etc. */
+	/* OK, here we go! */
+	/* get the value as 32 raw bits (unsigned long) */
+	tmp1 = value->d_u32;
+	/* get the trigger level as 32 raw bits */
+	tmp2 = level->d_u32;
+	/* is the value negative? */
+	if (tmp1 & 0x80000000) {
+	    /* yes, is the trigger level negative? */
+	    if (tmp2 & 0x80000000) {
+		/* yes, make both positive */
+		tmp1 ^= 0x80000000;
+		tmp2 ^= 0x80000000;
+		/* and compare them as unsigned ints */
+		/* because of negation, we reverse the compare */
+		compare_result = (tmp1 < tmp2);
+	    } else {
+		/* trigger level positive, value negative */
+		compare_result = 0;
+	    }
+	} else {
+	    /* value is positive, is trigger level negative? */
+	    if (tmp2 & 0x80000000) {
+		/* trigger level negative, value positive */
+		compare_result = 1;
+	    } else {
+		/* both are positive */
+		/* compare them as unsigned ints */
+		compare_result = (tmp1 > tmp2);
+	    }
+	}
+	break;
+    case HAL_S8:
+	compare_result = (value->d_s8 > level->d_s8);
+	break;
+    case HAL_U8:
+	compare_result = (value->d_u8 > level->d_u8);
+	break;
+    case HAL_S16:
+	compare_result = (value->d_s16 > level->d_s16);
+	break;
+    case HAL_U16:
+	compare_result = (value->d_u16 > level->d_u16);
+	break;
+    case HAL_S32:
+	compare_result = (value->d_s32 > level->d_s32);
+	break;
+    case HAL_U32:
+	compare_result = (value->d_u32 > level->d_u32);
+	break;
+    default:
+	compare_result = 0;
+	break;
+    }
+    /* test for rising edge */
+    if (ctrl_shm->trig_edge && compare_result && !prev_compare_result) {
+	return 1;
+    }
+    /* test for falling edge */
+    if (!ctrl_shm->trig_edge && !compare_result && prev_compare_result) {
+	return 1;
     }
     return 0;
 }

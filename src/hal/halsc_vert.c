@@ -340,7 +340,7 @@ static void scale_changed(GtkAdjustment * adj, gpointer gdata)
     chan->scale = scale;
     format_scale_value(buf, BUFLEN - 1, scale);
     gtk_label_set_text_if(vert->scale_label, buf);
-    if (chan_num == ctrl_usr->trig.trig_chan) {
+    if (chan_num == ctrl_shm->trig_chan) {
 	refresh_trigger();
     }
     request_display_refresh(1);
@@ -359,7 +359,7 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
     }
     chan = &(ctrl_usr->chan[chan_num - 1]);
     chan->position = adj->value / VERT_POS_RESOLUTION;
-    if (chan_num == ctrl_usr->trig.trig_chan) {
+    if (chan_num == ctrl_shm->trig_chan) {
 	refresh_trigger();
     }
     request_display_refresh(1);

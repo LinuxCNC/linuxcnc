@@ -508,7 +508,8 @@ extern int hal_param_set(char *name, hal_type_t type, void *value_addr);
     a call to hal_init().
     On success, hal_export_funct() returns HAL_SUCCESS, on failure
     it returns a negative error code.
-    This function is only available in realtime components.
+    Call only from realtime init code, not from user space or
+    realtime code.
 */
 extern int hal_export_funct(char *name, void (*funct) (void *, long),
     void *arg, int uses_fp, int reentrant, int comp_id);

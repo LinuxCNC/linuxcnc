@@ -75,10 +75,14 @@ typedef union {
 typedef struct {
     int buf_len;		/* I length of buffer */
     int watchdog;		/* RU rt sets to zero, user incs */
+    char thread_name[HAL_NAME_LEN + 1];	/* U thread used for sampling */
     int mult;			/* U sample period multiplier */
     int rec_len;		/* U total samples in record */
     int sample_len;		/* U max channels in each sample */
     int pre_trig;		/* U number of samples before trigger */
+    int trig_chan;		/* U trigger channel number */
+    scope_data_t trig_level;	/* U trigger level */
+    int trig_edge;		/* U 0 = falling edge, 1 = rising edge */
     int force_trig;		/* RU U sets non-zero to force trigger */
     int auto_trig;		/* U enables auto triggering */
     int start;			/* R first sample in record */
@@ -88,17 +92,6 @@ typedef struct {
     int data_offset[16];	/* U data addr in shmem for each channel */
     hal_type_t data_type[16];	/* U data type for each channel */
     char data_len[16];		/* U data size, 0 if not to be acquired */
-
-#if 0
-    scope_state_t state;	/* ?current state */
-    unsigned char size[NUM_CHAN];	/* ?size of each signal, bytes */
-    void *data[NUM_CHAN];	/* ?pointer to each signal */
-    int active_chans;		/* ?number of active channels */
-    int start;			/* ?index of first sample */
-    int curr;			/* ?index of current sample */
-    int samples;		/* ?number of samples captured */
-    int pre_trig;		/* ?number of pre-trigger samples */
-#endif
 } scope_shm_control_t;
 
 #endif /* HALSC_SHM_H */

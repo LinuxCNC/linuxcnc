@@ -104,77 +104,101 @@ void refresh_trigger(void)
     scope_trig_t *trig;
     scope_chan_t *chan;
     gchar buf[BUFLEN + 1];
-    float tmp;
+    float fp_level;
 
     trig = &(ctrl_usr->trig);
     /* display edge */
-    if (trig->edge == 0) {
+    if (ctrl_shm->trig_edge == 0) {
 	snprintf(buf, BUFLEN, "Falling");
     } else {
 	snprintf(buf, BUFLEN, "Rising");
     }
     gtk_label_set_text_if(trig->edge_label, buf);
     /* display source */
-    if ((trig->trig_chan < 1) || (trig->trig_chan > 16)) {
+    if ((ctrl_shm->trig_chan < 1) || (ctrl_shm->trig_chan > 16)) {
 	/* no source */
-	trig->trig_chan = 0;
+	ctrl_shm->trig_chan = 0;
 	gtk_label_set_text_if(trig->source_label, "Source\nNone");
 	gtk_label_set_text_if(trig->level_label, "  ----  ");
 	/* nothing left to do */
 	return;
     }
-    snprintf(buf, BUFLEN, "Source\nChan %2d", trig->trig_chan);
+    snprintf(buf, BUFLEN, "Source\nChan %2d", ctrl_shm->trig_chan);
     gtk_label_set_text_if(trig->source_label, buf);
     /* point to source channel data */
-    chan = &(ctrl_usr->chan[trig->trig_chan - 1]);
-
-    tmp =
+    chan = &(ctrl_usr->chan[ctrl_shm->trig_chan - 1]);
+    /* calculate a preliminary value for trigger level */
+    fp_level =
 	chan->scale * ((chan->position - trig->level) * 10) -
 	chan->vert_offset;
-    format_signal_value(buf, BUFLEN, tmp);
-    gtk_label_set_text_if(trig->level_label, buf);
-#if 0
-    chan = &(ctrl_usr->chan[trig->selected - 1]);
-    /* set position slider based on new channel */
-    gtk_adjustment_set_value(GTK_ADJUSTMENT(trig->pos_adj),
-	chan->position * VERT_POS_RESOLUTION);
-    adj = GTK_ADJUSTMENT(trig->level_adj);
+    /* apply type specific tweaks to trigger level */
     switch (chan->data_type) {
-    case HAL_BIT:
-	adj->lower = -2;
-	adj->upper = 2;
-	break;
     case HAL_FLOAT:
-	adj->lower = -36;
-	adj->upper = 36;
-	break;
+	ctrl_shm->trig_level.d_float = fp_level;
     case HAL_S8:
-	adj->lower = -2;
-	adj->upper = 8;
+	if (fp_level > 127.0) {
+	    fp_level = 127.0;
+	}
+	if (fp_level < -128.0) {
+	    fp_level = -128.0;
+	}
+	ctrl_shm->trig_level.d_s8 = fp_level;
 	break;
     case HAL_U8:
-	adj->lower = -2;
-	adj->upper = 8;
+	if (fp_level > 255.0) {
+	    fp_level = 255.0;
+	}
+	if (fp_level < 0.0) {
+	    fp_level = 0.0;
+	}
+	ctrl_shm->trig_level.d_u8 = fp_level;
 	break;
     case HAL_S16:
-	adj->lower = -2;
-	adj->upper = 15;
+	if (fp_level > 32767.0) {
+	    fp_level = 32767.0;
+	}
+	if (fp_level < -32768.0) {
+	    fp_level = -32768.0;
+	}
+	ctrl_shm->trig_level.d_s16 = fp_level;
 	break;
     case HAL_U16:
-	adj->lower = -2;
-	adj->upper = 15;
+	if (fp_level > 65535.0) {
+	    fp_level = 65535.0;
+	}
+	if (fp_level < 0.0) {
+	    fp_level = 0.0;
+	}
+	ctrl_shm->trig_level.d_u16 = fp_level;
 	break;
     case HAL_S32:
-	adj->lower = -2;
-	adj->upper = 30;
+	if (fp_level > 2147483647.0) {
+	    fp_level = 2147483647.0;
+	}
+	if (fp_level < -2147483648.0) {
+	    fp_level = -2147483648.0;
+	}
+	ctrl_shm->trig_level.d_s32 = fp_level;
 	break;
     case HAL_U32:
-	adj->lower = -2;
-	adj->upper = 30;
+	if (fp_level > 4294967295.0) {
+	    fp_level = 4294967295.0;
+	}
+	if (fp_level < 0.0) {
+	    fp_level = 0.0;
+	}
+	ctrl_shm->trig_level.d_u32 = fp_level;
 	break;
     default:
 	break;
     }
+    if (chan->data_type == HAL_BIT) {
+	snprintf(buf, BUFLEN, "  ----  ");
+    } else {
+	format_signal_value(buf, BUFLEN, fp_level);
+    }
+    gtk_label_set_text_if(trig->level_label, buf);
+#if 0
     adj->value = chan->level_index;
     gtk_adjustment_changed(adj);
     gtk_adjustment_value_changed(adj);
@@ -278,7 +302,7 @@ static void init_trigger_info_window(void)
 	gtk_label_new_in_box(" ---- ", ctrl_usr->trig_info_win, FALSE, FALSE,
 	0);
     /* define a button to set the trigger edge */
-    trig->edge = 1;
+    ctrl_shm->trig_edge = 1;
     trig->edge_button = gtk_button_new_with_label("Rising");
     trig->edge_label = (GTK_BIN(trig->edge_button))->child;
     gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_info_win),
@@ -372,9 +396,10 @@ static void dialog_select_trigger_source(void)
     gtk_clist_set_column_min_width(GTK_CLIST(trig_list), 1,
 	(colwidth * 17) / 16);
     /* was a channel previously selected? */
-    if (trig->trig_chan > 0) {
+    if (ctrl_shm->trig_chan > 0) {
 	/* yes, preselect appropriate line */
-	gtk_clist_select_row(GTK_CLIST(trig_list), trig->trig_chan - 1, 1);
+	gtk_clist_select_row(GTK_CLIST(trig_list), ctrl_shm->trig_chan - 1,
+	    1);
     }
     /* set up a callback function when the window is destroyed */
     gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
@@ -399,9 +424,9 @@ static void dialog_select_trigger_source(void)
 	return;
     }
     /* user made a selection */
-    if (ctrl_usr->chan[trig->trig_chan - 1].name == NULL) {
+    if (ctrl_usr->chan[ctrl_shm->trig_chan - 1].name == NULL) {
 	/* selected channel has no source */
-	trig->trig_chan = 0;
+	ctrl_shm->trig_chan = 0;
     }
     refresh_trigger();
 }
@@ -410,7 +435,6 @@ static void dialog_select_trigger_source(void)
 static void trigger_selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, dialog_generic_t * dptr)
 {
-    scope_trig_t *trig;
     GdkEventType type;
 
     if ((event == NULL) || (clist == NULL)) {
@@ -426,8 +450,7 @@ static void trigger_selection_made(GtkWidget * clist, gint row, gint column,
 	return;
     }
     /* If we get here, it should be a valid selection */
-    trig = &(ctrl_usr->trig);
-    trig->trig_chan = row + 1;
+    ctrl_shm->trig_chan = row + 1;
     /* set return value of dialog */
     dptr->retval = 1;
     /* destroy window to cause dialog_generic_destroyed() to be called */
@@ -441,7 +464,7 @@ static void level_changed(GtkAdjustment * adj, gpointer gdata)
 
     trig = &(ctrl_usr->trig);
     trig->level = adj->value / TRIG_LEVEL_RESOLUTION;
-    if ((trig->trig_chan < 1) || (trig->trig_chan > 16)) {
+    if ((ctrl_shm->trig_chan < 1) || (ctrl_shm->trig_chan > 16)) {
 	return;
     }
     refresh_trigger();
@@ -464,21 +487,12 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 
 static void edge_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
-    scope_trig_t *trig;
-
-    trig = &(ctrl_usr->trig);
-    /* is acquisition in progress? */
-    if (ctrl_shm->state != IDLE) {
-	/* yes, 'push' the stop button */
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->
-		rm_stop_button), TRUE);
-    }
-    if (trig->edge == 0) {
+    if (ctrl_shm->trig_edge == 0) {
 	/* was falling edge, make rising */
-	trig->edge = 1;
+	ctrl_shm->trig_edge = 1;
     } else {
 	/* was rising edge, make falling */
-	trig->edge = 0;
+	ctrl_shm->trig_edge = 0;
     }
     refresh_trigger();
 }
