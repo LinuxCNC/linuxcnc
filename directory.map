@@ -17,7 +17,7 @@
     |
     |--- rtlib/  (kernel mode object files)
     |
-    |--- scripts/  (install_realtime_base? (do we need this dir?))
+    |--- scripts/  (load_rtapi, unload_rtapi, etc.)
     |
     |--- tcl/ (both tkemc and any other tcl/tk scripts)
     |
@@ -25,11 +25,11 @@
            |
            |--- rtapi/  (*.c and *.h for RTAPI)
            |      |
-           |      |--- rtapi_examples/
-           |                 |
-           |                 |--- timer_example/  (*.c & *.h)
-           |                 |--- shmem_example/  (*.c & *.h)
-           |                 |--- etc.
+           |      |--- examples/
+           |              |
+           |              |--- timer_example/  (*.c & *.h)
+           |              |--- shmem_example/  (*.c & *.h)
+           |              |--- etc.
            |
            |--- hal/  (hal_lib.c, hal.h, halcmd.c, halgui.c, etc.)
            |      |
