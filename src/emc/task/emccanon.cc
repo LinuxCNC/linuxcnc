@@ -40,6 +40,7 @@
 #include <math.h>
 #include <string.h>		// strncpy()
 #include <ctype.h>		// isspace()
+#include "global_defs.h"
 #include "emc.hh"		// EMC NML
 #include "canon.hh"		// these decls
 #include "interpl.hh"		// interp_list
@@ -944,10 +945,11 @@ void COMMENT(char *comment)
 {
     // nothing need be done here, but you can play tricks with hot comments
 
-#define MSGLEN 256
-    char msg[MSGLEN];
-    char probefilename[MSGLEN];
+    char msg[LINELEN];
+    char probefilename[LINELEN];
     char *ptr;
+
+    printf("COMMENT: %s\n", comment);
 
     // set RPY orientation for subsequent moves
     if (!strncmp(comment, "RPY", strlen("RPY"))) {
@@ -973,11 +975,11 @@ void COMMENT(char *comment)
 	while (isspace(*ptr)) {
 	    ptr++;
 	}
-	setString(probefilename, ptr, MSGLEN);
+	setString(probefilename, ptr, LINELEN);
 	if (NULL == (probefile = fopen(probefilename, "w"))) {
 	    // pop up a warning message
-	    setString(msg, "can't open probe file ", MSGLEN);
-	    addString(msg, probefilename, MSGLEN);
+	    setString(msg, "can't open probe file ", LINELEN);
+	    addString(msg, probefilename, LINELEN);
 	    MESSAGE(msg);
 	    probefile = NULL;
 	}

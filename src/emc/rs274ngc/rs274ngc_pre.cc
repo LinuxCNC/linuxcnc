@@ -148,6 +148,9 @@ int Interp::rs274ngc_execute(const char *command)
 
   if (NULL != command) {
     status = rs274ngc_read(command);
+    if (status != RS274NGC_OK) {
+      return status;
+    }
   }
 
   for (n = 0; n < _setup.parameter_occurrence; n++) {   // copy parameter settings from parameter buffer into parameter table
@@ -701,6 +704,11 @@ int Interp::rs274ngc_save_parameters(const char *filename,      //!< name of fil
   int index;                    // index into _required_parameters
   int k;
 
+/* FIXME - stat() and chown() can disappear when we no longer need
+   to run as root. */
+  struct stat ini_stat;
+  stat(filename, &ini_stat);		// save the ownership details.
+
   // rename as .bak
   strcpy(line, filename);
   strcat(line, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
@@ -754,6 +762,10 @@ int Interp::rs274ngc_save_parameters(const char *filename,      //!< name of fil
     }
   }
   fclose(outfile);
+
+  /* Update the uid and gid of the new ini file - else it will end up
+     being owned by root */
+  chown(filename, ini_stat.st_uid, ini_stat.st_gid);
 
   return RS274NGC_OK;
 }

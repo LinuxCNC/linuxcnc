@@ -1817,6 +1817,8 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     settings->motion_mode = G_80;
   } else if ((motion > G_80) && (motion < G_90)) {
     CHP(convert_cycle(motion, block, settings));
+  } else if (motion == G_33) {
+    COMMENT("convert_motion: G33 code");
   } else
     ERM(NCE_BUG_UNKNOWN_MOTION_CODE);
 
