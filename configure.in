@@ -4,6 +4,11 @@
 # This file is adapted to replace the old ./configure script
 # therefor it includes parts of that script
 
+##############################################################################
+# Section 1                                                                  #
+# Autoconf initialisation                                                    #
+##############################################################################
+
 AC_PREREQ(2.13)
 #AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
 #AC_CONFIG_SRCDIR(src/hal/hal_lib.c)
@@ -13,14 +18,17 @@ AC_INIT(src/emc/hal_intf/exthalmot.c)
 PACKAGE="emc2"
 AC_SUBST([PACKAGE])
 
-# Checks for programs.
+##############################################################################
+# Section 2                                                                  #
+# RealTime checking (either RTAI, or RT-Linux)                               #
+# Subsection 2.1 - arguments to ./configure (--with-rtai,rtlinux,rtlinuxpro) #
+# Subsection 2.2 - if none specified above, RTDIR needs to be found by search#
+# Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
+##############################################################################
 
-# Check for RT
-# accept rtai=path from commandline
-# accept rtlinux=path from commandline
-# accept rtlinuxpro=path from commandline
 AC_MSG_CHECKING(for RT dir)
-CC=""
+
+# set up some default values
 RTDIR=""
 RTNAME=""
 RTAI=""
@@ -34,7 +42,15 @@ RTAI3_MOD=""
 RTAI_MOD=""
 RTL_MOD=""
 
+##############################################################################
+# Subsection 2.1                                                             #
+# Check for arguments to ./configure                                         #
+# accept --with-rtai=<path> from commandline                                 #
+# accept --with-rtlinux=<path> from commandline                              #
+# accept --with-rtlinuxpro=<path> from commandline                           #
+##############################################################################
 
+# check for path from --with-rtai=<path>
 AC_ARG_WITH(rtai,
     [  --with-rtai=<path to RTAI>              path where RTAI is installed],
     [	case "$withval" in
@@ -49,6 +65,7 @@ if (! test -z "$RTAIDIR") ; then
   AC_MSG_CHECKING(specified rtai=$RTDIR)
 fi
 
+# check for path from --with-rtlinux=<path>
 AC_ARG_WITH(rtlinux,
     [  --with-rtlinux=<path to RTLINUX>        path where RTLinux is installed],
     [	case "$withval" in
@@ -58,6 +75,8 @@ AC_ARG_WITH(rtlinux,
 	esac
 	RTLINUXDIR="$withval"])
 
+# check to see if rtai and rtlinux have been specified 
+# this is bad, and is reson for aborting ./configure
 if (! test -z "$RTLINUXDIR") ; then
   if (! test -z "$RTDIR") ; then 
     AC_MSG_ERROR([rtai=$RTAIDIR & rtlinux=$RTLINUXDIR defined. Only one is possible])
@@ -67,6 +86,7 @@ if (! test -z "$RTLINUXDIR") ; then
   fi
 fi
 
+# check for path from --with-rtlinuxpro=<path>
 AC_ARG_WITH(rtlinuxpro,
     [  --with-rtlinuxpro=<path to RTLINUXPRO>  path where RTLinuxPro is installed],
     [	case "$withval" in
@@ -76,6 +96,8 @@ AC_ARG_WITH(rtlinuxpro,
 	esac
 	RTLINUXPRODIR="$withval"])
 
+# check to see if rtai or rtlinux and rtlinuxpro have been specified 
+# this is bad, and is reson for aborting ./configure
 if (! test -z "$RTLINUXPRODIR") ; then
   if (! test -z "$RTDIR") ; then 
     AC_MSG_ERROR([rtdir=$RTDIR & rtlinuxpro=$RTLINUXPRODIR defined. Only one is possible])
@@ -84,6 +106,20 @@ if (! test -z "$RTLINUXPRODIR") ; then
     AC_MSG_CHECKING(specified rtlinuxpro=$RTDIR)
   fi
 fi
+
+##############################################################################
+# Subsection 2.2                                                             #
+# 1. If a RT has been specified by the user it needs to be checked for       #
+# validity. That is done by checking default locations for a certain script  #
+# (similar to 2)                                                             #
+#                                                                            #
+# 2. If no RT has been specified explicitely by the user, one has to be      #
+# found by search. In order to do that the following code will search for a  #
+# RT-specific script:                                                        #
+# rtlinux-config for RTLinux                                                 #
+# realtime-config for RTAI 24.1.x                                            #
+# rtai-config for RTAI 3.x                                                   #
+##############################################################################
 
 #at this point if RTDIR is empty, we need to find RT ourselves
 if (test -z "$RTDIR" ); then
@@ -150,6 +186,12 @@ fi
 
 AC_MSG_RESULT([Using $RTS as the RT signature])
 
+##############################################################################
+# Subsection 2.3                                                             #
+# we have the RT-script now, it's time to query it for some values           #
+# it can provide us with default values such as CC, CFLAGS, etc              #
+# see each case for more details                                             #
+##############################################################################
 
 # For RTAI-3.x $RTS = rtai-config
 if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
@@ -253,7 +295,7 @@ EMC2_HOME=`pwd`
 AC_SUBST([EMC2_HOME])
 
 # Support some of the standard configure options for directories
-AC_PREFIX_DEFAULT(/usr/local)	# Does this become /opt/emc2 ?
+AC_PREFIX_DEFAULT(/usr/local)
 
 if test "x$prefix" = "xNONE"; then
   prefix=$ac_default_prefix
@@ -262,24 +304,35 @@ fi
 
 AC_SUBST(AUTODIRS)
 
+##############################################################################
+# Section 3                                                                  #
+# aditional checking                                                         #
+# Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
+# Subsection 3.2 - check for the kernel version, with RT patches             #
+# Subsection 3.3 - check the moduledir where modules can get installed       #
+# Subsection 3.4 - check for GTK                                             #
+# Subsection 3.5 - check for utility programs needed to build and run EMC    #
+##############################################################################
 
-# Check CC version - (P.C.) We need to verify the compiler is the same one used
-# for the realtime extensions... Hence the need to find the RT signature first.
-# $RTS --cc should return the C compiler used - Verify this is acceptable.
-# if version is gcc-2.96 check for alternative
+
+##############################################################################
+# Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
+# Check CC version - (P.C.) We need to verify the compiler is the same one   #
+# used for the realtime extensions... Hence the need to find the RT signature# 
+# first.                                                                     #
+# $RTS --cc should return the C compiler used - Verify this is acceptable.   #
+# if version is gcc-2.96 check for alternative                               #
+##############################################################################
 AC_MSG_CHECKING([for cc version])
 
 # The compiler MUST match the one used to compile the realtime modules.
 # However realtime-config doesn't seem to have such an option
-
 if (test ${RTS##*/} = rtai-config ) ; then
   RTSCC=`$RTS --cc`
   AC_MSG_RESULT(found $RTSCC in rtai-config)
-  #AC_PROG_CC(`$RTS --cc`)
 elif (test ${RTS##*/} = rtl-config ) ; then
   RTSCC=`$RTS --cc`
   AC_MSG_RESULT(found $RTSCC in rtl-config)
-  #AC_PROG_CC(`$RTS --cc`)
 fi
 
 # seems there's a problem with autoconf if there are multiple
@@ -299,19 +352,18 @@ else
 fi
 
 
-#--------------------------------------------------------------------
-# Check with the version.h to find the uts-kernel version.
-# This should be a more reliable way of determining the kernel that
-# is being used to compile against - `uname -r` only returns the
-# running kernel version which is may not be the one the code is
-# compiled against.
-#--------------------------------------------------------------------
+##############################################################################
+# Subsection 3.2 - check for the kernel version, with RT patches             #
+#----------------------------------------------------------------------------#
+# Check with the version.h to find the uts-kernel version.                   #
+# This should be a more reliable way of determining the kernel that          #
+# is being used to compile against - `uname -r` only returns the             #
+# running kernel version which is may not be the one the code is             #
+# compiled against.                                                          #
+##############################################################################
 AC_MSG_CHECKING([for kernel version])
 
 AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
-# Use " as the delimiter so that we don't confuse make during the compile.
-#KERNEL_VERS=`cat $KERNELDIR/include/linux/version.h | head -n 1 | cut -d '"' -f 2`
-
 # Unfortuantely, many distributions (redhat, mandrake) have #defines
 # inside versin.h, so the above test is too simplistic... But then agsin,
 # RH & Mandrake kernels are notorious for their use of patches that break
@@ -319,19 +371,23 @@ AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.
 # a virgin source from kernel.org.
 
 # Get the kernel version from version.h
-
 AC_MSG_CHECKING([for kernel version string])
 
 VERSION_FILE=$KERNELDIR/include/linux/version.h
-#KERNEL_VERS = `gcc -E -dM $(VERSION_FILE) | grep UTS | awk '{ print $$3; }' | sed -e 's/\"//g')`
 KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
 
 AC_MSG_RESULT([$KERNEL_VERS])
 AC_SUBST([KERNEL_VERS])
 
+##############################################################################
+# Subsection 3.3 - check the moduledir where modules can get installed       #
+#                                                                            #
+# Provides the user the possibility to specify (--with-module-dir=<path>)    #
+# If not specified default inside /lib/modules/${KERNEL_VERS}/               #
+# to the location where a RT-module gets found (mbuff.o or rtai_shm.o)       #
+##############################################################################
 
 # Create a module-dir option, similar to rtai's...
-
 AC_MSG_CHECKING([for module installation directory])
 
 AC_ARG_WITH(module-dir,
@@ -365,12 +421,15 @@ fi
 AC_SUBST([MODULE_DIR])
 AC_MSG_RESULT([$MODULE_DIR])
 
-
-
-AC_PROG_CXX
-AC_PROG_MAKE_SET
-AC_PROG_RANLIB
-AC_CHECK_PROGS(AR,ar)
+##############################################################################
+# Subsection 3.4 - check for GTK                                             #
+#                                                                            #
+# Provides the user the possibility to specify (--with-gtk_ver=<version>)    #
+# If not specified a search for a gtk script is done:                        #
+# gtk-config  - GTK 1.2                                                      #
+# pkg-config and gtk+-2.0 - GTK 2.0                                          #
+# pkg-config and gtk+-2.2 - GTK 2.2                                          #
+##############################################################################
 
 # Check for GTK
 # accept GTK_VER from command line
@@ -417,9 +476,16 @@ AC_SUBST(GTK_VER)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
 
-# Check for all the utility programs we need to build and install emc
-# as well as those we use in the emc scripts...
-
+##############################################################################
+# Subsection 3.5 - check for utility programs needed to build and run EMC    #
+#                                                                            #
+# Check for all the utility programs we need to build and install emc        #
+# as well as those we use in the emc scripts...                              #
+##############################################################################
+AC_PROG_CXX
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+AC_PATH_PROG(AR,ar, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(GREP, grep, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(INSTALL, install, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(SED, sed, "", /bin:/usr/bin:/usr/local/bin)
@@ -433,17 +499,22 @@ AC_PATH_PROG(LSMOD, lsmod, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(PIDOF, pidof, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
 
-# Check for math support
-# Because some of the realtime kernel modules use floating point math
-# which is not supported by standard kernel calls, we need to link to
-# libm. RTAI provides a loadable module derived from uclibc (a minimal
-# glibc implimentaion for embedded systems). Alternatively, we can link
-# to dietlibc - Most distros package this as diet or dietlibc. Debian
-# splits the headers and static libs into dietlibc-dev..
-# If neither of the two preferred options are available, then the default
-# GNU glibc math library will have to be used. This will cause problems
-# if certain functions found in libc.so are not stubbed, hence the following
-# tests and linking to mathstubs.o at a later stage.
+
+##############################################################################
+# Section 4 - Check for math support                                         #
+#                                                                            #
+# Because some of the realtime kernel modules use floating point math        #
+# which is not supported by standard kernel calls, we need to link to        #
+# libm. RTAI provides a loadable module derived from uclibc (a minimal       #
+# glibc implimentaion for embedded systems). Alternatively, we can link      #
+# to dietlibc - Most distros package this as diet or dietlibc. Debian        #
+# splits the headers and static libs into dietlibc-dev..                     #
+# If neither of the two preferred options are available, then the default    #
+# GNU glibc math library will have to be used. This will cause problems      #
+# if certain functions found in libc.so are not stubbed, hence the following #
+# tests and linking to mathstubs.o at a later stage.                         #
+##############################################################################
+
 AC_MSG_CHECKING([for kernel math support])
 USE_LIBM=""
 USE_RTLIBM=""
@@ -464,7 +535,7 @@ if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM) || (test -r /lib/m
     MATHLIB=
     USE_RTLIBM=1
     AC_MSG_RESULT([ok, using RTAI's libm kernel module])
-# Note: need to search /lib/modules/`uname -r` for the math modules..
+# Note: need to search /lib/modules/$KERNEL_VER for the math modules..
 #       or `$RTS --module-dir`...
 else
     AC_MSG_RESULT([no])
@@ -511,25 +582,7 @@ AC_SUBST([USE_RTLIBM])
 AC_SUBST([MATHINC])
 AC_SUBST([MATHLIB])
 
-# Checks for libraries.
-
-# AC_SUBST(INSTALL)
-# AC_SUBST(INSTALL_PROGRAM)
-# AC_SUBST(INSTALL_DATA)
-# AC_SUBST(TCL_SHLIB_CFLAGS)
-# AC_SUBST(TCL_SHLIB_SUFFIX)
-# AC_SUBST(TCL_SHLIB_LD)
-# AC_SUBST(TCL_LIB_SPEC)
-# AC_SUBST(TCL_INCLUDE_SPEC)
-# AC_SUBST(TCL_PREFIX)
-# AC_SUBST(TCL_EXEC_PREFIX)
-# AC_SUBST(TCL_CFLAGS)
-# AC_SUBST(TCL_DEFS)
-# AC_SUBST(TCL_SRC_DIR)
-#--------------------------------------------------------------------
-
 # Export substitution symbols for module loading
-
 AC_SUBST([RTAI3_MOD])
 AC_SUBST([RTAI_MOD])
 AC_SUBST([RTL_MOD])
@@ -537,12 +590,17 @@ AC_SUBST([RTL_MOD])
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-# Test for tcl/tk headers fails if they are not in /usr/include
-# so testing is done by finding tclConfig.sh and tkConfig.sh
-# if the search fails the traditional check is done
+
+##############################################################################
+# Section 5 - Check for tcl/tk support                                       #
+#                                                                            #
+# Test for tcl/tk headers fails if they are not in /usr/include              #
+# so testing is done by finding tclConfig.sh and tkConfig.sh                 #
+# if the search fails the traditional check is done                          #
+##############################################################################
 AC_MSG_CHECKING([for tcl])
 
-#search for tclConfig.sh
+# search for tclConfig.sh
 TCLCONFIG=$(find /usr/lib -maxdepth 2 -name tclConfig.sh | head -n1)
 if (test "x$TCLCONFIG" = "x"); then
     TCLCONFIG=$(find /usr/local/lib -maxdepth 2 -name tclConfig.sh | head -n1)
@@ -554,15 +612,15 @@ if (test "x$TCLCONFIG" = "x"); then
    AC_CHECK_HEADERS([tcl.h])
    AC_SEARCH_LIBS(Tcl_Init,[tcl tcl80 tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
 else
-#tclConfig.sh found,
-#extracting vars
+# tclConfig.sh found,
+# extracting vars
    AC_MSG_RESULT([$TCLCONFIG found])
    source "$TCLCONFIG"
    TCL_CFLAGS="$TCL_INCLUDE_SPEC"
    TCL_LIBS="$TCL_LIB_SPEC"
 fi
 
-#search for tkConfig.sh
+# search for tkConfig.sh
 TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | head -n1)
 if (test "x$TKCONFIG" = "x"); then
     TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
@@ -574,14 +632,13 @@ if (test "x$TKCONFIG" = "x"); then
    AC_CHECK_HEADERS([tk.h])
    AC_SEARCH_LIBS(Tk_Init,[tk tk80 tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
 else
-#tkConfig.sh found,
-#extracting vars
+# tkConfig.sh found,
+# extracting vars
    AC_MSG_RESULT([$TKCONFIG found])
    source "$TKCONFIG"
    TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES" 
    TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 fi
-
 
 AC_SUBST([TCL_DBGX])
 AC_SUBST([TK_DBGX])
@@ -590,26 +647,36 @@ AC_SUBST([TK_CFLAGS])
 AC_SUBST([TCL_LIBS])
 AC_SUBST([TK_LIBS])
 
-# Checks for typedefs, structures, and compiler characteristics.
+##############################################################################
+# Section 6 - Miscelaneous support                                           #
+#                                                                            #
+# Subsection 6.1. - provides DATE to output it to the generated files        #
+# Subsection 6.2. - user option to convince make to be quiet during make     #
+##############################################################################
 
+# provides DATE in order to output it to the generated files
 DATE=$(date)
 AC_SUBST([DATE])
 
+# user option to convince make to be quiet during make
 AC_ARG_WITH(make-quiet,
 	    [  --with-make-quiet                       make will run quietly],
 	    MAKEFLAGS=s, MAKEFLAGS=) 
 AC_SUBST([MAKEFLAGS])
 
-# i18n Language support:
-# see http://cvs.gnome.org/viewcvs/intltool/doc/I18N-HOWTO?rev=1.3
+
+##############################################################################
+# Section 7 - Language support                                               #
+#                                                                            #
+# i18n Language support:                                                     #
+# see http://cvs.gnome.org/viewcvs/intltool/doc/I18N-HOWTO?rev=1.3           #
+##############################################################################
 
 # if you don't have nls tools, allow a way out!
 AC_ARG_ENABLE(nls,
               [  --disable-nls                  don't use NLS],
               USE_NLS=no, USE_NLS=yes)
 AC_SUBST(USE_NLS)
-
-
 
 if test "$USE_NLS" = "yes"; then
   AC_CHECK_HEADERS(locale.h)
@@ -627,7 +694,6 @@ if test "$USE_NLS" = "yes"; then
 
 # The default locale directory is /usr/share/locale - This is generally fixed
 # by the distribution....
-
   dnl Handle localedir
   LOCALEDIR='/usr/share/locale'
   AC_ARG_WITH(locale-dir,
@@ -647,17 +713,15 @@ if test "$USE_NLS" = "yes"; then
 fi
 
 
-#AC_PROG_INTLTOOL(0.25)
-#AM_GNU_GETTEXT([external])
-#ALL_LINGUAS="en"
-
-#AM_GLIB_GNU_GETTEXT
-
-
+##############################################################################
+# files that get created by ./configure                                      #
+##############################################################################
 AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
 AC_OUTPUT(Makefile.inc)
 
-
+##############################################################################
+# message to the user what to do next, after a succesfull ./configure        #
+##############################################################################
 echo ""
 echo ""
 echo "######################################################################"

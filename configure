@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP KERNEL_VERS MODULE_DIR CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GTK_VER GTK_LIBS GTK_CFLAGS GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE MAKEFLAGS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP KERNEL_VERS MODULE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE MAKEFLAGS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1284,15 +1284,18 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 PACKAGE="emc2"
 
 
-# Checks for programs.
+##############################################################################
+# Section 2                                                                  #
+# RealTime checking (either RTAI, or RT-Linux)                               #
+# Subsection 2.1 - arguments to ./configure (--with-rtai,rtlinux,rtlinuxpro) #
+# Subsection 2.2 - if none specified above, RTDIR needs to be found by search#
+# Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
+##############################################################################
 
-# Check for RT
-# accept rtai=path from commandline
-# accept rtlinux=path from commandline
-# accept rtlinuxpro=path from commandline
 echo "$as_me:$LINENO: checking for RT dir" >&5
 echo $ECHO_N "checking for RT dir... $ECHO_C" >&6
-CC=""
+
+# set up some default values
 RTDIR=""
 RTNAME=""
 RTAI=""
@@ -1306,7 +1309,15 @@ RTAI3_MOD=""
 RTAI_MOD=""
 RTL_MOD=""
 
+##############################################################################
+# Subsection 2.1                                                             #
+# Check for arguments to ./configure                                         #
+# accept --with-rtai=<path> from commandline                                 #
+# accept --with-rtlinux=<path> from commandline                              #
+# accept --with-rtlinuxpro=<path> from commandline                           #
+##############################################################################
 
+# check for path from --with-rtai=<path>
 
 # Check whether --with-rtai or --without-rtai was given.
 if test "${with_rtai+set}" = set; then
@@ -1327,6 +1338,7 @@ if (! test -z "$RTAIDIR") ; then
 echo $ECHO_N "checking specified rtai=$RTDIR... $ECHO_C" >&6
 fi
 
+# check for path from --with-rtlinux=<path>
 
 # Check whether --with-rtlinux or --without-rtlinux was given.
 if test "${with_rtlinux+set}" = set; then
@@ -1341,6 +1353,8 @@ echo "$as_me: error: You must supply an argument to --with-rtlinux." >&2;}
 	RTLINUXDIR="$withval"
 fi;
 
+# check to see if rtai and rtlinux have been specified
+# this is bad, and is reson for aborting ./configure
 if (! test -z "$RTLINUXDIR") ; then
   if (! test -z "$RTDIR") ; then
     { { echo "$as_me:$LINENO: error: rtai=$RTAIDIR & rtlinux=$RTLINUXDIR defined. Only one is possible" >&5
@@ -1353,6 +1367,7 @@ echo $ECHO_N "checking specified rtlinux=$RTDIR... $ECHO_C" >&6
   fi
 fi
 
+# check for path from --with-rtlinuxpro=<path>
 
 # Check whether --with-rtlinuxpro or --without-rtlinuxpro was given.
 if test "${with_rtlinuxpro+set}" = set; then
@@ -1367,6 +1382,8 @@ echo "$as_me: error: You must supply an argument to --with-rtlinuxpro." >&2;}
 	RTLINUXPRODIR="$withval"
 fi;
 
+# check to see if rtai or rtlinux and rtlinuxpro have been specified
+# this is bad, and is reson for aborting ./configure
 if (! test -z "$RTLINUXPRODIR") ; then
   if (! test -z "$RTDIR") ; then
     { { echo "$as_me:$LINENO: error: rtdir=$RTDIR & rtlinuxpro=$RTLINUXPRODIR defined. Only one is possible" >&5
@@ -1378,6 +1395,20 @@ echo "$as_me: error: rtdir=$RTDIR & rtlinuxpro=$RTLINUXPRODIR defined. Only one 
 echo $ECHO_N "checking specified rtlinuxpro=$RTDIR... $ECHO_C" >&6
   fi
 fi
+
+##############################################################################
+# Subsection 2.2                                                             #
+# 1. If a RT has been specified by the user it needs to be checked for       #
+# validity. That is done by checking default locations for a certain script  #
+# (similar to 2)                                                             #
+#                                                                            #
+# 2. If no RT has been specified explicitely by the user, one has to be      #
+# found by search. In order to do that the following code will search for a  #
+# RT-specific script:                                                        #
+# rtlinux-config for RTLinux                                                 #
+# realtime-config for RTAI 24.1.x                                            #
+# rtai-config for RTAI 3.x                                                   #
+##############################################################################
 
 #at this point if RTDIR is empty, we need to find RT ourselves
 if (test -z "$RTDIR" ); then
@@ -1457,6 +1488,12 @@ fi
 echo "$as_me:$LINENO: result: Using $RTS as the RT signature" >&5
 echo "${ECHO_T}Using $RTS as the RT signature" >&6
 
+##############################################################################
+# Subsection 2.3                                                             #
+# we have the RT-script now, it's time to query it for some values           #
+# it can provide us with default values such as CC, CFLAGS, etc              #
+# see each case for more details                                             #
+##############################################################################
 
 # For RTAI-3.x $RTS = rtai-config
 if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
@@ -1560,7 +1597,7 @@ EMC2_HOME=`pwd`
 
 
 # Support some of the standard configure options for directories
-	# Does this become /opt/emc2 ?
+
 
 if test "x$prefix" = "xNONE"; then
   prefix=$ac_default_prefix
@@ -1569,27 +1606,38 @@ fi
 
 
 
+##############################################################################
+# Section 3                                                                  #
+# aditional checking                                                         #
+# Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
+# Subsection 3.2 - check for the kernel version, with RT patches             #
+# Subsection 3.3 - check the moduledir where modules can get installed       #
+# Subsection 3.4 - check for GTK                                             #
+# Subsection 3.5 - check for utility programs needed to build and run EMC    #
+##############################################################################
 
-# Check CC version - (P.C.) We need to verify the compiler is the same one used
-# for the realtime extensions... Hence the need to find the RT signature first.
-# $RTS --cc should return the C compiler used - Verify this is acceptable.
-# if version is gcc-2.96 check for alternative
+
+##############################################################################
+# Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
+# Check CC version - (P.C.) We need to verify the compiler is the same one   #
+# used for the realtime extensions... Hence the need to find the RT signature#
+# first.                                                                     #
+# $RTS --cc should return the C compiler used - Verify this is acceptable.   #
+# if version is gcc-2.96 check for alternative                               #
+##############################################################################
 echo "$as_me:$LINENO: checking for cc version" >&5
 echo $ECHO_N "checking for cc version... $ECHO_C" >&6
 
 # The compiler MUST match the one used to compile the realtime modules.
 # However realtime-config doesn't seem to have such an option
-
 if (test ${RTS##*/} = rtai-config ) ; then
   RTSCC=`$RTS --cc`
   echo "$as_me:$LINENO: result: found $RTSCC in rtai-config" >&5
 echo "${ECHO_T}found $RTSCC in rtai-config" >&6
-  #AC_PROG_CC(`$RTS --cc`)
 elif (test ${RTS##*/} = rtl-config ) ; then
   RTSCC=`$RTS --cc`
   echo "$as_me:$LINENO: result: found $RTSCC in rtl-config" >&5
 echo "${ECHO_T}found $RTSCC in rtl-config" >&6
-  #AC_PROG_CC(`$RTS --cc`)
 fi
 
 # seems there's a problem with autoconf if there are multiple
@@ -2264,13 +2312,15 @@ echo "$as_me: error: gcc version 2.96 found, but not supported.
 fi
 
 
-#--------------------------------------------------------------------
-# Check with the version.h to find the uts-kernel version.
-# This should be a more reliable way of determining the kernel that
-# is being used to compile against - `uname -r` only returns the
-# running kernel version which is may not be the one the code is
-# compiled against.
-#--------------------------------------------------------------------
+##############################################################################
+# Subsection 3.2 - check for the kernel version, with RT patches             #
+#----------------------------------------------------------------------------#
+# Check with the version.h to find the uts-kernel version.                   #
+# This should be a more reliable way of determining the kernel that          #
+# is being used to compile against - `uname -r` only returns the             #
+# running kernel version which is may not be the one the code is             #
+# compiled against.                                                          #
+##############################################################################
 echo "$as_me:$LINENO: checking for kernel version" >&5
 echo $ECHO_N "checking for kernel version... $ECHO_C" >&6
 
@@ -2894,9 +2944,6 @@ fi
 
 done
 
-# Use " as the delimiter so that we don't confuse make during the compile.
-#KERNEL_VERS=`cat $KERNELDIR/include/linux/version.h | head -n 1 | cut -d '"' -f 2`
-
 # Unfortuantely, many distributions (redhat, mandrake) have #defines
 # inside versin.h, so the above test is too simplistic... But then agsin,
 # RH & Mandrake kernels are notorious for their use of patches that break
@@ -2904,21 +2951,25 @@ done
 # a virgin source from kernel.org.
 
 # Get the kernel version from version.h
-
 echo "$as_me:$LINENO: checking for kernel version string" >&5
 echo $ECHO_N "checking for kernel version string... $ECHO_C" >&6
 
 VERSION_FILE=$KERNELDIR/include/linux/version.h
-#KERNEL_VERS = `gcc -E -dM $(VERSION_FILE) | grep UTS | awk '{ print $$3; }' | sed -e 's/\"//g')`
 KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
 
 echo "$as_me:$LINENO: result: $KERNEL_VERS" >&5
 echo "${ECHO_T}$KERNEL_VERS" >&6
 
 
+##############################################################################
+# Subsection 3.3 - check the moduledir where modules can get installed       #
+#                                                                            #
+# Provides the user the possibility to specify (--with-module-dir=<path>)    #
+# If not specified default inside /lib/modules/${KERNEL_VERS}/               #
+# to the location where a RT-module gets found (mbuff.o or rtai_shm.o)       #
+##############################################################################
 
 # Create a module-dir option, similar to rtai's...
-
 echo "$as_me:$LINENO: checking for module installation directory" >&5
 echo $ECHO_N "checking for module installation directory... $ECHO_C" >&6
 
@@ -2959,8 +3010,74 @@ fi
 echo "$as_me:$LINENO: result: $MODULE_DIR" >&5
 echo "${ECHO_T}$MODULE_DIR" >&6
 
+##############################################################################
+# Subsection 3.4 - check for GTK                                             #
+#                                                                            #
+# Provides the user the possibility to specify (--with-gtk_ver=<version>)    #
+# If not specified a search for a gtk script is done:                        #
+# gtk-config  - GTK 1.2                                                      #
+# pkg-config and gtk+-2.0 - GTK 2.0                                          #
+# pkg-config and gtk+-2.2 - GTK 2.2                                          #
+##############################################################################
+
+# Check for GTK
+# accept GTK_VER from command line
+echo "$as_me:$LINENO: checking for GTK version" >&5
+echo $ECHO_N "checking for GTK version... $ECHO_C" >&6
 
 
+# Check whether --with-gtk_ver or --without-gtk_ver was given.
+if test "${with_gtk_ver+set}" = set; then
+  withval="$with_gtk_ver"
+
+	case "$withval" in
+	"" | y | ye | yes | n | no)
+	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-gtk_ver." >&5
+echo "$as_me: error: You must supply an argument to --with-gtk_ver." >&2;}
+   { (exit 1); exit 1; }; }
+	  ;;
+	esac
+	GTK_VER="$withval"
+
+fi;
+
+if test "x" = "x$GTK_VER"; then
+  #we need to find out GTK_VER ourselves
+  GTK_VER="none"
+  if type gtk-config 2>/dev/null >/dev/null ; then
+    # found gtk-config, that means GTK 1.2 is installed
+    GTK_VER="1.2"
+  elif type pkg-config 2>/dev/null >/dev/null ; then
+    # found pkg-config, that means GTK 2.x _might_ be installed
+    if pkg-config gtk+-2.0 --exists ; then
+      # found the .pc file for gtk-2.0
+      GTK_VER="2.0"
+    elif pkg-config gtk+-2.2 --exists ; then
+      # found the .pc file for gtk-2.2
+      GTK_VER="2.2"
+    fi
+  fi
+fi
+echo "$as_me:$LINENO: result: $GTK_VER" >&5
+echo "${ECHO_T}$GTK_VER" >&6
+if (! test "none" = "$GTK_VER") ; then
+  GTK_CFLAGS=`gtk-config --cflags`
+  GTK_LIBS=`gtk-config --libs`
+else
+  GTK_CFLAGS=""
+  GTK_LIBS=""
+  GTK_VER=""
+fi
+
+
+
+
+##############################################################################
+# Subsection 3.5 - check for utility programs needed to build and run EMC    #
+#                                                                            #
+# Check for all the utility programs we need to build and install emc        #
+# as well as those we use in the emc scripts...                              #
+##############################################################################
 ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3390,35 +3507,39 @@ else
   RANLIB="$ac_cv_prog_RANLIB"
 fi
 
-for ac_prog in ar
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
+# Extract the first word of "ar", so it can be a program name with args.
+set dummy ar; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_AR+set}" = set; then
+if test "${ac_cv_path_AR+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test -n "$AR"; then
-  ac_cv_prog_AR="$AR" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
+  case $AR in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_AR="$AR" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
   for ac_exec_ext in '' $ac_executable_extensions; do
   if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_AR="$ac_prog"
+    ac_cv_path_AR="$as_dir/$ac_word$ac_exec_ext"
     echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
 done
 done
 
+  test -z "$ac_cv_path_AR" && ac_cv_path_AR=""""
+  ;;
+esac
 fi
-fi
-AR=$ac_cv_prog_AR
+AR=$ac_cv_path_AR
+
 if test -n "$AR"; then
   echo "$as_me:$LINENO: result: $AR" >&5
 echo "${ECHO_T}$AR" >&6
@@ -3426,65 +3547,6 @@ else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
-
-  test -n "$AR" && break
-done
-
-
-# Check for GTK
-# accept GTK_VER from command line
-echo "$as_me:$LINENO: checking for GTK version" >&5
-echo $ECHO_N "checking for GTK version... $ECHO_C" >&6
-
-
-# Check whether --with-gtk_ver or --without-gtk_ver was given.
-if test "${with_gtk_ver+set}" = set; then
-  withval="$with_gtk_ver"
-
-	case "$withval" in
-	"" | y | ye | yes | n | no)
-	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-gtk_ver." >&5
-echo "$as_me: error: You must supply an argument to --with-gtk_ver." >&2;}
-   { (exit 1); exit 1; }; }
-	  ;;
-	esac
-	GTK_VER="$withval"
-
-fi;
-
-if test "x" = "x$GTK_VER"; then
-  #we need to find out GTK_VER ourselves
-  GTK_VER="none"
-  if type gtk-config 2>/dev/null >/dev/null ; then
-    # found gtk-config, that means GTK 1.2 is installed
-    GTK_VER="1.2"
-  elif type pkg-config 2>/dev/null >/dev/null ; then
-    # found pkg-config, that means GTK 2.x _might_ be installed
-    if pkg-config gtk+-2.0 --exists ; then
-      # found the .pc file for gtk-2.0
-      GTK_VER="2.0"
-    elif pkg-config gtk+-2.2 --exists ; then
-      # found the .pc file for gtk-2.2
-      GTK_VER="2.2"
-    fi
-  fi
-fi
-echo "$as_me:$LINENO: result: $GTK_VER" >&5
-echo "${ECHO_T}$GTK_VER" >&6
-if (! test "none" = "$GTK_VER") ; then
-  GTK_CFLAGS=`gtk-config --cflags`
-  GTK_LIBS=`gtk-config --libs`
-else
-  GTK_CFLAGS=""
-  GTK_LIBS=""
-  GTK_VER=""
-fi
-
-
-
-
-# Check for all the utility programs we need to build and install emc
-# as well as those we use in the emc scripts...
 
 # Extract the first word of "grep", so it can be a program name with args.
 set dummy grep; ac_word=$2
@@ -3979,17 +4041,22 @@ echo "${ECHO_T}no" >&6
 fi
 
 
-# Check for math support
-# Because some of the realtime kernel modules use floating point math
-# which is not supported by standard kernel calls, we need to link to
-# libm. RTAI provides a loadable module derived from uclibc (a minimal
-# glibc implimentaion for embedded systems). Alternatively, we can link
-# to dietlibc - Most distros package this as diet or dietlibc. Debian
-# splits the headers and static libs into dietlibc-dev..
-# If neither of the two preferred options are available, then the default
-# GNU glibc math library will have to be used. This will cause problems
-# if certain functions found in libc.so are not stubbed, hence the following
-# tests and linking to mathstubs.o at a later stage.
+
+##############################################################################
+# Section 4 - Check for math support                                         #
+#                                                                            #
+# Because some of the realtime kernel modules use floating point math        #
+# which is not supported by standard kernel calls, we need to link to        #
+# libm. RTAI provides a loadable module derived from uclibc (a minimal       #
+# glibc implimentaion for embedded systems). Alternatively, we can link      #
+# to dietlibc - Most distros package this as diet or dietlibc. Debian        #
+# splits the headers and static libs into dietlibc-dev..                     #
+# If neither of the two preferred options are available, then the default    #
+# GNU glibc math library will have to be used. This will cause problems      #
+# if certain functions found in libc.so are not stubbed, hence the following #
+# tests and linking to mathstubs.o at a later stage.                         #
+##############################################################################
+
 echo "$as_me:$LINENO: checking for kernel math support" >&5
 echo $ECHO_N "checking for kernel math support... $ECHO_C" >&6
 USE_LIBM=""
@@ -4012,7 +4079,7 @@ if (test -r $RTDIR/modules/rtai_libm.o ) || (test USE_RTLIBM) || (test -r /lib/m
     USE_RTLIBM=1
     echo "$as_me:$LINENO: result: ok, using RTAI's libm kernel module" >&5
 echo "${ECHO_T}ok, using RTAI's libm kernel module" >&6
-# Note: need to search /lib/modules/`uname -r` for the math modules..
+# Note: need to search /lib/modules/$KERNEL_VER for the math modules..
 #       or `$RTS --module-dir`...
 else
     echo "$as_me:$LINENO: result: no" >&5
@@ -4066,25 +4133,7 @@ fi
 
 
 
-# Checks for libraries.
-
-# AC_SUBST(INSTALL)
-# AC_SUBST(INSTALL_PROGRAM)
-# AC_SUBST(INSTALL_DATA)
-# AC_SUBST(TCL_SHLIB_CFLAGS)
-# AC_SUBST(TCL_SHLIB_SUFFIX)
-# AC_SUBST(TCL_SHLIB_LD)
-# AC_SUBST(TCL_LIB_SPEC)
-# AC_SUBST(TCL_INCLUDE_SPEC)
-# AC_SUBST(TCL_PREFIX)
-# AC_SUBST(TCL_EXEC_PREFIX)
-# AC_SUBST(TCL_CFLAGS)
-# AC_SUBST(TCL_DEFS)
-# AC_SUBST(TCL_SRC_DIR)
-#--------------------------------------------------------------------
-
 # Export substitution symbols for module loading
-
 
 
 
@@ -4312,13 +4361,18 @@ _ACEOF
 
 fi
 
-# Test for tcl/tk headers fails if they are not in /usr/include
-# so testing is done by finding tclConfig.sh and tkConfig.sh
-# if the search fails the traditional check is done
+
+##############################################################################
+# Section 5 - Check for tcl/tk support                                       #
+#                                                                            #
+# Test for tcl/tk headers fails if they are not in /usr/include              #
+# so testing is done by finding tclConfig.sh and tkConfig.sh                 #
+# if the search fails the traditional check is done                          #
+##############################################################################
 echo "$as_me:$LINENO: checking for tcl" >&5
 echo $ECHO_N "checking for tcl... $ECHO_C" >&6
 
-#search for tclConfig.sh
+# search for tclConfig.sh
 TCLCONFIG=$(find /usr/lib -maxdepth 2 -name tclConfig.sh | head -n1)
 if (test "x$TCLCONFIG" = "x"); then
     TCLCONFIG=$(find /usr/local/lib -maxdepth 2 -name tclConfig.sh | head -n1)
@@ -4582,8 +4636,8 @@ echo "$as_me: error: tcl lib not found" >&2;}
 fi
 
 else
-#tclConfig.sh found,
-#extracting vars
+# tclConfig.sh found,
+# extracting vars
    echo "$as_me:$LINENO: result: $TCLCONFIG found" >&5
 echo "${ECHO_T}$TCLCONFIG found" >&6
    source "$TCLCONFIG"
@@ -4591,7 +4645,7 @@ echo "${ECHO_T}$TCLCONFIG found" >&6
    TCL_LIBS="$TCL_LIB_SPEC"
 fi
 
-#search for tkConfig.sh
+# search for tkConfig.sh
 TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | head -n1)
 if (test "x$TKCONFIG" = "x"); then
     TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
@@ -4855,8 +4909,8 @@ echo "$as_me: error: tk lib not found" >&2;}
 fi
 
 else
-#tkConfig.sh found,
-#extracting vars
+# tkConfig.sh found,
+# extracting vars
    echo "$as_me:$LINENO: result: $TKCONFIG found" >&5
 echo "${ECHO_T}$TKCONFIG found" >&6
    source "$TKCONFIG"
@@ -4871,12 +4925,18 @@ fi
 
 
 
+##############################################################################
+# Section 6 - Miscelaneous support                                           #
+#                                                                            #
+# Subsection 6.1. - provides DATE to output it to the generated files        #
+# Subsection 6.2. - user option to convince make to be quiet during make     #
+##############################################################################
 
-# Checks for typedefs, structures, and compiler characteristics.
-
+# provides DATE in order to output it to the generated files
 DATE=$(date)
 
 
+# user option to convince make to be quiet during make
 
 # Check whether --with-make-quiet or --without-make-quiet was given.
 if test "${with_make_quiet+set}" = set; then
@@ -4887,8 +4947,13 @@ else
 fi;
 
 
-# i18n Language support:
-# see http://cvs.gnome.org/viewcvs/intltool/doc/I18N-HOWTO?rev=1.3
+
+##############################################################################
+# Section 7 - Language support                                               #
+#                                                                            #
+# i18n Language support:                                                     #
+# see http://cvs.gnome.org/viewcvs/intltool/doc/I18N-HOWTO?rev=1.3           #
+##############################################################################
 
 # if you don't have nls tools, allow a way out!
 # Check whether --enable-nls or --disable-nls was given.
@@ -4898,8 +4963,6 @@ if test "${enable_nls+set}" = set; then
 else
   USE_NLS=yes
 fi;
-
-
 
 
 if test "$USE_NLS" = "yes"; then
@@ -5346,7 +5409,6 @@ fi
 
 # The default locale directory is /usr/share/locale - This is generally fixed
 # by the distribution....
-
     LOCALEDIR='/usr/share/locale'
 
 # Check whether --with-locale-dir or --without-locale-dir was given.
@@ -5370,13 +5432,9 @@ fi;
 fi
 
 
-#AC_PROG_INTLTOOL(0.25)
-#AM_GNU_GETTEXT([external])
-#ALL_LINGUAS="en"
-
-#AM_GLIB_GNU_GETTEXT
-
-
+##############################################################################
+# files that get created by ./configure                                      #
+##############################################################################
                                         ac_config_files="$ac_config_files configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h"
 
           ac_config_files="$ac_config_files Makefile.inc"
@@ -6039,6 +6097,9 @@ s,@CPP@,$CPP,;t t
 s,@EGREP@,$EGREP,;t t
 s,@KERNEL_VERS@,$KERNEL_VERS,;t t
 s,@MODULE_DIR@,$MODULE_DIR,;t t
+s,@GTK_VER@,$GTK_VER,;t t
+s,@GTK_LIBS@,$GTK_LIBS,;t t
+s,@GTK_CFLAGS@,$GTK_CFLAGS,;t t
 s,@CXX@,$CXX,;t t
 s,@CXXFLAGS@,$CXXFLAGS,;t t
 s,@ac_ct_CXX@,$ac_ct_CXX,;t t
@@ -6046,9 +6107,6 @@ s,@SET_MAKE@,$SET_MAKE,;t t
 s,@RANLIB@,$RANLIB,;t t
 s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
 s,@AR@,$AR,;t t
-s,@GTK_VER@,$GTK_VER,;t t
-s,@GTK_LIBS@,$GTK_LIBS,;t t
-s,@GTK_CFLAGS@,$GTK_CFLAGS,;t t
 s,@GREP@,$GREP,;t t
 s,@INSTALL@,$INSTALL,;t t
 s,@SED@,$SED,;t t
@@ -6316,7 +6374,9 @@ if test "$no_create" != yes; then
 fi
 
 
-
+##############################################################################
+# message to the user what to do next, after a succesfull ./configure        #
+##############################################################################
 echo ""
 echo ""
 echo "######################################################################"
