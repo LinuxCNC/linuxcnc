@@ -27,7 +27,7 @@ extern "C" {
 #include "emcglb.h"             // MIST_COOLANT_INDEX, etc
 
 // inifile ref'ed by iniCoolant(), loadCoolant()
-static INIFILE *coolantInifile = 0;
+static Inifile *coolantInifile = 0;
 
 /*
   loadCoolant()
@@ -147,9 +147,9 @@ int iniCoolant(const char *filename)
 {
   int retval = 0;
 
-  coolantInifile = new INIFILE;
+  coolantInifile = new Inifile;
 
-  if (-1 == coolantInifile->open(filename))
+  if (coolantInifile->open(filename) == false)
     {
       return -1;
     }

@@ -33,7 +33,7 @@ extern "C" {
 #include "emccfg.h"             // default values for globals
 
 // inifile ref'ed by iniAxes(), loadAxis()
-static INIFILE *axisInifile = 0;
+static Inifile *axisInifile = 0;
 
 /*
   loadAxis(int axis)
@@ -1063,7 +1063,7 @@ int iniAxis(int axis, const char *filename)
   const char *inistring;
   int axes;
 
-  axisInifile = new INIFILE;
+  axisInifile = new Inifile;
   if (-1 == axisInifile->open(filename)) {
     return -1;
   }

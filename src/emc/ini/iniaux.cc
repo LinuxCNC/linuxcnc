@@ -26,7 +26,7 @@ extern "C" {
 #include "emcglb.h"             // ESTOP_SENSE_INDEX, etc
 
 // inifile ref'ed by iniAux(), loadAux()
-static INIFILE *auxInifile = 0;
+static Inifile *auxInifile = 0;
 
 /*
   loadAux()
@@ -146,7 +146,7 @@ int iniAux(const char *filename)
 {
   int retval = 0;
 
-  auxInifile = new INIFILE;
+  auxInifile = new Inifile;
 
   if (-1 == auxInifile->open(filename))
     {

@@ -30,7 +30,7 @@ extern "C" {
 #include "emcglb.h"             // TRAVERSE_RATE (FIXME)
 
 // inifile ref'ed by iniTraj(), loadTraj()
-static INIFILE *trajInifile = 0;
+static Inifile *trajInifile = 0;
 
 /*
   loadTraj()
@@ -455,7 +455,7 @@ int iniTraj(const char *filename)
 {
   int retval = 0;
 
-  trajInifile = new INIFILE;
+  trajInifile = new Inifile;
 
   if (-1 == trajInifile->open(filename))
     {

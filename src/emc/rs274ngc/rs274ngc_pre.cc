@@ -77,7 +77,7 @@ include an option for suppressing superfluous commands.
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "inifile.hh"		// INIFILE
+#include "inifile.hh"		// Inifile
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_errors.cc"
@@ -1087,7 +1087,7 @@ VARIABLE_FILE = rs274ngc.var
 
 int Interp::rs274ngc_ini_load(const char *filename)
 {
-    INIFILE inifile;
+    Inifile inifile;
     const char *inistring;
 
     // open it

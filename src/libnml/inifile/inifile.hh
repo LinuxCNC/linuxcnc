@@ -19,6 +19,7 @@
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
+#include <stdio.h>
 #include "global_defs.h"
 
 typedef struct {

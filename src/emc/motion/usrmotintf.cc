@@ -18,6 +18,7 @@
 * $Date$
 ********************************************************************/
 
+#include <stdlib.h>		/* exit() */
 #include <sys/stat.h>
 #include <string.h>		/* memcpy() */
 #include <float.h>		/* DBL_MIN */
@@ -28,7 +29,8 @@
 #include "usrmotintf.h"		/* these decls */
 #include "emcmotlog.h"		/* emcmot_log_t */
 #include "_timer.h"
-#include "inifile.h"		/* iniFind() */
+
+#include "inifile.hh"
 
 #define READ_TIMEOUT_SEC 0	/* seconds for timeout */
 #define READ_TIMEOUT_USEC 100000	/* microseconds for timeout */
@@ -54,19 +56,20 @@ emcmot_struct_t *emcmotshmem = NULL;	// Shared memory base address.
    from named ini file */
 int usrmotIniLoad(const char *filename)
 {
-    FILE *fp;
     const char *inistring;
     int saveInt;
     double saveDouble;
+    Inifile *inifile;
 
+    inifile = new Inifile(filename);
     /* open it */
-    if (NULL == (fp = fopen(filename, "r"))) {
+    if (inifile->valid() == false) {
 	rtapi_print("can't find emcmot ini file %s\n", filename);
 	return -1;
     }
 
     saveInt = SHMEM_KEY;
-    if (NULL != (inistring = iniFind(fp, "SHMEM_KEY", "EMCMOT"))) {
+    if (NULL != (inistring = inifile->find("SHMEM_KEY", "EMCMOT"))) {
 	if (1 == sscanf(inistring, "%i", &SHMEM_KEY)) {
 	    /* found it */
 	} else {
@@ -82,7 +85,7 @@ int usrmotIniLoad(const char *filename)
 	    filename, SHMEM_KEY);
     }
     saveDouble = EMCMOT_COMM_TIMEOUT;
-    if (NULL != (inistring = iniFind(fp, "COMM_TIMEOUT", "EMCMOT"))) {
+    if (NULL != (inistring = inifile->find("COMM_TIMEOUT", "EMCMOT"))) {
 	if (1 == sscanf(inistring, "%lf", &EMCMOT_COMM_TIMEOUT)) {
 	    /* found it */
 	} else {
@@ -100,7 +103,7 @@ int usrmotIniLoad(const char *filename)
     }
 
     saveDouble = EMCMOT_COMM_WAIT;
-    if (NULL != (inistring = iniFind(fp, "COMM_WAIT", "EMCMOT"))) {
+    if (NULL != (inistring = inifile->find("COMM_WAIT", "EMCMOT"))) {
 	if (1 == sscanf(inistring, "%lf", &EMCMOT_COMM_WAIT)) {
 	    /* found it */
 	} else {
@@ -116,7 +119,7 @@ int usrmotIniLoad(const char *filename)
 	    filename, EMCMOT_COMM_WAIT);
     }
 
-    fclose(fp);
+    delete inifile;
 
     return 0;
 }

@@ -64,8 +64,7 @@ enum RCS_STATUS {               /* Originally from nml_mod.hh */
 /* Pose/Vector/Matrix Math Classes */
 #include "posemath.h"
 
-/* class INIFILE */
-#include "inifile.h"
+/* class Inifile */
 #include "inifile.hh"
 
 #include "rcsversion.h"

@@ -27,7 +27,7 @@ extern "C" {
 #include "emcglb.h"             // LUBE_SENSE_INDEX, etc
 
 // inifile ref'ed by iniLube(), loadLube()
-static INIFILE *lubeInifile = 0;
+static Inifile *lubeInifile = 0;
 
 /*
   loadLube()
@@ -144,7 +144,7 @@ int iniLube(const char *filename)
 {
   int retval = 0;
 
-  lubeInifile = new INIFILE;
+  lubeInifile = new Inifile;
 
   if (-1 == lubeInifile->open(filename))
     {

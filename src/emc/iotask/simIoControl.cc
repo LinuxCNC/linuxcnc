@@ -116,7 +116,7 @@ static int emcIoNmlGet()
 ********************************************************************/
 static int iniLoad(const char *filename)
 {
-  INIFILE inifile;
+  Inifile inifile;
   const char * inistring;
   char version[LINELEN];
 

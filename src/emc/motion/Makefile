@@ -5,7 +5,7 @@ include ../../../Makefile.inc
 SRCS = \
 	emcmotglb.c \
 	emcmotutil.c \
-	usrmotintf.c
+	usrmotintf.cc
 
 RT_SRCS = \
 	command.c \

@@ -16,7 +16,7 @@ LIBS = $(LIB_DIR)/libnmld.a \
 	$(LIB_DIR)/libnml.a
 
 
-all: $(LIBS) lib_gen $(BIN_DIR)/inivar
+all: $(LIBS) lib_gen
 
 # include ../../Make.rules
 lib_gen: $(LIBS)
@@ -31,8 +31,5 @@ $(LIB_DIR)/libnmld.a: $(LIB_OBJS:%=$(TMP_DIR)/%)
 	rm -f $@
 	$(AR) $(ARFLAGS) $@ $(LIB_OBJS:%=$(TMP_DIR)/%)
 	chmod 664 $@
-
-$(BIN_DIR)/inivar: $(TMP_DIR)/inivar.o $(LIB_DIR)/libnml.a
-	$(CXX) $^ -o $@
 
 .PHONY: all clean install indent depend headers

@@ -1752,7 +1752,7 @@ static int emc_plat(ClientData clientdata,
 static int emc_ini(ClientData clientdata,
     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    INIFILE inifile;
+    Inifile inifile;
     const char *inistring;
     const char *varstr, *secstr, *defaultstr;
     defaultstr = 0;
@@ -5345,7 +5345,7 @@ int Tcl_AppInit(Tcl_Interp * interp)
 
 static int iniLoad(const char *filename)
 {
-    INIFILE inifile;
+    Inifile inifile;
     const char *inistring;
     char displayString[LINELEN] = "";
     int t;
