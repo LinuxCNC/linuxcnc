@@ -1,0 +1,203 @@
+
+Version: $Id$
+
+
+			Introduction
+
+Most of this style guide has been copied wholesale from the linux kernel
+documents - See linux/Documentation/CodingStyle for the full text.
+
+
+
+ 			Indentation
+
+Rationale: The whole idea behind indentation is to clearly define where
+a block of control starts and ends.  Especially when you've been looking
+at your screen for 20 straight hours, you'll find it a lot easier to see
+how the indentation works if you have large indentations. 
+
+Now, some people will claim that having 8-character indentations makes
+the code move too far to the right, and makes it hard to read on a
+80-character terminal screen.  The answer to that is that if you need
+more than 3 levels of indentation, you're screwed anyway, and should fix
+your program. 
+
+
+			Placing Braces
+
+The other issue that always comes up in C styling is the placement of
+braces.  Unlike the indent size, there are few technical reasons to
+choose one placement strategy over the other, but the preferred way, as
+shown to us by the prophets Kernighan and Ritchie, is to put the opening
+brace last on the line, and put the closing brace first, thusly:
+
+	if (x is true) {
+		we do y
+	}
+
+However, there is one special case, namely functions: they have the
+opening brace at the beginning of the next line, thus:
+
+	int function(int x)
+	{
+		body of function
+	}
+
+Note that the closing brace is empty on a line of its own, _except_ in
+the cases where it is followed by a continuation of the same statement,
+ie a "while" in a do-statement or an "else" in an if-statement, like
+this:
+
+	do {
+		body of do-loop
+	} while (condition);
+
+and
+
+	if (x == y) {
+		..
+	} else if (x > y) {
+		...
+	} else {
+		....
+	}
+
+Also, note that this brace-placement also minimizes the number of empty
+(or almost empty) lines, without any loss of readability.  Thus, as the
+supply of new-lines on your screen is not a renewable resource (think
+25-line terminal screens here), you have more empty lines to put
+comments on. 
+
+
+			Naming
+
+C is a Spartan language, and so should your naming be.  Unlike Modula-2
+and Pascal programmers, C programmers do not use cute names like
+ThisVariableIsATemporaryCounter.  A C programmer would call that
+variable "tmp", which is much easier to write, and not the least more
+difficult to understand. 
+
+HOWEVER, while mixed-case names are frowned upon, descriptive names for
+global variables are a must.  To call a global function "foo" is a
+shooting offense. 
+
+GLOBAL variables (to be used only if you _really_ need them) need to
+have descriptive names, as do global functions.  If you have a function
+that counts the number of active users, you should call that
+"count_active_users()" or similar, you should _not_ call it "cntusr()". 
+
+Encoding the type of a function into the name (so-called Hungarian
+notation) is brain damaged - the compiler knows the types anyway and can
+check those, and it only confuses the programmer.  No wonder MicroSoft
+makes buggy programs. 
+
+LOCAL variable names should be short, and to the point.  If you have
+some random integer loop counter, it should probably be called "i". 
+Calling it "loop_counter" is non-productive, if there is no chance of it
+being mis-understood.  Similarly, "tmp" can be just about any type of
+variable that is used to hold a temporary value. 
+
+If you are afraid to mix up your local variable names, you have another
+problem, which is called the function-growth-hormone-imbalance syndrome. 
+See next chapter. 
+
+		
+			Functions
+
+Functions should be short and sweet, and do just one thing.  They should
+fit on one or two screenfuls of text (the ISO/ANSI screen size is 80x24,
+as we all know), and do one thing and do that well. 
+
+The maximum length of a function is inversely proportional to the
+complexity and indentation level of that function.  So, if you have a
+conceptually simple function that is just one long (but simple)
+case-statement, where you have to do lots of small things for a lot of
+different cases, it's OK to have a longer function. 
+
+However, if you have a complex function, and you suspect that a
+less-than-gifted first-year high-school student might not even
+understand what the function is all about, you should adhere to the
+maximum limits all the more closely.  Use helper functions with
+descriptive names (you can ask the compiler to in-line them if you think
+it's performance-critical, and it will probably do a better job of it
+that you would have done). 
+
+Another measure of the function is the number of local variables.  They
+shouldn't exceed 5-10, or you're doing something wrong.  Re-think the
+function, and split it into smaller pieces.  A human brain can
+generally easily keep track of about 7 different things, anything more
+and it gets confused.  You know you're brilliant, but maybe you'd like
+to understand what you did 2 weeks from now. 
+
+
+			Commenting
+
+Comments are good, but there is also a danger of over-commenting.  NEVER
+try to explain HOW your code works in a comment: it's much better to
+write the code so that the _working_ is obvious, and it's a waste of
+time to explain badly written code. 
+
+Generally, you want your comments to tell WHAT your code does, not HOW. 
+Also, try to avoid putting comments inside a function body: if the
+function is so complex that you need to separately comment parts of it,
+you should probably re-read the Functions section again.  You can make
+small comments to note or warn about something particularly clever (or
+ugly), but try to avoid excess.  Instead, put the comments at the head
+of the function, telling people what it does, and possibly WHY it does
+it.
+
+If comments along the lines of /* Fix me */ are used, please, please, say
+why something needs fixing. When a change has been made to the affected
+portion of code, either remove the comment, or amend it indicate a change
+has been made and needs testing.
+
+
+			Shell Scripts & Makefiles
+			
+Not everyone has the same tools and packages installed. Some people use
+vi, others emacs - A few even avoid having either package installed,
+prefering a lightweight text editor such as nano or the one built in to
+Midnight Commander.
+
+gawk versus mawk - Again, not everyone will have gawk installed, mawk is
+nearly a tenth of the size and yet conforms to the Posix AWK standard. If
+some obscure gawk specific command is needed that mawk does not provide,
+than the script will break for some users. The same would apply to mawk.
+In short, use the generic awk invocation in preference to gawk or mawk.
+
+
+			CVS Notes
+
+cvs is a very powefull tool that many developers fail to use to it's full
+potential. http://www.red-bean/cvsbook should be compulsory reading for
+anyone wanting to use cvs. The chapters on tags, branching, and merging
+can appear daunting at first. Chapters covering administration, however,
+can be skipped.
+
+			CVS Tags
+
+Tagging files within the cvs repository enables us to mark a set of files
+with a specific marker. This provides a simple mechanism to retrive code
+thus marked. The tags could indicate a stable version, or be a precursor to
+branching. Apart from branch tags, the recommendation is to prefix all tags
+with the developers initials.
+Note: Tags prefixed with bdi or BDI are reserved for use in conjunction with
+the Brain Dead Install project.
+
+
+
+
+
+Do not put anything below this point. The revision log is automatically appended
+################################################################################
+			Revision Log
+################################################################################
+
+$Log$
+Revision 1.1  2003/10/11 21:30:53  jmkasunich
+Initial revision
+
+Revision 1.1  2003/07/26 22:06:26  paul_c
+Initial version
+
+

@@ -1,0 +1,65 @@
+
+emc_HAL/ (generic.run, configure script, directory.map (this file),
+    |       top level makefile, Makefile.inc, etc.)
+    |
+    |--- docs/ (All the important and relevant Docs.)
+    |          (API and source notes should be in each src dir.)
+    |
+    |--- nc_files/ (Sample NC files)
+    |
+    |--- configs/ (emc.ini, CL configs, etc)
+    |
+    |--- include/  (headers installed here - originals in src/xxx/)
+    |
+    |--- bin/  (user mode binaries)
+    |
+    |--- lib/  (user mode object files)
+    |
+    |--- rtlib/  (kernel mode object files)
+    |
+    |--- scripts/  (install_realtime_base? (do we need this dir?))
+    |
+    |--- tcl/ (both tkemc and any other tcl/tk scripts)
+    |
+    |--- src/  (source tree - each dir has a local Makefile)
+           |
+           |--- rtapi/  (*.c and *.h for RTAPI)
+           |      |
+           |      |--- rtapi_examples/
+           |                 |
+           |                 |--- timer_example/  (*.c & *.h)
+           |                 |--- shmem_example/  (*.c & *.h)
+           |                 |--- etc.
+           |
+           |--- hal/  (hal_lib.c, hal.h, halcmd.c, halgui.c, etc.)
+           |      |
+           |      |--- drivers/  (parport.c, STG.c, PPMC.c, USC.c, etc.)
+           |      |--- components/  (encoder.c, stepgen.c, PID.c, etc.)
+           |
+           |--- posemath/
+           |
+           |--- rcslib/
+           |      |
+           |      |--- java/ (IF it is needed at all)
+           |      |--- nml/
+           |      |--- cms/
+           |
+           |--- emc/
+           |      |
+           |      |--- emctask/
+           |      |--- emcmot/
+           |      |--- emcio/
+           |      |--- interp/
+           |
+           |--- classicladder
+           |
+           |--- lang/  (stuff that uses/supports other languages)
+                  |
+                  |--- tcl/  (emcsh.cc, iosh.cc and other tcl support)
+                  |
+                  |--- python/ (?)
+                  |--- perl/ (?)
+                  |--- XML/ (?) <grin>
+                  |
+
+
