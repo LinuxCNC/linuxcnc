@@ -373,25 +373,14 @@ Suggestion: Split this in to an Error and a Status flag register..
 /* flags for switch config */
 #define SWITCHES_LATCH_LIMITS	16
 
-/* NEW STRUCTS  - I'm trying something different.  As it stands,
-   per-axis (really per-joint) info is stored in a whole bunch of
-   individual arrays, each with [EMCMOT_MAX_AXIS] values.  Some
-   arrays store config info, and are in the config struct, others
-   store status info and are in the status struct, some are in
-   the debug struct, etc, etc.
+/* This structure contains all of the data associated with
+   a single joint.  Note that this structure does not need
+   to be in shared memory (but it can, if desired for debugging
+   reasons).  The portions of this structure that are considered
+   "status" and need to be made available to user space are
+   copied from to a much smaller struct called emcmot_joint_status_t
+   which is located in shared memory.
 
-   The alternative is to put ALL data for a joint in a single
-   joint data structure.  Then when it's time to work on a joint,
-   just get a pointer to the struct and access the members.
-   The code can be cleaner and easier to read, and it will run
-   faster because the array indexing overhead is gone and things
-   that are accessed together are near each other in memory and
-   thus in cache.  It also would lend itself to a more object
-   oriented approach - all the data associated with a joint
-   object is in one place.
-
-   Update - the new arrangement seems to be working, so I've
-   deleted the old stuff.... this comment will go away soon.
 */
     typedef struct {
 
@@ -456,6 +445,50 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double big_vel;		/* used for "debouncing" velocity */
     } emcmot_joint_t;
 
+/* This structure contains only the "status" data associated with
+   a joint.  "Status" data is that data that should be reported to
+   user space on a continuous basis.  An array of these structs is
+   part of the main status structure, and is filled in with data
+   copied from the emcmot_joint_t structs every servo period.
+
+   For now this struct contains more data than it really needs, but
+   paring it down will take time (and probably needs to be done one
+   or two items at a time, with much testing).  My main goal right
+   now is to get get the large joint struct out of status.
+
+*/
+    typedef struct {
+
+	EMCMOT_AXIS_FLAG flag;	/* see above for bit details */
+	double coarse_pos;	/* trajectory point, before interp */
+	double pos_cmd;		/* commanded joint position */
+	double vel_cmd;		/* comanded joint velocity */
+	double backlash_corr;	/* correction for backlash */
+	double backlash_filt;	/* filtered backlash correction */
+	double motor_pos_cmd;	/* commanded position, with comp */
+	double motor_pos_fb;	/* position feedback, with comp */
+	double pos_fb;		/* position feedback, comp removed */
+	double ferror;		/* following error */
+	double ferror_limit;	/* limit depends on speed */
+	double ferror_high_mark;	/* max following error */
+	double free_pos_cmd;	/* position command for free mode TP */
+	double free_vel_lim;	/* velocity limit for free mode TP */
+	int free_tp_enable;	/* if zero, joint stops ASAP */
+	int free_tp_active;	/* if non-zero, move in progress */
+
+/* FIXME - the following are not really "status", but taskintf.cc expects
+   them to be in the status structure.  I don't know how or if they are
+   used by the user space code.  Ideally they will be removed from here,
+   but each one will need to be investigated individually.
+*/
+	double backlash;	/* amount of backlash */
+	double max_pos_limit;	/* upper soft limit on joint pos */
+	double min_pos_limit;	/* lower soft limit on joint pos */
+	double min_ferror;	/* zero speed following error limit */
+	double max_ferror;	/* max speed following error limit */
+	double home_offset;	/* dir/dist from switch to home point */
+    } emcmot_joint_status_t;
+
 /*********************************
         STATUS STRUCTURE
 *********************************/
@@ -488,7 +521,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EmcPose carte_pos_fb;	/* actual Cartesian position */
 	int carte_pos_fb_ok;	/* non-zero if feedback is valid */
 	EmcPose world_home;	/* cartesean coords of home position */
-	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* all joint related data */
+	emcmot_joint_status_t joint_status[EMCMOT_MAX_AXIS];	/* all joint status data */
 
 	int onSoftLimit;	/* non-zero if any axis is on soft limit */
 
@@ -691,6 +724,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	int stepping;
 	int idForStep;
+
+	/* FIXME - move out of shmem to kernel memory eventually */
+	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* all joint data */
 
 	/* min-max-avg structs for traj and servo cycles */
 	MMXAVG_STRUCT tMmxavg;

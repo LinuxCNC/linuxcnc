@@ -75,7 +75,10 @@ MODULE_PARM_DESC(traj_period_nsec, "trajectory planner period (nsecs)");
 ************************************************************************/
 
 /* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
-emcmot_hal_data_t *emcmot_hal_data;
+emcmot_hal_data_t *emcmot_hal_data = 0;
+
+/* pointer to array of joint structs with all joint data */
+emcmot_joint_t *joints = 0;
 
 int mot_comp_id;		/* component ID for motion module */
 
@@ -731,10 +734,17 @@ static int init_comm_buffers(void)
 
     emcmot_config_change();
 
+    /* init pointer to joint structs */
+    /* FIXME - the structs are currently embedded in the debug
+       struct, but eventually may move out of shared memory
+       completely
+    */
+    joints = &(emcmotDebug->joints[0]);
+
     /* init per-axis stuff */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to structure for this joint */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 
 	/* init the config fields with some "reasonable" defaults" */
 
@@ -1011,7 +1021,7 @@ static int setTrajCycleTime(double secs)
 
     /* set the free planners, cubic interpolation rate and segment time */
     for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	cubicSetInterpolationRate(&(emcmotStatus->joints[t].cubic),
+	cubicSetInterpolationRate(&(joints[t].cubic),
 	    emcmotConfig->interpolationRate);
     }
 
@@ -1042,9 +1052,9 @@ static int setServoCycleTime(double secs)
 
     /* set the cubic interpolation rate and PID cycle time */
     for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	cubicSetInterpolationRate(&(emcmotStatus->joints[t].cubic),
+	cubicSetInterpolationRate(&(joints[t].cubic),
 	    emcmotConfig->interpolationRate);
-	cubicSetSegmentTime(&(emcmotStatus->joints[t].cubic), secs);
+	cubicSetSegmentTime(&(joints[t].cubic), secs);
     }
 
     /* copy into status out */

@@ -77,7 +77,7 @@ void check_stuff(char *location)
 /* end of kluge */
 #endif
 
-    target = &(emcmotStatus->joints[2].flag);
+    target = &(joints[2].flag);
     if ( old != *target ) {
 	rtapi_print ( "%d: watch value %04X (%s)\n", emcmotStatus->heartbeat, *target, location );
 	old = *target;
@@ -270,7 +270,7 @@ static void process_inputs(void)
 	/* point to axis HAL data */
 	axis_data = &(emcmot_hal_data->axis[joint_num]);
 	/* point to joint data */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 	/* copy data from HAL to joint structure */
 	joint->motor_pos_fb = *(axis_data->motor_pos_fb);
 
@@ -438,7 +438,7 @@ static void do_forward_kins(void)
     /* copy joint position feedback to local array */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint struct */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 	/* copy feedback */
 	joint_pos[joint_num] = joint->pos_fb;
 	/* check for homed */
@@ -511,7 +511,7 @@ static void check_soft_limits(void)
     /* check for limits on all active axes */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint data */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 	/* clear soft limits */
 	SET_JOINT_PSL_FLAG(joint, 0);
 	SET_JOINT_NSL_FLAG(joint, 0);
@@ -534,7 +534,7 @@ static void check_soft_limits(void)
     tmp = 0;
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint data */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 	if (GET_JOINT_PSL_FLAG(joint) || GET_JOINT_NSL_FLAG(joint)) {
 	    /* yes, on limit */
 	    tmp = 1;
@@ -550,7 +550,7 @@ static void check_soft_limits(void)
 	    tpAbort(&emcmotDebug->queue);
 	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		/* point to joint data */
-		joint = &(emcmotStatus->joints[joint_num]);
+		joint = &joints[joint_num];
 		/* shut off free mode planner */
 		joint->free_tp_enable = 0;
 	    }
@@ -572,7 +572,7 @@ static void check_for_faults(void)
     /* check for various fault conditions */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint data */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 	/* only check active, enabled axes */
 	if ( GET_JOINT_ACTIVE_FLAG(joint) && GET_JOINT_ENABLE_FLAG(joint) ) {
 	    /* check for hard limits */
@@ -630,7 +630,7 @@ static void set_operating_mode(void)
 	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	    /* point to joint data */
 	    axis_data = &(emcmot_hal_data->axis[joint_num]);
-	    joint = &(emcmotStatus->joints[joint_num]);
+	    joint = &joints[joint_num];
 	    /* disable free mode planner */
 	    joint->free_tp_enable = 0;
 	    /* drain coord mode interpolators */
@@ -662,7 +662,7 @@ static void set_operating_mode(void)
 	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	    /* point to joint data */
 	    axis_data = &(emcmot_hal_data->axis[joint_num]);
-	    joint = &(emcmotStatus->joints[joint_num]);
+	    joint = &joints[joint_num];
 
 	    joint->free_pos_cmd = joint->pos_cmd;
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -688,7 +688,7 @@ static void set_operating_mode(void)
 	    /* drain the cubics so they'll synch up */
 	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		/* point to joint data */
-		joint = &(emcmotStatus->joints[joint_num]);
+		joint = &joints[joint_num];
 		cubicDrain(&(joint->cubic));
 	    }
 	    /* Initialize things to do when starting teleop mode. */
@@ -730,7 +730,7 @@ static void set_operating_mode(void)
 		    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS;
 			joint_num++) {
 			/* point to joint data */
-			joint = &(emcmotStatus->joints[joint_num]);
+			joint = &joints[joint_num];
 			/* update free planner positions */
 			joint->free_pos_cmd = joint->pos_cmd;
 		    }
@@ -746,7 +746,7 @@ static void set_operating_mode(void)
 		/* drain the cubics so they'll synch up */
 		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		    /* point to joint data */
-		    joint = &(emcmotStatus->joints[joint_num]);
+		    joint = &joints[joint_num];
 		    cubicDrain(&(joint->cubic));
 		}
 		/* clear the override limits flags */
@@ -766,7 +766,7 @@ static void set_operating_mode(void)
 	    if (GET_MOTION_INPOS_FLAG()) {
 		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		    /* point to joint data */
-		    joint = &(emcmotStatus->joints[joint_num]);
+		    joint = &joints[joint_num];
 		    /* set joint planner pos cmd to current location */
 		    joint->free_pos_cmd = joint->pos_cmd;
 		    /* but it can stay disabled until a move is required */
@@ -874,7 +874,7 @@ static void do_homing(void)
     /* loop thru axis, treat each one individually */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint struct */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 	/* detect rising and falling edges on home switch */
 	home_sw_rise = 0;
 	home_sw_fall = 0;
@@ -1351,7 +1351,7 @@ static void get_pos_cmds(void)
 	   disabled, free_pos_cmd is set to the current position. */
 	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	    /* point to joint struct */
-	    joint = &(emcmotStatus->joints[joint_num]);
+	    joint = &joints[joint_num];
 	    joint->free_tp_active = 0;
 	    /* compute max change in velocity per servo period */
 	    max_dv = joint->acc_limit * servo_period;
@@ -1424,7 +1424,7 @@ static void get_pos_cmds(void)
 	break;
     case EMCMOT_MOTION_COORD:
 	/* check joint 0 to see if the interpolators are empty */
-	while (cubicNeedNextPoint(&(emcmotStatus->joints[0].cubic))) {
+	while (cubicNeedNextPoint(&(joints[0].cubic))) {
 	    /* they're empty, pull next point(s) off Cartesian planner */
 	    /* run coordinated trajectory planning cycle */
 	    tpRunCycle(&emcmotDebug->queue);
@@ -1436,7 +1436,7 @@ static void get_pos_cmds(void)
 	    /* copy to joint structures and spline them up */
 	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		/* point to joint struct */
-		joint = &(emcmotStatus->joints[joint_num]);
+		joint = &joints[joint_num];
 		joint->coarse_pos = positions[joint_num];
 		/* spline joints up-- note that we may be adding points
 		   that fail soft limits, but we'll abort at the end of
@@ -1449,7 +1449,7 @@ static void get_pos_cmds(void)
 	/* run interpolation */
 	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	    /* point to joint struct */
-	    joint = &(emcmotStatus->joints[joint_num]);
+	    joint = &joints[joint_num];
 	    /* save old command */
 	    old_pos_cmd = joint->pos_cmd;
 	    /* interpolate to get new one */
@@ -1781,7 +1781,7 @@ static void compute_backlash(void)
 
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint struct */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 	/* determine which way the compensation should be applied */
 	if (joint->vel_cmd > 0.0) {
 	    /* moving "up". apply positive backlash comp */
@@ -1841,7 +1841,7 @@ static void output_to_hal(void)
        to one of the debug parameters.  You can also comment out these lines
        and copy elsewhere if you want to observe an automatic variable that
        isn't in scope here. */
-    emcmot_hal_data->debug_bit_0 = emcmotStatus->joints[1].free_tp_active;
+    emcmot_hal_data->debug_bit_0 = joints[1].free_tp_active;
     emcmot_hal_data->debug_bit_1 = 0;
     emcmot_hal_data->debug_float_0 = 0.0;
     emcmot_hal_data->debug_float_1 = 0.0;
@@ -1849,7 +1849,7 @@ static void output_to_hal(void)
     /* output axis info to HAL for scoping, etc */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint struct */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 	/* apply backlash and motor offset to output */
 	joint->motor_pos_cmd =
 	    joint->pos_cmd + joint->backlash_filt + joint->motor_offset;
@@ -1889,10 +1889,45 @@ static void output_to_hal(void)
 
 static void update_status(void)
 {
+    int joint_num;
+    emcmot_joint_t *joint;
+    emcmot_joint_status_t *joint_status;
 
-    /* FIXME - this function contains some stuff that was apparently
+    /* copy status info from private joint structure to status
+       struct in shared memory */
+    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	/* point to joint data */
+	joint = &joints[joint_num];
+	/* point to joint status */
+	joint_status = &(emcmotStatus->joint_status[joint_num]);
+	/* copy stuff */
+	joint_status->flag = joint->flag;
+	joint_status->coarse_pos = joint->coarse_pos;
+	joint_status->pos_cmd = joint->pos_cmd;
+	joint_status->vel_cmd = joint->vel_cmd;
+	joint_status->backlash_corr = joint->backlash_corr;
+	joint_status->backlash_filt = joint->backlash_filt;
+	joint_status->motor_pos_cmd = joint->motor_pos_cmd;
+	joint_status->motor_pos_fb = joint->motor_pos_fb;
+	joint_status->pos_fb = joint->pos_fb;
+	joint_status->ferror = joint->ferror;
+	joint_status->ferror_limit = joint->ferror_limit;
+	joint_status->ferror_high_mark = joint->ferror_high_mark;
+	joint_status->free_pos_cmd = joint->free_pos_cmd;
+	joint_status->free_vel_lim = joint->free_vel_lim;
+	joint_status->free_tp_enable = joint->free_tp_enable;
+	joint_status->free_tp_active = joint->free_tp_active;
+	joint_status->backlash = joint->backlash;
+	joint_status->max_pos_limit = joint->max_pos_limit;
+	joint_status->min_pos_limit = joint->min_pos_limit;
+	joint_status->min_ferror = joint->min_ferror;
+	joint_status->max_ferror = joint->max_ferror;
+	joint_status->home_offset = joint->home_offset;
+    }
+
+    /* FIXME - the rest of this function is stuff that was apparently
        dropped in the initial move from emcmot.c to control.c.  I
-       don't know how much it is still needed, and how much is baggage.
+       don't know how much is still needed, and how much is baggage.
     */
 
     /* motion emcmotDebug->queue status */

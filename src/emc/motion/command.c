@@ -98,7 +98,7 @@ static int checkLimits(void)
 
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint data */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
 	    /* if joint is not active, don't even look at its limits */
 	    continue;
@@ -122,7 +122,7 @@ static int checkJog(int joint_num, double vel)
     emcmot_joint_t *joint;
 
     /* point to joint data */
-    joint = &(emcmotStatus->joints[joint_num]);
+    joint = &joints[joint_num];
 
     if (emcmotStatus->overrideLimits) {
 	return 1;		/* okay to jog when limits overridden */
@@ -179,7 +179,7 @@ static int inRange(EmcPose pos)
 
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint data */
-	joint = &(emcmotStatus->joints[joint_num]);
+	joint = &joints[joint_num];
 
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
 	    /* if joint is not active, don't even look at its limits */
@@ -211,13 +211,13 @@ static void clearHomes(int joint_num)
 	if (rehomeAll) {
 	    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
 		/* point at joint data */
-		joint = &(emcmotStatus->joints[n]);
+		joint = &(joints[n]);
 		/* clear flag */
 		SET_JOINT_HOMED_FLAG(joint, 0);
 	    }
 	} else {
 	    /* point at joint data */
-	    joint = &(emcmotStatus->joints[joint_num]);
+	    joint = &joints[joint_num];
 	    /* clear flag */
 	    SET_JOINT_HOMED_FLAG(joint, 0);
 	}
@@ -279,7 +279,7 @@ check_stuff ( "before command_handler()" );
 	joint_num = emcmotCommand->axis;
 	if (joint_num >= 0 && joint_num < EMCMOT_MAX_AXIS) {
 	    /* valid joint, point to it's data */
-	    joint = &(emcmotStatus->joints[joint_num]);
+	    joint = &joints[joint_num];
 	} else {
 	    /* bad joint number */
 	    joint = 0;
@@ -314,7 +314,7 @@ check_stuff ( "before command_handler()" );
 	    } else {
 		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		    /* point to joint struct */
-		    joint = &(emcmotStatus->joints[joint_num]);
+		    joint = &joints[joint_num];
 		    /* tell joint planner to stop */
 		    joint->free_tp_enable = 0;
 		    /* stop homing if in progress */
@@ -443,7 +443,7 @@ check_stuff ( "before command_handler()" );
 	    emcmotDebug->overriding = 0;
 	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		/* point at joint data */
-		joint = &(emcmotStatus->joints[joint_num]);
+		joint = &joints[joint_num];
 		/* clear joint errors */
 		SET_JOINT_ERROR_FLAG(joint, 0);
 	    }

@@ -111,6 +111,13 @@ extern int mot_comp_id;
 /* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
 extern emcmot_hal_data_t *emcmot_hal_data;
 
+/* pointer to array of joint structs with all joint data */
+/* the actual array may be in shared memory or in kernel space, as
+   determined by the init code in motion.c
+*/
+extern emcmot_joint_t *joints;
+
+
 /* Variable defs */
 extern int kinType;
 extern int rehomeAll;

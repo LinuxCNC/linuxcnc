@@ -46,7 +46,10 @@ static emcmot_config_t *emcmotConfig = 0;
 static emcmot_debug_t *emcmotDebug = 0;
 static emcmot_error_t *emcmotError = 0;
 static emcmot_log_t *emcmotLog = 0;
+#if 0
+/* FIXME - no longer in shared memory */
 static emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS] = { 0 };
+#endif
 static emcmot_struct_t *emcmotStruct = 0;
 emcmot_struct_t *emcmotshmem = NULL;	// Shared memory base address.
 
@@ -827,7 +830,6 @@ static int shmem_id;
 
 int usrmotInit(char *modname)
 {
-    int axis;
 
     module_id = rtapi_init(modname);
     shmem_id = rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(emcmot_struct_t));
@@ -849,9 +851,26 @@ int usrmotInit(char *modname)
     emcmotError = &(emcmotStruct->error);
     emcmotLog = &(emcmotStruct->log);
 
+/* FIXME - testing code */
+    printf ( "sizeof(emcmot_struct_t) (total shmem): %d\n", sizeof(emcmot_struct_t) );
+    printf ( "sizeof(emcmot_command_t):      %d\n", sizeof(emcmot_command_t) );
+    printf ( "sizeof(emcmot_status_t):       %d\n", sizeof(emcmot_status_t) );
+    printf ( "sizeof(emcmot_debug_t):        %d\n", sizeof(emcmot_debug_t) );
+    printf ( "sizeof(emcmot_config_t):       %d\n", sizeof(emcmot_config_t) );
+    printf ( "sizeof(emcmot_error_t):        %d\n", sizeof(emcmot_error_t) );
+    printf ( "sizeof(emcmot_log_t):          %d\n", sizeof(emcmot_log_t) );
+    printf ( "sizeof(emcmot_joint_t):        %d\n", sizeof(emcmot_joint_t) );
+    printf ( "sizeof(emcmot_joint_status_t): %d\n", sizeof(emcmot_joint_status_t) );
+    printf ( "sizeof(CUBIC_STRUCT):          %d\n", sizeof(CUBIC_STRUCT) );
+    printf ( "sizeof(emcmot_comp_t):         %d\n", sizeof(emcmot_comp_t) );
+
+
+#if 0
+/* FIXME - comp structs no longer part of status structure */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = &(emcmotStatus->joints[axis].comp);
     }
+#endif
     emcmotshmem = emcmotStruct;
 
     inited = 1;
@@ -861,8 +880,6 @@ int usrmotInit(char *modname)
 
 int usrmotExit(void)
 {
-    int axis;
-
     if (NULL != emcmotStruct) {
 	rtapi_shmem_delete(shmem_id, module_id);
 	rtapi_exit(module_id);
@@ -873,9 +890,12 @@ int usrmotExit(void)
     emcmotStatus = 0;
     emcmotError = 0;
     emcmotLog = 0;
+#if 0
+/* FIXME - comp structs no longer in shmem */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = 0;
     }
+#endif
     emcmotshmem = 0;
 
     inited = 0;
@@ -1218,6 +1238,15 @@ int usrmotDumpLog(const char *filename, int include_header)
 
 int usrmotLoadComp(int axis, const char *file)
 {
+/* FIXME - this routine currently assumes that the comp structs
+   reside in shared memory, and writes directly to them.  The
+   comp structs have been moved out of shmem, so this needs to
+   be re-written to use a command to load the struct.  In the
+   meantime, we return -1 to indicate failure.
+*/
+return -1;
+#if 0
+
     FILE *fp;
 #define BUFFERLEN 256
     char buffer[BUFFERLEN];
@@ -1247,7 +1276,7 @@ int usrmotLoadComp(int axis, const char *file)
 	if (NULL == fgets(buffer, BUFFERLEN, fp)) {
 	    break;
 	}
-	/* 
+	/*
 	   expecting nominal-forward-reverse triplets, e.g., 0.000000
 	   0.000000 -0.001279 0.100000 0.098742 0.051632 0.200000 0.171529
 	   0.194216 */
@@ -1284,10 +1313,16 @@ int usrmotLoadComp(int axis, const char *file)
     /* leave alter alone */
 
     return 0;
+#endif
 }
 
 int usrmotAlter(int axis, double alter)
 {
+/* FIXME - the comp stuff is temporarily disabled, so "alter" must
+   be disabled too.  BTW, what the heck is "alter" anyway?
+*/
+return -1;
+#if 0
     /* check axis range */
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	fprintf(stderr, "axis out of range for alter\n");
@@ -1304,10 +1339,16 @@ int usrmotAlter(int axis, double alter)
     emcmotComp[axis]->alter = alter;
 
     return 0;
+#endif
 }
 
 int usrmotQueryAlter(int axis, double *alter)
 {
+/* FIXME - the comp stuff is temporarily disabled, so "alter" must
+   be disabled too.  BTW, what the heck is "alter" anyway?
+*/
+return -1;
+#if 0
     /* check axis range */
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	fprintf(stderr, "axis out of range for alter query\n");
@@ -1324,10 +1365,14 @@ int usrmotQueryAlter(int axis, double *alter)
     *alter = emcmotComp[axis]->alter;
 
     return 0;
+#endif
 }
 
 int usrmotPrintComp(int axis)
 {
+/* FIXME - the comp stuff is temporarily disabled */
+return -1;
+#if 0
     int t;
 
     /* check axis range */
@@ -1352,4 +1397,5 @@ int usrmotPrintComp(int axis)
     }
 
     return 0;
+#endif
 }

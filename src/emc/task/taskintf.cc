@@ -787,7 +787,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
    moved.  Once I know what it is used for I'll fix it */
 
     int axis;
-    emcmot_joint_t *joint;
+    emcmot_joint_status_t *joint;
 
     // check for valid range
     if (numAxes <= 0 || numAxes > EMCMOT_MAX_AXIS) {
@@ -797,7 +797,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
     for (axis = 0; axis < numAxes; axis++) {
 	/* point to joint data */
 
-	joint = &(emcmotStatus.joints[axis]);
+	joint = &(emcmotStatus.joint_status[axis]);
 
 	stat[axis].axisType = localEmcAxisAxisType[axis];
 	stat[axis].units = localEmcAxisUnits[axis];
