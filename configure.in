@@ -1,0 +1,36 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.57)
+AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
+AC_CONFIG_SRCDIR([src/hal/hal_lib.c])
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+
+# Check for RT
+# FIXME - add RT-check script
+# accept rtdir=path from commandline
+
+# Check for GTK
+# FIXME - add GTK-check script
+# accept GTK_VER from command line
+
+# Check for ManPath
+
+# Checks for libraries.
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS([tcl.h tk.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+
+AC_CONFIG_FILES([Makefile.inc])
+AC_OUTPUT
