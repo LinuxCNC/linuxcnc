@@ -116,10 +116,18 @@ else
        RTS=$RTLINUXDIR/scripts/rtl-config
     fi
   fi
-  AC_MSG_RESULT([$RTDIR set from command line])
+  AC_MSG_RESULT([$RTDIR set from command line]) # Spit out an error if/when it fails ??
 fi
 #FIXME Move setting of RTPREFIX & friends to a single location..
-# RTAI-3.x
+# For RTAI-3.x $RTS = rtai-config
+#	 Option		Returns
+#	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree.
+#	--version	Version number of the installed RTAI (e.g. 3.1)
+#	--cc		The compiler used for the C sources - Not necessarily the default cc
+#	--module-cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
+#	--linux-dir	Path to the source directory f the patched kernel.
+#	--module-dir	Path to the directory where the rtai modules are installed
+
     RTNAME=rtai-3.0
     RTPREFIX=rtai
     RTAI=3
@@ -128,7 +136,27 @@ fi
     RTFLAGS=`$RTS --module-cflags`
     RTFLAGS="$RTFLAGS -DRTAI=3"
     KERNELDIR=`$RTS --linux-dir`
+
+# For RTAI-24.1x $RTS = realtime-config
+#	 Option		Returns
+#	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
+#	--version	Should return the version number - Appears to return 0.0.0 for most 24.1.x releases.
+#	--cc		The compiler used for the C sources - Not necessarily the default cc
+#	--cflags	Flags used to compile the realtime modules with.
+#	--cflags-fp	Flags to use when compiling realtime modules with floating point math.
+#	--dump		Dumps the .buildvars to screen - Grep for linuxdir
+
 # RTLinux
+# For RTLinux-3.? $RTS = rtl-config
+#	 Option		Returns
+#	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
+#	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
+#	--cc		The compiler used for the C sources - Not necessarily the default cc
+#	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
+#	--linux		Path to the source directory f the patched kernel.
+#	--module-dir	Path to the directory where the rtai modules are installed
+#	--modules	A list of the available realtime modules.
+
     RTPREFIX=rtlinux
     RTDIR=`$RTS --prefix`
     RTDIR=$(cd $RTDIR ; pwd -P )
