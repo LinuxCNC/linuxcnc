@@ -28,16 +28,20 @@ HEADERS =
 PRIVHDRS =
 
 SRCS = \
-hal_parport.c
+hal_parport.c \
+hal_skeleton.c
 
 RT_SRCS = \
-hal_parport.c
+hal_parport.c \
+hal_skeleton.c
 
 LIBS = \
-$(RTLIB_DIR)/hal_parport.o
+$(RTLIB_DIR)/hal_parport.o \
+$(RTLIB_DIR)/hal_skeleton.o
 
 BINS = \
-$(BIN_DIR)/hal_parport
+$(BIN_DIR)/hal_parport \
+$(BIN_DIR)/hal_skeleton
 
 
 all : headers $(OBJS) $(LIBS) $(BINS)
