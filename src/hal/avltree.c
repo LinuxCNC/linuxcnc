@@ -46,8 +46,9 @@
 /* Internal Data Structures  */
 /*****************************/
 
-/* max depth of 30 = 1 billion tree nodes */
-#define BTREE_DEPTH 30
+/* depth of an AVL tree is a maximum of 1.44*log2(n) */
+/* so a depth of 47 can handle 2^32 nodes */
+#define TREE_DEPTH 47
 
 /* struct used to store one tree entry */
 
@@ -63,9 +64,9 @@ typedef struct avltree_node {
 
 typedef struct avltree_stack_node {
     struct avltree_node  *node;	/* pointer to corresponding node */
-    enum { BTREE_NONE,
-           BTREE_LEFT,
-           BTREE_RIGHT
+    enum { TREE_NONE,
+           TREE_LEFT,
+           TREE_RIGHT
          } source;		/* how this level was reached */
 } avltree_stack_node;
 
@@ -98,7 +99,7 @@ avltree *avltree_create(int(*cmp_func)(void *data1, void *data2))
 void avltree_destroy(avltree *tree)
 {
     avltree_node *nptr;
-    avltree_stack_node stack[BTREE_DEPTH+1];
+    avltree_stack_node stack[TREE_DEPTH+1];
     avltree_stack_node *sp;
 
     /* check argument */
@@ -108,28 +109,28 @@ void avltree_destroy(avltree *tree)
     /* initialize stack and point to root of tree */
     sp = stack;
     nptr = sp->node = tree->root;
-    sp->source = BTREE_NONE;
+    sp->source = TREE_NONE;
     /* loop till entire tree has been covered */
     while ( nptr != NULL ) {
 	if ( nptr->lptr != NULL ) {
 	    /* move down into left sub-tree */
 	    sp++;
 	    nptr = sp->node = nptr->lptr;
-	    sp->source = BTREE_LEFT;
+	    sp->source = TREE_LEFT;
 	} else if ( nptr->rptr != NULL ) {
 	    /* move down into right sub-tree */
 	    sp++;
 	    nptr = sp->node = nptr->rptr;
-	    sp->source = BTREE_RIGHT;
+	    sp->source = TREE_RIGHT;
 	} else {
 	    /* free the node */
 	    free ( nptr );
 	    /* move up one level */
-	    if ( sp->source == BTREE_LEFT ) {
+	    if ( sp->source == TREE_LEFT ) {
 		sp--;
 		nptr = sp->node;
 		nptr->lptr = NULL;
-	    } else if ( sp->source == BTREE_RIGHT ) {
+	    } else if ( sp->source == TREE_RIGHT ) {
 		sp--;
 		nptr = sp->node;
 		nptr->rptr = NULL;
@@ -145,7 +146,7 @@ void avltree_destroy(avltree *tree)
 void *avltree_insert(avltree *tree, void *data)
 {
     avltree_node *nptr;
-    avltree_node **stack[BTREE_DEPTH+1];
+    avltree_node **stack[TREE_DEPTH+1];
     avltree_node ***sp;
     int cmp;
 
@@ -219,7 +220,7 @@ void *avltree_delete(avltree *tree, void *data)
     avltree_node *nptr;
     avltree_node *bptr;
     avltree_node *optr;
-    avltree_node **stack[BTREE_DEPTH+1];
+    avltree_node **stack[TREE_DEPTH+1];
     avltree_node ***sp;
 
     /* check arguments */
@@ -387,7 +388,7 @@ void *avltree_last(avltree *tree)
 void *avltree_next(avltree *tree, void *data)
 {
     avltree_node  *nptr;
-    avltree_stack_node stack[BTREE_DEPTH+1];
+    avltree_stack_node stack[TREE_DEPTH+1];
     avltree_stack_node *sp;
     int cmp;
 
@@ -398,7 +399,7 @@ void *avltree_next(avltree *tree, void *data)
     /* initialize stack, point to root of tree */
     sp = stack;
     sp->node = tree->root;
-    sp->source = BTREE_NONE;
+    sp->source = TREE_NONE;
     /* traverse tree, looking for a match and
        storing the search path in stack[] */
     while ( sp->node != NULL ) {
@@ -409,13 +410,13 @@ void *avltree_next(avltree *tree, void *data)
 	    /* too low, try right sub-tree */
 	    sp++;
 	    sp->node = nptr->rptr;
-	    sp->source = BTREE_RIGHT;
+	    sp->source = TREE_RIGHT;
 	}
 	else if ( cmp < 0 ) {
 	    /* too high, try left sub-tree */
 	    sp++;
 	    sp->node = nptr->lptr;
-	    sp->source = BTREE_LEFT;
+	    sp->source = TREE_LEFT;
 	} else {
 	    /* match */
 	    break;
@@ -438,10 +439,10 @@ void *avltree_next(avltree *tree, void *data)
     } else {
 	/* next item is up and to the right */
 	/* move up until we can go right */
-	while ( sp->source == BTREE_RIGHT ) {
+	while ( sp->source == TREE_RIGHT ) {
 	    sp--;
 	}
-	if ( sp->source == BTREE_LEFT ) {
+	if ( sp->source == TREE_LEFT ) {
 	    /* take one step right */
 	    sp--;
 	    /* done */
@@ -456,7 +457,7 @@ void *avltree_next(avltree *tree, void *data)
 void  *avltree_prev(avltree *tree, void *data)
 {
     avltree_node  *nptr;
-    avltree_stack_node stack[BTREE_DEPTH+1];
+    avltree_stack_node stack[TREE_DEPTH+1];
     avltree_stack_node *sp;
     int cmp;
 
@@ -467,7 +468,7 @@ void  *avltree_prev(avltree *tree, void *data)
     /* initialize stack, point to root of tree */
     sp = stack;
     sp->node = tree->root;
-    sp->source = BTREE_NONE;
+    sp->source = TREE_NONE;
     /* traverse tree, looking for a match and
        storing the search path in stack[] */
     while ( sp->node != NULL ) {
@@ -478,13 +479,13 @@ void  *avltree_prev(avltree *tree, void *data)
 	    /* too low, try right sub-tree */
 	    sp++;
 	    sp->node = nptr->rptr;
-	    sp->source = BTREE_RIGHT;
+	    sp->source = TREE_RIGHT;
 	}
 	else if ( cmp < 0 ) {
 	    /* too high, try left sub-tree */
 	    sp++;
 	    sp->node = nptr->lptr;
-	    sp->source = BTREE_LEFT;
+	    sp->source = TREE_LEFT;
 	} else {
 	    /* match */
 	    break;
@@ -507,10 +508,10 @@ void  *avltree_prev(avltree *tree, void *data)
     } else {
 	/* previous item is up and to the left */
 	/* move up until we can go left */
-	while ( sp->source == BTREE_LEFT ) {
+	while ( sp->source == TREE_LEFT ) {
 	    sp--;
 	}
-	if ( sp->source == BTREE_RIGHT ) {
+	if ( sp->source == TREE_RIGHT ) {
 	    /* take one step left */
 	    sp--;
 	    /* done */
