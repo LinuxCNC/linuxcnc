@@ -13,7 +13,7 @@
 #include <math.h>		/* fabs() */
 #include <sys/socket.h>		/* send(), recv(), socket(), accept(),
 				   bind(), listen() */
-
+#include <sys/time.h>           /* struct timeval */
 #include "sendn.h"		/* sendn() */
 #include "rcs_print.hh"		/* rcs_print_error() */
 #include "_timer.h"		/* etime(), esleep() */

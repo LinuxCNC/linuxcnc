@@ -13,6 +13,7 @@ extern "C" {
 #include <netinet/in.h>
 #include <errno.h>		/* errno */
 #include <signal.h>		// SIGPIPE, signal()
+#include <sys/time.h>           /* struct timeval */
 
 #ifdef __cplusplus
 }

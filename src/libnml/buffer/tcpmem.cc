@@ -11,6 +11,7 @@ extern "C" {
 #include <ctype.h>		// isdigit()
 #include <arpa/inet.h>		/* inet_ntoa */
 #include <sys/socket.h>
+#include <sys/time.h>           /* struct timeval */
 #include <netdb.h>
 #include <math.h>		/* fmod() */
 
