@@ -819,8 +819,8 @@ static void update_freq(void *arg, long period)
 	/* calculate position command in counts, and position error */
 	pos_cmd = *stepgen->pos_cmd * stepgen->pos_scale;
 	pos_err = pos_cmd - *stepgen->count;
-	/* and apply 1 count of deadband (+/- 1/2 count) */
-	if ((pos_err < 0.5) && (pos_err > -0.5)) {
+	/* and apply 1.2 counts of deadband (+/- 0.6 counts) */
+	if ((pos_err < 0.6) && (pos_err > -0.6)) {
 	    pos_err = 0;
 	}
 	stepgen->pos_err = pos_err;
