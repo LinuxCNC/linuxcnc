@@ -482,12 +482,25 @@ set oldstatusstring "idle"
 proc fileDialog {} {
     global programDirectory
     global programnamestring
+    set allfilestring [msgcat::mc "All files"]
+    set textfilestring [msgcat::mc "Text files"]
+    set ncfilestring [msgcat::mc "NC files"]
 
-    set types {
-        {{msgcat::mc "All files"} *}
-        {{msgcat::mc "Text files"} {.txt}}
-        {{msgcat::mc "NC files"} {.nc .ngc}}
-    }
+    set all [list ]
+    lappend all $allfilestring
+    lappend all *
+    set text [list ]
+    lappend text $textfilestring
+    lappend text ".txt"
+    set nc [list ]
+    lappend nc $ncfilestring
+    lappend nc ".nc .ngc"
+    
+    set types [list ]
+    lappend types $all
+    lappend types $text 
+    lappend types $nc
+    
     set f [tk_getOpenFile -filetypes $types -initialdir $programDirectory]
     if {[string len $f] > 0} {
         set programDirectory [file dirname $f]
