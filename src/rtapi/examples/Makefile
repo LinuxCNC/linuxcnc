@@ -6,6 +6,7 @@
 all headers depend indent install clean:
 	(cd extint; make $@)
 	(cd shmem; make $@)
+	(cd semaphore; make $@)
 
 
 .PHONY : all headers depend indent install clean

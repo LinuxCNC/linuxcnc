@@ -14,7 +14,7 @@ sync
 # whether or not to install them using its dependency file.
 #
 
-RTAI_MODULES="rtai_sched rtai rtai_fifos rtai_shm"
+RTAI_MODULES="rtai rtai_sched rtai_fifos rtai_shm"
 
 #
 # Load the modules
