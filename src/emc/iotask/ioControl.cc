@@ -266,6 +266,33 @@ int iocontrol_hal_init(void) {
 
 /********************************************************************
 *
+* Description: read_hal_inputs(void)
+*			Reads the pin values from HAL 
+*			this function gets called once per cycle
+*			It sets the values for the emcioStatus.aux.*
+*
+* Returns:	returns > 0 if any of the status has changed
+*		we then need to update through NML
+*
+* Side Effects: updates values
+*
+* Called By: main every CYCLE
+********************************************************************/
+int read_hal_inputs(void) {
+    int oldval, retval=0;
+
+    oldval = emcioStatus.aux.estop;
+    if (oldval==0) //no estop commanded
+	emcioStatus.aux.estop = *(iocontrol_data_array->estop_in); //check for estop from HW
+
+    if (oldval != emcioStatus.aux.estop)
+	retval=1;
+    
+    return retval;
+}
+
+/********************************************************************
+*
 * Description: main(int argc, char * argv[])
 *		Connects to NML buffers and enters an endless loop
 *		processing NML IO commands. Print statements are
@@ -334,6 +361,20 @@ int main(int argc, char * argv[])
   emcioStatus.lube.level = 1;
  
   while (! done) {
+    // check for inputs from HAL (updates emcioStatus)
+    // FIXME
+    // I'm not sure the code here works
+    // if an external ESTOP is activated
+    // a NML message has to be forced to EMC
+    // the way it was done status was only checked at the end of a command
+    if (read_hal_inputs()>0) {
+	emcioStatus.command_type = EMC_IO_STAT_TYPE;
+	emcioStatus.echo_serial_number = emcioCommand->serial_number;
+	emcioStatus.status = RCS_EXEC;
+	emcioStatus.heartbeat++;
+	emcioStatusBuffer->write(&emcioStatus);
+    }
+
     /* read NML, run commands */
     if (-1 == emcioCommandBuffer->read()) {
       /* bad command */
@@ -509,19 +550,19 @@ int main(int argc, char * argv[])
     case EMC_AUX_INIT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_INIT\n");
       emcioStatus.aux.estop = 1;
-      emcioStatus.aux.estopIn = 0;
+      emcioStatus.aux.estopIn = *(iocontrol_data_array->estop_in);
       break;
 
     case EMC_AUX_HALT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_HALT\n");
       emcioStatus.aux.estop = 1;
-      emcioStatus.aux.estopIn = 0;
+      emcioStatus.aux.estopIn = *(iocontrol_data_array->estop_in);
       break;
 
     case EMC_AUX_ABORT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ABORT\n");
       emcioStatus.aux.estop = 1;
-      emcioStatus.aux.estopIn = 0;
+      emcioStatus.aux.estopIn = *(iocontrol_data_array->estop_in);
       break;
 
     case EMC_AUX_ESTOP_ON_TYPE:
@@ -532,8 +573,8 @@ int main(int argc, char * argv[])
 
     case EMC_AUX_ESTOP_OFF_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_OFF\n");
-      emcioStatus.aux.estop = 0;
       *(iocontrol_data_array->estop_out) = 0;
+      emcioStatus.aux.estop = *(iocontrol_data_array->estop_in);
       break;
 
     case EMC_LUBE_INIT_TYPE:
@@ -569,11 +610,14 @@ int main(int argc, char * argv[])
       break;
     } /* switch (type) */
 
+    
+    // ack for the received command
     emcioStatus.command_type = type;
     emcioStatus.echo_serial_number = emcioCommand->serial_number;
     emcioStatus.status = RCS_DONE;
     emcioStatus.heartbeat++;
     emcioStatusBuffer->write(&emcioStatus);
+    
     
     esleep(EMC_IO_CYCLE_TIME);
   }

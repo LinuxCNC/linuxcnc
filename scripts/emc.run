@@ -9,8 +9,8 @@
 # if path specified, looks there, else looks in $EMC2_DIR/configs
 
 
-DEBUG_FILE=emc.logd
-PRINT_FILE=emc.logp
+DEBUG_FILE=/dev/null
+PRINT_FILE=/dev/null
 
 # check for some programs that we need
 if ! which grep >$DEBUG_FILE || \
