@@ -7,28 +7,22 @@ sync
 
 #
 # Check for the symbols "rthal" or "adeos" in ksyms to verify the
-# presence of the kernel patches
+# presence of the kernel patches - then select the appropriate
+# list of kernel modules to load
 #
 
-if ! /sbin/ksyms -a | grep -E '(rthal|adeos)' >/dev/null 2>/dev/null ; then
+if /sbin/ksyms -a | grep rthal >/dev/null 2>/dev/null ; then
+    RTAI_MODULES="rtai rt_mem_mgr rtai_sched rtai_fifos rtai_shm"
+elif /sbin/ksyms -a | grep adeos >/dev/null 2>/dev/null ; then
+    RTAI_MODULES="adeos rtai rtai_sched rtai_fifos rtai_shm"
+else
     echo "ERROR: 'rthal' or 'adeos' not present in kernel - cannot load RTAI"
     exit -1
 fi
 
 #
-# List of kernel modules to be installed
-#
-# Check if we need adeos first..
-if /sbin/ksyms -a | grep adeos >/dev/null 2>/dev/null ; then
-    RTAI_MODULES="adeos "
-fi
-
-RTAI_MODULES=$RTAI_MODULES"rtai rtai_sched rtai_fifos rtai_shm"
-
-#
 # Load the modules
 #
-echo $RTAI_MODULES
 echo "Loading RTAI modules"
 for MOD in $RTAI_MODULES ; do
     # ask modprobe if it knows where to find the module

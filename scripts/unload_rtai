@@ -20,13 +20,17 @@ if [ -e /dev/rtai_shm ] ; then
 fi
 
 #
-# List of kernel modules to be removed
+# Generate list of kernel modules to be removed
 #
-# Check if we need to add adeos to the list.
-if /sbin/ksyms -a | grep adeos >/dev/null 2>/dev/null ; then
-    RTAI_MODULES=" adeos "
+
+if /sbin/ksyms -a | grep rthal >/dev/null 2>/dev/null ; then
+    RTAI_MODULES="rtai_shm rtai_fifos rtai_sched rt_mem_mgr rtai"
+elif /sbin/ksyms -a | grep adeos >/dev/null 2>/dev/null ; then
+    RTAI_MODULES="rtai_shm rtai_fifos rtai_sched rtai adeos"
+else
+    echo "ERROR: 'rthal' or 'adeos' not present in kernel - RTAI is not loaded"
+    exit -1
 fi
-RTAI_MODULES="rtai_shm rtai_fifos rtai_sched rtai"$RTAI_MODULES
 
 #
 # Remove the modules
