@@ -50,6 +50,7 @@ int DEBUG_MOTION = 0;
 static int PERIOD = 0;		/* fundamental period for timer interrupts */
 			/* thread period - default = no thread */
 static int PERIOD_NSEC = 0;
+#define DEFAULT_PERIOD 100
 MODULE_PARM(PERIOD, "l");
 MODULE_PARM_DESC(PERIOD, "thread period (nsecs)");
 MODULE_PARM(DEBUG_MOTION, "i");
@@ -60,7 +61,7 @@ MODULE_PARM(SHMEM_KEY, "i");
 MODULE_PARM_DESC(SHMEM_KEY, "shared memory key");
 static int EMCMOT_TASK_STACKSIZE = 8192;	/* default stacksize */
 MODULE_PARM(EMCMOT_TASK_STACKSIZE, "i");
-MODULE_PARM_DESC(, "motion stack size");
+MODULE_PARM_DESC(EMCMOT_TASK_STACKSIZE, "motion stack size");
 #endif /* MODULE */
 
 /* rtapi stuff */
@@ -187,6 +188,11 @@ int init_module(void)
     long period;
 
     rtapi_print("motion: initializing...\n");
+    if (PERIOD <= 0) {
+	rtapi_print("motion: PERIOD is not set, using default value of %i\n",
+	    DEFAULT_PERIOD);
+	PERIOD = DEFAULT_PERIOD;
+    }
 
     module = rtapi_init("motion");
     if (module < 0) {
@@ -219,7 +225,7 @@ int init_module(void)
     }
 
     /* zero shared memory before doing anything else. */
-    memcpy(emcmotStruct, 0, sizeof(EMCMOT_STRUCT));
+    memset(emcmotStruct, 0, sizeof(EMCMOT_STRUCT));
 
     /* is timer started? if so, what period? */
     PERIOD_NSEC = PERIOD * 1000;	/* convert from uSec to nSec */
