@@ -7,7 +7,7 @@ SRCS =	emccanon.cc \
 	emcsh.cc \
 	emcsvr.cc \
 	emctask.cc \
-	emctaskmain.o \
+	emctaskmain.cc \
 	iosh.cc \
 	minimilltaskintf.cc
 

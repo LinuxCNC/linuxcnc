@@ -3,7 +3,6 @@
 include ../../../Makefile.inc
 
 SRCS = \
-	emcmotcfg.c \
 	emcmotglb.c \
 	emcmotutil.c \
 	usrmotintf.c

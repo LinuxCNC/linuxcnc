@@ -7,7 +7,7 @@ SRCS =	\
 	emcargs.cc \
 	emcglb.c \
 	emcops.cc \
-	inerpl.cc
+	interpl.cc
 
 HEADERS = \
 	emc.hh \
