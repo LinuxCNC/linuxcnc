@@ -148,7 +148,6 @@ if (test `echo $RTS | awk -F/ '{print $NF }'` = rtai-config); then
 #	--module-cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
 #	--linux-dir	Path to the source directory f the patched kernel.
 #	--module-dir	Path to the directory where the rtai modules are installed
-    echo "RTAI-3.0"
     RTNAME=rtai-3.0
     RTPREFIX=rtai
     RTAI=3
@@ -174,8 +173,8 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     RTDIR=$(cd $RTDIR ; pwd -P )
     RTFLAGS=`$RTS --cflags-fp`
     RTFLAGS="$RTFLAGS -DRTAI=1"
-#    KERNELDIR=$($RTS --dump | grep LINUXDIR | sed s/' = '/'='/ | awk '{split($1, A, "=")}{print A[2]}') 2>/dev/null
-#    KERNELDIR=$(cd $KERNELDIR ; pwd -P )
+    KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
+    KERNELDIR=$(cd $KERNELDIR ; pwd -P )
 
 # For RTLinux-3.? $RTS = rtl-config
 elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
