@@ -1073,13 +1073,12 @@ int Interp::read_one_item(char *line,    //!< string: line of RS274/NGC code bei
   int status;
   read_function_pointer function_pointer;
   char letter;
-  Interp interp;
 
   letter = line[*counter];      /* check if in array range */
   CHK(((letter < 0) || (letter > 'z')), NCE_BAD_CHARACTER_USED);
   function_pointer = _readers[(int) letter]; /* Find the function pointer in the array */
   CHK((function_pointer == 0), NCE_BAD_CHARACTER_USED);
-  CHP((interp.*function_pointer)(line, counter, block, parameters)); /* Call the function */ 
+  CHP((*this.*function_pointer)(line, counter, block, parameters)); /* Call the function */ 
   return RS274NGC_OK;
 }
 
