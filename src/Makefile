@@ -1,7 +1,11 @@
 
 ifneq ($(KERNELRELEASE),)
 
-EXTRA_CFLAGS := -I$(PWD)/include $(shell /usr/bin/rtai-config --module-cflags) -I/usr/include -Drealtime -DRTAI -D__MODULE__
+ifeq ($(RTFLAGS),)
+include $(PWD)/Makefile.inc
+endif
+
+EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
 
 EMC-CORE = \
 	emc/motion/cubic.o \
@@ -58,6 +62,8 @@ ppmcmod-objs += emc/drivers/ppmc/ppmc_internal.o
 
 else
 
+include Makefile.inc
+
 libemc = emc.o \
 	emcglb.o \
 	emcargs.o \
@@ -81,10 +87,10 @@ PWD := $(shell pwd)
 default: headers all modules
 
 modules: headers
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(shell rtai-config --cc) V=0 modules
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=1 modules
 
 modules_install: modules
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) V=0 modules_install
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
 
 #headers clean depend indent install:
 all headers:
