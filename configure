@@ -376,15 +376,11 @@ if [ "$CC" = "" ] ; then
 fi
 
 # RTAI doesn't like gcc 2.96
-$CC -v 2> configure.tmp
-CCVER=$(cat configure.tmp | grep version)
-if [ "$(echo $CCVER | grep 2.96)" ] ; then
+if [ `$CC -dumpversion | cut -d. -f2` = 96 ] ; then
     echo "RTAI doesn't like $CCVER"
     echo "Looking for alternate"
-    egcs -v 2> configure.tmp
-    CCVER=$(cat configure.tmp | grep version)
-    if [ "$CCVER" ] ; then
-        echo "Found egcs = $CCVER"
+    if [ `egcs -dumpversion 2> /dev/null` ] ; then
+        echo "Found "`egcs -dumpversion`
         CC=egcs
     else
         echo "Uh oh, couldn't find alternate compiler"
@@ -393,7 +389,6 @@ if [ "$(echo $CCVER | grep 2.96)" ] ; then
         exit -1
     fi
 fi
-rm -f configure.tmp
 
 if [ -f $RTDIR/rtl.mk ] ; then
     echo "ULFLAGS = -Wall -g -I\$(INC_DIR) -I\$(INCLUDE) -I. -DULAPI -O2" >> Makefile.inc
