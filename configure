@@ -159,6 +159,12 @@ if [ ! -f $RTDIR/rtl.mk ] ; then
     fi
 fi
 
+# try to find out where man files are stored on this system
+MANDIR=
+if [ -d /usr/share/man ] ; then
+    MANDIR=/usr/share/man
+fi
+
 # Go on to write out the Makefile.inc
 DATE=$(date)
 
@@ -178,6 +184,7 @@ echo "RTLIB_DIR = \$(EMC2_HOME)/rtlib" >> Makefile.inc
 echo "INC_DIR = \$(EMC2_HOME)/include" >> Makefile.inc
 echo "TMP_DIR = \$(EMC2_HOME)/src/.tmp" >> Makefile.inc
 echo "RTTMP_DIR = \$(EMC2_HOME)/src/.rt_tmp" >> Makefile.inc
+echo "MAN_DIR = $MANDIR" >> Makefile.inc
 echo "RTDIR = $RTDIR" >> Makefile.inc
 echo >> Makefile.inc
 if [ -f $RTDIR/.buildvars ] ; then

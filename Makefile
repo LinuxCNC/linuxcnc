@@ -13,20 +13,51 @@
 # headers - copies public header files to INC_DIR (emc2/include)
 # depend - generate dependency file(s)
 # indent - formats source code
+# install - installs emc2 files to system directories
+# uninstall - removes emc2 files from system directories
 # install - right now this does nothing
 # clean - cleans up temp files, backups, object files, binaries, etc.
-
-# this rule handles most targets, except clean and depend
+#
+# Note that right now the install and uninstall targets only install
+# and remove man pages - the rest of emc2 lives entirely within the
+# emc2 tree.  This may change later.
+#
+# Makefile.inc contains directory paths and other system dependent stuff
+include Makefile.inc
+#
+# this rule handles most targets
 # it simply changes to all the source sub-directories and calls make there
 # note the order - low level code like rtapi is made first, before higher
 # level code that might depend on it
 
-all headers indent install :
+all headers indent :
 	(cd src/rtapi; make $@)
 	(cd src/hal; make $@)
 
-# Include the Defines, Flags, etc..
-include Makefile.inc
+# these variables are used to build a list of all
+# man pages that need to be installed
+
+MAN1_FILES := $(patsubst docs/man/%,$(MAN_DIR)/%,$(wildcard docs/man/man1/*.1))
+MAN3_FILES := $(patsubst docs/man/%,$(MAN_DIR)/%,$(wildcard docs/man/man3/*.3))
+MAN_FILES = $(MAN1_FILES) $(MAN3_FILES)
+
+# this rule installs a single man page
+
+$(MAN_DIR)/% : docs/man/%
+	@ cp $< $@
+
+# this rule handles the install target
+# its dependency installs all the man pages
+
+install : $(MAN_FILES)
+	(cd src/rtapi; make $@)
+	(cd src/hal; make $@)
+
+# this rule handles the uninstall target
+# it removes all the man pages
+
+uninstall :
+	@ rm $(MAN_FILES)
 
 # this rule handles the depend target
 # it first updates the headers target to ensure that the header
