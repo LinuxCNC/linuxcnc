@@ -97,9 +97,10 @@ void init_vert(void)
 
     /* stop sampling */
     ctrl_shm->state = IDLE;
-    /* make a pointer to the horiz structure */
+    /* make a pointer to the vert structure */
     vert = &(ctrl_usr->vert);
     /* init non-zero members of the vertical structure */
+    invalidate_all_channels();
     /* init non-zero members of the channel structures */
     for (n = 1; n <= 16; n++) {
 	chan = &(vert->chan[n - 1]);
@@ -244,7 +245,6 @@ static void init_vert_info_window(void)
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
 
-
 static void scale_changed(GtkAdjustment * adj, gpointer gdata)
 {
     scope_vert_t *vert;
@@ -352,28 +352,26 @@ static void offset_activated(GtkAdjustment * adj, gpointer gdata)
 }
 #endif
 
-
 static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 {
     int chan_num, n, count, prev;
     scope_vert_t *vert;
     scope_chan_t *chan;
     char *title, *msg;
-    short chan_mask, mask;
 
     vert = &(ctrl_usr->vert);
     chan_num = (int) gdata;
     chan = &(vert->chan[chan_num - 1]);
-    chan_mask = 1 << (chan_num - 1);
+
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
 	/* button was up when clicked */
-	if ((vert->enabled & chan_mask) != 0) {
+	if (vert->chan_enabled[chan_num - 1] != 0) {
 	    /* channel was enabled, but button was up */
 	    /* means click is from a force, ignore it */
 	    return;
 	}
 	/* want to enable the channel */
-	if ( ctrl_shm->state != IDLE ) {
+	if (ctrl_shm->state != IDLE) {
 	    /* acquisition in progress */
 	    /* force the button to pop back out */
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
@@ -386,12 +384,10 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 	    return;
 	}
 	count = 0;
-	mask = 1;
 	for (n = 0; n < 16; n++) {
-	    if ((vert->enabled & mask) != 0) {
+	    if (vert->chan_enabled[n]) {
 		count++;
 	    }
-	    mask <<= 1;
 	}
 	if (count >= ctrl_shm->sample_len) {
 	    /* max number of channels already enabled */
@@ -420,10 +416,10 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 	    }
 	    channel_changed();
 	}
-	vert->enabled |= chan_mask;
+	vert->chan_enabled[chan_num - 1] = 1;
     } else {
 	/* button was down when clicked */
-	if ((vert->enabled & chan_mask) == 0) {
+	if (vert->chan_enabled[chan_num - 1] == 0) {
 	    /* channel was disabled, but button was down */
 	    /* means click is from a force, ignore it */
 	    return;
@@ -443,15 +439,13 @@ static void channel_off_button(GtkWidget * widget, gpointer gdata)
 {
     scope_vert_t *vert;
     int chan_num, n;
-    short chan_mask;
 
     vert = &(ctrl_usr->vert);
     chan_num = vert->selected;
     if ((chan_num < 1) || (chan_num > 16)) {
 	return;
     }
-    chan_mask = 1 << (chan_num - 1);
-    vert->enabled &= ~chan_mask;
+    vert->chan_enabled[chan_num - 1] = 0;
     /* force the button to pop out */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vert->
 	    chan_sel_buttons[chan_num - 1]), FALSE);
@@ -460,12 +454,10 @@ static void channel_off_button(GtkWidget * widget, gpointer gdata)
     vert->selected = 0;
     do {
 	chan_num++;
-	chan_mask <<= 1;
 	if (chan_num > 16) {
 	    chan_num = 1;
-	    chan_mask = 1;
 	}
-	if ((vert->enabled & chan_mask) != 0) {
+	if (vert->chan_enabled[chan_num - 1] != 0) {
 	    vert->selected = chan_num;
 	}
     } while ((++n < 16) && (vert->selected == 0));
@@ -481,7 +473,7 @@ static void change_source_button(GtkWidget * widget, gpointer gdata)
     if ((chan_num < 1) || (chan_num > 16)) {
 	return;
     }
-    if ( ctrl_shm->state != IDLE ) {
+    if (ctrl_shm->state != IDLE) {
 	/* acquisition in progress */
 	title = "Scope Busy";
 	msg = "Acquisition in progress!\n\n"
@@ -491,6 +483,7 @@ static void change_source_button(GtkWidget * widget, gpointer gdata)
 	    NULL, NULL);
 	return;
     }
+    invalidate_channel(chan_num);
     dialog_select_source(chan_num);
     channel_changed();
 }
@@ -512,7 +505,7 @@ static gboolean dialog_select_source(int chan_num)
     vert = &(ctrl_usr->vert);
     chan = &(vert->chan[chan_num - 1]);
     title = "Select Channel Source";
-    snprintf ( msg, BUFLEN-1,"Select a pin, signal, or parameter\n"
+    snprintf(msg, BUFLEN - 1, "Select a pin, signal, or parameter\n"
 	"as the source for channel %d.", chan_num);
     /* create dialog window, disable resizing */
     dialog.retval = 0;
@@ -633,7 +626,7 @@ static gboolean dialog_select_source(int chan_num)
     }
     /* user made a selection */
     /* invalidate any data in the buffer for this channel */
-    vert->data_valid &= ~(1 << (chan_num-1));
+    vert->data_offset[chan_num - 1] = -1;
     /* set values in ctrl_shm struct */
     ctrl_shm->data_offset[chan_num - 1] = SHMOFF(chan->addr);
     switch (chan->type) {

@@ -551,6 +551,7 @@ static void dialog_realtime_not_linked(void)
 	    hal_add_funct_to_thread("scope.sample", horiz->thread_name);
 	    /* give the code some time to get started */
 	    ctrl_shm->watchdog = 0;
+	    invalidate_all_channels();
 	    request_display_refresh();
 	}
     }
@@ -695,7 +696,6 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 static void rec_len_button(GtkWidget * widget, gpointer gdata)
 {
     int count, n;
-    short mask;
     char *title, *msg;
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
@@ -703,12 +703,10 @@ static void rec_len_button(GtkWidget * widget, gpointer gdata)
 	return;
     }
     count = 0;
-    mask = 1;
     for (n = 0; n < 16; n++) {
-	if ((ctrl_usr->vert.enabled & mask) != 0) {
+	if (ctrl_usr->vert.chan_enabled[n]) {
 	    count++;
 	}
-	mask <<= 1;
     }
     if (count > (int) gdata) {
 	/* too many channels already enabled */

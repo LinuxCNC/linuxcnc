@@ -96,8 +96,8 @@ typedef struct {
 
 typedef struct {
     /* general data */
-    short enabled;		/* bitmap of chans user wants to display */
-    short data_valid;		/* bitmap of chans with valid data */
+    int chan_enabled[16];	/* chans user wants to display */
+    int data_offset[16];	/* offset within sample, -1 if no data */
     int selected;		/* channel user has selected */
     scope_chan_t chan[16];	/* channel data */
     /* widgets for main window */
@@ -121,8 +121,11 @@ typedef struct {
 
 typedef struct {
     /* general data */
-    scope_data_t *buffer;	/* ptr to buffer (user mapping) */
+    scope_data_t *buffer;	/* ptr to shmem buffer (user mapping) */
+    scope_data_t *disp_buf;	/* ptr to user buffer for display */
+    int samples;		/* number of samples in display buffer */
     int display_refresh_timer;	/* flag for display refresh */
+
     /* top level windows */
     GtkWidget *main_win;
     GtkWidget *horiz_info_win;
@@ -162,7 +165,10 @@ void init_display(void);
 
 void handle_watchdog_timeout(void);
 void refresh_state_info(void);
+void capture_complete(void);
 void request_display_refresh(void);
 void refresh_display(void);
+void invalidate_channel(int chan);
+void invalidate_all_channels(void);
 
 #endif /* HALSC_USR_H */

@@ -149,6 +149,7 @@ int main(int argc, gchar * argv[])
     init_vert();
     init_run_mode_window();
     init_trigger_mode_window();
+    init_display();
 
 /* test code - make labels to show the size of each box */
     label = gtk_label_new("waveform_win");
@@ -175,7 +176,6 @@ int main(int argc, gchar * argv[])
 
 static int heartbeat(gpointer data)
 {
-
     refresh_state_info();
     /* check watchdog */
     if (ctrl_shm->watchdog < 10) {
@@ -183,17 +183,15 @@ static int heartbeat(gpointer data)
     } else {
 	handle_watchdog_timeout();
     }
-    if ( ctrl_usr->display_refresh_timer > 0 ) {
+    if (ctrl_usr->display_refresh_timer > 0) {
 	/* decrement timer, did it time out? */
-	if ( --ctrl_usr->display_refresh_timer == 0 ) {
+	if (--ctrl_usr->display_refresh_timer == 0) {
 	    /* yes, refresh the display */
 	    refresh_display();
 	}
     }
-    if ( ctrl_shm->state == DONE ) {
-	ctrl_usr->vert.data_valid = ctrl_shm->samples_valid;
-	refresh_display();
-	ctrl_shm->state = IDLE;
+    if (ctrl_shm->state == DONE) {
+	capture_complete();
     }
     return 1;
 }
@@ -460,6 +458,8 @@ static void exit_from_hal(void)
 
 static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
+    int n, mask;
+
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
 	return;
@@ -467,7 +467,13 @@ static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
     /* FIXME temporary, remove after trigger pos is working */
     ctrl_shm->pre_trig = ctrl_shm->rec_len / 2;
     if (ctrl_shm->state == IDLE) {
-	ctrl_shm->sample_request = ctrl_usr->vert.enabled;
+	mask = 1;
+	for (n = 0; n < 16; n++) {
+	    if (ctrl_usr->vert.chan_enabled[n]) {
+		ctrl_shm->sample_request |= mask;
+	    }
+	    mask <<= 1;
+	}
 	ctrl_shm->state = INIT;
     }
 }

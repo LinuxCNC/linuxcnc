@@ -59,6 +59,10 @@
 *                  LOCAL FUNCTION PROTOTYPES                           *
 ************************************************************************/
 
+void clear_display_window(void);
+void draw_grid(void);
+void draw_waveform(int chan, int highlight);
+
 /*
 static void init_horiz_window(void);
 static void init_acquire_function(void);
@@ -80,29 +84,79 @@ static void refresh_horiz_info(void);
 static void refresh_pos_disp(void);
 */
 
-
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
 ************************************************************************/
 
 void init_display(void)
 {
-#if 0
-    scope_horiz_t *horiz;
 
-    /* stop sampling */
+    /* allocate a user space buffer */
+    ctrl_usr->disp_buf = g_malloc(sizeof(scope_data_t) * ctrl_shm->buf_len);
+    if (ctrl_usr->disp_buf == 0) {
+	/* malloc failed */
+	/* should never get here - gmalloc checks its return value */
+	exit(-1);
+    }
+    /* FIXME - window init goes here */
+    invalidate_all_channels();
+    refresh_display();
+}
+
+void capture_complete(void)
+{
+    int n, offs, mask;
+    scope_data_t *src, *dst, *src_end;
+    int samp_len, samp_size;
+
+    offs = 0;
+    mask = 1;
+    for (n = 0; n < 16; n++) {
+	if (ctrl_shm->samples_valid & mask) {
+	    /* this channel has valid data */
+	    ctrl_usr->vert.data_offset[n] = offs;
+	    offs++;
+	} else {
+	    /* this channel was not acquired */
+	    ctrl_usr->vert.data_offset[n] = -1;
+	}
+	mask <<= 1;
+    }
+    /* copy data from shared buffer to display buffer */
+    ctrl_usr->samples = ctrl_shm->samples;
+    samp_len = ctrl_shm->sample_len;
+    samp_size = samp_len * sizeof(scope_data_t);
+    dst = ctrl_usr->disp_buf;
+    src = ctrl_usr->buffer + ctrl_shm->start;
+    src_end = ctrl_usr->buffer + (ctrl_shm->rec_len * samp_len);
+    n = 0;
+    while (n < ctrl_usr->samples) {
+	/* copy one sample */
+	memcpy(dst, src, samp_size);
+	n++;
+	dst += samp_len;
+	src += samp_len;
+	if (src >= src_end) {
+	    src = ctrl_usr->buffer;
+	}
+    }
+    /* FIXME - the new state should actually depend on the run mode */
     ctrl_shm->state = IDLE;
-    /* make a pointer to the horiz structure */
-    horiz = &(ctrl_usr->horiz);
-    /* init non-zero members of the horizontal structure */
-    /* set up the window */
-    init_horiz_window();
-    /* set up the realtime function */
-    init_acquire_function();
-    /* make sure displays are up to date */
-    calc_horiz_scaling();
-    refresh_horiz_info();
-#endif
+    refresh_display();
+}
+
+void invalidate_channel(int chan)
+{
+    ctrl_usr->vert.data_offset[chan - 1] = -1;
+}
+
+void invalidate_all_channels(void)
+{
+    int n;
+
+    for (n = 0; n < 16; n++) {
+	ctrl_usr->vert.data_offset[n] = -1;
+    }
 }
 
 void request_display_refresh(void)
@@ -111,37 +165,30 @@ void request_display_refresh(void)
     ctrl_usr->display_refresh_timer = 2;
 }
 
-
 void refresh_display(void)
 {
     int n;
-    int mask;
+    scope_vert_t *vert;
 
-printf ( "Time to refresh the display!\n" );
-printf ( "Request: " );
-mask = 1;
-for ( n = 0 ; n < 16 ; n++ ) {
-    if ( mask & ctrl_usr->vert.enabled ) {
-	printf ( "1" );
-    } else {
-	printf ( "0" );
+    /* cancel any pending refresh request */
+    ctrl_usr->display_refresh_timer = 0;
+    /* pointer to vertical data */
+    vert = &(ctrl_usr->vert);
+    clear_display_window();
+    draw_grid();
+    /* draw non-highlighted waveforms first */
+    for (n = 0; n < 16; n++) {
+	if ((vert->chan_enabled[n]) && (vert->data_offset[n] >= 0)
+	    && (n + 1 != vert->selected)) {
+	    draw_waveform(n + 1, FALSE);
+	}
     }
-    mask <<= 1;
-}
-printf ( "  Valid: " );
-mask = 1;
-for ( n = 0 ; n < 16 ; n++ ) {
-    if ( mask & ctrl_usr->vert.data_valid ) {
-	printf ( "1" );
-    } else {
-	printf ( "0" );
+    /* draw highlighted waveform last */
+    if ((vert->chan_enabled[vert->selected - 1])
+	&& (vert->data_offset[vert->selected - 1] >= 0)) {
+	draw_waveform(vert->selected, TRUE);
     }
-    mask <<= 1;
 }
-printf ( "\n" );
-
-}
-
 
 #if 0
 static void init_horiz_window(void)
@@ -302,6 +349,43 @@ void handle_watchdog_timeout(void)
 /***********************************************************************
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
+
+void clear_display_window(void)
+{
+    printf("clear_display_window()\n");
+}
+
+void draw_grid(void)
+{
+    printf("draw_grid()\n");
+}
+
+void draw_waveform(int chan, int highlight)
+{
+    scope_data_t *dptr;
+    int n, samp_len;
+
+    printf("draw_waveform(%2d, %d)\n", chan, highlight);
+    samp_len = ctrl_shm->sample_len;
+    /* point to first sample for this channel */
+    dptr = ctrl_usr->disp_buf + ctrl_usr->vert.data_offset[chan - 1];
+    n = 0;
+    while (n < ctrl_usr->samples) {
+	if (ctrl_usr->vert.chan[chan - 1].type == HAL_BIT) {
+	    if (dptr->d1 == 0) {
+		printf("%p FALSE\n", dptr);
+	    } else {
+		printf("%p TRUE\n", dptr);
+	    }
+	} else if (ctrl_usr->vert.chan[chan - 1].type == HAL_FLOAT) {
+	    printf("%p %f\n", dptr, *((float *) dptr));
+	} else {
+	    printf("%p some int type\n", dptr);
+	}
+	dptr += samp_len;
+	n++;
+    }
+}
 
 #if 0
 static void dialog_realtime_not_loaded(void)

@@ -190,17 +190,21 @@ static void sample(void *arg, long period)
     case TRIG_WAIT:
 	/* acquire a sample */
 	capture_sample();
-	/* increment start pointer (discard oldest pre-trig sample) */
-	ctrl_shm->start += ctrl_shm->sample_len;
-	/* is there a valid sample here, or end of buffer? */
-	if ((ctrl_shm->start + ctrl_shm->sample_len) > ctrl_shm->buf_len) {
-	    /* end of buffer, wrap back to beginning */
-	    ctrl_shm->start = 0;
-	}
+	/* increment sample counter */
+	ctrl_shm->samples++;
 	/* check if trigger condition met */
 	if (check_trigger()) {
 	    /* yes - start acquiring post trigger data */
 	    ctrl_shm->state = POST_TRIG;
+	} else {
+	    /* no, discard oldest pre-trig sample */
+	    ctrl_shm->samples--;
+	    ctrl_shm->start += ctrl_shm->sample_len;
+	    /* is there a valid sample here, or end of buffer? */
+	    if ((ctrl_shm->start + ctrl_shm->sample_len) > ctrl_shm->buf_len) {
+		/* end of buffer, wrap back to beginning */
+		ctrl_shm->start = 0;
+	    }
 	}
 	break;
     case POST_TRIG:

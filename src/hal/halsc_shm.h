@@ -42,7 +42,7 @@
 ************************************************************************/
 
 #define SCOPE_SHM_KEY  0x130CF405
-#define SCOPE_SHM_SIZE 65000
+#define SCOPE_SHM_SIZE 650
 
 typedef enum {
     IDLE = 0,			/* waiting for run command */
