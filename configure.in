@@ -467,6 +467,30 @@ AC_SUBST([MATHLIB])
 
 # Checks for libraries.
 
+#--------------------------------------------------------------------
+# Load the tclConfig.sh file
+# (P.C.) Ripped this section from another config.in as an example.
+# Delete when we have one that works..
+#--------------------------------------------------------------------
+# tclconfig=$(find /usr/* -maxdepth 2 -name "tclConfig.sh" 2>/dev/null | head -n 1)
+# . $tclconfig
+
+# AC_SUBST(INSTALL)
+# AC_SUBST(INSTALL_PROGRAM)
+# AC_SUBST(INSTALL_DATA)
+# AC_SUBST(TCL_SHLIB_CFLAGS)
+# AC_SUBST(TCL_SHLIB_SUFFIX)
+# AC_SUBST(TCL_SHLIB_LD)
+# AC_SUBST(TCL_LIB_SPEC)
+# AC_SUBST(TCL_INCLUDE_SPEC)
+# AC_SUBST(TCL_PREFIX)
+# AC_SUBST(TCL_EXEC_PREFIX)
+# AC_SUBST(TCL_CFLAGS)
+# AC_SUBST(TCL_DEFS)
+# AC_SUBST(TCL_SRC_DIR)
+#--------------------------------------------------------------------
+
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
@@ -474,7 +498,7 @@ AC_HEADER_SYS_WAIT
 AC_MSG_CHECKING([for tcl])
 
 #search for tclConfig.sh
-TCLCONFIG=$(find /usr/lib -maxdepth 1 -name tclConfig.sh | head -n1)
+TCLCONFIG=$(find /usr/lib -maxdepth 2 -name tclConfig.sh | head -n1)
 if (test "x$TCLCONFIG" = "x"); then
     TCLCONFIG=$(find /usr/local/lib -maxdepth 2 -name tclConfig.sh | head -n1)
 fi
@@ -494,7 +518,7 @@ else
 fi
 
 #search for tkConfig.sh
-TKCONFIG=$(find /usr/lib -maxdepth 1 -name tkConfig.sh | head -n1)
+TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | head -n1)
 if (test "x$TKCONFIG" = "x"); then
     TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
 fi
