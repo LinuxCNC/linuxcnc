@@ -132,6 +132,7 @@ modules: headers
 	@ echo ""
 	@ echo -e "\033[31m\033[5m Important notice. \033[0m"
 	@ echo " Ignore any \" *** Warning:\" messages and continue to the next stage."
+	@ echo " You must be root or sudo make modules_install "
 	@ echo ""
 	@ echo " Do NOT file a bug report."
 	@ echo ""
