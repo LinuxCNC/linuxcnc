@@ -1,2 +1,2 @@
 # Put some juicy hal config stuff in here.
-HAL_RTMOD_DIR=@EMC2_HOME@/rtlib
+HAL_RTMOD_DIR=$TESTDIR@MODULE_DIR@

@@ -77,10 +77,11 @@
             |-- stepgen.o
             `-- supply.o
 
-NOTE: This is a tentative layout (version 0.2) that may replace the one above.
+NOTE: This is a tentative layout that may replace the one above.
 
 This should be considered very preliminary and subject to change.
 Committed for discussion purposes only.
+
 
 
    /  (file system root)
@@ -88,54 +89,66 @@ Committed for discussion purposes only.
    |
    |--- etc/
    |      |
-   |      |--- emc2/
-   |      |      |--- rtapi.conf (contains paths for running installed scripts)
-   |      |      |         (defines $BIN_DIR, $MAN_DIR, $PREFIX, $RTMOD_DIR)
-   |      |      |--- emc.ini
-   |      |      |--- core-stepper.hal
-   |      |      |--- and more
+   |      |--- rtapi.conf (contains paths for running installed scripts)
+   |      |         (defines $BIN_DIR, $MAN_DIR, $PREFIX, $RTMOD_DIR)
    |      |
-   |      |--- init.d/ (figured out by ./configure - still to be written)
-   |      |      |     (could be /etc/rc.d or something similar)
-   |      |      |--- realtime (realtime start/stop script)
+   |      |--- rc.d/
+   |      |      |
+   |      |      |--- init.d/
+   |      |      |      |
+   |      |      |      |--- realtime (realtime start/stop script)
+   |
+   |--- $BIN_DIR/  (default: /usr/local/bin)
+   |      |
+   |      |--- (symlinks to $PREFIX/bin files that must be in $PATH)
    |
    |--- $MAN_DIR/  (default: /usr/local/man)
    |      |
    |      |--- man1/
    |      |      |
+   |      |      |
    |      |
    |      |--- man3/
    |      |      |
+   |      |      |
+   |      |
    |
-   |--- $PREFIX/  (default: /usr/local/)
+   |--- $PREFIX/  (default: /usr/local/emc)
    |      |
-   |      |--- bin/
+   |      |
+   |      |--- docs/
    |      |      |
-   |      |      |---  (stuff from cvsroot/bin and scripts/emc.run)
-   |      |      
-   |      |--- lib/    (stuff from cvsroot/lib/*.so)
-   |      |      |
-   |      |      |---  (emc user space libraries?)
+   |      |      |---  (All the important and relevant Docs.)
+   |      |      |
+   |      |      |--- handbooks/
+   |      |      |      |
+   |      |      |      |--- (PDF versions of handbooks)
    |      |
-   |      |--- share/emc2/
+   |      |--- nc_files/
    |      |      |
-   |      |      |--- docs/
-   |      |      |      |
-   |      |      |      |---  (All the important and relevant Docs.)
-   |      |      |      |
-   |      |      |      |--- handbooks/
-   |      |      |      |      |
-   |      |      |      |      |--- (PDF versions of handbooks)
+   |      |      |--- (Sample NC files)
+   |      |
+   |      |--- etc/  (emc configuration files)
    |      |      |
-   |      |      |--- nc_files/
-   |      |      |      |
-   |      |      |      |--- (Sample NC files)
-   |      |      |      
-   |      |      |--- tcl/  
-   |      |      |      |
-   |      |      |      |--- (tcl/tk scripts)
-   |      
+   |      |      |--- emc.ini
+   |      |      |--- core-stepper.hal
+   |      |      |--- and more
+   |      |
+   |      |--- lib/  (emc user space libraries?)
+   |      |      |
+   |      |      |
+   |      |
+   |      |--- bin/  (binaries and scripts)
+   |      |      |
+   |      |      |
+   |      |
+   |      |--- tcl/  (tcl/tk scripts)
+   |      |      |
+   |      |      |
+   |      |
    |
    |--- $RTMOD_DIR/  (default: /lib/modules/${KVER}/hal)
                      (actually based on where ./configure finds
                       the RTOS modules)
+
+

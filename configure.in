@@ -232,7 +232,7 @@ EMC2_HOME=`pwd`
 AC_SUBST([EMC2_HOME])
 
 # Support some of the standard configure options for directories
-AC_PREFIX_DEFAULT(/usr/local)	# Does this become /opt ?
+AC_PREFIX_DEFAULT(/usr/local)	# Does this become /opt/emc2 ?
 
 if test "x$prefix" = "xNONE"; then
   prefix=$ac_default_prefix
@@ -274,6 +274,7 @@ AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.
 #
 # We don't really care which version of GCC we have here, though,
 # so maybe we should find any old gcc here and reset it later?
+#
 # FIXME
 
 
@@ -320,14 +321,8 @@ then
         MODULE_DIR=`(find /usr/realtime/ -name "mbuff.o" -o -name "rtai_shm.o" -printf "%h")`
    fi
 
-   # go up one dir, in order to not install hal, emc modules in the same dir as rtai
-   if ! test "x" = "x$MODULE_DIR"; then
-	MODULE_DIR=$(cd $MODULE_DIR/.. ; pwd -P)
-	MODULE_DIR=$MODULE_DIR/hal
-   fi
-
    if test "x" = "x$MODULE_DIR"; then
-	MODULE_DIR='${exec_prefix}/modules'
+       MODULE_DIR='${exec_prefix}/modules'
    fi
 
 fi
@@ -428,6 +423,7 @@ AC_PATH_PROG(PIDOF, pidof, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
 
 # Check for math support
+# FIXME - still to be written
 # Because some of the realtime kernel modules use floating point math
 # which is not supported by standard kernel calls, we need to link to
 # libm. RTAI provides a loadable module derived from uclibc (a minimal
@@ -507,6 +503,14 @@ AC_SUBST([MATHLIB])
 
 # Checks for libraries.
 
+#--------------------------------------------------------------------
+# Load the tclConfig.sh file
+# (P.C.) Ripped this section from another config.in as an example.
+# Delete when we have one that works..
+#--------------------------------------------------------------------
+# tclconfig=$(find /usr/* -maxdepth 2 -name "tclConfig.sh" 2>/dev/null | head -n 1)
+# . $tclconfig
+
 # AC_SUBST(INSTALL)
 # AC_SUBST(INSTALL_PROGRAM)
 # AC_SUBST(INSTALL_DATA)
@@ -584,6 +588,11 @@ AC_SUBST([TK_LIBS])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
+# Checks for library functions.
+# FIXME These tests fail with tcl/tk 8.0
+#AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
+#AC_SEARCH_LIBS(Tk_Init,[tk tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
+
 DATE=$(date)
 AC_SUBST([DATE])
 
@@ -603,7 +612,7 @@ if test "$USE_NLS" = "yes"; then
   AC_CHECK_FUNCS(setlocale)
   AC_SUBST(HAVE_LOCALE_H)  
 
-# Add languages here when they are translated.
+# Add langauges here when they are translated.
 # Grep the LINGUAS file.
   LANGUAGES=""
   AC_SUBST(LANGUAGES)  
@@ -633,6 +642,7 @@ fi
 
 
 
+
 #AC_PROG_INTLTOOL(0.25)
 #AM_GNU_GETTEXT([external])
 #ALL_LINGUAS="en"
@@ -640,7 +650,7 @@ fi
 #AM_GLIB_GNU_GETTEXT
 
 
-AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/emc.conf.install configs/hal.conf.install configs/hal.conf scripts/emc.run src/config.h])
+AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
 AC_OUTPUT(Makefile.inc)
 
 

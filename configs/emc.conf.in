@@ -1,20 +1,33 @@
-#
-# @configure_input@ 
-# on @DATE@
-#
-# 
-# this file is used for running in place
-# from the source dir
-# there is a second one in this dir, called emc.conf.install which 
-# gets installed to the default location
-#
+
+DEBUG_FILE=/dev/null
+PRINT_FILE=/dev/null
+
+INSMOD=@INSMOD@
+RMMOD=@RMMOD@
+LSMOD=@LSMOD@
+PIDOF=@PIDOF@
+GREP=@GREP@
+SED=@SED@
+PS=@PS@
+WHOAMI=@WHOAMI@
+AWK=@AWK@
+IPCS=@IPCS@
+KILL=@KILL@
+
 # make some useful paths
-EMC2_DIR=@EMC2_HOME@
-EMC2_BIN_DIR=$EMC2_DIR/bin
-EMC2_TCL_DIR=$EMC2_DIR/tcl
-EMC2_SCRIPT_DIR=$EMC2_DIR/scripts
-EMC2_RTLIB_DIR=$EMC2_DIR/rtlib
-EMC2_CONFIG_DIR=$EMC2_DIR/configs
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+EMC2_BIN_DIR=$TESTDIR/@bindir@
+EMC2_TCL_DIR=$TESTDIR/@bindir@
+EMC2_SCRIPT_DIR=$TESTDIR/@bindir@
+#EMC2_RTLIB_DIR=$TESTDIR/@libdir@	#/rtlib
+EMC2_RTLIB_DIR=$TESTDIR@MODULE_DIR@
+
+EMC2_CONFIG_DIR=$TESTDIR/@sysconfdir@
+
+EMC2_DIR=`echo $SCRIPT_DIR | sed s#/scripts## `
+
 
 INIFILE=
 
@@ -22,7 +35,7 @@ INIVAR=$EMC2_BIN_DIR/inivar
 
 HALCMD=$EMC2_BIN_DIR/halcmd
 
-REALTIME=$EMC2_SCRIPT_DIR/realtime
+REALTIME=$TESTDIR/etc/rc.d/init.d/realtime
 
 # extract info from the ini file that we will need later
 # get name of RS274NGC parameter file
@@ -30,3 +43,4 @@ REALTIME=$EMC2_SCRIPT_DIR/realtime
 KILL_TASK=
 KILL_TIMEOUT=10
 LOCKFILE=/tmp/emc.lock
+

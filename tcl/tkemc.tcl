@@ -1,39 +1,9 @@
 #!/bin/sh
-# first finding out where we are \
-# get name and (possibly relative) path of this script \
-SCRIPT=`echo $0`
-# name of script \
-SCRIPT_NAME=`echo $SCRIPT | sed s#\^.\*/##`
-# delete name to get path \
-SCRIPT_DIR=`echo $SCRIPT | sed s/$SCRIPT_NAME//`
-# path might be relative - convert to absolute \
-SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
-# strip the "/tcl" part to get the root of the \
-# EMC2 directory tree, or the location from which tkemc.tcl was run \
-# in case we have an installed system \
-EMC2_DIR=`echo $SCRIPT_DIR | sed s#/tcl## `
-# next we figure out where emc.conf is (based on what we now so far) \
-# first we search relatively to this dir in configs (when run-in-place) \
-if [ -f $EMC2_DIR/configs/emc.conf ] ; then source $EMC2_DIR/configs/emc.conf ;
-# if not we check the defautl location \
-elif [ -f /etc/emc2/emc.conf ] ; then source /etc/emc2/emc.conf ;
-# or we give it up \
-else echo "Can't find emc.conf configuration file."; exit -1; fi
-#first export the TCL dir variab\
-export EMC2_TCL_DIR
 # the next line restarts using emcsh \
-exec $EMC2_BIN_DIR/emcsh "$0" "$@"
+exec bin/emcsh "$0" "$@"
 
 set TCLBIN tcl/bin/
 set TCLSCRIPTS tcl/scripts/
-
-
-if {[info exists env(EMC2_TCL_DIR)]} {
-    set TCLBIN $env(EMC2_TCL_DIR)
-    set TCLSCRIPTS $env(EMC2_TCL_DIR)
-    set TCLBIN $TCLBIN/bin
-    set TCLSCRIPTS $TCLSCRIPTS/scripts
-}
 
 # Tk GUI for the Enhanced Machine Controller
 
@@ -754,7 +724,7 @@ $unitsmenu add command -label "cm" -command {emc_linear_unit_conversion cm} -und
 # Add a scripts menu that looks for *.tcl files in tcl/scripts subdirectory
 set scriptsmenu [menu $menubar.scripts -tearoff 1]
 $menubar add cascade -label "Scripts" -menu $scriptsmenu -underline 1
-set scriptdir $TCLSCRIPTS
+set scriptdir tcl/scripts
 
 if { $windows == 0 } {
     set files [exec /bin/ls $scriptdir]

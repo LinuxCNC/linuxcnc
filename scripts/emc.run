@@ -8,22 +8,35 @@
 # if <ini-file> not specified, uses EMC2_DIR/configs/emc.ini
 # if path specified, looks there, else looks in $EMC2_DIR/configs
 
+# Source any config file we can find
+
+if [ -f ./emc.conf ] ; then
+   source ./emc.conf ;
+elif [ -f "$EMC2CONFIGDIR/emc.conf" ] ; then
+   source $EMC2CONFIGDIR/emc.conf ;
+elif [ -f /etc/emc.conf ] ; then
+   source /etc/emc.conf ;
+else
+    echo "Can't find emc.conf configuration file"
+    exit -1
+fi
+
+if [ -f ./hal.conf ] ; then
+   source ./hal.conf ;
+elif [ -f "$HALCONFIGDIR/hal.conf" ] ; then
+   source $HALCONFIGDIR/hal.conf ;
+elif [ -f /etc/hal.conf ] ; then
+   source /etc/hal.conf ;
+else
+    echo "Can't find hal.conf configuration file"
+    exit -1
+fi
+
+#echo "INIVAR is $INIVAR"
+#echo "EMC2_BIN_DIR is $EMC2_BIN_DIR"
+
 DEBUG_FILE=/dev/null
 PRINT_FILE=/dev/null
-
-# some basic programs
-# configure replaces this values
-INSMOD=/sbin/insmod
-RMMOD=/sbin/rmmod
-LSMOD=/sbin/lsmod
-PIDOF=/sbin/pidof
-GREP=/bin/grep
-SED=/bin/sed
-PS=/bin/ps
-WHOAMI=/usr/bin/whoami
-AWK=/bin/awk
-IPCS=/usr/bin/ipcs
-KILL=/bin/kill
 
 # strip and process command line options
 #
@@ -46,60 +59,12 @@ while echo $1 | $GREP ^- >$DEBUG_FILE ; do
     fi
 done
 
-# Source any config file we can find
-
-# Determine the EMC2 root directory
-# get name and (possibly relative) path of this script
-SCRIPT=`echo $0`
-# name of script
-SCRIPT_NAME=`echo $SCRIPT | sed s#\^.\*/##`
-# delete name to get path
-SCRIPT_DIR=`echo $SCRIPT | sed s/$SCRIPT_NAME//`
-# path might be relative - convert to absolute
-SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
-# strip the "/scripts" part to get the root of the
-# EMC2 directory tree, or the location from which emc.run was run
-# in case we have an installed system
-EMC2_DIR=`echo $SCRIPT_DIR | sed s#/scripts## `
-echo $EMC2_DIR >$DEBUG_FILE
-
-# now that we have the dir from where we ran
-# we first check relative for emc.conf
-# if we don't find it we have been installed
-# and we gotta check to default locations (/etc/emc2)
-
-if [ -f $EMC2_DIR/configs/emc.conf ] ; then
-   source $EMC2_DIR/configs/emc.conf ;
-   EMCCONFSRC=$EMC2_DIR/configs/emc.conf
-elif [ -f /etc/emc2/emc.conf ] ; then
-   source /etc/emc2/emc.conf ;
-   EMCCONFSRC=/etc/emc2/configs/emc.conf
-else
-    echo "Can't find emc.conf configuration file"
-    exit -1
-fi
-
-echo "Using $EMCCONFSRC" >$DEBUG_FILE
-
-if [ -f $EMC2_DIR/configs/hal.conf ] ; then
-   source $EMC2_DIR/configs/hal.conf ;
-   HALCONFSRC=$EMC2_DIR/configs/hal.conf
-elif [ -f /etc/emc2/hal.conf ] ; then
-   source /etc/emc2/hal.conf ;
-   HALCONFSRC=/etc/emc2/hal.conf
-else
-    echo "Can't find hal.conf configuration file"
-    exit -1
-fi
-
-echo "Using $HALCONFSRC" >$DEBUG_FILE
-
-
 # check for root privliges - hope to remove the need for this later
 if [ `$WHOAMI` != root ] ; then
     echo "Sorry, you must be root to run EMC"
     exit -1
 fi
+
 
 echo EMC2_DIR=$EMC2_DIR >$PRINT_FILE
 echo EMC2_BIN_DIR=$EMC2_BIN_DIR >$PRINT_FILE
@@ -191,7 +156,6 @@ NMLFILE=`$INIVAR -ini $INIFILE -var NML_FILE -sec EMC`
 if [ ! -n "$NMLFILE" ] ; then
     echo "Can't find variable NML_FILE in section [EMC] of file $INIFILE.";
 fi
-NMLFILE=$EMC2_CONFIG_DIR/$NMLFILE
 echo NMLFILE=$NMLFILE >$PRINT_FILE
 
 # DON'T KNOW WHAT THIS IS FOR
@@ -421,11 +385,6 @@ echo Starting emc...
 # trap ^C so that it's called if user interrupts script
 trap 'Cleanup ; exit 0' SIGINT
 
-# go to the dir where the config files are
-# either configs/ when run-in-place
-# or /etc/emc2
-cd $EMC2_CONFIG_DIR
-
 # Create the lock file
 touch $LOCKFILE
 
@@ -550,7 +509,7 @@ fi
 $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 
 # Run emctask in background
-echo "Starting EMC TASK program: $EMCTASK in $EMC2_CONFIG_DIR" >$PRINT_FILE
+echo "Starting EMC TASK program: $EMCTASK" >$PRINT_FILE
 if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
     echo "Can't execute TASK program $EMC2_BIN_DIR/$EMCTASK"
     Cleanup
