@@ -75,18 +75,21 @@ fi
 # this one is a step by step, tutorial/intro to HAL concepts
 #
 if [ $1 = parport1 ] ; then
+   echo "Sorry, the parport demo is currently not working due"
+   echo "to some ongoing changes in the driver..."
+   echo "The driver can no longer create threads.  Until the"
+   echo "new thread creation mechanism is complete, this demo"
+   echo "won't work.  (It could be re-written to use the driver"
+   echo "in user space, and maybe I'll do that, but not today.)"
+   exit -1
     echo "(Comments that are part of the demo are in parenthesis.)"
     echo "(This demo echos its commands to the screen so you can"
     echo " see what each step does.  Echoed commands start with '$')"
-#    echo "Hit enter to install the hal_lib module"
-#    read
-#    echo "$ /sbin/insmod rtlib/hal_lib.o"
-#    /sbin/insmod rtlib/hal_lib.o
     echo "Hit enter to install the parport module with a 1mS thread"
     read
     # change the 0278 if your port is at a different address
-    echo "$ /sbin/insmod rtlib/parport.o period=1000000 cfg=\"0278\""
-    /sbin/insmod rtlib/parport.o period=1000000 cfg="0278"
+    echo "$ /sbin/insmod rtlib/hal_parport.o period=1000000 cfg=\"0278\""
+    /sbin/insmod rtlib/hal_parport.o period=1000000 cfg="0278"
     echo "Hit enter see the component list"
     read
     echo "$ bin/halcmd show comp"
@@ -190,10 +193,8 @@ if [ $1 = parport1 ] ; then
     echo "$ bin/halcmd delsig jumper2"
     bin/halcmd delsig jumper2
     echo "(unloading the parport module)"
-    echo "$ /sbin/rmmod parport"
-    /sbin/rmmod parport
-#    echo "$ /sbin/rmmod hal_lib"
-#    /sbin/rmmod hal_lib
+    echo "$ /sbin/rmmod hal_parport"
+    /sbin/rmmod hal_parport
     exit 0
 fi
 #
@@ -205,10 +206,6 @@ if [ $1 = siggen ] ; then
     echo "(Comments that are part of the demo are in parenthesis.)"
     echo "(This demo echos its commands to the screen so you can"
     echo " see what each step does.  Echoed commands start with '$')"
-#    echo "Hit enter to install the hal_lib module"
-#    read
-#    echo "$ /sbin/insmod rtlib/hal_lib.o"
-#    /sbin/insmod rtlib/hal_lib.o
     echo "Hit enter to install the siggen module with a 1mS thread"
     read
     echo "$ /sbin/insmod rtlib/siggen.o fp_period=1000000"
@@ -275,8 +272,6 @@ if [ $1 = siggen ] ; then
     echo "(unloading the siggen module)"
     echo "$ /sbin/rmmod siggen"
     /sbin/rmmod siggen
-#    echo "$ /sbin/rmmod hal_lib"
-#    /sbin/rmmod hal_lib
     exit 0
 fi
 #
@@ -289,17 +284,16 @@ if [ $1 = circle ] ; then
     echo " extensively commented)"
     echo "Hit enter to install the hal components"
     read
-#    # install the hal library module
-#    /sbin/insmod rtlib/hal_lib.o
-    # install parport module with a 50uS thread
+    # install parport module
     # change the 0278 if your port is at a different address
-    /sbin/insmod rtlib/parport.o period=50000 cfg="0278"
-    # install the siggen module with a 1mS thread"
-    /sbin/insmod rtlib/siggen.o fp_period=1000000
+    /sbin/insmod rtlib/hal_parport.o cfg="0278"
+    # install two step pulse generators, stepping type 0,
+    # and also create two threads, one 50uS and one 1mS
+    /sbin/insmod rtlib/stepgen.o cfg="0 0" period=50000 fp_period=1000000
+    # install the siggen module
+    /sbin/insmod rtlib/siggen.o
     # install two PID loops
     /sbin/insmod rtlib/pid.o num_chan=2
-    # install two step pulse generators, stepping type 0
-    /sbin/insmod rtlib/stepgen.o cfg="0 0"
     #
     bin/halcmd show comp
     echo "Hit enter set up the threads"
@@ -307,21 +301,21 @@ if [ $1 = circle ] ; then
     #
     # set up the high speed thread
     # first read the parport inputs
-    bin/halcmd addf parport.1.read parport.thread
+    bin/halcmd addf parport.1.read stepgen.thread
     # then run the step generator
-    bin/halcmd addf stepgen.make_pulses parport.thread
+    bin/halcmd addf stepgen.make_pulses stepgen.thread
     # then write the parport outputs
-    bin/halcmd addf parport.1.write parport.thread
+    bin/halcmd addf parport.1.write stepgen.thread
     # set up the low speed thread
     # first run the signal generator to generate position references
-    bin/halcmd addf siggen.1.update siggen.thread
+    bin/halcmd addf siggen.1.update stepgen.threadFP
     # next run stepgen position capture function to get position feedback
-    bin/halcmd addf stepgen.capture_position siggen.thread
+    bin/halcmd addf stepgen.capture_position stepgen.threadFP
     # next run the pid loops
-    bin/halcmd addf pid.1.do_pid_calcs siggen.thread
-    bin/halcmd addf pid.2.do_pid_calcs siggen.thread
+    bin/halcmd addf pid.1.do_pid_calcs stepgen.threadFP
+    bin/halcmd addf pid.2.do_pid_calcs stepgen.threadFP
     # and finally run the step generator update function
-    bin/halcmd addf stepgen.update_freq siggen.thread
+    bin/halcmd addf stepgen.update_freq stepgen.threadFP
     #
     bin/halcmd show thread
     bin/halcmd show funct
@@ -418,10 +412,9 @@ if [ $1 = circle ] ; then
     echo "Hit enter to finish the demo"
     read
     /sbin/rmmod siggen
-    /sbin/rmmod parport
+    /sbin/rmmod hal_parport
     /sbin/rmmod stepgen
     /sbin/rmmod pid
-#    /sbin/rmmod hal_lib
     exit 0
 fi
 #
@@ -434,7 +427,6 @@ if [ $1 = scope ] ; then
     echo "demo.  Hit enter to get started"
     read
     echo "First we load the siggen demo (not echoed)"
-#    /sbin/insmod rtlib/hal_lib.o
     /sbin/insmod rtlib/siggen.o fp_period=1000000
     bin/halcmd addf siggen.1.update siggen.thread
     bin/halcmd start
@@ -534,7 +526,6 @@ if [ $1 = scope ] ; then
     read
     /sbin/rmmod halscope_rt
     /sbin/rmmod siggen
-#    /sbin/rmmod hal_lib
     exit 0
 fi
 #

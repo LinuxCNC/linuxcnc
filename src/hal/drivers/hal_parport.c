@@ -1,5 +1,5 @@
-/** This file, 'parport.c', is a HAL component that provides a driver
-    for the standard PC parallel port.
+/** This file, 'hal_parport.c', is a HAL component that provides a
+    driver for the standard PC parallel port.
 
     It supports up to eight parallel ports, and if the port hardware
     is bidirectional, the eight data bits can be configured as inputs
@@ -15,8 +15,8 @@
     inputs, and the 4 bits of the control port are always outputs.
     Example command lines are as follows:
 
-    user:        parport 378 in 278
-    realtime:    insmod parport.o cfg="378 in 278"
+    user:        hal_parport 378 in 278
+    realtime:    insmod hal_parport.o cfg="378 in 278"
 
     Both of these commands install the driver and configure parports
     at base addresses 0x0378 (using data port as input) and 0x0278
@@ -158,11 +158,22 @@ static int num_ports;		/* number of ports configured */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
+/* These are the functions that actually do the I/O
+   everything else is just init code
+*/
+
 static void read_port(void *arg, long period);
 static void write_port(void *arg, long period);
 static void read_all(void *arg, long period);
 static void write_all(void *arg, long period);
 
+/* 'pins_and_params()' does most of the work involved in setting up
+   the driver.  It parses the command line (argv[]), then if the
+   command line is OK, it calls hal_init(), allocates shared memory
+   for the parport_t data structure(s), and exports pins and parameters
+   It does not set up functions, since that is handled differently in
+   realtime and user space.
+*/
 static int pins_and_params(char *argv[]);
 
 static unsigned short parse_port_addr(char *cp);
@@ -290,18 +301,17 @@ int main(int argc, char *argv[])
     hal_s8_t *read_funct_flags;
     hal_s8_t *write_funct_flags;
 
-    /* parse command line, set up pins and parameters */
-    retval = pins_and_params(&(argv[1]));
-    if (retval != 0) {
-	return retval;
-    }
     /* ask linux for permission to use the I/O ports */
     retval = iopl(3);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: could not get I/O permission\n");
-	hal_exit(comp_id);
 	return -1;
+    }
+    /* parse command line, set up pins and parameters */
+    retval = pins_and_params(&(argv[1]));
+    if (retval != 0) {
+	return retval;
     }
     /* allocate space for function run/stop parameters */
     read_funct_flags = hal_malloc((num_ports + 1) * sizeof(hal_s8_t) * 2);
@@ -357,7 +367,11 @@ int main(int argc, char *argv[])
     /* capture INT (ctrl-C) and TERM signals */
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
-    /* main loop */
+
+    /*************************************/
+    /* main loop - loops forever until   */
+    /* SIGINT (ctrl-C) or SIGTERM (kill) */
+    /*************************************/
     while (!done) {
 	if (read_funct_flags[0]) {
 	    /* run the function */

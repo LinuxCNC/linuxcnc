@@ -1,4 +1,22 @@
 # Makefile for HAL Drivers
+#
+# NOTE: To avoid possible confusion or contention with
+# normal Linux drivers, all HAL drivers should begin with
+# the string "hal_"
+#
+# The default rules in this file and Make.rules will properly
+# build an driver that consists of a single source file, linked
+# to the RTAPU/ULAPI and HAL libraries only.  All you need to
+# do to add a new driver is to add <name>.c to SRCS and
+# $(BIN_DIR)/<name> to BINS (for a user space driver), and/or
+# add <name>.c to RT_SCRS and $(RTLIB_DIR)/<name>.o to LIBS (for
+# a realtime driver).
+#
+# FIXME - can we change the default rules so they properly link
+# modules that require the math library, but do _not_ link the
+# math lib if it isn't needed?  If not, then modules that require
+# the math lib will also require explicit rules ;-(
+#
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
 include ../../../Makefile.inc
@@ -10,16 +28,16 @@ HEADERS =
 PRIVHDRS =
 
 SRCS = \
-parport.c
+hal_parport.c
 
 RT_SRCS = \
-parport.c
+hal_parport.c
 
 LIBS = \
-$(RTLIB_DIR)/parport.o
+$(RTLIB_DIR)/hal_parport.o
 
 BINS = \
-$(BIN_DIR)/parport
+$(BIN_DIR)/hal_parport
 
 
 all : headers $(OBJS) $(LIBS) $(BINS)

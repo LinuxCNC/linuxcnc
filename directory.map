@@ -25,7 +25,7 @@
     |
     |--- rtlib/  (kernel mode object files)
     |
-    |--- scripts/  (load_rtapi, unload_rtapi, etc.)
+    |--- scripts/  (bash scripts like realtime, load_rtapi, unload_rtapi, etc.)
     |
     |--- tcl/ (both tkemc and any other tcl/tk scripts)
     |
@@ -39,9 +39,10 @@
            |              |--- shmem_example/  (*.c & *.h)
            |              |--- etc.
            |
-           |--- hal/  (hal_lib.c, hal.h, halcmd.c, halgui.c, etc.)
+           |--- hal/  (hal_lib.c, hal.h, etc.)
            |      |
-           |      |--- drivers/  (parport.c, STG.c, PPMC.c, USC.c, etc.)
+           |      |--- utils/       (halcmd, halscope, halmeter, etc)
+           |      |--- drivers/     (parport.c, STG.c, PPMC.c, USC.c, etc.)
            |      |--- components/  (encoder.c, stepgen.c, PID.c, etc.)
            |
            |--- posemath/
