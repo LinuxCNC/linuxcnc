@@ -566,6 +566,16 @@ extern int hal_export_funct(char *name, void (*funct) (void *, long),
 extern int hal_create_thread(char *name, unsigned long period_nsec,
     int uses_fp, int comp_id);
 
+/** hal_thread_delete() deletes a realtime thread.
+    'name' is the name of the thread, which must have been created
+    by 'hal_thread_new()'.
+    On success, hal_thread_delete() returns HAL_SUCCESS, on
+    failure it returns a negative error code.
+    Call only from realtime init code, not from user
+    space or realtime code.
+*/
+extern int hal_thread_delete(char *name);
+
 #endif /* RTAPI */
 
 /** hal_add_funct_to_thread() adds a function exported by a
@@ -589,7 +599,8 @@ extern int hal_create_thread(char *name, unsigned long period_nsec,
     only from within user space or init code, not from
     realtime code.
 */
-extern int hal_add_funct_to_thread(char *funct_name, char *thread_name, int position);
+extern int hal_add_funct_to_thread(char *funct_name, char *thread_name,
+    int position);
 
 /** hal_del_funct_from_thread() removes a function from a thread.
     'funct_name' is the name of the function, as specified in

@@ -87,6 +87,10 @@ MODULE_LICENSE("GPL");
 
 char *hal_shmem_base = 0;
 hal_data_t *hal_data = 0;
+#ifdef RTAPI
+static int lib_module_id = -1;	/* RTAPI module ID for library module */
+static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
+#endif
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -299,12 +303,22 @@ int hal_exit(int comp_id)
     rtapi_snprintf(name, HAL_NAME_LEN, "%s", comp->name);
     /* get rid of the component */
     free_comp_struct(comp);
+#if 0
+    /* FIXME - this is the beginning of a two pronged approach to managing
+       shared memory.  Prong 1 - re-init the shared memory allocator whenever 
+       it is known to be safe.  Prong 2 - make a better allocator that can
+       reclaim memory allocated by components when those components are
+       removed. To be finished later. */
     /* was that the last component? */
     if (hal_data->comp_list_ptr == 0) {
-	/* yes, invalidate "magic" number so shmem will be re-inited when a
-	   new component is loaded */
-	hal_data->magic = 0;
+	/* yes, are there any signals or threads defined? */
+	if ((hal_data->sig_list_ptr == 0) && (hal_data->thread_list_ptr == 0)) {
+	    /* no, invalidate "magic" number so shmem will be re-inited when
+	       a new component is loaded */
+	    hal_data->magic = 0;
+	}
     }
+#endif
     /* release mutex */
     rtapi_mutex_give(&(hal_data->mutex));
     /* release RTAPI resources */
@@ -1090,7 +1104,6 @@ int hal_create_thread(char *name, unsigned long period_nsec,
     }
     /* initialize the structure */
     new->uses_fp = uses_fp;
-    new->owner_ptr = SHMOFF(comp);
     rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", name);
     /* have to create and start a task to run the thread */
     if (hal_data->thread_list_ptr == 0) {
@@ -1128,9 +1141,9 @@ int hal_create_thread(char *name, unsigned long period_nsec,
     new->period = hal_data->base_period * n;
     /* make priority one lower than previous */
     new->priority = rtapi_prio_next_lower(prev_priority);
-    /* create task */
+    /* create task - owned by library module, not caller */
     retval = rtapi_task_new(thread_task, new, new->priority,
-	comp_id, HAL_STACKSIZE, uses_fp);
+	lib_module_id, HAL_STACKSIZE, uses_fp);
     if (retval < 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1161,6 +1174,44 @@ int hal_create_thread(char *name, unsigned long period_nsec,
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
     hal_param_s32_new(buf, HAL_RD_WR, &(new->maxtime), comp_id);
     return HAL_SUCCESS;
+}
+
+extern int hal_thread_delete(char *name)
+{
+    hal_thread_t *thread;
+    int *prev, next;
+
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: thread_delete called before init\n");
+	return HAL_INVAL;
+    }
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting thread '%s'\n", name);
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* search for the signal */
+    prev = &(hal_data->thread_list_ptr);
+    next = *prev;
+    while (next != 0) {
+	thread = SHMPTR(next);
+	if (strcmp(thread->name, name) == 0) {
+	    /* this is the right thread, unlink from list */
+	    *prev = thread->next_ptr;
+	    /* and delete it */
+	    free_thread_struct(thread);
+	    /* done */
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return HAL_SUCCESS;
+	}
+	/* no match, try the next one */
+	prev = &(thread->next_ptr);
+	next = *prev;
+    }
+    /* if we get here, we didn't find a match */
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: thread '%s' not found\n",
+	name);
+    return HAL_INVAL;
 }
 
 #endif /* RTAPI */
@@ -1240,12 +1291,12 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name, int position)
     list_root = &(thread->funct_list);
     list_entry = list_root;
     n = 0;
-    if ( position > 0 ) {
+    if (position > 0) {
 	/* insertion is relative to start of list */
-	while ( ++n < position ) {
+	while (++n < position) {
 	    /* move further into list */
 	    list_entry = list_next(list_entry);
-	    if ( list_entry == list_root ) {
+	    if (list_entry == list_root) {
 		/* reached end of list */
 		rtapi_mutex_give(&(hal_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1255,10 +1306,10 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name, int position)
 	}
     } else {
 	/* insertion is relative to end of list */
-	while ( --n > position ) {
+	while (--n > position) {
 	    /* move further into list */
 	    list_entry = list_prev(list_entry);
-	    if ( list_entry == list_root ) {
+	    if (list_entry == list_root) {
 		/* reached end of list */
 		rtapi_mutex_give(&(hal_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1399,19 +1450,19 @@ int hal_stop_threads(void)
 *                    PRIVATE FUNCTION CODE                             *
 ************************************************************************/
 
-hal_list_t *list_prev ( hal_list_t *entry )
+hal_list_t *list_prev(hal_list_t * entry)
 {
     /* this function is only needed because of memory mapping */
     return SHMPTR(entry->prev);
 }
 
-hal_list_t *list_next ( hal_list_t *entry )
+hal_list_t *list_next(hal_list_t * entry)
 {
     /* this function is only needed because of memory mapping */
     return SHMPTR(entry->next);
 }
 
-void list_init_entry ( hal_list_t *entry )
+void list_init_entry(hal_list_t * entry)
 {
     int entry_n;
 
@@ -1420,7 +1471,7 @@ void list_init_entry ( hal_list_t *entry )
     entry->prev = entry_n;
 }
 
-void list_add_after ( hal_list_t *entry, hal_list_t *prev )
+void list_add_after(hal_list_t * entry, hal_list_t * prev)
 {
     int entry_n, prev_n, next_n;
     hal_list_t *next;
@@ -1437,7 +1488,7 @@ void list_add_after ( hal_list_t *entry, hal_list_t *prev )
     next->prev = entry_n;
 }
 
-void list_add_before ( hal_list_t *entry, hal_list_t *next )
+void list_add_before(hal_list_t * entry, hal_list_t * next)
 {
     int entry_n, prev_n, next_n;
     hal_list_t *prev;
@@ -1454,7 +1505,7 @@ void list_add_before ( hal_list_t *entry, hal_list_t *next )
     next->prev = entry_n;
 }
 
-hal_list_t *list_remove_entry ( hal_list_t *entry )
+hal_list_t *list_remove_entry(hal_list_t * entry)
 {
     int entry_n;
     hal_list_t *prev, *next;
@@ -1668,35 +1719,6 @@ hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,
     return 0;
 }
 
-hal_thread_t *halpr_find_thread_by_owner(hal_comp_t * owner,
-    hal_thread_t * start)
-{
-    int owner_ptr, next;
-    hal_thread_t *thread;
-
-    /* get offset of 'owner' component */
-    owner_ptr = SHMOFF(owner);
-    /* is this the first call? */
-    if (start == 0) {
-	/* yes, start at beginning of thread list */
-	next = hal_data->thread_list_ptr;
-    } else {
-	/* no, start at next thread */
-	next = start->next_ptr;
-    }
-    while (next != 0) {
-	thread = SHMPTR(next);
-	if (thread->owner_ptr == owner_ptr) {
-	    /* found a match */
-	    return thread;
-	}
-	/* didn't find it yet, look at next one */
-	next = thread->next_ptr;
-    }
-    /* if loop terminates, we reached end of list without finding a match */
-    return 0;
-}
-
 hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
     hal_funct_t * start)
 {
@@ -1760,20 +1782,72 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
 
 #ifdef RTAPI
 /* these functions are called when the hal_lib module is insmod'ed
-   or rmmod'ed - they do nothing, but Linux expects to see them.
+   or rmmod'ed.
 */
 
 int rtapi_app_main(void)
 {
-    /* nothing to do, since this is just a library... all we accomplish at
-       insmod time is to make the functions available to modules loaded
-       later. */
+    int retval;
+    void *mem;
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: loading kernel lib\n");
+    /* do RTAPI init */
+    lib_module_id = rtapi_init("HAL_LIB");
+    if (lib_module_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL_LIB: ERROR: rtapi init failed\n");
+	return HAL_FAIL;
+    }
+    /* get HAL shared memory block from RTAPI */
+    lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
+    if (lib_mem_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL_LIB: ERROR: could not open shared memory\n");
+	rtapi_exit(lib_module_id);
+	return HAL_FAIL;
+    }
+    /* get address of shared memory area */
+    retval = rtapi_shmem_getptr(lib_mem_id, &mem);
+    if (retval != RTAPI_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: could not access shared memory\n");
+	rtapi_exit(lib_module_id);
+	return HAL_FAIL;
+    }
+    /* set up internal pointers to shared mem and data structure */
+    hal_shmem_base = (char *) mem;
+    hal_data = (hal_data_t *) mem;
+    /* perform a global init if needed */
+    init_hal_data();
+    /* done */
+    rtapi_print_msg(RTAPI_MSG_DBG,
+	"HAL_LIB: kernel lib installed successfully\n");
     return 0;
 }
 
 void rtapi_app_exit(void)
 {
-    /* nothing to do here either */
+    hal_thread_t *thread;
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL_LIB: removing kernel lib\n");
+    /* grab mutex before manipulating list */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* must remove all threads before unloading this module */
+    while (hal_data->thread_list_ptr != 0) {
+	/* point to a thread */
+	thread = SHMPTR(hal_data->thread_list_ptr);
+	/* unlink from list */
+	hal_data->thread_list_ptr = thread->next_ptr;
+	/* and delete it */
+	free_thread_struct(thread);
+    }
+    /* release mutex */
+    rtapi_mutex_give(&(hal_data->mutex));
+    /* release RTAPI resources */
+    rtapi_shmem_delete(lib_mem_id, lib_module_id);
+    rtapi_exit(lib_module_id);
+    /* done */
+    rtapi_print_msg(RTAPI_MSG_DBG,
+	"HAL_LIB: kernel lib removed successfully\n");
 }
 
 /* this is the task function that implements threads in realtime */
@@ -1789,7 +1863,7 @@ static void thread_task(void *arg)
 	start_time = rtapi_get_time();
 	if (hal_data->threads_running > 0) {
 	    /* run thru function list */
-	    funct_root = (hal_funct_entry_t *) &(thread->funct_list);
+	    funct_root = (hal_funct_entry_t *) & (thread->funct_list);
 	    funct_entry = SHMPTR(funct_root->links.next);
 	    while (funct_entry != funct_root) {
 		/* call the function */
@@ -2050,7 +2124,7 @@ static hal_funct_entry_t *alloc_funct_entry_struct(void)
     /* check the free list */
     freelist = &(hal_data->funct_entry_free);
     l = list_next(freelist);
-    if ( l != freelist ) {
+    if (l != freelist) {
 	/* found a free structure, unlink from the free list */
 	list_remove_entry(l);
 	p = (hal_funct_entry_t *) l;
@@ -2091,7 +2165,6 @@ static hal_thread_t *alloc_thread_struct(void)
 	p->uses_fp = 0;
 	p->period = 0;
 	p->priority = 0;
-	p->owner_ptr = 0;
 	p->task_id = 0;
 	list_init_entry(&(p->funct_list));
 	p->name[0] = '\0';
@@ -2104,31 +2177,14 @@ static void free_comp_struct(hal_comp_t * comp)
 {
     int *prev, next;
 #ifdef RTAPI
-    hal_thread_t *thread;
     hal_funct_t *funct;
 #endif /* RTAPI */
     hal_pin_t *pin;
     hal_param_t *param;
 
     /* can't delete the component until we delete its "stuff" */
-    /* need to check for functs and threads only if a realtime component */
+    /* need to check for functs only if a realtime component */
 #ifdef RTAPI
-    /* search the thread list for this component's threads */
-    prev = &(hal_data->thread_list_ptr);
-    next = *prev;
-    while (next != 0) {
-	thread = SHMPTR(next);
-	if (SHMPTR(thread->owner_ptr) == comp) {
-	    /* this thread belongs to our component, unlink from list */
-	    *prev = thread->next_ptr;
-	    /* and delete it */
-	    free_thread_struct(thread);
-	} else {
-	    /* no match, try the next one */
-	    prev = &(thread->next_ptr);
-	}
-	next = *prev;
-    }
     /* search the function list for this component's functs */
     prev = &(hal_data->funct_list_ptr);
     next = *prev;
@@ -2339,7 +2395,7 @@ static void free_funct_entry_struct(hal_funct_entry_t * funct_entry)
     funct_entry->arg = 0;
     funct_entry->funct = 0;
     /* add it to free list */
-    list_add_after ( (hal_list_t *) funct_entry, &(hal_data->funct_entry_free) );
+    list_add_after((hal_list_t *) funct_entry, &(hal_data->funct_entry_free));
 }
 
 #ifdef RTAPI
@@ -2357,7 +2413,6 @@ static void free_thread_struct(hal_thread_t * thread)
     thread->uses_fp = 0;
     thread->period = 0;
     thread->priority = 0;
-    thread->owner_ptr = 0;
     thread->task_id = 0;
     /* clear the function entry list */
     list_root = &(thread->funct_list);

@@ -136,7 +136,7 @@ typedef struct {
     int sig_free_ptr;		/* list of free signal structs */
     int param_free_ptr;		/* list of free parameter structs */
     int funct_free_ptr;		/* list of free function structs */
-    hal_list_t funct_entry_free;/* list of free funct entry structs */
+    hal_list_t funct_entry_free;	/* list of free funct entry structs */
     int thread_free_ptr;	/* list of free thread structs */
 } hal_data_t;
 
@@ -233,7 +233,6 @@ typedef struct {
     int uses_fp;		/* floating point flag */
     long int period;		/* period of the thread, in nsec */
     int priority;		/* priority of the thread */
-    int owner_ptr;		/* component that added this thread */
     int task_id;		/* ID of the task that runs this thread */
     hal_s32_t runtime;		/* duration of last run, in nsec */
     hal_s32_t maxtime;		/* duration of longest run, in nsec */
@@ -290,12 +289,12 @@ extern hal_data_t *hal_data;
     It returns a pointer to the next entry in the list.  If 'entry'
     was the only entry in the list, it returns 'entry'.
 */
-void list_init_entry ( hal_list_t *entry );
-hal_list_t *list_prev ( hal_list_t *entry );
-hal_list_t *list_next ( hal_list_t *entry );
-void list_add_after ( hal_list_t *entry, hal_list_t *prev );
-void list_add_before ( hal_list_t *entry, hal_list_t *next );
-hal_list_t *list_remove_entry ( hal_list_t *entry );
+void list_init_entry(hal_list_t * entry);
+hal_list_t *list_prev(hal_list_t * entry);
+hal_list_t *list_next(hal_list_t * entry);
+void list_add_after(hal_list_t * entry, hal_list_t * prev);
+void list_add_before(hal_list_t * entry, hal_list_t * next);
+hal_list_t *list_remove_entry(hal_list_t * entry);
 
 /** The 'find_xxx_by_name()' functions search the appropriate list for
     an object that matches 'name'.  They return a pointer to the object,
@@ -325,8 +324,6 @@ extern hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner,
     hal_pin_t * start);
 extern hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,
     hal_param_t * start);
-extern hal_thread_t *halpr_find_thread_by_owner(hal_comp_t * owner,
-    hal_thread_t * start);
 extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
     hal_funct_t * start);
 

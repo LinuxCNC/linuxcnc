@@ -260,12 +260,14 @@ static int parse_cmd(char *cmd)
     } else if (strcmp(tokens[0], "save") == 0) {
 	retval = do_save_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "addf") == 0) {
-        /* did the user specify a position? */
-	if ( tokens[3][0] == '\0' ) {
+	/* did the user specify a position? */
+	if (tokens[3][0] == '\0') {
 	    /* no - add function at end of thread */
 	    retval = hal_add_funct_to_thread(tokens[1], tokens[2], -1);
 	} else {
-	    retval = hal_add_funct_to_thread(tokens[1], tokens[2], atoi(tokens[3]));
+	    retval =
+		hal_add_funct_to_thread(tokens[1], tokens[2],
+		atoi(tokens[3]));
 	}
 	if (retval == 0) {
 	    /* print success message */
@@ -526,7 +528,7 @@ static int do_sets_cmd(char *name, char *value)
     /* found it - does it have a writer? */
     if (sig->writers > 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
-        rtapi_print_msg(RTAPI_MSG_ERR,
+	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal '%s' already has writer(s)\n", name);
 	return HAL_INVAL;
     }
@@ -552,8 +554,7 @@ static int do_sets_cmd(char *name, char *value)
 	if (*cp != '\0') {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for float signal\n",
-		value);
+		"HAL: ERROR: value '%s' invalid for float signal\n", value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_float_t *) (d_ptr)) = fval;
@@ -640,8 +641,6 @@ static int do_sets_cmd(char *name, char *value)
     return retval;
 
 }
-
-
 
 static int do_show_cmd(char *type)
 {
@@ -817,17 +816,14 @@ static void print_thread_list(void)
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *fentry;
     hal_funct_t *funct;
-    hal_comp_t *comp;
 
     rtapi_print("Realtime Threads:\n");
-    rtapi_print("Owner    Period   FP  Name\n");
+    rtapi_print("   Period   FP   Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
 	tptr = SHMPTR(next_thread);
-	comp = SHMPTR(tptr->owner_ptr);
-	rtapi_print(" %02d   %11d %s %s\n",
-	    comp->comp_id,
+	rtapi_print("%11d %s  %s\n",
 	    tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name);
 	list_root = &(tptr->funct_list);
 	list_entry = list_next(list_root);
@@ -836,7 +832,7 @@ static void print_thread_list(void)
 	    /* print the function info */
 	    fentry = (hal_funct_entry_t *) list_entry;
 	    funct = SHMPTR(fentry->funct_ptr);
-	    rtapi_print("                       %2d  %s\n", n, funct->name);
+	    rtapi_print("                 %2d %s\n", n, funct->name);
 	    n++;
 	    list_entry = list_next(list_entry);
 	}
@@ -1154,11 +1150,14 @@ static void print_help(void)
     printf("Hardware Abstraction Layer command line utility\n\n");
     printf("Usage:   halcmd [options] [cmd [args]]\n\n");
     printf("options:\n\n");
-    printf("  -f [filename]    Read command(s) from 'filename' instead of command\n");
-    printf("                   line.  If no file is specified, read from stdin.\n\n");
+    printf
+	("  -f [filename]    Read command(s) from 'filename' instead of command\n");
+    printf
+	("                   line.  If no file is specified, read from stdin.\n\n");
     printf("  -q               Quiet - Display errors only (default).\n\n");
     printf("  -Q               Very quiet - Display nothing.\n\n");
-    printf("  -v               Verbose - Display results of every command.\n\n");
+    printf
+	("  -v               Verbose - Display results of every command.\n\n");
     printf("  -V               Very verbose - Display lots of junk.\n\n");
     printf("  -h               Help - Print this help screen and exit.\n\n");
     printf("If reading commands from a file or stdin, they are one per\n");
@@ -1166,38 +1165,55 @@ static void print_help(void)
     printf("Commands and their args are as follows:\n\n");
     printf("  linkps pinname [arrow] signame\n");
     printf("  linksp signame [arrow] pinname\n");
-    printf("         Links pin 'pinname' to signal 'signame'.  Both forms do the same\n");
-    printf("         thing.  Use whichever makes sense.  Likewise, 'arrow' can be '=>',\n");
-    printf("         '<=', or '<=>' and is ignored (use in command files to document\n");
-    printf("         the direction of data flow to/from pin - don't use on cmd line).\n\n");
+    printf
+	("         Links pin 'pinname' to signal 'signame'.  Both forms do the same\n");
+    printf
+	("         thing.  Use whichever makes sense.  Likewise, 'arrow' can be '=>',\n");
+    printf
+	("         '<=', or '<=>' and is ignored (use in command files to document\n");
+    printf
+	("         the direction of data flow to/from pin - don't use on cmd line).\n\n");
     printf("  unlinkp pinname\n");
     printf("         Unlinks pin 'pinname'\n\n");
     printf("  newsig signame type\n");
-    printf("         Creates a new signal called 'signame'.  Type is 'bit', 'float',\n");
+    printf
+	("         Creates a new signal called 'signame'.  Type is 'bit', 'float',\n");
     printf("         'u8', 's8', 'u16', 's16', 'u32', or 's32'.\n\n");
     printf("  delsig signame\n");
     printf("         Deletes signal 'signame'.\n\n");
     printf("  setp paramname value\n");
     printf("  paramname = value\n");
-    printf("         Sets parameter 'paramname' to 'value' (only if writable).\n");
-    printf("         (Both forms are equivalent, don't use '=' on command line.)\n\n");
+    printf
+	("         Sets parameter 'paramname' to 'value' (only if writable).\n");
+    printf
+	("         (Both forms are equivalent, don't use '=' on command line.)\n\n");
     printf("  sets signame value\n");
-    printf("         Sets signal 'signame' to 'value' (only if sig has no writers).\n\n");
+    printf
+	("         Sets signal 'signame' to 'value' (only if sig has no writers).\n\n");
     printf("  addf functname threadname [position]\n");
-    printf("         Adds function 'functname' to thread 'threadname'.  If 'position'\n");
+    printf
+	("         Adds function 'functname' to thread 'threadname'.  If 'position'\n");
     printf("         is specified, add function to that spot in thread.\n\n");
     printf("  delf functname threadname\n");
-    printf("         Removes function 'functname' from thread 'threadname'.\n\n");
+    printf
+	("         Removes function 'functname' from thread 'threadname'.\n\n");
     printf("  show [type]\n");
-    printf("         Prints HAL items of the specified type in human readable form\n");
-    printf("         'type' is 'comp', 'pin', 'sig', 'param', 'funct', or 'thread'.\n");
+    printf
+	("         Prints HAL items of the specified type in human readable form\n");
+    printf
+	("         'type' is 'comp', 'pin', 'sig', 'param', 'funct', or 'thread'.\n");
     printf("         If 'type' is omitted, prints everything.\n\n");
     printf("  save [type]\n");
-    printf("         Prints HAL items in a format that can be redirected to a file,\n");
-    printf("         and later restored using \"halcmd -f filename\".  Type can be\n");
-    printf("         'sig', 'link[a]', 'net[a]', 'param', or 'thread'.  ('linka' and\n");
-    printf("         'neta' show arrows for pin direction.)  If 'type' is omitted,\n");
-    printf("         it does the equivalend of 'sig', 'link', 'param', and 'thread'.\n\n");
+    printf
+	("         Prints HAL items in a format that can be redirected to a file,\n");
+    printf
+	("         and later restored using \"halcmd -f filename\".  Type can be\n");
+    printf
+	("         'sig', 'link[a]', 'net[a]', 'param', or 'thread'.  ('linka' and\n");
+    printf
+	("         'neta' show arrows for pin direction.)  If 'type' is omitted,\n");
+    printf
+	("         it does the equivalend of 'sig', 'link', 'param', and 'thread'.\n\n");
     printf("  start\n");
     printf("         Starts all realtime threads.\n\n");
     printf("  stop\n");
