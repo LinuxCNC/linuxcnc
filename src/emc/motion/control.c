@@ -37,6 +37,9 @@
 *                  LOCAL VARIABLE DECLARATIONS                         *
 ************************************************************************/
 
+/* FIXME - this is a leftover global, it will eventually go away */
+int rehomeAll;
+
 /* these variables have the servo cycle time and 1/cycle time */
 static double servo_period;
 static double servo_freq;
@@ -196,7 +199,8 @@ static void process_inputs(void)
 
 	/* calculate following error */
 	emcmotStatus->ferrorCurrent[axis] =
-	    emcmotStatus->joint_pos_cmd - emcmotStatus->joint_pos_fb;
+	    emcmotStatus->joint_pos_cmd[axis] -
+	    emcmotStatus->joint_pos_fb[axis];
 
 	/* absolute value of ferror */
 	if (emcmotStatus->ferrorCurrent[axis] < 0.0) {
@@ -332,31 +336,31 @@ static void check_for_faults(void)
 		    /* no, ignore limits */
 		} else {
 		    /* trip on limits */
-		    SET_AXIS_ERROR_FLAG(axis, 1);
-		    if (emcmotDebug->enabling) {
+		    if (!GET_AXIS_ERROR_FLAG(axis)) {
 			/* report the error just this once */
 			reportError("axis %d on limit switch error", axis);
 		    }
+		    SET_AXIS_ERROR_FLAG(axis, 1);
 		    emcmotDebug->enabling = 0;
 		}
 	    }
 	    /* check for amp fault */
 	    if (GET_AXIS_FAULT_FLAG(axis)) {
 		/* axis is faulted, trip */
-		SET_AXIS_ERROR_FLAG(axis, 1);
-		if (emcmotDebug->enabling) {
+		if (!GET_AXIS_ERROR_FLAG(axis)) {
 		    /* report the error just this once */
 		    reportError("axis %d amplifier fault", axis);
 		}
+		SET_AXIS_ERROR_FLAG(axis, 1);
 		emcmotDebug->enabling = 0;
 	    }
 	    /* check for excessive following error */
 	    if (GET_AXIS_FERROR_FLAG(axis)) {
-		SET_AXIS_ERROR_FLAG(axis, 1);
-		if (emcmotDebug->enabling) {
+		if (!GET_AXIS_ERROR_FLAG(axis)) {
 		    /* report the error just this once */
 		    reportError("axis %d following error", axis);
 		}
+		SET_AXIS_ERROR_FLAG(axis, 1);
 		emcmotDebug->enabling = 0;
 	    }
 	    /* end of if AXIS_ACTIVE_FLAG(axis) */
@@ -451,5 +455,8 @@ static void output_to_hal(void)
 	axis_data->homed = GET_AXIS_HOMED_FLAG(axis);
 	axis_data->f_errored = GET_AXIS_FERROR_FLAG(axis);
 	axis_data->faulted = GET_AXIS_FAULT_FLAG(axis);
+	axis_data->f_error = emcmotStatus->ferrorCurrent[axis];
+	axis_data->f_error_lim = emcmotStatus->ferrorLimit[axis];
+
     }
 }

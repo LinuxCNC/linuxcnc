@@ -44,8 +44,7 @@ typedef struct {
     hal_float_t *motor_pos_fb;	/* RPI: position feedback, with comp */
     hal_float_t joint_pos_fb;	/* RPA: position feedback, w/o comp */
     hal_float_t f_error;	/* RPA: following error */
-//    hal_float_t f_error_min;    /* RPA: negative following error limit */
-//    hal_float_t f_error_max;    /* RPA: positive following error limit */
+    hal_float_t f_error_lim;	/* RPA: following error limit */
 
     hal_bit_t active;		/* RPA: axis is active, whatever that means */
     hal_bit_t in_position;	/* RPA: axis is in position */

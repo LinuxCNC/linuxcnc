@@ -850,8 +850,8 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	stat[axis].maxHardLimit =
 	    (emcmotStatus.
 	    axisFlag[axis] & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT ? 1 : 0);
-	stat[axis].overrideLimits = (emcmotStatus.overrideLimits);	// one 
-									// for 
+	stat[axis].overrideLimits = (emcmotStatus.overrideLimits);	// one
+									// for
 									// all
 
 	stat[axis].scale = emcmotStatus.axVscale[axis];
@@ -859,7 +859,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 
 	if (emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_ERROR_BIT) {
 	    if (stat[axis].status != RCS_ERROR) {
-		rcs_print_error("Error on axis %d.\n", axis);
+		rcs_print_error("Error on axis %d, command number %d\n", axis, emcmotStatus.commandNumEcho );
 		stat[axis].status = RCS_ERROR;
 	    }
 	} else if (emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_INPOS_BIT) {

@@ -201,15 +201,44 @@ void emcmotCommandHandler(void *arg, long period)
 	}
 
 	/* ...and process command */
-#if 0
-	rtapi_print("CMD: %d\n", emcmotCommand->command);
-#endif
+/* printing of commands for troubleshooting */
+	rtapi_print_msg(RTAPI_MSG_DBG, "%d %5d %3d ", GET_AXIS_ERROR_FLAG(0),
+	    emcmotCommand->commandNum, emcmotCommand->command);
+
 	switch (emcmotCommand->command) {
+	case EMCMOT_ABORT:
+	    /* abort motion */
+	    /* can happen at any time */
+	    /* check for coord or free space motion active */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "ABORT");
+	    if (GET_MOTION_TELEOP_FLAG()) {
+		emcmotDebug->teleop_data.desiredVel.tran.x = 0.0;
+		emcmotDebug->teleop_data.desiredVel.tran.y = 0.0;
+		emcmotDebug->teleop_data.desiredVel.tran.z = 0.0;
+		emcmotDebug->teleop_data.desiredVel.a = 0.0;
+		emcmotDebug->teleop_data.desiredVel.b = 0.0;
+		emcmotDebug->teleop_data.desiredVel.c = 0.0;
+	    } else if (GET_MOTION_COORD_FLAG()) {
+		tpAbort(&emcmotDebug->queue);
+		SET_MOTION_ERROR_FLAG(0);
+	    } else {
+		/* check axis range */
+		axis = emcmotCommand->axis;
+		if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+		    break;
+		}
+		tpAbort(&emcmotDebug->freeAxis[axis]);
+		SET_AXIS_HOMING_FLAG(axis, 0);
+		SET_AXIS_ERROR_FLAG(axis, 0);
+	    }
+	    break;
+
 	case EMCMOT_FREE:
 	    /* change the mode to free axis motion */
 	    /* can be done at any time */
 	    /* reset the emcmotDebug->coordinating flag to defer transition
 	       to controller cycle */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "FREE");
 	    emcmotDebug->coordinating = 0;
 	    emcmotDebug->teleoperating = 0;
 	    break;
@@ -219,6 +248,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* can be done at any time */
 	    /* set the emcmotDebug->coordinating flag to defer transition to
 	       controller cycle */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "COORD");
 	    emcmotDebug->coordinating = 1;
 	    emcmotDebug->teleoperating = 0;
 	    if (kinType != KINEMATICS_IDENTITY) {
@@ -236,6 +266,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* can be done at any time */
 	    /* set the emcmotDebug->teleoperating flag to defer transition to
 	       controller cycle */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "TELEOP");
 	    emcmotDebug->teleoperating = 1;
 	    if (kinType != KINEMATICS_IDENTITY) {
 		if (!emcmotDebug->allHomed) {
@@ -251,7 +282,9 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SET_NUM_AXES:
 	    /* set the global NUM_AXES, which must be between 1 and
 	       EMCMOT_MAX_AXIS, inclusive */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_AXES");
 	    axis = emcmotCommand->axis;
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", axis);
 	    /* note that this comparison differs from the check on the range
 	       of 'axis' in most other places, since those checks are for a
 	       value to be used as an index and here it's a value to be used
@@ -265,10 +298,13 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_WORLD_HOME:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_WORLD_HOME");
 	    worldHome = emcmotCommand->pos;
 	    break;
 
 	case EMCMOT_SET_JOINT_HOME:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_HOME");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
@@ -278,6 +314,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_HOME_OFFSET:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_HOME_OFFSET");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -287,6 +325,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_OVERRIDE_LIMITS:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "OVERRIDE_LIMITS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    if (emcmotCommand->axis < 0) {
 		/* don't override limits */
 		emcmotStatus->overrideLimits = 0;
@@ -300,6 +340,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_POSITION_LIMITS:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_POSITION_LIMITS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
 	    /* set the position limits for the axis */
 	    /* can be done at any time */
@@ -318,6 +360,8 @@ void emcmotCommandHandler(void *arg, long period)
 	       minFerror then OK else if ferror < limiting ferror then OK
 	       else ERROR */
 	case EMCMOT_SET_MAX_FERROR:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_MAX_FERROR");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 ||
@@ -328,6 +372,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_MIN_FERROR:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_MIN_FERROR");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 ||
@@ -343,6 +389,8 @@ void emcmotCommandHandler(void *arg, long period)
 	       don't yet apply because we're not homed */
 
 	    /* check axis range */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_CONT");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
@@ -405,6 +453,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* do an incremental jog */
 
 	    /* check axis range */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_INCR");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
@@ -436,11 +486,10 @@ void emcmotCommandHandler(void *arg, long period)
 		    }
 		}
 	    } else {
-		emcmotDebug->freePose.tran.x = emcmotDebug->jointPos[axis] - emcmotCommand->offset;	/* FIXME-- 
+		emcmotDebug->freePose.tran.x = emcmotDebug->jointPos[axis] - emcmotCommand->offset;	/* FIXME--
 													   use
-													   'goal' 
-													   instead 
-													 */
+													   'goal'
+													   instead */
 		if (GET_AXIS_HOMED_FLAG(axis)) {
 		    if (emcmotDebug->freePose.tran.x <
 			emcmotConfig->minLimit[axis]) {
@@ -465,6 +514,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* do an absolute jog */
 
 	    /* check axis range */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
@@ -509,12 +560,14 @@ void emcmotCommandHandler(void *arg, long period)
 
 	case EMCMOT_SET_TERM_COND:
 	    /* sets termination condition for motion emcmotDebug->queue */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_TERM_COND");
 	    tpSetTermCond(&emcmotDebug->queue, emcmotCommand->termCond);
 	    break;
 
 	case EMCMOT_SET_LINE:
 	    /* emcmotDebug->queue up a linear move */
 	    /* requires coordinated mode, enable off, not on limits */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_LINE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError
 		    ("need to be enabled, in coord mode for linear move");
@@ -555,6 +608,7 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SET_CIRCLE:
 	    /* emcmotDebug->queue up a circular move */
 	    /* requires coordinated mode, enable on, not on limits */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_CIRCLE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError
 		    ("need to be enabled, in coord mode for circular move");
@@ -599,6 +653,7 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SET_VEL:
 	    /* set the velocity for subsequent moves */
 	    /* can do it at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL");
 	    emcmotStatus->vel = emcmotCommand->vel;
 	    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 		tpSetVmax(&emcmotDebug->freeAxis[axis], emcmotStatus->vel);
@@ -607,6 +662,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_VEL_LIMIT:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL_LIMIT");
 	    emcmot_config_change();
 	    /* set the absolute max velocity for all subsequent moves */
 	    /* can do it at any time */
@@ -615,6 +671,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_AXIS_VEL_LIMIT:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_VEL_LIMIT");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
 	    /* check axis range */
 	    axis = emcmotCommand->axis;
@@ -633,6 +691,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* sign of vel should set polarity, and mag-sign are recorded */
 
 	    /* check axis range */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_HOMING_VEL");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
@@ -654,6 +714,7 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SET_ACC:
 	    /* set the max acceleration */
 	    /* can do it at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_ACCEL");
 	    emcmotStatus->acc = emcmotCommand->acc;
 	    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 		tpSetAmax(&emcmotDebug->freeAxis[axis], emcmotStatus->acc);
@@ -664,6 +725,7 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_PAUSE:
 	    /* pause the motion */
 	    /* can happen at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "PAUSE");
 	    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 		tpPause(&emcmotDebug->freeAxis[axis]);
 	    }
@@ -674,6 +736,7 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_RESUME:
 	    /* resume paused motion */
 	    /* can happen at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "RESUME");
 	    emcmotDebug->stepping = 0;
 	    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 		tpResume(&emcmotDebug->freeAxis[axis]);
@@ -685,6 +748,7 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_STEP:
 	    /* resume paused motion until id changes */
 	    /* can happen at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "STEP");
 	    emcmotDebug->idForStep = emcmotStatus->id;
 	    emcmotDebug->stepping = 1;
 	    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
@@ -697,6 +761,7 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_SCALE:
 	    /* override speed */
 	    /* can happen at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SCALE");
 	    if (emcmotCommand->scale < 0.0) {
 		emcmotCommand->scale = 0.0;	/* clamp it */
 	    }
@@ -709,37 +774,12 @@ void emcmotCommandHandler(void *arg, long period)
 	    emcmotStatus->qVscale = emcmotCommand->scale;
 	    break;
 
-	case EMCMOT_ABORT:
-	    /* abort motion */
-	    /* can happen at any time */
-	    /* check for coord or free space motion active */
-	    if (GET_MOTION_TELEOP_FLAG()) {
-		emcmotDebug->teleop_data.desiredVel.tran.x = 0.0;
-		emcmotDebug->teleop_data.desiredVel.tran.y = 0.0;
-		emcmotDebug->teleop_data.desiredVel.tran.z = 0.0;
-		emcmotDebug->teleop_data.desiredVel.a = 0.0;
-		emcmotDebug->teleop_data.desiredVel.b = 0.0;
-		emcmotDebug->teleop_data.desiredVel.c = 0.0;
-	    } else if (GET_MOTION_COORD_FLAG()) {
-		tpAbort(&emcmotDebug->queue);
-		SET_MOTION_ERROR_FLAG(0);
-	    } else {
-		/* check axis range */
-		axis = emcmotCommand->axis;
-		if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-		    break;
-		}
-		tpAbort(&emcmotDebug->freeAxis[axis]);
-		SET_AXIS_HOMING_FLAG(axis, 0);
-		SET_AXIS_ERROR_FLAG(axis, 0);
-	    }
-	    break;
-
 	case EMCMOT_DISABLE:
 	    /* go into disable */
 	    /* can happen at any time */
 	    /* reset the emcmotDebug->enabling flag to defer disable until
 	       controller cycle (it *will* be honored) */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE");
 	    emcmotDebug->enabling = 0;
 	    if (kinType == KINEMATICS_INVERSE_ONLY) {
 		emcmotDebug->teleoperating = 0;
@@ -752,6 +792,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* can happen at any time */
 	    /* set the emcmotDebug->enabling flag to defer enable until
 	       controller cycle */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE");
 	    emcmotDebug->enabling = 1;
 	    if (kinType == KINEMATICS_INVERSE_ONLY) {
 		emcmotDebug->teleoperating = 0;
@@ -763,6 +804,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* make axis active, so that amps will be enabled when system is
 	       enabled or disabled */
 	    /* can be done at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "ACTIVATE_AXIS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
@@ -774,6 +817,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* make axis inactive, so that amps won't be affected when system
 	       is enabled or disabled */
 	    /* can be done at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "DEACTIVATE_AXIS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
@@ -781,30 +826,37 @@ void emcmotCommandHandler(void *arg, long period)
 	    SET_AXIS_ACTIVE_FLAG(axis, 0);
 	    break;
 /* FIXME - need to replace the ext function */
-#if 0
 	case EMCMOT_ENABLE_AMPLIFIER:
 	    /* enable the amplifier directly, but don't enable calculations */
 	    /* can be done at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE_AMP");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+#if 0
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
 	    }
 	    extAmpEnable(axis, 1);
+#endif
 	    break;
 
 	case EMCMOT_DISABLE_AMPLIFIER:
 	    /* disable the axis calculations and amplifier, but don't disable
 	       calculations */
 	    /* can be done at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE_AMP");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+#if 0
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
 	    }
 	    extAmpEnable(axis, 0);
-	    break;
 #endif
+	    break;
 	case EMCMOT_OPEN_LOG:
 	    /* open a data log */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "OPEN_LOG");
 	    axis = emcmotCommand->axis;
 	    valid = 0;
 	    if (emcmotCommand->logSize > 0 &&
@@ -872,6 +924,7 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_START_LOG:
 	    /* start logging */
 	    /* first ignore triggered log types */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "START_LOG");
 	    if (emcmotStatus->logType == EMCMOT_LOG_TYPE_POS_VOLTAGE) {
 		break;
 	    }
@@ -888,10 +941,12 @@ void emcmotCommandHandler(void *arg, long period)
 
 	case EMCMOT_STOP_LOG:
 	    /* stop logging */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "STOP_LOG");
 	    emcmotStatus->logStarted = 0;
 	    break;
 
 	case EMCMOT_CLOSE_LOG:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "CLOSE_LOG");
 	    emcmotStatus->logOpen = 0;
 	    emcmotStatus->logStarted = 0;
 	    emcmotStatus->logSize = 0;
@@ -903,6 +958,8 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* home the specified axis */
 	    /* need to be in free mode, enable on */
 	    /* homing is basically a slow incremental jog to full range */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "NOME");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    axis = emcmotCommand->axis;
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
@@ -926,6 +983,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_ENABLE_WATCHDOG:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE_WATCHDOG");
 	    emcmotDebug->wdEnabling = 1;
 	    emcmotDebug->wdWait = emcmotCommand->wdWait;
 	    if (emcmotDebug->wdWait < 0) {
@@ -934,10 +992,12 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_DISABLE_WATCHDOG:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE_WATCHDOG");
 	    emcmotDebug->wdEnabling = 0;
 	    break;
 
 	case EMCMOT_CLEAR_PROBE_FLAGS:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "CLEAR_PROBE_FLAGS");
 	    emcmotStatus->probeTripped = 0;
 	    emcmotStatus->probing = 1;
 	    break;
@@ -946,6 +1006,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* most of this is taken from EMCMOT_SET_LINE */
 	    /* emcmotDebug->queue up a linear move */
 	    /* requires coordinated mode, enable off, not on limits */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "PROBE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError
 		    ("need to be enabled, in coord mode for probe move");
@@ -986,6 +1047,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_TELEOP_VECTOR:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_TELEOP_VECTOR");
 	    if (!GET_MOTION_TELEOP_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError
 		    ("need to be enabled, in teleop mode for teleop move");
@@ -1020,17 +1082,23 @@ void emcmotCommandHandler(void *arg, long period)
 	    break;
 
 	case EMCMOT_SET_DEBUG:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_DEBUG");
 	    emcmotConfig->debug = emcmotCommand->debug;
 	    emcmot_config_change();
 	    break;
 
 	default:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
 	    reportError("unrecognized command %d", emcmotCommand->command);
 	    emcmotStatus->commandStatus = EMCMOT_COMMAND_UNKNOWN_COMMAND;
 	    break;
 
 	}			/* end of: command switch */
-
+	if (emcmotStatus->commandStatus != EMCMOT_COMMAND_OK) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "ERRROR: %d",
+		emcmotStatus->commandStatus);
+	}
+	rtapi_print_msg(RTAPI_MSG_DBG, " %d\n", GET_AXIS_ERROR_FLAG(0));
 	/* synch tail count */
 	emcmotStatus->tail = emcmotStatus->head;
 	emcmotConfig->tail = emcmotConfig->head;

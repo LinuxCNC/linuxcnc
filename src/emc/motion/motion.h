@@ -85,54 +85,59 @@ extern "C" {
 /* This enum lists all the possible commands */
 
     typedef enum {
-	EMCMOT_SET_POSITION_LIMITS = 1,	/* set the axis position +/- limits */
-	EMCMOT_SET_MIN_FERROR,	/* minimum following error, input units */
-	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
+	EMCMOT_ABORT = 1,	/* abort motion */
+	EMCMOT_ENABLE,		/* enable servos for active axes */
+	EMCMOT_DISABLE,		/* disable servos for active axes */
+	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs */
+	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs */
+	EMCMOT_ENABLE_WATCHDOG,	/* enable watchdog sound, parport */
+	EMCMOT_DISABLE_WATCHDOG,	/* enable watchdog sound, parport */
+	EMCMOT_ACTIVATE_AXIS,	/* make axis active */
+	EMCMOT_DEACTIVATE_AXIS,	/* make axis inactive */
+
+	EMCMOT_PAUSE,		/* pause motion */
+	EMCMOT_RESUME,		/* resume motion */
+	EMCMOT_STEP,		/* resume motion until id encountered */
+	EMCMOT_FREE,		/* set mode to free (joint) motion */
+	EMCMOT_COORD,		/* set mode to coordinated motion */
+	EMCMOT_TELEOP,		/* set mode to teleop */
+
+	EMCMOT_OPEN_LOG,	/* open a log */
+	EMCMOT_START_LOG,	/* start logging */
+	EMCMOT_STOP_LOG,	/* stop logging */
+	EMCMOT_CLOSE_LOG,	/* close log */
+
+	EMCMOT_SCALE,		/* scale the speed */
+	EMCMOT_OVERRIDE_LIMITS,	/* temporarily ignore limits until jog done */
+
+	EMCMOT_HOME,		/* home an axis */
 	EMCMOT_JOG_CONT,	/* continuous jog */
 	EMCMOT_JOG_INCR,	/* incremental jog */
 	EMCMOT_JOG_ABS,		/* absolute jog */
 	EMCMOT_SET_LINE,	/* queue up a linear move */
 	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
+	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
+					   world cartesian coordinates, not
+					   in joint space like EMCMOT_JOG_* */
+
+	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
+	EMCMOT_PROBE,		/* go to pos, stop if probe trips, record
+				   trip pos */
+
+	EMCMOT_SET_POSITION_LIMITS,	/* set the axis position +/- limits */
+	EMCMOT_SET_MIN_FERROR,	/* minimum following error, input units */
+	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
 	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
 	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
 	EMCMOT_SET_AXIS_VEL_LIMIT,	/* set the max axis vel */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 //      EMCMOT_SET_AXIS_ACC,    /* NEW set the max accel for axis */
-	EMCMOT_PAUSE,		/* pause motion */
-	EMCMOT_RESUME,		/* resume motion */
-	EMCMOT_STEP,		/* resume motion until id encountered */
-	EMCMOT_ABORT,		/* abort motion */
-	EMCMOT_SCALE,		/* scale the speed */
-	EMCMOT_ENABLE,		/* enable servos for active axes */
-	EMCMOT_DISABLE,		/* disable servos for active axes */
-	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs */
-	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs */
-	EMCMOT_OPEN_LOG,	/* open a log */
-	EMCMOT_START_LOG,	/* start logging */
-	EMCMOT_STOP_LOG,	/* stop logging */
-	EMCMOT_CLOSE_LOG,	/* close log */
-	EMCMOT_HOME,		/* home an axis */
-	EMCMOT_FREE,		/* set mode to free (joint) motion */
-	EMCMOT_COORD,		/* set mode to coordinated motion */
-	EMCMOT_TELEOP,		/* set mode to teleop */
-	EMCMOT_ENABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_DISABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_ACTIVATE_AXIS,	/* make axis active */
-	EMCMOT_DEACTIVATE_AXIS,	/* make axis inactive */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
 	EMCMOT_SET_HOMING_VEL,	/* set the axis homing speed */
 	EMCMOT_SET_NUM_AXES,	/* set the number of axes */
 	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
 	EMCMOT_SET_JOINT_HOME,	/* set value for joint homes */
 	EMCMOT_SET_HOME_OFFSET,	/* where to go after a home */
-	EMCMOT_OVERRIDE_LIMITS,	/* temporarily ignore limits until jog done */
-	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
-					   world cartesian coordinates, not
-					   in joint space like EMCMOT_JOG_* */
-	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
-	EMCMOT_PROBE,		/* go towards a position, stop if the probe
-				   is tripped, and record the position where
-				   the probe tripped */
 	EMCMOT_SET_DEBUG	/* sets the debug level */
     } cmd_code_t;
 
@@ -278,6 +283,40 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define EMCMOT_AXIS_FERROR_BIT         0x1000
 #define EMCMOT_AXIS_FAULT_BIT          0x2000
 
+/* FIXME - the terms "teleop", "coord", and "free" are poorly
+   documented.  This is my feeble attempt to understand exactly
+   what they mean.
+
+   According to Fred, teleop is never used with machine tools,
+   although that may not be true for machines with non-trivial
+   kinematics.
+
+   "coord", or coordinated mode, means that all the axis are
+   synchronized, and move together as commanded by the higher
+   level code.  It is the normal mode when machining.  In
+   coordinated mode, commands are assumed to be in the cartesean
+   reference frame, and if the machine is non-cartesean, the
+   commands are translated by the kinematics to drive each
+   axis in joint space as needed.
+
+   "free" mode means commands are interpreted in joint space.
+   It is used for jogging individual axes (joints), although
+   it does not preclude multiple axes moving at once (I think).
+
+   
+
+
+*/
+
+/* FIXME - the beginnings of a state machine */
+
+    typedef enum {
+	MOTION_STATE_DISABLED = 0,
+	MOTION_STATE_TELEOP,
+	MOTION_STATE_COORD,
+	MOTION_STATE_FREE
+    } motion_state_t;
+
 /* This is the status structure.  There is one of these in shared
    memory, and it reports motion controller status to higher level
    code in user space.  For the most part, this structure contains
@@ -375,8 +414,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int level;
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_status_t;
-
-
 
 /* This is the config structure.  This is currently in shared memory,
    but I have no idea why... there are commands to set most of the

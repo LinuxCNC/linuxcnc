@@ -162,14 +162,16 @@ void emcmot_config_change(void)
 void reportError(const char *fmt, ...)
 {
     va_list args;
-    char error[EMCMOT_ERROR_LEN];
+    char error[EMCMOT_ERROR_LEN + 2];
 
     va_start(args, fmt);
     /* Don't use the rtapi_snprintf... */
-    vsprintf(error, fmt, args);
+    vsnprintf(error, EMCMOT_ERROR_LEN, fmt, args);
     va_end(args);
-
-    emcmotErrorPut(emcmotError, error);
+/* print to the kernel buffer... */
+    rtapi_print(" ERR: %s\n");
+/* not to the RCS buffer (at least for now) */
+//    emcmotErrorPut(emcmotError, error);
 }
 
 int init_module(void)
@@ -452,6 +454,12 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.f-error-lim", num);
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(addr->f_error_lim), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.active", num);
     retval = hal_param_bit_new(buf, HAL_RD, &(addr->active), mot_comp_id);
     if (retval != 0) {
@@ -717,7 +725,8 @@ static int init_comm_buffers(void)
 	emcmotConfig->maxLimit[axis] = MAX_LIMIT;
 	emcmotConfig->minLimit[axis] = MIN_LIMIT;
 	emcmotConfig->backlash[axis] = BACKLASH;
-	emcmotConfig->minFerror[axis] = 0.0;	/* gives a true linear ferror */
+	emcmotConfig->minFerror[axis] = 0.0;	/* gives a true linear ferror 
+						 */
 	emcmotConfig->maxFerror[axis] = MAX_FERROR;
 //      emcmotStatus->outputScale[axis] = OUTPUT_SCALE;
 //      emcmotStatus->outputOffset[axis] = OUTPUT_OFFSET;
