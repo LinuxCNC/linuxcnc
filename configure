@@ -185,8 +185,8 @@ echo >> Makefile.inc
 echo "# local flags for GTK includes" >> Makefile.inc
 if [ $GTK_VER = "2.0" ] ; then
     echo "GTK_VERSION = 2.0" >> Makefile.inc
-    echo "GTK_CFLAGS = -I/usr/include/gtk-2.0 -I/usr/lib/gtk-2.0/include -I/usr/include/atk-1.0 -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include" >> Makefile.inc
-    echo "GTK_LIBS = -Wl,--export-dynamic -lgtk-x11-2.0 -ldl" >> Makefile.inc
+    echo "GTK_CFLAGS = `pkg-config gtk+-2.0 --cflags`" >> Makefile.inc
+    echo "GTK_LIBS = `pkg-config gtk+-2.0 --libs`" >> Makefile.inc
 else
     echo "GTK_VERSION = 1.2" >> Makefile.inc
     echo "GTK_CFLAGS = `gtk-config --cflags`" >> Makefile.inc
