@@ -62,14 +62,15 @@
            |
            |--- classicladder
            |
-           |--- lang/  (stuff that uses/supports other languages)
+           |--- lang/  (stuff that uses/supports other programming languages)
            |      |
            |      |--- tcl/  (emcsh.cc, iosh.cc and other tcl support)
            |      |
            |      |--- python/ (?)
            |      |--- perl/ (?)
            |      |--- XML/ (?) <grin>
-           |      |
+           |
+           |----- po/    (Translation files for i18n support)
            |
            |--- .tmp/    (temp directory for intermediate objects.)
            |--- .rt_tmp/ (temp directory for RT objects.)
