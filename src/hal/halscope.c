@@ -324,22 +324,22 @@ static void init_shared_control_struct(void)
     either an hbox or vbox).  The layout is as shown below:
 
     **************************************************************
-    *                horiz_info_win              *               *
-    **********************************************  run_mode_win *
-    *                                        * c *               *
-    *                                        * h *               *
-    *                                        * a *****************
-    *                                        * n * trig_mode_win *
-    *                                        * _ *               *
-    *                waveform_win            * s *****************
-    *                                        * e *               *
-    *                                        * l *               *
-    *                                        * _ *               *
-    *                                        * w * vert_info_win *
-    *                                        * i *               *
-    *                                        * n *               *
-    **********************************************               *
-    *               chan_info_win                *               *
+    *                horiz_info_win              *  run  * trig  *
+    **********************************************  mode * info  *
+    *                                        * c *  win  * win   *
+    *                                        * h *       *       *
+    *                                        * a *       *       *
+    *                                        * n *********       *
+    *                                        *   *       *       *
+    *                waveform_win            * s *       *       *
+    *                                        * e *       *       *
+    *                                        * l * vert  *       *
+    *                                        *   * info  *       *
+    *                                        * w * win   *       *
+    *                                        * i *       *       *
+    *                                        * n *       *       *
+    **********************************************       *       *
+    *               chan_info_win                *       *       *
     **************************************************************
 
     Pointers to each of the windows named in the above diagram are
@@ -350,7 +350,7 @@ static void init_shared_control_struct(void)
 
 static void define_scope_windows(void)
 {
-    GtkWidget *hbox, *vboxleft, *vboxright;
+    GtkWidget *hbox, *vboxleft, *vboxright, *hboxright;
 
     /* create main window, set it's size */
     ctrl_usr->main_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -371,13 +371,14 @@ static void define_scope_windows(void)
 
     /* second level of windows */
     vboxleft = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    vboxright = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, FALSE, FALSE, 5);
+    hboxright = gtk_hbox_new_in_box(TRUE, 0, 0, hbox, FALSE, FALSE, 0);
 
     /* third level of windows */
     /* left side */
     ctrl_usr->horiz_info_win =
 	gtk_vbox_framed_new_in_box("Horizontal", FALSE, 0, 0, vboxleft, FALSE,
 	FALSE, 1);
+#if 1				/* vertical row of select buttons */
     /* hbox for waveform and chan sel windows */
     hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 1);
     ctrl_usr->waveform_win =
@@ -387,15 +388,30 @@ static void define_scope_windows(void)
     ctrl_usr->chan_info_win =
 	gtk_hbox_framed_new_in_box("Selected Channel", FALSE, 0, 0, vboxleft,
 	FALSE, FALSE, 0);
+#endif
+#if 0				/* horizontal row of select buttons */
+    ctrl_usr->waveform_win =
+	gtk_vbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 0);
+    ctrl_usr->chan_sel_win =
+	gtk_hbox_new_in_box(TRUE, 0, 0, vboxleft, FALSE, FALSE, 0);
+    ctrl_usr->chan_info_win =
+	gtk_hbox_framed_new_in_box("Selected Channel", FALSE, 0, 0, vboxleft,
+	FALSE, FALSE, 0);
+#endif
     /* right side */
+    vboxleft = gtk_vbox_new_in_box(FALSE, 0, 0, hboxright, FALSE, FALSE, 0);
+    vboxright = gtk_vbox_new_in_box(FALSE, 0, 0, hboxright, FALSE, FALSE, 0);
     ctrl_usr->run_mode_win =
-	gtk_vbox_framed_new_in_box("Run Mode", TRUE, 0, 0, vboxright, FALSE,
+	gtk_vbox_framed_new_in_box("Run Mode", TRUE, 0, 0, vboxleft, FALSE,
 	FALSE, 0);
+    ctrl_usr->trig_info_win =
+	gtk_vbox_framed_new_in_box("Trigger", FALSE, 0, 0, vboxright, TRUE,
+	TRUE, 0);
     ctrl_usr->trig_mode_win =
-	gtk_vbox_framed_new_in_box("Trigger", TRUE, 0, 0, vboxright, FALSE,
+	gtk_vbox_new_in_box(TRUE, 0, 0, ctrl_usr->trig_info_win, FALSE,
 	FALSE, 0);
     ctrl_usr->vert_info_win =
-	gtk_vbox_framed_new_in_box("Vertical", FALSE, 0, 0, vboxright, TRUE,
+	gtk_vbox_framed_new_in_box("Vertical", FALSE, 0, 0, vboxleft, TRUE,
 	TRUE, 0);
     /* all windows are now defined */
 }
@@ -434,7 +450,7 @@ static void init_run_mode_window(void)
     /* and make them visible */
     gtk_widget_show(ctrl_usr->rm_normal_button);
     gtk_widget_show(ctrl_usr->rm_single_button);
-    gtk_widget_show(ctrl_usr->rm_roll_button);
+//    gtk_widget_show(ctrl_usr->rm_roll_button);
     gtk_widget_show(ctrl_usr->rm_stop_button);
 }
 
@@ -453,7 +469,7 @@ static void init_trigger_mode_window(void)
 	ctrl_usr->tm_normal_button, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_mode_win),
 	ctrl_usr->tm_auto_button, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_mode_win),
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_info_win),
 	ctrl_usr->tm_force_button, FALSE, FALSE, 0);
     /* hook callbacks to buttons */
     gtk_signal_connect(GTK_OBJECT(ctrl_usr->tm_normal_button), "clicked",
@@ -582,7 +598,7 @@ static void tm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
 	/* not pressed, ignore it */
 	return;
     }
-    printf("TM_NORMAL clicked\n");
+    ctrl_shm->auto_trig = 0;
 }
 
 static void tm_auto_button_clicked(GtkWidget * widget, gpointer * gdata)
@@ -591,7 +607,7 @@ static void tm_auto_button_clicked(GtkWidget * widget, gpointer * gdata)
 	/* not pressed, ignore it */
 	return;
     }
-    printf("TM_AUTO clicked\n");
+    ctrl_shm->auto_trig = 1;
 }
 
 static void tm_force_button_clicked(GtkWidget * widget, gpointer * gdata)

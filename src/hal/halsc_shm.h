@@ -50,7 +50,6 @@ typedef enum {
     PRE_TRIG,			/* acquiring pre-trigger data */
     TRIG_WAIT,			/* waiting for trigger */
     POST_TRIG,			/* acquiring post-trigger data */
-    FINISH,			/* finalizing captured data */
     DONE,			/* data acquisition complete */
     RESET			/* data acquisition interrupted */
 } scope_state_t;
@@ -81,6 +80,7 @@ typedef struct {
     int sample_len;		/* U max channels in each sample */
     int pre_trig;		/* U number of samples before trigger */
     int force_trig;		/* RU U sets non-zero to force trigger */
+    int auto_trig;		/* U enables auto triggering */
     int start;			/* R first sample in record */
     int curr;			/* R next sample to be acquired */
     int samples;		/* R number of valid samples */

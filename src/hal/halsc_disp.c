@@ -256,7 +256,7 @@ static void init_display_window(void)
     disp->drawing = gtk_drawing_area_new();
     /* put it into the display window */
     gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), disp->drawing, TRUE,
-	TRUE, 4);
+	TRUE, 0);
     /* hook up a function to handle expose events */
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "expose_event",
 	GTK_SIGNAL_FUNC(handle_window_expose), NULL);

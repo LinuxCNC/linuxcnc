@@ -167,6 +167,7 @@ static void sample(void *arg, long period)
 	ctrl_shm->start = ctrl_shm->curr;
 	ctrl_shm->samples = 0;
 	ctrl_shm->force_trig = 0;
+	ctrl_rt->auto_timer = 0;
 	/* get info about channels */
 	for (n = 0; n < 16; n++) {
 	    ctrl_rt->data_addr[n] = SHMPTR(ctrl_shm->data_offset[n]);
@@ -268,6 +269,13 @@ static int check_trigger(void)
 {
     if (ctrl_shm->force_trig != 0) {
 	return 1;
+    }
+    if (ctrl_shm->auto_trig != 0) {
+	if (++ctrl_rt->auto_timer >= ctrl_shm->rec_len) {
+	    return 1;
+	}
+    } else {
+	ctrl_rt->auto_timer = 0;
     }
     return 0;
 }

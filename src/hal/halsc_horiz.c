@@ -840,7 +840,6 @@ void refresh_state_info(void)
 	"PRE-TRIG",
 	"TRIGGER?",
 	"TRIGGERED",
-	"FINISH",
 	"DONE",
 	"RESET"
     };

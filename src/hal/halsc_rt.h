@@ -52,6 +52,7 @@
 typedef struct {
     scope_data_t *buffer;	/* ptr to buffer (kernel mapping) */
     int mult_cntr;		/* used to divide by 'mult' */
+    int auto_timer;		/* delay timer for auto triggering */
     char data_len[16];		/* data size for each channel */
     void *data_addr[16];	/* pointers to data for each channel */
     hal_type_t data_type[16];	/* data type for each channel */

@@ -160,6 +160,7 @@ typedef struct {
     GtkWidget *vert_info_win;
     GtkWidget *waveform_win;
     GtkWidget *run_mode_win;
+    GtkWidget *trig_info_win;
     GtkWidget *trig_mode_win;
     /* top level controls */
     GtkWidget *rm_normal_button;
