@@ -165,7 +165,7 @@ $(LIB_DIR)/%.o : $(TMP_DIR)/%.o
 	\install -p -m0664 $< $(LIB_DIR)
 
 $(RTLIB_DIR)/%.o : $(RTTMP_DIR)/%.o
-	@ echo "Install realtime library $@"
+	@ echo "Install realtime module $@"
 	\install -p -m0664 $< $(RTLIB_DIR)
 
 #

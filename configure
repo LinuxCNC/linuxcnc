@@ -52,11 +52,11 @@ done
 if [ "$RTDIR" = "" ] ; then
     # None specified, so search for likely files..
     RTS=$(find /usr/src/ -maxdepth 2 -name "rtl.mk" -o -name ".buildvars" 2> /dev/null)
-    # Found something, so check for rtl.mk
     if [ "$RTS" = "" ] ; then
 	usage
 	exit 1
     fi
+    # Found something, so check for rtl.mk
     for rtl in $RTS ; do
         RTL=$(echo $rtl | grep rtl.mk | sed s^/rtl.mk^^g)
         if [ "$RTL" != "" ] ; then

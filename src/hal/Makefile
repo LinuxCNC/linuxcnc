@@ -61,7 +61,7 @@ $(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 # rule to link halmeter
 $(BIN_DIR)/halmeter : $(TMP_DIR)/halmeter.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 	@ echo "Linking $@"
-	$(CC) `gtk-config --libs` $(CFLAGS) $(ULFLAGS) $^ -o $(BIN_DIR)/halmeter
+	$(CC) `gtk-config --libs` $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 .PHONY: all headers depend indent install clean
 

@@ -28,20 +28,48 @@ $(RTLIB_DIR)/rtapi.o \
 $(LIB_DIR)/ulapi.o
 
 all: headers $(LIBS)
+	@ echo "Set up RTOS symlinks"
+	@ if [ -f $(EMC2_HOME)/scripts/load_$(RTPREFIX)_base ] ; \
+	then \
+	  ln -fs $(EMC2_HOME)/scripts/load_$(RTPREFIX)_base \
+	    $(EMC2_HOME)/scripts/load_realtime_base ; \
+	else \
+	  echo "ERROR: $(EMC2_HOME)/scripts/load_$(RTPREFIX)_base not found" ; \
+	fi
+	@ if [ -f $(EMC2_HOME)/scripts/unload_$(RTPREFIX)_base ] ; \
+	then \
+	  ln -fs $(EMC2_HOME)/scripts/unload_$(RTPREFIX)_base \
+	    $(EMC2_HOME)/scripts/unload_realtime_base ; \
+	else \
+	  echo "ERROR: $(EMC2_HOME)/scripts/unload_$(RTPREFIX)_base not found" ; \
+	fi
+	(cd examples; make $@)
 
 # Generic rules
 include ../../Make.rules
 
 headers: def_headers
+	(cd examples; make $@)
+
 indent: def_indent
+	(cd examples; make $@)
+
 depend: def_depend
+	(cd examples; make $@)
+
 clean: def_clean
+	@ echo "Remove RTOS symlinks"
+	- rm $(EMC2_HOME)/scripts/load_realtime_base 2> /dev/null
+	- rm $(EMC2_HOME)/scripts/unload_realtime_base 2> /dev/null
+	(cd examples; make $@)
+
 
 # explicit rules to make libs from objs
 
 $(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 	@ echo "Install rtapi.o in rtlib"
 	- \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
+
 
 $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
 	@ echo "Install ulapi.o in lib"
