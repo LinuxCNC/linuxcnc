@@ -287,9 +287,9 @@ if [ $1 = circle ] ; then
     # install parport module
     # change the 0278 if your port is at a different address
     /sbin/insmod rtlib/hal_parport.o cfg="0278"
-    # install two step pulse generators, stepping type 0,
+    # install two frequency type step pulse generators, stepping type 0,
     # and also create two threads, one 50uS and one 1mS
-    /sbin/insmod rtlib/stepgen.o cfg="0 0" period=50000 fp_period=1000000
+    /sbin/insmod rtlib/freqgen.o cfg="0 0" period=50000 fp_period=1000000
     # install the siggen module
     /sbin/insmod rtlib/siggen.o
     # install two PID loops
@@ -301,21 +301,21 @@ if [ $1 = circle ] ; then
     #
     # set up the high speed thread
     # first read the parport inputs
-    bin/halcmd addf parport.0.read stepgen.thread
+    bin/halcmd addf parport.0.read freqgen.thread
     # then run the step generator
-    bin/halcmd addf stepgen.make_pulses stepgen.thread
+    bin/halcmd addf freqgen.make_pulses freqgen.thread
     # then write the parport outputs
-    bin/halcmd addf parport.0.write stepgen.thread
+    bin/halcmd addf parport.0.write freqgen.thread
     # set up the low speed thread
     # first run the signal generator to generate position references
-    bin/halcmd addf siggen.0.update stepgen.threadFP
-    # next run stepgen position capture function to get position feedback
-    bin/halcmd addf stepgen.capture_position stepgen.threadFP
+    bin/halcmd addf siggen.0.update freqgen.threadFP
+    # next run freqgen position capture function to get position feedback
+    bin/halcmd addf freqgen.capture_position freqgen.threadFP
     # next run the pid loops
-    bin/halcmd addf pid.0.do_pid_calcs stepgen.threadFP
-    bin/halcmd addf pid.1.do_pid_calcs stepgen.threadFP
+    bin/halcmd addf pid.0.do_pid_calcs freqgen.threadFP
+    bin/halcmd addf pid.1.do_pid_calcs freqgen.threadFP
     # and finally run the step generator update function
-    bin/halcmd addf stepgen.update_freq stepgen.threadFP
+    bin/halcmd addf freqgen.update_freq freqgen.threadFP
     #
     bin/halcmd show thread
     bin/halcmd show funct
@@ -334,9 +334,9 @@ if [ $1 = circle ] ; then
     # now the position feedback
     bin/halcmd newsig x_feedback float
     bin/halcmd newsig y_feedback float
-    # connect them to their sources - the stepgen position output
-    bin/halcmd linksp x_feedback stepgen.0.position
-    bin/halcmd linksp y_feedback stepgen.1.position
+    # connect them to their sources - the freqgen position output
+    bin/halcmd linksp x_feedback freqgen.0.position-fb
+    bin/halcmd linksp y_feedback freqgen.1.position-fb
     # and connect them to their destinations - the PID feedback inputs
     bin/halcmd linksp x_feedback pid.0.feedback
     bin/halcmd linksp y_feedback pid.1.feedback
@@ -346,19 +346,19 @@ if [ $1 = circle ] ; then
     # connect them to their sources - the PID outputs
     bin/halcmd linksp x_vel_cmd pid.0.output
     bin/halcmd linksp y_vel_cmd pid.1.output
-    # and connect them to their destinations - the stepgen frequency inputs
-    bin/halcmd linksp x_vel_cmd stepgen.0.velocity
-    bin/halcmd linksp y_vel_cmd stepgen.1.velocity
+    # and connect them to their destinations - the freqgen frequency inputs
+    bin/halcmd linksp x_vel_cmd freqgen.0.velocity
+    bin/halcmd linksp y_vel_cmd freqgen.1.velocity
     # now we need to route the step and direction signals
     bin/halcmd newsig x_step bit
     bin/halcmd newsig x_dir bit
     bin/halcmd newsig y_step bit
     bin/halcmd newsig y_dir bit
     # the sources - stepgen outputs
-    bin/halcmd linksp x_step stepgen.0.step
-    bin/halcmd linksp x_dir stepgen.0.dir
-    bin/halcmd linksp y_step stepgen.1.step
-    bin/halcmd linksp y_dir stepgen.1.dir
+    bin/halcmd linksp x_step freqgen.0.step
+    bin/halcmd linksp x_dir freqgen.0.dir
+    bin/halcmd linksp y_step freqgen.1.step
+    bin/halcmd linksp y_dir freqgen.1.dir
     # the destinations - parport pins
     # this set of lines configures for a Xylotex 3-axis card
     #bin/halcmd linksp x_step parport.0.pin-02-out
@@ -389,11 +389,11 @@ if [ $1 = circle ] ; then
     bin/halcmd setp pid.1.Pgain 10
     bin/halcmd setp pid.1.FF1 1.0
     # set the position feedback scaling - 800 steps = 1 machine unit
-    bin/halcmd setp stepgen.0.position-scale 0.00125
-    bin/halcmd setp stepgen.1.position-scale 0.00125
+    bin/halcmd setp freqgen.0.position-scale 0.00125
+    bin/halcmd setp freqgen.1.position-scale 0.00125
     # set velocity scaling - 1 unit/sec = 800 steps/sec
-    bin/halcmd setp stepgen.0.velocity-scale 800
-    bin/halcmd setp stepgen.1.velocity-scale 800
+    bin/halcmd setp freqgen.0.velocity-scale 800
+    bin/halcmd setp freqgen.1.velocity-scale 800
     #
     bin/halcmd show param
     echo "Hit enter to start"
@@ -413,7 +413,7 @@ if [ $1 = circle ] ; then
     read
     /sbin/rmmod siggen
     /sbin/rmmod hal_parport
-    /sbin/rmmod stepgen
+    /sbin/rmmod freqgen
     /sbin/rmmod pid
     exit 0
 fi
