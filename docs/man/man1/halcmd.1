@@ -1,0 +1,173 @@
+.\" Copyright (c) 2003 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH HALCMD "1"  "2003-12-18" "EMC Documentation" "HAL User's Manual"
+.SH NAME
+halcmd \- manipulate the HAL from the command line
+.SH SYNOPSIS
+.B halcmd
+[\fIOPTIONS\fR] [\fICOMMAND\fR [\fIARG\fR]]
+.SH DESCRIPTION
+\fBhalcmd\fR is used to manipulate the HAL (Hardware Abstraction
+Layer) from the command line.  \fBhalcmd\fR can optionally read
+commands from a file, allowing complex HAL configurations to be
+set up with a single command.
+.SH OPTIONS
+.TP
+\fB\-f\fR [\fIfile\fR]
+Ignore commands on command line, take input from \fIfile\fR
+instead.  If \fIfile\fR is not specified, take input from
+\fIstdin\fR.
+.TP
+\fB\-q\fR
+display errors only (default)
+.TP
+\fB\-Q\fR
+display nothing, execute commands silently
+.TP
+\fB\-v\fR
+display results of each command
+.TP
+\fB\-V\fR
+display lots of debugging junk
+.TP
+\fB\-h\fR
+display a help screen and exit
+.SH COMMANDS
+Commands tell \fBhalcmd\fR what to do.  Normally \fBhalcmd\fR
+reads a single command from the command line and executes it.
+If the '\fB-f\fR' option is used to read commands from a file,
+\fBhalcmd\fR reads each line of the file as a new command.
+Anything following '\fB#\fR' on a line is a comment.
+.TP
+\fBnewsig\fR \fIsigname\fR \fItype\fR
+(\fInew\fR \fIsig\fRnal)  Creates a new HAL signal called
+\fIsigname\fR that may later be used to connect two or more
+HAL component pins.  \fItype\fR is the data type of the new
+signal, and must be one of "\fBbit\fR", "\fBs8\fR", "\fBu8\fR",
+"\fBs16\fR", "\fBu16\fR", "\fBs32\fR", "\fBu328\fR", or "\fBfloat\fR".
+Fails if a signal of the same name already exists.
+.TP
+\fBdelsig\fR \fIsigname\fR
+(\fIdel\fRete \fIsig\fRnal)  Deletes HAL signal \fIsigname\fR.
+Any pins currently linked to the signal will be unlinked.
+Fails if \fIsigname\fR does not exist.
+.TP
+\fBlinkps\fR \fIpinname\fR [\fIarrow\fR] \fIsigname\fR
+(\fIlink\fR \fIp\fRin to \fIs\fRignal)  Establishs a link
+between a HAL component pin \fIpinname\fR and a HAL signal
+\fIsigname\fR.  Any previous link to \fIpinname\fR will be
+broken.  \fIarrow\fR can be "\fB=>\fR", "\fB<=\fR", "\fB<=>\fR",
+or omitted.  \fBhalcmd\fR ignores arrows, but they can be useful
+in command files to document the direction of data flow.  Arrows
+should not be used on the command line since the shell might try
+to interpret them.  Fails if either \fIpinname\fR or \fIsigname\fR
+does not exist, or if they are not the same type type.
+.TP
+\fBlinksp\fR \fIsigname\fR [\fIarrow\fR] \fIpinname\fR
+(\fIlink\fR \fIs\fRignal to \fIp\fRin)  Works like \fBlinkps\fR
+but reverses the order of the arguments.  \fBhalcmd\fR treats
+both link commands exactly the same.  Use whichever you prefer.
+.TP
+\fBunlinkp\fR \fIpinname\fR
+(\fIunlink\fR \fIp\fRin)  Breaks any previous link to \fIpinname\fR.
+Fails if \fIpinname\fR does not exist.
+.TP
+\fBsetp\fR \fIparamname\fR \fIvalue\fR
+(\fIset\fR \fIp\fRarameter)  Sets the value of parameter \fIparamname\fR
+to \fIvalue\fR.  Fails if \fIparamname\fR does not exist or if \fIvalue\fR
+is not a legal value.  Legal values depend on the parameter's type.
+.TP
+\fIparamname\fR \fB=\fR \fIvalue\fR
+Identical to \fBsetp\fR.  This alternate form of the command may
+be more convenient and readable when used in a file.  Do not use
+from the command line, since the shell may try to interpret
+the '\fB=\fR' sign.
+.TP
+\fBaddf\fR \fIfunctname\fR \fIthreadname\fR
+(\fIadd\fR \fIf\fRunction)  Adds function \fIfunctname\fR to realtime
+thread \fIthreadname\fR.  \fIfunctname\fR will run after any functions
+that were previously added to the thread.  Fails if either
+\fIfunctname\fR or \fIthreadname\fR does not exist, or if they
+are incompatible.
+.TP
+\fBdelf\fR \fIfunctname\fR \fIthreadname\fR
+(\fIdel\fRete \fIf\fRunction)  Removes function \fIfunctname\fR from
+realtime thread \fIthreadname\fR.  Fails if either \fIfunctname\fR or
+\fIthreadname\fR does not exist, or if \fIfunctname\fR is not currently
+part of \fIthreadname\fR.
+.TP
+\fBstart\fR
+Starts execution of realtime threads.  Each thread periodically calls
+all of the functions that were added to it with the \fBaddf\fR command,
+in the order in which they were added.
+.TP
+\fBstop\fR
+Stops execution of realtime threads.  The threads will no longer call
+their functions.
+.TP
+\fBshow\fR [\fIitem\fR]
+Prints HAL items to \fIstdout\fR in human readable format.
+\fIitem\fR can be one of "\fBcomp\fR" (components), "\fBpin\fR",
+"\fBsig\fR" (signals), "\fBparam\fR" (parameters), "\fBfunct\fR"
+(functions), or "\fBthread\fR".  If \fIitem\fR is omitted,
+\fBshow\fR will print everything.
+.TP
+\fBsave\fR [\fIitem\fR]
+Prints HAL items to \fIstdout\fR in the form of HAL commands.
+These commands can be redirected to a file and later executed
+using \fBhalcmd -f\fR to restore the saved configuration.
+\fIitem\fR can be one of the following: "\fBsig\fR" generates
+a \fBnewsig\fR command for each signal.  "\fBlink\fR" and
+"\fBlinka\fR" both generate \fBlinkps\fR commands for each link.
+(\fBlinka\fR includes arrows, while \fBlink\fR does not.)
+"\fBnet\fR" and "\fBneta\fR" both generate one \fBnewsig\fR
+command for each signal, followed by \fBlinksp\fR commands for
+each pin linked to that signal.  (\fBneta\fR includes arrows.)
+"\fBparam\fR" generates one \fBsetp\fR command for each parameter.
+"\fBthread\fR" generates one \fBaddf\fR command for each function
+in each realtime thread.  If \fIitem\fR is omitted, \fBsave\fR
+does the equivalent of \fBsig\fR, \fBlink\fR, \fBparam\fR, and
+\fBthread\fR.
+.SH EXAMPLES
+
+.SH "SEE ALSO"
+
+.SH HISTORY
+
+.SH BUGS
+None known at this time.  There are a few things I might want
+to change - perhaps \fBsave\fR without \fIitem\fR should do
+the equivalent of net,param,thread.  Perhaps \fBsave param\fR
+should use the "=" form of the \fBsetp\fR command.  Etc.
+.SH AUTHOR
+Written by John Kasunich
+.SH REPORTING BUGS
+Report bugs to jmkasunich AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2003 John Kasunich.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

@@ -3,7 +3,12 @@
     |       top level makefile, Makefile.inc, etc.)
     |
     |--- docs/ (All the important and relevant Docs.)
-    |          (API and source notes should be in each src dir.)
+    |      |   (API and source notes should be in each src dir.)
+    |      |
+    |      |--- man/  (man pages)
+    |            |
+    |            |--- man1/  (user man pages)
+    |            |--- man3/  (API man pages)
     |
     |--- nc_files/ (Sample NC files)
     |
