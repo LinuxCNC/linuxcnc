@@ -26,9 +26,14 @@ LIBS = \
 $(RTLIB_DIR)/hal_lib.o \
 $(LIB_DIR)/hal_lib.o
 
+ifdef GTK_VERSION
+GTK_BINS = \
+$(BIN_DIR)/halmeter
+endif
+
 BINS = \
 $(BIN_DIR)/halcmd \
-$(BIN_DIR)/halmeter
+$(GTK_BINS)
 
 all : headers $(LIBS) $(BINS)
 	(cd drivers; make $@)
