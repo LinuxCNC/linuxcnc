@@ -93,10 +93,13 @@ rtapi.conf:
 	@ echo "EMC2_HOME='$(EMC2_HOME)'" >> $(EMC2_HOME)/scripts/rtapi.conf
 	@ echo "MAN_DIR='$(MAN_DIR)'" >> $(EMC2_HOME)/scripts/rtapi.conf
 	@ echo "KERNELDIR='$(KERNELDIR)'" >> $(EMC2_HOME)/scripts/rtapi.conf
-	@ echo "RTDIR='$(RTDIR)'" >> $(EMC2_HOME)/scripts/rtapi.conf
+	@ echo "RTLIB_DIR='$(RTLIB_DIR)'" >> $(EMC2_HOME)/scripts/rtapi.conf
 	@ echo  >> $(EMC2_HOME)/scripts/rtapi.conf
+	@ echo "# Sets the default DEBUG level" >> $(EMC2_HOME)/scripts/rtapi.conf
+	@ echo "DEBUG='3'" >> $(EMC2_HOME)/scripts/rtapi.conf
 	@ mod_dir=$$(find /lib/modules/`uname -r` -name "mbuff.o" -o -name "rtai_sched.o") ; \
 	  if [ "$$mod_dir" = "" ] ; then \
+	     echo  >> $(EMC2_HOME)/scripts/rtapi.conf \
 	     echo "# Path to the realtime kernel modules" >> $(EMC2_HOME)/scripts/rtapi.conf; \
 	     echo "MODPATH='$(RTDIR)/modules'"  >> $(EMC2_HOME)/scripts/rtapi.conf ; \
 	  fi

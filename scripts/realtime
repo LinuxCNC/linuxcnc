@@ -7,13 +7,20 @@ CheckConfig(){
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
 	exit -1
     else
+        # Save the system variable MODPATH so that it can be
+        # re-exported on exit.
 	old_path=$MODPATH
+        # Import the config
 	source rtapi.conf
+        # Export the module path specified in the config.
 	export MODPATH
     fi
 }
 
 SortMod(){
+    # Reverses the order of the list so that it can be used
+    # by the load and unload routines - Also removes any newlines
+    # and other extra white spaces.
     for module in $MODULES ; do
 	MODULE="$module $MODULE"
     done
@@ -21,6 +28,7 @@ SortMod(){
 }
 
 DoExit(){
+    # Export the original MODPATH
     export MODPATH=$old_path
 }
 
@@ -61,18 +69,26 @@ Load(){
 	# check to see if the module is already installed
 	if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
 	    # install the module - use insmod
-	    /sbin/modprobe $MOD 2>/dev/null
+	    /sbin/insmod $MOD 2>/dev/null
 	fi
     done
+    /sbin/insmod $RTLIB_DIR/rtapi.o 2>/dev/null
+    /sbin/insmod $RTLIB_DIR/hal_lib.o 2>/dev/null
+    if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
+        echo "$DEBUG" > /proc/rtapi/debug
+    fi
 }
 
 Unload(){
+    /sbin/rmmod hal_lib 2>/dev/null
+    /sbin/rmmod rtapi 2>/dev/null
+    # modprobe will unload *all* the modules in one hit
+    # (as long as the ordering is the reverse of load order)
     /sbin/modprobe -r $MODULES 2>/dev/null
 }
 
 case "$1" in
   start|reload|restart|reload)
-	# 
 	CheckConfig
 	CheckMem
 	SortMod
@@ -95,4 +111,3 @@ case "$1" in
 esac
 
 exit 0
-

@@ -64,6 +64,7 @@ do
 	exit -1
     fi
 done
+# command line parsing finished
 
 #
 # take care of GTK config
@@ -115,6 +116,9 @@ else
     echo "GTK version set to '$GTK_VER' by search"
 fi
 
+
+#
+# check for RTDIR from command line
 #
 # Test for RTAI-3.0
 RTAI_DIR=$($RTDIR/rtai-config --prefix 2> /dev/null)
@@ -140,16 +144,17 @@ if [ "$RTAI_DIR" != "" ] ; then
     fi
 fi
 
-#
-# check for RTDIR from command line
-#
 if [ "$RTDIR" = "" ] ; then
 # None specified, so search for likely files..
-
-    RTS=$(find /usr/src/ -maxdepth 2 -name "rtl.mk" -o -name ".buildvars" 2> /dev/null)
+    # Check for RTLinux installed in it's default dir /usr/rtlinux
+    RTS=$(find /usr/rtlinux* -maxdepth 1 -name "rtl.mk" 2> /dev/null | head -n1)
     if [ "$RTS" = "" ] ; then
-	usage
-	exit 1
+        # Else check the /usr/src dir..
+        RTS=$(find /usr/src/ -maxdepth 2 -name "rtl.mk" -o -name ".buildvars" 2> /dev/null)
+        if [ "$RTS" = "" ] ; then
+	    usage
+	    exit 1
+        fi
     fi
     # Found something, so check for rtl.mk
     for rtl in $RTS ; do
@@ -168,12 +173,9 @@ if [ "$RTDIR" = "" ] ; then
 	    fi
 	done
     fi
-
     # announce what we found
     echo "RTDIR set to $RTDIR by search"
 fi
-
-# command line parsing finished
 
 #
 # check RTDIR for a valid RTOS signature
