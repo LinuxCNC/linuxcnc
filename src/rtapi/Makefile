@@ -29,19 +29,19 @@ $(LIB_DIR)/ulapi.o
 
 all: headers $(LIBS)
 	@ echo "Set up RTOS symlinks"
-	@ if [ -f $(EMC2_HOME)/scripts/load_$(RTPREFIX)_base ] ; \
+	@ if [ -f $(EMC2_HOME)/scripts/load_$(RTPREFIX) ] ; \
 	then \
-	  ln -fs $(EMC2_HOME)/scripts/load_$(RTPREFIX)_base \
-	    $(EMC2_HOME)/scripts/load_realtime_base ; \
+	  ln -fs $(EMC2_HOME)/scripts/load_$(RTPREFIX) \
+	    $(EMC2_HOME)/scripts/load_rtos ; \
 	else \
-	  echo "ERROR: $(EMC2_HOME)/scripts/load_$(RTPREFIX)_base not found" ; \
+	  echo "ERROR: $(EMC2_HOME)/scripts/load_$(RTPREFIX) not found" ; \
 	fi
-	@ if [ -f $(EMC2_HOME)/scripts/unload_$(RTPREFIX)_base ] ; \
+	@ if [ -f $(EMC2_HOME)/scripts/unload_$(RTPREFIX) ] ; \
 	then \
-	  ln -fs $(EMC2_HOME)/scripts/unload_$(RTPREFIX)_base \
-	    $(EMC2_HOME)/scripts/unload_realtime_base ; \
+	  ln -fs $(EMC2_HOME)/scripts/unload_$(RTPREFIX) \
+	    $(EMC2_HOME)/scripts/unload_rtos ; \
 	else \
-	  echo "ERROR: $(EMC2_HOME)/scripts/unload_$(RTPREFIX)_base not found" ; \
+	  echo "ERROR: $(EMC2_HOME)/scripts/unload_$(RTPREFIX) not found" ; \
 	fi
 	(cd examples; make $@)
 

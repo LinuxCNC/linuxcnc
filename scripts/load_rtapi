@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# This script loads the RTOS and RTAPI
+#
+
+sync
+
+#
+# Determine the EMC2 home directory
+#
+
+# $0 is the command to run this script - strip the
+# script name to leave the path
+SCRIPT_DIR=`echo $0 | sed s#load_rtapi## `
+# the path might be relative - this converts it
+# to an absolute path
+SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
+# strip the "/scripts" part to get the root of the
+# EMC2 directory tree
+EMC2_DIR=`echo $SCRIPT_DIR | sed s#/scripts## `
+
+#
+# Call the 'load_rtos' script to load the realtime OS kernel modules
+#
+# 'load_rtos' is a symlink to either 'load_rtai' or 'load_rtlinux'
+# as determined by the configure and make process
+#
+
+if ! $SCRIPT_DIR/load_rtos ; then
+    exit -1
+fi
+
+#
+# check for and load the rtapi kernel module
+#
+
+echo "Loading RTAPI"
+# check to see if the module exists
+if [ ! -f $EMC2_DIR/rtlib/rtapi.o ] ; then
+    echo "ERROR:  $EMC2_DIR/rtlib/rtapi.o not found"
+    exit -1
+fi
+# check to see if the module is already loaded
+if /sbin/lsmod | awk '{print $1}' | grep -x rtapi >/dev/null ; then
+    echo "'rtapi' already loaded"
+else
+    # install the module
+    if /sbin/insmod $EMC2_DIR/rtlib/rtapi.o >/dev/null 2>/dev/null ; then
+	echo "'rtapi' loaded successfully"
+    else
+	echo "ERROR: Could not load 'rtapi' - are you root?"
+	exit -1
+    fi
+fi
+
+exit 0
+
+
+
+
+

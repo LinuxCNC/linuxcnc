@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# This script removes rtai kernel modules
+#
+
+sync
+
+#
+# check for user space processes using RTAI shared memory
+#
+
+if [ -e /dev/rtai_shm ] ; then
+    # device file exists, check for processes using it
+    if /sbin/fuser -s /dev/rtai_shm ; then
+	# at least one process is using it
+	echo "ERROR:  Can't remove RTAI modules, kill the following process(es) first"
+	/sbin/fuser -v /dev/rtai_shm
+	exit -1
+    fi
+fi
+
+#
+# List of kernel modules to be removed
+#
+
+RTAI_MODULES="rtai_shm rtai_fifos rtai_sched rt_mem_mgr rtai"
+
+#
+# Remove the modules
+#
+
+echo "Unloading RTAI modules"
+for MOD in $RTAI_MODULES ; do
+    # check to see if the module is installed
+    if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
+	echo "'$MOD' already unloaded"
+    else
+	# remove the module
+	if /sbin/rmmod $MOD >/dev/null 2>/dev/null ; then
+	    echo "'$MOD' unloaded successfully"
+	else
+	    echo "ERROR: Could not unload '$MOD' - are you root?"
+	    exit -1
+	fi
+    fi
+done
+
+exit 0
+
+
+
+
+
+
+
+# Get a list of currently installed modules.
+MODULES=`/sbin/lsmod  |  awk '{print $1}'`
+
+for MOD in $MODULES ; do
+   case $MOD in
+   rtai | rt_mem_mgr | rtai_sched | rtai_shm | rtai_fifos )
+	if ! /sbin/lsmod | grep $MOD 1> ${nullfile} 2> ${nullfile} ; then
+	    continue;
+	fi
+	DEPENDS=`/sbin/lsmod | sed 'y/[/ /' | sed 'y/]/ /' | sed 's#(unused)##' | sed 's#unused##' |  gawk '/^'$mod'/ {print $4 " " $5 " " $6 " " $7 " " $8}'`
+	dependcount=`echo $DEPENDS | wc -w`
+	if [ $dependcount -gt 0 ] ; then
+	    echo Removing kernel module $MOD and anything that depends on it.
+	    echo Including  $DEPENDS
+	    /sbin/rmmod  $DEPENDS $MOD
+	else
+	    echo Removing kernel module $MOD
+	    /sbin/rmmod  $MOD
+	fi
+	;;
+     *)
+	;;
+    esac
+done
+
+
+exit 0
+
+
+
+
+
+

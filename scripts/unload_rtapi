@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# This script unloads RTAPI and the RTOS
+#
+
+sync
+
+#
+# Determine the EMC2 home directory
+#
+
+# $0 is the command to run this script - strip the
+# script name to leave the path
+SCRIPT_DIR=`echo $0 | sed s#unload_rtapi## `
+# the path might be relative - this converts it
+# to an absolute path
+SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
+# strip the "/scripts" part to get the root of the
+# EMC2 directory tree
+EMC2_DIR=`echo $SCRIPT_DIR | sed s#/scripts## `
+
+#
+# check for and remove RTAPI
+#
+
+RTAPI_STR=`/sbin/lsmod | awk '{print $1}' | grep -x rtapi `
+if [ "$RTAPI_STR" ] ; then
+    # module is loaded, check for other modules using it
+    RTAPI_USERS=`/sbin/lsmod | awk '/^rtapi/{print $4 $5 $6 $7 $8 $9}' | grep [[] `
+    if [ $RTAPI_USERS ] ; then
+	# can't remove anything, other modules are using RTAPI
+	echo "Can't remove 'rtapi', shut down $RTAPI_USERS first"
+	exit -1
+    fi
+    echo "Unloading RTAPI"
+    if /sbin/rmmod rtapi >/dev/null 2>/dev/null ; then
+	echo "'rtapi' unloaded successfully"
+    else
+	echo "ERROR: Could not unload 'rtapi' - are you root?"
+	exit -1
+    fi
+else
+    echo "'rtapi' already unloaded"
+fi
+
+#
+# Call the 'unload_rtos' script to unload the realtime OS kernel modules
+#
+# 'unload_rtos' is a symlink to either 'unload_rtai' or 'unload_rtlinux'
+# as determined by the configure and make process
+#
+
+if ! $SCRIPT_DIR/unload_rtos ; then
+    exit -1
+fi
+
+exit 0
