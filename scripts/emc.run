@@ -513,6 +513,10 @@ if ! $INSMOD $EMC2_DIR/rtlib/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
     exit -1
 fi
 
+# export the location of the HAL realtime modules so that
+# "halcmd loadrt" can find them
+export HAL_RTMOD_DIR=$EMC2_DIR/rtlib
+
 # execute HALCMD config files (if any)
 NUM=1
 MAX=`$INIVAR -ini $INIFILE -var HALFILEMAX -sec HAL`
@@ -526,9 +530,13 @@ while [ $NUM -le $MAX ] ; do
 	    exit -1
 	fi
 	echo "Running HAL config file $CFGFILE" >$PRINT_FILE
-	$HALCMD -f $EMC2_CONFIG_DIR/$CFGFILE
+	if ! $HALCMD -f $EMC2_CONFIG_DIR/$CFGFILE ; then
+	    echo "HAL config file $CFGFILE failed."
+	    Cleanup
+	    exit -1
+	fi
     fi
-    # move on to next module
+    # move on to next file
     NUM=$(($NUM+1))
 done
 
@@ -540,9 +548,13 @@ while [ $NUM -le $MAX ] ; do
     HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD$NUM -sec HAL`
     if [ -n "$HALCOMMAND" ] ; then
 	echo "Running HAL command: $HALCOMMAND" >$PRINT_FILE
-	$HALCMD $HALCOMMAND
+	if ! $HALCMD $HALCOMMAND ; then
+	    echo "ini file HAL command $HALCOMMAND failed."
+	    Cleanup
+	    exit -1
+	fi
     fi
-    # move on to next module
+    # move on to next command
     NUM=$(($NUM+1))
 done
 
