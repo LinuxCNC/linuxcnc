@@ -1,15 +1,46 @@
 #
-# @configure_input@
+# @configure_input@ 
+# on @DATE@
 #
 
-MAN_DIR=@MANDIR@
+# Directories
+#############
 
-CFLAGS=@CFLAGS@
-CXXFLAGS=@CXXFLAGS@
+EMC2_HOME = @EMC2_HOME@
+BIN_DIR   = @EMC2_HOME@/bin
+LIB_DIR   = @EMC2_HOME@/lib
+RTLIB_DIR = @EMC2_HOME@/rtlib
+INC_DIR   = @EMC2_HOME@/include
+TMP_DIR   = @EMC2_HOME@/src/.tmp
+RTTMP_DIR = @EMC2_HOME@/src/.rt_tmp
+MAN_DIR   = @MANDIR@
+RTDIR     = @RTDIR@
 
+RTNAME = @RTNAME@
+RTPREFIX = @RTPREFIX@
+RTAI = @RTAI@
+RTFLAGS = @RTFLAGS@
+KERNELDIR = @KERNELDIR@
+RTFLAGS := -I$(INC_DIR) -I@RTDIR@/include -I. $(RTFLAGS) -DRTAPI
+USE_RTLIBM = @USE_RTLIBM@
+MATHLIB = @USE_MATHLIB@
+ULFLAGS = -Wall -g -I$(INC_DIR) -I@RTDIR@/include -I. -DULAPI -O2
+CC = @CC@
 
 # local flags for GTK include
 GTK_VERSION = @GTK_VER@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_LIBS = @GTK_LIBS@
 
+# tcl tk cflags, includes and libs
+TCL_LIBS=@LIBS@
+
+AR = @AR@
+ARFLAGS = cr
+CXX = @CXX@
+CXXFLAGS = $(CFLAGS)
+LD = $(CC)
+LDFLAGS = 
+MAKEFLAGS = k
+RANLIB = @RANLIB@
+RANLIBFLAGS = 

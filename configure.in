@@ -17,6 +17,13 @@ AC_CONFIG_SRCDIR([src/hal/hal_lib.c])
 # accept rtlinuxpro=path from commandline
 AC_MSG_CHECKING([for RT dir])
 RTDIR=""
+RTNAME=""
+RTAI=""
+RTLINUX=""
+RTLINUXPRO=""
+RTPREFIX=""
+KERNELDIR=""
+RTFLAGS=""
 
 AC_ARG_WITH(rtai,
     [  --with-rtai=<path to RTAI>			path where RTAI is installed],
@@ -73,18 +80,71 @@ if (test -z "$RTDIR" ); then
   RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" 2>/dev/null)
   if (test "$RTS" = "" ) ; then
     AC_MSG_ERROR([RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
+  elif (test `echo $RTS | awk -F / ' {print $NF}'` = "rtai-config") ; then
+    #we have found rtai-config
+    #probably version 3
+    RTNAME=rtai-3.0
+    RTPREFIX=rtai
+    RTAI=3
+    RTDIR=`$RTS --prefix`
+    RTDIR=$(cd $RTDIR ; pwd -P )
+    RTFLAGS=`$RTS --module-cflags` 
+    RTFLAGS="$RTFLAGS -DRTAI=3"
+    KERNELDIR=`$RTS --linux-dir`
+    AC_MSG_RESULT([rtai=$RTDIR set from search])
   else
+    #we have found rtl-config
+    RTPREFIX=rtlinux
+    RTDIR=`$RTS --prefix`
+    RTDIR=$(cd $RTDIR ; pwd -P )
+    RTFLAGS=`$RTS --c-flags`
+    KERNELDIR=`$RTS --linux`
+  fi
+else
+  # we have RTDIR from the user... let's check for rtai-config, rtl-config
+  RTDIR=$(cd $RTDIR ; pwd -P )
+  if (! test "x$RTAIDIR" = "x") ; then
+    if (test -r $RTDIR/rtai-config); then
+       # found rtai-config
+       RTS=$RTDIR/rtai-config
+    elif (test -r $RTDIR/bin/rtai-config); then
+       RTS=$RTDIR/bin/rtai-config
+    elif (test `rtai-config --version 2> /dev/null`); then
+       RTS=rtai-config
+    fi
+    RTNAME=rtai-3.0
+    RTPREFIX=rtai
+    RTAI=3
     RTDIR=`$RTS --prefix`
     RTDIR=$(cd $RTDIR ; pwd -P )
     RTFLAGS=`$RTS --module-cflags`
-    AC_MSG_RESULT([$RTDIR set from search])
+    RTFLAGS="$RTFLAGS -DRTAI=3"
+    KERNELDIR=`$RTS --linux-dir`
+  elif (! test "x$RTLINUXDIR" = "x") ; then
+    #FIXME add rtl-config
+    RTNAME=rtlinux
+    RTPREFIX=rtlinux
+    RTDIR=$(cd $RTDIR ; pwd -P )
   fi
-else
-  RTDIR=$(cd $RTDIR ; pwd -P )
   AC_MSG_RESULT([$RTDIR set from command line])
 fi
+AC_SUBST([RTNAME])
+AC_SUBST([RTAI])
+AC_SUBST([RTLINUX])
+AC_SUBST([RTLINUXPRO])
+AC_SUBST([RTPREFIX])
+AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
+
+# Check for emc2 dir
+# FIXME
+# right now... not done
+# just output the current directory as emc2 home
+# needs some discussions & adjustments
+
+EMC2_HOME=`pwd`
+AC_SUBST([EMC2_HOME])
 
 # Check CC version - (P.C.) We need to verify the compiler is the same one used
 # for the realtime extensions... Hence the need to find the RT signature first.
@@ -103,7 +163,7 @@ fi
 AC_PROG_CXX
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
-
+AC_CHECK_PROGS(AR,ar)
 
 # Check for GTK
 # accept GTK_VER from command line
@@ -194,6 +254,11 @@ AC_CHECK_HEADERS([tcl.h tk.h])
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
+AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
+AC_SEARCH_LIBS(Tk_Init,[tk tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
+
+DATE=$(date)
+AC_SUBST([DATE])
 
 AC_CONFIG_FILES([Makefile.inc])
 AC_OUTPUT
