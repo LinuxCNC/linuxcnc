@@ -1,7 +1,7 @@
 /** This file, 'pid.c', is a HAL component that provides Proportional/
     Integeral/Derivative control loops.  It is a realtime component.
 
-    It supports any number of PID loops, as set by the insmod parameter
+    It supports a maximum of 16 PID loops, as set by the insmod parameter
     'num_chan'.
 
     In this documentation, it is assumed that we are discussing position
