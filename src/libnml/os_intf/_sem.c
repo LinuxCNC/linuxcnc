@@ -27,8 +27,9 @@
    unamed semaphores can either have the pshared flag set or not
    determining whether it can be shared between processes.
    Currently (12/27/02), Linux implements only unnamed posix semaphores
-   that are not shared between processes. This is useless to RCSLIB so
-   on Linux System V semaphores will be used instead.
+   that are not shared between processes. This is useless to RCSLIB if
+   the goal is to impliment named semaphores, so on Linux System V
+   semaphores will be used instead.
 */
 
 #include <sys/sem.h>		/* struct sembuf */

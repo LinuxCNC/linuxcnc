@@ -42,15 +42,6 @@ extern "C" {
 /* prototype for user-defined timing function */
 typedef int (*RCS_TIMERFUNC) (void *_arg);
 
-/* Getting rid of this stuff which no one uses and makes porting more
-difficult */
-#ifdef RCS_TIMER_USE_ITIMER
-
-/* prototype for signal hander function */
-typedef void (*RCS_SIGFUNC) (...);
-
-#endif /* RCS_TIMER_USE_ITIMER */
-
 /*
   general-purpose timer, which can be used for waiting until a
   synchronous time tick, slept on for any period at all, or to
@@ -116,9 +107,7 @@ difficult */
 
     void zero_timer();
     void set_timeout(double _timeout);
-#if 0
-    void read_config_file(char *process, char *config_file);
-#endif
+
     RCS_TIMERFUNC function;	/* copy of function */
     void *arg;			/* arg for function */
     double last_time;		/* last wakeup, in ticks from epoch */
@@ -128,14 +117,7 @@ difficult */
     int counts_since_real_sleep;
     int counts_per_real_sleep;
     double time_since_real_sleep;
-#ifdef USE_SEMS_FOR_TIMER
-    RCS_SEMAPHORE **sems;
-#endif
-    int num_sems;
-    int sem_key;
     int id;
-    int create_sems;
-    int poller_pid;
     double clk_tck_val;
 };
 

@@ -60,10 +60,6 @@ void
 
 void RCS_TIMER::zero_timer()
 {
-    num_sems = 0;
-#if USE_SEMS_FOR_TIMER
-    sems = NULL;
-#endif
     id = 0;
     function = NULL;
     idle = 0.0;			/* set accumulated idle time to 0.0 */
