@@ -2288,7 +2288,7 @@ static int emc_lube(ClientData clientdata,
 	}
     }
 
-    Tcl_SetResult(interp, "emc_flood: need 'on', 'off', or no args",
+    Tcl_SetResult(interp, "emc_lube: need 'on', 'off', or no args",
 	TCL_VOLATILE);
     return TCL_ERROR;
 }
