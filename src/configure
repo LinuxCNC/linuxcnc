@@ -1687,7 +1687,7 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test -n "$ac_tool_prefix"; then
-  for ac_prog in $RTSCC gcc egcs
+  for ac_prog in $RTSCC
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
@@ -1729,7 +1729,7 @@ fi
 fi
 if test -z "$CC"; then
   ac_ct_CC=$CC
-  for ac_prog in $RTSCC gcc egcs
+  for ac_prog in $RTSCC
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -3080,7 +3080,7 @@ echo "${ECHO_T}$KERNEL_VERS" >&6
 #                                                                            #
 # Provides the user the possibility to specify (--with-module-dir=<path>)    #
 # If not specified default inside /lib/modules/${KERNEL_VERS}/               #
-# to the location where a RT-module gets found (mbuff.o or rtai_shm.o)       #
+# to the location where a RT-module gets found (mbuff.* or rtai_shm.*)       #
 ##############################################################################
 
 # Create a module-dir option, similar to rtai's...
@@ -3108,10 +3108,10 @@ if test "x" = "x$MODULE_DIR";
 then
    # (P.C.) Only works if the kernel modules are installed - If we are compiling for a target
    # system, this test may fail...
-   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
+   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff.*" -o -name "rtai_shm.*" \) -printf "%h")`
 
    if test "x" = "x$MODULE_DIR"; then
-        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
+        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff.*" -o -name "rtai_shm.*" \) -printf "%h")`
    fi
 
    if test "x" = "x$MODULE_DIR"; then

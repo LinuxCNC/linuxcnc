@@ -345,7 +345,7 @@ fi
 # seems there's a problem with autoconf if there are multiple
 # AC_PROG_CC's in this file
 # modified to test only once
-AC_PROG_CC([$RTSCC gcc egcs])
+AC_PROG_CC([$RTSCC])
 
 if test -z "$CC"; then
   AC_MSG_ERROR([no acceptable cc found])
@@ -391,7 +391,7 @@ AC_SUBST([KERNEL_VERS])
 #                                                                            #
 # Provides the user the possibility to specify (--with-module-dir=<path>)    #
 # If not specified default inside /lib/modules/${KERNEL_VERS}/               #
-# to the location where a RT-module gets found (mbuff.o or rtai_shm.o)       #
+# to the location where a RT-module gets found (mbuff.* or rtai_shm.*)       #
 ##############################################################################
 
 # Create a module-dir option, similar to rtai's...
@@ -413,10 +413,10 @@ if test "x" = "x$MODULE_DIR";
 then
    # (P.C.) Only works if the kernel modules are installed - If we are compiling for a target
    # system, this test may fail...
-   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
+   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff.*" -o -name "rtai_shm.*" \) -printf "%h")`
 
    if test "x" = "x$MODULE_DIR"; then
-        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
+        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff.*" -o -name "rtai_shm.*" \) -printf "%h")`
    fi
 
    if test "x" = "x$MODULE_DIR"; then
