@@ -8,8 +8,8 @@
   21-Jan-2004  P.C. Moved across from the original EMC source tree.
   */
 
-#include "emcmotcfg.h"          /* EMCMOT_ERROR_NUM,LEN */
-#include "emcmot.h"             /* these decls */
+#include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
+#include "emcmot.h"		/* these decls */
 
 /* ident tag */
 #ifndef __GNUC__
@@ -18,95 +18,87 @@
 #endif
 #endif
 
-static char __attribute__((unused)) ident[] = "$Id$";
+static char __attribute__ ((unused)) ident[] =
+    "$Id$";
 
-int emcmotErrorInit(EMCMOT_ERROR *errlog)
+int emcmotErrorInit(EMCMOT_ERROR * errlog)
 {
-  if (errlog == 0) {
-    return -1;
-  }
-
-  errlog->head = 0;
-  errlog->start = 0;
-  errlog->end = 0;
-  errlog->num = 0;
-  errlog->tail = 0;
-
-  return 0;
-}
-
-int emcmotErrorPut(EMCMOT_ERROR *errlog, const char *error)
-{
-  char *p1;
-  const char *p2;
-  int i;
-
-  if (errlog == 0 ||
-      errlog->num == EMCMOT_ERROR_NUM) {
-    /* full */
-    return -1;
-  }
-
-  errlog->head++;
-
-  // strncpy(errlog->error[errlog->end], error, EMCMOT_ERROR_LEN);
-  // replaced strncpy with manual copy
-  p1=errlog->error[errlog->end];
-  p2=error;
-  i=0;
-  while(*p2 && i < EMCMOT_ERROR_LEN)
-    {
-      *p1 = *p2;
-      p1++;
-      p2++;
-      i++;
+    if (errlog == 0) {
+	return -1;
     }
-  *p1=0;
 
-  errlog->end = (errlog->end + 1) % EMCMOT_ERROR_NUM;
-  errlog->num++;
+    errlog->head = 0;
+    errlog->start = 0;
+    errlog->end = 0;
+    errlog->num = 0;
+    errlog->tail = 0;
 
-  errlog->tail = errlog->head;
-
-  return 0;
+    return 0;
 }
 
-int emcmotErrorGet(EMCMOT_ERROR *errlog, char *error)
+int emcmotErrorPut(EMCMOT_ERROR * errlog, const char *error)
 {
-  char *p1;
-  const char *p2;
-  int i;
-  if (errlog == 0 ||
-      errlog->num == 0) {
-      /* empty */
-      return -1;
-  }
+    char *p1;
+    const char *p2;
+    int i;
 
-  errlog->head++;
-
-  //  strncpy(error, errlog->error[errlog->start], EMCMOT_ERROR_LEN);  
-  // replaced strncpy with manual copy
-  p1=error;
-  p2=errlog->error[errlog->start];
-  i=0;
-  while(*p2 && i < EMCMOT_ERROR_LEN)
-    {
-      *p1 = *p2;
-      p1++;
-      p2++;
-      i++;
+    if (errlog == 0 || errlog->num == EMCMOT_ERROR_NUM) {
+	/* full */
+	return -1;
     }
-  *p1=0;
 
+    errlog->head++;
 
-  errlog->start = (errlog->start + 1) % EMCMOT_ERROR_NUM;
-  errlog->num--;
+    // strncpy(errlog->error[errlog->end], error, EMCMOT_ERROR_LEN);
+    // replaced strncpy with manual copy
+    p1 = errlog->error[errlog->end];
+    p2 = error;
+    i = 0;
+    while (*p2 && i < EMCMOT_ERROR_LEN) {
+	*p1 = *p2;
+	p1++;
+	p2++;
+	i++;
+    }
+    *p1 = 0;
 
-  errlog->tail = errlog->head;
+    errlog->end = (errlog->end + 1) % EMCMOT_ERROR_NUM;
+    errlog->num++;
 
-  return 0;
+    errlog->tail = errlog->head;
+
+    return 0;
 }
 
+int emcmotErrorGet(EMCMOT_ERROR * errlog, char *error)
+{
+    char *p1;
+    const char *p2;
+    int i;
+    if (errlog == 0 || errlog->num == 0) {
+	/* empty */
+	return -1;
+    }
 
+    errlog->head++;
 
+    // strncpy(error, errlog->error[errlog->start], EMCMOT_ERROR_LEN); 
+    // replaced strncpy with manual copy
+    p1 = error;
+    p2 = errlog->error[errlog->start];
+    i = 0;
+    while (*p2 && i < EMCMOT_ERROR_LEN) {
+	*p1 = *p2;
+	p1++;
+	p2++;
+	i++;
+    }
+    *p1 = 0;
 
+    errlog->start = (errlog->start + 1) % EMCMOT_ERROR_NUM;
+    errlog->num--;
+
+    errlog->tail = errlog->head;
+
+    return 0;
+}

@@ -14,7 +14,7 @@
     The three most important pins are 'command', 'feedback', and
     'output'.  For a position loop, 'command' and 'feedback' are
     in position units.  For a linear axis, this could be inches,
-    mm, meters, or whatever is relavent.  Likewise, for a angular
+    mm, metres, or whatever is relavent.  Likewise, for a angular
     axis, it could be degrees, radians, etc.  The units of the
     'output' pin represent the change needed to make the feedback
     match the command.  As such, for a position loop 'Output' is

@@ -1,16 +1,17 @@
-# Makefile for compiling EMC motion code
+# Makefile for compiling the interface between HAL and emc
 
 include ../../../Makefile.inc
 
-SRCS = emcmotlog.c
+HEADERS = \
+	extintf.h
 
-HEADERS = emcmotlog.h
+SRCS =
 
 BINS =
 
-OBJS =  emcmotlog.o
+OBJS =
 
-all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(OBJS:%.o=$(RTTMP_DIR)/%.o)
+all: headers
 
 # Generic rules.
 include ../../../Make.rules

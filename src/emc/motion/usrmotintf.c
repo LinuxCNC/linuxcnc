@@ -21,6 +21,13 @@ static char __attribute__ ((unused)) ident[] =
     "$Id$";
 
 #include <stdio.h>
+#include <errno.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 #include <string.h>		/* memcpy() */
 #include <stdlib.h>		/* sizeof() */
 #include <float.h>		/* DBL_MIN */
@@ -33,16 +40,6 @@ static char __attribute__ ((unused)) ident[] =
 #include "usrmotintf.h"		/* these decls */
 #include "emcmotlog.h"		/* EMCMOT_LOG */
 #include "inifile.h"		/* iniFind() */
-
-/* Linux uses mmap-style comm with RT process */
-#include <stdio.h>
-#include <errno.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
 
 #define READ_TIMEOUT_SEC 0	/* seconds for timeout */
 #define READ_TIMEOUT_USEC 100000	/* microseconds for timeout */
@@ -858,13 +855,13 @@ int usrmotInit(void)
 {
     int axis;
 
-  RCS_PRINT_DESTINATION_TYPE dest;
-  usingShmem = 0;
+    RCS_PRINT_DESTINATION_TYPE dest;
+    usingShmem = 0;
 
-  /* try default OS shared memory first, inhibiting error messages 
-   if OS shared memory isn't the only kind available. */
-  dest = get_rcs_print_destination();
-  set_rcs_print_destination(RCS_PRINT_TO_NULL);
+    /* try default OS shared memory first, inhibiting error messages if OS
+       shared memory isn't the only kind available. */
+    dest = get_rcs_print_destination();
+    set_rcs_print_destination(RCS_PRINT_TO_NULL);
 
     shmem = rcs_shm_open(SHMEM_KEY, sizeof(EMCMOT_STRUCT), 0);
     if (NULL != shmem && NULL != rcs_shm_get_addr(shmem)) {
@@ -872,7 +869,7 @@ int usrmotInit(void)
 	emcmotStruct = (EMCMOT_STRUCT *) rcs_shm_get_addr(shmem);
 	usingShmem = 1;
     }
-  set_rcs_print_destination(dest);
+    set_rcs_print_destination(dest);
 
     if (!usingShmem) {
 	module_id = rtapi_init("usrmotintf");

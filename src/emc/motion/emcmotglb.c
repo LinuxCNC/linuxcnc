@@ -13,8 +13,8 @@
   21-Jan-2004  P.C. Moved across from the original EMC source tree.
   */
 
-#include "emcmotglb.h"          /* these decls */
-#include "emcmotcfg.h"          /* initial values */
+#include "emcmotglb.h"		/* these decls */
+#include "emcmotcfg.h"		/* initial values */
 
 /* ident tag */
 #ifndef __GNUC__
@@ -23,7 +23,8 @@
 #endif
 #endif
 
-static char __attribute__((unused)) ident[] = "$Id$";
+static char __attribute__ ((unused)) ident[] =
+    "$Id$";
 
 char EMCMOT_INIFILE[EMCMOT_INIFILE_LEN] = DEFAULT_EMCMOT_INIFILE;
 
@@ -74,7 +75,3 @@ double INPUT_SCALE = DEFAULT_INPUT_SCALE;
 double INPUT_OFFSET = DEFAULT_INPUT_OFFSET;
 double OUTPUT_SCALE = DEFAULT_OUTPUT_SCALE;
 double OUTPUT_OFFSET = DEFAULT_OUTPUT_OFFSET;
-
-
-
-

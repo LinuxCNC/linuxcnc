@@ -3,51 +3,57 @@
 include ../../../Makefile.inc
 
 SRCS = \
+	emcmot.c \
 	emcmotglb.c \
 	emcmotutil.c \
-	usrmotintf.c \
 	emcpid.c \
-	mmxavg.c \
-	cubic.c \
-	tc.c \
-	tp.c
-
-RT_SRCS = \
-	emcmot.c
+	usrmotintf.c
 
 HEADERS = \
+	emcmot.h \
 	emcmotcfg.h \
 	emcmotglb.h \
-	usrmotintf.h \
 	emcpid.h \
-	mmxavg.h \
-	cubic.h \
-	kinematics.h \
-	tc.h \
-	tp.h \
-	emcmot.h
-
-BINS =
+	usrmotintf.h
 
 OBJS = \
 	emcmotglb.o \
 	emcmotutil.o \
-	usrmotintf.o \
+	usrmotintf.o
+
+RT_OBJS  = \
+	cubic.o \
+	emcmot.o \
+	emcmotutil.o \
 	emcpid.o \
 	mmxavg.o \
-	cubic.o \
 	tc.o \
 	tp.o
 
-RT_OBJS  = \
-	emcmot.o
+RTLIBS = emcmod.o
 
-LIBS = \
-
-all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%) $(LIBS)
+all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) \
+	$(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%) \
+	$(RTLIBS:%.o=$(RTLIB_DIR)/%.o)
 
 # Generic rules.
 include ../../../Make.rules
+
+# Explicit rules.
+$(RTLIB_DIR)/emcmod.o: \
+	$(RTTMP_DIR)/cubic.o \
+	$(RTTMP_DIR)/emcmot.o \
+	$(RTTMP_DIR)/emcmotglb.o \
+	$(RTTMP_DIR)/emcmotlog.o \
+	$(RTTMP_DIR)/emcmotutil.o \
+	$(RTTMP_DIR)/emcpid.o \
+	$(RTTMP_DIR)/mmxavg.o \
+	$(RTTMP_DIR)/tc.o \
+	$(RTTMP_DIR)/tp.o \
+	$(RTTMP_DIR)/trivkins.o
+	ld -r -static $^ $(RTLIB_DIR)/libpm.a -lm -o $@
+# This one needs to be coded before adding to the above list.
+#	$(RTTMP_DIR)/extintf.o \
 
 headers: def_headers
 
