@@ -16,5 +16,6 @@ all headers clean depend indent install:
 	(cd kinematics; make $@)
 	(cd motion; make $@)
 	(cd task; make $@)
+	(cd usr_intf; make $@)
 
 .PHONY: all clean depend headers indent install
