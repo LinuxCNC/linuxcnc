@@ -163,7 +163,7 @@ fi
 # man -w prints the search path used by man, we take the first dir
 MANDIR=$(man -w | awk -F: '{ print $1 }')
 # test the result, make sure it's a directory
-if [ ! -d /usr/share/man ] ; then
+if [ ! -d $MANDIR ] ; then
     MANDIR=
 fi
 
