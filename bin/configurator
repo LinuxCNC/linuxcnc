@@ -1,0 +1,82 @@
+#!/bin/bash
+#                                            -*- Configurator -*-
+# This configure script is supposed to help users select
+# easily between existing configurations.
+#
+# Author : Alex Joni
+# License : GPL Version 2
+# System : Linux
+# Copyright (c) 2005 All rights reserved.
+
+dialog --title "EMC Basic Configuration Utility" \
+    --msgbox "\n This application will allow you to choose some basic \
+configuration possibilities for running EMC. \n \
+If you need more freedom you might consider editing the .ini file \
+using an text-editor." 10 40
+
+dialog --title "EMC Basic Configuration Utility - Step 1" \
+    --inputbox "\n Select your machine name: " 8 40 2>/tmp/emc.configurator.tmp
+
+if [ $? = 1 ]; then
+    rm /tmp/emc.configurator*
+    clear
+    exit 0
+fi
+
+# remember MACHINENAME entered by the user
+MACHINENAME=`cat /tmp/emc.configurator.tmp`
+
+dialog --title "EMC Basic Configuration Utility - Step 2" \
+    --item-help --menu "\n Choose your machine's basic type"\
+    11 40 2 \
+    "1" "Stepper System" "Use this if your machine uses steppers, or servos with stepper input (like the Gecko G340)"\
+    "2" "Servo System" "Use this if your machine uses servos with analog control (e.g. from a STG card)"\
+    2>/tmp/emc.configurator.tmp
+
+if [ $? = 1 ]; then
+    rm /tmp/emc.configurator*
+    clear
+    exit 0
+fi
+
+TYPE=`cat /tmp/emc.configurator.tmp`
+
+if [ "x$TYPE" = "x1" ]; then
+dialog --title "EMC Basic Configuration Utility - Step 3" \
+    --menu "\n Choose your stepping type"\
+    11 40 3 \
+    "0" "Standard Step/Dir" \
+    "1" "Phase - Gray Code sequences" \
+    "2" "Quadrature Phase" \
+    "3" "Fourphase (like Taig/Microproto)" 2>/tmp/emc.configurator.tmp
+
+    if [ $? = 1 ]; then
+	rm /tmp/emc.configurator*
+	clear
+	exit 0
+    fi
+
+    STEPTYPE=`cat /tmp/emc.configurator.tmp`
+
+elif [ "x$TYPE" = "x2" ]; then
+dialog --title "EMC Basic Configuration Utility - Step 3" \
+    --menu "\n Choose your servo card "\
+    11 40 3 \
+    "0" "ServoToGo" \
+    "1" "EvoReg" \
+    "2" "..." \
+    "3" "..." 2>/tmp/emc.configurator.tmp
+    if [ $? = 1 ]; then
+	rm /tmp/emc.configurator*
+	clear
+	exit 0
+    fi
+
+    SERVOCARD=`cat /tmp/emc.configurator.tmp`
+    
+fi
+
+
+rm /tmp/emc.configurator*
+clear
+
