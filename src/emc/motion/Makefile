@@ -7,14 +7,20 @@ SRCS = \
 	emcmotglb.c \
 	emcmotutil.c \
 	emcpid.c \
-	usrmotintf.c
+	usrmotintf.c \
+	\
+	command.c \
+	control.c \
+	motion.c
 
 HEADERS = \
 	emcmot.h \
 	emcmotcfg.h \
 	emcmotglb.h \
 	emcpid.h \
-	usrmotintf.h
+	usrmotintf.h \
+	\
+	motion.h
 
 OBJS = \
 	emcmotglb.o \
@@ -28,9 +34,15 @@ RT_OBJS  = \
 	emcpid.o \
 	mmxavg.o \
 	tc.o \
-	tp.o
+	tp.o \
+	\
+	command.o \
+	control.o \
+	motion.o
 
-RTLIBS = motion.o
+RTLIBS = \
+	motion.o \
+	motmod.o
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) \
 	$(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%) \
@@ -52,6 +64,52 @@ $(RTLIB_DIR)/motion.o: \
 	$(RTTMP_DIR)/tp.o \
 	$(RTTMP_DIR)/trivkins.o
 	ld -r -static $^ $(RTLIB_DIR)/libpm.a -L/usr/lib -lm -o $@
+
+$(RTLIB_DIR)/motmod.o: \
+	$(RTTMP_DIR)/cubic.o \
+	$(RTTMP_DIR)/motion.o \
+	$(RTTMP_DIR)/command.o \
+	$(RTTMP_DIR)/control.o \
+	$(RTTMP_DIR)/emcmotglb.o \
+	$(RTTMP_DIR)/emcmotlog.o \
+	$(RTTMP_DIR)/emcmotutil.o \
+	$(RTTMP_DIR)/emcpid.o \
+	$(RTTMP_DIR)/mmxavg.o \
+	$(RTTMP_DIR)/tc.o \
+	$(RTTMP_DIR)/tp.o \
+	$(RTTMP_DIR)/trivkins.o
+	ld -r -static $^ $(RTLIB_DIR)/libpm.a -L/usr/lib -lm -o $@
+
+$(RTLIB_DIR)/motmod.o: \
+	$(RTTMP_DIR)/cubic.o \
+	$(RTTMP_DIR)/motion.o \
+	$(RTTMP_DIR)/command.o \
+	$(RTTMP_DIR)/control.o \
+	$(RTTMP_DIR)/emcmotglb.o \
+	$(RTTMP_DIR)/emcmotlog.o \
+	$(RTTMP_DIR)/emcmotutil.o \
+	$(RTTMP_DIR)/emcpid.o \
+	$(RTTMP_DIR)/mmxavg.o \
+	$(RTTMP_DIR)/tc.o \
+	$(RTTMP_DIR)/tp.o \
+	$(RTTMP_DIR)/trivkins.o
+	ld -r -static $^ $(RTLIB_DIR)/libpm.a -L/usr/lib -lm -o $@
+
+$(RTLIB_DIR)/motmod.o: \
+	$(RTTMP_DIR)/cubic.o \
+	$(RTTMP_DIR)/motion.o \
+	$(RTTMP_DIR)/command.o \
+	$(RTTMP_DIR)/control.o \
+	$(RTTMP_DIR)/emcmotglb.o \
+	$(RTTMP_DIR)/emcmotlog.o \
+	$(RTTMP_DIR)/emcmotutil.o \
+	$(RTTMP_DIR)/emcpid.o \
+	$(RTTMP_DIR)/mmxavg.o \
+	$(RTTMP_DIR)/tc.o \
+	$(RTTMP_DIR)/tp.o \
+	$(RTTMP_DIR)/trivkins.o
+	ld -r -static $^ $(RTLIB_DIR)/libpm.a -L/usr/lib -lm -o $@
+
 # This one needs to be coded before adding to the above list.
 #	$(RTTMP_DIR)/extintf.o \
 
