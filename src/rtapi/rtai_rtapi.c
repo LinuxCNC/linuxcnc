@@ -441,7 +441,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
     char buffer[BUFFERLEN];
     va_list args;
 
-    if (level < msg_lvl) {
+    if ((level <= msg_lvl) && (msg_lvl != RTAPI_MSG_NONE)) {
 	va_start(args, fmt);
 	/* call our own vsn_printf(), which is #defined to vsnprintf() if the 
 	   kernel supplies one. */
@@ -453,7 +453,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
 
 int rtapi_set_msg_lvl(int level)
 {
-    if ((level < 0) || (level > 8)) {
+    if ((level < RTAPI_MSG_NONE) || (level > RTAPI_MSG_ALL)) {
 	return RTAPI_INVAL;
     }
     msg_lvl = level;

@@ -130,16 +130,18 @@ extern int rtapi_snprintf(char *buf, unsigned long int size,
 extern void rtapi_print(const char *fmt, ...);
 
 /** 'rtapi_print_msg()' prints debug messages.  Works like rtapi_print
-    but only prints if 'level' is less than the current message level.
-    The default message level is 7, but it may be changed.  The defines
-    below are used for RTAPI messages, and are recommended for user
-    messages as well.  May be called from user, init/cleanup, and
-    realtime code.
+    but only prints if 'level' is less than or equal to the current
+    message level. The default message level is 7, but it may be changed.
+    The defines below are used for RTAPI messages, and are recommended
+    for user messages as well.  May be called from user, init/cleanup,
+    and realtime code.
 */
+#define RTAPI_MSG_NONE 0
 #define RTAPI_MSG_ERR  3
 #define RTAPI_MSG_WARN 4
 #define RTAPI_MSG_INFO 6
 #define RTAPI_MSG_DBG  7
+#define RTAPI_MSG_ALL  8
 
 extern void rtapi_print_msg(int level, const char *fmt, ...);
 
