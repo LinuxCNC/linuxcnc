@@ -4,8 +4,19 @@ include ../../../Makefile.inc
 
 
 SRCS = \
-	rs274ngc_pre.cc \
-	interp_array.cc
+	interp_arc.cc \
+	interp_array.cc \
+	interp_check.cc \
+	interp_convert.cc \
+	interp_cycles.cc \
+	interp_execute.cc \
+	interp_find.cc \
+	interp_internal.cc \
+	interp_inverse.cc \
+	interp_read.cc \
+	interp_write.cc \
+	rs274ngc_errors.cc \
+	rs274ngc_pre.cc
 
 HEADERS = \
 	canon.hh \
@@ -15,15 +26,31 @@ HEADERS = \
 
 BINS =
 
-OBJS = rs274.o \
+OBJS = \
+	interp_arc.o \
+	interp_array.o \
+	interp_check.o \
+	interp_convert.o \
+	interp_cycles.o \
+	interp_execute.o \
+	interp_find.o \
+	interp_internal.o \
+	interp_inverse.o \
+	interp_read.o \
+	interp_write.o \
+	rs274ngc_errors.o \
+	rs274ngc_pre.o
 
-all: headers $(SRCS:%.cc=$(TMP_DIR)/%.o) $(OBJS:%=$(TMP_DIR)/%)
+
+
+all: headers $(SRCS:%.cc=$(TMP_DIR)/%.o) $(TMP_DIR)/rs274.o
 
 include ../../../Make.rules
 LOCAL_CXXFLAGS = -Wno-unused -DLATHE
 
-$(TMP_DIR)/rs274.o: $(TMP_DIR)/rs274ngc_pre.o
-	cp $< $@
+$(TMP_DIR)/rs274.o: $(OBJS)
+	rm -f $@
+	$(AR) $(ARFLAGS) $^ $@
 
 headers: def_headers
 

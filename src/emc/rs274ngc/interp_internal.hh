@@ -365,4 +365,18 @@ macros totally crash-proof. If the function call stack is deeper than
   } else
 
 
+#define CYCLE_MACRO(call) for (repeat = block->l_number; \
+                               repeat > 0;                    \
+                               repeat--)                      \
+     {                                                        \
+       aa = (aa + aa_increment);                         \
+       bb = (bb + bb_increment);                         \
+       cycle_traverse(plane, aa, bb, old_cc);                 \
+       if (old_cc != r)                                     \
+         cycle_traverse(plane, aa, bb, r);                    \
+       CHP(call);                                             \
+       old_cc = clear_cc;                                \
+     }
+
+
 #endif // INTERP_INTERNAL_HH

@@ -15,7 +15,19 @@
 * $Author$
 * $Date$
 ********************************************************************/
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "rs274ngc.hh"
+#include "rs274ngc_return.hh"
+#include "rs274ngc_errors.cc"
+#include "interp_internal.hh"
+
 
 /* Interpreter global arrays for g_codes and m_codes. The nth entry
 in each array is the modal group number corresponding to the nth
@@ -63,7 +75,7 @@ group 13 = {g61,g61.1,g64} - control mode
 */
 // This stops indent from reformatting the following code.
 // *INDENT-OFF*
-const int _gees[] = {
+const int Interp::_gees[] = {
 /*   0 */   1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /*  20 */   1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /*  40 */   0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -132,7 +144,7 @@ group 9 = {m48,m49}          - feed and speed override switch bypass
 group 100+ = {m100..m199}    - user-defined
 */
 
-const int _ems[] = {
+const int Interp::_ems[] = {
    4,  4,  4,  7,  7,  7,  6,  8,  8,  8,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -163,7 +175,7 @@ rs274ngc_save_parameters function.
 
 */
 
-const int _required_parameters[] = {
+const int Interp::_required_parameters[] = {
  5161, 5162, 5163,   /* G28 home */
  5164, 5165, 5166, /* A, B, & C */
  5181, 5182, 5183,   /* G30 home */
@@ -199,11 +211,11 @@ It is used by read_one_item.
 
 */
 
-const read_function_pointer _readers[] = {
+const read_function_pointer Interp::_readers[] = {
 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
-0,      0,      0, 0, 0, read_parameter_setting,0,      0,      0,      0,
+0,      0,      0, 0, 0, read_parameter_setting ,0,      0,      0,      0,
 read_comment, 0, 0,     0,      0,      0,      0,      0,      0,      0,
 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
 0,      0,      0,      0,      0,      0,      0,      0,      0,      0,
@@ -220,7 +232,7 @@ read_x, read_y, read_z};
 /* There are four global variables*. The first three are _gees, _ems,
 and _readers. The last one, declared here, is for interpreter settings */
 
-setup _setup;
+setup Interp::_setup;
 
 /* The notion of "global variables" is a misnomer - These last four should only
    be accessable by the interpreter and not exported to the rest of emc */
