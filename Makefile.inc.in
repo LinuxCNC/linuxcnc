@@ -1,0 +1,15 @@
+#
+# @configure_input@
+#
+
+MAN_DIR=@MANDIR@
+
+CFLAGS=@CFLAGS@
+CXXFLAGS=@CXXFLAGS@
+
+
+# local flags for GTK include
+GTK_VERSION = @GTK_VER@
+GTK_CFLAGS = @GTK_CFLAGS@
+GTK_LIBS = @GTK_LIBS@
+
