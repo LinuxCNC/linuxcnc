@@ -58,9 +58,6 @@
   extern double floor(double);          used by siggen & segmot
   extern double fabs(double);           used a lot in RT
   extern double ldexp(double, int);     not used in RT
-  extern double frexp(double, int *);   not used in RT
-  extern double modf(double, double *); not used in RT
-  extern double fmod(double, double);   not used in RT
 
   extern double sincos(double, double *, double *); Is called at four places in
                                                     posemath - None of the resulting
@@ -140,8 +137,7 @@ int math_test(void)
       sinh(a) + cosh(a) + tanh(a) + 
       exp(a) + log(a) + log10(a) + 
       pow(a, b) + sqrt(a) + ceil(a) + 
-      floor(a) + fabs(a) + ldexp(a, b) + 
-      frexp(c, &n) + modf(c, &d) + fmod(a, b);
+      floor(a) + fabs(a) + ldexp(a, b);
 
   /* Test the sincos func */
   sincos(x, &v, &u);

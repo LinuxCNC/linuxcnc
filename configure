@@ -259,7 +259,7 @@ else
     if [ "$DIET_DIR" != "" ] ; then
         # Run a test to see if it will work...
         ld -r -static src/tests/mathtest.o -o src/tests/mathtest -L$DIET_DIR/lib-i386 -lm
-        if ! nm -u src/tests/mathtest | grep -v ende ; then
+        if [ "$(nm -u src/tests/mathtest | grep -v ende)" = "" ] ; then
             echo "diet lib OK to use."
             USE_DIET=1
             MATHLIB="-L$DIET_DIR/lib-i386 -lm"
@@ -281,7 +281,7 @@ else
 	    echo "please file a bug report."
             USE_LIBM=1
 	    USE_STUBS=1
-            MATHLIB="-L/usr/lib -lm \$(RTTMP_DIR)/mathstubs.o"
+            MATHLIB="\$(RTTMP_DIR)/mathstubs.o -L/usr/lib -lm"
         fi
     fi
     rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
