@@ -1294,7 +1294,7 @@ pack $controls -side top -anchor w
 set feed [frame $controls.feed]
 set feedtop [frame $feed.top]
 set feedbottom [frame $feed.bottom]
-set feedlabel [label $feedtop.label -text [msgcat::mc "Axis Speed:"] -width 12]
+set feedlabel [label $feedtop.label -text [msgcat::mc "Axis Speed:"] -width 18]
 set feedvalue [label $feedtop.value -textvariable jogSpeed -width 6]
 set feedscale [scale $feedbottom.scale -length 270 -from 0 -to $maxJogSpeed -variable jogSpeed -orient horizontal -showvalue 0 -takefocus 0]
 
@@ -1313,7 +1313,7 @@ bind $feedvalue <ButtonPress-3> {popupJogSpeed}
 set oride [frame $controls.oride]
 set oridetop [frame $oride.top]
 set oridebottom [frame $oride.bottom]
-set oridelabel [label $oridetop.label -text [msgcat::mc "Feed Override:"] -width 12]
+set oridelabel [label $oridetop.label -text [msgcat::mc "Feed Override:"] -width 27]
 set oridevalue [label $oridetop.value -textvariable realfeedoverride -width 6]
 set oridescale [scale $oridebottom.scale -length 270 -from 1 -to $maxFeedOverride -variable feedoverride -orient horizontal -showvalue 0 -command {emc_feed_override} -takefocus 0]
 
@@ -1815,7 +1815,7 @@ proc setMdiBindings {} {
 # immediately in updateStatus if it's not correct.
 # This lets us check if there's a change and reset bindings, etc.
 # on transitions instead of every cycle.
-set modelabel "MANUAL"
+set modelabel [msgcat::mc "MANUAL"]
 $mistbutton config -state normal
 $floodbutton config -state normal
 $spindlebutton config -state normal
@@ -1904,7 +1904,7 @@ proc updateStatus {} {
     set temp [emc_mode]
     if {$temp != $modeInDisplay} {
         if {$temp == "auto"} {
-            set modelabel "AUTO"
+            set modelabel [msgcat::mc "AUTO"]
             $mistbutton config -state disabled
             $floodbutton config -state disabled
             $spindlebutton config -state disabled
@@ -1913,7 +1913,7 @@ proc updateStatus {} {
             focus .
             setAutoBindings
         } elseif {$temp == "mdi"} {
-            set modelabel "MDI"
+            set modelabel [msgcat::mc "MDI"]
             $mistbutton config -state disabled
             $floodbutton config -state disabled
             $spindlebutton config -state disabled
@@ -1926,7 +1926,7 @@ proc updateStatus {} {
 	    if { $jointworld == "world" && [emc_kinematics_type] != 1 && ! [emc_teleop_enable ] } {
 		emc_teleop_enable 1
 	    }
-            set modelabel "MANUAL"
+            set modelabel [msgcat::mc "MANUAL"]
             $mistbutton config -state normal
             $floodbutton config -state normal
             $spindlebutton config -state normal
