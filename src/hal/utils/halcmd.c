@@ -70,6 +70,8 @@ static int do_setp_cmd(char *name, char *value);
 static int do_sets_cmd(char *name, char *value);
 static int do_show_cmd(char *type);
 static int do_loadrt_cmd(char *mod_name, char *args[]);
+static int do_unloadrt_cmd(char *mod_name);
+static int unloadrt_comp(char *mod_name);
 static void print_comp_list(void);
 static void print_pin_list(void);
 static void print_sig_list(void);
@@ -348,6 +350,8 @@ static int parse_cmd(char *tokens[])
 	retval = do_show_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "loadrt") == 0) {
 	retval = do_loadrt_cmd(tokens[1], &tokens[2]);
+    } else if (strcmp(tokens[0], "unloadrt") == 0) {
+	retval = do_unloadrt_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "save") == 0) {
 	retval = do_save_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "addf") == 0) {
@@ -773,7 +777,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     if ( getuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: Must be root to load realtime modules\n");
-	return -1;
+	return -2;
     }
     /* check for insmod */
     if ( insmod_path == NULL ) {
@@ -785,7 +789,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     if ( insmod_path == NULL ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: Cannot locate 'insmod' command\n");
-	return -1;
+	return -2;
     }
     /* check environment for path to realtime HAL modules */
     if ( rtmod_dir == NULL ) {
@@ -857,7 +861,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	/* still don't know where the modules are */
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: Cannot locate realtime modules directory\n");
-	return -1;
+	return -2;
     }
     if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -934,6 +938,133 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     }
     /* print success message */
     rtapi_print_msg(RTAPI_MSG_INFO, "Realtime module '%s' loaded\n",
+	mod_name);
+    return 0;
+}
+
+static int do_unloadrt_cmd(char *mod_name)
+{
+    int next, retval, retval1, n, all;
+    hal_comp_t *comp;
+    char comps[64][HAL_NAME_LEN+1];
+
+    /* check for "all" */
+    if ( strcmp(mod_name, "all" ) == 0 ) {
+	all = 1;
+    } else {
+	all = 0;
+    }
+    /* build a list of component(s) to unload */
+    n = 0;
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->comp_list_ptr;
+    while (next != 0) {
+	comp = SHMPTR(next);
+	if ( comp->type == 1 ) {
+	    /* found a realtime component */
+	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
+		/* we want to unload this component, remember it's name */
+		if ( n < 63 ) {
+		    strncpy(comps[n++], comp->name, HAL_NAME_LEN );
+		}
+	    }
+	}
+	next = comp->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    /* mark end of list */
+    comps[n][0] = '\0';
+    if ( !all && ( comps[0][0] == '\0' )) {
+	/* desired component not found */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: component '%s' is not loaded\n", mod_name );
+	return -1;
+    }
+    /* we now have a list of components, unload them */
+    n = 0;
+    retval1 = 0;
+    while ( comps[n][0] != '\0' ) {
+	retval = unloadrt_comp(comps[n++]);
+	/* check for fatal error */
+	if ( retval < -1 ) {
+	    return retval;
+	}
+	/* check for other error */
+	if ( retval != 0 ) {
+	    retval1 = retval;
+	}
+    }
+    return retval1;
+}
+
+static int unloadrt_comp(char *mod_name)
+{
+    static char *rmmod_path = NULL;
+    struct stat stat_buf;
+    int retval, status;
+    char *argv[3];
+    pid_t pid;
+
+    /* are we running as root? */
+    if ( getuid() != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Must be root to unload realtime modules\n");
+	return -2;
+    }
+    /* check for rmmod */
+    if ( rmmod_path == NULL ) {
+	/* need to find rmmod */
+	if ( stat("/sbin/rmmod", &stat_buf) == 0 ) {
+	    rmmod_path = "/sbin/rmmod";
+	}
+    }
+    if ( rmmod_path == NULL ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Cannot locate 'rmmod' command\n");
+	return -2;
+    }
+    /* now we need to fork, and then exec rmmod.... */
+    pid = fork();
+    if ( pid < 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: fork() failed\n");
+	return -1;
+    }
+    if ( pid == 0 ) {
+	/* this is the child process - prepare to exec() rmmod */
+	argv[0] = rmmod_path;
+	argv[1] = mod_name;
+	/* add a NULL to terminate the argv array */
+	argv[2] = NULL;
+	/* print debugging info if "very verbose" (-V) */
+	rtapi_print_msg(RTAPI_MSG_DBG, "%s %s\n", argv[0], argv[1] );
+	/* call execv() to invoke rmmod */
+	execv(rmmod_path, argv);
+	/* should never get here */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: waitpid(%d) failed\n", pid );
+	exit(1);
+    }
+    /* this is the parent process, wait for child to end */
+    retval = waitpid ( pid, &status, 0 );
+    if ( retval < 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: waitpid(%d) failed\n", pid );
+	return -1;
+    }
+    if ( WIFEXITED(status) == 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: child did not exit normally\n" );
+	return -1;
+    }
+    retval = WEXITSTATUS(status);
+    if ( retval != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: rmmod failed, returned %d\n", retval );
+	return -1;
+    }
+    /* print success message */
+    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime module '%s' unloaded\n",
 	mod_name);
     return 0;
 }
@@ -1430,6 +1561,11 @@ static void print_help(void)
     printf("  loadrt modname [modarg[s]]\n");
     printf
 	("         Loads realtime HAL module 'modname', using arguments 'modargs'\n\n" );
+    printf("  unloadrt modname\n");
+    printf
+	("         Unloads realtime HAL module 'modname'.\n");
+    printf
+ 	("         If 'modname' is 'all', unloads all realtime modules\n\n" );
     printf("  linkps pinname [arrow] signame\n");
     printf("  linksp signame [arrow] pinname\n");
     printf
