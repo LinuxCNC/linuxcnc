@@ -158,6 +158,8 @@ clean: kclean
 	- rm -fR .tmp
 
 kclean:
+	(cd libnml/posemath && $(MAKE) $@)
+	(cd emc && $(MAKE) -k $@)
 	- rm -f .*.cmd *.o* *.mod.* *.ko
 	- rm -fR .tmp_versions 
 
