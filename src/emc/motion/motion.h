@@ -320,7 +320,9 @@ Suggestion: Split this in to an Error and a Status flag register..
    "free" mode means commands are interpreted in joint space.
    It is used for jogging individual axes (joints), although
    it does not preclude multiple axes moving at once (I think).
-
+   Homing is also done in free mode, in fact machines with
+   non-trivial kinematics must be homed before they can go
+   into either coord or teleop mode.
 
 */
 
@@ -334,6 +336,12 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double reverse[EMCMOT_COMP_SIZE];	/* reverse comp points */
 	double alter;		/* additive dynamic compensation */
     } emcmot_comp_t;
+
+/* states for homing */
+    typedef enum {
+	EMCMOT_NOT_HOMING = 0,	/* no homing activity */
+	EMCMOT_HOME_START	/* first state in homing process */
+    } home_state_t;
 
 /* NEW_STRUCTS  - I'm trying something different.  As it stands,
    per-axis (really per-joint) info is stored in a whole bunch of
@@ -379,21 +387,23 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferror;		/* following error */
 	double ferror_limit;	/* limit depends on speed */
 	double ferror_high_mark;	/* max following error */
+	double free_pos_cmd;	/* position command for free mode TP */
+	double free_vel_lim;	/* velocity limit for free mode TP */
+	int free_tp_enable;	/* if zero, axis stops ASAP */
 
 	/* internal info - changes regularly, not usually accessed from user
 	   space */
-	double old_pos_cmd;	/* previous pos_cmd (for vel calc) */
 	CUBIC_STRUCT cubic;	/* cubic interpolator data */
-	int pos_limit_debounce;	/* debounce counters for switch */
+	int pos_limit_debounce;	/* debounce counters for switches */
 	int neg_limit_debounce;
 	int home_sw_debounce;
 	int amp_fault_debounce;	/* debounce counter for fault input */
+	home_state_t home_state;	/* state machine for homing */
 
 	/* stuff moved from the other structs that might be needed (or might
 	   not!) */
 	double joint_home;	/* how is this different than home_offset? */
 	double big_vel;		/* used for "debouncing" velocity */
-	int homing_state;	/* state machine for homing */
 	double vel_scale;	/* axis velocity scale factor */
 
     } emcmot_joint_t;
@@ -401,10 +411,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 /* FIXME - the beginnings of a state machine */
 
     typedef enum {
-	MOTION_STATE_DISABLED = 0,
-	MOTION_STATE_TELEOP,
-	MOTION_STATE_COORD,
-	MOTION_STATE_FREE
+	EMCMOT_MOTION_DISABLED = 0,
+	EMCMOT_MOTION_FREE,
+	EMCMOT_MOTION_TELEOP,
+	EMCMOT_MOTION_COORD
     } motion_state_t;
 
 /*********************************

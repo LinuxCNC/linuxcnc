@@ -1369,6 +1369,9 @@ int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *stat)
   char var[256], val[256];
   char fmt[256];
 
+/* FIXME */
+printf ( "iniaxis: dumpAxis(%d, %s, %p)\n", axis, filename, stat );
+
   // rename with backup suffix
   strcpy(line, filename);
   strcat(line, INIFILE_BACKUP_SUFFIX);

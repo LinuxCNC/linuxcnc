@@ -467,6 +467,24 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-pos-cmd", num);
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(addr->free_pos_cmd), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-vel-lim", num);
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(addr->free_vel_lim), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-tp-enable", num);
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(addr->free_tp_enable), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.active", num);
     retval = hal_param_bit_new(buf, HAL_RD, &(addr->active), mot_comp_id);
     if (retval != 0) {
@@ -719,7 +737,6 @@ static int init_comm_buffers(void)
 	joint->ferror_high_mark = 0.0;
 
 	/* init internal info */
-	joint->old_pos_cmd = joint->pos_cmd;
 	joint->pos_limit_debounce = 0;
 	joint->neg_limit_debounce = 0;
 	joint->home_sw_debounce = 0;
@@ -729,7 +746,7 @@ static int init_comm_buffers(void)
 	/* init misc other stuff in joint structure */
 	joint->joint_home = 0.0;
 	joint->big_vel = 10.0 * joint->vel_limit;
-	joint->homing_state = 0;
+	joint->home_state = 0;
 	joint->vel_scale = 1.0;
 
 	/* init joint flags (reduntant, since flag = 0 */

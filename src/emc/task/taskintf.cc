@@ -335,7 +335,6 @@ int emcAxisSetMinFerror(int axis, double ferror)
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
-
     emcmotCommand.command = EMCMOT_SET_MIN_FERROR;
     emcmotCommand.axis = axis;
     emcmotCommand.minFerror = ferror;
@@ -530,6 +529,22 @@ int emcAxisSetFaultPolarity(int axis, int level)
 }
 #endif /* #if 0 */
 
+
+/* FIXME - there seems to be some strangeness here, maybe I just
+   don't understand it.  emcAxisInit is called once for each axis.
+   It in turn calls iniAxis for that axis, and sets ONE shared
+   flag called emcmotAxisInited...
+
+   Then on exit, emcAxisHalt is also called once for each axis,
+   however, it only calls dumpAxis() for the very first axis,
+   because after the first axis, it clears that flag.  It seems
+   to me there should be a flag for each axis, so that each one
+   calls dumpAxis.  Either that, or dumpAxis should be called
+   regardless of the state of the flag.
+
+   But I'm not gonna dig into this now....
+*/
+
 int emcAxisInit(int axis)
 {
     int retval = 0;
@@ -556,6 +571,9 @@ int emcAxisInit(int axis)
 
 int emcAxisHalt(int axis)
 {
+/* FIXME */
+printf ( "taskintf.cc: emcAxisHalt(%d)\n", axis );
+
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }

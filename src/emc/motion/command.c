@@ -9,6 +9,38 @@
 *   emcmotCommmandHandler() - This would provide a small performance
 *   increase on slower systems.
 *
+*   Using commands to set config parameters is "undesireable", because
+*   of the large amount of code needed for each parameter.  Today you
+*   need to do the following to add a single new parameter called foo:
+*
+*   1)  Add a member 'foo' to the config or joint structure in motion.h
+*   2)  Add a command 'EMCMOT_SET_FOO" to the cmd_code_t enum in motion.h
+*   3)  Add a field to the command_t struct for the value used by
+*       the set command (if there isn't already one that can be used.)
+*   4)  Add a case to the giant switch statement in command.c to
+*       handle the 'EMCMOT_SET_FOO' command.
+*   5)  Write a function emcSetFoo() in taskintf.cc to issue the command.
+*   6)  Add a prototype for emcSetFoo() to emc.hh
+*   7)  Add code to iniaxis.cc (or one of the other inixxx.cc files) to
+*       get the value from the ini file and call emcSetFoo().  (Note
+*       that each parameter has about 16 lines of code, but the code
+*       is identical except for variable/parameter names.)
+*   8)  Add more code to iniaxis.cc to write the new value back out
+*       to the ini file.
+*   After all that, you have the abililty to get a number from the
+*   ini file to a structure in shared memory where the motion controller
+*   can actually use it.  However, if you want to manipulate that number
+*   using NML, you have to do more:
+*   9)  Add a #define EMC_SET_FOO_TYPE to emc.hh
+*   10) Add a class definition for EMC_SET_FOO to emc.hh
+*   11) Add a case to a giant switch statement in emctaskmain.cc to
+*       call emcSetFoo() when the NML command is received.  (Actually
+*       there are about 6 switch statements that need at least a
+*       case label added.
+*   12) Add cases to two giant switch statements in emc.cc, associated
+*       with looking up and formating the command.
+*
+*
 * Author:
 * License: GPL Version 2
 * Created on:
@@ -193,6 +225,7 @@ void emcmotCommandHandler(void *arg, long period)
 {
     int joint_num;
     int valid;
+    double tmp;
     emcmot_joint_t *joint;
 
     /* check for split read */
@@ -252,9 +285,8 @@ void emcmotCommandHandler(void *arg, long period)
 	       the current mode and acts accordingly, if in teleop mode, it
 	       sets the desired velocities to zero, if in coordinated mode,
 	       it calls the traj planner abort function (don't know what that
-	       does yet), and if in free mode, it calls the same abort
-	       function for the specified joint (that seems strange - why
-	       should abort only affect one joint?) */
+	       does yet), and if in free mode, it disables the free mode traj
+	       planners which stops axis motion */
 	    /* check for coord or free space motion active */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ABORT");
 	    if (GET_MOTION_TELEOP_FLAG()) {
@@ -268,13 +300,16 @@ void emcmotCommandHandler(void *arg, long period)
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(0);
 	    } else {
-		/* check for valid joint */
-		if (joint == 0) {;
-		    break;
+		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+		    /* point to joint struct */
+		    joint = &(emcmotStruct->joints[joint_num]);
+		    /* tell joint planner to stop */
+		    joint->free_tp_enable = 0;
+		    /* update status flags */
+		    joint->home_state = EMCMOT_NOT_HOMING;
+		    SET_JOINT_HOMING_FLAG(joint, 0);
+		    SET_JOINT_ERROR_FLAG(joint, 0);
 		}
-		tpAbort(&emcmotDebug->freeAxis[joint_num]);
-		SET_JOINT_HOMING_FLAG(joint, 0);
-		SET_JOINT_ERROR_FLAG(joint, 0);
 	    }
 	    break;
 
@@ -374,7 +409,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_HOME_OFFSET");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
-	    if (joint_num == 0) {
+	    if (joint == 0) {
 		break;
 	    }
 	    joint->home_offset = emcmotCommand->offset;
@@ -451,7 +486,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_CONT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    /* check axis range */
-	    if (joint_num == 0) {
+	    if (joint == 0) {
 		break;
 	    }
 
@@ -479,27 +514,27 @@ void emcmotCommandHandler(void *arg, long period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-
-	    if (emcmotCommand->vel > 0.0) {
-		if (GET_JOINT_HOMED_FLAG(joint)) {
-		    emcmotDebug->freePose.tran.x = joint->max_pos_limit;
+	    /* set destination of jog */
+	    if (GET_JOINT_HOMED_FLAG(joint)) {
+		/* axis is homed, we can use soft limits */
+		if (emcmotCommand->vel > 0.0) {
+		    joint->free_pos_cmd = joint->max_pos_limit;
 		} else {
-		    emcmotDebug->freePose.tran.x =
-			joint->pos_cmd + AXRANGE(joint);
+		    joint->free_pos_cmd = joint->min_pos_limit;
 		}
 	    } else {
-		if (GET_JOINT_HOMED_FLAG(joint)) {
-		    emcmotDebug->freePose.tran.x = joint->min_pos_limit;
+		/* axis not homed, use current position + range */
+		tmp = joint->max_pos_limit - joint->min_pos_limit;
+		if (emcmotCommand->vel > 0.0) {
+		    joint->free_pos_cmd = joint->pos_cmd + tmp;
 		} else {
-		    emcmotDebug->freePose.tran.x =
-			joint->pos_cmd - AXRANGE(joint);
+		    joint->free_pos_cmd = joint->pos_cmd - tmp;
 		}
 	    }
-
-	    tpSetVmax(&emcmotDebug->freeAxis[joint_num],
-		fabs(emcmotCommand->vel));
-	    tpAddLine(&emcmotDebug->freeAxis[joint_num],
-		emcmotDebug->freePose);
+	    /* set velocity of jog */
+	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    /* and let it go */
+	    joint->free_tp_enable = 1;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear axis homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -530,31 +565,25 @@ void emcmotCommandHandler(void *arg, long period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-
+	    /* set target position for jog */
 	    if (emcmotCommand->vel > 0.0) {
-		/* FIXME-- use 'goal' instead */
-		emcmotDebug->freePose.tran.x =
-		    joint->pos_cmd + emcmotCommand->offset;
-		if (GET_JOINT_HOMED_FLAG(joint)) {
-		    if (emcmotDebug->freePose.tran.x > joint->max_pos_limit) {
-			emcmotDebug->freePose.tran.x = joint->max_pos_limit;
-		    }
-		}
+		joint->free_pos_cmd += emcmotCommand->offset;
 	    } else {
-		/* FIXME-- use 'goal' instead */
-		emcmotDebug->freePose.tran.x =
-		    joint->pos_cmd - emcmotCommand->offset;
-		if (GET_JOINT_HOMED_FLAG(joint)) {
-		    if (emcmotDebug->freePose.tran.x < joint->min_pos_limit) {
-			emcmotDebug->freePose.tran.x = joint->min_pos_limit;
-		    }
+		joint->free_pos_cmd -= emcmotCommand->offset;
+	    }
+	    /* don't jog past soft limits, if homed */
+	    if (GET_JOINT_HOMED_FLAG(joint)) {
+		if (joint->free_pos_cmd > joint->max_pos_limit) {
+		    joint->free_pos_cmd = joint->max_pos_limit;
+		}
+		if (joint->free_pos_cmd < joint->min_pos_limit) {
+		    joint->free_pos_cmd = joint->min_pos_limit;
 		}
 	    }
-
-	    tpSetVmax(&emcmotDebug->freeAxis[joint_num],
-		fabs(emcmotCommand->vel));
-	    tpAddLine(&emcmotDebug->freeAxis[joint_num],
-		emcmotDebug->freePose);
+	    /* set velocity of jog */
+	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    /* and let it go */
+	    joint->free_tp_enable = 1;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear axis homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -585,27 +614,26 @@ void emcmotCommandHandler(void *arg, long period)
 		break;
 	    }
 	    /* FIXME-- use 'goal' instead */
-	    emcmotDebug->freePose.tran.x = emcmotCommand->offset;
+	    joint->free_pos_cmd = emcmotCommand->offset;
+	    /* don't jog past soft limits, if homed */
 	    if (GET_JOINT_HOMED_FLAG(joint)) {
-		if (emcmotDebug->freePose.tran.x > joint->max_pos_limit) {
-		    emcmotDebug->freePose.tran.x = joint->max_pos_limit;
-		} else if (emcmotDebug->freePose.tran.x <
-		    joint->min_pos_limit) {
-		    emcmotDebug->freePose.tran.x = joint->min_pos_limit;
+		if (joint->free_pos_cmd > joint->max_pos_limit) {
+		    joint->free_pos_cmd = joint->max_pos_limit;
+		}
+		if (joint->free_pos_cmd < joint->min_pos_limit) {
+		    joint->free_pos_cmd = joint->min_pos_limit;
 		}
 	    }
-
-	    tpSetVmax(&emcmotDebug->freeAxis[joint_num],
-		fabs(emcmotCommand->vel));
-	    tpAddLine(&emcmotDebug->freeAxis[joint_num],
-		emcmotDebug->freePose);
+	    /* set velocity of jog */
+	    joint->free_vel_lim = fabs(emcmotCommand->vel);
+	    /* and let it go */
+	    joint->free_tp_enable = 1;
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear axis homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
 	       assume the homed position. Do all if they've all been moved
 	       since homing, otherwise just do this one */
 	    clearHomes(joint_num);
-
 	    break;
 
 	case EMCMOT_SET_TERM_COND:
@@ -868,7 +896,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* can be done at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ACTIVATE_JOINT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    if (joint < 0) {
+	    if (joint == 0) {
 		break;
 	    }
 	    SET_JOINT_ACTIVE_FLAG(joint, 1);
@@ -965,8 +993,7 @@ void emcmotCommandHandler(void *arg, long period)
 			emcmotStatus->logStartVal = joint->pos_cmd;
 			break;
 		    case EMCLOG_TRIGGER_ON_VEL:
-			emcmotStatus->logStartVal =
-			    joint->pos_cmd - joint->old_pos_cmd;
+			emcmotStatus->logStartVal = joint->vel_cmd;
 			break;
 		    default:
 			break;
@@ -1011,7 +1038,8 @@ void emcmotCommandHandler(void *arg, long period)
 	case EMCMOT_HOME:
 	    /* home the specified axis */
 	    /* need to be in free mode, enable on */
-	    /* homing is basically a slow incremental jog to full range */
+	    /* this just sets the initial state, then the state machine in
+	       control.c does the rest */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "HOME");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (joint == 0) {
@@ -1021,17 +1049,7 @@ void emcmotCommandHandler(void *arg, long period)
 		break;
 	    }
 
-	    if (joint->home_search_vel > 0.0) {
-		emcmotDebug->freePose.tran.x = +2.0 * AXRANGE(joint);
-	    } else {
-		emcmotDebug->freePose.tran.x = -2.0 * AXRANGE(joint);
-	    }
-
-	    tpSetVmax(&emcmotDebug->freeAxis[joint_num],
-		fabs(joint->home_search_vel));
-	    tpAddLine(&emcmotDebug->freeAxis[joint_num],
-		emcmotDebug->freePose);
-	    joint->homing_state = 1;
+	    joint->home_state = EMCMOT_HOME_START;
 	    SET_JOINT_HOMING_FLAG(joint, 1);
 	    SET_JOINT_HOMED_FLAG(joint, 0);
 	    break;

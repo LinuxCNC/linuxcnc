@@ -35,7 +35,7 @@
 
 int stderr;
 
-int fputs(void)
+int fputs(const char *str)
 {
     return 0;
 }

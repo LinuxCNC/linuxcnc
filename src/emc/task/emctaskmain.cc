@@ -1271,7 +1271,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	rcs_print("Issuing %s -- \t (%s)\n", emcSymbolLookup(cmd->type),
 	    emcCommandBuffer->msg2str(cmd));
     }
-
     switch (cmd->type) {
 	// general commands
 
@@ -2351,7 +2350,6 @@ static int emctask_startup()
 static int emctask_shutdown(void)
 {
     // shut down the subsystems
-
     if (0 != emcStatus) {
 	emcTaskHalt();
 	emcTaskPlanExit();

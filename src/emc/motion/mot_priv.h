@@ -47,6 +47,11 @@ typedef struct {
     hal_float_t f_error;	/* RPA: following error */
     hal_float_t f_error_lim;	/* RPA: following error limit */
 
+/* FIXME - these might not be HAL params forever, but they are usefull now */
+    hal_float_t free_pos_cmd;	/* RPA: free traj planner pos cmd */
+    hal_float_t free_vel_lim;	/* RPA: free traj planner vel limit */
+    hal_bit_t free_tp_enable;	/* RPA: free traj planner is running */
+
     hal_bit_t active;		/* RPA: axis is active, whatever that means */
     hal_bit_t in_position;	/* RPA: axis is in position */
     hal_bit_t error;		/* RPA: axis has an error */

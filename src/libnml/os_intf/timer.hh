@@ -22,7 +22,7 @@ extern "C" {
 #include "sem.hh"		// RCS_SEMAPHORE
 #endif
 /* prototype for user-defined timing function */
-typedef int (*RCS_TIMERFUNC) (void *_arg = NULL);
+typedef int (*RCS_TIMERFUNC) (void *_arg);
 
 /* Getting rid of this stuff which no one uses and makes porting more
 difficult */
