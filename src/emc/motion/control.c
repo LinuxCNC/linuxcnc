@@ -445,7 +445,7 @@ static void set_operating_mode(void)
 		*(axis_data->amp_enable) = 0;
 		SET_JOINT_ENABLE_FLAG(joint, 0);
 		SET_JOINT_HOMING_FLAG(joint, 0);
-		joint->home_state = EMCMOT_NOT_HOMING;
+		joint->home_state = HOME_IDLE;
 	    }
 	    /* don't clear the joint error flag, since that may signify why
 	       we just went into disabled state */
@@ -476,7 +476,7 @@ static void set_operating_mode(void)
 		*(axis_data->amp_enable) = 1;
 		SET_JOINT_ENABLE_FLAG(joint, 1);
 		SET_JOINT_HOMING_FLAG(joint, 0);
-		joint->home_state = EMCMOT_NOT_HOMING;
+		joint->home_state = HOME_IDLE;
 	    }
 	    /* clear any outstanding axis errors when going into enabled
 	       state */
@@ -592,12 +592,69 @@ static void set_operating_mode(void)
     }
 }
 
+/* variable used internally by do_homing, but global so that
+   'home_do_moving_checks()' can access it */
+static int immediate_state;
+
+/* a couple of helper functions with code that would otherwise be
+   repeated in several different states of the homing state machine */
+
+/* 'home_start_move()' starts a move at the specified velocity.  The
+   length of the move is equal to the overall range of the axis, but
+   the intent is that something (like a home switch or index pulse)
+   will stop it before that point. */
+void home_start_move(emcmot_joint_t * joint, double vel)
+{
+    double axis_range;
+
+    /* set up a long move */
+    axis_range = joint->max_pos_limit - joint->min_pos_limit;
+    if (vel > 0.0) {
+	joint->free_pos_cmd = joint->pos_cmd + axis_range;
+    } else {
+	joint->free_pos_cmd = joint->pos_cmd - axis_range;
+    }
+    joint->free_vel_lim = fabs(vel);
+    /* start the move */
+    joint->free_tp_enable = 1;
+}
+
+/* 'home_do_moving_checks()' is called from states where the machine
+   is supposed to be moving.  It checks to see if the machine has
+   hit a limit, or if the move has stopped.  (Normally such moves
+   will be terminated by the home switch or an index pulse or some
+   other event, if the move goes to completion, something is wrong.) */
+static void home_do_moving_checks(emcmot_joint_t * joint)
+{
+    /* check for limit switches */
+    if (joint->pos_limit_latch || joint->neg_limit_latch) {
+	/* on limit, check to see if we should trip */
+	if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
+	    /* not ignoring limits, time to quit */
+	    reportError("hit limit in home state %d", joint->home_state);
+	    joint->home_state = HOME_ABORT;
+	    immediate_state = 1;
+	    return;
+	}
+    }
+    /* check for reached end of move */
+    if (!joint->free_tp_active) {
+	/* reached end of move without hitting switch */
+	joint->free_tp_enable = 0;
+	reportError("end of move in home state %d", joint->home_state);
+	joint->home_state = HOME_ABORT;
+	immediate_state = 1;
+	return;
+    }
+}
+
 static void do_homing(void)
 {
 /* this is still very much under construction */
-    int joint_num, immediate_state;
+    int joint_num;
     emcmot_joint_t *joint;
     double offset, tmp;
+    int home_sw_new, home_sw_rise, home_sw_fall;
 
     motion_state_t motion_state;
 
@@ -622,6 +679,9 @@ static void do_homing(void)
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint struct */
 	joint = &(emcmotStatus->joints[joint_num]);
+#if 0				/* FIXME - eliminating latching in favor of
+				   edge triggered home switch delete this
+				   stuff once it's tested */
 	/* Some machines have home switches that only trip for a short
 	   distance.  Overshoot after the search move could cause the joint
 	   to move past the switch, which would mess up the remaining steps
@@ -649,8 +709,24 @@ static void do_homing(void)
 		}
 	    }
 	}
+#endif
+	/* detect rising and falling edges on home switch */
+	home_sw_rise = 0;
+	home_sw_fall = 0;
+	home_sw_new = GET_JOINT_HOME_SWITCH_FLAG(joint);
+	if (home_sw_new) {
+	    if (!joint->home_sw_old) {
+		home_sw_rise = 1;
+	    }
+	} else {
+	    if (joint->home_sw_old) {
+		home_sw_fall = 1;
+	    }
+	}
+	joint->home_sw_old = home_sw_new;
+
 	/* when an axis is homing, 'check_for_faults()' ignores its limit
-	   switches, so that this code can do the right thing with them. Once 
+	   switches, so that this code can do the right thing with them. Once
 	   the homing process is finished, the 'check_for_faults()' resumes
 	   checking */
 
@@ -660,116 +736,116 @@ static void do_homing(void)
 	   states during a single servo period.  This is done using
 	   'immediate_state'.  If a state transition sets it true (non-zero),
 	   this 'do-while' will loop executing switch(home_state) immediately
-	   to run the new state code.  Otherwise, the loop will fall thru, and 
+	   to run the new state code.  Otherwise, the loop will fall thru, and
 	   switch(home_state) runs only once per servo period. Do _not_ set
 	   'immediate_state' true unless you also change 'home_state', unless
 	   you want an infinite loop! */
 	do {
 	    immediate_state = 0;
 	    switch (joint->home_state) {
-	    case EMCMOT_NOT_HOMING:
+	    case HOME_IDLE:
 		/* nothing to do */
 		break;
 
-	    case EMCMOT_HOME_START:
+	    case HOME_START:
+		/* This state is responsible for getting the homing process
+		   started.  It doesn't actually do anything, it simply
+		   determines what state is next */
+		/* stop any existing motion */
+		joint->free_tp_enable = 0;
+		/* figure out exactly what homing sequence is needed */
 		if (joint->home_search_vel == 0.0) {
 		    /* vel == 0 means no switch, home at current position */
-		    joint->home_state = EMCMOT_HOME_SET_FINAL_POS;
+		    joint->home_state = HOME_SET_FINAL_POSITION;
 		    immediate_state = 1;
+		    break;
 		} else {
 		    /* need to find home switch */
-		    if (joint->home_sw_latch) {
-			/* already on switch, need to back clear */
-			joint->home_state = EMCMOT_HOME_START_PRE_SEARCH;
-			immediate_state = 1;
-		    } else {
-			/* start searching for home switch */
-			joint->home_state = EMCMOT_HOME_START_SEARCH;
-			immediate_state = 1;
-		    }
-		}
-		break;
-
-	    case EMCMOT_HOME_START_PRE_SEARCH:
-		/* move to current location minus joint range */
-		offset = joint->max_pos_limit - joint->min_pos_limit;
-		if (joint->home_search_vel > 0.0) {
-		    joint->free_pos_cmd = joint->pos_cmd - offset;
-		} else {
-		    joint->free_pos_cmd = joint->pos_cmd + offset;
-		}
-		joint->free_vel_lim = fabs(joint->home_search_vel);
-		joint->free_tp_enable = 1;
-		joint->home_state = EMCMOT_HOME_WAIT_PRE_SEARCH;
-		break;
-
-	    case EMCMOT_HOME_WAIT_PRE_SEARCH:
-		/* wait for off home sw, on limit sw, or end of move */
-		if (!joint->home_sw_latch) {
-		    /* now off home switch, begin real search */
-		    joint->home_state = EMCMOT_HOME_START_SEARCH;
+		    joint->home_state = HOME_INITIAL_SEARCH_START;
 		    immediate_state = 1;
 		    break;
 		}
-		if (joint->pos_limit_latch || joint->neg_limit_latch) {
-		    /* on limit, check to see if we should trip */
-		    if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
-			/* not ignoring limits, time to quit */
-			joint->home_state = EMCMOT_HOME_ABORT;
-			immediate_state = 1;
-			break;
-		    }
+		break;
+
+	    case HOME_INITIAL_BACKOFF_START:
+		/* This state is called if the homing sequence starts at a
+		   location where the home switch is already tripped. It
+		   starts a move away from the switch. */
+		/* is the joint still moving? */
+		if (joint->free_tp_active) {
+		    /* yes, wait until it stops */
+		    break;
 		}
-		if (!joint->free_tp_active) {
-		    /* reached end of move without hitting switch */
+		/* set up a move at '-search_vel' to back off of switch */
+		home_start_move(joint, -joint->home_search_vel);
+		/* next state */
+		joint->home_state = HOME_INITIAL_BACKOFF_WAIT;
+		break;
+
+	    case HOME_INITIAL_BACKOFF_WAIT:
+		/* This state is called while the machine is moving off of
+		   the home switch.  It terminates when the switch is cleared 
+		   successfully.  If the move ends or hits a limit before it
+		   clears the switch, the home is aborted. */
+		/* are we off home switch yet? */
+		if (home_sw_fall) {
+		    /* yes, stop motion */
 		    joint->free_tp_enable = 0;
-		    joint->home_state = EMCMOT_HOME_ABORT;
+		    /* begin initial search */
+		    joint->home_state = HOME_INITIAL_SEARCH_START;
 		    immediate_state = 1;
 		    break;
 		}
+		home_do_moving_checks(joint);
 		break;
 
-	    case EMCMOT_HOME_START_SEARCH:
-		/* move to current location plus joint range */
-		offset = joint->max_pos_limit - joint->min_pos_limit;
-		if (joint->home_search_vel > 0.0) {
-		    joint->free_pos_cmd = joint->pos_cmd + offset;
-		} else {
-		    joint->free_pos_cmd = joint->pos_cmd - offset;
+	    case HOME_INITIAL_SEARCH_START:
+		/* This state is responsible for starting a move toward the
+		   home switch.  This move is at 'search_vel', which can be
+		   fairly fast, because once the switch is found another
+		   slower move will be used to set the exact home position. */
+		/* is the joint already moving? */
+		if (joint->free_tp_active) {
+		    /* yes, wait until it stops */
+		    break;
 		}
-		joint->free_vel_lim = fabs(joint->home_search_vel);
-		joint->free_tp_enable = 1;
-		joint->home_state = EMCMOT_HOME_WAIT_SEARCH;
+		/* make sure we aren't already on home switch */
+		if (GET_JOINT_HOME_SWITCH_FLAG(joint)) {
+		    /* already on switch, need to back off it first */
+		    joint->home_state = HOME_INITIAL_BACKOFF_START;
+		    immediate_state = 1;
+		    break;
+		}
+		/* set up a move at 'search_vel' to find switch */
+		home_start_move(joint, joint->home_search_vel);
+		/* next state */
+		joint->home_state = HOME_INITIAL_SEARCH_WAIT;
 		break;
 
-	    case EMCMOT_HOME_WAIT_SEARCH:
-		/* wait for home sw, limit sw, or end of move */
-		if (joint->home_sw_latch) {
-		    /* found switch */
+	    case HOME_INITIAL_SEARCH_WAIT:
+		/* This state is called while the machine is looking for the
+		   home switch.  It terminates when the switch is found.  If
+		   the move ends or hits a limit before it finds the switch,
+		   the home is aborted. */
+		/* have we hit home switch yet? */
+		if (home_sw_rise) {
+		    /* yes, stop motion */
 		    joint->free_tp_enable = 0;
-		    joint->home_state = EMCMOT_HOME_SET_COARSE_POS;
+		    /* go to next step */
+		    joint->home_state = HOME_SET_COARSE_POSITION;
 		    immediate_state = 1;
 		    break;
 		}
-		if (joint->pos_limit_latch || joint->neg_limit_latch) {
-		    /* on limit, check to see if we should trip */
-		    if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
-			/* not ignoring limits, time to quit */
-			joint->home_state = EMCMOT_HOME_ABORT;
-			immediate_state = 1;
-			break;
-		    }
-		}
-		if (!joint->free_tp_active) {
-		    /* reached end of move without hitting switch */
-		    joint->free_tp_enable = 0;
-		    joint->home_state = EMCMOT_HOME_ABORT;
-		    immediate_state = 1;
-		    break;
-		}
+		home_do_moving_checks(joint);
 		break;
 
-	    case EMCMOT_HOME_SET_COARSE_POS:
+	    case HOME_SET_COARSE_POSITION:
+		/* This state is called after the first time the switch is
+		   found.  At this point, we are approximately home. Although 
+		   we will do another slower pass to get the exact home
+		   location, we reset the joint coordinates now so that screw 
+		   error comp will be appropriate for this portion of the
+		   screw (previously we didn't know where we were at all). */
 		/* set the current position to 'home_offset' */
 		offset = joint->home_offset - joint->pos_fb;
 		/* this moves the internal position but does not affect the
@@ -778,137 +854,169 @@ static void do_homing(void)
 		joint->pos_fb += offset;
 		joint->free_pos_cmd += offset;
 		joint->motor_offset -= offset;
-		/* next state */
+		/* The next state depends on the signs of 'search_vel' and
+		   'latch_vel'.  If they are the same, that means we must
+		   back up, then do the final homing moving the same
+		   direction as the initial search, on a rising edge of the
+		   switch.  If they are opposite, it means that the final
+		   homing will take place on a falling edge as the machine
+		   moves off of the switch. */
 		tmp = joint->home_search_vel * joint->home_latch_vel;
 		if (tmp > 0.0) {
 		    /* search and latch vel are same direction */
-		    joint->home_state = EMCMOT_HOME_START_BACKOFF;
+		    joint->home_state = HOME_FINAL_BACKOFF_START;
 		} else if (tmp < 0.0) {
 		    /* search and latch vel are opposite directions */
-		    joint->home_state = EMCMOT_HOME_START_LATCH;
+		    joint->home_state = HOME_FALL_SEARCH_START;
 		} else {
 		    /* latch vel is zero - error */
-		    joint->home_state = EMCMOT_HOME_ABORT;
+		    reportError("home latch velocity is zero");
+		    joint->home_state = HOME_ABORT;
 		}
 		immediate_state = 1;
 		break;
 
-	    case EMCMOT_HOME_START_BACKOFF:
-		/* move to current location minus joint range */
-		offset = joint->max_pos_limit - joint->min_pos_limit;
-		if (joint->home_latch_vel > 0.0) {
-		    joint->free_pos_cmd = joint->pos_cmd - offset;
-		} else {
-		    joint->free_pos_cmd = joint->pos_cmd + offset;
+	    case HOME_FINAL_BACKOFF_START:
+		/* This state is called once the approximate location of the
+		   switch has been found.  It is responsible for starting a
+		   move that will back off of the switch in preparation for a 
+		   final slow move that captures the exact switch location. */
+		/* is the joint already moving? */
+		if (joint->free_tp_active) {
+		    /* yes, wait until it stops */
+		    break;
 		}
-		joint->free_vel_lim = fabs(joint->home_search_vel);
-		joint->free_tp_enable = 1;
-		joint->home_state = EMCMOT_HOME_WAIT_BACKOFF;
+		/* set up a move at '-search_vel' to back off of switch */
+		home_start_move(joint, -joint->home_search_vel);
+		/* next state */
+		joint->home_state = HOME_FINAL_BACKOFF_WAIT;
 		break;
 
-	    case EMCMOT_HOME_WAIT_BACKOFF:
-		/* wait for off home sw, limit sw, or end of move */
-		if (!joint->home_sw_latch) {
-		    /* now off switch, ready for latching */
+	    case HOME_FINAL_BACKOFF_WAIT:
+		/* This state is called while the machine is moving off of
+		   the home switch after finding it's approximate location.
+		   It terminates when the switch is cleared successfully.  If 
+		   the move ends or hits a limit before it clears the switch, 
+		   the home is aborted. */
+		/* are we off home switch yet? */
+		if (home_sw_fall) {
+		    /* yes, stop motion */
 		    joint->free_tp_enable = 0;
-		    joint->home_state = EMCMOT_HOME_START_LATCH;
+		    /* begin final search */
+		    joint->home_state = HOME_RISE_SEARCH_START;
 		    immediate_state = 1;
 		    break;
 		}
-		if (joint->pos_limit_latch || joint->neg_limit_latch) {
-		    /* on limit, check to see if we should trip */
-		    if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
-			/* not ignoring limits, time to quit */
-			joint->home_state = EMCMOT_HOME_ABORT;
-			immediate_state = 1;
-			break;
-		    }
-		}
-		if (!joint->free_tp_active) {
-		    /* reached end of move without hitting switch */
-		    joint->free_tp_enable = 0;
-		    joint->home_state = EMCMOT_HOME_ABORT;
-		    immediate_state = 1;
+		home_do_moving_checks(joint);
+		break;
+
+	    case HOME_RISE_SEARCH_START:
+		/* This state is called to start the final search for the
+		   point where the home switch trips.  It moves at
+		   'latch_vel' and looks for a rising edge on the switch */
+		/* is the joint already moving? */
+		if (joint->free_tp_active) {
+		    /* yes, wait until it stops */
 		    break;
 		}
+		/* set up a move at 'latch_vel' to locate the switch */
+		home_start_move(joint, joint->home_latch_vel);
+		/* next state */
+		joint->home_state = HOME_RISE_SEARCH_WAIT;
 		break;
 
-	    case EMCMOT_HOME_START_LATCH:
-		/* move to current location plus joint range */
-		offset = joint->max_pos_limit - joint->min_pos_limit;
-		if (joint->home_latch_vel > 0.0) {
-		    joint->free_pos_cmd = joint->pos_cmd + offset;
-		} else {
-		    joint->free_pos_cmd = joint->pos_cmd - offset;
-		}
-		joint->free_vel_lim = fabs(joint->home_latch_vel);
-		joint->free_tp_enable = 1;
-		joint->home_state = EMCMOT_HOME_WAIT_LATCH_SWITCH;
-		break;
-
-	    case EMCMOT_HOME_WAIT_LATCH_SWITCH:
-		/* wait for home sw, limit sw, or end of move */
-		if (joint->home_sw_latch) {
-		    /* on switch, where do we go next? */
+	    case HOME_RISE_SEARCH_WAIT:
+		/* This state is called while the machine is moving towards
+		   the home switch on it's final, low speed pass.  It
+		   terminates when the switch is detected. If the move ends
+		   or hits a limit before it hits the switch, the home is
+		   aborted. */
+		/* have we hit the home switch yet? */
+		if (home_sw_rise) {
+		    /* yes, where do we go next? */
 		    if (joint->home_flags & HOME_USE_INDEX) {
 			/* look for index pulse */
-			joint->free_tp_enable = 0;
-			joint->home_state = EMCMOT_HOME_WAIT_LATCH_INDEX;
+			joint->home_state = HOME_INDEX_SEARCH_WAIT;
 			immediate_state = 1;
+			break;
 		    } else {
-			/* no index pulse, almost done */
+			/* no index pulse, stop motion */
 			joint->free_tp_enable = 0;
-			joint->home_state = EMCMOT_HOME_SET_FINAL_POS;
-			immediate_state = 1;
-		    }
-		    break;
-		}
-		if (joint->pos_limit_latch || joint->neg_limit_latch) {
-		    /* on limit, check to see if we should trip */
-		    if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
-			/* not ignoring limits, time to quit */
-			joint->home_state = EMCMOT_HOME_ABORT;
+			/* go to next step */
+			joint->home_state = HOME_SET_FINAL_POSITION;
 			immediate_state = 1;
 			break;
 		    }
 		}
-		if (!joint->free_tp_active) {
-		    /* reached end of move without hitting switch */
-		    joint->free_tp_enable = 0;
-		    joint->home_state = EMCMOT_HOME_ABORT;
-		    immediate_state = 1;
-		    break;
-		}
+		home_do_moving_checks(joint);
 		break;
 
-	    case EMCMOT_HOME_WAIT_LATCH_INDEX:
-		/* wait for rising edge of index */
+	    case HOME_FALL_SEARCH_START:
+		/* This state is called to start the final search for the
+		   point where the home switch releases.  It moves at
+		   'latch_vel' and looks for a falling edge on the switch */
+		/* is the joint already moving? */
+		if (joint->free_tp_active) {
+		    /* yes, wait until it stops */
+		    break;
+		}
+		/* set up a move at 'latch_vel' to locate the switch */
+		home_start_move(joint, joint->home_latch_vel);
+		/* next state */
+		joint->home_state = HOME_FALL_SEARCH_WAIT;
+		break;
+
+	    case HOME_FALL_SEARCH_WAIT:
+		/* This state is called while the machine is moving away from 
+		   the home switch on it's final, low speed pass.  It
+		   terminates when the switch is cleared. If the move ends or 
+		   hits a limit before it clears the switch, the home is
+		   aborted. */
+		/* have we cleared the home switch yet? */
+		if (home_sw_fall) {
+		    /* yes, where do we go next? */
+		    if (joint->home_flags & HOME_USE_INDEX) {
+			/* look for index pulse */
+			joint->home_state = HOME_INDEX_SEARCH_WAIT;
+			immediate_state = 1;
+			break;
+		    } else {
+			/* no index pulse, stop motion */
+			joint->free_tp_enable = 0;
+			/* go to next step */
+			joint->home_state = HOME_SET_FINAL_POSITION;
+			immediate_state = 1;
+			break;
+		    }
+		}
+		home_do_moving_checks(joint);
+		break;
+
+	    case HOME_INDEX_SEARCH_WAIT:
+		/* This state is called after the machine has made a low
+		   speed pass to determine the limit switch location. It
+		   continues at low speed until an index pulse is detected,
+		   at which point it latches the final home position.  If the 
+		   move ends or hits a limit before an index pulse occurs,
+		   the home is aborted. */
+		/* have we gotten an index pulse yet? */
 		if (joint->index_pulse_edge) {
-		    /* index detected */
+		    /* yes, stop motion */
 		    joint->free_tp_enable = 0;
-		    joint->home_state = EMCMOT_HOME_SET_FINAL_POS;
+		    /* go to next step */
+		    joint->home_state = HOME_SET_FINAL_POSITION;
 		    immediate_state = 1;
 		    break;
 		}
-		if (joint->pos_limit_latch || joint->neg_limit_latch) {
-		    /* on limit, check to see if we should trip */
-		    if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
-			/* not ignoring limits, time to quit */
-			joint->home_state = EMCMOT_HOME_ABORT;
-			immediate_state = 1;
-			break;
-		    }
-		}
-		if (!joint->free_tp_active) {
-		    /* reached end of move without hitting switch */
-		    joint->free_tp_enable = 0;
-		    joint->home_state = EMCMOT_HOME_ABORT;
-		    immediate_state = 1;
-		    break;
-		}
+		home_do_moving_checks(joint);
 		break;
 
-	    case EMCMOT_HOME_SET_FINAL_POS:
+	    case HOME_SET_FINAL_POSITION:
+		/* This state is called when the machine has determined the
+		   home position as accurately as possible.  It sets the
+		   current joint position to 'home_offset', which is the
+		   location of the home switch (or index pulse) in joint
+		   coordinates. */
 		/* set the current position to 'home_offset' */
 		offset = joint->home_offset - joint->pos_fb;
 		/* this moves the internal position but does not affect the
@@ -918,55 +1026,85 @@ static void do_homing(void)
 		joint->free_pos_cmd += offset;
 		joint->motor_offset -= offset;
 		/* next state */
-		joint->home_state = EMCMOT_HOME_START_FINAL;
+		joint->home_state = HOME_FINAL_MOVE_START;
 		immediate_state = 1;
 		break;
 
-	    case EMCMOT_HOME_START_FINAL:
+	    case HOME_FINAL_MOVE_START:
+		/* This state is called once the joint coordinate system is
+		   set properly.  It moves to the actual 'home' position,
+		   which is not neccessarily the position of the home switch
+		   or index pulse. */
+		/* is the joint already moving? */
+		if (joint->free_tp_active) {
+		    /* yes, wait until it stops */
+		    break;
+		}
 		/* plan a move to home position */
 		joint->free_pos_cmd = joint->home;
 		/* do the move at max speed */
 		/* FIXME - should this be search_vel? or another user
 		   specified speed? or is a rapid OK? */
 		joint->free_vel_lim = joint->vel_limit;
+		/* start the move */
 		joint->free_tp_enable = 1;
-		joint->home_state = EMCMOT_HOME_WAIT_FINAL;
+		joint->home_state = HOME_FINAL_MOVE_WAIT;
 		break;
 
-	    case EMCMOT_HOME_WAIT_FINAL:
+	    case HOME_FINAL_MOVE_WAIT:
+		/* This state is called while the machine makes its final
+		   move to the home position.  It terminates when the machine 
+		   arrives at the final location. If the move hits a limit
+		   before it arrives, the home is aborted. */
 		/* have we arrived (and stopped) at home? */
 		if (!joint->free_tp_active) {
-		    /* yes, we're finally done */
-		    joint->home_state = EMCMOT_HOME_FINISHED;
+		    /* yes, stop motion */
+		    joint->free_tp_enable = 0;
+		    /* we're finally done */
+		    joint->home_state = HOME_FINISHED;
 		    immediate_state = 1;
+		    break;
+		}
+		if (joint->pos_limit_latch || joint->neg_limit_latch) {
+		    /* on limit, check to see if we should trip */
+		    if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
+			/* not ignoring limits, time to quit */
+			reportError("hit limit in home state %d",
+			    joint->home_state);
+			joint->home_state = HOME_ABORT;
+			immediate_state = 1;
+			break;
+		    }
 		}
 		break;
 
-	    case EMCMOT_HOME_FINISHED:
+	    case HOME_FINISHED:
 		/* FIXME - this should set various flags, etc not done yet */
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		SET_JOINT_HOMED_FLAG(joint, 1);
-		joint->home_state = EMCMOT_NOT_HOMING;
+		joint->home_state = HOME_IDLE;
 		immediate_state = 1;
 		break;
 
-	    case EMCMOT_HOME_ABORT:
+	    case HOME_ABORT:
 		/* FIXME - this should set various flags, etc not done yet */
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		SET_JOINT_HOMED_FLAG(joint, 0);
 		joint->free_tp_enable = 0;
-		joint->home_state = EMCMOT_NOT_HOMING;
+		joint->home_state = HOME_IDLE;
 		immediate_state = 1;
 		break;
 
 	    default:
 		/* should never get here */
 		/* FIXME - should set an error flag or something here */
+		reportError("unknown state '%d' during homing",
+		    joint->home_state);
 		joint->home_state = EMCMOT_ABORT;
 		immediate_state = 1;
 		break;
 	    }			/* end of switch(joint->home_state) */
-	} while (immediate_state==10);  /* FIXME - temporarily kill immediate state action */
+	} while (immediate_state);
     }
 }
 
@@ -1510,12 +1648,12 @@ static void output_to_hal(void)
     machine_hal_data->teleop_mode = GET_MOTION_TELEOP_FLAG();
     machine_hal_data->coord_error = GET_MOTION_ERROR_FLAG();
     /* These params can be used to examine any internal variable. */
-    /* Change the following lines to assign the variable you want
-       to observe to one of the debug parameters.  You can also
-       comment out these lines and copy elsewhere if you want to
-       observe an automatic variable that isn't in scope here. */
+    /* Change the following lines to assign the variable you want to observe
+       to one of the debug parameters.  You can also comment out these lines
+       and copy elsewhere if you want to observe an automatic variable that
+       isn't in scope here. */
     machine_hal_data->debug_bit_0 = emcmotStatus->joints[1].free_tp_active;
-    machine_hal_data->debug_bit_1 = emcmotStatus->joints[1].home_sw_latch;
+    machine_hal_data->debug_bit_1 = 0;
     machine_hal_data->debug_float_0 = 0.0;
     machine_hal_data->debug_float_1 = 0.0;
 
@@ -1552,7 +1690,6 @@ static void output_to_hal(void)
 	axis_data->nsl = GET_JOINT_NSL_FLAG(joint);
 	axis_data->phl = GET_JOINT_PHL_FLAG(joint);
 	axis_data->nhl = GET_JOINT_NHL_FLAG(joint);
-	axis_data->home_sw_flag = GET_JOINT_HOME_SWITCH_FLAG(joint);
 	axis_data->homing = GET_JOINT_HOMING_FLAG(joint);
 	axis_data->homed = GET_JOINT_HOMED_FLAG(joint);
 	axis_data->f_errored = GET_JOINT_FERROR_FLAG(joint);

@@ -326,8 +326,8 @@ static int init_hal_io(void)
 	return retval;
     }
     /* export debug parameters */
-    /* these can be used to view any internal variable, simply
-       change a line in control.c:output_to_hal() and recompile */
+    /* these can be used to view any internal variable, simply change a line
+       in control.c:output_to_hal() and recompile */
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-bit-0");
     retval =
 	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->debug_bit_0),
@@ -559,12 +559,6 @@ static int export_axis(int num, axis_hal_t * addr)
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.neg-hard-limit", num);
     retval = hal_param_bit_new(buf, HAL_RD, &(addr->nhl), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home-sw-tripped", num);
-    retval =
-	hal_param_bit_new(buf, HAL_RD, &(addr->home_sw_flag), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -920,8 +914,8 @@ static int init_threads(void)
     }
 
     /* export realtime functions that do the real work */
-    retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg
-	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
+    retval = hal_export_funct("motion-controller", emcmotController, 0 /* arg */ , 1	/* uses_fp 
+	 */ , 0 /* reentrant */ , mot_comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export controller function\n");

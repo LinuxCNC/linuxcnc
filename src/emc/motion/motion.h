@@ -343,32 +343,33 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 /* states for homing - this list is incomplete */
     typedef enum {
-	EMCMOT_NOT_HOMING = 0,
-	EMCMOT_HOME_START,		// 1
-	EMCMOT_HOME_START_PRE_SEARCH,	// 2
-	EMCMOT_HOME_WAIT_PRE_SEARCH,	// 3
-	EMCMOT_HOME_START_SEARCH,	// 4
-	EMCMOT_HOME_WAIT_SEARCH,	// 5
-	EMCMOT_HOME_SET_COARSE_POS,	// 6
-	EMCMOT_HOME_START_BACKOFF,	// 7
-	EMCMOT_HOME_WAIT_BACKOFF,	// 8
-	EMCMOT_HOME_START_LATCH,	// 9
-	EMCMOT_HOME_WAIT_LATCH_SWITCH,	// 10
-	EMCMOT_HOME_WAIT_LATCH_INDEX,	// 11
-	EMCMOT_HOME_SET_FINAL_POS,	// 12
-	EMCMOT_HOME_START_FINAL,	// 13
-	EMCMOT_HOME_WAIT_FINAL,		// 14
-	EMCMOT_HOME_FINISHED,		// 15
-	EMCMOT_HOME_ABORT		// 16
+	HOME_IDLE = 0,
+	HOME_START,		// 1
+	HOME_INITIAL_BACKOFF_START,	// 2
+	HOME_INITIAL_BACKOFF_WAIT,	// 3
+	HOME_INITIAL_SEARCH_START,	// 4
+	HOME_INITIAL_SEARCH_WAIT,	// 5
+	HOME_SET_COARSE_POSITION,	// 6
+	HOME_FINAL_BACKOFF_START,	// 7
+	HOME_FINAL_BACKOFF_WAIT,	// 8
+	HOME_RISE_SEARCH_START,	// 9
+	HOME_RISE_SEARCH_WAIT,	// 10
+	HOME_FALL_SEARCH_START,	// 11
+	HOME_FALL_SEARCH_WAIT,	// 12
+	HOME_INDEX_SEARCH_WAIT,	// 13
+	HOME_SET_FINAL_POSITION,	// 14
+	HOME_FINAL_MOVE_START,	// 15
+	HOME_FINAL_MOVE_WAIT,	// 16
+	HOME_FINISHED,		// 17
+	HOME_ABORT		// 18
     } home_state_t;
 
 /* flags for homing */
-#define HOME_IGNORE_LIMITS  1
-//#define HOME_REVERSE_ON_LIMIT    2
-#define HOME_USE_INDEX           8
+#define HOME_IGNORE_LIMITS	1
+#define HOME_USE_INDEX		2
 
 /* flags for switch config */
-#define SWITCHES_LATCH_LIMITS   16
+#define SWITCHES_LATCH_LIMITS	16
 
 /* NEW_STRUCTS  - I'm trying something different.  As it stands,
    per-axis (really per-joint) info is stored in a whole bunch of
@@ -406,8 +407,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	/* status info - changes regularly */
 	/* many of these need to be made available to higher levels */
-	/* they can either be copied to the status struct, or an
-	   array of joint structs can be made part of the status */
+	/* they can either be copied to the status struct, or an array of
+	   joint structs can be made part of the status */
 	EMCMOT_AXIS_FLAG flag;	/* see above for bit details */
 	double coarse_pos;	/* trajectory point, before interp */
 	double pos_cmd;		/* commanded joint position */
@@ -434,7 +435,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double neg_limit_pos;	/* latched position of limit sw */
 	int neg_limit_latch;	/* non-zero if on limit */
 	double home_sw_pos;	/* latched position of home sw */
-	int home_sw_latch;	/* non-zero if on home */
+//      int home_sw_latch;      /* non-zero if on home */
+	char home_sw_old;	/* previous value, for edge detection */
 	int index_pulse;	/* current state of index pulse input */
 	int index_pulse_edge;	/* non-zero if rising edge detected */
 
@@ -476,7 +478,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 /* FIXME - I don't know if this is the right thing to do yet, but
    for now I'm moving the joint structures into the status struct */
 
-
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
 	/* these three are updated only when a new command is handled */
@@ -502,7 +503,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 #endif
 /* FIXME - joint structs added here, replace arrays above */
 	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* all joint related data */
-
 
 	int onSoftLimit;	/* non-zero if any axis is on soft limit */
 
@@ -842,7 +842,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 						   to input pos */
 #endif
 #ifdef NEW_STRUCTS
-#if 0 /* FIXME - moved (at least for now) to status structure */
+#if 0				/* FIXME - moved (at least for now) to status 
+				   structure */
 	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* all joint related data */
 #endif
 #endif

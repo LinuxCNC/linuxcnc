@@ -374,7 +374,7 @@ static int refresh_value(gpointer data)
     probe = meter->probe;
 
     if (probe->pin != NULL) {
-	if ( probe->pin->name[0] == '\0' ) {
+	if (probe->pin->name[0] == '\0') {
 	    /* pin has been deleted, can't display it any more */
 	    probe->pin = NULL;
 	    return 1;
@@ -389,7 +389,7 @@ static int refresh_value(gpointer data)
 	    value_str = data_value(probe->pin->type, SHMPTR(sig->data_ptr));
 	}
     } else if (probe->sig != NULL) {
-	if ( probe->sig->name[0] == '\0' ) {
+	if (probe->sig->name[0] == '\0') {
 	    /* signal has been deleted, can't display it any more */
 	    probe->sig = NULL;
 	    return 1;
@@ -398,7 +398,7 @@ static int refresh_value(gpointer data)
 	value_str =
 	    data_value(probe->sig->type, SHMPTR(probe->sig->data_ptr));
     } else if (probe->param != NULL) {
-	if ( probe->param->name[0] == '\0' ) {
+	if (probe->param->name[0] == '\0') {
 	    /* parameter has been deleted, can't display it any more */
 	    probe->param = NULL;
 	    return 1;

@@ -267,8 +267,8 @@ void emcmotCommandHandler(void *arg, long period)
 	/* Many commands uses "command->axis" to indicate which joint they
 	   wish to operate on.  This code eliminates the need to copy
 	   command->axis to "joint_num", limit check it, and then set "joint"
-	   to point to the joint data.  All the individual commands need to
-	   do is verify that "joint" is non-zero. */
+	   to point to the joint data.  All the individual commands need to do 
+	   is verify that "joint" is non-zero. */
 	joint_num = emcmotCommand->axis;
 	if (joint_num >= 0 && joint_num < EMCMOT_MAX_AXIS) {
 	    /* valid joint, point to it's data */
@@ -311,7 +311,7 @@ void emcmotCommandHandler(void *arg, long period)
 		    /* tell joint planner to stop */
 		    joint->free_tp_enable = 0;
 		    /* update status flags */
-		    joint->home_state = EMCMOT_NOT_HOMING;
+		    joint->home_state = HOME_IDLE;
 		    SET_JOINT_HOMING_FLAG(joint, 0);
 		    SET_JOINT_ERROR_FLAG(joint, 0);
 		}
@@ -457,7 +457,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    joint->max_pos_limit = emcmotCommand->maxLimit;
 	    break;
 
-	    /*
+	    /* 
 	       Max and min ferror work like this: limiting ferror is
 	       determined by slope of ferror line, = maxFerror/limitVel ->
 	       limiting ferror = maxFerror/limitVel * vel. If ferror <
@@ -1030,10 +1030,13 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		break;
 	    }
-
-	    joint->home_state = EMCMOT_HOME_START;
+	    /* abort any movememt (jog, etc) that is in progress */
+	    joint->free_tp_enable = 0;
+	    /* set flags that communicate with the rest of EMC */
 	    SET_JOINT_HOMING_FLAG(joint, 1);
 	    SET_JOINT_HOMED_FLAG(joint, 0);
+	    /* prime the homing state machine */
+	    joint->home_state = HOME_START;
 	    break;
 
 	case EMCMOT_ENABLE_WATCHDOG:
