@@ -195,7 +195,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     # on BDI-TNG only the patched kernel source is included in order 
     # to save space, so realtime-config is failing.
     # the following is a workaround only for BDI-TNG
-    $BDITNG=`cat /etc/redhat-release 2>/dev/null | head n 1`
+    BDITNG=`cat /etc/redhat-release 2>/dev/null | head -n 1`
     if test "x$BDITNG" = "xBDI-TNG Linux release 7.2 (minbar)"; then
 	# we are certain to have BDI-TNG
 	# now we default some values

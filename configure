@@ -1286,12 +1286,12 @@ PACKAGE="emc2"
 # Checks for programs.
 
 # Check for RT
-# FIXME - add RT-check script
 # accept rtai=path from commandline
 # accept rtlinux=path from commandline
 # accept rtlinuxpro=path from commandline
 echo "$as_me:$LINENO: checking for RT dir" >&5
 echo $ECHO_N "checking for RT dir... $ECHO_C" >&6
+CC=""
 RTDIR=""
 RTNAME=""
 RTAI=""
@@ -1300,7 +1300,6 @@ RTLINUXPRO=""
 RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
-
 
 RTAI3_MOD=""
 RTAI_MOD=""
@@ -1502,7 +1501,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
     # on BDI-TNG only the patched kernel source is included in order
     # to save space, so realtime-config is failing.
     # the following is a workaround only for BDI-TNG
-    $BDITNG=`cat /etc/redhat-release 2>/dev/null | head n 1`
+    BDITNG=`cat /etc/redhat-release 2>/dev/null | head -n 1`
     if test "x$BDITNG" = "xBDI-TNG Linux release 7.2 (minbar)"; then
 	# we are certain to have BDI-TNG
 	# now we default some values
@@ -7229,7 +7228,9 @@ _ACEOF
 
 fi
 
-# FIXME Test for tcl/tk headers fails if they are not in /usr/include
+# Test for tcl/tk headers fails if they are not in /usr/include
+# so testing is done by finding tclConfig.sh and tkConfig.sh
+# if the search fails the traditional check is done
 echo "$as_me:$LINENO: checking for tcl" >&5
 echo $ECHO_N "checking for tcl... $ECHO_C" >&6
 
@@ -9217,8 +9218,4 @@ if test "$no_create" != yes; then
   # would make configure fail if this is the last instruction.
   $ac_cs_success || { (exit 1); exit 1; }
 fi
-
-
-
-
 
