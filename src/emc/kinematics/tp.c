@@ -1,48 +1,20 @@
-/*
-  tp.c
-
-  Trajectory planner based on TC elements
-
-  Modification history:
-
-  30-Jan-2004 P.C. #idef'ed diagnostic output so that it only prints when
-  compiled for user space.
-  5-Jan-2004 MGS used this file to build a motion module for emc2.
-  13-Nov-2002  FMP moved some dereferences to thisTc in tpRunCycle to be
-  after a check for thisTc being NULL
-  7-Dec-2001  FMP took hard-coded 1e-6 values out and moved them
-  into tp.h as EPSILON defines.
-  16-Nov-2000 WPS modified the algorithm to compute preAMax and
-  preVMax, to elminate some velocity spikes, and ensure that the
-  acceleration and velocity maximums were really honored.
-  13-Mar-2000 WPS added unused attribute to ident to avoid 'defined
-  but not used' compiler warning.
-  28-Feb-2000 WPS eliminated #include <stdlib.h> when compiling for rtlinux
-  stdlib.h may be incompatible with one of the header files in rtlinux-2.0.
-  23-Sep-1999 WPS replaced printf with rcs_print  which is supported under CE
-  8-Jun-1999  FMP added tpSetVlimit(), vLimit
-  8-Mar-1999  FMP added tcSpace arg to tpCreate()
-  25-Jun-1998  FMP added v to premax
-  15-Jun-1998  FMP added check for TC_TERM_BLEND before blending next
-  move, in tpRunCycle(); tpSet,GetTermCond()
-  22-Jan-1998  FMP honored return value from tcqCreate, in tpCreate
-  18-Dec-1997  FMP changed to EmcPose
-  15-Nov-1997 FMP set vScale to vRestore in tpClear()
-  5-Sep-1997  WPS modified tpRunCycle to prevent motions from being
-  removed from the queue when later smaller motions complete before
-  an earlier longer motion, and use the execId of the earliest incomplete
-  motion rather than the last one being blended since this makes the
-  agreement between the motionLine and the position look much better.
-  25-Jul-1997  FMP cleared execId after done
-  16-Jul-1997  FMP added ids
-  14-Jul-1997  FMP added C posemath changes (PM_POSE -> EmcPose)
-  13-Jun-1997  FMP added call to tcInit in tpAddMotion; added
-  tpSetVscale, tpIsPaused
-  2-Apr-1997  FMP changed MOTION_QUEUE to TC_QUEUE
-  13-Mar-1997  FMP added return value to init
-  29-Jan-1997  FMP changed vec.h to posemath.h
-  23-Jan-1997  FMP created from tc.c
-*/
+/********************************************************************
+* Description: tp.c
+*   Trajectory planner based on TC elements
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifdef ULAPI
 #include <stdio.h>
@@ -53,16 +25,6 @@
 #include "posemath.h"
 #include "tc.h"
 #include "tp.h"
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
 {

@@ -1,25 +1,24 @@
+/********************************************************************
+* Description: emcmotlog.h
+*   Data logging declarations
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef EMCMOTLOG_H
 #define EMCMOTLOG_H
 
-/*
-  Data logging declarations
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
-
 #include "posemath.h"		/* PmCartesian */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) emcmotlog_h[] =
-    "$Id$";
 
 /* max log points allowed */
 /* Note: this will strongly affect the requirements for shared memory */

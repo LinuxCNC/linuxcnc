@@ -4,7 +4,6 @@
 *
 * Author:
 * License: GPL Version 2
-* Created on:
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
@@ -13,7 +12,6 @@
 * $Revision$
 * $Author$
 * $Date$
-*
 ********************************************************************/
 
 /* This file is a mess! */

@@ -1,11 +1,25 @@
+/********************************************************************
+* Description: canon.hh
+*
+*   Derived from a work by Thomas Kramer
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef CANON_HH
 #define CANON_HH
 
 #include <stdio.h>		// FILE
 
 /*
-  canon.hh
-
   This is the header file that all applications that use the
   canonical commands for three- to six-axis machining should include.
 

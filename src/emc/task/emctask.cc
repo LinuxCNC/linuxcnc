@@ -1,12 +1,20 @@
-/*
-  emctask.cc
-
-  Mode and state management for EMC_TASK class
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: emctask.cc
+*   Mode and state management for EMC_TASK class
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <stdlib.h>
 #include <string.h>		// strncpy()
@@ -17,16 +25,6 @@
 #include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
 #include "rs274ngc.hh"		// the interpreter
 #include "rs274ngc_return.hh"	// NCE_FILE_NOT_OPEN
-
-// ident tag
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;

@@ -1,12 +1,20 @@
-/*
-  emcsh.cc
-
-  Extended-Tcl-based EMC automatic test interface
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: emcsh.cc
+*   Extended-Tcl-based EMC automatic test interface
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <stdio.h>
 #include <string.h>
@@ -24,16 +32,6 @@
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.h"		// INIFILE
 #include "emcmotlog.h"		// EMCLOG_TRIGGER_TYPE, EMCLOG_TRIGGER_VAR
-
-// ident tag
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 /*
   Using emcsh:

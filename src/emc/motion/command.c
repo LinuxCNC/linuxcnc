@@ -41,9 +41,10 @@
 *       with looking up and formating the command.
 *
 *
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
 * Author:
 * License: GPL Version 2
-* Created on:
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.

@@ -1,27 +1,25 @@
-/*
-  emcglb.c
-
-  Globals initialized to values in emccfg.h
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: emcglb.c
+*   Globals initialized to values in emccfg.h
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <string.h>		/* strcpy() */
 #include "emcglb.h"		/* these decls */
 #include "emccfg.h"		/* their initial values */
 #include "emcpos.h"		/* EmcPose */
-
-// ident tag
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 char EMC_INIFILE[EMC_INIFILE_LEN] = DEFAULT_EMC_INIFILE;
 

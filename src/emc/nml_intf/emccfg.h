@@ -1,16 +1,24 @@
+/********************************************************************
+* Description: emccfg.h
+*   Compile-time defaults for EMC application. Defaults are used to
+*   initialize globals in emcglb.c. Include emcglb.h to access these
+*   globals.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef EMCCFG_H
 #define EMCCFG_H
-
-/*
-  emccfg.h
-
-  Compile-time defaults for EMC application. Defaults are used to initialize
-  globals in emcglb.c. Include emcglb.h to access these globals.
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,48 +1,25 @@
+/********************************************************************
+* Description: tc.h
+*   Discriminate-based trajectory planning
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef TC_H
 #define TC_H
 
-/*
-  tc.h
-
-  Discriminate-based trajectory planning
-
-  Modification history:
-
-  5-Jan-2004 MGS used this file to build a motion module for emc2.
-  17-Nov-2000 WPS added tcGetUnitCart(), wMax,wDotMax,rmag,tmag, etc.
-  13-Mar-2000 WPS added unused attribute to ident to avoid 'defined but 
-  not used' compiler warning.
-  8-Jun-1999  FMP added vLimit, tcSetVLimit()
-  8-Mar-1999  FMP added tcSpace arg to tcqCreate()
-  25-Feb-1999  FMP removed changed 'full' to 'allFull' in TC_QUEUE_STRUCT,
-  and added tcqFull(). This was to ameliorate the race condition between
-  the full state and the appending process seeing it, where a couple of
-  motions may be appended before the earlier full state was seen. tcqFull()
-  returns true if the queue is into a margin of safety, but the queue will
-  still work until the allFull limit is reached.
-  25-Jun-1998  FMP added v to premax
-  15-Jun-1998  FMP added termFlag, TC_TERM_COND_STOP,BLEND, tcSet/GetTerm()
-  18-Dec-1997  FMP took out C++ interface
-  18-Dec-1997  FMP changed to PmPose
-  16-Jul-1997  FMP added id
-  14-Jul-1997  FMP added C posemath changes (PM_POSE -> PmPose)
-  17-Jun-1997  FMP added type, TC_LINEAR, TC_CIRCULAR
-  13-Jun-1997  FMP added TC_IS_PAUSED, vScale
-  16-Apr-1997  FMP created from C and C++ versions
-*/
-
 #include "posemath.h"
 #include "emcpos.h"
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) tc_h[] =
-    "$Id$";
 
 /* values for tcFlag */
 #define TC_IS_UNSET -1

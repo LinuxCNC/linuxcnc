@@ -1,3 +1,19 @@
+/********************************************************************
+* Description: rs274ngc.hh
+*
+*   Derived from a work by Thomas Kramer
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef RS274NGC_HH
 #define RS274NGC_HH
 

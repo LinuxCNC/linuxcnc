@@ -1,26 +1,22 @@
+/********************************************************************
+* Description: mmxavg.h
+*   Min-max-average code
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef MMXAVG_H
 #define MMXAVG_H
-
-/*
-  mmxavg.h
-
-  Min-max-average code
-
-Modifications:
-
-  5-Jan-2004 MGS used this file to build a motion module for emc2.
-  13-Mar-2000 WPS added unused attribute to mmxavg_h to avoid 'defined but not used' compiler warning.
-  */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) mmxavg_h[] =
-    "$Id$";
 
 #ifdef __cplusplus
 extern "C" {

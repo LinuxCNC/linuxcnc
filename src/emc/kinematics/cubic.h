@@ -1,21 +1,22 @@
+/********************************************************************
+* Description: cubic.h
+*   Cubic polynomial interpolation code
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef CUBIC_H
 #define CUBIC_H
-
-/*
-   cubic.h
-
-   Cubic polynomial interpolation code
-
-   Modification history:
-
-   5-Jan-2004 MGS used this file to build a motion module for emc2.
-   13-Mar-2000 WPS added unused attribute to cubic_h to avoid 'defined but not used' compiler warning.
-   2-Aug-1999  FMP added cubicOffset()
-   22-Oct-1998  FMP removed '_' from _filled and _needNextPoint
-   18-Dec-1997  FMP took out C++ interface
-   16-Jun-1997  FMP added cubicDrain()
-   16-Apr-1997  FMP created from C and C++ separate versions
-*/
 
 /*
    Coefficients of a cubic polynomial,

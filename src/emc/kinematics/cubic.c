@@ -1,34 +1,26 @@
-/* 
-     cubic.c
-
-     Cubic spline interpolation code
-
-     Analysis taken in part from Curtis S. Wilson, "How Close Do You Have to
-     Specify Points In a Contouring Application?", Delta Tau Data Systems
-     (unpublished).
-
-     5-Jan-2004 MGS used this file to build a motion module for emc2.
-     13-Mar-2000 WPS added unused attribute to ident to avoid 'defined but
-     not used' compiler warning.
-     2-Aug-1999 FMP added cubicOffset()
-     28-Jul-1999 FMP took out unnecessary check for cubic filled in
-     cubicAddPoint 22-Oct-1998 FMP added main() section; loaded cubic
-     completely with first point; removed '_' from _filled and _needNextPoint
-     9-Apr-1997 FMP created from C++ version
-*/
+/********************************************************************
+* Description: cubic.c
+*   Cubic spline interpolation code
+*   Analysis taken in part from Curtis S. Wilson, "How Close Do You
+*   Have to Specify Points In a Contouring Application?", Delta Tau
+*   Data Systems (unpublished).
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <math.h>
 #include "cubic.h"
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 #define SEGMENT_TIME_SET 0x01
 #define INTERPOLATION_RATE_SET 0x02

@@ -1,7 +1,20 @@
-/*
-*	New C++ File starts here.
-*	This file should be named emc.ccc
-*/
+/********************************************************************
+* Description: emc.cc
+*
+*   An auto-generated file to handle the update functions and
+*   routing of messages to the correct buffer/processes.
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 // Include all NML, CMS, and RCS classes and functions
 #include "rcs.hh"

@@ -1,30 +1,28 @@
-/*
-  emcmotglb.c
-
-  Compile-time configuration parameters
-
-  Set the values in emcmotcfg.h; these vars will be set to those values
-  and emcmot.c can reference the variables with their defaults. This file
-  exists to avoid having to recompile emcmot.c every time a default is
-  changed.
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: emcmotglb.c
+*   Compile-time configuration parameters
+*
+*   Set the values in emcmotcfg.h; these vars will be set to those values
+*   and emcmot.c can reference the variables with their defaults. This file
+*   exists to avoid having to recompile emcmot.c every time a default is
+*   changed.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "emcmotglb.h"		/* these decls */
 #include "emcmotcfg.h"		/* initial values */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 char EMCMOT_INIFILE[EMCMOT_INIFILE_LEN] = DEFAULT_EMCMOT_INIFILE;
 

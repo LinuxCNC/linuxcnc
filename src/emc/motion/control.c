@@ -3,6 +3,8 @@
 *   emcmotController() is the main loop running at the servo cycle
 *   rate. All state logic and trajectory calcs are called from here.
 *
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
 * Author:
 * License: GPL Version 2
 * Created on:

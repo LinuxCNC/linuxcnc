@@ -1,24 +1,22 @@
-/*
-  usrmotintf.c
-
-  Defs for interface functions (init, exit, read, write) for user
-  processes which communicate with the real-time motion controller
-  in emcmot.c
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
+/********************************************************************
+* Description: usrmotintf.c
+*   Defs for interface functions (init, exit, read, write) for user
+*   processes which communicate with the real-time motion controller
+*   in emcmot.c
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <sys/stat.h>
 #include <string.h>		/* memcpy() */

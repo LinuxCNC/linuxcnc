@@ -1,14 +1,22 @@
-/*
-  emcops.cc
-
-  Initialization and other ad hoc functions for NML. This complements the
-  auto-generated emc.cc, which contains all the rote update methods for
-  the message classes.
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: emcops.cc
+*   Initialization and other ad hoc functions for NML. This complements
+*   the auto-generated emc.cc, which contains all the rote update
+*   methods for the message classes.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "emc.hh"
 

@@ -1,18 +1,20 @@
-/*
-  taskintf.cc
-
-  Interface functions for motion.
-
-  Modification history:
-
-  2-Feb-2004 P.C. Split out the IO calls and put them in a seperate
-  source file - This is where the differences between bridgeport
-  and minimill task are.
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  Derived from bridgeporttaskintf.cc - There is very little difference
-  between this file and minimilltaskintf.cc, so we will use this one in
-  preference.
-*/
+/********************************************************************
+* Description: taskintf.cc
+*   Interface functions for motion.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <math.h>		// isnan()
 #include <float.h>		// DBL_MAX
@@ -25,16 +27,6 @@
 
 #include "iniaxis.hh"
 #include "initraj.hh"
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 /* define this to catch isnan errors, for rtlinux FPU register 
    problem testing */

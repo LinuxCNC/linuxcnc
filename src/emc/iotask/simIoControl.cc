@@ -5,19 +5,19 @@
 *           Use this as a template for real IO controllers once a
 *           HAL interface has been implimented.
 *
-* Author: 
-* Created at: Mon Feb 23 11:41:51 UTC 2004
-* Computer: Babylon
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
 * System: Linux
 *    
-* Copyright (c) 2004 root  All rights reserved.
+* Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
 * $Revision$
 * $Author$
 * $Date$
 ********************************************************************/
-
 
 #include <stdio.h>
 #include <string.h>

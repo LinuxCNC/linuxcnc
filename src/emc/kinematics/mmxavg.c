@@ -1,27 +1,22 @@
-/*
-  mmxavg.c
-
-  Min-max-average code
-
-  Modification history:
-
-  5-Jan-2004 MGS used this file to build a motion module for emc2.
-  14-Jun-2001 WPS put in checks for NULL pointers and paranoid index checks.
-  13-Mar-2000 WPS added unused attribute to pid_h to avoid 'defined but not used' compiler warning.
-  10-Oct-1997  FMP created
-  */
+/********************************************************************
+* Description: mmxavg.c
+*   Min-max-average code
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "mmxavg.h"		/* these declarations */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 #ifndef MAIN
 /* MAIN not defined-- compile functions only, no main() */

@@ -1,39 +1,20 @@
-/*
-  usrmot.c
-
-  Linux user-level process for communicating with RT motion controller
-
-  Modification history:
-
-  16-Aug-2000  FMP added alter
-  14-Aug-2000  FMP moved printing of status struct sizes to be first
-  8-Aug-2000  FMP added loading the comp table; changed INPUTLEN from
-  80 to 256
-  28-Jul-2000 WPS added stuff in ifdef ENABLE_PROBING
-  28-Jun-2000 WPS added __attribute__((unused)) to ident.
-  3-Nov-1999  FMP added logging of pos-vel
-  8-Oct-1999  FMP took out call to emcGetArgs() since it's EMC-level and
-  not focused on motion, as the code in here is.
-  2-Sep-1999  FMP called emcGetArgs() instead of duplicating its code here
-  20-Aug-1998  FMP took log size out of call to usrmotDumpLog
-  8-Jul-1998  FMP added -gini override for EMCMOT_INIFILE
-  29-Jun-1998  FMP changed %d to %i so -shm command line arg can be in
-  various bases
-  26-Mar-1998  FMP replaced usleep() with esleep()
-  3-Mar-1998  FMP added -shm to main() process
-  2-Mar-1998  FMP printed sizeof error struct at main beginning
-  6-Feb-1998  FMP added log types
-  10-Oct-1997  FMP added getinput() non-blocking read on stdin
-  2-Oct-1997  FMP added offset to iscale,oscale
-  18-Sep-1997  FMP removed piezo hack
-  21-Aug-1997  FMP added input,output scale
-  1-Aug-1997  FMP added "counts" to set counts per unit
-  10-Jul-1997  FMP pulled out read, write, init, exit, log functions
-  into usrmotintf.c so that other programs (e.g., nce) could use them
-  2-May-1997  FMP added logging; shared memory
-  17-Apr-1997  FMP added computeTime; interp rate to "set"
-  16-Apr-1997  FMP created
-  */
+/********************************************************************
+* Description: usrmot.c
+*   Linux user-level process for communicating with RT motion controller
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,16 +29,6 @@
 #include "posemath.h"
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_LEN,NUM */
 #include "emcmotglb.h"		/* SHMEM_KEY */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 /* size of input buffer */
 #define INPUTLEN 256

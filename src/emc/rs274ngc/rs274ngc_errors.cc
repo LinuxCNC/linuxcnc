@@ -1,3 +1,19 @@
+/********************************************************************
+* Description: rs274ngc_errors.cc
+*
+*   Derived from a work by Thomas Kramer
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 char * _rs274ngc_errors[] = {
 /*   0 */ "No error",
 /*   1 */ "No error",
