@@ -159,12 +159,62 @@ if [ ! -f $RTDIR/rtl.mk ] ; then
     fi
 fi
 
-# try to find out where man files are stored on this system
-# man -w prints the search path used by man, we take the first dir
-MANDIR=$(man -w | awk -F: '{ print $1 }')
+# try to find out where man files are stored on this system.
+# 'man -w' returns the search paths used by older versions of man,
+# but not with man-2.4.1... Use manpath instead to print the search
+# path used by man - We take the first directory listed.
+MANDIR=$(manpath | awk -F: '{ print $1 }')
 # test the result, make sure it's a directory
 if [ ! -d $MANDIR ] ; then
     MANDIR=
+else
+    echo "man pages will be installed in $MANDIR"
+fi
+
+# Search for the tcl/tk headers.
+TCL_VER=$(tcl -c "echo [info tclversion]")
+if [ "$TCL_VER" != "" ] ; then
+  echo "Found tcl$TCL_VER installed"
+  TCL=$(find /usr/include/ -maxdepth 2 -name "tcl.h" 2> /dev/null)
+      for tcl in $TCL ; do
+          TCL=$(echo $tcl | grep tcl.h | sed s^/tcl.h^^g)
+      done
+  if [ "$TCL" = "" ] ; then
+      echo "tcl headers not found."
+  else
+      echo "tcl headers found in $TCL"
+      TCL_LIB="-ltcl$TCL_VER"
+    if [ "$TCL" != "/usr/include" ] ; then
+        # No point in including the default dir...
+        TCL_FLAGS="-I$TCL"
+    fi
+  fi
+  TK=$(find /usr/include/ -maxdepth 2 -name "tk.h" 2> /dev/null)
+      for tk in $TK ; do
+          TK=$(echo $tk | grep tk.h | sed s^/tk.h^^g)
+      done
+  if [ "$TK" = "" ] ; then
+      echo "tk headers not found."
+  else
+      echo "tk headers found in $TK"
+      TCL_LIB="$TCL_LIB -ltk$TCL_VER"
+    if [ "$TK" != "/usr/include" ] ; then
+        TCL_FLAGS="$TCL_FLAGS -I$TK"
+    fi
+  fi
+  TCLX=$(find /usr/include/ -maxdepth 2 -name "tclExtend.h" 2> /dev/null)
+      for tclx in $TCLX ; do
+          TCLX=$(echo $tclx | grep tclExtend.h | sed s^/tclExtend.h^^g)
+      done
+  if [ "$TCLX" = "" ] ; then
+      echo "tclx headers not found."
+  else
+      echo "tclx headers found in $TCLX"
+      TCL_LIB="$TCL_LIB -ltclx$TCL_VER -ltkx$TCL_VER"
+    if [ "$TCLX" != "/usr/include" ] ; then
+        TCL_FLAGS="$TCL_FLAGS -I$TCLX"
+    fi
+  fi
 fi
 
 # Go on to write out the Makefile.inc
@@ -270,6 +320,15 @@ else
     echo "GTK_CFLAGS = " >> Makefile.inc
     echo "GTK_LIBS = " >> Makefile.inc
 fi
+
+echo >> Makefile.inc
+if [ $TCL_VER != "" ] ; then
+    echo "# local flags for Tcl/Tk" >> Makefile.inc
+    echo "TCL_VERSION = $TCL_VER" >> Makefile.inc
+    echo "TCL_CFLAGS = $TCL_FLAGS" >> Makefile.inc
+    echo "TCL_LIBS = $TCL_LIB" >> Makefile.inc
+fi
+
 echo >> Makefile.inc
 echo "# Automatically generated default options." >> Makefile.inc
 echo >> Makefile.inc
