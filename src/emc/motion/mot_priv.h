@@ -138,7 +138,6 @@ extern emcmot_debug_t *emcmotDebug;
 extern emcmot_internal_t *emcmotInternal;
 extern emcmot_error_t *emcmotError;
 extern emcmot_log_t *emcmotLog;
-extern emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS];
 extern emcmot_log_struct_t ls;
 
 /***********************************************************************

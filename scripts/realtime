@@ -98,7 +98,7 @@ CheckMem(){
 }
 
 Load(){
-    if [ $RTAI -eq 3 ] ; then
+    if [ "$RTAI" = "3" ] ; then
 	if [ "$VERBOSE" = "1" ] ; then
 	    ( cd $EMC2_HOME/scripts ; $RTAI_LOAD --verbose )
 	else

@@ -77,8 +77,13 @@ MODULE_PARM_DESC(traj_period_nsec, "trajectory planner period (nsecs)");
 /* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
 emcmot_hal_data_t *emcmot_hal_data = 0;
 
-/* pointer to array of joint structs with all joint data */
+/* pointer to joint data */
 emcmot_joint_t *joints = 0;
+
+#ifndef STRUCTS_IN_SHMEM
+/* allocate array for joint data */
+emcmot_joint_t joint_array[EMCMOT_MAX_AXIS];
+#endif
 
 int mot_comp_id;		/* component ID for motion module */
 
@@ -96,19 +101,17 @@ int kinType = 0;
   emcmotStatus points to emcmotStruct->status,
   emcmotError points to emcmotStruct->error, and
   emcmotLog points to emcmotStruct->log.
-  emcmotComp[] points to emcmotStruct->comp[].
  */
-emcmot_struct_t *emcmotStruct;
+emcmot_struct_t *emcmotStruct = 0;
 /* ptrs to either buffered copies or direct memory for
    command and status */
-emcmot_command_t *emcmotCommand;
-emcmot_status_t *emcmotStatus;
-emcmot_config_t *emcmotConfig;
-emcmot_debug_t *emcmotDebug;
-emcmot_internal_t *emcmotInternal;
-emcmot_error_t *emcmotError;	/* unused for RT_FIFO */
-emcmot_log_t *emcmotLog;	/* unused for RT_FIFO */
-emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS];	/* unused for RT_FIFO */
+emcmot_command_t *emcmotCommand = 0;
+emcmot_status_t *emcmotStatus = 0;
+emcmot_config_t *emcmotConfig = 0;
+emcmot_debug_t *emcmotDebug = 0;
+emcmot_internal_t *emcmotInternal = 0;
+emcmot_error_t *emcmotError = 0;	/* unused for RT_FIFO */
+emcmot_log_t *emcmotLog = 0;	/* unused for RT_FIFO */
 emcmot_log_struct_t ls;
 
 /***********************************************************************
@@ -735,11 +738,11 @@ static int init_comm_buffers(void)
     emcmot_config_change();
 
     /* init pointer to joint structs */
-    /* FIXME - the structs are currently embedded in the debug
-       struct, but eventually may move out of shared memory
-       completely
-    */
+#ifdef STRUCTS_IN_SHMEM
     joints = &(emcmotDebug->joints[0]);
+#else
+    joints = &(joint_array[0]);
+#endif
 
     /* init per-axis stuff */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
@@ -765,8 +768,6 @@ static int init_comm_buffers(void)
 	/* init compensation struct - leave out the avgint, nominal, forward,
 	   and reverse, since these can't be zero and the total flag prevents
 	   their use anyway */
-	/* FIXME - is this pointer needed? */
-	emcmotComp[joint_num] = &(joint->comp);
 	joint->comp.total = 0;
 	joint->comp.alter = 0.0;
 

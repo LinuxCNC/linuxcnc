@@ -62,6 +62,17 @@ to another.
 
 */
 
+/* the following line can be used to control where some of the
+   "internal" motion controller data is stored.  By default,
+   it is stored in staticlly allocated kernel memory.  However,
+   if STRUCTS_IN_SHMEM is defined, it will be stored in the
+   emcmotStruct shared memory area, for debugging purposes.
+*/
+
+// #define STRUCTS_IN_SHMEM
+
+
+
 #ifndef MOTION_H
 #define MOTION_H
 
@@ -378,7 +389,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    to be in shared memory (but it can, if desired for debugging
    reasons).  The portions of this structure that are considered
    "status" and need to be made available to user space are
-   copied from to a much smaller struct called emcmot_joint_status_t
+   copied to a much smaller struct called emcmot_joint_status_t
    which is located in shared memory.
 
 */
@@ -714,8 +725,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int stepping;
 	int idForStep;
 
-	/* FIXME - move out of shmem to kernel memory eventually */
-	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* all joint data */
+#ifdef STRUCTS_IN_SHMEM
+	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* joint data */
+#endif
 
 	/* min-max-avg structs for traj and servo cycles */
 	MMXAVG_STRUCT tMmxavg;
