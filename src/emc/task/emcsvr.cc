@@ -1,12 +1,20 @@
-/*
-  emcsvr.cc
-
-  Network server for EMC NML
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: emcsvr.cc
+*   Network server for EMC NML
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <stdio.h>		// sscanf()
 #include <math.h>		// fabs()
@@ -17,15 +25,6 @@
 #include "emc.hh"		// EMC NML
 #include "emcglb.h"		// emcGetArgs(), EMC_NMLFILE
 
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 static int iniLoad(const char *filename)
 {

@@ -1,10 +1,23 @@
-/************************************************************************
-* File: recvn.h
-* Purpose: Provides a header file for the recvn function from
-* the book Advanced Programming in the UNIX Environment by Richard Stevens.
-* The writen function calls the recv function repeatedly until n bytes
-* have been recv from the file descriptor.
-*************************************************************************/
+/********************************************************************
+* Description: recvn.c
+*   Provides a C file for the recvn function from the book Advanced
+*   Programming in the UNIX Environment by Richard Stevens.
+*   The function is called repeatedly until n bytes have been received
+*   from the file descriptor.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef RECVN_H
 #define RECVN_H

@@ -127,15 +127,15 @@ MODULE_PARM_DESC(cfg, "config string"); */
 */
 
 typedef struct {
-    hal_u8_t *data_out;    /* ptrs for output */
+    hal_u8_t *data_out;		/* ptrs for output */
 } skeleton_t;
 
 /* pointer to array of skeleton_t structs in shared memory, 1 per port */
 static skeleton_t *port_data_array;
 
 /* other globals */
-static int comp_id;             /* component ID */
-static int num_ports;           /* number of ports configured */
+static int comp_id;		/* component ID */
+static int num_ports;		/* number of ports configured */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -167,7 +167,8 @@ int rtapi_app_main(void)
     /* STEP 1: initialise the driver */
     comp_id = hal_init("SKELETON");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "SKELETON: ERROR: hal_init() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "SKELETON: ERROR: hal_init() failed\n");
 	return -1;
     }
 
@@ -182,17 +183,21 @@ int rtapi_app_main(void)
 
     /* STEP 3: export the pin(s) */
     rtapi_snprintf(name, HAL_NAME_LEN, "skeleton.%d.pin-%02d-out", 1, 1);
-	retval = hal_pin_u8_new(name, HAL_RD, &(port_data_array->data_out), comp_id);
+    retval =
+	hal_pin_u8_new(name, HAL_RD, &(port_data_array->data_out), comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SKELETON: ERROR: port %d var export failed with err=%i\n", n + 1, retval);
+	    "SKELETON: ERROR: port %d var export failed with err=%i\n", n + 1,
+	    retval);
 	hal_exit(comp_id);
 	return -1;
     }
 
     /* STEP 4: export write function */
     rtapi_snprintf(name, HAL_NAME_LEN, "skeleton.%d.write", n + 1);
-    retval = hal_export_funct(name, write_port, &(port_data_array[n]), 0, 0,comp_id);
+    retval =
+	hal_export_funct(name, write_port, &(port_data_array[n]), 0, 0,
+	comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SKELETON: ERROR: port %d write funct export failed\n", n + 1);
@@ -225,7 +230,7 @@ int main()
     int n, retval;
     hal_s8_t *write_funct_flags;
     num_ports = 1;
-	n = 0;
+    n = 0;
 
     /* ask linux for permission to use the I/O ports */
     retval = iopl(3);
@@ -238,7 +243,8 @@ int main()
     /* STEP 1: initialise the driver */
     comp_id = hal_init("SKELETON");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "SKELETON: ERROR: hal_init() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "SKELETON: ERROR: hal_init() failed\n");
 	return -1;
     }
 
@@ -253,10 +259,12 @@ int main()
 
     /* STEP 3: export the pin(s) */
     rtapi_snprintf(name, HAL_NAME_LEN, "skeleton.%d.pin-%02d-out", 1, 1);
-	retval = hal_pin_u8_new(name, HAL_RD, &(port_data_array->data_out), comp_id);
+    retval =
+	hal_pin_u8_new(name, HAL_RD, &(port_data_array->data_out), comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SKELETON: ERROR: port %d var export failed with err=%i\n", n + 1, retval);
+	    "SKELETON: ERROR: port %d var export failed with err=%i\n", n + 1,
+	    retval);
 	hal_exit(comp_id);
 	return -1;
     }
@@ -265,14 +273,15 @@ int main()
     write_funct_flags = hal_malloc((num_ports + 1) * sizeof(hal_s8_t));
     if (write_funct_flags == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-		"SKELETON: ERROR: hal_malloc() failed\n");
+	    "SKELETON: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
 
     /* STEP 4b: export read function parameter */
     rtapi_snprintf(name, HAL_NAME_LEN, "skeleton.%d.write", n + 1);
-    retval = hal_param_s8_new(name, HAL_RD, &write_funct_flags[n + 1], comp_id);
+    retval =
+	hal_param_s8_new(name, HAL_WR, &write_funct_flags[n + 1], comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SKELETON: ERROR: port %d write funct param failed\n", n + 1);
@@ -287,10 +296,9 @@ int main()
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
 
-
     /*********************************************/
-    /* STEP 6: main loop - loops forever until   */
-    /*         SIGINT (ctrl-C) or SIGTERM (kill) */
+    /* STEP 6: main loop - loops forever until */
+    /* SIGINT (ctrl-C) or SIGTERM (kill) */
     /*********************************************/
     while (!done) {
 

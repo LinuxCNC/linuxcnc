@@ -1,28 +1,26 @@
-/*
-  emcags.cc
-
-  Globals initialized to values in emccfg.h
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: emcargs.cc
+*   Globals initialized to values in emccfg.h
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <string.h>		/* strcpy() */
 #include <stdio.h>		/* fgets() */
 #include "rcs.hh"		/* nmlSetHostAlias() */
 #include "emcglb.h"		/* these decls */
 #include "emccfg.h"		/* their initial values */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 int emcGetArgs(int argc, char *argv[])
 {

@@ -1,12 +1,9 @@
-#ifndef MOT_PRIV_H
-#define MOT_PRIV_H
 /********************************************************************
 * Description: mot_priv.h
 *   Macros and declarations local to the realtime sources.
 *
 * Author: 
 * License: GPL Version 2
-* Created on:
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -17,6 +14,8 @@
 * $Date$
 *
 ********************************************************************/
+#ifndef MOT_PRIV_H
+#define MOT_PRIV_H
 
 /* function definitions */
 extern void emcmot_config_change(void);

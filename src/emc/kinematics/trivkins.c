@@ -1,28 +1,22 @@
-/*
-  trivkins.c
-
-  Trivial kinematics for 3 axis Cartesian machine
-
-  Modification history:
-
-  13-Mar-2000 WPS added unused attribute to ident to avoid 'defined but not used' compiler warning.
-  11-Aug-1999  FMP added kinematicsType()
-  9-Aug-1999  FMP added kinematicsHome(), changed naming from invK to kinI
-  18-Dec-1997  FMP changed to PmPose
-  16-Oct-1997  FMP created
-  */
+/********************************************************************
+* Description: trivkins.c
+*   Trivial kinematics for 3 axis Cartesian machine
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "motion.h"		/* these decls */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 int kinematicsForward(const double *joints,
     EmcPose * pos,

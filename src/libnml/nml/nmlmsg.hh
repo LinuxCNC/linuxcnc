@@ -1,16 +1,23 @@
-/*************************************************************************
-* File: nmlmsg.hh                                                        *
-* Authors: Fred Proctor, Will Shackleford                                *
-* Purpose: C++ Header file for the Neutral Manufacturing Language (NML). *
-*          Includes:                                                     *
-*                    1. NMLmsg Class.                                    *
-*                    2. NMLTYPE typedef.                                 *
-*************************************************************************/
+/********************************************************************
+* Description: nmlmsg.hh
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef NMLMSG_HH
 #define NMLMSG_HH
 
-/* Include Files */
 #ifdef __cplusplus
 extern "C" {
 #endif

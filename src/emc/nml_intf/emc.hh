@@ -1,31 +1,28 @@
+/********************************************************************
+* Description: emc.hh
+*   Declarations for EMC NML vocabulary
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef EMC_HH
 #define EMC_HH
-
-/*
-  emc.hh
-
-  Declarations for EMC NML vocabulary
-
-  Modification history:
-  
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
 
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, etc.
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
 #include "emcglb.h"		// EMC_AXIS_MAX
 #include "emcpos.h"
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) emc_hh[] =
-    "$Id$";
 
 // ---------------------
 // EMC TYPE DECLARATIONS

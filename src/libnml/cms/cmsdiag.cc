@@ -1,3 +1,19 @@
+/********************************************************************
+* Description: cmsdiag.cc
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "cmsdiag.hh"
 #include "rcsversion.h"

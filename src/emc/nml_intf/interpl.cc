@@ -1,15 +1,22 @@
-
-/*
-  interplist.cc
-
-  Mechanism for queueing NML messages, used by the interpreter and
-  canonical interface to report list of NML statements from program
-  files to HME.
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: interpl.cc
+*   Mechanism for queueing NML messages, used by the interpreter and
+*   canonical interface to report list of NML statements from program
+*   files to HME.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 extern "C" {
 #include <string.h>             /* memcpy() */

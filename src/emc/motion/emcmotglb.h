@@ -1,23 +1,22 @@
+/********************************************************************
+* Description: emcmotglb.h
+*   Declarations for globals whose default values are found in emcmotcfg.h
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef EMCMOTGLB_H
 #define EMCMOTGLB_H
-
-/*
-  declarations for globals whose default values are found in emcmotcfg.h
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) emcmotglb_h[] =
-    "$Id$";
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,14 +1,20 @@
-/*
-  iotaskintf.cc
-
-  NML interface functions for IO
-
-  Modification history:
-
-  2-Feb-2004 P.C. Split out the IO calls from taskintf.cc and put them
-  this source file - This is where the differences between bridgeport
-  and minimill task are.
-*/
+/********************************************************************
+* Description: iotaskintf.cc
+*   NML interface functions for IO
+*
+*   Based on a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <math.h>		// fabs()
 #include <float.h>		// DBL_MAX
@@ -22,16 +28,6 @@
 
 #include "inispin.hh"
 #include "initool.hh"
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 /* FIXME - defining LASER to test motion/IO synch
    Laser currently uses M07 for ON and M09 for OFF - This is incorrect, we

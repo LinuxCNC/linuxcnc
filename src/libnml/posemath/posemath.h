@@ -1,68 +1,78 @@
+/********************************************************************
+* Description: posemath.h
+*   Declarations for pose math library data types and manipulation
+*   functions.
+*
+*   Data types comprise various representations of translation and
+*   rotation quantities, and a 'pose' for representing the location
+*   and orientation of a frame in space relative to a base frame.
+*   Translation representations include cartesian, spherical, and
+*   cylindrical coordinates. All of these contain 3 elements. Rotation
+*   representations include rotation vectors, quaternions, rotation
+*   matrices, Euler angles, and roll-pitch-yaw. These contain at least
+*   3 elements, and may contain more. Only 3 are necessary for the 3
+*   degrees of freedom for either translation or rotation, but some
+*   data representations use more for computational efficiency or
+*   intuition at the expense of storage space.
+*
+*   Types are abbreviated in function naming with a few letters.
+*   Functions exist for conversion between data types, checking for
+*   consistency, normalization into consistency, extracting features
+*   such as size, and arithmetic operations.
+*
+*   Names of data representations are in all capitals, prefixed with
+*   'PM_'. Names of functions are in mixed case, prefixed with 'pm',
+*   with case changes used to indicate new quantities instead of
+*   underscores. Function syntax looks like
+*    int UmQuatRotConvert(PM_QUATERNION, PM_ROTATION_VECTOR *);
+*
+*   The return value is an error code, 0 for success, or a non-zero
+*   error code for failure, for example:
+*
+*    #define PM_ERR -1
+*    #define PM_IMPL_ERR -2
+*
+*   The global variable 'pmErrno' is set to this return value.
+*
+*   C++ classes are used for data types so that operator overloading can
+*   be used to reduce the programming labor. Using the overloaded operator
+*   version of functions loses the integer error code. The global
+*   variable 'pmErrno' can be queried after these operations. This is not
+*   thread-safe or reentrant.
+*
+*   C++ names corresponding to the C structures use case mixing instead
+*   of all caps. Thus, a quaternion in C++ is a PmQuaternion.
+*
+*   The MATH_DEBUG symbol can be defined to include error reporting via
+*   printed errors.
+*
+*   Native efficient C functions exist for the PM_CARTESIAN, PM_QUATERNION,
+*   and PM_POSE types. Constructors in all the classes have been defined
+*   to convert to/from PM_CARTESIAN and any other translation type, and
+*   to convert to/from PM_QUATERNION and any other rotation type. This means
+*   that if no explicit C functions exist for another type, conversions
+*   to the corresponding native type will occur automatically. If more
+*   efficiency is desired for a particular type, C functions to handle the
+*   operations should be coded and the overloaded C++ functions or operators
+*   should be added.
+*
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
+
 #ifndef POSEMATH_H
 #define POSEMATH_H
-
-/*
-  posemath.h
-
-  Declarations for pose math library data types and manipulation functions.
-
-  Data types comprise various representations of translation and rotation
-  quantities, and a 'pose' for representing the location and orientation
-  of a frame in space relative to a base frame. Translation representations
-  include cartesian, spherical, and cylindrical coordinates. All of these
-  contain 3 elements. Rotation representations include rotation vectors,
-  quaternions, rotation matrices, Euler angles, and roll-pitch-yaw. These
-  contain at least 3 elements, and may contain more. Only 3 are necessary
-  for the 3 degrees of freedom for either translation or rotation, but some
-  data representations use more for computational efficiency or intuition
-  at the expense of storage space.
-
-  Types are abbreviated in function naming with a few letters. Functions
-  exist for conversion between data types, checking for consistency,
-  normalization into consistency, extracting features such as size, and
-  arithmetic operations.
-
-  Names of data representations are in all capitals, prefixed with 'PM_'.
-  Names of functions are in mixed case, prefixed with 'pm', with case changes
-  used to indicate new quantities instead of underscores. Function syntax
-  looks like
-
-    int pmQuatRotConvert(PM_QUATERNION, PM_ROTATION_VECTOR *);
-
-  The return value is an error code, 0 for success, or a non-zero error
-  code for failure, for example:
-
-    #define PM_ERR -1
-    #define PM_IMPL_ERR -2
-
-  The global variable 'pmErrno' is set to this return value.
-
-  C++ classes are used for data types so that operator overloading can
-  be used to reduce the programming labor. Using the overloaded operator
-  version of functions loses the integer error code. The global
-  variable 'pmErrno' can be queried after these operations. This is not
-  thread-safe or reentrant.
-
-  C++ names corresponding to the C structures use case mixing instead
-  of all caps. Thus, a quaternion in C++ is a PmQuaternion.
-
-  The MATH_DEBUG symbol can be defined to include error reporting via
-  printed errors.
-
-  Native efficient C functions exist for the PM_CARTESIAN, PM_QUATERNION,
-  and PM_POSE types. Constructors in all the classes have been defined
-  to convert to/from PM_CARTESIAN and any other translation type, and
-  to convert to/from PM_QUATERNION and any other rotation type. This means
-  that if no explicit C functions exist for another type, conversions
-  to the corresponding native type will occur automatically. If more
-  efficiency is desired for a particular type, C functions to handle the
-  operations should be coded and the overloaded C++ functions or operators
-  should be added.
-
-  Modification History:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-*/
 
 #ifdef __cplusplus
 

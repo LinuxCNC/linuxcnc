@@ -1,15 +1,24 @@
+/********************************************************************
+* Description: interpl.hh
+*   Mechanism for building lists of arbitrary NML messages, used by
+*   the canonical interface and interpreter to pass planned sequences
+*   to the HME.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef INTERP_LIST_HH
 #define INTERP_LIST_HH
-
-/*
-  Mechanism for building lists of arbitrary NML messages, used by
-  the canonical interface and interpreter to pass planned sequences
-  to the HME.
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
 
 #define MAX_NML_COMMAND_SIZE 1000
 

@@ -1,25 +1,23 @@
-/*
-  emcmotutil.c
-
-  Utility functions shared between motion and other systems
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: emcmotutil.c
+*   Utility functions shared between motion and other systems
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "motion.h"		/* these decls */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 int emcmotErrorInit(EMCMOT_ERROR * errlog)
 {

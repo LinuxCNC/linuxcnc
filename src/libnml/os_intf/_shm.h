@@ -1,10 +1,25 @@
+/********************************************************************
+* Description: _shm.h
+*   Purely local shared memory functions-- converting System V
+*   shared memory to POSIX shared memory required something
+*   intermediate in System V IPC that returned a file descriptor
+*   suitable for mmap(), and that something doesn't exist.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef _SHAREDMEM_H
 #define _SHAREDMEM_H
-
-/* Purely local shared memory functions-- converting System V shared
-   memory to POSIX shared memory required something intermediate in
-   System V IPC that returned a file descriptor suitable for mmap(),
-   and that something doesn't exist. */
 
 #include <sys/types.h>		/* key_t */
 #include <stddef.h>		/* size_t */

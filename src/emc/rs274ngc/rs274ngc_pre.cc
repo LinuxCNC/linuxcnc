@@ -1,3 +1,19 @@
+/********************************************************************
+* Description: rs274ngc_pre.cc
+*
+*   Derived from a work by Thomas Kramer
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /* rs274ngc.cc
 
 This rs274ngc.cc file contains the source code for (1) the kernel of

@@ -442,7 +442,7 @@ static gboolean dialog_set_offset(int chan_num)
 
 static void offset_changed(GtkEditable * editable, gchar * buf)
 {
-    char *text;
+    const char *text;
 
     text = gtk_entry_get_text(GTK_ENTRY(ctrl_usr->vert.offset_entry));
     strncpy(buf, text, BUFLEN);

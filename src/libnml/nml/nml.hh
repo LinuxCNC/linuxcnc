@@ -1,18 +1,23 @@
-/*************************************************************************
-* File: nml.hh                                                           *
-* Authors: Fred Proctor, Will Shackleford                                *
-* Purpose: C++ Header file for the Neutral Manufacturing Language (NML). *
-*          Includes:                                                     *
-*               1. class NML.                                            *
-*               2. typedef for NMLTYPE.                                  *
-*               3. typedef for NML_FORMAT_PTR                            *
-*               4. enum NML_ERROR_TYPE                                   *
-*************************************************************************/
+/********************************************************************
+* Description: nml.hh
+*   C++ file for the  Neutral Manufacturing Language (NML).
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef NML_HH
 #define NML_HH
-
-/* Include Files */
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,14 +1,22 @@
-/***************************************************************************
-* File: cms_up.cc
-* Author(s): Will Shackleford, Fred Proctor
-* Purpose: Provides the interface to CMS used by NML update functions including
-* a CMS update function for all the basic C data types.
+/********************************************************************
+* Description: cms_up.cc
+*   Provides the interface to CMS used by NML update functions
+*   including a CMS update function for all the basic C data types.
 *
-* NOTES:
-* There are no update functions for enumerations, or pointers.
-****************************************************************************/
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
-/* Includes */
 #include "cms.hh"		/* class CMS */
 #include "cms_up.hh"		/* class CMS_UPDATER */
 #include "rcs_print.hh"		/* rcs_print_error() */
@@ -21,6 +29,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
 CMS_UPDATER::CMS_UPDATER(CMS * _cms_parent, int create_encoded_data,
     long _neutral_size_factor):
   /**********************************************

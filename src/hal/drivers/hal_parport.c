@@ -31,7 +31,7 @@
     'parport.<portnum>.pin-<pinnum>-in' and
     'parport.<portnum>.pin-<pinnum>-in-not'.
 
-    <portnum> is the port number, starting from 1.  <pinnum> is
+    <portnum> is the port number, starting from zero.  <pinnum> is
     the physical pin number on the DB-25 connector.
 
     The realtime version of the driver exports two HAL functions for
@@ -239,24 +239,24 @@ int rtapi_app_main(void)
     /* export functions for each port */
     for (n = 0; n < num_ports; n++) {
 	/* make read function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.read", n + 1);
+	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.read", n);
 	/* export read function */
 	retval = hal_export_funct(name, read_port, &(port_data_array[n]),
 	    0, 0, comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PARPORT: ERROR: port %d read funct export failed\n", n + 1);
+		"PARPORT: ERROR: port %d read funct export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
 	/* make write function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n + 1);
+	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n);
 	/* export write function */
 	retval = hal_export_funct(name, write_port, &(port_data_array[n]),
 	    0, 0, comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PARPORT: ERROR: port %d write funct export failed\n", n + 1);
+		"PARPORT: ERROR: port %d write funct export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
@@ -266,7 +266,7 @@ int rtapi_app_main(void)
 	port_data_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PARPORT: ERROR: read all funct export failed\n", n + 1);
+	    "PARPORT: ERROR: read all funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -274,7 +274,7 @@ int rtapi_app_main(void)
 	port_data_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PARPORT: ERROR: write all funct export failed\n", n + 1);
+	    "PARPORT: ERROR: write all funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -328,26 +328,26 @@ int main(int argc, char *argv[])
     /* export function run/stop parameters for each port */
     for (n = 0; n < num_ports; n++) {
 	/* make read function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.read", n + 1);
+	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.read", n);
 	/* export read function parameter */
 	retval =
 	    hal_param_s8_new(name, HAL_RD_WR, &read_funct_flags[n + 1],
 	    comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PARPORT: ERROR: port %d read funct param failed\n", n + 1);
+		"PARPORT: ERROR: port %d read funct param failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
 	/* make write function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n + 1);
+	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n);
 	/* export read function parameter */
 	retval =
 	    hal_param_s8_new(name, HAL_RD_WR, &write_funct_flags[n + 1],
 	    comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PARPORT: ERROR: port %d write funct param failed\n", n + 1);
+		"PARPORT: ERROR: port %d write funct param failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
 	comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PARPORT: ERROR: read all funct param failed\n", n + 1);
+	    "PARPORT: ERROR: read all funct param failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
 	&write_funct_flags[0], comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PARPORT: ERROR: write all funct param failed\n", n + 1);
+	    "PARPORT: ERROR: write all funct param failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -586,7 +586,7 @@ static int pins_and_params(char *argv[])
 	return -1;
     }
     /* have good config info, connect to the HAL */
-    comp_id = hal_init("parport");
+    comp_id = hal_init("hal_parport");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "PARPORT: ERROR: hal_init() failed\n");
 	return -1;
@@ -605,10 +605,10 @@ static int pins_and_params(char *argv[])
 	port_data_array[n].base_addr = port_addr[n];
 	port_data_array[n].data_dir = data_dir[n];
 	/* export all vars */
-	retval = export_port(n + 1, &(port_data_array[n]));
+	retval = export_port(n, &(port_data_array[n]));
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PARPORT: ERROR: port %d var export failed\n", n + 1);
+		"PARPORT: ERROR: port %d var export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
@@ -653,7 +653,14 @@ static unsigned short parse_port_addr(char *cp)
 
 static int export_port(int portnum, parport_t * port)
 {
-    int retval;
+    int retval, msg;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     retval = 0;
     /* declare input pins (status port) */
@@ -700,6 +707,8 @@ static int export_port(int portnum, parport_t * port)
 	port->control_out, port->control_inv, 2);
     retval += export_output_pin(portnum, 17,
 	port->control_out, port->control_inv, 3);
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
     return retval;
 }
 

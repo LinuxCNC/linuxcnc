@@ -1,29 +1,40 @@
-/*****************************************************************************
-* File: cms_in.cc
-* Author(s): Will Shackleford
-* Purpose: Provides the internal interface of CMS to the buffer.
+/********************************************************************
+* Description: cms_in.cc
+*   Provides the internal interface of CMS to the buffer.
+*   The following applies to the member functions in this file:
+*   They work through a handle to a shared physical memory object.
+*   They should only be called when this process has sole access to
+*   this shared physical memory object. This is normally achieved by
+*   taking a mutual-exclusion semaphore before calling the
+*   internal_access function above from the main_access function
+*   of a derived class.
+*   If they begin with "queue" then they are for buffers where messages
+*   are to be queued, other wise they are for buffers with will have
+*   only one message at a time.
+*   Queuing buffers store a CMS_QUEUING_HEADER at the beginning and a
+*   CMS_HEADER before each message. Non-queuing buffers have only a
+*   CMS_HEADER before the only message.
+*   If they end in "encoded" they are for buffers that will neutrally
+*   encoded in some processor architecture independant data format such
+*   as XDR (eXternal Data Representation), otherwise the buffer must be
+*   in the format used by the same compiler as this is compiled in and
+*   for the same processor architecture and the function name will end
+*   in "raw".
 *
-* NOTES:
-* The following applies to the member functions in this file:
-* They work through a handle to a shared physical memory object.
-* They should only be called when this process has sole access to
- this shared physical memory object. This is normally achieved by taking
- a mutual-exclusion semaphore before calling the internal_access function
- above from the main_access function of a derived class.
-* If they begin with "queue" then they are for buffers where messages are
- to be queued, other wise they are for buffers with will have only 1
- message at a time.*
-* Queuing buffers store a CMS_QUEUING_HEADER at the beginning and a
- CMS_HEADER before each message. Non-queuing buffers have only a
- CMS_HEADER before the only message.
-* If they end in "encoded" they are for buffers that will neutrally encoded
- in some processor architecture independant data format such as XDR
- (eXternal Data Representation), otherwise the buffer must be in the
- format used by the same compiler as this is compiled in and for the same
- processor architecture and the function name will end in "raw".
-*****************************************************************************/
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
-/* Include Files */
 #include "cms.hh"		/* class CMS */
 #include "cmsdiag.hh"		// class CMS_DIAG_PROC_INFO, CMS_DIAG_HEADER
 #include "rcs_print.hh"		/* rcs_print_error() */

@@ -1,20 +1,24 @@
-/*************************************************************************
-* File: cms.hh                                                           *
-* Authors: Fred Proctor, Will Shackleford                                *
-* Purpose: C++ Header file for the Communication Management System (CMS).*
-*          Includes:                                                     *
-*                    1. class CMS.                                       *
-*                    2. class CMS_UPDATER                                *
-*                    2. enum CMS_STATUS.                                 *
-*                    3. enum CMSMODE.                                    *
-*                    4. enum CMSBUFFERTYPE.                              *
-*                    5. enum CMSPROCESSTYPE.                             *
-*************************************************************************/
+/********************************************************************
+* Description: cms.hh
+*   C++ Header file for the Communication Management System (CMS).
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef CMS_HH
 #define CMS_HH
 
-/* Include Files */
 #ifdef __cplusplus
 extern "C" {
 #endif

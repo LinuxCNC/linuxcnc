@@ -1,24 +1,22 @@
-/*
-  emcmotlog.c
-
-  Definitions for EMC data logging functions
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: emcmotlog.c
+*   Definitions for EMC data logging functions
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "emcmotlog.h"
-
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-/* ident tag */
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 int emcmotLogInit(EMCMOT_LOG * log, int type, int size)
 {

@@ -1,16 +1,23 @@
-/*************************************************************************
-* File: cms_cfg.hh                                                    *
-* Authors: Fred Proctor, Will Shackleford                                *
-* Purpose: C++ Header file for the  Communication Management System (CMS)*
-*          Includes:                                                     *
-*                    1. cms_config -- function which reads               *
-*                         configuration file.                            *
-*************************************************************************/
+/********************************************************************
+* Description: cms_cfg.hh
+*   cms_config -- function which reads configuration file.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef CMS_CFG_HH
 #define CMS_CFG_HH
-
-/* Include Files */
 
 #include "cms_user.hh"
 

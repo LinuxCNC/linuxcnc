@@ -1,53 +1,20 @@
-/*
-   tc.c
-
-   Discriminate-based trajectory planning
-
-   Modification history:
-
-   30-Jan-2004 P.C. #idef'ed diagnostic output so that it only prints when
-   compiled for user space.
-   5-Jan-2004 MGS used this file to build a motion module for emc2.
-   13-Mar-2000 WPS added unused attribute to ident to avoid 
-   'defined but not used' compiler warning.
-   23-Sep-1999 WPS replaced printf with rcs_print  which is supported under CE
-   23-Jun-1999  FMP took out rtmalloc.h and removed commented call to malloc()
-   8-Jun-1999  FMP added vLimit, tcSetVLimit(); compared newVel against
-   vLimit in tcRunCycle() and clamped to it
-   8-Mar-1999  FMP added tcSpace arg to tcqCreate()
-   4-Mar-1999  FMP moved rtmalloc.h header in front, since it conflicted
-   with others when rtmalloc.h included <linux/mm.h>
-   3-Mar-1999  FMP added rtmalloc.h header
-   2-Mar-1999  RSB changed tcqCreate and tcqDetete: kmalloc and kfree used
-   instead of malloc and free
-   25-Feb-1999  FMP removed changed 'full' to 'allFull' in TC_QUEUE_STRUCT,
-   and added tcqFull(). This was to ameliorate the race condition between
-   the full state and the appending process seeing it, where a couple of
-   motions may be appended before the earlier full state was seen. tcqFull()
-   returns true if the queue is into a margin of safety, but the queue will
-   still work until the allFull limit is reached.
-   23-Jul-1998  FMP changed discriminate calcs a bit, using simpler test
-   for discriminate that will result in newVel = 0.
-   25-Jun-1998  FMP added v to premax
-   15-Jun-1998  FMP added termFlag, TC_TERM_COND_STOP,BLEND, tcSet/GetTerm()
-   24-Feb-1998  FMP fixed vscale problem in tcRunCycle, in which scaling
-   down flagged TC as TC_IS_DECEL, resulting in a premature blending of
-   the next move by tpRunCycle().
-   22-Jan-1998  FMP set return value of tcqCreate to -1 if NULL ptr
-   returned from malloc
-   16-Jul-1997  FMP added id
-   17-Jun-1997  FMP added motion type functions
-   13-Jun-1997  FMP added TC_IS_PAUSED state
-   14-Apr-1997  FMP put code from C++ tc.c into here
-   2-Apr-1997  FMP added TC_QUEUE definitions
-   31-Jan-1997  FMP changed unit to norm to reflect change in posemath
-   29-Jan-1997  FMP changed vec.h to posemath.h
-   23-Jan-1997  FMP removed main test stuff, split out headers into tc.h
-   22-Jan-1997  FMP added ring template for vector blending
-   21-Jan-1997  FMP added multi-vector blending
-   17-Jan-1997  FMP added interactive use; added VECTOR stuff and incremental
-   position use
-*/
+/********************************************************************
+* Description: tc.c
+*   Discriminate-based trajectory planning
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifdef ULAPI
 #include <stdio.h>
@@ -61,16 +28,6 @@
 #include "posemath.h"
 #include "emcpos.h"
 #include "tc.h"
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 #define TC_VEL_EPSILON 0.0001	/* number below which v is considered 0 */
 #define TC_SCALE_EPSILON 0.0001	/* number below which scale is considered 0 */

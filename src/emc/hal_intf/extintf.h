@@ -6,13 +6,13 @@
 *   encoder model, etc.
 *   Not all functions are presently used.
 *
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
 * Author: 
-* License:
-* Created at: Mon Feb 23 11:41:51 UTC 2004
-* Computer: Babylon
+* License: GPL Version 2
 * System: Linux
 *    
-* Copyright (c) 2004 root  All rights reserved.
+* Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
 * $Revision$

@@ -1,17 +1,26 @@
-/*************************************************************************
-* File: shmem.hh                                                         *
-* Authors: Fred Proctor, Will Shackleford                                *
-* Purpose: C++ Header file for the Communication Management System (CMS).*
-*          Includes:                                                     *
-*                    1. class SHMEM.                                     *
-* Notes: The class SHMEM should be used by procedures accessing a shared *
-*  memory buffer on the same processor.                                  *
-*************************************************************************/
+/********************************************************************
+* Description: shmem.hh
+*   C++ file for the Communication Management System (CMS).
+*   Includes member Functions for class SHMEM.
+*   Notes: The class SHMEM should be used by procedures accessing a
+*   shared memory buffer on the same processor.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifndef SHMEM_HH
 #define SHMEM_HH
-
-/* Include Files */
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,13 +36,13 @@ extern "C" {
 #include "cms.hh"		/* class CMS */
 #include "shm.hh"		/* class RCS_SHAREDMEM */
 #include "memsem.hh"		/* struct mem_access_object */
-// #include "sem.hh"            /* class RCS_SEMAPHORE *//* Class Definitions */
-    class SHMEM:public CMS {
+
+class SHMEM:public CMS {
   public:
     SHMEM(char *name, long size, int neutral, key_t key, int m = 0);
-      SHMEM(char *bufline, char *procline, int set_to_server = 0,
+    SHMEM(char *bufline, char *procline, int set_to_server = 0,
 	int set_to_master = 0);
-      virtual ~ SHMEM();
+    virtual ~ SHMEM();
 
     CMS_STATUS main_access(void *_local);
 

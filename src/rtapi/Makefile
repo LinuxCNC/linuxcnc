@@ -46,9 +46,9 @@ indent: def_indent
 depend: def_depend
 	(cd examples; make $@)
 
+# note that we always clean the examples, even if not
+# configured to make them
 clean: def_clean
-	# note that we always clean the examples, even if not
-	# configured to make them
 	(cd examples; make $@)
 	- rm -f $(EMC2_HOME)/scripts/rtapi.conf
 

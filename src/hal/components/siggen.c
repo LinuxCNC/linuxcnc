@@ -7,6 +7,7 @@
 
     Each generator has a number of pins and parameters, whose
     names begin with 'siggen.x.', where 'x' is the generator number.
+    Generator numbers start at zero.
 
     Each generator is controlled by three parameters.  'frequency'
     sets the frequency in Hertz.  'amplitude' sets the peak amplitude,
@@ -227,10 +228,10 @@ int rtapi_app_main(void)
     /* export variables and functions for each siggen */
     for (n = 0; n < num_chan; n++) {
 	/* export everything for this loop */
-	retval = export_siggen(n + 1, &(siggen_array[n]));
+	retval = export_siggen(n, &(siggen_array[n]));
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SIGGEN: ERROR: siggen %d var export failed\n", n + 1);
+		"SIGGEN: ERROR: siggen %d var export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
@@ -360,7 +361,7 @@ static int export_siggen(int num, hal_siggen_t * addr)
     /* export function for this loop */
     rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.update", num);
     retval =
-	hal_export_funct(buf, calc_siggen, &(siggen_array[num - 1]), 1, 0,
+	hal_export_funct(buf, calc_siggen, &(siggen_array[num]), 1, 0,
 	comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

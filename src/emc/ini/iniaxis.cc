@@ -1,12 +1,20 @@
-/*
-  iniaxis.cc
-
-  INI file initialization routines for axis NML
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
+/********************************************************************
+* Description: iniaxis.cc
+*   INI file initialization routines for axis NML
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 extern "C" {
 #include <stdio.h>              // NULL

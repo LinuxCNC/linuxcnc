@@ -1,13 +1,20 @@
-/*
-  Emctaskmain.cc
-
-  Main program for EMC task level
-
-  Modification history:
-
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-  */
-
+/********************************************************************
+* Description: emctaskmain.cc
+*   Main program for EMC task level
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /*
   Principles of operation:
 
@@ -58,14 +65,6 @@ extern "C" {
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "emcglb.h"		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
 #include "rs274ngc_return.hh"	// NCE_FILE_NOT_OPEN
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 // command line args-- global so that other modules can access
 int Argc;

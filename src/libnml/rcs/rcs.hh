@@ -1,7 +1,24 @@
+/********************************************************************
+* Description: rcs.hh
+*   This header should be included in each source that uses NML, CMS,
+*   or any other libnml function.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef RCS_HH
 #define RCS_HH
 
-/* Include Files */
 #ifdef __cplusplus
 
 /* Portable Print functions. */

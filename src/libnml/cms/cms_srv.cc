@@ -1,14 +1,20 @@
-/*************************************************************************
-* File:cms_srv.cc                                                        *
-* Authors: Fred Proctor, Will Shackleford                                *
-* Purpose: C++ file for RPC server that reads and writes to a local      *
-*          CMS buffer for remote processes.                              *
-* Includes:                                                              *
-*          1. member functions for class CMS_SERVER                      *
-*          2. CMS_SERVER friend functions cms_server_dispatch and        *
-*             cms_server_clean.                                          *
-*************************************************************************/
-
+/********************************************************************
+* Description: cms_srv.cc
+*   Server to read and write to a local CMS buffer for remote processes.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,9 +29,7 @@ extern "C" {
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
 #include <sys/wait.h>		/* waitpid() */
-
-#include <signal.h>		/* sigvec(), struct sigvec, SIGINT */
-    /* kill() */
+#include <signal.h>		/* sigvec(), struct sigvec, SIGINT, kill() */
 
 #ifdef __cplusplus
 }

@@ -1,14 +1,21 @@
-/*************************************************************************
-* File: cms_cfg.cc                                                       *
-* Authors: Fred Proctor, Will Shackleford                                *
-* Purpose: C++ file for the  Communication Management System (CMS).      *
-*          Includes:                                                     *
-*                    1. cms_config -- CMS function which reads
-*                         configuration file.                            *
-*************************************************************************/
-
-/* Include Files */
-
+/********************************************************************
+* Description: cms_cfg.cc
+*   C++ file for the  Communication Management System (CMS).
+*   Provides cms_config -- CMS function which reads configuration file.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 extern int verbose_nml_error_messages;
 

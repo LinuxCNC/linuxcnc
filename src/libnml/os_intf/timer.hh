@@ -1,3 +1,21 @@
+/********************************************************************
+* Description: timer.hh
+*   A TIMER object lets you wait on the expiration of a cyclic
+*   period, to the resolution of the system clock.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef TIMER_HH
 #define TIMER_HH
 
@@ -22,7 +40,7 @@ extern "C" {
 #include "sem.hh"		// RCS_SEMAPHORE
 #endif
 /* prototype for user-defined timing function */
-typedef int (*RCS_TIMERFUNC) (void *_arg = NULL);
+typedef int (*RCS_TIMERFUNC) (void *_arg);
 
 /* Getting rid of this stuff which no one uses and makes porting more
 difficult */

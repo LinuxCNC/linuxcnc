@@ -1,17 +1,23 @@
-/***************************************************************************
-* File: cms_xup.cc
-* Author(s): Will Shackleford, Fred Proctor
-* Purpose: Provides the interface to CMS used by NML update functions including
-* a CMS update function for all the basic C data types to convert NMLmsgs to XDR.
+/********************************************************************
+* Description: cms_xup.cc
+*   Provides the interface to CMS used by NML update functions
+*   including a CMS update function for all the basic C data types
+*   to convert NMLmsgs to XDR.
 *
-* NOTES:
-* There are no update functions for enumerations, or pointers.
-* The update function for long doubles is included, but it is recommended that
-* doubles be used instead of long doubles since they will be faster and
-* the increased range and precision of long doubles will be lost anyway.
-****************************************************************************/
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
-/* Includes */
 extern "C" {
 #include <stdlib.h>		/* malloc(), free() */
 }

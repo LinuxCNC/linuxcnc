@@ -1,23 +1,25 @@
+/********************************************************************
+* Description: tp.h
+*   Trajectory planner based on TC elements
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef TP_H
 #define TP_H
 
-/*
-  tp.h
-  Trajectory planner based on TC elements
-*/
-
 #include "posemath.h"
 #include "tc.h"
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) tp_h[] =
-    "$Id$";
 
 #define TP_DEFAULT_QUEUE_SIZE 32
 

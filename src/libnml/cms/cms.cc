@@ -1,17 +1,23 @@
-/*************************************************************************
-* File: cms.cc
-* Authors: Fred Proctor, Will Shackleford
-* Purpose: C++ file for the  Communication Management System (CMS).
-*          Includes:
-*                    1. Member functions for class CMS.
-* NOTES:
-* See cms_in.cc for the internal interface member functions and cms_up.cc
-* for the update functions.
-*************************************************************************/
-
-/* SCCS identification. (Used by what. See UNIX man pages section 1.) */
-
-/* Include Files */
+/********************************************************************
+* Description: cms.cc
+*   C++ file for the  Communication Management System (CMS).
+*   Includes member functions for class CMS.
+*   See cms_in.cc for the internal interface member functions and
+*   cms_up.cc for the update functions.
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include "rcsversion.h"
 

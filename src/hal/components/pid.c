@@ -9,7 +9,8 @@
     such as speed loops, torch height control, and others.
 
     Each loop has a number of pins and parameters, whose names begin
-    with 'pid.x.', where 'x' is the channel number.
+    with 'pid.x.', where 'x' is the channel number.  Channel numbers
+    start at zero.
 
     The three most important pins are 'command', 'feedback', and
     'output'.  For a position loop, 'command' and 'feedback' are
@@ -197,7 +198,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* have good config info, connect to the HAL */
-    comp_id = hal_init("pid_loop");
+    comp_id = hal_init("pid");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "PID: ERROR: hal_init() failed\n");
 	return -1;
@@ -212,10 +213,10 @@ int rtapi_app_main(void)
     /* export variables and function for each PID loop */
     for (n = 0; n < num_chan; n++) {
 	/* export everything for this loop */
-	retval = export_pid(n + 1, &(pid_array[n]));
+	retval = export_pid(n, &(pid_array[n]));
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PID: ERROR: loop %d var export failed\n", n + 1);
+		"PID: ERROR: loop %d var export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
@@ -345,8 +346,15 @@ static void calc_pid(void *arg, long period)
 
 static int export_pid(int num, hal_pid_t * addr)
 {
-    int retval;
+    int retval, msg;
     char buf[HAL_NAME_LEN + 2];
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pins */
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.enable", num);
@@ -479,12 +487,14 @@ static int export_pid(int num, hal_pid_t * addr)
     /* export function for this loop */
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.do_pid_calcs", num);
     retval =
-	hal_export_funct(buf, calc_pid, &(pid_array[num - 1]), 1, 0, comp_id);
+	hal_export_funct(buf, calc_pid, &(pid_array[num]), 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PID: ERROR: do_pid_calcs funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
     return 0;
 }

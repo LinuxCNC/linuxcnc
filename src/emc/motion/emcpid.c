@@ -1,50 +1,20 @@
-/* 
-     pid.c
-
-     C definitions for PID code
-
-     Modification history:
-
-     5-Jan-2004 MGS used this file to build a motion module for emc2.
-     13-May-2003 JMK fixed a typo that would drop the FF terms from PID
-     output if SMOOTH_D_FACTOR is defined
-     6-Jul-2001 FMP took out pidGetCycleTime(), pidGetGains(), since as Max
-     and Will noted they are pretty useless.
-     6-Jul-2001 Max-Heise fixed bug in pidGetCycleTime (commited by WPS).
-     7-Nov-2000 WPS added code to prevent a problem when ff1 is not zero and
-     the pid is reset on a non-zero position. When the machine came out of
-     estop, the lastSetPoint would be zero, the setpoint could be large
-     making ff1 *(setpoint - lastSetPoint) large. Now when coming out of
-     estop the real effect of pidReset should be to set a flag declaring
-     lastSetpoint invalid, it will be set to the next setpoint in
-     pidRunCycle.
-     13-Jul-2000 WPS added some hacks surrounded by
-     THROWAWAY_CUMULATIVE_ERROR_ON_SIGN_CHANGES and SMOOTH_D_FACTOR
-     13-Mar-2000 WPS added unused attribute to ident to avoid 'defined but
-     not used' compiler warning.
-     29-Feb-2000 FMP took out backlash in calculations, since it's added in
-     trajectory planner now. It needs to be taken out of PID struct and moved 
-     into axis struct instead.
-     24-Feb-2000 FMP added deadband
-     23-Sep-1999 WPS replaced stdio with inet_file functions which are
-     supported under CE
-     16-Dec-1998 FMP added backlash correction in pidRunCycle, per Angelo
-     Brousalis' fix
-     9-Oct-1998 FMP corrected MAX to MAX_ERROR in pidIniLoad()
-     18-Aug-1998 FMP took out reverse gains, added bias
-     25-Jun-1998 FMP added bipolar max error check, per Angelo Brousalis'
-     correction
-     5-Jun-1998 FMP added reverse gains
-     14-Apr-1998 FMP added backlash; set maxError in pidSetGains()
-     19-Nov-1997 FMP added ff2
-     16-Oct-1997 FMP changed vf, af to ff0, ff1
-     15-Aug-1997 FMP added maxError clamp on
-     01-Aug-1997 FMP added lastOutput to PID_STRUCT; added pidReset(); added
-     vf, af to pidRunCycle calcs and corrected d and vf gains to divide by
-     cycleTime
-     24-Apr-1997 FMP added pidIniLoad()
-     17-Apr-1997 FMP created from C portion of original pid.c
-*/
+/********************************************************************
+* Description: emcpid.c
+*   C definitions for PID code
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifdef ULAPI
 #include <stdio.h>
@@ -53,16 +23,6 @@
 
 #include "rtapi.h"		/* rtapi_print_msg */
 #include "emcpid.h"		/* these decls */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] =
-    "$Id$";
 
 #define GAINS_SET 0x01
 #define CYCLE_TIME_SET 0x02

@@ -1,12 +1,19 @@
-/*************************************************************************
-* File: nmlmsg.cc                                                        *
-* Authors: Fred Proctor, Will Shackleford                                *
-* Purpose: C++ file for the  Neutral Manufacturing Language (NML).       *
-*          Includes:                                                     *
-*                    1. Member functions for class NMLmsg.               *
-*************************************************************************/
-
-/* Include Files */
+/********************************************************************
+* Description: nmlmsg.cc
+*
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
+* Author:
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #ifdef __cplusplus
 extern "C" {

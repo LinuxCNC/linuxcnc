@@ -3,10 +3,10 @@
 *   Dispatcher of external motion functions for HAL drivers.
 *   This should be the only point of contact between emc and HAL.
 *
+*   Derived from a work by Fred Proctor & Will Shackleford
+*
 * Author:
-* License:
-* Created at:
-* Computer:
+* License: GPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -28,15 +28,6 @@
 #include "extintf.h"		/* these decls */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* decls for HAL implementation */
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) ident[] = "";
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
