@@ -57,19 +57,10 @@ extern "C" {
 *    (If timeout is negative then wait forever.)
 * semdelay - is the time to wait between tries for the semaphore.
 * read_only - Will the access to the buffer only to read the memory.
-* split_buffer - The buffer will be split so that one area may be read
-* while the other area is written to.
-* toggle_bit - If the buffer is split the toggle bit determines which area
-* will be read from and which may be written to. (O.K. its really a byte but
-* think of it as 1 bit since it should only be 0 or 1)
 *
 * Returns: 0 for success: -1 for invalid parameters: or -2 if it timed out.
 ***********************************************************************/
-#if 0
-int mem_get_access(void *data, long connection_number,
-    long total_connections, double timeout, double semdelay,
-    int read_only, int split_buffer, char &toggle_bit)
-#endif
+
      int mem_get_access(struct mem_access_object *mo)
 {
     register char *mylock;
@@ -78,16 +69,10 @@ int mem_get_access(void *data, long connection_number,
     char *lastlock;
     int semaphores_clear;
     double start_time, time;
-    int split_buffer = 0;
     int read_only;
     int total_connections;
     int connection_number;
     double timeout;
-#ifdef DEBUG
-    rcs_print("mem_get_access: - Time = %lf\n", etime());
-    static int count = 0;
-    count++;
-#endif
 
     /* Check Parameters. */
     if ((total_connections = mo->total_connections) <=
@@ -120,52 +105,27 @@ int mem_get_access(void *data, long connection_number,
     /* Try the locks one time before checking time because checking the locks 
        generally takes much less time than checking the time. */
     *mylock = 4;
-    mo->toggle_bit = ((char *) mo->data)[total_connections];
     read_only = mo->read_only;
-#ifdef DEBUG
+
     if (read_only) {
-	rcs_print("added sleep: %d - Time = %lf\n", __LINE__, etime());
-	esleep(0.02);
-    }
-#endif
-    if (read_only) {
-	split_buffer = mo->split_buffer;
-	if (split_buffer) {
-	    *mylock = 2 + mo->toggle_bit;
-	    return 0;
-	}
 	*mylock = 2;
     } else {
 	*mylock = 1;
     }
 
-#ifdef debug
-    if (read_only) {
-	rcs_print("added sleep: %d - time = %lf\n", __line__, etime());
-	esleep(0.01);
-    }
-#endif
     semaphores_clear = 1;
     lastlock = ((char *) mo->data) + total_connections;
-    mo->toggle_bit = ((char *) mo->data)[total_connections];
     for (plock = (char *) mo->data; plock < lastlock; plock++) {
 	if (0 != (current_lock = *plock)) {
 	    if (plock != mylock) {
 		if (!(read_only && current_lock > 1) &&
-		    !(split_buffer && current_lock == 2 + mo->toggle_bit)
-		    && (current_lock != 5)) {
+		     (current_lock != 5)) {
 		    semaphores_clear = 0;
 		}
 	    }
 	}
     }
-#ifdef debug
-    if (0)			// read_only && 0 == count % 2)
-    {
-	rcs_print("added sleep: %d - time = %lf\n", __line__, etime());
-	esleep(0.01);
-    }
-#endif
+
     if (semaphores_clear) {
 	return 0;
     }
@@ -191,27 +151,15 @@ int mem_get_access(void *data, long connection_number,
 	*mylock = 1;
     }
 
-#ifdef debug
-    if (0)			// read_only && 0 == count % 7)
-    {
-	rcs_print("added sleep: %d - time = %lf\n", __line__, etime());
-	esleep(0.01);
-    }
-#endif
     while ((timeout >= 0) ? ((time - start_time) < timeout) : 1) {
-	if (split_buffer) {
-	    mo->toggle_bit = ((char *) mo->data)[total_connections];
-	}
 	semaphores_clear = 1;
 	plock = (char *) mo->data;
-	mo->toggle_bit = ((char *) mo->data)[total_connections];
 	for (; plock < lastlock; plock++) {
 	    current_lock = *plock;
 	    if (0 != current_lock) {
 		if (plock != mylock &&
 		    !(read_only && current_lock > 1) &&
-		    !(split_buffer && current_lock == 2 + mo->toggle_bit)
-		    && (current_lock != 5)) {
+		     (current_lock != 5)) {
 		    semaphores_clear = 0;
 		}
 	    }
@@ -231,13 +179,6 @@ int mem_get_access(void *data, long connection_number,
 	} else {
 	    *mylock = 1;
 	}
-#ifdef DEBUG
-	if (0)			// read_only && 0 == count % 4)
-	{
-	    rcs_print("added sleep: %d - Time = %lf\n", __LINE__, etime());
-	    esleep(0.01);
-	}
-#endif
 	time = etime();
     }
     *mylock = 0;
@@ -259,11 +200,6 @@ int mem_release_access(struct mem_access_object *mo)
 {
     int i;
     int process_waiting = 0;
-#ifdef DEBUG
-    rcs_print("mem_release_access: - Time = %lf\n", etime());
-    static int count = 0;
-    count++;
-#endif
     if (NULL == mo) {
 	rcs_print_error("mem_release_access: Invalid memory object.\n");
     }
@@ -281,35 +217,8 @@ int mem_release_access(struct mem_access_object *mo)
 	    }
 	}
     }
-#ifdef DEBUG
-    if (0)			// (0 == count % 5)
-    {
-	rcs_print("added sleep: %d - Time = %lf\n", __LINE__, etime());
-	esleep(0.01);
-    }
-#endif
-
-    /* If were using a split buffer and this is the end of a write toggle the 
-       toggle bit. */
-    if (mo->split_buffer && ((char *) mo->data)[mo->connection_number] == 1) {
-	((char *) mo->data)[mo->total_connections] = !(mo->toggle_bit);
-    }
-#ifdef DEBUG
-    if (0)			// 0 == count % 7)
-    {
-	rcs_print("added sleep: %d - Time = %lf\n", __LINE__, etime());
-	esleep(0.01);
-    }
-#endif
 
     ((char *) mo->data)[mo->connection_number] = 0;
-#ifdef DEBUG
-    if (0)			// 0 == count % 11)
-    {
-	rcs_print("added sleep: %d - Time = %lf\n", __LINE__, etime());
-	esleep(0.01);
-    }
-#endif
 
     if (mo->sem != NULL) {
 	if (process_waiting) {

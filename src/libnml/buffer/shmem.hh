@@ -37,6 +37,15 @@ extern "C" {
 #include "shm.hh"		/* class RCS_SHAREDMEM */
 #include "memsem.hh"		/* struct mem_access_object */
 
+enum SHMEM_MUTEX_TYPE {
+    NO_MUTEX,
+    MAO_MUTEX,
+    MAO_MUTEX_W_OS_SEM,
+    OS_SEM_MUTEX,
+    NO_INTERRUPTS_MUTEX,
+    NO_SWITCHING_MUTEX
+};
+
 class SHMEM:public CMS {
   public:
     SHMEM(char *name, long size, int neutral, key_t key, int m = 0);
@@ -49,7 +58,6 @@ class SHMEM:public CMS {
   private:
 
     /* data buffer stuff */
-    int fast_mode;
     int open();			/* get shared mem and sem */
     int close();		/* detach from shared mem and sem */
     key_t key;			/* key for shared mem and sem */
@@ -62,15 +70,9 @@ class SHMEM:public CMS {
     /* clearing memory & semaphores? */
     double sem_delay;		/* Time to wait between polling the
 				   semaphore. */
+
     struct mem_access_object mao;	/* passed to mem_get_access() */
-    enum SHMEM_MUTEX_TYPE {
-	NO_MUTEX,
-	MAO_MUTEX,
-	MAO_MUTEX_W_OS_SEM,
-	OS_SEM_MUTEX,
-	NO_INTERRUPTS_MUTEX,
-	NO_SWITCHING_MUTEX
-    };
+
 
     int use_os_sem;
     int use_os_sem_only;

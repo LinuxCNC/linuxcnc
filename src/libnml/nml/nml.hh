@@ -39,8 +39,8 @@ typedef long NMLTYPE;		/* Also defined in nmlmsg.hh */
 class NMLmsg;			/* Use only partial definition to avoid */
 				/* depending on nmlmsg.hh. */
 
-/* Typedef for pointer to the function used to decode a message */
- /* by its id number. */
+/* Typedef for pointer to the function used to decode a message
+   by its id number. */
 typedef int (*NML_FORMAT_PTR) (NMLTYPE, void *, CMS *);
 
 /* Values for NML::error_type. */
@@ -66,7 +66,6 @@ enum NML_CHANNEL_TYPE {
 };
 
 extern char NML_ERROR_TYPE_STRINGS[8][80];
-class NML_DIAGNOSTICS_INFO;
 
 /* nml interface to CMS. */
 class NML:public virtual CMS_USER {
@@ -85,12 +84,14 @@ class NML:public virtual CMS_USER {
     int channel_list_id;	/* List id of this channel. */
     NML_ERROR_TYPE error_type;	/* check here if an NML function returns -1 */
     /* Get Address of message for user after read. */
+#if 0
       NMLTYPE(*phantom_read) ();
       NMLTYPE(*phantom_peek) ();
     int (*phantom_write) (NMLmsg * nml_msg);
     int (*phantom_write_if_read) (NMLmsg * nml_msg);
     int (*phantom_check_if_read) ();
     int (*phantom_clear) ();
+#endif
     int ignore_format_chain;
 
     NMLmsg *get_address();
@@ -110,42 +111,10 @@ class NML:public virtual CMS_USER {
     int write_if_read(NMLmsg * nml_msg);	/* '' */
     NMLTYPE blocking_read_extended(double timeout, double poll_interval);
 
-    int write_subdivision(int subdiv, NMLmsg & nml_msg);	/* Write a
-								   message.
-								   (Use
-								   reference) 
-								 */
-    int write_subdivision(int subdiv, NMLmsg * nml_msg);	/* Write a
-								   message.
-								   (Use
-								   pointer) */
-    int write_if_read_subdivision(int subdiv, NMLmsg & nml_msg);	/* Write 
-									   only 
-									   if 
-									   buffer 
-									   was_read 
-									 */
-    int write_if_read_subdivision(int subdiv, NMLmsg * nml_msg);	/* '' 
-									 */
-    NMLTYPE read_subdivision(int subdiv);	/* Read the buffer. */
-    NMLTYPE blocking_read_subdivision(int subdiv, double timeout);	/* Read 
-									   the 
-									   buffer. 
-									   (Wait 
-									   for 
-									   new 
-									   data). 
-									 */
-    NMLTYPE peek_subdivision(int subdiv);	/* Read buffer without
-						   changing was_read */
-    NMLmsg *get_address_subdivision(int subdiv);
-    int get_total_subdivisions();
-
     void clean_buffers();
     const char *msg2str(NMLmsg & nml_msg);
     const char *msg2str(NMLmsg * nml_msg);
     NMLTYPE str2msg(const char *);
-    int login(const char *name, const char *passwd);
     void reconnect();
     void disconnect();
 
@@ -170,11 +139,6 @@ class NML:public virtual CMS_USER {
     /* How many messages are currently stored in the queue. */
     int get_queue_length();
 
-    /* Get Diagnostics Information. */
-    NML_DIAGNOSTICS_INFO *get_diagnostics_info();
-
-    int prefix_format_chain(NML_FORMAT_PTR);
-
     /* Constructors and destructors. */
       NML(NML_FORMAT_PTR f_ptr,
 	char *, char *, char *, int set_to_server = 0, int set_to_master = 0);
@@ -190,7 +154,9 @@ class NML:public virtual CMS_USER {
 	NULL, char *cfg_file = NULL);
   protected:
 
-    int fast_mode;
+    /* Used to prepend some internal RCS_STAT_MSG debug info to each
+       RCS_STAT_CHANNEL */
+    int prefix_format_chain(NML_FORMAT_PTR);
     int *cms_status;
     long *cms_inbuffer_header_size;
       NML(char *, char *, char *, int set_to_server = 0, int set_to_master =
@@ -217,21 +183,22 @@ class NML:public virtual CMS_USER {
 };
 
 extern LinkedList *NML_Main_Channel_List;
+
 extern "C" {
     extern void nml_start();
     extern void nml_cleanup();
 //    extern void nml_wipeout_lists();
     extern void set_default_nml_config_file(const char *);
     extern const char *get_default_nml_config_file();
-    extern NML *nmlWaitOpen(NML_FORMAT_PTR fPtr, char *buffer,
-	char *name, char *file, double sleepTime);
 
     extern void nmlSetHostAlias(const char *hostName, const char *hostAlias);
     extern void nmlClearHostAliases();
     extern void nmlAllowNormalConnection();
     extern void nmlForceRemoteConnection();
     extern void nmlForceLocalConnection();
-} extern int verbose_nml_error_messages;
+} 
+
+extern int verbose_nml_error_messages;
 extern int nml_print_hostname_on_error;
 extern int nml_reset_errors_printed;
 

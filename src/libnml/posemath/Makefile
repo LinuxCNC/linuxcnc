@@ -36,7 +36,8 @@ LIBS =	$(LIB_OBJS:%.o=$(TMP_DIR)/%.o) \
 BINS =
 
 LOCAL_RTFLAGS = -ffast-math
-#LOCAL_CXXFLAGS = -Wno-deprecated
+LOCAL_CXXFLAGS = $(LIBFLAGS)
+LOCAL_FLAGS = $(LIBFLAGS)
 
 all: headers $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) $(LIBS)
 

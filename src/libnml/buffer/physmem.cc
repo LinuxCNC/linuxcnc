@@ -37,7 +37,6 @@ PHYSMEM_HANDLE::PHYSMEM_HANDLE()
     temp_buf = NULL;
     local_address = (LOCAL_ADDRESS_TYPE) NULL;
     physical_address = 0;
-    using_bit3 = 0;
     isvalid = 1;
     total_bytes_moved = 0;
     enable_byte_counting = 0;
@@ -54,7 +53,6 @@ PHYSMEM_HANDLE::PHYSMEM_HANDLE(unsigned long _physical_address,
     local_address = (LOCAL_ADDRESS_TYPE) NULL;
     isvalid = 1;
     offset = 0;
-    using_bit3 = 0;
 
     if (0 == physical_address) {
 	local_address = (LOCAL_ADDRESS_TYPE) NULL;

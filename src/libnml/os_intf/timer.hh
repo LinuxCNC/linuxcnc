@@ -65,17 +65,27 @@ To synchronize a cyclic process to the system clock:
 Initialize the RCS_TIMER object with the cycle period. 
 Call RCS_TIMER::wait() at the end of each cycle. 
 
-The cycle period will be rounded up to the resolution of the system clock or the most precise time measuring or sleeping function available for the given platform. RCS_TIMER::wait() will wait the remainder of the cycle period since the last call. The units for the cycle time are seconds.
+The cycle period will be rounded up to the resolution of the system clock or
+the most precise time measuring or sleeping function available for the given
+platform. RCS_TIMER::wait() will wait the remainder of the cycle period since
+the last call. The units for the cycle time are seconds.
 */
 /*
 
 To synchronize to some other event(s):
 
  Create a function that takes a (void *) as an argument and returns an int. 
- Initialize the RCS_TIMER object with a cycle period used only for diagnostics, the address of the function and a parameter for the function.
+ Initialize the RCS_TIMER object with a cycle period used only for diagnostics, 
+ the address of the function and a parameter for the function.
  Use RCS_TIMER::wait().
 
-The user's function should return 0 when the event to synchronize to occurs or -1 if an error occurs. The argument passed to the users function will be whatever was passed as the third parameter to the constructor of the RCS_TIMER or NULL if no third argument is given. This argument could be used by the synchronizing function to know which timer is calling it if the synchronization function is called by more than one timer. Nothing will force the function to return within the cycle period but there are ways to check if the function took longer than the cycle period after it returns.
+The user's function should return 0 when the event to synchronize to occurs or -1 
+if an error occurs. The argument passed to the users function will be whatever was
+passed as the third parameter to the constructor of the RCS_TIMER or NULL if no
+third argument is given. This argument could be used by the synchronizing function
+to know which timer is calling it if the synchronization function is called by more
+than one timer. Nothing will force the function to return within the cycle period but
+there are ways to check if the function took longer than the cycle period after it returns.
 */
 class RCS_TIMER {
   public:
@@ -116,9 +126,7 @@ difficult */
 
     void zero_timer();
     void set_timeout(double _timeout);
-#if 0
-    void read_config_file(char *process, char *config_file);
-#endif
+
     RCS_TIMERFUNC function;	/* copy of function */
     void *arg;			/* arg for function */
     double last_time;		/* last wakeup, in ticks from epoch */

@@ -36,7 +36,6 @@
 ********************************************************************/
 
 #include "cms.hh"		/* class CMS */
-#include "cmsdiag.hh"		// class CMS_DIAG_PROC_INFO, CMS_DIAG_HEADER
 #include "rcs_print.hh"		/* rcs_print_error() */
 #include "physmem.hh"		/* class PHYSMEM_HANDLE */
 
@@ -99,58 +98,7 @@ CMS_STATUS CMS::internal_access(PHYSMEM_HANDLE * _global, void *_local)
 	handle_to_global_data->offset += skip_area;
     }
 
-    if (CMS_GET_DIAG_INFO_ACCESS == internal_access_type) {
-	internal_retrieve_diag_info(handle_to_global_data, _local);
-	return (status);
-    }
-
-    long orig_offset = handle_to_global_data->offset;
-    if (enable_diagnostics) {
-	handle_to_global_data->offset +=
-	    sizeof(CMS_DIAG_HEADER) +
-	    total_connections * sizeof(CMS_DIAG_PROC_INFO);
-	handle_to_global_data->enable_byte_counting = 1;
-	pre_op_total_bytes_moved = handle_to_global_data->total_bytes_moved;
-    }
-
-    char was_read_byte;
     write_just_completed = 0;
-    int read_only = ((internal_access_type == CMS_CHECK_IF_READ_ACCESS) ||
-	(internal_access_type == CMS_READ_ACCESS) ||
-	(internal_access_type == CMS_PEEK_ACCESS));
-
-    long offset_before_split = handle_to_global_data->offset;
-
-    if (total_subdivisions >= 1 && current_subdivision > 0
-	&& current_subdivision < total_subdivisions) {
-	handle_to_global_data->offset += (current_subdivision * subdiv_size);
-	handle_to_global_data->size =
-	    ((current_subdivision + 1) * subdiv_size);
-	if (handle_to_global_data->size > size) {
-	    handle_to_global_data->size = size;
-	}
-    }
-
-    if (split_buffer) {
-	if (internal_access_type == CMS_WRITE_IF_READ_ACCESS) {
-	    handle_to_global_data->offset++;
-	    handle_to_global_data->read(&was_read_byte, 1);
-	    handle_to_global_data->offset--;
-	    header.was_read = (was_read_byte == toggle_bit + 1);
-	    if (!header.was_read) {
-		status = CMS_WRITE_WAS_BLOCKED;
-		return (status);
-	    }
-	    internal_access_type = CMS_WRITE_ACCESS;
-	}
-	if (read_only == toggle_bit) {
-	    handle_to_global_data->offset += 2;
-	    handle_to_global_data->size = half_size;
-	} else {
-	    handle_to_global_data->offset += half_offset;
-	    handle_to_global_data->size = size;
-	}
-    }
 
     if (!queuing_enabled) {
 	if (neutral) {
@@ -262,22 +210,6 @@ CMS_STATUS CMS::internal_access(PHYSMEM_HANDLE * _global, void *_local)
 	}
     }
 
-    if (split_buffer) {
-	handle_to_global_data->offset = offset_before_split + 1;
-	if (internal_access_type == CMS_READ_ACCESS) {
-	    was_read_byte = 1;
-	} else if (!read_only) {
-	    was_read_byte = 0;
-	}
-	if (-1 == handle_to_global_data->write(&was_read_byte, 1)) {
-	    rcs_print_error("CMS: can not set was read flag.\n");
-	}
-    }
-
-    if (enable_diagnostics) {
-	handle_to_global_data->offset = orig_offset;
-	calculate_and_store_diag_info(handle_to_global_data, _local);
-    }
     return (status);
 }
 
@@ -1366,11 +1298,6 @@ CMS_STATUS CMS::write_raw(void *user_data)
     /* Update the header. */
     header.was_read = 0;
     header.write_id++;
-    if (split_buffer) {
-	if ((header.write_id & 1) != toggle_bit) {
-	    header.write_id++;
-	}
-    }
     header.in_buffer_size = current_header_in_buffer_size;
     if (-1 == handle_to_global_data->write(&header, sizeof(header))) {
 	rcs_print_error("CMS:(%s) Error writing to global memory at %s:%d\n",
@@ -1578,9 +1505,6 @@ CMS_STATUS CMS::write_encoded()
     /* Update the header. */
     header.was_read = 0;
     header.write_id++;
-    if (split_buffer && (header.write_id % 2) != toggle_bit) {
-	header.write_id++;
-    }
     header.in_buffer_size = current_header.in_buffer_size;
     encode_header();
     if (-1 ==
@@ -1797,9 +1721,6 @@ CMS_STATUS CMS::write_if_read_raw(void *user_data)
     /* Update the header. */
     header.was_read = 0;
     header.write_id++;
-    if (split_buffer && (header.write_id % 2) != toggle_bit) {
-	header.write_id++;
-    }
     header.in_buffer_size = current_header.in_buffer_size;
     if (-1 == handle_to_global_data->write(&header, sizeof(header))) {
 	rcs_print_error("CMS:(%s) Error writing to global memory at %s:%d\n",
@@ -2012,9 +1933,6 @@ CMS_STATUS CMS::write_if_read_encoded()
     /* Update the header. */
     header.was_read = 0;
     header.write_id++;
-    if (split_buffer && (header.write_id % 2) != toggle_bit) {
-	header.write_id++;
-    }
     header.in_buffer_size = current_header.in_buffer_size;
     encode_header();
     if (-1 ==

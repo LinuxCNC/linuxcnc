@@ -41,8 +41,8 @@ extern "C" {
 //#include "sem.hh"             /* class RCS_SEMAPHORE */
 #include "memsem.hh"		/* mem_get_access(), mem_release_access() */
 #include "timer.hh"		/* etime(), esleep() */
+
 /* Common Definitions. */
-//#include "autokey.h"
 /* rw-rw-r-- permissions */
 #define MODE (0777)
 static double last_non_zero_x;
@@ -180,11 +180,7 @@ int SHMEM::open()
     shm_addr_offset = NULL;
     second_read = 0;
     autokey_table_size = 0;
-#if 0				// PC Do we need to use autokey ?
-    if (use_autokey_for_connection_number) {
-	autokey_table_size = sizeof(AUTOKEY_TABLE_ENTRY) * total_connections;
-    }
-#endif
+
     /* set up the shared memory address and semaphore, in given state */
     if (master) {
 	shm = new RCS_SHAREDMEM(key, size, RCS_SHAREDMEM_CREATE, (int) MODE);
@@ -308,10 +304,6 @@ int SHMEM::open()
 	}
     }
 
-    if (min_compatible_version < 3.44 && min_compatible_version > 0) {
-	total_subdivisions = 1;
-    }
-
     if (min_compatible_version > 2.57 || min_compatible_version <= 0) {
 	if (!shm->created) {
 	    char *cptr = (char *) shm->addr;
@@ -324,41 +316,17 @@ int SHMEM::open()
 	    }
 	}
 	if (master) {
-#if 0				// PC Do we need to use autokey ?
-	    if (use_autokey_for_connection_number) {
-		void *autokey_table_end =
-		    (void *) (((char *) shm->addr) + 32 + autokey_table_size);
-		memset(autokey_table_end, 0, size - 32 - autokey_table_size);
-	    }
-#endif
 	    strncpy((char *) shm->addr, BufferName, 32);
 	}
-#if 0				// PC Do we need to use autokey ?
-	if (use_autokey_for_connection_number) {
-	    void *autokey_table = (void *) (((char *) shm->addr) + 32);
-	    connection_number =
-		autokey_getkey(autokey_table, total_connections, ProcessName);
-	    shm_addr_offset =
-		(void *) ((char *) (shm->addr) + 32 + autokey_table_size);
-	    max_message_size -= (32 + autokey_table_size);	/* size of
-								   cms buffer 
-								   available
-								   for user */
-	} else {
-#endif
 	    shm_addr_offset = (void *) ((char *) (shm->addr) + 32);
 	    max_message_size -= 32;	/* size of cms buffer available for
 					   user */
-#if 0				// PC Do we need to use autokey ?
-	}
-#endif
 	/* messages = size - CMS Header space */
 	if (enc_max_size <= 0 || enc_max_size > size) {
 	    if (neutral) {
 		max_encoded_message_size -= 32;
 	    } else {
-		max_encoded_message_size -=
-		    (cms_encoded_data_explosion_factor * 32);
+		max_encoded_message_size -= 4 * 32;
 	    }
 	}
 	/* Maximum size of message after being encoded. */
@@ -366,10 +334,7 @@ int SHMEM::open()
 					   encoded that can be guaranteed to
 					   fit after xdr. */
 	size -= 32;
-	size_without_diagnostics -= 32;
-	subdiv_size =
-	    (size_without_diagnostics -
-	    total_connections) / total_subdivisions;
+	subdiv_size = size - total_connections;
 	subdiv_size -= (subdiv_size % 4);
     } else {
 	if (master) {
@@ -383,12 +348,9 @@ int SHMEM::open()
     mao.total_connections = total_connections;
     mao.sem_delay = sem_delay;
     mao.connection_number = connection_number;
-    mao.split_buffer = split_buffer;
     mao.read_only = 0;
     mao.sem = sem;
 
-    fast_mode = !queuing_enabled && !split_buffer && !neutral &&
-	(mutex_type == NO_SWITCHING_MUTEX);
     handle_to_global_data = dummy_handle = new PHYSMEM_HANDLE;
     handle_to_global_data->set_to_ptr(shm_addr_offset, size);
     if ((connection_number < 0 || connection_number >= total_connections)
@@ -406,13 +368,6 @@ int SHMEM::close()
     int nattch = 0;
     second_read = 0;
 
-#if 0				// PC Do we need to use autokey ?
-    if (use_autokey_for_connection_number) {
-	void *autokey_table = (void *) (((char *) shm->addr) + 32);
-	autokey_releasekey(autokey_table, total_connections, ProcessName,
-	    connection_number);
-    }
-#endif
     if (NULL != shm) {
 	/* see if we're the last one */
 	nattch = shm->nattch();
@@ -440,10 +395,6 @@ int SHMEM::close()
 	}
 	delete bsem;
     }
-#ifdef DEBUG
-    printf("SHMEM(%s): nattch = %d\n", BufferName, nattch);
-#endif
-
     return 0;
 }
 
@@ -491,7 +442,6 @@ CMS_STATUS SHMEM::main_access(void *_local)
 	default:
 	    break;
 	}
-	toggle_bit = mao.toggle_bit;
 	break;
 
     case OS_SEM_MUTEX:
@@ -535,14 +485,8 @@ CMS_STATUS SHMEM::main_access(void *_local)
 	break;
     }
 
-    if (second_read > 0 && enable_diagnostics) {
-	disable_diag_store = 1;
-    }
-
     /* Perform access function. */
     internal_access(shm->addr, size, _local);
-
-    disable_diag_store = 0;
 
     if (NULL != bsem &&
 	(internal_access_type == CMS_WRITE_ACCESS
@@ -575,7 +519,7 @@ CMS_STATUS SHMEM::main_access(void *_local)
     case CMS_READ_ACCESS:
 	if (NULL != bsem && status == CMS_READ_OLD &&
 	    (blocking_timeout > 1e-6 || blocking_timeout < -1E-6)) {
-	    if (second_read > 10 && total_subdivisions <= 1) {
+	    if (second_read > 10) {
 		status = CMS_MISC_ERROR;
 		rcs_print_error
 		    ("CMS: Blocking semaphore error. The semaphore wait has returned %d times but there is still no new data.\n",

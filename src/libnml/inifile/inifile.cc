@@ -31,7 +31,6 @@ extern "C" {
 #endif
 
 #include "inifile.h"
-#include "inifile.hh"
 #include "rcs_print.hh"
 
 /********************************************************************

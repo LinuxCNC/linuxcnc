@@ -30,8 +30,6 @@ struct mem_access_object {
     double timeout;
     double sem_delay;
     int read_only;
-    int split_buffer;
-    char toggle_bit;
     RCS_SEMAPHORE *sem;
 };
 

@@ -45,12 +45,5 @@ class RCS_STAT_CHANNEL:public NML {
     };
 };
 
-#define RCS_GENERIC_STATUS_TYPE         ((NMLTYPE) 2000000)
-
-class RCS_GENERIC_STATUS:public RCS_STAT_MSG {
-  public:
-    RCS_GENERIC_STATUS();
-    void update(CMS *);
-};
 
 #endif

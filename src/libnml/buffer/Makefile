@@ -5,28 +5,16 @@
 LIB_OBJS =
 include Makefile.lib
 # make rules.
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 SRCS =	\
-	locmem.cc \
 	memsem.cc \
-	phantom.cc \
 	physmem.cc \
-	recvn.c \
-	sendn.c \
 	shmem.cc \
-	tcpmem.cc \
 
-HEADERS = \
-	locmem.hh \
-	memsem.hh \
-	phantom.hh \
+HEADERS = memsem.hh \
 	physmem.hh \
-	recvn.h \
-	rem_msg.hh \
-	sendn.h \
 	shmem.hh \
-	tcpmem.hh \
 
 
 OBJS := $(CMS_OBJS)
@@ -34,7 +22,7 @@ OBJS := $(CMS_OBJS)
 all: $(HEADERS) $(OBJS:%.o=$(TMP_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 
