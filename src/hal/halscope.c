@@ -77,9 +77,6 @@ static void init_shared_control_struct(void);
 static void define_scope_windows(void);
 static void init_run_mode_window(void);
 static void init_trigger_mode_window(void);
-static void init_menu_window(void);
-
-static void init_chan_select_window(void);
 
 /* callback functions */
 static void exit_from_hal(void);
@@ -148,11 +145,10 @@ int main(int argc, gchar * argv[])
 	GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
     /* define menu windows */
     /* do next level of init */
+    init_horiz();
+    init_vert();
     init_run_mode_window();
     init_trigger_mode_window();
-    init_menu_window();
-    init_chan_select_window();
-    init_horiz();
 
 /* test code - make labels to show the size of each box */
     label = gtk_label_new("waveform_win");
@@ -247,7 +243,7 @@ static void init_shared_control_struct(void)
     either an hbox or vbox).  The layout is as shown below:
 
     **************************************************************
-    *                hor_disp_win                *               *
+    *                horiz_info_win              *               *
     **********************************************  run_mode_win *
     *                                        * c *               *
     *                                        * h *               *
@@ -258,7 +254,7 @@ static void init_shared_control_struct(void)
     *                                        * e *               *
     *                                        * l *               *
     *                                        * _ *               *
-    *                                        * w *   menu_win    *
+    *                                        * w * vert_info_win *
     *                                        * i *               *
     *                                        * n *               *
     **********************************************               *
@@ -280,7 +276,7 @@ static void define_scope_windows(void)
     /* set the minimum size */
 //    gtk_widget_set_usize(GTK_WIDGET(ctrl_usr->main_win), 500, 350);
     /* allow the user to expand it */
-    gtk_window_set_policy(GTK_WINDOW(ctrl_usr->main_win), TRUE, TRUE, FALSE);
+    gtk_window_set_policy(GTK_WINDOW(ctrl_usr->main_win), FALSE, TRUE, FALSE);
     /* set main window title */
     gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), "HAL Oscilliscope");
 
@@ -294,45 +290,33 @@ static void define_scope_windows(void)
 
     /* second level of windows */
     vboxleft = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    gtk_vseparator_new_in_box(hbox, 0);
     vboxright = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, FALSE, FALSE, 5);
 
     /* third level of windows */
     /* left side */
-    ctrl_usr->hor_disp_win =
-	gtk_vbox_new_in_box(FALSE, 0, 0, vboxleft, FALSE, FALSE, 1);
-    gtk_hseparator_new_in_box(vboxleft, 0);
+    ctrl_usr->horiz_info_win =
+	gtk_vbox_framed_new_in_box("Horizontal",FALSE, 0, 0, vboxleft, FALSE, FALSE, 1);
     /* hbox for waveform and chan sel windows */
     hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 1);
     ctrl_usr->waveform_win =
 	gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    gtk_vseparator_new_in_box(hbox, 0);
     ctrl_usr->chan_sel_win =
 	gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, FALSE, 0);
-    gtk_hseparator_new_in_box(vboxleft, 0);
     ctrl_usr->chan_info_win =
-	gtk_hbox_new_in_box(FALSE, 0, 0, vboxleft, FALSE, FALSE, 0);
+	gtk_hbox_framed_new_in_box("Selected Channel",FALSE, 0, 0, vboxleft, FALSE, FALSE, 0);
     /* right side */
     ctrl_usr->run_mode_win =
-	gtk_vbox_new_in_box(TRUE, 0, 0, vboxright, FALSE, FALSE, 0);
-    gtk_hseparator_new_in_box(vboxright, 0);
+	gtk_vbox_framed_new_in_box("Run Mode",TRUE, 0, 0, vboxright, FALSE, FALSE, 0);
     ctrl_usr->trig_mode_win =
-	gtk_vbox_new_in_box(TRUE, 0, 0, vboxright, FALSE, FALSE, 0);
-    gtk_hseparator_new_in_box(vboxright, 0);
-    ctrl_usr->menu_win =
-	gtk_vbox_new_in_box(FALSE, 0, 0, vboxright, TRUE, TRUE, 0);
+	gtk_vbox_framed_new_in_box("Trigger",TRUE, 0, 0, vboxright, FALSE, FALSE, 0);
+    ctrl_usr->vert_info_win =
+	gtk_vbox_framed_new_in_box("Vertical",FALSE, 0, 0, vboxright, TRUE, TRUE, 0);
     /* all windows are now defined */
 }
 
 static void init_run_mode_window(void)
 {
-    GtkWidget *label;
-
-    /* fill in the run mode window */
-    label =
-	gtk_label_new_in_box("Run Mode", ctrl_usr->run_mode_win, FALSE, FALSE,
-	0);
-    /* now define the radio buttons */
+    /* define the radio buttons */
     ctrl_usr->rm_stop_button = gtk_radio_button_new_with_label(NULL, "Stop");
     ctrl_usr->rm_normal_button =
 	gtk_radio_button_new_with_label(gtk_radio_button_group
@@ -370,12 +354,6 @@ static void init_run_mode_window(void)
 
 static void init_trigger_mode_window(void)
 {
-    GtkWidget *label;
-
-    /* label the trigger mode window */
-    label =
-	gtk_label_new_in_box("Trig Mode", ctrl_usr->trig_mode_win, FALSE,
-	FALSE, 0);
     /* define the radio buttons */
     ctrl_usr->tm_normal_button =
 	gtk_radio_button_new_with_label(NULL, "Normal");
@@ -402,16 +380,6 @@ static void init_trigger_mode_window(void)
     gtk_widget_show(ctrl_usr->tm_normal_button);
     gtk_widget_show(ctrl_usr->tm_auto_button);
     gtk_widget_show(ctrl_usr->tm_force_button);
-}
-
-static void init_menu_window(void)
-{
-
-    GtkWidget *label;
-
-    /* label the window */
-    label =
-	gtk_label_new_in_box("Menus", ctrl_usr->menu_win, FALSE, FALSE, 0);
 }
 
 /* POP UP MENUS */
@@ -463,53 +431,6 @@ static void init_menu_window(void)
     (can we eliminate sliders and let user click on the waveforms?)
 */
 
-static void init_chan_select_window(void)
-{
-    GtkWidget *chk[16] /* , *rad[16] */ ;
-    gint n;
-    gchar buf[5];
-
-#if 0
-    /* define two vboxes */
-    vbox1 = gtk_hbox_new(TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox1), 0);
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), vbox1, FALSE, TRUE,
-	0);
-    gtk_widget_show(vbox1);
-    vbox2 = gtk_vbox_new(TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox2), 0);
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), vbox2, FALSE, TRUE,
-	0);
-    gtk_widget_show(vbox2);
-    /* and a separator */
-    bar = gtk_vseparator_new();
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), bar, FALSE, FALSE, 0);
-    gtk_widget_show(bar);
-#endif
-
-    for (n = 0; n < 16; n++) {
-	snprintf(buf, 4, "%d", n + 1);
-	/* define the check button */
-	chk[n] = gtk_button_new_with_label(buf);
-	gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), chk[n], TRUE,
-	    TRUE, 0);
-	gtk_widget_show(chk[n]);
-#if 0
-	/* now define the radio buttons */
-	if (n == 0) {
-	    /* define the first radio button */
-	    rad[n] = gtk_radio_button_new(NULL);
-	} else {
-	    /* define an additional radio button */
-	    rad[n] =
-		gtk_radio_button_new(gtk_radio_button_group(GTK_RADIO_BUTTON
-		    (rad[0])));
-	}
-	gtk_box_pack_start(GTK_BOX(vbox2), rad[n], FALSE, FALSE, 0);
-	gtk_widget_show(rad[n]);
-#endif
-    }
-}
 
 /***********************************************************************
 *                    LOCAL CALLBACK FUNCTION CODE                      *

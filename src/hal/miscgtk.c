@@ -111,6 +111,38 @@ GtkWidget *gtk_hbox_new_in_box(gboolean homogeneous, guint spacing,
     return hbox;
 }
 
+GtkWidget *gtk_vbox_framed_new_in_box(gchar *name, gboolean homogeneous, guint spacing,
+    guint border, GtkWidget * box, gboolean expand, gboolean fill,
+    guint padding)
+{
+    GtkWidget *vbox, *frame;
+
+    frame = gtk_frame_new(name);
+    gtk_box_pack_start(GTK_BOX(box), frame, expand, fill, padding);
+    gtk_widget_show(frame);
+    vbox = gtk_vbox_new(homogeneous, spacing);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), border);
+    gtk_container_add(GTK_CONTAINER(frame), vbox);
+    gtk_widget_show(vbox);
+    return vbox;
+}
+
+GtkWidget *gtk_hbox_framed_new_in_box(gchar *name, gboolean homogeneous, guint spacing,
+    guint border, GtkWidget * box, gboolean expand, gboolean fill,
+    guint padding)
+{
+    GtkWidget *hbox, *frame;
+
+    frame = gtk_frame_new(name);
+    gtk_box_pack_start(GTK_BOX(box), frame, expand, fill, padding);
+    gtk_widget_show(frame);
+    hbox = gtk_hbox_new(homogeneous, spacing);
+    gtk_container_set_border_width(GTK_CONTAINER(hbox), border);
+    gtk_container_add(GTK_CONTAINER(frame), hbox);
+    gtk_widget_show(hbox);
+    return hbox;
+}
+
 void gtk_label_set_text_if(GtkWidget * label, gchar * text)
 {
     if (label != NULL) {
@@ -130,13 +162,13 @@ void gtk_label_size_to_fit(GtkLabel * label, gchar * str)
     /* how long is it */
     text_len = strlen(current_text);
     /* allocate memory to save it */
-    text_buf = malloc(text_len);
+    text_buf = malloc(text_len+2);
     if (text_buf == NULL) {
 	printf("gtk_label_size_to_fit() - malloc failed\n");
 	return;
     }
     /* save the text */
-    strncpy(text_buf, current_text, text_len);
+    strncpy(text_buf, current_text, text_len+1);
     /* set the label to display the new text */
     gtk_label_set_text(label, str);
     /* how big is the label with the new text? */

@@ -64,6 +64,17 @@ GtkWidget *gtk_hbox_new_in_box(gboolean homogeneous, guint spacing,
     guint border, GtkWidget * box, gboolean expand, gboolean fill,
     guint padding);
 
+/** convenience functions for nesting boxes.  the new box is placed
+    in a frame, which is in turn placed in the parent box.  'name'
+    is the name displayed by the frame
+*/
+GtkWidget *gtk_vbox_framed_new_in_box(gchar *name, gboolean homogeneous, guint spacing,
+    guint border, GtkWidget * box, gboolean expand, gboolean fill,
+    guint padding);
+GtkWidget *gtk_hbox_framed_new_in_box(gchar *name, gboolean homogeneous, guint spacing,
+    guint border, GtkWidget * box, gboolean expand, gboolean fill,
+    guint padding);
+
 /** yet another convenience function - this one works exactly like
     'gtk_label_set_text() except that if 'label' is null it returns
     without doing anything - handy for refreshing displays that may

@@ -73,7 +73,7 @@ typedef struct {
     int watchdog;		/* RU rt sets to zero, user incs */
     int mult;			/* U sample period multiplier */
     int rec_len;		/* U total samples in record */
-    int sample_len;		/* U channels in each sample */
+    int sample_len;		/* U max channels in each sample */
     int pre_trig;		/* U number of samples before trigger */
     int force_trig;		/* RU U sets non-zero to force trigger */
     int start;			/* R first sample in record */

@@ -50,7 +50,7 @@
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "halsc_usr.h"		/* scope related declarations */
 
-#define BUFLEN 50		/* length for sprintf buffers */
+#define BUFLEN 80		/* length for sprintf buffers */
 
 /***********************************************************************
 *                  GLOBAL VARIABLES DECLARATIONS                       *
@@ -79,8 +79,6 @@ static void calc_horiz_scaling(void);
 static void refresh_horiz_info(void);
 static void refresh_pos_disp(void);
 
-/*static void refresh_pos_disp(void);*/
-
 /* helper functions */
 static void format_time_value(char *buf, int buflen, float timeval);
 static void format_freq_value(char *buf, int buflen, float freqval);
@@ -97,14 +95,7 @@ void init_horiz(void)
     ctrl_shm->state = IDLE;
     /* make a pointer to the horiz structure */
     horiz = &(ctrl_usr->horiz);
-    /* init the horizontal structure */
-    horiz->thread_name = NULL;
-    horiz->thread_period_ns = 0;
-    horiz->sample_period_ns = 0;
-    horiz->sample_period = 0.0;
-    horiz->disp_scale = 0.0;
-    horiz->zoom_setting = 0;
-    horiz->pos_setting = 0;
+    /* init non-zero members of the horizontal structure */
     /* set up the window */
     init_horiz_window();
     /* set up the realtime function */
@@ -121,28 +112,14 @@ static void init_horiz_window(void)
 
     horiz = &(ctrl_usr->horiz);
 
-    /* first row of information */
-    hbox =
-	gtk_hbox_new_in_box(FALSE, 0, 0, ctrl_usr->hor_disp_win, FALSE, TRUE,
-	0);
-    /* graphic horizontal display */
-    horiz->disp_area = gtk_drawing_area_new();
-    gtk_box_pack_start(GTK_BOX(hbox), horiz->disp_area, TRUE, TRUE, 0);
-    gtk_widget_show(horiz->disp_area);
-    gtk_vseparator_new_in_box(hbox, 0);
-    /* label for state */
-    horiz->state_label =
-	gtk_label_new_in_box(" ---- ", hbox, FALSE, FALSE, 0);
-    gtk_label_size_to_fit(GTK_LABEL(horiz->state_label), " TRIGGERED ");
-
-    /* second row of information */
-    gtk_hseparator_new_in_box(ctrl_usr->hor_disp_win, 0);
-    hbox =
-	gtk_hbox_new_in_box(TRUE, 0, 0, ctrl_usr->hor_disp_win, FALSE, TRUE,
-	0);
-    /* horizontal zoom window */
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, TRUE, TRUE, 5);
-    gtk_label_new_in_box("Horizontal Zoom", vbox, FALSE, FALSE, 0);
+    /* upper region - main display */
+    hbox = gtk_hbox_new_in_box(FALSE, 0, 0, ctrl_usr->horiz_info_win, FALSE, TRUE,0);
+    /* first column - slider labels */
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE,3);
+    gtk_label_new_in_box("Zoom", vbox, FALSE, TRUE, 0);
+    gtk_label_new_in_box(" Pos ", vbox, FALSE, TRUE, 0);
+    /* second column - sliders */
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, TRUE, TRUE,3);
     /* add a slider for zoom level */
     horiz->zoom_adj = gtk_adjustment_new(1, 1, 9, 1, 1, 0);
     horiz->zoom_slider = gtk_hscale_new(GTK_ADJUSTMENT(horiz->zoom_adj));
@@ -155,13 +132,6 @@ static void init_horiz_window(void)
     gtk_signal_connect(GTK_OBJECT(horiz->zoom_adj), "value_changed",
 	GTK_SIGNAL_FUNC(zoom_changed), NULL);
     gtk_widget_show(horiz->zoom_slider);
-    /* horizontal scale window */
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, TRUE, TRUE, 5);
-    gtk_label_new_in_box("Horizontal Scale", vbox, FALSE, FALSE, 0);
-    horiz->scale_label = gtk_label_new_in_box("----", vbox, FALSE, FALSE, 0);
-    /* horizontal position (pan) window */
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, TRUE, TRUE, 5);
-    gtk_label_new_in_box("Horizontal Position", vbox, FALSE, FALSE, 0);
     /* add a slider for position control */
     horiz->pos_adj = gtk_adjustment_new(500, 0, 1000, 1, 1, 0);
     horiz->pos_slider = gtk_hscale_new(GTK_ADJUSTMENT(horiz->pos_adj));
@@ -174,29 +144,37 @@ static void init_horiz_window(void)
     gtk_signal_connect(GTK_OBJECT(horiz->pos_adj), "value_changed",
 	GTK_SIGNAL_FUNC(pos_changed), NULL);
     gtk_widget_show(horiz->pos_slider);
-
-    /* third row of information */
-    gtk_hseparator_new_in_box(ctrl_usr->hor_disp_win, 0);
-    hbox =
-	gtk_hbox_new_in_box(FALSE, 0, 0, ctrl_usr->hor_disp_win, FALSE, TRUE,
-	0);
-    /* sample rate */
-    gtk_label_new_in_box("Sample Rate:", hbox, FALSE, TRUE, 3);
-    horiz->rate_label =
-	gtk_label_new_in_box("----------", hbox, FALSE, TRUE, 3);
-    gtk_label_size_to_fit(GTK_LABEL(horiz->rate_label), "99.9 MHz ");
-    gtk_vseparator_new_in_box(hbox, 0);
-    /* record length */
-    gtk_label_new_in_box("Record Length:", hbox, FALSE, TRUE, 3);;
-    horiz->rec_len_label = gtk_label_new_in_box("----", hbox, FALSE, TRUE, 3);
-    gtk_label_size_to_fit(GTK_LABEL(horiz->rec_len_label), "99999 ");
-    /* a button to change things */
-    button = gtk_button_new_with_label("Change");
-    gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 3);
+    /* third column - scale display */
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE,3);
+    horiz->scale_label = gtk_label_new_in_box("----", vbox, TRUE, TRUE, 0);
+    gtk_label_size_to_fit(GTK_LABEL(horiz->scale_label), "99.9 mSec\nper div");
+    /* fourth column - record length and sample rate */
+    gtk_vseparator_new_in_box(hbox, 3);
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE,0);
+    horiz->record_label = gtk_label_new_in_box("----- Samples\nat ---- KHz", vbox, FALSE, TRUE, 0);
+    gtk_label_size_to_fit(GTK_LABEL(horiz->record_label), "99999 Samples\nat 99.9 MHz");
+    /* fifth column - change button */
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE,3);
+    button = gtk_button_new_with_label(" Change \nRate/Len");
+    gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
     /* activate the acquire menu if button is clicked */
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
 	GTK_SIGNAL_FUNC(acquire_popup), NULL);
     gtk_widget_show(button);
+
+    /* lower region, graphical status display */
+    gtk_hseparator_new_in_box(ctrl_usr->horiz_info_win, 0);
+    hbox = gtk_hbox_new_in_box(FALSE, 0, 0, ctrl_usr->horiz_info_win, FALSE, TRUE,0);
+    /* graphic horizontal display */
+    horiz->disp_area = gtk_drawing_area_new();
+    gtk_box_pack_start(GTK_BOX(hbox), horiz->disp_area, TRUE, TRUE, 0);
+    gtk_widget_show(horiz->disp_area);
+    /* label for state */
+    gtk_vseparator_new_in_box(hbox, 3);
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE,3);
+    horiz->state_label =
+	gtk_label_new_in_box(" ---- ", vbox, FALSE, FALSE, 3);
+    gtk_label_size_to_fit(GTK_LABEL(horiz->state_label), " TRIGGERED ");
 }
 
 static void init_acquire_function(void)
@@ -395,8 +373,7 @@ static void dialog_realtime_not_linked(void)
     gtk_clist_set_selection_mode(GTK_CLIST(horiz->thread_list),
 	GTK_SELECTION_BROWSE);
     /* put the list into the scrolled window */
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW
-	(scrolled_window), horiz->thread_list);
+    gtk_container_add(GTK_CONTAINER(scrolled_window),horiz->thread_list);
     gtk_widget_show(horiz->thread_list);
     /* generate list of threads */
     gtk_clist_clear(GTK_CLIST(horiz->thread_list));
@@ -445,14 +422,14 @@ static void dialog_realtime_not_linked(void)
 	FALSE, TRUE, 5);
     gtk_label_new_in_box("Multiplier:", hbox, FALSE, FALSE, 0);
     /* set up the multiplier spinbutton */
-    horiz->mult_adjustment =
+    horiz->mult_adj =
 	gtk_adjustment_new(ctrl_shm->mult, 1, ctrl_shm->mult, 1, 1, 0);
     horiz->mult_spinbutton =
-	gtk_spin_button_new(GTK_ADJUSTMENT(horiz->mult_adjustment), 1, 0);
+	gtk_spin_button_new(GTK_ADJUSTMENT(horiz->mult_adj), 1, 0);
     gtk_box_pack_start(GTK_BOX(hbox), horiz->mult_spinbutton, FALSE, TRUE, 0);
     gtk_widget_show(horiz->mult_spinbutton);
     /* connect the multiplier spinbutton to a function */
-    gtk_signal_connect(GTK_OBJECT(horiz->mult_adjustment), "value_changed",
+    gtk_signal_connect(GTK_OBJECT(horiz->mult_adj), "value_changed",
 	GTK_SIGNAL_FUNC(mult_changed), NULL);
 
     /* a separator */
@@ -555,7 +532,7 @@ static void dialog_realtime_not_linked(void)
     horiz->thread_name_label = NULL;
     horiz->sample_rate_label = NULL;
     horiz->sample_period_label = NULL;
-    horiz->mult_adjustment = NULL;
+    horiz->mult_adj = NULL;
     horiz->mult_spinbutton = NULL;
     /* we get here when the user hits OK or Cancel or closes the window */
     if ((dialog.retval == 0) || (dialog.retval == 2)) {
@@ -662,8 +639,8 @@ static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
 	max_mult = 1000;
     }
     /* update limit on mult spinbox */
-    GTK_ADJUSTMENT(horiz->mult_adjustment)->upper = max_mult;
-    gtk_adjustment_changed(GTK_ADJUSTMENT(horiz->mult_adjustment));
+    GTK_ADJUSTMENT(horiz->mult_adj)->upper = max_mult;
+    gtk_adjustment_changed(GTK_ADJUSTMENT(horiz->mult_adj));
     if (ctrl_shm->mult > max_mult) {
 	ctrl_shm->mult = max_mult;
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(horiz->mult_spinbutton),
@@ -706,8 +683,29 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 
 static void rec_len_button(GtkWidget * widget, gpointer gdata)
 {
+    int count, n;
+    short mask;
+    char *title, *msg;
+
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
+	return;
+    }
+    count = 0;
+    mask = 1;
+    for ( n = 0 ; n < 16 ; n++ ) {
+	if ((ctrl_usr->vert.enabled & mask ) != 0 ) {
+	    count++;
+	}
+	mask <<= 1;
+    }
+    if ( count > (int)gdata ) {
+	/* too many channels already enabled */
+	title = "Not enough channels";
+	msg = "This record length cannot handle the channels\n"
+	    "that are currently enabled.  Pick a shorter\n"
+	    "record length that supports more channels.";
+	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", NULL, NULL, NULL );
 	return;
     }
     ctrl_shm->sample_len = (int) (gdata);
@@ -782,8 +780,8 @@ static void refresh_horiz_info(void)
 {
     scope_horiz_t *horiz;
     gchar *name;
-    gchar tmp[BUFLEN + 1], rate[BUFLEN + 1], period[BUFLEN + 1];
-    gchar scale[BUFLEN + 1], rec_len[BUFLEN + 1];
+    static gchar tmp[BUFLEN + 1], rate[BUFLEN + 1], period[BUFLEN + 1];
+    static gchar scale[BUFLEN + 1], rec_len[BUFLEN + 1], msg[BUFLEN+1];
     float freqval;
 
     horiz = &(ctrl_usr->horiz);
@@ -796,7 +794,7 @@ static void refresh_horiz_info(void)
 	snprintf(scale, BUFLEN, "----");
     } else {
 	format_time_value(tmp, BUFLEN, horiz->disp_scale);
-	snprintf(scale, BUFLEN, "%s/div", tmp);
+	snprintf(scale, BUFLEN, "%s\nper div", tmp);
     }
     if (horiz->sample_period == 0.0) {
 	snprintf(period, BUFLEN, "----");
@@ -811,12 +809,12 @@ static void refresh_horiz_info(void)
     } else {
 	snprintf(rec_len, BUFLEN, "%d", ctrl_shm->rec_len);
     }
+    snprintf ( msg, BUFLEN, "%s samples\nat %s", rec_len, rate);
     gtk_label_set_text_if(horiz->thread_name_label, name);
-    gtk_label_set_text_if(horiz->rate_label, rate);
     gtk_label_set_text_if(horiz->sample_rate_label, rate);
     gtk_label_set_text_if(horiz->scale_label, scale);
     gtk_label_set_text_if(horiz->sample_period_label, period);
-    gtk_label_set_text_if(horiz->rec_len_label, rec_len);
+    gtk_label_set_text_if(horiz->record_label, msg);
     refresh_state_info();
 }
 

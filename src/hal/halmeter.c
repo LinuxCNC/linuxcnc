@@ -398,10 +398,11 @@ static void create_probe_window(probe_t * probe)
     gchar *tab_label_text[3];
     gint n;
 
-    /* create window, set it's size, and leave it re-sizeable */
+    /* create window, set it's size */
     probe->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_usize(GTK_WIDGET(probe->window), 300, 400);
-    gtk_window_set_policy(GTK_WINDOW(probe->window), TRUE, TRUE, FALSE);
+    gtk_widget_set_usize(GTK_WIDGET(probe->window), -2, 300);
+    /* allow user to grow but not shrink the window */
+    gtk_window_set_policy(GTK_WINDOW(probe->window), FALSE, TRUE, FALSE);
     /* window should appear in center of screen */
     gtk_window_set_position(GTK_WINDOW(probe->window), GTK_WIN_POS_CENTER);
     /* set set_probe window title */
@@ -421,9 +422,9 @@ static void create_probe_window(probe_t * probe)
     /* set overall notebook parameters */
     gtk_notebook_set_homogeneous_tabs(GTK_NOTEBOOK(notebk), TRUE);
     /* text for tab labels */
-    tab_label_text[0] = "Pins";
-    tab_label_text[1] = "Signals";
-    tab_label_text[2] = "Parameters";
+    tab_label_text[0] = " Pins ";
+    tab_label_text[1] = " Signals ";
+    tab_label_text[2] = " Parameters ";
     /* loop to create three identical tabs */
     for (n = 0; n < 3; n++) {
 	/* Create a scrolled window to display the list */

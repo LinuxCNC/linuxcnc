@@ -63,8 +63,7 @@ typedef struct {
     GtkWidget *disp_area;
     GdkGC *disp_context;
     GtkWidget *state_label;
-    GtkWidget *rate_label;
-    GtkWidget *rec_len_label;
+    GtkWidget *record_label;
     GtkWidget *zoom_slider;
     GtkObject *zoom_adj;
     GtkWidget *pos_slider;
@@ -75,21 +74,48 @@ typedef struct {
     GtkWidget *thread_name_label;
     GtkWidget *sample_rate_label;
     GtkWidget *sample_period_label;
-    GtkObject *mult_adjustment;
+    GtkObject *mult_adj;
     GtkWidget *mult_spinbutton;
 } scope_horiz_t;
 
+/* this struct holds control data related to a single channel */
+/* it lives in user space (as part of the vertical struct) */
+
+typedef struct {
+    char *name;			/* name of pin/sig/parameter */
+    hal_type_t type;		/* data type */
+    void *addr;			/* data address (user mapping) */
+    float offset;		/* offset to be applied */
+    float scale;		/* scaling (units/div) */
+    int position;		/* vertical pos (0-100) */
+} scope_chan_t;
+
 /* this struct holds control data related to vertical control */
-/* it lives in user space (as part of the master control struct */
+/* it lives in user space (as part of the master control struct) */
 
 typedef struct {
     /* general data */
-    short probe_assigned;	/* bitmap of chans assigned to sigs */
+    short enabled;		/* bitmap of chans user wants to display */
     short data_valid;		/* bitmap of chans with data in usr mem */
-    short disp_request;		/* bitmap of chans user wants to display */
-    int highlight;		/* channel user has selected */
+    int selected;		/* channel user has selected */
+    scope_chan_t chan[16];	/* channel data */
+    int scale_setting;		/* setting of scale slider (-? to +?) */
+    float pos_setting;		/* setting of position slider (0.0-1.0) */
     /* widgets for main window */
+    GtkWidget *chan_sel_buttons[16];
+    GtkWidget *chan_num_label;
+    GtkWidget *source_name_label;
+    GtkWidget *scale_slider;
+    GtkObject *scale_adj;
+    GtkWidget *scale_label;
+    GtkWidget *pos_slider;
+    GtkObject *pos_adj;
+    GtkWidget *offset_entry;
+    GtkWidget *offset_spinbutton;
+    GtkObject *offset_adj;
+
     /* widgets for source selection dialog */
+    GtkWidget *lists[3];	/* lists for pins, signals, and params */
 } scope_vert_t;
 
 /* this is the master user space control structure */
@@ -99,13 +125,13 @@ typedef struct {
     scope_data_t *buffer;	/* ptr to buffer (user mapping) */
     /* top level windows */
     GtkWidget *main_win;
-    GtkWidget *hor_disp_win;
+    GtkWidget *horiz_info_win;
     GtkWidget *chan_sel_win;
     GtkWidget *chan_info_win;
+    GtkWidget *vert_info_win;
     GtkWidget *waveform_win;
     GtkWidget *run_mode_win;
     GtkWidget *trig_mode_win;
-    GtkWidget *menu_win;
     /* top level controls */
     GtkWidget *rm_normal_button;
     GtkWidget *rm_single_button;
@@ -132,6 +158,7 @@ extern scope_shm_control_t *ctrl_shm;	/* shared mem control struct */
 ************************************************************************/
 
 void init_horiz(void);
+void init_vert(void);
 
 void handle_watchdog_timeout(void);
 void refresh_state_info(void);
