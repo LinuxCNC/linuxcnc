@@ -83,29 +83,44 @@ if (test -z "$RTDIR" ); then
   elif (test `echo "$RTS" | wc -l` != 1 ) ; then
     AC_MSG_ERROR([Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
   else
-    AC_MSG_RESULT([Using $RTDIR as the RT signature])
+    AC_MSG_RESULT([Using $RTS as the RT signature])
   fi
 else
   # we have RTDIR from the user... let's check for rtai-config, realtime-config, and rtl-config
   RTDIR=$(cd $RTDIR ; pwd -P )
   if (! test "x$RTAIDIR" = "x") ; then
-    # Test for rtai-config
+    # Test for rtai-config - RTAI3.x
     if (test -f $RTDIR/rtai-config); then
        RTS=$RTDIR/rtai-config
     elif (test -r $RTDIR/bin/rtai-config); then
        RTS=$RTDIR/bin/rtai-config
     elif (test `rtai-config --version 2> /dev/null`); then
-       RTS=rtai-config  # If this final test is true, then we need to check
-                        # that `rtai-config --prefix` == $RTDIR
-    # Test for rtai-config
+       RTS=rtai-config 
+       #we have RTDIR defined by the user, let's check if $RTS --prefix = $RTDIR
+       if (! test "$RTDIR" = `$RTS --prefix`); then
+	  AC_MSG_WARN([RTAIDIR=$RTDIR specified contains no rtai-config, however one was found in PATH]) 
+          RTDIR=`$RTS --prefix`
+	  AC_MSG_WARN([using RTAIDIR=$RTDIR from now on])
+       fi
+    # Test for realtime-config - RTAI24.1.x
     elif (test -f $RTDIR/realtime-config); then
        RTS=$RTDIR/realtime-config
     elif (test -r $RTDIR/bin/realtime-config); then
        RTS=$RTDIR/bin/realtime-config
     elif (test -r $RTDIR/scripts/realtime-config); then
        RTS=$RTDIR/scripts/realtime-config
+    elif (test `realtime-config --version 2> /dev/null`); then
+       RTS=realtime-config 
+       #we have RTDIR defined by the user, let's check if $RTS --prefix = $RTDIR
+       if (! test "$RTDIR" = `$RTS --prefix`); then
+	  AC_MSG_WARN([RTAIDIR=$RTDIR specified contains no realtime-config, however one was found in PATH]) 
+          RTDIR=`$RTS --prefix`
+	  AC_MSG_WARN([using RTAIDIR=$RTDIR from now on])
+       fi
+    else
+       AC_MSG_ERROR([RTAIDIR=$RTAIDIR specified, but neither rtai-config \(RTAI-3.x\) nor realtime-config \(rtai-24.1.x\) found. Check your RTAI install])
     fi
-
+    
   elif (! test "x$RTLINUXDIR" = "x") ; then
     # test for rtl-config
     if (test -f $RTLINUXDIR/rtl-config); then
@@ -115,15 +130,21 @@ else
     elif (test -r $RTLINUXDIR/scripts/rtl-config); then
        RTS=$RTLINUXDIR/scripts/rtl-config
     fi
+  elif (! test "x$RTLINUXPRODIR" = "x") ; then
+    # test for RTLinuxPro
+    # right now unsupported
+    AC_MSG_ERROR([RTLinuxPro support to be added])
   fi
   AC_MSG_RESULT([$RTDIR set from command line]) # Spit out an error if/when it fails ??
 fi
 
+	
+#FIXME Move setting of RTPREFIX & friends to a single location..
 # For RTAI-3.x $RTS = rtai-config
 if (test `echo $RTS | awk -F /'{print $NF }'`="rtai-config"); then
 #	 Option		Returns
 #	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree.
-#	--version	Version number of the installed RTAI (e.g. 3.1)
+#	--version	Version number of the installed RTAI (e.g. 3.1, 3.0r4)
 #	--cc		The compiler used for the C sources - Not necessarily the default cc
 #	--module-cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
 #	--linux-dir	Path to the source directory f the patched kernel.
@@ -367,8 +388,8 @@ AC_CHECK_HEADERS([tcl.h tk.h])
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
-AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
-AC_SEARCH_LIBS(Tk_Init,[tk tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
+AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
+AC_SEARCH_LIBS(Tk_Init,[tk tk8.0 tk8.1 tk8.2 tk8.3 tk8.4],[],[AC_MSG_ERROR([tk lib not found])])
 
 DATE=$(date)
 AC_SUBST([DATE])
