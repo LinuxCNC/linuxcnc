@@ -47,11 +47,18 @@ typedef long NMLTYPE;		/* Also defined in nml.hh */
 class NMLmsg {
   protected:
     NMLmsg(NMLTYPE t, long s);
-    NMLmsg(NMLTYPE t, size_t s);
+      NMLmsg(NMLTYPE t, size_t s);
+
+    /* This second constructor never clears the message regardless of what is
+       in nmlmsg. The value of noclear is irrelevent but adding it changes
+       which constructor is called. */
+      NMLmsg(NMLTYPE t, long s, int noclear);
 
   public:
     void clear();
 
+    static int automatically_clear;	/* controls whether NMLmsgs are set
+					   to zero in the constructor. */
     NMLTYPE type;		/* Each derived type should have a unique id */
     long size;			/* The size is used so that the entire buffer 
 				   is not copied unneccesarily. */
@@ -59,17 +66,9 @@ class NMLmsg {
     void update(CMS *);
 };
 
-// This is just a symbol passed to the RCS Java Tools
+// This is just a symbol passed to the RCS Java Tools (CodeGen, RCS-Design, RCS-Diagnostis)
 #define NML_DYNAMIC_LENGTH_ARRAY
 
 #define DECLARE_NML_DYNAMIC_LENGTH_ARRAY(type, name, size) int name##_length; type name[size];
-/* The above macro, when supplied with the following : 
-
-  DECLARE_NML_DYNAMIC_LENGTH_ARRAY(foo_type, bar, 666)
-
-gives:
-
-   int bar_length; foo_type bar[20];
-*/
 
 #endif /* !defined(NMLMSG_HH) */

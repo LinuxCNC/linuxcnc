@@ -4,10 +4,7 @@
 
 # include Makefile.lib
 # make rules.
-include ../Makefile.inc
-
-LOCAL_CXXFLAGS = $(LIBFLAGS)
-LOCAL_FLAGS = $(LIBFLAGS)
+include ../../Makefile.inc
 
 all: headers
 
@@ -15,6 +12,7 @@ all headers clean depend indent install:
 	(cd linklist; make $@)
 	(cd rcs; make $@)
 	(cd inifile; make $@)
+	(cd posemath; make $@)
 	(cd os_intf; make $@)
 	(cd buffer; make $@)
 	(cd cms; make $@)

@@ -45,7 +45,28 @@ int RCS_STAT_MSG_format(NMLTYPE t, void *buf, CMS * cms)
     cms->update(((RCS_STAT_MSG *) buf)->line);
     cms->update(((RCS_STAT_MSG *) buf)->source_line);
     cms->update(((RCS_STAT_MSG *) buf)->source_file, 64);
+
+    switch (t) {
+    case RCS_GENERIC_STATUS_TYPE:
+	((RCS_GENERIC_STATUS *) buf)->update(cms);
+	return (1);
+
+    default:
+	return (0);
+    }
     return (0);
+}
+
+RCS_GENERIC_STATUS::RCS_GENERIC_STATUS():
+RCS_STAT_MSG(RCS_GENERIC_STATUS_TYPE, sizeof(RCS_GENERIC_STATUS))
+{
+// Just avoiding an inline function.
+}
+
+void
+  RCS_GENERIC_STATUS::update(CMS *)
+{
+// Just avoiding an inline function.
 }
 
 RCS_STAT_CHANNEL::RCS_STAT_CHANNEL(NML_FORMAT_PTR f_ptr, char *name,
@@ -63,4 +84,5 @@ RCS_STAT_CHANNEL::RCS_STAT_CHANNEL(NML_FORMAT_PTR f_ptr, char *name,
 
 RCS_STAT_CHANNEL::~RCS_STAT_CHANNEL()
 {
+    // Something funny happens to gdb without this being explicitly defined.
 }

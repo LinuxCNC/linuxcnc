@@ -55,6 +55,7 @@ class PHYSMEM_HANDLE {
 						   _ptr. */
 
     long address_code;		/* Platform specific address type code. */
+    /* (See vme.h for VXWORKS) */
 
     void memsetf(long offset, char _byte, long _memset_size);
     int clear_memory();
@@ -63,7 +64,11 @@ class PHYSMEM_HANDLE {
     char *temp_buf;
     unsigned long physical_address;
     LOCAL_ADDRESS_TYPE local_address;
+  protected:
 
+  public:
+
+    int using_bit3;
     double total_bytes_moved;
     int enable_byte_counting;
 };

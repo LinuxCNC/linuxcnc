@@ -35,15 +35,35 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include "cms.hh"		/* class CMS */
 #include "cms_up.hh"		/* class CMS_UPDATER */
+#include "cms_xup.hh"		/* class CMS_XDR_UPDATER */
+#include "cms_aup.hh"		/* class CMS_ASCII_UPDATER */
+#include "cms_dup.hh"		/* class CMS_DISPLAY_ASCII_UPDATER */
 #include "rcs_print.hh"		/* rcs_print_error(), separate_words() */
 				/* rcs_print_debug() */
-
+#include "cmsdiag.hh"
 LinkedList *cmsHostAliases = NULL;
 CMS_CONNECTION_MODE cms_connection_mode = CMS_NORMAL_CONNECTION_MODE;
 
 /* Static Class Data Members. */
 int CMS::number_of_cms_objects = 0;
+int cms_encoded_data_explosion_factor = 4;
+
+#if 0
+static int convert2lower(char *dest, char *src, int len)
+{
+    int i;
+    for (i = 0; i < len; i++) {
+	if (src[i] == 0) {
+	    dest[i] = 0;
+	    return i;
+	}
+	dest[i] = tolower(src[i]);
+    }
+    return i;
+}
+#endif
 
 static int convert2upper(char *dest, char *src, int len)
 {
@@ -117,10 +137,16 @@ CMS::CMS(long s)
     min_compatible_version = 0;
     confirm_write = 0;
     disable_final_write_raw_for_dma = 0;
-    subdiv_data = NULL;
+    subdiv_data = 0;
+    enable_diagnostics = 0;
+    dpi = NULL;
+    di = NULL;
     skip_area = 0;
     half_offset = s / 2;
     free_space = half_size = s / 2;
+    fast_mode = 0;
+    disable_diag_store = 0;
+    diag_offset = 0;
 
     /* Initailize some variables. */
     read_permission_flag = 0;	/* Allow both read and write by default.  */
@@ -130,7 +156,9 @@ CMS::CMS(long s)
     write_just_completed = 0;
     neutral_encoding_method = CMS_XDR_ENCODING;
     blocking_timeout = 0;
+    total_subdivisions = 1;
     subdiv_size = size;
+    current_subdivision = 0;
     enc_max_size = s;
     max_encoded_message_size = s;
     last_id_side0 = 0;
@@ -188,6 +216,12 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     min_compatible_version = 0;
     enc_max_size = -1;
     max_encoded_message_size = 0;
+    enable_diagnostics = 0;
+    dpi = NULL;
+    di = NULL;
+    disable_diag_store = 0;
+    diag_offset = 0;
+    use_autokey_for_connection_number = 0;
 
     if ((NULL == bufline) || (NULL == procline)) {
 	rcs_print_error("CMS: Pointer to bufline or procline is NULL.\n");
@@ -205,18 +239,22 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     last_id_side1 = 0;
     delete_totally = 0;
     queuing_enabled = 0;
+    split_buffer = 0;
     fatal_error_occurred = 0;
     consecutive_timeouts = 0;
     write_just_completed = 0;
     pointer_check_disabled = 0;
     blocking_timeout = 0;
     last_im = CMS_NOT_A_MODE;
+    total_subdivisions = 1;
     size = 0;
     subdiv_size = 0;
+    current_subdivision = 0;
     max_encoded_message_size = 0;
     skip_area = 0;
     half_offset = 0;
     half_size = 0;
+    fast_mode = 0;
     last_id_side0 = 0;
     last_id_side1 = 0;
     free_space = 0;
@@ -310,6 +348,15 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	    continue;
 	}
 
+	if (!strcmp(word[i], "DIAG")) {
+	    enable_diagnostics = 1;
+	    continue;
+	}
+
+	if (!strcmp(word[i], "SPLIT")) {
+	    split_buffer = 1;
+	    continue;
+	}
 	if (!strcmp(word[i], "DISP")) {
 	    neutral_encoding_method = CMS_DISPLAY_ASCII_ENCODING;
 	    continue;
@@ -348,6 +395,14 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	    continue;
 	}
 
+	char *subdiv_string;
+	if (NULL != (subdiv_string = strstr(word[i], "SUBDIV="))) {
+	    total_subdivisions = strtol(subdiv_string + 7, (char **) NULL, 0);
+	    subdiv_size = size / total_subdivisions;
+	    subdiv_size -= subdiv_size % 4;
+	    continue;
+	}
+
 	char *enc_max_string;
 	if (NULL != (enc_max_string = strstr(word[i], "ENC_MAX_SIZE="))) {
 	    enc_max_size = strtoul(enc_max_string + 13, (char **) NULL, 0);
@@ -362,9 +417,22 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	    force_raw = 1;
 	    continue;
 	}
+	if (!strcmp(word[i], "AUTOCNUM")) {
+	    use_autokey_for_connection_number = 1;
+	    continue;
+	}
     }
 
     /* Get parameters from the process's line in the config file. */
+    if (use_autokey_for_connection_number) {
+	if (separate_words(word, 9, procline) != 9) {
+	    rcs_print_error
+		("CMS: Error parsing process line from config file.\n");
+	    rcs_print_error("%s\n", procline);
+	    status = CMS_CONFIG_ERROR;
+	    return;
+	}
+    } else {
 	if (separate_words(word, 10, procline) != 10) {
 	    rcs_print_error
 		("CMS: Error parsing process line from config file.\n");
@@ -372,6 +440,7 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	    status = CMS_CONFIG_ERROR;
 	    return;
 	}
+    }
     /* Clear errno so we can determine if all of the parameters in the */
     /* buffer line were in an acceptable form. */
     if (errno == ERANGE) {
@@ -400,6 +469,7 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 
     is_local_master = (int) atol(word[8]);
 
+    if (!use_autokey_for_connection_number) {
 
 	connection_number = atol(word[9]);
 
@@ -410,6 +480,7 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	    status = CMS_CONFIG_ERROR;
 	    return;
 	}
+    }
     /* Check errno to see if all of the strtol's were sucessful. */
     if (ERANGE == errno) {
 	rcs_print_error("CMS: Error in proc line from config file.\n");
@@ -488,14 +559,29 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     if (NULL != strstr(ProcessLine, "serialPortDevName=")) {
 	remote_port_type = CMS_TTY_REMOTE_PORT_TYPE;
     }
-
+    if (min_compatible_version < 3.44 && min_compatible_version > 0) {
+	total_subdivisions = 1;
+    }
+    if (queuing_enabled && split_buffer) {
+	rcs_print_error("CMS: Can not split buffer with queuing enabled.\n");
+	status = CMS_CONFIG_ERROR;
+	return;
+    }
     if (min_compatible_version > 3.39 || min_compatible_version <= 0.0) {
 	if (neutral_encoding_method == CMS_ASCII_ENCODING) {
 	    neutral_encoding_method = CMS_DISPLAY_ASCII_ENCODING;
 	}
     }
 
+    if (min_compatible_version <= 3.71 && min_compatible_version >= 1e-6) {
+        rcs_print("NO DIAGNOSTICS\n");
+	enable_diagnostics = 0;
+    }
+
     open();			/* Allocate memory and intialize XDR streams */
+    if (enable_diagnostics) {
+	setup_diag_proc_info();
+    }
 }
 
 /* Function for allocating memory and initializing XDR streams, which */
@@ -556,7 +642,7 @@ void CMS::open(void)
     }
     if (isserver || neutral || ProcessType == CMS_REMOTE_TYPE && !force_raw) {
 	switch (neutral_encoding_method) {
- /*	case CMS_XDR_ENCODING:
+	case CMS_XDR_ENCODING:
 	    updater = new CMS_XDR_UPDATER(this);
 	    break;
 
@@ -566,7 +652,7 @@ void CMS::open(void)
 
 	case CMS_DISPLAY_ASCII_ENCODING:
 	    updater = new CMS_DISPLAY_ASCII_UPDATER(this);
-	    break; */
+	    break;
 
 	default:
 	    updater = (CMS_UPDATER *) NULL;
@@ -606,6 +692,13 @@ void CMS::open(void)
 	}
     }
 
+    if (split_buffer && total_subdivisions > 1) {
+	rcs_print_error
+	    ("Can't split buffer and use subdivisions. (total_subsivisions=%d)",
+	    total_subdivisions);
+	status = CMS_MISC_ERROR;
+	return;
+    }
 
     int nfactor = 4;
     if (NULL != updater) {
@@ -613,32 +706,79 @@ void CMS::open(void)
     }
 
     /* Set some varaibles to let the user know how much space is left. */
+    size_without_diagnostics = size;
+    diag_offset = 0;
+    if (enable_diagnostics) {
+	diag_offset = (sizeof(CMS_DIAG_HEADER) +
+	    (total_connections * sizeof(CMS_DIAG_PROC_INFO)));
+	size_without_diagnostics -= diag_offset;
+    }
     skip_area = 0;
-    half_offset = size / 2;
-    half_size = size / 2;
-
+    half_offset = (size_without_diagnostics / 2);
+    half_size = (size_without_diagnostics / 2);
+    fast_mode = 0;
+    if (split_buffer) {
 	if (neutral) {
-	    subdiv_size = size - total_connections;
+	    subdiv_size = (size_without_diagnostics / 2) - total_connections;
+	    subdiv_size -= (subdiv_size % 4);
+	    max_message_size =
+		(size_without_diagnostics / 2) - total_connections -
+		encoded_header_size - 2;
+	    max_encoded_message_size =
+		size_without_diagnostics - total_connections -
+		encoded_header_size;
+	    guaranteed_message_space =
+		max_message_size / cms_encoded_data_explosion_factor;
+	} else {
+	    if (ProcessType == CMS_REMOTE_TYPE) {
+		subdiv_size =
+		    (size_without_diagnostics / 2) - total_connections;
+		subdiv_size -= (subdiv_size % 4);
+		max_message_size =
+		    (size_without_diagnostics / 2) - total_connections -
+		    sizeof(CMS_HEADER) - 2;
+		max_encoded_message_size = nfactor * max_message_size;
+		guaranteed_message_space = max_message_size / nfactor;
+	    } else {
+		subdiv_size =
+		    (size_without_diagnostics / 2) - total_connections;
+		subdiv_size -= (subdiv_size % 4);
+		max_message_size =
+		    (size_without_diagnostics / 2) - total_connections -
+		    sizeof(CMS_HEADER) - 2;
+		max_encoded_message_size = nfactor * max_message_size;
+		guaranteed_message_space = max_message_size;
+	    }
+	}
+    } else {
+	if (neutral) {
+	    subdiv_size =
+		(size_without_diagnostics -
+		total_connections) / total_subdivisions;
 	    subdiv_size -= (subdiv_size % 4);
 	    max_message_size = subdiv_size - encoded_header_size;
 	    max_encoded_message_size = subdiv_size - encoded_header_size;
 	    guaranteed_message_space = max_message_size / nfactor;
 	} else {
 	    if (ProcessType == CMS_REMOTE_TYPE) {
-		subdiv_size = size - total_connections;
+		subdiv_size =
+		    (size_without_diagnostics -
+		    total_connections) / total_subdivisions;
 		subdiv_size -= (subdiv_size % 4);
 		max_message_size = subdiv_size - sizeof(CMS_HEADER);
 		max_encoded_message_size = nfactor * max_message_size;
 		guaranteed_message_space = max_message_size / nfactor;
 	    } else {
-		subdiv_size = size - total_connections;
+		subdiv_size =
+		    (size_without_diagnostics -
+		    total_connections) / total_subdivisions;
 		subdiv_size -= (subdiv_size % 4);
 		max_message_size = subdiv_size - sizeof(CMS_HEADER);
 		max_encoded_message_size = nfactor * max_message_size;
 		guaranteed_message_space = max_message_size;
 	    }
 	}
-
+    }
     if (enc_max_size > 0 && enc_max_size < max_encoded_message_size) {
 	max_encoded_message_size = enc_max_size;
     }
@@ -665,11 +805,11 @@ void CMS::open(void)
     }
 }
 
-/* Set the area used for the encoded data buffer, and initialize the
-   XDR streams to use this area.
-   This function is called from open, which is called by the constructor
-   and by one of the CMS_SERVER functions.
-   _encoded_data should point to an area of memory at least size*4 .*/
+/* Set the area used for the encoded data buffer, and initialize the */
+ /* XDR streams to use this area. */
+/* This function is called from open, which is called by the constructor */
+ /* and by one of the CMS_SERVER functions. */
+/* _encoded_data should point to an area of memory at least cms_encoded_data_explosion_factor*size .*/
 void CMS::set_encoded_data(void *_encoded_data, long _encoded_data_size)
 {
     if (force_raw) {
@@ -755,6 +895,18 @@ CMS_STATUS CMS::check_id(CMSID id)
 	status = CMS_READ_OLD;
 	messages_missed_on_last_read = 0;
     } else {
+	if (split_buffer) {
+	    if (id == last_id_side0 || id == last_id_side1) {
+		status = CMS_READ_OLD;
+		messages_missed_on_last_read = 0;
+		return (status);
+	    }
+	    if (toggle_bit) {
+		last_id_side0 = id;
+	    } else {
+		last_id_side1 = id;
+	    }
+	}
 	status = CMS_READ_OK;
 	messages_missed_on_last_read = id - in_buffer_id - 1;
 	if (messages_missed_on_last_read < 0) {
@@ -872,6 +1024,13 @@ CMS_STATUS CMS::write_if_read(void *user_data)
     return (status);
 }
 
+// For protocols that provide No security, tell the
+// application the login was successful.
+// This method needs to be overloaded to have any security.
+int CMS::login(const char *name, const char *passwd)
+{
+    return 1;
+}
 
 /* Function to set the mode to appropriate read or write mode. */
 void CMS::set_mode(CMSMODE im)
@@ -927,7 +1086,7 @@ void CMS::set_temp_updater(CMS_NEUTRAL_ENCODING_METHOD temp_encoding_method)
     }
     if (NULL == temp_updater) {
 	switch (temp_encoding_method) {
- /*	case CMS_XDR_ENCODING:
+	case CMS_XDR_ENCODING:
 	    temp_updater = new CMS_XDR_UPDATER(this);
 	    break;
 
@@ -937,7 +1096,7 @@ void CMS::set_temp_updater(CMS_NEUTRAL_ENCODING_METHOD temp_encoding_method)
 
 	case CMS_DISPLAY_ASCII_ENCODING:
 	    temp_updater = new CMS_DISPLAY_ASCII_UPDATER(this);
-	    break; */
+	    break;
 
 	default:
 	    temp_updater = (CMS_UPDATER *) NULL;
@@ -1400,6 +1559,16 @@ const char *CMS::status_string(int status_type)
     default:
 	return ("UNKNOWN");
     }
+}
+
+int CMS::set_subdivision(int _subdiv)
+{
+    if (_subdiv < 0 || _subdiv > total_subdivisions) {
+	return -1;
+    }
+    current_subdivision = _subdiv;
+    subdiv_data = ((char *) data) + _subdiv * (subdiv_size);
+    return (0);
 }
 
 // This constructor declared private to prevent copying.

@@ -35,16 +35,14 @@ extern "C" {
 #include "nmlmsg.hh"		/* class NMLmsg */
 #include "cms.hh"		/* class CMS */
 #include "timer.hh"		// esleep()
-//#include "nml_srv.hh"		/* NML_Default_Super_Server */
+#include "nml_srv.hh"		/* NML_Default_Super_Server */
 #include "cms_cfg.hh"		/* cms_config(), cms_copy() */
 #include "linklist.hh"		/* class LinkedList */
 #include "rcs_print.hh"		/* rcs_print_error() */
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
 #endif
-#include <unistd.h>
-
-
+#include "nmldiag.hh"		// NML_DIAGNOSTICS_INFO
 /* Pointer to a global list of NML channels. */
 LinkedList *NML_Main_Channel_List = (LinkedList *) NULL;
 
@@ -172,10 +170,6 @@ void NML::operator delete(void *nml_space)
 NML::NML(NML_FORMAT_PTR f_ptr, char *buf, char *proc, char *file,
     int set_to_server, int set_to_master)
 {
-<<<<<<< nml.cc
-    cms = (Cms*) NULL;
-    cms_config(&cms, buf, proc, file, 0, 0);
-=======
     registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
     info_printed = 0;
@@ -208,10 +202,18 @@ NML::NML(NML_FORMAT_PTR f_ptr, char *buf, char *proc, char *file,
 	    temp = strtol(forced_type_eq + 11, NULL, 0);
 	    if (temp > 0) {
 		forced_type = temp;
+		fast_mode = 0;
 	    }
 	}
     }
->>>>>>> 1.1.1.1
+}
+
+int NML::login(const char *name, const char *passwd)
+{
+    if (NULL == cms) {
+	return 1;
+    }
+    return cms->login(name, passwd);
 }
 
 void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
@@ -220,16 +222,15 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
 
     cms = (CMS *) NULL;
     format_chain = (LinkedList *) NULL;
-#if 0
     phantom_read = (NMLTYPE(*)())NULL;
     phantom_peek = (NMLTYPE(*)())NULL;
     phantom_write = (int (*)(NMLmsg *)) NULL;
     phantom_write_if_read = (int (*)(NMLmsg *)) NULL;
     phantom_check_if_read = (int (*)()) NULL;
     phantom_clear = (int (*)()) NULL;
-#endif
     channel_list_id = 0;
     error_type = NML_NO_ERROR;
+    fast_mode = 0;
     ignore_format_chain = 0;
     info_printed = 0;
 
@@ -278,6 +279,16 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
 	register_with_server();
     }
     add_to_channel_list();
+    // FAST MODE is a combination of options which allow certian checks
+    // during
+    // a read or write operation to be avoided and therefore reduce the
+    // NML/CMS
+    // overhead.
+    if (!cms->is_phantom &&
+	cms->ProcessType == CMS_LOCAL_TYPE &&
+	!cms->neutral && !cms->isserver && !cms->enable_diagnostics) {
+	fast_mode = 1;
+    }
 
     cms_status = (int *) &(cms->status);
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
@@ -287,6 +298,7 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
         temp = strtol(forced_type_eq + 11, NULL, 0);
 	if (temp > 0) {
 	    forced_type = temp;
+	    fast_mode = 0;
 	}
     }
     char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
@@ -339,17 +351,16 @@ NML::NML(char *buf, char *proc, char *file, int set_to_server,
     already_deleted = 0;
     cms = (CMS *) NULL;
     format_chain = (LinkedList *) NULL;
-#if 0
     phantom_read = (NMLTYPE(*)())NULL;
     phantom_peek = (NMLTYPE(*)())NULL;
     phantom_write = (int (*)(NMLmsg *)) NULL;
     phantom_write_if_read = (int (*)(NMLmsg *)) NULL;
     phantom_check_if_read = (int (*)()) NULL;
     phantom_clear = (int (*)()) NULL;
-#endif
     channel_list_id = 0;
     error_type = NML_NO_ERROR;
     ignore_format_chain = 0;
+    fast_mode = 0;
 
     channel_type = NML_GENERIC_CHANNEL_TYPE;
 
@@ -390,6 +401,11 @@ NML::NML(char *buf, char *proc, char *file, int set_to_server,
     }
 
     add_to_channel_list();
+    if (!cms->is_phantom &&
+	cms->ProcessType == CMS_LOCAL_TYPE && !cms->neutral && !cms->isserver)
+    {
+	fast_mode = 1;
+    }
     cms_status = (int *) &(cms->status);
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
 
@@ -400,6 +416,7 @@ NML::NML(char *buf, char *proc, char *file, int set_to_server,
 	    temp = strtol(forced_type_eq + 11, NULL, 0);
 	    if (temp > 0) {
 		forced_type = temp;
+		fast_mode = 0;
 	    }
 	}
 	char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
@@ -446,17 +463,16 @@ NML::NML(char *buffer_line, char *proc_line)
     info_printed = 0;
     already_deleted = 0;
     format_chain = (LinkedList *) NULL;
-#if 0
     phantom_read = (NMLTYPE(*)())NULL;
     phantom_peek = (NMLTYPE(*)())NULL;
     phantom_write = (int (*)(NMLmsg *)) NULL;
     phantom_write_if_read = (int (*)(NMLmsg *)) NULL;
     phantom_check_if_read = (int (*)()) NULL;
     phantom_clear = (int (*)()) NULL;
-#endif
     channel_list_id = 0;
     error_type = NML_NO_ERROR;
     ignore_format_chain = 0;
+    fast_mode = 0;
 
     channel_type = NML_GENERIC_CHANNEL_TYPE;
 
@@ -494,7 +510,11 @@ NML::NML(char *buffer_line, char *proc_line)
 	return;
     }
     add_to_channel_list();
-
+    if (!cms->is_phantom &&
+	cms->ProcessType == CMS_LOCAL_TYPE && !cms->neutral && !cms->isserver)
+    {
+	fast_mode = 1;
+    }
     cms_status = (int *) &(cms->status);
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
     if (NULL != cms) {
@@ -504,6 +524,7 @@ NML::NML(char *buffer_line, char *proc_line)
 	    temp = strtol(forced_type_eq + 11, NULL, 0);
 	    if (temp > 0) {
 		forced_type = temp;
+		fast_mode = 0;
 	    }
 	}
 	char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
@@ -549,12 +570,10 @@ void NML::register_with_server()
 {
     if (NULL != cms && !registered_with_server) {
 	if (cms->spawn_server) {
-#if 0
 	    if (NULL == NML_Default_Super_Server) {
 		NML_Default_Super_Server = new NML_SUPER_SERVER;
 	    }
 	    NML_Default_Super_Server->add_to_list(this);
-#endif
 	    registered_with_server = 1;
 	}
     }
@@ -591,6 +610,7 @@ NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
     error_type = NML_NO_ERROR;
     ignore_format_chain = 0;
     channel_list_id = 0;
+    fast_mode = 0;
     info_printed = 0;
     blocking_read_poll_interval = -1.0;
 
@@ -605,6 +625,9 @@ NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
 	    // NML channel accept that the channel may be set_to_server or
 	    // set_to_master differently.
 	    cms_copy(&cms, nml_ptr->cms, set_to_server, set_to_master);
+	    if (NULL != cms) {
+		cms->current_subdivision = nml_ptr->cms->current_subdivision;
+	    }
 	}
     }
     if (!ignore_format_chain) {
@@ -625,7 +648,11 @@ NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
 	return;
     }
     add_to_channel_list();
-
+    if (!cms->is_phantom &&
+	cms->ProcessType == CMS_LOCAL_TYPE && !cms->neutral && !cms->isserver)
+    {
+	fast_mode = 1;
+    }
     cms_status = (int *) &(cms->status);
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
     char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
@@ -634,11 +661,23 @@ NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
 	temp = strtol(forced_type_eq + 11, NULL, 0);
 	if (temp > 0) {
 	    forced_type = temp;
+	    fast_mode = 0;
 	}
     }
     char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
     if (brpi_eq != NULL) {
 	blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
+    }
+    if (NULL != nml_ptr->cms->dpi) {
+	CMS_DIAG_PROC_INFO *dpi = cms->get_diag_proc_info();
+	*dpi = *(nml_ptr->cms->get_diag_proc_info());
+	cms->set_diag_proc_info(dpi);
+    }
+    cms->first_diag_store = nml_ptr->cms->first_diag_store;
+    if (NULL != cms->handle_to_global_data &&
+	NULL != nml_ptr->cms->handle_to_global_data) {
+	cms->handle_to_global_data->total_bytes_moved =
+	    nml_ptr->cms->handle_to_global_data->total_bytes_moved;
     }
 }
 
@@ -666,6 +705,16 @@ int NML::reset()
 	}
 	register_with_server();
 	add_to_channel_list();
+	// FAST MODE is a combination of options which allow certian checks
+	// during
+	// a read or write operation to be avoided and therefore reduce the
+	// NML/CMS
+	// overhead.
+	if (!cms->is_phantom &&
+	    cms->ProcessType == CMS_LOCAL_TYPE &&
+	    !cms->neutral && !cms->isserver && !cms->enable_diagnostics) {
+	    fast_mode = 1;
+	}
 
 	cms_status = (int *) &(cms->status);
 	cms_inbuffer_header_size = &(cms->header.in_buffer_size);
@@ -674,6 +723,7 @@ int NML::reset()
 	    long temp = strtol(forced_type_eq + 11, NULL, 0);
 	    if (temp > 0) {
 		forced_type = temp;
+		fast_mode = 0;
 	    }
 	}
 	char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
@@ -759,6 +809,40 @@ NMLmsg *NML::get_address()
     }
 }
 
+/*************************************************************
+* NML Member Function: get_address_subdivision(int subdiv)
+* Purpose:
+*  Returns the address of the local copy of the buffer.
+*  Use this function instead of nml->cms->subdiv_data directly to prevent
+*   users from pointing nml->cms->subdiv_data at something else. Or getting
+*   a segmentation fault if cms was not properly constructed.
+***************************************************************/
+NMLmsg *NML::get_address_subdivision(int subdiv)
+{
+    if (NULL == cms) {
+	error_type = NML_INVALID_CONFIGURATION;
+	return ((NMLmsg *) NULL);
+    } else {
+	cms->set_subdivision(subdiv);
+	return ((NMLmsg *) cms->subdiv_data);
+    }
+}
+
+/*************************************************************
+* NML Member Function: get_address_subdivision(int subdiv)
+* Purpose:
+*  Returns the total number of subdivisions configured for this
+* NML channel.
+***************************************************************/
+int NML::get_total_subdivisions()
+{
+    if (NULL == cms) {
+	return (1);
+    } else {
+	return (cms->total_subdivisions);
+    }
+}
+
 /***********************************************************
 * NML Member Function: clear()
 * Purpose:
@@ -781,7 +865,6 @@ int NML::clear()
 	error_type = NML_INVALID_CONFIGURATION;
 	return (-1);
     } else {
-#if 0
 	if (cms->is_phantom) {
 	    if (NULL != phantom_clear) {
 		return ((*phantom_clear) ());
@@ -789,7 +872,6 @@ int NML::clear()
 		return (0);
 	    }
 	}
-#endif
 	CMS_STATUS return_value;
 	error_type = NML_NO_ERROR;
 	if (((int) (return_value = cms->clear())) > 0) {
@@ -834,7 +916,6 @@ int NML::check_if_read()
 	error_type = NML_INVALID_CONFIGURATION;
 	return (-1);
     } else {
-#if 0
 	if (cms->is_phantom) {
 	    if (NULL != phantom_check_if_read) {
 		return ((*phantom_check_if_read) ());
@@ -842,7 +923,6 @@ int NML::check_if_read()
 		return (0);
 	    }
 	}
-#endif
 	int return_value;
 	error_type = NML_NO_ERROR;
 	if ((return_value = cms->check_if_read()) == -1) {
@@ -960,6 +1040,25 @@ int NML::valid()
 NMLTYPE NML::read()
 {
     error_type = NML_NO_ERROR;
+    if (fast_mode) {
+	cms->read();
+	switch (cms->status) {
+	case CMS_READ_OLD:
+	    return (0);
+	case CMS_READ_OK:
+	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
+		rcs_print_error
+		    ("NML: New data recieved but type of %d is invalid.\n",
+		    ((NMLmsg *) cms->subdiv_data)->type);
+		return -1;
+	    }
+	    return (((NMLmsg *) cms->subdiv_data)->type);
+
+	default:
+	    set_error();
+	    return -1;
+	}
+    }
     /* Check pointers. */
     if (NULL == cms) {
 	if (error_type != NML_INVALID_CONFIGURATION) {
@@ -968,7 +1067,7 @@ NMLTYPE NML::read()
 	}
 	return (-1);
     }
-#if 0
+
     /* Handle PHANTOMs */
     if (cms->is_phantom) {
 	if (NULL != phantom_read) {
@@ -977,7 +1076,7 @@ NMLTYPE NML::read()
 	    return (0);
 	}
     }
-#endif
+
     /* Read using CMS */
     if (!cms->force_raw) {
 	cms->set_mode(CMS_READ);
@@ -1034,6 +1133,28 @@ NMLTYPE NML::read()
 NMLTYPE NML::blocking_read(double blocking_timeout)
 {
     error_type = NML_NO_ERROR;
+    if (fast_mode) {
+	cms->blocking_read(blocking_timeout);
+	switch (cms->status) {
+	case CMS_READ_OLD:
+	    return (0);
+	case CMS_READ_OK:
+	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
+		rcs_print_error
+		    ("NML: New data recieved but type of %d is invalid.\n",
+		    ((NMLmsg *) cms->subdiv_data)->type);
+		return -1;
+	    }
+	    return (((NMLmsg *) cms->subdiv_data)->type);
+	case CMS_TIMED_OUT:
+	    error_type = NML_NO_ERROR;
+	    return 0;
+
+	default:
+	    set_error();
+	    return (-1);
+	}
+    }
     /* Check pointers. */
     if (NULL == cms) {
 	if (error_type != NML_INVALID_CONFIGURATION) {
@@ -1042,7 +1163,7 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
 	}
 	return (-1);
     }
-#if 0
+
     /* Handle PHANTOMs */
     if (cms->is_phantom) {
 	if (NULL != phantom_read) {
@@ -1051,7 +1172,7 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
 	    return (0);
 	}
     }
-#endif
+
     /* Read using CMS */
     if (!cms->force_raw) {
 	cms->set_mode(CMS_READ);
@@ -1196,6 +1317,25 @@ NMLTYPE NML::peek(void *temp_data, long temp_size)
 NMLTYPE NML::peek()
 {
     error_type = NML_NO_ERROR;
+    if (fast_mode) {
+	cms->peek();
+	switch (cms->status) {
+	case CMS_READ_OLD:
+	    return (0);
+	case CMS_READ_OK:
+	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
+		rcs_print_error
+		    ("NML: New data recieved but type of %d is invalid.\n",
+		    ((NMLmsg *) cms->subdiv_data)->type);
+		return -1;
+	    }
+	    return (((NMLmsg *) cms->subdiv_data)->type);
+
+	default:
+	    set_error();
+	    return -1;
+	}
+    }
     if (NULL == cms) {
 	if (error_type != NML_INVALID_CONFIGURATION) {
 	    error_type = NML_INVALID_CONFIGURATION;
@@ -1203,7 +1343,7 @@ NMLTYPE NML::peek()
 	}
 	return (-1);
     }
-#if 0
+
     if (cms->is_phantom) {
 	if (NULL != phantom_peek) {
 	    return ((*phantom_peek) ());
@@ -1211,7 +1351,6 @@ NMLTYPE NML::peek()
 	    return (0);
 	}
     }
-#endif
     if (!cms->force_raw) {
 	cms->set_mode(CMS_READ);
     }
@@ -1306,10 +1445,12 @@ int NML::format_output()
 	    if (forced_type > 0) {
 		new_type = forced_type;
 	    }
-	    /* Store size in message. */
-	    ((NMLmsg *) cms->subdiv_data)->type = new_type;
-	    /* Store size in message. */
-	    ((NMLmsg *) cms->subdiv_data)->size = new_size;
+	    ((NMLmsg *) cms->subdiv_data)->type = new_type;	/* Store type 
+								   in
+								   message. */
+	    ((NMLmsg *) cms->subdiv_data)->size = new_size;	/* Store size 
+								   in
+								   message. */
 
 	    if (new_size > cms->max_message_size) {
 		rcs_print_error("NML: Message %ld of size  %ld \n", new_type,
@@ -1443,6 +1584,15 @@ int NML::write(NMLmsg & nml_msg)
 int NML::write(NMLmsg * nml_msg)
 {
     error_type = NML_NO_ERROR;
+    if (fast_mode) {
+	*cms_inbuffer_header_size = nml_msg->size;
+	cms->write(nml_msg);
+	if (*cms_status == CMS_WRITE_OK) {
+	    return (0);
+	}
+	set_error();
+	return (-1);
+    }
     /* Check pointers. */
     if (NULL == cms) {
 	if (error_type != NML_INVALID_CONFIGURATION) {
@@ -1464,7 +1614,7 @@ int NML::write(NMLmsg * nml_msg)
 	rcs_print_error
 	    ("NML: Check that the message was properly constructed.\n");
     }
-#if 0
+
     /* Handle Phantom Buffers. */
     if (cms->is_phantom) {
 	if (NULL != phantom_write) {
@@ -1473,7 +1623,7 @@ int NML::write(NMLmsg * nml_msg)
 	    return (0);
 	}
     }
-#endif
+
     /* Set CMS to a write mode. */
     cms->set_mode(CMS_WRITE);
 
@@ -1599,6 +1749,15 @@ int NML::write_if_read(NMLmsg & nml_msg)
 int NML::write_if_read(NMLmsg * nml_msg)
 {
     error_type = NML_NO_ERROR;
+    if (fast_mode) {
+	cms->header.in_buffer_size = nml_msg->size;
+	cms->write(nml_msg);
+	if (cms->status == CMS_WRITE_OK) {
+	    return (0);
+	}
+	set_error();
+	return (-1);
+    }
     if (NULL == cms) {
 	if (error_type != NML_INVALID_CONFIGURATION) {
 	    error_type = NML_INVALID_CONFIGURATION;
@@ -1622,7 +1781,7 @@ int NML::write_if_read(NMLmsg * nml_msg)
 		("NML: Check that the message was properly constructed.\n");
 	}
     }
-#if 0
+
     if (cms->is_phantom) {
 	if (NULL != phantom_write_if_read) {
 	    return ((*phantom_write_if_read) (nml_msg));
@@ -1630,7 +1789,7 @@ int NML::write_if_read(NMLmsg * nml_msg)
 	    return (0);
 	}
     }
-#endif
+
     cms->set_mode(CMS_WRITE);
     if (-1 == format_input(nml_msg)) {
 	error_type = NML_FORMAT_ERROR;
@@ -1806,12 +1965,6 @@ int NML::run_format_chain(NMLTYPE type, void *buf)
     return (0);
 }
 
-/**************************************************************************
-* NML member function: prefix_format_chain
-* Parameter: NML_FORMAT_PTR f_ptr -- Address of the formatting function used to
-* prepend additional data to each message.
-* Returns: 0
-***************************************************************************/
 int NML::prefix_format_chain(NML_FORMAT_PTR f_ptr)
 {
     if (NULL == format_chain) {
@@ -2057,19 +2210,13 @@ void NML::print_info(char *bufname, char *procname, char *cfg_file)
 
 void nml_start()
 {
-#if 0
-  /* Temporary ifdef - This call will be needed soon.... */
     spawn_nml_servers();
-#endif
 }
 
 void nml_cleanup()
 {
     NML *nml;
-#if 0
-  /* Temporary ifdef - This call will be needed soon.... */
     nml_server_cleanup();
-#endif
 
     if (NULL != NML_Main_Channel_List) {
 	rcs_print_debug(PRINT_NML_DESTRUCTORS,
@@ -2163,6 +2310,102 @@ int NML::print_queue_info()
     return (0);
 }
 
+// Function added at Steve Balakirsky's request. Polls a channel indefinitely
+// waiting for it to open.
+NML *nmlWaitOpen(NML_FORMAT_PTR fPtr, char *buffer, char *name, char *file,
+    double sleepTime)
+{
+    NML *nmlChannel = 0;
+
+    RCS_PRINT_DESTINATION_TYPE olddest = get_rcs_print_destination();
+    set_rcs_print_destination(RCS_PRINT_TO_NULL);
+    nmlChannel = new NML(fPtr, buffer, name, file);
+    while (!nmlChannel->reset()) {
+	esleep(sleepTime);
+    }
+    set_rcs_print_destination(olddest);
+    return (nmlChannel);
+}
+
+// Special functions for dealing with subdivisions
+
+/* Write a message. (Use reference) */
+int NML::write_subdivision(int subdiv, NMLmsg & nml_msg)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return write(nml_msg);
+}
+
+/* Write a message. (Use pointer) */
+int NML::write_subdivision(int subdiv, NMLmsg * nml_msg)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return write(nml_msg);
+}
+
+/* Write to subdivision only if buffer was_read. (Use reference) */
+int NML::write_if_read_subdivision(int subdiv, NMLmsg & nml_msg)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return write_if_read(nml_msg);
+}
+
+/* Write to subdivision only if buffer was_read. (Use pointer) */
+int NML::write_if_read_subdivision(int subdiv, NMLmsg * nml_msg)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return write_if_read(nml_msg);
+}
+
+/* Read from a particular subdivision. */
+NMLTYPE NML::read_subdivision(int subdiv)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return read();
+}
+
+/* Read from a particular subdivision. (Wait for new data). */
+NMLTYPE NML::blocking_read_subdivision(int subdiv, double timeout)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return blocking_read(timeout);
+}
+
+/* Read buffer without changing was_read */
+NMLTYPE NML::peek_subdivision(int subdiv)
+{
+    if (NULL != cms) {
+	if (cms->set_subdivision(subdiv) < 0) {
+	    return -1;
+	}
+    }
+    return peek();
+}
+
 // This constructor declared private to prevent copying.
 NML::NML(NML & nml)
 {
@@ -2201,6 +2444,15 @@ int NML::get_msg_count()
 	return -1;
     }
     return cms->get_msg_count();
+}
+
+/* Get Diagnostics Information. */
+NML_DIAGNOSTICS_INFO *NML::get_diagnostics_info()
+{
+    if (NULL == cms) {
+	return NULL;
+    }
+    return (NML_DIAGNOSTICS_INFO *) cms->get_diagnostics_info();
 }
 
 void nmlSetHostAlias(const char *hostName, const char *hostAlias)

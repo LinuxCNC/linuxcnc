@@ -31,7 +31,7 @@ extern "C" {
 #include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
 #include "linklist.hh"		// LinkedList
 #include "physmem.hh"		/* PHYSMEM_HANDLE */
-
+#include "posemath.h"		// PM_CARTESIAN, etc ...
 enum CMS_STATUS {
 /* ERROR conditions */
     CMS_MISC_ERROR = -1,	/* A miscellaneous error occured. */
@@ -101,6 +101,7 @@ enum CMS_INTERNAL_ACCESS_TYPE {
     CMS_WRITE_IF_READ_ACCESS,
     CMS_CLEAR_ACCESS,
     CMS_GET_MSG_COUNT_ACCESS,
+    CMS_GET_DIAG_INFO_ACCESS,
     CMS_GET_QUEUE_LENGTH_ACCESS,
     CMS_GET_SPACE_AVAILABLE_ACCESS
 };
@@ -137,6 +138,10 @@ struct CMS_HEADER {
     long in_buffer_size;	/* How much of the buffer is currently used. */
 };
 
+class CMS_DIAG_PROC_INFO;
+class CMS_DIAG_HEADER;
+class CMS_DIAGNOSTICS_INFO;
+
 struct CMS_QUEUING_HEADER {
     long head;
     long tail;
@@ -162,6 +167,7 @@ class CMS {
     void *operator                         new(size_t);
     void operator                         delete(void *);
 
+  public:
     /* Constructors and Destructors. */
       CMS(long size);
       CMS(char *bufline, char *procline, int set_to_server = 0);
@@ -180,6 +186,7 @@ class CMS {
     virtual CMS_STATUS peek();	/* Read without setting flag. */
     virtual CMS_STATUS write(void *user_data);	/* Write to buffer. */
     virtual CMS_STATUS write_if_read(void *user_data);	/* Write to buffer. */
+    virtual int login(const char *name, const char *passwd);
     virtual void reconnect();
     virtual void disconnect();
     virtual int get_queue_length();
@@ -195,6 +202,12 @@ class CMS {
     /* Buffer access control functions. */
     void set_mode(CMSMODE im);	/* Determine read/write mode.(check neutral) */
 
+    /* Select a temporary updator -- This is used by the nml msg2string and
+       string2msg functions. */
+    void set_temp_updater(CMS_NEUTRAL_ENCODING_METHOD);
+
+    /* Restore the normal update. */
+    void restore_normal_updater();
 
   /*******************************************************/
     /* CMS INTERNAL ACCESS FUNCTIONS located in cms_in.cc */
@@ -259,6 +272,44 @@ class CMS {
     CMS_STATUS update(double *x, unsigned int len);        /* Used by emc2 */
     CMS_STATUS update(long double *x, unsigned int len);
 
+  /*************************************************************************
+   * CMS UPDATE FUNCTIONS for POSEMATH classes, defined in cms_pm.cc       *
+   ************************************************************************/
+    // translation types
+    CMS_STATUS update(PM_CARTESIAN & x);	// Cart /* Used by emc2 */
+    CMS_STATUS update(PM_SPHERICAL & x);	// Sph
+    CMS_STATUS update(PM_CYLINDRICAL & x);	// Cyl
+
+    // rotation types
+    CMS_STATUS update(PM_ROTATION_VECTOR & x);	// Rot
+    CMS_STATUS update(PM_ROTATION_MATRIX & x);	// Mat
+    CMS_STATUS update(PM_QUATERNION & x);	// Quat
+    CMS_STATUS update(PM_EULER_ZYZ & x);	// Zyz
+    CMS_STATUS update(PM_EULER_ZYX & x);	// Zyx
+    CMS_STATUS update(PM_RPY & x);	// Rpy
+
+    // pose types
+    CMS_STATUS update(PM_POSE & x);	// Pose
+    CMS_STATUS update(PM_HOMOGENEOUS & x);	// Hom
+
+    // CMS UPDATE FUNCTIONS for arrays of POSEMATH types.
+    // translation types
+    CMS_STATUS update(PM_CARTESIAN * x, int n);	// Cart
+    CMS_STATUS update(PM_SPHERICAL * x, int n);	// Sph
+    CMS_STATUS update(PM_CYLINDRICAL * x, int n);	// Cyl
+
+    // rotation types
+    CMS_STATUS update(PM_ROTATION_VECTOR * x, int n);	// Rot
+    CMS_STATUS update(PM_ROTATION_MATRIX * x, int n);	// Mat
+    CMS_STATUS update(PM_QUATERNION * x, int n);	// Quat
+    CMS_STATUS update(PM_EULER_ZYZ * x, int n);	// Zyz
+    CMS_STATUS update(PM_EULER_ZYX * x, int n);	// Zyx
+    CMS_STATUS update(PM_RPY * x, int n);	// Rpy
+
+    // pose types
+    CMS_STATUS update(PM_POSE * x, int n);	// Pose
+    CMS_STATUS update(PM_HOMOGENEOUS * x, int n);	// Hom
+
     /* comm protocol parameters shared by all protocols */
     int fatal_error_occurred;
     int consecutive_timeouts;
@@ -301,7 +352,10 @@ class CMS {
     char PermissionString[CMS_CONFIG_LINELEN];
     int is_local_master;
     int force_raw;
-
+    int split_buffer;		/* Will the buffer be split into two areas so 
+				   that one area can be read while the other
+				   is written to ? */
+    char toggle_bit;
     int first_read_done;
     int first_write_done;
     int write_permission_flag;
@@ -359,39 +413,13 @@ class CMS {
     CMS_STATUS check_id(CMSID id);	/* Determine if the buffer is new. */
     friend class CMS_SERVER;
     friend class CMS_SERVER_HANDLER;
-
+  public:
     double timeout;
     long connection_number;
     long total_connections;
     CMS_UPDATER *updater;
     CMS_UPDATER *normal_updater;
     CMS_UPDATER *temp_updater;
-
-    double blocking_timeout;
-    double min_compatible_version;
-    int confirm_write;
-    int disable_final_write_raw_for_dma;
-    virtual const char *status_string(int);
-
-    long subdiv_size;
-    long encoded_data_size;
-    long enc_max_size;
-    double pre_op_total_bytes_moved;
-    double time_bias;
-    int skip_area;
-    unsigned long half_offset;
-    long half_size;
-    int last_id_side0;
-    int last_id_side1;
-
-    /* RCS_CMD_MSG, RCS_STAT_MSG stuff */
-
-    /* Select a temporary updator -- This is used by the nml msg2string and
-       string2msg functions. */
-    void set_temp_updater(CMS_NEUTRAL_ENCODING_METHOD);
-
-    /* Restore the normal update. */
-    void restore_normal_updater();
 
   private:
     unsigned long encode_state;	/* Store position for save, restore. */
@@ -400,7 +428,48 @@ class CMS {
     static int number_of_cms_objects;	/* Used to decide when to initialize
 					   and cleanup PC-NFS Toolkit DLLs */
 
-    CMS(CMS & cms);		// Don't copy me.
+  public:
+    double blocking_timeout;
+    double min_compatible_version;
+    int confirm_write;
+    int disable_final_write_raw_for_dma;
+    virtual const char *status_string(int);
+
+    int total_subdivisions;
+    int current_subdivision;
+    long subdiv_size;
+    int set_subdivision(int _subdiv);
+    long encoded_data_size;
+    long enc_max_size;
+    long enable_diagnostics;
+    CMS_DIAG_PROC_INFO *dpi;
+    virtual CMS_DIAG_PROC_INFO *get_diag_proc_info();
+    virtual void set_diag_proc_info(CMS_DIAG_PROC_INFO *);
+    virtual void setup_diag_proc_info();
+    virtual void calculate_and_store_diag_info(PHYSMEM_HANDLE * _handle,
+	void *);
+    virtual void internal_retrieve_diag_info(PHYSMEM_HANDLE * _handle,
+	void *);
+    CMS_DIAGNOSTICS_INFO *di;
+    virtual CMS_DIAGNOSTICS_INFO *get_diagnostics_info();
+    int first_diag_store;
+    double pre_op_total_bytes_moved;
+    double time_bias;
+    int skip_area;
+    unsigned long half_offset;
+    long half_size;
+    int fast_mode;
+    long size_without_diagnostics;
+    int disable_diag_store;
+    long diag_offset;
+    int last_id_side0;
+    int last_id_side1;
+    int use_autokey_for_connection_number;
+    /* RCS_CMD_MSG, RCS_STAT_MSG stuff */
+
+  private:
+      CMS(CMS & cms);		// Don't copy me.
+
 };
 
 class CMS_HOST_ALIAS_ENTRY {
@@ -423,6 +492,7 @@ enum CMS_CONNECTION_MODE {
 extern CMS_CONNECTION_MODE cms_connection_mode;
 
 extern char *cms_check_for_host_alias(char *in);
+extern int cms_encoded_data_explosion_factor;
 extern int cms_print_queue_free_space;
 extern int cms_print_queue_full_messages;
 

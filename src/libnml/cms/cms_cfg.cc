@@ -38,7 +38,6 @@ extern "C" {
 #include "cms.hh"		/* class CMS */
 #include "cms_cfg.hh"
 
-#if 0
  /* TCP stands for "Transmission Control Protocol". This is the recommended
     method for remote connection, for most applications. It is more reliable
     and can handle larger messages than UDP and is more widely available than 
@@ -57,7 +56,6 @@ extern "C" {
     and memory is obtained with a simple malloc so the operating system will
     not exceed its limits for semaphores or shared memory segments. */
 #include "locmem.hh"		/* class LOCMEM */
-#endif
 
  /* SHMEM is intended for communications between tasks managed by the same
     operating system. The operating system allocates the memory to be shared
@@ -201,6 +199,7 @@ CONFIG_FILE_INFO *get_loaded_nml_config_file(const char *file)
     return NULL;
 }
 
+#if 0
 int print_loaded_nml_config_file(const char *file)
 {
     CONFIG_FILE_INFO *info = get_loaded_nml_config_file(file);
@@ -251,6 +250,7 @@ int print_loaded_nml_config_file_list()
     }
     return 0;
 }
+#endif
 
 int unload_all_nml_config_file()
 {
@@ -801,7 +801,6 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
     /* Both lines have been found, select the appropriate class from */
     /* CMS's derived classes and call its constructor. */
     if (!strcmp(buffer_type, "PHANTOM") || !strcmp(proc_type, "PHANTOM")) {
-#if 0
 	*cms = new PHANTOMMEM(buffer_line, proc_line);
 	rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%X = new PHANTOMEM(%s,%s)\n",
 	    *cms, buffer_line, proc_line);
@@ -814,7 +813,6 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 	} else {
 	    return (0);
 	}
-#endif
     }
     if (!strcmp(proc_type, "REMOTE")) {
 	if (NULL != strstr(proc_line, "serialPortDevName=")) {
@@ -862,7 +860,6 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 		return (-1);
 	    }
 #endif
-#if 0
 	} else if (NULL != strstr(buffer_line, "TCP=")) {
 	    *cms = new TCPMEM(buffer_line, proc_line);
 	    rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%X = new TCPMEM(%s,%s)\n",
@@ -882,7 +879,6 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 		}
 		return (-1);
 	    }
-#endif
 	} else if (NULL != strstr(buffer_line, "UDP=")) {
 	    rcs_print_error("UPDMEM not supported.\n");
 	    return (-1);
@@ -918,11 +914,34 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 	}
 
 	if (!strcmp(buffer_type, "RTLMEM")) {
+	    rcs_print_error("RTLMEM not supported.\n");
+	    return (-1);
 	}
 
 	if (!strcmp(buffer_type, "LOCMEM")) {
-	    rcs_print_error("LOCMEM not supported.\n");
-	    return (-1);
+	    *cms =
+		new LOCMEM(buffer_line, proc_line, set_to_server,
+		set_to_master);
+	    rcs_print_debug(PRINT_CMS_CONFIG_INFO,
+		"%X = new LOCMEM(%s,%s,%d,%d)\n", *cms, buffer_line,
+		proc_line, set_to_server, set_to_master);
+	    if (NULL == *cms) {
+		if (verbose_nml_error_messages) {
+		    rcs_print_error
+			("cms_config: Can't create new LOCMEM object.\n");
+		}
+		return (-1);
+	    }
+	    if ((*cms)->status < 0) {
+		if (verbose_nml_error_messages) {
+		    rcs_print_error
+			("cms_config: %d(%s) Error occured during LOCMEM create.\n",
+			(*cms)->status,
+			(*cms)->status_string((*cms)->status));
+		}
+		return (-1);
+	    }
+	    return (0);
 	}
 
 	rcs_print_error("cms_config: invalid buffer_type (%s)\n",

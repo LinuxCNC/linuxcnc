@@ -26,14 +26,16 @@ extern "C" {
 #include "cms.hh"
 #include "nmlmsg.hh"
 #include "rcs_print.hh"		/* rcs_error_print() */
+/* NMLmsg Functions. */ int NMLmsg::automatically_clear = 1;
 
 /* Constructor */
 NMLmsg::NMLmsg(NMLTYPE t, long s)
 {
     type = t;
     size = s;
-    clear();
-
+    if (automatically_clear) {
+	clear();
+    }
     if (size < ((long) sizeof(NMLmsg))) {
 	rcs_print_error("NMLmsg: size(=%d) must be atleast %d\n", size,
 	    sizeof(NMLmsg));
@@ -49,8 +51,9 @@ NMLmsg::NMLmsg(NMLTYPE t, size_t s)
 {
     type = t;
     size = s;
-    clear();
-
+    if (automatically_clear) {
+	clear();
+    }
     if (size < ((long) sizeof(NMLmsg))) {
 	rcs_print_error("NMLmsg: size(=%d) must be atleast %d\n", size,
 	    sizeof(NMLmsg));
@@ -61,6 +64,24 @@ NMLmsg::NMLmsg(NMLTYPE t, size_t s)
 	    type);
     }
 }
+
+NMLmsg::NMLmsg(NMLTYPE t, long s, int noclear)
+{
+    if (automatically_clear && !noclear) {
+	clear();
+    }
+    type = t;
+    size = s;
+    if (size < ((long) sizeof(NMLmsg))) {
+	rcs_print_error("NMLmsg: size(=%d) must be atleast %d\n", size,
+	    sizeof(NMLmsg));
+	size = sizeof(NMLmsg);
+    }
+    if (type <= 0) {
+	rcs_print_error("NMLmsg: type(=%d) should be greater than zero.\n",
+	    type);
+    }
+};
 
 void NMLmsg::clear()
 {
