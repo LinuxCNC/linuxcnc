@@ -30,7 +30,7 @@ RT_OBJS  = \
 	tc.o \
 	tp.o
 
-RTLIBS = emcmod.o
+RTLIBS = motion.o
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) \
 	$(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%) \
@@ -40,7 +40,7 @@ all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) \
 include ../../../Make.rules
 
 # Explicit rules.
-$(RTLIB_DIR)/emcmod.o: \
+$(RTLIB_DIR)/motion.o: \
 	$(RTTMP_DIR)/cubic.o \
 	$(RTTMP_DIR)/emcmot.o \
 	$(RTTMP_DIR)/emcmotglb.o \
@@ -51,7 +51,7 @@ $(RTLIB_DIR)/emcmod.o: \
 	$(RTTMP_DIR)/tc.o \
 	$(RTTMP_DIR)/tp.o \
 	$(RTTMP_DIR)/trivkins.o
-	ld -r -static $^ $(RTLIB_DIR)/libpm.a -lm -o $@
+	ld -r -static $^ $(RTLIB_DIR)/libpm.a -L/usr/lib -lm -o $@
 # This one needs to be coded before adding to the above list.
 #	$(RTTMP_DIR)/extintf.o \
 
