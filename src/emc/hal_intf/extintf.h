@@ -1,22 +1,26 @@
+/********************************************************************
+* Description: extintf.h
+*   Declarations of external interfaces to encoders, DACs, limit
+*   switches, etc. These functions are expected to be provided by 
+*   board implementations. Query functions give range of axes supported,
+*   encoder model, etc.
+*   Not all functions are presently used.
+*
+* Author: 
+* License:
+* Created at: Mon Feb 23 11:41:51 UTC 2004
+* Computer: Babylon
+* System: Linux
+*    
+* Copyright (c) 2004 root  All rights reserved.
+*
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 #ifndef EXTINTF_H
 #define EXTINTF_H
-
-/*
-  extintf.h
-  Declarations of external interfaces to encoders, DACs, limit switches,
-  etc. These functions are expected to be provided by board
-  implementations. Query functions give range of axes supported, etc.
-*/
-
-/* ident tag */
-#ifndef __GNUC__
-#ifndef __attribute__
-#define __attribute__(x)
-#endif
-#endif
-
-static char __attribute__ ((unused)) extintf_h[] =
-    "$Id$";
 
 #ifdef __cplusplus
 extern "C" {

@@ -21,8 +21,8 @@ static char __attribute__ ((unused)) ident[] =
     "$Id$";
 
 #include <sys/stat.h>
-#include <string.h>             /* memcpy() */
-#include <float.h>              /* DBL_MIN */
+#include <string.h>		/* memcpy() */
+#include <float.h>		/* DBL_MIN */
 #include "motion.h"		/* EMCMOT_STATUS,CMD */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_BASE_ADDRESS, SHMEM_KEY */
@@ -47,7 +47,6 @@ static EMCMOT_STATUS *emcmotStatus = 0;
 static EMCMOT_CONFIG *emcmotConfig = 0;
 static EMCMOT_DEBUG *emcmotDebug = 0;
 static EMCMOT_ERROR *emcmotError = 0;
-static EMCMOT_IO *emcmotIo = 0;	/* added struct JE 8/21/2001 */
 static EMCMOT_LOG *emcmotLog = 0;
 static EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS] = { 0 };
 static EMCMOT_STRUCT *emcmotStruct = 0;
@@ -117,7 +116,8 @@ int usrmotIniLoad(const char *filename)
 	}
     } else {
 	/* not found, using default */
-	rtapi_print("[EMCMOT] COMM_TIMEOUT not found in %s; using default %f\n",
+	rtapi_print
+	    ("[EMCMOT] COMM_TIMEOUT not found in %s; using default %f\n",
 	    filename, EMCMOT_COMM_TIMEOUT);
     }
 
@@ -159,7 +159,7 @@ int usrmotWriteEmcmotCommand(EMCMOT_COMMAND * c)
 
     /* check for mapped mem still around */
     if (0 == emcmotCommand) {
-      return EMCMOT_COMM_ERROR_CONNECT;
+	return EMCMOT_COMM_ERROR_CONNECT;
     }
     *emcmotCommand = *c;
 
@@ -198,11 +198,11 @@ int emcmot_debug_split_count = 0;
 /* copies status to s */
 int usrmotReadEmcmotStatus(EMCMOT_STATUS * s)
 {
-  /* check for shmem still around */
-  if (0 == emcmotStatus) {
-    return EMCMOT_COMM_ERROR_CONNECT;
-  }
-  memcpy(s, emcmotStatus, sizeof(EMCMOT_STATUS));
+    /* check for shmem still around */
+    if (0 == emcmotStatus) {
+	return EMCMOT_COMM_ERROR_CONNECT;
+    }
+    memcpy(s, emcmotStatus, sizeof(EMCMOT_STATUS));
 
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
@@ -226,11 +226,11 @@ int usrmotReadEmcmotStatus(EMCMOT_STATUS * s)
 /* copies config to s */
 int usrmotReadEmcmotConfig(EMCMOT_CONFIG * s)
 {
-  /* check for shmem still around */
-  if (0 == emcmotConfig) {
-    return EMCMOT_COMM_ERROR_CONNECT;
-  }
-  memcpy(s, emcmotConfig, sizeof(EMCMOT_CONFIG));
+    /* check for shmem still around */
+    if (0 == emcmotConfig) {
+	return EMCMOT_COMM_ERROR_CONNECT;
+    }
+    memcpy(s, emcmotConfig, sizeof(EMCMOT_CONFIG));
 
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
@@ -254,11 +254,11 @@ int usrmotReadEmcmotConfig(EMCMOT_CONFIG * s)
 /* copies debug to s */
 int usrmotReadEmcmotDebug(EMCMOT_DEBUG * s)
 {
-  /* check for shmem still around */
-  if (0 == emcmotDebug) {
-    return EMCMOT_COMM_ERROR_CONNECT;
-  }
-  memcpy(s, emcmotDebug, sizeof(EMCMOT_DEBUG));
+    /* check for shmem still around */
+    if (0 == emcmotDebug) {
+	return EMCMOT_COMM_ERROR_CONNECT;
+    }
+    memcpy(s, emcmotDebug, sizeof(EMCMOT_DEBUG));
 
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
@@ -796,18 +796,17 @@ int usrmotInit(char *modname)
 {
     int axis;
 
-	module_id = rtapi_init(modname);
-	shmem_id =
-	    rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(EMCMOT_STRUCT));
+    module_id = rtapi_init(modname);
+    shmem_id = rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(EMCMOT_STRUCT));
 
-	rtapi_shmem_getptr(shmem_id, (void **) &emcmotStruct);
-	if (emcmotStruct == NULL) {
-	    fprintf(stderr,
-		"rtapi shmem alloc(%d (0x%X), %d (0x%X) ) failed\n",
-		SHMEM_KEY, SHMEM_KEY, sizeof(EMCMOT_STRUCT),
-		sizeof(EMCMOT_STRUCT));
-	    return -1;
-	}
+    rtapi_shmem_getptr(shmem_id, (void **) &emcmotStruct);
+    if (emcmotStruct == NULL) {
+	fprintf(stderr,
+	    "rtapi shmem alloc(%d (0x%X), %d (0x%X) ) failed\n",
+	    SHMEM_KEY, SHMEM_KEY, sizeof(EMCMOT_STRUCT),
+	    sizeof(EMCMOT_STRUCT));
+	return -1;
+    }
 
     /* got it */
     emcmotCommand = &(emcmotStruct->command);
@@ -815,7 +814,6 @@ int usrmotInit(char *modname)
     emcmotDebug = &(emcmotStruct->debug);
     emcmotConfig = &(emcmotStruct->config);
     emcmotError = &(emcmotStruct->error);
-    emcmotIo = &(emcmotStruct->io);
     emcmotLog = &(emcmotStruct->log);
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = &(emcmotStruct->comp[axis]);
@@ -831,16 +829,15 @@ int usrmotExit(void)
 {
     int axis;
 
-	if (NULL != emcmotStruct) {
-	    rtapi_shmem_delete(shmem_id, module_id);
-	    rtapi_exit(module_id);
-	}
+    if (NULL != emcmotStruct) {
+	rtapi_shmem_delete(shmem_id, module_id);
+	rtapi_exit(module_id);
+    }
 
     emcmotStruct = 0;
     emcmotCommand = 0;
     emcmotStatus = 0;
     emcmotError = 0;
-    emcmotIo = 0;
     emcmotLog = 0;
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = 0;
@@ -849,49 +846,6 @@ int usrmotExit(void)
 
     inited = 0;
     return 0;
-}
-
-/* added routines to control passing auxilliary I/O through to reat time section */
-/* set up aux I/O byte count */
-int usrmotSetIOWriteCount(unsigned short int count)
-{
-    if (0 == emcmotIo) {	/* pointer not initialized */
-	return -1;
-    }
-    emcmotIo->NumWrite = count;
-    return 0;
-}
-
-int usrmotSetIOReadCount(unsigned short int count)
-{
-    if (0 == emcmotIo) {	/* pointer not initialized */
-	return -1;
-    }
-    emcmotIo->NumRead = count;
-    return 0;
-}
-
-int usrmotWriteIO(int index, unsigned char val)
-{
-    if (0 == emcmotIo) {	/* pointer not initialized */
-	return -1;
-    }
-    if (index < 0 || index >= EMCMOT_IO_SIZE) {	/* index out of range */
-	return -1;
-    }
-    emcmotIo->OutBytes[index] = val;
-    return 0;
-}
-
-unsigned char usrmotReadIO(int index)
-{
-    if (0 == emcmotIo) {	/* pointer not initialized */
-	return -1;
-    }
-    if (index < 0 || index >= EMCMOT_IO_SIZE) {	/* index out of range */
-	return -1;
-    }
-    return emcmotIo->InBytes[index];
 }
 
 /* reads the log fifo and dumps the contents to a text file */

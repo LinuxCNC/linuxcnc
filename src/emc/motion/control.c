@@ -4,11 +4,16 @@
 *   rate. All state logic and trajectory calcs are called from here.
 *
 * Author:
-* Created at:
-* Computer:
+* License: GPL Version 2
+* Created on:
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
 *
 ********************************************************************/
 
@@ -242,13 +247,18 @@ void emcmotController(void *arg)
 		emcmotDebug->oldInputValid[axis] = 1;
 		first = 0;
 	    }
-
-#if 0   /* FIX ME - Move in to the HAL layer and make sure it actually works */
+#if 0				/* FIX ME - Move in to the HAL layer and make 
+				   sure it actually works */
 	    /* debounce bad feedback */
 #ifndef SIMULATED_MOTORS
 	    if (fabs(emcmotStatus->input[axis] -
 		    emcmotDebug->oldInput[axis]) /
-		emcmotConfig->servoCycleTime > emcmotDebug->bigVel[axis]) {
+		emcmotConfig->servoCycleTime >
+		/* IF we are at the point where the encoder needs debouncing, 
+		   the max velocity of the axis has been exceeded by a major
+		   margin ! bigVel = 10 * emcmotConfig->axisLimitVel[axis]
+		   .... Well beyond a reasonable speed ! */
+		emcmotDebug->bigVel[axis]) {
 		/* bad input value-- interpolate last value, up to max
 		   debounces, then hold it */
 		if (++positionInputDebounce[axis] > POSITION_INPUT_DEBOUNCE) {
@@ -262,8 +272,6 @@ void emcmotController(void *arg)
 		       hold position. We should flag an error here, abort the
 		       move, disable motion, etc. but for now we'll rely on
 		       following error to do this */
-/* Looks like we drop straight through to here... Is bigVel being set anywhere 
-   and/or the correct value in oldInput ? */
 		    emcmotStatus->input[axis] = emcmotDebug->oldInput[axis];
 		}
 		/* FIXME-- testing */

@@ -4,12 +4,17 @@
 *   This should be the only point of contact between emc and HAL.
 *
 * Author:
+* License:
 * Created at:
 * Computer:
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
 *
+* Last change: 
+* $Revision$
+* $Author$
+* $Date$
 ********************************************************************/
 /*
   exthalmot.c

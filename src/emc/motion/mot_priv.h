@@ -1,5 +1,22 @@
 #ifndef MOT_PRIV_H
 #define MOT_PRIV_H
+/********************************************************************
+* Description: mot_priv.h
+*   Macros and declarations local to the realtime sources.
+*
+* Author: 
+* License: GPL Version 2
+* Created on:
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+*
+********************************************************************/
 
 /* function definitions */
 extern void emcmot_config_change(void);
@@ -34,7 +51,6 @@ extern EMCMOT_CONFIG *emcmotConfig;
 extern EMCMOT_DEBUG *emcmotDebug;
 extern EMCMOT_ERROR *emcmotError;
 extern EMCMOT_LOG *emcmotLog;
-extern EMCMOT_IO *emcmotIo;
 extern EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS];
 extern EMCMOT_LOG_STRUCT ls;
 

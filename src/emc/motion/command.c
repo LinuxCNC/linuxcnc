@@ -8,13 +8,18 @@
 *   implimentation leaving pure realtime data to be handled by
 *   emcmotCommmandHandler() - This would provide a small performance
 *   increase on slower systems.
-*   
+*
 * Author:
-* Created at:
-* Computer:
+* License: GPL Version 2
+* Created on:
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
 *
 ********************************************************************/
 
@@ -29,7 +34,8 @@
 
 /* value for world home position */
 EmcPose worldHome = { {0.0, 0.0, 0.0}
-, 0.0, 0.0, 0.0 };
+, 0.0, 0.0, 0.0
+};
 
 int logSkip = 0;		/* how many to skip, for per-cycle logging */
 int loggingAxis = 0;		/* record of which axis to log */

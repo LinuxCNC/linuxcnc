@@ -1,15 +1,22 @@
+/********************************************************************
+* Description: motion.h
+*   Data structures used throughout emc2.
+*
+* Author:
+* License: GPL Version 2
+* Created on:
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+*
+********************************************************************/
 #ifndef MOTION_H
 #define MOTION_H
-
-/*
-  motion.h
-
-  Decls of data structures for motion controller
-
-  Modification history:
-  
-  21-Jan-2004  P.C. Moved across from the original EMC source tree.
-*/
 
 #include "posemath.h"		/* PmCartesian, PmPose, pmCartMag() */
 #include "emcpos.h"
@@ -67,7 +74,8 @@ extern "C" {
 	EMCMOT_DISABLE,		/* disable servos for active axes */
 	EMCMOT_SET_PID,		/* set PID gains */
 	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs and dac writes */
-	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs and dac writes */
+	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs and dac writes 
+					 */
 	EMCMOT_OPEN_LOG,	/* open a log */
 	EMCMOT_START_LOG,	/* start logging */
 	EMCMOT_STOP_LOG,	/* stop logging */
@@ -113,7 +121,7 @@ extern "C" {
 /* command struct */
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
-	int command;		/* one of enum above */
+	int command;		/* one of the command enums above */
 	int commandNum;		/* increment this for new command */
 	double cycleTime;	/* planning time (not servo time) */
 	double maxLimit;	/* pos value for position limit, output */
@@ -210,6 +218,10 @@ extern "C" {
   FE  is 1 if axis exceeded following error, 0 if not
   AF  is 1 if amplifier is faulted, 0 if not
 
+Suggestion: Split this in to an Error and a Status flag register..
+             Then a simple test on each of the two flags can be performed
+             rather than testing each bit... Saving on a global per axis
+             fault and ready status flag.
   */
 
 /* bit masks */
@@ -242,7 +254,12 @@ extern "C" {
    They default to 1, normal polarity.
 
    To set them, send EMCMOT_SET_POLARITY, with axis set to
-   0..EMCMOT_MAX_AXIS - 1, axisFlag set to polarity bits for axis. */
+   0..EMCMOT_MAX_AXIS - 1, axisFlag set to polarity bits for axis.
+
+Suggestion: Use TRUE & FALSE definitions... Polarity will be handled in the
+            HAL layer.
+   
+*/
 
 /* values for commandStatus */
 #define EMCMOT_COMMAND_OK 0	/* cmd honored */
@@ -266,16 +283,18 @@ extern "C" {
 	double computeTime;
 	EmcPose pos;		/* calculated Cartesian position */
 	double axisPos[EMCMOT_MAX_AXIS];	/* calculated axis positions */
-	double output[EMCMOT_MAX_AXIS];
+	double output[EMCMOT_MAX_AXIS];	/* Calculated output velocity command 
+					 */
 	double input[EMCMOT_MAX_AXIS];	/* actual input */
 	EmcPose actualPos;	/* actual Cartesian position */
 	int id;			/* id for executing motion */
 	int depth;		/* motion queue depth */
 	int activeDepth;	/* depth of active blend elements */
-	int queueFull;
-	EMCMOT_MOTION_FLAG motionFlag;
-	EMCMOT_AXIS_FLAG axisFlag[EMCMOT_MAX_AXIS];
-	int paused;
+	int queueFull;		/* Flag to indicate the tc queue is full */
+	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
+	EMCMOT_AXIS_FLAG axisFlag[EMCMOT_MAX_AXIS];	/* see above for bit
+							   details */
+	int paused;		/* Flag to signal motion paused */
 	int overrideLimits;	/* non-zero means limits are ignored */
 	int logPoints;		/* how many points currently in log */
 
@@ -284,16 +303,27 @@ extern "C" {
 	int commandNumEcho;	/* echo of input command number */
 	unsigned char commandStatus;	/* one of EMCMOT_COMMAND_ defined
 					   above */
-	double outputScale[EMCMOT_MAX_AXIS];
-	double outputOffset[EMCMOT_MAX_AXIS];
-	double inputScale[EMCMOT_MAX_AXIS];
+	double outputScale[EMCMOT_MAX_AXIS];	/* Used to set
+						   emcmotDebug->inverseOutputScale 
+						   - then used to scale the
+						   DAC outputs */
+	double outputOffset[EMCMOT_MAX_AXIS];	/* DC offset applied to the
+						   DAC outputs to achieve 0V
+						   when commanded output is
+						   also zero */
+	double inputScale[EMCMOT_MAX_AXIS];	/* Scaling applied to the
+						   encoder inputs to return
+						   position in real world
+						   units */
 	double inputOffset[EMCMOT_MAX_AXIS];	/* encoder offsets */
 	double qVscale;		/* traj velocity scale factor */
 	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor 
 						 */
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
-	int logOpen;
+
+	int logOpen;		/* Logging stuff that will eventually end up
+				   in hal_scope */
 	int logStarted;
 	int logSize;		/* size in entries, not bytes */
 	int logSkip;
@@ -305,6 +335,7 @@ extern "C" {
 	double logTriggerThreshold;	/* The value for non manual triggers. 
 					 */
 	double logStartVal;	/* value use for delta trigger */
+
 	int probeTripped;	/* Has the probe signal changed since start
 				   of probe command? */
 	int probeval;		/* current value of probe wire */
@@ -321,10 +352,17 @@ extern "C" {
 	int config_num;		/* Incremented everytime configuration
 				   changed, should match status.config_num */
 	EMCMOT_AXIS_FLAG axisPolarity[EMCMOT_MAX_AXIS];
-	int numAxes;
-	double trajCycleTime;
-	double servoCycleTime;
-	int interpolationRate;
+	int numAxes;		/* The number of axes in the system (which
+				   must be between 1 and EMCMOT_MAX_AXIS,
+				   inclusive). Allegedly, holds a copy of the 
+				   global NUM_AXES - seems daft to maintain
+				   duplicates ! */
+	double trajCycleTime;	/* the rate at which the trajectory loop
+				   runs.... (maybe) */
+	double servoCycleTime;	/* the rate of the servo loop - Not the same
+				   as the traj time */
+	int interpolationRate;	/* grep control.c for an explanation....
+				   approx line 50 */
 	double maxLimit[EMCMOT_MAX_AXIS];	/* maximum axis limits,
 						   counts */
 	double minLimit[EMCMOT_MAX_AXIS];	/* minimum axis limits,
@@ -411,7 +449,9 @@ extern "C" {
 	/* values for joint home positions */
 	double jointHome[EMCMOT_MAX_AXIS];
 
-	int maxLimitSwitchCount[EMCMOT_MAX_AXIS];
+	int maxLimitSwitchCount[EMCMOT_MAX_AXIS];	/* Counters used for
+							   software debounce
+							   of the inputs */
 	int minLimitSwitchCount[EMCMOT_MAX_AXIS];
 	int ampFaultCount[EMCMOT_MAX_AXIS];
 
@@ -457,8 +497,11 @@ extern "C" {
 	EmcPose newAcc;		/* differenced acc */
 
 	/* value of speed past which we debounce the feedback */
-	double bigVel[EMCMOT_MAX_AXIS];
-
+	double bigVel[EMCMOT_MAX_AXIS];	/* set to 10 * max Axis Velocity ...
+					   IF we are at the point where the
+					   encoder needs debouncing, the max
+					   velocity of the axis has been
+					   exceeded by a major margin ! */
 	int homingPhase[EMCMOT_MAX_AXIS];	/* flags for homing */
 	int latchFlag[EMCMOT_MAX_AXIS];	/* flags for axis latched */
 	double saveLatch[EMCMOT_MAX_AXIS];	/* saved axis latch values */
@@ -515,7 +558,7 @@ extern "C" {
 	unsigned char tail;	/* flag count for mutex detect */
     } EMCMOT_DEBUG;
 
-/* error structure */
+/* error structure - A ring buffer used to pass formatted printf stings to usr space */
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
 	char error[EMCMOT_ERROR_NUM][EMCMOT_ERROR_LEN];
@@ -524,17 +567,6 @@ extern "C" {
 	int num;		/* number of items */
 	unsigned char tail;	/* flag count for mutex detect */
     } EMCMOT_ERROR;
-
-/* EMCMOT_IO  Communication block for digital I/O by RT section JE 7/x/2001 */
-#define EMCMOT_IO_SIZE 8	/* # of bytes emcmot will move out */
-    typedef struct {
-	unsigned short int NumWrite;	/* number of bytes to write */
-	unsigned short int NumRead;	/* number of bytes to read */
-	unsigned char OutBytes[EMCMOT_IO_SIZE];	/* reserve place for up to 8
-						   bytes to be written */
-	unsigned char InBytes[EMCMOT_IO_SIZE];	/* reserve place for up to 8
-						   bytes to be read */
-    } EMCMOT_IO;
 
 /* compensation structure */
 #define EMCMOT_COMP_SIZE 256
@@ -549,15 +581,16 @@ extern "C" {
 
 /* big comm structure, for upper memory */
     typedef struct {
-	EMCMOT_COMMAND command;
-	EMCMOT_STATUS status;
-	EMCMOT_CONFIG config;
-	EMCMOT_DEBUG debug;
-	EMCMOT_ERROR error;
-	EMCMOT_IO io;		/* rt<=> Linux comm for digital output JE
-				   7/x/2001 */
-	EMCMOT_LOG log;
-	EMCMOT_COMP comp[EMCMOT_MAX_AXIS];
+	EMCMOT_COMMAND command;	/* struct used to pass commands/data to the
+				   RT module from usr space */
+	EMCMOT_STATUS status;	/* Struct used to store RT status */
+	EMCMOT_CONFIG config;	/* Struct used to store RT config */
+	EMCMOT_DEBUG debug;	/* Struct used to store RT status and debug
+				   data - 2nd largest block */
+	EMCMOT_ERROR error;	/* ring buffer for error messages */
+	EMCMOT_LOG log;		/* a massive ring buffer for logging RT data */
+	EMCMOT_COMP comp[EMCMOT_MAX_AXIS];	/* corrections to be applied
+						   to input pos */
     } EMCMOT_STRUCT;
 
 /*

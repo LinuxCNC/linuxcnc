@@ -3,13 +3,19 @@
 *   Main module initialisation and cleanup routines.
 *
 * Author:
-* Created at:
-* Computer:
+* License: GPL Version 2
+* Created on:
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
 *
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+*
 ********************************************************************/
+
 #ifndef RTAPI
 #error This is a realtime component only!
 #endif
@@ -82,7 +88,6 @@ EMCMOT_CONFIG *emcmotConfig;
 EMCMOT_DEBUG *emcmotDebug;
 EMCMOT_ERROR *emcmotError;	/* unused for RT_FIFO */
 EMCMOT_LOG *emcmotLog;		/* unused for RT_FIFO */
-EMCMOT_IO *emcmotIo;		/* new struct added 8/21/2001 JME */
 EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS];	/* unused for RT_FIFO */
 EMCMOT_LOG_STRUCT ls;
 
@@ -192,7 +197,6 @@ int init_module(void)
     emcmotDebug = 0;
     emcmotStatus = 0;
     emcmotCommand = 0;
-    emcmotIo = 0;
     emcmotConfig = 0;
 
     /* record the kinematics type of the machine */
@@ -248,7 +252,6 @@ int init_module(void)
     emcmotConfig = (EMCMOT_CONFIG *) & emcmotStruct->config;
     emcmotDebug = (EMCMOT_DEBUG *) & emcmotStruct->debug;
     emcmotError = (EMCMOT_ERROR *) & emcmotStruct->error;
-    emcmotIo = (EMCMOT_IO *) & emcmotStruct->io;
     emcmotLog = (EMCMOT_LOG *) & emcmotStruct->log;
 
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
@@ -418,7 +421,6 @@ int init_module(void)
 	rtapi_print("can't create motion emcmotDebug->queue\n");
 	return -1;
     }
-
 //    tpInit(&emcmotDebug->queue); // tpInit called from tpCreate
     tpSetCycleTime(&emcmotDebug->queue, emcmotConfig->trajCycleTime);
     tpSetPos(&emcmotDebug->queue, emcmotStatus->pos);
