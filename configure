@@ -129,7 +129,7 @@ if [ "$RTAI_DIR" = "" ] ; then
 	fi
     fi
 fi
-if [ "RTAI_DIR" != "" ] ; then
+if [ "$RTAI_DIR" != "" ] ; then
     if [ "$RTDIR" = "" ] ; then
 	echo "RTDIR set to $RTAI_DIR by search"
     fi
