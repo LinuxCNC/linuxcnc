@@ -8,15 +8,16 @@ SRCS =	emccanon.cc \
 	emcsvr.cc \
 	emctask.cc \
 	emctaskmain.cc \
-	minimilltaskintf.cc \
-	iosh.cc
+	iosh.cc \
+	iotaskintf.cc \
+	taskintf.cc \
 
 HEADERS =
 
 BINS =  emcsh \
 	emcsvr \
 	iosh \
-	minimilltask
+	milltask
 
 OBJS = emccanon.o \
 	emcsh.o \
@@ -24,7 +25,8 @@ OBJS = emccanon.o \
 	emctask.o \
 	emctaskmain.o \
 	iosh.o \
-	minimilltaskintf.o
+	iotaskintf.o \
+	taskintf.o
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%)
 # $(OBJS:%.o=$(TMP_DIR)/%.o)
@@ -63,7 +65,7 @@ $(BIN_DIR)/emcsvr: $(TMP_DIR)/emcsvr.o \
 	@ echo "Linking $@"
 	$(CXX) $^ $(ULFLAGS) -o $@
 
-$(BIN_DIR)/minimilltask: \
+$(BIN_DIR)/milltask: \
 	$(TMP_DIR)/emcmotglb.o \
 	$(TMP_DIR)/emctask.o \
 	$(TMP_DIR)/emccanon.o \
@@ -72,7 +74,8 @@ $(BIN_DIR)/minimilltask: \
 	$(TMP_DIR)/usrmotintf.o \
 	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \
-	$(TMP_DIR)/minimilltaskintf.o \
+	$(TMP_DIR)/taskintf.o \
+	$(TMP_DIR)/iotaskintf.o \
 	$(LIB_DIR)/libemc.a \
 	$(LIB_DIR)/libnmld.a \
 	$(LIB_DIR)/ulapi.o

@@ -1509,7 +1509,6 @@ int main(int argc, char *argv[])
     if (-1 != (shmem = usrmotInit())) {
 	shmem = (long) emcmotshmem;
     }
-
     // turn on port access
     unpriv = 0;
     if (0 != iopl(3)) {
