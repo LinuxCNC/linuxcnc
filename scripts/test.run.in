@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# scripts/emc.run.  Generated from emc.run.in by configure. 
-# on Sun Nov 21 03:10:39 EET 2004
+# @configure_input@ 
+# on @DATE@
 #
 # usage: test.run [options] [<ini-file>]
 #
@@ -21,17 +21,17 @@ PRINT_FILE=/dev/null
 
 # some basic programs
 # configure replaces this values
-INSMOD=/sbin/insmod
-RMMOD=/sbin/rmmod
-LSMOD=/sbin/lsmod
-PIDOF=/sbin/pidof
-GREP=/bin/grep
-SED=/bin/sed
-PS=/bin/ps
-WHOAMI=/usr/bin/whoami
-AWK=/bin/awk
-IPCS=/usr/bin/ipcs
-KILL=/bin/kill
+INSMOD=@INSMOD@
+RMMOD=@RMMOD@
+LSMOD=@LSMOD@
+PIDOF=@PIDOF@
+GREP=@GREP@
+SED=@SED@
+PS=@PS@
+WHOAMI=@WHOAMI@
+AWK=@AWK@
+IPCS=@IPCS@
+KILL=@KILL@
 
 # strip and process command line options
 #
@@ -58,40 +58,16 @@ done
 # these values 
 # get replaced by configure
 ###########################
-prefix=/usr/local
-exec_prefix=${prefix}
 
-bindir=${exec_prefix}/bin
-sbindir=${exec_prefix}/sbin
-libexecdir=${exec_prefix}/libexec
-datadir=${prefix}/share
-sysconfdir=${prefix}/etc
-sharedstatedir=${prefix}/com
-localstatedir=${prefix}/var
-libdir=${exec_prefix}/lib
-infodir=${prefix}/info
-mandir=${prefix}/man
-
-#still needs discussion
-initd_dir=/etc/init.d
-moduledir=/lib/modules/2.4.21-adeos/rtai
-docsdir=${prefix}/share/emc/docs
-ncfilesdir=${prefix}/share/emc/ncfiles
-tcldir=${prefix}/share/emc/tcl
-
-EMC2_BIN_DIR=$bindir
-EMC2_TCL_DIR=$tcldir
-EMC2_RTLIB_DIR=$moduledir
-EMC2_CONFIG_DIR=$sysconfdir
-
-INIFILE=
-
-INIVAR=$EMC2_BIN_DIR/inivar
-HALCMD=$EMC2_BIN_DIR/halcmd
-REALTIME=/etc/init.d/realtime
-
-# extract info from the ini file that we will need later
-# get name of RS274NGC parameter file
+EMC2_DIR=@EMC2_HOME@
+EMC2_BIN_DIR=@EMC2_HOME@/bin
+EMC2_TCL_DIR=@EMC2_HOME@/tcl
+EMC2_SCRIPT_DIR=@EMC2_HOME@/scripts
+EMC2_RTLIB_DIR=@EMC2_HOME@/rtlib
+EMC2_CONFIG_DIR=@EMC2_HOME@/configs
+EMC2_INC_DIR=@EMC2_HOME@/include
+EMC2_TMP_DIR=@EMC2_HOME@/src/.tmp
+EMC2_RTTMP_DIR=@EMC2_HOME@/src/.rt_tmp
 
 LOCKFILE=emc.lock
 KILL_TIMEOUT=10
@@ -102,6 +78,9 @@ HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
 
 INIVAR=$EMC2_BIN_DIR/inivar
 HALCMD=$EMC2_BIN_DIR/halcmd
+REALTIME=$EMC2_SCRIPT_DIR/realtime
+
+echo $EMC2_DIR >$DEBUG_FILE
 
 # check for root privliges - hope to remove the need for this later
 if [ `$WHOAMI` != root ] ; then
@@ -109,6 +88,7 @@ if [ `$WHOAMI` != root ] ; then
     exit -1
 fi
 
+echo EMC2_DIR=$EMC2_DIR >$PRINT_FILE
 echo EMC2_BIN_DIR=$EMC2_BIN_DIR >$PRINT_FILE
 echo EMC2_TCL_DIR=$EMC2_TCL_DIR >$PRINT_FILE
 echo EMC2_SCRIPT_DIR=$EMC2_SCRIPT_DIR >$PRINT_FILE
