@@ -2,6 +2,9 @@
 # the next line restarts using emcsh \
 exec bin/emcsh "$0" "$@"
 
+set TCLBIN tcl/bin/
+set TCLSCRIPTS tcl/scripts/
+
 # Tk GUI for the Enhanced Machine Controller
 
 # Notes
@@ -129,26 +132,26 @@ set debounceTime 150
 
 if { $windows == 0 } {
     # load the generic editor "startEditor <name>"
-    source tcl/bin/genedit.tcl
+    source $TCLBIN/genedit.tcl
 
     # load the EMC calibrator
-    source tcl/bin/emccalib.tcl
+    source $TCLBIN/emccalib.tcl
 
     # load the EMC data logger
-    source tcl/bin/emclog.tcl
+    source $TCLBIN/emclog.tcl
 
     # load the EMC performance tester
-    source tcl/bin/emctesting.tcl
+    source $TCLBIN/emctesting.tcl
 
     # load the EMC debug level setter
-    source tcl/bin/emcdebug.tcl
+    source $TCLBIN/emcdebug.tcl
 
     # load the backplotter
-    source tcl/bin/tkbackplot.tcl
+    source $TCLBIN/tkbackplot.tcl
 
     # load balloon help
-    source tcl/scripts/balloon.tcl
-    source tcl/scripts/emchelp.tcl
+    source $TCLSCRIPTS/balloon.tcl
+    source $TCLSCRIPTS/emchelp.tcl
     set do_balloons [emc_ini "BALLOON_HELP" "DISPLAY"]
     if {$do_balloons == ""} {
         set do_balloons 0

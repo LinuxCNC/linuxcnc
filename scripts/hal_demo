@@ -8,15 +8,22 @@
 # giving an argument.  For example, "hal_demo jogwheel" will run
 # the jogwheel demo.
 #
+
+HALCMD=bin/halcmd
+HALDEMO=scripts/hal_demo
+HALMETER=bin/halmeter
+HALSCOPE=bin/halscope
+REALTIME=scripts/realtime
+
 # if you don't specify a demo, this prints a usage message
 if [ ! $1 ] ; then
-    echo "Usage:  scripts/hal_demo <demo_name>"
+    echo "Usage:  $HALDEMO <demo_name>"
     echo "Run from the emc2 directory only"
     echo "Many demos require root privileges to load and/or"
     echo "unload kernel modules - log in as root, or use:"
-    echo "  su -c \"scripts/hal_demo <demo_name>\""
+    echo "  su -c \"$HALDEMO <demo_name>\""
     # print the list of demos
-    scripts/hal_demo list
+    $HALDEMO list
     exit 0
 fi
 #
@@ -41,7 +48,7 @@ fi
 #
 if [ $1 = load ] ; then
     # load the rtos and rtapi
-    if ! scripts/realtime start ; then
+    if ! $REALTIME start ; then
         exit -1
     fi
     # done
@@ -53,7 +60,7 @@ fi
 #
 if [ $1 = unload ] ; then
     # unload the rtos and rtapi
-    if ! scripts/realtime stop ; then
+    if ! $REALTIME stop ; then
         exit -1
     fi
     # done
@@ -88,86 +95,86 @@ if [ $1 = parport1 ] ; then
     echo "Hit enter to install the parport module with a 1mS thread"
     read
     # change the 0278 if your port is at a different address
-    echo "$ bin/halcmd loadrt hal_parport period=1000000 cfg=\"0278\""
-    bin/halcmd loadrt hal_parport period=1000000 cfg="0278"
+    echo "$ $HALCMD loadrt hal_parport period=1000000 cfg=\"0278\""
+    $HALCMD loadrt hal_parport period=1000000 cfg="0278"
     echo "Hit enter see the component list"
     read
-    echo "$ bin/halcmd show comp"
-    bin/halcmd show comp
+    echo "$ $HALCMD show comp"
+    $HALCMD show comp
     echo "Hit enter see the threads and functions"
     read
-    echo "$ bin/halcmd show thread"
-    bin/halcmd show thread
+    echo "$ $HALCMD show thread"
+    $HALCMD show thread
     echo "(the period is in nano-seconds)"
-    echo "$ bin/halcmd show funct"
-    bin/halcmd show funct
+    echo "$ $HALCMD show funct"
+    $HALCMD show funct
     echo "Hit enter to continue"
     read
     echo "(connecting the parport read and write"
     echo " functions to the 1mS thread)"
-    echo "$ bin/halcmd addf parport.0.read parport.thread"
-    bin/halcmd addf parport.0.read parport.thread
-    echo "$ bin/halcmd addf parport.0.write parport.thread"
-    bin/halcmd addf parport.0.write parport.thread
+    echo "$ $HALCMD addf parport.0.read parport.thread"
+    $HALCMD addf parport.0.read parport.thread
+    echo "$ $HALCMD addf parport.0.write parport.thread"
+    $HALCMD addf parport.0.write parport.thread
     echo "(start the realtime thread)"
-    echo "$ bin/halcmd start"
-    bin/halcmd start
+    echo "$ $HALCMD start"
+    $HALCMD start
     echo "Hit enter see the threads and functions again"
     read
-    echo "$ bin/halcmd show thread"
-    bin/halcmd show thread
+    echo "$ $HALCMD show thread"
+    $HALCMD show thread
     echo "(thread now has functions attached)"
-    echo "$ bin/halcmd show funct"
-    bin/halcmd show funct
+    echo "$ $HALCMD show funct"
+    $HALCMD show funct
     echo "(functions have a non-zero users count)"
     echo "Hit enter to see the pins"
     read
-    echo "$ bin/halcmd show pin"
-    bin/halcmd show pin
+    echo "$ $HALCMD show pin"
+    $HALCMD show pin
     echo "Hit enter to see the parameters"
     read
-    echo "$ bin/halcmd show param"
-    bin/halcmd show param
+    echo "$ $HALCMD show param"
+    $HALCMD show param
     echo "Hit enter to create some signals"
     read
-    echo "$ bin/halcmd newsig jumper1 bit"
-    bin/halcmd newsig jumper1 bit
-    echo "$ bin/halcmd newsig jumper2 bit"
-    bin/halcmd newsig jumper2 bit
+    echo "$ $HALCMD newsig jumper1 bit"
+    $HALCMD newsig jumper1 bit
+    echo "$ $HALCMD newsig jumper2 bit"
+    $HALCMD newsig jumper2 bit
     echo "(signals created - lets look at them)"
-    echo "$ bin/halcmd show sig"
-    bin/halcmd show sig
+    echo "$ $HALCMD show sig"
+    $HALCMD show sig
     echo "Hit enter to connect signals to pins"
     read
     echo "(use signal jumper1 to connect input pin 10 to output pin 2)"
-    echo "$ bin/halcmd linksp jumper1 parport.0.pin-10-in"
-    bin/halcmd linksp jumper1 parport.0.pin-10-in
-    echo "$ bin/halcmd linksp jumper1 parport.0.pin-02-out"
-    bin/halcmd linksp jumper1 parport.0.pin-02-out
+    echo "$ $HALCMD linksp jumper1 parport.0.pin-10-in"
+    $HALCMD linksp jumper1 parport.0.pin-10-in
+    echo "$ $HALCMD linksp jumper1 parport.0.pin-02-out"
+    $HALCMD linksp jumper1 parport.0.pin-02-out
     echo "(connections made - lets take a look)"
-    echo "$ bin/halcmd show sig"
-    bin/halcmd show sig
+    echo "$ $HALCMD show sig"
+    $HALCMD show sig
     echo "(If you have a breakout board or other access to the port"
     echo " you can apply a signal to pin 10 and verify that pin 2"
     echo " follows it - updated every 1mS )"
     echo "Hit enter to add another output"
     read
-    echo "$ bin/halcmd linksp jumper1 parport.0.pin-03-out"
-    bin/halcmd linksp jumper1 parport.0.pin-03-out
+    echo "$ $HALCMD linksp jumper1 parport.0.pin-03-out"
+    $HALCMD linksp jumper1 parport.0.pin-03-out
     echo "(input pin 10 is now routed to output pins 2 and 3 )"
-    echo "$ bin/halcmd show sig"
-    bin/halcmd show sig
+    echo "$ $HALCMD show sig"
+    $HALCMD show sig
     echo "Hit enter to invert the pin 3 output"
     read
     echo "(invert pin 3 by setting a parameter of the parport module)"
-    echo "$ bin/halcmd setp parport.0.pin-03-out-invert TRUE"
-    bin/halcmd setp parport.0.pin-03-out-invert TRUE
+    echo "$ $HALCMD setp parport.0.pin-03-out-invert TRUE"
+    $HALCMD setp parport.0.pin-03-out-invert TRUE
     echo "(if you have access to the pins, you can verify"
     echo " that pin 3 is now inverted)"
     echo "Hit enter to see the parameters"
     read
-    echo "$ bin/halcmd show param"
-    bin/halcmd show param
+    echo "$ $HALCMD show param"
+    $HALCMD show param
     echo "Hit enter to try halmeter"
     read
     echo "(running halmeter, a GUI application - it should"
@@ -183,18 +190,18 @@ if [ $1 = parport1 ] ; then
     echo " nanoseconds.  you should be able to see it change a little"
     echo " due to jitter and other factors."
     echo "(Click exit to shut down halmeter.)"
-    echo "$ bin/halmeter"
-    bin/halmeter
+    echo "$ $HALMETER"
+    $HALMETER
     echo "Hit enter to finish the demo"
     read
     echo "(deleting signals)"
-    echo "$ bin/halcmd delsig jumper1"
-    bin/halcmd delsig jumper1
-    echo "$ bin/halcmd delsig jumper2"
-    bin/halcmd delsig jumper2
+    echo "$ $HALCMD delsig jumper1"
+    $HALCMD delsig jumper1
+    echo "$ $HALCMD delsig jumper2"
+    $HALCMD delsig jumper2
     echo "(unloading the parport module)"
-    echo "$ bin/halcmd unloadrt hal_parport"
-    bin/halcmd unloadrt hal_parport
+    echo "$ $HALCMD unloadrt hal_parport"
+    $HALCMD unloadrt hal_parport
     exit 0
 fi
 #
@@ -208,51 +215,51 @@ if [ $1 = siggen ] ; then
     echo " see what each step does.  Echoed commands start with '$')"
     echo "Hit enter to install the siggen module with a 1mS thread"
     read
-    echo "$ bin/halcmd loadrt siggen fp_period=1000000"
-    bin/halcmd loadrt siggen fp_period=1000000
+    echo "$ $HALCMD loadrt siggen fp_period=1000000"
+    $HALCMD loadrt siggen fp_period=1000000
     echo "Hit enter see the component list"
     read
-    echo "$ bin/halcmd show comp"
-    bin/halcmd show comp
+    echo "$ $HALCMD show comp"
+    $HALCMD show comp
     echo "Hit enter see the threads and functions"
     read
-    echo "$ bin/halcmd show thread"
-    bin/halcmd show thread
+    echo "$ $HALCMD show thread"
+    $HALCMD show thread
     echo "(the period is in nano-seconds)"
-    echo "$ bin/halcmd show funct"
-    bin/halcmd show funct
+    echo "$ $HALCMD show funct"
+    $HALCMD show funct
     echo "Hit enter to continue"
     read
     echo "(connecting the siggen update function to the 1mS thread)"
-    echo "$ bin/halcmd addf siggen.0.update siggen.thread"
-    bin/halcmd addf siggen.0.update siggen.thread
+    echo "$ $HALCMD addf siggen.0.update siggen.thread"
+    $HALCMD addf siggen.0.update siggen.thread
     echo "(start the realtime thread)"
-    echo "$ bin/halcmd start"
-    bin/halcmd start
+    echo "$ $HALCMD start"
+    $HALCMD start
     echo "Hit enter see the threads and functions again"
     read
-    echo "$ bin/halcmd show thread"
-    bin/halcmd show thread
+    echo "$ $HALCMD show thread"
+    $HALCMD show thread
     echo "(thread now has function attached)"
-    echo "$ bin/halcmd show funct"
-    bin/halcmd show funct
+    echo "$ $HALCMD show funct"
+    $HALCMD show funct
     echo "(function has a non-zero users count)"
     echo "Hit enter to see the pins"
     read
-    echo "$ bin/halcmd show pin"
-    bin/halcmd show pin
+    echo "$ $HALCMD show pin"
+    $HALCMD show pin
     echo "Hit enter to see the parameters"
     read
-    echo "$ bin/halcmd show param"
-    bin/halcmd show param
+    echo "$ $HALCMD show param"
+    $HALCMD show param
     echo "Hit enter to change the frequency to 0.1Hz"
     read
-    echo "$ bin/halcmd setp siggen.0.frequency 0.1"
-    bin/halcmd setp siggen.0.frequency 0.1
+    echo "$ $HALCMD setp siggen.0.frequency 0.1"
+    $HALCMD setp siggen.0.frequency 0.1
     echo "Hit enter to see the parameters"
     read
-    echo "$ bin/halcmd show param"
-    bin/halcmd show param
+    echo "$ $HALCMD show param"
+    $HALCMD show param
     echo "Hit enter to try halmeter"
     read
     echo "(running halmeter, a GUI application - it should"
@@ -265,13 +272,13 @@ if [ $1 = siggen ] ; then
     echo " through a complete cycle every 10 seconds, since we"
     echo " set the frequency to 0.1Hz.)"
     echo "(Click exit to shut down halmeter.)"
-    echo "$ bin/halmeter"
-    bin/halmeter
+    echo "$ $HALMETER"
+    $HALMETER
     echo "Hit enter to finish the demo"
     read
     echo "(unloading the siggen module)"
-    echo "$ bin/halcmd unloadrt siggen"
-    bin/halcmd unloadrt siggen
+    echo "$ $HALCMD unloadrt siggen"
+    $HALCMD unloadrt siggen
     exit 0
 fi
 #
@@ -286,120 +293,120 @@ if [ $1 = circle ] ; then
     read
     # install parport module
     # change the 0278 if your port is at a different address
-    bin/halcmd loadrt hal_parport cfg="0278"
+    $HALCMD loadrt hal_parport cfg="0278"
     # install two frequency type step pulse generators, stepping type 0,
     # and also create two threads, one 50uS and one 1mS
-    bin/halcmd -V loadrt freqgen cfg="0 0" period=50000 fp_period=1000000
+    $HALCMD -V loadrt freqgen cfg="0 0" period=50000 fp_period=1000000
     # install the siggen module
-    bin/halcmd loadrt siggen
+    $HALCMD loadrt siggen
     # install two PID loops
-    bin/halcmd loadrt pid num_chan=2
+    $HALCMD loadrt pid num_chan=2
     #
-    bin/halcmd show comp
+    $HALCMD show comp
     echo "Hit enter set up the threads"
     read
     #
     # set up the high speed thread
     # first read the parport inputs
-    bin/halcmd addf parport.0.read freqgen.thread
+    $HALCMD addf parport.0.read freqgen.thread
     # then run the step generator
-    bin/halcmd addf freqgen.make_pulses freqgen.thread
+    $HALCMD addf freqgen.make_pulses freqgen.thread
     # then write the parport outputs
-    bin/halcmd addf parport.0.write freqgen.thread
+    $HALCMD addf parport.0.write freqgen.thread
     # set up the low speed thread
     # first run the signal generator to generate position references
-    bin/halcmd addf siggen.0.update freqgen.threadFP
+    $HALCMD addf siggen.0.update freqgen.threadFP
     # next run freqgen position capture function to get position feedback
-    bin/halcmd addf freqgen.capture_position freqgen.threadFP
+    $HALCMD addf freqgen.capture_position freqgen.threadFP
     # next run the pid loops
-    bin/halcmd addf pid.0.do_pid_calcs freqgen.threadFP
-    bin/halcmd addf pid.1.do_pid_calcs freqgen.threadFP
+    $HALCMD addf pid.0.do_pid_calcs freqgen.threadFP
+    $HALCMD addf pid.1.do_pid_calcs freqgen.threadFP
     # and finally run the step generator update function
-    bin/halcmd addf freqgen.update_freq freqgen.threadFP
+    $HALCMD addf freqgen.update_freq freqgen.threadFP
     #
-    bin/halcmd show thread
-    bin/halcmd show funct
+    $HALCMD show thread
+    $HALCMD show funct
     echo "Hit enter to create signals and connect pins"
     read
     #
     # start with the position references - declare the signals
-    bin/halcmd newsig x_pos_cmd float
-    bin/halcmd newsig y_pos_cmd float
+    $HALCMD newsig x_pos_cmd float
+    $HALCMD newsig y_pos_cmd float
     # connect them to their sources - the signal generator outputs
-    bin/halcmd linksp x_pos_cmd siggen.0.cosine
-    bin/halcmd linksp y_pos_cmd siggen.0.sine
+    $HALCMD linksp x_pos_cmd siggen.0.cosine
+    $HALCMD linksp y_pos_cmd siggen.0.sine
     # and connect them to their destinations - the PID command inputs
-    bin/halcmd linksp x_pos_cmd pid.0.command
-    bin/halcmd linksp y_pos_cmd pid.1.command
+    $HALCMD linksp x_pos_cmd pid.0.command
+    $HALCMD linksp y_pos_cmd pid.1.command
     # now the position feedback
-    bin/halcmd newsig x_feedback float
-    bin/halcmd newsig y_feedback float
+    $HALCMD newsig x_feedback float
+    $HALCMD newsig y_feedback float
     # connect them to their sources - the freqgen position output
-    bin/halcmd linksp x_feedback freqgen.0.position-fb
-    bin/halcmd linksp y_feedback freqgen.1.position-fb
+    $HALCMD linksp x_feedback freqgen.0.position-fb
+    $HALCMD linksp y_feedback freqgen.1.position-fb
     # and connect them to their destinations - the PID feedback inputs
-    bin/halcmd linksp x_feedback pid.0.feedback
-    bin/halcmd linksp y_feedback pid.1.feedback
+    $HALCMD linksp x_feedback pid.0.feedback
+    $HALCMD linksp y_feedback pid.1.feedback
     # the outputs of the PID loops are velocity commands
-    bin/halcmd newsig x_vel_cmd float
-    bin/halcmd newsig y_vel_cmd float
+    $HALCMD newsig x_vel_cmd float
+    $HALCMD newsig y_vel_cmd float
     # connect them to their sources - the PID outputs
-    bin/halcmd linksp x_vel_cmd pid.0.output
-    bin/halcmd linksp y_vel_cmd pid.1.output
+    $HALCMD linksp x_vel_cmd pid.0.output
+    $HALCMD linksp y_vel_cmd pid.1.output
     # and connect them to their destinations - the freqgen frequency inputs
-    bin/halcmd linksp x_vel_cmd freqgen.0.velocity
-    bin/halcmd linksp y_vel_cmd freqgen.1.velocity
+    $HALCMD linksp x_vel_cmd freqgen.0.velocity
+    $HALCMD linksp y_vel_cmd freqgen.1.velocity
     # now we need to route the step and direction signals
-    bin/halcmd newsig x_step bit
-    bin/halcmd newsig x_dir bit
-    bin/halcmd newsig y_step bit
-    bin/halcmd newsig y_dir bit
+    $HALCMD newsig x_step bit
+    $HALCMD newsig x_dir bit
+    $HALCMD newsig y_step bit
+    $HALCMD newsig y_dir bit
     # the sources - stepgen outputs
-    bin/halcmd linksp x_step freqgen.0.step
-    bin/halcmd linksp x_dir freqgen.0.dir
-    bin/halcmd linksp y_step freqgen.1.step
-    bin/halcmd linksp y_dir freqgen.1.dir
+    $HALCMD linksp x_step freqgen.0.step
+    $HALCMD linksp x_dir freqgen.0.dir
+    $HALCMD linksp y_step freqgen.1.step
+    $HALCMD linksp y_dir freqgen.1.dir
     # the destinations - parport pins
     # this set of lines configures for a Xylotex 3-axis card
-    #bin/halcmd linksp x_step parport.0.pin-02-out
-    #bin/halcmd linksp x_dir  parport.0.pin-03-out
-    #bin/halcmd linksp y_step parport.0.pin-04-out
-    #bin/halcmd linksp y_dir  parport.0.pin-05-out
+    #$HALCMD linksp x_step parport.0.pin-02-out
+    #$HALCMD linksp x_dir  parport.0.pin-03-out
+    #$HALCMD linksp y_step parport.0.pin-04-out
+    #$HALCMD linksp y_dir  parport.0.pin-05-out
     # this set of lines configures for the "standard" EMC pinout
-    bin/halcmd linksp x_dir  parport.0.pin-02-out
-    bin/halcmd linksp x_step parport.0.pin-03-out
-    bin/halcmd linksp y_dir  parport.0.pin-04-out
-    bin/halcmd linksp y_step parport.0.pin-05-out
+    $HALCMD linksp x_dir  parport.0.pin-02-out
+    $HALCMD linksp x_step parport.0.pin-03-out
+    $HALCMD linksp y_dir  parport.0.pin-04-out
+    $HALCMD linksp y_step parport.0.pin-05-out
     # there is one more signal to connect - the PID loops need
     # to be enabled
-    bin/halcmd newsig enable bit
-    bin/halcmd linksp enable pid.0.enable
-    bin/halcmd linksp enable pid.1.enable
+    $HALCMD newsig enable bit
+    $HALCMD linksp enable pid.0.enable
+    $HALCMD linksp enable pid.1.enable
     # we'll use a parport input as a source for a TRUE bit
-    bin/halcmd linksp enable parport.0.pin-10-in
+    $HALCMD linksp enable parport.0.pin-10-in
     #
-    bin/halcmd show sig
+    $HALCMD show sig
     echo "Hit enter to set the parameters"
     read
     # set the signal generator frequency to make a circle in 10 seconds
-    bin/halcmd setp siggen.0.frequency 0.1
+    $HALCMD setp siggen.0.frequency 0.1
     # set the PID tuning
-    bin/halcmd setp pid.0.Pgain 10
-    bin/halcmd setp pid.0.FF1 1.0
-    bin/halcmd setp pid.1.Pgain 10
-    bin/halcmd setp pid.1.FF1 1.0
+    $HALCMD setp pid.0.Pgain 10
+    $HALCMD setp pid.0.FF1 1.0
+    $HALCMD setp pid.1.Pgain 10
+    $HALCMD setp pid.1.FF1 1.0
     # set the position feedback scaling - 800 steps = 1 machine unit
-    bin/halcmd setp freqgen.0.position-scale 0.00125
-    bin/halcmd setp freqgen.1.position-scale 0.00125
+    $HALCMD setp freqgen.0.position-scale 0.00125
+    $HALCMD setp freqgen.1.position-scale 0.00125
     # set velocity scaling - 1 unit/sec = 800 steps/sec
-    bin/halcmd setp freqgen.0.velocity-scale 800
-    bin/halcmd setp freqgen.1.velocity-scale 800
+    $HALCMD setp freqgen.0.velocity-scale 800
+    $HALCMD setp freqgen.1.velocity-scale 800
     #
-    bin/halcmd show param
+    $HALCMD show param
     echo "Hit enter to start"
     read
     #
-    bin/halcmd start
+    $HALCMD start
     #
     echo
     echo "if you want to experiment, open another shell window."
@@ -407,11 +414,11 @@ if [ $1 = circle ] ; then
     echo "modify them"
     echo "for example, to change from 1 circle every 10 seconds"
     echo "to one circle every five seconds:"
-    echo "bin/halcmd setp siggen.0.frequency 0.2"
+    echo "$HALCMD setp siggen.0.frequency 0.2"
     echo
     echo "Hit enter to finish the demo"
     read
-    bin/halcmd unloadrt all
+    $HALCMD unloadrt all
     exit 0
 fi
 #
@@ -424,17 +431,17 @@ if [ $1 = scope ] ; then
     echo "demo.  Hit enter to get started"
     read
     echo "First we load the siggen demo (not echoed)"
-    bin/halcmd loadrt siggen fp_period=1000000
-    bin/halcmd addf siggen.0.update siggen.thread
-    bin/halcmd start
-    bin/halcmd setp siggen.0.frequency 10
+    $HALCMD loadrt siggen fp_period=1000000
+    $HALCMD addf siggen.0.update siggen.thread
+    $HALCMD start
+    $HALCMD setp siggen.0.frequency 10
     echo "Then we load the realtime component of halscope:"
-    echo "$ bin/halcmd loadrt scope_rt"
-    bin/halcmd loadrt scope_rt
+    echo "$ $HALCMD loadrt scope_rt"
+    $HALCMD loadrt scope_rt
     echo "Finally we start the user component (in the background"
     echo "so that the foreground can continue to give instructions):"
-    echo "$ bin/halscope &"
-    bin/halscope &
+    echo "$ $HALSCOPE &"
+    $HALSCOPE &
     echo "HALSCOPE should appear in a new window.  Select this "
     echo "window again and hit enter for step by step instructions"
     read
@@ -521,7 +528,7 @@ if [ $1 = scope ] ; then
     echo "To shut down the scope, use the [X] button in the corner"
     echo "Hit enter to finish the demo"
     read
-    bin/halcmd unloadrt all
+    $HALCMD unloadrt all
     exit 0
 fi
 #
@@ -529,6 +536,6 @@ fi
 # if we get here, the user asked for a non-existant demo
 #
 echo "Sorry, there is no demo called '$1'"
-scripts/hal_demo
+$HALDEMO
 exit -1
 

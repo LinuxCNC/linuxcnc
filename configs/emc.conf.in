@@ -12,6 +12,7 @@ PS=@PS@
 WHOAMI=@WHOAMI@
 AWK=@AWK@
 IPCS=@IPCS@
+KILL=@KILL@
 
 # make some useful paths
 prefix=@prefix@

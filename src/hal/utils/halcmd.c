@@ -40,6 +40,7 @@
 #error This is a user mode component only!
 #endif
 
+#include "../../config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -807,7 +808,26 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
        directory tree being laid out per 'emc2/directory.map'.
        There is probably a better way of doing this... it will
        certainly need changed once we have a 'make install' that
-       puts modules somewhere else. */
+       puts modules somewhere else. 
+
+       JS- I'm going to suggest that the right thing to do here
+       is to find the emc.conf file and parse out the module
+       directory, so that we have 1 modifiable file which controls
+       the rtmod_dir setting here and in the scripts.
+
+       That said, I'm ignoring my advice for now and just adding
+       a test for the rtmod_dir from configure...
+
+       (I'd really rather not reimplement configuration file parsing)
+
+    */
+
+    if ( rtmod_dir == NULL ) {
+	if ( stat(moduledir, &stat_buf) == 0 ) {
+		rtmod_dir=moduledir;
+	}
+    }
+
     if ( rtmod_dir == NULL ) {
 	/* no env variable, try to locate the directory based on
 	   where this executable lives (should be in the emc2 tree) */

@@ -12,8 +12,8 @@
 
 if [ -f ./emc.conf ] ; then
    source ./emc.conf ;
-elif [ -f "$EMCCONFIG" ] ; then
-   source $EMCCONFIG ;
+elif [ -f "$EMC2CONFIGDIR/emc.conf" ] ; then
+   source $EMC2CONFIGDIR/emc.conf ;
 elif [ -f /etc/emc.conf ] ; then
    source /etc/emc.conf ;
 else

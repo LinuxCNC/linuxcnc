@@ -38,9 +38,6 @@ LOCALDIR = `pwd`
 
 SUBDIRS = src/rtapi src/hal src/libnml src/emc
 
-# SCRIPTS is a list of all of the scripts to be installed
-
-SCRIPTS = emc.run hal_demo 
 
 # BINARIES is a list of all of the binary executables to install
  
@@ -49,15 +46,11 @@ BINARIES = emcsvr hal_skeleton halmeter inivar milltask usrmot emcsh hal_parport
 
 # The list of all of the configuration files we install...
 
-CONFIGS=emc.conf hal.conf rtapi.conf core_stepper.hal emc.ini emc.nml emc.var simulated_limits.hal standard_pinout.hal xylotex_pinout.hal
+CONFIGS=emc.conf hal.conf rtapi.conf core_stepper.hal emc.ini emc.nml emc.var simulated_limits.hal standard_pinout.hal xylotex_pinout.hal TkEmc
 
 # The target install location for configuration files:
 
-CONFIGTARGET=$(DESTDIR)$(TESTDIR)/$(sysconfdir)
-
-# The expected location of the emc.conf configuration file:
-
-EMCCONFIG=$(CONFIGTARGET)/emc.conf
+CONFIGDIR=$(sysconfdir)
 
 # install:
 # installs the EMC system
@@ -105,6 +98,11 @@ install_man: man_directories $(MAN_FILES)
 # and found in the various script directories) into their install
 # location
 
+
+# Here we embark on the craziest of schemes, copying the
+# scripts to their install location while changing the
+# scripts to have correct paths.
+
 install_bin: 
 	install -d $(DESTDIR)$(TESTDIR)/$(bindir)
 
@@ -115,9 +113,9 @@ install_bin:
 	done
 
 	#cp -R bin/* $(DESTDIR)$(TESTDIR)/$(bindir)
-	cp tcl/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
-	cp tcl/bin/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
-	cp tcl/scripts/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
+#	cp tcl/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
+#	cp tcl/bin/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
+#	cp tcl/scripts/*.tcl $(DESTDIR)$(TESTDIR)/$(bindir)
 
 # install_bin:
 # When we get EMC to where it can be run by normal users, and not
@@ -149,15 +147,39 @@ install_lib:
 # is used in the scripts gets replaced with an absolute path
 # to the install location.
 
+# SCRIPTS is a list of all of the scripts to be installed
+
+SCRIPTS = scripts/emc.run scripts/hal_demo tcl/tkemc.tcl \
+tcl/bin/emcdebug.tcl tcl/bin/emctesting.tcl tcl/bin/genedit.tcl \
+tcl/bin/tkio.tcl tcl/bin/emccalib.tcl tcl/bin/emclog.tcl \
+tcl/bin/emctuning.tcl tcl/bin/tkbackplot.tcl \
+tcl/scripts/DIO_Exercise.tcl tcl/scripts/IO_Exercise.tcl \
+tcl/scripts/IO_Show.tcl tcl/scripts/balloon.tcl tcl/scripts/emchelp.tcl
+
+
+
+
 install_scripts:
 	install -d $(DESTDIR)$(TESTDIR)/$(bindir)
 #	(cd scripts ; cp -r $(SCRIPTS) $(DESTDIR)/$(bindir))
 	
 	@@for script in $(SCRIPTS); \
 	do \
-		echo "Creating $$script"; \
-		cat scripts/$$script | sed "s%\$$TESTDIR%$(TESTDIR)%;s%\$$EMCCONFIG%$(EMCCONFIG)%;" > $(DESTDIR)$(TESTDIR)/$(bindir)/$$script; \
-		chmod a+x $(DESTDIR)$(TESTDIR)/$(bindir)/$$script; \
+		echo "Transfering $$script"; \
+		cat $$script | sed "s%\$$TESTDIR%$(TESTDIR)%;\
+		s%\$$EMC2CONFIGDIR%$(TESTDIR)$(CONFIGDIR)%;\
+		s%tcl/bin/%$(TESTDIR)/$(bindir)%;\
+		s%tcl/scripts%$(TESTDIR)/$(bindir)%;\
+		s%bin/iosh%$(TESTDIR)/$(bindir)/iosh%;\
+		s%bin/emcsh%$(TESTDIR)/$(bindir)/emcsh%;\
+		s%bin/halcmd%$(TESTDIR)/$(bindir)/halcmd%;\
+		s%scripts/hal_demo%$(TESTDIR)/$(bindir)/hal_demo%;\
+		s%bin/halmeter%$(TESTDIR)/$(bindir)/halmeter%;\
+		s%bin/halscope%$(TESTDIR)/$(bindir)/halscope%;\
+		s%configs/TkEmc%$(TESTDIR)$(CONFIGDIR)/TkEmc%;\
+		s%scripts/realtime%$(TESTDIR)/etc/rc.d/init.d/realtime%;\
+		s%tcl/scripts/%$(TESTDIR)/$(bindir)%;" > $(DESTDIR)$(TESTDIR)/$(bindir)/`basename $$script`; \
+		chmod a+x $(DESTDIR)$(TESTDIR)/$(bindir)/`basename $$script`; \
 	done
 
 
@@ -168,13 +190,13 @@ install_scripts:
 
 install_configs:
 	@ echo "Installing configs..."
-	install -d $(CONFIGTARGET)
+	install -d $(DESTDIR)$(TESTDIR)$(CONFIGDIR)
 #	(cd scripts ; cp -r $(SCRIPTS) $(DESTDIR)/$(bindir))
 	
 	@@for config in $(CONFIGS); \
 	do \
 		echo "Creating $$config"; \
-		cat configs/$$config | sed "s%\$$TESTDIR%$(TESTDIR)%;s%\$$EMCCONFIG%$(EMCCONFIG)%;" > $(CONFIGTARGET)/$$config; \
+		cat configs/$$config | sed "s%\$$TESTDIR%$(TESTDIR)%;s%\$$EMC2CONFIGDIR%$(TESTDIR)$(CONFIGDIR)%;" > $(DESTDIR)$(TESTDIR)$(CONFIGDIR)/$$config; \
 	done
 
 	@ echo "configs installed"
@@ -212,7 +234,7 @@ modules_install install_modules: install_rt_modules install_hal_modules
 
 install_init:
 	install -d $(DESTDIR)$(TESTDIR)/etc/rc.d/init.d/
-	cat scripts/realtime | sed "s%\$$EMC_RTAPICONF%$(CONFIGTARGET)/rtapi.conf%;" > $(DESTDIR)$(TESTDIR)/etc/rc.d/init.d/realtime
+	cat scripts/realtime | sed "s%\$$EMC_RTAPICONF%$(TESTDIR)$(CONFIGDIR)/rtapi.conf%;" > $(DESTDIR)$(TESTDIR)/etc/rc.d/init.d/realtime
 	chmod a+x $(DESTDIR)$(TESTDIR)/etc/rc.d/init.d/realtime
 	@ echo "Realtime script installed"
 

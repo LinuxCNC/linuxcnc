@@ -859,7 +859,7 @@ Optional Packages:
   --with-module-dir=<module-dir>	Installation directory for kernel modules
   --with-gtk_ver=<GTK-version>      GTK version
   --with-locale-dir=DIR   Location of the locale file(s)
-                          DATADIR/locale/${PACKAGE}
+                          DATADIR/locale
 
 Some influential environment variables:
   CC          C compiler command
@@ -3046,7 +3046,10 @@ done
 #KERNEL_VERS=`cat $KERNELDIR/include/linux/version.h | head -n 1 | cut -d '"' -f 2`
 
 # Unfortuantely, many distributions (redhat, mandrake) have #defines
-# inside versin.h, so the above test is too simplistic...
+# inside versin.h, so the above test is too simplistic... But then agsin,
+# RH & Mandrake kernels are notorious for their use of patches that break
+# the RT patching - Both RTAI and RTLinux strongly recommend using
+# a virgin source from kernel.org.
 
 # Get the kernel version from version.h
 
@@ -8016,6 +8019,7 @@ done
 
 
 # Add langauges here when they are translated.
+# Grep the LINGUAS file.
   LANGUAGES=""
 
 
@@ -8227,7 +8231,7 @@ fi
 
 
 
-    LOCALEDIR='${datadir}/locale/${package}'
+    LOCALEDIR='${datadir}/locale'
 
 # Check whether --with-locale-dir or --without-locale-dir was given.
 if test "${with_locale_dir+set}" = set; then
@@ -8260,7 +8264,7 @@ fi
 #AM_GLIB_GNU_GETTEXT
 
 
-                              ac_config_files="$ac_config_files configs/rtapi.conf configs/emc.conf configs/hal.conf"
+                                        ac_config_files="$ac_config_files configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h"
 
           ac_config_files="$ac_config_files Makefile.inc"
 cat >confcache <<\_ACEOF
@@ -8815,6 +8819,7 @@ do
   "configs/rtapi.conf" ) CONFIG_FILES="$CONFIG_FILES configs/rtapi.conf" ;;
   "configs/emc.conf" ) CONFIG_FILES="$CONFIG_FILES configs/emc.conf" ;;
   "configs/hal.conf" ) CONFIG_FILES="$CONFIG_FILES configs/hal.conf" ;;
+  "src/config.h" ) CONFIG_FILES="$CONFIG_FILES src/config.h" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}

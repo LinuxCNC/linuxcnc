@@ -1,0 +1,50 @@
+/*
+ * @configure_input@ 
+ * on @DATE@
+ *
+ */
+
+#ifndef __emc_conf_h__
+#define __emc_conf_h__
+
+#define EMC2_HOME "@EMC2_HOME@"
+#define BIN_DIR   "@EMC2_HOME@/bin"
+#define LIB_DIR   "@EMC2_HOME@/lib"
+#define RTLIB_DIR "@EMC2_HOME@/rtlib"
+#define INC_DIR   "@EMC2_HOME@/include"
+#define TMP_DIR   "@EMC2_HOME@/src/.tmp"
+#define RTTMP_DIR "@EMC2_HOME@/src/.rt_tmp"
+#define RTDIR     "@RTDIR@"
+
+#define prefix "@prefix@"
+
+#define exec_prefix "@exec_prefix@"
+
+#define bindir "@@bindir@@"
+#define sbindir "@sbindir@"
+#define libexecdir "@libexecdir@"
+#define datadir "@datadir@"
+#define sysconfdir "@sysconfdir@"
+#define sharedstatedir "@sharedstatedir@"
+#define localstatedir "@localstatedir@"
+#define libdir "@libdir@"
+#define infodir "@infodir@"
+#define mandir "@mandir@"
+#define moduledir "@MODULE_DIR@"
+#define kernelvers "@KERNEL_VERS@"
+
+/*  i18n variables: */
+
+#define package "@PACKAGE@"
+#define localedir "@LOCALEDIR@"
+#define LANGUAGES "@LANGUAGES@"
+
+/* /Standard configure directories */
+
+#define RTNAME "@RTNAME@"
+#define RTPREFIX "@RTPREFIX@"
+#define RTAI "@RTAI@"
+#define RTFLAGS "@RTFLAGS@"
+#define KERNELDIR "@KERNELDIR@"
+
+#endif
