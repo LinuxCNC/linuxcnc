@@ -1639,7 +1639,9 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 
 	// abort everything
 	emcTaskAbort();
-
+#if 0
+/* Part of Chris Radek's abort bug fix was to remove these lines.
+   For the time being, we'll use an ifdef */
 	// without emcTaskPlanClose(), a new run command resumes at
 	// aborted line-- feature that may be considered later
 	{
@@ -1650,7 +1652,7 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 		    __LINE__);
 	    }
 	}
-
+#endif
 	// clear out the pending command
 	emcTaskCommand = 0;
 	interp_list.clear();
