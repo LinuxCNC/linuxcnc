@@ -45,15 +45,6 @@
 static double servo_period;
 static double servo_freq;
 
-
-/* debouncing */
-/* FIXME-- testing */
-static int debouncecount[EMCMOT_MAX_AXIS] = { 0 };
-
-#ifndef SIMULATED_MOTORS
-static double positionInputDebounce[EMCMOT_MAX_AXIS] = { 0.0 };
-#endif
-
 /* counter that triggers computation of forward kinematics during
    disabled state, making them run at the trajectory rate instead
    of the servo rate. In the disabled state the interpolators are
