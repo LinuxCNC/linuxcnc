@@ -2,64 +2,73 @@
 # usage: emc.run [options] [<ini-file>]
 #
 # options:
-#     -v = echos script commands to screen for debugging
+#     -v = verbose - prints info as it works
+#     -d = echos script commands to screen for debugging
 #
 # if <ini-file> not specified, uses EMC2_DIR/configs/emc.ini
 # if path specified, looks there, else looks in $EMC2_DIR/configs
 #
+DEBUG_FILE=/dev/null
+PRINT_FILE=/dev/null
+#
+#
+# check for some programs that we need
+if ! which grep >/dev/null || \
+   ! which sed >/dev/null || \
+   ! which ps >/dev/null || \
+   ! which awk >/dev/null ; then
+    echo "Sorry, a neccessary program couldn't be found"
+    exit -1
+fi
+if [ -x /sbin/insmod ] ; then
+    INSMOD=/sbin/insmod
+else
+    echo "Can't find insmod"
+    exit -1
+fi
+if [ -x /sbin/rmmod ] ; then
+    RMMOD=/sbin/rmmod
+else
+    echo "Can't find rmmod"
+    exit -1
+fi
+if [ -x /sbin/lsmod ] ; then
+    LSMOD=/sbin/lsmod
+else
+    echo "Can't locate lsmod"
+    exit -1
+fi
+if [ -x /usr/bin/pidof ] ; then
+    PIDOF=/usr/bin/pidof ;
+elif [ -x /bin/pidof ] ; then
+    PIDOF=/bin/pidof ;
+elif [ -x /sbin/pidof ] ; then
+    PIDOF=/sbin/pidof ;
+else
+    echo "Can't find pidof"
+    exit -1
+fi
 
-# change to the EMC2 root directory
-# get name and (possibly relative) path of this script
-SCRIPT=`which $0 | grep $0`
-# extract the name of the script
-SCRIPT_NAME=`echo $SCRIPT | sed s#\^.\*/##`
-# delete the name to get the path
-SCRIPT_DIR=`echo $SCRIPT | sed s/$SCRIPT_NAME//`
-# the path might be relative - convert to an absolute path
-SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
-# strip the "/scripts" part to get the root of the
-# EMC2 directory tree
-EMC2_DIR=`echo $SCRIPT_DIR | sed s#/scripts## `
-# change to the EMC2 root
-cd $EMC2_DIR
 
-# bit bucket file
-ERROR_OUT_FILE=/dev/null
 # strip and process command line options
+#
 while echo $1 | grep ^- >/dev/null ; do
     # found an option
     OPTION=$1
     # strip it
     shift
     # process options
-    if [ $OPTION = "-v" ] ; then
+    if [ $OPTION = "-d" ] ; then
         # enable echoing of script
         set -x;
-        ERROR_OUT_FILE=/dev/tty
+        DEBUG_FILE=/dev/tty
+    elif [ $OPTION = "-v" ] ; then
+        # enable printing
+        PRINT_FILE=/dev/tty
     else
         echo "Unknown option '$OPTION'"
     fi
 done
-
-# look for ini file
-INIFILE=
-if [ ! -n "$1" ] ; then
-    INIFILE=$EMC2_DIR/configs/emc.ini
-elif echo $1 | grep / >/dev/null ; then
-    INIFILE=$1
-else
-    INIFILE=$EMC2_DIR/configs/$1
-fi
-if [ ! -f $INIFILE ] ; then
-    echo "Could not find ini file '$INIFILE'"
-    exit -1
-fi
-echo INIFILE=$INIFILE
-
-#DEBUGGER=gdb
-#if [ -f ${HOME}/.debugger_name ] ; then
-#    DEBUGGER=`cat ${HOME}/.debugger_name | head -n 1`
-#fi
 
 # check for root privliges - hope to remove the need for this later
 if [ `whoami` != root ] ; then
@@ -67,30 +76,81 @@ if [ `whoami` != root ] ; then
     exit -1
 fi
 
-# Find out where the inivar program is
-if [ -x $EMC2_DIR/bin/inivar ] ; then
-    INIVAR=$EMC2_DIR/bin/inivar
-else
-    echo "Can't locate inivar program - should be in $EMC2_DIR/bin/inivar"
-    exit -1
-fi
-echo INIVAR=$INIVAR
+# Determine the EMC2 root directory
+# get name and (possibly relative) path of this script
+SCRIPT=`which $0 | grep $0`
+# name of script
+SCRIPT_NAME=`echo $SCRIPT | sed s#\^.\*/##`
+# delete name to get path
+SCRIPT_DIR=`echo $SCRIPT | sed s/$SCRIPT_NAME//`
+# path might be relative - convert to absolute
+SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
+# strip the "/scripts" part to get the root of the
+# EMC2 directory tree
+EMC2_DIR=`echo $SCRIPT_DIR | sed s#/scripts## `
 
-# Find out where insmod and rmmod are
-if [ -x /sbin/insmod ] ; then
-    INSMOD=/sbin/insmod
+# make some useful paths
+EMC2_BIN_DIR=$EMC2_DIR/bin
+EMC2_SCRIPT_DIR=$EMC2_DIR/scripts
+EMC2_RTLIB_DIR=$EMC2_DIR/rtlib
+EMC2_CONFIG_DIR=$EMC2_DIR/configs
+
+echo EMC2_DIR=$EMC2_DIR >$PRINT_FILE
+echo EMC2_BIN_DIR=$EMC2_BIN_DIR >$PRINT_FILE
+echo EMC2_SCRIPT_DIR=$EMC2_SCRIPT_DIR >$PRINT_FILE
+echo EMC2_RTLIB_DIR=$EMC2_RTLIB_DIR >$PRINT_FILE
+echo EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR >$PRINT_FILE
+
+# look for ini file
+INIFILE=
+if [ ! -n "$1" ] ; then
+    INIFILE=$EMC2_CONFIG_DIR/emc.ini
+elif echo $1 | grep / >/dev/null ; then
+    INIFILE=$1
 else
-    echo "Can't locate insmod program - should be in /sbin/insmod"
+    INIFILE=$EMC2_CONFIG_DIR/$1
+fi
+if [ ! -f $INIFILE ] ; then
+    echo "Could not find ini file '$INIFILE'"
     exit -1
 fi
-if [ -x /sbin/rmmod ] ; then
-    RMMOD=/sbin/rmmod
+echo INIFILE=$INIFILE >$PRINT_FILE
+
+# IGNORE THIS FOR NOW
+#
+#DEBUGGER=gdb
+#if [ -f ${HOME}/.debugger_name ] ; then
+#    DEBUGGER=`cat ${HOME}/.debugger_name | head -n 1`
+#fi
+
+# locate a bunch of programs and information we will need later
+
+# Find out where the inivar program is
+if [ -x $EMC2_BIN_DIR/inivar ] ; then
+    INIVAR=$EMC2_BIN_DIR/inivar
 else
-    echo "Can't locate rmmod program - should be in /sbin/rmmod"
+    echo "Can't locate inivar program - should be in $EMC2_BIN_DIR/inivar"
     exit -1
 fi
-echo INSMOD=$INSMOD
-echo RMMOD=$RMMOD
+echo INIVAR=$INIVAR >$PRINT_FILE
+
+# Find out where the halcmd program is
+if [ -x $EMC2_BIN_DIR/halcmd ] ; then
+    HALCMD=$EMC2_BIN_DIR/halcmd
+else
+    echo "Can't locate halcmd program - should be in $EMC2_BIN_DIR/halcmd"
+    exit -1
+fi
+echo HALCMD=$HALCMD >$PRINT_FILE
+
+# Find out where the realtime script is
+if [ -x $EMC2_SCRIPT_DIR/realtime ] ; then
+    REALTIME=$EMC2_SCRIPT_DIR/realtime
+else
+    echo "Can't locate realtime script - should be in $EMC2_SCRIPTS_DIR/realtime"
+    exit -1
+fi
+echo REALTIME=$REALTIME >$PRINT_FILE
 
 # get name of RS274NGC parameter file
 # question - why do we do this now?
@@ -99,7 +159,7 @@ if [ ! -n "$RS274NGC_PARAMFILE" ] ; then
     echo "Can't find variable PARAMETER_FILE in section [RS274NGC] of file $INIFILE."
     exit -1
 fi
-echo RS274NGC_PARAMFILE=$RS274NGC_PARAMFILE
+echo RS274NGC_PARAMFILE=$RS274NGC_PARAMFILE >$PRINT_FILE
 
 # get emcmot information
 EMCMOT=`$INIVAR -ini $INIFILE -var EMCMOT -sec EMCMOT`
@@ -107,7 +167,7 @@ if [ ! -n "$EMCMOT" ] ; then
     echo "Can't find variable EMCMOT in section [EMCMOT] of file $INIFILE."
     exit -1
 fi
-echo EMCMOT=$EMCMOT
+echo EMCMOT=$EMCMOT >$PRINT_FILE
 
 # get emcio information
 EMCIO=`$INIVAR -ini $INIFILE -var EMCIO -sec EMCIO`
@@ -115,7 +175,7 @@ if [ ! -n "$EMCIO" ] ; then
     echo "Can't find variable EMCIO in section [EMCIO] of file $INIFILE."
     exit -1
 fi
-echo EMCIO=$EMCIO
+echo EMCIO=$EMCIO >$PRINT_FILE
 
 # get emctask information
 EMCTASK=`$INIVAR -ini $INIFILE -var TASK -sec TASK`
@@ -123,12 +183,12 @@ if [ ! -n "$EMCTASK" ] ; then
     echo "Can't find variable TASK in section [TASK] of file $INIFILE."
     exit -1
 fi
-echo EMCTASK=$EMCTASK
+echo EMCTASK=$EMCTASK >$PRINT_FILE
 
 # get emcserver information
 EMCSERVER=`$INIVAR -ini $INIFILE -var EMCSERVER -sec EMCSERVER`
 # no check needed - if nothing found, nothing will run
-echo EMCSERVER=$EMCSERVER
+echo EMCSERVER=$EMCSERVER >$PRINT_FILE
 
 # get emcstrip information
 EMSTRIP=`$INIVAR -ini $INIFILE -var EMCSTRIP -sec EMCSTRIP`
@@ -136,53 +196,25 @@ EMSTRIP=`$INIVAR -ini $INIFILE -var EMCSTRIP -sec EMCSTRIP`
 if [ -n "$EMCSTRIP" ] ; then
     EMCSTRIP_OPTIONS=`$INIVAR -ini $INIFILE -var OPTIONS -sec EMCSTRIP`
 fi
-echo EMCSTRIP=$EMCSTRIP
-echo EMCSTRIP_OPTIONS=$EMCSTRIP_OPTIONS
+echo EMCSTRIP=$EMCSTRIP >$PRINT_FILE
+echo EMCSTRIP_OPTIONS=$EMCSTRIP_OPTIONS >$PRINT_FILE
 
 # get display information
 EMCDISPLAY=`$INIVAR -ini $INIFILE -var DISPLAY -sec DISPLAY`
 if [ ! -n "$EMCDISPLAY" ] ; then
     echo "Can't find variable DISPLAY in section [DISPLAY] of file $INIFILE.";
 fi
-echo EMCDISPLAY=$EMCDISPLAY
+echo EMCDISPLAY=$EMCDISPLAY >$PRINT_FILE
 
 # get NML config information
 NMLFILE=`$INIVAR -ini $INIFILE -var NML_FILE -sec EMC`
 if [ ! -n "$NMLFILE" ] ; then
     echo "Can't find variable NML_FILE in section [EMC] of file $INIFILE.";
 fi
-echo NMLFILE=$NMLFILE
+echo NMLFILE=$NMLFILE >$PRINT_FILE
 
-# Name of lock file to check for that signifies that EMC is up,
-# to prevent multiple copies of controller
-LOCKFILE=/tmp/emc.lock
+# Done gathering information, define a few functions
 
-# 'STARTED' is flag that's set only if we create lock file, so
-# if we get ^C we won't delete a previous lock file
-set STARTED = 0
-
-# Check for lock file
-if [ -f $LOCKFILE ]; then
-  echo -n "EMC is running -- restart it? [y/n] "
-  read input
-  case $input in
-    y|Y)
-      echo Cleaning up old emc...
-    ;;
-    *)
-      echo Not starting new emc
-      exit 0
-    ;;
-  esac
-else
-  echo Starting emc...
-fi
-
-# Create the lock file
-touch $LOCKFILE
-
-# Mark that we created it
-STARTED=1
 
 # DON'T KNOW IF WE NEED THESE YET....
 #
@@ -193,58 +225,54 @@ bccmd=none
 #if [ -x /bin/bc ] ; then
 #    bccmd=/bin/bc ;
 #fi
-pidofcmd=none
-#if [ -x /usr/bin/pidof ] ; then
-#    pidofcmd=/usr/bin/pidof ;
-#fi
-#if [ -x /bin/pidof ] ; then
-#    pidofcmd=/bin/pidof ;
-#fi
-#if [ -x /sbin/pidof ] ; then
-#    pidofcmd=/sbin/pidof ;
-#fi
-#
 
-# DON'T KNOW IF WE NEED THIS YET
+
+KILL_TASK=
+KILL_TIMEOUT=10
 #
-#tasktokill=""
-#killtasktimeout=10
-#
-#function killtaskwithtimeout () {
-#
-#    if [ "${PLATBASE}" = "sunos" ] ; then
-#	shorttasktokillname=`echo $tasktokill | awk  '{printf("%8.8s",$1);}'`
-#	pids=`ps | grep $shorttasktokillname | awk '{printf("%d ",$1);}'`
-#	kill -INT $pids
-#    else
-#	killall -INT $tasktokill 2> ${ERROR_OUT_FILE}
-#
-#	if [ $bccmd != "none" -a $pidofcmd != "none" ] ; then
-#	    time=`date +%s`
-#	    deadline=`echo $time+ $killtasktimeout | $bccmd`
-#	    while $pidofcmd $tasktokill > /dev/null ; do
-#		if [ `date +%s` -gt $deadline ] ; then
-#		    echo "Timedout waiting for $tasktokill to die. Upgrading to -KILL"
-#		    break;
-#		fi
-#		echo Waiting for $tasktokill to die . . .
-#		killall -INT $tasktokill 2> ${ERROR_OUT_FILE}
-#		sleep 1
-#	    done
-#	    time=`date +%s`
-#	    deadline=`echo $time+ $killtasktimeout | $bccmd`
-#	    while $pidofcmd $tasktokill > /dev/null ; do
-#		if [ `date +%s` -gt $deadline ] ; then
-#		    echo Timedout waiting for $tasktokill to die.
-#		    break;
-#		fi
-#		echo Waiting for $tasktokill to die . . .
-#		killall -KILL $tasktokill 2> ${ERROR_OUT_FILE}
-#		sleep 1
-#	    done
-#	fi
-#  fi
-#}
+function killtaskwithtimeout() {
+
+    KILL_PIDS=`$PIDOF $KILL_TASK`
+    if [ ! -n "$KILL_PIDS" ] ; then
+	echo "Could not find pid(s) for task $KILL_TASK"
+	return -1
+    fi
+    for KILL_PID in $KILL_PIDS ; do
+	echo "Killing task $KILL_TASK, PID=$KILL_PID" >$PRINT_FILE
+	# first a "gentle" kill with signal TERM
+	kill $KILL_PID
+	WAIT=$KILL_TIMEOUT
+	# wait and see if it dissappears
+	while [ $WAIT -gt 1 ] ; do
+	    # see if it's still alive
+	    if ps $KILL_PID >/dev/null ; then
+		WAIT=$(($WAIT-1))
+		sleep 1
+	    else
+		WAIT=0
+	    fi
+	done
+	if [ $WAIT -gt 0 ] ; then
+	    # gentle didn't work, get serious
+	    echo "Timeout, trying kill -9" >$PRINT_FILE
+	    kill -9 $KILL_PID
+	    WAIT=$KILL_TIMEOUT
+	    # wait and see if it dissappears
+	    while [ $WAIT -gt 1 ] ; do
+		# see if it's still alive
+		if ps $KILL_PID >/dev/null ; then
+		    WAIT=$(($WAIT-1))
+		    sleep 1
+		else
+		    WAIT=0
+		fi
+	    done
+	fi
+	if [ $WAIT -gt 0 ] ; then
+	    echo "Could not kill task $KILL_TASK, PID=$KILL_PID"
+	fi
+    done
+}
 
 
 # DON'T KNOW WHAT THIS IS FOR
@@ -252,10 +280,51 @@ pidofcmd=none
 # ipckeys=`grep SHMEM $NMLFILE | gawk '{printf("%x ",$10);}'`
 
 
-# DON'T KNOW IF WE NEED THIS YET
+# define the cleanup function
+function cleanup() {
+
+# check for rtapi
+if [ -n "` $LSMOD | awk -- '$1 ~ /^rtapi$/ { print $1 }'`" ] ; then
+    # rtapi loaded, check for hal_lib
+    if [ -n "` $LSMOD | awk -- '$1 ~ /^hal_lib$/ { print $1 }'`" ] ; then
+	# hal_lib loaded, stop realtime threads
+	$HALCMD stop
+	# check for any hal_meters
+	if $PIDOF halmeter >/dev/null ; then
+	    # get rid of them
+	    KILL_TASK=halmeter
+	    killtaskwithtimeout
+	fi
+	# check for realtime HAL components
+	HAL_RT_COMPS=`$HALCMD show comp | awk -- '$2 ~ /^RT$/ { print $3 }'`
+	# remove them
+	for HAL_COMP in $HAL_RT_COMPS ; do
+	    echo "Removing realtime HAL component $HAL_COMP" >$PRINT_FILE
+	    $RMMOD $HAL_COMP
+	done
+	# check for user space HAL components
+	HAL_USR_COMPS=`$HALCMD show comp | grep -v halcmd | awk -- '$2 ~ /^User$/ { print $3 }'`
+	# remove them
+	for HAL_COMP in $HAL_USR_COMPS ; do
+	    echo "Removing user space HAL component $HAL_COMP" >$PRINT_FILE
+	    KILL_TASK=$HAL_COMP
+	    killtaskwithtimeout
+	done
+    fi
+    # remove rtapi and RTOS modules
+    $EMC2_SCRIPT_DIR/realtime stop
+fi
+
+# remove lock file
+if [ -f $LOCKFILE ] ; then
+    rm $LOCKFILE
+fi
+}
+
+
+
+# THIS IS THE OLD CLEANUP FUNCTION
 #
-## define the cleanup function
-#function cleanup() {
 ## Kill any displays lying around
 #  case $display in
 #    xemc|yemc|emcpanel|keystick)
@@ -416,37 +485,6 @@ pidofcmd=none
 #}
 #
 
-# NEED TO DO THIS EVENTUALLY
-
-# call cleanup function
-# cleanup
-
-# and trap ^C so that it's called if user interrupts script
-# trap 'cleanup ; exit 0' SIGINT
-
-# SKIP THE POPUP FOR NOW
-#
-## pop up intro graphic
-#img=`$INIVAR -ini $INIFILE -var INTRO_GRAPHIC -sec DISPLAY`
-#imgtime=`$INIVAR -ini $INIFILE -var INTRO_TIME -sec DISPLAY`
-#if [ "$imgtime" = "" ] ; then
-#  imgtime=5
-#fi
-#if [ "$img" != "" ] ; then
-#  if [ -x $EMC2_DIR/bin/popimage ] ; then
-#    $EMC2_DIR/bin/popimage $img $imgtime &
-#  fi
-#fi
-
-# WOW! IT'S FINALLY TIME TO START LOADING EMC!!!
-
-echo "Starting realtime system"
-if $EMC2_DIR/scripts/realtime start ; then
-    echo "Realtime system started"
-else
-    echo "Realtime system did not load"
-    exit -1
-fi
 
 # EMC2 DOES THIS DIFFERENTLY
 #
@@ -682,9 +720,63 @@ fi
 #esac
 #
 
+# Name of lock file to check for that signifies that EMC is up,
+# to prevent multiple copies of controller
+LOCKFILE=/tmp/emc.lock
 
+# 'STARTED' is flag that's set only if we create lock file, so
+# if we get ^C we won't delete a previous lock file
+set STARTED = 0
 
+# Check for lock file
+if [ -f $LOCKFILE ]; then
+  echo -n "EMC is running -- restart it? [y/n] "
+  read input
+  case $input in
+    y|Y)
+      echo Cleaning up old emc...
+      cleanup
+    ;;
+    *)
+      echo Not starting new emc
+      exit 0
+    ;;
+  esac
+fi
+echo Starting emc...
 
+# trap ^C so that it's called if user interrupts script
+trap 'cleanup ; exit 0' SIGINT
+
+# Create the lock file
+touch $LOCKFILE
+
+# Mark that we created it
+STARTED=1
+
+# SKIP THE POPUP FOR NOW
+#
+## pop up intro graphic
+#img=`$INIVAR -ini $INIFILE -var INTRO_GRAPHIC -sec DISPLAY`
+#imgtime=`$INIVAR -ini $INIFILE -var INTRO_TIME -sec DISPLAY`
+#if [ "$imgtime" = "" ] ; then
+#  imgtime=5
+#fi
+#if [ "$img" != "" ] ; then
+#  if [ -x $EMC2_DIR/bin/popimage ] ; then
+#    $EMC2_DIR/bin/popimage $img $imgtime &
+#  fi
+#fi
+
+# WOW! IT'S FINALLY TIME TO START LOADING EMC!!!
+
+echo "Starting realtime system"
+if $EMC2_DIR/scripts/realtime start ; then
+    echo "Realtime system started"
+else
+    echo "Realtime system did not load"
+    exit -1
+fi
 
 # Run emcmot in the background
 echo -n "Starting EMC MOTION PROGRAM --  $EMCMOT..."
@@ -754,9 +846,9 @@ done
 MODNUM=1
 MODNAME=`$INIVAR -ini $INIFILE -var USRMOD$MODNUM -sec HAL`
 while [ -n "$MODNAME" ] ; do
-    MODCFG=`$INIVAR -ini $INIFILE -var USRMODCFG$MODNUM -sec HAL`
-    echo "Starting user space HAL module $MODNAME $MODCFG"
-    $EMC2_DIR/bin/$MODNAME $MODCFG &
+    MODARG=`$INIVAR -ini $INIFILE -var USRMODARG$MODNUM -sec HAL`
+    echo "Starting user space HAL module $MODNAME $MODARG"
+    $EMC2_DIR/bin/$MODNAME $MODARG &
     # move on to next module
     MODNUM=$(($MODNUM+1))
     MODNAME=`$INIVAR -ini $INIFILE -var USRMOD$MODNUM -sec HAL`

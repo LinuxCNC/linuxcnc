@@ -586,7 +586,7 @@ static int pins_and_params(char *argv[])
 	return -1;
     }
     /* have good config info, connect to the HAL */
-    comp_id = hal_init("parport");
+    comp_id = hal_init("hal_parport");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "PARPORT: ERROR: hal_init() failed\n");
 	return -1;

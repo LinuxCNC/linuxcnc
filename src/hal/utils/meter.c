@@ -45,6 +45,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <ctype.h>
 #include <string.h>
 
@@ -112,6 +113,7 @@ static probe_t *probe_new(char *probe_name);
 */
 static void popup_probe_window(GtkWidget * widget, gpointer data);
 
+static void quit(int sig);
 static void exit_from_hal(void);
 static int refresh_value(gpointer data);
 static char *data_value(int type, void *valptr);
@@ -146,6 +148,9 @@ int main(int argc, gchar * argv[])
     }
     /* register an exit function to disconnect from the HAL */
     g_atexit(exit_from_hal);
+    /* capture INT (ctrl-C) and TERM signals */
+    signal(SIGINT, quit);
+    signal(SIGTERM, quit);
 
     /* create main window, set it's size, and lock the size */
     main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -202,7 +207,7 @@ int main(int argc, gchar * argv[])
     gtk_widget_show(button_select);
     gtk_widget_show(button_exit);
 
-    /* The interface is completely set up so we show the window and enter the 
+    /* The interface is completely set up so we show the window and enter the
        gtk_main loop. */
     gtk_widget_show(main_window);
     gtk_main();
@@ -313,6 +318,11 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     }
     rtapi_mutex_give(&(hal_data->mutex));
     gtk_widget_show_all(probe->window);
+}
+
+static void quit(int sig)
+{
+    gtk_main_quit();
 }
 
 static void exit_from_hal(void)
