@@ -1804,7 +1804,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   static char name[] = "convert_motion";
   int status;
 
-  if ((motion == G_0) || (motion == G_1)) {
+  if ((motion == G_0) || (motion == G_1) || (motion == G_33)) {
     CHP(convert_straight(motion, block, settings));
   } else if ((motion == G_3) || (motion == G_2)) {
     CHP(convert_arc(motion, block, settings));
@@ -1817,8 +1817,8 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     settings->motion_mode = G_80;
   } else if ((motion > G_80) && (motion < G_90)) {
     CHP(convert_cycle(motion, block, settings));
-  } else if (motion == G_33) {
-    COMMENT("convert_motion: G33 code");
+//  } else if (motion == G_33) {
+//    COMMENT("convert_motion: G33 code");
   } else
     ERM(NCE_BUG_UNKNOWN_MOTION_CODE);
 
@@ -2376,6 +2376,8 @@ Returned Value: int
       NCE_F_WORD_MISSING_WITH_INVERSE_TIME_G1_MOVE
    4. A move is called with G53 and cutter radius compensation on:
       NCE_CANNOT_USE_G53_WITH_CUTTER_RADIUS_COMP
+   5. A G33 move is called without the necessary support compiled in:
+      NCE_G33_NOT_SUPPORTED
 
 Side effects:
    This executes a STRAIGHT_FEED command at cutting feed rate
@@ -2474,6 +2476,15 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
 #endif
     settings->current_x = end_x;
     settings->current_y = end_y;
+  } else
+    if (move == G_33) {
+#ifndef LATHE
+      ERM(NCE_G33_NOT_SUPPORTED);
+#else
+    COMMENT("Call THREADING_FUNCTION here");
+    COMMENT("in the meantime, do STRAIGHT_TRAVERSE");
+    STRAIGHT_TRAVERSE(end_x, end_y, end_z, 0, 0, 0);
+#endif    
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
 

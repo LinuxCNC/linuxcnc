@@ -211,6 +211,8 @@ Returned Value: int
       NCE_Q_WORD_WITH_NO_G83
   12. An r_number is in a block with no G code that uses it:
       NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT
+  13. A k word is missing from a G33 block:
+      NCE_K_WORD_MISSING_WITH_G33
 
 Side effects: none
 
@@ -263,8 +265,13 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->k_flag == ON) {    /* could still be useless if xy_plane arc */
-    CHK(((motion != G_2) && (motion != G_3) && (motion != G_87)),
+    CHK(((motion != G_2) && (motion != G_3) && (motion != G_33) && (motion != G_87)),
         NCE_K_WORD_WITH_NO_G2_OR_G3_OR_G87_TO_USE_IT);
+  }
+
+  if (motion == G_33) {
+    CHK((block->k_flag == OFF),
+	NCE_K_WORD_MISSING_WITH_G33);
   }
 
   if (block->l_number != -1) {

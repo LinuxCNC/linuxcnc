@@ -105,13 +105,13 @@ char * _rs274ngc_errors[] = {
 /*  85 */ "H word with no g43", // check_other_codes
 /*  86 */ "I word given for arc in yz plane", // convert_arc
 /*  87 */ "I word missing with g87", // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
-/*  88 */ "I word with no g2 or g3 or g87 to use it", // check_other_codes
+/*  88 */ "I word with no g2, g3, or g87 to use it", // check_other_codes
 /*  89 */ "J word given for arc in xz plane", // convert_arc
 /*  90 */ "J word missing with g87", // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
-/*  91 */ "J word with no g2 or g3 or g87 to use it", // check_other_codes
+/*  91 */ "J word with no g2, g3, or g87 to use it", // check_other_codes
 /*  92 */ "K word given for arc in xy plane", // convert_arc
 /*  93 */ "K word missing with g87", // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
-/*  94 */ "K word with no g2 or g3 or g87 to use it", // check_other_codes
+/*  94 */ "K word with no g2, g3, g33, or g87 to use it", // check_other_codes
 /*  95 */ "L word with no canned cycle or g10", // check_other_codes
 /*  96 */ "Left bracket missing after slash with atan", // read_atan
 /*  97 */ "Left bracket missing after unary operation name", // read_unary
@@ -215,5 +215,8 @@ char * _rs274ngc_errors[] = {
 /* 195 */ "Z value unspecified in xy plane canned cycle", // convert_cycle_xy
 /* 196 */ "Zero or negative argument to ln", // execute_unary
 /* 197 */ "Zero radius arc", // arc_data_ijk
+/* 198 */ "K word missing with G33", // check_other_codes
+/* 199 */ "G33 not supported", // convert_straight ??
+/* 200 */ "No error", // dummy
 "The End"};
 // *INDENT-ON*
