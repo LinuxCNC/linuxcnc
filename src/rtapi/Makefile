@@ -17,7 +17,9 @@ vsnprintf.h
 
 # Sources
 SRCS = \
-$(RTPREFIX)_ulapi.c \
+$(RTPREFIX)_ulapi.c
+
+RT_SRCS = \
 $(RTPREFIX)_rtapi.c
 
 # Libraries to be created
@@ -37,9 +39,10 @@ include ../../Make.rules
 
 headers: def_headers
 indent: def_indent
+depend: def_depend
 clean: def_clean
 
-# explicit rules to make libraries
+# explicit rules to make libs from objs
 
 $(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 	@ echo "Install rtapi.o in rtlib"

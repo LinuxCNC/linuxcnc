@@ -70,10 +70,12 @@
 #            not include paths - the 'def_indent' target will reformat
 #            these files
 #
-# OBJS     - list of all object files created by the make - the names
-#            should include the directory where the files are to be
-#            created - the compile rules in this file can create the
-#            files - the 'def_clean' target will remove them
+# OBJS     - list of individual object files created by the make -
+#            these are files that are made from a single source file.
+#            The names should include the directory where the files
+#            are to be created.  The pattern rules in this file handle
+#            compilation of these files - the 'def_clean' target will
+#            remove them
 #
 # LIBS     - list of all libraries created by the make - the names
 #            should include the directory where the files are to be
@@ -202,7 +204,7 @@ def_clean:
 # It also doesn't work right....
 # This needs work :-(
 # Derived from the original rcslib Make system.
-old_depend:
+def_depend:
 	@ echo "Generating Dependencies"
 	rm -f .depend.rt .depend
 	touch .depend.rt .depend

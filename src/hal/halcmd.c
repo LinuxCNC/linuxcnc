@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 	exit(0);
     }
     /* set default level of output - 'quiet' */
-    rtapi_set_msg_lvl(5);
+    rtapi_set_msg_level(RTAPI_MSG_ERR);
     /* start parsing the command line, options first */
     n = 1;
     while ((n < argc) && (argv[n][0] == '-')) {
@@ -111,19 +111,19 @@ int main(int argc, char **argv)
 		break;
 	    case 'q':
 		/* -q = quiet (default) */
-		rtapi_set_msg_lvl(5);
+		rtapi_set_msg_level(RTAPI_MSG_ERR);
 		break;
 	    case 'Q':
 		/* -Q = very quiet */
-		rtapi_set_msg_lvl(2);
+		rtapi_set_msg_level(RTAPI_MSG_NONE);
 		break;
 	    case 'v':
 		/* -v = verbose */
-		rtapi_set_msg_lvl(7);
+		rtapi_set_msg_level(RTAPI_MSG_INFO);
 		break;
 	    case 'V':
 		/* -V = very verbose */
-		rtapi_set_msg_lvl(8);
+		rtapi_set_msg_level(RTAPI_MSG_ALL);
 		break;
 	    case 'f':
 		/* -f = read from file (or stdin) */
@@ -474,7 +474,7 @@ static int do_setp_cmd(char *name, char *value)
 static int do_show_cmd(char *type)
 {
 
-    if (rtapi_get_msg_lvl() <= RTAPI_MSG_ERR) {
+    if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
 	/* must be -Q, don't print anything */
 	return 0;
     }
@@ -823,7 +823,7 @@ static char *data_value(int type, void *valptr)
 static int do_save_cmd(char *type)
 {
 
-    if (rtapi_get_msg_lvl() <= RTAPI_MSG_ERR) {
+    if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
 	/* must be -Q, don't print anything */
 	return 0;
     }

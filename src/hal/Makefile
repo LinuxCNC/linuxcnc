@@ -16,6 +16,9 @@ hal_lib.c \
 halcmd.c \
 halmeter.c
 
+RT_SRCS = \
+hal_lib.c
+
 LIBS =
 
 OBJS = \
@@ -38,6 +41,10 @@ headers: def_headers
 	(cd components; make $@)
 
 indent: def_indent
+	(cd drivers; make $@)
+	(cd components; make $@)
+
+depend: def_depend
 	(cd drivers; make $@)
 	(cd components; make $@)
 

@@ -28,6 +28,7 @@ include $(EMC2_HOME)/Make.rules
 
 headers: def_headers
 indent: def_indent
+depend: def_depend
 clean :  def_clean
 
 .PHONY: all headers depend indent install clean
