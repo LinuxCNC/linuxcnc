@@ -16,56 +16,18 @@
 
 #include "posemath.h"           /* PmCartesian */
 #include "emcpos.h"
-//#include "cubic.h"              /* CUBIC_STRUCT */
+#include "emcpid.h"             /* PID_STRUCT */
+#include "cubic.h"              /* CUBIC_STRUCT, CUBIC_COEFF */
 #include "emcmotcfg.h"          /* EMCMOT_MAX_AXIS */
 #include "emcmotlog.h"
-//#include "tp.h"			/* TP_STRUCT */
-//#include "tc.h"			/* TC_STRUCT */
-//#include "mmxavg.h"		/* MMXAVG_STRUCT */
-//#include "kinematics.h"
+#include "tp.h"		        /* TP_STRUCT */
+#include "tc.h"		        /* TC_STRUCT, TC_QUEUE_STRUCT */
+#include "mmxavg.h"		/* MMXAVG_STRUCT */
+#include "kinematics.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef struct
-{
-  double p;                     /* proportional gain, volts/unit */
-  double i;                     /* integral gain, volts/unit */
-  double d;                     /* derivative gain, volts/unit per sec */
-  double ff0;                   /* 0th order feedforward, volts/unit */
-  double ff1;                   /* 1st order feedforward, volts/unit/sec */
-  double ff2;                   /* 2nd order feedforward, volts/unit/sec^2 */
-  double backlash;              /* backlash */
-  double bias;                  /* bias for gravity comp, for example */
-  double maxError;              /* ceiling for cumError */
-  double deadband;              /* delta below which error is deemed to be 0 */
-  double cycleTime;             /* copy of arg to setCycleTime() */
-  double error;                 /* error this cycle */
-  double lastError;             /* last error computed */
-  double lastSetpoint;          /* last setpoint received */
-  double lastOutput;            /* last value output */
-  double lastSetpointDot;       /* delta setpoint / delta t */
-  double cumError;              /* cumulative error, all cycles */
-  int configured;               /* configure flags */
-#ifdef SMOOTH_D_FACTOR
-#define MAX_ERROR_WINDOW 4
-  double oldErrors[MAX_ERROR_WINDOW]; /* This is a ring buffer that stores the
-                                         last MAX_ERROR_WINDOW errors. */
-  double errorWindowFactors[MAX_ERROR_WINDOW];/* Weights to use in smoothing
-                                                 error factors. */
-  int errorIndex; /* Index into the oldErrors ring buffer. */
-#endif
-  int lastSetpoint_was_set; /* true when lastSetpoint is valid. */
-
-} PID_STRUCT;
-
-typedef enum {
-  KINEMATICS_IDENTITY = 1,      /* forward=inverse, both well-behaved */
-  KINEMATICS_FORWARD_ONLY,	/* forward but no inverse */
-  KINEMATICS_INVERSE_ONLY,	/* inverse but no forward */
-  KINEMATICS_BOTH		/* forward and inverse both */
-} KINEMATICS_TYPE;
 
 typedef struct _EMC_TELEOP_DATA {
   EmcPose currentVel;
@@ -73,114 +35,6 @@ typedef struct _EMC_TELEOP_DATA {
   EmcPose desiredVel;
   EmcPose desiredAccell;
 } EMC_TELEOP_DATA;
-
-typedef struct
-{
-  double cycleTime;
-  double targetPos;             /* positive motion progession */
-  double vMax;                  /* max velocity */
-  double vScale;                /* scale factor for vMax */
-  double aMax;                  /* max accel */
-  double preVMax;               /* vel from previous blend */
-  double preAMax;               /* decel (negative) from previous blend */
-  double vLimit;                /* abs vel limit, including scale */
-  double toGo;
-  double currentPos;
-  double currentVel;
-  double currentAccel;
-  int tcFlag;                   /* TC_IS_DONE,ACCEL,CONST,DECEL*/
-  int type;                     /* TC_LINEAR, TC_CIRCULAR */
-  int id;                       /* id for motion segment */
-  int termCond;                 /* TC_END_STOP,BLEND */
-  PmLine line;
-  PmLine line_abc;
-  PmCircle circle;
-  double tmag;			/* magnitude of translation */
-  double abc_mag;		/* magnitude of rotation  */
-  double tvMax;			/* maximum translational velocity */
-  double taMax;			/* maximum translational accelleration */
-  double abc_vMax;		/* maximum rotational velocity */
-  double abc_aMax;		/* maximum rotational accelleration */
-  PmCartesian unitCart;
-  unsigned char douts;		/* mask for douts to set */
-  int doutIndex;		/* index for dout value */
-  unsigned char doutstarts;	/* mask for dout start vals */
-  unsigned char doutends;	/* mask for dout end vals */
-} TC_STRUCT;
-
-typedef struct
-{
-  TC_STRUCT *queue;             /* ptr to the tcs */
-  int size;                     /* size of queue */
-  int _len;                     /* number of tcs now in queue */
-  int start, end;               /* indices to next to get, next to put */
-  int allFull;                  /* flag meaning it's actually full */
-} TC_QUEUE_STRUCT;
-
-typedef struct
-{
-  TC_QUEUE_STRUCT queue;
-  int queueSize;
-  double cycleTime;
-  double vMax;                  /* vel for subsequent moves */
-  double vScale, vRestore;
-  double aMax;
-  double vLimit;                /* absolute upper limit on all vels */
-  double wMax;			/* rotational velocity max  */
-  double wDotMax;		/* rotational accelleration max */
-  int nextId;
-  int execId;
-  int termCond;
-  EmcPose currentPos;
-  EmcPose goalPos;
-  int done;
-  int depth;                    /* number of total queued motions */
-  int activeDepth;              /* number of motions blending */
-  int aborting;
-  int pausing;
-  unsigned char douts;		/* mask for douts to set */
-  int doutIndex;		/* index for dout values */
-  unsigned char doutstart;	/* mask for dout start vals */
-  unsigned char doutend;	/* mask for dout end vals */
-} TP_STRUCT;
-
-typedef struct
-{
-  double a;
-  double b;
-  double c;
-  double d;
-} CUBIC_COEFF;
-
-typedef struct
-{
-  int configured;
-  double segmentTime;
-  int interpolationRate;
-  double interpolationTime;
-  double interpolationIncrement;
-  double x0, x1, x2, x3;
-  double wp0, wp1;
-  double velp0, velp1;
-  int filled;
-  int needNextPoint;
-  CUBIC_COEFF coeff;
-} CUBIC_STRUCT;
-
-typedef struct
-{
-  double sum;                   /* total */
-  double *nums;                 /* array for stored values */
-  int index;                    /* index into array for next spot */
-  int in;                       /* how many in array */
-  int size;                     /* size of array; 0 <= index < max */
-  int inited;                   /* non-zero means at least one value in */
-  double min, max;              /* saved min, max values */
-} MMXAVG_STRUCT;
-
-
-
-
 
 /* motion flag type */
 typedef unsigned short EMCMOT_MOTION_FLAG;
