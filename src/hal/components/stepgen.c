@@ -749,19 +749,23 @@ static void update_freq(void *arg, long period)
        calculate some constants here in this relatively slow thread but the
        constants are based on the period of the much faster 'make_pulses()'
        thread. */
+    /* only recalc constants if period changes */
     if (periodns != old_periodns) {
+	/* get ready to detect future period changes */
+	old_periodns = periodns;
 	/* recompute various constants that depend on periodns */
 	periodfp = periodns * 0.000000001;
 	maxf = 1.0 / periodfp;
 	freqscale = ((1L << 30) * 2.0) / maxf;
 	accelscale = freqscale * periodfp;
-	old_periodns = periodns;
     }
     /* now recalc constants related to the period of this funct */
+    /* only recalc constants if period changes */
     if (period != old_dtns) {
+	/* get ready to detect future period changes */
+	old_dtns = period;
 	/* dT is the period of this thread, used for the position loop */
 	dt = period * 0.000000001;
-	old_dtns = period;
 	/* calc the reciprocal once here, to avoid multiple divides later */
 	recip_dt = 1.0 / dt;
     }
@@ -771,8 +775,7 @@ static void update_freq(void *arg, long period)
     for (n = 0; n < num_chan; n++) {
 	/* calculate frequency limit */
 	if (stepgen->wd.st0.step_type == 0) {
-	    /* stepping type 0 limit depends on timing params that may change 
-	     */
+	    /* stepping type 0 limit depends on timing params */
 	    max_freq =
 		maxf / (stepgen->wd.st0.step_len +
 		stepgen->wd.st0.step_space);
@@ -814,6 +817,7 @@ static void update_freq(void *arg, long period)
 	    }
 	}
 	/* compute a value that will be used later */
+	/* maximum velocity change in one servo period */
 	max_dv = max_ac * dt;
 
 	/* calculate position command in counts, and position error */
@@ -861,6 +865,7 @@ static void update_freq(void *arg, long period)
 
 	/* calculate new addval */
 	stepgen->newaddval = stepgen->freq * freqscale;
+/* FIXME - why is this here - it is tested earlier! */
 	/* check for illegal (negative) maxaccel parameter */
 	if (stepgen->maxaccel <= 0.0) {
 	    /* set to zero if negative */

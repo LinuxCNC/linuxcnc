@@ -159,10 +159,10 @@ int rtapi_app_main(void)
     /* export all the variables for each counter */
     for (n = 0; n < num_chan; n++) {
 	/* export all vars */
-	retval = export_counter(n + 1, &(counter_array[n]));
+	retval = export_counter(n, &(counter_array[n]));
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"ENCODER: ERROR: counter %d var export failed\n", n + 1);
+		"ENCODER: ERROR: counter %d var export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
