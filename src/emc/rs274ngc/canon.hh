@@ -1,7 +1,7 @@
 #ifndef CANON_HH
 #define CANON_HH
 
-#include <stdio.h>              // FILE
+#include <stdio.h>		// FILE
 
 /*
   canon.hh
@@ -40,7 +40,7 @@
   In the rs274ngc_new directory, the Makefile defines the NO_AA, etc.
   compile flags to force the exclusion of some axes. Note that these
   interpreters won't work with the EMC.
- */    
+ */
 
 #ifndef NO_AA
 #define AA
@@ -109,60 +109,63 @@ typedef enum {CANON_AXIS_X, CANON_AXIS_Y, CANON_AXIS_Z, CANON_AXIS_A,
               CANON_AXIS_B, CANON_AXIS_C} CANON_AXIS;
 */
 
-struct CANON_VECTOR
-{
-  CANON_VECTOR() {}
-  CANON_VECTOR(double _x, double _y, double _z) {x = _x; y = _y; z = _z;}
-  double x, y, z;
+struct CANON_VECTOR {
+    CANON_VECTOR() {
+    } CANON_VECTOR(double _x, double _y, double _z) {
+	x = _x;
+	y = _y;
+	z = _z;
+    }
+    double x, y, z;
 };
 
-struct CANON_POSITION
-{
-  CANON_POSITION() {}
-  CANON_POSITION(double _x, double _y, double _z
+struct CANON_POSITION {
+    CANON_POSITION() {
+    } CANON_POSITION(double _x, double _y, double _z
 #ifdef AA
-                , double _a
+	, double _a
 #endif
 #ifdef BB
-                , double _b
+	, double _b
 #endif
 #ifdef CC
-                , double _c
+	, double _c
 #endif
-)
-  {
-    x = _x; y = _y; z = _z;
+	) {
+	x = _x;
+	y = _y;
+	z = _z;
 #ifdef AA
-    a = _a;
+	a = _a;
 #endif
 #ifdef BB
-    b = _b;
+	b = _b;
 #endif
 #ifdef CC
-    c = _c;
+	c = _c;
 #endif
-  }
-  double x, y, z
+    }
+    double x, y, z
 #ifdef AA
-       , a
+     , a
 #endif
 #ifdef BB
-       , b
+     , b
 #endif
 #ifdef CC
-       , c
+     , c
 #endif
-;};
+     ;
+};
 
 /* Tools are numbered 1..CANON_TOOL_MAX, with tool 0 meaning no tool. */
-#define CANON_TOOL_MAX 128      // max size of carousel handled
-#define CANON_TOOL_ENTRY_LEN 256 // how long each file line can be
+#define CANON_TOOL_MAX 128	// max size of carousel handled
+#define CANON_TOOL_ENTRY_LEN 256	// how long each file line can be
 
-struct CANON_TOOL_TABLE
-{
-  int id;
-  double length;
-  double diameter;
+struct CANON_TOOL_TABLE {
+    int id;
+    double length;
+    double diameter;
 };
 
 /* Initialization */
@@ -172,30 +175,29 @@ extern void INIT_CANON();
 
 /* Representation */
 
-extern void SET_ORIGIN_OFFSETS(
- double x, double y, double z
+extern void SET_ORIGIN_OFFSETS(double x, double y, double z
 #ifdef AA
- , double a
+    , double a
 #else
 #ifdef ALL_AXES
- , double a
+    , double a
 #endif
 #endif
 #ifdef BB
- , double b
+    , double b
 #else
 #ifdef ALL_AXES
- , double b
+    , double b
 #endif
 #endif
 #ifdef CC
- , double c
+    , double c
 #else
 #ifdef ALL_AXES
- , double c
+    , double c
 #endif
 #endif
-);
+    );
 
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, and c. Values of x, y, z, a, b, and c are real numbers. The units
@@ -206,7 +208,6 @@ extern void USE_LENGTH_UNITS(CANON_UNITS u);
 
 /* Use the specified units for length. Conceptually, the units must
 be either inches or millimeters. */
-
 
 extern void SELECT_PLANE(CANON_PLANE pl);
 
@@ -222,30 +223,29 @@ extern void SET_TRAVERSE_RATE(double rate);
 is expected that no cutting will occur while a traverse move is being
 made. */
 
-extern void STRAIGHT_TRAVERSE(
- double x, double y, double z
+extern void STRAIGHT_TRAVERSE(double x, double y, double z
 #ifdef AA
- , double a_position
+    , double a_position
 #else
 #ifdef ALL_AXES
- , double a_position
+    , double a_position
 #endif
 #endif
 #ifdef BB
- , double b_position
+    , double b_position
 #else
 #ifdef ALL_AXES
- , double b_position
+    , double b_position
 #endif
 #endif
 #ifdef CC
- , double c_position
+    , double c_position
 #else
 #ifdef ALL_AXES
- , double c_position
+    , double c_position
 #endif
 #endif
-);
+    );
 /*
 
 Move at traverse rate so that at any time during the move, all axes
@@ -380,35 +380,31 @@ extern void STOP_SPEED_FEED_SYNCH();
 
 /* Machining Functions */
 
-extern void ARC_FEED(
- double first_end,
- double second_end,
- double first_axis,
- double second_axis,
- int rotation,
- double axis_end_point
+extern void ARC_FEED(double first_end,
+    double second_end,
+    double first_axis, double second_axis, int rotation, double axis_end_point
 #ifdef AA
- , double a_position
+    , double a_position
 #else
 #ifdef ALL_AXES
- , double a_position
+    , double a_position
 #endif
 #endif
 #ifdef BB
- , double b_position
+    , double b_position
 #else
 #ifdef ALL_AXES
- , double b_position
+    , double b_position
 #endif
 #endif
 #ifdef CC
- , double c_position
+    , double c_position
 #else
 #ifdef ALL_AXES
- , double c_position
+    , double c_position
 #endif
 #endif
-);
+    );
 
 /* Move in a helical arc from the current location at the existing feed
 rate. The axis of the helix is parallel to the x, y, or z axis,
@@ -461,59 +457,57 @@ a point moving along the arc has of its total motion.
 
 */
 
-extern void STRAIGHT_FEED(
- double x, double y, double z
+extern void STRAIGHT_FEED(double x, double y, double z
 #ifdef AA
- , double a_position
+    , double a_position
 #else
 #ifdef ALL_AXES
- , double a_position
+    , double a_position
 #endif
 #endif
 #ifdef BB
- , double b_position
+    , double b_position
 #else
 #ifdef ALL_AXES
- , double b_position
+    , double b_position
 #endif
 #endif
 #ifdef CC
- , double c_position
+    , double c_position
 #else
 #ifdef ALL_AXES
- , double c_position
+    , double c_position
 #endif
 #endif
-);
+    );
 
 /* Move at existing feed rate so that at any time during the move,
 all axes have covered the same proportion of their required motion.
 The meanings of the parameters is the same as for STRAIGHT_TRAVERSE.*/
 
-extern void STRAIGHT_PROBE (
- double x, double y, double z
+extern void STRAIGHT_PROBE(double x, double y, double z
 #ifdef AA
- , double a_position
+    , double a_position
 #else
 #ifdef ALL_AXES
- , double a_position
+    , double a_position
 #endif
 #endif
 #ifdef BB
- , double b_position
+    , double b_position
 #else
 #ifdef ALL_AXES
- , double b_position
+    , double b_position
 #endif
 #endif
 #ifdef CC
- , double c_position
+    , double c_position
 #else
 #ifdef ALL_AXES
- , double c_position
+    , double c_position
 #endif
 #endif
-);
+    );
 
 /* Perform a probing operation. This is a temporary addition to the
 canonical machining functions and its semantics are not defined.
@@ -565,7 +559,7 @@ extern void USE_NO_SPINDLE_FORCE();
 /* Tool Functions */
 extern void USE_TOOL_LENGTH_OFFSET(double length);
 
-extern void CHANGE_TOOL(int slot); /* slot is slot number */
+extern void CHANGE_TOOL(int slot);	/* slot is slot number */
 
 /* It is assumed that each cutting tool in the machine is assigned to a
 slot (intended to correspond to a slot number in a tool carousel).
@@ -598,7 +592,7 @@ a change_tool command, the select_tool command must have been given
 before the change_tool command, and the value of slot must be the slot
 number of the selected tool. */
 
-extern void SELECT_TOOL(int i); /* i is slot number */
+extern void SELECT_TOOL(int i);	/* i is slot number */
 
 /* Miscellaneous Functions */
 
@@ -655,8 +649,8 @@ for that axis, this command should result in an error condition in the
 controller. */
 
 /* NURB Functions */
-extern void NURB_KNOT_VECTOR(); /* double knot values, -1.0 signals done */
-extern void NURB_CONTROL_POINT(int i, double x, double y, double z, double w );
+extern void NURB_KNOT_VECTOR();	/* double knot values, -1.0 signals done */
+extern void NURB_CONTROL_POINT(int i, double x, double y, double z, double w);
 extern void NURB_FEED(double sStart, double sEnd);
 
 /* Program Functions */
@@ -680,7 +674,6 @@ this point, but be prepared to resume with the next line of the
 program. If commands are being executed with a stop after each one
 already (such as when the interpreter is being used with keyboard
 input), this command has no effect. */
-
 
 /*************************************************************************/
 
@@ -708,7 +701,6 @@ extern int GET_EXTERNAL_FLOOD();
 // Returns the system length unit factor, in units / mm
 extern double GET_EXTERNAL_LENGTH_UNIT_FACTOR();
 */
-
 
 // Returns the system length unit type
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE();
@@ -750,7 +742,7 @@ extern double GET_EXTERNAL_ORIGIN_Z();
 // returns nothing but copies the name of the parameter file into
 // the filename array, stopping at max_size if the name is longer
 // An empty string may be placed in filename.
-extern void GET_EXTERNAL_PARAMETER_FILE_NAME(char * filename, int max_size);
+extern void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size);
 
 // returns the currently active plane
 extern CANON_PLANE GET_EXTERNAL_PLANE();
@@ -834,10 +826,10 @@ extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket);
 // Returns the system traverse rate
 extern double GET_EXTERNAL_TRAVERSE_RATE();
 
-extern FILE * _outfile;      /* where to print, set in main */
-extern CANON_TOOL_TABLE _tools[];   /* in canon.cc */
-extern int _tool_max;               /* in canon.cc */
-extern char _parameter_file_name[]; /* in canon.cc */
+extern FILE *_outfile;		/* where to print, set in main */
+extern CANON_TOOL_TABLE _tools[];	/* in canon.cc */
+extern int _tool_max;		/* in canon.cc */
+extern char _parameter_file_name[];	/* in canon.cc */
 #define PARAMETER_FILE_NAME_LENGTH 100
 
 #endif /* ifndef CANON_HH */

@@ -25,7 +25,9 @@ $(TMP_DIR)/rs274.o: $(TMP_DIR)/rs274ngc_pre.o
 
 headers: def_headers
 
-indent: def_indent
+# We don't use indent on these sources as it messes up the formatting
+# of some of the arrays - It makes them harder to read !
+# indent: def_indent
 
 depend: def_depend
 
