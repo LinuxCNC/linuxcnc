@@ -107,7 +107,7 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(EMC2_HOME)/Makefile.inc
 	    RTAI_MOD="$(RTAI3_BASE) $(RTAI_SCHED) $(RTAI3_SUP)" ; \
 	  fi
 	@ if [ "$(RTPREFIX)" = "rtai" ] ; \
-	    then echo "MODULES='$(RTAI_MOD)'" >> $@ ; \
+	    then echo "MODULES="$(RTAI_MOD)" >> $@ ; \
 	  elif [ "$(RTPREFIX)" = "rtl" ] ; \
 	    then echo "MODULES='$(RTL_MOD)'" >> $@ ; \
 	  fi
