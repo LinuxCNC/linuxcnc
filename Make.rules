@@ -8,21 +8,17 @@
 
 # Non-Realtime C Object Files (Compile)
 %.o : %.c $(HEADERS)
-	$(CC) -c $(CFLAGS) $(LOCAL_CFLAGS) $(ULFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
 
 # Non-Realtime C++ Object Files (Compile)
 %.o : %.cc $(HEADERS)
-	$(CXX) -c $(CXXFLAGS) $(LOCAL_CXXFLAGS) $(ULFLAGS) $< -o $@
-
-# Realtime C Object Files (Compile)
-rt_%.o : %.c $(HEADERS)
-	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
 
 $(TMP_DIR)/%.o : %.c $(HEADERS)
-	$(CC) -c $(CFLAGS) $(LOCAL_CFLAGS) $(ULFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
 
 $(TMP_DIR)/%.o : %.cc $(HEADERS)
-	$(CXX) -c $(CXXFLAGS) $(LOCAL_CXXFLAGS) $(ULFLAGS) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
 
 $(RTTMP_DIR)/%.o : %.c $(HEADERS)
 	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
