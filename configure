@@ -78,6 +78,8 @@ echo "BIN_DIR = \$(EMC2_HOME)/bin" >> Makefile.inc
 echo "LIB_DIR = \$(EMC2_HOME)/lib" >> Makefile.inc
 echo "RTLIB_DIR = \$(EMC2_HOME)/rtlib" >> Makefile.inc
 echo "INC_DIR = \$(EMC2_HOME)/include" >> Makefile.inc
+echo "TMP_DIR = \$(EMC2_HOME)/src/.tmp" >> Makefile.inc
+echo "RTTMP_DIR = \$(EMC2_HOME)/src/.rt_tmp" >> Makefile.inc
 echo "RTDIR = $RTDIR" >> Makefile.inc
 echo >> Makefile.inc
 if [ -f $RTDIR/.buildvars ] ; then
@@ -146,10 +148,16 @@ echo "# Additional flags and settings from $RTFILE" >> Makefile.inc
 echo >> Makefile.inc
 cat $RTFILE | grep -v CFLAGS | grep -v CC >> Makefile.inc
 echo >> Makefile.inc
-echo "# Automatically generated C++ settings." >> Makefile.inc
+echo "# Automatically generated default options." >> Makefile.inc
 echo >> Makefile.inc
+echo "AR = ar" >> Makefile.inc
+echo "ARFLAGS = cr" >> Makefile.inc
 echo "CXX = g++" >> Makefile.inc
 echo "CXXFLAGS = \$(CFLAGS)" >> Makefile.inc
+echo "LD = \$(CC)" >> Makefile.inc
+echo "LDFLAGS = " >> Makefile.inc
+echo "RANLIB = ranlib" >> Makefile.inc
+echo "RANLIBFLAGS = " >> Makefile.inc
 echo >> Makefile.inc
 
 if [ "$1" = "" ] ; then

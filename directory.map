@@ -54,12 +54,17 @@
            |--- classicladder
            |
            |--- lang/  (stuff that uses/supports other languages)
-                  |
-                  |--- tcl/  (emcsh.cc, iosh.cc and other tcl support)
-                  |
-                  |--- python/ (?)
-                  |--- perl/ (?)
-                  |--- XML/ (?) <grin>
-                  |
-
-
+           |      |
+           |      |--- tcl/  (emcsh.cc, iosh.cc and other tcl support)
+           |      |
+           |      |--- python/ (?)
+           |      |--- perl/ (?)
+           |      |--- XML/ (?) <grin>
+           |      |
+           |
+           |--- .tmp/    (temp directory for intermediate objects.)
+           |--- .rt_tmp/ (temp directory for RT objects.)
+           |             (N.B. These two should not appear in CVS)
+           |             (and will be deleted during a 'make clean')
+           |
+           |

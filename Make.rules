@@ -1,5 +1,10 @@
 # Pattern Rules
 # -------------
+#
+# Notes on syntax:
+# @ causes each command NOT to be echoed to the console.
+# - allows the rule to continue after an error.
+#
 
 # Non-Realtime C Object Files (Compile)
 %.o : %.c $(HEADERS)
@@ -13,41 +18,58 @@
 rt_%.o : %.c $(HEADERS)
 	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
 
+$(TMP_DIR)/%.o : %.c $(HEADERS)
+	$(CC) -c $(CFLAGS) $(LOCAL_CFLAGS) $(ULFLAGS) $< -o $@
+
+$(TMP_DIR)/%.o : %.cc $(HEADERS)
+	$(CXX) -c $(CXXFLAGS) $(LOCAL_CXXFLAGS) $(ULFLAGS) $< -o $@
+
+$(RTTMP_DIR)/%.o : %.c $(HEADERS)
+	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
+
 # Public Header Files
-$(INC_DIR)/.h: %.h
+$(INC_DIR)/%.h: %.h tmp_dir
 	- \install -p -m0664 $< $(INC_DIR)
 
-$(INC_DIR)/.hh: %.hh
+$(INC_DIR)/.hh: %.hh tmp_dir
 	- \install -p -m0664 $< $(INC_DIR)
 
-headers:
+headers: tmp_dir
 	- \install -p -m0664 $(HEADERS) $(INC_DIR)
 
-#Non-Realtime C Dependency Files
-%.d: %.c
-	$(CC) -MM $(CFLAGS) $(ULFLAGS) $< > $@
-	cat $@ | sed s/\\.o:/.d:/ >> $@
-
-# Realtime C Dependency Files
-%.rt.d: %.c
-	$(CC) -MM $(RTFLAGS) $< | sed s/\\.o:/.rt.o:/ > $@
-	cat $@ | sed s/\\.rt.o:/.rt.d:/ >> $@
-
-# Reformat the sources
+# Reformat the sources using long format names to aid readability.
 indent :
 	indent --braces-on-if-line \
 	--braces-on-struct-decl-line \
+	--comment-line-length78 \
+	--continuation-indentation4 \
+	--cuddle-do-while \
+	--cuddle-else \
+	--declaration-indentation2 \
 	--dont-break-procedure-type \
+	--dont-line-up-parentheses \
+	--format-all-comments \
+	--indent-level4 \
+	--line-length78 \
 	--no-space-after-function-call-names \
 	--no-space-after-parentheses \
-	--cuddle-else $(SRCS) $(RT_SRCS) $(HEADERS)
-	rm *.*~
+	--no-space-after-function-call-names \
+	--space-after-cast \
+	--swallow-optional-blank-lines \
+	$(SRCS) $(RT_SRCS) $(HEADERS)
+	@ rm *.*~
 
 # Clean out objects, headers, and dep files.
 clean_up:
-	- \rm -f *.bak *~ .depend*
-	- \rm -f $(OBJS) $(RT_OBJS) $(DEPS) $(LIBS)
+	- rm -f *.bak *~ .depend*
+	- rm -f $(OBJS) $(RT_OBJS) $(DEPS) $(LIBS) \
+	- $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o)
 	- (cd $(INC_DIR) ; \rm -f $(HEADERS))
+
+# Check and create the temp dirs if they are missing.
+tmp_dir:
+	@ (if [ ! -d "$(TMP_DIR)" ] ; then mkdir $(TMP_DIR) ; fi)
+	@ (if [ ! -d "$(RTTMP_DIR)" ] ; then mkdir $(RTTMP_DIR) ; fi)
 
 # depend commands - I know it looks _really_ ugly, but it does strip away
 #                   most of the system headers.
@@ -55,9 +77,9 @@ clean_up:
 dep_command:
 	rm -f .depend.rt .depend
 	touch .depend.rt .depend
-	(if [ ! -z "$(RT_SRCS)" ] ; then ($(CC) -MM -I$(INC_DIR) $(RTFLAGS) \
+	@ (if [ ! -z "$(RT_SRCS)" ] ; then ($(CC) -MM -I$(INC_DIR) $(RTFLAGS) \
 	$(RT_SRCS) >.depend.rt) 2>.depend_errors.rt ; exit 0; fi)
-	(if [ ! -s .depend_errors.rt ] ; then \rm -f .depend_errors.rt ; fi)
+	@ (if [ ! -s .depend_errors.rt ] ; then \rm -f .depend_errors.rt ; fi)
 	cat .depend.rt | \
 	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
@@ -65,20 +87,20 @@ dep_command:
 	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip
-	(if [ -s .depend.strip ] ; then \
+	@ (if [ -s .depend.strip ] ; then \
 	cat .depend.strip | sed s#\^\[a-z,_,/,A-Z,0-9\]\*\[.\]o:#\$\rt_\&# | \
 	grep -v -E '^\\' > .depend.rt ; fi)
 	rm -f .depend.strip
-	(if [ ! -z "$(SRCS)" ] ; then ($(CXX) -MM $(CXXFLAGS) -I$(INC_DIR) \
+	@ (if [ ! -z "$(SRCS)" ] ; then ($(CXX) -MM $(CXXFLAGS) -I$(INC_DIR) \
 	$(ULFLAGS) $(SRCS) >.depend) 2>.depend_errors; exit 0; fi)
-	(if [ ! -s .depend_errors ] ; then \rm -f .depend_errors ; fi)
-	(if [ -s .depend ] ; then cat .depend | \
+	@  (if [ ! -s .depend_errors ] ; then \rm -f .depend_errors ; fi)
+	@ (if [ -s .depend ] ; then cat .depend | \
 	sed s#/usr/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*.\*\[.\]h\ #\ #g | \
 	sed s#$(KERNELDIR)/include/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#$(RTDIR)/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed s#/usr/lib/gcc-lib/\[a-z,_,/,A-Z,0-9\]\*\[.\]h\ #\ #g | \
 	sed 's/^[ \t]*//;s/[ \t]*/$//' > .depend.strip ; fi)
-	cat .depend.strip | grep -v -E '^\\' > .depend
-	rm -f .depend.strip
+	@ cat .depend.strip | grep -v -E '^\\' > .depend
+	@ rm -f .depend.strip
 
