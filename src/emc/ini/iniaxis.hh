@@ -23,5 +23,5 @@
 extern int iniAxis(int axis, const char *filename);
 
 /* dump axis stat to ini file */
-extern int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *stat);
+extern int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *status);
 #endif
