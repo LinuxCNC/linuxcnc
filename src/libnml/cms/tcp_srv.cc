@@ -12,6 +12,7 @@ extern "C" {
 #include <string.h>		/* memset(), strerror() */
 #include <stdlib.h>		// malloc(), free()
 #include <unistd.h>
+#include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <errno.h>		/* errno */
 #include <signal.h>		// SIGPIPE, signal()

@@ -10,6 +10,7 @@ extern "C" {
 #include <signal.h>		// signal, SIG_ERR, SIGPIPE
 #include <ctype.h>		// isdigit()
 #include <arpa/inet.h>		/* inet_ntoa */
+#include <sys/socket.h>
 #include <netdb.h>
 #include <math.h>		/* fmod() */
 
