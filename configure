@@ -73,14 +73,14 @@ if [ $GTK_VER ] ; then
     # make sure the requested version is available
     if [ $GTK_VER = "1.2" ] ; then
 	# check for the presence of gtk-config
-	if ! type gtk-config 2>1 >/dev/null ; then
+	if ! type gtk-config 2>/dev/null >/dev/null ; then
 	    echo "ERROR: GTK+ version 1.2 not installed"
 	    usage
 	    exit 1
 	fi
     elif [ $GTK_VER = "2.0" ] || [ $GTK_VER = "2.2" ] ; then
 	# first make sure pkg-config is installed
-	if ! type pkg-config 2>1 >/dev/null ; then
+	if ! type pkg-config 2>/dev/null >/dev/null ; then
 	    # if pkg-config is absent, then GTK-2.x is also absent
 	    echo "ERROR:  GTK+ version $GTK_VER not installed"
 	    usage
@@ -98,10 +98,10 @@ else
     # user didn't indicate a preference, find out what's installed
     GTK_VER="none"
     # check for 1.2 installed
-    if type gtk-config 2>1 >/dev/null ; then
+    if type gtk-config 2>/dev/null >/dev/null ; then
 	# found gtk-config, that means GTK 1.2 is installed
 	GTK_VER="1.2"
-    elif type pkg-config 2>1 >/dev/null ; then
+    elif type pkg-config 2>/dev/null >/dev/null ; then
 	# found pkg-config, that means GTK 2.x _might_ be installed
 	if pkg-config gtk+-2.0 --exists ; then
 	    # found the .pc file for gtk-2.0
