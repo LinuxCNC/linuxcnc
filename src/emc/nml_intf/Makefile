@@ -7,13 +7,15 @@ SRCS =	\
 	emcargs.cc \
 	emcglb.c \
 	emcops.cc \
-	interpl.cc
+	interpl.cc \
+	getinput.c
 
 HEADERS = \
 	emc.hh \
 	emccfg.h \
 	emcglb.h \
 	emcpos.h \
+	getinput.h \
 	interpl.hh
 
 BINS =
@@ -23,7 +25,8 @@ OBJS = 	\
 	emcargs.o \
 	emcglb.o \
 	emcops.o \
-	interpl.o
+	interpl.o \
+	getinput.o
 
 LIBS =	libemc.a
 

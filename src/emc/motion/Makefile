@@ -9,6 +9,7 @@ SRCS = \
 	emcmotutil.c \
 	emcpid.c \
 	motion.c \
+	usrmot.c \
 	usrmotintf.c
 
 HEADERS = \
@@ -24,6 +25,7 @@ PRIVHDRS = \
 OBJS = \
 	emcmotglb.o \
 	emcmotutil.o \
+	usrmot.o \
 	usrmotintf.o
 
 RT_OBJS  = \
@@ -39,6 +41,9 @@ RT_OBJS  = \
 
 RTLIBS = \
 	motmod.o
+
+BINS = \
+#	usrmot
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o)
@@ -70,6 +75,20 @@ $(RTLIB_DIR)/motmod.o: \
 	$(RTTMP_DIR)/tp.o \
 	$(RTTMP_DIR)/trivkins.o
 	ld -r -static -S -O2 $^ $(RTLIB_DIR)/libpm.a $(MATHLIB) -o $@
+
+# rule to link usrmot
+USRMOT_OBJS = \
+        $(TMP_DIR)/usrmotintf.o \
+        $(TMP_DIR)/usrmot.o \
+        $(RTTMP_DIR)/emcmotglb.o \
+        $(RTTMP_DIR)/emcpid.o \
+        $(TMP_DIR)/getinput.o \
+        $(RTTMP_DIR)/emcmotlog.o \
+        $(RTTMP_DIR)/emcmotutil.o
+
+$(BIN_DIR)/usrmot : $(USRMOT_OBJS)
+	@ echo "Linking $@"
+	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 headers: def_headers
 

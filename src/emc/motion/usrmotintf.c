@@ -20,20 +20,8 @@
 static char __attribute__ ((unused)) ident[] =
     "$Id$";
 
-#include <stdio.h>
-#include <errno.h>
-#include <sys/time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <string.h>		/* memcpy() */
-#include <stdlib.h>		/* sizeof() */
-#include <float.h>		/* DBL_MIN */
-#include "_timer.h"		/* rcslib esleep() etime() */
-#include "_shm.h"		/* rcslib shm_t, rcs_shm_open(), ... */
-#include "rcs_print.hh"		/* set_rcs_print_destination(), ... */
+#include <float.h>              /* DBL_MIN */
 #include "motion.h"		/* EMCMOT_STATUS,CMD */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_BASE_ADDRESS, SHMEM_KEY */
@@ -52,7 +40,6 @@ static char __attribute__ ((unused)) ident[] =
 
 static int inited = 0;		/* flag if inited */
 static int usingShmem = 0;
-static shm_t *shmem = NULL;
 
 static EMCMOT_COMMAND *emcmotCommand = 0;
 static EMCMOT_STATUS *emcmotStatus = 0;
@@ -80,7 +67,7 @@ int usrmotIniLoad(const char *filename)
 
     /* open it */
     if (NULL == (fp = fopen(filename, "r"))) {
-	rcs_print("can't find emcmot ini file %s\n", filename);
+	rtapi_print("can't find emcmot ini file %s\n", filename);
 	return -1;
     }
 
@@ -91,13 +78,13 @@ int usrmotIniLoad(const char *filename)
 	} else {
 	    /* found, but invalid */
 	    SHMEM_KEY = saveInt;
-	    rcs_print
+	    rtapi_print
 		("invalid [EMCMOT] SHMEM_KEY in %s (%s); using default %d\n",
 		filename, inistring, SHMEM_KEY);
 	}
     } else {
 	/* not found, using default */
-	rcs_print("[EMCMOT] SHMEM_KEY not found in %s; using default %d\n",
+	rtapi_print("[EMCMOT] SHMEM_KEY not found in %s; using default %d\n",
 	    filename, SHMEM_KEY);
     }
 
@@ -108,14 +95,14 @@ int usrmotIniLoad(const char *filename)
 	} else {
 	    /* found, but invalid */
 	    SHMEM_BASE_ADDRESS = saveInt;
-	    rcs_print
-		("invalid [EMCMOT] SHMEM_BASE_ADDRESS in %s (%s); using default %d\n",
+	    rtapi_print
+		("invalid [EMCMOT] SHMEM_BASE_ADDRESS in %s (%s); using default %l\n",
 		filename, inistring, SHMEM_BASE_ADDRESS);
 	}
     } else {
 	/* not found, using default */
-	rcs_print
-	    ("[EMCMOT] SHMEM_BASE_ADDRESS not found in %s; using default %d\n",
+	rtapi_print
+	    ("[EMCMOT] SHMEM_BASE_ADDRESS not found in %s; using default %l\n",
 	    filename, SHMEM_BASE_ADDRESS);
 
     }
@@ -127,13 +114,13 @@ int usrmotIniLoad(const char *filename)
 	} else {
 	    /* found, but invalid */
 	    EMCMOT_COMM_TIMEOUT = saveDouble;
-	    rcs_print
+	    rtapi_print
 		("invalid [EMCMOT] COMM_TIMEOUT in %s (%s); using default %f\n",
 		filename, inistring, EMCMOT_COMM_TIMEOUT);
 	}
     } else {
 	/* not found, using default */
-	rcs_print("[EMCMOT] COMM_TIMEOUT not found in %s; using default %f\n",
+	rtapi_print("[EMCMOT] COMM_TIMEOUT not found in %s; using default %f\n",
 	    filename, EMCMOT_COMM_TIMEOUT);
     }
 
@@ -144,13 +131,13 @@ int usrmotIniLoad(const char *filename)
 	} else {
 	    /* found, but invalid */
 	    EMCMOT_COMM_WAIT = saveDouble;
-	    rcs_print
+	    rtapi_print
 		("invalid [EMCMOT] COMM_WAIT in %s (%s); using default %f\n",
 		filename, inistring, EMCMOT_COMM_WAIT);
 	}
     } else {
 	/* not found, using default */
-	rcs_print("[EMCMOT] COMM_WAIT not found in %s; using default %f\n",
+	rtapi_print("[EMCMOT] COMM_WAIT not found in %s; using default %f\n",
 	    filename, EMCMOT_COMM_WAIT);
     }
 
@@ -208,12 +195,12 @@ int usrmotWriteEmcmotCommand(EMCMOT_COMMAND * c)
 	    }			/* end of else */
 	}
 	/* end of if */
-	/* rcs_print("s.commandNumEcho = %d,
+	/* rtapi_print("s.commandNumEcho = %d,
 	   commandNum=%d\n",s.commandNumEcho, commandNum); */
     }				/* end of while loop */
 
     emcmot_comm_timeout_count++;
-    /* rcs_print("emcmot_comm_timeout_count=%d\n",
+    /* rtapi_print("emcmot_comm_timeout_count=%d\n",
        emcmot_comm_timeout_count); */
     return EMCMOT_COMM_ERROR_TIMEOUT;
 }
@@ -248,7 +235,7 @@ int usrmotReadEmcmotStatus(EMCMOT_STATUS * s)
 	emcmot_status_split_count++;
 	if (emcmot_status_split_count > 2
 	    && emcmot_status_split_count % 100 == 0) {
-	    rcs_print("emcmot_status_split_count = %d\n",
+	    rtapi_print("emcmot_status_split_count = %d\n",
 		emcmot_status_split_count);
 	}
 #endif
@@ -286,7 +273,7 @@ int usrmotReadEmcmotConfig(EMCMOT_CONFIG * s)
 	emcmot_config_split_count++;
 	if (emcmot_config_split_count > 2
 	    && emcmot_config_split_count % 100 == 0) {
-	    rcs_print("emcmot_config_split_count = %d\n",
+	    rtapi_print("emcmot_config_split_count = %d\n",
 		emcmot_config_split_count);
 	}
 #endif
@@ -324,7 +311,7 @@ int usrmotReadEmcmotDebug(EMCMOT_DEBUG * s)
 	emcmot_debug_split_count++;
 	if (emcmot_debug_split_count > 2
 	    && emcmot_debug_split_count % 100 == 0) {
-	    rcs_print("emcmot_debug_split_count = %d\n",
+	    rtapi_print("emcmot_debug_split_count = %d\n",
 		emcmot_debug_split_count);
 	}
 #endif
@@ -855,23 +842,6 @@ int usrmotInit(void)
 {
     int axis;
 
-    RCS_PRINT_DESTINATION_TYPE dest;
-    usingShmem = 0;
-
-    /* try default OS shared memory first, inhibiting error messages if OS
-       shared memory isn't the only kind available. */
-    dest = get_rcs_print_destination();
-    set_rcs_print_destination(RCS_PRINT_TO_NULL);
-
-    shmem = rcs_shm_open(SHMEM_KEY, sizeof(EMCMOT_STRUCT), 0);
-    if (NULL != shmem && NULL != rcs_shm_get_addr(shmem)) {
-	/* map shmem area into local address space */
-	emcmotStruct = (EMCMOT_STRUCT *) rcs_shm_get_addr(shmem);
-	usingShmem = 1;
-    }
-    set_rcs_print_destination(dest);
-
-    if (!usingShmem) {
 	module_id = rtapi_init("usrmotintf");
 	shmem_id =
 	    rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(EMCMOT_STRUCT));
@@ -884,8 +854,6 @@ int usrmotInit(void)
 		sizeof(EMCMOT_STRUCT));
 	    return -1;
 	}
-
-    }
 
     /* got it */
     emcmotCommand = &(emcmotStruct->command);
@@ -909,17 +877,10 @@ int usrmotExit(void)
 {
     int axis;
 
-    if (usingShmem) {
-	if (NULL != shmem) {
-	    rcs_shm_close(shmem);
-	    shmem = NULL;
-	}
-    } else {
 	if (NULL != emcmotStruct) {
 	    rtapi_shmem_delete(shmem_id, module_id);
 	    rtapi_exit(module_id);
 	}
-    }
 
     emcmotStruct = 0;
     emcmotCommand = 0;

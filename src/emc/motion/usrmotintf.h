@@ -27,9 +27,6 @@ static char __attribute__ ((unused)) usrmotintf_h[] =
 
 #ifdef __cplusplus
 extern "C" {
-#if 0
-}
-#endif
 #endif
 /* usrmotIniLoad() loads params (SHMEM_KEY, SHMEM_BASE_ADDRESS) from
    named ini file */ extern int usrmotIniLoad(const char *file);
