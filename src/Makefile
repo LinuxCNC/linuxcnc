@@ -98,7 +98,6 @@ clean: kclean
 	(cd libnml && $(MAKE) $@)
 	(cd emc && $(MAKE) -k $@)
 	- rm -fR include
-	- rm -fR $(EMC_HOME)/plat
 	- rm -fR .tmp
 
 kclean:

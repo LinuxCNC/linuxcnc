@@ -240,7 +240,7 @@ def_indent:
 def_clean:
 	@ echo "Clean Up `pwd`"
 	- rm -f *.bak *~ .depend*
-	- rm -f $(OBJS) $(RT_OBJS) $(LIBS) $(HEADERS:%=$(INC_DIR)/%)
+	- rm -f $(OBJS) $(RT_OBJS) $(LIBS) $(HEADERS:%=$(INC_DIR)/%) $(BINS:%=$(BIN_DIR)/%)
 	rm -f .*.cmd *.o* *.mod.* *.ko
 	rm -fR .tmp_versions
 
