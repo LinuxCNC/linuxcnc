@@ -328,7 +328,7 @@ typedef struct {
     signed long newaddval;	/* desired freq generator add value */
     signed long addval;		/* actual frequency generator add value */
     unsigned long accum;	/* frequency generator accumulator */
-    float old_pos_cmd;		/* previous position command */
+    double old_pos_cmd;		/* previous position command */
     union {
 	st0_t st0;		/* working data for step type 0 */
 	st2_t st2;		/* working data for step types 2 and up */
@@ -799,8 +799,13 @@ static void update_freq(void *arg, long period)
 		max_freq = stepgen->maxfreq;
 	    }
 	}
-	/* set internal accel limit to its absolute max, which is zero to
-	   full speed in one thread period */
+	/* set internal accel limit to its absolute max, which is
+	   zero to full speed in one thread period */
+/* FIXME - this should be something lower, it causes instability
+	   when it is this high.  Further testing is needed to
+	   determine the appropriate value.  Normally, the user
+	   will configure max_accel to be just under the motor
+	   limit, which is low enough to avoid the problem. */
 	max_ac = max_freq * recip_dt;
 	/* check for illegal (negative) or zero maxaccel parameter */
 	if (stepgen->maxaccel <= 0.0) {
@@ -862,7 +867,6 @@ static void update_freq(void *arg, long period)
 	} else if (stepgen->freq < -max_freq) {
 	    stepgen->freq = -max_freq;
 	}
-
 	/* calculate new addval */
 	stepgen->newaddval = stepgen->freq * freqscale;
 /* FIXME - why is this here - it is tested earlier! */
