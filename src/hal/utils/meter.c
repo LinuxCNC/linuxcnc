@@ -6,7 +6,10 @@
     can temporarily slow or stop the update.)  Clicking on the 'Select'
     button pops up a dialog that allows you to select what pin/signal/
     parameter you want to monitor.  Multiple instances of the program
-    can be started if you want to monitor more than one item.
+    can be started if you want to monitor more than one item.  If you
+    add "pin|sig|par[am] <name>" to the command line, the meter will
+    initially display the pin/signal/parameter <name>, otherwise it
+    will initially display nothing.
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -69,9 +72,12 @@
 typedef struct {
     int listnum;		/* 0 = pin, 1 = signal, 2 = parameter */
     char *pickname;		/* name from list, not validated */
-    char *name;			/* name of pin/sig/param */
-    hal_type_t type;		/* type of pin/sig/param */
-    void *data;			/* address of data */
+//    char *name;                       /* name of pin/sig/param */
+//    hal_type_t type;          /* type of pin/sig/param */
+//    void *data;                       /* address of data */
+    hal_pin_t *pin;		/* metadata (if it's a pin) */
+    hal_sig_t *sig;		/* metadata (if it's a signal) */
+    hal_param_t *param;		/* merafata (if it's a parameter) */
     GtkWidget *window;		/* selection dialog window */
     GtkWidget *lists[3];	/* lists for pins, sigs, and params */
     char probe_name[PROBE_NAME_LEN + 1];	/* name of this probe */
@@ -134,11 +140,34 @@ int main(int argc, gchar * argv[])
     GtkWidget *vbox, *hbox;
     GtkWidget *button_select, *button_exit;
     char buf[30];
+    int initial_type;
+    char *initial_name;
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
 
     /* process my own command line args (if any) here */
+    if (argc == 3) {
+	/* check for user specified initial probe point */
+	if (strncmp(argv[1], "pin", 3) == 0) {
+	    /* initial probe is a pin */
+	    initial_type = 0;
+	} else if (strncmp(argv[1], "sig", 3) == 0) {
+	    /* initial probe is a signal */
+	    initial_type = 1;
+	} else if (strncmp(argv[1], "par", 3) == 0) {
+	    /* initial probe is a parameter */
+	    initial_type = 2;
+	} else {
+	    printf("ERROR: '%s' is not a valid probe type\n", argv[1]);
+	    return -1;
+	}
+	initial_name = argv[2];
+    } else {
+	initial_type = 0;
+	initial_name = NULL;
+    }
+
     /* create a unique module name */
     snprintf(buf, 29, "meter%d", getpid());
     /* connect to the HAL */
@@ -173,6 +202,12 @@ int main(int argc, gchar * argv[])
     meter = meter_new();
     if (meter == NULL) {
 	exit(-1);
+    }
+    /* set up for initial probe, if any */
+    if (initial_name != NULL) {
+	meter->probe->pickname = initial_name;
+	meter->probe->listnum = initial_type;
+	accept_selection(NULL, meter->probe);
     }
 
     /* add the meter's value label to the vbox */
@@ -264,9 +299,6 @@ probe_t *probe_new(char *probe_name)
     }
     /* init the fields */
     new->pickname = NULL;
-    new->name = NULL;
-    new->type = 0;
-    new->data = NULL;
     new->listnum = -1;
     strncpy(new->probe_name, probe_name, HAL_NAME_LEN);
     /* window will be created just before it is displayed */
@@ -335,17 +367,36 @@ static int refresh_value(gpointer data)
 {
     meter_t *meter;
     probe_t *probe;
-    char *value_str;
+    char *value_str, *name_str;
+    hal_sig_t *sig;
 
     meter = (meter_t *) data;
     probe = meter->probe;
 
-    if (probe->data == NULL) {
-	return 1;
+    if (probe->pin != NULL) {
+	name_str = probe->pin->name;
+	if (probe->pin->signal == 0) {
+	    /* pin is unlinked, get data from dummysig */
+	    value_str = data_value(probe->pin->type, &(probe->pin->dummysig));
+	} else {
+	    /* pin is linked to a signal */
+	    sig = SHMPTR(probe->pin->signal);
+	    value_str = data_value(probe->pin->type, SHMPTR(sig->data_ptr));
+	}
+    } else if (probe->sig != NULL) {
+	name_str = probe->sig->name;
+	value_str =
+	    data_value(probe->sig->type, SHMPTR(probe->sig->data_ptr));
+    } else if (probe->param != NULL) {
+	name_str = probe->param->name;
+	value_str =
+	    data_value(probe->param->type, SHMPTR(probe->param->data_ptr));
+    } else {
+	name_str = "-----";
+	value_str = "---";
     }
-    value_str = data_value(probe->type, probe->data);
     gtk_label_set_text(GTK_LABEL(meter->value_label), value_str);
-    gtk_label_set_text(GTK_LABEL(meter->name_label), probe->name);
+    gtk_label_set_text(GTK_LABEL(meter->name_label), name_str);
     return 1;
 }
 
@@ -507,13 +558,13 @@ static void create_probe_window(probe_t * probe)
 static void accept_selection(GtkWidget * widget, gpointer data)
 {
     probe_t *probe;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_param_t *param;
 
     /* get a pointer to the probe data structure */
     probe = (probe_t *) data;
-
+    /* discard info about previous item */
+    probe->pin = NULL;
+    probe->sig = NULL;
+    probe->param = NULL;
     if (probe->pickname == NULL) {
 	/* not a valid selection */
 	/* should pop up a message or something here, instead we ignore it */
@@ -521,51 +572,16 @@ static void accept_selection(GtkWidget * widget, gpointer data)
     }
     if (probe->listnum == 0) {
 	/* search the pin list */
-	pin = halpr_find_pin_by_name(probe->pickname);
-	if (pin == NULL) {
-	    /* pin not found (can happen if pin is deleted after the list was
-	       generated) */
-	    /* again, error handling leaves a bit to be desired! */
-	    return;
-	}
-	probe->type = pin->type;
-	probe->name = pin->name;
-	if (pin->signal == 0) {
-	    /* pin is unlinked, get data from dummysig */
-	    probe->data = &(pin->dummysig);
-	} else {
-	    /* pin is linked to a signal */
-	    sig = SHMPTR(pin->signal);
-	    probe->data = SHMPTR(sig->data_ptr);
-	}
+	probe->pin = halpr_find_pin_by_name(probe->pickname);
     } else if (probe->listnum == 1) {
 	/* search the signal list */
-	sig = halpr_find_sig_by_name(probe->pickname);
-	if (sig == NULL) {
-	    /* signal not found (can happen if signal is deleted after the
-	       list was generated) */
-	    return;
-	}
-	probe->type = sig->type;
-	probe->name = sig->name;
-	probe->data = SHMPTR(sig->data_ptr);
+	probe->sig = halpr_find_sig_by_name(probe->pickname);
     } else if (probe->listnum == 2) {
 	/* search the parameter list */
-	param = halpr_find_param_by_name(probe->pickname);
-	if (param == NULL) {
-	    /* parameter not found (can happen if param is deleted after the
-	       list was generated) */
-	    return;
-	}
-	probe->type = param->type;
-	probe->name = param->name;
-	probe->data = SHMPTR(param->data_ptr);
-    } else {
-	/* not one of our three lists - bad */
-	return;
+	probe->param = halpr_find_param_by_name(probe->pickname);
     }
-    /* at this point, the probe structure contains pointers to the item we
-       wish to display */
+    /* at this point, the probe structure contain a pointer to the item we
+       wish to display, or all three are NULL if the item doesn't exist */
 }
 
 static void accept_selection_and_close(GtkWidget * widget, gpointer data)
