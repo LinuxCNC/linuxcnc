@@ -34,11 +34,13 @@ hal_skeleton.c
 RT_SRCS = \
 hal_parport.c \
 hal_tiro.c \
+hal_evoreg.c \
 hal_skeleton.c
 
 LIBS = \
 $(RTLIB_DIR)/hal_parport.o \
 $(RTLIB_DIR)/hal_tiro.o \
+$(RTLIB_DIR)/hal_evoreg.o \
 $(RTLIB_DIR)/hal_skeleton.o
 
 BINS = \
