@@ -5,6 +5,7 @@ include ../../../Makefile.inc
 
 SRCS = \
 	rs274ngc_pre.cc \
+	interp_array.cc
 
 HEADERS = \
 	canon.hh \

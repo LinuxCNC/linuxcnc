@@ -43,9 +43,6 @@
   symbols AA, BB and CC to declare the position structures. The EMC
   uses AA, BB and CC, and thus by default will get these.
 
-  In the rs274ngc_new directory, the Makefile defines the NO_AA, etc.
-  compile flags to force the exclusion of some axes. Note that these
-  interpreters won't work with the EMC.
  */
 
 typedef int CANON_PLANE;
@@ -137,7 +134,6 @@ struct CANON_POSITION
 
 /* Tools are numbered 1..CANON_TOOL_MAX, with tool 0 meaning no tool. */
 #define CANON_TOOL_MAX 128      // max size of carousel handled
-#define CANON_TOOL_ENTRY_LEN 256        // how long each file line can be
 
 struct CANON_TOOL_TABLE
 {
@@ -695,7 +691,6 @@ extern FILE *_outfile;          /* where to print, set in main */
 extern CANON_TOOL_TABLE _tools[];       /* in canon.cc */
 extern int _tool_max;           /* in canon.cc */
 extern char _parameter_file_name[];     /* in canon.cc */
-#define PARAMETER_FILE_NAME_LENGTH 100
 
 #if 0
 /* FIX-ME Impliment these at a later stage... */
