@@ -1161,7 +1161,8 @@ static int check_other_codes(	/* ARGUMENTS */
     }
 
     if (block->i_flag == ON) {	/* could still be useless if yz_plane arc */
-	CHK(((motion != G_2) && (motion != G_3) && (motion != G_87)),
+	CHK(((motion != G_2) && (motion != G_3) && (motion != G_33)) &&
+	     (motion != G_87)),
 	    NCE_I_WORD_WITH_NO_G2_OR_G3_OR_G87_TO_USE_IT);
     }
 
@@ -1171,7 +1172,8 @@ static int check_other_codes(	/* ARGUMENTS */
     }
 
     if (block->k_flag == ON) {	/* could still be useless if xy_plane arc */
-	CHK(((motion != G_2) && (motion != G_3) && (motion != G_87)),
+	CHK(((motion != G_2) && (motion != G_3) && (motion != G_33)) &&
+	     (motion != G_87)),
 	    NCE_K_WORD_WITH_NO_G2_OR_G3_OR_G87_TO_USE_IT);
     }
 
@@ -4200,7 +4202,7 @@ Returned Value: int
       convert_straight
    If any of the following errors occur, this returns the error shown.
    Otherwise, it returns RS274NGC_OK.
-   1. The motion code is not 0,1,2,3,38.2,80,81,82,83,84,85,86,87, 88, or 89:
+   1. The motion code is not 0,1,2,3,33,38.2,80,81,82,83,84,85,86,87, 88, or 89:
       NCE_BUG_UNKNOWN_MOTION_CODE
 
 Side effects:
@@ -4218,7 +4220,7 @@ static int convert_motion(	/* ARGUMENTS */
     static char name[] = "convert_motion";
     int status;
 
-    if ((motion == G_0) || (motion == G_1)) {
+    if ((motion == G_0) || (motion == G_1) || (motion == G_33) {
 	CHP(convert_straight(motion, block, settings));
     } else if ((motion == G_3) || (motion == G_2)) {
 	CHP(convert_arc(motion, block, settings));
