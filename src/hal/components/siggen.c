@@ -117,7 +117,7 @@ static void calc_siggen(void *arg, long period);
 
 #define PI 3.1415927
 
-ouble sin(double x)
+double sin(double x)
 {
     int flip;
     double retval, top;
