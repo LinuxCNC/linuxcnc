@@ -243,6 +243,7 @@ void emcmotController(void *arg)
 		first = 0;
 	    }
 
+#if 0   /* FIX ME - Move in to the HAL layer and make sure it actually works */
 	    /* debounce bad feedback */
 #ifndef SIMULATED_MOTORS
 	    if (fabs(emcmotStatus->input[axis] -
@@ -254,13 +255,15 @@ void emcmotController(void *arg)
 		    /* we haven't exceeded max number of debounces allowed,
 		       so interpolate off the velocity estimate */
 		    emcmotStatus->input[axis] = emcmotDebug->oldInput[axis] +
-			emcmotDebug->jointVel[axis] *
-			emcmotConfig->servoCycleTime;
+			(emcmotDebug->jointVel[axis] *
+			emcmotConfig->servoCycleTime);
 		} else {
 		    /* we've exceeded the max number of debounces allowed, so
 		       hold position. We should flag an error here, abort the
 		       move, disable motion, etc. but for now we'll rely on
 		       following error to do this */
+/* Looks like we drop straight through to here... Is bigVel being set anywhere 
+   and/or the correct value in oldInput ? */
 		    emcmotStatus->input[axis] = emcmotDebug->oldInput[axis];
 		}
 		/* FIXME-- testing */
@@ -270,7 +273,7 @@ void emcmotController(void *arg)
 		positionInputDebounce[axis] = 0;
 	    }
 #endif
-
+#endif
 	    /* read limit switches and amp fault from external interface, and 
 	       set 'emcmotDebug->enabling' to zero if tripped to cause
 	       immediate stop */
