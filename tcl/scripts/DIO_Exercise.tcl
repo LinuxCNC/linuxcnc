@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using iosh \
-exec bin/iosh "$0" "$@"
+exec sudo plat/nonrealtime/bin/iosh "$0" "$@"
 
 # TclTk script for tkemc gui
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec bin/emcsh "$0" "$@"
+exec plat/nonrealtime/bin/emcsh "$0" "$@"
 
 # This is plot processes for tkemc popup under the view menu of tkemc.
 # This software is public domain. May 2000, Ray Henry, rehenry@up.net

@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec bin/emcsh "$0" "$@"
+exec plat/nonrealtime/bin/emcsh "$0" "$@"
 
 # emcdebug.tcl
 # Sets value of EMC_DEBUG, so you can turn on/off what you want dumped
