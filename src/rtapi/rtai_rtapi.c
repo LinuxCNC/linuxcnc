@@ -715,6 +715,16 @@ static int task_delete(int task_id)
     task->taskcode = NULL;
     ostask_array[task_id] = NULL;
     rtapi_data->task_count--;
+    /* if no more tasks, stop the timer */
+    if (rtapi_data->task_count == 0) {
+	if (rtapi_data->timer_running != 0) {
+	    stop_rt_timer();
+	    rt_free_timer();
+	    rtapi_data->timer_period = 0;
+	    max_delay = DEFAULT_MAX_DELAY;
+	    rtapi_data->timer_running = 0;
+	}
+    }
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: task %02d deleted\n", task_id);
     return RTAPI_SUCCESS;

@@ -70,11 +70,12 @@
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
 #ifdef __cplusplus
-extern "C" {                    /* Need this when the header is included in a
-                                   C++ source. If we don't, the linker
-				   bitches about undefined references to the
-				   rtapi functions. */
+extern "C" {			/* Need this when the header is included in a
+				   C++ source. If we don't, the linker bitches 
+				   about undefined references to the rtapi
+				   functions. */
 #endif
+
 /***********************************************************************
 *                   GENERAL PURPOSE FUNCTIONS                          *
 ************************************************************************/
@@ -92,7 +93,7 @@ extern "C" {                    /* Need this when the header is included in a
     above.  Call only from within user or init/cleanup code, not
     from realtime tasks.
 */
-extern int rtapi_init(char *modname);
+    extern int rtapi_init(char *modname);
 
 /** 'rtapi_exit()' shuts down and cleans up the RTAPI.  It must be
     called prior to exit by any module that called rtapi_init.
@@ -104,7 +105,7 @@ extern int rtapi_init(char *modname);
     code within the module.  Call only from within user or
     init/cleanup code, not from realtime tasks.
 */
-extern int rtapi_exit(int module_id);
+    extern int rtapi_exit(int module_id);
 
 /** 'rtapi_snprintf()' works like 'snprintf()' from the normal
     C library, except that it doesn't handle floats or longlongs.
@@ -117,8 +118,8 @@ extern int rtapi_exit(int module_id);
     even strlen(), as well as doing it's normal formatting tricks.
     May be called from user, init/cleanup, and realtime code.
 */
-extern int rtapi_snprintf(char *buf, unsigned long int size,
-    const char *fmt, ...);
+    extern int rtapi_snprintf(char *buf, unsigned long int size,
+	const char *fmt, ...);
 
 /** 'rtapi_print()' prints a printf style message.  Depending on the
     RTOS and whether the program is being compiled for user space
@@ -133,7 +134,7 @@ extern int rtapi_snprintf(char *buf, unsigned long int size,
     the format string and OS.  May be called from user, init/cleanup,
     and realtime code.
 */
-extern void rtapi_print(const char *fmt, ...);
+    extern void rtapi_print(const char *fmt, ...);
 
 /** 'rtapi_print_msg()' prints debug messages.  Works like rtapi_print
     but only prints if 'level' is less than or equal to the current
@@ -145,16 +146,16 @@ extern void rtapi_print(const char *fmt, ...);
     N.B. New values should not be added before RTAPI_MSG_NONE or after
     RTAPI_MSG_ALL.
 */
-typedef enum {
-    RTAPI_MSG_NONE = 0,
-    RTAPI_MSG_ERR,
-    RTAPI_MSG_WARN,
-    RTAPI_MSG_INFO,
-    RTAPI_MSG_DBG,
-    RTAPI_MSG_ALL
-} msg_level_t;
+    typedef enum {
+	RTAPI_MSG_NONE = 0,
+	RTAPI_MSG_ERR,
+	RTAPI_MSG_WARN,
+	RTAPI_MSG_INFO,
+	RTAPI_MSG_DBG,
+	RTAPI_MSG_ALL
+    } msg_level_t;
 
-extern void rtapi_print_msg(int level, const char *fmt, ...);
+    extern void rtapi_print_msg(int level, const char *fmt, ...);
 
 /** 'rtapi_set_msg_level()' and rtapi_get_msg_level() access the message
     level used by rtapi_print_msg().  The default is RTAPI_MSG_INFO, and
@@ -162,8 +163,8 @@ extern void rtapi_print_msg(int level, const char *fmt, ...);
     rtapi_set_msg_level() returns a status code, and rtapi__get_msg_level()
     returns the current level.
 */
-extern int rtapi_set_msg_level(int level);
-extern int rtapi_get_msg_level(void);
+    extern int rtapi_set_msg_level(int level);
+    extern int rtapi_get_msg_level(void);
 
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
@@ -189,11 +190,9 @@ extern int rtapi_get_msg_level(void);
     The release is unconditional, even if the caller doesn't have
     the mutex, it will be released.
 */
-static __inline__ void rtapi_mutex_give(unsigned long *mutex)
-{
-    test_and_clear_bit(0, mutex);
-}
-
+    static __inline__ void rtapi_mutex_give(unsigned long *mutex) {
+	test_and_clear_bit(0, mutex);
+    }
 /** 'rtapi_mutex_try()' makes a non-blocking attempt to get the
     mutex pointed to by 'mutex'.  If the mutex was available, it
     returns 0 and the mutex is no longer available, since the
@@ -203,27 +202,24 @@ static __inline__ void rtapi_mutex_give(unsigned long *mutex)
     it returns non-zero.  "Doing the right thing" almost certainly
     means doing something that will yield the CPU, so that whatever
     other process has the mutex gets a chance to release it.
-*/
-static __inline__ int rtapi_mutex_try(unsigned long *mutex)
-{
-    return test_and_set_bit(0, mutex);
-}
+*/ static __inline__ int rtapi_mutex_try(unsigned long *mutex) {
+	return test_and_set_bit(0, mutex);
+    }
 
 /** 'rtapi_mutex_get()' gets the mutex pointed to by 'mutex',
     blocking if the mutex is not available.  Because of this,
     calling it from a realtime task is a "very bad" thing to
     do.
 */
-static __inline__ void rtapi_mutex_get(unsigned long *mutex)
-{
-    while (test_and_set_bit(0, mutex)) {
+    static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
+	while (test_and_set_bit(0, mutex)) {
 #ifdef RTAPI
-	schedule();
+	    schedule();
 #else
-	sched_yield();
+	    sched_yield();
 #endif
+	}
     }
-}
 
 /***********************************************************************
 *                      TIME RELATED FUNCTIONS                          *
@@ -251,7 +247,7 @@ static __inline__ void rtapi_mutex_get(unsigned long *mutex)
     init/cleanup code, not from realtime tasks.  This function is not
     available from user (non-realtime) code.
 */
-extern long int rtapi_clock_set_period(long int nsecs);
+    extern long int rtapi_clock_set_period(long int nsecs);
 
 /** rtapi_get_time returns the current time in nanoseconds.  Depending
     on the RTOS, this may be time since boot, or time since the clock
@@ -270,7 +266,7 @@ extern long int rtapi_clock_set_period(long int nsecs);
     rtapi_get_time, and deltat is an ordinary long int (32 bits).
     This will work for times up to about 2 seconds.
 */
-extern long long int rtapi_get_time(void);
+    extern long long int rtapi_get_time(void);
 
 /** rtapi_delay() is a simple delay.  It is intended only for short
     delays, since it simply loops, wasting CPU cycles.  'nsec' is the
@@ -283,8 +279,8 @@ extern long long int rtapi_get_time(void);
     as one nano-second, or as bad as a several microseconds.  May be
     called from init/cleanup code, and from within realtime tasks.
 */
-extern void rtapi_delay(long int nsec);
-extern long int rtapi_delay_max(void);
+    extern void rtapi_delay(long int nsec);
+    extern long int rtapi_delay_max(void);
 
 #endif /* RTAPI */
 
@@ -320,10 +316,10 @@ extern long int rtapi_delay_max(void);
     Call these functions only from within init/cleanup code, not from
     realtime tasks.
 */
-extern int rtapi_prio_highest(void);
-extern int rtapi_prio_lowest(void);
-extern int rtapi_prio_next_higher(int prio);
-extern int rtapi_prio_next_lower(int prio);
+    extern int rtapi_prio_highest(void);
+    extern int rtapi_prio_lowest(void);
+    extern int rtapi_prio_next_higher(int prio);
+    extern int rtapi_prio_next_lower(int prio);
 
 /** 'rtapi_task_new()' creates but does not start a realtime task.
     The task is created in the "paused" state.  To start it, call
@@ -353,8 +349,8 @@ extern int rtapi_prio_next_lower(int prio);
 #define RTAPI_NO_FP   0
 #define RTAPI_USES_FP 1
 
-extern int rtapi_task_new(void (*taskcode) (void *), void *arg,
-    int prio, int owner, unsigned long int stacksize, int uses_fp);
+    extern int rtapi_task_new(void (*taskcode) (void *), void *arg,
+	int prio, int owner, unsigned long int stacksize, int uses_fp);
 
 /** 'rtapi_task_delete()' deletes a task.  'task_id' is a task ID
     from a previous call to rtapi_task_new().  It frees memory
@@ -363,7 +359,7 @@ extern int rtapi_task_new(void (*taskcode) (void *), void *arg,
     it.  Returns a status code.  Call only from within init/cleanup
     code, not from realtime tasks.
 */
-extern int rtapi_task_delete(int task_id);
+    extern int rtapi_task_delete(int task_id);
 
 /** 'rtapi_task_start()' starts a task in periodic mode.  'task_id' is
     a task ID from a call to rtapi_task_new().  The task must be in
@@ -374,14 +370,14 @@ extern int rtapi_task_delete(int task_id);
     set equal to the clock period.
     Call only from within init/cleanup code, not from realtime tasks.
 */
-extern int rtapi_task_start(int task_id, unsigned long int period_nsec);
+    extern int rtapi_task_start(int task_id, unsigned long int period_nsec);
 
 /** 'rtapi_wait()' suspends execution of the current task until the
     next period.  The task must be periodic, if not, the result is
     undefined.  The function will return at the beginning of the
     next period.  Call only from within a realtime task.
 */
-extern void rtapi_wait(void);
+    extern void rtapi_wait(void);
 
 /** 'rtapi_task_resume() starts a task in free-running mode. 'task_id'
     is a task ID from a call to rtapi_task_new().  The task must be in
@@ -394,7 +390,7 @@ extern void rtapi_wait(void);
     3) it is returned to the "paused" state by rtapi_task_pause().
     May be called from init/cleanup code, and from within realtime tasks.
 */
-extern int rtapi_task_resume(int task_id);
+    extern int rtapi_task_resume(int task_id);
 
 /** 'rtapi_task_pause() causes 'task_id' to stop execution and change
     to the "paused" state.  'task_id' can be free-running or periodic.
@@ -404,12 +400,12 @@ extern int rtapi_task_resume(int task_id);
     rtapi_task_start() is called.  May be called from init/cleanup code,
     and from within realtime tasks.
 */
-extern int rtapi_task_pause(int task_id);
+    extern int rtapi_task_pause(int task_id);
 
 /** 'rtapi_task_self()' returns the task ID of the current task.
     Call only from a realtime task.
 */
-extern int rtapi_task_self(void);
+    extern int rtapi_task_self(void);
 
 #endif /* RTAPI */
 
@@ -428,20 +424,21 @@ extern int rtapi_task_self(void);
     returns a negative error code.  Call only from within user or
     init/cleanup code, not from realtime tasks.
 */
-extern int rtapi_shmem_new(int key, int module_id, unsigned long int size);
+    extern int rtapi_shmem_new(int key, int module_id,
+	unsigned long int size);
 
 /** 'rtapi_shmem_delete()' frees the shared memory block associated
     with 'shmem_id'.  'module_id' is the ID of the calling module.
     Returns a status code.  Call only from within user or init/cleanup
     code, not from realtime tasks.
 */
-extern int rtapi_shmem_delete(int shmem_id, int module_id);
+    extern int rtapi_shmem_delete(int shmem_id, int module_id);
 
 /** 'rtapi_shmem_getptr()' sets '*ptr' to point to shared memory block
     associated with 'shmem_id'.  Returns a status code.  May be called
     from user code, init/cleanup code, or realtime tasks.
 */
-extern int rtapi_shmem_getptr(int shmem_id, void **ptr);
+    extern int rtapi_shmem_getptr(int shmem_id, void **ptr);
 
 /***********************************************************************
 *                    SEMAPHORE RELATED FUNCTIONS                       *
@@ -462,7 +459,7 @@ extern int rtapi_shmem_getptr(int shmem_id, void **ptr);
     it returns a negative error code.  Call only from within init/cleanup
     code, not from realtime tasks.
 */
-extern int rtapi_sem_new(int key, int module_id);
+    extern int rtapi_sem_new(int key, int module_id);
 
 /** 'rtapi_sem_delete()' is the counterpart to 'rtapi_sem_new()'.  It
     discards the semaphore associated with 'sem_id'.  Any tasks blocked
@@ -470,14 +467,14 @@ extern int rtapi_sem_new(int key, int module_id);
     module.  Returns a status code.  Call only from within init/cleanup
     code, not from realtime tasks.
 */
-extern int rtapi_sem_delete(int sem_id, int module_id);
+    extern int rtapi_sem_delete(int sem_id, int module_id);
 
 /** 'rtapi_sem_give()' unlocks a semaphore.  If a higher priority task
     is blocked on the semaphore, the calling task will block and the
     higher priority task will begin to run.  Returns a status code.
     May be called from init/cleanup code, and from within realtime tasks.
 */
-extern int rtapi_sem_give(int sem_id);
+    extern int rtapi_sem_give(int sem_id);
 
 /** 'rtapi_sem_take()' locks a semaphore.  Returns RTAPI_SUCCESS or
     RTAPI_BADH.  If the semaphore is unlocked it returns RTAPI_SUCCESS
@@ -485,7 +482,7 @@ extern int rtapi_sem_give(int sem_id);
     until the semaphore is unlocked, then it returns RTAPI_SUCCESS.
     Call only from within a realtime task.
 */
-extern int rtapi_sem_take(int sem_id);
+    extern int rtapi_sem_take(int sem_id);
 
 /** 'rtapi_sem_try()' does a non-blocking attempt to lock a semaphore.
     Returns RTAPI_SUCCESS, RTAPI_BADH, or RTAPI_BUSY.  If the semaphore
@@ -494,7 +491,7 @@ extern int rtapi_sem_take(int sem_id);
     can decide how to deal with the situation.  Call only from within
     a realtime task.
 */
-extern int rtapi_sem_try(int sem_id);
+    extern int rtapi_sem_try(int sem_id);
 
 #endif /* RTAPI */
 
@@ -516,15 +513,15 @@ extern int rtapi_sem_try(int sem_id);
 /* NOTE - RTAI fifos require (stacksize >= fifosze + 256) to avoid
    oops messages on removal. (Does this apply to rtlinux as well ?)
 */
-extern int rtapi_fifo_new(int key, int module_id,
-    unsigned long int size, char mode);
+    extern int rtapi_fifo_new(int key, int module_id,
+	unsigned long int size, char mode);
 
 /** 'rtapi_fifo_delete()' is the counterpart to 'rtapi_fifo_new()'.
     It closes the fifo associated with 'fifo_ID'.  'module_id' is the
     ID of the calling module.  Returns status code.  Call only from
     within user or init/cleanup code, not from realtime tasks.
 */
-extern int rtapi_fifo_delete(int fifo_id, int module_id);
+    extern int rtapi_fifo_delete(int fifo_id, int module_id);
 
 /** FIFO notes. These comments apply to both read and write functions.
     A fifo is a character device, an int is typically four bytes long...
@@ -566,7 +563,8 @@ extern int rtapi_fifo_delete(int fifo_id, int module_id);
 */
 #endif /* ULAPI */
 
-extern int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size);
+    extern int rtapi_fifo_read(int fifo_id, char *buf,
+	unsigned long int size);
 
 #ifdef RTAPI
 /** 'rtapi_fifo_write()' writes data to 'fifo_id'. Up to 'size' bytes
@@ -585,7 +583,8 @@ extern int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size);
 */
 #endif /* ULAPI */
 
-extern int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size);
+    extern int rtapi_fifo_write(int fifo_id, char *buf,
+	unsigned long int size);
 
 /***********************************************************************
 *                    INTERRUPT RELATED FUNCTIONS                       *
@@ -604,8 +603,8 @@ extern int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size);
     code.  Note:  The simulated RTOS does not support interrupts.
     Call only from within init/cleanup code, not from realtime tasks.
 */
-extern int rtapi_irq_new(unsigned int irq_num, int owner,
-    void (*handler) (void));
+    extern int rtapi_irq_new(unsigned int irq_num, int owner,
+	void (*handler) (void));
 
 /** 'rtapi_free_interrupt_handler()' removes an interrupt handler that
     was previously installed by rtapi_assign_interrupt_handler(). 'irq'
@@ -614,7 +613,7 @@ extern int rtapi_irq_new(unsigned int irq_num, int owner,
     Returns RTAPI_SUCCESS or RTAPI_INVAL.  Call only from within
     init/cleanup code, not from realtime tasks.
 */
-extern int rtapi_irq_delete(unsigned int irq_num);
+    extern int rtapi_irq_delete(unsigned int irq_num);
 
 /** 'rtapi_enable_interrupt()' and 'rtapi_disable_interrupt()' are
     are used to enable and disable interrupts, presumably ones that
@@ -622,8 +621,8 @@ extern int rtapi_irq_delete(unsigned int irq_num);
     called from init/cleanup code, and from within realtime tasks.
 
 */
-extern int rtapi_enable_interrupt(unsigned int irq);
-extern int rtapi_disable_interrupt(unsigned int irq);
+    extern int rtapi_enable_interrupt(unsigned int irq);
+    extern int rtapi_disable_interrupt(unsigned int irq);
 
 #endif /* RTAPI */
 
@@ -636,14 +635,14 @@ extern int rtapi_disable_interrupt(unsigned int irq);
     Note: This function does nothing on the simulated RTOS.
     Note: Many platforms provide an inline outb() that is faster.
 */
-extern void rtapi_outb(unsigned char byte, unsigned int port);
+    extern void rtapi_outb(unsigned char byte, unsigned int port);
 
 /** 'rtapi_inb() gets a byte from 'port'.  Returns the byte.  May
     be called from init/cleanup code, and from within realtime tasks.
     Note: This function always returns zero on the simulated RTOS.
     Note: Many platforms provide an inline inb() that is faster.
 */
-extern unsigned char rtapi_inb(unsigned int port);
+    extern unsigned char rtapi_inb(unsigned int port);
 
 #ifdef __cplusplus
 }

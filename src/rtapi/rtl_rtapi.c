@@ -451,7 +451,7 @@ static int module_delete(int module_id)
 	       realtime task needs it running, we set it to 10mS, and it
 	       serves as the Linux jiffies clock.  This seems like a kluge,
 	       and probably won't work on platforms where jiffies are not
-	       100Hz, but the RTLinux docs don't list a "timer stop" function 
+	       100Hz, but the RTLinux docs don't list a "timer stop" function
 	     */
 	    rtl_setclockmode(rtl_getschedclock(), RTL_CLOCK_MODE_PERIODIC,
 		10000000);
@@ -783,6 +783,22 @@ static int task_delete(int task_id)
     task->taskcode = NULL;
     ostask_array[task_id] = NULL;
     rtapi_data->task_count--;
+    /* if no more tasks, stop the timer */
+    if (rtapi_data->task_count == 0) {
+	if (rtapi_data->timer_running != 0) {
+	    /* in RTLinux, you can't really stop the timer.  Since no
+	       realtime task needs it running, we set it to 10mS, and it
+	       serves as the Linux jiffies clock.  This seems like a kluge,
+	       and probably won't work on platforms where jiffies are not
+	       100Hz, but the RTLinux docs don't list a "timer stop" function
+	     */
+	    rtl_setclockmode(rtl_getschedclock(), RTL_CLOCK_MODE_PERIODIC,
+		10000000);
+	    rtapi_data->timer_period = 0;
+	    max_delay = DEFAULT_MAX_DELAY;
+	    rtapi_data->timer_running = 0;
+	}
+    }
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: task %02d deleted\n", task_id);
     return RTAPI_SUCCESS;

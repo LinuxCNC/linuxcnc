@@ -74,14 +74,14 @@ int isnan(double x)
     return (a == 0x7FF0);
 }
 
-int __isnan(double x)	/* There must be a better way of doing this ! */
-{
+int __isnan(double x)
+{				/* There must be a better way of doing this ! 
+				 */
     int a;
     u_int16_t *c = (u_int16_t *) & x;
     a = c[3] & 0x7FF0;
     return (a == 0x7FF0);
 }
-
 
 int RTdummy(void)
 {
