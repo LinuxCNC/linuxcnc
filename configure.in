@@ -469,9 +469,12 @@ if test "x" = "x$GTK_VER"; then
   fi
 fi
 AC_MSG_RESULT([$GTK_VER])
-if (! test "none" = "$GTK_VER") ; then
+if (test "1.2" = "$GTK_VER") ; then
   GTK_CFLAGS=`gtk-config --cflags`
   GTK_LIBS=`gtk-config --libs`
+elif ( (test "2.0" = "$GTK_VER") || (test "2.2" = "$GTK_VER") ) ; then
+  GTK_CFLAGS=`pkg-config gtk+-$GTK_VER --cflags`
+  GTK_LIBS=`pkg-config gtk+-$GTK_VER --libs`
 else
   GTK_CFLAGS=""
   GTK_LIBS=""
