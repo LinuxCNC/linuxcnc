@@ -830,19 +830,30 @@ static int shmem_id;
 
 int usrmotInit(char *modname)
 {
+    int retval;
 
     module_id = rtapi_init(modname);
-    shmem_id = rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(emcmot_struct_t));
-
-    rtapi_shmem_getptr(shmem_id, (void **) &emcmotStruct);
-    if (emcmotStruct == NULL) {
+    if (module_id < 0) {
 	fprintf(stderr,
-	    "rtapi shmem alloc(%d (0x%X), %d (0x%X) ) failed\n",
-	    SHMEM_KEY, SHMEM_KEY, sizeof(emcmot_struct_t),
-	    sizeof(emcmot_struct_t));
+	    "usrmotintf: ERROR: rtapi init failed\n");
 	return -1;
     }
-
+    /* get shared memory block from RTAPI */
+    shmem_id = rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(emcmot_struct_t));
+    if (shmem_id < 0) {
+	fprintf(stderr,
+	    "usrmotintf: ERROR: could not open shared memory\n");
+	rtapi_exit(module_id);
+	return -1;
+    }
+    /* get address of shared memory area */
+    retval = rtapi_shmem_getptr(shmem_id, (void **) &emcmotStruct);
+    if (retval != RTAPI_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "usrmotintf: ERROR: could not access shared memory\n");
+	rtapi_exit(module_id);
+	return -1;
+    }
     /* got it */
     emcmotCommand = &(emcmotStruct->command);
     emcmotStatus = &(emcmotStruct->status);
