@@ -318,4 +318,51 @@ typedef struct setup_struct
 }
 setup;
 
-#endif
+/*
+
+The _setup model includes a stack array for the names of function
+calls. This stack is written into if an error occurs. Just before each
+function returns an error code, it writes its name in the next
+available string, initializes the following string, and increments
+the array index. The following four macros do the work.
+
+The size of the stack array is 50. An error in the middle of a very
+complex expression would cause the ERP and CHP macros to write past the
+bounds of the array if a check were not provided. No real program
+would contain such a thing, but the check is included to make the
+macros totally crash-proof. If the function call stack is deeper than
+49, the top of the stack will be missing.
+
+*/
+
+#define ERM(error_code) if (1) {                    \
+  _setup.stack_index = 0;                      \
+  strcpy(_setup.stack[_setup.stack_index++], name); \
+  _setup.stack[_setup.stack_index][0] = 0;     \
+  return error_code;                                \
+  } else
+
+#define ERP(error_code) if (_setup.stack_index < 49) { \
+  strcpy(_setup.stack[_setup.stack_index++], name);    \
+  _setup.stack[_setup.stack_index][0] = 0;        \
+  return error_code;                                   \
+  } else return error_code
+
+#define CHK(bad, error_code) if (bad) {             \
+  _setup.stack_index = 0;                      \
+  strcpy(_setup.stack[_setup.stack_index++], name); \
+  _setup.stack[_setup.stack_index][0] = 0;     \
+  return error_code;                                \
+  } else
+
+#define CHP(try_this)                                      \
+  if ((status = (try_this)) != RS274NGC_OK) {       \
+     if (_setup.stack_index < 49)                          \
+        {strcpy(_setup.stack[_setup.stack_index++], name); \
+         _setup.stack[_setup.stack_index][0] = 0;     \
+         return status;}                                   \
+     else {return status;}                                 \
+  } else
+
+
+#endif // INTERP_INTERNAL_HH
