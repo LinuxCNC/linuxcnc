@@ -8,7 +8,7 @@ include ../../Makefile.inc
 
 all: headers
 
-all headers clean indent install:
+all headers clean depend indent install:
 	(cd linklist; make $@)
 	(cd rcs; make $@)
 	(cd inifile; make $@)

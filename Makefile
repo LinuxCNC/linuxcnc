@@ -75,6 +75,8 @@ uninstall :
 depend : headers
 	(cd src/rtapi; make $@)
 	(cd src/hal; make $@)
+	(cd src/libnml; make $@)
+	(cd src/emc; make $@)
 
 # this rule handles the examples target
 # it only enters directories that have examples
@@ -87,6 +89,8 @@ examples :
 clean :
 	(cd src/rtapi; make $@)
 	(cd src/hal; make $@)
+	(cd src/libnml; make $@)
+	(cd src/emc; make $@)
 	find . -name "*~" -exec rm -f {} \;
 	find . -name "*.bak" -exec rm -f {} \;
 	find . -name core -exec rm -f {} \;

@@ -68,10 +68,10 @@
 #            paths.  The 'def_indent' target will reformat these files.
 #
 # SRCS     - List of all user-space C and C++ source files.  The names
-#            should not include paths.  The 'def_indent' target will
-#            reformat these files.  The C_SRCS and CC_SRCS variables
+#            should not include paths.  The C_SRCS and CC_SRCS variables
 #            will be made from this variable, and therefore the OBJS
 #            variable will include the corresponding object files.
+#            The 'def_indent' target will reformat the C files only.
 #
 # RT_SRCS  - List of all real-time C source files.  The names should
 #            not include paths.  The 'def_indent' target will reformat
@@ -102,9 +102,17 @@
 #            two lists to allow the appropriate compiler and flags
 #            to be used when generating the dependency files.  These
 #            two variables are used to make the OBJS variable.
+# C_HDRS   - List of all C header files (.h) from HEADERS.
+# CC_HDRS  - List of all C++ header files (.hh) from HEADERS
+# C_PHDRS  - List of all C header files (.h) from PRIVHDRS.
+# CC_PHDRS - List of all C++ header files (.hh) from PRIVHDRS.
 
 C_SRCS = $(filter-out %.cc,$(SRCS))
 CC_SRCS = $(filter %.cc,$(SRCS))
+C_HDRS = $(filter-out %.hh,$(HEADERS))
+CC_HDRS = $(filter %.hh,$(HEADERS))
+C_PHDRS = $(filter-out %.hh,$(PRIVHDRS))
+CC_PHDRS = $(filter %.hh,$(PRIVHDRS))
 
 #
 # OBJS     - List of individual object files created by the make.  The
@@ -194,28 +202,32 @@ $(INC_DIR)/%.hh: %.hh
 
 #
 # Reformat the sources using long format names to aid readability.
+# This is applied ONLY to C source and header files - indent does
+# not work correctly for C++ files
 #
 def_indent:
-	@ echo "Re-format source and header files"
-	indent --braces-on-if-line \
-	--braces-on-struct-decl-line \
-	--comment-line-length78 \
-	--continuation-indentation4 \
-	--cuddle-do-while \
-	--cuddle-else \
-	--declaration-indentation2 \
-	--dont-break-procedure-type \
-	--dont-line-up-parentheses \
-	--format-all-comments \
-	--ignore-profile \
-	--indent-level4 \
-	--line-length78 \
-	--no-space-after-function-call-names \
-	--no-space-after-parentheses \
-	--space-after-cast \
-	--swallow-optional-blank-lines \
-	$(SRCS) $(RT_SRCS) $(HEADERS) $(PRIVHDRS)
-	@ rm *.*~
+	@ echo "Re-format `pwd` $(RT_SRCS) $(C_SRCS) $(C_HDRS) $(C_PHDRS)"
+	@ (if [ ! -z "$(RT_SRCS)$(C_SRCS)$(C_HDRS)$(C_PHDRS)" ] ; then \
+	  indent --braces-on-if-line \
+	  --braces-on-struct-decl-line \
+	  --comment-line-length78 \
+	  --continuation-indentation4 \
+	  --cuddle-do-while \
+	  --cuddle-else \
+	  --declaration-indentation2 \
+	  --dont-break-procedure-type \
+	  --dont-line-up-parentheses \
+	  --format-all-comments \
+	  --ignore-profile \
+	  --indent-level4 \
+	  --line-length78 \
+	  --no-space-after-function-call-names \
+	  --no-space-after-parentheses \
+	  --space-after-cast \
+	  --swallow-optional-blank-lines \
+	  $(RT_SRCS) $(C_SRCS) $(C_HDRS) $(C_PHDRS) ; \
+	  rm *.*~ ; \
+	fi)
 
 #
 # Clean out objects, headers, and dep files.

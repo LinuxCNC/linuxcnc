@@ -7,7 +7,7 @@
 
 all: headers
 
-all headers clean indent install:
+all headers clean depend indent install:
 	(cd rs274ngc; make $@)
 	(cd log; make $@)
 	(cd ini; make $@)
