@@ -1,0 +1,15 @@
+Source: emc2
+Section: misc
+Priority: extra
+Maintainer: Paul Corner <paul_c@users.sourceforge.nt>  
+Build-Depends: debhelper (>> 4.0.0) kernel-image rtos
+Standards-Version: 0.0.0
+
+Package: emc2
+Architecture: any
+Depends: kernel-image rtos
+Provides: emc2
+Suggests: emc2-tools
+Description: motion control for realtime operating systems.
+ emc2 provides low level motion control for CNC machine tools and
+ robotic applications.
