@@ -1,43 +1,18 @@
+/********************************************************************
+* Description: motion.c
+*   Main module initialisation and cleanup routines.
+*
+* Author:
+* Created at:
+* Computer:
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+********************************************************************/
 #ifndef RTAPI
 #error This is a realtime component only!
 #endif
-
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
-
-#ifdef MODULE
-/* module information */
-/* register symbols to be modified by insmod
-   see "Linux Device Drivers", Alessandro Rubini, p. 385
-   (p.42-44 in 2nd edition) */
-MODULE_AUTHOR("Matt Shaver");
-MODULE_DESCRIPTION("Motion Controller for EMC");
-#ifdef MODULE_LICENSE
-MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
-static int PERIOD = 0;	/* fundamental period for timer interrupts */
-                        /* thread period - default = no thread */
-static int PERIOD_NSEC = 0;
-MODULE_PARM(PERIOD, "l");
-MODULE_PARM_DESC(PERIOD, "thread period (nsecs)");
-/* RTAPI shmem stuff */
-static int key = 100;           /* the shared memory key */
-static int shmem_mem;		/* the shared memory ID */
-MODULE_PARM(SHMEM_KEY, "i");
-MODULE_PARM_DESC(SHMEM_KEY, "shared memory key");
-static int EMCMOT_TASK_STACKSIZE = 8192; /* default stacksize */
-MODULE_PARM(EMCMOT_TASK_STACKSIZE, "i");
-MODULE_PARM_DESC(, "motion stack size");
-#endif /* MODULE */
-
-/* rtapi stuff */
-static int module;
-static int emcmot_task;		/* the task ID */
-static int emcmot_prio;
-typedef void (*RTAPI_FUNC) (void *);
-
-int kinType = 0;
 
 #include <linux/types.h>
 #include <stdarg.h>		/* va_list */
@@ -57,6 +32,44 @@ int kinType = 0;
 #include "extintf.h"
 #include "mmxavg.h"
 #include "emcmotlog.h"
+
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+
+#ifdef MODULE
+/* module information */
+/* register symbols to be modified by insmod
+   see "Linux Device Drivers", Alessandro Rubini, p. 385
+   (p.42-44 in 2nd edition) */
+MODULE_AUTHOR("Matt Shaver");
+MODULE_DESCRIPTION("Motion Controller for EMC");
+#ifdef MODULE_LICENSE
+MODULE_LICENSE("GPL");
+#endif /* MODULE_LICENSE */
+int DEBUG_MOTION = 0;
+static int PERIOD = 0;		/* fundamental period for timer interrupts */
+			/* thread period - default = no thread */
+static int PERIOD_NSEC = 0;
+MODULE_PARM(PERIOD, "l");
+MODULE_PARM_DESC(PERIOD, "thread period (nsecs)");
+MODULE_PARM(DEBUG_MOTION, "i");
+/* RTAPI shmem stuff */
+static int key = 100;		/* the shared memory key */
+static int shmem_mem;		/* the shared memory ID */
+MODULE_PARM(SHMEM_KEY, "i");
+MODULE_PARM_DESC(SHMEM_KEY, "shared memory key");
+static int EMCMOT_TASK_STACKSIZE = 8192;	/* default stacksize */
+MODULE_PARM(EMCMOT_TASK_STACKSIZE, "i");
+MODULE_PARM_DESC(, "motion stack size");
+#endif /* MODULE */
+
+/* rtapi stuff */
+static int module;
+static int emcmot_task;		/* the task ID */
+static int emcmot_prio;
+typedef void (*RTAPI_FUNC) (void *);
+
+int kinType = 0;
 
 /*
   Principles of communication:
@@ -169,7 +182,6 @@ static void setServoCycleTime(double secs)
 int init_module(void)
 {
     int axis;
-    int t;
     PID_STRUCT pid;
     int retval;
     long period;
@@ -206,17 +218,20 @@ int init_module(void)
 	return -1;
     }
 
+    /* zero shared memory before doing anything else. */
+    memcpy(emcmotStruct, 0, sizeof(EMCMOT_STRUCT));
+
     /* is timer started? if so, what period? */
-    PERIOD_NSEC = PERIOD * 1000;	/* convert from msec to nsec */
+    PERIOD_NSEC = PERIOD * 1000;	/* convert from uSec to nSec */
     period = rtapi_clock_set_period(0);
     if (period == 0) {
 	/* not running, start it */
-	rtapi_print("motion init: starting timer with period %ld\n",
+	rtapi_print("emcmot init: starting timer with period %ld\n",
 	    PERIOD_NSEC);
 	period = rtapi_clock_set_period(PERIOD_NSEC);
 	if (period < 0) {
 	    rtapi_print
-		("motion init: rtapi_clock_set_period failed with %ld\n",
+		("emcmot init: rtapi_clock_set_period failed with %ld\n",
 		period);
 	    rtapi_exit(module);
 	    return -1;
@@ -242,30 +257,25 @@ int init_module(void)
 							   struct JE
 							   8/21/2001 */
     emcmotLog = (EMCMOT_LOG *) & emcmotStruct->log;
-      for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = (EMCMOT_COMP *) & emcmotStruct->comp[axis];
-        emcmotDebug->bcomp[axis] = 0;	/* backlash comp value */
-        emcmotDebug->bcompdir[axis] = 0;	/* 0=none, 1=pos, -1=neg */
-        emcmotDebug->bcompincr[axis] = 0;	/* incremental backlash comp */
-        emcmotDebug->bac_done[axis] = 0;
-        emcmotDebug->bac_d[axis] = 0;
-        emcmotDebug->bac_di[axis] = 0;
-        emcmotDebug->bac_D[axis] = 0;
-        emcmotDebug->bac_halfD[axis] = 0;
-        emcmotDebug->bac_incrincr[axis] = 0;
-        emcmotDebug->bac_incr[axis] = 0;
-      }
-
-    /* zero shared memory */
-    for (t = 0; t < sizeof(EMCMOT_STRUCT); t++) {
-	((char *) emcmotStruct)[t] = 0;
+	emcmotDebug->bcomp[axis] = 0;	/* backlash comp value */
+	emcmotDebug->bcompdir[axis] = 0;	/* 0=none, 1=pos, -1=neg */
+	emcmotDebug->bcompincr[axis] = 0;	/* incremental backlash comp */
+	emcmotDebug->bac_done[axis] = 0;
+	emcmotDebug->bac_d[axis] = 0;
+	emcmotDebug->bac_di[axis] = 0;
+	emcmotDebug->bac_D[axis] = 0;
+	emcmotDebug->bac_halfD[axis] = 0;
+	emcmotDebug->bac_incrincr[axis] = 0;
+	emcmotDebug->bac_incr[axis] = 0;
     }
 
     /* init locals */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-      emcmotDebug->maxLimitSwitchCount[axis] = 0;
-      emcmotDebug->minLimitSwitchCount[axis] = 0;
-      emcmotDebug->ampFaultCount[axis] = 0;
+	emcmotDebug->maxLimitSwitchCount[axis] = 0;
+	emcmotDebug->minLimitSwitchCount[axis] = 0;
+	emcmotDebug->ampFaultCount[axis] = 0;
     }
 
     /* init compensation struct */

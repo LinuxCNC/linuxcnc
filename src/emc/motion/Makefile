@@ -3,26 +3,21 @@
 include ../../../Makefile.inc
 
 SRCS = \
-	emcmot.c \
-	\
 	command.c \
 	control.c \
-	motion.c \
-	exthalmot.c \
-	\
+	emcmot.c \
 	emcmotglb.c \
 	emcmotutil.c \
 	emcpid.c \
+	motion.c \
 	usrmotintf.c
 
 HEADERS = \
 	emcmot.h \
-	\
-	motion.h \
-	\
 	emcmotcfg.h \
 	emcmotglb.h \
 	emcpid.h \
+	motion.h \
 	usrmotintf.h
 
 PRIVHDRS = \
@@ -34,17 +29,14 @@ OBJS = \
 	usrmotintf.o
 
 RT_OBJS  = \
-	emcmot.o \
-	\
 	command.o \
 	control.o \
-	motion.o \
-	exthalmot.o \
-	\
 	cubic.o \
+	emcmot.o \
 	emcmotutil.o \
 	emcpid.o \
 	mmxavg.o \
+	motion.o \
 	tc.o \
 	tp.o
 
@@ -52,9 +44,8 @@ RTLIBS = \
 	motmod_orig.o \
 	motmod_new.o
 
-all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) \
-	$(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%) \
-	$(RTLIBS:%.o=$(RTLIB_DIR)/%.o)
+all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
+	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o)
 
 # Generic rules.
 include ../../../Make.rules

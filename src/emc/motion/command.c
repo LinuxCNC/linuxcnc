@@ -1,3 +1,23 @@
+/********************************************************************
+* Description: command.c
+*   emcmotCommandhandler() takes commands passed from user space and
+*   performs various functions based on the value in emcmotCommand->command.
+*   For the full list, see the EMCMOT_COMMAND enum in emcmot.h
+*   
+*   Most of the configs would be better off being passed via an ioctl
+*   implimentation leaving pure realtime data to be handled by
+*   emcmotCommmandHandler() - This would provide a small performance
+*   increase on slower systems.
+*   
+* Author:
+* Created at:
+* Computer:
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+********************************************************************/
+
 #include <linux/types.h>
 #include <float.h>
 #include <math.h>
@@ -8,8 +28,7 @@
 #include "mot_priv.h"
 
 /* value for world home position */
-EmcPose worldHome = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0
-};
+EmcPose worldHome = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0};
 
 int logSkip = 0;		/* how many to skip, for per-cycle logging */
 int loggingAxis = 0;		/* record of which axis to log */
@@ -244,11 +263,8 @@ int emcmotCommandHandler(void)
 	    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 		break;
 	    }
-	    emcmotDebug->jointHome[axis] = emcmotCommand->offset;	/* FIXME-- 
-									   use 
-									   'home' 
-									   instead 
-									 */
+	    /* FIXME-- use 'home' instead */
+	    emcmotDebug->jointHome[axis] = emcmotCommand->offset;
 	    break;
 
 	case EMCMOT_SET_HOME_OFFSET:
@@ -522,12 +538,12 @@ int emcmotCommandHandler(void)
 		SET_AXIS_ERROR_FLAG(axis, 1);
 		break;
 	    }
-
-	    emcmotDebug->freePose.tran.x = emcmotCommand->offset;	/* FIXME-- 
+            	/* FIXME-- 
 									   use 
 									   'goal' 
 									   instead 
 									 */
+	    emcmotDebug->freePose.tran.x = emcmotCommand->offset;
 	    if (GET_AXIS_HOMED_FLAG(axis)) {
 		if (emcmotDebug->freePose.tran.x >
 		    emcmotConfig->maxLimit[axis]) {

@@ -1,3 +1,17 @@
+/********************************************************************
+* Description: control.c
+*   emcmotController() is the main loop running at the servo cycle
+*   rate. All state logic and trajectory calcs are called from here.
+*
+* Author:
+* Created at:
+* Computer:
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+********************************************************************/
+
 #include <linux/types.h>
 #include <float.h>
 #include <math.h>
@@ -1546,33 +1560,37 @@ void emcmotController(void *arg)
 		    reportError("controller missed realtime deadline.");
 		}
 	    }
-	    mmxavgAdd(&emcmotDebug->yMmxavg,
-	        (emcmotDebug->cur_time - emcmotDebug->last_time));
-	    emcmotDebug->yMin = mmxavgMin(&emcmotDebug->yMmxavg);
-	    emcmotDebug->yMax = mmxavgMax(&emcmotDebug->yMmxavg);
-	    emcmotDebug->yAvg = mmxavgAvg(&emcmotDebug->yMmxavg);
+	    if (DEBUG_MOTION) {
+		mmxavgAdd(&emcmotDebug->yMmxavg,
+		    (emcmotDebug->cur_time - emcmotDebug->last_time));
+		emcmotDebug->yMin = mmxavgMin(&emcmotDebug->yMmxavg);
+		emcmotDebug->yMax = mmxavgMax(&emcmotDebug->yMmxavg);
+		emcmotDebug->yAvg = mmxavgAvg(&emcmotDebug->yMmxavg);
+	    }
 	}
 
 	emcmotStatus->computeTime = delta;
-	if (2 == whichCycle) {
-	/* traj calcs done this cycle-- use tMin,Max,Avg */
-	  mmxavgAdd(&emcmotDebug->tMmxavg, delta);
-	  emcmotDebug->tMin = mmxavgMin(&emcmotDebug->tMmxavg);
-	  emcmotDebug->tMax = mmxavgMax(&emcmotDebug->tMmxavg);
-	  emcmotDebug->tAvg = mmxavgAvg(&emcmotDebug->tMmxavg);
-        } else if (1 == whichCycle) {
-      	/* servo calcs only this cycle-- use sMin,Max,Avg */
-	  mmxavgAdd(&emcmotDebug->sMmxavg, delta);
-	  emcmotDebug->sMin = mmxavgMin(&emcmotDebug->sMmxavg);
-	  emcmotDebug->sMax = mmxavgMax(&emcmotDebug->sMmxavg);
-	  emcmotDebug->sAvg = mmxavgAvg(&emcmotDebug->sMmxavg);
-        } else {
-       	/* calcs disabled this cycle-- use nMin,Max,Avg */
-	  mmxavgAdd(&emcmotDebug->nMmxavg, delta);
-	  emcmotDebug->nMin = mmxavgMin(&emcmotDebug->nMmxavg);
-	  emcmotDebug->nMax = mmxavgMax(&emcmotDebug->nMmxavg);
-	  emcmotDebug->nAvg = mmxavgAvg(&emcmotDebug->nMmxavg);
-        }
+	if (DEBUG_MOTION) {
+	    if (2 == whichCycle) {
+		/* traj calcs done this cycle-- use tMin,Max,Avg */
+		mmxavgAdd(&emcmotDebug->tMmxavg, delta);
+		emcmotDebug->tMin = mmxavgMin(&emcmotDebug->tMmxavg);
+		emcmotDebug->tMax = mmxavgMax(&emcmotDebug->tMmxavg);
+		emcmotDebug->tAvg = mmxavgAvg(&emcmotDebug->tMmxavg);
+	    } else if (1 == whichCycle) {
+		/* servo calcs only this cycle-- use sMin,Max,Avg */
+		mmxavgAdd(&emcmotDebug->sMmxavg, delta);
+		emcmotDebug->sMin = mmxavgMin(&emcmotDebug->sMmxavg);
+		emcmotDebug->sMax = mmxavgMax(&emcmotDebug->sMmxavg);
+		emcmotDebug->sAvg = mmxavgAvg(&emcmotDebug->sMmxavg);
+	    } else {
+		/* calcs disabled this cycle-- use nMin,Max,Avg */
+		mmxavgAdd(&emcmotDebug->nMmxavg, delta);
+		emcmotDebug->nMin = mmxavgMin(&emcmotDebug->nMmxavg);
+		emcmotDebug->nMax = mmxavgMax(&emcmotDebug->nMmxavg);
+		emcmotDebug->nAvg = mmxavgAvg(&emcmotDebug->nMmxavg);
+	    }
+	}
 
 	/* log per-servo-cycle data if logging active */
 	logIt = 0;

@@ -1,7 +1,18 @@
+/********************************************************************
+* Description: exthalmot.c
+*   Dispatcher of external motion functions for HAL drivers.
+*   This should be the only point of contact between emc and HAL.
+*
+* Author:
+* Created at:
+* Computer:
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+********************************************************************/
 /*
   exthalmot.c
-
-  Dispatcher of external motion functions for HAL drivers.
 
   Modification history:
 

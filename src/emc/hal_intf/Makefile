@@ -5,13 +5,15 @@ include ../../../Makefile.inc
 HEADERS = \
 	extintf.h
 
-SRCS =
+SRCS = \
+	exthalmot.c \
 
 BINS =
 
-OBJS =
+RT_OBJS = \
+	exthalmot.o \
 
-all: headers
+all: headers $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o)
 
 # Generic rules.
 include ../../../Make.rules
