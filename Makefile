@@ -31,6 +31,7 @@ include Makefile.inc
 # level code that might depend on it
 
 all headers indent :
+	(cd src; make $@)
 	(cd src/rtapi; make $@)
 	(cd src/hal; make $@)
 	(cd src/libnml; make $@)
