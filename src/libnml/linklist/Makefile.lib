@@ -1,3 +1,1 @@
-LIB_OBJS := $(LIB_OBJS) \
-	linklist.o \
-	rcs_prnt.o
+LIB_OBJS := $(LIB_OBJS) linklist.o

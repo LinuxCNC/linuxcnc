@@ -1,6 +1,4 @@
-#
-# Makefile for linking the assorted parts in to one lib.
-#
+# include Makefile.lib
 # make rules.
 include ../../Makefile.inc
 
@@ -8,25 +6,34 @@ include ../../Makefile.inc
 include linklist/Makefile.lib
 include inifile/Makefile.lib
 
-LIBS = $(LIB_DIR)/libnmld.a $(LIB_DIR)/libnml.a
+LIBS = $(LIB_DIR)/libnml.so \
+	$(LIB_DIR)/libnml.a
 
-all: $(LIBS)
+
+all: $(LIBS) lib_gen inivar
+
+# include ../../Make.rules
+lib_gen: $(LIBS)
+
+
+$(LIB_DIR)/libnml.so: $(LIB_DIR)/libnmld.a
+	$(CXX) -shared $(LIB_OBJS:%=$(TMP_DIR)/%) -o $@
+	strip --strip-debug $(LIB_DIR)/libnml.so
 
 $(LIB_DIR)/libnml.a: $(LIB_DIR)/libnmld.a
 	rm -f $@
 	cp $(LIB_DIR)/libnmld.a $(LIB_DIR)/libnml.a
-	strip --strip-debug $@
+	strip --strip-debug $(LIB_DIR)/libnml.a
 	$(AR) -ts $@
 	chmod 664 $@
 
 $(LIB_DIR)/libnmld.a: $(LIB_OBJS:%=$(TMP_DIR)/%)
 	rm -f $@
 	$(AR) $(ARFLAGS) $@ $(LIB_OBJS:%=$(TMP_DIR)/%)
-	$(RANLIB) $@
 	chmod 664 $@
 
-clean:
-	- (rm -f $(LIBS))
+inivar: $(TMP_DIR)/inivar.o $(LIB_DIR)/libnml.a
+	$(CXX) $^ -o $@
 
 
 .PHONY: all clean depend headers indent install

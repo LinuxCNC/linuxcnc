@@ -188,7 +188,7 @@ $(INC_DIR)/%.h: %.h
 	@ echo "Install C header $<"
 	\install -p -m0664 $< $(INC_DIR)
 
-$(INC_DIR)/.hh: %.hh
+$(INC_DIR)/%.hh: %.hh
 	@ echo "Install C++ header $<"
 	\install -p -m0664 $< $(INC_DIR)
 

@@ -1,0 +1,3 @@
+LIB_OBJS := $(LIB_OBJS) \
+	_inifile.o \
+	inifile.o \

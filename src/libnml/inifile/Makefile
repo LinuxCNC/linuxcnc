@@ -1,24 +1,23 @@
-#
-# Makefile for the RCS C++ Storage Class Utilities
-#
-
-# make rules.
-include ../../../Makefile.inc
+# Makefile for the Operating System interface  modules of the
+# RCS Library
 
 # LIB_OBJS
 LIB_OBJS =
 include Makefile.lib
+# make definitions.
+include ../../../Makefile.inc
 
 # Declare which files are to be released
-HEADERS = linklist.hh
+HEADERS = \
+	inifile.hh \
 
-SRCS =	linklist.cc
+SRCS =	\
+	_inifile.c \
+	inifile.cc
 
 OBJS := $(LIB_OBJS)
 
 LIBS =
-
-BINS= 
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
 
