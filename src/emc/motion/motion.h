@@ -22,6 +22,20 @@
 
 Misc ramblings:
 
+The terms axis and joint are used inconsistently throughout EMC.
+For all new code, the usages are as follows:
+
+    axis - one of the six degrees of freedom, x, y, z, a, b, c
+	these refer to axes in Cartesian space, which may or
+	may not match up with joints (see below). On Cartesian
+	machines they do match up, but for hexapods, robots, and
+	other non-Cartesian machines they don't.
+    joint - one of the physical degrees of freedom of the machine
+	these might be linear (leadscrews) or rotary (rotary
+	tables, robot arm joints).  There can be any number of
+	joints.  The kinematics code is responsible for translating
+	from axis space to joint space and back.
+
 There are three main kinds of data needed by the motion controller
 
 1) data shared with higher level stuff - commands, status, etc.
@@ -92,8 +106,8 @@ extern "C" {
 	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs */
 	EMCMOT_ENABLE_WATCHDOG,	/* enable watchdog sound, parport */
 	EMCMOT_DISABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_ACTIVATE_AXIS,	/* make axis active */
-	EMCMOT_DEACTIVATE_AXIS,	/* make axis inactive */
+	EMCMOT_ACTIVATE_JOINT,	/* make axis active */
+	EMCMOT_DEACTIVATE_JOINT,	/* make axis inactive */
 
 	EMCMOT_PAUSE,		/* pause motion */
 	EMCMOT_RESUME,		/* resume motion */
@@ -129,8 +143,8 @@ extern "C" {
 	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
 	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
 	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
-	EMCMOT_SET_AXIS_VEL_LIMIT,	/* set the max axis vel */
-	EMCMOT_SET_AXIS_ACC_LIMIT,	/* set the max axis accel */
+	EMCMOT_SET_JOINT_VEL_LIMIT,	/* set the max axis vel */
+	EMCMOT_SET_JOINT_ACC_LIMIT,	/* set the max axis accel */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
 	EMCMOT_SET_HOMING_VEL,	/* set the axis homing speed */
@@ -154,6 +168,10 @@ extern "C" {
 /* termination conditions for queued motions */
 #define EMCMOT_TERM_COND_STOP 1
 #define EMCMOT_TERM_COND_BLEND 2
+
+/*********************************
+       COMMAND STRUCTURE
+*********************************/
 
 /* This is the command structure.  There is one of these in shared
    memory, and all commands from higher level code come thru it.
@@ -306,6 +324,81 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 */
 
+/* compensation structure */
+#define EMCMOT_COMP_SIZE 256
+    typedef struct {
+	int total;		/* how many comp points */
+	double avgint;		/* average interval between points */
+	double nominal[EMCMOT_COMP_SIZE];	/* nominal points */
+	double forward[EMCMOT_COMP_SIZE];	/* forward comp points */
+	double reverse[EMCMOT_COMP_SIZE];	/* reverse comp points */
+	double alter;		/* additive dynamic compensation */
+    } emcmot_comp_t;
+
+
+/* NEW_STRUCTS  - I'm trying something different.  As it stands,
+   per-axis (really per-joint) info is stored in a whole bunch of
+   individual arrays, each with [EMCMOT_MAX_AXIS] values.  Some
+   arrays store config info, and are in the config struct, others
+   store status info and are in the status struct, some are in
+   the debug struct, etc, etc.
+
+   The alternative is to put ALL data for a joint in a single
+   joint data structure.  Then when it's time to work on a joint,
+   just get a pointer to the struct and access the members.
+   The code can be cleaner and easier to read, and it will run
+   faster because the array indexing overhead is gone and things
+   that are accessed together are near each other in memory and
+   thus in cache.
+*/
+    typedef struct {
+
+	/* configuration info - changes rarely */
+	int type;		/* 0 = linear, 1 = rotary */
+	double max_pos_limit;	/* upper soft limit on joint pos */
+	double min_pos_limit;	/* lower soft limit on joint pos */
+	double vel_limit;	/* upper limit of joint speed */
+	double acc_limit;	/* upper limit of joint accel */
+	double min_ferror;	/* zero speed following error limit */
+	double max_ferror;	/* max speed following error limit */
+	double home_search_vel;	/* dir/spd to look for home switch */
+	double home_index_vel;	/* dir/spd to latch switch/index pulse */
+	double home_offset;	/* dir/dist from switch to zero point */
+	double backlash;	/* amount of backlash */
+	emcmot_comp_t comp;	/* leadscrew correction data */
+
+	/* status info - changes regularly */
+	EMCMOT_AXIS_FLAG flag;	/* see above for bit details */
+	double coarse_pos;	/* trajectory point, before interp */
+	double pos_cmd;		/* commanded joint position */
+	double vel_cmd;		/* comanded joint velocity */
+	double backlash_corr;	/* correction for backlash */
+	double backlash_filt;	/* filtered backlash correction */
+	double motor_pos_cmd;	/* commanded position, with comp */
+	double motor_pos_fb;	/* position feedback, with comp */
+	double pos_fb;		/* position feedback, comp removed */
+	double ferror;		/* following error */
+	double ferror_limit;	/* limit depends on speed */
+	double ferror_high_mark;	/* max following error */
+
+	/* internal info - changes regularly, not usually accessed from user
+	   space */
+	double old_pos_cmd;	/* previous pos_cmd (for vel calc) */
+	CUBIC_STRUCT cubic;	/* cubic interpolator data */
+	int pos_limit_debounce;	/* debounce counters for switch */
+	int neg_limit_debounce;
+	int home_sw_debounce;
+	int amp_fault_debounce;	/* debounce counter for fault input */
+
+	/* stuff moved from the other structs that might be needed (or might
+	   not!) */
+	double joint_home;	/* how is this different than home_offset? */
+	double big_vel;		/* used for "debouncing" velocity */
+	int homing_state;	/* state machine for homing */
+	double vel_scale;	/* axis velocity scale factor */
+
+    } emcmot_joint_t;
+
 /* FIXME - the beginnings of a state machine */
 
     typedef enum {
@@ -314,6 +407,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	MOTION_STATE_COORD,
 	MOTION_STATE_FREE
     } motion_state_t;
+
+/*********************************
+        STATUS STRUCTURE
+*********************************/
 
 /* This is the status structure.  There is one of these in shared
    memory, and it reports motion controller status to higher level
@@ -336,6 +433,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	cmd_status_t commandStatus;	/* result of most recent command */
 	/* the rest are updated every cycle */
 	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
+#ifndef NEW_STRUCTS
 	EMCMOT_AXIS_FLAG axisFlag[EMCMOT_MAX_AXIS];	/* see above for bit
 							   details */
 	double joint_pos_cmd[EMCMOT_MAX_AXIS];	/* replaces "axisPos" */
@@ -344,6 +442,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferrorCurrent[EMCMOT_MAX_AXIS];	/* current following error */
 	double ferrorLimit[EMCMOT_MAX_AXIS];	/* allowable following error */
 	double ferrorHighMark[EMCMOT_MAX_AXIS];	/* max following error */
+#endif
 	int onSoftLimit;	/* non-zero if any axis is on soft limit */
 
 	int probeVal;		/* debounced value of probe input */
@@ -356,12 +455,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 				   changed. */
 	double computeTime;
 	EmcPose pos;		/* calculated Cartesian position */
-	double axisPos[EMCMOT_MAX_AXIS];	/* calculated axis positions */
-#if 0
-	double output[EMCMOT_MAX_AXIS];	/* Calculated output velocity command 
-					 */
-	double input[EMCMOT_MAX_AXIS];	/* actual input */
-#endif
 	EmcPose actualPos;	/* actual Cartesian position */
 	int id;			/* id for executing motion */
 	int depth;		/* motion queue depth */
@@ -372,24 +465,11 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int logPoints;		/* how many points currently in log */
 
 	/* static status-- only changes upon input commands, e.g., config */
-#if 0
-	double outputScale[EMCMOT_MAX_AXIS];	/* Used to set
-						   emcmotDebug->inverseOutputScale
-						   - then used to scale the DAC
-						   outputs */
-	double outputOffset[EMCMOT_MAX_AXIS];	/* DC offset applied to the
-						   DAC outputs to achieve 0V
-						   when commanded output is
-						   also zero */
-	double inputScale[EMCMOT_MAX_AXIS];	/* Scaling applied to the
-						   encoder inputs to return
-						   position in real world
-						   units */
-	double inputOffset[EMCMOT_MAX_AXIS];	/* encoder offsets */
-#endif
 	double qVscale;		/* traj velocity scale factor */
+#ifndef NEW_STRUCTS
 	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor 
 						 */
+#endif
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
 
@@ -403,8 +483,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 				   2=var < threshold, 3 var>threshold */
 	int logTriggerVariable;	/* The variable(s) that can cause the log to
 				   trigger. */
-	double logTriggerThreshold;	/* The value for non manual triggers. 
-					 */
+	double logTriggerThreshold;	/* The value for non manual triggers. */
 	double logStartVal;	/* value use for delta trigger */
 
 	int probeTripped;	/* Has the probe signal changed since start
@@ -415,6 +494,29 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int level;
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_status_t;
+
+/*********************************
+        CONFIG STRUCTURE
+*********************************/
+#ifndef NEW_STRUCTS
+/* first a sub-structure with config info for a single joint */
+
+    typedef struct {
+	int type;		/* 0 = linear, 1 = rotary */
+	double max_pos_limit;	/* upper soft limit on joint pos */
+	double min_pos_limit;	/* lower soft limit on joint pos */
+	double vel_limit;	/* upper limit of joint speed */
+	double acc_limit;	/* upper limit of joint accel */
+	double min_ferror;	/* zero speed following error limit */
+	double max_ferror;	/* max speed following error limit */
+	double home_search_vel;	/* dir/spd to look for home switch */
+	double home_index_vel;	/* dir/spd to latch switch/index pulse */
+	double home_offset;	/* dir/dist from switch to zero point */
+
+	double backlash;
+
+    } emcmot_joint_config_t;
+#endif
 
 /* This is the config structure.  This is currently in shared memory,
    but I have no idea why... there are commands to set most of the
@@ -442,9 +544,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	int config_num;		/* Incremented everytime configuration
 				   changed, should match status.config_num */
-#if 0
-	EMCMOT_AXIS_FLAG axisPolarity[EMCMOT_MAX_AXIS];
-#endif
 	int numAxes;		/* The number of axes in the system (which
 				   must be between 1 and EMCMOT_MAX_AXIS,
 				   inclusive). Allegedly, holds a copy of the
@@ -458,31 +557,23 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	int interpolationRate;	/* grep control.c for an explanation....
 				   approx line 50 */
-	double maxLimit[EMCMOT_MAX_AXIS];	/* maximum axis limits,
-						   counts */
-	double minLimit[EMCMOT_MAX_AXIS];	/* minimum axis limits,
-						   counts */
-	double minFerror[EMCMOT_MAX_AXIS];	/* minimum allowable
-						   following error */
-	double maxFerror[EMCMOT_MAX_AXIS];	/* maximum allowable
-						   following error */
+
 	double limitVel;	/* scalar upper limit on vel */
-	double axisLimitVel[EMCMOT_MAX_AXIS];	/* scalar upper limit on axis
-						   vels */
-	double axisLimitAcc[EMCMOT_MAX_AXIS];	/* scalar upper limit on axis
-						   accels */
-	double homingVel[EMCMOT_MAX_AXIS];	/* scalar max homing vels */
-	double homeOffset[EMCMOT_MAX_AXIS];	/* where to go after home,
-						   user units */
 	KINEMATICS_TYPE kinematics_type;
-	double backlash[EMCMOT_MAX_AXIS];
 	int STEPPING_TYPE;	/* 0 = step/direction, 1 = phasing */
 	int PERIOD;		/* fundamental period for timer interrupts */
 	unsigned long int IO_BASE_ADDRESS;
 	int debug;		/* copy of DEBUG, from .ini file */
-
+#ifndef NEW_STRUCTS
+	emcmot_joint_config_t joints[EMCMOT_MAX_AXIS];	/* config info for
+							   each joint */
+#endif
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_config_t;
+
+/*********************************
+      INTERNAL STRUCTURE
+*********************************/
 
 /* This is the internal structure.  It contains stuff that is used
    internally by the motion controller that does not need to be in
@@ -494,16 +585,20 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned char head;	/* flag count for mutex detect */
 
 	int probe_debounce_cntr;
-
+#ifndef NEW_STRUCTS
 	double old_joint_pos_cmd[EMCMOT_MAX_AXIS];
 	int pos_limit_debounce_cntr[EMCMOT_MAX_AXIS];
 	int neg_limit_debounce_cntr[EMCMOT_MAX_AXIS];
 	int home_sw_debounce_cntr[EMCMOT_MAX_AXIS];
 	int amp_fault_debounce_cntr[EMCMOT_MAX_AXIS];
 	double ferrorAbs[EMCMOT_MAX_AXIS];	/* absolute val of ferror */
-
+#endif
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_internal_t;
+
+/*********************************
+        DEBUG STRUCTURE
+*********************************/
 
 /* This is the debug structure.  I guess it was intended to make some
    of the motion controller's internal variables visible from user
@@ -543,9 +638,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	EMC_TELEOP_DATA teleop_data;
 	int split;		/* number of split command reads */
-
+#ifndef NEW_STRUCTS
 	int enable[EMCMOT_MAX_AXIS];
-
+#endif
 	/* flag for enabling, disabling watchdog; multiple for down-stepping */
 	int wdEnabling;
 	int wdEnabled;
@@ -555,14 +650,14 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	/* flag that all active axes are homed */
 	unsigned char allHomed;
-
+#ifndef NEW_STRUCTS
 	/* values for joint home positions */
 	double jointHome[EMCMOT_MAX_AXIS];
-
+#endif
 	/* Counters used for software debounce of the inputs */
-	int maxLimitSwitchCount[EMCMOT_MAX_AXIS];
-	int minLimitSwitchCount[EMCMOT_MAX_AXIS];
-	int ampFaultCount[EMCMOT_MAX_AXIS];
+//      int maxLimitSwitchCount[EMCMOT_MAX_AXIS];
+//      int minLimitSwitchCount[EMCMOT_MAX_AXIS];
+//      int ampFaultCount[EMCMOT_MAX_AXIS];
 
 	TP_STRUCT queue;	/* coordinated mode planner */
 /* the freeAxis TP_STRUCTs are used to store the single joint value,
@@ -574,24 +669,24 @@ Suggestion: Split this in to an Error and a Status flag register..
    tran.x, so that the TP_STRUCT functions can be called for scalar joint
    planning */
 	EmcPose freePose;
+#ifndef NEW_STRUCTS
 	CUBIC_STRUCT cubic[EMCMOT_MAX_AXIS];
+#endif
 
 /* space for trajectory planner queues, plus 10 more for safety */
 /* FIXME-- default is used; dynamic is not honored */
 	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
+
 #define FREE_AXIS_QUEUE_SIZE 4	/* don't really queue free axis motion */
+
 	TC_STRUCT freeAxisTcSpace[EMCMOT_MAX_AXIS][FREE_AXIS_QUEUE_SIZE];
 
+#ifndef NEW_STRUCTS
 	double rawInput[EMCMOT_MAX_AXIS];	/* raw feedback from sensors */
 	double rawOutput[EMCMOT_MAX_AXIS];	/* raw output to actuators */
 
 	double coarseJointPos[EMCMOT_MAX_AXIS];	/* trajectory point, in
 						   joints */
-/* FIXME - temporarily? moved to status struct */
-#if 0
-	double jointPos[EMCMOT_MAX_AXIS];	/* interpolated point, in
-						   joints */
-#endif
 	double jointVel[EMCMOT_MAX_AXIS];	/* joint velocity */
 	double oldJointPos[EMCMOT_MAX_AXIS];	/* ones from last cycle, for
 						   vel */
@@ -604,10 +699,12 @@ Suggestion: Split this in to an Error and a Status flag register..
 	   multiplication instead of a division each servo cycle */
 	double inverseInputScale[EMCMOT_MAX_AXIS];
 	double inverseOutputScale[EMCMOT_MAX_AXIS];
+#endif
 	EmcPose oldPos;		/* last position, used for vel differencing */
 	EmcPose oldVel, newVel;	/* velocities, used for acc differencing */
 	EmcPose newAcc;		/* differenced acc */
 
+#ifndef NEW_STRUCTS
 	/* value of speed past which we debounce the feedback */
 	double bigVel[EMCMOT_MAX_AXIS];	/* set to 10 * max Axis Velocity ...
 					   IF we are at the point where the
@@ -617,7 +714,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int homingPhase[EMCMOT_MAX_AXIS];	/* flags for homing */
 	int latchFlag[EMCMOT_MAX_AXIS];	/* flags for axis latched */
 	double saveLatch[EMCMOT_MAX_AXIS];	/* saved axis latch values */
-
+#endif
 	int enabling;		/* starts up disabled */
 	int coordinating;	/* starts up in free mode */
 	int teleoperating;	/* starts up in free mode */
@@ -681,17 +778,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_error_t;
 
-/* compensation structure */
-#define EMCMOT_COMP_SIZE 256
-    typedef struct {
-	int total;		/* how many comp points */
-	double avgint;		/* average interval between points */
-	double nominal[EMCMOT_COMP_SIZE];	/* nominal points */
-	double forward[EMCMOT_COMP_SIZE];	/* forward comp points */
-	double reverse[EMCMOT_COMP_SIZE];	/* reverse comp points */
-	double alter;		/* additive dynamic compensation */
-    } emcmot_comp_t;
-
 /* big comm structure, for upper memory */
     typedef struct {
 	emcmot_command_t command;	/* struct used to pass commands/data
@@ -704,8 +790,13 @@ Suggestion: Split this in to an Error and a Status flag register..
 					   shared memory */
 	emcmot_error_t error;	/* ring buffer for error messages */
 	emcmot_log_t log;	/* a massive ring buffer for logging RT data */
+#ifndef NEW_STRUCTS
 	emcmot_comp_t comp[EMCMOT_MAX_AXIS];	/* corrections to be applied
 						   to input pos */
+#endif
+#ifdef NEW_STRUCTS
+	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* all joint related data */
+#endif
     } emcmot_struct_t;
 
 /*

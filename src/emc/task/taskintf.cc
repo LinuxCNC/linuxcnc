@@ -105,7 +105,7 @@ int emcAxisSetUnits(int axis, double units)
 }
 
 
-#ifndef NEW_STRUCTS
+#if 0
 int emcAxisSetGains(int axis, double p, double i, double d,
     double ff0, double ff1, double ff2,
     double backlash, double bias, double maxError, double deadband)
@@ -128,7 +128,7 @@ int emcAxisSetGains(int axis, double p, double i, double d,
     emcmotCommand.pid.maxError = maxError;
     emcmotCommand.pid.deadband = deadband;
 
-#ifdef ISNAN_TRAP
+ #ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.pid.p) ||
 	isnan(emcmotCommand.pid.i) ||
 	isnan(emcmotCommand.pid.d) ||
@@ -142,7 +142,7 @@ int emcAxisSetGains(int axis, double p, double i, double d,
 	printf("isnan error in emcAxisSetGains\n");
 	return -1;
     }
-#endif
+ #endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -174,12 +174,12 @@ int emcAxisSetInputScale(int axis, double scale, double offset)
     emcmotCommand.scale = scale;
     emcmotCommand.offset = offset;
 
-#ifdef ISNAN_TRAP
+ #ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.scale) || isnan(emcmotCommand.offset)) {
 	printf("isnan eror in emcAxisSetInputScale\n");
 	return -1;
     }
-#endif
+ #endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -195,17 +195,17 @@ int emcAxisSetOutputScale(int axis, double scale, double offset)
     emcmotCommand.scale = scale;
     emcmotCommand.offset = offset;
 
-#ifdef ISNAN_TRAP
+ #ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.scale) || isnan(emcmotCommand.offset)) {
 	printf("isnan eror in emcAxisSetOutputScale\n");
 	return -1;
     }
-#endif
+ #endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-#endif /* NEW_STRUCTS */
+#endif /* #if 0 */
 
 
 // saved values of limits, since emcmot expects them to be set in
@@ -371,8 +371,7 @@ int emcAxisSetHomingVel(int axis, double homingVel)
 }
 
 
-#ifndef NEW_STRUCTS
-
+#if 0
 int emcAxisSetStepParams(int axis, double setup_time, double hold_time)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -386,7 +385,6 @@ int emcAxisSetStepParams(int axis, double setup_time, double hold_time)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
-
 #endif
 
 int emcAxisSetMaxVelocity(int axis, double vel)
@@ -401,7 +399,7 @@ int emcAxisSetMaxVelocity(int axis, double vel)
 
     AXIS_MAX_VELOCITY[axis] = vel;
 
-    emcmotCommand.command = EMCMOT_SET_AXIS_VEL_LIMIT;
+    emcmotCommand.command = EMCMOT_SET_JOINT_VEL_LIMIT;
     emcmotCommand.axis = axis;
     emcmotCommand.vel = vel;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -417,7 +415,7 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
 	acc = 0.0;
     }
     AXIS_MAX_ACCELERATION[axis] = acc;
-    emcmotCommand.command = EMCMOT_SET_AXIS_ACC_LIMIT;
+    emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
     emcmotCommand.axis = axis;
     emcmotCommand.acc = acc;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -444,7 +442,7 @@ int emcAxisSetHomeOffset(int axis, double offset)
 }
 
 
-#ifndef NEW_STRUCTS
+#if 0
 int emcAxisSetEnablePolarity(int axis, int level)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -530,8 +528,7 @@ int emcAxisSetFaultPolarity(int axis, int level)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
-
-#endif /* NEW_STRUCTS */
+#endif /* #if 0 */
 
 int emcAxisInit(int axis)
 {
@@ -594,7 +591,7 @@ int emcAxisActivate(int axis)
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_ACTIVATE_AXIS;
+    emcmotCommand.command = EMCMOT_ACTIVATE_JOINT;
     emcmotCommand.axis = axis;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -606,7 +603,7 @@ int emcAxisDeactivate(int axis)
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_DEACTIVATE_AXIS;
+    emcmotCommand.command = EMCMOT_DEACTIVATE_JOINT;
     emcmotCommand.axis = axis;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -626,7 +623,7 @@ int emcAxisOverrideLimits(int axis)
 }
 
 
-#ifndef NEW_STRUCTS
+#if 0
 int emcAxisSetOutput(int axis, double output)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -773,7 +770,12 @@ static int new_config = 0;
 
 int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 {
+/* FIXME - this function accesses data that has been
+   moved.  Once I know what it is used for I'll fix it */
+
+#if 0
     int axis;
+    emcmot_joint_t *joint;
 
     // check for valid range
     if (numAxes <= 0 || numAxes > EMCMOT_MAX_AXIS) {
@@ -781,60 +783,27 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
     }
 
     for (axis = 0; axis < numAxes; axis++) {
+	/* point to joint data */
+
+	joint = &(emcmotStruct.joints[axis]);
+
 	stat[axis].axisType = localEmcAxisAxisType[axis];
 	stat[axis].units = localEmcAxisUnits[axis];
-#if 0
+
 	stat[axis].inputScale = emcmotStatus.inputScale[axis];
 	stat[axis].inputOffset = emcmotStatus.inputOffset[axis];
 	stat[axis].outputScale = emcmotStatus.outputScale[axis];
 	stat[axis].outputOffset = emcmotStatus.outputOffset[axis];
-#endif
-	if (new_config) {
-#if 0
-	    stat[axis].p = emcmotConfig.pid[axis].p;
-	    stat[axis].i = emcmotConfig.pid[axis].i;
-	    stat[axis].d = emcmotConfig.pid[axis].d;
-	    stat[axis].ff0 = emcmotConfig.pid[axis].ff0;
-	    stat[axis].ff1 = emcmotConfig.pid[axis].ff1;
-	    stat[axis].ff2 = emcmotConfig.pid[axis].ff2;
-#endif
-	    stat[axis].backlash = emcmotConfig.backlash[axis];
-#if 0
-	    stat[axis].bias = emcmotConfig.pid[axis].bias;
-	    stat[axis].maxError = emcmotConfig.pid[axis].maxError;
-	    stat[axis].deadband = emcmotConfig.pid[axis].deadband;
-	    stat[axis].cycleTime = emcmotConfig.servoCycleTime;
-#endif
-	    stat[axis].minPositionLimit = emcmotConfig.minLimit[axis];
-	    stat[axis].maxPositionLimit = emcmotConfig.maxLimit[axis];
-#if 0
-	    stat[axis].minOutputLimit = emcmotConfig.minOutput[axis];
-	    stat[axis].maxOutputLimit = emcmotConfig.maxOutput[axis];
-#endif
-	    stat[axis].minFerror = emcmotConfig.minFerror[axis];
-	    stat[axis].maxFerror = emcmotConfig.maxFerror[axis];
-	    stat[axis].homeOffset = emcmotConfig.homeOffset[axis];
-#if 0
-	    stat[axis].enablePolarity = (emcmotConfig.axisPolarity[axis] &
-		EMCMOT_AXIS_ENABLE_BIT) ? 1 : 0;
-	    stat[axis].minLimitSwitchPolarity =
-		(emcmotConfig.
-		axisPolarity[axis] & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT) ? 1 : 0;
-	    stat[axis].maxLimitSwitchPolarity =
-		(emcmotConfig.
-		axisPolarity[axis] & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT) ? 1 : 0;
-	    stat[axis].homeSwitchPolarity =
-		(emcmotConfig.
-		axisPolarity[axis] & EMCMOT_AXIS_HOME_SWITCH_BIT) ? 1 : 0;
-	    stat[axis].homingPolarity =
-		(emcmotConfig.
-		axisPolarity[axis] & EMCMOT_AXIS_HOMING_BIT) ? 1 : 0;
-	    stat[axis].faultPolarity =
-		(emcmotConfig.
-		axisPolarity[axis] & EMCMOT_AXIS_FAULT_BIT) ? 1 : 0;
-#endif
-	}
 
+	if (new_config) {
+	    stat[axis].backlash = joint->backlash;
+	    stat[axis].minPositionLimit = joint->min_pos_limit;
+	    stat[axis].maxPositionLimit = joint->max_pos_limit;
+	    stat[axis].minFerror = joint->min_ferror;
+	    stat[axis].maxFerror = joint->max_ferror;
+	    stat[axis].homeOffset = join->home_offset;
+	}
+/* FIXME - this has moved to a joint structure */
 	stat[axis].setpoint = emcmotStatus.axisPos[axis];
 
 	if (get_emcmot_debug_info) {
@@ -881,7 +850,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	    stat[axis].status = RCS_EXEC;
 	}
     }
-
+#endif
     return 0;
 }
 
@@ -918,7 +887,7 @@ int emcTrajSetUnits(double linearUnits, double angularUnits)
 }
 
 
-#ifndef NEW_STRUCTS
+#if 0
 int emcTrajSetCycleTime(double cycleTime)
 {
     if (cycleTime <= 0.0) {
@@ -1224,7 +1193,7 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-#ifndef NEW_STRUCTS
+#if 0
 int emcTrajSetProbeIndex(int index)
 {
     emcmotCommand.command = EMCMOT_SET_PROBE_INDEX;
@@ -1240,7 +1209,7 @@ int emcTrajSetProbePolarity(int polarity)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
-#endif /* NEW_STRUCTS */
+#endif /* #if 0 */
 
 
 int emcTrajClearProbeTrippedFlag()
@@ -1285,10 +1254,11 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->enabled = 0;		/* start at disabled */
     if (emcmotStatus.motionFlag & EMCMOT_MOTION_ENABLE_BIT) {
 	for (axis = 0; axis < localEmcTrajAxes; axis++) {
+#if 0 /* FIXME - the axis flag has been moved to the joint struct */
 	    if (!emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_ENABLE_BIT) {
 		break;
 	    }
-
+#endif
 	    /* got here, then all are enabled */
 	    stat->enabled = 1;
 	}

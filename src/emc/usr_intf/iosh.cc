@@ -1162,6 +1162,9 @@ static int emc_mot_shmem(ClientData clientdata,
     return TCL_ERROR;
 }
 
+
+/* raw input no longer exists */
+#if 0
 static int emc_mot_rawinput(ClientData clientdata,
     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
@@ -1182,6 +1185,7 @@ static int emc_mot_rawinput(ClientData clientdata,
     Tcl_SetResult(interp, "syntax: emc_mot_rawinput <axis>", TCL_VOLATILE);
     return TCL_ERROR;
 }
+#endif
 
 static int emc_mot_move(ClientData clientdata,
     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
@@ -1366,14 +1370,17 @@ int Tcl_AppInit(Tcl_Interp * interp)
 
     Tcl_CreateObjCommand(interp, "emc_mot_shmem", emc_mot_shmem,
 	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
+	
+/* raw input no longer exists */
+#if 0
     Tcl_CreateObjCommand(interp, "emc_mot_rawinput", emc_mot_rawinput,
 	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+#endif
 
     Tcl_CreateObjCommand(interp, "emc_mot_move", emc_mot_move,
 	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    /* 
+    /*
      * Specify a user-specific startup file to invoke if the application
      * is run interactively.  Typically the startup file is "~/.apprc"
      * where "app" is the name of the application.  If this line is deleted

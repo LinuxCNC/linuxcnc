@@ -168,6 +168,8 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 
 /* axis flags */
 
+#ifndef NEW_STRUCTS
+
 #define GET_AXIS_ENABLE_FLAG(ax) (emcmotStatus->axisFlag[ax] & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0)
 
 #define SET_AXIS_ENABLE_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_ENABLE_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_ENABLE_BIT;
@@ -220,6 +222,65 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 
 #define SET_AXIS_FAULT_FLAG(ax,fl) if (fl) emcmotStatus->axisFlag[ax] |= EMCMOT_AXIS_FAULT_BIT; else emcmotStatus->axisFlag[ax] &= ~EMCMOT_AXIS_FAULT_BIT;
 
+#endif
+
+#ifdef NEW_STRUCTS
+/* joint flags */
+
+#define GET_JOINT_ENABLE_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0)
+
+#define SET_JOINT_ENABLE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_ENABLE_BIT; else (joint)->flag &= ~EMCMOT_AXIS_ENABLE_BIT;
+
+#define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_ACTIVE_BIT ? 1 : 0)
+
+#define SET_JOINT_ACTIVE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_ACTIVE_BIT; else (joint)->flag &= ~EMCMOT_AXIS_ACTIVE_BIT;
+
+#define GET_JOINT_INPOS_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_INPOS_BIT ? 1 : 0)
+
+#define SET_JOINT_INPOS_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_INPOS_BIT; else (joint)->flag &= ~EMCMOT_AXIS_INPOS_BIT;
+
+#define GET_JOINT_ERROR_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_ERROR_BIT ? 1 : 0)
+
+#define SET_JOINT_ERROR_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_ERROR_BIT; else (joint)->flag &= ~EMCMOT_AXIS_ERROR_BIT;
+
+#define GET_JOINT_PSL_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT ? 1 : 0)
+
+#define SET_JOINT_PSL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT;
+
+#define GET_JOINT_NSL_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT ? 1 : 0)
+
+#define SET_JOINT_NSL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT;
+
+#define GET_JOINT_PHL_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT ? 1 : 0)
+
+#define SET_JOINT_PHL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_MAX_HARD_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_MAX_HARD_LIMIT_BIT;
+
+#define GET_JOINT_NHL_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT ? 1 : 0)
+
+#define SET_JOINT_NHL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_MIN_HARD_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_MIN_HARD_LIMIT_BIT;
+
+#define GET_JOINT_HOME_SWITCH_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_HOME_SWITCH_BIT ? 1 : 0)
+
+#define SET_JOINT_HOME_SWITCH_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_HOME_SWITCH_BIT; else (joint)->flag &= ~EMCMOT_AXIS_HOME_SWITCH_BIT;
+
+#define GET_JOINT_HOMING_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_HOMING_BIT ? 1 : 0)
+
+#define SET_JOINT_HOMING_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_HOMING_BIT; else (joint)->flag &= ~EMCMOT_AXIS_HOMING_BIT;
+
+#define GET_JOINT_HOMED_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_HOMED_BIT ? 1 : 0)
+
+#define SET_JOINT_HOMED_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_HOMED_BIT; else (joint)->flag &= ~EMCMOT_AXIS_HOMED_BIT;
+
+#define GET_JOINT_FERROR_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_FERROR_BIT ? 1 : 0)
+
+#define SET_JOINT_FERROR_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_FERROR_BIT; else (joint)->flag &= ~EMCMOT_AXIS_FERROR_BIT;
+
+#define GET_JOINT_FAULT_FLAG(joint) ((joint)->flag & EMCMOT_AXIS_FAULT_BIT ? 1 : 0)
+
+#define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_FAULT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_FAULT_BIT;
+
+#endif
+
 /* polarity flags */
 /* FIXME - with HAL these go away */
 #if 0
@@ -250,6 +311,10 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 #endif
 
 /* axis lengths */
-#define AXRANGE(axis) ((emcmotConfig->maxLimit[axis] - emcmotConfig->minLimit[axis]))
+#ifndef NEW_STRUCTS
+#define AXRANGE(axis) ((emcmotConfig->joints[axis].max_pos_limit - emcmotConfig->joints[axis].min_pos_limit))
+#else
+#define AXRANGE(joint) ((joint)->max_pos_limit - (joint)->min_pos_limit)
+#endif
 
 #endif /* MOT_PRIV_H */

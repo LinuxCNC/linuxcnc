@@ -223,6 +223,8 @@ int main(int argc, char *argv[])
     printf("sizeof(emcmot_internal_t) = %d\n", sizeof(emcmot_internal_t));
     printf("sizeof(emcmot_debug_t) = %d\n", sizeof(emcmot_debug_t));
     printf("sizeof(emcmot_error_t) = %d\n", sizeof(emcmot_error_t));
+    printf("sizeof(emcmot_comp_t) = %d\n", sizeof(emcmot_comp_t));
+    printf("sizeof(emcmot_joint_t) = %d\n", sizeof(emcmot_joint_t));
     printf("sizeof(emcmot_log_t) = %d\n", sizeof(emcmot_log_t));
     printf("sizeof(emcmot_struct_t) = %d\n", sizeof(emcmot_struct_t));
     printf("sizeof(TC_STRUCT) = %d\n", sizeof(TC_STRUCT));
@@ -845,7 +847,7 @@ int main(int argc, char *argv[])
 		    emcmotCommand.axis >= EMCMOT_MAX_AXIS) {
 		    printf("syntax: activate <n>\n");
 		} else {
-		    emcmotCommand.command = EMCMOT_ACTIVATE_AXIS;
+		    emcmotCommand.command = EMCMOT_ACTIVATE_JOINT;
 		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 			fprintf(stderr, "Can't send a command to RT-task\n");
 		    }
@@ -856,7 +858,7 @@ int main(int argc, char *argv[])
 		    emcmotCommand.axis >= EMCMOT_MAX_AXIS) {
 		    printf("syntax: deactivate <n>\n");
 		} else {
-		    emcmotCommand.command = EMCMOT_DEACTIVATE_AXIS;
+		    emcmotCommand.command = EMCMOT_DEACTIVATE_JOINT;
 		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 			fprintf(stderr, "Can't send a command to RT-task\n");
 		    }

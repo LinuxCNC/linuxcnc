@@ -576,7 +576,8 @@ static int export_axis(int num, axis_hal_t * addr)
 */
 static int init_comm_buffers(void)
 {
-    int axis;
+    int joint_num;
+    emcmot_joint_t *joint;
     int retval;
 
     rtapi_print_msg(RTAPI_MSG_INFO,
@@ -616,38 +617,6 @@ static int init_comm_buffers(void)
     emcmotInternal = &emcmotStruct->internal;
     emcmotError = &emcmotStruct->error;
     emcmotLog = &emcmotStruct->log;
-
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	emcmotComp[axis] = (emcmot_comp_t *) & emcmotStruct->comp[axis];
-/* FIXME - old backlash stuff */
-#if 0
-	emcmotDebug->bcomp[axis] = 0;	/* backlash comp value */
-	emcmotDebug->bcompdir[axis] = 0;	/* 0=none, 1=pos, -1=neg */
-	emcmotDebug->bcompincr[axis] = 0;	/* incremental backlash comp */
-	emcmotDebug->bac_done[axis] = 0;
-	emcmotDebug->bac_d[axis] = 0;
-	emcmotDebug->bac_di[axis] = 0;
-	emcmotDebug->bac_D[axis] = 0;
-	emcmotDebug->bac_halfD[axis] = 0;
-	emcmotDebug->bac_incrincr[axis] = 0;
-	emcmotDebug->bac_incr[axis] = 0;
-#endif
-    }
-
-    /* init locals */
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	emcmotDebug->maxLimitSwitchCount[axis] = 0;
-	emcmotDebug->minLimitSwitchCount[axis] = 0;
-	emcmotDebug->ampFaultCount[axis] = 0;
-    }
-
-    /* init compensation struct */
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	emcmotComp[axis]->total = 0;
-	emcmotComp[axis]->alter = 0.0;
-	/* leave out the avgint, nominal, forward, and reverse, since these
-	   can't be zero and the total flag prevents their use anyway */
-    }
 
     /* init error struct */
     emcmotErrorInit(emcmotError);
@@ -710,60 +679,91 @@ static int init_comm_buffers(void)
     emcmot_config_change();
 
     /* init per-axis stuff */
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	/* point to structure for this joint */
+	joint = &(emcmotStruct->joints[joint_num]);
 
-	emcmotStatus->joint_pos_cmd[axis] = 0.0;
-	emcmotStatus->joint_pos_fb[axis] = 0.0;
-	emcmotStatus->joint_vel_cmd[axis] = 0.0;
-	emcmotStatus->ferrorCurrent[axis] = 0.0;
-	emcmotStatus->ferrorLimit[axis] = 0.0;
-	emcmotStatus->ferrorHighMark[axis] = 0.0;
+	/* init the config fields with some "reasonable" defaults" */
 
-	emcmotInternal->old_joint_pos_cmd[axis] = 0.0;
-	emcmotInternal->pos_limit_debounce_cntr[axis] = 0;
-	emcmotInternal->neg_limit_debounce_cntr[axis] = 0;
-	emcmotInternal->home_sw_debounce_cntr[axis] = 0;
-	emcmotInternal->amp_fault_debounce_cntr[axis] = 0;
-	emcmotInternal->ferrorAbs[axis] = 0.0;
+	joint->type = 0;
+	joint->max_pos_limit = 1.0;
+	joint->min_pos_limit = -1.0;
+	joint->vel_limit = 1.0;
+	joint->acc_limit = 1.0;
+	joint->min_ferror = 0.01;
+	joint->max_ferror = 1.0;
+	joint->home_search_vel = 0.5;
+	joint->home_index_vel = 0.1;
+	joint->home_offset = 0.0;
+	joint->backlash = 0.0;
+	/* init compensation struct - leave out the avgint, nominal, forward, 
+	   and reverse, since these can't be zero and the total flag prevents 
+	   their use anyway */
+	/* FIXME - is this pointer needed? */
+	emcmotComp[joint_num] = &(joint->comp);
+	joint->comp.total = 0;
+	joint->comp.alter = 0.0;
 
-	emcmotConfig->homingVel[axis] = VELOCITY;
-	emcmotConfig->homeOffset[axis] = 0.0;
-	emcmotStatus->axisFlag[axis] = 0;
-	emcmotConfig->maxLimit[axis] = MAX_LIMIT;
-	emcmotConfig->minLimit[axis] = MIN_LIMIT;
-	emcmotConfig->backlash[axis] = BACKLASH;
-	emcmotConfig->minFerror[axis] = 0.0;	/* gives a true linear ferror 
-						 */
-	emcmotConfig->maxFerror[axis] = MAX_FERROR;
-//      emcmotStatus->outputScale[axis] = OUTPUT_SCALE;
-//      emcmotStatus->outputOffset[axis] = OUTPUT_OFFSET;
-//      emcmotStatus->inputScale[axis] = INPUT_SCALE;
-//      emcmotDebug->inverseInputScale[axis] = 1.0 / INPUT_SCALE;
-//      emcmotStatus->inputOffset[axis] = INPUT_OFFSET;
-//      emcmotDebug->inverseOutputScale[axis] = 1.0 / OUTPUT_SCALE;
-	emcmotStatus->axVscale[axis] = 1.0;
-	emcmotConfig->axisLimitVel[axis] = 1.0;	/* FIXME - I think this
-						   should be 0.0 */
-	emcmotConfig->axisLimitAcc[axis] = 1.0;	/* FIXME - I think this
-						   should be 0.0 */
-	emcmotDebug->bigVel[axis] = 1.0;
-	SET_AXIS_ENABLE_FLAG(axis, 0);
-	SET_AXIS_ACTIVE_FLAG(axis, 0);	/* default is not to use it; need an
-					   explicit activate */
-	SET_AXIS_NSL_FLAG(axis, 0);
-	SET_AXIS_PSL_FLAG(axis, 0);
-	SET_AXIS_NHL_FLAG(axis, 0);
-	SET_AXIS_PHL_FLAG(axis, 0);
-	SET_AXIS_INPOS_FLAG(axis, 1);
-	SET_AXIS_HOMING_FLAG(axis, 0);
-	SET_AXIS_HOMED_FLAG(axis, 0);
-	SET_AXIS_FERROR_FLAG(axis, 0);
-	SET_AXIS_FAULT_FLAG(axis, 0);
-	SET_AXIS_ERROR_FLAG(axis, 0);
-#if 0
-	emcmotConfig->axisPolarity[axis] = (EMCMOT_AXIS_FLAG) 0xFFFFFFFF;
-#endif
-	/* will read encoders directly, so don't set them here */
+	/* init status info */
+	joint->flag = 0;
+	joint->coarse_pos = 0.0;
+	joint->pos_cmd = 0.0;
+	joint->vel_cmd = 0.0;
+	joint->backlash_corr = 0.0;
+	joint->backlash_filt = 0.0;
+	joint->motor_pos_cmd = 0.0;
+	joint->motor_pos_fb = 0.0;
+	joint->pos_fb = 0.0;
+	joint->ferror = 0.0;
+	joint->ferror_limit = joint->min_ferror;
+	joint->ferror_high_mark = 0.0;
+
+	/* init internal info */
+	joint->old_pos_cmd = joint->pos_cmd;
+	joint->pos_limit_debounce = 0;
+	joint->neg_limit_debounce = 0;
+	joint->home_sw_debounce = 0;
+	joint->amp_fault_debounce = 0;
+	cubicInit(&(joint->cubic));
+
+	/* init misc other stuff in joint structure */
+	joint->joint_home = 0.0;
+	joint->big_vel = 10.0 * joint->vel_limit;
+	joint->homing_state = 0;
+	joint->vel_scale = 1.0;
+
+	/* init joint flags (reduntant, since flag = 0 */
+
+	SET_JOINT_ENABLE_FLAG(joint, 0);
+	SET_JOINT_ACTIVE_FLAG(joint, 0);
+	SET_JOINT_NSL_FLAG(joint, 0);
+	SET_JOINT_PSL_FLAG(joint, 0);
+	SET_JOINT_NHL_FLAG(joint, 0);
+	SET_JOINT_PHL_FLAG(joint, 0);
+	SET_JOINT_INPOS_FLAG(joint, 1);
+	SET_JOINT_HOMING_FLAG(joint, 0);
+	SET_JOINT_HOMED_FLAG(joint, 0);
+	SET_JOINT_FERROR_FLAG(joint, 0);
+	SET_JOINT_FAULT_FLAG(joint, 0);
+	SET_JOINT_ERROR_FLAG(joint, 0);
+
+	/* init the axis components */
+	if (-1 == tpCreate(&emcmotDebug->freeAxis[joint_num],
+		FREE_AXIS_QUEUE_SIZE,
+		emcmotDebug->freeAxisTcSpace[joint_num])) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"MOTION: failed to create axis emcmotDebug->queue %d\n",
+		joint_num);
+	    return -1;
+	}
+	tpInit(&emcmotDebug->freeAxis[joint_num]);
+	tpSetCycleTime(&emcmotDebug->freeAxis[joint_num],
+	    emcmotConfig->trajCycleTime);
+	/* emcmotDebug->freePose is inited to 0's in decl */
+	tpSetPos(&emcmotDebug->freeAxis[joint_num], emcmotDebug->freePose);
+	tpSetVmax(&emcmotDebug->freeAxis[joint_num], emcmotStatus->vel);
+	tpSetAmax(&emcmotDebug->freeAxis[joint_num], emcmotStatus->acc);
+
     }
 
     /* FIXME-- add emcmotError */
@@ -812,48 +812,6 @@ static int init_comm_buffers(void)
     tpSetVmax(&emcmotDebug->queue, emcmotStatus->vel);
     tpSetAmax(&emcmotDebug->queue, emcmotStatus->acc);
 
-    /* init the axis components */
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	if (-1 == tpCreate(&emcmotDebug->freeAxis[axis], FREE_AXIS_QUEUE_SIZE,
-		emcmotDebug->freeAxisTcSpace[axis])) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"MOTION: failed to create axis emcmotDebug->queue %d\n",
-		axis);
-	    return -1;
-	}
-	tpInit(&emcmotDebug->freeAxis[axis]);
-	tpSetCycleTime(&emcmotDebug->freeAxis[axis],
-	    emcmotConfig->trajCycleTime);
-	/* emcmotDebug->freePose is inited to 0's in decl */
-	tpSetPos(&emcmotDebug->freeAxis[axis], emcmotDebug->freePose);
-	tpSetVmax(&emcmotDebug->freeAxis[axis], emcmotStatus->vel);
-	tpSetAmax(&emcmotDebug->freeAxis[axis], emcmotStatus->acc);
-	cubicInit(&emcmotDebug->cubic[axis]);
-    }
-/* FIXME - this is changing */
-#if 0
-    extEncoderSetIndexModel(EXT_ENCODER_INDEX_MODEL_MANUAL);
-#endif
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	emcmotDebug->rawInput[axis] = 0.0;
-	emcmotDebug->rawOutput[axis] = 0.0;
-	emcmotDebug->coarseJointPos[axis] = 0.0;
-//      emcmotDebug->jointPos[axis] = 0.0;
-	emcmotDebug->jointVel[axis] = 0.0;
-	emcmotStatus->axisPos[axis] = 0.0;
-	emcmotDebug->oldJointPos[axis] = 0.0;
-	emcmotDebug->outJointPos[axis] = 0.0;
-	emcmotDebug->homingPhase[axis] = 0;
-	emcmotDebug->latchFlag[axis] = 0;
-	emcmotDebug->saveLatch[axis] = 0.0;
-	emcmotDebug->oldInput[axis] = 0.0;
-	emcmotDebug->oldInputValid[axis] = 0;
-	emcmotDebug->jointHome[axis] = 0.0;
-/* FIXME - enable is done differently now */
-#if 0
-	extAmpEnable(axis, 0);
-#endif
-    }
     emcmotStatus->tail = 0;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_comm_buffers() complete\n");
@@ -924,8 +882,8 @@ static int init_threads(void)
     }
 
     /* export realtime functions that do the real work */
-    retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg 
-	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
+    retval = hal_export_funct("motion-controller", emcmotController, 0 /* arg */ , 1	/* uses_fp 
+	 */ , 0 /* reentrant */ , mot_comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export controller function\n");
@@ -1022,7 +980,7 @@ static int setTrajCycleTime(double secs)
     /* set the free planners, cubic interpolation rate and segment time */
     for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	tpSetCycleTime(&emcmotDebug->freeAxis[t], secs);
-	cubicSetInterpolationRate(&emcmotDebug->cubic[t],
+	cubicSetInterpolationRate(&(emcmotStruct->joints[t].cubic),
 	    emcmotConfig->interpolationRate);
     }
 
@@ -1053,9 +1011,9 @@ static int setServoCycleTime(double secs)
 
     /* set the cubic interpolation rate and PID cycle time */
     for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	cubicSetInterpolationRate(&emcmotDebug->cubic[t],
+	cubicSetInterpolationRate(&(emcmotStruct->joints[t].cubic),
 	    emcmotConfig->interpolationRate);
-	cubicSetSegmentTime(&emcmotDebug->cubic[t], secs);
+	cubicSetSegmentTime(&(emcmotStruct->joints[t].cubic), secs);
     }
 
     /* copy into status out */
