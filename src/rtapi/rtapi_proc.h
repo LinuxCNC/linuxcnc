@@ -276,6 +276,13 @@ static int proc_write_debug(struct file *file,
     if (isdigit(c)) {
 	/* convert to a number */
 	msg_level = (int) (c - '0');
+	/* cap the value if it is outside the valid range */
+	if (msg_level < RTAPI_MSG_NONE) {
+	    msg_level = RTAPI_MSG_NONE;
+	}
+	if (msg_level > RTAPI_MSG_ALL) {
+	    msg_level = RTAPI_MSG_ALL;
+	}
     }
     /* tell whoever called us that we used all the data, even though we
        really only used the first byte */
