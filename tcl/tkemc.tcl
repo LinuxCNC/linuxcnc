@@ -19,12 +19,21 @@ if [ -f $EMC2_DIR/configs/emc.conf ] ; then source $EMC2_DIR/configs/emc.conf ;
 elif [ -f /etc/emc2/emc.conf ] ; then source /etc/emc2/emc.conf ;
 # or we give it up \
 else echo "Can't find emc.conf configuration file."; exit -1; fi
-
+#first export the TCL dir variab\
+export EMC2_TCL_DIR
 # the next line restarts using emcsh \
 exec $EMC2_BIN_DIR/emcsh "$0" "$@"
 
 set TCLBIN tcl/bin/
 set TCLSCRIPTS tcl/scripts/
+
+
+if {[info exists env(EMC2_TCL_DIR)]} {
+    set TCLBIN $env(EMC2_TCL_DIR)
+    set TCLSCRIPTS $env(EMC2_TCL_DIR)
+    set TCLBIN $TCLBIN/bin
+    set TCLSCRIPTS $TCLSCRIPTS/scripts
+}
 
 # Tk GUI for the Enhanced Machine Controller
 
@@ -745,7 +754,7 @@ $unitsmenu add command -label "cm" -command {emc_linear_unit_conversion cm} -und
 # Add a scripts menu that looks for *.tcl files in tcl/scripts subdirectory
 set scriptsmenu [menu $menubar.scripts -tearoff 1]
 $menubar add cascade -label "Scripts" -menu $scriptsmenu -underline 1
-set scriptdir tcl/scripts
+set scriptdir $TCLSCRIPTS
 
 if { $windows == 0 } {
     set files [exec /bin/ls $scriptdir]

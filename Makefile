@@ -78,6 +78,7 @@ install : all $(MAN_FILES)
 	cp configs/emc.conf.install /etc/emc2/emc.conf
 	cp configs/hal.conf.install /etc/emc2/hal.conf
 	#cp configs/emc.conf.install /etc/emc2/emc.conf
+	cp TkEmc /etc/emc2
 	install -d $(prefix)/etc
 	cp configs/*.ini configs/*.var configs/*.nml /etc/emc2
 	@ echo "configs installed"
