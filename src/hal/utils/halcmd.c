@@ -1,5 +1,6 @@
 /** This file, 'halcmd.c', is a HAL component that provides a simple
     command line interface to the hal.  It is a user space component.
+    For detailed instructions, see "man halcmd".
 */
 
 /** Copyright (C) 2003 John Kasunich
