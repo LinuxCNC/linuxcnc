@@ -8,7 +8,7 @@
 * Author: 
 * Created at: Mon Feb 23 11:41:51 UTC 2004
 * Computer: Babylon
-* System: LinuxEMCNMLFILE
+* System: Linux
 *    
 * Copyright (c) 2004 root  All rights reserved.
 *
