@@ -513,7 +513,7 @@ else
 #extracting vars
    AC_MSG_RESULT([$TCLCONFIG found])
    source "$TCLCONFIG"
-   TCL_CFLAGS="$TCL_INC"
+   TCL_CFLAGS="$TCL_INCLUDE_SPEC"
    TCL_LIBS="$TCL_LIB_SPEC"
 fi
 
@@ -533,8 +533,8 @@ else
 #extracting vars
    AC_MSG_RESULT([$TKCONFIG found])
    source "$TKCONFIG"
-   TK_CFLAGS="$TK_INC $TK_XINCLUDES" 
-   TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
+   TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES" 
+   TK_LIBS="$TK_LIB_SPEC"
 fi
 
 
