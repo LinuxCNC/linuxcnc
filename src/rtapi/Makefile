@@ -15,17 +15,17 @@ vsnprintf.h
 # Non-Realtime Sources - will be compiled to '*.o'
 SRCS = $(RTPREFIX)_ulapi.c
 
-# Realtime Sources - will be compiled to '*.rt.o'
+# Realtime Sources - will be compiled to '*.o'
 RT_SRCS = $(RTPREFIX)_rtapi.c
 
 # Libraries to be created
 LIBS = $(RTLIB_DIR)/$(RTPREFIX)_rtapi.o \
 $(LIB_DIR)/$(RTPREFIX)_ulapi.o
 
-# list of all the '*.o' files
+# list of all the non-realtime '*.o' files
 OBJS = $(RTPREFIX)_ulapi.o
 
-# list of all the '*.rt.o' files
+# list of all the realtime '*.o' files
 RT_OBJS = $(RTPREFIX)_rtapi.o
 
 

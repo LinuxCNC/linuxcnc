@@ -71,75 +71,89 @@ static char rev[] = "$Revision$";	/* magically updated by CVS */
 static char *rev_str;
 static unsigned int rev_code;
 
-
 /* These structs hold data associated with objects like tasks, etc. */
 
-typedef enum {
-  NO_MODULE = 0,
-  REALTIME,
-  USERSPACE
-} mod_type_t;
+typedef enum
+{
+    NO_MODULE = 0,
+    REALTIME,
+    USERSPACE
+}
+mod_type_t;
 
-typedef struct {
-  mod_type_t state;
-  char name[RTAPI_NAME_LEN + 1];
-} module_data;
+typedef struct
+{
+    mod_type_t state;
+    char name[RTAPI_NAME_LEN + 1];
+}
+module_data;
 
+typedef enum
+{
+    EMPTY = 0,
+    PAUSED,
+    PERIODIC,
+    FREERUN,
+    ENDED
+}
+task_state_t;
 
-typedef enum {
-  EMPTY = 0,
-  PAUSED,
-  PERIODIC,
-  FREERUN,
-  ENDED
-} task_state_t;
+typedef struct
+{
+    task_state_t state;		/* task state */
+    int prio;			/* priority */
+    int owner;			/* owning module */
+    void (*taskcode) (void *);	/* task code */
+    void *arg;			/* task argument */
+}
+task_data;
 
-typedef struct {
-  task_state_t state;		/* task state */
-  int prio;			/* priority */
-  int owner;			/* owning module */
-  void (*taskcode) (void *);	/* task code */
-  void *arg;			/* task argument */
-} task_data;
+typedef struct
+{
+    int key;			/* key to shared memory area */
+    int rtusers;		/* number of realtime modules using block */
+    int ulusers;		/* number of user processes using block */
+    unsigned long size;		/* size of shared memory area */
+    char bitmap[(RTAPI_MAX_SHMEMS / 8) + 1];	/* which modules are using
+						   block */
+}
+shmem_data;
 
+typedef struct
+{
+    int users;			/* number of modules using the semaphore */
+    int key;			/* key to semaphore */
+    char bitmap[(RTAPI_MAX_SEMS / 8) + 1];	/* which modules are using
+						   sem */
+}
+sem_data;
 
-typedef struct {
-  int key;			/* key to shared memory area */
-  int rtusers;			/* number of realtime modules using block */
-  int ulusers;			/* number of user processes using block */
-  unsigned long size;		/* size of shared memory area */
-  char bitmap[(RTAPI_MAX_SHMEMS / 8) + 1];	/* which modules are using block */
-} shmem_data;
+typedef enum
+{
+    UNUSED = 0,
+    HAS_READER = 1,
+    HAS_WRITER = 2,
+    HAS_BOTH = 3
+}
+fifo_state_t;			/* used as bitmasks */
 
+typedef struct
+{
+    fifo_state_t state;		/* task state */
+    int key;			/* key to fifo */
+    int reader;			/* module ID of reader */
+    int writer;			/* module ID of writer */
+    unsigned long int size;	/* size of fifo area */
+}
+fifo_data;
 
-typedef struct {
-  int users;			/* number of modules using the semaphore */
-  int key;			/* key to semaphore */
-  char bitmap[(RTAPI_MAX_SEMS / 8) + 1];	/* which modules are using sem */
-} sem_data;
-
-
-typedef enum {
-  UNUSED = 0,
-  HAS_READER = 1,
-  HAS_WRITER = 2,
-  HAS_BOTH = 3
-} fifo_state_t;			/* used as bitmasks */
-
-typedef struct {
-  fifo_state_t state;		/* task state */
-  int key;			/* key to fifo */
-  int reader;			/* module ID of reader */
-  int writer;			/* module ID of writer */
-  unsigned long int size;	/* size of fifo area */
-} fifo_data;
-
-typedef struct {
-  int irq_num;			/* IRQ number */
-  int owner;			/* owning module */
-  void (*handler) (void);	/* interrupt handler function */
-} irq_data;
-
+typedef struct
+{
+    int irq_num;		/* IRQ number */
+    int owner;			/* owning module */
+    void (*handler) (void);	/* interrupt handler function */
+}
+irq_data;
 
 /* Master RTAPI data structure
    There is a single instance of this structure in the machine.
@@ -149,26 +163,29 @@ typedef struct {
    the associated resources (tasks, etc.).
 */
 
-typedef struct {
-  int magic;			/* magic number to validate data */
-  int rev_code;			/* revision code for matching */
-  int mutex;			/* mutex against simultaneous access */
-  int rt_module_count;		/* loaded RT modules */
-  int ul_module_count;		/* running UL processes */
-  int task_count;		/* task IDs in use */
-  int shmem_count;		/* shared memory blocks in use */
-  int sem_count;		/* semaphores in use */
-  int fifo_count;		/* fifos in use */
-  int irq_count;		/* interrupts hooked */
-  int timer_running;		/* state of HW timer */
-  long int timer_period;	/* HW timer period */
-  module_data module_array[RTAPI_MAX_MODULES + 1];	/* data for modules */
-  task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
-  shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared memory */
-  sem_data sem_array[RTAPI_MAX_SEMS + 1];	/* data for semaphores */
-  fifo_data fifo_array[RTAPI_MAX_FIFOS + 1];	/* data for fifos */
-  irq_data irq_array[RTAPI_MAX_IRQS + 1];	/* data for hooked irqs */
-} rtapi_data_t;
+typedef struct
+{
+    int magic;			/* magic number to validate data */
+    int rev_code;		/* revision code for matching */
+    int mutex;			/* mutex against simultaneous access */
+    int rt_module_count;	/* loaded RT modules */
+    int ul_module_count;	/* running UL processes */
+    int task_count;		/* task IDs in use */
+    int shmem_count;		/* shared memory blocks in use */
+    int sem_count;		/* semaphores in use */
+    int fifo_count;		/* fifos in use */
+    int irq_count;		/* interrupts hooked */
+    int timer_running;		/* state of HW timer */
+    long int timer_period;	/* HW timer period */
+    module_data module_array[RTAPI_MAX_MODULES + 1];	/* data for modules */
+    task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
+    shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
+							   memory */
+    sem_data sem_array[RTAPI_MAX_SEMS + 1];	/* data for semaphores */
+    fifo_data fifo_array[RTAPI_MAX_FIFOS + 1];	/* data for fifos */
+    irq_data irq_array[RTAPI_MAX_IRQS + 1];	/* data for hooked irqs */
+}
+rtapi_data_t;
 
 #define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */
 #define RTAPI_MAGIC 0x12601409	/* magic number used to verify shmem */
@@ -203,12 +220,12 @@ irq_data *irq_array = NULL;
 
 void rtapi_mutex_give(int *mutex)
 {
-  test_and_clear_bit(0, mutex);
+    test_and_clear_bit(0, mutex);
 }
 
 int rtapi_mutex_try(int *mutex)
 {
-  return test_and_set_bit(0, mutex);
+    return test_and_set_bit(0, mutex);
 }
 
 #ifdef RTAPI
@@ -217,10 +234,10 @@ int rtapi_mutex_try(int *mutex)
 
 void rtapi_mutex_get(int *mutex)
 {
-  while (test_and_set_bit(0, mutex)) {
-    /* somebody else has the mutex, yield the CPU and try again later */
-    schedule();
-  }
+    while (test_and_set_bit(0, mutex)) {
+	/* somebody else has the mutex, yield the CPU and try again later */
+	schedule();
+    }
 }
 
 #else /* ULAPI */
@@ -229,10 +246,10 @@ void rtapi_mutex_get(int *mutex)
 
 void rtapi_mutex_get(int *mutex)
 {
-  while (test_and_set_bit(0, mutex)) {
-    /* somebody else has the mutex, yield the CPU and try again later */
-    sched_yield();
-  }
+    while (test_and_set_bit(0, mutex)) {
+	/* somebody else has the mutex, yield the CPU and try again later */
+	sched_yield();
+    }
 }
 
 #endif /* ULAPI */
@@ -242,104 +259,104 @@ void rtapi_mutex_get(int *mutex)
 */
 static void setup_revision_info(void)
 {
-  char *cp;
+    char *cp;
 
-  /* point to start of revision number (skip text) */
-  rev_str = &(rev[11]);
-  /* find end of number */
-  cp = rev_str;
-  while (*cp != ' ') {
-    cp++;
-  }
-  *cp = '\0';
-  /* calculate revision code from revision number - a crude hash function */
-  cp = rev_str;
-  rev_code = 0;
-  while (*cp != 0) {
-    if ((*cp >= '0') && (*cp <= '9')) {
-      /* it's a digit, use the low 4 bits */
-      rev_code <<= 4;
-      rev_code |= *cp & 0x0f;
-    } else {
-      /* it must be a period, just add one bit */
-      rev_code <<= 1;
+    /* point to start of revision number (skip text) */
+    rev_str = &(rev[11]);
+    /* find end of number */
+    cp = rev_str;
+    while (*cp != ' ') {
+	cp++;
     }
-    /* wrap five high order bits, so they aren't lost on next shift */
-    rev_code ^= rev_code >> 27;
-    cp++;
-  }
-  /* done */
+    *cp = '\0';
+    /* calculate revision code from revision number - a crude hash function */
+    cp = rev_str;
+    rev_code = 0;
+    while (*cp != 0) {
+	if ((*cp >= '0') && (*cp <= '9')) {
+	    /* it's a digit, use the low 4 bits */
+	    rev_code <<= 4;
+	    rev_code |= *cp & 0x0f;
+	} else {
+	    /* it must be a period, just add one bit */
+	    rev_code <<= 1;
+	}
+	/* wrap five high order bits, so they aren't lost on next shift */
+	rev_code ^= rev_code >> 27;
+	cp++;
+    }
+    /* done */
 }
 
 /* global init code */
 
 static void init_rtapi_data(rtapi_data_t * data)
 {
-  int n, m;
+    int n, m;
 
-  /* has the block already been initialized? */
-  if (data->magic == RTAPI_MAGIC) {
-    /* yes, nothing to do */
+    /* has the block already been initialized? */
+    if (data->magic == RTAPI_MAGIC) {
+	/* yes, nothing to do */
+	return;
+    }
+    /* no, we need to init it, grab mutex unconditionally */
+    rtapi_mutex_try(&(data->mutex));
+    /* set magic number so nobody else init's the block */
+    data->magic = RTAPI_MAGIC;
+    /* set version code so other modules can check it */
+    data->rev_code = rev_code;
+    /* and get busy */
+    data->rt_module_count = 0;
+    data->ul_module_count = 0;
+    data->task_count = 0;
+    data->shmem_count = 0;
+    data->sem_count = 0;
+    data->fifo_count = 0;
+    data->irq_count = 0;
+    data->timer_running = 0;
+    data->timer_period = 0;
+    /* init the arrays */
+    for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
+	data->module_array[n].state = EMPTY;
+	data->module_array[n].name[0] = '\0';
+    }
+    for (n = 0; n <= RTAPI_MAX_TASKS; n++) {
+	data->task_array[n].state = EMPTY;
+	data->task_array[n].prio = 0;
+	data->task_array[n].owner = 0;
+	data->task_array[n].taskcode = NULL;
+    }
+    for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
+	data->shmem_array[n].key = 0;
+	data->shmem_array[n].rtusers = 0;
+	data->shmem_array[n].ulusers = 0;
+	data->shmem_array[n].size = 0;
+	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
+	    data->shmem_array[n].bitmap[m] = 0;
+	}
+    }
+    for (n = 0; n <= RTAPI_MAX_SEMS; n++) {
+	data->sem_array[n].users = 0;
+	data->sem_array[n].key = 0;
+	for (m = 0; m < (RTAPI_MAX_SEMS / 8) + 1; m++) {
+	    data->sem_array[n].bitmap[m] = 0;
+	}
+    }
+    for (n = 0; n <= RTAPI_MAX_FIFOS; n++) {
+	data->fifo_array[n].state = UNUSED;
+	data->fifo_array[n].key = 0;
+	data->fifo_array[n].size = 0;
+	data->fifo_array[n].reader = 0;
+	data->fifo_array[n].writer = 0;
+    }
+    for (n = 0; n <= RTAPI_MAX_IRQS; n++) {
+	data->irq_array[n].irq_num = 0;
+	data->irq_array[n].owner = 0;
+	data->irq_array[n].handler = NULL;
+    }
+    /* done, release the mutex */
+    rtapi_mutex_give(&(data->mutex));
     return;
-  }
-  /* no, we need to init it, grab mutex unconditionally */
-  rtapi_mutex_try(&(data->mutex));
-  /* set magic number so nobody else init's the block */
-  data->magic = RTAPI_MAGIC;
-  /* set version code so other modules can check it */
-  data->rev_code = rev_code;
-  /* and get busy */
-  data->rt_module_count = 0;
-  data->ul_module_count = 0;
-  data->task_count = 0;
-  data->shmem_count = 0;
-  data->sem_count = 0;
-  data->fifo_count = 0;
-  data->irq_count = 0;
-  data->timer_running = 0;
-  data->timer_period = 0;
-  /* init the arrays */
-  for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
-    data->module_array[n].state = EMPTY;
-    data->module_array[n].name[0] = '\0';
-  }
-  for (n = 0; n <= RTAPI_MAX_TASKS; n++) {
-    data->task_array[n].state = EMPTY;
-    data->task_array[n].prio = 0;
-    data->task_array[n].owner = 0;
-    data->task_array[n].taskcode = NULL;
-  }
-  for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
-    data->shmem_array[n].key = 0;
-    data->shmem_array[n].rtusers = 0;
-    data->shmem_array[n].ulusers = 0;
-    data->shmem_array[n].size = 0;
-    for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
-      data->shmem_array[n].bitmap[m] = 0;
-    }
-  }
-  for (n = 0; n <= RTAPI_MAX_SEMS; n++) {
-    data->sem_array[n].users = 0;
-    data->sem_array[n].key = 0;
-    for (m = 0; m < (RTAPI_MAX_SEMS / 8) + 1; m++) {
-      data->sem_array[n].bitmap[m] = 0;
-    }
-  }
-  for (n = 0; n <= RTAPI_MAX_FIFOS; n++) {
-    data->fifo_array[n].state = UNUSED;
-    data->fifo_array[n].key = 0;
-    data->fifo_array[n].size = 0;
-    data->fifo_array[n].reader = 0;
-    data->fifo_array[n].writer = 0;
-  }
-  for (n = 0; n <= RTAPI_MAX_IRQS; n++) {
-    data->irq_array[n].irq_num = 0;
-    data->irq_array[n].owner = 0;
-    data->irq_array[n].handler = NULL;
-  }
-  /* done, release the mutex */
-  rtapi_mutex_give(&(data->mutex));
-  return;
 }
 
-#endif /*  RTAPI_COMMON_H */
+#endif /* RTAPI_COMMON_H */
