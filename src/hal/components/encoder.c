@@ -64,7 +64,7 @@ MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
 static int num_chan = 3;	/* number of channels - default = 3 */
 MODULE_PARM(num_chan, "i");
-MODULE_PARM_DESC(cfg, "number of channels");
+MODULE_PARM_DESC(num_chan, "number of channels");
 static long period = 0;		/* thread period - default = no thread */
 MODULE_PARM(period, "l");
 MODULE_PARM_DESC(period, "thread period (nsecs)");
