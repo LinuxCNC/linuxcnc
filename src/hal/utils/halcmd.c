@@ -44,6 +44,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
@@ -56,16 +60,16 @@
 /* These functions are used internally by this file.  The code is at
    the end of the file.  */
 
-#define MAX_TOK 6
-#define MAX_CMD_LEN 255
+#define MAX_TOK 20
+#define MAX_CMD_LEN 1024
 
-static int parse_cmd(char *cmd);
-static void stripnewline(char *s);
+static int parse_cmd(char *tokens[]);
 static int do_link_cmd(char *pin, char *sig);
 static int do_newsig_cmd(char *name, char *type);
 static int do_setp_cmd(char *name, char *value);
 static int do_sets_cmd(char *name, char *value);
 static int do_show_cmd(char *type);
+static int do_loadrt_cmd(char *mod_name, char *args[]);
 static void print_comp_list(void);
 static void print_pin_list(void);
 static void print_sig_list(void);
@@ -91,10 +95,16 @@ static void print_help(void);
 
 int main(int argc, char **argv)
 {
-    int n, comp_id;
-    char *cp1, *cp2, *filename = NULL;
+    int n, m, comp_id, fd;
+    enum { BETWEEN_TOKENS,
+           IN_TOKEN,
+	   SINGLE_QUOTE,
+	   DOUBLE_QUOTE,
+	   END_OF_LINE } state;
+    char *cp1, *filename = NULL;
     FILE *infile = NULL;
-    char cmd_buf[MAX_CMD_LEN + 1];
+    char cmd_buf[MAX_CMD_LEN+1];
+    char *tokens[MAX_TOK+1];
 
     if (argc < 2) {
 	/* no args specified, print help */
@@ -145,6 +155,9 @@ int main(int argc, char **argv)
 				filename);
 			    exit(-1);
 			}
+			/* make sure file is closed on exec() */
+			fd = fileno(infile);
+			fcntl(fd, F_SETFD, FD_CLOEXEC);
 		    } else {
 			/* no filename followed -f option, use stdin */
 			infile = stdin;
@@ -165,23 +178,112 @@ int main(int argc, char **argv)
     }
     /* HAL init is OK, let's process the command(s) */
     if (infile == NULL) {
-	/* generate a command string from the remaining command line args */
-	cp2 = cmd_buf;
-	while (n < argc) {
-	    /* add another arg to end of string */
-	    cp1 = argv[n++];
-	    while (((cp2 - cmd_buf) < MAX_CMD_LEN) && (*cp1 != '\0')) {
-		*(cp2++) = *(cp1++);
-	    }
-	    *(cp2++) = ' ';
+	/* the remaining command line args are parts of the command */
+	m = 0;
+	while ((n < argc) && (n < MAX_TOK)) {
+	    tokens[m++] = argv[n++];
 	}
-	*cp2 = '\0';
-	/* and process it */
-	parse_cmd(cmd_buf);
+	/* and the remaining space in the tokens array is empty */
+	while (m < MAX_TOK) {
+	    tokens[m++] = "";
+	}
+	/* tokens[] contains MAX_TOK+1 elements so there is always
+	   at least one empty one at the end... make it empty now */
+	tokens[MAX_TOK] = "";
+	/* process the command */
+	parse_cmd(tokens);
     } else {
-	/* read command(s) from 'infile' */
+	/* read command line(s) from 'infile' */
 	while (fgets(cmd_buf, MAX_CMD_LEN, infile) != NULL) {
-	    parse_cmd(cmd_buf);
+	    /* convert a line of text into individual tokens */
+	    m = 0;
+	    cp1 = cmd_buf;
+	    state = BETWEEN_TOKENS;
+	    while ( m < MAX_TOK ) {
+		switch ( state ) {
+		case BETWEEN_TOKENS:
+		    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+			/* end of the line */
+			state = END_OF_LINE;
+		    } else if ( isspace(*cp1) ) {
+			/* whitespace, skip it */
+			cp1++;
+		    } else {
+			/* first char of a token */
+			tokens[m] = cp1++;
+			state = IN_TOKEN;
+		    }
+		    break;
+		case IN_TOKEN:
+		    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+			/* end of the line, terminate current token */
+			*cp1++ = '\0';
+			m++;
+			state = END_OF_LINE;
+		    } else if ( *cp1 == '\'' ) {
+			/* start of a quoted string */
+			cp1++;
+			state = SINGLE_QUOTE;
+		    } else if ( *cp1 == '\"' ) {
+			/* start of a quoted string */
+			cp1++;
+			state = DOUBLE_QUOTE;
+		    } else if ( isspace(*cp1) ) {
+			/* end of the current token */
+			*cp1++ = '\0';
+			m++;
+			state = BETWEEN_TOKENS;
+		    } else {
+			/* ordinary character */
+			cp1++;
+		    }
+		    break;
+		case SINGLE_QUOTE:
+		    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+			/* end of the line, terminate current token */
+			*cp1++ = '\0';
+			m++;
+			state = END_OF_LINE;
+		    } else if ( *cp1 == '\'' ) {
+			/* end of quoted string */
+			cp1++;
+			state = IN_TOKEN;
+		    } else {
+			/* ordinary character */
+			cp1++;
+		    }
+		    break;
+		case DOUBLE_QUOTE:
+		    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+			/* end of the line, terminate current token */
+			*cp1++ = '\0';
+			m++;
+			state = END_OF_LINE;
+		    } else if ( *cp1 == '\"' ) {
+			/* end of quoted string */
+			cp1++;
+			state = IN_TOKEN;
+		    } else {
+			/* ordinary character, copy to buffer */
+			cp1++;
+		    }
+		    break;
+		case END_OF_LINE:
+		    *cp1 = '\0';
+		    tokens[m++] = cp1;
+		    break;
+		default:
+		    /* should never get here */
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+			"Bad state in token parser\n");
+		    return -1;
+		}
+	    }
+	    /* tokens[] contains MAX_TOK+1 elements so there is always
+	       at least one empty one at the end... make it empty now */
+	    tokens[MAX_TOK] = "";
+	    /* process command */
+	    parse_cmd(tokens);
 	}
     }
     /* all done */
@@ -193,31 +295,18 @@ int main(int argc, char **argv)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int parse_cmd(char *cmd)
+static int parse_cmd(char *tokens[])
 {
-    char *cp;
-    char *tokens[MAX_TOK];
-    int n, retval;
+    int retval;
 
-    /* if there is a newline at end get rid of it */
-    stripnewline(cmd);
-    /* convert a line of text into individual tokens */
-    cp = cmd;
-    for (n = 0; n < MAX_TOK; n++) {
-	/* strip leading whitespace */
-	while ((*cp != '\0') && (isspace(*cp)))
-	    cp++;
-	/* mark beginning of token */
-	tokens[n] = cp;
-	/* find end of token */
-	while ((*cp != '\0') && (!isspace(*cp)))
-	    cp++;
-	/* mark end of this token, prepare to search for next one */
-	if (*cp != '\0') {
-	    *cp = '\0';
-	    cp++;
-	}
+#if 0
+    int n;
+    /* for testing: prints tokens that make up the command */
+    for ( n = 0 ; n < MAX_TOK ; n++ ) {
+	printf ( "%02d:{%s}\n", n, tokens[n] );
     }
+#endif
+
     /* tokens[0] is the command */
     if ((tokens[0][0] == '#') || (tokens[0][0] == '\0')) {
 	/* comment or blank line, do nothing */
@@ -257,6 +346,8 @@ static int parse_cmd(char *cmd)
 	retval = do_sets_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "show") == 0) {
 	retval = do_show_cmd(tokens[1]);
+    } else if (strcmp(tokens[0], "loadrt") == 0) {
+	retval = do_loadrt_cmd(tokens[1], &tokens[2]);
     } else if (strcmp(tokens[0], "save") == 0) {
 	retval = do_save_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "addf") == 0) {
@@ -299,16 +390,6 @@ static int parse_cmd(char *cmd)
 	retval = -1;
     }
     return retval;
-}
-
-static void stripnewline(char *s)
-{
-    while (*s != '\0') {
-	if (*s == '\n') {
-	    *s = '\0';
-	}
-	s++;
-    }
 }
 
 static int do_link_cmd(char *pin, char *sig)
@@ -673,6 +754,187 @@ static int do_show_cmd(char *type)
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'show' type '%s'\n", type);
 	return -1;
     }
+    return 0;
+}
+
+static int do_loadrt_cmd(char *mod_name, char *args[])
+{
+    static char *insmod_path = NULL;
+    static char *rtmod_dir = NULL;
+    struct stat stat_buf;
+    char path_buf[MAX_CMD_LEN];
+    char *cp1, *cp2;
+    char *argv[MAX_TOK+1];
+    int n, m, retval, status;
+    pid_t pid;
+
+    /* are we running as root? */
+    if ( getuid() != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Must be root to load realtime modules\n");
+	return -1;
+    }
+    /* check for insmod */
+    if ( insmod_path == NULL ) {
+	/* need to find insmod */
+	if ( stat("/sbin/insmod", &stat_buf) == 0 ) {
+	    insmod_path = "/sbin/insmod";
+	}
+    }
+    if ( insmod_path == NULL ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Cannot locate 'insmod' command\n");
+	return -1;
+    }
+    /* check environment for path to realtime HAL modules */
+    if ( rtmod_dir == NULL ) {
+	rtmod_dir = getenv ( "HAL_RTMOD_DIR" );
+    }
+    /* FIXME - the following is an attempt to locate the directory
+       where the HAL modules are stored.  It depends on the emc2
+       directory tree being laid out per 'emc2/directory.map'.
+       There is probably a better way of doing this... it will
+       certainly need changed once we have a 'make install' that
+       puts modules somewhere else. */
+    if ( rtmod_dir == NULL ) {
+	/* no env variable, try to locate the directory based on
+	   where this executable lives (should be in the emc2 tree) */
+	n = readlink("/proc/self/exe", path_buf, MAX_CMD_LEN-10);
+	if ( n > 0 ) {
+	    path_buf[n] = '\0';
+	    /* have path to executabie, find last instance of 'emc2' */
+	    cp2 = "";
+	    cp1 = path_buf;
+	    while ( (cp1 = strstr ( cp1, "/emc2" )) != NULL ) {
+		cp2 = cp1++;
+	    }
+	    /* is the current dir a subdir of emc2? */
+	    if ( cp2[5] == '/' ) {
+		/* yes, chop subdirectories */
+		cp2[5] = '\0';
+	    }
+	    /* is it something like '/emc22'? */
+	    if ( strcmp ( cp2, "/emc2" ) == 0 ) {
+		/* nope, maybe we found the right place... */
+		strcat ( path_buf, "/rtlib" );
+		rtmod_dir = path_buf;
+	    }
+	}
+    }
+    /* FIXME - the following code works if you are anywhere in
+       the standard emc2 directory tree, but it is a kludge
+       that depends on the structure of the tree, and fails
+       completely if you run it from elsewhere */
+    /* update - the above code using /proc/self/exe was added
+       later, and works from anywhere, as long as the halcmd
+       executable is in the emc2 tree.  So the following would
+       only be used on machines without a /proc filesystem */
+    if ( rtmod_dir == NULL ) {
+	/*still can't find directory, try to locate it based
+	   on the current working dir */
+        if ( getcwd(path_buf, MAX_CMD_LEN-10) != NULL ) {
+	    /* got current path, find last instance of 'emc2' */
+	    cp2 = "";
+	    cp1 = path_buf;
+	    while ( (cp1 = strstr ( cp1, "/emc2" )) != NULL ) {
+		cp2 = cp1++;
+	    }
+	    /* is the current dir a subdir of emc2? */
+	    if ( cp2[5] == '/' ) {
+		/* yes, chop subdirectories */
+		cp2[5] = '\0';
+	    }
+	    /* is it something like '/emc22'? */
+	    if ( strcmp ( cp2, "/emc2" ) == 0 ) {
+		/* nope, maybe we found the right place... */
+		strcat ( path_buf, "/rtlib" );
+		rtmod_dir = path_buf;
+	    }
+	}
+    }
+    if ( rtmod_dir == NULL ) {
+	/* still don't know where the modules are */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Cannot locate realtime modules directory\n");
+	return -1;
+    }
+    if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Module path too long\n");
+	return -1;
+    }
+    /* make full module name '<path>/<name>.o' */
+    strcpy (path_buf, rtmod_dir);
+    strcat (path_buf, "/");
+    strcat (path_buf, mod_name);
+    strcat (path_buf, ".o");
+    /* is there a file with that name? */
+    if ( stat(path_buf, &stat_buf) != 0 ) {
+	/* nope, try .ko (for kernel 2.6 */
+	cp2 = strrchr(path_buf, '.' );
+	strcpy(cp2, ".ko" );
+	if ( stat(path_buf, &stat_buf) != 0 ) {
+	    /* can't find it */
+	    *(strrchr(path_buf, '/' )) = '\0';
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: Can't find module '%s' in %s\n", mod_name, path_buf);
+	    return -1;
+	}
+    }
+    /* now we need to fork, and then exec insmod.... */
+    pid = fork();
+    if ( pid < 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: fork() failed\n");
+	return -1;
+    }
+    if ( pid == 0 ) {
+	/* this is the child process - prepare to exec() insmod */
+	argv[0] = insmod_path;
+	argv[1] = path_buf;
+	/* loop thru remaining arguments */
+	n = 0;
+	m = 2;
+	while ( args[n][0] != '\0' ) {
+	    argv[m++] = args[n++];
+	}
+	/* add a NULL to terminate the argv array */
+	argv[m] = NULL;
+	/* print debugging info if "very verbose" (-V) */
+	rtapi_print_msg(RTAPI_MSG_DBG, "%s %s ", argv[0], argv[1] );
+	n = 2;
+	while ( argv[n] != NULL ) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n++] );
+	}
+	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
+	/* call execv() to invoke insmod */
+	execv(insmod_path, argv);
+	/* should never get here */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: waitpid(%d) failed\n", pid );
+	exit(1);
+    }
+    /* this is the parent process, wait for child to end */
+    retval = waitpid ( pid, &status, 0 );
+    if ( retval < 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: waitpid(%d) failed\n", pid );
+	return -1;
+    }
+    if ( WIFEXITED(status) == 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: child did not exit normally\n" );
+	return -1;
+    }
+    retval = WEXITSTATUS(status);
+    if ( retval != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: insmod failed, returned %d\n", retval );
+	return -1;
+    }
+    /* print success message */
+    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime module '%s' loaded\n",
+	mod_name);
     return 0;
 }
 
@@ -1165,6 +1427,9 @@ static void print_help(void)
     printf("If reading commands from a file or stdin, they are one per\n");
     printf("line, and use the same syntax as the command line version.\n\n");
     printf("Commands and their args are as follows:\n\n");
+    printf("  loadrt modname [modarg[s]]\n");
+    printf
+	("         Loads realtime HAL module 'modname', using arguments 'modargs'\n\n" );
     printf("  linkps pinname [arrow] signame\n");
     printf("  linksp signame [arrow] pinname\n");
     printf
