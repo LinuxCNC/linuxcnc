@@ -1204,11 +1204,7 @@ static void compute_backlash(void)
 	    /* within one step of final value, go there now */
 	    joint->backlash_filt = joint->backlash_corr;
 	}
-
-	/* apply backlash (and motor offset) to output */
-	joint->motor_pos_cmd =
-	    joint->pos_cmd + joint->backlash_filt + joint->motor_offset;
-
+	/* backlash (and motor offset) will be applied to output later */
 	/* end of axis loop */
     }
 }
