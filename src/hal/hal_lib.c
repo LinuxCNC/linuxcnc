@@ -300,9 +300,9 @@ int hal_exit(int comp_id)
     /* get rid of the component */
     free_comp_struct(comp);
     /* was that the last component? */
-    if ( hal_data->comp_list_ptr == 0 ) {
-	/* yes, invalidate "magic" number so shmem will
-	   be re-inited when a new component is loaded */
+    if (hal_data->comp_list_ptr == 0) {
+	/* yes, invalidate "magic" number so shmem will be re-inited when a
+	   new component is loaded */
 	hal_data->magic = 0;
     }
     /* release mutex */
@@ -1578,9 +1578,9 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
 
 int rtapi_app_main(void)
 {
-    /* nothing to do, since this is just a library...
-       all we accomplish at insmod time is to make the
-       functions available to modules loaded later. */
+    /* nothing to do, since this is just a library... all we accomplish at
+       insmod time is to make the functions available to modules loaded
+       later. */
     return 0;
 }
 

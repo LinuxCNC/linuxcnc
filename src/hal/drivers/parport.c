@@ -86,11 +86,11 @@
 #error parport needs RTAPI/ULAPI, check makefile and flags
 #endif
 
-#ifdef RTAPI   /* realtime */
+#ifdef RTAPI			/* realtime */
 #include <linux/ctype.h>	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#else   /* user space */
+#else /* user space */
 #include <ctype.h>		/* isspace() */
 #include <signal.h>		/* signal() */
 #include <sched.h>		/* sched_yield() */
@@ -109,12 +109,12 @@
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
-#ifdef RTAPI  /* for ULAPI, sys/io.h defines these functs */
+#ifdef RTAPI			/* for ULAPI, sys/io.h defines these functs */
 #include <asm/io.h>
 #endif
 #endif
 
-#ifdef RTAPI  /* realtime */
+#ifdef RTAPI			/* realtime */
 #ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -177,7 +177,7 @@ static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
 
 #define MAX_PORTS 8
 
-#ifdef RTAPI  /* realtime */
+#ifdef RTAPI			/* realtime */
 
 #define MAX_TOK ((MAX_PORTS*2)+3)
 
@@ -193,8 +193,8 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR, "PARPORT: ERROR: no config string\n");
 	return -1;
     }
-    /* as a RT module, we don't get a nice argc/argv command line, we
-       only get a single string... so we need to tokenize it ourselves */
+    /* as a RT module, we don't get a nice argc/argv command line, we only
+       get a single string... so we need to tokenize it ourselves */
     cp = cfg;
     for (n = 0; n < MAX_TOK; n++) {
 	/* strip leading whitespace */
@@ -213,14 +213,14 @@ int rtapi_app_main(void)
     }
     for (n = 0; n < MAX_TOK; n++) {
 	/* is token empty? */
-	if ( argv[n][0] == '\0') {
+	if (argv[n][0] == '\0') {
 	    /* yes - make pointer NULL */
 	    argv[n] = NULL;
 	}
     }
     /* parse "command line", set up pins and parameters */
-    retval = pins_and_params( argv );
-    if ( retval != 0 ) {
+    retval = pins_and_params(argv);
+    if (retval != 0) {
 	return retval;
     }
     /* export functions for each port */
@@ -275,7 +275,7 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
-#else  /* user space */
+#else /* user space */
 
 static int done = 0;
 static void quit(int sig)
@@ -283,7 +283,7 @@ static void quit(int sig)
     done = 1;
 }
 
-int main ( int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
     char name[HAL_NAME_LEN + 2];
     int n, retval;
@@ -291,33 +291,33 @@ int main ( int argc, char *argv[] )
     hal_s8_t *write_funct_flags;
 
     /* parse command line, set up pins and parameters */
-    retval = pins_and_params( &(argv[1]) );
-    if ( retval != 0 ) {
+    retval = pins_and_params(&(argv[1]));
+    if (retval != 0) {
 	return retval;
     }
     /* ask linux for permission to use the I/O ports */
     retval = iopl(3);
-    if ( retval != 0 ) {
+    if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: could not get I/O permission\n");
 	hal_exit(comp_id);
 	return -1;
     }
     /* allocate space for function run/stop parameters */
-    read_funct_flags = hal_malloc((num_ports+1) * sizeof(hal_s8_t) * 2);
+    read_funct_flags = hal_malloc((num_ports + 1) * sizeof(hal_s8_t) * 2);
     if (read_funct_flags == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
-    write_funct_flags = read_funct_flags + (num_ports+1);
+    write_funct_flags = read_funct_flags + (num_ports + 1);
     /* export function run/stop parameters for each port */
     for (n = 0; n < num_ports; n++) {
 	/* make read function name */
 	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.read", n + 1);
 	/* export read function parameter */
-	retval = hal_param_s8_new(name, &read_funct_flags[n+1], comp_id);
+	retval = hal_param_s8_new(name, &read_funct_flags[n + 1], comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d read funct param failed\n", n + 1);
@@ -327,7 +327,7 @@ int main ( int argc, char *argv[] )
 	/* make write function name */
 	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n + 1);
 	/* export read function parameter */
-	retval = hal_param_s8_new(name, &write_funct_flags[n+1], comp_id);
+	retval = hal_param_s8_new(name, &write_funct_flags[n + 1], comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d write funct param failed\n", n + 1);
@@ -336,14 +336,16 @@ int main ( int argc, char *argv[] )
 	}
     }
     /* export parameters for read/write all port functuons */
-    retval = hal_param_s8_new("parport.read_all", &read_funct_flags[0], comp_id);
+    retval =
+	hal_param_s8_new("parport.read_all", &read_funct_flags[0], comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: read all funct param failed\n", n + 1);
 	hal_exit(comp_id);
 	return -1;
     }
-    retval = hal_param_s8_new("parport.write_all", &write_funct_flags[0], comp_id);
+    retval =
+	hal_param_s8_new("parport.write_all", &write_funct_flags[0], comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: ERROR: write all funct param failed\n", n + 1);
@@ -357,39 +359,39 @@ int main ( int argc, char *argv[] )
     signal(SIGTERM, quit);
     /* main loop */
     while (!done) {
-	if ( read_funct_flags[0] ) {
+	if (read_funct_flags[0]) {
 	    /* run the function */
-	    read_all ( port_data_array, 0 );
+	    read_all(port_data_array, 0);
 	    /* if flag is positive, reset it */
-	    if ( read_funct_flags[0] > 0 ) {
+	    if (read_funct_flags[0] > 0) {
 		read_funct_flags[0] = 0;
 	    }
 	}
-	for ( n = 0 ; n < num_ports ; n++ ) {
-	    if ( read_funct_flags[n+1] ) {
+	for (n = 0; n < num_ports; n++) {
+	    if (read_funct_flags[n + 1]) {
 		/* run the function */
-		read_port ( &(port_data_array[n]), 0 );
+		read_port(&(port_data_array[n]), 0);
 		/* if flag is positive, reset it */
-		if ( read_funct_flags[n+1] > 0 ) {
-		    read_funct_flags[n+1] = 0;
+		if (read_funct_flags[n + 1] > 0) {
+		    read_funct_flags[n + 1] = 0;
 		}
 	    }
 	}
-	if ( write_funct_flags[0] ) {
+	if (write_funct_flags[0]) {
 	    /* run the function */
-	    write_all ( port_data_array, 0 );
+	    write_all(port_data_array, 0);
 	    /* if flag is positive, reset it */
-	    if ( write_funct_flags[0] > 0 ) {
+	    if (write_funct_flags[0] > 0) {
 		write_funct_flags[0] = 0;
 	    }
 	}
-	for ( n = 0 ; n < num_ports ; n++ ) {
-	    if ( write_funct_flags[n+1] ) {
+	for (n = 0; n < num_ports; n++) {
+	    if (write_funct_flags[n + 1]) {
 		/* run the function */
-		write_port ( &(port_data_array[n]), 0 );
+		write_port(&(port_data_array[n]), 0);
 		/* if flag is positive, reset it */
-		if ( write_funct_flags[n+1] > 0 ) {
-		    write_funct_flags[n+1] = 0;
+		if (write_funct_flags[n + 1] > 0) {
+		    write_funct_flags[n + 1] = 0;
 		}
 	    }
 	}
@@ -513,7 +515,6 @@ void write_all(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-
 static int pins_and_params(char *argv[])
 {
     unsigned short port_addr[MAX_PORTS];
@@ -536,10 +537,10 @@ static int pins_and_params(char *argv[])
 	    return -1;
 	}
 	n++;
-	if ( argv[n] != 0 ) {
+	if (argv[n] != 0) {
 	    /* is the next token 'in' or 'out' ? */
 	    if ((argv[n][0] == 'i') || (argv[n][0] == 'I')) {
-		/* we aren't picky, anything starting with 'i' means 'in' ;-)
+		/* we aren't picky, anything starting with 'i' means 'in' ;-) 
 		 */
 		data_dir[num_ports] = 1;
 		n++;
@@ -587,7 +588,6 @@ static int pins_and_params(char *argv[])
     }
     return 0;
 }
-
 
 static unsigned short parse_port_addr(char *cp)
 {
