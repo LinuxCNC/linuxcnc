@@ -1553,7 +1553,7 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
 	if (test -d $TEMP) ; then
 	    RTDIR=$(cd $TEMP ; pwd -P )
 	else
-	    RTDIR=${RTS%%/bin/realtime-config}
+	    RTDIR=${RTS%%/scripts/realtime-config}
 	fi
         RTFLAGS=`$RTS --cflags-fp | head -n 1`
 	RTFLAGS="$RTFLAGS -DRTAI=1"
