@@ -362,7 +362,7 @@ void *avltree_first(avltree *tree)
     while ( nptr->lptr != NULL ) {
 	nptr = nptr->lptr;
     }
-    return ( nptr );
+    return ( nptr->data );
 }
 
 void *avltree_last(avltree *tree)
@@ -382,7 +382,7 @@ void *avltree_last(avltree *tree)
     while ( nptr->rptr != NULL ) {
 	nptr = nptr->rptr;
     }
-    return ( nptr );
+    return ( nptr->data );
 }
 
 void *avltree_next(avltree *tree, void *data)
@@ -634,8 +634,6 @@ static void balance_node ( avltree_node **rootptr )
 /* Testing Code  */
 /*****************/
 
-#define BUILD_TEST
-
 #ifndef __KERNEL__
 #ifdef BUILD_TEST
 
@@ -677,14 +675,28 @@ void print_node ( avltree_node *node, int indent )
 
 void print_tree ( avltree *tree )
 {
-    printf ( "==========================\n" );
+    printf ( "==================================\n" );
     if ( tree->root != NULL ) {
 	print_node ( tree->root, 2 );
     } else {
 	printf ( "empty tree\n" );
     }
-    printf ( "==========================\n" );
+    printf ( "==================================\n" );
 }
+
+/* test program... accepts input from stdin
+   commands:
+     +string     adds string to tree
+     -string     deletes string from tree
+     s           shows tree structure
+     f           prints first node
+     l           prints last node
+     nstring     prints next(string)
+     pstring     prints prev(string)
+     >           uses first()/next() to print tree
+     <           uses last()/prev() to print tree
+     q           quits
+*/
 
 int main ( int argc, char *argv[] )
 {
@@ -697,8 +709,6 @@ int main ( int argc, char *argv[] )
 	printf ( "Failed to create tree\n" );
 	return 1;
     }
-    print_tree ( tree );
-
     buf = malloc(80);
     while ( 1 ) {
         rv = fgets( buf, 75, stdin );
@@ -709,30 +719,79 @@ int main ( int argc, char *argv[] )
 	if ( rv != NULL ) {
 	    *rv = '\0';
 	}
-//	if ( *buf == '\0' ) {
-//	    break;
-//	}
-	if ( buf[0] != '-' ) {
-	    rv = avltree_insert ( tree, buf );
-	    if ( rv == buf ) {
-		printf ( "Inserted %s\n", rv );
+	if ( buf[0] == '+' ) {
+	    printf ( "avltree_insert('%s') ", buf+1);
+	    rv = avltree_insert ( tree, buf+1 );
+	    if ( rv == buf+1 ) {
+		printf ( "succeeded\n" );
 	    } else if ( rv == NULL ) {
-		printf ( "No RAM\n" );
+		printf ( "failed, no RAM\n" );
 	    } else {
-		printf ( "Duplicate entry\n" );
+		printf ( "failed, duplicate entry\n" );
 	    }
-	} else {
+	} else if ( buf[0] == '-' ) {
+	    printf ( "avltree_delete('%s') ", buf+1);
 	    rv = avltree_delete ( tree, buf+1 );
 	    if ( rv == NULL ) {
-		printf ( "No match found\n" );
+		printf ( "failed, no match found\n" );
 	    } else {
-		printf ( "Deleted %s\n", rv );
+		printf ( "succeeded, deleted '%s'\n", rv );
 	    }
+	} else if ( buf[0] == 'f' ) {
+	    printf ( "avltree_first() ");
+	    rv = avltree_first ( tree );
+	    if ( rv == NULL ) {
+		printf ( "returned NULL\n" );
+	    } else {
+		printf ( "returned '%s'\n", rv );
+	    }
+	} else if ( buf[0] == 'l' ) {
+	    printf ( "avltree_last() ");
+	    rv = avltree_last ( tree );
+	    if ( rv == NULL ) {
+		printf ( "returned NULL\n" );
+	    } else {
+		printf ( "returned '%s'\n", rv );
+	    }
+	} else if ( buf[0] == 'n' ) {
+	    printf ( "avltree_next('%s') ", buf+1 );
+	    rv = avltree_next ( tree, buf+1 );
+	    if ( rv == NULL ) {
+		printf ( "returned NULL\n" );
+	    } else {
+		printf ( "returned '%s'\n", rv );
+	    }
+	} else if ( buf[0] == 'p' ) {
+	    printf ( "avltree_prev('%s') ", buf+1 );
+	    rv = avltree_prev ( tree, buf+1 );
+	    if ( rv == NULL ) {
+		printf ( "returned NULL\n" );
+	    } else {
+		printf ( "returned '%s'\n", rv );
+	    }
+	} else if ( buf[0] == '>' ) {
+	    printf ( "tree in ascending order:\n" );
+	    rv = avltree_first ( tree );
+	    while ( rv != NULL ) {
+		printf ( "'%s'\n", rv );
+		rv = avltree_next ( tree, rv );
+	    }
+	    printf ( "end of tree\n" );
+	} else if ( buf[0] == '<' ) {
+	    printf ( "tree in descending order:\n" );
+	    rv = avltree_last ( tree );
+	    while ( rv != NULL ) {
+		printf ( "'%s'\n", rv );
+		rv = avltree_prev ( tree, rv );
+	    }
+	    printf ( "end of tree\n" );
+	} else if ( buf[0] == 's' ) {
+	    print_tree ( tree );
+	} else if ( buf[0] == 'q' ) {
+	    break;
 	}
-	print_tree ( tree );
 	buf = malloc(80);
     }
-    print_tree ( tree );
     avltree_destroy ( tree );
     return 0;
 }
