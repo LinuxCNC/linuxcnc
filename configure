@@ -136,10 +136,10 @@ fi
 if [ "$RTAI_DIR" != "" ] ; then
     if [ "$RTDIR" = "" ] ; then
 	echo "RTDIR set to $RTAI_DIR (Kilauea) by search"
+	RTAI_VER=3
     fi
     RTDIR=$RTAI_DIR
-    RTAI_VER=$($RTDIR/bin/rtai-config --version)
-    if [ $RTAI_VER = 3.0 ] ; then
+    if [ -f $RTDIR/bin/rtai-config ] ; then
 	RTAI_VER=3
     fi
 fi
@@ -152,9 +152,8 @@ if [ "$RTDIR" = "" ] ; then
         # Else check the /usr/src dir..
         RTS=$(find /usr/src/ -maxdepth 2 -name "rtl.mk" -o -name ".buildvars" 2> /dev/null)
         if [ "$RTS" = "" ] ; then
-	    echo "No realtime component installed"
-#	    usage
-#	    exit 1
+	    usage
+	    exit 1
         fi
     fi
     # Found something, so check for rtl.mk
@@ -186,8 +185,8 @@ if [ ! -f $RTDIR/rtl.mk ] && \
     [ ! -f $RTDIR/.buildvars ] ; then
 	# no rtai or rtlinux signatures found, then exit..
     echo "No RTAI or RTLinux signatures found in $RTDIR"
-#    usage
-#    exit -1
+    usage
+    exit -1
 fi
 
 # try to find out where man files are stored on this system.
@@ -242,14 +241,11 @@ fi
 # Note: Need to add a CLI option to pass the diet dir if it has been built
 # from source, or the distro doesn't install in /usr/lib.
 #
-if [ -r $RTDIR/modules/rtai_libm.o ] || [ -r $RTDIR/modules/rtai_math.o ] || [ -r $RTDIR/modules/rtai_math.ko ]; then
+if [ -r $RTDIR/modules/rtai_libm.o ] || [ -r $RTDIR/modules/rtai_math.o ]; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
     echo "Using RTAI's libm kernel module"
-    if [ -r $RTDIR/modules/rtai_math.ko ]; then
-      echo -e "\033[31m\033[5m Warning - You are compiling against a 2.6 series kernel.\033[0m"
-    fi
 # Note: need to search /lib/modules/`uname -r` for the math modules..
 else
     echo "Testing for a suitable libm... Some symbols may be printed."
@@ -304,7 +300,7 @@ echo >> Makefile.inc
 echo "# Directories" >> Makefile.inc
 echo "# -----------" >> Makefile.inc
 echo >> Makefile.inc
-echo "EMC2_HOME = $(cd ../ ; pwd)" >> Makefile.inc
+echo "EMC2_HOME = $(pwd)" >> Makefile.inc
 echo "BIN_DIR = \$(EMC2_HOME)/bin" >> Makefile.inc
 echo "LIB_DIR = \$(EMC2_HOME)/lib" >> Makefile.inc
 echo "RTLIB_DIR = \$(EMC2_HOME)/rtlib" >> Makefile.inc
@@ -453,8 +449,8 @@ echo "RANLIBFLAGS = " >> Makefile.inc
 echo >> Makefile.inc
 
 for i in bin include lib rtlib ; do
- if [ ! -d ../$i ] ; then
-   mkdir ../$i
+ if [ ! -d $i ] ; then
+   mkdir $i
  fi
 done
 
