@@ -262,6 +262,43 @@ fi
 
 AC_SUBST(AUTODIRS)
 
+
+# Check CC version - (P.C.) We need to verify the compiler is the same one used
+# for the realtime extensions... Hence the need to find the RT signature first.
+# $RTS --cc should return the C compiler used - Verify this is acceptable.
+# if version is gcc-2.96 check for alternative
+AC_MSG_CHECKING([for cc version])
+
+# The compiler MUST match the one used to compile the realtime modules.
+# However realtime-config doesn't seem to have such an option
+
+if (test ${RTS##*/} = rtai-config ) ; then
+  RTSCC=`$RTS --cc`
+  AC_MSG_RESULT(found $RTSCC in rtai-config)
+  #AC_PROG_CC(`$RTS --cc`)
+elif (test ${RTS##*/} = rtl-config ) ; then
+  RTSCC=`$RTS --cc`
+  AC_MSG_RESULT(found $RTSCC in rtl-config)
+  #AC_PROG_CC(`$RTS --cc`)
+fi
+
+# seems there's a problem with autoconf if there are multiple
+# AC_PROG_CC's in this file
+# modified to test only once
+AC_PROG_CC([$RTSCC gcc egcs])
+
+if test -z "$CC"; then
+  AC_MSG_ERROR([no acceptable cc found])
+else
+  if test "$CC" = "gcc"; then
+    if test `$CC -dumpversion` = "2.96"; then
+      AC_MSG_ERROR([gcc version 2.96 found, but not supported. 
+		If there is another compiler available, set the envar CC.])
+    fi
+  fi
+fi
+
+
 #--------------------------------------------------------------------
 # Check with the version.h to find the uts-kernel version.
 # This should be a more reliable way of determining the kernel that
@@ -270,7 +307,6 @@ AC_SUBST(AUTODIRS)
 # compiled against.
 #--------------------------------------------------------------------
 AC_MSG_CHECKING([for kernel version])
-
 
 AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
 # Use " as the delimiter so that we don't confuse make during the compile.
@@ -283,31 +319,6 @@ AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.
 # a virgin source from kernel.org.
 
 # Get the kernel version from version.h
-
-# FIXME FIXME FIXME FIXME
-#
-# determining the kernel version is a bit problematic;
-# we need PROG_CC (gcc) to find the kernel version due to the #defines
-# found in some copies of version.h, but unfortunatley, we don't have
-# The PROG_CC at this point.
-#
-# We also apparently want to be sure that the version of gcc is the
-# same one that was used to compile RTAI, and so we need this KERNELDIR
-# information to find gcc, so we have a circular dependency.
-#
-# We don't really care which version of GCC we have here, though,
-# so maybe we should find any old gcc here and reset it later?
-# FIXME
-
-
-# Do a quick search for any old gcc...
-if test -z "$CC"; then
-    AC_PROG_CC(gcc)
-    if test -z "$CC"; then
-	AC_PROG_CC(egcs)
-	test -z "$CC" && AC_MSG_ERROR([no acceptable cc found])
-    fi
-fi
 
 AC_MSG_CHECKING([for kernel version string])
 
@@ -354,35 +365,6 @@ fi
 AC_SUBST([MODULE_DIR])
 AC_MSG_RESULT([$MODULE_DIR])
 
-
-# Check CC version - (P.C.) We need to verify the compiler is the same one used
-# for the realtime extensions... Hence the need to find the RT signature first.
-# $RTS --cc should return the C compiler used - Verify this is acceptable.
-# if version is gcc-2.96 check for alternative
-AC_MSG_CHECKING(for cc version)
-
-# The compiler MUST match the one used to compile the realtime modules.
-# However realtime-config doesn't seem to have such an option
-
-if (test ${RTS##*/} = rtai-config ) ; then
-  RTSCC=`$RTS --cc`
-  AC_MSG_RESULT(found $RTSCC in rtai-config)
-  AC_PROG_CC(`$RTS --cc`)
-elif (test ${RTS##*/} = rtl-config ) ; then
-  RTSCC=`$RTS --cc`
-  AC_MSG_RESULT(found $RTSCC in rtl-config)
-  AC_PROG_CC(`$RTS --cc`)
-else
-  AC_PROG_CC(gcc)
-fi
-if test -z "$CC"; then
-  AC_PROG_CC(egcs)
-  test -z "$CC" && AC_MSG_ERROR([no acceptable cc found])
-else
-  if test `$CC -dumpversion` = "2.96"; then
-    AC_MSG_ERROR([gcc version 2.96 found, but not supported])
-  fi
-fi
 
 
 AC_PROG_CXX
@@ -674,3 +656,27 @@ fi
 
 AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
 AC_OUTPUT(Makefile.inc)
+
+
+echo ""
+echo ""
+echo "######################################################################"
+echo "#                  EMC2 - Enhanced Machine Controller                #"
+echo "######################################################################"
+echo "#                                                                    #"
+echo "#   EMC2 is a software system for computer control of machine tools, #"
+echo "#   such as milling machines. EMC2 is released under the GPL.        #"
+echo "#   Check out http://www.linuxcnc.org/ for more details.             #"
+echo "#                                                                    #"
+echo "#                                                                    #"
+echo "#   It seems that ./configure completed successfully                 #"
+echo "#   This means that RT is properly installed                         #"
+echo "#   If things don't work check config.log for errors & warnings      #"
+echo "#                                                                    #"
+echo "#   Next try to compile & test EMC2 by typing                        #"
+echo "#                                                                    #"
+echo "#         make && scripts/emc.run                                    #"
+echo "#                                                                    #"
+echo "######################################################################"
+echo ""
+echo ""
