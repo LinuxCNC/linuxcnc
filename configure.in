@@ -625,7 +625,7 @@ if test "$USE_NLS" = "yes"; then
   LOCALEDIR='${datadir}/locale'
   AC_ARG_WITH(locale-dir,
   [  --with-locale-dir=DIR   Location of the locale file(s)
-                          [DATADIR/locale/${PACKAGE}]],[
+                          [DATADIR/locale]],[
     if test x$withval = xyes; then
       AC_MSG_WARN(Usage is: --with-locale-dir=basedir)
     else
