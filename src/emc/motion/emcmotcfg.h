@@ -32,27 +32,6 @@
 #define EMCMOT_ERROR_LEN 256	/* how long error string can be */
 
 /*
-  base address-- make sure that
-
-  DEFAULT_SHMEM_BASE_ADDRESS + sizeof(EMCMOT_STRUCT) < physical memory
-
-  Examples:
-
-  On a 32 MB computer, with sizeof(EMCMOT_STRUCT) = 241492,
-  let's set aside 1 MB, so DEFAULT_SHMEM_BASE_ADDRESS is 31 MB:
-  #define DEFAULT_SHMEM_BASE_ADDRESS = (31*0x100000)
-  To set up Linux for this, put append="mem=31m" in lilo.conf.
-
-  On a 64 MB computer, with sizeof(EMCMOT_STRUCT) = 1290068,
-  let's set aside 2 MB, so DEFAULT_SHMEM_BASE_ADDRESS is 62 MB:
-  #define DEFAULT_SHMEM_BASE_ADDRESS = (62*0x100000)
-  To set up Linux for this, put append="mem=62m" in lilo.conf.
-  */
-
-/* base address for RTLINUX shared memory */
-#define DEFAULT_SHMEM_BASE_ADDRESS (31*0x100000)
-
-/*
   Shared memory keys for simulated motion process. No base address
   values need to be computed, since operating system does this for us
   */
@@ -65,7 +44,7 @@
 
 /* default cycle time for trajectory calculations; cycle time
    for emcmot.c main loop will be this times the interpolation rate */
-#if defined(rtlinux) || defined(rtai)
+#ifdef RTAPI
 #define DEFAULT_TRAJ_CYCLE_TIME  0.010
 #define DEFAULT_SERVO_CYCLE_TIME 0.001
 #else

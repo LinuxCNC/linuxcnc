@@ -56,7 +56,7 @@ static int emcioNmlGet()
 	orig_dest = get_rcs_print_destination();
 	set_rcs_print_destination(RCS_PRINT_TO_NULL);
 	start_time = etime();
-	while (start_time - etime() < EMCIO_BUFFER_GET_TIMEOUT) {
+	while (etime() - start_time < EMCIO_BUFFER_GET_TIMEOUT) {
 	    emcIoCommandBuffer =
 		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc", EMC_NMLFILE);
 	    if (!emcIoCommandBuffer->valid()) {
@@ -84,7 +84,7 @@ static int emcioNmlGet()
 	orig_dest = get_rcs_print_destination();
 	set_rcs_print_destination(RCS_PRINT_TO_NULL);
 	start_time = etime();
-	while (start_time - etime() < EMCIO_BUFFER_GET_TIMEOUT) {
+	while (etime() - start_time < EMCIO_BUFFER_GET_TIMEOUT) {
 	    emcIoStatusBuffer =
 		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emc",
 		EMC_NMLFILE);

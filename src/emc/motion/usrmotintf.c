@@ -23,7 +23,7 @@
 #include <float.h>		/* DBL_MIN */
 #include "motion.h"		/* EMCMOT_STATUS,CMD */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
-#include "emcmotglb.h"		/* SHMEM_BASE_ADDRESS, SHMEM_KEY */
+#include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
 #include "emcmotlog.h"		/* EMCMOT_LOG */
 #include "_timer.h"
@@ -50,8 +50,8 @@ static EMCMOT_COMP *emcmotComp[EMCMOT_MAX_AXIS] = { 0 };
 static EMCMOT_STRUCT *emcmotStruct = 0;
 EMCMOT_STRUCT *emcmotshmem = NULL;	// Shared memory base address.
 
-/* usrmotIniLoad() loads params (SHMEM_KEY, SHMEM_BASE_ADDRESS,
-   COMM_TIMEOUT, COMM_WAIT) from named ini file */
+/* usrmotIniLoad() loads params (SHMEM_KEY, COMM_TIMEOUT, COMM_WAIT) 
+   from named ini file */
 int usrmotIniLoad(const char *filename)
 {
     FILE *fp;
@@ -80,25 +80,6 @@ int usrmotIniLoad(const char *filename)
 	/* not found, using default */
 	rtapi_print("[EMCMOT] SHMEM_KEY not found in %s; using default %d\n",
 	    filename, SHMEM_KEY);
-    }
-
-    saveInt = SHMEM_BASE_ADDRESS;
-    if (NULL != (inistring = iniFind(fp, "SHMEM_BASE_ADDRESS", "EMCMOT"))) {
-	if (1 == sscanf(inistring, "%lu", &SHMEM_BASE_ADDRESS)) {
-	    /* found it */
-	} else {
-	    /* found, but invalid */
-	    SHMEM_BASE_ADDRESS = saveInt;
-	    rtapi_print
-		("invalid [EMCMOT] SHMEM_BASE_ADDRESS in %s (%s); using default %l\n",
-		filename, inistring, SHMEM_BASE_ADDRESS);
-	}
-    } else {
-	/* not found, using default */
-	rtapi_print
-	    ("[EMCMOT] SHMEM_BASE_ADDRESS not found in %s; using default %l\n",
-	    filename, SHMEM_BASE_ADDRESS);
-
     }
 
     saveDouble = EMCMOT_COMM_TIMEOUT;
@@ -798,6 +779,11 @@ int usrmotInit(char *modname)
     shmem_id = rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(EMCMOT_STRUCT));
 
     rtapi_shmem_getptr(shmem_id, (void **) &emcmotStruct);
+	printf(
+	    "rtapi shmem alloc(%d (0x%X), %d (0x%X) )\n",
+	    SHMEM_KEY, SHMEM_KEY, sizeof(EMCMOT_STRUCT),
+	    sizeof(EMCMOT_STRUCT));
+
     if (emcmotStruct == NULL) {
 	fprintf(stderr,
 	    "rtapi shmem alloc(%d (0x%X), %d (0x%X) ) failed\n",

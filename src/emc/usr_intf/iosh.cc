@@ -1417,7 +1417,7 @@ static void thisQuit(ClientData clientData)
     // turn off port access
     iopl(0);
     // Clean up shared memory
-//  usrmotExit();
+    usrmotExit();
     Tcl_Exit(0);
     exit(0);
 }

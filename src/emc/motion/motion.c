@@ -41,7 +41,7 @@ int DEBUG_MOTION = 0;
 static int PERIOD = 50;		/* fundamental period for timer interrupts in 
 				   microseconds */
 			/* thread period - default = no thread */
-static int PERIOD_NSEC = 0;
+int PERIOD_NSEC = 0;
 #define DEFAULT_PERIOD 100
 MODULE_PARM(PERIOD, "l");
 MODULE_PARM_DESC(PERIOD, "thread period (nsecs)");
@@ -176,8 +176,6 @@ int init_module(void)
     PID_STRUCT pid;
     int retval;
     long period;
-
-    extMotInit();
 
     rtapi_print("motion: initializing...\n");
     if (PERIOD <= 0) {
@@ -483,6 +481,8 @@ int init_module(void)
     }
 
     emcmotStatus->tail = 0;
+
+    extMotInit();
 
     /* set the task priority to second lowest, since we only have one task */
     emcmot_prio = rtapi_prio_next_higher(rtapi_prio_lowest());

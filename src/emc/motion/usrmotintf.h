@@ -25,8 +25,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/* usrmotIniLoad() loads params (SHMEM_KEY, SHMEM_BASE_ADDRESS) from
-   named ini file */ extern int usrmotIniLoad(const char *file);
+/* usrmotIniLoad() loads SHMEM_KEY from named ini file */
+    extern int usrmotIniLoad(const char *file);
 
 /* usrmotReadEmcmotStatus() gets the status info out of
    the emcmot controller and puts it in arg */

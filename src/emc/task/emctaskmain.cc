@@ -118,7 +118,8 @@ static void emctask_quit(int sig)
     done = 1;
 
     // restore signal handler
-    signal(SIGINT, emctask_quit);
+//    signal(SIGINT, emctask_quit);
+    signal(sig, emctask_quit);
 }
 
 // implementation of EMC error logger
@@ -2500,6 +2501,7 @@ int main(int argc, char *argv[])
     // loop until done
     done = 0;
     signal(SIGINT, emctask_quit);
+    signal(SIGTERM, emctask_quit);
 
     // set print destination to stdout, for console apps
     set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
