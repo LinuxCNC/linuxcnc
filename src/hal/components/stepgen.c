@@ -91,11 +91,11 @@
     Type 2:  Quadrature (aka Gray/Grey code)
 
     State   Phase A   Phase B
-      0        0        0
-      1        0        1
-      2        1        1
-      3        1        0
-      0        0        0
+      0        1        0
+      1        1        1
+      2        0        1
+      3        0        0
+      0        1        0
 
     Type 3:  Three Wire
 
@@ -352,7 +352,7 @@ static stepgen_t *stepgen_array;
 /* lookup tables for stepping types 2 and higher - phase A is the LSB */
 
 static const unsigned char master_lut[][10] = {
-    {0, 2, 3, 1, 0, 0, 0, 0, 0, 0},	/* Quadrature */
+    {1, 3, 2, 0, 0, 0, 0, 0, 0, 0},	/* Quadrature */
     {1, 2, 4, 0, 0, 0, 0, 0, 0, 0},	/* Three Wire */
     {1, 3, 2, 6, 4, 5, 0, 0, 0, 0},	/* Three Wire Half Step */
     {1, 2, 4, 8, 0, 0, 0, 0, 0, 0},	/* Unipolar Full Step 1 */
