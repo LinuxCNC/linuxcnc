@@ -94,7 +94,7 @@ config DEBUG
 
 config MACHINE
 	string "Machine Name"
-	default "Generic"
+	default "Generic Machine"
 	help
 	  You can name your machine here.
 
@@ -106,6 +106,17 @@ config NML_FILE
 	  tasks are run.
 	  
 	  It's VERY unlikely that you want to change this.
+
+config INI_FILE
+	string "INI Configuration file"
+	default "generic.ini"
+	help
+	  This is the file where most settings will be saved,
+	  default is generic.ini. If you select a different name,
+	  remember to run 'generic.run -ini youname.ini'.
+	  
+	  It's unlikely that you want to change this.
+
 
 config RS274NGC_STARTUP_CODE
 	string "G-Code Initialization string"
@@ -127,19 +138,18 @@ choice
 config BRIDGEPORTTASK
 	bool "Bridgeport Task Controller"
 	help
-	  I have no idea how this differs from the minimill task controller.
-	  I'm sure it does, though.  If your machine weighs more than 900
-	  pounds, then select this.  If your machine weighs exactly 900 pounds,
-	  flip a coin - heads it's Bridgeport Task, tails it's MiniMill Task.
+	  The Bridgeport Task controller is usually used along with bridgebport IO.
+	  It contains code to control a lot of things like: spindle, lube, coolant,
+	  estop, etc.
+	  If you have a big machine, 2 parports and you plan to use bridgeportio 
+	  use this.
 
 config MINIMILLTASK
 	bool "MiniMill Task Controller"
 	help
-	  This must do less in some way than the Bridgeport task.  I'm not sure
-	  exactly what is different.  If your machine weighs less than 900
-	  pounds then choose this task controller.  If your machine weighs
-	  exactly 900 pounds, flip a coin - heads it's Bridgeport Task, tails
-	  it's MiniMill Task.
+	  This Controller does less than the Bridgeport task-controller.  
+	  It doesn't use a second parport for things like : lube, coolant, estop.
+	  Usually it gets used with little machines.
 
 endchoice
 
@@ -179,8 +189,8 @@ config MINIMILLIO
 	bool "MimiMill I/O Controller"
 	help
 	  Select this if you have a basic machine that doesn't need the extra
-	  functions of the Bridgeport IO controller.  This module uses a
-	  parallel port for spindle and coolant control.
+	  functions of the Bridgeport IO controller.  This module uses the same
+	  parallel port for spindle and coolant control as the step/dir outputs.
 
 config SIMIO
 	bool "Use Simulated I/O"
@@ -215,6 +225,80 @@ config PPMC_PORT
 	  LPT2: 0x278
 	  LPT3: 0x3BC (usually found only on monochrome graphic cards)
 
+endmenu
+endmenu
+
+menu "Axes Settings"
+
+menu "select existing axes"
+config AXIS_0
+	bool "Axis_0 is available"
+	default y
+	help
+	  Unselect this if you don't have axis_0.
+	  It's VERY unlikely that you want to change this.
+	  
+config AXIS_1
+	bool "Axis_1 is available"
+	default y
+	help
+	  Unselect this if you don't have axis_1.
+	  It's VERY unlikely that you want to change this.
+
+config AXIS_2
+	bool "Axis_2 is available"
+	default y
+	help
+	  Unselect this if you don't have axis_2.
+
+config AXIS_3
+	bool "Axis_3 is available"
+	default n
+	help
+	  Unselect this if you don't have axis_3.
+
+config AXIS_4
+	bool "Axis_4 is available"
+	default n
+	help
+	  Unselect this if you don't have axis_4.
+
+config AXIS_5
+	bool "Axis_5 is available"
+	default n
+	help
+	  Unselect this if you don't have axis_5.
+endmenu
+
+menu "Axis 0 setup"
+	depends AXIS_0 
+
+choice 
+	prompt "AXIS_0 TYPE"
+	default AXIS_0_LINEAR
+
+config AXIS_0_LINEAR
+	bool "linear type axis"
+	help 
+	  Select this if you have a linear axis_0.
+	  
+config AXIS_0_ROTATORY
+	bool "rotatory type axis"
+	help
+	  Select this if you have a rotatory axis_0.
+endchoice
+
+config AXIS_0_MINLIMIT
+	int "negative limit on axis_0"
+	default -1
+	help
+	  Select your negative limit for axis_0 here
+
+config AXIS_0_MAXLIMIT
+	int "positive limit on axis_0"
+	default 1
+	help
+	  Select your positive limit for axis_0 here
 endmenu
 
 endmenu
