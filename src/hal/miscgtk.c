@@ -111,9 +111,9 @@ GtkWidget *gtk_hbox_new_in_box(gboolean homogeneous, guint spacing,
     return hbox;
 }
 
-GtkWidget *gtk_vbox_framed_new_in_box(gchar *name, gboolean homogeneous, guint spacing,
-    guint border, GtkWidget * box, gboolean expand, gboolean fill,
-    guint padding)
+GtkWidget *gtk_vbox_framed_new_in_box(gchar * name, gboolean homogeneous,
+    guint spacing, guint border, GtkWidget * box, gboolean expand,
+    gboolean fill, guint padding)
 {
     GtkWidget *vbox, *frame;
 
@@ -127,9 +127,9 @@ GtkWidget *gtk_vbox_framed_new_in_box(gchar *name, gboolean homogeneous, guint s
     return vbox;
 }
 
-GtkWidget *gtk_hbox_framed_new_in_box(gchar *name, gboolean homogeneous, guint spacing,
-    guint border, GtkWidget * box, gboolean expand, gboolean fill,
-    guint padding)
+GtkWidget *gtk_hbox_framed_new_in_box(gchar * name, gboolean homogeneous,
+    guint spacing, guint border, GtkWidget * box, gboolean expand,
+    gboolean fill, guint padding)
 {
     GtkWidget *hbox, *frame;
 
@@ -162,13 +162,13 @@ void gtk_label_size_to_fit(GtkLabel * label, gchar * str)
     /* how long is it */
     text_len = strlen(current_text);
     /* allocate memory to save it */
-    text_buf = malloc(text_len+2);
+    text_buf = malloc(text_len + 2);
     if (text_buf == NULL) {
 	printf("gtk_label_size_to_fit() - malloc failed\n");
 	return;
     }
     /* save the text */
-    strncpy(text_buf, current_text, text_len+1);
+    strncpy(text_buf, current_text, text_len + 1);
     /* set the label to display the new text */
     gtk_label_set_text(label, str);
     /* how big is the label with the new text? */

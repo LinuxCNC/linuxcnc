@@ -295,7 +295,8 @@ static void define_scope_windows(void)
     /* third level of windows */
     /* left side */
     ctrl_usr->horiz_info_win =
-	gtk_vbox_framed_new_in_box("Horizontal",FALSE, 0, 0, vboxleft, FALSE, FALSE, 1);
+	gtk_vbox_framed_new_in_box("Horizontal", FALSE, 0, 0, vboxleft, FALSE,
+	FALSE, 1);
     /* hbox for waveform and chan sel windows */
     hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 1);
     ctrl_usr->waveform_win =
@@ -303,14 +304,18 @@ static void define_scope_windows(void)
     ctrl_usr->chan_sel_win =
 	gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, FALSE, 0);
     ctrl_usr->chan_info_win =
-	gtk_hbox_framed_new_in_box("Selected Channel",FALSE, 0, 0, vboxleft, FALSE, FALSE, 0);
+	gtk_hbox_framed_new_in_box("Selected Channel", FALSE, 0, 0, vboxleft,
+	FALSE, FALSE, 0);
     /* right side */
     ctrl_usr->run_mode_win =
-	gtk_vbox_framed_new_in_box("Run Mode",TRUE, 0, 0, vboxright, FALSE, FALSE, 0);
+	gtk_vbox_framed_new_in_box("Run Mode", TRUE, 0, 0, vboxright, FALSE,
+	FALSE, 0);
     ctrl_usr->trig_mode_win =
-	gtk_vbox_framed_new_in_box("Trigger",TRUE, 0, 0, vboxright, FALSE, FALSE, 0);
+	gtk_vbox_framed_new_in_box("Trigger", TRUE, 0, 0, vboxright, FALSE,
+	FALSE, 0);
     ctrl_usr->vert_info_win =
-	gtk_vbox_framed_new_in_box("Vertical",FALSE, 0, 0, vboxright, TRUE, TRUE, 0);
+	gtk_vbox_framed_new_in_box("Vertical", FALSE, 0, 0, vboxright, TRUE,
+	TRUE, 0);
     /* all windows are now defined */
 }
 
@@ -430,7 +435,6 @@ static void init_trigger_mode_window(void)
     [d] displays delta data, slider moves both cursors
     (can we eliminate sliders and let user click on the waveforms?)
 */
-
 
 /***********************************************************************
 *                    LOCAL CALLBACK FUNCTION CODE                      *

@@ -113,13 +113,15 @@ static void init_horiz_window(void)
     horiz = &(ctrl_usr->horiz);
 
     /* upper region - main display */
-    hbox = gtk_hbox_new_in_box(FALSE, 0, 0, ctrl_usr->horiz_info_win, FALSE, TRUE,0);
+    hbox =
+	gtk_hbox_new_in_box(FALSE, 0, 0, ctrl_usr->horiz_info_win, FALSE,
+	TRUE, 0);
     /* first column - slider labels */
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE,3);
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 3);
     gtk_label_new_in_box("Zoom", vbox, FALSE, TRUE, 0);
     gtk_label_new_in_box(" Pos ", vbox, FALSE, TRUE, 0);
     /* second column - sliders */
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, TRUE, TRUE,3);
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, TRUE, TRUE, 3);
     /* add a slider for zoom level */
     horiz->zoom_adj = gtk_adjustment_new(1, 1, 9, 1, 1, 0);
     horiz->zoom_slider = gtk_hscale_new(GTK_ADJUSTMENT(horiz->zoom_adj));
@@ -145,16 +147,20 @@ static void init_horiz_window(void)
 	GTK_SIGNAL_FUNC(pos_changed), NULL);
     gtk_widget_show(horiz->pos_slider);
     /* third column - scale display */
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE,3);
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 3);
     horiz->scale_label = gtk_label_new_in_box("----", vbox, TRUE, TRUE, 0);
-    gtk_label_size_to_fit(GTK_LABEL(horiz->scale_label), "99.9 mSec\nper div");
+    gtk_label_size_to_fit(GTK_LABEL(horiz->scale_label),
+	"99.9 mSec\nper div");
     /* fourth column - record length and sample rate */
     gtk_vseparator_new_in_box(hbox, 3);
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE,0);
-    horiz->record_label = gtk_label_new_in_box("----- Samples\nat ---- KHz", vbox, FALSE, TRUE, 0);
-    gtk_label_size_to_fit(GTK_LABEL(horiz->record_label), "99999 Samples\nat 99.9 MHz");
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 0);
+    horiz->record_label =
+	gtk_label_new_in_box("----- Samples\nat ---- KHz", vbox, FALSE, TRUE,
+	0);
+    gtk_label_size_to_fit(GTK_LABEL(horiz->record_label),
+	"99999 Samples\nat 99.9 MHz");
     /* fifth column - change button */
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE,3);
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 3);
     button = gtk_button_new_with_label(" Change \nRate/Len");
     gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
     /* activate the acquire menu if button is clicked */
@@ -164,14 +170,16 @@ static void init_horiz_window(void)
 
     /* lower region, graphical status display */
     gtk_hseparator_new_in_box(ctrl_usr->horiz_info_win, 0);
-    hbox = gtk_hbox_new_in_box(FALSE, 0, 0, ctrl_usr->horiz_info_win, FALSE, TRUE,0);
+    hbox =
+	gtk_hbox_new_in_box(FALSE, 0, 0, ctrl_usr->horiz_info_win, FALSE,
+	TRUE, 0);
     /* graphic horizontal display */
     horiz->disp_area = gtk_drawing_area_new();
     gtk_box_pack_start(GTK_BOX(hbox), horiz->disp_area, TRUE, TRUE, 0);
     gtk_widget_show(horiz->disp_area);
     /* label for state */
     gtk_vseparator_new_in_box(hbox, 3);
-    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE,3);
+    vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 3);
     horiz->state_label =
 	gtk_label_new_in_box(" ---- ", vbox, FALSE, FALSE, 3);
     gtk_label_size_to_fit(GTK_LABEL(horiz->state_label), " TRIGGERED ");
@@ -373,7 +381,7 @@ static void dialog_realtime_not_linked(void)
     gtk_clist_set_selection_mode(GTK_CLIST(horiz->thread_list),
 	GTK_SELECTION_BROWSE);
     /* put the list into the scrolled window */
-    gtk_container_add(GTK_CONTAINER(scrolled_window),horiz->thread_list);
+    gtk_container_add(GTK_CONTAINER(scrolled_window), horiz->thread_list);
     gtk_widget_show(horiz->thread_list);
     /* generate list of threads */
     gtk_clist_clear(GTK_CLIST(horiz->thread_list));
@@ -693,19 +701,20 @@ static void rec_len_button(GtkWidget * widget, gpointer gdata)
     }
     count = 0;
     mask = 1;
-    for ( n = 0 ; n < 16 ; n++ ) {
-	if ((ctrl_usr->vert.enabled & mask ) != 0 ) {
+    for (n = 0; n < 16; n++) {
+	if ((ctrl_usr->vert.enabled & mask) != 0) {
 	    count++;
 	}
 	mask <<= 1;
     }
-    if ( count > (int)gdata ) {
+    if (count > (int) gdata) {
 	/* too many channels already enabled */
 	title = "Not enough channels";
 	msg = "This record length cannot handle the channels\n"
 	    "that are currently enabled.  Pick a shorter\n"
 	    "record length that supports more channels.";
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", NULL, NULL, NULL );
+	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", NULL, NULL,
+	    NULL);
 	return;
     }
     ctrl_shm->sample_len = (int) (gdata);
@@ -781,7 +790,7 @@ static void refresh_horiz_info(void)
     scope_horiz_t *horiz;
     gchar *name;
     static gchar tmp[BUFLEN + 1], rate[BUFLEN + 1], period[BUFLEN + 1];
-    static gchar scale[BUFLEN + 1], rec_len[BUFLEN + 1], msg[BUFLEN+1];
+    static gchar scale[BUFLEN + 1], rec_len[BUFLEN + 1], msg[BUFLEN + 1];
     float freqval;
 
     horiz = &(ctrl_usr->horiz);
@@ -809,7 +818,7 @@ static void refresh_horiz_info(void)
     } else {
 	snprintf(rec_len, BUFLEN, "%d", ctrl_shm->rec_len);
     }
-    snprintf ( msg, BUFLEN, "%s samples\nat %s", rec_len, rate);
+    snprintf(msg, BUFLEN, "%s samples\nat %s", rec_len, rate);
     gtk_label_set_text_if(horiz->thread_name_label, name);
     gtk_label_set_text_if(horiz->sample_rate_label, rate);
     gtk_label_set_text_if(horiz->scale_label, scale);

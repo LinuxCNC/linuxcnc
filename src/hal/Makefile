@@ -25,8 +25,7 @@ miscgtk.c \
 halmeter.c \
 halscope.c \
 halsc_horiz.c \
-
-#halsc_vert.c # FIX ME This file needs committing.
+halsc_vert.c
 
 RT_SRCS = \
 hal_lib.c \
@@ -39,8 +38,8 @@ $(RTLIB_DIR)/halscope_rt.o
 
 ifdef GTK_VERSION
 GTK_BINS = \
-$(BIN_DIR)/halmeter
-#$(BIN_DIR)/halscope
+$(BIN_DIR)/halmeter \
+$(BIN_DIR)/halscope
 endif
 
 BINS = \
