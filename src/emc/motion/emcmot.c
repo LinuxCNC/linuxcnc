@@ -616,17 +616,15 @@ static double etime(void)
 
 static void reportError(const char *fmt, ...)
 {
-#if 0
-  /* FIXME-- need to figure out how to get vsprintf() */
+  /* use the rtapi_snprintf function where vsprintf is called for. */
   va_list args;
   char error[EMCMOT_ERROR_LEN];
 
   va_start(args, fmt);
-  vsprintf(error, fmt, args);
+  rtapi_snprintf(error, EMCMOT_ERROR_LEN, fmt, args);
   va_end(args);
 
   emcmotErrorPut(emcmotError, error);
-#endif
 }
 
 /* isHoming() returns non-zero if any axes are homing, 0 if none are */
