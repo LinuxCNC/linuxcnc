@@ -69,7 +69,7 @@ $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
 # them are to work.
 RTAI_MOD="adeos rtai rt_mem_mgr rtai_sched rtai_fifos rtai_shm rtai_libm"
 # For RTAI-3, we need to condsider using the RTAI scripts to load these modules.
-RTAI3_BASE="adeos rtai_hal"
+RTAI3_BASE="adeos rtai_hal rtai_ksched"
 RTAI3_SUP="rtai_fifos rtai_shm rtai_sem rtai_math"
 RTL_MOD="rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo"
 
@@ -95,7 +95,6 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(EMC2_HOME)/Makefile.inc
 	@ echo "# Sets the default DEBUG level" >> $@
 	@ echo "DEBUG='3'" >> $@
 	mod_dir=$$(find /lib/modules/`uname -r` -name "mbuff.o" -o -name "rtai_sched.o" -o -name "rtai_ksched.o") ; \
-	echo "mod_dir is $$mod_dir" ; \
 	  if [ "$$mod_dir" = "" ] ; then \
 	     echo  >> $@ ;\
 	     echo "# Path to the realtime kernel modules" >> $@; \
