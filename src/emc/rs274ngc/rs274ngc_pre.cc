@@ -111,11 +111,14 @@ axes not compiled in.
 
 /****************************************************************************/
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_errors.cc"
@@ -9931,6 +9934,11 @@ int rs274ngc_save_parameters(	/* ARGUMENTS */
     int required;		// number of next required parameter
     int index;			// index into _required_parameters
     int k;
+    struct stat ini_stat;
+
+/* FIXME - stat() and chown() can disappear when we no longer need
+   to run as root. */
+    stat(filename, &ini_stat);		// save the ownership details.
 
     // rename as .bak
     strcpy(line, filename);
@@ -9984,6 +9992,10 @@ int rs274ngc_save_parameters(	/* ARGUMENTS */
 	}
     }
     fclose(outfile);
+
+  /* Update the uid and gid of the new ini file - else it will end up
+     being owned by root */
+    chown(filename, ini_stat.st_uid, ini_stat.st_gid);
 
     return RS274NGC_OK;
 }
