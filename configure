@@ -125,6 +125,8 @@ if [ `$RTDIR/rtai-config --version 2>/dev/null` ] ; then
     RTAI_EXEC=$RTDIR/
 elif [ `$RTDIR/bin/rtai-config --version 2>/dev/null` ] ; then
     RTAI_EXEC=$RTDIR/bin/
+elif [ `/usr/realtime/bin/rtai-config --version 2>/dev/null` ] ; then
+    RTAI_EXEC=/usr/realtime/bin/
 elif [ `rtai-config --version 2>/dev/null` ] ; then
     RTAI_EXEC=
 fi
