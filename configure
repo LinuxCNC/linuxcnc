@@ -247,7 +247,7 @@ if [ -r $RTDIR/modules/rtai_libm.o ] || [ -r $RTDIR/modules/rtai_math.o ] || [ -
     USE_RTLIBM=1
     echo "Using RTAI's libm kernel module"
     if [ -r $RTDIR/modules/rtai_math.ko ]; then
-      echo "Warning - You are compiling against a 2.6 series kernel."
+      echo -e "\033[31m\033[5m Warning - You are compiling against a 2.6 series kernel.\033[0m"
     fi
 # Note: need to search /lib/modules/`uname -r` for the math modules..
 else
