@@ -318,7 +318,8 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
     char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
     if (forced_type_eq != NULL) {
-	long temp = strtol(forced_type_eq + 11, NULL, 0);
+	long temp = 0;
+        temp = strtol(forced_type_eq + 11, NULL, 0);
 	if (temp > 0) {
 	    forced_type = temp;
 	    fast_mode = 0;
@@ -437,7 +438,8 @@ NML::NML(char *buf, char *proc, char *file, int set_to_server,
 	cms->sizeof_message_header = sizeof_message_header;
 	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
 	if (forced_type_eq != NULL) {
-	    long temp = strtol(forced_type_eq + 11, NULL, 0);
+	    long temp = 0;
+	    temp = strtol(forced_type_eq + 11, NULL, 0);
 	    if (temp > 0) {
 		forced_type = temp;
 		fast_mode = 0;
@@ -546,7 +548,8 @@ NML::NML(char *buffer_line, char *proc_line)
 	cms->sizeof_message_header = sizeof_message_header;
 	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
 	if (forced_type_eq != NULL) {
-	    long temp = strtol(forced_type_eq + 11, NULL, 0);
+	    long temp = 0;
+	    temp = strtol(forced_type_eq + 11, NULL, 0);
 	    if (temp > 0) {
 		forced_type = temp;
 		fast_mode = 0;
@@ -683,7 +686,8 @@ NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
     char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
     if (forced_type_eq != NULL) {
-	long temp = strtol(forced_type_eq + 11, NULL, 0);
+	long temp = 0;
+	temp = strtol(forced_type_eq + 11, NULL, 0);
 	if (temp > 0) {
 	    forced_type = temp;
 	    fast_mode = 0;

@@ -134,7 +134,9 @@ static NML *emcErrorBuffer = 0;
 static EMCMOT_COMMAND emcmotCommand;
 extern EMCMOT_STRUCT *emcmotshmem;
 static long shmem = 0;		// Shared memory flag
-static int motionId = 0;
+
+// "defined but not used"...
+//static int motionId = 0;
 
 static int emcIoNmlGet()
 {

@@ -244,8 +244,10 @@ static EMC_TRAJ_CIRCULAR_MOVE *emcTrajCircularMoveMsg;
 static EMC_TRAJ_DELAY *emcTrajDelayMsg;
 static EMC_TRAJ_SET_TERM_COND *emcTrajSetTermCondMsg;
 
-static EMC_MOTION_SET_AOUT *emcMotionSetAoutMsg;
-static EMC_MOTION_SET_DOUT *emcMotionSetDoutMsg;
+// These classes are commented out because the compiler
+// complains that they are "defined but not used".
+//static EMC_MOTION_SET_AOUT *emcMotionSetAoutMsg;
+//static EMC_MOTION_SET_DOUT *emcMotionSetDoutMsg;
 
 static EMC_SPINDLE_ON *spindle_on_msg;
 static EMC_TOOL_PREPARE *tool_prepare_msg;
