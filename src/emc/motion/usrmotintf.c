@@ -35,10 +35,6 @@
 
 #include "rtapi.h"
 
-#ifndef MAP_FAILED		/* kernel 2.0.29 left this out */
-#define MAP_FAILED ((void *) -1)
-#endif
-
 static int inited = 0;		/* flag if inited */
 
 static emcmot_command_t *emcmotCommand = 0;
