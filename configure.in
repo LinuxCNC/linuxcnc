@@ -411,10 +411,10 @@ if test "x" = "x$MODULE_DIR";
 then
    # (P.C.) Only works if the kernel modules are installed - If we are compiling for a target
    # system, this test may fail...
-   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} -name "mbuff.o" -o -name "rtai_shm.o" -printf "%h")`
+   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
 
    if test "x" = "x$MODULE_DIR"; then
-        MODULE_DIR=`(find /usr/realtime/ -name "mbuff.o" -o -name "rtai_shm.o" -printf "%h")`
+        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
    fi
 
    if test "x" = "x$MODULE_DIR"; then
