@@ -12,8 +12,7 @@ common.h
 
 # Sources
 SRCS = \
-
-#shmemusr.c
+shmemusr.c
 
 RT_SRCS = \
 shmemtask.c
@@ -23,8 +22,7 @@ LIBS = \
 $(RTLIB_DIR)/shmemtask.o
 
 BINS = \
-
-#$(BIN_DIR)/shmemusr
+$(BIN_DIR)/shmemusr
 
 all : headers $(LIBS) $(BINS)
 
