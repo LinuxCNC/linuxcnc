@@ -232,6 +232,9 @@ int hal_register_module(hal_module_info *mb)
     char hal_name[HAL_NAME_LEN + 1];
     hal_comp_t *comp;
 
+    hal_module_list_t *newmodule;
+    hal_module_list_t **module_handle;
+
 
    rtapi_set_msg_level(RTAPI_MSG_DBG);
 
@@ -321,8 +324,6 @@ int hal_register_module(hal_module_info *mb)
 /* HAL REFACTOR 
    Much stuff being moved to kernel memory... */
 
-hal_module_list_t *newmodule;
-hal_module_list_t **module_handle;
 
    newmodule=alloc_module_list();
    /* It may be silly to copy this data here...  Will it usually
@@ -649,17 +650,6 @@ hal_block_list_t 	**block_list_handle;
     newblock->module=module;
     newblock->block_type=block_type;
 
-    result=block_type->block.create(global_block_id,
-	block_type->block.block_type_id);
-
-    if (result!=HAL_SUCCESS)
-	{
-	free_block_list(newblock);
-	rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: hal_create function failed: %d!\n", result);
-	return result;
-	}
-
     newblock->block_id=global_block_id;
     global_block_id++;
 
@@ -670,10 +660,69 @@ hal_block_list_t 	**block_list_handle;
     *block_list_handle=newblock;
 
     rtapi_print_msg(RTAPI_MSG_DBG,
-        "HAL: hal_create_block: created new block %s\n", newblock->block_id);
+        "HAL: hal_create_block: creating new block %d\n", newblock->block_id);
+
+    result=block_type->block.create(newblock->block_id,
+	block_type->block.block_type_id);
+
+    if (result!=HAL_SUCCESS)
+	{
+	global_block_id--;
+	/* unlink the newblock from global_block_list!!!! */
+        for (block_list_handle=&global_block_list; 
+	    *block_list_handle;
+  	    block_list_handle=&( (*block_list_handle)->next ) )
+		if ( (*block_list_handle)==newblock)
+		    {
+		    (*block_list_handle)=newblock->next;
+		    break;
+		    }
+
+
+
+	free_block_list(newblock);
+	rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_create function failed: %d!\n", result);
+	return result;
+	}
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+        "HAL: hal_create_block: created new block %d\n", newblock->block_id);
 
     return HAL_SUCCESS;
 }
+
+
+
+int hal_create_block_by_names(char *module_name, char *block_type_name)
+{
+int result;
+hal_module_list_t *module;
+hal_block_type_list_t *block_type;
+
+    module=find_module_by_name(module_name);
+    if (!module)
+        {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "hal_create_block_by_names: Could not find module named '%s'\n",
+                module_name);
+        return HAL_INVAL;
+        }
+
+    block_type=find_block_type_by_name(module, block_type_name);
+    if (!block_type)
+        {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "hal_create_block_by_names: Could not find block type '%s' for module named '%s'\n", block_type_name, module_name);
+        return HAL_INVAL;
+        }
+
+    result=hal_create_block(module, block_type);
+    
+return(result);
+}
+
+
 
 
 #endif // RTAPI
@@ -743,21 +792,42 @@ int hal_pin_new(char *name, hal_type_t type, hal_dir_t dir,
     hal_pin_t *new, *ptr;
     hal_comp_t *comp;
 
+    hal_block_list_t *block_list;
+    int module_id;
+
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_new called before init\n");
 	return HAL_INVAL;
     }
+
+#ifdef RTAPI
+    block_list=find_block_list_by_id(comp_id);
+
+    if (!block_list)
+	{
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin_new called with an invalid module_id %d\n", comp_id);
+	return HAL_INVAL;
+	}
+
+    module_id=block_list->module->module_id;
+#else
+/* TODO FIXME FIXME FIXME */
+    module_id=comp_id;
+
+#endif
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating pin '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
-    /* validate comp_id */
-    comp = halpr_find_comp_by_id(comp_id);
+    /* validate module_id */
+    comp = halpr_find_comp_by_id(module_id);
     if (comp == 0) {
-	/* bad comp_id */
+	/* bad module_id*/
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: component %d not found\n", comp_id);
+	    "HAL: ERROR: component %d not found\n", module_id);
 	return HAL_INVAL;
     }
     /* validate passed in pointer - must point to HAL shmem */
@@ -1117,21 +1187,45 @@ int hal_param_new(char *name, hal_type_t type, hal_dir_t dir, void *data_addr,
     hal_param_t *new, *ptr;
     hal_comp_t *comp;
 
+    int module_id;
+    hal_block_list_t *block_list;
+
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called before init\n");
 	return HAL_INVAL;
     }
+
+
+#ifdef RTAPI
+    block_list=find_block_list_by_id(comp_id);
+
+    if (!block_list)
+	{
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param_new called with an invalid module_id %d\n", comp_id);
+	return HAL_INVAL;
+	}
+
+    module_id=block_list->module->module_id;
+#else
+/* TODO FIXME FIXME FIXME */
+    module_id=comp_id;
+
+#endif
+
+
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* validate comp_id */
-    comp = halpr_find_comp_by_id(comp_id);
+    comp = halpr_find_comp_by_id(module_id);
     if (comp == 0) {
 	/* bad comp_id */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: component %d not found\n", comp_id);
+	    "HAL: ERROR: component %d not found\n", module_id);
 	return HAL_INVAL;
     }
     /* validate passed in pointer - must point to HAL shmem */
@@ -1328,28 +1422,52 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
     hal_comp_t *comp;
     char buf[HAL_NAME_LEN + 1];
 
+    int module_id;
+    hal_block_list_t *block_list;
+
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: export_funct called before init\n");
 	return HAL_INVAL;
     }
+
+#ifdef RTAPI
+    block_list=find_block_list_by_id(comp_id);
+
+    if (!block_list)
+	{
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin_new called with an invalid module_id %d\n", comp_id);
+	return HAL_INVAL;
+	}
+
+    module_id=block_list->module->module_id;
+#else
+/* TODO FIXME FIXME FIXME */
+    module_id=comp_id;
+
+#endif
+
+
+
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: exporting function '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* validate comp_id */
-    comp = halpr_find_comp_by_id(comp_id);
+    comp = halpr_find_comp_by_id(module_id);
     if (comp == 0) {
 	/* bad comp_id */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: component %d not found\n", comp_id);
+	    "HAL: ERROR: component %d not found\n", module_id);
 	return HAL_INVAL;
     }
     if (comp->type == 0) {
 	/* not a realtime component */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: component %d is not realtime\n", comp_id);
+	    "HAL: ERROR: component %d is not realtime\n", module_id);
 	return HAL_INVAL;
     }
     /* allocate a new function structure */
@@ -2606,6 +2724,17 @@ hal_block_list_t *alloc_block_list(void)
     return p;
 }
 
+hal_block_list_t *find_block_list_by_id(int id)
+{
+hal_block_list_t **block_list_handle;
+
+for (block_list_handle=&global_block_list; 
+	*block_list_handle && ((*block_list_handle)->block_id != id);
+	block_list_handle=&( (*block_list_handle)->next ) );
+
+return(*block_list_handle);
+
+}
 
 
 hal_module_list_t *find_module_by_id(int id)
@@ -2621,6 +2750,17 @@ hal_module_list_t *find_module_by_name(const char *name)
 hal_module_list_t *p;
     for (p=global_module_list; 
 	p && strcmp(p->module.module_name, name); 
+	p=p->next);
+
+    return p;
+}
+
+hal_block_type_list_t *find_block_type_by_name(hal_module_list_t *module, const char *name)
+{
+hal_block_type_list_t *p;
+
+    for (p=module->block_types;
+	p && strcmp(p->block.type_name, name); 
 	p=p->next);
 
     return p;

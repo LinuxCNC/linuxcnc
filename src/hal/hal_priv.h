@@ -226,9 +226,20 @@ void copy_module_info(hal_module_info *dest,
 void free_module_list(hal_module_list_t *p);
 void copy_module_info(hal_module_info *dest, const hal_module_info *src);
 
+
+/* functions for doing things with the hal modules... */
+
 hal_module_list_t *find_module_by_id(int id);
 hal_module_list_t *find_module_by_name(const char *name);
+hal_block_list_t *find_block_list_by_id(int id);
 
+
+int hal_create_block(hal_module_list_t *module,
+        hal_block_type_list_t *block_type);
+
+int hal_create_block_by_names(char *module_name, char *block_type_name);
+
+hal_block_type_list_t *find_block_type_by_name(hal_module_list_t *module, const char *name);
 
 /** HAL 'component' data structure.
     This structure contains information that is unique to a HAL component.
@@ -249,11 +260,6 @@ typedef struct {
     meta data?
 */
 
-//    hal_module_info module_info; /* Our private copy of what the module
-//				registered with */
-
-//    hal_block_type_list_t	*block_types; /* linked list of types this module
-//					knows how to create */
 } hal_comp_t;
 
 /** HAL 'pin' data structure.
