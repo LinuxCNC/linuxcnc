@@ -14,7 +14,7 @@
 * $Date$
 ********************************************************************/
 
-/* This file is a mess! */
+/* jmk says: This file is a mess! */
 
 /*
 
@@ -200,7 +200,6 @@ extern "C" {
 	double logTriggerThreshold;	/* the value for non manual triggers */
 
 	double scale;		/* velocity scale arg */
-/* FIXME - offset might go away */
 	double offset;		/* input or output offset arg */
 	double minFerror;	/* min following error */
 	double maxFerror;	/* max following error */
@@ -322,6 +321,13 @@ Suggestion: Split this in to an Error and a Status flag register..
    non-trivial kinematics must be homed before they can go
    into either coord or teleop mode.
 
+   'teleop' is what you probably want if you are 'jogging'
+   a hexapod.  The jog commands as implemented by the motion
+   controller are joint jogs, which work in free mode.  But
+   if you want to jog a hexapod or similar machine along
+   one particular cartesean axis, you need to operate more
+   than one joint.  That's what 'teleop' is for.
+
 */
 
 /* compensation structure */
@@ -338,22 +344,22 @@ Suggestion: Split this in to an Error and a Status flag register..
 /* states for homing - this list is incomplete */
     typedef enum {
 	EMCMOT_NOT_HOMING = 0,
-	EMCMOT_HOME_START,
-	EMCMOT_HOME_START_PRE_SEARCH,
-	EMCMOT_HOME_WAIT_PRE_SEARCH,
-	EMCMOT_HOME_START_SEARCH,
-	EMCMOT_HOME_WAIT_SEARCH,
-	EMCMOT_HOME_SET_COARSE_POS,
-	EMCMOT_HOME_START_BACKOFF,
-	EMCMOT_HOME_WAIT_BACKOFF,
-	EMCMOT_HOME_START_LATCH,
-	EMCMOT_HOME_WAIT_LATCH_SWITCH,
-	EMCMOT_HOME_WAIT_LATCH_INDEX,
-	EMCMOT_HOME_SET_FINAL_POS,
-	EMCMOT_HOME_START_FINAL,
-	EMCMOT_HOME_WAIT_FINAL,
-	EMCMOT_HOME_FINISHED,
-	EMCMOT_HOME_ABORT
+	EMCMOT_HOME_START,		// 1
+	EMCMOT_HOME_START_PRE_SEARCH,	// 2
+	EMCMOT_HOME_WAIT_PRE_SEARCH,	// 3
+	EMCMOT_HOME_START_SEARCH,	// 4
+	EMCMOT_HOME_WAIT_SEARCH,	// 5
+	EMCMOT_HOME_SET_COARSE_POS,	// 6
+	EMCMOT_HOME_START_BACKOFF,	// 7
+	EMCMOT_HOME_WAIT_BACKOFF,	// 8
+	EMCMOT_HOME_START_LATCH,	// 9
+	EMCMOT_HOME_WAIT_LATCH_SWITCH,	// 10
+	EMCMOT_HOME_WAIT_LATCH_INDEX,	// 11
+	EMCMOT_HOME_SET_FINAL_POS,	// 12
+	EMCMOT_HOME_START_FINAL,	// 13
+	EMCMOT_HOME_WAIT_FINAL,		// 14
+	EMCMOT_HOME_FINISHED,		// 15
+	EMCMOT_HOME_ABORT		// 16
     } home_state_t;
 
 /* flags for homing */
@@ -399,6 +405,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	emcmot_comp_t comp;	/* leadscrew correction data */
 
 	/* status info - changes regularly */
+	/* many of these need to be made available to higher levels */
+	/* they can either be copied to the status struct, or an
+	   array of joint structs can be made part of the status */
 	EMCMOT_AXIS_FLAG flag;	/* see above for bit details */
 	double coarse_pos;	/* trajectory point, before interp */
 	double pos_cmd;		/* commanded joint position */
@@ -464,6 +473,10 @@ Suggestion: Split this in to an Error and a Status flag register..
    evaluated - either they move up, or they go away.
 */
 
+/* FIXME - I don't know if this is the right thing to do yet, but
+   for now I'm moving the joint structures into the status struct */
+
+
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
 	/* these three are updated only when a new command is handled */
@@ -477,6 +490,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 #ifndef NEW_STRUCTS
 	EMCMOT_AXIS_FLAG axisFlag[EMCMOT_MAX_AXIS];	/* see above for bit
 							   details */
+
+	/* these duplicate info that is in the joint structures */
+	/* need to determine if the higher level code uses these */
 	double joint_pos_cmd[EMCMOT_MAX_AXIS];	/* replaces "axisPos" */
 	double joint_pos_fb[EMCMOT_MAX_AXIS];	/* replaces "input" */
 	double joint_vel_cmd[EMCMOT_MAX_AXIS];	/* replaces "output" */
@@ -484,6 +500,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferrorLimit[EMCMOT_MAX_AXIS];	/* allowable following error */
 	double ferrorHighMark[EMCMOT_MAX_AXIS];	/* max following error */
 #endif
+/* FIXME - joint structs added here, replace arrays above */
+	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* all joint related data */
+
+
 	int onSoftLimit;	/* non-zero if any axis is on soft limit */
 
 	int probeVal;		/* debounced value of probe input */
@@ -822,7 +842,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 						   to input pos */
 #endif
 #ifdef NEW_STRUCTS
+#if 0 /* FIXME - moved (at least for now) to status structure */
 	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* all joint related data */
+#endif
 #endif
     } emcmot_struct_t;
 

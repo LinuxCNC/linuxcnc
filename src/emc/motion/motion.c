@@ -325,6 +325,38 @@ static int init_hal_io(void)
     if (retval != 0) {
 	return retval;
     }
+    /* export debug parameters */
+    /* these can be used to view any internal variable, simply
+       change a line in control.c:output_to_hal() and recompile */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-bit-0");
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->debug_bit_0),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-bit-1");
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(machine_hal_data->debug_bit_1),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-float-0");
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(machine_hal_data->debug_float_0),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-float-1");
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(machine_hal_data->debug_float_1),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
 
     /* initialize machine wide pins and parameters */
     *(machine_hal_data->probe_input) = 0;
@@ -335,6 +367,12 @@ static int init_hal_io(void)
     machine_hal_data->coord_mode = 0;
     machine_hal_data->teleop_mode = 0;
     machine_hal_data->coord_error = 0;
+
+    /* init debug parameters */
+    machine_hal_data->debug_bit_0 = 0;
+    machine_hal_data->debug_bit_1 = 0;
+    machine_hal_data->debug_float_0 = 0.0;
+    machine_hal_data->debug_float_1 = 0.0;
 
     /* export axis pins and parameters */
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
@@ -702,7 +740,7 @@ static int init_comm_buffers(void)
     /* init per-axis stuff */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to structure for this joint */
-	joint = &(emcmotStruct->joints[joint_num]);
+	joint = &(emcmotStatus->joints[joint_num]);
 
 	/* init the config fields with some "reasonable" defaults" */
 
@@ -882,7 +920,7 @@ static int init_threads(void)
     }
 
     /* export realtime functions that do the real work */
-    retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg 
+    retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg
 	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -979,7 +1017,7 @@ static int setTrajCycleTime(double secs)
 
     /* set the free planners, cubic interpolation rate and segment time */
     for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	cubicSetInterpolationRate(&(emcmotStruct->joints[t].cubic),
+	cubicSetInterpolationRate(&(emcmotStatus->joints[t].cubic),
 	    emcmotConfig->interpolationRate);
     }
 
@@ -1010,9 +1048,9 @@ static int setServoCycleTime(double secs)
 
     /* set the cubic interpolation rate and PID cycle time */
     for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
-	cubicSetInterpolationRate(&(emcmotStruct->joints[t].cubic),
+	cubicSetInterpolationRate(&(emcmotStatus->joints[t].cubic),
 	    emcmotConfig->interpolationRate);
-	cubicSetSegmentTime(&(emcmotStruct->joints[t].cubic), secs);
+	cubicSetSegmentTime(&(emcmotStatus->joints[t].cubic), secs);
     }
 
     /* copy into status out */

@@ -92,7 +92,7 @@ static int checkLimits(void)
 
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint data */
-	joint = &(emcmotStruct->joints[joint_num]);
+	joint = &(emcmotStatus->joints[joint_num]);
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
 	    /* if joint is not active, don't even look at its limits */
 	    continue;
@@ -116,7 +116,7 @@ static int checkJog(int joint_num, double vel)
     emcmot_joint_t *joint;
 
     /* point to joint data */
-    joint = &(emcmotStruct->joints[joint_num]);
+    joint = &(emcmotStatus->joints[joint_num]);
 
     if (emcmotStatus->overrideLimits) {
 	return 1;		/* okay to jog when limits overridden */
@@ -173,7 +173,7 @@ static int inRange(EmcPose pos)
 
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint data */
-	joint = &(emcmotStruct->joints[joint_num]);
+	joint = &(emcmotStatus->joints[joint_num]);
 
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
 	    /* if joint is not active, don't even look at its limits */
@@ -206,13 +206,13 @@ static void clearHomes(int joint_num)
 	if (rehomeAll) {
 	    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
 		/* point at joint data */
-		joint = &(emcmotStruct->joints[n]);
+		joint = &(emcmotStatus->joints[n]);
 		/* clear flag */
 		SET_JOINT_HOMED_FLAG(joint, 0);
 	    }
 	} else {
 	    /* point at joint data */
-	    joint = &(emcmotStruct->joints[joint_num]);
+	    joint = &(emcmotStatus->joints[joint_num]);
 	    /* clear flag */
 	    SET_JOINT_HOMED_FLAG(joint, 0);
 	}
@@ -266,13 +266,13 @@ void emcmotCommandHandler(void *arg, long period)
 
 	/* Many commands uses "command->axis" to indicate which joint they
 	   wish to operate on.  This code eliminates the need to copy
-	   command->axis to "joint_num", limit check it, and then set "joint" 
+	   command->axis to "joint_num", limit check it, and then set "joint"
 	   to point to the joint data.  All the individual commands need to
 	   do is verify that "joint" is non-zero. */
 	joint_num = emcmotCommand->axis;
 	if (joint_num >= 0 && joint_num < EMCMOT_MAX_AXIS) {
 	    /* valid joint, point to it's data */
-	    joint = &(emcmotStruct->joints[joint_num]);
+	    joint = &(emcmotStatus->joints[joint_num]);
 	} else {
 	    /* bad joint number */
 	    joint = 0;
@@ -307,7 +307,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    } else {
 		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		    /* point to joint struct */
-		    joint = &(emcmotStruct->joints[joint_num]);
+		    joint = &(emcmotStatus->joints[joint_num]);
 		    /* tell joint planner to stop */
 		    joint->free_tp_enable = 0;
 		    /* update status flags */
@@ -437,7 +437,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    emcmotDebug->overriding = 0;
 	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 		/* point at joint data */
-		joint = &(emcmotStruct->joints[joint_num]);
+		joint = &(emcmotStatus->joints[joint_num]);
 		/* clear joint errors */
 		SET_JOINT_ERROR_FLAG(joint, 0);
 	    }
@@ -457,7 +457,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    joint->max_pos_limit = emcmotCommand->maxLimit;
 	    break;
 
-	    /* 
+	    /*
 	       Max and min ferror work like this: limiting ferror is
 	       determined by slope of ferror line, = maxFerror/limitVel ->
 	       limiting ferror = maxFerror/limitVel * vel. If ferror <
@@ -787,7 +787,8 @@ void emcmotCommandHandler(void *arg, long period)
 
 /* FIXME - deleted the concept of homing polarity, use signed velocity */
 	    joint->home_search_vel = emcmotCommand->vel;
-/* FIXME - add another for home_index_vel */
+/* FIXME - add another for home_index_vel, for now use 1/10 search vel */
+	    joint->home_latch_vel = emcmotCommand->vel * 0.1;
 #if 0
 	    if (emcmotCommand->vel < 0.0) {
 		emcmotConfig->homingVel[axis] = -emcmotCommand->vel;

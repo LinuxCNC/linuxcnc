@@ -783,7 +783,6 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 /* FIXME - this function accesses data that has been
    moved.  Once I know what it is used for I'll fix it */
 
-#if 0
     int axis;
     emcmot_joint_t *joint;
 
@@ -795,72 +794,71 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
     for (axis = 0; axis < numAxes; axis++) {
 	/* point to joint data */
 
-	joint = &(emcmotStruct.joints[axis]);
+	joint = &(emcmotStatus.joints[axis]);
 
 	stat[axis].axisType = localEmcAxisAxisType[axis];
 	stat[axis].units = localEmcAxisUnits[axis];
-
+#if 0
 	stat[axis].inputScale = emcmotStatus.inputScale[axis];
 	stat[axis].inputOffset = emcmotStatus.inputOffset[axis];
 	stat[axis].outputScale = emcmotStatus.outputScale[axis];
 	stat[axis].outputOffset = emcmotStatus.outputOffset[axis];
-
+#endif
 	if (new_config) {
 	    stat[axis].backlash = joint->backlash;
 	    stat[axis].minPositionLimit = joint->min_pos_limit;
 	    stat[axis].maxPositionLimit = joint->max_pos_limit;
 	    stat[axis].minFerror = joint->min_ferror;
 	    stat[axis].maxFerror = joint->max_ferror;
-	    stat[axis].homeOffset = join->home_offset;
+	    stat[axis].homeOffset = joint->home_offset;
 	}
-/* FIXME - this has moved to a joint structure */
-	stat[axis].setpoint = emcmotStatus.axisPos[axis];
+	stat[axis].setpoint = joint->pos_cmd;
+	/* FIXME - output is the DAC output, now part of HAL */
+	stat[axis].output = 0.0;
+	stat[axis].input = joint->pos_fb;
 
 	if (get_emcmot_debug_info) {
-	    stat[axis].ferrorCurrent = emcmotStatus.ferrorCurrent[axis];
-	    stat[axis].ferrorHighMark = emcmotStatus.ferrorHighMark[axis];
+	    stat[axis].ferrorCurrent = joint->ferror;
+	    stat[axis].ferrorHighMark = joint->ferror_high_mark;
 	}
 
 	stat[axis].homing =
-	    (emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_HOMING_BIT ? 1 : 0);
+	    (joint->flag & EMCMOT_AXIS_HOMING_BIT ? 1 : 0);
 	stat[axis].homed =
-	    (emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_HOMED_BIT ? 1 : 0);
+	    (joint->flag & EMCMOT_AXIS_HOMED_BIT ? 1 : 0);
 	stat[axis].fault =
-	    (emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_FAULT_BIT ? 1 : 0);
+	    (joint->flag & EMCMOT_AXIS_FAULT_BIT ? 1 : 0);
 	stat[axis].enabled =
-	    (emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0);
+	    (joint->flag & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0);
 
 	stat[axis].minSoftLimit =
-	    (emcmotStatus.
-	    axisFlag[axis] & EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT ? 1 : 0);
+	    (joint->flag & EMCMOT_AXIS_MIN_SOFT_LIMIT_BIT ? 1 : 0);
 	stat[axis].maxSoftLimit =
-	    (emcmotStatus.
-	    axisFlag[axis] & EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT ? 1 : 0);
+	    (joint->flag & EMCMOT_AXIS_MAX_SOFT_LIMIT_BIT ? 1 : 0);
 	stat[axis].minHardLimit =
-	    (emcmotStatus.
-	    axisFlag[axis] & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT ? 1 : 0);
+	    (joint->flag & EMCMOT_AXIS_MIN_HARD_LIMIT_BIT ? 1 : 0);
 	stat[axis].maxHardLimit =
-	    (emcmotStatus.
-	    axisFlag[axis] & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT ? 1 : 0);
+	    (joint->flag & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT ? 1 : 0);
 	stat[axis].overrideLimits = (emcmotStatus.overrideLimits);	// one
 									// for
 									// all
 
+#if 0 /* FIXME - per-axis Vscale temporarily? removed */
 	stat[axis].scale = emcmotStatus.axVscale[axis];
+#endif
 	usrmotQueryAlter(axis, &stat[axis].alter);
 
-	if (emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_ERROR_BIT) {
+	if (joint->flag & EMCMOT_AXIS_ERROR_BIT) {
 	    if (stat[axis].status != RCS_ERROR) {
 		rcs_print_error("Error on axis %d, command number %d\n", axis, emcmotStatus.commandNumEcho );
 		stat[axis].status = RCS_ERROR;
 	    }
-	} else if (emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_INPOS_BIT) {
+	} else if (joint->flag & EMCMOT_AXIS_INPOS_BIT) {
 	    stat[axis].status = RCS_DONE;
 	} else {
 	    stat[axis].status = RCS_EXEC;
 	}
     }
-#endif
     return 0;
 }
 

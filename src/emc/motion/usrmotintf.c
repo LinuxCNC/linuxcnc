@@ -837,13 +837,14 @@ int usrmotInit(char *modname)
     emcmotConfig = &(emcmotStruct->config);
     emcmotError = &(emcmotStruct->error);
     emcmotLog = &(emcmotStruct->log);
+
 #ifndef NEW_STRUCTS
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = &(emcmotStruct->comp[axis]);
     }
 #else
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	emcmotComp[axis] = &(emcmotStruct->joints[axis].comp);
+	emcmotComp[axis] = &(emcmotStatus->joints[axis].comp);
     }
 #endif
     emcmotshmem = emcmotStruct;

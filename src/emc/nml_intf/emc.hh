@@ -1286,9 +1286,12 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     unsigned char faultPolarity;
 
     // dynamic status
+    /* FIXME - is this the position cmd from control to PID, or
+       something else? */
     double setpoint;		// input to axis controller
     double ferrorCurrent;	// current following error
     double ferrorHighMark;	// magnitude of max following error
+    /* FIXME - is this really position, or the DAC output? */
     double output;		// commanded output position
     double input;		// current input position
     unsigned char inpos;	// non-zero means in position
