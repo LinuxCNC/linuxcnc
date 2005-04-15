@@ -17,6 +17,8 @@
 # uninstall - removes emc2 files from system directories
 # install - right now this does nothing
 # clean - cleans up temp files, backups, object files, binaries, etc.
+# tgz - creates emc2.tar.gz containing the sources (does a clean first)
+#       Usefull to produce an tarball of the latest CVS
 #
 # Note that right now the install and uninstall targets only install
 # and remove man pages - the rest of emc2 lives entirely within the
@@ -115,5 +117,21 @@ clean :
 	(if [ -d $(RTTMP_DIR) ] ; then rm -fR $(RTTMP_DIR) ; fi)
 	(if [ -d $(GTKTMP_DIR) ] ; then rm -fR $(GTKTMP_DIR) ; fi)
 
+tgz: clean
+	rm -rf /tmp/emc2-tgz-temp/emc2
+	install -d /tmp/emc2-tgz-temp/emc2/
+	
+	cp -R ./ /tmp/emc2-tgz-temp/emc2/
+
+# Remove Makefile.inc to force a rerun of ./configure
+# on the target machine where emc2.tar.gz will be copied to
+	rm /tmp/emc2-tgz-temp/emc2/Makefile.inc
+	rm /tmp/emc2-tgz-temp/emc2/config.status
+	rm /tmp/emc2-tgz-temp/emc2/config.log
+
+	rm -f /tmp/emc2-tgz-temp/emc2/emc2.tar.gz
+	cd /tmp/emc2-tgz-temp ; tar -czf emc2.tar.gz emc2
+	mv /tmp/emc2-tgz-temp/emc2.tar.gz ./
+	rm -rf /tmp/emc2-tgz-temp
 
 .PHONY : all examples headers depend indent install clean
