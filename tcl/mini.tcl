@@ -121,8 +121,26 @@ proc toggleRelAbs {} {
     }
 }
 
+# actcmd can be actual or commanded
+set temp [emc_ini "POSITION_FEEDBACK" "DISPLAY"]
+if {$temp == "ACTUAL"} {
+    set actcmd actual
+} elseif {$temp == "COMMANDED"} {
+    set actcmd commanded
+} else {
+    # not found, or invalid, so set to actual
+    set actcmd actual
+}
 
-set actcmd [emc_ini "POSITION_FEEDBACK" "DISPLAY"]
+proc toggleCmdAct {} {
+    global actcmd
+    if {$actcmd == "actual"} {
+        set actcmd commanded
+    } else {
+        set actcmd actual
+    }
+}
+
 set numcoords 0
 
 # Assign names to each axis number
