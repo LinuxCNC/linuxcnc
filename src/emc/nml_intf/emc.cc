@@ -276,6 +276,9 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_OPERATOR_TEXT_TYPE:
 	((EMC_OPERATOR_TEXT *) buffer)->update(cms);
 	break;
+    case EMC_SYSTEM_CMD_TYPE:
+	((EMC_SYSTEM_CMD *) buffer)->update(cms);
+	break;
     case EMC_SET_AIO_INDEX_TYPE:
 	((EMC_SET_AIO_INDEX *) buffer)->update(cms);
 	break;
@@ -673,6 +676,8 @@ const char *emc_symbol_lookup(long type)
 	return "EMC_OPERATOR_ERROR";
     case EMC_OPERATOR_TEXT_TYPE:
 	return "EMC_OPERATOR_TEXT";
+    case EMC_SYSTEM_CMD_TYPE:
+	return "EMC_SYSTEM_CMD";
     case EMC_SET_AIO_INDEX_TYPE:
 	return "EMC_SET_AIO_INDEX";
     case EMC_SET_DEBUG_TYPE:
@@ -962,6 +967,16 @@ void EMC_OPERATOR_DISPLAY::update(CMS * cms)
     cms->update(id);
     cms->update(display, 256);
 
+}
+
+/*
+*	NML/CMS Update function for EMC_SYSTEM_CMD
+*	Manually stuck in here by FMP
+*	on 27-Apr-2005 at the EMC Codefest
+*/
+void EMC_SYSTEM_CMD::update(CMS *cms)
+{
+  cms->update(string,256);
 }
 
 /*
