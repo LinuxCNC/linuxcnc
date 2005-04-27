@@ -38,6 +38,8 @@
 
 #define EMC_SET_DEBUG_TYPE                           ((NMLTYPE) 22)
 
+#define EMC_SYSTEM_CMD_TYPE                          ((NMLTYPE) 30)
+
 // NML for EMC_AXIS
 
 #define EMC_AXIS_SET_AXIS_TYPE                       ((NMLTYPE) 101)
@@ -341,7 +343,8 @@ enum EMC_TASK_EXEC_ENUM {
     EMC_TASK_EXEC_WAITING_FOR_IO = 5,
     EMC_TASK_EXEC_WAITING_FOR_PAUSE = 6,
     EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO = 7,
-    EMC_TASK_EXEC_WAITING_FOR_DELAY = 8
+    EMC_TASK_EXEC_WAITING_FOR_DELAY = 8,
+    EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD = 9
 };
 
 // types for EMC_TASK interpState
@@ -738,6 +741,21 @@ class EMC_OPERATOR_DISPLAY:public RCS_CMD_MSG {
 
     int id;
     char display[EMC_OPERATOR_DISPLAY_LEN];
+};
+
+#define EMC_SYSTEM_CMD_LEN 256
+/*
+  execute a system command
+*/
+class EMC_SYSTEM_CMD : public RCS_CMD_MSG
+{
+public:
+  EMC_SYSTEM_CMD(): RCS_CMD_MSG(EMC_SYSTEM_CMD_TYPE, sizeof(EMC_SYSTEM_CMD)) {};
+
+  // For internal NML/CMS use only.
+  void update(CMS *cms);
+
+  char string[EMC_SYSTEM_CMD_LEN];
 };
 
 class EMC_NULL:public RCS_CMD_MSG {
@@ -2954,5 +2972,14 @@ extern EMC_IO_STAT *emcIoStatus;
 
 // EMC MOTION status
 extern EMC_MOTION_STAT *emcMotionStatus;
+
+/*
+  Modification history:
+
+  $Log$
+  Revision 1.8  2005/04/27 20:00:14  proctor
+  Added EMC_SYSTEM_CMD stuff from BDI-4
+
+*/
 
 #endif // #ifndef EMC_HH
