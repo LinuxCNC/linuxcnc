@@ -3,7 +3,11 @@ Basic description
 
 The build process follows the standard Linux convention:
 
-From the top level directory, run:
+From the top level directory, switch to the source directory:
+
+cd src
+
+In the source directory, build EMC2:
 
 ./configure
 make clean

@@ -13,8 +13,8 @@
 
 AC_PREREQ(2.13)
 #AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
-#AC_CONFIG_SRCDIR(src/hal/hal_lib.c)
-AC_INIT(src/emc/hal_intf/exthalmot.c)
+#AC_CONFIG_SRCDIR(hal/hal_lib.c)
+AC_INIT(emc/hal_intf/exthalmot.c)
 
 # EMC2 internationalisation package name:
 PACKAGE="emc2"
@@ -550,15 +550,15 @@ if (test -r $RTDIR/modules/rtai_libm.o ) || (test $USE_RTLIBM) || (test -r /lib/
 else
     AC_MSG_RESULT([no])
     AC_MSG_CHECKING([for a suitable libm])
-    rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
+    rm -f tests/mathtest.o tests/mathtest 2>/dev/null
     # compile a sample first.
-    $CC -c src/tests/mathtest.c $RTFLAGS -o src/tests/mathtest.o 2>/dev/null
+    $CC -c tests/mathtest.c $RTFLAGS -o tests/mathtest.o 2>/dev/null
 
     DIET_DIR=$(find /usr/lib -maxdepth 2 -name diet* | head -n1)
     if (test "$DIET_DIR" != "" ) ; then
         # Run a test to see if it will work...
-        ld -r -static src/tests/mathtest.o -o src/tests/mathtest -L$DIET_DIR/lib-i386 -lm 2>/dev/null
-        if (test "$(nm -u src/tests/mathtest | grep -v ende)" = "" ) ; then
+        ld -r -static tests/mathtest.o -o tests/mathtest -L$DIET_DIR/lib-i386 -lm 2>/dev/null
+        if (test "$(nm -u tests/mathtest | grep -v ende)" = "" ) ; then
             AC_MSG_RESULT([diet lib OK to use.])
             USE_DIET=1
             MATHLIB="-L$DIET_DIR/lib-i386 -lm"
@@ -567,9 +567,9 @@ else
     fi
     if (test "$USE_DIET" = "" ) ; then
         # Test the standard libm
-    rm -f src/tests/mathtest 2>/dev/null
-    ld -r -static src/tests/mathtest.o -o src/tests/mathtest -L/usr/lib -lm 2>/dev/null
-        if ! nm -u src/tests/mathtest ; then
+    rm -f tests/mathtest 2>/dev/null
+    ld -r -static tests/mathtest.o -o tests/mathtest -L/usr/lib -lm 2>/dev/null
+        if ! nm -u tests/mathtest ; then
             AC_MSG_RESULT([libm OK to use.])
             USE_LIBM=1
             MATHLIB="-L/usr/lib -lm"
@@ -583,7 +583,7 @@ else
             MATHLIB="\$(RTTMP_DIR)/mathstubs.o -L/usr/lib -lm"
         fi
     fi
-    rm -f src/tests/mathtest.o src/tests/mathtest 2>/dev/null
+    rm -f tests/mathtest.o tests/mathtest 2>/dev/null
 fi
 
 AC_SUBST([USE_LIBM])
@@ -726,7 +726,7 @@ fi
 ##############################################################################
 # files that get created by ./configure                                      #
 ##############################################################################
-#AC_CONFIG_FILES([configs/rtapi.conf configs/emc.conf configs/hal.conf src/config.h])
+#AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
 AC_OUTPUT(Makefile.inc)
 
 ##############################################################################
@@ -750,7 +750,10 @@ echo "#                                                                    #"
 echo "#   Next try to compile by typing                                    #"
 echo "#         make                                                       #"
 echo "#                                                                    #"
-echo "#   to run the software you need to type                             #"
+echo "#   to run the software you need to change to the top level          #"
+echo "#   EMC2 directory:                                                  #"
+echo "#         cd ..                                                      #"
+echo "#   and run it:                                                      #"
 echo "#         scripts/emc.run                                            #"
 echo "#                                                                    #"
 echo "######################################################################"

@@ -49,10 +49,10 @@ all headers indent :
 	  echo "Create realtime library directory $(RTLIB_DIR)" ;\
 	  mkdir $(RTLIB_DIR) ;\
 	fi
-	(cd src/rtapi; make $@)
-	(cd src/hal; make $@)
-	(cd src/libnml; make $@)
-	(cd src/emc; make $@)
+	(cd rtapi; make $@)
+	(cd hal; make $@)
+	(cd libnml; make $@)
+	(cd emc; make $@)
 
 # these variables are used to build a list of all
 # man pages that need to be installed
@@ -77,8 +77,8 @@ $(MAN_DIR)/% : docs/man/%
 # its dependency installs all the man pages
 
 install : $(MAN_FILES)
-	(cd src/rtapi; make $@)
-	(cd src/hal; make $@)
+	(cd rtapi; make $@)
+	(cd hal; make $@)
 
 # this rule handles the uninstall target
 # it removes all the man pages
@@ -91,28 +91,28 @@ uninstall :
 # files are installed, then runs the depend target in each directory
 
 depend : headers
-	(cd src/rtapi; make $@)
-	(cd src/hal; make $@)
-	(cd src/libnml; make $@)
-	(cd src/emc; make $@)
+	(cd rtapi; make $@)
+	(cd hal; make $@)
+	(cd libnml; make $@)
+	(cd emc; make $@)
 
 # this rule handles the examples target
 # it only enters directories that have examples
 examples :
-	(cd src/rtapi; make $@)
+	(cd rtapi; make $@)
 
 # this rule handles the clean target
 # it changes to all the source sub-directories, calls make there, and
 # then returns to the top level directory and cleans that up too.
 clean :
-	(cd src/rtapi; make $@)
-	(cd src/hal; make $@)
-	(cd src/libnml; make $@)
-	(cd src/emc; make $@)
+	(cd rtapi; make $@)
+	(cd hal; make $@)
+	(cd libnml; make $@)
+	(cd emc; make $@)
 	find . -name "*~" -exec rm -f {} \;
 	find . -name "*.bak" -exec rm -f {} \;
 	find . -name core -exec rm -f {} \;
-	-(rm -f include/* lib/* rtlib/* bin/* 2>/dev/null)
+	-(rm -f ../include/* ../lib/* ../rtlib/* ../bin/* 2>/dev/null)
 	(if [ -d $(TMP_DIR) ] ; then rm -fR $(TMP_DIR) ; fi)
 	(if [ -d $(RTTMP_DIR) ] ; then rm -fR $(RTTMP_DIR) ; fi)
 	(if [ -d $(GTKTMP_DIR) ] ; then rm -fR $(GTKTMP_DIR) ; fi)
