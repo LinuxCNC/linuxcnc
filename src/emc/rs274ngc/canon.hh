@@ -696,7 +696,10 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num);
 /*
   Modification history:
 
-  $log$
+  $Log$
+  Revision 1.6  2005/04/27 15:20:54  proctor
+  Added the dollar-log-dollar entry in the Modification history at the end.
+
 */
 
 #endif /* ifndef CANON_HH */
