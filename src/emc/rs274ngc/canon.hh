@@ -39,14 +39,6 @@
 */
 
 /*
-  Modification history:
-
-  7-Jan-2004  FMP added the NO_AA, NO_BB and NO_CC flags to simplify
-  building of the ABC interpreter by default and allow overriding to
-  build interpreters that exclude one or more rotary axes.
-*/
-
-/*
   The RS274NGC compiler references canon.hh, and here we switch on the
   symbols AA, BB and CC to declare the position structures. The EMC
   uses AA, BB and CC, and thus by default will get these.
@@ -695,5 +687,16 @@ extern CANON_TOOL_TABLE _tools[];	/* in canon.cc */
 extern int _tool_max;		/* in canon.cc */
 extern char _parameter_file_name[];	/* in canon.cc */
 #define PARAMETER_FILE_NAME_LENGTH 100
+
+#define USER_DEFINED_FUNCTION_NUM 100
+typedef void (*USER_DEFINED_FUNCTION_TYPE)(int num, double arg1, double arg2);
+extern USER_DEFINED_FUNCTION_TYPE USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
+extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num);
+
+/*
+  Modification history:
+
+  $log$
+*/
 
 #endif /* ifndef CANON_HH */
