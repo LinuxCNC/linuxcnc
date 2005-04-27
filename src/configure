@@ -1626,10 +1626,11 @@ fi
 # Check for emc2 dir
 # FIXME
 # right now... not done
-# just output the current directory as emc2 home
+# just assume we're running in the src/ directory, so output the name
+# of the next directory up as emc2 home
 # needs some discussions & adjustments
 
-EMC2_HOME=`pwd`
+EMC2_HOME=`(cd .. ; pwd)`
 
 
 # Support some of the standard configure options for directories
