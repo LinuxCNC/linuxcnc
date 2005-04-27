@@ -1,6 +1,6 @@
 # Makefile for compiling EMC motion code
 
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 SRCS = \
 	emcmotglb.c \
@@ -45,7 +45,7 @@ all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 # Explicit rules.
 

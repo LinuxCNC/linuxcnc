@@ -1,6 +1,6 @@
 # Makefile for compiling EMC kinematics code
 
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 RT_SRCS = \
 	cubic.c \
@@ -28,7 +28,7 @@ RT_OBJS  = \
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

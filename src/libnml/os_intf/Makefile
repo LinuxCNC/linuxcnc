@@ -2,7 +2,7 @@
 LIB_OBJS =
 include Makefile.lib
 # make definitions.
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 # Declare which files are to be released
 HEADERS = \
@@ -30,7 +30,7 @@ LIBS =
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

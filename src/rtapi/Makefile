@@ -1,7 +1,7 @@
 # Makefile for real-time and user-level API
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../../Makefile.inc
+include ../Makefile.inc
 
 # Public headers
 HEADERS = \
@@ -32,7 +32,7 @@ $(RTTMP_DIR)/mathstubs.o
 all: rtapi.conf headers $(LIBS)
 
 # Generic rules
-include ../../Make.rules
+include ../Make.rules
 
 examples:
 	(cd examples; make all)

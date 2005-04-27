@@ -5,7 +5,7 @@
 LIB_OBJS =
 include Makefile.lib
 # make rules.
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 SRCS =	\
 	locmem.cc \
@@ -34,7 +34,7 @@ OBJS := $(CMS_OBJS)
 all: $(HEADERS) $(OBJS:%.o=$(TMP_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

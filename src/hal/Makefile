@@ -1,7 +1,7 @@
 # Makefile for HAL
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../../Makefile.inc
+include ../Makefile.inc
 
 # Set local flags with the GTK flags.
 LOCAL_CFLAGS = $(GTK_CFLAGS)
@@ -30,7 +30,7 @@ all : headers $(LIBS)
 	(cd components; make $@)
 
 # Generic rules
-include $(EMC2_HOME)/Make.rules
+include $(SRC_DIR)/Make.rules
 
 headers: def_headers
 	(cd utils; make $@)

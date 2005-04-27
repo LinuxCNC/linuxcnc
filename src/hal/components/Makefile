@@ -1,7 +1,7 @@
 # Makefile for HAL Components
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 # Public headers
 HEADERS =
@@ -34,7 +34,7 @@ $(RTLIB_DIR)/supply.o
 all : headers $(LIBS)
 
 # Generic rules
-include $(EMC2_HOME)/Make.rules
+include $(SRC_DIR)/Make.rules
 
 # specific rule to link siggen with libm
 $(RTLIB_DIR)/siggen.o: $(RTTMP_DIR)/siggen.o

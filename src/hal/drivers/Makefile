@@ -19,7 +19,7 @@
 #
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 # Public headers
 HEADERS =
@@ -53,7 +53,7 @@ $(BIN_DIR)/hal_skeleton
 all : headers $(OBJS) $(LIBS) $(BINS)
 
 # Generic rules
-include $(EMC2_HOME)/Make.rules
+include $(SRC_DIR)/Make.rules
 
 headers: def_headers
 indent: def_indent

@@ -12,7 +12,7 @@
 # (with debug).
 
 # make rules.
-include ../../../Makefile.inc
+include ../../Makefile.inc
 # LIB_OBJS
 LIB_OBJS =
 include Makefile.lib
@@ -41,7 +41,7 @@ LOCAL_RTFLAGS = -ffast-math
 all: headers $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) $(LIBS)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

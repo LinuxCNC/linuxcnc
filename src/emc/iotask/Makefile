@@ -1,7 +1,7 @@
 # Makefile for compiling EMC IO controller
 
 # get all the platform and application definitions
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 SRCS =	simIoControl.cc \
 	ioControl.cc
@@ -17,7 +17,7 @@ OBJS = simIoControl.o \
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 $(BIN_DIR)/io: $(TMP_DIR)/ioControl.o \
 	$(LIB_DIR)/libemc.a \

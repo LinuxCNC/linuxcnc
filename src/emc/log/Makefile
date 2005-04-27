@@ -1,6 +1,6 @@
-# Makefile for compiling EMC motion code
+# Makefile for compiling EMC logging code
 
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 SRCS = emcmotlog.c
 
@@ -13,7 +13,7 @@ OBJS =  emcmotlog.o
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(OBJS:%.o=$(RTTMP_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

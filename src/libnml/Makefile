@@ -4,7 +4,7 @@
 
 # include Makefile.lib
 # make rules.
-include ../../Makefile.inc
+include ../Makefile.inc
 
 all: headers
 

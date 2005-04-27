@@ -1,7 +1,7 @@
 # Makefile for compiling EMC task code
 
 # get all the platform and application definitions
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 SRCS =	emccanon.cc \
 	emcsvr.cc \
@@ -27,7 +27,7 @@ all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%)
 # $(OBJS:%.o=$(TMP_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 $(BIN_DIR)/emcsvr: $(TMP_DIR)/emcsvr.o \
 	$(LIB_DIR)/libemc.a \

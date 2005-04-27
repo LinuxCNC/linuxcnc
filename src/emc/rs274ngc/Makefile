@@ -1,6 +1,6 @@
 # Makefile for compiling RS-274-NGC interpreter code for the EMC
 
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 
 SRCS = \
@@ -17,7 +17,7 @@ OBJS = rs274.o \
 
 all: headers $(SRCS:%.cc=$(TMP_DIR)/%.o) $(OBJS:%=$(TMP_DIR)/%)
 
-include ../../../Make.rules
+include ../../Make.rules
 LOCAL_CXXFLAGS = -Wno-unused
 
 $(TMP_DIR)/rs274.o: $(TMP_DIR)/rs274ngc_pre.o
