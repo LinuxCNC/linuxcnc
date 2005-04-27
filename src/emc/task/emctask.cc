@@ -18,7 +18,10 @@
 
 #include <stdlib.h>
 #include <string.h>		// strncpy()
+#include <sys/stat.h>		// struct stat
+#include <unistd.h>		// stat()
 
+#include "rcs.hh"		// INIFILE
 #include "emc.hh"		// EMC NML
 #include "emcglb.h"		// EMC_INIFILE
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
@@ -31,9 +34,65 @@ static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
 // EMC_TASK interface
 
+/*
+  format string for user-defined programs, e.g., "programs/M1%02d" means
+  user-defined programs are in the programs/ directory and are named
+  M1XX, where XX is a two-digit string.
+*/
+
+static char user_defined_fmt[EMC_SYSTEM_CMD_LEN] = "nc_files/M1%02d";
+
+static void user_defined_add_m_code(int num, double arg1, double arg2)
+{
+  char fmt[EMC_SYSTEM_CMD_LEN];
+  EMC_SYSTEM_CMD system_cmd;
+
+  strcpy(fmt, user_defined_fmt);
+  strcat(fmt, " %f %f");
+  sprintf(system_cmd.string, fmt, num, arg1, arg2);
+  interp_list.append(system_cmd);
+}
+
 int emcTaskInit()
 {
-    return 0;
+  int index;
+  char path[EMC_SYSTEM_CMD_LEN];
+  struct stat buf;
+  INIFILE inifile;
+  const char * inistring;
+
+  // read out directory where programs are located
+  inifile.open(EMC_INIFILE);
+  inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY");
+  inifile.close();
+
+  // if we have a program prefix, override the default user_defined_fmt
+  // string with program prefix, then "M1%02d", e.g.
+  // nc_files/M101, where the %%02d means 2 digits after the M code
+  // and we need two % to get the literal %
+  if (NULL != inistring) {
+    sprintf(user_defined_fmt, "%sM1%%02d", inistring);
+  }
+
+  /* check for programs named programs/M100 .. programs/M199 and add
+     any to the user defined functions list */
+  for (index = 0; index < USER_DEFINED_FUNCTION_NUM; index++) {
+    sprintf(path, user_defined_fmt, index);
+    if (0 == stat(path, &buf)) {
+      if (buf.st_mode & S_IXUSR) {
+	USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code, index);
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	  rcs_print("emcTaskInit: adding user-defined function %s\n", path);
+	}
+      } else {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	  rcs_print("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n", path);
+	}
+      }
+    }
+  }
+
+  return 0;
 }
 
 int emcTaskHalt()
@@ -369,3 +428,12 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 
     return 0;
 }
+
+/*
+  Modification history:
+
+  $Log$
+  Revision 1.4  2005/04/27 20:05:47  proctor
+  Added user-defined M codes, from BDI-4
+
+*/

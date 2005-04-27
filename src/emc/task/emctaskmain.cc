@@ -57,6 +57,10 @@ extern "C" {
 #include <stdlib.h>		// exit()
 #include <signal.h>		// signal(), SIGINT
 #include <float.h>		// DBL_MAX
+#include <sys/types.h>		// pid_t
+#include <unistd.h>		// fork()
+#include <sys/wait.h>		// waitpid(), WNOHANG, WIFEXITED
+#include <ctype.h>		// isspace()
 #include <libintl.h>
 }
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
@@ -208,6 +212,94 @@ int emcOperatorDisplay(int id, const char *fmt, ...)
 
     // write it
     return emcErrorBuffer->write(display_msg);
+}
+
+/*
+  handling of EMC_SYSTEM_CMD
+ */
+
+/* convert string to arg/argv set */
+
+static int argvize(const char *src, char *dst, char *argv[], int len)
+{
+  char *bufptr;
+  int argvix;
+  char inquote;
+  char looking;
+
+  strncpy(dst, src, len);
+  dst[len - 1] = 0;
+  bufptr = dst;
+  inquote = 0;
+  argvix = 0;
+  looking = 1;
+
+  while (0 != *bufptr) {
+    if (*bufptr == '"') {
+      *bufptr = 0;
+      if (inquote) {
+	inquote = 0;
+	looking = 1;
+      } else {
+	inquote = 1;
+      }
+    } else if (isspace(*bufptr) && ! inquote) {
+      looking = 1;
+      *bufptr = 0;
+    } else if (looking) {
+      looking = 0;
+      argv[argvix] = bufptr;
+      argvix++;
+    }
+    bufptr++;
+  }
+
+  argv[argvix] = 0;		// null-terminate the argv list
+
+  return argvix;
+}
+
+static pid_t emcSystemCmdPid = 0;
+
+int emcSystemCmd(char *s)
+{
+  char buffer[EMC_SYSTEM_CMD_LEN];
+  char *argv[EMC_SYSTEM_CMD_LEN / 2 + 1];
+
+  if (0 != emcSystemCmdPid) {
+    // something's already running, and we can only handle one
+    if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+      rcs_print("emcSystemCmd: abandoning process %d, running ``%s''\n",
+		emcSystemCmdPid, s);
+    }
+  }
+
+  emcSystemCmdPid = fork();
+
+  if (-1 == emcSystemCmdPid) {
+    // we're still the parent, with no child created
+    if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+      rcs_print("system command ``%s'' can't be executed\n", s);
+    }
+    return -1;
+  }
+
+  if (0 == emcSystemCmdPid) {
+    // we're the child
+    // convert string to argc/argv
+    argvize(s, buffer, argv, EMC_SYSTEM_CMD_LEN);
+    // drop any setuid privileges
+    setuid(getuid());
+    execvp(argv[0], argv);
+    // if we get here, we didn't exec
+    if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+      rcs_print("emcSystemCmd: can't execute ``%s''\n", s);
+    }
+    return -1;
+  }
+
+  // else we're the parent
+  return 0;
 }
 
 // shorthand typecasting ptrs
@@ -1188,6 +1280,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_OPERATOR_ERROR_TYPE:
     case EMC_OPERATOR_TEXT_TYPE:
     case EMC_OPERATOR_DISPLAY_TYPE:
+    case EMC_SYSTEM_CMD_TYPE:
     case EMC_TRAJ_PROBE_TYPE:	// prevent blending of this
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:	// and this
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
@@ -1312,6 +1405,10 @@ printf ( "emcTaskIssueCommand()\n" );
 	retval = emcOperatorDisplay(((EMC_OPERATOR_DISPLAY *) cmd)->id,
 	    ((EMC_OPERATOR_DISPLAY *) cmd)->display);
 	break;
+
+    case EMC_SYSTEM_CMD_TYPE:
+      retval = emcSystemCmd(((EMC_SYSTEM_CMD *) cmd)->string);
+      break;
 
 	// axis commands
 
@@ -1924,6 +2021,10 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC_DONE;
 	break;
 
+  case EMC_SYSTEM_CMD_TYPE:
+    return EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD;
+    break;
+
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:
@@ -2004,7 +2105,19 @@ if (stepping) {                                                            \
 // executor function
 static int emcTaskExecute(void)
 {
-    int retval = 0;
+  int retval = 0;
+  int status;			// status of child from EMC_SYSTEM_CMD
+  pid_t pid;			// pid returned from waitpid()
+
+  // first check for an abandoned system command and abort it
+  if (emcSystemCmdPid != 0 &&
+      emcStatus->task.execState != EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD) {
+    if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+      rcs_print("emcSystemCmd: abandoning process %d\n", emcSystemCmdPid);
+    }
+    kill(emcSystemCmdPid, SIGINT);
+    emcSystemCmdPid = 0;
+  }
 
 
     switch (emcStatus->task.execState) {
@@ -2158,6 +2271,76 @@ static int emcTaskExecute(void)
 	}
 #endif
 	break;
+
+  case EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD:
+    STEPPING_CHECK();
+
+    // if we got here without a system command pending, say we're done
+    if (0 == emcSystemCmdPid) {
+      emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+      break;
+    }
+    // check the status of the system command
+    pid = waitpid(emcSystemCmdPid, &status, WNOHANG);
+
+    if (0 == pid) {
+      // child is still executing
+      break;
+    }
+
+    if (-1 == pid) {
+      // execution error
+      if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+	rcs_print("emcSystemCmd: error waiting for %d\n", emcSystemCmdPid);
+      }
+      emcSystemCmdPid = 0;
+      emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+      break;
+    }
+
+    if (emcSystemCmdPid != pid) {
+      // somehow some other child finished, which is a coding error
+      if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+	rcs_print
+	  ("emcSystemCmd: error waiting for system command %d, we got %d\n",
+	   emcSystemCmdPid, pid);
+      }
+      emcSystemCmdPid = 0;
+      emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+      break;
+    }
+    // else child has finished
+    if (WIFEXITED(status)) {
+      if (0 == WEXITSTATUS(status)) {
+	// child exited normally
+	emcSystemCmdPid = 0;
+	emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+      } else {
+	// child exited with non-zero status
+	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+	  rcs_print
+	    ("emcSystemCmd: system command %d exited abnormally with value %d\n",
+	     emcSystemCmdPid, WEXITSTATUS(status));
+	}
+	emcSystemCmdPid = 0;
+	emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+      }
+    } else if (WIFSIGNALED(status)) {
+      // child exited with an uncaught signal
+      if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+	rcs_print("system command %d terminated with signal %d\n",
+		  emcSystemCmdPid, WTERMSIG(status));
+      }
+      emcSystemCmdPid = 0;
+      emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+    } else if (WIFSTOPPED(status)) {
+      // child is currently being traced, so keep waiting
+    } else {
+      // some other status, we'll call this an error
+      emcSystemCmdPid = 0;
+      emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+    }
+    break;
 
     default:
 	// coding error
@@ -2803,3 +2986,12 @@ int main(int argc, char *argv[])
     // and leave
     exit(0);
 }
+
+/*
+  Modification history:
+
+  $Log$
+  Revision 1.23  2005/04/27 20:05:47  proctor
+  Added user-defined M codes, from BDI-4
+
+*/

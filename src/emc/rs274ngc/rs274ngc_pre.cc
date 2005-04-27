@@ -129,6 +129,9 @@ axes not compiled in.
 
 #define DEBUG_EMC
 
+// define USE_AXIS_CLAMPS if you want M26/M27 to do axis clamping
+#undef USE_AXIS_CLAMPS
+
 /*
 
 The _setup model includes a stack array for the names of function
@@ -511,7 +514,7 @@ group 6 = {m6}               - tool change
 group 7 = {m3,m4,m5}         - spindle turning
 group 8 = {m7,m8,m9}         - coolant
 group 9 = {m48,m49}          - feed and speed override switch bypass
-
+group 100+ = {m100..m199}    - user-defined
 */
 
 static const int _ems[] = {
@@ -524,7 +527,17 @@ static const int _ems[] = {
 /* M60 */   4, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 /* M70 */  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 /* M80 */  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-/* M90 */  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+/* M90 */  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+100, 101, 102, 103, 104, 105, 106, 107, 108, 109,
+110, 111, 112, 113, 114, 115, 116, 117, 118, 119,
+120, 121, 122, 123, 124, 125, 126, 127, 128, 129,
+130, 131, 132, 133, 134, 135, 136, 137, 138, 139,
+140, 141, 142, 143, 144, 145, 146, 147, 148, 149,
+150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
+160, 161, 162, 163, 164, 165, 166, 167, 168, 169,
+170, 171, 172, 173, 174, 175, 176, 177, 178, 179,
+180, 181, 182, 183, 184, 185, 186, 187, 188, 189,
+190, 191, 192, 193, 194, 195, 196, 197, 198, 199};
 
 /*
 
@@ -1190,14 +1203,16 @@ static int check_other_codes(	/* ARGUMENTS */
 
     if (block->p_number != -1.0) {
 	CHK(((block->g_modes[0] != G_10) &&
-		(block->g_modes[0] != G_4) &&
-		(motion != G_82) && (motion != G_86) &&
-		(motion != G_88) && (motion != G_89)),
+	     (block->g_modes[0] != G_4) &&
+	     (block->user_m != 1) &&
+	     (motion != G_82) && (motion != G_86) &&
+	     (motion != G_88) && (motion != G_89)),
 	    NCE_P_WORD_WITH_NO_G4_G10_G82_G86_G88_G89);
     }
 
     if (block->q_number != -1.0) {
-	CHK((motion != G_83), NCE_Q_WORD_WITH_NO_G83);
+	CHK((motion != G_83) &&
+	    (block->user_m != 1), NCE_Q_WORD_WITH_NO_G83);
     }
 
     if (block->r_flag == ON) {
@@ -4086,6 +4101,7 @@ static int convert_m(		/* ARGUMENTS */
 {				/* pointer to machine settings */
     static char name[] = "convert_m";
     int status;
+    int index;
 
     if (block->m_modes[6] != -1) {
 	CHP(convert_tool_change(settings));
@@ -4115,22 +4131,19 @@ static int convert_m(		/* ARGUMENTS */
 	settings->flood = OFF;
     }
 
-/* No axis clamps in this version
-  if (block->m_modes[2] == 26)
-    {
+#ifdef USE_AXIS_CLAMPS
+    if (block->m_modes[2] == 26) {
 #ifdef DEBUG_EMC
       COMMENT("interpreter: automatic A-axis clamping turned on");
 #endif
       settings->a_axis_clamping = ON;
-    }
-  else if (block->m_modes[2] == 27)
-    {
+    } else if (block->m_modes[2] == 27) {
 #ifdef DEBUG_EMC
       COMMENT("interpreter: automatic A-axis clamping turned off");
 #endif
       settings->a_axis_clamping = OFF;
     }
-*/
+#endif
 
     if (block->m_modes[9] == 48) {
 	ENABLE_FEED_OVERRIDE();
@@ -4142,6 +4155,17 @@ static int convert_m(		/* ARGUMENTS */
 	DISABLE_SPEED_OVERRIDE();
 	settings->feed_override = OFF;
 	settings->speed_override = OFF;
+    }
+
+    /* user-defined M codes */
+    for (index = 100; index < 200; index++) {
+      if (block->m_modes[index] == index) {
+	if (USER_DEFINED_FUNCTION[index - 100] != 0) {
+	  (*(USER_DEFINED_FUNCTION[index - 100]))(index - 100, block->p_number, block->q_number);
+	} else {
+	  CHK(1, NCE_UNKNOWN_M_CODE_USED);
+	}
+      }
     }
 
     return RS274NGC_OK;
@@ -6175,9 +6199,10 @@ static int init_block(		/* ARGUMENTS */
     block->line_number = -1;
     block->motion_to_be = -1;
     block->m_count = 0;
-    for (n = 0; n < 10; n++) {
+    for (n = 0; n < 200; n++) {
 	block->m_modes[n] = -1;
     }
+    block->user_m = 0;
     block->p_number = -1.0;
     block->q_number = -1.0;
     block->r_flag = OFF;
@@ -7489,13 +7514,16 @@ static int read_m(		/* ARGUMENTS */
     *counter = (*counter + 1);
     CHP(read_integer_value(line, counter, &value, parameters));
     CHK((value < 0), NCE_NEGATIVE_M_CODE_USED);
-    CHK((value > 99), NCE_M_CODE_GREATER_THAN_99);
+    CHK((value > 199), NCE_M_CODE_GREATER_THAN_199);
     mode = _ems[value];
     CHK((mode == -1), NCE_UNKNOWN_M_CODE_USED);
     CHK((block->m_modes[mode] != -1),
 	NCE_TWO_M_CODES_USED_FROM_SAME_MODAL_GROUP);
     block->m_modes[mode] = value;
     block->m_count++;
+    if (value >= 100 && value < 200) {
+      block->user_m = 1;
+    }
     return RS274NGC_OK;
 }
 
@@ -10306,5 +10334,15 @@ void rs274ngc_stack_name(	/* ARGUMENTS */
 
 /***********************************************************************/
 /***********************************************************************/
+
+/*
+  Modification history:
+
+  $Log$
+  Revision 1.8  2005/04/27 20:03:55  proctor
+  Added user-defined M codes, from BDI-4
+
+*/
+
 /* end of file */
 
