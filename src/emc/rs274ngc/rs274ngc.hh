@@ -216,7 +216,8 @@ typedef struct block_struct {
     int line_number;
     int motion_to_be;
     int m_count;
-    int m_modes[10];
+    int m_modes[200];
+    int user_m;
     double p_number;
     double q_number;
     ON_OFF r_flag;
@@ -440,5 +441,14 @@ static inline const char *rs274ngc_file()
     rs274ngc_file_name(buf, 100);
     return buf;
 }
+
+/*
+  Modification history:
+
+  $Log$
+  Revision 1.5  2005/04/27 20:02:10  proctor
+  Added user M code, changed range of M codes from 99 to 199
+
+*/
 
 #endif
