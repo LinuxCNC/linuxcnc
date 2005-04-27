@@ -1,7 +1,7 @@
 # Makefile for fifo example
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../../../../Makefile.inc
+include ../../../Makefile.inc
 
 # Public headers
 HEADERS =
@@ -28,7 +28,7 @@ $(BIN_DIR)/fifousr
 all : headers $(LIBS) $(BINS)
 
 # Generic rules
-include ../../../../Make.rules
+include $(SRC_DIR)/Make.rules
 
 # explicit rule to link user space binary fifomusr
 $(BIN_DIR)/fifousr : $(TMP_DIR)/fifousr.o $(LIB_DIR)/ulapi.o

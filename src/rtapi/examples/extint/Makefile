@@ -1,7 +1,7 @@
 # Makefile for external interrupt example
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../../../../Makefile.inc
+include ../../../Makefile.inc
 
 # Public headers
 HEADERS =
@@ -26,7 +26,7 @@ BINS =
 all : headers $(LIBS) $(BINS)
 
 # Generic rules
-include ../../../../Make.rules
+include $(SRC_DIR)/Make.rules
 
 headers: def_headers
 

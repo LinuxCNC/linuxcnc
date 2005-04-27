@@ -1,7 +1,7 @@
 # Makefile for shared memory task example
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../../../../Makefile.inc
+include ../../../Makefile.inc
 
 # Public headers
 HEADERS =
@@ -27,7 +27,7 @@ $(BIN_DIR)/shmemusr
 all : headers $(LIBS) $(BINS)
 
 # Generic rules
-include ../../../../Make.rules
+include $(SRC_DIR)/Make.rules
 
 headers: def_headers
 
