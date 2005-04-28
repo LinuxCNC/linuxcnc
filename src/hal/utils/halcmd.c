@@ -611,9 +611,9 @@ static int do_setp_cmd(char *name, char *value)
 	}
 	break;
     case HAL_FLOAT:
-	fval = strtod(value, &cp);
-	if (*cp != '\0') {
-	    /* invalid chars in string */
+	fval = strtod ( value, &cp );
+	if ((*cp != '\0') && (!isspace(*cp))) {
+	    /* invalid character(s) in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for float parameter\n",
 		value);
@@ -624,7 +624,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_S8:
 	lval = strtol(value, &cp, 0);
-	if ((*cp != '\0') || (lval > 127) || (lval < -128)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 127) || (lval < -128)) {
 	    /* invalid chars in string, or outside limits of S8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for S8 parameter\n", value);
@@ -635,7 +635,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_U8:
 	ulval = strtoul(value, &cp, 0);
-	if ((*cp != '\0') || (ulval > 255)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 255)) {
 	    /* invalid chars in string, or outside limits of U8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for U8 parameter\n", value);
@@ -646,7 +646,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_S16:
 	lval = strtol(value, &cp, 0);
-	if ((*cp != '\0') || (lval > 32767) || (lval < -32768)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 32767) || (lval < -32768)) {
 	    /* invalid chars in string, or outside limits of S16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for S16 parameter\n", value);
@@ -657,7 +657,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_U16:
 	ulval = strtoul(value, &cp, 0);
-	if ((*cp != '\0') || (ulval > 65535)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 65535)) {
 	    /* invalid chars in string, or outside limits of U16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for U16 parameter\n", value);
@@ -668,7 +668,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_S32:
 	lval = strtol(value, &cp, 0);
-	if (*cp != '\0') {
+	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for S32 parameter\n", value);
@@ -679,7 +679,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_U32:
 	ulval = strtoul(value, &cp, 0);
-	if (*cp != '\0') {
+	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for U32 parameter\n", value);
