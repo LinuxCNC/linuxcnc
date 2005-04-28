@@ -7,7 +7,6 @@ SRCS = \
 	rs274ngc_pre.cc \
 
 HEADERS = \
-	canon.hh \
 	rs274ngc.hh \
 	rs274ngc_return.hh
 
