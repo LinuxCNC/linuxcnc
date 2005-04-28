@@ -14,7 +14,8 @@ HEADERS = \
 	emccfg.h \
 	emcglb.h \
 	emcpos.h \
-	interpl.hh
+	interpl.hh \
+	canon.hh
 
 BINS =
 
