@@ -50,8 +50,8 @@ all headers indent :
 	  mkdir $(RTLIB_DIR) ;\
 	fi
 	(cd rtapi; make $@)
-	(cd hal; make $@)
 	(cd libnml; make $@)
+	(cd hal; make $@)
 	(cd emc; make $@)
 
 # these variables are used to build a list of all
