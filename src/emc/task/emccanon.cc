@@ -807,9 +807,19 @@ void ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction)
     // FIXME-- unimplemented
 }
 
-void USE_NO_SPINDLE_FORCE()
+void USE_SPINDLE_FORCE(void)
 {
-    // FIXME-- unimplemented
+  // FIXME-- unimplemented
+}
+
+void LOCK_SPINDLE_Z(void)
+{
+  // FIXME-- unimplemented
+}
+
+void USE_NO_SPINDLE_FORCE(void)
+{
+  // FIXME-- unimplemented
 }
 
 /* Tool Functions */
@@ -1077,6 +1087,10 @@ void UNCLAMP_AXIS(CANON_AXIS axis)
 }
 
 /* Program Functions */
+
+void STOP(void)
+{
+}
 
 void PROGRAM_STOP()
 {
@@ -1598,6 +1612,9 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.7  2005/04/28 13:29:35  proctor
+  Minor touches to emccanon.cc, after incorporating user-defined M codes
+
   Revision 1.6  2005/04/27 20:05:45  proctor
   Added user-defined M codes, from BDI-4
 

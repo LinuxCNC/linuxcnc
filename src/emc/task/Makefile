@@ -14,7 +14,8 @@ HEADERS =
 
 BINS =  \
 	emcsvr \
-	milltask
+	milltask \
+	milltaskcanon
 
 OBJS = emccanon.o \
 	emcsvr.o \
@@ -41,6 +42,22 @@ $(BIN_DIR)/milltask: \
 	$(TMP_DIR)/emccanon.o \
 	$(TMP_DIR)/emctaskmain.o \
 	$(TMP_DIR)/rs274.o \
+	$(TMP_DIR)/usrmotintf.o \
+	$(TMP_DIR)/emcmotlog.o \
+	$(TMP_DIR)/emcmotutil.o \
+	$(TMP_DIR)/taskintf.o \
+	$(TMP_DIR)/iotaskintf.o \
+	$(LIB_DIR)/libemc.a \
+	$(LIB_DIR)/libnmld.a \
+	$(LIB_DIR)/ulapi.o
+	@ echo "Linking $@"
+	$(CXX) $^ $(CXXFLAGS) -o $@
+
+$(BIN_DIR)/milltaskcanon: \
+	$(TMP_DIR)/emcmotglb.o \
+	$(TMP_DIR)/canterp.o \
+	$(TMP_DIR)/emccanon.o \
+	$(TMP_DIR)/emctaskmain.o \
 	$(TMP_DIR)/usrmotintf.o \
 	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \
