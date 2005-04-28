@@ -8,10 +8,11 @@
 all: headers
 
 all headers clean depend indent install:
-	(cd rs274ngc; make $@)
 	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
+	(cd rs274ngc; make $@)
+	(cd canterp; make $@)
 	#(cd hal_intf; make $@)
 	(cd kinematics; make $@)
 	(cd motion; make $@)
