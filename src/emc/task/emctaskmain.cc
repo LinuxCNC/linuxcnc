@@ -3044,7 +3044,7 @@ int main(int argc, char *argv[])
     // wait on timer cycle, if specified, or calculate actual
     // interval if ini file says to run full out via
     // [TASK] CYCLE_TIME <= 0.0
-    if (emcTaskNoDelay) {
+//    if ((emcTaskNoDelay) || (emcStatus->task.readLine < programStartLine)) {
 #if defined(LINUX_KERNEL_2_2)
       // work around bug in gettimeofday() by running off nominal time
       EMC_TASK_CYCLE_TIME = EMC_TASK_CYCLE_TIME_ORIG;
@@ -3059,7 +3059,7 @@ int main(int argc, char *argv[])
       }
       startTime = endTime;
 #endif
-    } else {
+/*    } else {
 #if defined(LINUX_KERNEL_2_2)
       // work around bug in gettimeofday() by running off nominal time
       esleep(EMC_TASK_CYCLE_TIME);
@@ -3067,6 +3067,7 @@ int main(int argc, char *argv[])
       timer->wait();
 #endif
     }
+*/
   }				// end of while (! done)
 
   // clean up everything
