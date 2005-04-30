@@ -2947,7 +2947,8 @@ int main(int argc, char *argv[])
 	// wait on timer cycle, if specified, or calculate actual
 	// interval if ini file says to run full out via
 	// [TASK] CYCLE_TIME <= 0.0
-	if (emcTaskNoDelay) {
+        if ((emcTaskNoDelay)
+             || (emcStatus->task.readLine < programStartLine)) {
 #if defined(LINUX_KERNEL_2_2)
 	    // work around bug in gettimeofday() by running off nominal time
 	    EMC_TASK_CYCLE_TIME = EMC_TASK_CYCLE_TIME_ORIG;
@@ -2991,6 +2992,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.24  2005/04/30 13:11:15  swpadnos
+  add reparsing speedup to HEAD
+
   Revision 1.23  2005/04/27 20:05:47  proctor
   Added user-defined M codes, from BDI-4
 
