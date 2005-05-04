@@ -23,15 +23,13 @@
 #include <unistd.h>		/* STDIN_FILENO */
 #include <fcntl.h>		/* F_GETFL, O_NONBLOCK */
 #include <signal.h>		/* signal(), SIGINT */
+#include "global_defs.h"
 #include "_timer.h"		/* esleep() */
 #include "motion.h"
 #include "usrmotintf.h"		/* usrmotInit(), etc */
 #include "posemath.h"
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_LEN,NUM */
 #include "emcmotglb.h"		/* SHMEM_KEY */
-
-/* size of input buffer */
-#define INPUTLEN 256
 
 /* max numbers allowed */
 #define MAX_NUMBERS 8
@@ -164,8 +162,8 @@ int main(int argc, char *argv[])
     emcmot_status_t emcmotStatus;
     emcmot_config_t emcmotConfig;
     emcmot_debug_t emcmotDebug;
-    char input[INPUTLEN];
-    char cmd[INPUTLEN];
+    char input[LINELEN];
+    char cmd[LINELEN];
     char errorString[EMCMOT_ERROR_LEN];
     int valid;
     int done;
@@ -175,7 +173,7 @@ int main(int argc, char *argv[])
     double numbers[MAX_NUMBERS];	/* space for number input data */
     int num;			/* how many there are */
     int numNumbers = 0;		/* established number of input numbers */
-    char filename[INPUTLEN];
+    char filename[LINELEN];
     int linenum;
     FILE *fp;			/* ini file ptr */
     int lastPrint = 0;		/* flag for which status subset to print */
@@ -183,7 +181,7 @@ int main(int argc, char *argv[])
     int motionId = 0;		/* motion id sent down with moves */
     int axis;			/* axis selected for command */
     int errCode;		/* returned from usrmotWrite,Read... */
-    char compfile[INPUTLEN];	/* name of the compensation file */
+    char compfile[LINELEN];	/* name of the compensation file */
     double alter;		/* value for external alter */
 
     /* print the sizes first, so that even if emcmot isn't up and running we
@@ -242,7 +240,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* get the next input line, if any */
-	nchars = getinput(input, INPUTLEN);
+	nchars = getinput(input, LINELEN);
 	if (nchars > 0) {
 	    printPrompt = 1;
 	} else if (nchars == -1) {
@@ -549,7 +547,7 @@ int main(int argc, char *argv[])
 		    if (NULL != (fp = fopen(filename, "r"))) {
 			linenum = 0;
 			while (!feof(fp)) {
-			    if (NULL != fgets(input, INPUTLEN, fp)) {
+			    if (NULL != fgets(input, LINELEN, fp)) {
 				linenum++;
 				if (3 == sscanf(input, "%lf %lf %lf",
 					&emcmotCommand.pos.tran.x,

@@ -40,6 +40,7 @@
 #include <math.h>
 #include <string.h>		// strncpy()
 #include <ctype.h>		// isspace()
+#include "global_defs.h"
 #include "emc.hh"		// EMC NML
 #include "canon.hh"		// these decls
 #include "interpl.hh"		// interp_list
@@ -954,10 +955,11 @@ void COMMENT(char *comment)
 {
     // nothing need be done here, but you can play tricks with hot comments
 
-#define MSGLEN 256
-    char msg[MSGLEN];
-    char probefilename[MSGLEN];
+    char msg[LINELEN];
+    char probefilename[LINELEN];
     char *ptr;
+
+    printf("COMMENT: %s\n", comment);
 
     // set RPY orientation for subsequent moves
     if (!strncmp(comment, "RPY", strlen("RPY"))) {
@@ -983,11 +985,11 @@ void COMMENT(char *comment)
 	while (isspace(*ptr)) {
 	    ptr++;
 	}
-	setString(probefilename, ptr, MSGLEN);
+	setString(probefilename, ptr, LINELEN);
 	if (NULL == (probefile = fopen(probefilename, "w"))) {
 	    // pop up a warning message
-	    setString(msg, "can't open probe file ", MSGLEN);
-	    addString(msg, probefilename, MSGLEN);
+	    setString(msg, "can't open probe file ", LINELEN);
+	    addString(msg, probefilename, LINELEN);
 	    MESSAGE(msg);
 	    probefile = NULL;
 	}
@@ -1044,8 +1046,8 @@ void MESSAGE(char *s)
     EMC_OPERATOR_DISPLAY operator_display_msg;
 
     operator_display_msg.id = 0;
-    strncpy(operator_display_msg.display, s, EMC_OPERATOR_DISPLAY_LEN);
-    operator_display_msg.display[EMC_OPERATOR_DISPLAY_LEN - 1] = 0;
+    strncpy(operator_display_msg.display, s, LINELEN);
+    operator_display_msg.display[LINELEN - 1] = 0;
 
     interp_list.append(operator_display_msg);
 }
@@ -1421,7 +1423,7 @@ int GET_EXTERNAL_TOOL_MAX()
     return CANON_TOOL_MAX;
 }
 
-char _parameter_file_name[PARAMETER_FILE_NAME_LENGTH];	/* Not static.Driver
+char _parameter_file_name[LINELEN];	/* Not static.Driver
 							   writes */
 
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
@@ -1440,6 +1442,8 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
     else
 	file_name[0] = 0;
 }
+
+#if 0 /* FIXME - this code may no longer be needed */
 
 /***********************************************************************/
 
@@ -1485,6 +1489,8 @@ int rs274ngc_ini_load(const char *filename)
 
     return 0;
 }
+
+#endif
 
 double GET_EXTERNAL_POSITION_X(void)
 {
@@ -1612,6 +1618,9 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.8  2005/05/04 04:50:38  jmkasunich
+  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
+
   Revision 1.7  2005/04/28 13:29:35  proctor
   Minor touches to emccanon.cc, after incorporating user-defined M codes
 

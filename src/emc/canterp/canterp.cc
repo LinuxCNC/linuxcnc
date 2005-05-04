@@ -44,10 +44,10 @@
 #include "canon.hh"             // CANON_VECTOR, GET_PROGRAM_ORIGIN()
 
 static FILE * the_file = NULL;	// our file pointer
-static char the_file_name[EMC_TASK_FILENAME_LEN] = {0}; // our file pointer
-static char the_command[EMC_TASK_COMMAND_LEN] = {0}; // our current command
-static char the_command_name[EMC_TASK_COMMAND_LEN] = {0}; // just the name part
-static char the_command_args[EMC_TASK_COMMAND_LEN] = {0}; // just the args part
+static char the_file_name[LINELEN] = {0}; // our file pointer
+static char the_command[LINELEN] = {0}; // our current command
+static char the_command_name[LINELEN] = {0}; // just the name part
+static char the_command_args[LINELEN] = {0}; // just the args part
 static int the_line_number = 0; // current line number
 static int waitFlag = 0;	// local wait flag
 
@@ -399,9 +399,9 @@ static int canterp_parse(char * buffer)
 
 int emcTaskPlanRead(void)
 {
-  char buffer[EMC_TASK_COMMAND_LEN];
+  char buffer[LINELEN];
 
-  if (NULL == fgets(buffer, EMC_TASK_COMMAND_LEN, the_file)) {
+  if (NULL == fgets(buffer, LINELEN, the_file)) {
     return 1;
   }
 
@@ -865,6 +865,9 @@ int emcTaskUpdate(EMC_TASK_STAT *stat)
   Modification history:
 
   $Log$
+  Revision 1.2  2005/05/04 04:50:24  jmkasunich
+  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
+
   Revision 1.1  2005/04/28 13:24:42  proctor
   Added canonical interpreter directory
 

@@ -161,7 +161,7 @@ int emcOperatorError(int id, const char *fmt, ...)
     va_end(ap);
 
     // force a NULL at the end for safety
-    error_msg.error[EMC_OPERATOR_ERROR_LEN - 1] = 0;
+    error_msg.error[LINELEN - 1] = 0;
 
     // write it
     rcs_print("%s\n", error_msg.error);
@@ -185,7 +185,7 @@ int emcOperatorText(int id, const char *fmt, ...)
     va_end(ap);
 
     // force a NULL at the end for safety
-    text_msg.text[EMC_OPERATOR_TEXT_LEN - 1] = 0;
+    text_msg.text[LINELEN - 1] = 0;
 
     // write it
     return emcErrorBuffer->write(text_msg);
@@ -208,7 +208,7 @@ int emcOperatorDisplay(int id, const char *fmt, ...)
     va_end(ap);
 
     // force a NULL at the end for safety
-    display_msg.display[EMC_OPERATOR_DISPLAY_LEN - 1] = 0;
+    display_msg.display[LINELEN - 1] = 0;
 
     // write it
     return emcErrorBuffer->write(display_msg);
@@ -965,7 +965,7 @@ static int emcTaskPlan(void)
 				// limits, etc. and clear then out
 				if (0 != checkInterpList(&interp_list,
 					emcStatus)) {
-				    // problem with actions, so do same as we 
+				    // problem with actions, so do same as we
 				    // did
 				    // for a bad read from emcTaskPlanRead()
 				    // above
@@ -2613,11 +2613,11 @@ static int iniLoad(const char *filename)
 {
     INIFILE inifile;
     const char *inistring;
-    char version[INIFILE_MAX_LINELEN];
+    char version[LINELEN];
     double saveDouble;
 
     // open it
-    if (-1 == inifile.open(filename)) {
+    if (inifile.open(filename) == false) {
 	return -1;
     }
 
@@ -2992,6 +2992,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.25  2005/05/04 04:50:38  jmkasunich
+  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
+
   Revision 1.24  2005/04/30 13:11:15  swpadnos
   add reparsing speedup to HEAD
 

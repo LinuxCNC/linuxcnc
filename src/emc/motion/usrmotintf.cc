@@ -1,5 +1,5 @@
 /********************************************************************
-* Description: usrmotintf.c
+* Description: usrmotintf.cc
 *   Defs for interface functions (init, exit, read, write) for user
 *   processes which communicate with the real-time motion controller
 *   in emcmot.c
@@ -18,25 +18,24 @@
 * $Date$
 ********************************************************************/
 
+#include <stdlib.h>		/* exit() */
 #include <sys/stat.h>
 #include <string.h>		/* memcpy() */
 #include <float.h>		/* DBL_MIN */
+#include "global_defs.h"	/* LINELEN definition */
 #include "motion.h"		/* emcmot_status_t,CMD */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
 #include "emcmotlog.h"		/* emcmot_log_t */
 #include "_timer.h"
-#include "inifile.h"		/* iniFind() */
+
+#include "inifile.hh"
 
 #define READ_TIMEOUT_SEC 0	/* seconds for timeout */
 #define READ_TIMEOUT_USEC 100000	/* microseconds for timeout */
 
 #include "rtapi.h"
-
-#ifndef MAP_FAILED		/* kernel 2.0.29 left this out */
-#define MAP_FAILED ((void *) -1)
-#endif
 
 static int inited = 0;		/* flag if inited */
 
@@ -57,19 +56,20 @@ emcmot_struct_t *emcmotshmem = NULL;	// Shared memory base address.
    from named ini file */
 int usrmotIniLoad(const char *filename)
 {
-    FILE *fp;
     const char *inistring;
     int saveInt;
     double saveDouble;
+    INIFILE *inifile;
 
+    inifile = new INIFILE(filename);
     /* open it */
-    if (NULL == (fp = fopen(filename, "r"))) {
+    if (inifile->valid() == false) {
 	rtapi_print("can't find emcmot ini file %s\n", filename);
 	return -1;
     }
 
     saveInt = SHMEM_KEY;
-    if (NULL != (inistring = iniFind(fp, "SHMEM_KEY", "EMCMOT"))) {
+    if (NULL != (inistring = inifile->find("SHMEM_KEY", "EMCMOT"))) {
 	if (1 == sscanf(inistring, "%i", &SHMEM_KEY)) {
 	    /* found it */
 	} else {
@@ -85,7 +85,7 @@ int usrmotIniLoad(const char *filename)
 	    filename, SHMEM_KEY);
     }
     saveDouble = EMCMOT_COMM_TIMEOUT;
-    if (NULL != (inistring = iniFind(fp, "COMM_TIMEOUT", "EMCMOT"))) {
+    if (NULL != (inistring = inifile->find("COMM_TIMEOUT", "EMCMOT"))) {
 	if (1 == sscanf(inistring, "%lf", &EMCMOT_COMM_TIMEOUT)) {
 	    /* found it */
 	} else {
@@ -103,7 +103,7 @@ int usrmotIniLoad(const char *filename)
     }
 
     saveDouble = EMCMOT_COMM_WAIT;
-    if (NULL != (inistring = iniFind(fp, "COMM_WAIT", "EMCMOT"))) {
+    if (NULL != (inistring = inifile->find("COMM_WAIT", "EMCMOT"))) {
 	if (1 == sscanf(inistring, "%lf", &EMCMOT_COMM_WAIT)) {
 	    /* found it */
 	} else {
@@ -119,7 +119,8 @@ int usrmotIniLoad(const char *filename)
 	    filename, EMCMOT_COMM_WAIT);
     }
 
-    fclose(fp);
+    delete inifile;
+
     return 0;
 }
 
@@ -133,13 +134,15 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     static unsigned char headCount = 0;
     double end;
 
+/* FIXME - debug 5 lines */
+printf ( "usrmotWriteEmcmotCommand()\n" );
+
     c->head = ++headCount;
     c->tail = c->head;
     c->commandNum = ++commandNum;
 
     /* check for mapped mem still around */
     if (0 == emcmotCommand) {
-/* FIXME - debugging */
 printf ( "usrmotWriteEmcmotCommand() COMM_ERROR_CONNECT (%d)\n", EMCMOT_COMM_ERROR_CONNECT );
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
@@ -158,10 +161,10 @@ printf ( "usrmotWriteEmcmotCommand() COMM_ERROR_CONNECT (%d)\n", EMCMOT_COMM_ERR
 	if (0 == usrmotReadEmcmotStatus(&s) && s.commandNumEcho == commandNum) {
 	    /* now check emcmot status flag */
 	    if (s.commandStatus == EMCMOT_COMMAND_OK) {
+printf ( "usrmotWriteEmcmotCommand() success (%d)\n", EMCMOT_COMMAND_OK );
 		return EMCMOT_COMM_OK;
 	    } /* end of if */
 	    else {
-/* FIXME - debugging */
 printf ( "usrmotWriteEmcmotCommand() COMM_ERROR_COMMAND (%d)\n", EMCMOT_COMM_ERROR_COMMAND );
 		return EMCMOT_COMM_ERROR_COMMAND;
 	    }			/* end of else */
@@ -174,7 +177,6 @@ printf ( "usrmotWriteEmcmotCommand() COMM_ERROR_COMMAND (%d)\n", EMCMOT_COMM_ERR
     emcmot_comm_timeout_count++;
     /* rtapi_print("emcmot_comm_timeout_count=%d\n",
        emcmot_comm_timeout_count); */
-/* FIXME - debugging */
 printf ( "usrmotWriteEmcmotCommand() COMM_ERROR_TIMEOUT (%d)\n", EMCMOT_COMM_ERROR_TIMEOUT );
     return EMCMOT_COMM_ERROR_TIMEOUT;
 }
@@ -860,8 +862,7 @@ int usrmotInit(char *modname)
     emcmotError = &(emcmotStruct->error);
     emcmotLog = &(emcmotStruct->log);
 
-#if 0
-/* FIXME - for testing, remove later */
+/* FIXME - testing code */
     printf ( "sizeof(emcmot_struct_t) (total shmem): %d\n", sizeof(emcmot_struct_t) );
     printf ( "sizeof(emcmot_command_t):      %d\n", sizeof(emcmot_command_t) );
     printf ( "sizeof(emcmot_status_t):       %d\n", sizeof(emcmot_status_t) );
@@ -873,7 +874,7 @@ int usrmotInit(char *modname)
     printf ( "sizeof(emcmot_joint_status_t): %d\n", sizeof(emcmot_joint_status_t) );
     printf ( "sizeof(CUBIC_STRUCT):          %d\n", sizeof(CUBIC_STRUCT) );
     printf ( "sizeof(emcmot_comp_t):         %d\n", sizeof(emcmot_comp_t) );
-#endif
+
 
 #if 0
 /* FIXME - comp structs no longer part of status structure */
@@ -1258,8 +1259,7 @@ return -1;
 #if 0
 
     FILE *fp;
-#define BUFFERLEN 256
-    char buffer[BUFFERLEN];
+    char buffer[LINELEN];
     double nom, fwd, rev;
     int index = 0;
     int total = 0;
@@ -1283,7 +1283,7 @@ return -1;
     }
 
     while (!feof(fp)) {
-	if (NULL == fgets(buffer, BUFFERLEN, fp)) {
+	if (NULL == fgets(buffer, LINELEN, fp)) {
 	    break;
 	}
 	/*

@@ -18,6 +18,7 @@
 #ifndef EMC_HH
 #define EMC_HH
 
+#include "global_defs.h"
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, etc.
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
@@ -134,9 +135,6 @@
 #define EMC_MOTION_STAT_TYPE                         ((NMLTYPE) 399)
 
 // NML for EMC_TASK
-
-#define EMC_TASK_FILENAME_LEN 256	// how long a file name can be
-#define EMC_TASK_COMMAND_LEN 256	// how long a file line can be
 
 #define EMC_TASK_INIT_TYPE                           ((NMLTYPE) 501)
 #define EMC_TASK_HALT_TYPE                           ((NMLTYPE) 502)
@@ -292,8 +290,6 @@ enum {
 
 // EMC aggregate class type declaration
 
-#define EMC_LOG_FILENAME_LEN 256	// how long a file name can be
-
 // types of data that can be logged
 #define EMC_LOG_TYPE_AXIS_POS     1	// single axis cmd/actual pos
 #define EMC_LOG_TYPE_AXES_INPOS   2	// all axes actual input pos
@@ -361,16 +357,6 @@ enum EMC_TRAJ_MODE_ENUM {
     EMC_TRAJ_MODE_COORD = 2,	// coordinated-axis motion,
     EMC_TRAJ_MODE_TELEOP = 3	// velocity based world coordinates motion,
 };
-
-#define EMC_TASK_ACTIVE_G_CODES 12	// FIXME-- Java code gen can't
-					// resolve
-				// RS274NGC_ACTIVE_G_CODES in rs274ngc.hh
-#define EMC_TASK_ACTIVE_M_CODES 7	// FIXME-- Java code gen can't
-					// resolve
-				// RS274NGC_ACTIVE_M_CODES in rs274ngc.hh
-#define EMC_TASK_ACTIVE_SETTINGS 3	// FIXME-- Java code gen can't
-					// resolve
-				// RS274NGC_ACTIVE_SETTINGS in rs274ngc.hh
 
 // --------------
 // EMC VOCABULARY
@@ -678,8 +664,6 @@ extern int emcUpdate(EMC_STAT * stat);
 
 // declarations for EMC general classes
 
-#define EMC_OPERATOR_ERROR_LEN 256
-
 /**
  * Send a textual error message to the operator.
  * The message is put in the errlog buffer to be read by the GUI.
@@ -696,10 +680,8 @@ class EMC_OPERATOR_ERROR:public RCS_CMD_MSG {
     void update(CMS * cms);
 
     int id;
-    char error[EMC_OPERATOR_ERROR_LEN];
+    char error[LINELEN];
 };
-
-#define EMC_OPERATOR_TEXT_LEN 256
 
 /**
  * Send a textual information message to the operator.
@@ -716,10 +698,8 @@ class EMC_OPERATOR_TEXT:public RCS_CMD_MSG {
     void update(CMS * cms);
 
     int id;
-    char text[EMC_OPERATOR_TEXT_LEN];
+    char text[LINELEN];
 };
-
-#define EMC_OPERATOR_DISPLAY_LEN 256
 
 /**
  * Send the URL or filename of a document to display.
@@ -740,7 +720,7 @@ class EMC_OPERATOR_DISPLAY:public RCS_CMD_MSG {
     void update(CMS * cms);
 
     int id;
-    char display[EMC_OPERATOR_DISPLAY_LEN];
+    char display[LINELEN];
 };
 
 #define EMC_SYSTEM_CMD_LEN 256
@@ -1218,7 +1198,7 @@ class EMC_AXIS_LOAD_COMP:public EMC_AXIS_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char file[EMC_TASK_FILENAME_LEN];
+    char file[LINELEN];
 };
 
 class EMC_AXIS_ALTER:public EMC_AXIS_CMD_MSG {
@@ -1936,7 +1916,7 @@ class EMC_TASK_PLAN_OPEN:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char file[EMC_TASK_FILENAME_LEN];
+    char file[LINELEN];
 };
 
 class EMC_TASK_PLAN_RUN:public EMC_TASK_CMD_MSG {
@@ -1971,7 +1951,7 @@ class EMC_TASK_PLAN_EXECUTE:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char command[EMC_TASK_COMMAND_LEN];
+    char command[LINELEN];
 };
 
 class EMC_TASK_PLAN_PAUSE:public EMC_TASK_CMD_MSG {
@@ -2072,14 +2052,13 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int motionLine;		// line motion is executing-- may lag
     int currentLine;		// line currently executing
     int readLine;		// line interpreter has read to
-    char file[EMC_TASK_FILENAME_LEN];
-    char command[EMC_TASK_COMMAND_LEN];
+    char file[LINELEN];
+    char command[LINELEN];
     EmcPose origin;		// origin, in user units, currently active
     EmcPose toolOffset;		// tool offset, in general pose form
-    int activeGCodes[EMC_TASK_ACTIVE_G_CODES];	// FIXME-- dialect-specific
-    int activeMCodes[EMC_TASK_ACTIVE_M_CODES];	// FIXME-- dialect-specific
-    double activeSettings[EMC_TASK_ACTIVE_SETTINGS];	// FIXME--
-    // dialect-specific
+    int activeGCodes[ACTIVE_G_CODES];
+    int activeMCodes[ACTIVE_M_CODES];
+    double activeSettings[ACTIVE_SETTINGS];
     CANON_UNITS programUnits;	// CANON_UNITS_INCHES,MM,CM
 
     int interpreter_errcode;	// return value from rs274ngc function 
@@ -2169,8 +2148,7 @@ class EMC_TOOL_LOAD_TOOL_TABLE:public EMC_TOOL_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char file[EMC_TASK_FILENAME_LEN];	// name of tool table, empty means
-    // default
+    char file[LINELEN];	// name of tool table, empty means default
 };
 
 class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
@@ -2882,8 +2860,7 @@ class EMC_LOG_OPEN:public EMC_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char file[EMC_LOG_FILENAME_LEN];	// file to contain data when log
-    // closed
+    char file[LINELEN];		// file to contain data when log closed
     int type;			// EMC_LOG_TYPE_AXIS_POS, etc.
     int size;			// how many data points in file
     int skip;			// how many to skip, 0 means none
@@ -2947,7 +2924,7 @@ class EMC_STAT:public EMC_STAT_MSG {
     EMC_IO_STAT io;
 
     // logging status
-    char logFile[EMC_LOG_FILENAME_LEN];	// name of file to log to upon close
+    char logFile[LINELEN];	// name of file to log to upon close
     int logType;		// type being logged
     int logSize;		// size in entries, not bytes
     int logSkip;		// how many are being skipped
@@ -2977,6 +2954,9 @@ extern EMC_MOTION_STAT *emcMotionStatus;
   Modification history:
 
   $Log$
+  Revision 1.9  2005/05/04 04:50:34  jmkasunich
+  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
+
   Revision 1.8  2005/04/27 20:00:14  proctor
   Added EMC_SYSTEM_CMD stuff from BDI-4
 

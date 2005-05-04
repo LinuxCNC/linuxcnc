@@ -218,7 +218,7 @@ static int emc_ini(ClientData clientdata,
 	return TCL_ERROR;
     }
     // open it
-    if (-1 == inifile.open(EMC_INIFILE)) {
+    if (inifile.open(EMC_INIFILE) == false) {
 	return -1;
     }
 
@@ -633,8 +633,8 @@ static int emc_io_write_error(ClientData clientdata,
     }
 
     strncpy(error_msg.error, Tcl_GetStringFromObj(objv[1], 0),
-	EMC_OPERATOR_ERROR_LEN);
-    error_msg.error[EMC_OPERATOR_ERROR_LEN - 1] = 0;
+	LINELEN);
+    error_msg.error[LINELEN - 1] = 0;
     if (0 == emcErrorBuffer->write(&error_msg)) {
 	Tcl_SetObjResult(interp, Tcl_NewIntObj(0));
     } else {
@@ -1453,10 +1453,10 @@ static int iniLoad(const char *filename)
 {
     INIFILE inifile;
     const char *inistring;
-    char version[INIFILE_MAX_LINELEN];
+    char version[LINELEN];
 
     // open it
-    if (-1 == inifile.open(filename)) {
+    if (inifile.open(filename) == false) {
 	return -1;
     }
 

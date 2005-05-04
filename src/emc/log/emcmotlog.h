@@ -18,6 +18,10 @@
 #ifndef EMCMOTLOG_H
 #define EMCMOTLOG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "posemath.h"		/* PmCartesian */
 
 /* max log points allowed */
@@ -153,5 +157,9 @@ typedef struct {
 extern int emcmotLogInit(emcmot_log_t * log, int type, int size);
 extern int emcmotLogAdd(emcmot_log_t * log, emcmot_log_struct_t val);
 extern int emcmotLogGet(emcmot_log_t * log, emcmot_log_struct_t * val);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* EMCMOTLOG_H */

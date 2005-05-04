@@ -32,6 +32,8 @@
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
+Interp interp;
+
 // EMC_TASK interface
 
 /*
@@ -248,8 +250,8 @@ static int determineState()
 
 static int waitFlag = 0;
 
-static char rs274ngc_error_text_buf[256];
-static char rs274ngc_stack_buf[256];
+static char rs274ngc_error_text_buf[LINELEN];
+static char rs274ngc_stack_buf[LINELEN];
 
 static void print_rs274ngc_error(int retval)
 {
@@ -263,7 +265,7 @@ static void print_rs274ngc_error(int retval)
     }
 
     rs274ngc_error_text_buf[0] = 0;
-    rs274ngc_error_text(retval, rs274ngc_error_text_buf, 256);
+    interp.rs274ngc_error_text(retval, rs274ngc_error_text_buf, LINELEN);
     if (0 != rs274ngc_error_text_buf[0]) {
 	rcs_print_error("rs274ngc_error: %s\n", rs274ngc_error_text_buf);
     }
@@ -273,7 +275,7 @@ static void print_rs274ngc_error(int retval)
 	rcs_print("rs274ngc_stack: \t");
 	while (index < 5) {
 	    rs274ngc_stack_buf[0] = 0;
-	    rs274ngc_stack_name(index, rs274ngc_stack_buf, 256);
+	    interp.rs274ngc_stack_name(index, rs274ngc_stack_buf, LINELEN);
 	    if (0 == rs274ngc_stack_buf[0]) {
 		break;
 	    }
@@ -286,15 +288,15 @@ static void print_rs274ngc_error(int retval)
 
 int emcTaskPlanInit()
 {
-    rs274ngc_ini_load(EMC_INIFILE);
+    interp.rs274ngc_ini_load(EMC_INIFILE);
     waitFlag = 0;
 
-    int retval = rs274ngc_init();
+    int retval = interp.rs274ngc_init();
     if (retval > RS274NGC_MIN_ERROR) {
 	print_rs274ngc_error(retval);
     } else {
 	if (0 != RS274NGC_STARTUP_CODE[0]) {
-	    retval = rs274ngc_execute(RS274NGC_STARTUP_CODE);
+	    retval = interp.rs274ngc_execute(RS274NGC_STARTUP_CODE);
 	    if (retval > RS274NGC_MIN_ERROR) {
 		print_rs274ngc_error(retval);
 	    }
@@ -324,12 +326,12 @@ int emcTaskPlanClearWait()
 
 int emcTaskPlanSynch()
 {
-    return rs274ngc_synch();
+    return interp.rs274ngc_synch();
 }
 
 int emcTaskPlanExit()
 {
-    return rs274ngc_exit();
+    return interp.rs274ngc_exit();
 }
 
 int emcTaskPlanOpen(const char *file)
@@ -340,7 +342,7 @@ int emcTaskPlanOpen(const char *file)
 	emcStatus->task.readLine = 0;
     }
 
-    int retval = rs274ngc_open(file);
+    int retval = interp.rs274ngc_open(file);
     if (retval > RS274NGC_MIN_ERROR) {
 	print_rs274ngc_error(retval);
 	return retval;
@@ -351,14 +353,14 @@ int emcTaskPlanOpen(const char *file)
 
 int emcTaskPlanRead()
 {
-    int retval = rs274ngc_read();
+    int retval = interp.rs274ngc_read();
     if (retval == NCE_FILE_NOT_OPEN) {
 	if (emcStatus->task.file[0] != 0) {
-	    retval = rs274ngc_open(emcStatus->task.file);
+	    retval = interp.rs274ngc_open(emcStatus->task.file);
 	    if (retval > RS274NGC_MIN_ERROR) {
 		print_rs274ngc_error(retval);
 	    }
-	    retval = rs274ngc_read();
+	    retval = interp.rs274ngc_read();
 	}
     }
     if (retval > RS274NGC_MIN_ERROR) {
@@ -371,10 +373,10 @@ int emcTaskPlanExecute(const char *command)
 {
     if (command != 0) {
 	if (*command != 0) {
-	    rs274ngc_synch();
+	    interp.rs274ngc_synch();
 	}
     }
-    int retval = rs274ngc_execute(command);
+    int retval = interp.rs274ngc_execute(command);
     if (retval > RS274NGC_MIN_ERROR) {
 	print_rs274ngc_error(retval);
     }
@@ -383,7 +385,7 @@ int emcTaskPlanExecute(const char *command)
 
 int emcTaskPlanClose()
 {
-    int retval = rs274ngc_close();
+    int retval = interp.rs274ngc_close();
     if (retval > RS274NGC_MIN_ERROR) {
 	print_rs274ngc_error(retval);
     }
@@ -394,12 +396,14 @@ int emcTaskPlanClose()
 
 int emcTaskPlanLine()
 {
-    return rs274ngc_line();
+    return interp.rs274ngc_line();
 }
 
 int emcTaskPlanCommand(char *cmd)
 {
-    strcpy(cmd, rs274ngc_command());
+    char buf[LINELEN];
+
+    strcpy(cmd, interp.rs274ngc_command(buf, LINELEN));
     return 0;
 }
 
@@ -416,13 +420,14 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // currentLine set in main
     // readLine set in main
 
-    strcpy(stat->file, rs274ngc_file());
+    char buf[LINELEN];
+    strcpy(stat->file, interp.rs274ngc_file(buf, LINELEN));
     // command set in main
 
     // update active G and M codes
-    rs274ngc_active_g_codes(&stat->activeGCodes[0]);
-    rs274ngc_active_m_codes(&stat->activeMCodes[0]);
-    rs274ngc_active_settings(&stat->activeSettings[0]);
+    interp.rs274ngc_active_g_codes(&stat->activeGCodes[0]);
+    interp.rs274ngc_active_m_codes(&stat->activeMCodes[0]);
+    interp.rs274ngc_active_settings(&stat->activeSettings[0]);
 
     stat->heartbeat++;
 
@@ -433,6 +438,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
   Modification history:
 
   $Log$
+  Revision 1.5  2005/05/04 04:50:38  jmkasunich
+  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
+
   Revision 1.4  2005/04/27 20:05:47  proctor
   Added user-defined M codes, from BDI-4
 

@@ -457,7 +457,8 @@ int main(int argc, char * argv[])
 {
   int t;
   NMLTYPE type;
-  EMC_TASK_SET_STATE state_msg;
+// FIXME - doesn't seem to be used
+//  EMC_TASK_SET_STATE state_msg;
 
   for (t = 1; t < argc; t++) {
     if (!strcmp(argv[t], "-ini")) {

@@ -215,14 +215,21 @@
 #define NCE_Z_VALUE_UNSPECIFIED_IN_XY_PLANE_CANNED_CYCLE 195
 #define NCE_ZERO_OR_NEGATIVE_ARGUMENT_TO_LN 196
 #define NCE_ZERO_RADIUS_ARC 197
+#define NCE_K_WORD_MISSING_WITH_G33 198
+#define NCE_F_WORD_USED_WITH_G33 199
+#define NCE_G33_NOT_SUPPORTED 200
+#define NCE_CANNED_CYCLES_NOT_SUPPORTED 201
 
 #define RS274NGC_MIN_ERROR 3
-#define RS274NGC_MAX_ERROR 197
+#define RS274NGC_MAX_ERROR 202
 
 /*
   Modification history:
 
   $Log$
+  Revision 1.4  2005/05/04 04:50:37  jmkasunich
+  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
+
   Revision 1.3  2005/04/27 20:03:13  proctor
   Changed NCE_M_CODE_GREATER_THAN_99 to NCE_M_CODE_GREATER_THAN_199
 

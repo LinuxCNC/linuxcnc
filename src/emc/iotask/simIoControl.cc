@@ -10,10 +10,10 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 * $Revision$
 * $Author$
 * $Date$
@@ -121,7 +121,7 @@ static int iniLoad(const char *filename)
   char version[INIFILE_MAX_LINELEN];
 
   /* Open the ini file */
-  if (-1 == inifile.open(filename)) {
+  if (inifile.open(filename) == false) {
     return -1;
   }
 
