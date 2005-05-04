@@ -39,6 +39,7 @@ OBJS =  bridgeportaux.o \
 	usrmot.o
 
 BINS =  bridgeportio \
+	ppmcbridgeportio \
 	dumbio \
 	minimillio \
 	iosh \
@@ -75,6 +76,36 @@ $(BIN_DIR)/bridgeportio: \
 	$(TMP_DIR)/simaio.o \
 	$(TMP_DIR)/extppt.o \
 	$(TMP_DIR)/parport.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+
+$(BIN_DIR)/ppmcbridgeportio: \
+	$(TMP_DIR)/bridgeportiomain.o \
+	$(TMP_DIR)/bridgeportaux.o \
+	$(TMP_DIR)/bridgeportcool.o \
+	$(TMP_DIR)/bridgeportlube.o \
+	$(TMP_DIR)/bridgeportspin.o \
+	$(TMP_DIR)/bridgeporttool.o \
+	$(TMP_DIR)/extsimaio.o \
+	$(TMP_DIR)/simaio.o \
+	$(TMP_DIR)/extppt.o \
+	$(TMP_DIR)/emcmotglb.o \
+	$(TMP_DIR)/ppmcparport.o
+	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+
+# rtbridgeportio for Bridgeport-class machines using the same IO ports as
+# the realtime IO.
+$(BIN_DIR)/rtbridgeportio: \
+	$(TMP_DIR)/usrmotintf.o \
+	$(TMP_DIR)/emcmotglb.o \
+	$(TMP_DIR)/emcmotlog.o \
+	$(TMP_DIR)/emcmotutil.o \
+	$(TMP_DIR)/bridgeportiomain.o \
+	$(TMP_DIR)/bridgeportaux.o \
+	$(TMP_DIR)/bridgeportcool.o \
+	$(TMP_DIR)/bridgeportlube.o \
+	$(TMP_DIR)/bridgeportspin.o \
+	$(TMP_DIR)/bridgeporttool.o \
+	$(TMP_DIR)/realtimeio.o
 	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
 # simio uses fully simulated digital IO with Bridgeport logic
