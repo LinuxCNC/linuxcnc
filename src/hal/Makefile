@@ -1,10 +1,10 @@
 # Makefile for HAL
-include $(PWD)/../Makefile.inc
 
 ifneq ($(KERNELRELEASE),)
 # kbuild part of the makefile
 
 ifeq ($(RTFLAGS),)
+include $(PWD)/../Makefile.inc
 endif
 
 obj-m := hal_lib.o
@@ -12,6 +12,7 @@ obj-m := hal_lib.o
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
 
 else
+include ../Makefile.inc
 # pre kbuild Make process
 
 # Public headers
