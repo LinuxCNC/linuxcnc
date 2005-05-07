@@ -53,7 +53,8 @@ all: rtapi.conf headers $(LIBS)
 include ../Make.rules
 
 ifndef KDIR
-KDIR := /lib/modules/$(shell uname -r)/build
+KDIR := $(KERNELDIR)
+# KDIR := /lib/modules/$(shell uname -r)/build
 endif
 
 PWD := $(shell pwd)
