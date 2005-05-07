@@ -390,7 +390,7 @@ AC_SUBST([KERNEL_VERS])
 # Do a quick test for module extension..
 MODEXT=`$RTS --module-ext 2>/dev/null`
 if test "x" = "x$MODEXT"; then
-    MODEXT="o"
+    MODEXT=".o"
 fi
 AC_SUBST([MODEXT])
 
