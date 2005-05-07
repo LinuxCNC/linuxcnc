@@ -1,4 +1,16 @@
-# Makefile for real-time and user-level API
+ifneq ($(KERNELRELEASE),)
+# kbuild part of the makefile
+
+ifeq ($(RTFLAGS),)
+include $(PWD)/../Makefile.inc
+endif
+
+obj-m := rtapi.o
+
+EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
+
+else
+# normal part of the makefile
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
 include ../Makefile.inc
@@ -40,6 +52,16 @@ all: rtapi.conf headers $(LIBS)
 # Generic rules
 include ../Make.rules
 
+ifndef KDIR
+KDIR := /lib/modules/$(shell uname -r)/build
+endif
+
+PWD := $(shell pwd)
+
+modules: headers
+	cp $(RTPREFIX)_rtapi.c rtapi.c
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+
 examples:
 	(cd examples; make all)
 
@@ -54,9 +76,13 @@ depend: def_depend
 
 # note that we always clean the examples, even if not
 # configured to make them
-clean: def_clean
+clean: def_clean kclean
 	(cd examples; make $@)
 	- rm -f $(EMC2_HOME)/scripts/rtapi.conf
+
+kclean:
+	- rm -f .*.cmd *.o* *.mod.* *.ko
+	- rm -fR .tmp_versions 
 
 # explicit rules to make libs from objs
 
@@ -124,3 +150,4 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(SRC_DIR)/Makefile.inc
 
 .PHONY: all examples headers depend indent install clean
 
+endif
