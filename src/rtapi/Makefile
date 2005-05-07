@@ -91,7 +91,10 @@ ifneq ($(MODULE_EXT),.ko)
 $(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 	@ echo "Install rtapi.o in rtlib"
 	- \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
-
+else
+# Rule to create a hard link to rtapi.c for kbuild
+$(obj)/rtapi.c: $(src)/$(RTPREFIX)_rtapi.c
+	cp -fl $(src)/$(RTPREFIX)_rtapi.c $(src)/rtapi.c
 endif
 
 $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
