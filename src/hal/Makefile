@@ -1,10 +1,18 @@
 # Makefile for HAL
+include $(PWD)/../Makefile.inc
 
-# get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../Makefile.inc
+ifneq ($(KERNELRELEASE),)
+# kbuild part of the makefile
 
-# Set local flags with the GTK flags.
-LOCAL_CFLAGS = $(GTK_CFLAGS)
+ifeq ($(RTFLAGS),)
+endif
+
+obj-m := hal_lib.o
+
+EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
+
+else
+# pre kbuild Make process
 
 # Public headers
 HEADERS = \
@@ -30,6 +38,13 @@ endif
 LIBS += \
 $(LIB_DIR)/hal_lib.o
 
+ifndef KDIR
+KDIR := /lib/modules/$(shell uname -r)/build
+endif
+
+PWD := $(shell pwd)
+
+
 all : headers $(LIBS)
 	(cd utils; make $@)
 	(cd drivers; make $@)
@@ -37,6 +52,13 @@ all : headers $(LIBS)
 
 # Generic rules
 include $(SRC_DIR)/Make.rules
+
+modules: headers
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+
+modules_install: modules
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+	depmod 2>/dev/null
 
 headers: def_headers
 	(cd utils; make $@)
@@ -53,10 +75,16 @@ depend: def_depend
 	(cd drivers; make $@)
 	(cd components; make $@)
 
-clean :  def_clean
+clean :  def_clean kclean
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
 
+kclean:
+	- rm -f .*.cmd *.o* *.mod.* *.ko
+	- rm -fR .tmp_versions 
+
+
 .PHONY: all headers depend indent install clean
 
+endif
