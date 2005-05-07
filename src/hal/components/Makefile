@@ -9,6 +9,8 @@ HEADERS =
 # Private headers
 PRIVHDRS =
 
+ifeq ($(KERNELRELEASE),2.4)
+
 RT_SRCS = \
 blocks.c \
 debounce.c \
@@ -31,15 +33,21 @@ $(RTLIB_DIR)/siggen.o \
 $(RTLIB_DIR)/pid.o \
 $(RTLIB_DIR)/supply.o
 
+endif
+
 all : headers $(LIBS)
 
 # Generic rules
 include $(SRC_DIR)/Make.rules
 
+ifeq ($(KERNELRELEASE),2.4)
+
 # specific rule to link siggen with libm
 $(RTLIB_DIR)/siggen.o: $(RTTMP_DIR)/siggen.o
 	@ echo "Linking kernel module $@"
 	ld -r -static -S -O2 $^ $(MATHLIB) -o $@
+
+endif
 
 headers: def_headers
 indent: def_indent

@@ -19,6 +19,8 @@ vsnprintf.h
 SRCS = \
 $(RTPREFIX)_ulapi.c
 
+ifeq ($(KERNELRELEASE),2.4)
+
 RT_SRCS = \
 $(RTPREFIX)_rtapi.c \
 mathstubs.c
@@ -26,8 +28,12 @@ mathstubs.c
 # Libraries to be created
 LIBS = \
 $(RTLIB_DIR)/rtapi.o \
-$(LIB_DIR)/ulapi.o \
 $(RTTMP_DIR)/mathstubs.o
+
+endif 
+
+LIBS += \
+$(LIB_DIR)/ulapi.o 
 
 all: rtapi.conf headers $(LIBS)
 
@@ -54,10 +60,13 @@ clean: def_clean
 
 # explicit rules to make libs from objs
 
+ifeq ($(KERNELRELEASE),2.4)
+
 $(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 	@ echo "Install rtapi.o in rtlib"
 	- \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
 
+endif
 
 $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
 	@ echo "Install ulapi.o in lib"

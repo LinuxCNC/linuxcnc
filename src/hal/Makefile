@@ -17,11 +17,17 @@ hal_priv.h
 SRCS = \
 hal_lib.c
 
+ifeq ($(KERNELRELEASE),2.4)
+
 RT_SRCS = \
 hal_lib.c
 
 LIBS = \
-$(RTLIB_DIR)/hal_lib.o \
+$(RTLIB_DIR)/hal_lib.o 
+
+endif
+
+LIBS += \
 $(LIB_DIR)/hal_lib.o
 
 all : headers $(LIBS)

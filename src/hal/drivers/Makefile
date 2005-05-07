@@ -31,6 +31,8 @@ SRCS = \
 hal_parport.c \
 hal_skeleton.c
 
+ifeq ($(KERNELRELEASE),2.4)
+
 RT_SRCS = \
 hal_parport.c \
 hal_tiro.c \
@@ -44,6 +46,8 @@ $(RTLIB_DIR)/hal_tiro.o \
 $(RTLIB_DIR)/hal_evoreg.o \
 $(RTLIB_DIR)/hal_motenc.o \
 $(RTLIB_DIR)/hal_skeleton.o
+
+endif
 
 BINS = \
 $(BIN_DIR)/hal_parport \

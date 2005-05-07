@@ -26,11 +26,15 @@ scope_vert.c \
 scope_trig.c \
 scope_disp.c
 
+ifeq ($(KERNELRELEASE),2.4)
+
 RT_SRCS = \
 scope_rt.c
 
 LIBS = \
 $(RTLIB_DIR)/scope_rt.o
+
+endif
 
 ifdef GTK_VERSION
 GTK_BINS = \
