@@ -22,7 +22,7 @@ OBJS = \
 	emcmotutil.o \
 	usrmotintf.o
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(MODULE_EXT),.ko)
 
 RT_SRCS = \
 	command.c \
@@ -54,7 +54,7 @@ include ../../Make.rules
 
 # Explicit rules.
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(MODULE_EXT),.ko)
 
 # Side note: MATHLIB defines the linking and lib options for
 # libm. Linking to the glibc math lib may lead to unresolved

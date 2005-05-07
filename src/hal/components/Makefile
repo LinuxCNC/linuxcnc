@@ -9,7 +9,7 @@ HEADERS =
 # Private headers
 PRIVHDRS =
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(MODULE_EXT),.ko)
 
 RT_SRCS = \
 blocks.c \
@@ -40,7 +40,7 @@ all : headers $(LIBS)
 # Generic rules
 include $(SRC_DIR)/Make.rules
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(MODULE_EXT),.ko)
 
 # specific rule to link siggen with libm
 $(RTLIB_DIR)/siggen.o: $(RTTMP_DIR)/siggen.o

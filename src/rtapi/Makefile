@@ -19,7 +19,7 @@ vsnprintf.h
 SRCS = \
 $(RTPREFIX)_ulapi.c
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(MODULE_EXT),.ko)
 
 RT_SRCS = \
 $(RTPREFIX)_rtapi.c \
@@ -60,7 +60,7 @@ clean: def_clean
 
 # explicit rules to make libs from objs
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(MODULE_EXT),.ko)
 
 $(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 	@ echo "Install rtapi.o in rtlib"

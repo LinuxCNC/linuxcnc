@@ -31,7 +31,7 @@ SRCS = \
 hal_parport.c \
 hal_skeleton.c
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(MODULE_EXT),.ko)
 
 RT_SRCS = \
 hal_parport.c \

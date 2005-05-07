@@ -17,7 +17,7 @@ hal_priv.h
 SRCS = \
 hal_lib.c
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(MODULE_EXT),.ko)
 
 RT_SRCS = \
 hal_lib.c

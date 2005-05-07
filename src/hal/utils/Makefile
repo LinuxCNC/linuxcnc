@@ -26,7 +26,7 @@ scope_vert.c \
 scope_trig.c \
 scope_disp.c
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(MODULE_EXT),.ko)
 
 RT_SRCS = \
 scope_rt.c

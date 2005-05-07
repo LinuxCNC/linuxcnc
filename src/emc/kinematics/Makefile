@@ -2,7 +2,7 @@
 
 include ../../Makefile.inc
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(MODULE_EXT),.ko)
 
 RT_SRCS = \
 	cubic.c \
