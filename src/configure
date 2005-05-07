@@ -3077,7 +3077,7 @@ echo "${ECHO_T}$KERNEL_VERS" >&6
 
 
 # Do a quick test for module extension..
-MODEXT=`$RTS --module-ext 2>/dev/null`
+MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
 if test "x" = "x$MODEXT"; then
     MODEXT=".o"
 fi

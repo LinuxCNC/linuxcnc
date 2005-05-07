@@ -530,7 +530,7 @@ while [ $NUM -le $MAX ] ; do
 	    exit -1
 	fi
 	echo "Running HAL config file $CFGFILE" >$PRINT_FILE
-	if ! $HALCMD -f $EMC2_CONFIG_DIR/$CFGFILE ; then
+	if ! $HALCMD -i $INIFILE -f $EMC2_CONFIG_DIR/$CFGFILE ; then
 	    echo "HAL config file $CFGFILE failed."
 	    Cleanup
 	    exit -1
