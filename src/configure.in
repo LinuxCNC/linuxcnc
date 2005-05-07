@@ -387,6 +387,13 @@ KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
 AC_MSG_RESULT([$KERNEL_VERS])
 AC_SUBST([KERNEL_VERS])
 
+# Do a quick test for module extension..
+MODEXT=`$RTS --module-ext 2>/dev/null`
+if test "x" = "x$MODEXT"; then
+    MODEXT="o"
+fi
+AC_SUBST([MODEXT])
+
 ##############################################################################
 # Subsection 3.3 - check the moduledir where modules can get installed       #
 #                                                                            #
