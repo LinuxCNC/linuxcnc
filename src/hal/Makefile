@@ -45,7 +45,7 @@ endif
 PWD := $(shell pwd)
 
 
-all : headers $(LIBS)
+all : headers $(LIBS) modules
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
@@ -55,10 +55,16 @@ include $(SRC_DIR)/Make.rules
 
 modules: headers
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+	(cd utils; make $@)
+	(cd drivers; make $@)
+	(cd components; make $@)
 
 modules_install: modules
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
 	depmod 2>/dev/null
+	(cd utils; make $@)
+	(cd drivers; make $@)
+	(cd components; make $@)
 
 headers: def_headers
 	(cd utils; make $@)

@@ -1,5 +1,19 @@
 # Makefile for HAL Utilities
 
+ifneq ($(KERNELRELEASE),)
+# kbuild part of the makefile
+
+ifeq ($(RTFLAGS),)
+include $(PWD)/../../Makefile.inc
+endif
+
+obj-m := scope_rt.o
+
+EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
+
+else
+# normal part of the makefile
+
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
 include ../../Makefile.inc
 
@@ -57,7 +71,29 @@ indent: def_indent
 
 depend: def_depend
 
-clean :  def_clean
+clean :  def_clean kclean
+
+kclean:
+	- rm -f .*.cmd *.o* *.mod.* *.ko
+	- rm -fR .tmp_versions 
+
+
+ifndef KDIR
+
+# this doesn't work on debian where make-kpkg was at work
+#KDIR := $(KERNELDIR)
+KDIR := /lib/modules/$(shell uname -r)/build
+endif
+
+PWD := $(shell pwd)
+
+modules: headers
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+
+modules_install: modules
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+	depmod 2>/dev/null
+
 
 # rule to link halcmd
 $(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o $(LIB_DIR)/libnml.a
@@ -94,3 +130,4 @@ $(BIN_DIR)/halscope : $(HALSCOPE_OBJS)
 
 .PHONY: all headers depend indent install clean
 
+endif
