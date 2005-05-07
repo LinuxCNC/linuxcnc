@@ -57,6 +57,7 @@ MATHINC = @MATHINC@
 MATHLIB = @MATHLIB@
 ULFLAGS = -Wall -g -I$(INC_DIR) -I@RTDIR@/include -I. -DULAPI -O2 -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
 MODULE_EXT = @MODEXT@
+BUILD_SYS = @BUILD_SYS@
 CC = @CC@
 
 # local flags for GTK include

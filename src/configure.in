@@ -394,6 +394,25 @@ if test "x" = "x$MODEXT"; then
 fi
 AC_SUBST([MODEXT])
 
+# This check should see if kbuild is or isn't used
+# FIXME FIXME FIXME
+# right now it will assume based on wether it's a 2.6 kernel or not
+
+if test "x$MODEXT" = "x.ko" ; then
+    BUILD_SYS="kbuild"
+fi
+
+AC_ARG_WITH(kbuild,
+    [  --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not],
+    [
+        case "$withval" in
+        "" | y | ye | yes | n | no)
+	    BUILD_SYS="kbuild"
+          ;;
+        esac
+    ])
+AC_SUBST([BUILD_SYS])
+
 ##############################################################################
 # Subsection 3.3 - check the moduledir where modules can get installed       #
 #                                                                            #
