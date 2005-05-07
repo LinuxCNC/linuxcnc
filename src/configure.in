@@ -388,7 +388,7 @@ AC_MSG_RESULT([$KERNEL_VERS])
 AC_SUBST([KERNEL_VERS])
 
 # Do a quick test for module extension..
-MODEXT=`$RTS --module-ext 2>/dev/null`
+MODEXT=`$RTS --module-ext 2>/dev/null || echo ".o"`
 if test "x" = "x$MODEXT"; then
     MODEXT=".o"
 fi
