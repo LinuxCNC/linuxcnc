@@ -49,6 +49,10 @@ all headers indent :
 	  echo "Create realtime library directory $(RTLIB_DIR)" ;\
 	  mkdir $(RTLIB_DIR) ;\
 	fi
+	(cd rtapi; make $@)
+	(cd libnml; make $@)
+	(cd hal; make $@)
+	(cd emc; make $@)
 
 # these variables are used to build a list of all
 # man pages that need to be installed
