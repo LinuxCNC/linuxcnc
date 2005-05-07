@@ -49,10 +49,6 @@ all headers indent :
 	  echo "Create realtime library directory $(RTLIB_DIR)" ;\
 	  mkdir $(RTLIB_DIR) ;\
 	fi
-	(cd rtapi; make $@)
-	(cd libnml; make $@)
-	(cd hal; make $@)
-	(cd emc; make $@)
 
 # these variables are used to build a list of all
 # man pages that need to be installed
@@ -79,6 +75,17 @@ $(MAN_DIR)/% : docs/man/%
 install : $(MAN_FILES)
 	(cd rtapi; make $@)
 	(cd hal; make $@)
+
+modules: headers
+	(cd rtapi; make $@)
+	(cd hal; make $@)
+	(cd emc; make $@)
+
+modules_install: modules
+	(cd rtapi; make $@)
+	(cd hal; make $@)
+	(cd emc; make $@)
+	depmod 2>/dev/null
 
 # this rule handles the uninstall target
 # it removes all the man pages
