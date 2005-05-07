@@ -90,13 +90,18 @@ endif
 
 PWD := $(shell pwd)
 
+
 modules: headers
+# Only on kbuild build systems is it required to do the 'make modules'
+# all older system build the traditional way
+ifeq ($(BUILD_SYS),kbuild)
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
 
 modules_install: modules
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
 	depmod 2>/dev/null
 
+endif
 
 .PHONY: all headers depend indent install clean
 

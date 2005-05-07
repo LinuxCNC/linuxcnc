@@ -47,23 +47,32 @@ endif
 LIBS += \
 $(LIB_DIR)/ulapi.o 
 
-all: rtapi.conf headers $(LIBS)
+all: rtapi.conf headers $(LIBS) modules 
 
 # Generic rules
 include ../Make.rules
 
 ifndef KDIR
-KDIR := $(KERNELDIR)
+
+# this doesn't work on debian where make-kpkg was at work
+#KDIR := $(KERNELDIR)
+KDIR := /lib/modules/$(shell uname -r)/build
 endif
 
 PWD := $(shell pwd)
 
+
 modules: headers
+# Only on kbuild build systems is it required to do the 'make modules'
+# all older system build the traditional way
+ifeq ($(BUILD_SYS),kbuild)
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
 
 modules_install: modules
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
 	depmod 2>/dev/null
+
+endif
 
 examples:
 	(cd examples; make all)
@@ -133,7 +142,7 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(SRC_DIR)/Makefile.inc
 	@ echo "EMC2_HOME='$(EMC2_HOME)'" >>$@
 	@ echo "MAN_DIR='$(MAN_DIR)'" >> $@
 	@ echo "KERNELDIR='$(KERNELDIR)'" >> $@
-	@ echo "RTLIB_DIR='$(RTLIB_DIR)'" >> $@
+	@ echo "RTLIB_DIR='$(MODULEDIR)'" >> $@
 	@ echo  >> $@
 	@ echo "# Sets the default DEBUG level" >> $@
 	@ echo "DEBUG='3'" >> $@

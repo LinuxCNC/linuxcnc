@@ -54,7 +54,11 @@ all : headers $(LIBS) modules
 # Generic rules
 include $(SRC_DIR)/Make.rules
 
+
 modules: headers
+# Only on kbuild build systems is it required to do the 'make modules'
+# all older system build the traditional way
+ifeq ($(BUILD_SYS),kbuild)
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
 	(cd utils; make $@)
 	(cd drivers; make $@)
@@ -66,6 +70,8 @@ modules_install: modules
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+
+endif
 
 headers: def_headers
 	(cd utils; make $@)

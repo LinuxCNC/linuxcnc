@@ -80,16 +80,21 @@ install : $(MAN_FILES)
 	(cd rtapi; make $@)
 	(cd hal; make $@)
 
+
 modules: headers
 	(cd rtapi; make $@)
 	(cd hal; make $@)
 	(cd emc; make $@)
+
+ifeq ($(BUILD_SYS),kbuild)
 
 modules_install: modules
 	(cd rtapi; make $@)
 	(cd hal; make $@)
 	(cd emc; make $@)
 	depmod 2>/dev/null
+
+endif
 
 # this rule handles the uninstall target
 # it removes all the man pages
