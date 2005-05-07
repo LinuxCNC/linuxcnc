@@ -85,7 +85,9 @@ clean: def_clean kclean
 
 kclean:
 	- rm -f .*.cmd *.o* *.mod.* *.ko
-	- rm -fR .tmp_versions 
+	- rm -fR .tmp_versions
+	# Delete the hard link to $(RTPREFIX)_rtapi.c
+	- rm -f rtapi.c
 
 # explicit rules to make libs from objs
 
