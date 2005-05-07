@@ -54,14 +54,16 @@ include ../Make.rules
 
 ifndef KDIR
 KDIR := $(KERNELDIR)
-# KDIR := /lib/modules/$(shell uname -r)/build
 endif
 
 PWD := $(shell pwd)
 
 modules: headers
-	cp $(RTPREFIX)_rtapi.c rtapi.c
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+
+modules_install: modules
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+	depmod 2>/dev/null
 
 examples:
 	(cd examples; make all)
