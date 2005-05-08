@@ -1473,7 +1473,7 @@ int rs274ngc_ini_load(const char *filename)
     const char *inistring;
 
     // open it
-    if (-1 == inifile.open(filename)) {
+    if (0 != inifile.open(filename)) {
 	return -1;
     }
 
@@ -1618,6 +1618,9 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.9  2005/05/08 21:59:12  alex_joni
+  changed the test inifile.open() == false to inifile.open() != 0 as it seems that false is not always recognized as it should
+
   Revision 1.8  2005/05/04 04:50:38  jmkasunich
   Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
 

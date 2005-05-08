@@ -2617,7 +2617,7 @@ static int iniLoad(const char *filename)
     double saveDouble;
 
     // open it
-    if (inifile.open(filename) == false) {
+    if (inifile.open(filename) != 0) {
 	return -1;
     }
 
@@ -2992,6 +2992,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.26  2005/05/08 21:59:12  alex_joni
+  changed the test inifile.open() == false to inifile.open() != 0 as it seems that false is not always recognized as it should
+
   Revision 1.25  2005/05/04 04:50:38  jmkasunich
   Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
 

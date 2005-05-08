@@ -158,7 +158,7 @@ static int iniLoad(const char *filename)
   char version[INIFILE_MAX_LINELEN];
 
   /* Open the ini file */
-  if (-1 == inifile.open(filename)) {
+  if (0 != inifile.open(filename)) {
     return -1;
   }
 
