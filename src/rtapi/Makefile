@@ -62,15 +62,20 @@ endif
 PWD := $(shell pwd)
 
 
-modules: headers
 # Only on kbuild build systems is it required to do the 'make modules'
 # all older system build the traditional way
 ifeq ($(BUILD_SYS),kbuild)
+
+modules: headers rtapi.c
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
 
 modules_install: modules
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
 	depmod 2>/dev/null
+
+else
+
+modules:
 
 endif
 
@@ -107,8 +112,8 @@ $(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 	- \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
 else
 # Rule to create a hard link to rtapi.c for kbuild
-$(obj)/rtapi.c: $(src)/$(RTPREFIX)_rtapi.c
-	cp -fl $(src)/$(RTPREFIX)_rtapi.c $(src)/rtapi.c
+rtapi.c: 
+	cp -fl $(src)$(RTPREFIX)_rtapi.c $(src)rtapi.c
 endif
 
 $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
