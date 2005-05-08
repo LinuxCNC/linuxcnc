@@ -117,56 +117,7 @@ MODULE_DESCRIPTION("Portable Real Time API for RTAI");
 MODULE_LICENSE("GPL");
 #endif
 
-/* starting with kernel 2.6, symbols that are used by other modules
-   _must_ be explicitly exported.  2.4 and earlier kernels exported
-   all non-static global symbols by default, so these explicit exports
-   were not needed.  For 2.4 and older, you should define EXPORT_SYMTAB
-   (before including module.h) to make these explicit exports work and 
-   minimize pollution of the kernel namespace.  But EXPORT_SYMTAB
-   must not be defined for 2.6, so the best place to do it is 
-   probably in the makefiles somewhere (as a -D option to gcc).
-*/
 
-EXPORT_SYMBOL (rtapi_init)
-EXPORT_SYMBOL (rtapi_exit)
-EXPORT_SYMBOL (rtapi_snprintf)
-EXPORT_SYMBOL (rtapi_print)
-EXPORT_SYMBOL (rtapi_print_msg)
-EXPORT_SYMBOL (rtapi_set_msg_level)
-EXPORT_SYMBOL (rtapi_get_msg_level)
-EXPORT_SYMBOL (rtapi_clock_set_period)
-EXPORT_SYMBOL (rtapi_get_time)
-EXPORT_SYMBOL (rtapi_delay)
-EXPORT_SYMBOL (rtapi_delay_max)
-EXPORT_SYMBOL (rtapi_prio_highest)
-EXPORT_SYMBOL (rtapi_prio_lowest)
-EXPORT_SYMBOL (rtapi_prio_next_higher)
-EXPORT_SYMBOL (rtapi_prio_next_lower)
-EXPORT_SYMBOL (rtapi_task_new)
-EXPORT_SYMBOL (rtapi_task_delete)
-EXPORT_SYMBOL (rtapi_task_start)
-EXPORT_SYMBOL (rtapi_wait)
-EXPORT_SYMBOL (rtapi_task_resume)
-EXPORT_SYMBOL (rtapi_task_pause)
-EXPORT_SYMBOL (rtapi_task_self)
-EXPORT_SYMBOL (rtapi_shmem_new)
-EXPORT_SYMBOL (rtapi_shmem_delete)
-EXPORT_SYMBOL (rtapi_shmem_getptr)
-EXPORT_SYMBOL (rtapi_sem_new)
-EXPORT_SYMBOL (rtapi_sem_delete)
-EXPORT_SYMBOL (rtapi_sem_give)
-EXPORT_SYMBOL (rtapi_sem_take)
-EXPORT_SYMBOL (rtapi_sem_try)
-EXPORT_SYMBOL (rtapi_fifo_new)
-EXPORT_SYMBOL (rtapi_fifo_delete)
-EXPORT_SYMBOL (rtapi_fifo_read)
-EXPORT_SYMBOL (rtapi_fifo_write)
-EXPORT_SYMBOL (rtapi_irq_new)
-EXPORT_SYMBOL (rtapi_irq_delete)
-EXPORT_SYMBOL (rtapi_enable_interrupt)
-EXPORT_SYMBOL (rtapi_disable_interrupt)
-EXPORT_SYMBOL (rtapi_outb)
-EXPORT_SYMBOL (rtapi_inb)
 
 #include "rtapi_proc.h"		/* proc filesystem decls & code */
 
@@ -1653,3 +1604,55 @@ unsigned char rtapi_inb(unsigned int port)
 {
     return inb(port);
 }
+
+
+/* starting with kernel 2.6, symbols that are used by other modules
+   _must_ be explicitly exported.  2.4 and earlier kernels exported
+   all non-static global symbols by default, so these explicit exports
+   were not needed.  For 2.4 and older, you should define EXPORT_SYMTAB
+   (before including module.h) to make these explicit exports work and 
+   minimize pollution of the kernel namespace.  But EXPORT_SYMTAB
+   must not be defined for 2.6, so the best place to do it is 
+   probably in the makefiles somewhere (as a -D option to gcc).
+*/
+
+EXPORT_SYMBOL(rtapi_init);
+EXPORT_SYMBOL(rtapi_exit);
+EXPORT_SYMBOL(rtapi_snprintf);
+EXPORT_SYMBOL(rtapi_print);
+EXPORT_SYMBOL(rtapi_print_msg);
+EXPORT_SYMBOL(rtapi_set_msg_level);
+EXPORT_SYMBOL(rtapi_get_msg_level);
+EXPORT_SYMBOL(rtapi_clock_set_period);
+EXPORT_SYMBOL(rtapi_get_time);
+EXPORT_SYMBOL(rtapi_delay);
+EXPORT_SYMBOL(rtapi_delay_max);
+EXPORT_SYMBOL(rtapi_prio_highest);
+EXPORT_SYMBOL(rtapi_prio_lowest);
+EXPORT_SYMBOL(rtapi_prio_next_higher);
+EXPORT_SYMBOL(rtapi_prio_next_lower);
+EXPORT_SYMBOL(rtapi_task_new);
+EXPORT_SYMBOL(rtapi_task_delete);
+EXPORT_SYMBOL(rtapi_task_start);
+EXPORT_SYMBOL(rtapi_wait);
+EXPORT_SYMBOL(rtapi_task_resume);
+EXPORT_SYMBOL(rtapi_task_pause);
+EXPORT_SYMBOL(rtapi_task_self);
+EXPORT_SYMBOL(rtapi_shmem_new);
+EXPORT_SYMBOL(rtapi_shmem_delete);
+EXPORT_SYMBOL(rtapi_shmem_getptr);
+EXPORT_SYMBOL(rtapi_sem_new);
+EXPORT_SYMBOL(rtapi_sem_delete);
+EXPORT_SYMBOL(rtapi_sem_give);
+EXPORT_SYMBOL(rtapi_sem_take);
+EXPORT_SYMBOL(rtapi_sem_try);
+EXPORT_SYMBOL(rtapi_fifo_new);
+EXPORT_SYMBOL(rtapi_fifo_delete);
+EXPORT_SYMBOL(rtapi_fifo_read);
+EXPORT_SYMBOL(rtapi_fifo_write);
+EXPORT_SYMBOL(rtapi_irq_new);
+EXPORT_SYMBOL(rtapi_irq_delete);
+EXPORT_SYMBOL(rtapi_enable_interrupt);
+EXPORT_SYMBOL(rtapi_disable_interrupt);
+EXPORT_SYMBOL(rtapi_outb);
+EXPORT_SYMBOL(rtapi_inb);
