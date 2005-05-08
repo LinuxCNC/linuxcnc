@@ -2538,6 +2538,10 @@ static void free_thread_struct(hal_thread_t * thread)
 }
 #endif /* RTAPI */
 
+
+#ifdef RTAPI
+/* only export symbols when we're building a kernel module */
+
 EXPORT_SYMBOL(hal_init);
 EXPORT_SYMBOL(hal_exit);
 EXPORT_SYMBOL(hal_malloc);
@@ -2585,3 +2589,5 @@ EXPORT_SYMBOL(hal_del_funct_from_thread);
 
 EXPORT_SYMBOL(hal_start_threads);
 EXPORT_SYMBOL(hal_stop_threads);
+
+#endif /* rtapi */
