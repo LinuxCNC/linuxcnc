@@ -397,9 +397,13 @@ AC_SUBST([MODEXT])
 # This check should see if kbuild is or isn't used
 # FIXME FIXME FIXME
 # right now it will assume based on wether it's a 2.6 kernel or not
+EXT_RTFLAGS=""
+BUILD_SYS=""
 
 if test "x$MODEXT" = "x.ko" ; then
     BUILD_SYS="kbuild"
+else
+    EXT_RTFLAGS="-DEXPORT_SYMTAB"
 fi
 
 AC_ARG_WITH(kbuild,
@@ -412,6 +416,7 @@ AC_ARG_WITH(kbuild,
         esac
     ])
 AC_SUBST([BUILD_SYS])
+AC_SUBST([EXT_RTFLAGS])
 
 ##############################################################################
 # Subsection 3.3 - check the moduledir where modules can get installed       #
