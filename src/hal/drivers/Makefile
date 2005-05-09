@@ -72,7 +72,7 @@ $(BIN_DIR)/hal_parport \
 $(BIN_DIR)/hal_skeleton
 
 
-all : headers $(OBJS) $(LIBS) $(BINS) modules
+all : headers $(OBJS) $(LIBS) $(BINS) modules modules_install
 
 # Generic rules
 include $(SRC_DIR)/Make.rules
@@ -97,15 +97,26 @@ endif
 PWD := $(shell pwd)
 
 
-modules: headers
 # Only on kbuild build systems is it required to do the 'make modules'
 # all older system build the traditional way
 ifeq ($(BUILD_SYS),kbuild)
+
+modules: headers
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
 
 modules_install: modules
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
-	depmod 2>/dev/null
+	- cp *.ko $(RTLIB_DIR)/
+# for now we skip the proper way of installing the modules, 
+# instead we just copy the modules to $(RTLIB_DIR)
+#
+# $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+# depmod 2>/dev/null
+
+else
+
+modules:
+
+modules_install:
 
 endif
 

@@ -46,7 +46,7 @@ endif
 PWD := $(shell pwd)
 
 
-all : headers $(LIBS) modules
+all : headers $(LIBS) modules modules_install
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
@@ -55,21 +55,32 @@ all : headers $(LIBS) modules
 include $(SRC_DIR)/Make.rules
 
 
-modules: headers
 # Only on kbuild build systems is it required to do the 'make modules'
 # all older system build the traditional way
 ifeq ($(BUILD_SYS),kbuild)
+
+modules: headers
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
 
 modules_install: modules
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
-	depmod 2>/dev/null
+	- cp *.ko $(RTLIB_DIR)/
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+# for now we skip the proper way of installing the modules, 
+# instead we just copy the modules to $(RTLIB_DIR)
+#
+# $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+# depmod 2>/dev/null
+
+else
+
+modules:
+
+modules_install:
 
 endif
 
