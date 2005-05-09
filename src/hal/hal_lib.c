@@ -14,6 +14,8 @@
     Other contributors:
                        Paul Fox
                        <pgf AT foxharp DOT boston DOT ma DOT us>
+		       Alex Joni
+		       <alex_joni AT users DOT sourceforge DOT net>
 */
 
 /** This library is free software; you can redistribute it and/or
@@ -2589,5 +2591,20 @@ EXPORT_SYMBOL(hal_del_funct_from_thread);
 
 EXPORT_SYMBOL(hal_start_threads);
 EXPORT_SYMBOL(hal_stop_threads);
+
+EXPORT_SYMBOL(hal_shmem_base);
+EXPORT_SYMBOL(halpr_find_comp_by_name);
+EXPORT_SYMBOL(halpr_find_pin_by_name);
+EXPORT_SYMBOL(halpr_find_sig_by_name);
+EXPORT_SYMBOL(halpr_find_param_by_name);
+EXPORT_SYMBOL(halpr_find_thread_by_name);
+EXPORT_SYMBOL(halpr_find_funct_by_name);
+EXPORT_SYMBOL(halpr_find_comp_by_id);
+
+EXPORT_SYMBOL(halpr_find_pin_by_owner);
+EXPORT_SYMBOL(halpr_find_param_by_owner);
+EXPORT_SYMBOL(halpr_find_funct_by_owner);
+
+EXPORT_SYMBOL(halpr_find_pin_by_sig);
 
 #endif /* rtapi */
