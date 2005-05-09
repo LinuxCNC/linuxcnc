@@ -65,7 +65,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
-#include <math.h>
+#include "rtapi_math.h"		/* RTAPI wrapper for math.h, takes care of some compile warnings */
 
 #ifdef MODULE
 /* module information */

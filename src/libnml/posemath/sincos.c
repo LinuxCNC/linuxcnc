@@ -32,7 +32,7 @@
 
 #ifndef SINCOS_SUPPORT
 
-#include <math.h>
+#include "rtapi_math.h"
 
 void sincos(double x, double *sx, double *cx)
 {

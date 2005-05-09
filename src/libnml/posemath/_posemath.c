@@ -17,7 +17,7 @@
 * $Date$
 ********************************************************************/
 
-#include <math.h>
+#include "rtapi_math.h"
 #include <float.h>		/* DBL_MAX */
 
 #if defined(PM_PRINT_ERROR) && defined(rtai)
