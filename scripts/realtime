@@ -34,7 +34,7 @@ CheckConfig(){
     for module in $MODULES ; do
 	MODULES_UNLOAD="$module $MODULES_UNLOAD"
     done
-    MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi.o $RTLIB_DIR/hal_lib.o"
+    MODULES_LOAD="$MODULES_LOAD rtlib/rtapi$MODULE_EXT rtlib/hal_lib$MODULE_EXT"
     MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
 }
 
