@@ -147,7 +147,8 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(SRC_DIR)/Makefile.inc
 	@ echo "EMC2_HOME='$(EMC2_HOME)'" >>$@
 	@ echo "MAN_DIR='$(MAN_DIR)'" >> $@
 	@ echo "KERNELDIR='$(KERNELDIR)'" >> $@
-	@ echo "RTLIB_DIR='$(MODULEDIR)'" >> $@
+	@ echo "RTLIB_DIR='$(RTLIB_DIR)'" >> $@
+	@ echo "MODULE_EXT='$(MODULE_EXT)'" >> $@
 	@ echo  >> $@
 	@ echo "# Sets the default DEBUG level" >> $@
 	@ echo "DEBUG='3'" >> $@
