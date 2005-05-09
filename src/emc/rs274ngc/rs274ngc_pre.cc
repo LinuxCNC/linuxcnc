@@ -1091,7 +1091,7 @@ int Interp::rs274ngc_ini_load(const char *filename)
     const char *inistring;
 
     // open it
-    if (inifile.open(filename) == false) {
+    if (inifile.open(filename) != 0) {
 	return -1;
     }
 
