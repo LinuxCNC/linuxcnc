@@ -1,82 +1,92 @@
 
-  emc2/ (directory.map (this file), optionally, a generic run script)
-    |
-    |
-    |--- docs/ (All the important and relevant Docs.)
-    |      |   (API and source notes should be in each src dir.)
-    |      |
-    |      |--- handbooks/  (PDF versions of handbooks)
-    |      |                (LyX source is in the documents tree)
-    |      |
-    |      |--- man/  (man pages)
-    |            |
-    |            |--- man1/  (user man pages)
-    |            |--- man3/  (API man pages)
-    |
-    |--- nc_files/ (Sample NC files)
-    |
-    |--- configs/ (emc.ini, CL configs, etc)
-    |
-    |--- include/  (headers installed here - originals in src/xxx/)
-    |
-    |--- bin/  (user mode binaries)
-    |
-    |--- lib/  (user mode object files)
-    |
-    |--- rtlib/  (kernel mode object files)
-    |
-    |--- scripts/  (bash scripts like realtime, load_rtapi, unload_rtapi, etc.)
-    |
-    |--- tcl/ (both tkemc and any other tcl/tk scripts)
-    |
-    |--- src/  (source tree - configure script, top level makefile,
-           |      Makefile.inc, etc)
-           |
-           |--- rtapi/  (*.c and *.h for RTAPI)
-           |      |
-           |      |--- examples/
-           |              |
-           |              |--- timer_example/  (*.c & *.h)
-           |              |--- shmem_example/  (*.c & *.h)
-           |              |--- etc.
-           |
-           |--- hal/  (hal_lib.c, hal.h, etc.)
-           |      |
-           |      |--- utils/       (halcmd, halscope, halmeter, etc)
-           |      |--- drivers/     (parport.c, STG.c, PPMC.c, USC.c, etc.)
-           |      |--- components/  (encoder.c, stepgen.c, PID.c, etc.)
-           |
-           |--- posemath/
-           |
-           |--- libnml/
-           |      |
-           |      |--- cms/
-           |      |--- os_intf/
-           |      |--- nml/
-           |
-           |--- emc/
-           |      |
-           |      |--- task/
-           |      |--- motion/
-           |      |--- io/
-           |      |--- interp/
-           |
-           |--- classicladder
-           |
-           |--- lang/  (stuff that uses/supports other programming languages)
-           |      |
-           |      |--- tcl/  (emcsh.cc, iosh.cc and other tcl support)
-           |      |
-           |      |--- python/ (?)
-           |      |--- perl/ (?)
-           |      |--- XML/ (?) <grin>
-           |
-           |----- po/    (Translation files for i18n support)
-           |
-           |--- .tmp/    (temp directory for intermediate objects.)
-           |--- .rt_tmp/ (temp directory for RT objects.)
-           |             (N.B. These two should not appear in CVS)
-           |             (and will be deleted during a 'make clean')
-           |
-           |
-
+emc2/ (directory.map (this file), optionally, a generic run script)
+  |
+  |
+  |--- docs/ (All the important and relevant Docs.)
+  |     | (API and source notes should be in each src dir.)
+  |     |
+  |     |--- handbooks/  (PDF versions of handbooks)
+  |     |                (LyX source is in the documents tree)
+  |     |
+  |     |--- man/ (man pages)
+  |           |
+  |           |--- man1/  (user man pages)
+  |           |--- man3/  (API man pages)
+  |
+  |--- nc_files/ (Sample NC files)
+  |
+  |--- configs/ (emc.ini, CL configs, etc)
+  |
+  |--- include/ (headers installed here - originals in src/xxx/)
+  |
+  |--- bin/ (user mode binaries)
+  |
+  |--- lib/ (user mode object files)
+  |
+  |--- rtlib/ (kernel mode object files)
+  |
+  |--- scripts/ (bash scripts like realtime, load_rtapi, unload_rtapi, etc.)
+  |
+  |--- tcl/  (mini.tcl, tkemc.tcl GUIs)
+  |     |
+  |     |--- bin/  (compiled tcl stuff?)
+  |     |--- scripts/ (misc tcl stuff)
+  |
+  |--- src/ (source tree: configure script, top level makefile, Makefile.inc, etc)
+        |
+        |--- rtapi/ (*.c and *.h for RTAPI)
+        |     |
+        |     |--- examples/
+        |            |
+        |            |--- timer_example/ (*.c & *.h)
+        |            |--- shmem_example/ (*.c & *.h)
+        |            |--- etc.
+        |
+        |--- hal/ (hal_lib.c, hal.h, etc.)
+        |     |
+        |     |--- utils/       (halcmd, halscope, halmeter, etc)
+        |     |--- drivers/     (parport.c, STG.c, PPMC.c, USC.c, etc.)
+        |     |--- components/  (encoder.c, stepgen.c, PID.c, etc.)
+        |
+        |--- libnml/
+        |     |
+        |     |--- buffer/
+        |     |--- cms/
+        |     |--- infile/
+        |     |--- linklist/
+        |     |--- nml/
+        |     |--- os_intf/
+        |     |--- posemath/
+        |     |--- rcs/
+        |
+        |--- emc/
+        |     |
+        |     |--- canterp/ (canonical interpreter)
+        |     |--- hal_intf/ (not used, delete?)
+        |     |--- ini/ (initialization)
+        |     |--- iotask/ (io task ;-)
+        |     |--- kinematics/ (trajectory planner)
+        |     |--- log/ (logging stuff)
+        |     |--- motion/ (motion controller)
+        |     |--- nml_intf/ (interface to nml)
+        |     |--- rs274ngc/ (g-code interpreter)
+        |     |--- task/ (main coordinating controller)
+        |     |--- usr_intf/ (user interface code)
+        |
+        |--- po/    (Translation files for i18n support)
+        |
+        |--- classicladder (not here yet)
+        |
+        |--- lang/  (stuff that uses/supports other programming languages)
+        |     |     (this is not here yet, currently in emc2/tcl/ )
+        |     |--- tcl/  (emcsh.cc, iosh.cc and other tcl support)
+        |     |--- python/ (?)
+        |     |--- perl/ (?)
+        |     |--- XML/ (?) <grin>
+        |
+        |
+        |--- .tmp/   (temp directory for intermediate objects.)
+        |--- .rt_tmp/ (temp directory for RT objects.)
+        |             (N.B. These two should not appear in CVS)
+        |             (and will be deleted during a 'make clean')
+        |
