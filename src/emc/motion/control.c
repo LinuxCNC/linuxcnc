@@ -21,7 +21,7 @@
 
 #include <linux/types.h>
 #include <float.h>
-#include <math.h>
+#include "rtapi_math.h"
 #include "rtapi.h"
 #include "hal.h"
 #include "emcmotglb.h"

@@ -24,7 +24,7 @@
   a bunch of <linux> headers
   */
 #include "rtapi.h"		/* rtapi_print_msg */
-#include <math.h>
+#include "rtapi_math.h"
 #include "posemath.h"
 #include "emcpos.h"
 #include "tc.h"

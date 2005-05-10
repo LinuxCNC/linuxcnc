@@ -19,7 +19,7 @@
 * $Date$
 ********************************************************************/
 
-#include <math.h>
+#include "rtapi_math.h"
 #include "cubic.h"
 
 #define SEGMENT_TIME_SET 0x01
