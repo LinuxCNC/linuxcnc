@@ -178,6 +178,6 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(SRC_DIR)/Makefile.inc
 	    echo "MODULES='$(RTL_MOD)'" >> $@ ; \
 	  fi
 
-.PHONY: all examples headers depend indent install clean
+.PHONY: all examples headers depend indent install clean kclean
 
 endif

@@ -98,7 +98,7 @@ depend: def_depend
 	(cd task; make $@)
 	(cd usr_intf; make $@)
 
-clean: def_clean
+clean: def_clean kclean
 	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
@@ -110,6 +110,10 @@ clean: def_clean
 	(cd iotask; make $@)
 	(cd task; make $@)
 	(cd usr_intf; make $@)
+
+kclean:
+	- rm -f .*.cmd *.o* *.mod.* *.ko
+	- rm -fR .tmp_versions
 
 install:
 	(cd log; make $@)
@@ -148,6 +152,6 @@ modules_install:
 
 endif
 
-.PHONY: all clean depend headers indent install
+.PHONY: all clean kclean depend headers indent install
 
 endif

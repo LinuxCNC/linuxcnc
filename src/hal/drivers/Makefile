@@ -126,6 +126,6 @@ $(BIN_DIR)/% : $(TMP_DIR)/%.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 
-.PHONY: all headers depend indent install clean
+.PHONY: all headers depend indent install clean kclean
 
 endif

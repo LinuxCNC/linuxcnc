@@ -114,6 +114,6 @@ modules_install:
 
 endif
 
-.PHONY: all headers depend indent install clean
+.PHONY: all headers depend indent install clean kclean
 
 endif

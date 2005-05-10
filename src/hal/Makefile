@@ -109,6 +109,6 @@ kclean:
 	- rm -fR .tmp_versions 
 
 
-.PHONY: all headers depend indent install clean
+.PHONY: all headers depend indent install clean kclean
 
 endif

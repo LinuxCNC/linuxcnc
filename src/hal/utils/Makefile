@@ -143,6 +143,6 @@ $(BIN_DIR)/halscope : $(HALSCOPE_OBJS)
 	@ echo "Linking $@"
 	$(CC) $(GTK_LIBS) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
-.PHONY: all headers depend indent install clean
+.PHONY: all headers depend indent install clean kclean
 
 endif
