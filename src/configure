@@ -1358,8 +1358,8 @@ if test "${with_rtai+set}" = set; then
   withval="$with_rtai"
   	case "$withval" in
 	"" | y | ye | yes | n | no)
-	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-rtai." >&5
-echo "$as_me: error: You must supply an argument to --with-rtai." >&2;}
+	    { { echo "$as_me:$LINENO: error: You must supply a path for --with-rtai." >&5
+echo "$as_me: error: You must supply a path for --with-rtai." >&2;}
    { (exit 1); exit 1; }; }
 	  ;;
 	esac
@@ -1379,8 +1379,8 @@ if test "${with_rtlinux+set}" = set; then
   withval="$with_rtlinux"
   	case "$withval" in
 	"" | y | ye | yes | n | no)
-	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-rtlinux." >&5
-echo "$as_me: error: You must supply an argument to --with-rtlinux." >&2;}
+	    { { echo "$as_me:$LINENO: error: You must supply a path for --with-rtlinux." >&5
+echo "$as_me: error: You must supply a path for --with-rtlinux." >&2;}
    { (exit 1); exit 1; }; }
 	  ;;
 	esac
@@ -1408,8 +1408,8 @@ if test "${with_rtlinuxpro+set}" = set; then
   withval="$with_rtlinuxpro"
   	case "$withval" in
 	"" | y | ye | yes | n | no)
-	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-rtlinuxpro." >&5
-echo "$as_me: error: You must supply an argument to --with-rtlinuxpro." >&2;}
+	    { { echo "$as_me:$LINENO: error: You must supply a path for --with-rtlinuxpro." >&5
+echo "$as_me: error: You must supply a path for --with-rtlinuxpro." >&2;}
    { (exit 1); exit 1; }; }
 	  ;;
 	esac
@@ -1678,6 +1678,9 @@ elif (test ${RTS##*/} = rtl-config ) ; then
   RTSCC=`$RTS --cc`
   echo "$as_me:$LINENO: result: found $RTSCC in rtl-config" >&5
 echo "${ECHO_T}found $RTSCC in rtl-config" >&6
+else
+  echo "$as_me:$LINENO: result: not specified" >&5
+echo "${ECHO_T}not specified" >&6
 fi
 
 # seems there's a problem with autoconf if there are multiple
@@ -2417,8 +2420,6 @@ fi
 # running kernel version which is may not be the one the code is             #
 # compiled against.                                                          #
 ##############################################################################
-echo "$as_me:$LINENO: checking for kernel version" >&5
-echo $ECHO_N "checking for kernel version... $ECHO_C" >&6
 
 
 ac_ext=c
@@ -3060,8 +3061,9 @@ fi
 
 done
 
+
 # Unfortunately, many distributions (redhat, mandrake) have #defines
-# inside versin.h, so a simple cat|grep|cut test won't work... But then agsin,
+# inside version.h, so a simple cat|grep|cut test won't work... But then again,
 # RH & Mandrake kernels are notorious for their use of patches that break
 # the RT patching - Both RTAI and RTLinux strongly recommend using
 # a virgin source from kernel.org.
@@ -3078,17 +3080,23 @@ echo "${ECHO_T}$KERNEL_VERS" >&6
 
 
 # Do a quick test for module extension..
+echo "$as_me:$LINENO: checking for kernel module extension" >&5
+echo $ECHO_N "checking for kernel module extension... $ECHO_C" >&6
 MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
 if test "x" = "x$MODEXT"; then
     MODEXT=".o"
 fi
+echo "$as_me:$LINENO: result: $MODEXT" >&5
+echo "${ECHO_T}$MODEXT" >&6
 
 
 # This check should see if kbuild is or isn't used
+echo "$as_me:$LINENO: checking kernel build system" >&5
+echo $ECHO_N "checking kernel build system... $ECHO_C" >&6
 # FIXME FIXME FIXME
 # right now it will assume based on wether it's a 2.6 kernel or not
 EXT_RTFLAGS=""
-BUILD_SYS=""
+BUILD_SYS="normal"
 
 if test "x$MODEXT" = "x.ko" ; then
     BUILD_SYS="kbuild"
@@ -3102,12 +3110,17 @@ if test "${with_kbuild+set}" = set; then
   withval="$with_kbuild"
 
         case "$withval" in
-        "" | y | ye | yes | n | no)
+        "" | y | ye | yes )
 	    BUILD_SYS="kbuild"
+          ;;
+        n | no )
+	    BUILD_SYS="normal"
           ;;
         esac
 
 fi;
+echo "$as_me:$LINENO: result: $BUILD_SYS" >&5
+echo "${ECHO_T}$BUILD_SYS" >&6
 
 
 
@@ -3117,6 +3130,7 @@ fi;
 # Provides the user the possibility to specify (--with-module-dir=<path>)    #
 # If not specified default inside /lib/modules/${KERNEL_VERS}/               #
 # to the location where a RT-module gets found (mbuff.o or rtai_shm.o)       #
+# (maybe the default should be /lib/modules/$KERNEL_VERS/extra if it exists? #
 ##############################################################################
 
 # Create a module-dir option, similar to rtai's...
@@ -3130,8 +3144,8 @@ if test "${with_module_dir+set}" = set; then
 
         case "$withval" in
         "" | y | ye | yes | n | no)
-            { { echo "$as_me:$LINENO: error: You must supply an argument to --with-module-dir." >&5
-echo "$as_me: error: You must supply an argument to --with-module-dir." >&2;}
+            { { echo "$as_me:$LINENO: error: You must supply a path for --with-module-dir." >&5
+echo "$as_me: error: You must supply a path for --with-module-dir." >&2;}
    { (exit 1); exit 1; }; }
           ;;
         esac
@@ -3139,21 +3153,37 @@ echo "$as_me: error: You must supply an argument to --with-module-dir." >&2;}
 
 fi;
 
-# Set a default module dir if unspecified
-if test "x" = "x$MODULE_DIR";
-then
+# if not specified, ask the realtime config script where the directory is
+# if the config script returns an error, set MODULE_DIR to nothing
+if test "x" = "x$MODULE_DIR" ; then
+  MODULE_DIR=`$RTS --module-dir 2>/dev/null` || MODULE_DIR=
+fi
+
+# if still unknown, check a couple default dirs for RT modules
+if test "x" = "x$MODULE_DIR" ; then
    # (P.C.) Only works if the kernel modules are installed - If we are compiling for a target
    # system, this test may fail...
-   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
-
-   if test "x" = "x$MODULE_DIR"; then
-        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
+   if test -d /lib/modules/${KERNEL_VERS} ; then
+       MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff${MODEXT}" -o -name "rtai_shm${MODEXT}" \) -printf "%h")`
    fi
-
-   if test "x" = "x$MODULE_DIR"; then
-       MODULE_DIR='${exec_prefix}/modules'
+fi
+if test "x" = "x$MODULE_DIR"; then
+   if test -d /usr/realtime/ ; then
+       MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff${MODEXT}" -o -name "rtai_shm${MODEXT}" \) -printf "%h")`
    fi
+fi
 
+# uncomment this if we decide to use the extra/ directory (if present) for
+# our realtime modules
+#if ! test "x" = "x$MODULE_DIR" ; then
+#   if test -d $MODULE_DIR/../extra ; then
+#       MODULE_DIR=`(cd $MODULE_DIR/../extra ; pwd )`
+#   fi
+#fi
+
+# still haven't found the right directory, use a default
+if test "x" = "x$MODULE_DIR"; then
+    MODULE_DIR='${exec_prefix}/modules'
 fi
 
 
@@ -4252,12 +4282,12 @@ MATHINC=""
 #we need to make sure that $RTS has a --module-dir option
 #only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
 if (test ${RTS##*/} = rtai-config ) ; then
-    if (test -r $($RTS --module-dir)/rtai_math.o ) ; then
+    if (test -r $($RTS --module-dir)/rtai_math${MODEXT} ) ; then
        USE_RTLIBM=1
     fi
 fi
 
-if (test -r $RTDIR/modules/rtai_libm.o ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm.o) ; then
+if (test -r $RTDIR/modules/rtai_libm${MODEXT} ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm${MODEXT}) ; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
