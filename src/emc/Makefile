@@ -1,10 +1,14 @@
 # Makefile for emc directory
-# This makefile calls makes in subdirectories
+# This makefile calls makes in subdirectories 
 
 ifneq ($(KERNELRELEASE),)
 # kbuild part of the makefile
+# This part is responsible for building motmod.ko on 2.6 systems
+# it is included here as a number of objects get linked for motmod.ko
+# most included under emc/
 
 ifeq ($(RTFLAGS),)
+# We need $(PWD) as this file is read by kbuild from within the kernel sourse dir
 include $(PWD)/../Makefile.inc
 endif
 
@@ -27,7 +31,7 @@ motmod-objs += ../libnml/posemath/sincos.o
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
 
 else
-
+# Normal (as in pre-kbuild) Makefile
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
 include ../Makefile.inc
 
@@ -45,7 +49,7 @@ endif
 PWD := $(shell pwd)
 
 
-all: headers modules modules_install
+all: headers modules
 	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
@@ -112,7 +116,7 @@ clean: def_clean kclean
 	(cd usr_intf; make $@)
 
 kclean:
-	- rm -f .*.cmd *.o* *.mod.* *.ko
+	- rm -f .*.cmd *.o *.mod.* *.ko
 	- rm -fR .tmp_versions
 
 install:
@@ -135,14 +139,11 @@ ifeq ($(BUILD_SYS),kbuild)
 
 modules: headers
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+	- cp *.ko $(RTLIB_DIR)/
 
 modules_install: modules
-	- cp *.ko $(RTLIB_DIR)/
-# for now we skip the proper way of installing the modules, 
-# instead we just copy the modules to $(RTLIB_DIR)
-#
-# $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
-# depmod 2>/dev/null
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+	depmod 2>/dev/null
 
 else
 
@@ -152,6 +153,6 @@ modules_install:
 
 endif
 
-.PHONY: all clean kclean depend headers indent install
+.PHONY: all clean kclean depend headers indent install modules
 
 endif

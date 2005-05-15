@@ -136,7 +136,6 @@ clean :
 tgz: clean
 	rm -rf /tmp/emc2-tgz-temp/emc2
 	install -d /tmp/emc2-tgz-temp/emc2/
-	
 	cp -R ./ /tmp/emc2-tgz-temp/emc2/
 
 # Remove Makefile.inc to force a rerun of ./configure
@@ -150,4 +149,4 @@ tgz: clean
 	mv /tmp/emc2-tgz-temp/emc2.tar.gz ./
 	rm -rf /tmp/emc2-tgz-temp
 
-.PHONY : all examples headers depend indent install clean
+.PHONY : all examples headers depend indent modules install clean

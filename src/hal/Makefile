@@ -46,7 +46,7 @@ endif
 PWD := $(shell pwd)
 
 
-all : headers $(LIBS) modules modules_install
+all : headers $(LIBS) modules
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
@@ -61,20 +61,18 @@ ifeq ($(BUILD_SYS),kbuild)
 
 modules: headers
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+	- cp *.ko $(RTLIB_DIR)/
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
 
 modules_install: modules
-	- cp *.ko $(RTLIB_DIR)/
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
-# for now we skip the proper way of installing the modules, 
-# instead we just copy the modules to $(RTLIB_DIR)
-#
-# $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
-# depmod 2>/dev/null
+
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+	depmod 2>/dev/null
 
 else
 
@@ -105,10 +103,10 @@ clean :  def_clean kclean
 	(cd components; make $@)
 
 kclean:
-	- rm -f .*.cmd *.o* *.mod.* *.ko
+	- rm -f .*.cmd *.o *.mod.* *.ko
 	- rm -fR .tmp_versions 
 
 
-.PHONY: all headers depend indent install clean kclean
+.PHONY: all headers depend indent install modules clean kclean
 
 endif

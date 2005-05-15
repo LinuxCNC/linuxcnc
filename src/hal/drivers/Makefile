@@ -72,7 +72,7 @@ $(BIN_DIR)/hal_parport \
 $(BIN_DIR)/hal_skeleton
 
 
-all : headers $(OBJS) $(LIBS) $(BINS) modules modules_install
+all : headers $(OBJS) $(LIBS) $(BINS) modules
 
 # Generic rules
 include $(SRC_DIR)/Make.rules
@@ -83,7 +83,7 @@ depend: def_depend
 clean :  def_clean kclean
 
 kclean:
-	- rm -f .*.cmd *.o* *.mod.* *.ko
+	- rm -f .*.cmd *.o *.mod.* *.ko
 	- rm -fR .tmp_versions 
 
 
@@ -103,14 +103,11 @@ ifeq ($(BUILD_SYS),kbuild)
 
 modules: headers
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+	- cp *.ko $(RTLIB_DIR)/
 
 modules_install: modules
-	- cp *.ko $(RTLIB_DIR)/
-# for now we skip the proper way of installing the modules, 
-# instead we just copy the modules to $(RTLIB_DIR)
-#
-# $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
-# depmod 2>/dev/null
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+	depmod 2>/dev/null
 
 else
 
@@ -126,6 +123,6 @@ $(BIN_DIR)/% : $(TMP_DIR)/%.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 
-.PHONY: all headers depend indent install clean kclean
+.PHONY: all headers depend indent install modules clean kclean
 
 endif

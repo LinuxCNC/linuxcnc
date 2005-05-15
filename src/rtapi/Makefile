@@ -48,7 +48,7 @@ endif
 LIBS += \
 $(LIB_DIR)/ulapi.o 
 
-all: rtapi.conf headers $(LIBS) modules modules_install
+all: rtapi.conf headers $(LIBS) modules
 
 # Generic rules
 include ../Make.rules
@@ -69,14 +69,11 @@ ifeq ($(BUILD_SYS),kbuild)
 
 modules: headers rtapi.c
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+	- cp *.ko $(RTLIB_DIR)/
 
 modules_install: modules
-	- cp *.ko $(RTLIB_DIR)/
-# for now we skip the proper way of installing the modules, 
-# instead we just copy the modules to $(RTLIB_DIR)
-#
-# $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
-# depmod 2>/dev/null
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+	depmod 2>/dev/null
 
 else
 
@@ -105,7 +102,7 @@ clean: def_clean kclean
 	- rm -f $(EMC2_HOME)/scripts/rtapi.conf
 
 kclean:
-	- rm -f .*.cmd *.o* *.mod.* *.ko
+	- rm -f .*.cmd *.o *.mod.* *.ko
 	- rm -fR .tmp_versions
 	# Delete the hard link to $(RTPREFIX)_rtapi.c
 	- rm -f rtapi.c
@@ -178,6 +175,6 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(SRC_DIR)/Makefile.inc
 	    echo "MODULES='$(RTL_MOD)'" >> $@ ; \
 	  fi
 
-.PHONY: all examples headers depend indent install clean kclean
+.PHONY: all examples headers depend indent install modules clean kclean
 
 endif
