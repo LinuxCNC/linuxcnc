@@ -14,6 +14,7 @@
 * $Author$
 * $Date$
 ********************************************************************/
+#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -478,12 +479,12 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   tool_radius = settings->cutter_comp_radius;   /* always is positive */
   arc_radius = hypot((center_x - end_x), (center_y - end_y));
   theta = atan2(settings->current_y - start_y, settings->current_x - start_x);
-  theta = (side == LEFT) ? (theta - PI2) : (theta + PI2);
+  theta = (side == LEFT) ? (theta - M_PI_2l) : (theta + M_PI_2l);
   delta = atan2(center_y - start_y, center_x - start_x);
-  alpha = (move == G_3) ? (delta - PI2) : (delta + PI2);
+  alpha = (move == G_3) ? (delta - M_PI_2l) : (delta + M_PI_2l);
   beta = (side == LEFT) ? (theta - alpha) : (alpha - theta);
-  beta = (beta > (1.5 * PI)) ? (beta - TWO_PI) :
-    (beta < -PI2) ? (beta + TWO_PI) : beta;
+  beta = (beta > (1.5 * M_PIl)) ? (beta - (2 * M_PIl)) :
+    (beta < -M_PI_2l) ? (beta + (2 * M_PIl)) : beta;
 
   if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
     gamma = atan2((center_y - end_y), (center_x - end_x));
@@ -491,7 +492,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
   } else {
     gamma = atan2((end_y - center_y), (end_x - center_x));
-    delta = (delta + PI);
+    delta = (delta + M_PIl);
   }
 
   settings->program_x = end_x;
@@ -501,7 +502,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
 /* check if extra arc needed and insert if so */
 
-  CHK(((beta < -small) || (beta > (PI + small))),
+  CHK(((beta < -small) || (beta > (M_PIl + small))),
       NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP);
   if (beta > small) {           /* two arcs needed */
     mid_x = (start_x + (tool_radius * cos(delta)));
@@ -2733,14 +2734,14 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 
     if (side == LEFT) {
       if (theta < alpha)
-        theta = (theta + TWO_PI);
-      beta = ((theta - alpha) - PI2);
-      gamma = PI2;
+        theta = (theta + (2 * M_PIl));
+      beta = ((theta - alpha) - M_PI_2l);
+      gamma = M_PI_2l;
     } else if (side == RIGHT) {
       if (alpha < theta)
-        alpha = (alpha + TWO_PI);
-      beta = ((alpha - theta) - PI2);
-      gamma = -PI2;
+        alpha = (alpha + (2 * M_PIl));
+      beta = ((alpha - theta) - M_PI_2l);
+      gamma = -M_PI_2l;
     } else
       ERM(NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
     end_x = (px + (radius * cos(alpha + gamma)));
@@ -2748,7 +2749,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     mid_x = (start_x + (radius * cos(alpha + gamma)));
     mid_y = (start_y + (radius * sin(alpha + gamma)));
 
-    CHK(((beta < -small) || (beta > (PI + small))),
+    CHK(((beta < -small) || (beta > (M_PIl + small))),
         NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP);
     if (move == G_0)
       STRAIGHT_TRAVERSE(end_x, end_y, end_z,

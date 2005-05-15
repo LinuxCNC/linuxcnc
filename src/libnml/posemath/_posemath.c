@@ -510,9 +510,9 @@ int pmMatZyzConvert(PmRotationMatrix m, PmEulerZyz * zyz)
 	zyz->z = 0.0;
 	zyz->y = 0.0;		/* force Y to 0 */
 	zyz->zp = atan2(-m.y.x, m.x.x);
-    } else if (fabs(zyz->y - PM_PI) < ZYZ_Y_FUZZ) {
+    } else if (fabs(zyz->y - M_PIl) < ZYZ_Y_FUZZ) {
 	zyz->z = 0.0;
-	zyz->y = PM_PI;		/* force Y to 180 */
+	zyz->y = M_PIl;		/* force Y to 180 */
 	zyz->zp = atan2(m.y.x, -m.x.x);
     } else {
 	zyz->z = atan2(m.z.y, m.z.x);
@@ -526,13 +526,13 @@ int pmMatZyxConvert(PmRotationMatrix m, PmEulerZyx * zyx)
 {
     zyx->y = atan2(-m.x.z, pmSqrt(pmSq(m.x.x) + pmSq(m.x.y)));
 
-    if (fabs(zyx->y - PM_PI_2) < ZYX_Y_FUZZ) {
+    if (fabs(zyx->y - (2 * M_PIl)) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
-	zyx->y = PM_PI_2;	/* force it */
+	zyx->y = (2 * M_PIl);	/* force it */
 	zyx->x = atan2(m.y.x, m.y.y);
-    } else if (fabs(zyx->y + PM_PI_2) < ZYX_Y_FUZZ) {
+    } else if (fabs(zyx->y + (2 * M_PIl)) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
-	zyx->y = -PM_PI_2;	/* force it */
+	zyx->y = -(2 * M_PIl);	/* force it */
 	zyx->x = -atan2(m.y.z, m.y.y);
     } else {
 	zyx->z = atan2(m.x.y, m.x.x);
@@ -546,13 +546,13 @@ int pmMatRpyConvert(PmRotationMatrix m, PmRpy * rpy)
 {
     rpy->p = atan2(-m.x.z, pmSqrt(pmSq(m.x.x) + pmSq(m.x.y)));
 
-    if (fabs(rpy->p - PM_PI_2) < RPY_P_FUZZ) {
+    if (fabs(rpy->p - (2 * M_PIl)) < RPY_P_FUZZ) {
 	rpy->r = atan2(m.y.x, m.y.y);
-	rpy->p = PM_PI_2;	/* force it */
+	rpy->p = (2 * M_PIl);	/* force it */
 	rpy->y = 0.0;
-    } else if (fabs(rpy->p + PM_PI_2) < RPY_P_FUZZ) {
+    } else if (fabs(rpy->p + (2 * M_PIl)) < RPY_P_FUZZ) {
 	rpy->r = -atan2(m.y.z, m.y.y);
-	rpy->p = -PM_PI_2;	/* force it */
+	rpy->p = -(2 * M_PIl);	/* force it */
 	rpy->y = 0.0;
     } else {
 	rpy->r = atan2(m.y.z, m.z.z);
@@ -1632,7 +1632,7 @@ int pmCircleInit(PmCircle * circle,
     if (dot > 1.0) {
 	circle->angle = 0.0;
     } else if (dot < -1.0) {
-	circle->angle = PM_PI;
+	circle->angle = M_PIl;
     } else {
 	circle->angle = acos(dot);
     }
@@ -1651,7 +1651,7 @@ int pmCircleInit(PmCircle * circle,
 
     /* now add more angle for multi turns */
     if (turn > 0) {
-	circle->angle += turn * 2.0 * PM_PI;
+	circle->angle += turn * 2.0 * M_PIl;
     }
 #if 0
     printf("\n\n");

@@ -14,6 +14,7 @@
 * $Author$
 * $Date$
 ********************************************************************/
+#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -366,13 +367,13 @@ double Interp::find_turn(double x1,      //!< X-coordinate of start point
   beta = atan2((y2 - center_y), (x2 - center_x));
   if (turn > 0) {
     if (beta <= alpha)
-      beta = (beta + TWO_PI);
-    theta = ((beta - alpha) + ((turn - 1) * TWO_PI));
+      beta = (beta + (2 * M_PIl));
+    theta = ((beta - alpha) + ((turn - 1) * (2 * M_PIl)));
   } else {                      /* turn < 0 */
 
     if (alpha <= beta)
-      alpha = (alpha + TWO_PI);
-    theta = ((beta - alpha) + ((turn + 1) * TWO_PI));
+      alpha = (alpha + (2 * M_PIl));
+    theta = ((beta - alpha) + ((turn + 1) * (2 * M_PIl)));
   }
   return (theta);
 }

@@ -14,6 +14,7 @@
 * $Author$
 * $Date$
 ********************************************************************/
+#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -178,7 +179,7 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
   alpha = atan2((end_y - current_y), (end_x - current_x));
   theta = (((move == G_3) && (big_radius > 0)) ||
            ((move == G_2) && (big_radius < 0))) ?
-    (alpha + PI2) : (alpha - PI2);
+    (alpha + M_PI_2l) : (alpha - M_PI_2l);
   radius2 = (((side == LEFT) && (move == G_3)) ||
              ((side == RIGHT) && (move == G_2))) ?
     (abs_radius - tool_radius) : (abs_radius + tool_radius);
@@ -325,9 +326,9 @@ int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
     half_length = abs_radius;   /* allow a small error for semicircle */
   /* check needed before calling asin   */
   if (((move == G_2) && (radius > 0)) || ((move == G_3) && (radius < 0)))
-    theta = atan2((end_y - current_y), (end_x - current_x)) - PI2;
+    theta = atan2((end_y - current_y), (end_x - current_x)) - M_PI_2l;
   else
-    theta = atan2((end_y - current_y), (end_x - current_x)) + PI2;
+    theta = atan2((end_y - current_y), (end_x - current_x)) + M_PI_2l;
 
   turn2 = asin(half_length / abs_radius);
   offset = abs_radius * cos(turn2);

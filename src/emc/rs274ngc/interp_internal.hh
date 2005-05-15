@@ -39,15 +39,6 @@
                                            cutter compensation, in radians */
 #define TINY 1e-12              /* for arc_data_r */
 #define UNKNOWN 1e-20
-#define TWO_PI  6.2831853071795864
-
-#ifndef PI
-#define PI      3.1415926535897932
-#endif
-
-#ifndef PI2
-#define PI2     1.5707963267948966
-#endif
 
 // max number of m codes on one line
 #define MAX_EMS  4

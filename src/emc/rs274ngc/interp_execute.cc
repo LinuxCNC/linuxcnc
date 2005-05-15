@@ -14,6 +14,7 @@
 * $Author$
 * $Date$
 ********************************************************************/
+#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -287,16 +288,16 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
     CHK(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
         NCE_ARGUMENT_TO_ACOS_OUT_OF_RANGE);
     *double_ptr = acos(*double_ptr);
-    *double_ptr = ((*double_ptr * 180.0) / PI);
+    *double_ptr = ((*double_ptr * 180.0) / M_PIl);
     break;
   case ASIN:
     CHK(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
         NCE_ARGUMENT_TO_ASIN_OUT_OF_RANGE);
     *double_ptr = asin(*double_ptr);
-    *double_ptr = ((*double_ptr * 180.0) / PI);
+    *double_ptr = ((*double_ptr * 180.0) / M_PIl);
     break;
   case COS:
-    *double_ptr = cos((*double_ptr * PI) / 180.0);
+    *double_ptr = cos((*double_ptr * M_PIl) / 180.0);
     break;
   case EXP:
     *double_ptr = exp(*double_ptr);
@@ -316,14 +317,14 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
       ((int) (*double_ptr + ((*double_ptr < 0.0) ? -0.5 : 0.5)));
     break;
   case SIN:
-    *double_ptr = sin((*double_ptr * PI) / 180.0);
+    *double_ptr = sin((*double_ptr * M_PIl) / 180.0);
     break;
   case SQRT:
     CHK((*double_ptr < 0.0), NCE_NEGATIVE_ARGUMENT_TO_SQRT);
     *double_ptr = sqrt(*double_ptr);
     break;
   case TAN:
-    *double_ptr = tan((*double_ptr * PI) / 180.0);
+    *double_ptr = tan((*double_ptr * M_PIl) / 180.0);
     break;
   default:
     ERM(NCE_BUG_UNKNOWN_OPERATION);

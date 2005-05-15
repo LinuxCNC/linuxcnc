@@ -14,6 +14,7 @@
 * $Author$
 * $Date$
 ********************************************************************/
+#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -142,7 +143,7 @@ int Interp::read_atan(char *line,        //!< string: line of RS274/NGC code bei
       NCE_LEFT_BRACKET_MISSING_AFTER_SLASH_WITH_ATAN);
   CHP(read_real_expression(line, counter, &argument2, parameters));
   *double_ptr = atan2(*double_ptr, argument2);  /* value in radians */
-  *double_ptr = ((*double_ptr * 180.0) / PI);   /* convert to degrees */
+  *double_ptr = ((*double_ptr * 180.0) / M_PIl);   /* convert to degrees */
   return RS274NGC_OK;
 }
 

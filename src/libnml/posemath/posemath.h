@@ -74,6 +74,10 @@
 #ifndef POSEMATH_H
 #define POSEMATH_H
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #ifdef __cplusplus
 
 #define USE_CONST
