@@ -245,8 +245,25 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
 	KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "="); print A[[2]]}') 2>/dev/null #'
 	KERNELDIR=$(cd $KERNEL ; pwd -P )
 	RTFLAGS=$(cat $RTFILE | grep CFLAGS | sed s/CFLAGS=//) 2>/dev/null #'
-
 	RTFLAGS="$RTFLAGS -DRTAI=1"
+	# the TNG disk is also missing "linux/modversions.h"
+	# we need to check for it, it may have already been replaced
+	AC_MSG_CHECKING(for linux/modversions.h)
+	if ! test -r $KERNELDIR/include/linux/modversions.h ; then
+	    # file is missing, fortunately on BDI-TNG it is a one line file, create it
+            ( echo "#include <linux/modsetver.h>" >$KERNELDIR/include/linux/modversions.h ) 2>/dev/null
+	    # but the user is probably not root, so that didn't work
+	    if ! test -r $KERNELDIR/include/linux/modversions.h ; then
+	        AC_MSG_RESULT(missing)
+	        AC_ERROR([modversions.h is missing.  This is a known problem on
+		  the BDI-TNG distro.  Please re-run ./configure as root
+		  to replace it.  You will only have to do this once.])
+	    else
+	        AC_MSG_RESULT(missing... replaced)
+	    fi
+	else
+	    AC_MSG_RESULT(ok)
+	fi
     else
 	# any other rtai-24.1.x system
 	TEMP=`$RTS --prefix`

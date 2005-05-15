@@ -1579,8 +1579,33 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
 	KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "="); print A[2]}') 2>/dev/null #'
 	KERNELDIR=$(cd $KERNEL ; pwd -P )
 	RTFLAGS=$(cat $RTFILE | grep CFLAGS | sed s/CFLAGS=//) 2>/dev/null #'
-
 	RTFLAGS="$RTFLAGS -DRTAI=1"
+	# the TNG disk is also missing "linux/modversions.h"
+	# we need to check for it, it may have already been replaced
+	echo "$as_me:$LINENO: checking for linux/modversions.h" >&5
+echo $ECHO_N "checking for linux/modversions.h... $ECHO_C" >&6
+	if ! test -r $KERNELDIR/include/linux/modversions.h ; then
+	    # file is missing, fortunately on BDI-TNG it is a one line file, create it
+            ( echo "#include <linux/modsetver.h>" >$KERNELDIR/include/linux/modversions.h ) 2>/dev/null
+	    # but the user is probably not root, so that didn't work
+	    if ! test -r $KERNELDIR/include/linux/modversions.h ; then
+	        echo "$as_me:$LINENO: result: missing" >&5
+echo "${ECHO_T}missing" >&6
+	        { { echo "$as_me:$LINENO: error: modversions.h is missing.  This is a known problem on
+		  the BDI-TNG distro.  Please re-run ./configure as root
+		  to replace it.  You will only have to do this once." >&5
+echo "$as_me: error: modversions.h is missing.  This is a known problem on
+		  the BDI-TNG distro.  Please re-run ./configure as root
+		  to replace it.  You will only have to do this once." >&2;}
+   { (exit 1); exit 1; }; }
+	    else
+	        echo "$as_me:$LINENO: result: missing... replaced" >&5
+echo "${ECHO_T}missing... replaced" >&6
+	    fi
+	else
+	    echo "$as_me:$LINENO: result: ok" >&5
+echo "${ECHO_T}ok" >&6
+	fi
     else
 	# any other rtai-24.1.x system
 	TEMP=`$RTS --prefix`
