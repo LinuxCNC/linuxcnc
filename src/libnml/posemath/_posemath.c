@@ -17,6 +17,8 @@
 * $Date$
 ********************************************************************/
 
+#define _GNU_SOURCE
+
 #include <math.h>
 #include <float.h>		/* DBL_MAX */
 
