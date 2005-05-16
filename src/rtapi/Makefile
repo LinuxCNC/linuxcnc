@@ -156,12 +156,9 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(SRC_DIR)/Makefile.inc
 	@ echo  >> $@
 	@ echo "# Sets the default DEBUG level" >> $@
 	@ echo "DEBUG='3'" >> $@
-	mod_dir=$$(find /lib/modules/`uname -r` -name "mbuff.o" -o -name "rtai_shm.o") ; \
-	  if [ "$$mod_dir" = "" ] ; then \
-	     echo  >> $@ ;\
-	     echo "# Path to the realtime kernel modules" >> $@; \
-	     echo "MODPATH='$(RTDIR)/modules'"  >> $@ ; \
-	  fi
+	@ echo  >> $@
+	@ echo "# Path to the realtime kernel modules" >> $@
+	@ echo "MODPATH='$(moduledir)'"  >> $@
 	@ echo >> $@
 	@ echo "# List of realtime kernel modules to be loaded" >> $@
 	@ if [ "$(RTAI)" = "3" ] ; then \
