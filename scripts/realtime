@@ -99,7 +99,7 @@ CheckMem(){
 # check for user space processes using shared memory
     if [ -e /dev/mbuff ] ; then
 	# device file exists, check for processes using it
-	if $FUSERr -s /dev/mbuff 2>/dev/null; then
+	if $FUSER -s /dev/mbuff 2>/dev/null; then
 	    # at least one process is using it
 	    echo "ERROR:  Can't remove RTLinux modules, kill the following process(es) first"
 	    $FUSER -v /dev/mbuff
