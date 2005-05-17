@@ -49,6 +49,18 @@ CheckConfig(){
     done
     MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
     MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
+    # find "fuser" - it might be in /bin or /sbin
+    if test -x /bin/fuser ; then
+	FUSER=/bin/fuser
+    elif test -x /sbin/fuser ; then
+	FUSER=/sbin/fuser
+    else
+	echo "ERROR: can't find \"fuser\", used to verify that it is safe to shutdown realtime"
+	DoExit
+	exit -1
+    fi
+
+
 }
 
 CheckStatus(){
@@ -87,19 +99,19 @@ CheckMem(){
 # check for user space processes using shared memory
     if [ -e /dev/mbuff ] ; then
 	# device file exists, check for processes using it
-	if /sbin/fuser -s /dev/mbuff 2>/dev/null; then
+	if $FUSERr -s /dev/mbuff 2>/dev/null; then
 	    # at least one process is using it
 	    echo "ERROR:  Can't remove RTLinux modules, kill the following process(es) first"
-	    /sbin/fuser -v /dev/mbuff 2>/dev/null
+	    $FUSER -v /dev/mbuff
 	    DoExit
 	    exit -1
 	fi
     elif [ -e /dev/rtai_shm ] ; then
 	# device file exists, check for processes using it
-	if /sbin/fuser -s /dev/rtai_shm 2>/dev/null; then
+	if $FUSER -s /dev/rtai_shm 2>/dev/null; then
 	    # at least one process is using it
 	    echo "ERROR:  Can't remove RTAI modules, kill the following process(es) first"
-	    /sbin/fuser -v /dev/rtai_shm 2>/dev/null
+	    $FUSER -v /dev/rtai_shm
 	    DoExit
 	    exit -1
 	fi
