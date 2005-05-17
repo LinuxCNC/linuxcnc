@@ -51,7 +51,6 @@ int emcGetArgs(int argc, char *argv[])
       max_rcs_errors_to_print=-1;
       continue;
     }
-#ifndef linux_2_0_36
     if (!strcmp(argv[t], "-queryhost")) {
       char qhost[80];
       printf("EMC Host?");
@@ -83,7 +82,6 @@ int emcGetArgs(int argc, char *argv[])
       }
       continue;
     }
-#endif
   }
   /* else not recognized-- ignore */
 

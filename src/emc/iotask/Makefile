@@ -43,7 +43,8 @@ BINS =  bridgeportio \
 	dumbio \
 	minimillio \
 	iosh \
-	usrmot
+	usrmot \
+	simio
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o)
@@ -120,8 +121,7 @@ $(BIN_DIR)/simio:	\
 	$(TMP_DIR)/extsimaio.o \
 	$(TMP_DIR)/simdio.o \
 	$(TMP_DIR)/simaio.o \
-	$(TMP_DIR)/simbase.o \
-	$(TMP_DIR)/parport.o
+	$(TMP_DIR)/simbase.o
 	$(CXX) $^ -L$(LIB_DIR) -lemc -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
 # minimillio for NIST minimill uses fully simulated IO, but no spindle
