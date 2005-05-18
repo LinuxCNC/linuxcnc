@@ -371,10 +371,13 @@ int emcTaskPlanRead()
 
 int emcTaskPlanExecute(const char *command)
 {
-    if (command != 0) {
-	if (*command != 0) {
-	    interp.rs274ngc_synch();
-	}
+    int inpos = emcStatus->motion.traj.inpos; // 1 if in position, 0 if not.
+
+    if(command != 0){ // Command is 0 if in AUTO mode, non-null if in MDI mode.
+        // Don't sync if not in position.
+        if ((*command != 0)  && (inpos)){
+            interp.rs274ngc_synch();
+        }
     }
     int retval = interp.rs274ngc_execute(command);
     if (retval > RS274NGC_MIN_ERROR) {
@@ -438,6 +441,10 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
   Modification history:
 
   $Log$
+  Revision 1.6  2005/05/18 22:48:59  rumley
+  Fix for Bug 1171692, Odd behavoir in MDI mode.
+  Caused by rs274ngc_synch call when axis not 'inpos'
+
   Revision 1.5  2005/05/04 04:50:38  jmkasunich
   Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
 
