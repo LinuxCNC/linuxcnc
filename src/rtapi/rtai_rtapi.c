@@ -512,11 +512,8 @@ long long int rtapi_get_time(void)
        if no TSC. */
     return rt_get_cpu_time_ns();
 #else
-    struct timeval tv;
-    /* Whilst this one only gives uSec resolution at best and may be blocking 
-     */
-    do_gettimeofday(&tv);
-    return (tv.tv_sec * 1000000000LL + tv.tv_usec * 1000LL);
+     /* no reliable, thread safe way to get time without a TSC, so we punt */
+    return (0LL);
 #endif
 }
 
