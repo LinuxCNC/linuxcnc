@@ -129,6 +129,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.4  2005/05/23 19:38:15  paul_c
+ * Fix a small problem with the makefiles introduced after the join from bdi-4
+ *
  * Revision 1.3  2005/05/23 16:34:08  paul_c
  * One more join..
  *

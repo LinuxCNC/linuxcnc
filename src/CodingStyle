@@ -316,7 +316,7 @@ The form while(true) should be used for infinite loops.
 
 NOT
 
-for (::) {
+for (;;) {
     ...;
 }
 
@@ -341,6 +341,9 @@ Do not put anything below this point. The revision log is automatically appended
 ################################################################################
 
 $Log$
+Revision 1.7  2005/05/23 19:37:55  paul_c
+Fix a small problem with the makefiles introduced after the join from bdi-4
+
 Revision 1.6  2003/10/31 23:49:43  paul_c
 Removed the -k flag from the sub-makes (it is in MAKEFLAGS now)
 

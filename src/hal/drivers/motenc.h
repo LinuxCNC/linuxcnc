@@ -41,6 +41,12 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.3  2005/05/23 19:38:16  paul_c
+ * Fix a small problem with the makefiles introduced after the join from bdi-4
+ *
+ * Revision 1.1.4.3  2005/05/23 18:29:47  paul_c
+ * Last set of joins before starting on the /src/emc directories
+ *
  * Revision 1.2  2005/05/23 16:34:08  paul_c
  * One more join..
  *

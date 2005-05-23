@@ -31,7 +31,7 @@ LIBS =	$(LIB_OBJS:%.o=$(TMP_DIR)/%.o) \
 
 BINS =
 
-ifeq ($(KERNELRELEASE),2.4)
+ifneq ($(BUILD_SYS),kbuild)
 RT_SRCS = \
 	_posemath.c \
 	sincos.c
