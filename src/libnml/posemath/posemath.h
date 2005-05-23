@@ -86,8 +86,8 @@
 #ifdef __attribute_pure__
 #undef __attribute_pure__
 #endif
-#include <sys/cdefs.h>
 #endif
+#include <sys/cdefs.h>
 #include <float.h>
 #include <math.h>
 
