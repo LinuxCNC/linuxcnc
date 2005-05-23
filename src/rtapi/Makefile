@@ -19,8 +19,7 @@ include ../Makefile.inc
 HEADERS = \
 procfs_macros.h \
 rtapi.h \
-rtapi_app.h \
-rtapi_math.h
+rtapi_app.h
 
 # Private headers
 PRIVHDRS = \

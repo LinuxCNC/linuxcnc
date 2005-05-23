@@ -18,8 +18,7 @@
 * $Author$
 * $Date$
 ********************************************************************/
-
-#include "rtapi_math.h"
+#include "posemath.h"
 #include "cubic.h"
 
 #define SEGMENT_TIME_SET 0x01

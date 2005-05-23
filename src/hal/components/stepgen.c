@@ -267,7 +267,18 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
-#include "rtapi_math.h"		/* RTAPI wrapper for math.h, takes care of some compile warnings */
+
+#include <linux/types.h>
+ /* FIX ME - Need an ugly hack here to get rid of compile warnings. */
+#ifdef __attribute_used__
+#undef __attribute_used__
+#endif
+#ifdef __attribute_pure__
+#undef __attribute_pure__
+#endif
+#include <sys/cdefs.h>
+#include <float.h>
+#include <math.h>
 
 #ifdef MODULE
 /* module information */

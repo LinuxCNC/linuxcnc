@@ -62,7 +62,7 @@
 
 #include <linux/types.h>
 #include <float.h>
-#include "rtapi_math.h"
+#include "posemath.h"
 #include "rtapi.h"
 #include "hal.h"
 #include "motion.h"
