@@ -2265,8 +2265,8 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 #endif
 
     settings->axis_offset_x = 0;
-    settings->axis_offset_x = 0;
-    settings->axis_offset_x = 0;
+    settings->axis_offset_y = 0;
+    settings->axis_offset_z = 0;
 #ifndef LATHE
     settings->AA_axis_offset = 0;
     settings->BB_axis_offset = 0;
