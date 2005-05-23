@@ -41,6 +41,12 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.1.4.3  2005/05/23 18:29:47  paul_c
+ * Last set of joins before starting on the /src/emc directories
+ *
+ * Revision 1.2  2005/05/23 16:34:08  paul_c
+ * One more join..
+ *
  * Revision 1.1.4.2  2005/05/23 15:45:34  paul_c
  * This is the first stage of joining of the bdi-4 branch and HEAD. It *may* break both HEAD and the branch, but this will be fixed in later commits.
  * Note: Just the rtapi, hal, and libnml directories have been joined so far. A few minor changes need to be made in HEAD before a join can progress there..
