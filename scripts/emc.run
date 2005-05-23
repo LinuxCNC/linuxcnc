@@ -462,6 +462,15 @@ if ! $EMC2_SCRIPT_DIR/realtime start ; then
     exit -1
 fi
 
+#checking for Motion module extention
+if [ -f $EMC2_RTLIB_DIR/$EMCMOT.o ] ; then
+    EMCMOT=$EMCMOT.o
+fi
+
+if [ -f $EMC2_RTLIB_DIR/$EMCMOT.ko ] ; then
+    EMCMOT=$EMCMOT.ko
+fi
+
 # Prepare to load real time motion module
 echo "Loading EMC Motion module: $EMCMOT" >$PRINT_FILE
 if [ ! -f $EMC2_RTLIB_DIR/$EMCMOT ] ; then
