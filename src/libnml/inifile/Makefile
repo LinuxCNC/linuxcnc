@@ -18,6 +18,9 @@ OBJS := $(LIB_OBJS)
 
 LIBS =
 
+LOCAL_CFLAGS = -fPIC
+LOCAL_CXXFLAGS = -fPIC
+
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(TMP_DIR)/inivar.o
 
 # Generic rules.

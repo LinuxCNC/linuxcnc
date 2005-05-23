@@ -9,6 +9,9 @@ include ../Makefile.inc
 all: headers
 
 all headers clean depend indent install:
+	@ (if [ ! -d "$(LIB_DIR)" ] ; then echo "Create directory '$(LIB_DIR)'" ; mkdir -p $(LIB_DIR) ; fi)
+	@ (if [ ! -d "$(BIN_DIR)" ] ; then echo "Create directory '$(BIN_DIR)'" ; mkdir -p $(BIN_DIR) ; fi)
+#	@ (if [ ! -d "$(RTLIB_DIR)" ] ; then echo "Create directory '$(RTLIB_DIR)'" ; mkdir -p $(RTLIB_DIR) ; fi)
 	(cd linklist; make $@)
 	(cd rcs; make $@)
 	(cd inifile; make $@)

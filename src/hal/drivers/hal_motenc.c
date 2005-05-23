@@ -129,6 +129,13 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.3  2005/05/23 16:34:08  paul_c
+ * One more join..
+ *
+ * Revision 1.2.2.2  2005/05/23 15:45:33  paul_c
+ * This is the first stage of joining of the bdi-4 branch and HEAD. It *may* break both HEAD and the branch, but this will be fixed in later commits.
+ * Note: Just the rtapi, hal, and libnml directories have been joined so far. A few minor changes need to be made in HEAD before a join can progress there..
+ *
  * Revision 1.2  2005/05/23 04:22:30  jmkasunich
  * merged the last couple weeks of work from the kbuild-0-1 branch to HEAD.  HEAD should now compile under all BDIs, including BDI-4.20 (kernel 2.6)
  *

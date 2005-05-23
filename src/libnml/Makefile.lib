@@ -12,7 +12,8 @@ include cms/Makefile.lib
 include nml/Makefile.lib
 include inifile/Makefile.lib
 
-LIBS = $(LIB_DIR)/libnmld.a \
+LIBS = $(LIB_DIR)/libnml.so \
+	$(LIB_DIR)/libnmld.a \
 	$(LIB_DIR)/libnml.a
 
 
@@ -32,7 +33,18 @@ $(LIB_DIR)/libnmld.a: $(LIB_OBJS:%=$(TMP_DIR)/%)
 	$(AR) $(ARFLAGS) $@ $(LIB_OBJS:%=$(TMP_DIR)/%)
 	chmod 664 $@
 
+
+$(LIB_DIR)/libnml.so: $(LIB_OBJS:%=$(TMP_DIR)/%)
+	rm -f $@
+	$(CXX) -shared -fPIC -o $@ $(LIB_OBJS:%=$(TMP_DIR)/%)
+	chmod 664 $@
+
 $(BIN_DIR)/inivar: $(TMP_DIR)/inivar.o $(LIB_DIR)/libnml.a
-	$(CXX) $^ -o $@
+	$(CXX) $(TMP_DIR)/inivar.o -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+
+clean:
+	- rm -f $(BIN_DIR)/inivar
+	- rm -f $(LIBS)
+	- if [ ! -e $(LIB_DIR)/* ] ; then rm -fR $(LIB_DIR) ; fi
 
 .PHONY: all clean install indent depend headers

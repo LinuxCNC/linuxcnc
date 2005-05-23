@@ -19,6 +19,9 @@ LIBS =
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
 
+LOCAL_CFLAGS = -fPIC
+LOCAL_CXXFLAGS = -fPIC
+
 # Generic rules.
 include ../../Make.rules
 

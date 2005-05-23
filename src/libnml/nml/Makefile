@@ -7,6 +7,7 @@ include ../../Makefile.inc
 # Declare which files are to be released
 HEADERS = cmd_msg.hh \
 	nml.hh \
+	nml_mod.hh \
 	nml_oi.hh \
 	nml_srv.hh \
 	nmldiag.hh \
@@ -15,6 +16,7 @@ HEADERS = cmd_msg.hh \
 
 SRCS =	cmd_msg.cc \
 	nml.cc \
+	nml_mod.cc \
 	nml_oi.cc \
 	nml_srv.cc \
 	nmldiag.cc \
@@ -26,6 +28,9 @@ OBJS := $(LIB_OBJS)
 LIBS =
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
+
+LOCAL_CFLAGS = -fPIC
+LOCAL_CXXFLAGS = -fPIC
 
 # Generic rules.
 include ../../Make.rules

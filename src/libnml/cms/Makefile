@@ -34,9 +34,12 @@ HEADERS = \
 	tcp_opts.hh \
 	tcp_srv.hh \
 
+LOCAL_CFLAGS = -fPIC
+LOCAL_CXXFLAGS = -fPIC
+
 OBJS := $(CMS_OBJS)
 
-all: $(HEADERS) $(OBJS:%.o=$(TMP_DIR)/%.o)
+all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
 
 # Generic rules.
 include ../../Make.rules

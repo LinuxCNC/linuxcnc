@@ -26,19 +26,31 @@ SRCS = \
 	sincos.c \
 	posemath.cc
 
+LIBS =	$(LIB_OBJS:%.o=$(TMP_DIR)/%.o) \
+	$(LIB_DIR)/libpm.a
+
+BINS =
+
+ifeq ($(KERNELRELEASE),2.4)
+RT_SRCS = \
+	_posemath.c \
+	sincos.c
+
 RT_OBJS = _posemath.o \
 	sincos.o
 
-LIBS =	$(LIB_OBJS:%.o=$(TMP_DIR)/%.o) \
-	$(LIB_DIR)/libpm.a \
-	$(RTLIB_DIR)/libpm.a
+LIBS +=	$(RTLIB_DIR)/libpm.a
 
-BINS =
+endif
+
 
 LOCAL_RTFLAGS = -ffast-math
 #LOCAL_CXXFLAGS = -Wno-deprecated
 
 all: headers $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) $(LIBS)
+
+LOCAL_CFLAGS = -fPIC
+LOCAL_CXXFLAGS = -fPIC
 
 # Generic rules.
 include ../../Make.rules
@@ -64,5 +76,9 @@ $(LIB_DIR)/libpm.a: \
 	$(TMP_DIR)/_posemath.o $(TMP_DIR)/posemath.o $(TMP_DIR)/sincos.o
 	$(AR) $(ARFLAGS) $@ $^
 	ranlib $@
+
+kclean:
+	- rm -f .*.cmd *.o* *.mod.* *.ko
+	- rm -fR .tmp_versions 
 
 .PHONY: all clean install indent depend headers
