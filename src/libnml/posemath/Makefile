@@ -61,7 +61,11 @@ indent: def_indent
 
 depend: def_depend
 
-clean: def_clean
+clean: def_clean kclean
+
+kclean:
+	- rm -f .*.cmd *.o *.mod.* *.ko
+	- rm -fR .tmp_versions 
 
 # explicit rules to make libraries and binaries
 $(RTLIB_DIR)/libpm.a: $(RTTMP_DIR)/_posemath.o $(RTTMP_DIR)/sincos.o

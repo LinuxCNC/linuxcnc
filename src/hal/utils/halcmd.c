@@ -54,6 +54,10 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
+/* non-EMC related uses of halcmd may want to avoid libnml dependency */
+#ifndef NO_INI
+#include "inifile.h"		/* iniFind() from libnml */
+#endif
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -99,6 +103,10 @@ static void print_help(void);
 ************************************************************************/
 
 int comp_id = 0;
+#ifndef NO_INI
+    FILE *inifile = NULL;
+#endif
+
 
 /***********************************************************************
 *                            MAIN PROGRAM                              *
@@ -114,7 +122,7 @@ int main(int argc, char **argv)
 	   DOUBLE_QUOTE,
 	   END_OF_LINE } state;
     char *cp1, *filename = NULL;
-    FILE *infile = NULL;
+    FILE *srcfile = NULL;
     char cmd_buf[MAX_CMD_LEN+1];
     char *tokens[MAX_TOK+1];
 
@@ -161,27 +169,54 @@ int main(int argc, char **argv)
 		break;
 	    case 'f':
 		/* -f = read from file (or stdin) */
-		if (infile == NULL) {
+		if (srcfile == NULL) {
 		    /* it's the first -f (ignore repeats) */
 		    if ((n < argc) && (argv[n][0] != '-')) {
 			/* there is a following arg, and it's not an option */
 			filename = argv[n++];
-			infile = fopen(filename, "r");
-			if (infile == NULL) {
+			srcfile = fopen(filename, "r");
+			if (srcfile == NULL) {
 			    fprintf(stderr,
 				"Could not open command file '%s'\n",
 				filename);
 			    exit(-1);
 			}
 			/* make sure file is closed on exec() */
-			fd = fileno(infile);
+			fd = fileno(srcfile);
 			fcntl(fd, F_SETFD, FD_CLOEXEC);
 		    } else {
 			/* no filename followed -f option, use stdin */
-			infile = stdin;
+			srcfile = stdin;
 		    }
 		}
 		break;
+#ifndef NO_INI
+	    case 'i':
+		/* -i = allow reading 'setp' values from an ini file */
+		if (inifile == NULL) {
+		    /* it's the first -i (ignore repeats) */
+		    if ((n < argc) && (argv[n][0] != '-')) {
+			/* there is a following arg, and it's not an option */
+			filename = argv[n++];
+			inifile = fopen(filename, "r");
+			if (inifile == NULL) {
+			    fprintf(stderr,
+				"Could not open ini file '%s'\n",
+				filename);
+			    exit(-1);
+			}
+			/* make sure file is closed on exec() */
+			fd = fileno(inifile);
+			fcntl(fd, F_SETFD, FD_CLOEXEC);
+		    } else {
+			/* no filename followed -i option, error */
+			fprintf(stderr,
+			    "No missing ini filename for -i option\n");
+			exit(-1);
+		    }
+		}
+		break;
+#endif /* NO_INI */
 	    default:
 		/* unknown option */
 		printf("Unknown option '-%c'\n", *cp1);
@@ -198,7 +233,7 @@ int main(int argc, char **argv)
     retval = 0;
     errorcount = 0;
     /* HAL init is OK, let's process the command(s) */
-    if (infile == NULL) {
+    if (srcfile == NULL) {
 	/* the remaining command line args are parts of the command */
 	m = 0;
 	while ((n < argc) && (n < MAX_TOK)) {
@@ -217,8 +252,8 @@ int main(int argc, char **argv)
 	    errorcount++;
 	}
     } else {
-	/* read command line(s) from 'infile' */
-	while (fgets(cmd_buf, MAX_CMD_LEN, infile) != NULL) {
+	/* read command line(s) from 'srcfile' */
+	while (fgets(cmd_buf, MAX_CMD_LEN, srcfile) != NULL) {
 	    /* convert a line of text into individual tokens */
 	    m = 0;
 	    cp1 = cmd_buf;
@@ -484,11 +519,65 @@ static int do_setp_cmd(char *name, char *value)
     float fval;
     long lval;
     unsigned long ulval;
+    char *envvar = NULL;
+#ifndef NO_INI
+    char *section = NULL;
+    char *variable = NULL;
+#endif
 
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s'\n", name);
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s' to '%s'\n", name, value);
+    /* check for special cases of 'value' */
+    cp = value;
+    if ( *cp == '$' ) {
+	/* environment variable reference */
+	/* skip over '$' to name of variable */
+	cp++;
+	envvar = getenv(cp);
+	if ( envvar == NULL ) {
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: env variable '%s' not found\n", cp);
+	    return HAL_INVAL;
+	}
+	value = envvar;
+    }
+#ifndef NO_INI
+    else if ( *cp == '[' ) {
+	/* ini file variable reference */
+	/* skip over leading '[' and save ptr to start of section name */
+	section = ++cp;
+	/* look for end of section name */
+	while ( *cp != ']' ) {
+	    if ( *cp == '\0' ) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: ERROR: ini file reference '%s' missing ']'\n", value);
+		return HAL_INVAL;
+	    }
+	    cp++;
+	}
+	/* found trailing ']', replace with '\0' to end section */
+	*cp = '\0';
+	/* skip over '\0' and save pointer to variable name */
+	variable = ++cp;
+	if ( *section != '\0' ) {
+	    /* get value from ini file */
+	    /* cast to char ptr, we are discarding the 'const' */
+	    value = (char *) iniFind(inifile, variable, section);
+	} else {
+	    /* no section specified */
+	    value = (char *) iniFind(inifile, variable, NULL);
+	}
+	if ( value == NULL ) {
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: ini file variable '[%s]%s' not found\n", section, variable);
+	    return HAL_INVAL;
+	}
+    }
+#endif /* NO_INI */
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
-
     /* search param list for name */
     param = halpr_find_param_by_name(name);
     if (param == 0) {
@@ -522,9 +611,9 @@ static int do_setp_cmd(char *name, char *value)
 	}
 	break;
     case HAL_FLOAT:
-	fval = strtod(value, &cp);
-	if (*cp != '\0') {
-	    /* invalid chars in string */
+	fval = strtod ( value, &cp );
+	if ((*cp != '\0') && (!isspace(*cp))) {
+	    /* invalid character(s) in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for float parameter\n",
 		value);
@@ -535,7 +624,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_S8:
 	lval = strtol(value, &cp, 0);
-	if ((*cp != '\0') || (lval > 127) || (lval < -128)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 127) || (lval < -128)) {
 	    /* invalid chars in string, or outside limits of S8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for S8 parameter\n", value);
@@ -546,7 +635,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_U8:
 	ulval = strtoul(value, &cp, 0);
-	if ((*cp != '\0') || (ulval > 255)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 255)) {
 	    /* invalid chars in string, or outside limits of U8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for U8 parameter\n", value);
@@ -557,7 +646,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_S16:
 	lval = strtol(value, &cp, 0);
-	if ((*cp != '\0') || (lval > 32767) || (lval < -32768)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 32767) || (lval < -32768)) {
 	    /* invalid chars in string, or outside limits of S16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for S16 parameter\n", value);
@@ -568,7 +657,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_U16:
 	ulval = strtoul(value, &cp, 0);
-	if ((*cp != '\0') || (ulval > 65535)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 65535)) {
 	    /* invalid chars in string, or outside limits of U16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for U16 parameter\n", value);
@@ -579,7 +668,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_S32:
 	lval = strtol(value, &cp, 0);
-	if (*cp != '\0') {
+	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for S32 parameter\n", value);
@@ -590,7 +679,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_U32:
 	ulval = strtoul(value, &cp, 0);
-	if (*cp != '\0') {
+	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for U32 parameter\n", value);
@@ -1662,6 +1751,12 @@ static void print_help(void)
 	("  -f [filename]    Read command(s) from 'filename' instead of command\n");
     printf
 	("                   line.  If no file is specified, read from stdin.\n\n");
+#ifndef NO_INI
+    printf
+	("  -i filename      Open .ini file 'filename' and allow setp commands\n");
+#endif
+    printf
+	("                   to read their values from ini file variables.\n\n");
     printf("  -k               Keep going after failed command.  By default,\n");
     printf("                   halcmd will exit if any command fails.\n\n");
     printf("  -q               Quiet - Display errors only (default).\n\n");
@@ -1705,7 +1800,18 @@ static void print_help(void)
     printf
 	("         Sets parameter 'paramname' to 'value' (only if writable).\n");
     printf
-	("         (Both forms are equivalent, don't use '=' on command line.)\n\n");
+	("         (Both forms are equivalent, don't use '=' on command line.)\n");
+    printf
+	("         'value' may be a constant such as 3.14 or TRUE, or a reference\n");
+    printf
+	("         to an environment variable, using the syntax '$name'.\n");
+#ifndef NO_INI
+    printf
+	("         If -i was given on the command line, 'value' may be also be a\n");
+    printf
+	("         reference to an ini file variable using the syntax '[section]name'.\n");
+#endif
+    printf("\n");
     printf("  sets signame value\n");
     printf
 	("         Sets signal 'signame' to 'value' (only if sig has no writers).\n\n");
