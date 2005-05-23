@@ -1,6 +1,37 @@
 # Makefile for emc directory
-# This makefile calls makes in subdirectories
+# This makefile calls makes in subdirectories 
 
+ifneq ($(KERNELRELEASE),)
+# kbuild part of the makefile
+# This part is responsible for building motmod.ko on 2.6 systems
+# it is included here as a number of objects get linked for motmod.ko
+# most included under emc/
+
+ifeq ($(RTFLAGS),)
+# We need $(PWD) as this file is read by kbuild from within the kernel sourse dir
+include $(PWD)/../Makefile.inc
+endif
+
+obj-m := motmod.o
+
+motmod-objs := kinematics/cubic.o 
+motmod-objs += kinematics/mmxavg.o 
+motmod-objs += kinematics/tc.o 
+motmod-objs += kinematics/tp.o 
+motmod-objs += kinematics/trivkins.o
+motmod-objs += motion/motion.o 
+motmod-objs += motion/command.o 
+motmod-objs += motion/control.o 
+motmod-objs += motion/emcmotglb.o 
+motmod-objs += motion/emcmotutil.o 
+motmod-objs += log/emcmotlog.o 
+motmod-objs += ../libnml/posemath/_posemath.o
+motmod-objs += ../libnml/posemath/sincos.o
+
+EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
+
+else
+# Normal (as in pre-kbuild) Makefile
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
 include ../Makefile.inc
 
@@ -8,8 +39,17 @@ include ../Makefile.inc
 HEADERS = \
 global_defs.h
 
+# Generic rules
+include $(SRC_DIR)/Make.rules
 
-all: headers
+ifndef KDIR
+KDIR := /lib/modules/$(shell uname -r)/build
+endif
+
+PWD := $(shell pwd)
+
+
+all: headers modules
 	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
@@ -22,8 +62,6 @@ all: headers
 	(cd task; make $@)
 	(cd usr_intf; make $@)
 
-# Generic rules
-include $(SRC_DIR)/Make.rules
 
 headers: def_headers
 	(cd log; make $@)
@@ -64,7 +102,7 @@ depend: def_depend
 	(cd task; make $@)
 	(cd usr_intf; make $@)
 
-clean: def_clean
+clean: def_clean kclean
 	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
@@ -76,6 +114,10 @@ clean: def_clean
 	(cd iotask; make $@)
 	(cd task; make $@)
 	(cd usr_intf; make $@)
+
+kclean:
+	- rm -f .*.cmd *.o *.mod.* *.ko
+	- rm -fR .tmp_versions
 
 install:
 	(cd log; make $@)
@@ -90,4 +132,27 @@ install:
 	(cd task; make $@)
 	(cd usr_intf; make $@)
 
-.PHONY: all clean depend headers indent install
+
+# Only on kbuild build systems is it required to do the 'make modules'
+# all older system build the traditional way
+ifeq ($(BUILD_SYS),kbuild)
+
+modules: headers
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+	- cp *.ko $(RTLIB_DIR)/
+
+modules_install: modules
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+	depmod 2>/dev/null
+
+else
+
+modules:
+
+modules_install:
+
+endif
+
+.PHONY: all clean kclean depend headers indent install modules
+
+endif

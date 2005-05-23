@@ -129,6 +129,12 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.2  2005/05/23 04:22:30  jmkasunich
+ * merged the last couple weeks of work from the kbuild-0-1 branch to HEAD.  HEAD should now compile under all BDIs, including BDI-4.20 (kernel 2.6)
+ *
+ * Revision 1.1.2.1  2005/05/08 15:40:34  jmkasunich
+ * fixed some warning messages in hal_motenc.c - uninitialized variables
+ *
  * Revision 1.1  2005/03/31 21:35:40  petev
  * Initial revision.
  *
@@ -467,6 +473,7 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
     char				name[HAL_NAME_LEN + 2];
 
     // Export pins and parameters.
+    halError = 0;
     for(channel = 0; channel < MOTENC_NUM_ENCODER_CHANNELS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.enc-%02d-count", boardId, channel);
@@ -530,6 +537,7 @@ Device_ExportDacPinsParametersFunctions(Device *this, int componentId, int board
     char				name[HAL_NAME_LEN + 2];
 
     // Export pins and parameters.
+    halError = 0;
     for(channel = 0; channel < MOTENC_NUM_DAC_CHANNELS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.dac-%02d-value", boardId, channel);
@@ -573,6 +581,7 @@ Device_ExportAdcPinsParametersFunctions(Device *this, int componentId, int board
     char				name[HAL_NAME_LEN + 2];
 
     // Export pins and parameters.
+    halError = 0;
     for(channel = 0; channel < MOTENC_NUM_ADC_CHANNELS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.adc-%02d-value", boardId, channel);
@@ -616,6 +625,7 @@ Device_ExportDigitalInPinsParametersFunctions(Device *this, int componentId, int
     char				name[HAL_NAME_LEN + 2];
 
     // Export pins and parameters.
+    halError = 0;
     for(channel = 0; channel < MOTENC_NUM_DIGITAL_INPUTS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.pin-%02d-in", boardId, channel);
@@ -653,6 +663,7 @@ Device_ExportDigitalOutPinsParametersFunctions(Device *this, int componentId, in
     char				name[HAL_NAME_LEN + 2];
 
     // Export pins and parameters.
+    halError = 0;
     for(channel = 0; channel < MOTENC_NUM_DIGITAL_OUTPUTS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.pin-%02d-out", boardId, channel);

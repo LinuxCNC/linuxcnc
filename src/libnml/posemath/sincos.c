@@ -14,10 +14,6 @@
 * $Author$
 * $Date$
 ********************************************************************/
-#if HAVE_CONFIG_H
-#include "rcs_config.h"
-#endif
-
 /*
    sincos.c
 
@@ -32,7 +28,7 @@
 
 #ifndef SINCOS_SUPPORT
 
-#include <math.h>
+#include "posemath.h"
 
 void sincos(double x, double *sx, double *cx)
 {

@@ -990,7 +990,7 @@ static int init_threads(void)
 
     retval = setServoCycleTime(servo_period_nsec * 0.000000001);
     if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: setTrajCycleTime() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: setServoCycleTime() failed\n");
 	return -1;
     }
 
@@ -1004,7 +1004,7 @@ static int setTrajCycleTime(double secs)
     static int t;
 
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: setting Traj cycle time to %d nsecs\n", secs * 1e9);
+	"MOTION: setting Traj cycle time to %d nsecs\n", (long) (secs * 1e9));
 
     /* make sure it's not zero */
     if (secs <= 0.0) {
@@ -1039,7 +1039,7 @@ static int setServoCycleTime(double secs)
     static int t;
 
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"MOTION: setting Servo cycle time to %d nsecs\n", secs * 1e9);
+	"MOTION: setting Servo cycle time to %d nsecs\n", (long) (secs * 1e9));
 
     /* make sure it's not zero */
     if (secs <= 0.0) {

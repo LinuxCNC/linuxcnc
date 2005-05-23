@@ -450,7 +450,7 @@ int read_hal_inputs(void) {
 *
 * Side Effects: None.
 *
-* Called By: 
+* Called By:
 *
 ********************************************************************/
 int main(int argc, char * argv[])
@@ -507,7 +507,7 @@ int main(int argc, char * argv[])
   emcioStatus.coolant.flood = 0;
   emcioStatus.lube.on = 0;
   emcioStatus.lube.level = 1;
- 
+
   while (! done) {
     // check for inputs from HAL (updates emcioStatus)
     // returns 1 if any of the HAL pins changed from the last time we checked
@@ -530,7 +530,7 @@ int main(int argc, char * argv[])
     }
 
     if (0 == emcioCommand ||
-	0 == emcioCommand->type || 
+	0 == emcioCommand->type ||
 	emcioCommand->serial_number == emcioStatus.echo_serial_number) {
       continue;
     }
@@ -839,7 +839,10 @@ int main(int argc, char * argv[])
     
     
     esleep(EMC_IO_CYCLE_TIME);
-  }
+  }  // end of "while (! done)" loop
+
+  // disconnect from the HAL
+  hal_exit(comp_id);
 
   if (emcErrorBuffer != 0) {
     delete emcErrorBuffer;

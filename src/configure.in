@@ -57,7 +57,7 @@ AC_ARG_WITH(rtai,
     [  --with-rtai=<path to RTAI>              path where RTAI is installed],
     [	case "$withval" in
 	"" | y | ye | yes | n | no)
-	    AC_MSG_ERROR([You must supply an argument to --with-rtai.])
+	    AC_MSG_ERROR([You must supply a path for --with-rtai.])
 	  ;;
 	esac
 	RTAIDIR="$withval"])
@@ -72,7 +72,7 @@ AC_ARG_WITH(rtlinux,
     [  --with-rtlinux=<path to RTLINUX>        path where RTLinux is installed],
     [	case "$withval" in
 	"" | y | ye | yes | n | no)
-	    AC_MSG_ERROR([You must supply an argument to --with-rtlinux.])
+	    AC_MSG_ERROR([You must supply a path for --with-rtlinux.])
 	  ;;
 	esac
 	RTLINUXDIR="$withval"])
@@ -93,7 +93,7 @@ AC_ARG_WITH(rtlinuxpro,
     [  --with-rtlinuxpro=<path to RTLINUXPRO>  path where RTLinuxPro is installed],
     [	case "$withval" in
 	"" | y | ye | yes | n | no)
-	    AC_MSG_ERROR([You must supply an argument to --with-rtlinuxpro.])
+	    AC_MSG_ERROR([You must supply a path for --with-rtlinuxpro.])
 	  ;;
 	esac
 	RTLINUXPRODIR="$withval"])
@@ -245,8 +245,25 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "realtime-config"); then
 	KERNEL=$(cat $RTFILE | grep LINUXDIR | awk '{split($1, A, "="); print A[[2]]}') 2>/dev/null #'
 	KERNELDIR=$(cd $KERNEL ; pwd -P )
 	RTFLAGS=$(cat $RTFILE | grep CFLAGS | sed s/CFLAGS=//) 2>/dev/null #'
-
 	RTFLAGS="$RTFLAGS -DRTAI=1"
+	# the TNG disk is also missing "linux/modversions.h"
+	# we need to check for it, it may have already been replaced
+	AC_MSG_CHECKING(for linux/modversions.h)
+	if ! test -r $KERNELDIR/include/linux/modversions.h ; then
+	    # file is missing, fortunately on BDI-TNG it is a one line file, create it
+            ( echo "#include <linux/modsetver.h>" >$KERNELDIR/include/linux/modversions.h ) 2>/dev/null
+	    # but the user is probably not root, so that didn't work
+	    if ! test -r $KERNELDIR/include/linux/modversions.h ; then
+	        AC_MSG_RESULT(missing)
+	        AC_ERROR([modversions.h is missing.  This is a known problem on
+		  the BDI-TNG distro.  Please re-run ./configure as root
+		  to replace it.  You will only have to do this once.])
+	    else
+	        AC_MSG_RESULT(missing... replaced)
+	    fi
+	else
+	    AC_MSG_RESULT(ok)
+	fi
     else
 	# any other rtai-24.1.x system
 	TEMP=`$RTS --prefix`
@@ -341,6 +358,8 @@ if (test ${RTS##*/} = rtai-config ) ; then
 elif (test ${RTS##*/} = rtl-config ) ; then
   RTSCC=`$RTS --cc`
   AC_MSG_RESULT(found $RTSCC in rtl-config)
+else
+  AC_MSG_RESULT(not specified)
 fi
 
 # seems there's a problem with autoconf if there are multiple
@@ -369,11 +388,11 @@ fi
 # running kernel version which is may not be the one the code is             #
 # compiled against.                                                          #
 ##############################################################################
-AC_MSG_CHECKING([for kernel version])
 
 AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
+
 # Unfortunately, many distributions (redhat, mandrake) have #defines
-# inside versin.h, so a simple cat|grep|cut test won't work... But then agsin,
+# inside version.h, so a simple cat|grep|cut test won't work... But then again,
 # RH & Mandrake kernels are notorious for their use of patches that break
 # the RT patching - Both RTAI and RTLinux strongly recommend using
 # a virgin source from kernel.org.
@@ -388,11 +407,42 @@ AC_MSG_RESULT([$KERNEL_VERS])
 AC_SUBST([KERNEL_VERS])
 
 # Do a quick test for module extension..
+AC_MSG_CHECKING([for kernel module extension])
 MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
 if test "x" = "x$MODEXT"; then
     MODEXT=".o"
 fi
+AC_MSG_RESULT([$MODEXT])
 AC_SUBST([MODEXT])
+
+# This check should see if kbuild is or isn't used
+AC_MSG_CHECKING([kernel build system])
+# FIXME FIXME FIXME
+# right now it will assume based on wether it's a 2.6 kernel or not
+EXT_RTFLAGS=""
+BUILD_SYS="normal"
+
+if test "x$MODEXT" = "x.ko" ; then
+    BUILD_SYS="kbuild"
+else
+    EXT_RTFLAGS="-DEXPORT_SYMTAB"
+fi
+
+AC_ARG_WITH(kbuild,
+    [  --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not],
+    [
+        case "$withval" in
+        "" | y | ye | yes )
+	    BUILD_SYS="kbuild"
+          ;;
+        n | no )
+	    BUILD_SYS="normal"
+          ;;
+        esac
+    ])
+AC_MSG_RESULT([$BUILD_SYS])
+AC_SUBST([BUILD_SYS])
+AC_SUBST([EXT_RTFLAGS])
 
 ##############################################################################
 # Subsection 3.3 - check the moduledir where modules can get installed       #
@@ -400,6 +450,7 @@ AC_SUBST([MODEXT])
 # Provides the user the possibility to specify (--with-module-dir=<path>)    #
 # If not specified default inside /lib/modules/${KERNEL_VERS}/               #
 # to the location where a RT-module gets found (mbuff.o or rtai_shm.o)       #
+# (maybe the default should be /lib/modules/$KERNEL_VERS/extra if it exists? #
 ##############################################################################
 
 # Create a module-dir option, similar to rtai's...
@@ -410,27 +461,43 @@ AC_ARG_WITH(module-dir,
     [
         case "$withval" in
         "" | y | ye | yes | n | no)
-            AC_MSG_ERROR([You must supply an argument to --with-module-dir.])
+            AC_MSG_ERROR([You must supply a path for --with-module-dir.])
           ;;
         esac
         MODULE_DIR="$withval"
     ])
 
-# Set a default module dir if unspecified
-if test "x" = "x$MODULE_DIR";
-then
+# if not specified, ask the realtime config script where the directory is
+# if the config script returns an error, set MODULE_DIR to nothing
+if test "x" = "x$MODULE_DIR" ; then
+  MODULE_DIR=`$RTS --module-dir 2>/dev/null` || MODULE_DIR=
+fi
+    
+# if still unknown, check a couple default dirs for RT modules
+if test "x" = "x$MODULE_DIR" ; then
    # (P.C.) Only works if the kernel modules are installed - If we are compiling for a target
    # system, this test may fail...
-   MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
-
-   if test "x" = "x$MODULE_DIR"; then
-        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff.o" -o -name "rtai_shm.o" \) -printf "%h")`
+   if test -d /lib/modules/${KERNEL_VERS} ; then
+       MODULE_DIR=`(find /lib/modules/${KERNEL_VERS} \( -name "mbuff${MODEXT}" -o -name "rtai_shm${MODEXT}" \) -printf "%h")`
    fi
-
-   if test "x" = "x$MODULE_DIR"; then
-       MODULE_DIR='${exec_prefix}/modules'
+fi
+if test "x" = "x$MODULE_DIR"; then
+   if test -d /usr/realtime/ ; then
+       MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff${MODEXT}" -o -name "rtai_shm${MODEXT}" \) -printf "%h")`
    fi
+fi
 
+# uncomment this if we decide to use the extra/ directory (if present) for 
+# our realtime modules
+#if ! test "x" = "x$MODULE_DIR" ; then
+#   if test -d $MODULE_DIR/../extra ; then 
+#       MODULE_DIR=`(cd $MODULE_DIR/../extra ; pwd )`
+#   fi
+#fi
+
+# still haven't found the right directory, use a default
+if test "x" = "x$MODULE_DIR"; then
+    MODULE_DIR='${exec_prefix}/modules'
 fi
 
 AC_SUBST([MODULE_DIR])
@@ -543,12 +610,12 @@ MATHINC=""
 #we need to make sure that $RTS has a --module-dir option
 #only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
 if (test ${RTS##*/} = rtai-config ) ; then
-    if (test -r $($RTS --module-dir)/rtai_math.o ) ; then
+    if (test -r $($RTS --module-dir)/rtai_math${MODEXT} ) ; then
        USE_RTLIBM=1
     fi
 fi
 
-if (test -r $RTDIR/modules/rtai_libm.o ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm.o) ; then
+if (test -r $RTDIR/modules/rtai_libm${MODEXT} ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm${MODEXT}) ; then
     # Found a suitable kernel module..
     MATHLIB=
     USE_RTLIBM=1
@@ -561,7 +628,7 @@ else
     rm -f tests/mathtest.o tests/mathtest 2>/dev/null
     # compile a sample first.
     $CC -c tests/mathtest.c $RTFLAGS -o tests/mathtest.o 2>/dev/null
-
+    
     DIET_DIR=$(find /usr/lib -maxdepth 2 -name diet* | head -n1)
     if (test "$DIET_DIR" != "" ) ; then
         # Run a test to see if it will work...

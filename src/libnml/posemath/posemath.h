@@ -78,6 +78,19 @@
 #define _GNU_SOURCE
 #endif
 
+#ifdef RTAPI
+#include <linux/types.h>
+#ifdef __attribute_used__
+#undef __attribute_used__
+#endif
+#ifdef __attribute_pure__
+#undef __attribute_pure__
+#endif
+#include <sys/cdefs.h>
+#endif
+#include <float.h>
+#include <math.h>
+
 #ifdef __cplusplus
 
 #define USE_CONST

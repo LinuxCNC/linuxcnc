@@ -26,6 +26,7 @@
 #endif
 
 #include "rtapi.h"		/* rtapi_print_msg */
+#include "posemath.h"
 #include "emcpid.h"		/* these decls */
 
 #define GAINS_SET 0x01

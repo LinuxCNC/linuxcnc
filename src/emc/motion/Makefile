@@ -7,10 +7,6 @@ SRCS = \
 	emcmotutil.c \
 	usrmotintf.cc
 
-RT_SRCS = \
-	command.c \
-	control.c \
-	motion.c
 
 HEADERS = \
 	emcmotcfg.h \
@@ -26,6 +22,13 @@ OBJS = \
 	emcmotutil.o \
 	usrmotintf.o
 
+ifneq ($(MODULE_EXT),.ko)
+
+RT_SRCS = \
+	command.c \
+	control.c \
+	motion.c
+
 RT_OBJS  = \
 	command.o \
 	control.o \
@@ -39,6 +42,8 @@ RT_OBJS  = \
 RTLIBS = \
 	motmod.o
 
+endif
+
 BINS =
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
@@ -48,6 +53,8 @@ all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
 include ../../Make.rules
 
 # Explicit rules.
+
+ifneq ($(MODULE_EXT),.ko)
 
 # Side note: MATHLIB defines the linking and lib options for
 # libm. Linking to the glibc math lib may lead to unresolved
@@ -71,12 +78,18 @@ $(RTLIB_DIR)/motmod.o: \
 	@ echo "Linking kernel module $@"
 	ld -r -static -S -O2 $^ $(RTLIB_DIR)/libpm.a $(MATHLIB) -o $@
 
+endif
+
 headers: def_headers
 
 indent: def_indent
 
 depend: def_depend
 
-clean: def_clean
+clean: def_clean kclean
 
-.PHONY: all clean install indent depend headers
+kclean:
+	- rm -f .*.cmd *.o *.mod.* *.ko
+	- rm -fR .tmp_versions 
+
+.PHONY: all clean kclean install indent depend headers

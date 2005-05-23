@@ -80,6 +80,22 @@ install : $(MAN_FILES)
 	(cd rtapi; make $@)
 	(cd hal; make $@)
 
+
+modules: headers
+	(cd rtapi; make $@)
+	(cd hal; make $@)
+	(cd emc; make $@)
+
+ifeq ($(BUILD_SYS),kbuild)
+
+modules_install: modules
+	(cd rtapi; make $@)
+	(cd hal; make $@)
+	(cd emc; make $@)
+	depmod 2>/dev/null
+
+endif
+
 # this rule handles the uninstall target
 # it removes all the man pages
 
@@ -120,7 +136,6 @@ clean :
 tgz: clean
 	rm -rf /tmp/emc2-tgz-temp/emc2
 	install -d /tmp/emc2-tgz-temp/emc2/
-	
 	cp -R ./ /tmp/emc2-tgz-temp/emc2/
 
 # Remove Makefile.inc to force a rerun of ./configure
@@ -134,4 +149,4 @@ tgz: clean
 	mv /tmp/emc2-tgz-temp/emc2.tar.gz ./
 	rm -rf /tmp/emc2-tgz-temp
 
-.PHONY : all examples headers depend indent install clean
+.PHONY : all examples headers depend indent modules install clean
