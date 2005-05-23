@@ -441,6 +441,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
   Modification history:
 
   $Log$
+  Revision 1.8  2005/05/23 01:54:51  paul_c
+  Missed a few files in the last effort....
+
   Revision 1.7  2005/05/23 00:29:13  paul_c
   Remove any last trace of those M$ line terminators
 

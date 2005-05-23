@@ -1618,6 +1618,9 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.11  2005/05/23 01:54:50  paul_c
+  Missed a few files in the last effort....
+
   Revision 1.10  2005/05/23 00:29:13  paul_c
   Remove any last trace of those M$ line terminators
 

@@ -2954,6 +2954,9 @@ extern EMC_MOTION_STAT *emcMotionStatus;
   Modification history:
 
   $Log$
+  Revision 1.11  2005/05/23 01:54:49  paul_c
+  Missed a few files in the last effort....
+
   Revision 1.10  2005/05/23 00:29:10  paul_c
   Remove any last trace of those M$ line terminators
 

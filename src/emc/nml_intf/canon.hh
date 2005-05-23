@@ -697,6 +697,9 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num);
   Modification history:
 
   $Log$
+  Revision 1.3  2005/05/23 01:54:48  paul_c
+  Missed a few files in the last effort....
+
   Revision 1.2  2005/05/23 00:29:09  paul_c
   Remove any last trace of those M$ line terminators
 
