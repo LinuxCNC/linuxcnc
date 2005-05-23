@@ -697,6 +697,9 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num);
   Modification history:
 
   $Log$
+  Revision 1.2  2005/05/23 00:29:09  paul_c
+  Remove any last trace of those M$ line terminators
+
   Revision 1.1  2005/04/28 13:03:40  proctor
   Moved canon.hh to nml_intf/ from rs274ngc/, and updated Makefile
 

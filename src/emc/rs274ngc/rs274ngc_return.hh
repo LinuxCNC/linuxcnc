@@ -227,6 +227,9 @@
   Modification history:
 
   $Log$
+  Revision 1.5  2005/05/23 00:29:12  paul_c
+  Remove any last trace of those M$ line terminators
+
   Revision 1.4  2005/05/04 04:50:37  jmkasunich
   Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
 

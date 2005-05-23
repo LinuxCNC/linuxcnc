@@ -441,6 +441,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
   Modification history:
 
   $Log$
+  Revision 1.7  2005/05/23 00:29:13  paul_c
+  Remove any last trace of those M$ line terminators
+
   Revision 1.6  2005/05/18 22:48:59  rumley
   Fix for Bug 1171692, Odd behavoir in MDI mode.
   Caused by rs274ngc_synch call when axis not 'inpos'

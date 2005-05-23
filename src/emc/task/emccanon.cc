@@ -1618,6 +1618,9 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.10  2005/05/23 00:29:13  paul_c
+  Remove any last trace of those M$ line terminators
+
   Revision 1.9  2005/05/08 21:59:12  alex_joni
   changed the test inifile.open() == false to inifile.open() != 0 as it seems that false is not always recognized as it should
 
