@@ -865,6 +865,9 @@ int emcTaskUpdate(EMC_TASK_STAT *stat)
   Modification history:
 
   $Log$
+  Revision 1.4  2005/05/23 01:10:45  paul_c
+  Repair the damage to the gif & pdf files - Note: Unwise to run dos2unix on these files cd /tmp/emc2..
+
   Revision 1.3  2005/05/23 00:29:06  paul_c
   Remove any last trace of those M$ line terminators
 
