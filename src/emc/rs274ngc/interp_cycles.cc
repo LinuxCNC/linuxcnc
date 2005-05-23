@@ -152,6 +152,11 @@ int Interp::convert_cycle_g83(CANON_PLANE plane, //!< selected plane
   double current_depth;
   double rapid_delta;
 
+  /* Moved the check for negative Q values here as a sign
+     may be used with user defined M functions
+     Thanks to Billy Singleton for pointing it out... */
+  CHK((delta <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
+
   rapid_delta = G83_RAPID_DELTA;
   if (_setup.length_units == CANON_UNITS_MM)
     rapid_delta = (rapid_delta * 25.4);
