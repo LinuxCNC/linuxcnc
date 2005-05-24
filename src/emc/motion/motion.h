@@ -156,15 +156,13 @@ extern "C" {
 	EMCMOT_SET_DEBUG	/* sets the debug level */
     } cmd_code_t;
 
-/* this enum lists the possible results of a command */
+/* Error codes reported by the Command Handler */
 
-    typedef enum {
-	EMCMOT_COMMAND_OK = 0,	/* cmd honored */
-	EMCMOT_COMMAND_UNKNOWN_COMMAND,	/* cmd not understood */
-	EMCMOT_COMMAND_INVALID_COMMAND,	/* cmd can't be handled now */
-	EMCMOT_COMMAND_INVALID_PARAMS,	/* bad cmd params */
-	EMCMOT_COMMAND_BAD_EXEC	/* error trying to initiate */
-    } cmd_status_t;
+#define	EMCMOT_COMMAND_OK               0	/* cmd honored */
+#define	EMCMOT_COMMAND_UNKNOWN_COMMAND  1	/* cmd not understood */
+#define	EMCMOT_COMMAND_INVALID_COMMAND  2	/* cmd can't be handled now */
+#define	EMCMOT_COMMAND_INVALID_PARAMS   3      /* bad cmd params */
+#define	EMCMOT_COMMAND_BAD_EXEC	        4      /* error trying to initiate */
 
 /* termination conditions for queued motions */
 #define EMCMOT_TERM_COND_STOP 1
