@@ -404,7 +404,7 @@ int emcTaskPlanExecute(const char *command)
 {
   if(command != 0)
     {
-      if(*command != 0)
+      if((*command != 0) && (emcStatus->motion.traj.inpos != 0))
 	{
 	  rs274ngc_synch();
 	}
