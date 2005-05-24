@@ -19,6 +19,9 @@
 *     mux2 = two input analog mux - out = in1 if sel is true, else in0
 *     integ = integrator, out = integral of in
 *     ddt = differentiator, out = derivative of in
+*     limit1 = first order limiter (limits output)
+*     limit2 = second order limiter (limits output and 1st derivative)
+*     limit3 = third order limiter (limits output, 1st & 2nd derivative)
 *
 *********************************************************************
 *
@@ -44,6 +47,8 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
+
+#include <math.h>
 
 #ifdef MODULE
 /* module information */
@@ -73,6 +78,15 @@ MODULE_PARM_DESC(integ, "integrators");
 static int ddt = 0;		/* number of differentiators */
 MODULE_PARM(ddt, "i");
 MODULE_PARM_DESC(ddt, "differentiators");
+static int limit1 = 0;		/* number of limiters */
+MODULE_PARM(limit1, "i");
+MODULE_PARM_DESC(limit1, "first order limiters");
+static int limit2 = 0;		/* number of limiters */
+MODULE_PARM(limit2, "i");
+MODULE_PARM_DESC(limit2, "second order limiters");
+static int limit3 = 0;		/* number of limiters */
+MODULE_PARM(limit3, "i");
+MODULE_PARM_DESC(limit3, "third order limiters");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -126,6 +140,34 @@ typedef struct {
     float old;			/* internal state */
 } ddt_t;
 
+typedef struct {
+    hal_float_t *in;		/* pin: input */
+    hal_float_t *out;		/* pin: output */
+    hal_float_t max;		/* param: maximum value */
+    hal_float_t min;		/* param: minimum value */
+} limit1_t;
+
+typedef struct {
+    hal_float_t *in;		/* pin: input */
+    hal_float_t *out;		/* pin: output */
+    hal_float_t max;		/* param: maximum value */
+    hal_float_t min;		/* param: minimum value */
+    hal_float_t maxv;		/* param: 1st derivative limit */
+    double old_out;		/* previous output */
+} limit2_t;
+
+typedef struct {
+    hal_float_t *in;		/* pin: input */
+    hal_float_t *out;		/* pin: output */
+    hal_float_t min;		/* param: minimum value */
+    hal_float_t max;		/* param: maximum value */
+    hal_float_t maxv;		/* param: 1st derivative limit */
+    hal_float_t maxa;		/* param: 2nd derivative limit */
+    double old_in;		/* previous input */
+    double old_out;		/* previous output */
+    double old_v;		/* previous 1st derivative */
+} limit3_t;
+
 /* other globals */
 static int comp_id;		/* component ID */
 
@@ -140,6 +182,9 @@ static int export_mux2(int num);
 static int export_sum2(int num);
 static int export_integ(int num);
 static int export_ddt(int num);
+static int export_limit1(int num);
+static int export_limit2(int num);
+static int export_limit3(int num);
 
 static void constant_funct(void *arg, long period);
 static void wcomp_funct(void *arg, long period);
@@ -148,6 +193,9 @@ static void mux2_funct(void *arg, long period);
 static void sum2_funct(void *arg, long period);
 static void integ_funct(void *arg, long period);
 static void ddt_funct(void *arg, long period);
+static void limit1_funct(void *arg, long period);
+static void limit2_funct(void *arg, long period);
+static void limit3_funct(void *arg, long period);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -254,6 +302,45 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d differentiators\n", ddt);
     }
+    /* allocate and export first order limiters */
+    if (limit1 > 0) {
+	for (n = 0; n < limit1; n++) {
+	    if (export_limit1(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_limit1(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d first order limiters\n", limit1);
+    }
+    /* allocate and export second order limiters */
+    if (limit2 > 0) {
+	for (n = 0; n < limit2; n++) {
+	    if (export_limit2(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_limit2(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d second order limiters\n", limit2);
+    }
+    /* allocate and export third order limiters */
+    if (limit3 > 0) {
+	for (n = 0; n < limit3; n++) {
+	    if (export_limit3(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_limit3(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d third order limiters\n", limit3);
+    }
     return 0;
 }
 
@@ -359,6 +446,130 @@ static void ddt_funct(void *arg, long period)
     ddt->old = tmp;
 }
 
+static void limit1_funct(void *arg, long period)
+{
+    limit1_t *limit1;
+    double out;
+
+    /* point to block data */
+    limit1 = (limit1_t *) arg;
+    /* apply first order limit */
+    out = *(limit1->in);
+    if ( out < limit1->min ) {
+	out = limit1->min;
+    }
+    if ( out > limit1->max ) {
+	out = limit1->max;
+    }
+    *(limit1->out) = out;
+}
+
+static void limit2_funct(void *arg, long period)
+{
+    limit2_t *limit2;
+    double out, delta, tmp;
+
+    /* point to block data */
+    limit2 = (limit2_t *) arg;
+    /* apply first order limit */
+    out = *(limit2->in);
+    if ( out < limit2->min ) {
+	out = limit2->min;
+    }
+    if ( out > limit2->max ) {
+	out = limit2->max;
+    }
+    /* apply second order limit */
+    delta = limit2->maxv * (period * 0.000000001);
+    tmp = limit2->old_out - delta;
+    if ( out < tmp ) {
+	out = tmp;
+    }
+    tmp = limit2->old_out + delta;
+    if ( out > tmp ) {
+	out = tmp;
+    }
+    limit2->old_out = out;
+    *(limit2->out) = out;
+}
+
+static void limit3_funct(void *arg, long period)
+{
+    limit3_t *limit3;
+    double in, out, dt, in_v, min_v, max_v, ramp_a, avg_v, err, dv, dp;
+    double min_out, max_out, match_time, est_in, est_out;
+
+    est_in = est_out = match_time = 0;
+    
+    /* point to block data */
+    limit3 = (limit3_t *) arg;
+    /* apply first order limit */
+    in = *(limit3->in);
+    if ( in < limit3->min ) {
+	in = limit3->min;
+    }
+    if ( in > limit3->max ) {
+	in = limit3->max;
+    }
+    /* calculate input derivative */
+    dt = period * 0.000000001;
+    in_v = (in - limit3->old_in) / dt;
+    /* determine v and out that can be reached in one period */
+    min_v = limit3->old_v - limit3->maxa * dt;
+    if ( min_v < -limit3->maxv ) {
+        min_v = -limit3->maxv;
+    }
+    max_v = limit3->old_v + limit3->maxa * dt;
+    if ( max_v > limit3->maxv ) {
+        max_v = limit3->maxv;
+    }
+    min_out = limit3->old_out + min_v * dt;
+    max_out = limit3->old_out + max_v * dt;
+    if ( ( in >= min_out ) && ( in <= max_out ) && ( in_v >= min_v ) && ( in_v <= max_v ) ) {
+        /* we can follow the command without hitting a limit */
+	out = in;
+	limit3->old_v = ( out - limit3->old_out ) / dt;
+    } else {
+	/* can't follow commanded path while obeying limits */ 
+	/* determine which way we need to ramp to match v */
+	if ( in_v > limit3->old_v ) {
+	    ramp_a = limit3->maxa;
+	} else {
+	    ramp_a = -limit3->maxa;
+	}
+	/* determine how long the match would take */
+	match_time = ( in_v - limit3->old_v ) / ramp_a;
+	/* where we will be at the end of the match */
+	avg_v = ( in_v + limit3->old_v + ramp_a * dt ) * 0.5;
+	est_out = limit3->old_out + avg_v * match_time;
+	/* calculate the expected command position at that time */
+	est_in = limit3->old_in + in_v * match_time;
+	/* calculate position error at that time */
+	err = est_out - est_in;
+	/* calculate change in final position if we ramp in the
+	   opposite direction for one period */
+	dv = -2.0 * ramp_a * dt;
+	dp = dv * match_time;
+	
+	/* decide what to do */
+	if ( fabs(err+dp*2.0) < fabs(err) ) {
+	    ramp_a = -ramp_a;
+	}
+		
+		
+	if ( ramp_a < 0.0 ) {
+	    out = min_out;
+	    limit3->old_v = min_v;
+	} else {
+	    out = max_out;
+	    limit3->old_v = max_v;
+	}
+    }    
+    limit3->old_out = out;
+    limit3->old_in = in;
+    *(limit3->out) = out;
+}
+    
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
@@ -782,3 +993,229 @@ static int export_ddt(int num)
     rtapi_set_msg_level(msg);
     return 0;
 }
+
+static int export_limit1(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    limit1_t *limit1;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for first order limiter */
+    limit1 = hal_malloc(sizeof(limit1_t));
+    if (limit1 == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pin for input */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit1.%d.in", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(limit1->in), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit1.%d.out", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(limit1->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export params */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit1.%d.min", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(limit1->min), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit1.%d.max", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(limit1->max), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit1.%d", num);
+    retval = hal_export_funct(buf, limit1_funct, limit1, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* set default parameter values */
+    limit1->min = -1e20;
+    limit1->max =  1e20;
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_limit2(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    limit2_t *limit2;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for second order limiter */
+    limit2 = hal_malloc(sizeof(limit2_t));
+    if (limit2 == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pin for input */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d.in", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(limit2->in), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d.out", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(limit2->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export params */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d.min", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(limit2->min), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d.max", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(limit2->max), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d.maxv", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(limit2->maxv), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d", num);
+    retval = hal_export_funct(buf, limit2_funct, limit2, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* set default parameter values */
+    limit2->min = -1e20;
+    limit2->max =  1e20;
+    limit2->maxv = 1e20;
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_limit3(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    limit3_t *limit3;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for third order limiter */
+    limit3 = hal_malloc(sizeof(limit3_t));
+    if (limit3 == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pin for input */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.in", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(limit3->in), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.out", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(limit3->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export params */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.min", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(limit3->min), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.max", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(limit3->max), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.maxv", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(limit3->maxv), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.maxa", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(limit3->maxa), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d", num);
+    retval = hal_export_funct(buf, limit3_funct, limit3, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* set default parameter values */
+    limit3->min = -1e20;
+    limit3->max =  1e20;
+    limit3->maxv = 1e20;
+    limit3->maxa = 1e20;
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
