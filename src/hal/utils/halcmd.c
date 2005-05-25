@@ -102,7 +102,11 @@ static void print_help(void);
 *                         GLOBAL VARIABLES                             *
 ************************************************************************/
 
-int comp_id = 0;
+int comp_id = -1;	/* -1 means hal_init() not called yet */
+int hal_flag = 0;	/* used to indicate that halcmd might have the
+			   hal mutex, so the sig handler can't just
+			   exit, instead it must set 'done' */
+int done = 0;		/* used to break out of processing loop */
 #ifndef NO_INI
     FILE *inifile = NULL;
 #endif
@@ -111,6 +115,24 @@ int comp_id = 0;
 /***********************************************************************
 *                            MAIN PROGRAM                              *
 ************************************************************************/
+
+/* signal handler */
+static void quit(int sig)
+{
+    if ( hal_flag ) {
+	/* this process might have the hal mutex, so just set the
+	   'done' flag and return, exit after mutex work finishes */
+	done = 1;
+    } else {
+	/* don't have to worry about the mutex, but if we just
+	   return, we might return into the fgets() and wait 
+	   all day instead of exiting.  So we exit from here. */
+	if ( comp_id > 0 ) {
+	    hal_exit(comp_id);
+	}
+	_exit(1);
+    }
+}
 
 int main(int argc, char **argv)
 {
@@ -123,6 +145,7 @@ int main(int argc, char **argv)
 	   END_OF_LINE } state;
     char *cp1, *filename = NULL;
     FILE *srcfile = NULL;
+    char buf[30];
     char cmd_buf[MAX_CMD_LEN+1];
     char *tokens[MAX_TOK+1];
 
@@ -224,8 +247,15 @@ int main(int argc, char **argv)
 	    }
 	}
     }
-    /* at this point all options are parsed */
-    comp_id = hal_init("halcmd");
+    /* register signal handlers - if the process is killed
+       we need to call hal_exit() to free the shared memory */
+    signal(SIGINT, quit);
+    signal(SIGTERM, quit);
+    /* at this point all options are parsed, connect to HAL */
+    /* create a unique module name, to allow for multiple halcmd's */
+    snprintf(buf, 29, "halcmd%d", getpid());
+    /* connect to the HAL */
+    comp_id = hal_init(buf);
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed\n" );
 	return 1;
@@ -335,14 +365,27 @@ int main(int argc, char **argv)
 		    /* should never get here */
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 			"Bad state in token parser\n");
-		    return -1;
+		    done = 1;
 		}
 	    }
 	    /* tokens[] contains MAX_TOK+1 elements so there is always
 	       at least one empty one at the end... make it empty now */
 	    tokens[MAX_TOK] = "";
+	    /* the "quit" command is not handled by parse_cmd() */
+	    if ( strcasecmp(tokens[0],"quit") == 0 ) {
+		break;
+	    }
+	    /* let the signal handler know that we might have the mutex */
+	    hal_flag = 1;
 	    /* process command */
             retval = parse_cmd(tokens);
+	    /* done with the mutex, can simply exit on a signal */
+	    hal_flag = 0;
+	    /* did a signal happen while we were busy? */
+	    if ( done ) {
+		/* exit from loop */
+		break;
+	    }
 	    if ( retval != 0 ) {
 		errorcount++;
 	    }
@@ -1843,4 +1886,6 @@ static void print_help(void)
     printf("         Starts all realtime threads.\n\n");
     printf("  stop\n");
     printf("         Stops all realtime threads.\n\n");
+    printf("  quit\n");
+    printf("         Stop processing input when reading from a file or stdin.\n\n");
 }

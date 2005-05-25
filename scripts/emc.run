@@ -300,6 +300,12 @@ function Cleanup() {
 		KILL_TASK=halmeter
 		KillTaskWithTimeout
 	    fi
+	    # check for any halcmds
+	    if $PIDOF halcmd >$DEBUG_FILE ; then
+		# get rid of them
+		KILL_TASK=halcmd
+		KillTaskWithTimeout
+	    fi
 	    # check for user space HAL components
 	    HAL_USR_COMPS=`$HALCMD show comp | grep -v halcmd | awk -- '$2 ~ /^User$/ { print $3 }'`
 	    # remove them
