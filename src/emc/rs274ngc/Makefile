@@ -19,54 +19,67 @@
 # set the name of the module directory (this directory's name)
 MODULE = rs274ngc_new
 
-# FMP took out SUB_DIR since who wants those rs274ngc_new subdirs in
-# plat/XXX/include,src,lib anyway?
-# SUB_DIR=rs274ngc_new
-
 include ../../Makefile.inc
 
+SRCS = \
+	interp_arc.cc \
+	interp_array.cc \
+	interp_check.cc \
+	interp_convert.cc \
+	interp_cycles.cc \
+	interp_execute.cc \
+	interp_find.cc \
+	interp_internal.cc \
+	interp_inverse.cc \
+	interp_read.cc \
+	interp_write.cc \
+	rs274ngc_errors.cc \
+	rs274ngc_pre.cc
+
 HEADERS = canon.hh \
+	interp_internal.hh \
 	rs274ngc.hh \
 	rs274ngc_return.hh
 
-SRCS = driver.cc \
-	rs274ngc_errors.c \
-	rs274ngc_pre.cc
+BINS =
 
-OBJS = driver.o \
+OBJS = \
+	interp_arc.o \
+	interp_array.o \
+	interp_check.o \
+	interp_convert.o \
+	interp_cycles.o \
+	interp_execute.o \
+	interp_find.o \
+	interp_internal.o \
+	interp_inverse.o \
+	interp_read.o \
+	interp_write.o \
 	rs274ngc_errors.o \
 	rs274ngc_pre.o
 
-RT_OBJS =
+all: headers $(SRCS:%.cc=$(TMP_DIR)/%.o) $(TMP_DIR)/rs274.o
 
-BINS =
-
-LOCAL_CXXFLAGS= -Wno-unused
-
-all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o) \
-	$(BINS:%=$(BIN_DIR)/%) $(RTLIBS:%.o=$(RTLIB_DIR)/%.o) \
-	$(TMP_DIR)/rs274abc.o
-
-foo:
-	echo '$(OBJS)'
-
-# Generic rules.
 include ../../Make.rules
 
-$(TMP_DIR)/rs274abc.o:  $(TMP_DIR)/driver.o \
-			$(TMP_DIR)/rs274ngc_errors.o \
-			$(TMP_DIR)/rs274ngc_pre.o
-	rm -f $@
-	ar rc $@ $^
-	ranlib $@
+# this set of flags is for normal mill interp
+LOCAL_CXXFLAGS = -Wno-unused -DDEBUG_EMC
+# this set of flags is for lathe interp
+#LOCAL_CXXFLAGS = -Wno-unused -DLATHE
 
+$(TMP_DIR)/rs274.o: $(OBJS)
+	rm -f $@
+	$(AR) $(ARFLAGS) $@ $^
 
 headers: def_headers
 
-indent: def_indent
+# We don't use indent on these sources as it messes up the formatting
+# of some of the arrays - It makes them harder to read !
+# indent: def_indent
 
 depend: def_depend
 
 clean: def_clean
+	rm -f $(TMP_DIR)/rs274.o
 
-.PHONY: all clean depend headers indent install kclean
+.PHONY: all clean install indent depend headers kclean

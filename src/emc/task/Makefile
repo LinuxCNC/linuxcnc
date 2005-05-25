@@ -77,7 +77,7 @@ $(BIN_DIR)/bridgeporttask:	\
 	$(TMP_DIR)/emctask.o \
 	$(TMP_DIR)/emccanon.o \
 	$(TMP_DIR)/emctaskmain.o \
-	$(TMP_DIR)/rs274abc.o \
+	$(TMP_DIR)/rs274.o \
 	$(TMP_DIR)/usrmotintf.o \
 	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \
@@ -89,7 +89,7 @@ $(BIN_DIR)/minimilltask:	\
 	$(TMP_DIR)/emctask.o \
 	$(TMP_DIR)/emccanon.o \
 	$(TMP_DIR)/emctaskmain.o \
-	$(TMP_DIR)/rs274abc.o \
+	$(TMP_DIR)/rs274.o \
 	$(TMP_DIR)/usrmotintf.o \
 	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \

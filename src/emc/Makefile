@@ -4,8 +4,15 @@
 
 # include Makefile.lib
 # make rules.
+include ../Makefile.inc
+
+# Public headers
+HEADERS = global_defs.h
 
 all: headers
+
+# Generic rules.
+include ../Make.rules
 
 all headers kclean clean depend indent install:
 	(cd rs274ngc; make $@)
@@ -17,5 +24,7 @@ all headers kclean clean depend indent install:
 	(cd motion; make $@)
 	(cd iotask; make $@)
 	(cd task; make $@)
+
+headers: def_headers
 
 .PHONY: all clean depend headers indent install kclean

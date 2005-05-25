@@ -14,6 +14,8 @@
 * $Author$
 * $Date$
 ********************************************************************/
+// #INDENT-OFF*
+
 #include <libintl.h>
 #ifdef USE_NLS
 #define _(string) gettext(string)
@@ -110,13 +112,13 @@ char * _rs274ngc_errors[] = {
 /*  85 */ _("H word with no g43"), // check_other_codes
 /*  86 */ _("I word given for arc in yz plane"), // convert_arc
 /*  87 */ _("I word missing with g87"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
-/*  88 */ _("I word with no g2 or g3 or g87 to use it"), // check_other_codes
+/*  88 */ _("I word with no g2, g3 or g87 to use it"), // check_other_codes
 /*  89 */ _("J word given for arc in xz plane"), // convert_arc
 /*  90 */ _("J word missing with g87"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
-/*  91 */ _("J word with no g2 or g3 or g87 to use it"), // check_other_codes
+/*  91 */ _("J word with no g2, g3 or g87 to use it"), // check_other_codes
 /*  92 */ _("K word given for arc in xy plane"), // convert_arc
 /*  93 */ _("K word missing with g87"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
-/*  94 */ _("K word with no g2 or g3 or g87 to use it"), // check_other_codes
+/*  94 */ _("K word with no g2, g3, g33, or g87 to use it"), // check_other_codes
 /*  95 */ _("L word with no canned cycle or g10"), // check_other_codes
 /*  96 */ _("Left bracket missing after slash with atan"), // read_atan
 /*  97 */ _("Left bracket missing after unary operation name"), // read_unary
@@ -220,4 +222,10 @@ char * _rs274ngc_errors[] = {
 /* 195 */ _("Z value unspecified in xy plane canned cycle"), // convert_cycle_xy
 /* 196 */ _("Zero or negative argument to ln"), // execute_unary
 /* 197 */ _("Zero radius arc"), // arc_data_ijk
+/* 198 */ _("K word missing with g33"), // check_other_codes
+/* 199 */ _("F word used with a g33"), // check_other_codes
+/* 200 */ _("G33 not supported"), // convert_straight
+/* 201 */ _("Canned cycles not supported"), // check_other_codes
+/* 202 */ _("Unknown error"), // dummy
 _("The End")};
+// *INDENT-ON*

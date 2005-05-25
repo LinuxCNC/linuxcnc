@@ -199,8 +199,36 @@
 #define NCE_Z_VALUE_UNSPECIFIED_IN_XY_PLANE_CANNED_CYCLE 195
 #define NCE_ZERO_OR_NEGATIVE_ARGUMENT_TO_LN 196
 #define NCE_ZERO_RADIUS_ARC 197
+#define NCE_K_WORD_MISSING_WITH_G33 198
+#define NCE_F_WORD_USED_WITH_G33 199
+#define NCE_G33_NOT_SUPPORTED 200
+#define NCE_CANNED_CYCLES_NOT_SUPPORTED 201
 
 #define RS274NGC_MIN_ERROR 3
-#define RS274NGC_MAX_ERROR 197
+#define RS274NGC_MAX_ERROR 202
+
+/*
+  Modification history:
+
+  $Log$
+  Revision 1.2.14.2  2005/05/25 18:41:56  paul_c
+  Lost a few of the sanity checks on P & Q words during the merge - Some of the
+  canned cycles will fault out if passed a negative value (as will G04). Also
+  gained a few unwanted #ifdefs around some of the M functions - These should be
+  stubbed in the canonicals rather than the interpreter.
+
+  Revision 1.6  2005/05/23 01:54:49  paul_c
+  Missed a few files in the last effort....
+
+  Revision 1.5  2005/05/23 00:29:12  paul_c
+  Remove any last trace of those M$ line terminators
+
+  Revision 1.4  2005/05/04 04:50:37  jmkasunich
+  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
+
+  Revision 1.3  2005/04/27 20:03:13  proctor
+  Changed NCE_M_CODE_GREATER_THAN_99 to NCE_M_CODE_GREATER_THAN_199
+
+*/
 
 #endif /* RS274NGC_RETURN_H */
