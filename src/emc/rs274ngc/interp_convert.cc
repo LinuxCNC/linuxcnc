@@ -2221,6 +2221,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   int index;
   char *line;
   int length;
+  int status;
 
   if (block->m_modes[4] == 0) {
     PROGRAM_STOP();
@@ -2232,9 +2233,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   } else if ((block->m_modes[4] == 2) || (block->m_modes[4] == 30)) {   /* reset stuff here */
 
 /*1*/
-  // Call G92.1 - This replaces a block of identical code that was here..
-    CHK((convert_axis_offsets(G_92_1, block, settings) != RS274NGC_OK),
-        NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60);
+    // Call for G92.1 moved..
 
 /*2*/ if (settings->plane != CANON_PLANE_XY) {
       SELECT_PLANE(CANON_PLANE_XY);
@@ -2258,6 +2257,12 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 /*6*/
     settings->cutter_comp_side = OFF;
     settings->program_x = UNKNOWN;
+
+/*1*/
+  /* Call G92.1 - This replaces a block of identical code that was under
+     section #1. Moved the call down to after cutter comp is turned off
+     otherwise convert_axis_offsets() will throw an error. */
+    CHP(convert_axis_offsets(G_92_1, block, settings));
 
 /*7*/ STOP_SPINDLE_TURNING();
     settings->spindle_turning = CANON_STOPPED;
