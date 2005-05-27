@@ -1,0 +1,17 @@
+##############################################################################
+
+                   bdi-4 branch notes.
+
+ $Author$
+ $Date$
+
+##############################################################################
+
+  The sources in this branch were committed as a stop-gap measure in order
+  to meet the requirements for compiling with a 2.6 kernel. Now that the
+  HEAD of emc2 this branch can now be sidelined.
+
+  All further development should be targeted at HEAD or one of the other
+  sanctioned branches. The bdi-4 branch should only receive minor bug fixes.
+
+##############################################################################
