@@ -50,11 +50,6 @@ linkps stepgen.2.dir  Zdir
 #setp stepgen.1.position-scale 8000
 #setp stepgen.2.position-scale 8000
 
-# set scaling - 200 steps / mm = 5080 steps/in
-#setp stepgen.0.position-scale 5080
-#setp stepgen.1.position-scale 5080
-#setp stepgen.2.position-scale 5080
-
 # set scaling - get value from ini file
 setp stepgen.0.position-scale [AXIS_0]INPUT_SCALE
 setp stepgen.1.position-scale [AXIS_1]INPUT_SCALE
