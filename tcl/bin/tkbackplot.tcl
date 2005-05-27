@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec bin/emcsh "$0" "$@"
+exec plat/UNKNOWN_PLAT/bin/emcsh "$0" "$@"
 
 # This is plot processes for tkemc popup under the view menu of tkemc.
 # This software is public domain. May 2000, Ray Henry, rehenry@up.net
@@ -420,13 +420,23 @@ set zlast 0
 set plotcolor brown
 
 proc updatePlot {} {
-    global size screen
+    global size screen unitsetting
     global xdir ydir zdir
     global xnext ynext znext yrnext zrnext xlast ylast zlast
     global xoffset yoffset zoffset xycosangle xysinangle
     global programfiletext posdigit0 posdigit1 posdigit2 activeLine plotcolor
     global 3dxnext 3dynext 3dznext 3dyrnext 3dylast 3dxlast 3dzlast 3dyrlast
 
+    # hack to divide scale for mm plotting
+    if {$unitsetting == "(mm)" } {
+        set scaler 25.4
+    } else {
+        set scaler 1
+    }
+    set posdigitx0 [expr $posdigit0 / $scaler]
+    set posdigitx1 [expr $posdigit1 / $scaler]
+    set posdigitx2 [expr $posdigit2 / $scaler]
+    
     # Color plot line by setting active line to upcase thisstring
         set thisstring [string toupper [$programfiletext get $activeLine.0 $activeLine.end]]
     # Search thisstring for g0-3 but make modal with no else
@@ -446,9 +456,9 @@ proc updatePlot {} {
     }
 
     if {$size < 1} {set size 1} {
-        set xnext [expr $xoffset + ($posdigit0 * $size * $xdir)]
-        set ynext [expr $yoffset + ($posdigit1 * $size * $ydir)]
-        set znext [expr $zoffset + ($posdigit2 * $size * $zdir)]
+        set xnext [expr $xoffset + ($posdigitx0 * $size * $xdir)]
+        set ynext [expr $yoffset + ($posdigitx1 * $size * $ydir)]
+        set znext [expr $zoffset + ($posdigitx2 * $size * $zdir)]
 
         if {$xlast != $xnext || $ylast != $ynext || $zlast != $znext} {
         # these routines reverse y direction, plot xy and move tool
