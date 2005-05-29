@@ -624,11 +624,23 @@ ipcs >$DEBUG_FILE
 
 sleep 1
 
+# exporting the TCL dir so mini/tkemc find subprograms
+export EMC2_TCL_DIR
+
 # Run display in foreground
 echo "Starting EMC DISPLAY program: $EMCDISPLAY" >$PRINT_FILE
 case $EMCDISPLAY in
   tkemc)
     # tkemc is in the tcl directory, not the bin directory
+    if [ ! -x $EMC2_TCL_DIR/$EMCDISPLAY.tcl ] ; then
+	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl"
+	Cleanup
+	exit 1
+    fi
+    $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE
+  ;;
+  mini)
+    # mini is in the tcl directory, not the bin directory
     if [ ! -x $EMC2_TCL_DIR/$EMCDISPLAY.tcl ] ; then
 	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl"
 	Cleanup
