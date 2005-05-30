@@ -16,3 +16,12 @@ linksp Ydir  parport.0.pin-04-out
 linksp Zstep parport.0.pin-07-out
 linksp Zdir  parport.0.pin-06-out
 
+# create a signal for "spindle on"
+newsig spindle_on bit
+
+# connect it to the iocontroller
+linksp spindle_on iocontrol.0.spindle_on
+# connect it to a physical pin
+linksp spindle_on parport.0.pin-10-out
+
+
