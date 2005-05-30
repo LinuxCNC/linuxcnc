@@ -339,22 +339,24 @@ typedef struct {
     signed long newaddval;	/* desired freq generator add value */
     signed long addval;		/* actual frequency generator add value */
     unsigned long accum;	/* frequency generator accumulator */
-    double old_pos_cmd;		/* previous position command */
+    double old_pos_cmd;		/* previous position command (counts) */
     union {
 	st0_t st0;		/* working data for step type 0 */
 	st2_t st2;		/* working data for step types 2 and up */
     } wd;
     hal_bit_t *phase[5];	/* pins for output signals */
-    hal_s32_t rawcount;		/* param: current position (feedback) */
-    hal_s32_t *count;		/* captured binary count value */
-    hal_float_t pos_scale;	/* parameter: scaling factor for pos */
-    hal_float_t *pos_cmd;	/* scaled position command (float) */
-    hal_float_t *pos_fb;	/* scaled position feedback (float) */
-    hal_float_t pos_err;	/* position error, in counts */
-    hal_float_t vel_err;	/* velocity error, in counts per sec */
-    hal_float_t freq;		/* parameter: frequency command */
-    hal_float_t maxfreq;	/* parameter: max frequency in Hz */
-    hal_float_t maxaccel;	/* parameter: max accel rate in Hz/sec */
+    hal_s32_t rawcount;		/* param: position feedback in counts */
+    hal_s32_t *count;		/* pin: captured feedback in counts */
+    hal_float_t pos_scale;	/* param: steps per position unit */
+    float old_scale;		/* stored scale value */
+    double scale_recip;		/* reciprocal value used for scaling */
+    hal_float_t *pos_cmd;	/* pin: position command (position units) */
+    hal_float_t *pos_fb;	/* pin: position feedback (position units) */
+    hal_float_t pos_err;	/* param: position error, (steps) */
+    hal_float_t vel_err;	/* param: velocity error (steps/sec) */
+    hal_float_t freq;		/* param: frequency command */
+    hal_float_t maxvel;		/* param: max velocity, (pos units/sec) */
+    hal_float_t maxaccel;	/* param: max accel (pos units/sec^2) */
 } stepgen_t;
 
 /* ptr to array of stepgen_t structs in shared memory, 1 per channel */
@@ -784,6 +786,18 @@ static void update_freq(void *arg, long period)
     stepgen = arg;
     /* loop thru generators */
     for (n = 0; n < num_chan; n++) {
+	/* check for scale change */
+	if ( stepgen->pos_scale != stepgen->old_scale ) {
+	    /* get ready to detect future scale changes */
+	    stepgen->old_scale = stepgen->pos_scale;
+	    /* validate the new scale value */
+	    if ((stepgen->pos_scale < 1e-20) && (stepgen->pos_scale > -1e-20)) {
+		/* value too small, divide by zero is a bad thing */
+		stepgen->pos_scale = 1.0;
+	    }
+	    /* we will need the reciprocal */
+	    stepgen->scale_recip = 1.0 / stepgen->pos_scale;
+	}
 	/* calculate frequency limit */
 	if (stepgen->wd.st0.step_type == 0) {
 	    /* stepping type 0 limit depends on timing params */
@@ -796,18 +810,17 @@ static void update_freq(void *arg, long period)
 	} else {
 	    max_freq = maxf;
 	}
-	/* check for illegal (negative) or zero maxfreq parameter */
-	if (stepgen->maxfreq <= 0.0) {
+	if (stepgen->maxvel <= 0.0) {
 	    /* set to zero if negative */
-	    stepgen->maxfreq = 0.0;
+	    stepgen->maxvel = 0.0;
 	} else {
-	    /* parameter is non-zero, compare to max_freq */
-	    if (stepgen->maxfreq > max_freq) {
+	    /* parameter is non-zero, compare to max_vel */
+	    if (stepgen->maxvel > (max_freq * stepgen->scale_recip)) {
 		/* parameter is too high, lower it */
-		stepgen->maxfreq = max_freq;
+		stepgen->maxvel = max_freq * stepgen->scale_recip;
 	    } else {
 		/* lower limit to match parameter */
-		max_freq = stepgen->maxfreq;
+		max_freq = stepgen->maxvel * stepgen->pos_scale;
 	    }
 	}
 	/* set internal accel limit to its absolute max, which is
@@ -824,12 +837,12 @@ static void update_freq(void *arg, long period)
 	    stepgen->maxaccel = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to max_ac */
-	    if (stepgen->maxaccel > max_ac) {
+	    if (stepgen->maxaccel > (max_ac * stepgen->scale_recip)) {
 		/* parameter is too high, lower it */
-		stepgen->maxaccel = max_ac;
+		stepgen->maxaccel = max_ac * stepgen->scale_recip;
 	    } else {
 		/* lower limit to match parameter */
-		max_ac = stepgen->maxaccel;
+		max_ac = stepgen->maxaccel * stepgen->pos_scale;
 	    }
 	}
 	/* compute a value that will be used later */
@@ -903,8 +916,20 @@ static void update_pos(void *arg, long period)
     for (n = 0; n < num_chan; n++) {
 	/* capture raw counts to latches */
 	*(stepgen->count) = stepgen->rawcount;
+	/* check for change in scale value */
+	if ( stepgen->pos_scale != stepgen->old_scale ) {
+	    /* get ready to detect future scale changes */
+	    stepgen->old_scale = stepgen->pos_scale;
+	    /* validate the new scale value */
+	    if ((stepgen->pos_scale < 1e-20) && (stepgen->pos_scale > -1e-20)) {
+		/* value too small, divide by zero is a bad thing */
+		stepgen->pos_scale = 1.0;
+	    }
+	    /* we will need the reciprocal */
+	    stepgen->scale_recip = 1.0 / stepgen->pos_scale;
+	}
 	/* scale count to make floating point position */
-	*(stepgen->pos_fb) = *(stepgen->count) / stepgen->pos_scale;
+	*(stepgen->pos_fb) = *(stepgen->count) * stepgen->scale_recip;
 	/* move on to next channel */
 	stepgen++;
     }
@@ -1001,8 +1026,8 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	return retval;
     }
     /* export parameter for max frequency */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.maxfreq", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->maxfreq), comp_id);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.maxvel", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(addr->maxvel), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1013,12 +1038,14 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	return retval;
     }
     /* set default parameter values */
-    addr->pos_scale = 100.0;
+    addr->pos_scale = 1.0;
+    addr->old_scale = 1.0;
+    addr->scale_recip = 1.0;
     addr->freq = 0.0;
     addr->pos_err = 0.0;
     addr->vel_err = 0.0;
     addr->old_pos_cmd = 0.0;
-    addr->maxfreq = 0.0;
+    addr->maxvel = 0.0;
     addr->maxaccel = 0.0;
     addr->wd.st0.step_type = step_type;
     /* init the step generator core to zero output */
