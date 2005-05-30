@@ -1385,22 +1385,19 @@ CANON_POSITION GET_EXTERNAL_POSITION(void)
   canonEndPoint.x = FROM_EXT_LEN(pos.tran.x);
   canonEndPoint.y = FROM_EXT_LEN(pos.tran.y);
   canonEndPoint.z = FROM_EXT_LEN(pos.tran.z);
-  canonEndPoint.z = FROM_EXT_LEN(pos.tran.z);
 
   canonEndPoint.a = FROM_EXT_ANG(pos.a);
   canonEndPoint.b = FROM_EXT_ANG(pos.b);
   canonEndPoint.c = FROM_EXT_ANG(pos.c);
 
   // now calculate position in program units, for interpreter
-  position.x = TO_PROG_LEN(canonEndPoint.x) - programOrigin.x;
-  position.y = TO_PROG_LEN(canonEndPoint.y) - programOrigin.y;
-  position.z = TO_PROG_LEN(canonEndPoint.z) - programOrigin.z;
-  position.z -= TO_PROG_LEN(currentToolLengthOffset) - programOrigin.z;
-  position.z -= currentToolLengthOffset;
+  position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x);
+  position.y = TO_PROG_LEN(canonEndPoint.y - programOrigin.y);
+  position.z = TO_PROG_LEN(canonEndPoint.z - programOrigin.z - currentToolLengthOffset);
 
-  position.a = TO_PROG_ANG(canonEndPoint.a) - programOrigin.a;
-  position.b = TO_PROG_ANG(canonEndPoint.b) - programOrigin.b;
-  position.c = TO_PROG_ANG(canonEndPoint.c) - programOrigin.c;
+  position.a = TO_PROG_ANG(canonEndPoint.a - programOrigin.a);
+  position.b = TO_PROG_ANG(canonEndPoint.b - programOrigin.b);
+  position.c = TO_PROG_ANG(canonEndPoint.c - programOrigin.c);
 
   return position;
 }
