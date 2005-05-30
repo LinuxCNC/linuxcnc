@@ -77,8 +77,4 @@ $(LIB_DIR)/libpm.a: \
 	$(AR) $(ARFLAGS) $@ $^
 	ranlib $@
 
-kclean:
-	- rm -f .*.cmd *.o* *.mod.* *.ko
-	- rm -fR .tmp_versions 
-
-.PHONY: all clean install indent depend headers
+.PHONY: all clean kclean install indent depend headers
