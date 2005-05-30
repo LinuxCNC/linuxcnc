@@ -1250,22 +1250,19 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     canonEndPoint.x = FROM_EXT_LEN(pos.tran.x);
     canonEndPoint.y = FROM_EXT_LEN(pos.tran.y);
     canonEndPoint.z = FROM_EXT_LEN(pos.tran.z);
-    canonEndPoint.z = FROM_EXT_LEN(pos.tran.z);
 
     canonEndPoint.a = FROM_EXT_ANG(pos.a);
     canonEndPoint.b = FROM_EXT_ANG(pos.b);
     canonEndPoint.c = FROM_EXT_ANG(pos.c);
 
     // now calculate position in program units, for interpreter
-    position.x = TO_PROG_LEN(canonEndPoint.x) - programOrigin.x;
-    position.y = TO_PROG_LEN(canonEndPoint.y) - programOrigin.y;
-    position.z = TO_PROG_LEN(canonEndPoint.z) - programOrigin.z;
-    position.z -= TO_PROG_LEN(currentToolLengthOffset) - programOrigin.z;
-    position.z -= currentToolLengthOffset;
+    position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x);
+    position.y = TO_PROG_LEN(canonEndPoint.y - programOrigin.y);
+    position.z = TO_PROG_LEN(canonEndPoint.z - programOrigin.z - currentToolLengthOffset);
 
-    position.a = TO_PROG_ANG(canonEndPoint.a) - programOrigin.a;
-    position.b = TO_PROG_ANG(canonEndPoint.b) - programOrigin.b;
-    position.c = TO_PROG_ANG(canonEndPoint.c) - programOrigin.c;
+    position.a = TO_PROG_ANG(canonEndPoint.a - programOrigin.a);
+    position.b = TO_PROG_ANG(canonEndPoint.b - programOrigin.b);
+    position.c = TO_PROG_ANG(canonEndPoint.c - programOrigin.c);
 
     return position;
 }
@@ -1618,6 +1615,10 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.13  2005/05/30 00:33:26  cradek
+  fix patch brought forward incorrectly from emc1.  This is for the
+  problem with velocity on g0 being too high when using g54.
+
   Revision 1.12  2005/05/29 23:49:41  paul_c
   Fix a bug with the external position update routine - Another one found by Chris Radek.
 
