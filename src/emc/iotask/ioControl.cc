@@ -27,8 +27,9 @@
 #include "rtapi.h"              /* rtapi_print_msg */
 #include "rcs.hh"               /* RCS_CMD_CHANNEL */
 #include "emc.hh"               /* EMC NML */
-#include "emcglb.h"             /* EMC_NMLFILE, EMC_INIFILE */
+#include "emcglb.h"             /* EMC_NMLFILE, EMC_INIFILE, TOOL_TABLE_FILE */
 #include "inifile.hh"            /* INIFILE */
+#include "initool.hh"		/* iniTool() */
 
 static RCS_CMD_CHANNEL * emcioCommandBuffer = 0;
 static RCS_CMD_MSG * emcioCommand = 0;
@@ -226,6 +227,7 @@ static int loadToolTable(const char *filename, CANON_TOOL_TABLE toolTable[])
     char buffer[CANON_TOOL_ENTRY_LEN];
     const char *name;
     
+    
     // check filename
     if (filename[0] == 0) {
 	name = TOOL_TABLE_FILE;
@@ -281,7 +283,6 @@ static int loadToolTable(const char *filename, CANON_TOOL_TABLE toolTable[])
 
         if (4 != sscanf(buffer, "%d %d %lf %lf", &pocket, &id, &length, &diameter)) {
             // bad entry-- skip
-	    rtapi_print("IO: bad pocket entry %d", pocket);
             continue;
         }
         else {
@@ -623,6 +624,12 @@ int main(int argc, char * argv[])
     return -1;
   }
 
+  // used only for getting TOOL_TABLE_FILE out of the ini file
+  if (0 != iniTool(EMC_INIFILE)) {
+    rcs_print_error("iniTool failed.\n");
+    return -1;
+  }
+
   done = 0;
   /* Register the routine that catches the SIGINT signal */
   signal(SIGINT, quit);
@@ -675,6 +682,9 @@ int main(int argc, char * argv[])
     }
 
     type = emcioCommand->type;
+
+    emcioStatus.status = RCS_DONE;
+
     switch (type) {
     case 0:
       break;
@@ -714,18 +724,18 @@ int main(int argc, char * argv[])
 
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
-      //FIXME should check for errors
-      loadToolTable(((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->file,emcioStatus.tool.toolTable);
+      if (0 != loadToolTable(((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->file, emcioStatus.tool.toolTable))
+        emcioStatus.status=RCS_ERROR;
       break;
 
     case EMC_TOOL_SET_OFFSET_TYPE:
-      rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
-      //FIXME should check for errors
+      rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_SET_OFFSET length=%lf diameter=%lf\n",((EMC_TOOL_SET_OFFSET *) emcioCommand)->length,((EMC_TOOL_SET_OFFSET *) emcioCommand)->diameter);
       emcioStatus.tool.toolTable[((EMC_TOOL_SET_OFFSET *) emcioCommand)->tool].length = 
         ((EMC_TOOL_SET_OFFSET *) emcioCommand)->length;
       emcioStatus.tool.toolTable[((EMC_TOOL_SET_OFFSET *) emcioCommand)->tool].diameter = 
         ((EMC_TOOL_SET_OFFSET *) emcioCommand)->diameter;
-      //FIXME save tool table
+      if (0 != saveToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable))
+        emcioStatus.status=RCS_ERROR;
       break;
 
     case EMC_SPINDLE_INIT_TYPE:
@@ -983,8 +993,14 @@ int main(int argc, char * argv[])
       *(iocontrol_data->lube) = 0;
       break;
 
+    //FIXME pretty wierd for DEBUG level to be set by the iocontroller
+    case EMC_SET_DEBUG_TYPE:
+      rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SET_DEBUG\n");
+      EMC_DEBUG = ((EMC_SET_DEBUG *) emcioCommand)->debug;
+      break;
+
     default:
-      rtapi_print("unknown command %s\n", emcSymbolLookup(type));
+      rtapi_print("IO: unknown command %s\n", emcSymbolLookup(type));
       break;
     } /* switch (type) */
 
@@ -992,7 +1008,8 @@ int main(int argc, char * argv[])
     // ack for the received command
     emcioStatus.command_type = type;
     emcioStatus.echo_serial_number = emcioCommand->serial_number;
-    emcioStatus.status = RCS_DONE;
+    //set above, to allow some commands to fail this
+    //emcioStatus.status = RCS_DONE;
     emcioStatus.heartbeat++;
     emcioStatusBuffer->write(&emcioStatus);
     
