@@ -138,19 +138,6 @@ static int emcIoNmlGet()
   return retval;
 }
 
-/********************************************************************
-*
-* Description: iniLoad(const char *filename)
-*		Extracts the settings from the specified ini file.
-*
-* Return Value: Zero on success or -1 if file not found.
-*
-* Side Effects: Default setting used if the parameter not found in
-*		the ini file.
-*
-* Called By: main()
-*
-********************************************************************/
 static int iniLoad(const char *filename)
 {
   INIFILE inifile;
@@ -215,6 +202,158 @@ static int iniLoad(const char *filename)
 
   return 0;
 }
+
+
+
+/********************************************************************
+*
+* Description: loadToolTable(const char *filename, CANON_TOOL_TABLE toolTable[])
+*		Loads the tool table from file filename into toolTable[] array.
+*		  Array is CANON_TOOL_MAX + 1 entries, since 0 is included.
+*
+* Return Value: Zero on success or -1 if file not found.
+*
+* Side Effects: Default setting used if the parameter not found in
+*		the ini file.
+*
+* Called By: main()
+*
+********************************************************************/
+static int loadToolTable(const char *filename, CANON_TOOL_TABLE toolTable[])
+{
+    int t;
+    FILE *fp;
+    char buffer[CANON_TOOL_ENTRY_LEN];
+    const char *name;
+    
+    // check filename
+    if (filename[0] == 0) {
+	name = TOOL_TABLE_FILE;
+    }
+    else {
+	// point to name provided
+	name = filename;
+    }
+
+    // open tool table file
+    if (NULL == (fp = fopen(name, "r"))) {
+	// can't open file
+	fclose (fp);
+	return -1;
+    }
+
+    // clear out tool table
+    for (t = 0; t <= CANON_TOOL_MAX; t++) {
+	// unused tools are 0, 0.0, 0.0
+	toolTable[t].id = 0;
+	toolTable[t].length = 0.0;
+	toolTable[t].diameter = 0.0;
+    }
+
+    /*
+     Override 0's with codes from tool file
+     File format is:
+
+     <header>
+     <pocket # 0..CANON_TOOL_MAX> <FMS id> <length> <diameter>
+     ...
+
+    */
+
+    // read and discard header
+    if (NULL == fgets(buffer, 256, fp)) {
+        // nothing in file at all
+        rtapi_print("IO: toolfile exists, but is empty\n");
+        fclose(fp);
+        return -1;
+    }
+
+    while (!feof(fp)) {
+        int pocket;
+        int id;
+        double length;
+        double diameter;
+
+        // just read pocket, ID, and length offset
+        if (NULL == fgets(buffer, CANON_TOOL_ENTRY_LEN, fp)) {
+            break;
+        }
+
+        if (4 != sscanf(buffer, "%d %d %lf %lf", &pocket, &id, &length, &diameter)) {
+            // bad entry-- skip
+	    rtapi_print("IO: bad pocket entry %d", pocket);
+            continue;
+        }
+        else {
+            if (pocket < 0 || pocket > CANON_TOOL_MAX) {
+                continue;
+            }
+            else {
+                toolTable[pocket].id = id;
+                toolTable[pocket].length = length;
+                toolTable[pocket].diameter = diameter;
+            }
+        }
+    }
+
+    // close the file
+    fclose(fp);
+
+    return 0;
+}
+
+/********************************************************************
+*
+* Description: saveToolTable(const char *filename, CANON_TOOL_TABLE toolTable[])
+*		Saves the tool table from toolTable[] array into file filename.
+*		  Array is CANON_TOOL_MAX + 1 entries, since 0 is included.
+*
+* Return Value: Zero on success or -1 if file not found.
+*
+* Side Effects: Default setting used if the parameter not found in
+*		the ini file.
+*
+* Called By: main()
+*
+********************************************************************/
+static int saveToolTable(const char *filename, CANON_TOOL_TABLE toolTable[])
+{
+    int pocket;
+    FILE *fp;
+    const char *name;
+
+    // check filename
+    if (filename[0] == 0) {
+        name = TOOL_TABLE_FILE;
+    }
+    else {
+        // point to name provided
+        name = filename;
+    }
+
+    // open tool table file
+    if (NULL == (fp = fopen(name, "w"))) {
+        // can't open file
+        return -1;
+    }
+
+    // write header
+    fprintf(fp, "POC\tFMS\tLEN\t\tDIAM\n");
+
+    for (pocket = 1; pocket <= CANON_TOOL_MAX; pocket++) {
+        fprintf(fp, "%d\t%d\t%f\t%f\n",
+              pocket,
+              toolTable[pocket].id,
+              toolTable[pocket].length,
+              toolTable[pocket].diameter);
+    }
+
+    // close the file
+    fclose(fp);
+
+    return 0;
+}
+
 
 static int done = 0;
 
@@ -546,6 +685,7 @@ int main(int argc, char * argv[])
 
     case EMC_TOOL_INIT_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_INIT\n");
+      loadToolTable(TOOL_TABLE_FILE,emcioStatus.tool.toolTable);
       break;
 
     case EMC_TOOL_HALT_TYPE:
@@ -563,10 +703,29 @@ int main(int argc, char * argv[])
 
     case EMC_TOOL_LOAD_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD\n");
+      emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolPrepped;
+      emcioStatus.tool.toolPrepped = 0;
       break;
 
     case EMC_TOOL_UNLOAD_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_UNLOAD\n");
+      emcioStatus.tool.toolInSpindle = 0;
+      break;
+
+    case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
+      rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
+      //FIXME should check for errors
+      loadToolTable(((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->file,emcioStatus.tool.toolTable);
+      break;
+
+    case EMC_TOOL_SET_OFFSET_TYPE:
+      rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
+      //FIXME should check for errors
+      emcioStatus.tool.toolTable[((EMC_TOOL_SET_OFFSET *) emcioCommand)->tool].length = 
+        ((EMC_TOOL_SET_OFFSET *) emcioCommand)->length;
+      emcioStatus.tool.toolTable[((EMC_TOOL_SET_OFFSET *) emcioCommand)->tool].diameter = 
+        ((EMC_TOOL_SET_OFFSET *) emcioCommand)->diameter;
+      //FIXME save tool table
       break;
 
     case EMC_SPINDLE_INIT_TYPE:
