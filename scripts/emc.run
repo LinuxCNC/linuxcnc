@@ -532,6 +532,16 @@ fi
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$EMC2_DIR/rtlib
 
+# Run emcio in background
+echo "Starting EMC IO program: $EMCIO" >$PRINT_FILE
+if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
+    echo "Can't execute IO program $EMC2_BIN_DIR/$EMCIO"
+    Cleanup
+    exit 1
+fi
+$EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
+
+
 # execute HALCMD config files (if any)
 NUM=1
 MAX=`$INIVAR -ini $INIFILE -var HALFILEMAX -sec HAL`
@@ -576,15 +586,6 @@ done
 # start the realtime stuff ticking
 $HALCMD start
 
-# Run emcio in background
-echo "Starting EMC IO program: $EMCIO" >$PRINT_FILE
-if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
-    echo "Can't execute IO program $EMC2_BIN_DIR/$EMCIO"
-    Cleanup
-    exit 1
-fi
-$EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
-
 # Run emctask in background
 echo "Starting EMC TASK program: $EMCTASK" >$PRINT_FILE
 if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
@@ -593,7 +594,6 @@ if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
     exit 1
 fi
 $EMC2_BIN_DIR/$EMCTASK -ini $INIFILE &
-
 
 # Run emcserver in background, if necessary
 if [ -n "$EMCSERVER" ] ; then
