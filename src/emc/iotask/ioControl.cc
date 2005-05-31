@@ -237,6 +237,9 @@ static int loadToolTable(const char *filename, CANON_TOOL_TABLE toolTable[])
 	name = filename;
     }
 
+    //AJ: for debug reasons
+    //rtapi_print("loadToolTable called with %s\n", filename);
+
     // open tool table file
     if (NULL == (fp = fopen(name, "r"))) {
 	// can't open file
@@ -628,6 +631,10 @@ int main(int argc, char * argv[])
   if (0 != iniTool(EMC_INIFILE)) {
     rcs_print_error("iniTool failed.\n");
     return -1;
+  }
+  
+  if (0 != loadToolTable(TOOL_TABLE_FILE,emcioStatus.tool.toolTable)) {
+    rcs_print_error("can't load tool table.\n");
   }
 
   done = 0;
