@@ -1,0 +1,37 @@
+# HAL config file for Vital Systems MOTENC-100 PCI board
+#
+# install driver
+loadrt hal_motenc
+
+# add functions to servo thread so they will be evaluated
+# every servo period
+addf motenc.0.encoder_read servo-thread 1
+addf motenc.0.dac_write servo-thread 1
+
+# connect position feedback signals to encoders
+linksp Xpos-fb <= motenc.0.enc-00-position
+linksp Ypos-fb <= motenc.0.enc-01-position
+linksp Zpos-fb <= motenc.0.enc-02-position
+
+# set feedback scaling
+# this is just an example
+#   8192 counts/rev * 10 turns per inch = 81920 counts/in
+#   1/81920 = 0.00001220703125 inches per count
+#
+setp motenc.0.enc-00-scale 0.00001220703125 
+setp motenc.0.enc-01-scale 0.00001220703125 
+setp motenc.0.enc-02-scale 0.00001220703125 
+
+# connect PID output signals to DACs
+linksp Xoutput => motenc.0.dac-00-value
+linksp Youtput => motenc.0.dac-01-value
+linksp Zoutput => motenc.0.dac-02-value
+
+# set offset and scale so that +/-1.00 on output 
+# signals is +/-10V at the physical DAC pins
+setp motenc.0.dac-00-gain 10
+setp motenc.0.dac-01-gain 10
+setp motenc.0.dac-02-gain 10
+setp motenc.0.dac-00-offset 0
+setp motenc.0.dac-01-offset 0
+setp motenc.0.dac-02-offset 0
