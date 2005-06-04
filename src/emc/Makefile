@@ -12,7 +12,7 @@ ifeq ($(RTFLAGS),)
 include $(PWD)/../Makefile.inc
 endif
 
-obj-m := motmod.o
+obj-$(CONFIG_MOTMOD) := motmod.o
 
 motmod-objs := kinematics/cubic.o 
 motmod-objs += kinematics/mmxavg.o 

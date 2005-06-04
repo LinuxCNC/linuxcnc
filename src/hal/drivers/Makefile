@@ -26,11 +26,11 @@ ifeq ($(RTFLAGS),)
 include $(PWD)/../../Makefile.inc
 endif
 
-obj-m := hal_parport.o
-obj-m += hal_tiro.o
-obj-m += hal_evoreg.o
-obj-m += hal_motenc.o
-obj-m += hal_skeleton.o
+obj-$(CONFIG_HAL_PARPORT) := hal_parport.o
+obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
+obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
+obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
+obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
 

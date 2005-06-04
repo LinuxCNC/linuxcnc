@@ -7,15 +7,15 @@ ifeq ($(RTFLAGS),)
 include $(PWD)/../../Makefile.inc
 endif
 
-obj-m := blocks.o
-obj-m += debounce.o
-obj-m += encoder.o
-obj-m += encoder_ratio.o
-obj-m += stepgen.o
-obj-m += freqgen.o
-obj-m += siggen.o
-obj-m += pid.o
-obj-m += supply.o
+obj-$(CONFIG_BLOCKS) := blocks.o
+obj-$(CONFIG_DEBOUNCE) += debounce.o
+obj-$(CONFIG_ENCODER) += encoder.o
+obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio.o
+obj-$(CONFIG_STEPGEN) += stepgen.o
+obj-$(CONFIG_FREQGEN) += freqgen.o
+obj-$(CONFIG_SIGGEN) += siggen.o
+obj-$(CONFIG_PID) += pid.o
+obj-$(CONFIG_SUPPLY) += supply.o
 
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
 

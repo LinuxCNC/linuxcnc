@@ -5,7 +5,7 @@ ifeq ($(RTFLAGS),)
 include $(PWD)/../Makefile.inc
 endif
 
-obj-m := rtapi.o
+obj-$(CONFIG_RTAPI) := rtapi.o
 
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
 

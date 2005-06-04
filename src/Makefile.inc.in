@@ -85,4 +85,38 @@ RANLIBFLAGS =
 #
 
 
+#### BEGIN CONFIG ####
+
+# To disable compilation of any particular module,
+# edit the following lines replacing "m" with "n".
+#
+# In time, we may have some fancy dohicky to set
+# these options at compile time.
+
+# usually you need rtapi,
+# so you probably don't want to change this
+CONFIG_RTAPI=m
+
+# emc motion module
+CONFIG_MOTMOD=m
+
+# HAL components
+CONFIG_BLOCKS=m
+CONFIG_DEBOUNCE=m
+CONFIG_ENCODER=m
+CONFIG_ENCODER_RATIO=m
+CONFIG_STEPGEN=m
+CONFIG_FREQGEN=m
+CONFIG_SIGGEN=m
+CONFIG_PID=m
+CONFIG_SUPPLY=m
+
+# HAL drivers
+CONFIG_HAL_PARPORT=m
+CONFIG_HAL_TIRO=m
+CONFIG_HAL_EVOREG=m
+CONFIG_HAL_MOTENC=m
+CONFIG_HAL_SKELETON=m
+
+#### END CONFIG ####
 
