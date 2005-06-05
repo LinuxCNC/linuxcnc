@@ -34,9 +34,27 @@
         N_k,_t(v) = ^{if u[k] <=v < u[k+1]} _{0\ otherwise}
     \f]
     \f[
-        N_k,_t(v) = \frac{v-u[k]}{u[k+t-1]-u[k]}N_k,_t(v)
-        +\frac{u[k+t]-v}{u[k+t]-u[k+1]}N_k\ _+\ _1,_t(v)
+        N_k,_t(v) = \frac{v-u[k]}{u[k+t-1]-u[k]}N_{k,t}(v)
+        +\frac{u[k+t]-v}{u[k+t]-u[k+1]}N_{k+1,t}(v)
     \f]
+ *
+ * The quintic:
+ *
+    \f[ P(t)={a_0+a_1}{t^2+a_3}{t^3+a_4}{t^4+a_5}t^5 \f]
+ *
+ * Where
+ *
+    - \f$ P_0=a_0 \f$
+
+    - \f$ P_f=a_0+a_1t_f+a_2t^2_f+a_3t^3_f +a_4t^4_f+a_5t^5_f \f$
+
+    - \f$ V_0=a_1 \f$
+
+    - \f$ V_f=a_1+2a_2t_f+3a_3t^2_f+4a_4t^3_f+5a_5t^4_f \f$
+
+    - \f$ A_o=2a_2 \f$
+
+    - \f$ A_f=2a_2+6a_3t_f+12a_4t^2_f+20a_5t^3_f \f$
 */
 
 #define ABORT		0xF0000000
