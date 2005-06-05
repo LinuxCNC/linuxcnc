@@ -17,8 +17,27 @@
 #ifndef TRAJECTORY_H
 #define TRAJECTORY_H
 
-#include "math.h"
+#include <math.h>
 #include "vectorlib.h"
+
+/**
+ * Interpolation function
+ *
+    \f[
+        P_(v) = \sum_{k=0}^n
+            P_k N_k,_t(v)
+    \f]
+ *
+ * Where:
+ *
+    \f[
+        N_k,_t(v) = ^{if u[k] <=v < u[k+1]} _{0\ otherwise}
+    \f]
+    \f[
+        N_k,_t(v) = \frac{v-u[k]}{u[k+t-1]-u[k]}N_k,_t(v)
+        +\frac{u[k+t]-v}{u[k+t]-u[k+1]}N_k\ _+\ _1,_t(v)
+    \f]
+*/
 
 #define ABORT		0xF0000000
 #define PAUSED		0x00000001
@@ -38,23 +57,27 @@
 #define WRAP_B		0x00000002
 #define WRAP_C		0x00000004
 
+/**
+ * Struct describing the end pont of each vector.
+ */
 typedef struct {
-    vector3 pos;
-    vector3 rot;
-    double vel;
-    int flags;
-    int id;
+    vector3 pos; /**< Coordinates of the end point */
+    vector3 rot; /**< Center point for an arc */
+    double vel; /**< Velocity for this segment */
+    int flags; /**< @see notes */
+    int id; /**< ID of this segment */
 } point;
 
 typedef struct {
-    vector3 vel;
-    vector3 accel;
-    vector3 jerk;
-    vector3 fuzz;
-    double slice;
-    double dice;
-    int flags;
+    vector3 vel; /**< Maximum velocity for each axis */
+    vector3 accel; /**< Maximum acceleration for each axis */
+    vector3 jerk; /**< Maximum jerk for each axis */
+    vector3 fuzz; /**< Fuzz factor to ignore residual values */
+    double slice; /**< Granularity of the slicing algorthim */
+    double dice; /**< The counterpart to slice */
+    int flags; /**< @see notes */
 } bounds;
+
 
 extern void* traj_init(void); // inits queue - may sleep
 extern int traj_free(void *queue); // nuff said.
