@@ -22,6 +22,7 @@
 
 #define ABORT		0xF0000000
 #define PAUSED		0x00000001
+#define SYNCED		0x00000002
 #define EXACT_STOP	0x00000010
 #define MIN_BLEND	0x00000020
 #define BSPLINE_POINT	0x00000040
@@ -33,9 +34,14 @@
 #define PLANE_G18	0x00002000
 #define PLANE_G19	0x00004000
 
+#define WRAP_A		0x00000001
+#define WRAP_B		0x00000002
+#define WRAP_C		0x00000004
+
 typedef struct {
     vector3 pos;
     vector3 rot;
+    double vel;
     int flags;
     int id;
 } point;
@@ -44,7 +50,19 @@ typedef struct {
     vector3 vel;
     vector3 accel;
     vector3 jerk;
+    vector3 fuzz;
+    double slice;
+    double dice;
+    int flags;
 } bounds;
+
+extern void* traj_init(void); // inits queue - may sleep
+extern int traj_free(void *queue); // nuff said.
+extern int traj_reset(void *queue, bounds *limits); // flushes queue and sets bounds
+extern int traj_append(void *queue, point *p); // adds p to the queue
+extern vector3 traj_point(void *queue, vector3 pos); // interpolates next point from pos
+extern int traj_status(void *queue, int flag); // sets/returns queue status
+extern int traj_id(void *queue); // current segment ID
 
 /* FIX-ME wrappers around new functions - Not all are implemented... */
 extern int tpFull(TP_STRUCT *tp);
