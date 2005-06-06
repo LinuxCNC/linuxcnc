@@ -72,12 +72,11 @@
     \f{equation} f'(s)=-2s^3+3s^2 \f}
 
     \f{equation} a=\frac{(V_b-V_a)}{2\tau}(-6s^2+6s) \f}
+
+    \f{equation} 2\tau=\frac{V_b-V_A}{a_{max}}\frac{3}{2} \f}
  *
  * Finally, for a cycloid function
  *
-
-    \f{equation} 2\tau=\frac{V_b-V_A}{a_{max}}\frac{3}{2} \f}
-
     \f{equation} f'(s)=\sin_2\frac{\pi}{2}s \f}
 
     \f{equation} a=\frac{(V_b-V_a)}{2\tau}\frac{\pi}{2}\sin\pi s \f}
@@ -88,7 +87,7 @@
  * distances for a cycloid blend
  *
     \f{equation}
-        D_1=a_{max}\Delta t^2_{max}\Big (\frac{1}{4} - \frac{1}{\pi^2} \Big )
+        D_1=a_{max}\Delta t^2_{max}\left (\frac{1}{4} - \frac{1}{\pi^2} \right )
             +V_1\Delta t_{max}
     \f}
 
@@ -96,7 +95,7 @@
         D_2=\frac{V^2_b-V^2_a}{2a_{max}} \f}
 
     \f{equation}
-        D_3=a_{max}\Delta t^2_{max} \Big (\frac{1}{4}+\frac{1}{\pi^2} \Big )
+        D_3=a_{max}\Delta t^2_{max} \left (\frac{1}{4}+\frac{1}{\pi^2} \right )
             +V_b\Delta t_{max}
     \f}
  *
@@ -142,6 +141,9 @@
 #define WRAP_A		0x00000001
 #define WRAP_B		0x00000002
 #define WRAP_C		0x00000004
+#define SHORT_A		0x00000010
+#define SHORT_B		0x00000020
+#define SHORT_C		0x00000040
 
 /**
  * Struct describing the end pont of each vector.
@@ -154,6 +156,9 @@ typedef struct {
     int id; /**< ID of this segment */
 } point;
 
+/**
+ * Used internally.
+*/
 typedef struct {
     vector3 vel; /**< Maximum velocity for each axis */
     vector3 accel; /**< Maximum acceleration for each axis */
