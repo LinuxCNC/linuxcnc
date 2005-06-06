@@ -808,6 +808,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
     MESSAGE(comment + start + strlen(MSG_STR));
     return RS274NGC_OK;
   } else if (!strncmp(lc, SYSTEM_STR, strlen(SYSTEM_STR))) {
+/*! \todo Implement SYSTEM commands in the task controller */
 #if 0
 /* FIX-ME Impliment these at a later stage... */
     SYSTEM(comment + start + strlen(SYSTEM_STR));
@@ -1646,6 +1647,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   static char name[] = "convert_m";
   int status;
   int index;
+/*! \todo The M62-65 commands are not currently supported by the IO
+          sub-system */
 #if 0
 /* FIX-ME Impliment these at a later stage... */
   if (block->m_modes[5] == 62) {
@@ -1714,6 +1717,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     settings->feed_override = OFF;
     settings->speed_override = OFF;
   }
+/*! \todo Check that user defined custom M codes are supported.
+          These are M100-199 with optional P & Q parameters.    
+*/
 #if 0
 /* FIX-ME Impliment these at a later stage... */
   /* user-defined M codes */
@@ -2481,6 +2487,9 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
   } else
     if (move == G_33) {
+/*! \todo G33 needs to call the canonical commands to sync spindle
+          to motion - That can not be done until the low level motion
+          can support slaved moves. */
 #ifndef LATHE
       ERM(NCE_G33_NOT_SUPPORTED);
 #else
