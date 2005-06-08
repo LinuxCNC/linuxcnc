@@ -17,6 +17,7 @@
 *     comp = 2 input comparator - out is true if in1 > in0
 *     sum2 = 2 input summer - out = in1 * gain1 + in2 * gain2
 *     mux2 = two input analog mux - out = in1 if sel is true, else in0
+*     mux4 = four input analog mux - out = in<n> based on sel1,sel0
 *     integ = integrator, out = integral of in
 *     ddt = differentiator, out = derivative of in
 *     limit1 = first order limiter (limits output)
@@ -72,6 +73,9 @@ MODULE_PARM_DESC(sum2, "2-input summers");
 static int mux2 = 0;		/* number of 2-input muxes */
 MODULE_PARM(mux2, "i");
 MODULE_PARM_DESC(mux2, "2-input multiplexors");
+static int mux4 = 0;		/* number of 4-input muxes */
+MODULE_PARM(mux4, "i");
+MODULE_PARM_DESC(mux4, "4-input multiplexors");
 static int integ = 0;		/* number of integerators */
 MODULE_PARM(integ, "i");
 MODULE_PARM_DESC(integ, "integrators");
@@ -120,6 +124,16 @@ typedef struct {
     hal_float_t *out;		/* pin: output */
     hal_bit_t *sel;		/* pin: select input */
 } mux2_t;
+
+typedef struct {
+    hal_float_t *in0;		/* pin: input when sel1,0 = 0,0 */
+    hal_float_t *in1;		/* pin: input when sel1,0 = 0,1 */
+    hal_float_t *in2;		/* pin: input when sel1,0 = 1,0 */
+    hal_float_t *in3;		/* pin: input when sel1,0 = 1,1 */
+    hal_float_t *out;		/* pin: output */
+    hal_bit_t *sel0;		/* pin: select input */
+    hal_bit_t *sel1;		/* pin: select input */
+} mux4_t;
 
 typedef struct {
     hal_float_t *in0;		/* pin: input 0 */
@@ -179,6 +193,7 @@ static int export_constant(int num);
 static int export_wcomp(int num);
 static int export_comp(int num);
 static int export_mux2(int num);
+static int export_mux4(int num);
 static int export_sum2(int num);
 static int export_integ(int num);
 static int export_ddt(int num);
@@ -190,6 +205,7 @@ static void constant_funct(void *arg, long period);
 static void wcomp_funct(void *arg, long period);
 static void comp_funct(void *arg, long period);
 static void mux2_funct(void *arg, long period);
+static void mux4_funct(void *arg, long period);
 static void sum2_funct(void *arg, long period);
 static void integ_funct(void *arg, long period);
 static void ddt_funct(void *arg, long period);
@@ -262,6 +278,19 @@ int rtapi_app_main(void)
 	}
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d 2-input muxes\n", mux2);
+    }
+    /* allocate and export 4 input multiplexors */
+    if (mux4 > 0) {
+	for (n = 0; n < mux4; n++) {
+	    if (export_mux4(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_mux4(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d 4-input muxes\n", mux4);
     }
     /* allocate and export 2 input summers */
     if (sum2 > 0) {
@@ -410,6 +439,28 @@ static void mux2_funct(void *arg, long period)
 	*(mux2->out) = *(mux2->in1);
     } else {
 	*(mux2->out) = *(mux2->in0);
+    }
+}
+
+static void mux4_funct(void *arg, long period)
+{
+    mux4_t *mux4;
+
+    /* point to block data */
+    mux4 = (mux4_t *) arg;
+    /* calculate output */
+    if (*(mux4->sel1)) {
+	if (*(mux4->sel0)) {
+	    *(mux4->out) = *(mux4->in3);
+	} else {
+	    *(mux4->out) = *(mux4->in2);
+	}
+    } else {
+	if (*(mux4->sel0)) {
+	    *(mux4->out) = *(mux4->in1);
+	} else {
+	    *(mux4->out) = *(mux4->in0);
+	}
     }
 }
 
@@ -812,6 +863,91 @@ static int export_mux2(int num)
     /* export function */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux2.%d", num);
     retval = hal_export_funct(buf, mux2_funct, mux2, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_mux4(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    mux4_t *mux4;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for 4 input multiplexor */
+    mux4 = hal_malloc(sizeof(mux4_t));
+    if (mux4 == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pins for inputs */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.in0", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(mux4->in0), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.in1", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(mux4->in1), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.in2", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(mux4->in2), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.in3", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(mux4->in3), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.out", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(mux4->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pins for select input */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.sel0", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(mux4->sel0), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.sel1", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(mux4->sel1), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d", num);
+    retval = hal_export_funct(buf, mux4_funct, mux4, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
