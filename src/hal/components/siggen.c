@@ -1,6 +1,6 @@
 /** This file, 'siggen.c', is a HAL component that generates square,
-    triangle, and sine waves.  I expect that it will mostly be used
-    for testing.  It is a realtime component.
+    triangle, sine, cosine, and sawtooth waves.  I expect that it 
+    will mostly be used for testing.  It is a realtime component.
 
     It supports any number of signal generators, as set by the
     insmod parameter 'num_chan'.
@@ -16,8 +16,8 @@
     to +1.0.  If 'amplitude' is 2.5 and 'offset' is 10.0, then
     the outputs will swing from 7.5 to 12.5.
 
-    There are four output pins: 'square', 'triangle', 'sine' and
-    'cosine'.  All four run at the same frequency, amplitude, and
+    There are five output pins: 'square', 'triangle', 'sine', 'cosine',
+    and 'sawtooth'.  All four run at the same frequency, amplitude, and
     offset.
 
     This component exports one function per signal generator,
