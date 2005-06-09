@@ -6,42 +6,40 @@
 #define N ARRAY_SIZE
 #endif
 
-double vector_dot(double *a, double *b);
+extern double vector_dot(double *a, double *b);
 
-double vector_len(double *a);
+extern double vector_len(double *a);
 
-double vector_sqr(double *a);
+extern double vector_sqr(double *a);
 
-void vector_scale(double *v, double *result, double scale);
+extern void vector_scale(double *v, double *result, double scale);
 
-void prf_cbrt(double *a, double *result);
+extern double prf_blend((double *v, double vel, double max_vel, double max_accel);
 
-void prf_copy(double *a, double *result);
+extern void prf_cbrt(double *a, double *result);
 
-void prf_cube(double *a, double *result);
+extern void prf_copy(double *a, double *result);
 
-void prf_cubic(double *a, double *b, double *c, double *d, double *result, double t);
+extern void prf_cube(double *a, double *result);
 
-void prf_multiply(double *a, double *b, double *result);
+extern void prf_multiply(double *a, double *b, double *result);
 
-void prf_negate(double *a, double *result);
+extern void prf_negate(double *a, double *result);
 
-void prf_normalize(double *a, double *result);
+extern void prf_normalize(double *a, double *result);
 
-void prf_pow(double *a, double *result, double p);
+extern void prf_pow(double *a, double *result, double p);
 
-void prf_quintic(double *a, double *b, double *c, double *d, double *f, double *result, double t);
+extern void prf_scale(double *a, double *result, double scale);
 
-void prf_scale(double *a, double *result, double scale);
+extern void prf_sqr(double *a, double *result);
 
-void prf_sqr(double *a, double *result);
+extern void prf_sqrt(double *a, double *result);
 
-void prf_sqrt(double *a, double *result);
+extern void prf_sum(double *a, double *b, double *result);
 
-void prf_sum(double *a, double *b, double *result);
+extern void prf_sub(double *a, double *b, double *result);
 
-void prf_sub(double *a, double *b, double *result);
-
-void prf_interpolate(double *a, double *b, double *result, double d);
+extern void prf_interpolate(double *a, double *b, double *result, double d);
 
 #endif
