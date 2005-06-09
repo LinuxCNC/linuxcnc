@@ -18,7 +18,7 @@
 #define TRAJECTORY_H
 
 #include <math.h>
-#include "vectorlib.h"
+#include "prflib.h"
 
 /** \page Math Functions used by the trajectory planner
  * Interpolation function
@@ -83,8 +83,9 @@
 
     \f{equation} 2\tau=\frac{V_b-Va}{a_{max}}\frac{\pi}{2}\f}
  *
- * S. Mcfarlane gives a number of formulae for calculating the blend times and
- * distances for a cycloid blend
+ * S. Mcfarlane gives a number of formulae for calculating the times and
+ * distances for a cycloid blend. These are primarily concerned with finding
+ * the min and max accelerations 
  *
     \f{equation}
         D_1=a_{max}\Delta t^2_{max}\left (\frac{1}{4} - \frac{1}{\pi^2} \right )
@@ -138,6 +139,9 @@
 #define PLANE_G18	0x00002000
 #define PLANE_G19	0x00004000
 
+/**
+ * A few useful flags to describe how we handle a rotary axis.
+*/
 #define WRAP_A		0x00000001
 #define WRAP_B		0x00000002
 #define WRAP_C		0x00000004
@@ -145,12 +149,16 @@
 #define SHORT_B		0x00000020
 #define SHORT_C		0x00000040
 
+#ifndef N
+#define N MAX_AXIS
+#endif
+
 /**
  * Struct describing the end pont of each vector.
  */
 typedef struct {
-    vector3 pos; /**< Coordinates of the end point */
-    vector3 rot; /**< Center point for an arc */
+    double pos[N]; /**< Coordinates of the end point */
+    double rot[N]; /**< Center point for an arc */
     double vel; /**< Velocity for this segment */
     int flags; /**< @see notes */
     int id; /**< ID of this segment */
@@ -160,10 +168,10 @@ typedef struct {
  * Used internally.
 */
 typedef struct {
-    vector3 vel; /**< Maximum velocity for each axis */
-    vector3 accel; /**< Maximum acceleration for each axis */
-    vector3 jerk; /**< Maximum jerk for each axis */
-    vector3 fuzz; /**< Fuzz factor to ignore residual values */
+    double vel[N]; /**< Maximum velocity for each axis */
+    double accel[N]; /**< Maximum acceleration for each axis */
+    double jerk[N]; /**< Maximum jerk for each axis */
+    double fuzz[N]; /**< Fuzz factor to ignore residual values */
     double slice; /**< Granularity of the slicing algorthim */
     double dice; /**< The counterpart to slice */
     int flags; /**< @see notes */
