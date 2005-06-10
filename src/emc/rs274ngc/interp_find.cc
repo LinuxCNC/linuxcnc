@@ -173,8 +173,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
                                  BB_axis_offset)) : settings->BB_current;
     *CC_p =
       (block->c_flag ==
-       ON) ? (block->c_number - (settings->tool_length_offset +
-                                 settings->CC_origin_offset +
+       ON) ? (block->c_number - (settings->CC_origin_offset +
                                  settings->
                                  CC_axis_offset)) : settings->CC_current;
 #endif
