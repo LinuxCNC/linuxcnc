@@ -80,8 +80,8 @@ include an option for suppressing superfluous commands.
 #include "inifile.hh"		// INIFILE
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
-#include "rs274ngc_errors.cc"
-
+//#include "rs274ngc_errors.cc"
+extern char * _rs274ngc_errors[];
 
 /****************************************************************************/
 
