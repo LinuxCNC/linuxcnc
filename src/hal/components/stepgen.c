@@ -822,12 +822,12 @@ static void update_freq(void *arg, long period)
 	    stepgen->maxvel = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to max_freq */
-	    if ((stepgen->maxvel * stepgen->pos_scale) > max_freq) {
+	    if ((stepgen->maxvel * fabs(stepgen->pos_scale)) > max_freq) {
 		/* parameter is too high, lower it */
-		stepgen->maxvel = max_freq * stepgen->scale_recip;
+		stepgen->maxvel = max_freq * fabs(stepgen->scale_recip);
 	    } else {
 		/* lower max_freq to match parameter */
-		max_freq = stepgen->maxvel * stepgen->pos_scale;
+		max_freq = stepgen->maxvel * fabs(stepgen->pos_scale);
 	    }
 	}
 	/* set internal accel limit to its absolute max, which is
@@ -839,12 +839,12 @@ static void update_freq(void *arg, long period)
 	    stepgen->maxaccel = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to max_ac */
-	    if ((stepgen->maxaccel * stepgen->pos_scale) > max_ac) {
+	    if ((stepgen->maxaccel * fabs(stepgen->pos_scale)) > max_ac) {
 		/* parameter is too high, lower it */
-		stepgen->maxaccel = max_ac * stepgen->scale_recip;
+		stepgen->maxaccel = max_ac * fabs(stepgen->scale_recip);
 	    } else {
 		/* lower limit to match parameter */
-		max_ac = stepgen->maxaccel * stepgen->pos_scale;
+		max_ac = stepgen->maxaccel * fabs(stepgen->pos_scale);
 	    }
 	}
 	/* calculate position command in counts */
@@ -859,6 +859,8 @@ static void update_freq(void *arg, long period)
 	   vel_cmd, curr_vel, max_freq and max_ac, all in counts, 
 	   counts/sec, or counts/sec^2.  Now we just have to do 
 	   something useful with them. */
+	   
+stepgen->pos_err = pos_cmd;
 	/* determine which way we need to ramp to match velocity */
 	if (vel_cmd > curr_vel) {
 	    match_ac = max_ac;
