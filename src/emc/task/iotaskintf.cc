@@ -29,7 +29,7 @@
 #include "inispin.hh"
 #include "initool.hh"
 
-/* FIXME - defining LASER to test motion/IO synch
+/*! \todo FIXME - defining LASER to test motion/IO synch
    Laser currently uses M07 for ON and M09 for OFF - This is incorrect, we
    should be using M03/M05 or a dedicated M code. */
 // #define LASER
@@ -126,8 +126,8 @@ static RCS_CMD_MSG *last_io_command = 0;
 
 /*
   sendCommand() waits until any currently executing command has finished,
-  then writes the given command.
-
+  then writes the given command.*
+/*! \todo 
   FIXME: Not very RCS-like to wait for status done here. (wps)
 */
 static int sendCommand(RCS_CMD_MSG * msg)
@@ -327,7 +327,7 @@ int emcSpindleOn(double speed)
     EMC_SPINDLE_ON spindleOnMsg;
     spindleOnMsg.speed = speed;
     sendCommand(&spindleOnMsg);
-/* FIXME - this needs to be changed to use the HAL */
+/*! \todo FIXME - this needs to be changed to use the HAL */
 /* probably want a spindleSpdMsg */
 #if 0
 /* Convert speed to an analogue voltage */

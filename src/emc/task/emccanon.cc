@@ -508,12 +508,12 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
 
 void START_SPEED_FEED_SYNCH()
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 void STOP_SPEED_FEED_SYNCH()
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)
@@ -523,7 +523,7 @@ void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)
 
 /* Machining Functions */
 
-/* FIXME-- check arc feed against max velocity, using some sort of
+/*! \todo FIXME-- check arc feed against max velocity, using some sort of
    suboptimal check, like tangential distance */
 void ARC_FEED(double first_end, double second_end,
     double first_axis, double second_axis, int rotation,
@@ -748,7 +748,7 @@ void DWELL(double seconds)
 /* Spindle Functions */
 void SPINDLE_RETRACT_TRAVERSE()
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 /* 0 is off, -1 is CCW, 1 is CW; used as flag if settting speed again */
@@ -800,27 +800,27 @@ void STOP_SPINDLE_TURNING()
 
 void SPINDLE_RETRACT()
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 void ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction)
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 void USE_SPINDLE_FORCE(void)
 {
-  // FIXME-- unimplemented
+  /*! \todo FIXME-- unimplemented */
 }
 
 void LOCK_SPINDLE_Z(void)
 {
-  // FIXME-- unimplemented
+  /*! \todo FIXME-- unimplemented */
 }
 
 void USE_NO_SPINDLE_FORCE(void)
 {
-  // FIXME-- unimplemented
+  /*! \todo FIXME-- unimplemented */
 }
 
 /* Tool Functions */
@@ -862,7 +862,7 @@ void CHANGE_TOOL(int slot)
 	linear_move_msg.end.b = 0.0;
 	linear_move_msg.end.c = 0.0;
 	interp_list.append(linear_move_msg);
-	/* FIXME-- orient spindle command goes here. We don't yet have an NML 
+	/*! \todo FIXME-- orient spindle command goes here. We don't yet have an NML 
 	   message for this. */
 	/* first EMC_TOOL_LOAD message tells emcio to take tool out */
 	interp_list.append(load_tool_msg);
@@ -909,7 +909,7 @@ void SELECT_TOOL(int slot)
 
 void CLAMP_AXIS(CANON_AXIS axis)
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 /*
@@ -1009,22 +1009,22 @@ void COMMENT(char *comment)
 
 void DISABLE_FEED_OVERRIDE()
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 void DISABLE_SPEED_OVERRIDE()
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 void ENABLE_FEED_OVERRIDE()
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 void ENABLE_SPEED_OVERRIDE()
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 void FLOOD_OFF()
@@ -1068,7 +1068,7 @@ void MIST_ON()
 
 void PALLET_SHUTTLE()
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 void TURN_PROBE_OFF()
@@ -1085,7 +1085,7 @@ void TURN_PROBE_ON()
 
 void UNCLAMP_AXIS(CANON_AXIS axis)
 {
-    // FIXME-- unimplemented
+    /*! \todo FIXME-- unimplemented */
 }
 
 /* Program Functions */
@@ -1105,7 +1105,7 @@ void PROGRAM_STOP()
 
 void OPTIONAL_PROGRAM_STOP()
 {
-    // FIXME-- implemented as PROGRAM_STOP, that is, no option
+    /*! \todo FIXME-- implemented as PROGRAM_STOP, that is, no option */
     PROGRAM_STOP();
 }
 
@@ -1295,7 +1295,7 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     position.b = TO_PROG_ANG(canonEndPoint.b);
     position.c = TO_PROG_ANG(canonEndPoint.c);
 
-    // FIXME-- back end of hot comment
+    /*! \todo FIXME-- back end of hot comment */
     if (probefile != NULL) {
 	if (last_probed_position.x != position.x ||
 	    last_probed_position.y != position.y ||
@@ -1440,7 +1440,7 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
 	file_name[0] = 0;
 }
 
-#if 0 /* FIXME - this code may no longer be needed */
+#if 0 /*! \todo FIXME - this code may no longer be needed */
 
 /***********************************************************************/
 
@@ -1615,6 +1615,9 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.14  2005/06/12 15:45:45  paul_c
+  todo tags added to all FIXME comments so that they get highlighted when auto-generating docs.
+
   Revision 1.13  2005/05/30 00:33:26  cradek
   fix patch brought forward incorrectly from emc1.  This is for the
   problem with velocity on g0 being too high when using g54.

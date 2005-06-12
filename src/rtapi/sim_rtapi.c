@@ -113,7 +113,7 @@ int rtapi_task_new(rtapi_task_handle * taskptr)
     return RTAPI_INVAL;
 
   /* find an empty entry in the task array */
-  /* FIXME - this is not 100% thread safe.  If another thread
+  /*! \todo  FIXME - this is not 100% thread safe.  If another thread
      calls this function after the first thread breaks out of
      the loop but before it sets the magic number, two tasks
      might wind up assigned to the same structure.  Need an
@@ -126,7 +126,7 @@ int rtapi_task_new(rtapi_task_handle * taskptr)
   task = &(task_array[n]);
 
   /* label as a valid task structure */
-  /* FIXME - end of non-threadsafe window */
+  /*! \todo FIXME - end of non-threadsafe window */
   task->magic = TASK_MAGIC;
 
   /* and return handle to the caller */
@@ -235,7 +235,7 @@ int rtapi_task_pause(rtapi_task_handle task)
   if (task->magic != TASK_MAGIC)
     return RTAPI_BADH;
 
-  /* FIXME - Fred originally had this function return success.
+  /*! \todo FIXME - Fred originally had this function return success.
      I changed it to return Not Supported.  Is that right? */
   return RTAPI_UNSUP;
 }
@@ -249,7 +249,7 @@ int rtapi_task_resume(rtapi_task_handle task)
   if (task->magic != TASK_MAGIC)
     return RTAPI_BADH;
 
-  /* FIXME - Fred originally had this function return success.
+  /*! \todo FIXME - Fred originally had this function return success.
      I changed it to return Not Supported.  Is that right? */
   return RTAPI_UNSUP;
 }
@@ -264,7 +264,7 @@ int rtapi_task_set_period(rtapi_task_handle task,
   if (task->magic != TASK_MAGIC)
     return RTAPI_BADH;
 
-  /* FIXME - Fred originally had this function return success.
+  /*! \todo FIXME - Fred originally had this function return success.
      I changed it to return Not Supported.  Is that right? */
   return RTAPI_UNSUP;
 }
@@ -374,7 +374,7 @@ int rtapi_shmem_delete(rtapi_shmem_handle shmem)
 
   /* destroy the shared memory */
   r2 = shmctl(shmem->id, IPC_RMID, &d);
-  /* FIXME - Fred had the first two arguments reversed.  I changed
+  /*! \todo FIXME - Fred had the first two arguments reversed.  I changed
      them to match the shmctl man page on my machine.  Since his way
      worked, maybe there is difference between different libs, or
      maybe my man page is just wrong. */
@@ -419,7 +419,7 @@ unsigned char rtapi_inb(unsigned int port)
   return 0;
 }
 
-/*
+/*! \todo 
   FIXME - no support for simulated interrupts
 */
 
@@ -444,7 +444,7 @@ int rtapi_disable_interrupt(unsigned int irq)
 }
 
 
-/* FIXME - no support for semaphores */
+/*! \todo FIXME - no support for semaphores */
 
 int rtapi_sem_new(rtapi_sem_handle * semptr)
 {
@@ -472,7 +472,7 @@ int rtapi_sem_try(rtapi_sem_handle sem)
 }
 
 
-/* FIXME - no support for fifos */
+/*! \todo FIXME - no support for fifos */
 
 int rtapi_fifo_new(int key, unsigned long int size,
 		   rtapi_fifo_handle * fifoptr)

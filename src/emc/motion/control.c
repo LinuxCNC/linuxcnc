@@ -30,7 +30,7 @@
 *                  LOCAL VARIABLE DECLARATIONS                         *
 ************************************************************************/
 
-/* FIXME - this is a leftover global, it will eventually go away */
+/*! \todo FIXME - this is a leftover global, it will eventually go away */
 int rehomeAll;
 
 /* these variables have the servo cycle time and 1/cycle time */
@@ -54,7 +54,7 @@ void print_pose ( EmcPose *pos )
 }
 
 
-/* FIXME - debugging - uncomment the following line to log changes in
+/*! \todo FIXME - debugging - uncomment the following line to log changes in
    AXIS_FLAG and MOTION_FLAG */
 // #define WATCH_FLAGS 1
 
@@ -387,7 +387,7 @@ static void process_inputs(void)
 	/* read index pulse from HAL */
 	tmp = *(axis_data->index_pulse);
 	/* detect rising edge of index pulse */
-	/* FIXME - should this be done in the homing function? that is the
+	/*! \todo FIXME - should this be done in the homing function? that is the
 	   only place it is used... */
 	if (tmp && !joint->index_pulse) {
 	    joint->index_pulse_edge = 1;
@@ -420,7 +420,7 @@ static void do_forward_kins(void)
    homed, we don't call the kinematics, instead we set carte_pos_fb to
    the cartesean coordinates of home, as stored in the global worldHome,
    and we set carte_fb_ok to 0 to indicate that the feedback is invalid.
-   FIXME - maybe setting to home isn't the right thing to do.  We need
+\todo  FIXME - maybe setting to home isn't the right thing to do.  We need
    it to be set to home eventually, (right before the first attemt to
    run the kins), but that doesn't mean we should say we're at home
    when we're not.
@@ -442,7 +442,7 @@ static void do_forward_kins(void)
 
 */
 
-/* FIXME FIXME FIXME - need to put a rate divider in here, run it
+/*! \todo FIXME FIXME FIXME - need to put a rate divider in here, run it
    at the traj rate */
 
     double joint_pos[EMCMOT_MAX_AXIS];
@@ -663,7 +663,7 @@ static void set_operating_mode(void)
 	   functions called during the disabled state run at the nominal
 	   trajectory rate rather than the servo rate. It's loaded with
 	   emcmotConfig->interpolationRate when it goes to zero. */
-/* FIXME - interpolation is still under construction */
+/*! \todo FIXME - interpolation is still under construction */
 #if 0
 	interpolationCounter = 0;
 #endif
@@ -797,7 +797,7 @@ static void set_operating_mode(void)
 	    }
 	}
     }
-    /* FIXME - this code is temporary - eventually this function will be
+    /*! \todo FIXME - this code is temporary - eventually this function will be
        cleaned up and simplified, and 'motion_state' will become the master
        for this info, instead of having to gather it from several flags */
     if (!GET_MOTION_ENABLE_FLAG()) {
@@ -1278,7 +1278,7 @@ static void do_homing(void)
 		/* plan a move to home position */
 		joint->free_pos_cmd = joint->home;
 		/* do the move at max speed */
-		/* FIXME - should this be search_vel? or another user
+		/*! \todo FIXME - should this be search_vel? or another user
 		   specified speed? or is a rapid OK? */
 		joint->free_vel_lim = joint->vel_limit;
 		/* start the move */
@@ -1459,7 +1459,7 @@ static void get_pos_cmds(void)
 	    emcmotStatus->overrideLimits = 0;
 	    emcmotDebug->overriding = 0;
 	}
-	/* FIXME - this should run at the traj rate */
+	/*! \todo FIXME - this should run at the traj rate */
 	all_homed = 1;
 	all_at_home = 1;
 	/* copy joint position feedback to local array */
@@ -1658,7 +1658,7 @@ Their exact contents and meaning are as follows:
 */
 
 #if 0
-/* FIXME - disables old code */
+/*! \todo FIXME - disables old code */
 
     /* run axis interpolations and outputs, but only if we're enabled. This
        section is "suppressed" if we're not enabled, although the read/write
@@ -1846,7 +1846,7 @@ Their exact contents and meaning are as follows:
 	   interpolators are not empty.
 
 	   For free mode, emcmotStatus->carte_pos_cmd is unchanged, and needs
-	   to be updated via the forward kinematics. FIXME-- make sure this
+\todo	   to be updated via the forward kinematics. FIXME-- make sure this
 	   happens, and note where in this comment. joints[]->coarse_pos[]
 	   contains the results of the joint trajectory calculations at the
 	   coarse (trajectory) rate, and the interpolators are not empty. */
@@ -1893,12 +1893,12 @@ static void compute_backlash(void)
 	/* determine which way the compensation should be applied */
 	if (joint->vel_cmd > 0.0) {
 	    /* moving "up". apply positive backlash comp */
-	    /* FIXME - the more sophisticated axisComp should be applied
+	    /*! \todo FIXME - the more sophisticated axisComp should be applied
 	       here, if available */
 	    joint->backlash_corr = 0.5 * joint->backlash;
 	} else if (joint->vel_cmd < 0.0) {
 	    /* moving "down". apply negative backlash comp */
-	    /* FIXME - the more sophisticated axisComp should be applied
+	    /*! \todo FIXME - the more sophisticated axisComp should be applied
 	       here, if available */
 	    joint->backlash_corr = -0.5 * joint->backlash;
 	} else {
@@ -1906,7 +1906,7 @@ static void compute_backlash(void)
 	}
 
 	/* filter backlash_corr to avoid position steps */
-	/* FIXME - this is a linear ramp - an S-ramp would be better because
+	/*! \todo FIXME - this is a linear ramp - an S-ramp would be better because
 	   it would limit acceleration */
 	max_delta_pos = joint->vel_limit * servo_period;
 	dist_to_go = joint->backlash_corr - joint->backlash_filt;
@@ -1925,7 +1925,7 @@ static void compute_backlash(void)
     }
 }
 
-/* FIXME - once the HAL refactor is done so that metadata isn't stored
+/*! \todo FIXME - once the HAL refactor is done so that metadata isn't stored
    in shared memory, I want to seriously consider moving some of the
    structures into the HAL memory block.  This will eliminate most of
    this useless copying, and make nearly everything accessible to
@@ -2014,7 +2014,7 @@ static void update_status(void)
 	joint_status = &(emcmotStatus->joint_status[joint_num]);
 	/* copy stuff */
 #ifdef WATCH_FLAGS
-	/* FIXME - this is for debugging */
+	/*! \todo FIXME - this is for debugging */
 	if ( old_joint_flags[joint_num] != joint->flag ) {
 	    rtapi_print ( "Joint %d flag %04X -> %04X\n", joint_num, old_joint_flags[joint_num], joint->flag );
 	    old_joint_flags[joint_num] = joint->flag;
@@ -2033,7 +2033,7 @@ static void update_status(void)
 	joint_status->home_offset = joint->home_offset;
     }
 
-    /* FIXME - the rest of this function is stuff that was apparently
+    /*! \todo FIXME - the rest of this function is stuff that was apparently
        dropped in the initial move from emcmot.c to control.c.  I
        don't know how much is still needed, and how much is baggage.
     */
@@ -2052,7 +2052,7 @@ static void update_status(void)
       emcmotStatus->paused = 1;
     }
 #ifdef WATCH_FLAGS
-    /* FIXME - this is for debugging */
+    /*! \todo FIXME - this is for debugging */
     if ( old_motion_flag != emcmotStatus->motionFlag ) {
 	rtapi_print ( "Motion flag %04X -> %04X\n", old_motion_flag, emcmotStatus->motionFlag );
 	old_motion_flag = emcmotStatus->motionFlag;

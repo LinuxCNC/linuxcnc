@@ -40,7 +40,7 @@ MODULE_DESCRIPTION("Motion Controller for EMC");
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
 
-/* FIXME - find a better way to do this */
+/*! \todo FIXME - find a better way to do this */
 int DEBUG_MOTION = 0;
 MODULE_PARM(DEBUG_MOTION, "i");
 
@@ -50,7 +50,7 @@ MODULE_PARM(key, "i");
 MODULE_PARM_DESC(key, "shared memory key");
 
 #if 0
-/* FIXME - currently HAL has a fixed stacksize of 16384...
+/*! \todo FIXME - currently HAL has a fixed stacksize of 16384...
    the upcoming HAL rewrite may make it a paramater of the
    create_thread call, in which case this will be restored */
 static int EMCMOT_TASK_STACKSIZE = 8192;	/* default stacksize */
@@ -172,7 +172,7 @@ void reportError(const char *fmt, ...)
     /* Don't use the rtapi_snprintf... */
     vsnprintf(error, EMCMOT_ERROR_LEN, fmt, args);
     va_end(args);
-/* FIXME - eventually should print _only_ to the RCS buffer, I think */
+/*! \todo FIXME - eventually should print _only_ to the RCS buffer, I think */
 /* print to the kernel buffer... */
     rtapi_print("%d: ERROR: %s\n", emcmotStatus->heartbeat, error);
 /* print to the RCS buffer... */
@@ -183,7 +183,7 @@ int init_module(void)
 {
     int retval;
 
-    /* FIXME - debug only */
+    /*! \todo FIXME - debug only */
 //    rtapi_set_msg_level(RTAPI_MSG_ALL);
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_module() starting...\n");
@@ -367,7 +367,7 @@ static int init_hal_io(void)
 
     /* initialize machine wide pins and parameters */
     *(emcmot_hal_data->probe_input) = 0;
-    /* FIXME - these don't really need initialized, since they are written
+    /*! \todo FIXME - these don't really need initialized, since they are written
        with data from the emcmotStatus struct */
     emcmot_hal_data->motion_enable = 0;
     emcmot_hal_data->in_position = 0;
@@ -393,7 +393,7 @@ static int init_hal_io(void)
 	    return -1;
 	}
 	/* init axis pins and parameters */
-	/* FIXME - struct members are in a state of flux - make sure to
+	/*! \todo FIXME - struct members are in a state of flux - make sure to
 	   update this - most won't need initing anyway */
 	*(axis_data->amp_enable) = 0;
 	axis_data->home_state = 0;
@@ -595,7 +595,7 @@ static int export_axis(int num, axis_hal_t * addr)
 	return retval;
     }
 
-/* FIXME - these have been temporarily? deleted */
+/*! \todo FIXME - these have been temporarily? deleted */
 #if 0
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.mode", num);
     retval = hal_pin_u32_new(buf, HAL_WR, &(addr->mode), mot_comp_id);
@@ -810,7 +810,7 @@ static int init_comm_buffers(void)
 
     }
 
-    /* FIXME-- add emcmotError */
+    /*! \todo FIXME-- add emcmotError */
 
     /* init min-max-avg stats */
     mmxavgInit(&emcmotDebug->tMmxavg, emcmotDebug->tMmxavgSpace, MMXAVG_SIZE);
@@ -941,7 +941,7 @@ static int init_threads(void)
 	return -1;
     }
 #if 0
-    /* FIXME - currently the traj planner is called from the controller */
+    /*! \todo FIXME - currently the traj planner is called from the controller */
     /* eventually it will be a separate function */
     retval = hal_export_funct("motion-traj-planner", emcmotTrajPlanner, 0	/* arg 
 	 */ , 1 /* uses_fp */ ,
@@ -969,7 +969,7 @@ static int init_threads(void)
 	return -1;
     }
 #if 0
-    /* FIXME - currently traj and handler are all inside the controller */
+    /*! \todo FIXME - currently traj and handler are all inside the controller */
     /* add trajectory planner function to traj thread */
     retval = hal_add_funct_to_thread("motion-traj-planner", "traj-thread", 1);
     if (retval != HAL_SUCCESS) {

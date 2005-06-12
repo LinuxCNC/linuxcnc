@@ -600,7 +600,7 @@ int main(int argc, char * argv[])
 {
   int t;
   NMLTYPE type;
-// FIXME - doesn't seem to be used
+/*! \todo FIXME - doesn't seem to be used */
 //  EMC_TASK_SET_STATE state_msg;
 
   for (t = 1; t < argc; t++) {
@@ -664,11 +664,11 @@ int main(int argc, char * argv[])
   while (! done) {
     // check for inputs from HAL (updates emcioStatus)
     // returns 1 if any of the HAL pins changed from the last time we checked
-    // FIXME
-    // I'm not sure the code here is the NML way to go
-    // if an external ESTOP is activated (or another hal-pin has changed)
-    // a NML message has to be forced to EMC
-    // the way it was done status was only checked at the end of a command
+    /*! \todo FIXME
+       I'm not sure the code here is the NML way to go
+       if an external ESTOP is activated (or another hal-pin has changed)
+       a NML message has to be forced to EMC
+       the way it was done status was only checked at the end of a command */
     if (read_hal_inputs()>0) {
 	emcioStatus.command_type = EMC_IO_STAT_TYPE;
 	emcioStatus.echo_serial_number = emcioCommand->serial_number+1;
@@ -1000,7 +1000,7 @@ int main(int argc, char * argv[])
       *(iocontrol_data->lube) = 0;
       break;
 
-    //FIXME pretty wierd for DEBUG level to be set by the iocontroller
+    /*! \todo FIXME pretty wierd for DEBUG level to be set by the iocontroller */
     case EMC_SET_DEBUG_TYPE:
       rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SET_DEBUG\n");
       EMC_DEBUG = ((EMC_SET_DEBUG *) emcioCommand)->debug;

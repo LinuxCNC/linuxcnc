@@ -116,7 +116,7 @@ static NMLmsg *emcTaskCommand = 0;
 
 // general purpose log file
 static FILE *logFp = NULL;
-#define LOG_FILE "emc.log"	// FIXME-- ini file param
+#define LOG_FILE "emc.log"	/*! \todo FIXME-- ini file param */
 
 // signal handling code to stop main loop
 static int done;
@@ -359,7 +359,7 @@ static EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
 static int interpResumeState = EMC_TASK_INTERP_IDLE;
 static int programStartLine = 0;	// which line to run program from
 // how long the interp list can be
-// FIXME-- make an ini file global
+/*! \todo FIXME-- make an ini file global */
 #define EMC_TASK_INTERP_MAX_LEN 1000
 
 static int stepping = 0;
@@ -779,8 +779,8 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_STEP_TYPE:
 		    // handles case where first action is to step the program
 		    taskPlanRunCmd.line = 1;	// run from start
-		    // FIXME-- can have GUI set this; send a run instead of a 
-		    // step
+		    /*! \todo FIXME-- can have GUI set this; send a run instead of a 
+		    step */
 		    retval = emcTaskIssueCommand(&taskPlanRunCmd);
 		    // issuing an EMC_TASK_PLAN_RUN message clears the
 		    // stepping
@@ -1379,7 +1379,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     int retval = 0;
     int execRetval = 0;
 
-/* FIXME - debug */
+/*! \todo FIXME - debug */
 printf ( "emcTaskIssueCommand()\n" );
     if (0 == cmd) {
 	return 0;
@@ -1567,7 +1567,7 @@ printf ( "emcTaskIssueCommand()\n" );
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
-/* FIXME - debug */
+/*! \todo FIXME - debug */
 printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
 	retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end);
@@ -1767,9 +1767,9 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 
     case EMC_TASK_ABORT_TYPE:
 
-	// FIXME-- duplicate code for abort,
-	// also near end of main, when aborting on subordinate errors,
-	// and in emcTaskExecute()
+	/*! \todo FIXME-- duplicate code for abort,
+	   also near end of main, when aborting on subordinate errors,
+	   and in emcTaskExecute() */
 
 	// abort everything
 	emcTaskAbort();
@@ -1807,9 +1807,9 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 	    emcStatus->task.mode != EMC_TASK_MODE_MANUAL) {
 	    // leaving auto or mdi mode for manual
 
-	    // FIXME-- duplicate code for abort,
-	    // also near end of main, when aborting on subordinate errors,
-	    // and in emcTaskExecute()
+	    /*! \todo FIXME-- duplicate code for abort,
+	       also near end of main, when aborting on subordinate errors,
+	       and in emcTaskExecute() */
 
 	    // abort everything
 	    emcTaskAbort();
@@ -1994,7 +1994,7 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 		emc_symbol_lookup(cmd->type));
 	}
     }
-/* FIXME - debug */
+/*! \todo FIXME - debug */
 printf ( "emcTaskIssueCommand() returning: %d\n", retval );
     return retval;
 }
@@ -2123,9 +2123,9 @@ static int emcTaskExecute(void)
     switch (emcStatus->task.execState) {
     case EMC_TASK_EXEC_ERROR:
 
-	// FIXME-- duplicate code for abort,
-	// also near end of main, when aborting on subordinate errors,
-	// and in emcTaskIssueCommand()
+	/*! \todo FIXME-- duplicate code for abort,
+	   also near end of main, when aborting on subordinate errors,
+	   and in emcTaskIssueCommand() */
 
 	// abort everything
 	emcTaskAbort();
@@ -2794,7 +2794,7 @@ int main(int argc, char *argv[])
 	emcIoUpdate(&emcStatus->io);
 	emcMotionUpdate(&emcStatus->motion);
 	// synchronize subordinate states
-/* FIXME FIXME FIXME - temporarily ignore estop
+/*! \todo FIXME FIXME FIXME - temporarily ignore estop
    make sure to re-enable this code! */
 //#if 0
 	if (emcStatus->io.aux.estop) {
@@ -2825,9 +2825,9 @@ int main(int argc, char *argv[])
 	if (emcStatus->motion.status == RCS_ERROR ||
 	    emcStatus->io.status == RCS_ERROR) {
 
-	    // FIXME-- duplicate code for abort,
-	    // also in emcTaskExecute()
-	    // and in emcTaskIssueCommand()
+	    /*! \todo FIXME-- duplicate code for abort,
+	       also in emcTaskExecute()
+	       and in emcTaskIssueCommand() */
 
 	    if (!taskAborted) {
 		// abort everything
@@ -2980,7 +2980,7 @@ int main(int argc, char *argv[])
 	fclose(logFp);
 	logFp = NULL;
     }
-    // FIXME-- debugging
+    /*! \todo FIXME-- debugging */
     if (emcTaskNoDelay) {
 	printf("cycle times (seconds): %f min, %f max\n", minTime, maxTime);
     }
@@ -2992,6 +2992,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.29  2005/06/12 15:46:01  paul_c
+  todo tags added to all FIXME comments so that they get highlighted when auto-generating docs.
+
   Revision 1.28  2005/05/23 01:54:51  paul_c
   Missed a few files in the last effort....
 

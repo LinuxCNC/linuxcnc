@@ -781,7 +781,7 @@ static double convertAngularUnits(double u)
 	return in_deg * GRAD_PER_DEG;
 	break;
     case ANGULAR_UNITS_AUTO:
-	return in_deg;		// FIXME-- program units always degrees now
+	return in_deg;		/*! \todo FIXME-- program units always degrees now */
 	break;
 
     case ANGULAR_UNITS_CUSTOM:
@@ -1963,7 +1963,7 @@ static int emc_time(ClientData clientdata,
 {
     if (objc == 1) {
 #if defined(LINUX_KERNEL_2_2)
-	// FIXME-- Linux 2.2 has gettimeofday() bug, so return 0
+	/*! \todo FIXME-- Linux 2.2 has gettimeofday() bug, so return 0 */
 	Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
 #else
 	Tcl_SetObjResult(interp, Tcl_NewDoubleObj(etime()));
@@ -2650,7 +2650,7 @@ static int emc_rel_cmd_pos(ClientData clientdata,
 		    position.tran.z - emcStatus->task.origin.tran.z -
 		    emcStatus->task.toolOffset.tran.z));
 	} else {
-	    // FIXME-- no rotational offsets yet
+	    /*! \todo FIXME-- no rotational offsets yet */
 	    if (axis == 3) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
@@ -3726,8 +3726,7 @@ static int emc_display_angular_units(ClientData clientdata,
 	Tcl_SetResult(interp, "grad", TCL_VOLATILE);
 	break;
     case ANGULAR_UNITS_AUTO:
-	Tcl_SetResult(interp, "(deg)", TCL_VOLATILE);	// FIXME-- always
-	// deg?
+	Tcl_SetResult(interp, "(deg)", TCL_VOLATILE);	/*! \todo FIXME-- always deg? */
 	break;
     default:
 	Tcl_SetResult(interp, "custom", TCL_VOLATILE);
@@ -4713,7 +4712,7 @@ int emc_teleop_enable(ClientData clientdata,
 
     Tcl_SetObjResult(interp,
 	Tcl_NewIntObj(emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP));
-    // FIXME
+    /*! \todo FIXME */
     if (EMC_DEBUG & EMC_DEBUG_TRAJ) {
 	printf("emcStatus->motion.traj.mode = %d\n",
 	    emcStatus->motion.traj.mode);
@@ -4731,7 +4730,7 @@ int emc_kinematics_type(ClientData clientdata,
 
     Tcl_SetObjResult(interp,
 	Tcl_NewIntObj(emcStatus->motion.traj.kinematics_type));
-    // FIXME
+    /*! \todo FIXME */
     if (EMC_DEBUG & EMC_DEBUG_TRAJ) {
 	printf("emcStatus->motion.traj.mode = %d\n",
 	    emcStatus->motion.traj.mode);

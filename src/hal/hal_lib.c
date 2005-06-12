@@ -312,7 +312,7 @@ int hal_exit(int comp_id)
     /* get rid of the component */
     free_comp_struct(comp);
 #if 0
-    /* FIXME - this is the beginning of a two pronged approach to managing
+    /*! \todo FIXME - this is the beginning of a two pronged approach to managing
        shared memory.  Prong 1 - re-init the shared memory allocator whenever 
        it is known to be safe.  Prong 2 - make a better allocator that can
        reclaim memory allocated by components when those components are

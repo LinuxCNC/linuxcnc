@@ -29,7 +29,7 @@
 #include "tc.h"
 
 #if 0
-/* FIXME - needed for synchronous I/O */
+/*! \todo FIXME - needed for synchronous I/O */
 /* the byte of output that gets written, persisting across all TC_STRUCTs,
    also referenced in tp.c for aborting */
  unsigned char tcDoutByte = 0;
@@ -78,7 +78,7 @@ int tcInit(TC_STRUCT * tc)
     pmLineInit(&tc->line_abc, zero, zero);
     /* since type is TC_LINEAR, don't need to set circle params */
 #if 0
-/* FIXME - needed for synchronous I/O */
+/*! \todo FIXME - needed for synchronous I/O */
     tc->douts = 0;
     tc->doutstarts = 0;
     tc->doutends = 0;
@@ -346,7 +346,7 @@ int tcRunCycle(TC_STRUCT * tc)
 	newVel = -0.5 * tc->aMax * tc->cycleTime + tc->aMax * sqrt(discr);
     }
 #if 0
-/* FIXME - needed for synchronous I/O */
+/*! \todo FIXME - needed for synchronous I/O */
      if (tc->tcFlag == TC_IS_UNSET) {
 	/* it's the start of this segment, so set any start output bits */
 	if (tc->douts) {
@@ -364,7 +364,7 @@ int tcRunCycle(TC_STRUCT * tc)
 	tc->tcFlag = TC_IS_DONE;
 	/* set any end output bits */
 #if 0
-/* FIXME - needed for synchronous I/O */
+/*! \todo FIXME - needed for synchronous I/O */
 	if (tc->douts) {
 	    /* Fred's original code.. tcDoutByte |= (tc->douts &
 	      tc->doutends); tcDoutByte &= (~tc->douts | tc->doutends);
@@ -959,7 +959,7 @@ PmCartesian tcGetUnitCart(TC_STRUCT * tc)
 }
 
 #if 0
-/* FIXME - needed for synchronous I/O */
+/*! \todo FIXME - needed for synchronous I/O */
 int tcSetDout(TC_STRUCT * tc, int doutIndex, unsigned char starts, unsigned char ends)
 {
     if (0 == tc) {

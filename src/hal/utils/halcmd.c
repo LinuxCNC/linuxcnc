@@ -979,7 +979,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     if ( rtmod_dir == NULL ) {
 	rtmod_dir = getenv ( "HAL_RTMOD_DIR" );
     }
-    /* FIXME - the following is an attempt to locate the directory
+    /*! \todo FIXME - the following is an attempt to locate the directory
        where the HAL modules are stored.  It depends on the emc2
        directory tree being laid out per 'emc2/directory.map'.
        There is probably a better way of doing this... it will
@@ -1010,7 +1010,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	    }
 	}
     }
-    /* FIXME - the following code works if you are anywhere in
+    /*! \todo FIXME - the following code works if you are anywhere in
        the standard emc2 directory tree, but it is a kludge
        that depends on the structure of the tree, and fails
        completely if you run it from elsewhere */

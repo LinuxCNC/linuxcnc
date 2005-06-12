@@ -353,7 +353,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
 #if 0
-/* FIXME - this is part of synchronous I/O*/
+/*! \todo FIXME - this is part of synchronous I/O*/
     if (tp->douts) {
 	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
 	tp->douts = 0;
@@ -423,7 +423,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
 #if 0
-/* FIXME - this is part of synchronous I/O*/
+/*! \todo FIXME - this is part of synchronous I/O*/
     if (tp->douts) {
 	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
 	tp->douts = 0;
@@ -614,7 +614,7 @@ int tpRunCycle(TP_STRUCT * tp)
 	/* first set the motion outputs to the end values for the current
 	   move */
 #if 0
-/* FIXME - this is part of synchronous I/O*/
+/*! \todo FIXME - this is part of synchronous I/O*/
 	if (tp->douts && 0 != thisTc) {
 	    /* Fred's original code.. tcDoutByte |= (thisTc->douts &
 	      thisTc->doutends); tcDoutByte &= (~thisTc->douts |
@@ -700,7 +700,7 @@ EmcPose tpGetPos(TP_STRUCT * tp)
 
     if (0 == tp) {
 
-	/* FIXME - this is a bug waiting to happen... it returns a pointer to
+	/*! \todo FIXME - this is a bug waiting to happen... it returns a pointer to
 	   an EmcPose structure that is declared locally, ie. on the stack!
 	   That struct goes out of scope as soon as this function returns.  I
 	   expect the only reason it hasn't caused problems is that nobody
@@ -801,11 +801,11 @@ void tpPrint(TP_STRUCT * tp)
 
 
 #if 0
-/* FIXME - this is part of synchronous I/O */
+/*! \todo FIXME - this is part of synchronous I/O */
 
 int tpSetAout(TP_STRUCT *tp, unsigned char index, double start, double end)
 {
-    /* FIXME-- unimplemented due to large size required for doubles */
+    /*! \todo FIXME-- unimplemented due to large size required for doubles */
     return 0;
 }
 

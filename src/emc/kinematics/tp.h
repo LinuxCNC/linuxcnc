@@ -51,7 +51,7 @@ typedef struct {
     int aborting;
     int pausing;
 #if 0
-/* FIXME - needed for synchronous I/O */
+/*! \todo FIXME - needed for synchronous I/O */
     unsigned char douts;        /* mask for douts to set */
     int doutIndex;              /* index for dout values */
     unsigned char doutstart;    /* mask for dout start vals */
@@ -90,7 +90,7 @@ extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
 extern void tpPrint(TP_STRUCT * tp);
 #if 0
-/* FIXME - needed for synchronous I/O */
+/*! \todo FIXME - needed for synchronous I/O */
 extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
 extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end);
 #endif

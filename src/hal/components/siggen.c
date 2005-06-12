@@ -65,7 +65,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
- /* FIX ME - Need an ugly hack here to get rid of compile warnings. */
+/*! \todo  FIX ME - Need an ugly hack here to get rid of compile warnings. */
 #ifdef __attribute_used__
 #undef __attribute_used__
 #endif
@@ -124,9 +124,9 @@ static int export_siggen(int num, hal_siggen_t * addr);
 static void calc_siggen(void *arg, long period);
 
 #if 0
-/* FIXME - these are no longer used, they should be deleted once
+/*! \todo FIXME - these are no longer used, they should be deleted once
    we're sure we don't need them */
-/* FIXME - these are here because rtapi doesn't yet handle linking
+/*! \todo FIXME - these are here because rtapi doesn't yet handle linking
    to the math library */
 
 #define PI 3.1415927

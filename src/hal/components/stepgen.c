@@ -269,7 +269,7 @@
 #include "hal.h"		/* HAL public API decls */
 
 #include <linux/types.h>
- /* FIX ME - Need an ugly hack here to get rid of compile warnings. */
+ /*! \todo FIX ME - Need an ugly hack here to get rid of compile warnings. */
 #ifdef __attribute_used__
 #undef __attribute_used__
 #endif
@@ -756,7 +756,7 @@ static void update_freq(void *arg, long period)
     double pos_cmd, vel_cmd, curr_pos, curr_vel, avg_v, max_freq, max_ac;
     double match_ac, match_time, est_out, est_cmd, est_err, dp, dv, new_vel;
 
-    /* FIXME - while this code works just fine, there are a bunch of
+    /*! \todo FIXME - while this code works just fine, there are a bunch of
        internal variables, many of which hold intermediate results that
        don't really need their own variables.  They are used either for
        clarity, or because that's how the code evolved.  This algorithm

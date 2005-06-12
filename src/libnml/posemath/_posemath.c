@@ -388,7 +388,7 @@ int pmQuatZyzConvert(PmQuaternion q, PmEulerZyz * zyz)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmQuatMatConvert(q, &m);
     r2 = pmMatZyzConvert(m, zyz);
 
@@ -400,7 +400,7 @@ int pmQuatZyxConvert(PmQuaternion q, PmEulerZyx * zyx)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmQuatMatConvert(q, &m);
     r2 = pmMatZyxConvert(m, zyx);
 
@@ -412,7 +412,7 @@ int pmQuatRpyConvert(PmQuaternion q, PmRpy * rpy)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmQuatMatConvert(q, &m);
     r2 = pmMatRpyConvert(m, rpy);
 
@@ -424,7 +424,7 @@ int pmMatRotConvert(PmRotationMatrix m, PmRotationVector * r)
     PmQuaternion q;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmMatQuatConvert(m, &q);
     r2 = pmQuatRotConvert(q, r);
 
@@ -573,7 +573,7 @@ int pmZyzQuatConvert(PmEulerZyz zyz, PmQuaternion * q)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmZyzMatConvert(zyz, &m);
     r2 = pmMatQuatConvert(m, q);
 
@@ -621,7 +621,7 @@ int pmZyxRotConvert(PmEulerZyx zyx, PmRotationVector * r)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmZyxMatConvert(zyx, &m);
     r2 = pmMatRotConvert(m, r);
 
@@ -633,7 +633,7 @@ int pmZyxQuatConvert(PmEulerZyx zyx, PmQuaternion * q)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmZyxMatConvert(zyx, &m);
     r2 = pmMatQuatConvert(m, q);
 
@@ -704,7 +704,7 @@ int pmRpyQuatConvert(PmRpy rpy, PmQuaternion * q)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmRpyMatConvert(rpy, &m);
     r2 = pmMatQuatConvert(m, q);
 
@@ -1111,7 +1111,7 @@ int pmRotNorm(PmRotationVector r, PmRotationVector * rout)
 
 int pmMatNorm(PmRotationMatrix m, PmRotationMatrix * mout)
 {
-    /* FIXME */
+    /*! \todo FIXME */
     *mout = m;
 
 #ifdef PM_PRINT_ERROR
@@ -1283,7 +1283,7 @@ int pmQuatIsNorm(PmQuaternion q1)
 
 int pmQuatScalMult(PmQuaternion q, double s, PmQuaternion * qout)
 {
-    /* FIXME-- need a native version; this goes through a rotation vector */
+    /*! \todo FIXME-- need a native version; this goes through a rotation vector */
     PmRotationVector r;
     int r1, r2, r3;
 
@@ -1296,7 +1296,7 @@ int pmQuatScalMult(PmQuaternion q, double s, PmQuaternion * qout)
 
 int pmQuatScalDiv(PmQuaternion q, double s, PmQuaternion * qout)
 {
-    /* FIXME-- need a native version; this goes through a rotation vector */
+    /*! \todo FIXME-- need a native version; this goes through a rotation vector */
     PmRotationVector r;
     int r1, r2, r3;
 

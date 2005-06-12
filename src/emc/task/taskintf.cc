@@ -34,7 +34,7 @@
 
 // MOTION INTERFACE
 
-/* FIXME - this decl was originally much later in the file, moved
+/*! \todo FIXME - this decl was originally much later in the file, moved
 here temporarily for debugging */
 static emcmot_status_t emcmotStatus;
 
@@ -405,7 +405,7 @@ int emcAxisSetHomingParams(int axis, double home, double offset,
 }
 
 #if 0
-// FIXME - to be deleted eventually, these are configured thru HAL
+/*! \todo FIXME - to be deleted eventually, these are configured thru HAL */
 int emcAxisSetStepParams(int axis, double setup_time, double hold_time)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -504,7 +504,7 @@ int emcAxisHalt(int axis)
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
-    // FIXME-- refs global emcStatus; should make EMC_AXIS_STAT an arg here
+    /*! \todo FIXME-- refs global emcStatus; should make EMC_AXIS_STAT an arg here */
     if (NULL != emcStatus && emcmotion_initialized && emcmotAxisInited[axis]) {
 	dumpAxis(axis, EMC_INIFILE, &emcStatus->motion.axis[axis]);
     }
@@ -693,21 +693,21 @@ int get_emcmot_debug_info = 0;
   these globals are set in emcMotionUpdate(), then referenced in
   emcAxisUpdate(), emcTrajUpdate() to save calls to usrmotReadEmcmotStatus
  */
-/* FIXME - next line commented out and moved to top of file for debugging */
+/*! \todo FIXME - next line commented out and moved to top of file for debugging */
 //static emcmot_status_t emcmotStatus;*/
 static emcmot_debug_t emcmotDebug;
 static char errorString[EMCMOT_ERROR_LEN];
 static int new_config = 0;
 
 
-/* FIXME - debugging - uncomment the following line to log changes in
+/*! \todo FIXME - debugging - uncomment the following line to log changes in
    AXIS_FLAG */
 // #define WATCH_FLAGS 1
 
 
 int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 {
-/* FIXME - this function accesses data that has been
+/*! \todo FIXME - this function accesses data that has been
    moved.  Once I know what it is used for I'll fix it */
 
     int axis;
@@ -740,11 +740,11 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	    stat[axis].maxPositionLimit = joint->max_pos_limit;
 	    stat[axis].minFerror = joint->min_ferror;
 	    stat[axis].maxFerror = joint->max_ferror;
-// FIXME - should all homing config params be included here?
+/*! \todo FIXME - should all homing config params be included here? */
 	    stat[axis].homeOffset = joint->home_offset;
 	}
 	stat[axis].setpoint = joint->pos_cmd;
-	/* FIXME - output is the DAC output, now part of HAL */
+	/*! \todo FIXME - output is the DAC output, now part of HAL */
 	stat[axis].output = 0.0;
 	stat[axis].input = joint->pos_fb;
 
@@ -774,7 +774,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 									// for
 									// all
 
-#if 0 /* FIXME - per-axis Vscale temporarily? removed */
+#if 0 /*! \todo FIXME - per-axis Vscale temporarily? removed */
 	stat[axis].scale = emcmotStatus.axVscale[axis];
 #endif
 	usrmotQueryAlter(axis, &stat[axis].alter);
@@ -882,7 +882,7 @@ int emcTrajSetVelocity(double vel)
 	vel = TRAJ_MAX_VELOCITY;
     }
 #if 0
-    // FIXME-- this fixes rapid rate reset problem
+    /*! \todo FIXME-- this fixes rapid rate reset problem */
     if (vel == lastVel) {
 	// suppress it
 	return 0;
@@ -1196,7 +1196,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->enabled = 0;		/* start at disabled */
     if (emcmotStatus.motionFlag & EMCMOT_MOTION_ENABLE_BIT) {
 	for (axis = 0; axis < localEmcTrajAxes; axis++) {
-#if 0 /* FIXME - the axis flag has been moved to the joint struct */
+#if 0 /*! \todo FIXME - the axis flag has been moved to the joint struct */
 	    if (!emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_ENABLE_BIT) {
 		break;
 	    }
@@ -1355,7 +1355,7 @@ int emcMotionSetDebug(int debug)
 }
 
 #if 0
-/* FIXME - These are essential if you are to coordinate IO with
+/*! \todo FIXME - These are essential if you are to coordinate IO with
           motion. For example, turning a laser on or off at the
 	  correct point during a move.
 	  Abandon this, and you alienate part of the user base.
@@ -1363,7 +1363,7 @@ int emcMotionSetDebug(int debug)
 int emcMotionSetAout(unsigned char index, double start, double end)
 {
     emcmotCommand.command = EMCMOT_SET_AOUT;
-    /* FIXME-- if this works, set up some dedicated cmd fields instead of
+    /*! \todo FIXME-- if this works, set up some dedicated cmd fields instead of
        borrowing these */
     emcmotCommand.out = index;
     emcmotCommand.minLimit = start;
@@ -1421,8 +1421,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     // save the heartbeat and command number locally,
     // for use with emcMotionUpdate
     localMotionHeartbeat = emcmotStatus.heartbeat;
-    localMotionCommandType = emcmotStatus.commandEcho;	// FIXME-- not NML
-							// one!
+    localMotionCommandType = emcmotStatus.commandEcho;	/*! \todo FIXME-- not NML one! */
     localMotionEchoSerialNumber = emcmotStatus.commandNumEcho;
 
     r1 = emcAxisUpdate(&stat->axis[0], EMCMOT_MAX_AXIS);

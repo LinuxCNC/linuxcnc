@@ -98,7 +98,7 @@ static int strbool ( const char *str, int *result )
 
   emcAxisSetAxis(int axis, unsigned char axisType);
   emcAxisSetUnits(int axis, double units);
-// FIXME - these gains are no longer used
+/*! \todo FIXME - these gains are no longer used */
   emcAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double bias, double maxError, double deadband);
   emcAxisSetBacklash(int axis, double backlash);
   emcAxisSetCycleTime(int axis, double cycleTime);
@@ -230,7 +230,7 @@ static int loadAxis(int axis)
     return -1;
   }
 
-/* FIXME - cycle times and scaling no longer needed */
+/*! \todo FIXME - cycle times and scaling no longer needed */
 #if 0
   // set cycle time
 
@@ -698,7 +698,7 @@ int iniAxis(int axis, const char *filename)
 }
 
 
-// FIXME-- begin temporary insert of ini file stuff
+/*! \todo FIXME-- begin temporary insert of ini file stuff */
 
 #define INIFILE_MIN_FLOAT_PRECISION 3
 #define INIFILE_BACKUP_SUFFIX ".bak"
@@ -940,8 +940,8 @@ int iniFormatFloat2(char *fmt, const char *var, const char *val)
 {
   int prec;
 
-  // FIXME-- should capture each one's float precision; right
-  // now we're using the first as the precision for both
+  /*! \todo FIXME-- should capture each one's float precision; right
+     now we're using the first as the precision for both */
   prec = iniGetFloatPrec(val);
   sprintf(fmt, "%s = %%.%df %%.%df\n", var, prec, prec);
 
@@ -970,7 +970,7 @@ int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *status)
   char fmt[256];
   struct stat ini_stat;
 
-/* FIXME - stat() and chown() can disappear when we no longer need
+/*! \todo FIXME - stat() and chown() can disappear when we no longer need
    to run as root. */
 
     stat(filename, &ini_stat);		// save the ownership details.

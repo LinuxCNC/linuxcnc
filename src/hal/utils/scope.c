@@ -501,7 +501,7 @@ static void init_run_mode_window(void)
     gtk_widget_show(ctrl_usr->rm_stop_button);
 }
 
-/* FIXME - things not yet finished */
+/*! \todo FIXME - things not yet finished */
 
 /** roll mode - display updates as frequently as possible, not just
     when acquisition is complete.  Also need to revisit pretrig

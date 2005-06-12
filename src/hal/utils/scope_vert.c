@@ -448,7 +448,7 @@ static void offset_changed(GtkEditable * editable, gchar * buf)
     strncpy(buf, text, BUFLEN);
 }
 
-/* FIXME - this global is ugly - it's the result of using toggle
+/*! \todo FIXME - this global is ugly - it's the result of using toggle
    buttons for the channel select.  I need a better way to show
    not only which channel(s) are enabled, but also which one is
    selected (highlighted) and which one is the trigger source. */

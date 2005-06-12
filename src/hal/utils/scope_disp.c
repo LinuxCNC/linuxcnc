@@ -214,7 +214,7 @@ static gboolean alloc_color(GdkColor * color, GdkColormap * map,
 	((unsigned long) red) << 16 | ((unsigned long) green) << 8 |
 	((unsigned long) blue);
     retval = gdk_colormap_alloc_color(map, color, FALSE, TRUE);
-/* FIXME remove this after testing */
+/*! \todo FIXME remove this after testing */
     if (retval == 0) {
 	printf("alloc_color( %d, %d, %d ) failed\n", red, green, blue);
     }
@@ -222,7 +222,7 @@ static gboolean alloc_color(GdkColor * color, GdkColormap * map,
     return retval;
 }
 
-/* FIXME - this will be needed if/when I allow user defined colors */
+/*! \todo FIXME - this will be needed if/when I allow user defined colors */
 #if 0
 static void free_color(GdkColor * color, GdkColormap * map)
 {
@@ -417,7 +417,7 @@ void draw_waveform(int chan_num, int highlight)
 	}
 	/* don't draw segment ending at first point */
 	if (n > start) {
-/* FIXME - maybe use smooth for analog and stepped for bits? */
+/*! \todo FIXME - maybe use smooth for analog and stepped for bits? */
 #if 0				/* this is a smoothed line display */
 	    gdk_draw_line(disp->win, disp->context, x1, y1, x2, y2);
 #endif

@@ -307,12 +307,12 @@ int main(int argc, char *argv[])
 		    ("cw <x> <y> <z> <cx> <cy> <cz> <turn>\tput CW circle on queue\n");
 		printf
 		    ("ccw <x> <y> <z> <cx> <cy> <cz> <turn>\tput CCW circle on queue\n");
-/* FIXME old set command
+/*! \todo FIXME old set command
 		printf
 		    ("set t <traj t> | s <servo t> | v <vel> | a <acc>\tset params\n");
 */
 		printf("set v <vel> | a <acc>\tset params\n");
-/* FIXME
+/*! \todo FIXME
 		printf
 		    ("oscale <axis 0..n-1> <a> <b>\traw[n] = a(out[n]-b)\n");
 		printf("iscale <axis 0..n-1> <a> <b>\tin[n] = a(raw[n]-b)\n");
@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
 		printf("deactivate <axis 0..n-1>\tdeactivate axis n\n");
 		printf
 		    ("log open <type ...> | start | stop | close | dump <file>\tlog data\n");
-/* FIXME
+/*! \todo FIXME
 		printf
 		    ("dac <axis 0..n-1> <-10.0 .. 10.0>\toutput value to DAC\n");
 */
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
 		printf
 		    ("probe <x> <y> <z>\tMove toward x,y,z, if probe is tripped on the way the probe position will be updated and motion stopped.\n");
 		printf("probeclear\tClear the probeTripped status flag.\n");
-/* FIXME
+/*! \todo FIXME
 		printf
 		    ("probeindex <index>\tSet which input is checked for probe status.\n");
 		printf
@@ -614,7 +614,7 @@ int main(int argc, char *argv[])
 		}
 	    } else if (!strcmp(cmd, "set")) {
 		sscanf(input, "%*s %s", cmd);
-/* FIXME - obsolete commands */
+/*! \todo FIXME - obsolete commands */
 		if (!strcmp(cmd, "t")) {
 		    fprintf(stderr, "'set t' command is obsolete\n");
 #if 0
@@ -669,7 +669,7 @@ int main(int argc, char *argv[])
 		    }
 		} else {
 		    /* invalid parameter */
-/* FIXME	    printf
+/*! \todo FIXME	    printf
 			("syntax: set t <traj t> | s <servo t> | v <vel> | a <acc>\n");
 */
 		    printf("syntax: set v <vel> | a <acc>\n");

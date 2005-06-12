@@ -574,7 +574,7 @@ check_stuff ( "before command_handler()" );
 	    joint->free_vel_lim = fabs(emcmotCommand->vel);
 	    /* and let it go */
 	    joint->free_tp_enable = 1;
-	    /* FIXME - should we really be clearing errors here? */
+	    /*! \todo FIXME - should we really be clearing errors here? */
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear axis homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -663,7 +663,7 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    /* FIXME-- use 'goal' instead */
+	    /*! \todo FIXME-- use 'goal' instead */
 	    joint->free_pos_cmd = emcmotCommand->offset;
 	    /* don't jog past soft limits, if homed */
 	    if (GET_JOINT_HOMED_FLAG(joint)) {
@@ -913,7 +913,7 @@ check_stuff ( "before command_handler()" );
 	    }
 	    SET_JOINT_ACTIVE_FLAG(joint, 0);
 	    break;
-/* FIXME - need to replace the ext function */
+/*! \todo FIXME - need to replace the ext function */
 	case EMCMOT_ENABLE_AMPLIFIER:
 	    /* enable the amplifier directly, but don't enable calculations */
 	    /* can be done at any time */
@@ -1163,7 +1163,7 @@ check_stuff ( "before command_handler()" );
 	    emcmot_config_change();
 	    break;
 #if 0
-/* FIXME - needed for synchronous I/O */
+/*! \todo FIXME - needed for synchronous I/O */
 	case EMCMOT_SET_AOUT:
 	    if (emcmotCommand->now) {
 		extAioWrite(emcmotCommand->index, emcmotCommand->minLimit);
@@ -1183,7 +1183,7 @@ check_stuff ( "before command_handler()" );
 	    break;
 #endif
 #if 0
-/* FIXME - needed for M62/M63 */
+/*! \todo FIXME - needed for M62/M63 */
 	case EMCMOT_SET_INDEX_BIT:
 	    if (emcmotCommand->level) {
 		/* Set bit */

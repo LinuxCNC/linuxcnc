@@ -704,7 +704,7 @@ int Interp::rs274ngc_save_parameters(const char *filename,      //!< name of fil
   int index;                    // index into _required_parameters
   int k;
 
-/* FIXME - stat() and chown() can disappear when we no longer need
+/*! \todo FIXME - stat() and chown() can disappear when we no longer need
    to run as root. */
   struct stat ini_stat;
   stat(filename, &ini_stat);		// save the ownership details.

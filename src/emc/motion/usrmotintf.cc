@@ -46,7 +46,7 @@ static emcmot_debug_t *emcmotDebug = 0;
 static emcmot_error_t *emcmotError = 0;
 static emcmot_log_t *emcmotLog = 0;
 #if 0
-/* FIXME - no longer in shared memory */
+/*! \todo FIXME - no longer in shared memory */
 static emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS] = { 0 };
 #endif
 static emcmot_struct_t *emcmotStruct = 0;
@@ -134,7 +134,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     static unsigned char headCount = 0;
     double end;
 
-/* FIXME - debug 5 lines */
+/*! \todo FIXME - debug 5 lines */
 printf ( "usrmotWriteEmcmotCommand()\n" );
 
     c->head = ++headCount;
@@ -286,7 +286,7 @@ int usrmotReadEmcmotError(char *e)
 
  converts short int to 0-1 style string, in s. Assumes a short is 2 bytes.
 */
-#if 0				/* FIXME - don't know if this is still needed 
+#if 0				/*! \todo FIXME - don't know if this is still needed 
 				 */
 
 static int htostr(char *s, unsigned short h)
@@ -493,7 +493,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
     case 10:
     case 11:
 //      printf("jointPos[%d]: %f\n", which - 6, d.jointPos[(which - 6)]);
-#if 0				/* FIXME - change to work with joint
+#if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("coarseJointPos[%d]: %f\n",
 	    which - 6, d.coarseJointPos[(which - 6)]);
@@ -505,7 +505,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	break;
 
     case 12:
-#if 0				/* FIXME - change to work with joint
+#if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("\noldInput:  ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
@@ -541,7 +541,7 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	printf("interp rate:  \t%d\n", c.interpolationRate);
 	printf("v limit:      \t%f\n", c.limitVel);
 	printf("axis vlimit:  \t");
-#if 0				/* FIXME - waiting for new structs */
+#if 0				/*! \todo FIXME - waiting for new structs */
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("%f ", c.axisLimitVel[t]);
 	}
@@ -580,7 +580,7 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	break;
 
     case 3:
-#if 0				/* FIXME - waiting for new structs */
+#if 0				/*! \todo FIXME - waiting for new structs */
 	printf("pos limits:   ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("\t%f", c.maxLimit[t]);
@@ -633,7 +633,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("cmd num:      \t%d\n", s.commandNumEcho);
 	printf("heartbeat:    \t%u\n", s.heartbeat);
 	printf("compute time: \t%f\n", s.computeTime);
-#if 0				/* FIXME - change to work with joint
+#if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("axes enabled: \t");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
@@ -650,7 +650,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	    s.carte_pos_fb.tran.z, s.carte_pos_fb.a, s.carte_pos_fb.b,
 	    s.carte_pos_fb.c);
 	printf("joint data:\n");
-#if 0				/* FIXME - change to work with joint
+#if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf(" cmd: ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
@@ -690,7 +690,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("active depth: \t%d\n", s.activeDepth);
 	printf("inpos:        \t%d\n",
 	    s.motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0);
-#if 0				/* FIXME - change to work with joint
+#if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("vscales:      \tQ: %.2f", s.qVscale);
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
@@ -702,7 +702,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	    s.logOpen == 0 ? "closed" : "open",
 	    s.logStarted == 0 ? "stopped" : "started",
 	    s.logSize, s.logSkip, s.logType);
-#if 0				/* FIXME - change to work with joint
+#if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("homing:       \t");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
@@ -721,7 +721,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 
     case 2:
 	/* print motion and axis flags */
-#if 0				/* FIXME - change to work with joint
+#if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	htostr(m, s.motionFlag);
 	printf("motion:   %s\n", m);
@@ -862,7 +862,7 @@ int usrmotInit(char *modname)
     emcmotError = &(emcmotStruct->error);
     emcmotLog = &(emcmotStruct->log);
 
-/* FIXME - testing code */
+/*! \todo FIXME - testing code */
     printf ( "sizeof(emcmot_struct_t) (total shmem): %d\n", sizeof(emcmot_struct_t) );
     printf ( "sizeof(emcmot_command_t):      %d\n", sizeof(emcmot_command_t) );
     printf ( "sizeof(emcmot_status_t):       %d\n", sizeof(emcmot_status_t) );
@@ -877,7 +877,7 @@ int usrmotInit(char *modname)
 
 
 #if 0
-/* FIXME - comp structs no longer part of status structure */
+/*! \todo FIXME - comp structs no longer part of status structure */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = &(emcmotStatus->joints[axis].comp);
     }
@@ -902,7 +902,7 @@ int usrmotExit(void)
     emcmotError = 0;
     emcmotLog = 0;
 #if 0
-/* FIXME - comp structs no longer in shmem */
+/*! \todo FIXME - comp structs no longer in shmem */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	emcmotComp[axis] = 0;
     }
@@ -1249,7 +1249,7 @@ int usrmotDumpLog(const char *filename, int include_header)
 
 int usrmotLoadComp(int axis, const char *file)
 {
-/* FIXME - this routine currently assumes that the comp structs
+/*! \todo FIXME - this routine currently assumes that the comp structs
    reside in shared memory, and writes directly to them.  The
    comp structs have been moved out of shmem, so this needs to
    be re-written to use a command to load the struct.  In the
@@ -1328,7 +1328,7 @@ return -1;
 
 int usrmotAlter(int axis, double alter)
 {
-/* FIXME - the comp stuff is temporarily disabled, so "alter" must
+/*! \todo FIXME - the comp stuff is temporarily disabled, so "alter" must
    be disabled too.  BTW, what the heck is "alter" anyway?
 */
 return -1;
@@ -1354,7 +1354,7 @@ return -1;
 
 int usrmotQueryAlter(int axis, double *alter)
 {
-/* FIXME - the comp stuff is temporarily disabled, so "alter" must
+/*! \todo FIXME - the comp stuff is temporarily disabled, so "alter" must
    be disabled too.  BTW, what the heck is "alter" anyway?
 */
 return -1;
@@ -1380,7 +1380,7 @@ return -1;
 
 int usrmotPrintComp(int axis)
 {
-/* FIXME - the comp stuff is temporarily disabled */
+/*! \todo FIXME - the comp stuff is temporarily disabled */
 return -1;
 #if 0
     int t;

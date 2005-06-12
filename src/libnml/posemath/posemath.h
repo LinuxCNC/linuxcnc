@@ -710,7 +710,7 @@ extern "C" {
 #endif
 #define TO_RAD (PM_PI/180.)
 
-/* FIXME-- fix these */
+/*! \todo FIXME-- fix these */
 
 /* DOUBLE_FUZZ is the smallest double, d, such that (1+d != 1) w/o FPC.
    DOUBLECP_FUZZ is the same only with the Floating Point CoProcessor */

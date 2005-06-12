@@ -288,7 +288,7 @@ PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(double xx, double xy, double xz,
     z.y = zy;
     z.z = zz;
 
-    // FIXME-- need a matrix orthonormalization function pmMatNorm()
+    /*! \todo FIXME-- need a matrix orthonormalization function pmMatNorm() */
 }
 
 PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(PM_CARTESIAN _x, PM_CARTESIAN _y,

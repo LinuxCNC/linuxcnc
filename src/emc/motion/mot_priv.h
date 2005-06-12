@@ -46,7 +46,7 @@ typedef struct {
     hal_float_t f_error;	/* RPA: following error */
     hal_float_t f_error_lim;	/* RPA: following error limit */
 
-/* FIXME - these might not be HAL params forever, but they are usefull now */
+/*! \todo FIXME - these might not be HAL params forever, but they are usefull now */
     hal_float_t free_pos_cmd;	/* RPA: free traj planner pos cmd */
     hal_float_t free_vel_lim;	/* RPA: free traj planner vel limit */
     hal_bit_t free_tp_enable;	/* RPA: free traj planner is running */
@@ -70,7 +70,7 @@ typedef struct {
     hal_bit_t *amp_enable;	/* WPI: amp enable output */
     hal_s8_t home_state;	/* RPA: homing state machine state */
 
-/* FIXME - these have been temporarily? deleted */
+/*! \todo FIXME - these have been temporarily? deleted */
 #if 0
     /* for now we control the index model through the mode and model pins on
        axis 0, later this may be done on a per axis basis */

@@ -56,7 +56,7 @@
 //#include <sys/types.h>                /* off_t, needed for rtai_shm.h */
 //#include <sys/fcntl.h>                /* O_RDWR, needed for rtai_shm.h */
 #include <malloc.h>		/* malloc(), free() */
-/* FIXME - probably need an include for inb() and outb() */
+/*! \todo  FIXME - probably need an include for inb() and outb() */
 #include <asm/io.h>
 #include <mbuff.h>
 

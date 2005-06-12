@@ -112,7 +112,7 @@ typedef struct {
         hal_bit_t *digital_out[25];    /* ptrs for digital output pins 0 - 20 */
         hal_u16_t raw_counts_old[3];
         hal_s32_t counts[3];
-        hal_float_t pos_scale;         /* scale for position command FIXME schould be one per axis */
+        hal_float_t pos_scale;         /*! \todo scale for position command FIXME schould be one per axis */
 } evoreg_t;
 
 /* pointer to array of evoreg_t structs in shared memory, 1 per port */
@@ -173,7 +173,7 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-    /* FIXME: Test memory area and setup the card */
+    /*! \todo FIXME: Test memory area and setup the card */
     port_data_array->io_base = ioremap(ISA_BASE, ISA_MAX - ISA_BASE);
     rtapi_print_msg(RTAPI_MSG_ERR,"EVOREG: io_base: %x \n", port_data_array->io_base);
     outw(0x82c9,base); /* set indexregister */

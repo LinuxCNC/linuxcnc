@@ -2022,12 +2022,12 @@ void EMC_AXIS_STAT::update(CMS * cms)
     cms->update(maxOutputLimit);
     cms->update(maxFerror);
     cms->update(minFerror);
-    // FIXME - homingVel has been superceded
+    /*! \todo FIXME - homingVel has been superceded */
     cms->update(homingVel);
     cms->update(setup_time);
     cms->update(hold_time);
     cms->update(homeOffset);
-    // FIXME - polarities are now handled in HAL
+    /*! \todo FIXME - polarities are now handled in HAL */
     cms->update(enablePolarity);
     cms->update(minLimitSwitchPolarity);
     cms->update(maxLimitSwitchPolarity);

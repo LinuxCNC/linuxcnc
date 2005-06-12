@@ -45,7 +45,7 @@
 
 #define EMC_AXIS_SET_AXIS_TYPE                       ((NMLTYPE) 101)
 #define EMC_AXIS_SET_UNITS_TYPE                      ((NMLTYPE) 102)
-// FIXME - to be deleted later
+/*! \todo FIXME - to be deleted later */
 #define EMC_AXIS_SET_GAINS_TYPE                      ((NMLTYPE) 103)
 #define EMC_AXIS_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 104)
 #define EMC_AXIS_SET_INPUT_SCALE_TYPE                ((NMLTYPE) 105)
@@ -394,7 +394,7 @@ extern int emcOperatorDisplay(int id, const char *fmt, ...);
 
 extern int emcAxisSetAxis(int axis, unsigned char axisType);
 extern int emcAxisSetUnits(int axis, double units);
-/* FIXME - soon to be deleted */
+/*! \todo FIXME - soon to be deleted */
 extern int emcAxisSetGains(int axis, double p, double i, double d,
     double ff0, double ff1, double ff2,
     double bias, double maxError, double deadband);
@@ -409,14 +409,14 @@ extern int emcAxisSetMinOutputLimit(int axis, double limit);
 extern int emcAxisSetMaxOutputLimit(int axis, double limit);
 extern int emcAxisSetFerror(int axis, double ferror);
 extern int emcAxisSetMinFerror(int axis, double ferror);
-// FIXME - should be deleted
+/*! \todo FIXME - should be deleted */
 extern int emcAxisSetStepParams(int axis, double setup_time,
     double hold_time);
 extern int emcAxisSetHomingParams(int axis, double home, double offset,
     double search_vel, double latch_vel, int use_index, int ignore_limits );
 extern int emcAxisSetMaxVelocity(int axis, double vel);
 extern int emcAxisSetMaxAcceleration(int axis, double acc);
-// FIXME - polarity messages should be deleted
+/*! \todo FIXME - polarity messages should be deleted */
 extern int emcAxisSetEnablePolarity(int axis, int level);
 extern int emcAxisSetMinLimitSwitchPolarity(int axis, int level);
 extern int emcAxisSetMaxLimitSwitchPolarity(int axis, int level);
@@ -1274,7 +1274,7 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     double maxOutputLimit;
     double maxFerror;
     double minFerror;
-    // FIXME - homingVel has been superceded
+    /*! \todo FIXME - homingVel has been superceded */
     double homingVel;
     double setup_time;
     double hold_time;
@@ -1287,12 +1287,12 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     unsigned char faultPolarity;
 
     // dynamic status
-    /* FIXME - is this the position cmd from control to PID, or
+    /*! \todo FIXME - is this the position cmd from control to PID, or
        something else? */
     double setpoint;		// input to axis controller
     double ferrorCurrent;	// current following error
     double ferrorHighMark;	// magnitude of max following error
-    /* FIXME - is this really position, or the DAC output? */
+    /*! \todo FIXME - is this really position, or the DAC output? */
     double output;		// commanded output position
     double input;		// current input position
     unsigned char inpos;	// non-zero means in position
@@ -2954,6 +2954,9 @@ extern EMC_MOTION_STAT *emcMotionStatus;
   Modification history:
 
   $Log$
+  Revision 1.12  2005/06/12 15:45:38  paul_c
+  todo tags added to all FIXME comments so that they get highlighted when auto-generating docs.
+
   Revision 1.11  2005/05/23 01:54:49  paul_c
   Missed a few files in the last effort....
 

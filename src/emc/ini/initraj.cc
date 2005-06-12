@@ -27,7 +27,7 @@ extern "C" {
 #include "posemath.h"           // PM_POSE, PM_RPY
 #include "inifile.hh"
 #include "initraj.hh"           // these decls
-#include "emcglb.h"             // TRAVERSE_RATE (FIXME)
+#include "emcglb.h"             /*! \todo TRAVERSE_RATE (FIXME) */
 
 // inifile ref'ed by iniTraj(), loadTraj()
 static INIFILE *trajInifile = 0;
@@ -67,7 +67,7 @@ static int loadTraj()
   int axes;
   double linearUnits;
   double angularUnits;
-/* FIXME - variables no longer needed */
+/*! \todo FIXME - variables no longer needed */
 //  double cycleTime;
   double vel;
   double acc;
@@ -153,7 +153,7 @@ static int loadTraj()
     }
     return -1;
   }
-/* FIXME - cycle time now set by run script */
+/*! \todo FIXME - cycle time now set by run script */
 #if 0
   if (NULL != (inistring = trajInifile->find("CYCLE_TIME", "TRAJ"))) {
     if (1 == sscanf(inistring, "%lf", &cycleTime)) {
@@ -388,7 +388,7 @@ static int loadTraj()
     return -1;
   }
 
-/* FIXME - polarities and probe pin selection now handled by HAL */
+/*! \todo FIXME - polarities and probe pin selection now handled by HAL */
 #if 0
   if (NULL != (inistring = trajInifile->find("PROBE_POLARITY", "TRAJ"))) {
     if (1 == sscanf(inistring, "%d", &polarity)) {

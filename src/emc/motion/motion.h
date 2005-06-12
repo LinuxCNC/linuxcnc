@@ -193,7 +193,7 @@ extern "C" {
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
 	int axis;		/* which index to use for below */
-/* FIXME - logging stuff will be radically reduced later */
+/*! \todo FIXME - logging stuff will be radically reduced later */
 	int logSize;		/* size for log fifo */
 	int logSkip;		/* how many to skip, 0 means log all, -1
 				   means don't log on cycles */
@@ -217,7 +217,7 @@ extern "C" {
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
 
-/* FIXME - these packed bits might be replaced with chars
+/*! \todo FIXME - these packed bits might be replaced with chars
    memory is cheap, and being able to access them without those
    damn macros would be nice
 */
@@ -303,7 +303,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define EMCMOT_AXIS_HOMING_BIT         0x0200
 #define EMCMOT_AXIS_HOMED_BIT          0x0400
 
-/* FIXME - I'm not sure AT_HOME is being reported correctly.
+/*! \todo FIXME - I'm not sure AT_HOME is being reported correctly.
    AT_HOME is cleared when you jog in free mode, but not if
    you do a coordinated move... perhaps that is the intended
    behavior.
@@ -313,7 +313,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 #define EMCMOT_AXIS_FERROR_BIT         0x1000
 #define EMCMOT_AXIS_FAULT_BIT          0x2000
 
-/* FIXME - the terms "teleop", "coord", and "free" are poorly
+/*! \todo FIXME - the terms "teleop", "coord", and "free" are poorly
    documented.  This is my feeble attempt to understand exactly
    what they mean.
 
@@ -487,7 +487,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferror;		/* following error */
 	double ferror_high_mark;	/* max following error */
 
-/* FIXME - the following are not really "status", but taskintf.cc expects
+/*! \todo FIXME - the following are not really "status", but taskintf.cc expects
    them to be in the status structure.  I don't know how or if they are
    used by the user space code.  Ideally they will be removed from here,
    but each one will need to be investigated individually.
@@ -511,7 +511,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    HAL and troubleshooting, etc, is done using the HAL oscilliscope.
 */
 
-/* FIXME - this struct is broken into two parts... at the top are
+/*! \todo FIXME - this struct is broken into two parts... at the top are
    structure members that I understand, and that are needed for emc2.
    Other structure members follow.  All the later ones need to be
    evaluated - either they move up, or they go away.
@@ -539,7 +539,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	int probeVal;		/* debounced value of probe input */
 
-/* FIXME - all structure members beyond this point are in limbo */
+/*! \todo FIXME - all structure members beyond this point are in limbo */
 
 	/* dynamic status-- changes every cycle */
 	unsigned int heartbeat;
@@ -603,7 +603,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    code processes the command.
 */
 
-/* FIXME - this struct is broken into two parts... at the top are
+/*! \todo FIXME - this struct is broken into two parts... at the top are
    structure members that I understand, and that are needed for emc2.
    Other structure members follow.  All the later ones need to be
    evaluated - either they move up, or they go away.
@@ -611,7 +611,7 @@ Suggestion: Split this in to an Error and a Status flag register..
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
 
-/* FIXME - all structure members beyond this point are in limbo */
+/*! \todo FIXME - all structure members beyond this point are in limbo */
 
 	int config_num;		/* Incremented everytime configuration
 				   changed, should match status.config_num */
@@ -671,18 +671,18 @@ Suggestion: Split this in to an Error and a Status flag register..
    and things that are internal will be moved to a private structure.
 */
 
-/* FIXME - this struct is broken into two parts... at the top are
+/*! \todo FIXME - this struct is broken into two parts... at the top are
    structure members that I understand, and that are needed for emc2.
    Other structure members follow.  All the later ones need to be
    evaluated - either they move up, or they go away.
 */
 
-/* FIXME - this has become a dumping ground for all kinds of stuff */
+/*! \todo FIXME - this has become a dumping ground for all kinds of stuff */
 
     typedef struct {
 	unsigned char head;	/* flag count for mutex detect */
 
-/* FIXME - all structure members beyond this point are in limbo */
+/*! \todo FIXME - all structure members beyond this point are in limbo */
 
 	double tMin, tMax, tAvg;	/* trajectory min, max, avg times */
 	double sMin, sMax, sAvg;	/* servo min, max, avg times */
@@ -709,7 +709,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	TP_STRUCT queue;	/* coordinated mode planner */
 
 /* space for trajectory planner queues, plus 10 more for safety */
-/* FIXME-- default is used; dynamic is not honored */
+/*! \todo FIXME-- default is used; dynamic is not honored */
 	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
 
 	EmcPose oldPos;		/* last position, used for vel differencing */
@@ -778,7 +778,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	emcmot_config_t config;	/* Struct used to store RT config */
 	emcmot_debug_t debug;	/* Struct used to store RT status and debug
 				   data - 2nd largest block */
-	emcmot_internal_t internal;	/* FIXME - doesn't need to be in
+	emcmot_internal_t internal;	/*! \todo FIXME - doesn't need to be in
 					   shared memory */
 	emcmot_error_t error;	/* ring buffer for error messages */
 	emcmot_log_t log;	/* a massive ring buffer for logging RT data */

@@ -102,6 +102,7 @@ INIFILE::~INIFILE()
 ********************************************************************/
 const int INIFILE::open(const char *path)
 {
+/*! \todo FIX ME - Check and free any FD first ? */
     if (NULL == (fp = fopen(path, "r"))) {
 	return -1;
     }
