@@ -79,6 +79,7 @@ static int do_newsig_cmd(char *name, char *type);
 static int do_setp_cmd(char *name, char *value);
 static int do_sets_cmd(char *name, char *value);
 static int do_show_cmd(char *type, char *pattern);
+static int do_status_cmd(char *type);
 static int do_loadrt_cmd(char *mod_name, char *args[]);
 static int do_delsig_cmd(char *mod_name);
 static int do_unloadrt_cmd(char *mod_name);
@@ -89,6 +90,7 @@ static void print_sig_list(char *pattern);
 static void print_param_list(char *pattern);
 static void print_funct_list(char *pattern);
 static void print_thread_list(char *pattern);
+static void print_lock_status();
 static char *data_type(int type);
 static char *data_dir(int dir);
 static char *data_arrow1(int dir);
@@ -481,6 +483,8 @@ static int parse_cmd(char *tokens[])
 	retval = do_sets_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "show") == 0) {
 	retval = do_show_cmd(tokens[1], tokens[2]);
+    } else if (strcmp(tokens[0], "status") == 0) {
+	retval = do_status_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "lock") == 0) {
 	retval = do_lock_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "unlock") == 0) {
@@ -536,6 +540,13 @@ static int parse_cmd(char *tokens[])
 static int do_lock_cmd(char *command)
 {
     int retval=0;
+
+    /* are we running as root? */
+    if ( getuid() != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Must be root to lock HAL\n");
+	return -2;
+    }
 
     /* if command is blank, want to lock everything */
     if (*command == '\0') {
@@ -1010,6 +1021,30 @@ static int do_show_cmd(char *type, char *pattern)
 	print_thread_list(pattern);
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'show' type '%s'\n", type);
+	return -1;
+    }
+    return 0;
+}
+
+
+static int do_status_cmd(char *type)
+{
+
+    if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
+	/* must be -Q, don't print anything */
+	return 0;
+    }
+    if (*type == '\0') {
+	/*! \todo FIXME - add other status functions here */
+	print_lock_status();
+    } else if (strcmp(type, "all") == 0) {
+	/*! \todo FIXME - add other status functions here */
+	/* print everything, using the pattern */
+	print_lock_status();
+    } else if (strcmp(type, "lock") == 0) {
+	print_lock_status();
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'status' type '%s'\n", type);
 	return -1;
     }
     return 0;
@@ -1598,6 +1633,27 @@ static void print_thread_list(char *pattern)
     rtapi_print("\n");
 }
 
+static void print_lock_status()
+{
+    int lock;
+
+    lock = hal_get_lock();
+
+    rtapi_print("HAL locking status:\n");
+    rtapi_print("  current lock value %d (%02x)\n", lock, lock);
+    
+    if (lock == HAL_LOCK_NONE) 
+	rtapi_print("  HAL_LOCK_NONE - nothing is locked\n");
+    if (lock & HAL_LOCK_LOAD) 
+	rtapi_print("  HAL_LOCK_LOAD    - loading of new components is locked\n");
+    if (lock & HAL_LOCK_CONFIG) 
+	rtapi_print("  HAL_LOCK_CONFIG  - link and addf is locked\n");
+    if (lock & HAL_LOCK_PARAMS) 
+	rtapi_print("  HAL_LOCK_PARAMS  - settign params is locked\n");
+    if (lock & HAL_LOCK_RUN) 
+	rtapi_print("  HAL_LOCK_RUN     - running/stopping HAL is locked\n");
+}
+
 /* Switch function for pin/sig/param type for the print_*_list functions */
 static char *data_type(int type)
 {
@@ -1984,6 +2040,12 @@ static int do_help_cmd(char *command)
 	printf("  pattern (no fancy regular expressions, just a simple\n");
 	printf("  match: 'foo' matches 'foo', 'foobar' and 'foot' but\n");
 	printf("  not 'fo' or 'frobz' or 'ffoo').\n");
+    } else if (strcmp(command, "status") == 0) {
+	printf("status [type]\n");
+	printf("  Prints status info about HAL.\n");
+	printf("  'type' is 'lock', or 'all'. \n");
+	printf("  If 'type' is omitted, it assumes\n");
+	printf("  'all'.\n");
     } else if (strcmp(command, "save") == 0) {
 	printf("save [type]\n");
 	printf("  Prints HAL items as commands that can be redirected to\n");
@@ -2027,7 +2089,7 @@ static void print_help_general(void)
     printf("  -h             Help - print this help screen and exit.\n\n");
     printf("commands:\n\n");
     printf("  loadrt, unloadrt, lock, unlock, linkps, linksp, unlinkp, newsig,\n");
-    printf("  delsig, setp, sets, addf, delf, show, save, start, stop, quit\n");
+    printf("  delsig, setp, sets, addf, delf, show, status, save, start, stop, quit\n");
     printf("  help           Lists all commands with short descriptions\n");
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
@@ -2038,6 +2100,8 @@ static void print_help_commands(void)
     printf("Available commands:\n");
     printf("  loadrt     Load realtime module\n");
     printf("  unloadrt   Unload realtime module[s]\n");
+    printf("  lock       Lock HAL behaviour\n");
+    printf("  unlock     Unlock HAL behaviour\n");
     printf("  linkps     Link pin to signal\n");
     printf("  linksp     Link signal to pin\n");
     printf("  unlinkp    Unlink pin\n");
@@ -2048,6 +2112,7 @@ static void print_help_commands(void)
     printf("  addf       Add function to thread\n");
     printf("  delf       Remove function from thread\n");
     printf("  show       Display information\n");
+    printf("  status     Display status information\n");
     printf("  save       Print config as commands\n");
     printf("  start      Start realtime threads\n");
     printf("  stop       Stop realtime threads\n");
