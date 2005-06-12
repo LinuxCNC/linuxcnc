@@ -704,7 +704,12 @@ EmcPose tpGetPos(TP_STRUCT * tp)
 	   an EmcPose structure that is declared locally, ie. on the stack!
 	   That struct goes out of scope as soon as this function returns.  I
 	   expect the only reason it hasn't caused problems is that nobody
-	   ever calls this function with tp = 0 */
+	   ever calls this function with tp = 0
+
+            N.B: This is no different to declaring an int retval within the body
+            of a function and returning it. Returning a struct is no different.
+            Note: This is a struct, not a pointer that is being returned.
+           */
 	retval.tran.x = retval.tran.y = retval.tran.z = 0.0;
 	retval.a = retval.b = retval.c = 0.0;
 	return retval;
