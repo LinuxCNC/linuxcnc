@@ -50,6 +50,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
