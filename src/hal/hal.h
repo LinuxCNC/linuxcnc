@@ -135,6 +135,15 @@ extern "C" {
 
 #define HAL_NAME_LEN     31	/* length for pin, signal, etc, names */
 
+/** These locking codes define the state of HAL locking, are used by most functions */
+/** The functions locked will return a HAL_PERM error message **/
+
+#define HAL_LOCK_NONE     0     /* no locking done, any command is permitted */
+#define HAL_LOCK_LOAD     1     /* loading rt components is not permitted */
+#define HAL_LOCK_CONFIG   2     /* locking of link and addf related commands */
+#define HAL_LOCK_PARAMS   4     /* locking of parameter set commands */
+
+#define HAL_LOCK_ALL      255   /* locks every action */
 
 
 /***********************************************************************
@@ -270,6 +279,26 @@ typedef volatile unsigned long hal_u32_t;
 typedef volatile signed long hal_s32_t;
 typedef volatile float hal_float_t;
 #endif
+
+/***********************************************************************
+*                      "LOCKING" FUNCTIONS                             *
+************************************************************************/
+/** The 'hal_set_lock()' function sets locking based on one of the 
+    locking types defined in hal.h
+    HAL_LOCK_NONE -locks none
+    HAL_LOCK_* - intermediate locking levels
+    HAL_LOCK_ALL - locks everything
+*/
+extern int hal_set_lock(unsigned char lock_type);
+
+/** The 'hal_get_lock()' function returns the current locking level 
+    locking types defined in hal.h
+    HAL_LOCK_NONE -locks none
+    HAL_LOCK_* - intermediate locking levels
+    HAL_LOCK_ALL - locks everything
+*/
+
+extern unsigned char hal_get_lock(void);
 
 /***********************************************************************
 *                        "PIN" FUNCTIONS                               *

@@ -148,6 +148,7 @@ typedef struct {
     int funct_free_ptr;		/* list of free function structs */
     hal_list_t funct_entry_free;	/* list of free funct entry structs */
     int thread_free_ptr;	/* list of free thread structs */
+    unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
 } hal_data_t;
 
 /** HAL 'component' data structure.

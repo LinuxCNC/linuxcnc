@@ -362,6 +362,36 @@ void *hal_malloc(long int size)
 }
 
 /***********************************************************************
+*                      "LOCKING" FUNCTIONS                             *
+************************************************************************/
+/** The 'hal_set_lock()' function sets locking based on one of the 
+    locking types defined in hal.h
+*/
+int hal_set_lock(unsigned char lock_type) {
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: set_lock called before init\n");
+	return HAL_INVAL;
+    }
+    hal_data->lock = lock_type;
+    return HAL_SUCCESS;
+}
+
+/** The 'hal_get_lock()' function returns the current locking level 
+    locking types defined in hal.h
+*/
+
+unsigned char hal_get_lock() {
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: get_lock called before init\n");
+	return HAL_INVAL;
+    }
+    return hal_data->lock;
+}
+
+
+/***********************************************************************
 *                        "PIN" FUNCTIONS                               *
 ************************************************************************/
 
@@ -1993,6 +2023,7 @@ static void init_hal_data(void)
     /* set up for shmalloc_xx() */
     hal_data->shmem_bot = sizeof(hal_data_t);
     hal_data->shmem_top = HAL_SIZE;
+    hal_data->lock = HAL_LOCK_NONE;
     /* done, release mutex */
     rtapi_mutex_give(&(hal_data->mutex));
     return;
