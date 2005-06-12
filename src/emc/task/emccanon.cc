@@ -1440,55 +1440,6 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
 	file_name[0] = 0;
 }
 
-#if 0 /*! \todo FIXME - this code may no longer be needed */
-
-/***********************************************************************/
-
-/* rs274ngc_ini_load()
-
-Returned Value: RS274NGC_OK, RS274NGC_ERROR
-
-Side Effects:
-   An INI file containing values for global variables is used to
-   update the globals
-
-Called By:
-   rs274ngc_init()
-
-The file looks like this:
-
-[RS274NGC]
-VARIABLE_FILE = rs274ngc.var
-
-*/
-
-#include "inifile.hh"		// INIFILE
-
-int rs274ngc_ini_load(const char *filename)
-{
-    INIFILE inifile;
-    const char *inistring;
-
-    // open it
-    if (0 != inifile.open(filename)) {
-	return -1;
-    }
-
-    if (NULL != (inistring = inifile.find("PARAMETER_FILE", "RS274NGC"))) {
-	// found it
-	strncpy(_parameter_file_name, inistring, PARAMETER_FILE_NAME_LENGTH);
-    } else {
-	// not found, leave RS274NGC_PARAMETER_FILE alone
-    }
-
-    // close it
-    inifile.close();
-
-    return 0;
-}
-
-#endif
-
 double GET_EXTERNAL_POSITION_X(void)
 {
     CANON_POSITION position;
@@ -1615,6 +1566,9 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.15  2005/06/12 21:23:32  paul_c
+  Remove a duplicate function (had been ifdef'd out anyway..
+
   Revision 1.14  2005/06/12 15:45:45  paul_c
   todo tags added to all FIXME comments so that they get highlighted when auto-generating docs.
 
