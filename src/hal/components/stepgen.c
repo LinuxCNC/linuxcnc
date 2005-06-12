@@ -352,8 +352,6 @@ typedef struct {
     double scale_recip;		/* reciprocal value used for scaling */
     hal_float_t *pos_cmd;	/* pin: position command (position units) */
     hal_float_t *pos_fb;	/* pin: position feedback (position units) */
-    hal_float_t pos_err;	/* param: position error, (steps) */
-    hal_float_t vel_err;	/* param: velocity error (steps/sec) */
     hal_float_t freq;		/* param: frequency command */
     hal_float_t maxvel;		/* param: max velocity, (pos units/sec) */
     hal_float_t maxaccel;	/* param: max accel (pos units/sec^2) */
@@ -859,8 +857,6 @@ static void update_freq(void *arg, long period)
 	   vel_cmd, curr_vel, max_freq and max_ac, all in counts, 
 	   counts/sec, or counts/sec^2.  Now we just have to do 
 	   something useful with them. */
-	   
-stepgen->pos_err = pos_cmd;
 	/* determine which way we need to ramp to match velocity */
 	if (vel_cmd > curr_vel) {
 	    match_ac = max_ac;
@@ -1022,18 +1018,6 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     if (retval != 0) {
 	return retval;
     }
-    /* export parameter for position error */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.pos-err", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->pos_err), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    /* export parameter for velocity error */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.vel-err", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->vel_err), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
     /* export param for scaled velocity (frequency in Hz) */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.frequency", num);
     retval = hal_param_float_new(buf, HAL_RD, &(addr->freq), comp_id);
@@ -1057,8 +1041,6 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     addr->old_scale = 1.0;
     addr->scale_recip = 1.0;
     addr->freq = 0.0;
-    addr->pos_err = 0.0;
-    addr->vel_err = 0.0;
     addr->old_pos_cmd = 0.0;
     addr->maxvel = 0.0;
     addr->maxaccel = 0.0;
