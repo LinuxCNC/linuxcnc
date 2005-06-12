@@ -142,6 +142,7 @@ extern "C" {
 #define HAL_LOCK_LOAD     1     /* loading rt components is not permitted */
 #define HAL_LOCK_CONFIG   2     /* locking of link and addf related commands */
 #define HAL_LOCK_PARAMS   4     /* locking of parameter set commands */
+#define HAL_LOCK_RUN      8     /* locking of start/stop of HAL threads */
 
 #define HAL_LOCK_ALL      255   /* locks every action */
 
