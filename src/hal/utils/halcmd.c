@@ -70,6 +70,7 @@
 #define MAX_CMD_LEN 1024
 
 static int parse_cmd(char *tokens[]);
+static int do_help_cmd(char *command);
 static int do_link_cmd(char *pin, char *sig);
 static int do_newsig_cmd(char *name, char *type);
 static int do_setp_cmd(char *name, char *value);
@@ -96,7 +97,8 @@ static void save_links(int arrows);
 static void save_nets(int arrows);
 static void save_params(void);
 static void save_threads(void);
-static void print_help(void);
+static void print_help_general(void);
+static void print_help_commands(void);
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
@@ -134,6 +136,13 @@ static void quit(int sig)
     }
 }
 
+/* main() is responsible for parsing command line options, and then
+   parsing either a single command from the command line or a series
+   of commands from a file or standard input.  It breaks the command[s]
+   into tokens, and passes them to parse_cmd() which does the actual
+   work for each command.
+*/
+
 int main(int argc, char **argv)
 {
     int n, m, fd;
@@ -151,7 +160,7 @@ int main(int argc, char **argv)
 
     if (argc < 2) {
 	/* no args specified, print help */
-	print_help();
+	print_help_general();
 	exit(0);
     }
     /* set default level of output - 'quiet' */
@@ -167,7 +176,7 @@ int main(int argc, char **argv)
 	    switch (*cp1) {
 	    case 'h':
 		/* -h = help */
-		print_help();
+		print_help_general();
 		return 0;
 		break;
 	    case 'k':
@@ -258,6 +267,7 @@ int main(int argc, char **argv)
     comp_id = hal_init(buf);
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed\n" );
+	fprintf(stderr, "NOTE: 'rtapi' kernel module must be loaded\n" );
 	return 1;
     }
     retval = 0;
@@ -408,6 +418,11 @@ int main(int argc, char **argv)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
+/* parse_cmd() decides which command has been invoked, gathers any
+   arguments that are needed, and calls a function to execute the
+   command.
+*/
+
 static int parse_cmd(char *tokens[])
 {
     int retval;
@@ -419,11 +434,20 @@ static int parse_cmd(char *tokens[])
 	printf ( "%02d:{%s}\n", n, tokens[n] );
     }
 #endif
-
     /* tokens[0] is the command */
     if ((tokens[0][0] == '#') || (tokens[0][0] == '\0')) {
 	/* comment or blank line, do nothing */
 	retval = 0;
+    } else if (strcmp(tokens[0], "help") == 0) {
+	/* help for a specific command? */
+	if (tokens[1][0] != '\0') {
+	    /* yes, get info for that command */
+	    retval = do_help_cmd(tokens[1]);
+	} else {
+	    /* no, print list of commands */
+	    print_help_commands();
+	    retval = 0;
+	}
     } else if (strcmp(tokens[0], "linkps") == 0) {
 	/* check for an arrow */
 	if ((tokens[2][0] == '=') || (tokens[2][0] == '<')) {
@@ -1175,7 +1199,6 @@ static int do_delsig_cmd(char *mod_name)
     return retval1;
 }
 
-
 static int do_unloadrt_cmd(char *mod_name)
 {
     int next, retval, retval1, n, all;
@@ -1784,108 +1807,136 @@ static void save_threads(void)
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
-static void print_help(void)
+static int do_help_cmd(char *command)
 {
 
-    printf("Hardware Abstraction Layer command line utility\n\n");
-    printf("Usage:   halcmd [options] [cmd [args]]\n\n");
+    if (strcmp(command, "help") == 0) {
+	printf("If you need help to use 'help', then I can't help you.\n");
+    } else if (strcmp(command, "loadrt") == 0) {
+	printf("loadrt modname [modarg(s)]\n");
+	printf("  Loads realtime HAL module 'modname', passing 'modargs'\n");
+	printf("  to the module.  Must be root to run this command.\n");
+    } else if (strcmp(command, "unloadrt") == 0) {
+	printf("unloadrt modname\n");
+	printf("  Unloads realtime HAL module 'modname'.  If 'modname'\n");
+	printf("  is 'all', unloads all realtime modules.  Must be root\n" );
+	printf("  to run this command.\n");
+    } else if ((strcmp(command, "linksp") == 0) || (strcmp(command,"linkps") == 0)) {
+	printf("linkps pinname [arrow] signame\n");
+	printf("linksp signame [arrow] pinname\n");
+	printf("  Links pin 'pinname' to signal 'signame'.  Both forms do\n");
+	printf("  the same thing.  Use whichever makes sense.  The optional\n");
+	printf("  'arrow' can be '=>', '<=', or '<=>' and is ignored.  It\n");
+	printf("  can be used in files to show the direction of data flow,\n");
+	printf("  but don't use arrows on the command line.\n");
+    } else if (strcmp(command, "unlinkp") == 0) {
+	printf("unlinkp pinname\n");
+	printf("  Unlinks pin 'pinname' if it is linked to any signal.\n");
+    } else if (strcmp(command, "newsig") == 0) {
+	printf("newsig signame type\n");
+	printf("  Creates a new signal called 'signame'.  Type is 'bit',\n");
+	printf("  'float', 'u8', 's8', 'u16', 's16', 'u32', or 's32'.\n");
+    } else if (strcmp(command, "delsig") == 0) {
+	printf("delsig signame\n");
+	printf("  Deletes signal 'signame'.  If 'signame is 'all',\n");
+	printf("  deletes all signals\n");
+    } else if (strcmp(command, "setp") == 0) {
+	printf("setp paramname value\n");
+	printf("paramname = value\n");
+	printf("  Sets parameter 'paramname' to 'value' (if writable).\n");
+	printf("  'setp' and '=' work the same, don't use '=' on the\n");
+	printf("  command line.  'value' may be a constant such as 1.234\n");
+	printf("  or TRUE, or a reference to an environment variable,\n");
+#ifdef NO_INI
+	printf("  using the syntax '$name'./n");
+#else
+	printf("  using the syntax '$name'.  If option -i was given,\n");
+	printf("  'value' may also be a reference to an ini file entry\n");
+	printf("  using the syntax '[section]name'.\n");
+#endif
+    } else if (strcmp(command, "sets") == 0) {
+	printf("sets signame value\n");
+	printf("  Sets signal 'signame' to 'value' (if sig has no writers).\n");
+    } else if (strcmp(command, "addf") == 0) {
+	printf("addf functname threadname [position]\n");
+	printf("  Adds function 'functname' to thread 'threadname'.  If\n");
+	printf("  'position' is specified, adds the function to that spot\n");
+	printf("  in the thread, otherwise adds it to the end.  Negative\n");
+	printf("  'position' means position with respect to the end of the\n");
+	printf("  thread.  For example '1' is start of thread, '-1' is the\n");
+	printf("  end of the thread, '-3' is third from the end.\n");
+    } else if (strcmp(command, "delf") == 0) {
+	printf("delf functname threadname\n");
+	printf("  Removes function 'functname' from thread 'threadname'.\n");
+    } else if (strcmp(command, "show") == 0) {
+	printf("show [type]\n");
+	printf("  Prints info about HAL items of the specified type.\n");
+	printf("  'type' is 'comp', 'pin', 'sig', 'param', 'funct', or\n");
+	printf("  'thread'.  If 'type' is omitted, prints everything.\n");
+    } else if (strcmp(command, "save") == 0) {
+	printf("save [type]\n");
+	printf("  Prints HAL items as commands that can be redirected to\n");
+	printf("  a file and later restored using \"halcmd -f filename\".\n");
+	printf("  Type can be 'sig', 'link[a]', 'net[a]', 'param', or\n");
+	printf("  'thread'.  ('linka' and 'neta' show arrows for pin\n");
+	printf("  direction.)  If 'type' is omitted, does the equivalent\n");
+	printf("  of 'sig', 'link', 'param', and 'thread'.\n");
+    } else if (strcmp(command, "start") == 0) {
+	printf("start\n");
+	printf("  Starts all realtime threads.\n");
+    } else if (strcmp(command, "stop") == 0) {
+	printf("stop\n");
+	printf("  Stops all realtime threads.\n");
+    } else if (strcmp(command, "quit") == 0) {
+	printf("quit\n");
+	printf("  Stop processing input and terminate halcmd (when\n");
+	printf("  reading from a file or stdin).\n");
+    } else {
+	printf("No help for unknown command '%s'\n", command);
+    }
+    return 0;
+}
+
+static void print_help_general(void)
+{
+    printf("\nUsage:   halcmd [options] [cmd [args]]\n\n");
     printf("options:\n\n");
-    printf
-	("  -f [filename]    Read command(s) from 'filename' instead of command\n");
-    printf
-	("                   line.  If no file is specified, read from stdin.\n\n");
+    printf("  -f [filename]  Read commands from 'filename', not command\n");
+    printf("                 line.  If no filename, read from stdin.\n");
 #ifndef NO_INI
-    printf
-	("  -i filename      Open .ini file 'filename' and allow setp commands\n");
+    printf("  -i filename    Open .ini file 'filename', allow commands\n");
+    printf("                 to get their values from ini file.\n");
 #endif
-    printf
-	("                   to read their values from ini file variables.\n\n");
-    printf("  -k               Keep going after failed command.  By default,\n");
-    printf("                   halcmd will exit if any command fails.\n\n");
-    printf("  -q               Quiet - Display errors only (default).\n\n");
-    printf("  -Q               Very quiet - Display nothing.\n\n");
-    printf
-	("  -v               Verbose - Display results of every command.\n\n");
-    printf("  -V               Very verbose - Display lots of junk.\n\n");
-    printf("  -h               Help - Print this help screen and exit.\n\n");
-    printf("If reading commands from a file or stdin, they are one per\n");
-    printf("line, and use the same syntax as the command line version.\n\n");
-    printf("Commands and their args are as follows:\n\n");
-    printf("  loadrt modname [modarg[s]]\n");
-    printf
-	("         Loads realtime HAL module 'modname', using arguments 'modargs'\n\n" );
-    printf("  unloadrt modname\n");
-    printf
-	("         Unloads realtime HAL module 'modname'.\n");
-    printf
- 	("         If 'modname' is 'all', unloads all realtime modules\n\n" );
-    printf("  linkps pinname [arrow] signame\n");
-    printf("  linksp signame [arrow] pinname\n");
-    printf
-	("         Links pin 'pinname' to signal 'signame'.  Both forms do the same\n");
-    printf
-	("         thing.  Use whichever makes sense.  Likewise, 'arrow' can be '=>',\n");
-    printf
-	("         '<=', or '<=>' and is ignored (use in command files to document\n");
-    printf
-	("         the direction of data flow to/from pin - don't use on cmd line).\n\n");
-    printf("  unlinkp pinname\n");
-    printf("         Unlinks pin 'pinname'\n\n");
-    printf("  newsig signame type\n");
-    printf
-	("         Creates a new signal called 'signame'.  Type is 'bit', 'float',\n");
-    printf("         'u8', 's8', 'u16', 's16', 'u32', or 's32'.\n\n");
-    printf("  delsig signame\n");
-    printf("         Deletes signal 'signame'.\n");
-    printf("         If 'signame' is 'all' deletes all signals\n\n");
-    printf("  setp paramname value\n");
-    printf("  paramname = value\n");
-    printf
-	("         Sets parameter 'paramname' to 'value' (only if writable).\n");
-    printf
-	("         (Both forms are equivalent, don't use '=' on command line.)\n");
-    printf
-	("         'value' may be a constant such as 3.14 or TRUE, or a reference\n");
-    printf
-	("         to an environment variable, using the syntax '$name'.\n");
-#ifndef NO_INI
-    printf
-	("         If -i was given on the command line, 'value' may be also be a\n");
-    printf
-	("         reference to an ini file variable using the syntax '[section]name'.\n");
-#endif
-    printf("\n");
-    printf("  sets signame value\n");
-    printf
-	("         Sets signal 'signame' to 'value' (only if sig has no writers).\n\n");
-    printf("  addf functname threadname [position]\n");
-    printf
-	("         Adds function 'functname' to thread 'threadname'.  If 'position'\n");
-    printf("         is specified, add function to that spot in thread.\n\n");
-    printf("  delf functname threadname\n");
-    printf
-	("         Removes function 'functname' from thread 'threadname'.\n\n");
-    printf("  show [type]\n");
-    printf
-	("         Prints HAL items of the specified type in human readable form\n");
-    printf
-	("         'type' is 'comp', 'pin', 'sig', 'param', 'funct', or 'thread'.\n");
-    printf("         If 'type' is omitted, prints everything.\n\n");
-    printf("  save [type]\n");
-    printf
-	("         Prints HAL items in a format that can be redirected to a file,\n");
-    printf
-	("         and later restored using \"halcmd -f filename\".  Type can be\n");
-    printf
-	("         'sig', 'link[a]', 'net[a]', 'param', or 'thread'.  ('linka' and\n");
-    printf
-	("         'neta' show arrows for pin direction.)  If 'type' is omitted,\n");
-    printf
-	("         it does the equivalend of 'sig', 'link', 'param', and 'thread'.\n\n");
-    printf("  start\n");
-    printf("         Starts all realtime threads.\n\n");
-    printf("  stop\n");
-    printf("         Stops all realtime threads.\n\n");
-    printf("  quit\n");
-    printf("         Stop processing input when reading from a file or stdin.\n\n");
+    printf("  -k             Keep going after failed command.  Default\n");
+    printf("                 is to exit if any command fails.\n");
+    printf("  -q             Quiet - print errors only (default).\n");
+    printf("  -Q             Very quiet - print nothing.\n");
+    printf("  -v             Verbose - print result of every command.\n");
+    printf("  -V             Very verbose - print lots of junk.\n");
+    printf("  -h             Help - print this help screen and exit.\n\n");
+    printf("commands:\n\n");
+    printf("  help           Prints list of all commands\n");
+    printf("  help command   Prints help for 'command'\n\n");
+}
+
+static void print_help_commands(void)
+{
+    printf("Use 'help <command>'  for more details about each command\n");
+    printf("Available commands:\n");
+    printf("  loadrt     Load realtime module\n");
+    printf("  unloadrt   Unload realtime module[s]\n");
+    printf("  linkps     Link pin to signal\n");
+    printf("  linksp     Link signal to pin\n");
+    printf("  unlinkp    Unlink pin\n");
+    printf("  newsig     Create new signal\n");
+    printf("  delsig     Delete a signal\n");
+    printf("  setp       Set value of a parameter\n");
+    printf("  sets       Set value of a signal\n");
+    printf("  addf       Add function to thread\n");
+    printf("  delf       Remove function from thread\n");
+    printf("  show       Display information\n");
+    printf("  save       Print config as commands\n");
+    printf("  start      Start realtime threads\n");
+    printf("  stop       Stop realtime threads\n");
+    printf("  quit       Stop processing commands, exit from halcmd\n");
 }
