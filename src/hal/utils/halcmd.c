@@ -77,7 +77,9 @@ static int do_unlock_cmd(char *command);
 static int do_link_cmd(char *pin, char *sig);
 static int do_newsig_cmd(char *name, char *type);
 static int do_setp_cmd(char *name, char *value);
+static int do_getp_cmd(char *name);
 static int do_sets_cmd(char *name, char *value);
+static int do_gets_cmd(char *name);
 static int do_show_cmd(char *type, char *pattern);
 static int do_status_cmd(char *type);
 static int do_loadrt_cmd(char *mod_name, char *args[]);
@@ -481,6 +483,10 @@ static int parse_cmd(char *tokens[])
 	retval = do_setp_cmd(tokens[0], tokens[2]);
     } else if (strcmp(tokens[0], "sets") == 0) {
 	retval = do_sets_cmd(tokens[1], tokens[2]);
+    } else if (strcmp(tokens[0], "getp") == 0) {
+	retval = do_getp_cmd(tokens[1]);
+    } else if (strcmp(tokens[0], "gets") == 0) {
+	retval = do_gets_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "show") == 0) {
 	retval = do_show_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "status") == 0) {
@@ -844,6 +850,31 @@ static int do_setp_cmd(char *name, char *value)
 
 }
 
+static int do_getp_cmd(char *name)
+{
+    hal_param_t *param;
+    hal_type_t type;
+    void *d_ptr;
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: getting parameter '%s'\n", name);
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* search param list for name */
+    param = halpr_find_param_by_name(name);
+    if (param == 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: parameter '%s' not found\n", name);
+	return HAL_INVAL;
+    }
+    /* found it */
+    type = param->type;
+    d_ptr = SHMPTR(param->data_ptr);
+    rtapi_print("%s\n", data_value((int) type, d_ptr));
+    rtapi_mutex_give(&(hal_data->mutex));
+    return HAL_SUCCESS;
+}
+
 static int do_sets_cmd(char *name, char *value)
 {
     int retval;
@@ -984,6 +1015,31 @@ static int do_sets_cmd(char *name, char *value)
 
 }
 
+static int do_gets_cmd(char *name)
+{
+    hal_sig_t *sig;
+    hal_type_t type;
+    void *d_ptr;
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: getting signal '%s'\n", name);
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* search signal list for name */
+    sig = halpr_find_sig_by_name(name);
+    if (sig == 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: signal '%s' not found\n", name);
+	return HAL_INVAL;
+    }
+    /* found it */
+    type = sig->type;
+    d_ptr = SHMPTR(sig->data_ptr);
+    rtapi_print("%s\n", data_value((int) type, d_ptr));
+    rtapi_mutex_give(&(hal_data->mutex));
+    return HAL_SUCCESS;
+}
+
 static int do_show_cmd(char *type, char *pattern)
 {
 
@@ -1034,12 +1090,9 @@ static int do_status_cmd(char *type)
 	/* must be -Q, don't print anything */
 	return 0;
     }
-    if (*type == '\0') {
+    if ((*type == '\0') || (strcmp(type, "all") == 0)) {
+	/* print everything */
 	/*! \todo FIXME - add other status functions here */
-	print_lock_status();
-    } else if (strcmp(type, "all") == 0) {
-	/*! \todo FIXME - add other status functions here */
-	/* print everything, using the pattern */
 	print_lock_status();
     } else if (strcmp(type, "lock") == 0) {
 	print_lock_status();
@@ -1649,7 +1702,7 @@ static void print_lock_status()
     if (lock & HAL_LOCK_CONFIG) 
 	rtapi_print("  HAL_LOCK_CONFIG  - link and addf is locked\n");
     if (lock & HAL_LOCK_PARAMS) 
-	rtapi_print("  HAL_LOCK_PARAMS  - settign params is locked\n");
+	rtapi_print("  HAL_LOCK_PARAMS  - setting params is locked\n");
     if (lock & HAL_LOCK_RUN) 
 	rtapi_print("  HAL_LOCK_RUN     - running/stopping HAL is locked\n");
 }
@@ -2019,6 +2072,12 @@ static int do_help_cmd(char *command)
     } else if (strcmp(command, "sets") == 0) {
 	printf("sets signame value\n");
 	printf("  Sets signal 'signame' to 'value' (if sig has no writers).\n");
+    } else if (strcmp(command, "getp") == 0) {
+	printf("getp paramname\n");
+	printf("  Gets the value of parameter 'paramname'.\n");
+    } else if (strcmp(command, "gets") == 0) {
+	printf("gets signame\n");
+	printf("  Gets the value of signal 'signame'.\n");
     } else if (strcmp(command, "addf") == 0) {
 	printf("addf functname threadname [position]\n");
 	printf("  Adds function 'functname' to thread 'threadname'.  If\n");
@@ -2089,7 +2148,8 @@ static void print_help_general(void)
     printf("  -h             Help - print this help screen and exit.\n\n");
     printf("commands:\n\n");
     printf("  loadrt, unloadrt, lock, unlock, linkps, linksp, unlinkp, newsig,\n");
-    printf("  delsig, setp, sets, addf, delf, show, status, save, start, stop, quit\n");
+    printf("  delsig, setp, getp, sets, gets, addf, delf, show, status, save,\n");
+    printf("  start, stop, quit\n");
     printf("  help           Lists all commands with short descriptions\n");
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
@@ -2109,9 +2169,11 @@ static void print_help_commands(void)
     printf("  delsig     Delete a signal\n");
     printf("  setp       Set value of a parameter\n");
     printf("  sets       Set value of a signal\n");
+    printf("  getp       Get value of a parameter\n");
+    printf("  gets       Get value of a signal\n");
     printf("  addf       Add function to thread\n");
     printf("  delf       Remove function from thread\n");
-    printf("  show       Display information\n");
+    printf("  show       Display info about HAL objects\n");
     printf("  status     Display status information\n");
     printf("  save       Print config as commands\n");
     printf("  start      Start realtime threads\n");
