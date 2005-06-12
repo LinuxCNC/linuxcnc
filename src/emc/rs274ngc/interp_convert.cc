@@ -810,7 +810,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   } else if (!strncmp(lc, SYSTEM_STR, strlen(SYSTEM_STR))) {
 /*! \todo Implement SYSTEM commands in the task controller */
 #if 0
-/* FIX-ME Impliment these at a later stage... */
+/*! \todo FIX-ME Impliment these at a later stage... */
     SYSTEM(comment + start + strlen(SYSTEM_STR));
     return RS274NGC_EXECUTE_FINISH;     // inhibit read-ahead until this is done
 #endif
@@ -1650,7 +1650,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 /*! \todo The M62-65 commands are not currently supported by the IO
           sub-system */
 #if 0
-/* FIX-ME Impliment these at a later stage... */
+/*! \todo FIX-ME Impliment these at a later stage... */
   if (block->m_modes[5] == 62) {
     SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 63) {
@@ -1721,7 +1721,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
           These are M100-199 with optional P & Q parameters.    
 */
 #if 0
-/* FIX-ME Impliment these at a later stage... */
+/*! \todo FIX-ME Impliment these at a later stage... */
   /* user-defined M codes */
   for (index = 100; index < 200; index++) {
     if (block->m_modes[index] == index) {

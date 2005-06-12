@@ -186,7 +186,7 @@ extern vector3 traj_point(void *queue, vector3 pos); // interpolates next point 
 extern int traj_status(void *queue, int flag); // sets/returns queue status
 extern int traj_id(void *queue); // current segment ID
 
-/* FIX-ME wrappers around new functions - Not all are implemented... */
+/*! \todo FIX-ME wrappers around new functions - Not all are implemented... */
 extern int tpFull(TP_STRUCT *tp);
 extern int tpAbort(TP_STRUCT *tp);
 extern int tpAddCircle(TP_STRUCT *tp, EmcPose end, PmCartesian center, PmCartesian normal, int turn);
