@@ -72,6 +72,8 @@
 
 static int parse_cmd(char *tokens[]);
 static int do_help_cmd(char *command);
+static int do_lock_cmd(char *command);
+static int do_unlock_cmd(char *command);
 static int do_link_cmd(char *pin, char *sig);
 static int do_newsig_cmd(char *name, char *type);
 static int do_setp_cmd(char *name, char *value);
@@ -479,6 +481,10 @@ static int parse_cmd(char *tokens[])
 	retval = do_sets_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "show") == 0) {
 	retval = do_show_cmd(tokens[1]);
+    } else if (strcmp(tokens[0], "lock") == 0) {
+	retval = do_lock_cmd(tokens[1]);
+    } else if (strcmp(tokens[0], "unlock") == 0) {
+	retval = do_unlock_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "loadrt") == 0) {
 	retval = do_loadrt_cmd(tokens[1], &tokens[2]);
     } else if (strcmp(tokens[0], "unloadrt") == 0) {
@@ -523,6 +529,61 @@ static int parse_cmd(char *tokens[])
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown command '%s'\n", tokens[0]);
 	retval = -1;
+    }
+    return retval;
+}
+
+static int do_lock_cmd(char *command)
+{
+    int retval=0;
+
+    /* if command is blank, want to lock everything */
+    if (*command == '\0') {
+	retval = hal_set_lock(HAL_LOCK_ALL);
+    } else if (strcmp(command, "none") == 0) {
+	retval = hal_set_lock(HAL_LOCK_NONE);
+    } else if (strcmp(command, "tune") == 0) {
+	retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
+    } else if (strcmp(command, "all") == 0) {
+	retval = hal_set_lock(HAL_LOCK_ALL);
+    }
+
+    if (retval == 0) {
+	/* print success message */
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "Locking completed");
+    } else {
+	rtapi_print_msg(RTAPI_MSG_INFO, "Locking failed\n");
+    }
+    return retval;
+}
+
+static int do_unlock_cmd(char *command)
+{
+    int retval=0;
+
+    /* are we running as root? */
+    if ( getuid() != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Must be root to unlock HAL\n");
+	return -2;
+    }
+
+    /* if command is blank, want to lock everything */
+    if (*command == '\0') {
+	retval = hal_set_lock(HAL_LOCK_NONE);
+    } else if (strcmp(command, "all") == 0) {
+	retval = hal_set_lock(HAL_LOCK_NONE);
+    } else if (strcmp(command, "tune") == 0) {
+	retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
+    }
+
+    if (retval == 0) {
+	/* print success message */
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "Locking completed");
+    } else {
+	rtapi_print_msg(RTAPI_MSG_INFO, "Locking failed\n");
     }
     return retval;
 }
@@ -964,6 +1025,13 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	    "HAL: ERROR: Must be root to load realtime modules\n");
 	return -2;
     }
+    
+    if (hal_get_lock()&HAL_LOCK_LOAD) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: HAL is locked, loading of modules is not permitted\n");
+	return -2;
+    }
+    
     /* check for insmod */
     if ( insmod_path == NULL ) {
 	/* need to find insmod */
@@ -1833,6 +1901,17 @@ static int do_help_cmd(char *command)
     } else if (strcmp(command, "unlinkp") == 0) {
 	printf("unlinkp pinname\n");
 	printf("  Unlinks pin 'pinname' if it is linked to any signal.\n");
+    } else if (strcmp(command, "lock") == 0) {
+	printf("lock [all|tune|none]\n");
+	printf("  Locks HAL to some degree.\n");
+	printf("  none - no locking done.\n");
+	printf("  tune - some tuning is possible (setp & such).\n");
+	printf("  all  - HAL completely locked.\n");
+    } else if (strcmp(command, "unlock") == 0) {
+	printf("lock [all|tune]\n");
+	printf("  Unlocks HAL to some degree.\n");
+	printf("  tune - some tuning is possible (setp & such).\n");
+	printf("  all  - HAL completely unlocked.\n");
     } else if (strcmp(command, "newsig") == 0) {
 	printf("newsig signame type\n");
 	printf("  Creates a new signal called 'signame'.  Type is 'bit',\n");
@@ -1916,8 +1995,8 @@ static void print_help_general(void)
     printf("  -V             Very verbose - print lots of junk.\n");
     printf("  -h             Help - print this help screen and exit.\n\n");
     printf("commands:\n\n");
-    printf("  loadrt, unloadrt, linkps, linksp, unlinkp, newsig, delsig\n");
-    printf("  setp, sets, addf, delf, show, save, start, stop, quit\n");
+    printf("  loadrt, unloadrt, lock, unlock, linkps, linksp, unlinkp, newsig,\n");
+    printf("  delsig, setp, sets, addf, delf, show, save, start, stop, quit\n");
     printf("  help           Lists all commands with short descriptions\n");
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
