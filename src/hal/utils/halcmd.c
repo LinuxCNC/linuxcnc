@@ -98,6 +98,7 @@ static char *data_dir(int dir);
 static char *data_arrow1(int dir);
 static char *data_arrow2(int dir);
 static char *data_value(int type, void *valptr);
+static char *data_value2(int type, void *valptr);
 static int do_save_cmd(char *type);
 static void save_signals(void);
 static void save_links(int arrows);
@@ -870,7 +871,7 @@ static int do_getp_cmd(char *name)
     /* found it */
     type = param->type;
     d_ptr = SHMPTR(param->data_ptr);
-    rtapi_print("%s\n", data_value((int) type, d_ptr));
+    rtapi_print("%s\n", data_value2((int) type, d_ptr));
     rtapi_mutex_give(&(hal_data->mutex));
     return HAL_SUCCESS;
 }
@@ -1035,7 +1036,7 @@ static int do_gets_cmd(char *name)
     /* found it */
     type = sig->type;
     d_ptr = SHMPTR(sig->data_ptr);
-    rtapi_print("%s\n", data_value((int) type, d_ptr));
+    rtapi_print("%s\n", data_value2((int) type, d_ptr));
     rtapi_mutex_give(&(hal_data->mutex));
     return HAL_SUCCESS;
 }
@@ -1811,6 +1812,7 @@ static char *data_arrow2(int dir)
 }
 
 /* Switch function to return var value for the print_*_list functions  */
+/* the value is printed in a fixed width field */
 static char *data_value(int type, void *valptr)
 {
     char *value_str;
@@ -1856,6 +1858,55 @@ static char *data_value(int type, void *valptr)
     default:
 	/* Shouldn't get here, but just in case... */
 	value_str = "   undef    ";
+    }
+    return value_str;
+}
+
+/* Switch function to return var value in string form  */
+/* the value is printed as a packed string (no whitespace */
+static char *data_value2(int type, void *valptr)
+{
+    char *value_str;
+    static char buf[15];
+
+    switch (type) {
+    case HAL_BIT:
+	if (*((char *) valptr) == 0)
+	    value_str = "FALSE";
+	else
+	    value_str = "TRUE";
+	break;
+    case HAL_FLOAT:
+	snprintf(buf, 14, "%e", *((float *) valptr));
+	value_str = buf;
+	break;
+    case HAL_S8:
+	snprintf(buf, 14, "%d", *((signed char *) valptr));
+	value_str = buf;
+	break;
+    case HAL_U8:
+	snprintf(buf, 14, "%u", *((unsigned char *) valptr));
+	value_str = buf;
+	break;
+    case HAL_S16:
+	snprintf(buf, 14, "%d", *((signed short *) valptr));
+	value_str = buf;
+	break;
+    case HAL_U16:
+	snprintf(buf, 14, "%u", *((unsigned short *) valptr));
+	value_str = buf;
+	break;
+    case HAL_S32:
+	snprintf(buf, 14, "%ld", *((signed long *) valptr));
+	value_str = buf;
+	break;
+    case HAL_U32:
+	snprintf(buf, 14, "%ld", *((unsigned long *) valptr));
+	value_str = buf;
+	break;
+    default:
+	/* Shouldn't get here, but just in case... */
+	value_str = "unknown_type";
     }
     return value_str;
 }
