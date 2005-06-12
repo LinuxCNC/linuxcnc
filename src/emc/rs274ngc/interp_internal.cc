@@ -278,7 +278,7 @@ Side effects:
    One RS274 line is read into a block and the block is checked for
    errors. System parameters may be reset.
 
-Called by:  rs274ngc_read
+Called by:  Interp::read
 
 */
 
@@ -335,7 +335,7 @@ Side effects:
   The current position is set.
   System parameters for probe position are set.
 
-Called by:  rs274ngc_read
+Called by:  Interp::read
 
 */
 

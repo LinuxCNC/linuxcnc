@@ -36,42 +36,42 @@ public:
    These functions may change the state of the interpreter. */
 
 // close the currently open NC code file
- int rs274ngc_close();
+ int close();
 
 // execute a line of NC code
 #ifndef NOT_OLD_EMC_INTERP_COMPATIBLE
- int rs274ngc_execute(const char *command = 0);
+ int execute(const char *command = 0);
 #else
- int rs274ngc_execute();
+ int execute();
 #endif
 
 // stop running
- int rs274ngc_exit();
+ int exit();
 
 // get ready to run
- int rs274ngc_init();
+ int init();
 
 // load a tool table
- int rs274ngc_load_tool_table();
+ int load_tool_table();
 
 // open a file of NC code
- int rs274ngc_open(const char *filename);
+ int open(const char *filename);
 
 // read the mdi or the next line of the open NC code file
- int rs274ngc_read(const char *mdi = 0);
+ int read(const char *mdi = 0);
 
 // reset yourself
- int rs274ngc_reset();
+ int reset();
 
 // restore interpreter variables from a file
- int rs274ngc_restore_parameters(const char *filename);
+ int restore_parameters(const char *filename);
 
 // save interpreter variables to file
- int rs274ngc_save_parameters(const char *filename,
+ int save_parameters(const char *filename,
                                     const double parameters[]);
 
 // synchronize your internal model with the external world
- int rs274ngc_synch();
+ int synch();
 
 /* Interface functions to call to get information from the interpreter.
    If a function has a return value, the return value contains the information.
@@ -80,47 +80,47 @@ public:
    the interpreter. */
 
 // copy active G codes into array [0]..[11]
- void rs274ngc_active_g_codes(int *codes);
+ void active_g_codes(int *codes);
 
 // copy active M codes into array [0]..[6]
- void rs274ngc_active_m_codes(int *codes);
+ void active_m_codes(int *codes);
 
 // copy active F, S settings into array [0]..[2]
- void rs274ngc_active_settings(double *settings);
+ void active_settings(double *settings);
 
 // copy the text of the error message whose number is error_code into the
 // error_text array, but stop at max_size if the text is longer.
- void rs274ngc_error_text(int error_code, char *error_text,
+ void error_text(int error_code, char *error_text,
                                 int max_size);
 
 // copy the name of the currently open file into the file_name array,
 // but stop at max_size if the name is longer
- void rs274ngc_file_name(char *file_name, int max_size);
+ void file_name(char *file_name, int max_size);
 
 // return the length of the most recently read line
- int rs274ngc_line_length();
+ int line_length();
 
 // copy the text of the most recently read line into the line_text array,
 // but stop at max_size if the text is longer
- void rs274ngc_line_text(char *line_text, int max_size);
+ void line_text(char *line_text, int max_size);
 
 // return the current sequence number (how many lines read)
- int rs274ngc_sequence_number();
+ int sequence_number();
 
 // copy the function name from the stack_index'th position of the
 // function call stack at the time of the most recent error into
 // the function name string, but stop at max_size if the name is longer
- void rs274ngc_stack_name(int stack_index, char *function_name,
+ void stack_name(int stack_index, char *function_name,
                                 int max_size);
 
 // Get the parameter file name from the ini file.
- int rs274ngc_ini_load(const char *filename);
+ int ini_load(const char *filename);
 
- int rs274ngc_line() { return rs274ngc_sequence_number(); }
+ int line() { return sequence_number(); }
 
- char *rs274ngc_command(char *buf, int len) { rs274ngc_line_text(buf, len); return buf; }
+ char *command(char *buf, int len) { line_text(buf, len); return buf; }
 
- char *rs274ngc_file(char *buf, int len) { rs274ngc_file_name(buf, len); return buf; }
+ char *file(char *buf, int len) { file_name(buf, len); return buf; }
 
 private:
 

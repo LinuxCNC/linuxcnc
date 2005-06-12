@@ -26,7 +26,7 @@ functions declared in canon.hh:
 Kernel functions call each other. A few kernel functions are called by
 interface functions.
 
-Interface function names all begin with "rs274ngc_".
+Interface function names all begin with "Interp::".
 
 Error handling is by returning a status value of either a non-error
 code (RS274NGC_OK, RS274NGC_EXIT, etc.) or some specific error code
@@ -95,7 +95,7 @@ what to do. They are declared in rs274ngc.hh.
 
 /***********************************************************************/
 
-/*! rs274ngc_close
+/*! Interp::close
 
 Returned Value: int (RS274NGC_OK)
 
@@ -107,20 +107,20 @@ Called By: external programs
 
 */
 
-int Interp::rs274ngc_close()
+int Interp::close()
 {
   if (_setup.file_pointer != NULL) {
     fclose(_setup.file_pointer);
     _setup.file_pointer = NULL;
   }
-  rs274ngc_reset();
+  reset();
 
   return RS274NGC_OK;
 }
 
 /***********************************************************************/
 
-/*! rs274ngc_execute
+/*! Interp::execute
 
 Returned Value: int)
    If execute_block returns RS274NGC_EXIT, this returns that.
@@ -140,14 +140,14 @@ This executes a previously parsed block.
 
 */
 
-int Interp::rs274ngc_execute(const char *command)
+int Interp::execute(const char *command)
 {
-  static char name[] = "rs274ngc_execute";
+  static char name[] = "Interp::execute";
   int status;
   int n;
 
   if (NULL != command) {
-    status = rs274ngc_read(command);
+    status = read(command);
     if (status != RS274NGC_OK) {
       return status;
     }
@@ -172,7 +172,7 @@ int Interp::rs274ngc_execute(const char *command)
 
 /***********************************************************************/
 
-/*! rs274ngc_exit
+/*! Interp::exit
 
 Returned Value: int (RS274NGC_OK)
 
@@ -187,16 +187,16 @@ written. Otherwise, the default parameter file name is used.
 
 */
 
-int Interp::rs274ngc_exit()
+int Interp::exit()
 {
   char file_name[LINELEN];
 
   GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
-  rs274ngc_save_parameters(((file_name[0] ==
+  save_parameters(((file_name[0] ==
                              0) ?
                             RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
                             file_name), _setup.parameters);
-  rs274ngc_reset();
+  reset();
 
   return RS274NGC_OK;
 }
@@ -208,7 +208,7 @@ int Interp::rs274ngc_exit()
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
    Otherwise, this returns RS274NGC_OK.
-   1. rs274ngc_restore_parameters returns an error code.
+   1. Interp::restore_parameters returns an error code.
    2. Parameter 5220, the work coordinate system index, is not in the range
       1 to 9: NCE_COORDINATE_SYSTEM_INDEX_PARAMETER_5220_OUT_OF_RANGE
 
@@ -228,9 +228,9 @@ always calls SET_FEED_REFERENCE(CANON_XYZ).
 
 */
 
-int Interp::rs274ngc_init()
+int Interp::init()
 {
-  static char name[] = "rs274ngc_init";
+  static char name[] = "Interp::init";
   int k;                        // starting index in parameters of origin offsets
   int status;
   char filename[LINELEN];
@@ -242,7 +242,7 @@ int Interp::rs274ngc_init()
   GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
   if (filename[0] == 0)
     strcpy(filename, RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
-  CHP(rs274ngc_restore_parameters(filename));
+  CHP(restore_parameters(filename));
   pars = _setup.parameters;
   _setup.origin_index = (int) (pars[5220] + 0.0001);
   CHK(((_setup.origin_index < 1) || (_setup.origin_index > 9)),
@@ -259,13 +259,13 @@ int Interp::rs274ngc_init()
   SET_FEED_REFERENCE(CANON_XYZ);
 #ifndef LATHE
   _setup.AA_axis_offset = pars[5214];
-//_setup.Aa_current set in rs274ngc_synch
+//_setup.Aa_current set in Interp::synch
   _setup.AA_origin_offset = pars[k + 4];
   _setup.BB_axis_offset = pars[5215];
-//_setup.Bb_current set in rs274ngc_synch
+//_setup.Bb_current set in Interp::synch
   _setup.BB_origin_offset = pars[k + 5];
   _setup.CC_axis_offset = pars[5216];
-//_setup.Cc_current set in rs274ngc_synch
+//_setup.Cc_current set in Interp::synch
   _setup.CC_origin_offset = pars[k + 6];
 #endif
 //_setup.active_g_codes initialized below
@@ -276,24 +276,24 @@ int Interp::rs274ngc_init()
   _setup.axis_offset_z = pars[5213];
 //_setup.block1 does not need initialization
   _setup.blocktext[0] = 0;
-//_setup.current_slot set in rs274ngc_synch
-//_setup.current_x set in rs274ngc_synch
-//_setup.current_y set in rs274ngc_synch
-//_setup.current_z set in rs274ngc_synch
+//_setup.current_slot set in Interp::synch
+//_setup.current_x set in Interp::synch
+//_setup.current_y set in Interp::synch
+//_setup.current_z set in Interp::synch
   _setup.cutter_comp_side = OFF;
 //_setup.cycle values do not need initialization
   _setup.distance_mode = MODE_ABSOLUTE;
   _setup.feed_mode = UNITS_PER_MINUTE;
   _setup.feed_override = ON;
-//_setup.feed_rate set in rs274ngc_synch
+//_setup.feed_rate set in Interp::synch
   _setup.filename[0] = 0;
   _setup.file_pointer = NULL;
-//_setup.flood set in rs274ngc_synch
+//_setup.flood set in Interp::synch
   _setup.length_offset_index = 1;
-//_setup.length_units set in rs274ngc_synch
+//_setup.length_units set in Interp::synch
   _setup.line_length = 0;
   _setup.linetext[0] = 0;
-//_setup.mist set in rs274ngc_synch
+//_setup.mist set in Interp::synch
   _setup.motion_mode = G_80;
 //_setup.origin_index set above
   _setup.origin_offset_x = pars[k + 1];
@@ -304,38 +304,38 @@ int Interp::rs274ngc_init()
 //_setup.parameter_numbers does not need initialization
 //_setup.parameter_values does not need initialization
 //_setup.percent_flag does not need initialization
-//_setup.plane set in rs274ngc_synch
+//_setup.plane set in Interp::synch
   _setup.probe_flag = OFF;
   _setup.program_x = UNKNOWN;   /* for cutter comp */
   _setup.program_y = UNKNOWN;   /* for cutter comp */
 //_setup.retract_mode does not need initialization
-//_setup.selected_tool_slot set in rs274ngc_synch
+//_setup.selected_tool_slot set in Interp::synch
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */
-//_setup.speed set in rs274ngc_synch
+//_setup.speed set in Interp::synch
   _setup.speed_feed_mode = CANON_INDEPENDENT;
   _setup.speed_override = ON;
-//_setup.spindle_turning set in rs274ngc_synch
+//_setup.spindle_turning set in Interp::synch
 //_setup.stack does not need initialization
 //_setup.stack_index does not need initialization
   _setup.tool_length_offset = 0.0;
-//_setup.tool_max set in rs274ngc_synch
-//_setup.tool_table set in rs274ngc_synch
+//_setup.tool_max set in Interp::synch
+//_setup.tool_table set in Interp::synch
   _setup.tool_table_index = 1;
-//_setup.traverse_rate set in rs274ngc_synch
+//_setup.traverse_rate set in Interp::synch
 
   write_g_codes((block_pointer) NULL, &_setup);
   write_m_codes((block_pointer) NULL, &_setup);
   write_settings(&_setup);
 
   // Synch rest of settings to external world
-  rs274ngc_synch();
+  synch();
 
   return RS274NGC_OK;
 }
 
 /***********************************************************************/
 
-/*! rs274ngc_load_tool_table
+/*! Interp::load_tool_table
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
@@ -346,7 +346,7 @@ Side Effects:
    _setup.tool_table[] is modified.
 
 Called By:
-   rs274ngc_synch
+   Interp::synch
    external programs
 
 This function calls the canonical interface function GET_EXTERNAL_TOOL_TABLE
@@ -357,9 +357,9 @@ _setup.tool_max is intended to be set for a particular machine.
 
 */
 
-int Interp::rs274ngc_load_tool_table()
+int Interp::load_tool_table()
 {
-  static char name[] = "rs274ngc_load_tool_table";
+  static char name[] = "Interp::load_tool_table";
   int n;
 
   CHK((_setup.tool_max > CANON_TOOL_MAX), NCE_TOOL_MAX_TOO_LARGE);
@@ -377,7 +377,7 @@ int Interp::rs274ngc_load_tool_table()
 
 /***********************************************************************/
 
-/*! rs274ngc_open
+/*! Interp::open
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
@@ -393,7 +393,7 @@ Called By: external programs
 The file is opened for reading and _setup.file_pointer is set.
 The file name is copied into _setup.filename.
 The _setup.sequence_number, is set to zero.
-rs274ngc_reset() is called, changing several more _setup attributes.
+Interp::reset() is called, changing several more _setup attributes.
 
 The manual [NCMS, page 3] discusses the use of the "%" character at the
 beginning of a "tape". It is not clear whether it is intended that
@@ -421,9 +421,9 @@ file.
 
 */
 
-int Interp::rs274ngc_open(const char *filename) //!< string: the name of the input NC-program file
+int Interp::open(const char *filename) //!< string: the name of the input NC-program file
 {
-  static char name[] = "rs274ngc_open";
+  static char name[] = "Interp::open";
   char *line;
   int index;
   int length;
@@ -461,13 +461,13 @@ int Interp::rs274ngc_open(const char *filename) //!< string: the name of the inp
     _setup.sequence_number = 0; // Going back to line 0
   }
   strcpy(_setup.filename, filename);
-  rs274ngc_reset();
+  reset();
   return RS274NGC_OK;
 }
 
 /***********************************************************************/
 
-/*! rs274ngc_read
+/*! Interp::read
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
@@ -496,9 +496,9 @@ zero, this parses the line into the _setup.block1.
 
 */
 
-int Interp::rs274ngc_read(const char *command)  //!< may be NULL or a string to read
+int Interp::read(const char *command)  //!< may be NULL or a string to read
 {
-  static char name[] = "rs274ngc_read";
+  static char name[] = "Interp::read";
   int status;
   int read_status;
 
@@ -526,7 +526,7 @@ int Interp::rs274ngc_read(const char *command)  //!< may be NULL or a string to 
 
 /***********************************************************************/
 
-/*! rs274ngc_reset
+/*! Interp::reset
 
 Returned Value: int (RS274NGC_OK)
 
@@ -534,28 +534,28 @@ Side Effects: See below
 
 Called By:
    external programs
-   rs274ngc_close
-   rs274ngc_exit
-   rs274ngc_open
+   Interp::close
+   Interp::exit
+   Interp::open
 
 This function resets the parts of the _setup model having to do with
 reading and interpreting one line. It does not affect the parts of the
-model dealing with a file being open; rs274ngc_open and rs274ngc_close
+model dealing with a file being open; Interp::open and Interp::close
 do that.
 
 There is a hierarchy of resetting the interpreter. Each of the following
 calls does everything the ones above it do.
 
-rs274ngc_reset()
-rs274ngc_close()
-rs274ngc_init()
+Interp::reset()
+Interp::close()
+Interp::init()
 
-In addition, rs274ngc_synch and rs274ngc_restore_parameters (both of
-which are called by rs274ngc_init) change the model.
+In addition, Interp::synch and Interp::restore_parameters (both of
+which are called by Interp::init) change the model.
 
 */
 
-int Interp::rs274ngc_reset()
+int Interp::reset()
 {
   _setup.linetext[0] = 0;
   _setup.blocktext[0] = 0;
@@ -566,7 +566,7 @@ int Interp::rs274ngc_reset()
 
 /***********************************************************************/
 
-/*! rs274ngc_restore_parameters
+/*! Interp::restore_parameters
 
 Returned Value:
   If any of the following errors occur, this returns the error code shown.
@@ -582,7 +582,7 @@ Side Effects: See below
 
 Called By:
   external programs
-  rs274ngc_init
+  Interp::init
 
 This function restores the parameters from a file, modifying the
 parameters array. Usually parameters is _setup.parameters. The file
@@ -601,9 +601,9 @@ sets of origin offsets. Any parameter not given a value in the file
 has its value set to zero.
 
 */
-int Interp::rs274ngc_restore_parameters(const char *filename)   //!< name of parameter file to read  
+int Interp::restore_parameters(const char *filename)   //!< name of parameter file to read  
 {
-  static char name[] = "rs274ngc_restore_parameters";
+  static char name[] = "Interp::restore_parameters";
   FILE *infile;
   char line[256];
   int variable;
@@ -659,7 +659,7 @@ int Interp::rs274ngc_restore_parameters(const char *filename)   //!< name of par
 
 /***********************************************************************/
 
-/*! rs274ngc_save_parameters
+/*! Interp::save_parameters
 
 Returned Value:
   If any of the following errors occur, this returns the error code shown.
@@ -674,7 +674,7 @@ Side Effects: See below
 
 Called By:
    external programs
-   rs274ngc_exit
+   Interp::exit
 
 A file containing variable-value assignments is updated. The old
 version of the file is saved under a different name.  For each
@@ -691,10 +691,10 @@ If a required parameter is missing from the input file, this does not
 complain, but does write it in the output file.
 
 */
-int Interp::rs274ngc_save_parameters(const char *filename,      //!< name of file to write
+int Interp::save_parameters(const char *filename,      //!< name of file to write
                              const double parameters[]) //!< parameters to save   
 {
-  static char name[] = "rs274ngc_save_parameters";
+  static char name[] = "Interp::save_parameters";
   FILE *infile;
   FILE *outfile;
   char line[256];
@@ -772,7 +772,7 @@ int Interp::rs274ngc_save_parameters(const char *filename,      //!< name of fil
 
 /***********************************************************************/
 
-/*! rs274ngc_synch
+/*! Interp::synch
 
 Returned Value: int (RS274NGC_OK)
 
@@ -781,7 +781,7 @@ Side Effects:
    GET_EXTERNAL_xxx functions.
 
 Called By:
-   rs274ngc_init
+   Interp::init
    external programs
 
 This function gets the _setup world model in synch with the rest of
@@ -789,7 +789,7 @@ the controller.
 
 */
 
-int Interp::rs274ngc_synch()
+int Interp::synch()
 {
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
 #ifndef LATHE
@@ -812,7 +812,7 @@ int Interp::rs274ngc_synch()
   _setup.tool_max = GET_EXTERNAL_TOOL_MAX();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
 
-  rs274ngc_load_tool_table();   /*  must set  _setup.tool_max first */
+  load_tool_table();   /*  must set  _setup.tool_max first */
 
   return RS274NGC_OK;
 }
@@ -829,7 +829,7 @@ interpreter.
 
 /***********************************************************************/
 
-/*! rs274ngc_active_g_codes
+/*! Interp::active_g_codes
 
 Returned Value: none
 
@@ -841,7 +841,7 @@ See documentation of write_g_codes.
 
 */
 
-void Interp::rs274ngc_active_g_codes(int *codes)        //!< array of codes to copy into
+void Interp::active_g_codes(int *codes)        //!< array of codes to copy into
 {
   int n;
 
@@ -852,7 +852,7 @@ void Interp::rs274ngc_active_g_codes(int *codes)        //!< array of codes to c
 
 /***********************************************************************/
 
-/*! rs274ngc_active_m_codes
+/*! Interp::active_m_codes
 
 Returned Value: none
 
@@ -864,7 +864,7 @@ See documentation of write_m_codes.
 
 */
 
-void Interp::rs274ngc_active_m_codes(int *codes)        //!< array of codes to copy into
+void Interp::active_m_codes(int *codes)        //!< array of codes to copy into
 {
   int n;
 
@@ -875,7 +875,7 @@ void Interp::rs274ngc_active_m_codes(int *codes)        //!< array of codes to c
 
 /***********************************************************************/
 
-/*! rs274ngc_active_settings
+/*! Interp::active_settings
 
 Returned Value: none
 
@@ -887,7 +887,7 @@ See documentation of write_settings.
 
 */
 
-void Interp::rs274ngc_active_settings(double *settings) //!< array of settings to copy into
+void Interp::active_settings(double *settings) //!< array of settings to copy into
 {
   int n;
 
@@ -898,7 +898,7 @@ void Interp::rs274ngc_active_settings(double *settings) //!< array of settings t
 
 /***********************************************************************/
 
-/*! rs274ngc_error_text
+/*! Interp::error_text
 
 Returned Value: none
 
@@ -915,7 +915,7 @@ max_size.
 
 */
 
-void Interp::rs274ngc_error_text(int error_code,        //!< code number of error                
+void Interp::error_text(int error_code,        //!< code number of error                
                          char *error_text,      //!< char array to copy error text into  
                          int max_size)  //!< maximum number of characters to copy
 {
@@ -929,7 +929,7 @@ void Interp::rs274ngc_error_text(int error_code,        //!< code number of erro
 
 /***********************************************************************/
 
-/*! rs274ngc_file_name
+/*! Interp::file_name
 
 Returned Value: none
 
@@ -944,7 +944,7 @@ max_size, in which case a null string is put in the file_name array.
 
 */
 
-void Interp::rs274ngc_file_name(char *file_name,        //!< string: to copy file name into      
+void Interp::file_name(char *file_name,        //!< string: to copy file name into      
                         int max_size)   //!< maximum number of characters to copy
 {
   if (strlen(_setup.filename) < ((size_t) max_size))
@@ -955,7 +955,7 @@ void Interp::rs274ngc_file_name(char *file_name,        //!< string: to copy fil
 
 /***********************************************************************/
 
-/*! rs274ngc_line_length
+/*! Interp::line_length
 
 Returned Value: the length of the most recently read line
 
@@ -965,14 +965,14 @@ Called By: external programs
 
 */
 
-int Interp::rs274ngc_line_length()
+int Interp::line_length()
 {
   return _setup.line_length;
 }
 
 /***********************************************************************/
 
-/*! rs274ngc_line_text
+/*! Interp::line_text
 
 Returned Value: none
 
@@ -986,7 +986,7 @@ last non-null character.
 
 */
 
-void Interp::rs274ngc_line_text(char *line_text,        //!< string: to copy line into           
+void Interp::line_text(char *line_text,        //!< string: to copy line into           
                         int max_size)   //!< maximum number of characters to copy
 {
   int n;
@@ -1004,11 +1004,11 @@ void Interp::rs274ngc_line_text(char *line_text,        //!< string: to copy lin
 
 /***********************************************************************/
 
-/*! rs274ngc_sequence_number
+/*! Interp::sequence_number
 
 Returned Value: the current interpreter sequence number (how many
 lines read since the last time the sequence number was reset to zero,
-which happens only when rs274ngc_init or rs274ngc_open is called).
+which happens only when Interp::init or Interp::open is called).
 
 Side Effects: none
 
@@ -1016,14 +1016,14 @@ Called By: external programs
 
 */
 
-int Interp::rs274ngc_sequence_number()
+int Interp::sequence_number()
 {
   return _setup.sequence_number;
 }
 
 /***********************************************************************/
 
-/*! rs274ngc_stack_name
+/*! Interp::stack_name
 
 Returned Value: none
 
@@ -1045,7 +1045,7 @@ empty string is returned for the name.
 
 */
 
-void Interp::rs274ngc_stack_name(int stack_index,       //!< index into stack of function names  
+void Interp::stack_name(int stack_index,       //!< index into stack of function names  
                          char *function_name,   //!< string: to copy function name into
                          int max_size)  //!< maximum number of characters to copy
 {
@@ -1067,7 +1067,7 @@ void Interp::rs274ngc_stack_name(int stack_index,       //!< index into stack of
 
 /***********************************************************************/
 
-/* rs274ngc_ini_load()
+/* Interp::ini_load()
 
 Returned Value: RS274NGC_OK, RS274NGC_ERROR
 
@@ -1076,7 +1076,7 @@ Side Effects:
    update the globals
 
 Called By:
-   rs274ngc_init()
+   Interp::init()
 
 The file looks like this:
 
@@ -1085,7 +1085,7 @@ VARIABLE_FILE = rs274ngc.var
 
 */
 
-int Interp::rs274ngc_ini_load(const char *filename)
+int Interp::ini_load(const char *filename)
 {
     INIFILE inifile;
     const char *inistring;

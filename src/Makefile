@@ -145,8 +145,11 @@ tgz: clean
 	rm /tmp/emc2-tgz-temp/emc2/config.log
 
 	rm -f /tmp/emc2-tgz-temp/emc2/emc2.tar.gz
-	cd /tmp/emc2-tgz-temp ; tar -czf emc2.tar.gz emc2
+	cd /tmp/emc2-tgz-temp ; tar -czf emc2.tar.gz emc2 --exclude *CVS*
 	mv /tmp/emc2-tgz-temp/emc2.tar.gz ./
 	rm -rf /tmp/emc2-tgz-temp
+
+docs:
+	doxygen doxconfig
 
 .PHONY : all examples headers depend indent modules install clean

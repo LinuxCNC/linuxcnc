@@ -35,8 +35,8 @@ Side effects:
    The active_g_codes in the settings are updated.
 
 Called by:
-   rs274ngc_execute
-   rs274ngc_init
+   Interp::execute
+   Interp::init
 
 The block may be NULL.
 
@@ -111,8 +111,8 @@ Side effects:
    The settings->active_m_codes are updated.
 
 Called by:
-   rs274ngc_execute
-   rs274ngc_init
+   Interp::execute
+   Interp::init
 
 This is testing only the feed override to see if overrides is on.
 Might add check of speed override.
@@ -152,8 +152,8 @@ Side effects:
   sequence number, feed, and speed settings.
 
 Called by:
-  rs274ngc_execute
-  rs274ngc_init
+  Interp::execute
+  Interp::init
 
 */
 

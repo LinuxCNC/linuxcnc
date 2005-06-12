@@ -265,7 +265,7 @@ static void print_rs274ngc_error(int retval)
     }
 
     rs274ngc_error_text_buf[0] = 0;
-    interp.rs274ngc_error_text(retval, rs274ngc_error_text_buf, LINELEN);
+    interp.error_text(retval, rs274ngc_error_text_buf, LINELEN);
     if (0 != rs274ngc_error_text_buf[0]) {
 	rcs_print_error("rs274ngc_error: %s\n", rs274ngc_error_text_buf);
     }
@@ -275,7 +275,7 @@ static void print_rs274ngc_error(int retval)
 	rcs_print("rs274ngc_stack: \t");
 	while (index < 5) {
 	    rs274ngc_stack_buf[0] = 0;
-	    interp.rs274ngc_stack_name(index, rs274ngc_stack_buf, LINELEN);
+	    interp.stack_name(index, rs274ngc_stack_buf, LINELEN);
 	    if (0 == rs274ngc_stack_buf[0]) {
 		break;
 	    }
@@ -288,15 +288,15 @@ static void print_rs274ngc_error(int retval)
 
 int emcTaskPlanInit()
 {
-    interp.rs274ngc_ini_load(EMC_INIFILE);
+    interp.ini_load(EMC_INIFILE);
     waitFlag = 0;
 
-    int retval = interp.rs274ngc_init();
+    int retval = interp.init();
     if (retval > RS274NGC_MIN_ERROR) {
 	print_rs274ngc_error(retval);
     } else {
 	if (0 != RS274NGC_STARTUP_CODE[0]) {
-	    retval = interp.rs274ngc_execute(RS274NGC_STARTUP_CODE);
+	    retval = interp.execute(RS274NGC_STARTUP_CODE);
 	    if (retval > RS274NGC_MIN_ERROR) {
 		print_rs274ngc_error(retval);
 	    }
@@ -326,12 +326,12 @@ int emcTaskPlanClearWait()
 
 int emcTaskPlanSynch()
 {
-    return interp.rs274ngc_synch();
+    return interp.synch();
 }
 
 int emcTaskPlanExit()
 {
-    return interp.rs274ngc_exit();
+    return interp.exit();
 }
 
 int emcTaskPlanOpen(const char *file)
@@ -342,7 +342,7 @@ int emcTaskPlanOpen(const char *file)
 	emcStatus->task.readLine = 0;
     }
 
-    int retval = interp.rs274ngc_open(file);
+    int retval = interp.open(file);
     if (retval > RS274NGC_MIN_ERROR) {
 	print_rs274ngc_error(retval);
 	return retval;
@@ -353,14 +353,14 @@ int emcTaskPlanOpen(const char *file)
 
 int emcTaskPlanRead()
 {
-    int retval = interp.rs274ngc_read();
+    int retval = interp.read();
     if (retval == NCE_FILE_NOT_OPEN) {
 	if (emcStatus->task.file[0] != 0) {
-	    retval = interp.rs274ngc_open(emcStatus->task.file);
+	    retval = interp.open(emcStatus->task.file);
 	    if (retval > RS274NGC_MIN_ERROR) {
 		print_rs274ngc_error(retval);
 	    }
-	    retval = interp.rs274ngc_read();
+	    retval = interp.read();
 	}
     }
     if (retval > RS274NGC_MIN_ERROR) {
@@ -376,10 +376,10 @@ int emcTaskPlanExecute(const char *command)
     if(command != 0){ // Command is 0 if in AUTO mode, non-null if in MDI mode.
         // Don't sync if not in position.
         if ((*command != 0)  && (inpos)){
-            interp.rs274ngc_synch();
+            interp.synch();
         }
     }
-    int retval = interp.rs274ngc_execute(command);
+    int retval = interp.execute(command);
     if (retval > RS274NGC_MIN_ERROR) {
 	print_rs274ngc_error(retval);
     }
@@ -388,7 +388,7 @@ int emcTaskPlanExecute(const char *command)
 
 int emcTaskPlanClose()
 {
-    int retval = interp.rs274ngc_close();
+    int retval = interp.close();
     if (retval > RS274NGC_MIN_ERROR) {
 	print_rs274ngc_error(retval);
     }
@@ -399,14 +399,14 @@ int emcTaskPlanClose()
 
 int emcTaskPlanLine()
 {
-    return interp.rs274ngc_line();
+    return interp.line();
 }
 
 int emcTaskPlanCommand(char *cmd)
 {
     char buf[LINELEN];
 
-    strcpy(cmd, interp.rs274ngc_command(buf, LINELEN));
+    strcpy(cmd, interp.command(buf, LINELEN));
     return 0;
 }
 
@@ -424,13 +424,13 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // readLine set in main
 
     char buf[LINELEN];
-    strcpy(stat->file, interp.rs274ngc_file(buf, LINELEN));
+    strcpy(stat->file, interp.file(buf, LINELEN));
     // command set in main
 
     // update active G and M codes
-    interp.rs274ngc_active_g_codes(&stat->activeGCodes[0]);
-    interp.rs274ngc_active_m_codes(&stat->activeMCodes[0]);
-    interp.rs274ngc_active_settings(&stat->activeSettings[0]);
+    interp.active_g_codes(&stat->activeGCodes[0]);
+    interp.active_m_codes(&stat->activeMCodes[0]);
+    interp.active_settings(&stat->activeSettings[0]);
 
     stat->heartbeat++;
 
@@ -441,6 +441,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
   Modification history:
 
   $Log$
+  Revision 1.9  2005/06/12 21:46:35  paul_c
+  Lost the rs274ngc_ prefix from all the public interpreter calls - This will allow canterp & other (as yet unwritten) interpreters to use a common API.
+
   Revision 1.8  2005/05/23 01:54:51  paul_c
   Missed a few files in the last effort....
 

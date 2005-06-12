@@ -28,7 +28,7 @@ char * _rs274ngc_errors[] = {
 /*   1 */ _("No error"),
 /*   2 */ _("No error"),
 /*   3 */ _("No error"),
-/*   4 */ _("A file is already open"), // rs274ngc_open
+/*   4 */ _("A file is already open"), // Interp::open
 /*   5 */ _("All axes missing with g92"), // enhance_block
 /*   6 */ _("All axes missing with motion code"), // enhance_block
 /*   7 */ _("Arc radius too small to reach end point"), // arc_data_r
@@ -64,13 +64,13 @@ char * _rs274ngc_errors[] = {
 /*  37 */ _("Bug unknown operation"), // execute_binary1, execute_binary2, execute_unary
 /*  38 */ _("Cannot change axis offsets with cutter radius comp"), // convert_axis_offsets
 /*  39 */ _("Cannot change units with cutter radius comp"), // convert_length_units
-/*  40 */ _("Cannot create backup file"), // rs274ngc_save_parameters
+/*  40 */ _("Cannot create backup file"), // Interp::save_parameters
 /*  41 */ _("Cannot do g1 with zero feed rate"), // convert_straight
 /*  42 */ _("Cannot do zero repeats of cycle"), // convert_cycle
 /*  43 */ _("Cannot make arc with zero feed rate"), // convert_arc
 /*  44 */ _("Cannot move rotary axes during probing"), // convert_probe
-/*  45 */ _("Cannot open backup file"), // rs274ngc_save_parameters
-/*  46 */ _("Cannot open variable file"), // rs274ngc_save_parameters
+/*  45 */ _("Cannot open backup file"), // Interp::save_parameters
+/*  46 */ _("Cannot open variable file"), // Interp::save_parameters
 /*  47 */ _("Cannot probe in inverse time feed mode"), // convert_probe
 /*  48 */ _("Cannot probe with cutter radius comp on"), // convert_probe
 /*  49 */ _("Cannot probe with zero feed rate"), // convert_probe
@@ -90,9 +90,9 @@ char * _rs274ngc_errors[] = {
 /*  63 */ _("Cannot use two g codes that both use axis values"), // enhance_block
 /*  64 */ _("Cannot use xz plane with cutter radius comp"), // convert_set_plane
 /*  65 */ _("Cannot use yz plane with cutter radius comp"), // convert_set_plane
-/*  66 */ _("Command too long"), // read_text, rs274ngc_open
+/*  66 */ _("Command too long"), // read_text, Interp::open
 /*  67 */ _("Concave corner with cutter radius comp"), // convert_arc_comp2, convert_straight_comp2
-/*  68 */ _("Coordinate system index parameter 5220 out of range"), // rs274ngc_init
+/*  68 */ _("Coordinate system index parameter 5220 out of range"), // Interp::init
 /*  69 */ _("Current point same as end point of arc"), // arc_data_r
 /*  70 */ _("Cutter gouging with cutter radius comp"), // convert_arc_comp1, convert_straight_comp1
 /*  71 */ _("D word with no g41 or g42"), // check_other_codes
@@ -104,10 +104,10 @@ char * _rs274ngc_errors[] = {
 /*  77 */ _("Equal sign missing in parameter setting"), // read_parameter_setting
 /*  78 */ _("F word missing with inverse time arc move"), // convert_arc
 /*  79 */ _("F word missing with inverse time g1 move"), // convert_straight
-/*  80 */ _("File ended with no percent sign"), // read_text, rs274ngc_open
+/*  80 */ _("File ended with no percent sign"), // read_text, Interp::open
 /*  81 */ _("File ended with no percent sign or program end"), // read_text
-/*  82 */ _("File name too long"), // rs274ngc_open
-/*  83 */ _("File not open"), // rs274ngc_read
+/*  82 */ _("File name too long"), // Interp::open
+/*  83 */ _("File not open"), // Interp::read
 /*  84 */ _("G code out of range"), // read_g
 /*  85 */ _("H word with no g43"), // check_other_codes
 /*  86 */ _("I word given for arc in yz plane"), // convert_arc
@@ -165,11 +165,11 @@ char * _rs274ngc_errors[] = {
 /* 138 */ _("P value not an integer with g10 l2"), // check_g_codes
 /* 139 */ _("P value out of range with g10 l2"), // check_g_codes
 /* 140 */ _("P word with no g4 g10 g82 g86 g88 g89"), // check_other_codes
-/* 141 */ _("Parameter file out of order"), // rs274ngc_restore_parameters, rs274ngc_save_parameters
-/* 142 */ _("Parameter number out of range"), // read_parameter, read_parameter_setting, rs274ngc_restore_parameters, rs274ngc_save_parameters
+/* 141 */ _("Parameter file out of order"), // Interp::restore_parameters, Interp::save_parameters
+/* 142 */ _("Parameter number out of range"), // read_parameter, read_parameter_setting, Interp::restore_parameters, Interp::save_parameters
 /* 143 */ _("Q word missing with g83"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
 /* 144 */ _("Q word with no g83"), // check_other_codes
-/* 145 */ _("Queue is not empty after probing"), // rs274ngc_read
+/* 145 */ _("Queue is not empty after probing"), // Interp::read
 /* 146 */ _("R clearance plane unspecified in cycle"), // convert_cycle
 /* 147 */ _("R i j k words all missing for arc"), // convert_arc
 /* 148 */ _("R less than x in cycle in yz plane"), // convert_cycle_yz
@@ -178,7 +178,7 @@ char * _rs274ngc_errors[] = {
 /* 151 */ _("R word with no g code that uses it"), // check_other_codes
 /* 152 */ _("Radius to end of arc differs from radius to start"), // arc_data_comp_ijk, arc_data_ijk
 /* 153 */ _("Radius too small to reach end point"), // arc_data_comp_r
-/* 154 */ _("Required parameter missing"), // rs274ngc_restore_parameters
+/* 154 */ _("Required parameter missing"), // Interp::restore_parameters
 /* 155 */ _("Selected tool slot number too large"), // convert_tool_select
 /* 156 */ _("Slash missing after first atan argument"), // read_atan
 /* 157 */ _("Spindle not turning clockwise in g84"), // convert_cycle_g84
@@ -189,12 +189,12 @@ char * _rs274ngc_errors[] = {
 /* 162 */ _("Start point too close to probe point"), // convert_probe
 /* 163 */ _("Too many m codes on line"), // check_m_codes
 /* 164 */ _("Tool length offset index too big"), // read_h
-/* 165 */ _("Tool max too large"), // rs274ngc_load_tool_table
+/* 165 */ _("Tool max too large"), // Interp::load_tool_table
 /* 166 */ _("Tool radius index too big"), // read_d
 /* 167 */ _("Tool radius not less than arc radius with comp"), // arc_data_comp_r, convert_arc_comp2
 /* 168 */ _("Two g codes used from same modal group"), // read_g
 /* 169 */ _("Two m codes used from same modal group"), // read_m
-/* 170 */ _("Unable to open file"), // convert_stop, rs274ngc_open, rs274ngc_restore_parameters
+/* 170 */ _("Unable to open file"), // convert_stop, Interp::open, Interp::restore_parameters
 /* 171 */ _("Unclosed comment found"), // close_and_downcase
 /* 172 */ _("Unclosed expression"), // read_operation
 /* 173 */ _("Unknown g code used"), // read_g

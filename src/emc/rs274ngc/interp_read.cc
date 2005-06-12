@@ -2281,7 +2281,7 @@ Returned Value: int
 
 Side effects: See below
 
-Called by:  rs274ngc_read
+Called by:  Interp::read
 
 This reads a line of RS274 code from a command string or a file into
 the line array. If the command string is not null, the file is ignored.
@@ -2314,8 +2314,8 @@ Block delete is discussed in [NCMS, page 3] but the discussion makes
 no sense. Block delete is handled by having this function return
 RS274NGC_EXECUTE_FINISH if the first character of the
 close_and_downcased line is a slash. When the caller sees this,
-the caller is expected not to call rs274ngc_execute if the switch
-is on, but rather call rs274ngc_read again to overwrite and ignore
+the caller is expected not to call Interp::execute if the switch
+is on, but rather call Interp::read again to overwrite and ignore
 what is read here.
 
 The value of the length argument is set to the number of characters on

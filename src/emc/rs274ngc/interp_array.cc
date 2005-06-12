@@ -166,9 +166,9 @@ const int Interp::_ems[] = {
 /*
 
 This is an array of the index numbers of system parameters that must
-be included in a file used with the rs274ngc_restore_parameters
+be included in a file used with the Interp::restore_parameters
 function. The array is used by that function and by the
-rs274ngc_save_parameters function.
+Interp::save_parameters function.
 
 */
 

@@ -1866,7 +1866,7 @@ block to generate a move.
 After probing is performed, the location of the probe cannot be
 predicted. This differs from every other command, all of which have
 predictable results. The next call to the interpreter (with either
-rs274ngc_read or rs274ngc_execute) will result in updating the
+Interp::read or Interp::execute) will result in updating the
 current position by calls to get_external_position_x, etc.
 
 */
@@ -2207,7 +2207,7 @@ M3, M4, M5 spindle turning [NCMS, page 7]
 The following should be set to some value at machine start-up but
 not automatically reset by any of the stopping codes.
 1. G20, G21 length units [NCMS, page 15]. This is up to the installer.
-2. motion_control_mode. This is set in rs274ngc_init but not reset here.
+2. motion_control_mode. This is set in Interp::init but not reset here.
    Might add it here.
 
 The following resets have been added by calling the appropriate

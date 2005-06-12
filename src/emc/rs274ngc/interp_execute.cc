@@ -186,7 +186,7 @@ Side effects:
    One block of RS274/NGC instructions is executed.
 
 Called by:
-   rs274ngc_execute
+   Interp::execute
 
 This converts a block to zero to many actions. The order of execution
 of items in a block is critical to safe and effective machine operation,
