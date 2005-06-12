@@ -78,17 +78,17 @@ static int do_link_cmd(char *pin, char *sig);
 static int do_newsig_cmd(char *name, char *type);
 static int do_setp_cmd(char *name, char *value);
 static int do_sets_cmd(char *name, char *value);
-static int do_show_cmd(char *type);
+static int do_show_cmd(char *type, char *pattern);
 static int do_loadrt_cmd(char *mod_name, char *args[]);
 static int do_delsig_cmd(char *mod_name);
 static int do_unloadrt_cmd(char *mod_name);
 static int unloadrt_comp(char *mod_name);
-static void print_comp_list(void);
-static void print_pin_list(void);
-static void print_sig_list(void);
-static void print_param_list(void);
-static void print_funct_list(void);
-static void print_thread_list(void);
+static void print_comp_list(char *pattern);
+static void print_pin_list(char *pattern);
+static void print_sig_list(char *pattern);
+static void print_param_list(char *pattern);
+static void print_funct_list(char *pattern);
+static void print_thread_list(char *pattern);
 static char *data_type(int type);
 static char *data_dir(int dir);
 static char *data_arrow1(int dir);
@@ -480,7 +480,7 @@ static int parse_cmd(char *tokens[])
     } else if (strcmp(tokens[0], "sets") == 0) {
 	retval = do_sets_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "show") == 0) {
-	retval = do_show_cmd(tokens[1]);
+	retval = do_show_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "lock") == 0) {
 	retval = do_lock_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "unlock") == 0) {
@@ -581,9 +581,9 @@ static int do_unlock_cmd(char *command)
     if (retval == 0) {
 	/* print success message */
 	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "Locking completed");
+	    "Unlocking completed");
     } else {
-	rtapi_print_msg(RTAPI_MSG_INFO, "Locking failed\n");
+	rtapi_print_msg(RTAPI_MSG_INFO, "Unlocking failed\n");
     }
     return retval;
 }
@@ -973,7 +973,7 @@ static int do_sets_cmd(char *name, char *value)
 
 }
 
-static int do_show_cmd(char *type)
+static int do_show_cmd(char *type, char *pattern)
 {
 
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
@@ -982,24 +982,32 @@ static int do_show_cmd(char *type)
     }
     if (*type == '\0') {
 	/* print everything */
-	print_comp_list();
-	print_pin_list();
-	print_sig_list();
-	print_param_list();
-	print_funct_list();
-	print_thread_list();
+	print_comp_list("");
+	print_pin_list("");
+	print_sig_list("");
+	print_param_list("");
+	print_funct_list("");
+	print_thread_list("");
+    } else if (strcmp(type, "all") == 0) {
+	/* print everything, using the pattern */
+	print_comp_list(pattern);
+	print_pin_list(pattern);
+	print_sig_list(pattern);
+	print_param_list(pattern);
+	print_funct_list(pattern);
+	print_thread_list(pattern);
     } else if (strcmp(type, "comp") == 0) {
-	print_comp_list();
+	print_comp_list(pattern);
     } else if (strcmp(type, "pin") == 0) {
-	print_pin_list();
+	print_pin_list(pattern);
     } else if (strcmp(type, "sig") == 0) {
-	print_sig_list();
+	print_sig_list(pattern);
     } else if (strcmp(type, "param") == 0) {
-	print_param_list();
+	print_param_list(pattern);
     } else if (strcmp(type, "funct") == 0) {
-	print_funct_list();
+	print_funct_list(pattern);
     } else if (strcmp(type, "thread") == 0) {
-	print_thread_list();
+	print_thread_list(pattern);
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'show' type '%s'\n", type);
 	return -1;
@@ -1406,28 +1414,31 @@ static int unloadrt_comp(char *mod_name)
     return 0;
 }
 
-static void print_comp_list(void)
+static void print_comp_list(char *pattern)
 {
-    int next;
+    int next, len;
     hal_comp_t *comp;
 
     rtapi_print("Loaded HAL Components:\n");
     rtapi_print("ID  Type  Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	rtapi_print("%02d  %s  %s\n",
-	    comp->comp_id, (comp->type ? "RT  " : "User"), comp->name);
+	if ( strncmp(pattern, comp->name, len) == 0 ) {
+	    rtapi_print("%02d  %s  %s\n",
+		comp->comp_id, (comp->type ? "RT  " : "User"), comp->name);
+	}
 	next = comp->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
 }
 
-static void print_pin_list(void)
+static void print_pin_list(char *pattern)
 {
-    int next;
+    int next, len;
     hal_pin_t *pin;
     hal_comp_t *comp;
     hal_sig_t *sig;
@@ -1436,25 +1447,28 @@ static void print_pin_list(void)
     rtapi_print("Component Pins:\n");
     rtapi_print("Owner  Type  Dir    Value      Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next = hal_data->pin_list_ptr;
     while (next != 0) {
 	pin = SHMPTR(next);
-	comp = SHMPTR(pin->owner_ptr);
-	if (pin->signal != 0) {
-	    sig = SHMPTR(pin->signal);
-	    dptr = SHMPTR(sig->data_ptr);
-	} else {
-	    sig = 0;
-	    dptr = &(pin->dummysig);
-	}
-	rtapi_print(" %02d    %s %s  %s  %s",
-	    comp->comp_id, data_type((int) pin->type),
-	    data_dir((int) pin->dir),
-	    data_value((int) pin->type, dptr), pin->name);
-	if (sig == 0) {
-	    rtapi_print("\n");
-	} else {
-	    rtapi_print(" %s %s\n", data_arrow1((int) pin->dir), sig->name);
+	if ( strncmp(pattern, pin->name, len) == 0 ) {
+	    comp = SHMPTR(pin->owner_ptr);
+	    if (pin->signal != 0) {
+		sig = SHMPTR(pin->signal);
+		dptr = SHMPTR(sig->data_ptr);
+	    } else {
+		sig = 0;
+		dptr = &(pin->dummysig);
+	    }
+	    rtapi_print(" %02d    %s %s  %s  %s",
+		comp->comp_id, data_type((int) pin->type),
+		data_dir((int) pin->dir),
+		data_value((int) pin->type, dptr), pin->name);
+	    if (sig == 0) {
+		rtapi_print("\n");
+	    } else {
+		rtapi_print(" %s %s\n", data_arrow1((int) pin->dir), sig->name);
+	    }
 	}
 	next = pin->next_ptr;
     }
@@ -1462,9 +1476,9 @@ static void print_pin_list(void)
     rtapi_print("\n");
 }
 
-static void print_sig_list(void)
+static void print_sig_list(char *pattern)
 {
-    int next;
+    int next, len;
     hal_sig_t *sig;
     void *dptr;
     hal_pin_t *pin;
@@ -1472,18 +1486,21 @@ static void print_sig_list(void)
     rtapi_print("Signals:\n");
     rtapi_print("Type      Value      Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next = hal_data->sig_list_ptr;
     while (next != 0) {
 	sig = SHMPTR(next);
-	dptr = SHMPTR(sig->data_ptr);
-	rtapi_print("%s  %s  %s\n", data_type((int) sig->type),
-	    data_value((int) sig->type, dptr), sig->name);
-	/* look for pin(s) linked to this signal */
-	pin = halpr_find_pin_by_sig(sig, 0);
-	while (pin != 0) {
-	    rtapi_print("                         %s %s\n",
-		data_arrow2((int) pin->dir), pin->name);
-	    pin = halpr_find_pin_by_sig(sig, pin);
+	if ( strncmp(pattern, sig->name, len) == 0 ) {
+	    dptr = SHMPTR(sig->data_ptr);
+	    rtapi_print("%s  %s  %s\n", data_type((int) sig->type),
+		data_value((int) sig->type, dptr), sig->name);
+	    /* look for pin(s) linked to this signal */
+	    pin = halpr_find_pin_by_sig(sig, 0);
+	    while (pin != 0) {
+		rtapi_print("                         %s %s\n",
+		    data_arrow2((int) pin->dir), pin->name);
+		pin = halpr_find_pin_by_sig(sig, pin);
+	    }
 	}
 	next = sig->next_ptr;
     }
@@ -1491,57 +1508,63 @@ static void print_sig_list(void)
     rtapi_print("\n");
 }
 
-static void print_param_list(void)
+static void print_param_list(char *pattern)
 {
-    int next;
+    int next, len;
     hal_param_t *param;
     hal_comp_t *comp;
 
     rtapi_print("Parameters:\n");
     rtapi_print("Owner  Type  Dir    Value      Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
-	comp = SHMPTR(param->owner_ptr);
-	rtapi_print(" %02d    %s  %s  %s  %s\n",
-	    comp->comp_id, data_type((int) param->type),
-	    data_dir((int) param->dir),
-	    data_value((int) param->type, SHMPTR(param->data_ptr)),
-	    param->name);
+	if ( strncmp(pattern, param->name, len) == 0 ) {
+	    comp = SHMPTR(param->owner_ptr);
+	    rtapi_print(" %02d    %s  %s  %s  %s\n",
+		comp->comp_id, data_type((int) param->type),
+		data_dir((int) param->dir),
+		data_value((int) param->type, SHMPTR(param->data_ptr)),
+		param->name);
+	}
 	next = param->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
 }
 
-static void print_funct_list(void)
+static void print_funct_list(char *pattern)
 {
-    int next;
+    int next, len;
     hal_funct_t *fptr;
     hal_comp_t *comp;
 
     rtapi_print("Exported Functions:\n");
     rtapi_print("Owner CodeAddr   Arg    FP  Users  Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next = hal_data->funct_list_ptr;
     while (next != 0) {
 	fptr = SHMPTR(next);
-	comp = SHMPTR(fptr->owner_ptr);
-	rtapi_print(" %02d   %08X %08X %s  %3d   %s\n",
-	    comp->comp_id,
-	    fptr->funct,
-	    fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
-	    fptr->users, fptr->name);
+	if ( strncmp(pattern, fptr->name, len) == 0 ) {
+	    comp = SHMPTR(fptr->owner_ptr);
+	    rtapi_print(" %02d   %08X %08X %s  %3d   %s\n",
+		comp->comp_id,
+		fptr->funct,
+		fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
+		fptr->users, fptr->name);
+	}
 	next = fptr->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
 }
 
-static void print_thread_list(void)
+static void print_thread_list(char *pattern)
 {
-    int next_thread, n;
+    int next_thread, len, n;
     hal_thread_t *tptr;
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *fentry;
@@ -1550,21 +1573,24 @@ static void print_thread_list(void)
     rtapi_print("Realtime Threads:\n");
     rtapi_print("   Period   FP   Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
 	tptr = SHMPTR(next_thread);
-	rtapi_print("%11d %s  %s\n",
-	    tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name);
-	list_root = &(tptr->funct_list);
-	list_entry = list_next(list_root);
-	n = 1;
-	while (list_entry != list_root) {
-	    /* print the function info */
-	    fentry = (hal_funct_entry_t *) list_entry;
-	    funct = SHMPTR(fentry->funct_ptr);
-	    rtapi_print("                 %2d %s\n", n, funct->name);
-	    n++;
-	    list_entry = list_next(list_entry);
+	if ( strncmp(pattern, tptr->name, len) == 0 ) {
+	    rtapi_print("%11d %s  %s\n",
+		tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name);
+	    list_root = &(tptr->funct_list);
+	    list_entry = list_next(list_root);
+	    n = 1;
+	    while (list_entry != list_root) {
+		/* print the function info */
+		fentry = (hal_funct_entry_t *) list_entry;
+		funct = SHMPTR(fentry->funct_ptr);
+		rtapi_print("                 %2d %s\n", n, funct->name);
+		n++;
+		list_entry = list_next(list_entry);
+	    }
 	}
 	next_thread = tptr->next_ptr;
     }
@@ -1908,7 +1934,7 @@ static int do_help_cmd(char *command)
 	printf("  tune - some tuning is possible (setp & such).\n");
 	printf("  all  - HAL completely locked.\n");
     } else if (strcmp(command, "unlock") == 0) {
-	printf("lock [all|tune]\n");
+	printf("unlock [all|tune]\n");
 	printf("  Unlocks HAL to some degree.\n");
 	printf("  tune - some tuning is possible (setp & such).\n");
 	printf("  all  - HAL completely unlocked.\n");
@@ -1949,10 +1975,15 @@ static int do_help_cmd(char *command)
 	printf("delf functname threadname\n");
 	printf("  Removes function 'functname' from thread 'threadname'.\n");
     } else if (strcmp(command, "show") == 0) {
-	printf("show [type]\n");
+	printf("show [type] [pattern]\n");
 	printf("  Prints info about HAL items of the specified type.\n");
-	printf("  'type' is 'comp', 'pin', 'sig', 'param', 'funct', or\n");
-	printf("  'thread'.  If 'type' is omitted, prints everything.\n");
+	printf("  'type' is 'comp', 'pin', 'sig', 'param', 'funct',\n");
+	printf("  'thread', or 'all'.  If 'type' is omitted, it assumes\n");
+	printf("  'all' with no pattern.  If 'pattern' is specified\n");
+	printf("  it prints only those items whose names match the\n");
+	printf("  pattern (no fancy regular expressions, just a simple\n");
+	printf("  match: 'foo' matches 'foo', 'foobar' and 'foot' but\n");
+	printf("  not 'fo' or 'frobz' or 'ffoo').\n");
     } else if (strcmp(command, "save") == 0) {
 	printf("save [type]\n");
 	printf("  Prints HAL items as commands that can be redirected to\n");
