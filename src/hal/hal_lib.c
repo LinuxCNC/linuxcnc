@@ -192,13 +192,6 @@ int hal_init(char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no component name\n");
 	return HAL_INVAL;
     }
-    
-    if (hal_data->lock & HAL_LOCK_LOAD) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: hal_init called while HAL is locked\n");
-	return HAL_PERM;
-    }
-
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing component '%s'\n",
 	name);
     /* copy name to local vars, truncating if needed */
@@ -284,13 +277,6 @@ int hal_exit(int comp_id)
 	    "HAL: ERROR: exit called before init\n");
 	return HAL_INVAL;
     }
-
-    if (hal_data->lock & HAL_LOCK_LOAD) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: hal_exit called while HAL is locked\n");
-	return HAL_PERM;
-    }
-
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: removing component %02d\n", comp_id);
     /* grab mutex before manipulating list */
     rtapi_mutex_get(&(hal_data->mutex));
