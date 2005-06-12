@@ -81,17 +81,24 @@ static int do_getp_cmd(char *name);
 static int do_sets_cmd(char *name, char *value);
 static int do_gets_cmd(char *name);
 static int do_show_cmd(char *type, char *pattern);
+static int do_list_cmd(char *type, char *pattern);
 static int do_status_cmd(char *type);
 static int do_loadrt_cmd(char *mod_name, char *args[]);
 static int do_delsig_cmd(char *mod_name);
 static int do_unloadrt_cmd(char *mod_name);
 static int unloadrt_comp(char *mod_name);
-static void print_comp_list(char *pattern);
-static void print_pin_list(char *pattern);
-static void print_sig_list(char *pattern);
-static void print_param_list(char *pattern);
-static void print_funct_list(char *pattern);
-static void print_thread_list(char *pattern);
+static void print_comp_info(char *pattern);
+static void print_pin_info(char *pattern);
+static void print_sig_info(char *pattern);
+static void print_param_info(char *pattern);
+static void print_funct_info(char *pattern);
+static void print_thread_info(char *pattern);
+static void print_comp_names(char *pattern);
+static void print_pin_names(char *pattern);
+static void print_sig_names(char *pattern);
+static void print_param_names(char *pattern);
+static void print_funct_names(char *pattern);
+static void print_thread_names(char *pattern);
 static void print_lock_status();
 static char *data_type(int type);
 static char *data_dir(int dir);
@@ -490,6 +497,8 @@ static int parse_cmd(char *tokens[])
 	retval = do_gets_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "show") == 0) {
 	retval = do_show_cmd(tokens[1], tokens[2]);
+    } else if (strcmp(tokens[0], "list") == 0) {
+	retval = do_list_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "status") == 0) {
 	retval = do_status_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "lock") == 0) {
@@ -1050,32 +1059,32 @@ static int do_show_cmd(char *type, char *pattern)
     }
     if (*type == '\0') {
 	/* print everything */
-	print_comp_list("");
-	print_pin_list("");
-	print_sig_list("");
-	print_param_list("");
-	print_funct_list("");
-	print_thread_list("");
+	print_comp_info("");
+	print_pin_info("");
+	print_sig_info("");
+	print_param_info("");
+	print_funct_info("");
+	print_thread_info("");
     } else if (strcmp(type, "all") == 0) {
 	/* print everything, using the pattern */
-	print_comp_list(pattern);
-	print_pin_list(pattern);
-	print_sig_list(pattern);
-	print_param_list(pattern);
-	print_funct_list(pattern);
-	print_thread_list(pattern);
+	print_comp_info(pattern);
+	print_pin_info(pattern);
+	print_sig_info(pattern);
+	print_param_info(pattern);
+	print_funct_info(pattern);
+	print_thread_info(pattern);
     } else if (strcmp(type, "comp") == 0) {
-	print_comp_list(pattern);
+	print_comp_info(pattern);
     } else if (strcmp(type, "pin") == 0) {
-	print_pin_list(pattern);
+	print_pin_info(pattern);
     } else if (strcmp(type, "sig") == 0) {
-	print_sig_list(pattern);
+	print_sig_info(pattern);
     } else if (strcmp(type, "param") == 0) {
-	print_param_list(pattern);
+	print_param_info(pattern);
     } else if (strcmp(type, "funct") == 0) {
-	print_funct_list(pattern);
+	print_funct_info(pattern);
     } else if (strcmp(type, "thread") == 0) {
-	print_thread_list(pattern);
+	print_thread_info(pattern);
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'show' type '%s'\n", type);
 	return -1;
@@ -1083,6 +1092,31 @@ static int do_show_cmd(char *type, char *pattern)
     return 0;
 }
 
+static int do_list_cmd(char *type, char *pattern)
+{
+
+    if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
+	/* must be -Q, don't print anything */
+	return 0;
+    }
+    if (strcmp(type, "comp") == 0) {
+	print_comp_names(pattern);
+    } else if (strcmp(type, "pin") == 0) {
+	print_pin_names(pattern);
+    } else if (strcmp(type, "sig") == 0) {
+	print_sig_names(pattern);
+    } else if (strcmp(type, "param") == 0) {
+	print_param_names(pattern);
+    } else if (strcmp(type, "funct") == 0) {
+	print_funct_names(pattern);
+    } else if (strcmp(type, "thread") == 0) {
+	print_thread_names(pattern);
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'list' type '%s'\n", type);
+	return -1;
+    }
+    return 0;
+}
 
 static int do_status_cmd(char *type)
 {
@@ -1503,7 +1537,7 @@ static int unloadrt_comp(char *mod_name)
     return 0;
 }
 
-static void print_comp_list(char *pattern)
+static void print_comp_info(char *pattern)
 {
     int next, len;
     hal_comp_t *comp;
@@ -1525,7 +1559,7 @@ static void print_comp_list(char *pattern)
     rtapi_print("\n");
 }
 
-static void print_pin_list(char *pattern)
+static void print_pin_info(char *pattern)
 {
     int next, len;
     hal_pin_t *pin;
@@ -1565,7 +1599,7 @@ static void print_pin_list(char *pattern)
     rtapi_print("\n");
 }
 
-static void print_sig_list(char *pattern)
+static void print_sig_info(char *pattern)
 {
     int next, len;
     hal_sig_t *sig;
@@ -1597,7 +1631,7 @@ static void print_sig_list(char *pattern)
     rtapi_print("\n");
 }
 
-static void print_param_list(char *pattern)
+static void print_param_info(char *pattern)
 {
     int next, len;
     hal_param_t *param;
@@ -1624,7 +1658,7 @@ static void print_param_list(char *pattern)
     rtapi_print("\n");
 }
 
-static void print_funct_list(char *pattern)
+static void print_funct_info(char *pattern)
 {
     int next, len;
     hal_funct_t *fptr;
@@ -1651,7 +1685,7 @@ static void print_funct_list(char *pattern)
     rtapi_print("\n");
 }
 
-static void print_thread_list(char *pattern)
+static void print_thread_info(char *pattern)
 {
     int next_thread, len, n;
     hal_thread_t *tptr;
@@ -1680,6 +1714,120 @@ static void print_thread_list(char *pattern)
 		n++;
 		list_entry = list_next(list_entry);
 	    }
+	}
+	next_thread = tptr->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_comp_names(char *pattern)
+{
+    int next, len;
+    hal_comp_t *comp;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next = hal_data->comp_list_ptr;
+    while (next != 0) {
+	comp = SHMPTR(next);
+	if ( strncmp(pattern, comp->name, len) == 0 ) {
+	    rtapi_print("%s ", comp->name);
+	}
+	next = comp->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_pin_names(char *pattern)
+{
+    int next, len;
+    hal_pin_t *pin;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next = hal_data->pin_list_ptr;
+    while (next != 0) {
+	pin = SHMPTR(next);
+	if ( strncmp(pattern, pin->name, len) == 0 ) {
+	    rtapi_print("%s ", pin->name);
+	}
+	next = pin->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_sig_names(char *pattern)
+{
+    int next, len;
+    hal_sig_t *sig;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next = hal_data->sig_list_ptr;
+    while (next != 0) {
+	sig = SHMPTR(next);
+	if ( strncmp(pattern, sig->name, len) == 0 ) {
+	    rtapi_print("%s ", sig->name);
+	}
+	next = sig->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_param_names(char *pattern)
+{
+    int next, len;
+    hal_param_t *param;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next = hal_data->param_list_ptr;
+    while (next != 0) {
+	param = SHMPTR(next);
+	if ( strncmp(pattern, param->name, len) == 0 ) {
+	    rtapi_print("%s ", param->name);
+	}
+	next = param->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_funct_names(char *pattern)
+{
+    int next, len;
+    hal_funct_t *fptr;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next = hal_data->funct_list_ptr;
+    while (next != 0) {
+	fptr = SHMPTR(next);
+	if ( strncmp(pattern, fptr->name, len) == 0 ) {
+	    rtapi_print("%s ", fptr->name);
+	}
+	next = fptr->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_thread_names(char *pattern)
+{
+    int next_thread, len;
+    hal_thread_t *tptr;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next_thread = hal_data->thread_list_ptr;
+    while (next_thread != 0) {
+	tptr = SHMPTR(next_thread);
+	if ( strncmp(pattern, tptr->name, len) == 0 ) {
+	    rtapi_print("%s ", tptr->name);
 	}
 	next_thread = tptr->next_ptr;
     }
@@ -2150,6 +2298,15 @@ static int do_help_cmd(char *command)
 	printf("  pattern (no fancy regular expressions, just a simple\n");
 	printf("  match: 'foo' matches 'foo', 'foobar' and 'foot' but\n");
 	printf("  not 'fo' or 'frobz' or 'ffoo').\n");
+    } else if (strcmp(command, "list") == 0) {
+	printf("list type [pattern]\n");
+	printf("  Prints the names of HAL items of the specified type.\n");
+	printf("  'type' is 'comp', 'pin', 'sig', 'param', 'funct', or\n");
+	printf("  'thread'.  If 'pattern' is specified it prints only\n");
+	printf("  those names that match the pattern (no fancy regular\n");
+	printf("  expressions, just a simple match: 'foo' matches 'foo',\n");
+	printf("  'foobar' and 'foot' but not 'fo' or 'frobz' or 'ffoo').\n");
+	printf("  Names are printed on a single line, space separated.\n");
     } else if (strcmp(command, "status") == 0) {
 	printf("status [type]\n");
 	printf("  Prints status info about HAL.\n");
@@ -2199,8 +2356,8 @@ static void print_help_general(void)
     printf("  -h             Help - print this help screen and exit.\n\n");
     printf("commands:\n\n");
     printf("  loadrt, unloadrt, lock, unlock, linkps, linksp, unlinkp, newsig,\n");
-    printf("  delsig, setp, getp, sets, gets, addf, delf, show, status, save,\n");
-    printf("  start, stop, quit\n");
+    printf("  delsig, setp, getp, sets, gets, addf, delf, show, list, save,\n");
+    printf("  status, start, stop, quit\n");
     printf("  help           Lists all commands with short descriptions\n");
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
@@ -2225,6 +2382,7 @@ static void print_help_commands(void)
     printf("  addf       Add function to thread\n");
     printf("  delf       Remove function from thread\n");
     printf("  show       Display info about HAL objects\n");
+    printf("  list       Display names of HAL objects\n");
     printf("  status     Display status information\n");
     printf("  save       Print config as commands\n");
     printf("  start      Start realtime threads\n");
