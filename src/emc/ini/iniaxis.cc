@@ -97,9 +97,9 @@ static int strbool ( const char *str, int *result )
   calls:
 
   emcAxisSetAxis(int axis, unsigned char axisType);
-  emcAxisSetUnits(int axis, double units);
+  emcAxisSetUnits(int axis, double units); */
 /*! \todo FIXME - these gains are no longer used */
-  emcAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double bias, double maxError, double deadband);
+/*  emcAxisSetGains(int axis, double p, double i, double d, double ff0, double ff1, double ff2, double bias, double maxError, double deadband);
   emcAxisSetBacklash(int axis, double backlash);
   emcAxisSetCycleTime(int axis, double cycleTime);
   emcAxisSetInterpolationRate(int axis, int rate);

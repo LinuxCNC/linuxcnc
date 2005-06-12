@@ -126,7 +126,7 @@ static RCS_CMD_MSG *last_io_command = 0;
 
 /*
   sendCommand() waits until any currently executing command has finished,
-  then writes the given command.*
+  then writes the given command.*/
 /*! \todo 
   FIXME: Not very RCS-like to wait for status done here. (wps)
 */
