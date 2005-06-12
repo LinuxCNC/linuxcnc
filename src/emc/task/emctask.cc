@@ -250,10 +250,10 @@ static int determineState()
 
 static int waitFlag = 0;
 
-static char rs274ngc_error_text_buf[LINELEN];
-static char rs274ngc_stack_buf[LINELEN];
+static char interp_error_text_buf[LINELEN];
+static char interp_stack_buf[LINELEN];
 
-static void print_rs274ngc_error(int retval)
+static void print_interp_error(int retval)
 {
     int index = 0;
     if (retval == 0) {
@@ -264,22 +264,22 @@ static void print_rs274ngc_error(int retval)
 	emcStatus->task.interpreter_errcode = retval;
     }
 
-    rs274ngc_error_text_buf[0] = 0;
-    interp.error_text(retval, rs274ngc_error_text_buf, LINELEN);
-    if (0 != rs274ngc_error_text_buf[0]) {
-	rcs_print_error("rs274ngc_error: %s\n", rs274ngc_error_text_buf);
+    interp_error_text_buf[0] = 0;
+    interp.error_text(retval, interp_error_text_buf, LINELEN);
+    if (0 != interp_error_text_buf[0]) {
+	rcs_print_error("interp_error: %s\n", interp_error_text_buf);
     }
-    emcOperatorError(0, rs274ngc_error_text_buf);
+    emcOperatorError(0, interp_error_text_buf);
     index = 0;
     if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-	rcs_print("rs274ngc_stack: \t");
+	rcs_print("Interpreter stack: \t");
 	while (index < 5) {
-	    rs274ngc_stack_buf[0] = 0;
-	    interp.stack_name(index, rs274ngc_stack_buf, LINELEN);
-	    if (0 == rs274ngc_stack_buf[0]) {
+	    interp_stack_buf[0] = 0;
+	    interp.stack_name(index, interp_stack_buf, LINELEN);
+	    if (0 == interp_stack_buf[0]) {
 		break;
 	    }
-	    rcs_print(" - %s ", rs274ngc_stack_buf);
+	    rcs_print(" - %s ", interp_stack_buf);
 	    index++;
 	}
 	rcs_print("\n");
@@ -293,12 +293,12 @@ int emcTaskPlanInit()
 
     int retval = interp.init();
     if (retval > RS274NGC_MIN_ERROR) {
-	print_rs274ngc_error(retval);
+	print_interp_error(retval);
     } else {
 	if (0 != RS274NGC_STARTUP_CODE[0]) {
 	    retval = interp.execute(RS274NGC_STARTUP_CODE);
 	    if (retval > RS274NGC_MIN_ERROR) {
-		print_rs274ngc_error(retval);
+		print_interp_error(retval);
 	    }
 	}
     }
@@ -344,7 +344,7 @@ int emcTaskPlanOpen(const char *file)
 
     int retval = interp.open(file);
     if (retval > RS274NGC_MIN_ERROR) {
-	print_rs274ngc_error(retval);
+	print_interp_error(retval);
 	return retval;
     }
     taskplanopen = 1;
@@ -358,13 +358,13 @@ int emcTaskPlanRead()
 	if (emcStatus->task.file[0] != 0) {
 	    retval = interp.open(emcStatus->task.file);
 	    if (retval > RS274NGC_MIN_ERROR) {
-		print_rs274ngc_error(retval);
+		print_interp_error(retval);
 	    }
 	    retval = interp.read();
 	}
     }
     if (retval > RS274NGC_MIN_ERROR) {
-	print_rs274ngc_error(retval);
+	print_interp_error(retval);
     }
     return retval;
 }
@@ -381,7 +381,7 @@ int emcTaskPlanExecute(const char *command)
     }
     int retval = interp.execute(command);
     if (retval > RS274NGC_MIN_ERROR) {
-	print_rs274ngc_error(retval);
+	print_interp_error(retval);
     }
     return retval;
 }
@@ -390,7 +390,7 @@ int emcTaskPlanClose()
 {
     int retval = interp.close();
     if (retval > RS274NGC_MIN_ERROR) {
-	print_rs274ngc_error(retval);
+	print_interp_error(retval);
     }
 
     taskplanopen = 0;
@@ -441,6 +441,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
   Modification history:
 
   $Log$
+  Revision 1.10  2005/06/12 22:07:56  paul_c
+  Convert rs274ngc error printing to a more generic form.
+
   Revision 1.9  2005/06/12 21:46:35  paul_c
   Lost the rs274ngc_ prefix from all the public interpreter calls - This will allow canterp & other (as yet unwritten) interpreters to use a common API.
 
