@@ -223,6 +223,7 @@ static gboolean alloc_color(GdkColor * color, GdkColormap * map,
 }
 
 /*! \todo FIXME - this will be needed if/when I allow user defined colors */
+/*! \todo Another #if 0 */
 #if 0
 static void free_color(GdkColor * color, GdkColormap * map)
 {
@@ -418,13 +419,16 @@ void draw_waveform(int chan_num, int highlight)
 	/* don't draw segment ending at first point */
 	if (n > start) {
 /*! \todo FIXME - maybe use smooth for analog and stepped for bits? */
+/*! \todo Another #if 0 */
 #if 0				/* this is a smoothed line display */
 	    gdk_draw_line(disp->win, disp->context, x1, y1, x2, y2);
 #endif
+/*! \todo Another #if 0 */
 #if 0				/* this is a stepped one */
 	    gdk_draw_line(disp->win, disp->context, x1, y1, x1, y2);
 	    gdk_draw_line(disp->win, disp->context, x1, y2, x2, y2);
 #endif
+/*! \todo An #if 1 - FIX ME if this works */
 #if 1				/* this is a halfway between the two extremes 
 				 */
 	    midx = (x1 + x2) / 2;

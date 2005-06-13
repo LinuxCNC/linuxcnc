@@ -110,6 +110,7 @@ NML_MODULE::zero_common_vars ()
   matched = 0;
   stateBegin = 0;
 
+/*! \todo Another #if 0 */
 #if 0
 //below 010997-hui
   exec_status.command_num = 0;
@@ -195,6 +196,7 @@ NML_MODULE::~NML_MODULE ()
 
       free(subs);
 
+/*! \todo Another #if 0 */
 #if 0
       if (NULL != ini)
 	{
@@ -451,6 +453,7 @@ NML_MODULE::setSubordinates (int number)
 
 
     }
+/*! \todo Another #if 0 */
 #if 0
   // allocate commandOutstanding array
   commandLastNum = (int *) realloc (commandLastNum, number * sizeof (int));

@@ -180,6 +180,7 @@ int SHMEM::open()
     shm_addr_offset = NULL;
     second_read = 0;
     autokey_table_size = 0;
+/*! \todo Another #if 0 */
 #if 0				// PC Do we need to use autokey ?
     if (use_autokey_for_connection_number) {
 	autokey_table_size = sizeof(AUTOKEY_TABLE_ENTRY) * total_connections;
@@ -324,6 +325,7 @@ int SHMEM::open()
 	    }
 	}
 	if (master) {
+/*! \todo Another #if 0 */
 #if 0				// PC Do we need to use autokey ?
 	    if (use_autokey_for_connection_number) {
 		void *autokey_table_end =
@@ -333,6 +335,7 @@ int SHMEM::open()
 #endif
 	    strncpy((char *) shm->addr, BufferName, 32);
 	}
+/*! \todo Another #if 0 */
 #if 0				// PC Do we need to use autokey ?
 	if (use_autokey_for_connection_number) {
 	    void *autokey_table = (void *) (((char *) shm->addr) + 32);
@@ -349,6 +352,7 @@ int SHMEM::open()
 	    shm_addr_offset = (void *) ((char *) (shm->addr) + 32);
 	    max_message_size -= 32;	/* size of cms buffer available for
 					   user */
+/*! \todo Another #if 0 */
 #if 0				// PC Do we need to use autokey ?
 	}
 #endif
@@ -406,6 +410,7 @@ int SHMEM::close()
     int nattch = 0;
     second_read = 0;
 
+/*! \todo Another #if 0 */
 #if 0				// PC Do we need to use autokey ?
     if (use_autokey_for_connection_number) {
 	void *autokey_table = (void *) (((char *) shm->addr) + 32);

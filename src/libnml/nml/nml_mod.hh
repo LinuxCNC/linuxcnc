@@ -63,6 +63,7 @@ public:
 };
 
 
+/*! \todo Another #if 0 */
 #if 0
 class RCS_EXPORT NML_MODULE_INI_INFO
 {
@@ -124,6 +125,7 @@ public:
 
   void check_if_new_command (void);
 
+/*! \todo Another #if 0 */
 #if 0
   RCS_EXEC_HISTORY_STRUCT exec_history;	// Exec History
   RCS_EXEC_STATUS_STRUCT exec_status;
@@ -173,6 +175,7 @@ public:
 
   void zero_common_vars ();
 
+/*! \todo Another #if 0 */
 #if 0
   NML_MODULE_INI_INFO *ini;	// pointer to an area of data from which ini file info is gathered.
 #endif

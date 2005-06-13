@@ -2269,6 +2269,7 @@ void nml_cleanup()
     }
     nmlClearHostAliases();
 }
+/*! \todo Another #if 0 */
 #if 0
 void nml_wipeout_lists()
 {

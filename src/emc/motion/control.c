@@ -70,6 +70,7 @@ void print_pose ( EmcPose *pos )
 void check_stuff(char *location)
 {
    static short *target, old = 0xFF;
+/*! \todo Another #if 0 */
 #if 0
 /* kludge to look at emcmotDebug->enabling and emcmotStatus->motionFlag
    at the same time - we simply use a high bit of the flags to
@@ -664,6 +665,7 @@ static void set_operating_mode(void)
 	   trajectory rate rather than the servo rate. It's loaded with
 	   emcmotConfig->interpolationRate when it goes to zero. */
 /*! \todo FIXME - interpolation is still under construction */
+/*! \todo Another #if 0 */
 #if 0
 	interpolationCounter = 0;
 #endif
@@ -1347,6 +1349,7 @@ static void get_pos_cmds(void)
     int joint_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
     double positions[EMCMOT_MAX_AXIS];
+/*! \todo Another #if 0 */
 #if 0
     static int interpolationCounter = 0;
 #endif
@@ -1657,17 +1660,20 @@ Their exact contents and meaning are as follows:
 
 */
 
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - disables old code */
 
     /* run axis interpolations and outputs, but only if we're enabled. This
        section is "suppressed" if we're not enabled, although the read/write
        of encoders/dacs is still done. */
+/*! \todo Another #if 0 */
  #if 0				/* dunno what whichCycle is all about yet */
     whichCycle = 0;
  #endif
     if (GET_MOTION_ENABLE_FLAG()) {
 	/* set whichCycle to be at least a servo cycle, for calc time logging */
+/*! \todo Another #if 0 */
  #if 0				/* dunno what whichCycle is all about yet */
 	whichCycle = 1;
  #endif
@@ -1804,7 +1810,8 @@ Their exact contents and meaning are as follows:
 
 		/* set whichCycle to be a Cartesian trajectory cycle, for
 		   calc time logging */
- #if 0				/* dunno what whichCycle is all about yet */
+ /*! \todo Another #if 0 */
+#if 0				/* dunno what whichCycle is all about yet */
 		whichCycle = 2;
  #endif
 		/* Calls to tpRunCycle() and tpGetPos() were here, now

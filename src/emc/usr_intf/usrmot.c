@@ -617,6 +617,7 @@ int main(int argc, char *argv[])
 /*! \todo FIXME - obsolete commands */
 		if (!strcmp(cmd, "t")) {
 		    fprintf(stderr, "'set t' command is obsolete\n");
+/*! \todo Another #if 0 */
 #if 0
 		    if (1 != sscanf(input, "%*s %*s %lf",
 			    &emcmotCommand.cycleTime)) {
@@ -632,6 +633,7 @@ int main(int argc, char *argv[])
 #endif
 		} else if (!strcmp(cmd, "s")) {
 		    fprintf(stderr, "'set t' command is obsolete\n");
+/*! \todo Another #if 0 */
 #if 0
 		    if (1 != sscanf(input, "%*s %*s %lf",
 			    &emcmotCommand.cycleTime)) {
@@ -674,6 +676,7 @@ int main(int argc, char *argv[])
 */
 		    printf("syntax: set v <vel> | a <acc>\n");
 		}
+/*! \todo Another #if 0 */
 #if 0
 	    } else if (!strcmp(cmd, "oscale")) {
 		if (3 != sscanf(input, "%*s %d %lf %lf",
@@ -765,6 +768,7 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "Can't send a command to RT-task\n");
 		    }
 		}
+/*! \todo Another #if 0 */
 #if 0				/* obsolete command */
 	    } else if (!strcmp(cmd, "clamp")) {
 		if (3 != sscanf(input, "%*s %d %lf %lf",
@@ -907,6 +911,7 @@ int main(int argc, char *argv[])
 		    printf
 			("syntax: log open | start | stop | close | dump <file>\n");
 		}
+/*! \todo Another #if 0 */
 #if 0
 	    } else if (!strcmp(cmd, "dac")) {
 		if (2 == sscanf(input, "%*s %d %lf",
@@ -940,6 +945,7 @@ int main(int argc, char *argv[])
 		if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 		    fprintf(stderr, "Can't send a command to RT-task\n");
 		}
+/*! \todo Another #if 0 */
 #if 0
 	    } else if (!strcmp(cmd, "probeindex")) {
 		if (1 == sscanf(input, "%*s %d", &emcmotCommand.probeIndex)) {
@@ -1045,6 +1051,7 @@ int main(int argc, char *argv[])
 		    /* print status */
 		    switch (statconfigdebug) {
 		    case 0:
+/*! \todo Another #if 0 */
 #if 0
 			if (0 == (errCode =
 				usrmotReadEmcmotStatus(&emcmotStatus))) {

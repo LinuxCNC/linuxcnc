@@ -809,6 +809,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
     return RS274NGC_OK;
   } else if (!strncmp(lc, SYSTEM_STR, strlen(SYSTEM_STR))) {
 /*! \todo Implement SYSTEM commands in the task controller */
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIX-ME Impliment these at a later stage... */
     SYSTEM(comment + start + strlen(SYSTEM_STR));
@@ -1649,6 +1650,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   int index;
 /*! \todo The M62-65 commands are not currently supported by the IO
           sub-system */
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIX-ME Impliment these at a later stage... */
   if (block->m_modes[5] == 62) {
@@ -1720,6 +1722,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 /*! \todo Check that user defined custom M codes are supported.
           These are M100-199 with optional P & Q parameters.    
 */
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIX-ME Impliment these at a later stage... */
   /* user-defined M codes */

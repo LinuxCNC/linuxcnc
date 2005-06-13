@@ -103,6 +103,7 @@ int emcAxisSetUnits(int axis, double units)
 }
 
 
+/*! \todo Another #if 0 */
 #if 0
 int emcAxisSetGains(int axis, double p, double i, double d,
     double ff0, double ff1, double ff2,
@@ -166,6 +167,7 @@ int emcAxisSetBacklash(int axis, double backlash)
 }
 
 
+/*! \todo Another #if 0 */
 #if 0
 int emcAxisSetCycleTime(int axis, double cycleTime)
 {
@@ -277,6 +279,7 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+/*! \todo Another #if 0 */
 #if 0
 
 // saved values of limits, since emcmot expects them to be set in
@@ -404,6 +407,7 @@ int emcAxisSetHomingParams(int axis, double home, double offset,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - to be deleted eventually, these are configured thru HAL */
 int emcAxisSetStepParams(int axis, double setup_time, double hold_time)
@@ -566,6 +570,7 @@ int emcAxisOverrideLimits(int axis)
 }
 
 
+/*! \todo Another #if 0 */
 #if 0
 int emcAxisSetOutput(int axis, double output)
 {
@@ -728,6 +733,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 
 	stat[axis].axisType = localEmcAxisAxisType[axis];
 	stat[axis].units = localEmcAxisUnits[axis];
+/*! \todo Another #if 0 */
 #if 0
 	stat[axis].inputScale = emcmotStatus.inputScale[axis];
 	stat[axis].inputOffset = emcmotStatus.inputOffset[axis];
@@ -774,6 +780,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 									// for
 									// all
 
+/*! \todo Another #if 0 */
 #if 0 /*! \todo FIXME - per-axis Vscale temporarily? removed */
 	stat[axis].scale = emcmotStatus.axVscale[axis];
 #endif
@@ -831,6 +838,7 @@ int emcTrajSetUnits(double linearUnits, double angularUnits)
 }
 
 
+/*! \todo Another #if 0 */
 #if 0
 int emcTrajSetCycleTime(double cycleTime)
 {
@@ -881,6 +889,7 @@ int emcTrajSetVelocity(double vel)
     } else if (vel > TRAJ_MAX_VELOCITY) {
 	vel = TRAJ_MAX_VELOCITY;
     }
+/*! \todo Another #if 0 */
 #if 0
     /*! \todo FIXME-- this fixes rapid rate reset problem */
     if (vel == lastVel) {
@@ -1135,6 +1144,7 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+/*! \todo Another #if 0 */
 #if 0
 int emcTrajSetProbeIndex(int index)
 {
@@ -1196,6 +1206,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->enabled = 0;		/* start at disabled */
     if (emcmotStatus.motionFlag & EMCMOT_MOTION_ENABLE_BIT) {
 	for (axis = 0; axis < localEmcTrajAxes; axis++) {
+/*! \todo Another #if 0 */
 #if 0 /*! \todo FIXME - the axis flag has been moved to the joint struct */
 	    if (!emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_ENABLE_BIT) {
 		break;
@@ -1272,6 +1283,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     if (new_config) {
 	stat->cycleTime = emcmotConfig.trajCycleTime;
+/*! \todo Another #if 0 */
 #if 0
 	stat->probe_index = emcmotConfig.probeIndex;
 	stat->probe_polarity = emcmotConfig.probePolarity;
@@ -1354,6 +1366,7 @@ int emcMotionSetDebug(int debug)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - These are essential if you are to coordinate IO with
           motion. For example, turning a laser on or off at the

@@ -329,6 +329,7 @@ int emcSpindleOn(double speed)
     sendCommand(&spindleOnMsg);
 /*! \todo FIXME - this needs to be changed to use the HAL */
 /* probably want a spindleSpdMsg */
+/*! \todo Another #if 0 */
 #if 0
 /* Convert speed to an analogue voltage */
     dacout = (speed > 0.0 ? (fabs(speed) * MAX_VOLTS_PER_RPM) :
@@ -347,6 +348,7 @@ int emcSpindleOff()
 
     sendCommand(&spindleOffMsg);
 
+/*! \todo Another #if 0 */
 #if 0
 /* Disable the DAC and set the output to zero
    (just in case it is enabled else where !) */

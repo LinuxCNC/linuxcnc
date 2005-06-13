@@ -352,6 +352,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tcSetLine(&tc, line, line_abc);
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - this is part of synchronous I/O*/
     if (tp->douts) {
@@ -422,6 +423,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tcSetCircle(&tc, circle, line_abc);
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - this is part of synchronous I/O*/
     if (tp->douts) {
@@ -613,6 +615,7 @@ int tpRunCycle(TP_STRUCT * tp)
 	/* all paused and we're aborting-- clear out the TP queue */
 	/* first set the motion outputs to the end values for the current
 	   move */
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - this is part of synchronous I/O*/
 	if (tp->douts && 0 != thisTc) {
@@ -805,6 +808,7 @@ void tpPrint(TP_STRUCT * tp)
 }
 
 
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - this is part of synchronous I/O */
 

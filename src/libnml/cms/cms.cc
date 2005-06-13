@@ -50,6 +50,7 @@ CMS_CONNECTION_MODE cms_connection_mode = CMS_NORMAL_CONNECTION_MODE;
 int CMS::number_of_cms_objects = 0;
 int cms_encoded_data_explosion_factor = 4;
 
+/*! \todo Another #if 0 */
 #if 0
 static int convert2lower(char *dest, char *src, int len)
 {

@@ -304,6 +304,7 @@ void CMS_SERVER_REMOTE_PORT::print_servers()
 	cms_server = (CMS_SERVER *) cms_server_list->get_next();
     }
 }
+/*! \todo Another #if 0 */
 #if 0
 void CMS_SERVER::read_passwd_file()
 {
@@ -401,6 +402,7 @@ CMS_USER_INFO *CMS_SERVER::find_user(const char *name)
     rcs_print_error("CMS_SERVER: Can't find entry for user %s.\n", name);
     return NULL;
 }
+/*! \todo Another #if 0 */
 #if 0
 int CMS_SERVER::get_user_keys(const char *name, char *key1, char *key2)
 {
@@ -475,6 +477,7 @@ void CMS_SERVER::add_local_port(CMS_SERVER_LOCAL_PORT * _local_port)
 	case CMS_TCP_REMOTE_PORT_TYPE:
 	    remote_port = new CMS_SERVER_REMOTE_TCP_PORT(this);
 	    break;
+/*! \todo Another #if 0 */
 #if 0
 	case CMS_STCP_REMOTE_PORT_TYPE:
 	    remote_port = new CMS_SERVER_REMOTE_STCP_PORT(this);
@@ -511,6 +514,7 @@ void CMS_SERVER::add_local_port(CMS_SERVER_LOCAL_PORT * _local_port)
 		}
 		passwd_file[i] = passwd_eq[i + 7];
 	    }
+/*! \todo Another #if 0 */
 #if 0
 	    if (strlen(passwd_file) > 0) {
 		read_passwd_file();
@@ -690,6 +694,7 @@ REMOTE_CMS_REPLY *CMS_SERVER::process_request(REMOTE_CMS_REQUEST * _request)
 	local_port->cms->clear();
 	clear_reply_struct.status = local_port->cms->status;
 	return (&clear_reply_struct);
+/*! \todo Another #if 0 */
 #if 0
     case REMOTE_CMS_GET_KEYS_REQUEST_TYPE:
 	get_keys_reply = &perm_get_keys_reply;

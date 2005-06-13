@@ -921,10 +921,10 @@ int pmCartUnit(PmCartesian v, PmCartesian * vout)
     return pmErrno = 0;
 }
 
+/*! \todo This is if 0'd out so we can find all the pmCartNorm calls that should
+ be renamed pmCartUnit. 
+ Later we'll put this back. */
 #if 0
-// This is if 0'd out so we can find all the pmCartNorm calls that should
-// be renamed pmCartUnit. 
-// Later we'll put this back.
 
 int pmCartNorm(PmCartesian v, PmCartesian * vout)
 {
@@ -1651,6 +1651,7 @@ int pmCircleInit(PmCircle * circle,
     if (turn > 0) {
 	circle->angle += turn * 2.0 * M_PIl;
     }
+/*! \todo Another #if 0*/
 #if 0
     printf("\n\n");
     printf("pmCircleInit:\n");

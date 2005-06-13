@@ -922,6 +922,7 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
+/*! \todo Another #if 0 */
 #if 0
 	    extAmpEnable(axis, 1);
 #endif
@@ -936,6 +937,7 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
+/*! \todo Another #if 0 */
 #if 0
 	    extAmpEnable(axis, 0);
 #endif
@@ -983,6 +985,7 @@ check_stuff ( "before command_handler()" );
 		    case EMCLOG_TRIGGER_ON_FERROR:
 			emcmotStatus->logStartVal = joint->ferror;
 			break;
+/*! \todo Another #if 0 */
 #if 0
 		    case EMCLOG_TRIGGER_ON_VOLT:
 			emcmotStatus->logStartVal =
@@ -1056,6 +1059,7 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_ENABLE_WATCHDOG:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE_WATCHDOG");
+/*! \todo Another #if 0 */
 #if 0
 	    emcmotDebug->wdEnabling = 1;
 	    emcmotDebug->wdWait = emcmotCommand->wdWait;
@@ -1067,6 +1071,7 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_DISABLE_WATCHDOG:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE_WATCHDOG");
+/*! \todo Another #if 0 */
 #if 0
 	    emcmotDebug->wdEnabling = 0;
 #endif
@@ -1162,6 +1167,7 @@ check_stuff ( "before command_handler()" );
 	    emcmotConfig->debug = emcmotCommand->debug;
 	    emcmot_config_change();
 	    break;
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
 	case EMCMOT_SET_AOUT:
@@ -1182,6 +1188,7 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 #endif
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for M62/M63 */
 	case EMCMOT_SET_INDEX_BIT:

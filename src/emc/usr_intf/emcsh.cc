@@ -761,6 +761,7 @@ static double convertLinearUnits(double u)
     return u;
 }
 
+/*! \todo Another #if 0 */
 #if 0
 static double convertAngularUnits(double u)
 {

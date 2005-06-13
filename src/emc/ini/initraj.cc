@@ -154,6 +154,7 @@ static int loadTraj()
     return -1;
   }
 /*! \todo FIXME - cycle time now set by run script */
+/*! \todo Another #if 0 */
 #if 0
   if (NULL != (inistring = trajInifile->find("CYCLE_TIME", "TRAJ"))) {
     if (1 == sscanf(inistring, "%lf", &cycleTime)) {
@@ -389,6 +390,7 @@ static int loadTraj()
   }
 
 /*! \todo FIXME - polarities and probe pin selection now handled by HAL */
+/*! \todo Another #if 0 */
 #if 0
   if (NULL != (inistring = trajInifile->find("PROBE_POLARITY", "TRAJ"))) {
     if (1 == sscanf(inistring, "%d", &polarity)) {

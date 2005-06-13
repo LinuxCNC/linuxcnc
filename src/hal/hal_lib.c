@@ -311,6 +311,7 @@ int hal_exit(int comp_id)
     rtapi_snprintf(name, HAL_NAME_LEN, "%s", comp->name);
     /* get rid of the component */
     free_comp_struct(comp);
+/*! \todo Another #if 0 */
 #if 0
     /*! \todo FIXME - this is the beginning of a two pronged approach to managing
        shared memory.  Prong 1 - re-init the shared memory allocator whenever 
@@ -1185,6 +1186,7 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     int retval, n;
     hal_thread_t *new, *tptr;
     long curr_period;
+/*! \todo Another #if 0 */
 #if 0
     char buf[HAL_NAME_LEN + 1];
 #endif
@@ -1299,6 +1301,7 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     /* init time logging variables */
     new->runtime = 0;
     new->maxtime = 0;
+/*! \todo Another #if 0 */
 #if 0
 /* These params need to be re-visited when I refactor HAL.  Right
    now they cause problems - they can no longer be owned by the calling
@@ -2601,6 +2604,7 @@ static void free_thread_struct(hal_thread_t * thread)
 {
     hal_funct_entry_t *funct_entry;
     hal_list_t *list_root, *list_entry;
+/*! \todo Another #if 0 */
 #if 0
     int *prev, next;
     char time[HAL_NAME_LEN + 5], tmax[HAL_NAME_LEN + 5];
@@ -2628,6 +2632,7 @@ static void free_thread_struct(hal_thread_t * thread)
 	/* free the removed entry */
 	free_funct_entry_struct(funct_entry);
     }
+/*! \todo Another #if 0 */
 #if 0
 /* Currently these don't get created, so we don't have to worry
    about deleting them.  They will come back when the HAL refactor

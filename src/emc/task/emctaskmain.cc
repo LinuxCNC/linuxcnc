@@ -1448,6 +1448,7 @@ printf ( "emcTaskIssueCommand()\n" );
 	retval = emcAxisAbsJog(abs_jog_msg->axis,
 	    abs_jog_msg->pos, abs_jog_msg->vel);
 	break;
+/*! \todo Another #if 0 */
 #if 0
     case EMC_AXIS_SET_GAINS_TYPE:
 	set_gains_msg = (EMC_AXIS_SET_GAINS *) cmd;
@@ -1478,6 +1479,7 @@ printf ( "emcTaskIssueCommand()\n" );
 	    set_homing_params_msg->ignore_limits );
 	break;
 
+/*! \todo Another #if 0 */
 #if 0
     case EMC_AXIS_SET_CYCLE_TIME_TYPE:
 	set_cycle_time_msg = (EMC_AXIS_SET_CYCLE_TIME *) cmd;
@@ -1530,6 +1532,7 @@ printf ( "emcTaskIssueCommand()\n" );
 	axis_lim_msg = (EMC_AXIS_OVERRIDE_LIMITS *) cmd;
 	retval = emcAxisOverrideLimits(axis_lim_msg->axis);
 	break;
+/*! \todo Another #if 0 */
 #if 0
     case EMC_AXIS_SET_OUTPUT_TYPE:
 	axis_output_msg = (EMC_AXIS_SET_OUTPUT *) cmd;
@@ -1547,6 +1550,7 @@ printf ( "emcTaskIssueCommand()\n" );
 	axis_alter_msg = (EMC_AXIS_ALTER *) cmd;
 	retval = emcAxisAlter(axis_alter_msg->axis, axis_alter_msg->alter);
 	break;
+/*! \todo Another #if 0 */
 #if 0
     case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 	set_step_params_msg = (EMC_AXIS_SET_STEP_PARAMS *) cmd;
@@ -1621,6 +1625,7 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 	emcStatus->task.origin = ((EMC_TRAJ_SET_ORIGIN *) cmd)->origin;
 	retval = 0;
 	break;
+/*! \todo Another #if 0 */
 #if 0
     case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 	retval =
@@ -1654,6 +1659,7 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 	    emcTrajSetTeleopVector(((EMC_TRAJ_SET_TELEOP_VECTOR *) cmd)->
 	    vector);
 	break;
+/*! \todo Another #if 0 */
 #if 0
     case EMC_MOTION_SET_AOUT_TYPE:
 	retval = emcMotionSetAout(((EMC_MOTION_SET_AOUT *) cmd)->index,
@@ -2796,6 +2802,7 @@ int main(int argc, char *argv[])
 	// synchronize subordinate states
 /*! \todo FIXME FIXME FIXME - temporarily ignore estop
    make sure to re-enable this code! */
+/*! \todo Another #if 0 (deactivated !) */
 //#if 0
 	if (emcStatus->io.aux.estop) {
 	    if (emcStatus->motion.traj.enabled) {
@@ -2992,6 +2999,11 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.30  2005/06/13 14:38:45  paul_c
+  Gone through the code and tagged all #if 0 and #if 1 sections. Some important
+  sections have been disabled through the use of these, others are obsolete
+  code.
+
   Revision 1.29  2005/06/12 15:46:01  paul_c
   todo tags added to all FIXME comments so that they get highlighted when auto-generating docs.
 

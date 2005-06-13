@@ -126,6 +126,7 @@ difficult */
 
     void zero_timer();
     void set_timeout(double _timeout);
+/*! \todo Another #if 0 */
 #if 0
     void read_config_file(char *process, char *config_file);
 #endif

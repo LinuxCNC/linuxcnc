@@ -861,6 +861,7 @@ extern "C" {
     extern int pmCartScalDiv(PmCartesian, double, PmCartesian *);
     extern int pmCartNeg(PmCartesian, PmCartesian *);
     extern int pmCartUnit(PmCartesian v, PmCartesian * vout);
+/*! \todo Another #if 0 */
 #if 0
     extern int pmCartNorm(PmCartesian v, PmCartesian * vout);
 #else

@@ -71,6 +71,7 @@ typedef struct {
     hal_s8_t home_state;	/* RPA: homing state machine state */
 
 /*! \todo FIXME - these have been temporarily? deleted */
+/*! \todo Another #if 0 */
 #if 0
     /* for now we control the index model through the mode and model pins on
        axis 0, later this may be done on a per axis basis */

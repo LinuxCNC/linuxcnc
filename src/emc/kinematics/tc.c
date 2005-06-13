@@ -28,6 +28,7 @@
 #include "emcpos.h"
 #include "tc.h"
 
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
 /* the byte of output that gets written, persisting across all TC_STRUCTs,
@@ -77,6 +78,7 @@ int tcInit(TC_STRUCT * tc)
     pmLineInit(&tc->line, zero, zero);
     pmLineInit(&tc->line_abc, zero, zero);
     /* since type is TC_LINEAR, don't need to set circle params */
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
     tc->douts = 0;
@@ -129,6 +131,7 @@ int tcSetLine(TC_STRUCT * tc, PmLine line, PmLine line_abc)
 	tc->targetPos = abc_mag;
     } else {
 	if (0)
+/*! \todo Another #if 0 */
 #if 0
 	    if (tc->abc_mag > 1e-6)
 #endif
@@ -345,6 +348,7 @@ int tcRunCycle(TC_STRUCT * tc)
 	discr = 0.25 * tc->cycleTime * tc->cycleTime - 2.0 / tc->aMax * discr;
 	newVel = -0.5 * tc->aMax * tc->cycleTime + tc->aMax * sqrt(discr);
     }
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
      if (tc->tcFlag == TC_IS_UNSET) {
@@ -363,6 +367,7 @@ int tcRunCycle(TC_STRUCT * tc)
 	newPos = tc->targetPos;
 	tc->tcFlag = TC_IS_DONE;
 	/* set any end output bits */
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
 	if (tc->douts) {
@@ -958,6 +963,7 @@ PmCartesian tcGetUnitCart(TC_STRUCT * tc)
     return fake;
 }
 
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
 int tcSetDout(TC_STRUCT * tc, int doutIndex, unsigned char starts, unsigned char ends)

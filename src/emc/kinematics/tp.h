@@ -50,6 +50,7 @@ typedef struct {
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
     unsigned char douts;        /* mask for douts to set */
@@ -89,6 +90,7 @@ extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
 extern void tpPrint(TP_STRUCT * tp);
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
 extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);

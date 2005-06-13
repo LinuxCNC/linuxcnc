@@ -231,6 +231,7 @@ static int loadAxis(int axis)
   }
 
 /*! \todo FIXME - cycle times and scaling no longer needed */
+/*! \todo Another #if 0 */
 #if 0
   // set cycle time
 

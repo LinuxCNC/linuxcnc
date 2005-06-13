@@ -1171,6 +1171,7 @@ static int emc_mot_shmem(ClientData clientdata,
 
 
 /* raw input no longer exists */
+/*! \todo Another #if 0 */
 #if 0
 static int emc_mot_rawinput(ClientData clientdata,
     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
@@ -1378,7 +1379,8 @@ int Tcl_AppInit(Tcl_Interp * interp)
     Tcl_CreateObjCommand(interp, "emc_mot_shmem", emc_mot_shmem,
 	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 	
-/* raw input no longer exists */
+/*! \todo Another #if 0
+   raw input no longer exists */
 #if 0
     Tcl_CreateObjCommand(interp, "emc_mot_rawinput", emc_mot_rawinput,
 	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);

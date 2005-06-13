@@ -45,6 +45,7 @@ static emcmot_config_t *emcmotConfig = 0;
 static emcmot_debug_t *emcmotDebug = 0;
 static emcmot_error_t *emcmotError = 0;
 static emcmot_log_t *emcmotLog = 0;
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - no longer in shared memory */
 static emcmot_comp_t *emcmotComp[EMCMOT_MAX_AXIS] = { 0 };
@@ -197,6 +198,7 @@ int usrmotReadEmcmotStatus(emcmot_status_t * s)
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
     if (s->head != s->tail) {
+/*! \todo Another #if 0 */
 #if 0
 	emcmot_status_split_count++;
 	if (emcmot_status_split_count > 2
@@ -225,6 +227,7 @@ int usrmotReadEmcmotConfig(emcmot_config_t * s)
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
     if (s->head != s->tail) {
+/*! \todo Another #if 0 */
 #if 0
 	emcmot_config_split_count++;
 	if (emcmot_config_split_count > 2
@@ -253,6 +256,7 @@ int usrmotReadEmcmotDebug(emcmot_debug_t * s)
     /* got it, now check head-tail matches */
 #ifndef IGNORE_SPLIT_READS
     if (s->head != s->tail) {
+/*! \todo Another #if 0 */
 #if 0
 	emcmot_debug_split_count++;
 	if (emcmot_debug_split_count > 2
@@ -286,6 +290,7 @@ int usrmotReadEmcmotError(char *e)
 
  converts short int to 0-1 style string, in s. Assumes a short is 2 bytes.
 */
+/*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - don't know if this is still needed 
 				 */
 
@@ -369,6 +374,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	    d.teleop_data.currentAccell.a,
 	    d.teleop_data.currentAccell.b, d.teleop_data.currentAccell.c);
 	break;
+/*! \todo Another #if 0 */
 #if 0
 	printf("\nferror:        ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
@@ -387,6 +393,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	printf("traj  m/m/a:\t%f\t%f\t%f\n", d.tMin, d.tMax, d.tAvg);
 	printf("tMmxavg : sum=%f, in=%d, size=%d, index=%d\n",
 	    d.tMmxavg.sum, d.tMmxavg.in, d.tMmxavg.size, d.tMmxavg.index);
+/*! \todo Another #if 0 */
 #if 0
 	if (d.tMmxavg.in > 0 && d.tMmxavg.size > 0) {
 	    printf("tMmxavg : nums \n\t ");
@@ -403,6 +410,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	printf("sMmxavg : sum=%f, in=%d, size=%d, index=%d\n",
 	    d.sMmxavg.sum, d.sMmxavg.in, d.sMmxavg.size, d.sMmxavg.index);
 
+/*! \todo Another #if 0 */
 #if 0
 	if (d.sMmxavg.in > 0 && d.sMmxavg.size > 0) {
 	    printf("sMmxavg : nums \n\t ");
@@ -418,6 +426,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	printf("(off) m/m/a:\t%f\t%f\t%f\n", d.nMin, d.nMax, d.nAvg);
 	printf("nMmxavg : sum=%f, in=%d, size=%d, index=%d\n",
 	    d.nMmxavg.sum, d.nMmxavg.in, d.nMmxavg.size, d.nMmxavg.index);
+/*! \todo Another #if 0 */
 #if 0
 	if (d.nMmxavg.in > 0 && d.nMmxavg.size > 0) {
 	    printf("nMmxavg : nums \n\t ");
@@ -435,6 +444,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	    d.yAvg);
 	printf("yMmxavg : sum=%f, in=%d, size=%d, index=%d\n", d.yMmxavg.sum,
 	    d.yMmxavg.in, d.yMmxavg.size, d.yMmxavg.index);
+/*! \todo Another #if 0 */
 #if 0
 	if (d.yMmxavg.in > 0 && d.yMmxavg.size > 0) {
 	    printf("nMmxavg : nums \n\t ");
@@ -453,6 +463,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	    d.fMax, d.fAvg);
 	printf("fMmxavg : sum=%f, in=%d, size=%d, index=%d\n", d.fMmxavg.sum,
 	    d.fMmxavg.in, d.fMmxavg.size, d.fMmxavg.index);
+/*! \todo Another #if 0 */
 #if 0
 	if (d.fMmxavg.in > 0 && d.fMmxavg.size > 0) {
 	    printf("nMmxavg : nums \n\t ");
@@ -471,6 +482,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	    d.fyMin, d.fyMax, d.fyAvg);
 	printf("fyMmxavg : sum=%f, in=%d, size=%d, index=%d\n",
 	    d.fyMmxavg.sum, d.fyMmxavg.in, d.fyMmxavg.size, d.fyMmxavg.index);
+/*! \todo Another #if 0 */
 #if 0
 	if (d.fyMmxavg.in > 0 && d.fyMmxavg.size > 0) {
 	    printf("nMmxavg : nums \n\t ");
@@ -493,6 +505,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
     case 10:
     case 11:
 //      printf("jointPos[%d]: %f\n", which - 6, d.jointPos[(which - 6)]);
+/*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("coarseJointPos[%d]: %f\n",
@@ -505,6 +518,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	break;
 
     case 12:
+/*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("\noldInput:  ");
@@ -541,6 +555,7 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	printf("interp rate:  \t%d\n", c.interpolationRate);
 	printf("v limit:      \t%f\n", c.limitVel);
 	printf("axis vlimit:  \t");
+/*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - waiting for new structs */
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("%f ", c.axisLimitVel[t]);
@@ -552,6 +567,7 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	}
 	printf("\n");
 #endif
+/*! \todo Another #if 0 */
 #if 0
 	printf("probe index: %d\n", c.probeIndex);
 	printf("probe polarity: %d\n", c.probePolarity);
@@ -565,6 +581,7 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 
     case 1:
 	printf("pid stuff is obsolete\n");
+/*! \todo Another #if 0 */
 #if 0
 	printf
 	    ("pid:\tP\tI\tD\tFF0\tFF1\tFF2\tBCKLSH\tBIAS\tMAXI\tDEADBAND\tCYCLE TIME\n");
@@ -580,6 +597,7 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	break;
 
     case 3:
+/*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - waiting for new structs */
 	printf("pos limits:   ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
@@ -633,6 +651,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("cmd num:      \t%d\n", s.commandNumEcho);
 	printf("heartbeat:    \t%u\n", s.heartbeat);
 	printf("compute time: \t%f\n", s.computeTime);
+/*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("axes enabled: \t");
@@ -650,6 +669,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	    s.carte_pos_fb.tran.z, s.carte_pos_fb.a, s.carte_pos_fb.b,
 	    s.carte_pos_fb.c);
 	printf("joint data:\n");
+/*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf(" cmd: ");
@@ -690,6 +710,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("active depth: \t%d\n", s.activeDepth);
 	printf("inpos:        \t%d\n",
 	    s.motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0);
+/*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("vscales:      \tQ: %.2f", s.qVscale);
@@ -702,6 +723,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	    s.logOpen == 0 ? "closed" : "open",
 	    s.logStarted == 0 ? "stopped" : "started",
 	    s.logSize, s.logSkip, s.logType);
+/*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("homing:       \t");
@@ -721,6 +743,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 
     case 2:
 	/* print motion and axis flags */
+/*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	htostr(m, s.motionFlag);
@@ -795,6 +818,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 
     case 4:
 	printf("scales handled in HAL now!\n");
+/*! \todo Another #if 0 */
 #if 0
 	printf("output scales: ");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
@@ -875,7 +899,7 @@ int usrmotInit(char *modname)
     printf ( "sizeof(CUBIC_STRUCT):          %d\n", sizeof(CUBIC_STRUCT) );
     printf ( "sizeof(emcmot_comp_t):         %d\n", sizeof(emcmot_comp_t) );
 
-
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - comp structs no longer part of status structure */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
@@ -901,6 +925,7 @@ int usrmotExit(void)
     emcmotStatus = 0;
     emcmotError = 0;
     emcmotLog = 0;
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - comp structs no longer in shmem */
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
@@ -1256,6 +1281,7 @@ int usrmotLoadComp(int axis, const char *file)
    meantime, we return -1 to indicate failure.
 */
 return -1;
+/*! \todo Another #if 0 */
 #if 0
 
     FILE *fp;
@@ -1332,6 +1358,7 @@ int usrmotAlter(int axis, double alter)
    be disabled too.  BTW, what the heck is "alter" anyway?
 */
 return -1;
+/*! \todo Another #if 0 */
 #if 0
     /* check axis range */
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -1358,6 +1385,7 @@ int usrmotQueryAlter(int axis, double *alter)
    be disabled too.  BTW, what the heck is "alter" anyway?
 */
 return -1;
+/*! \todo Another #if 0 */
 #if 0
     /* check axis range */
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -1382,6 +1410,7 @@ int usrmotPrintComp(int axis)
 {
 /*! \todo FIXME - the comp stuff is temporarily disabled */
 return -1;
+/*! \todo Another #if 0 */
 #if 0
     int t;
 

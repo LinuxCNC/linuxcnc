@@ -2073,6 +2073,7 @@ CMS_STATUS TCPMEM::clear()
     header.was_read = ntohl(*((u_long *) temp_buffer + 2));
     return (status);
 }
+/*! \todo Another #if 0 */
 #if 0
 int TCPMEM::login(const char *name, const char *passwd)
 {

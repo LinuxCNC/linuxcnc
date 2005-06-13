@@ -425,6 +425,7 @@ static void define_scope_windows(void)
     ctrl_usr->horiz_info_win =
 	gtk_vbox_framed_new_in_box("Horizontal", FALSE, 0, 0, vboxleft, FALSE,
 	FALSE, 1);
+/*! \todo Another #if 0 */
 #if 0				/* vertical row of select buttons */
     /* hbox for waveform and chan sel windows */
     hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 1);
@@ -436,6 +437,7 @@ static void define_scope_windows(void)
 	gtk_hbox_framed_new_in_box("Selected Channel", FALSE, 0, 0, vboxleft,
 	FALSE, FALSE, 0);
 #endif
+/*! \todo An #if 1 - FIX ME if this works */
 #if 1				/* horizontal row of select buttons */
     ctrl_usr->waveform_win =
 	gtk_vbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 0);

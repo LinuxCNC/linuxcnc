@@ -257,6 +257,7 @@ typedef enum {
     HAL_RD_WR = (HAL_RD | HAL_WR),
 } hal_dir_t;
 
+/*! \todo An #if 1 - FIX ME if this works */
 #if 1
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */

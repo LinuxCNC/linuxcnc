@@ -65,6 +65,7 @@ extern "C" {
 *
 * Returns: 0 for success: -1 for invalid parameters: or -2 if it timed out.
 ***********************************************************************/
+/*! \todo Another #if 0 */
 #if 0
 int mem_get_access(void *data, long connection_number,
     long total_connections, double timeout, double semdelay,

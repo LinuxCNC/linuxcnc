@@ -65,6 +65,7 @@ typedef struct {
     double abc_vMax;		/* maximum rotational velocity */
     double abc_aMax;		/* maximum rotational accelleration */
     PmCartesian unitCart;
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - these are needed for synchronous I/O */
     unsigned char douts;	/* mask for douts to set */
@@ -74,6 +75,7 @@ typedef struct {
 #endif
 } TC_STRUCT;
 
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
 extern unsigned char tcDoutByte;
@@ -111,6 +113,7 @@ extern int tcIsPaused(TC_STRUCT * tc);
 extern void tcPrint(TC_STRUCT * tc);
 extern double tcRunPreCycle(const TC_STRUCT * tc);
 extern int tcForceCycle(TC_STRUCT * tc, double ratio);
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
 extern int tcSetDout(TC_STRUCT * tc, int index, unsigned char starts, unsigned char ends);

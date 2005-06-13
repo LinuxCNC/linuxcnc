@@ -199,6 +199,7 @@ CONFIG_FILE_INFO *get_loaded_nml_config_file(const char *file)
     return NULL;
 }
 
+/*! \todo Another #if 0 */
 #if 0
 int print_loaded_nml_config_file(const char *file)
 {
@@ -816,6 +817,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
     }
     if (!strcmp(proc_type, "REMOTE")) {
 	if (NULL != strstr(proc_line, "serialPortDevName=")) {
+/*! \todo Another #if 0 */
 #if 0
 	    *cms = new TTYMEM(buffer_line, proc_line);
 	    rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%X = new TTYMEM(%s,%s)\n",
@@ -840,6 +842,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 	    return (-1);
 #endif
 	} else if (NULL != strstr(buffer_line, "STCP=")) {
+/*! \todo Another #if 0 */
 #if 0
 	    *cms = new STCPMEM(buffer_line, proc_line);
 	    rcs_print_debug(PRINT_CMS_CONFIG_INFO,

@@ -290,6 +290,7 @@ struct REMOTE_GET_SPACE_AVAILABLE_REPLY:public REMOTE_CMS_REPLY {
     long space_available;
 };
 
+/*! \todo Another #if 0 */
 #if 0
 #define MAX_BUFFERS_FOR_COMBINED_READ 32
 

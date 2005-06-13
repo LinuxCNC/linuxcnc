@@ -54,6 +54,7 @@ extern "C" {
 
     extern int MMXAVG_SIZE;
 
+/*! \todo Another #if 0 */
 #if 0
     // Moved to emcmotDebug struct
     extern double tMmxavgSpace[];
@@ -63,6 +64,7 @@ extern "C" {
 
     extern double MAX_FERROR;
 
+/*! \todo Another #if 0 */
 #if 0
     extern double P_GAIN;
     extern double I_GAIN;
@@ -75,6 +77,7 @@ extern "C" {
 #endif
     extern double BACKLASH;
 
+/*! \todo Another #if 0 */
 #if 0
     extern double INPUT_SCALE;
     extern double INPUT_OFFSET;

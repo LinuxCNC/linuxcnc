@@ -665,6 +665,7 @@ void ARC_FEED(double first_end, double second_end,
 	interp_list.append(linearMoveMsg);
     } else if (rotation > 0) {
 
+/*! \todo Another #if 0 */
 #if 0
 	// This should not be needed anymore with fix in _posemath.c 
 	// If starting and ending on same point move around the
@@ -697,6 +698,7 @@ void ARC_FEED(double first_end, double second_end,
     } else {
 	// reverse turn
 
+/*! \todo Another #if 0 */
 #if 0
 	// This should not be needed anymore with fix in _posemath.c 
 	// If starting and ending on same point move around the
@@ -1566,6 +1568,11 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.16  2005/06/13 14:38:45  paul_c
+  Gone through the code and tagged all #if 0 and #if 1 sections. Some important
+  sections have been disabled through the use of these, others are obsolete
+  code.
+
   Revision 1.15  2005/06/12 21:23:32  paul_c
   Remove a duplicate function (had been ifdef'd out anyway..
 

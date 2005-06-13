@@ -123,6 +123,7 @@ static int comp_id;		/* component ID */
 static int export_siggen(int num, hal_siggen_t * addr);
 static void calc_siggen(void *arg, long period);
 
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - these are no longer used, they should be deleted once
    we're sure we don't need them */
@@ -135,7 +136,11 @@ double sin(double x)
 {
     int flip;
     double retval, top;
-
+/*! \todo FIXME 
+    math.h includes defines for pi, 2*pi, pi/2, and more.
+    It would make sense to use these and save on a few
+    fp ops.
+*/
     /* reduce x to 0-2pi */
     while (x < 0.0) {
 	x += PI * 2.0;

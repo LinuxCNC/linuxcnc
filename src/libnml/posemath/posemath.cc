@@ -960,7 +960,7 @@ PM_CARTESIAN unit(PM_CARTESIAN v)
     return vout;
 }
 
-// norm
+/*! \todo Another #if 0 */
 #if 0
 
 PM_CARTESIAN norm(PM_CARTESIAN v)
@@ -1398,6 +1398,7 @@ PM_QUATERNION operator /(PM_QUATERNION q, double s)
 #endif
 	pmErrno = PM_NORM_ERR;
 
+/*! \todo Another #if 0 */
 #if 0
 	// g++/gcc versions 2.8.x and 2.9.x
 	// will complain that the call to PM_QUATERNION(PM_QUATERNION) is

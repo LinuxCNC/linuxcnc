@@ -442,6 +442,7 @@ static int parse_cmd(char *tokens[])
 {
     int retval;
 
+/*! \todo Another #if 0 */
 #if 0
     int n;
     /* for testing: prints tokens that make up the command */

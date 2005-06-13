@@ -49,6 +49,7 @@ int TC_QUEUE_SIZE = DEFAULT_TC_QUEUE_SIZE;
 
 int MMXAVG_SIZE = DEFAULT_MMXAVG_SIZE;
 
+/*! \todo Another #if 0 */
 #if 0
 double tMmxavgSpace[DEFAULT_MMXAVG_SIZE];
 double sMmxavgSpace[DEFAULT_MMXAVG_SIZE];

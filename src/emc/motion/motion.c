@@ -49,6 +49,7 @@ static int key = 100;		/* the shared memory key, default value */
 MODULE_PARM(key, "i");
 MODULE_PARM_DESC(key, "shared memory key");
 
+/*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - currently HAL has a fixed stacksize of 16384...
    the upcoming HAL rewrite may make it a paramater of the
@@ -237,6 +238,7 @@ void cleanup_module(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: hal_stop_threads() failed, returned %d\n", retval);
     }
+/*! \todo Another #if 0 */
 #if 0
     /* WPS these were moved from above to avoid a possible mutex problem. */
     /* There is no point in clearing the trajectory queue since the planner
@@ -399,6 +401,7 @@ static int init_hal_io(void)
 	axis_data->home_state = 0;
 	/* We'll init the index model to EXT_ENCODER_INDEX_MODEL_RAW for now,
 	   because it is always supported. */
+/*! \todo Another #if 0 */
 #if 0
 	*(axis_data->mode) = EXT_ENCODER_INDEX_MODEL_RAW;
 	*(axis_data->reset) = 0;
@@ -596,6 +599,7 @@ static int export_axis(int num, axis_hal_t * addr)
     }
 
 /*! \todo FIXME - these have been temporarily? deleted */
+/*! \todo Another #if 0 */
 #if 0
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.mode", num);
     retval = hal_pin_u32_new(buf, HAL_WR, &(addr->mode), mot_comp_id);
@@ -940,6 +944,7 @@ static int init_threads(void)
 	    "MOTION: failed to export command handler function\n");
 	return -1;
     }
+/*! \todo Another #if 0 */
 #if 0
     /*! \todo FIXME - currently the traj planner is called from the controller */
     /* eventually it will be a separate function */
@@ -968,6 +973,7 @@ static int init_threads(void)
 	    "MOTION: failed to add motion-controller to servo-thread\n");
 	return -1;
     }
+/*! \todo Another #if 0 */
 #if 0
     /*! \todo FIXME - currently traj and handler are all inside the controller */
     /* add trajectory planner function to traj thread */
