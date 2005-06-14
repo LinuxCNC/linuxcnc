@@ -19,9 +19,8 @@ SRCS = \
 	rs274ngc_pre.cc
 
 HEADERS = \
-	interp_internal.hh \
 	rs274ngc.hh \
-	rs274ngc_return.hh
+	interp_internal.hh
 
 BINS =
 

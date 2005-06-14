@@ -31,7 +31,7 @@
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. A left parenthesis is found inside a comment:
       NCE_NESTED_COMMENT_FOUND
    2. The line ends before an open comment is closed:
@@ -97,7 +97,7 @@ int Interp::close_and_downcase(char *line)       //!< string: one line of NC cod
   }
   CHK((comment), NCE_UNCLOSED_COMMENT_FOUND);
   line[n] = 0;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 
@@ -107,7 +107,7 @@ int Interp::close_and_downcase(char *line)       //!< string: one line of NC cod
 
 Returned Value:
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. A g80 is in the block, no modal group 0 code that uses axes
       is in the block, and one or more axis values is given:
       NCE_CANNOT_USE_AXIS_VALUES_WITH_G80
@@ -180,7 +180,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
     block->motion_to_be = settings->motion_mode;
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 
@@ -188,7 +188,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
 
 /*! init_block
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    Values in the block are reset as described below.
@@ -257,7 +257,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->y_flag = OFF;
   block->z_flag = OFF;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 
@@ -272,7 +272,7 @@ Returned Value: int
      read_items
      enhance_block
      check_items
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects:
    One RS274 line is read into a block and the block is checked for
@@ -293,7 +293,7 @@ int Interp::parse_line(char *line,       //!< array holding a line of RS274 code
   CHP(read_items(block, line, settings->parameters));
   CHP(enhance_block(block, settings));
   CHP(check_items(block, settings));
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -329,7 +329,7 @@ int Interp::precedence(int an_operator)
 
 /*! set_probe_data
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
   The current position is set.
@@ -360,6 +360,6 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
   settings->parameters[5066] = GET_EXTERNAL_PROBE_POSITION_C();
 #endif
   settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 

@@ -35,7 +35,7 @@
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The two calculable values of the radius differ by more than
       tolerance: NCE_RADIUS_TO_END_OF_ARC_DIFFERS_FROM_RADIUS_TO_START
    2. move is not G_2 or G_3: NCE_BUG_CODE_NOT_G2_OR_G3
@@ -89,7 +89,7 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
     *turn = 1;
   else
     ERM(NCE_BUG_CODE_NOT_G2_OR_G3);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -98,7 +98,7 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The arc radius is too small to reach the end point:
       NCE_RADIUS_TOO_SMALL_TO_REACH_END_POINT
    2. The arc radius is not greater than the tool_radius, but should be:
@@ -198,7 +198,7 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
   *center_y = mid_y + (offset * sin(theta));
   *turn = (move == G_2) ? -1 : 1;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -207,7 +207,7 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The two calculable values of the radius differ by more than
       tolerance: NCE_RADIUS_TO_END_OF_ARC_DIFFERS_FROM_RADIUS_TO_START
    2. The move code is not G_2 or G_3: NCE_BUG_CODE_NOT_G2_OR_G3
@@ -258,7 +258,7 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
     *turn = 1;
   else
     ERM(NCE_BUG_CODE_NOT_G2_OR_G3);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -267,7 +267,7 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
 
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The radius is too small to reach the end point:
       NCE_ARC_RADIUS_TOO_SMALL_TO_REACH_END_POINT
    2. The current point is the same as the end point of the arc
@@ -338,5 +338,5 @@ int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
   *center_y = mid_y + (offset * sin(theta));
   *turn = (move == G_2) ? -1 : 1;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }

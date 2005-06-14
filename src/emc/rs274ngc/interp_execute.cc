@@ -36,7 +36,7 @@
 Returned value: int
    If execute_binary1 or execute_binary2 returns an error code, this
    returns that code.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects: The value of left is set to the result of applying
   the operation to left and right.
@@ -56,7 +56,7 @@ int Interp::execute_binary(double *left, int operation, double *right)
     CHP(execute_binary1(left, operation, right));
   else
     CHP(execute_binary2(left, operation, right));
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -65,7 +65,7 @@ int Interp::execute_binary(double *left, int operation, double *right)
 
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. operation is unknown: NCE_BUG_UNKNOWN_OPERATION
    2. An attempt is made to divide by zero: NCE_ATTEMPT_TO_DIVIDE_BY_ZERO
    3. An attempt is made to raise a negative number to a non-integer power:
@@ -107,7 +107,7 @@ int Interp::execute_binary1(double *left,        //!< pointer to the left operan
   default:
     ERM(NCE_BUG_UNKNOWN_OPERATION);
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -116,7 +116,7 @@ int Interp::execute_binary1(double *left,        //!< pointer to the left operan
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. operation is unknown: NCE_BUG_UNKNOWN_OPERATION
 
 Side effects:
@@ -159,7 +159,7 @@ int Interp::execute_binary2(double *left,        //!< pointer to the left operan
   default:
     ERM(NCE_BUG_UNKNOWN_OPERATION);
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -167,7 +167,7 @@ int Interp::execute_binary2(double *left,        //!< pointer to the left operan
 /*! execute_block
 
 Returned Value: int
-   If convert_stop returns RS274NGC_EXIT, this returns RS274NGC_EXIT.
+   If convert_stop returns INTERP_EXIT, this returns INTERP_EXIT.
    If any of the following functions is called and returns an error code,
    this returns that code.
      convert_comment
@@ -179,8 +179,8 @@ Returned Value: int
      convert_stop
      convert_tool_select
    Otherwise, if the probe_flag in the settings is ON, this returns
-      RS274NGC_EXECUTE_FINISH.
-   Otherwise, it returns RS274NGC_OK.
+      INTERP_EXECUTE_FINISH.
+   Otherwise, it returns INTERP_OK.
 
 Side effects:
    One block of RS274/NGC instructions is executed.
@@ -238,13 +238,13 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   CHP(convert_g(block, settings));
   if (block->m_modes[4] != -1) {        /* converts m0, m1, m2, m30, or m60 */
     status = convert_stop(block, settings);
-    if (status == RS274NGC_EXIT)
-      return RS274NGC_EXIT;
-    else if (status != RS274NGC_OK)
+    if (status == INTERP_EXIT)
+      return INTERP_EXIT;
+    else if (status != INTERP_OK)
       ERP(status);
   }
   return ((settings->probe_flag ==
-           ON) ? RS274NGC_EXECUTE_FINISH : RS274NGC_OK);
+           ON) ? INTERP_EXECUTE_FINISH : INTERP_OK);
 }
 
 /****************************************************************************/
@@ -253,7 +253,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. the operation is unknown: NCE_BUG_UNKNOWN_OPERATION
    2. the argument to acos is not between minus and plus one:
       NCE_ARGUMENT_TO_ACOS_OUT_RANGE
@@ -331,6 +331,6 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
   default:
     ERM(NCE_BUG_UNKNOWN_OPERATION);
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 

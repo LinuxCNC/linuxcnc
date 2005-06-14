@@ -36,7 +36,7 @@
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not a:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. An a_coordinate has already been inserted in the block:
@@ -91,7 +91,7 @@ int Interp::read_a(char *line,   //!< string: line of RS274/NGC code being proce
   ERM(NCE_CANNOT_USE_A_WORD);
 #endif /* ifdef AXIS_ERROR */
 #endif /* ifdef AA */
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 
@@ -102,7 +102,7 @@ int Interp::read_a(char *line,   //!< string: line of RS274/NGC code being proce
 Returned Value: int
    If read_real_expression returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character to read is not a slash:
       NCE_SLASH_MISSING_AFTER_FIRST_ATAN_ARGUMENT
    2. The second character to read is not a left bracket:
@@ -146,7 +146,7 @@ int Interp::read_atan(char *line,        //!< string: line of RS274/NGC code bei
   CHP(read_real_expression(line, counter, &argument2, parameters));
   *double_ptr = atan2(*double_ptr, argument2);  /* value in radians */
   *double_ptr = ((*double_ptr * 180.0) / M_PIl);   /* convert to degrees */
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -156,7 +156,7 @@ int Interp::read_atan(char *line,        //!< string: line of RS274/NGC code bei
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not b:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A b_coordinate has already been inserted in the block:
@@ -211,7 +211,7 @@ int Interp::read_b(char *line,   //!< string: line of RS274/NGC code being proce
   ERM(NCE_CANNOT_USE_B_WORD);
 #endif /* ifdef AXIS_ERROR */
 #endif /* ifdef BB */
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -221,7 +221,7 @@ int Interp::read_b(char *line,   //!< string: line of RS274/NGC code being proce
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not c:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. An c_coordinate has already been inserted in the block:
@@ -276,7 +276,7 @@ int Interp::read_c(char *line,   //!< string: line of RS274/NGC code being proce
   ERM(NCE_CANNOT_USE_C_WORD);
 #endif /* ifdef AXIS_ERROR */
 #endif /* ifdef CC */
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -285,7 +285,7 @@ int Interp::read_c(char *line,   //!< string: line of RS274/NGC code being proce
 
 Returned Value: int
   If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not '(' ,
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
 
@@ -328,7 +328,7 @@ int Interp::read_comment(char *line,     //!< string: line of RS274 code being p
   }
   block->comment[n] = 0;
   (*counter)++;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -338,7 +338,7 @@ int Interp::read_comment(char *line,     //!< string: line of RS274 code being p
 Returned Value: int
    If read_integer_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not d:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A d_number has already been inserted in the block:
@@ -380,7 +380,7 @@ int Interp::read_d(char *line,   //!< string: line of RS274 code being processed
   CHK((value < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
   CHK((value > _setup.tool_max), NCE_TOOL_RADIUS_INDEX_TOO_BIG);
   block->d_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -390,7 +390,7 @@ int Interp::read_d(char *line,   //!< string: line of RS274 code being processed
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not f:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. An f_number has already been inserted in the block:
@@ -430,7 +430,7 @@ int Interp::read_f(char *line,   //!< string: line of RS274 code being processed
   CHP(read_real_value(line, counter, &value, parameters));
   CHK((value < 0.0), NCE_NEGATIVE_F_WORD_USED);
   block->f_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -440,7 +440,7 @@ int Interp::read_f(char *line,   //!< string: line of RS274 code being processed
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not g:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. The value is negative: NCE_NEGATIVE_G_CODE_USED
@@ -520,7 +520,7 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
     }
     block->g_modes[mode] = value;
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -530,7 +530,7 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
 Returned Value: int
    If read_integer_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not h:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. An h_number has already been inserted in the block:
@@ -569,7 +569,7 @@ int Interp::read_h(char *line,   //!< string: line of RS274/NGC code being proce
   CHK((value < 0), NCE_NEGATIVE_H_WORD_TOOL_LENGTH_OFFSET_INDEX_USED);
   CHK((value > _setup.tool_max), NCE_TOOL_LENGTH_OFFSET_INDEX_TOO_BIG);
   block->h_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -579,7 +579,7 @@ int Interp::read_h(char *line,   //!< string: line of RS274/NGC code being proce
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not i:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. An i_coordinate has already been inserted in the block:
@@ -620,7 +620,7 @@ int Interp::read_i(char *line,   //!< string: line of RS274 code being processed
   CHP(read_real_value(line, counter, &value, parameters));
   block->i_flag = ON;
   block->i_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -629,7 +629,7 @@ int Interp::read_i(char *line,   //!< string: line of RS274 code being processed
 
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
-   Otherwise, RS274NGC_OK is returned.
+   Otherwise, INTERP_OK is returned.
    1. The first character is not a digit: NCE_BAD_FORMAT_UNSIGNED_INTEGER
    2. sscanf fails: NCE_SSCANF_FAILED
 
@@ -663,7 +663,7 @@ int Interp::read_integer_unsigned(char *line,    //!< string: line of RS274 code
   if (sscanf(line + *counter, "%d", integer_ptr) == 0)
     ERM(NCE_SSCANF_FAILED);
   *counter = n;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -673,7 +673,7 @@ int Interp::read_integer_unsigned(char *line,    //!< string: line of RS274 code
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The returned value is not close to an integer:
       NCE_NON_INTEGER_VALUE_FOR_INTEGER
 
@@ -715,7 +715,7 @@ int Interp::read_integer_value(char *line,       //!< string: line of RS274/NGC 
     *integer_ptr = (int) ceil(float_value);
   } else if ((float_value - *integer_ptr) > 0.0001)
     ERM(NCE_NON_INTEGER_VALUE_FOR_INTEGER);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -725,7 +725,7 @@ int Interp::read_integer_value(char *line,       //!< string: line of RS274/NGC 
 Returned Value: int
    If read_line_number or read_one_item returns an error code,
    this returns that code.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects:
    One line of RS274 code is read and data inserted into a block.
@@ -756,7 +756,7 @@ int Interp::read_items(block_pointer block,      //!< pointer to a block being f
   for (; counter < length;) {
     CHP(read_one_item(line, &counter, block, parameters));
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -766,7 +766,7 @@ int Interp::read_items(block_pointer block,      //!< pointer to a block being f
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not j:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A j_coordinate has already been inserted in the block.
@@ -807,7 +807,7 @@ int Interp::read_j(char *line,   //!< string: line of RS274 code being processed
   CHP(read_real_value(line, counter, &value, parameters));
   block->j_flag = ON;
   block->j_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -817,7 +817,7 @@ int Interp::read_j(char *line,   //!< string: line of RS274 code being processed
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not k:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A k_coordinate has already been inserted in the block:
@@ -858,7 +858,7 @@ int Interp::read_k(char *line,   //!< string: line of RS274 code being processed
   CHP(read_real_value(line, counter, &value, parameters));
   block->k_flag = ON;
   block->k_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -868,7 +868,7 @@ int Interp::read_k(char *line,   //!< string: line of RS274 code being processed
 Returned Value: int
    If read_integer_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not l:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. An l_number has already been inserted in the block:
@@ -907,7 +907,7 @@ int Interp::read_l(char *line,   //!< string: line of RS274/NGC code being proce
   CHP(read_integer_value(line, counter, &value, parameters));
   CHK((value < 0), NCE_NEGATIVE_L_WORD_USED);
   block->l_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -917,7 +917,7 @@ int Interp::read_l(char *line,   //!< string: line of RS274/NGC code being proce
 Returned Value: int
    If read_integer_unsigned returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not n:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. The line number is too large (more than 99999):
@@ -954,7 +954,7 @@ int Interp::read_line_number(char *line, //!< string: line of RS274    code bein
 /* This next test is problematic as many CAM systems will exceed this !
   CHK((value > 99999), NCE_LINE_NUMBER_GREATER_THAN_99999); */
   block->line_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -964,7 +964,7 @@ int Interp::read_line_number(char *line, //!< string: line of RS274    code bein
 Returned Value:
    If read_integer_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not m:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. The value is negative: NCE_NEGATIVE_M_CODE_USED
@@ -1015,7 +1015,7 @@ int Interp::read_m(char *line,   //!< string: line of RS274 code being processed
   if (value >= 100 && value < 200) {
     block->user_m = 1;
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1026,7 +1026,7 @@ Returned Value: int
    If a reader function which is called returns an error code, that
    error code is returned.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. the first character read is not a known character for starting a
    word: NCE_BAD_CHARACTER_USED
 
@@ -1081,7 +1081,7 @@ int Interp::read_one_item(char *line,    //!< string: line of RS274/NGC code bei
   function_pointer = _readers[(int) letter]; /* Find the function pointer in the array */
   CHK((function_pointer == 0), NCE_BAD_CHARACTER_USED);
   CHP((*this.*function_pointer)(line, counter, block, parameters)); /* Call the function */ 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1090,7 +1090,7 @@ int Interp::read_one_item(char *line,    //!< string: line of RS274/NGC code bei
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The operation is unknown:
       NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_A
       NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_M
@@ -1175,7 +1175,7 @@ int Interp::read_operation(char *line,   //!< string: line of RS274/NGC code bei
   default:
     ERM(NCE_UNKNOWN_OPERATION);
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1194,7 +1194,7 @@ Returned Value: int
    NCE_UNKNOWN_WORD_STARTING_WITH_S
    NCE_UNKNOWN_WORD_STARTING_WITH_T
    NCE_UNKNOWN_WORD_WHERE_UNARY_OPERATION_COULD_BE
-   Otherwise, this returns RS274NGC_OK.
+   Otherwise, this returns INTERP_OK.
 
 Side effects:
    An integer code for the name of the operation read from the
@@ -1295,7 +1295,7 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
   default:
     ERM(NCE_UNKNOWN_WORD_WHERE_UNARY_OPERATION_COULD_BE);
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1305,7 +1305,7 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not p:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A p value has already been inserted in the block:
@@ -1347,7 +1347,7 @@ int Interp::read_p(char *line,   //!< string: line of RS274/NGC code being proce
   // user-defined codes
   // CHK((value < 0.0), NCE_NEGATIVE_P_WORD_USED);
   block->p_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1357,7 +1357,7 @@ int Interp::read_p(char *line,   //!< string: line of RS274/NGC code being proce
 Returned Value: int
    If read_integer_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, this returns RS274NGC_OK.
+   Otherwise, this returns INTERP_OK.
    1. The first character read is not # :
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. The parameter number is out of bounds:
@@ -1402,7 +1402,7 @@ int Interp::read_parameter(char *line,   //!< string: line of RS274/NGC code bei
   CHK(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
       NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
   *double_ptr = parameters[index];
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1413,7 +1413,7 @@ Returned Value: int
    If read_real_value or read_integer_value returns an error code,
    this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not # :
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. The parameter index is out of range: PARAMETER_NUMBER_OUT_OF_RANGE
@@ -1493,7 +1493,7 @@ int Interp::read_parameter_setting(char *line,   //!< string: line of RS274/NGC 
   _setup.parameter_numbers[_setup.parameter_occurrence] = index;
   _setup.parameter_values[_setup.parameter_occurrence] = value;
   _setup.parameter_occurrence++;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1503,7 +1503,7 @@ int Interp::read_parameter_setting(char *line,   //!< string: line of RS274/NGC 
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not q:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A q value has already been inserted in the block:
@@ -1544,7 +1544,7 @@ int Interp::read_q(char *line,   //!< string: line of RS274/NGC code being proce
   // user-defined codes
   // CHK((value <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
   block->q_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1554,7 +1554,7 @@ int Interp::read_q(char *line,   //!< string: line of RS274/NGC code being proce
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not r:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. An r_number has already been inserted in the block:
@@ -1597,7 +1597,7 @@ int Interp::read_r(char *line,   //!< string: line of RS274 code being processed
   CHP(read_real_value(line, counter, &value, parameters));
   block->r_flag = ON;
   block->r_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1611,7 +1611,7 @@ Returned Value: int
      read_operation
      execute_binary
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character is not [ :
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
 
@@ -1820,7 +1820,7 @@ int Interp::read_real_expression(char *line,     //!< string: line of RS274/NGC 
       CHP(read_rest_bop2(line, counter, value, next_operation, parameters));
   } else                        /* next operation is a bop2, plus-like */
     CHP(read_rest_bop2(line, counter, value, next_operation, parameters));
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 #endif
 
@@ -1886,7 +1886,7 @@ int Interp::read_real_expression(char *line,     //!< string: line of RS274/NGC 
     }
   }
   *value = values[0];
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 
@@ -1896,7 +1896,7 @@ int Interp::read_real_expression(char *line,     //!< string: line of RS274/NGC 
 
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character is not "+", "-", "." or a digit:
       NCE_BAD_NUMBER_FORMAT
    2. No digits are found after the first character and before the
@@ -1973,7 +1973,7 @@ int Interp::read_real_number(char *line, //!< string: line of RS274/NGC code bei
     line[n] = c;
     *counter = n;
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1989,7 +1989,7 @@ Returned Value: int
       read_real_number
    If no characters are found before the end of the line this
    returns NCE_NO_CHARACTERS_FOUND_IN_READING_REAL_VALUE.
-   Otherwise, this returns RS274NGC_OK.
+   Otherwise, this returns INTERP_OK.
 
 Side effects:
    The value read from the line is put into what double_ptr points at.
@@ -2043,7 +2043,7 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
   else
     CHP(read_real_number(line, counter, double_ptr));
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2056,7 +2056,7 @@ Returned Value: int
      execute_binary1
      read_real_value
      read_operation
-  Otherwise, it returns RS274NGC_OK.
+  Otherwise, it returns INTERP_OK.
 
 Side effects:
    The value argument is set to the value of the expression.
@@ -2098,7 +2098,7 @@ int Interp::read_rest_bop1(char *line,   //!< string: line of RS274/NGC code bei
     if (next_operation >= AND2) /* next op is a bop2 or right bracket */
       break;
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 #endif
 
@@ -2113,7 +2113,7 @@ Returned Value: int
      read_real_value
      read_operation
      read_rest_bop1
-  Otherwise, it returns RS274NGC_OK.
+  Otherwise, it returns INTERP_OK.
 
 Side effects:
    The value argument is set to the value of the expression.
@@ -2156,7 +2156,7 @@ int Interp::read_rest_bop2(char *line,   //!< string: line of RS274/NGC code bei
     if (next_operation == RIGHT_BRACKET)
       break;
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 #endif
 
@@ -2167,7 +2167,7 @@ int Interp::read_rest_bop2(char *line,   //!< string: line of RS274/NGC code bei
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not s:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A spindle speed has already been inserted in the block:
@@ -2206,7 +2206,7 @@ int Interp::read_s(char *line,   //!< string: line of RS274NGC code being proces
   CHP(read_real_value(line, counter, &value, parameters));
   CHK((value < 0.0), NCE_NEGATIVE_SPINDLE_SPEED_USED);
   block->s_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2216,7 +2216,7 @@ int Interp::read_s(char *line,   //!< string: line of RS274NGC code being proces
 Returned Value: int
    If read_integer_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not t:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A t_number has already been inserted in the block:
@@ -2255,7 +2255,7 @@ int Interp::read_t(char *line,   //!< string: line of RS274/NGC code being proce
   CHP(read_integer_value(line, counter, &value, parameters));
   CHK((value < 0), NCE_NEGATIVE_TOOL_ID_USED);
   block->t_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2266,11 +2266,11 @@ Returned Value: int
    If close_and_downcase returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
    Otherwise, this returns:
-       a. RS274NGC_ENDFILE if the percent_flag is ON and the only
+       a. INTERP_ENDFILE if the percent_flag is ON and the only
           non-white character on the line is %,
-       b. RS274NGC_EXECUTE_FINISH if the first character of the
+       b. INTERP_EXECUTE_FINISH if the first character of the
           close_and_downcased line is a slash, and
-       c. RS274NGC_OK otherwise.
+       c. INTERP_OK otherwise.
    1. The end of the file is found and the percent_flag is ON:
       NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN
    2. The end of the file is found and the percent_flag is OFF:
@@ -2312,7 +2312,7 @@ NULL.
 
 Block delete is discussed in [NCMS, page 3] but the discussion makes
 no sense. Block delete is handled by having this function return
-RS274NGC_EXECUTE_FINISH if the first character of the
+INTERP_EXECUTE_FINISH if the first character of the
 close_and_downcased line is a slash. When the caller sees this,
 the caller is expected not to call Interp::execute if the switch
 is on, but rather call Interp::read again to overwrite and ignore
@@ -2353,7 +2353,7 @@ int Interp::read_text(const char *command,       //!< a string which may have in
     strcpy(line, raw_line);
     CHP(close_and_downcase(line));
     if ((line[0] == '%') && (line[1] == 0) && (_setup.percent_flag == ON))
-      return RS274NGC_ENDFILE;
+      return INTERP_ENDFILE;
   } else {
     CHK((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
     strcpy(raw_line, command);
@@ -2366,7 +2366,7 @@ int Interp::read_text(const char *command,       //!< a string which may have in
   else
     *length = strlen(line);
 
-  return ((line[0] == '/') ? RS274NGC_EXECUTE_FINISH : RS274NGC_OK);
+  return ((line[0] == '/') ? INTERP_EXECUTE_FINISH : INTERP_OK);
 }
 
 /****************************************************************************/
@@ -2381,7 +2381,7 @@ Returned Value: int
      read_operation_unary
      read_real_expression
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. the name of the unary operation is not followed by a left bracket:
       NCE_LEFT_BRACKET_MISSING_AFTER_UNARY_OPERATION_NAME
 
@@ -2416,7 +2416,7 @@ int Interp::read_unary(char *line,       //!< string: line of RS274/NGC code bei
     CHP(read_atan(line, counter, double_ptr, parameters));
   else
     CHP(execute_unary(double_ptr, operation));
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2426,7 +2426,7 @@ int Interp::read_unary(char *line,       //!< string: line of RS274/NGC code bei
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not x:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A x_coordinate has already been inserted in the block:
@@ -2467,7 +2467,7 @@ int Interp::read_x(char *line,   //!< string: line of RS274 code being processed
   CHP(read_real_value(line, counter, &value, parameters));
   block->x_flag = ON;
   block->x_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2477,7 +2477,7 @@ int Interp::read_x(char *line,   //!< string: line of RS274 code being processed
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not y:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A y_coordinate has already been inserted in the block:
@@ -2518,7 +2518,7 @@ int Interp::read_y(char *line,   //!< string: line of RS274 code being processed
   CHP(read_real_value(line, counter, &value, parameters));
   block->y_flag = ON;
   block->y_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2528,7 +2528,7 @@ int Interp::read_y(char *line,   //!< string: line of RS274 code being processed
 Returned Value: int
    If read_real_value returns an error code, this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The first character read is not z:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. A z_coordinate has already been inserted in the block:
@@ -2569,5 +2569,5 @@ int Interp::read_z(char *line,   //!< string: line of RS274 code being processed
   CHP(read_real_value(line, counter, &value, parameters));
   block->z_flag = ON;
   block->z_number = value;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }

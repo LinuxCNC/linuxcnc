@@ -29,7 +29,7 @@ interface functions.
 Interface function names all begin with "Interp::".
 
 Error handling is by returning a status value of either a non-error
-code (RS274NGC_OK, RS274NGC_EXIT, etc.) or some specific error code
+code (INTERP_OK, INTERP_EXIT, etc.) or some specific error code
 from each function where there is a possibility of error.  If an error
 occurs, processing is always stopped, and control is passed back up
 through the function call hierarchy to an interface function; the
@@ -97,7 +97,7 @@ what to do. They are declared in rs274ngc.hh.
 
 /*! Interp::close
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side Effects:
    The NC-code file is closed if open.
@@ -115,7 +115,7 @@ int Interp::close()
   }
   reset();
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /***********************************************************************/
@@ -123,10 +123,10 @@ int Interp::close()
 /*! Interp::execute
 
 Returned Value: int)
-   If execute_block returns RS274NGC_EXIT, this returns that.
-   If execute_block returns RS274NGC_EXECUTE_FINISH, this returns that.
+   If execute_block returns INTERP_EXIT, this returns that.
+   If execute_block returns INTERP_EXECUTE_FINISH, this returns that.
    If execute_block returns an error code, this returns that code.
-   Otherwise, this returns RS274NGC_OK.
+   Otherwise, this returns INTERP_OK.
 
 Side Effects:
    Calls to canonical machining commands are made.
@@ -148,7 +148,7 @@ int Interp::execute(const char *command)
 
   if (NULL != command) {
     status = read(command);
-    if (status != RS274NGC_OK) {
+    if (status != INTERP_OK) {
       return status;
     }
   }
@@ -162,11 +162,11 @@ int Interp::execute(const char *command)
     write_g_codes(&(_setup.block1), &_setup);
     write_m_codes(&(_setup.block1), &_setup);
     write_settings(&_setup);
-    if ((status != RS274NGC_OK) &&
-        (status != RS274NGC_EXECUTE_FINISH) && (status != RS274NGC_EXIT))
+    if ((status != INTERP_OK) &&
+        (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
       ERP(status);
   } else                        /* blank line is OK */
-    status = RS274NGC_OK;
+    status = INTERP_OK;
   return status;
 }
 
@@ -174,7 +174,7 @@ int Interp::execute(const char *command)
 
 /*! Interp::exit
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side Effects: See below
 
@@ -198,7 +198,7 @@ int Interp::exit()
                             file_name), _setup.parameters);
   reset();
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /***********************************************************************/
@@ -207,7 +207,7 @@ int Interp::exit()
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, this returns RS274NGC_OK.
+   Otherwise, this returns INTERP_OK.
    1. Interp::restore_parameters returns an error code.
    2. Parameter 5220, the work coordinate system index, is not in the range
       1 to 9: NCE_COORDINATE_SYSTEM_INDEX_PARAMETER_5220_OUT_OF_RANGE
@@ -330,7 +330,7 @@ int Interp::init()
   // Synch rest of settings to external world
   synch();
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /***********************************************************************/
@@ -339,7 +339,7 @@ int Interp::init()
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, this returns RS274NGC_OK.
+   Otherwise, this returns INTERP_OK.
    1. _setup.tool_max is larger than CANON_TOOL_MAX: NCE_TOOL_MAX_TOO_LARGE
 
 Side Effects:
@@ -372,7 +372,7 @@ int Interp::load_tool_table()
     _setup.tool_table[n].diameter = 0;
   }
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /***********************************************************************/
@@ -381,7 +381,7 @@ int Interp::load_tool_table()
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise it returns RS274NGC_OK.
+   Otherwise it returns INTERP_OK.
    1. A file is already open: NCE_A_FILE_IS_ALREADY_OPEN
    2. The name of the file is too long: NCE_FILE_NAME_TOO_LONG
    3. The file cannot be opened: NCE_UNABLE_TO_OPEN_FILE
@@ -462,7 +462,7 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   }
   strcpy(_setup.filename, filename);
   reset();
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /***********************************************************************/
@@ -472,11 +472,11 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
    Otherwise, this returns:
-       a. RS274NGC_ENDFILE if the only non-white character on the line is %,
-       b. RS274NGC_EXECUTE_FINISH if the first character of the
+       a. INTERP_ENDFILE if the only non-white character on the line is %,
+       b. INTERP_EXECUTE_FINISH if the first character of the
           close_and_downcased line is a slash, and
-       c. RS274NGC_OK otherwise.
-   1. The command and_setup.file_pointer are both NULL: NCE_FILE_NOT_OPEN
+       c. INTERP_OK otherwise.
+   1. The command and_setup.file_pointer are both NULL: INTERP_FILE_NOT_OPEN
    2. The probe_flag is ON but the HME command queue is not empty:
       NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING
    3. If read_text (which gets a line of NC code from file) or parse_line
@@ -509,16 +509,16 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
     _setup.probe_flag = OFF;
   }
   CHK(((command == NULL) && (_setup.file_pointer == NULL)),
-      NCE_FILE_NOT_OPEN);
+      INTERP_FILE_NOT_OPEN);
   read_status =
     read_text(command, _setup.file_pointer, _setup.linetext,
               _setup.blocktext, &_setup.line_length);
-  if ((read_status == RS274NGC_EXECUTE_FINISH)
-      || (read_status == RS274NGC_OK)) {
+  if ((read_status == INTERP_EXECUTE_FINISH)
+      || (read_status == INTERP_OK)) {
     if (_setup.line_length != 0) {
       CHP(parse_line(_setup.blocktext, &(_setup.block1), &_setup));
     }
-  } else if (read_status == RS274NGC_ENDFILE);
+  } else if (read_status == INTERP_ENDFILE);
   else
     ERP(read_status);
   return read_status;
@@ -528,7 +528,7 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
 
 /*! Interp::reset
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side Effects: See below
 
@@ -561,7 +561,7 @@ int Interp::reset()
   _setup.blocktext[0] = 0;
   _setup.line_length = 0;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /***********************************************************************/
@@ -570,7 +570,7 @@ int Interp::reset()
 
 Returned Value:
   If any of the following errors occur, this returns the error code shown.
-  Otherwise it returns RS274NGC_OK.
+  Otherwise it returns INTERP_OK.
   1. The parameter file cannot be opened for reading: NCE_UNABLE_TO_OPEN_FILE
   2. A parameter index is out of range: NCE_PARAMETER_NUMBER_OUT_OF_RANGE
   3. A required parameter is missing from the file:
@@ -654,7 +654,7 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
   for (; k < RS274NGC_MAX_PARAMETERS; k++) {
     pars[k] = 0;
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /***********************************************************************/
@@ -663,7 +663,7 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
 
 Returned Value:
   If any of the following errors occur, this returns the error code shown.
-  Otherwise it returns RS274NGC_OK.
+  Otherwise it returns INTERP_OK.
   1. The existing file cannot be renamed:  NCE_CANNOT_CREATE_BACKUP_FILE
   2. The renamed file cannot be opened to read: NCE_CANNOT_OPEN_BACKUP_FILE
   3. The new file cannot be opened to write: NCE_CANNOT_OPEN_VARIABLE_FILE
@@ -767,14 +767,14 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
      being owned by root */
   chown(filename, ini_stat.st_uid, ini_stat.st_gid);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /***********************************************************************/
 
 /*! Interp::synch
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side Effects:
    sets the value of many attribute of _setup by calling various
@@ -814,7 +814,7 @@ int Interp::synch()
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /***********************************************************************/
@@ -919,7 +919,7 @@ void Interp::error_text(int error_code,        //!< code number of error
                          char *error_text,      //!< char array to copy error text into  
                          int max_size)  //!< maximum number of characters to copy
 {
-  if (((error_code >= RS274NGC_MIN_ERROR) &&
+  if (((error_code >= INTERP_MIN_ERROR) &&
        (error_code <= RS274NGC_MAX_ERROR)) &&
       (strlen(_rs274ngc_errors[error_code]) < ((size_t) max_size))) {
     strcpy(error_text, _rs274ngc_errors[error_code]);
@@ -1069,7 +1069,7 @@ void Interp::stack_name(int stack_index,       //!< index into stack of function
 
 /* Interp::ini_load()
 
-Returned Value: RS274NGC_OK, RS274NGC_ERROR
+Returned Value: INTERP_OK, RS274NGC_ERROR
 
 Side Effects:
    An INI file containing values for global variables is used to

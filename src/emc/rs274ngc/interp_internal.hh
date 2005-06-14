@@ -353,7 +353,7 @@ macros totally crash-proof. If the function call stack is deeper than
   } else
 
 #define CHP(try_this)                                      \
-  if ((status = (try_this)) != RS274NGC_OK) {       \
+  if ((status = (try_this)) != INTERP_OK) {       \
      if (_setup.stack_index < 49)                          \
         {strcpy(_setup.stack[_setup.stack_index++], name); \
          _setup.stack[_setup.stack_index][0] = 0;     \

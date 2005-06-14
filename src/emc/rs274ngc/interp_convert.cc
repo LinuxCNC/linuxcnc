@@ -40,7 +40,7 @@ Returned Value: int
       convert_arc_comp2
       convert_arc2
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, this returns RS274NGC_OK.
+   Otherwise, this returns INTERP_OK.
    1. The block has neither an r value nor any i,j,k values:
       NCE_R_I_J_K_WORDS_ALL_MISSING_FOR_ARC
    2. The block has both an r value and one or more i,j,k values:
@@ -214,7 +214,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
     CHP(status);
   } else
     ERM(NCE_BUG_PLANE_NOT_XY_YZ_OR_XZ);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -224,7 +224,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 Returned Value: int
    If arc_data_ijk or arc_data_r returns an error code,
    this returns that code.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects:
    This executes an arc command at feed rate. It also updates the
@@ -287,7 +287,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
 #endif
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -297,7 +297,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
 Returned Value: int
    If arc_data_comp_ijk or arc_data_comp_r returns an error code,
    this returns that code.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects:
    This executes an arc command at
@@ -388,7 +388,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   settings->CC_current = CC_end;
 #endif
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -399,7 +399,7 @@ Returned Value: int
    If arc_data_ijk or arc_data_r returns an error code,
    this returns that code.
    If any of the following errors occurs, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. A concave corner is found: NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP
    2. The tool will not fit inside an arc:
       NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP
@@ -549,7 +549,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   settings->CC_current = CC_end;
 #endif
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -558,7 +558,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The function is called when cutter radius compensation is on:
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP
    2. The g_code argument is not G_92, G_92_1, G_92_2, or G_92_3
@@ -756,14 +756,14 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
   } else
     ERM(NCE_BUG_CODE_NOT_IN_G92_SERIES);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_comment
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    The message function is called if the string starts with "MSG,".
@@ -806,19 +806,19 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   // compare with MSG, SYSTEM
   if (!strncmp(lc, MSG_STR, strlen(MSG_STR))) {
     MESSAGE(comment + start + strlen(MSG_STR));
-    return RS274NGC_OK;
+    return INTERP_OK;
   } else if (!strncmp(lc, SYSTEM_STR, strlen(SYSTEM_STR))) {
 /*! \todo Implement SYSTEM commands in the task controller */
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIX-ME Impliment these at a later stage... */
     SYSTEM(comment + start + strlen(SYSTEM_STR));
-    return RS274NGC_EXECUTE_FINISH;     // inhibit read-ahead until this is done
+    return INTERP_EXECUTE_FINISH;     // inhibit read-ahead until this is done
 #endif
   }
   // else it's a real comment
   COMMENT(comment + start);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -827,7 +827,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. g_code isn't G_61, G_61_1 or G_64: NCE_BUG_CODE_NOT_G61_G61_1_OR_G64
 
 Side effects: See below
@@ -869,7 +869,7 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
     settings->control_mode = CANON_CONTINUOUS;
   } else
     ERM(NCE_BUG_CODE_NOT_G61_G61_1_OR_G64);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -878,7 +878,7 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The value of the g_code argument is not 540, 550, 560, 570, 580, 590
       591, 592, or 593:
       NCE_BUG_CODE_NOT_IN_RANGE_G54_TO_G593
@@ -995,7 +995,7 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
 #ifdef DEBUG_EMC
     COMMENT("interpreter: continuing to use same coordinate system");
 #endif
-    return RS274NGC_OK;
+    return INTERP_OK;
   }
 
   settings->origin_index = origin;
@@ -1049,7 +1049,7 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
 #else
                      0, 0, 0);
 #endif
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1060,7 +1060,7 @@ Returned Value: int
    If convert_cutter_compensation_on or convert_cutter_compensation_off
       is called and returns an error code, this returns that code.
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. g_code is not G_40, G_41, or G_42:
       NCE_BUG_CODE_NOT_G40_G41_OR_G42
 
@@ -1093,14 +1093,14 @@ int Interp::convert_cutter_compensation(int g_code,      //!< must be G_40, G_41
   } else
     ERM(NCE_BUG_CODE_NOT_G40_G41_OR_G42);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_cutter_compensation_off
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    A comment is made that cutter radius compensation is turned off.
@@ -1120,7 +1120,7 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
 #endif
   settings->cutter_comp_side = OFF;
   settings->program_x = UNKNOWN;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1129,7 +1129,7 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The selected plane is not the XY plane:
       NCE_CANNOT_TURN_CUTTER_RADIUS_COMP_ON_OUT_OF_XY_PLANE
    2. Cutter radius compensation is already on:
@@ -1207,7 +1207,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
   settings->cutter_comp_radius = radius;
   settings->tool_table_index = index;
   settings->cutter_comp_side = side;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1216,7 +1216,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
 
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. g_code isn't G_90 or G_91: NCE_BUG_CODE_NOT_G90_OR_G91
 
 Side effects:
@@ -1252,14 +1252,14 @@ int Interp::convert_distance_mode(int g_code,    //!< g_code being executed (mus
     }
   } else
     ERM(NCE_BUG_CODE_NOT_G90_OR_G91);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_dwell
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    A dwell command is executed.
@@ -1271,7 +1271,7 @@ Called by: convert_g.
 int Interp::convert_dwell(double time)   //!< time in seconds to dwell  */
 {
   DWELL(time);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1280,7 +1280,7 @@ int Interp::convert_dwell(double time)   //!< time in seconds to dwell  */
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1.  g_code isn't G_93 or G_94: NCE_BUG_CODE_NOT_G93_OR_G94
 
 Side effects:
@@ -1312,14 +1312,14 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
     settings->feed_mode = UNITS_PER_MINUTE;
   } else
     ERM(NCE_BUG_CODE_NOT_G93_OR_G94);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_feed_rate
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    The machine feed_rate is set to the value of f_number in the
@@ -1337,7 +1337,7 @@ int Interp::convert_feed_rate(block_pointer block,       //!< pointer to a block
 {
   SET_FEED_RATE(block->f_number);
   settings->feed_rate = block->f_number;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1358,7 +1358,7 @@ Returned Value: int
       convert_retract_mode
       convert_set_plane
       convert_tool_length_offset
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects:
    Any g_codes in the block (excluding g93 and 94) and any implicit
@@ -1435,7 +1435,7 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   if (block->motion_to_be != -1) {
     CHP(convert_motion(block->motion_to_be, block, settings));
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1444,7 +1444,7 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. cutter radius compensation is on:
       NCE_CANNOT_USE_G28_OR_G30_WITH_CUTTER_RADIUS_COMP
    2. The code is not G28 or G30: NCE_BUG_CODE_NOT_G28_OR_G30
@@ -1530,7 +1530,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   settings->BB_current = BB_end2;
   settings->CC_current = CC_end2;
 #endif
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1539,7 +1539,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
 
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The g_code argument isnt G_20 or G_21:
       NCE_BUG_CODE_NOT_G20_OR_G21
    2. Cutter radius compensation is on:
@@ -1611,7 +1611,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
     }
   } else
     ERM(NCE_BUG_CODE_NOT_G20_OR_G21);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1620,7 +1620,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 
 Returned Value: int
    If convert_tool_change returns an error code, this returns that code.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects:
    m_codes in the block are executed. For each m_code
@@ -1738,7 +1738,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     }
   }
 #endif
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1752,7 +1752,7 @@ Returned Value: int
       convert_home
       convert_setup
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. code is not G_4, G_10, G_28, G_30, G_53, G92, G_92_1, G_92_2, or G_92_3:
       NCE_BUG_CODE_NOT_G4_G10_G28_G30_G53_OR_G92_SERIES
 
@@ -1783,7 +1783,7 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
   } else if ((code == G_4) || (code == G_53));  /* handled elsewhere */
   else
     ERM(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G53_OR_G92_SERIES);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1798,7 +1798,7 @@ Returned Value: int
       convert_probe
       convert_straight
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The motion code is not 0,1,2,3,38.2,80,81,82,83,84,85,86,87, 88, or 89:
       NCE_BUG_UNKNOWN_MOTION_CODE
 
@@ -1834,7 +1834,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   } else
     ERM(NCE_BUG_UNKNOWN_MOTION_CODE);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1843,7 +1843,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. No value is given in the block for any of X, Y, or Z:
       NCE_X_Y_AND_Z_WORDS_ALL_MISSING_WITH_G38_2
    2. feed mode is inverse time: NCE_CANNOT_PROBE_IN_INVERSE_TIME_FEED_MODE
@@ -1925,7 +1925,7 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   TURN_PROBE_OFF();
   settings->motion_mode = G_38_2;
   settings->probe_flag = ON;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1934,7 +1934,7 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. g_code isn't G_98 or G_99: NCE_BUG_CODE_NOT_G98_OR_G99
 
 Side effects:
@@ -1965,14 +1965,14 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
     settings->retract_mode = R_PLANE;
   } else
     ERM(NCE_BUG_CODE_NOT_G98_OR_G99);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_setup
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    SET_PROGRAM_ORIGIN is called, and the coordinate
@@ -2100,7 +2100,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   else
     COMMENT("interpreter: setting coordinate system origin");
 #endif
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2109,7 +2109,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. G_18 or G_19 is called when cutter radius compensation is on:
       NCE_CANNOT_USE_XZ_PLANE_WITH_CUTTER_RADIUS_COMP
       NCE_CANNOT_USE_YZ_PLANE_WITH_CUTTER_RADIUS_COMP
@@ -2142,14 +2142,14 @@ int Interp::convert_set_plane(int g_code,        //!< must be G_17, G_18, or G_1
     settings->plane = CANON_PLANE_YZ;
   } else
     ERM(NCE_BUG_CODE_NOT_G17_G18_OR_G19);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_speed
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
   The machine spindle speed is set to the value of s_number in the
@@ -2165,7 +2165,7 @@ int Interp::convert_speed(block_pointer block,   //!< pointer to a block of RS27
 {
   SET_SPINDLE_SPEED(block->s_number);
   settings->speed = block->s_number;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2173,10 +2173,10 @@ int Interp::convert_speed(block_pointer block,   //!< pointer to a block of RS27
 /*! convert_stop
 
 Returned Value: int
-   When an m2 or m30 (program_end) is encountered, this returns RS274NGC_EXIT.
+   When an m2 or m30 (program_end) is encountered, this returns INTERP_EXIT.
    If the code is not m0, m1, m2, m30, or m60, this returns
    NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects:
    An m0, m1, m2, m30, or m60 in the block is executed.
@@ -2364,10 +2364,10 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
         }
       }
     }
-    return RS274NGC_EXIT;
+    return INTERP_EXIT;
   } else
     ERM(NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /*************************************************************************** */
@@ -2378,7 +2378,7 @@ Returned Value: int
    If convert_straight_comp1 or convert_straight_comp2 is called
    and returns an error code, this returns that code.
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The value of move is not G_0 or G_1:
       NCE_BUG_CODE_NOT_G0_OR_G1
    2. A straight feed (g1) move is called with feed rate set to 0:
@@ -2509,7 +2509,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
 #endif
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2518,7 +2518,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
 
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The side is not RIGHT or LEFT:
       NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT
    2. The destination tangent point is not more than a tool radius
@@ -2611,7 +2611,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   settings->current_y = cy;
   settings->program_x = px;
   settings->program_y = py;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2620,7 +2620,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
 
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The compensation side is not RIGHT or LEFT:
       NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT
    2. A concave corner is found:
@@ -2821,14 +2821,14 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
   settings->current_y = end_y;
   settings->program_x = px;
   settings->program_y = py;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_tool_change
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    This makes function calls to canonical machining functions, and sets
@@ -2891,7 +2891,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
   settings->current_slot = settings->selected_tool_slot;
   settings->spindle_turning = CANON_STOPPED;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2900,7 +2900,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The block has no offset index (h number): NCE_OFFSET_INDEX_MISSING
    2. The g_code argument is not G_43 or G_49:
       NCE_BUG_CODE_NOT_G43_OR_G49
@@ -2950,7 +2950,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     settings->length_offset_index = index;
   } else
     ERM(NCE_BUG_CODE_NOT_G43_OR_G49);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -2960,7 +2960,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 Returned Value: int
    If the tool slot given in the block is larger than allowed,
    this returns NCE_SELECTED_TOOL_SLOT_NUMBER_TOO_LARGE.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects: See below
 
@@ -2988,5 +2988,5 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
       NCE_SELECTED_TOOL_SLOT_NUMBER_TOO_LARGE);
   SELECT_TOOL(block->t_number);
   settings->selected_tool_slot = block->t_number;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }

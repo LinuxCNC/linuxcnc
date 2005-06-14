@@ -23,13 +23,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "rs274ngc.hh"
-#include "rs274ngc_return.hh"
+#include "interp_return.hh"
 #include "interp_internal.hh"
 
 /****************************************************************************/
 /*! write_g_codes
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    The active_g_codes in the settings are updated.
@@ -98,14 +98,14 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! write_m_codes
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    The settings->active_m_codes are updated.
@@ -138,14 +138,14 @@ int Interp::write_m_codes(block_pointer block,   //!< pointer to a block of RS27
   emz[6] =                      /* 6 overrides   */
     (settings->feed_override == ON) ? 48 : 49;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! write_settings
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
   The settings->active_settings array of doubles is updated with the
@@ -166,7 +166,7 @@ int Interp::write_settings(setup_pointer settings)       //!< pointer to machine
   vals[1] = settings->feed_rate;        /* 1 feed rate       */
   vals[2] = settings->speed;    /* 2 spindle speed   */
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/

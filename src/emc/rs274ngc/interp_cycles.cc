@@ -31,7 +31,7 @@
 
 /*! convert_cycle_g81
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects: See below
 
@@ -64,14 +64,14 @@ int Interp::convert_cycle_g81(CANON_PLANE plane, //!< selected plane
   cycle_feed(plane, x, y, bottom_z);
   cycle_traverse(plane, x, y, clear_z);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_cycle_g82
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects: See below
 
@@ -105,14 +105,14 @@ int Interp::convert_cycle_g82(CANON_PLANE plane, //!< selected plane
   DWELL(dwell);
   cycle_traverse(plane, x, y, clear_z);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_cycle_g83
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects: See below
 
@@ -170,7 +170,7 @@ int Interp::convert_cycle_g83(CANON_PLANE plane, //!< selected plane
   cycle_feed(plane, x, y, bottom_z);
   cycle_traverse(plane, x, y, clear_z);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -180,7 +180,7 @@ int Interp::convert_cycle_g83(CANON_PLANE plane, //!< selected plane
 Returned Value: int
    If the spindle is not turning clockwise, this returns
      NCE_SPINDLE_NOT_TURNING_CLOCKWISE_IN_G84.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects: See below
 
@@ -229,14 +229,14 @@ int Interp::convert_cycle_g84(CANON_PLANE plane, //!< selected plane
   STOP_SPINDLE_TURNING();
   START_SPINDLE_CLOCKWISE();
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_cycle_g85
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    A number of moves are made as described below.
@@ -268,7 +268,7 @@ int Interp::convert_cycle_g85(CANON_PLANE plane, //!< selected plane
   cycle_feed(plane, x, y, bottom_z);
   cycle_feed(plane, x, y, clear_z);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -278,7 +278,7 @@ int Interp::convert_cycle_g85(CANON_PLANE plane, //!< selected plane
 Returned Value: int
    If the spindle is not turning clockwise or counterclockwise,
    this returns NCE_SPINDLE_NOT_TURNING_IN_G86.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects:
    A number of moves are made as described below.
@@ -325,7 +325,7 @@ int Interp::convert_cycle_g86(CANON_PLANE plane, //!< selected plane
   else
     START_SPINDLE_COUNTERCLOCKWISE();
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -335,7 +335,7 @@ int Interp::convert_cycle_g86(CANON_PLANE plane, //!< selected plane
 Returned Value: int
    If the spindle is not turning clockwise or counterclockwise,
    this returns NCE_SPINDLE_NOT_TURNING_IN_G87.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects:
    A number of moves are made as described below. This cycle is a
@@ -425,7 +425,7 @@ int Interp::convert_cycle_g87(CANON_PLANE plane, //!< selected plane
   else
     START_SPINDLE_COUNTERCLOCKWISE();
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -435,7 +435,7 @@ int Interp::convert_cycle_g87(CANON_PLANE plane, //!< selected plane
 Returned Value: int
    If the spindle is not turning clockwise or counterclockwise, this
    returns NCE_SPINDLE_NOT_TURNING_IN_G88.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects: See below
 
@@ -480,14 +480,14 @@ int Interp::convert_cycle_g88(CANON_PLANE plane, //!< selected plane
   else
     START_SPINDLE_COUNTERCLOCKWISE();
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! convert_cycle_g89
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects: See below
 
@@ -520,7 +520,7 @@ int Interp::convert_cycle_g89(CANON_PLANE plane, //!< selected plane
   DWELL(dwell);
   cycle_feed(plane, x, y, clear_z);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -531,7 +531,7 @@ Returned Value: int
    If any of the specific functions called returns an error code,
    this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The r-value is not given the first time this code is called after
       some other motion mode has been in effect:
       NCE_R_CLEARANCE_PLANE_UNSPECIFIED_IN_CYCLE
@@ -585,7 +585,7 @@ int Interp::convert_cycle(int motion,    //!< a g-code between G_81 and G_89, a 
   settings->cycle_l = block->l_number;
   settings->cycle_r = block->r_number;
   settings->motion_mode = motion;
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -596,7 +596,7 @@ Returned Value: int
    If any of the specific functions called returns an error code,
    this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The z-value is not given the first time this code is called after
       some other motion mode has been in effect:
       NCE_Z_VALUE_UNSPECIFIED_IN_XY_PLANE_CANNED_CYCLE
@@ -843,7 +843,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(save_mode);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -854,7 +854,7 @@ Returned Value: int
    If any of the specific functions called returns an error code,
    this returns that code.
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The x-value is not given the first time this code is called after
       some other motion mode has been in effect:
       NCE_X_VALUE_UNSPECIFIED_IN_YZ_PLANE_CANNED_CYCLE
@@ -1046,7 +1046,7 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(save_mode);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1057,7 +1057,7 @@ Returned Value: int
    If any of the specific functions called returns an error code,
    this returns that code.
    If any of the following errors occur, this returns the ERROR code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. The y-value is not given the first time this code is called after
       some other motion mode has been in effect:
       NCE_Y_VALUE_UNSPECIFIED_IN_XZ_PLANE_CANNED_CYCLE
@@ -1257,13 +1257,13 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(save_mode);
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 /****************************************************************************/
 
 /*! cycle_feed
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
   STRAIGHT_FEED is called.
@@ -1312,14 +1312,14 @@ int Interp::cycle_feed(CANON_PLANE plane,        //!< currently selected plane
 #else
                   0, 0, 0);
 #endif
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! cycle_traverse
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
   STRAIGHT_TRAVERSE is called.
@@ -1372,5 +1372,5 @@ int Interp::cycle_traverse(CANON_PLANE plane,    //!< currently selected plane
                       0, 0, 0);
 #endif
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }

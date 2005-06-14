@@ -32,7 +32,7 @@
 
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. NCE_DWELL_TIME_MISSING_WITH_G4
    2. NCE_MUST_USE_G0_OR_G1_WITH_G53
    3. NCE_CANNOT_USE_G53_INCREMENTAL
@@ -108,7 +108,7 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
   } else if ((mode0 == G_92_1) || (mode0 == G_92_2) || (mode0 == G_92_3)) {
   } else
     ERM(NCE_BUG_BAD_G_CODE_MODAL_GROUP_0);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -118,7 +118,7 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
 Returned Value: int
    If any one of check_g_codes, check_m_codes, and check_other_codes
    returns an error code, this returns that code.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
 
 Side effects: none
 
@@ -149,7 +149,7 @@ int Interp::check_items(block_pointer block,     //!< pointer to a block to be c
   CHP(check_g_codes(block, settings));
   CHP(check_m_codes(block));
   CHP(check_other_codes(block));
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -158,7 +158,7 @@ int Interp::check_items(block_pointer block,     //!< pointer to a block to be c
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. There are too many m codes in the block: NCE_TOO_MANY_M_CODES_ON_LINE
 
 Side effects: none
@@ -177,7 +177,7 @@ int Interp::check_m_codes(block_pointer block)   //!< pointer to a block to be c
   static char name[] = "check_m_codes";
 
   CHK((block->m_count > MAX_EMS), NCE_TOO_MANY_M_CODES_ON_LINE);
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -186,7 +186,7 @@ int Interp::check_m_codes(block_pointer block)   //!< pointer to a block to be c
 
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
-   Otherwise, it returns RS274NGC_OK.
+   Otherwise, it returns INTERP_OK.
    1. An A-axis value is given with a canned cycle (g80 to g89):
       NCE_CANNOT_PUT_AN_A_IN_CANNED_CYCLE
    2. A B-axis value is given with a canned cycle (g80 to g89):
@@ -307,5 +307,5 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);
   }
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }

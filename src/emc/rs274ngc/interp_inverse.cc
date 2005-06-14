@@ -23,14 +23,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "rs274ngc.hh"
-#include "rs274ngc_return.hh"
+#include "interp_return.hh"
 #include "interp_internal.hh"
 
 /****************************************************************************/
 
 /*! inverse_time_rate_arc
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects: a call is made to SET_FEED_RATE and _setup.feed_rate is set.
 
@@ -65,14 +65,14 @@ int Interp::inverse_time_rate_arc(double x1,     //!< x coord of start point of 
   SET_FEED_RATE(rate);
   settings->feed_rate = rate;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! inverse_time_rate_arc2
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects: a call is made to SET_FEED_RATE and _setup.feed_rate is set.
 
@@ -120,14 +120,14 @@ int Interp::inverse_time_rate_arc2(double start_x,       //!< x coord of last pr
   SET_FEED_RATE(rate);
   settings->feed_rate = rate;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! inverse_time_rate_as
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects: a call is made to SET_FEED_RATE and _setup.feed_rate is set.
 
@@ -185,14 +185,14 @@ int Interp::inverse_time_rate_as(double start_x, //!< x coord of last program po
   SET_FEED_RATE(rate);
   settings->feed_rate = rate;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! inverse_time_rate_straight
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects: a call is made to SET_FEED_RATE and _setup.feed_rate is set.
 
@@ -236,5 +236,5 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
   SET_FEED_RATE(rate);
   settings->feed_rate = rate;
 
-  return RS274NGC_OK;
+  return INTERP_OK;
 }

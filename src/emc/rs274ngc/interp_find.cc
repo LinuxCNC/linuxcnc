@@ -26,7 +26,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "rs274ngc.hh"
-#include "rs274ngc_return.hh"
+#include "interp_return.hh"
 #include "interp_internal.hh"
 
 /****************************************************************************/
@@ -89,7 +89,7 @@ double Interp::find_arc_length(double x1,        //!< X-coordinate of start poin
 
 /*! find_ends
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    The values of px, py, pz, aa_p, bb_p, and cc_p are set
@@ -219,14 +219,14 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
        ON) ? (settings->CC_current + block->c_number) : settings->CC_current;
 #endif
   }
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
 
 /*! find_relative
 
-Returned Value: int (RS274NGC_OK)
+Returned Value: int (INTERP_OK)
 
 Side effects:
    The values of x2, y2, z2, aa_2, bb_2, and cc_2 are set.
@@ -269,7 +269,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
   *BB_2 = (BB_1 - (settings->BB_origin_offset + settings->BB_axis_offset));
   *CC_2 = (CC_1 - (settings->CC_origin_offset + settings->CC_axis_offset));
 #endif
-  return RS274NGC_OK;
+  return INTERP_OK;
 }
 
 /****************************************************************************/
