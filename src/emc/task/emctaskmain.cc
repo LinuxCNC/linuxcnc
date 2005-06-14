@@ -69,7 +69,7 @@ extern "C" {
 #include "inifile.hh"		// INIFILE
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "emcglb.h"		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
-#include "rs274ngc_return.hh"	// NCE_FILE_NOT_OPEN
+#include "interp_return.hh"     // public interpreter return values
 
 #ifdef USE_NLS
 #define _(string) gettext(string)
@@ -893,11 +893,18 @@ static int emcTaskPlan(void)
 			    rcs_print("emcTaskPlanRead() returned %d\n",
 				readRetval);
 			}
-			if (readRetval > RS274NGC_MIN_ERROR || readRetval == 3	/* RS274NGC_ENDFILE 
+			/* MGS
+                           FIXME - This next bit of code is goofy for the following reasons:
+                           1. It uses numbers when these values are #defined in interp_return.hh...
+                           2. This if() actually evaluates to if (readRetval != INTERP_OK)...
+                           3. The "end of file" comment is inaccurate...
+                           *** Need to look at all calls to things that return INTERP_xxx values! ***
+			MGS */
+			if (readRetval > INTERP_MIN_ERROR || readRetval == 3	/* INTERP_ENDFILE 
 										 */  ||
-			    readRetval == 1 /* RS274NGC_EXIT */  ||
-			    readRetval == 2	/* RS274NGC_ENDFILE,
-						   RS274NGC_EXECUTE_FINISH */ )
+			    readRetval == 1 /* INTERP_EXIT */  ||
+			    readRetval == 2	/* INTERP_ENDFILE,
+						   INTERP_EXECUTE_FINISH */ )
 			{
 			    // end of file
 			    emcStatus->task.interpState =
@@ -927,15 +934,15 @@ static int emcTaskPlan(void)
 				rcs_print("emcTaskPlanExecute(0) return %d\n",
 				    execRetval);
 			    }
-			    if (execRetval == -1 /* RS274NGC_ERROR */  ||
-				execRetval > RS274NGC_MIN_ERROR || execRetval == 1	/* RS274NGC_EXIT
+			    if (execRetval == -1 /* INTERP_ERROR */  ||
+				execRetval > INTERP_MIN_ERROR || execRetval == 1	/* INTERP_EXIT
 											 */ ) {
 				// end of file
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP_WAITING;
-			    } else if (execRetval == 2	/* RS274NGC_EXECUTE_FINISH
+			    } else if (execRetval == 2	/* INTERP_EXECUTE_FINISH
 						         */ ) {
-				// RS274NGC_EXECUTE_FINISH signifies
+				// INTERP_EXECUTE_FINISH signifies
 				// that no more reading should be done until
 				// everything
 				// outstanding is completed
@@ -1862,7 +1869,7 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 	    rcs_print("emcTaskPlanOpen(%s) returned %d\n", open_msg->file,
 		retval);
 	}
-	if (retval > RS274NGC_MIN_ERROR) {
+	if (retval > INTERP_MIN_ERROR) {
 	    retval = -1;
 	}
 	if (-1 == retval) {
@@ -1886,7 +1893,7 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 		rcs_print("emcTaskPlanExecute(%s) returned %d\n",
 		    execute_msg->command, execRetval);
 	    }
-	    if (execRetval == 2 /* RS274NGC_ENDFILE */ ) {
+	    if (execRetval == 2 /* INTERP_ENDFILE */ ) {
 		// this is an end-of-file
 		// need to flush execution, so signify no more reading
 		// until all is done
@@ -1946,7 +1953,7 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 	if (EMC_DEBUG & EMC_DEBUG_INTERP) {
 	    rcs_print("emcTaskPlanInit() returned %d\n", retval);
 	}
-	if (retval > RS274NGC_MIN_ERROR) {
+	if (retval > INTERP_MIN_ERROR) {
 	    retval = -1;
 	}
 	break;
@@ -1956,7 +1963,7 @@ printf ( "case EMC_TRAJ_LINEAR_MOVE_TYPE\n" );
 	if (EMC_DEBUG & EMC_DEBUG_INTERP) {
 	    rcs_print("emcTaskPlanSynch() returned %d\n", retval);
 	}
-	if (retval > RS274NGC_MIN_ERROR) {
+	if (retval > INTERP_MIN_ERROR) {
 	    retval = -1;
 	}
 	break;
@@ -2999,6 +3006,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.31  2005/06/14 05:19:12  mshaver
+  Changes to emc task files that cause them to use the public return code values declared in interp_return.hh. For example, RS274NGC_OK is replaced by INTERP_OK. This is needed to generalize the way interpreters are written. Some other comments were also added where potentail problems were thought to be found.
+
   Revision 1.30  2005/06/13 14:38:45  paul_c
   Gone through the code and tagged all #if 0 and #if 1 sections. Some important
   sections have been disabled through the use of these, others are obsolete

@@ -27,7 +27,7 @@
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
 #include "rs274ngc.hh"		// the interpreter
-#include "rs274ngc_return.hh"	// NCE_FILE_NOT_OPEN
+#include "interp_return.hh"     // INTERP_FILE_NOT_OPEN
 
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
@@ -292,12 +292,12 @@ int emcTaskPlanInit()
     waitFlag = 0;
 
     int retval = interp.init();
-    if (retval > RS274NGC_MIN_ERROR) {
+    if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     } else {
 	if (0 != RS274NGC_STARTUP_CODE[0]) {
 	    retval = interp.execute(RS274NGC_STARTUP_CODE);
-	    if (retval > RS274NGC_MIN_ERROR) {
+	    if (retval > INTERP_MIN_ERROR) {
 		print_interp_error(retval);
 	    }
 	}
@@ -343,7 +343,7 @@ int emcTaskPlanOpen(const char *file)
     }
 
     int retval = interp.open(file);
-    if (retval > RS274NGC_MIN_ERROR) {
+    if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
 	return retval;
     }
@@ -354,16 +354,16 @@ int emcTaskPlanOpen(const char *file)
 int emcTaskPlanRead()
 {
     int retval = interp.read();
-    if (retval == NCE_FILE_NOT_OPEN) {
+    if (retval == INTERP_FILE_NOT_OPEN) {
 	if (emcStatus->task.file[0] != 0) {
 	    retval = interp.open(emcStatus->task.file);
-	    if (retval > RS274NGC_MIN_ERROR) {
+	    if (retval > INTERP_MIN_ERROR) {
 		print_interp_error(retval);
 	    }
 	    retval = interp.read();
 	}
     }
-    if (retval > RS274NGC_MIN_ERROR) {
+    if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     }
     return retval;
@@ -380,7 +380,7 @@ int emcTaskPlanExecute(const char *command)
         }
     }
     int retval = interp.execute(command);
-    if (retval > RS274NGC_MIN_ERROR) {
+    if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     }
     return retval;
@@ -389,7 +389,7 @@ int emcTaskPlanExecute(const char *command)
 int emcTaskPlanClose()
 {
     int retval = interp.close();
-    if (retval > RS274NGC_MIN_ERROR) {
+    if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     }
 
@@ -441,6 +441,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
   Modification history:
 
   $Log$
+  Revision 1.11  2005/06/14 05:19:12  mshaver
+  Changes to emc task files that cause them to use the public return code values declared in interp_return.hh. For example, RS274NGC_OK is replaced by INTERP_OK. This is needed to generalize the way interpreters are written. Some other comments were also added where potentail problems were thought to be found.
+
   Revision 1.10  2005/06/12 22:07:56  paul_c
   Convert rs274ngc error printing to a more generic form.
 
