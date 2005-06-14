@@ -6,6 +6,7 @@ include $(PWD)/../Makefile.inc
 endif
 
 obj-$(CONFIG_RTAPI) := rtapi.o
+rtapi-objs := $(RTPREFIX)_rtapi.o
 
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
 
@@ -66,7 +67,7 @@ PWD := $(shell pwd)
 # all older system build the traditional way
 ifeq ($(BUILD_SYS),kbuild)
 
-modules: headers rtapi.c
+modules: headers
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
 	- cp *.ko $(RTLIB_DIR)/
 
@@ -109,14 +110,9 @@ kclean:
 # explicit rules to make libs from objs
 
 ifneq ($(MODULE_EXT),.ko)
-
 $(RTLIB_DIR)/rtapi.o : $(RTTMP_DIR)/$(RTPREFIX)_rtapi.o
 	@ echo "Install rtapi.o in rtlib"
 	- \install -p -m0664 $< $(RTLIB_DIR)/rtapi.o
-else
-# Rule to create a hard link to rtapi.c for kbuild
-rtapi.c: 
-	cp -fl $(src)$(RTPREFIX)_rtapi.c $(src)rtapi.c
 endif
 
 $(LIB_DIR)/ulapi.o : $(TMP_DIR)/$(RTPREFIX)_ulapi.o
