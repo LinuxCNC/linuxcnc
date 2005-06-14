@@ -893,8 +893,8 @@ static int emcTaskPlan(void)
 			    rcs_print("emcTaskPlanRead() returned %d\n",
 				readRetval);
 			}
-			/* MGS
-                           FIXME - This next bit of code is goofy for the following reasons:
+			/*! \todo MGS FIXME
+                              This next bit of code is goofy for the following reasons:
                            1. It uses numbers when these values are #defined in interp_return.hh...
                            2. This if() actually evaluates to if (readRetval != INTERP_OK)...
                            3. The "end of file" comment is inaccurate...
@@ -906,7 +906,12 @@ static int emcTaskPlan(void)
 			    readRetval == 2	/* INTERP_ENDFILE,
 						   INTERP_EXECUTE_FINISH */ )
 			{
-			    // end of file
+			/* emcTaskPlanRead retval != INTERP_OK
+                           Signal to the rest of the system that that the interp
+                           is now in a paused state. */
+                        /*! \todo FIXME The above test *should* be reduced to:
+                           readRetVal != INTERP_OK
+                           (N.B. Watch for negative error codes.) */
 			    emcStatus->task.interpState =
 				EMC_TASK_INTERP_WAITING;
 			} else {
@@ -3006,6 +3011,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.32  2005/06/14 11:05:00  paul_c
+  Add a todo tag to Matt's FIX-ME and expanded on the comments.
+
   Revision 1.31  2005/06/14 05:19:12  mshaver
   Changes to emc task files that cause them to use the public return code values declared in interp_return.hh. For example, RS274NGC_OK is replaced by INTERP_OK. This is needed to generalize the way interpreters are written. Some other comments were also added where potentail problems were thought to be found.
 
