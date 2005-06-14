@@ -14,6 +14,8 @@ HEADERS = \
 	emccfg.h \
 	emcglb.h \
 	emcpos.h \
+	interp.hh \
+	interp_return.hh \
 	interpl.hh \
 	canon.hh
 
