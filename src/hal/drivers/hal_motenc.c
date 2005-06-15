@@ -129,6 +129,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.5  2005/06/15 02:10:32  jmkasunich
+ * converted motenc encoder input position scale factor from units per step, to steps per unit, to be consistent with normal emc.ini units
+ *
  * Revision 1.4  2005/05/23 19:38:15  paul_c
  * Fix a small problem with the makefiles introduced after the join from bdi-4
  *
@@ -207,6 +210,9 @@ typedef struct {
 
     // Parameters.
     hal_float_t				scale;		// Scaling factor for position.
+    // internal values
+    float old_scale;		/* stored scale value */
+    double scale_recip;		/* reciprocal value used for scaling */
 } EncoderPinsParams;
 
 typedef struct {
@@ -794,9 +800,20 @@ Device_EncoderRead(void *arg, long period)
 
 	    // Read encoder counts.
 	    *(pEncoder->pCount) = pCard->fpga[i].encoderCount[j];
-
+	    /* check for change in scale value */
+	    if ( pEncoder->scale != pEncoder->old_scale ) {
+		/* get ready to detect future scale changes */
+		pEncoder->old_scale = pEncoder->scale;
+		/* validate the new scale value */
+		if ((pEncoder->scale < 1e-20) && (pEncoder->scale > -1e-20)) {
+		    /* value too small, divide by zero is a bad thing */
+		    pEncoder->scale = 1.0;
+		}
+		/* we will need the reciprocal */
+		pEncoder->scale_recip = 1.0 / pEncoder->scale;
+	    }
 	    // Scale count to make floating point position.
-	    *(pEncoder->pPosition) = *(pEncoder->pCount) * pEncoder->scale;
+	    *(pEncoder->pPosition) = *(pEncoder->pCount) * pEncoder->scale_recip;
 	}
     }
 }
