@@ -287,6 +287,8 @@ static void capture(void *arg, long period)
 	*(cntr->count) = cntr->raw_count;
 	/* check for change in scale value */
 	if ( cntr->pos_scale != cntr->old_scale ) {
+	    /* save new scale to detect future changes */
+	    cntr->old_scale = cntr->pos_scale;
 	    /* scale value has changed, test and update it */
 	    if ((cntr->pos_scale < 1e-20) && (cntr->pos_scale > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
@@ -294,8 +296,6 @@ static void capture(void *arg, long period)
 	    }
 	    /* we actually want the reciprocal */
 	    cntr->scale = 1.0 / cntr->pos_scale;
-	    /* no need to recalc unless it changes */
-	    cntr->old_scale = cntr->pos_scale;
 	}
 	/* scale count to make floating point position */
 	*(cntr->pos) = *(cntr->count) * cntr->scale;
