@@ -838,7 +838,7 @@ static void update_pos(void *arg, long period)
 	    freqgen->scale_recip = 1.0 / freqgen->pos_scale;
 	}
 	/* scale count to make floating point position */
-	*(freqgen->pos) = *(freqgen->count) * freqgen->pos_scale;
+	*(freqgen->pos) = *(freqgen->count) * freqgen->scale_recip;
 	/* move on to next channel */
 	freqgen++;
     }
