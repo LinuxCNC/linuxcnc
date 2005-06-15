@@ -13,25 +13,25 @@ linksp Xpos-fb <= motenc.0.enc-00-position
 linksp Ypos-fb <= motenc.0.enc-01-position
 linksp Zpos-fb <= motenc.0.enc-02-position
 
-# set feedback scaling
-# this is just an example
-#   8192 counts/rev * 10 turns per inch = 81920 counts/in
-#   1/81920 = 0.00001220703125 inches per count
-#
-setp motenc.0.enc-00-scale 0.00001220703125 
-setp motenc.0.enc-01-scale 0.00001220703125 
-setp motenc.0.enc-02-scale 0.00001220703125 
+# get feedback scaling from ini file
+setp motenc.0.enc-00-scale [AXIS_0]INPUT_SCALE 
+setp motenc.0.enc-01-scale [AXIS_1]INPUT_SCALE 
+setp motenc.0.enc-02-scale [AXIS_2]INPUT_SCALE 
 
 # connect PID output signals to DACs
 linksp Xoutput => motenc.0.dac-00-value
 linksp Youtput => motenc.0.dac-01-value
 linksp Zoutput => motenc.0.dac-02-value
 
-# set offset and scale so that +/-1.00 on output 
-# signals is +/-10V at the physical DAC pins
-setp motenc.0.dac-00-gain 10
-setp motenc.0.dac-01-gain 10
-setp motenc.0.dac-02-gain 10
+# set output scaling from ini file 
+setp motenc.0.dac-00-gain [AXIS_0]OUTPUT_SCALE
+setp motenc.0.dac-01-gain [AXIS_1]OUTPUT_SCALE
+setp motenc.0.dac-02-gain [AXIS_2]OUTPUT_SCALE
+# set output offset to zero
+# (Eventually this should come from the ini file too, but
+# I want to add an OUTPUT_OFFSET variable to the ini.
+# At present, the OUTPUT_SCALE actually has two values
+# and the second one is the offset.  This is ugly.)
 setp motenc.0.dac-00-offset 0
 setp motenc.0.dac-01-offset 0
 setp motenc.0.dac-02-offset 0

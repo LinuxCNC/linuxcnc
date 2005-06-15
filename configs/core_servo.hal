@@ -49,6 +49,12 @@ setp pid.2.maxoutput 1
 # Once the axis has been tuned to your satisfaction, 
 # do "halcmd show param | grep pid" to get a listing 
 # of the tuning parameters, and enter those values here.
+# FIXME - these should come from the ini file, but
+# I'd rather not have all the PID parameters in the 
+# ini file for a stepper machine, they just confuse
+# people.  I'd like emc to come with more than just
+# one sample ini file, one could be for steppers,
+# another for servos... need to disscuss this first.
 
 setp pid.0.Pgain 0.01
 setp pid.0.Igain 0
