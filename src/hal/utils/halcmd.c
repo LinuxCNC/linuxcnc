@@ -83,9 +83,10 @@ static int do_gets_cmd(char *name);
 static int do_show_cmd(char *type, char *pattern);
 static int do_list_cmd(char *type, char *pattern);
 static int do_status_cmd(char *type);
-static int do_loadrt_cmd(char *mod_name, char *args[]);
 static int do_delsig_cmd(char *mod_name);
+static int do_loadrt_cmd(char *mod_name, char *args[]);
 static int do_unloadrt_cmd(char *mod_name);
+static int do_loadusr_cmd(char *args[]);
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char *pattern);
 static void print_pin_info(char *pattern);
@@ -124,6 +125,9 @@ int hal_flag = 0;	/* used to indicate that halcmd might have the
 			   hal mutex, so the sig handler can't just
 			   exit, instead it must set 'done' */
 int done = 0;		/* used to break out of processing loop */
+
+char comp_name[HAL_NAME_LEN];	/* name for this instance of halcmd */
+
 #ifndef NO_INI
     FILE *inifile = NULL;
 #endif
@@ -169,7 +173,6 @@ int main(int argc, char **argv)
 	   END_OF_LINE } state;
     char *cp1, *filename = NULL;
     FILE *srcfile = NULL;
-    char buf[30];
     char cmd_buf[MAX_CMD_LEN+1];
     char *tokens[MAX_TOK+1];
 
@@ -277,9 +280,9 @@ int main(int argc, char **argv)
     signal(SIGTERM, quit);
     /* at this point all options are parsed, connect to HAL */
     /* create a unique module name, to allow for multiple halcmd's */
-    snprintf(buf, 29, "halcmd%d", getpid());
+    snprintf(comp_name, HAL_NAME_LEN-1, "halcmd%d", getpid());
     /* connect to the HAL */
-    comp_id = hal_init(buf);
+    comp_id = hal_init(comp_name);
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed\n" );
 	fprintf(stderr, "NOTE: 'rtapi' kernel module must be loaded\n" );
@@ -510,6 +513,8 @@ static int parse_cmd(char *tokens[])
 	retval = do_loadrt_cmd(tokens[1], &tokens[2]);
     } else if (strcmp(tokens[0], "unloadrt") == 0) {
 	retval = do_unloadrt_cmd(tokens[1]);
+    } else if (strcmp(tokens[0], "loadusr") == 0) {
+	retval = do_loadusr_cmd(&tokens[1]);
     } else if (strcmp(tokens[0], "save") == 0) {
 	retval = do_save_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "addf") == 0) {
@@ -1141,12 +1146,14 @@ static int do_status_cmd(char *type)
 
 static int do_loadrt_cmd(char *mod_name, char *args[])
 {
+    /* note: these are static so that the various searches can
+       be skipped for subsequent commands */
     static char *insmod_path = NULL;
     static char *rtmod_dir = NULL;
+    static char path_buf[MAX_CMD_LEN+1];
     struct stat stat_buf;
-    static char path_buf[MAX_CMD_LEN];
-    char mod_path[MAX_CMD_LEN];
-    char *cp1, *cp2;
+    char mod_path[MAX_CMD_LEN+1];
+    char *cp1, *cp2, *cp3;
     char *argv[MAX_TOK+1];
     int n, m, retval, status;
     pid_t pid;
@@ -1155,13 +1162,13 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     if ( getuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: Must be root to load realtime modules\n");
-	return -2;
+	return HAL_PERM;
     }
     
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: HAL is locked, loading of modules is not permitted\n");
-	return -2;
+	return HAL_PERM;
     }
     
     /* check for insmod */
@@ -1178,7 +1185,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     }
     /* check environment for path to realtime HAL modules */
     if ( rtmod_dir == NULL ) {
-	rtmod_dir = getenv ( "HAL_RTMOD_DIR" );
+	rtmod_dir = getenv("HAL_RTMOD_DIR");
     }
     /*! \todo FIXME - the following is an attempt to locate the directory
        where the HAL modules are stored.  It depends on the emc2
@@ -1192,52 +1199,21 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	n = readlink("/proc/self/exe", path_buf, MAX_CMD_LEN-10);
 	if ( n > 0 ) {
 	    path_buf[n] = '\0';
-	    /* have path to executabie, find last instance of 'emc2' */
-	    cp2 = "";
+	    /* have path to executabie, find last two '/' */
+	    cp3 = cp2 = "";
 	    cp1 = path_buf;
-	    while ( (cp1 = strstr ( cp1, "/emc2" )) != NULL ) {
-		cp2 = cp1++;
+	    while ( *cp1 != '\0' ) {
+		if ( *cp1 == '/' ) {
+		    cp3 = cp2;
+		    cp2 = cp1;
+		}
+		cp1++;
 	    }
-	    /* is the current dir a subdir of emc2? */
-	    if ( cp2[5] == '/' ) {
-		/* yes, chop subdirectories */
-		cp2[5] = '\0';
-	    }
-	    /* is it something like '/emc22'? */
-	    if ( strcmp ( cp2, "/emc2" ) == 0 ) {
-		/* nope, maybe we found the right place... */
-		strcat ( path_buf, "/rtlib" );
-		rtmod_dir = path_buf;
-	    }
-	}
-    }
-    /*! \todo FIXME - the following code works if you are anywhere in
-       the standard emc2 directory tree, but it is a kludge
-       that depends on the structure of the tree, and fails
-       completely if you run it from elsewhere */
-    /* update - the above code using /proc/self/exe was added
-       later, and works from anywhere, as long as the halcmd
-       executable is in the emc2 tree.  So the following would
-       only be used on machines without a /proc filesystem */
-    if ( rtmod_dir == NULL ) {
-	/*still can't find directory, try to locate it based
-	   on the current working dir */
-        if ( getcwd(path_buf, MAX_CMD_LEN-10) != NULL ) {
-	    /* got current path, find last instance of 'emc2' */
-	    cp2 = "";
-	    cp1 = path_buf;
-	    while ( (cp1 = strstr ( cp1, "/emc2" )) != NULL ) {
-		cp2 = cp1++;
-	    }
-	    /* is the current dir a subdir of emc2? */
-	    if ( cp2[5] == '/' ) {
-		/* yes, chop subdirectories */
-		cp2[5] = '\0';
-	    }
-	    /* is it something like '/emc22'? */
-	    if ( strcmp ( cp2, "/emc2" ) == 0 ) {
-		/* nope, maybe we found the right place... */
-		strcat ( path_buf, "/rtlib" );
+	    if ( *cp3 == '/' ) {
+		/* chop "/bin/halcmd" from end of path */
+		*cp3 = '\0';
+		/* and append "/rtlib" */
+		strncat(path_buf, "/rtlib", MAX_CMD_LEN-strlen(path_buf));
 		rtmod_dir = path_buf;
 	    }
 	}
@@ -1278,7 +1254,13 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: fork() failed\n");
+	    "HAL: ERROR: loadrt fork() failed\n");
+	/* reconnect to the HAL shmem area */
+	comp_id = hal_init(comp_name);
+	if (comp_id < 0) {
+	    fprintf(stderr, "halcmd: hal_init() failed after fork\n" );
+	    exit(-1);
+	}
 	return -1;
     }
     if ( pid == 0 ) {
@@ -1310,9 +1292,9 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* this is the parent process, wait for child to end */
     retval = waitpid ( pid, &status, 0 );
     /* reconnect to the HAL shmem area */
-    comp_id = hal_init("halcmd");
+    comp_id = hal_init(comp_name);
     if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed\n" );
+	fprintf(stderr, "halcmd: hal_init() failed after loadrt\n" );
 	exit(-1);
     }
     /* check result of waitpid() */
@@ -1489,7 +1471,13 @@ static int unloadrt_comp(char *mod_name)
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: fork() failed\n");
+	    "HAL: ERROR: unloadrt fork() failed\n");
+	/* reconnect to the HAL shmem area */
+	comp_id = hal_init(comp_name);
+	if (comp_id < 0) {
+	    fprintf(stderr, "halcmd: hal_init() failed after fork\n" );
+	    exit(-1);
+	}
 	return -1;
     }
     if ( pid == 0 ) {
@@ -1510,9 +1498,9 @@ static int unloadrt_comp(char *mod_name)
     /* this is the parent process, wait for child to end */
     retval = waitpid ( pid, &status, 0 );
     /* reconnect to the HAL shmem area */
-    comp_id = hal_init("halcmd");
+    comp_id = hal_init(comp_name);
     if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed\n" );
+	fprintf(stderr, "halcmd: hal_init() failed after unloadrt\n" );
 	exit(-1);
     }
     /* check result of waitpid() */
@@ -1535,6 +1523,218 @@ static int unloadrt_comp(char *mod_name)
     /* print success message */
     rtapi_print_msg(RTAPI_MSG_INFO, "Realtime module '%s' unloaded\n",
 	mod_name);
+    return 0;
+}
+
+
+static int do_loadusr_cmd(char *args[])
+{
+    int wait_flag, ignore_flag, root_flag;
+    char *prog_name;
+    char prog_path[MAX_CMD_LEN+1];
+    char *cp1, *cp2, *envpath;
+    struct stat stat_buf;
+    char *argv[MAX_TOK+1];
+    int n, m, retval, status;
+    pid_t pid;
+
+    if (hal_get_lock()&HAL_LOCK_LOAD) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: HAL is locked, loading of programs is not permitted\n");
+	return HAL_PERM;
+    }
+    /* check for options (-w, -i, and/or -r) */
+    wait_flag = 0;
+    ignore_flag = 0;
+    root_flag = 0;
+    prog_name = NULL;
+    while ( **args == '-' ) {
+	/* this argument contains option(s) */
+	cp1 = *args;
+	cp1++;
+	while ( *cp1 != '\0' ) {
+	    if ( *cp1 == 'w' ) {
+		wait_flag = 1;
+	    } else if ( *cp1 == 'i' ) {
+		ignore_flag = 1;
+	    } else if ( *cp1 == 'r' ) {
+		root_flag = 1;
+	    } else {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: ERROR: unknown loadusr option '-%c'\n", *cp1);
+		return HAL_INVAL;
+	    }
+	    cp1++;
+	}
+	/* move to next arg */
+	args++;
+    }
+    /* get program name */
+    prog_name = *args++;
+    /* need to find path to a program matching "prog_name" */
+    prog_path[0] = '\0';
+    if ( prog_path[0] == '\0' ) {
+	/* try the name by itself */
+	strncpy (prog_path, prog_name, MAX_CMD_LEN);
+	rtapi_print_msg(RTAPI_MSG_DBG, "Trying '%s'\n", prog_path);
+	if ( stat(prog_path, &stat_buf) != 0 ) {
+	    /* no luck, clear prog_path to indicate failure */
+	    prog_path[0] = '\0';
+	}
+    }
+    if ( prog_path[0] == '\0' ) {
+	/* no luck yet, try the emc2/bin directory where
+	   the halcmd executable is located */
+	n = readlink("/proc/self/exe", prog_path, MAX_CMD_LEN-10);
+	if ( n > 0 ) {
+	    prog_path[n] = '\0';
+	    /* have path to executabie, find last '/' */
+	    cp2 = "";
+	    cp1 = prog_path;
+	    while ( *cp1 != '\0' ) {
+		if ( *cp1 == '/' ) {
+		    cp2 = cp1;
+		}
+		cp1++;
+	    }
+	    if ( *cp2 == '/' ) {
+		/* chop "halcmd" from end of path */
+		*(++cp2) = '\0';
+		/* append the program name */
+		strncat(prog_path, prog_name, MAX_CMD_LEN-strlen(prog_path));
+		/* and try it */
+		rtapi_print_msg(RTAPI_MSG_DBG, "Trying '%s'\n", prog_path);
+		if ( stat(prog_path, &stat_buf) != 0 ) {
+		    /* no luck, clear prog_path to indicate failure */
+		    prog_path[0] = '\0';
+		}
+	    }
+	}
+    }
+   if ( prog_path[0] == '\0' ) {
+	/* no luck yet, try the user's PATH */
+	envpath = getenv("PATH");
+	if ( envpath != NULL ) {
+	    while ( *envpath != '\0' ) {
+		/* copy a single directory from the PATH env variable */
+		n = 0;
+		while ( (*envpath != ':') && (*envpath != '\0') && (n < MAX_CMD_LEN)) {
+		    prog_path[n++] = *envpath++;
+		}
+		/* append '/' and program name */
+		if ( n < MAX_CMD_LEN ) {
+		    prog_path[n++] = '/';
+		}
+		cp1 = prog_name;
+		while ((*cp1 != '\0') && ( n < MAX_CMD_LEN)) {
+		    prog_path[n++] = *cp1++;
+		}
+		prog_path[n] = '\0';
+		rtapi_print_msg(RTAPI_MSG_DBG, "Trying '%s'\n", prog_path);
+		if ( stat(prog_path, &stat_buf) != 0 ) {
+		    /* no luck, clear prog_path to indicate failure */
+		    prog_path[0] = '\0';
+		    /* and get ready to try the next directory */
+		    if ( *envpath == ':' ) {
+		        envpath++;
+		    }
+		} else {
+		    /* success, break out of loop */
+		    break;
+		}
+	    } 
+	}
+    }
+    if ( prog_path[0] == '\0' ) {
+	/* still can't find a program to run */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Can't find program '%s'\n", prog_name);
+	return -1;
+    }
+    if ( root_flag ) {
+	/* are we running as root? */
+	if ( getuid() != 0 ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: Must be root to run %s\n", prog_name);
+	    return HAL_PERM;
+	}
+    }    
+    /* now we need to fork, and then exec the program.... */
+    /* disconnect from the HAL shmem area before forking */
+    hal_exit(comp_id);
+    comp_id = 0;
+    /* now the fork() */
+    pid = fork();
+    if ( pid < 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: loadusr fork() failed\n");
+	/* reconnect to the HAL shmem area */
+	comp_id = hal_init(comp_name);
+	if (comp_id < 0) {
+	    fprintf(stderr, "halcmd: hal_init() failed after fork\n" );
+	    exit(-1);
+	}
+	return -1;
+    }
+    if ( pid == 0 ) {
+	/* this is the child process - prepare to exec() the program */
+	argv[0] = prog_path;
+	/* loop thru remaining arguments */
+	n = 0;
+	m = 1;
+	while ( args[n][0] != '\0' ) {
+	    argv[m++] = args[n++];
+	}
+	/* add a NULL to terminate the argv array */
+	argv[m] = NULL;
+	/* print debugging info if "very verbose" (-V) */
+	rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[0] );
+	n = 1;
+	while ( argv[n] != NULL ) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n++] );
+	}
+	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
+	/* call execv() to invoke the program */
+	execv(prog_path, argv);
+	/* should never get here */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: execv(%s) failed\n", prog_path );
+	exit(1);
+    }
+    /* this is the parent process, reconnect to the HAL shmem area */
+    comp_id = hal_init(comp_name);
+    if (comp_id < 0) {
+	fprintf(stderr, "halcmd: hal_init() failed after loadusr\n" );
+	exit(-1);
+    }
+    if ( wait_flag ) {
+	/* wait for child process to complete */
+	retval = waitpid ( pid, &status, 0 );
+	/* check result of waitpid() */
+	if ( retval < 0 ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: waitpid(%d) failed\n", pid );
+	    return -1;
+	}
+	if ( WIFEXITED(status) == 0 ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: program '%s' did not exit normally\n", prog_name );
+	    return -1;
+	}
+	if ( ignore_flag == 0 ) {
+	    retval = WEXITSTATUS(status);
+	    if ( retval != 0 ) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: ERROR: program '%s' failed, returned %d\n", prog_name, retval );
+		return -1;
+	    }
+	}
+	/* print success message */
+	rtapi_print_msg(RTAPI_MSG_INFO, "Program '%s' finished\n", prog_name);
+    } else {
+	/* print success message */
+	rtapi_print_msg(RTAPI_MSG_INFO, "Program '%s' started\n", prog_name);
+    }
     return 0;
 }
 
@@ -2225,6 +2425,13 @@ static int do_help_cmd(char *command)
 	printf("  Unloads realtime HAL module 'modname'.  If 'modname'\n");
 	printf("  is 'all', unloads all realtime modules.  Must be root\n" );
 	printf("  to run this command.\n");
+    } else if (strcmp(command, "loadusr") == 0) {
+	printf("loadusr [options] progname [progarg(s)]\n");
+	printf("  Starts user space program 'progname', passing\n");
+	printf("  'progargs' to it.  Options are:\n");
+	printf("  -r  run program as root\n");
+	printf("  -w  wait for program to finish\n");
+	printf("  -i  ignore program return value (use with -w)\n");
     } else if ((strcmp(command, "linksp") == 0) || (strcmp(command,"linkps") == 0)) {
 	printf("linkps pinname [arrow] signame\n");
 	printf("linksp signame [arrow] pinname\n");
@@ -2356,9 +2563,9 @@ static void print_help_general(void)
     printf("  -V             Very verbose - print lots of junk.\n");
     printf("  -h             Help - print this help screen and exit.\n\n");
     printf("commands:\n\n");
-    printf("  loadrt, unloadrt, lock, unlock, linkps, linksp, unlinkp, newsig,\n");
-    printf("  delsig, setp, getp, sets, gets, addf, delf, show, list, save,\n");
-    printf("  status, start, stop, quit\n");
+    printf("  loadrt, unloadrt, loadusr, lock, unlock, linkps, linksp, unlinkp,\n");
+    printf("  newsig, delsig, setp, getp, sets, gets, addf, delf, show, list,\n");
+    printf("  save, status, start, stop, quit\n");
     printf("  help           Lists all commands with short descriptions\n");
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
@@ -2369,6 +2576,7 @@ static void print_help_commands(void)
     printf("Available commands:\n");
     printf("  loadrt     Load realtime module\n");
     printf("  unloadrt   Unload realtime module[s]\n");
+    printf("  loadusr    Start user space program\n");
     printf("  lock       Lock HAL behaviour\n");
     printf("  unlock     Unlock HAL behaviour\n");
     printf("  linkps     Link pin to signal\n");
