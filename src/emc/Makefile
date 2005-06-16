@@ -39,8 +39,6 @@ include ../Makefile.inc
 HEADERS = \
 global_defs.h
 
-# Generic rules
-include $(SRC_DIR)/Make.rules
 
 ifndef KDIR
 KDIR := /lib/modules/$(shell uname -r)/build
@@ -132,6 +130,8 @@ install:
 	(cd task; make $@)
 	(cd usr_intf; make $@)
 
+# Generic rules
+include $(SRC_DIR)/Make.rules
 
 # Only on kbuild build systems is it required to do the 'make modules'
 # all older system build the traditional way

@@ -4,6 +4,7 @@ include ../../Makefile.inc
 
 SRCS =	\
 	emc.cc \
+	emc2.cc \
 	emcargs.cc \
 	emcglb.c \
 	emcops.cc \
@@ -53,6 +54,9 @@ $(LIB_DIR)/libemc.a:	\
 	$(TMP_DIR)/interpl.o
 	$(AR) rc $@ $^
 	ranlib $@
+
+emc2.cc: emc.hh
+	$(EMC2_HOME)/scripts/CodeGen script=emc2.gen display_on=false update_with_name=false
 
 headers: def_headers
 

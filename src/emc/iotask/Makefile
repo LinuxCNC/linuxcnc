@@ -9,7 +9,6 @@ SRCS =	simIoControl.cc \
 HEADERS =
 
 BINS =  simio \
-	io
 
 OBJS = simIoControl.o \
 	ioControl.o
