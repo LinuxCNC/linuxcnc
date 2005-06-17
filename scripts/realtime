@@ -37,14 +37,20 @@ CheckConfig(){
 	TMP=`find $MODPATH -name $MOD$MODULE_EXT`
 	if test -n "$TMP" ; then
 	    # it exists, is it a symlink?
-	    # get long directory entry
             if test -L "$TMP" ; then
-		# it is a symlink, extract real module name
-		MOD="$TMP"
-		# remove everything up to and including the last /
-		MOD="${MOD##*/}"
+# FIXME - remove these echo's once it is known to work on a variety of systems
+# (It may be vulnerable to variations in the format of the "ls -l" output)
+echo "Module \"$TMP\" is a symlink"
+		# it is a symlink, must extract real module name
+		# get long directory entry
+		TMP=`ls -l $TMP`
+echo "Its directory entry is \"$TMP\""
+		# remove everything except the last token, which
+		# should be the destination of the symbolic link
+		TMP="${TMP##* }"
+echo "The link destination is \"$TMP\""
 		# remove the .o from the end
-		MOD="${MOD%$MODULE_EXT}"
+		MOD="${TMP%$MODULE_EXT}"
 	    fi
 	fi
 	MODULES_LOAD="$MODULES_LOAD $MOD"
