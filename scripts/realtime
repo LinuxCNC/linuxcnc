@@ -38,10 +38,13 @@ CheckConfig(){
 	if test -n "$TMP" ; then
 	    # it exists, is it a symlink?
 	    # get long directory entry
-	    TMP=`ls -l $TMP | grep "\->"`
-	    if test -n "$TMP" ; then
+            if test -L "$TMP" ; then
 		# it is a symlink, extract real module name
-		MOD=`echo $TMP | sed -e "s,.* \-> *\([a-z0-9A-Z_-]*\)$MODULE_EXT.*,\1,"`
+		MOD="$TMP"
+		# remove everything up to and including the last /
+		MOD="${MOD##*/}"
+		# remove the .o from the end
+		MOD="${MOD%$MODULE_EXT}"
 	    fi
 	fi
 	MODULES_LOAD="$MODULES_LOAD $MOD"
