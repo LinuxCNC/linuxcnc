@@ -678,13 +678,18 @@ int main(int argc, char * argv[])
 
     /* read NML, run commands */
     if (-1 == emcioCommandBuffer->read()) {
-      /* bad command */
+      /* bad command, wait until next cycle */
+      esleep(EMC_IO_CYCLE_TIME);
+      /* and repeat */
       continue;
     }
 
-    if (0 == emcioCommand ||
-	0 == emcioCommand->type ||
-	emcioCommand->serial_number == emcioStatus.echo_serial_number) {
+    if (0 == emcioCommand ||  // bad command pointer
+	0 == emcioCommand->type ||   // bad command type
+	emcioCommand->serial_number == emcioStatus.echo_serial_number) {  // command already finished
+      /* wait until next cycle */
+      esleep(EMC_IO_CYCLE_TIME);
+      /* and repeat */
       continue;
     }
 
