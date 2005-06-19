@@ -43,7 +43,7 @@ CheckConfig(){
 		TMP=`ls -l $TMP`
 		# remove everything except the last token, which
 		# should be the destination of the symbolic link
-		TMP="${TMP##* }"
+		MOD="${TMP##* }"
 	    fi
 	fi
 	MODULES_LOAD="$MODULES_LOAD $MOD"
