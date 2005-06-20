@@ -107,7 +107,7 @@
 #define EMC_AXIS_ENABLE_TYPE                         ((NMLTYPE) 121)
 #define EMC_AXIS_DISABLE_TYPE                        ((NMLTYPE) 122)  // AJ: merge this with EMC_AXIS_ENABLE
 #define EMC_AXIS_HOME_TYPE                           ((NMLTYPE) 123)  // Triggers a homing sequence - Keep
-#define EMC_AXIS_JOG_TYPE                            ((NMLTYPE) 124)  // Need a JOG message, but three variabts ?
+#define EMC_AXIS_JOG_TYPE                            ((NMLTYPE) 124)  // Need a JOG message, but three variants ?
 #define EMC_AXIS_INCR_JOG_TYPE                       ((NMLTYPE) 125)
 #define EMC_AXIS_ABS_JOG_TYPE                        ((NMLTYPE) 126)
 #define EMC_AXIS_ACTIVATE_TYPE                       ((NMLTYPE) 127)  // Unused, AJ: remove (use EMC_AXIS_ENABLE if needed)
@@ -118,7 +118,9 @@
 #define EMC_AXIS_ALTER_TYPE                          ((NMLTYPE) 132)  // EMC_AXIS_ALTER_TYPE Obscure name - Used to load a compensation value for current position.
 #define EMC_AXIS_SET_STEP_PARAMS_TYPE                ((NMLTYPE) 133)  // AJ: Make part of SET_PARAM above, remove here. should probably end up in the Hardware driver (HAL). 
 		//AJ: but it's an ugly hack to have this in NML, but not other generic Hardware config (why not similar messages for servo's...)
-
+		/* PC: Comment about AXIS & TRAJ parameters. Just because *some* of them might be HAL parameters, to arbitrarily remove
+                       them destroys the possibility of using a "remote" tuning tool. It also wrecks a few ideas on config handling
+                       (amongst other things) - Condemn the code to HAL at your peril. */
 #define EMC_AXIS_STAT_TYPE                           ((NMLTYPE) 199)  // Keep
 /*! \page NML message types
   MOTION_ID, MODE, SCALE, and VELOCITY are core parts of task. Need to retain.
