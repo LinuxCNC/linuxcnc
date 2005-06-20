@@ -50,6 +50,7 @@ all : headers $(LIBS) modules
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd classicladder; make $@)
 
 # Generic rules
 include $(SRC_DIR)/Make.rules
@@ -65,11 +66,13 @@ modules: headers
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd classicladder; make $@)
 
 modules_install: modules
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd classicladder; make $@)
 
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
 	depmod 2>/dev/null
@@ -86,21 +89,25 @@ headers: def_headers
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd classicladder; make $@)
 
 indent: def_indent
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd classicladder; make $@)
 
 depend: def_depend
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd classicladder; make $@)
 
 clean :  def_clean kclean
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd classicladder; make $@)
 
 kclean:
 	- rm -f .*.cmd *.o *.mod.* *.ko
