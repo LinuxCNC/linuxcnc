@@ -121,6 +121,8 @@
 		/* PC: Comment about AXIS & TRAJ parameters. Just because *some* of them might be HAL parameters, to arbitrarily remove
                        them destroys the possibility of using a "remote" tuning tool. It also wrecks a few ideas on config handling
                        (amongst other things) - Condemn the code to HAL at your peril. */
+		/* AJ: ok, then maybe generalize it to some extent so that it can be used for "remote" tuning. 
+		       But definately it can be included in the SET_* aggregated message above. */
 #define EMC_AXIS_STAT_TYPE                           ((NMLTYPE) 199)  // Keep
 /*! \page NML message types
   MOTION_ID, MODE, SCALE, and VELOCITY are core parts of task. Need to retain.
@@ -204,19 +206,19 @@
 /*! \page NML message types
   Nor these the last...
 */
-#define EMC_AUX_INIT_TYPE                             ((NMLTYPE) 1201)
-#define EMC_AUX_HALT_TYPE                             ((NMLTYPE) 1202)
-#define EMC_AUX_ABORT_TYPE                            ((NMLTYPE) 1203)
+#define EMC_AUX_INIT_TYPE                             ((NMLTYPE) 1201)  // AJ remove these, use the general EMC_INIT
+#define EMC_AUX_HALT_TYPE                             ((NMLTYPE) 1202)  // AJ remove these, use the general EMC_HALT
+#define EMC_AUX_ABORT_TYPE                            ((NMLTYPE) 1203)  // AJ remove these, use the general EMC_ABORT
 #define EMC_AUX_DIO_WRITE_TYPE                        ((NMLTYPE) 1204)  // keep and/or modify
 #define EMC_AUX_AIO_WRITE_TYPE                        ((NMLTYPE) 1205)  // keep and/or modify
-#define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)  // Why does task need to twiddle ESTOP ?
+#define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)  // Why does task need to twiddle ESTOP ? AJ: Task doesn't, but GUI does. This should be part of IO IMO.
 #define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)  // This should be a failsafe system.
 #define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)  // Apart from ESTOP (which is duplicated elsewhwere), this is redundant.
 /*! \page NML message types
   Some more INIT, HALT, ABORT....
 */
-#define EMC_SPINDLE_INIT_TYPE                        ((NMLTYPE) 1301)
-#define EMC_SPINDLE_HALT_TYPE                        ((NMLTYPE) 1302)
+#define EMC_SPINDLE_INIT_TYPE                        ((NMLTYPE) 1301)  // AJ: only one SPINDLE message should be enough. Maybe even part of an IO message, thus it would be easy for another IO controller without spindle to be used instead.
+#define EMC_SPINDLE_HALT_TYPE                        ((NMLTYPE) 1302)  // AJ: remove all others
 #define EMC_SPINDLE_ABORT_TYPE                       ((NMLTYPE) 1303)
 #define EMC_SPINDLE_ON_TYPE                          ((NMLTYPE) 1304)  // Keep - In a modified form
 #define EMC_SPINDLE_OFF_TYPE                         ((NMLTYPE) 1305)  // Virtually all SPINDLE messages can be aggregated in to one.
@@ -234,7 +236,7 @@
 /*! \page NML message types
   Starting to get tiresome, these INIT/HALT types..
 */
-#define EMC_COOLANT_INIT_TYPE                        ((NMLTYPE) 1401)
+#define EMC_COOLANT_INIT_TYPE                        ((NMLTYPE) 1401)  // AJ: only one COOLANT message should be enough. Maybe even part of an IO message, thus it would be easy for another IO controller without spindle to be used instead.
 #define EMC_COOLANT_HALT_TYPE                        ((NMLTYPE) 1402)
 #define EMC_COOLANT_ABORT_TYPE                       ((NMLTYPE) 1403)
 #define EMC_COOLANT_MIST_ON_TYPE                     ((NMLTYPE) 1404) // Keep - Aggregate STATE ?
@@ -244,7 +246,7 @@
 #define EMC_COOLANT_STAT_TYPE                        ((NMLTYPE) 1499)  // Keep - Aggregate with TOOL_STAT ?
 /*! \page NML message types
 */
-#define EMC_LUBE_INIT_TYPE                           ((NMLTYPE) 1501)
+#define EMC_LUBE_INIT_TYPE                           ((NMLTYPE) 1501)  // AJ: only one LUBE message should be enough. Maybe even part of an IO message, thus it would be easy for another IO controller without spindle to be used instead.
 #define EMC_LUBE_HALT_TYPE                           ((NMLTYPE) 1502)
 #define EMC_LUBE_ABORT_TYPE                          ((NMLTYPE) 1503)
 #define EMC_LUBE_ON_TYPE                             ((NMLTYPE) 1504)  // Aggregate with machine STATE and let PLC decide.
@@ -253,22 +255,22 @@
 /*! \page NML message types
   FPS...
 */
-#define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001) // Unused
-#define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002) // Unused
-#define EMC_SET_POLARITY_TYPE                        ((NMLTYPE) 5003) // Unused
+#define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001) // Unused AJ: should go away, or a more general message to announce HAL about settings
+#define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002) // Unused AJ:    -"-
+#define EMC_SET_POLARITY_TYPE                        ((NMLTYPE) 5003) // Unused AJ:    -"-
 /*! \page NML message types
   Arrrgggg
 */
-#define EMC_IO_INIT_TYPE                             ((NMLTYPE) 1601) // Unused
-#define EMC_IO_HALT_TYPE                             ((NMLTYPE) 1602) // Unused
-#define EMC_IO_ABORT_TYPE                            ((NMLTYPE) 1603) // Unused
-#define EMC_IO_SET_CYCLE_TIME_TYPE                   ((NMLTYPE) 1604) // Unused
+#define EMC_IO_INIT_TYPE                             ((NMLTYPE) 1601) // Unused AJ: should really go away, use EMC_INIT instead
+#define EMC_IO_HALT_TYPE                             ((NMLTYPE) 1602) // Unused AJ: should really go away, use EMC_HALT instead
+#define EMC_IO_ABORT_TYPE                            ((NMLTYPE) 1603) // Unused AJ: should really go away, use EMC_ABORT instead
+#define EMC_IO_SET_CYCLE_TIME_TYPE                   ((NMLTYPE) 1604) // Unused AJ: should really go away
 #define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699) // Redundant.
 /*! \page NML message types
   And these remain unused. WHY ??
 */
 #define EMC_INIT_TYPE                                ((NMLTYPE) 1901) // fff... Either a global, or not at all.
-#define EMC_HALT_TYPE                                ((NMLTYPE) 1902)
+#define EMC_HALT_TYPE                                ((NMLTYPE) 1902) // AJ: these should be the only one used
 #define EMC_ABORT_TYPE                               ((NMLTYPE) 1903)
 /*! \page NML message types
   With HAL and the scope tool, logging is almost redundant...
@@ -276,7 +278,7 @@
 #define EMC_LOG_OPEN_TYPE                            ((NMLTYPE) 1904) // Do we need these ?
 #define EMC_LOG_START_TYPE                           ((NMLTYPE) 1905) // Can we get away with an aggregate message ?
 #define EMC_LOG_STOP_TYPE                            ((NMLTYPE) 1906) // Maybe.
-#define EMC_LOG_CLOSE_TYPE                           ((NMLTYPE) 1907)
+#define EMC_LOG_CLOSE_TYPE                           ((NMLTYPE) 1907) // AJ: not sure if LOGGING is needed, from what I've seen only logging of the MOTION part is done, and that can be done by halscope & the like.
 
 /*! \page NML message types
   EMC_STAT_TYPE                              ((NMLTYPE) 1999)
