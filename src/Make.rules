@@ -192,10 +192,18 @@ def_headers: $(HEADERS:%=$(INC_DIR)/%)
 # copying it from the source directory.
 #
 $(INC_DIR)/%.h: %.h
+	@ if [ ! -d $(INC_DIR) ] ; then \
+	  echo "Create include directory $(INC_DIR)" ;\
+	  mkdir $(INC_DIR) ;\
+	fi
 	@ echo "Install C header $<"
 	\install -p -m0664 $< $(INC_DIR)
 
 $(INC_DIR)/%.hh: %.hh
+	@ if [ ! -d $(INC_DIR) ] ; then \
+	  echo "Create include directory $(INC_DIR)" ;\
+	  mkdir $(INC_DIR) ;\
+	fi
 	@ echo "Install C++ header $<"
 	\install -p -m0664 $< $(INC_DIR)
 
