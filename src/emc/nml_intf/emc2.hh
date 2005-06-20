@@ -76,6 +76,15 @@
 #define SET_FF0_TYPE                        ((NMLSUBTYPE) 107)
 <snip>
   and remove all other EMC_AXIS_SET_*
+
+#define EMC_AXIS_SET_PARAM_TYPE                       ((NMLTYPE) 100)
+  Class members: AXIS
+                 enum VARIABLE {p, i, d, ff, etc}
+                 double data
+                 int data
+
+Fortunately, only have two data types to pass - We could use a double and cast it
+as an int, but the payload of an additional int is small..
 */
 #define EMC_AXIS_SET_AXIS_TYPE                       ((NMLTYPE) 101)
 #define EMC_AXIS_SET_UNITS_TYPE                      ((NMLTYPE) 102)
@@ -247,13 +256,14 @@
 /*! \page NML message types
 */
 #define EMC_LUBE_INIT_TYPE                           ((NMLTYPE) 1501)  // AJ: only one LUBE message should be enough. Maybe even part of an IO message, thus it would be easy for another IO controller without spindle to be used instead.
-#define EMC_LUBE_HALT_TYPE                           ((NMLTYPE) 1502)
-#define EMC_LUBE_ABORT_TYPE                          ((NMLTYPE) 1503)
+#define EMC_LUBE_HALT_TYPE                           ((NMLTYPE) 1502)  // PC: Do away with LUBE messages all together. Let the PLC process handle it.
+#define EMC_LUBE_ABORT_TYPE                          ((NMLTYPE) 1503)  // PC: The only thing we need to know is if oil level is low - A simple error on STATUS is enough.
 #define EMC_LUBE_ON_TYPE                             ((NMLTYPE) 1504)  // Aggregate with machine STATE and let PLC decide.
 #define EMC_LUBE_OFF_TYPE                            ((NMLTYPE) 1505)
 #define EMC_LUBE_STAT_TYPE                           ((NMLTYPE) 1599)  // Keep - Aggregate with TOOL_STAT
 /*! \page NML message types
-  FPS...
+  FPS... Keeping SET_DIO & SET_AIO paves the way for the possibility of limited PLC type functionality (or custom macros)
+  within the interpreter. n.b. Whilst HAL offers a solution for IO configuration, it is NOT a panacea for everything.
 */
 #define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001) // Unused AJ: should go away, or a more general message to announce HAL about settings
 #define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002) // Unused AJ:    -"-
