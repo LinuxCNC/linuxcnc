@@ -35,6 +35,9 @@
   These pass fixed length strings to the HMI from lower levels. Primary
    uses would be to alert the user to a critical system error or prompt
    an action.
+
+  AJ says: merge these into a single message, and check an aditional flag for message/error. 
+           The last one isn't used anyways.
 */
 #define EMC_OPERATOR_ERROR_TYPE                      ((NMLTYPE) 11)
 #define EMC_OPERATOR_TEXT_TYPE                       ((NMLTYPE) 12)
@@ -50,7 +53,7 @@
 
   Sets the debug level in subservient processes
 */
-#define EMC_SET_DEBUG_TYPE                           ((NMLTYPE) 22)
+#define EMC_SET_DEBUG_TYPE                           ((NMLTYPE) 22) //AJ:keep
 /*! \page NML message types
   EMC_SYSTEM_CMD_TYPE                          ((NMLTYPE) 30)
 
@@ -62,6 +65,17 @@
   Proposal: Replace the multitude of EMC_AXIS_SET_* with a single
   SET_PARAM message. Each parameter would be enumerated and one
   value (along with an axis identifier) sent individually.
+  AJ: agreed, have one 
+#define EMC_AXIS_SET_PARAM_TYPE                       ((NMLTYPE) 100)
+  with subtypes 
+#define SET_AXIS_TYPE                       ((NMLSUBTYPE) 101)
+#define SET_UNITS_TYPE                      ((NMLSUBTYPE) 102)
+#define SET_P_TYPE                          ((NMLSUBTYPE) 104)
+#define SET_I_TYPE                          ((NMLSUBTYPE) 105)
+#define SET_D_TYPE                          ((NMLSUBTYPE) 106)
+#define SET_FF0_TYPE                        ((NMLSUBTYPE) 107)
+<snip>
+  and remove all other EMC_AXIS_SET_*
 */
 #define EMC_AXIS_SET_AXIS_TYPE                       ((NMLTYPE) 101)
 #define EMC_AXIS_SET_UNITS_TYPE                      ((NMLTYPE) 102)
@@ -79,60 +93,66 @@
 #define EMC_AXIS_SET_HOME_OFFSET_TYPE                ((NMLTYPE) 114)
 #define EMC_AXIS_SET_MIN_FERROR_TYPE                 ((NMLTYPE) 115)
 #define EMC_AXIS_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 116)
+
 /*! \page NML message types
   These infernal EMC_*_INIT_, HALT, and ABORT _TYPE messages should
   be reduced to a single group.
+  
+  AJ: agreed, remove them all, keep the generic 
+  EMC_INIT_TYPE, EMC_HALT_TYPE, EMC_ABORT_TYPE
 */
-#define EMC_AXIS_INIT_TYPE                           ((NMLTYPE) 118)
-#define EMC_AXIS_HALT_TYPE                           ((NMLTYPE) 119)
-#define EMC_AXIS_ABORT_TYPE                          ((NMLTYPE) 120)
+#define EMC_AXIS_INIT_TYPE                           ((NMLTYPE) 118)  // AJ: remove
+#define EMC_AXIS_HALT_TYPE                           ((NMLTYPE) 119)  // AJ: remove
+#define EMC_AXIS_ABORT_TYPE                          ((NMLTYPE) 120)  // AJ: used currently to stop a JOG, not the cleanest way
 #define EMC_AXIS_ENABLE_TYPE                         ((NMLTYPE) 121)
-#define EMC_AXIS_DISABLE_TYPE                        ((NMLTYPE) 122)
+#define EMC_AXIS_DISABLE_TYPE                        ((NMLTYPE) 122)  // AJ: merge this with EMC_AXIS_ENABLE
 #define EMC_AXIS_HOME_TYPE                           ((NMLTYPE) 123)  // Triggers a homing sequence - Keep
 #define EMC_AXIS_JOG_TYPE                            ((NMLTYPE) 124)  // Need a JOG message, but three variabts ?
 #define EMC_AXIS_INCR_JOG_TYPE                       ((NMLTYPE) 125)
 #define EMC_AXIS_ABS_JOG_TYPE                        ((NMLTYPE) 126)
-#define EMC_AXIS_ACTIVATE_TYPE                       ((NMLTYPE) 127)  // Unused
-#define EMC_AXIS_DEACTIVATE_TYPE                     ((NMLTYPE) 128)  // Unused
+#define EMC_AXIS_ACTIVATE_TYPE                       ((NMLTYPE) 127)  // Unused, AJ: remove (use EMC_AXIS_ENABLE if needed)
+#define EMC_AXIS_DEACTIVATE_TYPE                     ((NMLTYPE) 128)  // Unused, AJ: remove (use EMC_AXIS_ENABLE if needed)
 #define EMC_AXIS_OVERRIDE_LIMITS_TYPE                ((NMLTYPE) 129)  // keep
-#define EMC_AXIS_SET_OUTPUT_TYPE                     ((NMLTYPE) 130)  // This may have a purpose, or it can be replaced with a SET_AIO
+#define EMC_AXIS_SET_OUTPUT_TYPE                     ((NMLTYPE) 130)  // This may have a purpose, or it can be replaced with a SET_AIO AJ: SET_AIO
 #define EMC_AXIS_LOAD_COMP_TYPE                      ((NMLTYPE) 131)  // Should probably keep
 #define EMC_AXIS_ALTER_TYPE                          ((NMLTYPE) 132)  // EMC_AXIS_ALTER_TYPE Obscure name - Used to load a compensation value for current position.
-#define EMC_AXIS_SET_STEP_PARAMS_TYPE                ((NMLTYPE) 133)
+#define EMC_AXIS_SET_STEP_PARAMS_TYPE                ((NMLTYPE) 133)  // AJ: Make part of SET_PARAM above, remove here. should probably end up in the Hardware driver (HAL). 
+		//AJ: but it's an ugly hack to have this in NML, but not other generic Hardware config (why not similar messages for servo's...)
+
 #define EMC_AXIS_STAT_TYPE                           ((NMLTYPE) 199)  // Keep
 /*! \page NML message types
   MOTION_ID, MODE, SCALE, and VELOCITY are core parts of task. Need to retain.
 */
-#define EMC_TRAJ_SET_AXES_TYPE                       ((NMLTYPE) 201)
-#define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)
-#define EMC_TRAJ_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 203)
-#define EMC_TRAJ_SET_MODE_TYPE                       ((NMLTYPE) 204)
+#define EMC_TRAJ_SET_AXES_TYPE                       ((NMLTYPE) 201)  // AJ: Unused, remove
+#define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)  // AJ: Unused, remove
+#define EMC_TRAJ_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 203)  // AJ: Unused, remove
+#define EMC_TRAJ_SET_MODE_TYPE                       ((NMLTYPE) 204)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_VELOCITY_TYPE                   ((NMLTYPE) 205)
-#define EMC_TRAJ_SET_ACCELERATION_TYPE               ((NMLTYPE) 206)
-#define EMC_TRAJ_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 207)
-#define EMC_TRAJ_SET_MAX_ACCELERATION_TYPE           ((NMLTYPE) 208)
-#define EMC_TRAJ_SET_SCALE_TYPE                      ((NMLTYPE) 209)
-#define EMC_TRAJ_SET_MOTION_ID_TYPE                  ((NMLTYPE) 210)
+#define EMC_TRAJ_SET_ACCELERATION_TYPE               ((NMLTYPE) 206)  // AJ: Unused, remove
+#define EMC_TRAJ_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 207)  // AJ: Unused, remove
+#define EMC_TRAJ_SET_MAX_ACCELERATION_TYPE           ((NMLTYPE) 208)  // AJ: Unused, remove
+#define EMC_TRAJ_SET_SCALE_TYPE                      ((NMLTYPE) 209)  // AJ: might want to change name to better reflect feed override
+#define EMC_TRAJ_SET_MOTION_ID_TYPE                  ((NMLTYPE) 210)  // AJ: Unused, remove
 /*! \page NML message types
   More INIT, HALT, ABORT types.
 */
-#define EMC_TRAJ_INIT_TYPE                           ((NMLTYPE) 211)
-#define EMC_TRAJ_HALT_TYPE                           ((NMLTYPE) 212)
-#define EMC_TRAJ_ENABLE_TYPE                         ((NMLTYPE) 213)
-#define EMC_TRAJ_DISABLE_TYPE                        ((NMLTYPE) 214)
-#define EMC_TRAJ_ABORT_TYPE                          ((NMLTYPE) 215)
+#define EMC_TRAJ_INIT_TYPE                           ((NMLTYPE) 211)  // AJ: Unused, remove and use EMC_INIT instead
+#define EMC_TRAJ_HALT_TYPE                           ((NMLTYPE) 212)  // AJ: Unused, remove and use EMC_HALT instead
+#define EMC_TRAJ_ENABLE_TYPE                         ((NMLTYPE) 213)  // AJ: Unused, remove
+#define EMC_TRAJ_DISABLE_TYPE                        ((NMLTYPE) 214)  // AJ: Unused, remove
+#define EMC_TRAJ_ABORT_TYPE                          ((NMLTYPE) 215)  // AJ: maybe use EMC_ABORT instead?
 #define EMC_TRAJ_PAUSE_TYPE                          ((NMLTYPE) 216)  // Used for single stepping
 #define EMC_TRAJ_STEP_TYPE                           ((NMLTYPE) 217)  // Used for single stepping
 #define EMC_TRAJ_RESUME_TYPE                         ((NMLTYPE) 218)  // Used for single stepping
 #define EMC_TRAJ_DELAY_TYPE                          ((NMLTYPE) 219)  // Keep - G4
 #define EMC_TRAJ_LINEAR_MOVE_TYPE                    ((NMLTYPE) 220)  // Keep
 #define EMC_TRAJ_CIRCULAR_MOVE_TYPE                  ((NMLTYPE) 221)  // Keep
-#define EMC_TRAJ_SET_TERM_COND_TYPE                  ((NMLTYPE) 222)  // Keep
+#define EMC_TRAJ_SET_TERM_COND_TYPE                  ((NMLTYPE) 222)  // Keep, AJ: used to switch from blend to exact path
 #define EMC_TRAJ_SET_OFFSET_TYPE                     ((NMLTYPE) 223)  // Keep
 #define EMC_TRAJ_SET_ORIGIN_TYPE                     ((NMLTYPE) 224)  // Keep
-#define EMC_TRAJ_SET_HOME_TYPE                       ((NMLTYPE) 225)  // Unused
-#define EMC_TRAJ_SET_PROBE_INDEX_TYPE                ((NMLTYPE) 226)  // This is config
-#define EMC_TRAJ_SET_PROBE_POLARITY_TYPE             ((NMLTYPE) 227)  // as is this - Flag for rethink.
+#define EMC_TRAJ_SET_HOME_TYPE                       ((NMLTYPE) 225)  // Unused, AJ: remove
+#define EMC_TRAJ_SET_PROBE_INDEX_TYPE                ((NMLTYPE) 226)  // This is config AJ: both of these should reach HAL eventually
+#define EMC_TRAJ_SET_PROBE_POLARITY_TYPE             ((NMLTYPE) 227)  // as is this - Flag for rethink. AJ: ditto
 #define EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE       ((NMLTYPE) 228)  // Keep
 #define EMC_TRAJ_PROBE_TYPE                          ((NMLTYPE) 229)  // Keep - Used for probing (wow)
 #define EMC_TRAJ_SET_TELEOP_ENABLE_TYPE              ((NMLTYPE) 230)  // Oh wth... Can we not use a MODE message here ?
@@ -141,18 +161,18 @@
 /*! \page NML message types
   More infernal INIT, HALT, ABORT messages.. !
 */
-#define EMC_MOTION_INIT_TYPE                         ((NMLTYPE) 301)
-#define EMC_MOTION_HALT_TYPE                         ((NMLTYPE) 302)
-#define EMC_MOTION_ABORT_TYPE                        ((NMLTYPE) 303)
+#define EMC_MOTION_INIT_TYPE                         ((NMLTYPE) 301)  // AJ remove these, use the general EMC_INIT
+#define EMC_MOTION_HALT_TYPE                         ((NMLTYPE) 302)  // AJ remove these, use the general EMC_HALT
+#define EMC_MOTION_ABORT_TYPE                        ((NMLTYPE) 303)  // AJ remove these, use the general EMC_ABORT
 #define EMC_MOTION_SET_AOUT_TYPE                     ((NMLTYPE) 304)  // Keep - Unused, but could be used for (e.g.) coordinated control of laser power.
 #define EMC_MOTION_SET_DOUT_TYPE                     ((NMLTYPE) 305)  // Keep - Coordinated On/Off signals.
 #define EMC_MOTION_STAT_TYPE                         ((NMLTYPE) 399)  // keep
 /*! \page NML message types
   And yet more....
 */
-#define EMC_TASK_INIT_TYPE                           ((NMLTYPE) 501)
-#define EMC_TASK_HALT_TYPE                           ((NMLTYPE) 502)
-#define EMC_TASK_ABORT_TYPE                          ((NMLTYPE) 503)
+#define EMC_TASK_INIT_TYPE                           ((NMLTYPE) 501)  // AJ remove these, use the general EMC_INIT
+#define EMC_TASK_HALT_TYPE                           ((NMLTYPE) 502)  // AJ remove these, use the general EMC_HALT
+#define EMC_TASK_ABORT_TYPE                          ((NMLTYPE) 503)  // AJ remove these, use the general EMC_ABORT
 #define EMC_TASK_SET_MODE_TYPE                       ((NMLTYPE) 504)  // Should mode & state be aggregated with TELEOP & STATE ?
 #define EMC_TASK_SET_STATE_TYPE                      ((NMLTYPE) 505)  // keep
 #define EMC_TASK_PLAN_OPEN_TYPE                      ((NMLTYPE) 506)  // keep
@@ -170,10 +190,10 @@
 /*! \page NML message types
   These are not the last...
 */
-#define EMC_TOOL_INIT_TYPE                           ((NMLTYPE) 1101)
-#define EMC_TOOL_HALT_TYPE                           ((NMLTYPE) 1102)
-#define EMC_TOOL_ABORT_TYPE                          ((NMLTYPE) 1103)
-#define EMC_TOOL_PREPARE_TYPE                        ((NMLTYPE) 1104)  // keep
+#define EMC_TOOL_INIT_TYPE                           ((NMLTYPE) 1101)  // AJ remove these, use the general EMC_INIT
+#define EMC_TOOL_HALT_TYPE                           ((NMLTYPE) 1102)  // AJ remove these, use the general EMC_HALT
+#define EMC_TOOL_ABORT_TYPE                          ((NMLTYPE) 1103)  // AJ remove these, use the general EMC_ABORT
+#define EMC_TOOL_PREPARE_TYPE                        ((NMLTYPE) 1104)  // keep AJ: extend the toolchanger to properly handle this
 #define EMC_TOOL_LOAD_TYPE                           ((NMLTYPE) 1105)  // keep
 #define EMC_TOOL_UNLOAD_TYPE                         ((NMLTYPE) 1106)  // LOAD implies an UNLOAD preceeds it...
 #define EMC_TOOL_LOAD_TOOL_TABLE_TYPE                ((NMLTYPE) 1107)  // keep - But get rid of the lunacy.
