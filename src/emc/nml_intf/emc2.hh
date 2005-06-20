@@ -28,376 +28,243 @@
 #include "emcpos.h"
 
 /*! \page NML message types
-  OPERATOR_ERROR_MSG                      ((NMLTYPE) 10)
-  OPERATOR_TEXT_MSG                       ((NMLTYPE) 11)
-  OPERATOR_DISPLAY_MSG                    ((NMLTYPE) 12)
-  NULL_MSG                                ((NMLTYPE) 20)
+  EMC_OPERATOR_ERROR_TYPE                      ((NMLTYPE) 11)
+  EMC_OPERATOR_TEXT_TYPE                       ((NMLTYPE) 12)
+  EMC_OPERATOR_DISPLAY_TYPE                    ((NMLTYPE) 13)
 
   These pass fixed length strings to the HMI from lower levels. Primary
    uses would be to alert the user to a critical system error or prompt
    an action.
 */
-#define OPERATOR_ERROR_MSG                      ((NMLTYPE) 10)
-#define OPERATOR_TEXT_MSG                       ((NMLTYPE) 11)
-#define OPERATOR_DISPLAY_MSG                    ((NMLTYPE) 12)
-#define NULL_MSG                                ((NMLTYPE) 20)
+#define EMC_OPERATOR_ERROR_TYPE                      ((NMLTYPE) 11)
+#define EMC_OPERATOR_TEXT_TYPE                       ((NMLTYPE) 12)
+#define EMC_OPERATOR_DISPLAY_TYPE                    ((NMLTYPE) 13)
 /*! \page NML message types
-  SET_DEBUG_LEVEL                         ((NMLTYPE) 21)
+  EMC_NULL_TYPE                                ((NMLTYPE) 21)
+
+  Null message - Redundant perhaps ?
+*/
+#define EMC_NULL_TYPE                                ((NMLTYPE) 21)
+/*! \page NML message types
+  EMC_SET_DEBUG_TYPE                           ((NMLTYPE) 22)
 
   Sets the debug level in subservient processes
 */
-#define SET_DEBUG_LEVEL                         ((NMLTYPE) 21)
+#define EMC_SET_DEBUG_TYPE                           ((NMLTYPE) 22)
 /*! \page NML message types
-  SYSTEM_CMD_MSG                          ((NMLTYPE) 22)
+  EMC_SYSTEM_CMD_TYPE                          ((NMLTYPE) 30)
 
   Part of the hot command system - Used to execute commands
   specified in the interpreter's input file.
 */
-#define SYSTEM_CMD_MSG                          ((NMLTYPE) 22)
-
+#define EMC_SYSTEM_CMD_TYPE                          ((NMLTYPE) 30)
 /*! \page NML message types
-  SET_AXIS_PARAM                          ((NMLTYPE) 100)
-
-  SET_AXIS_PARAM is used to configure the low level subsytem.
-  Each command will include a field specifying the axis, a
-  parameter, and it's value.
+  Proposal: Replace the multitude of EMC_AXIS_SET_* with a single
+  SET_PARAM message. Each parameter would be enumerated and one
+  value (along with an axis identifier) sent individually.
 */
-#define SET_AXIS_PARAM                          ((NMLTYPE) 100)
+#define EMC_AXIS_SET_AXIS_TYPE                       ((NMLTYPE) 101)
+#define EMC_AXIS_SET_UNITS_TYPE                      ((NMLTYPE) 102)
+#define EMC_AXIS_SET_GAINS_TYPE                      ((NMLTYPE) 103)
+#define EMC_AXIS_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 104)
+#define EMC_AXIS_SET_INPUT_SCALE_TYPE                ((NMLTYPE) 105)
+#define EMC_AXIS_SET_OUTPUT_SCALE_TYPE               ((NMLTYPE) 106)
+#define EMC_AXIS_SET_MIN_POSITION_LIMIT_TYPE         ((NMLTYPE) 107)
+#define EMC_AXIS_SET_MAX_POSITION_LIMIT_TYPE         ((NMLTYPE) 108)
+#define EMC_AXIS_SET_MIN_OUTPUT_LIMIT_TYPE           ((NMLTYPE) 109)
+#define EMC_AXIS_SET_MAX_OUTPUT_LIMIT_TYPE           ((NMLTYPE) 110)
+#define EMC_AXIS_SET_FERROR_TYPE                     ((NMLTYPE) 111)
+#define EMC_AXIS_SET_HOMING_VEL_TYPE                 ((NMLTYPE) 112)
+#define EMC_AXIS_SET_HOME_TYPE                       ((NMLTYPE) 113)
+#define EMC_AXIS_SET_HOME_OFFSET_TYPE                ((NMLTYPE) 114)
+#define EMC_AXIS_SET_MIN_FERROR_TYPE                 ((NMLTYPE) 115)
+#define EMC_AXIS_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 116)
 /*! \page NML message types
-  UNITS GAINS CYCLE_TIME INPUT_SCALE OUTPUT_SCALE MIN_POSITION_LIMIT
-  MAX_POSITION_LIMIT MIN_OUTPUT_LIMIT MAX_OUTPUT_LIMIT MIN_FERROR
-  SET_FERROR SET_HOMING SET_HOME HOME_OFFSET MAX_ACCELERATION
-  MAX_VELOCITY
-
-  In reality, these would generally be set from a local configuration
-  file rather than a remote process.
+  These infernal EMC_*_INIT_, HALT, and ABORT _TYPE messages should
+  be reduced to a single group.
 */
-#define UNITS
-#define GAINS
-#define CYCLE_TIME
-#define INPUT_SCALE
-#define OUTPUT_SCALE
-#define MIN_POSITION_LIMIT
-#define MAX_POSITION_LIMIT
-#define MIN_OUTPUT_LIMIT
-#define MAX_OUTPUT_LIMIT
-#define MIN_FERROR
-#define SET_FERROR
-#define SET_HOMING
-#define SET_HOME
-#define HOME_OFFSET
-#define MAX_ACCELERATION
-#define MAX_VELOCITY
-
+#define EMC_AXIS_INIT_TYPE                           ((NMLTYPE) 118)
+#define EMC_AXIS_HALT_TYPE                           ((NMLTYPE) 119)
+#define EMC_AXIS_ABORT_TYPE                          ((NMLTYPE) 120)
+#define EMC_AXIS_ENABLE_TYPE                         ((NMLTYPE) 121)
+#define EMC_AXIS_DISABLE_TYPE                        ((NMLTYPE) 122)
+#define EMC_AXIS_HOME_TYPE                           ((NMLTYPE) 123)  // Triggers a homing sequence - Keep
+#define EMC_AXIS_JOG_TYPE                            ((NMLTYPE) 124)  // Need a JOG message, but three variabts ?
+#define EMC_AXIS_INCR_JOG_TYPE                       ((NMLTYPE) 125)
+#define EMC_AXIS_ABS_JOG_TYPE                        ((NMLTYPE) 126)
+#define EMC_AXIS_ACTIVATE_TYPE                       ((NMLTYPE) 127)  // Unused
+#define EMC_AXIS_DEACTIVATE_TYPE                     ((NMLTYPE) 128)  // Unused
+#define EMC_AXIS_OVERRIDE_LIMITS_TYPE                ((NMLTYPE) 129)  // keep
+#define EMC_AXIS_SET_OUTPUT_TYPE                     ((NMLTYPE) 130)  // This may have a purpose, or it can be replaced with a SET_AIO
+#define EMC_AXIS_LOAD_COMP_TYPE                      ((NMLTYPE) 131)  // Should probably keep
+#define EMC_AXIS_ALTER_TYPE                          ((NMLTYPE) 132)  // EMC_AXIS_ALTER_TYPE Obscure name - Used to load a compensation value for current position.
+#define EMC_AXIS_SET_STEP_PARAMS_TYPE                ((NMLTYPE) 133)
+#define EMC_AXIS_STAT_TYPE                           ((NMLTYPE) 199)  // Keep
 /*! \page NML message types
-  AXIS_COMMAND                            ((NMLTYPE) 120)
-
-  NML commands to directly control an axis. One mandatory paramater
-  will be required (axis number), and an optional value for velocity
-  or distance.
+  MOTION_ID, MODE, SCALE, and VELOCITY are core parts of task. Need to retain.
 */
-#define AXIS_COMMAND                            ((NMLTYPE) 120)
-#define AXIS_INIT
-#define AXIS_HALT
-#define AXIS_ABORT
-#define AXIS_ENABLE
-#define AXIS_DISABLE
-#define AXIS_HOME
-#define AXIS_JOG
-#define AXIS_INCR_JOG
-#define AXIS_ABS_JOG
-#define AXIS_ACTIVATE
-#define AXIS_DEACTIVATE
-#define AXIS_OVERRIDE_LIMITS
+#define EMC_TRAJ_SET_AXES_TYPE                       ((NMLTYPE) 201)
+#define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)
+#define EMC_TRAJ_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 203)
+#define EMC_TRAJ_SET_MODE_TYPE                       ((NMLTYPE) 204)
+#define EMC_TRAJ_SET_VELOCITY_TYPE                   ((NMLTYPE) 205)
+#define EMC_TRAJ_SET_ACCELERATION_TYPE               ((NMLTYPE) 206)
+#define EMC_TRAJ_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 207)
+#define EMC_TRAJ_SET_MAX_ACCELERATION_TYPE           ((NMLTYPE) 208)
+#define EMC_TRAJ_SET_SCALE_TYPE                      ((NMLTYPE) 209)
+#define EMC_TRAJ_SET_MOTION_ID_TYPE                  ((NMLTYPE) 210)
 /*! \page NML message types
-
-    AXIS_SET_OUTPUT & AXIS_SET_STEP_PARAMS are candidates for moving
-    to SET_AXIS_PARAM
+  More INIT, HALT, ABORT types.
 */
-#define AXIS_SET_OUTPUT
-#define AXIS_LOAD_COMP
-#define AXIS_ALTER
-#define AXIS_SET_STEP_PARAMS
-
+#define EMC_TRAJ_INIT_TYPE                           ((NMLTYPE) 211)
+#define EMC_TRAJ_HALT_TYPE                           ((NMLTYPE) 212)
+#define EMC_TRAJ_ENABLE_TYPE                         ((NMLTYPE) 213)
+#define EMC_TRAJ_DISABLE_TYPE                        ((NMLTYPE) 214)
+#define EMC_TRAJ_ABORT_TYPE                          ((NMLTYPE) 215)
+#define EMC_TRAJ_PAUSE_TYPE                          ((NMLTYPE) 216)  // Used for single stepping
+#define EMC_TRAJ_STEP_TYPE                           ((NMLTYPE) 217)  // Used for single stepping
+#define EMC_TRAJ_RESUME_TYPE                         ((NMLTYPE) 218)  // Used for single stepping
+#define EMC_TRAJ_DELAY_TYPE                          ((NMLTYPE) 219)  // Keep - G4
+#define EMC_TRAJ_LINEAR_MOVE_TYPE                    ((NMLTYPE) 220)  // Keep
+#define EMC_TRAJ_CIRCULAR_MOVE_TYPE                  ((NMLTYPE) 221)  // Keep
+#define EMC_TRAJ_SET_TERM_COND_TYPE                  ((NMLTYPE) 222)  // Keep
+#define EMC_TRAJ_SET_OFFSET_TYPE                     ((NMLTYPE) 223)  // Keep
+#define EMC_TRAJ_SET_ORIGIN_TYPE                     ((NMLTYPE) 224)  // Keep
+#define EMC_TRAJ_SET_HOME_TYPE                       ((NMLTYPE) 225)  // Unused
+#define EMC_TRAJ_SET_PROBE_INDEX_TYPE                ((NMLTYPE) 226)  // This is config
+#define EMC_TRAJ_SET_PROBE_POLARITY_TYPE             ((NMLTYPE) 227)  // as is this - Flag for rethink.
+#define EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE       ((NMLTYPE) 228)  // Keep
+#define EMC_TRAJ_PROBE_TYPE                          ((NMLTYPE) 229)  // Keep - Used for probing (wow)
+#define EMC_TRAJ_SET_TELEOP_ENABLE_TYPE              ((NMLTYPE) 230)  // Oh wth... Can we not use a MODE message here ?
+#define EMC_TRAJ_SET_TELEOP_VECTOR_TYPE              ((NMLTYPE) 231)  // Jogging in teleop mode - fff....
+#define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)  // Keep
 /*! \page NML message types
-  AXIS_STATUS                             ((NMLTYPE) 199)
-
-  This returns the status of each axis, typically, active state, in
-  position, and current position. It does NOT report the state of
-  it's interpolator or any other internal data.
+  More infernal INIT, HALT, ABORT messages.. !
 */
-#define AXIS_STATUS                             ((NMLTYPE) 199)
-
+#define EMC_MOTION_INIT_TYPE                         ((NMLTYPE) 301)
+#define EMC_MOTION_HALT_TYPE                         ((NMLTYPE) 302)
+#define EMC_MOTION_ABORT_TYPE                        ((NMLTYPE) 303)
+#define EMC_MOTION_SET_AOUT_TYPE                     ((NMLTYPE) 304)  // Keep - Unused, but could be used for (e.g.) coordinated control of laser power.
+#define EMC_MOTION_SET_DOUT_TYPE                     ((NMLTYPE) 305)  // Keep - Coordinated On/Off signals.
+#define EMC_MOTION_STAT_TYPE                         ((NMLTYPE) 399)  // keep
 /*! \page NML message types
-  SET_TRAJECTORY_PARAM                    ((NMLTYPE) 200)
-
-  SET_TRAJECTORY_PARAM is used to configure the low level subsytem
-  or set preconditions for a move appended to the queue.
-*/
-#define SET_TRAJECTORY_PARAM                    ((NMLTYPE) 200)
-#define TRAJ_SET_AXES
-#define TRAJ_SET_UNITS
-#define TRAJ_SET_CYCLE
-#define TRAJ_SET_MODE
-#define TRAJ_SET_VELOCITY
-#define TRAJ_SET_ACCELERATION
-#define TRAJ_SET_MAX_VELOCITY
-#define TRAJ_SET_MAX_ACCELERATION
-#define TRAJ_SET_SCALE
-#define TRAJ_SET_MOTION_ID
-
-/*! \page NML message types
-  TRAJECTORY_COMMAND                      ((NMLTYPE) 220)
-
-  WARNING - most of the folowing map to canonical commands. Need
-  to look very closely at task to see what is safe to refactor,
-  and which should be left for another day.
-*/
-#define TRAJECTORY_COMMAND                      ((NMLTYPE) 220)
-#define TRAJ_INIT
-#define TRAJ_HALT
-#define TRAJ_ENABLE
-#define TRAJ_DISABLE
-#define TRAJ_ABORT
-#define TRAJ_PAUSE
-#define TRAJ_STEP
-#define TRAJ_RESUME
-#define TRAJ_DELAY
-#define TRAJ_LINEAR_MOVE
-#define TRAJ_CIRCULAR_MOVE
-#define TRAJ_SET_TERM_COND
-#define TRAJ_SET_OFFSET
-#define TRAJ_SET_ORIGIN
-#define TRAJ_SET_HOME
-#define TRAJ_SET_PROBE_INDEX
-#define TRAJ_SET_PROBE_POLARITY
-#define TRAJ_CLEAR_PROBE_TRIPPED_FLAG
-#define TRAJ_PROBE
-#define TRAJ_SET_TELEOP_ENABLE
-#define TRAJ_SET_TELEOP_VECTOR
-
-/*! \page NML message types
-  TRAJ_STATUS                             ((NMLTYPE) 299)
-
-  This returns essential status data of the trajectory subsystem.
-  It does NOT report the state of the motion queue.
-*/
-#define TRAJ_STATUS                             ((NMLTYPE) 299)
-
-/*! \page NML message types
-  MOTION_COMMAND                          ((NMLTYPE) 300)
-
-  Commands to coordinate IO with motion - May be better to
-  include these in the trajectory group...
-*/
-#define MOTION_COMMAND                          ((NMLTYPE) 300)
-#define MOTION_INIT
-#define MOTION_HALT
-#define MOTION_ABORT
-#define MOTION_SET_AOUT
-#define MOTION_SET_DOUT
-
-/*! \page NML message types
-  MOTION_STATUS                           ((NMLTYPE) 399)
-
-  Status message for motion commands.
-*/
-#define MOTION_STATUS                           ((NMLTYPE) 399)
-
-/*! \page NML message types
-  EMC_TASK_INIT_TYPE                           ((NMLTYPE) 501)
-  to
-  EMC_TASK_PLAN_SYNCH_TYPE                     ((NMLTYPE) 516)
-
-  Most of these _do_ map to functions within task - Need to do
-  a full analysis of task before trashing this section.
+  And yet more....
 */
 #define EMC_TASK_INIT_TYPE                           ((NMLTYPE) 501)
 #define EMC_TASK_HALT_TYPE                           ((NMLTYPE) 502)
 #define EMC_TASK_ABORT_TYPE                          ((NMLTYPE) 503)
-#define EMC_TASK_SET_MODE_TYPE                       ((NMLTYPE) 504)
-#define EMC_TASK_SET_STATE_TYPE                      ((NMLTYPE) 505)
-#define EMC_TASK_PLAN_OPEN_TYPE                      ((NMLTYPE) 506)
-#define EMC_TASK_PLAN_RUN_TYPE                       ((NMLTYPE) 507)
-#define EMC_TASK_PLAN_READ_TYPE                      ((NMLTYPE) 508)
-#define EMC_TASK_PLAN_EXECUTE_TYPE                   ((NMLTYPE) 509)
-#define EMC_TASK_PLAN_PAUSE_TYPE                     ((NMLTYPE) 510)
-#define EMC_TASK_PLAN_STEP_TYPE                      ((NMLTYPE) 511)
-#define EMC_TASK_PLAN_RESUME_TYPE                    ((NMLTYPE) 512)
-#define EMC_TASK_PLAN_END_TYPE                       ((NMLTYPE) 513)
-#define EMC_TASK_PLAN_CLOSE_TYPE                     ((NMLTYPE) 514)
-#define EMC_TASK_PLAN_INIT_TYPE                      ((NMLTYPE) 515)
-#define EMC_TASK_PLAN_SYNCH_TYPE                     ((NMLTYPE) 516)
-
+#define EMC_TASK_SET_MODE_TYPE                       ((NMLTYPE) 504)  // Should mode & state be aggregated with TELEOP & STATE ?
+#define EMC_TASK_SET_STATE_TYPE                      ((NMLTYPE) 505)  // keep
+#define EMC_TASK_PLAN_OPEN_TYPE                      ((NMLTYPE) 506)  // keep
+#define EMC_TASK_PLAN_RUN_TYPE                       ((NMLTYPE) 507)  // keep
+#define EMC_TASK_PLAN_READ_TYPE                      ((NMLTYPE) 508)  // keep
+#define EMC_TASK_PLAN_EXECUTE_TYPE                   ((NMLTYPE) 509)  // keep
+#define EMC_TASK_PLAN_PAUSE_TYPE                     ((NMLTYPE) 510)  // keep
+#define EMC_TASK_PLAN_STEP_TYPE                      ((NMLTYPE) 511)  // keep
+#define EMC_TASK_PLAN_RESUME_TYPE                    ((NMLTYPE) 512)  // keep
+#define EMC_TASK_PLAN_END_TYPE                       ((NMLTYPE) 513)  // keep
+#define EMC_TASK_PLAN_CLOSE_TYPE                     ((NMLTYPE) 514)  // keep
+#define EMC_TASK_PLAN_INIT_TYPE                      ((NMLTYPE) 515)  // Gnnnn...
+#define EMC_TASK_PLAN_SYNCH_TYPE                     ((NMLTYPE) 516)  // keep
+#define EMC_TASK_STAT_TYPE                           ((NMLTYPE) 599)  // keep
 /*! \page NML message types
-  EMC_TASK_STAT_TYPE                           ((NMLTYPE) 599)
-
-  More status data... How much do we need to report on ?
+  These are not the last...
 */
-#define EMC_TASK_STAT_TYPE                           ((NMLTYPE) 599)
-
+#define EMC_TOOL_INIT_TYPE                           ((NMLTYPE) 1101)
+#define EMC_TOOL_HALT_TYPE                           ((NMLTYPE) 1102)
+#define EMC_TOOL_ABORT_TYPE                          ((NMLTYPE) 1103)
+#define EMC_TOOL_PREPARE_TYPE                        ((NMLTYPE) 1104)  // keep
+#define EMC_TOOL_LOAD_TYPE                           ((NMLTYPE) 1105)  // keep
+#define EMC_TOOL_UNLOAD_TYPE                         ((NMLTYPE) 1106)  // LOAD implies an UNLOAD preceeds it...
+#define EMC_TOOL_LOAD_TOOL_TABLE_TYPE                ((NMLTYPE) 1107)  // keep - But get rid of the lunacy.
+#define EMC_TOOL_SET_OFFSET_TYPE                     ((NMLTYPE) 1108)  // keep
+#define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)  // Keep
 /*! \page NML message types
-  TOOL_COMMAND                            ((NMLTYPE) 600)
-
-  NML commands for the tool subsystem
+  Nor these the last...
 */
-#define TOOL_COMMAND                            ((NMLTYPE) 600)
-#define TOOL_INIT
-#define TOOL_HALT
-#define TOOL_ABORT
-#define TOOL_PREPARE
-#define TOOL_LOAD
-#define TOOL_UNLOAD
-#define TOOL_LOAD_TOOL_TABLE
-#define TOOL_SET_OFFSET
-
+#define EMC_AUX_INIT_TYPE                             ((NMLTYPE) 1201)
+#define EMC_AUX_HALT_TYPE                             ((NMLTYPE) 1202)
+#define EMC_AUX_ABORT_TYPE                            ((NMLTYPE) 1203)
+#define EMC_AUX_DIO_WRITE_TYPE                        ((NMLTYPE) 1204)  // keep and/or modify
+#define EMC_AUX_AIO_WRITE_TYPE                        ((NMLTYPE) 1205)  // keep and/or modify
+#define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)  // Why does task need to twiddle ESTOP ?
+#define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)  // This should be a failsafe system.
+#define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)  // Apart from ESTOP (which is duplicated elsewhwere), this is redundant.
 /*! \page NML message types
-  TOOL_STATUS                             ((NMLTYPE) 699)
-
-  Status for the tool module - Probably just need to know which
-  tool number is loaded. Anything more is just noise.
+  Some more INIT, HALT, ABORT....
 */
-#define TOOL_STATUS                             ((NMLTYPE) 699)
-
+#define EMC_SPINDLE_INIT_TYPE                        ((NMLTYPE) 1301)
+#define EMC_SPINDLE_HALT_TYPE                        ((NMLTYPE) 1302)
+#define EMC_SPINDLE_ABORT_TYPE                       ((NMLTYPE) 1303)
+#define EMC_SPINDLE_ON_TYPE                          ((NMLTYPE) 1304)  // Keep - In a modified form
+#define EMC_SPINDLE_OFF_TYPE                         ((NMLTYPE) 1305)  // Virtually all SPINDLE messages can be aggregated in to one.
+#define EMC_SPINDLE_FORWARD_TYPE                     ((NMLTYPE) 1306)
+#define EMC_SPINDLE_REVERSE_TYPE                     ((NMLTYPE) 1307)
+#define EMC_SPINDLE_STOP_TYPE                        ((NMLTYPE) 1308)
+#define EMC_SPINDLE_INCREASE_TYPE                    ((NMLTYPE) 1309)
+#define EMC_SPINDLE_DECREASE_TYPE                    ((NMLTYPE) 1310)
+#define EMC_SPINDLE_CONSTANT_TYPE                    ((NMLTYPE) 1311)
+#define EMC_SPINDLE_BRAKE_RELEASE_TYPE               ((NMLTYPE) 1312)  // Brake interlocks is for PLC to handle.
+#define EMC_SPINDLE_BRAKE_ENGAGE_TYPE                ((NMLTYPE) 1313)
+#define EMC_SPINDLE_ENABLE_TYPE                      ((NMLTYPE) 1314)
+#define EMC_SPINDLE_DISABLE_TYPE                     ((NMLTYPE) 1315)
+#define EMC_SPINDLE_STAT_TYPE                        ((NMLTYPE) 1399)  // Keep - Aggregate with TOOL_STAT
 /*! \page NML message types
-  AUX_IO_COMMAND                          ((NMLTYPE) 700)
-
-  Apart from E-Stop and Abort, do we need the rest of these
-  commands ?
+  Starting to get tiresome, these INIT/HALT types..
 */
-#define AUX_IO_COMMAND                          ((NMLTYPE) 700)
-#define AUX_INIT
-#define AUX_HALT
-#define AUX_ABORT
-#define AUX_DIO_WRITE
-#define AUX_AIO_WRITE
-#define AUX_ESTOP_ON
-#define AUX_ESTOP_OFF
-
+#define EMC_COOLANT_INIT_TYPE                        ((NMLTYPE) 1401)
+#define EMC_COOLANT_HALT_TYPE                        ((NMLTYPE) 1402)
+#define EMC_COOLANT_ABORT_TYPE                       ((NMLTYPE) 1403)
+#define EMC_COOLANT_MIST_ON_TYPE                     ((NMLTYPE) 1404) // Keep - Aggregate STATE ?
+#define EMC_COOLANT_MIST_OFF_TYPE                    ((NMLTYPE) 1405)
+#define EMC_COOLANT_FLOOD_ON_TYPE                    ((NMLTYPE) 1406) // Keep - Aggregate STATE ?
+#define EMC_COOLANT_FLOOD_OFF_TYPE                   ((NMLTYPE) 1407)
+#define EMC_COOLANT_STAT_TYPE                        ((NMLTYPE) 1499)  // Keep - Aggregate with TOOL_STAT ?
 /*! \page NML message types
-  AUX_IO_STATUS                           ((NMLTYPE) 799)
-
-  Main purpose of this status message is to return the current
-  E-Stop state.
 */
-#define AUX_IO_STATUS                           ((NMLTYPE) 799)
-
+#define EMC_LUBE_INIT_TYPE                           ((NMLTYPE) 1501)
+#define EMC_LUBE_HALT_TYPE                           ((NMLTYPE) 1502)
+#define EMC_LUBE_ABORT_TYPE                          ((NMLTYPE) 1503)
+#define EMC_LUBE_ON_TYPE                             ((NMLTYPE) 1504)  // Aggregate with machine STATE and let PLC decide.
+#define EMC_LUBE_OFF_TYPE                            ((NMLTYPE) 1505)
+#define EMC_LUBE_STAT_TYPE                           ((NMLTYPE) 1599)  // Keep - Aggregate with TOOL_STAT
 /*! \page NML message types
-  SPINDLE_COMMAND                         ((NMLTYPE) 800)
-
-  Spindle commands - On. Off, and speed should be all that needs
-  to be passed to the spindle module. Brake interlocks are a
-  function of a PLC rather than the high level system.
+  FPS...
 */
-#define SPINDLE_COMMAND                         ((NMLTYPE) 800)
-#define SPINDLE_INIT
-#define SPINDLE_HALT
-#define SPINDLE_ABORT
-#define SPINDLE_ON
-#define SPINDLE_OFF
-#define SPINDLE_FORWARD
-#define SPINDLE_REVERSE
-#define SPINDLE_STOP
-#define SPINDLE_INCREASE
-#define SPINDLE_DECREASE
-#define SPINDLE_CONSTANT
-#define SPINDLE_BRAKE_RELEASE
-#define SPINDLE_BRAKE_ENGAGE
-#define SPINDLE_ENABLE
-#define SPINDLE_DISABLE
-
+#define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001) // Unused
+#define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002) // Unused
+#define EMC_SET_POLARITY_TYPE                        ((NMLTYPE) 5003) // Unused
 /*! \page NML message types
-  SPINDLE_STATUS                          ((NMLTYPE) 899)
-
-  Spindle status. Current speed, brake condition, & direction..
+  Arrrgggg
 */
-#define SPINDLE_STATUS                          ((NMLTYPE) 899)
-
+#define EMC_IO_INIT_TYPE                             ((NMLTYPE) 1601) // Unused
+#define EMC_IO_HALT_TYPE                             ((NMLTYPE) 1602) // Unused
+#define EMC_IO_ABORT_TYPE                            ((NMLTYPE) 1603) // Unused
+#define EMC_IO_SET_CYCLE_TIME_TYPE                   ((NMLTYPE) 1604) // Unused
+#define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699) // Redundant.
 /*! \page NML message types
-  COOLANT_COMMAND                         ((NMLTYPE) 900)
-
-  Coolant subsystem commands - Should these be aggregated with
-  Spindle & Lube commands and passed to a PLC module ?
+  And these remain unused. WHY ??
 */
-#define COOLANT_COMMAND                         ((NMLTYPE) 900)
-#define COOLANT_INIT
-#define COOLANT_HALT
-#define COOLANT_ABORT
-#define COOLANT_MIST_ON
-#define COOLANT_MIST_OFF
-#define COOLANT_FLOOD_ON
-#define COOLANT_FLOOD_OFF
-
+#define EMC_INIT_TYPE                                ((NMLTYPE) 1901) // fff... Either a global, or not at all.
+#define EMC_HALT_TYPE                                ((NMLTYPE) 1902)
+#define EMC_ABORT_TYPE                               ((NMLTYPE) 1903)
 /*! \page NML message types
-  COOLANT_STATUS                          ((NMLTYPE) 999)
-
-  Coolant level, mist, or flood. what other status is there ?
+  With HAL and the scope tool, logging is almost redundant...
 */
-#define COOLANT_STATUS                          ((NMLTYPE) 999)
+#define EMC_LOG_OPEN_TYPE                            ((NMLTYPE) 1904) // Do we need these ?
+#define EMC_LOG_START_TYPE                           ((NMLTYPE) 1905) // Can we get away with an aggregate message ?
+#define EMC_LOG_STOP_TYPE                            ((NMLTYPE) 1906) // Maybe.
+#define EMC_LOG_CLOSE_TYPE                           ((NMLTYPE) 1907)
 
 /*! \page NML message types
-  LUBE_COMMAND                            ((NMLTYPE) 1000)
-
-  Certainly Lube should be part of the main IO group !
-*/
-#define LUBE_COMMAND                            ((NMLTYPE) 1000)
-#define LUBE_INIT
-#define LUBE_HALT
-#define LUBE_ABORT
-#define LUBE_ON
-#define LUBE_OFF
-
-/*! \page NML message types
-  LUBE_STATUS                             ((NMLTYPE) 1099)
-  The only "status" required is level OK
-*/
-#define LUBE_STATUS                             ((NMLTYPE) 1099)
-
-/*! \page NML message types
-  IO_COMMAND                              ((NMLTYPE) 1100)
-
-  Appears to be duplicate messages here... 
-*/
-#define IO_COMMAND                              ((NMLTYPE) 1100)
-#define IO_INIT
-#define IO_HALT
-#define IO_ABORT
-#define IO_SET_CYCLE_TIME
-
-/*! \page NML message types
-  IO_STATUS                             ((NMLTYPE) 1199)
-
-  What would the HMI need to know about IO when there is so few
-  commands to issue ?
-*/
-#define IO_STATUS                             ((NMLTYPE) 1199)
-
-// EMC aggregate class type declaration
-/*! \page NML message types
-  EMC_COMMAND                             ((NMLTYPE) 1200)
-
-  IF halscope lives up to expectations, logging would disappear
-  from the motion level. That on it's own would free up considerable
-  chunks of memory.
-*/
-#define EMC_COMMAND                             ((NMLTYPE) 1200)
-#define EMC_INIT
-#define EMC_HALT
-#define EMC_ABORT
-#define EMC_LOG_OPEN
-#define EMC_LOG_START
-#define EMC_LOG_STOP
-#define EMC_LOG_CLOSE
-
-/*! \page NML message types
-  EMC_STATUS                              ((NMLTYPE) 1299)
+  EMC_STAT_TYPE                              ((NMLTYPE) 1999)
 
   Aggregate status message containing all the status messages from
   lower levels. How much is needed by the HMI ?
   Probably very little if you are to take the RMA model to it's
-  limits.
+  limits. Certainly plenty can be hacked out without detriment.
 */
-#define EMC_STATUS                              ((NMLTYPE) 1299)
+#define EMC_STAT_TYPE                                ((NMLTYPE) 1999)
 
 // NML formatting function
 extern int emcFormat(NMLTYPE type, void * buffer, CMS * cms);
