@@ -39,28 +39,28 @@
   AJ says: merge these into a single message, and check an aditional flag for message/error. 
            The last one isn't used anyways.
 */
-#define EMC_OPERATOR_ERROR_TYPE                      ((NMLTYPE) 11)
-#define EMC_OPERATOR_TEXT_TYPE                       ((NMLTYPE) 12)
-#define EMC_OPERATOR_DISPLAY_TYPE                    ((NMLTYPE) 13)
+#define EMC_OPERATOR_ERROR_TYPE                      ((NMLTYPE) 11) // Keep
+#define EMC_OPERATOR_TEXT_TYPE                       ((NMLTYPE) 12) // Keep
+#define EMC_OPERATOR_DISPLAY_TYPE                    ((NMLTYPE) 13) // Keep
 /*! \page NML message types
   EMC_NULL_TYPE                                ((NMLTYPE) 21)
 
   Null message - Redundant perhaps ?
 */
-#define EMC_NULL_TYPE                                ((NMLTYPE) 21)
+#define EMC_NULL_TYPE                                ((NMLTYPE) 21) // Keep
 /*! \page NML message types
   EMC_SET_DEBUG_TYPE                           ((NMLTYPE) 22)
 
   Sets the debug level in subservient processes
 */
-#define EMC_SET_DEBUG_TYPE                           ((NMLTYPE) 22) //AJ:keep
+#define EMC_SET_DEBUG_TYPE                           ((NMLTYPE) 22) // Keep
 /*! \page NML message types
   EMC_SYSTEM_CMD_TYPE                          ((NMLTYPE) 30)
 
   Part of the hot command system - Used to execute commands
   specified in the interpreter's input file.
 */
-#define EMC_SYSTEM_CMD_TYPE                          ((NMLTYPE) 30)
+#define EMC_SYSTEM_CMD_TYPE                          ((NMLTYPE) 30) // Keep
 /*! \page NML message types
   Proposal: Replace the multitude of EMC_AXIS_SET_* with a single
   SET_PARAM message. Each parameter would be enumerated and one
@@ -115,7 +115,7 @@ as an int, but the payload of an additional int is small..
 #define EMC_AXIS_ABORT_TYPE                          ((NMLTYPE) 120)  // AJ: used currently to stop a JOG, not the cleanest way
 #define EMC_AXIS_ENABLE_TYPE                         ((NMLTYPE) 121)
 #define EMC_AXIS_DISABLE_TYPE                        ((NMLTYPE) 122)  // AJ: merge this with EMC_AXIS_ENABLE
-#define EMC_AXIS_HOME_TYPE                           ((NMLTYPE) 123)  // Triggers a homing sequence - Keep
+#define EMC_AXIS_HOME_TYPE                           ((NMLTYPE) 123)  // Keep - Triggers a homing sequence.
 #define EMC_AXIS_JOG_TYPE                            ((NMLTYPE) 124)  // Need a JOG message, but three variants ?
 #define EMC_AXIS_INCR_JOG_TYPE                       ((NMLTYPE) 125)
 #define EMC_AXIS_ABS_JOG_TYPE                        ((NMLTYPE) 126)
@@ -140,7 +140,7 @@ as an int, but the payload of an additional int is small..
 #define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 203)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_MODE_TYPE                       ((NMLTYPE) 204)  // AJ: Unused, remove
-#define EMC_TRAJ_SET_VELOCITY_TYPE                   ((NMLTYPE) 205)
+#define EMC_TRAJ_SET_VELOCITY_TYPE                   ((NMLTYPE) 205)  // Keep
 #define EMC_TRAJ_SET_ACCELERATION_TYPE               ((NMLTYPE) 206)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 207)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_MAX_ACCELERATION_TYPE           ((NMLTYPE) 208)  // AJ: Unused, remove
@@ -298,7 +298,7 @@ as an int, but the payload of an additional int is small..
   Probably very little if you are to take the RMA model to it's
   limits. Certainly plenty can be hacked out without detriment.
 */
-#define EMC_STAT_TYPE                                ((NMLTYPE) 1999)
+#define EMC_STAT_TYPE                                ((NMLTYPE) 1999) // Keep
 
 // NML formatting function
 extern int emcFormat(NMLTYPE type, void * buffer, CMS * cms);
