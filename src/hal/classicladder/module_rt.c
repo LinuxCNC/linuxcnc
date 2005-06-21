@@ -9,8 +9,7 @@
  * $State$
  * $Date$
  *
- * This is a PLC component for the HAL. It is based on Classic
- * Ladder.
+ * This is a PLC component for the HAL. It is based on Classic Ladder.
  *
  * Installation of the component (realtime only):
  *
@@ -22,13 +21,12 @@
  * The following items are exported to the HAL. <channel> is
  * formated as "%02d".
  * The following items are exported to the HAL. <plcId> is
- * "%d". <channel> is formated as "%02d".
+ * formated as "%d". <channel> is formated as "%02d".
  *
  *   Pins:
  *	u8	classicladder.<plcId>.status	// 0=load, 1=stop, 2=run
- *	bit	classicladder.<plcId>.pin-<channel>-in
- *	bit	classicladder.<plcId>.pin-<channel>-out
- *	bit	classicladder.<plcId>.pin-<channel>-out-not
+ *	bit	classicladder.<plcId>.in-<channel>
+ *	bit	classicladder.<plcId>.out-<channel>
  *
  *   Functions:
  *	void    classicladder.<plcId>.refresh
@@ -62,6 +60,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.2  2005/06/21 03:14:33  petev
+ * Changed pin naming convention. Removed "not" pins.
+ *
  * Revision 1.1  2005/06/20 20:09:49  petev
  * Initial revision.
  *
@@ -144,7 +145,6 @@ typedef struct {
 typedef struct {
     // Pins.
     hal_bit_t				*pValue;
-    hal_bit_t				*pValueNot;
 } DigitalOutPinsParams;
 
 typedef struct {
@@ -349,7 +349,7 @@ Plc_ExportPinsParametersFunctions(Plc *this, int componentId, int plcId)
 
     for(channel = 0; channel < numPhysInputs && !error; channel++){
 	// Pins.
-	rtapi_snprintf(name, HAL_NAME_LEN, "classicladder.%d.pin-%02d-in", plcId, channel);
+	rtapi_snprintf(name, HAL_NAME_LEN, "classicladder.%d.in-%02d", plcId, channel);
 	if((error = hal_pin_bit_new(name, HAL_RD, &(this->pInPins[channel].pValue), componentId)) != 0)
 	    break;
 
@@ -359,17 +359,12 @@ Plc_ExportPinsParametersFunctions(Plc *this, int componentId, int plcId)
 
     for(channel = 0; channel < numPhysOutputs && !error; channel++){
 	// Pins.
-	rtapi_snprintf(name, HAL_NAME_LEN, "classicladder.%d.pin-%02d-out", plcId, channel);
+	rtapi_snprintf(name, HAL_NAME_LEN, "classicladder.%d.out-%02d", plcId, channel);
 	if((error = hal_pin_bit_new(name, HAL_WR, &(this->pOutPins[channel].pValue), componentId)) != 0)
-	    break;
-
-	rtapi_snprintf(name, HAL_NAME_LEN, "classicladder.%d.pin-%02d-out-not", plcId, channel);
-	if((error = hal_pin_bit_new(name, HAL_WR, &(this->pOutPins[channel].pValueNot), componentId)) != 0)
 	    break;
 
 	// Init pin.
 	*(this->pOutPins[channel].pValue) = 0;
-	*(this->pOutPins[channel].pValueNot) = 1;
     }
 
     // Export functions.
@@ -430,6 +425,5 @@ Plc_WritePhysicalOutputs(Plc *this)
     // Copy HAL pin data from Classic Ladder structure.
     for(i = 0; i < numPhysInputs; i++){
 	 *(this->pOutPins[i].pValue) = ReadVar(VAR_PHYS_INPUT, i);
-	 *(this->pOutPins[i].pValueNot) = !*(this->pOutPins[i].pValue);
     }
 }
