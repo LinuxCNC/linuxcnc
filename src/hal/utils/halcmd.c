@@ -101,6 +101,8 @@ static void print_param_names(char *pattern);
 static void print_funct_names(char *pattern);
 static void print_thread_names(char *pattern);
 static void print_lock_status();
+static int count_list(int list_root);
+static void print_mem_status();
 static char *data_type(int type);
 static char *data_dir(int dir);
 static char *data_arrow1(int dir);
@@ -1135,8 +1137,11 @@ static int do_status_cmd(char *type)
 	/* print everything */
 	/*! \todo FIXME - add other status functions here */
 	print_lock_status();
+	print_mem_status();
     } else if (strcmp(type, "lock") == 0) {
 	print_lock_status();
+    } else if (strcmp(type, "mem") == 0) {
+	print_mem_status();
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'status' type '%s'\n", type);
 	return -1;
@@ -2057,6 +2062,53 @@ static void print_lock_status()
 	rtapi_print("  HAL_LOCK_RUN     - running/stopping HAL is locked\n");
 }
 
+static int count_list(int list_root)
+{
+    int n, next;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = list_root;
+    n = 0;
+    while (next != 0) {
+	n++;
+	next = *((int *) SHMPTR(next));
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return n;
+}
+
+static void print_mem_status()
+{
+    int active, recycled;
+
+    rtapi_print("HAL memory status\n");
+    rtapi_print("  used/total shared memory:   %d/%d\n", HAL_SIZE - hal_data->shmem_avail, HAL_SIZE);
+    // count components
+    active = count_list(hal_data->comp_list_ptr);
+    recycled = count_list(hal_data->comp_free_ptr);
+    rtapi_print("  active/recycled components: %d/%d\n", active, recycled);
+    // count pins
+    active = count_list(hal_data->pin_list_ptr);
+    recycled = count_list(hal_data->pin_free_ptr);
+    rtapi_print("  active/recycled pins:       %d/%d\n", active, recycled);
+    // count parameters
+    active = count_list(hal_data->param_list_ptr);
+    recycled = count_list(hal_data->param_free_ptr);
+    rtapi_print("  active/recycled parameters: %d/%d\n", active, recycled);
+    // count signals
+    active = count_list(hal_data->sig_list_ptr);
+    recycled = count_list(hal_data->sig_free_ptr);
+    rtapi_print("  active/recycled signals:    %d/%d\n", active, recycled);
+    // count functions
+    active = count_list(hal_data->funct_list_ptr);
+    recycled = count_list(hal_data->funct_free_ptr);
+    rtapi_print("  active/recycled functions:  %d/%d\n", active, recycled);
+    // count threads
+    active = count_list(hal_data->thread_list_ptr);
+    recycled = count_list(hal_data->thread_free_ptr);
+    rtapi_print("  active/recycled threads:    %d/%d\n", active, recycled);
+}
+
 /* Switch function for pin/sig/param type for the print_*_list functions */
 static char *data_type(int type)
 {
@@ -2518,7 +2570,7 @@ static int do_help_cmd(char *command)
     } else if (strcmp(command, "status") == 0) {
 	printf("status [type]\n");
 	printf("  Prints status info about HAL.\n");
-	printf("  'type' is 'lock', or 'all'. \n");
+	printf("  'type' is 'lock', 'mem', or 'all'. \n");
 	printf("  If 'type' is omitted, it assumes\n");
 	printf("  'all'.\n");
     } else if (strcmp(command, "save") == 0) {
