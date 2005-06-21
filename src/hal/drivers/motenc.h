@@ -41,6 +41,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.5  2005/06/21 14:45:22  jmkasunich
+ * Revised the method used to differentiate between MOTENC-100 and MOTENC-Lite, based on info from Abdul
+ *
  * Revision 1.4  2005/06/21 01:12:01  jmkasunich
  * Modified the MOTENC HAL driver to support the MOTENC-Lite 4 channel card.  A bit of a hack, should be revisited once Abdul publishes proper documentation for the Lite card.
  *
@@ -95,7 +98,8 @@ typedef struct {
     hal_s32_t				encoderCount[MOTENC_FPGA_NUM_ENCODER_CHANNELS];
     hal_u32_t				digitalIo;
     hal_u32_t				statusControl;
-    hal_u32_t				reserved[2];
+    hal_u32_t				reserved;
+    hal_u32_t				boardVersion;
 } volatile MotencFpgaRegMap;
 
 // For use with digitalIo reg.
@@ -120,11 +124,6 @@ typedef struct {
 #define MOTENC_STATUS_INDEX_SHFT	20
 #define MOTENC_STATUS_INDEX_LATCH	0x0F000000
 #define MOTENC_STATUS_INDEX_LATCH_SHFT	24
-
-// used by a hack to detect the difference between MOTENC-100
-// and MOTENC-LITE.  Hopefully there is a better way to do this
-#define MOTENC_STATUS_RESERVED_MASK     0xF0000000
-
 
 typedef struct {
     MotencFpgaRegMap			fpga[MOTENC_NUM_FPGA];

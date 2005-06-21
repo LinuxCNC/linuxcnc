@@ -129,6 +129,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.8  2005/06/21 14:45:22  jmkasunich
+ * Revised the method used to differentiate between MOTENC-100 and MOTENC-Lite, based on info from Abdul
+ *
  * Revision 1.7  2005/06/21 01:28:36  jmkasunich
  * Changed naming convention for MOTENC I/O pins
  *
@@ -268,8 +271,10 @@ typedef struct {
     int					adcState;
     hal_u32_t				watchdogControl;// Shadow HW register.
     // private data
-    int					numFpga;
+    int					boardType;
+    char				*typeName;
     int					boardID;
+    int					numFpga;
     // Exported to HAL.
     EncoderPinsParams			encoder[MOTENC_NUM_ENCODER_CHANNELS];
     DacPinsParams			dac[MOTENC_NUM_DAC_CHANNELS];
@@ -345,7 +350,7 @@ rtapi_app_main(void)
     }
 
     i = 0;
-    // Find a MOTENC-100 card.
+    // Find a MOTENC card.
     while((i < MAX_DEVICES) && ((pDev = pci_find_device(MOTENC_VENDOR_ID, MOTENC_DEVICE_ID, pDev)) != NULL)){
 
 	// Allocate memory for device object.
@@ -362,16 +367,18 @@ rtapi_app_main(void)
 	
 	// Map card into memory.
 	pCard = (MotencRegMap *)ioremap_nocache(pci_resource_start(pDev, 2), pci_resource_len(pDev, 2));
-	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card detected in Slot: %2x\n", PCI_SLOT(pDev->devfn));
+	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card detected in slot %2x\n", PCI_SLOT(pDev->devfn));
 	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %x, Len = %d\n", (int)pCard, (int)pci_resource_len(pDev, 2));
 
 	// Initialize device.
 	Device_Init(pDevice, pCard);
-	if ( pDevice->numFpga < MOTENC_NUM_FPGA ) {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card is MOTENC-LITE, ID: %d\n", pDevice->boardID);
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card is MOTENC-100, ID: %d\n", pDevice->boardID);
+	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card is %s, ID: %d\n", pDevice->typeName, pDevice->boardID);
+        if ( pDevice->boardType == 0 ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: ERROR, unknown card detected\n");
+	    hal_exit(driver.componentId);
+	    return(-1);
 	}
+	
 
 	if ( driver.idPresent[pDevice->boardID] != 0 ) {
 	    // duplicate ID... a strict driver would bail out, but
@@ -458,24 +465,33 @@ Device_Init(Device *this, MotencRegMap *pCard)
     this->adcState = 0;
     this->watchdogControl = 0;
 
+    // identify type of board
+    status = pCard->fpga[0].boardVersion;
+    if ( status == 0 ) {
+	// MOTENC-100
+	this->boardType = 1;
+	this->typeName = "MOTENC-100";
+	this->numFpga = 2;
+    } else if ( status == 1 ) {
+	// MOTENC-Lite
+	this->boardType = 2;
+	this->typeName = "MOTENC-Lite";
+	this->numFpga = 1;
+    } else {
+	// no idea what it is
+	this->boardType = 0;
+	this->typeName = "unknown";
+	this->numFpga = 0;
+	return -1;
+    }
+    // extract board id from first FPGA. The user sets this via jumpers on the card.
+    status = pCard->fpga[0].statusControl;
+    this->boardID = (status & MOTENC_STATUS_BOARD_ID) >> MOTENC_STATUS_BOARD_ID_SHFT;
+    
     // Initialize hardware.
-    this->numFpga = MOTENC_NUM_FPGA;
-    for(i = 0; i < MOTENC_NUM_FPGA; i++){
+    for(i = 0; i < this->numFpga; i++){
 	pCard->fpga[i].digitalIo = 0;
 	pCard->fpga[i].statusControl = MOTENC_CONTROL_ENCODER_RESET;
-	// read status register
-	status = pCard->fpga[i].statusControl;
-	
-	// extract board id from first FPGA. The user sets this via jumpers on the card.
-	if ( i == 0 ) {
-	    this->boardID = (status & MOTENC_STATUS_BOARD_ID) >> MOTENC_STATUS_BOARD_ID_SHFT;
-	}
-	// a hack to detect the presence of an FPGA... because the board
-	// doesn't have a proper presence detect or device ID
-	if ( (status & MOTENC_STATUS_RESERVED_MASK) != MOTENC_STATUS_RESERVED_MASK ) {
-	    // FPGA is missing, this must be a LITE board
-	    this->numFpga = i;
-	}
     }
 
     for(i = 0; i < MOTENC_NUM_DAC_CHANNELS; i++){
