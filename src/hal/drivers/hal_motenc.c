@@ -129,6 +129,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.7  2005/06/21 01:28:36  jmkasunich
+ * Changed naming convention for MOTENC I/O pins
+ *
  * Revision 1.6  2005/06/21 01:12:00  jmkasunich
  * Modified the MOTENC HAL driver to support the MOTENC-Lite 4 channel card.  A bit of a hack, should be revisited once Abdul publishes proper documentation for the Lite card.
  *
@@ -685,11 +688,11 @@ Device_ExportDigitalInPinsParametersFunctions(Device *this, int componentId, int
     halError = 0;
     for(channel = 0; channel < (this->numFpga * MOTENC_FPGA_NUM_DIGITAL_INPUTS - 4); channel++){
 	// Pins.
-	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.pin-%02d-in", boardId, channel);
+	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.in-%02d", boardId, channel);
 	if((halError = hal_pin_bit_new(name, HAL_WR, &(this->in[channel].pValue), componentId)) != 0)
 	    break;
 
-	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.pin-%02d-in-not", boardId, channel);
+	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.in-%02d-not", boardId, channel);
 	if((halError = hal_pin_bit_new(name, HAL_WR, &(this->in[channel].pValueNot), componentId)) != 0)
 	    break;
 
@@ -723,12 +726,12 @@ Device_ExportDigitalOutPinsParametersFunctions(Device *this, int componentId, in
     halError = 0;
     for(channel = 0; channel < this->numFpga * MOTENC_FPGA_NUM_DIGITAL_OUTPUTS; channel++){
 	// Pins.
-	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.pin-%02d-out", boardId, channel);
+	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.out-%02d", boardId, channel);
 	if((halError = hal_pin_bit_new(name, HAL_RD, &(this->out[channel].pValue), componentId)) != 0)
 	    break;
 
 	// Parameters.
-	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.pin-%02d-out-invert", boardId, channel);
+	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.out-%02d-invert", boardId, channel);
 	if((halError = hal_param_bit_new(name, HAL_WR, &(this->out[channel].invert), componentId)) != 0)
 	    break;
 
