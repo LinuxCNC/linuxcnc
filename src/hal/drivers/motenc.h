@@ -41,6 +41,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.4  2005/06/21 01:12:01  jmkasunich
+ * Modified the MOTENC HAL driver to support the MOTENC-Lite 4 channel card.  A bit of a hack, should be revisited once Abdul publishes proper documentation for the Lite card.
+ *
  * Revision 1.3  2005/05/23 19:38:16  paul_c
  * Fix a small problem with the makefiles introduced after the join from bdi-4
  *
@@ -76,14 +79,16 @@
 
 #define MOTENC_NUM_ADC_CHANNELS		8
 #define MOTENC_NUM_DAC_CHANNELS		8
-#define MOTENC_NUM_FPGA			2
-#define MOTENC_NUM_ENCODER_CHANNELS	(MOTENC_NUM_FPGA * MOTENC_FPGA_NUM_ENCODER_CHANNELS)
-#define MOTENC_NUM_DIGITAL_INPUTS	(MOTENC_NUM_FPGA * MOTENC_FPGA_NUM_DIGITAL_INPUTS - 4)
-#define MOTENC_NUM_DIGITAL_OUTPUTS	(MOTENC_NUM_FPGA * MOTENC_FPGA_NUM_DIGITAL_OUTPUTS)
 
 #define MOTENC_FPGA_NUM_ENCODER_CHANNELS 4
 #define MOTENC_FPGA_NUM_DIGITAL_INPUTS	36
 #define MOTENC_FPGA_NUM_DIGITAL_OUTPUTS	16
+
+#define MOTENC_NUM_FPGA		2
+#define MOTENC_NUM_ENCODER_CHANNELS	(MOTENC_NUM_FPGA * MOTENC_FPGA_NUM_ENCODER_CHANNELS)
+#define MOTENC_NUM_DIGITAL_INPUTS	(MOTENC_NUM_FPGA * MOTENC_FPGA_NUM_DIGITAL_INPUTS - 4)
+#define MOTENC_NUM_DIGITAL_OUTPUTS	(MOTENC_NUM_FPGA * MOTENC_FPGA_NUM_DIGITAL_OUTPUTS)
+
 
 
 typedef struct {
@@ -115,6 +120,10 @@ typedef struct {
 #define MOTENC_STATUS_INDEX_SHFT	20
 #define MOTENC_STATUS_INDEX_LATCH	0x0F000000
 #define MOTENC_STATUS_INDEX_LATCH_SHFT	24
+
+// used by a hack to detect the difference between MOTENC-100
+// and MOTENC-LITE.  Hopefully there is a better way to do this
+#define MOTENC_STATUS_RESERVED_MASK     0xF0000000
 
 
 typedef struct {

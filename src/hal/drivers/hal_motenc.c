@@ -129,6 +129,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.6  2005/06/21 01:12:00  jmkasunich
+ * Modified the MOTENC HAL driver to support the MOTENC-Lite 4 channel card.  A bit of a hack, should be revisited once Abdul publishes proper documentation for the Lite card.
+ *
  * Revision 1.5  2005/06/15 02:10:32  jmkasunich
  * converted motenc encoder input position scale factor from units per step, to steps per unit, to be consistent with normal emc.ini units
  *
@@ -261,7 +264,9 @@ typedef struct {
     MotencRegMap			*pCard;
     int					adcState;
     hal_u32_t				watchdogControl;// Shadow HW register.
-
+    // private data
+    int					numFpga;
+    int					boardID;
     // Exported to HAL.
     EncoderPinsParams			encoder[MOTENC_NUM_ENCODER_CHANNELS];
     DacPinsParams			dac[MOTENC_NUM_DAC_CHANNELS];
@@ -306,6 +311,7 @@ static int Device_AdcRead4(Device *this, int startChannel);
 typedef struct {
     int					componentId;	// HAL component ID.
     Device				*deviceTable[MAX_DEVICES];
+    unsigned char			idPresent[MAX_DEVICES];
 } Driver;
 
 static Driver				driver;
@@ -318,7 +324,7 @@ static Driver				driver;
 int
 rtapi_app_main(void)
 {
-    int					i;
+    int					i, j;
     struct pci_dev			*pDev = NULL;
     MotencRegMap			*pCard = NULL;
     Device				*pDevice;
@@ -332,10 +338,10 @@ rtapi_app_main(void)
 
     for(i = 0; i < MAX_DEVICES; i++){
 	driver.deviceTable[i] = NULL;
+	driver.idPresent[i] = 0;
     }
 
     i = 0;
-
     // Find a MOTENC-100 card.
     while((i < MAX_DEVICES) && ((pDev = pci_find_device(MOTENC_VENDOR_ID, MOTENC_DEVICE_ID, pDev)) != NULL)){
 
@@ -350,15 +356,37 @@ rtapi_app_main(void)
 
 	// Save pointer to device object.
 	driver.deviceTable[i++] = pDevice;
-
+	
 	// Map card into memory.
 	pCard = (MotencRegMap *)ioremap_nocache(pci_resource_start(pDev, 2), pci_resource_len(pDev, 2));
-	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %x, Len = %d\n", (int)pCard, (int)pci_resource_len(pDev, 2));
 	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card detected in Slot: %2x\n", PCI_SLOT(pDev->devfn));
+	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %x, Len = %d\n", (int)pCard, (int)pci_resource_len(pDev, 2));
 
 	// Initialize device.
 	Device_Init(pDevice, pCard);
+	if ( pDevice->numFpga < MOTENC_NUM_FPGA ) {
+	    rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card is MOTENC-LITE, ID: %d\n", pDevice->boardID);
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card is MOTENC-100, ID: %d\n", pDevice->boardID);
+	}
 
+	if ( driver.idPresent[pDevice->boardID] != 0 ) {
+	    // duplicate ID... a strict driver would bail out, but
+	    // we are nice, we try to find an unused ID
+	    j = 0;
+	    while ( driver.idPresent[j] != 0 ) {
+		j++;
+	        if ( j >= MAX_DEVICES ) {
+		    rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: ERROR, duplicate ID, can't remap\n");
+		    hal_exit(driver.componentId);
+		    return(-1);
+		}
+	    }
+	    pDevice->boardID = j;
+	    rtapi_print_msg(RTAPI_MSG_WARN, "MOTENC: WARNING, duplicate ID, remapped to %d\n", j);
+	}
+	driver.idPresent[pDevice->boardID] = 1;
+	
 	// Export pins, parameters, and functions.
 	if(Device_ExportPinsParametersFunctions(pDevice, driver.componentId)){
 	    hal_exit(driver.componentId);
@@ -421,16 +449,30 @@ rtapi_app_exit(void)
 static int
 Device_Init(Device *this, MotencRegMap *pCard)
 {
-    int					i;
+    int i, status;
 
     this->pCard = pCard;
     this->adcState = 0;
     this->watchdogControl = 0;
 
     // Initialize hardware.
+    this->numFpga = MOTENC_NUM_FPGA;
     for(i = 0; i < MOTENC_NUM_FPGA; i++){
 	pCard->fpga[i].digitalIo = 0;
 	pCard->fpga[i].statusControl = MOTENC_CONTROL_ENCODER_RESET;
+	// read status register
+	status = pCard->fpga[i].statusControl;
+	
+	// extract board id from first FPGA. The user sets this via jumpers on the card.
+	if ( i == 0 ) {
+	    this->boardID = (status & MOTENC_STATUS_BOARD_ID) >> MOTENC_STATUS_BOARD_ID_SHFT;
+	}
+	// a hack to detect the presence of an FPGA... because the board
+	// doesn't have a proper presence detect or device ID
+	if ( (status & MOTENC_STATUS_RESERVED_MASK) != MOTENC_STATUS_RESERVED_MASK ) {
+	    // FPGA is missing, this must be a LITE board
+	    this->numFpga = i;
+	}
     }
 
     for(i = 0; i < MOTENC_NUM_DAC_CHANNELS; i++){
@@ -456,9 +498,8 @@ Device_ExportPinsParametersFunctions(Device *this, int componentId)
     msgLevel = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-    // Read board id. The user sets this via jumpers on the card.
-    boardId = (this->pCard->fpga[0].statusControl & MOTENC_STATUS_BOARD_ID) >> MOTENC_STATUS_BOARD_ID_SHFT;
-
+    boardId = this->boardID;
+    
     // Export encoders.
     error = Device_ExportEncoderPinsParametersFunctions(this, componentId, boardId);
 
@@ -490,7 +531,7 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 
     // Export pins and parameters.
     halError = 0;
-    for(channel = 0; channel < MOTENC_NUM_ENCODER_CHANNELS; channel++){
+    for(channel = 0; channel < this->numFpga * MOTENC_FPGA_NUM_ENCODER_CHANNELS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.enc-%02d-count", boardId, channel);
 	if((halError = hal_pin_s32_new(name, HAL_WR, &(this->encoder[channel].pCount), componentId)) != 0)
@@ -642,7 +683,7 @@ Device_ExportDigitalInPinsParametersFunctions(Device *this, int componentId, int
 
     // Export pins and parameters.
     halError = 0;
-    for(channel = 0; channel < MOTENC_NUM_DIGITAL_INPUTS; channel++){
+    for(channel = 0; channel < (this->numFpga * MOTENC_FPGA_NUM_DIGITAL_INPUTS - 4); channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.pin-%02d-in", boardId, channel);
 	if((halError = hal_pin_bit_new(name, HAL_WR, &(this->in[channel].pValue), componentId)) != 0)
@@ -680,7 +721,7 @@ Device_ExportDigitalOutPinsParametersFunctions(Device *this, int componentId, in
 
     // Export pins and parameters.
     halError = 0;
-    for(channel = 0; channel < MOTENC_NUM_DIGITAL_OUTPUTS; channel++){
+    for(channel = 0; channel < this->numFpga * MOTENC_FPGA_NUM_DIGITAL_OUTPUTS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "motenc.%d.pin-%02d-out", boardId, channel);
 	if((halError = hal_pin_bit_new(name, HAL_RD, &(this->out[channel].pValue), componentId)) != 0)
@@ -776,7 +817,7 @@ Device_EncoderRead(void *arg, long period)
     pEncoder = &this->encoder[0];
 
     // For each FPGA.
-    for(i = 0; i < MOTENC_NUM_FPGA; i++){
+    for(i = 0; i < this->numFpga; i++){
 
 	// For each encoder.
 	for(j = 0; j < MOTENC_FPGA_NUM_ENCODER_CHANNELS; j++, pEncoder++){
@@ -945,7 +986,7 @@ Device_DigitalInRead(void *arg, long period)
     pDigitalIn = &this->in[0];
 
     // For each FPGA.
-    for(i = 0; i < MOTENC_NUM_FPGA; i++){
+    for(i = 0; i < this->numFpga; i++){
 
 	// Read digital I/O register.
 	pins = pCard->fpga[i].digitalIo >> MOTENC_DIGITAL_IN_SHFT;
@@ -992,7 +1033,7 @@ Device_DigitalOutWrite(void *arg, long period)
     pDigitalOut = &this->out[0];
 
     // For each FPGA.
-    for(i = 0; i < MOTENC_NUM_FPGA; i++){
+    for(i = 0; i < this->numFpga; i++){
 
 	pins = 0;
 	mask = 1;
