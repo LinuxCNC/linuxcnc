@@ -69,7 +69,7 @@
 #define EMC_AXIS_SET_PARAM_TYPE                       ((NMLTYPE) 100)
   with subtypes 
 #define SET_AXIS_TYPE                       ((NMLSUBTYPE) 101)
-#define SET_UNITS_TYPE                      ((NMLSUBTYPE) 102)
+#define SET_UNITS_TYPE                      ((NMLSUBTYPE) 102) - Linear (in mm), or Angular (in rads). Works for me.
 #define SET_P_TYPE                          ((NMLSUBTYPE) 104)
 #define SET_I_TYPE                          ((NMLSUBTYPE) 105)
 #define SET_D_TYPE                          ((NMLSUBTYPE) 106)
@@ -137,7 +137,7 @@ as an int, but the payload of an additional int is small..
   MOTION_ID, MODE, SCALE, and VELOCITY are core parts of task. Need to retain.
 */
 #define EMC_TRAJ_SET_AXES_TYPE                       ((NMLTYPE) 201)  // AJ: Unused, remove
-#define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)  // AJ: Unused, remove
+#define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)  // AJ: Unused, remove - Use the metre and radians throughout. Would save having to mess with converting legacy units that very few people use in the real world.
 #define EMC_TRAJ_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 203)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_MODE_TYPE                       ((NMLTYPE) 204)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_VELOCITY_TYPE                   ((NMLTYPE) 205)  // Keep
