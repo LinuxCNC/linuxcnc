@@ -60,6 +60,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.3  2005/06/22 09:34:04  petev
+ * Made timebase independent from scan rate.
+ *
  * Revision 1.2  2005/06/21 03:14:33  petev
  * Changed pin naming convention. Removed "not" pins.
  *
@@ -133,7 +136,7 @@ MODULE_PARM_DESC(numSections, "Number of sections to allocate");
 /******************************************************************************
  * PLC OBJECT
  *
- * This object contains all the data for this HAL component.
+ * This object contains the data for one PLC object.
  *
  ******************************************************************************/
 
@@ -344,7 +347,7 @@ Plc_ExportPinsParametersFunctions(Plc *this, int componentId, int plcId)
     if((error = hal_pin_u8_new(name, HAL_WR, &(this->pStatus), componentId)) == 0){
 
 	// Init pin.
-	*(this->pStatus) = STATE_LOADING;
+	*(this->pStatus) = InfosGene->LadderState;
     }
 
     for(channel = 0; channel < numPhysInputs && !error; channel++){
@@ -395,7 +398,7 @@ Plc_Refresh(void *arg, long period)
 
     if((*(this->pStatus) = InfosGene->LadderState) == STATE_RUN){
 	Plc_ReadPhysicalInputs(this);
-	RefreshAllRungs();
+	RefreshAllRungs(period);
 	Plc_WritePhysicalOutputs(this);
     }
 }

@@ -169,6 +169,7 @@ int ClassicLadderAllocAll(int compId)
     InfosGene->HScrollValue = 0;
 
     InfosGene->DurationOfLastScan = 0;
+    InfosGene->NsSinceLastScan= 0;
     InfosGene->CurrentSection = 0;
 #endif
 

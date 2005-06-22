@@ -234,8 +234,10 @@ typedef struct StrInfosGene
     int HScrollValue;
     int VScrollValue;
 
-    /* how time for the last scan of the rungs in ns (if calc on RT side) */
-    int DurationOfLastScan;
+    /* time for the last scan of the rungs in ns (if calc on RT side) */
+    unsigned int DurationOfLastScan;
+    unsigned long TimeSinceLastScan;	// In mSec.
+    unsigned long NsSinceLastScan;
 
     int CurrentSection;
 

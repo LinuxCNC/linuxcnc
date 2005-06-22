@@ -77,7 +77,7 @@ static void RefreshStepsVars( void )
 	for( NumStep=0; NumStep<NBR_STEPS; NumStep++ )
 	{
 		if ( Sequential->Step[ NumStep ].Activated )
-			Sequential->Step[ NumStep ].TimeActivated += TIME_REFRESH_RUNG_MS;
+			Sequential->Step[ NumStep ].TimeActivated += InfosGene->TimeSinceLastScan;
 		else
 			Sequential->Step[ NumStep ].TimeActivated = 0;
 
