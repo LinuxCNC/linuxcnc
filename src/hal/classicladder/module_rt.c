@@ -60,6 +60,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.4  2005/06/22 10:17:44  petev
+ * Fixed sloppy cut/paste bug in Plc_WritePhysicalOutputs().
+ *
  * Revision 1.3  2005/06/22 09:34:04  petev
  * Made timebase independent from scan rate.
  *
@@ -426,7 +429,7 @@ Plc_WritePhysicalOutputs(Plc *this)
     int					i;
 
     // Copy HAL pin data from Classic Ladder structure.
-    for(i = 0; i < numPhysInputs; i++){
-	 *(this->pOutPins[i].pValue) = ReadVar(VAR_PHYS_INPUT, i);
+    for(i = 0; i < numPhysOutputs; i++){
+	 *(this->pOutPins[i].pValue) = ReadVar(VAR_PHYS_OUTPUT, i);
     }
 }
