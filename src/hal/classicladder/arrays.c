@@ -64,7 +64,7 @@ int ClassicLadderAllocAll(int compId)
 #ifdef MODULE
     int					numBits, numWords;
 #else
-    plc_sizeinfo_s 			plcSizeInfo, *pSizesInfos=&plcSizeInfo;
+    plc_sizeinfo_s 			*pSizesInfos;
 #endif
 
 #ifdef MODULE
@@ -107,8 +107,8 @@ int ClassicLadderAllocAll(int compId)
         return FALSE;
     }
 
-    // Copy size info.
-    *pSizesInfos = InfosGene->SizesInfos;
+    // Set pointer to size info.
+    pSizesInfos = &(InfosGene->SizesInfos);
 #endif
 
     // Set global SHMEM pointer.
