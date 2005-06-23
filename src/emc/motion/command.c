@@ -89,6 +89,37 @@ int logStartTime;		/* set when logging is started, and
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
 
+/* loops through the active joints and checks if any are not homed */
+static int checkAllHomed(void) {
+    int joint_num;
+    emcmot_joint_t *joint;
+
+    /* bail out if the allHomed flag is already set */
+    if (0 != emcmotDebug) {
+	if (emcmotDebug->allHomed) return 1;
+    }
+
+    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	/* point to joint data */
+	joint = &joints[joint_num];
+	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+	    /* if joint is not active, don't even look at its limits */
+	    continue;
+	}
+	if (!GET_JOINT_HOMED_FLAG(joint)) {
+	    /* if any of the joints is not homed return false */
+	    return 0;
+	}
+    }
+    /* set the global flag that all axes are homed */
+    if (0 != emcmotDebug) {
+	emcmotDebug->allHomed = 1;
+    }
+    /* return true if all are actives are homed*/
+    return 1;
+}
+
+
 /* checkLimits() returns 1 if none of the soft or hard limits are
    set, 0 if any are set. Called on a linear and circular move. */
 static int checkLimits(void)
@@ -380,7 +411,7 @@ check_stuff ( "before command_handler()" );
 	    emcmotDebug->coordinating = 1;
 	    emcmotDebug->teleoperating = 0;
 	    if (kinType != KINEMATICS_IDENTITY) {
-		if (!emcmotDebug->allHomed) {
+		if (!checkAllHomed()) {
 		    reportError
 			("all axes must be homed before going into coordinated mode");
 		    emcmotDebug->coordinating = 0;
@@ -400,7 +431,8 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "TELEOP");
 	    emcmotDebug->teleoperating = 1;
 	    if (kinType != KINEMATICS_IDENTITY) {
-		if (!emcmotDebug->allHomed) {
+		
+		if (!checkAllHomed()) {
 		    reportError
 			("all axes must be homed before going into teleop mode");
 		    emcmotDebug->teleoperating = 0;
