@@ -44,6 +44,7 @@ CheckConfig(){
 		# remove everything except the last token, which
 		# should be the destination of the symbolic link
 		TMP="${TMP##* }"
+		TMP="${TMP##*/}"
 		# remove the .o  (or .ko) from the end
 		MOD="${TMP%$MODULE_EXT}"
 	    fi
