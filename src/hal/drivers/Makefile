@@ -30,6 +30,7 @@ obj-$(CONFIG_HAL_PARPORT) := hal_parport.o
 obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
 obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
 obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
+obj-$(CONFIG_HAL_MOTENC) += hal_ax5214h.o
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
@@ -56,6 +57,7 @@ hal_parport.c \
 hal_tiro.c \
 hal_evoreg.c \
 hal_motenc.c \
+hal_ax5214h.c \
 hal_skeleton.c
 
 LIBS = \
@@ -63,6 +65,7 @@ $(RTLIB_DIR)/hal_parport.o \
 $(RTLIB_DIR)/hal_tiro.o \
 $(RTLIB_DIR)/hal_evoreg.o \
 $(RTLIB_DIR)/hal_motenc.o \
+$(RTLIB_DIR)/hal_ax5214h.o \
 $(RTLIB_DIR)/hal_skeleton.o
 
 endif
