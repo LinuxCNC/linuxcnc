@@ -27,6 +27,53 @@
 #include "emcglb.h"		// EMC_AXIS_MAX
 #include "emcpos.h"
 
+/* Reorder the message types based on priority. The urgent messages will be at
+   the top of the format function and get filtered first. */
+
+/*! \page NML message types
+  EMC_NULL_TYPE                                ((NMLTYPE) 21)
+
+  Null message - Redundant perhaps ?
+*/
+#define EMC_NULL                                ((NMLTYPE) 21) // Keep
+
+class EmcNull : public RCS_CMD_MSG
+{
+public:EmcNull(): RCS_CMD_MSG(EMC_NULL, sizeof(EmcNull)) {};
+
+  void update(CMS *cms);
+};
+
+/*! \page NML message types
+  And these remain unused. WHY ??
+*/
+#define EMC_INIT                                ((NMLTYPE) 1901) // fff... Either a global, or not at all.
+
+class EmcInit : public RCS_CMD_MSG
+{
+public: EmcInit(): RCS_CMD_MSG(EMC_INIT, sizeof(EmcInit)) {};
+
+  void update(CMS *cms);
+};
+
+#define EMC_HALT                                ((NMLTYPE) 1902) // AJ: these should be the only one used
+
+class EmcHalt : public RCS_CMD_MSG
+{
+public: EmcHalt(): RCS_CMD_MSG(EMC_HALT, sizeof(EmcInit)) {};
+
+  void update(CMS *cms);
+};
+
+#define EMC_ABORT                               ((NMLTYPE) 1903)
+
+class EmcAbort : public RCS_CMD_MSG
+{
+public: EmcAbort(): RCS_CMD_MSG(EMC_ABORT, sizeof(EmcInit)) {};
+
+  void update(CMS *cms);
+};
+
 /*! \page NML message types
   EMC_OPERATOR_ERROR_TYPE                      ((NMLTYPE) 11)
   EMC_OPERATOR_TEXT_TYPE                       ((NMLTYPE) 12)
@@ -39,28 +86,90 @@
   AJ says: merge these into a single message, and check an aditional flag for message/error. 
            The last one isn't used anyways.
 */
-#define EMC_OPERATOR_ERROR_TYPE                      ((NMLTYPE) 11) // Keep
-#define EMC_OPERATOR_TEXT_TYPE                       ((NMLTYPE) 12) // Keep
-#define EMC_OPERATOR_DISPLAY_TYPE                    ((NMLTYPE) 13) // Keep
-/*! \page NML message types
-  EMC_NULL_TYPE                                ((NMLTYPE) 21)
 
-  Null message - Redundant perhaps ?
-*/
-#define EMC_NULL_TYPE                                ((NMLTYPE) 21) // Keep
+/*! \page NML message types
+  Send a textual error message to the operator.
+  The message is put in the errlog buffer to be read by the GUI.
+  This allows the controller a generic way to send error messages to
+  the operator. */
+#define EMC_OPERATOR_ERROR                      ((NMLTYPE) 11) // Keep
+
+class EmcOperatorError : public RCS_CMD_MSG
+{
+public: EmcOperatorError() : RCS_CMD_MSG(EMC_OPERATOR_ERROR, sizeof(EmcOperatorError)) {};
+
+  void update(CMS *cms);
+  int id;
+  char error[LINELEN];
+};
+
+/*! \page NML message types
+  Send a textual information message to the operator.
+  This is similiar to EMC_OPERATOR_ERROR message except that the messages are
+  sent in situations not necessarily considered to be errors. */
+#define EMC_OPERATOR_TEXT                       ((NMLTYPE) 12) // Keep
+
+class EmcOperatorText : public RCS_CMD_MSG
+{
+public: EmcOperatorText() : RCS_CMD_MSG(EMC_OPERATOR_TEXT, sizeof(EmcOperatorText)) {};
+
+  void update(CMS *cms);
+  int id;
+  char text[LINELEN];
+};
+
+/*! \page NML message types
+  Send the URL or filename of a document to display.
+  This message is placed in the errlog buffer  to be read by the GUI.
+  If the GUI is capable of doing so it will show the operator a
+  previously created document, using the URL or filename provided.
+  This message is placed in the errlog channel to be read by the GUI.
+  This provides a general means of reporting an error from within the
+  controller without having to program the GUI to recognize each error type. */
+#define EMC_OPERATOR_DISPLAY                    ((NMLTYPE) 13) // Keep
+
+class EmcOperatorDisplay : public RCS_CMD_MSG
+{
+public: EmcOperatorDisplay(): RCS_CMD_MSG(EMC_OPERATOR_DISPLAY, sizeof(EmcOperatorDisplay)) {};
+
+  void update(CMS *cms);
+  int id;
+  char display[LINELEN];
+};
+
 /*! \page NML message types
   EMC_SET_DEBUG_TYPE                           ((NMLTYPE) 22)
 
-  Sets the debug level in subservient processes
+  Sets the debug level in all processes
 */
-#define EMC_SET_DEBUG_TYPE                           ((NMLTYPE) 22) // Keep
+#define EMC_SET_DEBUG                           ((NMLTYPE) 22) // Keep
+
+class EmcSetDebug : public RCS_CMD_MSG
+{
+public: EmcSetDebug(): RCS_CMD_MSG(EMC_SET_DEBUG, sizeof(EmcSetDebug)) {};
+
+  void update(CMS *cms);
+  int debug;
+};
+
 /*! \page NML message types
   EMC_SYSTEM_CMD_TYPE                          ((NMLTYPE) 30)
 
   Part of the hot command system - Used to execute commands
   specified in the interpreter's input file.
 */
-#define EMC_SYSTEM_CMD_TYPE                          ((NMLTYPE) 30) // Keep
+#define EMC_SYSTEM_COMMAND                          ((NMLTYPE) 30) // Keep
+
+class EmcSystemCommand : public RCS_CMD_MSG
+{
+public: EmcSystemCommand(): RCS_CMD_MSG(EMC_SYSTEM_COMMAND, sizeof(EmcSystemCommand)) {};
+
+  void update(CMS *cms);
+  char string[LINELEN];
+};
+
+
+
 /*! \page NML message types
   Proposal: Replace the multitude of EMC_AXIS_SET_* with a single
   SET_PARAM message. Each parameter would be enumerated and one
@@ -276,12 +385,7 @@ as an int, but the payload of an additional int is small..
 #define EMC_IO_ABORT_TYPE                            ((NMLTYPE) 1603) // Unused AJ: should really go away, use EMC_ABORT instead
 #define EMC_IO_SET_CYCLE_TIME_TYPE                   ((NMLTYPE) 1604) // Unused AJ: should really go away
 #define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699) // Redundant.
-/*! \page NML message types
-  And these remain unused. WHY ??
-*/
-#define EMC_INIT_TYPE                                ((NMLTYPE) 1901) // fff... Either a global, or not at all.
-#define EMC_HALT_TYPE                                ((NMLTYPE) 1902) // AJ: these should be the only one used
-#define EMC_ABORT_TYPE                               ((NMLTYPE) 1903)
+
 /*! \page NML message types
   With HAL and the scope tool, logging is almost redundant...
 */

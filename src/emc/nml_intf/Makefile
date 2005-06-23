@@ -55,7 +55,7 @@ $(LIB_DIR)/libemc.a:	\
 	$(AR) rc $@ $^
 	ranlib $@
 
-emc2.cc: emc.hh
+emc2.cc: emc2.hh
 	$(EMC2_HOME)/scripts/CodeGen script=emc2.gen display_on=false update_with_name=false
 
 headers: def_headers
