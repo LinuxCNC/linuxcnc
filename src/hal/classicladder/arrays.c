@@ -109,9 +109,30 @@ int ClassicLadderAllocAll(int compId)
 
     // Set pointer to size info.
     pSizesInfos = &(InfosGene->SizesInfos);
+#else
+    // Initialize SHMEM.
+    InfosGene->Signature = CL_SHMEM_KEY;
+    InfosGene->SizesInfos = *pSizesInfos;
+
+    InfosGene->LadderState = STATE_LOADING;
+    InfosGene->CmdRefreshVarsBits = FALSE;
+
+    InfosGene->BlockWidth = BLOCK_WIDTH_DEF;
+    InfosGene->BlockHeight = BLOCK_HEIGHT_DEF;
+    InfosGene->PageWidth = 0;
+    InfosGene->PageHeight = 0;
+    InfosGene->TopRungDisplayed = 0;
+    InfosGene->OffsetHiddenTopRungDisplayed = 0;
+    InfosGene->OffsetCurrentRungDisplayed = 0;
+    InfosGene->VScrollValue = 0;
+    InfosGene->HScrollValue = 0;
+
+    InfosGene->DurationOfLastScan = 0;
+    InfosGene->NsSinceLastScan= 0;
+    InfosGene->CurrentSection = 0;
 #endif
 
-    // Set global SHMEM pointer.
+    // Set global SHMEM pointers.
     pByte = (unsigned char *)InfosGene;
     pByte += sizeof(StrInfosGene);
 
@@ -141,36 +162,13 @@ int ClassicLadderAllocAll(int compId)
     // Allocate last for alignment reasons.
     VarArray = (TYPE_FOR_BOOL_VAR *)pByte;
 
-#ifndef MODULE
-#ifdef GTK_INTERFACE
+#if !defined(MODULE) && defined(GTK_INTERFACE)
     EditArithmExpr = (StrArithmExpr *)malloc( NBR_ARITHM_EXPR * sizeof(StrArithmExpr) );
     if (!EditArithmExpr)
     {
         printf("Failed to alloc EditArithmExpr !\n");
         return FALSE;
     }
-#endif
-#else
-    // Initialize SHMEM.
-    InfosGene->Signature = CL_SHMEM_KEY;
-    InfosGene->SizesInfos = *pSizesInfos;
-
-    InfosGene->LadderState = STATE_LOADING;
-    InfosGene->CmdRefreshVarsBits = FALSE;
-
-    InfosGene->BlockWidth = BLOCK_WIDTH_DEF;
-    InfosGene->BlockHeight = BLOCK_HEIGHT_DEF;
-    InfosGene->PageWidth = 0;
-    InfosGene->PageHeight = 0;
-    InfosGene->TopRungDisplayed = 0;
-    InfosGene->OffsetHiddenTopRungDisplayed = 0;
-    InfosGene->OffsetCurrentRungDisplayed = 0;
-    InfosGene->VScrollValue = 0;
-    InfosGene->HScrollValue = 0;
-
-    InfosGene->DurationOfLastScan = 0;
-    InfosGene->NsSinceLastScan= 0;
-    InfosGene->CurrentSection = 0;
 #endif
 
     return TRUE;
