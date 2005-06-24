@@ -400,10 +400,12 @@ class EmcAxisStatus : public EmcAxisStatusMessage
 public: EmcAxisStatus();
 
   void update(CMS *cms);
+/* P.C.: These variables *must* have a one to one mapping with emcmotStatus - Makes it much easier to
+         track the flow of data across the system. */
 
   // configuration parameters
   unsigned char axisType;       // EMC_AXIS_LINEAR, EMC_AXIS_ANGULAR
-  double units;                 // units per mm, deg for linear, angular
+  double units;                 // P.C.: Remove - Unit type defined in axisType. Makes no sense having one axis using mm and another using inches.
   double p;
   double i;
   double d;
@@ -414,13 +416,13 @@ public: EmcAxisStatus();
   double bias;
   double maxError;
   double deadband;
-  double cycleTime;
-  double inputScale;
+  double cycleTime;  // P.C.: Remove - Can only have the axis loop running at one speed for all. Move to Traj.
+  double inputScale; // P.C.: Steps (or counts) per millimetre.
   double inputOffset;
-  double outputScale;
+  double outputScale; // P.C.: Steps (or counts) per millimetre.
   double outputOffset;
-  double minPositionLimit;
-  double maxPositionLimit;
+  double minPositionLimit; // P.C.: Convert to mm internally..
+  double maxPositionLimit; // P.C.: ditto.
   double minOutputLimit;
   double maxOutputLimit;
   double maxFerror;
@@ -439,8 +441,8 @@ public: EmcAxisStatus();
   double setpoint;              // input to axis controller
   double ferrorCurrent;         // current following error
   double ferrorHighMark;        // magnitude of max following error
-  double output;                // commanded output position
-  double input;                 // current input position
+  double output;                // commanded output position  // P.C.: In millimetres
+  double input;                 // current input position // P.C.: In millimetres
   unsigned char inpos;          // non-zero means in position
   unsigned char homing;         // non-zero means homing
   unsigned char homed;          // non-zero means has been homed
@@ -471,8 +473,11 @@ public: EmacTrajStatus();
 
   void update(CMS *cms);
 
-  double linearUnits;           // units per mm
-  double angularUnits;          // units per degree
+/* P.C.: These variables *must* have a one to one mapping with emcmotStatus - Makes it much easier to
+         track the flow of data across the system. */
+
+  double linearUnits;           // units per mm // P.C.: enum metric or imperial.
+  double angularUnits;          // units per degree // P.C.: enum degrees or radians
   double cycleTime;             // cycle time, in seconds
   int axes;                     // number of axes in group
   enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE, EMC_TRAJ_MODE_COORD
@@ -486,7 +491,7 @@ public: EmacTrajStatus();
   int paused;                   // non-zero means motion paused
   double scale;                 // velocity scale factor
 
-  EmcPose position;             // current commanded position
+  EmcPose position;             // current commanded position // P.C.: ALL distances are in millimetres or radians. Convert to usr units at input/output only.
   EmcPose actualPosition;       // current actual position, from forward kins
   double velocity;              // system velocity, for subsequent motions
   double acceleration;          // system acceleration, for subsequent motions
@@ -576,6 +581,8 @@ public: EmcToolStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s) {};
 class EmcToolStatus : public EmcToolStatusMessage
 {
 public: EmcToolStatus();
+/* P.C.: Aggregate ALL IO status in to a single message. Coolant & lube are trivial enough to be
+         handled by the Spindle/Tool process. */
 
   void update(CMS *cms);
   EmcToolStatus operator = (EMC_TOOL_STAT s); // need this for [] members

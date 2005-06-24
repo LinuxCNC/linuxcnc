@@ -21,9 +21,19 @@
 #include "global_defs.h"
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, etc.
-#include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
+//#include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
 #include "emcglb.h"		// EMC_AXIS_MAX
 #include "emcpos.h"
+
+#ifndef CANON_TOOL_MAX
+typedef int CANON_UNITS;
+#define CANON_TOOL_MAX 128
+struct CANON_TOOL_TABLE {
+    int id;
+    double length;
+    double diameter;
+};
+#endif
 
 // ---------------------
 // EMC TYPE DECLARATIONS
@@ -2954,6 +2964,9 @@ extern EMC_MOTION_STAT *emcMotionStatus;
   Modification history:
 
   $Log$
+  Revision 1.12.2.1  2005/06/24 14:38:07  paul_c
+  First few comments on status variables. - Use //<initials: comment> rather than deleting/renaming variables.
+
   Revision 1.12  2005/06/12 15:45:38  paul_c
   todo tags added to all FIXME comments so that they get highlighted when auto-generating docs.
 

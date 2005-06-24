@@ -139,14 +139,16 @@ struct CANON_POSITION {
 };
 
 /* Tools are numbered 1..CANON_TOOL_MAX, with tool 0 meaning no tool. */
-#define CANON_TOOL_MAX 128	// max size of carousel handled
 #define CANON_TOOL_ENTRY_LEN 256	// how long each file line can be
+#ifndef CANON_TOOL_MAX
+#define CANON_TOOL_MAX 128	// max size of carousel handled
 
 struct CANON_TOOL_TABLE {
     int id;
     double length;
     double diameter;
 };
+#endif
 
 /* Initialization */
 
@@ -697,6 +699,9 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num);
   Modification history:
 
   $Log$
+  Revision 1.3.2.1  2005/06/24 14:38:07  paul_c
+  First few comments on status variables. - Use //<initials: comment> rather than deleting/renaming variables.
+
   Revision 1.3  2005/05/23 01:54:48  paul_c
   Missed a few files in the last effort....
 
