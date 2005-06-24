@@ -374,8 +374,6 @@ unsigned char build_output(io_pin_t *src, int num)
 	mask <<= 1;
 	src++;
     }
-    /* invert for active low outputs */
-    data = ~data;
     return data;
 }
 
@@ -387,11 +385,11 @@ static void write_board(void *arg, long period)
     board = arg;
     if ( (board->dir_bits & 0x01) == 0x01 ) {
 	outdata = build_output(&(board->port_1A[0]), 8);
-	rtapi_outb(outdata, board->base_addr+0);
+	rtapi_outb(~outdata, board->base_addr+0);
     }
     if ( (board->dir_bits & 0x02) == 0x02 ) {
 	outdata = build_output(&(board->port_1B[0]), 8);
-	rtapi_outb(outdata, board->base_addr+1);
+	rtapi_outb(~outdata, board->base_addr+1);
     }
     if ( (board->dir_bits & 0x0A) != 0x00 ) {
 	outdata = 0;
@@ -401,17 +399,17 @@ static void write_board(void *arg, long period)
 	}
 	if ( (board->dir_bits & 0x08) == 0x08 ) {
 	    tmp = build_output(&(board->port_1CH[0]), 4);
-	    outdata = outdata & (tmp << 4);
+	    outdata = outdata | (tmp << 4);
 	}
-	rtapi_outb(outdata, board->base_addr+2);
+	rtapi_outb(~outdata, board->base_addr+2);
     }
     if ( (board->dir_bits & 0x10) == 0x10 ) {
 	outdata = build_output(&(board->port_2A[0]), 8);
-	rtapi_outb(outdata, board->base_addr+4);
+	rtapi_outb(~outdata, board->base_addr+4);
     }
     if ( (board->dir_bits & 0x20) == 0x20 ) {
 	outdata = build_output(&(board->port_2B[0]), 8);
-	rtapi_outb(outdata, board->base_addr+5);
+	rtapi_outb(~outdata, board->base_addr+5);
     }
     if ( (board->dir_bits & 0xA0) != 0x00 ) {
 	outdata = 0;
@@ -421,9 +419,9 @@ static void write_board(void *arg, long period)
 	}
 	if ( (board->dir_bits & 0x80) == 0x80 ) {
 	    tmp = build_output(&(board->port_2CH[0]), 4);
-	    outdata = outdata & (tmp << 4);
+	    outdata = outdata | (tmp << 4);
 	}
-	rtapi_outb(outdata, board->base_addr+6);
+	rtapi_outb(~outdata, board->base_addr+6);
     }
 }
 
