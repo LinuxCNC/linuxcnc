@@ -129,6 +129,9 @@
  ******************************************************************************
  *
  * $Log$
+ * Revision 1.9  2005/06/24 09:08:04  jmkasunich
+ * Modified MOTENC driver to ensure that outputs are turned off at startup and shutdown, and inverted outputs so that OPTO-22 modules turn off, not on.
+ *
  * Revision 1.8  2005/06/21 14:45:22  jmkasunich
  * Revised the method used to differentiate between MOTENC-100 and MOTENC-Lite, based on info from Abdul
  *
@@ -431,13 +434,22 @@ rtapi_app_main(void)
 void
 rtapi_app_exit(void)
 {
-    int					i;
+    int					i, j;
     Device				*pDevice;
 
     hal_exit(driver.componentId);
 
     for(i = 0; i < MAX_DEVICES; i++){
 	if((pDevice = driver.deviceTable[i]) != NULL){
+	    // turn off digital outputs
+	    for(j = 0; j < pDevice->numFpga; j++){
+		pDevice->pCard->fpga[i].digitalIo = MOTENC_DIGITAL_OUT;
+	    }
+	    // set DAC outputs to zero volts
+	    for(i = 0; i < MOTENC_NUM_DAC_CHANNELS; i++){
+		pDevice->pCard->dac[i] = MOTENC_DAC_COUNT_ZERO;
+	    }
+	    
 	    // Unmap card.
 	    iounmap((void *)(pDevice->pCard));
 
@@ -490,7 +502,7 @@ Device_Init(Device *this, MotencRegMap *pCard)
     
     // Initialize hardware.
     for(i = 0; i < this->numFpga; i++){
-	pCard->fpga[i].digitalIo = 0;
+	pCard->fpga[i].digitalIo = MOTENC_DIGITAL_OUT;
 	pCard->fpga[i].statusControl = MOTENC_CONTROL_ENCODER_RESET;
     }
 
@@ -753,7 +765,7 @@ Device_ExportDigitalOutPinsParametersFunctions(Device *this, int componentId, in
 
 	// Init pin.
 	*(this->out[channel].pValue) = 0;
-	this->out[channel].invert = 1;
+	this->out[channel].invert = 0;
     }
 
     // Export functions.
@@ -1008,7 +1020,7 @@ Device_DigitalInRead(void *arg, long period)
     for(i = 0; i < this->numFpga; i++){
 
 	// Read digital I/O register.
-	pins = pCard->fpga[i].digitalIo >> MOTENC_DIGITAL_IN_SHFT;
+	pins = ~pCard->fpga[i].digitalIo >> MOTENC_DIGITAL_IN_SHFT;
 
 	// For each pin.
 	for(j = 0; j < 16; j++, pDigitalIn++){
@@ -1021,7 +1033,7 @@ Device_DigitalInRead(void *arg, long period)
 	}
 
 	// Read status register.
-	pins = pCard->fpga[i].statusControl >> MOTENC_STATUS_DIGITAL_IN_SHFT;
+	pins = ~pCard->fpga[i].statusControl >> MOTENC_STATUS_DIGITAL_IN_SHFT;
 
 	// First FPGA only has 16 inputs in the status register. The other 4 are
 	// used for special purpose inputs like board id, ADC done, and E-STOP.
@@ -1069,7 +1081,8 @@ Device_DigitalOutWrite(void *arg, long period)
 	}
 
 	// Write digital I/O register.
-	pCard->fpga[i].digitalIo = pins << MOTENC_DIGITAL_OUT_SHFT;
+	// invert for active low OPTO-22 modules
+	pCard->fpga[i].digitalIo = ~pins << MOTENC_DIGITAL_OUT_SHFT;
     }
 }
 
