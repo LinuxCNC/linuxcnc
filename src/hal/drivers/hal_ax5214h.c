@@ -233,7 +233,7 @@ int rtapi_app_main(void)
     /* export functions for each board */
     for (n = 0; n < num_boards; n++) {
 	/* make read function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "ax5214.%d.read", n);
+	rtapi_snprintf(name, HAL_NAME_LEN, "ax5214h.%d.read", n);
 	/* export read function */
 	retval = hal_export_funct(name, read_board, &(board_array[n]),
 	    0, 0, comp_id);
@@ -244,7 +244,7 @@ int rtapi_app_main(void)
 	    return -1;
 	}
 	/* make write function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "ax5214.%d.write", n);
+	rtapi_snprintf(name, HAL_NAME_LEN, "ax5214h.%d.write", n);
 	/* export write function */
 	retval = hal_export_funct(name, write_board, &(board_array[n]),
 	    0, 0, comp_id);
