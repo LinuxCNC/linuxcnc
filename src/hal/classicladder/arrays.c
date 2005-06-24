@@ -29,47 +29,47 @@
 #include "classicladder.h"
 #include "arrays.h"
 
-
-int					ShmemId;
+int ShmemId;
 
 // Pointers to SHMEM global data.
-StrInfosGene				*InfosGene = NULL;
-StrRung					*RungArray;
-StrTimer				*TimerArray;
-StrMonostable				*MonostableArray;
-StrArithmExpr				*ArithmExpr;
-StrSection				*SectionArray;
+StrInfosGene *InfosGene = NULL;
+StrRung *RungArray;
+StrTimer *TimerArray;
+StrMonostable *MonostableArray;
+StrArithmExpr *ArithmExpr;
+StrSection *SectionArray;
 #ifdef SEQUENTIAL_SUPPORT
-StrSequential				*Sequential;
+StrSequential *Sequential;
 #endif
-int					*VarWordArray;
-TYPE_FOR_BOOL_VAR			*VarArray;
+int *VarWordArray;
+TYPE_FOR_BOOL_VAR *VarArray;
 
 #if !defined(MODULE) && defined(GTK_INTERFACE)
 /* used for the editor */
-StrEditRung				EditDatas;
-StrArithmExpr				*EditArithmExpr = NULL;
+StrEditRung EditDatas;
+StrArithmExpr *EditArithmExpr = NULL;
 #endif
-
 
 /* return TRUE if okay */
 #ifdef MODULE
-int ClassicLadderAllocAll(int compId, plc_sizeinfo_s *pSizesInfos)
+int ClassicLadderAllocAll(int compId, plc_sizeinfo_s * pSizesInfos)
 #else
 int ClassicLadderAllocAll(int compId)
 #endif
 {
-    unsigned char			*pByte;
-    unsigned long			bytes= sizeof(StrInfosGene);
+    unsigned char *pByte;
+    unsigned long bytes = sizeof(StrInfosGene);
 #ifdef MODULE
-    int					numBits, numWords;
+    int numBits, numWords;
 #else
-    plc_sizeinfo_s 			*pSizesInfos;
+    plc_sizeinfo_s *pSizesInfos;
 #endif
 
 #ifdef MODULE
     // Calculate SHMEM size.
-    numBits = pSizesInfos->nbr_bits + pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs;
+    numBits =
+	pSizesInfos->nbr_bits + pSizesInfos->nbr_phys_inputs +
+	pSizesInfos->nbr_phys_outputs;
     numWords = pSizesInfos->nbr_words;
 #ifdef SEQUENTIAL_SUPPORT
     numBits += pSizesInfos->nbr_steps;
@@ -81,32 +81,29 @@ int ClassicLadderAllocAll(int compId)
     bytes += pSizesInfos->nbr_arithm_expr * sizeof(StrArithmExpr);
     bytes += pSizesInfos->nbr_sections * sizeof(StrSection);
 #ifdef SEQUENTIAL_SUPPORT
-    bytes += sizeof(StrSequential))){
+    bytes += sizeof(StrSequential);
 #endif
     bytes += numWords * sizeof(int);
     bytes += numBits * sizeof(TYPE_FOR_BOOL_VAR);
 #endif
 
     // Allocate SHMEM.
-    if((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0){
-        rtapi_print("Failed to alloc shared memory !\n");
-        return FALSE;
+    if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0) {
+	rtapi_print("Failed to alloc shared memory !\n");
+	return FALSE;
     }
-
     // Map SHMEM.
-    if(rtapi_shmem_getptr(ShmemId, (void **)&InfosGene) < 0){
-        rtapi_print("Failed to map shared memory !\n");
-        return FALSE;
+    if (rtapi_shmem_getptr(ShmemId, (void **) &InfosGene) < 0) {
+	rtapi_print("Failed to map shared memory !\n");
+	return FALSE;
     }
-
 #ifndef MODULE
     // Check signature written by RT module to make sure we have the
     // right region and RT module is loaded.
-    if(InfosGene->Signature != CL_SHMEM_KEY){
-        rtapi_print("Shared memory conflict or RT component not loaded!\n");
-        return FALSE;
+    if (InfosGene->Signature != CL_SHMEM_KEY) {
+	rtapi_print("Shared memory conflict or RT component not loaded!\n");
+	return FALSE;
     }
-
     // Set pointer to size info.
     pSizesInfos = &(InfosGene->SizesInfos);
 #else
@@ -128,46 +125,46 @@ int ClassicLadderAllocAll(int compId)
     InfosGene->HScrollValue = 0;
 
     InfosGene->DurationOfLastScan = 0;
-    InfosGene->NsSinceLastScan= 0;
+    InfosGene->NsSinceLastScan = 0;
     InfosGene->CurrentSection = 0;
 #endif
 
     // Set global SHMEM pointers.
-    pByte = (unsigned char *)InfosGene;
+    pByte = (unsigned char *) InfosGene;
     pByte += sizeof(StrInfosGene);
 
-    RungArray = (StrRung *)pByte;
+    RungArray = (StrRung *) pByte;
     pByte += pSizesInfos->nbr_rungs * sizeof(StrRung);
 
-    TimerArray = (StrTimer *)pByte;
+    TimerArray = (StrTimer *) pByte;
     pByte += pSizesInfos->nbr_timers * sizeof(StrTimer);
 
-    MonostableArray = (StrMonostable *)pByte;
+    MonostableArray = (StrMonostable *) pByte;
     pByte += pSizesInfos->nbr_monostables * sizeof(StrMonostable);
 
-    ArithmExpr = (StrArithmExpr *)pByte;
+    ArithmExpr = (StrArithmExpr *) pByte;
     pByte += pSizesInfos->nbr_arithm_expr * sizeof(StrArithmExpr);
 
-    SectionArray = (StrSection *)pByte;
+    SectionArray = (StrSection *) pByte;
     pByte += pSizesInfos->nbr_sections * sizeof(StrSection);
 
 #ifdef SEQUENTIAL_SUPPORT
-    Sequential = (StrSequential *)pByte;
+    Sequential = (StrSequential *) pByte;
     pByte += sizeof(StrSequential);
 #endif
 
-    VarWordArray = (int *)pByte;
+    VarWordArray = (int *) pByte;
     pByte += SIZE_VAR_WORD_ARRAY * sizeof(int);
 
     // Allocate last for alignment reasons.
-    VarArray = (TYPE_FOR_BOOL_VAR *)pByte;
+    VarArray = (TYPE_FOR_BOOL_VAR *) pByte;
 
 #if !defined(MODULE) && defined(GTK_INTERFACE)
-    EditArithmExpr = (StrArithmExpr *)malloc( NBR_ARITHM_EXPR * sizeof(StrArithmExpr) );
-    if (!EditArithmExpr)
-    {
-        printf("Failed to alloc EditArithmExpr !\n");
-        return FALSE;
+    EditArithmExpr =
+	(StrArithmExpr *) malloc(NBR_ARITHM_EXPR * sizeof(StrArithmExpr));
+    if (!EditArithmExpr) {
+	printf("Failed to alloc EditArithmExpr !\n");
+	return FALSE;
     }
 #endif
 
@@ -178,8 +175,8 @@ void ClassicLadderFreeAll(int compId)
 {
 #if !defined(MODULE) && defined(GTK_INTERFACE)
     if (EditArithmExpr)
-        free(EditArithmExpr);
+	free(EditArithmExpr);
 #endif
     if (InfosGene)
-        rtapi_shmem_delete(ShmemId, compId);
+	rtapi_shmem_delete(ShmemId, compId);
 }

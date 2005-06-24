@@ -26,53 +26,51 @@
 #include "vars_access.h"
 #include "calc_sequential.h"
 
-
-void InitSequential( void )
+void InitSequential(void)
 {
-	int NumStep;
-	int NumTrans;
-	int NumSwitch;
-	for( NumStep=0; NumStep<NBR_STEPS; NumStep++ )
-	{
-		Sequential->Step[ NumStep ].InitStep = FALSE;
-		Sequential->Step[ NumStep ].StepNumber = 0;
-		Sequential->Step[ NumStep ].NumPage = -1;
-		Sequential->Step[ NumStep ].PosiX = 0;
-		Sequential->Step[ NumStep ].PosiY = 0;
-		Sequential->Step[ NumStep ].Activated = FALSE;
-		Sequential->Step[ NumStep ].TimeActivated = 0;
-		Sequential->Step[ NumStep ].OffDrawCrossStep = 0;
+    int NumStep;
+    int NumTrans;
+    int NumSwitch;
+    for (NumStep = 0; NumStep < NBR_STEPS; NumStep++) {
+	Sequential->Step[NumStep].InitStep = FALSE;
+	Sequential->Step[NumStep].StepNumber = 0;
+	Sequential->Step[NumStep].NumPage = -1;
+	Sequential->Step[NumStep].PosiX = 0;
+	Sequential->Step[NumStep].PosiY = 0;
+	Sequential->Step[NumStep].Activated = FALSE;
+	Sequential->Step[NumStep].TimeActivated = 0;
+	Sequential->Step[NumStep].OffDrawCrossStep = 0;
+    }
+    for (NumTrans = 0; NumTrans < NBR_TRANSITIONS; NumTrans++) {
+	Sequential->Transition[NumTrans].VarTypeCondi = 0;
+	Sequential->Transition[NumTrans].VarNumCondi = 0;
+	for (NumSwitch = 0; NumSwitch < NBR_SWITCHS_MAX; NumSwitch++) {
+	    Sequential->Transition[NumTrans].NumStepToActiv[NumSwitch] = -1;
+	    Sequential->Transition[NumTrans].NumStepToDesactiv[NumSwitch] =
+		-1;
+	    Sequential->Transition[NumTrans].
+		NumTransLinkedForStart[NumSwitch] = -1;
+	    Sequential->Transition[NumTrans].NumTransLinkedForEnd[NumSwitch] =
+		-1;
 	}
-	for( NumTrans=0; NumTrans<NBR_TRANSITIONS; NumTrans++ )
-	{
-		Sequential->Transition[ NumTrans ].VarTypeCondi = 0;
-		Sequential->Transition[ NumTrans ].VarNumCondi = 0;
-		for( NumSwitch=0; NumSwitch<NBR_SWITCHS_MAX; NumSwitch++ )
-		{
-			Sequential->Transition[ NumTrans ].NumStepToActiv[ NumSwitch ] = -1;
-			Sequential->Transition[ NumTrans ].NumStepToDesactiv[ NumSwitch ] = -1;
-			Sequential->Transition[ NumTrans ].NumTransLinkedForStart[ NumSwitch ] = -1;
-			Sequential->Transition[ NumTrans ].NumTransLinkedForEnd[ NumSwitch ] = -1;
-		}
-		Sequential->Transition[ NumTrans ].NumPage = -1;
-		Sequential->Transition[ NumTrans ].PosiX = 0;
-		Sequential->Transition[ NumTrans ].PosiY = 0;
-		Sequential->Transition[ NumTrans ].Activated = FALSE;
-	}
+	Sequential->Transition[NumTrans].NumPage = -1;
+	Sequential->Transition[NumTrans].PosiX = 0;
+	Sequential->Transition[NumTrans].PosiY = 0;
+	Sequential->Transition[NumTrans].Activated = FALSE;
+    }
 
 }
 
 /* set active all the init steps (called at start and after modification with the editor) */
-void PrepareSequential( void )
+void PrepareSequential(void)
 {
-	int NumStep,NumTrans;
-	for( NumStep=0; NumStep<NBR_STEPS; NumStep++ )
-	{
-		Sequential->Step[ NumStep ].Activated = FALSE;
-		Sequential->Step[ NumStep ].TimeActivated = 0;
-		if ( Sequential->Step[ NumStep ].InitStep )
-			Sequential->Step[ NumStep ].Activated = TRUE;
-	}
-	for( NumTrans=0; NumTrans<NBR_TRANSITIONS; NumTrans++ )
-		Sequential->Transition[ NumTrans ].Activated = FALSE;
+    int NumStep, NumTrans;
+    for (NumStep = 0; NumStep < NBR_STEPS; NumStep++) {
+	Sequential->Step[NumStep].Activated = FALSE;
+	Sequential->Step[NumStep].TimeActivated = 0;
+	if (Sequential->Step[NumStep].InitStep)
+	    Sequential->Step[NumStep].Activated = TRUE;
+    }
+    for (NumTrans = 0; NumTrans < NBR_TRANSITIONS; NumTrans++)
+	Sequential->Transition[NumTrans].Activated = FALSE;
 }

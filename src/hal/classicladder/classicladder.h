@@ -29,21 +29,19 @@
 #define RELEASE_VER_STRING "0.7.3"
 #define RELEASE_DATE_STRING "28 December 2004"
 
-
-#define CL_SHMEM_KEY			0x434C5254		// "CLRT"
-
+#define CL_SHMEM_KEY			0x434C5254	// "CLRT"
 
 typedef struct plc_sizeinfo_s {
-	int	nbr_rungs;
-	int	nbr_bits;
-	int	nbr_words;
-	int	nbr_timers;
-	int	nbr_monostables;
-	int	nbr_phys_inputs;
-	int	nbr_phys_outputs;
-	int	nbr_arithm_expr;
-	int	nbr_sections;
-}plc_sizeinfo_s;
+    int nbr_rungs;
+    int nbr_bits;
+    int nbr_words;
+    int nbr_timers;
+    int nbr_monostables;
+    int nbr_phys_inputs;
+    int nbr_phys_outputs;
+    int nbr_arithm_expr;
+    int nbr_sections;
+} plc_sizeinfo_s;
 
 #define NBR_RUNGS 	 (InfosGene->SizesInfos.nbr_rungs)
 #define NBR_BITS 	 (InfosGene->SizesInfos.nbr_bits)
@@ -95,14 +93,12 @@ typedef struct plc_sizeinfo_s {
 #define ELE_OUTPUT_JUMP 54
 #define ELE_OUTPUT_CALL 55
 #define ELE_OUTPUT_OPERATE 60
-#define ELE_UNUSABLE 99 /* for complex elements using
-                        many blocks : only one block
-                        is "alive" */
+#define ELE_UNUSABLE 99		/* for complex elements using many blocks :
+				   only one block is "alive" */
 /* used only for edit */
 #define EDIT_CNX_WITH_TOP 100
 #define EDIT_POINTER 101
 #define EDIT_LONG_CONNECTION 102
-
 
 /* booleans */
 #define VAR_MEM_BIT 00
@@ -112,7 +108,7 @@ typedef struct plc_sizeinfo_s {
 #define VAR_STEP_ACTIVITY 30
 #define VAR_PHYS_INPUT 50
 #define VAR_PHYS_OUTPUT 60
-#define VAR_ARE_WORD 199    /* after it, all vars are no more booleans */
+#define VAR_ARE_WORD 199	/* after it, all vars are no more booleans */
 /* integers */
 #define VAR_MEM_WORD 200
 #define VAR_STEP_TIME 220
@@ -121,35 +117,31 @@ typedef struct plc_sizeinfo_s {
 #define BASE_SECS 1
 #define BASE_100MS 2
 
-
-
-typedef struct StrElement
-{
+typedef struct StrElement {
     short int Type;
     char ConnectedWithTop;
     int VarType;
-    int VarNum;     /* or NumRung (for jump), NumTimer, NumMonostable,... */
+    int VarNum;			/* or NumRung (for jump), NumTimer,
+				   NumMonostable,... */
 
     char DynamicInput;
     char DynamicState;
-    char DynamicVarBak; /* used for rising/falling edges */
+    char DynamicVarBak;		/* used for rising/falling edges */
     char DynamicOutput;
-}StrElement;
+} StrElement;
 
 #define LGT_LABEL 10
 #define LGT_COMMENT 30
-typedef struct StrRung
-{
+typedef struct StrRung {
     int Used;
     int PrevRung;
     int NextRung;
     char Label[LGT_LABEL];
     char Comment[LGT_COMMENT];
     StrElement Element[RUNG_WIDTH][RUNG_HEIGHT];
-}StrRung;
+} StrRung;
 
-typedef struct StrTimer
-{
+typedef struct StrTimer {
     int Preset;
     int Value;
     int Base;
@@ -157,10 +149,9 @@ typedef struct StrTimer
     char InputEnable;
     char OutputDone;
     char OutputRunning;
-}StrTimer;
+} StrTimer;
 
-typedef struct StrMonostable
-{
+typedef struct StrMonostable {
     int Preset;
     int Value;
     int Base;
@@ -168,43 +159,39 @@ typedef struct StrMonostable
     char Input;
     char InputBak;
     char OutputRunning;
-}StrMonostable;
+} StrMonostable;
 
-typedef struct StrArithmExpr
-{
+typedef struct StrArithmExpr {
     char Expr[ARITHM_EXPR_SIZE];
-}StrArithmExpr;
+} StrArithmExpr;
 
-typedef struct StrEditRung
-{
+typedef struct StrEditRung {
     StrRung Rung;
     char ModeEdit;
     int NumRung;
     char DoBeforeFinalCopy;
     short int NumElementSelectedInToolBar;
-    StrElement * ElementUnderEdit;
-}StrEditRung;
+    StrElement *ElementUnderEdit;
+} StrEditRung;
 
 #define NBR_PARAMS_PER_OBJ 3
 
 #define NBR_TIMEBASES 3
-typedef struct StrDatasForBases
-{
+typedef struct StrDatasForBases {
     int Id;
     int ValueInMS;
-    char * DisplayFormat;
-    char * ParamSelect;
-}StrDatasForBase;
+    char *DisplayFormat;
+    char *ParamSelect;
+} StrDatasForBase;
 
 #define SECTION_IN_LADDER 0
 #define SECTION_IN_SEQUENTIAL 1
 
 #define LGT_SECTION_NAME 20
-typedef struct StrSection
-{
+typedef struct StrSection {
     char Used;
-    char Name[ LGT_SECTION_NAME ];
-    int Language; /* SECTION_IN_ */
+    char Name[LGT_SECTION_NAME];
+    int Language;		/* SECTION_IN_ */
     /* -1 if not a sub-routine, else sub-routine number used for the calls */
     int SubRoutineNumber;
     /* if section is in Ladder */
@@ -212,11 +199,10 @@ typedef struct StrSection
     int LastRung;
     /* if section is in Sequential */
     int SequentialPage;
-}StrSection;
+} StrSection;
 
-typedef struct StrInfosGene
-{
-    unsigned long Signature;		// This must be first.
+typedef struct StrInfosGene {
+    unsigned long Signature;	// This must be first.
 
     int FirstRung;
     int CurrentRung;
@@ -242,13 +228,12 @@ typedef struct StrInfosGene
     int CurrentSection;
 
     plc_sizeinfo_s SizesInfos;
-}StrInfosGene;
+} StrInfosGene;
 
 /* Differents states of Ladder */
 #define STATE_LOADING 0
 #define STATE_STOP 1
 #define STATE_RUN 2
-
 
 #ifdef SEQUENTIAL_SUPPORT
 #include "sequential.h"

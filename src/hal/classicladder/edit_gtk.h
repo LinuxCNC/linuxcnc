@@ -1,2 +1,2 @@
-void EditorButtonsAccordingSectionType( );
+void EditorButtonsAccordingSectionType();
 void EditorInitGtk();

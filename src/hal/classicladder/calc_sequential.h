@@ -1,2 +1,2 @@
-void InitSequential( void );
-void PrepareSequential( void );
+void InitSequential(void);
+void PrepareSequential(void);

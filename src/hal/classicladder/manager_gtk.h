@@ -1,2 +1,2 @@
-void ManagerDisplaySections( );
+void ManagerDisplaySections();
 void ManagerInitGtk();

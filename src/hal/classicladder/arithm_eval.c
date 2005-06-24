@@ -33,37 +33,36 @@
 #include "vars_access.h"
 #include "arithm_eval.h"
 
-char * Expr;
-char * ErrorDesc;
-char * VerifyErrorDesc;
+char *Expr;
+char *ErrorDesc;
+char *VerifyErrorDesc;
 int UnderVerify;
-
 
 #ifdef MODULE
 int atoi(const char *p)
 {
-    int n=0;
-    while(*p>='0' && *p<='9')
-        n = n*10 + *p++-'0';
+    int n = 0;
+    while (*p >= '0' && *p <= '9')
+	n = n * 10 + *p++ - '0';
     return n;
 }
 #endif
 
-int pow_int(int a,int b)
+int pow_int(int a, int b)
 {
     int x;
-    for (x=1;x<=b;x++)
-        a = a*a;
+    for (x = 1; x <= b; x++)
+	a = a * a;
     return a;
 }
-
 
 void SyntaxError(void)
 {
     if (UnderVerify)
-        VerifyErrorDesc = ErrorDesc;
+	VerifyErrorDesc = ErrorDesc;
     else
-        rtapi_print_msg(RTAPI_MSG_ERR, "Syntax error : '%s' , at %s !!!!!\n",ErrorDesc,Expr);
+	rtapi_print_msg(RTAPI_MSG_ERR, "Syntax error : '%s' , at %s !!!!!\n",
+	    ErrorDesc, Expr);
 }
 
 arithmtype Constant(void)
@@ -71,244 +70,206 @@ arithmtype Constant(void)
     arithmtype Res = 0;
     char cIsNeg = FALSE;
     /* negative constant ? */
-    if ( *Expr=='-' )
-    {
-        cIsNeg = TRUE;
-        Expr++;
+    if (*Expr == '-') {
+	cIsNeg = TRUE;
+	Expr++;
     }
-    if (*Expr=='$' )
-    {
-        Expr++;
-        /* hexa number */
-        while( (*Expr>='0' && *Expr<='9') || (*Expr>='A' && *Expr<='F')  || (*Expr>='a' && *Expr<='f') )
-        {
-            char Carac = *Expr;
-            if ( Carac>='A' && Carac<='F' )
-                Carac = Carac-'A'+10;
-            else
-            if ( Carac>='a' && Carac<='f' )
-                Carac = Carac-'a'+10;
-            else
-                Carac = Carac-'0';
-            Res = 16*Res + Carac;
-            Expr++;
-        }
+    if (*Expr == '$') {
+	Expr++;
+	/* hexa number */
+	while ((*Expr >= '0' && *Expr <= '9') || (*Expr >= 'A'
+		&& *Expr <= 'F') || (*Expr >= 'a' && *Expr <= 'f')) {
+	    char Carac = *Expr;
+	    if (Carac >= 'A' && Carac <= 'F')
+		Carac = Carac - 'A' + 10;
+	    else if (Carac >= 'a' && Carac <= 'f')
+		Carac = Carac - 'a' + 10;
+	    else
+		Carac = Carac - '0';
+	    Res = 16 * Res + Carac;
+	    Expr++;
+	}
+    } else {
+	/* decimal number */
+	while (*Expr >= '0' && *Expr <= '9') {
+	    Res = 10 * Res + (*Expr - '0');
+	    Expr++;
+	}
     }
-    else
-    {
-        /* decimal number */
-        while(*Expr>='0' && *Expr<='9')
-        {
-            Res = 10*Res + (*Expr-'0');
-            Expr++;
-        }
-    }
-    if ( cIsNeg )
-        Res = Res * -1;
+    if (cIsNeg)
+	Res = Res * -1;
     return Res;
 }
 
 /* return TRUE if okay */
-int IdentifyVariable(char *StartExpr,int * ResType,int * ResOffset)
+int IdentifyVariable(char *StartExpr, int *ResType, int *ResOffset)
 {
-    int VarType,VarOffset;
-    char * SearchSep = StartExpr;
+    int VarType, VarOffset;
+    char *SearchSep = StartExpr;
     StartExpr++;
-    do
-    {
-        SearchSep++;
+    do {
+	SearchSep++;
     }
-    while( (*SearchSep!='/') && (*SearchSep!='\0') );
+    while ((*SearchSep != '/') && (*SearchSep != '\0'));
 
-    if (*SearchSep=='/')
-    {
-        VarType = atoi(StartExpr);
-        SearchSep++;
-        StartExpr = SearchSep;           /* ???????? */
-        do
-        {
-            StartExpr++;
-        }
-        while( (*StartExpr!='@') && (*StartExpr!='\0') );
-        if (*StartExpr=='@')
-        {
-            VarOffset = atoi(SearchSep);
-            *ResType = VarType;
-            *ResOffset = VarOffset;
-            return TRUE;
-        }
-        else
-        {
-            ErrorDesc = "Bad var coding 1, should be @xx/yy@";
-            SyntaxError();
-        }
-    }
-    else
-    {
-        ErrorDesc = "Bad var coding 2, should be @xx/yy@";
-        SyntaxError();
+    if (*SearchSep == '/') {
+	VarType = atoi(StartExpr);
+	SearchSep++;
+	StartExpr = SearchSep;	/* ???????? */
+	do {
+	    StartExpr++;
+	}
+	while ((*StartExpr != '@') && (*StartExpr != '\0'));
+	if (*StartExpr == '@') {
+	    VarOffset = atoi(SearchSep);
+	    *ResType = VarType;
+	    *ResOffset = VarOffset;
+	    return TRUE;
+	} else {
+	    ErrorDesc = "Bad var coding 1, should be @xx/yy@";
+	    SyntaxError();
+	}
+    } else {
+	ErrorDesc = "Bad var coding 2, should be @xx/yy@";
+	SyntaxError();
     }
     return FALSE;
 }
 
 arithmtype Variable(void)
 {
-    int VarType,VarOffset;
-    if (IdentifyVariable(Expr,&VarType,&VarOffset))
-    {
-        /* flush var found */
-        Expr++;
-        do
-        {
-            Expr++;
-        }
-        while( (*Expr!='@') && (*Expr!='\0') );
-        Expr++;
-        /* return var value */
-        return (arithmtype)ReadVar(VarType,VarOffset);
-    }
-    else
-    {
-        return 0;
+    int VarType, VarOffset;
+    if (IdentifyVariable(Expr, &VarType, &VarOffset)) {
+	/* flush var found */
+	Expr++;
+	do {
+	    Expr++;
+	}
+	while ((*Expr != '@') && (*Expr != '\0'));
+	Expr++;
+	/* return var value */
+	return (arithmtype) ReadVar(VarType, VarOffset);
+    } else {
+	return 0;
     }
 }
 
 arithmtype Function(void)
 {
-	char tcFonc[ 20 ], *pFonc;
-	int Res = 0;
+    char tcFonc[20], *pFonc;
+    int Res = 0;
 
-	/* which function ? */
-	pFonc = tcFonc;
-	while((unsigned int)(pFonc-tcFonc)<sizeof(tcFonc)-1 && *Expr>='A' && *Expr<='Z')
-	{
-		*pFonc++ = *Expr;
-		Expr++;
+    /* which function ? */
+    pFonc = tcFonc;
+    while ((unsigned int) (pFonc - tcFonc) < sizeof(tcFonc) - 1
+	&& *Expr >= 'A' && *Expr <= 'Z') {
+	*pFonc++ = *Expr;
+	Expr++;
+    }
+    *pFonc = '\0';
+
+    /* functions with one parameter = variable */
+    if (!strcmp(tcFonc, "ABS")) {
+	Expr++;			/* ( */
+	Res = Variable();
+	if (Res < 0)
+	    Res = Res * -1;
+	Expr++;			/* ) */
+	return Res;
+    }
+
+    /* functions with many parameters = many variables separated per ',' */
+    if (!strcmp(tcFonc, "MINI")) {
+	Res = 0x7FFFFFFF;
+	do {
+	    int iValVar;
+	    Expr++;		/* ( -ou- , */
+	    iValVar = Variable();
+	    if (iValVar < Res)
+		Res = iValVar;
 	}
-	*pFonc = '\0';
-
-	/* functions with one parameter = variable */
-	if ( !strcmp(tcFonc, "ABS") )
-	{
-		Expr++; /* ( */
-		Res = Variable( );
-		if ( Res<0 )
-			Res = Res * -1;
-		Expr++; /* ) */
-		return Res;
+	while (*Expr != ')');
+	Expr++;			/* ) */
+	return Res;
+    }
+    if (!strcmp(tcFonc, "MAXI")) {
+	Res = 0x80000000;
+	do {
+	    int iValVar;
+	    Expr++;		/* ( -or- , */
+	    iValVar = Variable();
+	    if (iValVar > Res)
+		Res = iValVar;
 	}
-
-	/* functions with many parameters = many variables separated per ',' */
-	if ( !strcmp(tcFonc, "MINI") )
-	{
-		Res = 0x7FFFFFFF;
-		do
-		{
-			int iValVar;
-			Expr++; /* ( -ou- , */
-			iValVar = Variable( );
-			if ( iValVar<Res )
-				Res = iValVar;
-		}
-		while( *Expr!=')' );
-		Expr++; /* ) */
-		return Res;
+	while (*Expr != ')');
+	Expr++;			/* ) */
+	return Res;
+    }
+    if (!strcmp(tcFonc, "MOY")) {
+	int NbrVars = 0;
+	do {
+	    int ValVar;
+	    Expr++;		/* ( -or- , */
+	    ValVar = Variable();
+	    NbrVars++;
+	    Res = Res + ValVar;
 	}
-	if ( !strcmp(tcFonc, "MAXI") )
-	{
-		Res = 0x80000000;
-		do
-		{
-			int iValVar;
-			Expr++; /* ( -or- , */
-			iValVar = Variable( );
-			if ( iValVar>Res )
-				Res = iValVar;
-		}
-		while( *Expr!=')' );
-		Expr++; /* ) */
-		return Res;
-	}
-	if ( !strcmp(tcFonc, "MOY") )
-	{
-		int NbrVars = 0;
-		do
-		{
-			int ValVar;
-			Expr++; /* ( -or- , */
-			ValVar = Variable( );
-			NbrVars++;
-			Res = Res + ValVar;
-		}
-		while( *Expr!=')' );
-		Expr++; /* ) */
-		Res = Res/NbrVars;
-		return Res;
-	}
+	while (*Expr != ')');
+	Expr++;			/* ) */
+	Res = Res / NbrVars;
+	return Res;
+    }
 
-	/* functions with parameter = term */
-//	int iValeurTerm = Term();
-//	if ( !strcmp(tcFonc, "") )
-//	{
-//	}
+    /* functions with parameter = term */
+//      int iValeurTerm = Term();
+//      if ( !strcmp(tcFonc, "") )
+//      {
+//      }
 
+    ErrorDesc = "Unknown function";
+    SyntaxError();
 
-	ErrorDesc = "Unknown function";
-	SyntaxError();
-
-	return 0;
+    return 0;
 }
 
 arithmtype Term(void)
 {
-    if (*Expr=='(')
-    {
-        arithmtype Res;
-        Expr++;
-        Res = AddSub();
-        if (*Expr!=')')
-        {
-            ErrorDesc = "Missing parenthesis";
-            SyntaxError();
-        }
-        Expr++;
-        return Res;
-    }
-    else
-    if ( (*Expr>='0' && *Expr<='9') || (*Expr=='$') || (*Expr=='-') )
-        return Constant();
-    else
-    if (*Expr>='A' && *Expr<='Z')
-        return Function();
-    else
-    if (*Expr=='@')
-    {
-        return Variable();
-    }
-    else
-    {
-        if (*Expr=='!')
-        {
-            Expr++;
-            return Term()?0:1;
-        }
-        else
-        {
-            ErrorDesc = "Unknown term";
-            SyntaxError();
-        }
+    if (*Expr == '(') {
+	arithmtype Res;
+	Expr++;
+	Res = AddSub();
+	if (*Expr != ')') {
+	    ErrorDesc = "Missing parenthesis";
+	    SyntaxError();
+	}
+	Expr++;
+	return Res;
+    } else if ((*Expr >= '0' && *Expr <= '9') || (*Expr == '$')
+	|| (*Expr == '-'))
+	return Constant();
+    else if (*Expr >= 'A' && *Expr <= 'Z')
+	return Function();
+    else if (*Expr == '@') {
+	return Variable();
+    } else {
+	if (*Expr == '!') {
+	    Expr++;
+	    return Term()? 0 : 1;
+	} else {
+	    ErrorDesc = "Unknown term";
+	    SyntaxError();
+	}
     }
     return 0;
 }
 
 arithmtype Pow(void)
 {
-    arithmtype Q,Res = Term();
-    while(*Expr=='^')
-    {
-        Expr++;
-        Q = Pow();
-        Res = pow_int(Res,Q);
+    arithmtype Q, Res = Term();
+    while (*Expr == '^') {
+	Expr++;
+	Q = Pow();
+	Res = pow_int(Res, Q);
     }
     return Res;
 }
@@ -316,29 +277,19 @@ arithmtype Pow(void)
 arithmtype MulDivMod(void)
 {
     arithmtype Res = Pow();
-    while(1)
-    {
-        if (*Expr=='*')
-        {
-            Expr++;
-            Res = Res * Pow();
-        }
-        else
-        if (*Expr=='/')
-        {
-            Expr++;
-            Res = Res / Pow();
-        }
-        else
-        if (*Expr=='%')
-        {
-            Expr++;
-            Res = Res % Pow();
-        }
-        else
-        {
-            break;
-        }
+    while (1) {
+	if (*Expr == '*') {
+	    Expr++;
+	    Res = Res * Pow();
+	} else if (*Expr == '/') {
+	    Expr++;
+	    Res = Res / Pow();
+	} else if (*Expr == '%') {
+	    Expr++;
+	    Res = Res % Pow();
+	} else {
+	    break;
+	}
     }
     return Res;
 }
@@ -346,23 +297,16 @@ arithmtype MulDivMod(void)
 arithmtype AddSub(void)
 {
     arithmtype Res = MulDivMod();
-    while(1)
-    {
-        if (*Expr=='+')
-        {
-            Expr++;
-            Res = Res + MulDivMod();
-        }
-        else
-        if (*Expr=='-')
-        {
-            Expr++;
-            Res = Res - MulDivMod();
-        }
-        else
-        {
-            break;
-        }
+    while (1) {
+	if (*Expr == '+') {
+	    Expr++;
+	    Res = Res + MulDivMod();
+	} else if (*Expr == '-') {
+	    Expr++;
+	    Res = Res - MulDivMod();
+	} else {
+	    break;
+	}
     }
     return Res;
 }
@@ -370,56 +314,46 @@ arithmtype AddSub(void)
 arithmtype And(void)
 {
     arithmtype Res = AddSub();
-    while(1)
-    {
-        if (*Expr=='&')
-        {
-            Expr++;
-            Res = Res & AddSub();
-        }
-        else
-        {
-            break;
-        }
-    }
-    return Res;
-}
-arithmtype Xor(void)
-{
-    arithmtype Res = And();
-    while(1)
-    {
-        if (*Expr=='^')
-        {
-            Expr++;
-            Res = Res ^ And();
-        }
-        else
-        {
-            break;
-        }
-    }
-    return Res;
-}
-arithmtype Or(void)
-{
-    arithmtype Res = Xor();
-    while(1)
-    {
-        if (*Expr=='|')
-        {
-            Expr++;
-            Res = Res | Xor();
-        }
-        else
-        {
-            break;
-        }
+    while (1) {
+	if (*Expr == '&') {
+	    Expr++;
+	    Res = Res & AddSub();
+	} else {
+	    break;
+	}
     }
     return Res;
 }
 
-arithmtype EvalExpression(char * ExprString)
+arithmtype Xor(void)
+{
+    arithmtype Res = And();
+    while (1) {
+	if (*Expr == '^') {
+	    Expr++;
+	    Res = Res ^ And();
+	} else {
+	    break;
+	}
+    }
+    return Res;
+}
+
+arithmtype Or(void)
+{
+    arithmtype Res = Xor();
+    while (1) {
+	if (*Expr == '|') {
+	    Expr++;
+	    Res = Res | Xor();
+	} else {
+	    break;
+	}
+    }
+    return Res;
+}
+
+arithmtype EvalExpression(char *ExprString)
 {
     arithmtype Res;
     Expr = ExprString;
@@ -431,67 +365,63 @@ arithmtype EvalExpression(char * ExprString)
 
 /* Result of the comparison of 2 arithmetics expressions : */
 /* Expr1 ... Expr2 where ... can be : < , > , = , <= , >= , <> */
-int EvalCompare(char * CompareString)
+int EvalCompare(char *CompareString)
 {
-    char * FirstExpr,* SecondExpr = NULL;
-    char StrCopy[ARITHM_EXPR_SIZE+1]; /* used for putting null char after first expr */
-    char * SearchSep;
-    char * CutFirst;
+    char *FirstExpr, *SecondExpr = NULL;
+    char StrCopy[ARITHM_EXPR_SIZE + 1];	/* used for putting null char after
+					   first expr */
+    char *SearchSep;
+    char *CutFirst;
     int Found = FALSE;
     int BoolRes = 0;
 
     /* null expression ? */
-    if (*CompareString=='\0')
-        return BoolRes;
+    if (*CompareString == '\0')
+	return BoolRes;
 
-    strcpy(StrCopy,CompareString);
+    strcpy(StrCopy, CompareString);
 
     /* search for '>' or '<' or '=' or '>=' or '<=' */
     CutFirst = FirstExpr = StrCopy;
     SearchSep = CompareString;
-    do
-    {
-        if ( (*SearchSep=='>') || (*SearchSep=='<') || (*SearchSep=='=') )
-        {
-            Found = TRUE;
-            *CutFirst = '\0';
-            CutFirst++;
-            SecondExpr = CutFirst;
-            /* 2 chars if '>=' or '<=' or '<>' */
-            if ( *CutFirst=='=' || *CutFirst=='>')
-            {
-                CutFirst++;
-                SecondExpr = CutFirst;
-            }
-        }
-        else
-        {
-            SearchSep++;
-            CutFirst++;
-        }
+    do {
+	if ((*SearchSep == '>') || (*SearchSep == '<') || (*SearchSep == '=')) {
+	    Found = TRUE;
+	    *CutFirst = '\0';
+	    CutFirst++;
+	    SecondExpr = CutFirst;
+	    /* 2 chars if '>=' or '<=' or '<>' */
+	    if (*CutFirst == '=' || *CutFirst == '>') {
+		CutFirst++;
+		SecondExpr = CutFirst;
+	    }
+	} else {
+	    SearchSep++;
+	    CutFirst++;
+	}
     }
-    while (*SearchSep!='\0' && !Found);
-    if (Found)
-    {
-        arithmtype EvalFirst,EvalSecond;
+    while (*SearchSep != '\0' && !Found);
+    if (Found) {
+	arithmtype EvalFirst, EvalSecond;
 //rtapi_print_msg(RTAPI_MSG_ERR, "EvalCompare FirstString=%s , SecondString=%s\n",FirstExpr,SecondExpr);
-        EvalFirst = EvalExpression(FirstExpr);
-        EvalSecond = EvalExpression(SecondExpr);
+	EvalFirst = EvalExpression(FirstExpr);
+	EvalSecond = EvalExpression(SecondExpr);
 //rtapi_print_msg(RTAPI_MSG_ERR, "EvalCompare ResultFirst=%d , ResultSecond=%d\n",EvalFirst,EvalSecond);
-        /* verify if compare is true */
-        if ( *SearchSep=='>' && EvalFirst>EvalSecond )
-            BoolRes = 1;
-        if ( *SearchSep=='<' && *(SearchSep+1)!='>' && EvalFirst<EvalSecond )
-            BoolRes = 1;
-        if ( *SearchSep=='<' && *(SearchSep+1)=='>' && EvalFirst!=EvalSecond )
-            BoolRes = 1;
-        if ( (*SearchSep=='=' || *(SearchSep+1)=='=') && EvalFirst==EvalSecond )
-            BoolRes = 1;
-    }
-    else
-    {
-        ErrorDesc = "Missing < or > or = or ... to make comparison";
-        SyntaxError();
+	/* verify if compare is true */
+	if (*SearchSep == '>' && EvalFirst > EvalSecond)
+	    BoolRes = 1;
+	if (*SearchSep == '<' && *(SearchSep + 1) != '>'
+	    && EvalFirst < EvalSecond)
+	    BoolRes = 1;
+	if (*SearchSep == '<' && *(SearchSep + 1) == '>'
+	    && EvalFirst != EvalSecond)
+	    BoolRes = 1;
+	if ((*SearchSep == '=' || *(SearchSep + 1) == '=')
+	    && EvalFirst == EvalSecond)
+	    BoolRes = 1;
+    } else {
+	ErrorDesc = "Missing < or > or = or ... to make comparison";
+	SyntaxError();
     }
 //rtapi_print_msg(RTAPI_MSG_ERR, "Eval FinalBoolResult = %d\n",BoolRes);
     return BoolRes;
@@ -499,65 +429,59 @@ int EvalCompare(char * CompareString)
 
 /* Calc the new value of a variable from an arithmetic expression : */
 /* VarDest := ArithmExpr */
-void MakeCalc(char * CalcString,int VerifyMode)
+void MakeCalc(char *CalcString, int VerifyMode)
 {
-    char StrCopy[ARITHM_EXPR_SIZE+1]; /* used for putting null char after first expr */
-    int VarType,VarOffset;
-    int  Found = FALSE;
+    char StrCopy[ARITHM_EXPR_SIZE + 1];	/* used for putting null char after
+					   first expr */
+    int VarType, VarOffset;
+    int Found = FALSE;
 
     /* null expression ? */
-    if (*CalcString=='\0')
-        return;
+    if (*CalcString == '\0')
+	return;
 
-    strcpy(StrCopy,CalcString);
+    strcpy(StrCopy, CalcString);
 
     Expr = StrCopy;
-    if (IdentifyVariable(Expr,&VarType,&VarOffset))
-    {
-        /* flush var found */
-        Expr++;
-        do
-        {
-            Expr++;
-        }
-        while( (*Expr!='@') && (*Expr!='\0') );
-        Expr++;
-        /* verify if there is the '=' or ':=' */
-        do
-        {
-            if (*Expr==':')
-                Expr++;
-            if (*Expr=='=')
-            {
-                Found = TRUE;
-                Expr++;
-            }
-            if (*Expr==' ')
-                Expr++;
-        }
-        while( !Found && *Expr!='\0' );
-        while( *Expr==' ')
-            Expr++;
-        if (Found)
-        {
-            arithmtype EvalExpr;
+    if (IdentifyVariable(Expr, &VarType, &VarOffset)) {
+	/* flush var found */
+	Expr++;
+	do {
+	    Expr++;
+	}
+	while ((*Expr != '@') && (*Expr != '\0'));
+	Expr++;
+	/* verify if there is the '=' or ':=' */
+	do {
+	    if (*Expr == ':')
+		Expr++;
+	    if (*Expr == '=') {
+		Found = TRUE;
+		Expr++;
+	    }
+	    if (*Expr == ' ')
+		Expr++;
+	}
+	while (!Found && *Expr != '\0');
+	while (*Expr == ' ')
+	    Expr++;
+	if (Found) {
+	    arithmtype EvalExpr;
 //rtapi_print_msg(RTAPI_MSG_ERR, "Calc - Eval String=%s\n",Expr);
-            EvalExpr = EvalExpression(Expr);
+	    EvalExpr = EvalExpression(Expr);
 //rtapi_print_msg(RTAPI_MSG_ERR, "Calc - Result=%d\n",EvalExpr);
-            if (!VerifyMode)
-                WriteVar(VarType,VarOffset,(int)EvalExpr);
-        }
-        else
-        {
-            ErrorDesc = "Missing := to make operate";
-            SyntaxError();
-        }
+	    if (!VerifyMode)
+		WriteVar(VarType, VarOffset, (int) EvalExpr);
+	} else {
+	    ErrorDesc = "Missing := to make operate";
+	    SyntaxError();
+	}
     }
 }
 
 /* Used one time after user input to verify syntax only */
 /* return NULL if ok, else pointer on error description */
-char * VerifySyntaxForEvalCompare(char * StringToVerify)
+char *VerifySyntaxForEvalCompare(char *StringToVerify)
 {
     UnderVerify = TRUE;
     VerifyErrorDesc = NULL;
@@ -565,14 +489,14 @@ char * VerifySyntaxForEvalCompare(char * StringToVerify)
     UnderVerify = FALSE;
     return VerifyErrorDesc;
 }
+
 /* Used one time after user input to verify syntax only */
 /* return NULL if ok, else pointer on error description */
-char * VerifySyntaxForMakeCalc(char * StringToVerify)
+char *VerifySyntaxForMakeCalc(char *StringToVerify)
 {
     UnderVerify = TRUE;
     VerifyErrorDesc = NULL;
-    MakeCalc(StringToVerify,TRUE /* verify mode */);
+    MakeCalc(StringToVerify, TRUE /* verify mode */ );
     UnderVerify = FALSE;
     return VerifyErrorDesc;
 }
-
