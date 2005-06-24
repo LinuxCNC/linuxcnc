@@ -189,7 +189,7 @@ static gint VScrollBar_value_changed_event(GtkAdjustment * ScrollBar,
 		/* The current rung is not displayed entierely (at least the
 		   top of it...) */
 		InfosGene->OffsetCurrentRungDisplayed =
-		    InfosGene->OffsetHiddenTopRungDisplayed * -1;
+		    -InfosGene->OffsetHiddenTopRungDisplayed;
 	    }
 	}
 //printf("CurrentRung=%d , OffsetCurrentRungDisplayed=%d\n", InfosGene->CurrentRung, InfosGene->OffsetCurrentRungDisplayed);
@@ -915,8 +915,7 @@ static gint cyclic_refresh(gpointer data)
 	DisplayFreeVarSpy();
     }
 
-    if (InfosGene->LadderState != STATE_LOADING)
-	DrawCurrentSection();
+    DrawCurrentSection();
 
     return 1;
 }
