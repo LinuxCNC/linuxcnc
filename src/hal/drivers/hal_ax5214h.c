@@ -25,15 +25,20 @@
     The driver creates HAL pins and parameters for each port pin
     as follows:
     Each physical output has a correspinding HAL pin, named
-    'ax5214.<boardnum>.out-<port><pinnum>', and a HAL parameter
-    'ax5214.<boardnum>.out-<port><innum>-invert'.
+    'ax5214.<boardnum>.out-<pinnum>', and a HAL parameter
+    'ax5214.<boardnum>.out-<pinnum>-invert'.
     Each physical input has two corresponding HAL pins, named
-    'ax5214.<boardnum>.in-<port><pinnum>' and
-    'ax5214.<boardnum>.in-<port><pinnum>-not'.
+    'ax5214.<boardnum>.in-<pinnum>' and
+    'ax5214.<boardnum>.in-<pinnum>-not'.
 
     <boardnum> is the board number, starting from zero.  
-    <portnum> is the port, either 1A, 1B, 1C, 2A, 2B, or 2C.
-    <pinnum> is the bit number in the port, from 0 to 7.
+    <pinnum> is the pin number, from 0 to 47.
+    
+    Note that the driver assumes active LOW signals.  This
+    is so that modules such as OPTO-22 will work correctly
+    (TRUE means output ON, or input energized).  If the 
+    signals are being used directly without buffering or
+    isolation the inversion needs to be accounted for.
 
     The driver exports two HAL functions for each board, 
     'ax5214.<boardnum>.read' and 'ax5214.<boardnum>.write'.
@@ -133,6 +138,7 @@ typedef struct {
     io_pin_t port_2B[8];
     io_pin_t port_2CL[4];
     io_pin_t port_2CH[4];
+    hal_u8_t raw[8];		/* raw read data, for debug */
 } board_t;
 
 /* pointer to array of board_t structs in shared memory, 1 per board */
@@ -165,7 +171,7 @@ static int pins_and_params(char *argv[]);
 static unsigned short parse_board_addr(char *cp);
 
 static int export_board(int boardnum, board_t * board);
-static int export_port(int boardnum, io_pin_t *pin, int num_pins, int start_pin, int dir);
+static int export_port(int boardnum, int pin_num, io_pin_t *pin, int num_pins, int dir);
 static int export_input_pin(int boardnum, int pinnum, io_pin_t *pin);
 static int export_output_pin(int boardnum, int pinnum, io_pin_t *pin);
 
@@ -256,6 +262,21 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
+    int n;
+    board_t *board;
+    
+    for ( n = 0 ; n < num_boards ; n++ ) {
+	board = &(board_array[n]);
+	/* reset all outputs to high/off */
+	outb(0xff, board->base_addr+0);
+	outb(0xff, board->base_addr+1);
+	outb(0xff, board->base_addr+2);
+	outb(0xff, board->base_addr+3);
+	outb(0xff, board->base_addr+4);
+	outb(0xff, board->base_addr+5);
+	outb(0xff, board->base_addr+6);
+	outb(0xff, board->base_addr+7);
+    }
     hal_exit(comp_id);
 }
 
@@ -273,9 +294,17 @@ static void split_input(unsigned char data, io_pin_t *dest, int num)
     /* splits a byte into 'num' HAL pins (and their NOTs) */
     mask = 0x01;
     for (b = 0 ; b < num ; b++ ) {
-	*(dest[b].data) = data & mask;
-	*(dest[b].io.not) = !(data & mask);
+	if ( data & mask ) {
+	    /* input high, which means FALSE (active low) */
+	    *(dest->data) = 0;
+	    *(dest->io.not) = 1;
+	} else {
+	    /* input low, which means TRUE */
+	    *(dest->data) = 1;
+	    *(dest->io.not) = 0;
+	}
 	mask <<= 1;
+	dest++;
     }
 }    
 
@@ -283,7 +312,7 @@ static void read_board(void *arg, long period)
 {
     board_t *board;
     unsigned char indata;
-
+    
     board = arg;
     if ( (board->dir_bits & 0x01) == 0 ) {
 	indata = rtapi_inb(board->base_addr+0);
@@ -327,23 +356,26 @@ unsigned char build_output(io_pin_t *src, int num)
 {
     int b;
     unsigned char data, mask;
-    
+
     data = 0x00;
     mask = 0x01;
     /* assemble output byte for data port from 'num' source variables */
     for (b = 0; b < num; b++) {
 	/* get the data, add to output byte */
-	if ( *(src[b].data) ) {
-	    if ( !(src[b].io.invert) ) {
+	if ( *(src->data) ) {
+	    if ( !(src->io.invert) ) {
 		data |= mask;
 	    }
 	} else {
-	    if ( (src[b].io.invert) ) {
+	    if ( (src->io.invert) ) {
 		data |= mask;
 	    }
 	}
 	mask <<= 1;
+	src++;
     }
+    /* invert for active low outputs */
+    data = ~data;
     return data;
 }
 
@@ -369,29 +401,29 @@ static void write_board(void *arg, long period)
 	}
 	if ( (board->dir_bits & 0x08) == 0x08 ) {
 	    tmp = build_output(&(board->port_1CH[0]), 4);
-	    outdata = outdata | (tmp << 4);
+	    outdata = outdata & (tmp << 4);
 	}
 	rtapi_outb(outdata, board->base_addr+2);
     }
     if ( (board->dir_bits & 0x10) == 0x10 ) {
-	outdata = build_output(&(board->port_1A[0]), 8);
-	rtapi_outb(outdata, board->base_addr+0);
+	outdata = build_output(&(board->port_2A[0]), 8);
+	rtapi_outb(outdata, board->base_addr+4);
     }
     if ( (board->dir_bits & 0x20) == 0x20 ) {
-	outdata = build_output(&(board->port_1B[0]), 8);
-	rtapi_outb(outdata, board->base_addr+1);
+	outdata = build_output(&(board->port_2B[0]), 8);
+	rtapi_outb(outdata, board->base_addr+5);
     }
     if ( (board->dir_bits & 0xA0) != 0x00 ) {
 	outdata = 0;
 	if ( (board->dir_bits & 0x40) == 0x40 ) {
-	    tmp = build_output(&(board->port_1CL[0]), 4);
+	    tmp = build_output(&(board->port_2CL[0]), 4);
 	    outdata = tmp;
 	}
 	if ( (board->dir_bits & 0x80) == 0x80 ) {
-	    tmp = build_output(&(board->port_1CH[0]), 4);
-	    outdata = outdata | (tmp << 4);
+	    tmp = build_output(&(board->port_2CH[0]), 4);
+	    outdata = outdata & (tmp << 4);
 	}
-	rtapi_outb(outdata, board->base_addr+2);
+	rtapi_outb(outdata, board->base_addr+6);
     }
 }
 
@@ -423,7 +455,7 @@ static int pins_and_params(char *argv[])
 	n++;
 	if (argv[n] == 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"AX5124H: ERROR: no direction info for port %s\n", argv[n-1]);
+		"AX5124H: ERROR: no config info for port %s\n", argv[n-1]);
 	    return -1;
 	}
 	/* should be a string of 8 'I" or "O" characters */
@@ -439,7 +471,7 @@ static int pins_and_params(char *argv[])
 		dir_bits[num_boards] |= mask;
 	    } else {
 		rtapi_print_msg(RTAPI_MSG_ERR,
-		"AX5124H: ERROR: bad direction info for port %s: '%s'\n", argv[n-1], argv[n]);
+		"AX5124H: ERROR: bad config info for port %s: '%s'\n", argv[n-1], argv[n]);
 		return -1;
 	    }
 	    /* shift mask for next but */
@@ -535,76 +567,77 @@ static int export_board(int boardnum, board_t * board)
     retval = 0;
     config = 0;
     dir = board->dir_bits & 0x01;
-    retval += export_port ( boardnum, &(board->port_1A[0]), 8, 0, dir );
+    retval += export_port ( boardnum, 0, &(board->port_1A[0]), 8, dir );
     if ( dir == 0 ) {
 	config |= 0x10;
     }
     dir = board->dir_bits & 0x02;
-    retval += export_port ( boardnum, &(board->port_1B[0]), 8, 8, dir );
+    retval += export_port ( boardnum, 8, &(board->port_1B[0]), 8, dir );
     if ( dir == 0 ) {
 	config |= 0x02;
     }
     dir = board->dir_bits & 0x04;
-    retval += export_port ( boardnum, &(board->port_1CH[0]), 4, 16, dir );
+    retval += export_port ( boardnum, 16, &(board->port_1CL[0]), 4, dir );
     if ( dir == 0 ) {
 	config |= 0x01;
     }
     dir = board->dir_bits & 0x08;
-    retval += export_port ( boardnum, &(board->port_1A[0]),  4, 20, dir );
+    retval += export_port ( boardnum, 20, &(board->port_1CH[0]), 4, dir );
     if ( dir == 0 ) {
-	config |= 0x40;
+	config |= 0x08;
     }
     board->port1config = config;
     config = 0;
     
     dir = board->dir_bits & 0x10;
-    retval += export_port ( boardnum, &(board->port_1A[0]), 8, 24, dir );
+    retval += export_port ( boardnum, 24, &(board->port_2A[0]), 8, dir );
     if ( dir == 0 ) {
 	config |= 0x10;
     }
     dir = board->dir_bits & 0x20;
-    retval += export_port ( boardnum, &(board->port_1B[0]), 8, 32, dir );
+    retval += export_port ( boardnum, 32, &(board->port_2B[0]), 8, dir );
     if ( dir == 0 ) {
 	config |= 0x02;
     }
     dir = board->dir_bits & 0x40;
-    retval += export_port ( boardnum, &(board->port_1CH[0]), 4, 40, dir );
+    retval += export_port ( boardnum, 40, &(board->port_2CL[0]), 4, dir );
     if ( dir == 0 ) {
 	config |= 0x01;
     }
     dir = board->dir_bits & 0x80;
-    retval += export_port ( boardnum, &(board->port_1A[0]),  4, 44, dir );
+    retval += export_port ( boardnum, 44, &(board->port_2CH[0]), 4, dir );
     if ( dir == 0 ) {
-	config |= 0x40;
+	config |= 0x08;
     }
-    
-    
     board->port2config = config;
-    /* initialize hardware */
-    outb(0, board->base_addr+0);
-    outb(0, board->base_addr+1);
-    outb(0, board->base_addr+2);
+    /* initialize hardware - all outputs high 
+        (since outputs are active low) */
+    outb(0xff, board->base_addr+0);
+    outb(0xff, board->base_addr+1);
+    outb(0xff, board->base_addr+2);
     outb(board->port1config, board->base_addr+3);
-    outb(0, board->base_addr+4);
-    outb(0, board->base_addr+5);
-    outb(0, board->base_addr+6);
+    outb(0xff, board->base_addr+4);
+    outb(0xff, board->base_addr+5);
+    outb(0xff, board->base_addr+6);
     outb(board->port2config, board->base_addr+7);
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return retval;
 }
 
-static int export_port(int boardnum, io_pin_t *pin, int num_pins, int start_pin, int dir)
+static int export_port(int boardnum, int pin_num, io_pin_t *pin, int num_pins, int dir)
 {
     int n, retval;
 
     retval = 0;
     for ( n = 0 ; n < num_pins ; n++ ) {
 	if ( dir == 0 ) {
-	    retval += export_input_pin(boardnum, start_pin+n, &(pin[n]) );
+	    retval += export_input_pin(boardnum, pin_num, pin );
 	} else {
-	    retval += export_output_pin(boardnum, start_pin+n, &(pin[n]) );
+	    retval += export_output_pin(boardnum, pin_num, pin );
 	}
+	pin_num++;
+	pin++;
     }
     return retval;
 }
@@ -614,13 +647,13 @@ static int export_input_pin(int boardnum, int pinnum, io_pin_t *pin)
     char buf[HAL_NAME_LEN + 2];
     int retval;
 
-    /* export read only HAL pin for output data */
+    /* export read only HAL pin for input data */
     rtapi_snprintf(buf, HAL_NAME_LEN, "ax5214h.%d.in-%02d", boardnum, pinnum);
     retval = hal_pin_bit_new(buf, HAL_WR, &(pin->data), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export parameter for polarity */
+    /* export additional pin for inverted input data */
     rtapi_snprintf(buf, HAL_NAME_LEN, "ax5214h.%d.in-%02d-not", boardnum, pinnum);
     retval = hal_pin_bit_new(buf, HAL_WR, &(pin->io.not), comp_id);
     /* initialize HAL pins */
