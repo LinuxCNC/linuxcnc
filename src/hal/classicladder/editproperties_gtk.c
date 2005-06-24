@@ -33,7 +33,7 @@ GtkWidget *PropertiesWindow;
 GtkWidget *PropLabelParam[NBR_PARAMS_PER_OBJ],
     *PropEntryParam[NBR_PARAMS_PER_OBJ];
 GtkWidget *PropEntryBaseParam[NBR_PARAMS_PER_OBJ];
-GtkWidget *ButtonValidateProperties;
+GtkWidget *ButtonApplyProperties;
 
 void SetProperty(int NumParam, char *LblParam, char *ValParam)
 {
@@ -58,9 +58,9 @@ void SetProperty(int NumParam, char *LblParam, char *ValParam)
     /* so no sense to need to validate ! */
     if (NumParam == 0) {
 	if (strcmp(LblParam, "---") == 0) {
-	    gtk_widget_hide(ButtonValidateProperties);
+	    gtk_widget_hide(ButtonApplyProperties);
 	} else {
-	    gtk_widget_show(ButtonValidateProperties);
+	    gtk_widget_show(ButtonApplyProperties);
 //FIXME: no gtk_window_present() function available with GTK1.2...?
 //not beautiful but it works...
 	    gtk_widget_hide(PropertiesWindow);
@@ -160,10 +160,10 @@ void PropertiesInitGtk()
     gtk_container_add(GTK_CONTAINER(vbox), hbox[NumParam]);
     gtk_widget_show(hbox[NumParam]);
 
-    ButtonValidateProperties = gtk_button_new_with_label("Validate");
-    gtk_box_pack_start(GTK_BOX(hbox[NumParam]), ButtonValidateProperties,
+    ButtonApplyProperties = gtk_button_new_with_label("Apply");
+    gtk_box_pack_start(GTK_BOX(hbox[NumParam]), ButtonApplyProperties,
 	TRUE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(ButtonValidateProperties), "clicked",
+    gtk_signal_connect(GTK_OBJECT(ButtonApplyProperties), "clicked",
 	(GtkSignalFunc) SaveElementProperties, 0);
 
 //    gtk_widget_show (PropertiesWindow);

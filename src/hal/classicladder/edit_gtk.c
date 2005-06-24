@@ -32,7 +32,7 @@
 
 static GdkPixmap *EditorPixmap = NULL;
 GtkWidget *EditorDrawingArea;
-GtkWidget *EditorButtonValid, *EditorButtonCancel;
+GtkWidget *EditorButtonOk, *EditorButtonCancel;
 GtkWidget *EditorButtonAdd, *EditorButtonIns, *EditorButtonDel;
 GtkWidget *EditorButtonModify;
 #define NBR_ELE_TOOLBAR_Y 10
@@ -202,7 +202,7 @@ void ButtonsForStart()
     gtk_widget_hide(EditorButtonIns);
     gtk_widget_hide(EditorButtonDel);
     gtk_widget_hide(EditorButtonModify);
-    gtk_widget_show(EditorButtonValid);
+    gtk_widget_show(EditorButtonOk);
     gtk_widget_show(EditorButtonCancel);
     ShowPropertiesWindow(TRUE);
     /* select directly the pointer in toolbar */
@@ -220,7 +220,7 @@ void ButtonsForEnd(char ForRung)
 	gtk_widget_hide(EditorButtonDel);
     }
     gtk_widget_show(EditorButtonModify);
-    gtk_widget_hide(EditorButtonValid);
+    gtk_widget_hide(EditorButtonOk);
     gtk_widget_hide(EditorButtonCancel);
     ShowPropertiesWindow(FALSE);
 }
@@ -269,7 +269,7 @@ void ButtonModifyCurrentRung()
     }
 #endif
 }
-void ButtonValidCurrentRung()
+void ButtonOkCurrentRung()
 {
     int iCurrentLanguage = SectionArray[InfosGene->CurrentSection].Language;
     if (iCurrentLanguage == SECTION_IN_LADDER)
@@ -332,10 +332,10 @@ void EditorInitGtk()
     gtk_signal_connect(GTK_OBJECT(EditorButtonModify), "clicked",
 	(GtkSignalFunc) ButtonModifyCurrentRung, 0);
     gtk_widget_show(EditorButtonModify);
-    EditorButtonValid = gtk_button_new_with_label("Valid.");
-    gtk_box_pack_start(GTK_BOX(vbox), EditorButtonValid, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(EditorButtonValid), "clicked",
-	(GtkSignalFunc) ButtonValidCurrentRung, 0);
+    EditorButtonOk = gtk_button_new_with_label("Ok");
+    gtk_box_pack_start(GTK_BOX(vbox), EditorButtonOk, FALSE, FALSE, 0);
+    gtk_signal_connect(GTK_OBJECT(EditorButtonOk), "clicked",
+	(GtkSignalFunc) ButtonOkCurrentRung, 0);
     EditorButtonCancel = gtk_button_new_with_label("Cancel");
     gtk_box_pack_start(GTK_BOX(vbox), EditorButtonCancel, FALSE, FALSE, 0);
     gtk_signal_connect(GTK_OBJECT(EditorButtonCancel), "clicked",
