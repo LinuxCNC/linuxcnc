@@ -4,7 +4,6 @@ include ../../Makefile.inc
 
 SRCS =	\
 	emc.cc \
-	emc2.cc \
 	emcargs.cc \
 	emcglb.c \
 	emcops.cc \

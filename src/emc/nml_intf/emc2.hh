@@ -241,7 +241,7 @@ as an int, but the payload of an additional int is small..
                        (amongst other things) - Condemn the code to HAL at your peril. */
 		/* AJ: ok, then maybe generalize it to some extent so that it can be used for "remote" tuning. 
 		       But definately it can be included in the SET_* aggregated message above. */
-#define EMC_AXIS_STAT_TYPE                           ((NMLTYPE) 199)  // Keep
+
 /*! \page NML message types
   MOTION_ID, MODE, SCALE, and VELOCITY are core parts of task. Need to retain.
 */
@@ -279,7 +279,6 @@ as an int, but the payload of an additional int is small..
 #define EMC_TRAJ_PROBE_TYPE                          ((NMLTYPE) 229)  // Keep - Used for probing (wow)
 #define EMC_TRAJ_SET_TELEOP_ENABLE_TYPE              ((NMLTYPE) 230)  // Oh wth... Can we not use a MODE message here ?
 #define EMC_TRAJ_SET_TELEOP_VECTOR_TYPE              ((NMLTYPE) 231)  // Jogging in teleop mode - fff....
-#define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)  // Keep
 /*! \page NML message types
   More infernal INIT, HALT, ABORT messages.. !
 */
@@ -288,7 +287,6 @@ as an int, but the payload of an additional int is small..
 #define EMC_MOTION_ABORT_TYPE                        ((NMLTYPE) 303)  // AJ remove these, use the general EMC_ABORT
 #define EMC_MOTION_SET_AOUT_TYPE                     ((NMLTYPE) 304)  // Keep - Unused, but could be used for (e.g.) coordinated control of laser power.
 #define EMC_MOTION_SET_DOUT_TYPE                     ((NMLTYPE) 305)  // Keep - Coordinated On/Off signals.
-#define EMC_MOTION_STAT_TYPE                         ((NMLTYPE) 399)  // keep
 /*! \page NML message types
   And yet more....
 */
@@ -308,7 +306,6 @@ as an int, but the payload of an additional int is small..
 #define EMC_TASK_PLAN_CLOSE_TYPE                     ((NMLTYPE) 514)  // keep
 #define EMC_TASK_PLAN_INIT_TYPE                      ((NMLTYPE) 515)  // Gnnnn...
 #define EMC_TASK_PLAN_SYNCH_TYPE                     ((NMLTYPE) 516)  // keep
-#define EMC_TASK_STAT_TYPE                           ((NMLTYPE) 599)  // keep
 /*! \page NML message types
   These are not the last...
 */
@@ -320,7 +317,6 @@ as an int, but the payload of an additional int is small..
 #define EMC_TOOL_UNLOAD_TYPE                         ((NMLTYPE) 1106)  // LOAD implies an UNLOAD preceeds it...
 #define EMC_TOOL_LOAD_TOOL_TABLE_TYPE                ((NMLTYPE) 1107)  // keep - But get rid of the lunacy.
 #define EMC_TOOL_SET_OFFSET_TYPE                     ((NMLTYPE) 1108)  // keep
-#define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)  // Keep
 /*! \page NML message types
   Nor these the last...
 */
@@ -331,7 +327,6 @@ as an int, but the payload of an additional int is small..
 #define EMC_AUX_AIO_WRITE_TYPE                        ((NMLTYPE) 1205)  // keep and/or modify
 #define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)  // Why does task need to twiddle ESTOP ? AJ: Task doesn't, but GUI does. This should be part of IO IMO.
 #define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)  // This should be a failsafe system.
-#define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)  // Apart from ESTOP (which is duplicated elsewhwere), this is redundant.
 /*! \page NML message types
   Some more INIT, HALT, ABORT....
 */
@@ -350,7 +345,6 @@ as an int, but the payload of an additional int is small..
 #define EMC_SPINDLE_BRAKE_ENGAGE_TYPE                ((NMLTYPE) 1313)
 #define EMC_SPINDLE_ENABLE_TYPE                      ((NMLTYPE) 1314)
 #define EMC_SPINDLE_DISABLE_TYPE                     ((NMLTYPE) 1315)
-#define EMC_SPINDLE_STAT_TYPE                        ((NMLTYPE) 1399)  // Keep - Aggregate with TOOL_STAT
 /*! \page NML message types
   Starting to get tiresome, these INIT/HALT types..
 */
@@ -361,7 +355,6 @@ as an int, but the payload of an additional int is small..
 #define EMC_COOLANT_MIST_OFF_TYPE                    ((NMLTYPE) 1405)
 #define EMC_COOLANT_FLOOD_ON_TYPE                    ((NMLTYPE) 1406) // Keep - Aggregate STATE ?
 #define EMC_COOLANT_FLOOD_OFF_TYPE                   ((NMLTYPE) 1407)
-#define EMC_COOLANT_STAT_TYPE                        ((NMLTYPE) 1499)  // Keep - Aggregate with TOOL_STAT ?
 /*! \page NML message types
 */
 #define EMC_LUBE_INIT_TYPE                           ((NMLTYPE) 1501)  // AJ: only one LUBE message should be enough. Maybe even part of an IO message, thus it would be easy for another IO controller without spindle to be used instead.
@@ -369,7 +362,6 @@ as an int, but the payload of an additional int is small..
 #define EMC_LUBE_ABORT_TYPE                          ((NMLTYPE) 1503)  // PC: The only thing we need to know is if oil level is low - A simple error on STATUS is enough.
 #define EMC_LUBE_ON_TYPE                             ((NMLTYPE) 1504)  // Aggregate with machine STATE and let PLC decide.
 #define EMC_LUBE_OFF_TYPE                            ((NMLTYPE) 1505)
-#define EMC_LUBE_STAT_TYPE                           ((NMLTYPE) 1599)  // Keep - Aggregate with TOOL_STAT
 /*! \page NML message types
   FPS... Keeping SET_DIO & SET_AIO paves the way for the possibility of limited PLC type functionality (or custom macros)
   within the interpreter. n.b. Whilst HAL offers a solution for IO configuration, it is NOT a panacea for everything.
@@ -384,7 +376,6 @@ as an int, but the payload of an additional int is small..
 #define EMC_IO_HALT_TYPE                             ((NMLTYPE) 1602) // Unused AJ: should really go away, use EMC_HALT instead
 #define EMC_IO_ABORT_TYPE                            ((NMLTYPE) 1603) // Unused AJ: should really go away, use EMC_ABORT instead
 #define EMC_IO_SET_CYCLE_TIME_TYPE                   ((NMLTYPE) 1604) // Unused AJ: should really go away
-#define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699) // Redundant.
 
 /*! \page NML message types
   With HAL and the scope tool, logging is almost redundant...
@@ -394,6 +385,318 @@ as an int, but the payload of an additional int is small..
 #define EMC_LOG_STOP_TYPE                            ((NMLTYPE) 1906) // Maybe.
 #define EMC_LOG_CLOSE_TYPE                           ((NMLTYPE) 1907) // AJ: not sure if LOGGING is needed, from what I've seen only logging of the MOTION part is done, and that can be done by halscope & the like.
 
+#define EMC_AXIS_STAT                           ((NMLTYPE) 2000)  // Keep
+
+class EmcAxisStatusMessage : public RCS_STAT_MSG
+{
+public: EmcAxisStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s) {};
+
+  void update(CMS *cms);
+  int axis;
+};
+
+class EmcAxisStatus : public EmcAxisStatusMessage
+{
+public: EmcAxisStatus();
+
+  void update(CMS *cms);
+
+  // configuration parameters
+  unsigned char axisType;       // EMC_AXIS_LINEAR, EMC_AXIS_ANGULAR
+  double units;                 // units per mm, deg for linear, angular
+  double p;
+  double i;
+  double d;
+  double ff0;
+  double ff1;
+  double ff2;
+  double backlash;
+  double bias;
+  double maxError;
+  double deadband;
+  double cycleTime;
+  double inputScale;
+  double inputOffset;
+  double outputScale;
+  double outputOffset;
+  double minPositionLimit;
+  double maxPositionLimit;
+  double minOutputLimit;
+  double maxOutputLimit;
+  double maxFerror;
+  double minFerror;
+  double homingVel;
+  double setup_time;
+  double hold_time;
+  double homeOffset;
+  unsigned char enablePolarity;
+  unsigned char minLimitSwitchPolarity;
+  unsigned char maxLimitSwitchPolarity;
+  unsigned char homeSwitchPolarity;
+  unsigned char homingPolarity;
+  unsigned char faultPolarity;
+  // dynamic status
+  double setpoint;              // input to axis controller
+  double ferrorCurrent;         // current following error
+  double ferrorHighMark;        // magnitude of max following error
+  double output;                // commanded output position
+  double input;                 // current input position
+  unsigned char inpos;          // non-zero means in position
+  unsigned char homing;         // non-zero means homing
+  unsigned char homed;          // non-zero means has been homed
+  unsigned char fault;          // non-zero means axis amp fault
+  unsigned char enabled;        // non-zero means enabled
+  unsigned char minSoftLimit;   // non-zero means min soft limit exceeded
+  unsigned char maxSoftLimit;   // non-zero means max soft limit exceeded
+  unsigned char minHardLimit;   // non-zero means min hard limit exceeded
+  unsigned char maxHardLimit;   // non-zero means max hard limit exceeded
+  unsigned char overrideLimits; // non-zero means limits are overridden
+  double scale;                 // velocity scale
+  double alter;                 // external position alter value
+};
+
+#define EMC_TRAJ_STAT                           ((NMLTYPE) 2001)  // Keep
+
+class EmcTrajStatusMessage : public RCS_STAT_MSG
+{
+public: EmcTrajStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s) {};
+
+  void update(CMS *cms);
+};
+
+
+class EmcTrajStatus : public EmcTrajStatusMessage
+{
+public: EmacTrajStatus();
+
+  void update(CMS *cms);
+
+  double linearUnits;           // units per mm
+  double angularUnits;          // units per degree
+  double cycleTime;             // cycle time, in seconds
+  int axes;                     // number of axes in group
+  enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE, EMC_TRAJ_MODE_COORD
+  int enabled;                  // non-zero means enabled
+
+  int inpos;                    // non-zero means in position
+  int queue;                    // number of pending motions, counting current
+  int activeQueue;              // number of motions blending
+  int queueFull;                // non-zero means can't accept another motion
+  int id;                       // id of the currently executing motion
+  int paused;                   // non-zero means motion paused
+  double scale;                 // velocity scale factor
+
+  EmcPose position;             // current commanded position
+  EmcPose actualPosition;       // current actual position, from forward kins
+  double velocity;              // system velocity, for subsequent motions
+  double acceleration;          // system acceleration, for subsequent motions
+  double maxVelocity;           // max system velocity
+  double maxAcceleration;       // system acceleration
+
+  EmcPose probedPosition;       // last position where probe was tripped.
+  int probe_index;              // which wire or digital input is the probe on.
+  int probe_polarity;           // which value should the probe look for to trip.
+  int probe_tripped;            // Has the probe been tripped since the last clear.
+  int probing;                  // Are we currently looking for a probe signal.
+  int probeval;                 // Current value of probe input.
+  int kinematics_type;		// identity=1,serial=2,parallel=3,custom=4
+};
+
+
+#define EMC_MOTION_STAT                         ((NMLTYPE) 2002)  // keep
+
+class EmcMotionStatusMessage : public RCS_STAT_MSG
+{
+public: EmcMotionStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s)
+  {
+    heartbeat = 0;
+  };
+
+  void update(CMS *cms);
+  unsigned long int heartbeat;
+};
+
+class EmcMotionStatus : public EmcMotionStatusMessage
+{
+public: EmcMotionStatus() : EmcMotionStatusMessage(EMC_MOTION_STAT, sizeof(EmcMotionStatus)) {};
+
+  void update(CMS *cms);
+
+  EmcTrajStatus traj;
+  EmcAxisStatus axis[EMC_AXIS_MAX];
+  int debug;			// copy of EMC_DEBUG global
+};
+
+#define EMC_TASK_STAT                           ((NMLTYPE) 2003)  // keep
+
+class EmcTaskStatusMessage : public RCS_STAT_MSG
+{
+public: EmcTaskStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s)
+  {
+    heartbeat = 0;
+  };
+
+  void update(CMS *cms);
+  unsigned long int heartbeat;
+};
+
+class EmcTaskStatus : public EmcTaskStatusMessage
+{
+public: EmcTaskStatus();
+
+  void update(CMS *cms);
+
+  enum EMC_TASK_MODE_ENUM mode;	// EMC_TASK_MODE_MANUAL, etc.
+  enum EMC_TASK_STATE_ENUM state; // EMC_TASK_STATE_ESTOP, etc.
+  enum EMC_TASK_EXEC_ENUM  execState; // EMC_DONE,WAITING_FOR_MOTION, etc.
+  enum EMC_TASK_INTERP_ENUM interpState; // EMC_IDLE,READING,PAUSED,WAITING
+  int motionLine;               // line motion is executing-- may lag
+  int currentLine;              // line currently executing
+  int readLine;                 // line interpreter has read to
+  char file[LINELEN];
+  char command[LINELEN];
+  EmcPose origin;               // origin, in user units, currently active
+  EmcPose toolOffset;           // tool offset, in general pose form
+  int activeGCodes[ACTIVE_G_CODES]; // dialect-specific
+  int activeMCodes[ACTIVE_M_CODES]; // dialect-specific
+  double activeSettings[ACTIVE_SETTINGS]; // dialect-specific
+  CANON_UNITS programUnits;	// CANON_UNITS_INCHES,MM,CM
+  int interpreter_errcode;	// return value from rs274ngc function 
+};
+
+#define EMC_TOOL_STAT                           ((NMLTYPE) 2004)  // Keep
+
+class EmcToolStatusMessage : public RCS_STAT_MSG
+{
+public: EmcToolStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s) {};
+
+  void update(CMS *cms);
+};
+
+class EmcToolStatus : public EmcToolStatusMessage
+{
+public: EmcToolStatus();
+
+  void update(CMS *cms);
+  EmcToolStatus operator = (EMC_TOOL_STAT s); // need this for [] members
+  int toolPrepped;              // tool ready for loading, 0 is no tool
+  int toolInSpindle;            // tool loaded, 0 is no tool
+  CANON_TOOL_TABLE toolTable[CANON_TOOL_MAX + 1];
+};
+
+#define EMC_AUX_STAT                             ((NMLTYPE) 2005)  // Apart from ESTOP (which is duplicated elsewhwere), this is redundant.
+
+class EmcAuxStatusMessage : public RCS_STAT_MSG
+{
+public: EmcAuxStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s) {};
+
+  void update(CMS *cms);
+};
+
+class EmcAuxStatus : public EmcAuxStatusMessage
+{
+public: EmcAuxStatus();
+
+  void update(CMS *cms);
+
+  int estop;                    // non-zero means estopped
+  int estopIn;                  // non-zero means estop button pressed
+};
+
+#define EMC_SPINDLE_STAT                        ((NMLTYPE) 2006)  // Keep - Aggregate with TOOL_STAT
+
+class EmcSpindleStatusMessage : public RCS_STAT_MSG
+{
+public: EmcSpindleStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s) {};
+
+  void update(CMS *cms);
+};
+
+class EmcSpindleStatus : public EmcSpindleStatusMessage
+{
+public:  EmcSpindleStatus();
+
+  void update(CMS *cms);
+
+  double speed;                 // spindle speed in RPMs
+  int direction;                // 0 stopped, 1 forward, -1 reverse
+  int brake;                    // 0 released, 1 engaged
+  int increasing;               // 1 increasing, -1 decreasing, 0 neither
+  int enabled;                  // non-zero means enabled
+};
+
+#define EMC_COOLANT_STAT                        ((NMLTYPE) 2007)  // Keep - Aggregate with TOOL_STAT ?
+
+class EmcCoolantStatusMessage : public RCS_STAT_MSG
+{
+public: EmcCoolantStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s) {};
+
+  void update(CMS *cms);
+};
+
+class EmcCoolantStatus : public EmcCoolantStatusMessage
+{
+public: EmcCoolantStatus();
+
+  void update(CMS *cms);
+
+  int mist;                     // 0 off, 1 on
+  int flood;                    // 0 off, 1 on
+};
+
+#define EMC_LUBE_STAT                           ((NMLTYPE) 2008)  // Keep - Aggregate with TOOL_STAT
+
+class EmcLubeStatusMessage : public RCS_STAT_MSG
+{
+public: EmcLubeStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s) {};
+
+  void update(CMS *cms);
+};
+
+class EmcLubeStatus : public EmcLubeStatusMessage
+{
+public: EmcLubeStatus();
+
+  void update(CMS *cms);
+
+  int on;                       // 0 off, 1 on
+  int level;                    // 0 low, 1 okay
+};
+
+
+#define EMC_IO_STAT                             ((NMLTYPE) 2009) // Redundant.
+
+class EmcIoStatusMessage : public RCS_STAT_MSG
+{
+public: EmcIoStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s)
+  {
+    heartbeat = 0;
+  };
+
+  void update(CMS *cms);
+
+  unsigned long int heartbeat;
+};
+
+class EmcIoStatus : public EmcIoStatusMessage
+{
+public: EmcIoStatus() : EmcIoStatusMessage(EMC_IO_STAT, sizeof(EmcIoStatus)) {};
+
+  void update(CMS *cms);
+
+  // top-level stuff
+  double cycleTime;
+  int debug;			// copy of EMC_DEBUG global
+
+  // aggregate of IO-related status classes
+  EmcToolStatus tool;
+  EmcSpindleStatus spindle;
+  EmcCoolantStatus coolant;
+  EmcAuxStatus aux;
+  EmcLubeStatus lube;
+};
+
+
 /*! \page NML message types
   EMC_STAT_TYPE                              ((NMLTYPE) 1999)
 
@@ -402,7 +705,40 @@ as an int, but the payload of an additional int is small..
   Probably very little if you are to take the RMA model to it's
   limits. Certainly plenty can be hacked out without detriment.
 */
-#define EMC_STAT_TYPE                                ((NMLTYPE) 1999) // Keep
+#define EMC_STATUS                                ((NMLTYPE) 1999) // Keep
+
+class EmcStatusMessage : public RCS_STAT_MSG
+{
+public: EmcStatusMessage(NMLTYPE t, size_t s): RCS_STAT_MSG(t, s) {};
+
+  void update(CMS *cms);
+};
+
+class EmcStatus : public EmcStatusMessage
+{
+public: EmcStatus();
+
+  void update(CMS *cms);
+
+  // the top-level EMC_TASK status class
+  EmcTaskStatus task;
+
+  // subordinate status classes
+  EmcMotionStatus motion;
+  EmcIoStatus io;
+
+  // logging status
+  char logFile[LINELEN]; // name of file to log to upon close
+  int logType;                  // type being logged
+  int logSize;                  // size in entries, not bytes
+  int logSkip;                  // how many are being skipped
+  int logOpen;                  // non-zero means a log is open
+  int logStarted;               // non-zero means logging is happening
+  int logPoints;                // how many points currently in log
+
+  int debug;			// copy of EMC_DEBUG global
+};
+
 
 // NML formatting function
 extern int emcFormat(NMLTYPE type, void * buffer, CMS * cms);
