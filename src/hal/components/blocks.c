@@ -91,6 +91,9 @@ MODULE_PARM_DESC(limit2, "second order limiters");
 static int limit3 = 0;		/* number of limiters */
 MODULE_PARM(limit3, "i");
 MODULE_PARM_DESC(limit3, "third order limiters");
+static int n_estop = 0;		/* number of estop blocks */
+MODULE_PARM(n_estop, "i");
+MODULE_PARM_DESC(n_estop, "estop latch blocks");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -182,6 +185,18 @@ typedef struct {
     double old_v;		/* previous 1st derivative */
 } limit3_t;
 
+
+typedef struct {
+    hal_bit_t *in;		/* pin: input from hardware chain */
+    hal_bit_t *out;		/* pin: output */
+    hal_bit_t *reset;		/* pin: estop reset (rising edge) */
+    hal_bit_t *wd;		/* pin: watchdog/charge pump drive */
+    hal_bit_t old_reset;	/* internal, for rising edge detect */
+} estop_t;
+
+
+
+
 /* other globals */
 static int comp_id;		/* component ID */
 
@@ -200,6 +215,7 @@ static int export_ddt(int num);
 static int export_limit1(int num);
 static int export_limit2(int num);
 static int export_limit3(int num);
+static int export_estop(int num);
 
 static void constant_funct(void *arg, long period);
 static void wcomp_funct(void *arg, long period);
@@ -212,6 +228,7 @@ static void ddt_funct(void *arg, long period);
 static void limit1_funct(void *arg, long period);
 static void limit2_funct(void *arg, long period);
 static void limit3_funct(void *arg, long period);
+static void estop_funct(void *arg, long period);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -370,6 +387,20 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d third order limiters\n", limit3);
     }
+    /* allocate and export estop latch blocks */
+    if (n_estop > 0) {
+	for (n = 0; n < n_estop; n++) {
+	    if (export_estop(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_estop(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d estop latch blocks\n", n_estop);
+    }
+   
     return 0;
 }
 
@@ -620,6 +651,46 @@ static void limit3_funct(void *arg, long period)
     limit3->old_in = in;
     *(limit3->out) = out;
 }
+
+/* this module sets 'out' true when 'in' is true _and_ it sees
+   a rising edge on 'reset'.  If 'in' goes false, it sets 'out'
+   false.  It also toggles 'watchdog' constantly, which should
+   be used for a charge pump or other such circuit.  Note that
+   this block should _not_ be relied on to turn off 'out', 
+   instead, 'in' should be daisy-chained through 'out' in
+   hardware, and this module is only used to prevent a restart
+   if/when 'in' comes back on.
+*/
+
+static void estop_funct(void *arg, long period)
+{
+    estop_t *estop;
+
+    /* point to block data */
+    estop = (estop_t *) arg;
+
+    /* check input (which should be from hardware chain) */
+    if ( *(estop->in) != 0 ) {
+	/* hardware estop chain is OK, check for reset edge */
+	if (( *(estop->reset) != 0 ) && ( estop->old_reset == 0 )) {
+	    /* got a rising edge, set output true */
+	    *(estop->out) = 1;
+	}
+	/* toggle watchdog */
+	if ( *(estop->wd) == 0 ) {
+	    *(estop->wd) = 1;
+	} else {
+	    *(estop->wd) = 0;
+	}
+    } else {
+	/* hardware chain is not OK, turn off output */
+	*(estop->out) = 0;
+    }
+    /* store state of reset input for next pass (for edge detect) */
+    estop->old_reset = *(estop->reset);
+}
+
+
     
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
@@ -1350,6 +1421,71 @@ static int export_limit3(int num)
     limit3->max =  1e20;
     limit3->maxv = 1e20;
     limit3->maxa = 1e20;
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_estop(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    estop_t *estop;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for an estop latch */
+    estop = hal_malloc(sizeof(estop_t));
+    if (estop == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pins for inputs */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.in", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(estop->in), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.reset", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(estop->reset), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pins for outputs */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.out", num);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(estop->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.watchdog", num);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(estop->wd), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d", num);
+    retval = hal_export_funct(buf, estop_funct, estop, 0, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* initialize internal vars */
+    estop->old_reset = 104;
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
