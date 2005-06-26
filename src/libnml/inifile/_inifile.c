@@ -286,13 +286,8 @@ const char *iniFind(void *fp, const char *tag, const char *section)
 	    || tagend == '\n' || tagend == '=') {
 	    /* it matches-- return string after =, or NULL */
 	    nonwhite += len;
-	    value_string = (char *) afterequal(nonwhite);	/* Cast is
-								   needed
-								   because we 
-								   are
-								   discarding 
-								   the const. 
-								 */
+	    /* Cast is needed  because we are discarding the const. */
+	    value_string = (char *) afterequal(nonwhite);
 	    /* Eliminate white space at the end of a line also. */
 	    if (NULL == value_string) {
 		return NULL;

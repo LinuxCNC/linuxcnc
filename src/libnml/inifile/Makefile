@@ -6,22 +6,20 @@ include ../../Makefile.inc
 
 # Declare which files are to be released
 HEADERS = \
-	inifile.h \
 	inifile.hh
 
 SRCS =	\
-	_inifile.c \
 	inifile.cc \
-        inivar.c
+        inivar.cc
 
-OBJS := $(LIB_OBJS)
+OBJS := $(LIB_OBJS) 
 
 LIBS =
 
 LOCAL_CFLAGS = -fPIC
 LOCAL_CXXFLAGS = -fPIC
 
-all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(TMP_DIR)/inivar.o
+all: headers $(SRCS:%.cc=$(TMP_DIR)/%.o)
 
 # Generic rules.
 include ../../Make.rules

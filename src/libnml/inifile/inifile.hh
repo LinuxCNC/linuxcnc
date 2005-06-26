@@ -5,7 +5,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: LGPL Version 2
+* License: GPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -19,22 +19,33 @@
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
-#include "inifile.h"
+#include <stdio.h>
+#include <fcntl.h>
+#include "global_defs.h"
 
-class INIFILE {
+typedef struct {
+    char tag[LINELEN];
+    char rest[LINELEN];
+} inifile_entry;
+
+class Inifile {
   public:
-    INIFILE();
-    INIFILE(const char *path);
-     ~INIFILE();
+    Inifile();
+    Inifile(const char *path);
+    ~Inifile();
 
-    const int open(const char *path);
-    const int close();
-    const char *find(const char *tag, const char *section = NULL);
-    int section(const char *section, INIFILE_ENTRY array[], int max);
-    const int valid();
+    bool open(const char *path);
+    bool close();
+    bool valid();
+    const char *find(const char *tag, const char *section = NULL, int num = 1);
+    int section(const char *section, inifile_entry array[], int max);
 
   private:
-      FILE * fp;
+    FILE * fp;
+    char *after_equal(const char *string);
+    char *skip_white(char *string);
+    struct flock lock;
+
 };
 
 #endif /* INIFILE_HH */
