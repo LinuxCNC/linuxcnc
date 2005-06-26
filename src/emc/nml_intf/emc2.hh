@@ -403,7 +403,7 @@ public: EmcAxisStatus();
 /* P.C.: These variables *must* have a one to one mapping with emcmotStatus - Makes it much easier to
          track the flow of data across the system. */
 
-  // configuration parameters
+  // configuration parameters // P.C.: Split in to a separate config message that is sent *only* when asked for or when config changes.
   unsigned char axisType;       // EMC_AXIS_LINEAR, EMC_AXIS_ANGULAR
   double units;                 // P.C.: Remove - Unit type defined in axisType. Makes no sense having one axis using mm and another using inches.
   double p;
@@ -431,30 +431,31 @@ public: EmcAxisStatus();
   double setup_time;
   double hold_time;
   double homeOffset;
-  unsigned char enablePolarity;
-  unsigned char minLimitSwitchPolarity;
+  unsigned char enablePolarity; // P.C.: Keep polarity, but convert to a bool data type
+  unsigned char minLimitSwitchPolarity; // P.C.: Would need to add a new data type to libnml..
   unsigned char maxLimitSwitchPolarity;
   unsigned char homeSwitchPolarity;
   unsigned char homingPolarity;
   unsigned char faultPolarity;
-  // dynamic status
-  double setpoint;              // input to axis controller
-  double ferrorCurrent;         // current following error
-  double ferrorHighMark;        // magnitude of max following error
+
+  // dynamic status // P.C.: Some of this is required for the HMI.. But not in conjunction with config !
+  double setpoint;              // input to axis controller // P.C.: Remove - Internal to PID.
+  double ferrorCurrent;         // current following error  // P.C.: Keep
+  double ferrorHighMark;        // magnitude of max following error // P.C.: Remove - This records the max ferror and _never_ gets knocked back.
   double output;                // commanded output position  // P.C.: In millimetres
   double input;                 // current input position // P.C.: In millimetres
-  unsigned char inpos;          // non-zero means in position
+  unsigned char inpos;          // non-zero means in position // P.C.: Also repeated in traj status - Decide which one is required.
   unsigned char homing;         // non-zero means homing
-  unsigned char homed;          // non-zero means has been homed
-  unsigned char fault;          // non-zero means axis amp fault
-  unsigned char enabled;        // non-zero means enabled
-  unsigned char minSoftLimit;   // non-zero means min soft limit exceeded
-  unsigned char maxSoftLimit;   // non-zero means max soft limit exceeded
-  unsigned char minHardLimit;   // non-zero means min hard limit exceeded
-  unsigned char maxHardLimit;   // non-zero means max hard limit exceeded
-  unsigned char overrideLimits; // non-zero means limits are overridden
-  double scale;                 // velocity scale
-  double alter;                 // external position alter value
+  unsigned char homed;          // non-zero means has been homed // P.C.: Keep - Convert to bool type.
+  unsigned char fault;          // non-zero means axis amp fault // P.C.: Keep - Convert to bool type.
+  unsigned char enabled;        // non-zero means enabled // P.C.: Keep - Convert to bool type.
+  unsigned char minSoftLimit;   // non-zero means min soft limit exceeded // P.C.: Keep - Convert to bool type.
+  unsigned char maxSoftLimit;   // non-zero means max soft limit exceeded // P.C.: Keep - Convert to bool type.
+  unsigned char minHardLimit;   // non-zero means min hard limit exceeded // P.C.: Keep - Convert to bool type.
+  unsigned char maxHardLimit;   // non-zero means max hard limit exceeded // P.C.: Keep - Convert to bool type.
+  unsigned char overrideLimits; // non-zero means limits are overridden // P.C.: Keep ? - Convert to bool type.
+  double scale;                 // velocity scale  // P.C.: per axis ? I think not - Remove.
+  double alter;                 // external position alter value // P.C.: Remove
 };
 
 #define EMC_TRAJ_STAT                           ((NMLTYPE) 2001)  // Keep
@@ -481,30 +482,30 @@ public: EmacTrajStatus();
   double cycleTime;             // cycle time, in seconds
   int axes;                     // number of axes in group
   enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE, EMC_TRAJ_MODE_COORD
-  int enabled;                  // non-zero means enabled
+  int enabled;                  // non-zero means enabled // P.C.: 'spose this has some value... But what ?
 
-  int inpos;                    // non-zero means in position
-  int queue;                    // number of pending motions, counting current
-  int activeQueue;              // number of motions blending
-  int queueFull;                // non-zero means can't accept another motion
-  int id;                       // id of the currently executing motion
-  int paused;                   // non-zero means motion paused
-  double scale;                 // velocity scale factor
+  int inpos;                    // non-zero means in position // P.C.: Also repeated in axis status - Decide which one is required.
+  int queue;                    // number of pending motions, counting current // P.C.: Remove
+  int activeQueue;              // number of motions blending // P.C.: Remove
+  int queueFull;                // non-zero means can't accept another motion // P.C.: KEEP - Task waits on this.
+  int id;                       // id of the currently executing motion // P.C.: Keep - HMI & task tracks ngc line numbers with this.
+  int paused;                   // non-zero means motion paused // P.C.: keep - Convert to bool
+  double scale;                 // velocity scale factor // Keep, but remove axis version.
 
   EmcPose position;             // current commanded position // P.C.: ALL distances are in millimetres or radians. Convert to usr units at input/output only.
   EmcPose actualPosition;       // current actual position, from forward kins
   double velocity;              // system velocity, for subsequent motions
   double acceleration;          // system acceleration, for subsequent motions
-  double maxVelocity;           // max system velocity
-  double maxAcceleration;       // system acceleration
+  double maxVelocity;           // max system velocity // P.C.: Config - Move to separate message.
+  double maxAcceleration;       // system acceleration // P.C.: Config - Move to separate message.
 
   EmcPose probedPosition;       // last position where probe was tripped.
-  int probe_index;              // which wire or digital input is the probe on.
-  int probe_polarity;           // which value should the probe look for to trip.
-  int probe_tripped;            // Has the probe been tripped since the last clear.
-  int probing;                  // Are we currently looking for a probe signal.
-  int probeval;                 // Current value of probe input.
-  int kinematics_type;		// identity=1,serial=2,parallel=3,custom=4
+  int probe_index;              // which wire or digital input is the probe on. // P.C.: Config - Move to separate message.
+  int probe_polarity;           // which value should the probe look for to trip. // P.C.: Config - Move to separate message. (bool type)
+  int probe_tripped;            // Has the probe been tripped since the last clear. // P.C.: bool type
+  int probing;                  // Are we currently looking for a probe signal. // P.C.: bool type
+  int probeval;                 // Current value of probe input. // P.C.: bool type - Is this required ?
+  int kinematics_type;		// identity=1,serial=2,parallel=3,custom=4 // P.C.: Remove.
 };
 
 
@@ -529,7 +530,7 @@ public: EmcMotionStatus() : EmcMotionStatusMessage(EMC_MOTION_STAT, sizeof(EmcMo
 
   EmcTrajStatus traj;
   EmcAxisStatus axis[EMC_AXIS_MAX];
-  int debug;			// copy of EMC_DEBUG global
+  int debug;			// copy of EMC_DEBUG global // P.C.: Remove - In aggregate status message
 };
 
 #define EMC_TASK_STAT                           ((NMLTYPE) 2003)  // keep
@@ -586,9 +587,9 @@ public: EmcToolStatus();
 
   void update(CMS *cms);
   EmcToolStatus operator = (EMC_TOOL_STAT s); // need this for [] members
-  int toolPrepped;              // tool ready for loading, 0 is no tool
-  int toolInSpindle;            // tool loaded, 0 is no tool
-  CANON_TOOL_TABLE toolTable[CANON_TOOL_MAX + 1];
+  int toolPrepped;              // tool ready for loading, 0 is no tool // P.C.: Tool ID - Needs to be an int
+  int toolInSpindle;            // tool loaded, 0 is no tool// P.C.: ditto
+  CANON_TOOL_TABLE toolTable[CANON_TOOL_MAX + 1];// P.C.: task needs to know about the tool table, as does the interp & may be the HMI. Tool process does not.
 };
 
 #define EMC_AUX_STAT                             ((NMLTYPE) 2005)  // Apart from ESTOP (which is duplicated elsewhwere), this is redundant.
@@ -647,8 +648,8 @@ public: EmcCoolantStatus();
 
   void update(CMS *cms);
 
-  int mist;                     // 0 off, 1 on
-  int flood;                    // 0 off, 1 on
+  int mist;                     // 0 off, 1 on // P.C.: bool type
+  int flood;                    // 0 off, 1 on // P.C.: bool type
 };
 
 #define EMC_LUBE_STAT                           ((NMLTYPE) 2008)  // Keep - Aggregate with TOOL_STAT
@@ -666,8 +667,8 @@ public: EmcLubeStatus();
 
   void update(CMS *cms);
 
-  int on;                       // 0 off, 1 on
-  int level;                    // 0 low, 1 okay
+  int on;                       // 0 off, 1 on // P.C.: bool type
+  int level;                    // 0 low, 1 okay // P.C.: bool type
 };
 
 
@@ -693,9 +694,9 @@ public: EmcIoStatus() : EmcIoStatusMessage(EMC_IO_STAT, sizeof(EmcIoStatus)) {};
 
   // top-level stuff
   double cycleTime;
-  int debug;			// copy of EMC_DEBUG global
+  int debug;			// copy of EMC_DEBUG global // P.C.: Remove - In aggregate status message
 
-  // aggregate of IO-related status classes
+  // aggregate of IO-related status classes // P.C.: Most of the data from the child messages could be aggregated in to a single status - We wouldn't need this lot then..
   EmcToolStatus tool;
   EmcSpindleStatus spindle;
   EmcCoolantStatus coolant;
@@ -734,7 +735,7 @@ public: EmcStatus();
   EmcMotionStatus motion;
   EmcIoStatus io;
 
-  // logging status
+  // logging status // P.C.: IF halscope is used, these log messages would never get updated.
   char logFile[LINELEN]; // name of file to log to upon close
   int logType;                  // type being logged
   int logSize;                  // size in entries, not bytes
