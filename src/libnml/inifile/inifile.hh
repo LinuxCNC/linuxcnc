@@ -31,12 +31,13 @@ typedef struct {
 class Inifile {
   public:
     Inifile();
-    Inifile(const char *path);
+    Inifile(const char *file);
     ~Inifile();
 
-    bool open(const char *path);
+    bool open(const char *file);
     bool close();
     bool valid();
+    int write();
     const char *find(const char *tag, const char *section = NULL, int num = 1);
     int section(const char *section, inifile_entry array[], int max);
 
@@ -45,7 +46,6 @@ class Inifile {
     char *after_equal(const char *string);
     char *skip_white(char *string);
     struct flock lock;
-
 };
 
 #endif /* INIFILE_HH */

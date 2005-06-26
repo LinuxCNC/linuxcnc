@@ -24,56 +24,34 @@ extern "C" {
 #include <stdarg.h>		/* va_list */
 #include <fcntl.h>
 }
-
 #include "inifile.hh"
 #include "rcs_print.hh"
 
-/********************************************************************
-*
-* Description: Constructor.
-*
-* Return Value: None.
-*
-* Side Effects: File descriptor is set to NULL, so open("file.name")
-*               must be used before any search.
-*
-* Called By: 
-*
-********************************************************************/
+/*! File descriptor is set to NULL, so open("file.name") must be used
+   before any search.
+
+   @return None. */
 Inifile::Inifile()
 {
     fp = NULL;
 }
 
-/********************************************************************
-*
-* Description: Constructor with a file name.
-*
-* Return Value: None
-*
-* Side Effects:
-*
-* Called By: 
-*
-********************************************************************/
-Inifile::Inifile(const char *path)
+/*! Constructor with a file name.
+
+   @param file File name to open.
+
+   @return None */
+Inifile::Inifile(const char *file)
 {
-    if (open(path) == false) {
-	fprintf(stderr, "can't open %s\n", path);
+    /*! \fixme Need to do tilde expansion here */
+    if (open(file) == false) {
+	fprintf(stderr, "can't open %s\n", file);
     }
 }
 
-/********************************************************************
-*
-* Description: Destructor
-*
-* Return Value: None
-*
-* Side Effects: Releases the file descriptor and any memory allocated.
-*
-* Called By: 
-*
-********************************************************************/
+/*! Releases the file descriptor and any memory allocated.
+
+   @return None */
 Inifile::~Inifile()
 {
     if (NULL != fp) {
@@ -81,25 +59,17 @@ Inifile::~Inifile()
     }
 }
 
-/********************************************************************
-*
-* Description: Opens the file for reading.
-*
-* Return Value:
-*
-* Side Effects: If a file was already open, the handle is lost.
-*               FIX ME - Check and free any FD first ?
-*
-* Called By: 
-*
-********************************************************************/
-bool Inifile::open(const char *path)
+/*! Opens the file for reading. If a file was already open, it is closed
+   and the new one opened.
+
+   @return true on success, false on failure */
+bool Inifile::open(const char *file)
 {
-    if ((fp = fopen(path, "r")) == NULL) {
+    if ((fp = fopen(file, "r")) == NULL) {
 	return false;
     }
     lock.l_type = F_RDLCK;
-    if (fcntl(fileno(fp), F_SETLK, &lock) == -1 ) {
+    if (fcntl(fileno(fp), F_SETLK, &lock) == -1) {
 	printf("Unable to lock file\n");
 	fclose(fp);
 	fp = NULL;
@@ -108,17 +78,9 @@ bool Inifile::open(const char *path)
     return true;
 }
 
-/********************************************************************
-*
-* Description: Closes the file descriptor..
-*
-* Return Value:
-*
-* Side Effects:
-*
-* Called By: 
-*
-********************************************************************/
+/*! Closes the file descriptor..
+
+   @return true on success, false on failure */
 bool Inifile::close()
 {
     int tmp = 0;
@@ -128,40 +90,41 @@ bool Inifile::close()
 	tmp = fclose(fp);
 	fp = NULL;
     }
-    return ((tmp == 0) ? true:false);
+    return ((tmp == 0) ? true : false);
 }
 
-/********************************************************************
-*
-* Description: valid()
-*               Reports if the file descriptor used in the constructor
-*               is valid.
-*
-* Return Value:
-*
-* Side Effects:
-*
-* Called By: 
-*
-********************************************************************/
+/*! Reports if the file is open and valid.
+
+   @return true if data is valid */
 bool Inifile::valid()
 {
-    return((fp != NULL) ? true:false);
+    return ((fp != NULL) ? true : false);
 }
 
-/********************************************************************
-*
-* Description: Finds the tag in section.
-*
-* Return Value: First item after an '=' as a string.
-*               NULL if not found.
-*
-* Side Effects:
-*
-* Called By: 
-*
-********************************************************************/
-const char* Inifile::find(const char *tag, const char *section, int num)
+/*! Writes the contents of memory back to the file.
+
+    @return Error code if write failed. */
+int Inifile::write()
+{
+    int tmp = 0;
+    if (fp == NULL) {
+        return -1; /* error - File closed. */
+    }
+    /* Write file to disk
+       Set tmp to the err code if write fails */
+    return tmp;
+};
+
+/*! Finds the nth tag in section.
+
+   @param tag Entry in the ini file to find.
+
+   @param section The section to look for the tag.
+
+   @param num (optionally) the Nth occurrence of the tag.
+
+   @return pointer to the the variable after the '=' delimiter */
+const char *Inifile::find(const char *tag, const char *section, int num)
 {
     static char line[LINELEN + 2] = "";	/* 1 for newline, 1 for NULL */
     char bracketsection[LINELEN + 2] = "";
@@ -179,8 +142,8 @@ const char* Inifile::find(const char *tag, const char *section, int num)
     /* start from beginning */
     rewind((FILE *) fp);
 
-    /* check for section first-- if it's non-NULL, then position file at line
-       after [section] */
+    /* check for section first-- if it's non-NULL, then position file at
+       line after [section] */
     if (NULL != section) {
 	sprintf(bracketsection, "[%s]", section);
 
@@ -195,7 +158,7 @@ const char* Inifile::find(const char *tag, const char *section, int num)
 	    /* got a line */
 
 	    /* strip off newline */
-	    newlinepos = strlen(line) - 1;	/* newline is on back from 0 */
+	    newlinepos = strlen(line) - 1; /* newline is on back from 0 */
 	    if (newlinepos < 0) {
 		newlinepos = 0;
 	    }
@@ -209,7 +172,8 @@ const char* Inifile::find(const char *tag, const char *section, int num)
 	    }
 
 	    /* not a blank line, and nonwhite is first char */
-	    if (strncmp(bracketsection, nonwhite, strlen(bracketsection)) != 0) {
+	    if (strncmp(bracketsection, nonwhite, strlen(bracketsection))
+		!= 0) {
 		/* not on this line */
 		continue;
 	    }
@@ -242,8 +206,8 @@ const char* Inifile::find(const char *tag, const char *section, int num)
 	    continue;
 	}
 
-	/* check for '[' char-- if so, it's a section tag, and we're out of
-	   our section */
+	/* check for '[' char-- if so, it's a section tag, and we're out
+	   of our section */
 	if (NULL != section && nonwhite[0] == '[') {
 	    return NULL;
 	}
@@ -273,7 +237,7 @@ const char* Inifile::find(const char *tag, const char *section, int num)
 	    }
 	    end_value_string = value_string + strlen(value_string) - 1;
 	    while (*end_value_string == ' ' || *end_value_string == '\t'
-		|| *end_value_string == '\r') {
+		   || *end_value_string == '\r') {
 		*end_value_string = 0;
 		end_value_string--;
 	    }
@@ -285,23 +249,19 @@ const char* Inifile::find(const char *tag, const char *section, int num)
     return NULL;
 }
 
-/********************************************************************
-*
-* Description: section(const char *section, inifile_entry array[], int max)
-*               given 'section' and array of strings, fills strings
-*               with what was found in the section, one line per string.
-*               Comments and blank lines are omitted. 'array' is assumed
-*               to be allocated, of 'max' entries of size LINELEN.
-*
-* Return Value: Returns number of entries found
-*               0 if section is there but no entries in it, or
-*               -1 if section is not found.
-*
-* Side Effects:
-*
-* Called By: 
-*
-********************************************************************/
+/*! given 'section' and array of strings, fills strings with what was
+   found in the section, one line per string. Comments and blank lines are 
+   omitted. 'array' is assumed to be allocated, of 'max' entries of size
+   LINELEN.
+
+   @param section The setion to read.
+
+   @param array[] array to fill
+
+   @param max Maximum entries to read.
+
+   @return number of entries found 0 if section is there but no entries in 
+   it, or -1 if section is not found. */
 int Inifile::section(const char *section, inifile_entry array[], int max)
 {
     char line[LINELEN + 2];	/* 1 for newline, 1 for NULL */
@@ -352,20 +312,15 @@ int Inifile::section(const char *section, inifile_entry array[], int max)
     return -1;
 }
 
-/********************************************************************
-*
-* Description: const char *after_equal(const char *string)
-*		Ignoring any tabs, spaces or other white spaces,
-*		finds the first character after an '='.
-*
-* Return Value: NULL or pointer to first non-white char after an '='
-*
-* Side Effects: None.
-*
-* Called By: find() and section() only.
-*
-********************************************************************/
-char* Inifile::after_equal(const char *string)
+/*! Ignoring any tabs, spaces or other white spaces, finds the first
+   character after the '=' delimiter.
+
+   @param string Pointer to the tag
+
+   @return NULL or pointer to first non-white char after the delimiter
+
+   Called By: find() and section() only. */
+char *Inifile::after_equal(const char *string)
 {
     const char *spot = string;	/* non-reentrant */
 
@@ -378,9 +333,9 @@ char* Inifile::after_equal(const char *string)
 		    /* ran out */
 		    return NULL;
 		} else if (*spot != ' ' && *spot != '\t' && *spot != '\r'
-		    && *spot != '\n') {
+			   && *spot != '\n') {
 		    /* matched! */
-		    return (char*) spot;
+		    return (char *) spot;
 		} else {
 		    /* keep going for the text */
 		    continue;
@@ -397,22 +352,14 @@ char* Inifile::after_equal(const char *string)
     }
 }
 
-/********************************************************************
-*
-* Description: char *skip_white(char *string)
-*		Finds the first non-white character on a new line
-*		and returns a pointer.
-*		Ignores any line that starts with a comment char
-*		i.e. a ';' or '#'.
-*
-* Return Value: NULL if not found or a valid pointer.
-*
-* Side Effects: None.
-*
-* Called By: find() and section() only.
-*
-********************************************************************/
-char* Inifile::skip_white(char *string)
+/*! Finds the first non-white character on a new line and returns a
+   pointer. Ignores any line that starts with a comment char i.e. a ';' or 
+   '#'.
+
+   @return NULL if not found or a valid pointer.
+
+   Called By: find() and section() only. */
+char *Inifile::skip_white(char *string)
 {
     for (;;) {
 	if (*string == 0) {
