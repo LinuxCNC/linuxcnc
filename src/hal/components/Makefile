@@ -15,6 +15,7 @@ obj-$(CONFIG_STEPGEN) += stepgen.o
 obj-$(CONFIG_FREQGEN) += freqgen.o
 obj-$(CONFIG_SIGGEN) += siggen.o
 obj-$(CONFIG_PID) += pid.o
+obj-$(CONFIG_PID) += threads.o
 obj-$(CONFIG_SUPPLY) += supply.o
 
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
@@ -42,6 +43,7 @@ stepgen.c \
 freqgen.c \
 siggen.c \
 pid.c \
+threads.c \
 supply.c
 
 LIBS = \
@@ -53,6 +55,7 @@ $(RTLIB_DIR)/stepgen.o \
 $(RTLIB_DIR)/freqgen.o \
 $(RTLIB_DIR)/siggen.o \
 $(RTLIB_DIR)/pid.o \
+$(RTLIB_DIR)/threads.o \
 $(RTLIB_DIR)/supply.o
 
 endif
