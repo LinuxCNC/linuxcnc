@@ -63,8 +63,28 @@ LinkedList::~LinkedList()
     }
 }
 
+/*! Sets a sizing mode and the maximum number of nodes allowed on the
+   list. The sizing mode determines what happens when there is an attempt 
+   to add another node to the list after it has reached the
+   _maximum_size. The following are the possible values for _new_mode:
+
+   DELETE_FROM_TAIL: Remove one node from the tail of the list to make
+   room for the new node.
+
+   DELETE_FROM_HEAD: Remove one node from the head of the list to make
+   room for the new node.
+
+   STOP_AT_MAX: Return -1 if an attempt is made to add a new node when the 
+   list is full.
+
+   NO_MAXIMUM_SIZE: Allow the list to grow until all available memory is
+   used up.
+
+   @param _new_max_size Maximum size the list is allowed to grow to.
+
+   @param _new_sizing_mode @see LIST_SIZING_MODE */
 void LinkedList::set_list_sizing_mode(int _new_max_size,
-    LIST_SIZING_MODE _new_sizing_mode)
+				      LIST_SIZING_MODE _new_sizing_mode)
 {
     max_list_size = _new_max_size;
     sizing_mode = _new_sizing_mode;
@@ -163,6 +183,22 @@ void *LinkedList::retrieve_tail()
     return (NULL);
 }
 
+/*! Creates a new node and places it at the beginning of the list. If
+   _copy is nonzero then this function will malloc _size bytes and copy
+   _size bytes from the address starting at _data there and the get
+   functions will return a pointer to the copy of the object. If _copy is
+   zero then the _data pointer will be stored and the get functions will
+   return a pointer to the original object.
+
+   @param _data Pointer to the data to be stored.
+
+   @param _size Byte count of the data.
+
+   @param _copy If zero, just the _data pointer is stored, else a copy is
+   made of the data.
+
+   @return Returns a positive integer id that can be used to select this
+   node later if successful or -1 if an error occurred. */
 int LinkedList::store_at_head(void *_data, size_t _size, int _copy)
 {
     LinkedListNode *new_head;
@@ -228,6 +264,22 @@ int LinkedList::store_at_head(void *_data, size_t _size, int _copy)
     }
 }
 
+/*! Creates a new node and places it at the end of the list. If _copy is
+   nonzero then this function will malloc _size bytes and copy _size bytes 
+   from the address starting at _data there and the get functions will
+   return a pointer to the copy of the object. If _copy is zero then the
+   _data pointer will be stored and the get functions will return a
+   pointer to the original object.
+
+   @param _data Pointer to the data to be stored.
+
+   @param _size Byte count of the data.
+
+   @param _copy If zero, just the _data pointer is stored, else a copy is
+   made of the data.
+
+   @return Returns a positive integer id that can be used to select this
+   node later if successful or -1 if an error occurred. */
 int LinkedList::store_at_tail(void *_data, size_t _size, int _copy)
 {
     LinkedListNode *new_tail;
@@ -279,7 +331,7 @@ int LinkedList::store_at_tail(void *_data, size_t _size, int _copy)
 	    tail = new_tail;
 	    if (NULL != head) {
 		fprintf(stderr,
-		    "LinkedList: Tail is NULL but head is not.\n");
+			"LinkedList: Tail is NULL but head is not.\n");
 		return (-1);
 	    }
 	    head = new_tail;
@@ -293,12 +345,30 @@ int LinkedList::store_at_tail(void *_data, size_t _size, int _copy)
 	return (tail->id);
     } else {
 	fprintf(stderr,
-	    "LinkedList: Couldn't create new node to store_at_tail.\n");
+		"LinkedList: Couldn't create new node to store_at_tail.\n");
 	return (-1);
     }
 }
 
-int LinkedList::store_after_current_node(void *_data, size_t _size, int _copy)
+/* Creates a new node and places it after the current node. If _copy is
+   nonzero then this function will malloc _size bytes and copy _size bytes 
+   from the address starting at _data there and the get functions will
+   return a pointer to the copy of the object. If _copy is zero then the
+   _data pointer will be stored and the get functions will return a
+   pointer to the original object.
+
+   @param _data Pointer to the data to be stored.
+
+   @param _size Byte count of the data.
+
+   @param _copy If zero, just the _data pointer is stored, else a copy is
+   made of the data.
+
+   @return Returns a positive integer id that can be used to select this
+   node later if successful or -1 if an error occurred. */
+
+int LinkedList::store_after_current_node(void *_data, size_t _size,
+					 int _copy)
 {
     LinkedListNode *new_node;
     LinkedListNode *old_tail = tail;
@@ -365,7 +435,7 @@ int LinkedList::store_after_current_node(void *_data, size_t _size, int _copy)
 		tail = new_node;
 		if (NULL != head) {
 		    fprintf(stderr,
-			"LinkedList: Tail is NULL but the head is not.\n");
+			    "LinkedList: Tail is NULL but the head is not.\n");
 		    return (-1);
 		}
 		head = new_node;
@@ -394,13 +464,30 @@ int LinkedList::store_after_current_node(void *_data, size_t _size, int _copy)
 	return (new_node->id);
     } else {
 	fprintf(stderr,
-	    "LinkedList: Couldn't create new node to store_after_current.\n");
+		"LinkedList: Couldn't create new node to store_after_current.\n");
 	return (-1);
     }
 }
 
+/* Creates a new node and places it before the current node. If _copy is
+   nonzero then this function will malloc _size bytes and copy _size bytes 
+   from the address starting at _data there and the get functions will
+   return a pointer to the copy of the object. If _copy is zero then the
+   _data pointer will be stored and the get functions will return a
+   pointer to the original object.
+
+   @param _data Pointer to the data to be stored.
+
+   @param _size Byte count of the data.
+
+   @param _copy If zero, just the _data pointer is stored, else a copy is
+   made of the data.
+
+   @return Returns a positive integer id that can be used to select this
+   node later if successful or -1 if an error occurred. */
+
 int LinkedList::store_before_current_node(void *_data, size_t _size,
-    int _copy)
+					  int _copy)
 {
     LinkedListNode *new_node;
     LinkedListNode *old_tail = tail;
@@ -468,7 +555,7 @@ int LinkedList::store_before_current_node(void *_data, size_t _size,
 		tail = new_node;
 		if (NULL != head) {
 		    fprintf(stderr,
-			"LinkedList: Tail is NULL but head is not.\n");
+			    "LinkedList: Tail is NULL but head is not.\n");
 		    return (-1);
 		}
 		head = new_node;
@@ -497,11 +584,17 @@ int LinkedList::store_before_current_node(void *_data, size_t _size,
 	return (new_node->id);
     } else {
 	fprintf(stderr,
-	    "LinkedList: Couldn't create new node to store_before_current.\n");
+		"LinkedList: Couldn't create new node to store_before_current.\n");
 	return (-1);
     }
 }
 
+/* Get the address of the first object on the list and set the current
+   node to the beginning of the list.
+
+   If the list is empty get_head returns null. Depending on how the object 
+   was stored the address this function returns may be the address of the
+   original object or of a copy. */
 void *LinkedList::get_head()
 {
     current_node = head;
@@ -512,6 +605,11 @@ void *LinkedList::get_head()
     }
 }
 
+/* Get the address of the object at the end of the list and set the
+   current node to the end of the list. If the list is empty get_tail
+   returns null. Depending on how the object was stored the address this
+   function returns may be the address of the original object or of a
+   copy. */
 void *LinkedList::get_tail()
 {
     current_node = tail;
@@ -522,6 +620,11 @@ void *LinkedList::get_tail()
     }
 }
 
+/* Get the address of the next object on the list and move the current
+   node one step closer to the tail.. If the list is empty get_tail
+   returns null. Depending on how the object was stored the address this
+   function returns may be the address of the original object or of a
+   copy. */
 void *LinkedList::get_next()
 {
     if (NULL != current_node) {
@@ -534,6 +637,11 @@ void *LinkedList::get_next()
     }
 }
 
+/* Get the address of the previous object on the list and move the current 
+   node one step closer to the head.. If the list is empty get_tail
+   returns null. Depending on how the object was stored the address this
+   function returns may be the address of the original object or of a
+   copy. */
 void *LinkedList::get_last()
 {
     if (NULL != current_node) {
@@ -546,12 +654,12 @@ void *LinkedList::get_last()
     }
 }
 
-IS_EMPTY LinkedList::is_empty()
+bool LinkedList::is_empty()
 {
     if ((NULL == head) || (NULL == tail) || (list_size == 0)) {
-	return (LIST_EMPTY);
+	return true;
     } else {
-	return (LIST_NOT_EMPTY);
+	return false;
     }
 }
 
@@ -593,6 +701,7 @@ void *LinkedList::get_last_newer(int _id)
     return (NULL);
 }
 
+/* Delete the node with the associated id. */
 void LinkedList::delete_node(int _id)
 {
     LinkedListNode *temp;
@@ -629,6 +738,10 @@ void LinkedList::delete_node(int _id)
     }
 }
 
+/* Remove the current node from the list and free any memory associated
+   with it. Some extra pointers keep track of the node that was before and 
+   after the deleted node so that the next call to get_next or get_last
+   will return the same object as if the current node was not deleted. */
 void LinkedList::delete_current_node()
 {
     if (NULL != current_node && (current_node != extra_node)) {
@@ -649,7 +762,8 @@ void LinkedList::delete_current_node()
 	} else {
 	    head = temp->next;
 	}
-	if ((temp->copied || delete_data_not_copied) && (NULL != temp->data)) {
+	if ((temp->copied || delete_data_not_copied)
+	    && (NULL != temp->data)) {
 	    free(temp->data);
 	}
 	delete temp;
