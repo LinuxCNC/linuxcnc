@@ -25,6 +25,7 @@ extern "C" {
 #include "cms_up.hh"		/* class CMS_UPDATER */
 class CMS_XDR_UPDATER:public CMS_UPDATER {
   public:
+    CMS_STATUS update(bool &x);
     CMS_STATUS update(char &x);
     CMS_STATUS update(unsigned char &x);
     CMS_STATUS update(short int &x);

@@ -1273,6 +1273,15 @@ void CMS::set_cms_status(CMS_STATUS new_status)
 }
 
   /* Access functions for primitive C language data types */
+CMS_STATUS CMS::update(bool &x)
+{
+    if (NULL != updater) {
+	return (updater->update(x));
+    } else {
+	return (status = CMS_UPDATE_ERROR);
+    }
+}
+
 CMS_STATUS CMS::update(char &x)
 {
     if (NULL != updater) {

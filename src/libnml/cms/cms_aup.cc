@@ -222,6 +222,26 @@ int safe_strlen(char *string, int max)
     return retval;
 }
 
+/* bool functions */
+
+CMS_STATUS CMS_ASCII_UPDATER::update(bool &x)
+{
+    /* Check to see if the pointers are in the proper range. */
+    if (-1 == check_pointer((char *) &x, sizeof(bool))) {
+	return (CMS_UPDATE_ERROR);
+    }
+
+    if (encoding) {
+	end_current_string[0] = (char) x;
+    } else {
+	x = (bool) end_current_string[0];
+    }
+    end_current_string += 1;
+    length_current_string += 1;
+
+    return (status);
+}
+
 /* Char functions */
 
 CMS_STATUS CMS_ASCII_UPDATER::update(char &x)

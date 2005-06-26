@@ -274,6 +274,19 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update_char(char &x)
     return status;
 }
 
+CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(bool &x)
+{
+    /* Check to see if the pointers are in the proper range. */
+    if (-1 == check_pointer((char *) &x, sizeof(char))) {
+	return (CMS_UPDATE_ERROR);
+    }
+
+    update_char((char &)x);
+    end_current_string[0] = ',';
+    find_next_comma();
+    return (status);
+}
+
 CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(char &x)
 {
     /* Check to see if the pointers are in the proper range. */
