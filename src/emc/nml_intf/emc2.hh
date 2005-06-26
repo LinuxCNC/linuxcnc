@@ -556,18 +556,18 @@ public: EmcTaskStatus();
   enum EMC_TASK_STATE_ENUM state; // EMC_TASK_STATE_ESTOP, etc.
   enum EMC_TASK_EXEC_ENUM  execState; // EMC_DONE,WAITING_FOR_MOTION, etc.
   enum EMC_TASK_INTERP_ENUM interpState; // EMC_IDLE,READING,PAUSED,WAITING
-  int motionLine;               // line motion is executing-- may lag
-  int currentLine;              // line currently executing
-  int readLine;                 // line interpreter has read to
-  char file[LINELEN];
-  char command[LINELEN];
-  EmcPose origin;               // origin, in user units, currently active
-  EmcPose toolOffset;           // tool offset, in general pose form
-  int activeGCodes[ACTIVE_G_CODES]; // dialect-specific
-  int activeMCodes[ACTIVE_M_CODES]; // dialect-specific
-  double activeSettings[ACTIVE_SETTINGS]; // dialect-specific
-  CANON_UNITS programUnits;	// CANON_UNITS_INCHES,MM,CM
-  int interpreter_errcode;	// return value from rs274ngc function 
+  int motionLine;               // line motion is executing -- may lag  // P.C.: Most of the time, this would be motion.traj.id
+  int currentLine;              // line currently executing // P.C.: exectuting in task, interp, or motion ??
+  int readLine;                 // line interpreter has read to // P.C.: Keep
+  char file[LINELEN]; // P.C.: Keep
+  char command[LINELEN];  // P.C.: Keep - This is required in task !
+  EmcPose origin;               // origin, in user units, currently active // P.C.: Keep, if only to display work offsets.
+  EmcPose toolOffset;           // tool offset, in general pose form // P.C.: Is this needed ?
+  int activeGCodes[ACTIVE_G_CODES]; // dialect-specific // P.C.: Keep - May be have the interp sprintf ?
+  int activeMCodes[ACTIVE_M_CODES]; // dialect-specific // P.C.: Keep - May be have the interp sprintf ?
+  double activeSettings[ACTIVE_SETTINGS]; // dialect-specific // P.C.: Keep - May be have the interp sprintf feedrate & speed ?
+  CANON_UNITS programUnits;	// CANON_UNITS_INCHES,MM,CM // P.C.: Keep - but only as inch/metric
+  int interpreter_errcode;	// return value from rs274ngc function // P.C.: Keep
 };
 
 #define EMC_TOOL_STAT                           ((NMLTYPE) 2004)  // Keep
@@ -586,10 +586,10 @@ public: EmcToolStatus();
          handled by the Spindle/Tool process. */
 
   void update(CMS *cms);
-  EmcToolStatus operator = (EMC_TOOL_STAT s); // need this for [] members
+  EmcToolStatus operator = (EMC_TOOL_STAT s); // need this for [] members // P.C.: If tool table is in task status, we don't need this here.
   int toolPrepped;              // tool ready for loading, 0 is no tool // P.C.: Tool ID - Needs to be an int
   int toolInSpindle;            // tool loaded, 0 is no tool// P.C.: ditto
-  CANON_TOOL_TABLE toolTable[CANON_TOOL_MAX + 1];// P.C.: task needs to know about the tool table, as does the interp & may be the HMI. Tool process does not.
+  CANON_TOOL_TABLE toolTable[CANON_TOOL_MAX + 1];// P.C.: task needs to know about the tool table, as does the interp & may be the HMI. Tool process does not. (Should be in task status)
 };
 
 #define EMC_AUX_STAT                             ((NMLTYPE) 2005)  // Apart from ESTOP (which is duplicated elsewhwere), this is redundant.
@@ -608,7 +608,8 @@ public: EmcAuxStatus();
   void update(CMS *cms);
 
   int estop;                    // non-zero means estopped
-  int estopIn;                  // non-zero means estop button pressed
+  int estopIn;                  // non-zero means estop button pressed // P.C.: Why does the state of the estop button need to be passed around ?
+                                                                       // Surely estop on it's own would be enough..?
 };
 
 #define EMC_SPINDLE_STAT                        ((NMLTYPE) 2006)  // Keep - Aggregate with TOOL_STAT
