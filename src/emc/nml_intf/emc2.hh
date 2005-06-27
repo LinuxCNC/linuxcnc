@@ -454,7 +454,7 @@ public: EmcAxisStatus();
   unsigned char minHardLimit;   // non-zero means min hard limit exceeded // P.C.: Keep - Convert to bool type.
   unsigned char maxHardLimit;   // non-zero means max hard limit exceeded // P.C.: Keep - Convert to bool type.
   unsigned char overrideLimits; // non-zero means limits are overridden // P.C.: Keep ? - Convert to bool type.
-  double scale;                 // velocity scale  // P.C.: per axis ? I think not - Remove.
+  double scale;                 // velocity scale  // P.C.: per axis ? I think not - Remove. AJ: if it's feed override then it really should go.
   double alter;                 // external position alter value // P.C.: Remove
 };
 
@@ -477,23 +477,23 @@ public: EmacTrajStatus();
 /* P.C.: These variables *must* have a one to one mapping with emcmotStatus - Makes it much easier to
          track the flow of data across the system. */
 
-  double linearUnits;           // units per mm // P.C.: enum metric or imperial.
+  double linearUnits;           // units per mm // P.C.: enum metric or imperial. AJ: Traj should be able to work only in metric, and let others bother with converting to other systems.
   double angularUnits;          // units per degree // P.C.: enum degrees or radians
   double cycleTime;             // cycle time, in seconds
   int axes;                     // number of axes in group
   enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE, EMC_TRAJ_MODE_COORD
-  int enabled;                  // non-zero means enabled // P.C.: 'spose this has some value... But what ?
+  int enabled;                  // non-zero means enabled // P.C.: 'spose this has some value... But what ? AJ: any connection to the axis enabled?
 
   int inpos;                    // non-zero means in position // P.C.: Also repeated in axis status - Decide which one is required.
   int queue;                    // number of pending motions, counting current // P.C.: Remove
   int activeQueue;              // number of motions blending // P.C.: Remove
   int queueFull;                // non-zero means can't accept another motion // P.C.: KEEP - Task waits on this.
-  int id;                       // id of the currently executing motion // P.C.: Keep - HMI & task tracks ngc line numbers with this.
+  int id;                       // id of the currently executing motion // P.C.: Keep - HMI & task tracks ngc line numbers with this. AJ: maybe call it something more explicit.
   int paused;                   // non-zero means motion paused // P.C.: keep - Convert to bool
   double scale;                 // velocity scale factor // Keep, but remove axis version.
 
   EmcPose position;             // current commanded position // P.C.: ALL distances are in millimetres or radians. Convert to usr units at input/output only.
-  EmcPose actualPosition;       // current actual position, from forward kins
+  EmcPose actualPosition;       // current actual position, from forward kins AJ: replace EmcPoe with a simple struct
   double velocity;              // system velocity, for subsequent motions
   double acceleration;          // system acceleration, for subsequent motions
   double maxVelocity;           // max system velocity // P.C.: Config - Move to separate message.
@@ -589,7 +589,8 @@ public: EmcToolStatus();
   EmcToolStatus operator = (EMC_TOOL_STAT s); // need this for [] members // P.C.: If tool table is in task status, we don't need this here.
   int toolPrepped;              // tool ready for loading, 0 is no tool // P.C.: Tool ID - Needs to be an int
   int toolInSpindle;            // tool loaded, 0 is no tool// P.C.: ditto
-  CANON_TOOL_TABLE toolTable[CANON_TOOL_MAX + 1];// P.C.: task needs to know about the tool table, as does the interp & may be the HMI. Tool process does not. (Should be in task status)
+  CANON_TOOL_TABLE toolTable[CANON_TOOL_MAX + 1];// P.C.: task needs to know about the tool table, as does the interp & maybe the HMI. Tool process does not. (Should be in task status)
+				// AJ: how about a generic tool changer that might measure the tools itself? to adjust for cutter wear and the like, it should be able to tell task what the diam./length of the tool is
 };
 
 #define EMC_AUX_STAT                             ((NMLTYPE) 2005)  // Apart from ESTOP (which is duplicated elsewhwere), this is redundant.
@@ -610,9 +611,12 @@ public: EmcAuxStatus();
   int estop;                    // non-zero means estopped
   int estopIn;                  // non-zero means estop button pressed // P.C.: Why does the state of the estop button need to be passed around ?
                                                                        // Surely estop on it's own would be enough..?
+								       // AJ: as it is done now, there's an external ESTOP (estop_in) and the internal ESTOP (estop)
+								       // both get passed around. Right now it's done in the ioController, and 2 hal pins are used for the actual estop connections.
+								       // HMI needs to tell the user that external ESTOP is still on, even when he tries to reset ESTOP.
 };
 
-#define EMC_SPINDLE_STAT                        ((NMLTYPE) 2006)  // Keep - Aggregate with TOOL_STAT
+#define EMC_SPINDLE_STAT                        ((NMLTYPE) 2006)  // Keep - Aggregate with TOOL_STAT AJ: tool needs to get more generic, so aggregation would be best
 
 class EmcSpindleStatusMessage : public RCS_STAT_MSG
 {
@@ -728,7 +732,7 @@ class EmcStatus : public EmcStatusMessage
 public: EmcStatus();
 
   void update(CMS *cms);
-
+                                    
   // the top-level EMC_TASK status class
   EmcTaskStatus task;
 
