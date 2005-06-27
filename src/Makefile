@@ -37,6 +37,10 @@ all headers indent :
 	  echo "Create include directory $(INC_DIR)" ;\
 	  mkdir $(INC_DIR) ;\
 	fi
+	(cd rtapi; make headers)
+	(cd libnml; make headers)
+	(cd emc; make headers)
+	(cd hal; make headers)
 	@ if [ ! -d $(BIN_DIR) ] ; then \
 	  echo "Create binary directory $(BIN_DIR)" ;\
 	  mkdir $(BIN_DIR) ;\

@@ -118,8 +118,8 @@ static char *skipwhite(char *string)
 
 int findSection(void *fp, const char *section)
 {
-    static char line[INIFILE_MAX_LINELEN + 2];	/* 1 for newline, 1 for NULL */
-    static char bracketsection[INIFILE_MAX_LINELEN + 2];
+    static char line[LINELEN + 2];	/* 1 for newline, 1 for NULL */
+    static char bracketsection[LINELEN + 2];
     char *nonwhite;
 
     /* check valid file */
@@ -141,7 +141,7 @@ int findSection(void *fp, const char *section)
     /* find [section], and position fp just after it */
     while (!feof((FILE *) fp)) {
 
-	if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
+	if (NULL == fgets(line, LINELEN + 1, (FILE *) fp)) {
 	    /* got to end of file without finding it */
 	    return -1;
 	}
@@ -187,8 +187,8 @@ int findSection(void *fp, const char *section)
 ********************************************************************/
 const char *iniFind(void *fp, const char *tag, const char *section)
 {
-    static char line[INIFILE_MAX_LINELEN + 2];	/* 1 for newline, 1 for NULL */
-    static char bracketsection[INIFILE_MAX_LINELEN + 2];
+    static char line[LINELEN + 2];	/* 1 for newline, 1 for NULL */
+    static char bracketsection[LINELEN + 2];
     char *nonwhite;
     int newlinepos;		/* position of newline to strip */
     int len;
@@ -211,7 +211,7 @@ const char *iniFind(void *fp, const char *tag, const char *section)
 
 	while (!feof((FILE *) fp)) {
 
-	    if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
+	    if (NULL == fgets(line, LINELEN + 1, (FILE *) fp)) {
 		/* got to end of file without finding it */
 		return NULL;
 	    }
@@ -244,7 +244,7 @@ const char *iniFind(void *fp, const char *tag, const char *section)
     }
     while (!feof((FILE *) fp)) {
 	/* check for end of file */
-	if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
+	if (NULL == fgets(line, LINELEN + 1, (FILE *) fp)) {
 	    /* got to end of file without finding it */
 	    return NULL;
 	}
@@ -331,7 +331,7 @@ const char *iniFind(void *fp, const char *tag, const char *section)
 ********************************************************************/
 int iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
 {
-    static char line[INIFILE_MAX_LINELEN + 2];	/* 1 for newline, 1 for NULL */
+    static char line[LINELEN + 2];	/* 1 for newline, 1 for NULL */
     int count = 0;
     char *nonwhite;
     int newlinepos;
@@ -350,7 +350,7 @@ int iniSection(void *fp, const char *section, INIFILE_ENTRY array[], int max)
     /* found section-- start loading lines */
 
     while (!feof((FILE *) fp) && count < max) {
-	if (NULL == fgets(line, INIFILE_MAX_LINELEN + 1, (FILE *) fp)) {
+	if (NULL == fgets(line, LINELEN + 1, (FILE *) fp)) {
 	    /* got to end of file without finding it */
 	    return count;
 	}

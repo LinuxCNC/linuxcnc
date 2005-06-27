@@ -27,7 +27,7 @@ extern "C" {
 #include "emcglb.h"		// TOOL_TABLE_FILE
 // inifile ref'ed by iniTool(), loadTool() 
 
-static INIFILE *toolInifile = 0;
+static Inifile *toolInifile = 0;
 
 /*
   loadTool()
@@ -124,7 +124,7 @@ int iniTool(const char *filename)
 {
   int retval = 0;
 
-  toolInifile = new INIFILE;
+  toolInifile = new Inifile;
 
   if (-1 == toolInifile->open(filename)) {
     return -1;

@@ -116,9 +116,9 @@ static int emcIoNmlGet()
 ********************************************************************/
 static int iniLoad(const char *filename)
 {
-  INIFILE inifile;
+  Inifile inifile;
   const char * inistring;
-  char version[INIFILE_MAX_LINELEN];
+  char version[LINELEN];
 
   /* Open the ini file */
   if (inifile.open(filename) != 0) {

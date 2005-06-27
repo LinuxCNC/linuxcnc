@@ -33,7 +33,7 @@ extern "C" {
 #include "emccfg.h"             // default values for globals
 
 // inifile ref'ed by iniAxes(), loadAxis()
-static INIFILE *axisInifile = 0;
+static Inifile *axisInifile = 0;
 
 
 /* a function that checks a string to see if it is one of:
@@ -653,7 +653,7 @@ int iniAxis(int axis, const char *filename)
   const char *inistring;
   int axes;
 
-  axisInifile = new INIFILE;
+  axisInifile = new Inifile;
   if (-1 == axisInifile->open(filename)) {
     return -1;
   }

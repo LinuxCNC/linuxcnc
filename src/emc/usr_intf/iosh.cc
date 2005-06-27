@@ -208,7 +208,7 @@ static int emcErrorNmlGet()
 static int emc_ini(ClientData clientdata,
     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    INIFILE inifile;
+    Inifile inifile;
     const char *inistring;
     const char *varstr, *secstr;
 
@@ -1453,7 +1453,7 @@ static void thisQuit(ClientData clientData)
 
 static int iniLoad(const char *filename)
 {
-    INIFILE inifile;
+    Inifile inifile;
     const char *inistring;
     char version[LINELEN];
 

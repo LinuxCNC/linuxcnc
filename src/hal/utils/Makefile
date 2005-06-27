@@ -108,7 +108,7 @@ modules_install:
 endif
 
 # rule to link halcmd
-$(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o $(LIB_DIR)/libnml.a
+$(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(TMP_DIR)/_inifile.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o $(LIB_DIR)/libnml.a
 	@ echo "Linking $@"
 	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 

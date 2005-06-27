@@ -60,9 +60,9 @@ int usrmotIniLoad(const char *filename)
     const char *inistring;
     int saveInt;
     double saveDouble;
-    INIFILE *inifile;
+    Inifile *inifile;
 
-    inifile = new INIFILE(filename);
+    inifile = new Inifile(filename);
     /* open it */
     if (inifile->valid() == false) {
 	rtapi_print("can't find emcmot ini file %s\n", filename);

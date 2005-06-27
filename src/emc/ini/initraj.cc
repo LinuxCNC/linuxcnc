@@ -30,7 +30,7 @@ extern "C" {
 #include "emcglb.h"             /*! \todo TRAVERSE_RATE (FIXME) */
 
 // inifile ref'ed by iniTraj(), loadTraj()
-static INIFILE *trajInifile = 0;
+static Inifile *trajInifile = 0;
 
 /*
   loadTraj()
@@ -74,8 +74,8 @@ static int loadTraj()
   unsigned char coordinateMark[6] = {1, 1, 1, 0, 0, 0};
   int t;
   int len;
-  char homes[INIFILE_MAX_LINELEN];
-  char home[INIFILE_MAX_LINELEN];
+  char homes[LINELEN];
+  char home[LINELEN];
   EmcPose homePose ={ { 0.0, 0.0, 0.0 } , 0.0, 0.0, 0.0};
   double d;
 //  int index;
@@ -360,10 +360,10 @@ static int loadTraj()
         len += strlen(home);
         // and at start of next value
         while ((homes[len] == ' ' || home[len] == '\t') &&
-               len < INIFILE_MAX_LINELEN) {
+               len < LINELEN) {
           len++;
         }
-        if (len >= INIFILE_MAX_LINELEN) {
+        if (len >= LINELEN) {
           break;                // out of for loop
         }
       }
@@ -457,7 +457,7 @@ int iniTraj(const char *filename)
 {
   int retval = 0;
 
-  trajInifile = new INIFILE;
+  trajInifile = new Inifile;
 
   if (-1 == trajInifile->open(filename))
     {

@@ -1087,7 +1087,7 @@ VARIABLE_FILE = rs274ngc.var
 
 int Interp::ini_load(const char *filename)
 {
-    INIFILE inifile;
+    Inifile inifile;
     const char *inistring;
 
     // open it

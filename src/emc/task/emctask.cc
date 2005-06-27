@@ -60,7 +60,7 @@ int emcTaskInit()
   int index;
   char path[EMC_SYSTEM_CMD_LEN];
   struct stat buf;
-  INIFILE inifile;
+  Inifile inifile;
   const char * inistring;
 
   // read out directory where programs are located
@@ -441,6 +441,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
   Modification history:
 
   $Log$
+  Revision 1.12  2005/06/27 21:56:40  alex_joni
+  replaced INIFILE with the new Inifle all over the code, now HEAD shouldn't be broken anymore. Also hacked the halcmd Makefile a bit to make it work again. It's safe to use _inifile.c from halcmd, as halcmd so far doesn't write into the ini. if/when it will, it should use the class version.
+
   Revision 1.11  2005/06/14 05:19:12  mshaver
   Changes to emc task files that cause them to use the public return code values declared in interp_return.hh. For example, RS274NGC_OK is replaced by INTERP_OK. This is needed to generalize the way interpreters are written. Some other comments were also added where potentail problems were thought to be found.
 

@@ -43,7 +43,7 @@
 #include "stat_msg.hh"		// RCS_STAT_CHANNEL, RCS_STAT_MSG
 #include "cmd_msg.hh"		// RCS_CMD_CHANNEL, RCS_CMD_MSG
 #include "timer.hh"		// RCS_TIMER
-#include "inifile.h"		// class INIFILE
+#include "inifile.hh"		// class INIFILE
 
 
 

@@ -27,7 +27,7 @@ extern "C" {
 #include "emcglb.h"             // SPINDLE_FORWARD_INDEX, etc
 
 // inifile ref'ed by iniSpindle(), loadSpindle()
-static INIFILE *spindleInifile = 0;
+static Inifile *spindleInifile = 0;
 
 /*
   loadSpindle()
@@ -431,7 +431,7 @@ int iniSpindle(const char *filename)
 {
   int retval = 0;
 
-  spindleInifile = new INIFILE;
+  spindleInifile = new Inifile;
 
   if (-1 == spindleInifile->open(filename))
     {

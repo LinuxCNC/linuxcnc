@@ -2629,7 +2629,7 @@ static int emctask_shutdown(void)
 
 static int iniLoad(const char *filename)
 {
-    INIFILE inifile;
+    Inifile inifile;
     const char *inistring;
     char version[LINELEN];
     double saveDouble;
@@ -3011,6 +3011,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.33  2005/06/27 21:56:43  alex_joni
+  replaced INIFILE with the new Inifle all over the code, now HEAD shouldn't be broken anymore. Also hacked the halcmd Makefile a bit to make it work again. It's safe to use _inifile.c from halcmd, as halcmd so far doesn't write into the ini. if/when it will, it should use the class version.
+
   Revision 1.32  2005/06/14 11:05:00  paul_c
   Add a todo tag to Matt's FIX-ME and expanded on the comments.
 

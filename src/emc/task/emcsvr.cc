@@ -28,7 +28,7 @@
 
 static int iniLoad(const char *filename)
 {
-    INIFILE inifile;
+    Inifile inifile;
     const char *inistring;
 
     // open it
