@@ -67,7 +67,7 @@ MODULE_PARM(name3, "s");
 MODULE_PARM_DESC(name3, "name of thread 1");
 static long period3 = 0;	/* thread period - default = no thread */
 MODULE_PARM(period3, "l");
-MODULE_PARM_DESC(period1, "thread period (nsecs)");
+MODULE_PARM_DESC(period3, "thread period (nsecs)");
 #endif /* MODULE */
 
 /***********************************************************************
