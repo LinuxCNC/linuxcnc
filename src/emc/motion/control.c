@@ -458,7 +458,12 @@ static void do_forward_kins(void)
 	joint = &joints[joint_num];
 	/* copy feedback */
 	joint_pos[joint_num] = joint->pos_fb;
-	/* check for homed */
+	/* check for homed, only if the current joint is active */
+	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+	    /* if joint is not active, don't even look at its limits */
+	    continue;
+	}
+
 	if (!GET_JOINT_HOMED_FLAG(joint)) {
 	    all_homed = 0;
 	    all_at_home = 0;
@@ -471,7 +476,7 @@ static void do_forward_kins(void)
     case KINEMATICS_IDENTITY:
 	kinematicsForward(joint_pos, &emcmotStatus->carte_pos_fb, &fflags,
 	    &iflags);
-	if (all_homed) {
+	if (checkAllHomed()) {
 	    emcmotStatus->carte_pos_fb_ok = 1;
 	} else {
 	    emcmotStatus->carte_pos_fb_ok = 0;
@@ -479,7 +484,7 @@ static void do_forward_kins(void)
 	break;
 
     case KINEMATICS_BOTH:
-	if (all_homed) {
+	if (checkAllHomed()) {
 	    /* is previous value suitable for use as initial guess? */
 	    if (!emcmotStatus->carte_pos_fb_ok) {
 		/* no, use home position as initial guess */
@@ -1483,7 +1488,7 @@ static void get_pos_cmds(void)
 
 	case KINEMATICS_IDENTITY:
 	    kinematicsForward(positions, &emcmotStatus->carte_pos_cmd, &fflags, &iflags);
-	    if (all_homed) {
+	    if (checkAllHomed()) {
 		emcmotStatus->carte_pos_cmd_ok = 1;
 	    } else {
 		emcmotStatus->carte_pos_cmd_ok = 0;
@@ -1491,7 +1496,7 @@ static void get_pos_cmds(void)
 	    break;
 
 	case KINEMATICS_BOTH:
-	    if (all_homed) {
+	    if (checkAllHomed()) {
 		/* is previous value suitable for use as initial guess? */
 		if (!emcmotStatus->carte_pos_cmd_ok) {
 		    /* no, use home position as initial guess */
@@ -1957,7 +1962,7 @@ static void output_to_hal(void)
        and copy elsewhere if you want to observe an automatic variable that
        isn't in scope here. */
     emcmot_hal_data->debug_bit_0 = joints[1].free_tp_active;
-    emcmot_hal_data->debug_bit_1 = 0;
+    emcmot_hal_data->debug_bit_1 = emcmotStatus->carte_pos_fb_ok;
     emcmot_hal_data->debug_float_0 = 0.0;
     emcmot_hal_data->debug_float_1 = 0.0;
 

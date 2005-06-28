@@ -149,6 +149,10 @@ extern emcmot_log_struct_t ls;
 extern void emcmotCommandHandler(void *arg, long period);
 extern void emcmotController(void *arg, long period);
 
+/* loops through the active joints and checks if any are not homed */
+extern int checkAllHomed(void);
+
+
 extern void emcmot_config_change(void);
 extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 
