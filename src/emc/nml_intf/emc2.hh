@@ -265,6 +265,10 @@ as an int, but the payload of an additional int is small..
 #define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)  // AJ: Unused, remove - Use the metre and radians throughout. Would save having to mess with converting legacy units that very few people use in the real world.
 									// JK: this is no place for unit bigotry... there are mm machines, and there are inch machines, and neither is going to disappear.
 									//     there are also mm parts (g-code programs) and inch parts, and you should be able to run either kind of program on either kind of machine
+                                                                    // P.C.: Bigotry has nothing to do with it. It is purely a question of practicalities. For example, Tune a system based on an imperial config,
+                                                                    // keep the same PID gains when switching to metric. At also bypasses the ridiculous situation of having to do unit conversion based on 
+                                                                    // machine units/program units/display units. Agreeing to use metric (or imperail) units through out would mean that unit conversion would only 
+                                                                    // have to be done at the point of entry and in the display - An additional benefit, backplotting would not have to account for units either.
 #define EMC_TRAJ_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 203)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_MODE_TYPE                       ((NMLTYPE) 204)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_VELOCITY_TYPE                   ((NMLTYPE) 205)  // Keep
@@ -504,6 +508,9 @@ public: EmacTrajStatus();
 
   double linearUnits;           // units per mm // P.C.: enum metric or imperial. AJ: Traj should be able to work only in metric, and let others bother with converting to other systems. 
   				// JK: metric or imperial (is there merit to allowing more choices... for instance to control a micromanipulator might want microns, a robocrane might use meters or feet...)
+                                // P.C.: A double has a range of 10^-307 to 10^+308 to at least 10 decimal places (dependant on compiler) - More than enough to represnt angstroms to kilometres. feet, furlongs, & cubits would just be another
+                                // n.b. IEEE defines the range as DBL_MAX 1.7976931348623157E+308 to DBL_MIN 2.2250738585072014E-308
+                                // conversion factor to be applied at the display/entry point.
   double angularUnits;          // units per degree // P.C.: enum degrees or radians
   double cycleTime;             // cycle time, in seconds
   int axes;                     // number of axes in group
@@ -532,6 +539,7 @@ public: EmacTrajStatus();
   int probing;                  // Are we currently looking for a probe signal. // P.C.: bool type
   int probeval;                 // Current value of probe input. // P.C.: bool type - Is this required ?
   int kinematics_type;		// identity=1,serial=2,parallel=3,custom=4 // P.C.: Remove. JK: are we abandoning non-trivial kinematics? or just doing this differently?
+                                // P.C.: Kinematics_type is irrelevant outside the low level motion control. Does not need to be in STATUS.
 };
 
 
