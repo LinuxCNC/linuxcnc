@@ -195,6 +195,20 @@ public: EmcSystemCommand(): RCS_CMD_MSG(EMC_SYSTEM_COMMAND, sizeof(EmcSystemComm
 Fortunately, only have two data types to pass - We could use a double and cast it
 as an int, but the payload of an additional int is small..
 */
+/* JK: would like the variable field to be more extensible.  An enum requires editing
+   source and recompiling.  A string requires slightly more complex code (instead of
+   a simple switch) but would allow more flexibility.  SET_PARAM(name) could be handled
+   inside core EMC code if 'name' is one that EMC understands, or could be handled by
+   HAL if 'name' matches a HAL parameter.  In some cases, it would be handled by both.
+   Example: axis_accel, the motion module uses it for traj planning, and the stepgen
+   modules uses it as well.  Right now, the stepgen module can pull the initial value
+   from the ini file, but any subsequent changes using this message are visible only
+   to the core of EMC.  Code that reads this NML message and checks for a matching
+   HAL parameter would address that problem.  Gotta think on this some more. */
+
+/* JK: there should probably be a GET as well as a SET.  Sure, maybe you can read them from
+   status, but will they _all_ be in status all the time? */
+   
 #define EMC_AXIS_SET_AXIS_TYPE                       ((NMLTYPE) 101)
 #define EMC_AXIS_SET_UNITS_TYPE                      ((NMLTYPE) 102)
 #define EMC_AXIS_SET_GAINS_TYPE                      ((NMLTYPE) 103)
@@ -241,12 +255,16 @@ as an int, but the payload of an additional int is small..
                        (amongst other things) - Condemn the code to HAL at your peril. */
 		/* AJ: ok, then maybe generalize it to some extent so that it can be used for "remote" tuning. 
 		       But definately it can be included in the SET_* aggregated message above. */
-
+		/* JK: have to think on this some more.  Some are HAL, some are not.  I would make STEP_PARAMS just
+		       another SET_PARAM.   See above comments about allowing NML messages to read/write HAL parameters */
+		        
 /*! \page NML message types
   MOTION_ID, MODE, SCALE, and VELOCITY are core parts of task. Need to retain.
 */
 #define EMC_TRAJ_SET_AXES_TYPE                       ((NMLTYPE) 201)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)  // AJ: Unused, remove - Use the metre and radians throughout. Would save having to mess with converting legacy units that very few people use in the real world.
+									// JK: this is no place for unit bigotry... there are mm machines, and there are inch machines, and neither is going to disappear.
+									//     there are also mm parts (g-code programs) and inch parts, and you should be able to run either kind of program on either kind of machine
 #define EMC_TRAJ_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 203)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_MODE_TYPE                       ((NMLTYPE) 204)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_VELOCITY_TYPE                   ((NMLTYPE) 205)  // Keep
@@ -341,7 +359,7 @@ as an int, but the payload of an additional int is small..
 #define EMC_SPINDLE_INCREASE_TYPE                    ((NMLTYPE) 1309)
 #define EMC_SPINDLE_DECREASE_TYPE                    ((NMLTYPE) 1310)
 #define EMC_SPINDLE_CONSTANT_TYPE                    ((NMLTYPE) 1311)
-#define EMC_SPINDLE_BRAKE_RELEASE_TYPE               ((NMLTYPE) 1312)  // Brake interlocks is for PLC to handle.
+#define EMC_SPINDLE_BRAKE_RELEASE_TYPE               ((NMLTYPE) 1312)  // Brake interlocks is for PLC to handle.  JK: agreed
 #define EMC_SPINDLE_BRAKE_ENGAGE_TYPE                ((NMLTYPE) 1313)
 #define EMC_SPINDLE_ENABLE_TYPE                      ((NMLTYPE) 1314)
 #define EMC_SPINDLE_DISABLE_TYPE                     ((NMLTYPE) 1315)
@@ -365,6 +383,8 @@ as an int, but the payload of an additional int is small..
 /*! \page NML message types
   FPS... Keeping SET_DIO & SET_AIO paves the way for the possibility of limited PLC type functionality (or custom macros)
   within the interpreter. n.b. Whilst HAL offers a solution for IO configuration, it is NOT a panacea for everything.
+  JK: SET_AOUT and SET_DOUT from about 40 lines up should be retained, but refer to generic signals...
+      drop the INDEX messages and let HAL take care of mapping the generics to specific outputs
 */
 #define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001) // Unused AJ: should go away, or a more general message to announce HAL about settings
 #define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002) // Unused AJ:    -"-
@@ -379,6 +399,9 @@ as an int, but the payload of an additional int is small..
 
 /*! \page NML message types
   With HAL and the scope tool, logging is almost redundant...
+  JK: halscope is good for logging signals (periodically sampled stuff) but some logging of NML messages needs to be retained
+      Perhaps the logging should be done with a separate tool (NMLscope anyone? ;-) instead of built into emc.  Make the tool
+      part of libnml, and usable with any NML based program. (rambling...)
 */
 #define EMC_LOG_OPEN_TYPE                            ((NMLTYPE) 1904) // Do we need these ?
 #define EMC_LOG_START_TYPE                           ((NMLTYPE) 1905) // Can we get away with an aggregate message ?
@@ -442,9 +465,11 @@ public: EmcAxisStatus();
   double setpoint;              // input to axis controller // P.C.: Remove - Internal to PID.
   double ferrorCurrent;         // current following error  // P.C.: Keep
   double ferrorHighMark;        // magnitude of max following error // P.C.: Remove - This records the max ferror and _never_ gets knocked back.
-  double output;                // commanded output position  // P.C.: In millimetres
-  double input;                 // current input position // P.C.: In millimetres
+  double output;                // commanded output position  // P.C.: In millimetres  JK: or inches ;-)
+  double input;                 // current input position // P.C.: In millimetres      JK: ditto
   unsigned char inpos;          // non-zero means in position // P.C.: Also repeated in traj status - Decide which one is required.
+  				// JK: maybe both... in manual mode, one per axis is needed, to allow for multiple simultaneous jogs that may finish at different times
+				//     in coord mode, the traj one is used to indicate all axes finished moving
   unsigned char homing;         // non-zero means homing
   unsigned char homed;          // non-zero means has been homed // P.C.: Keep - Convert to bool type.
   unsigned char fault;          // non-zero means axis amp fault // P.C.: Keep - Convert to bool type.
@@ -477,11 +502,12 @@ public: EmacTrajStatus();
 /* P.C.: These variables *must* have a one to one mapping with emcmotStatus - Makes it much easier to
          track the flow of data across the system. */
 
-  double linearUnits;           // units per mm // P.C.: enum metric or imperial. AJ: Traj should be able to work only in metric, and let others bother with converting to other systems.
+  double linearUnits;           // units per mm // P.C.: enum metric or imperial. AJ: Traj should be able to work only in metric, and let others bother with converting to other systems. 
+  				// JK: metric or imperial (is there merit to allowing more choices... for instance to control a micromanipulator might want microns, a robocrane might use meters or feet...)
   double angularUnits;          // units per degree // P.C.: enum degrees or radians
   double cycleTime;             // cycle time, in seconds
   int axes;                     // number of axes in group
-  enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE, EMC_TRAJ_MODE_COORD
+  enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE, EMC_TRAJ_MODE_COORD JK: what about TELEOP?  irrelevant for trivkins, but usefull for hexapods and such
   int enabled;                  // non-zero means enabled // P.C.: 'spose this has some value... But what ? AJ: any connection to the axis enabled?
 
   int inpos;                    // non-zero means in position // P.C.: Also repeated in axis status - Decide which one is required.
@@ -505,7 +531,7 @@ public: EmacTrajStatus();
   int probe_tripped;            // Has the probe been tripped since the last clear. // P.C.: bool type
   int probing;                  // Are we currently looking for a probe signal. // P.C.: bool type
   int probeval;                 // Current value of probe input. // P.C.: bool type - Is this required ?
-  int kinematics_type;		// identity=1,serial=2,parallel=3,custom=4 // P.C.: Remove.
+  int kinematics_type;		// identity=1,serial=2,parallel=3,custom=4 // P.C.: Remove. JK: are we abandoning non-trivial kinematics? or just doing this differently?
 };
 
 
@@ -614,6 +640,10 @@ public: EmcAuxStatus();
 								       // AJ: as it is done now, there's an external ESTOP (estop_in) and the internal ESTOP (estop)
 								       // both get passed around. Right now it's done in the ioController, and 2 hal pins are used for the actual estop connections.
 								       // HMI needs to tell the user that external ESTOP is still on, even when he tries to reset ESTOP.
+								       // JK: favor ESTOP_IN (from hardware, means the rest of the hardware estop chain is OK), and
+								       //     ESTOP_OUT (to hardware, means that EMC is OK).  Hardware ANDs the two and enables the machine
+								       //     Might want to consider a rename... for fail-safe, I prefer that both signals be asserted for machine OK,
+								       //     and removed to stop, but that means that they are really enable or "OK" signals, not "STOP" signals
 };
 
 #define EMC_SPINDLE_STAT                        ((NMLTYPE) 2006)  // Keep - Aggregate with TOOL_STAT AJ: tool needs to get more generic, so aggregation would be best
