@@ -29,11 +29,42 @@
 
 /* Reorder the message types based on priority. The urgent messages will be at
    the top of the format function and get filtered first. */
+/*
+<MGS>
+<QUESTION>
+Do we _really_ NEED to preface _everything_ with "EMC"?
+</QUESTION>
+If not, I propose stripping it off...
+</MGS>
+*/
 
 /*! \page NML message types
   EMC_NULL_TYPE                                ((NMLTYPE) 21)
 
   Null message - Redundant perhaps ?
+
+<MGS>
+The EMC_NULL message is referenced in emctaskmain.cc, but doesn't have any effect.
+In emcsh.cc and emcprobe.cc it is used to save & restore the "emc serial number" like this:
+
+  EMC_NULL emc_null_msg;
+
+  if (0 != emcStatusBuffer) {
+    // wait until current message has been received
+    emcCommandWaitReceived(emcCommandSerialNumber);
+  }
+
+  if (0 != emcCommandBuffer) {
+    // send null message to reset serial number to original
+    emc_null_msg.serial_number = saveEmcCommandSerialNumber;
+    emcCommandBuffer->write(emc_null_msg);
+  }
+
+<QUESTION>
+Is this something we need to do?
+</QUESTION>
+</MGS>
+
 */
 #define EMC_NULL                                ((NMLTYPE) 21) // Keep
 
@@ -83,8 +114,33 @@ public: EmcAbort(): RCS_CMD_MSG(EMC_ABORT, sizeof(EmcInit)) {};
    uses would be to alert the user to a critical system error or prompt
    an action.
 
-  AJ says: merge these into a single message, and check an aditional flag for message/error. 
+  AJ says: merge these into a single message, and check an additional flag for message/error. 
            The last one isn't used anyways.
+
+<MGS>
+I agree completely. I suggest:
+  1. Don't bother differentiating error from non-error messages.
+The only difference in handling errors seems to be this (from emctaskmain.cc):
+
+    // prepend error code, leave off 0 ad-hoc code
+    error_msg.error[0] = 0;
+    if (0 != id) {
+	sprintf(error_msg.error, "[%d] ", id);
+    }
+
+If error message logging is important, then perhaps the error strings should
+be bracketed with <ERROR></ERROR> tags or some other marker...
+
+  2. Get rid of 'int id;'.
+I haven't found any place in the code where 'id' is set to a non-zero value, and
+I question the need for a numerical error code when you are already sending a string!
+
+  3. Make LINELEN rather large to accomodate verbose errors.
+
+  4. Allow HTML (or some other markup) in messages to enable the functionality
+envisioned in OPERATOR_DISPLAY.
+</MGS>
+
 */
 
 /*! \page NML message types
@@ -142,6 +198,15 @@ public: EmcOperatorDisplay(): RCS_CMD_MSG(EMC_OPERATOR_DISPLAY, sizeof(EmcOperat
 
   Sets the debug level in all processes
 */
+
+/*
+<MGS>
+<QUESTION>
+Do we really need so much debugging and logging code?
+</QUESTION>
+</MGS>
+*/
+
 #define EMC_SET_DEBUG                           ((NMLTYPE) 22) // Keep
 
 class EmcSetDebug : public RCS_CMD_MSG
@@ -232,6 +297,37 @@ as an int, but the payload of an additional int is small..
   
   AJ: agreed, remove them all, keep the generic 
   EMC_INIT_TYPE, EMC_HALT_TYPE, EMC_ABORT_TYPE
+
+<MGS>
+I basically agree with AJ. Maybe it could even be:
+
+#define EMC_SIGNAL                           ((NMLTYPE) 12345) //or whatever number...
+
+class EmcSignal : public RCS_CMD_MSG
+{
+public: EmcSignal(): RCS_CMD_MSG(EMC_SIGNAL, sizeof(EmcSignal)) {};
+
+  void update(CMS *cms);
+  enum PROCESS {axis, traj, spindle, coolant, etc};
+  enum SIGNAL {init, abort, halt, etc};
+};
+
+This would allow the init, or halt , or abort process to be done in an ordered fashion
+(subsystem by subsystem) if required.
+
+See these links for the concept:
+
+http://users.actcom.co.il/~choo/lupg/tutorials/signals/signals-programming.html
+http://www.tech-faq.com/unix-signals.shtml
+
+For example, our INIT is like a SIGHUP. In fact, if you look at some of the following messages
+definitions, you'll see that some, such as HOME, ENABLE, and JOG, could be handled as signals.
+Essentially, you can:
+
+  1. Send signals.
+  2. SET or GET parameters (for things that have a token/value type model). 
+</MGS>
+
 */
 #define EMC_AXIS_INIT_TYPE                           ((NMLTYPE) 118)  // AJ: remove
 #define EMC_AXIS_HALT_TYPE                           ((NMLTYPE) 119)  // AJ: remove
