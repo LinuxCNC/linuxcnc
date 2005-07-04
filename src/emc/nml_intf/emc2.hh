@@ -30,12 +30,9 @@
 /* Reorder the message types based on priority. The urgent messages will be at
    the top of the format function and get filtered first. */
 /*
-<MGS>
-<QUESTION>
-Do we _really_ NEED to preface _everything_ with "EMC"?
-</QUESTION>
+MGS:
+QUESTION: Do we _really_ NEED to preface _everything_ with "EMC"?
 If not, I propose stripping it off...
-</MGS>
 */
 
 /*! \page NML message types
@@ -43,7 +40,7 @@ If not, I propose stripping it off...
 
   Null message - Redundant perhaps ?
 
-<MGS>
+MGS:
 The EMC_NULL message is referenced in emctaskmain.cc, but doesn't have any effect.
 In emcsh.cc and emcprobe.cc it is used to save & restore the "emc serial number" like this:
 
@@ -60,11 +57,7 @@ In emcsh.cc and emcprobe.cc it is used to save & restore the "emc serial number"
     emcCommandBuffer->write(emc_null_msg);
   }
 
-<QUESTION>
-Is this something we need to do?
-</QUESTION>
-</MGS>
-
+QUESTION: Is this something we need to do?
 */
 #define EMC_NULL                                ((NMLTYPE) 21) // Keep
 
@@ -117,7 +110,7 @@ public: EmcAbort(): RCS_CMD_MSG(EMC_ABORT, sizeof(EmcInit)) {};
   AJ says: merge these into a single message, and check an additional flag for message/error. 
            The last one isn't used anyways.
 
-<MGS>
+MGS:
 I agree completely. I suggest:
   1. Don't bother differentiating error from non-error messages.
 The only difference in handling errors seems to be this (from emctaskmain.cc):
@@ -139,8 +132,6 @@ I question the need for a numerical error code when you are already sending a st
 
   4. Allow HTML (or some other markup) in messages to enable the functionality
 envisioned in OPERATOR_DISPLAY.
-</MGS>
-
 */
 
 /*! \page NML message types
@@ -200,11 +191,8 @@ public: EmcOperatorDisplay(): RCS_CMD_MSG(EMC_OPERATOR_DISPLAY, sizeof(EmcOperat
 */
 
 /*
-<MGS>
-<QUESTION>
-Do we really need so much debugging and logging code?
-</QUESTION>
-</MGS>
+MGS:
+QUESTION: Do we really need so much debugging and logging code?
 */
 
 #define EMC_SET_DEBUG                           ((NMLTYPE) 22) // Keep
@@ -233,7 +221,14 @@ public: EmcSystemCommand(): RCS_CMD_MSG(EMC_SYSTEM_COMMAND, sizeof(EmcSystemComm
   char string[LINELEN];
 };
 
+/* Base class for all axis commands. */
+class EmcAxisCommandMessage : public RCS_CMD_MSG
+{
+public: EmcAxisCommandMessage(NMLTYPE t, size_t s): RCS_CMD_MSG(t, s) {};
 
+  void update(CMS *cms);
+  int axis;
+};
 
 /*! \page NML message types
   Proposal: Replace the multitude of EMC_AXIS_SET_* with a single
@@ -298,8 +293,7 @@ as an int, but the payload of an additional int is small..
   AJ: agreed, remove them all, keep the generic 
   EMC_INIT_TYPE, EMC_HALT_TYPE, EMC_ABORT_TYPE
 
-<MGS>
-I basically agree with AJ. Maybe it could even be:
+MGS: I basically agree with AJ. Maybe it could even be:
 
 #define EMC_SIGNAL                           ((NMLTYPE) 12345) //or whatever number...
 
@@ -326,9 +320,8 @@ Essentially, you can:
 
   1. Send signals.
   2. SET or GET parameters (for things that have a token/value type model). 
-</MGS>
-
 */
+
 #define EMC_AXIS_INIT_TYPE                           ((NMLTYPE) 118)  // AJ: remove
 #define EMC_AXIS_HALT_TYPE                           ((NMLTYPE) 119)  // AJ: remove
 #define EMC_AXIS_ABORT_TYPE                          ((NMLTYPE) 120)  // AJ: used currently to stop a JOG, not the cleanest way
@@ -357,6 +350,15 @@ Essentially, you can:
 /*! \page NML message types
   MOTION_ID, MODE, SCALE, and VELOCITY are core parts of task. Need to retain.
 */
+
+/* Base class for all trajectory commands. */
+class EmcTrajectoryCommandMessage : public RCS_CMD_MSG
+{
+public: EmcTrajectoryCommandMessage(NMLTYPE t, size_t s): RCS_CMD_MSG(t, s) {};
+
+  void update(CMS *cms);
+};
+
 #define EMC_TRAJ_SET_AXES_TYPE                       ((NMLTYPE) 201)  // AJ: Unused, remove
 #define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)  // AJ: Unused, remove - Use the metre and radians throughout. Would save having to mess with converting legacy units that very few people use in the real world.
 									// JK: this is no place for unit bigotry... there are mm machines, and there are inch machines, and neither is going to disappear.
@@ -408,6 +410,14 @@ Essentially, you can:
 /*! \page NML message types
   And yet more....
 */
+/* Base class for all task commands. */
+class EmcTaskCommandMessage : public RCS_CMD_MSG
+{
+public: EmcTaskCommandMessage(NMLTYPE t, size_t s): RCS_CMD_MSG(t, s) {};
+
+  void update(CMS *cms);
+};
+
 #define EMC_TASK_INIT_TYPE                           ((NMLTYPE) 501)  // AJ remove these, use the general EMC_INIT
 #define EMC_TASK_HALT_TYPE                           ((NMLTYPE) 502)  // AJ remove these, use the general EMC_HALT
 #define EMC_TASK_ABORT_TYPE                          ((NMLTYPE) 503)  // AJ remove these, use the general EMC_ABORT

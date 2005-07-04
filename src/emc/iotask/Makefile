@@ -10,8 +10,7 @@ HEADERS =
 
 BINS =  simio \
 
-OBJS = simIoControl.o \
-	ioControl.o
+OBJS = simIoControl.o
 
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%)
 
@@ -28,8 +27,7 @@ $(BIN_DIR)/io: $(TMP_DIR)/ioControl.o \
 
 $(BIN_DIR)/simio: $(TMP_DIR)/simIoControl.o \
 	$(LIB_DIR)/libemc.a \
-	$(LIB_DIR)/libnml.a \
-	$(LIB_DIR)/ulapi.o
+	$(LIB_DIR)/libnml.a
 	@ echo "Linking $@"
 	$(CXX) $^ $(CFLAGS) $(ULFLAGS) -o $@
 

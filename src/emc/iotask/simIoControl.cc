@@ -24,12 +24,15 @@
 #include <stdlib.h>
 #include <signal.h>
 
-#include "rtapi.h"              /* rtapi_print_msg */
 #include "rcs.hh"               /* RCS_CMD_CHANNEL */
 #include "emc.hh"               /* EMC NML */
 #include "emcglb.h"             /* EMC_NMLFILE, EMC_INIFILE */
 #include "inifile.hh"            /* INIFILE */
 
+#define RTAPI_ERR 1
+#define RTAPI_DBG 2
+#define rtapi_print_msg(x,fmt,args...) printf(fmt, ##args)
+#define rtapi_print(fmt,args...) printf(fmt, ##args)
 static RCS_CMD_CHANNEL * emcioCommandBuffer = 0;
 static RCS_CMD_MSG * emcioCommand = 0;
 static RCS_STAT_CHANNEL * emcioStatusBuffer = 0;

@@ -97,74 +97,81 @@ extern "C" {
 	EmcPose desiredAccell;
     } EMC_TELEOP_DATA;
 
-/* This enum lists all the possible commands */
+/* This list is all the possible commands */
+enum {
+  EMCMOT_SET_TRAJ_CYCLE_TIME = 1, /* set the cycle time */
+  EMCMOT_SET_SERVO_CYCLE_TIME,  /* set the interpolation rate */
+  EMCMOT_SET_POSITION_LIMITS,   /* set the axis position +/- limits */
+  EMCMOT_SET_OUTPUT_LIMITS,     /* set the axis output +/- limits */
+  EMCMOT_SET_OUTPUT_SCALE,      /* scale factor for outputs */
+  EMCMOT_SET_INPUT_SCALE,       /* scale factor for inputs */
+  EMCMOT_SET_MIN_FERROR,        /* minimum following error, input units */
+  EMCMOT_SET_MAX_FERROR,        /* maximum following error, input units */
+  EMCMOT_JOG_CONT,              /* continuous jog */
+  EMCMOT_JOG_INCR,              /* incremental jog */
+  EMCMOT_JOG_ABS,               /* absolute jog */
+  EMCMOT_SET_LINE,              /* queue up a linear move */
+  EMCMOT_SET_CIRCLE,            /* queue up a circular move */
+  EMCMOT_SET_VEL,               /* set the velocity for subsequent moves */
+  EMCMOT_SET_VEL_LIMIT,         /* set the absolute max vel for all moves */
+  EMCMOT_SET_AXIS_VEL_LIMIT,	/* set the absolute max vel for each axis */
+  EMCMOT_SET_AXIS_ACC_LIMIT,	/* set the absolute max vel for each axis */
+  EMCMOT_SET_ACC,               /* set the acceleration for moves */
+  EMCMOT_PAUSE,                 /* pause motion */
+  EMCMOT_RESUME,                /* resume motion */
+  EMCMOT_STEP,                  /* resume motion until id encountered */
+  EMCMOT_ABORT,                 /* abort motion */
+  EMCMOT_SCALE,                 /* scale the speed */
+  EMCMOT_ENABLE,                /* enable servos for active axes */
+  EMCMOT_DISABLE,               /* disable servos for active axes */
+  EMCMOT_SET_PID,               /* set PID gains */
+  EMCMOT_ENABLE_AMPLIFIER,      /* enable amp outputs and dac writes */
+  EMCMOT_DISABLE_AMPLIFIER,     /* disable amp outputs and dac writes */
+  EMCMOT_OPEN_LOG,              /* open a log */
+  EMCMOT_START_LOG,             /* start logging */
+  EMCMOT_STOP_LOG,              /* stop logging */
+  EMCMOT_CLOSE_LOG,             /* close log */
+  EMCMOT_DAC_OUT,               /* write directly to the dacs */
+  EMCMOT_HOME,                  /* home an axis */
+  EMCMOT_FREE,                  /* set mode to free (joint) motion */
+  EMCMOT_COORD,                 /* set mode to coordinated motion */
+  EMCMOT_TELEOP,                 /* set mode to teleop*/
+  EMCMOT_ENABLE_WATCHDOG,       /* enable watchdog sound, parport */
+  EMCMOT_DISABLE_WATCHDOG,      /* enable watchdog sound, parport */
+  EMCMOT_SET_POLARITY,          /* set polarity for axis flags */
+  EMCMOT_ACTIVATE_AXIS,         /* make axis active */
+  EMCMOT_DEACTIVATE_AXIS,       /* make axis inactive */
+  EMCMOT_SET_TERM_COND,         /* set termination condition (stop, blend) */
+  EMCMOT_SET_HOMING_VEL,        /* set the axis homing speed */
+  EMCMOT_SET_NUM_AXES,          /* set the number of axes */
+  EMCMOT_SET_WORLD_HOME,        /* set pose for world home */
+  EMCMOT_SET_JOINT_HOME,        /* set value for joint homes */
+  EMCMOT_SET_HOME_OFFSET,       /* where to go after a home */
+  EMCMOT_OVERRIDE_LIMITS,       /* temporarily ignore limits until jog done */
+  EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity  but in 
+				   world cartesian coordinates, not in joint 
+				   space like EMCMOT_JOG_* */
+  EMCMOT_SET_PROBE_INDEX,       /* set which wire the probe signal is on. */
+  EMCMOT_SET_PROBE_POLARITY,    /* probe tripped on 0 to 1 transition or on
+                                   1 to 0 transition. */
+  EMCMOT_CLEAR_PROBE_FLAGS,     /* clears probeTripped flag */
+  EMCMOT_PROBE,                  /* go towards a position, stop if the probe
+                                   is tripped, and record the position where
+                                   the probe tripped */
+  EMCMOT_SET_DEBUG,		/* sets the debug level */
+  EMCMOT_SET_AOUT,		/* sets an analog motion point for next move */
+  EMCMOT_SET_DOUT,		/* sets a digital motion point for next move */
+  EMCMOT_SET_INDEX_BIT,		/* Sets or clears a digital IO pin */
+  EMCMOT_READ_INDEX_BIT,	/* Reads a digital IO pin */
+  EMCMOT_CHECK_INDEX_BIT,	/* Checks a digital IO pin for the last value written */
+  EMCMOT_SET_STEP_PARAMS        /* sets setup_time and hold_time for freqtask */
+};
 
-    typedef enum {
-	EMCMOT_ABORT = 1,	/* abort all motion */
-	EMCMOT_AXIS_ABORT,	/* abort one axis */
-	EMCMOT_ENABLE,		/* enable servos for active axes */
-	EMCMOT_DISABLE,		/* disable servos for active axes */
-	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs */
-	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs */
-	EMCMOT_ENABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_DISABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_ACTIVATE_JOINT,	/* make axis active */
-	EMCMOT_DEACTIVATE_JOINT,	/* make axis inactive */
-
-	EMCMOT_PAUSE,		/* pause motion */
-	EMCMOT_RESUME,		/* resume motion */
-	EMCMOT_STEP,		/* resume motion until id encountered */
-	EMCMOT_FREE,		/* set mode to free (joint) motion */
-	EMCMOT_COORD,		/* set mode to coordinated motion */
-	EMCMOT_TELEOP,		/* set mode to teleop */
-
-	EMCMOT_OPEN_LOG,	/* open a log */
-	EMCMOT_START_LOG,	/* start logging */
-	EMCMOT_STOP_LOG,	/* stop logging */
-	EMCMOT_CLOSE_LOG,	/* close log */
-
-	EMCMOT_SCALE,		/* scale the speed */
-	EMCMOT_OVERRIDE_LIMITS,	/* temporarily ignore limits until jog done */
-
-	EMCMOT_HOME,		/* home an axis */
-	EMCMOT_JOG_CONT,	/* continuous jog */
-	EMCMOT_JOG_INCR,	/* incremental jog */
-	EMCMOT_JOG_ABS,		/* absolute jog */
-	EMCMOT_SET_LINE,	/* queue up a linear move */
-	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
-	EMCMOT_SET_TELEOP_VECTOR,	/* Move at a given velocity but in
-					   world cartesian coordinates, not
-					   in joint space like EMCMOT_JOG_* */
-
-	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
-	EMCMOT_PROBE,		/* go to pos, stop if probe trips, record
-				   trip pos */
-
-	EMCMOT_SET_POSITION_LIMITS,	/* set the axis position +/- limits */
-	EMCMOT_SET_BACKLASH,	/* set the axis backlash */
-	EMCMOT_SET_MIN_FERROR,	/* minimum following error, input units */
-	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
-	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
-	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
-	EMCMOT_SET_JOINT_VEL_LIMIT,	/* set the max axis vel */
-	EMCMOT_SET_JOINT_ACC_LIMIT,	/* set the max axis accel */
-	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
-	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
-	EMCMOT_SET_NUM_AXES,	/* set the number of axes */
-	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
-	EMCMOT_SET_HOMING_PARAMS,	/* sets axis homing parameters */
-	EMCMOT_SET_DEBUG	/* sets the debug level */
-    } cmd_code_t;
-
-/* this enum lists the possible results of a command */
-
-    typedef enum {
-	EMCMOT_COMMAND_OK = 0,	/* cmd honored */
-	EMCMOT_COMMAND_UNKNOWN_COMMAND,	/* cmd not understood */
-	EMCMOT_COMMAND_INVALID_COMMAND,	/* cmd can't be handled now */
-	EMCMOT_COMMAND_INVALID_PARAMS,	/* bad cmd params */
-	EMCMOT_COMMAND_BAD_EXEC	/* error trying to initiate */
-    } cmd_status_t;
+#define EMCMOT_COMMAND_OK 0
+#define EMCMOT_COMMAND_UNKNOWN_COMMAND 1
+#define EMCMOT_COMMAND_INVALID_COMMAND 2
+#define EMCMOT_COMMAND_INVALID_PARAMS 3
+#define EMCMOT_COMMAND_BAD_EXEC 4
 
 /* termination conditions for queued motions */
 #define EMCMOT_TERM_COND_STOP 1
@@ -173,57 +180,54 @@ extern "C" {
 /*********************************
        COMMAND STRUCTURE
 *********************************/
-
-/* This is the command structure.  There is one of these in shared
-   memory, and all commands from higher level code come thru it.
-*/
-    typedef struct {
-	unsigned char head;	/* flag count for mutex detect */
-	cmd_code_t command;	/* command code (enum) */
-	int commandNum;		/* increment this for new command */
-	double maxLimit;	/* pos value for position limit, output */
-	double minLimit;	/* neg value for position limit, output */
-	EmcPose pos;		/* line/circle endpt, or teleop vector */
-	PmCartesian center;	/* center for circle */
-	PmCartesian normal;	/* normal vec for circle */
-	int turn;		/* turns for circle */
-	double vel;		/* max velocity */
-	double acc;		/* max acceleration */
-	double backlash;	/* amount of backlash */
-	int id;			/* id for motion */
-	int termCond;		/* termination condition */
-	int axis;		/* which index to use for below */
-/*! \todo FIXME - logging stuff will be radically reduced later */
-	int logSize;		/* size for log fifo */
-	int logSkip;		/* how many to skip, 0 means log all, -1
-				   means don't log on cycles */
-	int logType;		/* type for logging */
-	int logTriggerType;	/* see enum LOG_TRIGGER_TYPES */
-	int logTriggerVariable;	/* the variable(s) that can cause the log to
+typedef struct
+{
+  unsigned char head;           /* flag count for mutex detect */
+  int command;                  /* one of enum above */
+  int commandNum;               /* increment this for new command */
+  double cycleTime;             /* planning time (not servo time) */
+  double maxLimit;              /* pos value for position limit, output */
+  double minLimit;              /* neg value for position limit, output */
+  EmcPose pos;                  /* end for line, circle */
+  PmCartesian center;           /* center for circle */
+  PmCartesian normal;           /* normal vec for circle */
+  int turn;                     /* turns for circle */
+  double vel;                   /* max velocity */
+  double acc;                   /* max acceleration */
+  int id;                       /* id for motion */
+  int termCond;                 /* termination condition */
+  int axis;                     /* which index to use for below */
+  PID_STRUCT pid;               /* gains */
+  int logSize;                  /* size for log fifo */
+  int logSkip;                  /* how many to skip, 0 means log all,
+                                   -1 means don't log on cycles */
+  int logType;                  /* type for logging */
+  int logTriggerType;           /* see enum LOG_TRIGGER_TYPES */
+  int logTriggerVariable;       /* the variable(s) that can cause the log to 
 				   trigger. se enum LOG_TRIGGER_VARS */
-	double logTriggerThreshold;	/* the value for non manual triggers */
+  double logTriggerThreshold;   /* the value for non manual triggers */
+  double dacOut;                /* output to DAC */
+  double scale;                 /* input or output scale arg */
+  double offset;                /* input or output offset arg */
+  double minFerror;             /* min following error */
+  double maxFerror;             /* max following error */
+  int wdWait;                   /* cycle to wait before toggling wd */
+  EMCMOT_AXIS_FLAG axisFlag;    /* flag to set polarities */
+  int level;                    /* flag for polarity level */
+  int index;			/* Digital IO pin index */
+#ifdef ENABLE_PROBING
+  int probeIndex;               /* which wire the probe signal is on */
+#endif
+  int debug;		       	/* debug level, from DEBUG in .ini file */
+  unsigned char start, end, now; /* start/end bits, immediate flag */
+  unsigned char tail;           /* flag count for mutex detect */
+  double setup_time;               /* number of periods before step occurs that dir changes */
+  double hold_time;                /* number of periods that step line is held low/high after transition */
+} EMCMOT_COMMAND;
 
-	double scale;		/* velocity scale arg */
-	double offset;		/* input, output, or home offset arg */
-	double home;		/* joint home position */
-	double search_vel;	/* home search velocity */
-	double latch_vel;	/* home latch velocity */
-	int flags;		/* homing config flags */
-	double minFerror;	/* min following error */
-	double maxFerror;	/* max following error */
-	int wdWait;		/* cycle to wait before toggling wd */
-	int debug;		/* debug level, from DEBUG in .ini file */
-	unsigned char out, start, end;	/* motion index, start, and end bits */
-	unsigned char tail;	/* flag count for mutex detect */
-    } emcmot_command_t;
-
-/*! \todo FIXME - these packed bits might be replaced with chars
-   memory is cheap, and being able to access them without those
-   damn macros would be nice
-*/
 
 /* motion flag type */
-    typedef unsigned short EMCMOT_MOTION_FLAG;
+typedef unsigned short EMCMOT_MOTION_FLAG;
 
 /*
   motion status flag structure-- looks like:
@@ -250,7 +254,7 @@ extern "C" {
 #define EMCMOT_MOTION_TELEOP_BIT      0x0010
 
 /* axis flag type */
-    typedef unsigned short EMCMOT_AXIS_FLAG;
+typedef unsigned short EMCMOT_AXIS_FLAG;
 /*
   axis status flag structure-- looks like:
 
@@ -354,7 +358,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double forward[EMCMOT_COMP_SIZE];	/* forward comp points */
 	double reverse[EMCMOT_COMP_SIZE];	/* reverse comp points */
 	double alter;		/* additive dynamic compensation */
-    } emcmot_comp_t;
+    } emcmot_comp;
 
 /* motion controller states */
 
@@ -363,7 +367,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EMCMOT_MOTION_FREE,
 	EMCMOT_MOTION_TELEOP,
 	EMCMOT_MOTION_COORD
-    } motion_state_t;
+    } motion_state;
 
 /* states for homing */
     typedef enum {
@@ -386,7 +390,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	HOME_FINAL_MOVE_WAIT,	// 16
 	HOME_FINISHED,		// 17
 	HOME_ABORT		// 18
-    } home_state_t;
+    } home_state;
 
 /* flags for homing */
 #define HOME_IGNORE_LIMITS	1
@@ -400,7 +404,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    to be in shared memory (but it can, if desired for debugging
    reasons).  The portions of this structure that are considered
    "status" and need to be made available to user space are
-   copied to a much smaller struct called emcmot_joint_status_t
+   copied to a much smaller struct called emcmot_joint_status
    which is located in shared memory.
 
 */
@@ -421,7 +425,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double home;		/* joint coordinate of home point */
 	int home_flags;		/* flags for various homing options */
 	double backlash;	/* amount of backlash */
-	emcmot_comp_t comp;	/* leadscrew correction data */
+	emcmot_comp comp;	/* leadscrew correction data */
 
 	/* status info - changes regularly */
 	/* many of these need to be made available to higher levels */
@@ -458,20 +462,20 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int index_pulse;	/* current state of index pulse input */
 	int index_pulse_edge;	/* non-zero if rising edge detected */
 
-	home_state_t home_state;	/* state machine for homing */
+	home_state home_state;	/* state machine for homing */
 	double motor_offset;	/* diff between internal and motor pos, used
 				   to set position to zero during homing */
 
 	/* stuff moved from the other structs that might be needed (or might
 	   not!) */
 	double big_vel;		/* used for "debouncing" velocity */
-    } emcmot_joint_t;
+    } emcmot_joint;
 
 /* This structure contains only the "status" data associated with
    a joint.  "Status" data is that data that should be reported to
    user space on a continuous basis.  An array of these structs is
    part of the main status structure, and is filled in with data
-   copied from the emcmot_joint_t structs every servo period.
+   copied from the emcmot_joint structs every servo period.
 
    For now this struct contains more data than it really needs, but
    paring it down will take time (and probably needs to be done one
@@ -498,7 +502,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double min_ferror;	/* zero speed following error limit */
 	double max_ferror;	/* max speed following error limit */
 	double home_offset;	/* dir/dist from switch to home point */
-    } emcmot_joint_status_t;
+    } emcmot_joint_status;
 
 /*********************************
         STATUS STRUCTURE
@@ -517,73 +521,61 @@ Suggestion: Split this in to an Error and a Status flag register..
    evaluated - either they move up, or they go away.
 */
 
-    typedef struct {
-	unsigned char head;	/* flag count for mutex detect */
-	/* these three are updated only when a new command is handled */
-	cmd_code_t commandEcho;	/* echo of input command */
-	int commandNumEcho;	/* echo of input command number */
-	cmd_status_t commandStatus;	/* result of most recent command */
-	/* these are config info, updated when a command changes them */
-	double qVscale;		/* velocity scale factor for all motion */
-	/* the rest are updated every cycle */
-	motion_state_t motion_state; /* operating state: FREE, COORD, etc. */
-	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */
-	EmcPose carte_pos_cmd;	/* commanded Cartesian position */
-	int carte_pos_cmd_ok;	/* non-zero if command is valid */
-	EmcPose carte_pos_fb;	/* actual Cartesian position */
-	int carte_pos_fb_ok;	/* non-zero if feedback is valid */
-	EmcPose world_home;	/* cartesean coords of home position */
-	emcmot_joint_status_t joint_status[EMCMOT_MAX_AXIS];	/* all joint status data */
+typedef struct
+{
+  unsigned char head;           /* flag count for mutex detect */
 
-	int onSoftLimit;	/* non-zero if any axis is on soft limit */
+  /* dynamic status-- changes every cycle */
+  unsigned int heartbeat;
+  int config_num;		/* incremented whenever configuration changed. */
+  double computeTime;
+  EmcPose pos;                   /* calculated Cartesian position */
+  double axisPos[EMCMOT_MAX_AXIS]; /* calculated axis positions */
+  double output[EMCMOT_MAX_AXIS];
+  double input[EMCMOT_MAX_AXIS]; /* actual input */
+  EmcPose actualPos;             /* actual Cartesian position */
+  int id;                       /* id for executing motion */
+  int depth;                    /* motion queue depth */
+  int activeDepth;              /* depth of active blend elements */
+  int queueFull;
+  EMCMOT_MOTION_FLAG motionFlag;
+  EMCMOT_AXIS_FLAG axisFlag[EMCMOT_MAX_AXIS];
+  int paused;
+  int overrideLimits;           /* non-zero means limits are ignored */
+  int logPoints;                /* how many points currently in log */
 
-	int probeVal;		/* debounced value of probe input */
-
-/*! \todo FIXME - all structure members beyond this point are in limbo */
-
-	/* dynamic status-- changes every cycle */
-	unsigned int heartbeat;
-	int config_num;		/* incremented whenever configuration
-				   changed. */
-	double computeTime;
-	int id;			/* id for executing motion */
-	int depth;		/* motion queue depth */
-	int activeDepth;	/* depth of active blend elements */
-	int queueFull;		/* Flag to indicate the tc queue is full */
-	int paused;		/* Flag to signal motion paused */
-	int overrideLimits;	/* non-zero means limits are ignored */
-	int logPoints;		/* how many points currently in log */
-
-	/* static status-- only changes upon input commands, e.g., config */
-#if 0
-	double axVscale[EMCMOT_MAX_AXIS];	/* axis velocity scale factor 
-						 */
-#endif
-	double vel;		/* scalar max vel */
-	double acc;		/* scalar max accel */
-
-	int logOpen;		/* Logging stuff that will eventually end up
-				   in hal_scope */
-	int logStarted;
-	int logSize;		/* size in entries, not bytes */
-	int logSkip;
-	int logType;		/* type being logged */
-	int logTriggerType;	/* 0=manual, 1 =abs(change) > threshold,
+  /* static status-- only changes upon input commands, e.g., config */
+  int commandEcho;              /* echo of input command */
+  int commandNumEcho;           /* echo of input command number */
+  unsigned char commandStatus;  /* one of EMCMOT_COMMAND_ defined above */
+  double outputScale[EMCMOT_MAX_AXIS];
+  double outputOffset[EMCMOT_MAX_AXIS];
+  double inputScale[EMCMOT_MAX_AXIS];
+  double inputOffset[EMCMOT_MAX_AXIS]; /* encoder offsets */
+  double qVscale;               /* traj velocity scale factor */
+  double axVscale[EMCMOT_MAX_AXIS]; /* axis velocity scale factor */
+  double vel;                   /* scalar max vel */
+  double acc;                   /* scalar max accel */
+  int logOpen;
+  int logStarted;
+  int logSize;                  /* size in entries, not bytes */
+  int logSkip;
+  int logType;                  /* type being logged */
+  int logTriggerType;           /* 0=manual, 1 =abs(change) > threshold,
 				   2=var < threshold, 3 var>threshold */
-	int logTriggerVariable;	/* The variable(s) that can cause the log to
+  int logTriggerVariable;       /* The variable(s) that can cause the log to 
 				   trigger. */
-	double logTriggerThreshold;	/* The value for non manual triggers. 
-					 */
-	double logStartVal;	/* value use for delta trigger */
-
-	int probeTripped;	/* Has the probe signal changed since start
-				   of probe command? */
-	int probing;		/* Currently looking for a probe signal? */
-	EmcPose probedPos;	/* Axis positions stored as soon as possible
-				   after last probeTripped */
-	int level;
-	unsigned char tail;	/* flag count for mutex detect */
-    } emcmot_status_t;
+  double logTriggerThreshold;   /* The value for non manual triggers. */
+  double logStartVal;   /* value use for delta trigger */
+  int probeTripped;             /* Has the probe signal changed since
+                                 start of probe command? */
+  int probeval;                 /* current value of probe wire */
+  int probing;                  /* Currently looking for a probe signal? */
+  EmcPose probedPos;             /* Axis positions stored as soon as possible
+                                   after last probeTripped */
+  int level;
+  unsigned char tail;           /* flag count for mutex detect */
+} EMCMOT_STATUS;
 
 /*********************************
         CONFIG STRUCTURE
@@ -608,32 +600,39 @@ Suggestion: Split this in to an Error and a Status flag register..
    Other structure members follow.  All the later ones need to be
    evaluated - either they move up, or they go away.
 */
-    typedef struct {
-	unsigned char head;	/* flag count for mutex detect */
+typedef struct 
+{
+  unsigned char head;                   /* flag count for mutex detect */
+  int config_num;	        	/* Incremented everytime configuration changed, should match status.config_num */
+  EMCMOT_AXIS_FLAG axisPolarity[EMCMOT_MAX_AXIS];
+  int numAxes;
+  double trajCycleTime;
+  double servoCycleTime;
+  int interpolationRate;
+  double maxLimit[EMCMOT_MAX_AXIS];     /* maximum axis limits, counts */
+  double minLimit[EMCMOT_MAX_AXIS];     /* minimum axis limits, counts */
+  double minOutput[EMCMOT_MAX_AXIS];    /* minimum output value allowed, volts */
+  double maxOutput[EMCMOT_MAX_AXIS];    /* maximum output value allowed, volts */
+  double minFerror[EMCMOT_MAX_AXIS];    /* minimum allowable following error */
+  double maxFerror[EMCMOT_MAX_AXIS];    /* maximum allowable following error */
+  double limitVel;                      /* scalar upper limit on vel */
+  double axisLimitVel[EMCMOT_MAX_AXIS];	/* scalar upper limit on axis vels */
+  double axisAcc[EMCMOT_MAX_AXIS];	/* axis acceleration */
+  double homingVel[EMCMOT_MAX_AXIS];    /* scalar max homing vels */
+  double homeOffset[EMCMOT_MAX_AXIS];   /* where to go after home, user units */
+  int probeIndex;                       /* Which wire has the probe signal? */
+  int probePolarity;                    /* Look for 0 or 1. */
+  KINEMATICS_TYPE kinematics_type;
+  PID_STRUCT pid[EMCMOT_MAX_AXIS];
+  int STEPPING_TYPE;                    /* 0 = step/direction, 1 = phasing */
+  double setup_time[EMCMOT_MAX_AXIS];      /* number of periods before step occurs that dir changes */
+  double hold_time[EMCMOT_MAX_AXIS];       /* number of periods that step line is held low/high after transition */
+  int PERIOD;                           /* fundamental period for timer interrupts */
+  int IO_BASE_ADDRESS;
+  int debug;		            	/* copy of DEBUG, from .ini file */
 
-/*! \todo FIXME - all structure members beyond this point are in limbo */
-
-	int config_num;		/* Incremented everytime configuration
-				   changed, should match status.config_num */
-	int numAxes;		/* The number of axes in the system (which
-				   must be between 1 and EMCMOT_MAX_AXIS,
-				   inclusive). Allegedly, holds a copy of the
-				   global num_axes - seems daft to maintain
-				   duplicates ! */
-
-	double trajCycleTime;	/* the rate at which the trajectory loop
-				   runs.... (maybe) */
-	double servoCycleTime;	/* the rate of the servo loop - Not the same
-				   as the traj time */
-
-	int interpolationRate;	/* grep control.c for an explanation....
-				   approx line 50 */
-
-	double limitVel;	/* scalar upper limit on vel */
-	KINEMATICS_TYPE kinematics_type;
-	int debug;		/* copy of DEBUG, from .ini file */
-	unsigned char tail;	/* flag count for mutex detect */
-    } emcmot_config_t;
+  unsigned char tail;	        	/* flag count for mutex detect */
+} EMCMOT_CONFIG;
 
 /*********************************
       INTERNAL STRUCTURE
@@ -653,7 +652,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	int probe_debounce_cntr;
 	unsigned char tail;	/* flag count for mutex detect */
-    } emcmot_internal_t;
+    } emcmot_internal;
 
 /*********************************
         DEBUG STRUCTURE
@@ -678,87 +677,130 @@ Suggestion: Split this in to an Error and a Status flag register..
 */
 
 /*! \todo FIXME - this has become a dumping ground for all kinds of stuff */
+typedef struct
+{
+  unsigned char head;           /* flag count for mutex detect */
+  double tMin, tMax, tAvg;      /* trajectory min, max, avg times */
+  double sMin, sMax, sAvg;      /* servo min, max, avg times */
+  double nMin, nMax, nAvg;      /* min, max, avg times in DISABLED mode */
+  double yMin, yMax, yAvg;      /* min, max, avg times cycle times rather than compute  */
+  double fMin, fMax, fAvg;      /* min, max, avg times frequency */
+  double fyMin, fyMax, fyAvg;      /* min, max, avg times frequency cycle times rather than compute  */
 
-    typedef struct {
-	unsigned char head;	/* flag count for mutex detect */
+  EMC_TELEOP_DATA teleop_data;
+  double ferrorCurrent[EMCMOT_MAX_AXIS]; /* current  following error */
+  double ferrorHighMark[EMCMOT_MAX_AXIS]; /* magnitude of max following error */
+  int split;                    /* number of split command reads */
+  int stepperCount[EMCMOT_MAX_AXIS]; /* and rest are 0 */
 
-/*! \todo FIXME - all structure members beyond this point are in limbo */
+  int pdmult[EMCMOT_MAX_AXIS];
+  int enable[EMCMOT_MAX_AXIS];
 
-	double tMin, tMax, tAvg;	/* trajectory min, max, avg times */
-	double sMin, sMax, sAvg;	/* servo min, max, avg times */
-	double nMin, nMax, nAvg;	/* min, max, avg times in DISABLED
-					   mode */
-	double yMin, yMax, yAvg;	/* min, max, avg times cycle times
-					   rather than compute */
-	double fMin, fMax, fAvg;	/* min, max, avg times frequency */
-	double fyMin, fyMax, fyAvg;	/* min, max, avg times frequency
-					   cycle times rather than compute */
+  /* flag for enabling, disabling watchdog; multiple for down-stepping */
+  int wdEnabling ;
+  int wdEnabled ;
+  int wdWait ;
+  int wdCount ;
+  unsigned char wdToggle ;
+  
+  /* flag that all active axes are homed */
+  unsigned char allHomed ;
+  
+  /* values for joint home positions */
+  double jointHome[EMCMOT_MAX_AXIS];
 
-	EMC_TELEOP_DATA teleop_data;
-	int split;		/* number of split command reads */
-	/* flag for enabling, disabling watchdog; multiple for down-stepping */
-	int wdEnabling;
-	int wdEnabled;
-	int wdWait;
-	int wdCount;
-	unsigned char wdToggle;
+  int maxLimitSwitchCount[EMCMOT_MAX_AXIS];
+  int minLimitSwitchCount[EMCMOT_MAX_AXIS];
+  int ampFaultCount[EMCMOT_MAX_AXIS];
 
-	/* flag that all active axes are homed */
-	unsigned char allHomed;
-
-	TP_STRUCT queue;	/* coordinated mode planner */
+  TP_STRUCT queue;         /* coordinated mode planner */
+ TP_STRUCT freeAxis[EMCMOT_MAX_AXIS];
+ EmcPose freePose;
+ CUBIC_STRUCT cubic[EMCMOT_MAX_AXIS];
 
 /* space for trajectory planner queues, plus 10 more for safety */
-/*! \todo FIXME-- default is used; dynamic is not honored */
-	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
+/* FIXME-- default is used; dynamic is not honored */
+ TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
+#define FREE_AXIS_QUEUE_SIZE 4  /* don't really queue free axis motion */
+ TC_STRUCT freeAxisTcSpace[EMCMOT_MAX_AXIS][FREE_AXIS_QUEUE_SIZE];
 
-	EmcPose oldPos;		/* last position, used for vel differencing */
-	EmcPose oldVel, newVel;	/* velocities, used for acc differencing */
-	EmcPose newAcc;		/* differenced acc */
+ double rawInput[EMCMOT_MAX_AXIS];        /* raw feedback from sensors */
+ double rawOutput[EMCMOT_MAX_AXIS]; /* raw output to actuators */
 
-	int enabling;		/* starts up disabled */
-	int coordinating;	/* starts up in free mode */
-	int teleoperating;	/* starts up in free mode */
-#if 0
-	int wasOnLimit;		/* non-zero means we already aborted
-				   everything due to a soft limit, and need
-				   not re-abort. It's cleared only when all
-				   limits are cleared. */
-	int onLimit;		/* non-zero means at least one axis is on a
-				   soft limit */
-#endif
+ double coarseJointPos[EMCMOT_MAX_AXIS];  /* trajectory point, in joints */
+ double jointPos[EMCMOT_MAX_AXIS]; /* interpolated point, in joints */
+ double jointVel[EMCMOT_MAX_AXIS]; /* joint velocity */
+ double oldJointPos[EMCMOT_MAX_AXIS]; /* ones from last cycle, for vel */
+ double outJointPos[EMCMOT_MAX_AXIS]; /* rounded and backlash-comped */
+ double oldInput[EMCMOT_MAX_AXIS]; /* ones for actual pos, last cycle */
+  char oldInputValid[EMCMOT_MAX_AXIS];
+/* inverseInputScale[] is 1/inputScale[], and lets us use a multiplication
+   instead of a division each servo cycle */
+ double inverseInputScale[EMCMOT_MAX_AXIS];
+ double inverseOutputScale[EMCMOT_MAX_AXIS];
+ EmcPose oldPos;           /* last position, used for vel differencing */
+ EmcPose oldVel, newVel;   /* velocities, used for acc differencing */
+ EmcPose newAcc;           /* differenced acc */
 
-	int overriding;		/* non-zero means we've initiated an axis
-				   move while overriding limits */
+/* value of speed past which we debounce the feedback */
+ double bigVel[EMCMOT_MAX_AXIS];
 
-	int stepping;
-	int idForStep;
+ int homingPhase[EMCMOT_MAX_AXIS]; /*flags for homing */
+ int latchFlag[EMCMOT_MAX_AXIS]; /* flags for axis latched */
+ double saveLatch[EMCMOT_MAX_AXIS]; /* saved axis latch values */
 
-#ifdef STRUCTS_IN_SHMEM
-	emcmot_joint_t joints[EMCMOT_MAX_AXIS];	/* joint data */
-#endif
+ int enabling;        /* starts up disabled */
+ int coordinating;    /* starts up in free mode */
+ int teleoperating  ;    /* starts up in free mode */
 
-	/* min-max-avg structs for traj and servo cycles */
-	MMXAVG_STRUCT tMmxavg;
-	MMXAVG_STRUCT sMmxavg;
-	MMXAVG_STRUCT nMmxavg;
-	MMXAVG_STRUCT yMmxavg;
-	MMXAVG_STRUCT fMmxavg;
-	MMXAVG_STRUCT fyMmxavg;
+ int wasOnLimit;      /* non-zero means we already aborted
+                                   everything due to a soft
+                                   limit, and need not re-abort. It's
+                                   cleared only when all limits are
+                                   cleared. */
+ int onLimit;         /* non-zero means at least one axis is
+                                   on a soft limit */
 
-	double tMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double sMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double nMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double yMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double fMmxavgSpace[DEFAULT_MMXAVG_SIZE];
-	double fyMmxavgSpace[DEFAULT_MMXAVG_SIZE];
+ int overriding;      /* non-zero means we've initiated an axis
+                                   move while overriding limits */
 
-	double start_time;
-	double running_time;
-	double cur_time;
-	double last_time;
-	unsigned char tail;	/* flag count for mutex detect */
-    } emcmot_debug_t;
+ int stepping;	/* When true, motion is single stepped through queued motion */
+ int idForStep; /* Used in conjunction with stepping - When idForStep != current motion ID, motion is paused. */
+
+  /* min-max-avg structs for traj and servo cycles */
+  MMXAVG_STRUCT tMmxavg;
+  MMXAVG_STRUCT sMmxavg;
+  MMXAVG_STRUCT nMmxavg;
+  MMXAVG_STRUCT yMmxavg;
+  MMXAVG_STRUCT fMmxavg;
+  MMXAVG_STRUCT fyMmxavg;
+  
+  double tMmxavgSpace[DEFAULT_MMXAVG_SIZE];
+  double sMmxavgSpace[DEFAULT_MMXAVG_SIZE];
+  double nMmxavgSpace[DEFAULT_MMXAVG_SIZE];
+  double yMmxavgSpace[DEFAULT_MMXAVG_SIZE];
+  double fMmxavgSpace[DEFAULT_MMXAVG_SIZE];
+  double fyMmxavgSpace[DEFAULT_MMXAVG_SIZE];
+
+  double start_time;
+  double running_time;
+  double cur_time;
+  double last_time;
+
+    /* backlash stuff */
+  double bcomp[EMCMOT_MAX_AXIS];  /* backlash comp value */
+  char bcompdir[EMCMOT_MAX_AXIS]; /* 0=none, 1=pos, -1=neg */
+  double bcompincr[EMCMOT_MAX_AXIS];  /* incremental backlash comp */
+  char bac_done[EMCMOT_MAX_AXIS]; 
+  double bac_d[EMCMOT_MAX_AXIS];
+  double bac_di[EMCMOT_MAX_AXIS];
+  double bac_D[EMCMOT_MAX_AXIS];
+  double bac_halfD[EMCMOT_MAX_AXIS];
+  double bac_incrincr[EMCMOT_MAX_AXIS];
+  double bac_incr[EMCMOT_MAX_AXIS];
+
+  unsigned char tail;		/* flag count for mutex detect */
+} EMCMOT_DEBUG;
 
 /* error structure - A ring buffer used to pass formatted printf stings to usr space */
     typedef struct {
@@ -768,30 +810,30 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int end;		/* index of newest error */
 	int num;		/* number of items */
 	unsigned char tail;	/* flag count for mutex detect */
-    } emcmot_error_t;
+    } emcmot_error;
 
 /* big comm structure, for upper memory */
     typedef struct {
-	emcmot_command_t command;	/* struct used to pass commands/data
+	emcmot_command command;	/* struct used to pass commands/data
 					   to the RT module from usr space */
-	emcmot_status_t status;	/* Struct used to store RT status */
-	emcmot_config_t config;	/* Struct used to store RT config */
-	emcmot_debug_t debug;	/* Struct used to store RT status and debug
+	emcmot_status status;	/* Struct used to store RT status */
+	emcmot_config config;	/* Struct used to store RT config */
+	emcmot_debug debug;	/* Struct used to store RT status and debug
 				   data - 2nd largest block */
-	emcmot_internal_t internal;	/*! \todo FIXME - doesn't need to be in
+	emcmot_internal internal;	/*! \todo FIXME - doesn't need to be in
 					   shared memory */
-	emcmot_error_t error;	/* ring buffer for error messages */
-	emcmot_log_t log;	/* a massive ring buffer for logging RT data */
-    } emcmot_struct_t;
+	emcmot_error error;	/* ring buffer for error messages */
+	emcmot_log log;	/* a massive ring buffer for logging RT data */
+    } emcmot_struct;
 
 /*
   function prototypes for emcmot code
 */
 
 /* error ring buffer access functions */
-    extern int emcmotErrorInit(emcmot_error_t * errlog);
-    extern int emcmotErrorPut(emcmot_error_t * errlog, const char *error);
-    extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
+    extern int emcmotErrorInit(emcmot_error * errlog);
+    extern int emcmotErrorPut(emcmot_error * errlog, const char *error);
+    extern int emcmotErrorGet(emcmot_error * errlog, char *error);
 
 #ifdef __cplusplus
 }
