@@ -13,33 +13,17 @@ DEBUG_FILE=/dev/null
 PRINT_FILE=/dev/null
 
 # check for some programs that we need
-if ! which grep >$DEBUG_FILE || \
-   ! which sed >>$DEBUG_FILE || \
-   ! which ps >>$DEBUG_FILE || \
-   ! which kill >>$DEBUG_FILE || \
-   ! which whoami >>$DEBUG_FILE || \
-   ! which awk >>$DEBUG_FILE ; then
-    echo "Sorry, a neccessary program couldn't be found"
-    exit -1
-fi
-if [ -x /sbin/insmod ] ; then
-    INSMOD=/sbin/insmod
-else
-    echo "Can't find insmod"
-    exit -1
-fi
-if [ -x /sbin/rmmod ] ; then
-    RMMOD=/sbin/rmmod
-else
-    echo "Can't find rmmod"
-    exit -1
-fi
-if [ -x /sbin/lsmod ] ; then
-    LSMOD=/sbin/lsmod
-else
-    echo "Can't locate lsmod"
-    exit -1
-fi
+INSMOD=/sbin/insmod
+RMMOD=/sbin/rmmod
+LSMOD=/sbin/lsmod
+>$DEBUG_FILE
+for i in grep sed ps kill whoami awk $INSMOD $RMMOD $LSMOD; do
+    if ! which $i >>$DEBUG_FILE; then
+        echo "Sorry, can't find $i, a necessary program"
+        exit -1
+    fi
+done
+    
 if [ -x /usr/bin/pidof ] ; then
     PIDOF=/usr/bin/pidof ;
 elif [ -x /bin/pidof ] ; then
