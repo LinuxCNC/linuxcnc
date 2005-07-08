@@ -17,16 +17,13 @@
 ********************************************************************/
 
 extern "C" {
-#include <stdio.h>              // NULL, sscanf
+#include <stdio.h>		// NULL, sscanf
 }
-
 #include "emc.hh"
 #include "inifile.hh"
-#include "iniaux.hh"            // these decls
-#include "emcglb.h"             // ESTOP_SENSE_INDEX, etc
-
-// inifile ref'ed by iniAux(), loadAux()
-static Inifile *auxInifile = 0;
+#include "iniaux.hh"		// these decls
+#include "emcglb.h"		// ESTOP_SENSE_INDEX, etc
+// inifile ref'ed by iniAux(), loadAux() static Inifile *auxInifile = 0;
 
 /*
   loadAux()
@@ -50,91 +47,77 @@ static Inifile *auxInifile = 0;
 
 static int loadAux()
 {
-  int retval = 0;
-  const char *inistring;
-  int i;
+    int retval = 0;
+    const char *inistring;
+    int i;
 
-  if (NULL != (inistring = auxInifile->find("ESTOP_SENSE_INDEX", "EMCIO")))
-    {
-      if (1 == sscanf(inistring, "%d", &i))
-        {
-          // found, and valid
-          if (0 != emcAuxEstopSetSenseIndex(i))
-            {
-              printf("bad return value from emcAuxEstopSetSenseIndex\n");
-              retval = -1;
-            }
-        }
-      else
-        {
-          // found, but invalid, so warn
-          printf("invalid inifile value for ESTOP_SENSE_INDEX: %s\n",
-                          inistring);
-        }
+    if (NULL !=
+	(inistring = auxInifile->find("ESTOP_SENSE_INDEX", "EMCIO"))) {
+	if (1 == sscanf(inistring, "%d", &i)) {
+	    // found, and valid
+	    if (0 != emcAuxEstopSetSenseIndex(i)) {
+		printf("bad return value from emcAuxEstopSetSenseIndex\n");
+		retval = -1;
+	    }
+	} else {
+	    // found, but invalid, so warn
+	    printf("invalid inifile value for ESTOP_SENSE_INDEX: %s\n",
+		   inistring);
+	}
     }
-  // else ignore omission
+    // else ignore omission
 
-  if (NULL != (inistring = auxInifile->find("ESTOP_WRITE_INDEX", "EMCIO")))
-    {
-      if (1 == sscanf(inistring, "%d", &i))
-        {
-          // found, and valid
-          if (0 != emcAuxEstopSetWriteIndex(i))
-            {
-              printf("bad return value from emcAuxEstopSetWriteIndex\n");
-              retval = -1;
-            }
-        }
-      else
-        {
-          // found, but invalid, so warn
-          printf("invalid inifile value for ESTOP_WRITE_INDEX: %s\n",
-                          inistring);
-        }
+    if (NULL !=
+	(inistring = auxInifile->find("ESTOP_WRITE_INDEX", "EMCIO"))) {
+	if (1 == sscanf(inistring, "%d", &i)) {
+	    // found, and valid
+	    if (0 != emcAuxEstopSetWriteIndex(i)) {
+		printf("bad return value from emcAuxEstopSetWriteIndex\n");
+		retval = -1;
+	    }
+	} else {
+	    // found, but invalid, so warn
+	    printf("invalid inifile value for ESTOP_WRITE_INDEX: %s\n",
+		   inistring);
+	}
     }
-  // else ignore omission
+    // else ignore omission
 
-  if (NULL != (inistring = auxInifile->find("ESTOP_SENSE_POLARITY", "EMCIO")))
-    {
-      if (1 == sscanf(inistring, "%d", &i))
-        {
-          // found, and valid
-          if (0 != emcAuxEstopSetSensePolarity(i))
-            {
-              printf("bad return value from emcAuxEstopSetSensePolarity\n");
-              retval = -1;
-            }
-        }
-      else
-        {
-          // found, but invalid, so warn
-          printf("invalid inifile value for ESTOP_SENSE_POLARITY: %s\n",
-                          inistring);
-        }
+    if (NULL !=
+	(inistring = auxInifile->find("ESTOP_SENSE_POLARITY", "EMCIO"))) {
+	if (1 == sscanf(inistring, "%d", &i)) {
+	    // found, and valid
+	    if (0 != emcAuxEstopSetSensePolarity(i)) {
+		printf
+		    ("bad return value from emcAuxEstopSetSensePolarity\n");
+		retval = -1;
+	    }
+	} else {
+	    // found, but invalid, so warn
+	    printf("invalid inifile value for ESTOP_SENSE_POLARITY: %s\n",
+		   inistring);
+	}
     }
-  // else ignore omission
+    // else ignore omission
 
-  if (NULL != (inistring = auxInifile->find("ESTOP_WRITE_POLARITY", "EMCIO")))
-    {
-      if (1 == sscanf(inistring, "%d", &i))
-        {
-          // found, and valid
-          if (0 != emcAuxEstopSetWritePolarity(i))
-            {
-              printf("bad return value from emcAuxEstopSetWritePolarity\n");
-              retval = -1;
-            }
-        }
-      else
-        {
-          // found, but invalid, so warn
-          printf("invalid inifile value for ESTOP_WRITE_POLARITY: %s\n",
-                          inistring);
-        }
+    if (NULL !=
+	(inistring = auxInifile->find("ESTOP_WRITE_POLARITY", "EMCIO"))) {
+	if (1 == sscanf(inistring, "%d", &i)) {
+	    // found, and valid
+	    if (0 != emcAuxEstopSetWritePolarity(i)) {
+		printf
+		    ("bad return value from emcAuxEstopSetWritePolarity\n");
+		retval = -1;
+	    }
+	} else {
+	    // found, but invalid, so warn
+	    printf("invalid inifile value for ESTOP_WRITE_POLARITY: %s\n",
+		   inistring);
+	}
     }
-  // else ignore omission
+    // else ignore omission
 
-  return retval;
+    return retval;
 }
 
 /*
@@ -144,54 +127,50 @@ static int loadAux()
  */
 int iniAux(const char *filename)
 {
-  int retval = 0;
+    int retval = 0;
 
-  auxInifile = new Inifile;
+    auxInifile = new Inifile;
 
-  if (-1 == auxInifile->open(filename))
-    {
-      return -1;
+    if (auxInifile->open(filename) == false) {
+	return -1;
     }
-
-  // load aux values
-  if (0 != loadAux())
-    {
-      retval = -1;
+    // load aux values
+    if (0 != loadAux()) {
+	retval = -1;
     }
+    // close the inifile
+    auxInifile->close();
+    delete auxInifile;
 
-  // close the inifile
-  auxInifile->close();
-  delete auxInifile;
-
-  return retval;
+    return retval;
 }
 
 // implementations of functions to set ini file global variables
 
 int emcAuxEstopSetSenseIndex(int index)
 {
-  ESTOP_SENSE_INDEX = index;
+    ESTOP_SENSE_INDEX = index;
 
-  return 0;
+    return 0;
 }
 
 int emcAuxEstopSetWriteIndex(int index)
 {
-  ESTOP_WRITE_INDEX = index;
+    ESTOP_WRITE_INDEX = index;
 
-  return 0;
+    return 0;
 }
 
 int emcAuxEstopSetSensePolarity(int polarity)
 {
-  ESTOP_SENSE_POLARITY = polarity;
+    ESTOP_SENSE_POLARITY = polarity;
 
-  return 0;
+    return 0;
 }
 
 int emcAuxEstopSetWritePolarity(int polarity)
 {
-  ESTOP_WRITE_POLARITY = polarity;
+    ESTOP_WRITE_POLARITY = polarity;
 
-  return 0;
+    return 0;
 }

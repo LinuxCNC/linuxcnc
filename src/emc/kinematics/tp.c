@@ -325,7 +325,8 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tran_pose.rot.x = tran_pose.rot.y = tran_pose.rot.z = 0.0;
     goal_tran_pose.tran = tp->goalPos.tran;
     goal_tran_pose.rot.s = 1.0;
-    goal_tran_pose.rot.x = goal_tran_pose.rot.y = goal_tran_pose.rot.z = 0.0;
+    goal_tran_pose.rot.x = goal_tran_pose.rot.y = goal_tran_pose.rot.z =
+	0.0;
 
     abc_pose.tran.x = end.a;
     abc_pose.tran.y = end.b;
@@ -375,7 +376,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
 }
 
 int tpAddCircle(TP_STRUCT * tp, EmcPose end,
-    PmCartesian center, PmCartesian normal, int turn)
+		PmCartesian center, PmCartesian normal, int turn)
 {
     TC_STRUCT tc;
     PmCircle circle;
@@ -396,7 +397,8 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     endPose.rot.x = endPose.rot.y = endPose.rot.z = 0.0;
     circleGoalPose.tran = tp->goalPos.tran;
     circleGoalPose.rot.s = 1.0;
-    circleGoalPose.rot.x = circleGoalPose.rot.y = circleGoalPose.rot.z = 0.0;
+    circleGoalPose.rot.x = circleGoalPose.rot.y = circleGoalPose.rot.z =
+	0.0;
 
     tcInit(&tc);
     pmCircleInit(&circle, circleGoalPose, endPose, center, normal, turn);
@@ -512,7 +514,8 @@ int tpRunCycle(TP_STRUCT * tp)
 	    if (thisVel > TP_VEL_EPSILON) {
 		preVMax = thisTc->vMax;
 	    }
-	    if (thisAccel > TP_ACCEL_EPSILON || thisAccel < -TP_ACCEL_EPSILON) {
+	    if (thisAccel > TP_ACCEL_EPSILON
+		|| thisAccel < -TP_ACCEL_EPSILON) {
 		preAMax = thisTc->aMax;
 	    }
 	} else {
@@ -528,7 +531,8 @@ int tpRunCycle(TP_STRUCT * tp)
 		pmCartCartDot(velCart, unitCart, &dot);
 		preVMax =
 		    thisTc->vMax + dot - pmSqrt(pmSq(dot) -
-		    pmSq(currentVelMag) + pmSq(thisTc->vMax));
+						pmSq(currentVelMag) +
+						pmSq(thisTc->vMax));
 	    } else {
 		preVMax = 0.0;
 	    }
@@ -543,7 +547,8 @@ int tpRunCycle(TP_STRUCT * tp)
 		pmCartCartDot(accelCart, unitCart, &dot);
 		preAMax =
 		    thisTc->aMax + dot - pmSqrt(pmSq(dot) -
-		    pmSq(currentAccelMag) + pmSq(thisTc->aMax));
+						pmSq(currentAccelMag) +
+						pmSq(thisTc->aMax));
 	    } else {
 		preAMax = 0.0;
 	    }
@@ -574,7 +579,8 @@ int tpRunCycle(TP_STRUCT * tp)
 	/* this one is still active-- increment active count */
 	tp->activeDepth++;
 
-	if (tcIsDecel(thisTc) && tcGetTermCond(thisTc) == TC_TERM_COND_BLEND) {
+	if (tcIsDecel(thisTc)
+	    && tcGetTermCond(thisTc) == TC_TERM_COND_BLEND) {
 	    /* this one is decelerating-- blend in the next one with credit
 	       for this decel */
 	    thisAccel = tcGetAccel(thisTc);
@@ -620,9 +626,9 @@ int tpRunCycle(TP_STRUCT * tp)
 /*! \todo FIXME - this is part of synchronous I/O*/
 	if (tp->douts && 0 != thisTc) {
 	    /* Fred's original code.. tcDoutByte |= (thisTc->douts &
-	      thisTc->doutends); tcDoutByte &= (~thisTc->douts |
-	      thisTc->doutends); extMotDout(tcDoutByte); */
-	    extDioWrite(thisTc->doutIndex, thisTc->doutends);
+	             thisTc->doutends); tcDoutByte &= (~thisTc->douts |
+	             thisTc->doutends); extMotDout(tcDoutByte); */
+	      extDioWrite(thisTc->doutIndex, thisTc->doutends);
 	}
 #endif
 	tcqInit(&tp->queue);
@@ -709,10 +715,10 @@ EmcPose tpGetPos(TP_STRUCT * tp)
 	   expect the only reason it hasn't caused problems is that nobody
 	   ever calls this function with tp = 0
 
-            N.B: This is no different to declaring an int retval within the body
-            of a function and returning it. Returning a struct is no different.
-            Note: This is a struct, not a pointer that is being returned.
-           */
+	   N.B: This is no different to declaring an int retval within the body
+	   of a function and returning it. Returning a struct is no different.
+	   Note: This is a struct, not a pointer that is being returned.
+	 */
 	retval.tran.x = retval.tran.y = retval.tran.z = 0.0;
 	retval.a = retval.b = retval.c = 0.0;
 	return retval;
@@ -792,9 +798,10 @@ void tpPrint(TP_STRUCT * tp)
     rtapi_print_msg(1, "vMax:\t\t%f\n", tp->vMax);
     rtapi_print_msg(1, "aMax:\t\t%f\n", tp->aMax);
     rtapi_print_msg(1, "currentPos:\t%f\t%f\t%f\n",
-	tp->currentPos.tran.x, tp->currentPos.tran.y, tp->currentPos.tran.z);
-    rtapi_print_msg(1, "goalPos:\t%f\t%f\t%f\n",
-	tp->goalPos.tran.x, tp->goalPos.tran.y, tp->goalPos.tran.z);
+		    tp->currentPos.tran.x, tp->currentPos.tran.y,
+		    tp->currentPos.tran.z);
+    rtapi_print_msg(1, "goalPos:\t%f\t%f\t%f\n", tp->goalPos.tran.x,
+		    tp->goalPos.tran.y, tp->goalPos.tran.z);
     rtapi_print_msg(1, "done:      \t%d\n", tpIsDone(tp));
     rtapi_print_msg(1, "paused:    \t%d\n", tpIsPaused(tp));
     rtapi_print_msg(1, "queueDepth:\t%d\n", tpQueueDepth(tp));
@@ -804,21 +811,22 @@ void tpPrint(TP_STRUCT * tp)
 	rtapi_print_msg(1, "\t---\tTC %d\t---\n", t + 1);
 	tcPrint(tcqItem(&tp->queue, t, 0));
     }
-#endif /* ULAPI */
+#endif				/* ULAPI */
 }
-
 
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - this is part of synchronous I/O */
 
-int tpSetAout(TP_STRUCT *tp, unsigned char index, double start, double end)
+int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
+	      double end)
 {
     /*! \todo FIXME-- unimplemented due to large size required for doubles */
     return 0;
 }
 
-int tpSetDout(TP_STRUCT *tp, int index, unsigned char start, unsigned char end)
+int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
+	      unsigned char end)
 {
     if (0 == tp) {
 	return -1;
@@ -850,4 +858,3 @@ int tpSetDout(TP_STRUCT *tp, int index, unsigned char start, unsigned char end)
 }
 
 #endif
-

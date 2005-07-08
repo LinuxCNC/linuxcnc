@@ -53,10 +53,14 @@ typedef struct {
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
-    unsigned char douts;        /* mask for douts to set */
-    int doutIndex;              /* index for dout values */
-    unsigned char doutstart;    /* mask for dout start vals */
-    unsigned char doutend;      /* mask for dout end vals */
+      unsigned char douts;
+        			/* mask for douts to set */
+      int doutIndex;
+           			/* index for dout values */
+      unsigned char doutstart;
+      				/* mask for dout start vals */
+      unsigned char doutend;
+       				/* mask for dout end vals */
 #endif
 } TP_STRUCT;
 
@@ -79,7 +83,7 @@ extern int tpGetTermCond(TP_STRUCT * tp);
 extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
 extern int tpAddLine(TP_STRUCT * tp, EmcPose end);
 extern int tpAddCircle(TP_STRUCT * tp, EmcPose end,
-    PmCartesian center, PmCartesian normal, int turn);
+		       PmCartesian center, PmCartesian normal, int turn);
 extern int tpRunCycle(TP_STRUCT * tp);
 extern int tpPause(TP_STRUCT * tp);
 extern int tpResume(TP_STRUCT * tp);
@@ -93,8 +97,10 @@ extern void tpPrint(TP_STRUCT * tp);
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
-extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
-extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end);
+extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
+		      double end);
+extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
+		      unsigned char end);
 #endif
 
-#endif /* TP_H */
+#endif				/* TP_H */

@@ -68,10 +68,10 @@ typedef struct {
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - these are needed for synchronous I/O */
-    unsigned char douts;	/* mask for douts to set */
-    int doutIndex;		/* index for dout value */
-    unsigned char doutstarts;	/* mask for dout start vals */
-    unsigned char doutends;	/* mask for dout end vals */
+      unsigned char douts;	/* mask for douts to set */
+      int doutIndex;		/* index for dout value */
+      unsigned char doutstarts;	/* mask for dout start vals */
+      unsigned char doutends;	/* mask for dout end vals */
 #endif
 } TC_STRUCT;
 
@@ -116,7 +116,8 @@ extern int tcForceCycle(TC_STRUCT * tc, double ratio);
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
-extern int tcSetDout(TC_STRUCT * tc, int index, unsigned char starts, unsigned char ends);
+extern int tcSetDout(TC_STRUCT * tc, int index, unsigned char starts,
+		      unsigned char ends);
 #endif
 
 /* queue of TC_STRUCT elements*/
@@ -132,7 +133,8 @@ typedef struct {
 /* TC_QUEUE_STRUCT functions */
 
 /* create queue of _size */
-extern int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size, TC_STRUCT * tcSpace);
+extern int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size,
+		     TC_STRUCT * tcSpace);
 
 /* free up queue */
 extern int tcqDelete(TC_QUEUE_STRUCT * tcq);
@@ -161,4 +163,4 @@ extern TC_STRUCT *tcqLast(TC_QUEUE_STRUCT * tcq, int *status);
 /* get full status */
 extern int tcqFull(TC_QUEUE_STRUCT * tcq);
 
-#endif /* TC_H */
+#endif				/* TC_H */

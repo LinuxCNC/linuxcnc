@@ -116,7 +116,8 @@ typedef enum {CANON_AXIS_X, CANON_AXIS_Y, CANON_AXIS_Z, CANON_AXIS_A,
 */
 
 struct CANON_VECTOR {
-    CANON_VECTOR() { } CANON_VECTOR(double _x, double _y, double _z) {
+    CANON_VECTOR() {
+    } CANON_VECTOR(double _x, double _y, double _z) {
 	x = _x;
 	y = _y;
 	z = _z;
@@ -125,9 +126,9 @@ struct CANON_VECTOR {
 };
 
 struct CANON_POSITION {
-    CANON_POSITION() { } CANON_POSITION(
-            double _x, double _y, double _z,
-            double _a, double _b, double _c) {
+    CANON_POSITION() {
+    } CANON_POSITION(double _x, double _y, double _z,
+		     double _a, double _b, double _c) {
 	x = _x;
 	y = _y;
 	z = _z;
@@ -156,7 +157,7 @@ extern void INIT_CANON();
 /* Representation */
 
 extern void SET_ORIGIN_OFFSETS(double x, double y, double z,
-                                double a, double b, double c);
+			       double a, double b, double c);
 
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, and c. Values of x, y, z, a, b, and c are real numbers. The units
@@ -183,7 +184,8 @@ is expected that no cutting will occur while a traverse move is being
 made. */
 
 extern void STRAIGHT_TRAVERSE(double x, double y, double z,
-    double a_position, double b_position, double c_position);
+			      double a_position, double b_position,
+			      double c_position);
 /*
 
 Move at traverse rate so that at any time during the move, all axes
@@ -319,8 +321,9 @@ extern void STOP_SPEED_FEED_SYNCH();
 /* Machining Functions */
 
 extern void ARC_FEED(double first_end, double second_end,
-    double first_axis, double second_axis, int rotation, double axis_end_point,
-    double a_position, double b_position, double c_position);
+		     double first_axis, double second_axis, int rotation,
+		     double axis_end_point, double a_position,
+		     double b_position, double c_position);
 
 /* Move in a helical arc from the current location at the existing feed
 rate. The axis of the helix is parallel to the x, y, or z axis,
@@ -374,14 +377,16 @@ a point moving along the arc has of its total motion.
 */
 
 extern void STRAIGHT_FEED(double x, double y, double z,
-                double a_position, double b_position, double c_position);
+			  double a_position, double b_position,
+			  double c_position);
 
 /* Move at existing feed rate so that at any time during the move,
 all axes have covered the same proportion of their required motion.
 The meanings of the parameters is the same as for STRAIGHT_TRAVERSE.*/
 
 extern void STRAIGHT_PROBE(double x, double y, double z,
-                double a_position, double b_position, double c_position);
+			   double a_position, double b_position,
+			   double c_position);
 
 /* Perform a probing operation. This is a temporary addition to the
 canonical machining functions and its semantics are not defined.
@@ -524,7 +529,8 @@ controller. */
 
 /* NURB Functions */
 extern void NURB_KNOT_VECTOR();	/* double knot values, -1.0 signals done */
-extern void NURB_CONTROL_POINT(int i, double x, double y, double z, double w);
+extern void NURB_CONTROL_POINT(int i, double x, double y, double z,
+			       double w);
 extern void NURB_FEED(double sStart, double sEnd);
 
 /* Program Functions */
@@ -689,14 +695,20 @@ extern char _parameter_file_name[];	/* in canon.cc */
 #define PARAMETER_FILE_NAME_LENGTH 100
 
 #define USER_DEFINED_FUNCTION_NUM 100
-typedef void (*USER_DEFINED_FUNCTION_TYPE)(int num, double arg1, double arg2);
-extern USER_DEFINED_FUNCTION_TYPE USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
-extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num);
+typedef void (*USER_DEFINED_FUNCTION_TYPE) (int num, double arg1,
+					    double arg2);
+extern USER_DEFINED_FUNCTION_TYPE
+    USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
+extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
+				     int num);
 
 /*
   Modification history:
 
   $Log$
+  Revision 1.4  2005/07/08 14:11:09  yabosukz
+  fix some more bugz
+
   Revision 1.3  2005/05/23 01:54:48  paul_c
   Missed a few files in the last effort....
 
@@ -711,4 +723,4 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num);
 
 */
 
-#endif /* ifndef CANON_HH */
+#endif				/* ifndef CANON_HH */

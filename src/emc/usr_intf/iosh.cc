@@ -166,7 +166,8 @@ static int emcIoNmlGet()
     // try to connect to EMC IO status
     if (emcioStatusBuffer == 0) {
 	emcioStatusBuffer =
-	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "tool", EMC_NMLFILE);
+	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "tool",
+				 EMC_NMLFILE);
 	if (!emcioStatusBuffer->valid()) {
 	    rcs_print_error("toolSts buffer not available\n");
 	    delete emcioStatusBuffer;
@@ -206,7 +207,7 @@ static int emcErrorNmlGet()
 // EMC IO commands
 
 static int emc_ini(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     Inifile inifile;
     const char *inistring;
@@ -214,11 +215,11 @@ static int emc_ini(ClientData clientdata,
 
     if (objc != 3) {
 	Tcl_SetResult(interp, "emc_ini: need 'var' and 'section'",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
     // open it
-    if (inifile.open(EMC_INIFILE) != 0) {
+    if (inifile.open(EMC_INIFILE) == false) {
 	return -1;
     }
 
@@ -238,7 +239,8 @@ static int emc_ini(ClientData clientdata,
 }
 
 static int emc_io_connect(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			  Tcl_Interp * interp, int objc,
+			  Tcl_Obj * CONST objv[])
 {
     double end;
     int good;
@@ -247,7 +249,8 @@ static int emc_io_connect(ClientData clientdata,
 #define RETRY_INTERVAL 1.0	// seconds between wait tries for a subsystem
 
     if (objc != 1) {
-	Tcl_SetResult(interp, "emc_io_connect: need no args\n", TCL_VOLATILE);
+	Tcl_SetResult(interp, "emc_io_connect: need no args\n",
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
     if (!(EMC_DEBUG & EMC_DEBUG_NML)) {
@@ -304,11 +307,12 @@ static int emc_io_connect(ClientData clientdata,
 }
 
 static int emc_io_disconnect(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			     Tcl_Interp * interp, int objc,
+			     Tcl_Obj * CONST objv[])
 {
     if (objc != 1) {
 	Tcl_SetResult(interp, "emc_io_disconnect: need no args\n",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -339,11 +343,12 @@ static int emc_io_disconnect(ClientData clientdata,
   Returns 0 if OK, -1 if error reading NML.
 */
 static int emc_io_read_command(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			       Tcl_Interp * interp, int objc,
+			       Tcl_Obj * CONST objv[])
 {
     if (objc != 1) {
 	Tcl_SetResult(interp, "emc_io_read_command: need no args\n",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
     // read NML buffer
@@ -378,14 +383,15 @@ static int emc_io_read_command(ClientData clientdata,
   names, which will always be present.
 */
 static int emc_io_get_command(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			      Tcl_Interp * interp, int objc,
+			      Tcl_Obj * CONST objv[])
 {
     NMLTYPE type;
     char string[256];
 
     if (objc != 1) {
 	Tcl_SetResult(interp, "emc_io_read_command: need no args\n",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
     // check for valid ptr
@@ -418,7 +424,7 @@ static int emc_io_get_command(ClientData clientdata,
 
     case EMC_TOOL_PREPARE_TYPE:
 	sprintf(string, "emc_tool_prepare %d",
-	    ((EMC_TOOL_PREPARE *) emcioCommand)->tool);
+		((EMC_TOOL_PREPARE *) emcioCommand)->tool);
 	Tcl_SetResult(interp, string, TCL_VOLATILE);
 	break;
 
@@ -444,7 +450,7 @@ static int emc_io_get_command(ClientData clientdata,
 
     case EMC_SPINDLE_ON_TYPE:
 	sprintf(string, "emc_spindle_on %f",
-	    ((EMC_SPINDLE_ON *) emcioCommand)->speed);
+		((EMC_SPINDLE_ON *) emcioCommand)->speed);
 	Tcl_SetResult(interp, string, TCL_VOLATILE);
 	break;
 
@@ -553,7 +559,8 @@ static int emc_io_get_command(ClientData clientdata,
 	break;
 
     default:
-	Tcl_SetResult(interp, (char *) emcSymbolLookup(type), TCL_VOLATILE);
+	Tcl_SetResult(interp, (char *) emcSymbolLookup(type),
+		      TCL_VOLATILE);
 	break;
     }
 
@@ -564,11 +571,12 @@ static int emc_io_get_command(ClientData clientdata,
   Returns the NML command type number
 */
 static int emc_io_get_command_type(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+				   Tcl_Interp * interp, int objc,
+				   Tcl_Obj * CONST objv[])
 {
     if (objc != 1) {
 	Tcl_SetResult(interp, "emc_io_get_command_type: need no args\n",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -581,11 +589,12 @@ static int emc_io_get_command_type(ClientData clientdata,
   Returns the NML command serial number
 */
 static int emc_io_get_serial_number(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+				    Tcl_Interp * interp, int objc,
+				    Tcl_Obj * CONST objv[])
 {
     if (objc != 1) {
 	Tcl_SetResult(interp, "emc_io_get_serial_number: need no args\n",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -595,11 +604,12 @@ static int emc_io_get_serial_number(ClientData clientdata,
 }
 
 static int emc_io_write_status(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			       Tcl_Interp * interp, int objc,
+			       Tcl_Obj * CONST objv[])
 {
     if (objc != 1) {
 	Tcl_SetResult(interp, "emc_io_write_status: need no args",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -617,13 +627,14 @@ static int emc_io_write_status(ClientData clientdata,
 }
 
 static int emc_io_write_error(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			      Tcl_Interp * interp, int objc,
+			      Tcl_Obj * CONST objv[])
 {
     EMC_OPERATOR_ERROR error_msg;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_write_error: need error string",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -632,8 +643,7 @@ static int emc_io_write_error(ClientData clientdata,
 	return TCL_OK;
     }
 
-    strncpy(error_msg.error, Tcl_GetStringFromObj(objv[1], 0),
-	LINELEN);
+    strncpy(error_msg.error, Tcl_GetStringFromObj(objv[1], 0), LINELEN);
     error_msg.error[LINELEN - 1] = 0;
     if (0 == emcErrorBuffer->write(&error_msg)) {
 	Tcl_SetObjResult(interp, Tcl_NewIntObj(0));
@@ -647,13 +657,14 @@ static int emc_io_write_error(ClientData clientdata,
 
 /* set the status heartbeat */
 static int emc_io_status_heartbeat(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+				   Tcl_Interp * interp, int objc,
+				   Tcl_Obj * CONST objv[])
 {
     int heartbeat;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status_heartbeat: need heartbeat",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -663,18 +674,20 @@ static int emc_io_status_heartbeat(ClientData clientdata,
     }
 
     Tcl_SetResult(interp, "emc_io_status_heartbeat: bad heartbeat",
-	TCL_VOLATILE);
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_command_type(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+				      Tcl_Interp * interp, int objc,
+				      Tcl_Obj * CONST objv[])
 {
     int command_type;
 
     if (objc != 2) {
-	Tcl_SetResult(interp, "emc_io_status_command_type: need command type",
-	    TCL_VOLATILE);
+	Tcl_SetResult(interp,
+		      "emc_io_status_command_type: need command type",
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -684,19 +697,20 @@ static int emc_io_status_command_type(ClientData clientdata,
     }
 
     Tcl_SetResult(interp, "emc_io_status_command_type: need command type",
-	TCL_VOLATILE);
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_echo_serial_number(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+					    Tcl_Interp * interp, int objc,
+					    Tcl_Obj * CONST objv[])
 {
     int echo_serial_number;
 
     if (objc != 2) {
 	Tcl_SetResult(interp,
-	    "emc_io_status_echo_serial_number: need echo serial number",
-	    TCL_VOLATILE);
+		      "emc_io_status_echo_serial_number: need echo serial number",
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -706,8 +720,8 @@ static int emc_io_status_echo_serial_number(ClientData clientdata,
     }
 
     Tcl_SetResult(interp,
-	"emc_io_status_echo_serial_number: need echo serial number",
-	TCL_VOLATILE);
+		  "emc_io_status_echo_serial_number: need echo serial number",
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
@@ -715,13 +729,14 @@ static int emc_io_status_echo_serial_number(ClientData clientdata,
   set the NML status to done, exec, error, or read it with no args.
 */
 static int emc_io_status_status(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+				Tcl_Interp * interp, int objc,
+				Tcl_Obj * CONST objv[])
 {
     const char *objstr;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status: need done | exec | error",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -738,18 +753,19 @@ static int emc_io_status_status(ClientData clientdata,
     }
 
     Tcl_SetResult(interp, "emc_io_status: need done | exec | error",
-	TCL_VOLATILE);
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_estop(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			       Tcl_Interp * interp, int objc,
+			       Tcl_Obj * CONST objv[])
 {
     const char *objstr;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status_estop: need on | off",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -762,18 +778,20 @@ static int emc_io_status_estop(ClientData clientdata,
 	return TCL_OK;
     }
 
-    Tcl_SetResult(interp, "emc_io_status_estop: need on | off", TCL_VOLATILE);
+    Tcl_SetResult(interp, "emc_io_status_estop: need on | off",
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_mist(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			      Tcl_Interp * interp, int objc,
+			      Tcl_Obj * CONST objv[])
 {
     const char *objstr;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status_mist: need on | off",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -786,18 +804,20 @@ static int emc_io_status_mist(ClientData clientdata,
 	return TCL_OK;
     }
 
-    Tcl_SetResult(interp, "emc_io_status_mist: need on | off", TCL_VOLATILE);
+    Tcl_SetResult(interp, "emc_io_status_mist: need on | off",
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_flood(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			       Tcl_Interp * interp, int objc,
+			       Tcl_Obj * CONST objv[])
 {
     const char *objstr;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status_flood: need on | off",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -810,18 +830,20 @@ static int emc_io_status_flood(ClientData clientdata,
 	return TCL_OK;
     }
 
-    Tcl_SetResult(interp, "emc_io_status_flood: need on | off", TCL_VOLATILE);
+    Tcl_SetResult(interp, "emc_io_status_flood: need on | off",
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_lube(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			      Tcl_Interp * interp, int objc,
+			      Tcl_Obj * CONST objv[])
 {
     const char *objstr;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status_lube: need on | off",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -834,18 +856,20 @@ static int emc_io_status_lube(ClientData clientdata,
 	return TCL_OK;
     }
 
-    Tcl_SetResult(interp, "emc_io_status_lube: need on | off", TCL_VOLATILE);
+    Tcl_SetResult(interp, "emc_io_status_lube: need on | off",
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_lube_level(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+				    Tcl_Interp * interp, int objc,
+				    Tcl_Obj * CONST objv[])
 {
     const char *objstr;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status_lube_level: need ok | low",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -859,18 +883,19 @@ static int emc_io_status_lube_level(ClientData clientdata,
     }
 
     Tcl_SetResult(interp, "emc_io_status_lube_level: need ok | low",
-	TCL_VOLATILE);
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_spindle_speed(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+				       Tcl_Interp * interp, int objc,
+				       Tcl_Obj * CONST objv[])
 {
     double speed;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status_spindle_speed: need speed",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -880,18 +905,20 @@ static int emc_io_status_spindle_speed(ClientData clientdata,
     }
 
     Tcl_SetResult(interp, "emc_io_status_spindle_speed: need speed",
-	TCL_VOLATILE);
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_spindle_enabled(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+					 Tcl_Interp * interp, int objc,
+					 Tcl_Obj * CONST objv[])
 {
     const char *objstr;
 
     if (objc != 2) {
-	Tcl_SetResult(interp, "emc_io_status_spindle_enabled: need on | off",
-	    TCL_VOLATILE);
+	Tcl_SetResult(interp,
+		      "emc_io_status_spindle_enabled: need on | off",
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -905,18 +932,20 @@ static int emc_io_status_spindle_enabled(ClientData clientdata,
     }
 
     Tcl_SetResult(interp, "emc_io_status_spindle_enabled: need on | off",
-	TCL_VOLATILE);
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_spindle_direction(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+					   Tcl_Interp * interp, int objc,
+					   Tcl_Obj * CONST objv[])
 {
     int direction;
 
     if (objc != 2) {
 	Tcl_SetResult(interp,
-	    "emc_io_status_spindle_direction: need direction", TCL_VOLATILE);
+		      "emc_io_status_spindle_direction: need direction",
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -925,20 +954,22 @@ static int emc_io_status_spindle_direction(ClientData clientdata,
 	return TCL_OK;
     }
 
-    Tcl_SetResult(interp, "emc_io_status_spindle_direction: need direction",
-	TCL_VOLATILE);
+    Tcl_SetResult(interp,
+		  "emc_io_status_spindle_direction: need direction",
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_spindle_increasing(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+					    Tcl_Interp * interp, int objc,
+					    Tcl_Obj * CONST objv[])
 {
     int increasing;
 
     if (objc != 2) {
 	Tcl_SetResult(interp,
-	    "emc_io_status_spindle_increasing: need increasing",
-	    TCL_VOLATILE);
+		      "emc_io_status_spindle_increasing: need increasing",
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -947,19 +978,21 @@ static int emc_io_status_spindle_increasing(ClientData clientdata,
 	return TCL_OK;
     }
 
-    Tcl_SetResult(interp, "emc_io_status_spindle_increasing: need increasing",
-	TCL_VOLATILE);
+    Tcl_SetResult(interp,
+		  "emc_io_status_spindle_increasing: need increasing",
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_spindle_brake(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+				       Tcl_Interp * interp, int objc,
+				       Tcl_Obj * CONST objv[])
 {
     const char *objstr;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status_spindle_brake: need on | off",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -973,18 +1006,19 @@ static int emc_io_status_spindle_brake(ClientData clientdata,
     }
 
     Tcl_SetResult(interp, "emc_io_status_spindle_brake: need on | off",
-	TCL_VOLATILE);
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_tool_prepped(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+				      Tcl_Interp * interp, int objc,
+				      Tcl_Obj * CONST objv[])
 {
     int toolPrepped;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status_tool_prepped: need tool",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -994,18 +1028,19 @@ static int emc_io_status_tool_prepped(ClientData clientdata,
     }
 
     Tcl_SetResult(interp, "emc_io_status_tool_prepped: need tool",
-	TCL_VOLATILE);
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
 static int emc_io_status_tool_in_spindle(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+					 Tcl_Interp * interp, int objc,
+					 Tcl_Obj * CONST objv[])
 {
     int toolInSpindle;
 
     if (objc != 2) {
 	Tcl_SetResult(interp, "emc_io_status_tool_in_spindle: need tool",
-	    TCL_VOLATILE);
+		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -1015,7 +1050,7 @@ static int emc_io_status_tool_in_spindle(ClientData clientdata,
     }
 
     Tcl_SetResult(interp, "emc_io_status_tool_in_spindle: need tool",
-	TCL_VOLATILE);
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
@@ -1025,7 +1060,7 @@ static int unpriv = 0;		// non-zero means can't read IO
 
 // note the leading f_ so we don't conflict with real inb
 static int f_inb(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+		 Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     long address;
 
@@ -1046,7 +1081,7 @@ static int f_inb(ClientData clientdata,
 
 // note the leading f_ so we don't conflict with real outb
 static int f_outb(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+		  Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     long address;
     int value;
@@ -1068,7 +1103,7 @@ static int f_outb(ClientData clientdata,
 
 // note the leading f_ so we don't conflict with real inw
 static int f_inw(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+		 Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     long address;
 
@@ -1089,7 +1124,7 @@ static int f_inw(ClientData clientdata,
 
 // note the leading f_ so we don't conflict with real outw
 static int f_outw(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+		  Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     long address;
     int value;
@@ -1111,7 +1146,7 @@ static int f_outw(ClientData clientdata,
 
 // note the leading f_ so we don't conflict with real inl
 static int f_inl(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+		 Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     long address;
 
@@ -1132,7 +1167,7 @@ static int f_inl(ClientData clientdata,
 
 // note the leading f_ so we don't conflict with real outl
 static int f_outl(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+		  Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     long address;
     long value;
@@ -1153,7 +1188,8 @@ static int f_outl(ClientData clientdata,
 }
 
 static int emc_mot_shmem(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			 Tcl_Interp * interp, int objc,
+			 Tcl_Obj * CONST objv[])
 {
 
     if (objc == 1) {
@@ -1169,12 +1205,12 @@ static int emc_mot_shmem(ClientData clientdata,
     return TCL_ERROR;
 }
 
-
 /* raw input no longer exists */
 /*! \todo Another #if 0 */
 #if 0
 static int emc_mot_rawinput(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			    Tcl_Interp * interp, int objc,
+			    Tcl_Obj * CONST objv[])
 {
     int axis;
 
@@ -1182,7 +1218,8 @@ static int emc_mot_rawinput(ClientData clientdata,
 	if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
 	    if (shmem > 0) {
 		Tcl_SetObjResult(interp,
-		    Tcl_NewDoubleObj(emcmotshmem->debug.rawInput[axis]));
+				 Tcl_NewDoubleObj(emcmotshmem->debug.
+						  rawInput[axis]));
 		return TCL_OK;
 	    } else {
 		Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0));
@@ -1196,7 +1233,8 @@ static int emc_mot_rawinput(ClientData clientdata,
 #endif
 
 static int emc_mot_move(ClientData clientdata,
-    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+			Tcl_Interp * interp, int objc,
+			Tcl_Obj * CONST objv[])
 {
     int axis;
     double move;
@@ -1239,8 +1277,9 @@ static int emc_mot_move(ClientData clientdata,
 	return TCL_OK;
     }
 
-    Tcl_SetResult(interp, "syntax: emc_mot_move <axis> <position> <velocity>",
-	TCL_VOLATILE);
+    Tcl_SetResult(interp,
+		  "syntax: emc_mot_move <axis> <position> <velocity>",
+		  TCL_VOLATILE);
     return TCL_ERROR;
 }
 
@@ -1271,123 +1310,128 @@ int Tcl_AppInit(Tcl_Interp * interp)
      */
 
     Tcl_CreateObjCommand(interp, "emc_ini", emc_ini, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_connect", emc_io_connect,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_disconnect", emc_io_disconnect,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_io_read_command", emc_io_read_command,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "emc_io_read_command",
+			 emc_io_read_command, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_get_command", emc_io_get_command,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_get_command_type",
-	emc_io_get_command_type, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_get_command_type, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_get_serial_number",
-	emc_io_get_serial_number, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_get_serial_number, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_io_write_status", emc_io_write_status,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "emc_io_write_status",
+			 emc_io_write_status, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_write_error", emc_io_write_error,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_heartbeat",
-	emc_io_status_heartbeat, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_heartbeat, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_command_type",
-	emc_io_status_command_type, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_command_type, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_echo_serial_number",
-	emc_io_status_echo_serial_number, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_echo_serial_number,
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_io_status_status", emc_io_status_status,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "emc_io_status_status",
+			 emc_io_status_status, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_io_status_estop", emc_io_status_estop,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "emc_io_status_estop",
+			 emc_io_status_estop, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_mist", emc_io_status_mist,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_io_status_flood", emc_io_status_flood,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateObjCommand(interp, "emc_io_status_flood",
+			 emc_io_status_flood, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_lube", emc_io_status_lube,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_lube_level",
-	emc_io_status_lube_level, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_lube_level, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_spindle_speed",
-	emc_io_status_spindle_speed, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_spindle_speed, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_spindle_enabled",
-	emc_io_status_spindle_enabled, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_spindle_enabled, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_spindle_direction",
-	emc_io_status_spindle_direction, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_spindle_direction,
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_spindle_increasing",
-	emc_io_status_spindle_increasing, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_spindle_increasing,
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_spindle_brake",
-	emc_io_status_spindle_brake, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_spindle_brake, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_tool_prepped",
-	emc_io_status_tool_prepped, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_tool_prepped, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_io_status_tool_in_spindle",
-	emc_io_status_tool_in_spindle, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 emc_io_status_tool_in_spindle, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "inb", f_inb, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "outb", f_outb, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "inw", f_inw, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "outw", f_outw, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "inl", f_inl, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "outl", f_outl, (ClientData) NULL,
-	(Tcl_CmdDeleteProc *) NULL);
+			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_mot_shmem", emc_mot_shmem,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-	
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
 /*! \todo Another #if 0
    raw input no longer exists */
 #if 0
     Tcl_CreateObjCommand(interp, "emc_mot_rawinput", emc_mot_rawinput,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 #endif
 
     Tcl_CreateObjCommand(interp, "emc_mot_move", emc_mot_move,
-	(ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     /*
      * Specify a user-specific startup file to invoke if the application
@@ -1458,7 +1502,7 @@ static int iniLoad(const char *filename)
     char version[LINELEN];
 
     // open it
-    if (inifile.open(filename) != 0) {
+    if (inifile.open(filename) == false) {
 	return -1;
     }
 

@@ -17,20 +17,17 @@
 ********************************************************************/
 
 extern "C" {
-#include <stdio.h>              // NULL
-#include <stdlib.h>             // atol()
-#include <string.h>             // strlen()
-#include <ctype.h>              // isspace()
+#include <stdio.h>		// NULL
+#include <stdlib.h>		// atol()
+#include <string.h>		// strlen()
+#include <ctype.h>		// isspace()
 }
-
 #include "emc.hh"
-#include "posemath.h"           // PM_POSE, PM_RPY
+#include "posemath.h"		// PM_POSE, PM_RPY
 #include "inifile.hh"
-#include "initraj.hh"           // these decls
-#include "emcglb.h"             /*! \todo TRAVERSE_RATE (FIXME) */
-
-// inifile ref'ed by iniTraj(), loadTraj()
-static Inifile *trajInifile = 0;
+#include "initraj.hh"		// these decls
+#include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
+// inifile ref'ed by iniTraj(), loadTraj() static Inifile *trajInifile = 0;
 
 /*
   loadTraj()
@@ -63,389 +60,389 @@ static Inifile *trajInifile = 0;
 
 static int loadTraj()
 {
-  const char *inistring;
-  int axes;
-  double linearUnits;
-  double angularUnits;
+    const char *inistring;
+    int axes;
+    double linearUnits;
+    double angularUnits;
 /*! \todo FIXME - variables no longer needed */
 //  double cycleTime;
-  double vel;
-  double acc;
-  unsigned char coordinateMark[6] = {1, 1, 1, 0, 0, 0};
-  int t;
-  int len;
-  char homes[LINELEN];
-  char home[LINELEN];
-  EmcPose homePose ={ { 0.0, 0.0, 0.0 } , 0.0, 0.0, 0.0};
-  double d;
+    double vel;
+    double acc;
+    unsigned char coordinateMark[6] = { 1, 1, 1, 0, 0, 0 };
+    int t;
+    int len;
+    char homes[LINELEN];
+    char home[LINELEN];
+    EmcPose homePose = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0 };
+    double d;
 //  int index;
 //  int polarity;
 
-  if (NULL != (inistring = trajInifile->find("AXES", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%d", &axes)) {
-      // found, and valid
+    if (NULL != (inistring = trajInifile->find("AXES", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%d", &axes)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print("invalid inifile value for [TRAJ] AXES: %s\n",
+			  inistring);
+	    }
+	    axes = 0;		// default
+	}
+    } else {
+	// not found at all
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print("can't find [TRAJ] AXES, using default\n");
+	}
+	axes = 0;		// default
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print("invalid inifile value for [TRAJ] AXES: %s\n", inistring);
-      }
-      axes = 0;                 // default
+    if (0 != emcTrajSetAxes(axes)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return value from emcTrajSetAxes\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] AXES, using default\n");
-    }
-    axes = 0;                   // default
-  }
-  if (0 != emcTrajSetAxes(axes)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print("bad return value from emcTrajSetAxes\n");
-    }
-    return -1;
-  }
 
-  if (NULL != (inistring = trajInifile->find("LINEAR_UNITS", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%lf", &linearUnits)) {
-      // found, and valid
+    if (NULL != (inistring = trajInifile->find("LINEAR_UNITS", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%lf", &linearUnits)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print
+		    ("invalid inifile value for [TRAJ] LINEAR_UNITS: %s\n",
+		     inistring);
+	    }
+	    linearUnits = 1;	// default
+	}
+    } else {
+	// not found at all
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print("can't find [TRAJ] LINEAR_UNITS, using default\n");
+	}
+	linearUnits = 1;	// default
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print("invalid inifile value for [TRAJ] LINEAR_UNITS: %s\n", inistring);
-      }
-      linearUnits = 1;          // default
-    }
-  }
-  else {
-    // not found at all
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] LINEAR_UNITS, using default\n");
-    }
-    linearUnits = 1;            // default
-  }
 
-  if (NULL != (inistring = trajInifile->find("ANGULAR_UNITS", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%lf", &angularUnits)) {
-      // found, and valid
+    if (NULL != (inistring = trajInifile->find("ANGULAR_UNITS", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%lf", &angularUnits)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print
+		    ("invalid inifile value for [TRAJ] ANGULAR_UNITS: %s\n",
+		     inistring);
+	    }
+	    angularUnits = 1;	// default
+	}
+    } else {
+	// not found at all
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print("can't find [TRAJ] ANGULAR_UNITS, using default\n");
+	}
+	angularUnits = 1;	// default
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print("invalid inifile value for [TRAJ] ANGULAR_UNITS: %s\n", inistring);
-      }
-      angularUnits = 1;         // default
-    }
-  }
-  else {
-    // not found at all
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] ANGULAR_UNITS, using default\n");
-    }
-    angularUnits = 1;           // default
-  }
 
-  if (0 != emcTrajSetUnits(linearUnits, angularUnits)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print("bad return value from emcTrajSetUnits\n");
+    if (0 != emcTrajSetUnits(linearUnits, angularUnits)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return value from emcTrajSetUnits\n");
+	}
+	return -1;
     }
-    return -1;
-  }
 /*! \todo FIXME - cycle time now set by run script */
 /*! \todo Another #if 0 */
 #if 0
-  if (NULL != (inistring = trajInifile->find("CYCLE_TIME", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%lf", &cycleTime)) {
-      // found, and valid
+    if (NULL != (inistring = trajInifile->find("CYCLE_TIME", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%lf", &cycleTime)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print
+		    ("invalid inifile value for [TRAJ] CYCLE_TIME: %s\n",
+		     inistring);
+	    }
+	    cycleTime = 1.0;	// default
+	}
+    } else {
+	// not found at all
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print("can't find [TRAJ] CYCLE_TIME, using default\n");
+	}
+	cycleTime = 1.0;	// default
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print("invalid inifile value for [TRAJ] CYCLE_TIME: %s\n", inistring);
-      }
-      cycleTime = 1.0;          // default
+    if (0 != emcTrajSetCycleTime(cycleTime)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return value from emcTrajSetCycleTime\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] CYCLE_TIME, using default\n");
-    }
-    cycleTime = 1.0;            // default
-  }
-  if (0 != emcTrajSetCycleTime(cycleTime)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print("bad return value from emcTrajSetCycleTime\n");
-    }
-    return -1;
-  }
 #endif
 
-  if (NULL != (inistring = trajInifile->find("DEFAULT_VELOCITY", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%lf", &vel)) {
-      // found, and valid
+    if (NULL !=
+	(inistring = trajInifile->find("DEFAULT_VELOCITY", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%lf", &vel)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print
+		    ("invalid inifile value for [TRAJ] DEFAULT_VELOCITY: %s\n",
+		     inistring);
+	    }
+	    vel = 1.0;		// default
+	}
+    } else {
+	// not found at all
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print
+		("can't find [TRAJ] DEFAULT_VELOCITY, using default\n");
+	}
+	vel = 1.0;		// default
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print("invalid inifile value for [TRAJ] DEFAULT_VELOCITY: %s\n", inistring);
-      }
-      vel = 1.0;                // default
-    }
-  }
-  else {
-    // not found at all
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] DEFAULT_VELOCITY, using default\n");
-    }
-    vel = 1.0;          // default
-  }
 
-  // set the corresponding global
-  TRAJ_DEFAULT_VELOCITY = vel;
+    // set the corresponding global
+    TRAJ_DEFAULT_VELOCITY = vel;
 
-  // and set dynamic value
-  if (0 != emcTrajSetVelocity(vel)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print("bad return value from emcTrajSetVelocity\n");
+    // and set dynamic value
+    if (0 != emcTrajSetVelocity(vel)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return value from emcTrajSetVelocity\n");
+	}
+	return -1;
     }
-    return -1;
-  }
 
-  if (NULL != (inistring = trajInifile->find("DEFAULT_ACCELERATION", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%lf", &acc)) {
-      // found, and valid
+    if (NULL !=
+	(inistring = trajInifile->find("DEFAULT_ACCELERATION", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%lf", &acc)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print
+		    ("invalid inifile value for [TRAJ] DEFAULT_ACCELERATION: %s\n",
+		     inistring);
+	    }
+	    acc = 1.0;		// default
+	}
+    } else {
+	// not found at all
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print
+		("can't find [TRAJ] DEFAULT_ACCELERATION, using default\n");
+	}
+	acc = 1.0;		// default
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print("invalid inifile value for [TRAJ] DEFAULT_ACCELERATION: %s\n", inistring);
-      }
-      acc = 1.0;                // default
+    if (0 != emcTrajSetAcceleration(acc)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return value from emcTrajSetAcceleration\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] DEFAULT_ACCELERATION, using default\n");
-    }
-    acc = 1.0;          // default
-  }
-  if (0 != emcTrajSetAcceleration(acc)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print("bad return value from emcTrajSetAcceleration\n");
-    }
-    return -1;
-  }
 
-  if (NULL != (inistring = trajInifile->find("MAX_VELOCITY", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%lf", &vel)) {
-      // found, and valid
+    if (NULL != (inistring = trajInifile->find("MAX_VELOCITY", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%lf", &vel)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print
+		    ("invalid inifile value for [TRAJ] MAX_VELOCITY: %s\n",
+		     inistring);
+	    }
+	    vel = 1.0;		// default
+	}
+    } else {
+	// not found at all
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print("can't find [TRAJ] MAX_VELOCITY, using default\n");
+	}
+	vel = 1.0;		// default
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print("invalid inifile value for [TRAJ] MAX_VELOCITY: %s\n", inistring);
-      }
-      vel = 1.0;                // default
-    }
-  }
-  else {
-    // not found at all
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] MAX_VELOCITY, using default\n");
-    }
-    vel = 1.0;          // default
-  }
 
-  // set the corresponding global
-  TRAJ_MAX_VELOCITY = vel;
+    // set the corresponding global
+    TRAJ_MAX_VELOCITY = vel;
 
-  // and set dynamic value
-  if (0 != emcTrajSetMaxVelocity(vel)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print("bad return value from emcTrajSetMaxVelocity\n");
+    // and set dynamic value
+    if (0 != emcTrajSetMaxVelocity(vel)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return value from emcTrajSetMaxVelocity\n");
+	}
+	return -1;
     }
-    return -1;
-  }
+    // also set the global-- it's likely to be done in emcTrajSetMaxVelocity(),
+    // but it can't hurt to make sure
+    TRAJ_MAX_VELOCITY = vel;
 
-  // also set the global-- it's likely to be done in emcTrajSetMaxVelocity(),
-  // but it can't hurt to make sure
-  TRAJ_MAX_VELOCITY = vel;
+    if (NULL !=
+	(inistring = trajInifile->find("MAX_ACCELERATION", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%lf", &acc)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print
+		    ("invalid inifile value for [TRAJ] MAX_ACCELERATION: %s\n",
+		     inistring);
+	    }
+	    acc = 1.0;		// default
+	}
+    } else {
+	// not found at all
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print
+		("can't find [TRAJ] MAX_ACCELERATION, using default\n");
+	}
+	acc = 1.0;		// default
+    }
+    if (0 != emcTrajSetMaxAcceleration(acc)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return value from emcTrajSetMaxAcceleration\n");
+	}
+	return -1;
+    }
+    // set coordinateMark[] to hold 1's for each coordinate present,
+    // so that home position can be interpreted properly
+    if (NULL != (inistring = trajInifile->find("COORDINATES", "TRAJ"))) {
+	len = strlen(inistring);
+	// there's an entry in ini file, so clear all the marks out first
+	// so that defaults don't apply at all
+	for (t = 0; t < 6; t++) {
+	    coordinateMark[t] = 0;
+	}
+	// now set actual marks
+	for (t = 0; t < len; t++) {
+	    if (inistring[t] == 'X')
+		coordinateMark[0] = 1;
+	    else if (inistring[t] == 'Y')
+		coordinateMark[1] = 1;
+	    else if (inistring[t] == 'Z')
+		coordinateMark[2] = 1;
+	    else if (inistring[t] == 'R')
+		coordinateMark[3] = 1;
+	    else if (inistring[t] == 'P')
+		coordinateMark[4] = 1;
+	    else if (inistring[t] == 'W')
+		coordinateMark[5] = 1;
+	}
+    } else {
+	// not there, use default
+	// by leaving coordinateMark[] alone, default is X Y Z
+    }
 
-  if (NULL != (inistring = trajInifile->find("MAX_ACCELERATION", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%lf", &acc)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print("invalid inifile value for [TRAJ] MAX_ACCELERATION: %s\n", inistring);
-      }
-      acc = 1.0;                // default
-    }
-  }
-  else {
-    // not found at all
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] MAX_ACCELERATION, using default\n");
-    }
-    acc = 1.0;          // default
-  }
-  if (0 != emcTrajSetMaxAcceleration(acc)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print("bad return value from emcTrajSetMaxAcceleration\n");
-    }
-    return -1;
-  }
+    if (NULL != (inistring = trajInifile->find("HOME", "TRAJ"))) {
+	// found it, now interpret it according to coordinateMark[]
+	strcpy(homes, inistring);
+	len = 0;
+	for (t = 0; t < 6; t++) {
+	    if (!coordinateMark[t]) {
+		continue;	// position t at index of next non-zero mark
+	    }
+	    // there is a mark, so read the string for a value
+	    if (1 == sscanf(&homes[len], "%s", home) &&
+		1 == sscanf(home, "%lf", &d)) {
+		// got an entry, index into coordinateMark[] is 't'
+		if (t == 0)
+		    homePose.tran.x = d;
+		else if (t == 1)
+		    homePose.tran.y = d;
+		else if (t == 2)
+		    homePose.tran.z = d;
+		else if (t == 3)
+		    homePose.a = d;
+		else if (t == 4)
+		    homePose.b = d;
+		else
+		    homePose.c = d;
 
-  // set coordinateMark[] to hold 1's for each coordinate present,
-  // so that home position can be interpreted properly
-  if (NULL != (inistring = trajInifile->find("COORDINATES", "TRAJ"))) {
-    len = strlen(inistring);
-    // there's an entry in ini file, so clear all the marks out first
-    // so that defaults don't apply at all
-    for (t = 0; t < 6; t++) {
-      coordinateMark[t] = 0;
+		// position string ptr past this value
+		len += strlen(home);
+		// and at start of next value
+		while ((homes[len] == ' ' || home[len] == '\t') &&
+		       len < LINELEN) {
+		    len++;
+		}
+		if (len >= LINELEN) {
+		    break;	// out of for loop
+		}
+	    } else {
+		// badly formatted entry
+		rcs_print("invalid inifile value for [TRAJ] HOME: %s\n",
+			  inistring);
+		break;
+	    }
+	}			// end of for-loop on coordinateMark[]
+    } else {
+	// not found at all
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print("can't find [TRAJ] HOME, using default\n");
+	}
     }
-    // now set actual marks
-    for (t = 0; t < len; t++) {
-      if (inistring[t] == 'X')
-        coordinateMark[0] = 1;
-      else if (inistring[t] == 'Y')
-        coordinateMark[1] = 1;
-      else if (inistring[t] == 'Z')
-        coordinateMark[2] = 1;
-      else if (inistring[t] == 'R')
-        coordinateMark[3] = 1;
-      else if (inistring[t] == 'P')
-        coordinateMark[4] = 1;
-      else if (inistring[t] == 'W')
-        coordinateMark[5] = 1;
+
+    if (0 != emcTrajSetHome(homePose)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return value from emcTrajSetHome\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not there, use default
-    // by leaving coordinateMark[] alone, default is X Y Z
-  }
-
-  if (NULL != (inistring = trajInifile->find("HOME", "TRAJ"))) {
-    // found it, now interpret it according to coordinateMark[]
-    strcpy(homes, inistring);
-    len = 0;
-    for (t = 0; t < 6; t++) {
-      if (! coordinateMark[t]) {
-        continue; // position t at index of next non-zero mark
-      }
-      // there is a mark, so read the string for a value
-      if (1 == sscanf(&homes[len], "%s", home) &&
-          1 == sscanf(home, "%lf", &d)) {
-        // got an entry, index into coordinateMark[] is 't'
-        if (t == 0)
-          homePose.tran.x = d;
-        else if (t == 1)
-          homePose.tran.y = d;
-        else if (t == 2)
-          homePose.tran.z = d;
-        else if (t == 3)
-          homePose.a = d;
-        else if (t == 4)
-          homePose.b = d;
-        else
-          homePose.c = d;
-
-        // position string ptr past this value
-        len += strlen(home);
-        // and at start of next value
-        while ((homes[len] == ' ' || home[len] == '\t') &&
-               len < LINELEN) {
-          len++;
-        }
-        if (len >= LINELEN) {
-          break;                // out of for loop
-        }
-      }
-      else {
-        // badly formatted entry
-        rcs_print("invalid inifile value for [TRAJ] HOME: %s\n", inistring);
-        break;
-      }
-    } // end of for-loop on coordinateMark[]
-  }
-  else {
-    // not found at all
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] HOME, using default\n");
-    }
-  }
-
-
-  if (0 != emcTrajSetHome(homePose)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print("bad return value from emcTrajSetHome\n");
-    }
-    return -1;
-  }
 
 /*! \todo FIXME - polarities and probe pin selection now handled by HAL */
 /*! \todo Another #if 0 */
 #if 0
-  if (NULL != (inistring = trajInifile->find("PROBE_POLARITY", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%d", &polarity)) {
-      // found, and valid
+    if (NULL != (inistring = trajInifile->find("PROBE_POLARITY", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%d", &polarity)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print
+		    ("invalid inifile value for [TRAJ] PROBE_POLARITY: %s\n",
+		     inistring);
+	    }
+	    polarity = 1;	// default for polarities
+	}
+    } else {
+	// not found at all
+	polarity = 1;		// default for polarities
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print("can't find [TRAJ] PROBE_POLARITY, using default\n");
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print("invalid inifile value for [TRAJ] PROBE_POLARITY: %s\n", inistring);
-      }
-      polarity = 1;                     // default for polarities
+    if (0 != emcTrajSetProbePolarity(polarity)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return from emcTrajSetPolarity\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    polarity = 1;                       // default for polarities
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] PROBE_POLARITY, using default\n");
-    }
-  }
-  if (0 != emcTrajSetProbePolarity(polarity)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print("bad return from emcTrajSetPolarity\n");
-    }
-    return -1;
-  }
 
-  if (NULL != (inistring = trajInifile->find("PROBE_INDEX", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%d", &index)) {
-      // found, and valid
+    if (NULL != (inistring = trajInifile->find("PROBE_INDEX", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%d", &index)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print
+		    ("invalid inifile value for [TRAJ] PROBE_INDEX: %s\n",
+		     inistring);
+	    }
+	    index = 0;		// default for indexes
+	}
+    } else {
+	// not found at all
+	index = 1;		// default for polarities
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print("can't find [TRAJ] PROBE_INDEX, using default\n");
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print("invalid inifile value for [TRAJ] PROBE_INDEX: %s\n", inistring);
-      }
-      index = 0;                        // default for indexes
+    if (0 != emcTrajSetProbeIndex(index)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return from emcTrajSetIndex\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    index = 1;                  // default for polarities
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print("can't find [TRAJ] PROBE_INDEX, using default\n");
-    }
-  }
-  if (0 != emcTrajSetProbeIndex(index)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print("bad return from emcTrajSetIndex\n");
-    }
-    return -1;
-  }
 #endif
 
-  return 0;
+    return 0;
 }
 
 /*
@@ -455,24 +452,20 @@ static int loadTraj()
  */
 int iniTraj(const char *filename)
 {
-  int retval = 0;
+    int retval = 0;
 
-  trajInifile = new Inifile;
+    trajInifile = new Inifile;
 
-  if (-1 == trajInifile->open(filename))
-    {
-      return -1;
+    if (trajInifile->open(filename) == false) {
+	return -1;
     }
-
-  // load trajectory values
-  if (0 != loadTraj())
-    {
-      retval = -1;
+    // load trajectory values
+    if (0 != loadTraj()) {
+	retval = -1;
     }
+    // close the inifile
+    trajInifile->close();
+    delete trajInifile;
 
-  // close the inifile
-  trajInifile->close();
-  delete trajInifile;
-
-  return retval;
+    return retval;
 }

@@ -43,7 +43,7 @@
      x(t=deltaT), v(t=deltaT)
 */
 static CUBIC_COEFF cubicCoeff(double x0, double v0,
-    double xn, double vn, double deltaT)
+			      double xn, double vn, double deltaT)
 {
     CUBIC_COEFF retval;
 
@@ -64,7 +64,8 @@ static CUBIC_COEFF cubicCoeff(double x0, double v0,
 */
 static double interpolateCubic(CUBIC_COEFF coeff, double t)
 {
-    return coeff.a * (t * t * t) + coeff.b * (t * t) + coeff.c * t + coeff.d;
+    return coeff.a * (t * t * t) + coeff.b * (t * t) + coeff.c * t +
+	coeff.d;
 }
 
 /*
@@ -140,7 +141,8 @@ int cubicSetSegmentTime(CUBIC_STRUCT * ci, double time)
     ci->segmentTime = time;
     ci->configured |= SEGMENT_TIME_SET;
     if (ci->configured == ALL_SET) {
-	ci->interpolationIncrement = ci->segmentTime / ci->interpolationRate;
+	ci->interpolationIncrement =
+	    ci->segmentTime / ci->interpolationRate;
     }
 
     return 0;
@@ -164,7 +166,8 @@ int cubicSetInterpolationRate(CUBIC_STRUCT * ci, int rate)
     ci->interpolationRate = rate;
     ci->configured |= INTERPOLATION_RATE_SET;
     if (ci->configured == ALL_SET) {
-	ci->interpolationIncrement = ci->segmentTime / ci->interpolationRate;
+	ci->interpolationIncrement =
+	    ci->segmentTime / ci->interpolationRate;
     }
 
     return 0;
@@ -247,7 +250,7 @@ int cubicAddPoint(CUBIC_STRUCT * ci, double point)
     ci->velp0 = velPoint(ci->x0, ci->x2, ci->segmentTime);
     ci->velp1 = velPoint(ci->x1, ci->x3, ci->segmentTime);
     ci->coeff = cubicCoeff(ci->wp0, ci->velp0, ci->wp1,
-	ci->velp1, ci->segmentTime);
+			   ci->velp1, ci->segmentTime);
     ci->interpolationTime = 0.0;
     ci->needNextPoint = 0;
 
@@ -295,7 +298,7 @@ int cubicFilled(CUBIC_STRUCT * ci)
 }
 
 double cubicInterpolate(CUBIC_STRUCT * ci,
-    double *x, double *v, double *a, double *j)
+			double *x, double *v, double *a, double *j)
 {
     double retval;
 
@@ -374,7 +377,7 @@ int main(int argc, char *argv[])
 
     if (argc != 3) {
 	fprintf(stderr, "syntax: %s <segment time> <interpolation rate>\n",
-	    argv[0]);
+		argv[0]);
 	return 1;
     }
 

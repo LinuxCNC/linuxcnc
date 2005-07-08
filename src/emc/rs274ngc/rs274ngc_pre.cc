@@ -1091,7 +1091,7 @@ int Interp::ini_load(const char *filename)
     const char *inistring;
 
     // open it
-    if (inifile.open(filename) != 0) {
+    if (inifile.open(filename) == false) {
 	return -1;
     }
 

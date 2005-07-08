@@ -58,7 +58,8 @@ static int emcioNmlGet()
 	start_time = etime();
 	while (start_time - etime() < EMCIO_BUFFER_GET_TIMEOUT) {
 	    emcIoCommandBuffer =
-		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc", EMC_NMLFILE);
+		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc",
+				    EMC_NMLFILE);
 	    if (!emcIoCommandBuffer->valid()) {
 		delete emcIoCommandBuffer;
 		emcIoCommandBuffer = 0;
@@ -87,7 +88,7 @@ static int emcioNmlGet()
 	while (start_time - etime() < EMCIO_BUFFER_GET_TIMEOUT) {
 	    emcIoStatusBuffer =
 		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emc",
-		EMC_NMLFILE);
+				     EMC_NMLFILE);
 	    if (!emcIoStatusBuffer->valid()) {
 		delete emcIoStatusBuffer;
 		emcIoStatusBuffer = 0;
@@ -160,15 +161,15 @@ static int sendCommand(RCS_CMD_MSG * msg)
 	// Still not done, must have timed out.
 	rcs_print_error
 	    ("Command to IO level (%s:%s) timed out waiting for last command done. \n",
-	    emcSymbolLookup(msg->type), emcIoCommandBuffer->msg2str(msg));
+	     emcSymbolLookup(msg->type), emcIoCommandBuffer->msg2str(msg));
 	rcs_print_error
 	    ("emcIoStatus->echo_serial_number=%d, emcIoCommandSerialNumber=%d, emcIoStatus->status=%d\n",
-	    emcIoStatus->echo_serial_number, emcIoCommandSerialNumber,
-	    emcIoStatus->status);
+	     emcIoStatus->echo_serial_number, emcIoCommandSerialNumber,
+	     emcIoStatus->status);
 	if (0 != last_io_command) {
 	    rcs_print_error("Last command sent to IO level was (%s:%s)\n",
-		emcSymbolLookup(last_io_command->type),
-		emcIoCommandBuffer->msg2str(last_io_command));
+			    emcSymbolLookup(last_io_command->type),
+			    emcIoCommandBuffer->msg2str(last_io_command));
 	}
 	return -1;
     }
@@ -176,7 +177,8 @@ static int sendCommand(RCS_CMD_MSG * msg)
     msg->serial_number = ++emcIoCommandSerialNumber;
     if (0 != emcIoCommandBuffer->write(msg)) {
 	rcs_print_error("Failed to send command to  IO level (%s:%s)\n",
-	    emcSymbolLookup(msg->type), emcIoCommandBuffer->msg2str(msg));
+			emcSymbolLookup(msg->type),
+			emcIoCommandBuffer->msg2str(msg));
 	return -1;
     }
 
@@ -209,7 +211,8 @@ static int forceCommand(RCS_CMD_MSG * msg)
     msg->serial_number = ++emcIoCommandSerialNumber;
     if (0 != emcIoCommandBuffer->write(msg)) {
 	rcs_print_error("Failed to send command to  IO level (%s:%s)\n",
-	    emcSymbolLookup(msg->type), emcIoCommandBuffer->msg2str(msg));
+			emcSymbolLookup(msg->type),
+			emcIoCommandBuffer->msg2str(msg));
 	return -1;
     }
 
@@ -333,7 +336,7 @@ int emcSpindleOn(double speed)
 #if 0
 /* Convert speed to an analogue voltage */
     dacout = (speed > 0.0 ? (fabs(speed) * MAX_VOLTS_PER_RPM) :
-	speed < 0.0 ? (fabs(speed) * MIN_VOLTS_PER_RPM) : 0);
+	      speed < 0.0 ? (fabs(speed) * MIN_VOLTS_PER_RPM) : 0);
 /* Use an existing function to set the DAC output */
     emcAxisSetOutput(SPINDLE_ON_INDEX, dacout);
 /* and enable the DAC */
@@ -463,7 +466,7 @@ int emcCoolantFloodOff()
     return 0;
 }
 
-#endif // LASER
+#endif				// LASER
 
 int emcLubeInit()
 {

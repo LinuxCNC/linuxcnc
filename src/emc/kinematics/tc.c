@@ -33,7 +33,7 @@
 /*! \todo FIXME - needed for synchronous I/O */
 /* the byte of output that gets written, persisting across all TC_STRUCTs,
    also referenced in tp.c for aborting */
- unsigned char tcDoutByte = 0;
+  unsigned char tcDoutByte = 0;
 #endif
 
 #define TC_VEL_EPSILON 0.0001	/* number below which v is considered 0 */
@@ -81,9 +81,9 @@ int tcInit(TC_STRUCT * tc)
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
-    tc->douts = 0;
-    tc->doutstarts = 0;
-    tc->doutends = 0;
+      tc->douts = 0;
+      tc->doutstarts = 0;
+      tc->doutends = 0;
 #endif
     return 0;
 }
@@ -176,7 +176,7 @@ int tcSetCircle(TC_STRUCT * tc, PmCircle circle, PmLine line_abc)
 
     /* for circular/helical motion, path param is the helical length */
     tc->tmag = tc->targetPos =
-      pmSqrt(pmSq(circle.angle * circle.radius) + pmSq(zc));
+	pmSqrt(pmSq(circle.angle * circle.radius) + pmSq(zc));
 
     tc->currentPos = 0.0;
     tc->type = TC_CIRCULAR;
@@ -345,21 +345,22 @@ int tcRunCycle(TC_STRUCT * tc)
     if (discr > 0.0) {
 	newVel = 0.0;
     } else {
-	discr = 0.25 * tc->cycleTime * tc->cycleTime - 2.0 / tc->aMax * discr;
+	discr =
+	    0.25 * tc->cycleTime * tc->cycleTime - 2.0 / tc->aMax * discr;
 	newVel = -0.5 * tc->aMax * tc->cycleTime + tc->aMax * sqrt(discr);
     }
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
-     if (tc->tcFlag == TC_IS_UNSET) {
+       if (tc->tcFlag == TC_IS_UNSET) {
 	/* it's the start of this segment, so set any start output bits */
 	if (tc->douts) {
 	    /* Fred's original code.. tcDoutByte |= (tc->douts &
-	      tc->doutstarts); tcDoutByte &= (~tc->douts | tc->doutstarts);
-	      extMotDout(tcDoutByte); */
-	    extDioWrite(tc->doutIndex, tc->doutstarts);
+	           tc->doutstarts); tcDoutByte &= (~tc->douts | tc->doutstarts);
+	             extMotDout(tcDoutByte); */
+	      extDioWrite(tc->doutIndex, tc->doutstarts);
 	}
-    }
+      }
 #endif
     if (newVel <= 0.0) {
 	newVel = 0.0;
@@ -372,9 +373,9 @@ int tcRunCycle(TC_STRUCT * tc)
 /*! \todo FIXME - needed for synchronous I/O */
 	if (tc->douts) {
 	    /* Fred's original code.. tcDoutByte |= (tc->douts &
-	      tc->doutends); tcDoutByte &= (~tc->douts | tc->doutends);
-	      extMotDout(tcDoutByte); */
-	    extDioWrite(tc->doutIndex, tc->doutends);
+	             tc->doutends); tcDoutByte &= (~tc->douts | tc->doutends);
+	             extMotDout(tcDoutByte); */
+	      extDioWrite(tc->doutIndex, tc->doutends);
 	}
 #endif
     } else {
@@ -429,7 +430,7 @@ int tcRunCycle(TC_STRUCT * tc)
 	    newAccel = A_CHANGE_MAX * tc->cycleTime + tc->currentAccel;
 	    newVel = tc->currentVel + newAccel * tc->cycleTime;
 	} else if (newAccel <
-	    -A_CHANGE_MAX * tc->cycleTime + tc->currentAccel) {
+		   -A_CHANGE_MAX * tc->cycleTime + tc->currentAccel) {
 	    newAccel = -A_CHANGE_MAX * tc->cycleTime + tc->currentAccel;
 	    newVel = tc->currentVel + newAccel * tc->cycleTime;
 	}
@@ -449,7 +450,8 @@ int tcRunCycle(TC_STRUCT * tc)
 	    }
 	} else if (newAccel > 0.0) {
 	    tc->tcFlag = TC_IS_ACCEL;
-	} else if (newVel < TC_VEL_EPSILON && tc->vScale < TC_SCALE_EPSILON) {
+	} else if (newVel < TC_VEL_EPSILON
+		   && tc->vScale < TC_SCALE_EPSILON) {
 	    tc->tcFlag = TC_IS_PAUSED;
 	} else {
 	    tc->tcFlag = TC_IS_CONST;
@@ -481,7 +483,8 @@ EmcPose tcGetPos(TC_STRUCT * tc)
 	pmLinePoint(&tc->line, tc->currentPos, &v1);
     } else if (tc->type == TC_CIRCULAR) {
 	pmCirclePoint(&tc->circle,
-	    tc->currentPos * tc->circle.angle / tc->targetPos, &v1);
+		      tc->currentPos * tc->circle.angle / tc->targetPos,
+		      &v1);
     } else {
 	v1.tran.x = v1.tran.y = v1.tran.z = 0.0;
 	v1.rot.s = 1.0;
@@ -491,7 +494,7 @@ EmcPose tcGetPos(TC_STRUCT * tc)
     if (tc->abc_mag > 1e-6) {
 	if (tc->tmag > 1e-6) {
 	    pmLinePoint(&tc->line_abc,
-		(tc->currentPos * tc->abc_mag / tc->tmag), &v2);
+			(tc->currentPos * tc->abc_mag / tc->tmag), &v2);
 	    v.a = v2.tran.x;
 	    v.b = v2.tran.y;
 	    v.c = v2.tran.z;
@@ -636,16 +639,17 @@ void tcPrint(TC_STRUCT * tc)
     rtapi_print_msg(1, "currentVel:   %f\n", tc->currentVel);
     rtapi_print_msg(1, "currentAccel: %f\n", tc->currentAccel);
     rtapi_print_msg(1, "tcFlag:       %s\n",
-	tc->tcFlag == TC_IS_UNSET ? "UNSET" : tc->tcFlag ==
-	TC_IS_DONE ? "DONE" : tc->tcFlag ==
-	TC_IS_ACCEL ? "ACCEL" : tc->tcFlag ==
-	TC_IS_CONST ? "CONST" : tc->tcFlag ==
-	TC_IS_DECEL ? "DECEL" : tc->tcFlag == TC_IS_PAUSED ? "PAUSED" : "?");
+		    tc->tcFlag == TC_IS_UNSET ? "UNSET" : tc->tcFlag ==
+		    TC_IS_DONE ? "DONE" : tc->tcFlag ==
+		    TC_IS_ACCEL ? "ACCEL" : tc->tcFlag ==
+		    TC_IS_CONST ? "CONST" : tc->tcFlag ==
+		    TC_IS_DECEL ? "DECEL" : tc->tcFlag ==
+		    TC_IS_PAUSED ? "PAUSED" : "?");
     rtapi_print_msg(1, "type:         %s\n",
-	tc->type == TC_LINEAR ? "LINEAR" : tc->type ==
-	TC_CIRCULAR ? "CIRCULAR" : "?");
+		    tc->type == TC_LINEAR ? "LINEAR" : tc->type ==
+		    TC_CIRCULAR ? "CIRCULAR" : "?");
     rtapi_print_msg(1, "id:           %d\n", tc->id);
-#endif /* ULAPI */
+#endif				/* ULAPI */
 }
 
 /* TC_QUEUE_STRUCT definitions */
@@ -941,7 +945,8 @@ PmCartesian tcGetUnitCart(TC_STRUCT * tc)
     static const PmCartesian fake = { 1.0, 0.0, 0.0 };
 
     if (tc->type == TC_LINEAR) {
-	pmCartCartSub(tc->line.end.tran, tc->line.start.tran, &tc->unitCart);
+	pmCartCartSub(tc->line.end.tran, tc->line.start.tran,
+		      &tc->unitCart);
 #ifdef USE_PM_CART_NORM
 	pmCartNorm(tc->unitCart, &tc->unitCart);
 #else
@@ -966,16 +971,16 @@ PmCartesian tcGetUnitCart(TC_STRUCT * tc)
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for synchronous I/O */
-int tcSetDout(TC_STRUCT * tc, int doutIndex, unsigned char starts, unsigned char ends)
+int tcSetDout(TC_STRUCT * tc, int doutIndex, unsigned char starts,
+	       unsigned char ends)
 {
     if (0 == tc) {
 	return -1;
-    }
-    tc->douts = 1;
-    tc->doutIndex = doutIndex;
-    tc->doutstarts = starts;
-    tc->doutends = ends;
-    return 0;
+      }
+      tc->douts = 1;
+      tc->doutIndex = doutIndex;
+      tc->doutstarts = starts;
+      tc->doutends = ends;
+      return 0;
 }
 #endif
-

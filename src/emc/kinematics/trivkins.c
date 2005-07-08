@@ -19,9 +19,9 @@
 #include "motion.h"		/* these decls */
 
 int kinematicsForward(const double *joints,
-    EmcPose * pos,
-    const KINEMATICS_FORWARD_FLAGS * fflags,
-    KINEMATICS_INVERSE_FLAGS * iflags)
+		      EmcPose * pos,
+		      const KINEMATICS_FORWARD_FLAGS * fflags,
+		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
     pos->tran.x = joints[0];
     pos->tran.y = joints[1];
@@ -34,9 +34,9 @@ int kinematicsForward(const double *joints,
 }
 
 int kinematicsInverse(const EmcPose * pos,
-    double *joints,
-    const KINEMATICS_INVERSE_FLAGS * iflags,
-    KINEMATICS_FORWARD_FLAGS * fflags)
+		      double *joints,
+		      const KINEMATICS_INVERSE_FLAGS * iflags,
+		      KINEMATICS_FORWARD_FLAGS * fflags)
 {
     joints[0] = pos->tran.x;
     joints[1] = pos->tran.y;
@@ -50,8 +50,9 @@ int kinematicsInverse(const EmcPose * pos,
 
 /* implemented for these kinematics as giving joints preference */
 int kinematicsHome(EmcPose * world,
-    double *joint,
-    KINEMATICS_FORWARD_FLAGS * fflags, KINEMATICS_INVERSE_FLAGS * iflags)
+		   double *joint,
+		   KINEMATICS_FORWARD_FLAGS * fflags,
+		   KINEMATICS_INVERSE_FLAGS * iflags)
 {
     *fflags = 0;
     *iflags = 0;

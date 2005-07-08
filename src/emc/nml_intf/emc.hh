@@ -396,8 +396,8 @@ extern int emcAxisSetAxis(int axis, unsigned char axisType);
 extern int emcAxisSetUnits(int axis, double units);
 /*! \todo FIXME - soon to be deleted */
 extern int emcAxisSetGains(int axis, double p, double i, double d,
-    double ff0, double ff1, double ff2,
-    double bias, double maxError, double deadband);
+			   double ff0, double ff1, double ff2,
+			   double bias, double maxError, double deadband);
 extern int emcAxisSetBacklash(int axis, double backlash);
 extern int emcAxisSetCycleTime(int axis, double cycleTime);
 extern int emcAxisSetInterpolationRate(int axis, int rate);
@@ -411,9 +411,10 @@ extern int emcAxisSetFerror(int axis, double ferror);
 extern int emcAxisSetMinFerror(int axis, double ferror);
 /*! \todo FIXME - should be deleted */
 extern int emcAxisSetStepParams(int axis, double setup_time,
-    double hold_time);
+				double hold_time);
 extern int emcAxisSetHomingParams(int axis, double home, double offset,
-    double search_vel, double latch_vel, int use_index, int ignore_limits );
+				  double search_vel, double latch_vel,
+				  int use_index, int ignore_limits);
 extern int emcAxisSetMaxVelocity(int axis, double vel);
 extern int emcAxisSetMaxAcceleration(int axis, double acc);
 /*! \todo FIXME - polarity messages should be deleted */
@@ -468,7 +469,7 @@ extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(EmcPose end);
 extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
-    PM_CARTESIAN normal, int turn);
+			       PM_CARTESIAN normal, int turn);
 extern int emcTrajSetTermCond(int cond);
 extern int emcTrajSetOffset(EmcPose offset);
 extern int emcTrajSetOrigin(EmcPose origin);
@@ -489,7 +490,7 @@ extern int emcMotionAbort();
 extern int emcMotionSetDebug(int debug);
 extern int emcMotionSetAout(unsigned char index, double start, double end);
 extern int emcMotionSetDout(unsigned char index, unsigned char start,
-    unsigned char end);
+			    unsigned char end);
 
 class EMC_MOTION_STAT;		// forward decl
 extern int emcMotionUpdate(EMC_MOTION_STAT * stat);
@@ -650,7 +651,8 @@ extern int emcInit();
 extern int emcHalt();
 extern int emcAbort();
 extern int emcLogOpen(char *file, int type, int size, int skip, int which,
-    int triggerType, int triggerVar, double triggerThreshold);
+		      int triggerType, int triggerVar,
+		      double triggerThreshold);
 extern int emcLogStart();
 extern int emcLogStop();
 extern int emcLogClose();
@@ -673,7 +675,7 @@ extern int emcUpdate(EMC_STAT * stat);
 class EMC_OPERATOR_ERROR:public RCS_CMD_MSG {
   public:
     EMC_OPERATOR_ERROR():RCS_CMD_MSG(EMC_OPERATOR_ERROR_TYPE,
-	sizeof(EMC_OPERATOR_ERROR)) {
+				     sizeof(EMC_OPERATOR_ERROR)) {
     };
 
     // For internal NML/CMS use only.
@@ -691,7 +693,7 @@ class EMC_OPERATOR_ERROR:public RCS_CMD_MSG {
 class EMC_OPERATOR_TEXT:public RCS_CMD_MSG {
   public:
     EMC_OPERATOR_TEXT():RCS_CMD_MSG(EMC_OPERATOR_TEXT_TYPE,
-	sizeof(EMC_OPERATOR_TEXT)) {
+				    sizeof(EMC_OPERATOR_TEXT)) {
     };
 
     // For internal NML/CMS use only.
@@ -713,7 +715,7 @@ class EMC_OPERATOR_TEXT:public RCS_CMD_MSG {
 class EMC_OPERATOR_DISPLAY:public RCS_CMD_MSG {
   public:
     EMC_OPERATOR_DISPLAY():RCS_CMD_MSG(EMC_OPERATOR_DISPLAY_TYPE,
-	sizeof(EMC_OPERATOR_DISPLAY)) {
+				       sizeof(EMC_OPERATOR_DISPLAY)) {
     };
 
     // For internal NML/CMS use only.
@@ -727,15 +729,16 @@ class EMC_OPERATOR_DISPLAY:public RCS_CMD_MSG {
 /*
   execute a system command
 */
-class EMC_SYSTEM_CMD : public RCS_CMD_MSG
-{
-public:
-  EMC_SYSTEM_CMD(): RCS_CMD_MSG(EMC_SYSTEM_CMD_TYPE, sizeof(EMC_SYSTEM_CMD)) {};
+class EMC_SYSTEM_CMD:public RCS_CMD_MSG {
+  public:
+    EMC_SYSTEM_CMD():RCS_CMD_MSG(EMC_SYSTEM_CMD_TYPE,
+				 sizeof(EMC_SYSTEM_CMD)) {
+    };
 
-  // For internal NML/CMS use only.
-  void update(CMS *cms);
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
 
-  char string[EMC_SYSTEM_CMD_LEN];
+    char string[EMC_SYSTEM_CMD_LEN];
 };
 
 class EMC_NULL:public RCS_CMD_MSG {
@@ -791,7 +794,7 @@ class EMC_AXIS_CMD_MSG:public RCS_CMD_MSG {
 class EMC_AXIS_SET_AXIS:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_AXIS():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_AXIS_TYPE,
-	sizeof(EMC_AXIS_SET_AXIS)) {
+					 sizeof(EMC_AXIS_SET_AXIS)) {
     };
 
     // For internal NML/CMS use only.
@@ -808,7 +811,7 @@ class EMC_AXIS_SET_AXIS:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_SET_UNITS:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_UNITS():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_UNITS_TYPE,
-	sizeof(EMC_AXIS_SET_UNITS)) {
+					  sizeof(EMC_AXIS_SET_UNITS)) {
     };
 
     // For internal NML/CMS use only.
@@ -826,7 +829,7 @@ class EMC_AXIS_SET_UNITS:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_SET_GAINS:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_GAINS():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_GAINS_TYPE,
-	sizeof(EMC_AXIS_SET_GAINS)) {
+					  sizeof(EMC_AXIS_SET_GAINS)) {
     };
 
     // For internal NML/CMS use only.
@@ -850,7 +853,8 @@ class EMC_AXIS_SET_GAINS:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_SET_BACKLASH:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_BACKLASH():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_BACKLASH_TYPE,
-	sizeof(EMC_AXIS_SET_BACKLASH)) {
+					     sizeof(EMC_AXIS_SET_BACKLASH))
+    {
     };
 
     // For internal NML/CMS use only.
@@ -868,8 +872,8 @@ class EMC_AXIS_SET_BACKLASH:public EMC_AXIS_CMD_MSG {
  */
 class EMC_AXIS_SET_CYCLE_TIME:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_SET_CYCLE_TIME():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_CYCLE_TIME_TYPE,
-	sizeof(EMC_AXIS_SET_CYCLE_TIME)) {
+    EMC_AXIS_SET_CYCLE_TIME():EMC_AXIS_CMD_MSG
+	(EMC_AXIS_SET_CYCLE_TIME_TYPE, sizeof(EMC_AXIS_SET_CYCLE_TIME)) {
     };
 
     // For internal NML/CMS use only.
@@ -922,8 +926,8 @@ class EMC_AXIS_SET_CYCLE_TIME:public EMC_AXIS_CMD_MSG {
  */
 class EMC_AXIS_SET_INPUT_SCALE:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_SET_INPUT_SCALE():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_INPUT_SCALE_TYPE,
-	sizeof(EMC_AXIS_SET_INPUT_SCALE)) {
+    EMC_AXIS_SET_INPUT_SCALE():EMC_AXIS_CMD_MSG
+	(EMC_AXIS_SET_INPUT_SCALE_TYPE, sizeof(EMC_AXIS_SET_INPUT_SCALE)) {
     };
 
     // For internal NML/CMS use only.
@@ -935,7 +939,8 @@ class EMC_AXIS_SET_INPUT_SCALE:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_SET_OUTPUT_SCALE:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_OUTPUT_SCALE():EMC_AXIS_CMD_MSG
-	(EMC_AXIS_SET_OUTPUT_SCALE_TYPE, sizeof(EMC_AXIS_SET_OUTPUT_SCALE)) {
+	(EMC_AXIS_SET_OUTPUT_SCALE_TYPE,
+	 sizeof(EMC_AXIS_SET_OUTPUT_SCALE)) {
     };
 
     // For internal NML/CMS use only.
@@ -948,7 +953,7 @@ class EMC_AXIS_SET_MIN_POSITION_LIMIT:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_MIN_POSITION_LIMIT():EMC_AXIS_CMD_MSG
 	(EMC_AXIS_SET_MIN_POSITION_LIMIT_TYPE,
-	sizeof(EMC_AXIS_SET_MIN_POSITION_LIMIT)) {
+	 sizeof(EMC_AXIS_SET_MIN_POSITION_LIMIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -961,7 +966,7 @@ class EMC_AXIS_SET_MAX_POSITION_LIMIT:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_MAX_POSITION_LIMIT():EMC_AXIS_CMD_MSG
 	(EMC_AXIS_SET_MAX_POSITION_LIMIT_TYPE,
-	sizeof(EMC_AXIS_SET_MAX_POSITION_LIMIT)) {
+	 sizeof(EMC_AXIS_SET_MAX_POSITION_LIMIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -974,7 +979,7 @@ class EMC_AXIS_SET_MIN_OUTPUT_LIMIT:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_MIN_OUTPUT_LIMIT():EMC_AXIS_CMD_MSG
 	(EMC_AXIS_SET_MIN_OUTPUT_LIMIT_TYPE,
-	sizeof(EMC_AXIS_SET_MIN_OUTPUT_LIMIT)) {
+	 sizeof(EMC_AXIS_SET_MIN_OUTPUT_LIMIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -987,7 +992,7 @@ class EMC_AXIS_SET_MAX_OUTPUT_LIMIT:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_MAX_OUTPUT_LIMIT():EMC_AXIS_CMD_MSG
 	(EMC_AXIS_SET_MAX_OUTPUT_LIMIT_TYPE,
-	sizeof(EMC_AXIS_SET_MAX_OUTPUT_LIMIT)) {
+	 sizeof(EMC_AXIS_SET_MAX_OUTPUT_LIMIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -999,7 +1004,7 @@ class EMC_AXIS_SET_MAX_OUTPUT_LIMIT:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_SET_FERROR:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_FERROR():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_FERROR_TYPE,
-	sizeof(EMC_AXIS_SET_FERROR)) {
+					   sizeof(EMC_AXIS_SET_FERROR)) {
     };
 
     // For internal NML/CMS use only.
@@ -1010,8 +1015,8 @@ class EMC_AXIS_SET_FERROR:public EMC_AXIS_CMD_MSG {
 
 class EMC_AXIS_SET_MIN_FERROR:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_SET_MIN_FERROR():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_MIN_FERROR_TYPE,
-	sizeof(EMC_AXIS_SET_MIN_FERROR)) {
+    EMC_AXIS_SET_MIN_FERROR():EMC_AXIS_CMD_MSG
+	(EMC_AXIS_SET_MIN_FERROR_TYPE, sizeof(EMC_AXIS_SET_MIN_FERROR)) {
     };
 
     // For internal NML/CMS use only.
@@ -1022,8 +1027,9 @@ class EMC_AXIS_SET_MIN_FERROR:public EMC_AXIS_CMD_MSG {
 
 class EMC_AXIS_SET_HOMING_PARAMS:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_SET_HOMING_PARAMS():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_HOMING_PARAMS_TYPE,
-	sizeof(EMC_AXIS_SET_HOMING_PARAMS)) {
+    EMC_AXIS_SET_HOMING_PARAMS():EMC_AXIS_CMD_MSG
+	(EMC_AXIS_SET_HOMING_PARAMS_TYPE,
+	 sizeof(EMC_AXIS_SET_HOMING_PARAMS)) {
     };
 
     // For internal NML/CMS use only.
@@ -1040,7 +1046,8 @@ class EMC_AXIS_SET_HOMING_PARAMS:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_SET_MAX_VELOCITY:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_MAX_VELOCITY():EMC_AXIS_CMD_MSG
-	(EMC_AXIS_SET_MAX_VELOCITY_TYPE, sizeof(EMC_AXIS_SET_MAX_VELOCITY)) {
+	(EMC_AXIS_SET_MAX_VELOCITY_TYPE,
+	 sizeof(EMC_AXIS_SET_MAX_VELOCITY)) {
     };
 
     // For internal NML/CMS use only.
@@ -1052,7 +1059,7 @@ class EMC_AXIS_SET_MAX_VELOCITY:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_INIT:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_INIT():EMC_AXIS_CMD_MSG(EMC_AXIS_INIT_TYPE,
-	sizeof(EMC_AXIS_INIT)) {
+				     sizeof(EMC_AXIS_INIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1062,7 +1069,7 @@ class EMC_AXIS_INIT:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_HALT:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_HALT():EMC_AXIS_CMD_MSG(EMC_AXIS_HALT_TYPE,
-	sizeof(EMC_AXIS_HALT)) {
+				     sizeof(EMC_AXIS_HALT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1072,7 +1079,7 @@ class EMC_AXIS_HALT:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_ABORT:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_ABORT():EMC_AXIS_CMD_MSG(EMC_AXIS_ABORT_TYPE,
-	sizeof(EMC_AXIS_ABORT)) {
+				      sizeof(EMC_AXIS_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1082,7 +1089,7 @@ class EMC_AXIS_ABORT:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_ENABLE:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_ENABLE():EMC_AXIS_CMD_MSG(EMC_AXIS_ENABLE_TYPE,
-	sizeof(EMC_AXIS_ENABLE)) {
+				       sizeof(EMC_AXIS_ENABLE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1092,7 +1099,7 @@ class EMC_AXIS_ENABLE:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_DISABLE:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_DISABLE():EMC_AXIS_CMD_MSG(EMC_AXIS_DISABLE_TYPE,
-	sizeof(EMC_AXIS_DISABLE)) {
+					sizeof(EMC_AXIS_DISABLE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1102,7 +1109,7 @@ class EMC_AXIS_DISABLE:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_HOME:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_HOME():EMC_AXIS_CMD_MSG(EMC_AXIS_HOME_TYPE,
-	sizeof(EMC_AXIS_HOME)) {
+				     sizeof(EMC_AXIS_HOME)) {
     };
 
     // For internal NML/CMS use only.
@@ -1111,7 +1118,8 @@ class EMC_AXIS_HOME:public EMC_AXIS_CMD_MSG {
 
 class EMC_AXIS_JOG:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_JOG():EMC_AXIS_CMD_MSG(EMC_AXIS_JOG_TYPE, sizeof(EMC_AXIS_JOG)) {
+    EMC_AXIS_JOG():EMC_AXIS_CMD_MSG(EMC_AXIS_JOG_TYPE,
+				    sizeof(EMC_AXIS_JOG)) {
     };
 
     // For internal NML/CMS use only.
@@ -1123,7 +1131,7 @@ class EMC_AXIS_JOG:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_INCR_JOG:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_INCR_JOG():EMC_AXIS_CMD_MSG(EMC_AXIS_INCR_JOG_TYPE,
-	sizeof(EMC_AXIS_INCR_JOG)) {
+					 sizeof(EMC_AXIS_INCR_JOG)) {
     };
 
     // For internal NML/CMS use only.
@@ -1136,7 +1144,7 @@ class EMC_AXIS_INCR_JOG:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_ABS_JOG:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_ABS_JOG():EMC_AXIS_CMD_MSG(EMC_AXIS_ABS_JOG_TYPE,
-	sizeof(EMC_AXIS_ABS_JOG)) {
+					sizeof(EMC_AXIS_ABS_JOG)) {
     };
 
     // For internal NML/CMS use only.
@@ -1149,7 +1157,7 @@ class EMC_AXIS_ABS_JOG:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_ACTIVATE:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_ACTIVATE():EMC_AXIS_CMD_MSG(EMC_AXIS_ACTIVATE_TYPE,
-	sizeof(EMC_AXIS_ACTIVATE)) {
+					 sizeof(EMC_AXIS_ACTIVATE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1159,7 +1167,7 @@ class EMC_AXIS_ACTIVATE:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_DEACTIVATE:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_DEACTIVATE():EMC_AXIS_CMD_MSG(EMC_AXIS_DEACTIVATE_TYPE,
-	sizeof(EMC_AXIS_DEACTIVATE)) {
+					   sizeof(EMC_AXIS_DEACTIVATE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1168,8 +1176,8 @@ class EMC_AXIS_DEACTIVATE:public EMC_AXIS_CMD_MSG {
 
 class EMC_AXIS_OVERRIDE_LIMITS:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_OVERRIDE_LIMITS():EMC_AXIS_CMD_MSG(EMC_AXIS_OVERRIDE_LIMITS_TYPE,
-	sizeof(EMC_AXIS_OVERRIDE_LIMITS)) {
+    EMC_AXIS_OVERRIDE_LIMITS():EMC_AXIS_CMD_MSG
+	(EMC_AXIS_OVERRIDE_LIMITS_TYPE, sizeof(EMC_AXIS_OVERRIDE_LIMITS)) {
     };
 
     // For internal NML/CMS use only.
@@ -1179,7 +1187,7 @@ class EMC_AXIS_OVERRIDE_LIMITS:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_SET_OUTPUT:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_SET_OUTPUT():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_OUTPUT_TYPE,
-	sizeof(EMC_AXIS_SET_OUTPUT)) {
+					   sizeof(EMC_AXIS_SET_OUTPUT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1192,7 +1200,7 @@ class EMC_AXIS_SET_OUTPUT:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_LOAD_COMP:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_LOAD_COMP():EMC_AXIS_CMD_MSG(EMC_AXIS_LOAD_COMP_TYPE,
-	sizeof(EMC_AXIS_LOAD_COMP)) {
+					  sizeof(EMC_AXIS_LOAD_COMP)) {
     };
 
     // For internal NML/CMS use only.
@@ -1204,7 +1212,7 @@ class EMC_AXIS_LOAD_COMP:public EMC_AXIS_CMD_MSG {
 class EMC_AXIS_ALTER:public EMC_AXIS_CMD_MSG {
   public:
     EMC_AXIS_ALTER():EMC_AXIS_CMD_MSG(EMC_AXIS_ALTER_TYPE,
-	sizeof(EMC_AXIS_ALTER)) {
+				      sizeof(EMC_AXIS_ALTER)) {
     };
 
     // For internal NML/CMS use only.
@@ -1220,8 +1228,8 @@ class EMC_AXIS_ALTER:public EMC_AXIS_CMD_MSG {
  */
 class EMC_AXIS_SET_STEP_PARAMS:public EMC_AXIS_CMD_MSG {
   public:
-    EMC_AXIS_SET_STEP_PARAMS():EMC_AXIS_CMD_MSG(EMC_AXIS_SET_STEP_PARAMS_TYPE,
-	sizeof(EMC_AXIS_SET_STEP_PARAMS)) {
+    EMC_AXIS_SET_STEP_PARAMS():EMC_AXIS_CMD_MSG
+	(EMC_AXIS_SET_STEP_PARAMS_TYPE, sizeof(EMC_AXIS_SET_STEP_PARAMS)) {
     };
 
     // For internal NML/CMS use only.
@@ -1325,7 +1333,7 @@ class EMC_TRAJ_CMD_MSG:public RCS_CMD_MSG {
 class EMC_TRAJ_SET_UNITS:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_UNITS():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_UNITS_TYPE,
-	sizeof(EMC_TRAJ_SET_UNITS)) {
+					  sizeof(EMC_TRAJ_SET_UNITS)) {
     };
 
     // For internal NML/CMS use only.
@@ -1338,7 +1346,7 @@ class EMC_TRAJ_SET_UNITS:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_SET_AXES:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_AXES():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_AXES_TYPE,
-	sizeof(EMC_TRAJ_SET_AXES)) {
+					 sizeof(EMC_TRAJ_SET_AXES)) {
     };
 
     // For internal NML/CMS use only.
@@ -1349,8 +1357,8 @@ class EMC_TRAJ_SET_AXES:public EMC_TRAJ_CMD_MSG {
 
 class EMC_TRAJ_SET_CYCLE_TIME:public EMC_TRAJ_CMD_MSG {
   public:
-    EMC_TRAJ_SET_CYCLE_TIME():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_CYCLE_TIME_TYPE,
-	sizeof(EMC_TRAJ_SET_CYCLE_TIME)) {
+    EMC_TRAJ_SET_CYCLE_TIME():EMC_TRAJ_CMD_MSG
+	(EMC_TRAJ_SET_CYCLE_TIME_TYPE, sizeof(EMC_TRAJ_SET_CYCLE_TIME)) {
     };
 
     // For internal NML/CMS use only.
@@ -1362,7 +1370,7 @@ class EMC_TRAJ_SET_CYCLE_TIME:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_SET_MODE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_MODE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_MODE_TYPE,
-	sizeof(EMC_TRAJ_SET_MODE)) {
+					 sizeof(EMC_TRAJ_SET_MODE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1374,7 +1382,8 @@ class EMC_TRAJ_SET_MODE:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_SET_VELOCITY:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_VELOCITY():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_VELOCITY_TYPE,
-	sizeof(EMC_TRAJ_SET_VELOCITY)) {
+					     sizeof(EMC_TRAJ_SET_VELOCITY))
+    {
     };
 
     // For internal NML/CMS use only.
@@ -1386,7 +1395,8 @@ class EMC_TRAJ_SET_VELOCITY:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_SET_ACCELERATION:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_ACCELERATION():EMC_TRAJ_CMD_MSG
-	(EMC_TRAJ_SET_ACCELERATION_TYPE, sizeof(EMC_TRAJ_SET_ACCELERATION)) {
+	(EMC_TRAJ_SET_ACCELERATION_TYPE,
+	 sizeof(EMC_TRAJ_SET_ACCELERATION)) {
     };
 
     // For internal NML/CMS use only.
@@ -1398,7 +1408,8 @@ class EMC_TRAJ_SET_ACCELERATION:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_SET_MAX_VELOCITY:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_MAX_VELOCITY():EMC_TRAJ_CMD_MSG
-	(EMC_TRAJ_SET_MAX_VELOCITY_TYPE, sizeof(EMC_TRAJ_SET_MAX_VELOCITY)) {
+	(EMC_TRAJ_SET_MAX_VELOCITY_TYPE,
+	 sizeof(EMC_TRAJ_SET_MAX_VELOCITY)) {
     };
 
     // For internal NML/CMS use only.
@@ -1411,7 +1422,7 @@ class EMC_TRAJ_SET_MAX_ACCELERATION:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_MAX_ACCELERATION():EMC_TRAJ_CMD_MSG
 	(EMC_TRAJ_SET_MAX_ACCELERATION_TYPE,
-	sizeof(EMC_TRAJ_SET_MAX_ACCELERATION)) {
+	 sizeof(EMC_TRAJ_SET_MAX_ACCELERATION)) {
     };
 
     // For internal NML/CMS use only.
@@ -1423,7 +1434,7 @@ class EMC_TRAJ_SET_MAX_ACCELERATION:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_SET_SCALE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_SCALE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_SCALE_TYPE,
-	sizeof(EMC_TRAJ_SET_SCALE)) {
+					  sizeof(EMC_TRAJ_SET_SCALE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1435,7 +1446,8 @@ class EMC_TRAJ_SET_SCALE:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_SET_MOTION_ID:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_MOTION_ID():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_MOTION_ID_TYPE,
-	sizeof(EMC_TRAJ_SET_MOTION_ID)) {
+					      sizeof
+					      (EMC_TRAJ_SET_MOTION_ID)) {
     };
 
     // For internal NML/CMS use only.
@@ -1447,7 +1459,7 @@ class EMC_TRAJ_SET_MOTION_ID:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_INIT:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_INIT():EMC_TRAJ_CMD_MSG(EMC_TRAJ_INIT_TYPE,
-	sizeof(EMC_TRAJ_INIT)) {
+				     sizeof(EMC_TRAJ_INIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1457,7 +1469,7 @@ class EMC_TRAJ_INIT:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_HALT:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_HALT():EMC_TRAJ_CMD_MSG(EMC_TRAJ_HALT_TYPE,
-	sizeof(EMC_TRAJ_HALT)) {
+				     sizeof(EMC_TRAJ_HALT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1467,7 +1479,7 @@ class EMC_TRAJ_HALT:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_ENABLE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_ENABLE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_ENABLE_TYPE,
-	sizeof(EMC_TRAJ_ENABLE)) {
+				       sizeof(EMC_TRAJ_ENABLE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1477,7 +1489,7 @@ class EMC_TRAJ_ENABLE:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_DISABLE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_DISABLE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_DISABLE_TYPE,
-	sizeof(EMC_TRAJ_DISABLE)) {
+					sizeof(EMC_TRAJ_DISABLE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1487,7 +1499,7 @@ class EMC_TRAJ_DISABLE:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_ABORT:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_ABORT():EMC_TRAJ_CMD_MSG(EMC_TRAJ_ABORT_TYPE,
-	sizeof(EMC_TRAJ_ABORT)) {
+				      sizeof(EMC_TRAJ_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1497,7 +1509,7 @@ class EMC_TRAJ_ABORT:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_PAUSE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_PAUSE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_PAUSE_TYPE,
-	sizeof(EMC_TRAJ_PAUSE)) {
+				      sizeof(EMC_TRAJ_PAUSE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1507,7 +1519,7 @@ class EMC_TRAJ_PAUSE:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_STEP:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_STEP():EMC_TRAJ_CMD_MSG(EMC_TRAJ_STEP_TYPE,
-	sizeof(EMC_TRAJ_STEP)) {
+				     sizeof(EMC_TRAJ_STEP)) {
     };
 
     // For internal NML/CMS use only.
@@ -1517,7 +1529,7 @@ class EMC_TRAJ_STEP:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_RESUME:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_RESUME():EMC_TRAJ_CMD_MSG(EMC_TRAJ_RESUME_TYPE,
-	sizeof(EMC_TRAJ_RESUME)) {
+				       sizeof(EMC_TRAJ_RESUME)) {
     };
 
     // For internal NML/CMS use only.
@@ -1527,7 +1539,7 @@ class EMC_TRAJ_RESUME:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_DELAY:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_DELAY():EMC_TRAJ_CMD_MSG(EMC_TRAJ_DELAY_TYPE,
-	sizeof(EMC_TRAJ_DELAY)) {
+				      sizeof(EMC_TRAJ_DELAY)) {
     };
 
     // For internal NML/CMS use only.
@@ -1539,7 +1551,7 @@ class EMC_TRAJ_DELAY:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_LINEAR_MOVE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_LINEAR_MOVE_TYPE,
-	sizeof(EMC_TRAJ_LINEAR_MOVE)) {
+					    sizeof(EMC_TRAJ_LINEAR_MOVE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1548,24 +1560,27 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
     EmcPose end;		// end point
 };
 
-class EMC_TRAJ_CIRCULAR_MOVE : public EMC_TRAJ_CMD_MSG
-{
-public:
-  EMC_TRAJ_CIRCULAR_MOVE() : EMC_TRAJ_CMD_MSG(EMC_TRAJ_CIRCULAR_MOVE_TYPE, sizeof(EMC_TRAJ_CIRCULAR_MOVE)) {};
+class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_CIRCULAR_MOVE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_CIRCULAR_MOVE_TYPE,
+					      sizeof
+					      (EMC_TRAJ_CIRCULAR_MOVE)) {
+    };
 
-  // For internal NML/CMS use only.
-  void update(CMS *cms);
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
 
-  EmcPose end;
-  PM_CARTESIAN center;
-  PM_CARTESIAN normal;
-  int turn;
+    EmcPose end;
+    PM_CARTESIAN center;
+    PM_CARTESIAN normal;
+    int turn;
 };
 
 class EMC_TRAJ_SET_TERM_COND:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_TERM_COND():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_TERM_COND_TYPE,
-	sizeof(EMC_TRAJ_SET_TERM_COND)) {
+					      sizeof
+					      (EMC_TRAJ_SET_TERM_COND)) {
     };
 
     // For internal NML/CMS use only.
@@ -1577,7 +1592,7 @@ class EMC_TRAJ_SET_TERM_COND:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_OFFSET():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_OFFSET_TYPE,
-	sizeof(EMC_TRAJ_SET_OFFSET)) {
+					   sizeof(EMC_TRAJ_SET_OFFSET)) {
     };
 
     // For internal NML/CMS use only.
@@ -1589,7 +1604,7 @@ class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_SET_ORIGIN:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_ORIGIN():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_ORIGIN_TYPE,
-	sizeof(EMC_TRAJ_SET_ORIGIN)) {
+					   sizeof(EMC_TRAJ_SET_ORIGIN)) {
     };
 
     // For internal NML/CMS use only.
@@ -1601,7 +1616,7 @@ class EMC_TRAJ_SET_ORIGIN:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_SET_HOME:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_HOME():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_HOME_TYPE,
-	sizeof(EMC_TRAJ_SET_HOME)) {
+					 sizeof(EMC_TRAJ_SET_HOME)) {
     };
 
     // For internal NML/CMS use only.
@@ -1612,8 +1627,8 @@ class EMC_TRAJ_SET_HOME:public EMC_TRAJ_CMD_MSG {
 
 class EMC_TRAJ_SET_PROBE_INDEX:public EMC_TRAJ_CMD_MSG {
   public:
-    EMC_TRAJ_SET_PROBE_INDEX():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_PROBE_INDEX_TYPE,
-	sizeof(EMC_TRAJ_SET_PROBE_INDEX)) {
+    EMC_TRAJ_SET_PROBE_INDEX():EMC_TRAJ_CMD_MSG
+	(EMC_TRAJ_SET_PROBE_INDEX_TYPE, sizeof(EMC_TRAJ_SET_PROBE_INDEX)) {
     };
 
     // For internal NML/CMS use only.
@@ -1626,7 +1641,7 @@ class EMC_TRAJ_SET_PROBE_POLARITY:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_PROBE_POLARITY():EMC_TRAJ_CMD_MSG
 	(EMC_TRAJ_SET_PROBE_POLARITY_TYPE,
-	sizeof(EMC_TRAJ_SET_PROBE_POLARITY)) {
+	 sizeof(EMC_TRAJ_SET_PROBE_POLARITY)) {
     };
 
     // For internal NML/CMS use only.
@@ -1639,7 +1654,7 @@ class EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG():EMC_TRAJ_CMD_MSG
 	(EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE,
-	sizeof(EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG)) {
+	 sizeof(EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG)) {
     };
 
     // For internal NML/CMS use only.
@@ -1650,7 +1665,7 @@ class EMC_TRAJ_SET_TELEOP_ENABLE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_TELEOP_ENABLE():EMC_TRAJ_CMD_MSG
 	(EMC_TRAJ_SET_TELEOP_ENABLE_TYPE,
-	sizeof(EMC_TRAJ_SET_TELEOP_ENABLE)) {
+	 sizeof(EMC_TRAJ_SET_TELEOP_ENABLE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1663,7 +1678,7 @@ class EMC_TRAJ_SET_TELEOP_VECTOR:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_TELEOP_VECTOR():EMC_TRAJ_CMD_MSG
 	(EMC_TRAJ_SET_TELEOP_VECTOR_TYPE,
-	sizeof(EMC_TRAJ_SET_TELEOP_VECTOR)) {
+	 sizeof(EMC_TRAJ_SET_TELEOP_VECTOR)) {
     };
 
     // For internal NML/CMS use only.
@@ -1675,7 +1690,7 @@ class EMC_TRAJ_SET_TELEOP_VECTOR:public EMC_TRAJ_CMD_MSG {
 class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_PROBE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_PROBE_TYPE,
-	sizeof(EMC_TRAJ_PROBE)) {
+				      sizeof(EMC_TRAJ_PROBE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1754,7 +1769,7 @@ class EMC_MOTION_CMD_MSG:public RCS_CMD_MSG {
 class EMC_MOTION_INIT:public EMC_MOTION_CMD_MSG {
   public:
     EMC_MOTION_INIT():EMC_MOTION_CMD_MSG(EMC_MOTION_INIT_TYPE,
-	sizeof(EMC_MOTION_INIT)) {
+					 sizeof(EMC_MOTION_INIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1764,7 +1779,7 @@ class EMC_MOTION_INIT:public EMC_MOTION_CMD_MSG {
 class EMC_MOTION_HALT:public EMC_MOTION_CMD_MSG {
   public:
     EMC_MOTION_HALT():EMC_MOTION_CMD_MSG(EMC_MOTION_HALT_TYPE,
-	sizeof(EMC_MOTION_HALT)) {
+					 sizeof(EMC_MOTION_HALT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1774,7 +1789,7 @@ class EMC_MOTION_HALT:public EMC_MOTION_CMD_MSG {
 class EMC_MOTION_ABORT:public EMC_MOTION_CMD_MSG {
   public:
     EMC_MOTION_ABORT():EMC_MOTION_CMD_MSG(EMC_MOTION_ABORT_TYPE,
-	sizeof(EMC_MOTION_ABORT)) {
+					  sizeof(EMC_MOTION_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1784,7 +1799,7 @@ class EMC_MOTION_ABORT:public EMC_MOTION_CMD_MSG {
 class EMC_MOTION_SET_AOUT:public EMC_MOTION_CMD_MSG {
   public:
     EMC_MOTION_SET_AOUT():EMC_MOTION_CMD_MSG(EMC_MOTION_SET_AOUT_TYPE,
-	sizeof(EMC_MOTION_SET_AOUT)) {
+					     sizeof(EMC_MOTION_SET_AOUT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1798,7 +1813,7 @@ class EMC_MOTION_SET_AOUT:public EMC_MOTION_CMD_MSG {
 class EMC_MOTION_SET_DOUT:public EMC_MOTION_CMD_MSG {
   public:
     EMC_MOTION_SET_DOUT():EMC_MOTION_CMD_MSG(EMC_MOTION_SET_DOUT_TYPE,
-	sizeof(EMC_MOTION_SET_DOUT)) {
+					     sizeof(EMC_MOTION_SET_DOUT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1828,7 +1843,7 @@ class EMC_MOTION_STAT_MSG:public RCS_STAT_MSG {
 class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
   public:
     EMC_MOTION_STAT():EMC_MOTION_STAT_MSG(EMC_MOTION_STAT_TYPE,
-	sizeof(EMC_MOTION_STAT)) {
+					  sizeof(EMC_MOTION_STAT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1856,7 +1871,7 @@ class EMC_TASK_CMD_MSG:public RCS_CMD_MSG {
 class EMC_TASK_INIT:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_INIT():EMC_TASK_CMD_MSG(EMC_TASK_INIT_TYPE,
-	sizeof(EMC_TASK_INIT)) {
+				     sizeof(EMC_TASK_INIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1866,7 +1881,7 @@ class EMC_TASK_INIT:public EMC_TASK_CMD_MSG {
 class EMC_TASK_HALT:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_HALT():EMC_TASK_CMD_MSG(EMC_TASK_HALT_TYPE,
-	sizeof(EMC_TASK_HALT)) {
+				     sizeof(EMC_TASK_HALT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1876,7 +1891,7 @@ class EMC_TASK_HALT:public EMC_TASK_CMD_MSG {
 class EMC_TASK_ABORT:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_ABORT():EMC_TASK_CMD_MSG(EMC_TASK_ABORT_TYPE,
-	sizeof(EMC_TASK_ABORT)) {
+				      sizeof(EMC_TASK_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -1886,7 +1901,7 @@ class EMC_TASK_ABORT:public EMC_TASK_CMD_MSG {
 class EMC_TASK_SET_MODE:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_SET_MODE():EMC_TASK_CMD_MSG(EMC_TASK_SET_MODE_TYPE,
-	sizeof(EMC_TASK_SET_MODE)) {
+					 sizeof(EMC_TASK_SET_MODE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1898,7 +1913,7 @@ class EMC_TASK_SET_MODE:public EMC_TASK_CMD_MSG {
 class EMC_TASK_SET_STATE:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_SET_STATE():EMC_TASK_CMD_MSG(EMC_TASK_SET_STATE_TYPE,
-	sizeof(EMC_TASK_SET_STATE)) {
+					  sizeof(EMC_TASK_SET_STATE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1910,7 +1925,7 @@ class EMC_TASK_SET_STATE:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_OPEN:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_OPEN():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_OPEN_TYPE,
-	sizeof(EMC_TASK_PLAN_OPEN)) {
+					  sizeof(EMC_TASK_PLAN_OPEN)) {
     };
 
     // For internal NML/CMS use only.
@@ -1922,7 +1937,7 @@ class EMC_TASK_PLAN_OPEN:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_RUN:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_RUN():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_RUN_TYPE,
-	sizeof(EMC_TASK_PLAN_RUN)) {
+					 sizeof(EMC_TASK_PLAN_RUN)) {
     };
 
     // For internal NML/CMS use only.
@@ -1935,7 +1950,7 @@ class EMC_TASK_PLAN_RUN:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_READ:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_READ():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_READ_TYPE,
-	sizeof(EMC_TASK_PLAN_READ)) {
+					  sizeof(EMC_TASK_PLAN_READ)) {
     };
 
     // For internal NML/CMS use only.
@@ -1945,7 +1960,8 @@ class EMC_TASK_PLAN_READ:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_EXECUTE:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_EXECUTE():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_EXECUTE_TYPE,
-	sizeof(EMC_TASK_PLAN_EXECUTE)) {
+					     sizeof(EMC_TASK_PLAN_EXECUTE))
+    {
     };
 
     // For internal NML/CMS use only.
@@ -1957,7 +1973,7 @@ class EMC_TASK_PLAN_EXECUTE:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_PAUSE:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_PAUSE():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_PAUSE_TYPE,
-	sizeof(EMC_TASK_PLAN_PAUSE)) {
+					   sizeof(EMC_TASK_PLAN_PAUSE)) {
     };
 
     // For internal NML/CMS use only.
@@ -1967,7 +1983,7 @@ class EMC_TASK_PLAN_PAUSE:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_STEP:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_STEP():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_STEP_TYPE,
-	sizeof(EMC_TASK_PLAN_STEP)) {
+					  sizeof(EMC_TASK_PLAN_STEP)) {
     };
 
     // For internal NML/CMS use only.
@@ -1977,7 +1993,7 @@ class EMC_TASK_PLAN_STEP:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_RESUME:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_RESUME():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_RESUME_TYPE,
-	sizeof(EMC_TASK_PLAN_RESUME)) {
+					    sizeof(EMC_TASK_PLAN_RESUME)) {
     };
 
     // For internal NML/CMS use only.
@@ -1987,7 +2003,7 @@ class EMC_TASK_PLAN_RESUME:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_END:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_END():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_END_TYPE,
-	sizeof(EMC_TASK_PLAN_END)) {
+					 sizeof(EMC_TASK_PLAN_END)) {
     };
 
     // For internal NML/CMS use only.
@@ -1997,7 +2013,7 @@ class EMC_TASK_PLAN_END:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_CLOSE:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_CLOSE():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_CLOSE_TYPE,
-	sizeof(EMC_TASK_PLAN_CLOSE)) {
+					   sizeof(EMC_TASK_PLAN_CLOSE)) {
     };
 
     // For internal NML/CMS use only.
@@ -2007,7 +2023,7 @@ class EMC_TASK_PLAN_CLOSE:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_INIT:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_INIT():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_INIT_TYPE,
-	sizeof(EMC_TASK_PLAN_INIT)) {
+					  sizeof(EMC_TASK_PLAN_INIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2017,7 +2033,7 @@ class EMC_TASK_PLAN_INIT:public EMC_TASK_CMD_MSG {
 class EMC_TASK_PLAN_SYNCH:public EMC_TASK_CMD_MSG {
   public:
     EMC_TASK_PLAN_SYNCH():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_SYNCH_TYPE,
-	sizeof(EMC_TASK_PLAN_SYNCH)) {
+					   sizeof(EMC_TASK_PLAN_SYNCH)) {
     };
 
     // For internal NML/CMS use only.
@@ -2080,7 +2096,7 @@ class EMC_TOOL_CMD_MSG:public RCS_CMD_MSG {
 class EMC_TOOL_INIT:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_INIT():EMC_TOOL_CMD_MSG(EMC_TOOL_INIT_TYPE,
-	sizeof(EMC_TOOL_INIT)) {
+				     sizeof(EMC_TOOL_INIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2090,7 +2106,7 @@ class EMC_TOOL_INIT:public EMC_TOOL_CMD_MSG {
 class EMC_TOOL_HALT:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_HALT():EMC_TOOL_CMD_MSG(EMC_TOOL_HALT_TYPE,
-	sizeof(EMC_TOOL_HALT)) {
+				     sizeof(EMC_TOOL_HALT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2100,7 +2116,7 @@ class EMC_TOOL_HALT:public EMC_TOOL_CMD_MSG {
 class EMC_TOOL_ABORT:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_ABORT():EMC_TOOL_CMD_MSG(EMC_TOOL_ABORT_TYPE,
-	sizeof(EMC_TOOL_ABORT)) {
+				      sizeof(EMC_TOOL_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2110,7 +2126,7 @@ class EMC_TOOL_ABORT:public EMC_TOOL_CMD_MSG {
 class EMC_TOOL_PREPARE:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_PREPARE():EMC_TOOL_CMD_MSG(EMC_TOOL_PREPARE_TYPE,
-	sizeof(EMC_TOOL_PREPARE)) {
+					sizeof(EMC_TOOL_PREPARE)) {
     };
 
     // For internal NML/CMS use only.
@@ -2122,7 +2138,7 @@ class EMC_TOOL_PREPARE:public EMC_TOOL_CMD_MSG {
 class EMC_TOOL_LOAD:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_LOAD():EMC_TOOL_CMD_MSG(EMC_TOOL_LOAD_TYPE,
-	sizeof(EMC_TOOL_LOAD)) {
+				     sizeof(EMC_TOOL_LOAD)) {
     };
 
     // For internal NML/CMS use only.
@@ -2132,7 +2148,7 @@ class EMC_TOOL_LOAD:public EMC_TOOL_CMD_MSG {
 class EMC_TOOL_UNLOAD:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_UNLOAD():EMC_TOOL_CMD_MSG(EMC_TOOL_UNLOAD_TYPE,
-	sizeof(EMC_TOOL_UNLOAD)) {
+				       sizeof(EMC_TOOL_UNLOAD)) {
     };
 
     // For internal NML/CMS use only.
@@ -2141,20 +2157,20 @@ class EMC_TOOL_UNLOAD:public EMC_TOOL_CMD_MSG {
 
 class EMC_TOOL_LOAD_TOOL_TABLE:public EMC_TOOL_CMD_MSG {
   public:
-    EMC_TOOL_LOAD_TOOL_TABLE():EMC_TOOL_CMD_MSG(EMC_TOOL_LOAD_TOOL_TABLE_TYPE,
-	sizeof(EMC_TOOL_LOAD_TOOL_TABLE)) {
+    EMC_TOOL_LOAD_TOOL_TABLE():EMC_TOOL_CMD_MSG
+	(EMC_TOOL_LOAD_TOOL_TABLE_TYPE, sizeof(EMC_TOOL_LOAD_TOOL_TABLE)) {
     };
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char file[LINELEN];	// name of tool table, empty means default
+    char file[LINELEN];		// name of tool table, empty means default
 };
 
 class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
   public:
     EMC_TOOL_SET_OFFSET():EMC_TOOL_CMD_MSG(EMC_TOOL_SET_OFFSET_TYPE,
-	sizeof(EMC_TOOL_SET_OFFSET)) {
+					   sizeof(EMC_TOOL_SET_OFFSET)) {
     };
 
     // For internal NML/CMS use only.
@@ -2220,7 +2236,8 @@ class EMC_AUX_HALT:public EMC_AUX_CMD_MSG {
 
 class EMC_AUX_ABORT:public EMC_AUX_CMD_MSG {
   public:
-    EMC_AUX_ABORT():EMC_AUX_CMD_MSG(EMC_AUX_ABORT_TYPE, sizeof(EMC_AUX_ABORT)) {
+    EMC_AUX_ABORT():EMC_AUX_CMD_MSG(EMC_AUX_ABORT_TYPE,
+				    sizeof(EMC_AUX_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2230,7 +2247,7 @@ class EMC_AUX_ABORT:public EMC_AUX_CMD_MSG {
 class EMC_AUX_DIO_WRITE:public EMC_AUX_CMD_MSG {
   public:
     EMC_AUX_DIO_WRITE():EMC_AUX_CMD_MSG(EMC_AUX_DIO_WRITE_TYPE,
-	sizeof(EMC_AUX_DIO_WRITE)) {
+					sizeof(EMC_AUX_DIO_WRITE)) {
     };
 
     // For internal NML/CMS use only.
@@ -2243,7 +2260,7 @@ class EMC_AUX_DIO_WRITE:public EMC_AUX_CMD_MSG {
 class EMC_AUX_AIO_WRITE:public EMC_AUX_CMD_MSG {
   public:
     EMC_AUX_AIO_WRITE():EMC_AUX_CMD_MSG(EMC_AUX_AIO_WRITE_TYPE,
-	sizeof(EMC_AUX_AIO_WRITE)) {
+					sizeof(EMC_AUX_AIO_WRITE)) {
     };
 
     // For internal NML/CMS use only.
@@ -2256,7 +2273,7 @@ class EMC_AUX_AIO_WRITE:public EMC_AUX_CMD_MSG {
 class EMC_AUX_ESTOP_ON:public EMC_AUX_CMD_MSG {
   public:
     EMC_AUX_ESTOP_ON():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_ON_TYPE,
-	sizeof(EMC_AUX_ESTOP_ON)) {
+				       sizeof(EMC_AUX_ESTOP_ON)) {
     };
 
     // For internal NML/CMS use only.
@@ -2266,7 +2283,7 @@ class EMC_AUX_ESTOP_ON:public EMC_AUX_CMD_MSG {
 class EMC_AUX_ESTOP_OFF:public EMC_AUX_CMD_MSG {
   public:
     EMC_AUX_ESTOP_OFF():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_OFF_TYPE,
-	sizeof(EMC_AUX_ESTOP_OFF)) {
+					sizeof(EMC_AUX_ESTOP_OFF)) {
     };
 
     // For internal NML/CMS use only.
@@ -2321,7 +2338,7 @@ class EMC_SPINDLE_CMD_MSG:public RCS_CMD_MSG {
 class EMC_SPINDLE_INIT:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_INIT():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_INIT_TYPE,
-	sizeof(EMC_SPINDLE_INIT)) {
+					   sizeof(EMC_SPINDLE_INIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2331,7 +2348,7 @@ class EMC_SPINDLE_INIT:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_HALT:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_HALT():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_HALT_TYPE,
-	sizeof(EMC_SPINDLE_HALT)) {
+					   sizeof(EMC_SPINDLE_HALT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2341,7 +2358,7 @@ class EMC_SPINDLE_HALT:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_ABORT:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_ABORT():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_ABORT_TYPE,
-	sizeof(EMC_SPINDLE_ABORT)) {
+					    sizeof(EMC_SPINDLE_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2351,7 +2368,7 @@ class EMC_SPINDLE_ABORT:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_ON:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_ON():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_ON_TYPE,
-	sizeof(EMC_SPINDLE_ON)) {
+					 sizeof(EMC_SPINDLE_ON)) {
     };
 
     // For internal NML/CMS use only.
@@ -2363,7 +2380,7 @@ class EMC_SPINDLE_ON:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_OFF:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_OFF():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_OFF_TYPE,
-	sizeof(EMC_SPINDLE_OFF)) {
+					  sizeof(EMC_SPINDLE_OFF)) {
     };
 
     // For internal NML/CMS use only.
@@ -2373,7 +2390,8 @@ class EMC_SPINDLE_OFF:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_FORWARD:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_FORWARD():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_FORWARD_TYPE,
-	sizeof(EMC_SPINDLE_FORWARD)) {
+					      sizeof(EMC_SPINDLE_FORWARD))
+    {
     };
 
     // For internal NML/CMS use only.
@@ -2385,7 +2403,8 @@ class EMC_SPINDLE_FORWARD:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_REVERSE:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_REVERSE():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_REVERSE_TYPE,
-	sizeof(EMC_SPINDLE_REVERSE)) {
+					      sizeof(EMC_SPINDLE_REVERSE))
+    {
     };
 
     // For internal NML/CMS use only.
@@ -2397,7 +2416,7 @@ class EMC_SPINDLE_REVERSE:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_STOP:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_STOP():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_STOP_TYPE,
-	sizeof(EMC_SPINDLE_STOP)) {
+					   sizeof(EMC_SPINDLE_STOP)) {
     };
 
     // For internal NML/CMS use only.
@@ -2407,7 +2426,8 @@ class EMC_SPINDLE_STOP:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_INCREASE:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_INCREASE():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_INCREASE_TYPE,
-	sizeof(EMC_SPINDLE_INCREASE)) {
+					       sizeof
+					       (EMC_SPINDLE_INCREASE)) {
     };
 
     // For internal NML/CMS use only.
@@ -2419,7 +2439,8 @@ class EMC_SPINDLE_INCREASE:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_DECREASE:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_DECREASE():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_DECREASE_TYPE,
-	sizeof(EMC_SPINDLE_DECREASE)) {
+					       sizeof
+					       (EMC_SPINDLE_DECREASE)) {
     };
 
     // For internal NML/CMS use only.
@@ -2431,7 +2452,8 @@ class EMC_SPINDLE_DECREASE:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_CONSTANT:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_CONSTANT():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_CONSTANT_TYPE,
-	sizeof(EMC_SPINDLE_CONSTANT)) {
+					       sizeof
+					       (EMC_SPINDLE_CONSTANT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2443,7 +2465,8 @@ class EMC_SPINDLE_CONSTANT:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_BRAKE_RELEASE:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_BRAKE_RELEASE():EMC_SPINDLE_CMD_MSG
-	(EMC_SPINDLE_BRAKE_RELEASE_TYPE, sizeof(EMC_SPINDLE_BRAKE_RELEASE)) {
+	(EMC_SPINDLE_BRAKE_RELEASE_TYPE,
+	 sizeof(EMC_SPINDLE_BRAKE_RELEASE)) {
     };
 
     // For internal NML/CMS use only.
@@ -2463,7 +2486,7 @@ class EMC_SPINDLE_BRAKE_ENGAGE:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_ENABLE:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_ENABLE():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_ENABLE_TYPE,
-	sizeof(EMC_SPINDLE_ENABLE)) {
+					     sizeof(EMC_SPINDLE_ENABLE)) {
     };
 
     // For internal NML/CMS use only.
@@ -2473,7 +2496,8 @@ class EMC_SPINDLE_ENABLE:public EMC_SPINDLE_CMD_MSG {
 class EMC_SPINDLE_DISABLE:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_DISABLE():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_DISABLE_TYPE,
-	sizeof(EMC_SPINDLE_DISABLE)) {
+					      sizeof(EMC_SPINDLE_DISABLE))
+    {
     };
 
     // For internal NML/CMS use only.
@@ -2519,7 +2543,7 @@ class EMC_COOLANT_CMD_MSG:public RCS_CMD_MSG {
 class EMC_COOLANT_INIT:public EMC_COOLANT_CMD_MSG {
   public:
     EMC_COOLANT_INIT():EMC_COOLANT_CMD_MSG(EMC_COOLANT_INIT_TYPE,
-	sizeof(EMC_COOLANT_INIT)) {
+					   sizeof(EMC_COOLANT_INIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2529,7 +2553,7 @@ class EMC_COOLANT_INIT:public EMC_COOLANT_CMD_MSG {
 class EMC_COOLANT_HALT:public EMC_COOLANT_CMD_MSG {
   public:
     EMC_COOLANT_HALT():EMC_COOLANT_CMD_MSG(EMC_COOLANT_HALT_TYPE,
-	sizeof(EMC_COOLANT_HALT)) {
+					   sizeof(EMC_COOLANT_HALT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2539,7 +2563,7 @@ class EMC_COOLANT_HALT:public EMC_COOLANT_CMD_MSG {
 class EMC_COOLANT_ABORT:public EMC_COOLANT_CMD_MSG {
   public:
     EMC_COOLANT_ABORT():EMC_COOLANT_CMD_MSG(EMC_COOLANT_ABORT_TYPE,
-	sizeof(EMC_COOLANT_ABORT)) {
+					    sizeof(EMC_COOLANT_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2549,7 +2573,8 @@ class EMC_COOLANT_ABORT:public EMC_COOLANT_CMD_MSG {
 class EMC_COOLANT_MIST_ON:public EMC_COOLANT_CMD_MSG {
   public:
     EMC_COOLANT_MIST_ON():EMC_COOLANT_CMD_MSG(EMC_COOLANT_MIST_ON_TYPE,
-	sizeof(EMC_COOLANT_MIST_ON)) {
+					      sizeof(EMC_COOLANT_MIST_ON))
+    {
     };
 
     // For internal NML/CMS use only.
@@ -2559,7 +2584,8 @@ class EMC_COOLANT_MIST_ON:public EMC_COOLANT_CMD_MSG {
 class EMC_COOLANT_MIST_OFF:public EMC_COOLANT_CMD_MSG {
   public:
     EMC_COOLANT_MIST_OFF():EMC_COOLANT_CMD_MSG(EMC_COOLANT_MIST_OFF_TYPE,
-	sizeof(EMC_COOLANT_MIST_OFF)) {
+					       sizeof
+					       (EMC_COOLANT_MIST_OFF)) {
     };
 
     // For internal NML/CMS use only.
@@ -2569,7 +2595,8 @@ class EMC_COOLANT_MIST_OFF:public EMC_COOLANT_CMD_MSG {
 class EMC_COOLANT_FLOOD_ON:public EMC_COOLANT_CMD_MSG {
   public:
     EMC_COOLANT_FLOOD_ON():EMC_COOLANT_CMD_MSG(EMC_COOLANT_FLOOD_ON_TYPE,
-	sizeof(EMC_COOLANT_FLOOD_ON)) {
+					       sizeof
+					       (EMC_COOLANT_FLOOD_ON)) {
     };
 
     // For internal NML/CMS use only.
@@ -2579,7 +2606,8 @@ class EMC_COOLANT_FLOOD_ON:public EMC_COOLANT_CMD_MSG {
 class EMC_COOLANT_FLOOD_OFF:public EMC_COOLANT_CMD_MSG {
   public:
     EMC_COOLANT_FLOOD_OFF():EMC_COOLANT_CMD_MSG(EMC_COOLANT_FLOOD_OFF_TYPE,
-	sizeof(EMC_COOLANT_FLOOD_OFF)) {
+						sizeof
+						(EMC_COOLANT_FLOOD_OFF)) {
     };
 
     // For internal NML/CMS use only.
@@ -2622,7 +2650,7 @@ class EMC_LUBE_CMD_MSG:public RCS_CMD_MSG {
 class EMC_LUBE_INIT:public EMC_LUBE_CMD_MSG {
   public:
     EMC_LUBE_INIT():EMC_LUBE_CMD_MSG(EMC_LUBE_INIT_TYPE,
-	sizeof(EMC_LUBE_INIT)) {
+				     sizeof(EMC_LUBE_INIT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2632,7 +2660,7 @@ class EMC_LUBE_INIT:public EMC_LUBE_CMD_MSG {
 class EMC_LUBE_HALT:public EMC_LUBE_CMD_MSG {
   public:
     EMC_LUBE_HALT():EMC_LUBE_CMD_MSG(EMC_LUBE_HALT_TYPE,
-	sizeof(EMC_LUBE_HALT)) {
+				     sizeof(EMC_LUBE_HALT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2642,7 +2670,7 @@ class EMC_LUBE_HALT:public EMC_LUBE_CMD_MSG {
 class EMC_LUBE_ABORT:public EMC_LUBE_CMD_MSG {
   public:
     EMC_LUBE_ABORT():EMC_LUBE_CMD_MSG(EMC_LUBE_ABORT_TYPE,
-	sizeof(EMC_LUBE_ABORT)) {
+				      sizeof(EMC_LUBE_ABORT)) {
     };
 
     // For internal NML/CMS use only.
@@ -2660,7 +2688,8 @@ class EMC_LUBE_ON:public EMC_LUBE_CMD_MSG {
 
 class EMC_LUBE_OFF:public EMC_LUBE_CMD_MSG {
   public:
-    EMC_LUBE_OFF():EMC_LUBE_CMD_MSG(EMC_LUBE_OFF_TYPE, sizeof(EMC_LUBE_OFF)) {
+    EMC_LUBE_OFF():EMC_LUBE_CMD_MSG(EMC_LUBE_OFF_TYPE,
+				    sizeof(EMC_LUBE_OFF)) {
     };
 
     // For internal NML/CMS use only.
@@ -2693,7 +2722,7 @@ class EMC_LUBE_STAT:public EMC_LUBE_STAT_MSG {
 class EMC_SET_DIO_INDEX:public RCS_CMD_MSG {
   public:
     EMC_SET_DIO_INDEX():RCS_CMD_MSG(EMC_SET_DIO_INDEX_TYPE,
-	sizeof(EMC_SET_DIO_INDEX)) {
+				    sizeof(EMC_SET_DIO_INDEX)) {
     };
 
     // For internal NML/CMS use only.
@@ -2706,7 +2735,7 @@ class EMC_SET_DIO_INDEX:public RCS_CMD_MSG {
 class EMC_SET_AIO_INDEX:public RCS_CMD_MSG {
   public:
     EMC_SET_AIO_INDEX():RCS_CMD_MSG(EMC_SET_AIO_INDEX_TYPE,
-	sizeof(EMC_SET_AIO_INDEX)) {
+				    sizeof(EMC_SET_AIO_INDEX)) {
     };
 
     // For internal NML/CMS use only.
@@ -2719,7 +2748,7 @@ class EMC_SET_AIO_INDEX:public RCS_CMD_MSG {
 class EMC_SET_POLARITY:public RCS_CMD_MSG {
   public:
     EMC_SET_POLARITY():RCS_CMD_MSG(EMC_SET_POLARITY_TYPE,
-	sizeof(EMC_SET_POLARITY)) {
+				   sizeof(EMC_SET_POLARITY)) {
     };
 
     // For internal NML/CMS use only.
@@ -2771,7 +2800,7 @@ class EMC_IO_ABORT:public EMC_IO_CMD_MSG {
 class EMC_IO_SET_CYCLE_TIME:public EMC_IO_CMD_MSG {
   public:
     EMC_IO_SET_CYCLE_TIME():EMC_IO_CMD_MSG(EMC_IO_SET_CYCLE_TIME_TYPE,
-	sizeof(EMC_IO_SET_CYCLE_TIME)) {
+					   sizeof(EMC_IO_SET_CYCLE_TIME)) {
     };
 
     // For internal NML/CMS use only.
@@ -2954,6 +2983,9 @@ extern EMC_MOTION_STAT *emcMotionStatus;
   Modification history:
 
   $Log$
+  Revision 1.13  2005/07/08 14:11:11  yabosukz
+  fix some more bugz
+
   Revision 1.12  2005/06/12 15:45:38  paul_c
   todo tags added to all FIXME comments so that they get highlighted when auto-generating docs.
 
@@ -2971,4 +3003,4 @@ extern EMC_MOTION_STAT *emcMotionStatus;
 
 */
 
-#endif // #ifndef EMC_HH
+#endif				// #ifndef EMC_HH

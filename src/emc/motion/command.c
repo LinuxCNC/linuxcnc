@@ -90,7 +90,7 @@ KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
 
 /* loops through the active joints and checks if any are not homed */
-static int checkAllHomed(void) {
+int checkAllHomed(void) {
     int joint_num;
     emcmot_joint_t *joint;
 

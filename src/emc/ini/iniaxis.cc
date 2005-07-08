@@ -18,51 +18,47 @@
 
 extern "C" {
 #include <unistd.h>
-#include <stdio.h>              // NULL
-#include <stdlib.h>             // atol(), _itoa()
-#include <string.h>             // strcmp()
-#include <ctype.h>              // isdigit()
+#include <stdio.h>		// NULL
+#include <stdlib.h>		// atol(), _itoa()
+#include <string.h>		// strcmp()
+#include <ctype.h>		// isdigit()
 #include <sys/types.h>
 #include <sys/stat.h>
 }
-
 #include "emc.hh"
 #include "inifile.hh"
-#include "iniaxis.hh"           // these decls
-#include "emcglb.h"             // EMC_DEBUG
-#include "emccfg.h"             // default values for globals
-
-// inifile ref'ed by iniAxes(), loadAxis()
-static Inifile *axisInifile = 0;
-
+#include "iniaxis.hh"		// these decls
+#include "emcglb.h"		// EMC_DEBUG
+#include "emccfg.h"		// default values for globals
+// inifile ref'ed by iniAxes(), loadAxis() static Inifile *axisInifile = 0;
 
 /* a function that checks a string to see if it is one of:
    "TRUE", "FALSE", "YES", "NO", "1", or "0" (case insensitive)
    if it is, sets '*result' accordingly, and returns 1, else
    returns 0 and leaves '*result' unchanged */
-static int strbool ( const char *str, int *result )
+static int strbool(const char *str, int *result)
 {
-    if ( strcasecmp( str, "TRUE" ) == 0 ) {
+    if (strcasecmp(str, "TRUE") == 0) {
 	*result = 1;
 	return 1;
     }
-    if ( strcasecmp( str, "YES" ) == 0 ) {
+    if (strcasecmp(str, "YES") == 0) {
 	*result = 1;
 	return 1;
     }
-    if ( strcasecmp( str, "1" ) == 0 ) {
+    if (strcasecmp(str, "1") == 0) {
 	*result = 1;
 	return 1;
     }
-    if ( strcasecmp( str, "FALSE" ) == 0 ) {
+    if (strcasecmp(str, "FALSE") == 0) {
 	*result = 0;
 	return 1;
     }
-    if ( strcasecmp( str, "NO" ) == 0 ) {
+    if (strcasecmp(str, "NO") == 0) {
 	*result = 0;
 	return 1;
     }
-    if ( strcasecmp( str, "0" ) == 0 ) {
+    if (strcasecmp(str, "0") == 0) {
 	*result = 0;
 	return 1;
     }
@@ -122,521 +118,547 @@ static int strbool ( const char *str, int *result )
 static int loadAxis(int axis)
 {
 #define AXIS_STRING_LEN 16
-  char axisString[AXIS_STRING_LEN];
-  const char *inistring;
-  unsigned char axisType;
-  double units;
-  double backlash;
-  double offset;
-  double limit;
-  double home;
-  double search_vel;
-  double latch_vel;
-  int use_index;
-  int ignore_limits;
-  double maxVelocity;
-  double maxAcceleration;
-  double maxFerror;
+    char axisString[AXIS_STRING_LEN];
+    const char *inistring;
+    unsigned char axisType;
+    double units;
+    double backlash;
+    double offset;
+    double limit;
+    double home;
+    double search_vel;
+    double latch_vel;
+    int use_index;
+    int ignore_limits;
+    double maxVelocity;
+    double maxAcceleration;
+    double maxFerror;
 
-  // compose string to match, axis = 0 -> AXIS_1, etc.
-  sprintf(axisString, "AXIS_%d", axis);
+    // compose string to match, axis = 0 -> AXIS_1, etc.
+    sprintf(axisString, "AXIS_%d", axis);
 
-  // set axis type
+    // set axis type
 
-  if (NULL != (inistring = axisInifile->find("TYPE", axisString))) {
-    if (! strcmp(inistring, "LINEAR")) {
-      // found, and valid
-      axisType = EMC_AXIS_LINEAR;
+    if (NULL != (inistring = axisInifile->find("TYPE", axisString))) {
+	if (!strcmp(inistring, "LINEAR")) {
+	    // found, and valid
+	    axisType = EMC_AXIS_LINEAR;
+	} else if (!strcmp(inistring, "ANGULAR")) {
+	    // found, and valid
+	    axisType = EMC_AXIS_ANGULAR;
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] TYPE: %s\n",
+		     axisString, inistring);
+	    }
+	    axisType = EMC_AXIS_LINEAR;	// default is linear
+	}
+    } else {
+	// not found at all
+	axisType = EMC_AXIS_LINEAR;	// default is linear
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [%s] TYPE, using default\n",
+			    axisString);
+	}
     }
-    else if (! strcmp(inistring, "ANGULAR")) {
-      // found, and valid
-      axisType = EMC_AXIS_ANGULAR;
+    if (0 != emcAxisSetAxis(axis, axisType)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetAxis\n");
+	}
+	return -1;
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] TYPE: %s\n", axisString, inistring);
-      }
-      axisType = EMC_AXIS_LINEAR;       // default is linear
-    }
-  }
-  else {
-    // not found at all
-    axisType = EMC_AXIS_LINEAR; // default is linear
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] TYPE, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetAxis(axis, axisType)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetAxis\n");
-    }
-    return -1;
-  }
+    // set units
 
-  // set units
+    if (NULL != (inistring = axisInifile->find("UNITS", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &units)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] UNITS: %s\n",
+		     axisString, inistring);
+	    }
+	    units = 1.0;	// default
+	}
+    } else {
+	// not found at all
+	units = 1.0;		// default
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [%s] UNITS, using default\n",
+			    axisString);
+	}
+    }
+    if (0 != emcAxisSetUnits(axis, units)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetUnits\n");
+	}
+	return -1;
+    }
+    // set backlash
 
-  if (NULL != (inistring = axisInifile->find("UNITS", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &units)) {
-      // found, and valid
+    if (NULL != (inistring = axisInifile->find("BACKLASH", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &backlash)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] BACKLASH: %s\n",
+		     axisString, inistring);
+	    }
+	    backlash = 0;	// default
+	}
+    } else {
+	// not found at all
+	backlash = 0;		// default
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [%s] BACKLASH, using default\n",
+			    axisString);
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] UNITS: %s\n", axisString, inistring);
-      }
-      units = 1.0;                      // default
+    if (0 != emcAxisSetBacklash(axis, backlash)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetBacklash\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    units = 1.0;                        // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] UNITS, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetUnits(axis, units)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetUnits\n");
-    }
-    return -1;
-  }
-
-  // set backlash
-
-  if (NULL != (inistring = axisInifile->find("BACKLASH", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &backlash)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] BACKLASH: %s\n", axisString, inistring);
-      }
-      backlash = 0;                     // default
-    }
-  }
-  else {
-    // not found at all
-    backlash = 0;                       // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] BACKLASH, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetBacklash(axis, backlash)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetBacklash\n");
-    }
-    return -1;
-  }
 
 /*! \todo FIXME - cycle times and scaling no longer needed */
 /*! \todo Another #if 0 */
 #if 0
-  // set cycle time
+    // set cycle time
 
-  if (NULL != (inistring = axisInifile->find("CYCLE_TIME", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &cycleTime)) {
-      // found, and valid
+    if (NULL != (inistring = axisInifile->find("CYCLE_TIME", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &cycleTime)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] CYCLE_TIME: %s\n",
+		     axisString, inistring);
+	    }
+	    cycleTime = 1.0;	// default
+	}
+    } else {
+	// not found at all
+	cycleTime = 1.0;	// default
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [%s] CYCLE_TIME, using default\n",
+			    axisString);
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] CYCLE_TIME: %s\n", axisString, inistring);
-      }
-      cycleTime = 1.0;                  // default
+    if (0 != emcAxisSetCycleTime(axis, cycleTime)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetCycleTime\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    cycleTime = 1.0;                    // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] CYCLE_TIME, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetCycleTime(axis, cycleTime)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetCycleTime\n");
-    }
-    return -1;
-  }
+    // set input scale
 
-  // set input scale
+    if (NULL != (inistring = axisInifile->find("INPUT_SCALE", axisString))) {
+	if (2 == sscanf(inistring, "%lf %lf", &scale, &offset)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] INPUT_SCALE: %s\n",
+		     axisString, inistring);
+	    }
+	    scale = 1.0;	// default
+	    offset = 0.0;	// default
+	}
+    } else {
+	// not found at all
+	scale = 1.0;		// default
+	offset = 0.0;		// default
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [%s] INPUT_SCALE, using default\n",
+			    axisString);
+	}
+    }
 
-  if (NULL != (inistring = axisInifile->find("INPUT_SCALE", axisString))) {
-    if (2 == sscanf(inistring, "%lf %lf", &scale, &offset)) {
-      // found, and valid
+    if (0 != emcAxisSetInputScale(axis, scale, offset)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetInputScale\n");
+	}
+	return -1;
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] INPUT_SCALE: %s\n", axisString, inistring);
-      }
-      scale = 1.0;                      // default
-      offset = 0.0;                     // default
-    }
-  }
-  else {
-    // not found at all
-    scale = 1.0;                        // default
-    offset = 0.0;                       // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] INPUT_SCALE, using default\n", axisString);
-    }
-  }
+    // set output scale
 
-  if (0 != emcAxisSetInputScale(axis, scale, offset)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetInputScale\n");
+    if (NULL !=
+	(inistring = axisInifile->find("OUTPUT_SCALE", axisString))) {
+	if (2 == sscanf(inistring, "%lf %lf", &scale, &offset)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] OUTPUT_SCALE: %s\n",
+		     axisString, inistring);
+	    }
+	    scale = 1.0;	// default
+	    offset = 0.0;	// default
+	}
+    } else {
+	// not found at all
+	scale = 1.0;		// default
+	offset = 0.0;		// default
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error
+		("can't find [%s] OUTPUT_SCALE, using default\n",
+		 axisString);
+	}
     }
-    return -1;
-  }
 
-  // set output scale
-
-  if (NULL != (inistring = axisInifile->find("OUTPUT_SCALE", axisString))) {
-    if (2 == sscanf(inistring, "%lf %lf", &scale, &offset)) {
-      // found, and valid
+    if (0 != emcAxisSetOutputScale(axis, scale, offset)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetOutputScale\n");
+	}
+	return -1;
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] OUTPUT_SCALE: %s\n", axisString, inistring);
-      }
-      scale = 1.0;                      // default
-      offset = 0.0;                     // default
-    }
-  }
-  else {
-    // not found at all
-    scale = 1.0;                        // default
-    offset = 0.0;                       // default
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] OUTPUT_SCALE, using default\n", axisString);
-    }
-  }
-
-  if (0 != emcAxisSetOutputScale(axis, scale, offset)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetOutputScale\n");
-    }
-    return -1;
-  }
 #endif
 
-  // set min position limit
+    // set min position limit
 
-  if (NULL != (inistring = axisInifile->find("MIN_LIMIT", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &limit)) {
-      // found, and valid
+    if (NULL != (inistring = axisInifile->find("MIN_LIMIT", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &limit)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] MIN_LIMIT: %s\n",
+		     axisString, inistring);
+	    }
+	    limit = -1;		// default for min limit
+	}
+    } else {
+	// not found at all
+	limit = -1;		// default for min limit
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [%s] MIN_LIMIT, using default\n",
+			    axisString);
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] MIN_LIMIT: %s\n", axisString, inistring);
-      }
-      limit = -1;                       // default for min limit
-    }
-  }
-  else {
-    // not found at all
-    limit = -1;                 // default for min limit
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] MIN_LIMIT, using default\n", axisString);
-    }
-  }
 
-  if (0 != emcAxisSetMinPositionLimit(axis, limit)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetMinPositionLimit\n");
+    if (0 != emcAxisSetMinPositionLimit(axis, limit)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error
+		("bad return from emcAxisSetMinPositionLimit\n");
+	}
+	return -1;
     }
-    return -1;
-  }
+    // set max position limit
 
-  // set max position limit
+    if (NULL != (inistring = axisInifile->find("MAX_LIMIT", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &limit)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] MAX_LIMIT: %s\n",
+		     axisString, inistring);
+	    }
+	    limit = 1;		// default for max limit
+	}
+    } else {
+	// not found at all
+	limit = 1;		// default for max limit
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [%s] MAX_LIMIT, using default\n",
+			    axisString);
+	}
+    }
+    if (0 != emcAxisSetMaxPositionLimit(axis, limit)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error
+		("bad return from emcAxisSetMaxPositionLimit\n");
+	}
+	return -1;
+    }
+    // set following error limit (at max speed)
 
-  if (NULL != (inistring = axisInifile->find("MAX_LIMIT", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &limit)) {
-      // found, and valid
+    if (NULL != (inistring = axisInifile->find("FERROR", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &maxFerror)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] FERROR: %s\n",
+		     axisString, inistring);
+	    }
+	    maxFerror = 1;	// default for max ferror
+	}
+    } else {
+	// not found at all
+	maxFerror = 1;		// default for max ferror
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [%s] FERROR, using default\n",
+			    axisString);
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] MAX_LIMIT: %s\n", axisString, inistring);
-      }
-      limit = 1;                        // default for max limit
+    if (0 != emcAxisSetFerror(axis, maxFerror)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetFerror\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    limit = 1;                  // default for max limit
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] MAX_LIMIT, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetMaxPositionLimit(axis, limit)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetMaxPositionLimit\n");
-    }
-    return -1;
-  }
+    // do MIN_FERROR, if it's there. If not, use value of maxFerror above
 
-  // set following error limit (at max speed)
+    if (NULL != (inistring = axisInifile->find("MIN_FERROR", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &limit)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    limit = maxFerror;	// use prev value of max ferror
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] MIN_FERROR: %s, using default %f\n",
+		     axisString, inistring, limit);
+	    }
+	}
+    } else {
+	// not found at all
+	limit = maxFerror;	// use prev value of max ferror
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error
+		("can't find [%s] MIN_FERROR, using default %f\n",
+		 axisString, limit);
+	}
+    }
+    if (0 != emcAxisSetMinFerror(axis, limit)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetMinFerror\n");
+	}
+	return -1;
+    }
+    // set homing paramsters (total of 6)
 
-  if (NULL != (inistring = axisInifile->find("FERROR", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &maxFerror)) {
-      // found, and valid
+    if (NULL != (inistring = axisInifile->find("HOME", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &home)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] HOME: %s\n",
+		     axisString, inistring);
+	    }
+	    home = 0.0;		// default
+	}
+    } else {
+	// not found at all
+	home = 0.0;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [%s] HOME, using default\n",
+			    axisString);
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] FERROR: %s\n", axisString, inistring);
-      }
-      maxFerror = 1;                    // default for max ferror
-    }
-  }
-  else {
-    // not found at all
-    maxFerror = 1;                      // default for max ferror
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] FERROR, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetFerror(axis, maxFerror)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetFerror\n");
-    }
-    return -1;
-  }
 
-  // do MIN_FERROR, if it's there. If not, use value of maxFerror above
+    if (NULL != (inistring = axisInifile->find("HOME_OFFSET", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &offset)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] HOME_OFFSET: %s\n",
+		     axisString, inistring);
+	    }
+	    offset = 0.0;	// default
+	}
+    } else {
+	// not found at all
+	offset = 0.0;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [%s] HOME_OFFSET, using default\n",
+			    axisString);
+	}
+    }
 
-  if (NULL != (inistring = axisInifile->find("MIN_FERROR", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &limit)) {
-      // found, and valid
+    if (NULL !=
+	(inistring = axisInifile->find("HOME_SEARCH_VEL", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &search_vel)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] HOME_SEARCH_VEL: %s\n",
+		     axisString, inistring);
+	    }
+	    search_vel = 0.0;	// default - skips entire homing process
+	}
+    } else {
+	// not found at all
+	search_vel = 0.0;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error
+		("can't find [%s] HOME_SEARCH_VEL, using default\n",
+		 axisString);
+	}
     }
-    else {
-      // found, but invalid
-      limit = maxFerror;        // use prev value of max ferror
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] MIN_FERROR: %s, using default %f\n", axisString, inistring, limit);
-      }
-    }
-  }
-  else {
-    // not found at all
-    limit = maxFerror;  // use prev value of max ferror
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] MIN_FERROR, using default %f\n", axisString, limit);
-    }
-  }
-  if (0 != emcAxisSetMinFerror(axis, limit)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetMinFerror\n");
-    }
-    return -1;
-  }
 
-  // set homing paramsters (total of 6)
+    if (NULL !=
+	(inistring = axisInifile->find("HOME_LATCH_VEL", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &latch_vel)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] HOME_LATCH_VEL: %s\n",
+		     axisString, inistring);
+	    }
+	    latch_vel = 0.0;	// default
+	}
+    } else {
+	// not found at all
+	latch_vel = 0.0;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error
+		("can't find [%s] HOME_LATCH_VEL, using default\n",
+		 axisString);
+	}
+    }
 
-  if (NULL != (inistring = axisInifile->find("HOME", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &home)) {
-      // found, and valid
+    if (NULL !=
+	(inistring = axisInifile->find("HOME_USE_INDEX", axisString))) {
+	if (1 == strbool(inistring, &use_index)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] HOME_USE_INDEX: %s\n",
+		     axisString, inistring);
+	    }
+	    use_index = 0;	// default
+	}
+    } else {
+	// not found at all
+	use_index = 0;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error
+		("can't find [%s] HOME_USE_INDEX, using default\n",
+		 axisString);
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOME: %s\n", axisString, inistring);
-      }
-      home = 0.0;                       // default
-    }
-  }
-  else {
-    // not found at all
-    home = 0.0;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOME, using default\n", axisString);
-    }
-  }
 
-  if (NULL != (inistring = axisInifile->find("HOME_OFFSET", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &offset)) {
-      // found, and valid
+    if (NULL !=
+	(inistring =
+	 axisInifile->find("HOME_IGNORE_LIMITS", axisString))) {
+	if (1 == strbool(inistring, &ignore_limits)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] HOME_IGNORE_LIMITS: %s\n",
+		     axisString, inistring);
+	    }
+	    ignore_limits = 0;	// default
+	}
+    } else {
+	// not found at all
+	ignore_limits = 0;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error
+		("can't find [%s] HOME_IGNORE_LIMITS, using default\n",
+		 axisString);
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOME_OFFSET: %s\n", axisString, inistring);
-      }
-      offset = 0.0;                       // default
+    // issue NML message to set all params
+    if (0 != emcAxisSetHomingParams(axis, home, offset, search_vel,
+				    latch_vel, use_index, ignore_limits)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetHomingParams\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    offset = 0.0;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOME_OFFSET, using default\n", axisString);
-    }
-  }
 
-  if (NULL != (inistring = axisInifile->find("HOME_SEARCH_VEL", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &search_vel)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOME_SEARCH_VEL: %s\n", axisString, inistring);
-      }
-      search_vel = 0.0;   // default - skips entire homing process
-    }
-  }
-  else {
-    // not found at all
-    search_vel = 0.0;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOME_SEARCH_VEL, using default\n", axisString);
-    }
-  }
+    // set maximum velocity
 
-  if (NULL != (inistring = axisInifile->find("HOME_LATCH_VEL", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &latch_vel)) {
-      // found, and valid
+    if (NULL !=
+	(inistring = axisInifile->find("MAX_VELOCITY", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &maxVelocity)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] MAX_VELOCITY: %s\n",
+		     axisString, inistring);
+	    }
+	    maxVelocity = DEFAULT_AXIS_MAX_VELOCITY;	// default
+	}
+    } else {
+	// not found at all
+	maxVelocity = DEFAULT_AXIS_MAX_VELOCITY;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error
+		("can't find [%s] MAX_VELOCITY, using default\n",
+		 axisString);
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOME_LATCH_VEL: %s\n", axisString, inistring);
-      }
-      latch_vel = 0.0;                       // default
+    if (0 != emcAxisSetMaxVelocity(axis, maxVelocity)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetMaxVelocity\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    latch_vel = 0.0;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOME_LATCH_VEL, using default\n", axisString);
-    }
-  }
 
-  if (NULL != (inistring = axisInifile->find("HOME_USE_INDEX", axisString))) {
-    if (1 == strbool(inistring, &use_index)) {
-      // found, and valid
+    if (NULL !=
+	(inistring = axisInifile->find("MAX_ACCELERATION", axisString))) {
+	if (1 == sscanf(inistring, "%lf", &maxAcceleration)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] MAX_ACCELERATION: %s\n",
+		     axisString, inistring);
+	    }
+	    maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;	// default
+	}
+    } else {
+	// not found at all
+	maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error
+		("can't find [%s] MAX_ACCELERATION, using default\n",
+		 axisString);
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOME_USE_INDEX: %s\n", axisString, inistring);
-      }
-      use_index = 0;                       // default
+    if (0 != emcAxisSetMaxAcceleration(axis, maxAcceleration)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print_error("bad return from emcAxisSetMaxAcceleration\n");
+	}
+	return -1;
     }
-  }
-  else {
-    // not found at all
-    use_index = 0;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOME_USE_INDEX, using default\n", axisString);
-    }
-  }
 
-  if (NULL != (inistring = axisInifile->find("HOME_IGNORE_LIMITS", axisString))) {
-    if (1 == strbool(inistring, &ignore_limits)) {
-      // found, and valid
+    if (NULL != (inistring = axisInifile->find("COMP_FILE", axisString))) {
+	if (0 != emcAxisLoadComp(axis, inistring)) {
+	    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		rcs_print_error("bad return from emcAxisLoadComp\n");
+	    }
+	    return -1;
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] HOME_IGNORE_LIMITS: %s\n", axisString, inistring);
-      }
-      ignore_limits = 0;                       // default
-    }
-  }
-  else {
-    // not found at all
-    ignore_limits = 0;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] HOME_IGNORE_LIMITS, using default\n", axisString);
-    }
-  }
-  // issue NML message to set all params
-  if (0 != emcAxisSetHomingParams(axis, home, offset, search_vel,
-	latch_vel, use_index, ignore_limits)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetHomingParams\n");
-    }
-    return -1;
-  }
+    // else not found, so ignore
 
+    // lastly, activate axis. Do this last so that the motion controller
+    // won't flag errors midway during configuration
+    emcAxisActivate(axis);
 
-  // set maximum velocity
-
-  if (NULL != (inistring = axisInifile->find("MAX_VELOCITY", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &maxVelocity)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] MAX_VELOCITY: %s\n", axisString, inistring);
-      }
-      maxVelocity = DEFAULT_AXIS_MAX_VELOCITY;  // default
-    }
-  }
-  else {
-    // not found at all
-    maxVelocity = DEFAULT_AXIS_MAX_VELOCITY;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] MAX_VELOCITY, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetMaxVelocity(axis, maxVelocity)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetMaxVelocity\n");
-    }
-    return -1;
-  }
-
-  if (NULL != (inistring = axisInifile->find("MAX_ACCELERATION", axisString))) {
-    if (1 == sscanf(inistring, "%lf", &maxAcceleration)) {
-      // found, and valid
-    }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [%s] MAX_ACCELERATION: %s\n", axisString, inistring);
-      }
-      maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION; // default
-    }
-  }
-  else {
-    // not found at all
-    maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [%s] MAX_ACCELERATION, using default\n", axisString);
-    }
-  }
-  if (0 != emcAxisSetMaxAcceleration(axis, maxAcceleration)) {
-    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-      rcs_print_error("bad return from emcAxisSetMaxAcceleration\n");
-    }
-    return -1;
-  }
-
-  if (NULL != (inistring = axisInifile->find("COMP_FILE", axisString))) {
-    if (0 != emcAxisLoadComp(axis, inistring)) {
-      if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-        rcs_print_error("bad return from emcAxisLoadComp\n");
-      }
-      return -1;
-    }
-  }
-  // else not found, so ignore
-
-  // lastly, activate axis. Do this last so that the motion controller
-  // won't flag errors midway during configuration
-  emcAxisActivate(axis);
-
-  return 0;
+    return 0;
 }
 
 /*
@@ -649,55 +671,52 @@ static int loadAxis(int axis)
  */
 int iniAxis(int axis, const char *filename)
 {
-  int retval = 0;
-  const char *inistring;
-  int axes;
+    int retval = 0;
+    const char *inistring;
+    int axes;
 
-  axisInifile = new Inifile;
-  if (-1 == axisInifile->open(filename)) {
-    return -1;
-  }
+    axisInifile = new Inifile;
+    if (axisInifile->open(filename) == false) {
+	return -1;
+    }
 
-  if (NULL != (inistring = axisInifile->find("AXES", "TRAJ"))) {
-    if (1 == sscanf(inistring, "%d", &axes)) {
-      // found, and valid
+    if (NULL != (inistring = axisInifile->find("AXES", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%d", &axes)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [TRAJ] AXES: %s\n",
+		     inistring);
+	    }
+	    axes = 0;
+	}
+    } else {
+	// not found at all
+	axes = 1;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error("can't find [TRAJ] AXES, using default %d\n",
+			    axes);
+	}
     }
-    else {
-      // found, but invalid
-      if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-        rcs_print_error("invalid inifile value for [TRAJ] AXES: %s\n", inistring);
-      }
-      axes = 0;
-    }
-  }
-  else {
-    // not found at all
-    axes = 1;
-    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-      rcs_print_error("can't find [TRAJ] AXES, using default %d\n", axes);
-    }
-  }
 
-  if (axis < 0 ||
-      axis >= axes) {
-    // requested axis exceeds machine axes
+    if (axis < 0 || axis >= axes) {
+	// requested axis exceeds machine axes
+	axisInifile->close();
+	delete axisInifile;
+	return -1;
+    }
+    // load its values
+    if (0 != loadAxis(axis)) {
+	retval = -1;
+    }
+    // close the inifile
     axisInifile->close();
     delete axisInifile;
-    return -1;
-  }
 
-  // load its values
-  if (0 != loadAxis(axis)) {
-    retval = -1;
-  }
-
-  // close the inifile
-  axisInifile->close();
-  delete axisInifile;
-
-  return retval;
+    return retval;
 }
-
 
 /*! \todo FIXME-- begin temporary insert of ini file stuff */
 
@@ -714,102 +733,93 @@ int iniAxis(int axis, const char *filename)
 
 static int iniIsEntry(const char *line, char *var, char *val)
 {
-  const char *ptr = line;
-  char *varptr = var;
-  char *valptr = val;
-  char *lastwhite = NULL;
-  int sawEqual = 0;
+    const char *ptr = line;
+    char *varptr = var;
+    char *valptr = val;
+    char *lastwhite = NULL;
+    int sawEqual = 0;
 
-  // position ptr to first non-white on line
-  while (isspace(*ptr)) {
-    ptr++;
-  }
-
-  if (*ptr == 0 ||
-      *ptr == '=') {
-    // got to end or '=' before any non-white
-    return 0;
-  }
-
-  // here's the first non-white, so begin copy to var
-  while (*ptr != 0) {
-    if (*ptr == '=') {
-      sawEqual = 1;
-      break;
+    // position ptr to first non-white on line
+    while (isspace(*ptr)) {
+	ptr++;
     }
 
-    // copy it, including any whitespace
-    *varptr = *ptr;
-
-    // mark the location of last whitespace, for nulling
-    if (isspace(*ptr)) {
-      if (lastwhite == NULL) {
-        lastwhite = varptr;
-      }
+    if (*ptr == 0 || *ptr == '=') {
+	// got to end or '=' before any non-white
+	return 0;
     }
-    else {
-      lastwhite = NULL;
-    }
+    // here's the first non-white, so begin copy to var
+    while (*ptr != 0) {
+	if (*ptr == '=') {
+	    sawEqual = 1;
+	    break;
+	}
+	// copy it, including any whitespace
+	*varptr = *ptr;
 
-    varptr++;
-    ptr++;
-  }
+	// mark the location of last whitespace, for nulling
+	if (isspace(*ptr)) {
+	    if (lastwhite == NULL) {
+		lastwhite = varptr;
+	    }
+	} else {
+	    lastwhite = NULL;
+	}
 
-  if (! sawEqual) {
-    return 0;
-  }
-
-  // null-terminate at last whitespace, or end of string if none
-  if (lastwhite != NULL) {
-    *lastwhite = 0;
-  }
-  else {
-    *varptr = 0;
-  }
-
-  // now move to value part
-
-  lastwhite = NULL;
-  ptr++;                        // step over '='
-
-  // position ptr to first non-white on line
-  while (isspace(*ptr)) {
-    ptr++;
-  }
-
-  if (*ptr == 0) {
-    // got to end before any non-white
-    return 0;
-  }
-
-  // here's the first non-white, so begin copy to var
-  while (*ptr != 0) {
-    // copy it, including any whitespace
-    *valptr = *ptr;
-
-    // mark the location of last whitespace, for nulling
-    if (isspace(*ptr)) {
-      if (lastwhite == NULL) {
-        lastwhite = valptr;
-      }
-    }
-    else {
-      lastwhite = NULL;
+	varptr++;
+	ptr++;
     }
 
-    valptr++;
-    ptr++;
-  }
+    if (!sawEqual) {
+	return 0;
+    }
+    // null-terminate at last whitespace, or end of string if none
+    if (lastwhite != NULL) {
+	*lastwhite = 0;
+    } else {
+	*varptr = 0;
+    }
 
-  // null-terminate at last whitespace, or end of string if none
-  if (lastwhite != NULL) {
-    *lastwhite = 0;
-  }
-  else {
-    *valptr = 0;
-  }
+    // now move to value part
 
-  return 1;
+    lastwhite = NULL;
+    ptr++;			// step over '='
+
+    // position ptr to first non-white on line
+    while (isspace(*ptr)) {
+	ptr++;
+    }
+
+    if (*ptr == 0) {
+	// got to end before any non-white
+	return 0;
+    }
+    // here's the first non-white, so begin copy to var
+    while (*ptr != 0) {
+	// copy it, including any whitespace
+	*valptr = *ptr;
+
+	// mark the location of last whitespace, for nulling
+	if (isspace(*ptr)) {
+	    if (lastwhite == NULL) {
+		lastwhite = valptr;
+	    }
+	} else {
+	    lastwhite = NULL;
+	}
+
+	valptr++;
+	ptr++;
+    }
+
+    // null-terminate at last whitespace, or end of string if none
+    if (lastwhite != NULL) {
+	*lastwhite = 0;
+    } else {
+	*valptr = 0;
+    }
+
+    return 1;
 }
 
 /* iniIsSection(const char *line, char *section) returns 0 if the line
@@ -821,132 +831,127 @@ static int iniIsEntry(const char *line, char *var, char *val)
 
 static int iniIsSection(const char *line, char *section)
 {
-  const char *ptr = line;
-  char *secptr = section;
-  char *lastwhite = NULL;
-  int sawClose = 0;
+    const char *ptr = line;
+    char *secptr = section;
+    char *lastwhite = NULL;
+    int sawClose = 0;
 
-  // position ptr to first non-white on line
-  while (isspace(*ptr)) {
-    ptr++;
-  }
-
-  if (*ptr == 0) {
-    // got to end before any non-white
-    return 0;
-  }
-
-  if (*ptr != '[') {
-    // not section format
-    return 0;
-  }
-
-  // we're on [, so move to next non-white
-  ptr++;
-  while (isspace(*ptr)) {
-    ptr++;
-  }
-
-  if (*ptr == 0) {
-    // got to end before any non-white
-    return 0;
-  }
-
-  // here's the first non-white after the [, so begin copy to string
-  while (*ptr != 0) {
-    if (*ptr == ']') {
-      sawClose = 1;
-      break;
+    // position ptr to first non-white on line
+    while (isspace(*ptr)) {
+	ptr++;
     }
 
-    // copy it, including any whitespace
-    *secptr = *ptr;
-
-    // mark the location of last whitespace, for nulling
-    if (isspace(*ptr)) {
-      if (lastwhite == NULL) {
-        lastwhite = secptr;
-      }
-    }
-    else {
-      lastwhite = NULL;
+    if (*ptr == 0) {
+	// got to end before any non-white
+	return 0;
     }
 
-    secptr++;
+    if (*ptr != '[') {
+	// not section format
+	return 0;
+    }
+    // we're on [, so move to next non-white
     ptr++;
-  }
+    while (isspace(*ptr)) {
+	ptr++;
+    }
 
-  if (! sawClose) {
-    // section had a close bracket
-    return 0;
-  }
+    if (*ptr == 0) {
+	// got to end before any non-white
+	return 0;
+    }
+    // here's the first non-white after the [, so begin copy to string
+    while (*ptr != 0) {
+	if (*ptr == ']') {
+	    sawClose = 1;
+	    break;
+	}
+	// copy it, including any whitespace
+	*secptr = *ptr;
 
-  // null-terminate at last whitespace, or end of string if none
-  if (lastwhite != NULL) {
-    *lastwhite = 0;
-  }
-  else {
-    *secptr = 0;
-  }
+	// mark the location of last whitespace, for nulling
+	if (isspace(*ptr)) {
+	    if (lastwhite == NULL) {
+		lastwhite = secptr;
+	    }
+	} else {
+	    lastwhite = NULL;
+	}
 
-  // section didn't have a close bracket
-  return 1;
+	secptr++;
+	ptr++;
+    }
+
+    if (!sawClose) {
+	// section had a close bracket
+	return 0;
+    }
+    // null-terminate at last whitespace, or end of string if none
+    if (lastwhite != NULL) {
+	*lastwhite = 0;
+    } else {
+	*secptr = 0;
+    }
+
+    // section didn't have a close bracket
+    return 1;
 }
 
 int iniGetFloatPrec(const char *str)
 {
-  const char *ptr = str;
-  int prec = 0;
+    const char *ptr = str;
+    int prec = 0;
 
-  // find '.', return min precision if no decimal point
-  while (1) {
-    if (*ptr == 0) {
-      return INIFILE_MIN_FLOAT_PRECISION;
+    // find '.', return min precision if no decimal point
+    while (1) {
+	if (*ptr == 0) {
+	    return INIFILE_MIN_FLOAT_PRECISION;
+	}
+	if (*ptr == '.') {
+	    break;
+	}
+	ptr++;
     }
-    if (*ptr == '.') {
-      break;
-    }
+
+    // ptr is on '.', so step over
     ptr++;
-  }
 
-  // ptr is on '.', so step over
-  ptr++;
-
-  // count number of digits until whitespace or end or non-digit
-  while (1) {
-    if (*ptr == 0) {
-      break;
+    // count number of digits until whitespace or end or non-digit
+    while (1) {
+	if (*ptr == 0) {
+	    break;
+	}
+	if (!isdigit(*ptr)) {
+	    break;
+	}
+	// else it's a digit
+	prec++;
+	ptr++;
     }
-    if (! isdigit(*ptr)) {
-      break;
-    }
-    // else it's a digit
-    prec++;
-    ptr++;
-  }
 
-  return prec > INIFILE_MIN_FLOAT_PRECISION ? prec : INIFILE_MIN_FLOAT_PRECISION;
+    return prec >
+	INIFILE_MIN_FLOAT_PRECISION ? prec : INIFILE_MIN_FLOAT_PRECISION;
 }
 
 int iniFormatFloat(char *fmt, const char *var, const char *val)
 {
-  sprintf(fmt, "%s = %%.%df\n", var, iniGetFloatPrec(val));
+    sprintf(fmt, "%s = %%.%df\n", var, iniGetFloatPrec(val));
 
-  return 0;
+    return 0;
 }
 
 // 'val' in this case is a string with a pair of floats, the first
 // which sets the precision
 int iniFormatFloat2(char *fmt, const char *var, const char *val)
 {
-  int prec;
+    int prec;
 
-  /*! \todo FIXME-- should capture each one's float precision; right
-     now we're using the first as the precision for both */
-  prec = iniGetFloatPrec(val);
-  sprintf(fmt, "%s = %%.%df %%.%df\n", var, prec, prec);
+    /*! \todo FIXME-- should capture each one's float precision; right
+       now we're using the first as the precision for both */
+    prec = iniGetFloatPrec(val);
+    sprintf(fmt, "%s = %%.%df %%.%df\n", var, prec, prec);
 
-  return 0;
+    return 0;
 }
 
 // end temporary insert of ini file stuff
@@ -959,99 +964,94 @@ int iniFormatFloat2(char *fmt, const char *var, const char *val)
   of the original, parsing the lines for ones it understands and
   replacing the values with the current ones.
  */
-int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *status)
+int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT * status)
 {
-  char ourAxisSection[256];
-  int ourAxis = 0;
-  FILE *infp = NULL;
-  FILE *outfp = NULL;
-  char line[256];
-  char section[256];
-  char var[256], val[256];
-  char fmt[256];
-  struct stat ini_stat;
+    char ourAxisSection[256];
+    int ourAxis = 0;
+    FILE *infp = NULL;
+    FILE *outfp = NULL;
+    char line[256];
+    char section[256];
+    char var[256], val[256];
+    char fmt[256];
+    struct stat ini_stat;
 
 /*! \todo FIXME - stat() and chown() can disappear when we no longer need
    to run as root. */
 
-    stat(filename, &ini_stat);		// save the ownership details.
+    stat(filename, &ini_stat);	// save the ownership details.
 
-  // rename with backup suffix
-  strcpy(line, filename);
-  strcat(line, INIFILE_BACKUP_SUFFIX);
-  if (0 != rename(filename, line)) {
-    fprintf(stderr, "can't make backup copy of INI file %s\n", filename);
-    return -1;
-  }
+    // rename with backup suffix
+    strcpy(line, filename);
+    strcat(line, INIFILE_BACKUP_SUFFIX);
+    if (0 != rename(filename, line)) {
+	fprintf(stderr, "can't make backup copy of INI file %s\n",
+		filename);
+	return -1;
+    }
+    // open backup for reading
+    if (NULL == (infp = fopen(line, "r"))) {
+	fprintf(stderr, "can't open backup copy of INI file %s\n", line);
+	return -1;
+    }
+    // open original for writing
+    if (NULL == (outfp = fopen(filename, "w"))) {
+	fprintf(stderr, "can't open original copy of INI file %s\n", line);
+	return -1;
+    }
+    // set our axis string and flag that we're in that section
+    sprintf(ourAxisSection, "AXIS_%d", axis);
+    ourAxis = 0;
 
-  // open backup for reading
-  if (NULL == (infp = fopen(line, "r"))) {
-    fprintf(stderr, "can't open backup copy of INI file %s\n", line);
-    return -1;
-  }
+    while (!feof(infp)) {
+	if (NULL == fgets(line, 256, infp)) {
+	    break;
+	}
 
-  // open original for writing
-  if (NULL == (outfp = fopen(filename, "w"))) {
-    fprintf(stderr, "can't open original copy of INI file %s\n", line);
-    return -1;
-  }
-  // set our axis string and flag that we're in that section
-  sprintf(ourAxisSection, "AXIS_%d", axis);
-  ourAxis = 0;
+	if (iniIsSection(line, section)) {
+	    // if this is "AXIS_0,1,...", it's what we want
+	    if (!strcmp(section, ourAxisSection)) {
+		ourAxis = 1;
+	    } else {
+		ourAxis = 0;
+	    }
+	}
 
-  while (!feof(infp)) {
-    if (NULL == fgets(line, 256, infp)) {
-      break;
+	if (ourAxis) {
+	    if (iniIsEntry(line, var, val)) {
+		if (!strcmp(var, "BACKLASH")) {
+		    iniFormatFloat(fmt, var, val);
+		    fprintf(outfp, fmt, status->backlash);
+		    continue;
+		} else if (!strcmp(var, "OUTPUT_SCALE")) {
+		    // val will be a string with two floats, e.g., "1.0 0.0",
+		    // and iniFormatFloat2() will set fmt to convert 2 floats
+		    // at the precision of the first in the string
+		    iniFormatFloat2(fmt, var, val);
+		    fprintf(outfp, fmt, status->outputScale,
+			    status->outputOffset);
+		    continue;
+		} else if (!strcmp(var, "FERROR")) {
+		    iniFormatFloat(fmt, var, val);
+		    fprintf(outfp, fmt, status->maxFerror);
+		    continue;
+		} else if (!strcmp(var, "MIN_FERROR")) {
+		    iniFormatFloat(fmt, var, val);
+		    fprintf(outfp, fmt, status->minFerror);
+		    continue;
+		}
+	    }
+	}
+	// write it out
+	fputs(line, outfp);
     }
 
-    if (iniIsSection(line, section)) {
-      // if this is "AXIS_0,1,...", it's what we want
-      if (!strcmp(section, ourAxisSection)) {
-        ourAxis = 1;
-      }
-      else {
-        ourAxis = 0;
-      }
-    }
+    fclose(infp);
+    fclose(outfp);
 
-    if (ourAxis) {
-      if (iniIsEntry(line, var, val)) {
-        if (!strcmp(var, "BACKLASH")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->backlash);
-          continue;
-        }
-        else if (!strcmp(var, "OUTPUT_SCALE")) {
-          // val will be a string with two floats, e.g., "1.0 0.0",
-          // and iniFormatFloat2() will set fmt to convert 2 floats
-          // at the precision of the first in the string
-          iniFormatFloat2(fmt, var, val);
-          fprintf(outfp, fmt, status->outputScale, status->outputOffset);
-          continue;
-        }
-        else if (!strcmp(var, "FERROR")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->maxFerror);
-          continue;
-        }
-        else if (!strcmp(var, "MIN_FERROR")) {
-          iniFormatFloat(fmt, var, val);
-          fprintf(outfp, fmt, status->minFerror);
-          continue;
-        }
-      }
-    }
-
-    // write it out
-    fputs(line, outfp);
-  }
-
-  fclose(infp);
-  fclose(outfp);
-
-  /* Update the uid and gid of the new ini file - else it will end up
-     being owned by root */
+    /* Update the uid and gid of the new ini file - else it will end up
+       being owned by root */
     chown(filename, ini_stat.st_uid, ini_stat.st_gid);
 
-  return 0;
+    return 0;
 }

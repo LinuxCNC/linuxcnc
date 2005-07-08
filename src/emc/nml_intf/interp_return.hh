@@ -41,9 +41,12 @@ is therefore the index of the last non-error return value.
   Modification history:
 
   $Log$
+  Revision 1.2  2005/07/08 14:11:12  yabosukz
+  fix some more bugz
+
   Revision 1.1  2005/06/14 05:12:33  mshaver
   Adding interp.hh and interp_return.hh which contain the declarations of interpreter public functions and interpreter public return code values respectively
 
 */
 
-#endif /* INTERP_RETURN_H */
+#endif				/* INTERP_RETURN_H */

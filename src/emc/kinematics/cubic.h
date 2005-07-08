@@ -58,10 +58,10 @@ extern int cubicFilled(CUBIC_STRUCT * ci);
 extern double cubicInterpolate(CUBIC_STRUCT * ci, double *x,	/* same as
 								   return val 
 								 */
-    double *v,			/* velocity */
-    double *a,			/* accel */
-    double *j);			/* jerk */
+			       double *v,	/* velocity */
+			       double *a,	/* accel */
+			       double *j);	/* jerk */
 extern int cubicNeedNextPoint(CUBIC_STRUCT * ci);
 extern int cubicDrain(CUBIC_STRUCT * ci);
 
-#endif /* CUBIC_H */
+#endif				/* CUBIC_H */

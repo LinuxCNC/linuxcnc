@@ -80,7 +80,7 @@ static CANON_PLANE activePlane = CANON_PLANE_XY;
   */
 static CANON_POSITION canonEndPoint;
 static void canonUpdateEndPoint(double x, double y, double z, double a,
-    double b, double c)
+				double b, double c)
 {
     canonEndPoint.x = x;
     canonEndPoint.y = y;
@@ -162,7 +162,7 @@ static int sendVelMsg(double vel)
 
 /* Representation */
 void SET_ORIGIN_OFFSETS(double x, double y, double z,
-    double a, double b, double c)
+			double a, double b, double c)
 {
     EMC_TRAJ_SET_ORIGIN set_origin_msg;
 
@@ -222,7 +222,7 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
 }
 
 double getStraightVelocity(double x, double y, double z,
-    double a, double b, double c)
+			   double a, double b, double c)
 {
     double dx, dy, dz, da, db, dc;
     double tx, ty, tz, ta, tb, tc, tmax;
@@ -314,7 +314,7 @@ double getStraightVelocity(double x, double y, double z,
 }
 
 void STRAIGHT_TRAVERSE(double x, double y, double z,
-    double a, double b, double c)
+		       double a, double b, double c)
 {
     double vel;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
@@ -352,7 +352,8 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
 
-void STRAIGHT_FEED(double x, double y, double z, double a, double b, double c)
+void STRAIGHT_FEED(double x, double y, double z, double a, double b,
+		   double c)
 {
     double vel;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
@@ -406,7 +407,7 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b, double c)
 }
 
 void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
-    double c)
+		    double c)
 {
     double vel;
     EMC_TRAJ_PROBE probeMsg;
@@ -526,8 +527,8 @@ void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)
 /*! \todo FIXME-- check arc feed against max velocity, using some sort of
    suboptimal check, like tangential distance */
 void ARC_FEED(double first_end, double second_end,
-    double first_axis, double second_axis, int rotation,
-    double axis_end_point, double a, double b, double c)
+	      double first_axis, double second_axis, int rotation,
+	      double axis_end_point, double a, double b, double c)
 {
     EmcPose end;
     PM_CARTESIAN center, normal;
@@ -812,17 +813,17 @@ void ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction)
 
 void USE_SPINDLE_FORCE(void)
 {
-  /*! \todo FIXME-- unimplemented */
+    /*! \todo FIXME-- unimplemented */
 }
 
 void LOCK_SPINDLE_Z(void)
 {
-  /*! \todo FIXME-- unimplemented */
+    /*! \todo FIXME-- unimplemented */
 }
 
 void USE_NO_SPINDLE_FORCE(void)
 {
-  /*! \todo FIXME-- unimplemented */
+    /*! \todo FIXME-- unimplemented */
 }
 
 /* Tool Functions */
@@ -859,7 +860,7 @@ void CHANGE_TOOL(int slot)
     /* optional first move to tool change position */
     if (HAVE_TOOL_CHANGE_POSITION) {
 	linear_move_msg.end.tran = TOOL_CHANGE_POSITION.tran;	// struct
-								// copy
+	// copy
 	linear_move_msg.end.a = 0.0;
 	linear_move_msg.end.b = 0.0;
 	linear_move_msg.end.c = 0.0;
@@ -873,7 +874,7 @@ void CHANGE_TOOL(int slot)
     /* optional move to clear Z */
     if (HAVE_TOOL_HOLDER_CLEAR) {
 	linear_move_msg.end.tran = TOOL_HOLDER_CLEAR.tran;	// struct
-								// copy
+	// copy
 	linear_move_msg.end.a = 0.0;
 	linear_move_msg.end.b = 0.0;
 	linear_move_msg.end.c = 0.0;
@@ -885,7 +886,7 @@ void CHANGE_TOOL(int slot)
     /* optional move back to tool change position */
     if (HAVE_TOOL_CHANGE_POSITION) {
 	linear_move_msg.end.tran = TOOL_CHANGE_POSITION.tran;	// struct
-								// copy
+	// copy
 	linear_move_msg.end.a = 0.0;
 	linear_move_msg.end.b = 0.0;
 	linear_move_msg.end.c = 0.0;
@@ -967,15 +968,16 @@ void COMMENT(char *comment)
     if (!strncmp(comment, "RPY", strlen("RPY"))) {
 	PM_RPY rpy;
 	// it's RPY <R> <P> <Y>
-	if (3 != sscanf(comment, "%*s %lf %lf %lf", &rpy.r, &rpy.p, &rpy.y)) {
+	if (3 !=
+	    sscanf(comment, "%*s %lf %lf %lf", &rpy.r, &rpy.p, &rpy.y)) {
 	    // print current orientation
 	    printf("rpy = %f %f %f, quat = %f %f %f %f\n",
-		rpy.r, rpy.p, rpy.y, quat.s, quat.x, quat.y, quat.z);
+		   rpy.r, rpy.p, rpy.y, quat.s, quat.x, quat.y, quat.z);
 	} else {
 	    // set and print orientation
 	    quat = rpy;
 	    printf("rpy = %f %f %f, quat = %f %f %f %f\n",
-		rpy.r, rpy.p, rpy.y, quat.s, quat.x, quat.y, quat.z);
+		   rpy.r, rpy.p, rpy.y, quat.s, quat.x, quat.y, quat.z);
 	}
 	return;
     }
@@ -1189,7 +1191,8 @@ void INIT_CANON()
     } else if (fabs(units - 1.0) < 1.0e-3) {
 	lengthUnits = CANON_UNITS_MM;
     } else {
-	CANON_ERROR("non-standard length units, setting interpreter to mm");
+	CANON_ERROR
+	    ("non-standard length units, setting interpreter to mm");
 	lengthUnits = CANON_UNITS_MM;
     }
 }
@@ -1260,7 +1263,9 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     // now calculate position in program units, for interpreter
     position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x);
     position.y = TO_PROG_LEN(canonEndPoint.y - programOrigin.y);
-    position.z = TO_PROG_LEN(canonEndPoint.z - programOrigin.z - currentToolLengthOffset);
+    position.z =
+	TO_PROG_LEN(canonEndPoint.z - programOrigin.z -
+		    currentToolLengthOffset);
 
     position.a = TO_PROG_ANG(canonEndPoint.a - programOrigin.a);
     position.b = TO_PROG_ANG(canonEndPoint.b - programOrigin.b);
@@ -1303,7 +1308,7 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
 	    last_probed_position.y != position.y ||
 	    last_probed_position.z != position.z) {
 	    fprintf(probefile, "%f %f %f\n", position.x, position.y,
-		position.z);
+		    position.z);
 	    last_probed_position = position;
 	}
     }
@@ -1342,7 +1347,8 @@ double GET_EXTERNAL_TRAVERSE_RATE()
     double traverse;
 
     // convert from external to program units
-    traverse = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->motion.traj.maxVelocity));
+    traverse =
+	TO_PROG_LEN(FROM_EXT_LEN(emcStatus->motion.traj.maxVelocity));
 
     // now convert from per-sec to per-minute
     traverse *= 60.0;
@@ -1423,11 +1429,11 @@ int GET_EXTERNAL_TOOL_MAX()
 }
 
 char _parameter_file_name[LINELEN];	/* Not static.Driver
-							   writes */
+					   writes */
 
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
 							   file name into */
-    int max_size)
+				      int max_size)
 {				/* maximum number of characters to copy */
     // Paranoid checks
     if (0 == file_name)
@@ -1551,23 +1557,27 @@ CANON_PLANE GET_EXTERNAL_PLANE()
     return activePlane;
 }
 
-USER_DEFINED_FUNCTION_TYPE USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM] = {0};
+USER_DEFINED_FUNCTION_TYPE USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM]
+    = { 0 };
 
 int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
 {
-  if (num < 0 || num >= USER_DEFINED_FUNCTION_NUM) {
-    return -1;
-  }
+    if (num < 0 || num >= USER_DEFINED_FUNCTION_NUM) {
+	return -1;
+    }
 
-  USER_DEFINED_FUNCTION[num] = func;
+    USER_DEFINED_FUNCTION[num] = func;
 
-  return 0;
+    return 0;
 }
 
 /*
   Modification history:
 
   $Log$
+  Revision 1.17  2005/07/08 14:11:15  yabosukz
+  fix some more bugz
+
   Revision 1.16  2005/06/13 14:38:45  paul_c
   Gone through the code and tagged all #if 0 and #if 1 sections. Some important
   sections have been disabled through the use of these, others are obsolete

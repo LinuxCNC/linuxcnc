@@ -48,7 +48,8 @@ int emcGetArgs(int argc, char *argv[])
 	    printf("EMC Host?");
 	    fgets(qhost, 80, stdin);
 	    for (int i = 0; i < 80; i++) {
-		if (qhost[i] == '\r' || qhost[i] == '\n' || qhost[i] == ' ') {
+		if (qhost[i] == '\r' || qhost[i] == '\n'
+		    || qhost[i] == ' ') {
 		    qhost[i] = 0;
 		    break;
 		}

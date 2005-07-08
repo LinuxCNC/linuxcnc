@@ -27,7 +27,7 @@
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
 #include "rs274ngc.hh"		// the interpreter
-#include "interp_return.hh"     // INTERP_FILE_NOT_OPEN
+#include "interp_return.hh"	// INTERP_FILE_NOT_OPEN
 
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
@@ -46,55 +46,59 @@ static char user_defined_fmt[EMC_SYSTEM_CMD_LEN] = "nc_files/M1%02d";
 
 static void user_defined_add_m_code(int num, double arg1, double arg2)
 {
-  char fmt[EMC_SYSTEM_CMD_LEN];
-  EMC_SYSTEM_CMD system_cmd;
+    char fmt[EMC_SYSTEM_CMD_LEN];
+    EMC_SYSTEM_CMD system_cmd;
 
-  strcpy(fmt, user_defined_fmt);
-  strcat(fmt, " %f %f");
-  sprintf(system_cmd.string, fmt, num, arg1, arg2);
-  interp_list.append(system_cmd);
+    strcpy(fmt, user_defined_fmt);
+    strcat(fmt, " %f %f");
+    sprintf(system_cmd.string, fmt, num, arg1, arg2);
+    interp_list.append(system_cmd);
 }
 
 int emcTaskInit()
 {
-  int index;
-  char path[EMC_SYSTEM_CMD_LEN];
-  struct stat buf;
-  Inifile inifile;
-  const char * inistring;
+    int index;
+    char path[EMC_SYSTEM_CMD_LEN];
+    struct stat buf;
+    Inifile inifile;
+    const char *inistring;
 
-  // read out directory where programs are located
-  inifile.open(EMC_INIFILE);
-  inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY");
-  inifile.close();
+    // read out directory where programs are located
+    inifile.open(EMC_INIFILE);
+    inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY");
+    inifile.close();
 
-  // if we have a program prefix, override the default user_defined_fmt
-  // string with program prefix, then "M1%02d", e.g.
-  // nc_files/M101, where the %%02d means 2 digits after the M code
-  // and we need two % to get the literal %
-  if (NULL != inistring) {
-    sprintf(user_defined_fmt, "%sM1%%02d", inistring);
-  }
-
-  /* check for programs named programs/M100 .. programs/M199 and add
-     any to the user defined functions list */
-  for (index = 0; index < USER_DEFINED_FUNCTION_NUM; index++) {
-    sprintf(path, user_defined_fmt, index);
-    if (0 == stat(path, &buf)) {
-      if (buf.st_mode & S_IXUSR) {
-	USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code, index);
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	  rcs_print("emcTaskInit: adding user-defined function %s\n", path);
-	}
-      } else {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	  rcs_print("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n", path);
-	}
-      }
+    // if we have a program prefix, override the default user_defined_fmt
+    // string with program prefix, then "M1%02d", e.g.
+    // nc_files/M101, where the %%02d means 2 digits after the M code
+    // and we need two % to get the literal %
+    if (NULL != inistring) {
+	sprintf(user_defined_fmt, "%sM1%%02d", inistring);
     }
-  }
 
-  return 0;
+    /* check for programs named programs/M100 .. programs/M199 and add
+       any to the user defined functions list */
+    for (index = 0; index < USER_DEFINED_FUNCTION_NUM; index++) {
+	sprintf(path, user_defined_fmt, index);
+	if (0 == stat(path, &buf)) {
+	    if (buf.st_mode & S_IXUSR) {
+		USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code, index);
+		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		    rcs_print
+			("emcTaskInit: adding user-defined function %s\n",
+			 path);
+		}
+	    } else {
+		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		    rcs_print
+			("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n",
+			 path);
+		}
+	    }
+	}
+    }
+
+    return 0;
 }
 
 int emcTaskHalt()
@@ -371,13 +375,13 @@ int emcTaskPlanRead()
 
 int emcTaskPlanExecute(const char *command)
 {
-    int inpos = emcStatus->motion.traj.inpos; // 1 if in position, 0 if not.
+    int inpos = emcStatus->motion.traj.inpos;	// 1 if in position, 0 if not.
 
-    if(command != 0){ // Command is 0 if in AUTO mode, non-null if in MDI mode.
-        // Don't sync if not in position.
-        if ((*command != 0)  && (inpos)){
-            interp.synch();
-        }
+    if (command != 0) {		// Command is 0 if in AUTO mode, non-null if in MDI mode.
+	// Don't sync if not in position.
+	if ((*command != 0) && (inpos)) {
+	    interp.synch();
+	}
     }
     int retval = interp.execute(command);
     if (retval > INTERP_MIN_ERROR) {
@@ -441,6 +445,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
   Modification history:
 
   $Log$
+  Revision 1.13  2005/07/08 14:11:16  yabosukz
+  fix some more bugz
+
   Revision 1.12  2005/06/27 21:56:40  alex_joni
   replaced INIFILE with the new Inifle all over the code, now HEAD shouldn't be broken anymore. Also hacked the halcmd Makefile a bit to make it work again. It's safe to use _inifile.c from halcmd, as halcmd so far doesn't write into the ini. if/when it will, it should use the class version.
 

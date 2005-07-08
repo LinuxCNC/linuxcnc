@@ -159,7 +159,7 @@
 typedef struct {
     double pos[N]; /**< Coordinates of the end point */
     double rot[N]; /**< Center point for an arc */
-    double vel; /**< Velocity for this segment */
+    double vel;	/**< Velocity for this segment */
     int flags; /**< @see notes */
     int id; /**< ID of this segment */
 } point;
@@ -177,38 +177,40 @@ typedef struct {
     int flags; /**< @see notes */
 } bounds;
 
-
-extern void* traj_init(void); // inits queue - may sleep
-extern int traj_free(void *queue); // nuff said.
-extern int traj_reset(void *queue, bounds *limits); // flushes queue and sets bounds
-extern int traj_append(void *queue, point *p); // adds p to the queue
-extern vector3 traj_point(void *queue, vector3 pos); // interpolates next point from pos
-extern int traj_status(void *queue, int flag); // sets/returns queue status
-extern int traj_id(void *queue); // current segment ID
+extern void *traj_init(void);	// inits queue - may sleep
+extern int traj_free(void *queue);	// nuff said.
+extern int traj_reset(void *queue, bounds * limits);	// flushes queue and sets bounds
+extern int traj_append(void *queue, point * p);	// adds p to the queue
+extern vector3 traj_point(void *queue, vector3 pos);	// interpolates next point from pos
+extern int traj_status(void *queue, int flag);	// sets/returns queue status
+extern int traj_id(void *queue);	// current segment ID
 
 /*! \todo FIX-ME wrappers around new functions - Not all are implemented... */
-extern int tpFull(TP_STRUCT *tp);
-extern int tpAbort(TP_STRUCT *tp);
-extern int tpAddCircle(TP_STRUCT *tp, EmcPose end, PmCartesian center, PmCartesian normal, int turn);
-extern int tpAddLine(TP_STRUCT *tp, EmcPose end);
-extern int tpClear(TP_STRUCT *tp);
-extern int tpCreate(TP_STRUCT *tp, int _queueSize, TC_STRUCT *tcSpace);
-extern int tpGetExecId(TP_STRUCT *tp);
-extern EmcPose tpGetPos(TP_STRUCT *tp);
-extern int tpInit(TP_STRUCT *tp);
-extern int tpIsDone(TP_STRUCT *tp);
-extern int tpPause(TP_STRUCT *tp);
-extern int tpResume(TP_STRUCT *tp);
-extern int tpRunCycle(TP_STRUCT *tp);
-extern int tpSetAmax(TP_STRUCT *tp, double amax);
-extern int tpSetAout(TP_STRUCT *tp, unsigned char index, double start, double end);
-extern int tpSetCycleTime(TP_STRUCT *tp, double secs);
-extern int tpSetDout(TP_STRUCT *tp, int index, unsigned char start, unsigned char end);
-extern int tpSetId(TP_STRUCT *tp, int id);
-extern int tpSetPos(TP_STRUCT *tp, EmcPose pos);
-extern int tpSetTermCond(TP_STRUCT *tp, int cond);
-extern int tpSetVlimit(TP_STRUCT *tp, double limit);
-extern int tpSetVmax(TP_STRUCT *tp, double vmax);
-extern int tpSetVscale(TP_STRUCT *tp, double scale);
+extern int tpFull(TP_STRUCT * tp);
+extern int tpAbort(TP_STRUCT * tp);
+extern int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,
+		       PmCartesian normal, int turn);
+extern int tpAddLine(TP_STRUCT * tp, EmcPose end);
+extern int tpClear(TP_STRUCT * tp);
+extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
+extern int tpGetExecId(TP_STRUCT * tp);
+extern EmcPose tpGetPos(TP_STRUCT * tp);
+extern int tpInit(TP_STRUCT * tp);
+extern int tpIsDone(TP_STRUCT * tp);
+extern int tpPause(TP_STRUCT * tp);
+extern int tpResume(TP_STRUCT * tp);
+extern int tpRunCycle(TP_STRUCT * tp);
+extern int tpSetAmax(TP_STRUCT * tp, double amax);
+extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
+		     double end);
+extern int tpSetCycleTime(TP_STRUCT * tp, double secs);
+extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
+		     unsigned char end);
+extern int tpSetId(TP_STRUCT * tp, int id);
+extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
+extern int tpSetTermCond(TP_STRUCT * tp, int cond);
+extern int tpSetVlimit(TP_STRUCT * tp, double limit);
+extern int tpSetVmax(TP_STRUCT * tp, double vmax);
+extern int tpSetVscale(TP_STRUCT * tp, double scale);
 
 #endif
