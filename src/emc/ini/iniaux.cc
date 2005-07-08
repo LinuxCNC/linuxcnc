@@ -23,7 +23,9 @@ extern "C" {
 #include "inifile.hh"
 #include "iniaux.hh"		// these decls
 #include "emcglb.h"		// ESTOP_SENSE_INDEX, etc
-// inifile ref'ed by iniAux(), loadAux() static Inifile *auxInifile = 0;
+
+// inifile ref'ed by iniAux(), loadAux() 
+static Inifile *auxInifile = 0;
 
 /*
   loadAux()

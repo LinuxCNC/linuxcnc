@@ -24,8 +24,9 @@ extern "C" {
 #include "inifile.hh"
 #include "inispin.hh"		// these decls
 #include "emcglb.h"		// SPINDLE_FORWARD_INDEX, etc
+
 // inifile ref'ed by iniSpindle(), loadSpindle()
-    static Inifile *spindleInifile = 0;
+static Inifile *spindleInifile = 0;
 
 /*
   loadSpindle()

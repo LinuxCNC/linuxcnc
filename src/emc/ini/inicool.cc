@@ -24,8 +24,9 @@ extern "C" {
 #include "inifile.hh"
 #include "inicool.hh"		// these decls
 #include "emcglb.h"		// MIST_COOLANT_INDEX, etc
+
 // inifile ref'ed by iniCoolant(), loadCoolant()
-    static Inifile *coolantInifile = 0;
+static Inifile *coolantInifile = 0;
 
 /*
   loadCoolant()

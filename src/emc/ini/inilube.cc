@@ -24,7 +24,9 @@ extern "C" {
 #include "inifile.hh"
 #include "inilube.hh"		// these decls
 #include "emcglb.h"		// LUBE_SENSE_INDEX, etc
-// inifile ref'ed by iniLube(), loadLube() static Inifile *lubeInifile = 0;
+
+// inifile ref'ed by iniLube(), loadLube() 
+static Inifile *lubeInifile = 0;
 
 /*
   loadLube()

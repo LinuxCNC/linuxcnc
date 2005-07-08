@@ -75,7 +75,8 @@ extern "C" {
 #else
 #define _(string) (string)
 #endif
-// command line args-- global so that other modules can access int Argc;
+// command line args-- global so that other modules can access 
+int Argc;
 char **Argv;
 
 // NML channels
@@ -3042,6 +3043,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.35  2005/07/08 14:52:57  yabosukz
+  fix error
+
   Revision 1.34  2005/07/08 14:11:16  yabosukz
   fix some more bugz
 

@@ -25,8 +25,9 @@ extern "C" {
 #include "inifile.hh"
 #include "initool.hh"		// these decls
 #include "emcglb.h"		// TOOL_TABLE_FILE
+
 // inifile ref'ed by iniTool(), loadTool() 
-    static Inifile *toolInifile = 0;
+static Inifile *toolInifile = 0;
 
 /*
   loadTool()

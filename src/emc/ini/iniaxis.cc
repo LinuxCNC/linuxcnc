@@ -30,7 +30,9 @@ extern "C" {
 #include "iniaxis.hh"		// these decls
 #include "emcglb.h"		// EMC_DEBUG
 #include "emccfg.h"		// default values for globals
-// inifile ref'ed by iniAxes(), loadAxis() static Inifile *axisInifile = 0;
+
+// inifile ref'ed by iniAxes(), loadAxis() 
+static Inifile *axisInifile = 0;
 
 /* a function that checks a string to see if it is one of:
    "TRUE", "FALSE", "YES", "NO", "1", or "0" (case insensitive)

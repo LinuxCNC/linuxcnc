@@ -27,7 +27,9 @@ extern "C" {
 #include "inifile.hh"
 #include "initraj.hh"		// these decls
 #include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
-// inifile ref'ed by iniTraj(), loadTraj() static Inifile *trajInifile = 0;
+
+// inifile ref'ed by iniTraj(), loadTraj() 
+static Inifile *trajInifile = 0;
 
 /*
   loadTraj()
