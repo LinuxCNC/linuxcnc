@@ -43,7 +43,6 @@ Inifile::Inifile()
    @return None */
 Inifile::Inifile(const char *file)
 {
-    /*! \fixme Need to do tilde expansion here */
     if (open(file) == false) {
 	fprintf(stderr, "can't open %s\n", file);
     }
@@ -54,9 +53,7 @@ Inifile::Inifile(const char *file)
    @return None */
 Inifile::~Inifile()
 {
-    if (NULL != fp) {
-	fclose(fp);
-    }
+    close();
 }
 
 /*! Opens the file for reading. If a file was already open, it is closed
@@ -65,16 +62,16 @@ Inifile::~Inifile()
    @return true on success, false on failure */
 bool Inifile::open(const char *file)
 {
+    /*! \fixme Need to do tilde expansion here */
     if ((fp = fopen(file, "r")) == NULL) {
 	return false;
     }
     lock.l_type = F_RDLCK;
-    lock.l_whence = 0;
+    lock.l_whence = SEEK_SET;
     lock.l_start = 0;
     lock.l_len = 0;
-    lock.l_pid = 0;
     if (fcntl(fileno(fp), F_SETLK, &lock) == -1) {
-	printf("Unable to lock file\n");
+	fprintf(stderr, "Unable to lock file %s\n", file);
 	fclose(fp);
 	fp = NULL;
 	return false;
@@ -112,7 +109,7 @@ int Inifile::write()
 {
     int tmp = 0;
     if (fp == NULL) {
-        return -1; /* error - File closed. */
+	return -1;		/* error - File closed. */
     }
     /* Write file to disk
        Set tmp to the err code if write fails */
@@ -162,7 +159,7 @@ const char *Inifile::find(const char *tag, const char *section, int num)
 	    /* got a line */
 
 	    /* strip off newline */
-	    newlinepos = strlen(line) - 1; /* newline is on back from 0 */
+	    newlinepos = strlen(line) - 1;	/* newline is on back from 0 */
 	    if (newlinepos < 0) {
 		newlinepos = 0;
 	    }
