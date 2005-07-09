@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
     char *section = 0;
     char path[LINELEN] = "emc.ini";
     const char *inistring;
+    int retval;
 
     /* process command line args, indexing argv[] from [1] */
     for (t = 1; t < argc; t++) {
@@ -116,11 +117,13 @@ int main(int argc, char *argv[])
     inistring = inifile->find(variable, section, num);
     if (inistring != NULL) {
 	printf("%s\n", inistring);
+	retval = 0;
     } else {
 	fprintf(stderr, "Can not find -sec %s -var %s -num %i \n", section, variable, num);
+	retval = 1;
     }
 
     delete inifile;
 
-    exit(0);
+    exit(retval);
 }
