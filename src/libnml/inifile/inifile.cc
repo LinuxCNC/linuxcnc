@@ -69,6 +69,10 @@ bool Inifile::open(const char *file)
 	return false;
     }
     lock.l_type = F_RDLCK;
+    lock.l_whence = 0;
+    lock.l_start = 0;
+    lock.l_len = 0;
+    lock.l_pid = 0;
     if (fcntl(fileno(fp), F_SETLK, &lock) == -1) {
 	printf("Unable to lock file\n");
 	fclose(fp);
