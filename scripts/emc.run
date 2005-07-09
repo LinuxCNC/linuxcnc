@@ -12,11 +12,31 @@
 DEBUG_FILE=/dev/null
 PRINT_FILE=/dev/null
 
+# strip and process command line options
+#
+while ARG=$1 ; ! [ "$ARG" = "${ARG#-}" ] ; do
+    # argument is an option
+    if [ $ARG = "-d" ] ; then
+	# enable echoing of script and command output
+	DEBUG_FILE=/dev/tty
+	echo "Debug mode on" >$DEBUG_FILE
+	set -x;
+    elif [ $ARG = "-v" ] ; then
+	# enable printing of verbose messages
+	PRINT_FILE=/dev/tty
+	echo "Verbose mode on" >$PRINT_FILE
+    else
+	echo "Unknown option '$ARG'"
+	exit -1
+    fi
+    # discard option, check next argument
+    shift
+done
+
 # check for some programs that we need
 INSMOD=/sbin/insmod
 RMMOD=/sbin/rmmod
 LSMOD=/sbin/lsmod
->$DEBUG_FILE
 for i in grep sed ps kill whoami awk $INSMOD $RMMOD $LSMOD; do
     if ! which $i >>$DEBUG_FILE; then
         echo "Sorry, can't find $i, a necessary program"
@@ -31,36 +51,19 @@ elif [ -x /bin/pidof ] ; then
 elif [ -x /sbin/pidof ] ; then
     PIDOF=/sbin/pidof ;
 else
-    echo "Can't find pidof"
+    echo "Can't find pidof, a neccessary program"
     exit -1
 fi
-
-# strip and process command line options
-#
-while echo $1 | grep ^- >>$DEBUG_FILE ; do
-    # found an option
-    OPTION=$1
-    # strip it
-    shift
-    # process options
-    if [ $OPTION = "-d" ] ; then
-	# enable echoing of script and command output
-	set -x;
-	DEBUG_FILE=/dev/tty
-    elif [ $OPTION = "-v" ] ; then
-	# enable printing of verbose messages
-	PRINT_FILE=/dev/tty
-    else
-	echo "Unknown option '$OPTION'"
-	exit -1
-    fi
-done
 
 # check for root privliges - hope to remove the need for this later
 if [ `whoami` != root ] ; then
     echo "Sorry, you must be root to run EMC"
     exit -1
 fi
+
+# set LANG to allow awk, etc, to correctly parse numbers in 
+# the ini file
+LANG=C
 
 # Determine the EMC2 root directory
 # get name and (possibly relative) path of this script
@@ -82,7 +85,7 @@ EMC2_SCRIPT_DIR=$EMC2_DIR/scripts
 EMC2_RTLIB_DIR=$EMC2_DIR/rtlib
 EMC2_CONFIG_DIR=$EMC2_DIR/configs
 
-echo EMC2_DIR=$EMC2_DIR >$PRINT_FILE
+echo EMC2_DIR=$EMC2_DIR >>$PRINT_FILE
 echo EMC2_BIN_DIR=$EMC2_BIN_DIR >>$PRINT_FILE
 echo EMC2_TCL_DIR=$EMC2_TCL_DIR >>$PRINT_FILE
 echo EMC2_SCRIPT_DIR=$EMC2_SCRIPT_DIR >>$PRINT_FILE
@@ -92,10 +95,13 @@ echo EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR >>$PRINT_FILE
 # look for ini file
 INIFILE=
 if [ ! -n "$1" ] ; then
+# nothing specified, use default
     INIFILE=$EMC2_CONFIG_DIR/emc.ini
 elif echo $1 | grep / >>$DEBUG_FILE ; then
+# path specified, use it
     INIFILE=$1
 else
+# filename but no path, use default path
     INIFILE=$EMC2_CONFIG_DIR/$1
 fi
 if [ ! -f $INIFILE ] ; then
@@ -133,7 +139,7 @@ echo REALTIME=$REALTIME >>$PRINT_FILE
 
 # extract info from the ini file that we will need later
 # get name of RS274NGC parameter file
-RS274NGC_PARAMFILE=`$INIVAR -ini $INIFILE -var PARAMETER_FILE -sec RS274NGC`
+RS274NGC_PARAMFILE=`$INIVAR -ini $INIFILE -var PARAMETER_FILE -sec RS274NGC 2>>$DEBUG_FILE`
 if [ ! -n "$RS274NGC_PARAMFILE" ] ; then
     echo "Can't find variable PARAMETER_FILE in section [RS274NGC] of file $INIFILE."
     exit -1
@@ -141,7 +147,7 @@ fi
 echo RS274NGC_PARAMFILE=$RS274NGC_PARAMFILE >>$PRINT_FILE
 
 # get emcmot information
-EMCMOT=`$INIVAR -ini $INIFILE -var EMCMOT -sec EMCMOT`
+EMCMOT=`$INIVAR -ini $INIFILE -var EMCMOT -sec EMCMOT 2>>$DEBUG_FILE`
 if [ ! -n "$EMCMOT" ] ; then
     echo "Can't find variable EMCMOT in section [EMCMOT] of file $INIFILE."
     exit -1
@@ -149,7 +155,7 @@ fi
 echo EMCMOT=$EMCMOT >>$PRINT_FILE
 
 # get emcio information
-EMCIO=`$INIVAR -ini $INIFILE -var EMCIO -sec EMCIO`
+EMCIO=`$INIVAR -ini $INIFILE -var EMCIO -sec EMCIO 2>>$DEBUG_FILE`
 if [ ! -n "$EMCIO" ] ; then
     echo "Can't find variable EMCIO in section [EMCIO] of file $INIFILE."
     exit -1
@@ -157,7 +163,7 @@ fi
 echo EMCIO=$EMCIO >>$PRINT_FILE
 
 # get emctask information
-EMCTASK=`$INIVAR -ini $INIFILE -var TASK -sec TASK`
+EMCTASK=`$INIVAR -ini $INIFILE -var TASK -sec TASK 2>>$DEBUG_FILE`
 if [ ! -n "$EMCTASK" ] ; then
     echo "Can't find variable TASK in section [TASK] of file $INIFILE."
     exit -1
@@ -165,36 +171,32 @@ fi
 echo EMCTASK=$EMCTASK >>$PRINT_FILE
 
 # get emcserver information
-EMCSERVER=`$INIVAR -ini $INIFILE -var EMCSERVER -sec EMCSERVER`
+EMCSERVER=`$INIVAR -ini $INIFILE -var EMCSERVER -sec EMCSERVER 2>>$DEBUG_FILE`
 # no check needed - if nothing found, nothing will run
 echo EMCSERVER=$EMCSERVER >>$PRINT_FILE
 
 # get emcstrip information
-EMSTRIP=`$INIVAR -ini $INIFILE -var EMCSTRIP -sec EMCSTRIP`
+EMSTRIP=`$INIVAR -ini $INIFILE -var EMCSTRIP -sec EMCSTRIP 2>>$DEBUG_FILE`
 # if none found, it just won't run... but if found, check for options
 if [ -n "$EMCSTRIP" ] ; then
-    EMCSTRIP_OPTIONS=`$INIVAR -ini $INIFILE -var OPTIONS -sec EMCSTRIP`
+    EMCSTRIP_OPTIONS=`$INIVAR -ini $INIFILE -var OPTIONS -sec EMCSTRIP 2>>$DEBUG_FILE`
 fi
 echo EMCSTRIP=$EMCSTRIP >>$PRINT_FILE
 echo EMCSTRIP_OPTIONS=$EMCSTRIP_OPTIONS >>$PRINT_FILE
 
 # get display information
-EMCDISPLAY=`$INIVAR -ini $INIFILE -var DISPLAY -sec DISPLAY`
+EMCDISPLAY=`$INIVAR -ini $INIFILE -var DISPLAY -sec DISPLAY 2>>$DEBUG_FILE`
 if [ ! -n "$EMCDISPLAY" ] ; then
     echo "Can't find variable DISPLAY in section [DISPLAY] of file $INIFILE.";
 fi
 echo EMCDISPLAY=$EMCDISPLAY >>$PRINT_FILE
 
 # get NML config information
-NMLFILE=`$INIVAR -ini $INIFILE -var NML_FILE -sec EMC`
+NMLFILE=`$INIVAR -ini $INIFILE -var NML_FILE -sec EMC 2>>$DEBUG_FILE`
 if [ ! -n "$NMLFILE" ] ; then
     echo "Can't find variable NML_FILE in section [EMC] of file $INIFILE.";
 fi
 echo NMLFILE=$NMLFILE >>$PRINT_FILE
-
-# DON'T KNOW WHAT THIS IS FOR
-#
-# ipckeys=`grep SHMEM $NMLFILE | gawk '{printf("%x ",$10);}'`
 
 # Done gathering information, define a few functions
 # Execution resumes after function definitions...
@@ -307,6 +309,7 @@ function Cleanup() {
 	    done
 	fi
 	# remove rtapi and RTOS modules
+	echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
 	$EMC2_SCRIPT_DIR/realtime stop
     fi
 
@@ -359,51 +362,12 @@ function Cleanup() {
 #	fi
 #   fi
 #
-#    # Delete sharedmemory segments and semaphores
-#    for key in $ipckeys ; do
-#	id=`ipcs -m | grep $key | gawk '{print $2}'`
-#	if [ ${#id} -gt 1 ] ; then
-#	    echo "Removing shared memory " $id
-#	    if [ "${PLATBASE}" = "sunos" ] ; then
-#		ipcrm -m $id
-#	    else
-#		ipcrm shm $id
-#	    fi
-#	fi
-#	id=`ipcs -s | grep $key | gawk '{print $2}'`
-#	if [ ${#id} -gt 1 ] ; then
-#	    echo "Removing semaphore" $id
-#	    if [ "${PLATBASE}" = "sunos" ] ; then
-#		ipcrm -s $id
-#	    else
-#		ipcrm sem $id
-#	    fi
-#	fi
-#    done
-#
-#    if [ -z "$PURE_SIMULATION" ] ; then
-#	if [ -x ./remove_realtime_base ] ; then
-#	    ./remove_realtime_base
-#	    sleep 1
-#	fi
-#    fi
-#
-#
 
 # done with function definitions, execution resumes here
 
 # Name of lock file to check for that signifies that EMC is up,
 # to prevent multiple copies of controller
 LOCKFILE=/tmp/emc.lock
-
-
-# I don't think this is needed - if Cleanup is called, emc is
-# gone, so the lock should always be deleted...
-# if Cleanup is not called, the lock file should not be touched
-#
-# 'STARTED' is flag that's set only if we create lock file, so
-# if we get ^C we won't delete a previous lock file
-#set STARTED = 0
 
 # Check for lock file
 if [ -f $LOCKFILE ]; then
@@ -428,12 +392,9 @@ trap 'Cleanup ; exit 0' SIGINT SIGTERM
 # Create the lock file
 touch $LOCKFILE
 
-# SKIP THE POPUP-Message FOR NOW
-#echo "Hi!  Pretend this message is a nice popup graphic"
-#
 # pop up intro graphic
-img=`$INIVAR -ini $INIFILE -var INTRO_GRAPHIC -sec DISPLAY`
-imgtime=`$INIVAR -ini $INIFILE -var INTRO_TIME -sec DISPLAY`
+img=`$INIVAR -ini $INIFILE -var INTRO_GRAPHIC -sec DISPLAY 2>>$DEBUG_FILE`
+imgtime=`$INIVAR -ini $INIFILE -var INTRO_TIME -sec DISPLAY 2>>$DEBUG_FILE`
 if [ "$imgtime" = "" ] ; then
   imgtime=5
 fi
@@ -445,7 +406,7 @@ fi
 
 # Now we can finally start loading EMC
 
-echo "Loading RealTime OS, RTAPI, and HAL_LIB" >>$PRINT_FILE
+echo "Loading Real Time OS, RTAPI, and HAL_LIB modules" >>$PRINT_FILE
 if ! $EMC2_SCRIPT_DIR/realtime start ; then
     echo "Realtime system did not load"
     Cleanup
@@ -469,28 +430,28 @@ if [ ! -f $EMC2_RTLIB_DIR/$EMCMOT ] ; then
     exit -1
 fi
 # get SHMEM_KEY for user/emcmot shared memory area
-SHMEM_KEY=`$INIVAR -ini $INIFILE -var SHMEM_KEY -sec EMCMOT`
+SHMEM_KEY=`$INIVAR -ini $INIFILE -var SHMEM_KEY -sec EMCMOT 2>>$DEBUG_FILE`
 if [ ! -n "$SHMEM_KEY" ] ; then
     echo "Can't find variable SHMEM_KEY in section [EMCMOT] of file $INIFILE."
     Cleanup
     exit -1
 fi
 # get thread periods
-BASE_PERIOD_SEC=`$INIVAR -ini $INIFILE -var BASE_PERIOD -sec EMCMOT`
+BASE_PERIOD_SEC=`$INIVAR -ini $INIFILE -var BASE_PERIOD -sec EMCMOT 2>>$DEBUG_FILE`
 if [ ! -n "$BASE_PERIOD_SEC" ] ; then
     echo "Can't find variable BASE_PERIOD in section [EMCMOT] of file $INIFILE."
     Cleanup
     exit -1
 fi
 BASE_PERIOD_NSEC=`echo $BASE_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}'`
-SERVO_PERIOD_SEC=`$INIVAR -ini $INIFILE -var SERVO_PERIOD -sec EMCMOT`
+SERVO_PERIOD_SEC=`$INIVAR -ini $INIFILE -var SERVO_PERIOD -sec EMCMOT 2>>$DEBUG_FILE`
 if [ ! -n "$SERVO_PERIOD_SEC" ] ; then
     echo "Can't find variable SERVO_PERIOD in section [EMCMOT] of file $INIFILE."
     Cleanup
     exit -1
 fi
 SERVO_PERIOD_NSEC=`echo $SERVO_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}'`
-TRAJ_PERIOD_SEC=`$INIVAR -ini $INIFILE -var TRAJ_PERIOD -sec EMCMOT`
+TRAJ_PERIOD_SEC=`$INIVAR -ini $INIFILE -var TRAJ_PERIOD -sec EMCMOT 2>>$DEBUG_FILE`
 if [ ! -n "$TRAJ_PERIOD_SEC" ] ; then
     echo "Can't find variable TRAJ_PERIOD in section [EMCMOT] of file $INIFILE."
     Cleanup
@@ -500,9 +461,9 @@ TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}
 
 # load the motion module
 
-echo "$EMC2_DIR/rtlib/$EMCMOT base_period=$BASE_PERIOD_NSEC servo_period=$SERVO_PERIOD_NSEC traj_period=$TRAJ_PERIOD_NSEC key=$SHMEM_KEY"
+echo "$EMC2_RTLIB_DIR/$EMCMOT base_period=$BASE_PERIOD_NSEC servo_period=$SERVO_PERIOD_NSEC traj_period=$TRAJ_PERIOD_NSEC key=$SHMEM_KEY" >>$PRINT_FILE
 
-if ! $INSMOD $EMC2_DIR/rtlib/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
+if ! $INSMOD $EMC2_RTLIB_DIR/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
 				     servo_period_nsec=$SERVO_PERIOD_NSEC \
 				     traj_period_nsec=$TRAJ_PERIOD_NSEC \
 				     key=$SHMEM_KEY ; then
@@ -514,7 +475,7 @@ fi
 
 # export the location of the HAL realtime modules so that
 # "halcmd loadrt" can find them
-export HAL_RTMOD_DIR=$EMC2_DIR/rtlib
+export HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
 
 # Run emcio in background
 echo "Starting EMC IO program: $EMCIO" >>$PRINT_FILE
@@ -525,36 +486,32 @@ if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
 fi
 $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 
-
 # execute HALCMD config files (if any)
+# get first config file name from ini file
 NUM=1
-MAX=`$INIVAR -ini $INIFILE -var HALFILEMAX -sec HAL`
-while [ $NUM -le $MAX ] ; do
-    # get config file name from ini file
-    CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE$NUM -sec HAL`
-    if [ -n "$CFGFILE" ] ; then
-	if [ ! -f $EMC2_CONFIG_DIR/$CFGFILE ] ; then
-	    echo "Can't find HAL config file: $EMC2_CONFIG_DIR/$CFGFILE"
-	    Cleanup
-	    exit -1
-	fi
-	echo "Running HAL config file $CFGFILE" >>$PRINT_FILE
-	if ! $HALCMD -i $INIFILE -f $EMC2_CONFIG_DIR/$CFGFILE ; then
-	    echo "HAL config file $CFGFILE failed."
-	    Cleanup
-	    exit -1
-	fi
+CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
+while [ -n "$CFGFILE" ] ; do
+    if [ ! -f $EMC2_CONFIG_DIR/$CFGFILE ] ; then
+	echo "Can't find HAL config file: $EMC2_CONFIG_DIR/$CFGFILE"
+	Cleanup
+	exit -1
     fi
-    # move on to next file
+    echo "Running HAL config file $CFGFILE" >>$PRINT_FILE
+    if ! $HALCMD -i $INIFILE -f $EMC2_CONFIG_DIR/$CFGFILE ; then
+	echo "HAL config file $CFGFILE failed."
+	Cleanup
+	exit -1
+    fi
+    # get next config file name from ini file
     NUM=$(($NUM+1))
+    CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
 done
 
 # execute discrete HAL commands from ini file (if any)
+# get first command from ini file
 NUM=1
-MAX=`$INIVAR -ini $INIFILE -var HALCMDMAX -sec HAL`
-while [ $NUM -le $MAX ] ; do
-    # get command from ini file
-    HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD$NUM -sec HAL`
+HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2>>$DEBUG_FILE`
+while [ -n "$HALCOMMAND" ] ; do
     if [ -n "$HALCOMMAND" ] ; then
 	echo "Running HAL command: $HALCOMMAND" >>$PRINT_FILE
 	if ! $HALCMD $HALCOMMAND ; then
@@ -563,8 +520,9 @@ while [ $NUM -le $MAX ] ; do
 	    exit -1
 	fi
     fi
-    # move on to next command
+    # get next command from ini file
     NUM=$(($NUM+1))
+    HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2>>$DEBUG_FILE`
 done
 
 # start the realtime stuff ticking
