@@ -951,22 +951,48 @@ static int axisJogging = -1;
 static int sendJogStop(int axis)
 {
     EMC_AXIS_ABORT emc_axis_abort_msg;
+    
+    // in case of TELEOP mode we really need to send an TELEOP_VECTOR message
+    // not a simple AXIS_ABORT, as more than one axis would be moving
+    // (hint TELEOP mode is for nontrivial kinematics)
+    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
 
     if (axis < 0 || axis >= EMC_AXIS_MAX) {
 	return -1;
     }
 
-    emc_axis_abort_msg.serial_number = ++emcCommandSerialNumber;
-    emc_axis_abort_msg.axis = axis;
-    emcCommandBuffer->write(emc_axis_abort_msg);
+    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
+	emc_axis_abort_msg.serial_number = ++emcCommandSerialNumber;
+	emc_axis_abort_msg.axis = axis;
+	emcCommandBuffer->write(emc_axis_abort_msg);
 
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
+	if (emcWaitType == EMC_WAIT_RECEIVED) {
+	    return emcCommandWaitReceived(emcCommandSerialNumber);
+	} else if (emcWaitType == EMC_WAIT_DONE) {
+	    return emcCommandWaitDone(emcCommandSerialNumber);
+	}
+
+	axisJogging = -1;
     }
+    else {
+	emc_set_teleop_vector.serial_number = ++emcCommandSerialNumber;
+	emc_set_teleop_vector.vector.tran.x = 0;
+	emc_set_teleop_vector.vector.tran.y = 0;
+	emc_set_teleop_vector.vector.tran.z = 0;
+	emc_set_teleop_vector.vector.a = 0;
+	emc_set_teleop_vector.vector.b = 0;
+	emc_set_teleop_vector.vector.c = 0;
+	emcCommandBuffer->write(emc_set_teleop_vector);
 
-    axisJogging = -1;
+	if (emcWaitType == EMC_WAIT_RECEIVED) {
+	    return emcCommandWaitReceived(emcCommandSerialNumber);
+	} else if (emcWaitType == EMC_WAIT_DONE) {
+	    return emcCommandWaitDone(emcCommandSerialNumber);
+	}
+	// \todo FIXME - should remember a list of jogging axes, and remove the last one
+	axisJogging = -1;
+	
+    }
     return 0;
 }
 
