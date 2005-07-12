@@ -21,108 +21,116 @@
 #include "prflib.h"
 
 /** \page Math Functions used by the trajectory planner
+  \todo label and identify the variables in the following functions
+ *
  * Interpolation function
  *
-    \f{equation}
-        P_(v) = \sum_{k=0}^n
-            P_k N_k,_t(v)
-    \f}
- *
+    \f$ P(v) = \sum_{k=0}^n
+            P_k N_k,_t(v) \f$
+ * 
  * Where:
+ * 
+ \todo FIXME documentation problem I couldn't get this equation to render right since doxygen gets confused and interprets a less than symbol as a control character, so I changed it to less than or equal to. does it make any difference?
  *
-    \f{equation}
-        N_k,_t(v) = ^{if u[k] <=v < u[k+1]} _{0\ otherwise}
-    \f}
-    \f{equation}
+    \f$  
+        if u[k] <= v <= u[k+1] 
+    \f$
+    
+    then
+    \f$ 
+        N_k,_t(v) = 0 
+    \f$
+    otherwise
+    {\f$
         N_k,_t(v) = \frac{v-u[k]}{u[k+t-1]-u[k]}N_{k,t}(v)
         +\frac{u[k+t]-v}{u[k+t]-u[k+1]}N_{k+1,t}(v)
-    \f}
+    \f$}
  *
  * The quintic polynomial is given by:
  *
-    \f{equation} P(t)={a_0+a_1}{t^2+a_3}{t^3+a_4}{t^4+a_5}t^5 \f}
+    \f$ P(t)={a_0+a_1}{t^2+a_3}{t^3+a_4}{t^4+a_5}t^5 \f$
  *
  * Where:
  *
-    \f{equation} P_0=a_0 \f}
+    \f$ P_0=a_0 \f$
 
-    \f{equation} P_f=a_0+a_1t_f+a_2t^2_f+a_3t^3_f +a_4t^4_f+a_5t^5_f \f}
+    \f$ P_f=a_0+a_1t_f+a_2t^2_f+a_3t^3_f +a_4t^4_f+a_5t^5_f \f$
 
-    \f{equation} V_0=a_1 \f}
+    \f$ V_0=a_1 \f$
 
-    \f{equation} V_f=a_1+2a_2t_f+3a_3t^2_f+4a_4t^3_f+5a_5t^4_f \f}
+    \f$ V_f=a_1+2a_2t_f+3a_3t^2_f+4a_4t^3_f+5a_5t^4_f \f$
 
-    \f{equation} A_0=2a_2 \f}
+    \f$ A_0=2a_2 \f$
 
-    \f{equation} A_f=2a_2+6a_3t_f+12a_4t^2_f+20a_5t^3_f \f}
+    \f$ A_f=2a_2+6a_3t_f+12a_4t^2_f+20a_5t^3_f \f$
  *
  * From R. Volpe (JPL), we get some useful approximations for the blend times
  * between adjoining segments:
  *
  * For linear velocity blending as implemented in the original code.
  *
-    \f{equation} f'(s)=s \f}
+    \f$ f'(s)=s \f$
 
-    \f{equation} a=\frac{V_b-V_a}{2\tau} \f}
+    \f$ a=\frac{V_b-V_a}{2\tau} \f$
 
-    \f{equation} 2\tau=\frac{V_b-Va}{a_{max}} \f}
+    \f$ 2\tau=\frac{V_b-Va}{a_{max}} \f$
  *
  * For a third order polynomial
  *
-    \f{equation} f'(s)=-2s^3+3s^2 \f}
+    \f$ f'(s)=-2s^3+3s^2 \f$
 
-    \f{equation} a=\frac{(V_b-V_a)}{2\tau}(-6s^2+6s) \f}
+    \f$ a=\frac{(V_b-V_a)}{2\tau}(-6s^2+6s) \f$
 
-    \f{equation} 2\tau=\frac{V_b-V_A}{a_{max}}\frac{3}{2} \f}
+    \f$ 2\tau=\frac{V_b-V_A}{a_{max}}\frac{3}{2} \f$
  *
  * Finally, for a cycloid function
  *
-    \f{equation} f'(s)=\sin_2\frac{\pi}{2}s \f}
+    \f$ f'(s)=\sin_2\frac{\pi}{2}s \f$
 
-    \f{equation} a=\frac{(V_b-V_a)}{2\tau}\frac{\pi}{2}\sin\pi s \f}
+    \f$ a=\frac{(V_b-V_a)}{2\tau}\frac{\pi}{2}\sin\pi s \f$
 
-    \f{equation} 2\tau=\frac{V_b-Va}{a_{max}}\frac{\pi}{2}\f}
+    \f$ 2\tau=\frac{V_b-Va}{a_{max}}\frac{\pi}{2}\f$
  *
  * S. Mcfarlane gives a number of formulae for calculating the times and
  * distances for a cycloid blend. These are primarily concerned with finding
  * the min and max accelerations 
  *
-    \f{equation}
+    \f$
         D_1=a_{max}\Delta t^2_{max}\left (\frac{1}{4} - \frac{1}{\pi^2} \right )
             +V_1\Delta t_{max}
-    \f}
+    \f$
 
-    \f{equation}
-        D_2=\frac{V^2_b-V^2_a}{2a_{max}} \f}
+    \f$
+        D_2=\frac{V^2_b-V^2_a}{2a_{max}} \f$
 
-    \f{equation}
+    \f$
         D_3=a_{max}\Delta t^2_{max} \left (\frac{1}{4}+\frac{1}{\pi^2} \right )
             +V_b\Delta t_{max}
-    \f}
+    \f$
  *
  * Solve for \f$\Delta t\f$
  *
-    \f{equation}
+    \f$
             \delta t^3+\frac{\pi V_1}{j_{max}}\Delta t-\frac{\pi D}{2j_{max}}
             = 0
-    \f}
+    \f$
  *
  * If \f$(a_{peak}\Delta t > V_2-V_1) \f$
  *
-    \f{equation}
+    \f$
         \Delta t=\sqrt{\frac{\pi (V_2-V_1)}{2j_{max}}}
-    \f}
+    \f$
  *
  * It is also suggested that the fourth quintic control point is given by:
  *
-    \f{equation}
-        \Delta D = D - (V_2+V_1)\Delta t\f}
+    \f$
+        \Delta D = D - (V_2+V_1)\Delta t\f$
 
  *
  * The final output will end up as
  *
-    \f{equation}
-     Velocity = \frac{\Delta d}{\Delta t}\f}
+    \f$
+     Velocity = \frac{\Delta d}{\Delta t}\f$
 */
 
 #define ABORT		0xF0000000
