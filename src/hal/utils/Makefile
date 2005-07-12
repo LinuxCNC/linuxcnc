@@ -38,7 +38,8 @@ scope.c \
 scope_horiz.c \
 scope_vert.c \
 scope_trig.c \
-scope_disp.c
+scope_disp.c \
+m5i20cfg.c
 
 ifneq ($(MODULE_EXT),.ko)
 
@@ -58,6 +59,7 @@ endif
 
 BINS = \
 $(BIN_DIR)/halcmd \
+$(BIN_DIR)/m5i20cfg \
 $(GTK_BINS)
 
 all : headers $(LIBS) $(BINS) modules
@@ -139,6 +141,11 @@ $(LIB_DIR)/hal_lib.o
 $(BIN_DIR)/halscope : $(HALSCOPE_OBJS)
 	@ echo "Linking $@"
 	$(CC) $(GTK_LIBS) $(CFLAGS) $(ULFLAGS) $^ -o $@
+
+# rule to link m5i20cfg
+$(BIN_DIR)/m5i20cfg : $(TMP_DIR)/m5i20cfg.o
+	@ echo "Linking $@"
+	$(CC) $(CFLAGS) $^ -o $@
 
 .PHONY: all headers depend indent install modules clean kclean
 
