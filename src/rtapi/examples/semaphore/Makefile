@@ -12,6 +12,8 @@ PRIVHDRS = common.h
 # Sources
 SRCS =
 
+ifneq ($(MODULE_EXT),.ko)
+
 RT_SRCS = \
 master.c \
 slave.c
@@ -20,6 +22,8 @@ slave.c
 LIBS = \
 $(RTLIB_DIR)/master.o \
 $(RTLIB_DIR)/slave.o
+
+endif
 
 # Binaries to be created
 BINS =
@@ -36,7 +40,10 @@ indent: def_indent
 
 depend: def_depend
 
-clean: def_clean
+clean: def_clean kclean
 
-.PHONY: all headers depend indent install clean
+kclean:
+	- rm -f .*.cmd *.o *.mod.* *.ko
+	- rm -fR .tmp_versions
 
+.PHONY: all headers depend indent install clean kclean
