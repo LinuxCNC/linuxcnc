@@ -61,10 +61,6 @@ if [ `whoami` != root ] ; then
     exit -1
 fi
 
-# set LANG to allow awk, etc, to correctly parse numbers in 
-# the ini file
-LANG=C
-
 # Determine the EMC2 root directory
 # get name and (possibly relative) path of this script
 SCRIPT=`which $0 | grep $0`
@@ -443,21 +439,21 @@ if [ ! -n "$BASE_PERIOD_SEC" ] ; then
     Cleanup
     exit -1
 fi
-BASE_PERIOD_NSEC=`echo $BASE_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}'`
+BASE_PERIOD_NSEC=`echo $BASE_PERIOD_SEC | env LANG=C awk -- '{printf "%d\n", $1*1000000000}'`
 SERVO_PERIOD_SEC=`$INIVAR -ini $INIFILE -var SERVO_PERIOD -sec EMCMOT 2>>$DEBUG_FILE`
 if [ ! -n "$SERVO_PERIOD_SEC" ] ; then
     echo "Can't find variable SERVO_PERIOD in section [EMCMOT] of file $INIFILE."
     Cleanup
     exit -1
 fi
-SERVO_PERIOD_NSEC=`echo $SERVO_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}'`
+SERVO_PERIOD_NSEC=`echo $SERVO_PERIOD_SEC | env LANG=C awk -- '{printf "%d\n", $1*1000000000}'`
 TRAJ_PERIOD_SEC=`$INIVAR -ini $INIFILE -var TRAJ_PERIOD -sec EMCMOT 2>>$DEBUG_FILE`
 if [ ! -n "$TRAJ_PERIOD_SEC" ] ; then
     echo "Can't find variable TRAJ_PERIOD in section [EMCMOT] of file $INIFILE."
     Cleanup
     exit -1
 fi
-TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | awk -- '{printf "%d\n", $1*1000000000}'`
+TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | env LANG=C awk -- '{printf "%d\n", $1*1000000000}'`
 
 # load the motion module
 
