@@ -96,6 +96,12 @@ RANLIBFLAGS =
 # usually you need rtapi,
 # so you probably don't want to change this
 CONFIG_RTAPI=m
+# rtapi examples, don't get built unless make is executed in emc2/src/rtapi/examples
+CONFIG_RTAPI_EXAMPLES_EXTINT=m
+CONFIG_RTAPI_EXAMPLES_FIFO=m
+CONFIG_RTAPI_EXAMPLES_SEM=m
+CONFIG_RTAPI_EXAMPLES_SHMEM=m
+CONFIG_RTAPI_EXAMPLES_TIMER=m
 
 # emc motion module
 CONFIG_MOTMOD=m
