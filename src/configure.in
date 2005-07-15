@@ -130,6 +130,7 @@ if (test -z "$RTDIR" ); then
     AC_MSG_ERROR([RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
   elif (test `echo "$RTS" | wc -l` != 1 ) ; then
     AC_MSG_WARN([Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
+    AC_MSG_NOTICE([The following RT Signatures were found: $RTS])
     # It might be a case we have symlinks to the same file..
     RTS=`echo "$RTS" | head -n 1`
   fi

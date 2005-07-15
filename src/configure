@@ -1454,6 +1454,8 @@ echo "$as_me: error: RT not found, try to specify one by --with-rtai=<path>, --w
   elif (test `echo "$RTS" | wc -l` != 1 ) ; then
     { echo "$as_me:$LINENO: WARNING: Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&5
 echo "$as_me: WARNING: Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&2;}
+    { echo "$as_me:$LINENO: The following RT Signatures were found: $RTS" >&5
+echo "$as_me: The following RT Signatures were found: $RTS" >&6;}
     # It might be a case we have symlinks to the same file..
     RTS=`echo "$RTS" | head -n 1`
   fi
