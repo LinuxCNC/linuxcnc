@@ -28,7 +28,7 @@ else
 # Note: this file makes nothing itself, it merely changes to the
 # individual example directories and runs make there
 #
-include $(PWD)/../../Makefile.inc
+include ../../Makefile.inc
 
 ifndef KDIR
 KDIR := /lib/modules/$(shell uname -r)/build
