@@ -1400,7 +1400,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     int execRetval = 0;
 
 /*! \todo FIXME - debug */
-    printf("emcTaskIssueCommand()\n");
+    if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+    	printf("emcTaskIssueCommand()\n");
+    }
     if (0 == cmd) {
 	return 0;
     }
@@ -2032,7 +2034,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	}
     }
 /*! \todo FIXME - debug */
-    printf("emcTaskIssueCommand() returning: %d\n", retval);
+    if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+    	printf("emcTaskIssueCommand() returning: %d\n", retval);
+    }
     return retval;
 }
 
@@ -3043,6 +3047,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.36  2005/07/19 03:03:00  fenn
+  added checks for EMC_DEBUG level so certain debug messages aren't always printed
+
   Revision 1.35  2005/07/08 14:52:57  yabosukz
   fix error
 
