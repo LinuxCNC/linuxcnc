@@ -136,7 +136,8 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     double end;
 
 /*! \todo FIXME - debug 5 lines */
-printf ( "usrmotWriteEmcmotCommand()\n" );
+/* spams the screen, couldn't get EMC_DEBUG to work to shut it up*/
+/* printf ( "usrmotWriteEmcmotCommand()\n" ); */
 
     c->head = ++headCount;
     c->tail = c->head;
@@ -162,7 +163,8 @@ printf ( "usrmotWriteEmcmotCommand() COMM_ERROR_CONNECT (%d)\n", EMCMOT_COMM_ERR
 	if (0 == usrmotReadEmcmotStatus(&s) && s.commandNumEcho == commandNum) {
 	    /* now check emcmot status flag */
 	    if (s.commandStatus == EMCMOT_COMMAND_OK) {
-printf ( "usrmotWriteEmcmotCommand() success (%d)\n", EMCMOT_COMMAND_OK );
+	    /* spams the screen, couldn't get EMC_DEBUG to work */
+/* printf ( "usrmotWriteEmcmotCommand() success (%d)\n", EMCMOT_COMMAND_OK ); */
 		return EMCMOT_COMM_OK;
 	    } /* end of if */
 	    else {
@@ -561,7 +563,7 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	    printf("%f ", c.axisLimitVel[t]);
 	}
 	printf("\n");
-	printf("axis acc:  \t");
+	printf("axis acc: \t");
 	for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	    printf("%f ", c.axisLimitAcc[t]);
 	}
