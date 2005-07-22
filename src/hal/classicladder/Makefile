@@ -39,6 +39,7 @@ endif
 
 # Set local flags with the GTK flags.
 LOCAL_CFLAGS = $(GTK_CFLAGS)
+LOCAL_CFLAGS += -fstrict-aliasing -Wno-strict-aliasing
 
 ifdef SEQUENTIAL_SUPPORT
 LOCAL_CFLAGS += -DSEQUENTIAL_SUPPORT

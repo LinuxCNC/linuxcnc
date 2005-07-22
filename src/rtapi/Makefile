@@ -48,7 +48,7 @@ endif
 LIBS += \
 $(LIB_DIR)/ulapi.o 
 
-all: rtapi.conf headers $(LIBS) modules
+all: rtapi.conf headers $(LIBS) modules examples
 
 # Generic rules
 include ../Make.rules
@@ -83,11 +83,11 @@ modules_install:
 
 endif
 
-examples:
-	(cd examples; make all)
-
 headers: def_headers
 	(cd examples; make $@)
+
+examples:
+	(cd examples; make all)
 
 indent: def_indent
 	(cd examples; make $@)

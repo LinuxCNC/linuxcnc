@@ -52,7 +52,7 @@ clean: kclean
 # all older system build the traditional way
 ifeq ($(BUILD_SYS),kbuild)
 
-modules: headers
+modules:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
 	- cp *.ko $(RTLIB_DIR)/
 

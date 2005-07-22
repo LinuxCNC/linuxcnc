@@ -31,6 +31,8 @@ $(BIN_DIR)/shmemusr
 
 all : headers $(LIBS) $(BINS)
 
+LOCAL_CFLAGS = -fstrict-aliasing -Wno-strict-aliasing
+
 # Generic rules
 include $(SRC_DIR)/Make.rules
 

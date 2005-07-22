@@ -33,26 +33,10 @@ include Makefile.inc
 # level code that might depend on it
 
 all headers indent :
-	@ if [ ! -d $(INC_DIR) ] ; then \
-	  echo "Create include directory $(INC_DIR)" ;\
-	  mkdir $(INC_DIR) ;\
-	fi
 	(cd rtapi; make headers)
 	(cd libnml; make headers)
 	(cd emc; make headers)
 	(cd hal; make headers)
-	@ if [ ! -d $(BIN_DIR) ] ; then \
-	  echo "Create binary directory $(BIN_DIR)" ;\
-	  mkdir $(BIN_DIR) ;\
-	fi
-	@ if [ ! -d $(LIB_DIR) ] ; then \
-	  echo "Create library directory $(LIB_DIR)" ;\
-	  mkdir $(LIB_DIR) ;\
-	fi
-	@ if [ ! -d $(RTLIB_DIR) ] ; then \
-	  echo "Create realtime library directory $(RTLIB_DIR)" ;\
-	  mkdir $(RTLIB_DIR) ;\
-	fi
 	(cd rtapi; make $@)
 	(cd libnml; make $@)
 	(cd hal; make $@)
