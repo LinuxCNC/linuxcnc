@@ -23,6 +23,11 @@
 *     limit1 = first order limiter (limits output)
 *     limit2 = second order limiter (limits output and 1st derivative)
 *     limit3 = third order limiter (limits output, 1st & 2nd derivative)
+*     not = logical inverter - out is true if in is false
+*     and2 = 2 input logical and - out is true if in1 and in2 are true
+*     or2 = 2 input logical or - out is true if in1 or in2 is true
+*     scale = gain/offset block - out = in * gain + offset
+*     lowpass = lowpass filter - out = last_out * (1 - gain) + in * gain
 *
 *********************************************************************
 *
@@ -101,6 +106,22 @@ MODULE_PARM_DESC(limit3, "third order limiters");
 static int n_estop = 0;		/* number of estop blocks */
 MODULE_PARM(n_estop, "i");
 MODULE_PARM_DESC(n_estop, "estop latch blocks");
+static int not = 0;            /* number of 2-input logical ands */
+MODULE_PARM(not, "i");
+MODULE_PARM_DESC(not, "logical inverters");
+static int and2 = 0;            /* number of 2-input logical ands */
+MODULE_PARM(and2, "i");
+MODULE_PARM_DESC(and2, "2-input logical ands");
+static int or2 = 0;            /* number of 2-input logical ors */
+MODULE_PARM(or2, "i");
+MODULE_PARM_DESC(or2, "2-input logical ors");
+static int scale = 0;            /* number of scales */
+MODULE_PARM(scale, "i");
+MODULE_PARM_DESC(scale, "scales");
+static int lowpass = 0;            /* number of lowpass-filters */
+MODULE_PARM(lowpass, "i");
+MODULE_PARM_DESC(lowpass, "lowpass-filters");
+
 #endif /* MODULE */
 
 /***********************************************************************
@@ -192,7 +213,6 @@ typedef struct {
     double old_v;		/* previous 1st derivative */
 } limit3_t;
 
-
 typedef struct {
     hal_bit_t *in;		/* pin: input from hardware chain */
     hal_bit_t *out;		/* pin: output */
@@ -201,7 +221,36 @@ typedef struct {
     hal_bit_t old_reset;	/* internal, for rising edge detect */
 } estop_t;
 
+typedef struct {
+    hal_bit_t *in;		/* pin: input 0 */
+    hal_bit_t *out;		/* pin: output  */
+} not_t;
 
+typedef struct {
+    hal_bit_t *in0;		/* pin: input 0 */
+    hal_bit_t *in1;		/* pin: input 1 */
+    hal_bit_t *out;		/* pin: output  */
+} and2_t;
+
+typedef struct {
+    hal_bit_t *in0;		/* pin: input 0 */
+    hal_bit_t *in1;		/* pin: input 1 */
+    hal_bit_t *out;		/* pin: output  */
+} or2_t;
+
+typedef struct {
+    hal_float_t *in;		/* pin: input  */
+    hal_float_t *out;		/* pin: output */
+    hal_float_t gain;		/* param: gain */
+    hal_float_t offset;		/* param: offset */
+} scale_t;
+
+typedef struct {
+    hal_float_t *in;		/* pin: input  */
+    hal_float_t *out;		/* pin: output */
+    hal_float_t gain;		/* param: gain */
+    double last_out;		/* prevoius output */
+} lowpass_t;
 
 
 /* other globals */
@@ -223,6 +272,11 @@ static int export_limit1(int num);
 static int export_limit2(int num);
 static int export_limit3(int num);
 static int export_estop(int num);
+static int export_not(int num);
+static int export_and2(int num);
+static int export_or2(int num);
+static int export_scale(int num);
+static int export_lowpass(int num);
 
 static void constant_funct(void *arg, long period);
 static void wcomp_funct(void *arg, long period);
@@ -236,6 +290,12 @@ static void limit1_funct(void *arg, long period);
 static void limit2_funct(void *arg, long period);
 static void limit3_funct(void *arg, long period);
 static void estop_funct(void *arg, long period);
+static void not_funct(void *arg, long period);
+static void and2_funct(void *arg, long period);
+static void or2_funct(void *arg, long period);
+static void scale_funct(void *arg, long period);
+static void lowpass_funct(void *arg, long period);
+
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -407,7 +467,71 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d estop latch blocks\n", n_estop);
     }
-   
+    /* allocate and export 2 input logical ands */
+    if (not > 0) {
+	for (n = 0; n < not; n++) {
+	    if (export_not(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_not(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d logical inverters\n", not);
+    }
+    /* allocate and export 2 input logical ands */
+    if (and2 > 0) {
+	for (n = 0; n < and2; n++) {
+	    if (export_and2(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_and2(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d 2-input logical ands\n", and2);
+    }
+    /* allocate and export 2 input logical ors */
+    if (or2 > 0) {
+	for (n = 0; n < or2; n++) {
+	    if (export_or2(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_or2(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d 2-input logical ors\n", or2);
+    }
+    /* allocate and export scalers */
+    if (scale > 0) {
+	for (n = 0; n < scale; n++) {
+	    if (export_scale(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_scale(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d scalers\n", scale);
+    }
+    /* allocate and export lowpass filters */
+    if (lowpass > 0) {
+	for (n = 0; n < lowpass; n++) {
+	    if (export_lowpass(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_lowpass(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d lowpass filters\n", lowpass);
+    }
     return 0;
 }
 
@@ -606,16 +730,16 @@ static void limit3_funct(void *arg, long period)
     /* determine v and out that can be reached in one period */
     min_v = limit3->old_v - limit3->maxa * dt;
     if ( min_v < -limit3->maxv ) {
-        min_v = -limit3->maxv;
+	min_v = -limit3->maxv;
     }
     max_v = limit3->old_v + limit3->maxa * dt;
     if ( max_v > limit3->maxv ) {
-        max_v = limit3->maxv;
+	max_v = limit3->maxv;
     }
     min_out = limit3->old_out + min_v * dt;
     max_out = limit3->old_out + max_v * dt;
     if ( ( in >= min_out ) && ( in <= max_out ) && ( in_v >= min_v ) && ( in_v <= max_v ) ) {
-        /* we can follow the command without hitting a limit */
+	/* we can follow the command without hitting a limit */
 	out = in;
 	limit3->old_v = ( out - limit3->old_out ) / dt;
     } else {
@@ -697,6 +821,56 @@ static void estop_funct(void *arg, long period)
     estop->old_reset = *(estop->reset);
 }
 
+
+static void not_funct(void *arg, long period)
+{
+    not_t *not;
+
+    /* point to block data */
+    not = (not_t *) arg;
+    /* calculate output */
+    *(not->out) = ! *(not->in);
+}
+
+static void and2_funct(void *arg, long period)
+{
+    and2_t *and2;
+
+    /* point to block data */
+    and2 = (and2_t *) arg;
+    /* calculate output */
+    *(and2->out) = *(and2->in0) && *(and2->in1);
+}
+
+static void or2_funct(void *arg, long period)
+{
+    or2_t *or2;
+
+    /* point to block data */
+    or2 = (or2_t *) arg;
+    /* calculate output */
+    *(or2->out) = *(or2->in0) || *(or2->in1);
+}
+
+static void scale_funct(void *arg, long period)
+{
+    scale_t *scale;
+
+    /* point to block data */
+    scale = (scale_t *) arg;
+    /* calculate output */
+    *(scale->out) = *(scale->in) * scale->gain + scale->offset;
+}
+
+static void lowpass_funct(void *arg, long period)
+{
+    lowpass_t *lowpass;
+
+    /* point to block data */
+    lowpass = (lowpass_t *) arg;
+    /* calculate output */
+    *(lowpass->out) += (*(lowpass->in) - *(lowpass->out)) * lowpass->gain;
+}
 
     
 /***********************************************************************
@@ -1493,6 +1667,294 @@ static int export_estop(int num)
     }
     /* initialize internal vars */
     estop->old_reset = 104;
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_not(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    not_t *not;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for 2-input logical and */
+    not = hal_malloc(sizeof(not_t));
+    if (and2 == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pin for input */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "not.%d.in", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(not->in), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "not.%d.out", num);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(not->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "not.%d", num);
+    retval = hal_export_funct(buf, not_funct, not, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_and2(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    and2_t *and2;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for 2-input logical and */
+    and2 = hal_malloc(sizeof(and2_t));
+    if (and2 == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pins for inputs */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "and2.%d.in0", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(and2->in0), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "and2.%d.in1", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(and2->in1), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "and2.%d.out", num);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(and2->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "and2.%d", num);
+    retval = hal_export_funct(buf, and2_funct, and2, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_or2(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    or2_t *or2;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for 2-input logical or */
+    or2 = hal_malloc(sizeof(or2_t));
+    if (or2 == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pins for inputs */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "or2.%d.in0", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(or2->in0), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "or2.%d.in1", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(or2->in1), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "or2.%d.out", num);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(or2->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "or2.%d", num);
+    retval = hal_export_funct(buf, or2_funct, or2, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_scale(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    scale_t *scale;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for scaler */
+    scale = hal_malloc(sizeof(scale_t));
+    if (scale == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pins for inputs */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "scale.%d.in", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(scale->in), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "scale.%d.out", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(scale->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export params for gains */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "scale.%d.gain", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(scale->gain), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "scale.%d.offset", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(scale->offset), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "scale.%d", num);
+    retval = hal_export_funct(buf, scale_funct, scale, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* set default parameter values */
+    scale->gain   = 1.0;
+    scale->offset = 0.0;
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+
+static int export_lowpass(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    lowpass_t *lowpass;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for lowpass filter */
+    lowpass = hal_malloc(sizeof(lowpass_t));
+    if (lowpass == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pins for inputs */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "lowpass.%d.in", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(lowpass->in), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "lowpass.%d.out", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(lowpass->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export params for gains */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "lowpass.%d.gain", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(lowpass->gain), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "lowpass.%d", num);
+    retval = hal_export_funct(buf, lowpass_funct, lowpass, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* set default parameter values */
+    lowpass->gain = 1.0;
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
