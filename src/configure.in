@@ -379,6 +379,12 @@ else
   fi
 fi
 
+if test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
+  WFLAGS="-Wno-strict-aliasing"
+else
+  WFLAGS=""
+fi
+AC_SUBST([WFLAGS])
 
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
