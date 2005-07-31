@@ -1,0 +1,18 @@
+# core HAL config file for simulation
+
+# create HAL signals for position commands from motion module
+newsig Xpos-cmd float
+linksp Xpos-cmd <= axis.0.motor-pos-cmd
+newsig Ypos-cmd float
+linksp Ypos-cmd <= axis.1.motor-pos-cmd
+newsig Zpos-cmd float
+linksp Zpos-cmd <= axis.2.motor-pos-cmd
+
+# loop position commands back to motion module feedback
+linksp Xpos-cmd => axis.0.motor-pos-fb
+linksp Ypos-cmd => axis.1.motor-pos-fb
+linksp Zpos-cmd => axis.2.motor-pos-fb
+
+# load realtime portion of scope, just to have it handy
+loadrt scope_rt
+
