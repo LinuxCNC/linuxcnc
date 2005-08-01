@@ -5,9 +5,76 @@
         
     Installation of the driver only realtime:
     
-    insmod hal_stg base=0x200 num_chan=8
+	insmod hal_stg num_chan=8
+	    - autodetects the address
+	or
+    
+	insmod hal_stg base=0x200 num_chan=8
     
     Check your Hardware manual for your base address.
+    
+    The following items are exported to the HAL.
+   
+    Encoders:
+      Parameters:
+/totest	float	stg.<channel>.enc-scale
+   
+      Pins:
+/totest	s32	stg.<channel>.enc-counts
+/totest	float	stg.<channel>.enc-position
+
+/todo   bit	stg.<channel>.enc-index
+/todo  	bit	stg.<channel>.enc-idx-latch
+/todo  	bit	stg.<channel>.enc-latch-index
+/todo  	bit	stg.<channel>.enc-reset-count
+   
+      Functions:
+/totest void    stg.<channel>.capture_position
+   
+   
+    DACs:
+      Parameters:
+/todo  	float	stg.<channel>.dac-offset
+/todo  	float	stg.<channel>.dac-gain
+   
+      Pins:
+/todo  	float	stg.<channel>.dac-value
+   
+      Functions:
+/todo  	void    stg.<channel>.dac_write
+   
+   
+    ADC:
+      Parameters:
+/todo  	float	stg.<channel>.adc-offset
+/todo  	float	stg.<channel>.adc-gain
+   
+      Pins:
+/todo  	float	stg.<channel>.adc-value
+   
+      Functions:
+/todo  	void    stg.<channel>.adc_read
+   
+   
+    Digital In:
+      Pins:
+/todo  	bit	stg.<channel>.pin-in
+/todo  	bit	stg.<channel>.pin-in-not
+   
+      Functions:
+/todo  	void    stg.<channel>.digital_in_read
+   
+   
+    Digital Out:
+      Parameters:
+/todo  	bit	stg.<channel>.pin-out-invert
+   
+      Pins:
+/todo  	bit	stg.<channel>.pin-out
+   
+      Functions:
+/todo  	void    stg.<channel>.digital_out_write
+
 */
 
 /** Copyright (C) 2004 Alex Joni
@@ -50,6 +117,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
+#include "hal_stg.h"		/* STG related defines */
 
 #define FASTIO
 
@@ -60,7 +128,6 @@
 #include <asm/io.h>
 #endif
 #endif
-
 
 #ifndef MODULE
 #define MODULE
@@ -73,9 +140,9 @@ MODULE_DESCRIPTION("Driver for Servo-to-Go Model I for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
-static int base = 0x400;	/* board base address */
+static int base = 0x000;	/* board base address, 0 means autodetect */
 MODULE_PARM(base, "i");
-MODULE_PARM_DESC(base, "board base address");
+MODULE_PARM_DESC(base, "board base address, don't use for autodetect");
 static int num_chan = 8;	/* number of channels - default = 8 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
@@ -94,27 +161,33 @@ typedef struct {
     hal_s32_t *count;		/* captured binary count value */
     hal_float_t *pos;		/* scaled position (floating point) */
     hal_float_t pos_scale;	/* parameter: scaling factor for pos */
-} counter_t;
+} counter;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
-static counter_t *counter_array;
+static counter *counter_array;
 
 /* other globals */
-static int comp_id;								/* component ID */
+static int comp_id;		/* component ID */
 
-#define DATA(x) (base + (2 * x) - (x % 2))  	/* Address of Data register 0*/
-#define CTRL(x) (base + (2 * (x+1)) - (x % 2)) 	/* Address of Control register 0*/
-
+#define DATA(x) (base + (2 * x) - (x % 2))	/* Address of Data register 0 
+						 */
+#define CTRL(x) (base + (2 * (x+1)) - (x % 2))	/* Address of Control
+						   register 0 */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_counter(int num, counter_t * addr);
+static int export_counter(int num, counter * addr);
 static void capture(void *arg, long period);
+
+/* initializes the STG, takes care of autodetection, all initialisations */
+static int stg_init_card(void);
+/* scans possible addresses for STG cards */
+unsigned short stg_autodetect(void);
+
 int CNTInit(int ch);
 long CNTRead(int i);
-
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -139,30 +212,37 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* allocate shared memory for counter data */
-    counter_array = hal_malloc(num_chan * sizeof(counter_t));
+    counter_array = hal_malloc(num_chan * sizeof(counter));
     if (counter_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STG: ERROR: hal_malloc() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
+    /* takes care of all initialisations, also autodetection if necessary */
+    if (stg_init_card() != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "STG: ERROR: stg_init_card() failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+
     /* export all the variables for each counter */
     for (n = 0; n < num_chan; n++) {
-		/* export all vars */
-		retval = export_counter(n, &(counter_array[n]));
-		if (retval != 0) {
-			rtapi_print_msg(RTAPI_MSG_ERR,
-			"STG: ERROR: counter %d var export failed\n", n + 1);
-			hal_exit(comp_id);
-			return -1;
-		}
-		/* init counter */
-		*(counter_array[n].count) = 0;
-		*(counter_array[n].pos) = 0.0;
-		counter_array[n].pos_scale = 1.0;
-		
-		/* init counter chip */		
-		CNTInit(n);
+	/* export all vars */
+	retval = export_counter(n, &(counter_array[n]));
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"STG: ERROR: counter %d var export failed\n", n + 1);
+	    hal_exit(comp_id);
+	    return -1;
+	}
+	/* init counter */
+	*(counter_array[n].count) = 0;
+	*(counter_array[n].pos) = 0.0;
+	counter_array[n].pos_scale = 1.0;
+
+	/* init counter chip */
+	CNTInit(n);
     }
     /* export functions */
     retval = hal_export_funct("stg.capture_position", capture,
@@ -203,7 +283,7 @@ void rtapi_app_exit(void)
 
 static void capture(void *arg, long period)
 {
-    counter_t *cntr;
+    counter *cntr;
     int n;
 
     cntr = arg;
@@ -219,7 +299,6 @@ static void capture(void *arg, long period)
     /* done */
 }
 
-
 /***********************************************************************
 *                      BOARD SPECIFIC FUNCTIONS                        *
 ************************************************************************/
@@ -229,51 +308,54 @@ static void capture(void *arg, long period)
 
 int CNTInit(int ch)
 {
-	/* Set Counter Command Register - Master Control, Master Reset (MRST), */
-	/* and Reset address pointer (RADR). */
-	rtapi_outb(CTRL(ch), 0x23);
+    /* Set Counter Command Register - Master Control, Master Reset (MRST), */
+    /* and Reset address pointer (RADR). */
+    rtapi_outb(CTRL(ch), 0x23);
 
-	/* Set Counter Command Register - Input Control, OL Load (P3), */
-	/* and Enable Inputs A and B (INA/B). */
-	rtapi_outb(CTRL(ch), 0x68);
+    /* Set Counter Command Register - Input Control, OL Load (P3), */
+    /* and Enable Inputs A and B (INA/B). */
+    rtapi_outb(CTRL(ch), 0x68);
 
-	/* Set Counter Command Register - Output Control */
-	rtapi_outb(CTRL(ch), 0x80);
-        
-	/* Set Counter Command Register - Quadrature */
-	rtapi_outb(CTRL(ch), 0xC3);
-	return 0;
+    /* Set Counter Command Register - Output Control */
+    rtapi_outb(CTRL(ch), 0x80);
+
+    /* Set Counter Command Register - Quadrature */
+    rtapi_outb(CTRL(ch), 0xC3);
+    return 0;
 }
-
 
 /*
   CNTRead() - reads one channel
 */
 long CNTRead(int i)
 {
-  union pos_tag {
-    long l;
-    struct byte_tag { char b0; char b1; char b2; char b3;} byte;
-  } pos;
+    union pos_tag {
+	long l;
+	struct byte_tag {
+	    char b0;
+	    char b1;
+	    char b2;
+	    char b3;
+	} byte;
+    } pos;
 
-  rtapi_outb(CTRL(i), 0x03);
-  pos.byte.b0=rtapi_inb(DATA(i));
-  pos.byte.b1=rtapi_inb(DATA(i));
-  pos.byte.b2=rtapi_inb(DATA(i));
-  if (pos.byte.b2 < 0) {
-    pos.byte.b3 = -1;
-  }
-  else {
-    pos.byte.b3 = 0;
-  }
-  return pos.l;
+    rtapi_outb(CTRL(i), 0x03);
+    pos.byte.b0 = rtapi_inb(DATA(i));
+    pos.byte.b1 = rtapi_inb(DATA(i));
+    pos.byte.b2 = rtapi_inb(DATA(i));
+    if (pos.byte.b2 < 0) {
+	pos.byte.b3 = -1;
+    } else {
+	pos.byte.b3 = 0;
+    }
+    return pos.l;
 }
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_counter(int num, counter_t * addr)
+static int export_counter(int num, counter * addr)
 {
     int retval, msg;
     char buf[HAL_NAME_LEN + 2];
@@ -306,4 +388,53 @@ static int export_counter(int num, counter_t * addr)
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
+}
+
+static int stg_init_card()
+{
+    if (base == 0x00) {
+	base = stg_autodetect();
+    }
+    if (base == 0x00) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no STG card found\n");
+	return -1;
+    }
+    // all ok
+    return 0;
+}
+
+/* scans possible addresses for STG cards */
+unsigned short stg_autodetect()
+{
+
+    short i, j, k, ofs;
+    unsigned short address;
+
+    /* search all possible addresses */
+    for (i = 15; i >= 0; i--) {
+	address = i * 0x20 + 0x200;
+
+	/* does jumper = i? */
+	if ((rtapi_inb(address + BRDTST) & 0x0f) == i) {
+	    k = 0;		// var for getting the serial
+	    for (j = 0; j < 8; j++) {
+		ofs = (rtapi_inb(address + BRDTST) >> 4);
+
+		if (ofs & 8) {	/* is SER set? */
+		    ofs = ofs & 7;	/* mask for Q2,Q1,Q0 */
+		    k += (1 << ofs);	/* shift bit into position specified
+					   by Q2, Q1, Q0 */
+		}
+	    }
+	    if (k == 0x75)
+		return address;	/* SER sequence is 01110101 */
+	    if (k == 0x74) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "STG: ERROR: found version 2 card, not suported by this driver\n");
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+    }
+    return (0);
 }
