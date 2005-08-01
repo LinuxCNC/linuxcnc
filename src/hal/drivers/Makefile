@@ -28,6 +28,7 @@ endif
 
 obj-$(CONFIG_HAL_PARPORT) := hal_parport.o
 obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
+obj-$(CONFIG_HAL_STG) += hal_stg.o
 obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
 obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
 obj-$(CONFIG_HAL_MOTENC) += hal_m5i20.o
@@ -45,7 +46,7 @@ include ../../Makefile.inc
 HEADERS =
 
 # Private headers
-PRIVHDRS = motenc.h m5i20.h plx9030.h m5i20_HM4E-5.h
+PRIVHDRS = motenc.h m5i20.h plx9030.h m5i20_HM5-4E.h
 
 SRCS = \
 hal_parport.c \
@@ -56,6 +57,7 @@ ifneq ($(MODULE_EXT),.ko)
 RT_SRCS = \
 hal_parport.c \
 hal_tiro.c \
+hal_stg.c \
 hal_evoreg.c \
 hal_motenc.c \
 hal_m5i20.c \
@@ -65,6 +67,7 @@ hal_skeleton.c
 LIBS = \
 $(RTLIB_DIR)/hal_parport.o \
 $(RTLIB_DIR)/hal_tiro.o \
+$(RTLIB_DIR)/hal_stg.o \
 $(RTLIB_DIR)/hal_evoreg.o \
 $(RTLIB_DIR)/hal_motenc.o \
 $(RTLIB_DIR)/hal_m5i20.o \
