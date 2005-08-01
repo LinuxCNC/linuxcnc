@@ -26,6 +26,15 @@
 #include "tc.h"
 #include "tp.h"
 
+// FIXME - debug only, remove later
+#include <hal.h>
+#include "../motion/motion.h"
+#include "../motion/mot_priv.h"
+
+// FIXME - debug only, remove later
+int print = 0;
+int output_chan = 0;
+
 int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
 {
     if (0 == tp) {
@@ -105,7 +114,7 @@ int tpInit(TP_STRUCT * tp)
     tp->currentPos.a = 0.0;
     tp->currentPos.b = 0.0;
     tp->currentPos.c = 0.0;
-
+    
     return tpClear(tp);
 }
 
@@ -312,6 +321,10 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     PmPose tran_pose, goal_tran_pose;
     PmPose abc_pose, goal_abc_pose;
 
+    // FIXME - debug only, remove later
+    rtapi_print("tpAddLine()\n");
+    print = 10;
+
     if (0 == tp) {
 	return -1;
     }
@@ -353,9 +366,13 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tcSetLine(&tc, line, line_abc);
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
-/*! \todo Another #if 0 */
+    
+    // FIXME - debug only, remove later
+    tc.output_chan = output_chan;
+    if ( ++output_chan >= 4 ) { output_chan = 0; }
+    
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - this is part of synchronous I/O*/
     if (tp->douts) {
 	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
 	tp->douts = 0;
@@ -383,6 +400,10 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     PmLine line_abc;
     PmPose endPose, circleGoalPose;
     PmPose abc_pose, goal_abc_pose;
+
+    // FIXME - debug only, remove later
+    rtapi_print("tpAddCircle()\n");
+    print = 10;
 
     if (0 == tp) {
 	return -1;
@@ -425,9 +446,14 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tcSetCircle(&tc, circle, line_abc);
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
-/*! \todo Another #if 0 */
+    
+    // FIXME - debug only, remove later
+    tc.output_chan = output_chan;
+    if ( ++output_chan >= 4 ) { output_chan = 0; }
+    
+   
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - this is part of synchronous I/O*/
     if (tp->douts) {
 	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
 	tp->douts = 0;
@@ -470,6 +496,12 @@ int tpRunCycle(TP_STRUCT * tp)
     double preVMax = 0.0;
     double preAMax = 0.0;
 
+    // FIXME - debug only, remove later
+    int n;
+    
+    // FIXME - debug only, remove later
+    if (print) { print--; }
+    
     if (0 == tp) {
 	return -1;
     }
@@ -490,9 +522,24 @@ int tpRunCycle(TP_STRUCT * tp)
 
     /* run all TCs at and before this one */
     tp->activeDepth = 0;
+    
+    // FIXME - debug only, remove later
+    for ( n = 0 ; n < 4 ; n++ ) {
+	emcmot_hal_data->tc_pos[n] = 0.0;
+	emcmot_hal_data->tc_vel[n] = 0.0;
+	emcmot_hal_data->tc_acc[n] = 0.0;
+    }
+   
+    // FIXME - debug only, remove later
+    if ( tcqLen(&tp->queue) > 0 ) { print = 10; }
+    if (print) {rtapi_print("Queue len: %d\n", tcqLen(&tp->queue));}
+    
+    /* this loops over the TC_STRUCT queue */
     for (t = 0; t < tcqLen(&tp->queue); t++) {
 	lastTcWasPureRotation = thisTcIsPureRotation;
+	/* get a pointer to a TC_STRUCT in the queue */
 	thisTc = tcqItem(&tp->queue, t, 0);
+	/* if missing or finished, plan to remove it */
 	if (0 == thisTc || tcIsDone(thisTc)) {
 	    if (t <= toRemove) {
 		toRemove++;
@@ -553,16 +600,19 @@ int tpRunCycle(TP_STRUCT * tp)
 		preAMax = 0.0;
 	    }
 	}
-
+	/* here we calculate the contribution to motion of a single
+	   line or circle, which may later be blended with others */
 	before = tcGetPos(thisTc);
 	tcSetPremax(thisTc, preVMax, preAMax);
 	tcRunCycle(thisTc);
 	after = tcGetPos(thisTc);
+	
 	if (tp->activeDepth <= toRemove) {
 	    tp->execId = tcGetId(thisTc);
 	}
-
+	/* calculate the move contributed by this TC */
 	pmCartCartSub(after.tran, before.tran, &after.tran);
+	/* add it to the running sum */
 	pmCartCartAdd(sumPos.tran, after.tran, &sumPos.tran);
 	sumPos.a += after.a - before.a;
 	sumPos.b += after.b - before.b;
@@ -586,19 +636,26 @@ int tpRunCycle(TP_STRUCT * tp)
 	    thisAccel = tcGetAccel(thisTc);
 	    thisVel = tcGetVel(thisTc);
 	    unitCart = tcGetUnitCart(thisTc);
+	    
 	    pmCartScalMult(unitCart, thisAccel, &thisAccelCart);
 	    pmCartCartAdd(thisAccelCart, accelCart, &accelCart);
+	    
 	    pmCartScalMult(unitCart, thisVel, &thisVelCart);
 	    pmCartCartAdd(thisVelCart, velCart, &velCart);
+	    /* continue looping to get next TC */
 	    continue;
 	} else {
 	    /* this one is either accelerating or constant-- no room for any
 	       more blending */
 	    preVMax = 0.0;
 	    preAMax = 0.0;
+	    /* exit loop, nothing else to blend */
 	    break;
 	}
-    }
+    } /* end of loop over TC_STRUCT queue */
+
+    // FIXME - debug only, remove later
+    emcmot_hal_data->traj_active_tc = tp->activeDepth;
 
     if (toRemove > 0) {
 	tcqRemove(&tp->queue, toRemove);
@@ -616,19 +673,22 @@ int tpRunCycle(TP_STRUCT * tp)
     tp->currentPos.b += sumPos.b;
     tp->currentPos.c += sumPos.c;
 
+    // FIXME - debug only, remove later
+    emcmot_hal_data->traj_pos_out = tp->currentPos.tran.x;
+    emcmot_hal_data->traj_vel_out = sumPos.tran.x / tp->cycleTime;
+    
     /* check for abort done */
     if (tp->aborting && (tpIsPaused(tp) || tpIsDone(tp))) {
 	/* all paused and we're aborting-- clear out the TP queue */
 	/* first set the motion outputs to the end values for the current
 	   move */
-/*! \todo Another #if 0 */
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - this is part of synchronous I/O*/
 	if (tp->douts && 0 != thisTc) {
 	    /* Fred's original code.. tcDoutByte |= (thisTc->douts &
-	             thisTc->doutends); tcDoutByte &= (~thisTc->douts |
-	             thisTc->doutends); extMotDout(tcDoutByte); */
-	      extDioWrite(thisTc->doutIndex, thisTc->doutends);
+	          thisTc->doutends); tcDoutByte &= (~thisTc->douts |
+	          thisTc->doutends); extMotDout(tcDoutByte); */
+	    extDioWrite(thisTc->doutIndex, thisTc->doutends);
 	}
 #endif
 	tcqInit(&tp->queue);
@@ -708,17 +768,6 @@ EmcPose tpGetPos(TP_STRUCT * tp)
     EmcPose retval;
 
     if (0 == tp) {
-
-	/*! \todo FIXME - this is a bug waiting to happen... it returns a pointer to
-	   an EmcPose structure that is declared locally, ie. on the stack!
-	   That struct goes out of scope as soon as this function returns.  I
-	   expect the only reason it hasn't caused problems is that nobody
-	   ever calls this function with tp = 0
-
-	   N.B: This is no different to declaring an int retval within the body
-	   of a function and returning it. Returning a struct is no different.
-	   Note: This is a struct, not a pointer that is being returned.
-	 */
 	retval.tran.x = retval.tran.y = retval.tran.z = 0.0;
 	retval.a = retval.b = retval.c = 0.0;
 	return retval;
@@ -814,9 +863,8 @@ void tpPrint(TP_STRUCT * tp)
 #endif				/* ULAPI */
 }
 
-/*! \todo Another #if 0 */
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - this is part of synchronous I/O */
 
 int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
 	      double end)

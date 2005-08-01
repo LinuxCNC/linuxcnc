@@ -97,6 +97,14 @@ typedef struct {
     hal_bit_t debug_bit_1;	/* RPA: generic param, for debugging */
     hal_float_t debug_float_0;	/* RPA: generic param, for debugging */
     hal_float_t debug_float_1;	/* RPA: generic param, for debugging */
+    
+    // FIXME - debug only, remove later
+    hal_float_t traj_pos_out;	/* RPA: traj internals, for debugging */
+    hal_float_t traj_vel_out;	/* RPA: traj internals, for debugging */
+    hal_u8_t traj_active_tc;	/* RPA: traj internals, for debugging */
+    hal_float_t tc_pos[4];	/* RPA: traj internals, for debugging */
+    hal_float_t tc_vel[4];	/* RPA: traj internals, for debugging */
+    hal_float_t tc_acc[4];	/* RPA: traj internals, for debugging */
 
     axis_hal_t axis[EMCMOT_MAX_AXIS];	/* data for each axis */
 

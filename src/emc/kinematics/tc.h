@@ -65,19 +65,18 @@ typedef struct {
     double abc_vMax;		/* maximum rotational velocity */
     double abc_aMax;		/* maximum rotational accelleration */
     PmCartesian unitCart;
-/*! \todo Another #if 0 */
+    int output_chan;		/* output channel used for HAL stuff */
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - these are needed for synchronous I/O */
-      unsigned char douts;	/* mask for douts to set */
-      int doutIndex;		/* index for dout value */
-      unsigned char doutstarts;	/* mask for dout start vals */
-      unsigned char doutends;	/* mask for dout end vals */
+    unsigned char douts;	/* mask for douts to set */
+    int doutIndex;		/* index for dout value */
+    unsigned char doutstarts;	/* mask for dout start vals */
+    unsigned char doutends;	/* mask for dout end vals */
 #endif
 } TC_STRUCT;
 
-/*! \todo Another #if 0 */
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - needed for synchronous I/O */
 extern unsigned char tcDoutByte;
 #endif
 
@@ -113,11 +112,11 @@ extern int tcIsPaused(TC_STRUCT * tc);
 extern void tcPrint(TC_STRUCT * tc);
 extern double tcRunPreCycle(const TC_STRUCT * tc);
 extern int tcForceCycle(TC_STRUCT * tc, double ratio);
-/*! \todo Another #if 0 */
+
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - needed for synchronous I/O */
 extern int tcSetDout(TC_STRUCT * tc, int index, unsigned char starts,
-		      unsigned char ends);
+		     unsigned char ends);
 #endif
 
 /* queue of TC_STRUCT elements*/

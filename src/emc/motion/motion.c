@@ -367,6 +367,49 @@ static int init_hal_io(void)
 	return retval;
     }
 
+    // FIXME - debug only, remove later
+    // export HAL parameters for some trajectory planner internal variables
+    // so they can be scoped
+    rtapi_snprintf(buf, HAL_NAME_LEN, "traj.pos_out");
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->traj_pos_out),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "traj.vel_out");
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->traj_vel_out),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "traj.active_tc");
+    retval =
+	hal_param_u8_new(buf, HAL_RD, &(emcmot_hal_data->traj_active_tc),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    for ( n = 0 ; n < 4 ; n++ ) {
+	rtapi_snprintf(buf, HAL_NAME_LEN, "tc.%d.pos", n);
+	retval = hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->tc_pos[n]), mot_comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	rtapi_snprintf(buf, HAL_NAME_LEN, "tc.%d.vel", n);
+	retval = hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->tc_vel[n]), mot_comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	rtapi_snprintf(buf, HAL_NAME_LEN, "tc.%d.acc", n);
+	retval = hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->tc_acc[n]), mot_comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+    }
+    // end of exporting trajectory planner internals
+
     /* initialize machine wide pins and parameters */
     *(emcmot_hal_data->probe_input) = 0;
     /*! \todo FIXME - these don't really need initialized, since they are written

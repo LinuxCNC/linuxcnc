@@ -28,12 +28,19 @@
 #include "emcpos.h"
 #include "tc.h"
 
-/*! \todo Another #if 0 */
+// FIXME - debug only, remove later
+#include <hal.h>
+#include "../motion/motion.h"
+#include "../motion/mot_priv.h"
+
+// FIXME - debug only, remove later
+extern int print;
+
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - needed for synchronous I/O */
 /* the byte of output that gets written, persisting across all TC_STRUCTs,
-   also referenced in tp.c for aborting */
-  unsigned char tcDoutByte = 0;
+  also referenced in tp.c for aborting */
+ unsigned char tcDoutByte = 0;
 #endif
 
 #define TC_VEL_EPSILON 0.0001	/* number below which v is considered 0 */
@@ -71,6 +78,10 @@ int tcInit(TC_STRUCT * tc)
     tc->abc_vMax = 0.0;
     tc->abc_aMax = 0.0;
     tc->unitCart.x = tc->unitCart.y = tc->unitCart.z = 0.0;
+    
+    // FIXME - debug only, remove later
+    tc->output_chan = 0;
+    
     zero.tran.x = zero.tran.y = zero.tran.z = 0.0;
     zero.rot.s = 1.0;
     zero.rot.x = zero.rot.y = zero.rot.z = 0.0;
@@ -78,12 +89,11 @@ int tcInit(TC_STRUCT * tc)
     pmLineInit(&tc->line, zero, zero);
     pmLineInit(&tc->line_abc, zero, zero);
     /* since type is TC_LINEAR, don't need to set circle params */
-/*! \todo Another #if 0 */
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - needed for synchronous I/O */
-      tc->douts = 0;
-      tc->doutstarts = 0;
-      tc->doutends = 0;
+    tc->douts = 0;
+    tc->doutstarts = 0;
+    tc->doutends = 0;
 #endif
     return 0;
 }
@@ -131,7 +141,7 @@ int tcSetLine(TC_STRUCT * tc, PmLine line, PmLine line_abc)
 	tc->targetPos = abc_mag;
     } else {
 	if (0)
-/*! \todo Another #if 0 */
+/*! \todo don't know why this is #if 0'ed out */
 #if 0
 	    if (tc->abc_mag > 1e-6)
 #endif
@@ -320,7 +330,12 @@ int tcRunCycle(TC_STRUCT * tc)
     int isScaleDecel;
     int oldTcFlag;
 
+    
     if (0 == tc) {
+    
+	// FIXME - debug only, remove later
+	rtapi_print("ERROR: tcRunCycle called with tc = NULL\n" );
+	
 	return -1;
     }
 
@@ -331,36 +346,44 @@ int tcRunCycle(TC_STRUCT * tc)
     if (tc->tcFlag == TC_IS_DONE) {
 	tc->currentVel = 0.0;
 	tc->currentAccel = 0.0;
+	
+	// FIXME - debug only, remove later
+	rtapi_print("tcRunCycle: flag = TC_IS_DONE\n" );
+	
 	return 0;
     }
 
     tc->toGo = tc->targetPos - tc->currentPos;
 
     if (tc->aMax <= 0.0 || tc->vMax <= 0.0 || tc->cycleTime <= 0.0) {
+    
+	// FIXME - debug only, remove later
+	rtapi_print("ERROR: tcRunCycle called with aMax, vMax, or cycleTime <= 0.0\n" );
+	
 	return -1;
     }
 
     /* compute newvel = 0 limit first */
     discr = 0.5 * tc->cycleTime * tc->currentVel - tc->toGo;
     if (discr > 0.0) {
+	// need to stop asap
 	newVel = 0.0;
     } else {
 	discr =
 	    0.25 * tc->cycleTime * tc->cycleTime - 2.0 / tc->aMax * discr;
 	newVel = -0.5 * tc->aMax * tc->cycleTime + tc->aMax * sqrt(discr);
     }
-/*! \todo Another #if 0 */
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - needed for synchronous I/O */
-       if (tc->tcFlag == TC_IS_UNSET) {
+    if (tc->tcFlag == TC_IS_UNSET) {
 	/* it's the start of this segment, so set any start output bits */
 	if (tc->douts) {
 	    /* Fred's original code.. tcDoutByte |= (tc->douts &
-	           tc->doutstarts); tcDoutByte &= (~tc->douts | tc->doutstarts);
-	             extMotDout(tcDoutByte); */
-	      extDioWrite(tc->doutIndex, tc->doutstarts);
+	         tc->doutstarts); tcDoutByte &= (~tc->douts | tc->doutstarts);
+	          extMotDout(tcDoutByte); */
+	    extDioWrite(tc->doutIndex, tc->doutstarts);
 	}
-      }
+    }
 #endif
     if (newVel <= 0.0) {
 	newVel = 0.0;
@@ -368,14 +391,13 @@ int tcRunCycle(TC_STRUCT * tc)
 	newPos = tc->targetPos;
 	tc->tcFlag = TC_IS_DONE;
 	/* set any end output bits */
-/*! \todo Another #if 0 */
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - needed for synchronous I/O */
 	if (tc->douts) {
 	    /* Fred's original code.. tcDoutByte |= (tc->douts &
-	             tc->doutends); tcDoutByte &= (~tc->douts | tc->doutends);
-	             extMotDout(tcDoutByte); */
-	      extDioWrite(tc->doutIndex, tc->doutends);
+	          tc->doutends); tcDoutByte &= (~tc->douts | tc->doutends);
+	          extMotDout(tcDoutByte); */
+	    extDioWrite(tc->doutIndex, tc->doutends);
 	}
 #endif
     } else {
@@ -461,7 +483,12 @@ int tcRunCycle(TC_STRUCT * tc)
     tc->currentPos = newPos;
     tc->currentVel = newVel;
     tc->currentAccel = newAccel;
-
+    
+    // FIXME - debug only, remove later
+    emcmot_hal_data->tc_pos[tc->output_chan] = newPos;
+    emcmot_hal_data->tc_vel[tc->output_chan] = newVel;
+    emcmot_hal_data->tc_acc[tc->output_chan] = newAccel;
+    
     return 0;
 }
 
@@ -698,6 +725,10 @@ int tcqInit(TC_QUEUE_STRUCT * tcq)
 /* put sometc on the end of the queue */
 int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc)
 {
+
+    // FIXME - debug only, remove later
+    rtapi_print("tcqPut()\n" );
+    
     /* check for initialized */
     if (0 == tcq || 0 == tcq->queue) {
 	return -1;
@@ -728,6 +759,9 @@ TC_STRUCT tcqGet(TC_QUEUE_STRUCT * tcq, int *status)
 {
     TC_STRUCT tc;
 
+    // FIXME - debug only, remove later
+    rtapi_print("tcqGet()\n" );
+    
     if ((0 == tcq) || (0 == tcq->queue) ||	/* not initialized */
 	((tcq->start == tcq->end) && !tcq->allFull)) {	/* empty queue */
 	if (0 != status) {
@@ -769,6 +803,10 @@ TC_STRUCT tcqGet(TC_QUEUE_STRUCT * tcq, int *status)
 /* remove n items from the queue */
 int tcqRemove(TC_QUEUE_STRUCT * tcq, int n)
 {
+
+    // FIXME - debug only, remove later
+    rtapi_print("tcqRemove(%d)\n", n );
+    
     if (n <= 0) {
 	return 0;		/* okay to remove 0 or fewer */
     }
@@ -968,19 +1006,19 @@ PmCartesian tcGetUnitCart(TC_STRUCT * tc)
     return fake;
 }
 
-/*! \todo Another #if 0 */
+/*! \todo This is related to synchronous I/O, and will be fixed later */
 #if 0
-/*! \todo FIXME - needed for synchronous I/O */
+
 int tcSetDout(TC_STRUCT * tc, int doutIndex, unsigned char starts,
-	       unsigned char ends)
+	      unsigned char ends)
 {
     if (0 == tc) {
 	return -1;
-      }
-      tc->douts = 1;
-      tc->doutIndex = doutIndex;
-      tc->doutstarts = starts;
-      tc->doutends = ends;
-      return 0;
+    }
+    tc->douts = 1;
+    tc->doutIndex = doutIndex;
+    tc->doutstarts = starts;
+    tc->doutends = ends;
+    return 0;
 }
 #endif
