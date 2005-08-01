@@ -574,13 +574,16 @@ int tpRunCycle(TP_STRUCT * tp)
 	       preVMax may need adjustment. tcRunCycle will subtract preVMax
 	       from vMax and clamp the velocity to this value. */
 	    pmCartMag(velCart, &currentVelMag);
+#ifdef OLD_CODE
 	    if (currentVelMag >= TP_VEL_EPSILON) {
 		pmCartCartDot(velCart, unitCart, &dot);
 		preVMax =
 		    thisTc->vMax + dot - pmSqrt(pmSq(dot) -
 						pmSq(currentVelMag) +
 						pmSq(thisTc->vMax));
-	    } else {
+	    } else
+#endif
+            {
 		preVMax = 0.0;
 	    }
 
@@ -591,11 +594,13 @@ int tpRunCycle(TP_STRUCT * tp)
 	       from vMax and clamp the acceleration to this value. */
 	    pmCartMag(accelCart, &currentAccelMag);
 	    if (currentAccelMag >= TP_ACCEL_EPSILON) {
+#ifdef OLD_CODE
 		pmCartCartDot(accelCart, unitCart, &dot);
 		preAMax =
 		    thisTc->aMax + dot - pmSqrt(pmSq(dot) -
 						pmSq(currentAccelMag) +
 						pmSq(thisTc->aMax));
+#endif
 	    } else {
 		preAMax = 0.0;
 	    }
@@ -631,6 +636,9 @@ int tpRunCycle(TP_STRUCT * tp)
 
 	if (tcIsDecel(thisTc)
 	    && tcGetTermCond(thisTc) == TC_TERM_COND_BLEND) {
+
+            preAMax = thisTc->aMax + tcGetAccel(thisTc);
+
 	    /* this one is decelerating-- blend in the next one with credit
 	       for this decel */
 	    thisAccel = tcGetAccel(thisTc);
