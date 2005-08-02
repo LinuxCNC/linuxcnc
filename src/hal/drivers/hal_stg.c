@@ -34,14 +34,14 @@
    
     DACs:
       Parameters:
-/todo  	float	stg.<channel>.dac-offset
-/todo  	float	stg.<channel>.dac-gain
+/totest	float	stg.<channel>.dac-offset
+/totest	float	stg.<channel>.dac-gain
    
       Pins:
-/todo  	float	stg.<channel>.dac-value
+/totest	float	stg.<channel>.dac-value
    
       Functions:
-/todo  	void    stg.<channel>.dac_write
+/totest	void    stg.<channel>.dac_write
    
    
     ADC:
@@ -140,13 +140,13 @@ MODULE_DESCRIPTION("Driver for Servo-to-Go Model I for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
-static int base = 0x000;	/* board base address, 0 means autodetect */
+static int base = 0x000;		/* board base address, 0 means autodetect */
 MODULE_PARM(base, "i");
 MODULE_PARM_DESC(base, "board base address, don't use for autodetect");
-static int num_chan = 8;	/* number of channels - default = 8 */
+static int num_chan = MAX_CHANS;	/* number of channels - default = 8 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
-static long period = 0;		/* thread period - default = no thread */
+static long period = 0;			/* thread period - default = no thread */
 MODULE_PARM(period, "l");
 MODULE_PARM_DESC(period, "thread period (nsecs)");
 #endif /* MODULE */
@@ -155,16 +155,19 @@ MODULE_PARM_DESC(period, "thread period (nsecs)");
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
 
-/* this structure contains the runtime data for a single counter */
-
 typedef struct {
-    hal_s32_t *count;		/* captured binary count value */
-    hal_float_t *pos;		/* scaled position (floating point) */
-    hal_float_t pos_scale;	/* parameter: scaling factor for pos */
-} counter;
+/* counter data */
+    hal_s32_t *count[MAX_CHANS];		/* captured binary count value */
+    hal_float_t *pos[MAX_CHANS];		/* scaled position (floating point) */
+    hal_float_t pos_scale[MAX_CHANS];		/* parameter: scaling factor for pos */
 
-/* pointer to array of counter_t structs in shmem, 1 per counter */
-static counter *counter_array;
+/* dac data */
+    hal_float_t *value[MAX_CHANS];		/* value to be written to dac */
+    hal_float_t offset[MAX_CHANS];		/* offset value for DAC */
+    hal_float_t gain[MAX_CHANS];		/* gain to be applied */
+} stg_struct;
+
+static stg_struct *stg_driver;
 
 /* other globals */
 static int comp_id;		/* component ID */
@@ -178,16 +181,23 @@ static int comp_id;		/* component ID */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_counter(int num, counter * addr);
-static void capture(void *arg, long period);
+static int export_counter(int num, stg_struct * addr);
+static int export_dac(int num, stg_struct * addr);
 
 /* initializes the STG, takes care of autodetection, all initialisations */
 static int stg_init_card(void);
 /* scans possible addresses for STG cards */
-unsigned short stg_autodetect(void);
+static unsigned short stg_autodetect(void);
 
-int CNTInit(int ch);
-long CNTRead(int i);
+static int stg_counter_init(int ch);
+static int stg_dac_init(int ch);
+
+static long stg_counter_read(int i);
+static int stg_dac_write(int ch, short value);
+
+/* periodic functions registered to HAL */
+static void stg_dacs_write(void *arg, long period);
+static void stg_counter_capture(void *arg, long period);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -211,13 +221,14 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: hal_init() failed\n");
 	return -1;
     }
-    /* allocate shared memory for counter data */
-    counter_array = hal_malloc(num_chan * sizeof(counter));
-    if (counter_array == 0) {
+    /* allocate shared memory for stg data */
+    stg_driver = hal_malloc(num_chan * sizeof(stg_struct));
+    if (stg_driver == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
+
     /* takes care of all initialisations, also autodetection if necessary */
     if (stg_init_card() != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -226,10 +237,10 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-    /* export all the variables for each counter */
+    /* export all the variables for each counter, dac */
     for (n = 0; n < num_chan; n++) {
 	/* export all vars */
-	retval = export_counter(n, &(counter_array[n]));
+	retval = export_counter(n, stg_driver);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"STG: ERROR: counter %d var export failed\n", n + 1);
@@ -237,24 +248,51 @@ int rtapi_app_main(void)
 	    return -1;
 	}
 	/* init counter */
-	*(counter_array[n].count) = 0;
-	*(counter_array[n].pos) = 0.0;
-	counter_array[n].pos_scale = 1.0;
+	*(stg_driver->count[n]) = 0;
+	*(stg_driver->pos[n]) = 0.0;
+	stg_driver->pos_scale[n] = 1.0;
 
 	/* init counter chip */
-	CNTInit(n);
+	stg_counter_init(n);
+	
+	retval = export_dac(n, stg_driver);
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"STG: ERROR: dac %d var export failed\n", n + 1);
+	    hal_exit(comp_id);
+	    return -1;
+	}
+	/* init counter */
+	*(stg_driver->value[n]) = 0;
+	stg_driver->offset[n] = 0.0;
+	stg_driver->gain[n] = 1.0;
+
+	/* init counter chip */
+	stg_dac_init(n);
     }
     /* export functions */
-    retval = hal_export_funct("stg.capture_position", capture,
-	counter_array, 1, 0, comp_id);
+    retval = hal_export_funct("stg.capture_position", stg_counter_capture,
+	stg_driver, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STG: ERROR: capture funct export failed\n");
+	    "STG: ERROR: stg_counter_capture funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"STG: installed %d encoder counters\n", num_chan);
+
+    retval = hal_export_funct("stg.write_dacs", stg_dacs_write,
+	stg_driver, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "STG: ERROR: stg_write_dacs funct export failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+    rtapi_print_msg(RTAPI_MSG_INFO,
+	"STG: installed %d dacs\n", num_chan);
+
     /* was 'period' specified in the insmod command? */
     if (period > 0) {
 	/* create a thread */
@@ -281,20 +319,17 @@ void rtapi_app_exit(void)
 *            REALTIME ENCODER COUNTING AND UPDATE FUNCTIONS            *
 ************************************************************************/
 
-static void capture(void *arg, long period)
+static void stg_counter_capture(void *arg, long period)
 {
-    counter *cntr;
+    stg_struct *stg;
     int n;
 
-    cntr = arg;
+    stg = arg;
     for (n = 0; n < num_chan; n++) {
-
 	/* capture raw counts to latches */
-	*(cntr->count) = CNTRead(n);
+	*(stg->count[n]) = stg_counter_read(n);
 	/* scale count to make floating point position */
-	*(cntr->pos) = *(cntr->count) * cntr->pos_scale;
-	/* move on to next channel */
-	cntr++;
+	*(stg->pos[n]) = *(stg->count[n]) * stg->pos_scale[n];
     }
     /* done */
 }
@@ -303,10 +338,10 @@ static void capture(void *arg, long period)
 *                      BOARD SPECIFIC FUNCTIONS                        *
 ************************************************************************/
 /*
-  CNTInit() - Initializes the channel
+  stg_counter_init() - Initializes the channel
 */
 
-int CNTInit(int ch)
+static int stg_counter_init(int ch)
 {
     /* Set Counter Command Register - Master Control, Master Reset (MRST), */
     /* and Reset address pointer (RADR). */
@@ -324,10 +359,59 @@ int CNTInit(int ch)
     return 0;
 }
 
+
 /*
-  CNTRead() - reads one channel
+  stg_dac_init() - Initializes the dac channel
 */
-long CNTRead(int i)
+
+static int stg_dac_init(int ch)
+{
+    int i;
+    
+    /* set all DAC's to 0 on startup */
+    for (i=0; i < num_chan; i++) {
+	stg_dac_write(i, 0);
+    }
+    return 0;
+}
+
+/* stg_dacs_write() - writes all dac's to the board
+    - calls stg_dac_write() */
+
+static void stg_dacs_write(void *arg, long period)
+{    
+    stg_struct *stg;
+    float volts;
+    short ncounts, i;
+
+    stg=arg;
+    for (i=0;i < num_chan; i++) {
+	/* scale the voltage to be written based on offset and gain */
+	volts = (*(stg->value[i]) - stg->offset[i]) * stg->gain[i];
+	/* compute the value for the DAC */
+	ncounts = (short) ((10.0 - volts) / 20.0 * 0x1FFF);
+	/* write it to the card */	
+	stg_dac_write(i, ncounts);	
+    }
+}
+
+/*
+  stg_dac_write() - writes a dac channel
+*/
+
+static int stg_dac_write(int ch, short value)
+{        
+
+    /* write the DAC */
+    rtapi_outb (base + DAC_0 + (ch << 1), value);
+
+    return 0;
+}
+
+/*
+  stg_counter_read() - reads one channel
+*/
+static long stg_counter_read(int i)
 {
     union pos_tag {
 	long l;
@@ -355,7 +439,7 @@ long CNTRead(int i)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_counter(int num, counter * addr)
+static int export_counter(int num, stg_struct *addr)
 {
     int retval, msg;
     char buf[HAL_NAME_LEN + 2];
@@ -369,19 +453,19 @@ static int export_counter(int num, counter * addr)
 
     /* export pin for counts captured by update() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_WR, &(addr->count), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_WR, &addr->count[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->pos), comp_id);
+    retval = hal_pin_float_new(buf, HAL_WR, &addr->pos[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->pos_scale), comp_id);
+    retval = hal_param_float_new(buf, HAL_WR, &addr->pos_scale[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -389,6 +473,43 @@ static int export_counter(int num, counter * addr)
     rtapi_set_msg_level(msg);
     return 0;
 }
+
+static int export_dac(int num, stg_struct *addr)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* export pin for voltage received by the board() */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.value", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &addr->value[num], comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameter for offset */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-offset", num);
+    retval = hal_param_float_new(buf, HAL_WR, &addr->offset[num], comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameter for gain */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-gain", num);
+    retval = hal_param_float_new(buf, HAL_WR, &addr->gain[num], comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+
 
 static int stg_init_card()
 {
@@ -399,6 +520,8 @@ static int stg_init_card()
 	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no STG card found\n");
 	return -1;
     }
+    // FIXME - further init will happen here
+
     // all ok
     return 0;
 }

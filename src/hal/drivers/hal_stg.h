@@ -39,6 +39,7 @@
 /*
     Servo To Go board decls
 */
+#define MAX_CHANS  8
 
 #define CNT0_D     0x00
 #define CNT1_D     0x01
