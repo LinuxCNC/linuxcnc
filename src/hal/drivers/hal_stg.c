@@ -46,14 +46,14 @@
    
     ADC:
       Parameters:
-/todo  	float	stg.<channel>.adc-offset
-/todo  	float	stg.<channel>.adc-gain
+/totest	float	stg.<channel>.adc-offset
+/totest	float	stg.<channel>.adc-gain
    
       Pins:
-/todo  	float	stg.<channel>.adc-value
+/totest	float	stg.<channel>.adc-value
    
       Functions:
-/todo  	void    stg.<channel>.adc_read
+/totest	void    stg.<channel>.adc_read
    
    
     Digital In:
@@ -85,6 +85,9 @@
                        <jmkasunich AT users DOT sourceforge DOT net>
 */
 
+/* Based on STGMEMBS.CPP from the Servo To Go Windows drivers 
+    - Copyright (c) 1996 Servo To Go Inc and released under GPL Version 2 */
+
 /** This program is free software; you can redistribute it and/or
     modify it under the terms of version 2.1 of the GNU General
     Public License as published by the Free Software Foundation.
@@ -110,24 +113,16 @@
     information, go to www.linuxcnc.org.
 */
 
+
 #ifndef RTAPI
 #error This is a realtime component only!
 #endif
 
+#include <asm/io.h>
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 #include "hal_stg.h"		/* STG related defines */
-
-#define FASTIO
-
-#ifdef FASTIO
-#define rtapi_inb inb
-#define rtapi_outb outb
-#ifdef RTAPI			/* for ULAPI, sys/io.h defines these functs */
-#include <asm/io.h>
-#endif
-#endif
 
 #ifndef MODULE
 #define MODULE
@@ -162,9 +157,16 @@ typedef struct {
     hal_float_t pos_scale[MAX_CHANS];		/* parameter: scaling factor for pos */
 
 /* dac data */
-    hal_float_t *value[MAX_CHANS];		/* value to be written to dac */
-    hal_float_t offset[MAX_CHANS];		/* offset value for DAC */
-    hal_float_t gain[MAX_CHANS];		/* gain to be applied */
+    hal_float_t *dac_value[MAX_CHANS];		/* value to be written to dac */
+    hal_float_t dac_offset[MAX_CHANS];		/* offset value for DAC */
+    hal_float_t dac_gain[MAX_CHANS];		/* gain to be applied */
+
+/* adc data */
+    hal_float_t *adc_value[MAX_CHANS];		/* value to be read from adc */
+    hal_float_t adc_offset[MAX_CHANS];		/* offset value for ADC */
+    hal_float_t adc_gain[MAX_CHANS];		/* gain to be applied */
+    int adc_current_chan;			/* holds the currently converting channel */
+
 } stg_struct;
 
 static stg_struct *stg_driver;
@@ -180,22 +182,34 @@ static int comp_id;		/* component ID */
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
-
+/* helper functions, to export HAL pins & co. */
 static int export_counter(int num, stg_struct * addr);
 static int export_dac(int num, stg_struct * addr);
+static int export_adc(int num, stg_struct * addr);
+
+/* Board specific functions */
 
 /* initializes the STG, takes care of autodetection, all initialisations */
 static int stg_init_card(void);
 /* scans possible addresses for STG cards */
 static unsigned short stg_autodetect(void);
 
+/* counter related functions */
 static int stg_counter_init(int ch);
-static int stg_dac_init(int ch);
-
 static long stg_counter_read(int i);
+
+/* dac related functions */
+static int stg_dac_init(int ch);
 static int stg_dac_write(int ch, short value);
 
+/* adc related functions */
+static int stg_adc_init(int ch);
+static int stg_adc_start(unsigned short wAxis);
+static short stg_adc_read(int ch);
+
+
 /* periodic functions registered to HAL */
+static void stg_adcs_read(void *arg, long period);
 static void stg_dacs_write(void *arg, long period);
 static void stg_counter_capture(void *arg, long period);
 
@@ -263,12 +277,30 @@ int rtapi_app_main(void)
 	    return -1;
 	}
 	/* init counter */
-	*(stg_driver->value[n]) = 0;
-	stg_driver->offset[n] = 0.0;
-	stg_driver->gain[n] = 1.0;
+	*(stg_driver->dac_value[n]) = 0;
+	stg_driver->dac_offset[n] = 0.0;
+	stg_driver->dac_gain[n] = 1.0;
 
-	/* init counter chip */
+	/* init dac chip */
 	stg_dac_init(n);
+
+	retval = export_adc(n, stg_driver);
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"STG: ERROR: adc %d var export failed\n", n + 1);
+	    hal_exit(comp_id);
+	    return -1;
+	}
+	/* init counter */
+	*(stg_driver->adc_value[n]) = 0;
+	stg_driver->adc_offset[n] = 0.0;
+	stg_driver->adc_gain[n] = 1.0;
+	
+	stg_driver->adc_current_chan = -1; /* notify that no conversion has been started yet */
+
+	/* init adc chip */
+	stg_adc_init(n);
+
     }
     /* export functions */
     retval = hal_export_funct("stg.capture_position", stg_counter_capture,
@@ -292,6 +324,17 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"STG: installed %d dacs\n", num_chan);
+
+    retval = hal_export_funct("stg.read_adcs", stg_adcs_read,
+	stg_driver, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "STG: ERROR: stg_read_adcs funct export failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+    rtapi_print_msg(RTAPI_MSG_INFO,
+	"STG: installed %d adcs\n", num_chan);
 
     /* was 'period' specified in the insmod command? */
     if (period > 0) {
@@ -334,6 +377,72 @@ static void stg_counter_capture(void *arg, long period)
     /* done */
 }
 
+/* stg_dacs_write() - writes all dac's to the board
+    - calls stg_dac_write() */
+
+static void stg_dacs_write(void *arg, long period)
+{    
+    stg_struct *stg;
+    float volts;
+    short ncounts, i;
+
+    stg=arg;
+    for (i=0;i < num_chan; i++) {
+	/* scale the voltage to be written based on offset and gain */
+	volts = (*(stg->dac_value[i]) - stg->dac_offset[i]) * stg->dac_gain[i];
+	/* compute the value for the DAC */
+	ncounts = (short) ((10.0 - volts) / 20.0 * 0x1FFF);
+	/* write it to the card */	
+	stg_dac_write(i, ncounts);	
+    }
+}
+
+/* stg_adcs_read() - reads one adc at a time from the board to hal
+    - calls stg_adc_read() */
+
+/* long description :
+
+    Because the conversion takes a while (first mux to the right channel ~5usecs,
+    then start the conversion, and wait for it to finish ~16-20 usecs) for all the
+    8 channels, it would be too much to start the conversion, wait for the result
+    for all the 8 axes.
+    Instead a different approach is chosen:
+    - on the beginning of the function the conversion should already be done
+    - it gets read and sent to HAL
+    - the new channel gets mux'ed
+    - and at the end of the function the new conversion is started, so that the data
+      will be available at the next run.
+    This way 8 periods are needed to read 8 ADC's. It is possible to set the board
+    to do faster conversions (AZ bit on INTC off), but that would make it less 
+    reliable (autozero takes care of temp. errors).*/
+/*! \todo STG_ADC_Improvement (if any user requests it).
+    Another improvement might be to let the user chose what channels he would like
+    for ADC (having only 2 channels might speed things up considerably).
+*/
+static void stg_adcs_read(void *arg, long period)
+{    
+    stg_struct *stg;
+    float volts;
+    short ncounts;
+
+    stg=arg;
+    if (stg->adc_current_chan > 0) { 
+	/* we should have the conversion done for adc_num_chan */
+	ncounts = stg_adc_read(stg->adc_current_chan);
+	volts = 10.0 - (ncounts * 20.0 / 0x1FFF);
+	*(stg->adc_value[stg->adc_current_chan]) = volts * stg->adc_gain[stg->adc_current_chan] \
+			    - stg->adc_offset[stg->adc_current_chan];
+    }
+    /* if adc_num_chan < 0, it's the first time this routine runs
+       thus we don't have any ready data, we simply start the next conversion */
+    if (stg->adc_current_chan++ > num_chan) 
+	stg->adc_current_chan=0; //increase the channel, and roll back to 0 after all chans are done
+
+    /* select the current channel with the mux, and start the conversion */
+    stg_adc_start(stg->adc_current_chan);
+    /* the next time this function runs, the result should be available */
+}
+
 /***********************************************************************
 *                      BOARD SPECIFIC FUNCTIONS                        *
 ************************************************************************/
@@ -345,17 +454,17 @@ static int stg_counter_init(int ch)
 {
     /* Set Counter Command Register - Master Control, Master Reset (MRST), */
     /* and Reset address pointer (RADR). */
-    rtapi_outb(CTRL(ch), 0x23);
+    outb(CTRL(ch), 0x23);
 
     /* Set Counter Command Register - Input Control, OL Load (P3), */
     /* and Enable Inputs A and B (INA/B). */
-    rtapi_outb(CTRL(ch), 0x68);
+    outb(CTRL(ch), 0x68);
 
     /* Set Counter Command Register - Output Control */
-    rtapi_outb(CTRL(ch), 0x80);
+    outb(CTRL(ch), 0x80);
 
     /* Set Counter Command Register - Quadrature */
-    rtapi_outb(CTRL(ch), 0xC3);
+    outb(CTRL(ch), 0xC3);
     return 0;
 }
 
@@ -375,25 +484,6 @@ static int stg_dac_init(int ch)
     return 0;
 }
 
-/* stg_dacs_write() - writes all dac's to the board
-    - calls stg_dac_write() */
-
-static void stg_dacs_write(void *arg, long period)
-{    
-    stg_struct *stg;
-    float volts;
-    short ncounts, i;
-
-    stg=arg;
-    for (i=0;i < num_chan; i++) {
-	/* scale the voltage to be written based on offset and gain */
-	volts = (*(stg->value[i]) - stg->offset[i]) * stg->gain[i];
-	/* compute the value for the DAC */
-	ncounts = (short) ((10.0 - volts) / 20.0 * 0x1FFF);
-	/* write it to the card */	
-	stg_dac_write(i, ncounts);	
-    }
-}
 
 /*
   stg_dac_write() - writes a dac channel
@@ -403,7 +493,7 @@ static int stg_dac_write(int ch, short value)
 {        
 
     /* write the DAC */
-    rtapi_outb (base + DAC_0 + (ch << 1), value);
+    outb (base + DAC_0 + (ch << 1), value);
 
     return 0;
 }
@@ -423,10 +513,10 @@ static long stg_counter_read(int i)
 	} byte;
     } pos;
 
-    rtapi_outb(CTRL(i), 0x03);
-    pos.byte.b0 = rtapi_inb(DATA(i));
-    pos.byte.b1 = rtapi_inb(DATA(i));
-    pos.byte.b2 = rtapi_inb(DATA(i));
+    outb(CTRL(i), 0x03);
+    pos.byte.b0 = inb(DATA(i));
+    pos.byte.b1 = inb(DATA(i));
+    pos.byte.b2 = inb(DATA(i));
     if (pos.byte.b2 < 0) {
 	pos.byte.b3 = -1;
     } else {
@@ -434,6 +524,67 @@ static long stg_counter_read(int i)
     }
     return pos.l;
 }
+
+/*
+  stg_adc_init() - Initializes the dac channel
+*/
+
+static int stg_adc_init(int ch)
+{
+    /* not much to setup for the ADC's */
+    /* only select the mode of operation
+    we will work with AutoZero */
+    outb(base + MIO_2, 0x90);    
+    return 0;
+}
+
+int stg_adc_start(unsigned short wAxis)
+{
+    /* do a dummy read from the ADC, just to set the input multiplexer to
+     the right channel */
+    inw(base + ADC_0 + (wAxis << 1));
+
+    /* wait 4 uS for settling time on the multiplexer and ADC. You probably
+     shouldn't really have a delay in a driver */
+    outb(0x80, 0);
+    outb(0x80, 0);
+    outb(0x80, 0);
+    outb(0x80, 0);
+
+    /* now start conversion */
+    outw(base + ADC_0 + (wAxis << 1), 0);
+
+    return 0;
+};
+
+static short stg_adc_read(int axis)
+{
+    short j;
+
+    /*
+    there must have been a delay between stg_adc_start() and 
+    stg_adc_read(), of 19 usec if autozeroing (we are), 4 usecs 
+    otherwise. In code that calls this, make sure you split these 
+    calls up with some intervening code
+    */
+
+    /* make sure conversion is done, assume polling delay is done.
+    EOC (End Of Conversion) is bit 0x08 in IIR (Interrupt Request
+    Register) of Interrupt Controller.  Don't wait forever though
+    bail out eventually. */
+
+    for (j = 0; !(inb(base + IRR) & 0x08) && (j < 1000); j++);
+    
+    j = inw(base + ADC_0 + (axis << 1));
+
+    if (j & 0x1000)       /* is sign bit negative? */
+	j |= 0xf000;      /* sign extend */
+    else
+	j &= 0xfff;       /* make sure high order bits are zero. */
+
+    return j;
+};
+
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
@@ -487,20 +638,20 @@ static int export_dac(int num, stg_struct *addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pin for voltage received by the board() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.value", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &addr->value[num], comp_id);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-value", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &addr->dac_value[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for offset */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-offset", num);
-    retval = hal_param_float_new(buf, HAL_WR, &addr->offset[num], comp_id);
+    retval = hal_param_float_new(buf, HAL_WR, &addr->dac_offset[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-gain", num);
-    retval = hal_param_float_new(buf, HAL_WR, &addr->gain[num], comp_id);
+    retval = hal_param_float_new(buf, HAL_WR, &addr->dac_gain[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -509,6 +660,40 @@ static int export_dac(int num, stg_struct *addr)
     return 0;
 }
 
+static int export_adc(int num, stg_struct *addr)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* export pin for voltage received by the board() */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.adc-value", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &addr->adc_value[num], comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameter for offset */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.adc-offset", num);
+    retval = hal_param_float_new(buf, HAL_WR, &addr->adc_offset[num], comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameter for gain */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.adc-gain", num);
+    retval = hal_param_float_new(buf, HAL_WR, &addr->adc_gain[num], comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
 
 
 static int stg_init_card()
@@ -538,10 +723,10 @@ unsigned short stg_autodetect()
 	address = i * 0x20 + 0x200;
 
 	/* does jumper = i? */
-	if ((rtapi_inb(address + BRDTST) & 0x0f) == i) {
+	if ((inb(address + BRDTST) & 0x0f) == i) {
 	    k = 0;		// var for getting the serial
 	    for (j = 0; j < 8; j++) {
-		ofs = (rtapi_inb(address + BRDTST) >> 4);
+		ofs = (inb(address + BRDTST) >> 4);
 
 		if (ofs & 8) {	/* is SER set? */
 		    ofs = ofs & 7;	/* mask for Q2,Q1,Q0 */
