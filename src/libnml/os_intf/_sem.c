@@ -113,6 +113,7 @@ rcs_sem_t *rcs_sem_open(const char *name, int oflag, /* int mode */ ...)
 
     /* change the char* name to a key_t-- this is impossible, so let's just
        consider the value of the char* as a key_t */
+    /* FIX-ME semid is a number, not a name. Get rid of this fsck'd ... */
     key = (key_t) name;		/* ugh */
     if (key < 1) {
 	rcs_print_error("rcs_sem_open: invalid key %d\n", key);
@@ -141,34 +142,19 @@ int rcs_sem_close(rcs_sem_t * sem)
     return 0;
 }
 
-static int semwait_alarm_count = 0;
-/* Linux has the ability to call a function when a timer expires. This timer
-   is set via a call to setitimer() in rcs_sem_wait to time out a wait on a
-   semaphore. 
-*/
-static void semwait_alarm_handler(int sig)
-{
-    rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY,
-	"semwait_alarm_handler:: alarm_count=%d\n", semwait_alarm_count);
-    semwait_alarm_count++;
-
-    // Hope this isn't necessary.
-    signal(SIGALRM, semwait_alarm_handler);
-}
-
 int rcs_sem_wait_notimeout(rcs_sem_t * sem)
 {
     int retval = -1;
     struct sembuf sops;
     union semun sem_arg;
     sem_arg.val = 0;
-    sops.sem_num = 0;		/* only one semaphore in set */
+    sops.sem_num = 0;
     sops.sem_op = SEM_TAKE;
-    sops.sem_flg = 0;		/* wait forever */
+    sops.sem_flg = SEM_UNDO;
     retval = semop(*sem, &sops, 1);
     if (errno == EINTR) {
-	rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY, "semop interrupted! %d\n",
-	    semwait_alarm_count);
+	rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY, "%s %d semop interrupted\n",
+	    __FILE__, __LINE__);
 	return retval;
     }
 
@@ -185,98 +171,52 @@ int rcs_sem_wait_notimeout(rcs_sem_t * sem)
 int rcs_sem_trywait(rcs_sem_t * sem)
 {
     struct sembuf sops;
-    sops.sem_num = 0;		/* only one semaphore in set */
+    sops.sem_num = 0;
     sops.sem_op = SEM_TAKE;
-    sops.sem_flg = IPC_NOWAIT;	/* wait forever */
+    sops.sem_flg = IPC_NOWAIT | SEM_UNDO;
     return semop(*sem, &sops, 1);
 }
 
+#ifndef _GNU_SOURCE
+#error Must compile with -D_GNU_SOURCE else impliment your own semtimedop() function.
+#endif
+
 int rcs_sem_wait(rcs_sem_t * sem, double timeout)
 {
-    int last_semwait_alarm_count = semwait_alarm_count;
+
+#if DEBUG
+    double start_time = etime();
+    double end_time = 0;
+    int error = 0;
+#endif
+    struct sembuf sops;
+    sops.sem_num = 0;
+    sops.sem_op = SEM_TAKE;
+    sops.sem_flg = SEM_UNDO;
     int retval = -1;
-    double start_time = 0.0;
-    double elapsed_time = 0.0;
-    double time_left = 0.0;
-    double current_time = 0.0;
-    struct itimerval sem_itimer;
-    struct itimerval sem_itimer_backup;
-    void (*old_sigalarm_handler) (int);
-    old_sigalarm_handler = SIG_ERR;
-    time_left = timeout;
+    struct timespec time = {1,0};
+
     if (0 == sem) {
 	return -1;
     }
-    rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY, "rcs_sem_wait(%d,%f) called.\n",
-	*sem, timeout);
-    if (timeout < 0) {
-	retval = rcs_sem_wait_notimeout(sem);
-	if (retval == -1) {
-	    rcs_print_error("semwait: ERROR -- %s %d\n", strerror(errno),
-		errno);
-	}
-	return retval;
-    }
-    if (timeout < clk_tck() / 2) {
-	retval = rcs_sem_trywait(sem);
-	if (retval == -1) {
-	    rcs_print_error("semifwait: ERROR -- %s %d\n", strerror(errno),
-		errno);
-	}
-	return retval;
-    }
-    start_time = etime();
-    old_sigalarm_handler = signal(SIGALRM, semwait_alarm_handler);
 
-    if (old_sigalarm_handler == SIG_ERR) {
-	rcs_print_error("Can't setup SIGALRM. errno = %d, %s\n",
-	    errno, strerror(errno));
-	return -1;
+
+    if (timeout > 0 ) {
+        time.tv_sec = (long int) timeout;
+        time.tv_nsec = (long int) ((timeout - time.tv_sec) * 1e9);
     }
-    sem_itimer.it_interval.tv_sec = 0;
-    sem_itimer.it_interval.tv_usec = 0;
-    sem_itimer.it_value.tv_sec = 0;
-    sem_itimer.it_value.tv_usec = 0;
-    getitimer(ITIMER_REAL, &sem_itimer_backup);
-    sem_itimer_backup.it_value.tv_sec = 0;
-    sem_itimer_backup.it_value.tv_usec = 0;
-    do {
-	sem_itimer.it_interval.tv_sec = time_left;
-	sem_itimer.it_interval.tv_usec = (fmod(time_left + 1.0, 1.0) * 1E6);
-	sem_itimer.it_value.tv_sec = sem_itimer.it_interval.tv_sec;
-	sem_itimer.it_value.tv_usec = sem_itimer.it_interval.tv_usec;
-	setitimer(ITIMER_REAL, &sem_itimer, &sem_itimer_backup);
-	rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY,
-	    "Semaphore itimer setup: \n\tit_interval {%d secs and %d usecs}\n\tit_value {%d secs and %d  usecs}\n",
-	    sem_itimer.it_interval.tv_sec,
-	    sem_itimer.it_interval.tv_usec,
-	    sem_itimer.it_value.tv_sec, sem_itimer.it_value.tv_usec);
-	retval = rcs_sem_wait_notimeout(sem);
-	setitimer(ITIMER_REAL, &sem_itimer_backup, &sem_itimer);
-	rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY,
-	    "Semaphore itimer removed.\n");
-	current_time = etime();
-	elapsed_time = current_time - start_time;
-	time_left = timeout - elapsed_time;
-	if (retval == -1) {
-	    if (EINTR == errno
-		&& last_semwait_alarm_count < semwait_alarm_count) {
-		retval = -2;
-		last_semwait_alarm_count = semwait_alarm_count;
-		continue;
-	    }
-	    rcs_print_error("sem_wait: ERROR: %s %d\n", strerror(errno),
-		errno);
-	    return -1;
-	}
+
+    retval = semtimedop(*sem, &sops, 1, &time);
+#if DEBUG
+    error = errno;
+    end_time = etime();
+    if (retval < 0) {
+        perror("_sem.c: rcs_sem_wait()");
+        printf("rcs_sem_wait(%d,%f) returned %d (errno %d) after %f\n", *sem, timeout, retval, error, end_time - start_time);
     }
-    while (time_left > 5e-3 && retval < 0);
-    setitimer(ITIMER_REAL, &sem_itimer_backup, NULL);
-    if (old_sigalarm_handler == SIG_ERR || old_sigalarm_handler == SIG_DFL) {
-	old_sigalarm_handler = SIG_IGN;
-    }
-    signal(SIGALRM, old_sigalarm_handler);
-    return (retval);
+#endif
+    return retval;
+
 }
 
 int rcs_sem_post(rcs_sem_t * sem)

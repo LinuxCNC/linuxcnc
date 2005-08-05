@@ -62,7 +62,7 @@ Inifile::~Inifile()
    @return true on success, false on failure */
 bool Inifile::open(const char *file)
 {
-    /*! \fixme Need to do tilde expansion here */
+    /*! \todo fixme Need to do tilde expansion here */
     if ((fp = fopen(file, "r")) == NULL) {
 	return false;
     }
