@@ -150,7 +150,7 @@ int rcs_sem_wait_notimeout(rcs_sem_t * sem)
     sem_arg.val = 0;
     sops.sem_num = 0;
     sops.sem_op = SEM_TAKE;
-    sops.sem_flg = SEM_UNDO;
+    sops.sem_flg = 0;
     retval = semop(*sem, &sops, 1);
     if (errno == EINTR) {
 	rcs_print_debug(PRINT_SEMAPHORE_ACTIVITY, "%s %d semop interrupted\n",
@@ -173,7 +173,7 @@ int rcs_sem_trywait(rcs_sem_t * sem)
     struct sembuf sops;
     sops.sem_num = 0;
     sops.sem_op = SEM_TAKE;
-    sops.sem_flg = IPC_NOWAIT | SEM_UNDO;
+    sops.sem_flg = IPC_NOWAIT;
     return semop(*sem, &sops, 1);
 }
 
@@ -195,7 +195,7 @@ int rcs_sem_wait(rcs_sem_t * sem, double timeout)
 
     sops.sem_num = 0;
     sops.sem_op = SEM_TAKE;
-    sops.sem_flg = SEM_UNDO;
+    sops.sem_flg = 0;
     
     if (0 == sem) {
 	return -1;
