@@ -381,32 +381,35 @@ char *Inifile::skip_white(char *string)
 }
 
 /*! Expands the tilde to $(HOME) and concatenates file to it. If the first char
-    of file is not ~ then path will equal file.
+    If file does not start with ~/, file will be copied into path as-is. 
 
-   @param file pointer to the file name
+   @param the input filename
 
-   @param path pointer for the resulting name.
-
-   @param max Maximum entries to read.
+   @param pointer for returning the resulting expanded name
 
  */
 void Inifile::tilde(const char *file, char *path)
 {
-    strncat(path, file, LINELEN);
-    if (file[0] != '~') {
-	/* no tilde expansion required */
+    char *home;
+
+    strncpy(path, file, LINELEN);
+    if (strlen(file) < 2 || !(file[0] == '~' && file[1] == '/')) {
+	/* no tilde expansion required, or unsupported
+           tilde expansion type requested */
 	return;
     }
 
-    if ((strlen(getenv("HOME")) + strlen(file)) > LINELEN) {
+    home = getenv("HOME");
+    if (!home || strlen(home) + strlen(file) > LINELEN) {
 	fprintf(stderr,
-		"Trapped potential buffer overflow. %s and %s longer than %d.\n",
-		path, file, LINELEN);
+		"Tilde expansion failed in Inifile::tilde.\n"
+                "Check your $HOME environment variable and inifile paths.\n");
 	return;
     }
 
-    strncpy(path, getenv("HOME"), LINELEN - 1);
     /* Buffer overflow has already been checked. */
+
+    strcpy(path, home);
     strcat(path, file + 1);
     return;
 }
