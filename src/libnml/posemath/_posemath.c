@@ -16,7 +16,6 @@
 * $Author$
 * $Date$
 ********************************************************************/
-#define _GNU_SOURCE
 
 #if defined(PM_PRINT_ERROR) && defined(rtai)
 #undef PM_PRINT_ERROR
