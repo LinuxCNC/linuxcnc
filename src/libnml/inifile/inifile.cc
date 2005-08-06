@@ -62,8 +62,11 @@ Inifile::~Inifile()
    @return true on success, false on failure */
 bool Inifile::open(const char *file)
 {
-    /*! \todo fixme Need to do tilde expansion here */
-    if ((fp = fopen(file, "r")) == NULL) {
+    char path[LINELEN] = "";
+
+    tilde(file, path);
+
+    if ((fp = fopen(path, "r")) == NULL) {
 	return false;
     }
     lock.l_type = F_RDLCK;
@@ -71,7 +74,7 @@ bool Inifile::open(const char *file)
     lock.l_start = 0;
     lock.l_len = 0;
     if (fcntl(fileno(fp), F_SETLK, &lock) == -1) {
-	fprintf(stderr, "Unable to lock file %s\n", file);
+	fprintf(stderr, "Unable to lock file %s\n", path);
 	fclose(fp);
 	fp = NULL;
 	return false;
@@ -378,4 +381,33 @@ char *Inifile::skip_white(char *string)
 
 	string++;
     }
+}
+
+/*! Expands the tilde to $(HOME) and concatenates file to it. If the first char
+    of file is not ~ then path will equal file.
+
+   @param file pointer to the file name
+
+   @param path pointer for the resulting name.
+
+   @param max Maximum entries to read.
+
+ */
+void Inifile::tilde(const char *file, char *path)
+{
+    strncat(path, file, LINELEN);
+    if (file[0] != '~') {
+        /* no tilde expansion required */
+        return;
+    }
+
+    if ((strlen(getenv("HOME")) + strlen(file)) > LINELEN) {
+        fprintf(stderr, "Trapped potential buffer overflow. %s and %s longer than %d.\n", path, file, LINELEN);
+        return;
+    }
+
+    strncpy(path, getenv("HOME"), LINELEN - 1);
+    /* Buffer overflow has already been checked. */
+    strcat(path, file + 1);
+    return;
 }

@@ -9,9 +9,7 @@ HEADERS = \
 	inifile.h \
 	inifile.hh
 
-SRCS =	\
-	_inifile.c \
-	inifile.cc \
+SRCS =	inifile.cc \
         inivar.cc
 
 OBJS := $(LIB_OBJS) 

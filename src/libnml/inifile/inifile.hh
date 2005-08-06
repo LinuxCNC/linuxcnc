@@ -40,6 +40,7 @@ class Inifile {
     int write();
     const char *find(const char *tag, const char *section = NULL, int num = 1);
     int section(const char *section, inifile_entry array[], int max);
+    void tilde(const char *file, char *path);
 
   private:
     FILE * fp;
