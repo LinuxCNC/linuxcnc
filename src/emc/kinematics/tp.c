@@ -485,7 +485,9 @@ int tpRunCycle(TP_STRUCT * tp)
     PmCartesian thisAccelCart, thisVelCart;
     PmCartesian accelCart, velCart;
     double currentAccelMag = 0.0, currentVelMag = 0.0;
+#ifdef OLD_CODE
     double dot = 0.0;
+#endif
 
     int toRemove = 0;
     TC_STRUCT *thisTc = 0;
