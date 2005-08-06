@@ -57,7 +57,7 @@
 #include "../hal_priv.h"	/* private HAL decls */
 /* non-EMC related uses of halcmd may want to avoid libnml dependency */
 #ifndef NO_INI
-#include "inifile.h"		/* iniFind() from libnml */
+#include "inifile.hh"		/* iniFind() from libnml */
 #endif
 
 /***********************************************************************

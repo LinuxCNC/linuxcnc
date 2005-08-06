@@ -5,9 +5,7 @@ include Makefile.lib
 include ../../Makefile.inc
 
 # Declare which files are to be released
-HEADERS = \
-	inifile.h \
-	inifile.hh
+HEADERS = inifile.hh
 
 SRCS =	inifile.cc \
         inivar.cc

@@ -110,9 +110,9 @@ modules_install:
 endif
 
 # rule to link halcmd
-$(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(TMP_DIR)/_inifile.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o $(LIB_DIR)/libnml.a
+$(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 	@ echo "Linking $@"
-	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
+	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
 
 # rule to link halmeter
 

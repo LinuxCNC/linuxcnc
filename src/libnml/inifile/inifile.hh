@@ -28,6 +28,7 @@ typedef struct {
     char rest[LINELEN];
 } inifile_entry;
 
+#ifdef __cplusplus
 class Inifile {
   public:
     Inifile();
@@ -49,4 +50,11 @@ class Inifile {
     struct flock lock;
 };
 
+extern "C" {
+#else
+extern const char *iniFind(void *fp, const char *tag, const char *section);
+#endif
+#ifdef __cplusplus
+}
+#endif
 #endif /* INIFILE_HH */

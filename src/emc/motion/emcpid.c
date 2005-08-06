@@ -22,7 +22,7 @@
 
 #ifdef ULAPI
 #include <stdio.h>
-#include "inifile.h"
+#include "inifile.hh"
 #endif
 
 #include "rtapi.h"		/* rtapi_print_msg */
