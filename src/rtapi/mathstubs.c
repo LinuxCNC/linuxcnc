@@ -30,13 +30,6 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifdef _GNU_SOURCE
-/*! todo FIXME mathstubs needs to be conditionally compiled and linked.
-    This will sidestep any conflicts of interest when _GNU_SOURCE is
-    defined. */
-#undef _GNU_SOURCE
-#endif
-
 #include <linux/types.h>	/* u_int16_t */
 #include <math.h>
 
@@ -66,6 +59,7 @@ void __assert_fail(const char *s, const char *file, unsigned int line,
     return;
 }
 
+#ifndef isnan
 int isnan(double x)
 {
 /* Return zero if x is a real number. */
@@ -89,6 +83,7 @@ int __isnan(double x)
     a = c[3] & 0x7FF0;
     return (a == 0x7FF0);
 }
+#endif
 
 int RTdummy(void)
 {
