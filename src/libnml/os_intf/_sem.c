@@ -190,12 +190,13 @@ int rcs_sem_wait(rcs_sem_t * sem, double timeout)
     int error = 0;
 #endif
     struct sembuf sops;
-    sops.sem_num = 0;
-    sops.sem_op = SEM_TAKE;
-    sops.sem_flg = SEM_UNDO;
     int retval = -1;
     struct timespec time = {1,0};
 
+    sops.sem_num = 0;
+    sops.sem_op = SEM_TAKE;
+    sops.sem_flg = SEM_UNDO;
+    
     if (0 == sem) {
 	return -1;
     }
