@@ -30,6 +30,13 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#ifdef _GNU_SOURCE
+/*! todo FIXME mathstubs needs to be conditionally compiled and linked.
+    This will sidestep any conflicts of interest when _GNU_SOURCE is
+    defined. */
+#undef _GNU_SOURCE
+#endif
+
 #include <linux/types.h>	/* u_int16_t */
 #include <math.h>
 
