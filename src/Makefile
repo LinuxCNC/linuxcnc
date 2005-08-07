@@ -26,13 +26,16 @@
 #
 # Makefile.inc contains directory paths and other system dependent stuff
 include Makefile.inc
+
+HEADERS = config.h
+
 #
 # this rule handles most targets
 # it simply changes to all the source sub-directories and calls make there
 # note the order - low level code like rtapi is made first, before higher
 # level code that might depend on it
 
-all headers indent :
+all headers indent : def_headers
 	(cd rtapi; make headers)
 	(cd libnml; make headers)
 	(cd emc; make headers)
@@ -41,6 +44,9 @@ all headers indent :
 	(cd libnml; make $@)
 	(cd hal; make $@)
 	(cd emc; make $@)
+
+# Generic rules
+include Make.rules
 
 # these variables are used to build a list of all
 # man pages that need to be installed

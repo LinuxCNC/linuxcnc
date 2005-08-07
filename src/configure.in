@@ -15,6 +15,7 @@ AC_PREREQ(2.13)
 #AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
 #AC_CONFIG_SRCDIR(hal/hal_lib.c)
 AC_INIT(emc/hal_intf/exthalmot.c)
+AC_CONFIG_HEADER(config.h)
 
 # EMC2 internationalisation package name:
 PACKAGE="emc2"
@@ -682,6 +683,7 @@ AC_SUBST([RTL_MOD])
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
+AC_CHECK_FUNCS(semtimedop)
 
 ##############################################################################
 # Section 5 - Check for tcl/tk support                                       #

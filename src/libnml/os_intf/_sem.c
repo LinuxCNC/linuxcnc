@@ -22,6 +22,7 @@
 #include <stdarg.h>		/* va_list, va_arg(), va_start(), va_end() */
 #include <sys/types.h>
 #include <sys/ipc.h>		/* IPC_CREATE, IPC_NOWAIT */
+#include "config.h"
 
 /* There are two types of posix semaphores named and unnamed.
    unamed semaphores can either have the pshared flag set or not
@@ -182,7 +183,7 @@ int rcs_sem_trywait(rcs_sem_t * sem)
        function. 
 #endif
 
-#ifndef SEMTIMEDOP
+#ifndef HAVE_SEMTIMEDOP
 #warning Please consider upgrading your kernel to 2.4.22 or higher \
          and installing a recent glibc to take advantage of more \
          efficient system calls.
@@ -196,11 +197,11 @@ void itimer_handler(int signum)
 
 int rcs_sem_wait(rcs_sem_t * sem, double timeout)
 {
-#ifndef SEMTIMEDOP
+#ifdef HAVE_SEMTIMEDOP
+    struct timespec time = {1,0};
+#else
     struct sigaction sa;
     struct itimerval time;
-#else
-    struct timespec time = {1,0};
 #endif
 #if DEBUG
     double start_time = etime();
@@ -218,7 +219,7 @@ int rcs_sem_wait(rcs_sem_t * sem, double timeout)
 	return -1;
     }
 
-#ifdef SEMTIMEDOP
+#ifdef HAVE_SEMTIMEDOP
     if (timeout > 0 ) {
         time.tv_sec = (long int) timeout;
         time.tv_nsec = (long int) ((timeout - time.tv_sec) * 1e9);
