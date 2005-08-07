@@ -178,12 +178,30 @@ int rcs_sem_trywait(rcs_sem_t * sem)
 }
 
 #ifndef _GNU_SOURCE
-#error Must compile with -D_GNU_SOURCE else impliment your own semtimedop() function.
+#error Must compile with -D_GNU_SOURCE else impliment your own semtimedop() \
+       function. 
+#endif
+
+#ifndef SEMTIMEDOP
+#warning Please consider upgrading your kernel to 2.4.22 or higher \
+         and installing a recent glibc to take advantage of more \
+         efficient system calls.
+void itimer_handler(int signum)
+{
+#ifdef DEBUG
+    rcs_print_error(stderr, "semop timed out\n");
+#endif
+}
 #endif
 
 int rcs_sem_wait(rcs_sem_t * sem, double timeout)
 {
-
+#ifndef SEMTIMEDOP
+    struct sigaction sa;
+    struct itimerval time;
+#else
+    struct timespec time = {1,0};
+#endif
 #if DEBUG
     double start_time = etime();
     double end_time = 0;
@@ -191,7 +209,6 @@ int rcs_sem_wait(rcs_sem_t * sem, double timeout)
 #endif
     struct sembuf sops;
     int retval = -1;
-    struct timespec time = {1,0};
 
     sops.sem_num = 0;
     sops.sem_op = SEM_TAKE;
@@ -201,13 +218,32 @@ int rcs_sem_wait(rcs_sem_t * sem, double timeout)
 	return -1;
     }
 
-
+#ifdef SEMTIMEDOP
     if (timeout > 0 ) {
         time.tv_sec = (long int) timeout;
         time.tv_nsec = (long int) ((timeout - time.tv_sec) * 1e9);
     }
-
     retval = semtimedop(*sem, &sops, 1, &time);
+#else
+    /* semtimedop was introduced with 2.4.22 kernels, prior to that, we need
+       to mess around with timers & signals.. */
+    if (timeout > 0 ) {
+        memset(&sa, 0, sizeof(sa));
+        sa.sa_handler = &itimer_handler;
+        sa.sa_flags = SA_ONESHOT;
+        /* itimers are limited to three per process, better hope the limit
+           is not exceeded. If it is, chances are, the HMI will exhibit
+           random lockups */
+        time.it_value.tv_sec = (long int) timeout;
+        time.it_interval.tv_sec = 0;
+        time.it_interval.tv_usec = 0;
+        time.it_value.tv_usec = (long int) ((timeout - time.it_value.tv_sec) * 1e6);
+        sigaction(SIGALRM, &sa, NULL);
+        setitimer(ITIMER_REAL, &time, NULL);
+    }
+    retval = semop(*sem, &sops, 1);
+#endif
+
 #if DEBUG
     error = errno;
     end_time = etime();
