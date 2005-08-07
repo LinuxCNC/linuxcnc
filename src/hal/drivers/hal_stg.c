@@ -5,13 +5,22 @@
         
     Installation of the driver only realtime:
     
-	insmod hal_stg num_chan=8
+	insmod hal_stg num_chan=8 dio="IIOO"
 	    - autodetects the address
 	or
     
-	insmod hal_stg base=0x200 num_chan=8
+	insmod hal_stg base=0x200 num_chan=8 dio="IIOO"
     
     Check your Hardware manual for your base address.
+
+    The digital inputs/outputs configuration is determined by a 
+    config string passed to insmod when loading the module.  
+    The format consists by a four character string that sets the
+    direction of each group of pins. Each character of the direction
+    string is either "I" or "O".  The first character sets the
+    direction of port A (Port A - DIO.0-7), the next sets 
+    port B (Port B - DIO.8-15), the next sets port C (Port C - DIO.16-23), 
+    and the fourth sets port D (Port D - DIO.24-31).
     
     The following items are exported to the HAL.
    
@@ -58,22 +67,22 @@
    
     Digital In:
       Pins:
-/todo  	bit	stg.<channel>.pin-in
-/todo  	bit	stg.<channel>.pin-in-not
+/totest	bit	stg.in-<pinnum>
+/totest	bit	stg.in-<pinnum>-not
    
       Functions:
-/todo  	void    stg.<channel>.digital_in_read
+/totest	void    stg.digital_in_read
    
    
     Digital Out:
       Parameters:
-/todo  	bit	stg.<channel>.pin-out-invert
+/totest	bit	stg.out-<pinnum>-invert
    
       Pins:
-/todo  	bit	stg.<channel>.pin-out
+/totest	bit	stg.out-<pinnum>
    
       Functions:
-/todo  	void    stg.<channel>.digital_out_write
+/totest	void    stg.digital_out_write
 
 */
 
@@ -144,11 +153,22 @@ MODULE_PARM_DESC(num_chan, "number of channels");
 static long period = 0;			/* thread period - default = no thread */
 MODULE_PARM(period, "l");
 MODULE_PARM_DESC(period, "thread period (nsecs)");
+static char *dio = "IIOO";		/* thread period - default = port A&B inputs, port C&D outputs */
+MODULE_PARM(dio, "s");
+MODULE_PARM_DESC(dio, "dio config string - expects something like IIOO");
 #endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
+
+typedef struct {
+    hal_bit_t *data;		/* basic pin for input or output */
+    union {
+	hal_bit_t *not;		/* pin for inverted data (input only) */
+	hal_bit_t invert;	/* param for inversion (output only) */
+	} io;
+} io_pin;
 
 typedef struct {
 /* counter data */
@@ -167,12 +187,17 @@ typedef struct {
     hal_float_t adc_gain[MAX_CHANS];		/* gain to be applied */
     int adc_current_chan;			/* holds the currently converting channel */
 
+/* dio data */
+    io_pin port[4][8];				/* holds 4 ports each 8 pins, either input or output */
+    unsigned char dir_bits;			/* remembers config (which port is input which is output) */
+
 } stg_struct;
 
 static stg_struct *stg_driver;
 
 /* other globals */
 static int comp_id;		/* component ID */
+static int outpinnum=0, inputpinnum=0;
 
 #define DATA(x) (base + (2 * x) - (x % 2))	/* Address of Data register 0 
 						 */
@@ -186,6 +211,9 @@ static int comp_id;		/* component ID */
 static int export_counter(int num, stg_struct * addr);
 static int export_dac(int num, stg_struct * addr);
 static int export_adc(int num, stg_struct * addr);
+static int export_pins(int num, int dir, stg_struct * addr);
+static int export_input_pin(int pinnum, io_pin * pin);
+static int export_output_pin(int pinnum, io_pin * pin);
 
 /* Board specific functions */
 
@@ -207,11 +235,15 @@ static int stg_adc_init(int ch);
 static int stg_adc_start(unsigned short wAxis);
 static short stg_adc_read(int ch);
 
+/* counter related functions */
+static int stg_dio_init(stg_struct * addr);
 
 /* periodic functions registered to HAL */
-static void stg_adcs_read(void *arg, long period);
-static void stg_dacs_write(void *arg, long period);
-static void stg_counter_capture(void *arg, long period);
+static void stg_adcs_read(void *arg, long period); //reads adc data from the board, check long description at the beginning of the function
+static void stg_dacs_write(void *arg, long period); //writes dac's to the STG
+static void stg_counter_capture(void *arg, long period); //captures encoder counters
+static void stg_di_read(void *arg, long period); //reads digital inputs from the STG
+static void stg_do_write(void *arg, long period); //writes digital outputs to the STG
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -221,7 +253,8 @@ static void stg_counter_capture(void *arg, long period);
 
 int rtapi_app_main(void)
 {
-    int n, retval;
+    int n, retval, mask, m;
+    unsigned char dir_bits;
 
     /* test for number of channels */
     if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
@@ -229,12 +262,21 @@ int rtapi_app_main(void)
 	    "STG: ERROR: invalid num_chan: %d\n", num_chan);
 	return -1;
     }
+
+    /* test for config string */
+    if ((dio == 0) || (dio[0] == '\0')) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no dio config string\n");
+	return -1;
+    }
+
     /* have good config info, connect to the HAL */
     comp_id = hal_init("hal_stg");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: hal_init() failed\n");
 	return -1;
     }
+
+
     /* allocate shared memory for stg data */
     stg_driver = hal_malloc(num_chan * sizeof(stg_struct));
     if (stg_driver == 0) {
@@ -251,6 +293,40 @@ int rtapi_app_main(void)
 	return -1;
     }
 
+    /* dio should be a string of 4 'I" or "O" characters */
+    dir_bits = 0;
+    mask = 0x01;
+    for ( m = 0 ; m < 4 ; m++ ) {
+	/* test character and set/clear bit */
+	if ((dio[m] == 'i') || (dio[m] == 'I')) {
+	    /* input, set mask bit to zero */
+	    dir_bits &= ~mask;
+	} else if ((dio[m] == 'o') || (dio[m] == 'O')) {
+	    /* output, set mask bit to one */
+	    dir_bits |= mask;
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"STG: ERROR: bad config info for port %d\n", m);
+	    return -1;
+	}
+	/* shift mask for next bit */
+	mask <<= 1;
+    }
+
+    /* we now should have directions figured out, next is exporting the pins based on that */
+    mask = 0x01;
+    for ( m = 0 ; m < 4 ; m++ ) {
+    
+	/*          port, direction, driver */
+	export_pins(m, (dir_bits & mask), stg_driver);
+
+	/* shift mask for next bit */
+	mask <<= 1;
+    }
+    stg_driver->dir_bits = dir_bits; /* remember direction of each port, will be used in the write / read functions */
+
+    stg_dio_init(stg_driver);
+    
     /* export all the variables for each counter, dac */
     for (n = 0; n < num_chan; n++) {
 	/* export all vars */
@@ -300,8 +376,8 @@ int rtapi_app_main(void)
 
 	/* init adc chip */
 	stg_adc_init(n);
-
     }
+    
     /* export functions */
     retval = hal_export_funct("stg.capture_position", stg_counter_capture,
 	stg_driver, 1, 0, comp_id);
@@ -335,6 +411,29 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"STG: installed %d adcs\n", num_chan);
+
+    retval = hal_export_funct("stg.di_read", stg_di_read,
+	stg_driver, 0, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "STG: ERROR: stg_di_read funct export failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    rtapi_print_msg(RTAPI_MSG_INFO,
+	"STG: installed %d digital inputs\n", inputpinnum);
+
+    retval = hal_export_funct("stg.do_write", stg_do_write,
+	stg_driver, 0, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "STG: ERROR: stg_do_write funct export failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+    rtapi_print_msg(RTAPI_MSG_INFO,
+	"STG: installed %d digital outputs\n", outpinnum);
 
     /* was 'period' specified in the insmod command? */
     if (period > 0) {
@@ -443,6 +542,108 @@ static void stg_adcs_read(void *arg, long period)
     /* the next time this function runs, the result should be available */
 }
 
+
+// helper function to extract the data out of a char and place it into HAL data
+// written by JMK
+static void split_input(unsigned char data, io_pin *dest, int num)
+{
+    int b;
+    unsigned char mask;
+
+    /* splits a byte into 'num' HAL pins (and their NOTs) */
+    mask = 0x01;
+    for (b = 0 ; b < num ; b++ ) {
+	if ( data & mask ) {
+	    /* input high, which means FALSE (active low) */
+	    *(dest->data) = 0;
+	    *(dest->io.not) = 1;
+	} else {
+	    /* input low, which means TRUE */
+	    *(dest->data) = 1;
+	    *(dest->io.not) = 0;
+	}
+	mask <<= 1;
+	dest++;
+    }
+}    
+
+// helper function to extract the data out of HAL and place it into a char
+// written by JMK
+unsigned char build_output(io_pin *src, int num)
+{
+    int b;
+    unsigned char data, mask;
+
+    data = 0x00;
+    mask = 0x01;
+    /* assemble output byte for data port from 'num' source variables */
+    for (b = 0; b < num; b++) {
+	/* get the data, add to output byte */
+	if ( *(src->data) ) {
+	    if ( !(src->io.invert) ) {
+		data |= mask;
+	    }
+	} else {
+	    if ( (src->io.invert) ) {
+		data |= mask;
+	    }
+	}
+	mask <<= 1;
+	src++;
+    }
+    return data;
+}
+
+
+static void stg_di_read(void *arg, long period) //reads digital inputs from the STG
+{
+    stg_struct *stg;
+    unsigned char val;
+    stg=arg;
+    
+    if ( (stg->dir_bits & 0x01) == 0) { // if port A is set as input, read the bits
+	val = inb(base + DIO_A);
+	split_input(val, &(stg->port[0][0]), 8);
+    }
+    if ( (stg->dir_bits & 0x02) == 0) { // if port B is set as input, read the bits
+	val = inb(base + DIO_B);
+	split_input(val, &(stg->port[1][0]), 8);
+    }
+    if ( (stg->dir_bits & 0x04) == 0) { // if port C is set as input, read the bits
+	val = inb(base + DIO_C);
+	split_input(val, &(stg->port[2][0]), 8);
+    }
+    if ( (stg->dir_bits & 0x08) == 0) { // if port D is set as input, read the bits
+	val = inb(base + DIO_D);
+	split_input(val, &(stg->port[3][0]), 8);
+    }
+}
+
+static void stg_do_write(void *arg, long period) //writes digital outputs to the STG
+{
+    stg_struct *stg;
+    unsigned char val;
+    stg=arg;
+
+    if ( (stg->dir_bits & 0x01) != 0) { // if port A is set as output, write the bits
+	val = build_output(&(stg->port[0][0]), 8);
+	outb(base + DIO_A, val);
+    }
+    if ( (stg->dir_bits & 0x02) != 0) { // if port B is set as output, write the bits
+	val = build_output(&(stg->port[1][0]), 8);
+	outb(base + DIO_B, val);
+    }
+    if ( (stg->dir_bits & 0x04) != 0) { // if port C is set as output, write the bits
+	val = build_output(&(stg->port[2][0]), 8);
+	outb(base + DIO_C, val);
+    }
+    if ( (stg->dir_bits & 0x08) != 0) { // if port D is set as output, write the bits
+	val = build_output(&(stg->port[3][0]), 8);
+	outb(base + DIO_D, val);
+    }
+
+}
+
 /***********************************************************************
 *                      BOARD SPECIFIC FUNCTIONS                        *
 ************************************************************************/
@@ -532,9 +733,9 @@ static long stg_counter_read(int i)
 static int stg_adc_init(int ch)
 {
     /* not much to setup for the ADC's */
-    /* only select the mode of operation
-    we will work with AutoZero */
-    outb(base + MIO_2, 0x90);    
+    /* only select the mode of operation we will work with AutoZero */
+    outb(base + MIO_2, 0x01);	// the second 82C55 is already configured (by running stg_dio_init)
+				// we only set bit 0 (AZ) to 1 to enable it
     return 0;
 }
 
@@ -584,6 +785,39 @@ static short stg_adc_read(int axis)
 
     return j;
 };
+
+
+/*
+  stg_dio_init() - Initializes the dio's
+*/
+
+static int stg_dio_init(stg_struct *addr)
+{
+    /* we will select the directions of each port */
+    unsigned char control;
+
+    control = 0x80; //set up |1|0|0|A|CH|0|B|CL|
+    if ( (addr->dir_bits & 0x01) == 0) // if port A is set as input, set bit accordingly
+	control |= 0x10;
+    if ( (addr->dir_bits & 0x02) == 0) // if port B is set as input, set bit accordingly
+	control |= 0x02;
+    if ( (addr->dir_bits & 0x04) == 0) // if port C is set as input, set bits accordingly
+	control |= 0x09;
+    
+    // write the computed control to MIO_1
+    outb(base+MIO_1, control);
+    
+    // next compute the directions for port D, located on the second 82C55
+    control = 0x82;
+    
+    if ( (addr->dir_bits & 0x08) == 0)// if port C is set as input, set bits accordingly
+	control |= 0x10;
+	
+    // write the computed control to MIO_2
+    outb(base+MIO_2, control);
+    
+    return 0;
+}
 
 
 /***********************************************************************
@@ -693,6 +927,73 @@ static int export_adc(int num, stg_struct *addr)
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
+}
+
+static int export_pins(int num, int dir, stg_struct *addr)
+{
+    int retval, msg, i;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    for (i=0; i<8; i++) {
+
+	if (dir != 0)
+	    retval=export_output_pin(outpinnum++, &(addr->port[num][i]) );
+	else
+	    retval=export_input_pin(inputpinnum++, &(addr->port[num][i]) );
+
+	if (retval != 0) {
+	    return retval;
+	}
+    }
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_input_pin(int pinnum, io_pin * pin)
+{
+    char buf[HAL_NAME_LEN + 2];
+    int retval;
+
+    /* export read only HAL pin for input data */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.in-%02d", pinnum);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(pin->data), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export additional pin for inverted input data */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.in-%02d-not", pinnum);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(pin->io.not), comp_id);
+    /* initialize HAL pins */
+    *(pin->data) = 0;
+    *(pin->io.not) = 1;
+    return retval;
+}
+
+static int export_output_pin(int pinnum, io_pin * pin)
+{
+    char buf[HAL_NAME_LEN + 2];
+    int retval;
+
+    /* export read only HAL pin for output data */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.out-%02d", pinnum);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(pin->data), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameter for polarity */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.out-%02d-invert", pinnum);
+    retval = hal_param_bit_new(buf, HAL_WR, &(pin->io.invert), comp_id);
+    /* initialize HAL pin and param */
+    *(pin->data) = 0;
+    pin->io.invert = 0;
+    return retval;
 }
 
 
