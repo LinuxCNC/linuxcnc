@@ -18,7 +18,7 @@
 #ifndef EMC_HH
 #define EMC_HH
 
-#include "config.h.h"
+#include "config.h"
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, etc.
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
@@ -2983,6 +2983,9 @@ extern EMC_MOTION_STAT *emcMotionStatus;
   Modification history:
 
   $Log$
+  Revision 1.15  2005/08/08 13:09:54  paul_c
+  A couple of typos crept in..
+
   Revision 1.14  2005/08/08 13:03:30  paul_c
   Moved global defines for buffer & line lengths in to config.h - If everyone uses this as the first #include, it will help in avoiding buffer overruns..
 

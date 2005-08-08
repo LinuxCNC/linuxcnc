@@ -35,7 +35,7 @@
   all subsequent Z values.
   */
 
-#include "config.h.h"
+#include "config.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
@@ -1575,6 +1575,9 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.19  2005/08/08 13:09:55  paul_c
+  A couple of typos crept in..
+
   Revision 1.18  2005/08/08 13:03:31  paul_c
   Moved global defines for buffer & line lengths in to config.h - If everyone uses this as the first #include, it will help in avoiding buffer overruns..
 
