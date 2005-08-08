@@ -19,9 +19,9 @@
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
+#include "config.h"
 #include <stdio.h>
 #include <fcntl.h>
-#include "global_defs.h"
 
 typedef struct {
     char tag[LINELEN];

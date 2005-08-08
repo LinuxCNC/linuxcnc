@@ -74,9 +74,7 @@
 #ifndef POSEMATH_H
 #define POSEMATH_H
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
+#include "config.h"
 
 #ifdef RTAPI
 #include <linux/types.h>

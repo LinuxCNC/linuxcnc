@@ -35,12 +35,12 @@
   all subsequent Z values.
   */
 
+#include "config.h.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>		// strncpy()
 #include <ctype.h>		// isspace()
-#include "global_defs.h"
 #include "emc.hh"		// EMC NML
 #include "canon.hh"		// these decls
 #include "interpl.hh"		// interp_list
@@ -1575,6 +1575,9 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
   Modification history:
 
   $Log$
+  Revision 1.18  2005/08/08 13:03:31  paul_c
+  Moved global defines for buffer & line lengths in to config.h - If everyone uses this as the first #include, it will help in avoiding buffer overruns..
+
   Revision 1.17  2005/07/08 14:11:15  yabosukz
   fix some more bugz
 

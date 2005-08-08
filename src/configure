@@ -4388,6 +4388,22 @@ fi
 
 
 # Checks for header files.
+
+##############################################################################
+# Section 4.1 - Important headers, functions and gloabl defines.             #
+#                                                                            #
+##############################################################################
+
+# This section gets inserted in to config.h.in when autoheader is run.
+# Global and common defines should be here rather than duplicated in
+# multiple places. Keep screwball constructs out of this, and it can
+# be used in both kernel space and user space.
+
+
+
+
+
+
 echo "$as_me:$LINENO: checking for ANSI C header files" >&5
 echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6
 if test "${ac_cv_header_stdc+set}" = set; then
@@ -4723,6 +4739,9 @@ _ACEOF
 
 fi
 done
+
+
+
 
 
 ##############################################################################

@@ -17,8 +17,8 @@
 #ifndef INTERP_INTERNAL_HH
 #define INTERP_INTERNAL_HH
 
+#include "config.h.h"
 #include <stdio.h>
-#include "global_defs.h"
 #include "canon.hh"
 
 /**********************/

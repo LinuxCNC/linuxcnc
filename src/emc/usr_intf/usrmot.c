@@ -16,6 +16,7 @@
 * $Date$
 ********************************************************************/
 
+#include "config.h.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +24,6 @@
 #include <unistd.h>		/* STDIN_FILENO */
 #include <fcntl.h>		/* F_GETFL, O_NONBLOCK */
 #include <signal.h>		/* signal(), SIGINT */
-#include "global_defs.h"
 #include "_timer.h"		/* esleep() */
 #include "motion.h"
 #include "usrmotintf.h"		/* usrmotInit(), etc */

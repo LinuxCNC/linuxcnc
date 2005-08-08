@@ -15,6 +15,7 @@
 * $Date$
 ********************************************************************/
 
+#include "config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>		/* errno */
@@ -22,7 +23,6 @@
 #include <stdarg.h>		/* va_list, va_arg(), va_start(), va_end() */
 #include <sys/types.h>
 #include <sys/ipc.h>		/* IPC_CREATE, IPC_NOWAIT */
-#include "config.h"
 
 /* There are two types of posix semaphores named and unnamed.
    unamed semaphores can either have the pshared flag set or not

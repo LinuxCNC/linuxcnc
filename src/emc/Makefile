@@ -36,9 +36,7 @@ else
 include ../Makefile.inc
 
 # Public headers
-HEADERS = \
-global_defs.h
-
+HEADERS =
 
 ifndef KDIR
 KDIR := /lib/modules/$(shell uname -r)/build

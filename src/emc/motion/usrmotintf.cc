@@ -18,11 +18,11 @@
 * $Date$
 ********************************************************************/
 
+#include "config.h"     	/* LINELEN definition */
 #include <stdlib.h>		/* exit() */
 #include <sys/stat.h>
 #include <string.h>		/* memcpy() */
 #include <float.h>		/* DBL_MIN */
-#include "global_defs.h"	/* LINELEN definition */
 #include "motion.h"		/* emcmot_status_t,CMD */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_KEY */
