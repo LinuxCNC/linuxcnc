@@ -125,8 +125,6 @@ int usrmotIniLoad(const char *filename)
     return 0;
 }
 
-int emcmot_comm_timeout_count = 0;
-
 /* writes command from c */
 int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 {
@@ -143,128 +141,96 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     if (0 == emcmotCommand) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
-
     /* copy entire command structure to shared memory */
     *emcmotCommand = *c;
-
     /* poll for receipt of command */
-
     /* set timeout for comm failure, now + timeout */
     end = etime() + EMCMOT_COMM_TIMEOUT;
-
     /* now check to see if it got it */
     while (etime() < end) {
 	/* update status */
-	if (0 == usrmotReadEmcmotStatus(&s) && s.commandNumEcho == commandNum) {
+	if (( usrmotReadEmcmotStatus(&s) == 0 ) && ( s.commandNumEcho == commandNum )) {
 	    /* now check emcmot status flag */
 	    if (s.commandStatus == EMCMOT_COMMAND_OK) {
-	    /* spams the screen, couldn't get EMC_DEBUG to work */
 		return EMCMOT_COMM_OK;
-	    } /* end of if */
-	    else {
+	    } else {
 		return EMCMOT_COMM_ERROR_COMMAND;
-	    }			/* end of else */
+	    }
 	}
-	/* end of if */
-	/* rtapi_print("s.commandNumEcho = %d,
-	   commandNum=%d\n",s.commandNumEcho, commandNum); */
-    }				/* end of while loop */
-
-    emcmot_comm_timeout_count++;
-    /* rtapi_print("emcmot_comm_timeout_count=%d\n",
-       emcmot_comm_timeout_count); */
+    }
     return EMCMOT_COMM_ERROR_TIMEOUT;
 }
-
-int emcmot_status_split_count = 0;
-int emcmot_config_split_count = 0;
-int emcmot_debug_split_count = 0;
 
 /* copies status to s */
 int usrmotReadEmcmotStatus(emcmot_status_t * s)
 {
+    int split_read_count;
+    
     /* check for shmem still around */
     if (0 == emcmotStatus) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
-    memcpy(s, emcmotStatus, sizeof(emcmot_status_t));
-
-    /* got it, now check head-tail matches */
-#ifndef IGNORE_SPLIT_READS
-    if (s->head != s->tail) {
-/*! \todo Another #if 0 */
-#if 0
-	emcmot_status_split_count++;
-	if (emcmot_status_split_count > 2
-	    && emcmot_status_split_count % 100 == 0) {
-	    rtapi_print("emcmot_status_split_count = %d\n",
-		emcmot_status_split_count);
+    split_read_count = 0;
+    do {
+	/* copy status struct from shmem to local memory */
+	memcpy(s, emcmotStatus, sizeof(emcmot_status_t));
+	/* got it, now check head-tail matche */
+	if (s->head == s->tail) {
+	    /* head and tail match, done */
+	    return EMCMOT_COMM_OK;
 	}
-#endif
-	return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
-    }
-#endif
-
-    emcmot_status_split_count = 0;
-    return EMCMOT_COMM_OK;
+	/* inc counter and try again, max three times */
+    } while ( ++split_read_count < 3 );
+printf("ReadEmcmotStatus COMM_SPLIT_READ_TIMEOUT\n" );
+    return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
 /* copies config to s */
 int usrmotReadEmcmotConfig(emcmot_config_t * s)
 {
+    int split_read_count;
+    
     /* check for shmem still around */
     if (0 == emcmotConfig) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
-    memcpy(s, emcmotConfig, sizeof(emcmot_config_t));
-
-    /* got it, now check head-tail matches */
-#ifndef IGNORE_SPLIT_READS
-    if (s->head != s->tail) {
-/*! \todo Another #if 0 */
-#if 0
-	emcmot_config_split_count++;
-	if (emcmot_config_split_count > 2
-	    && emcmot_config_split_count % 100 == 0) {
-	    rtapi_print("emcmot_config_split_count = %d\n",
-		emcmot_config_split_count);
+    split_read_count = 0;
+    do {
+	/* copy config struct from shmem to local memory */
+	memcpy(s, emcmotConfig, sizeof(emcmot_config_t));
+	/* got it, now check head-tail matches */
+	if (s->head == s->tail) {
+	    /* head and tail match, done */
+	    return EMCMOT_COMM_OK;
 	}
-#endif
-	return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
-    }
-#endif
-
-    emcmot_config_split_count = 0;
-    return EMCMOT_COMM_OK;
+	/* inc counter and try again, max three times */
+    } while ( ++split_read_count < 3 );
+printf("ReadEmcmotConfig COMM_SPLIT_READ_TIMEOUT\n" );
+    return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
 /* copies debug to s */
 int usrmotReadEmcmotDebug(emcmot_debug_t * s)
 {
+    int split_read_count;
+    
     /* check for shmem still around */
     if (0 == emcmotDebug) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
-    memcpy(s, emcmotDebug, sizeof(emcmot_debug_t));
-
-    /* got it, now check head-tail matches */
-#ifndef IGNORE_SPLIT_READS
-    if (s->head != s->tail) {
-/*! \todo Another #if 0 */
-#if 0
-	emcmot_debug_split_count++;
-	if (emcmot_debug_split_count > 2
-	    && emcmot_debug_split_count % 100 == 0) {
-	    rtapi_print("emcmot_debug_split_count = %d\n",
-		emcmot_debug_split_count);
+    split_read_count = 0;
+    do {
+	/* copy debug struct from shmem to local memory */
+	memcpy(s, emcmotDebug, sizeof(emcmot_debug_t));
+	/* got it, now check head-tail matches */
+	if (s->head == s->tail) {
+	    /* head and tail match, done */
+	    return EMCMOT_COMM_OK;
 	}
-#endif
-	return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
-    }
-#endif
-
-    emcmot_debug_split_count = 0;
-    return EMCMOT_COMM_OK;
+	/* inc counter and try again, max three times */
+    } while ( ++split_read_count < 3 );
+printf("ReadEmcmotDebug COMM_SPLIT_READ_TIMEOUT\n" );
+    return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
 /* copies error to s */
