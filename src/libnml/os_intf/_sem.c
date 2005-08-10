@@ -184,7 +184,7 @@ int rcs_sem_trywait(rcs_sem_t * sem)
        function. 
 #endif
 
-#if defined (HAVE_SEMTIMEDOP) || LINUX_VERSION_CODE > KERNEL_VERSION(2,4,21)
+#if !defined (HAVE_SEMTIMEDOP) || LINUX_VERSION_CODE < KERNEL_VERSION(2,4,22)
 #undef HAVE_SEMTIMEDOP
 #warning Please consider upgrading your kernel to 2.4.22 or higher \
          and installing a recent glibc to take advantage of more \
