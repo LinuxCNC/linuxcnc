@@ -67,14 +67,16 @@ int isnan(double x)
     /* According to notes, a floating point number consists of 8 bytes.
        Expressed as a 64 bit No. the sign will be B63. If bits 52-62 equal
        0x7FF and bits 0-61 are non-zero, the number is a NaN. If bits 52-62
-       equal 2047 and bits 0-61 are zero, the number is infinite. An infinite 
+       equal 0x7FF and bits 0-61 are zero, the number is infinite. An infinite
        number will still cause errors so it should be safe to flag it as a
        NaN. */
     u_int16_t *c = (u_int16_t *) & x;
     a = c[3] & 0x7FF0;
     return (a == 0x7FF0);
 }
+#endif
 
+#ifndef __isnan
 int __isnan(double x)
 {				/* There must be a better way of doing this ! 
 				 */
