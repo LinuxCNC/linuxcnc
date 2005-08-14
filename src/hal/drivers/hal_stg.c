@@ -43,14 +43,14 @@
    
     DACs:
       Parameters:
-/totest	float	stg.<channel>.dac-offset
-/totest	float	stg.<channel>.dac-gain
+	float	stg.<channel>.dac-offset
+	float	stg.<channel>.dac-gain
    
       Pins:
-/totest	float	stg.<channel>.dac-value
+	float	stg.<channel>.dac-value
    
       Functions:
-/totest	void    stg.<channel>.dac_write
+	void    stg.<channel>.dac_write
    
    
     ADC:
@@ -488,8 +488,8 @@ static void stg_dacs_write(void *arg, long period)
     for (i=0;i < num_chan; i++) {
 	/* scale the voltage to be written based on offset and gain */
 	volts = (*(stg->dac_value[i]) - stg->dac_offset[i]) * stg->dac_gain[i];
-	/* compute the value for the DAC */
-	ncounts = (short) ((10.0 - volts) / 20.0 * 0x1FFF);
+	/* compute the value for the DAC, the extra - in there is STG specific */
+	ncounts = (short) ((-10.0 - volts) / 20.0 * 0x1FFF);
 	/* write it to the card */	
 	stg_dac_write(i, ncounts);	
     }
@@ -782,7 +782,7 @@ static long stg_counter_read(int i)
 static int stg_dac_write(int ch, short value)
 {        
     /* write the DAC */
-    outb (value, base + DAC_0 + (ch << 1));
+    outw(value, base + DAC_0 + (ch << 1));
 
     return 0;
 }
@@ -974,7 +974,7 @@ static int export_dac(int num, stg_struct *addr)
 
     /* export pin for voltage received by the board() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-value", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &addr->dac_value[num], comp_id);
+    retval = hal_pin_float_new(buf, HAL_RD, &addr->dac_value[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -990,6 +990,7 @@ static int export_dac(int num, stg_struct *addr)
     if (retval != 0) {
 	return retval;
     }
+
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
