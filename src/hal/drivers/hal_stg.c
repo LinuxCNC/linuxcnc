@@ -67,22 +67,22 @@
    
     Digital In:
       Pins:
-/totest	bit	stg.in-<pinnum>
-/totest	bit	stg.in-<pinnum>-not
+	bit	stg.in-<pinnum>
+	bit	stg.in-<pinnum>-not
    
       Functions:
-/totest	void    stg.digital_in_read
+	void    stg.digital_in_read
    
    
     Digital Out:
       Parameters:
-/totest	bit	stg.out-<pinnum>-invert
+	bit	stg.out-<pinnum>-invert
    
       Pins:
-/totest	bit	stg.out-<pinnum>
+	bit	stg.out-<pinnum>
    
       Functions:
-/totest	void    stg.digital_out_write
+	void    stg.digital_out_write
 
 */
 
@@ -144,7 +144,7 @@ MODULE_DESCRIPTION("Driver for Servo-to-Go Model I for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
-static int base = 0x000;		/* board base address, 0 means autodetect */
+static int base = 0x00;		/* board base address, 0 means autodetect */
 MODULE_PARM(base, "i");
 MODULE_PARM_DESC(base, "board base address, don't use for autodetect");
 static int num_chan = MAX_CHANS;	/* number of channels - default = 8 */
@@ -199,10 +199,8 @@ static stg_struct *stg_driver;
 static int comp_id;		/* component ID */
 static int outpinnum=0, inputpinnum=0;
 
-#define DATA(x) (base + (2 * x) - (x % 2))	/* Address of Data register 0 
-						 */
-#define CTRL(x) (base + (2 * (x+1)) - (x % 2))	/* Address of Control
-						   register 0 */
+#define DATA(x) (base + (2 * x) - (x % 2))	/* Address of Data register 0 */
+#define CTRL(x) (base + (2 * (x+1)) - (x % 2))	/* Address of Control register 0 */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -219,6 +217,8 @@ static int export_output_pin(int pinnum, io_pin * pin);
 
 /* initializes the STG, takes care of autodetection, all initialisations */
 static int stg_init_card(void);
+/* sets up interrupt to be used */
+static int stg_set_interrupt(short interrupt);
 /* scans possible addresses for STG cards */
 static unsigned short stg_autodetect(void);
 
@@ -478,7 +478,6 @@ static void stg_counter_capture(void *arg, long period)
 
 /* stg_dacs_write() - writes all dac's to the board
     - calls stg_dac_write() */
-
 static void stg_dacs_write(void *arg, long period)
 {    
     stg_struct *stg;
@@ -627,53 +626,56 @@ static void stg_do_write(void *arg, long period) //writes digital outputs to the
 
     if ( (stg->dir_bits & 0x01) != 0) { // if port A is set as output, write the bits
 	val = build_output(&(stg->port[0][0]), 8);
-	outb(base + DIO_A, val);
+	outb(val, base + DIO_A);
     }
     if ( (stg->dir_bits & 0x02) != 0) { // if port B is set as output, write the bits
 	val = build_output(&(stg->port[1][0]), 8);
-	outb(base + DIO_B, val);
+	outb(val, base + DIO_B);
     }
     if ( (stg->dir_bits & 0x04) != 0) { // if port C is set as output, write the bits
 	val = build_output(&(stg->port[2][0]), 8);
-	outb(base + DIO_C, val);
+	outb(val, base + DIO_C);
     }
     if ( (stg->dir_bits & 0x08) != 0) { // if port D is set as output, write the bits
 	val = build_output(&(stg->port[3][0]), 8);
-	outb(base + DIO_D, val);
+	outb(val, base + DIO_D);
     }
-
 }
 
 /***********************************************************************
 *                      BOARD SPECIFIC FUNCTIONS                        *
+*       execute board related things (write/read to/from the stg)      *
 ************************************************************************/
+
+
+/***********************************************************************
+*                            INIT FUNCTIONS                            *
+************************************************************************/
+
 /*
   stg_counter_init() - Initializes the channel
 */
-
 static int stg_counter_init(int ch)
 {
     /* Set Counter Command Register - Master Control, Master Reset (MRST), */
     /* and Reset address pointer (RADR). */
-    outb(CTRL(ch), 0x23);
+    outb(0x23, CTRL(ch));
 
     /* Set Counter Command Register - Input Control, OL Load (P3), */
     /* and Enable Inputs A and B (INA/B). */
-    outb(CTRL(ch), 0x68);
+    outb(0x68, CTRL(ch));
 
     /* Set Counter Command Register - Output Control */
-    outb(CTRL(ch), 0x80);
+    outb(0x80, CTRL(ch));
 
     /* Set Counter Command Register - Quadrature */
-    outb(CTRL(ch), 0xC3);
+    outb(0xC3, CTRL(ch));
     return 0;
 }
-
 
 /*
   stg_dac_init() - Initializes the dac channel
 */
-
 static int stg_dac_init(int ch)
 {
     int i;
@@ -687,17 +689,64 @@ static int stg_dac_init(int ch)
 
 
 /*
-  stg_dac_write() - writes a dac channel
+  stg_adc_init() - Initializes the adc channel
 */
-
-static int stg_dac_write(int ch, short value)
-{        
-
-    /* write the DAC */
-    outb (base + DAC_0 + (ch << 1), value);
-
+static int stg_adc_init(int ch)
+{
+    /* not much to setup for the ADC's */
+    /* only select the mode of operation we will work with AutoZero */
+    outb(0x0f, base + MIO_2);	// the second 82C55 is already configured (by running stg_dio_init)
+				// we only set bit 8 (AZ) to 1 to enable it
     return 0;
 }
+
+
+/*
+  stg_dio_init() - Initializes the dio's
+*/
+static int stg_dio_init(stg_struct *addr)
+{
+    /* we will select the directions of each port */
+    unsigned char control, tempINTC, tempIMR;
+
+    control = 0x80; //set up |1|0|0|A|CH|0|B|CL|
+    if ( (addr->dir_bits & 0x01) == 0) // if port A is set as input, set bit accordingly
+	control |= 0x10;
+    if ( (addr->dir_bits & 0x02) == 0) // if port B is set as input, set bit accordingly
+	control |= 0x02;
+    if ( (addr->dir_bits & 0x04) == 0) // if port C is set as input, set bits accordingly
+	control |= 0x09;
+    
+    // write the computed control to MIO_1
+    outb(control, base+MIO_1);
+    
+    tempINTC = inb(base + INTC);
+    
+    // next compute the directions for port D, located on the second 82C55
+    control = 0x82;
+    
+    if ( (addr->dir_bits & 0x08) == 0)// if port D is set as input, set bits accordingly
+	control = 0x92;
+
+    tempIMR = inb(base + IMR); // get the current interrupt mask
+        
+    outb(0xff, base + OCW1); //mask off all interrupts
+    
+    // write the computed control to MIO_2
+    outb(control, base+MIO_2);
+    
+    outb(tempINTC, base + INTC); //restore interrupt control reg.
+    
+    outb(tempIMR, base+ OCW1); //restore int mask
+    
+    return 0;
+}
+
+
+/***********************************************************************
+*                          ACTION FUNCTIONS                            *
+*            these do the actual data exchange with the board          *
+************************************************************************/
 
 /*
   stg_counter_read() - reads one channel
@@ -714,7 +763,7 @@ static long stg_counter_read(int i)
 	} byte;
     } pos;
 
-    outb(CTRL(i), 0x03);
+    outb(0x03, CTRL(i));
     pos.byte.b0 = inb(DATA(i));
     pos.byte.b1 = inb(DATA(i));
     pos.byte.b2 = inb(DATA(i));
@@ -726,18 +775,19 @@ static long stg_counter_read(int i)
     return pos.l;
 }
 
-/*
-  stg_adc_init() - Initializes the dac channel
-*/
 
-static int stg_adc_init(int ch)
-{
-    /* not much to setup for the ADC's */
-    /* only select the mode of operation we will work with AutoZero */
-    outb(base + MIO_2, 0x01);	// the second 82C55 is already configured (by running stg_dio_init)
-				// we only set bit 0 (AZ) to 1 to enable it
+/*
+  stg_dac_write() - writes a dac channel
+*/
+static int stg_dac_write(int ch, short value)
+{        
+    /* write the DAC */
+    outb (value, base + DAC_0 + (ch << 1));
+
     return 0;
 }
+
+
 
 int stg_adc_start(unsigned short wAxis)
 {
@@ -747,13 +797,13 @@ int stg_adc_start(unsigned short wAxis)
 
     /* wait 4 uS for settling time on the multiplexer and ADC. You probably
      shouldn't really have a delay in a driver */
-    outb(0x80, 0);
-    outb(0x80, 0);
-    outb(0x80, 0);
-    outb(0x80, 0);
+    outb(0, 0x80);
+    outb(0, 0x80);
+    outb(0, 0x80);
+    outb(0, 0x80);
 
     /* now start conversion */
-    outw(base + ADC_0 + (wAxis << 1), 0);
+    outw(0, base + ADC_0 + (wAxis << 1));
 
     return 0;
 };
@@ -786,44 +836,95 @@ static short stg_adc_read(int axis)
     return j;
 };
 
+/***********************************************************************
+*                       BOARD INIT FUNCTIONS                           *
+*                  functions for autodetec, irq init                   *
+************************************************************************/
 
-/*
-  stg_dio_init() - Initializes the dio's
-*/
-
-static int stg_dio_init(stg_struct *addr)
+static int stg_set_interrupt(short interrupt)
 {
-    /* we will select the directions of each port */
-    unsigned char control;
-
-    control = 0x80; //set up |1|0|0|A|CH|0|B|CL|
-    if ( (addr->dir_bits & 0x01) == 0) // if port A is set as input, set bit accordingly
-	control |= 0x10;
-    if ( (addr->dir_bits & 0x02) == 0) // if port B is set as input, set bit accordingly
-	control |= 0x02;
-    if ( (addr->dir_bits & 0x04) == 0) // if port C is set as input, set bits accordingly
-	control |= 0x09;
+    unsigned char tempINTC=0x80;
     
-    // write the computed control to MIO_1
-    outb(base+MIO_1, control);
-    
-    // next compute the directions for port D, located on the second 82C55
-    control = 0x82;
-    
-    if ( (addr->dir_bits & 0x08) == 0)// if port C is set as input, set bits accordingly
-	control |= 0x10;
-	
-    // write the computed control to MIO_2
-    outb(base+MIO_2, control);
-    
+    switch (interrupt) {
+	case 3: break;
+	case 5: tempINTC |= 4;break;
+	case 7: tempINTC |= 2;break;
+	case 9: tempINTC |= 6;break;
+	case 10: tempINTC |= 5;break;
+	case 11: tempINTC |= 7;break;
+	case 12: tempINTC |= 3;break;
+	case 15: tempINTC |= 1;break;
+	default: tempINTC |= 4;break;
+    }        
+    outb(tempINTC, base + INTC);
     return 0;
 }
 
+static int stg_init_card()
+{
+    if (base == 0x00) {
+	base = stg_autodetect();
+    }
+    if (base == 0x00) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no STG card found\n");
+	return -1;
+    }
+    outb(0x92, base +  MIO_2);
+    
+    stg_set_interrupt(5); // initialize it to smthg, we won't use it anyways
+    
+    outb(0x1a, base + ICW1); // initialize the 82C59 as single chip (STG docs say so:)
+    outb(0x00, base + ICW2); // ICW2 not used, must init it to 0
+    outb(0xff, base + OCW1); // mask off all interrupts
+     
+    // all ok
+    return 0;
+}
+
+/* scans possible addresses for STG cards */
+unsigned short stg_autodetect()
+{
+
+    short i, j, k, ofs;
+    unsigned short address;
+
+    /* search all possible addresses */
+    for (i = 15; i >= 0; i--) {
+	address = i * 0x20 + 0x200;
+
+	/* does jumper = i? */
+	if ((inb(address + BRDTST) & 0x0f) == i) {
+	    k = 0;		// var for getting the serial
+	    for (j = 0; j < 8; j++) {
+		ofs = (inb(address + BRDTST) >> 4);
+
+		if (ofs & 8) {	/* is SER set? */
+		    ofs = ofs & 7;	/* mask for Q2,Q1,Q0 */
+		    k += (1 << ofs);	/* shift bit into position specified
+					   by Q2, Q1, Q0 */
+		}
+	    }
+	    if (k == 0x75) {
+		rtapi_print_msg(RTAPI_MSG_INFO,
+		    "STG: found card at address %x\n", address);
+		return address;	/* SER sequence is 01110101 */
+	    }
+	    if (k == 0x74) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "STG: ERROR: found version 2 card, not suported by this driver\n");
+		    /* \todo TODO extend the driver to support a type II STG board */
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+    }
+    return (0);
+}
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
+*     these are functions used for exporting various HAL pins/prams    *
 ************************************************************************/
-
 static int export_counter(int num, stg_struct *addr)
 {
     int retval, msg;
@@ -994,56 +1095,4 @@ static int export_output_pin(int pinnum, io_pin * pin)
     *(pin->data) = 0;
     pin->io.invert = 0;
     return retval;
-}
-
-
-static int stg_init_card()
-{
-    if (base == 0x00) {
-	base = stg_autodetect();
-    }
-    if (base == 0x00) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no STG card found\n");
-	return -1;
-    }
-    // FIXME - further init will happen here
-
-    // all ok
-    return 0;
-}
-
-/* scans possible addresses for STG cards */
-unsigned short stg_autodetect()
-{
-
-    short i, j, k, ofs;
-    unsigned short address;
-
-    /* search all possible addresses */
-    for (i = 15; i >= 0; i--) {
-	address = i * 0x20 + 0x200;
-
-	/* does jumper = i? */
-	if ((inb(address + BRDTST) & 0x0f) == i) {
-	    k = 0;		// var for getting the serial
-	    for (j = 0; j < 8; j++) {
-		ofs = (inb(address + BRDTST) >> 4);
-
-		if (ofs & 8) {	/* is SER set? */
-		    ofs = ofs & 7;	/* mask for Q2,Q1,Q0 */
-		    k += (1 << ofs);	/* shift bit into position specified
-					   by Q2, Q1, Q0 */
-		}
-	    }
-	    if (k == 0x75)
-		return address;	/* SER sequence is 01110101 */
-	    if (k == 0x74) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "STG: ERROR: found version 2 card, not suported by this driver\n");
-		hal_exit(comp_id);
-		return -1;
-	    }
-	}
-    }
-    return (0);
 }
