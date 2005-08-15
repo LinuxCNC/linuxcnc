@@ -522,18 +522,19 @@ static void stg_adcs_read(void *arg, long period)
     stg_struct *stg;
     float volts;
     short ncounts;
+    int i;
 
-    stg=arg;
-    if (stg->adc_current_chan > 0) { 
+    stg = arg;
+    i = stg->adc_current_chan;
+    if ((i >= 0) && (i < num_chan)) { 
 	/* we should have the conversion done for adc_num_chan */
-	ncounts = stg_adc_read(stg->adc_current_chan);
+	ncounts = stg_adc_read(i);
 	volts = 10.0 - (ncounts * 20.0 / 0x1FFF);
-	*(stg->adc_value[stg->adc_current_chan]) = volts * stg->adc_gain[stg->adc_current_chan] \
-			    - stg->adc_offset[stg->adc_current_chan];
+	*(stg->adc_value[i]) = volts * stg->adc_gain[i] - stg->adc_offset[i];
     }
     /* if adc_num_chan < 0, it's the first time this routine runs
        thus we don't have any ready data, we simply start the next conversion */
-    if (stg->adc_current_chan++ > num_chan) 
+    if (stg->adc_current_chan++ >= num_chan) 
 	stg->adc_current_chan=0; //increase the channel, and roll back to 0 after all chans are done
 
     /* select the current channel with the mux, and start the conversion */
