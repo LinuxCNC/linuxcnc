@@ -1601,8 +1601,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
-/*! \todo FIXME - debug */
-	printf("case EMC_TRAJ_LINEAR_MOVE_TYPE\n");
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
 	retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end);
 	break;
@@ -3047,6 +3045,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.37  2005/08/22 23:39:06  cradek
+  clean up printf droppings
+
   Revision 1.36  2005/07/19 03:03:00  fenn
   added checks for EMC_DEBUG level so certain debug messages aren't always printed
 
