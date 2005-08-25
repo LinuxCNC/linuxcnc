@@ -39,6 +39,7 @@ scope_horiz.c \
 scope_vert.c \
 scope_trig.c \
 scope_disp.c \
+scope_files.c \
 m5i20cfg.c
 
 ifneq ($(MODULE_EXT),.ko)
@@ -134,6 +135,7 @@ $(TMP_DIR)/scope_horiz.o \
 $(TMP_DIR)/scope_vert.o \
 $(TMP_DIR)/scope_trig.o \
 $(TMP_DIR)/scope_disp.o \
+$(TMP_DIR)/scope_files.o \
 $(TMP_DIR)/miscgtk.o \
 $(LIB_DIR)/ulapi.o \
 $(LIB_DIR)/hal_lib.o
