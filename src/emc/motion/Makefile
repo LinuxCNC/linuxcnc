@@ -69,7 +69,6 @@ $(RTLIB_DIR)/motmod.o: \
 	$(RTTMP_DIR)/command.o \
 	$(RTTMP_DIR)/control.o \
 	$(RTTMP_DIR)/emcmotglb.o \
-	$(RTTMP_DIR)/emcmotlog.o \
 	$(RTTMP_DIR)/emcmotutil.o \
 	$(RTTMP_DIR)/mmxavg.o \
 	$(RTTMP_DIR)/tc.o \

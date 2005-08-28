@@ -10,7 +10,7 @@ BINS =
 
 OBJS =  emcmotlog.o
 
-all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(OBJS:%.o=$(RTTMP_DIR)/%.o)
+all: headers $(OBJS:%.o=$(TMP_DIR)/%.o)
 
 # Generic rules.
 include ../../Make.rules

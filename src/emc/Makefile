@@ -24,7 +24,6 @@ motmod-objs += motion/command.o
 motmod-objs += motion/control.o 
 motmod-objs += motion/emcmotglb.o 
 motmod-objs += motion/emcmotutil.o 
-motmod-objs += log/emcmotlog.o 
 motmod-objs += ../libnml/posemath/_posemath.o
 motmod-objs += ../libnml/posemath/sincos.o
 
