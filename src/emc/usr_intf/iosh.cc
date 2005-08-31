@@ -82,6 +82,9 @@
   emc_io_write_error
   Write the error string to the error NML buffer. Returns 0 if OK, -1 if error.
 
+  emc_io_load_tool_table
+  Loads the tool table specified in the ini file
+
   IO status, sets associated field in the NML status structure
 
   emc_io_status_heartbeat <number>
@@ -99,7 +102,6 @@
   emc_io_status_spindle_brake on | off
   emc_io_status_tool_prepped <number>
   emc_io_status_tool_in_spindle <number>
-
   IO commands:
 
   inb <address>
@@ -125,6 +127,12 @@
   outl <address> <value>
   Writes the long <value> to <address>. If address or value begins with 0x,
   it's interpreted as a hex number, otherwise it's decimal. Returns nothing.
+
+  emc_mot_move <axis> <position> <velocity>
+    
+  emc_mot_rawinput <axis>
+    
+  emc_mot_shmem: need no args
 */
 
 // the NML channels to the EMC task
@@ -366,6 +374,135 @@ static int emc_io_read_command(ClientData clientdata,
     return TCL_OK;
 }
 
+
+
+/*
+  load the tool table from file filename into toolTable[] array.
+  Array is CANON_TOOL_MAX + 1 entries, since 0 is included.
+
+  If filename is "", use global established from ini file
+  */
+static int loadToolTable(const char *filename,
+			 CANON_TOOL_TABLE toolTable[])
+{
+    int t;
+    FILE *fp;
+    char buffer[CANON_TOOL_ENTRY_LEN];
+    const char *name;
+
+    // check filename
+    if (filename[0] == 0) {
+	name = TOOL_TABLE_FILE;
+    } else {
+	// point to name provided
+	name = filename;
+    }
+
+    // open tool table file
+    if (NULL == (fp = fopen(name, "r"))) {
+	// can't open file
+	return -1;
+    }
+    // clear out tool table
+    for (t = 0; t <= CANON_TOOL_MAX; t++) {
+	// unused tools are 0, 0.0, 0.0
+	toolTable[t].id = 0;
+	toolTable[t].length = 0.0;
+	toolTable[t].diameter = 0.0;
+    }
+
+    /*
+       Override 0's with codes from tool file
+
+       File format is:
+
+       <header>
+       <pocket # 0..CANON_TOOL_MAX> <FMS id> <length> <diameter>
+       ...
+
+     */
+
+    // read and discard header
+    if (NULL == fgets(buffer, 256, fp)) {
+	// nothing in file at all
+	fclose(fp);
+	return -1;
+    }
+
+    while (!feof(fp)) {
+	int pocket;
+	int id;
+	double length;
+	double diameter;
+
+	// just read pocket, ID, and length offset
+	if (NULL == fgets(buffer, CANON_TOOL_ENTRY_LEN, fp)) {
+	    break;
+	}
+
+	if (4 != sscanf(buffer, "%d %d %lf %lf",
+			&pocket, &id, &length, &diameter)) {
+	    // bad entry-- skip
+	    continue;
+	} else {
+	    if (pocket < 0 || pocket > CANON_TOOL_MAX) {
+		continue;
+	    } else {
+		toolTable[pocket].id = id;
+		toolTable[pocket].length = length;
+		toolTable[pocket].diameter = diameter;
+	    }
+	}
+    }
+
+    // close the file
+    fclose(fp);
+
+    return 0;
+}
+
+/*
+  save the tool table to file filename from toolTable[] array.
+  Array is CANON_TOOL_MAX + 1 entries, since 0 is included.
+
+  If filename is "", use global established from ini file
+  */
+static int saveToolTable(const char *filename,
+			 CANON_TOOL_TABLE toolTable[])
+{
+    int pocket;
+    FILE *fp;
+    const char *name;
+
+    // check filename
+    if (filename[0] == 0) {
+	name = TOOL_TABLE_FILE;
+    } else {
+	// point to name provided
+	name = filename;
+    }
+
+    // open tool table file
+    if (NULL == (fp = fopen(name, "w"))) {
+	// can't open file
+	return -1;
+    }
+    // write header
+    fprintf(fp, "POC\tFMS\tLEN\t\tDIAM\n");
+
+    for (pocket = 1; pocket <= CANON_TOOL_MAX; pocket++) {
+	fprintf(fp, "%d\t%d\t%f\t%f\n",
+		pocket,
+		toolTable[pocket].id,
+		toolTable[pocket].length, toolTable[pocket].diameter);
+    }
+
+    // close the file
+    fclose(fp);
+
+    return 0;
+}
+
 /*
   emc_io_get_command returns the string and any args associated with
   the command, or "none" if nothing is there.
@@ -412,6 +549,8 @@ static int emc_io_get_command(ClientData clientdata,
 
     case EMC_TOOL_INIT_TYPE:
 	Tcl_SetResult(interp, "emc_tool_init", TCL_VOLATILE);
+	//Load the tool table on beginning
+	loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable);
 	break;
 
     case EMC_TOOL_HALT_TYPE:
@@ -1054,7 +1193,31 @@ static int emc_io_status_tool_in_spindle(ClientData clientdata,
     return TCL_ERROR;
 }
 
-// IO commands
+
+
+/*Load the tool table file*/
+static int emc_io_load_tool_table(ClientData clientdata,
+				  Tcl_Interp * interp,
+				  int objc, Tcl_Obj * CONST objv[])
+{
+    if (objc != 1) {
+	Tcl_SetResult(interp, "emc_io_load_tool_table: need no args",
+		      TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (0 == loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable)) {
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "Error reading tool table", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+
+/*#####################################################################################*/
+/* IO commands*/
+/*#####################################################################################*/
 
 static int unpriv = 0;		// non-zero means can't read IO
 
@@ -1402,6 +1565,10 @@ int Tcl_AppInit(Tcl_Interp * interp)
 			 emc_io_status_tool_in_spindle, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
+    Tcl_CreateObjCommand(interp, "emc_io_load_tool_table",
+			 emc_io_load_tool_table, (ClientData) NULL,
+			 (Tcl_CmdDeleteProc *) NULL);
+
     Tcl_CreateObjCommand(interp, "inb", f_inb, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
@@ -1540,6 +1707,12 @@ static int iniLoad(const char *filename)
 	strcpy(EMC_NMLFILE, inistring);
     } else {
 	// not found, use default
+    }
+    if (NULL != (inistring = inifile.find("TOOL_TABLE", "EMCIO"))) {
+	// copy to global
+	strcpy(TOOL_TABLE_FILE, inistring);
+    } else {
+	strcpy(TOOL_TABLE_FILE, "emc.tbl");	// not found, use default
     }
 
     // close it
