@@ -3000,7 +3000,8 @@ int main(int argc, char *argv[])
 	// interval if ini file says to run full out via
 	// [TASK] CYCLE_TIME <= 0.0
 	if ((emcTaskNoDelay)
-	    || (emcStatus->task.readLine < programStartLine)) {
+	    || (emcStatus->task.readLine < programStartLine)
+            || (programStartLine < 0)) {
 #if defined(LINUX_KERNEL_2_2)
 	    // work around bug in gettimeofday() by running off nominal time
 	    EMC_TASK_CYCLE_TIME = EMC_TASK_CYCLE_TIME_ORIG;
@@ -3045,6 +3046,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.38  2005/09/03 10:23:24  paul_c
+  Bug fix to speed up program verify - Thanks Matt.
+
   Revision 1.37  2005/08/22 23:39:06  cradek
   clean up printf droppings
 
