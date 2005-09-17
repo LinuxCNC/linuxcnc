@@ -999,8 +999,11 @@ check_stuff ( "before command_handler()" );
 	    if (valid) {
 		/* success */
 		loggingAxis = joint_num;
+/*! \todo Another #if 0 */
+#if 0
 		emcmotLogInit(emcmotLog,
 		    emcmotCommand->logType, emcmotCommand->logSize);
+#endif
 		emcmotStatus->logOpen = 1;
 		emcmotStatus->logStarted = 0;
 		emcmotStatus->logSize = emcmotCommand->logSize;
