@@ -296,7 +296,10 @@ check_stuff ( "before command_handler()" );
 					   value */
 	    ls.item.cmd.command = emcmotCommand->command;
 	    ls.item.cmd.commandNum = emcmotCommand->commandNum;
+/*! \todo Another #if 0 */
+#if 0
 	    emcmotLogAdd(emcmotLog, ls);
+#endif
 	    emcmotStatus->logPoints = emcmotLog->howmany;
 	}
 
