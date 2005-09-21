@@ -346,6 +346,8 @@ typedef struct {
     hal_s32_t rawcount;		/* param: current position (feedback) */
     hal_s32_t *count;		/* captured binary count value */
     hal_float_t pos_scale;	/* parameter: scaling factor for pos */
+    float old_scale;		/* stored scale value */
+    double scale_recip;		/* reciprocal value used for scaling */
     hal_float_t *pos;		/* scaled position (floating point) */
     hal_float_t *vel;		/* velocity command */
     hal_float_t vel_scale;	/* parameter: scaling for vel to Hz */
@@ -823,8 +825,20 @@ static void update_pos(void *arg, long period)
     for (n = 0; n < num_chan; n++) {
 	/* capture raw counts to latches */
 	*(freqgen->count) = freqgen->rawcount;
+	/* check for change in scale value */
+	if ( freqgen->pos_scale != freqgen->old_scale ) {
+	    /* get ready to detect future scale changes */
+	    freqgen->old_scale = freqgen->pos_scale;
+	    /* validate the new scale value */
+	    if ((freqgen->pos_scale < 1e-20) && (freqgen->pos_scale > -1e-20)) {
+		/* value too small, divide by zero is a bad thing */
+		freqgen->pos_scale = 1.0;
+	    }
+	    /* we will need the reciprocal */
+	    freqgen->scale_recip = 1.0 / freqgen->pos_scale;
+	}
 	/* scale count to make floating point position */
-	*(freqgen->pos) = *(freqgen->count) * freqgen->pos_scale;
+	*(freqgen->pos) = *(freqgen->count) * freqgen->scale_recip;
 	/* move on to next channel */
 	freqgen++;
     }

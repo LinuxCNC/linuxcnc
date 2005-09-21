@@ -1,6 +1,6 @@
 
-  emc2/ (generic.run, configure script, directory.map (this file),
-    |       top level makefile, Makefile.inc, etc.)
+  emc2/ (directory.map (this file), optionally, a generic run script)
+    |
     |
     |--- docs/ (All the important and relevant Docs.)
     |      |   (API and source notes should be in each src dir.)
@@ -29,7 +29,8 @@
     |
     |--- tcl/ (both tkemc and any other tcl/tk scripts)
     |
-    |--- src/  (source tree - each dir has a local Makefile)
+    |--- src/  (source tree - configure script, top level makefile,
+           |      Makefile.inc, etc)
            |
            |--- rtapi/  (*.c and *.h for RTAPI)
            |      |

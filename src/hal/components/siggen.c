@@ -1,6 +1,6 @@
 /** This file, 'siggen.c', is a HAL component that generates square,
-    triangle, and sine waves.  I expect that it will mostly be used
-    for testing.  It is a realtime component.
+    triangle, sine, cosine, and sawtooth waves.  I expect that it 
+    will mostly be used for testing.  It is a realtime component.
 
     It supports any number of signal generators, as set by the
     insmod parameter 'num_chan'.
@@ -16,8 +16,8 @@
     to +1.0.  If 'amplitude' is 2.5 and 'offset' is 10.0, then
     the outputs will swing from 7.5 to 12.5.
 
-    There are four output pins: 'square', 'triangle', 'sine' and
-    'cosine'.  All four run at the same frequency, amplitude, and
+    There are five output pins: 'square', 'triangle', 'sine', 'cosine',
+    and 'sawtooth'.  All four run at the same frequency, amplitude, and
     offset.
 
     This component exports one function per signal generator,
@@ -65,6 +65,15 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
+/*! \todo  FIX ME - Need an ugly hack here to get rid of compile warnings. */
+#ifdef __attribute_used__
+#undef __attribute_used__
+#endif
+#ifdef __attribute_pure__
+#undef __attribute_pure__
+#endif
+#include <sys/cdefs.h>
+#include <float.h>
 #include <math.h>
 
 #ifdef MODULE
@@ -114,10 +123,11 @@ static int comp_id;		/* component ID */
 static int export_siggen(int num, hal_siggen_t * addr);
 static void calc_siggen(void *arg, long period);
 
+/*! \todo Another #if 0 */
 #if 0
-/* FIXME - these are no longer used, they should be deleted once
+/*! \todo FIXME - these are no longer used, they should be deleted once
    we're sure we don't need them */
-/* FIXME - these are here because rtapi doesn't yet handle linking
+/*! \todo FIXME - these are here because rtapi doesn't yet handle linking
    to the math library */
 
 #define PI 3.1415927
@@ -126,7 +136,11 @@ double sin(double x)
 {
     int flip;
     double retval, top;
-
+/*! \todo FIXME 
+    math.h includes defines for pi, 2*pi, pi/2, and more.
+    It would make sense to use these and save on a few
+    fp ops.
+*/
     /* reduce x to 0-2pi */
     while (x < 0.0) {
 	x += PI * 2.0;

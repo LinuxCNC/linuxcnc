@@ -21,6 +21,20 @@ exec bin/emcsh "$0" "$@"
 # if "tkemc" is defined. emclog.tcl looks at this.
 set tkemc 1
 
+# Internationalisation (i18n)
+# in order to use i18n, all the strings will be called [msgcat::mc "string-foo"]
+# instead of "string-foo".
+# Thus msgcat searches for a translation of the string, and in case one isn't 
+# found, the original string is used.
+# In order to properly use locale's the env variable LANG is queried.
+# If LANG is defined, then the folder src/po is searched for files
+# called *.msg, (e.g. en_US.msg).
+package require msgcat
+if ([info exists env(LANG)]) {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload "src/po"
+}
+
 # read the application defaults
 foreach f {TkEmc configs/TkEmc /usr/X11R6/lib/X11/app-defaults/TkEmc} {
     if {[file exists $f]} {
@@ -162,15 +176,15 @@ proc popupRunMark {mark} {
 
     catch {destroy .runmark}
     toplevel .runmark
-    wm title .runmark "Set Run Mark"
+    wm title .runmark [msgcat::mc "Set Run Mark"]
 
-    label .runmark.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text "Set run mark at line $mark?"
+    label .runmark.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text [msgcat::mc "Set run mark at line"]"$mark?"
     pack .runmark.msg -side top
 
     frame .runmark.buttons
     pack .runmark.buttons -side bottom -fill x -pady 2m
-    button .runmark.buttons.ok -text "OK" -default active -command "set runMark $mark; destroy .runmark"
-    button .runmark.buttons.cancel -text "Cancel" -command "destroy .runmark"
+    button .runmark.buttons.ok -text [msgcat::mc "OK"] -default active -command "set runMark $mark; destroy .runmark"
+    button .runmark.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .runmark"
     pack .runmark.buttons.ok .runmark.buttons.cancel -side left -expand 1
     bind .runmark <Return> "set runMark $mark; destroy .runmark"
 }
@@ -188,7 +202,7 @@ proc popupProgramEditor {} {
 
     frame .programEditor.buttons
     pack .programEditor.buttons -side bottom -fill x -pady 2m
-    button .programEditor.buttons.mark -text "Set Run Mark" -command {popupRunMark [int [.programEditor.textframe.textwin index insert]]}
+    button .programEditor.buttons.mark -text [msgcat::mc "Set Run Mark"] -command {popupRunMark [int [.programEditor.textframe.textwin index insert]]}
     pack .programEditor.buttons.mark -side left -expand 1
 }
 
@@ -210,8 +224,8 @@ proc popupToolEditor {} {
 
     frame .toolEditor.buttons
     pack .toolEditor.buttons -side bottom -fill x -pady 2m
-    button .toolEditor.buttons.load -text "Load Tool Table" -command {geneditSaveFile toolEditor; emc_load_tool_table $toolfilename}
-    button .toolEditor.buttons.cancel -text "Cancel" -default active -command {destroy .toolEditor}
+    button .toolEditor.buttons.load -text [msgcat::mc "Load Tool Table"] -command {geneditSaveFile toolEditor; emc_load_tool_table $toolfilename}
+    button .toolEditor.buttons.cancel -text [msgcat::mc "Cancel"] -default active -command {destroy .toolEditor}
     pack .toolEditor.buttons.load .toolEditor.buttons.cancel -side left -expand 1
 }
 
@@ -236,8 +250,8 @@ proc popupParamEditor {} {
 
     frame .paramEditor.buttons
     pack .paramEditor.buttons -side bottom -fill x -pady 2m
-    button .paramEditor.buttons.load -text "Load Parameter File" -command {geneditSaveFile paramEditor; emc_task_plan_init}
-    button .paramEditor.buttons.cancel -text "Cancel" -default active -command {destroy .paramEditor}
+    button .paramEditor.buttons.load -text [msgcat::mc "Load Parameter File"] -command {geneditSaveFile paramEditor; emc_task_plan_init}
+    button .paramEditor.buttons.cancel -text [msgcat::mc "Cancel"] -default active -command {destroy .paramEditor}
     pack .paramEditor.buttons.load .paramEditor.buttons.cancel -side left -expand 1
 }
 
@@ -268,7 +282,7 @@ proc popupHelp {} {
 
     frame .help.buttons
     pack .help.buttons -side bottom -fill x -pady 2m
-    button .help.buttons.ok -text "OK" -default active -command {destroy .help}
+    button .help.buttons.ok -text [msgcat::mc "OK"] -default active -command {destroy .help}
     pack .help.buttons.ok -side left -expand 1
     bind .help <Return> {destroy .help}
 }
@@ -284,20 +298,20 @@ proc popupDiagnostics {} {
         return
     }
     toplevel $d
-    wm title $d "EMC Diagnostics"
+    wm title $d [msgcat::mc "EMC Diagnostics"]
 
-    label $d.task -text "Task" -width 30 -anchor center
+    label $d.task -text [msgcat::mc "Task"] -width 30 -anchor center
     frame $d.taskhb
-    label $d.taskhb.lab -text "Heartbeat:" -anchor w
+    label $d.taskhb.lab -text [msgcat::mc "Heartbeat:"] -anchor w
     label $d.taskhb.val -textvariable taskhb -anchor e
     frame $d.taskcmd
-    label $d.taskcmd.lab -text "Command:" -anchor w
+    label $d.taskcmd.lab -text [msgcat::mc "Command:"] -anchor w
     label $d.taskcmd.val -textvariable taskcmd -anchor e
     frame $d.tasknum
-    label $d.tasknum.lab -text "Command #:" -anchor w
+    label $d.tasknum.lab -text [msgcat::mc "Command #:"] -anchor w
     label $d.tasknum.val -textvariable tasknum -anchor e
     frame $d.taskstatus
-    label $d.taskstatus.lab -text "Status:" -anchor w
+    label $d.taskstatus.lab -text [msgcat::mc "Status:"] -anchor w
     label $d.taskstatus.val -textvariable taskstatus -anchor e
     pack $d.task $d.taskhb $d.taskcmd $d.tasknum $d.taskstatus -side top -fill x
     pack $d.taskhb.lab -side left
@@ -309,18 +323,18 @@ proc popupDiagnostics {} {
     pack $d.taskstatus.lab -side left
     pack $d.taskstatus.val -side right
 
-    label $d.io -text "Io" -width 30 -anchor center
+    label $d.io -text [msgcat::mc "Io"] -width 30 -anchor center
     frame $d.iohb
-    label $d.iohb.lab -text "Heartbeat:" -anchor w
+    label $d.iohb.lab -text [msgcat::mc "Heartbeat:"] -anchor w
     label $d.iohb.val -textvariable iohb -anchor e
     frame $d.iocmd
-    label $d.iocmd.lab -text "Command:" -anchor w
+    label $d.iocmd.lab -text [msgcat::mc "Command:"] -anchor w
     label $d.iocmd.val -textvariable iocmd -anchor e
     frame $d.ionum
-    label $d.ionum.lab -text "Command #:" -anchor w
+    label $d.ionum.lab -text [msgcat::mc "Command #:"] -anchor w
     label $d.ionum.val -textvariable ionum -anchor e
     frame $d.iostatus
-    label $d.iostatus.lab -text "Status:" -anchor w
+    label $d.iostatus.lab -text [msgcat::mc "Status:"] -anchor w
     label $d.iostatus.val -textvariable iostatus -anchor e
     pack $d.io $d.iohb $d.iocmd $d.ionum $d.iostatus -side top -fill x
     pack $d.iohb.lab -side left
@@ -332,18 +346,18 @@ proc popupDiagnostics {} {
     pack $d.iostatus.lab -side left
     pack $d.iostatus.val -side right
 
-    label $d.motion -text "Motion" -width 30 -anchor center
+    label $d.motion -text [msgcat::mc "Motion"] -width 30 -anchor center
     frame $d.motionhb
-    label $d.motionhb.lab -text "Heartbeat:" -anchor w
+    label $d.motionhb.lab -text [msgcat::mc "Heartbeat:"] -anchor w
     label $d.motionhb.val -textvariable motionhb -anchor e
     frame $d.motioncmd
-    label $d.motioncmd.lab -text "Command:" -anchor w
+    label $d.motioncmd.lab -text [msgcat::mc "Command:"] -anchor w
     label $d.motioncmd.val -textvariable motioncmd -anchor e
     frame $d.motionnum
-    label $d.motionnum.lab -text "Command #:" -anchor w
+    label $d.motionnum.lab -text [msgcat::mc "Command #:"] -anchor w
     label $d.motionnum.val -textvariable motionnum -anchor e
     frame $d.motionstatus
-    label $d.motionstatus.lab -text "Status:" -anchor w
+    label $d.motionstatus.lab -text [msgcat::mc "Status:"] -anchor w
     label $d.motionstatus.val -textvariable motionstatus -anchor e
     pack $d.motion $d.motionhb $d.motioncmd $d.motionnum $d.motionstatus -side top -fill x
     pack $d.motionhb.lab -side left
@@ -372,8 +386,8 @@ proc popupAbout {} {
         return
     }
     toplevel .about
-    wm title .about "About TkEmc"
-    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller\n\nPublic Domain (1999)"
+    wm title .about [msgcat::mc "About TkEmc"]
+    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller\n\nPublic Domain (1999)"]
     frame .about.buttons
     button .about.buttons.ok -default active -text OK -command "destroy .about"
     pack .about.msg -side top
@@ -393,7 +407,7 @@ proc popupToolOffset {} {
         return
     }
     toplevel .tooloffset
-    wm title .tooloffset "Set Tool Offset"
+    wm title .tooloffset [msgcat::mc "Set Tool Offset"]
 
     # pre-load the entries with values
     set toolentry $toolsetting
@@ -401,15 +415,15 @@ proc popupToolOffset {} {
     set tooldiameterentry 0.0 ; # no value provided by controller
 
     frame .tooloffset.tool
-    label .tooloffset.tool.label -text "Tool:" -anchor w
+    label .tooloffset.tool.label -text [msgcat::mc "Tool:"] -anchor w
     entry .tooloffset.tool.entry -textvariable toolentry -width 20
 
     frame .tooloffset.length
-    label .tooloffset.length.label -text "Length:" -anchor w
+    label .tooloffset.length.label -text [msgcat::mc "Length:"] -anchor w
     entry .tooloffset.length.entry -textvariable toollengthentry -width 20
 
     frame .tooloffset.diameter
-    label .tooloffset.diameter.label -text "Diameter:" -anchor w
+    label .tooloffset.diameter.label -text [msgcat::mc "Diameter:"] -anchor w
     entry .tooloffset.diameter.entry -textvariable tooldiameterentry -width 20
 
     frame .tooloffset.buttons
@@ -454,7 +468,7 @@ proc loadProgramText {} {
     catch {close $programin}
     # open the new program, if it's not "none"
     if {[catch {open $programnamestring} programin]} {
-        puts stdout "can't open $programnamestring"
+        puts stdout [msgcat::mc "can't open"]"$programnamestring"
     } else {
         $programfiletext insert end [read $programin]
         $programfiletext config -state disabled
@@ -468,12 +482,25 @@ set oldstatusstring "idle"
 proc fileDialog {} {
     global programDirectory
     global programnamestring
+    set allfilestring [msgcat::mc "All files"]
+    set textfilestring [msgcat::mc "Text files"]
+    set ncfilestring [msgcat::mc "NC files"]
 
-    set types {
-        {"All files" *}
-        {"Text files" {.txt}}
-        {"NC files" {.nc .ngc}}
-    }
+    set all [list ]
+    lappend all $allfilestring
+    lappend all *
+    set text [list ]
+    lappend text $textfilestring
+    lappend text ".txt"
+    set nc [list ]
+    lappend nc $ncfilestring
+    lappend nc ".nc .ngc"
+    
+    set types [list ]
+    lappend types $all
+    lappend types $text 
+    lappend types $nc
+    
     set f [tk_getOpenFile -filetypes $types -initialdir $programDirectory]
     if {[string len $f] > 0} {
         set programDirectory [file dirname $f]
@@ -684,43 +711,43 @@ set menubar [menu $top.menubar -tearoff 0]
 
 # add the File menu
 set filemenu [menu $menubar.file -tearoff 0]
-$menubar add cascade -label "File" -menu $filemenu -underline 0
-$filemenu add command -label "Open..." -command {fileDialog} -underline 0
+$menubar add cascade -label [msgcat::mc "File"] -menu $filemenu -underline 0
+$filemenu add command -label [msgcat::mc "Open..."] -command {fileDialog} -underline 0
 bind . <$modifier-o> {fileDialog}
-$filemenu add command -label "Edit..." -command {popupProgramEditor} -underline 0
-$filemenu add command -label "Reset" -command {emc_task_plan_init} -underline 0
+$filemenu add command -label [msgcat::mc "Edit..."] -command {popupProgramEditor} -underline 0
+$filemenu add command -label [msgcat::mc "Reset"] -command {emc_task_plan_init} -underline 0
 $filemenu add separator
-$filemenu add command -label "Exit" -command {after cancel updateStatus ; destroy . ; exit} -accelerator $modifierstring+X -underline 1
+$filemenu add command -label [msgcat::mc "Exit"] -command {after cancel updateStatus ; destroy . ; exit} -accelerator $modifierstring+X -underline 1
 bind . <$modifier-x> {after cancel updateStatus ; destroy . ; exit}
 
 # add the View menu
 set viewmenu [menu $menubar.view -tearoff 0]
-$menubar add cascade -label "View" -menu $viewmenu -underline 0
-$viewmenu add command -label "Tools..." -command {popupToolEditor} -underline 0
-$viewmenu add command -label "Offsets and Variables..." -command {popupParamEditor} -underline 0
-$viewmenu add command -label "Diagnostics..." -command {popupDiagnostics} -underline 0
-$viewmenu add command -label "Backplot..." -command {popupPlot} -underline 0
+$menubar add cascade -label [msgcat::mc "View"] -menu $viewmenu -underline 0
+$viewmenu add command -label [msgcat::mc "Tools..."] -command {popupToolEditor} -underline 0
+$viewmenu add command -label [msgcat::mc "Offsets and Variables..."] -command {popupParamEditor} -underline 0
+$viewmenu add command -label [msgcat::mc "Diagnostics..."] -command {popupDiagnostics} -underline 0
+$viewmenu add command -label [msgcat::mc "Backplot..."] -command {popupPlot} -underline 0
 
 # add the Settings menu
 set settingsmenu [menu $menubar.settings -tearoff 0]
-$menubar add cascade -label "Settings" -menu $settingsmenu -underline 0
-$settingsmenu add command -label "Calibration..." -command {popupCalibration} -underline 0
-$settingsmenu add command -label "Logging..." -command {popupLog} -underline 0
-$settingsmenu add command -label "Testing..." -command {popupTesting} -underline 0
-$settingsmenu add command -label "Debug..." -command {popupDebug} -underline 0
-$settingsmenu add command -label "Font..." -command {popupFont} -underline 0
+$menubar add cascade -label [msgcat::mc "Settings"] -menu $settingsmenu -underline 0
+$settingsmenu add command -label [msgcat::mc "Calibration..."] -command {popupCalibration} -underline 0
+$settingsmenu add command -label [msgcat::mc "Logging..."] -command {popupLog} -underline 0
+$settingsmenu add command -label [msgcat::mc "Testing..."] -command {popupTesting} -underline 0
+$settingsmenu add command -label [msgcat::mc "Debug..."] -command {popupDebug} -underline 0
+$settingsmenu add command -label [msgcat::mc "Font..."] -command {popupFont} -underline 0
 
 # add the Units menu
 set unitsmenu [menu $menubar.units -tearoff 0]
-$menubar add cascade -label "Units" -menu $unitsmenu -underline 0
-$unitsmenu add command -label "auto" -command {emc_linear_unit_conversion auto} -underline 0
-$unitsmenu add command -label "inches" -command {emc_linear_unit_conversion inch} -underline 0
-$unitsmenu add command -label "mm" -command {emc_linear_unit_conversion mm} -underline 0
-$unitsmenu add command -label "cm" -command {emc_linear_unit_conversion cm} -underline 0
+$menubar add cascade -label [msgcat::mc "Units"] -menu $unitsmenu -underline 0
+$unitsmenu add command -label [msgcat::mc "auto"] -command {emc_linear_unit_conversion auto} -underline 0
+$unitsmenu add command -label [msgcat::mc "inches"] -command {emc_linear_unit_conversion inch} -underline 0
+$unitsmenu add command -label [msgcat::mc "mm"] -command {emc_linear_unit_conversion mm} -underline 0
+$unitsmenu add command -label [msgcat::mc "cm"] -command {emc_linear_unit_conversion cm} -underline 0
 
 # Add a scripts menu that looks for *.tcl files in tcl/scripts subdirectory
 set scriptsmenu [menu $menubar.scripts -tearoff 1]
-$menubar add cascade -label "Scripts" -menu $scriptsmenu -underline 1
+$menubar add cascade -label [msgcat::mc "Scripts"] -menu $scriptsmenu -underline 1
 set scriptdir tcl/scripts
 
 if { $windows == 0 } {
@@ -738,13 +765,13 @@ if { $windows == 0 } {
 
 # add the help menu
 set helpmenu [menu $menubar.help -tearoff 0]
-$menubar add cascade -label "Help" -menu $helpmenu -underline 0
-$helpmenu add command -label "Help..." -command {popupHelp} -underline 0
-$helpmenu add check -label "Balloon help" -variable do_balloons
+$menubar add cascade -label [msgcat::mc "Help"] -menu $helpmenu -underline 0
+$helpmenu add command -label [msgcat::mc "Help..."] -command {popupHelp} -underline 0
+$helpmenu add check -label [msgcat::mc "Balloon help"] -variable do_balloons
 $helpmenu add separator
-$helpmenu add command -label "Info..." -command {catch {exec tcl/sysinfo.tcl -- -ini $EMC_INIFILE}} -underline 0
+$helpmenu add command -label [msgcat::mc "Info..."] -command {catch {exec tcl/sysinfo.tcl -- -ini $EMC_INIFILE}} -underline 0
 $helpmenu add separator
-$helpmenu add command -label "About..." -command {popupAbout} -underline 0
+$helpmenu add command -label [msgcat::mc "About..."] -command {popupAbout} -underline 0
 
 . configure -menu $menubar
 
@@ -763,44 +790,44 @@ pack $commandbuttonsl3t1 -side top -fill both -expand true
 set estopbutton [menubutton $commandbuttonsl1.estop -textvariable estoplabel -direction below -relief raised -width 15]
 set estopmenu [menu $estopbutton.menu -tearoff 0]
 $estopbutton configure -menu $estopmenu
-$estopmenu add command -label "Estop on" -command {emc_estop on}
-$estopmenu add command -label "Estop off" -command {emc_estop off}
+$estopmenu add command -label [msgcat::mc "Estop on"] -command {emc_estop on}
+$estopmenu add command -label [msgcat::mc "Estop off"] -command {emc_estop off}
 $estopmenu add separator
-$estopmenu add command -label "Machine on" -command {emc_machine on}
-$estopmenu add command -label "Machine off" -command {emc_machine off}
+$estopmenu add command -label [msgcat::mc "Machine on"] -command {emc_machine on}
+$estopmenu add command -label [msgcat::mc "Machine off"] -command {emc_machine off}
 
 pack $estopbutton -side top -fill both -expand true
 
 set modebutton [menubutton $commandbuttonsl1.mode -textvariable modelabel -direction below -relief raised -width 15]
 set modemenu [menu $modebutton.menu -tearoff 0]
 $modebutton configure -menu $modemenu
-$modemenu add command -label "Manual" -command {emc_mode manual}
-$modemenu add command -label "Auto" -command {emc_mode auto}
-$modemenu add command -label "MDI" -command {emc_mode mdi}
+$modemenu add command -label [msgcat::mc "Manual"] -command {emc_mode manual}
+$modemenu add command -label [msgcat::mc "Auto"] -command {emc_mode auto}
+$modemenu add command -label [msgcat::mc "MDI"] -command {emc_mode mdi}
 
 pack $modebutton -side top -fill both -expand true
 
 set mistbutton [menubutton $commandbuttonsl2.mist -textvariable mistlabel -direction below -relief raised -width 15]
 set mistmenu [menu $mistbutton.menu -tearoff 0]
 $mistbutton configure -menu $mistmenu
-$mistmenu add command -label "Mist on" -command {emc_mist on}
-$mistmenu add command -label "Mist off" -command {emc_mist off}
+$mistmenu add command -label [msgcat::mc "Mist on"] -command {emc_mist on}
+$mistmenu add command -label [msgcat::mc "Mist off"] -command {emc_mist off}
 
 pack $mistbutton -side top -fill both -expand true
 
 set floodbutton [menubutton $commandbuttonsl2.flood -textvariable floodlabel -direction below -relief raised -width 15]
 set floodmenu [menu $floodbutton.menu -tearoff 0]
 $floodbutton configure -menu $floodmenu
-$floodmenu add command -label "Flood on" -command {emc_flood on}
-$floodmenu add command -label "Flood off" -command {emc_flood off}
+$floodmenu add command -label [msgcat::mc "Flood on"] -command {emc_flood on}
+$floodmenu add command -label [msgcat::mc "Flood off"] -command {emc_flood off}
 
 pack $floodbutton -side top -fill both -expand true
 
 set lubebutton [menubutton $commandbuttonsl2.lube -textvariable lubelabel -direction below -relief raised -width 15]
 set lubemenu [menu $lubebutton.menu -tearoff 0]
 $lubebutton configure -menu $lubemenu
-$lubemenu add command -label "Lube on" -command {emc_lube on}
-$lubemenu add command -label "Lube off" -command {emc_lube off}
+$lubemenu add command -label [msgcat::mc "Lube on"] -command {emc_lube on}
+$lubemenu add command -label [msgcat::mc "Lube off"] -command {emc_lube off}
 
 # FIXME-- there's probably a better place to put the lube button
 # if {[emc_ini LUBE_WRITE_INDEX EMCIO] != ""} {
@@ -817,9 +844,9 @@ bind $decrbutton <ButtonRelease-1> {emc_spindle constant}
 set spindlebutton [menubutton $commandbuttonsl3t1.spindle -textvariable spindlelabel -direction below -relief raised -width 16]
 set spindlemenu [menu $spindlebutton.menu -tearoff 0]
 $spindlebutton configure -menu $spindlemenu
-$spindlemenu add command -label "Spindle forward" -command {emc_spindle forward}
-$spindlemenu add command -label "Spindle reverse" -command {emc_spindle reverse}
-$spindlemenu add command -label "Spindle off" -command {emc_spindle off}
+$spindlemenu add command -label [msgcat::mc "Spindle forward"] -command {emc_spindle forward}
+$spindlemenu add command -label [msgcat::mc "Spindle reverse"] -command {emc_spindle reverse}
+$spindlemenu add command -label [msgcat::mc "Spindle off"] -command {emc_spindle off}
 
 pack $spindlebutton -side left -fill both -expand true
 
@@ -833,12 +860,12 @@ bind $incrbutton <ButtonRelease-1> {emc_spindle constant}
 set brakebutton [menubutton $commandbuttonsl3.brake -textvariable brakelabel -direction below -relief raised -width 25]
 set brakemenu [menu $brakebutton.menu -tearoff 0]
 $brakebutton configure -menu $brakemenu
-$brakemenu add command -label "Brake on" -command {emc_brake on}
-$brakemenu add command -label "Brake off" -command {emc_brake off}
+$brakemenu add command -label [msgcat::mc "Brake on"] -command {emc_brake on}
+$brakemenu add command -label [msgcat::mc "Brake off"] -command {emc_brake off}
 
 pack $brakebutton -side top -fill both -expand true
 
-set abortbutton [button $commandbuttons.abort -text "ABORT" -width 15 -height 3 -takefocus 0]
+set abortbutton [button $commandbuttons.abort -text [msgcat::mc "ABORT"] -width 15 -height 3 -takefocus 0]
 
 pack $abortbutton -side left -fill both -expand true
 
@@ -853,11 +880,11 @@ set oldunitsetting $unitsetting
 
 set settings [frame $top.settings]
 pack $settings -side top -anchor w -pady 2m
-set toollabel [label $settings.toollabel -text "Tool:" -anchor w]
+set toollabel [label $settings.toollabel -text [msgcat::mc "Tool:"] -anchor w]
 set toolsetting [label $settings.toolsetting -textvariable toolsetting -width 4 -anchor w]
-set tooloffsetlabel [label $settings.tooloffsetlabel -text "Offset:" -anchor w]
+set tooloffsetlabel [label $settings.tooloffsetlabel -text [msgcat::mc "Offset:"] -anchor w]
 set tooloffsetsetting [label $settings.tooloffsetsetting -textvariable tooloffsetsetting -width 10 -anchor e]
-set offsetlabel [label $settings.offsetlabel -text "Work Offsets:" -anchor w]
+set offsetlabel [label $settings.offsetlabel -text [msgcat::mc "Work Offsets:"] -anchor w]
 set offsetsetting [label $settings.offsetsetting -textvariable offsetsetting -width 30 -anchor w]
 set unitlabel [label $settings.unitlabel -textvariable unitsetting -width 6 -anchor e]
 
@@ -1072,20 +1099,20 @@ proc setfont {} {
     $pos5d config -font $nf
 }
 
-set limoridebutton [button $limoride.button -text "override limits" -command {toggleLimitOverride} -takefocus 0]
+set limoridebutton [button $limoride.button -text [msgcat::mc "override limits"] -command {toggleLimitOverride} -takefocus 0]
 pack $limoridebutton -side top
 set limoridebuttonbg [$limoridebutton cget -background]
 set limoridebuttonabg [$limoridebutton cget -activebackground]
 bind $limoridebutton <ButtonPress-1> {emc_override_limit}
 
-set radiorel [radiobutton $coordsel.rel -text "relative" -variable coords -value relative -command {} -takefocus 0]
-set radioabs [radiobutton $coordsel.abs -text "machine" -variable coords -value machine -command {} -takefocus 0]
+set radiorel [radiobutton $coordsel.rel -text [msgcat::mc "relative"] -variable coords -value relative -command {} -takefocus 0]
+set radioabs [radiobutton $coordsel.abs -text [msgcat::mc "machine"] -variable coords -value machine -command {} -takefocus 0]
 
-set radioact [radiobutton $coordsel.act -text "actual" -variable actcmd -value actual -command {} -takefocus 0]
-set radiocmd [radiobutton $coordsel.cmd -text "commanded" -variable actcmd -value commanded -command {} -takefocus 0]
+set radioact [radiobutton $coordsel.act -text [msgcat::mc "actual"] -variable actcmd -value actual -command {} -takefocus 0]
+set radiocmd [radiobutton $coordsel.cmd -text [msgcat::mc "commanded"] -variable actcmd -value commanded -command {} -takefocus 0]
 
-set radiojoint [radiobutton $coordsel.joint -text "joint" -variable jointworld -value joint -command {} -takefocus 0]
-set radioworld [radiobutton $coordsel.world -text "world" -variable jointworld -value world -command {} -takefocus 0]
+set radiojoint [radiobutton $coordsel.joint -text [msgcat::mc "joint"] -variable jointworld -value joint -command {} -takefocus 0]
+set radioworld [radiobutton $coordsel.world -text [msgcat::mc "world"] -variable jointworld -value world -command {} -takefocus 0]
 
 pack $radiorel -side top -anchor w
 pack $radioabs -side top -anchor w
@@ -1097,7 +1124,7 @@ pack $radioworld -side top -anchor w
 set jogtypebutton [menubutton $jog.type -textvariable jogType -direction below -relief raised -width 16]
 set jogtypemenu [menu $jogtypebutton.menu -tearoff 0]
 $jogtypebutton configure -menu $jogtypemenu
-$jogtypemenu add command -label "continous" -command {set jogType continuous ; set jogIncrement 0.0000}
+$jogtypemenu add command -label [msgcat::mc "continous"] -command {set jogType continuous ; set jogIncrement 0.0000}
 $jogtypemenu add command -label "0.0001" -command {set jogType 0.0001 ; set jogIncrement 0.0001}
 $jogtypemenu add command -label "0.0010" -command {set jogType 0.0010 ; set jogIncrement 0.0010}
 $jogtypemenu add command -label "0.0100" -command {set jogType 0.0100 ; set jogIncrement 0.0100}
@@ -1107,7 +1134,7 @@ $jogtypemenu add command -label "1.0000" -command {set jogType 1.0000 ; set jogI
 pack $jogtypebutton -side top
 
 set jognegbutton [button $dojog.neg -text "-" -takefocus 0]
-set homebutton [button $dojog.home -text "home" -takefocus 0]
+set homebutton [button $dojog.home -text [msgcat::mc "home"] -takefocus 0]
 set jogposbutton [button $dojog.pos -text "+" -takefocus 0]
 
 pack $jognegbutton -side left
@@ -1168,9 +1195,9 @@ proc popupAxisOffset {axis} {
         return
     }
     toplevel .axisoffset
-    wm title .axisoffset "Axis Offset"
+    wm title .axisoffset [msgcat::mc "Axis Offset"]
     frame .axisoffset.input
-    label .axisoffset.input.label -text "Set axis value:"
+    label .axisoffset.input.label -text [msgcat::mc "Set axis value:"]
     entry .axisoffset.input.entry -textvariable axisoffsettext -width 20
     frame .axisoffset.buttons
     button .axisoffset.buttons.ok -text OK -default active -command "setAxisOffset $axis \$axisoffsettext; destroy .axisoffset"
@@ -1212,13 +1239,13 @@ proc popupJogSpeed {} {
         return
     }
     toplevel .jogspeedpopup
-    wm title .jogspeedpopup "Set Jog Speed"
+    wm title .jogspeedpopup [msgcat::mc "Set Jog Speed"]
 
     # initialize value to current jog speed
     set popupJogSpeedEntry $jogSpeed
 
     frame .jogspeedpopup.input
-    label .jogspeedpopup.input.label -text "Set jog speed:"
+    label .jogspeedpopup.input.label -text [msgcat::mc "Set jog speed:"]
     entry .jogspeedpopup.input.entry -textvariable popupJogSpeedEntry -width 20
     frame .jogspeedpopup.buttons
     button .jogspeedpopup.buttons.ok -text OK -default active -command {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
@@ -1243,13 +1270,13 @@ proc popupOride {} {
         return
     }
     toplevel .oridepopup
-    wm title .oridepopup "Set Feed Override"
+    wm title .oridepopup [msgcat::mc "Set Feed Override"]
 
     # initialize value to current feed override
     set popupOrideEntry $realfeedoverride
 
     frame .oridepopup.input
-    label .oridepopup.input.label -text "Set feed override:"
+    label .oridepopup.input.label -text [msgcat::mc "Set feed override:"]
     entry .oridepopup.input.entry -textvariable popupOrideEntry -width 20
     frame .oridepopup.buttons
     button .oridepopup.buttons.ok -text OK -default active -command {set feedoverride $popupOrideEntry; emc_feed_override $feedoverride; destroy .oridepopup}
@@ -1280,7 +1307,7 @@ pack $controls -side top -anchor w
 set feed [frame $controls.feed]
 set feedtop [frame $feed.top]
 set feedbottom [frame $feed.bottom]
-set feedlabel [label $feedtop.label -text "Axis Speed:" -width 12]
+set feedlabel [label $feedtop.label -text [msgcat::mc "Axis Speed:"] -width 18]
 set feedvalue [label $feedtop.value -textvariable jogSpeed -width 6]
 set feedscale [scale $feedbottom.scale -length 270 -from 0 -to $maxJogSpeed -variable jogSpeed -orient horizontal -showvalue 0 -takefocus 0]
 
@@ -1299,7 +1326,7 @@ bind $feedvalue <ButtonPress-3> {popupJogSpeed}
 set oride [frame $controls.oride]
 set oridetop [frame $oride.top]
 set oridebottom [frame $oride.bottom]
-set oridelabel [label $oridetop.label -text "Feed Override:" -width 12]
+set oridelabel [label $oridetop.label -text [msgcat::mc "Feed Override:"] -width 27]
 set oridevalue [label $oridetop.value -textvariable realfeedoverride -width 6]
 set oridescale [scale $oridebottom.scale -length 270 -from 1 -to $maxFeedOverride -variable feedoverride -orient horizontal -showvalue 0 -command {emc_feed_override} -takefocus 0]
 
@@ -1321,7 +1348,7 @@ proc sendMdi {mdi} {
 
 set mditext ""
 set mdi [frame $top.mdi]
-set mdilabel [label $mdi.label -text "MDI:" -width 4 -anchor w]
+set mdilabel [label $mdi.label -text [msgcat::mc "MDI:"] -width 4 -anchor w]
 set mdientry [entry $mdi.entry -textvariable mditext -takefocus 0 -width 73]
 
 pack $mdi -side top -anchor w
@@ -1343,12 +1370,12 @@ set programstatus [frame $top.programstatus]
 
 # programstatusname is "Program: <name>" half of programstatus
 set programstatusname [frame $programstatus.name]
-set programstatusnamelabel [label $programstatusname.label -text "Program: "]
+set programstatusnamelabel [label $programstatusname.label -text [msgcat::mc "Program: "]]
 set programstatusnamevalue [label $programstatusname.value -textvariable programnamestring -width 50 -anchor e]
 
 # programstatusstatus is "Status: idle" half of programstatus
 set programstatusstatus [frame $programstatus.status]
-set programstatusstatuslabel [label $programstatusstatus.label -text "  -  Status: "]
+set programstatusstatuslabel [label $programstatusstatus.label -text [msgcat::mc "  -  Status: "]]
 set programstatusstatusvalue [label $programstatusstatus.value -textvariable programstatusstring -anchor w]
 
 pack $programstatus -side top -anchor w
@@ -1358,12 +1385,12 @@ pack $programstatusstatuslabel $programstatusstatusvalue -side left
 
 # programframe is the frame for the button widgets for run, pause, etc.
 set programframe [frame $top.programframe]
-set programopenbutton [button $programframe.open -text "Open..." -command {fileDialog} -takefocus 0]
-set programrunbutton [button $programframe.run -text "Run" -command {emc_run $runMark ; set runMark 0} -takefocus 0]
-set programpausebutton [button $programframe.pause -text "Pause" -command {emc_pause} -takefocus 0]
-set programresumebutton [button $programframe.resume -text "Resume" -command {emc_resume} -takefocus 0]
-set programstepbutton [button $programframe.step -text "Step" -command {emc_step} -takefocus 0]
-set programverifybutton [button $programframe.verify -text "Verify" -command {emc_run -1} -takefocus 0]
+set programopenbutton [button $programframe.open -text [msgcat::mc "Open..."] -command {fileDialog} -takefocus 0]
+set programrunbutton [button $programframe.run -text [msgcat::mc "Run"] -command {emc_run $runMark ; set runMark 0} -takefocus 0]
+set programpausebutton [button $programframe.pause -text [msgcat::mc "Pause"] -command {emc_pause} -takefocus 0]
+set programresumebutton [button $programframe.resume -text [msgcat::mc "Resume"] -command {emc_resume} -takefocus 0]
+set programstepbutton [button $programframe.step -text [msgcat::mc "Step"] -command {emc_step} -takefocus 0]
+set programverifybutton [button $programframe.verify -text [msgcat::mc "Verify"] -command {emc_run -1} -takefocus 0]
 
 pack $programframe -side top -anchor w -fill both -expand true
 pack $programopenbutton $programrunbutton $programpausebutton $programresumebutton $programstepbutton $programverifybutton -side left -fill both -expand true
@@ -1679,14 +1706,14 @@ proc popupError {err} {
         return
     }
     toplevel .error
-    wm title .error Error
+    wm title .error [msgcat::mc "Error"]
 
-    label .error.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text "Error: $err"
+    label .error.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text [msgcat::mc "Error: "]"$err"
     pack .error.msg -side top
 
     frame .error.buttons
     pack .error.buttons -side bottom -fill x -pady 2m
-    button .error.buttons.ok -text "OK" -default active -command "destroy .error"
+    button .error.buttons.ok -text [msgcat::mc "OK"] -default active -command "destroy .error"
     pack .error.buttons.ok -side left -expand 1
     bind .error <Return> "destroy .error"
 }
@@ -1705,7 +1732,7 @@ proc popupOperatorText {otext} {
 
     frame .opertext.buttons
     pack .opertext.buttons -side bottom -fill x -pady 2m
-    button .opertext.buttons.ok -text "OK" -default active -command "destroy .opertext"
+    button .opertext.buttons.ok -text [msgcat::mc "OK"] -default active -command "destroy .opertext"
     pack .opertext.buttons.ok -side left -expand 1
     bind .opertext <Return> "destroy .opertext"
 }
@@ -1724,7 +1751,7 @@ proc popupOperatorDisplay {odisplay} {
 
     frame .operdisplay.buttons
     pack .operdisplay.buttons -side bottom -fill x -pady 2m
-    button .operdisplay.buttons.ok -text "OK" -default active -command "destroy .operdisplay"
+    button .operdisplay.buttons.ok -text [msgcat::mc "OK"] -default active -command "destroy .operdisplay"
     pack .operdisplay.buttons.ok -side left -expand 1
     bind .operdisplay <Return> "destroy .operdisplay"
 }
@@ -1739,7 +1766,7 @@ proc popupFont {} {
         return
     }
     set m [toplevel .setfont]
-    wm title $m "Set Font"
+    wm title $m [msgcat::mc "Set Font"]
 
     set a [frame $m.radio]
     pack $a -side top -expand 1
@@ -1771,8 +1798,8 @@ proc popupFont {} {
 
     frame $m.buttons
     pack $m.buttons -side bottom -fill x -pady 2m
-    button $m.buttons.ok -text "OK" -default active -command "setfont ; destroy $m"
-    button $m.buttons.cancel -text "Cancel" -command "destroy $m"
+    button $m.buttons.ok -text [msgcat::mc "OK"] -default active -command "setfont ; destroy $m"
+    button $m.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy $m"
     pack $m.buttons.ok $m.buttons.cancel -side left -expand 1
     bind .setfont <Return> "setfont ; destroy $m"
 }
@@ -1801,7 +1828,7 @@ proc setMdiBindings {} {
 # immediately in updateStatus if it's not correct.
 # This lets us check if there's a change and reset bindings, etc.
 # on transitions instead of every cycle.
-set modelabel "MANUAL"
+set modelabel [msgcat::mc "MANUAL"]
 $mistbutton config -state normal
 $floodbutton config -state normal
 $spindlebutton config -state normal
@@ -1880,17 +1907,17 @@ proc updateStatus {} {
     # now update labels
 
     if {[emc_estop] == "on"} {
-        set estoplabel "ESTOP"
+        set estoplabel [msgcat::mc "ESTOP"]
     } elseif {[emc_machine] == "on"} {
-        set estoplabel "ON"
+        set estoplabel [msgcat::mc "ON"]
     } else {
-        set estoplabel "ESTOP RESET"
+        set estoplabel [msgcat::mc "ESTOP RESET"]
     }
 
     set temp [emc_mode]
     if {$temp != $modeInDisplay} {
         if {$temp == "auto"} {
-            set modelabel "AUTO"
+            set modelabel [msgcat::mc "AUTO"]
             $mistbutton config -state disabled
             $floodbutton config -state disabled
             $spindlebutton config -state disabled
@@ -1899,7 +1926,7 @@ proc updateStatus {} {
             focus .
             setAutoBindings
         } elseif {$temp == "mdi"} {
-            set modelabel "MDI"
+            set modelabel [msgcat::mc "MDI"]
             $mistbutton config -state disabled
             $floodbutton config -state disabled
             $spindlebutton config -state disabled
@@ -1912,7 +1939,7 @@ proc updateStatus {} {
 	    if { $jointworld == "world" && [emc_kinematics_type] != 1 && ! [emc_teleop_enable ] } {
 		emc_teleop_enable 1
 	    }
-            set modelabel "MANUAL"
+            set modelabel [msgcat::mc "MANUAL"]
             $mistbutton config -state normal
             $floodbutton config -state normal
             $spindlebutton config -state normal
@@ -1925,49 +1952,49 @@ proc updateStatus {} {
     }
 
     if {[emc_mist] == "on"} {
-        set mistlabel "MIST ON"
+        set mistlabel [msgcat::mc "MIST ON"]
     } elseif {[emc_mist] == "off"} {
-        set mistlabel "MIST OFF"
+        set mistlabel [msgcat::mc "MIST OFF"]
     } else {
-        set mistlabel "MIST ?"
+        set mistlabel [msgcat::mc "MIST ?"]
     }
 
     if {[emc_flood] == "on"} {
-        set floodlabel "FLOOD ON"
+        set floodlabel [msgcat::mc "FLOOD ON"]
     } elseif {[emc_flood] == "off"} {
-        set floodlabel "FLOOD OFF"
+        set floodlabel [msgcat::mc "FLOOD OFF"]
     } else {
-        set floodlabel "FLOOD ?"
+        set floodlabel [msgcat::mc "FLOOD ?"]
     }
 
     if {[emc_lube] == "on"} {
-        set lubelabel "LUBE ON"
+        set lubelabel [msgcat::mc "LUBE ON"]
     } elseif {[emc_lube] == "off"} {
-        set lubelabel "LUBE OFF"
+        set lubelabel [msgcat::mc "LUBE OFF"]
     } else {
-        set lubelabel "LUBE ?"
+        set lubelabel [msgcat::mc "LUBE ?"]
     }
 
     if {[emc_spindle] == "forward"} {
-        set spindlelabel "SPINDLE FORWARD"
+        set spindlelabel [msgcat::mc "SPINDLE FORWARD"]
     } elseif {[emc_spindle] == "reverse"} {
-        set spindlelabel "SPINDLE REVERSE"
+        set spindlelabel [msgcat::mc "SPINDLE REVERSE"]
     } elseif {[emc_spindle] == "off"} {
-        set spindlelabel "SPINDLE OFF"
+        set spindlelabel [msgcat::mc "SPINDLE OFF"]
     } elseif {[emc_spindle] == "increase"} {
-        set spindlelabel "SPINDLE INCREASE"
+        set spindlelabel [msgcat::mc "SPINDLE INCREASE"]
     } elseif {[emc_spindle] == "decrease"} {
-        set spindlelabel "SPINDLE DECREASE"
+        set spindlelabel [msgcat::mc "SPINDLE DECREASE"]
     } else {
-        set spindlelabel "SPINDLE ?"
+        set spindlelabel [msgcat::mc "SPINDLE ?"]
     }
 
     if {[emc_brake] == "on"} {
-        set brakelabel "BRAKE ON"
+        set brakelabel [msgcat::mc "BRAKE ON"]
     } elseif {[emc_brake] == "off"} {
-        set brakelabel "BRAKE OFF"
+        set brakelabel [msgcat::mc "BRAKE OFF"]
     } else {
-        set brakelabel "BRAKE ?"
+        set brakelabel [msgcat::mc "BRAKE ?"]
     }
 
     # set the tool information

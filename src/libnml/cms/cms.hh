@@ -5,7 +5,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -249,6 +249,7 @@ class CMS {
     /* CMS UPDATE FUNCTIONS located in cms_up.cc */
   /***********************************************/
     /* Access functions for primitive C language data types */
+    CMS_STATUS update(bool &x);
     CMS_STATUS update(char &x);                            /* Used by emc2 */
     CMS_STATUS update(unsigned char &x);                   /* Used by emc2 */
     CMS_STATUS update(short int &x);

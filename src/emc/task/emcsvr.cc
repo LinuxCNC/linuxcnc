@@ -25,14 +25,13 @@
 #include "emc.hh"		// EMC NML
 #include "emcglb.h"		// emcGetArgs(), EMC_NMLFILE
 
-
 static int iniLoad(const char *filename)
 {
-    INIFILE inifile;
+    Inifile inifile;
     const char *inistring;
 
     // open it
-    if (-1 == inifile.open(filename)) {
+    if (inifile.open(filename) == false) {
 	return -1;
     }
 
@@ -94,19 +93,19 @@ int main(int argc, char *argv[])
     start_time = etime();
 
     while (fabs(etime() - start_time) < 10.0 &&
-	(emcCommandChannel == NULL || emcStatusChannel == NULL
+	   (emcCommandChannel == NULL || emcStatusChannel == NULL
 	    || toolCommandChannel == NULL || toolStatusChannel == NULL
 	    || emcErrorChannel == NULL)
 	) {
 	if (NULL == emcCommandChannel) {
 	    emcCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "emcsvr",
-		EMC_NMLFILE);
+				    EMC_NMLFILE);
 	}
 	if (NULL == emcStatusChannel) {
 	    emcStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "emcsvr",
-		EMC_NMLFILE);
+				     EMC_NMLFILE);
 	}
 	if (NULL == emcErrorChannel) {
 	    emcErrorChannel =
@@ -115,52 +114,52 @@ int main(int argc, char *argv[])
 	if (NULL == toolCommandChannel) {
 	    toolCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr",
-		EMC_NMLFILE);
+				    EMC_NMLFILE);
 	}
 	if (NULL == toolStatusChannel) {
 	    toolStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
-		EMC_NMLFILE);
+				     EMC_NMLFILE);
 	}
 	if (NULL == spindleCommandChannel) {
 	    spindleCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "spindleCmd", "emcsvr",
-		EMC_NMLFILE);
+				    EMC_NMLFILE);
 	}
 	if (NULL == spindleStatusChannel) {
 	    spindleStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "spindleSts", "emcsvr",
-		EMC_NMLFILE);
+				     EMC_NMLFILE);
 	}
 	if (NULL == auxCommandChannel) {
 	    auxCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "auxCmd", "emcsvr",
-		EMC_NMLFILE);
+				    EMC_NMLFILE);
 	}
 	if (NULL == auxStatusChannel) {
 	    auxStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "auxSts", "emcsvr",
-		EMC_NMLFILE);
+				     EMC_NMLFILE);
 	}
 	if (NULL == coolantCommandChannel) {
 	    coolantCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "coolantCmd", "emcsvr",
-		EMC_NMLFILE);
+				    EMC_NMLFILE);
 	}
 	if (NULL == coolantStatusChannel) {
 	    coolantStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "coolantSts", "emcsvr",
-		EMC_NMLFILE);
+				     EMC_NMLFILE);
 	}
 	if (NULL == lubeCommandChannel) {
 	    lubeCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "lubeCmd", "emcsvr",
-		EMC_NMLFILE);
+				    EMC_NMLFILE);
 	}
 	if (NULL == lubeStatusChannel) {
 	    lubeStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "lubeSts", "emcsvr",
-		EMC_NMLFILE);
+				     EMC_NMLFILE);
 	}
 
 	if (!emcCommandChannel->valid()) {
@@ -223,12 +222,12 @@ int main(int argc, char *argv[])
     if (NULL == emcCommandChannel) {
 	emcCommandChannel =
 	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "emcsvr",
-	    EMC_NMLFILE);
+				EMC_NMLFILE);
     }
     if (NULL == emcStatusChannel) {
 	emcStatusChannel =
 	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "emcsvr",
-	    EMC_NMLFILE);
+				 EMC_NMLFILE);
     }
     if (NULL == emcErrorChannel) {
 	emcErrorChannel =
@@ -236,48 +235,54 @@ int main(int argc, char *argv[])
     }
     if (NULL == toolCommandChannel) {
 	toolCommandChannel =
-	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr", EMC_NMLFILE);
+	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr",
+				EMC_NMLFILE);
     }
     if (NULL == toolStatusChannel) {
 	toolStatusChannel =
-	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr", EMC_NMLFILE);
+	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
+				 EMC_NMLFILE);
     }
 
     if (NULL == spindleCommandChannel) {
 	spindleCommandChannel =
 	    new RCS_CMD_CHANNEL(emcFormat, "spindleCmd", "emcsvr",
-	    EMC_NMLFILE);
+				EMC_NMLFILE);
     }
     if (NULL == spindleStatusChannel) {
 	spindleStatusChannel =
 	    new RCS_STAT_CHANNEL(emcFormat, "spindleSts", "emcsvr",
-	    EMC_NMLFILE);
+				 EMC_NMLFILE);
     }
     if (NULL == auxCommandChannel) {
 	auxCommandChannel =
-	    new RCS_CMD_CHANNEL(emcFormat, "auxCmd", "emcsvr", EMC_NMLFILE);
+	    new RCS_CMD_CHANNEL(emcFormat, "auxCmd", "emcsvr",
+				EMC_NMLFILE);
     }
     if (NULL == auxStatusChannel) {
 	auxStatusChannel =
-	    new RCS_STAT_CHANNEL(emcFormat, "auxSts", "emcsvr", EMC_NMLFILE);
+	    new RCS_STAT_CHANNEL(emcFormat, "auxSts", "emcsvr",
+				 EMC_NMLFILE);
     }
     if (NULL == coolantCommandChannel) {
 	coolantCommandChannel =
 	    new RCS_CMD_CHANNEL(emcFormat, "coolantCmd", "emcsvr",
-	    EMC_NMLFILE);
+				EMC_NMLFILE);
     }
     if (NULL == coolantStatusChannel) {
 	coolantStatusChannel =
 	    new RCS_STAT_CHANNEL(emcFormat, "coolantSts", "emcsvr",
-	    EMC_NMLFILE);
+				 EMC_NMLFILE);
     }
     if (NULL == lubeCommandChannel) {
 	lubeCommandChannel =
-	    new RCS_CMD_CHANNEL(emcFormat, "lubeCmd", "emcsvr", EMC_NMLFILE);
+	    new RCS_CMD_CHANNEL(emcFormat, "lubeCmd", "emcsvr",
+				EMC_NMLFILE);
     }
     if (NULL == lubeStatusChannel) {
 	lubeStatusChannel =
-	    new RCS_STAT_CHANNEL(emcFormat, "lubeSts", "emcsvr", EMC_NMLFILE);
+	    new RCS_STAT_CHANNEL(emcFormat, "lubeSts", "emcsvr",
+				 EMC_NMLFILE);
     }
 
     run_nml_servers();

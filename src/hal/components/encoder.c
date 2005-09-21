@@ -90,6 +90,8 @@ typedef struct {
     hal_s32_t *count;		/* captured binary count value */
     hal_float_t *pos;		/* scaled position (floating point) */
     hal_float_t pos_scale;	/* parameter: scaling factor for pos */
+    float old_scale;		/* stored scale value */
+    double scale;		/* reciprocal value used for scaling */
 } counter_t;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
@@ -174,6 +176,8 @@ int rtapi_app_main(void)
 	*(counter_array[n].count) = 0;
 	*(counter_array[n].pos) = 0.0;
 	counter_array[n].pos_scale = 1.0;
+	counter_array[n].old_scale = 1.0;
+	counter_array[n].scale = 1.0;
     }
     /* export functions */
     retval = hal_export_funct("encoder.update_counters", update,
@@ -281,8 +285,20 @@ static void capture(void *arg, long period)
 	}
 	/* capture raw counts to latches */
 	*(cntr->count) = cntr->raw_count;
+	/* check for change in scale value */
+	if ( cntr->pos_scale != cntr->old_scale ) {
+	    /* save new scale to detect future changes */
+	    cntr->old_scale = cntr->pos_scale;
+	    /* scale value has changed, test and update it */
+	    if ((cntr->pos_scale < 1e-20) && (cntr->pos_scale > -1e-20)) {
+		/* value too small, divide by zero is a bad thing */
+		cntr->pos_scale = 1.0;
+	    }
+	    /* we actually want the reciprocal */
+	    cntr->scale = 1.0 / cntr->pos_scale;
+	}
 	/* scale count to make floating point position */
-	*(cntr->pos) = *(cntr->count) * cntr->pos_scale;
+	*(cntr->pos) = *(cntr->count) * cntr->scale;
 	/* update Zmask based on index_ena */
 	if (*(cntr->index_ena)) {
 	    cntr->Zmask = 3;

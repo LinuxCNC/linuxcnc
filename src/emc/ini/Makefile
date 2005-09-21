@@ -1,7 +1,7 @@
 # Makefile for compiling ini code
 
 # get all the platform and application definitions
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 SRCS = \
 	iniaux.cc \
@@ -37,7 +37,7 @@ OBJS =  \
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

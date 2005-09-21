@@ -1,0 +1,52 @@
+# core HAL config file for simulation
+
+# create HAL signals for position commands from motion module
+newsig Xpos float
+linksp Xpos <= axis.0.motor-pos-cmd
+newsig Ypos float
+linksp Ypos <= axis.1.motor-pos-cmd
+newsig Zpos float
+linksp Zpos <= axis.2.motor-pos-cmd
+
+# loop position commands back to motion module feedback
+linksp Xpos => axis.0.motor-pos-fb
+linksp Ypos => axis.1.motor-pos-fb
+linksp Zpos => axis.2.motor-pos-fb
+
+# send the position commands thru differentiators to
+# generate velocity and accel signals
+# first load the block module with 6 differentiators
+loadrt blocks ddt=6
+# link the differentiator functions into the code
+addf ddt.0 servo-thread
+addf ddt.1 servo-thread
+addf ddt.2 servo-thread
+addf ddt.3 servo-thread
+addf ddt.4 servo-thread
+addf ddt.5 servo-thread
+# define the signals, and hook them up
+newsig Xvel float
+newsig Xacc float
+linksp Xpos => ddt.0.in
+linkps ddt.0.out => Xvel
+linksp Xvel => ddt.1.in
+linkps ddt.1.out => Xacc
+newsig Yvel float
+newsig Yacc float
+linksp Ypos => ddt.2.in
+linkps ddt.2.out => Yvel
+linksp Yvel => ddt.3.in
+linkps ddt.3.out => Yacc
+newsig Zvel float
+newsig Zacc float
+linksp Zpos => ddt.4.in
+linkps ddt.4.out => Zvel
+linksp Zvel => ddt.5.in
+linkps ddt.5.out => Zacc
+
+# load realtime portion of scope
+loadrt scope_rt
+# start up scope user interface
+loadusr bin/halscope
+
+

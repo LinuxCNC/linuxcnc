@@ -1,6 +1,6 @@
 # Makefile for compiling the interface between HAL and emc
 
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 HEADERS = \
 	extintf.h
@@ -16,7 +16,7 @@ RT_OBJS = \
 all: headers $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 

@@ -18,21 +18,86 @@
 
 #include <stdlib.h>
 #include <string.h>		// strncpy()
+#include <sys/stat.h>		// struct stat
+#include <unistd.h>		// stat()
 
+#include "rcs.hh"		// INIFILE
 #include "emc.hh"		// EMC NML
 #include "emcglb.h"		// EMC_INIFILE
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
 #include "rs274ngc.hh"		// the interpreter
-#include "rs274ngc_return.hh"	// NCE_FILE_NOT_OPEN
+#include "interp_return.hh"	// INTERP_FILE_NOT_OPEN
 
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
+Interp interp;
+
 // EMC_TASK interface
+
+/*
+  format string for user-defined programs, e.g., "programs/M1%02d" means
+  user-defined programs are in the programs/ directory and are named
+  M1XX, where XX is a two-digit string.
+*/
+
+static char user_defined_fmt[EMC_SYSTEM_CMD_LEN] = "nc_files/M1%02d";
+
+static void user_defined_add_m_code(int num, double arg1, double arg2)
+{
+    char fmt[EMC_SYSTEM_CMD_LEN];
+    EMC_SYSTEM_CMD system_cmd;
+
+    strcpy(fmt, user_defined_fmt);
+    strcat(fmt, " %f %f");
+    sprintf(system_cmd.string, fmt, num, arg1, arg2);
+    interp_list.append(system_cmd);
+}
 
 int emcTaskInit()
 {
+    int index;
+    char path[EMC_SYSTEM_CMD_LEN];
+    struct stat buf;
+    Inifile inifile;
+    const char *inistring;
+
+    // read out directory where programs are located
+    inifile.open(EMC_INIFILE);
+    inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY");
+    inifile.close();
+
+    // if we have a program prefix, override the default user_defined_fmt
+    // string with program prefix, then "M1%02d", e.g.
+    // nc_files/M101, where the %%02d means 2 digits after the M code
+    // and we need two % to get the literal %
+    if (NULL != inistring) {
+	sprintf(user_defined_fmt, "%sM1%%02d", inistring);
+    }
+
+    /* check for programs named programs/M100 .. programs/M199 and add
+       any to the user defined functions list */
+    for (index = 0; index < USER_DEFINED_FUNCTION_NUM; index++) {
+	sprintf(path, user_defined_fmt, index);
+	if (0 == stat(path, &buf)) {
+	    if (buf.st_mode & S_IXUSR) {
+		USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code, index);
+		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		    rcs_print
+			("emcTaskInit: adding user-defined function %s\n",
+			 path);
+		}
+	    } else {
+		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		    rcs_print
+			("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n",
+			 path);
+		}
+	    }
+	}
+    }
+
     return 0;
 }
 
@@ -189,10 +254,10 @@ static int determineState()
 
 static int waitFlag = 0;
 
-static char rs274ngc_error_text_buf[256];
-static char rs274ngc_stack_buf[256];
+static char interp_error_text_buf[LINELEN];
+static char interp_stack_buf[LINELEN];
 
-static void print_rs274ngc_error(int retval)
+static void print_interp_error(int retval)
 {
     int index = 0;
     if (retval == 0) {
@@ -203,22 +268,22 @@ static void print_rs274ngc_error(int retval)
 	emcStatus->task.interpreter_errcode = retval;
     }
 
-    rs274ngc_error_text_buf[0] = 0;
-    rs274ngc_error_text(retval, rs274ngc_error_text_buf, 256);
-    if (0 != rs274ngc_error_text_buf[0]) {
-	rcs_print_error("rs274ngc_error: %s\n", rs274ngc_error_text_buf);
+    interp_error_text_buf[0] = 0;
+    interp.error_text(retval, interp_error_text_buf, LINELEN);
+    if (0 != interp_error_text_buf[0]) {
+	rcs_print_error("interp_error: %s\n", interp_error_text_buf);
     }
-    emcOperatorError(0, rs274ngc_error_text_buf);
+    emcOperatorError(0, interp_error_text_buf);
     index = 0;
     if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-	rcs_print("rs274ngc_stack: \t");
+	rcs_print("Interpreter stack: \t");
 	while (index < 5) {
-	    rs274ngc_stack_buf[0] = 0;
-	    rs274ngc_stack_name(index, rs274ngc_stack_buf, 256);
-	    if (0 == rs274ngc_stack_buf[0]) {
+	    interp_stack_buf[0] = 0;
+	    interp.stack_name(index, interp_stack_buf, LINELEN);
+	    if (0 == interp_stack_buf[0]) {
 		break;
 	    }
-	    rcs_print(" - %s ", rs274ngc_stack_buf);
+	    rcs_print(" - %s ", interp_stack_buf);
 	    index++;
 	}
 	rcs_print("\n");
@@ -227,17 +292,17 @@ static void print_rs274ngc_error(int retval)
 
 int emcTaskPlanInit()
 {
-    rs274ngc_ini_load(EMC_INIFILE);
+    interp.ini_load(EMC_INIFILE);
     waitFlag = 0;
 
-    int retval = rs274ngc_init();
-    if (retval > RS274NGC_MIN_ERROR) {
-	print_rs274ngc_error(retval);
+    int retval = interp.init();
+    if (retval > INTERP_MIN_ERROR) {
+	print_interp_error(retval);
     } else {
 	if (0 != RS274NGC_STARTUP_CODE[0]) {
-	    retval = rs274ngc_execute(RS274NGC_STARTUP_CODE);
-	    if (retval > RS274NGC_MIN_ERROR) {
-		print_rs274ngc_error(retval);
+	    retval = interp.execute(RS274NGC_STARTUP_CODE);
+	    if (retval > INTERP_MIN_ERROR) {
+		print_interp_error(retval);
 	    }
 	}
     }
@@ -265,12 +330,12 @@ int emcTaskPlanClearWait()
 
 int emcTaskPlanSynch()
 {
-    return rs274ngc_synch();
+    return interp.synch();
 }
 
 int emcTaskPlanExit()
 {
-    return rs274ngc_exit();
+    return interp.exit();
 }
 
 int emcTaskPlanOpen(const char *file)
@@ -281,9 +346,9 @@ int emcTaskPlanOpen(const char *file)
 	emcStatus->task.readLine = 0;
     }
 
-    int retval = rs274ngc_open(file);
-    if (retval > RS274NGC_MIN_ERROR) {
-	print_rs274ngc_error(retval);
+    int retval = interp.open(file);
+    if (retval > INTERP_MIN_ERROR) {
+	print_interp_error(retval);
 	return retval;
     }
     taskplanopen = 1;
@@ -292,41 +357,44 @@ int emcTaskPlanOpen(const char *file)
 
 int emcTaskPlanRead()
 {
-    int retval = rs274ngc_read();
-    if (retval == NCE_FILE_NOT_OPEN) {
+    int retval = interp.read();
+    if (retval == INTERP_FILE_NOT_OPEN) {
 	if (emcStatus->task.file[0] != 0) {
-	    retval = rs274ngc_open(emcStatus->task.file);
-	    if (retval > RS274NGC_MIN_ERROR) {
-		print_rs274ngc_error(retval);
+	    retval = interp.open(emcStatus->task.file);
+	    if (retval > INTERP_MIN_ERROR) {
+		print_interp_error(retval);
 	    }
-	    retval = rs274ngc_read();
+	    retval = interp.read();
 	}
     }
-    if (retval > RS274NGC_MIN_ERROR) {
-	print_rs274ngc_error(retval);
+    if (retval > INTERP_MIN_ERROR) {
+	print_interp_error(retval);
     }
     return retval;
 }
 
 int emcTaskPlanExecute(const char *command)
 {
-    if (command != 0) {
-	if (*command != 0) {
-	    rs274ngc_synch();
+    int inpos = emcStatus->motion.traj.inpos;	// 1 if in position, 0 if not.
+
+    if (command != 0) {		// Command is 0 if in AUTO mode, non-null if in MDI mode.
+	// Don't sync if not in position.
+	if ((*command != 0) && (inpos)) {
+	    interp.synch();
 	}
     }
-    int retval = rs274ngc_execute(command);
-    if (retval > RS274NGC_MIN_ERROR) {
-	print_rs274ngc_error(retval);
+    int retval = interp.execute(command);
+    if (retval > INTERP_MIN_ERROR) {
+	print_interp_error(retval);
     }
     return retval;
 }
 
 int emcTaskPlanClose()
 {
-    int retval = rs274ngc_close();
-    if (retval > RS274NGC_MIN_ERROR) {
-	print_rs274ngc_error(retval);
+    int retval = interp.close();
+    if (retval > INTERP_MIN_ERROR) {
+	print_interp_error(retval);
     }
 
     taskplanopen = 0;
@@ -335,12 +403,14 @@ int emcTaskPlanClose()
 
 int emcTaskPlanLine()
 {
-    return rs274ngc_line();
+    return interp.line();
 }
 
 int emcTaskPlanCommand(char *cmd)
 {
-    strcpy(cmd, rs274ngc_command());
+    char buf[LINELEN];
+
+    strcpy(cmd, interp.command(buf, LINELEN));
     return 0;
 }
 
@@ -357,15 +427,56 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // currentLine set in main
     // readLine set in main
 
-    strcpy(stat->file, rs274ngc_file());
+    char buf[LINELEN];
+    strcpy(stat->file, interp.file(buf, LINELEN));
     // command set in main
 
     // update active G and M codes
-    rs274ngc_active_g_codes(&stat->activeGCodes[0]);
-    rs274ngc_active_m_codes(&stat->activeMCodes[0]);
-    rs274ngc_active_settings(&stat->activeSettings[0]);
+    interp.active_g_codes(&stat->activeGCodes[0]);
+    interp.active_m_codes(&stat->activeMCodes[0]);
+    interp.active_settings(&stat->activeSettings[0]);
 
     stat->heartbeat++;
 
     return 0;
 }
+
+/*
+  Modification history:
+
+  $Log$
+  Revision 1.3.6.1  2005/09/21 01:34:19  zwelch
+  Merge auto_configure_0_2 branch with HEAD in prep for further branch work.
+
+  Revision 1.13  2005/07/08 14:11:16  yabosukz
+  fix some more bugz
+
+  Revision 1.12  2005/06/27 21:56:40  alex_joni
+  replaced INIFILE with the new Inifle all over the code, now HEAD shouldn't be broken anymore. Also hacked the halcmd Makefile a bit to make it work again. It's safe to use _inifile.c from halcmd, as halcmd so far doesn't write into the ini. if/when it will, it should use the class version.
+
+  Revision 1.11  2005/06/14 05:19:12  mshaver
+  Changes to emc task files that cause them to use the public return code values declared in interp_return.hh. For example, RS274NGC_OK is replaced by INTERP_OK. This is needed to generalize the way interpreters are written. Some other comments were also added where potentail problems were thought to be found.
+
+  Revision 1.10  2005/06/12 22:07:56  paul_c
+  Convert rs274ngc error printing to a more generic form.
+
+  Revision 1.9  2005/06/12 21:46:35  paul_c
+  Lost the rs274ngc_ prefix from all the public interpreter calls - This will allow canterp & other (as yet unwritten) interpreters to use a common API.
+
+  Revision 1.8  2005/05/23 01:54:51  paul_c
+  Missed a few files in the last effort....
+
+  Revision 1.7  2005/05/23 00:29:13  paul_c
+  Remove any last trace of those M$ line terminators
+
+  Revision 1.6  2005/05/18 22:48:59  rumley
+  Fix for Bug 1171692, Odd behavoir in MDI mode.
+  Caused by rs274ngc_synch call when axis not 'inpos'
+
+  Revision 1.5  2005/05/04 04:50:38  jmkasunich
+  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
+
+  Revision 1.4  2005/04/27 20:05:47  proctor
+  Added user-defined M codes, from BDI-4
+
+*/

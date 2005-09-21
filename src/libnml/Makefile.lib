@@ -1,6 +1,6 @@
 # include Makefile.lib
 # make rules.
-include ../../Makefile.inc
+include ../Makefile.inc
 
 # Include definitions of LIB_OBJS
 include linklist/Makefile.lib
@@ -12,13 +12,14 @@ include cms/Makefile.lib
 include nml/Makefile.lib
 include inifile/Makefile.lib
 
-LIBS = $(LIB_DIR)/libnmld.a \
+LIBS = $(LIB_DIR)/libnml.so \
+	$(LIB_DIR)/libnmld.a \
 	$(LIB_DIR)/libnml.a
 
 
 all: $(LIBS) lib_gen $(BIN_DIR)/inivar
 
-# include ../../Make.rules
+# include ../Make.rules
 lib_gen: $(LIBS)
 
 $(LIB_DIR)/libnml.a: $(LIB_DIR)/libnmld.a
@@ -32,7 +33,18 @@ $(LIB_DIR)/libnmld.a: $(LIB_OBJS:%=$(TMP_DIR)/%)
 	$(AR) $(ARFLAGS) $@ $(LIB_OBJS:%=$(TMP_DIR)/%)
 	chmod 664 $@
 
+
+$(LIB_DIR)/libnml.so: $(LIB_OBJS:%=$(TMP_DIR)/%)
+	rm -f $@
+	$(CXX) -shared -fPIC -o $@ $(LIB_OBJS:%=$(TMP_DIR)/%)
+	chmod 664 $@
+
 $(BIN_DIR)/inivar: $(TMP_DIR)/inivar.o $(LIB_DIR)/libnml.a
-	$(CXX) $^ -o $@
+	$(CXX) $(TMP_DIR)/inivar.o -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
+
+clean:
+	- rm -f $(BIN_DIR)/inivar
+	- rm -f $(LIBS)
+	- if [ -z "`ls $(LIB_DIR)`" ] ; then rm -fR $(LIB_DIR) ; fi
 
 .PHONY: all clean install indent depend headers

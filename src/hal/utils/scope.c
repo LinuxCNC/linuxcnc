@@ -1,7 +1,7 @@
-/** This file, 'halscope.c', is a GUI program that together with
-    'halscope_rt.c' serves as an oscilliscope to examine HAL pins,
+/** This file, 'scope.c', is a GUI program that together with
+    'scope_rt.c' serves as an oscilliscope to examine HAL pins,
     signals, and parameters.  It is a user space component and
-    uses GTK 1.2 for the GUI code.
+    uses GTK 1.2 or 2.0 for the GUI code.
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -80,6 +80,7 @@ static void init_run_mode_window(void);
 
 /* callback functions */
 static void exit_from_hal(void);
+static void main_window_closed(GtkWidget * widget, gpointer * gdata);
 static void quit(int sig);
 static int heartbeat(gpointer data);
 static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata);
@@ -135,7 +136,7 @@ int main(int argc, gchar * argv[])
     define_scope_windows();
     /* this makes the application exit when the window is closed */
     gtk_signal_connect(GTK_OBJECT(ctrl_usr->main_win), "destroy",
-	GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
+	GTK_SIGNAL_FUNC(main_window_closed), NULL);
     /* define menu windows */
     /* do next level of init */
     init_horiz();
@@ -147,12 +148,14 @@ int main(int argc, gchar * argv[])
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
 
-    /* The interface is completely set up so we show the window and enter the
-       gtk_main loop. */
+    /* The interface is now completely set up */
+    /* show the window */
     gtk_widget_show(ctrl_usr->main_win);
+    /* read the saved config file */
+    read_config_file(".scope.cfg");
     /* arrange for periodic call of heartbeat() */
     gtk_timeout_add(100, heartbeat, NULL);
-    /* main loop */
+    /* enter the main loop */
     gtk_main();
 
     return (0);
@@ -324,11 +327,12 @@ static void init_usr_control_struct(void *shmem)
     int n, skip;
     hal_comp_t *comp;
 
-    /* first clear entire struct to all zeros */
+    /* first clear entire user struct to all zeros */
     cp = (char *) ctrl_usr;
     for (n = 0; n < sizeof(scope_usr_control_t); n++) {
 	cp[n] = 0;
     }
+     
     /* save pointer to shared control structure */
     ctrl_shm = shmem;
     /* round size of shared struct up to a multiple of 4 for alignment */
@@ -342,7 +346,10 @@ static void init_usr_control_struct(void *shmem)
 	init_shared_control_struct();
     }
     /* init any non-zero fields */
-
+    /* set all 16 channels to "no source assigned" */
+    for (n = 0; n < 16; n++) {
+	ctrl_usr->chan[n].data_source_type = -1;
+    }
     /* done */
 }
 
@@ -425,18 +432,7 @@ static void define_scope_windows(void)
     ctrl_usr->horiz_info_win =
 	gtk_vbox_framed_new_in_box("Horizontal", FALSE, 0, 0, vboxleft, FALSE,
 	FALSE, 1);
-#if 0				/* vertical row of select buttons */
-    /* hbox for waveform and chan sel windows */
-    hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 1);
-    ctrl_usr->waveform_win =
-	gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    ctrl_usr->chan_sel_win =
-	gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, FALSE, 0);
-    ctrl_usr->chan_info_win =
-	gtk_hbox_framed_new_in_box("Selected Channel", FALSE, 0, 0, vboxleft,
-	FALSE, FALSE, 0);
-#endif
-#if 1				/* horizontal row of select buttons */
+    /* horizontal row of select buttons */
     ctrl_usr->waveform_win =
 	gtk_vbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 0);
     ctrl_usr->chan_sel_win =
@@ -444,7 +440,6 @@ static void define_scope_windows(void)
     ctrl_usr->chan_info_win =
 	gtk_hbox_framed_new_in_box("Selected Channel", FALSE, 0, 0, vboxleft,
 	FALSE, FALSE, 0);
-#endif
     /* right side */
     vboxleft = gtk_vbox_new_in_box(FALSE, 0, 0, hboxright, FALSE, FALSE, 0);
     vboxright = gtk_vbox_new_in_box(FALSE, 0, 0, hboxright, FALSE, FALSE, 0);
@@ -501,7 +496,7 @@ static void init_run_mode_window(void)
     gtk_widget_show(ctrl_usr->rm_stop_button);
 }
 
-/* FIXME - things not yet finished */
+/*! \todo FIXME - things not yet finished */
 
 /** roll mode - display updates as frequently as possible, not just
     when acquisition is complete.  Also need to revisit pretrig
@@ -525,6 +520,12 @@ static void exit_from_hal(void)
 {
     rtapi_shmem_delete(shm_id, comp_id);
     hal_exit(comp_id);
+}
+
+static void main_window_closed(GtkWidget * widget, gpointer * gdata)
+{
+    write_config_file(".scope.cfg");
+    quit(0);
 }
 
 static void quit(int sig)
@@ -562,7 +563,11 @@ static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata)
 	/* not pressed, ignore it */
 	return;
     }
-    printf("Sorry, ROLL mode is not supported yet\n");
+    
+    /* FIXME - this is for testing only */
+    read_config_file("scope.cfg");
+
+    //printf("Sorry, ROLL mode is not supported yet\n");
     /* 'push' the stop button */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->rm_stop_button),
 	TRUE);

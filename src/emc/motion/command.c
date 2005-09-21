@@ -62,7 +62,7 @@
 
 #include <linux/types.h>
 #include <float.h>
-#include <math.h>
+#include "posemath.h"
 #include "rtapi.h"
 #include "hal.h"
 #include "motion.h"
@@ -88,6 +88,37 @@ int logStartTime;		/* set when logging is started, and
 /* kinematics flags */
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
+
+/* loops through the active joints and checks if any are not homed */
+int checkAllHomed(void) {
+    int joint_num;
+    emcmot_joint_t *joint;
+
+    /* bail out if the allHomed flag is already set */
+    if (0 != emcmotDebug) {
+	if (emcmotDebug->allHomed) return 1;
+    }
+
+    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	/* point to joint data */
+	joint = &joints[joint_num];
+	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+	    /* if joint is not active, don't even look at its limits */
+	    continue;
+	}
+	if (!GET_JOINT_HOMED_FLAG(joint)) {
+	    /* if any of the joints is not homed return false */
+	    return 0;
+	}
+    }
+    /* set the global flag that all axes are homed */
+    if (0 != emcmotDebug) {
+	emcmotDebug->allHomed = 1;
+    }
+    /* return true if all are actives are homed*/
+    return 1;
+}
+
 
 /* checkLimits() returns 1 if none of the soft or hard limits are
    set, 0 if any are set. Called on a linear and circular move. */
@@ -265,7 +296,10 @@ check_stuff ( "before command_handler()" );
 					   value */
 	    ls.item.cmd.command = emcmotCommand->command;
 	    ls.item.cmd.commandNum = emcmotCommand->commandNum;
+/*! \todo Another #if 0 */
+#if 0
 	    emcmotLogAdd(emcmotLog, ls);
+#endif
 	    emcmotStatus->logPoints = emcmotLog->howmany;
 	}
 
@@ -380,7 +414,7 @@ check_stuff ( "before command_handler()" );
 	    emcmotDebug->coordinating = 1;
 	    emcmotDebug->teleoperating = 0;
 	    if (kinType != KINEMATICS_IDENTITY) {
-		if (!emcmotDebug->allHomed) {
+		if (!checkAllHomed()) {
 		    reportError
 			("all axes must be homed before going into coordinated mode");
 		    emcmotDebug->coordinating = 0;
@@ -400,7 +434,8 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "TELEOP");
 	    emcmotDebug->teleoperating = 1;
 	    if (kinType != KINEMATICS_IDENTITY) {
-		if (!emcmotDebug->allHomed) {
+		
+		if (!checkAllHomed()) {
 		    reportError
 			("all axes must be homed before going into teleop mode");
 		    emcmotDebug->teleoperating = 0;
@@ -574,7 +609,7 @@ check_stuff ( "before command_handler()" );
 	    joint->free_vel_lim = fabs(emcmotCommand->vel);
 	    /* and let it go */
 	    joint->free_tp_enable = 1;
-	    /* FIXME - should we really be clearing errors here? */
+	    /*! \todo FIXME - should we really be clearing errors here? */
 	    SET_JOINT_ERROR_FLAG(joint, 0);
 	    /* clear axis homed flag(s) if we don't have forward kins.
 	       Otherwise, a transition into coordinated mode will incorrectly
@@ -663,7 +698,7 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    /* FIXME-- use 'goal' instead */
+	    /*! \todo FIXME-- use 'goal' instead */
 	    joint->free_pos_cmd = emcmotCommand->offset;
 	    /* don't jog past soft limits, if homed */
 	    if (GET_JOINT_HOMED_FLAG(joint)) {
@@ -913,7 +948,7 @@ check_stuff ( "before command_handler()" );
 	    }
 	    SET_JOINT_ACTIVE_FLAG(joint, 0);
 	    break;
-/* FIXME - need to replace the ext function */
+/*! \todo FIXME - need to replace the ext function */
 	case EMCMOT_ENABLE_AMPLIFIER:
 	    /* enable the amplifier directly, but don't enable calculations */
 	    /* can be done at any time */
@@ -922,6 +957,7 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
+/*! \todo Another #if 0 */
 #if 0
 	    extAmpEnable(axis, 1);
 #endif
@@ -936,6 +972,7 @@ check_stuff ( "before command_handler()" );
 	    if (joint == 0) {
 		break;
 	    }
+/*! \todo Another #if 0 */
 #if 0
 	    extAmpEnable(axis, 0);
 #endif
@@ -965,8 +1002,11 @@ check_stuff ( "before command_handler()" );
 	    if (valid) {
 		/* success */
 		loggingAxis = joint_num;
+/*! \todo Another #if 0 */
+#if 0
 		emcmotLogInit(emcmotLog,
 		    emcmotCommand->logType, emcmotCommand->logSize);
+#endif
 		emcmotStatus->logOpen = 1;
 		emcmotStatus->logStarted = 0;
 		emcmotStatus->logSize = emcmotCommand->logSize;
@@ -983,6 +1023,7 @@ check_stuff ( "before command_handler()" );
 		    case EMCLOG_TRIGGER_ON_FERROR:
 			emcmotStatus->logStartVal = joint->ferror;
 			break;
+/*! \todo Another #if 0 */
 #if 0
 		    case EMCLOG_TRIGGER_ON_VOLT:
 			emcmotStatus->logStartVal =
@@ -1056,6 +1097,7 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_ENABLE_WATCHDOG:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE_WATCHDOG");
+/*! \todo Another #if 0 */
 #if 0
 	    emcmotDebug->wdEnabling = 1;
 	    emcmotDebug->wdWait = emcmotCommand->wdWait;
@@ -1067,6 +1109,7 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_DISABLE_WATCHDOG:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE_WATCHDOG");
+/*! \todo Another #if 0 */
 #if 0
 	    emcmotDebug->wdEnabling = 0;
 #endif
@@ -1162,8 +1205,9 @@ check_stuff ( "before command_handler()" );
 	    emcmotConfig->debug = emcmotCommand->debug;
 	    emcmot_config_change();
 	    break;
+/*! \todo Another #if 0 */
 #if 0
-/* FIXME - needed for synchronous I/O */
+/*! \todo FIXME - needed for synchronous I/O */
 	case EMCMOT_SET_AOUT:
 	    if (emcmotCommand->now) {
 		extAioWrite(emcmotCommand->index, emcmotCommand->minLimit);
@@ -1182,8 +1226,9 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 #endif
+/*! \todo Another #if 0 */
 #if 0
-/* FIXME - needed for M62/M63 */
+/*! \todo FIXME - needed for M62/M63 */
 	case EMCMOT_SET_INDEX_BIT:
 	    if (emcmotCommand->level) {
 		/* Set bit */

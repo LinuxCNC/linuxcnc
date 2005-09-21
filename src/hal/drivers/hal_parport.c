@@ -208,15 +208,18 @@ int rtapi_app_main(void)
     }
     /* as a RT module, we don't get a nice argc/argv command line, we only
        get a single string... so we need to tokenize it ourselves */
+    /* in addition, it seems that insmod under kernel 2.6 will truncate 
+       a string parameter at the first whitespace.  So we allow '_' as
+       an alternate token separator. */
     cp = cfg;
     for (n = 0; n < MAX_TOK; n++) {
 	/* strip leading whitespace */
-	while ((*cp != '\0') && (isspace(*cp)))
+	while ((*cp != '\0') && ( isspace(*cp) || ( *cp == '_') ))
 	    cp++;
 	/* mark beginning of token */
 	argv[n] = cp;
 	/* find end of token */
-	while ((*cp != '\0') && (!isspace(*cp)))
+	while ((*cp != '\0') && !( isspace(*cp) || ( *cp == '_') ))
 	    cp++;
 	/* mark end of this token, prepare to search for next one */
 	if (*cp != '\0') {

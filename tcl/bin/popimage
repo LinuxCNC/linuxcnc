@@ -1,0 +1,46 @@
+#!/bin/sh
+# the next line restarts using wish \
+exec wish "$0" "$@"
+
+if {$argc < 1} {
+  puts stderr "syntax: popimage <image file>"
+  exit
+}
+
+set img [lindex $argv 0]
+
+set imgtime 5
+if {$argc > 1} {
+  set imgtime [lindex $argv 1]
+}
+if {$imgtime <= 0} {
+  set imgtime 5
+}
+# now convert imgtime to milliseconds
+set imgtime [expr $imgtime * 1000]
+
+if {! [file exists $img]} {
+  puts stderr "can't find file $img"
+  exit
+}
+
+if {[catch {image create photo image1 -file $img}]} {
+  puts stderr "bad image file $img"
+  exit
+}
+
+label .label -image image1
+pack .label
+
+# Center popup in screen.
+
+after idle {
+    update idletasks
+    set xmax [winfo screenwidth .]
+    set ymax [winfo screenheight .]
+    set x [expr ($xmax - [winfo reqwidth . ] )  / 2 ]
+    set y [expr ($ymax - [winfo reqheight . ] )  / 2]
+    wm geometry . "+$x+$y"
+}
+
+after $imgtime exit

@@ -1,6 +1,6 @@
 # Makefile for compiling EMC NML interface code
 
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 SRCS =	\
 	emc.cc \
@@ -14,7 +14,10 @@ HEADERS = \
 	emccfg.h \
 	emcglb.h \
 	emcpos.h \
-	interpl.hh
+	interp.hh \
+	interp_return.hh \
+	interpl.hh \
+	canon.hh
 
 BINS =
 
@@ -30,7 +33,7 @@ LIBS =	libemc.a
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(LIBS:%=$(LIB_DIR)/%)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 libemc.a : $(LIB_DIR)/libemc.a
 

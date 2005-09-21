@@ -7,7 +7,7 @@
 
 # Top-level buffers to EMC
 B emcCommand            SHMEM   localhost       8192    0       0       1       16 1001 TCP=5005 xdr
-B emcStatus             SHMEM   localhost       10240    0       0       2       16 1002 TCP=5005 xdr
+B emcStatus             SHMEM   localhost       10240   0       0       2       16 1002 TCP=5005 xdr
 B emcError              SHMEM   localhost       8192    0       0       3       16 1003 TCP=5005 xdr queue
 
 # These are for the IO controller, EMCIO
@@ -22,11 +22,6 @@ B auxSts                SHMEM   localhost       1024    0       0       11      
 B lubeCmd               SHMEM   localhost       1024    0       0       12      16 1012 TCP=5005 xdr
 B lubeSts               SHMEM   localhost       1024    0       0       13      16 1013 TCP=5005 xdr
 
-
-
-B simmot_cmd            RTLMEM  localhost       4096    0       0       14      16 1014 TCP=5005 xdr
-B simmot_stat           RTLMEM  localhost       4096    0       0       15      16 1015 TCP=5005 xdr
-
 # Processes
 # Name          Buffer          Type    Host            Ops     server? timeout master? cnum
 
@@ -35,12 +30,6 @@ P emc           emcStatus       LOCAL   localhost       W       0       1.0     
 P emc           emcError        LOCAL   localhost       W       0       1.0     1      0
 P emc           toolCmd         LOCAL   localhost       W       0       1.0     0       0
 P emc           toolSts         LOCAL   localhost       R       0       1.0     0       0
-
-P emcpanel      emcCommand      LOCAL   localhost       W       0       10.0    0       1
-P emcpanel      emcStatus       LOCAL   localhost       R       0       10.0    0       1
-P emcpanel      emcError        LOCAL   localhost       R       0       10.0    0       1
-P emcpanel      toolCmd         LOCAL   localhost       W       0       10.0    0       1
-P emcpanel      toolSts         LOCAL   localhost       R       0       10.0    0       1
 
 P emcsvr        emcCommand      LOCAL   localhost       W       1       1.0     0       2
 P emcsvr        emcStatus       LOCAL   localhost       R       1       1.0     0       2
@@ -77,33 +66,8 @@ P lube          emcError        LOCAL   localhost       W       0       1.0     
 P lube          lubeCmd         LOCAL   localhost       R       0       1.0     0       7
 P lube          lubeSts         LOCAL   localhost       W       0       1.0     0       7
 
-P emcJavaGui    emcCommand      REMOTE  localhost       W       0       1.0     0       8
-P emcJavaGui    emcStatus       REMOTE  localhost       R       0       1.0     0       8
-P emcJavaGui    emcError        REMOTE  localhost       R       0       1.0     0       8
-
-P keystick      emcCommand      LOCAL   localhost       W       0       10.0    0       9
-P keystick      emcStatus       LOCAL   localhost       R       0       10.0    0       9
-P keystick      emcError        LOCAL   localhost       R       0       10.0    0       9
-P keystick      toolCmd         LOCAL   localhost       W       0       10.0    0       9
-P keystick      toolSts         LOCAL   localhost       R       0       10.0    0       9
-
 P xemc          emcCommand      LOCAL   localhost       W       0       10.0    0       10
 P xemc          emcStatus       LOCAL   localhost       R       0       10.0    0       10
 P xemc          emcError        LOCAL   localhost       R       0       10.0    0       10
 P xemc          toolCmd         LOCAL   localhost       W       0       10.0    0       10
 P xemc          toolSts         LOCAL   localhost       R       0       10.0    0       10
-
-
-P inisim        simmot_cmd      LOCAL   localhost       W       0       10.0    0       11
-
-P inisim        simmot_stat     LOCAL   localhost       R       0       10.0    0       11
-
-P simctrl       simmot_cmd      LOCAL   localhost       W       0       10.0    0       12
-
-P simctrl       simmot_stat     LOCAL   localhost       R       0       10.0    0       12
-
-
-P simstatprint  simmot_cmd      LOCAL   localhost       W       0       10.0    0       13
-
-P simstatprint  simmot_stat     LOCAL   localhost       R       0       10.0    0       13
-

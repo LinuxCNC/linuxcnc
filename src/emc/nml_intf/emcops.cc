@@ -132,11 +132,11 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     toolOffset.b = 0.0;
     toolOffset.c = 0.0;
 
-    for (t = 0; t < EMC_TASK_ACTIVE_G_CODES; t++)
+    for (t = 0; t < ACTIVE_G_CODES; t++)
 	activeGCodes[t] = -1;
-    for (t = 0; t < EMC_TASK_ACTIVE_M_CODES; t++)
+    for (t = 0; t < ACTIVE_M_CODES; t++)
 	activeMCodes[t] = -1;
-    for (t = 0; t < EMC_TASK_ACTIVE_SETTINGS; t++)
+    for (t = 0; t < ACTIVE_SETTINGS; t++)
 	activeSettings[t] = 0.0;
 }
 
@@ -190,7 +190,8 @@ EMC_SPINDLE_STAT_MSG(EMC_SPINDLE_STAT_TYPE, sizeof(EMC_SPINDLE_STAT))
 }
 
 EMC_COOLANT_STAT::EMC_COOLANT_STAT():EMC_COOLANT_STAT_MSG(EMC_COOLANT_STAT_TYPE,
-    sizeof(EMC_COOLANT_STAT))
+		     sizeof
+		     (EMC_COOLANT_STAT))
 {
     mist = 0;
     flood = 0;

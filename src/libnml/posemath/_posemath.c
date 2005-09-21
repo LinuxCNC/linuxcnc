@@ -6,7 +6,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -16,9 +16,6 @@
 * $Author$
 * $Date$
 ********************************************************************/
-
-#include <math.h>
-#include <float.h>		/* DBL_MAX */
 
 #if defined(PM_PRINT_ERROR) && defined(rtai)
 #undef PM_PRINT_ERROR
@@ -390,7 +387,7 @@ int pmQuatZyzConvert(PmQuaternion q, PmEulerZyz * zyz)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmQuatMatConvert(q, &m);
     r2 = pmMatZyzConvert(m, zyz);
 
@@ -402,7 +399,7 @@ int pmQuatZyxConvert(PmQuaternion q, PmEulerZyx * zyx)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmQuatMatConvert(q, &m);
     r2 = pmMatZyxConvert(m, zyx);
 
@@ -414,7 +411,7 @@ int pmQuatRpyConvert(PmQuaternion q, PmRpy * rpy)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmQuatMatConvert(q, &m);
     r2 = pmMatRpyConvert(m, rpy);
 
@@ -426,7 +423,7 @@ int pmMatRotConvert(PmRotationMatrix m, PmRotationVector * r)
     PmQuaternion q;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmMatQuatConvert(m, &q);
     r2 = pmQuatRotConvert(q, r);
 
@@ -510,9 +507,9 @@ int pmMatZyzConvert(PmRotationMatrix m, PmEulerZyz * zyz)
 	zyz->z = 0.0;
 	zyz->y = 0.0;		/* force Y to 0 */
 	zyz->zp = atan2(-m.y.x, m.x.x);
-    } else if (fabs(zyz->y - PM_PI) < ZYZ_Y_FUZZ) {
+    } else if (fabs(zyz->y - M_PIl) < ZYZ_Y_FUZZ) {
 	zyz->z = 0.0;
-	zyz->y = PM_PI;		/* force Y to 180 */
+	zyz->y = M_PIl;		/* force Y to 180 */
 	zyz->zp = atan2(m.y.x, -m.x.x);
     } else {
 	zyz->z = atan2(m.z.y, m.z.x);
@@ -526,13 +523,13 @@ int pmMatZyxConvert(PmRotationMatrix m, PmEulerZyx * zyx)
 {
     zyx->y = atan2(-m.x.z, pmSqrt(pmSq(m.x.x) + pmSq(m.x.y)));
 
-    if (fabs(zyx->y - PM_PI_2) < ZYX_Y_FUZZ) {
+    if (fabs(zyx->y - (2 * M_PIl)) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
-	zyx->y = PM_PI_2;	/* force it */
+	zyx->y = (2 * M_PIl);	/* force it */
 	zyx->x = atan2(m.y.x, m.y.y);
-    } else if (fabs(zyx->y + PM_PI_2) < ZYX_Y_FUZZ) {
+    } else if (fabs(zyx->y + (2 * M_PIl)) < ZYX_Y_FUZZ) {
 	zyx->z = 0.0;
-	zyx->y = -PM_PI_2;	/* force it */
+	zyx->y = -(2 * M_PIl);	/* force it */
 	zyx->x = -atan2(m.y.z, m.y.y);
     } else {
 	zyx->z = atan2(m.x.y, m.x.x);
@@ -546,13 +543,13 @@ int pmMatRpyConvert(PmRotationMatrix m, PmRpy * rpy)
 {
     rpy->p = atan2(-m.x.z, pmSqrt(pmSq(m.x.x) + pmSq(m.x.y)));
 
-    if (fabs(rpy->p - PM_PI_2) < RPY_P_FUZZ) {
+    if (fabs(rpy->p - (2 * M_PIl)) < RPY_P_FUZZ) {
 	rpy->r = atan2(m.y.x, m.y.y);
-	rpy->p = PM_PI_2;	/* force it */
+	rpy->p = (2 * M_PIl);	/* force it */
 	rpy->y = 0.0;
-    } else if (fabs(rpy->p + PM_PI_2) < RPY_P_FUZZ) {
+    } else if (fabs(rpy->p + (2 * M_PIl)) < RPY_P_FUZZ) {
 	rpy->r = -atan2(m.y.z, m.y.y);
-	rpy->p = -PM_PI_2;	/* force it */
+	rpy->p = -(2 * M_PIl);	/* force it */
 	rpy->y = 0.0;
     } else {
 	rpy->r = atan2(m.y.z, m.z.z);
@@ -575,7 +572,7 @@ int pmZyzQuatConvert(PmEulerZyz zyz, PmQuaternion * q)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmZyzMatConvert(zyz, &m);
     r2 = pmMatQuatConvert(m, q);
 
@@ -623,7 +620,7 @@ int pmZyxRotConvert(PmEulerZyx zyx, PmRotationVector * r)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmZyxMatConvert(zyx, &m);
     r2 = pmMatRotConvert(m, r);
 
@@ -635,7 +632,7 @@ int pmZyxQuatConvert(PmEulerZyx zyx, PmQuaternion * q)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmZyxMatConvert(zyx, &m);
     r2 = pmMatQuatConvert(m, q);
 
@@ -706,7 +703,7 @@ int pmRpyQuatConvert(PmRpy rpy, PmQuaternion * q)
     PmRotationMatrix m;
     int r1, r2;
 
-    /* FIXME-- need direct equations */
+    /*! \todo FIXME-- need direct equations */
     r1 = pmRpyMatConvert(rpy, &m);
     r2 = pmMatQuatConvert(m, q);
 
@@ -923,10 +920,10 @@ int pmCartUnit(PmCartesian v, PmCartesian * vout)
     return pmErrno = 0;
 }
 
+/*! \todo This is if 0'd out so we can find all the pmCartNorm calls that should
+ be renamed pmCartUnit. 
+ Later we'll put this back. */
 #if 0
-// This is if 0'd out so we can find all the pmCartNorm calls that should
-// be renamed pmCartUnit. 
-// Later we'll put this back.
 
 int pmCartNorm(PmCartesian v, PmCartesian * vout)
 {
@@ -1113,7 +1110,7 @@ int pmRotNorm(PmRotationVector r, PmRotationVector * rout)
 
 int pmMatNorm(PmRotationMatrix m, PmRotationMatrix * mout)
 {
-    /* FIXME */
+    /*! \todo FIXME */
     *mout = m;
 
 #ifdef PM_PRINT_ERROR
@@ -1285,7 +1282,7 @@ int pmQuatIsNorm(PmQuaternion q1)
 
 int pmQuatScalMult(PmQuaternion q, double s, PmQuaternion * qout)
 {
-    /* FIXME-- need a native version; this goes through a rotation vector */
+    /*! \todo FIXME-- need a native version; this goes through a rotation vector */
     PmRotationVector r;
     int r1, r2, r3;
 
@@ -1298,7 +1295,7 @@ int pmQuatScalMult(PmQuaternion q, double s, PmQuaternion * qout)
 
 int pmQuatScalDiv(PmQuaternion q, double s, PmQuaternion * qout)
 {
-    /* FIXME-- need a native version; this goes through a rotation vector */
+    /*! \todo FIXME-- need a native version; this goes through a rotation vector */
     PmRotationVector r;
     int r1, r2, r3;
 
@@ -1632,7 +1629,7 @@ int pmCircleInit(PmCircle * circle,
     if (dot > 1.0) {
 	circle->angle = 0.0;
     } else if (dot < -1.0) {
-	circle->angle = PM_PI;
+	circle->angle = M_PIl;
     } else {
 	circle->angle = acos(dot);
     }
@@ -1651,8 +1648,9 @@ int pmCircleInit(PmCircle * circle,
 
     /* now add more angle for multi turns */
     if (turn > 0) {
-	circle->angle += turn * 2.0 * PM_PI;
+	circle->angle += turn * 2.0 * M_PIl;
     }
+/*! \todo Another #if 0*/
 #if 0
     printf("\n\n");
     printf("pmCircleInit:\n");

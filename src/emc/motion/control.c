@@ -19,9 +19,7 @@
 *
 ********************************************************************/
 
-#include <linux/types.h>
-#include <float.h>
-#include <math.h>
+#include "posemath.h"
 #include "rtapi.h"
 #include "hal.h"
 #include "emcmotglb.h"
@@ -32,7 +30,7 @@
 *                  LOCAL VARIABLE DECLARATIONS                         *
 ************************************************************************/
 
-/* FIXME - this is a leftover global, it will eventually go away */
+/*! \todo FIXME - this is a leftover global, it will eventually go away */
 int rehomeAll;
 
 /* these variables have the servo cycle time and 1/cycle time */
@@ -56,7 +54,7 @@ void print_pose ( EmcPose *pos )
 }
 
 
-/* FIXME - debugging - uncomment the following line to log changes in
+/*! \todo FIXME - debugging - uncomment the following line to log changes in
    AXIS_FLAG and MOTION_FLAG */
 // #define WATCH_FLAGS 1
 
@@ -72,6 +70,7 @@ void print_pose ( EmcPose *pos )
 void check_stuff(char *location)
 {
    static short *target, old = 0xFF;
+/*! \todo Another #if 0 */
 #if 0
 /* kludge to look at emcmotDebug->enabling and emcmotStatus->motionFlag
    at the same time - we simply use a high bit of the flags to
@@ -389,7 +388,7 @@ static void process_inputs(void)
 	/* read index pulse from HAL */
 	tmp = *(axis_data->index_pulse);
 	/* detect rising edge of index pulse */
-	/* FIXME - should this be done in the homing function? that is the
+	/*! \todo FIXME - should this be done in the homing function? that is the
 	   only place it is used... */
 	if (tmp && !joint->index_pulse) {
 	    joint->index_pulse_edge = 1;
@@ -422,7 +421,7 @@ static void do_forward_kins(void)
    homed, we don't call the kinematics, instead we set carte_pos_fb to
    the cartesean coordinates of home, as stored in the global worldHome,
    and we set carte_fb_ok to 0 to indicate that the feedback is invalid.
-   FIXME - maybe setting to home isn't the right thing to do.  We need
+\todo  FIXME - maybe setting to home isn't the right thing to do.  We need
    it to be set to home eventually, (right before the first attemt to
    run the kins), but that doesn't mean we should say we're at home
    when we're not.
@@ -444,7 +443,7 @@ static void do_forward_kins(void)
 
 */
 
-/* FIXME FIXME FIXME - need to put a rate divider in here, run it
+/*! \todo FIXME FIXME FIXME - need to put a rate divider in here, run it
    at the traj rate */
 
     double joint_pos[EMCMOT_MAX_AXIS];
@@ -459,7 +458,12 @@ static void do_forward_kins(void)
 	joint = &joints[joint_num];
 	/* copy feedback */
 	joint_pos[joint_num] = joint->pos_fb;
-	/* check for homed */
+	/* check for homed, only if the current joint is active */
+	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+	    /* if joint is not active, don't even look at its limits */
+	    continue;
+	}
+
 	if (!GET_JOINT_HOMED_FLAG(joint)) {
 	    all_homed = 0;
 	    all_at_home = 0;
@@ -472,7 +476,7 @@ static void do_forward_kins(void)
     case KINEMATICS_IDENTITY:
 	kinematicsForward(joint_pos, &emcmotStatus->carte_pos_fb, &fflags,
 	    &iflags);
-	if (all_homed) {
+	if (checkAllHomed()) {
 	    emcmotStatus->carte_pos_fb_ok = 1;
 	} else {
 	    emcmotStatus->carte_pos_fb_ok = 0;
@@ -480,7 +484,7 @@ static void do_forward_kins(void)
 	break;
 
     case KINEMATICS_BOTH:
-	if (all_homed) {
+	if (checkAllHomed()) {
 	    /* is previous value suitable for use as initial guess? */
 	    if (!emcmotStatus->carte_pos_fb_ok) {
 		/* no, use home position as initial guess */
@@ -665,7 +669,8 @@ static void set_operating_mode(void)
 	   functions called during the disabled state run at the nominal
 	   trajectory rate rather than the servo rate. It's loaded with
 	   emcmotConfig->interpolationRate when it goes to zero. */
-/* FIXME - interpolation is still under construction */
+/*! \todo FIXME - interpolation is still under construction */
+/*! \todo Another #if 0 */
 #if 0
 	interpolationCounter = 0;
 #endif
@@ -799,7 +804,7 @@ static void set_operating_mode(void)
 	    }
 	}
     }
-    /* FIXME - this code is temporary - eventually this function will be
+    /*! \todo FIXME - this code is temporary - eventually this function will be
        cleaned up and simplified, and 'motion_state' will become the master
        for this info, instead of having to gather it from several flags */
     if (!GET_MOTION_ENABLE_FLAG()) {
@@ -1280,7 +1285,7 @@ static void do_homing(void)
 		/* plan a move to home position */
 		joint->free_pos_cmd = joint->home;
 		/* do the move at max speed */
-		/* FIXME - should this be search_vel? or another user
+		/*! \todo FIXME - should this be search_vel? or another user
 		   specified speed? or is a rapid OK? */
 		joint->free_vel_lim = joint->vel_limit;
 		/* start the move */
@@ -1349,11 +1354,15 @@ static void get_pos_cmds(void)
     int joint_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
     double positions[EMCMOT_MAX_AXIS];
+/*! \todo Another #if 0 */
 #if 0
     static int interpolationCounter = 0;
 #endif
     double old_pos_cmd;
     double max_dv, tiny_dp, pos_err, vel_req, vel_lim;
+
+    /* used in teleop mode to compute the max accell requested */
+    double accell_mag;
 
     /* RUN MOTION CALCULATIONS: */
 
@@ -1461,7 +1470,7 @@ static void get_pos_cmds(void)
 	    emcmotStatus->overrideLimits = 0;
 	    emcmotDebug->overriding = 0;
 	}
-	/* FIXME - this should run at the traj rate */
+	/*! \todo FIXME - this should run at the traj rate */
 	all_homed = 1;
 	all_at_home = 1;
 	/* copy joint position feedback to local array */
@@ -1482,7 +1491,7 @@ static void get_pos_cmds(void)
 
 	case KINEMATICS_IDENTITY:
 	    kinematicsForward(positions, &emcmotStatus->carte_pos_cmd, &fflags, &iflags);
-	    if (all_homed) {
+	    if (checkAllHomed()) {
 		emcmotStatus->carte_pos_cmd_ok = 1;
 	    } else {
 		emcmotStatus->carte_pos_cmd_ok = 0;
@@ -1490,7 +1499,7 @@ static void get_pos_cmds(void)
 	    break;
 
 	case KINEMATICS_BOTH:
-	    if (all_homed) {
+	    if (checkAllHomed()) {
 		/* is previous value suitable for use as initial guess? */
 		if (!emcmotStatus->carte_pos_cmd_ok) {
 		    /* no, use home position as initial guess */
@@ -1563,7 +1572,146 @@ static void get_pos_cmds(void)
 	}
 	break;
     case EMCMOT_MOTION_TELEOP:
+
+	/* first the desired Accell's are computed based on
+	    desired Velocity, current velocity and trajCycleTime */
+	emcmotDebug->teleop_data.desiredAccell.tran.x =
+	    (emcmotDebug->teleop_data.desiredVel.tran.x -
+	    emcmotDebug->teleop_data.currentVel.tran.x) /
+	    emcmotConfig->trajCycleTime;
+	emcmotDebug->teleop_data.desiredAccell.tran.y =
+	    (emcmotDebug->teleop_data.desiredVel.tran.y -
+	    emcmotDebug->teleop_data.currentVel.tran.y) /
+	    emcmotConfig->trajCycleTime;
+	emcmotDebug->teleop_data.desiredAccell.tran.z =
+	    (emcmotDebug->teleop_data.desiredVel.tran.z -
+	    emcmotDebug->teleop_data.currentVel.tran.z) /
+	    emcmotConfig->trajCycleTime;
+
+	/* a Carthesian Accell is computed */
+	pmCartMag(emcmotDebug->teleop_data.desiredAccell.tran,
+	    &accell_mag);
+
+	/* then the accells for the rotary axes */
+	emcmotDebug->teleop_data.desiredAccell.a =
+	    (emcmotDebug->teleop_data.desiredVel.a -
+	    emcmotDebug->teleop_data.currentVel.a) /
+	    emcmotConfig->trajCycleTime;
+	emcmotDebug->teleop_data.desiredAccell.b =
+	    (emcmotDebug->teleop_data.desiredVel.b -
+	    emcmotDebug->teleop_data.currentVel.b) /
+	    emcmotConfig->trajCycleTime;
+	emcmotDebug->teleop_data.desiredAccell.c =
+	    (emcmotDebug->teleop_data.desiredVel.c -
+	    emcmotDebug->teleop_data.currentVel.c) /
+	    emcmotConfig->trajCycleTime;
+	if (emcmotDebug->teleop_data.desiredAccell.a > accell_mag) {
+	    accell_mag = emcmotDebug->teleop_data.desiredAccell.a;
+	}
+	if (emcmotDebug->teleop_data.desiredAccell.b > accell_mag) {
+	    accell_mag = emcmotDebug->teleop_data.desiredAccell.b;
+	}
+	if (emcmotDebug->teleop_data.desiredAccell.c > accell_mag) {
+	    accell_mag = emcmotDebug->teleop_data.desiredAccell.c;
+	}
+	
+	/* accell_mag should now hold the max accell */
+	
+	if (accell_mag > emcmotStatus->acc) {
+	    /* if accell_mag is too great, all need resizing */
+	    pmCartScalMult(emcmotDebug->teleop_data.desiredAccell.tran, 
+		emcmotStatus->acc / accell_mag,
+		&emcmotDebug->teleop_data.currentAccell.tran);
+	    emcmotDebug->teleop_data.currentAccell.a =
+		emcmotDebug->teleop_data.desiredAccell.a *
+		emcmotStatus->acc / accell_mag;
+	    emcmotDebug->teleop_data.currentAccell.b =
+		emcmotDebug->teleop_data.desiredAccell.b *
+		emcmotStatus->acc / accell_mag;
+	    emcmotDebug->teleop_data.currentAccell.c =
+		emcmotDebug->teleop_data.desiredAccell.c *
+		emcmotStatus->acc / accell_mag;
+	    emcmotDebug->teleop_data.currentVel.tran.x +=
+		emcmotDebug->teleop_data.currentAccell.tran.x *
+		emcmotConfig->trajCycleTime;
+	    emcmotDebug->teleop_data.currentVel.tran.y +=
+		emcmotDebug->teleop_data.currentAccell.tran.y *
+		emcmotConfig->trajCycleTime;
+	    emcmotDebug->teleop_data.currentVel.tran.z +=
+		emcmotDebug->teleop_data.currentAccell.tran.z *
+		emcmotConfig->trajCycleTime;
+	    emcmotDebug->teleop_data.currentVel.a +=
+		emcmotDebug->teleop_data.currentAccell.a *
+		emcmotConfig->trajCycleTime;
+	    emcmotDebug->teleop_data.currentVel.b +=
+		emcmotDebug->teleop_data.currentAccell.b *
+		emcmotConfig->trajCycleTime;
+	    emcmotDebug->teleop_data.currentVel.c +=
+		emcmotDebug->teleop_data.currentAccell.c *
+		emcmotConfig->trajCycleTime;
+	} else {
+	    /* if accell_mag is not greater, the computed accell's stay as is */
+	    emcmotDebug->teleop_data.currentAccell =
+		emcmotDebug->teleop_data.desiredAccell;
+	    emcmotDebug->teleop_data.currentVel =
+		emcmotDebug->teleop_data.desiredVel;
+	}
+
+
+	/* based on curent position, current vel and trajCycleTime, 
+	   the next position is computed */
+	emcmotStatus->carte_pos_cmd.tran.x +=
+	    emcmotDebug->teleop_data.currentVel.tran.x *
+	    emcmotConfig->trajCycleTime;
+	emcmotStatus->carte_pos_cmd.tran.y +=
+	    emcmotDebug->teleop_data.currentVel.tran.y *
+	    emcmotConfig->trajCycleTime;
+	emcmotStatus->carte_pos_cmd.tran.z +=
+	    emcmotDebug->teleop_data.currentVel.tran.z *
+	    emcmotConfig->trajCycleTime;
+	emcmotStatus->carte_pos_cmd.a +=
+	    emcmotDebug->teleop_data.currentVel.a *
+	    emcmotConfig->trajCycleTime;
+	emcmotStatus->carte_pos_cmd.b +=
+	    emcmotDebug->teleop_data.currentVel.b *
+	    emcmotConfig->trajCycleTime;
+	emcmotStatus->carte_pos_cmd.c +=
+	    emcmotDebug->teleop_data.currentVel.c *
+	    emcmotConfig->trajCycleTime;
+
+	/* the next position then gets run through the inverse kins,
+	    to compute the next positions of the joints */
+
+	/* OUTPUT KINEMATICS - convert to joints in local array */
+	kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
+	    &iflags, &fflags);
+	/* copy to joint structures and spline them up */
+	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	    /* point to joint struct */
+	    joint = &joints[joint_num];
+	    joint->coarse_pos = positions[joint_num];
+	    /* spline joints up-- note that we may be adding points
+		   that fail soft limits, but we'll abort at the end of
+		   this cycle so it doesn't really matter */
+	    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
+	}
+	/* END OF OUTPUT KINS */
+
+	/* there is data in the interpolators */
+	/* run interpolation */
+	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	    /* point to joint struct */
+	    joint = &joints[joint_num];
+	    /* save old command */
+	    old_pos_cmd = joint->pos_cmd;
+	    /* interpolate to get new one */
+	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, 0, 0, 0);
+	    joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
+	}
+
+	/* end of teleop mode */
 	break;
+
     case EMCMOT_MOTION_DISABLED:
     default:
 	break;
@@ -1659,228 +1807,10 @@ Their exact contents and meaning are as follows:
 
 */
 
-#if 0
-/* FIXME - disables old code */
+/* there was a large snip of old code here, 
+   removed since the new implementation works.
+   if the old code is needed it's in CVS revision <= 1.46 */
 
-    /* run axis interpolations and outputs, but only if we're enabled. This
-       section is "suppressed" if we're not enabled, although the read/write
-       of encoders/dacs is still done. */
- #if 0				/* dunno what whichCycle is all about yet */
-    whichCycle = 0;
- #endif
-    if (GET_MOTION_ENABLE_FLAG()) {
-	/* set whichCycle to be at least a servo cycle, for calc time logging */
- #if 0				/* dunno what whichCycle is all about yet */
-	whichCycle = 1;
- #endif
-
-	/* check joint 0 to see if the interpolators are empty */
-	while (cubicNeedNextPoint(&(emcmotStruct->joints[0].cubic))) {
-	    /* they're empty, so pull next point(s) off Cartesian or joint
-	       planner, depending upon coord or free mode. */
-
-	    /* check to see whether we're in teleop, coordinated or free
-	       mode, to decide which motion planner to call */
-
-	    if (GET_MOTION_TELEOP_FLAG()) {
-		/* teleop mode */
-		double accell_mag;
-
-		emcmotDebug->teleop_data.desiredAccell.tran.x =
-		    (emcmotDebug->teleop_data.desiredVel.tran.x -
-		    emcmotDebug->teleop_data.currentVel.tran.x) /
-		    emcmotConfig->trajCycleTime;
-		emcmotDebug->teleop_data.desiredAccell.tran.y =
-		    (emcmotDebug->teleop_data.desiredVel.tran.y -
-		    emcmotDebug->teleop_data.currentVel.tran.y) /
-		    emcmotConfig->trajCycleTime;
-		emcmotDebug->teleop_data.desiredAccell.tran.z =
-		    (emcmotDebug->teleop_data.desiredVel.tran.z -
-		    emcmotDebug->teleop_data.currentVel.tran.z) /
-		    emcmotConfig->trajCycleTime;
-
-		pmCartMag(emcmotDebug->teleop_data.desiredAccell.tran,
-		    &accell_mag);
-
-		emcmotDebug->teleop_data.desiredAccell.a =
-		    (emcmotDebug->teleop_data.desiredVel.a -
-		    emcmotDebug->teleop_data.currentVel.a) /
-		    emcmotConfig->trajCycleTime;
-		emcmotDebug->teleop_data.desiredAccell.b =
-		    (emcmotDebug->teleop_data.desiredVel.b -
-		    emcmotDebug->teleop_data.currentVel.b) /
-		    emcmotConfig->trajCycleTime;
-		emcmotDebug->teleop_data.desiredAccell.c =
-		    (emcmotDebug->teleop_data.desiredVel.c -
-		    emcmotDebug->teleop_data.currentVel.c) /
-		    emcmotConfig->trajCycleTime;
-		if (emcmotDebug->teleop_data.desiredAccell.a > accell_mag) {
-		    accell_mag = emcmotDebug->teleop_data.desiredAccell.a;
-		}
-		if (emcmotDebug->teleop_data.desiredAccell.b > accell_mag) {
-		    accell_mag = emcmotDebug->teleop_data.desiredAccell.b;
-		}
-		if (emcmotDebug->teleop_data.desiredAccell.c > accell_mag) {
-		    accell_mag = emcmotDebug->teleop_data.desiredAccell.c;
-		}
-		if (accell_mag > emcmotStatus->acc) {
-		    pmCartScalMult(emcmotDebug->teleop_data.desiredAccell.
-			tran, emcmotStatus->acc / accell_mag,
-			&emcmotDebug->teleop_data.currentAccell.tran);
-		    emcmotDebug->teleop_data.currentAccell.a =
-			emcmotDebug->teleop_data.desiredAccell.a *
-			emcmotStatus->acc / accell_mag;
-		    emcmotDebug->teleop_data.currentAccell.b =
-			emcmotDebug->teleop_data.desiredAccell.b *
-			emcmotStatus->acc / accell_mag;
-		    emcmotDebug->teleop_data.currentAccell.c =
-			emcmotDebug->teleop_data.desiredAccell.c *
-			emcmotStatus->acc / accell_mag;
-		    emcmotDebug->teleop_data.currentVel.tran.x +=
-			emcmotDebug->teleop_data.currentAccell.tran.x *
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->teleop_data.currentVel.tran.y +=
-			emcmotDebug->teleop_data.currentAccell.tran.y *
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->teleop_data.currentVel.tran.z +=
-			emcmotDebug->teleop_data.currentAccell.tran.z *
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->teleop_data.currentVel.a +=
-			emcmotDebug->teleop_data.currentAccell.a *
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->teleop_data.currentVel.b +=
-			emcmotDebug->teleop_data.currentAccell.b *
-			emcmotConfig->trajCycleTime;
-		    emcmotDebug->teleop_data.currentVel.c +=
-			emcmotDebug->teleop_data.currentAccell.c *
-			emcmotConfig->trajCycleTime;
-		} else {
-		    emcmotDebug->teleop_data.currentAccell =
-			emcmotDebug->teleop_data.desiredAccell;
-		    emcmotDebug->teleop_data.currentVel =
-			emcmotDebug->teleop_data.desiredVel;
-		}
-
-		emcmotStatus->carte_pos_cmd.tran.x +=
-		    emcmotDebug->teleop_data.currentVel.tran.x *
-		    emcmotConfig->trajCycleTime;
-		emcmotStatus->carte_pos_cmd.tran.y +=
-		    emcmotDebug->teleop_data.currentVel.tran.y *
-		    emcmotConfig->trajCycleTime;
-		emcmotStatus->carte_pos_cmd.tran.z +=
-		    emcmotDebug->teleop_data.currentVel.tran.z *
-		    emcmotConfig->trajCycleTime;
-		emcmotStatus->carte_pos_cmd.a +=
-		    emcmotDebug->teleop_data.currentVel.a *
-		    emcmotConfig->trajCycleTime;
-		emcmotStatus->carte_pos_cmd.b +=
-		    emcmotDebug->teleop_data.currentVel.b *
-		    emcmotConfig->trajCycleTime;
-		emcmotStatus->carte_pos_cmd.c +=
-		    emcmotDebug->teleop_data.currentVel.c *
-		    emcmotConfig->trajCycleTime;
-
-		/* OUTPUT KINEMATICS */
-		/* convert to joint positions in local array */
-		kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
-		    &iflags, &fflags);
-		/* copy to joint structures and spline them up */
-		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-		    /* point to joint struct */
-		    joint = &(emcmotStruct->joints[joint_num]);
-		    joint->coarse_pos = positions[joint_num];
-		    /* spline joints up-- note that we may be adding points
-		       that fail soft limits, but we'll abort at the end of
-		       this cycle so it doesn't really matter */
-		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-		}
-		/* END OF OUTPUT KINS */
-		/* FEEDBACK KINS was here, moved to do_forward_kins() */
-		/* end of teleop mode */
-	    } else if (GET_MOTION_COORD_FLAG()) {
-		/* coordinated mode */
-		/* we're in coordinated mode-- pull a pose off the Cartesian
-		   trajectory planner, run it through the inverse kinematics,
-		   and spline up the joint points for interpolation in servo
-		   cycles. */
-
-		/* set whichCycle to be a Cartesian trajectory cycle, for
-		   calc time logging */
- #if 0				/* dunno what whichCycle is all about yet */
-		whichCycle = 2;
- #endif
-		/* Calls to tpRunCycle() and tpGetPos() were here, now
-		   in COORD case of switch */
-		/* OUTPUT KINEMATICS were here, now in COORD case of switch */
-		/* FEEDBACK KINS was here, moved to do_forward_kins() */
-		/* now emcmotStatus->carte_pos_fb,
-		   emcmotStatus->carte_pos_cmd, and
-		   emcmotDebug->coarseJointPos[] are set */
-
-		/* end of coord mode */
-	    } else {
-		/* free mode */
-		/* we're in free mode-- run joint planning cycles */
-		/* position generating code that was here has been replaced */
-		/* THERE IS NO OUTPUT KINS IN FREE MODE */
-		/* FEEDBACK KINS was here, moved to do_forward_kins() */
-		/* now emcmotStatus->carte_pos_fb,
-		   emcmotStatus->carte_pos_cmd, and joints[]->coarse_pos are
-		   set */
-	    }			/* end of free mode */
-	}			/* end of: while (cubicNeedNextPoint(0)) */
-
-	/* at this point, there is data in the interpolators */
-
-	/* we're still in motion enabled section. For coordinated mode, the
-	   Cartesian trajectory cycle has been computed, if necessary, run
-	   through the inverse kinematics, and the joints have been splined
-	   up for interpolation. For free mode, the joint trajectory cycles
-	   have been computed, if necessary, and the joints have been splined
-	   up for interpolation. We still need to push the actual input
-	   through the forward kinematics, for actual pos.
-
-	   Effects:
-
-	   For coord mode, emcmotStatus->carte_pos_cmd contains the commanded
-	   Cartesian pose, emcmotDebug->coarseJointPos[] contains the results
-	   of the inverse kinematics at the coarse (trajectory) rate, and the
-	   interpolators are not empty.
-
-	   For free mode, emcmotStatus->carte_pos_cmd is unchanged, and needs
-	   to be updated via the forward kinematics. FIXME-- make sure this
-	   happens, and note where in this comment. joints[]->coarse_pos[]
-	   contains the results of the joint trajectory calculations at the
-	   coarse (trajectory) rate, and the interpolators are not empty. */
-
-	/* run interpolation */
-	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-	    /* point to joint struct */
-	    joint = &(emcmotStruct->joints[joint_num]);
-	    /* save old command */
-	    old_pos_cmd = joint->pos_cmd;
-	    /* interpolate to get new one */
-	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, 0, 0, 0);
-	    joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
-	}
-	/* end if enabled */
-    } else {
-	/* 
-	   we're not enabled, so no motion planning or interpolation has been
-	   done. joint->pos_cmd is set to joint->pos_fb, and likewise with
-	   joint->coarse_pos, which is normally updated at the traj rate but
-	   it's convenient to do them here at the same time at the servo rate.
-	   emcmotStatus->carte_pos_cmd, ->carte_pos_fb need to be run through
-	   forward kinematics.  Note that we are running at the servo rate, so
-	   we need to slow down by the interpolation factor to avoid soaking
-	   the CPU. If we were enabled, ->pos was set by calcs (coord mode) or
-	   forward kins (free mode), and ->carte_pos_fb was set by forward kins 
-	   on ->pos_fb, all at the trajectory rate. */
-	/* FEEDBACK KINS was here, moved to do_forward_kins() */
-
-	/* end of not enabled */
-    }
-#endif
 }
 
 static void compute_backlash(void)
@@ -1895,12 +1825,12 @@ static void compute_backlash(void)
 	/* determine which way the compensation should be applied */
 	if (joint->vel_cmd > 0.0) {
 	    /* moving "up". apply positive backlash comp */
-	    /* FIXME - the more sophisticated axisComp should be applied
+	    /*! \todo FIXME - the more sophisticated axisComp should be applied
 	       here, if available */
 	    joint->backlash_corr = 0.5 * joint->backlash;
 	} else if (joint->vel_cmd < 0.0) {
 	    /* moving "down". apply negative backlash comp */
-	    /* FIXME - the more sophisticated axisComp should be applied
+	    /*! \todo FIXME - the more sophisticated axisComp should be applied
 	       here, if available */
 	    joint->backlash_corr = -0.5 * joint->backlash;
 	} else {
@@ -1908,7 +1838,7 @@ static void compute_backlash(void)
 	}
 
 	/* filter backlash_corr to avoid position steps */
-	/* FIXME - this is a linear ramp - an S-ramp would be better because
+	/*! \todo FIXME - this is a linear ramp - an S-ramp would be better because
 	   it would limit acceleration */
 	max_delta_pos = joint->vel_limit * servo_period;
 	dist_to_go = joint->backlash_corr - joint->backlash_filt;
@@ -1927,7 +1857,7 @@ static void compute_backlash(void)
     }
 }
 
-/* FIXME - once the HAL refactor is done so that metadata isn't stored
+/*! \todo FIXME - once the HAL refactor is done so that metadata isn't stored
    in shared memory, I want to seriously consider moving some of the
    structures into the HAL memory block.  This will eliminate most of
    this useless copying, and make nearly everything accessible to
@@ -1952,7 +1882,7 @@ static void output_to_hal(void)
        and copy elsewhere if you want to observe an automatic variable that
        isn't in scope here. */
     emcmot_hal_data->debug_bit_0 = joints[1].free_tp_active;
-    emcmot_hal_data->debug_bit_1 = 0;
+    emcmot_hal_data->debug_bit_1 = emcmotStatus->carte_pos_fb_ok;
     emcmot_hal_data->debug_float_0 = 0.0;
     emcmot_hal_data->debug_float_1 = 0.0;
 
@@ -2016,7 +1946,7 @@ static void update_status(void)
 	joint_status = &(emcmotStatus->joint_status[joint_num]);
 	/* copy stuff */
 #ifdef WATCH_FLAGS
-	/* FIXME - this is for debugging */
+	/*! \todo FIXME - this is for debugging */
 	if ( old_joint_flags[joint_num] != joint->flag ) {
 	    rtapi_print ( "Joint %d flag %04X -> %04X\n", joint_num, old_joint_flags[joint_num], joint->flag );
 	    old_joint_flags[joint_num] = joint->flag;
@@ -2035,7 +1965,7 @@ static void update_status(void)
 	joint_status->home_offset = joint->home_offset;
     }
 
-    /* FIXME - the rest of this function is stuff that was apparently
+    /*! \todo FIXME - the rest of this function is stuff that was apparently
        dropped in the initial move from emcmot.c to control.c.  I
        don't know how much is still needed, and how much is baggage.
     */
@@ -2054,7 +1984,7 @@ static void update_status(void)
       emcmotStatus->paused = 1;
     }
 #ifdef WATCH_FLAGS
-    /* FIXME - this is for debugging */
+    /*! \todo FIXME - this is for debugging */
     if ( old_motion_flag != emcmotStatus->motionFlag ) {
 	rtapi_print ( "Motion flag %04X -> %04X\n", old_motion_flag, emcmotStatus->motionFlag );
 	old_motion_flag = emcmotStatus->motionFlag;

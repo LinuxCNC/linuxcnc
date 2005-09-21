@@ -83,18 +83,18 @@ extern const char *kinematicsGetName(void);
    flags are set to indicate their value appropriate to the joint values
    passed in. */
 extern int kinematicsForward(const double *joint,
-    EmcPose * world,
-    const KINEMATICS_FORWARD_FLAGS * fflags,
-    KINEMATICS_INVERSE_FLAGS * iflags);
+			     EmcPose * world,
+			     const KINEMATICS_FORWARD_FLAGS * fflags,
+			     KINEMATICS_INVERSE_FLAGS * iflags);
 
 /* the inverse kinematics take world coordinates and determine joint values,
    given the inverse kinematics flags to resolve any ambiguities. The forward
    flags are set to indicate their value appropriate to the world coordinates
    passed in. */
 extern int kinematicsInverse(const EmcPose * world,
-    double *joints,
-    const KINEMATICS_INVERSE_FLAGS * iflags,
-    KINEMATICS_FORWARD_FLAGS * fflags);
+			     double *joints,
+			     const KINEMATICS_INVERSE_FLAGS * iflags,
+			     KINEMATICS_FORWARD_FLAGS * fflags);
 
 /* the home kinematics function sets all its arguments to their proper
    values at the known home position. When called, these should be set,
@@ -103,8 +103,9 @@ extern int kinematicsInverse(const EmcPose * world,
    should be used.
 */
 extern int kinematicsHome(EmcPose * world,
-    double *joint,
-    KINEMATICS_FORWARD_FLAGS * fflags, KINEMATICS_INVERSE_FLAGS * iflags);
+			  double *joint,
+			  KINEMATICS_FORWARD_FLAGS * fflags,
+			  KINEMATICS_INVERSE_FLAGS * iflags);
 
 extern KINEMATICS_TYPE kinematicsType(void);
 
@@ -116,9 +117,11 @@ extern KINEMATICS_TYPE kinematicsType(void);
 extern int kinematicsSetParameters(const double *p);
 
 extern int jacobianInverse(const EmcPose * pos,
-    const EmcPose * vel, const double *joints, double *jointvels);
+			   const EmcPose * vel, const double *joints,
+			   double *jointvels);
 
 extern int jacobianForward(const double *joints,
-    const double *jointvels, const EmcPose * pos, EmcPose * vel);
+			   const double *jointvels, const EmcPose * pos,
+			   EmcPose * vel);
 
 #endif

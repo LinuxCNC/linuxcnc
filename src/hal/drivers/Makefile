@@ -17,46 +17,114 @@
 # math lib if it isn't needed?  If not, then modules that require
 # the math lib will also require explicit rules ;-(
 #
-
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../../../Makefile.inc
+
+ifneq ($(KERNELRELEASE),)
+# kbuild part of the makefile
+
+ifeq ($(RTFLAGS),)
+include $(PWD)/../../Makefile.inc
+endif
+
+obj-$(CONFIG_HAL_PARPORT) := hal_parport.o
+obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
+obj-$(CONFIG_HAL_STG) += hal_stg.o
+obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
+obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
+obj-$(CONFIG_HAL_MOTENC) += hal_m5i20.o
+obj-$(CONFIG_HAL_MOTENC) += hal_ax5214h.o
+obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
+
+EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
+
+else
+# normal part of the makefile
+
+include ../../Makefile.inc
 
 # Public headers
 HEADERS =
 
 # Private headers
-PRIVHDRS =
+PRIVHDRS = motenc.h m5i20.h plx9030.h m5i20_HM5-4E.h
 
 SRCS = \
 hal_parport.c \
 hal_skeleton.c
 
+ifneq ($(MODULE_EXT),.ko)
+
 RT_SRCS = \
 hal_parport.c \
 hal_tiro.c \
+hal_stg.c \
 hal_evoreg.c \
+hal_motenc.c \
+hal_m5i20.c \
+hal_ax5214h.c \
 hal_skeleton.c
 
 LIBS = \
 $(RTLIB_DIR)/hal_parport.o \
 $(RTLIB_DIR)/hal_tiro.o \
+$(RTLIB_DIR)/hal_stg.o \
 $(RTLIB_DIR)/hal_evoreg.o \
+$(RTLIB_DIR)/hal_motenc.o \
+$(RTLIB_DIR)/hal_m5i20.o \
+$(RTLIB_DIR)/hal_ax5214h.o \
 $(RTLIB_DIR)/hal_skeleton.o
+
+endif
 
 BINS = \
 $(BIN_DIR)/hal_parport \
 $(BIN_DIR)/hal_skeleton
 
 
-all : headers $(OBJS) $(LIBS) $(BINS)
+all : headers $(OBJS) $(LIBS) $(BINS) modules
 
 # Generic rules
-include $(EMC2_HOME)/Make.rules
+include $(SRC_DIR)/Make.rules
 
 headers: def_headers
 indent: def_indent
 depend: def_depend
-clean :  def_clean
+clean :  def_clean kclean
+
+kclean:
+	- rm -f .*.cmd *.o *.mod.* *.ko
+	- rm -fR .tmp_versions 
+
+
+
+ifndef KDIR
+# this doesn't work on debian where make-kpkg was at work
+#KDIR := $(KERNELDIR)
+KDIR := /lib/modules/$(shell uname -r)/build
+endif
+
+PWD := $(shell pwd)
+
+
+# Only on kbuild build systems is it required to do the 'make modules'
+# all older system build the traditional way
+ifeq ($(BUILD_SYS),kbuild)
+
+modules: headers
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
+	- cp *.ko $(RTLIB_DIR)/
+
+modules_install: modules
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
+	depmod 2>/dev/null
+
+else
+
+modules:
+
+modules_install:
+
+endif
 
 # rule to link single module binaries (user space versions of drivers)
 $(BIN_DIR)/% : $(TMP_DIR)/%.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
@@ -64,5 +132,6 @@ $(BIN_DIR)/% : $(TMP_DIR)/%.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
 
-.PHONY: all headers depend indent install clean
+.PHONY: all headers depend indent install modules clean kclean
 
+endif

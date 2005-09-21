@@ -8,7 +8,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -50,6 +50,7 @@ CMS_CONNECTION_MODE cms_connection_mode = CMS_NORMAL_CONNECTION_MODE;
 int CMS::number_of_cms_objects = 0;
 int cms_encoded_data_explosion_factor = 4;
 
+/*! \todo Another #if 0 */
 #if 0
 static int convert2lower(char *dest, char *src, int len)
 {
@@ -1272,6 +1273,15 @@ void CMS::set_cms_status(CMS_STATUS new_status)
 }
 
   /* Access functions for primitive C language data types */
+CMS_STATUS CMS::update(bool &x)
+{
+    if (NULL != updater) {
+	return (updater->update(x));
+    } else {
+	return (status = CMS_UPDATE_ERROR);
+    }
+}
+
 CMS_STATUS CMS::update(char &x)
 {
     if (NULL != updater) {

@@ -69,6 +69,10 @@ static void dialog_realtime_not_linked(void);
 static void dialog_realtime_not_running(void);
 static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, gpointer gdata);
+static int set_sample_thread_name(char *name);
+static int activate_sample_thread(void);
+static void deactivate_sample_thread(void);
+
 static void mult_changed(GtkAdjustment * adj, gpointer gdata);
 static void zoom_changed(GtkAdjustment * adj, gpointer gdata);
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
@@ -252,6 +256,170 @@ void handle_watchdog_timeout(void)
 	/* everything should be fine... */
 	return;
     }
+}
+
+void refresh_state_info(void)
+{
+    scope_horiz_t *horiz;
+    static gchar *state_names[] = { "IDLE",
+	"INIT",
+	"PRE-TRIG",
+	"TRIGGER?",
+	"TRIGGERED",
+	"DONE",
+	"RESET"
+    };
+
+    horiz = &(ctrl_usr->horiz);
+    if (ctrl_shm->state > RESET) {
+	ctrl_shm->state = IDLE;
+    }
+    gtk_label_set_text_if(horiz->state_label, state_names[ctrl_shm->state]);
+    refresh_pos_disp();
+}
+
+void write_horiz_config(FILE *fp)
+{
+    scope_horiz_t *horiz;
+
+    horiz = &(ctrl_usr->horiz);
+    fprintf(fp, "THREAD %s\n", horiz->thread_name);
+    fprintf(fp, "MAXCHAN %d\n", ctrl_shm->sample_len);
+    fprintf(fp, "HMULT %d\n", ctrl_shm->mult);
+    fprintf(fp, "HZOOM %d\n", horiz->zoom_setting);
+    fprintf(fp, "HPOS %e\n", horiz->pos_setting);
+}
+
+int set_sample_thread(char *name)
+{
+    int rv;
+    
+    /* This is broken into two parts.  When called directly
+       while reading config file commands, both execute in
+       order.  however, when the dialog is running, it calls
+       the two separately, setting the sample_thread_name
+       during the dialog, and sctivating it when the dialog
+       is closed.  This may not be neccessary, but that is
+       how it works right now. */
+    rv = 0;
+    rv = set_sample_thread_name(name);
+    if ( rv < 0 ) {
+	return rv;
+    }
+    rv = activate_sample_thread();
+    return rv;
+}
+
+int set_rec_len(int setting)
+{
+    int count, n;
+
+    switch ( setting ) {
+    case 1:
+    case 2:
+    case 4:
+    case 8:
+    case 16:
+	/* acceptable value */
+	break;
+    default:
+	/* bad value */
+	return -1;
+    }
+    /* count enabled channels */
+    count = 0;
+    for (n = 0; n < 16; n++) {
+	if (ctrl_usr->vert.chan_enabled[n]) {
+	    count++;
+	}
+    }
+    if (count > setting) {
+	/* too many channels already enabled */
+	return -1;
+    }
+    ctrl_shm->sample_len = setting;
+    ctrl_shm->rec_len = ctrl_shm->buf_len / ctrl_shm->sample_len;
+    calc_horiz_scaling();
+    refresh_horiz_info();
+    return 0;
+}
+
+int set_horiz_mult(int setting)
+{
+    scope_horiz_t *horiz;
+    long period_ns, max_mult;
+    
+    /* validate setting */
+    if ( setting < 1 ) {
+	return -1;
+    }
+    /* point to data */
+    horiz = &(ctrl_usr->horiz);
+    /* get period, make sure is is valid */
+    period_ns = horiz->thread_period_ns;
+    if ( period_ns < 10 ) {
+	return -1;
+    }
+    /* calc max possible mult (to keep sample period <= 1 sec */
+    max_mult = 1000000000 / period_ns;
+    if (max_mult > 1000) {
+	max_mult = 1000;
+    }
+    /* make sure we aren't too high */
+    if ( setting > max_mult ) {
+	setting = max_mult;
+    }    
+    /* save new value */
+    ctrl_shm->mult = setting;
+    /* refresh other stuff */    
+    calc_horiz_scaling();
+    refresh_horiz_info();
+    return 0;
+}
+
+int set_horiz_zoom(int setting)
+{
+    scope_horiz_t *horiz;
+    GtkAdjustment *adj;
+
+    /* range check setting */
+    if (( setting < 1 ) || ( setting > 9 )) {
+	return -1;
+    }
+    /* point to data */
+    horiz = &(ctrl_usr->horiz);
+    /* save new value */
+    horiz->zoom_setting = setting;
+    /* set zoom slider based on new setting */
+    adj = GTK_ADJUSTMENT(horiz->zoom_adj);
+    gtk_adjustment_set_value(adj, setting);
+    /* refresh other stuff */    
+    calc_horiz_scaling();
+    refresh_horiz_info();
+    request_display_refresh(1);
+    return 0;
+}
+
+int set_horiz_pos(double setting)
+{
+    scope_horiz_t *horiz;
+    GtkAdjustment *adj;
+
+    /* range check setting */
+    if (( setting < 0.0 ) || ( setting > 1.0 )) {
+	return -1;
+    }
+    /* point to data */
+    horiz = &(ctrl_usr->horiz);
+    /* save new value */
+    horiz->pos_setting = setting;
+    /* set position slider based on new setting */
+    adj = GTK_ADJUSTMENT(horiz->pos_adj);
+    gtk_adjustment_set_value(adj, setting * 1000);
+    /* refresh other stuff */    
+    refresh_horiz_info();
+    request_display_refresh(1);
+    return 0;
 }
 
 /***********************************************************************
@@ -542,17 +710,7 @@ static void dialog_realtime_not_linked(void)
 	/* user either closed dialog, or hit cancel - end the program */
 	gtk_main_quit();
     } else {
-	if (horiz->thread_name != NULL) {
-	    /* store name of thread in shared memory */
-	    strncpy(ctrl_shm->thread_name, horiz->thread_name,
-		HAL_NAME_LEN + 1);
-	    /* hook sampling function to thread */
-	    hal_add_funct_to_thread("scope.sample", horiz->thread_name, -1);
-	    /* give the code some time to get started */
-	    ctrl_shm->watchdog = 0;
-	    invalidate_all_channels();
-	    request_display_refresh(1);
-	}
+	activate_sample_thread();
     }
 }
 
@@ -580,8 +738,6 @@ static void dialog_realtime_not_running(void)
 
 static void acquire_popup(GtkWidget * widget, gpointer gdata)
 {
-    scope_horiz_t *horiz;
-
     /* 'push' the stop button */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->rm_stop_button),
 	TRUE);
@@ -592,13 +748,7 @@ static void acquire_popup(GtkWidget * widget, gpointer gdata)
         watchdog timeout, and that in turn will pop up the dialog
         requesting you to reconnect it.
     */
-    horiz = &(ctrl_usr->horiz);
-    if (horiz->thread_name != NULL) {
-	/* disconnect sample funct from thread */
-	hal_del_funct_from_thread("scope.sample", horiz->thread_name);
-	/* clear thread name from shared memory */
-	ctrl_shm->thread_name[0] = '\0';
-    }
+    deactivate_sample_thread();
     /* presetting the watchdog to 10 avoids the delay that would otherwise
        take place while the watchdog times out. */
     ctrl_shm->watchdog = 10;
@@ -611,11 +761,6 @@ static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
     scope_horiz_t *horiz;
     GdkEventType type;
     gchar *picked;
-    hal_thread_t *thread;
-    long max_mult;
-
-    /* get a pointer to the horiz data structure */
-    horiz = &(ctrl_usr->horiz);
 
     if (clist == NULL) {
 	/* spurious event, ignore it */
@@ -639,14 +784,30 @@ static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
     /* must be a valid user selection or preselection */
     /* Get the text from the list */
     gtk_clist_get_text(GTK_CLIST(clist), row, 0, &picked);
-    /* find thread */
-    thread = halpr_find_thread_by_name(picked);
+    /* set thread */
+    set_sample_thread_name(picked);
+    /* get a pointer to the horiz data structure */
+    horiz = &(ctrl_usr->horiz);
+    /* set mult spinbutton to (possibly) new value */
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(horiz->mult_spinbutton), ctrl_shm->mult);
+}
+
+static int set_sample_thread_name(char *name)
+{
+    scope_horiz_t *horiz;
+    hal_thread_t *thread;
+    long max_mult;
+
+    /* get a pointer to the horiz data structure */
+    horiz = &(ctrl_usr->horiz);
+    /* look for a new thread that matches name*/
+    thread = halpr_find_thread_by_name(name);
     if (thread == NULL) {
-	horiz->thread_name = NULL;
-	calc_horiz_scaling();
-	refresh_horiz_info();
-	return;
+	return -1;
     }
+    /* shut down any prior thread */
+    deactivate_sample_thread();
+    /* save info about the thread */ 
     horiz->thread_name = thread->name;
     horiz->thread_period_ns = thread->period;
     /* calc max possible mult (to keep sample period <= 1 sec */
@@ -654,67 +815,93 @@ static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
     if (max_mult > 1000) {
 	max_mult = 1000;
     }
-    /* update limit on mult spinbox */
-    GTK_ADJUSTMENT(horiz->mult_adj)->upper = max_mult;
-    gtk_adjustment_changed(GTK_ADJUSTMENT(horiz->mult_adj));
     if (ctrl_shm->mult > max_mult) {
 	ctrl_shm->mult = max_mult;
-	gtk_spin_button_set_value(GTK_SPIN_BUTTON(horiz->mult_spinbutton),
-	    max_mult);
     }
     calc_horiz_scaling();
     refresh_horiz_info();
+    return 0;
+}
+
+static void deactivate_sample_thread(void)
+{
+    scope_horiz_t *horiz;
+
+    /* get a pointer to the horiz data structure */
+    horiz = &(ctrl_usr->horiz);
+    /* check for old sample thread */
+    if (ctrl_shm->thread_name[0] != '\0') {
+	/* disconnect sample funct from old thread */
+	hal_del_funct_from_thread("scope.sample", ctrl_shm->thread_name);
+	/* clear thread name from shared memory */
+	ctrl_shm->thread_name[0] = '\0';
+    }
+}
+
+static int activate_sample_thread(void)
+{
+    scope_horiz_t *horiz;
+    int rv;
+ 
+    /* get a pointer to the horiz data structure */
+    horiz = &(ctrl_usr->horiz);
+    /* has a thread name been specified? */
+    if (horiz->thread_name == NULL) {
+	return -1;
+    }
+    /* shut down any prior thread */
+    /* (probably already sone, but just making sure */
+    deactivate_sample_thread();
+    /* hook sampling function to thread */
+    rv = hal_add_funct_to_thread("scope.sample", horiz->thread_name, -1);
+    if ( rv < 0 ) {
+	return rv;
+    }
+    /* store name of thread in shared memory */
+    strncpy(ctrl_shm->thread_name, horiz->thread_name, HAL_NAME_LEN + 1);
+    /* give the code some time to get started */
+    ctrl_shm->watchdog = 0;
+    invalidate_all_channels();
+    request_display_refresh(1);
+    return 0;
 }
 
 static void mult_changed(GtkAdjustment * adj, gpointer gdata)
 {
     scope_horiz_t *horiz;
-
+    int value;
+    
+    /* point to GUI widgets */
     horiz = &(ctrl_usr->horiz);
-    ctrl_shm->mult =
-	gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(horiz->
-	    mult_spinbutton));
-    calc_horiz_scaling();
-    refresh_horiz_info();
+    /* get value from spinbutton */
+    value = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(horiz->mult_spinbutton));
+    /* set it */
+    set_horiz_mult(value);
+    /* set spinbutton to new value */
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(horiz->mult_spinbutton), ctrl_shm->mult);
 }
 
 static void zoom_changed(GtkAdjustment * adj, gpointer gdata)
 {
-    scope_horiz_t *horiz;
-
-    horiz = &(ctrl_usr->horiz);
-    horiz->zoom_setting = adj->value;
-    calc_horiz_scaling();
-    refresh_horiz_info();
-    request_display_refresh(1);
+    set_horiz_zoom(adj->value);
 }
 
 static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 {
-    scope_horiz_t *horiz;
-
-    horiz = &(ctrl_usr->horiz);
-    horiz->pos_setting = adj->value / 1000.0;
-    refresh_horiz_info();
-    request_display_refresh(1);
+    set_horiz_pos(adj->value / 1000.0);
 }
 
 static void rec_len_button(GtkWidget * widget, gpointer gdata)
 {
-    int count, n;
+    int retval;
     char *title, *msg;
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
 	return;
     }
-    count = 0;
-    for (n = 0; n < 16; n++) {
-	if (ctrl_usr->vert.chan_enabled[n]) {
-	    count++;
-	}
-    }
-    if (count > (int) gdata) {
+    retval = set_rec_len((int)gdata);
+    if (retval < 0) {
 	/* too many channels already enabled */
 	title = "Not enough channels";
 	msg = "This record length cannot handle the channels\n"
@@ -722,12 +909,7 @@ static void rec_len_button(GtkWidget * widget, gpointer gdata)
 	    "record length that supports more channels.";
 	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", NULL, NULL,
 	    NULL);
-	return;
     }
-    ctrl_shm->sample_len = (int) (gdata);
-    ctrl_shm->rec_len = ctrl_shm->buf_len / ctrl_shm->sample_len;
-    calc_horiz_scaling();
-    refresh_horiz_info();
 }
 
 static void calc_horiz_scaling(void)
@@ -832,26 +1014,6 @@ static void refresh_horiz_info(void)
     gtk_label_set_text_if(horiz->sample_period_label, period);
     gtk_label_set_text_if(horiz->record_label, msg);
     refresh_state_info();
-}
-
-void refresh_state_info(void)
-{
-    scope_horiz_t *horiz;
-    static gchar *state_names[] = { "IDLE",
-	"INIT",
-	"PRE-TRIG",
-	"TRIGGER?",
-	"TRIGGERED",
-	"DONE",
-	"RESET"
-    };
-
-    horiz = &(ctrl_usr->horiz);
-    if (ctrl_shm->state > RESET) {
-	ctrl_shm->state = IDLE;
-    }
-    gtk_label_set_text_if(horiz->state_label, state_names[ctrl_shm->state]);
-    refresh_pos_disp();
 }
 
 static void refresh_pos_disp(void)
@@ -995,3 +1157,4 @@ static void format_freq_value(char *buf, int buflen, float freqval)
     }
     snprintf(buf, buflen, "%0.*f %s", decimals, freqval, units);
 }
+

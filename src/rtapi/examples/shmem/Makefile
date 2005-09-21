@@ -1,7 +1,8 @@
 # Makefile for shared memory task example
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../../../../Makefile.inc
+include ../../../Makefile.inc
+
 
 # Public headers
 HEADERS =
@@ -14,6 +15,8 @@ common.h
 SRCS = \
 shmemusr.c
 
+ifneq ($(MODULE_EXT),.ko)
+
 RT_SRCS = \
 shmemtask.c
 
@@ -21,13 +24,15 @@ shmemtask.c
 LIBS = \
 $(RTLIB_DIR)/shmemtask.o
 
+endif
+
 BINS = \
 $(BIN_DIR)/shmemusr
 
 all : headers $(LIBS) $(BINS)
 
 # Generic rules
-include ../../../../Make.rules
+include $(SRC_DIR)/Make.rules
 
 headers: def_headers
 
@@ -35,12 +40,16 @@ indent: def_indent
 
 depend: def_depend
 
-clean: def_clean
+clean: def_clean kclean
+
+kclean:
+	- rm -f .*.cmd *.o *.mod.* *.ko
+	- rm -fR .tmp_versions
 
 # explicit to link user space binary shmemusr
 $(BIN_DIR)/shmemusr : $(TMP_DIR)/shmemusr.o $(LIB_DIR)/ulapi.o
 	@ echo "Linking $@"
 	$(CC) $(CFLAGS) $(ULFLAGS) $^ -o $@
 
-.PHONY: all headers depend indent install clean
+.PHONY: all headers depend indent install clean kclean
 

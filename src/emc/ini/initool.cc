@@ -25,9 +25,9 @@ extern "C" {
 #include "inifile.hh"
 #include "initool.hh"		// these decls
 #include "emcglb.h"		// TOOL_TABLE_FILE
-// inifile ref'ed by iniTool(), loadTool() 
 
-static INIFILE *toolInifile = 0;
+// inifile ref'ed by iniTool(), loadTool() 
+static Inifile *toolInifile = 0;
 
 /*
   loadTool()
@@ -43,18 +43,18 @@ static INIFILE *toolInifile = 0;
 
 static int loadTool(void)
 {
-  int retval = 0;
-  const char *inistring;
+    int retval = 0;
+    const char *inistring;
 
-  if (NULL != (inistring = toolInifile->find("TOOL_TABLE", "EMCIO"))) {
-    if (0 != emcToolSetToolTableFile(inistring)) {
-      rcs_print("bad return value from emcToolSetToolTableFile\n");
-      retval = -1;
+    if (NULL != (inistring = toolInifile->find("TOOL_TABLE", "EMCIO"))) {
+	if (0 != emcToolSetToolTableFile(inistring)) {
+	    rcs_print("bad return value from emcToolSetToolTableFile\n");
+	    retval = -1;
+	}
     }
-  }
-  // else ignore omission
+    // else ignore omission
 
-  return retval;
+    return retval;
 }
 
 /*
@@ -63,56 +63,58 @@ static int loadTool(void)
 */
 static int readToolChange(void)
 {
-  int retval = 0;
-  const char *inistring;
+    int retval = 0;
+    const char *inistring;
 
-  if (NULL != (inistring = toolInifile->find("TOOL_CHANGE_POSITION", "EMCIO"))) {
-    /* found an entry */
-    if (3 == sscanf(inistring, "%lf %lf %lf",
-		    &TOOL_CHANGE_POSITION.tran.x,
-		    &TOOL_CHANGE_POSITION.tran.y,
-		    &TOOL_CHANGE_POSITION.tran.z)) {
-      /* read them OK */
-      TOOL_CHANGE_POSITION.a = 0.0; // not supporting ABC for now
-      TOOL_CHANGE_POSITION.b = 0.0;
-      TOOL_CHANGE_POSITION.c = 0.0;
-      HAVE_TOOL_CHANGE_POSITION = 1;
-      retval = 0;
+    if (NULL !=
+	(inistring = toolInifile->find("TOOL_CHANGE_POSITION", "EMCIO"))) {
+	/* found an entry */
+	if (3 == sscanf(inistring, "%lf %lf %lf",
+			&TOOL_CHANGE_POSITION.tran.x,
+			&TOOL_CHANGE_POSITION.tran.y,
+			&TOOL_CHANGE_POSITION.tran.z)) {
+	    /* read them OK */
+	    TOOL_CHANGE_POSITION.a = 0.0;	// not supporting ABC for now
+	    TOOL_CHANGE_POSITION.b = 0.0;
+	    TOOL_CHANGE_POSITION.c = 0.0;
+	    HAVE_TOOL_CHANGE_POSITION = 1;
+	    retval = 0;
+	} else {
+	    /* bad format */
+	    rcs_print("bad format for TOOL_CHANGE_POSITION\n");
+	    HAVE_TOOL_CHANGE_POSITION = 0;
+	    retval = -1;
+	}
     } else {
-      /* bad format */
-      rcs_print("bad format for TOOL_CHANGE_POSITION\n");
-      HAVE_TOOL_CHANGE_POSITION = 0;
-      retval = -1;
+	/* didn't find an entry */
+	HAVE_TOOL_CHANGE_POSITION = 0;
     }
-  } else {
-    /* didn't find an entry */
-    HAVE_TOOL_CHANGE_POSITION = 0;
-  }
 
-  if (NULL != (inistring = toolInifile->find("TOOL_HOLDER_CLEAR", "EMCIO"))) {
-    /* found an entry */
-    if (3 == sscanf(inistring, "%lf %lf %lf",
-		    &TOOL_HOLDER_CLEAR.tran.x,
-		    &TOOL_HOLDER_CLEAR.tran.y,
-		    &TOOL_HOLDER_CLEAR.tran.z)) {
-      /* read them OK */
-      TOOL_HOLDER_CLEAR.a = 0.0; // not supporting ABC for now
-      TOOL_HOLDER_CLEAR.b = 0.0;
-      TOOL_HOLDER_CLEAR.c = 0.0;
-      HAVE_TOOL_HOLDER_CLEAR = 1;
-      retval = 0;
+    if (NULL !=
+	(inistring = toolInifile->find("TOOL_HOLDER_CLEAR", "EMCIO"))) {
+	/* found an entry */
+	if (3 == sscanf(inistring, "%lf %lf %lf",
+			&TOOL_HOLDER_CLEAR.tran.x,
+			&TOOL_HOLDER_CLEAR.tran.y,
+			&TOOL_HOLDER_CLEAR.tran.z)) {
+	    /* read them OK */
+	    TOOL_HOLDER_CLEAR.a = 0.0;	// not supporting ABC for now
+	    TOOL_HOLDER_CLEAR.b = 0.0;
+	    TOOL_HOLDER_CLEAR.c = 0.0;
+	    HAVE_TOOL_HOLDER_CLEAR = 1;
+	    retval = 0;
+	} else {
+	    /* bad format */
+	    rcs_print("bad format for TOOL_HOLDER_CLEAR\n");
+	    HAVE_TOOL_HOLDER_CLEAR = 0;
+	    retval = -1;
+	}
     } else {
-      /* bad format */
-      rcs_print("bad format for TOOL_HOLDER_CLEAR\n");
-      HAVE_TOOL_HOLDER_CLEAR = 0;
-      retval = -1;
+	/* didn't find an entry */
+	HAVE_TOOL_HOLDER_CLEAR = 0;
     }
-  } else {
-    /* didn't find an entry */
-    HAVE_TOOL_HOLDER_CLEAR = 0;
-  }
 
-  return retval;
+    return retval;
 }
 
 /*
@@ -122,33 +124,33 @@ static int readToolChange(void)
  */
 int iniTool(const char *filename)
 {
-  int retval = 0;
+    int retval = 0;
 
-  toolInifile = new INIFILE;
+    toolInifile = new Inifile;
 
-  if (-1 == toolInifile->open(filename)) {
-    return -1;
-  }
-  // load tool values
-  if (0 != loadTool()) {
-    retval = -1;
-  }
-  // read the tool change positions
-  if (0 != readToolChange()) {
-    retval = -1;
-  }
-  // close the inifile
-  toolInifile->close();
-  delete toolInifile;
+    if (toolInifile->open(filename) == false) {
+	return -1;
+    }
+    // load tool values
+    if (0 != loadTool()) {
+	retval = -1;
+    }
+    // read the tool change positions
+    if (0 != readToolChange()) {
+	retval = -1;
+    }
+    // close the inifile
+    toolInifile->close();
+    delete toolInifile;
 
-  return retval;
+    return retval;
 }
 
 // functions to set global variables
 
 int emcToolSetToolTableFile(const char *filename)
 {
-  strcpy(TOOL_TABLE_FILE, filename);
+    strcpy(TOOL_TABLE_FILE, filename);
 
-  return 0;
+    return 0;
 }

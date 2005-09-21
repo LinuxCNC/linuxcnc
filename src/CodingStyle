@@ -316,7 +316,7 @@ The form while(true) should be used for infinite loops.
 
 NOT
 
-for (::) {
+for (;;) {
     ...;
 }
 
@@ -341,6 +341,12 @@ Do not put anything below this point. The revision log is automatically appended
 ################################################################################
 
 $Log$
+Revision 1.6.12.1  2005/09/21 01:34:16  zwelch
+Merge auto_configure_0_2 branch with HEAD in prep for further branch work.
+
+Revision 1.8  2005/05/23 19:51:55  paul_c
+Small typo correction... Not that it appears anyone reads it anyway...
+
 Revision 1.6  2003/10/31 23:49:43  paul_c
 Removed the -k flag from the sub-makes (it is in MAKEFLAGS now)
 

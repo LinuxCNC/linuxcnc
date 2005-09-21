@@ -46,7 +46,7 @@ typedef struct {
     hal_float_t f_error;	/* RPA: following error */
     hal_float_t f_error_lim;	/* RPA: following error limit */
 
-/* FIXME - these might not be HAL params forever, but they are usefull now */
+/*! \todo FIXME - these might not be HAL params forever, but they are usefull now */
     hal_float_t free_pos_cmd;	/* RPA: free traj planner pos cmd */
     hal_float_t free_vel_lim;	/* RPA: free traj planner vel limit */
     hal_bit_t free_tp_enable;	/* RPA: free traj planner is running */
@@ -70,7 +70,8 @@ typedef struct {
     hal_bit_t *amp_enable;	/* WPI: amp enable output */
     hal_s8_t home_state;	/* RPA: homing state machine state */
 
-/* FIXME - these have been temporarily? deleted */
+/*! \todo FIXME - these have been temporarily? deleted */
+/*! \todo Another #if 0 */
 #if 0
     /* for now we control the index model through the mode and model pins on
        axis 0, later this may be done on a per axis basis */
@@ -96,6 +97,14 @@ typedef struct {
     hal_bit_t debug_bit_1;	/* RPA: generic param, for debugging */
     hal_float_t debug_float_0;	/* RPA: generic param, for debugging */
     hal_float_t debug_float_1;	/* RPA: generic param, for debugging */
+    
+    // FIXME - debug only, remove later
+    hal_float_t traj_pos_out;	/* RPA: traj internals, for debugging */
+    hal_float_t traj_vel_out;	/* RPA: traj internals, for debugging */
+    hal_u8_t traj_active_tc;	/* RPA: traj internals, for debugging */
+    hal_float_t tc_pos[4];	/* RPA: traj internals, for debugging */
+    hal_float_t tc_vel[4];	/* RPA: traj internals, for debugging */
+    hal_float_t tc_acc[4];	/* RPA: traj internals, for debugging */
 
     axis_hal_t axis[EMCMOT_MAX_AXIS];	/* data for each axis */
 
@@ -147,6 +156,10 @@ extern emcmot_log_struct_t ls;
 /* function definitions */
 extern void emcmotCommandHandler(void *arg, long period);
 extern void emcmotController(void *arg, long period);
+
+/* loops through the active joints and checks if any are not homed */
+extern int checkAllHomed(void);
+
 
 extern void emcmot_config_change(void);
 extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */

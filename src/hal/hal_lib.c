@@ -14,6 +14,8 @@
     Other contributors:
                        Paul Fox
                        <pgf AT foxharp DOT boston DOT ma DOT us>
+		       Alex Joni
+		       <alex_joni AT users DOT sourceforge DOT net>
 */
 
 /** This library is free software; you can redistribute it and/or
@@ -309,8 +311,9 @@ int hal_exit(int comp_id)
     rtapi_snprintf(name, HAL_NAME_LEN, "%s", comp->name);
     /* get rid of the component */
     free_comp_struct(comp);
+/*! \todo Another #if 0 */
 #if 0
-    /* FIXME - this is the beginning of a two pronged approach to managing
+    /*! \todo FIXME - this is the beginning of a two pronged approach to managing
        shared memory.  Prong 1 - re-init the shared memory allocator whenever 
        it is known to be safe.  Prong 2 - make a better allocator that can
        reclaim memory allocated by components when those components are
@@ -358,6 +361,36 @@ void *hal_malloc(long int size)
     }
     return retval;
 }
+
+/***********************************************************************
+*                      "LOCKING" FUNCTIONS                             *
+************************************************************************/
+/** The 'hal_set_lock()' function sets locking based on one of the 
+    locking types defined in hal.h
+*/
+int hal_set_lock(unsigned char lock_type) {
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: set_lock called before init\n");
+	return HAL_INVAL;
+    }
+    hal_data->lock = lock_type;
+    return HAL_SUCCESS;
+}
+
+/** The 'hal_get_lock()' function returns the current locking level 
+    locking types defined in hal.h
+*/
+
+unsigned char hal_get_lock() {
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: get_lock called before init\n");
+	return HAL_INVAL;
+    }
+    return hal_data->lock;
+}
+
 
 /***********************************************************************
 *                        "PIN" FUNCTIONS                               *
@@ -428,6 +461,13 @@ int hal_pin_new(char *name, hal_type_t type, hal_dir_t dir,
 	    "HAL: ERROR: pin_new called before init\n");
 	return HAL_INVAL;
     }
+    
+    if (hal_data->lock & HAL_LOCK_LOAD)  {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin_new called while HAL locked\n");
+	return HAL_PERM;
+    }
+    
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating pin '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -517,6 +557,13 @@ int hal_signal_new(char *name, hal_type_t type)
 	    "HAL: ERROR: signal_new called before init\n");
 	return HAL_INVAL;
     }
+
+    if (hal_data->lock & HAL_LOCK_CONFIG) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: signal_new called while HAL is locked\n");
+	return HAL_PERM;
+    }
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating signal '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -621,6 +668,13 @@ int hal_signal_delete(char *name)
 	    "HAL: ERROR: signal_delete called before init\n");
 	return HAL_INVAL;
     }
+    
+    if (hal_data->lock & HAL_LOCK_CONFIG)  {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: signal_delete called while HAL locked\n");
+	return HAL_PERM;
+    }
+    
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting signal '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -661,6 +715,13 @@ int hal_link(char *pin_name, char *sig_name)
 	    "HAL: ERROR: link called before init\n");
 	return HAL_INVAL;
     }
+
+    if (hal_data->lock & HAL_LOCK_CONFIG)  {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: hal_link called while HAL locked\n");
+	return HAL_PERM;
+    }
+
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: linking pin '%s' to '%s'\n", pin_name, sig_name);
     /* get mutex before accessing data structures */
@@ -802,6 +863,13 @@ int hal_param_new(char *name, hal_type_t type, hal_dir_t dir, void *data_addr,
 	    "HAL: ERROR: param_new called before init\n");
 	return HAL_INVAL;
     }
+
+    if (hal_data->lock & HAL_LOCK_LOAD)  {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param_new called while HAL locked\n");
+	return HAL_PERM;
+    }
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -925,6 +993,13 @@ int hal_param_set(char *name, hal_type_t type, void *value_addr)
 	    "HAL: ERROR: param_set called before init\n");
 	return HAL_INVAL;
     }
+    
+    if (hal_data->lock & HAL_LOCK_PARAMS)  {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param_set called while HAL locked\n");
+	return HAL_PERM;
+    }
+    
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -1013,6 +1088,13 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
 	    "HAL: ERROR: export_funct called before init\n");
 	return HAL_INVAL;
     }
+
+    if (hal_data->lock & HAL_LOCK_LOAD)  {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: export_funct called while HAL locked\n");
+	return HAL_PERM;
+    }
+    
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: exporting function '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -1104,6 +1186,7 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     int retval, n;
     hal_thread_t *new, *tptr;
     long curr_period;
+/*! \todo Another #if 0 */
 #if 0
     char buf[HAL_NAME_LEN + 1];
 #endif
@@ -1120,6 +1203,13 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
 	    "HAL: ERROR: create_thread called with period of zero\n");
 	return HAL_INVAL;
     }
+
+    if (hal_data->lock & HAL_LOCK_CONFIG) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: create_thread called while HAL is locked\n");
+	return HAL_PERM;
+    }
+
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* make sure name is unique on thread list */
@@ -1211,6 +1301,7 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
     /* init time logging variables */
     new->runtime = 0;
     new->maxtime = 0;
+/*! \todo Another #if 0 */
 #if 0
 /* These params need to be re-visited when I refactor HAL.  Right
    now they cause problems - they can no longer be owned by the calling
@@ -1238,6 +1329,13 @@ extern int hal_thread_delete(char *name)
 	    "HAL: ERROR: thread_delete called before init\n");
 	return HAL_INVAL;
     }
+
+    if (hal_data->lock & HAL_LOCK_CONFIG) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: thread_delete called while HAL is locked\n");
+	return HAL_PERM;
+    }
+    
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting thread '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -1281,6 +1379,13 @@ int hal_add_funct_to_thread(char *funct_name, char *thread_name, int position)
 	    "HAL: ERROR: add_funct called before init\n");
 	return HAL_INVAL;
     }
+
+    if (hal_data->lock & HAL_LOCK_CONFIG) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: add_funct_to_thread called while HAL is locked\n");
+	return HAL_PERM;
+    }
+
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: adding function '%s' to thread '%s'\n",
 	funct_name, thread_name);
@@ -1405,6 +1510,13 @@ int hal_del_funct_from_thread(char *funct_name, char *thread_name)
 	    "HAL: ERROR: del_funct called before init\n");
 	return HAL_INVAL;
     }
+
+    if (hal_data->lock & HAL_LOCK_CONFIG) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: del_funct_from_thread called while HAL is locked\n");
+	return HAL_PERM;
+    }
+
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: removing function '%s' from thread '%s'\n",
 	funct_name, thread_name);
@@ -1484,6 +1596,14 @@ int hal_start_threads(void)
 	    "HAL: ERROR: start_threads called before init\n");
 	return HAL_INVAL;
     }
+
+    if (hal_data->lock & HAL_LOCK_RUN) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: start_threads called while HAL is locked\n");
+	return HAL_PERM;
+    }
+
+
     rtapi_print_msg(RTAPI_MSG_INFO, "HAL: starting threads\n");
     hal_data->threads_running = 1;
     return HAL_SUCCESS;
@@ -1497,6 +1617,13 @@ int hal_stop_threads(void)
 	    "HAL: ERROR: stop_threads called before init\n");
 	return HAL_INVAL;
     }
+
+    if (hal_data->lock & HAL_LOCK_RUN) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: stop_threads called while HAL is locked\n");
+	return HAL_PERM;
+    }
+
     hal_data->threads_running = 0;
     rtapi_print_msg(RTAPI_MSG_INFO, "HAL: threads stopped\n");
     return HAL_SUCCESS;
@@ -1991,6 +2118,7 @@ static void init_hal_data(void)
     /* set up for shmalloc_xx() */
     hal_data->shmem_bot = sizeof(hal_data_t);
     hal_data->shmem_top = HAL_SIZE;
+    hal_data->lock = HAL_LOCK_NONE;
     /* done, release mutex */
     rtapi_mutex_give(&(hal_data->mutex));
     return;
@@ -2476,6 +2604,7 @@ static void free_thread_struct(hal_thread_t * thread)
 {
     hal_funct_entry_t *funct_entry;
     hal_list_t *list_root, *list_entry;
+/*! \todo Another #if 0 */
 #if 0
     int *prev, next;
     char time[HAL_NAME_LEN + 5], tmax[HAL_NAME_LEN + 5];
@@ -2503,6 +2632,7 @@ static void free_thread_struct(hal_thread_t * thread)
 	/* free the removed entry */
 	free_funct_entry_struct(funct_entry);
     }
+/*! \todo Another #if 0 */
 #if 0
 /* Currently these don't get created, so we don't have to worry
    about deleting them.  They will come back when the HAL refactor
@@ -2537,3 +2667,72 @@ static void free_thread_struct(hal_thread_t * thread)
     hal_data->thread_free_ptr = SHMOFF(thread);
 }
 #endif /* RTAPI */
+
+
+#ifdef RTAPI
+/* only export symbols when we're building a kernel module */
+
+EXPORT_SYMBOL(hal_init);
+EXPORT_SYMBOL(hal_exit);
+EXPORT_SYMBOL(hal_malloc);
+
+EXPORT_SYMBOL(hal_pin_bit_new);
+EXPORT_SYMBOL(hal_pin_float_new);
+EXPORT_SYMBOL(hal_pin_u8_new);
+EXPORT_SYMBOL(hal_pin_s8_new);
+EXPORT_SYMBOL(hal_pin_u16_new);
+EXPORT_SYMBOL(hal_pin_s16_new);
+EXPORT_SYMBOL(hal_pin_u32_new);
+EXPORT_SYMBOL(hal_pin_s32_new);
+EXPORT_SYMBOL(hal_pin_new);
+
+EXPORT_SYMBOL(hal_signal_new);
+EXPORT_SYMBOL(hal_signal_delete);
+EXPORT_SYMBOL(hal_link);
+
+EXPORT_SYMBOL(hal_param_bit_new);
+EXPORT_SYMBOL(hal_param_float_new);
+EXPORT_SYMBOL(hal_param_u8_new);
+EXPORT_SYMBOL(hal_param_s8_new);
+EXPORT_SYMBOL(hal_param_u16_new);
+EXPORT_SYMBOL(hal_param_s16_new);
+EXPORT_SYMBOL(hal_param_u32_new);
+EXPORT_SYMBOL(hal_param_s32_new);
+EXPORT_SYMBOL(hal_param_new);
+
+EXPORT_SYMBOL(hal_param_bit_set);
+EXPORT_SYMBOL(hal_param_float_set);
+EXPORT_SYMBOL(hal_param_u8_set);
+EXPORT_SYMBOL(hal_param_s8_set);
+EXPORT_SYMBOL(hal_param_u16_set);
+EXPORT_SYMBOL(hal_param_s16_set);
+EXPORT_SYMBOL(hal_param_u32_set);
+EXPORT_SYMBOL(hal_param_s32_set);
+EXPORT_SYMBOL(hal_param_set);
+
+EXPORT_SYMBOL(hal_export_funct);
+
+EXPORT_SYMBOL(hal_create_thread);
+
+EXPORT_SYMBOL(hal_add_funct_to_thread);
+EXPORT_SYMBOL(hal_del_funct_from_thread);
+
+EXPORT_SYMBOL(hal_start_threads);
+EXPORT_SYMBOL(hal_stop_threads);
+
+EXPORT_SYMBOL(hal_shmem_base);
+EXPORT_SYMBOL(halpr_find_comp_by_name);
+EXPORT_SYMBOL(halpr_find_pin_by_name);
+EXPORT_SYMBOL(halpr_find_sig_by_name);
+EXPORT_SYMBOL(halpr_find_param_by_name);
+EXPORT_SYMBOL(halpr_find_thread_by_name);
+EXPORT_SYMBOL(halpr_find_funct_by_name);
+EXPORT_SYMBOL(halpr_find_comp_by_id);
+
+EXPORT_SYMBOL(halpr_find_pin_by_owner);
+EXPORT_SYMBOL(halpr_find_param_by_owner);
+EXPORT_SYMBOL(halpr_find_funct_by_owner);
+
+EXPORT_SYMBOL(halpr_find_pin_by_sig);
+
+#endif /* rtapi */

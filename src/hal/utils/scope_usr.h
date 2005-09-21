@@ -1,6 +1,6 @@
 #ifndef HALSC_USR_H
 #define HALSC_USR_H
-/** This file, 'halsc_usr.h', contains declarations used by
+/** This file, 'scope_usr.h', contains declarations used by
     'halscope.c' and other source files to implement the user
     space portion of the HAL oscilliscope.  Other declarations
     used by both user and realtime code are in 'halsc_shm.h', and
@@ -83,13 +83,16 @@ typedef struct {
 /* it lives in user space (as part of the master control struct) */
 
 typedef struct {
-    int data_source_type;	/* 0 = pin, 1 = signa, 2 = param */
+    int data_source_type;	/* 0 = pin, 1 = signal, 2 = param,
+				   -1 = no source assigned */
     int data_source;		/* points to pin/param/signal struct */
     char *name;			/* name of pin/sig/parameter */
     hal_type_t data_type;	/* data type */
     int data_len;		/* data length */
     float vert_offset;		/* offset to be applied */
     int scale_index;		/* scaling (slider setting) */
+    int max_index;		/* limits of scale slider */
+    int min_index;
     float scale;		/* scaling (units/div) */
     float position;		/* vertical pos (0.0-1.0) */
 } scope_chan_t;
@@ -120,6 +123,8 @@ typedef struct {
     GtkWidget *offset_entry;
     /* widgets for source selection dialog */
     GtkWidget *lists[3];	/* lists for pins, signals, and params */
+    GtkWidget *windows[3];	/* scrolled windows for above lists */
+    GtkAdjustment *adjs[3];	/* scrollbars associated with above */
 } scope_vert_t;
 
 /* this struct holds control data related to triggering */
@@ -230,5 +235,30 @@ void invalidate_channel(int chan);
 void invalidate_all_channels(void);
 
 void format_signal_value(char *buf, int buflen, float value);
+
+int read_config_file (char *filename);
+void write_config_file (char *filename);
+void write_horiz_config(FILE *fp);
+void write_vert_config(FILE *fp);
+void write_trig_config(FILE *fp);
+
+/* the following functions set various parameters, they are normally
+   called by the GUI, but can also be called by code reading a file
+   that contains a saved front panel setup
+*/
+
+int set_sample_thread(char *name);
+int set_rec_len(int setting);
+int set_horiz_mult(int setting);
+int set_horiz_zoom(int setting);
+int set_horiz_pos(double setting);
+int set_active_channel(int chan_num);
+int set_channel_source(int chan, int type, char *name);
+int set_channel_off(int chan_num);
+int set_vert_scale(int setting);
+int set_vert_pos(double setting);
+int set_vert_offset(double setting);
+
+
 
 #endif /* HALSC_USR_H */

@@ -93,7 +93,7 @@
 #include <rtl_fifo.h>
 #include <rtl_sema.h>		/* sem_t, sem_init,post,wait() */
 #include <posix/pthread.h>	/* pthread_* */
-#include <posix/time.h>		/* FIX ME - This is needed with rtl-3.2, but
+#include <posix/time.h>		/*! \todo FIX ME - This is needed with rtl-3.2, but
 				   is clock_getres in the same place with
 				   earlier versions. */
 #include <mbuff.h>		/* mbuff_alloc,free() */
@@ -113,7 +113,7 @@ static long int max_delay = DEFAULT_MAX_DELAY;
 
 static int msg_level = RTAPI_MSG_INFO;		/* message printing level */
 MODULE_PARM(msg_level, "i");
-MODULE_PARM_DESC(msg, "debug message level (default=3)");
+MODULE_PARM_DESC(msg_level, "debug message level (default=3)");
 
 /* other module information */
 MODULE_AUTHOR("John Kasunich, Fred Proctor, & Paul Corner");

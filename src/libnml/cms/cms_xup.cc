@@ -7,7 +7,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -319,6 +319,21 @@ int CMS_XDR_UPDATER::get_encoded_msg_size()
 	return (-1);
     }
     return (xdr_getpos(current_stream));
+}
+
+/* bool functions */
+
+CMS_STATUS CMS_XDR_UPDATER::update(bool &x)
+{
+    /* Check to see if the pointers are in the proper range. */
+    if (-1 == check_pointer((char *) &x, sizeof(char))) {
+	return (CMS_UPDATE_ERROR);
+    }
+    if (xdr_char(current_stream, (char *) &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_char failed.\n");
+	return (status = CMS_UPDATE_ERROR);
+    }
+    return (status);
 }
 
 /* Char functions */

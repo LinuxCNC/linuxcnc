@@ -19,22 +19,42 @@
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
-#include "inifile.h"
+#include "config.h"
+#include <stdio.h>
+#include <fcntl.h>
 
-class INIFILE {
+typedef struct {
+    char tag[LINELEN];
+    char rest[LINELEN];
+} inifile_entry;
+
+#ifdef __cplusplus
+class Inifile {
   public:
-    INIFILE();
-    INIFILE(const char *path);
-     ~INIFILE();
+    Inifile();
+    Inifile(const char *file);
+    ~Inifile();
 
-    const int open(const char *path);
-    const int close();
-    const char *find(const char *tag, const char *section = NULL);
-    int section(const char *section, INIFILE_ENTRY array[], int max);
-    const int valid();
+    bool open(const char *file);
+    bool close();
+    bool valid();
+    int write();
+    const char *find(const char *tag, const char *section = NULL, int num = 1);
+    int section(const char *section, inifile_entry array[], int max);
+    void tilde(const char *file, char *path);
 
   private:
-      FILE * fp;
+    FILE * fp;
+    char *after_equal(const char *string);
+    char *skip_white(char *string);
+    struct flock lock;
 };
 
+extern "C" {
+#else
+extern const char *iniFind(void *fp, const char *tag, const char *section);
+#endif
+#ifdef __cplusplus
+}
+#endif
 #endif /* INIFILE_HH */

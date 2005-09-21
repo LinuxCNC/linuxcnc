@@ -45,27 +45,20 @@ linkps stepgen.1.dir  Ydir
 linkps stepgen.2.step Zstep
 linkps stepgen.2.dir  Zdir
 
-# set scaling - 1600 steps / rev * 5 turns per inch = 8000
-#setp stepgen.0.position-scale 8000
-#setp stepgen.1.position-scale 8000
-#setp stepgen.2.position-scale 8000
+# set stepgen module scaling - get values from ini file
+setp stepgen.0.position-scale [AXIS_0]INPUT_SCALE
+setp stepgen.1.position-scale [AXIS_1]INPUT_SCALE
+setp stepgen.2.position-scale [AXIS_2]INPUT_SCALE
 
-# set scaling - 200 steps / mm = 5080 steps/in
-setp stepgen.0.position-scale 5080
-setp stepgen.1.position-scale 5080
-setp stepgen.2.position-scale 5080
+# set stepgen module velocity limits - get values from ini file
+setp stepgen.0.maxvel [AXIS_0]MAX_VELOCITY
+setp stepgen.1.maxvel [AXIS_1]MAX_VELOCITY
+setp stepgen.2.maxvel [AXIS_2]MAX_VELOCITY
 
-# Set accel limits (note that these are not the same as
-# the limits in emc.ini).  The limits in emc.ini are in
-# machine units per second^2 (in this case inches/sec^2)
-# While the limits here are in steps per second^2, since
-# the stepgen module knows nothing about any units except
-# steps.  In addition, these limits must be set higher
-# than the machine limits, so that emc doesn't ask the
-# stepgen module to accelerate too fast.
-setp stepgen.0.maxaccel 150000
-setp stepgen.1.maxaccel 150000
-setp stepgen.2.maxaccel 150000
+# set stepgen module accel limits - get values from ini file
+setp stepgen.0.maxaccel [AXIS_0]MAX_ACCELERATION
+setp stepgen.1.maxaccel [AXIS_1]MAX_ACCELERATION
+setp stepgen.2.maxaccel [AXIS_2]MAX_ACCELERATION
 
 # load realtime portion of scope, just to have it handy
 loadrt scope_rt

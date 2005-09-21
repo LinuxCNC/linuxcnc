@@ -1,0 +1,334 @@
+# Make.rules
+#
+# This file contains pattern rules and default targets - items that
+# will be used by most or all makefiles.  This file will be included
+# in most or all of the lower level makefiles.  The include should be
+# after the default target in the makefile (normally 'all').
+#
+# Notes on syntax:
+# @ causes each command NOT to be echoed to the console.
+# - allows the rule to continue after an error.
+#
+# $@  expands to the filename of the target of the rule
+# $<  expands to the name of the first dependency
+# $?  expands to the names of all dependencies that are newer than the target
+# $^  expands to all the dependencies
+#
+# Targets:
+#
+# This file defines a number of default targets.  Their names all begin
+# with 'def_'.  Normaly the regular targets such as 'indent' and 'clean'
+# will simply invoke these default targets like this:
+#
+# indent : def_indent
+#
+# However, the default actions can be extended or replaced:
+#
+# indent : def_indent
+#	<additional commands>
+#
+# or:
+#
+# indent :
+#	<replacement commands>
+#
+#
+# Directories:
+#
+# During the make, targets are placed in several different directories.
+# See directory.map for the default directory tree.  The following
+# variables are used instead of actual directory names throughout the
+# makefiles.  Makefile.inc sets these variables to the actual directory
+# names.
+#
+# EMC2_HOME - the root of the tree (emc2/ in the map)
+#
+# BIN_DIR    - user space executable programs (emc2/bin/ in the map)
+# LIB_DIR    - user space libraries (emc2/lib/)
+# RTLIB_DIR  - realtime kernel modules (emc2/rtlib/)
+# INC_DIR    - public include files (emc2/include/)
+# TMP_DIR    - temporary user space object files (emc2/src/.tmp)
+# RTTMP_DIR  - temporary kernel space object files (emc2/src/.rt_tmp)
+#
+#
+# Variables:
+#
+# The rules in this file use a number of variables to determine which
+# targets are to be made and where they go.  These variables should be
+# defined in the individual makefiles before Make.rules is included.
+# The variables and how they are used by this file are as follows:
+#
+# HEADERS  - List of public headers.  The names should not include
+#            paths.  The 'def_headers' target will copy these headers
+#            to INC_DIR.  The 'def_indent' target will reformat them,
+#            and the 'def_clean' target will remove them from INC_DIR.
+#
+# PRIVHDRS - List of private headers.  The names should not include
+#            paths.  The 'def_indent' target will reformat these files.
+#
+# SRCS     - List of all user-space C and C++ source files.  The names
+#            should not include paths.  The C_SRCS and CC_SRCS variables
+#            will be made from this variable, and therefore the OBJS
+#            variable will include the corresponding object files.
+#            The 'def_indent' target will reformat the C files only.
+#
+# RT_SRCS  - List of all real-time C source files.  The names should
+#            not include paths.  The 'def_indent' target will reformat
+#            these files.  The OBJS variable will include the
+#            corresponding object files.
+#
+# LIBS     - List of all libraries created by the make.  The names
+#            should include the directory: "$(LIB_DIR)/foo.o" or
+#            "$(RTLIB_DIR)/foo.o".  This file contains pattern rules
+#            for the case where a LIB is made by copying a single .o
+#            file from the temp directory.  The makefile should provide
+#            an explicit or pattern rule for any LIB that requires more
+#            complex linking.  The 'def_clean' target will remove all
+#            files listed in LIBS.
+#
+# BINS     - List of all user space binaries created by the make.
+#            The names should include the directory: "$(BIN_DIR)/foo".
+#            The makefile should  provide an explicit or pattern rule
+#            to make these files.  The 'def_clean' target will remove
+#            them.
+#
+#
+# Other variables are set inside this file, based on the ones above.
+# These should _not_ be defined inside the individual makefiles:
+#
+# C_SRCS   - List of all C sources from SRCS.
+# CC_SRCS  - List of all C++ sources from SRCS.  SRCS is split into
+#            two lists to allow the appropriate compiler and flags
+#            to be used when generating the dependency files.  These
+#            two variables are used to make the OBJS variable.
+# C_HDRS   - List of all C header files (.h) from HEADERS.
+# CC_HDRS  - List of all C++ header files (.hh) from HEADERS
+# C_PHDRS  - List of all C header files (.h) from PRIVHDRS.
+# CC_PHDRS - List of all C++ header files (.hh) from PRIVHDRS.
+
+C_SRCS = $(filter-out %.cc,$(SRCS))
+CC_SRCS = $(filter %.cc,$(SRCS))
+C_HDRS = $(filter-out %.hh,$(HEADERS))
+CC_HDRS = $(filter %.hh,$(HEADERS))
+C_PHDRS = $(filter-out %.hh,$(PRIVHDRS))
+CC_PHDRS = $(filter %.hh,$(PRIVHDRS))
+
+#
+# OBJS     - List of individual object files created by the make.  The
+#            list consists of the files in SRCS and RT_SRCS, with the
+#            appropriate temp directory prepended, and with their suffix
+#            changed to ".o".  The pattern rules in this file handle
+#            compilation of these files, and the 'def_clean' target will
+#            remove them.
+
+OBJS = $(C_SRCS:%.c=$(TMP_DIR)/%.o) \
+       $(CC_SRCS:%.cc=$(TMP_DIR)/%.o) \
+       $(RT_SRCS:%.c=$(RTTMP_DIR)/%.o)
+
+#
+# Compile Rules:
+#
+# Source files are always compiled to .o files in a temporary directory,
+# for later linking into larger libraries or programs.  This file contains
+# pattern rules to do the compilation.
+#
+# There are two temp directories, one for ordinary user space code
+# and one for realtime code.  Since these directories hold object
+# files from all over the source tree, duplicate source file names
+# (even in different parts of the tree) are not permitted.
+#
+# The compile flags used for a target depend on its destination directory.
+# Targets in TMP_DIR are compiled with normal user space flags.
+# Those in RTTMP_DIR are compiled with realtime flags.
+#
+# This set of rules is for targets in the temporary directories - they
+# create the directory if it is not already present.
+#
+$(TMP_DIR)/%.o : %.c
+	@ (if [ ! -d "$(TMP_DIR)" ] ; then echo "Create temp directory '$(TMP_DIR)'" ; mkdir $(TMP_DIR) ; fi)
+	@ echo "Compile '$<' to tmp dir using non-realtime C rule"
+	$(CC) -c $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $< -o $@
+
+$(TMP_DIR)/%.o : %.cc
+	@ (if [ ! -d "$(TMP_DIR)" ] ; then echo "Create temp directory '$(TMP_DIR)'" ; mkdir $(TMP_DIR) ; fi)
+	@ echo "Compile '$<' to tmp dir using default C++ rule"
+	$(CXX) -c $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $< -o $@
+
+$(RTTMP_DIR)/%.o : %.c
+	@ (if [ ! -d "$(RTTMP_DIR)" ] ; then echo "Create temp directory '$(RTTMP_DIR)'" ; mkdir $(RTTMP_DIR) ; fi)
+	@ echo "Compile '$<' to tmp dir using realtime C rule"
+	$(CC) -c $(RTFLAGS) $(LOCAL_RTFLAGS) $< -o $@
+
+#
+# Some targets in LIB_DIR and RTLIB_DIR are simply single .o files
+# copied from TMP_DIR and RTTMP_DIR respectively.  Others are the
+# result of linking multiple .o files together.  Those that need
+# multiple .o files should have explicit rules in the makefile.
+# The following pattern rules handle those that simply need to copy
+# a single .o file from the temp directory.
+#
+$(LIB_DIR)/%.o : $(TMP_DIR)/%.o
+	@ echo "Install user space library $@"
+	\install -p -m0664 $< $(LIB_DIR)
+
+$(RTLIB_DIR)/%.o : $(RTTMP_DIR)/%.o
+	@ echo "Install realtime module $@"
+	\install -p -m0664 $< $(RTLIB_DIR)
+
+#
+# This creates a 'def_headers' target whose dependencies are each of
+# the public headers in $(HEADERS) with the include directory $(INC_DIR)
+# prepended to their names.  In order to satisfy these dependencies,
+# make will execute one of the next two rules which do the real work
+# of copying the files to the include directory.
+#
+# Note that header files in $(PRIVHDRS) are not affected in any way
+# by the 'def_headers' target.  However, both $(HEADERS) and $(PRIVHDRS)
+# are affected by the 'def_indent' target.
+#
+def_headers: def_dirs $(HEADERS:%=$(INC_DIR)/%)
+
+# These rules create a public header in the include directory by
+# copying it from the source directory.
+#
+$(INC_DIR)/%.h: %.h
+	@ echo "Install C header $<"
+	\install -p -m0664 $< $(INC_DIR)
+
+$(INC_DIR)/%.hh: %.hh
+	@ echo "Install C++ header $<"
+	\install -p -m0664 $< $(INC_DIR)
+
+def_dirs:
+	@ if [ ! -d $(INC_DIR) ] ; then \
+	  echo "Create include directory $(INC_DIR)" ;\
+	  mkdir $(INC_DIR) ;\
+	fi
+	@ if [ ! -d $(BIN_DIR) ] ; then \
+	  echo "Create binary directory $(BIN_DIR)" ;\
+	  mkdir $(BIN_DIR) ;\
+	fi
+	@ if [ ! -d $(LIB_DIR) ] ; then \
+	  echo "Create library directory $(LIB_DIR)" ;\
+	  mkdir $(LIB_DIR) ;\
+	fi
+	@ if [ ! -d $(RTLIB_DIR) ] ; then \
+	  echo "Create realtime library directory $(RTLIB_DIR)" ;\
+	  mkdir $(RTLIB_DIR) ;\
+	fi
+
+#
+# Reformat the sources using long format names to aid readability.
+# This is applied ONLY to C source and header files - indent does
+# not work correctly for C++ files
+#
+def_indent:
+	@ echo "Re-format `pwd` $(RT_SRCS) $(C_SRCS) $(C_HDRS) $(C_PHDRS)"
+	@ (if [ ! -z "$(RT_SRCS)$(C_SRCS)$(C_HDRS)$(C_PHDRS)" ] ; then \
+	  indent --braces-on-if-line \
+	  --braces-on-struct-decl-line \
+	  --comment-line-length78 \
+	  --continuation-indentation4 \
+	  --cuddle-do-while \
+	  --cuddle-else \
+	  --declaration-indentation2 \
+	  --dont-break-procedure-type \
+	  --dont-line-up-parentheses \
+	  --format-all-comments \
+	  --ignore-profile \
+	  --indent-level4 \
+	  --line-length78 \
+	  --no-space-after-function-call-names \
+	  --no-space-after-parentheses \
+	  --space-after-cast \
+	  --swallow-optional-blank-lines \
+	  $(RT_SRCS) $(C_SRCS) $(C_HDRS) $(C_PHDRS) ; \
+	  rm *.*~ ; \
+	fi)
+
+#
+# Clean out objects, headers, and dep files.
+#
+def_clean:
+	@ echo "Clean Up `pwd`"
+	- rm -f *.bak *~ .depend*
+	- rm -f $(OBJS) $(RT_OBJS) $(LIBS) $(HEADERS:%=$(INC_DIR)/%)
+
+
+#
+# This line includes the dependency files (.depend.c, .depend.cc, and
+# .depend.rt).  The '-' tells make to include the files only if they
+# already exist.  A normal include would look for a rule to create the
+# files if they don't already exist, and abort the make if such a rule
+# could not be found.
+#
+
+-include .depend.c .depend.cc .depend.rt
+
+# depend commands - I know it looks _really_ ugly, but it does strip away
+#                   most of the system headers.
+#
+# For each group of sources, this target first calls the appropriate
+# compiler with the -MM option to generate a list of include files.
+# Then it pipes the list through an awk script that keeps only includes
+# that belong to emc - either in the source dir or in $(INC_DIR).
+#
+def_depend:
+	@ echo "Generating Dependencies in `pwd`"
+	rm -f .depend.c .depend.cc .depend.rt
+	touch .depend.c .depend.cc .depend.rt
+	@ (if [ ! -z "$(C_SRCS)" ] ; then \
+	  echo "User C: $(C_SRCS)" ; \
+	  $(CC) -MM $(CFLAGS) $(ULFLAGS) $(LOCAL_CFLAGS) $(C_SRCS) | \
+	  awk '{ \
+	    split($$0,FIELD," ") ; \
+	    for ( i = 1 ; i <= NF ; i++ ) { \
+	      if ( FIELD[i] ~ /[-a-zA-Z0-9_]*\.o:/ ) { \
+	        printf ( "\n%s/%s", "$(TMP_DIR)", FIELD[i] ) \
+	      } else { \
+	        if (( FIELD[i] ~ /^[-a-zA-Z0-9_]*\.h/ ) || \
+	            ( FIELD[i] ~ "^$(INC_DIR)\/[-a-zA-Z0-9_]*\.h" )) { \
+	          printf ( " \\\n  %s", FIELD[i] ) \
+	        } \
+	      } \
+	    } \
+	  } END { printf ( "\n\n" ) }' > .depend.c ; \
+	fi)
+	@ (if [ ! -z "$(CC_SRCS)" ] ; then \
+	  echo "User C++: $(CC_SRCS)" ; \
+	  $(CXX) -MM $(CXXFLAGS) $(ULFLAGS) $(LOCAL_CXXFLAGS) $(CC_SRCS) | \
+	  awk '{ \
+	    split($$0,FIELD," ") ; \
+	    for ( i = 1 ; i <= NF ; i++ ) { \
+	      if ( FIELD[i] ~ /[-a-zA-Z0-9_]*\.o:/ ) { \
+	        printf ( "\n%s/%s", "$(TMP_DIR)", FIELD[i] ) \
+	      } else { \
+	        if (( FIELD[i] ~ /^[-a-zA-Z0-9_]*\.h/ ) || \
+	            ( FIELD[i] ~ "^$(INC_DIR)\/[-a-zA-Z0-9_]*\.h" )) { \
+	          printf ( " \\\n  %s", FIELD[i] ) \
+	        } \
+	      } \
+	    } \
+	  } END { printf ( "\n\n" ) }' > .depend.cc ; \
+	fi)
+	@ (if [ ! -z "$(RT_SRCS)" ] ; then \
+	  echo "Realtime C: $(RT_SRCS)" ; \
+	  $(CC) -MM $(RTFLAGS) $(LOCAL_RTFLAGS) $(RT_SRCS) | \
+	  awk '{ \
+	    split($$0,FIELD," ") ; \
+	    for ( i = 1 ; i <= NF ; i++ ) { \
+	      if ( FIELD[i] ~ /[-a-zA-Z0-9_]*\.o:/ ) { \
+	        printf ( "\n%s/%s", "$(RTTMP_DIR)", FIELD[i] ) \
+	      } else { \
+	        if (( FIELD[i] ~ /^[-a-zA-Z0-9_]*\.h/ ) || \
+	            ( FIELD[i] ~ "^$(INC_DIR)\/[-a-zA-Z0-9_]*\.h" )) { \
+	          printf ( " \\\n  %s", FIELD[i] ) \
+	        } \
+	      } \
+	    } \
+	  } END { printf ( "\n\n" ) }' > .depend.rt ; \
+	fi)
+
+
+.PHONY : def_headers def_depend def_indent def_install def_clean
+

@@ -1,0 +1,144 @@
+/** This file, 'threads.c', is a HAL component that provides a way to 
+    create realtime threads but contains no other functionality.
+    It will mostly be used for testing - when EMC is run normally,
+    the motion module creates all the neccessary threads.
+    
+    The module has three pairs of parameters, "name1, period1", etc.
+*/
+
+/** Copyright (C) 2003 John Kasunich
+                       <jmkasunich AT users DOT sourceforge DOT net>
+*/
+
+/** This program is free software; you can redistribute it and/or
+    modify it under the terms of version 2.1 of the GNU General
+    Public License as published by the Free Software Foundation.
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+
+    THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
+    ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
+    TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
+    harming persons must have provisions for completely removing power
+    from all motors, etc, before persons enter any danger area.  All
+    machinery must be designed to comply with local and national safety
+    codes, and the authors of this software can not, and do not, take
+    any responsibility for such compliance.
+
+    This code was written as part of the EMC HAL project.  For more
+    information, go to www.linuxcnc.org.
+*/
+
+#ifndef RTAPI
+#error This is a realtime component only!
+#endif
+
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "hal.h"		/* HAL public API decls */
+
+#ifdef MODULE
+/* module information */
+MODULE_AUTHOR("John Kasunich");
+MODULE_DESCRIPTION("Thread Module for HAL");
+#ifdef MODULE_LICENSE
+MODULE_LICENSE("GPL");
+#endif /* MODULE_LICENSE */
+static char *name1 = NULL;	/* name of thread */
+MODULE_PARM(name1, "s");
+MODULE_PARM_DESC(name1, "name of thread 1");
+static long period1 = 0;	/* thread period - default = no thread */
+MODULE_PARM(period1, "l");
+MODULE_PARM_DESC(period1, "thread period (nsecs)");
+static char *name2 = NULL;	/* name of thread */
+MODULE_PARM(name2, "s");
+MODULE_PARM_DESC(name2, "name of thread 1");
+static long period2 = 0;	/* thread period - default = no thread */
+MODULE_PARM(period2, "l");
+MODULE_PARM_DESC(period2, "thread period (nsecs)");
+static char *name3 = NULL;	/* name of thread */
+MODULE_PARM(name3, "s");
+MODULE_PARM_DESC(name3, "name of thread 1");
+static long period3 = 0;	/* thread period - default = no thread */
+MODULE_PARM(period3, "l");
+MODULE_PARM_DESC(period3, "thread period (nsecs)");
+#endif /* MODULE */
+
+/***********************************************************************
+*                STRUCTURES AND GLOBAL VARIABLES                       *
+************************************************************************/
+
+/* other globals */
+static int comp_id;		/* component ID */
+
+/***********************************************************************
+*                  LOCAL FUNCTION DECLARATIONS                         *
+************************************************************************/
+
+
+/***********************************************************************
+*                       INIT AND EXIT CODE                             *
+************************************************************************/
+
+
+int rtapi_app_main(void)
+{
+    int retval;
+
+    /* have good config info, connect to the HAL */
+    comp_id = hal_init("threads");
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "THREADS: ERROR: hal_init() failed\n");
+	return -1;
+    }
+    /* was 'period' specified in the insmod command? */
+    if ((period1 > 0) && (name1 != NULL) && (*name1 != '\0')) {
+	/* create a thread */
+	retval = hal_create_thread(name1, period1, 1);
+	if (retval < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"THREADS: ERROR: could not create thread '%s'\n", name1);
+	    hal_exit(comp_id);
+	    return -1;
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %d uS thread\n", period1 / 1000);
+	}
+    }
+    if ((period2 > 0) && (name2 != NULL) && (*name2 != '\0')) {
+	/* create a thread */
+	retval = hal_create_thread(name2, period2, 1);
+	if (retval < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"THREADS: ERROR: could not create thread '%s'\n", name2);
+	    hal_exit(comp_id);
+	    return -1;
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %d uS thread\n", period2 / 1000);
+	}
+    }
+    if ((period3 > 0) && (name3 != NULL) && (*name3 != '\0')) {
+	/* create a thread */
+	retval = hal_create_thread(name3, period3, 1);
+	if (retval < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"THREADS: ERROR: could not create thread '%s'\n", name3);
+	    hal_exit(comp_id);
+	    return -1;
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %d uS thread\n", period3 / 1000);
+	}
+    }
+    return 0;
+}
+
+void rtapi_app_exit(void)
+{
+    hal_exit(comp_id);
+}
+

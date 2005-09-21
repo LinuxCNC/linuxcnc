@@ -1,0 +1,254 @@
+Classic Ladder history
+----------------------
+
+v0.1 (February 2001 - Not released)
+    - The first lines of codes for calculating one rung and displaying it...
+    - Basic elements and timers
+
+v0.2 (30 April 2001 - First public release)
+
+v0.2.8 (3 August 2001 - Featuring the Editor, but not totally completed)
+    - Basic Editor (allow to modify only the current rung, properties uncompleted)
+    - Makefile and modifications to allow independent object compilation.
+    - Fixed bug for drawing in calc.c
+
+v0.3 (18 August 2001 - Editor completed)
+    - Variables Parser completed for Mxx,R and Txx,D and Txx,R
+    - When clicking on "unusable" blocks (part of big element), it is as
+      if you've clicked on the "alive" block itself.
+    - For timers and monostables , parameters Base and Preset.
+    - Can modify label of the rung to jump to for -(J) coil.
+    - Label / comment of rung saved when edited.
+    - We must not allow to change of current rung when editing one.
+    - Add/Insert/Delete a rung, buttons usuable.
+    - Load/Save/SaveAs/Run-Stop/About buttons added in main window
+    - Load/SaveAs using path selection requester (datas should be in a directory).
+    - Save rungs,timers,monostables parameters.
+
+v0.4 (20 October 2001 - Arithmetic expressions evaluator)
+    - New variables memory type : Words (integers)
+    - 2 new elements using arithmetic expressions :
+      COMPARE and OPERATE
+    - Load/Save the file of arithmetic expressions
+    - Possibility to spy the values of any variables by typing its name
+      (added in the bottom of the vars window)
+    - Added new types of variables : physical inputs (I) / outputs (Q)
+      (not linked to anything in this version)
+    - Resizing of rung take into account and thick lines for active wires
+      (modifs initially done by Jiri Baum when integrating classicladder
+      into the MAT project)
+
+v0.5 (30 December 2001 - Real time support)
+    - ClassicLadder_gtk.c created from file classic_ladder.c which keep only the
+      global variables + 2 fonctions for loading/saving directory datas.
+    - Global variables are now allocated and freed.
+    - RTLinux support added.
+      The refresh of the rungs are done in a RTLinux module in real-time.
+      The Gtk application compiled for this version do not refreh the rungs.
+      The Gtk application and RTLinux module share the same global variables
+      allocated with mbuff.
+    - Physical inputs and outputs have the same memory as the bits (VarBits + offsets).
+      (if we make polling on them in RTLinux module with inb() and outb(),
+      we could drive real hardware directly !?)
+
+v0.5.1 (4 January 2002 - Parallels ports interface)
+    - Direct hardware support of the parallels ports (in real-time version).
+      Comment the line define HARDWARE_SUPPORT in classicladder.h if you do not want it !
+    - Bug if there was no element in the first column, fixed (in function StateOnLeft())
+    - Overflow possible (1 char) for label and comment strings in the rung, fixed.
+
+v0.5.2 (26 January 2002)
+    - Added in the editor the nice long connection (-->) to create rungs faster.
+    - In Operate elements, you should now write the formulas like the following:
+      A:=B instead of A=B
+    - Draw a grid in edit mode.
+    - #include <rtl.h> removed in hardware.h as it seems not to work with kernel 2.2
+      causing an error when compiling : duplicate module kernel version...
+    - Removed the warnings when compiling for RTLinux.
+    - For big element, at the point you click, it is the left-top corner of the element
+      which is inserted instead of right-top (the "alive" one).
+    - Confirmation box before deleting the current rung (indispensable!)
+    - 'New' button with a confirmation box also ;-)
+    - Bug (exception) possible, if replacing for example a contact with a timer, where
+      the number of the bit in the contact was greater than the timer number allowed.
+      Now the number is erased if a simple element is not replaced by a simple
+      element, to avoid that.
+    - When deleting the current rung, the arithmetic expressions used on that rung were
+      not deleted. Fixed.
+
+v0.5.3 (11 May 2002)
+    - Taken the current sources of classicladder from the MAT tree.
+      So that we will have the same sources on the two sides...
+      There is a define in the Makefile MAT_CONNECTION to be able to
+      create the mat connected version for the MAT project.
+    - The real-time support was broken in the MAT version.
+      Modified the way to alloc/free booleans variables so that it works back.
+      Now it should works for the 3 possibles versions : normal, real-time and mat.
+      Note: it is not possible to include "mbuff.h" in many sources files : otherwise
+      we have multiple definition when linking of some functions...
+    - Modified Makefile for easier real-time generation.
+      make rtl_support ; make test is enough for the rtlinux version
+    - The feature that everybody was waiting for : added a vertical scrollbar to
+      show many rungs at the same time...
+      The current rung is the one with the blue bars.
+      The current rung is set automatically for the moment : it is the rung which is at
+      the top and that is fully visible...
+      There are still some visual troubles when adding/inserting a rung, but not really
+      serious... to be modified in a future version.
+
+v0.5.4 (22 May 2002)
+    - Sometimes, at the end, the last rung was displayed 2 times : for example if
+      there was only one rung existing and you increase the vertical display...
+    - During edit mode, if you clicked outside of the current rung (top or bottom),
+      it was accepted and making strange things.
+    - Now when you insert or add a rung, you have a correct display of the rung before
+      or after the new rung you are adding.
+    - Problem when adding or inserting if the current rung is the first one. Fixed.
+    - If the vertical size was less than enough to see a complete rung, there was no
+      more current rung. Fixed.
+    - Do not allow to set 'connection with top' if on the first line of the rung.
+      As we have now many rungs, it was as if 2 rungs could be linked ! ;-)
+
+v0.5.5 (18 August 2002)
+    - Added And, Or and Xor operators in the evaluator : & , |, ^
+    - Added hexadecimal constants support in the evaluator with the first carac : $
+    - Display formats : Dec/Hex/Bin for vars spy.
+    - Bug-fixed if compiled for Windows : '\' used instead of '/' for directories.
+    - Show the duration of the last scan of the rungs in micro-seconds if calc of the
+      rungs is done under RTLinux.
+    - Program can be split in many sections : new window 'Sections manager' added.
+    - New format of the rungs files including Prev & Next rung informations. When saved,
+      the rung number do no more change.
+      Warning, old classicladder versions will not be able to read these new files !
+    - New (C)all coil for sub-routines.
+    - Modified RefreshAllRungs( ) for taking into account the main sections and the
+      calls to sub-routines.
+
+v0.6.0 (2 November 2002 - Birth of a new language)
+    - Added a new language : "Sequential" (sometimes also called Grafcet).
+    - New variables supported : Xxx and Xxx,V for the steps of the sequential.
+      Xxx is activity of step xx.
+      Xxx,V is activity time of step xx.
+
+v0.6.1 (23 November 2002)
+    - The RTLinux version support was completely broken (perhaps since v0.5.5).
+      Now it works correctly as before.
+      Tested here with a fresh installed RTLinux3.2pre1 with kernel 2.4.18.
+
+v0.6.2 (23 March 2003)
+    - When launching classicladder, you can give now an argument with the path
+      of the files to load.
+    - Horizontal & vertical scrollbars when displaying sequential added.
+    - Xxxx and Xxxx,V variables now use the step number defined for each step
+      instead of the number in the array.
+
+v0.6.3 (15 April 2003)
+    - Embedded version possible without the Gtk interface
+      (comment GTK_INTERFACE in the Makefile).
+
+v0.6.4 (19 July 2003)
+    - Possibility to load a config file at startup with the sizes of differents
+      arrays to alloc. Interesting for really embedded system where there isn't a
+      lot of memory. Patch send by Thomas Gleixner.
+    - Some big variables only usefull for editor no more allocated if compiled for an
+      embedded target without GTK. Patch send by Thomas Gleixner.
+    - Possibility to build a library with ClassicLadder. Patch send by Thomas Gleixner.
+    - Parameters added to the RTLinux module to be able as in the normal version
+      to use the sizes choosen.
+    - Made a script (run_rt) to be able to launch the real-time version without having
+      to use the Makefile for that, and made the necessary to pass the sizes parameters
+      to the RT module.
+    - Add a config window with the sizes actually allocated and the percent of use for
+      some of them.
+    - When a ladder section was deleted, the rungs associed to it were not freed.
+    - In FindFreeRung( ) start to search from rung 0 instead of the FirstRung value !?
+
+v0.6.5 (17 August 2003)
+    - Physical inputs/outputs interface completly rewritten :
+      Removed the parallel ports access code.
+      Added possibility to map the logicals I/O of classicladder with any addresses ports
+      or a Comedi device (www.comedi.org). Thanks to Edouard Tisserand for that nice
+      idea and for the 'LinuxInControl' workshop at Leuven to let me discover
+      that project.
+      Parameters can be easily edited in the new tabs "Inputs" and "Outputs" in
+      the configuration window.
+      New file : ioconf.csv in the projects directories.
+    - Calling ioperm( ) to allow to read/write adresses ports directly
+      even if not under RTLinux ! (but you must be root, so that it works...)
+      A lot of people wanted it : no real-time, but hardware access under Linux, which
+      is enough and easier in schools to learn ladder programming!
+    - In the RTLinux module, added binary parameter "COMEDI_TO_OPEN_MASK" which
+      is used in init_module( ) to open the Comedi devices necessary. When the
+      module is insmoded, the parameters files are not already loaded, and we
+      can't know which Comedi devices will be used later.
+    - ./run_rt PROJECT_DIRECTORY CONFIG_PLC_FILE to launch real-time version.
+      The arguments must be given in that order.
+      The configplc file contains the parameters used in the init_module( )
+      when the RT module is insmoded (memory sizes to alloc and Comedi devices
+      to open).
+
+v0.6.6 (10 November 2003)
+   - RTAI support. Patch send by Paul Corner. Thanks to him for that nice work.
+   - Some adjustements so that RTLinux works again... I hope I have not broken
+     something for RTAI. I've not take the time to install it for now, so
+     can not say, if all is still working correctly...
+   - File config_gtk.c failed to compile with old gcc 2.95, because of some
+     variables declarations in switch after case. Fixed by adding { } blocks.
+   - File files_sequential.h, strange warnings on gcc 2.95 and my Pegasos with
+     PowerPC processor with test NumPage!=-1 (said comparison always true due
+     to limited range of data type). Added (char) before -1.
+   - Added a new define in Makefile (MAKE_IO_ACCESS) so that it works on some
+     processors others than x86. For example, PowerPC !
+   - arrays.c bad test to verify alloc successfull for sequential array (Paul Corner).
+   - Script run_rt was not working if you don't give any configplc file as 2nd
+     argument (RTLinux modules were not inserted).
+
+v0.7.0 (3 January 2004 - Sequential Editor added)
+   - Added the sequential editor !
+     It's the first version of a big part of code, so do not be too much suprised
+     if somes cases do not work correctly as they should! ;-)
+     I've made some tests on little examples, and it is already possible to make
+     some nice grafcets easily !!!
+     With the editor, it will also be possible to test the calc part with another
+     grafcet than the single example given since November 2002...
+
+v0.7.1 (13 March 2004)
+   - Thick lines for drawing steps and transitions activated.
+   - edit_sequential.c failed to compile with old gcc2.95. Fixed.
+   - Grid displayed during edit for sequential pages.
+   - In I/O config do not display /dev/comedi* if not compiled for.
+     + call ConfigHardware when window closed (Jiri Baum report).
+   - Properties window is visible only during edit and can not be closed.
+   - Vars and Edit Toolbar windows can not be closed.
+   - In toolbar, per default the pointer is directly selected.
+   - No more GTK warning it writing a boolean var >=40 (no checkboxes).
+   - Confirmation requester before quitting application.
+   - When delete all with "New", manager window content was not refreshed.
+
+v0.7.2 (21 August 2004)
+   - Auto-numbering of the steps and transitions when created if there is one found
+     directly above it. At least, always set a free number step per default. 
+   - Properties window: if you type return at the end of the strings entered, it is
+     no more necessary to click on "Validate" with the mouse.
+   - Projects are now composed of an unique file, which contains all the little
+     parameters files. A tmp directory is used to store the little files that we
+     split/join. Old projects in a directory can still be loaded.
+   - Arithmetic expressions: negatives constants support added, '!' for negative term,
+     functions: MINI(), MAXI(), MOY() and ABS().
+   - Modified vars window: now display %B, %I and %Q with an offset for each to start.
+   - The step number written above the cross step was not correct (in example, written
+     step "0" above step "0" instead of step "7": from where we come).
+
+v0.7.3 (28 December 2004)
+   - Modifs done for Win32 port included (end of line and '/' in files for project, and
+     some variables declarations in the middle of code not supported with gcc2.95).
+   - Using "/tmp" instead of "~" for the temp directory if no TMP env variable found.
+     ("~" was not working on some distributions like Debian Woody).
+   - InitTimers and InitMonostables at the start added. Else it was crashing if saving
+     project from new (reported by J-Ch Dorian).
+   - Directly edit of properties with keyboard possible (idea by J-Ch Dorian).
+     (window is closed then opened so that it is on top actived, GTK1.2 miss a present()
+     function for windows...?)
+   - Modbus/TCP server added (default port is 9502).
+
+

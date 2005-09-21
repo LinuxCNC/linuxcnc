@@ -11,7 +11,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -290,6 +290,7 @@ struct REMOTE_GET_SPACE_AVAILABLE_REPLY:public REMOTE_CMS_REPLY {
     long space_available;
 };
 
+/*! \todo Another #if 0 */
 #if 0
 #define MAX_BUFFERS_FOR_COMBINED_READ 32
 

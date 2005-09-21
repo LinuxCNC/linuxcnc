@@ -8,7 +8,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -41,6 +41,7 @@ struct CMS_POINTER_TABLE_ENTRY {
 /* Abstract CMS_UPDATER CLASS */
 class CMS_UPDATER {
   public:
+    virtual CMS_STATUS update(bool &x) = 0;
     virtual CMS_STATUS update(char &x) = 0;
     virtual CMS_STATUS update(unsigned char &x) = 0;
     virtual CMS_STATUS update(short int &x) = 0;

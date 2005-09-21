@@ -60,7 +60,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -73,6 +73,21 @@
 
 #ifndef POSEMATH_H
 #define POSEMATH_H
+
+#include "config.h"
+
+#ifdef RTAPI
+#include <linux/types.h>
+#ifdef __attribute_used__
+#undef __attribute_used__
+#endif
+#ifdef __attribute_pure__
+#undef __attribute_pure__
+#endif
+#endif
+#include <sys/cdefs.h>
+#include <float.h>
+#include <math.h>
 
 #ifdef __cplusplus
 
@@ -693,7 +708,7 @@ extern "C" {
 #endif
 #define TO_RAD (PM_PI/180.)
 
-/* FIXME-- fix these */
+/*! \todo FIXME-- fix these */
 
 /* DOUBLE_FUZZ is the smallest double, d, such that (1+d != 1) w/o FPC.
    DOUBLECP_FUZZ is the same only with the Floating Point CoProcessor */
@@ -844,6 +859,7 @@ extern "C" {
     extern int pmCartScalDiv(PmCartesian, double, PmCartesian *);
     extern int pmCartNeg(PmCartesian, PmCartesian *);
     extern int pmCartUnit(PmCartesian v, PmCartesian * vout);
+/*! \todo Another #if 0 */
 #if 0
     extern int pmCartNorm(PmCartesian v, PmCartesian * vout);
 #else

@@ -4,7 +4,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -24,6 +24,7 @@ class CMS_DISPLAY_ASCII_UPDATER:public CMS_UPDATER {
   public:
     void find_next_comma();
     CMS_STATUS update_char(char &x);
+    CMS_STATUS update(bool &x);
     CMS_STATUS update(char &x);
     CMS_STATUS update(unsigned char &x);
     CMS_STATUS update(short int &x);

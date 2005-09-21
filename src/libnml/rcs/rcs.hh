@@ -6,7 +6,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -62,7 +62,6 @@ enum RCS_STATUS {               /* Originally from nml_mod.hh */
 #include "posemath.h"
 
 /* class INIFILE */
-#include "inifile.h"
 #include "inifile.hh"
 
 #include "rcsversion.h"

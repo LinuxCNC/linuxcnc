@@ -29,13 +29,43 @@ CheckConfig(){
     # Generate module lists for loading and unloading
     # lists contain RTOS modules plus RTAPI and HAL
     # unload list is in reverse order
-    MODULES_LOAD=$MODULES
+    # any module names that are symlinks are resolved to their real names
+    MODULES_LOAD=
     MODULES_UNLOAD=
-    for module in $MODULES ; do
-	MODULES_UNLOAD="$module $MODULES_UNLOAD"
+    for  MOD in $MODULES ; do
+	# find module
+	TMP=`find $MODPATH -name $MOD$MODULE_EXT`
+	if test -n "$TMP" ; then
+	    # it exists, is it a symlink?
+            if test -L "$TMP" ; then
+		# it is a symlink, must extract real module name
+		# get long directory entry
+		TMP=`ls -l $TMP`
+		# remove everything except the last token, which
+		# should be the destination of the symbolic link
+		TMP="${TMP##* }"
+		TMP="${TMP##*/}"
+		# remove the .o  (or .ko) from the end
+		MOD="${TMP%$MODULE_EXT}"
+	    fi
+	fi
+	MODULES_LOAD="$MODULES_LOAD $MOD"
+	MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
     done
-    MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi.o $RTLIB_DIR/hal_lib.o"
+    MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
     MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
+    # find "fuser" - it might be in /bin or /sbin
+    if test -x /bin/fuser ; then
+	FUSER=/bin/fuser
+    elif test -x /sbin/fuser ; then
+	FUSER=/sbin/fuser
+    else
+	echo "ERROR: can't find \"fuser\", used to verify that it is safe to shutdown realtime"
+	DoExit
+	exit -1
+    fi
+
+
 }
 
 CheckStatus(){
@@ -74,19 +104,19 @@ CheckMem(){
 # check for user space processes using shared memory
     if [ -e /dev/mbuff ] ; then
 	# device file exists, check for processes using it
-	if /sbin/fuser -s /dev/mbuff 2>/dev/null; then
+	if $FUSER -s /dev/mbuff 2>/dev/null; then
 	    # at least one process is using it
 	    echo "ERROR:  Can't remove RTLinux modules, kill the following process(es) first"
-	    /sbin/fuser -v /dev/mbuff 2>/dev/null
+	    $FUSER -v /dev/mbuff
 	    DoExit
 	    exit -1
 	fi
     elif [ -e /dev/rtai_shm ] ; then
 	# device file exists, check for processes using it
-	if /sbin/fuser -s /dev/rtai_shm 2>/dev/null; then
+	if $FUSER -s /dev/rtai_shm 2>/dev/null; then
 	    # at least one process is using it
 	    echo "ERROR:  Can't remove RTAI modules, kill the following process(es) first"
-	    /sbin/fuser -v /dev/rtai_shm 2>/dev/null
+	    $FUSER -v /dev/rtai_shm
 	    DoExit
 	    exit -1
 	fi
@@ -136,9 +166,11 @@ CheckLoaded(){
 }
 
 Unload(){
-    # modprobe will unload *all* the modules in one hit
-    # (as long as the ordering is the reverse of load order)
-    /sbin/modprobe -r $MODULES_UNLOAD
+    for module in $MODULES_UNLOAD ; do
+        if /sbin/lsmod | awk '{print $1}' | grep -x $module >/dev/null ; then
+	    /sbin/rmmod $module
+	fi
+    done
 }
 
 CheckUnloaded(){

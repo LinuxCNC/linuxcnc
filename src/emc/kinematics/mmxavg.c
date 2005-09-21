@@ -133,7 +133,8 @@ int main(int argc, char *argv[])
 
     /* check args */
     if (argc < 2) {
-	fprintf(stderr, "syntax: %s <size> {\"min\" | \"max\"}\n", argv[0]);
+	fprintf(stderr, "syntax: %s <size> {\"min\" | \"max\"}\n",
+		argv[0]);
 	exit(1);
     }
 
@@ -180,4 +181,4 @@ int main(int argc, char *argv[])
     exit(0);
 }
 
-#endif /* MAIN defined */
+#endif				/* MAIN defined */

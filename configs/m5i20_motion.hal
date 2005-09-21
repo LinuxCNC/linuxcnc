@@ -1,0 +1,39 @@
+# HAL config file for Mesa Electronics 5i20 PCI board
+#
+# install driver
+loadrt hal_m5i20 loadFpga=1 dacRate=32000
+
+# add functions to servo thread so they will be evaluated
+# every servo period
+addf m5i20.0.encoder_read servo-thread 1
+addf m5i20.0.dac_write servo-thread 1
+
+# connect position feedback signals to encoders
+linksp Xpos-fb <= m5i20.0.enc-00-position
+linksp Ypos-fb <= m5i20.0.enc-01-position
+linksp Zpos-fb <= m5i20.0.enc-02-position
+
+# set feedback scaling
+# this is just an example
+#   8192 counts/rev * 10 turns per inch = 81920 counts/in
+#
+setp m5i20.0.enc-00-scale 81920
+setp m5i20.0.enc-01-scale 81920
+setp m5i20.0.enc-02-scale 81920
+
+# connect PID output signals to DACs
+linksp Xoutput => m5i20.0.dac-00-value
+linksp Youtput => m5i20.0.dac-01-value
+linksp Zoutput => m5i20.0.dac-02-value
+
+# set offset and scale so that +/-1.00 on output 
+# signals is +/-10V at the physical DAC pins
+setp m5i20.0.dac-00-gain 10
+setp m5i20.0.dac-01-gain 10
+setp m5i20.0.dac-02-gain 10
+setp m5i20.0.dac-00-offset 0
+setp m5i20.0.dac-01-offset 0
+setp m5i20.0.dac-02-offset 0
+setp m5i20.0.dac-00-interlaced 1
+setp m5i20.0.dac-01-interlaced 1
+setp m5i20.0.dac-02-interlaced 1

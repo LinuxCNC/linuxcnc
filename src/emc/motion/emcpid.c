@@ -22,10 +22,11 @@
 
 #ifdef ULAPI
 #include <stdio.h>
-#include "inifile.h"
+#include "inifile.hh"
 #endif
 
 #include "rtapi.h"		/* rtapi_print_msg */
+#include "posemath.h"
 #include "emcpid.h"		/* these decls */
 
 #define GAINS_SET 0x01
@@ -120,6 +121,7 @@ int pidSetGains(PID_STRUCT * pid, PID_STRUCT parameters)
 #ifdef SMOOTH_D_FACTOR
     for (i = 0; i < MAX_ERROR_WINDOW; i++) {
 	pid->oldErrors[i] = 0.0;
+/*! \todo Another #if 0 */
 #if 0
 	if (parameters.errorWindowFactors[0] > 0.0) {
 	    pid->errorWindowFactors[i] = parameters.errorWindowFactors[i];

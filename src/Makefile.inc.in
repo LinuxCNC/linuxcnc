@@ -1,0 +1,131 @@
+#
+# @configure_input@ 
+# on @DATE@
+#
+
+# Directories
+#############
+
+EMC2_HOME = @EMC2_HOME@
+SRC_DIR   = @EMC2_HOME@/src
+BIN_DIR   = @EMC2_HOME@/bin
+LIB_DIR   = @EMC2_HOME@/lib
+RTLIB_DIR = @EMC2_HOME@/rtlib
+INC_DIR   = @EMC2_HOME@/include
+TMP_DIR   = @EMC2_HOME@/src/.tmp
+RTTMP_DIR = @EMC2_HOME@/src/.rt_tmp
+RTDIR     = @RTDIR@
+
+# Standard configure directories
+
+prefix = @prefix@
+
+
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+moduledir = @MODULE_DIR@
+kernelvers = @KERNEL_VERS@
+
+# i18n variables:
+
+package = @PACKAGE@
+localedir = @LOCALEDIR@
+LANGUAGES = @LANGUAGES@
+
+# /Standard configure directories
+
+RTNAME = @RTNAME@
+RTPREFIX = @RTPREFIX@
+RTAI = @RTAI@
+RTFLAGS = @RTFLAGS@ @EXT_RTFLAGS@
+KERNELDIR = @KERNELDIR@
+RTFLAGS := -I$(INC_DIR) -I@RTDIR@/include -I. $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime
+USE_RTLIBM = @USE_RTLIBM@
+USE_LIBM = @USE_LIBM@
+USE_STUBS = @USE_STUBS@
+MATHINC = @MATHINC@
+MATHLIB = @MATHLIB@
+ULFLAGS = -Wall -g -I$(INC_DIR) -I@RTDIR@/include -I. -DULAPI -D_GNU_SOURCE -O2 -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
+MODULE_EXT = @MODEXT@
+BUILD_SYS = @BUILD_SYS@
+CC = @CC@
+
+# local flags for GTK include
+GTK_VERSION = @GTK_VER@
+GTK_CFLAGS = @GTK_CFLAGS@
+GTK_LIBS = @GTK_LIBS@
+
+# tcl tk cflags, includes and libs
+TCL_DBGX=@TCL_DBGX@
+TK_DBGX=@TK_DBGX@
+TCL_CFLAGS=@TCL_CFLAGS@ @TK_CFLAGS@
+TCL_LIBS=@TCL_LIBS@ @TK_LIBS@ @LIBS@
+
+
+AR = @AR@
+ARFLAGS = cr
+CXX = @CXX@
+CXXFLAGS = $(CFLAGS)
+MAKEFLAGS = @MAKEFLAGS@
+RANLIB = @RANLIB@
+RANLIBFLAGS = 
+
+#
+# i18n
+#
+
+
+#### BEGIN CONFIG ####
+
+# To disable compilation of any particular module,
+# edit the following lines replacing "m" with "n".
+#
+# In time, we may have some fancy dohicky to set
+# these options at compile time.
+
+# usually you need rtapi,
+# so you probably don't want to change this
+CONFIG_RTAPI=m
+# rtapi examples, don't get built unless make is executed in emc2/src/rtapi/examples
+CONFIG_RTAPI_EXAMPLES_EXTINT=m
+CONFIG_RTAPI_EXAMPLES_FIFO=m
+CONFIG_RTAPI_EXAMPLES_SEM=m
+CONFIG_RTAPI_EXAMPLES_SHMEM=m
+CONFIG_RTAPI_EXAMPLES_TIMER=m
+
+# emc motion module
+CONFIG_MOTMOD=m
+
+# HAL components
+CONFIG_BLOCKS=m
+CONFIG_DEBOUNCE=m
+CONFIG_ENCODER=m
+CONFIG_ENCODER_RATIO=m
+CONFIG_STEPGEN=m
+CONFIG_FREQGEN=m
+CONFIG_SIGGEN=m
+CONFIG_PID=m
+CONFIG_SUPPLY=m
+CONFIG_CLASSICLADDER_RT=m
+
+# HAL drivers
+CONFIG_HAL_PARPORT=m
+CONFIG_HAL_TIRO=m
+CONFIG_HAL_STG=m
+CONFIG_HAL_EVOREG=m
+CONFIG_HAL_MOTENC=m
+CONFIG_HAL_M5I20=m
+CONFIG_HAL_SKELETON=m
+
+#### END CONFIG ####
+

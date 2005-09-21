@@ -5,7 +5,7 @@
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
@@ -2269,6 +2269,7 @@ void nml_cleanup()
     }
     nmlClearHostAliases();
 }
+/*! \todo Another #if 0 */
 #if 0
 void nml_wipeout_lists()
 {

@@ -1,7 +1,7 @@
 # Makefile for fifo example
 
 # get the defs for CC, CFLAGS, LIB_DIR, etc.
-include ../../../../Makefile.inc
+include ../../../Makefile.inc
 
 # Public headers
 HEADERS =
@@ -13,12 +13,16 @@ PRIVHDRS = common.h
 SRCS = \
 fifousr.c
 
+ifneq ($(MODULE_EXT),.ko)
+
 RT_SRCS = \
 fifotask.c
 
 # Libraries to be created
 LIBS = \
 $(RTLIB_DIR)/fifotask.o
+
+endif
 
 # Binaries to be created
 BINS = \
@@ -28,7 +32,7 @@ $(BIN_DIR)/fifousr
 all : headers $(LIBS) $(BINS)
 
 # Generic rules
-include ../../../../Make.rules
+include $(SRC_DIR)/Make.rules
 
 # explicit rule to link user space binary fifomusr
 $(BIN_DIR)/fifousr : $(TMP_DIR)/fifousr.o $(LIB_DIR)/ulapi.o
@@ -41,7 +45,11 @@ indent: def_indent
 
 depend: def_depend
 
-clean: def_clean
+clean: def_clean kclean
 
-.PHONY: all headers depend indent install clean
+kclean:
+	- rm -f .*.cmd *.o *.mod.* *.ko
+	- rm -fR .tmp_versions
+
+.PHONY: all headers depend indent install clean kclean
 

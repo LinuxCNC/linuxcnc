@@ -1,0 +1,22 @@
+void InitAllLadderDatas(void);
+int VerifyDirectorySelected(char *Directory, char *NewDir);
+void LoadAllRungs_V1(char *BaseName, StrRung * Rungs, int *TheFirst,
+    int *TheLast, int *TheCurrent);
+void LoadAllRungs(char *BaseName, StrRung * Rungs);
+void SaveAllRungs(char *BaseName);
+void ConvRawLineOfNumbers(char *RawLine, char NbrParams, int *ValuesFnd);
+int ConvBaseInMilliSecsToId(int NbrMilliSecs);
+char LoadTimersParams(char *FileName, StrTimer * BufTimers);
+char SaveTimersParams(char *FileName, StrTimer * BufTimers);
+char LoadMonostablesParams(char *FileName, StrMonostable * BufMonostables);
+char SaveMonostablesParams(char *FileName, StrMonostable * BufMonostables);
+void DumpRung(StrRung * TheRung);
+char LoadArithmeticExpr(char *FileName);
+char SaveArithmeticExpr(char *FileName);
+char LoadSectionsParams(char *FileName);
+char SaveSectionsParams(char *FileName);
+char LoadProjectFiles(char *FileProject);
+char SaveProjectFiles(char *FileProject);
+void CleanTmpDirectory(char *Directory, char DestroyDir);
+char JoinFiles(char *DirAndNameOfProject, char *TmpDirectoryFiles);
+char SplitFiles(char *DirAndNameOfProject, char *TmpDirectoryFiles);

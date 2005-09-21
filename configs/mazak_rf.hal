@@ -1,0 +1,271 @@
+# this file contains the HAL configuration for Roland's Mazak
+#
+# first load I/O drivers.  This retrofit uses three different I/O devices
+#
+# 1) MOTENC-Lite card, for analog outs to drives, encoder feedback, and 
+#     some digital I/O.
+#
+loadrt hal_motenc
+
+# 2) AXIOM AX5214H card, for 48 digital I/O
+#     we are using 32 inputs and 16 outputs, with the outputs on port
+#     C, which can be converted to inputs 4 bits at a time.
+#
+loadrt hal_ax5214h cfg="0x220_iiooiioo"
+
+# 3) Parallel Port, driving PMDX-122 card.  This provides a charge pump
+#     type watchdog, and also provides a small number of inputs that 
+#     can be sampled at a higher rate.  The jogwheel comes in thru this
+#     card and is counted in software.
+#
+loadrt hal_parport cfg="0x0378_in"
+
+# I/O Mapping - Physical I/O points to driver pins
+# --------------------------------------------------------
+# OPTO-22 board IO-1 input  module  0 is ax5214h.0.in-24
+# OPTO-22 board IO-1 input  module  1 is ax5214h.0.in-25
+#    "                  "                      "
+# OPTO-22 board IO-1 input  module 14 is ax5214h.0.in-38
+# OPTO-22 board IO-1 input  module 15 is ax5214h.0.in-39
+# OPTO-22 board IO-1 output module 16 is ax5214h.0.out-40
+# OPTO-22 board IO-1 output module 17 is ax5214h.0.out-41
+#    "                  "                      "
+# OPTO-22 board IO-1 output module 22 is ax5214h.0.out-46
+# OPTO-22 board IO-1 output module 23 is ax5214h.0.out-47
+# --------------------------------------------------------
+# OPTO-22 board IO-2 input  module  0 is ax5214h.0.in-00
+# OPTO-22 board IO-2 input  module  1 is ax5214h.0.in-01
+#    "                  "                      "
+# OPTO-22 board IO-2 input  module 14 is ax5214h.0.in-14
+# OPTO-22 board IO-2 input  module 15 is ax5214h.0.in-15
+# OPTO-22 board IO-2 output module 16 is ax5214h.0.out-16
+# OPTO-22 board IO-2 output module 17 is ax5214h.0.out-17
+#    "                  "                      "
+# OPTO-22 board IO-2 output module 22 is ax5214h.0.out-22
+# OPTO-22 board IO-2 output module 23 is ax5214h.0.out-23
+# --------------------------------------------------------
+# OPTO-22 board IO-3 output module  0 is motenc.3.out-15
+# OPTO-22 board IO-3 output module  1 is motenc.3.out-14
+#    "                  "                      "
+# OPTO-22 board IO-3 output module  6 is motenc.3.out-01
+# OPTO-22 board IO-3 output module  7 is motenc.3.out-00
+# OPTO-22 board IO-3 input  module  8 is motenc.3.in-16
+# OPTO-22 board IO-3 input  module  9 is motenc.3.in-17
+#    "                  "                      "
+# OPTO-22 board IO-3 input  module 22 is motenc.3.in-30
+# OPTO-22 board IO-3 input  module 23 is motenc.3.in-31
+# --------------------------------------------------------
+# Breakout board IO-4 output chan  0 is motenc.3.out.00
+# Breakout board IO-4 output chan  1 is motenc.3.out.01
+#    "                  "                      "
+# Breakout board IO-4 output chan  6 is motenc.3.out.06
+# Breakout board IO-4 output chan  7 is motenc.3.out.07
+# Breakout board IO-4 input  chan  0 is motenc.3.in.00
+# Breakout board IO-4 input  chan  1 is motenc.3.in.01
+#    "                  "                      "
+# Breakout board IO-4 input  chan 14 is motenc.3.in.14
+# Breakout board IO-4 input  chan 15 is motenc.3.in.15
+# --------------------------------------------------------
+
+# Now we load some more HAL components:
+#
+# using the estop logic from "blocks", at least for now
+loadrt blocks n_estop=1
+
+# Software encoder counter, for the jogwheel, and possibly a future
+# small manual encoder for a feedrate override knob.
+#	
+loadrt encoder num_chan=1
+
+# PID loops for axis control
+#
+loadrt pid numchan=3
+
+
+# -----------------------------------------------
+
+# connect I/O driver functions to thread(s)
+#
+# NOTE: this would be _much_ easier if we allowed HAL to
+# load all the realtime modules.  As it is however, the
+# run script loads the realtime module, so we need to make
+# sure that input drivers execute before the motion module,
+# and the PID calcs and output drivers run after the motion
+# module.  The number at the end of each line is the position
+# in the thread.
+addf motenc.3.encoder_read          servo_thread 1
+addf motenc.3.digital_in_read       servo_thread 2
+addf ax5214h.0.read                 servo_thread 3
+addf estop.0                        servo_thread 4
+addf encoder.capture_position       servo_thread 5
+
+# pid calculations are done after the motion module
+# has determined new position commands.  By passing
+# -1 to the addf command, the functions are installed
+# after the motion module.
+addf pid.0.do_pid_calcs             servo_thread -1
+addf pid.1.do_pid_calcs             servo_thread -1
+addf pid.2.do_pid_calcs             servo_thread -1
+
+# output drivers are loaded last
+addf motenc.3.dac_write             servo_thread -1
+addf motenc.3.digital_out_write     servo_thread -1
+addf ax5214h.0.write                servo_thread -1
+addf parport.0.write                servo_thread -1
+
+# the base thread (fast thread) isn't needed for step pulse 
+# generation since this is a servo machine.  However we use
+# it to sample the jogwheel signals and count them in software
+
+addf parport.0.read                 base_thread
+addf encoder.update_counters        base_thread
+
+# -------------------------------------------------
+
+# Next, create signals with meaningfull names, and attach them to the
+#  physical pins.  There are a lot of these, so they are broken up
+
+# ---------------------------------------------------
+# ESTOP and related signals
+newsig ESTOP_IN bit
+newsig ESTOP_OUT bit
+newsig ESTOP_RESET bit
+newsig charge_pump bit
+newsig servo_enable bit
+linksp ESTOP_IN ax5214h.0.in-24
+linksp ESTOP_IN estop.0.in
+linksp ESTOP_OUT parport.0.pin-01-out
+linksp ESTOP_OUT estop.0.out
+linksp ESTOP_RESET estop.0.reset
+linksp charge_pump parport.0.pin-17-out
+linksp charge_pump estop.0.watchdog
+linksp servo_enable ax5214h.0.out-40
+
+
+# Limit switches
+newsig X_lim_plus bit
+newsig X_lim_minus bit
+newsig X_home bit
+newsig Y_lim_plus bit
+newsig Y_lim_minus bit
+newsig Y_home bit
+newsig Z_lim_plus bit
+newsig Z_lim_minus bit
+newsig Z_home bit
+linksp X_lim_plus ax5214h.0.in-27
+linksp X_lim_minus ax5214h.0.in-28
+linksp X_home ax5214h.0.in-29
+linksp Y_lim_plus ax5214h.0.in-30
+linksp Y_lim_minus ax5214h.0.in-31
+linksp Y_home ax5214h.0.in-32
+linksp Z_lim_plus ax5214h.0.in-33
+linksp Z_lim_minus ax5214h.0.in-34
+linksp Z_home ax5214h.0.in-35
+
+# jogwheel signals
+newsig jogwheel_phA bit
+newsig jogwheel_phB bit
+linksp jogwheel_phA parport.0.pin-12-in
+linksp jogwheel_phB parport.0.pin-11-in
+# route signals to software encoder counter
+linksp jogwheel_phA encoder.0.phase-A
+linksp jogwheel_phB encoder.0.phase-B
+# jogwheel output
+newsig jogwheel_counts s32
+linksp jogwheel_counts encoder.0.counts
+
+
+# -----------------------------------------------------
+# encoders - signals and scaling
+#
+# position in counts
+newsig X_enc_counts s32
+newsig Y_enc_counts s32
+newsig Z_enc_counts s32
+linksp X_enc_counts motenc.3.enc-00-count
+linksp Y_enc_counts motenc.3.enc-01-count
+linksp Z_enc_counts motenc.3.enc-02-count
+
+# scaling to get inches (scale comes from ini file)
+setp motenc.3.enc-00-scale [AXIS_0]INPUT_SCALE
+setp motenc.3.enc-01-scale [AXIS_1]INPUT_SCALE
+setp motenc.3.enc-02-scale [AXIS_2]INPUT_SCALE
+
+# position in inches
+newsig X_enc_pos float
+newsig Y_enc_pos float
+newsig Z_enc_pos float
+linksp X_enc_pos motenc.3.enc-00-position
+linksp Y_enc_pos motenc.3.enc-01-position
+linksp Z_enc_pos motenc.3.enc-02-position
+
+# -----------------------------------------------------
+# DACs - output to servo amps
+#
+newsig X_volts float
+newsig Y_volts float
+newsig Z_volts float
+linksp X_volts motenc.3.dac-00-value
+linksp Y_volts motenc.3.dac-01-value
+linksp Z_volts motenc.3.dac-02-value
+# get scale and offset from the ini file
+setp motenc.3.dac-00-gain [AXIS_0]OUTPUT_SCALE
+setp motenc.3.dac-01-gain [AXIS_1]OUTPUT_SCALE
+setp motenc.3.dac-02-gain [AXIS_2]OUTPUT_SCALE
+setp motenc.3.dac-00-offset [AXIS_0]OUTPUT_OFFSET
+setp motenc.3.dac-01-offset [AXIS_1]OUTPUT_OFFSET
+setp motenc.3.dac-02-offset [AXIS_2]OUTPUT_OFFSET
+
+# -----------------------------------------------------
+# PIDs - position control
+#
+
+# signals for position command
+newsig X_pos_cmd float
+newsig Y_pos_cmd float
+newsig Z_pos_cmd float
+# hook them to the PID inputs
+linksp X_pos_cmd pid.0.command
+
+# hook encoders to PID feedback
+linksp X_enc_pos pid.0.feedback
+linksp Y_enc_pos pid.1.feedback
+linksp Z_enc_pos pid.2.feedback
+
+# hook PID outputs to DACs
+linksp X_volts pid.0.output
+linksp Y_volts pid.1.output
+linksp Z_volts pid.2.output
+
+# use 'servo_enable' to enable PID blocks
+linksp servo_enable pid.0.enable
+linksp servo_enable pid.1.enable
+linksp servo_enable pid.2.enable
+
+# get tuning params from ini file
+setp pid.0.deadband [AXIS_0]DEADBAND
+setp pid.0.Pgain [AXIS_0]PGAIN
+setp pid.0.Igain [AXIS_0]IGAIN
+setp pid.0.Dgain [AXIS_0]DGAIN
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.1.deadband [AXIS_1]DEADBAND
+setp pid.1.Pgain [AXIS_1]PGAIN
+setp pid.1.Igain [AXIS_1]IGAIN
+setp pid.1.Dgain [AXIS_1]DGAIN
+setp pid.1.FF0 [AXIS_1]FF0
+setp pid.1.FF1 [AXIS_1]FF1
+setp pid.1.bias [AXIS_1]BIAS
+setp pid.2.deadband [AXIS_2]DEADBAND
+setp pid.2.Pgain [AXIS_2]PGAIN
+setp pid.2.Igain [AXIS_2]IGAIN
+setp pid.2.Dgain [AXIS_2]DGAIN
+setp pid.2.FF0 [AXIS_2]FF0
+setp pid.2.FF1 [AXIS_2]FF1
+setp pid.2.bias [AXIS_2]BIAS
+# get maximum (and minimum) output volts from ini file
+setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
+setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
+setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
+

@@ -1,7 +1,7 @@
 # Makefile for compiling EMC user interface code
 
 # get all the platform and application definitions
-include ../../../Makefile.inc
+include ../../Makefile.inc
 
 SRCS =	\
 	emcsh.cc \
@@ -23,7 +23,7 @@ all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(BINS:%=$(BIN_DIR)/%)
 # $(OBJS:%.o=$(TMP_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 # Tcl emcsh
 $(TMP_DIR)/emcsh.o: emcsh.cc

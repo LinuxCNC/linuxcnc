@@ -50,10 +50,15 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
+/* non-EMC related uses of halcmd may want to avoid libnml dependency */
+#ifndef NO_INI
+#include "inifile.hh"		/* iniFind() from libnml */
+#endif
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -66,43 +71,98 @@
 #define MAX_CMD_LEN 1024
 
 static int parse_cmd(char *tokens[]);
+static int do_help_cmd(char *command);
+static int do_lock_cmd(char *command);
+static int do_unlock_cmd(char *command);
 static int do_link_cmd(char *pin, char *sig);
 static int do_newsig_cmd(char *name, char *type);
 static int do_setp_cmd(char *name, char *value);
+static int do_getp_cmd(char *name);
 static int do_sets_cmd(char *name, char *value);
-static int do_show_cmd(char *type);
-static int do_loadrt_cmd(char *mod_name, char *args[]);
+static int do_gets_cmd(char *name);
+static int do_show_cmd(char *type, char *pattern);
+static int do_list_cmd(char *type, char *pattern);
+static int do_status_cmd(char *type);
 static int do_delsig_cmd(char *mod_name);
+static int do_loadrt_cmd(char *mod_name, char *args[]);
 static int do_unloadrt_cmd(char *mod_name);
+static int do_loadusr_cmd(char *args[]);
 static int unloadrt_comp(char *mod_name);
-static void print_comp_list(void);
-static void print_pin_list(void);
-static void print_sig_list(void);
-static void print_param_list(void);
-static void print_funct_list(void);
-static void print_thread_list(void);
+static void print_comp_info(char *pattern);
+static void print_pin_info(char *pattern);
+static void print_sig_info(char *pattern);
+static void print_param_info(char *pattern);
+static void print_funct_info(char *pattern);
+static void print_thread_info(char *pattern);
+static void print_comp_names(char *pattern);
+static void print_pin_names(char *pattern);
+static void print_sig_names(char *pattern);
+static void print_param_names(char *pattern);
+static void print_funct_names(char *pattern);
+static void print_thread_names(char *pattern);
+static void print_lock_status();
+static int count_list(int list_root);
+static void print_mem_status();
 static char *data_type(int type);
 static char *data_dir(int dir);
 static char *data_arrow1(int dir);
 static char *data_arrow2(int dir);
 static char *data_value(int type, void *valptr);
+static char *data_value2(int type, void *valptr);
 static int do_save_cmd(char *type);
 static void save_signals(void);
 static void save_links(int arrows);
 static void save_nets(int arrows);
 static void save_params(void);
 static void save_threads(void);
-static void print_help(void);
+static void print_help_general(void);
+static void print_help_commands(void);
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
 ************************************************************************/
 
-int comp_id = 0;
+int comp_id = -1;	/* -1 means hal_init() not called yet */
+int hal_flag = 0;	/* used to indicate that halcmd might have the
+			   hal mutex, so the sig handler can't just
+			   exit, instead it must set 'done' */
+int done = 0;		/* used to break out of processing loop */
+
+char comp_name[HAL_NAME_LEN];	/* name for this instance of halcmd */
+
+#ifndef NO_INI
+    FILE *inifile = NULL;
+#endif
+
 
 /***********************************************************************
 *                            MAIN PROGRAM                              *
 ************************************************************************/
+
+/* signal handler */
+static void quit(int sig)
+{
+    if ( hal_flag ) {
+	/* this process might have the hal mutex, so just set the
+	   'done' flag and return, exit after mutex work finishes */
+	done = 1;
+    } else {
+	/* don't have to worry about the mutex, but if we just
+	   return, we might return into the fgets() and wait 
+	   all day instead of exiting.  So we exit from here. */
+	if ( comp_id > 0 ) {
+	    hal_exit(comp_id);
+	}
+	_exit(1);
+    }
+}
+
+/* main() is responsible for parsing command line options, and then
+   parsing either a single command from the command line or a series
+   of commands from a file or standard input.  It breaks the command[s]
+   into tokens, and passes them to parse_cmd() which does the actual
+   work for each command.
+*/
 
 int main(int argc, char **argv)
 {
@@ -114,13 +174,13 @@ int main(int argc, char **argv)
 	   DOUBLE_QUOTE,
 	   END_OF_LINE } state;
     char *cp1, *filename = NULL;
-    FILE *infile = NULL;
+    FILE *srcfile = NULL;
     char cmd_buf[MAX_CMD_LEN+1];
     char *tokens[MAX_TOK+1];
 
     if (argc < 2) {
 	/* no args specified, print help */
-	print_help();
+	print_help_general();
 	exit(0);
     }
     /* set default level of output - 'quiet' */
@@ -136,7 +196,7 @@ int main(int argc, char **argv)
 	    switch (*cp1) {
 	    case 'h':
 		/* -h = help */
-		print_help();
+		print_help_general();
 		return 0;
 		break;
 	    case 'k':
@@ -161,27 +221,54 @@ int main(int argc, char **argv)
 		break;
 	    case 'f':
 		/* -f = read from file (or stdin) */
-		if (infile == NULL) {
+		if (srcfile == NULL) {
 		    /* it's the first -f (ignore repeats) */
 		    if ((n < argc) && (argv[n][0] != '-')) {
 			/* there is a following arg, and it's not an option */
 			filename = argv[n++];
-			infile = fopen(filename, "r");
-			if (infile == NULL) {
+			srcfile = fopen(filename, "r");
+			if (srcfile == NULL) {
 			    fprintf(stderr,
 				"Could not open command file '%s'\n",
 				filename);
 			    exit(-1);
 			}
 			/* make sure file is closed on exec() */
-			fd = fileno(infile);
+			fd = fileno(srcfile);
 			fcntl(fd, F_SETFD, FD_CLOEXEC);
 		    } else {
 			/* no filename followed -f option, use stdin */
-			infile = stdin;
+			srcfile = stdin;
 		    }
 		}
 		break;
+#ifndef NO_INI
+	    case 'i':
+		/* -i = allow reading 'setp' values from an ini file */
+		if (inifile == NULL) {
+		    /* it's the first -i (ignore repeats) */
+		    if ((n < argc) && (argv[n][0] != '-')) {
+			/* there is a following arg, and it's not an option */
+			filename = argv[n++];
+			inifile = fopen(filename, "r");
+			if (inifile == NULL) {
+			    fprintf(stderr,
+				"Could not open ini file '%s'\n",
+				filename);
+			    exit(-1);
+			}
+			/* make sure file is closed on exec() */
+			fd = fileno(inifile);
+			fcntl(fd, F_SETFD, FD_CLOEXEC);
+		    } else {
+			/* no filename followed -i option, error */
+			fprintf(stderr,
+			    "No missing ini filename for -i option\n");
+			exit(-1);
+		    }
+		}
+		break;
+#endif /* NO_INI */
 	    default:
 		/* unknown option */
 		printf("Unknown option '-%c'\n", *cp1);
@@ -189,16 +276,24 @@ int main(int argc, char **argv)
 	    }
 	}
     }
-    /* at this point all options are parsed */
-    comp_id = hal_init("halcmd");
+    /* register signal handlers - if the process is killed
+       we need to call hal_exit() to free the shared memory */
+    signal(SIGINT, quit);
+    signal(SIGTERM, quit);
+    /* at this point all options are parsed, connect to HAL */
+    /* create a unique module name, to allow for multiple halcmd's */
+    snprintf(comp_name, HAL_NAME_LEN-1, "halcmd%d", getpid());
+    /* connect to the HAL */
+    comp_id = hal_init(comp_name);
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed\n" );
+	fprintf(stderr, "NOTE: 'rtapi' kernel module must be loaded\n" );
 	return 1;
     }
     retval = 0;
     errorcount = 0;
     /* HAL init is OK, let's process the command(s) */
-    if (infile == NULL) {
+    if (srcfile == NULL) {
 	/* the remaining command line args are parts of the command */
 	m = 0;
 	while ((n < argc) && (n < MAX_TOK)) {
@@ -217,8 +312,8 @@ int main(int argc, char **argv)
 	    errorcount++;
 	}
     } else {
-	/* read command line(s) from 'infile' */
-	while (fgets(cmd_buf, MAX_CMD_LEN, infile) != NULL) {
+	/* read command line(s) from 'srcfile' */
+	while (fgets(cmd_buf, MAX_CMD_LEN, srcfile) != NULL) {
 	    /* convert a line of text into individual tokens */
 	    m = 0;
 	    cp1 = cmd_buf;
@@ -300,14 +395,27 @@ int main(int argc, char **argv)
 		    /* should never get here */
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 			"Bad state in token parser\n");
-		    return -1;
+		    done = 1;
 		}
 	    }
 	    /* tokens[] contains MAX_TOK+1 elements so there is always
 	       at least one empty one at the end... make it empty now */
 	    tokens[MAX_TOK] = "";
+	    /* the "quit" command is not handled by parse_cmd() */
+	    if ( strcasecmp(tokens[0],"quit") == 0 ) {
+		break;
+	    }
+	    /* let the signal handler know that we might have the mutex */
+	    hal_flag = 1;
 	    /* process command */
             retval = parse_cmd(tokens);
+	    /* done with the mutex, can simply exit on a signal */
+	    hal_flag = 0;
+	    /* did a signal happen while we were busy? */
+	    if ( done ) {
+		/* exit from loop */
+		break;
+	    }
 	    if ( retval != 0 ) {
 		errorcount++;
 	    }
@@ -330,10 +438,16 @@ int main(int argc, char **argv)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
+/* parse_cmd() decides which command has been invoked, gathers any
+   arguments that are needed, and calls a function to execute the
+   command.
+*/
+
 static int parse_cmd(char *tokens[])
 {
     int retval;
 
+/*! \todo Another #if 0 */
 #if 0
     int n;
     /* for testing: prints tokens that make up the command */
@@ -341,11 +455,20 @@ static int parse_cmd(char *tokens[])
 	printf ( "%02d:{%s}\n", n, tokens[n] );
     }
 #endif
-
     /* tokens[0] is the command */
     if ((tokens[0][0] == '#') || (tokens[0][0] == '\0')) {
 	/* comment or blank line, do nothing */
 	retval = 0;
+    } else if (strcmp(tokens[0], "help") == 0) {
+	/* help for a specific command? */
+	if (tokens[1][0] != '\0') {
+	    /* yes, get info for that command */
+	    retval = do_help_cmd(tokens[1]);
+	} else {
+	    /* no, print list of commands */
+	    print_help_commands();
+	    retval = 0;
+	}
     } else if (strcmp(tokens[0], "linkps") == 0) {
 	/* check for an arrow */
 	if ((tokens[2][0] == '=') || (tokens[2][0] == '<')) {
@@ -374,12 +497,26 @@ static int parse_cmd(char *tokens[])
 	retval = do_setp_cmd(tokens[0], tokens[2]);
     } else if (strcmp(tokens[0], "sets") == 0) {
 	retval = do_sets_cmd(tokens[1], tokens[2]);
+    } else if (strcmp(tokens[0], "getp") == 0) {
+	retval = do_getp_cmd(tokens[1]);
+    } else if (strcmp(tokens[0], "gets") == 0) {
+	retval = do_gets_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "show") == 0) {
-	retval = do_show_cmd(tokens[1]);
+	retval = do_show_cmd(tokens[1], tokens[2]);
+    } else if (strcmp(tokens[0], "list") == 0) {
+	retval = do_list_cmd(tokens[1], tokens[2]);
+    } else if (strcmp(tokens[0], "status") == 0) {
+	retval = do_status_cmd(tokens[1]);
+    } else if (strcmp(tokens[0], "lock") == 0) {
+	retval = do_lock_cmd(tokens[1]);
+    } else if (strcmp(tokens[0], "unlock") == 0) {
+	retval = do_unlock_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "loadrt") == 0) {
 	retval = do_loadrt_cmd(tokens[1], &tokens[2]);
     } else if (strcmp(tokens[0], "unloadrt") == 0) {
 	retval = do_unloadrt_cmd(tokens[1]);
+    } else if (strcmp(tokens[0], "loadusr") == 0) {
+	retval = do_loadusr_cmd(&tokens[1]);
     } else if (strcmp(tokens[0], "save") == 0) {
 	retval = do_save_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "addf") == 0) {
@@ -420,6 +557,68 @@ static int parse_cmd(char *tokens[])
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown command '%s'\n", tokens[0]);
 	retval = -1;
+    }
+    return retval;
+}
+
+static int do_lock_cmd(char *command)
+{
+    int retval=0;
+
+    /* are we running as root? */
+    if ( getuid() != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Must be root to lock HAL\n");
+	return -2;
+    }
+
+    /* if command is blank, want to lock everything */
+    if (*command == '\0') {
+	retval = hal_set_lock(HAL_LOCK_ALL);
+    } else if (strcmp(command, "none") == 0) {
+	retval = hal_set_lock(HAL_LOCK_NONE);
+    } else if (strcmp(command, "tune") == 0) {
+	retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
+    } else if (strcmp(command, "all") == 0) {
+	retval = hal_set_lock(HAL_LOCK_ALL);
+    }
+
+    if (retval == 0) {
+	/* print success message */
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "Locking completed");
+    } else {
+	rtapi_print_msg(RTAPI_MSG_INFO, "Locking failed\n");
+    }
+    return retval;
+}
+
+static int do_unlock_cmd(char *command)
+{
+    int retval=0;
+
+    /* are we running as root? */
+    if ( getuid() != 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Must be root to unlock HAL\n");
+	return -2;
+    }
+
+    /* if command is blank, want to lock everything */
+    if (*command == '\0') {
+	retval = hal_set_lock(HAL_LOCK_NONE);
+    } else if (strcmp(command, "all") == 0) {
+	retval = hal_set_lock(HAL_LOCK_NONE);
+    } else if (strcmp(command, "tune") == 0) {
+	retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
+    }
+
+    if (retval == 0) {
+	/* print success message */
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "Unlocking completed");
+    } else {
+	rtapi_print_msg(RTAPI_MSG_INFO, "Unlocking failed\n");
     }
     return retval;
 }
@@ -484,11 +683,65 @@ static int do_setp_cmd(char *name, char *value)
     float fval;
     long lval;
     unsigned long ulval;
+    char *envvar = NULL;
+#ifndef NO_INI
+    char *section = NULL;
+    char *variable = NULL;
+#endif
 
-    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s'\n", name);
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s' to '%s'\n", name, value);
+    /* check for special cases of 'value' */
+    cp = value;
+    if ( *cp == '$' ) {
+	/* environment variable reference */
+	/* skip over '$' to name of variable */
+	cp++;
+	envvar = getenv(cp);
+	if ( envvar == NULL ) {
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: env variable '%s' not found\n", cp);
+	    return HAL_INVAL;
+	}
+	value = envvar;
+    }
+#ifndef NO_INI
+    else if ( *cp == '[' ) {
+	/* ini file variable reference */
+	/* skip over leading '[' and save ptr to start of section name */
+	section = ++cp;
+	/* look for end of section name */
+	while ( *cp != ']' ) {
+	    if ( *cp == '\0' ) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: ERROR: ini file reference '%s' missing ']'\n", value);
+		return HAL_INVAL;
+	    }
+	    cp++;
+	}
+	/* found trailing ']', replace with '\0' to end section */
+	*cp = '\0';
+	/* skip over '\0' and save pointer to variable name */
+	variable = ++cp;
+	if ( *section != '\0' ) {
+	    /* get value from ini file */
+	    /* cast to char ptr, we are discarding the 'const' */
+	    value = (char *) iniFind(inifile, variable, section);
+	} else {
+	    /* no section specified */
+	    value = (char *) iniFind(inifile, variable, NULL);
+	}
+	if ( value == NULL ) {
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: ini file variable '[%s]%s' not found\n", section, variable);
+	    return HAL_INVAL;
+	}
+    }
+#endif /* NO_INI */
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
-
     /* search param list for name */
     param = halpr_find_param_by_name(name);
     if (param == 0) {
@@ -522,9 +775,9 @@ static int do_setp_cmd(char *name, char *value)
 	}
 	break;
     case HAL_FLOAT:
-	fval = strtod(value, &cp);
-	if (*cp != '\0') {
-	    /* invalid chars in string */
+	fval = strtod ( value, &cp );
+	if ((*cp != '\0') && (!isspace(*cp))) {
+	    /* invalid character(s) in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for float parameter\n",
 		value);
@@ -535,7 +788,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_S8:
 	lval = strtol(value, &cp, 0);
-	if ((*cp != '\0') || (lval > 127) || (lval < -128)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 127) || (lval < -128)) {
 	    /* invalid chars in string, or outside limits of S8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for S8 parameter\n", value);
@@ -546,7 +799,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_U8:
 	ulval = strtoul(value, &cp, 0);
-	if ((*cp != '\0') || (ulval > 255)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 255)) {
 	    /* invalid chars in string, or outside limits of U8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for U8 parameter\n", value);
@@ -557,7 +810,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_S16:
 	lval = strtol(value, &cp, 0);
-	if ((*cp != '\0') || (lval > 32767) || (lval < -32768)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 32767) || (lval < -32768)) {
 	    /* invalid chars in string, or outside limits of S16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for S16 parameter\n", value);
@@ -568,7 +821,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_U16:
 	ulval = strtoul(value, &cp, 0);
-	if ((*cp != '\0') || (ulval > 65535)) {
+	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 65535)) {
 	    /* invalid chars in string, or outside limits of U16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for U16 parameter\n", value);
@@ -579,7 +832,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_S32:
 	lval = strtol(value, &cp, 0);
-	if (*cp != '\0') {
+	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for S32 parameter\n", value);
@@ -590,7 +843,7 @@ static int do_setp_cmd(char *name, char *value)
 	break;
     case HAL_U32:
 	ulval = strtoul(value, &cp, 0);
-	if (*cp != '\0') {
+	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: value '%s' invalid for U32 parameter\n", value);
@@ -613,6 +866,31 @@ static int do_setp_cmd(char *name, char *value)
     }
     return retval;
 
+}
+
+static int do_getp_cmd(char *name)
+{
+    hal_param_t *param;
+    hal_type_t type;
+    void *d_ptr;
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: getting parameter '%s'\n", name);
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* search param list for name */
+    param = halpr_find_param_by_name(name);
+    if (param == 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: parameter '%s' not found\n", name);
+	return HAL_INVAL;
+    }
+    /* found it */
+    type = param->type;
+    d_ptr = SHMPTR(param->data_ptr);
+    rtapi_print("%s\n", data_value2((int) type, d_ptr));
+    rtapi_mutex_give(&(hal_data->mutex));
+    return HAL_SUCCESS;
 }
 
 static int do_sets_cmd(char *name, char *value)
@@ -755,7 +1033,32 @@ static int do_sets_cmd(char *name, char *value)
 
 }
 
-static int do_show_cmd(char *type)
+static int do_gets_cmd(char *name)
+{
+    hal_sig_t *sig;
+    hal_type_t type;
+    void *d_ptr;
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "HAL: getting signal '%s'\n", name);
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* search signal list for name */
+    sig = halpr_find_sig_by_name(name);
+    if (sig == 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: signal '%s' not found\n", name);
+	return HAL_INVAL;
+    }
+    /* found it */
+    type = sig->type;
+    d_ptr = SHMPTR(sig->data_ptr);
+    rtapi_print("%s\n", data_value2((int) type, d_ptr));
+    rtapi_mutex_give(&(hal_data->mutex));
+    return HAL_SUCCESS;
+}
+
+static int do_show_cmd(char *type, char *pattern)
 {
 
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
@@ -764,24 +1067,32 @@ static int do_show_cmd(char *type)
     }
     if (*type == '\0') {
 	/* print everything */
-	print_comp_list();
-	print_pin_list();
-	print_sig_list();
-	print_param_list();
-	print_funct_list();
-	print_thread_list();
+	print_comp_info("");
+	print_pin_info("");
+	print_sig_info("");
+	print_param_info("");
+	print_funct_info("");
+	print_thread_info("");
+    } else if (strcmp(type, "all") == 0) {
+	/* print everything, using the pattern */
+	print_comp_info(pattern);
+	print_pin_info(pattern);
+	print_sig_info(pattern);
+	print_param_info(pattern);
+	print_funct_info(pattern);
+	print_thread_info(pattern);
     } else if (strcmp(type, "comp") == 0) {
-	print_comp_list();
+	print_comp_info(pattern);
     } else if (strcmp(type, "pin") == 0) {
-	print_pin_list();
+	print_pin_info(pattern);
     } else if (strcmp(type, "sig") == 0) {
-	print_sig_list();
+	print_sig_info(pattern);
     } else if (strcmp(type, "param") == 0) {
-	print_param_list();
+	print_param_info(pattern);
     } else if (strcmp(type, "funct") == 0) {
-	print_funct_list();
+	print_funct_info(pattern);
     } else if (strcmp(type, "thread") == 0) {
-	print_thread_list();
+	print_thread_info(pattern);
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'show' type '%s'\n", type);
 	return -1;
@@ -789,14 +1100,65 @@ static int do_show_cmd(char *type)
     return 0;
 }
 
+static int do_list_cmd(char *type, char *pattern)
+{
+
+    if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
+	/* must be -Q, don't print anything */
+	return 0;
+    }
+    if (strcmp(type, "comp") == 0) {
+	print_comp_names(pattern);
+    } else if (strcmp(type, "pin") == 0) {
+	print_pin_names(pattern);
+    } else if (strcmp(type, "sig") == 0) {
+	print_sig_names(pattern);
+    } else if (strcmp(type, "param") == 0) {
+	print_param_names(pattern);
+    } else if (strcmp(type, "funct") == 0) {
+	print_funct_names(pattern);
+    } else if (strcmp(type, "thread") == 0) {
+	print_thread_names(pattern);
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'list' type '%s'\n", type);
+	return -1;
+    }
+    return 0;
+}
+
+static int do_status_cmd(char *type)
+{
+
+    if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
+	/* must be -Q, don't print anything */
+	return 0;
+    }
+    if ((*type == '\0') || (strcmp(type, "all") == 0)) {
+	/* print everything */
+	/*! \todo FIXME - add other status functions here */
+	print_lock_status();
+	print_mem_status();
+    } else if (strcmp(type, "lock") == 0) {
+	print_lock_status();
+    } else if (strcmp(type, "mem") == 0) {
+	print_mem_status();
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'status' type '%s'\n", type);
+	return -1;
+    }
+    return 0;
+}
+
 static int do_loadrt_cmd(char *mod_name, char *args[])
 {
+    /* note: these are static so that the various searches can
+       be skipped for subsequent commands */
     static char *insmod_path = NULL;
     static char *rtmod_dir = NULL;
+    static char path_buf[MAX_CMD_LEN+1];
     struct stat stat_buf;
-    static char path_buf[MAX_CMD_LEN];
-    char mod_path[MAX_CMD_LEN];
-    char *cp1, *cp2;
+    char mod_path[MAX_CMD_LEN+1];
+    char *cp1, *cp2, *cp3;
     char *argv[MAX_TOK+1];
     int n, m, retval, status;
     pid_t pid;
@@ -805,8 +1167,15 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     if ( getuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: Must be root to load realtime modules\n");
-	return -2;
+	return HAL_PERM;
     }
+    
+    if (hal_get_lock()&HAL_LOCK_LOAD) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: HAL is locked, loading of modules is not permitted\n");
+	return HAL_PERM;
+    }
+    
     /* check for insmod */
     if ( insmod_path == NULL ) {
 	/* need to find insmod */
@@ -821,9 +1190,9 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     }
     /* check environment for path to realtime HAL modules */
     if ( rtmod_dir == NULL ) {
-	rtmod_dir = getenv ( "HAL_RTMOD_DIR" );
+	rtmod_dir = getenv("HAL_RTMOD_DIR");
     }
-    /* FIXME - the following is an attempt to locate the directory
+    /*! \todo FIXME - the following is an attempt to locate the directory
        where the HAL modules are stored.  It depends on the emc2
        directory tree being laid out per 'emc2/directory.map'.
        There is probably a better way of doing this... it will
@@ -835,52 +1204,21 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	n = readlink("/proc/self/exe", path_buf, MAX_CMD_LEN-10);
 	if ( n > 0 ) {
 	    path_buf[n] = '\0';
-	    /* have path to executabie, find last instance of 'emc2' */
-	    cp2 = "";
+	    /* have path to executabie, find last two '/' */
+	    cp3 = cp2 = "";
 	    cp1 = path_buf;
-	    while ( (cp1 = strstr ( cp1, "/emc2" )) != NULL ) {
-		cp2 = cp1++;
+	    while ( *cp1 != '\0' ) {
+		if ( *cp1 == '/' ) {
+		    cp3 = cp2;
+		    cp2 = cp1;
+		}
+		cp1++;
 	    }
-	    /* is the current dir a subdir of emc2? */
-	    if ( cp2[5] == '/' ) {
-		/* yes, chop subdirectories */
-		cp2[5] = '\0';
-	    }
-	    /* is it something like '/emc22'? */
-	    if ( strcmp ( cp2, "/emc2" ) == 0 ) {
-		/* nope, maybe we found the right place... */
-		strcat ( path_buf, "/rtlib" );
-		rtmod_dir = path_buf;
-	    }
-	}
-    }
-    /* FIXME - the following code works if you are anywhere in
-       the standard emc2 directory tree, but it is a kludge
-       that depends on the structure of the tree, and fails
-       completely if you run it from elsewhere */
-    /* update - the above code using /proc/self/exe was added
-       later, and works from anywhere, as long as the halcmd
-       executable is in the emc2 tree.  So the following would
-       only be used on machines without a /proc filesystem */
-    if ( rtmod_dir == NULL ) {
-	/*still can't find directory, try to locate it based
-	   on the current working dir */
-        if ( getcwd(path_buf, MAX_CMD_LEN-10) != NULL ) {
-	    /* got current path, find last instance of 'emc2' */
-	    cp2 = "";
-	    cp1 = path_buf;
-	    while ( (cp1 = strstr ( cp1, "/emc2" )) != NULL ) {
-		cp2 = cp1++;
-	    }
-	    /* is the current dir a subdir of emc2? */
-	    if ( cp2[5] == '/' ) {
-		/* yes, chop subdirectories */
-		cp2[5] = '\0';
-	    }
-	    /* is it something like '/emc22'? */
-	    if ( strcmp ( cp2, "/emc2" ) == 0 ) {
-		/* nope, maybe we found the right place... */
-		strcat ( path_buf, "/rtlib" );
+	    if ( *cp3 == '/' ) {
+		/* chop "/bin/halcmd" from end of path */
+		*cp3 = '\0';
+		/* and append "/rtlib" */
+		strncat(path_buf, "/rtlib", MAX_CMD_LEN-strlen(path_buf));
 		rtmod_dir = path_buf;
 	    }
 	}
@@ -921,7 +1259,13 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: fork() failed\n");
+	    "HAL: ERROR: loadrt fork() failed\n");
+	/* reconnect to the HAL shmem area */
+	comp_id = hal_init(comp_name);
+	if (comp_id < 0) {
+	    fprintf(stderr, "halcmd: hal_init() failed after fork\n" );
+	    exit(-1);
+	}
 	return -1;
     }
     if ( pid == 0 ) {
@@ -953,9 +1297,9 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* this is the parent process, wait for child to end */
     retval = waitpid ( pid, &status, 0 );
     /* reconnect to the HAL shmem area */
-    comp_id = hal_init("halcmd");
+    comp_id = hal_init(comp_name);
     if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed\n" );
+	fprintf(stderr, "halcmd: hal_init() failed after loadrt\n" );
 	exit(-1);
     }
     /* check result of waitpid() */
@@ -1042,7 +1386,6 @@ static int do_delsig_cmd(char *mod_name)
     }
     return retval1;
 }
-
 
 static int do_unloadrt_cmd(char *mod_name)
 {
@@ -1133,7 +1476,13 @@ static int unloadrt_comp(char *mod_name)
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: fork() failed\n");
+	    "HAL: ERROR: unloadrt fork() failed\n");
+	/* reconnect to the HAL shmem area */
+	comp_id = hal_init(comp_name);
+	if (comp_id < 0) {
+	    fprintf(stderr, "halcmd: hal_init() failed after fork\n" );
+	    exit(-1);
+	}
 	return -1;
     }
     if ( pid == 0 ) {
@@ -1154,9 +1503,9 @@ static int unloadrt_comp(char *mod_name)
     /* this is the parent process, wait for child to end */
     retval = waitpid ( pid, &status, 0 );
     /* reconnect to the HAL shmem area */
-    comp_id = hal_init("halcmd");
+    comp_id = hal_init(comp_name);
     if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed\n" );
+	fprintf(stderr, "halcmd: hal_init() failed after unloadrt\n" );
 	exit(-1);
     }
     /* check result of waitpid() */
@@ -1182,28 +1531,243 @@ static int unloadrt_comp(char *mod_name)
     return 0;
 }
 
-static void print_comp_list(void)
+
+static int do_loadusr_cmd(char *args[])
 {
-    int next;
+    int wait_flag, ignore_flag, root_flag;
+    char *prog_name;
+    char prog_path[MAX_CMD_LEN+1];
+    char *cp1, *cp2, *envpath;
+    struct stat stat_buf;
+    char *argv[MAX_TOK+1];
+    int n, m, retval, status;
+    pid_t pid;
+
+    if (hal_get_lock()&HAL_LOCK_LOAD) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: HAL is locked, loading of programs is not permitted\n");
+	return HAL_PERM;
+    }
+    /* check for options (-w, -i, and/or -r) */
+    wait_flag = 0;
+    ignore_flag = 0;
+    root_flag = 0;
+    prog_name = NULL;
+    while ( **args == '-' ) {
+	/* this argument contains option(s) */
+	cp1 = *args;
+	cp1++;
+	while ( *cp1 != '\0' ) {
+	    if ( *cp1 == 'w' ) {
+		wait_flag = 1;
+	    } else if ( *cp1 == 'i' ) {
+		ignore_flag = 1;
+	    } else if ( *cp1 == 'r' ) {
+		root_flag = 1;
+	    } else {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: ERROR: unknown loadusr option '-%c'\n", *cp1);
+		return HAL_INVAL;
+	    }
+	    cp1++;
+	}
+	/* move to next arg */
+	args++;
+    }
+    /* get program name */
+    prog_name = *args++;
+    /* need to find path to a program matching "prog_name" */
+    prog_path[0] = '\0';
+    if ( prog_path[0] == '\0' ) {
+	/* try the name by itself */
+	strncpy (prog_path, prog_name, MAX_CMD_LEN);
+	rtapi_print_msg(RTAPI_MSG_DBG, "Trying '%s'\n", prog_path);
+	if ( stat(prog_path, &stat_buf) != 0 ) {
+	    /* no luck, clear prog_path to indicate failure */
+	    prog_path[0] = '\0';
+	}
+    }
+    if ( prog_path[0] == '\0' ) {
+	/* no luck yet, try the emc2/bin directory where
+	   the halcmd executable is located */
+	n = readlink("/proc/self/exe", prog_path, MAX_CMD_LEN-10);
+	if ( n > 0 ) {
+	    prog_path[n] = '\0';
+	    /* have path to executabie, find last '/' */
+	    cp2 = "";
+	    cp1 = prog_path;
+	    while ( *cp1 != '\0' ) {
+		if ( *cp1 == '/' ) {
+		    cp2 = cp1;
+		}
+		cp1++;
+	    }
+	    if ( *cp2 == '/' ) {
+		/* chop "halcmd" from end of path */
+		*(++cp2) = '\0';
+		/* append the program name */
+		strncat(prog_path, prog_name, MAX_CMD_LEN-strlen(prog_path));
+		/* and try it */
+		rtapi_print_msg(RTAPI_MSG_DBG, "Trying '%s'\n", prog_path);
+		if ( stat(prog_path, &stat_buf) != 0 ) {
+		    /* no luck, clear prog_path to indicate failure */
+		    prog_path[0] = '\0';
+		}
+	    }
+	}
+    }
+   if ( prog_path[0] == '\0' ) {
+	/* no luck yet, try the user's PATH */
+	envpath = getenv("PATH");
+	if ( envpath != NULL ) {
+	    while ( *envpath != '\0' ) {
+		/* copy a single directory from the PATH env variable */
+		n = 0;
+		while ( (*envpath != ':') && (*envpath != '\0') && (n < MAX_CMD_LEN)) {
+		    prog_path[n++] = *envpath++;
+		}
+		/* append '/' and program name */
+		if ( n < MAX_CMD_LEN ) {
+		    prog_path[n++] = '/';
+		}
+		cp1 = prog_name;
+		while ((*cp1 != '\0') && ( n < MAX_CMD_LEN)) {
+		    prog_path[n++] = *cp1++;
+		}
+		prog_path[n] = '\0';
+		rtapi_print_msg(RTAPI_MSG_DBG, "Trying '%s'\n", prog_path);
+		if ( stat(prog_path, &stat_buf) != 0 ) {
+		    /* no luck, clear prog_path to indicate failure */
+		    prog_path[0] = '\0';
+		    /* and get ready to try the next directory */
+		    if ( *envpath == ':' ) {
+		        envpath++;
+		    }
+		} else {
+		    /* success, break out of loop */
+		    break;
+		}
+	    } 
+	}
+    }
+    if ( prog_path[0] == '\0' ) {
+	/* still can't find a program to run */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: Can't find program '%s'\n", prog_name);
+	return -1;
+    }
+    if ( root_flag ) {
+	/* are we running as root? */
+	if ( getuid() != 0 ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: Must be root to run %s\n", prog_name);
+	    return HAL_PERM;
+	}
+    }    
+    /* now we need to fork, and then exec the program.... */
+    /* disconnect from the HAL shmem area before forking */
+    hal_exit(comp_id);
+    comp_id = 0;
+    /* now the fork() */
+    pid = fork();
+    if ( pid < 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: loadusr fork() failed\n");
+	/* reconnect to the HAL shmem area */
+	comp_id = hal_init(comp_name);
+	if (comp_id < 0) {
+	    fprintf(stderr, "halcmd: hal_init() failed after fork\n" );
+	    exit(-1);
+	}
+	return -1;
+    }
+    if ( pid == 0 ) {
+	/* this is the child process - prepare to exec() the program */
+	argv[0] = prog_path;
+	/* loop thru remaining arguments */
+	n = 0;
+	m = 1;
+	while ( args[n][0] != '\0' ) {
+	    argv[m++] = args[n++];
+	}
+	/* add a NULL to terminate the argv array */
+	argv[m] = NULL;
+	/* print debugging info if "very verbose" (-V) */
+	rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[0] );
+	n = 1;
+	while ( argv[n] != NULL ) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n++] );
+	}
+	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
+	/* call execv() to invoke the program */
+	execv(prog_path, argv);
+	/* should never get here */
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: execv(%s) failed\n", prog_path );
+	exit(1);
+    }
+    /* this is the parent process, reconnect to the HAL shmem area */
+    comp_id = hal_init(comp_name);
+    if (comp_id < 0) {
+	fprintf(stderr, "halcmd: hal_init() failed after loadusr\n" );
+	exit(-1);
+    }
+    if ( wait_flag ) {
+	/* wait for child process to complete */
+	retval = waitpid ( pid, &status, 0 );
+	/* check result of waitpid() */
+	if ( retval < 0 ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: waitpid(%d) failed\n", pid );
+	    return -1;
+	}
+	if ( WIFEXITED(status) == 0 ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: program '%s' did not exit normally\n", prog_name );
+	    return -1;
+	}
+	if ( ignore_flag == 0 ) {
+	    retval = WEXITSTATUS(status);
+	    if ( retval != 0 ) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: ERROR: program '%s' failed, returned %d\n", prog_name, retval );
+		return -1;
+	    }
+	}
+	/* print success message */
+	rtapi_print_msg(RTAPI_MSG_INFO, "Program '%s' finished\n", prog_name);
+    } else {
+	/* print success message */
+	rtapi_print_msg(RTAPI_MSG_INFO, "Program '%s' started\n", prog_name);
+    }
+    return 0;
+}
+
+static void print_comp_info(char *pattern)
+{
+    int next, len;
     hal_comp_t *comp;
 
     rtapi_print("Loaded HAL Components:\n");
     rtapi_print("ID  Type  Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	rtapi_print("%02d  %s  %s\n",
-	    comp->comp_id, (comp->type ? "RT  " : "User"), comp->name);
+	if ( strncmp(pattern, comp->name, len) == 0 ) {
+	    rtapi_print("%02d  %s  %s\n",
+		comp->comp_id, (comp->type ? "RT  " : "User"), comp->name);
+	}
 	next = comp->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
 }
 
-static void print_pin_list(void)
+static void print_pin_info(char *pattern)
 {
-    int next;
+    int next, len;
     hal_pin_t *pin;
     hal_comp_t *comp;
     hal_sig_t *sig;
@@ -1212,25 +1776,28 @@ static void print_pin_list(void)
     rtapi_print("Component Pins:\n");
     rtapi_print("Owner  Type  Dir    Value      Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next = hal_data->pin_list_ptr;
     while (next != 0) {
 	pin = SHMPTR(next);
-	comp = SHMPTR(pin->owner_ptr);
-	if (pin->signal != 0) {
-	    sig = SHMPTR(pin->signal);
-	    dptr = SHMPTR(sig->data_ptr);
-	} else {
-	    sig = 0;
-	    dptr = &(pin->dummysig);
-	}
-	rtapi_print(" %02d    %s %s  %s  %s",
-	    comp->comp_id, data_type((int) pin->type),
-	    data_dir((int) pin->dir),
-	    data_value((int) pin->type, dptr), pin->name);
-	if (sig == 0) {
-	    rtapi_print("\n");
-	} else {
-	    rtapi_print(" %s %s\n", data_arrow1((int) pin->dir), sig->name);
+	if ( strncmp(pattern, pin->name, len) == 0 ) {
+	    comp = SHMPTR(pin->owner_ptr);
+	    if (pin->signal != 0) {
+		sig = SHMPTR(pin->signal);
+		dptr = SHMPTR(sig->data_ptr);
+	    } else {
+		sig = 0;
+		dptr = &(pin->dummysig);
+	    }
+	    rtapi_print(" %02d    %s %s  %s  %s",
+		comp->comp_id, data_type((int) pin->type),
+		data_dir((int) pin->dir),
+		data_value((int) pin->type, dptr), pin->name);
+	    if (sig == 0) {
+		rtapi_print("\n");
+	    } else {
+		rtapi_print(" %s %s\n", data_arrow1((int) pin->dir), sig->name);
+	    }
 	}
 	next = pin->next_ptr;
     }
@@ -1238,9 +1805,9 @@ static void print_pin_list(void)
     rtapi_print("\n");
 }
 
-static void print_sig_list(void)
+static void print_sig_info(char *pattern)
 {
-    int next;
+    int next, len;
     hal_sig_t *sig;
     void *dptr;
     hal_pin_t *pin;
@@ -1248,18 +1815,21 @@ static void print_sig_list(void)
     rtapi_print("Signals:\n");
     rtapi_print("Type      Value      Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next = hal_data->sig_list_ptr;
     while (next != 0) {
 	sig = SHMPTR(next);
-	dptr = SHMPTR(sig->data_ptr);
-	rtapi_print("%s  %s  %s\n", data_type((int) sig->type),
-	    data_value((int) sig->type, dptr), sig->name);
-	/* look for pin(s) linked to this signal */
-	pin = halpr_find_pin_by_sig(sig, 0);
-	while (pin != 0) {
-	    rtapi_print("                         %s %s\n",
-		data_arrow2((int) pin->dir), pin->name);
-	    pin = halpr_find_pin_by_sig(sig, pin);
+	if ( strncmp(pattern, sig->name, len) == 0 ) {
+	    dptr = SHMPTR(sig->data_ptr);
+	    rtapi_print("%s  %s  %s\n", data_type((int) sig->type),
+		data_value((int) sig->type, dptr), sig->name);
+	    /* look for pin(s) linked to this signal */
+	    pin = halpr_find_pin_by_sig(sig, 0);
+	    while (pin != 0) {
+		rtapi_print("                         %s %s\n",
+		    data_arrow2((int) pin->dir), pin->name);
+		pin = halpr_find_pin_by_sig(sig, pin);
+	    }
 	}
 	next = sig->next_ptr;
     }
@@ -1267,57 +1837,63 @@ static void print_sig_list(void)
     rtapi_print("\n");
 }
 
-static void print_param_list(void)
+static void print_param_info(char *pattern)
 {
-    int next;
+    int next, len;
     hal_param_t *param;
     hal_comp_t *comp;
 
     rtapi_print("Parameters:\n");
     rtapi_print("Owner  Type  Dir    Value      Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
-	comp = SHMPTR(param->owner_ptr);
-	rtapi_print(" %02d    %s  %s  %s  %s\n",
-	    comp->comp_id, data_type((int) param->type),
-	    data_dir((int) param->dir),
-	    data_value((int) param->type, SHMPTR(param->data_ptr)),
-	    param->name);
+	if ( strncmp(pattern, param->name, len) == 0 ) {
+	    comp = SHMPTR(param->owner_ptr);
+	    rtapi_print(" %02d    %s  %s  %s  %s\n",
+		comp->comp_id, data_type((int) param->type),
+		data_dir((int) param->dir),
+		data_value((int) param->type, SHMPTR(param->data_ptr)),
+		param->name);
+	}
 	next = param->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
 }
 
-static void print_funct_list(void)
+static void print_funct_info(char *pattern)
 {
-    int next;
+    int next, len;
     hal_funct_t *fptr;
     hal_comp_t *comp;
 
     rtapi_print("Exported Functions:\n");
     rtapi_print("Owner CodeAddr   Arg    FP  Users  Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next = hal_data->funct_list_ptr;
     while (next != 0) {
 	fptr = SHMPTR(next);
-	comp = SHMPTR(fptr->owner_ptr);
-	rtapi_print(" %02d   %08X %08X %s  %3d   %s\n",
-	    comp->comp_id,
-	    fptr->funct,
-	    fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
-	    fptr->users, fptr->name);
+	if ( strncmp(pattern, fptr->name, len) == 0 ) {
+	    comp = SHMPTR(fptr->owner_ptr);
+	    rtapi_print(" %02d   %08X %08X %s  %3d   %s\n",
+		comp->comp_id,
+		fptr->funct,
+		fptr->arg, (fptr->uses_fp ? "YES" : "NO "),
+		fptr->users, fptr->name);
+	}
 	next = fptr->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
 }
 
-static void print_thread_list(void)
+static void print_thread_info(char *pattern)
 {
-    int next_thread, n;
+    int next_thread, len, n;
     hal_thread_t *tptr;
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *fentry;
@@ -1326,26 +1902,211 @@ static void print_thread_list(void)
     rtapi_print("Realtime Threads:\n");
     rtapi_print("   Period   FP   Name\n");
     rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
 	tptr = SHMPTR(next_thread);
-	rtapi_print("%11d %s  %s\n",
-	    tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name);
-	list_root = &(tptr->funct_list);
-	list_entry = list_next(list_root);
-	n = 1;
-	while (list_entry != list_root) {
-	    /* print the function info */
-	    fentry = (hal_funct_entry_t *) list_entry;
-	    funct = SHMPTR(fentry->funct_ptr);
-	    rtapi_print("                 %2d %s\n", n, funct->name);
-	    n++;
-	    list_entry = list_next(list_entry);
+	if ( strncmp(pattern, tptr->name, len) == 0 ) {
+	    rtapi_print("%11d %s  %s\n",
+		tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name);
+	    list_root = &(tptr->funct_list);
+	    list_entry = list_next(list_root);
+	    n = 1;
+	    while (list_entry != list_root) {
+		/* print the function info */
+		fentry = (hal_funct_entry_t *) list_entry;
+		funct = SHMPTR(fentry->funct_ptr);
+		rtapi_print("                 %2d %s\n", n, funct->name);
+		n++;
+		list_entry = list_next(list_entry);
+	    }
 	}
 	next_thread = tptr->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print("\n");
+}
+
+static void print_comp_names(char *pattern)
+{
+    int next, len;
+    hal_comp_t *comp;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next = hal_data->comp_list_ptr;
+    while (next != 0) {
+	comp = SHMPTR(next);
+	if ( strncmp(pattern, comp->name, len) == 0 ) {
+	    rtapi_print("%s ", comp->name);
+	}
+	next = comp->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_pin_names(char *pattern)
+{
+    int next, len;
+    hal_pin_t *pin;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next = hal_data->pin_list_ptr;
+    while (next != 0) {
+	pin = SHMPTR(next);
+	if ( strncmp(pattern, pin->name, len) == 0 ) {
+	    rtapi_print("%s ", pin->name);
+	}
+	next = pin->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_sig_names(char *pattern)
+{
+    int next, len;
+    hal_sig_t *sig;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next = hal_data->sig_list_ptr;
+    while (next != 0) {
+	sig = SHMPTR(next);
+	if ( strncmp(pattern, sig->name, len) == 0 ) {
+	    rtapi_print("%s ", sig->name);
+	}
+	next = sig->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_param_names(char *pattern)
+{
+    int next, len;
+    hal_param_t *param;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next = hal_data->param_list_ptr;
+    while (next != 0) {
+	param = SHMPTR(next);
+	if ( strncmp(pattern, param->name, len) == 0 ) {
+	    rtapi_print("%s ", param->name);
+	}
+	next = param->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_funct_names(char *pattern)
+{
+    int next, len;
+    hal_funct_t *fptr;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next = hal_data->funct_list_ptr;
+    while (next != 0) {
+	fptr = SHMPTR(next);
+	if ( strncmp(pattern, fptr->name, len) == 0 ) {
+	    rtapi_print("%s ", fptr->name);
+	}
+	next = fptr->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_thread_names(char *pattern)
+{
+    int next_thread, len;
+    hal_thread_t *tptr;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    len = strlen(pattern);
+    next_thread = hal_data->thread_list_ptr;
+    while (next_thread != 0) {
+	tptr = SHMPTR(next_thread);
+	if ( strncmp(pattern, tptr->name, len) == 0 ) {
+	    rtapi_print("%s ", tptr->name);
+	}
+	next_thread = tptr->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print("\n");
+}
+
+static void print_lock_status()
+{
+    int lock;
+
+    lock = hal_get_lock();
+
+    rtapi_print("HAL locking status:\n");
+    rtapi_print("  current lock value %d (%02x)\n", lock, lock);
+    
+    if (lock == HAL_LOCK_NONE) 
+	rtapi_print("  HAL_LOCK_NONE - nothing is locked\n");
+    if (lock & HAL_LOCK_LOAD) 
+	rtapi_print("  HAL_LOCK_LOAD    - loading of new components is locked\n");
+    if (lock & HAL_LOCK_CONFIG) 
+	rtapi_print("  HAL_LOCK_CONFIG  - link and addf is locked\n");
+    if (lock & HAL_LOCK_PARAMS) 
+	rtapi_print("  HAL_LOCK_PARAMS  - setting params is locked\n");
+    if (lock & HAL_LOCK_RUN) 
+	rtapi_print("  HAL_LOCK_RUN     - running/stopping HAL is locked\n");
+}
+
+static int count_list(int list_root)
+{
+    int n, next;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = list_root;
+    n = 0;
+    while (next != 0) {
+	n++;
+	next = *((int *) SHMPTR(next));
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return n;
+}
+
+static void print_mem_status()
+{
+    int active, recycled;
+
+    rtapi_print("HAL memory status\n");
+    rtapi_print("  used/total shared memory:   %d/%d\n", HAL_SIZE - hal_data->shmem_avail, HAL_SIZE);
+    // count components
+    active = count_list(hal_data->comp_list_ptr);
+    recycled = count_list(hal_data->comp_free_ptr);
+    rtapi_print("  active/recycled components: %d/%d\n", active, recycled);
+    // count pins
+    active = count_list(hal_data->pin_list_ptr);
+    recycled = count_list(hal_data->pin_free_ptr);
+    rtapi_print("  active/recycled pins:       %d/%d\n", active, recycled);
+    // count parameters
+    active = count_list(hal_data->param_list_ptr);
+    recycled = count_list(hal_data->param_free_ptr);
+    rtapi_print("  active/recycled parameters: %d/%d\n", active, recycled);
+    // count signals
+    active = count_list(hal_data->sig_list_ptr);
+    recycled = count_list(hal_data->sig_free_ptr);
+    rtapi_print("  active/recycled signals:    %d/%d\n", active, recycled);
+    // count functions
+    active = count_list(hal_data->funct_list_ptr);
+    recycled = count_list(hal_data->funct_free_ptr);
+    rtapi_print("  active/recycled functions:  %d/%d\n", active, recycled);
+    // count threads
+    active = count_list(hal_data->thread_list_ptr);
+    recycled = count_list(hal_data->thread_free_ptr);
+    rtapi_print("  active/recycled threads:    %d/%d\n", active, recycled);
 }
 
 /* Switch function for pin/sig/param type for the print_*_list functions */
@@ -1452,6 +2213,7 @@ static char *data_arrow2(int dir)
 }
 
 /* Switch function to return var value for the print_*_list functions  */
+/* the value is printed in a fixed width field */
 static char *data_value(int type, void *valptr)
 {
     char *value_str;
@@ -1497,6 +2259,55 @@ static char *data_value(int type, void *valptr)
     default:
 	/* Shouldn't get here, but just in case... */
 	value_str = "   undef    ";
+    }
+    return value_str;
+}
+
+/* Switch function to return var value in string form  */
+/* the value is printed as a packed string (no whitespace */
+static char *data_value2(int type, void *valptr)
+{
+    char *value_str;
+    static char buf[15];
+
+    switch (type) {
+    case HAL_BIT:
+	if (*((char *) valptr) == 0)
+	    value_str = "FALSE";
+	else
+	    value_str = "TRUE";
+	break;
+    case HAL_FLOAT:
+	snprintf(buf, 14, "%e", *((float *) valptr));
+	value_str = buf;
+	break;
+    case HAL_S8:
+	snprintf(buf, 14, "%d", *((signed char *) valptr));
+	value_str = buf;
+	break;
+    case HAL_U8:
+	snprintf(buf, 14, "%u", *((unsigned char *) valptr));
+	value_str = buf;
+	break;
+    case HAL_S16:
+	snprintf(buf, 14, "%d", *((signed short *) valptr));
+	value_str = buf;
+	break;
+    case HAL_U16:
+	snprintf(buf, 14, "%u", *((unsigned short *) valptr));
+	value_str = buf;
+	break;
+    case HAL_S32:
+	snprintf(buf, 14, "%ld", *((signed long *) valptr));
+	value_str = buf;
+	break;
+    case HAL_U32:
+	snprintf(buf, 14, "%ld", *((unsigned long *) valptr));
+	value_str = buf;
+	break;
+    default:
+	/* Shouldn't get here, but just in case... */
+	value_str = "unknown_type";
     }
     return value_str;
 }
@@ -1652,89 +2463,190 @@ static void save_threads(void)
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
-static void print_help(void)
+static int do_help_cmd(char *command)
 {
 
-    printf("Hardware Abstraction Layer command line utility\n\n");
-    printf("Usage:   halcmd [options] [cmd [args]]\n\n");
+    if (strcmp(command, "help") == 0) {
+	printf("If you need help to use 'help', then I can't help you.\n");
+    } else if (strcmp(command, "loadrt") == 0) {
+	printf("loadrt modname [modarg(s)]\n");
+	printf("  Loads realtime HAL module 'modname', passing 'modargs'\n");
+	printf("  to the module.  Must be root to run this command.\n");
+    } else if (strcmp(command, "unloadrt") == 0) {
+	printf("unloadrt modname\n");
+	printf("  Unloads realtime HAL module 'modname'.  If 'modname'\n");
+	printf("  is 'all', unloads all realtime modules.  Must be root\n" );
+	printf("  to run this command.\n");
+    } else if (strcmp(command, "loadusr") == 0) {
+	printf("loadusr [options] progname [progarg(s)]\n");
+	printf("  Starts user space program 'progname', passing\n");
+	printf("  'progargs' to it.  Options are:\n");
+	printf("  -r  run program as root\n");
+	printf("  -w  wait for program to finish\n");
+	printf("  -i  ignore program return value (use with -w)\n");
+    } else if ((strcmp(command, "linksp") == 0) || (strcmp(command,"linkps") == 0)) {
+	printf("linkps pinname [arrow] signame\n");
+	printf("linksp signame [arrow] pinname\n");
+	printf("  Links pin 'pinname' to signal 'signame'.  Both forms do\n");
+	printf("  the same thing.  Use whichever makes sense.  The optional\n");
+	printf("  'arrow' can be '=>', '<=', or '<=>' and is ignored.  It\n");
+	printf("  can be used in files to show the direction of data flow,\n");
+	printf("  but don't use arrows on the command line.\n");
+    } else if (strcmp(command, "unlinkp") == 0) {
+	printf("unlinkp pinname\n");
+	printf("  Unlinks pin 'pinname' if it is linked to any signal.\n");
+    } else if (strcmp(command, "lock") == 0) {
+	printf("lock [all|tune|none]\n");
+	printf("  Locks HAL to some degree.\n");
+	printf("  none - no locking done.\n");
+	printf("  tune - some tuning is possible (setp & such).\n");
+	printf("  all  - HAL completely locked.\n");
+    } else if (strcmp(command, "unlock") == 0) {
+	printf("unlock [all|tune]\n");
+	printf("  Unlocks HAL to some degree.\n");
+	printf("  tune - some tuning is possible (setp & such).\n");
+	printf("  all  - HAL completely unlocked.\n");
+    } else if (strcmp(command, "newsig") == 0) {
+	printf("newsig signame type\n");
+	printf("  Creates a new signal called 'signame'.  Type is 'bit',\n");
+	printf("  'float', 'u8', 's8', 'u16', 's16', 'u32', or 's32'.\n");
+    } else if (strcmp(command, "delsig") == 0) {
+	printf("delsig signame\n");
+	printf("  Deletes signal 'signame'.  If 'signame is 'all',\n");
+	printf("  deletes all signals\n");
+    } else if (strcmp(command, "setp") == 0) {
+	printf("setp paramname value\n");
+	printf("paramname = value\n");
+	printf("  Sets parameter 'paramname' to 'value' (if writable).\n");
+	printf("  'setp' and '=' work the same, don't use '=' on the\n");
+	printf("  command line.  'value' may be a constant such as 1.234\n");
+	printf("  or TRUE, or a reference to an environment variable,\n");
+#ifdef NO_INI
+	printf("  using the syntax '$name'./n");
+#else
+	printf("  using the syntax '$name'.  If option -i was given,\n");
+	printf("  'value' may also be a reference to an ini file entry\n");
+	printf("  using the syntax '[section]name'.\n");
+#endif
+    } else if (strcmp(command, "sets") == 0) {
+	printf("sets signame value\n");
+	printf("  Sets signal 'signame' to 'value' (if sig has no writers).\n");
+    } else if (strcmp(command, "getp") == 0) {
+	printf("getp paramname\n");
+	printf("  Gets the value of parameter 'paramname'.\n");
+    } else if (strcmp(command, "gets") == 0) {
+	printf("gets signame\n");
+	printf("  Gets the value of signal 'signame'.\n");
+    } else if (strcmp(command, "addf") == 0) {
+	printf("addf functname threadname [position]\n");
+	printf("  Adds function 'functname' to thread 'threadname'.  If\n");
+	printf("  'position' is specified, adds the function to that spot\n");
+	printf("  in the thread, otherwise adds it to the end.  Negative\n");
+	printf("  'position' means position with respect to the end of the\n");
+	printf("  thread.  For example '1' is start of thread, '-1' is the\n");
+	printf("  end of the thread, '-3' is third from the end.\n");
+    } else if (strcmp(command, "delf") == 0) {
+	printf("delf functname threadname\n");
+	printf("  Removes function 'functname' from thread 'threadname'.\n");
+    } else if (strcmp(command, "show") == 0) {
+	printf("show [type] [pattern]\n");
+	printf("  Prints info about HAL items of the specified type.\n");
+	printf("  'type' is 'comp', 'pin', 'sig', 'param', 'funct',\n");
+	printf("  'thread', or 'all'.  If 'type' is omitted, it assumes\n");
+	printf("  'all' with no pattern.  If 'pattern' is specified\n");
+	printf("  it prints only those items whose names match the\n");
+	printf("  pattern (no fancy regular expressions, just a simple\n");
+	printf("  match: 'foo' matches 'foo', 'foobar' and 'foot' but\n");
+	printf("  not 'fo' or 'frobz' or 'ffoo').\n");
+    } else if (strcmp(command, "list") == 0) {
+	printf("list type [pattern]\n");
+	printf("  Prints the names of HAL items of the specified type.\n");
+	printf("  'type' is 'comp', 'pin', 'sig', 'param', 'funct', or\n");
+	printf("  'thread'.  If 'pattern' is specified it prints only\n");
+	printf("  those names that match the pattern (no fancy regular\n");
+	printf("  expressions, just a simple match: 'foo' matches 'foo',\n");
+	printf("  'foobar' and 'foot' but not 'fo' or 'frobz' or 'ffoo').\n");
+	printf("  Names are printed on a single line, space separated.\n");
+    } else if (strcmp(command, "status") == 0) {
+	printf("status [type]\n");
+	printf("  Prints status info about HAL.\n");
+	printf("  'type' is 'lock', 'mem', or 'all'. \n");
+	printf("  If 'type' is omitted, it assumes\n");
+	printf("  'all'.\n");
+    } else if (strcmp(command, "save") == 0) {
+	printf("save [type]\n");
+	printf("  Prints HAL items as commands that can be redirected to\n");
+	printf("  a file and later restored using \"halcmd -f filename\".\n");
+	printf("  Type can be 'sig', 'link[a]', 'net[a]', 'param', or\n");
+	printf("  'thread'.  ('linka' and 'neta' show arrows for pin\n");
+	printf("  direction.)  If 'type' is omitted, does the equivalent\n");
+	printf("  of 'sig', 'link', 'param', and 'thread'.\n");
+    } else if (strcmp(command, "start") == 0) {
+	printf("start\n");
+	printf("  Starts all realtime threads.\n");
+    } else if (strcmp(command, "stop") == 0) {
+	printf("stop\n");
+	printf("  Stops all realtime threads.\n");
+    } else if (strcmp(command, "quit") == 0) {
+	printf("quit\n");
+	printf("  Stop processing input and terminate halcmd (when\n");
+	printf("  reading from a file or stdin).\n");
+    } else {
+	printf("No help for unknown command '%s'\n", command);
+    }
+    return 0;
+}
+
+static void print_help_general(void)
+{
+    printf("\nUsage:   halcmd [options] [cmd [args]]\n\n");
     printf("options:\n\n");
-    printf
-	("  -f [filename]    Read command(s) from 'filename' instead of command\n");
-    printf
-	("                   line.  If no file is specified, read from stdin.\n\n");
-    printf("  -k               Keep going after failed command.  By default,\n");
-    printf("                   halcmd will exit if any command fails.\n\n");
-    printf("  -q               Quiet - Display errors only (default).\n\n");
-    printf("  -Q               Very quiet - Display nothing.\n\n");
-    printf
-	("  -v               Verbose - Display results of every command.\n\n");
-    printf("  -V               Very verbose - Display lots of junk.\n\n");
-    printf("  -h               Help - Print this help screen and exit.\n\n");
-    printf("If reading commands from a file or stdin, they are one per\n");
-    printf("line, and use the same syntax as the command line version.\n\n");
-    printf("Commands and their args are as follows:\n\n");
-    printf("  loadrt modname [modarg[s]]\n");
-    printf
-	("         Loads realtime HAL module 'modname', using arguments 'modargs'\n\n" );
-    printf("  unloadrt modname\n");
-    printf
-	("         Unloads realtime HAL module 'modname'.\n");
-    printf
- 	("         If 'modname' is 'all', unloads all realtime modules\n\n" );
-    printf("  linkps pinname [arrow] signame\n");
-    printf("  linksp signame [arrow] pinname\n");
-    printf
-	("         Links pin 'pinname' to signal 'signame'.  Both forms do the same\n");
-    printf
-	("         thing.  Use whichever makes sense.  Likewise, 'arrow' can be '=>',\n");
-    printf
-	("         '<=', or '<=>' and is ignored (use in command files to document\n");
-    printf
-	("         the direction of data flow to/from pin - don't use on cmd line).\n\n");
-    printf("  unlinkp pinname\n");
-    printf("         Unlinks pin 'pinname'\n\n");
-    printf("  newsig signame type\n");
-    printf
-	("         Creates a new signal called 'signame'.  Type is 'bit', 'float',\n");
-    printf("         'u8', 's8', 'u16', 's16', 'u32', or 's32'.\n\n");
-    printf("  delsig signame\n");
-    printf("         Deletes signal 'signame'.\n");
-    printf("         If 'signame' is 'all' deletes all signals\n\n");
-    printf("  setp paramname value\n");
-    printf("  paramname = value\n");
-    printf
-	("         Sets parameter 'paramname' to 'value' (only if writable).\n");
-    printf
-	("         (Both forms are equivalent, don't use '=' on command line.)\n\n");
-    printf("  sets signame value\n");
-    printf
-	("         Sets signal 'signame' to 'value' (only if sig has no writers).\n\n");
-    printf("  addf functname threadname [position]\n");
-    printf
-	("         Adds function 'functname' to thread 'threadname'.  If 'position'\n");
-    printf("         is specified, add function to that spot in thread.\n\n");
-    printf("  delf functname threadname\n");
-    printf
-	("         Removes function 'functname' from thread 'threadname'.\n\n");
-    printf("  show [type]\n");
-    printf
-	("         Prints HAL items of the specified type in human readable form\n");
-    printf
-	("         'type' is 'comp', 'pin', 'sig', 'param', 'funct', or 'thread'.\n");
-    printf("         If 'type' is omitted, prints everything.\n\n");
-    printf("  save [type]\n");
-    printf
-	("         Prints HAL items in a format that can be redirected to a file,\n");
-    printf
-	("         and later restored using \"halcmd -f filename\".  Type can be\n");
-    printf
-	("         'sig', 'link[a]', 'net[a]', 'param', or 'thread'.  ('linka' and\n");
-    printf
-	("         'neta' show arrows for pin direction.)  If 'type' is omitted,\n");
-    printf
-	("         it does the equivalend of 'sig', 'link', 'param', and 'thread'.\n\n");
-    printf("  start\n");
-    printf("         Starts all realtime threads.\n\n");
-    printf("  stop\n");
-    printf("         Stops all realtime threads.\n\n");
+    printf("  -f [filename]  Read commands from 'filename', not command\n");
+    printf("                 line.  If no filename, read from stdin.\n");
+#ifndef NO_INI
+    printf("  -i filename    Open .ini file 'filename', allow commands\n");
+    printf("                 to get their values from ini file.\n");
+#endif
+    printf("  -k             Keep going after failed command.  Default\n");
+    printf("                 is to exit if any command fails.\n");
+    printf("  -q             Quiet - print errors only (default).\n");
+    printf("  -Q             Very quiet - print nothing.\n");
+    printf("  -v             Verbose - print result of every command.\n");
+    printf("  -V             Very verbose - print lots of junk.\n");
+    printf("  -h             Help - print this help screen and exit.\n\n");
+    printf("commands:\n\n");
+    printf("  loadrt, unloadrt, loadusr, lock, unlock, linkps, linksp, unlinkp,\n");
+    printf("  newsig, delsig, setp, getp, sets, gets, addf, delf, show, list,\n");
+    printf("  save, status, start, stop, quit\n");
+    printf("  help           Lists all commands with short descriptions\n");
+    printf("  help command   Prints detailed help for 'command'\n\n");
+}
+
+static void print_help_commands(void)
+{
+    printf("Use 'help <command>'  for more details about each command\n");
+    printf("Available commands:\n");
+    printf("  loadrt     Load realtime module\n");
+    printf("  unloadrt   Unload realtime module[s]\n");
+    printf("  loadusr    Start user space program\n");
+    printf("  lock       Lock HAL behaviour\n");
+    printf("  unlock     Unlock HAL behaviour\n");
+    printf("  linkps     Link pin to signal\n");
+    printf("  linksp     Link signal to pin\n");
+    printf("  unlinkp    Unlink pin\n");
+    printf("  newsig     Create new signal\n");
+    printf("  delsig     Delete a signal\n");
+    printf("  setp       Set value of a parameter\n");
+    printf("  sets       Set value of a signal\n");
+    printf("  getp       Get value of a parameter\n");
+    printf("  gets       Get value of a signal\n");
+    printf("  addf       Add function to thread\n");
+    printf("  delf       Remove function from thread\n");
+    printf("  show       Display info about HAL objects\n");
+    printf("  list       Display names of HAL objects\n");
+    printf("  status     Display status information\n");
+    printf("  save       Print config as commands\n");
+    printf("  start      Start realtime threads\n");
+    printf("  stop       Stop realtime threads\n");
+    printf("  quit       Stop processing commands, exit from halcmd\n");
 }

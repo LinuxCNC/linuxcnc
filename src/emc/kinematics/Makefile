@@ -1,6 +1,8 @@
 # Makefile for compiling EMC kinematics code
 
-include ../../../Makefile.inc
+include ../../Makefile.inc
+
+ifneq ($(MODULE_EXT),.ko)
 
 RT_SRCS = \
 	cubic.c \
@@ -8,13 +10,6 @@ RT_SRCS = \
 	tc.c \
 	tp.c \
 	trivkins.c
-
-HEADERS = \
-	cubic.h \
-	kinematics.h \
-	mmxavg.h \
-	tc.h \
-	tp.h
 
 OBJS =
 
@@ -25,10 +20,19 @@ RT_OBJS  = \
 	tp.o \
 	trivkins.o
 
+endif
+
+HEADERS = \
+	cubic.h \
+	kinematics.h \
+	mmxavg.h \
+	tc.h \
+	tp.h
+
 all: headers $(OBJS:%.o=$(TMP_DIR)/%.o) $(RT_OBJS:%.o=$(RTTMP_DIR)/%.o)
 
 # Generic rules.
-include ../../../Make.rules
+include ../../Make.rules
 
 headers: def_headers
 
@@ -36,6 +40,10 @@ indent: def_indent
 
 depend: def_depend
 
-clean: def_clean
+clean: def_clean kclean
 
-.PHONY: all clean install indent depend headers
+kclean:
+	- rm -f .*.cmd *.o *.mod.* *.ko
+	- rm -fR .tmp_versions 
+
+.PHONY: all clean kclean install indent depend headers

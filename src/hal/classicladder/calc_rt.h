@@ -1,0 +1,1 @@
+void RefreshAllRungs(long TimeSinceLastScan);

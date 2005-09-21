@@ -34,11 +34,9 @@
 
 // MOTION INTERFACE
 
-/* FIXME - this decl was originally much later in the file, moved
+/*! \todo FIXME - this decl was originally much later in the file, moved
 here temporarily for debugging */
 static emcmot_status_t emcmotStatus;
-
-
 
 /*
   Implementation notes:
@@ -54,24 +52,26 @@ static emcmot_status_t emcmotStatus;
 static emcmot_command_t emcmotCommand;
 
 static int emcmotTrajInited = 0;	// non-zero means traj called init
-static int emcmotAxisInited[EMCMOT_MAX_AXIS] = {0};	// non-zero means axis called init
-__attribute__ ((unused)) static int emcmotIoInited = 0;	// non-zero means io called init
+static int emcmotAxisInited[EMCMOT_MAX_AXIS] = { 0 };	// non-zero means axis called init
+
+__attribute__ ((unused))
+static int emcmotIoInited = 0;	// non-zero means io called init
 static int emcmotion_initialized = 0;	// non-zero means both
 						// emcMotionInit called.
 
 // saved value of velocity last sent out, so we don't send redundant requests
 // used by emcTrajSetVelocity(), emcMotionAbort()
-     static double lastVel = -1.0;
+static double lastVel = -1.0;
 
 // EMC_AXIS functions
 
 // local status data, not provided by emcmot
-     static unsigned long localMotionHeartbeat = 0;
-     static int localMotionCommandType = 0;
-     static int localMotionEchoSerialNumber = 0;
-     static unsigned char localEmcAxisAxisType[EMCMOT_MAX_AXIS];
-     static double localEmcAxisUnits[EMCMOT_MAX_AXIS];
-     static double localEmcMaxAcceleration = DBL_MAX;
+static unsigned long localMotionHeartbeat = 0;
+static int localMotionCommandType = 0;
+static int localMotionEchoSerialNumber = 0;
+static unsigned char localEmcAxisAxisType[EMCMOT_MAX_AXIS];
+static double localEmcAxisUnits[EMCMOT_MAX_AXIS];
+static double localEmcMaxAcceleration = DBL_MAX;
 
 // axes are numbered 0..NUM-1
 
@@ -80,7 +80,7 @@ static int emcmotion_initialized = 0;	// non-zero means both
   rate, in any order, but both need to be done. 
  */
 
-     int emcAxisSetAxis(int axis, unsigned char axisType)
+int emcAxisSetAxis(int axis, unsigned char axisType)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
@@ -102,11 +102,11 @@ int emcAxisSetUnits(int axis, double units)
     return 0;
 }
 
-
+/*! \todo Another #if 0 */
 #if 0
 int emcAxisSetGains(int axis, double p, double i, double d,
-    double ff0, double ff1, double ff2,
-    double bias, double maxError, double deadband)
+		    double ff0, double ff1, double ff2,
+		    double bias, double maxError, double deadband)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
@@ -125,7 +125,7 @@ int emcAxisSetGains(int axis, double p, double i, double d,
     emcmotCommand.pid.maxError = maxError;
     emcmotCommand.pid.deadband = deadband;
 
- #ifdef ISNAN_TRAP
+#ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.pid.p) ||
 	isnan(emcmotCommand.pid.i) ||
 	isnan(emcmotCommand.pid.d) ||
@@ -138,7 +138,7 @@ int emcAxisSetGains(int axis, double p, double i, double d,
 	printf("isnan error in emcAxisSetGains\n");
 	return -1;
     }
- #endif
+#endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -155,17 +155,17 @@ int emcAxisSetBacklash(int axis, double backlash)
 
     emcmotCommand.backlash = backlash;
 
- #ifdef ISNAN_TRAP
+#ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.backlash)) {
 	printf("isnan error in emcAxisSetBacklash\n");
 	return -1;
     }
- #endif
+#endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-
+/*! \todo Another #if 0 */
 #if 0
 int emcAxisSetCycleTime(int axis, double cycleTime)
 {
@@ -194,12 +194,12 @@ int emcAxisSetInputScale(int axis, double scale, double offset)
     emcmotCommand.scale = scale;
     emcmotCommand.offset = offset;
 
- #ifdef ISNAN_TRAP
+#ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.scale) || isnan(emcmotCommand.offset)) {
 	printf("isnan eror in emcAxisSetInputScale\n");
 	return -1;
     }
- #endif
+#endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -215,18 +215,17 @@ int emcAxisSetOutputScale(int axis, double scale, double offset)
     emcmotCommand.scale = scale;
     emcmotCommand.offset = offset;
 
- #ifdef ISNAN_TRAP
+#ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.scale) || isnan(emcmotCommand.offset)) {
 	printf("isnan eror in emcAxisSetOutputScale\n");
 	return -1;
     }
- #endif
+#endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-#endif /* #if 0 */
-
+#endif				/* #if 0 */
 
 // saved values of limits, since emcmot expects them to be set in
 // pairs and we set them individually.
@@ -277,6 +276,7 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+/*! \todo Another #if 0 */
 #if 0
 
 // saved values of limits, since emcmot expects them to be set in
@@ -296,12 +296,12 @@ int emcAxisSetMinOutputLimit(int axis, double limit)
     emcmotCommand.minLimit = limit;
     saveMinOutput[axis] = limit;
 
- #ifdef ISNAN_TRAP
+#ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.maxLimit) || isnan(emcmotCommand.minLimit)) {
 	printf("isnan error in emcAxisSetMinOutputLimit\n");
 	return -1;
     }
- #endif
+#endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -328,7 +328,6 @@ int emcAxisSetMaxOutputLimit(int axis, double limit)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 #endif
-
 
 int emcAxisSetFerror(int axis, double ferror)
 {
@@ -369,9 +368,9 @@ int emcAxisSetMinFerror(int axis, double ferror)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-
 int emcAxisSetHomingParams(int axis, double home, double offset,
-    double search_vel, double latch_vel, int use_index, int ignore_limits )
+			   double search_vel, double latch_vel,
+			   int use_index, int ignore_limits)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
@@ -384,28 +383,28 @@ int emcAxisSetHomingParams(int axis, double home, double offset,
     emcmotCommand.search_vel = search_vel;
     emcmotCommand.latch_vel = latch_vel;
     emcmotCommand.flags = 0;
-    if ( use_index ) {
+    if (use_index) {
 	emcmotCommand.flags |= HOME_USE_INDEX;
     }
-    if ( ignore_limits ) {
+    if (ignore_limits) {
 	emcmotCommand.flags |= HOME_IGNORE_LIMITS;
     }
-
- #ifdef ISNAN_TRAP
+#ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.home) ||
-        isnan(emcmotCommand.offset) ||
+	isnan(emcmotCommand.offset) ||
 	isnan(emcmotCommand.search_vel) ||
-	isnan(emcmotCommand.latch_vel) ) {
+	isnan(emcmotCommand.latch_vel)) {
 	printf("isnan error in emcAxisSetHoming\n");
 	return -1;
     }
- #endif
+#endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+/*! \todo Another #if 0 */
 #if 0
-// FIXME - to be deleted eventually, these are configured thru HAL
+/*! \todo FIXME - to be deleted eventually, these are configured thru HAL */
 int emcAxisSetStepParams(int axis, double setup_time, double hold_time)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
@@ -445,7 +444,7 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
     if (axis < 0 || axis >= EMC_AXIS_MAX) {
 	return 0;
     }
-    if ( acc < 0.0 ) {
+    if (acc < 0.0) {
 	acc = 0.0;
     }
     AXIS_MAX_ACCELERATION[axis] = acc;
@@ -462,21 +461,20 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
    be called.
 */
 
-static int AxisOrTrajInited (void)
+static int AxisOrTrajInited(void)
 {
     int axis;
 
-    for ( axis = 0 ; axis < EMCMOT_MAX_AXIS ; axis++ ) {
-	if ( emcmotAxisInited[axis] ) {
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+	if (emcmotAxisInited[axis]) {
 	    return 1;
 	}
     }
-    if ( emcmotTrajInited ) {
+    if (emcmotTrajInited) {
 	return 1;
     }
     return 0;
 }
-
 
 int emcAxisInit(int axis)
 {
@@ -504,8 +502,9 @@ int emcAxisHalt(int axis)
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
-    // FIXME-- refs global emcStatus; should make EMC_AXIS_STAT an arg here
-    if (NULL != emcStatus && emcmotion_initialized && emcmotAxisInited[axis]) {
+    /*! \todo FIXME-- refs global emcStatus; should make EMC_AXIS_STAT an arg here */
+    if (NULL != emcStatus && emcmotion_initialized
+	&& emcmotAxisInited[axis]) {
 	dumpAxis(axis, EMC_INIFILE, &emcStatus->motion.axis[axis]);
     }
     emcmotAxisInited[axis] = 0;
@@ -565,7 +564,7 @@ int emcAxisOverrideLimits(int axis)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-
+/*! \todo Another #if 0 */
 #if 0
 int emcAxisSetOutput(int axis, double output)
 {
@@ -693,21 +692,19 @@ int get_emcmot_debug_info = 0;
   these globals are set in emcMotionUpdate(), then referenced in
   emcAxisUpdate(), emcTrajUpdate() to save calls to usrmotReadEmcmotStatus
  */
-/* FIXME - next line commented out and moved to top of file for debugging */
+/*! \todo FIXME - next line commented out and moved to top of file for debugging */
 //static emcmot_status_t emcmotStatus;*/
 static emcmot_debug_t emcmotDebug;
 static char errorString[EMCMOT_ERROR_LEN];
 static int new_config = 0;
 
-
-/* FIXME - debugging - uncomment the following line to log changes in
+/*! \todo FIXME - debugging - uncomment the following line to log changes in
    AXIS_FLAG */
 // #define WATCH_FLAGS 1
 
-
 int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 {
-/* FIXME - this function accesses data that has been
+/*! \todo FIXME - this function accesses data that has been
    moved.  Once I know what it is used for I'll fix it */
 
     int axis;
@@ -728,6 +725,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 
 	stat[axis].axisType = localEmcAxisAxisType[axis];
 	stat[axis].units = localEmcAxisUnits[axis];
+/*! \todo Another #if 0 */
 #if 0
 	stat[axis].inputScale = emcmotStatus.inputScale[axis];
 	stat[axis].inputOffset = emcmotStatus.inputOffset[axis];
@@ -740,11 +738,11 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	    stat[axis].maxPositionLimit = joint->max_pos_limit;
 	    stat[axis].minFerror = joint->min_ferror;
 	    stat[axis].maxFerror = joint->max_ferror;
-// FIXME - should all homing config params be included here?
+/*! \todo FIXME - should all homing config params be included here? */
 	    stat[axis].homeOffset = joint->home_offset;
 	}
 	stat[axis].setpoint = joint->pos_cmd;
-	/* FIXME - output is the DAC output, now part of HAL */
+	/*! \todo FIXME - output is the DAC output, now part of HAL */
 	stat[axis].output = 0.0;
 	stat[axis].input = joint->pos_fb;
 
@@ -753,12 +751,9 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	    stat[axis].ferrorHighMark = joint->ferror_high_mark;
 	}
 
-	stat[axis].homing =
-	    (joint->flag & EMCMOT_AXIS_HOMING_BIT ? 1 : 0);
-	stat[axis].homed =
-	    (joint->flag & EMCMOT_AXIS_HOMED_BIT ? 1 : 0);
-	stat[axis].fault =
-	    (joint->flag & EMCMOT_AXIS_FAULT_BIT ? 1 : 0);
+	stat[axis].homing = (joint->flag & EMCMOT_AXIS_HOMING_BIT ? 1 : 0);
+	stat[axis].homed = (joint->flag & EMCMOT_AXIS_HOMED_BIT ? 1 : 0);
+	stat[axis].fault = (joint->flag & EMCMOT_AXIS_FAULT_BIT ? 1 : 0);
 	stat[axis].enabled =
 	    (joint->flag & EMCMOT_AXIS_ENABLE_BIT ? 1 : 0);
 
@@ -771,22 +766,25 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	stat[axis].maxHardLimit =
 	    (joint->flag & EMCMOT_AXIS_MAX_HARD_LIMIT_BIT ? 1 : 0);
 	stat[axis].overrideLimits = (emcmotStatus.overrideLimits);	// one
-									// for
-									// all
+	// for
+	// all
 
-#if 0 /* FIXME - per-axis Vscale temporarily? removed */
+/*! \todo Another #if 0 */
+#if 0				/*! \todo FIXME - per-axis Vscale temporarily? removed */
 	stat[axis].scale = emcmotStatus.axVscale[axis];
 #endif
 	usrmotQueryAlter(axis, &stat[axis].alter);
 #ifdef WATCH_FLAGS
-	if ( old_joint_flag[axis] != joint->flag ) {
-	    printf ( "joint %d flag: %04X -> %04X\n", axis, old_joint_flag[axis], joint->flag );
+	if (old_joint_flag[axis] != joint->flag) {
+	    printf("joint %d flag: %04X -> %04X\n", axis,
+		   old_joint_flag[axis], joint->flag);
 	    old_joint_flag[axis] = joint->flag;
 	}
 #endif
 	if (joint->flag & EMCMOT_AXIS_ERROR_BIT) {
 	    if (stat[axis].status != RCS_ERROR) {
-		rcs_print_error("Error on axis %d, command number %d\n", axis, emcmotStatus.commandNumEcho );
+		rcs_print_error("Error on axis %d, command number %d\n",
+				axis, emcmotStatus.commandNumEcho);
 		stat[axis].status = RCS_ERROR;
 	    }
 	} else if (joint->flag & EMCMOT_AXIS_INPOS_BIT) {
@@ -830,7 +828,7 @@ int emcTrajSetUnits(double linearUnits, double angularUnits)
     return 0;
 }
 
-
+/*! \todo Another #if 0 */
 #if 0
 int emcTrajSetCycleTime(double cycleTime)
 {
@@ -881,8 +879,9 @@ int emcTrajSetVelocity(double vel)
     } else if (vel > TRAJ_MAX_VELOCITY) {
 	vel = TRAJ_MAX_VELOCITY;
     }
+/*! \todo Another #if 0 */
 #if 0
-    // FIXME-- this fixes rapid rate reset problem
+    /*! \todo FIXME-- this fixes rapid rate reset problem */
     if (vel == lastVel) {
 	// suppress it
 	return 0;
@@ -952,7 +951,8 @@ int emcTrajSetHome(EmcPose home)
 
 #ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.pos.tran.x) ||
-	isnan(emcmotCommand.pos.tran.y) || isnan(emcmotCommand.pos.tran.z)) {
+	isnan(emcmotCommand.pos.tran.y)
+	|| isnan(emcmotCommand.pos.tran.z)) {
 	printf("isnan error in emcTrajSetHome\n");
 	return 0;		// ignore it for now, just don't send it
     }
@@ -1071,8 +1071,8 @@ int emcTrajSetTermCond(int cond)
     emcmotCommand.command = EMCMOT_SET_TERM_COND;
     emcmotCommand.termCond =
 	(cond ==
-	EMC_TRAJ_TERM_COND_STOP ? EMCMOT_TERM_COND_STOP :
-	EMCMOT_TERM_COND_BLEND);
+	 EMC_TRAJ_TERM_COND_STOP ? EMCMOT_TERM_COND_STOP :
+	 EMCMOT_TERM_COND_BLEND);
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -1088,7 +1088,8 @@ int emcTrajLinearMove(EmcPose end)
 
 #ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.pos.tran.x) ||
-	isnan(emcmotCommand.pos.tran.y) || isnan(emcmotCommand.pos.tran.z)) {
+	isnan(emcmotCommand.pos.tran.y)
+	|| isnan(emcmotCommand.pos.tran.z)) {
 	printf("isnan error in emcTrajLinearMove\n");
 	return 0;		// ignore it for now, just don't send it
     }
@@ -1098,7 +1099,7 @@ int emcTrajLinearMove(EmcPose end)
 }
 
 int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
-    PM_CARTESIAN normal, int turn)
+			PM_CARTESIAN normal, int turn)
 {
     emcmotCommand.command = EMCMOT_SET_CIRCLE;
 
@@ -1135,6 +1136,7 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+/*! \todo Another #if 0 */
 #if 0
 int emcTrajSetProbeIndex(int index)
 {
@@ -1151,8 +1153,7 @@ int emcTrajSetProbePolarity(int polarity)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
-#endif /* #if 0 */
-
+#endif				/* #if 0 */
 
 int emcTrajClearProbeTrippedFlag()
 {
@@ -1189,14 +1190,15 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	emcmotStatus.
 	motionFlag & EMCMOT_MOTION_TELEOP_BIT ? EMC_TRAJ_MODE_TELEOP
 	: (emcmotStatus.
-	motionFlag & EMCMOT_MOTION_COORD_BIT ? EMC_TRAJ_MODE_COORD :
-	EMC_TRAJ_MODE_FREE);
+	   motionFlag & EMCMOT_MOTION_COORD_BIT ? EMC_TRAJ_MODE_COORD :
+	   EMC_TRAJ_MODE_FREE);
 
     /* enabled if motion enabled and all axes enabled */
     stat->enabled = 0;		/* start at disabled */
     if (emcmotStatus.motionFlag & EMCMOT_MOTION_ENABLE_BIT) {
 	for (axis = 0; axis < localEmcTrajAxes; axis++) {
-#if 0 /* FIXME - the axis flag has been moved to the joint struct */
+/*! \todo Another #if 0 */
+#if 0				/*! \todo FIXME - the axis flag has been moved to the joint struct */
 	    if (!emcmotStatus.axisFlag[axis] & EMCMOT_AXIS_ENABLE_BIT) {
 		break;
 	    }
@@ -1206,7 +1208,8 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	}
     }
 
-    stat->inpos = emcmotStatus.motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0;
+    stat->inpos =
+	emcmotStatus.motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0;
     stat->queue = emcmotStatus.depth;
     stat->activeQueue = emcmotStatus.activeDepth;
     stat->queueFull = emcmotStatus.queueFull;
@@ -1215,7 +1218,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	if (stat->id != last_id) {
 	    if (last_id != last_id_printed) {
 		rcs_print("Motion id %d took %f seconds.\n", last_id,
-		    etime() - last_id_time);
+			  etime() - last_id_time);
 		last_id_printed = last_id;
 	    }
 	    last_id = stat->id;
@@ -1246,7 +1249,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	if (stat->status == RCS_DONE && last_status != RCS_DONE
 	    && stat->id != last_id_printed) {
 	    rcs_print("Motion id %d took %f seconds.\n", last_id,
-		etime() - last_id_time);
+		      etime() - last_id_time);
 	    last_id_printed = last_id = stat->id;
 	    last_id_time = etime();
 	}
@@ -1272,6 +1275,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     if (new_config) {
 	stat->cycleTime = emcmotConfig.trajCycleTime;
+/*! \todo Another #if 0 */
 #if 0
 	stat->probe_index = emcmotConfig.probeIndex;
 	stat->probe_polarity = emcmotConfig.probePolarity;
@@ -1354,8 +1358,9 @@ int emcMotionSetDebug(int debug)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+/*! \todo Another #if 0 */
 #if 0
-/* FIXME - These are essential if you are to coordinate IO with
+/*! \todo FIXME - These are essential if you are to coordinate IO with
           motion. For example, turning a laser on or off at the
 	  correct point during a move.
 	  Abandon this, and you alienate part of the user base.
@@ -1363,7 +1368,7 @@ int emcMotionSetDebug(int debug)
 int emcMotionSetAout(unsigned char index, double start, double end)
 {
     emcmotCommand.command = EMCMOT_SET_AOUT;
-    /* FIXME-- if this works, set up some dedicated cmd fields instead of
+    /*! \todo FIXME-- if this works, set up some dedicated cmd fields instead of
        borrowing these */
     emcmotCommand.out = index;
     emcmotCommand.minLimit = start;
@@ -1373,7 +1378,7 @@ int emcMotionSetAout(unsigned char index, double start, double end)
 }
 
 int emcMotionSetDout(unsigned char index, unsigned char start,
-    unsigned char end)
+		     unsigned char end)
 {
     emcmotCommand.command = EMCMOT_SET_DOUT;
     emcmotCommand.out = index;
@@ -1421,8 +1426,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     // save the heartbeat and command number locally,
     // for use with emcMotionUpdate
     localMotionHeartbeat = emcmotStatus.heartbeat;
-    localMotionCommandType = emcmotStatus.commandEcho;	// FIXME-- not NML
-							// one!
+    localMotionCommandType = emcmotStatus.commandEcho;	/*! \todo FIXME-- not NML one! */
     localMotionEchoSerialNumber = emcmotStatus.commandNumEcho;
 
     r1 = emcAxisUpdate(&stat->axis[0], EMCMOT_MAX_AXIS);
@@ -1463,7 +1467,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 }
 
 int emcLogOpen(char *file, int type, int size, int skip, int which,
-    int triggerType, int triggerVar, double triggerThreshold)
+	       int triggerType, int triggerVar, double triggerThreshold)
 {
     int r1;
 
@@ -1521,8 +1525,8 @@ int emcLogOpen(char *file, int type, int size, int skip, int which,
     r1 = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (r1 == 0) {
-	strncpy(emcStatus->logFile, file, EMC_LOG_FILENAME_LEN - 1);
-	emcStatus->logFile[EMC_LOG_FILENAME_LEN - 1] = 0;
+	strncpy(emcStatus->logFile, file, LINELEN - 1);
+	emcStatus->logFile[LINELEN - 1] = 0;
     }
     // type, size, skip, open, and started will be gotten out of
     // subsystem status, e.g., emcTrajUpdate()
