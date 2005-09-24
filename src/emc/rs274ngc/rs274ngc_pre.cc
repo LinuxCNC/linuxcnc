@@ -791,6 +791,9 @@ the controller.
 
 int Interp::synch()
 {
+
+  char file_name[LINELEN];
+
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
 #ifndef LATHE
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
@@ -811,6 +814,12 @@ int Interp::synch()
   _setup.spindle_turning = GET_EXTERNAL_SPINDLE();
   _setup.tool_max = GET_EXTERNAL_TOOL_MAX();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
+
+  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
+  save_parameters(((file_name[0] ==
+                             0) ?
+                            RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
+                            file_name), _setup.parameters);
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
