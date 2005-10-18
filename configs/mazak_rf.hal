@@ -55,16 +55,16 @@ loadrt hal_parport cfg="0x0378_in"
 # OPTO-22 board IO-3 input  module 22 is motenc.3.in-30
 # OPTO-22 board IO-3 input  module 23 is motenc.3.in-31
 # --------------------------------------------------------
-# Breakout board IO-4 output chan  0 is motenc.3.out.00
-# Breakout board IO-4 output chan  1 is motenc.3.out.01
+# Breakout board IO-4 output chan  0 is motenc.3.out-00
+# Breakout board IO-4 output chan  1 is motenc.3.out-01
 #    "                  "                      "
-# Breakout board IO-4 output chan  6 is motenc.3.out.06
-# Breakout board IO-4 output chan  7 is motenc.3.out.07
-# Breakout board IO-4 input  chan  0 is motenc.3.in.00
-# Breakout board IO-4 input  chan  1 is motenc.3.in.01
+# Breakout board IO-4 output chan  6 is motenc.3.out-06
+# Breakout board IO-4 output chan  7 is motenc.3.out-07
+# Breakout board IO-4 input  chan  0 is motenc.3.in-00
+# Breakout board IO-4 input  chan  1 is motenc.3.in-01
 #    "                  "                      "
-# Breakout board IO-4 input  chan 14 is motenc.3.in.14
-# Breakout board IO-4 input  chan 15 is motenc.3.in.15
+# Breakout board IO-4 input  chan 14 is motenc.3.in-14
+# Breakout board IO-4 input  chan 15 is motenc.3.in-15
 # --------------------------------------------------------
 
 # Now we load some more HAL components:
@@ -130,13 +130,20 @@ addf encoder.update_counters        base_thread
 newsig ESTOP_IN bit
 newsig ESTOP_OUT bit
 newsig ESTOP_RESET bit
-newsig charge_pump bit
-newsig servo_enable bit
 linksp ESTOP_IN ax5214h.0.in-24
 linksp ESTOP_IN estop.0.in
 linksp ESTOP_OUT parport.0.pin-01-out
 linksp ESTOP_OUT estop.0.out
 linksp ESTOP_RESET estop.0.reset
+
+# servo power supply control
+newsig AP1 bit
+newsig AP2 bit
+linksp AP1 motenc.3.out-00
+linksp AP2 motenc.3.out-01
+
+newsig charge_pump bit
+newsig servo_enable bit
 linksp charge_pump parport.0.pin-17-out
 linksp charge_pump estop.0.watchdog
 linksp servo_enable ax5214h.0.out-40
