@@ -87,17 +87,19 @@ loadrt pid numchan=3
 # connect I/O driver functions to thread(s)
 #
 # NOTE: this would be _much_ easier if we allowed HAL to
-# load all the realtime modules.  As it is however, the
-# run script loads the realtime module, so we need to make
-# sure that input drivers execute before the motion module,
-# and the PID calcs and output drivers run after the motion
-# module.  The number at the end of each line is the position
-# in the thread.
+# load all the realtime modules, including the core EMC
+# ones.  As it is however, the EMC motion controller is
+# loaded by the run script, so we need to make sure that 
+# input drivers execute before the motion module, and the
+# PID calcs and output drivers run after the motion module.
+# The number at the end of each line is the position in
+# the thread.
 addf motenc.3.encoder_read          servo_thread 1
 addf motenc.3.digital_in_read       servo_thread 2
 addf ax5214h.0.read                 servo_thread 3
 addf estop.0                        servo_thread 4
 addf encoder.capture_position       servo_thread 5
+addf motenc.3.adc_read              servo_thread 6
 
 # pid calculations are done after the motion module
 # has determined new position commands.  By passing
@@ -128,46 +130,59 @@ addf encoder.update_counters        base_thread
 # ---------------------------------------------------
 # ESTOP and related signals
 newsig ESTOP_IN bit
-newsig ESTOP_OUT bit
-newsig ESTOP_RESET bit
 linksp ESTOP_IN ax5214h.0.in-24
 linksp ESTOP_IN estop.0.in
+newsig ESTOP_OUT bit
 linksp ESTOP_OUT parport.0.pin-01-out
 linksp ESTOP_OUT estop.0.out
+newsig ESTOP_RESET bit
 linksp ESTOP_RESET estop.0.reset
+newsig charge_pump bit
+linksp charge_pump parport.0.pin-17-out
+linksp charge_pump estop.0.watchdog
 
 # servo power supply control
 newsig AP1 bit
-newsig AP2 bit
 linksp AP1 motenc.3.out-00
+newsig AP2 bit
 linksp AP2 motenc.3.out-01
-
-newsig charge_pump bit
 newsig servo_enable bit
-linksp charge_pump parport.0.pin-17-out
-linksp charge_pump estop.0.watchdog
-linksp servo_enable ax5214h.0.out-40
+linksp servo_enable motenc.3.out-02
 
+# servo amp fault signals
+newsig X_amp_fault bit
+linksp X_amp_fault motenc.3.in-12
+newsig Y_amp_fault bit
+linksp Y_amp_fault motenc.3.in-13
+newsig Z_amp_fault bit
+linksp Z_amp_fault motenc.3.in-14
 
 # Limit switches
+# (the switches are NC, and open when hit, so
+# we invert the signals by using the -not input
+# pin - the result is limit signals that are 
+# TRUE when the machine is on the limit.)
 newsig X_lim_plus bit
+linksp X_lim_plus motenc.3.in-00-not
 newsig X_lim_minus bit
-newsig X_home bit
+linksp X_lim_minus motenc.3.in-01-not
 newsig Y_lim_plus bit
+linksp Y_lim_plus motenc.3.in-02-not
 newsig Y_lim_minus bit
-newsig Y_home bit
+linksp Y_lim_minus motenc.3.in-03-not
 newsig Z_lim_plus bit
+linksp Z_lim_plus motenc.3.in-04-not
 newsig Z_lim_minus bit
+linksp Z_lim_minus motenc.3.in-05-not
+
+# Home switches
+# (the switches are NC, see note above)
+newsig X_home bit
+linksp X_home motenc.3.in-08-not
+newsig Y_home bit
+linksp Y_home motenc.3.in-09-not
 newsig Z_home bit
-linksp X_lim_plus ax5214h.0.in-27
-linksp X_lim_minus ax5214h.0.in-28
-linksp X_home ax5214h.0.in-29
-linksp Y_lim_plus ax5214h.0.in-30
-linksp Y_lim_minus ax5214h.0.in-31
-linksp Y_home ax5214h.0.in-32
-linksp Z_lim_plus ax5214h.0.in-33
-linksp Z_lim_minus ax5214h.0.in-34
-linksp Z_home ax5214h.0.in-35
+linksp Z_home motenc.3.in-10-not
 
 # jogwheel signals
 newsig jogwheel_phA bit
@@ -224,6 +239,23 @@ setp motenc.3.dac-01-offset [AXIS_1]OUTPUT_OFFSET
 setp motenc.3.dac-02-offset [AXIS_2]OUTPUT_OFFSET
 
 # -----------------------------------------------------
+# ADCs - servo amp current feedback
+#
+newsig X_amps float
+newsig Y_amps float
+newsig Z_amps float
+linksp X_amps motenc.3.adc-00-value
+linksp Y_amps motenc.3.adc-01-value
+linksp Z_amps motenc.3.adc-02-value
+# get scale and offset from the ini file
+setp motenc.3.adc-00-gain 1.0
+setp motenc.3.adc-01-gain 1.0
+setp motenc.3.adc-02-gain 1.0
+setp motenc.3.adc-00-offset 0.0
+setp motenc.3.adc-01-offset 0.0
+setp motenc.3.adc-02-offset 0.0
+
+# -----------------------------------------------------
 # PIDs - position control
 #
 
@@ -240,9 +272,9 @@ linksp Y_enc_pos pid.1.feedback
 linksp Z_enc_pos pid.2.feedback
 
 # hook PID outputs to DACs
-linksp X_volts pid.0.output
-linksp Y_volts pid.1.output
-linksp Z_volts pid.2.output
+#linksp X_volts pid.0.output
+#linksp Y_volts pid.1.output
+#linksp Z_volts pid.2.output
 
 # use 'servo_enable' to enable PID blocks
 linksp servo_enable pid.0.enable
