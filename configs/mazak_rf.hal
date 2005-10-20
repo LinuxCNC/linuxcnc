@@ -81,7 +81,6 @@ loadrt encoder num_chan=1
 #
 loadrt pid numchan=3
 
-
 # -----------------------------------------------
 
 # connect I/O driver functions to thread(s)
@@ -94,33 +93,33 @@ loadrt pid numchan=3
 # PID calcs and output drivers run after the motion module.
 # The number at the end of each line is the position in
 # the thread.
-addf motenc.3.encoder_read          servo_thread 1
-addf motenc.3.digital_in_read       servo_thread 2
-addf ax5214h.0.read                 servo_thread 3
-addf estop.0                        servo_thread 4
-addf encoder.capture_position       servo_thread 5
-addf motenc.3.adc_read              servo_thread 6
+addf motenc.3.encoder_read          servo-thread 1
+addf motenc.3.digital_in_read       servo-thread 2
+addf ax5214h.0.read                 servo-thread 3
+addf estop.0                        servo-thread 4
+addf encoder.capture_position       servo-thread 5
+addf motenc.3.adc_read              servo-thread 6
 
 # pid calculations are done after the motion module
 # has determined new position commands.  By passing
 # -1 to the addf command, the functions are installed
 # after the motion module.
-addf pid.0.do_pid_calcs             servo_thread -1
-addf pid.1.do_pid_calcs             servo_thread -1
-addf pid.2.do_pid_calcs             servo_thread -1
+addf pid.0.do_pid_calcs             servo-thread -1
+addf pid.1.do_pid_calcs             servo-thread -1
+addf pid.2.do_pid_calcs             servo-thread -1
 
 # output drivers are loaded last
-addf motenc.3.dac_write             servo_thread -1
-addf motenc.3.digital_out_write     servo_thread -1
-addf ax5214h.0.write                servo_thread -1
-addf parport.0.write                servo_thread -1
+addf motenc.3.dac_write             servo-thread -1
+addf motenc.3.digital_out_write     servo-thread -1
+addf ax5214h.0.write                servo-thread -1
+addf parport.0.write                servo-thread -1
 
 # the base thread (fast thread) isn't needed for step pulse 
 # generation since this is a servo machine.  However we use
 # it to sample the jogwheel signals and count them in software
 
-addf parport.0.read                 base_thread
-addf encoder.update_counters        base_thread
+addf parport.0.read                 base-thread
+addf encoder.update_counters        base-thread
 
 # -------------------------------------------------
 
@@ -129,60 +128,82 @@ addf encoder.update_counters        base_thread
 
 # ---------------------------------------------------
 # ESTOP and related signals
-newsig ESTOP_IN bit
-linksp ESTOP_IN ax5214h.0.in-24
-linksp ESTOP_IN estop.0.in
-newsig ESTOP_OUT bit
-linksp ESTOP_OUT parport.0.pin-01-out
-linksp ESTOP_OUT estop.0.out
-newsig ESTOP_RESET bit
-linksp ESTOP_RESET estop.0.reset
+newsig estop-ok-in bit
+linksp estop-ok-in ax5214h.0.in-24
+linksp estop-ok-in estop.0.ok-in
+newsig estop-ok-out bit
+linksp estop-ok-out parport.0.pin-01-out
+linksp estop-ok-out estop.0.ok-out
+newsig emc-estop-out bit
+linksp emc-estop-out iocontrol.0.estop-out
+linksp emc-estop-out estop.0.fault-in
+newsig emc-estop-in bit
+linksp emc-estop-in estop.0.fault-out
+linksp emc-estop-in iocontrol.0.estop-in
+newsig estop-reset bit
+linksp estop-reset iocontrol.0.estop-reset
+linksp estop-reset estop.0.reset
 newsig charge_pump bit
-linksp charge_pump parport.0.pin-17-out
 linksp charge_pump estop.0.watchdog
+linksp charge_pump parport.0.pin-17-out
 
 # servo power supply control
 newsig AP1 bit
 linksp AP1 motenc.3.out-00
 newsig AP2 bit
 linksp AP2 motenc.3.out-01
-newsig servo_enable bit
-linksp servo_enable motenc.3.out-02
+
+# servo amp enable (only one, driven by axis 0)
+newsig servo-enable bit
+linksp servo-enable motenc.3.out-02
+linksp servo-enable axis.0.amp-enable-out
 
 # servo amp fault signals
-newsig X_amp_fault bit
-linksp X_amp_fault motenc.3.in-12
-newsig Y_amp_fault bit
-linksp Y_amp_fault motenc.3.in-13
-newsig Z_amp_fault bit
-linksp Z_amp_fault motenc.3.in-14
+newsig X-amp-fault bit
+linksp X-amp-fault motenc.3.in-12
+linksp X-amp-fault axis.0.amp-fault-in
+newsig Y-amp-fault bit
+linksp Y-amp-fault motenc.3.in-13
+linksp Y-amp-fault axis.1.amp-fault-in
+newsig Z-amp-fault bit
+linksp Z-amp-fault motenc.3.in-14
+linksp Z-amp-fault axis.2.amp-fault-in
 
 # Limit switches
 # (the switches are NC, and open when hit, so
 # we invert the signals by using the -not input
 # pin - the result is limit signals that are 
 # TRUE when the machine is on the limit.)
-newsig X_lim_plus bit
-linksp X_lim_plus motenc.3.in-00-not
-newsig X_lim_minus bit
-linksp X_lim_minus motenc.3.in-01-not
-newsig Y_lim_plus bit
-linksp Y_lim_plus motenc.3.in-02-not
-newsig Y_lim_minus bit
-linksp Y_lim_minus motenc.3.in-03-not
-newsig Z_lim_plus bit
-linksp Z_lim_plus motenc.3.in-04-not
-newsig Z_lim_minus bit
-linksp Z_lim_minus motenc.3.in-05-not
+newsig X-lim-plus bit
+linksp X-lim-plus motenc.3.in-00-not
+linksp X-lim-plus axis.0.pos-lim-sw-in
+newsig X-lim-minus bit
+linksp X-lim-minus motenc.3.in-01-not
+linksp X-lim-minus axis.0.neg-lim-sw-in
+newsig Y-lim-plus bit
+linksp Y-lim-plus motenc.3.in-02-not
+linksp Y-lim-plus axis.1.pos-lim-sw-in
+newsig Y-lim-minus bit
+linksp Y-lim-minus motenc.3.in-03-not
+linksp Y-lim-minus axis.1.neg-lim-sw-in
+newsig Z-lim-plus bit
+linksp Z-lim-plus motenc.3.in-04-not
+linksp Z-lim-plus axis.2.pos-lim-sw-in
+newsig Z-lim-minus bit
+linksp Z-lim-minus motenc.3.in-05-not
+linksp Z-lim-minus axis.2.neg-lim-sw-in
 
 # Home switches
 # (the switches are NC, see note above)
-newsig X_home bit
-linksp X_home motenc.3.in-08-not
-newsig Y_home bit
-linksp Y_home motenc.3.in-09-not
-newsig Z_home bit
-linksp Z_home motenc.3.in-10-not
+newsig X-home bit
+linksp X-home motenc.3.in-08-not
+linksp X-home axis.0.home-sw-in
+newsig Y-home bit
+linksp Y-home motenc.3.in-09-not
+linksp X-home axis.1.home-sw-in
+newsig Z-home bit
+linksp Z-home motenc.3.in-10-not
+linksp X-home axis.2.home-sw-in
 
 # jogwheel signals
 newsig jogwheel_phA bit
@@ -201,12 +222,12 @@ linksp jogwheel_counts encoder.0.counts
 # encoders - signals and scaling
 #
 # position in counts
-newsig X_enc_counts s32
-newsig Y_enc_counts s32
-newsig Z_enc_counts s32
-linksp X_enc_counts motenc.3.enc-00-count
-linksp Y_enc_counts motenc.3.enc-01-count
-linksp Z_enc_counts motenc.3.enc-02-count
+newsig X-enc-counts s32
+newsig Y-enc-counts s32
+newsig Z-enc-counts s32
+linksp X-enc-counts motenc.3.enc-00-count
+linksp Y-enc-counts motenc.3.enc-01-count
+linksp Z-enc-counts motenc.3.enc-02-count
 
 # scaling to get inches (scale comes from ini file)
 setp motenc.3.enc-00-scale [AXIS_0]INPUT_SCALE
@@ -214,22 +235,22 @@ setp motenc.3.enc-01-scale [AXIS_1]INPUT_SCALE
 setp motenc.3.enc-02-scale [AXIS_2]INPUT_SCALE
 
 # position in inches
-newsig X_enc_pos float
-newsig Y_enc_pos float
-newsig Z_enc_pos float
-linksp X_enc_pos motenc.3.enc-00-position
-linksp Y_enc_pos motenc.3.enc-01-position
-linksp Z_enc_pos motenc.3.enc-02-position
+newsig X-enc-pos float
+newsig Y-enc-pos float
+newsig Z-enc-pos float
+linksp X-enc-pos motenc.3.enc-00-position
+linksp Y-enc-pos motenc.3.enc-01-position
+linksp Z-enc-pos motenc.3.enc-02-position
 
 # -----------------------------------------------------
 # DACs - output to servo amps
 #
-newsig X_volts float
-newsig Y_volts float
-newsig Z_volts float
-linksp X_volts motenc.3.dac-00-value
-linksp Y_volts motenc.3.dac-01-value
-linksp Z_volts motenc.3.dac-02-value
+newsig X-volts float
+newsig Y-volts float
+newsig Z-volts float
+linksp X-volts motenc.3.dac-00-value
+linksp Y-volts motenc.3.dac-01-value
+linksp Z-volts motenc.3.dac-02-value
 # get scale and offset from the ini file
 setp motenc.3.dac-00-gain [AXIS_0]OUTPUT_SCALE
 setp motenc.3.dac-01-gain [AXIS_1]OUTPUT_SCALE
@@ -267,19 +288,19 @@ newsig Z_pos_cmd float
 linksp X_pos_cmd pid.0.command
 
 # hook encoders to PID feedback
-linksp X_enc_pos pid.0.feedback
-linksp Y_enc_pos pid.1.feedback
-linksp Z_enc_pos pid.2.feedback
+linksp X-enc-pos pid.0.feedback
+linksp Y-enc-pos pid.1.feedback
+linksp Z-enc-pos pid.2.feedback
 
 # hook PID outputs to DACs
-#linksp X_volts pid.0.output
-#linksp Y_volts pid.1.output
-#linksp Z_volts pid.2.output
+#linksp X-volts pid.0.output
+#linksp Y-volts pid.1.output
+#linksp Z-volts pid.2.output
 
-# use 'servo_enable' to enable PID blocks
-linksp servo_enable pid.0.enable
-linksp servo_enable pid.1.enable
-linksp servo_enable pid.2.enable
+# use 'servo-enable' to enable PID blocks
+linksp servo-enable pid.0.enable
+linksp servo-enable pid.1.enable
+linksp servo-enable pid.2.enable
 
 # get tuning params from ini file
 setp pid.0.deadband [AXIS_0]DEADBAND
