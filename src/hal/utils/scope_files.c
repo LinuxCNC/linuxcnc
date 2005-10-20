@@ -127,6 +127,7 @@ static char *param_cmd(void * arg);
 static char *vscale_cmd(void * arg);
 static char *vpos_cmd(void * arg);
 static char *voff_cmd(void * arg);
+static char *tsource_cmd(void * arg);
 
 /***********************************************************************
 *                         LOCAL VARIABLES                              *
@@ -147,7 +148,7 @@ static const cmd_lut_entry_t cmd_lut[25] =
   { "vscale",	INT,	vscale_cmd },
   { "vpos",	FLOAT,	vpos_cmd },
   { "voff",	FLOAT,	voff_cmd },
-  { "tsource",	INT,	dummy_cmd },
+  { "tsource",	INT,	tsource_cmd },
   { "tlevel",	FLOAT,	dummy_cmd },
   { "tpolar",	STRING,	dummy_cmd },
   { "tmode",	STRING,	dummy_cmd },
@@ -205,7 +206,7 @@ void write_config_file (char *filename)
     }
     write_horiz_config(fp);
     write_vert_config(fp);
-//    write_trig_config(fp);
+    write_trig_config(fp);
     fclose(fp);
 }
 
@@ -456,4 +457,17 @@ static char *voff_cmd(void * arg)
     }
     return NULL;
 }    
+
+static char *tsource_cmd(void * arg)
+{
+    int *argp, rv;
+    
+    argp = (int *)(arg);
+//    rv = set_trig_src(*argp);
+rv = 1;
+    if ( rv < 0 ) {
+	return "could not set trigger source";
+    }
+    return NULL;
+}
 

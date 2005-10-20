@@ -211,6 +211,21 @@ void refresh_trigger(void)
 #endif
 }
 
+void write_trig_config(FILE *fp)
+{
+    scope_trig_t *trig;
+    
+    trig = &(ctrl_usr->trig);
+    if (ctrl_shm->trig_chan > 0) {
+	fprintf(fp, "TSOURCE %d\n", ctrl_shm->trig_chan);
+    }
+    
+    
+}
+
+
+
+
 /***********************************************************************
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
