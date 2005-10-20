@@ -112,10 +112,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd);
 // pending command to be sent out by emcTaskExecute()
 static NMLmsg *emcTaskCommand = 0;
 
-// general purpose log file
-static FILE *logFp = NULL;
-#define LOG_FILE "emc.log"	/*! \todo FIXME-- ini file param */
-
 // signal handling code to stop main loop
 static int done;
 static int emctask_shutdown(void);
@@ -2771,11 +2767,6 @@ int main(int argc, char *argv[])
 
     // set print destination to stdout, for console apps
     set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
-
-    // open the general purpose file log
-    if (NULL == (logFp = fopen(LOG_FILE, "w"))) {
-	// can't log; ignore
-    }
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
 	rcs_print_error("error in argument list\n");
@@ -2944,12 +2935,6 @@ int main(int argc, char *argv[])
 	// lot's
 	// of gui's and some will neglect to check these flags.
 	for (int i = 0; i < EMC_AXIS_MAX; i++) {
-	    if (last_emc_status.motion.axis[i].fault == 0 &&
-		emcStatus->motion.axis[i].fault == 1) {
-		emcOperatorError(0, _("Amplifier fault on axis %d."), i);
-	    }
-	    last_emc_status.motion.axis[i].fault =
-		emcStatus->motion.axis[i].fault;
 	    if (last_emc_status.motion.axis[i].minSoftLimit == 0
 		&& emcStatus->motion.axis[i].minSoftLimit == 1) {
 		emcOperatorError(0,
@@ -3026,11 +3011,6 @@ int main(int argc, char *argv[])
 
     // clean up everything
     emctask_shutdown();
-
-    if (NULL != logFp) {
-	fclose(logFp);
-	logFp = NULL;
-    }
     /*! \todo FIXME-- debugging */
     if (emcTaskNoDelay) {
 	printf("cycle times (seconds): %f min, %f max\n", minTime,
@@ -3044,6 +3024,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.40  2005/10/20 20:47:30  jmkasunich
+  clean up handling of amp enables and faults
+
   Revision 1.39  2005/10/20 09:15:55  jmkasunich
   changes to support HALified ESTOP logic - estop can be routed thru classic ladder or other logic, optionally latched to permit the use of momentary estop switches, etc.
 

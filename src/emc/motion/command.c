@@ -356,9 +356,15 @@ check_stuff ( "before command_handler()" );
 		    if ( joint->home_state != HOME_IDLE ) {
 			joint->home_state = HOME_ABORT;
 		    }
-		    /* update status flags */
-		    SET_JOINT_ERROR_FLAG(joint, 0);
 		}
+	    }
+	    /* clear axis errors (regardless of mode */	    
+	    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+		/* point to joint struct */
+		joint = &joints[joint_num];
+		/* update status flags */
+		SET_JOINT_ERROR_FLAG(joint, 0);
+		SET_JOINT_FAULT_FLAG(joint, 0);
 	    }
 	    break;
 
