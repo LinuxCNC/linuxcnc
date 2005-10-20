@@ -16,6 +16,11 @@ linksp Ydir  parport.0.pin-04-out
 linksp Zstep parport.0.pin-07-out
 linksp Zdir  parport.0.pin-06-out
 
+# create a signal for the estop loopback
+newsig estop bit
+linksp estop iocontrol.0.estop-out
+linksp estop iocontrol.0.estop-in
+
 # create a signal for "spindle on"
 newsig spindle_on bit
 

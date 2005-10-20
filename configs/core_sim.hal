@@ -44,6 +44,26 @@ linkps ddt.4.out => Zvel
 linksp Zvel => ddt.5.in
 linkps ddt.5.out => Zacc
 
+# estop loopback
+newsig ESTOP bit
+linksp ESTOP iocontrol.0.estop-out 
+linksp ESTOP iocontrol.0.estop-in
+
+# amp control
+newsig xena bit
+linksp xena axis.0.amp-enable-out
+newsig yena bit
+linksp yena axis.1.amp-enable-out
+newsig zena bit
+linksp zena axis.2.amp-enable-out
+
+newsig xflt bit
+linksp xflt axis.0.amp-fault-in
+newsig yflt bit
+linksp yflt axis.1.amp-fault-in
+newsig zflt bit
+linksp zflt axis.2.amp-fault-in
+
 # load realtime portion of scope
 loadrt scope_rt
 # start up scope user interface
