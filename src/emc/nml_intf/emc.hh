@@ -2314,7 +2314,6 @@ class EMC_AUX_STAT:public EMC_AUX_STAT_MSG {
     EMC_AUX_STAT operator =(EMC_AUX_STAT s);	// need this for [] members
 
     int estop;			// non-zero means estopped
-    int estopIn;		// non-zero means estop button pressed
 
     unsigned char dout[EMC_AUX_MAX_DOUT];	// digital output readings
     unsigned char din[EMC_AUX_MAX_DIN];	// digital input readings
@@ -2983,6 +2982,9 @@ extern EMC_MOTION_STAT *emcMotionStatus;
   Modification history:
 
   $Log$
+  Revision 1.16  2005/10/20 09:15:55  jmkasunich
+  changes to support HALified ESTOP logic - estop can be routed thru classic ladder or other logic, optionally latched to permit the use of momentary estop switches, etc.
+
   Revision 1.15  2005/08/08 13:09:54  paul_c
   A couple of typos crept in..
 

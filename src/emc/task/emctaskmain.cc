@@ -2846,8 +2846,6 @@ int main(int argc, char *argv[])
 		if (EMC_DEBUG & EMC_DEBUG_IO_POINTS) {
 		    rcs_print("emcStatus->io.aux.estop=%d\n",
 			      emcStatus->io.aux.estop);
-		    rcs_print("emcStatus->io.aux.estopIn=%d\n",
-			      emcStatus->io.aux.estopIn);
 		}
 		emcTrajDisable();
 	    }
@@ -3046,6 +3044,9 @@ int main(int argc, char *argv[])
   Modification history:
 
   $Log$
+  Revision 1.39  2005/10/20 09:15:55  jmkasunich
+  changes to support HALified ESTOP logic - estop can be routed thru classic ladder or other logic, optionally latched to permit the use of momentary estop switches, etc.
+
   Revision 1.38  2005/09/03 10:23:24  paul_c
   Bug fix to speed up program verify - Thanks Matt.
 

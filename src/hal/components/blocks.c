@@ -23,6 +23,7 @@
 *     limit1 = first order limiter (limits output)
 *     limit2 = second order limiter (limits output and 1st derivative)
 *     limit3 = third order limiter (limits output, 1st & 2nd derivative)
+*     estop = latch for estops or other faults, with reset
 *     not = logical inverter - out is true if in is false
 *     and2 = 2 input logical and - out is true if in1 and in2 are true
 *     or2 = 2 input logical or - out is true if in1 or in2 is true
@@ -214,9 +215,11 @@ typedef struct {
 } limit3_t;
 
 typedef struct {
-    hal_bit_t *in;		/* pin: input from hardware chain */
-    hal_bit_t *out;		/* pin: output */
-    hal_bit_t *reset;		/* pin: estop reset (rising edge) */
+    hal_bit_t *ok_in;		/* pin: input, FALSE will trip */
+    hal_bit_t *fault_in;	/* pin: input, TRUE will trip */
+    hal_bit_t *ok_out;		/* pin: output, TRUE when OK */
+    hal_bit_t *fault_out;	/* pin: output, TRUE when tripped */
+    hal_bit_t *reset;		/* pin: latch reset (rising edge) */
     hal_bit_t *wd;		/* pin: watchdog/charge pump drive */
     hal_bit_t old_reset;	/* internal, for rising edge detect */
 } estop_t;
@@ -800,12 +803,13 @@ static void estop_funct(void *arg, long period)
     /* point to block data */
     estop = (estop_t *) arg;
 
-    /* check input (which should be from hardware chain) */
-    if ( *(estop->in) != 0 ) {
-	/* hardware estop chain is OK, check for reset edge */
+    /* check inputs */
+    if (( *(estop->ok_in) != 0 ) && ( *(estop->fault_in) == 0 )) {
+	/* no fault conditions, check for reset edge */
 	if (( *(estop->reset) != 0 ) && ( estop->old_reset == 0 )) {
-	    /* got a rising edge, set output true */
-	    *(estop->out) = 1;
+	    /* got a rising edge, indicate "OK" on outputs */
+	    *(estop->ok_out) = 1;
+	    *(estop->fault_out) = 0;
 	}
 	/* toggle watchdog */
 	if ( *(estop->wd) == 0 ) {
@@ -814,8 +818,9 @@ static void estop_funct(void *arg, long period)
 	    *(estop->wd) = 0;
 	}
     } else {
-	/* hardware chain is not OK, turn off output */
-	*(estop->out) = 0;
+	/* fault condition exists, trip */
+	*(estop->ok_out) = 0;
+	*(estop->fault_out) = 1;
     }
     /* store state of reset input for next pass (for edge detect) */
     estop->old_reset = *(estop->reset);
@@ -1628,8 +1633,15 @@ static int export_estop(int num)
 	return -1;
     }
     /* export pins for inputs */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.in", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(estop->in), comp_id);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.ok-in", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(estop->ok_in), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.fault-in", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(estop->fault_in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1643,8 +1655,15 @@ static int export_estop(int num)
 	return retval;
     }
     /* export pins for outputs */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(estop->out), comp_id);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.ok-out", num);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(estop->ok_out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.fault-out", num);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(estop->fault_out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1666,7 +1685,7 @@ static int export_estop(int num)
 	return -1;
     }
     /* initialize internal vars */
-    estop->old_reset = 104;
+    estop->old_reset = 1;
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;

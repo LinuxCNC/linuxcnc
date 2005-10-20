@@ -116,9 +116,6 @@
   With no arg, returns the estop setting as "on" or "off". Otherwise,
   sends an estop on or off command.
 
-  emc_estop_in
-  Returns the estop input setting as "on" or "off".
-
   emc_machine (none) | on | off
   With no arg, returns the machine setting as "on" or "off". Otherwise,
   sends a machine on or off command.
@@ -2122,27 +2119,6 @@ static int emc_estop(ClientData clientdata,
 
     Tcl_SetResult(interp, "emc_estop: need 'on', 'off', or no args",
 		  TCL_VOLATILE);
-    return TCL_ERROR;
-}
-
-static int emc_estop_in(ClientData clientdata,
-			Tcl_Interp * interp, int objc,
-			Tcl_Obj * CONST objv[])
-{
-    if (objc == 1) {
-	// no arg-- return status
-	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
-	}
-	if (emcStatus->io.aux.estopIn == 0) {
-	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
-	} else {
-	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
-	}
-	return TCL_OK;
-    }
-
-    Tcl_SetResult(interp, "emc_estop_in: need no args", TCL_VOLATILE);
     return TCL_ERROR;
 }
 
@@ -5298,9 +5274,6 @@ int Tcl_AppInit(Tcl_Interp * interp)
 
     Tcl_CreateObjCommand(interp, "emc_estop", emc_estop, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_estop_in", emc_estop_in,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_machine", emc_machine,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);

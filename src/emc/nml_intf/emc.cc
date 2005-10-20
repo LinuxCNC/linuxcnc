@@ -1381,7 +1381,6 @@ void EMC_AUX_STAT::update(CMS * cms)
 
     EMC_AUX_STAT_MSG::update(cms);
     cms->update(estop);
-    cms->update(estopIn);
     cms->update(dout, 4);
     cms->update(din, 4);
     cms->update(aout, 32);

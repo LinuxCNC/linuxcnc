@@ -258,7 +258,6 @@ int main(int argc, char *argv[])
 
     /* set status values to 'normal' */
     emcioStatus.aux.estop = 1;
-    emcioStatus.aux.estopIn = 0;
     emcioStatus.spindle.speed = 0.0;
     emcioStatus.spindle.direction = 0;
     emcioStatus.spindle.brake = 1;
@@ -458,19 +457,16 @@ int main(int argc, char *argv[])
 	case EMC_AUX_INIT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_INIT\n");
 	    emcioStatus.aux.estop = 1;
-	    emcioStatus.aux.estopIn = 0;
 	    break;
 
 	case EMC_AUX_HALT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_HALT\n");
 	    emcioStatus.aux.estop = 1;
-	    emcioStatus.aux.estopIn = 0;
 	    break;
 
 	case EMC_AUX_ABORT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ABORT\n");
 	    emcioStatus.aux.estop = 1;
-	    emcioStatus.aux.estopIn = 0;
 	    break;
 
 	case EMC_AUX_ESTOP_ON_TYPE:

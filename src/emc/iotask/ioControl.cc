@@ -1,9 +1,29 @@
 /********************************************************************
-* Description: miniIoControl.cc
+* Description: IoControl.cc
 *           Simply accepts NML messages sent to the IO controller
 *           outputs those to a HAL pin,
 *           and sends back a "Done" message.
 *
+*  ESTOP logic:  this module exports three HAL pins related to ESTOP.
+*  The first is estop-in.  It is an input from the HAL, when TRUE,
+*  EMC will go into the STOPPED state (regardless of the state of
+*  the other two pins).  When it goes FALSE, EMC will go into the
+*  ESTOP_RESET state (also known as READY).
+*
+*  The second HAL pin is an output to the HAL.  It is controlled by
+*  the NML messages ESTOP_ON and ESTOP_OFF, which normally result from
+*  user actions at the GUI.  For the simplest system, loop estop-out 
+*  back to estop-in in the HAL.  The GUI controls estop-out, and EMC
+*  responds to that once it is looped back.
+*
+*  If external _mainteined_ ESTOP inputs are desired, they can be
+*  ORed with estop-out and looped back to estop-in.  Finally, if
+*  external momentary ESTOP inputs are desired, the HAL estop latch
+*  component can be inserted in the loop.  In that case, the final
+*  HAL pin, estop-reset, is used to reset the latch.  The estop-reset
+*  pin generates a pulse (one io-period long) whenever the ESTOP-OFF
+*  NML message is sent (usually from the user hitting F1 on the GUI).
+*  
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
 * Author:
@@ -38,8 +58,9 @@ static EMC_IO_STAT emcioStatus;
 static NML *emcErrorBuffer = 0;
 
 typedef struct {
-    hal_bit_t *estop_out;	/* estop pin output (from EMC to the actual machine) */
-    hal_bit_t *estop_in;	/* estop pin input (e.g. machine estop) */
+    hal_bit_t *estop_out;	/* output, TRUE when EMC wants stop */
+    hal_bit_t *estop_in;	/* input, TRUE on any stop */
+    hal_bit_t *estop_reset;	/* output, used to reset HAL latch */
     hal_bit_t *coolant_mist;	/* coolant mist output pin */
     hal_bit_t *coolant_flood;	/* coolant flood output pin */
     hal_bit_t *lube;		/* lube output pin */
@@ -417,6 +438,18 @@ int iocontrol_hal_init(void)
 	hal_exit(comp_id);
 	return -1;
     }
+    // estop-reset
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.estop-reset", n);
+    retval =
+	hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->estop_reset),
+			comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"IOCONTROL: ERROR: iocontrol %d pin estop-reset export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
     // coolant-flood
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.coolant-flood", n);
     retval =
@@ -600,18 +633,15 @@ int read_hal_inputs(void)
     int oldval, retval = 0;
 
     oldval = emcioStatus.aux.estop;
-    if (oldval == 0)		//no estop commanded
-	emcioStatus.aux.estop = *(iocontrol_data->estop_in);	//check for estop from HW
-
-    if (oldval != emcioStatus.aux.estop)
+    emcioStatus.aux.estop = *(iocontrol_data->estop_in);	//check for estop from HW
+    if (oldval != emcioStatus.aux.estop) {
 	retval = 1;
-
+    }
     oldval = emcioStatus.lube.level;
     emcioStatus.lube.level = *(iocontrol_data->lube_level);	//check for lube_level from HW
-
-    if (oldval != emcioStatus.lube.level)
+    if (oldval != emcioStatus.lube.level) {
 	retval = 1;
-
+    }
     return retval;
 }
 
@@ -635,8 +665,6 @@ int main(int argc, char *argv[])
 {
     int t;
     NMLTYPE type;
-/*! \todo FIXME - doesn't seem to be used */
-//  EMC_TASK_SET_STATE state_msg;
 
     for (t = 1; t < argc; t++) {
 	if (!strcmp(argv[t], "-ini")) {
@@ -686,7 +714,6 @@ int main(int argc, char *argv[])
 
     /* set status values to 'normal' */
     emcioStatus.aux.estop = 1;
-    emcioStatus.aux.estopIn = 0;
     emcioStatus.spindle.speed = 0.0;
     emcioStatus.spindle.direction = 0;
     emcioStatus.spindle.brake = 1;
@@ -994,34 +1021,33 @@ int main(int argc, char *argv[])
 	case EMC_AUX_INIT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_INIT\n");
 	    emcioStatus.aux.estop = 1;
-	    emcioStatus.aux.estopIn = *(iocontrol_data->estop_in);
 	    *(iocontrol_data->estop_out) = 1;
 	    break;
 
 	case EMC_AUX_HALT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_HALT\n");
 	    emcioStatus.aux.estop = 1;
-	    emcioStatus.aux.estopIn = *(iocontrol_data->estop_in);
 	    *(iocontrol_data->estop_out) = 1;
 	    break;
 
 	case EMC_AUX_ABORT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ABORT\n");
 	    emcioStatus.aux.estop = 1;
-	    emcioStatus.aux.estopIn = *(iocontrol_data->estop_in);
 	    *(iocontrol_data->estop_out) = 1;
 	    break;
 
 	case EMC_AUX_ESTOP_ON_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_ON\n");
-	    emcioStatus.aux.estop = 1;
+	    /* assert an ESTOP to the outside world (thru HAL) */
 	    *(iocontrol_data->estop_out) = 1;
 	    break;
 
 	case EMC_AUX_ESTOP_OFF_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_OFF\n");
+	    /* remove ESTOP */
 	    *(iocontrol_data->estop_out) = 0;
-	    emcioStatus.aux.estop = *(iocontrol_data->estop_in);
+	    /* generate a rising edge to reset optional HAL latch */
+	    *(iocontrol_data->estop_reset) = 1;
 	    break;
 
 	case EMC_LUBE_INIT_TYPE:
@@ -1081,7 +1107,10 @@ int main(int argc, char *argv[])
 	emcioStatusBuffer->write(&emcioStatus);
 
 	esleep(EMC_IO_CYCLE_TIME);
-    }				// end of "while (! done)" loop
+	/* clear reset line to allow for a later rising edge */
+	*(iocontrol_data->estop_reset) = 0;
+	
+    }	// end of "while (! done)" loop
 
     // disconnect from the HAL
     hal_exit(comp_id);

@@ -173,10 +173,6 @@ int emcTaskSetState(int state)
 
     case EMC_TASK_STATE_ESTOP_RESET:
 	// reset the estop
-	if (emcStatus->io.aux.estopIn) {
-	    rcs_print
-		("Can't come out of estop while the estop button is in.");
-	}
 	emcAuxEstopOff();
 	emcLubeOff();
 	break;
@@ -445,6 +441,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
   Modification history:
 
   $Log$
+  Revision 1.14  2005/10/20 09:15:55  jmkasunich
+  changes to support HALified ESTOP logic - estop can be routed thru classic ladder or other logic, optionally latched to permit the use of momentary estop switches, etc.
+
   Revision 1.13  2005/07/08 14:11:16  yabosukz
   fix some more bugz
 
