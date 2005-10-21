@@ -252,7 +252,7 @@ void rtapi_app_exit(void)
 static void calc_pid(void *arg, long period)
 {
     hal_pid_t *pid;
-    float tmp1;
+    float tmp1, tmp2;
     int enable;
     float periodfp, periodrecip;
 
@@ -265,10 +265,6 @@ static void calc_pid(void *arg, long period)
     enable = *(pid->enable);
     /* calculate the error */
     tmp1 = *(pid->command) - *(pid->feedback);
-    /* apply the deadband */
-    if ((tmp1 < pid->deadband) && (tmp1 > -pid->deadband)) {
-	tmp1 = 0;
-    }
     /* apply error limits */
     if (pid->maxerror != 0.0) {
 	if (tmp1 > pid->maxerror) {
@@ -279,12 +275,19 @@ static void calc_pid(void *arg, long period)
     }
     /* store error to error pin */
     *(pid->error) = tmp1;
+    /* apply the deadband (but retain a non-deadband copy) */
+    if ((tmp1 > pid->deadband) || (tmp1 < -pid->deadband)) {
+	tmp2 = tmp1;
+    } else {
+	tmp2 = 0;
+    }
     /* do integrator calcs only if enabled */
+    /* use deadbanded error to prevent hunting */
     if (enable != 0) {
 	/* if output is in limit, don't let integrator wind up */
-	if ( ( tmp1 * pid->limit_state ) <= 0.0 ) {
+	if ( ( tmp2 * pid->limit_state ) <= 0.0 ) {
 	    /* compute integral term */
-	    pid->error_i += tmp1 * periodfp;
+	    pid->error_i += tmp2 * periodfp;
 	}
 	/* apply integrator limits */
 	if (pid->maxerror_i != 0.0) {
@@ -299,6 +302,8 @@ static void calc_pid(void *arg, long period)
 	pid->error_i = 0;
     }
     /* calculate derivative term */
+    /* use non-deadbanded error to prevent disturbances caused
+       by small steps as the error moves in and out of the deadband. */
     pid->error_d = (tmp1 - pid->prev_error) * periodrecip;
     pid->prev_error = tmp1;
     /* apply derivative limits */
@@ -324,7 +329,7 @@ static void calc_pid(void *arg, long period)
     if (enable != 0) {
 	/* calculate the output value */
 	tmp1 =
-	    pid->bias + pid->pgain * tmp1 + pid->igain * pid->error_i +
+	    pid->bias + pid->pgain * tmp2 + pid->igain * pid->error_i +
 	    pid->dgain * pid->error_d;
 	tmp1 += *(pid->command) * pid->ff0gain + pid->cmd_d * pid->ff1gain;
 	/* apply output limits */
