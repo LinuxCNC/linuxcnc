@@ -315,21 +315,37 @@ void DumpRung(StrRung * TheRung)
     }
 }
 
+/* FIXME - this prints a message when a file is missing, but
+   doesn't do anything else.  Better error handling is needed */
+   
+static void check_file ( char *file )
+{
+    struct stat stat_buf;
+    
+    if ( stat(file, &stat_buf) != 0 ) {
+	printf ( "File '%s' not found\n", file );
+    }
+}
+
+
 static void LoadAllLadderDatas(char *DatasDirectory)
 {
     char FileName[500];
     InitAllLadderDatas();
 
     sprintf(FileName, "%s/timers.csv", DatasDirectory);
+    check_file(FileName);
     printf("Loading timers datas from %s\n", FileName);
     LoadTimersParams(FileName, TimerArray);
     sprintf(FileName, "%s/monostables.csv", DatasDirectory);
+    check_file(FileName);
     printf("Loading monostables datas from %s\n", FileName);
     LoadMonostablesParams(FileName, MonostableArray);
     PrepareTimers();
     PrepareMonostables();
 
     sprintf(FileName, "%s/arithmetic_expressions.csv", DatasDirectory);
+    check_file(FileName);
     printf("Loading arithmetic expressions from %s\n", FileName);
     LoadArithmeticExpr(FileName);
 
@@ -338,13 +354,16 @@ static void LoadAllLadderDatas(char *DatasDirectory)
     // before the prev/next rungs were not saved in each rung...
     // and the nmber of rungs changed when saved...
     sprintf(FileName, "%s/sections.csv", DatasDirectory);
+    check_file(FileName);
     printf("Loading sections datas from %s\n", FileName);
     if (LoadSectionsParams(FileName)) {
+	check_file(FileName);
 	sprintf(FileName, "%s/rung_", DatasDirectory);
 	LoadAllRungs(FileName, RungArray);
     } else {
 	printf("Rungs with old format found (no sections)\n");
 	sprintf(FileName, "%s/rung_", DatasDirectory);
+	check_file(FileName);
 	LoadAllRungs_V1(FileName, RungArray, &InfosGene->FirstRung,
 	    &InfosGene->LastRung, &InfosGene->CurrentRung);
 	// if we load old format files, sections wasn't created, so we must
@@ -354,6 +373,7 @@ static void LoadAllLadderDatas(char *DatasDirectory)
     }
 #ifdef SEQUENTIAL_SUPPORT
     sprintf(FileName, "%s/sequential.csv", DatasDirectory);
+    check_file(FileName);
     printf("Loading sequential datas from %s\n", FileName);
     LoadSequential(FileName);
 #endif
@@ -730,24 +750,27 @@ char InitTempDir(void)
 
 char LoadProjectFiles(char *FileProject)
 {
-    char Result = FALSE;	/* FIXME: actually unused... */
-    char OldProjectFound = TRUE;
-    InitTempDir();
-    printf("Init tmp dir=%s\n", TmpDirectory);
-    CleanTmpDirectory(TmpDirectory, FALSE);
-    /* if it is an old project, read directly from the directory selected... */
-    if (strcmp(&FileProject[strlen(FileProject) - 4], ".clp") == 0)
-	OldProjectFound = FALSE;
-    if (OldProjectFound) {
-	printf("Loading an old project (many files in a directory) !\n");
-	LoadAllLadderDatas(FileProject);
-    } else {
+    char ProjectType = 0;
+    
+    ProjectType = VerifyPath(FileProject);
+    if ( ProjectType == 1 ) {
 	// split files of the project in the temp directory
+	printf ("Loading a new style project (single file)\n");
+	InitTempDir();
+	CleanTmpDirectory(TmpDirectory, FALSE);
 	SplitFiles(FileProject, TmpDirectory);
 	printf("Load datas in tmp dir=%s\n", TmpDirectory);
 	LoadAllLadderDatas(TmpDirectory);
+	return TRUE;
     }
-    return Result;
+    if ( ProjectType == 2 ) {
+	/* old project, read directly from the directory selected... */
+	printf("Loading old style project (many files in a directory)!\n");
+	LoadAllLadderDatas(FileProject);
+	return TRUE;
+    }
+    printf ( "Project %s not found\n", FileProject );
+    return FALSE;
 }
 
 char SaveProjectFiles(char *FileProject)
@@ -956,3 +979,25 @@ int VerifyDirectorySelected(char *Directory, char *NewDir)
     printf("DIRECTORY = %s\n", Directory);
     return (1);
 }
+
+
+int VerifyPath (char *Path)
+{
+    struct stat stat_buf;
+
+    if ( stat(Path, &stat_buf) != 0 ) {
+	/* not found */
+	return 0;
+    }
+    if ( S_ISREG(stat_buf.st_mode) ) {
+	/* single file (new style) */
+	return 1;
+    }
+    if ( S_ISDIR(stat_buf.st_mode) ) {
+	/* directory with multiple files (old style) */
+	return 2;
+    }
+    /* something else, not good */
+    return 0;
+}
+    

@@ -1,5 +1,6 @@
 void InitAllLadderDatas(void);
 int VerifyDirectorySelected(char *Directory, char *NewDir);
+int VerifyPath(char *Path);
 void LoadAllRungs_V1(char *BaseName, StrRung * Rungs, int *TheFirst,
     int *TheLast, int *TheCurrent);
 void LoadAllRungs(char *BaseName, StrRung * Rungs);

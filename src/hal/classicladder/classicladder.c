@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <getopt.h>
+#include <string.h>
 #ifdef GTK_INTERFACE
 #include <gtk/gtk.h>
 #endif
@@ -71,7 +72,7 @@ void display_version(void)
     exit(0);
 }
 
-void process_options(int argc, char *argv[])
+int process_options(int argc, char *argv[])
 {
     int error = 0;
 
@@ -115,20 +116,26 @@ void process_options(int argc, char *argv[])
 	}
     }
 
-    if (error)
-	display_help();
-
     if ((argc - optind) != 0) {
-	if (VerifyDirectorySelected(LadderDirectory, argv[optind]))
+	if (VerifyPath(argv[optind])) {
+	    strncpy(LadderDirectory, argv[optind], 400);
 	    loadProject = TRUE;
+	} else {
+	    printf ( "Project '%s' not found\n", argv[optind] );
+	    error = 1;
+	}
     }
+    return error;
 }
 
 int main(int argc, char *argv[])
 {
     int modId;
 
-    process_options(argc, argv);
+    if ( process_options(argc, argv) != 0 ) {
+	display_help();
+	return -1;
+    }
 
     if ((modId = rtapi_init("classicladder")) < 0) {
 	printf("rtapi_init() failed\n");
@@ -150,6 +157,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (loadProject) {
+	    printf ( "Loading program %s\n", LadderDirectory );
 	    InfosGene->LadderState = STATE_LOADING;
 	    LoadProjectFiles(LadderDirectory);
 	    InfosGene->LadderState = STATE_RUN;
