@@ -70,7 +70,7 @@ loadrt hal_parport cfg="0x0378_in"
 # Now we load some more HAL components:
 #
 # using the estop logic from "blocks", at least for now
-loadrt blocks n_estop=1
+loadrt blocks n_estop=1 ddt=2 limit3=1
 
 # Software encoder counter, for the jogwheel, and possibly a future
 # small manual encoder for a feedrate override knob.
@@ -83,10 +83,14 @@ loadrt pid numchan=3
 
 # classicladder for machine logic
 # (load the realtime portion)
-loadrt classicladder_rt
+loadrt classicladder_rt numRungs=50 numBits=50 numWords=4 numTimers=10 numMonostables=10 numPhysInputs=20 numPhysOutputs=20 numArithmExpr=4 numSections=4
+
 
 # invoke the user part of CL to silently load the program
 loadusr -w bin/classicladder --nogui configs/mazak_rf.clp
+
+# load the realtime part of halscope
+loadrt scope_rt
 
 # -----------------------------------------------
 
@@ -109,6 +113,8 @@ addf motenc.3.adc_read              servo-thread 6
 
 # ladder logic is executed once all the inputs are read
 addf classicladder.0.refresh        servo-thread 7
+
+addf limit3.0 servo-thread 8
 
 # pid calculations are done after the motion module
 # has determined new position commands.  By passing
@@ -153,9 +159,9 @@ linksp emc-estop-in iocontrol.0.estop-in
 newsig estop-reset bit
 linksp estop-reset iocontrol.0.estop-reset
 linksp estop-reset estop.0.reset
-newsig charge_pump bit
-linksp charge_pump estop.0.watchdog
-linksp charge_pump parport.0.pin-17-out
+newsig charge-pump bit
+linksp charge-pump estop.0.watchdog
+linksp charge-pump parport.0.pin-17-out
 
 # servo power supply control
 newsig AP1 bit
@@ -169,15 +175,29 @@ linksp servo-enable motenc.3.out-02
 linksp servo-enable axis.0.amp-enable-out
 
 # servo amp fault signals
+# the signals from the amps are actually "not running"
+# they are asserted when the amp is faulted, OR just
+# just disabled.  So we use the inverse and call them "running"
+newsig X-amp-running bit
+linksp X-amp-running motenc.3.in-12-not
+newsig Y-amp-running bit
+linksp Y-amp-running motenc.3.in-13-not
+newsig Z-amp-running bit
+linksp Z-amp-running motenc.3.in-14-not
+# these are the real fault signals, and go to the motion 
+# controller, they are derived from the ones above by
+# ladder logic
 newsig X-amp-fault bit
-linksp X-amp-fault motenc.3.in-12
 linksp X-amp-fault axis.0.amp-fault-in
 newsig Y-amp-fault bit
-linksp Y-amp-fault motenc.3.in-13
 linksp Y-amp-fault axis.1.amp-fault-in
 newsig Z-amp-fault bit
-linksp Z-amp-fault motenc.3.in-14
 linksp Z-amp-fault axis.2.amp-fault-in
+
+# motion enable - this signal prevents the motion controller
+# from starting unless everything is OK (comes from ladder)
+newsig motion-enable bit
+linksp motion-enable motion.enable
 
 # Limit switches
 # (the switches are NC, and open when hit, so
@@ -216,16 +236,16 @@ linksp Z-home motenc.3.in-10-not
 linksp X-home axis.2.home-sw-in
 
 # jogwheel signals
-newsig jogwheel_phA bit
-newsig jogwheel_phB bit
-linksp jogwheel_phA parport.0.pin-12-in
-linksp jogwheel_phB parport.0.pin-11-in
+newsig jogwheel-phA bit
+newsig jogwheel-phB bit
+linksp jogwheel-phA parport.0.pin-12-in
+linksp jogwheel-phB parport.0.pin-11-in
 # route signals to software encoder counter
-linksp jogwheel_phA encoder.0.phase-A
-linksp jogwheel_phB encoder.0.phase-B
+linksp jogwheel-phA encoder.0.phase-A
+linksp jogwheel-phB encoder.0.phase-B
 # jogwheel output
-newsig jogwheel_counts s32
-linksp jogwheel_counts encoder.0.counts
+newsig jogwheel-counts s32
+linksp jogwheel-counts encoder.0.counts
 
 
 # -----------------------------------------------------
@@ -272,12 +292,12 @@ setp motenc.3.dac-02-offset [AXIS_2]OUTPUT_OFFSET
 # -----------------------------------------------------
 # ADCs - servo amp current feedback
 #
-newsig X_amps float
-newsig Y_amps float
-newsig Z_amps float
-linksp X_amps motenc.3.adc-00-value
-linksp Y_amps motenc.3.adc-01-value
-linksp Z_amps motenc.3.adc-02-value
+newsig X-amps float
+newsig Y-amps float
+newsig Z-amps float
+linksp X-amps motenc.3.adc-00-value
+linksp Y-amps motenc.3.adc-01-value
+linksp Z-amps motenc.3.adc-02-value
 # get scale and offset from the ini file
 setp motenc.3.adc-00-gain 1.0
 setp motenc.3.adc-01-gain 1.0
@@ -291,19 +311,25 @@ setp motenc.3.adc-02-offset 0.0
 #
 
 # signals for position command
-newsig X_pos_cmd float
-newsig Y_pos_cmd float
-newsig Z_pos_cmd float
-# hook them to the PID inputs
-linksp X_pos_cmd pid.0.command
+newsig X-pos-cmd float
+newsig Y-pos-cmd float
+newsig Z-pos-cmd float
+# hook the motion controller outputs to the position command
+linksp X-pos-cmd axis.0.motor-pos-cmd
+# and to the PID inputs
+linksp X-pos-cmd pid.0.command
 
 # hook encoders to PID feedback
 linksp X-enc-pos pid.0.feedback
 linksp Y-enc-pos pid.1.feedback
 linksp Z-enc-pos pid.2.feedback
+# and to motion controller
+linksp X-enc-pos axis.0.motor-pos-fb
+linksp Y-enc-pos axis.1.motor-pos-fb
+linksp Z-enc-pos axis.2.motor-pos-fb
 
 # hook PID outputs to DACs
-#linksp X-volts pid.0.output
+linksp X-volts pid.0.output
 #linksp Y-volts pid.1.output
 #linksp Z-volts pid.2.output
 
@@ -311,6 +337,28 @@ linksp Z-enc-pos pid.2.feedback
 linksp servo-enable pid.0.enable
 linksp servo-enable pid.1.enable
 linksp servo-enable pid.2.enable
+
+# send the position feedback and command thru 
+# differentiators to generate velocity signals
+# link the differentiator functions into the code
+addf ddt.0 servo-thread
+addf ddt.1 servo-thread
+# define the signals, and hook them up
+newsig vel-cmd float
+newsig vel-fb float
+linksp X-pos-cmd ddt.0.in
+linksp vel-cmd ddt.0.out
+linksp X-enc-pos ddt.1.in
+linksp vel-fb ddt.1.out
+# the actual command is a ramp, generated by putting a step into a second order limiter
+newsig pos-cmd float
+linksp pos-cmd limit3.0.in
+linksp Y-pos-cmd limit3.0.out
+# set the limits
+setp limit3.0.min -2.0
+setp limit3.0.max  2.0
+setp limit3.0.maxv 0.5
+setp limit3.0.maxa 5
 
 # get tuning params from ini file
 setp pid.0.deadband [AXIS_0]DEADBAND
@@ -339,6 +387,19 @@ setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
 setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
 setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 
+# TESTING AND TUNING VALUES
+setp pid.1.maxoutput 0.01
+setp pid.2.maxoutput 0.01
+
+setp pid.1.deadband 0.0001
+setp pid.1.Pgain 2400.0
+setp pid.1.Igain 4000.0
+setp pid.1.Dgain 16.0
+setp pid.1.FF0 0.0
+setp pid.1.FF1 0.0
+setp pid.1.bias 0.0
+
+
 # LADDER LOGIC!!!
 #
 # Classic ladder doesn't let you use meaningfull names, so this
@@ -346,15 +407,34 @@ setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 
 # INPUTS to CL
 # I0 = estop-ok-out, used to power up the servo amps (multi-step process)
-linksp estop-ok-out classicladder.0.in-00
+linkps classicladder.0.in-00 estop-ok-out
+# I1 = servo-enable, used to mask amp faults when not enabled
+linkps classicladder.0.in-01 servo-enable
+# I2 thru I4, amp running signal (FALSE when faulted OR disabled)
+linkps classicladder.0.in-02 X-amp-running
+linkps classicladder.0.in-03 Y-amp-running
+linkps classicladder.0.in-04 Z-amp-running
+
 
 # OUTPUTS from CL
 # Q0 = AP1, first stage power up (applies power thru resitors)
-linksp AP1 classicladder.0.out-00
+linkps classicladder.0.out-00 AP1
 # Q1 = AP2, second stage (bypasses resistors)
-linksp AP2 classicladder.0.out-01
+linkps classicladder.0.out-01 AP2
+# Q2 thru Q4, amp faulted signal (ENABLED and NOT RUNNING)
+linkps classicladder.0.out-02 X-amp-fault
+linkps classicladder.0.out-03 Y-amp-fault
+linkps classicladder.0.out-04 Z-amp-fault
+# Q5 is motion enable (after chain)
+linkps classicladder.0.out-05 motion-enable
+
 
 # CL internals (not HAL data, just here for documentation
 #
 # T0 = delay from estop OK to AP1
 # T1 = delay from AP1 to AP2
+# T2 = delay to allow servo amps to respond to enable
+# T3 = delay between AP2 close and motion enable
+
+# B0 = delayed servo-enable, for fault masking
+# B1 = delayed AP2 close, for motion enable
