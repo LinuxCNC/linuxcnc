@@ -268,7 +268,7 @@ void emcmotCommandHandler(void *arg, long period)
     int valid;
     double tmp;
     emcmot_joint_t *joint;
-
+    
 check_stuff ( "before command_handler()" );
 
     /* check for split read */
@@ -924,10 +924,14 @@ check_stuff ( "before command_handler()" );
 	    /* set the emcmotDebug->enabling flag to defer enable until
 	       controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE");
-	    emcmotDebug->enabling = 1;
-	    if (kinType == KINEMATICS_INVERSE_ONLY) {
-		emcmotDebug->teleoperating = 0;
-		emcmotDebug->coordinating = 0;
+	    if ( *(emcmot_hal_data->enable) == 0 ) {
+		reportError("can't enable motion, enable input is false");
+	    } else {
+		emcmotDebug->enabling = 1;
+		if (kinType == KINEMATICS_INVERSE_ONLY) {
+		    emcmotDebug->teleoperating = 0;
+		    emcmotDebug->coordinating = 0;
+		}
 	    }
 	    break;
 

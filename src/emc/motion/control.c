@@ -69,7 +69,7 @@ void print_pose ( EmcPose *pos )
 #ifdef ENABLE_CHECK_STUFF
 void check_stuff(char *location)
 {
-   static short *target, old = 0xFF;
+   static char *target, old = 0xFF;
 /*! \todo Another #if 0 */
 #if 0
 /* kludge to look at emcmotDebug->enabling and emcmotStatus->motionFlag
@@ -85,9 +85,9 @@ void check_stuff(char *location)
 /* end of kluge */
 #endif
 
-    target = &(joints[2].flag);
+    target = (emcmot_hal_data->enable);
     if ( old != *target ) {
-	rtapi_print ( "%d: watch value %04X (%s)\n", emcmotStatus->heartbeat, *target, location );
+	rtapi_print ( "%d: watch value %02X (%s)\n", emcmotStatus->heartbeat, *target, location );
 	old = *target;
     }
 }
@@ -590,8 +590,16 @@ static void check_for_faults(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
-
-    /* check for various fault conditions */
+    
+    /* check for various global fault conditions */
+    /* only check enable input if running */
+    if ( GET_MOTION_ENABLE_FLAG() != 0 ) {
+	if ( *(emcmot_hal_data->enable) == 0 ) {
+	    reportError("motion stopped by enable input");
+	    emcmotDebug->enabling = 0;
+	}
+    }
+    /* check for various joint fault conditions */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
@@ -834,8 +842,8 @@ static int immediate_state;
    repeated in several different states of the homing state machine */
 
 /* 'home_start_move()' starts a move at the specified velocity.  The
-   length of the move is equal to the overall range of the axis, but
-   the intent is that something (like a home switch or index pulse)
+   length of the move is equal to twice the overall range of the axis,
+   but the intent is that something (like a home switch or index pulse)
    will stop it before that point. */
 void home_start_move(emcmot_joint_t * joint, double vel)
 {
@@ -844,9 +852,9 @@ void home_start_move(emcmot_joint_t * joint, double vel)
     /* set up a long move */
     axis_range = joint->max_pos_limit - joint->min_pos_limit;
     if (vel > 0.0) {
-	joint->free_pos_cmd = joint->pos_cmd + axis_range;
+	joint->free_pos_cmd = joint->pos_cmd + 2.0 * axis_range;
     } else {
-	joint->free_pos_cmd = joint->pos_cmd - axis_range;
+	joint->free_pos_cmd = joint->pos_cmd - 2.0 * axis_range;
     }
     joint->free_vel_lim = fabs(vel);
     /* start the move */
@@ -1871,7 +1879,7 @@ static void output_to_hal(void)
     axis_hal_t *axis_data;
 
     /* output machine info to HAL for scoping, etc */
-    emcmot_hal_data->motion_enable = GET_MOTION_ENABLE_FLAG();
+    emcmot_hal_data->motion_enabled = GET_MOTION_ENABLE_FLAG();
     emcmot_hal_data->in_position = GET_MOTION_INPOS_FLAG();
     emcmot_hal_data->coord_mode = GET_MOTION_COORD_FLAG();
     emcmot_hal_data->teleop_mode = GET_MOTION_TELEOP_FLAG();

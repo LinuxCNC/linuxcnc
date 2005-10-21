@@ -298,10 +298,18 @@ static int init_hal_io(void)
 	return retval;
     }
 
-    /* export machine wide hal parameters */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-enable");
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.enable");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->motion_enable),
+	hal_pin_bit_new(buf, HAL_RD, &(emcmot_hal_data->enable),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
+    /* export machine wide hal parameters */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-enabled");
+    retval =
+	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->motion_enabled),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
@@ -412,9 +420,12 @@ static int init_hal_io(void)
 
     /* initialize machine wide pins and parameters */
     *(emcmot_hal_data->probe_input) = 0;
+    /* default value of enable is TRUE, so simple machines
+       can leave it disconnected */
+    *(emcmot_hal_data->enable) = 1;
     /*! \todo FIXME - these don't really need initialized, since they are written
        with data from the emcmotStatus struct */
-    emcmot_hal_data->motion_enable = 0;
+    emcmot_hal_data->motion_enabled = 0;
     emcmot_hal_data->in_position = 0;
     emcmot_hal_data->coord_mode = 0;
     emcmot_hal_data->teleop_mode = 0;
