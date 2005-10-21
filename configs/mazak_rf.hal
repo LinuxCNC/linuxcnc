@@ -81,6 +81,13 @@ loadrt encoder num_chan=1
 #
 loadrt pid numchan=3
 
+# classicladder for machine logic
+# (load the realtime portion)
+loadrt classicladder_rt
+
+# invoke the user part of CL to silently load the program
+loadusr -w bin/classicladder --nogui configs/mazak_rf.clp
+
 # -----------------------------------------------
 
 # connect I/O driver functions to thread(s)
@@ -99,6 +106,9 @@ addf ax5214h.0.read                 servo-thread 3
 addf estop.0                        servo-thread 4
 addf encoder.capture_position       servo-thread 5
 addf motenc.3.adc_read              servo-thread 6
+
+# ladder logic is executed once all the inputs are read
+addf classicladder.0.refresh        servo-thread 7
 
 # pid calculations are done after the motion module
 # has determined new position commands.  By passing
@@ -329,3 +339,22 @@ setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
 setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
 setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 
+# LADDER LOGIC!!!
+#
+# Classic ladder doesn't let you use meaningfull names, so this
+# will be the magic decoder ring
+
+# INPUTS to CL
+# I0 = estop-ok-out, used to power up the servo amps (multi-step process)
+linksp estop-ok-out classicladder.0.in-00
+
+# OUTPUTS from CL
+# Q0 = AP1, first stage power up (applies power thru resitors)
+linksp AP1 classicladder.0.out-00
+# Q1 = AP2, second stage (bypasses resistors)
+linksp AP2 classicladder.0.out-01
+
+# CL internals (not HAL data, just here for documentation
+#
+# T0 = delay from estop OK to AP1
+# T1 = delay from AP1 to AP2
