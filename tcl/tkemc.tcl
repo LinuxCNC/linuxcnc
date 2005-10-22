@@ -681,12 +681,13 @@ proc jogPos {axis} {
 }
 
 # stops the active axis
-proc jogStop {} {
-    global activeAxis jogType
+proc jogStop {axis} {
+    global jogType
+    #removed globalAxis, as that caused the problems with multiple jogs
 
     # only stop continuous jogs; let incremental jogs finish
     if {$jogType == "continuous"} {
-        emc_jog_stop $activeAxis
+        emc_jog_stop $axis
     }
 }
 
@@ -1142,10 +1143,10 @@ pack $homebutton -side left
 pack $jogposbutton -side left
 
 bind $jognegbutton <ButtonPress-1> {jogNeg $activeAxis}
-bind $jognegbutton <ButtonRelease-1> {jogStop}
+bind $jognegbutton <ButtonRelease-1> {jogStop $activeAxis}
 bind $homebutton <ButtonPress-1> {emc_home $activeAxis}
 bind $jogposbutton <ButtonPress-1> {jogPos $activeAxis}
-bind $jogposbutton <ButtonRelease-1> {jogStop}
+bind $jogposbutton <ButtonRelease-1> {jogStop $activeAxis}
 
 proc axisSelect {axis} {
     global pos0 pos1 pos2 pos3 pos4 pos5
@@ -1516,14 +1517,23 @@ bind ManualBindings <KeyPress-F12> spindleIncrDown
 bind ManualBindings <KeyRelease-F12> spindleIncrUp
 
 set activeAxis 0
+set minusAxis 0
+set equalAxis 0
 
 proc minusDone {} {
-    jogStop
+    global minusAxis
+    
+    jogStop $minusAxis
     bind ManualBindings <KeyPress-minus> minusDown
 }
 
 proc minusDown {} {
-    global activeAxis
+    global minusAxis activeAxis
+    
+    if {$minusAxis > 1} {
+       set minusAxis $activeAxis
+    }
+
     bind ManualBindings <KeyPress-minus> {}
     after cancel minusDone
     jogNeg $activeAxis
@@ -1540,12 +1550,19 @@ bind ManualBindings <KeyPress-minus> minusDown
 bind ManualBindings <KeyRelease-minus> minusUp
 
 proc equalDone {} {
-    jogStop
+    global equalAxis
+    
+    jogStop $equalAxis
     bind ManualBindings <KeyPress-equal> equalDown
 }
 
 proc equalDown {} {
-    global activeAxis
+    global equalAxis activeAxis
+
+    if {$equalAxis > 1} {
+       set equalAxis $activeAxis
+    }
+
     bind ManualBindings <KeyPress-equal> {}
     after cancel equalDone
     jogPos $activeAxis
@@ -1562,7 +1579,7 @@ bind ManualBindings <KeyPress-equal> equalDown
 bind ManualBindings <KeyRelease-equal> equalUp
 
 proc leftDone {} {
-    jogStop
+    jogStop 0
     bind ManualBindings <KeyPress-Left> leftDown
 }
 
@@ -1584,7 +1601,7 @@ bind ManualBindings <KeyPress-Left> leftDown
 bind ManualBindings <KeyRelease-Left> leftUp
 
 proc rightDone {} {
-    jogStop
+    jogStop 0
     bind ManualBindings <KeyPress-Right> rightDown
 }
 
@@ -1606,7 +1623,7 @@ bind ManualBindings <KeyPress-Right> rightDown
 bind ManualBindings <KeyRelease-Right> rightUp
 
 proc downDone {} {
-    jogStop
+    jogStop 1
     bind ManualBindings <KeyPress-Down> downDown
 }
 
@@ -1628,7 +1645,7 @@ bind ManualBindings <KeyPress-Down> downDown
 bind ManualBindings <KeyRelease-Down> downUp
 
 proc upDone {} {
-    jogStop
+    jogStop 1
     bind ManualBindings <KeyPress-Up> upDown
 }
 
@@ -1650,7 +1667,7 @@ bind ManualBindings <KeyPress-Up> upDown
 bind ManualBindings <KeyRelease-Up> upUp
 
 proc priorDone {} {
-    jogStop
+    jogStop 2
     bind ManualBindings <KeyPress-Prior> priorDown
 }
 
@@ -1672,7 +1689,7 @@ bind ManualBindings <KeyPress-Prior> priorDown
 bind ManualBindings <KeyRelease-Prior> priorUp
 
 proc nextDone {} {
-    jogStop
+    jogStop 2
     bind ManualBindings <KeyPress-Next> nextDown
 }
 
