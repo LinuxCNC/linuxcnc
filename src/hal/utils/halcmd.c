@@ -698,7 +698,6 @@ static int do_setp_cmd(char *name, char *value)
 	cp++;
 	envvar = getenv(cp);
 	if ( envvar == NULL ) {
-	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: env variable '%s' not found\n", cp);
 	    return HAL_INVAL;
@@ -713,7 +712,6 @@ static int do_setp_cmd(char *name, char *value)
 	/* look for end of section name */
 	while ( *cp != ']' ) {
 	    if ( *cp == '\0' ) {
-		rtapi_mutex_give(&(hal_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL: ERROR: ini file reference '%s' missing ']'\n", value);
 		return HAL_INVAL;
@@ -733,7 +731,6 @@ static int do_setp_cmd(char *name, char *value)
 	    value = (char *) iniFind(inifile, variable, NULL);
 	}
 	if ( value == NULL ) {
-	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: ini file variable '[%s]%s' not found\n", section, variable);
 	    return HAL_INVAL;
@@ -903,11 +900,62 @@ static int do_sets_cmd(char *name, char *value)
     float fval;
     long lval;
     unsigned long ulval;
+    char *envvar = NULL;
+#ifndef NO_INI
+    char *section = NULL;
+    char *variable = NULL;
+#endif
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting signal '%s'\n", name);
+    /* check for special cases of 'value' */
+    cp = value;
+    if ( *cp == '$' ) {
+	/* environment variable reference */
+	/* skip over '$' to name of variable */
+	cp++;
+	envvar = getenv(cp);
+	if ( envvar == NULL ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: env variable '%s' not found\n", cp);
+	    return HAL_INVAL;
+	}
+	value = envvar;
+    }
+#ifndef NO_INI
+    else if ( *cp == '[' ) {
+	/* ini file variable reference */
+	/* skip over leading '[' and save ptr to start of section name */
+	section = ++cp;
+	/* look for end of section name */
+	while ( *cp != ']' ) {
+	    if ( *cp == '\0' ) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: ERROR: ini file reference '%s' missing ']'\n", value);
+		return HAL_INVAL;
+	    }
+	    cp++;
+	}
+	/* found trailing ']', replace with '\0' to end section */
+	*cp = '\0';
+	/* skip over '\0' and save pointer to variable name */
+	variable = ++cp;
+	if ( *section != '\0' ) {
+	    /* get value from ini file */
+	    /* cast to char ptr, we are discarding the 'const' */
+	    value = (char *) iniFind(inifile, variable, section);
+	} else {
+	    /* no section specified */
+	    value = (char *) iniFind(inifile, variable, NULL);
+	}
+	if ( value == NULL ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: ini file variable '[%s]%s' not found\n", section, variable);
+	    return HAL_INVAL;
+	}
+    }
+#endif /* NO_INI */
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
-
     /* search signal list for name */
     sig = halpr_find_sig_by_name(name);
     if (sig == 0) {
