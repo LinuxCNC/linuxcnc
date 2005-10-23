@@ -1517,20 +1517,21 @@ bind ManualBindings <KeyPress-F12> spindleIncrDown
 bind ManualBindings <KeyRelease-F12> spindleIncrUp
 
 set activeAxis 0
-set minusAxis 0
-set equalAxis 0
+set minusAxis -1
+set equalAxis -1
 
 proc minusDone {} {
     global minusAxis
     
     jogStop $minusAxis
     bind ManualBindings <KeyPress-minus> minusDown
+    set $minusAxis -1
 }
 
 proc minusDown {} {
     global minusAxis activeAxis
     
-    if {$minusAxis > 1} {
+    if {$minusAxis < 0} {
        set minusAxis $activeAxis
     }
 
@@ -1554,12 +1555,13 @@ proc equalDone {} {
     
     jogStop $equalAxis
     bind ManualBindings <KeyPress-equal> equalDown
+    set $equalAxis -1
 }
 
 proc equalDown {} {
     global equalAxis activeAxis
 
-    if {$equalAxis > 1} {
+    if {$equalAxis < 0} {
        set equalAxis $activeAxis
     }
 
