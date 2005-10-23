@@ -70,16 +70,18 @@ loadrt hal_parport cfg="0x0378_in"
 # Now we load some more HAL components:
 #
 # using the estop logic from "blocks", at least for now
-loadrt blocks n_estop=1 ddt=2 limit3=1
+# the rest of these blocks implement spindle speed scaling
+# (for high/low shifting) and spindle orient
+loadrt blocks n_estop=1 mux2=1 mux4=1 wcomp=2 scale=2
 
 # Software encoder counter, for the jogwheel, and possibly a future
 # small manual encoder for a feedrate override knob.
 #	
 loadrt encoder num_chan=1
 
-# PID loops for axis control
+# PID loops: 3 for axis control and one for spindle orient
 #
-loadrt pid numchan=3
+loadrt pid num_chan=4
 
 # classicladder for machine logic
 # (load the realtime portion)
@@ -114,7 +116,6 @@ addf motenc.3.adc_read              servo-thread 6
 # ladder logic is executed once all the inputs are read
 addf classicladder.0.refresh        servo-thread 7
 
-addf limit3.0 servo-thread 8
 
 # pid calculations are done after the motion module
 # has determined new position commands.  By passing
@@ -123,6 +124,15 @@ addf limit3.0 servo-thread 8
 addf pid.0.do_pid_calcs             servo-thread -1
 addf pid.1.do_pid_calcs             servo-thread -1
 addf pid.2.do_pid_calcs             servo-thread -1
+
+# spindle signal handling is done next
+addf pid.3.do_pid_calcs             servo-thread -1
+addf mux2.0                         servo-thread -1
+addf scale.0                        servo-thread -1
+addf scale.1                        servo-thread -1
+addf mux4.0                         servo-thread -1
+addf wcomp.0                        servo-thread -1
+addf wcomp.1                        servo-thread -1
 
 # output drivers are loaded last
 addf motenc.3.dac_write             servo-thread -1
@@ -169,6 +179,11 @@ linksp AP1 motenc.3.out-00
 newsig AP2 bit
 linksp AP2 motenc.3.out-01
 
+# motion enable - this signal prevents the motion controller
+# from starting unless everything is OK (comes from ladder)
+newsig motion-enable bit
+linksp motion-enable motion.enable
+
 # servo amp enable (only one, driven by axis 0)
 newsig servo-enable bit
 linksp servo-enable motenc.3.out-02
@@ -184,6 +199,9 @@ newsig Y-amp-running bit
 linksp Y-amp-running motenc.3.in-13-not
 newsig Z-amp-running bit
 linksp Z-amp-running motenc.3.in-14-not
+# need to release the Z-axis brake when running
+linksp Z-amp-running motenc.3.out-15
+
 # these are the real fault signals, and go to the motion 
 # controller, they are derived from the ones above by
 # ladder logic
@@ -193,11 +211,6 @@ newsig Y-amp-fault bit
 linksp Y-amp-fault axis.1.amp-fault-in
 newsig Z-amp-fault bit
 linksp Z-amp-fault axis.2.amp-fault-in
-
-# motion enable - this signal prevents the motion controller
-# from starting unless everything is OK (comes from ladder)
-newsig motion-enable bit
-linksp motion-enable motion.enable
 
 # Limit switches
 # (the switches are NC, and open when hit, so
@@ -235,21 +248,171 @@ newsig Z-home bit
 linksp Z-home motenc.3.in-10-not
 linksp Z-home axis.2.home-sw-in
 
-# spindle related signals
-# ready (from drive to PC)
+# spindle related signals: "high level" signals
+#   ready (from drive to PC)
+#   run (from PC to drive)
+#   at speed (from drive to PC)
+#   orient command (to spindle control)
+#   oriented status (from spindle control)
+#   commanded speed (from EMC to control)
+#   spindle current feedback (from drive to PC)
 newsig spindle-ready bit
-linksp spindle-ready motenc.3.in-14-not
-# run (from PC to drive)
 newsig spindle-run bit
-linksp spindle-run motenc.3.out-03
-# speed speed command (from PC to drive)
-# note this is motor speed, not spindle
-# speed (because of the gearbox)
-newsig spindle-mtr-spd-cmd float
-linksp spindle-mtr-spd-cmd motenc.3.dac-03-value
-# spindle current feedback (from drive to PC)
+newsig spindle-at-speed bit
+newsig spindle-do-orient bit
+newsig spindle-oriented bit
+newsig spindle-rpm-cmd float
 newsig spindle-amps float
+newsig spindle-use-low-gear bit
+
+# spindle related signals: "internal" signals
+newsig sp-enc-pos float
+newsig sp-orient-pos-cmd float
+newsig sp-orient-pos-err float
+newsig sp-index-enable bit
+newsig sp-orient-rpm-cmd float
+newsig sp-rpm-cmd float
+newsig sp-mtr-high-rpm-cmd float
+newsig sp-mtr-low-rpm-cmd float
+newsig sp-mtr-mesh-rpm-cmd float
+newsig sp-mtr-rpm-cmd float
+newsig sp-orient-pos-ok bit
+newsig sp-engage-high-gear bit
+newsig sp-engage-low-gear bit
+newsig sp-in-high-gear bit
+newsig sp-in-low-gear bit
+newsig sp-in-neutral bit
+newsig sp-shifting bit
+newsig sp-at-speed bit
+
+# get spindle position from encoder
+linksp sp-enc-pos motenc.3.enc-03-position
+# scale spindle position to degrees
+# 1440 cnts/rev = 4 cnts/degree
+setp motenc.3.enc-03-scale 4.0
+
+# set encoder latch enable TRUE so encoder count "wraps"
+linksp sp-index-enable motenc.3.enc-03-latch-index
+sets sp-index-enable TRUE
+
+# get desired orient position from ini file
+sets sp-orient-pos-cmd [SPINDLE]ORIENT_POSITION
+# sets sp-orient-pos-cmd 180
+
+# connect commanded and feedback positions to PID loop
+linksp sp-orient-pos-cmd pid.3.command
+linksp sp-enc-pos pid.3.feedback
+
+# enable PID loop when in orient mode
+linksp spindle-do-orient pid.3.enable
+
+# tuning params for PID loop
+setp pid.3.Pgain 1.0
+setp pid.3.Igain 0.6
+setp pid.3.Dgain 0.2
+setp pid.3.deadband 0.4
+
+# limit outputs, we don't want to go fast during orient
+setp pid.3.maxoutput 100
+
+# check position error with window comparator
+linksp sp-orient-pos-err pid.3.error
+linksp sp-orient-pos-err wcomp.0.in
+linksp sp-orient-pos-ok wcomp.0.out
+# set a +/- 1/2 degree window
+setp wcomp.0.min -0.5
+setp wcomp.0.max  0.5
+
+# output of loop is velocity for orientation
+linksp sp-orient-rpm-cmd pid.3.output
+
+# select between normal speed and orient speed
+# based on do-orient command
+linksp sp-orient-rpm-cmd mux2.0.in1
+linksp spindle-rpm-cmd mux2.0.in0
+linksp spindle-do-orient mux2.0.sel
+# output of mux is desired spindle RPM
+linksp sp-rpm-cmd mux2.0.out
+
+# use scale blocks to calculate required motor RPM for
+# both gears based on desired spindle RPM
+linksp sp-rpm-cmd scale.0.in
+linksp sp-mtr-high-rpm-cmd scale.0.out
+setp scale.0.gain [SPINDLE]HIGH_GEAR_RATIO
+linksp sp-rpm-cmd scale.1.in
+linksp sp-mtr-low-rpm-cmd scale.1.out
+setp scale.1.gain [SPINDLE]LOW_GEAR_RATIO
+
+# select either high or low speed based on current gear ratio,
+# unless shifting, then select a low speed for meshing the gears
+linksp sp-mtr-high-rpm-cmd mux4.0.in0
+linksp sp-mtr-low-rpm-cmd mux4.0.in1
+linksp sp-mtr-mesh-rpm-cmd mux4.0.in2
+linksp sp-mtr-mesh-rpm-cmd mux4.0.in3
+linksp sp-in-low-gear mux4.0.sel0
+linksp sp-shifting mux4.0.sel1
+# output of mux is desired motor RPM
+linksp sp-mtr-rpm-cmd mux4.0.out
+# set meshing speed
+sets sp-mtr-mesh-rpm-cmd 15
+
+# link the final motor command to the DAC
+linksp sp-mtr-rpm-cmd motenc.3.dac-03-value
+# set scaling - 10V = 4500RPM at the motor
+setp motenc.3.dac-03-gain 0.002222
+# correct for offset, it causes drift and hunting
+setp motenc.3.dac-03-offset -8
+
+# connect other signals to drive
+linksp spindle-ready motenc.3.in-15
+linksp spindle-run motenc.3.out-03
+linksp sp-at-speed motenc.3.in-11
 linksp spindle-amps motenc.3.adc-03-value
+
+# connect signals to gearbox controls
+linksp sp-engage-high-gear ax5214h.0.out-21
+linksp sp-engage-low-gear ax5214h.0.out-20
+linksp sp-in-high-gear ax5214h.0.in-34
+linksp sp-in-neutral ax5214h.0.in-35
+linksp sp-in-low-gear ax5214h.0.in-36
+
+# end of spindle control
+
+# misc control
+newsig hydraulic-pump-run bit
+linksp hydraulic-pump-run motenc.3.out-14
+
+# hydraulic valves
+newsig arm-extend bit
+linksp arm-extend ax5214h.0.out-47
+newsig arm-retract bit
+linksp arm-retract ax5214h.0.out-46
+newsig arm-60cw bit
+linksp arm-60cw ax5214h.0.out-45
+newsig arm-180ccw bit
+linksp arm-180ccw ax5214h.0.out-44
+newsig tool-load bit
+linksp tool-load ax5214h.0.out-43
+newsig tool-unload bit
+linksp tool-unload ax5214h.0.out-42
+newsig magazine-forward bit
+linksp magazine-forward ax5214h.0.out-41
+newsig magazine-reverse bit
+linksp magazine-reverse ax5214h.0.out-40
+newsig tool-unclamp bit
+linksp tool-unclamp ax5214h.0.out-23
+newsig head-unclamp bit
+linksp head-unclamp ax5214h.0.out-22
+
+# other valve and such
+newsig spindle-air-blast bit
+linksp spindle-air-blast ax5214h.0.out-19
+newsig work-air-blast bit
+linksp work-air-blast ax5214h.0.out-18
+newsig mist-coolant bit
+linksp mist-coolant ax5214h.0.out-17
+newsig flood-coolant bit
+linksp flood-coolant ax5214h.0.out-16
 
 # jogwheel signals
 newsig jogwheel-phA bit
@@ -333,9 +496,11 @@ newsig Z-pos-cmd float
 # hook the motion controller outputs to the position command
 linksp X-pos-cmd axis.0.motor-pos-cmd
 linksp Y-pos-cmd axis.1.motor-pos-cmd
+linksp Z-pos-cmd axis.2.motor-pos-cmd
 # and to the PID inputs
 linksp X-pos-cmd pid.0.command
 linksp Y-pos-cmd pid.1.command
+linksp Z-pos-cmd pid.2.command
 
 # hook encoders to PID feedback
 linksp X-enc-pos pid.0.feedback
@@ -349,34 +514,12 @@ linksp Z-enc-pos axis.2.motor-pos-fb
 # hook PID outputs to DACs
 linksp X-volts pid.0.output
 linksp Y-volts pid.1.output
-#linksp Z-volts pid.2.output
+linksp Z-volts pid.2.output
 
 # use 'servo-enable' to enable PID blocks
 linksp servo-enable pid.0.enable
 linksp servo-enable pid.1.enable
 linksp servo-enable pid.2.enable
-
-# send the position feedback and command thru 
-# differentiators to generate velocity signals
-# link the differentiator functions into the code
-addf ddt.0 servo-thread
-addf ddt.1 servo-thread
-# define the signals, and hook them up
-newsig vel-cmd float
-newsig vel-fb float
-linksp Y-pos-cmd ddt.0.in
-linksp vel-cmd ddt.0.out
-linksp Y-enc-pos ddt.1.in
-linksp vel-fb ddt.1.out
-# the actual command is a ramp, generated by putting a step into a second order limiter
-newsig pos-cmd float
-linksp pos-cmd limit3.0.in
-linksp Z-pos-cmd limit3.0.out
-# set the limits
-setp limit3.0.min -2.0
-setp limit3.0.max  2.0
-setp limit3.0.maxv 0.5
-setp limit3.0.maxa 5
 
 # get tuning params from ini file
 setp pid.0.deadband [AXIS_0]DEADBAND
@@ -405,9 +548,6 @@ setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
 setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
 setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 
-# TESTING AND TUNING VALUES
-setp pid.2.maxoutput 0.01
-
 # LADDER LOGIC!!!
 #
 # Classic ladder doesn't let you use meaningfull names, so this
@@ -422,7 +562,11 @@ linkps classicladder.0.in-01 servo-enable
 linkps classicladder.0.in-02 X-amp-running
 linkps classicladder.0.in-03 Y-amp-running
 linkps classicladder.0.in-04 Z-amp-running
-
+linkps classicladder.0.in-05 spindle-use-low-gear
+linkps classicladder.0.in-06 sp-in-low-gear
+linkps classicladder.0.in-07 sp-in-high-gear
+linkps classicladder.0.in-08 sp-in-neutral
+linkps classicladder.0.in-09 sp-at-speed
 
 # OUTPUTS from CL
 # Q0 = AP1, first stage power up (applies power thru resitors)
@@ -435,6 +579,12 @@ linkps classicladder.0.out-03 Y-amp-fault
 linkps classicladder.0.out-04 Z-amp-fault
 # Q5 is motion enable (after chain)
 linkps classicladder.0.out-05 motion-enable
+# Q6 and 7 are the gear shift outputs
+linkps classicladder.0.out-06 sp-engage-low-gear
+linkps classicladder.0.out-07 sp-engage-high-gear
+# Q8 indicates that a shift is in progress
+linkps classicladder.0.out-08 sp-shifting
+
 
 
 # CL internals (not HAL data, just here for documentation
@@ -443,6 +593,11 @@ linkps classicladder.0.out-05 motion-enable
 # T1 = delay from AP1 to AP2
 # T2 = delay to allow servo amps to respond to enable
 # T3 = delay between AP2 close and motion enable
+# T4 = delay before shifting out of gear
+# T5 = delay before shifting into gear
 
 # B0 = delayed servo-enable, for fault masking
 # B1 = delayed AP2 close, for motion enable
+# B2 = gear shifting in progress
+# B3 = ok to shift into neutral
+# B4 = ok to shift into gear
