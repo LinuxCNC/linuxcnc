@@ -2,7 +2,7 @@
 #
 # first load I/O drivers.  This retrofit uses three different I/O devices
 #
-# 1) MOTENC-Lite card, for analog outs to drives, encoder feedback, and 
+# 1) MOTENC-Lite card, for analog outs to drives, encoder feedback, and
 #     some digital I/O.
 #
 loadrt hal_motenc
@@ -14,7 +14,7 @@ loadrt hal_motenc
 loadrt hal_ax5214h cfg="0x220_iiooiioo"
 
 # 3) Parallel Port, driving PMDX-122 card.  This provides a charge pump
-#     type watchdog, and also provides a small number of inputs that 
+#     type watchdog, and also provides a small number of inputs that
 #     can be sampled at a higher rate.  The jogwheel comes in thru this
 #     card and is counted in software.
 #
@@ -76,7 +76,7 @@ loadrt blocks n_estop=1 mux2=1 mux4=1 wcomp=2 scale=2
 
 # Software encoder counter, for the jogwheel, and possibly a future
 # small manual encoder for a feedrate override knob.
-#	
+#
 loadrt encoder num_chan=1
 
 # PID loops: 3 for axis control and one for spindle orient
@@ -86,7 +86,6 @@ loadrt pid num_chan=4
 # classicladder for machine logic
 # (load the realtime portion)
 loadrt classicladder_rt numRungs=50 numBits=50 numWords=4 numTimers=10 numMonostables=10 numPhysInputs=20 numPhysOutputs=20 numArithmExpr=4 numSections=4
-
 
 # invoke the user part of CL to silently load the program
 loadusr -w bin/classicladder --nogui configs/mazak_rf.clp
@@ -101,7 +100,7 @@ loadrt scope_rt
 # NOTE: this would be _much_ easier if we allowed HAL to
 # load all the realtime modules, including the core EMC
 # ones.  As it is however, the EMC motion controller is
-# loaded by the run script, so we need to make sure that 
+# loaded by the run script, so we need to make sure that
 # input drivers execute before the motion module, and the
 # PID calcs and output drivers run after the motion module.
 # The number at the end of each line is the position in
@@ -140,7 +139,7 @@ addf motenc.3.digital_out_write     servo-thread -1
 addf ax5214h.0.write                servo-thread -1
 addf parport.0.write                servo-thread -1
 
-# the base thread (fast thread) isn't needed for step pulse 
+# the base thread (fast thread) isn't needed for step pulse
 # generation since this is a servo machine.  However we use
 # it to sample the jogwheel signals and count them in software
 
@@ -202,7 +201,7 @@ linksp Z-amp-running motenc.3.in-14-not
 # need to release the Z-axis brake when running
 linksp Z-amp-running motenc.3.out-15
 
-# these are the real fault signals, and go to the motion 
+# these are the real fault signals, and go to the motion
 # controller, they are derived from the ones above by
 # ladder logic
 newsig X-amp-fault bit
@@ -215,7 +214,7 @@ linksp Z-amp-fault axis.2.amp-fault-in
 # Limit switches
 # (the switches are NC, and open when hit, so
 # we invert the signals by using the -not input
-# pin - the result is limit signals that are 
+# pin - the result is limit signals that are
 # TRUE when the machine is on the limit.)
 newsig X-lim-plus bit
 linksp X-lim-plus motenc.3.in-00-not
@@ -370,11 +369,19 @@ linksp sp-at-speed motenc.3.in-11
 linksp spindle-amps motenc.3.adc-03-value
 
 # connect signals to gearbox controls
+# need to add a spindle run command
+# and a rotating speed I think
 linksp sp-engage-high-gear ax5214h.0.out-21
 linksp sp-engage-low-gear ax5214h.0.out-20
 linksp sp-in-high-gear ax5214h.0.in-34
 linksp sp-in-neutral ax5214h.0.in-35
 linksp sp-in-low-gear ax5214h.0.in-36
+
+# rayh begins to screw it up with help from aj
+# connect iocontrol signals for spindle run and speed
+# these work as long as a spindle command is being output.
+linksp spindle-run iocontrol.0.spindle-on
+linksp spindle-rpm-cmd iocontrol.0.spindle-speed-out
 
 # end of spindle control
 
@@ -425,6 +432,8 @@ linksp jogwheel-phB encoder.0.phase-B
 # jogwheel output
 newsig jogwheel-counts s32
 linksp jogwheel-counts encoder.0.counts
+# need to release the Z-axis brake when running
+linksp Z-amp-running motenc.3.out-15
 
 
 # -----------------------------------------------------
@@ -516,7 +525,9 @@ linksp X-volts pid.0.output
 linksp Y-volts pid.1.output
 linksp Z-volts pid.2.output
 
-# use 'servo-enable' to enable PID blocks
+# use 'servo-enable' to enable PID blocks# need to release the Z-axis brake when running
+linksp Z-amp-running motenc.3.out-15
+
 linksp servo-enable pid.0.enable
 linksp servo-enable pid.1.enable
 linksp servo-enable pid.2.enable
@@ -584,8 +595,6 @@ linkps classicladder.0.out-06 sp-engage-low-gear
 linkps classicladder.0.out-07 sp-engage-high-gear
 # Q8 indicates that a shift is in progress
 linkps classicladder.0.out-08 sp-shifting
-
-
 
 # CL internals (not HAL data, just here for documentation
 #
