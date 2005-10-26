@@ -21,6 +21,14 @@ newsig estop bit
 linksp estop iocontrol.0.estop-out
 linksp estop iocontrol.0.estop-in
 
+# create signals for tool loading loopback
+newsig toolprep bit
+linksp toolprep iocontrol.0.tool-prepare
+linksp toolprep iocontrol.0.tool-prepared
+newsig toolchg bit
+linksp toolchg iocontrol.0.tool-change
+linksp toolchg iocontrol.0.tool-changed
+
 # create a signal for "spindle on"
 newsig spindle_on bit
 
