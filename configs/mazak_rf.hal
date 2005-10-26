@@ -377,7 +377,7 @@ linksp sp-in-high-gear ax5214h.0.in-34
 linksp sp-in-neutral ax5214h.0.in-35
 linksp sp-in-low-gear ax5214h.0.in-36
 
-# rayh begins to screw it up with help from aj
+# rayh begins to screw it up with help from his friends
 # connect iocontrol signals for spindle run and speed
 # these work as long as a spindle command is being output.
 linksp spindle-run iocontrol.0.spindle-on
@@ -388,6 +388,49 @@ linksp spindle-rpm-cmd iocontrol.0.spindle-speed-out
 # misc control
 newsig hydraulic-pump-run bit
 linksp hydraulic-pump-run motenc.3.out-14
+newsig hydraulic-pump-running bit
+linksp hydraulic-pump-running ax5214h.0.in-05
+
+# hydraulic actuator prox switches
+# tool load-unload arm
+newsig tool-unloaded bit
+linksp tool-unloaded ax5214h.0.in-38
+newsig tool-loaded bit
+linksp tool-loaded ax5214h.0.in-15
+
+# double or intermediate arm
+newsig arm-retracted bit
+linksp arm-retracted ax5214h.0.in-29
+newsig arm-extended bit
+linksp arm-extended ax5214h.0.in-30
+newsig arm-at-0/180 bit
+linksp arm-at-0/180 ax5214h.0.in-26
+newsig arm-at-0/60 bit
+linksp arm-at-0/60 ax5214h.0.in-27
+newsig arm-at-60 bit
+linksp arm-at-60 ax5214h.0.in-28
+newsig arm-at-180 bit
+linksp arm-at-180 ax5214h.0.in-31
+
+# tool drawbar
+newsig tool-clamped bit
+linksp tool-clamped ax5214h.0.in-33
+newsig tool-unclamped bit
+linksp tool-unclamped ax5214h.0.in-32
+
+# tool magazine or carousel with 0-24 positions
+newsig magazine-in-position bit
+linksp magazine-in-position ax5214h.0.in-37
+newsig magazine-position-0 bit
+linksp magazine-position-0 ax5214h.0.in-00
+newsig magazine-position-1 bit
+linksp magazine-position-1 ax5214h.0.in-01
+newsig magazine-position-2 bit
+linksp magazine-position-2 ax5214h.0.in-02
+newsig magazine-position-4 bit
+linksp magazine-position-4 ax5214h.0.in-03
+newsig magazine-position-8 bit
+linksp magazine-position-8 ax5214h.0.in-04
 
 # hydraulic valves
 newsig arm-extend bit
@@ -411,7 +454,7 @@ linksp tool-unclamp ax5214h.0.out-23
 newsig head-unclamp bit
 linksp head-unclamp ax5214h.0.out-22
 
-# other valve and such
+# other solenoids and such
 newsig spindle-air-blast bit
 linksp spindle-air-blast ax5214h.0.out-19
 newsig work-air-blast bit
