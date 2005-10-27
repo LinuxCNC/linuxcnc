@@ -93,6 +93,10 @@ loadusr -w bin/classicladder --nogui configs/mazak_rf.clp
 # load the realtime part of halscope
 loadrt scope_rt
 
+# load debounce to handle the pushbuttons on the operator panels
+loadrt debounce cfg="8"
+setp debounce.0.delay 3
+
 # -----------------------------------------------
 
 # connect I/O driver functions to thread(s)
@@ -264,7 +268,7 @@ newsig spindle-rpm-cmd float
 newsig spindle-amps float
 newsig spindle-use-low-gear bit
 
-# spindle related signals: "internal" signals
+# spindle related signals: "internal" signal
 newsig sp-enc-pos float
 newsig sp-orient-pos-cmd float
 newsig sp-orient-pos-err float
@@ -385,7 +389,35 @@ linksp spindle-rpm-cmd iocontrol.0.spindle-speed-out
 
 # end of spindle control
 
+# ioControl exports some tool pins
+# iocontrol.0.tool-prepare
+# iocontrol.0.tool-prep-number
+# and expects iocontrol.0.tool-prepared (when the tool prep. is done)
+# iocontrol.0.tool-change (output)
+# and expects iocontrol.0.tool-changed (when tool changed)
+newsig tool-prepare bit
+linksp tool-prepare iocontrol.0.tool-prepare
+newsig tool-prepared bit
+linksp tool-prepared iocontrol.0.tool-prepared
+newsig tool-change bit
+linksp tool-change iocontrol.0.tool-change
+newsig tool-changed bit
+linksp tool-changed iocontrol.0.tool-changed
+
 # misc control
+# tool change location push button operators
+newsig magazine-index bit
+linksp magazine-index ax5214h.0.in-07
+newsig worklight-pbs bit
+linksp worklight-pbs ax5214h.0.in-08
+newsig tool-load-pbs bit
+linksp tool-load-pbs ax5214h.0.in-09
+newsig tool-unload-pbs bit
+linksp tool-unload-pbs  ax5214h.0.in-10
+
+# add front panel buttons here
+
+# hydraulic pump
 newsig hydraulic-pump-run bit
 linksp hydraulic-pump-run motenc.3.out-14
 newsig hydraulic-pump-running bit
@@ -429,8 +461,12 @@ newsig magazine-position-2 bit
 linksp magazine-position-2 ax5214h.0.in-02
 newsig magazine-position-4 bit
 linksp magazine-position-4 ax5214h.0.in-03
+# this is misnamed because it adds 13 to the binary above
 newsig magazine-position-8 bit
 linksp magazine-position-8 ax5214h.0.in-04
+
+# add a temporary signal to rotate by one.
+newsig forward-one bit
 
 # hydraulic valves
 newsig arm-extend bit
@@ -471,6 +507,7 @@ linksp jogwheel-phA parport.0.pin-12-in
 linksp jogwheel-phB parport.0.pin-11-in
 # route signals to software encoder counter
 linksp jogwheel-phA encoder.0.phase-A
+
 linksp jogwheel-phB encoder.0.phase-B
 # jogwheel output
 newsig jogwheel-counts s32
@@ -568,7 +605,8 @@ linksp X-volts pid.0.output
 linksp Y-volts pid.1.output
 linksp Z-volts pid.2.output
 
-# use 'servo-enable' to enable PID blocks# need to release the Z-axis brake when running
+# use 'servo-enable' to enable PID blocks
+# need to release the Z-axis brake when running
 linksp Z-amp-running motenc.3.out-15
 
 linksp servo-enable pid.0.enable
@@ -621,6 +659,14 @@ linkps classicladder.0.in-06 sp-in-low-gear
 linkps classicladder.0.in-07 sp-in-high-gear
 linkps classicladder.0.in-08 sp-in-neutral
 linkps classicladder.0.in-09 sp-at-speed
+linkps classicladder.0.in-10 hydraulic-pump-running
+linkps classicladder.0.in-11 magazine-in-position
+linkps classicladder.0.in-12 magazine-index
+linkps classicladder.0.in-13 tool-load-pbs
+linkps classicladder.0.in-14 tool-loaded
+linkps classicladder.0.in-15 tool-unload-pbs
+linkps classicladder.0.in-16 tool-unloaded
+linkps classicladder.0.in-17 tool-unclamp
 
 # OUTPUTS from CL
 # Q0 = AP1, first stage power up (applies power thru resitors)
@@ -633,11 +679,23 @@ linkps classicladder.0.out-03 Y-amp-fault
 linkps classicladder.0.out-04 Z-amp-fault
 # Q5 is motion enable (after chain)
 linkps classicladder.0.out-05 motion-enable
-# Q6 and 7 are the gear shift outputs
-linkps classicladder.0.out-06 sp-engage-low-gear
-linkps classicladder.0.out-07 sp-engage-high-gear
+# Q6 is hdraulic pump start
+linkps classicladder.0.out-06 hydraulic-pump-run
+# Q7 and 8 are the gear shift outputs
+linkps classicladder.0.out-07 sp-engage-low-gear
+linkps classicladder.0.out-08 sp-engage-high-gear
 # Q8 indicates that a shift is in progress
-linkps classicladder.0.out-08 sp-shifting
+linkps classicladder.0.out-09 sp-shifting
+linkps classicladder.0.out-10 magazine-forward
+linkps classicladder.0.out-11 magazine-reverse
+linkps classicladder.0.out-12 tool-load
+linkps classicladder.0.out-13 tool-unload
+linkps classicladder.0.out-14 arm-extend
+linkps classicladder.0.out-15 arm-retract
+linkps classicladder.0.out-16 arm-60cw
+linkps classicladder.0.out-17 arm-180ccw
+linkps classicladder.0.out-18 tool-unclamp
+linkps classicladder.0.out-19 head-unclamp
 
 # CL internals (not HAL data, just here for documentation
 #
@@ -647,9 +705,12 @@ linkps classicladder.0.out-08 sp-shifting
 # T3 = delay between AP2 close and motion enable
 # T4 = delay before shifting out of gear
 # T5 = delay before shifting into gear
+# T6 = oneshot for tool magazine advance
 
 # B0 = delayed servo-enable, for fault masking
 # B1 = delayed AP2 close, for motion enable
 # B2 = gear shifting in progress
 # B3 = ok to shift into neutral
 # B4 = ok to shift into gear
+# B5 = magazine-index delay
+# B6 = magazine stop delay
