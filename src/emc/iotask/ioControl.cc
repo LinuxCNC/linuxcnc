@@ -57,7 +57,7 @@ static RCS_STAT_CHANNEL *emcioStatusBuffer = 0;
 static EMC_IO_STAT emcioStatus;
 static NML *emcErrorBuffer = 0;
 
-typedef struct {
+struct iocontrol_str {
     hal_bit_t *estop_out;	/* output, TRUE when EMC wants stop */
     hal_bit_t *estop_in;	/* input, TRUE on any stop */
     hal_bit_t *estop_reset;	/* output, used to reset HAL latch */
@@ -98,9 +98,9 @@ typedef struct {
     hal_float_t *spindle_speed_out;	/* spindle speed output */
     hal_float_t *spindle_speed_in;	/* spindle speed measured */
 
-} iocontrol_struct;
+} * iocontrol_data;			//pointer to the HAL-struct
 
-static iocontrol_struct *iocontrol_data;	//pointer to the HAL-struct
+//static iocontrol_struct *iocontrol_data;	
 static int comp_id;				/* component ID */
 
 /********************************************************************
@@ -426,7 +426,7 @@ int iocontrol_hal_init(void)
     }
 
     /* STEP 2: allocate shared memory for iocontrol data */
-    iocontrol_data = (iocontrol_struct *) hal_malloc(sizeof(iocontrol_struct));
+    iocontrol_data = (iocontrol_str *) hal_malloc(sizeof(iocontrol_str));
     if (iocontrol_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: hal_malloc() failed\n");
@@ -689,35 +689,41 @@ int read_hal_inputs(void)
     int oldval, retval = 0;
 
     oldval = emcioStatus.aux.estop;
-    emcioStatus.aux.estop = *(iocontrol_data->estop_in);	//check for estop from HW
+    emcioStatus.aux.estop = *(iocontrol_data->estop_in); //check for estop from HW
     if (oldval != emcioStatus.aux.estop) {
 	retval = 1;
     }
     
-    oldval = emcioStatus.tool.toolPrepped;
-    if ((*(iocontrol_data->tool_prepare) == 1) && (*(iocontrol_data->tool_prepared) == 1)) {
-	emcioStatus.tool.toolPrepped = *(iocontrol_data->tool_prep_number); //check if tool has been prepared
-	*(iocontrol_data->tool_prepare) = 0;
-    }
-    if (oldval != emcioStatus.tool.toolPrepped) {
-	retval = 1;
-    }
-    
-    oldval = emcioStatus.tool.toolInSpindle;
-    if ((emcioStatus.tool.toolPrepped != -1) && (*(iocontrol_data->tool_changed)==1)) {
-	emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolPrepped; //check if tool has been prepared
-	emcioStatus.tool.toolPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
-	*(iocontrol_data->tool_prep_number) = 0; //likewise in HAL
-	*(iocontrol_data->tool_change) = 0; //also reset the tool change signal
-    }
-    if (oldval != emcioStatus.tool.toolInSpindle) {
-	retval = 1;
-    }
     
     oldval = emcioStatus.lube.level;
     emcioStatus.lube.level = *(iocontrol_data->lube_level);	//check for lube_level from HW
     if (oldval != emcioStatus.lube.level) {
 	retval = 1;
+    }
+    return retval;
+}
+
+
+int read_tool_inputs(void)
+{
+    int oldval, retval = 0;
+
+    oldval = emcioStatus.tool.toolPrepped;
+    if ((*(iocontrol_data->tool_prepare) == 1) && (*(iocontrol_data->tool_prepared) == 1)) {
+	emcioStatus.tool.toolPrepped = *(iocontrol_data->tool_prep_number); //check if tool has been prepared
+	*(iocontrol_data->tool_prepare) = 0;
+	emcioStatus.status = RCS_DONE;  // we finally finished to do tool-changing, signal task with RCS_DONE
+	return 10; //prepped finished
+    }
+    
+    oldval = emcioStatus.tool.toolInSpindle;
+    if ((*(iocontrol_data->tool_change) != 0) && (*(iocontrol_data->tool_changed)==1)) {
+	emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolPrepped; //check if tool has been prepared
+	emcioStatus.tool.toolPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
+	*(iocontrol_data->tool_prep_number) = 0; //likewise in HAL
+	*(iocontrol_data->tool_change) = 0; //also reset the tool change signal
+	emcioStatus.status = RCS_DONE;	// we finally finished to do tool-changing, signal task with RCS_DONE
+	return 11; //change finished
     }
     return retval;
 }
@@ -740,7 +746,7 @@ int read_hal_inputs(void)
 ********************************************************************/
 int main(int argc, char *argv[])
 {
-    int t;
+    int t, tool_status;
     NMLTYPE type;
 
     for (t = 1; t < argc; t++) {
@@ -812,7 +818,15 @@ int main(int argc, char *argv[])
 	if (read_hal_inputs() > 0) {
 	    emcioStatus.command_type = EMC_IO_STAT_TYPE;
 	    emcioStatus.echo_serial_number =
-		emcioCommand->serial_number + 1;
+		emcioCommand->serial_number+1; //need for different serial number, because we are pushing a new message
+	    emcioStatus.heartbeat++;
+	    emcioStatusBuffer->write(&emcioStatus);
+	}
+	;
+	if ( (tool_status = read_tool_inputs() ) > 0) { // in case of tool prep (or change) update, we only need to change the state (from RCS_EXEC
+	    emcioStatus.command_type = EMC_IO_STAT_TYPE; // to RCS_DONE, no need for different serial_number
+	    emcioStatus.echo_serial_number =
+		emcioCommand->serial_number;
 	    emcioStatus.heartbeat++;
 	    emcioStatusBuffer->write(&emcioStatus);
 	}
@@ -860,18 +874,24 @@ int main(int argc, char *argv[])
 	    break;
 
 	case EMC_TOOL_PREPARE_TYPE:
-	    rtapi_print( "EMC_TOOL_PREPARE\n");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE\n");
 	    *(iocontrol_data->tool_prepare) = 1;
 	    *(iocontrol_data->tool_prep_number) = ((EMC_TOOL_PREPARE *) emcioCommand)->tool;
 	    // the feedback logic is done inside read_hal_inputs()
+	    // we only need to set RCS_EXEC if RCS_DONE is not already set by the above logic
+	    if (tool_status != 10) //set above to 10 in case PREP already finished (HAL loopback machine)
+		emcioStatus.status = RCS_EXEC;
 	    break;
 
 	case EMC_TOOL_LOAD_TYPE:
-	    rtapi_print("EMC_TOOL_LOAD\n");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD\n");
 	    if (emcioStatus.tool.toolPrepped != -1) {
 		*(iocontrol_data->tool_change) = 1; //notify HW for toolchange
 	    }
 	    // the feedback logic is done inside read_hal_inputs()
+	    // we only need to set RCS_EXEC if RCS_DONE is not already set by the above logic
+	    if (tool_status != 11) //set above to 11 in case LOAD already finished (HAL loopback machine)
+		emcioStatus.status = RCS_EXEC;
 	    break;
 
 	case EMC_TOOL_UNLOAD_TYPE:
@@ -1168,7 +1188,7 @@ int main(int argc, char *argv[])
 	    *(iocontrol_data->lube) = 0;
 	    break;
 
-	    /*! \todo FIXME pretty wierd for DEBUG level to be set by the iocontroller */
+	    /* FIXME - look if it's used, DEBUG level for the iocontroller */
 	case EMC_SET_DEBUG_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SET_DEBUG\n");
 	    EMC_DEBUG = ((EMC_SET_DEBUG *) emcioCommand)->debug;
