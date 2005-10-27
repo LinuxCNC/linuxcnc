@@ -29,6 +29,7 @@
 *     or2 = 2 input logical or - out is true if in1 or in2 is true
 *     scale = gain/offset block - out = in * gain + offset
 *     lowpass = lowpass filter - out = last_out * (1 - gain) + in * gain
+*     match8 = 8 bit binary match detector (with input for cascading)
 *
 *********************************************************************
 *
@@ -122,6 +123,9 @@ MODULE_PARM_DESC(scale, "scales");
 static int lowpass = 0;            /* number of lowpass-filters */
 MODULE_PARM(lowpass, "i");
 MODULE_PARM_DESC(lowpass, "lowpass-filters");
+static int match8 = 0;            /* number of match detectors */
+MODULE_PARM(match8, "i");
+MODULE_PARM_DESC(match8, "match detectors");
 
 #endif /* MODULE */
 
@@ -255,6 +259,13 @@ typedef struct {
     double last_out;		/* prevoius output */
 } lowpass_t;
 
+typedef struct {
+    hal_bit_t *a[8];		/* pins: input bits to compare */
+    hal_bit_t *b[8];		/* pins: input bits to compare */
+    hal_bit_t *in;		/* pin: cascade or enable input */
+    hal_bit_t *out;		/* pin: output, TRUE if A matches B */
+} match8_t;
+
 
 /* other globals */
 static int comp_id;		/* component ID */
@@ -280,6 +291,7 @@ static int export_and2(int num);
 static int export_or2(int num);
 static int export_scale(int num);
 static int export_lowpass(int num);
+static int export_match8(int num);
 
 static void constant_funct(void *arg, long period);
 static void wcomp_funct(void *arg, long period);
@@ -298,6 +310,7 @@ static void and2_funct(void *arg, long period);
 static void or2_funct(void *arg, long period);
 static void scale_funct(void *arg, long period);
 static void lowpass_funct(void *arg, long period);
+static void match8_funct(void *arg, long period);
 
 
 /***********************************************************************
@@ -534,6 +547,19 @@ int rtapi_app_main(void)
 	}
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d lowpass filters\n", lowpass);
+    }
+    /* allocate and export binary match detectors */
+    if (match8 > 0) {
+	for (n = 0; n < match8; n++) {
+	    if (export_match8(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_match8(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d match detectors\n", match8);
     }
     return 0;
 }
@@ -875,6 +901,38 @@ static void lowpass_funct(void *arg, long period)
     lowpass = (lowpass_t *) arg;
     /* calculate output */
     *(lowpass->out) += (*(lowpass->in) - *(lowpass->out)) * lowpass->gain;
+}
+
+static void match8_funct(void *arg, long period)
+{
+    match8_t *match8;
+    int n;
+    hal_bit_t a, b, tmp;
+
+    /* point to block data */
+    match8 = (match8_t *) arg;
+    /* calculate output, starting with cascade/enable input */
+    if ( *(match8->in) != 0 ) {
+	/* input true, process a and b */
+	tmp = 1;
+	n = 0;
+    } else {
+	/* input false, ignore a and b */
+	tmp = 0;
+	n = 8;
+    }
+    /* test all bits, exit loop as soon as mismatch found */
+    while ( n < 8 ) {
+	a = *(match8->a[n]);
+	b = *(match8->b[n]);
+	if ((( a == 0 ) && ( b != 0 )) || (( a != 0 ) && ( b == 0 ))) {
+	    tmp = 0;
+	    n = 8;
+	}
+	n++;
+    }
+    /* write output */
+    *(match8->out) = tmp;
 }
 
     
@@ -1974,6 +2032,72 @@ static int export_lowpass(int num)
     }
     /* set default parameter values */
     lowpass->gain = 1.0;
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_match8(int num)
+{
+    int retval, msg, n;
+    char buf[HAL_NAME_LEN + 2];
+    match8_t *match8;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for match detector filter */
+    match8 = hal_malloc(sizeof(match8_t));
+    if (match8 == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pin for cascade/enable input */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d.in", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(match8->in), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pins for A and B inputs */
+    for ( n = 0 ; n < 8 ; n++ ) {
+	rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d.a%1d", num, n);
+	retval = hal_pin_bit_new(buf, HAL_RD, &(match8->a[n]), comp_id);
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    return retval;
+	}
+	rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d.b%1d", num, n);
+	retval = hal_pin_bit_new(buf, HAL_RD, &(match8->b[n]), comp_id);
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	    return retval;
+	}
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d.out", num);
+    retval = hal_pin_bit_new(buf, HAL_WR, &(match8->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d", num);
+    retval = hal_export_funct(buf, match8_funct, match8, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
