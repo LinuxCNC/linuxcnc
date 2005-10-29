@@ -286,7 +286,14 @@ MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Step Pulse Generator for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
+#endif				/* MODULE_LICENSE */
+
+#define MAX_CHAN 8
+
+int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+
+MODULE_PARM(step_type, "1-8i");
+
 static char *cfg = "0 0 0";	/* config string, default = 3 x step/dir */
 MODULE_PARM(cfg, "s");
 MODULE_PARM_DESC(cfg, "config string");
@@ -296,7 +303,7 @@ MODULE_PARM_DESC(period, "non-FP thread period (nsecs)");
 static long fp_period = 0;	/* FP thread period, default = none */
 MODULE_PARM(fp_period, "l");
 MODULE_PARM_DESC(fp_period, "floating point thread period (nsecs)");
-#endif /* MODULE */
+#endif				/* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -384,7 +391,7 @@ static const unsigned char cycle_len_lut[] =
 static const unsigned char num_phases_lut[] =
     { 2, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, };
 
-#define MAX_STEP_TYPE 14
+#define MAX_STEP_TYPE 12
 
 #define STEP_PIN	0	/* output phase used for STEP signal */
 #define DIR_PIN		1	/* output phase used for DIR signal */
@@ -393,7 +400,7 @@ static const unsigned char num_phases_lut[] =
 
 /* other globals */
 static int comp_id;		/* component ID */
-static int num_chan;		/* number of step generators configured */
+static int num_chan = 0;	/* number of step generators configured */
 static long periodns;		/* makepulses function period in nanosec */
 static long old_periodns;	/* used to detect changes in periodns */
 static float periodfp;		/* makepulses function period in seconds */
@@ -408,7 +415,6 @@ static float recip_dt;		/* recprocal of period, avoids divides */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int parse_step_type(char *cp);
 static int export_stepgen(int num, stepgen_t * addr, int steptype);
 static void make_pulses(void *arg, long period);
 static void update_freq(void *arg, long period);
@@ -418,71 +424,31 @@ static void update_pos(void *arg, long period);
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
-#define MAX_CHAN 8
-#define MAX_TOK (MAX_CHAN)
-
 int rtapi_app_main(void)
 {
-    char *cp;
-    char *tokens[MAX_TOK];
-    int step_type[MAX_CHAN];
     int n, retval;
 
-    /* test for config string */
-    if (cfg == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "STEPGEN: ERROR: no config string\n");
-	return -1;
-    }
-    /* point to config string */
-    cp = cfg;
-    /* break it into tokens */
-    for (n = 0; n < MAX_TOK; n++) {
-	/* strip leading whitespace */
-	while ((*cp != '\0') && (isspace(*cp)))
-	    cp++;
-	/* mark beginning of token */
-	tokens[n] = cp;
-	/* find end of token */
-	while ((*cp != '\0') && (!isspace(*cp)))
-	    cp++;
-	/* mark end of this token, prepare to search for next one */
-	if (*cp != '\0') {
-	    *cp = '\0';
-	    cp++;
-	}
-    }
-    /* mark all channels unused */
-    for (n = 0; n < MAX_CHAN; n++) {
-	step_type[n] = -1;
-    }
-    /* parse config string, results in step_type[] array */
-    num_chan = 0;
-    n = 0;
-    while ((num_chan < MAX_CHAN) && (n < MAX_TOK)) {
-	if (tokens[n][0] != '\0') {
-	    /* something here, is it a valid stepping type? */
-	    step_type[num_chan] = parse_step_type(tokens[n]);
-	    if ((step_type[num_chan] < 0)
-		|| (step_type[num_chan] > MAX_STEP_TYPE)) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "STEPGEN: ERROR: bad stepping type '%s'\n", tokens[n]);
-		return -1;
-	    }
+    for (n = 0; n < MAX_CHAN && step_type[n] != -1 ; n++) {
+	if (step_type[n] > MAX_STEP_TYPE) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "STEPGEN: ERROR: bad stepping type '%i', axes %i\n",
+			    step_type[n], n);
+	    return -1;
+	} else {
 	    num_chan++;
 	}
-	n++;
     }
-    /* OK, now we've parsed everything */
     if (num_chan == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STEPGEN: ERROR: no channels configured\n");
+			"STEPGEN: ERROR: no channels configured\n");
 	return -1;
     }
     /* test for 'period' */
     if (period != 0) {
 	if ((period < 1000) || (period > 500000)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STEPGEN: ERROR: invalid period: %d\n", period);
+			    "STEPGEN: ERROR: invalid period: %d\n",
+			    period);
 	    return -1;
 	}
     }
@@ -490,7 +456,8 @@ int rtapi_app_main(void)
     if (fp_period != 0) {
 	if ((fp_period < (2 * period)) || (period > 50000000)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STEPGEN: ERROR: invalid fp_period: %d\n", period);
+			    "STEPGEN: ERROR: invalid fp_period: %d\n",
+			    period);
 	    return -1;
 	}
     }
@@ -510,14 +477,15 @@ int rtapi_app_main(void)
     /* have good config info, connect to the HAL */
     comp_id = hal_init("stepgen");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "STEPGEN: ERROR: hal_init() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"STEPGEN: ERROR: hal_init() failed\n");
 	return -1;
     }
     /* allocate shared memory for counter data */
     stepgen_array = hal_malloc(num_chan * sizeof(stepgen_t));
     if (stepgen_array == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STEPGEN: ERROR: hal_malloc() failed\n");
+			"STEPGEN: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -527,49 +495,52 @@ int rtapi_app_main(void)
 	retval = export_stepgen(n, &(stepgen_array[n]), step_type[n]);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STEPGEN: ERROR: stepgen %d var export failed\n", n);
+			    "STEPGEN: ERROR: stepgen %d var export failed\n",
+			    n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
     }
     /* export functions */
     retval = hal_export_funct("stepgen.make_pulses", make_pulses,
-	stepgen_array, 0, 0, comp_id);
+			      stepgen_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STEPGEN: ERROR: makepulses funct export failed\n");
+			"STEPGEN: ERROR: makepulses funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     retval = hal_export_funct("stepgen.update_freq", update_freq,
-	stepgen_array, 1, 0, comp_id);
+			      stepgen_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STEPGEN: ERROR: freq update funct export failed\n");
+			"STEPGEN: ERROR: freq update funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     retval = hal_export_funct("stepgen.capture_position", update_pos,
-	stepgen_array, 1, 0, comp_id);
+			      stepgen_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STEPGEN: ERROR: pos update funct export failed\n");
+			"STEPGEN: ERROR: pos update funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"STEPGEN: installed %d step pulse generators\n", num_chan);
+		    "STEPGEN: installed %d step pulse generators\n",
+		    num_chan);
     if (period > 0) {
 	/* create a thread */
 	retval = hal_create_thread("stepgen.thread", period, 0);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STEPGEN: ERROR: could not create non-FP thread\n");
+			    "STEPGEN: ERROR: could not create non-FP thread\n");
 	    hal_exit(comp_id);
 	    return -1;
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_INFO,
-		"STEPGEN: created %d uS non-FP thread\n", period / 1000);
+			    "STEPGEN: created %d uS non-FP thread\n",
+			    period / 1000);
 	}
     }
     if (fp_period > 0) {
@@ -577,12 +548,13 @@ int rtapi_app_main(void)
 	retval = hal_create_thread("stepgen.threadFP", fp_period, 1);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STEPGEN: ERROR: could not create FP thread\n");
+			    "STEPGEN: ERROR: could not create FP thread\n");
 	    hal_exit(comp_id);
 	    return -1;
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_INFO,
-		"STEPGEN: created %d uS FP thread\n", fp_period / 1000);
+			    "STEPGEN: created %d uS FP thread\n",
+			    fp_period / 1000);
 	}
     }
     return 0;
@@ -628,7 +600,7 @@ static void make_pulses(void *arg, long period)
 		/* new value is too high, increase addval as far as possible */
 		stepgen->addval += stepgen->deltalim;
 	    } else if (stepgen->newaddval <
-		(stepgen->addval - stepgen->deltalim)) {
+		       (stepgen->addval - stepgen->deltalim)) {
 		/* new value is too low, decrease addval as far as possible */
 		stepgen->addval -= stepgen->deltalim;
 	    } else {
@@ -667,7 +639,8 @@ static void make_pulses(void *arg, long period)
 		    /* terminate step pulse */
 		    *(stepgen->phase[STEP_PIN]) = 0;
 		    /* begin timing pulse space */
-		    stepgen->wd.st0.space_timer = stepgen->wd.st0.step_space;
+		    stepgen->wd.st0.space_timer =
+			stepgen->wd.st0.step_space;
 		}
 	    }
 	    /* is direction OK? */
@@ -678,7 +651,8 @@ static void make_pulses(void *arg, long period)
 		    /* set direction output */
 		    *(stepgen->phase[DIR_PIN]) = tmp_dir;
 		    /* start setup timer */
-		    stepgen->wd.st0.setup_timer = stepgen->wd.st0.dir_setup;
+		    stepgen->wd.st0.setup_timer =
+			stepgen->wd.st0.dir_setup;
 		}
 	    }
 	    /* do we need to step? */
@@ -692,7 +666,8 @@ static void make_pulses(void *arg, long period)
 		    /* start pulse length and dir hold timers */
 		    stepgen->wd.st0.len_timer = stepgen->wd.st0.step_len;
 		    stepgen->wd.st0.hold_timer =
-			stepgen->wd.st0.step_len + stepgen->wd.st0.dir_hold;
+			stepgen->wd.st0.step_len +
+			stepgen->wd.st0.dir_hold;
 		    /* don't need a step any more */
 		    stepgen->wd.st0.need_step = 0;
 		    /* count the step */
@@ -726,7 +701,8 @@ static void make_pulses(void *arg, long period)
 		    /* count the step for feedback */
 		    stepgen->rawcount--;
 		} else {
-		    if (++stepgen->wd.st2.state > stepgen->wd.st2.cycle_max) {
+		    if (++stepgen->wd.st2.state >
+			stepgen->wd.st2.cycle_max) {
 			stepgen->wd.st2.state = 0;
 		    }
 		    /* count the step for feedback */
@@ -754,7 +730,8 @@ static void update_freq(void *arg, long period)
     stepgen_t *stepgen;
     int n;
     double pos_cmd, vel_cmd, curr_pos, curr_vel, avg_v, max_freq, max_ac;
-    double match_ac, match_time, est_out, est_cmd, est_err, dp, dv, new_vel;
+    double match_ac, match_time, est_out, est_cmd, est_err, dp, dv,
+	new_vel;
 
     /*! \todo FIXME - while this code works just fine, there are a bunch of
        internal variables, many of which hold intermediate results that
@@ -790,11 +767,12 @@ static void update_freq(void *arg, long period)
     /* loop thru generators */
     for (n = 0; n < num_chan; n++) {
 	/* check for scale change */
-	if ( stepgen->pos_scale != stepgen->old_scale ) {
+	if (stepgen->pos_scale != stepgen->old_scale) {
 	    /* get ready to detect future scale changes */
 	    stepgen->old_scale = stepgen->pos_scale;
 	    /* validate the new scale value */
-	    if ((stepgen->pos_scale < 1e-20) && (stepgen->pos_scale > -1e-20)) {
+	    if ((stepgen->pos_scale < 1e-20)
+		&& (stepgen->pos_scale > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
 		stepgen->pos_scale = 1.0;
 	    }
@@ -806,7 +784,7 @@ static void update_freq(void *arg, long period)
 	    /* stepping type 0 limit depends on timing params */
 	    max_freq =
 		maxf / (stepgen->wd.st0.step_len +
-		stepgen->wd.st0.step_space);
+			stepgen->wd.st0.step_space);
 	} else if (stepgen->wd.st0.step_type == 1) {
 	    /* stepping type 1 limit is thread freq / 2 */
 	    max_freq = maxf * 0.5;
@@ -848,7 +826,7 @@ static void update_freq(void *arg, long period)
 	/* calculate position command in counts */
 	pos_cmd = *stepgen->pos_cmd * stepgen->pos_scale;
 	/* calculate velocity command in counts/sec */
-	vel_cmd = ( pos_cmd - stepgen->old_pos_cmd ) * recip_dt;
+	vel_cmd = (pos_cmd - stepgen->old_pos_cmd) * recip_dt;
 	stepgen->old_pos_cmd = pos_cmd;
 	/* get current position and velocity in counts and counts/sec */
 	curr_pos = stepgen->rawcount;
@@ -894,12 +872,12 @@ static void update_freq(void *arg, long period)
 	    dv = -2.0 * match_ac * dt;
 	    dp = dv * match_time;
 	    /* decide which way to ramp */
-	    if ( fabs(est_err+dp*2.0) < fabs(est_err) ) {
+	    if (fabs(est_err + dp * 2.0) < fabs(est_err)) {
 		match_ac = -match_ac;
 	    }
 	    /* and do it */
 	    new_vel = curr_vel + match_ac * dt;
-	}    
+	}
 	/* apply frequency limit */
 	if (new_vel > max_freq) {
 	    new_vel = max_freq;
@@ -928,11 +906,12 @@ static void update_pos(void *arg, long period)
 	/* capture raw counts to latches */
 	*(stepgen->count) = stepgen->rawcount;
 	/* check for change in scale value */
-	if ( stepgen->pos_scale != stepgen->old_scale ) {
+	if (stepgen->pos_scale != stepgen->old_scale) {
 	    /* get ready to detect future scale changes */
 	    stepgen->old_scale = stepgen->pos_scale;
 	    /* validate the new scale value */
-	    if ((stepgen->pos_scale < 1e-20) && (stepgen->pos_scale > -1e-20)) {
+	    if ((stepgen->pos_scale < 1e-20)
+		&& (stepgen->pos_scale > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
 		stepgen->pos_scale = 1.0;
 	    }
@@ -950,31 +929,15 @@ static void update_pos(void *arg, long period)
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
-
+/* Is now shorter function.
 static int parse_step_type(char *cp)
 {
-    int result;
-
     if (*cp == '\0') {
 	return -1;
     }
-    /* initial value */
-    result = 0;
-    /* parse digits */
-    while (*cp != '\0') {
-	/* if char is a decimal digit, add it to result */
-	if ((*cp >= '0') && (*cp <= '9')) {
-	    result *= 10;
-	    result += *cp - '0';
-	} else {
-	    /* not a valid digit */
-	    return -1;
-	}
-	/* next char */
-	cp++;
-    }
-    return result;
+    return (int) simple_strtol(cp, NULL, 0);
 }
+*/
 
 static int export_stepgen(int num, stepgen_t * addr, int step_type)
 {
@@ -1063,26 +1026,29 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	/* export parameters for step/dir pulse timing */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.dirsetup", num);
 	retval =
-	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.dir_setup), comp_id);
+	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.dir_setup),
+			     comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.dirhold", num);
 	retval =
-	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.dir_hold), comp_id);
+	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.dir_hold),
+			     comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.steplen", num);
 	retval =
-	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.step_len), comp_id);
+	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.step_len),
+			     comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.stepspace", num);
 	retval =
 	    hal_param_u8_new(buf, HAL_WR, &(addr->wd.st0.step_space),
-	    comp_id);
+			     comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1094,7 +1060,8 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	/* export pins for step and direction */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.step", num);
 	retval =
-	    hal_pin_bit_new(buf, HAL_WR, &(addr->phase[STEP_PIN]), comp_id);
+	    hal_pin_bit_new(buf, HAL_WR, &(addr->phase[STEP_PIN]),
+			    comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1118,7 +1085,8 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	*(addr->phase[UP_PIN]) = 0;
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.down", num);
 	retval =
-	    hal_pin_bit_new(buf, HAL_WR, &(addr->phase[DOWN_PIN]), comp_id);
+	    hal_pin_bit_new(buf, HAL_WR, &(addr->phase[DOWN_PIN]),
+			    comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1131,9 +1099,10 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	addr->wd.st2.lut = (char *) (&(master_lut[step_type - 2][0]));
 	/* export pins for output phases */
 	for (n = 0; n < addr->wd.st2.num_phases; n++) {
-	    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.phase-%c", num,
-		n + 'A');
-	    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->phase[n]), comp_id);
+	    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.phase-%c",
+			   num, n + 'A');
+	    retval =
+		hal_pin_bit_new(buf, HAL_WR, &(addr->phase[n]), comp_id);
 	    if (retval != 0) {
 		return retval;
 	    }

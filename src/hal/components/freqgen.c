@@ -383,7 +383,7 @@ static const unsigned char cycle_len_lut[] =
 static const unsigned char num_phases_lut[] =
     { 2, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, };
 
-#define MAX_STEP_TYPE 14
+#define MAX_STEP_TYPE 12
 
 #define STEP_PIN	0	/* output phase used for STEP signal */
 #define DIR_PIN		1	/* output phase used for DIR signal */
