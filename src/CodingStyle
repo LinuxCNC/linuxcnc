@@ -218,15 +218,11 @@ reserved for use in conjunction with the Brain Dead Install project.
 
 There are certain special CVS keywords that can be used inside a document.
 However, it is a bad habit to include information that clutters the source
-file. One such example is the $Log$
-file. One such example is the Revision 1.10  2005/10/30 22:51:59  cradek
-file. One such example is the Quick first pass fixing grammar and spelling.  There is still some work
-file. One such example is the to be done.  Also, I added another paragraph talking about cvs logs.  I
-file. One such example is the think it's really important.  Lots of programmers completely misunderstand
-file. One such example is the the purpose of cvs logs (in my opinion).
-file. One such example is the directive; that information is stored in
+file. One such example is the $Log directive; that information is stored in
 the CVS server on SourceForge, and can easily be viewed with the web interface.
-Some other fields are encouraged e.g. $Revision$, $Author$ and $Date$.
+Some other fields are encouraged e.g. $Revision, $Author and $Date.  These
+keywords all require a trailing $, but we don't want to put it there in
+this file, for obvious reasons.
 
 
 			C++ Conventions
