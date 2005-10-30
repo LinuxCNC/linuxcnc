@@ -217,28 +217,6 @@
 #define NCE_F_WORD_USED_WITH_G33 199
 #define NCE_G33_NOT_SUPPORTED 200
 #define NCE_CANNED_CYCLES_NOT_SUPPORTED 201
-
 #define RS274NGC_MAX_ERROR 202
-
-/*
-  Modification history:
-
-  $Log$
-  Revision 1.7  2005/06/14 05:16:59  mshaver
-  Changes to rs274ngc intepreter files that cause them to use the public return code values declared in interp_return.hh. For example, RS274NGC_OK is replaced by INTERP_OK. This is needed to generalize the way interpreters are written.
-
-  Revision 1.6  2005/05/23 01:54:49  paul_c
-  Missed a few files in the last effort....
-
-  Revision 1.5  2005/05/23 00:29:12  paul_c
-  Remove any last trace of those M$ line terminators
-
-  Revision 1.4  2005/05/04 04:50:37  jmkasunich
-  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
-
-  Revision 1.3  2005/04/27 20:03:13  proctor
-  Changed NCE_M_CODE_GREATER_THAN_99 to NCE_M_CODE_GREATER_THAN_199
-
-*/
 
 #endif /* RS274NGC_RETURN_H */

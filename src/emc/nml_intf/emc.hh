@@ -2978,37 +2978,4 @@ extern EMC_IO_STAT *emcIoStatus;
 // EMC MOTION status
 extern EMC_MOTION_STAT *emcMotionStatus;
 
-/*
-  Modification history:
-
-  $Log$
-  Revision 1.16  2005/10/20 09:15:55  jmkasunich
-  changes to support HALified ESTOP logic - estop can be routed thru classic ladder or other logic, optionally latched to permit the use of momentary estop switches, etc.
-
-  Revision 1.15  2005/08/08 13:09:54  paul_c
-  A couple of typos crept in..
-
-  Revision 1.14  2005/08/08 13:03:30  paul_c
-  Moved global defines for buffer & line lengths in to config.h - If everyone uses this as the first #include, it will help in avoiding buffer overruns..
-
-  Revision 1.13  2005/07/08 14:11:11  yabosukz
-  fix some more bugz
-
-  Revision 1.12  2005/06/12 15:45:38  paul_c
-  todo tags added to all FIXME comments so that they get highlighted when auto-generating docs.
-
-  Revision 1.11  2005/05/23 01:54:49  paul_c
-  Missed a few files in the last effort....
-
-  Revision 1.10  2005/05/23 00:29:10  paul_c
-  Remove any last trace of those M$ line terminators
-
-  Revision 1.9  2005/05/04 04:50:34  jmkasunich
-  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
-
-  Revision 1.8  2005/04/27 20:00:14  proctor
-  Added EMC_SYSTEM_CMD stuff from BDI-4
-
-*/
-
 #endif				// #ifndef EMC_HH

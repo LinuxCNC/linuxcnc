@@ -57,22 +57,6 @@
  * This code was written as part of the EMC HAL project.  For more
  * information, go to www.linuxcnc.org.
  *
- ******************************************************************************
- *
- * $Log$
- * Revision 1.4  2005/06/22 10:17:44  petev
- * Fixed sloppy cut/paste bug in Plc_WritePhysicalOutputs().
- *
- * Revision 1.3  2005/06/22 09:34:04  petev
- * Made timebase independent from scan rate.
- *
- * Revision 1.2  2005/06/21 03:14:33  petev
- * Changed pin naming convention. Removed "not" pins.
- *
- * Revision 1.1  2005/06/20 20:09:49  petev
- * Initial revision.
- *
- *
  ******************************************************************************/
 
 #ifndef RTAPI

@@ -126,43 +126,6 @@
  * This code was written as part of the EMC HAL project.  For more
  * information, go to www.linuxcnc.org.
  *
- ******************************************************************************
- *
- * $Log$
- * Revision 1.9  2005/06/24 09:08:04  jmkasunich
- * Modified MOTENC driver to ensure that outputs are turned off at startup and shutdown, and inverted outputs so that OPTO-22 modules turn off, not on.
- *
- * Revision 1.8  2005/06/21 14:45:22  jmkasunich
- * Revised the method used to differentiate between MOTENC-100 and MOTENC-Lite, based on info from Abdul
- *
- * Revision 1.7  2005/06/21 01:28:36  jmkasunich
- * Changed naming convention for MOTENC I/O pins
- *
- * Revision 1.6  2005/06/21 01:12:00  jmkasunich
- * Modified the MOTENC HAL driver to support the MOTENC-Lite 4 channel card.  A bit of a hack, should be revisited once Abdul publishes proper documentation for the Lite card.
- *
- * Revision 1.5  2005/06/15 02:10:32  jmkasunich
- * converted motenc encoder input position scale factor from units per step, to steps per unit, to be consistent with normal emc.ini units
- *
- * Revision 1.4  2005/05/23 19:38:15  paul_c
- * Fix a small problem with the makefiles introduced after the join from bdi-4
- *
- * Revision 1.3  2005/05/23 16:34:08  paul_c
- * One more join..
- *
- * Revision 1.2.2.2  2005/05/23 15:45:33  paul_c
- * This is the first stage of joining of the bdi-4 branch and HEAD. It *may* break both HEAD and the branch, but this will be fixed in later commits.
- * Note: Just the rtapi, hal, and libnml directories have been joined so far. A few minor changes need to be made in HEAD before a join can progress there..
- *
- * Revision 1.2  2005/05/23 04:22:30  jmkasunich
- * merged the last couple weeks of work from the kbuild-0-1 branch to HEAD.  HEAD should now compile under all BDIs, including BDI-4.20 (kernel 2.6)
- *
- * Revision 1.1.2.1  2005/05/08 15:40:34  jmkasunich
- * fixed some warning messages in hal_motenc.c - uninitialized variables
- *
- * Revision 1.1  2005/03/31 21:35:40  petev
- * Initial revision.
- *
  ******************************************************************************/
 
 #ifndef RTAPI

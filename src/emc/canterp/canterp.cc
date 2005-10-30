@@ -865,27 +865,3 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     return 0;
 }
 
-/*
-  Modification history:
-
-  $Log$
-  Revision 1.6  2005/10/20 09:15:55  jmkasunich
-  changes to support HALified ESTOP logic - estop can be routed thru classic ladder or other logic, optionally latched to permit the use of momentary estop switches, etc.
-
-  Revision 1.5  2005/07/08 14:11:03  yabosukz
-  fix some more bugz
-
-  Revision 1.4  2005/05/23 01:10:45  paul_c
-  Repair the damage to the gif & pdf files - Note: Unwise to run dos2unix on these files cd /tmp/emc2..
-
-  Revision 1.3  2005/05/23 00:29:06  paul_c
-  Remove any last trace of those M$ line terminators
-
-  Revision 1.2  2005/05/04 04:50:24  jmkasunich
-  Merged Pauls work from the lathe_fork branch.  Compiles cleanly but completely untested.  Changes include: G33 parsing, breaking interp into smaller files, using a C++ class for the interp, using LINELEN instead of many #defines for buffer lengths, and more
-
-  Revision 1.1  2005/04/28 13:24:42  proctor
-  Added canonical interpreter directory
-
-  15-Jun-2004  FMP created
-*/

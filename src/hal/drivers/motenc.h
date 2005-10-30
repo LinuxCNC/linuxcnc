@@ -38,31 +38,6 @@
  * This code was written as part of the EMC HAL project.  For more
  * information, go to www.linuxcnc.org.
  *
- ******************************************************************************
- *
- * $Log$
- * Revision 1.5  2005/06/21 14:45:22  jmkasunich
- * Revised the method used to differentiate between MOTENC-100 and MOTENC-Lite, based on info from Abdul
- *
- * Revision 1.4  2005/06/21 01:12:01  jmkasunich
- * Modified the MOTENC HAL driver to support the MOTENC-Lite 4 channel card.  A bit of a hack, should be revisited once Abdul publishes proper documentation for the Lite card.
- *
- * Revision 1.3  2005/05/23 19:38:16  paul_c
- * Fix a small problem with the makefiles introduced after the join from bdi-4
- *
- * Revision 1.1.4.3  2005/05/23 18:29:47  paul_c
- * Last set of joins before starting on the /src/emc directories
- *
- * Revision 1.2  2005/05/23 16:34:08  paul_c
- * One more join..
- *
- * Revision 1.1.4.2  2005/05/23 15:45:34  paul_c
- * This is the first stage of joining of the bdi-4 branch and HEAD. It *may* break both HEAD and the branch, but this will be fixed in later commits.
- * Note: Just the rtapi, hal, and libnml directories have been joined so far. A few minor changes need to be made in HEAD before a join can progress there..
- *
- * Revision 1.1  2005/03/31 21:34:08  petev
- * Initial revision.
- *
  ******************************************************************************/
 
 #ifndef _MOTENC_H_

@@ -35,13 +35,6 @@
  * This code was written as part of the EMC HAL project.  For more
  * information, go to www.linuxcnc.org.
  *
- ******************************************************************************
- *
- * $Log$
- * Revision 1.1  2005/07/12 18:26:41  petev
- * Initial revision.
- *
- *
  ******************************************************************************/
 
 #ifndef _PLX9030_H_
