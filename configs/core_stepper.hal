@@ -1,7 +1,7 @@
 # core HAL config file for steppers
 
 # first load the stepper module
-loadrt stepgen cfg="0 0 0"
+loadrt stepgen step_type=0,0,0
 
 # hook its functions to realtime threads
 addf stepgen.capture_position servo-thread 1
