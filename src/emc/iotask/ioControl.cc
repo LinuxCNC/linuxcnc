@@ -672,6 +672,34 @@ int iocontrol_hal_init(void)
 
 /********************************************************************
 *
+* Description: hal_init_pins(void)
+*
+* Side Effects: Sets HAL pins default values.
+*
+* Called By: main
+********************************************************************/
+void hal_init_pins(void)
+{
+    *(iocontrol_data->estop_out)=1;		/* output, TRUE when EMC wants stop */
+    *(iocontrol_data->estop_reset)=0;		/* output, used to reset HAL latch */
+    *(iocontrol_data->coolant_mist)=0;		/* coolant mist output pin */
+    *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
+    *(iocontrol_data->lube)=0;			/* lube output pin */
+    *(iocontrol_data->tool_prepare)=0;		/* output, pin that notifies HAL it needs to prepare a tool */
+    *(iocontrol_data->tool_prep_number)=0;	/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
+    *(iocontrol_data->tool_change)=0;		/* output, notifies a tool-change should happen (emc should be in the tool-change position) */
+    *(iocontrol_data->spindle_on)=0;		/* spindle spin output */
+    *(iocontrol_data->spindle_forward)=0;	/* spindle spin-forward output */
+    *(iocontrol_data->spindle_reverse)=0;	/* spindle spin-reverse output */
+    *(iocontrol_data->spindle_incr_speed)=0;	/* spindle spin-increase output */
+    *(iocontrol_data->spindle_decr_speed)=0;	/* spindle spin-decrease output */
+    *(iocontrol_data->spindle_brake)=0;		/* spindle brake output */
+    *(iocontrol_data->spindle_speed_out)=0.0;	/* spindle speed output */
+}
+
+
+/********************************************************************
+*
 * Description: read_hal_inputs(void)
 *			Reads the pin values from HAL 
 *			this function gets called once per cycle
@@ -704,6 +732,20 @@ int read_hal_inputs(void)
 }
 
 
+/********************************************************************
+*
+* Description: read_tool_inputs(void)
+*			Reads the tool-pin values from HAL 
+*			this function gets called once per cycle
+*			It sets the values for the emcioStatus.aux.*
+*
+* Returns:	returns which of the status has changed
+*		we then need to update through NML (a bit different as read_hal_inputs)
+*
+* Side Effects: updates values
+*
+* Called By: main every CYCLE
+********************************************************************/
 int read_tool_inputs(void)
 {
     int oldval, retval = 0;
@@ -858,6 +900,7 @@ int main(int argc, char *argv[])
 
 	case EMC_IO_INIT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_IO_INIT\n");
+	    hal_init_pins();
 	    break;
 
 	case EMC_TOOL_INIT_TYPE:
@@ -1121,6 +1164,7 @@ int main(int argc, char *argv[])
 
 	case EMC_AUX_INIT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_INIT\n");
+	    hal_init_pins(); //init default (safe) pin values
 	    emcioStatus.aux.estop = 1;
 	    *(iocontrol_data->estop_out) = 1;
 	    break;
@@ -1141,6 +1185,7 @@ int main(int argc, char *argv[])
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_ON\n");
 	    /* assert an ESTOP to the outside world (thru HAL) */
 	    *(iocontrol_data->estop_out) = 1;
+	    hal_init_pins(); //resets all HAL pins to safe value
 	    break;
 
 	case EMC_AUX_ESTOP_OFF_TYPE:
