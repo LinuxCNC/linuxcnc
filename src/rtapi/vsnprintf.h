@@ -35,7 +35,7 @@ static int skip_atoi(const char **s)
 #define LARGE	64		/* use 'ABCDEF' instead of 'abcdef' */
 
 static char *number(char *buf, char *end, long long numll, int base,
-    int size, int precision, int type)
+		    int size, int precision, int type)
 {
     unsigned long num;
     char c, sign, tmp[66];
@@ -298,7 +298,7 @@ static int vsn_printf(char *buf, int size, const char *fmt, va_list args)
 		flags |= ZEROPAD;
 	    }
 	    str = number(str, end, (unsigned long) va_arg(args, void *),
-		16, field_width, precision, flags);
+			 16, field_width, precision, flags);
 	    continue;
 	case '%':
 	    if (str <= end) {
@@ -361,4 +361,31 @@ static int vsn_printf(char *buf, int size, const char *fmt, va_list args)
     }
     /* the trailing null byte doesn't count towards the total * ++str; */
     return str - buf;
+}
+
+/**
+ * strsep - Split a string into tokens
+ * @s: The string to be searched
+ * @ct: The characters to search for
+ *
+ * strsep() updates @s to point after the token, ready for the next call.
+ *
+ * It returns empty tokens, too, behaving exactly like the libc function
+ * of that name. It is reentrant and should be faster) than strtok.
+ * Use only strsep() in new code, please.
+ * Taken from 2.4 kernel file by Ingo Oeser <ioe@informatik.tu-chemnitz.de>
+ */
+char *strsep(char **s, const char *ct)
+{
+    char *sbegin = *s, *end;
+
+    if (sbegin == NULL)
+	return NULL;
+
+    end = strpbrk(sbegin, ct);
+    if (end)
+	*end++ = '\0';
+    *s = end;
+
+    return sbegin;
 }
