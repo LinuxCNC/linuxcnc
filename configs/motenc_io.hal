@@ -109,7 +109,7 @@ linksp SpindleDown => iocontrol.0.spindle-decr-speed
 # connect spindle brake to I/O controller
 newsig SpindleBrakeOn bit
 linksp SpindleBrakeOn <= motenc.0.out-05
-linksp SpindleBrakeOn => iocontrol.0.spindle-break
+linksp SpindleBrakeOn => iocontrol.0.spindle-brake
 
 # connect mist/flood coolant to I/O controller
 newsig MistOn bit
