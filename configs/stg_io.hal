@@ -1,0 +1,135 @@
+# HAL config file for ServoToGo STG ISA board
+#
+# install driver (only needed if stg_motion.hal doesn't get run)
+#loadrt hal_stg
+
+# add I/O to servo thread so they will be evaluated
+# every servo period
+addf stg.di_read servo-thread 1
+addf stg.do_write servo-thread 1
+
+#uncomment following line if ADC's are needed (for example spindle-tach feedback)
+#addf stg.0.read_adcs servo-thread 1
+
+#
+# Connect motion controller I/Os
+#
+
+# connect limit/home switch outputs to motion controller
+newsig Xminlim bit
+newsig Xmaxlim  bit
+newsig Xhome bit
+linksp Xminlim <= stg.in-02
+linksp Xminlim => axis.0.neg-lim-sw-in
+linksp Xmaxlim <= stg.in-01
+linksp Xmaxlim => axis.0.pos-lim-sw-in
+linksp Xhome <= stg.in-00
+linksp Xhome => axis.0.home-sw-in
+
+newsig Yminlim bit
+newsig Ymaxlim  bit
+newsig Yhome bit
+linksp Yminlim <= stg.in-06
+linksp Yminlim => axis.1.neg-lim-sw-in
+linksp Ymaxlim <= stg.in-05
+linksp Ymaxlim => axis.1.pos-lim-sw-in
+linksp Yhome <= stg.in-04
+linksp Yhome => axis.1.home-sw-in
+
+newsig Zminlim bit
+newsig Zmaxlim  bit
+newsig Zhome bit
+linksp Zminlim <= stg.in-10
+linksp Zminlim => axis.2.neg-lim-sw-in
+linksp Zmaxlim <= stg.in-09
+linksp Zmaxlim => axis.2.pos-lim-sw-in
+linksp Zhome <= stg.in-08
+linksp Zhome => axis.2.home-sw-in
+
+#continue in the same manner for further axes (A,B,C)
+
+# connect amp faults to motion controller
+newsig Xfault bit
+newsig Yfault  bit
+newsig Zfault bit
+linksp Xfault <= stg.in-03
+linksp Xfault => axis.0.amp-fault-in
+linksp Yfault <= stg.in-07
+linksp Yfault => axis.1.amp-fault-in
+linksp Zfault <= stg.in-11
+linksp Zfault => axis.2.amp-fault-in
+
+# connect index pulses to motion controller
+# do these when index pulsing is figured out
+#newsig Xindex bit
+#newsig Yindex  bit
+#newsig Zindex bit
+#linksp Xindex <= stg.0.enc-index
+#linksp Xindex => axis.0.index-pulse-in
+#linksp Yindex <= stg.1.enc-index
+#linksp Yindex => axis.1.index-pulse-in
+#linksp Zindex <= stg.2.enc-index
+#linksp Zindex => axis.2.index-pulse-in
+
+# connect amp enables to motion controller
+linksp Xenable => stg.out-00
+linksp Yenable => stg.out-01
+linksp Zenable => stg.out-02
+
+# connect watchdog reset to motion controller
+# needs watchdo
+#newsig WatchdogRst bit
+#linksp WatchdogRst <= stg.watchdog-reset
+#linksp WatchdogRst => motion.watchdog-reset-out
+
+
+#
+# Connect I/O controller I/Os
+#
+
+# connect e-stop write/sense to I/O controller
+newsig EstopSense bit
+newsig EstopWrite bit
+linksp EstopSense <= stg.in-12
+linksp EstopSense => iocontrol.0.estop-in
+linksp EstopWrite <= stg.out-07
+linksp EstopWrite => iocontrol.0.estop-out
+
+# connect spindle fwd/rev to I/O controller
+newsig SpindleFwd bit
+newsig SpindleRev bit
+linksp SpindleFwd <= stg.out-06
+linksp SpindleFwd => iocontrol.0.spindle-forward
+linksp SpindleRev <= stg.out-05
+linksp SpindleRev => iocontrol.0.spindle-reverse
+
+# connect spindle speed up/down to I/O controller
+newsig SpindleUp bit
+newsig SpindleDown bit
+linksp SpindleUp <= stg.out-08
+linksp SpindleUp => iocontrol.0.spindle-incr-speed
+linksp SpindleDown <= stg.out-09
+linksp SpindleDown => iocontrol.0.spindle-decr-speed
+
+# connect spindle brake to I/O controller
+newsig SpindleBrakeOn bit
+linksp SpindleBrakeOn <= stg.out-10
+linksp SpindleBrakeOn => iocontrol.0.spindle-brake
+
+# connect mist/flood coolant to I/O controller
+newsig MistOn bit
+newsig FloodOn bit
+linksp MistOn <= stg.out-11
+linksp MistOn => iocontrol.0.coolant-mist
+linksp FloodOn <= stg.out-12
+linksp FloodOn => iocontrol.0.coolant-flood
+
+# connect lube motor run to I/O controller
+newsig LubeOn bit
+linksp LubeOn <= stg.out-13
+linksp LubeOn => iocontrol.0.lube
+
+# connect lube level to I/O controller
+newsig LubeLevel bit
+linksp LubeLevel <= stg.in-13
+linksp LubeLevel => iocontrol.0.lube_level

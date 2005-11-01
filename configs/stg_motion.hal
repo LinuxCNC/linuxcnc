@@ -1,0 +1,37 @@
+# HAL config file for ServoToGo STG ISA board
+#
+# install driver
+loadrt hal_stg
+
+# add functions to servo thread so they will be evaluated
+# every servo period
+addf stg.capture_position servo-thread 1
+addf stg.write_dacs servo-thread 1
+
+# connect position feedback signals to encoders
+linksp Xpos-fb <= stg.0.position
+linksp Ypos-fb <= stg.1.position
+linksp Zpos-fb <= stg.2.position
+
+# get feedback scaling from ini file
+setp stg.0.position-scale [AXIS_0]INPUT_SCALE 
+setp stg.1.position-scale [AXIS_1]INPUT_SCALE 
+setp stg.2.position-scale [AXIS_2]INPUT_SCALE 
+
+# connect PID output signals to DACs
+linksp Xoutput => stg.0.dac-value
+linksp Youtput => stg.1.dac-value
+linksp Zoutput => stg.2.dac-value
+
+# set output scaling from ini file 
+setp stg.0.dac-gain [AXIS_0]OUTPUT_SCALE
+setp stg.1.dac-gain [AXIS_1]OUTPUT_SCALE
+setp stg.2.dac-gain [AXIS_2]OUTPUT_SCALE
+# set output offset to zero
+# (Eventually this should come from the ini file too, but
+# I want to add an OUTPUT_OFFSET variable to the ini.
+# At present, the OUTPUT_SCALE actually has two values
+# and the second one is the offset.  This is ugly.)
+setp stg.0.dac-offset 0
+setp stg.1.dac-offset 0
+setp stg.2.dac-offset 0
