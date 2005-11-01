@@ -1,0 +1,148 @@
+# HAL config file for steppers using classic ladder
+
+# first load the stepper module
+loadrt stepgen step_type=0,0,0
+
+# hook its functions to realtime threads
+addf stepgen.capture_position servo-thread 1
+addf stepgen.update_freq servo-thread -1
+addf stepgen.make_pulses base-thread -1
+
+# connect position commands from motion module to step generator
+newsig Xpos-cmd float
+linksp Xpos-cmd <= axis.0.motor-pos-cmd
+linksp Xpos-cmd => stepgen.0.position-cmd
+newsig Ypos-cmd float
+linksp Ypos-cmd <= axis.1.motor-pos-cmd
+linksp Ypos-cmd => stepgen.1.position-cmd
+newsig Zpos-cmd float
+linksp Zpos-cmd <= axis.2.motor-pos-cmd
+linksp Zpos-cmd => stepgen.2.position-cmd
+
+# connect position feedback from step generators
+# to motion module
+newsig Xpos-fb float
+linksp Xpos-fb <= stepgen.0.position-fb
+linksp Xpos-fb => axis.0.motor-pos-fb
+newsig Ypos-fb float
+linksp Ypos-fb <= stepgen.1.position-fb
+linksp Ypos-fb => axis.1.motor-pos-fb
+newsig Zpos-fb float
+linksp Zpos-fb <= stepgen.2.position-fb
+linksp Zpos-fb => axis.2.motor-pos-fb
+
+# connect signals to step pulse generator outputs
+newsig Xstep bit
+newsig Xdir  bit
+newsig Ystep bit
+newsig Ydir  bit
+newsig Zstep bit
+newsig Zdir  bit
+linkps stepgen.0.step Xstep
+linkps stepgen.0.dir  Xdir
+linkps stepgen.1.step Ystep
+linkps stepgen.1.dir  Ydir
+linkps stepgen.2.step Zstep
+linkps stepgen.2.dir  Zdir
+
+# set stepgen module scaling - get values from ini file
+setp stepgen.0.position-scale [AXIS_0]INPUT_SCALE
+setp stepgen.1.position-scale [AXIS_1]INPUT_SCALE
+setp stepgen.2.position-scale [AXIS_2]INPUT_SCALE
+
+# set stepgen module velocity limits - get values from ini file
+setp stepgen.0.maxvel [AXIS_0]MAX_VELOCITY
+setp stepgen.1.maxvel [AXIS_1]MAX_VELOCITY
+setp stepgen.2.maxvel [AXIS_2]MAX_VELOCITY
+
+# set stepgen module accel limits - get values from ini file
+setp stepgen.0.maxaccel [AXIS_0]MAX_ACCELERATION
+setp stepgen.1.maxaccel [AXIS_1]MAX_ACCELERATION
+setp stepgen.2.maxaccel [AXIS_2]MAX_ACCELERATION
+
+# load realtime portion of scope, just to have it handy
+loadrt scope_rt
+
+# standard pinout config file for 3-axis steppers
+# using a parport for I/O
+#
+# first load the parport driver
+loadrt hal_parport cfg="0x378"
+#
+# next connect the parport functions to threads
+addf parport.0.read base-thread 1
+addf parport.0.write base-thread -1
+#
+# finally connect physical pins to the signals
+linksp Xstep parport.0.pin-03-out
+linksp Xdir  parport.0.pin-02-out
+linksp Ystep parport.0.pin-05-out
+linksp Ydir  parport.0.pin-04-out
+linksp Zstep parport.0.pin-07-out
+linksp Zdir  parport.0.pin-06-out
+
+
+# This configuration uses classicladder for machine logic
+# (load the realtime portion)
+loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=10 numMonostables=10 numPhysInputs=30 numPhysOutputs=30 numArithmExpr=4 numSections=4
+
+# invoke the user part of CL to silently load the program
+# later we will need to add the clp file mentioned below
+# to the ini file so that we do not need to hardcode it here.
+loadusr -w bin/classicladder --nogui configs/step_cl.clp
+
+# We kick ladder into a thread at the servo rate rather than base
+# ladder logic is executed once all the inputs are read
+addf classicladder.0.refresh        servo-thread 1
+
+## lines are original from standard pinout for comparison
+# with the changes made to get the signals into ladder 
+# create a signal for the estop loopback
+## newsig estop bit
+## linksp estop iocontrol.0.estop-out
+## linksp estop iocontrol.0.estop-in
+
+# setup for classic ladder
+# with cl we create two HAL signals for estop to connect to EMC
+# through iocontrol and one to read momentary external estop button 
+# we just naturally have to clarify the meaning of estop on, in, off, out
+# we make, then link to iocontrol and then to cl one at a time below.
+
+# This bit signal is the state of estop within emc or from EMC)
+newsig emc-estop-out bit
+linksp emc-estop-out iocontrol.0.estop-out
+linkps classicladder.0.in-00 emc-estop-out
+
+# This bit signal is comand to estop from outside to EMC
+newsig emc-estop-in bit
+linksp emc-estop-in iocontrol.0.estop-in
+linkps classicladder.0.out-00 emc-estop-in
+
+# this bit is an external momentary button connected to parport pin 11
+newsig ext-estop-momentary bit
+linksp ext-estop-momentary parport.0.pin-11-in
+linkps classicladder.0.in-01 ext-estop-momentary
+
+# now add a signal to cl that we can toggle by jogging x negitive.
+# this is so that we can see that stuff is working.
+linksp Xdir classicladder.0.in-02 
+
+# we will let the loopback stuff handle tool 
+# though we could easily index an external changer
+# create signals for tool loading loopback
+newsig toolprep bit
+linksp toolprep iocontrol.0.tool-prepare
+linksp toolprep iocontrol.0.tool-prepared
+newsig toolchg bit
+linksp toolchg iocontrol.0.tool-change
+linksp toolchg iocontrol.0.tool-changed
+
+# create a signal for "spindle on"
+newsig spindle_on bit
+
+# commented out till we resolve this issue
+# connect it to the iocontroller
+linksp spindle_on iocontrol.0.spindle-on
+# connect it to a physical pin
+linksp spindle_on parport.0.pin-09-out
+
