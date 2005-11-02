@@ -1721,6 +1721,17 @@ static void get_pos_cmds(void)
 	break;
 
     case EMCMOT_MOTION_DISABLED:
+	/* set position commands to match feedbacks, this avoids
+	   disturbances and/or following errors when enabling */
+	emcmotStatus->carte_pos_cmd = emcmotStatus->carte_pos_fb;
+	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	    /* point to joint struct */
+	    joint = &joints[joint_num];
+	    /* save old command */
+	    joint->pos_cmd = joint->pos_fb;
+	}
+	
+	break;
     default:
 	break;
     }
