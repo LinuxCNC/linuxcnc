@@ -467,6 +467,8 @@ static int loadToolTable(const char *filename,
 
   If filename is "", use global established from ini file
   */
+
+/* FIXME - commented out, seems it's not used
 static int saveToolTable(const char *filename,
 			 CANON_TOOL_TABLE toolTable[])
 {
@@ -502,6 +504,7 @@ static int saveToolTable(const char *filename,
 
     return 0;
 }
+FIXME - commented out, seems it's not used*/
 
 /*
   emc_io_get_command returns the string and any args associated with
