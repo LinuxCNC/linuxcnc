@@ -34,10 +34,16 @@ Overview of the emc2 directory:
     |      |
     |      |--- emc/ (actual EMC code)
     |      |      |
-    |      |      |--- task/
-    |      |      |--- motion/
-    |      |      |--- io/
-    |      |      |--- interp/
+    |      |      |--- canterp/       (interpreter for canonical commands)
+    |      |      |--- ini/           (inifile related operations)
+    |      |      |--- iotask/        (IO interface, lots oh HAL pins(
+    |      |      |--- kinematics/    (trajectory planner and kinematics)
+    |      |      |--- log/           (emc motion log?)
+    |      |      |--- motion/        (motion controller, talks through SHM to the rest of EMC)
+    |      |      |--- nml_intf/      (emc specific NML implementation, all messages sent in emc)
+    |      |      |--- rs274ngc/      (the rs274 g-code interpreter)
+    |      |      |--- task/          (core component in emc, dispatches actions to other parts)
+    |      |      |--- usr_intf/      (interface to GUI and IO through emcsh and iosh)
     |      |
     |      |--- hal/ (hal_lib.c, hal.h, etc.)
     |      |      |
@@ -48,10 +54,14 @@ Overview of the emc2 directory:
     |      |
     |      |--- libnml/ (a clean implementation of RCSLIB)
     |      |      |
+    |      |      |--- buffer/
     |      |      |--- cms/
-    |      |      |--- os_intf/
+    |      |      |--- inifile/
+    |      |      |--- linklist/
     |      |      |--- nml/
+    |      |      |--- os_intf/
     |      |      |--- posemath/
+    |      |      |--- rcs/
     |      |
     |      |--- po/    (Translation files for i18n support)
     |      |
@@ -69,3 +79,63 @@ Overview of the emc2 directory:
     |
     |
     |--- tcl/  (tkemc, mini and other tcl scripts)
+
+Overview of the emc2 install dirs:
+
+   /  (file system root)
+   |
+   |
+   |--- etc/
+   |      |
+   |      |--- rc.d/
+   |             |
+   |             |--- init.d/
+   |                    |
+   |                    |--- realtime (realtime start/stop script)
+   |
+   |
+   |--- $(prefix)  (default: /usr/local)
+   |      |          (all the following $xxxxdir are configurable through autoconf   
+   |      |
+   |      |--- bin/  (known as $bindir, files from EMC2/bin)
+   |      |
+   |      |--- sbin/ (known as $sbindir, )
+   |      |
+   |      |--- etc/  (known as $sysconfdir, config files from configs/)
+   |      |      |
+   |      |      |--- emc.ini
+   |      |      |--- core-stepper.hal
+   |      |      |--- and more
+   |      |
+   |      |--- lib/  (known as $libdir, lib files *.so from libs/)
+   |      |
+   |      |--- share/
+   |             |
+   |             |--- emc/
+   |                    |
+   |                    |
+   |                    |--- docs/
+   |                    |      |
+   |                    |      |---  (All the important and relevant Docs.)
+   |                    |
+   |                    |--- handbooks/
+   |                    |      |
+   |                    |      |--- (PDF versions of handbooks)
+   |                    |
+   |                    |--- nc_files/
+   |                           |
+   |                           |--- (Sample NC files)
+   |
+   |--- $MAN_DIR/  (default: /usr/local/man)
+   |      |
+   |      |--- man1/
+   |      |      |
+   |      |      |
+   |      |
+   |      |--- man3/
+   |             |
+   |             |
+   |       
+   |--- $moduledir/  (default: /lib/modules/${KVER}/hal)
+                     (actually based on where ./configure finds
+                      the RTOS modules)
