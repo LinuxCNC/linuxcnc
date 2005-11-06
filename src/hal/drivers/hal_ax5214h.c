@@ -1,3 +1,19 @@
+/********************************************************************
+* Description:  AX5214H.c
+*               This file, 'AX5214H.c', is a HAL component that 
+*               provides a driver for the Axiom Measurement & Control 
+*               AX5241H 48 channel digital I/O board.
+*
+* Author: John Kasunich
+* License: GPL Version 2
+*    
+* Copyright (c) 2005 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /** This file, 'AX5214H.c', is a HAL component that provides a
     driver for the Axiom Measurement & Control AX5241H 48 channel
     digital I/O board.

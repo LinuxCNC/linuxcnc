@@ -1,12 +1,28 @@
 #!/bin/bash
-# usage: emc.run [options] [<ini-file>]
+#********************************************************************
+# Description: emc.run
+#   Run script for executing emc. Usually gets executed as root
+#   
+#   usage: emc.run [options] [<ini-file>]
 #
-# options:
+#   options:
 #     -v = verbose - prints info as it works
 #     -d = echos script commands to screen for debugging
 #
-# if <ini-file> not specified, uses EMC2_DIR/configs/emc.ini
-# if path specified, looks there, else looks in $EMC2_DIR/configs
+#   if <ini-file> not specified, uses EMC2_DIR/configs/emc.ini
+#   if path specified, looks there, else looks in $EMC2_DIR/configs
+#
+# Author:
+# License: GPL Version 2
+# System: Linux
+#    
+# Copyright (c) 2004 All rights reserved.
+#
+# Last change:
+# $Revision$
+# $Author$
+# $Date$
+#*******************************************************************/
 
 
 DEBUG_FILE=/dev/null

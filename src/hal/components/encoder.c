@@ -1,3 +1,19 @@
+/********************************************************************
+* Description:  encoder.c
+*               This file, 'encoder.c', is a HAL component that 
+*               provides software based counting of quadrature 
+*               encoder signals.
+*
+* Author: John Kasunich
+* License: GPL Version 2
+*    
+* Copyright (c) 2003 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /** This file, 'encoder.c', is a HAL component that provides software
     based counting of quadrature encoder signals.  The maximum count
     rate will depend on the speed of the PC, but is expected to exceed

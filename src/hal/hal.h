@@ -6,6 +6,21 @@
     modules.
 */
 
+/********************************************************************
+* Description:  hal.h
+*               This file, 'hal.h', defines the API and data 
+*               structures used by the HAL
+*
+* Author: John Kasunich
+* License: LGPL Version 2
+*    
+* Copyright (c) 2003 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /* testing */
 
 /** This file, 'hal.h', defines the API and data structures used by

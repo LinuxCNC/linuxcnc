@@ -1,4 +1,6 @@
 #!/bin/bash
+#********************************************************************
+# Description: hal_demo
 #
 # This script is used to test/demo the Hardware Abstraction Layer
 #
@@ -9,6 +11,18 @@
 # the jogwheel demo.
 #
 # if you don't specify a demo, this prints a usage message
+#
+# Author:
+# License: GPL Version 2
+# System: Linux
+#    
+# Copyright (c) 2004 All rights reserved.
+#
+# Last change:
+# $Revision$
+# $Author$
+# $Date$
+#*******************************************************************/
 if [ ! $1 ] ; then
     echo "Usage:  scripts/hal_demo <demo_name>"
     echo "Run from the emc2 directory only"

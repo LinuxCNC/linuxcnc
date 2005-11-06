@@ -1,3 +1,19 @@
+/********************************************************************
+* Description:  threads.c
+*               This file, 'threads.c', is a HAL component that 
+*               provides a way to create realtime threads but 
+*               contains no other functionality.
+*
+* Author: John Kasunich
+* License: GPL Version 2
+*    
+* Copyright (c) 2003 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /** This file, 'threads.c', is a HAL component that provides a way to 
     create realtime threads but contains no other functionality.
     It will mostly be used for testing - when EMC is run normally,

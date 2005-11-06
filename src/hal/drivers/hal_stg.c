@@ -1,3 +1,18 @@
+/********************************************************************
+* Description:  hal_stg.c
+*               This is the driver for an Servo-To-Go Model I board.
+*
+* Author: Alex Joni
+* License: GPL Version 2
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
+
 /** This is the driver for an Servo-To-Go Model I board.
     The board includes 8 channels of quadrature encoder input,
     8 channels of analog input and output, 32 bits digital I/O,

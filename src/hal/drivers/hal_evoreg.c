@@ -1,3 +1,20 @@
+/********************************************************************
+* Description:  hal_evoreg.c
+*               This file, 'hal_evoreg.c', is a HAL component that 
+*               provides a driver for the Siemens EVOREG motion 
+*               control board.
+*
+* Author: Martin Kuhnle, John Kasunich
+* License: GPL Version 2
+*    
+* Copyright (c) 2003 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
+
 /** This file, 'hal_evoreg.c', is a HAL component that provides a
     driver for the Siemens EVOREG motion control board.
     This board privides three 16bit DAC's, three encoder inputs,

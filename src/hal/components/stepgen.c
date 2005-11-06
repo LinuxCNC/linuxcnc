@@ -1,3 +1,18 @@
+/********************************************************************
+* Description:  stepgen.c
+*               This file, 'stepgen.c', is a HAL component that 
+*               provides software based step pulse generation.
+*
+* Author: John Kasunich
+* License: GPL Version 2
+*    
+* Copyright (c) 2003 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /** This file, 'stepgen.c', is a HAL component that provides software
     based step pulse generation.  The maximum step rate will depend
     on the speed of the PC, but is expected to exceed 1KHz for even

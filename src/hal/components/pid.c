@@ -1,3 +1,18 @@
+/********************************************************************
+* Description:  pid.c
+*               This file, 'pid.c', is a HAL component that provides 
+*               Proportional/Integeral/Derivative control loops.
+*
+* Author: John Kasunich
+* License: GPL Version 2
+*    
+* Copyright (c) 2003 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /** This file, 'pid.c', is a HAL component that provides Proportional/
     Integeral/Derivative control loops.  It is a realtime component.
 

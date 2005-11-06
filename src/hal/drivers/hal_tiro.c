@@ -1,3 +1,19 @@
+/********************************************************************
+* Description:  hal_tiro.c
+*               This is the driver for an ISA (PC104) encoder reading
+*               board.
+*
+* Author: Alex Joni
+* License: GPL Version 2
+*    
+* Copyright (c) 2003 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
+
 /** This is the driver for an ISA (PC104) encoder reading board.
     The board includes up to 4 channels of LS7166 chips for counting
     quadrature encoders. Schematics of the board will be included on

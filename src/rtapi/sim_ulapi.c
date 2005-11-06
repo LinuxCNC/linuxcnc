@@ -1,8 +1,19 @@
-/*
-  sim_ulapi.c
-
-  Implementation of simulated user-level API to real-time system
-*/
+/********************************************************************
+* Description:  sim_ulapi.c
+*               This file, 'sim_ulapi.c', implements the user-level  
+*               API functions for machines without RT (simultated 
+*               processes)
+*
+* Author: John Kasunich, Paul Corner
+* License: LGPL Version 2
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <stddef.h>		/* NULL */
 #include <sys/ipc.h>		/* IPC_* */

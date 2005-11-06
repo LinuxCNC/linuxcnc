@@ -5,13 +5,26 @@
     transfer realtime data to and from I/O devices and other low-level
     modules.
 */
+/********************************************************************
+* Description:  hal_priv.c
+*               This file, 'hal_priv.c', contains declarations of 
+*               most of the internal data structures used by the HAL.  
+*               It is NOT needed by most HAL components.  However, 
+*               some components that interact more closely with the 
+*               HAL internals, such as "halcmd", need to include this 
+*               file.
+*
+* Author: John Kasunich
+* License: LGPL Version 2
+*    
+* Copyright (c) 2003 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
-/** This file, 'hal_priv.c', contains declarations of most of the
-    internal data structures used by the HAL.  It is NOT needed by
-    most HAL components.  However, some components that interact
-    more closely with the HAL internals, such as "halcmd", need to
-    include this file.
-*/
 
 /** Copyright (C) 2003 John Kasunich
                        <jmkasunich AT users DOT sourceforge DOT net>

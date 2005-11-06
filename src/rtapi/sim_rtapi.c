@@ -1,9 +1,18 @@
-/*
-  sim_rtapi.c
-
-  Implementations of RT API functions declared in rtapi.h, for simulated
-  Linux process
-*/
+/********************************************************************
+* Description:  sim_rtapi.c
+*               This file, 'sim_rtapi.c', implements the RT API 
+*               functions for machines without RT (simultated procs)
+*
+* Author: John Kasunich, Paul Corner
+* License: GPL Version 2
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 #include <stdio.h>		/* vprintf() */
 #include <stdlib.h>		/* malloc(), sizeof() */

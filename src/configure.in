@@ -1,6 +1,21 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 # 
+# Description: configure.in
+#   Autonconf produce a ./configure from this file
+#   that's used to discover various programs/dependencies
+#   usage: autoconf
+#
+# Authors: paul_c alex_joni
+# License: GPL Version 2
+# System: Linux
+#    
+# Copyright (c) 2004 All rights reserved.
+#
+# Last change:
+# $Revision$
+# $Author$
+# $Date$
 # This file is released under GPL, refer to docs/README for details
 #
 # This file is adapted to replace the old ./configure script

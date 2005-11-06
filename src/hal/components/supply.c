@@ -1,3 +1,18 @@
+/********************************************************************
+* Description:  supply.c
+*               This file, 'supply.c', is a HAL component supplying 
+*               HAL pins preset to useful values like TRUE and 1.0.
+*
+* Author: Matt Shaver
+* License: GPL Version 2
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /** This file, 'supply.c', is a HAL component supplying HAL pins preset
     to useful values like TRUE and 1.0.  I expect that it will mostly
     be used for testing.  It is a realtime component.

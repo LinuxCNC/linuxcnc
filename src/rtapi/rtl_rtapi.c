@@ -1,6 +1,21 @@
 /** RTAPI is a library providing a uniform API for several real time
     operating systems.  As of ver 2.0, RTLinux and RTAI are supported.
 */
+/********************************************************************
+* Description:  rtl_rtapi.c
+*               This file, 'rtl_rtapi.c', implements the realtime 
+*               portion of the API for the RTlinux platform.
+*
+* Author: John Kasunich, Paul Corner
+* License: GPL Version 2
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 /** This file, 'rtl_rtapi.c', implements the realtime portion of the
     API for the RTLinux platform.  The API is defined in rtapi.h, which

@@ -1,3 +1,19 @@
+/********************************************************************
+* Description:  siggen.c
+*               This file, 'siggen.c', is a HAL component that 
+*               generates square, triangle, sine, cosine, and 
+*               sawtooth waves.
+*
+* Author: John Kasunich
+* License: GPL Version 2
+*    
+* Copyright (c) 2003 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /** This file, 'siggen.c', is a HAL component that generates square,
     triangle, sine, cosine, and sawtooth waves.  I expect that it 
     will mostly be used for testing.  It is a realtime component.

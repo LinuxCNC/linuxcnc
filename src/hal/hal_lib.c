@@ -2,11 +2,23 @@
     transfer realtime data to and from I/O devices and other low-level
     modules.
 */
-
-/** This file, 'hal_lib.c', implements the HAL API, for both user
-    space and realtime modules.  It uses the RTAPI and ULAPI #define
-    symbols to determine which version to compile.
-*/
+/********************************************************************
+* Description:  hal_libc.c
+*               This file, 'hal_lib.c', implements the HAL API, for 
+*               both user space and realtime modules.  It uses the 
+*               RTAPI and ULAPI #define symbols to determine which 
+*               version to compile.
+*
+* Author: John Kasunich
+* License: LGPL Version 2
+*    
+* Copyright (c) 2003 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 
 /** Copyright (C) 2003 John Kasunich
                        <jmkasunich AT users DOT sourceforge DOT net>
