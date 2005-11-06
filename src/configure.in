@@ -13,8 +13,7 @@
 
 AC_PREREQ(2.53)
 #AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
-#AC_CONFIG_SRCDIR(hal/hal_lib.c)
-AC_INIT(emc/hal_intf/exthalmot.c)
+AC_INIT(emc/motion/motion.c)
 AC_CONFIG_HEADER(config.h)
 
 # EMC2 internationalisation package name:
@@ -596,7 +595,7 @@ AC_PATH_PROG(AWK, awk, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(INSMOD, insmod, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(RMMOD, rmmod, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(LSMOD, lsmod, "", /sbin:/usr/sbin:/usr/local/sbin)
-AC_PATH_PROG(PIDOF, pidof, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(PIDOF, pidof, "", /bin:/sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
 
 

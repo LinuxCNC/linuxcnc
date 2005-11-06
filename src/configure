@@ -271,7 +271,7 @@ PACKAGE_VERSION=
 PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
-ac_unique_file="emc/hal_intf/exthalmot.c"
+ac_unique_file="emc/motion/motion.c"
 ac_default_prefix=/usr/local
 # Factoring default headers for most tests.
 ac_includes_default="\
@@ -4228,7 +4228,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="/sbin:/usr/sbin:/usr/local/sbin"
+as_dummy="/bin:/sbin:/usr/sbin:/usr/local/sbin"
 for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
