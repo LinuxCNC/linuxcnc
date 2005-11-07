@@ -401,6 +401,12 @@ echo Starting emc...
 # trap ^C so that it's called if user interrupts script
 trap 'Cleanup ; exit 0' SIGINT SIGTERM
 
+# go to the dir where the config files are
+# either configs/ when run-in-place
+# or /usr/local/etc/
+cd $EMC2_CONFIG_DIR
+
+
 # Create the lock file
 touch $LOCKFILE
 
@@ -584,22 +590,15 @@ export EMC2_TCL_DIR
 # Run display in foreground
 echo "Starting EMC DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
 case $EMCDISPLAY in
-  tkemc)
+  tkemc|mini)
     # tkemc is in the tcl directory, not the bin directory
     if [ ! -x $EMC2_TCL_DIR/$EMCDISPLAY.tcl ] ; then
 	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl"
 	Cleanup
 	exit 1
     fi
-    $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE
-  ;;
-  mini)
-    # mini is in the tcl directory, not the bin directory
-    if [ ! -x $EMC2_TCL_DIR/$EMCDISPLAY.tcl ] ; then
-	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl"
-	Cleanup
-	exit 1
-    fi
+    export EMC2_TCL_DIR=$EMC2_TCL_DIR
+    export EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
     $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE
   ;;
   dummy)

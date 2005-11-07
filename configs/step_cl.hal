@@ -89,9 +89,9 @@ loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=10 numMonost
 # invoke the user part of CL to silently load the program
 # later we will need to add the clp file mentioned below
 # to the ini file so that we do not need to hardcode it here.
-loadusr -w bin/classicladder --nogui configs/step_cl.clp
+loadusr -w ../bin/classicladder --nogui step_cl.clp
 # load the GUI aswell
-loadusr bin/classicladder
+loadusr ../bin/classicladder
 
 # We kick ladder into a thread at the servo rate rather than base
 # ladder logic is executed once all the inputs are read

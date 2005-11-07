@@ -22,6 +22,9 @@ CheckConfig(){
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
 	exit -1
     fi
+    # Save the system variable MODPATH so that it can be
+    # re-exported on exit.
+    old_path=$MODPATH
     # Import the config
     source $RTAPICONF
     # Export the module path specified in the config.
@@ -126,9 +129,9 @@ CheckMem(){
 Load(){
     if [ "$RTAI" = "3" ] ; then
 	if [ "$VERBOSE" = "1" ] ; then
-	    ( cd $EMC2_HOME/scripts ; $RTAI_LOAD --verbose )
+	    ( cd $RTLIB_DIR ;  $RTAI_LOAD --verbose )
 	else
-	    ( cd $EMC2_HOME/scripts ; $RTAI_LOAD )
+	    ( cd $RTLIB_DIR ; $RTAI_LOAD )
 	fi
     fi
     for MOD in $MODULES_LOAD ; do
@@ -190,8 +193,8 @@ CheckUnloaded(){
 }
 
 DoExit(){
-    # Nothing here right now
-    :
+    # Export the original MODPATH
+    export MODPATH=$old_path
 }
 
 if [ "$1" = "-v" ] ; then

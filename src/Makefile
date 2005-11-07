@@ -36,6 +36,7 @@ HEADERS = config.h
 # level code that might depend on it
 
 all headers indent : def_headers
+	chmod +x ../scripts/install.run
 	(cd rtapi; make headers)
 	(cd libnml; make headers)
 	(cd emc; make headers)
@@ -70,10 +71,74 @@ $(MAN_DIR)/% : docs/man/%
 # this rule handles the install target
 # its dependency installs all the man pages
 
-install : $(MAN_FILES)
+install_rtscript:
+	install -d $(DESTDIR)$(initd_dir)
+	cp ../scripts/realtime $(DESTDIR)$(initd_dir)/
+	#@ echo "realtime script installed"
+
+install_modules:
+	install -d $(DESTDIR)$(moduledir)
+	-cp -f ../rtlib/* $(DESTDIR)$(moduledir)
+	cp ../scripts/.runinfo $(DESTDIR)$(moduledir)
+	@ echo "kernel modules installed"
+
+install_configs:
+	install -d $(DESTDIR)$(sysconfdir)
+	cp ../emc2.gif $(DESTDIR)$(sysconfdir)
+	cp ../configs/*.hal $(DESTDIR)$(sysconfdir)
+	cp ../configs/TkEmc $(DESTDIR)$(sysconfdir)
+	cp ../configs/*.ini $(DESTDIR)$(sysconfdir)
+	cp ../configs/*.clp $(DESTDIR)$(sysconfdir)
+	cp ../configs/*.var $(DESTDIR)$(sysconfdir)
+	cp ../configs/*.nml $(DESTDIR)$(sysconfdir)
+	cp ../configs/*.tbl $(DESTDIR)$(sysconfdir)
+	@ echo "configs installed"
+
+install_bin:
+	install -d $(DESTDIR)$(bindir)
+	-cp -f ../bin/* $(DESTDIR)$(bindir)
+	cp ../scripts/install.run $(DESTDIR)$(bindir)/emc.run
+	chmod +x $(DESTDIR)$(bindir)/emc.run
+	@ echo "bin installed"
+
+install_lib:
+	install -d $(DESTDIR)$(libdir)
+	(if (test -f ../lib/*.so) ; then cp ../lib/*.so $(DESTDIR)$(libdir); fi)
+	-(rm -f ../lib/*.a ../lib/*.o 2>/dev/null)
+	@ echo "lib installed"
+
+install_docs:
+	install -d $(DESTDIR)$(docsdir)
+	-cp -f ../docs/* $(DESTDIR)$(docsdir)
+	@ echo "docs installed"
+
+# to be added, when there is a nc_files dir
+install_ncfiles:
+	install -d $(DESTDIR)$(ncfilesdir)
+	-GLOBIGNORE=CVS && cp -f ../nc_files/* $(DESTDIR)$(ncfilesdir)
+	@ echo "nc_files installed"
+
+install_tcl:
+	install -d $(DESTDIR)$(tcldir)
+	install -d $(DESTDIR)$(tcldir)/bin
+	install -d $(DESTDIR)$(tcldir)/scripts
+	-cp -f ../tcl/* $(DESTDIR)$(tcldir)
+	-cp -f ../tcl/bin/* $(DESTDIR)$(tcldir)/bin/
+	-cp -f ../tcl/scripts/* $(DESTDIR)$(tcldir)/scripts/
+	@ echo "tcl installed"
+	
+	#install -d /usr/share/locale/$(locale)/LC_MESSAGES
+	#@ echo "locale installed"
+
+install_man : $(MAN_FILES)
 	(cd rtapi; make $@)
 	(cd hal; make $@)
 
+#if you want to test, uncomment the following line (not safe till further testing)
+#install: install_rtscript install_modules install_configs\
+#	install_bin install_lib install_docs install_ncfiles\
+#	install_tcl
+#	(cd rtapi; make $@)
 
 modules: headers
 	(cd rtapi; make $@)
@@ -137,7 +202,6 @@ tgz: clean
 	rm /tmp/emc2-tgz-temp/emc2/Makefile.inc
 	rm /tmp/emc2-tgz-temp/emc2/config.status
 	rm /tmp/emc2-tgz-temp/emc2/config.log
-
 	rm -f /tmp/emc2-tgz-temp/emc2/emc2.tar.gz
 	cd /tmp/emc2-tgz-temp ; tar -czf emc2.tar.gz emc2 --exclude *CVS*
 	mv /tmp/emc2-tgz-temp/emc2.tar.gz ./

@@ -1,6 +1,20 @@
 #!/bin/sh
+# we need to find the tcl dir, it was exported from emc.run \
+export EMC2_TCL_DIR
 # the next line restarts using emcsh \
-exec bin/emcsh "$0" "$@"
+exec $EMC2_EMCSH "$0" "$@"
+
+
+set TCLBIN tcl/bin
+set TCLSCRIPTS tcl/scripts
+
+if {[info exists env(EMC2_TCL_DIR)]} {
+    set TCLBIN $env(EMC2_TCL_DIR)
+    set TCLSCRIPTS $env(EMC2_TCL_DIR)
+    set TCLBIN $TCLBIN/bin
+    set TCLSCRIPTS $TCLSCRIPTS/scripts
+}
+
 
 # Tk GUI for the Enhanced Machine Controller
 
@@ -143,26 +157,26 @@ set debounceTime 150
 
 if { $windows == 0 } {
     # load the generic editor "startEditor <name>"
-    source tcl/bin/genedit.tcl
+    source $TCLBIN/genedit.tcl
 
     # load the EMC calibrator
-    source tcl/bin/emccalib.tcl
+    source $TCLBIN/emccalib.tcl
 
     # load the EMC data logger
-    source tcl/bin/emclog.tcl
+    source $TCLBIN/emclog.tcl
 
     # load the EMC performance tester
-    source tcl/bin/emctesting.tcl
+    source $TCLBIN/emctesting.tcl
 
     # load the EMC debug level setter
-    source tcl/bin/emcdebug.tcl
+    source $TCLBIN/emcdebug.tcl
 
     # load the backplotter
-    source tcl/bin/tkbackplot.tcl
+    source $TCLBIN/tkbackplot.tcl
 
     # load balloon help
-    source tcl/scripts/balloon.tcl
-    source tcl/scripts/emchelp.tcl
+    source $TCLSCRIPTS/balloon.tcl
+    source $TCLSCRIPTS/emchelp.tcl
     set do_balloons [emc_ini "BALLOON_HELP" "DISPLAY"]
     if {$do_balloons == ""} {
         set do_balloons 0
@@ -749,16 +763,15 @@ $unitsmenu add command -label [msgcat::mc "cm"] -command {emc_linear_unit_conver
 # Add a scripts menu that looks for *.tcl files in tcl/scripts subdirectory
 set scriptsmenu [menu $menubar.scripts -tearoff 1]
 $menubar add cascade -label [msgcat::mc "Scripts"] -menu $scriptsmenu -underline 1
-set scriptdir tcl/scripts
 
 if { $windows == 0 } {
-    set files [exec /bin/ls $scriptdir]
+    set files [exec /bin/ls $TCLSCRIPTS]
     foreach file $files {
 	if {[string match *.tcl $file]} {
 	    set fname [file rootname $file]
 	    # if it's executable, arrange for direct execution
-	    if {[file executable $scriptdir/$file]} {
-		$scriptsmenu add command -label $fname -command "exec $scriptdir/$file -- -ini $EMC_INIFILE &"
+	    if {[file executable $TCLSCRIPTS/$file]} {
+		$scriptsmenu add command -label $fname -command "exec $TCLSCRIPTS/$file -- -ini $EMC_INIFILE &"
 	    }
 	}
     }
