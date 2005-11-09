@@ -1764,7 +1764,7 @@ static int export_not(int num)
 
     /* allocate shared memory for 2-input logical and */
     not = hal_malloc(sizeof(not_t));
-    if (and2 == 0) {
+    if (not == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: hal_malloc() failed\n");
 	return -1;
