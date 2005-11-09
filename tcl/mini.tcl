@@ -1,6 +1,9 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-exec bin/emcsh "$0" "$@"
+export EMC2_TCL_DIR
+# the next line restarts using emcsh \
+exec $EMC2_EMCSH "$0" "$@"
+
 
 # Autosizing Extended Tk GUI for the Enhanced Machine Controller
 # GPL Copyright 2003 Raymond E. Henry <rehenry@up.net>
