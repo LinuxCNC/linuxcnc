@@ -108,7 +108,7 @@ MODULE_PARM_DESC(limit3, "third order limiters");
 static int n_estop = 0;		/* number of estop blocks */
 MODULE_PARM(n_estop, "i");
 MODULE_PARM_DESC(n_estop, "estop latch blocks");
-static int not = 0;            /* number of 2-input logical ands */
+static int not = 0;            /* number of logical nots */
 MODULE_PARM(not, "i");
 MODULE_PARM_DESC(not, "logical inverters");
 static int and2 = 0;            /* number of 2-input logical ands */
@@ -483,7 +483,7 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d estop latch blocks\n", n_estop);
     }
-    /* allocate and export 2 input logical ands */
+    /* allocate and export 1 input logical nots */
     if (not > 0) {
 	for (n = 0; n < not; n++) {
 	    if (export_not(n) != 0) {
@@ -1762,7 +1762,7 @@ static int export_not(int num)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-    /* allocate shared memory for 2-input logical and */
+    /* allocate shared memory for 1-input logical not */
     not = hal_malloc(sizeof(not_t));
     if (not == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
