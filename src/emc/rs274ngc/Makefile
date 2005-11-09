@@ -15,6 +15,7 @@ SRCS = \
 	interp_inverse.cc \
 	interp_read.cc \
 	interp_write.cc \
+	interp_o_word.cc \
 	rs274ngc_errors.cc \
 	rs274ngc_pre.cc
 
@@ -36,6 +37,7 @@ OBJS = \
 	interp_inverse.o \
 	interp_read.o \
 	interp_write.o \
+	interp_o_word.o \
 	rs274ngc_errors.o \
 	rs274ngc_pre.o
 

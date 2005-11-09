@@ -257,6 +257,9 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->y_flag = OFF;
   block->z_flag = OFF;
 
+  block->o_type = O_none;
+  block->o_number = 0;
+
   return INTERP_OK;
 }
 
@@ -291,8 +294,12 @@ int Interp::parse_line(char *line,       //!< array holding a line of RS274 code
 
   CHP(init_block(block));
   CHP(read_items(block, line, settings->parameters));
-  CHP(enhance_block(block, settings));
-  CHP(check_items(block, settings));
+
+  if(settings->skipping_o == 0)
+  {
+    CHP(enhance_block(block, settings));
+    CHP(check_items(block, settings));
+  }
   return INTERP_OK;
 }
 
@@ -311,17 +318,41 @@ To add additional levels of operator precedence, edit this function.
 
 */
 
-
 int Interp::precedence(int an_operator)
 {
-  if (an_operator == RIGHT_BRACKET)
-    return 1;
-  else if (an_operator == POWER)
-    return 4;
-  else if (an_operator >= AND2)
-    return 2;
-  else
-    return 3;
+  switch(an_operator)
+    {
+      case RIGHT_BRACKET:
+	return 1;
+
+      case AND2:
+      case EXCLUSIVE_OR:
+      case NON_EXCLUSIVE_OR:
+	return 2;
+
+      case LT:
+      case EQ:
+      case NE:
+      case LE:
+      case GE:
+      case GT:
+	return 3;
+
+      case MINUS:
+      case PLUS:
+	return 4;
+
+      case NO_OPERATION:
+      case DIVIDED_BY:
+      case MODULO:
+      case TIMES:
+	return 5;
+
+      case POWER:
+	return 6;
+    }
+  // should never happen
+  return 0;
 }
 
 
