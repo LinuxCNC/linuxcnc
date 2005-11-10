@@ -122,7 +122,12 @@ static long int max_delay = DEFAULT_MAX_DELAY;
 /* module parameters */
 
 static int msg_level = RTAPI_MSG_INFO;	/* message printing level */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
 MODULE_PARM(msg_level, "i");
+#else
+#include <linux/param.h>
+module_param(msg_level, int, S_IRUGO | S_IWUGO);
+#endif
 MODULE_PARM_DESC(msg_level, "debug message level (default=3)");
 
 /* other module information */
@@ -599,7 +604,7 @@ int rtapi_prio_next_lower(int prio)
    (Most tasks are infinite loops, and don't return.)
 */
 
-static void wrapper(int task_id)
+static void wrapper(long task_id)
 {
     task_data *task;
 
