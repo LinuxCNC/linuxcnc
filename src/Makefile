@@ -14,15 +14,24 @@
 # depend - generate dependency file(s)
 # indent - formats source code
 # install - installs emc2 files to system directories
+#           right now this is commented out (uncomment it if you want to test)
+# install_rtscript - this installs the realtime script to /etc/init.d/ and rtapi.conf to /etc
+# install_modules - installed the modules to the modulesdir (found by config)
+# install_configs - installs the configs to $sysconfdir (usually /usr/local/etc)
+# install_bin - installs bins to $bindir (usually /usr/local/bin)
+# install_lib - installs libs to $libdir
+# install_docs - installs docs to $docdir
+# install_ncfiles - installs ncfiles 
+# install_tcl - installs tcl code
+# install_man - installs man pages
 # uninstall - removes emc2 files from system directories
-# install - right now this does nothing
+#           - FIXME - not done yet (will need a list of installed files)
 # clean - cleans up temp files, backups, object files, binaries, etc.
 # tgz - creates emc2.tar.gz containing the sources (does a clean first)
 #       Usefull to produce an tarball of the latest CVS
+# deb - FIXME - this should produce a deb package using the make install rule
+# rpm - FIXME - this should produce a rpm package using the make install rule
 #
-# Note that right now the install and uninstall targets only install
-# and remove man pages - the rest of emc2 lives entirely within the
-# emc2 tree.  This may change later.
 #
 # Makefile.inc contains directory paths and other system dependent stuff
 include Makefile.inc
@@ -78,8 +87,8 @@ install_rtscript:
 
 install_modules:
 	install -d $(DESTDIR)$(moduledir)
-	-cp -f ../rtlib/* $(DESTDIR)$(moduledir)
-	cp ../scripts/.runinfo $(DESTDIR)$(moduledir)
+	-cp -f ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)
+	cp -f ../rtlib/.runinfo $(DESTDIR)$(moduledir)
 	@ echo "kernel modules installed"
 
 install_configs:
