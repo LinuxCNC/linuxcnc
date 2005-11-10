@@ -2320,6 +2320,7 @@ set initialDir $programDirectory
 proc popinEditor {} {
     global editFilename textwin programnamestring
     global editwidth editheight popinframe
+    global emc2tcldir
 
     set editTypes {{"All files" *} {Text files} {.txt}}
 
@@ -2386,7 +2387,8 @@ proc popinEditor {} {
     $settingsmenu add command -label "Line Numbering" -underline 0 -command "editSetLineNumber 0"
 
     # adds a script menu that looks for *.ncw files and adds their filename to script menu
-    set scriptdir [file join [pwd] tcl scripts ]
+    #set scriptdir [file join [pwd] tcl scripts ]
+    set scriptdir $emc2tcldir/scripts
     set files [exec /bin/ls $scriptdir]
     foreach file $files {
         if {[string match *.ncw $file]} {

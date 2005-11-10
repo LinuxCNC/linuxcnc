@@ -33,23 +33,25 @@ while ARG=$1 ; ! [ "$ARG" = "${ARG#-}" ] ; do
     shift
 done
 
+##########################################
 # check for some programs that we need
+# these values  get replaced by configure
+#########################################
 INSMOD=@INSMOD@
 RMMOD=@RMMOD@
 LSMOD=@LSMOD@
 PIDOF=@PIDOF@
 GREP=@GREP@
-SED=@SED@
 PS=@PS@
 WHOAMI=@WHOAMI@
 AWK=@AWK@
 IPCS=@IPCS@
 KILL=@KILL@
 
+#########################################
 # Directories
-# these values 
-# get replaced by configure
-###########################
+# these values  get replaced by configure
+#########################################
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
@@ -63,24 +65,58 @@ localstatedir=@localstatedir@
 libdir=@libdir@
 infodir=@infodir@
 mandir=@mandir@
-
-#still needs discussion
 initd_dir=/etc/init.d
 moduledir=@MODULE_DIR@
 docsdir=${prefix}/share/emc/docs
 ncfilesdir=${prefix}/share/emc/ncfiles
 tcldir=${prefix}/share/emc/tcl
 
+#########################################
+# MIsc stuff
+# these values  get replaced by configure
+#########################################
+MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
+EMC2_HOME=@EMC2_HOME@
+
+INIFILE=
+
+#Determine where we ran from
+SCRIPT=`which $0 | grep $0`
+echo "SCRIPT=$SCRIPT" >>$PRINT_FILE
+#get the script name
+SCRIPTNAME=`echo $SCRIPT | sed s#\^.\*/##`
+#and the path
+echo "SCRIPTNAME=$SCRIPTNAME" >>$PRINT_FILE
+SCRIPTDIR=`echo $SCRIPT | sed s/$SCRIPTNAME//`
+SCRIPTDIR=$(cd $SCRIPTDIR ; pwd -P)
+echo $SCRIPTDIR >>$PRINT_FILE
+
+if (test "$SCRIPTDIR" = "$EMC2_HOME/scripts");  then
+# for a run-in-place system:
+EMC2_BIN_DIR=@EMC2_HOME@/bin
+EMC2_TCL_DIR=@EMC2_HOME@/tcl
+EMC2_RTLIB_DIR=@EMC2_HOME@/rtlib
+EMC2_CONFIG_DIR=@EMC2_HOME@/configs
+EMC2_NCFILES_DIR=@EMC2_HOME@/nc_files
+REALTIME=@EMC2_HOME@/scripts/realtime
+EMC2_IMAGEDIR=@EMC2_HOME@
+
+else
+# for an installed system:
 EMC2_BIN_DIR=$bindir
 EMC2_TCL_DIR=$tcldir
 EMC2_RTLIB_DIR=$moduledir
 EMC2_CONFIG_DIR=$sysconfdir
+EMC2_NCFILES_DIR=$ncfilesdir
+REALTIME=/etc/init.d/realtime
+EMC2_IMAGEDIR=$EMC2_CONFIG_DIR
 
-INIFILE=
-
+fi
+# common from here..
 INIVAR=$EMC2_BIN_DIR/inivar
 HALCMD=$EMC2_BIN_DIR/halcmd
-REALTIME=/etc/init.d/realtime
+EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
+EMC2_IOSH=$EMC2_BIN_DIR/iosh
 
 
 # check for root privliges - hope to remove the need for this later
@@ -96,21 +132,20 @@ echo EMC2_TCL_DIR=$EMC2_TCL_DIR >>$PRINT_FILE
 echo EMC2_SCRIPT_DIR=$EMC2_SCRIPT_DIR >>$PRINT_FILE
 echo EMC2_RTLIB_DIR=$EMC2_RTLIB_DIR >>$PRINT_FILE
 echo EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR >>$PRINT_FILE
-
-#FIXME, a hack for now in order for halcmd to find modules to load when loadrt
-export HAL_RTMOD_DIR=$HAL_RTMOD_DIR
+echo INIVAR=$INIVAR >>$PRINT_FILE
+echo HALCMD=$HALCMD >>$PRINT_FILE
+echo EMC2_EMCSH=$EMC2_EMCSH >>$PRINT_FILE
+echo EMC2_IOSH=$EMC2_IOSH >>$PRINT_FILE
 
 # look for ini file
 INIFILE=
 if [ ! -n "$1" ] ; then
 # nothing specified, use default
     INIFILE=$EMC2_CONFIG_DIR/emc.ini
-elif echo $1 | grep / >>$DEBUG_FILE ; then
-# path specified, use it
-    INIFILE=$1
-else
-# filename but no path, use default path
-    INIFILE=$EMC2_CONFIG_DIR/$1
+elif echo $1 | $GREP / >>$DEBUG_FILE ; then     
+    INIFILE=$1                                 # path specified, use it  
+else                                            
+    INIFILE=$EMC2_CONFIG_DIR/$1                # filename but no path, use default path
 fi
 if [ ! -f $INIFILE ] ; then
     echo "Could not find ini file '$INIFILE'"
@@ -118,12 +153,10 @@ if [ ! -f $INIFILE ] ; then
 fi
 echo INIFILE=$INIFILE >>$PRINT_FILE
 
-echo INIVAR=$INIVAR >>$PRINT_FILE
-echo HALCMD=$HALCMD >>$PRINT_FILE
-echo REALTIME=$REALTIME >>$PRINT_FILE
-
+################################################################################
 # extract info from the ini file that we will need later
 # get name of RS274NGC parameter file
+################################################################################
 RS274NGC_PARAMFILE=`$INIVAR -ini $INIFILE -var PARAMETER_FILE -sec RS274NGC 2>>$DEBUG_FILE`
 if [ ! -n "$RS274NGC_PARAMFILE" ] ; then
     echo "Can't find variable PARAMETER_FILE in section [RS274NGC] of file $INIFILE."
@@ -137,6 +170,7 @@ if [ ! -n "$EMCMOT" ] ; then
     echo "Can't find variable EMCMOT in section [EMCMOT] of file $INIFILE."
     exit -1
 fi
+EMCMOT=$EMCMOT$MODULE_EXT # add module extension
 echo EMCMOT=$EMCMOT >>$PRINT_FILE
 
 # get emcio information
@@ -183,12 +217,18 @@ if [ ! -n "$NMLFILE" ] ; then
 fi
 echo NMLFILE=$NMLFILE >>$PRINT_FILE
 
+################################################################################
 # Done gathering information, define a few functions
 # Execution resumes after function definitions...
+################################################################################
 
 KILL_TASK=
 KILL_TIMEOUT=10
 #
+################################################################################
+# Kills a list of tasks with timeout
+# if it doesn't work, kill -9 is used
+################################################################################
 function KillTaskWithTimeout() {
     KILL_PIDS=`$PIDOF $KILL_TASK`
     if [ ! -n "$KILL_PIDS" ] ; then
@@ -198,12 +238,12 @@ function KillTaskWithTimeout() {
     for KILL_PID in $KILL_PIDS ; do
 	echo "Killing task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
 	# first a "gentle" kill with signal TERM
-	kill $KILL_PID
+	$KILL $KILL_PID
 	WAIT=$KILL_TIMEOUT
 	# wait and see if it dissappears
 	while [ $WAIT -gt 1 ] ; do
 	    # see if it's still alive
-	    if ps $KILL_PID >>$DEBUG_FILE ; then
+	    if $PS $KILL_PID >>$DEBUG_FILE ; then
 		WAIT=$(($WAIT-1))
 		sleep 1
 	    else
@@ -213,12 +253,12 @@ function KillTaskWithTimeout() {
 	if [ $WAIT -gt 0 ] ; then
 	    # gentle didn't work, get serious
 	    echo "Timeout, trying kill -9" >>$PRINT_FILE
-	    kill -9 $KILL_PID
+	    $KILL -9 $KILL_PID
 	    WAIT=$KILL_TIMEOUT
 	    # wait and see if it dissappears
 	    while [ $WAIT -gt 1 ] ; do
 		# see if it's still alive
-		if ps $KILL_PID >>$DEBUG_FILE ; then
+		if $PS $KILL_PID >>$DEBUG_FILE ; then
 		    WAIT=$(($WAIT-1))
 		    sleep 1
 		else
@@ -244,7 +284,7 @@ function Cleanup() {
     echo "Shutting down and cleaning up EMC..."
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of emc
-    for KILL_TASK in xemc yemc emcpanel keystick emcsh ; do
+    for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh axis ; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
@@ -260,9 +300,9 @@ function Cleanup() {
 
     # now the realtime stuff
     # check for rtapi
-    if [ -n "` $LSMOD | awk -- '$1 ~ /^rtapi$/ { print $1 }'`" ] ; then
+    if [ -n "` $LSMOD | $AWK -- '$1 ~ /^rtapi$/ { print $1 }'`" ] ; then
 	# rtapi loaded, check for hal_lib
-	if [ -n "` $LSMOD | awk -- '$1 ~ /^hal_lib$/ { print $1 }'`" ] ; then
+	if [ -n "` $LSMOD | $AWK -- '$1 ~ /^hal_lib$/ { print $1 }'`" ] ; then
 	    # hal_lib loaded, stop realtime threads
 	    $HALCMD stop
 	    # check for any hal_meters
@@ -278,7 +318,7 @@ function Cleanup() {
 		KillTaskWithTimeout
 	    fi
 	    # check for user space HAL components
-	    HAL_USR_COMPS=`$HALCMD show comp | grep -v halcmd | awk -- '$2 ~ /^User$/ { print $3 }'`
+	    HAL_USR_COMPS=`$HALCMD show comp | $GREP -v halcmd | $AWK -- '$2 ~ /^User$/ { print $3 }'`
 	    # remove them
 	    for HAL_COMP in $HAL_USR_COMPS ; do
 		echo "Removing user space HAL component $HAL_COMP" >>$PRINT_FILE
@@ -286,7 +326,7 @@ function Cleanup() {
 		KillTaskWithTimeout
 	    done
 	    # check for realtime HAL components (including motion module)
-	    HAL_RT_COMPS=`$HALCMD show comp | awk -- '$2 ~ /^RT$/ { print $3 }'`
+	    HAL_RT_COMPS=`$HALCMD show comp | $AWK -- '$2 ~ /^RT$/ { print $3 }'`
 	    # remove them
 	    for HAL_COMP in $HAL_RT_COMPS ; do
 		echo "Removing realtime HAL component $HAL_COMP" >>$PRINT_FILE
@@ -307,48 +347,10 @@ function Cleanup() {
 }
 
 
-## STUFF FROM OLD CLEANUP, DON'T KNOW IF WE WILL NEED IT OR NOT
-#
-## Check to see if the inifile was changed. If not delete the unnecessary
-## backup.
-#
-#
-#  if [ -f $INIFILE.$DATESTRING ] ; then
-#    if diff $INIFILE $INIFILE.$DATESTRING > $DEBUG_FILE ; then
-#	echo $INIFILE was not changed.
-#	\rm $INIFILE.$DATESTRING
-#    else
-#	echo $INIFILE was changed.
-#	diff $INIFILE $INIFILE.$DATESTRING
-#	diff $INIFILE $INIFILE.$DATESTRING >$INIFILE.$DATESTRING.diff
-#	echo $INIFILE differences saved to $INIFILE.$DATESTRING.diff
-#	\rm $INIFILE.$DATESTRING;
-#    fi
-#  else
-#    DATESTRING=`date +%Y%m%d%H%M%S`
-#    cp $INIFILE $INIFILE.$DATESTRING
-#  fi
-#
-#
-#    if [ -n "$RS274NGC_PARAMFILE" ] ; then
-#	if [ -f $RS274NGC_PARAMFILE.$DATESTRING ] ; then
-#	    if diff $RS274NGC_PARAMFILE $RS274NGC_PARAMFILE.$DATESTRING > $DEBUG_FILE ; then
-#		echo $RS274NGC_PARAMFILE was not changed.
-#		\rm $RS274NGC_PARAMFILE.$DATESTRING
-#	    else
-#		echo $RS274NGC_PARAMFILE was changed.
-#		diff $RS274NGC_PARAMFILE $RS274NGC_PARAMFILE.$DATESTRING
-#		diff $RS274NGC_PARAMFILE $RS274NGC_PARAMFILE.$DATESTRING >$RS274NGC_PARAMFILE.$DATESTRING.diff
-#		echo $RS274NGC_PARAMFILE differences saved to $RS274NGC_PARAMFILE.$DATESTRING.diff
-#		\rm $RS274NGC_PARAMFILE.$DATESTRING;
-#	    fi
-#	else
-#	    cp $RS274NGC_PARAMFILE $RS274NGC_PARAMFILE.$DATESTRING
-#	fi
-#   fi
-#
 
+################################################################################
 # done with function definitions, execution resumes here
+################################################################################
 
 # Name of lock file to check for that signifies that EMC is up,
 # to prevent multiple copies of controller
@@ -390,7 +392,7 @@ if [ "$imgtime" = "" ] ; then
 fi
 if [ "$img" != "" ] ; then
   if [ -x $EMC2_TCL_DIR/bin/popimage ] ; then
-    $EMC2_TCL_DIR/bin/popimage $EMC2_CONFIG_DIR/$img $imgtime &
+    $EMC2_TCL_DIR/bin/popimage $EMC2_IMAGEDIR/$img $imgtime &
   fi
 fi
 
@@ -401,15 +403,6 @@ if ! $REALTIME start ; then
     echo "Realtime system did not load"
     Cleanup
     exit -1
-fi
-
-#checking for Motion module extention
-if [ -f $EMC2_RTLIB_DIR/$EMCMOT.o ] ; then
-    EMCMOT=$EMCMOT.o
-fi
-
-if [ -f $EMC2_RTLIB_DIR/$EMCMOT.ko ] ; then
-    EMCMOT=$EMCMOT.ko
 fi
 
 # Prepare to load real time motion module
@@ -433,21 +426,21 @@ if [ ! -n "$BASE_PERIOD_SEC" ] ; then
     Cleanup
     exit -1
 fi
-BASE_PERIOD_NSEC=`echo $BASE_PERIOD_SEC | env LANG=C awk -- '{printf "%d\n", $1*1000000000}'`
+BASE_PERIOD_NSEC=`echo $BASE_PERIOD_SEC | env LANG=C $AWK -- '{printf "%d\n", $1*1000000000}'`
 SERVO_PERIOD_SEC=`$INIVAR -ini $INIFILE -var SERVO_PERIOD -sec EMCMOT 2>>$DEBUG_FILE`
 if [ ! -n "$SERVO_PERIOD_SEC" ] ; then
     echo "Can't find variable SERVO_PERIOD in section [EMCMOT] of file $INIFILE."
     Cleanup
     exit -1
 fi
-SERVO_PERIOD_NSEC=`echo $SERVO_PERIOD_SEC | env LANG=C awk -- '{printf "%d\n", $1*1000000000}'`
+SERVO_PERIOD_NSEC=`echo $SERVO_PERIOD_SEC | env LANG=C $AWK -- '{printf "%d\n", $1*1000000000}'`
 TRAJ_PERIOD_SEC=`$INIVAR -ini $INIFILE -var TRAJ_PERIOD -sec EMCMOT 2>>$DEBUG_FILE`
 if [ ! -n "$TRAJ_PERIOD_SEC" ] ; then
     echo "Can't find variable TRAJ_PERIOD in section [EMCMOT] of file $INIFILE."
     Cleanup
     exit -1
 fi
-TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | env LANG=C awk -- '{printf "%d\n", $1*1000000000}'`
+TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | env LANG=C $AWK -- '{printf "%d\n", $1*1000000000}'`
 
 # load the motion module
 
@@ -550,38 +543,25 @@ if [ -n "$EMCSTRIP" ] ; then
 fi
 
 # Debugging information, remove later
-ps -ael >>$DEBUG_FILE
-ipcs >>$DEBUG_FILE
-/sbin/lsmod >>$DEBUG_FILE
+$PS -ael >>$DEBUG_FILE
+$IPCS >>$DEBUG_FILE
+$LSMOD >>$DEBUG_FILE
 
 sleep 1
-
-# exporting the TCL dir so mini/tkemc find subprograms
-export EMC2_TCL_DIR
 
 # Run display in foreground
 echo "Starting EMC DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
 case $EMCDISPLAY in
-  tkemc)
-    # tkemc is in the tcl directory, not the bin directory
+  tkemc|mini)
+    # tkemc and mini are in the tcl directory, not the bin directory
     if [ ! -x $EMC2_TCL_DIR/$EMCDISPLAY.tcl ] ; then
 	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl"
 	Cleanup
 	exit 1
     fi
     export EMC2_TCL_DIR=$EMC2_TCL_DIR
-    export EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
-    $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE
-  ;;
-  mini)
-    # mini is in the tcl directory, not the bin directory
-    if [ ! -x $EMC2_TCL_DIR/$EMCDISPLAY.tcl ] ; then
-	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl"
-	Cleanup
-	exit 1
-    fi
-    export EMC2_TCL_DIR=$EMC2_TCL_DIR
-    export EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
+    export EMC2_EMCSH=$EMC2_EMCSH
+    export EMC2_IOSH=$EMC2_IOSH
     $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE
   ;;
   dummy)
@@ -605,4 +585,3 @@ esac
 Cleanup
 
 exit 0
-
