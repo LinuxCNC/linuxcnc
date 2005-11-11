@@ -3,8 +3,7 @@
 */
 /********************************************************************
 * Description:  rtai_rtapi.c
-*               This file, 'rtai_rtapi.c', implements the realtime 
-*               portion of the API for the RTAI platform.
+*               Realtime RTAPI implementation for the RTAI platform.
 *
 * Author: John Kasunich, Paul Corner
 * License: GPL Version 2
@@ -604,7 +603,7 @@ int rtapi_prio_next_lower(int prio)
    (Most tasks are infinite loops, and don't return.)
 */
 
-static void wrapper(long task_id)
+static void wrapper(int task_id)
 {
     task_data *task;
 
@@ -666,8 +665,8 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     task->arg = arg;
     /* call OS to initialize the task - use CPU 0 (the only CPU if
        uni-processor, but I want predictable behavior under SMP) */
-    retval = rt_task_init_cpuid(ostask_array[task_id], wrapper, task_id, stacksize, prio, uses_fp, 0	/* signal 
-	 */ , 0 /* cpu id */ );
+    retval = rt_task_init_cpuid(ostask_array[task_id], wrapper, task_id,
+	 stacksize, prio, uses_fp, 0 /* signal */, 0 /* cpu id */ );
     if (retval != 0) {
 	/* couldn't create task, free task data memory */
 	kfree(ostask_array[task_id]);
