@@ -74,8 +74,9 @@ typedef struct {
     char *pickname;		/* name from list, not validated */
     hal_pin_t *pin;		/* metadata (if it's a pin) */
     hal_sig_t *sig;		/* metadata (if it's a signal) */
-    hal_param_t *param;		/* merafata (if it's a parameter) */
+    hal_param_t *param;		/* metadata (if it's a parameter) */
     GtkWidget *window;		/* selection dialog window */
+    GtkWidget *notebook;	/* pointer to the notebook */
     GtkWidget *lists[3];	/* lists for pins, sigs, and params */
     char probe_name[PROBE_NAME_LEN + 1];	/* name of this probe */
 } probe_t;
@@ -200,6 +201,7 @@ int main(int argc, gchar * argv[])
     if (meter == NULL) {
 	exit(-1);
     }
+    
     /* set up for initial probe, if any */
     if (initial_name != NULL) {
 	meter->probe->pickname = initial_name;
@@ -310,7 +312,7 @@ probe_t *probe_new(char *probe_name)
 void popup_probe_window(GtkWidget * widget, gpointer data)
 {
     probe_t *probe;
-    int next;
+    int next, row;
     hal_pin_t *pin;
     hal_sig_t *sig;
     hal_param_t *param;
@@ -323,30 +325,65 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     if (probe->window == NULL) {
 	create_probe_window(probe);
     }
+    
+    /* this selects the page holding the current selected probe */
+    if (probe->listnum >= 0)
+	gtk_notebook_set_page((GtkNotebook *)probe->notebook, probe->listnum);
+    
     gtk_clist_clear(GTK_CLIST(probe->lists[0]));
     gtk_clist_clear(GTK_CLIST(probe->lists[1]));
     gtk_clist_clear(GTK_CLIST(probe->lists[2]));
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
+    row = 0;
     while (next != 0) {
 	pin = SHMPTR(next);
 	name = pin->name;
 	gtk_clist_append(GTK_CLIST(probe->lists[0]), &name);
+
+	/* if we have a pin selected, and it matches the current one, mark this row) */
+	if ((probe->listnum == 0) && (probe->pin == pin)) {
+	    gtk_clist_select_row(GTK_CLIST(probe->lists[0]), row, 0);
+	    /* Get the text from the list */
+	    gtk_clist_get_text(GTK_CLIST(probe->lists[0]), row, 0, &(probe->pickname));
+	}
+	
 	next = pin->next_ptr;
+	row++;
     }
     next = hal_data->sig_list_ptr;
+    row = 0;
     while (next != 0) {
 	sig = SHMPTR(next);
 	name = sig->name;
 	gtk_clist_append(GTK_CLIST(probe->lists[1]), &name);
+
+	/* if we have a signal selected, and it matches the current one, mark this row) */
+	if ((probe->listnum == 1) && (probe->sig == sig)) {
+	    gtk_clist_select_row(GTK_CLIST(probe->lists[1]), row, 0);
+	    /* Get the text from the list */
+	    gtk_clist_get_text(GTK_CLIST(probe->lists[1]), row, 0, &(probe->pickname));
+	}
+
 	next = sig->next_ptr;
+	row++;
     }
     next = hal_data->param_list_ptr;
+    row = 0;
     while (next != 0) {
 	param = SHMPTR(next);
 	name = param->name;
 	gtk_clist_append(GTK_CLIST(probe->lists[2]), &name);
+
+	/* if we have a param selected, and it matches the current one, mark this row) */
+	if ((probe->listnum == 2) && (probe->param == param)) {
+	    gtk_clist_select_row(GTK_CLIST(probe->lists[2]), row, 0);
+	    /* Get the text from the list */
+	    gtk_clist_get_text(GTK_CLIST(probe->lists[2]), row, 0, &(probe->pickname));
+	}
+	
 	next = param->next_ptr;
+	row++;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     gtk_widget_show_all(probe->window);
@@ -493,6 +530,8 @@ static void create_probe_window(probe_t * probe)
 
     /* create a notebook to hold pin, signal, and parameter lists */
     notebk = gtk_notebook_new();
+    /* remember the notebook so we can change the pages later */
+    probe->notebook = notebk;
     /* add the notebook to the window */
     gtk_box_pack_start(GTK_BOX(vbox), notebk, TRUE, TRUE, 0);
     /* set overall notebook parameters */
