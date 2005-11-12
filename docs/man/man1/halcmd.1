@@ -116,6 +116,15 @@ does not exist, or if they are not the same type type.
 but reverses the order of the arguments.  \fBhalcmd\fR treats
 both link commands exactly the same.  Use whichever you prefer.
 .TP
+\fBlinkpp\fR \fIpinname1\fR [\fIarrow\fR] \fIpinname2\fR
+(\fIlink\fR \fIp\fRin to \fIp\fRin)  Shortcut for \fBlinkps\fR
+that creates the signal (named like the first pin), then links 
+them both to that signal.  \fBhalcmd\fR treats this just as if
+it were:
+   \fBhalcmd\fR \fBnewsig\fR pinname1 
+   \fBhalcmd\fR \fBlinksp\fR pinname1 pinname1
+   \fBhalcmd\fR \fBlinksp\fR pinname1 pinname2
+.TP
 \fBunlinkp\fR \fIpinname\fR
 (\fIunlink\fR \fIp\fRin)  Breaks any previous link to \fIpinname\fR.
 Fails if \fIpinname\fR does not exist.
