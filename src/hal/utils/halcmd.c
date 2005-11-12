@@ -74,6 +74,7 @@ static int parse_cmd(char *tokens[]);
 static int do_help_cmd(char *command);
 static int do_lock_cmd(char *command);
 static int do_unlock_cmd(char *command);
+static int do_linkpp_cmd(char *first_pin_name, char *second_pin_name);
 static int do_link_cmd(char *pin, char *sig);
 static int do_newsig_cmd(char *name, char *type);
 static int do_setp_cmd(char *name, char *value);
@@ -402,7 +403,7 @@ int main(int argc, char **argv)
 	       at least one empty one at the end... make it empty now */
 	    tokens[MAX_TOK] = "";
 	    /* the "quit" command is not handled by parse_cmd() */
-	    if ( strcasecmp(tokens[0],"quit") == 0 ) {
+	    if ( ( strcasecmp(tokens[0],"quit") == 0 ) || ( strcasecmp(tokens[0],"exit") == 0 ) ) {
 		break;
 	    }
 	    /* let the signal handler know that we might have the mutex */
@@ -484,6 +485,15 @@ static int parse_cmd(char *tokens[])
 	} else {
 	    /* no arrow */
 	    retval = do_link_cmd(tokens[2], tokens[1]);
+        }
+    } else if (strcmp(tokens[0], "linkpp") == 0) {
+	/* check for an arrow */
+	if ((tokens[2][0] == '=') || (tokens[2][0] == '<')) {
+	    /* arrow found, skip it - is this bad for bidir pins? */
+	    retval = do_linkpp_cmd(tokens[1], tokens[3]);
+	} else {
+	    /* no arrow */
+	    retval = do_linkpp_cmd(tokens[1], tokens[2]);
 	}
     } else if (strcmp(tokens[0], "unlinkp") == 0) {
 	retval = do_link_cmd(tokens[1], "\0");
@@ -619,6 +629,41 @@ static int do_unlock_cmd(char *command)
 	    "Unlocking completed");
     } else {
 	rtapi_print_msg(RTAPI_MSG_INFO, "Unlocking failed\n");
+    }
+    return retval;
+}
+
+static int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
+{
+    int retval;
+    rtapi_mutex_get(&(hal_data->mutex));
+    hal_pin_t *first_pin, *second_pin;
+    /* check if the pins are there */
+    first_pin = halpr_find_pin_by_name(first_pin_name);
+    second_pin = halpr_find_pin_by_name(second_pin_name);
+    if (first_pin == 0) {
+	/* not found - why doesn't halpr_find_pin_by_name do this check?*/
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin '%s' not found\n", first_pin_name);
+	return HAL_INVAL; 
+    } else if (second_pin == 0) {
+	/* not found - why doesn't halpr_find_pin_by_name do this check?*/
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin '%s' not found\n", second_pin_name);
+	return HAL_INVAL; 
+    } else {
+    /* make a new signal with the pin type and name of the first argument */
+    rtapi_mutex_give(&(hal_data->mutex));
+    do_newsig_cmd( first_pin_name, data_type((int) first_pin->type));
+    }
+    /* link the first pin to the new signal */
+    retval = do_link_cmd( first_pin_name, first_pin_name );
+    /* if that worked, link the second pin to the new signal */
+    if ( retval == 0 ) {
+    retval = do_link_cmd( second_pin_name, first_pin_name );
+    return retval;
     }
     return retval;
 }
@@ -2537,10 +2582,13 @@ static int do_help_cmd(char *command)
 	printf("linksp signame [arrow] pinname\n");
 	printf("  Links pin 'pinname' to signal 'signame'.  Both forms do\n");
 	printf("  the same thing.  Use whichever makes sense.  The optional\n");
-	printf("  'arrow' can be '=>', '<=', or '<=>' and is ignored.  It\n");
+	printf("  'arrow' can be '==>', '<==', or '<=>' and is ignored.  It\n");
 	printf("  can be used in files to show the direction of data flow,\n");
 	printf("  but don't use arrows on the command line.\n");
-    } else if (strcmp(command, "unlinkp") == 0) {
+    } else if (strcmp(command, "linkpp") == 0) {
+	printf("linkpp firstpin secondpin\n");
+	printf("  Creates a signal with the name of the first pin,\n");	printf("  then links both pins to the signal. \n");
+    }else if (strcmp(command, "unlinkp") == 0) {
 	printf("unlinkp pinname\n");
 	printf("  Unlinks pin 'pinname' if it is linked to any signal.\n");
     } else if (strcmp(command, "lock") == 0) {
@@ -2639,6 +2687,10 @@ static int do_help_cmd(char *command)
 	printf("quit\n");
 	printf("  Stop processing input and terminate halcmd (when\n");
 	printf("  reading from a file or stdin).\n");
+    } else if (strcmp(command, "exit") == 0) {
+	printf("exit\n");
+	printf("  Stop processing input and terminate halcmd (when\n");
+	printf("  reading from a file or stdin).\n");
     } else {
 	printf("No help for unknown command '%s'\n", command);
     }
@@ -2656,45 +2708,39 @@ static void print_help_general(void)
     printf("                 to get their values from ini file.\n");
 #endif
     printf("  -k             Keep going after failed command.  Default\n");
-    printf("                 is to exit if any command fails.\n");
+    printf("                 is to exit if any command fails. (Useful with -f)\n");
     printf("  -q             Quiet - print errors only (default).\n");
     printf("  -Q             Very quiet - print nothing.\n");
     printf("  -v             Verbose - print result of every command.\n");
     printf("  -V             Very verbose - print lots of junk.\n");
     printf("  -h             Help - print this help screen and exit.\n\n");
     printf("commands:\n\n");
-    printf("  loadrt, unloadrt, loadusr, lock, unlock, linkps, linksp, unlinkp,\n");
-    printf("  newsig, delsig, setp, getp, sets, gets, addf, delf, show, list,\n");
-    printf("  save, status, start, stop, quit\n");
+    printf("  loadrt, unloadrt, loadusr, lock, unlock, linkps, linksp, linkpp,\n");
+    printf("  unlinkp, newsig, delsig, setp, getp, sets, gets, addf, delf, show,\n");
+    printf("  list, save, status, start, stop, quit, exit\n");
     printf("  help           Lists all commands with short descriptions\n");
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
 
 static void print_help_commands(void)
 {
-    printf("Use 'help <command>'  for more details about each command\n");
+    printf("Use 'help <command>' for more details about each command\n");
     printf("Available commands:\n");
-    printf("  loadrt     Load realtime module\n");
-    printf("  unloadrt   Unload realtime module[s]\n");
-    printf("  loadusr    Start user space program\n");
-    printf("  lock       Lock HAL behaviour\n");
-    printf("  unlock     Unlock HAL behaviour\n");
-    printf("  linkps     Link pin to signal\n");
-    printf("  linksp     Link signal to pin\n");
-    printf("  unlinkp    Unlink pin\n");
-    printf("  newsig     Create new signal\n");
-    printf("  delsig     Delete a signal\n");
-    printf("  setp       Set value of a parameter\n");
-    printf("  sets       Set value of a signal\n");
-    printf("  getp       Get value of a parameter\n");
-    printf("  gets       Get value of a signal\n");
-    printf("  addf       Add function to thread\n");
-    printf("  delf       Remove function from thread\n");
-    printf("  show       Display info about HAL objects\n");
-    printf("  list       Display names of HAL objects\n");
-    printf("  status     Display status information\n");
-    printf("  save       Print config as commands\n");
-    printf("  start      Start realtime threads\n");
-    printf("  stop       Stop realtime threads\n");
-    printf("  quit       Stop processing commands, exit from halcmd\n");
+    printf("  loadrt, unloadrt    Load/unload realtime module(s)\n");
+    printf("  loadusr             Start user space program\n");
+    printf("  lock, unlock        Lock/unlock HAL behaviour\n");
+    printf("  linkps              Link pin to signal\n");
+    printf("  linksp              Link signal to pin\n");
+    printf("  linkpp              Shortcut to link two pins together\n");
+    printf("  unlinkp             Unlink pin\n");
+    printf("  newsig, delsig      Create/delete a signal\n");
+    printf("  setp, getp          Set/get value of a parameter\n");
+    printf("  sets, gets          Set/get value of a signal\n");
+    printf("  addf, delf          Add/remove function to/from a thread\n");
+    printf("  show                Display info about HAL objects\n");
+    printf("  list                Display names of HAL objects\n");
+    printf("  status              Display status information\n");
+    printf("  save                Print config as commands\n");
+    printf("  start, stop         Start/stop realtime threads\n");
+    printf("  quit, exit          Exit from halcmd\n");
 }
