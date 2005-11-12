@@ -130,6 +130,7 @@ int hal_flag = 0;	/* used to indicate that halcmd might have the
 			   hal mutex, so the sig handler can't just
 			   exit, instead it must set 'done' */
 int done = 0;		/* used to break out of processing loop */
+int linenumber=0;	/* used to print linenumber on errors */
 
 char comp_name[HAL_NAME_LEN];	/* name for this instance of halcmd */
 
@@ -317,6 +318,7 @@ int main(int argc, char **argv)
     } else {
 	/* read command line(s) from 'srcfile' */
 	while (fgets(cmd_buf, MAX_CMD_LEN, srcfile) != NULL) {
+	    linenumber++;
 	    /* convert a line of text into individual tokens */
 	    m = 0;
 	    cp1 = cmd_buf;
@@ -397,7 +399,7 @@ int main(int argc, char **argv)
 		default:
 		    /* should never get here */
 		    rtapi_print_msg(RTAPI_MSG_ERR,
-			"Bad state in token parser\n");
+			"HAL:%d: Bad state in token parser\n", linenumber);
 		    done = 1;
 		}
 	    }
@@ -455,7 +457,7 @@ static int parse_cmd(char *tokens[])
     int n;
     /* for testing: prints tokens that make up the command */
     for ( n = 0 ; n < MAX_TOK ; n++ ) {
-	printf ( "%02d:{%s}\n", n, tokens[n] );
+	printf ( "HAL:%d: %02d:{%s}\n", linenumber, n, tokens[n] );
     }
 #endif
     /* tokens[0] is the command */
@@ -544,7 +546,7 @@ static int parse_cmd(char *tokens[])
 	if (retval == 0) {
 	    /* print success message */
 	    rtapi_print_msg(RTAPI_MSG_INFO,
-		"Function '%s' added to thread '%s'\n", tokens[1], tokens[2]);
+		"HAL:%d: Function '%s' added to thread '%s'\n", linenumber, tokens[1], tokens[2]);
 	}
     } else if (strcmp(tokens[0], "delf") == 0) {
 	retval = hal_del_funct_from_thread(tokens[1], tokens[2]);
@@ -567,7 +569,7 @@ static int parse_cmd(char *tokens[])
 	    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime threads stopped\n");
 	}
     } else {
-	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown command '%s'\n", tokens[0]);
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown command '%s'\n", linenumber, tokens[0]);
 	retval = -1;
     }
     return retval;
@@ -580,7 +582,7 @@ static int do_lock_cmd(char *command)
     /* are we running as root? */
     if ( getuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: Must be root to lock HAL\n");
+	    "HAL:%d: ERROR: Must be root to lock HAL\n", linenumber);
 	return -2;
     }
 
@@ -600,7 +602,7 @@ static int do_lock_cmd(char *command)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "Locking completed");
     } else {
-	rtapi_print_msg(RTAPI_MSG_INFO, "Locking failed\n");
+	rtapi_print_msg(RTAPI_MSG_INFO, "HAL:%d: Locking failed\n", linenumber);
     }
     return retval;
 }
@@ -612,7 +614,7 @@ static int do_unlock_cmd(char *command)
     /* are we running as root? */
     if ( getuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: Must be root to unlock HAL\n");
+	    "HAL:%d: ERROR: Must be root to unlock HAL\n", linenumber);
 	return -2;
     }
 
@@ -630,7 +632,7 @@ static int do_unlock_cmd(char *command)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "Unlocking completed");
     } else {
-	rtapi_print_msg(RTAPI_MSG_INFO, "Unlocking failed\n");
+	rtapi_print_msg(RTAPI_MSG_INFO, "HAL:%d: Unlocking failed\n", linenumber);
     }
     return retval;
 }
@@ -648,12 +650,12 @@ static int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
 	/* first pin not found*/
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin '%s' not found\n", first_pin_name);
+	    "HAL:%d: ERROR: pin '%s' not found\n", linenumber, first_pin_name);
 	return HAL_INVAL; 
     } else if (second_pin == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin '%s' not found\n", second_pin_name);
+	    "HAL:%d: ERROR: pin '%s' not found\n", linenumber, second_pin_name);
 	return HAL_INVAL; 
     }
     
@@ -664,7 +666,7 @@ static int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
        don't want ot create a sig, which after that won't be usefull */
     if (first_pin->type != second_pin->type) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pins '%s' and '%s' not of the same type\n", first_pin_name, second_pin_name);
+	    "HAL:%d: ERROR: pins '%s' and '%s' not of the same type\n", linenumber, first_pin_name, second_pin_name);
 	return HAL_INVAL; 
     }
 	
@@ -679,6 +681,9 @@ static int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
 	/* if that worked, link the second pin to the new signal */
 	    retval = hal_link(second_pin_name, first_pin_name);
 	}
+    }
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: linkpp failed\n", linenumber);
     }
     return retval;
 }
@@ -702,6 +707,8 @@ static int do_link_cmd(char *pin, char *sig)
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_INFO, "Pin '%s' unlinked\n", pin);
 	}
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: link failed\n", linenumber);
     }
     return retval;
 }
@@ -727,8 +734,11 @@ static int do_newsig_cmd(char *name, char *type)
     } else if (strcasecmp(type, "s32") == 0) {
 	retval = hal_signal_new(name, HAL_S32);
     } else {
-	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown signal type '%s'\n", type);
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown signal type '%s'\n", linenumber, type);
 	retval = HAL_INVAL;
+    }
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: newsig failed\n", linenumber);
     }
     return retval;
 }
@@ -759,7 +769,7 @@ static int do_setp_cmd(char *name, char *value)
 	envvar = getenv(cp);
 	if ( envvar == NULL ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: env variable '%s' not found\n", cp);
+		"HAL:%d: ERROR: env variable '%s' not found\n", linenumber, cp);
 	    return HAL_INVAL;
 	}
 	value = envvar;
@@ -773,7 +783,7 @@ static int do_setp_cmd(char *name, char *value)
 	while ( *cp != ']' ) {
 	    if ( *cp == '\0' ) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL: ERROR: ini file reference '%s' missing ']'\n", value);
+		    "HAL:%d: ERROR: ini file reference '%s' missing ']'\n", linenumber, value);
 		return HAL_INVAL;
 	    }
 	    cp++;
@@ -792,7 +802,7 @@ static int do_setp_cmd(char *name, char *value)
 	}
 	if ( value == NULL ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: ini file variable '[%s]%s' not found\n", section, variable);
+		"HAL:%d: ERROR: ini file variable '[%s]%s' not found\n", linenumber, section, variable);
 	    return HAL_INVAL;
 	}
     }
@@ -804,7 +814,7 @@ static int do_setp_cmd(char *name, char *value)
     if (param == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: parameter '%s' not found\n", name);
+	    "HAL:%d: ERROR: parameter '%s' not found\n", linenumber, name);
 	return HAL_INVAL;
     }
     /* found it */
@@ -813,7 +823,7 @@ static int do_setp_cmd(char *name, char *value)
     if (param->dir == HAL_RD) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: param '%s' is not writable\n", name);
+	    "HAL:%d: ERROR: param '%s' is not writable\n", linenumber, name);
 	return HAL_INVAL;
     }
     d_ptr = SHMPTR(param->data_ptr);
@@ -827,7 +837,7 @@ static int do_setp_cmd(char *name, char *value)
 	    *(hal_bit_t *) (d_ptr) = 0;
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for bit parameter\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for bit parameter\n", linenumber, value);
 	    retval = HAL_INVAL;
 	}
 	break;
@@ -836,8 +846,7 @@ static int do_setp_cmd(char *name, char *value)
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid character(s) in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for float parameter\n",
-		value);
+		"HAL:%d: ERROR: value '%s' invalid for float parameter\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_float_t *) (d_ptr)) = fval;
@@ -848,7 +857,7 @@ static int do_setp_cmd(char *name, char *value)
 	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 127) || (lval < -128)) {
 	    /* invalid chars in string, or outside limits of S8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for S8 parameter\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for S8 parameter\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_s8_t *) (d_ptr)) = lval;
@@ -859,7 +868,7 @@ static int do_setp_cmd(char *name, char *value)
 	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 255)) {
 	    /* invalid chars in string, or outside limits of U8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for U8 parameter\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for U8 parameter\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_u8_t *) (d_ptr)) = ulval;
@@ -870,7 +879,7 @@ static int do_setp_cmd(char *name, char *value)
 	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 32767) || (lval < -32768)) {
 	    /* invalid chars in string, or outside limits of S16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for S16 parameter\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for S16 parameter\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_s16_t *) (d_ptr)) = lval;
@@ -881,7 +890,7 @@ static int do_setp_cmd(char *name, char *value)
 	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 65535)) {
 	    /* invalid chars in string, or outside limits of U16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for U16 parameter\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for U16 parameter\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_u16_t *) (d_ptr)) = ulval;
@@ -892,7 +901,7 @@ static int do_setp_cmd(char *name, char *value)
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for S32 parameter\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for S32 parameter\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_s32_t *) (d_ptr)) = lval;
@@ -903,7 +912,7 @@ static int do_setp_cmd(char *name, char *value)
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for U32 parameter\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for U32 parameter\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_u32_t *) (d_ptr)) = ulval;
@@ -912,7 +921,7 @@ static int do_setp_cmd(char *name, char *value)
     default:
 	/* Shouldn't get here, but just in case... */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: bad type %d setting param '%s'\n", type, name);
+	    "HAL:%d: ERROR: bad type %d setting param '%s'\n", linenumber, type, name);
 	retval = HAL_INVAL;
     }
     rtapi_mutex_give(&(hal_data->mutex));
@@ -920,6 +929,8 @@ static int do_setp_cmd(char *name, char *value)
 	/* print success message */
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "Parameter '%s' set to %s\n", name, value);
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: setp failed\n", linenumber);
     }
     return retval;
 
@@ -939,7 +950,7 @@ static int do_getp_cmd(char *name)
     if (param == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: parameter '%s' not found\n", name);
+	    "HAL:%d: ERROR: parameter '%s' not found\n", linenumber, name);
 	return HAL_INVAL;
     }
     /* found it */
@@ -976,7 +987,7 @@ static int do_sets_cmd(char *name, char *value)
 	envvar = getenv(cp);
 	if ( envvar == NULL ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: env variable '%s' not found\n", cp);
+		"HAL:%d: ERROR: env variable '%s' not found\n", linenumber, cp);
 	    return HAL_INVAL;
 	}
 	value = envvar;
@@ -990,7 +1001,7 @@ static int do_sets_cmd(char *name, char *value)
 	while ( *cp != ']' ) {
 	    if ( *cp == '\0' ) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL: ERROR: ini file reference '%s' missing ']'\n", value);
+		    "HAL:%d: ERROR: ini file reference '%s' missing ']'\n", linenumber, value);
 		return HAL_INVAL;
 	    }
 	    cp++;
@@ -1009,7 +1020,7 @@ static int do_sets_cmd(char *name, char *value)
 	}
 	if ( value == NULL ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: ini file variable '[%s]%s' not found\n", section, variable);
+		"HAL:%d: ERROR: ini file variable '[%s]%s' not found\n", linenumber, section, variable);
 	    return HAL_INVAL;
 	}
     }
@@ -1021,14 +1032,14 @@ static int do_sets_cmd(char *name, char *value)
     if (sig == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: signal '%s' not found\n", name);
+	    "HAL:%d: ERROR: signal '%s' not found\n", linenumber, name);
 	return HAL_INVAL;
     }
     /* found it - does it have a writer? */
     if (sig->writers > 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: signal '%s' already has writer(s)\n", name);
+	    "HAL:%d: ERROR: signal '%s' already has writer(s)\n", linenumber, name);
 	return HAL_INVAL;
     }
     /* no writer, so we can safely set it */
@@ -1044,7 +1055,7 @@ static int do_sets_cmd(char *name, char *value)
 	    *(hal_bit_t *) (d_ptr) = 0;
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for bit signal\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for bit signal\n", linenumber, value);
 	    retval = HAL_INVAL;
 	}
 	break;
@@ -1053,7 +1064,7 @@ static int do_sets_cmd(char *name, char *value)
 	if (*cp != '\0') {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for float signal\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for float signal\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_float_t *) (d_ptr)) = fval;
@@ -1064,7 +1075,7 @@ static int do_sets_cmd(char *name, char *value)
 	if ((*cp != '\0') || (lval > 127) || (lval < -128)) {
 	    /* invalid chars in string, or outside limits of S8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for S8 signal\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for S8 signal\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_s8_t *) (d_ptr)) = lval;
@@ -1075,7 +1086,7 @@ static int do_sets_cmd(char *name, char *value)
 	if ((*cp != '\0') || (ulval > 255)) {
 	    /* invalid chars in string, or outside limits of U8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for U8 signal\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for U8 signal\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_u8_t *) (d_ptr)) = ulval;
@@ -1086,7 +1097,7 @@ static int do_sets_cmd(char *name, char *value)
 	if ((*cp != '\0') || (lval > 32767) || (lval < -32768)) {
 	    /* invalid chars in string, or outside limits of S16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for S16 signal\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for S16 signal\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_s16_t *) (d_ptr)) = lval;
@@ -1097,7 +1108,7 @@ static int do_sets_cmd(char *name, char *value)
 	if ((*cp != '\0') || (ulval > 65535)) {
 	    /* invalid chars in string, or outside limits of U16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for U16 signal\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for U16 signal\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_u16_t *) (d_ptr)) = ulval;
@@ -1108,7 +1119,7 @@ static int do_sets_cmd(char *name, char *value)
 	if (*cp != '\0') {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for S32 signal\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for S32 signal\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_s32_t *) (d_ptr)) = lval;
@@ -1119,7 +1130,7 @@ static int do_sets_cmd(char *name, char *value)
 	if (*cp != '\0') {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: value '%s' invalid for U32 signal\n", value);
+		"HAL:%d: ERROR: value '%s' invalid for U32 signal\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_u32_t *) (d_ptr)) = ulval;
@@ -1128,7 +1139,7 @@ static int do_sets_cmd(char *name, char *value)
     default:
 	/* Shouldn't get here, but just in case... */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: bad type %d setting signal '%s'\n", type, name);
+	    "HAL:%d: ERROR: bad type %d setting signal '%s'\n", linenumber, type, name);
 	retval = HAL_INVAL;
     }
     rtapi_mutex_give(&(hal_data->mutex));
@@ -1136,6 +1147,8 @@ static int do_sets_cmd(char *name, char *value)
 	/* print success message */
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "Signal '%s' set to %s\n", name, value);
+    } else {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: sets failed\n", linenumber);
     }
     return retval;
 
@@ -1155,7 +1168,7 @@ static int do_gets_cmd(char *name)
     if (sig == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: signal '%s' not found\n", name);
+	    "HAL:%d: ERROR: signal '%s' not found\n", linenumber, name);
 	return HAL_INVAL;
     }
     /* found it */
@@ -1202,7 +1215,7 @@ static int do_show_cmd(char *type, char *pattern)
     } else if (strcmp(type, "thread") == 0) {
 	print_thread_info(pattern);
     } else {
-	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'show' type '%s'\n", type);
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown 'show' type '%s'\n", linenumber, type);
 	return -1;
     }
     return 0;
@@ -1228,7 +1241,7 @@ static int do_list_cmd(char *type, char *pattern)
     } else if (strcmp(type, "thread") == 0) {
 	print_thread_names(pattern);
     } else {
-	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'list' type '%s'\n", type);
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown 'list' type '%s'\n", linenumber, type);
 	return -1;
     }
     return 0;
@@ -1251,7 +1264,7 @@ static int do_status_cmd(char *type)
     } else if (strcmp(type, "mem") == 0) {
 	print_mem_status();
     } else {
-	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'status' type '%s'\n", type);
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown 'status' type '%s'\n", linenumber, type);
 	return -1;
     }
     return 0;
@@ -1274,13 +1287,13 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* are we running as root? */
     if ( getuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: Must be root to load realtime modules\n");
+	    "HAL:%d: ERROR: Must be root to load realtime modules\n", linenumber);
 	return HAL_PERM;
     }
     
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: HAL is locked, loading of modules is not permitted\n");
+	    "HAL:%d: ERROR: HAL is locked, loading of modules is not permitted\n", linenumber);
 	return HAL_PERM;
     }
     
@@ -1293,19 +1306,18 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     }
     if ( insmod_path == NULL ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: Cannot locate 'insmod' command\n");
+	    "HAL:%d: ERROR: Cannot locate 'insmod' command\n", linenumber);
 	return -2;
     }
     /* check environment for path to realtime HAL modules */
     if ( rtmod_dir == NULL ) {
 	rtmod_dir = getenv("HAL_RTMOD_DIR");
     }
-    /*! \todo FIXME - the following is an attempt to locate the directory
+    /* the following is an attempt to locate the directory
        where the HAL modules are stored.  It depends on the emc2
        directory tree being laid out per 'emc2/directory.map'.
-       There is probably a better way of doing this... it will
-       certainly need changed once we have a 'make install' that
-       puts modules somewhere else. */
+       There is probably a better way of doing this... 
+       make install takes care of HAL_RTMOD_DIR */
     if ( rtmod_dir == NULL ) {
 	/* no env variable, try to locate the directory based on
 	   where this executable lives (should be in the emc2 tree) */
@@ -1334,12 +1346,12 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     if ( rtmod_dir == NULL ) {
 	/* still don't know where the modules are */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: Cannot locate realtime modules directory\n");
+	    "HAL:%d: ERROR: Cannot locate realtime modules directory\n", linenumber);
 	return -2;
     }
     if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: Module path too long\n");
+	    "HAL:%d: ERROR: Module path too long\n", linenumber);
 	return -1;
     }
     /* make full module name '<path>/<name>.o' */
@@ -1355,7 +1367,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	if ( stat(mod_path, &stat_buf) != 0 ) {
 	    /* can't find it */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: Can't find module '%s' in %s\n", mod_name, path_buf);
+		"HAL:%d: ERROR: Can't find module '%s' in %s\n", linenumber, mod_name, path_buf);
 	    return -1;
 	}
     }
@@ -1367,7 +1379,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: loadrt fork() failed\n");
+	    "HAL:%d: ERROR: loadrt fork() failed\n", linenumber);
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
@@ -1399,7 +1411,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	execv(insmod_path, argv);
 	/* should never get here */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: execv(%s) failed\n", insmod_path );
+	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, insmod_path );
 	exit(1);
     }
     /* this is the parent process, wait for child to end */
@@ -1413,18 +1425,18 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* check result of waitpid() */
     if ( retval < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: waitpid(%d) failed\n", pid );
+	    "HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid );
 	return -1;
     }
     if ( WIFEXITED(status) == 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: child did not exit normally\n" );
+	    "HAL:%d: ERROR: child did not exit normally\n", linenumber);
 	return -1;
     }
     retval = WEXITSTATUS(status);
     if ( retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: insmod failed, returned %d\n", retval );
+	    "HAL:%d: ERROR: insmod failed, returned %d\n", linenumber, retval );
 	return -1;
     }
     /* print success message */
@@ -1468,7 +1480,7 @@ static int do_delsig_cmd(char *mod_name)
 	if ( ( sigs[0][0] == '\0' )) {
 	    /* desired signals not found */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: no signals found to be deleted\n");
+		"HAL:%d: ERROR: no signals found to be deleted\n", linenumber);
 	    return -1;
 	}
 	/* we now have a list of components, unload them */
@@ -1530,7 +1542,7 @@ static int do_unloadrt_cmd(char *mod_name)
     if ( !all && ( comps[0][0] == '\0' )) {
 	/* desired component not found */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: component '%s' is not loaded\n", mod_name );
+	    "HAL:%d: ERROR: component '%s' is not loaded\n", linenumber, mod_name);
 	return -1;
     }
     /* we now have a list of components, unload them */
@@ -1547,6 +1559,9 @@ static int do_unloadrt_cmd(char *mod_name)
 	    retval1 = retval;
 	}
     }
+    if (retval1 != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: ERROR: unloadrt failed\n", linenumber);
+    }
     return retval1;
 }
 
@@ -1561,7 +1576,7 @@ static int unloadrt_comp(char *mod_name)
     /* are we running as root? */
     if ( getuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: Must be root to unload realtime modules\n");
+	    "HAL:%d: ERROR: Must be root to unload realtime modules\n", linenumber);
 	return -2;
     }
     /* check for rmmod */
@@ -1573,7 +1588,7 @@ static int unloadrt_comp(char *mod_name)
     }
     if ( rmmod_path == NULL ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: Cannot locate 'rmmod' command\n");
+	    "HAL:%d: ERROR: Cannot locate 'rmmod' command\n", linenumber);
 	return -2;
     }
     /* now we need to fork, and then exec rmmod.... */
@@ -1584,7 +1599,7 @@ static int unloadrt_comp(char *mod_name)
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: unloadrt fork() failed\n");
+	    "HAL:%d: ERROR: unloadrt fork() failed\n", linenumber);
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
@@ -1605,7 +1620,7 @@ static int unloadrt_comp(char *mod_name)
 	execv(rmmod_path, argv);
 	/* should never get here */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: execv(%s) failed\n", rmmod_path );
+	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, rmmod_path);
 	exit(1);
     }
     /* this is the parent process, wait for child to end */
@@ -1619,18 +1634,18 @@ static int unloadrt_comp(char *mod_name)
     /* check result of waitpid() */
     if ( retval < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: waitpid(%d) failed\n", pid );
+	    "HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid);
 	return -1;
     }
     if ( WIFEXITED(status) == 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: child did not exit normally\n" );
+	    "HAL:%d: ERROR: child did not exit normally\n", linenumber);
 	return -1;
     }
     retval = WEXITSTATUS(status);
     if ( retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: rmmod failed, returned %d\n", retval );
+	    "HAL:%d: ERROR: rmmod failed, returned %d\n", linenumber, retval);
 	return -1;
     }
     /* print success message */
@@ -1653,7 +1668,7 @@ static int do_loadusr_cmd(char *args[])
 
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: HAL is locked, loading of programs is not permitted\n");
+	    "HAL:%d: ERROR: HAL is locked, loading of programs is not permitted\n", linenumber);
 	return HAL_PERM;
     }
     /* check for options (-w, -i, and/or -r) */
@@ -1674,7 +1689,7 @@ static int do_loadusr_cmd(char *args[])
 		root_flag = 1;
 	    } else {
 		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL: ERROR: unknown loadusr option '-%c'\n", *cp1);
+		    "HAL:%d: ERROR: unknown loadusr option '-%c'\n", linenumber, *cp1);
 		return HAL_INVAL;
 	    }
 	    cp1++;
@@ -1761,14 +1776,14 @@ static int do_loadusr_cmd(char *args[])
     if ( prog_path[0] == '\0' ) {
 	/* still can't find a program to run */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: Can't find program '%s'\n", prog_name);
+	    "HAL:%d: ERROR: Can't find program '%s'\n", linenumber, prog_name);
 	return -1;
     }
     if ( root_flag ) {
 	/* are we running as root? */
 	if ( getuid() != 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: Must be root to run %s\n", prog_name);
+		"HAL:%d: ERROR: Must be root to run %s\n", linenumber, prog_name);
 	    return HAL_PERM;
 	}
     }    
@@ -1780,7 +1795,7 @@ static int do_loadusr_cmd(char *args[])
     pid = fork();
     if ( pid < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: loadusr fork() failed\n");
+	    "HAL:%d: ERROR: loadusr fork() failed\n", linenumber);
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
@@ -1811,7 +1826,7 @@ static int do_loadusr_cmd(char *args[])
 	execv(prog_path, argv);
 	/* should never get here */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: execv(%s) failed\n", prog_path );
+	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, prog_path );
 	exit(1);
     }
     /* this is the parent process, reconnect to the HAL shmem area */
@@ -1826,19 +1841,19 @@ static int do_loadusr_cmd(char *args[])
 	/* check result of waitpid() */
 	if ( retval < 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: waitpid(%d) failed\n", pid );
+		"HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid);
 	    return -1;
 	}
 	if ( WIFEXITED(status) == 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: program '%s' did not exit normally\n", prog_name );
+		"HAL:%d: ERROR: program '%s' did not exit normally\n", linenumber, prog_name );
 	    return -1;
 	}
 	if ( ignore_flag == 0 ) {
 	    retval = WEXITSTATUS(status);
 	    if ( retval != 0 ) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL: ERROR: program '%s' failed, returned %d\n", prog_name, retval );
+		    "HAL:%d: ERROR: program '%s' failed, returned %d\n", linenumber, prog_name, retval );
 		return -1;
 	    }
 	}
@@ -2448,7 +2463,7 @@ static int do_save_cmd(char *type)
     } else if (strcmp(type, "thread") == 0) {
 	save_threads();
     } else {
-	rtapi_print_msg(RTAPI_MSG_ERR, "Unknown 'save' type '%s'\n", type);
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown 'save' type '%s'\n", linenumber, type);
 	return -1;
     }
     return 0;
