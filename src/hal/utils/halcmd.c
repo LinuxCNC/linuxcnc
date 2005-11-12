@@ -11,6 +11,8 @@
                        <mkuhnle AT users DOT sourceforge DOT net>
                        Alex Joni
                        <alex_joni AT users DOT sourceforge DOT net>
+		       Benn Lipkowitz
+		       <fenn AT users DOR sourceforge DOT net>
 */
 
 /** This program is free software; you can redistribute it and/or
@@ -488,7 +490,7 @@ static int parse_cmd(char *tokens[])
         }
     } else if (strcmp(tokens[0], "linkpp") == 0) {
 	/* check for an arrow */
-	if ((tokens[2][0] == '=') || (tokens[2][0] == '<')) {
+	if ((tokens[2][0] == '=') || (tokens[2][0] == '<') || (tokens[2][0] == '>')) {
 	    /* arrow found, skip it - is this bad for bidir pins? */
 	    retval = do_linkpp_cmd(tokens[1], tokens[3]);
 	} else {
@@ -636,34 +638,47 @@ static int do_unlock_cmd(char *command)
 static int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
 {
     int retval;
-    rtapi_mutex_get(&(hal_data->mutex));
     hal_pin_t *first_pin, *second_pin;
+
+    rtapi_mutex_get(&(hal_data->mutex));
     /* check if the pins are there */
     first_pin = halpr_find_pin_by_name(first_pin_name);
     second_pin = halpr_find_pin_by_name(second_pin_name);
     if (first_pin == 0) {
-	/* not found - why doesn't halpr_find_pin_by_name do this check?*/
+	/* first pin not found*/
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin '%s' not found\n", first_pin_name);
 	return HAL_INVAL; 
     } else if (second_pin == 0) {
-	/* not found - why doesn't halpr_find_pin_by_name do this check?*/
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin '%s' not found\n", second_pin_name);
 	return HAL_INVAL; 
-    } else {
-    /* make a new signal with the pin type and name of the first argument */
-    rtapi_mutex_give(&(hal_data->mutex));
-    do_newsig_cmd( first_pin_name, data_type((int) first_pin->type));
     }
-    /* link the first pin to the new signal */
-    retval = do_link_cmd( first_pin_name, first_pin_name );
-    /* if that worked, link the second pin to the new signal */
-    if ( retval == 0 ) {
-    retval = do_link_cmd( second_pin_name, first_pin_name );
-    return retval;
+    
+    /* give the mutex, as the other functions use their own mutex */
+    rtapi_mutex_give(&(hal_data->mutex));
+    
+    /* check that both pins have the same type, 
+       don't want ot create a sig, which after that won't be usefull */
+    if (first_pin->type != second_pin->type) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pins '%s' and '%s' not of the same type\n", first_pin_name, second_pin_name);
+	return HAL_INVAL; 
+    }
+	
+    /* now create the signal */
+    retval = hal_signal_new(first_pin_name, first_pin->type);
+
+    if (retval == HAL_SUCCESS) {
+	/* if it worked, link the pins to it */
+	retval = hal_link(first_pin_name, first_pin_name);
+
+	if ( retval == HAL_SUCCESS ) {
+	/* if that worked, link the second pin to the new signal */
+	    retval = hal_link(second_pin_name, first_pin_name);
+	}
     }
     return retval;
 }
