@@ -11,9 +11,11 @@
                        <mkuhnle AT users DOT sourceforge DOT net>
                        Alex Joni
                        <alex_joni AT users DOT sourceforge DOT net>
-		       Benn Lipkowitz
-		       <fenn AT users DOR sourceforge DOT net>
-*/
+                       Benn Lipkowitz
+                       <fenn AT users DOT sourceforge DOT net>
+                       Stephen Wille Padnos
+                       <swpadnos AT users DOT sourceforge DOT net>
+ */
 
 /** This program is free software; you can redistribute it and/or
     modify it under the terms of version 2.1 of the GNU General
@@ -200,7 +202,10 @@ int main(int argc, char **argv)
 	    switch (*cp1) {
 	    case 'h':
 		/* -h = help */
-		print_help_general();
+                if (argc > n) {       /* there are more arguments, n has been incremented already */
+                    do_help_cmd(argv[n]);
+                } else
+		    print_help_general();
 		return 0;
 		break;
 	    case 'k':
@@ -464,7 +469,7 @@ static int parse_cmd(char *tokens[])
     if ((tokens[0][0] == '#') || (tokens[0][0] == '\0')) {
 	/* comment or blank line, do nothing */
 	retval = 0;
-    } else if (strcmp(tokens[0], "help") == 0) {
+    } else if (strcasecmp(tokens[0], "help") == 0) {
 	/* help for a specific command? */
 	if (tokens[1][0] != '\0') {
 	    /* yes, get info for that command */
