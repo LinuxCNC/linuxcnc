@@ -4,25 +4,41 @@
 *           outputs those to a HAL pin,
 *           and sends back a "Done" message.
 *
-*  ESTOP logic:  this module exports three HAL pins related to ESTOP.
-*  The first is estop-in.  It is an input from the HAL, when TRUE,
+*
+*  ENABLE logic:  this module exports three HAL pins related to ENABLE.
+*  The first is emc-enable-in.  It is an input from the HAL, when FALSE,
 *  EMC will go into the STOPPED state (regardless of the state of
-*  the other two pins).  When it goes FALSE, EMC will go into the
+*  the other two pins).  When it goes TRUE, EMC will go into the
 *  ESTOP_RESET state (also known as READY).
 *
 *  The second HAL pin is an output to the HAL.  It is controlled by
 *  the NML messages ESTOP_ON and ESTOP_OFF, which normally result from
-*  user actions at the GUI.  For the simplest system, loop estop-out 
-*  back to estop-in in the HAL.  The GUI controls estop-out, and EMC
+*  user actions at the GUI.  For the simplest system, loop user-enable-out 
+*  back to emc-enable-in in the HAL.  The GUI controls user-enable-out, and EMC
 *  responds to that once it is looped back.
 *
-*  If external _mainteined_ ESTOP inputs are desired, they can be
-*  ORed with estop-out and looped back to estop-in.  Finally, if
-*  external momentary ESTOP inputs are desired, the HAL estop latch
-*  component can be inserted in the loop.  In that case, the final
-*  HAL pin, estop-reset, is used to reset the latch.  The estop-reset
-*  pin generates a pulse (one io-period long) whenever the ESTOP-OFF
-*  NML message is sent (usually from the user hitting F1 on the GUI).
+*  If external ESTOP inputs are desired, they can be
+*  used in a classicladder rung, in series with user-enable-out.
+*  It will look like this:
+*
+*  -----|UEO|-----|EEST|--+--|EEI|--+--(EEI)----
+*                         |         |
+*                         +--|URE|--+
+*  UEO=user-enable-out
+*  EEST=external ESTOP circuitry
+*  EEI=machine is enabled
+*  URE=user request enable
+*
+*  This will work like this: EMC will be enabled (by EEI, emc-enabled-in),
+*  only if UEO, EEST and EEI are closed. 
+*  If any of UEO (user requested stop) or EEST (external estop) have been
+*  opened, then EEI will open aswell.
+*  After restoring normal condition (UEO and EEST closed), an aditional
+*  URE (user-request-enable) is needed, this is either sent by the GUI
+*  (using the EMC_AUX_ESTOP_RESET NML message), or by a hardware button
+*  connected to the ladder driving URE.
+*
+*  NML messages are sent usually from the user hitting F1 on the GUI.
 *  
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
@@ -58,9 +74,9 @@ static EMC_IO_STAT emcioStatus;
 static NML *emcErrorBuffer = 0;
 
 struct iocontrol_str {
-    hal_bit_t *estop_out;	/* output, TRUE when EMC wants stop */
-    hal_bit_t *estop_in;	/* input, TRUE on any stop */
-    hal_bit_t *estop_reset;	/* output, used to reset HAL latch */
+    hal_bit_t *user_enable_out;	/* output, TRUE when EMC wants stop */
+    hal_bit_t *emc_enable_in;	/* input, TRUE on any external stop */
+    hal_bit_t *user_request_enable;	/* output, used to reset ENABLE latch */
     hal_bit_t *coolant_mist;	/* coolant mist output pin */
     hal_bit_t *coolant_flood;	/* coolant flood output pin */
     hal_bit_t *lube;		/* lube output pin */
@@ -436,24 +452,24 @@ int iocontrol_hal_init(void)
 
     /* STEP 3a: export the out-pin(s) */
 
-    // estop-out
-    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.estop-out", n);
+    // user-enable-out
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.user-enable-out", n);
     retval =
-	hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->estop_out), comp_id);
+	hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->user_enable_out), comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"IOCONTROL: ERROR: iocontrol %d pin estop-out export failed with err=%i\n",
+			"IOCONTROL: ERROR: iocontrol %d pin user-enable-out export failed with err=%i\n",
 			n, retval);
 	hal_exit(comp_id);
 	return -1;
     }
-    // estop-reset
-    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.estop-reset", n);
+    // user-request-enable
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.user-request-enable", n);
     retval =
-	hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->estop_reset), comp_id);
+	hal_pin_bit_new(name, HAL_WR, &(iocontrol_data->user_request_enable), comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"IOCONTROL: ERROR: iocontrol %d pin estop-reset export failed with err=%i\n",
+			"IOCONTROL: ERROR: iocontrol %d pin user-request-enable export failed with err=%i\n",
 			n, retval);
 	hal_exit(comp_id);
 	return -1;
@@ -632,13 +648,13 @@ int iocontrol_hal_init(void)
     }
     /* STEP 3b: export the in-pin(s) */
 
-    // estop-in
-    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.estop-in", n);
+    // emc-enable-in
+    rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.emc-enable-in", n);
     retval =
-	hal_pin_bit_new(name, HAL_RD, &(iocontrol_data->estop_in), comp_id);
+	hal_pin_bit_new(name, HAL_RD, &(iocontrol_data->emc_enable_in), comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"IOCONTROL: ERROR: iocontrol %d pin estop-in export failed with err=%i\n",
+			"IOCONTROL: ERROR: iocontrol %d pin emc-enable-in export failed with err=%i\n",
 			n, retval);
 	hal_exit(comp_id);
 	return -1;
@@ -680,8 +696,8 @@ int iocontrol_hal_init(void)
 ********************************************************************/
 void hal_init_pins(void)
 {
-    *(iocontrol_data->estop_out)=1;		/* output, TRUE when EMC wants stop */
-    *(iocontrol_data->estop_reset)=0;		/* output, used to reset HAL latch */
+    *(iocontrol_data->user_enable_out)=0;	/* output, FALSE when EMC wants stop */
+    *(iocontrol_data->user_request_enable)=0;	/* output, used to reset HAL latch */
     *(iocontrol_data->coolant_mist)=0;		/* coolant mist output pin */
     *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
     *(iocontrol_data->lube)=0;			/* lube output pin */
@@ -717,7 +733,7 @@ int read_hal_inputs(void)
     int oldval, retval = 0;
 
     oldval = emcioStatus.aux.estop;
-    emcioStatus.aux.estop = *(iocontrol_data->estop_in); //check for estop from HW
+    emcioStatus.aux.estop = *(iocontrol_data->emc_enable_in); //check for estop from HW
     if (oldval != emcioStatus.aux.estop) {
 	retval = 1;
     }
@@ -838,7 +854,7 @@ int main(int argc, char *argv[])
     }
 
     /* set status values to 'normal' */
-    emcioStatus.aux.estop = 1;
+    emcioStatus.aux.estop = 1; //estop=1 means to emc that ESTOP condition is met
     emcioStatus.tool.toolPrepped = -1;
     emcioStatus.tool.toolInSpindle = 0;
     emcioStatus.spindle.speed = 0.0;
@@ -1165,37 +1181,41 @@ int main(int argc, char *argv[])
 	case EMC_AUX_INIT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_INIT\n");
 	    hal_init_pins(); //init default (safe) pin values
-	    emcioStatus.aux.estop = 1;
-	    *(iocontrol_data->estop_out) = 1;
+	    emcioStatus.aux.estop = 1;	// this should get modified by the loopback
+	    *(iocontrol_data->user_enable_out) = 0; //don't enable on AUX_INIT
 	    break;
 
 	case EMC_AUX_HALT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_HALT\n");
-	    emcioStatus.aux.estop = 1;
-	    *(iocontrol_data->estop_out) = 1;
+	    emcioStatus.aux.estop = 1;  // this should get modified by the loopback
+	    *(iocontrol_data->user_enable_out) = 0; //disable on AUX_HALT
 	    break;
 
 	case EMC_AUX_ABORT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ABORT\n");
-	    emcioStatus.aux.estop = 1;
-	    *(iocontrol_data->estop_out) = 1;
+	    emcioStatus.aux.estop = 1;  // this should get modified by the loopback
+	    *(iocontrol_data->user_enable_out) = 0; //disable on AUX_ABORT
 	    break;
 
 	case EMC_AUX_ESTOP_ON_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_ON\n");
 	    /* assert an ESTOP to the outside world (thru HAL) */
-	    *(iocontrol_data->estop_out) = 1;
+	    *(iocontrol_data->user_enable_out) = 0; //disable on ESTOP_ON
 	    hal_init_pins(); //resets all HAL pins to safe value
 	    break;
 
 	case EMC_AUX_ESTOP_OFF_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_OFF\n");
 	    /* remove ESTOP */
-	    *(iocontrol_data->estop_out) = 0;
-	    /* generate a rising edge to reset optional HAL latch */
-	    *(iocontrol_data->estop_reset) = 1;
+	    *(iocontrol_data->user_enable_out) = 1;
 	    break;
-
+	    
+	case EMC_AUX_ESTOP_RESET_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_RESET\n");
+	    /* generate a rising edge to reset optional HAL latch */
+	    *(iocontrol_data->user_request_enable) = 1;
+	    break;
+	    
 	case EMC_LUBE_INIT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_INIT\n");
 	    emcioStatus.lube.on = 0;
@@ -1254,7 +1274,7 @@ int main(int argc, char *argv[])
 
 	esleep(EMC_IO_CYCLE_TIME);
 	/* clear reset line to allow for a later rising edge */
-	*(iocontrol_data->estop_reset) = 0;
+	*(iocontrol_data->user_request_enable) = 0;
 	
     }	// end of "while (! done)" loop
 
