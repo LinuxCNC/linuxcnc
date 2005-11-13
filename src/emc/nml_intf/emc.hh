@@ -177,6 +177,7 @@
 #define EMC_AUX_AIO_WRITE_TYPE                        ((NMLTYPE) 1205)
 #define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)
 #define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)
+#define EMC_AUX_ESTOP_RESET_TYPE                      ((NMLTYPE) 1208)
 
 #define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)
 
@@ -547,6 +548,7 @@ extern int emcAuxDioWrite(int index, int value);
 extern int emcAuxAioWrite(int index, double value);
 extern int emcAuxEstopOn();
 extern int emcAuxEstopOff();
+extern int emcAuxEstopReset();
 
 extern int emcAuxEstopSetSenseIndex(int index);
 extern int emcAuxEstopSetWriteIndex(int index);
@@ -2284,6 +2286,16 @@ class EMC_AUX_ESTOP_OFF:public EMC_AUX_CMD_MSG {
   public:
     EMC_AUX_ESTOP_OFF():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_OFF_TYPE,
 					sizeof(EMC_AUX_ESTOP_OFF)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+};
+
+class EMC_AUX_ESTOP_RESET:public EMC_AUX_CMD_MSG {
+  public:
+    EMC_AUX_ESTOP_RESET():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_RESET_TYPE,
+					sizeof(EMC_AUX_ESTOP_RESET)) {
     };
 
     // For internal NML/CMS use only.
