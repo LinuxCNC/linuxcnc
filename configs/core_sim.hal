@@ -45,9 +45,7 @@ linksp Zvel => ddt.5.in
 linkps ddt.5.out => Zacc
 
 # estop loopback
-newsig ESTOP bit
-linksp ESTOP iocontrol.0.estop-out 
-linksp ESTOP iocontrol.0.estop-in
+linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # amp control
 newsig xena bit
