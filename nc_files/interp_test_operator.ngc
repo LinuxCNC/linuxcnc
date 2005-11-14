@@ -1,0 +1,8 @@
+%
+(operator precedence test -- on exit X = 1.0 Z = 1.0)
+#2 = [[2*3+4]/10]
+#1 = [1+2 eq 3 and 2*3+4 eq 10]
+g0 x#1
+g0 z#2
+(operator precedence test -- on exit X = 1.0 Z = 1.0)
+%

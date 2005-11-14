@@ -1,0 +1,42 @@
+%
+(if elseif elseif endif test -- exits with X=.4 Z=4)
+#100=0
+#101=0
+#102=0
+#103=0
+#104=0
+#200=0
+#201=0
+#202=0
+#203=0
+#204=0
+o1 if[1 eq 0]
+#200=.1
+o1 elseif[2 eq 0]
+#201=.2
+o1 elseif[3 eq 3]
+(this line executes)
+   #202=.4
+   o2 if[1 eq 0]
+   #100 = 1
+   o2 elseif[2 eq 0]
+   #101 = 2
+   o2 elseif[3 eq 3]
+   #102 = 4
+   o2 elseif[4 eq 4]
+   #103 = 8
+   o2 else
+   #104 = 16
+   o2 endif
+o1 elseif[4 eq 4]
+(this line does not execute)
+#203=1.0
+o1 else
+(this line does not execute)
+#204=2.0
+o1 endif
+g0z[#100+#101+#102+#103+#104] x[#200+#201+#202+#203+#204]
+(if elseif elseif endif test -- exits with X=.4 Z=4)
+%
+
+

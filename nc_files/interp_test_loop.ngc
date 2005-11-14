@@ -1,0 +1,38 @@
+%
+(loop test -- on exit X = 5.323 Y = 3.0 Z = 3.0)
+g0x0y0z0
+#100=0
+o130 do
+#100=[#100+1]
+g0 x#100
+o130 while [#100 LT 5.0]
+(while loop)
+#101=0
+o140 while [#101 LT 3]
+#101=[#101+1]
+g0 y#101
+o140 endwhile
+(while loop with break)
+#102=0
+o150 while [#102 LT 3]
+#102=[#102+1]
+g0 z#102
+o151 if [#102 eq 2]
+o150 break
+g0 z5
+o151 endif
+o150 endwhile
+g0 x[#100+#101/10+#102/100]
+(while loop with continue)
+#103=0
+o160 while [#103 LT 3]
+#103=[#103+1]
+g0 z#103
+o161 if [#103 lt 100]
+o160 continue
+g0 z5
+o161 endif
+o160 endwhile
+g0 x[#100+#101/10+#102/100+#103/1000]
+(loop test -- on exit X = 5.323 Y = 3.0 Z = 3.0)
+%
