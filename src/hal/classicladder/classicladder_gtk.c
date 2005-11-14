@@ -376,11 +376,6 @@ void LoadNewLadder()
     InfosGene->LadderState = STATE_STOP;
 }
 
-void ButtonSave_click()
-{
-    SaveProjectFiles(LadderDirectory);
-}
-
 void SaveAsLadder(void)
 {
     StoreDirectorySelected(GTK_FILE_SELECTION(FileSelector), FALSE	/* cForLoadingProject 
@@ -426,6 +421,16 @@ void ButtonLoad_click()
 void ButtonSaveAs_click()
 {
     CreateFileSelection("Please select the project to save", TRUE);
+}
+
+void ButtonSave_click()
+{
+    if ( LadderDirectory[0] == '\0' ) {
+	/* no filename yet, treat like SaveAs */
+	ButtonSaveAs_click();
+    } else {
+	SaveProjectFiles(LadderDirectory);
+    }
 }
 
 void ButtonConfig_click()
