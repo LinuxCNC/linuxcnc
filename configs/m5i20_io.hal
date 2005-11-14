@@ -89,9 +89,9 @@ setp m5i20.0.watchdog-control 3
 newsig EstopSense bit
 newsig EstopWrite bit
 linksp EstopSense <= m5i20.0.estop-in
-linksp EstopSense => iocontrol.0.estop-in
+linksp EstopSense => iocontrol.0.emc-enable-in
 linksp EstopWrite <= m5i20.0.out-00
-linksp EstopWrite => iocontrol.0.estop-out
+linksp EstopWrite => iocontrol.0.user-enable-out
 
 # connect spindle fwd/rev to I/O controller
 newsig SpindleFwd bit
@@ -112,7 +112,7 @@ linksp SpindleDown => iocontrol.0.spindle-decr-speed
 # connect spindle brake to I/O controller
 newsig SpindleBrakeOn bit
 linksp SpindleBrakeOn <= m5i20.0.out-05
-linksp SpindleBrakeOn => iocontrol.0.spindle-break
+linksp SpindleBrakeOn => iocontrol.0.spindle-brake
 
 # connect mist/flood coolant to I/O controller
 newsig MistOn bit
