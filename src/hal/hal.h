@@ -148,7 +148,7 @@ extern "C" {
 #define HAL_NOTFND       -8	/* object not found */
 #define HAL_FAIL         -9	/* operation failed */
 
-#define HAL_NAME_LEN     31	/* length for pin, signal, etc, names */
+#define HAL_NAME_LEN     41	/* length for pin, signal, etc, names */
 
 /** These locking codes define the state of HAL locking, are used by most functions */
 /** The functions locked will return a HAL_PERM error message **/
