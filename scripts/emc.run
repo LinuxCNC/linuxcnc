@@ -10,7 +10,7 @@
 #     -d = echos script commands to screen for debugging
 #
 #   if <ini-file> not specified, uses EMC2_DIR/configs/emc.ini
-#   if path specified, looks there, else looks in $EMC2_DIR/configs
+#   if abs-path specified, looks there, else looks in $EMC2_DIR/configs
 #
 # Author:
 # License: GPL Version 2
@@ -110,8 +110,12 @@ if [ ! -n "$1" ] ; then
 # nothing specified, use default
     INIFILE=$EMC2_CONFIG_DIR/emc.ini
 elif echo $1 | grep / >>$DEBUG_FILE ; then
-# path specified, use it
-    INIFILE=$1
+# path specified, use it, but convert it to abs path
+    INI_NAME=`echo $1 | sed s#\^.\*/##`
+# delete name to get path
+    INIF_DIR=`echo $1 | sed s/$INI_NAME//`
+    INIF_DIR=$(cd $INIF_DIR ; pwd -P)
+    INIFILE=$INIF_DIR/$INI_NAME
 else
 # filename but no path, use default path
     INIFILE=$EMC2_CONFIG_DIR/$1
