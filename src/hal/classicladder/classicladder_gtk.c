@@ -533,7 +533,7 @@ gint RungWindowDeleteEvent(GtkWidget * widget, GdkEvent * event,
     return TRUE;
 }
 
-void RungWindowInitGtk()
+void RungWindowInitGtk(int readOnly)
 {
     GtkWidget *vbox, *hboxtop, *hboxbottom;
     GtkWidget *hboxmiddle;
@@ -614,33 +614,36 @@ void RungWindowInitGtk()
     gtk_box_set_child_packing(GTK_BOX(vbox), hboxbottom,
 	/* expand */ FALSE, /* fill */ FALSE, /* pad */ 0, GTK_PACK_START);
 
-    ButtonNew = gtk_button_new_with_label("New");
-    gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonNew, TRUE, TRUE, 0);
-    gtk_signal_connect(GTK_OBJECT(ButtonNew), "clicked",
-	(GtkSignalFunc) ButtonNew_click, 0);
-    gtk_widget_show(ButtonNew);
-    ButtonLoad = gtk_button_new_with_label("Load");
-    gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonLoad, TRUE, TRUE, 0);
-    gtk_signal_connect(GTK_OBJECT(ButtonLoad), "clicked",
-	(GtkSignalFunc) ButtonLoad_click, 0);
-    gtk_widget_show(ButtonLoad);
-    ButtonSave = gtk_button_new_with_label("Save");
-    gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonSave, TRUE, TRUE, 0);
-    gtk_signal_connect(GTK_OBJECT(ButtonSave), "clicked",
-	(GtkSignalFunc) ButtonSave_click, 0);
-    gtk_widget_show(ButtonSave);
-    ButtonSaveAs = gtk_button_new_with_label("Save As");
-    gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonSaveAs, TRUE, TRUE, 0);
-    gtk_signal_connect(GTK_OBJECT(ButtonSaveAs), "clicked",
-	(GtkSignalFunc) ButtonSaveAs_click, 0);
-    gtk_widget_show(ButtonSaveAs);
-    ButtonRunStop =
-	gtk_button_new_with_label((InfosGene->LadderState ==
-	    STATE_RUN) ? "Stop" : "Run");
-    gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonRunStop, TRUE, TRUE, 0);
-    gtk_signal_connect(GTK_OBJECT(ButtonRunStop), "clicked",
-	(GtkSignalFunc) ButtonRunStop_click, 0);
-    gtk_widget_show(ButtonRunStop);
+    if(!readOnly){
+	ButtonNew = gtk_button_new_with_label("New");
+	gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonNew, TRUE, TRUE, 0);
+	gtk_signal_connect(GTK_OBJECT(ButtonNew), "clicked",
+	    (GtkSignalFunc) ButtonNew_click, 0);
+	gtk_widget_show(ButtonNew);
+	ButtonLoad = gtk_button_new_with_label("Load");
+	gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonLoad, TRUE, TRUE, 0);
+	gtk_signal_connect(GTK_OBJECT(ButtonLoad), "clicked",
+	    (GtkSignalFunc) ButtonLoad_click, 0);
+	gtk_widget_show(ButtonLoad);
+	ButtonSave = gtk_button_new_with_label("Save");
+	gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonSave, TRUE, TRUE, 0);
+	gtk_signal_connect(GTK_OBJECT(ButtonSave), "clicked",
+	    (GtkSignalFunc) ButtonSave_click, 0);
+	gtk_widget_show(ButtonSave);
+	ButtonSaveAs = gtk_button_new_with_label("Save As");
+	gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonSaveAs, TRUE, TRUE, 0);
+	gtk_signal_connect(GTK_OBJECT(ButtonSaveAs), "clicked",
+	    (GtkSignalFunc) ButtonSaveAs_click, 0);
+	gtk_widget_show(ButtonSaveAs);
+	ButtonRunStop =
+	    gtk_button_new_with_label((InfosGene->LadderState ==
+		STATE_RUN) ? "Stop" : "Run");
+	gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonRunStop, TRUE, TRUE, 0);
+	gtk_signal_connect(GTK_OBJECT(ButtonRunStop), "clicked",
+	    (GtkSignalFunc) ButtonRunStop_click, 0);
+	gtk_widget_show(ButtonRunStop);
+    }
+
     ButtonConfig = gtk_button_new_with_label("Config");
     gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonConfig, TRUE, TRUE, 0);
     gtk_signal_connect(GTK_OBJECT(ButtonConfig), "clicked",
@@ -920,15 +923,18 @@ static gint cyclic_refresh(gpointer data)
     return 1;
 }
 
-void InitGtkWindows(int argc, char *argv[])
+void InitGtkWindows(int argc, char *argv[], int readOnly)
 {
     gtk_init(&argc, &argv);
 
-    RungWindowInitGtk();
-    VarsWindowInitGtk();
-    EditorInitGtk();
-    PropertiesInitGtk();
-    ManagerInitGtk();
+    RungWindowInitGtk(readOnly);
+
+    if(!readOnly){
+	VarsWindowInitGtk();
+	EditorInitGtk();
+	PropertiesInitGtk();
+	ManagerInitGtk();
+    }
 }
 
 void UpdateGtkAfterLoading(char cCreateTimer)

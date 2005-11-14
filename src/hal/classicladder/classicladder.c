@@ -41,6 +41,7 @@
 int cl_remote;
 int ModbusServerPort = 9502;	// Standard "502" requires root privileges...
 int noGui = FALSE;
+int readOnly = FALSE;
 int loadProject = FALSE;
 
 char LadderDirectory[400] = "";
@@ -50,10 +51,11 @@ void display_help(void)
     printf("Usage: classicladder [OPTIONS] [PATH]\n"
 	"Start classicladder PLC with an optional project path to load\n"
 	"\n"
-	"           --help     	        display this help and exit\n"
-	"           --version  	        output version information and exit\n"
-	"           --nogui  	        don't start the GUI\n"
-	"-p port    --modbus_port=port   port to use for modbus sever\n");
+	"           --help              display this help and exit\n"
+	"           --version           output version information and exit\n"
+	"           --nogui             don't start the GUI\n"
+	"           --readonly          run in read only mode\n"
+	"-p port    --modbus_port=port  port to use for modbus sever\n");
     exit(-1);
 }
 
@@ -83,6 +85,7 @@ int process_options(int argc, char *argv[])
 	    {"help", no_argument, 0, 0},
 	    {"version", no_argument, 0, 0},
 	    {"nogui", no_argument, 0, 0},
+	    {"readonly", no_argument, 0, 0},
 	    {"modbus_port", required_argument, 0, 'p'},
 	    {0, 0, 0, 0},
 	};
@@ -104,6 +107,9 @@ int process_options(int argc, char *argv[])
 		break;
 	    case 2:
 		noGui = TRUE;
+		break;
+	    case 3:
+		readOnly = TRUE;
 		break;
 	    }
 	    break;
@@ -152,7 +158,7 @@ int main(int argc, char *argv[])
 	    InitSocketServer(0 /* UseUdpMode */ ,
 		ModbusServerPort /* PortNbr */ );
 #ifdef GTK_INTERFACE
-	    InitGtkWindows(argc, argv);
+	    InitGtkWindows(argc, argv, readOnly);
 #endif
 	}
 
@@ -162,6 +168,7 @@ int main(int argc, char *argv[])
 	    LoadProjectFiles(LadderDirectory);
 	    InfosGene->LadderState = STATE_RUN;
 	}
+
 #ifdef GTK_INTERFACE
 	if (!noGui) {
 	    UpdateGtkAfterLoading(TRUE /* cCreateTimer */ );
