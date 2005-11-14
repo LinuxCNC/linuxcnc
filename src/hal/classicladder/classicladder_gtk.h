@@ -9,5 +9,5 @@ void RefreshOneBoolVar(int Type, int Num, int Val);
 void RefreshAllBoolsVars();
 void UpdateAllLabelsBoolsVars();
 void quit_appli();
-void InitGtkWindows(int argc, char *argv[], int readOnly);
+void InitGtkWindows(int argc, char *argv[]);
 void UpdateGtkAfterLoading(char cCreateTimer);
