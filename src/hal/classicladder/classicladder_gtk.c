@@ -538,7 +538,7 @@ gint RungWindowDeleteEvent(GtkWidget * widget, GdkEvent * event,
     return TRUE;
 }
 
-void RungWindowInitGtk(int readOnly)
+void RungWindowInitGtk()
 {
     GtkWidget *vbox, *hboxtop, *hboxbottom;
     GtkWidget *hboxmiddle;
@@ -916,11 +916,13 @@ static gint cyclic_refresh(gpointer data)
 	sprintf(TextBuffer, "%d us", InfosGene->DurationOfLastScan / 1000);
 	gtk_entry_set_text(GTK_ENTRY(DurationOfLastScan), TextBuffer);
 
-	if (InfosGene->CmdRefreshVarsBits) {
-	    RefreshAllBoolsVars();
-	    InfosGene->CmdRefreshVarsBits = FALSE;
+	if(!readOnly){
+	    if (InfosGene->CmdRefreshVarsBits) {
+		RefreshAllBoolsVars();
+		InfosGene->CmdRefreshVarsBits = FALSE;
+	    }
+	    DisplayFreeVarSpy();
 	}
-	DisplayFreeVarSpy();
     }
 
     DrawCurrentSection();
@@ -928,11 +930,11 @@ static gint cyclic_refresh(gpointer data)
     return 1;
 }
 
-void InitGtkWindows(int argc, char *argv[], int readOnly)
+void InitGtkWindows(int argc, char *argv[])
 {
     gtk_init(&argc, &argv);
 
-    RungWindowInitGtk(readOnly);
+    RungWindowInitGtk();
 
     if(!readOnly){
 	VarsWindowInitGtk();
@@ -953,5 +955,7 @@ void UpdateGtkAfterLoading(char cCreateTimer)
 	gtk_timeout_add(TIME_REFRESH_RUNG_MS, cyclic_refresh, NULL);
     }
 
-    ManagerDisplaySections();
+    if(!readOnly){
+	ManagerDisplaySections();
+    }
 }

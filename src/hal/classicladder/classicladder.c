@@ -38,7 +38,6 @@
 #include "classicladder_gtk.h"
 #endif
 
-int cl_remote;
 int ModbusServerPort = 9502;	// Standard "502" requires root privileges...
 int noGui = FALSE;
 int readOnly = FALSE;
@@ -158,7 +157,7 @@ int main(int argc, char *argv[])
 	    InitSocketServer(0 /* UseUdpMode */ ,
 		ModbusServerPort /* PortNbr */ );
 #ifdef GTK_INTERFACE
-	    InitGtkWindows(argc, argv, readOnly);
+	    InitGtkWindows(argc, argv);
 #endif
 	}
 

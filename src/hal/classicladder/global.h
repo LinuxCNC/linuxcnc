@@ -17,6 +17,7 @@ extern TYPE_FOR_BOOL_VAR *VarArray;
 extern StrDatasForBase CorresDatasForBase[3];
 extern char LadderDirectory[400];
 extern char TmpDirectory[400];
+extern int readOnly;
 #ifdef GTK_INTERFACE
 extern StrEditRung EditDatas;
 extern StrArithmExpr *EditArithmExpr;
