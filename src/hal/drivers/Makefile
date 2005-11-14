@@ -33,7 +33,6 @@ obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
 obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
 obj-$(CONFIG_HAL_MOTENC) += hal_m5i20.o
 obj-$(CONFIG_HAL_MOTENC) += hal_ax5214h.o
-obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
@@ -47,7 +46,7 @@ include ../../Makefile.inc
 HEADERS =
 
 # Private headers
-PRIVHDRS = motenc.h m5i20.h plx9030.h m5i20_HM5-4E.h hal_ppmc.h
+PRIVHDRS = motenc.h m5i20.h plx9030.h m5i20_HM5-4E.h
 
 SRCS = \
 hal_parport.c \
@@ -63,7 +62,6 @@ hal_evoreg.c \
 hal_motenc.c \
 hal_m5i20.c \
 hal_ax5214h.c \
-hal_ppmc.c \
 hal_skeleton.c
 
 LIBS = \
@@ -74,7 +72,6 @@ $(RTLIB_DIR)/hal_evoreg.o \
 $(RTLIB_DIR)/hal_motenc.o \
 $(RTLIB_DIR)/hal_m5i20.o \
 $(RTLIB_DIR)/hal_ax5214h.o \
-$(RTLIB_DIR)/hal_ppmc.o \
 $(RTLIB_DIR)/hal_skeleton.o
 
 endif
