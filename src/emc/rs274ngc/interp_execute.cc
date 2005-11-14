@@ -139,6 +139,7 @@ int Interp::execute_binary2(double *left,        //!< pointer to the left operan
                            double *right)       //!< pointer to the right operand   
 {
   static char name[] = "execute_binary2";
+  double diff;
   switch (operation) {
   case AND2:
     *left = ((*left == 0.0) || (*right == 0.0)) ? 0.0 : 1.0;
@@ -156,6 +157,30 @@ int Interp::execute_binary2(double *left,        //!< pointer to the left operan
   case PLUS:
     *left = (*left + *right);
     break;
+
+  case LT:
+      *left = (*left < *right) ? 1.0 : 0.0;
+      break;
+  case EQ:
+      diff = *left - *right;
+      diff = (diff < 0) ? -diff : diff;
+      *left = (diff < TOLERANCE_EQUAL) ? 1.0 : 0.0;
+      break;
+  case NE:
+      diff = *left - *right;
+      diff = (diff < 0) ? -diff : diff;
+      *left = (diff >= TOLERANCE_EQUAL) ? 1.0 : 0.0;
+      break;
+  case LE:
+      *left = (*left <= *right) ? 1.0 : 0.0;
+      break;
+  case GE:
+      *left = (*left >= *right) ? 1.0 : 0.0;
+      break;
+  case GT:
+      *left = (*left > *right) ? 1.0 : 0.0;
+      break;
+
   default:
     ERM(NCE_BUG_UNKNOWN_OPERATION);
   }

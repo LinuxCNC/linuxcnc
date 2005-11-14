@@ -37,7 +37,8 @@
 #define TOLERANCE_MM 0.005
 /* angle threshold for concavity for cutter compensation, in radians */
 #define TOLERANCE_CONCAVE_CORNER 0.05  
-
+#define TOLERANCE_EQUAL 0.0001 /* two numbers compare EQ if the
+				  difference is less than this */
 
 #define TINY 1e-12              /* for arc_data_r */
 #define UNKNOWN 1e-20
