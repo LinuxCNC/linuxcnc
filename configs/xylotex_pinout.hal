@@ -2,7 +2,7 @@
 # using a parport for I/O
 #
 # first load the parport driver
-loadrt hal_parport cfg="0x0278"
+loadrt hal_parport cfg="0x0378"
 #
 # next connect the parport functions to threads
 addf parport.0.read base-thread 1
@@ -17,16 +17,8 @@ linksp Zstep parport.0.pin-06-out
 linksp Zdir  parport.0.pin-07-out
 
 # create a signal for the estop loopback
-newsig estop bit
-linksp estop iocontrol.0.estop-out
-linksp estop iocontrol.0.estop-in
+linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # create signals for tool loading loopback
-newsig toolprep bit
-linksp toolprep iocontrol.0.tool-prepare
-linksp toolprep iocontrol.0.tool-prepared
-newsig toolchg bit
-linksp toolchg iocontrol.0.tool-change
-linksp toolchg iocontrol.0.tool-changed
-
-
+linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+linkpp iocontrol.0.tool-change iocontrol.0.tool-changed

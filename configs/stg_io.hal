@@ -91,9 +91,9 @@ linksp Zenable => stg.out-02
 newsig EstopSense bit
 newsig EstopWrite bit
 linksp EstopSense <= stg.in-12
-linksp EstopSense => iocontrol.0.estop-in
+linksp EstopSense => iocontrol.0.emc-enable-in
 linksp EstopWrite <= stg.out-07
-linksp EstopWrite => iocontrol.0.estop-out
+linksp EstopWrite => iocontrol.0.user-enable-out
 
 # connect spindle fwd/rev to I/O controller
 newsig SpindleFwd bit
