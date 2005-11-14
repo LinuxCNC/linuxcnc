@@ -47,6 +47,10 @@ linkps ddt.5.out => Zacc
 # estop loopback
 linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
+# create signals for tool loading loopback
+linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+linkpp iocontrol.0.tool-change toolchg iocontrol.0.tool-changed
+
 # amp control
 newsig xena bit
 linksp xena axis.0.amp-enable-out

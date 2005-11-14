@@ -17,17 +17,11 @@ linksp Zstep parport.0.pin-07-out
 linksp Zdir  parport.0.pin-06-out
 
 # create a signal for the estop loopback
-newsig estop bit
-linksp estop iocontrol.0.estop-out
-linksp estop iocontrol.0.estop-in
+linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # create signals for tool loading loopback
-newsig toolprep bit
-linksp toolprep iocontrol.0.tool-prepare
-linksp toolprep iocontrol.0.tool-prepared
-newsig toolchg bit
-linksp toolchg iocontrol.0.tool-change
-linksp toolchg iocontrol.0.tool-changed
+linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # create a signal for "spindle on"
 newsig spindle_on bit
