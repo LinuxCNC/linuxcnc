@@ -154,7 +154,7 @@ int emcTaskSetState(int state)
 
     switch (state) {
     case EMC_TASK_STATE_OFF:
-	// turn the machine servos off-- go into ESTOP_RESET state
+	// turn the machine servos off-- go into READY state
 	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
 	    emcAxisDisable(t);
 	}

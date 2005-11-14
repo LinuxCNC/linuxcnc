@@ -733,7 +733,12 @@ int read_hal_inputs(void)
     int oldval, retval = 0;
 
     oldval = emcioStatus.aux.estop;
-    emcioStatus.aux.estop = *(iocontrol_data->emc_enable_in); //check for estop from HW
+
+    if ( *(iocontrol_data->emc_enable_in)==0) //check for estop from HW
+	emcioStatus.aux.estop = 1;
+    else
+	emcioStatus.aux.estop = 0;
+    
     if (oldval != emcioStatus.aux.estop) {
 	retval = 1;
     }
@@ -907,7 +912,6 @@ int main(int argc, char *argv[])
 	}
 
 	type = emcioCommand->type;
-
 	emcioStatus.status = RCS_DONE;
 
 	switch (type) {
@@ -1207,13 +1211,15 @@ int main(int argc, char *argv[])
 	case EMC_AUX_ESTOP_OFF_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_OFF\n");
 	    /* remove ESTOP */
-	    *(iocontrol_data->user_enable_out) = 1;
+	    *(iocontrol_data->user_enable_out) = 1; //we're good to enable on ESTOP_OFF
+	    /* generate a rising edge to reset optional HAL latch */
+	    *(iocontrol_data->user_request_enable) = 1;
 	    break;
 	    
 	case EMC_AUX_ESTOP_RESET_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_RESET\n");
-	    /* generate a rising edge to reset optional HAL latch */
-	    *(iocontrol_data->user_request_enable) = 1;
+	    // doesn't do anything right now, this will need to come from GUI
+	    // but that means task needs to be rewritten/rethinked
 	    break;
 	    
 	case EMC_LUBE_INIT_TYPE:

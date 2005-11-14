@@ -310,7 +310,7 @@ int emcAuxEstopOff()
 {
     EMC_AUX_ESTOP_OFF estopOffMsg;
 
-    return forceCommand(&estopOffMsg);
+    return forceCommand(&estopOffMsg); //force the EstopOff message
 }
 
 static double spindleSpeed = 0;
