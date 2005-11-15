@@ -31,6 +31,18 @@ newsig Zpos-fb float
 linksp Zpos-fb <= stepgen.2.position-fb
 linksp Zpos-fb => axis.2.motor-pos-fb
 
+# connect enable signals for step generators
+newsig Xen bit
+linksp Xen <= axis.0.amp-enable-out
+linksp Xen => stepgen.0.enable
+newsig Yen bit
+linksp Yen <= axis.1.amp-enable-out
+linksp Yen => stepgen.1.enable
+newsig Zen bit
+linksp Zen <= axis.2.amp-enable-out
+linksp Zen => stepgen.2.enable
+
+
 # connect signals to step pulse generator outputs
 newsig Xstep bit
 newsig Xdir  bit
