@@ -309,9 +309,9 @@ int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 
 MODULE_PARM(step_type, "1-8i");
 
-static char *cfg = "0 0 0";	/* config string, default = 3 x step/dir */
-MODULE_PARM(cfg, "s");
-MODULE_PARM_DESC(cfg, "config string");
+//static char *cfg = "0 0 0";	/* config string, default = 3 x step/dir */
+//MODULE_PARM(cfg, "s");
+//MODULE_PARM_DESC(cfg, "config string");
 static long period = 0;		/* non-FP thread period, default = none */
 MODULE_PARM(period, "l");
 MODULE_PARM_DESC(period, "non-FP thread period (nsecs)");
@@ -367,6 +367,7 @@ typedef struct {
 	st2_t st2;		/* working data for step types 2 and up */
     } wd;
     hal_bit_t *phase[5];	/* pins for output signals */
+    hal_bit_t *enable;		/* pin for enable stepgen */
     hal_s32_t rawcount;		/* param: position feedback in counts */
     hal_s32_t *count;		/* pin: captured feedback in counts */
     hal_float_t pos_scale;	/* param: steps per position unit */
@@ -608,7 +609,15 @@ static void make_pulses(void *arg, long period)
     periodns = period;
     /* point to stepgen data structures */
     stepgen = arg;
+
     for (n = 0; n < num_chan; n++) {
+
+	/* bail out if not enabled */
+	if (*stepgen->enable == 0) {
+	    stepgen++;
+	    break;
+	}
+
 	if (stepgen->deltalim != 0) {
 	    /* implement accel/decel limit */
 	    if (stepgen->newaddval > (stepgen->addval + stepgen->deltalim)) {
@@ -777,10 +786,17 @@ static void update_freq(void *arg, long period)
 	/* calc the reciprocal once here, to avoid multiple divides later */
 	recip_dt = 1.0 / dt;
     }
+    
     /* point at stepgen data */
     stepgen = arg;
+
     /* loop thru generators */
     for (n = 0; n < num_chan; n++) {
+	/* bail out if current stepgen not enabled */
+	if (*stepgen->enable == 0) {
+	    stepgen++;
+	    break;
+	}
 	/* check for scale change */
 	if (stepgen->pos_scale != stepgen->old_scale) {
 	    /* get ready to detect future scale changes */
@@ -917,7 +933,15 @@ static void update_pos(void *arg, long period)
     int n;
 
     stepgen = arg;
+
     for (n = 0; n < num_chan; n++) {
+
+	/* bail out if current stepgen not enabled */
+	if (*stepgen->enable == 0) {
+	    stepgen++;
+	    break;
+	}
+
 	/* capture raw counts to latches */
 	*(stepgen->count) = stepgen->rawcount;
 	/* check for change in scale value */
@@ -987,6 +1011,12 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     /* export pin for position command command */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position-cmd", num);
     retval = hal_pin_float_new(buf, HAL_RD, &(addr->pos_cmd), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export pin for enable command */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.enable", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->enable), comp_id);
     if (retval != 0) {
 	return retval;
     }
