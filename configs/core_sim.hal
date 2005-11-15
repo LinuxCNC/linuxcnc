@@ -49,7 +49,7 @@ linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # create signals for tool loading loopback
 linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
-linkpp iocontrol.0.tool-change toolchg iocontrol.0.tool-changed
+linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # amp control
 newsig xena bit
@@ -70,5 +70,3 @@ linksp zflt axis.2.amp-fault-in
 loadrt scope_rt
 # start up scope user interface
 loadusr halscope
-
-
