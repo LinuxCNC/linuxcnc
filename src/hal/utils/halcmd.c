@@ -73,6 +73,7 @@
 
 #define MAX_TOK 20
 #define MAX_CMD_LEN 1024
+#define MAX_EXPECTED_SIGS 999
 
 static int parse_cmd(char *tokens[]);
 static int do_help_cmd(char *command);
@@ -1454,7 +1455,7 @@ static int do_delsig_cmd(char *mod_name)
 {
     int next, retval, retval1, n;
     hal_sig_t *sig;
-    char sigs[64][HAL_NAME_LEN+1];
+    char sigs[MAX_EXPECTED_SIGS][HAL_NAME_LEN+1];
 
     /* check for "all" */
     if ( strcmp(mod_name, "all" ) != 0 ) {
@@ -1474,7 +1475,7 @@ static int do_delsig_cmd(char *mod_name)
 	while (next != 0) {
 	    sig = SHMPTR(next);
 	    /* we want to unload this signal, remember it's name */
-	    if ( n < 63 ) {
+	    if ( n < ( MAX_EXPECTED_SIGS - 1 ) ) {
 	        strncpy(sigs[n++], sig->name, HAL_NAME_LEN );
 	    }
 	    next = sig->next_ptr;
