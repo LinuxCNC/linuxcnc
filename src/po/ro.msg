@@ -113,7 +113,7 @@
 ::msgcat::mcset ro "joint" "articulatie"
 ::msgcat::mcset ro "world" "global"
 
-::msgcat::mcset ro "continous" "continuu"
+::msgcat::mcset ro "continuous" "continuu"
 
 ::msgcat::mcset ro "home" "poz.0"
 

@@ -87,7 +87,7 @@ Tcl/Tkで書いたGUI\n\n パブリックドメイン(1999)"
 
 #Lube
 ::msgcat::mcset ja "Lube on" "油点いた"
-::msgcat::mcset ja "Lube off" "油消した"終止符
+::msgcat::mcset ja "Lube off" "油消した"
 
 #Spindle
 ::msgcat::mcset ja "Spindle forward" "スピンドル前進"
@@ -113,7 +113,7 @@ Tcl/Tkで書いたGUI\n\n パブリックドメイン(1999)"
 ::msgcat::mcset ja "joint" "関節"
 ::msgcat::mcset ja "world" "世界"
 
-::msgcat::mcset ja "continous" "連綿"
+::msgcat::mcset ja "continuous" "連綿"
 
 ::msgcat::mcset ja "home" "原点"
 
@@ -135,7 +135,7 @@ Tcl/Tkで書いたGUI\n\n パブリックドメイン(1999)"
 ::msgcat::mcset ja "AUTO" "自動"
 ::msgcat::mcset ja "MANUAL" "手動"
 
-::msgcat::mcset ja "Pjagram: " "プローグラム: "
+::msgcat::mcset ja "Program: " "プローグラム: "
 ::msgcat::mcset ja " - Status: " " - 状態: "
 
 #bottom menu

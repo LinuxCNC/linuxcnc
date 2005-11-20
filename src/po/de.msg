@@ -113,7 +113,7 @@
 ::msgcat::mcset de "joint" "Achse"
 ::msgcat::mcset de "world" "Global"
 
-::msgcat::mcset de "continous" "fortfahrend"
+::msgcat::mcset de "continuous" "fortfahrend"
 
 ::msgcat::mcset de "home" "home"
 

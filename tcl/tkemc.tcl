@@ -46,7 +46,7 @@ set tkemc 1
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload "src/po"
+    msgcat::mcload "../src/po"
 }
 
 # read the application defaults
@@ -1138,7 +1138,7 @@ pack $radioworld -side top -anchor w
 set jogtypebutton [menubutton $jog.type -textvariable jogType -direction below -relief raised -width 16]
 set jogtypemenu [menu $jogtypebutton.menu -tearoff 0]
 $jogtypebutton configure -menu $jogtypemenu
-$jogtypemenu add command -label [msgcat::mc "continous"] -command {set jogType continuous ; set jogIncrement 0.0000}
+$jogtypemenu add command -label [msgcat::mc "continuous"] -command {set jogType continuous ; set jogIncrement 0.0000}
 $jogtypemenu add command -label "0.0001" -command {set jogType 0.0001 ; set jogIncrement 0.0001}
 $jogtypemenu add command -label "0.0010" -command {set jogType 0.0010 ; set jogIncrement 0.0010}
 $jogtypemenu add command -label "0.0100" -command {set jogType 0.0100 ; set jogIncrement 0.0100}
