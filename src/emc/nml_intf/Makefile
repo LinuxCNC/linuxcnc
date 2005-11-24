@@ -42,7 +42,6 @@ $(LIB_DIR)/libemc.a:	\
 	$(TMP_DIR)/emcargs.o \
 	$(TMP_DIR)/emcops.o \
 	$(TMP_DIR)/emcglb.o \
-	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/iniaux.o \
 	$(TMP_DIR)/iniaxis.o \
 	$(TMP_DIR)/inicool.o \

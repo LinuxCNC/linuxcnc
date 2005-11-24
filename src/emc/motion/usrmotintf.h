@@ -76,10 +76,6 @@ extern "C" {
 /* usrmotExit() terminates communication with the emcmot process */
     extern int usrmotExit(void);
 
-/* usrmotDumpLog() dumps the logged data (if active) from the usrmot
-   process into the named filename */
-    extern int usrmotDumpLog(const char *filename, int include_header);
-
 /* usrmotLoadComp() loads the compensation data in file into the axis */
     extern int usrmotLoadComp(int axis, const char *file);
 

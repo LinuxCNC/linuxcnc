@@ -291,17 +291,6 @@ enum {
 
 // EMC aggregate class type declaration
 
-// types of data that can be logged
-#define EMC_LOG_TYPE_AXIS_POS     1	// single axis cmd/actual pos
-#define EMC_LOG_TYPE_AXES_INPOS   2	// all axes actual input pos
-#define EMC_LOG_TYPE_AXES_OUTPOS  3	// all axes commanded output pos
-#define EMC_LOG_TYPE_MOTION_CMD   4	// command into EMC motion controller
-#define EMC_LOG_TYPE_AXIS_VEL     5	// single axis cmd/actual vel
-#define EMC_LOG_TYPE_AXES_FERROR  6	// all axes following error
-#define EMC_LOG_TYPE_TRAJ_POS     7	// trajectory Cartesian points
-#define EMC_LOG_TYPE_TRAJ_VEL     8	// trajectory Cartesian vel diffs
-#define EMC_LOG_TYPE_TRAJ_ACC     9	// trajectory Cartesian accel diffs
-#define EMC_LOG_TYPE_POS_VOLTAGE 10	// input position and output voltage
 // these are placeholders
 #define EMC_LOG_TYPE_IO_CMD      21	// command into EMC IO controller
 #define EMC_LOG_TYPE_TASK_CMD    51	// command into EMC Task controller
@@ -309,10 +298,6 @@ enum {
 #define EMC_INIT_TYPE                                ((NMLTYPE) 1901)
 #define EMC_HALT_TYPE                                ((NMLTYPE) 1902)
 #define EMC_ABORT_TYPE                               ((NMLTYPE) 1903)
-#define EMC_LOG_OPEN_TYPE                            ((NMLTYPE) 1904)
-#define EMC_LOG_START_TYPE                           ((NMLTYPE) 1905)
-#define EMC_LOG_STOP_TYPE                            ((NMLTYPE) 1906)
-#define EMC_LOG_CLOSE_TYPE                           ((NMLTYPE) 1907)
 
 #define EMC_STAT_TYPE                                ((NMLTYPE) 1999)
 
@@ -652,12 +637,6 @@ extern int emcIoUpdate(EMC_IO_STAT * stat);
 extern int emcInit();
 extern int emcHalt();
 extern int emcAbort();
-extern int emcLogOpen(char *file, int type, int size, int skip, int which,
-		      int triggerType, int triggerVar,
-		      double triggerThreshold);
-extern int emcLogStart();
-extern int emcLogStop();
-extern int emcLogClose();
 
 class EMC_STAT;			// forward decl
 extern int emcUpdate(EMC_STAT * stat);
@@ -2892,52 +2871,6 @@ class EMC_ABORT:public EMC_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_LOG_OPEN:public EMC_CMD_MSG {
-  public:
-    EMC_LOG_OPEN():EMC_CMD_MSG(EMC_LOG_OPEN_TYPE, sizeof(EMC_LOG_OPEN)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    char file[LINELEN];		// file to contain data when log closed
-    int type;			// EMC_LOG_TYPE_AXIS_POS, etc.
-    int size;			// how many data points in file
-    int skip;			// how many to skip, 0 means none
-    int which;			// further selects which to log, e.g., axis
-    int triggerType;
-    int triggerVar;
-    double triggerThreshold;
-
-};
-
-class EMC_LOG_START:public EMC_CMD_MSG {
-  public:
-    EMC_LOG_START():EMC_CMD_MSG(EMC_LOG_START_TYPE, sizeof(EMC_LOG_START)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_LOG_STOP:public EMC_CMD_MSG {
-  public:
-    EMC_LOG_STOP():EMC_CMD_MSG(EMC_LOG_STOP_TYPE, sizeof(EMC_LOG_STOP)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_LOG_CLOSE:public EMC_CMD_MSG {
-  public:
-    EMC_LOG_CLOSE():EMC_CMD_MSG(EMC_LOG_CLOSE_TYPE, sizeof(EMC_LOG_CLOSE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 // EMC status base class
 
 class EMC_STAT_MSG:public RCS_STAT_MSG {
@@ -2962,15 +2895,6 @@ class EMC_STAT:public EMC_STAT_MSG {
     // subordinate status classes
     EMC_MOTION_STAT motion;
     EMC_IO_STAT io;
-
-    // logging status
-    char logFile[LINELEN];	// name of file to log to upon close
-    int logType;		// type being logged
-    int logSize;		// size in entries, not bytes
-    int logSkip;		// how many are being skipped
-    int logOpen;		// non-zero means a log is open
-    int logStarted;		// non-zero means logging is happening
-    int logPoints;		// how many points currently in log
 
     int debug;			// copy of EMC_DEBUG global
 };

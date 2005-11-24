@@ -194,8 +194,7 @@ int main(int argc, char *argv[])
     printf("sizeof(emcmot_error_t) = %d\n", sizeof(emcmot_error_t));
     printf("sizeof(emcmot_comp_t) = %d\n", sizeof(emcmot_comp_t));
     printf("sizeof(emcmot_joint_t) = %d\n", sizeof(emcmot_joint_t));
-    printf("sizeof(emcmot_log_t) = %d\n", sizeof(emcmot_log_t));
-    printf("sizeof(emcmot_struct_t) = %d\n", sizeof(emcmot_struct_t));
+     printf("sizeof(emcmot_struct_t) = %d\n", sizeof(emcmot_struct_t));
     printf("sizeof(TC_STRUCT) = %d\n", sizeof(TC_STRUCT));
 
     /* process command line args */
@@ -328,8 +327,6 @@ int main(int argc, char *argv[])
 		printf("kill <axis 0..n-1>\tkill amp n\n");
 		printf("activate <axis 0..n-1>\tactivate axis n\n");
 		printf("deactivate <axis 0..n-1>\tdeactivate axis n\n");
-		printf
-		    ("log open <type ...> | start | stop | close | dump <file>\tlog data\n");
 /*! \todo FIXME
 		printf
 		    ("dac <axis 0..n-1> <-10.0 .. 10.0>\toutput value to DAC\n");
@@ -869,86 +866,6 @@ int main(int argc, char *argv[])
 			fprintf(stderr,
 				"Can't send a command to RT-task\n");
 		    }
-		}
-	    } else if (!strcmp(cmd, "log")) {
-		sscanf(input, "%*s %s", cmd);
-		if (!strcmp(cmd, "open")) {
-		    /* syntax is "log open <size> <skip> <type> <type args> */
-		    valid = 0;
-		    if (3 != sscanf(input, "%*s %*s %d %d %d",
-				    &emcmotCommand.logSize,
-				    &emcmotCommand.logSkip,
-				    &emcmotCommand.logType) ||
-			emcmotCommand.logSize <= 0) {
-			printf
-			    ("syntax: log open <size> <skip> <type> <...>\n");
-		    } else {
-			/* look at type and read any remaining args */
-			switch (emcmotCommand.logType) {
-			case EMCMOT_LOG_TYPE_AXIS_POS:
-			case EMCMOT_LOG_TYPE_AXIS_VEL:
-			case EMCMOT_LOG_TYPE_POS_VOLTAGE:
-			    if (1 != sscanf(input,
-					    "%*s %*s %*s %*s %*s %d",
-					    &emcmotCommand.axis)) {
-				printf
-				    ("syntax: log open <size> <skip> <type> <axis>\n");
-			    } else {
-				valid = 1;
-			    }
-			    break;
-
-			case EMCMOT_LOG_TYPE_CMD:
-			    /* force logSkip negative to avoid per-cycle logs 
-			     */
-			    emcmotCommand.logSkip = -1;
-			    valid = 1;
-			    break;
-
-			default:
-			    valid = 1;
-			    break;
-			}
-		    }
-
-		    /* now send it */
-		    if (valid) {
-			emcmotCommand.command = EMCMOT_OPEN_LOG;
-			if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
-			    fprintf(stderr,
-				    "Can't send a command to RT-task\n");
-			}
-		    }
-		} else if (!strcmp(cmd, "start")) {
-		    emcmotCommand.command = EMCMOT_START_LOG;
-		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
-			fprintf(stderr,
-				"Can't send a command to RT-task\n");
-		    }
-		} else if (!strcmp(cmd, "stop")) {
-		    emcmotCommand.command = EMCMOT_STOP_LOG;
-		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
-			fprintf(stderr,
-				"Can't send a command to RT-task\n");
-		    }
-		} else if (!strcmp(cmd, "close")) {
-		    emcmotCommand.command = EMCMOT_CLOSE_LOG;
-		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
-			fprintf(stderr,
-				"Can't send a command to RT-task\n");
-		    }
-		} else if (!strcmp(cmd, "dump")) {
-		    int include_header = 1;
-		    sscanf(input, "%*s %*s %s %d", filename,
-			   &include_header);
-		    if (-1 == usrmotDumpLog(filename, include_header)) {
-			fprintf(stderr, "Can't dump log to %s\n",
-				filename);
-		    }
-		} else {
-		    /* invalid parameter */
-		    printf
-			("syntax: log open | start | stop | close | dump <file>\n");
 		}
 /*! \todo Another #if 0 */
 #if 0

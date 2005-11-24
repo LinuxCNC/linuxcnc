@@ -54,7 +54,6 @@ $(BIN_DIR)/usrmot : \
 	$(TMP_DIR)/usrmotintf.o \
 	$(TMP_DIR)/usrmot.o \
 	$(TMP_DIR)/emcmotglb.o \
-	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \
 	$(LIB_DIR)/ulapi.o \
 	$(LIB_DIR)/libnml.a

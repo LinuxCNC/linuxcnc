@@ -132,9 +132,6 @@ extern emcmot_joint_t *joints;
 extern int kinType;
 extern int rehomeAll;
 extern int DEBUG_MOTION;
-extern int logSkip;
-extern int loggingAxis;
-extern int logStartTime;
 extern int EMCMOT_NO_FORWARD_KINEMATICS;
 extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
@@ -147,8 +144,6 @@ extern emcmot_config_t *emcmotConfig;
 extern emcmot_debug_t *emcmotDebug;
 extern emcmot_internal_t *emcmotInternal;
 extern emcmot_error_t *emcmotError;
-extern emcmot_log_t *emcmotLog;
-extern emcmot_log_struct_t ls;
 
 /***********************************************************************
 *                    PUBLIC FUNCTION PROTOTYPES                        *

@@ -80,11 +80,6 @@ EmcPose worldHome = { {0.0, 0.0, 0.0}
 , 0.0, 0.0, 0.0
 };
 
-int logSkip = 0;		/* how many to skip, for per-cycle logging */
-int loggingAxis = 0;		/* record of which axis to log */
-int logStartTime;		/* set when logging is started, and
-				   subtracted off each log time for better
-				   resolution */
 /* kinematics flags */
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
@@ -265,7 +260,6 @@ static void clearHomes(int joint_num)
 void emcmotCommandHandler(void *arg, long period)
 {
     int joint_num;
-    int valid;
     double tmp;
     emcmot_joint_t *joint;
     
@@ -287,22 +281,7 @@ check_stuff ( "before command_handler()" );
 
 	/* clear status value by default */
 	emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
-
-	/* log it, if appropriate */
-	if (emcmotStatus->logStarted &&
-	    emcmotStatus->logType == EMCMOT_LOG_TYPE_CMD) {
-	    ls.item.cmd.time = etime();	/* don't subtract off logStartTime,
-					   since we want an absolute time
-					   value */
-	    ls.item.cmd.command = emcmotCommand->command;
-	    ls.item.cmd.commandNum = emcmotCommand->commandNum;
-/*! \todo Another #if 0 */
-#if 0
-	    emcmotLogAdd(emcmotLog, ls);
-#endif
-	    emcmotStatus->logPoints = emcmotLog->howmany;
-	}
-
+	
 	/* ...and process command */
 
 	/* Many commands uses "command->axis" to indicate which joint they
@@ -987,104 +966,6 @@ check_stuff ( "before command_handler()" );
 	    extAmpEnable(axis, 0);
 #endif
 	    break;
-	case EMCMOT_OPEN_LOG:
-	    /* open a data log */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "OPEN_LOG");
-	    valid = 0;
-	    if (emcmotCommand->logSize > 0 &&
-		emcmotCommand->logSize <= EMCMOT_LOG_MAX) {
-		/* handle log-specific data */
-		switch (emcmotCommand->logType) {
-		case EMCMOT_LOG_TYPE_AXIS_POS:
-		case EMCMOT_LOG_TYPE_AXIS_VEL:
-		case EMCMOT_LOG_TYPE_POS_VOLTAGE:
-		    if (joint != 0) {
-			valid = 1;
-		    }
-		    break;
-
-		default:
-		    valid = 1;
-		    break;
-		}
-	    }
-
-	    if (valid) {
-		/* success */
-		loggingAxis = joint_num;
-/*! \todo Another #if 0 */
-#if 0
-		emcmotLogInit(emcmotLog,
-		    emcmotCommand->logType, emcmotCommand->logSize);
-#endif
-		emcmotStatus->logOpen = 1;
-		emcmotStatus->logStarted = 0;
-		emcmotStatus->logSize = emcmotCommand->logSize;
-		emcmotStatus->logSkip = emcmotCommand->logSkip;
-		emcmotStatus->logType = emcmotCommand->logType;
-		emcmotStatus->logTriggerType = emcmotCommand->logTriggerType;
-		emcmotStatus->logTriggerVariable =
-		    emcmotCommand->logTriggerVariable;
-		emcmotStatus->logTriggerThreshold =
-		    emcmotCommand->logTriggerThreshold;
-		if (joint != 0
-		    && emcmotStatus->logTriggerType == EMCLOG_DELTA_TRIGGER) {
-		    switch (emcmotStatus->logTriggerVariable) {
-		    case EMCLOG_TRIGGER_ON_FERROR:
-			emcmotStatus->logStartVal = joint->ferror;
-			break;
-/*! \todo Another #if 0 */
-#if 0
-		    case EMCLOG_TRIGGER_ON_VOLT:
-			emcmotStatus->logStartVal =
-			    emcmotDebug->rawOutput[loggingAxis];
-			break;
-#endif
-		    case EMCLOG_TRIGGER_ON_POS:
-			emcmotStatus->logStartVal = joint->pos_cmd;
-			break;
-		    case EMCLOG_TRIGGER_ON_VEL:
-			emcmotStatus->logStartVal = joint->vel_cmd;
-			break;
-		    default:
-			break;
-		    }
-		}
-	    }
-	    break;
-
-	case EMCMOT_START_LOG:
-	    /* start logging */
-	    /* first ignore triggered log types */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "START_LOG");
-	    if (emcmotStatus->logType == EMCMOT_LOG_TYPE_POS_VOLTAGE) {
-		break;
-	    }
-	    /* set the global baseTime, to be subtracted off log times,
-	       otherwise time values are too large for the small increments
-	       to appear */
-	    if (emcmotStatus->logOpen &&
-		emcmotStatus->logTriggerType == EMCLOG_MANUAL_TRIGGER) {
-		logStartTime = etime();
-		emcmotStatus->logStarted = 1;
-		logSkip = 0;
-	    }
-	    break;
-
-	case EMCMOT_STOP_LOG:
-	    /* stop logging */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "STOP_LOG");
-	    emcmotStatus->logStarted = 0;
-	    break;
-
-	case EMCMOT_CLOSE_LOG:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "CLOSE_LOG");
-	    emcmotStatus->logOpen = 0;
-	    emcmotStatus->logStarted = 0;
-	    emcmotStatus->logSize = 0;
-	    emcmotStatus->logSkip = 0;
-	    emcmotStatus->logType = 0;
-	    break;
 
 	case EMCMOT_HOME:
 	    /* home the specified axis */
@@ -1236,6 +1117,7 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 #endif
+
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - needed for M62/M63 */

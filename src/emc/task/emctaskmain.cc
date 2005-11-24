@@ -343,8 +343,6 @@ static EMC_TASK_PLAN_RUN *run_msg;
 static EMC_TASK_PLAN_EXECUTE *execute_msg;
 static EMC_TASK_PLAN_OPEN *open_msg;
 
-static EMC_LOG_OPEN *log_open_msg;
-
 // commands we compose here
 static EMC_TASK_PLAN_RUN taskPlanRunCmd;	// 16-Aug-1999 FMP
 static EMC_TASK_PLAN_INIT taskPlanInitCmd;
@@ -542,10 +540,6 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
-	    case EMC_LOG_OPEN_TYPE:
-	    case EMC_LOG_START_TYPE:
-	    case EMC_LOG_STOP_TYPE:
-	    case EMC_LOG_CLOSE_TYPE:
 	    case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 	    case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -663,10 +657,6 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_SYNCH_TYPE:
-	    case EMC_LOG_OPEN_TYPE:
-	    case EMC_LOG_START_TYPE:
-	    case EMC_LOG_STOP_TYPE:
-	    case EMC_LOG_CLOSE_TYPE:
 	    case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 	    case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -759,10 +749,6 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
-		case EMC_LOG_OPEN_TYPE:
-		case EMC_LOG_START_TYPE:
-		case EMC_LOG_STOP_TYPE:
-		case EMC_LOG_CLOSE_TYPE:
 		case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 		case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -842,10 +828,6 @@ static int emcTaskPlan(void)
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
-		case EMC_LOG_OPEN_TYPE:
-		case EMC_LOG_START_TYPE:
-		case EMC_LOG_STOP_TYPE:
-		case EMC_LOG_CLOSE_TYPE:
 		case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 		case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -1036,10 +1018,6 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
-		case EMC_LOG_OPEN_TYPE:
-		case EMC_LOG_START_TYPE:
-		case EMC_LOG_STOP_TYPE:
-		case EMC_LOG_CLOSE_TYPE:
 		case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 		case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -1114,10 +1092,6 @@ static int emcTaskPlan(void)
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
-		case EMC_LOG_OPEN_TYPE:
-		case EMC_LOG_START_TYPE:
-		case EMC_LOG_STOP_TYPE:
-		case EMC_LOG_CLOSE_TYPE:
 		case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 		case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -1223,10 +1197,6 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
-	    case EMC_LOG_OPEN_TYPE:
-	    case EMC_LOG_START_TYPE:
-	    case EMC_LOG_STOP_TYPE:
-	    case EMC_LOG_CLOSE_TYPE:
 	    case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 	    case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -1987,31 +1957,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	}
 	break;
 
-    case EMC_LOG_OPEN_TYPE:
-	log_open_msg = (EMC_LOG_OPEN *) cmd;
-	retval = emcLogOpen(log_open_msg->file,
-			    log_open_msg->type,
-			    log_open_msg->size,
-			    log_open_msg->skip,
-			    log_open_msg->which,
-			    log_open_msg->triggerType,
-			    log_open_msg->triggerVar,
-			    log_open_msg->triggerThreshold);
-	break;
-
-    case EMC_LOG_START_TYPE:
-	retval = emcLogStart();
-	break;
-
-    case EMC_LOG_STOP_TYPE:
-	retval = emcLogStop();
-	break;
-
-    case EMC_LOG_CLOSE_TYPE:
-	retval = emcLogClose();
-	break;
-
-    default:
+     default:
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("ignoring issue of unknown command %d:%s\n",

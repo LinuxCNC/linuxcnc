@@ -80,7 +80,6 @@ to another.
 #include "emcpos.h"		/* EmcPose */
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
 #include "emcmotcfg.h"		/* EMCMOT_MAX_AXIS */
-#include "emcmotlog.h"
 #include "tp.h"			/* TP_STRUCT */
 #include "tc.h"			/* TC_STRUCT, TC_QUEUE_STRUCT */
 #include "mmxavg.h"		/* MMXAVG_STRUCT */
@@ -117,11 +116,6 @@ extern "C" {
 	EMCMOT_FREE,		/* set mode to free (joint) motion */
 	EMCMOT_COORD,		/* set mode to coordinated motion */
 	EMCMOT_TELEOP,		/* set mode to teleop */
-
-	EMCMOT_OPEN_LOG,	/* open a log */
-	EMCMOT_START_LOG,	/* start logging */
-	EMCMOT_STOP_LOG,	/* stop logging */
-	EMCMOT_CLOSE_LOG,	/* close log */
 
 	EMCMOT_SCALE,		/* scale the speed */
 	EMCMOT_OVERRIDE_LIMITS,	/* temporarily ignore limits until jog done */
@@ -193,16 +187,6 @@ extern "C" {
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
 	int axis;		/* which index to use for below */
-/*! \todo FIXME - logging stuff will be radically reduced later */
-	int logSize;		/* size for log fifo */
-	int logSkip;		/* how many to skip, 0 means log all, -1
-				   means don't log on cycles */
-	int logType;		/* type for logging */
-	int logTriggerType;	/* see enum LOG_TRIGGER_TYPES */
-	int logTriggerVariable;	/* the variable(s) that can cause the log to
-				   trigger. se enum LOG_TRIGGER_VARS */
-	double logTriggerThreshold;	/* the value for non manual triggers */
-
 	double scale;		/* velocity scale arg */
 	double offset;		/* input, output, or home offset arg */
 	double home;		/* joint home position */
@@ -552,7 +536,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int queueFull;		/* Flag to indicate the tc queue is full */
 	int paused;		/* Flag to signal motion paused */
 	int overrideLimits;	/* non-zero means limits are ignored */
-	int logPoints;		/* how many points currently in log */
 
 	/* static status-- only changes upon input commands, e.g., config */
 #if 0
@@ -561,20 +544,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 #endif
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
-
-	int logOpen;		/* Logging stuff that will eventually end up
-				   in hal_scope */
-	int logStarted;
-	int logSize;		/* size in entries, not bytes */
-	int logSkip;
-	int logType;		/* type being logged */
-	int logTriggerType;	/* 0=manual, 1 =abs(change) > threshold,
-				   2=var < threshold, 3 var>threshold */
-	int logTriggerVariable;	/* The variable(s) that can cause the log to
-				   trigger. */
-	double logTriggerThreshold;	/* The value for non manual triggers. 
-					 */
-	double logStartVal;	/* value use for delta trigger */
 
 	int probeTripped;	/* Has the probe signal changed since start
 				   of probe command? */
@@ -781,7 +750,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	emcmot_internal_t internal;	/*! \todo FIXME - doesn't need to be in
 					   shared memory */
 	emcmot_error_t error;	/* ring buffer for error messages */
-	emcmot_log_t log;	/* a massive ring buffer for logging RT data */
     } emcmot_struct_t;
 
 /*

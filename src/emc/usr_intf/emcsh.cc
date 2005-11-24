@@ -31,7 +31,6 @@
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.hh"		// INIFILE
-#include "emcmotlog.h"		// EMCLOG_TRIGGER_TYPE, EMCLOG_TRIGGER_VAR
 
 /*
   Using emcsh:
@@ -291,20 +290,6 @@
   With no args, returns the unit conversion active. With arg, sets the
   units to be displayed. If it's "auto", the units to be displayed match
   the program units.
-
-  emc_log_open <file> <type> <size> <skip> <triggertype> <triggervar> <triggerthreshold> {<axis>}
-  Open a log into file named <file>. <type> is one of axis_pos, axes_inpos,
-  axes_outpos, axis_vel, axes_ferror, traj_pos, traj_vel, traj_acc,
-  pos_voltage. <size> is size in entries. <skip> is how many to skip.
-  <axis> pertains only to axis_pos and axis_vel types.
-
-  emc_log_start
-  emc_log_stop
-  Starts or stops logging into the log, which must be already opened
-  with emc_log_open.
-
-  emc_log_close
-  Close the log and dump contents to the file specified in emc_log_open.
 
   emc_probe_index
   Which wire is the probe on or which bit of digital IO to use? (No args
@@ -1618,77 +1603,6 @@ static int sendAxisAlter(int axis, double alter)
     emc_axis_alter_msg.alter = alter;
     emc_axis_alter_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_axis_alter_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendLogOpen(char *file, int type, int size, int skip,
-		       enum EMCLOG_TRIGGER_TYPE triggerType,
-		       enum EMCLOG_TRIGGER_VAR triggerVar,
-		       double triggerThreshold, int which)
-{
-    EMC_LOG_OPEN emc_log_open_msg;
-
-    strcpy(emc_log_open_msg.file, file);
-    emc_log_open_msg.type = type;
-    emc_log_open_msg.size = size;
-    emc_log_open_msg.skip = skip;
-    emc_log_open_msg.which = which;
-    emc_log_open_msg.triggerType = triggerType;
-    emc_log_open_msg.triggerVar = triggerVar;
-    emc_log_open_msg.triggerThreshold = triggerThreshold;
-    emc_log_open_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_log_open_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendLogStart()
-{
-    EMC_LOG_START emc_log_start_msg;
-
-    emc_log_start_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_log_start_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendLogStop()
-{
-    EMC_LOG_STOP emc_log_stop_msg;
-
-    emc_log_stop_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_log_stop_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-};
-
-static int sendLogClose()
-{
-    EMC_LOG_CLOSE emc_log_close_msg;
-
-    emc_log_close_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_log_close_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived(emcCommandSerialNumber);
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -4642,201 +4556,6 @@ static int emc_axis_alter(ClientData clientdata,
     return TCL_ERROR;
 }
 
-int emc_log_open(ClientData clientdata,
-		 Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    char file[256];
-    const char *typestr;
-    const char *triggerTypeStr;
-    const char *triggerVarStr;
-    int type = 0;
-    int size = 0;
-    int skip = 0;
-    int which = 0;
-    enum EMCLOG_TRIGGER_TYPE triggerType = EMCLOG_MANUAL_TRIGGER;
-    enum EMCLOG_TRIGGER_VAR triggerVar = EMCLOG_TRIGGER_ON_FERROR;
-    double triggerThreshold;
-
-    // need at least cmd and 4 args, file-type-size-skip, and maybe one more
-    if (objc < 8) {
-	Tcl_SetResult(interp,
-		      "emc_log_open: need <file> <type> <size> <skip> <triggerType> <triggerVar> <triggerThreshold> {<which>}",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-    // copy objv[1] to file arg, to make sure it's not modified
-    strcpy(file, Tcl_GetStringFromObj(objv[1], 0));
-
-    // fill in the type number by string
-    typestr = Tcl_GetStringFromObj(objv[2], 0);
-    if (!strcmp(typestr, "axis_pos")) {
-	type = EMC_LOG_TYPE_AXIS_POS;
-    } else if (!strcmp(typestr, "axis_vel")) {
-	type = EMC_LOG_TYPE_AXIS_VEL;
-    } else if (!strcmp(typestr, "axes_inpos")) {
-	type = EMC_LOG_TYPE_AXES_INPOS;
-    } else if (!strcmp(typestr, "axes_outpos")) {
-	type = EMC_LOG_TYPE_AXES_OUTPOS;
-    } else if (!strcmp(typestr, "axes_ferror")) {
-	type = EMC_LOG_TYPE_AXES_FERROR;
-    } else if (!strcmp(typestr, "traj_pos")) {
-	type = EMC_LOG_TYPE_TRAJ_POS;
-    } else if (!strcmp(typestr, "traj_vel")) {
-	type = EMC_LOG_TYPE_TRAJ_VEL;
-    } else if (!strcmp(typestr, "traj_acc")) {
-	type = EMC_LOG_TYPE_TRAJ_ACC;
-    } else if (!strcmp(typestr, "pos_voltage")) {
-	type = EMC_LOG_TYPE_POS_VOLTAGE;
-    }
-
-    if (0 != Tcl_GetIntFromObj(0, objv[3], &size) || size <= 0) {
-	Tcl_SetResult(interp,
-		      "emc_log_open: <size> must be greater than zero",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    if (0 != Tcl_GetIntFromObj(0, objv[4], &skip) || skip < 0) {
-	Tcl_SetResult(interp, "emc_log_open: <skip> must not be negative",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-    // fill in the type number by string
-    triggerTypeStr = Tcl_GetStringFromObj(objv[5], 0);
-    if (!strcmp(triggerTypeStr, "manual")) {
-	triggerType = EMCLOG_MANUAL_TRIGGER;
-    } else if (!strcmp(triggerTypeStr, "delta")) {
-	triggerType = EMCLOG_DELTA_TRIGGER;
-    } else if (!strcmp(triggerTypeStr, "over")) {
-	triggerType = EMCLOG_OVER_TRIGGER;
-    } else if (!strcmp(triggerTypeStr, "under")) {
-	triggerType = EMCLOG_UNDER_TRIGGER;
-    }
-    // fill in the type number by string
-    triggerVarStr = Tcl_GetStringFromObj(objv[6], 0);
-    if (!strcmp(triggerVarStr, "ferror")) {
-	triggerVar = EMCLOG_TRIGGER_ON_FERROR;
-    } else if (!strcmp(triggerVarStr, "volt")) {
-	triggerVar = EMCLOG_TRIGGER_ON_VOLT;
-    } else if (!strcmp(triggerVarStr, "pos")) {
-	triggerVar = EMCLOG_TRIGGER_ON_POS;
-    } else if (!strcmp(triggerVarStr, "vel")) {
-	triggerVar = EMCLOG_TRIGGER_ON_VEL;
-    }
-
-    if (0 != Tcl_GetDoubleFromObj(0, objv[7], &triggerThreshold)) {
-	Tcl_SetResult(interp,
-		      "emc_log_open: <triggerThreshold> must be a double",
-		      TCL_VOLATILE);
-    }
-    if (objc > 8) {
-	if (0 != Tcl_GetIntFromObj(0, objv[8], &which)) {
-	    Tcl_SetResult(interp,
-			  "emc_log_open: <which> must be an integer",
-			  TCL_VOLATILE);
-	    return TCL_ERROR;
-	}
-    }
-
-    sendLogOpen(file, type, size, skip, triggerType, triggerVar,
-		triggerThreshold, which);
-    return TCL_OK;
-}
-
-int emc_log_start(ClientData clientdata,
-		  Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    if (objc != 1) {
-	Tcl_SetResult(interp, "emc_log_start: needs no args",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    sendLogStart();
-
-    return TCL_OK;
-}
-
-int emc_log_stop(ClientData clientdata,
-		 Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    if (objc != 1) {
-	Tcl_SetResult(interp, "emc_log_stop: needs no args", TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    sendLogStop();
-
-    return TCL_OK;
-}
-
-int emc_log_close(ClientData clientdata,
-		  Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    if (objc != 1) {
-	Tcl_SetResult(interp, "emc_log_close: needs no args",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    sendLogClose();
-
-    return TCL_OK;
-}
-
-int emc_log_isopen(ClientData clientdata,
-		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    if (objc != 1) {
-	Tcl_SetResult(interp, "emc_log_isopen: needs no args",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    Tcl_SetObjResult(interp, Tcl_NewIntObj(emcStatus->logOpen));
-    return TCL_OK;
-}
-
-int emc_log_islogging(ClientData clientdata,
-		      Tcl_Interp * interp, int objc,
-		      Tcl_Obj * CONST objv[])
-{
-    if (objc != 1) {
-	Tcl_SetResult(interp, "emc_log_islogging: needs no args",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    Tcl_SetObjResult(interp, Tcl_NewIntObj(emcStatus->logStarted));
-    return TCL_OK;
-}
-
-int emc_log_numpoints(ClientData clientdata,
-		      Tcl_Interp * interp, int objc,
-		      Tcl_Obj * CONST objv[])
-{
-    if (objc != 1) {
-	Tcl_SetResult(interp, "emc_log_numpoints: needs no args",
-		      TCL_VOLATILE);
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    Tcl_SetObjResult(interp, Tcl_NewIntObj(emcStatus->logPoints));
-    return TCL_OK;
-}
-
 int emc_teleop_enable(ClientData clientdata,
 		      Tcl_Interp * interp, int objc,
 		      Tcl_Obj * CONST objv[])
@@ -5492,27 +5211,6 @@ int Tcl_AppInit(Tcl_Interp * interp)
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_axis_enable", emc_axis_enable,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_log_open", emc_log_open,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_log_start", emc_log_start,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_log_stop", emc_log_stop,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_log_close", emc_log_close,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_log_isopen", emc_log_isopen,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_log_islogging", emc_log_islogging,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_log_numpoints", emc_log_numpoints,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_teleop_enable", emc_teleop_enable,

@@ -43,7 +43,6 @@ $(BIN_DIR)/milltask: \
 	$(TMP_DIR)/emctaskmain.o \
 	$(TMP_DIR)/rs274.o \
 	$(TMP_DIR)/usrmotintf.o \
-	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \
 	$(TMP_DIR)/taskintf.o \
 	$(TMP_DIR)/iotaskintf.o \
@@ -59,7 +58,6 @@ $(BIN_DIR)/milltaskcanon: \
 	$(TMP_DIR)/emccanon.o \
 	$(TMP_DIR)/emctaskmain.o \
 	$(TMP_DIR)/usrmotintf.o \
-	$(TMP_DIR)/emcmotlog.o \
 	$(TMP_DIR)/emcmotutil.o \
 	$(TMP_DIR)/taskintf.o \
 	$(TMP_DIR)/iotaskintf.o \

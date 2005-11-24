@@ -44,7 +44,6 @@ endif
 PWD := $(shell pwd)
 
 all: headers modules
-	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
 	(cd rs274ngc; make $@)
@@ -57,7 +56,6 @@ all: headers modules
 
 
 headers: def_headers
-	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
 	(cd rs274ngc; make $@)
@@ -69,7 +67,6 @@ headers: def_headers
 	(cd usr_intf; make $@)
 
 indent: def_indent
-	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
 	(cd rs274ngc; make $@)
@@ -81,7 +78,6 @@ indent: def_indent
 	(cd usr_intf; make $@)
 
 depend: def_depend
-	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
 	(cd rs274ngc; make $@)
@@ -93,7 +89,6 @@ depend: def_depend
 	(cd usr_intf; make $@)
 
 clean: def_clean kclean
-	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
 	(cd rs274ngc; make $@)
@@ -109,7 +104,6 @@ kclean:
 	- rm -fR .tmp_versions
 
 install:
-	(cd log; make $@)
 	(cd ini; make $@)
 	(cd nml_intf; make $@)
 	(cd rs274ngc; make $@)

@@ -101,7 +101,6 @@ int kinType = 0;
   emcmotCommand points to emcmotStruct->command,
   emcmotStatus points to emcmotStruct->status,
   emcmotError points to emcmotStruct->error, and
-  emcmotLog points to emcmotStruct->log.
  */
 emcmot_struct_t *emcmotStruct = 0;
 /* ptrs to either buffered copies or direct memory for
@@ -112,8 +111,6 @@ emcmot_config_t *emcmotConfig = 0;
 emcmot_debug_t *emcmotDebug = 0;
 emcmot_internal_t *emcmotInternal = 0;
 emcmot_error_t *emcmotError = 0;	/* unused for RT_FIFO */
-emcmot_log_t *emcmotLog = 0;	/* unused for RT_FIFO */
-emcmot_log_struct_t ls;
 
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *
@@ -734,7 +731,6 @@ static int init_comm_buffers(void)
     emcmotDebug = &emcmotStruct->debug;
     emcmotInternal = &emcmotStruct->internal;
     emcmotError = &emcmotStruct->error;
-    emcmotLog = &emcmotStruct->log;
 
     /* init error struct */
     emcmotErrorInit(emcmotError);
@@ -781,11 +777,6 @@ static int init_comm_buffers(void)
     emcmotStatus->paused = 0;
     emcmotStatus->overrideLimits = 0;
     SET_MOTION_INPOS_FLAG(1);
-    emcmotStatus->logOpen = 0;
-    emcmotStatus->logStarted = 0;
-    emcmotStatus->logSize = 0;
-    emcmotStatus->logSkip = 0;
-    emcmotStatus->logPoints = 0;
     SET_MOTION_ENABLE_FLAG(0);
     emcmotConfig->kinematics_type = kinType;
 

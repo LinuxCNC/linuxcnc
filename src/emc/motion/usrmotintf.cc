@@ -27,7 +27,6 @@
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
-#include "emcmotlog.h"		/* emcmot_log_t */
 #include "_timer.h"
 
 #include "inifile.hh"
@@ -44,7 +43,6 @@ static emcmot_status_t *emcmotStatus = 0;
 static emcmot_config_t *emcmotConfig = 0;
 static emcmot_debug_t *emcmotDebug = 0;
 static emcmot_error_t *emcmotError = 0;
-static emcmot_log_t *emcmotLog = 0;
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - no longer in shared memory */
@@ -679,10 +677,6 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	}
 	printf("\n");
 #endif
-	printf("logging:      \t%s and %s, size %d, skipping %d, type %d\n",
-	    s.logOpen == 0 ? "closed" : "open",
-	    s.logStarted == 0 ? "stopped" : "started",
-	    s.logSize, s.logSkip, s.logType);
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
@@ -844,7 +838,6 @@ int usrmotInit(char *modname)
     emcmotDebug = &(emcmotStruct->debug);
     emcmotConfig = &(emcmotStruct->config);
     emcmotError = &(emcmotStruct->error);
-    emcmotLog = &(emcmotStruct->log);
 
 /*! \todo FIXME - testing code */
     printf ( "sizeof(emcmot_struct_t) (total shmem): %d\n", sizeof(emcmot_struct_t) );
@@ -853,7 +846,6 @@ int usrmotInit(char *modname)
     printf ( "sizeof(emcmot_debug_t):        %d\n", sizeof(emcmot_debug_t) );
     printf ( "sizeof(emcmot_config_t):       %d\n", sizeof(emcmot_config_t) );
     printf ( "sizeof(emcmot_error_t):        %d\n", sizeof(emcmot_error_t) );
-    printf ( "sizeof(emcmot_log_t):          %d\n", sizeof(emcmot_log_t) );
     printf ( "sizeof(emcmot_joint_t):        %d\n", sizeof(emcmot_joint_t) );
     printf ( "sizeof(emcmot_joint_status_t): %d\n", sizeof(emcmot_joint_status_t) );
     printf ( "sizeof(CUBIC_STRUCT):          %d\n", sizeof(CUBIC_STRUCT) );
@@ -884,7 +876,6 @@ int usrmotExit(void)
     emcmotCommand = 0;
     emcmotStatus = 0;
     emcmotError = 0;
-    emcmotLog = 0;
 /*! \todo Another #if 0 */
 #if 0
 /*! \todo FIXME - comp structs no longer in shmem */
@@ -895,340 +886,6 @@ int usrmotExit(void)
     emcmotshmem = 0;
 
     inited = 0;
-    return 0;
-}
-
-/* reads the log fifo and dumps the contents to a text file */
-int usrmotDumpLog(const char *filename, int include_header)
-{
-    FILE *fp;
-    emcmot_log_struct_t ls;
-    int axis;
-    int first_point = 1;
-    double start_time = 0;
-    int start_time_set = 0;
-
-    /* open output log file */
-    if (NULL == (fp = fopen(filename, "w"))) {
-	fprintf(stderr, "can't open dump file %s\n", filename);
-	return -1;
-    }
-
-    /* get the data */
-    while (emcmotLog->howmany > 0) {
-	if (-1 == emcmotLogGet(emcmotLog, &ls)) {
-	    break;
-	}
-
-	if (include_header && first_point) {
-	    first_point = 0;
-	    fprintf(fp, "#!/bin/sh\n");
-	    fprintf(fp,
-		"exec cat $0 | head -n 16 | tail -n 12 | sed s#THIS_PLOT_FILE#$0#g |  gnuplot -persist\n");
-	    fprintf(fp, "exit\n");
-	    fprintf(fp, "\n");
-
-	    fprintf(fp,
-		"# This file contains both the gnuplot plotting instructions\n");
-	    fprintf(fp, "# and the data logged, by EMC.\n");
-	    fprintf(fp,
-		"# For this to work, the data must begin after 2 blank lines,\n");
-	    fprintf(fp,
-		"# and the line \"exit\" must appear before the data.\n");
-	    fprintf(fp, "# (lines beginning with \"#\" are ignored.)\n");
-	    fprintf(fp, "print \"Running THIS_PLOT_FILE . . .\\n\"\n");
-	    switch (ls.type) {
-
-	    case EMCMOT_LOG_TYPE_AXIS_POS:
-		fprintf(fp,
-		    "print \"Plotting axis position values . . .\\n\"\n");
-		fprintf(fp,
-		    "plot \"THIS_PLOT_FILE\" index 1 using 1:2 title \"input\",  \"THIS_PLOT_FILE\" index 1 using 1:3 title \"output\"\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_ALL_OUTPOS:
-		fprintf(fp,
-		    "print \"Plotting all output values . . .\\n\"\n");
-		fprintf(fp, "set multiplot; set size 1,0.33; ");
-
-		for (axis = 0; axis < EMCMOT_LOG_NUM_AXES; axis++) {
-		    fprintf(fp,
-			"set origin 0,%f; plot \"THIS_PLOT_FILE\" index 1 using 1:%d title \"output[%d]\"; ",
-			axis * 0.33, axis + 2, axis);
-		}
-		fprintf(fp, "set nomultiplot;\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_ALL_INPOS:
-		fprintf(fp, "print \"Plotting all input values . . .\\n\"\n");
-		fprintf(fp, "set multiplot; set size 1,0.33; ");
-
-		for (axis = 0; axis < EMCMOT_LOG_NUM_AXES; axis++) {
-		    fprintf(fp,
-			"set origin 0,%f; plot \"THIS_PLOT_FILE\" index 1 using 1:%d title \"input[%d]\"; ",
-			axis * 0.33, axis + 2, axis);
-		}
-		fprintf(fp, "set nomultiplot;\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_CMD:
-		fprintf(fp,
-		    "print \"Plotting command/commandNum values . . .\\n\"\n");
-		fprintf(fp,
-		    "set multiplot; set size 1,0.5; plot \"THIS_PLOT_FILE\" index 1 using 1:2 title \"command\"; set origin 0,0.5; plot  \"THIS_PLOT_FILE\" index 1 using 1:3 title \"cmdNumber\"; set nomultiplot;\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_AXIS_VEL:
-		fprintf(fp,
-		    "print \"Plotting axis velocity values . . .\\n\"\n");
-		fprintf(fp,
-		    "plot \"THIS_PLOT_FILE\" index 1 using 1:2 title \"cmdVel\",  \"THIS_PLOT_FILE\" index 1 using 1:3 title \"actualVel\"\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_ALL_FERROR:
-		fprintf(fp,
-		    "print \"Plotting all following errors. . .\\n\"\n");
-		fprintf(fp, "set multiplot; set size 1,0.33; ");
-
-		for (axis = 0; axis < EMCMOT_LOG_NUM_AXES; axis++) {
-		    fprintf(fp,
-			"set origin 0,%f; plot \"THIS_PLOT_FILE\" index 1 using 1:%d title \"ferror[%d]\"; ",
-			axis * 0.33, axis + 2, axis);
-		}
-		fprintf(fp, "set nomultiplot;\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_TRAJ_POS:
-		fprintf(fp,
-		    "print \"Plotting all traj positions. . .\\n\"\n");
-		fprintf(fp,
-		    "plot \"THIS_PLOT_FILE\" index 1 using 1:2 title \"X\",  \"THIS_PLOT_FILE\" index 1 using 1:3 title \"Y\",  \"THIS_PLOT_FILE\" index 1 using 1:4 title \"Z\"\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_TRAJ_VEL:
-		fprintf(fp,
-		    "print \"Plotting all traj velocities . . .\\n\"\n");
-		fprintf(fp,
-		    "plot \"THIS_PLOT_FILE\" index 1 using 1:2 title \"X Velocity\",  \"THIS_PLOT_FILE\" index 1 using 1:3 title \"Y Velocity\",  \"THIS_PLOT_FILE\" index 1 using 1:4 title \"Z Velocity\",  \"THIS_PLOT_FILE\" index 1 using 1:5 title \"Velocity Magnitude\"\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_TRAJ_ACC:
-		fprintf(fp,
-		    "print \"Plotting all traj accellerations . . .\\n\"\n");
-		fprintf(fp,
-		    "plot \"THIS_PLOT_FILE\" index 1 using 1:2 title \"X Accelleration\",  \"THIS_PLOT_FILE\" index 1 using 1:3 title \"Y Accelleration\",  \"THIS_PLOT_FILE\" index 1 using 1:4 title \"Z Accelleration\",  \"THIS_PLOT_FILE\" index 1 using 1:5 title \"Accelleration Magnitude\"\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_POS_VOLTAGE:
-		fprintf(fp,
-		    "print \"Plotting EMC position and voltage data . . .\\n\"\n");
-		fprintf(fp,
-		    "set multiplot; set size 1,0.5; plot \"THIS_PLOT_FILE\" index 1 using 1:2 title \"pos\"; set origin 0,0.5; plot  \"THIS_PLOT_FILE\" index 1 using 1:3 title \"volt\"; set nomultiplot;\n");
-		break;
-
-	    default:
-		fprintf(fp,
-		    "print \"Plotting unknown data values . . .\\n\"\n");
-		fprintf(fp,
-		    "plot \"THIS_PLOT_FILE\" index 1 using 1:2 title \"data1\",  \"THIS_PLOT_FILE\" index 1 using 1:3 title \"data2\"\n");
-		break;
-
-	    }
-	    fprintf(fp, "exit\n");
-	    fprintf(fp, "\n");
-	    fprintf(fp, "\n");
-	    switch (ls.type) {
-	    case EMCMOT_LOG_TYPE_AXIS_POS:
-		fprintf(fp, "#%17.17s\t%17.17s\t%17.17s\n", "time", "input",
-		    "output");
-		break;
-
-	    case EMCMOT_LOG_TYPE_ALL_INPOS:
-		fprintf(fp, "#%17.17s\t", "time");
-		for (axis = 0; axis < EMCMOT_LOG_NUM_AXES; axis++) {
-		    char input_name[20];;
-		    sprintf(input_name, "input[%d]", axis);
-		    fprintf(fp, "%17.17s\t", input_name);
-		}
-		break;
-
-	    case EMCMOT_LOG_TYPE_ALL_OUTPOS:
-		fprintf(fp, "#%17.17s\t", "time");
-		for (axis = 0; axis < EMCMOT_LOG_NUM_AXES; axis++) {
-		    char input_name[20];;
-		    sprintf(input_name, "output[%d]", axis);
-		    fprintf(fp, "%17.17s\t", input_name);
-		}
-		fprintf(fp, "\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_CMD:
-		fprintf(fp, "#%17.17s\t%17.17s\t%17.17s\n", "time", "command",
-		    "cmdNumber");
-		break;
-
-	    case EMCMOT_LOG_TYPE_AXIS_VEL:
-		fprintf(fp, "#%17.17s\t%17.17s\t%17.17s\n", "time", "cmdVel",
-		    "actVel");
-		break;
-
-	    case EMCMOT_LOG_TYPE_ALL_FERROR:
-		fprintf(fp, "#%17.17s\t", "time");
-		for (axis = 0; axis < EMCMOT_LOG_NUM_AXES; axis++) {
-		    char input_name[20];;
-		    sprintf(input_name, "ferror[%d]", axis);
-		    fprintf(fp, "%17.17s\t", input_name);
-		}
-		fprintf(fp, "\n");
-		break;
-
-	    case EMCMOT_LOG_TYPE_TRAJ_POS:
-		fprintf(fp, "#%17.17s\t%17.17s\t%17.17s\t%17.17s\n", "time",
-		    "X", "Y", "Z");
-		break;
-
-	    case EMCMOT_LOG_TYPE_TRAJ_VEL:
-		fprintf(fp, "#%17.17s\t%17.17s\t%17.17s\t%17.17s\t%17.17s\n",
-		    "time", "Xvel", "Yvel", "Zvel", "VelMag");
-		break;
-
-	    case EMCMOT_LOG_TYPE_TRAJ_ACC:
-		fprintf(fp, "#%17.17s\t%17.17s\t%17.17s\t%17.17s\t%17.17s\n",
-		    "time", "Xacc", "Yacc", "Zacc", "AccMag");
-		break;
-
-	    case EMCMOT_LOG_TYPE_POS_VOLTAGE:
-		fprintf(fp, "#%17.17s\t%17.17s\t%17.17s\n", "time", "pos",
-		    "volt");
-		break;
-
-	    default:
-		fprintf(fp, "#\n");
-		break;
-	    }
-	}
-
-	switch (ls.type) {
-	case EMCMOT_LOG_TYPE_AXIS_POS:
-	    if (!start_time_set) {
-		start_time_set = 1;
-		start_time = ls.item.axisPos.time;
-	    }
-	    fprintf(fp, "%.10e\t%.10e\t%.10e\n",
-		ls.item.axisPos.time - start_time,
-		ls.item.axisPos.input, ls.item.axisPos.output);
-	    break;
-
-	case EMCMOT_LOG_TYPE_ALL_INPOS:
-	    if (!start_time_set) {
-		start_time_set = 1;
-		start_time = ls.item.allInpos.time;
-	    }
-	    fprintf(fp, "%.10e", ls.item.allInpos.time);
-	    for (axis = 0; axis < EMCMOT_LOG_NUM_AXES; axis++) {
-		fprintf(fp, "\t%.10e", ls.item.allInpos.input[axis]);
-	    }
-	    fprintf(fp, "\n");
-	    break;
-
-	case EMCMOT_LOG_TYPE_ALL_OUTPOS:
-	    if (!start_time_set) {
-		start_time_set = 1;
-		start_time = ls.item.allOutpos.time;
-	    }
-	    fprintf(fp, "%.10e", ls.item.allOutpos.time);
-	    for (axis = 0; axis < EMCMOT_LOG_NUM_AXES; axis++) {
-		fprintf(fp, "\t%.10e", ls.item.allOutpos.output[axis]);
-	    }
-	    fprintf(fp, "\n");
-	    break;
-
-	case EMCMOT_LOG_TYPE_CMD:
-	    if (!start_time_set) {
-		start_time_set = 1;
-		start_time = ls.item.cmd.time;
-	    }
-	    fprintf(fp, "%.10e\t%d\t%d\n",
-		ls.item.cmd.time - start_time,
-		ls.item.cmd.command, ls.item.cmd.commandNum);
-	    break;
-
-	case EMCMOT_LOG_TYPE_AXIS_VEL:
-	    if (!start_time_set) {
-		start_time_set = 1;
-		start_time = ls.item.axisVel.time;
-	    }
-	    fprintf(fp, "%.10e\t%.10e\t%.10e\n",
-		ls.item.axisVel.time - start_time,
-		ls.item.axisVel.cmdVel, ls.item.axisVel.actVel);
-	    break;
-
-	case EMCMOT_LOG_TYPE_ALL_FERROR:
-	    if (!start_time_set) {
-		start_time_set = 1;
-		start_time = ls.item.allFerror.time;
-	    }
-	    fprintf(fp, "%.10e", ls.item.allFerror.time);
-	    for (axis = 0; axis < EMCMOT_LOG_NUM_AXES; axis++) {
-		fprintf(fp, "\t%.10e", ls.item.allFerror.ferror[axis]);
-	    }
-	    fprintf(fp, "\n");
-	    break;
-
-	case EMCMOT_LOG_TYPE_TRAJ_POS:
-	    if (!start_time_set) {
-		start_time_set = 1;
-		start_time = ls.item.trajPos.time;
-	    }
-	    fprintf(fp, "%.10e\t%.10e\t%.10e\t%.10e\n",
-		ls.item.trajPos.time - start_time,
-		ls.item.trajPos.pos.x,
-		ls.item.trajPos.pos.y, ls.item.trajPos.pos.z);
-	    break;
-
-	case EMCMOT_LOG_TYPE_TRAJ_VEL:
-	    if (!start_time_set) {
-		start_time_set = 1;
-		start_time = ls.item.trajVel.time;
-	    }
-	    fprintf(fp, "%.10e\t%.10e\t%.10e\t%.10e\t%.10e\n",
-		ls.item.trajVel.time - start_time,
-		ls.item.trajVel.vel.x,
-		ls.item.trajVel.vel.y,
-		ls.item.trajVel.vel.z, ls.item.trajVel.mag);
-	    break;
-
-	case EMCMOT_LOG_TYPE_TRAJ_ACC:
-	    if (!start_time_set) {
-		start_time_set = 1;
-		start_time = ls.item.trajAcc.time;
-	    }
-	    fprintf(fp, "%.10e\t%.10e\t%.10e\t%.10e\t%.10e\n",
-		ls.item.trajAcc.time - start_time,
-		ls.item.trajAcc.acc.x,
-		ls.item.trajAcc.acc.y,
-		ls.item.trajAcc.acc.z, ls.item.trajAcc.mag);
-	    break;
-
-	case EMCMOT_LOG_TYPE_POS_VOLTAGE:
-	    if (!start_time_set) {
-		start_time_set = 1;
-		start_time = ls.item.posVoltage.time;
-	    }
-	    fprintf(fp, "%.10e\t%.10e\t%.10e\n",
-		ls.item.posVoltage.time - start_time,
-		ls.item.posVoltage.pos, ls.item.posVoltage.voltage);
-	    break;
-
-	default:
-	    break;
-	}
-    }
-
-    /* close output file */
-    fclose(fp);
-
-    chmod(filename, 00775);
     return 0;
 }
 

@@ -249,11 +249,4 @@ EMC_AUX_STAT EMC_AUX_STAT::operator =(EMC_AUX_STAT s)
 
 EMC_STAT::EMC_STAT():EMC_STAT_MSG(EMC_STAT_TYPE, sizeof(EMC_STAT))
 {
-    logFile[0] = 0;
-    logType = 0;
-    logSize = 0;
-    logSkip = 0;
-    logOpen = 0;
-    logStarted = 0;
-    logPoints = 0;
 }
