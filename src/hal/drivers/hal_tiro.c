@@ -180,7 +180,7 @@ int rtapi_app_main(void)
 		LS7166Init(n);
     }
     /* export functions */
-    retval = hal_export_funct("tiro.capture_position", capture,
+    retval = hal_export_funct("tiro.capture-position", capture,
 	counter_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

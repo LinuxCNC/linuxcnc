@@ -65,7 +65,7 @@
 	float	stg.<channel>.dac-value
    
       Functions:
-	void    stg.<channel>.dac_write
+	void    stg.<channel>.dac-write
    
    
     ADC:
@@ -77,7 +77,7 @@
 /totest	float	stg.<channel>.adc-value
    
       Functions:
-/totest	void    stg.<channel>.adc_read
+/totest	void    stg.<channel>.adc-read
    
    
     Digital In:
@@ -86,7 +86,7 @@
 	bit	stg.in-<pinnum>-not
    
       Functions:
-	void    stg.digital_in_read
+	void    stg.digital-in-read
    
    
     Digital Out:
@@ -97,7 +97,7 @@
 	bit	stg.out-<pinnum>
    
       Functions:
-	void    stg.digital_out_write
+	void    stg.digital-out-write
 
 */
 
@@ -394,44 +394,44 @@ int rtapi_app_main(void)
     }
     
     /* export functions */
-    retval = hal_export_funct("stg.capture_position", stg_counter_capture,
+    retval = hal_export_funct("stg.capture-position", stg_counter_capture,
 	stg_driver, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STG: ERROR: stg_counter_capture funct export failed\n");
+	    "STG: ERROR: stg.counter-capture funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"STG: installed %d encoder counters\n", num_chan);
 
-    retval = hal_export_funct("stg.write_dacs", stg_dacs_write,
+    retval = hal_export_funct("stg.write-dacs", stg_dacs_write,
 	stg_driver, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STG: ERROR: stg_write_dacs funct export failed\n");
+	    "STG: ERROR: stg.write-dacs funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"STG: installed %d dacs\n", num_chan);
 
-    retval = hal_export_funct("stg.read_adcs", stg_adcs_read,
+    retval = hal_export_funct("stg.read-adcs", stg_adcs_read,
 	stg_driver, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STG: ERROR: stg_read_adcs funct export failed\n");
+	    "STG: ERROR: stg.read-adcs funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"STG: installed %d adcs\n", num_chan);
 
-    retval = hal_export_funct("stg.di_read", stg_di_read,
+    retval = hal_export_funct("stg.di-read", stg_di_read,
 	stg_driver, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STG: ERROR: stg_di_read funct export failed\n");
+	    "STG: ERROR: stg.di-read funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -439,11 +439,11 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"STG: installed %d digital inputs\n", inputpinnum);
 
-    retval = hal_export_funct("stg.do_write", stg_do_write,
+    retval = hal_export_funct("stg.do-write", stg_do_write,
 	stg_driver, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "STG: ERROR: stg_do_write funct export failed\n");
+	    "STG: ERROR: stg.do-write funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }

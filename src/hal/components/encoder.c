@@ -28,9 +28,9 @@
     'period' is a long int, corresponding to the thread period in
     nano-seconds.  If omitted, no thread will be created.
     The driver exports variables for each counters inputs and output.
-    It also exports two functions.  "encoder.update_counters" must be
+    It also exports two functions.  "encoder.update-counters" must be
     called in a high speed thread, at least twice the maximum desired
-    count rate.  "encoder.capture_position" can be called at a much
+    count rate.  "encoder.capture-position" can be called at a much
     slower rate, and updates the output variables.
 */
 
@@ -196,7 +196,7 @@ int rtapi_app_main(void)
 	counter_array[n].scale = 1.0;
     }
     /* export functions */
-    retval = hal_export_funct("encoder.update_counters", update,
+    retval = hal_export_funct("encoder.update-counters", update,
 	counter_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -204,7 +204,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    retval = hal_export_funct("encoder.capture_position", capture,
+    retval = hal_export_funct("encoder.capture-position", capture,
 	counter_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

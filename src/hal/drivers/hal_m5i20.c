@@ -39,7 +39,7 @@
  *	bit	m5i20.<boardId>.enc-<channel>-reset-count
  *
  *   Functions:
- *	void    m5i20.<boardId>.encoder_read
+ *	void    m5i20.<boardId>.encoder-read
  *
  *
  * DACs:
@@ -53,7 +53,7 @@
  *	float	m5i20.<boardId>.dac-<channel>-value
  *
  *   Functions:
- *	void    m5i20.<boardId>.dac_write
+ *	void    m5i20.<boardId>.dac-write
  *
  *
  * Digital In:
@@ -62,7 +62,7 @@
  *	bit	m5i20.<boardId>.in-<channel>-not
  *
  *   Functions:
- *	void    m5i20.<boardId>.digital_in_read
+ *	void    m5i20.<boardId>.digital-in-read
  *
  *
  * Digital Out:
@@ -73,7 +73,7 @@
  *	bit	m5i20.<boardId>.out-<channel>
  *
  *   Functions:
- *	void    m5i20.<boardId>.digital_out_write
+ *	void    m5i20.<boardId>.digital-out-write
  *
  *
  * Miscellaneous:
@@ -90,7 +90,7 @@
  *	bit	m5i20.<boardId>.watchdog-reset
  *
  *   Functions:
- *	void    m5i20.<boardId>.misc_update
+ *	void    m5i20.<boardId>.misc-update
  *
  ******************************************************************************
  *
@@ -648,7 +648,7 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 
     // Export functions.
     if(!halError){
-	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.encoder_read", boardId);
+	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.encoder-read", boardId);
 	halError = hal_export_funct(name, Device_EncoderRead, this, 1, 0, componentId);
     }
 
@@ -701,7 +701,7 @@ Device_ExportDacPinsParametersFunctions(Device *this, int componentId, int board
 
     // Export functions.
     if(!halError){
-	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.dac_write", boardId);
+	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.dac-write", boardId);
 	halError = hal_export_funct(name, Device_DacWrite, this, 1, 0, componentId);
     }
 
@@ -738,7 +738,7 @@ Device_ExportDigitalInPinsParametersFunctions(Device *this, int componentId, int
 
     // Export functions.
     if(!halError){
-	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.digital_in_read", boardId);
+	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.digital-in-read", boardId);
 	halError = hal_export_funct(name, Device_DigitalInRead, this, 0, 0, componentId);
     }
 
@@ -776,7 +776,7 @@ Device_ExportDigitalOutPinsParametersFunctions(Device *this, int componentId, in
 
     // Export functions.
     if(!halError){
-	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.digital_out_write", boardId);
+	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.digital-out-write", boardId);
 	halError = hal_export_funct(name, Device_DigitalOutWrite, this, 0, 0, componentId);
     }
 
@@ -837,7 +837,7 @@ Device_ExportMiscPinsParametersFunctions(Device *this, int componentId, int boar
 
     // Export functions.
     if(!halError){
-	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.misc_update", boardId);
+	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.misc-update", boardId);
 	halError = hal_export_funct(name, Device_MiscUpdate, this, 0, 0, componentId);
     }
 

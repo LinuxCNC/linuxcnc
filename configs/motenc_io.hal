@@ -5,10 +5,10 @@
 
 # add I/O to servo thread so they will be evaluated
 # every servo period
-addf motenc.0.misc_update servo-thread 1
-#addf motenc.0.adc_read servo-thread 1
-addf motenc.0.digital_in_read servo-thread 1
-addf motenc.0.digital_out_write servo-thread 1
+addf motenc.0.misc-update servo-thread 1
+#addf motenc.0.adc-read servo-thread 1
+addf motenc.0.digital-in-read servo-thread 1
+addf motenc.0.digital-out-write servo-thread 1
 
 #
 # Connect motion controller I/Os

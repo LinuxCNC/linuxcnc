@@ -1,8 +1,7 @@
 /********************************************************************
 * Description:  encoder_ratio.c
-*               This file, 'encoder_ratio.c', is a HAL component that 
-*               can be used to synchronize two axes (like an 
-*               "electronic gear").
+*               A HAL component that can be used to synchronize two
+*               axes (like an "electronic gear").
 *
 * Author: John Kasunich
 * License: GPL Version 2
@@ -34,26 +33,26 @@
 
     Input Pins:
 
-    encoder_ratio.N.master-A   (bit) Phase A of master axis encoder
-    encoder_ratio.N.master-B   (bit) Phase B of master axis encoder
-    encoder_ratio.N.slave-A    (bit) Phase A of slave axis encoder
-    encoder_ratio.N.slave-B    (bit) Phase B of slave axis encoder
-    encoder_ratio.N.enable     (bit) Enables master-slave tracking
+    encoder-ratio.N.master-A   (bit) Phase A of master axis encoder
+    encoder-ratio.N.master-B   (bit) Phase B of master axis encoder
+    encoder-ratio.N.slave-A    (bit) Phase A of slave axis encoder
+    encoder-ratio.N.slave-B    (bit) Phase B of slave axis encoder
+    encoder-ratio.N.enable     (bit) Enables master-slave tracking
 
     Output Pins:
 
-    encoder_ratio.N.error      (float) Position error of slave (in revs)
+    encoder-ratio.N.error      (float) Position error of slave (in revs)
 
     Parameters:
 
-    encoder_ratio.N.master-ppr     (u32) Master axis PPR
-    encoder_ratio.N.slave-ppr      (u32) Slave axis PPR
-    encoder_ratio.N.master-teeth   (u32) "teeth" on master "gear"
-    encoder_ratio.N.slave-teeth    (u32) "teeth" on slave "gear"
+    encoder-ratio.N.master-ppr     (u32) Master axis PPR
+    encoder-ratio.N.slave-ppr      (u32) Slave axis PPR
+    encoder-ratio.N.master-teeth   (u32) "teeth" on master "gear"
+    encoder-ratio.N.slave-teeth    (u32) "teeth" on slave "gear"
 
-    The module also exports two functions.  "encoder_ratio.sample"
+    The module also exports two functions.  "encoder-ratio.sample"
     must be called in a high speed thread, at least twice the maximum
-    desired count rate.  "encoder_ratio.update" can be called at a
+    desired count rate.  "encoder-ratio.update" can be called at a
     much slower rate, and updates the output pin(s).
 
     When the enable pin is FALSE, the error pin simply reports the
@@ -229,7 +228,7 @@ int rtapi_app_main(void)
 	*(encoder_pair_array[n].error) = 0.0;
     }
     /* export functions */
-    retval = hal_export_funct("encoder_ratio.sample", sample,
+    retval = hal_export_funct("encoder-ratio.sample", sample,
 	encoder_pair_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -237,7 +236,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    retval = hal_export_funct("encoder_ratio.update", update,
+    retval = hal_export_funct("encoder-ratio.update", update,
 	encoder_pair_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -250,7 +249,7 @@ int rtapi_app_main(void)
     /* was 'period' specified in the insmod command? */
     if (period > 0) {
 	/* create a thread */
-	retval = hal_create_thread("encoder_ratio.thread", period, 0);
+	retval = hal_create_thread("encoder-ratio.thread", period, 0);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"ENCODER_RATIO: ERROR: could not create thread\n");
@@ -369,55 +368,55 @@ static int export_encoder_pair(int num, encoder_pair_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pins for the quadrature inputs */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.master-A", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-A", num);
     retval = hal_pin_bit_new(buf, HAL_RD, &(addr->master_A), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.master-B", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-B", num);
     retval = hal_pin_bit_new(buf, HAL_RD, &(addr->master_B), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.slave-A", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-A", num);
     retval = hal_pin_bit_new(buf, HAL_RD, &(addr->slave_A), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.slave-B", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-B", num);
     retval = hal_pin_bit_new(buf, HAL_RD, &(addr->slave_B), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the enable input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.enable", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.enable", num);
     retval = hal_pin_bit_new(buf, HAL_RD, &(addr->enable), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for output */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.error", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.error", num);
     retval = hal_pin_float_new(buf, HAL_WR, &(addr->error), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export parameters for config info() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.master-ppr", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-ppr", num);
     retval = hal_param_u32_new(buf, HAL_WR, &(addr->master_ppr), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.slave-ppr", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-ppr", num);
     retval = hal_param_u32_new(buf, HAL_WR, &(addr->slave_ppr), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.master-teeth", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-teeth", num);
     retval = hal_param_u32_new(buf, HAL_WR, &(addr->master_teeth), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder_ratio.%d.slave-teeth", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-teeth", num);
     retval = hal_param_u32_new(buf, HAL_WR, &(addr->slave_teeth), comp_id);
     if (retval != 0) {
 	return retval;

@@ -52,8 +52,8 @@
 
     The realtime version of the driver exports two HAL functions for
     each port, 'parport.<portnum>.read' and 'parport.<portnum>.write'.
-    It also exports two additional functions, 'parport.read_all' and
-    'parport.write_all'.  Any or all of these functions can be added
+    It also exports two additional functions, 'parport.read-all' and
+    'parport.write-all'.  Any or all of these functions can be added
     to realtime HAL threads to update the port data periodically.
 
     The user space version of the driver cannot export functions,
@@ -281,7 +281,7 @@ int rtapi_app_main(void)
 	}
     }
     /* export functions that read and write all ports */
-    retval = hal_export_funct("parport.read_all", read_all,
+    retval = hal_export_funct("parport.read-all", read_all,
 	port_data_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -289,7 +289,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    retval = hal_export_funct("parport.write_all", write_all,
+    retval = hal_export_funct("parport.write-all", write_all,
 	port_data_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

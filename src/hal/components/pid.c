@@ -86,7 +86,7 @@
              errorD * Dgain + command * FF0 + commandD + FF1
     limit output to +/- maxoutput
 
-    This component exports one function called 'pid.x.do_pid_calcs'
+    This component exports one function called 'pid.x.do-pid-calcs'
     for each PID loop.  This allows loops to be included in different
     threads and execute at different rates.
 */
@@ -514,7 +514,7 @@ static int export_pid(int num, hal_pid_t * addr)
     addr->ff1gain = 0.0;
     addr->maxoutput = 0.0;
     /* export function for this loop */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.do_pid_calcs", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.do-pid-calcs", num);
     retval =
 	hal_export_funct(buf, calc_pid, &(pid_array[num]), 1, 0, comp_id);
     if (retval != 0) {

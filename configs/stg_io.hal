@@ -5,11 +5,11 @@
 
 # add I/O to servo thread so they will be evaluated
 # every servo period
-addf stg.di_read servo-thread 1
-addf stg.do_write servo-thread 1
+addf stg.di-read servo-thread 1
+addf stg.do-write servo-thread 1
 
 #uncomment following line if ADC's are needed (for example spindle-tach feedback)
-#addf stg.0.read_adcs servo-thread 1
+#addf stg.0.read-adcs servo-thread 1
 
 #
 # Connect motion controller I/Os

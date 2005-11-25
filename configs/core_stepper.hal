@@ -4,9 +4,9 @@
 loadrt stepgen step_type=0,0,0
 
 # hook its functions to realtime threads
-addf stepgen.capture_position servo-thread 1
-addf stepgen.update_freq servo-thread -1
-addf stepgen.make_pulses base-thread -1
+addf stepgen.capture-position servo-thread 1
+addf stepgen.update-freq servo-thread -1
+addf stepgen.make-pulses base-thread -1
 
 # connect position commands from motion module to step generator
 newsig Xpos-cmd float

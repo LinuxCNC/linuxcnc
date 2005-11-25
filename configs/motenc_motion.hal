@@ -5,8 +5,8 @@ loadrt hal_motenc
 
 # add functions to servo thread so they will be evaluated
 # every servo period
-addf motenc.0.encoder_read servo-thread 1
-addf motenc.0.dac_write servo-thread 1
+addf motenc.0.encoder-read servo-thread 1
+addf motenc.0.dac-write servo-thread 1
 
 # connect position feedback signals to encoders
 linksp Xpos-fb <= motenc.0.enc-00-position

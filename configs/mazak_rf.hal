@@ -109,12 +109,12 @@ setp debounce.0.delay 3
 # PID calcs and output drivers run after the motion module.
 # The number at the end of each line is the position in
 # the thread.
-addf motenc.3.encoder_read          servo-thread 1
-addf motenc.3.digital_in_read       servo-thread 2
+addf motenc.3.encoder-read          servo-thread 1
+addf motenc.3.digital-in-read       servo-thread 2
 addf ax5214h.0.read                 servo-thread 3
 addf estop.0                        servo-thread 4
-addf encoder.capture_position       servo-thread 5
-addf motenc.3.adc_read              servo-thread 6
+addf encoder.capture-position       servo-thread 5
+addf motenc.3.adc-read              servo-thread 6
 
 # ladder logic is executed once all the inputs are read
 addf classicladder.0.refresh        servo-thread 7
@@ -124,12 +124,12 @@ addf classicladder.0.refresh        servo-thread 7
 # has determined new position commands.  By passing
 # -1 to the addf command, the functions are installed
 # after the motion module.
-addf pid.0.do_pid_calcs             servo-thread -1
-addf pid.1.do_pid_calcs             servo-thread -1
-addf pid.2.do_pid_calcs             servo-thread -1
+addf pid.0.do-pid-calcs             servo-thread -1
+addf pid.1.do-pid-calcs             servo-thread -1
+addf pid.2.do-pid-calcs             servo-thread -1
 
 # spindle signal handling is done next
-addf pid.3.do_pid_calcs             servo-thread -1
+addf pid.3.do-pid-calcs             servo-thread -1
 addf mux2.0                         servo-thread -1
 addf scale.0                        servo-thread -1
 addf scale.1                        servo-thread -1
@@ -138,8 +138,8 @@ addf wcomp.0                        servo-thread -1
 addf wcomp.1                        servo-thread -1
 
 # output drivers are loaded last
-addf motenc.3.dac_write             servo-thread -1
-addf motenc.3.digital_out_write     servo-thread -1
+addf motenc.3.dac-write             servo-thread -1
+addf motenc.3.digital-out-write     servo-thread -1
 addf ax5214h.0.write                servo-thread -1
 addf parport.0.write                servo-thread -1
 
@@ -148,7 +148,7 @@ addf parport.0.write                servo-thread -1
 # it to sample the jogwheel signals and count them in software
 
 addf parport.0.read                 base-thread
-addf encoder.update_counters        base-thread
+addf encoder.update-counters        base-thread
 
 # -------------------------------------------------
 

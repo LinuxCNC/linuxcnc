@@ -1,8 +1,7 @@
 /********************************************************************
 * Description:  freqgen.c
-*               This file, 'freqgen.c', is a HAL component that 
-*               generates step pulses at a specific frequency in 
-*               software.
+*               A HAL component that generates step pulses at a 
+*               specific frequency in software.
 *
 * Author: John Kasunich
 * License: GPL Version 2
@@ -44,15 +43,15 @@
     will install four step generators, two using stepping type 0,
     one using type 1, and one using type 2.
 
-    The driver exports three functions.  'freqgen.make_pulses', is
+    The driver exports three functions.  'freqgen.make-pulses', is
     responsible for actually generating the step pulses.  It must
     be executed in a fast thread to reduce pulse jitter.  The other
     two functions are normally called from a much slower thread.
-    'freqgen.update_freq' reads the frequency command and sets
-    internal variables used by 'freqgen.make_pulses'.
-    'freqgen.capture_position' captures and scales the current
-    values of the position feedback counters.  Both 'update_freq' and
-    'capture_position' use floating point, 'make_pulses' does not.
+    'freqgen.update-freq' reads the frequency command and sets
+    internal variables used by 'freqgen.make-pulses'.
+    'freqgen.capture-position' captures and scales the current
+    values of the position feedback counters.  Both 'update-freq' and
+    'capture-position' use floating point, 'make-pulses' does not.
 
     The component can optionally create two threads, one that
     supports floating point and one that does not.  The 'period'
@@ -547,7 +546,7 @@ int rtapi_app_main(void)
 	}
     }
     /* export functions */
-    retval = hal_export_funct("freqgen.make_pulses", make_pulses,
+    retval = hal_export_funct("freqgen.make-pulses", make_pulses,
 	freqgen_array, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -555,7 +554,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    retval = hal_export_funct("freqgen.update_freq", update_freq,
+    retval = hal_export_funct("freqgen.update-freq", update_freq,
 	freqgen_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -563,7 +562,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    retval = hal_export_funct("freqgen.capture_position", update_pos,
+    retval = hal_export_funct("freqgen.capture-position", update_pos,
 	freqgen_array, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

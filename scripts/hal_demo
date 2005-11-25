@@ -317,19 +317,19 @@ if [ $1 = circle ] ; then
     # first read the parport inputs
     bin/halcmd addf parport.0.read freqgen.thread
     # then run the step generator
-    bin/halcmd addf freqgen.make_pulses freqgen.thread
+    bin/halcmd addf freqgen.make-pulses freqgen.thread
     # then write the parport outputs
     bin/halcmd addf parport.0.write freqgen.thread
     # set up the low speed thread
     # first run the signal generator to generate position references
     bin/halcmd addf siggen.0.update freqgen.threadFP
     # next run freqgen position capture function to get position feedback
-    bin/halcmd addf freqgen.capture_position freqgen.threadFP
+    bin/halcmd addf freqgen.capture-position freqgen.threadFP
     # next run the pid loops
-    bin/halcmd addf pid.0.do_pid_calcs freqgen.threadFP
-    bin/halcmd addf pid.1.do_pid_calcs freqgen.threadFP
+    bin/halcmd addf pid.0.do-pid-calcs freqgen.threadFP
+    bin/halcmd addf pid.1.do-pid-calcs freqgen.threadFP
     # and finally run the step generator update function
-    bin/halcmd addf freqgen.update_freq freqgen.threadFP
+    bin/halcmd addf freqgen.update-freq freqgen.threadFP
     #
     bin/halcmd show thread
     bin/halcmd show funct
