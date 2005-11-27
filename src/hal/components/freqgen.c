@@ -35,11 +35,11 @@
     quadrature, half- and full-step unipolar and bipolar, three phase,
     and five phase.  A 32 bit feedback value is provided indicating
     the current position of the motor (assuming no lost steps).
-    The number of counters and type of outputs is determined by a
-    config string provided on the insmod command line.  The string
-    consists of a series of decimal numbers.  Each number is the
-    stepping type for one channel.  So a command line like this:
-          insmod freqgen cfg="0 0 1 2"
+    The number of step generators and type of outputs is determined
+    by the insmod command line parameter 'step_type'.  It accepts
+    a comma separated (no spaces) list of up to 8 stepping types
+    to configure up to 8 channels.  So a command line like this:
+          insmod freqgen step_type=0,0,1,2
     will install four step generators, two using stepping type 0,
     one using type 1, and one using type 2.
 
@@ -294,6 +294,8 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 
+#define MAX_CHAN 8
+
 #ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -301,9 +303,9 @@ MODULE_DESCRIPTION("Frequency Generator for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
-static char *cfg = "0 0 0";	/* config string, default = 3 x step/dir */
-MODULE_PARM(cfg, "s");
-MODULE_PARM_DESC(cfg, "config string");
+int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+MODULE_PARM(step_type, "1-8i");
+MODULE_PARM_DESC(step_type, "stepping types for up to 8 channels");
 static long period = 0;		/* non-FP thread period, default = none */
 MODULE_PARM(period, "l");
 MODULE_PARM_DESC(period, "non-FP thread period (nsecs)");
@@ -419,7 +421,6 @@ static float accelscale;	/* conv. Hz/sec to addval cnts/period */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int parse_step_type(char *cp);
 static int export_freqgen(int num, freqgen_t * addr, int steptype);
 static void make_pulses(void *arg, long period);
 static void update_freq(void *arg, long period);
@@ -429,61 +430,20 @@ static void update_pos(void *arg, long period);
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
-#define MAX_CHAN 8
-#define MAX_TOK (MAX_CHAN)
-
 int rtapi_app_main(void)
 {
-    char *cp;
-    char *tokens[MAX_TOK];
-    int step_type[MAX_CHAN];
     int n, retval;
 
-    /* test for config string */
-    if (cfg == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "FREQGEN: ERROR: no config string\n");
-	return -1;
-    }
-    /* point to config string */
-    cp = cfg;
-    /* break it into tokens */
-    for (n = 0; n < MAX_TOK; n++) {
-	/* strip leading whitespace */
-	while ((*cp != '\0') && (isspace(*cp)))
-	    cp++;
-	/* mark beginning of token */
-	tokens[n] = cp;
-	/* find end of token */
-	while ((*cp != '\0') && (!isspace(*cp)))
-	    cp++;
-	/* mark end of this token, prepare to search for next one */
-	if (*cp != '\0') {
-	    *cp = '\0';
-	    cp++;
-	}
-    }
-    /* mark all channels unused */
-    for (n = 0; n < MAX_CHAN; n++) {
-	step_type[n] = -1;
-    }
-    /* parse config string, results in step_type[] array */
-    num_chan = 0;
-    n = 0;
-    while ((num_chan < MAX_CHAN) && (n < MAX_TOK)) {
-	if (tokens[n][0] != '\0') {
-	    /* something here, is it a valid stepping type? */
-	    step_type[num_chan] = parse_step_type(tokens[n]);
-	    if ((step_type[num_chan] < 0)
-		|| (step_type[num_chan] > MAX_STEP_TYPE)) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "FREQGEN: ERROR: bad stepping type '%s'\n", tokens[n]);
-		return -1;
-	    }
+     for (n = 0; n < MAX_CHAN && step_type[n] != -1 ; n++) {
+	if (step_type[n] > MAX_STEP_TYPE) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "STEPGEN: ERROR: bad stepping type '%i', axes %i\n",
+			    step_type[n], n);
+	    return -1;
+	} else {
 	    num_chan++;
 	}
-	n++;
     }
-    /* OK, now we've parsed everything */
     if (num_chan == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "FREQGEN: ERROR: no channels configured\n");
@@ -863,31 +823,6 @@ static void update_pos(void *arg, long period)
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
-
-static int parse_step_type(char *cp)
-{
-    int result;
-
-    if (*cp == '\0') {
-	return -1;
-    }
-    /* initial value */
-    result = 0;
-    /* parse digits */
-    while (*cp != '\0') {
-	/* if char is a decimal digit, add it to result */
-	if ((*cp >= '0') && (*cp <= '9')) {
-	    result *= 10;
-	    result += *cp - '0';
-	} else {
-	    /* not a valid digit */
-	    return -1;
-	}
-	/* next char */
-	cp++;
-    }
-    return result;
-}
 
 static int export_freqgen(int num, freqgen_t * addr, int step_type)
 {
