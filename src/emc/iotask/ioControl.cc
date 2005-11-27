@@ -688,16 +688,15 @@ int iocontrol_hal_init(void)
 
 /********************************************************************
 *
-* Description: hal_init_pins(void)
+* Description: hal_abort_pins(void)
 *
-* Side Effects: Sets HAL pins default values.
+* Side Effects: Sets HAL pins default values on any abort (TRAJ abort)
+*               Doesn't include ESTOP and other safety relevant pins 
 *
-* Called By: main
+* Called By: main, hal_init_pins
 ********************************************************************/
-void hal_init_pins(void)
+void hal_abort_pins(void)
 {
-    *(iocontrol_data->user_enable_out)=0;	/* output, FALSE when EMC wants stop */
-    *(iocontrol_data->user_request_enable)=0;	/* output, used to reset HAL latch */
     *(iocontrol_data->coolant_mist)=0;		/* coolant mist output pin */
     *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
     *(iocontrol_data->lube)=0;			/* lube output pin */
@@ -711,7 +710,37 @@ void hal_init_pins(void)
     *(iocontrol_data->spindle_decr_speed)=0;	/* spindle spin-decrease output */
     *(iocontrol_data->spindle_brake)=0;		/* spindle brake output */
     *(iocontrol_data->spindle_speed_out)=0.0;	/* spindle speed output */
+
+    // abort all emcstatus pins too
+    emcioStatus.tool.toolPrepped = -1;
+    emcioStatus.tool.toolInSpindle = 0;
+    emcioStatus.spindle.speed = 0.0;
+    emcioStatus.spindle.direction = 0;
+    emcioStatus.spindle.brake = 1;
+    emcioStatus.spindle.increasing = 0;
+    emcioStatus.spindle.enabled = 1;
+    emcioStatus.coolant.mist = 0;
+    emcioStatus.coolant.flood = 0;
+    emcioStatus.lube.on = 0;
+    emcioStatus.lube.level = 1;
 }
+
+
+/********************************************************************
+*
+* Description: hal_init_pins(void)
+*
+* Side Effects: Sets HAL pins default values.
+*
+* Called By: main
+********************************************************************/
+void hal_init_pins(void)
+{
+    *(iocontrol_data->user_enable_out)=0;	/* output, FALSE when EMC wants stop */
+    *(iocontrol_data->user_request_enable)=0;	/* output, used to reset HAL latch */
+    hal_abort_pins();
+}
+
 
 
 /********************************************************************
@@ -933,7 +962,9 @@ int main(int argc, char *argv[])
 	    break;
 
 	case EMC_TOOL_ABORT_TYPE:
+	    // this gets sent on any Task abort, so it might be safe to stop everything to default values
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_ABORT\n");
+	    hal_abort_pins(); //resets all HAL pins to safe value
 	    break;
 
 	case EMC_TOOL_PREPARE_TYPE:
