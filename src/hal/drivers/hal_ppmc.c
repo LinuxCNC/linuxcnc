@@ -159,6 +159,20 @@ typedef struct {
     hal_bit_t *data_not;	/* inverted input pin value */
 } din_t;
 
+/* this structure contains the runtime data for a step pulse generator */
+typedef struct {
+    hal_float_t *vel;		/* velocity command */
+    hal_float_t vel_scale;	/* parameter: scaling for vel to Hz */
+    hal_float_t freq;		/* parameter: velocity cmd scaled to Hz */
+} stepgen_t;
+
+/* runtime data for a set of 4 step pulse generators */
+typedef struct {
+    stepgen_t sg[4];		/* per generator data */
+    hal_u8_t setup_time;	/* setup time in 100nS increments */
+    hal_u8_t pulse_width;	/* pulse width in 100nS increments */
+} stepgens_t;
+
 /* this structure contains the runtime data for a single EPP bus slot */
 /* A single slot can contain a wide variety of "stuff", ranging 
    from PWM or stepper or DAC outputs, to encoder inputs, to digital
@@ -190,6 +204,7 @@ typedef struct slot_data_s {
     slot_funct_t *wr_functs[MAX_FUNCT];	/* array of write functions */
     dout_t *digout;		/* ptr to shmem data for digital outputs */
     din_t *digin;		/* ptr to shmem data for digital inputs */
+    stepgens_t *stepgen;	/* ptr to shmem data for step generators */
 } slot_data_t;
 
 /* this structure contains the runtime data for a complete EPP bus */
@@ -200,6 +215,7 @@ typedef struct {
     unsigned char have_master;	/* true if a master has been configured */
     unsigned int last_digout;	/* used for numbering digital outputs */
     unsigned int last_digin;	/* used for numbering digital outputs */
+    unsigned int last_stepgen;	/* used for numbering step generators */
     unsigned int last_encoder;	/* used for numbering encoders */
     char slot_valid[NUM_SLOTS];	/* tags for slots that are used */
     slot_data_t slot_data[NUM_SLOTS];  /* data for slots on EPP bus */
@@ -249,6 +265,7 @@ static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, int min_addr, in
 
 static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus);
 static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus);
+static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -337,6 +354,7 @@ int rtapi_app_main(void)
 	bus->have_master = 0;
 	bus->last_digout = 0;
 	bus->last_digin = 0;
+	bus->last_stepgen = 0;
 	bus->last_encoder = 0;
 	/* clear the slot data structures (part of the bus struct) */
 	for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum ++ ) {
@@ -410,6 +428,7 @@ int rtapi_app_main(void)
 		rtapi_print_msg(RTAPI_MSG_INFO, "Univ. Stepper Controller\n");
 		rv1 += export_UxC_digin(slot, bus);
 		rv1 += export_UxC_digout(slot, bus);
+		rv1 += export_USC_stepgen(slot, bus);
 		/* the USC occupies two slots, so skip the second one */
 		slotnum++;
 		break;
@@ -777,6 +796,65 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
 	bus->last_digout++;
     }
     add_wr_funct(write_digouts, slot, UxC_DOUTA, UxC_DOUTA);
+    return 0;
+}
+
+static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
+{
+    int retval, n;
+    char buf[HAL_NAME_LEN + 2];
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting step generators\n");
+
+    /* do hardware init */
+
+    /* allocate shared memory for the digital output data */
+    slot->stepgen = hal_malloc(sizeof(stepgens_t));
+    if (slot->stepgen == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PPMC: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export params that apply to all four stepgens */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.setup-time",
+	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
+    retval = hal_param_u8_new(buf, HAL_WR, &(slot->stepgen->setup_time), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-width",
+	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
+    retval = hal_param_u8_new(buf, HAL_WR, &(slot->stepgen->pulse_width), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export per-stepgen pins and params */
+    for ( n = 0 ; n < 4 ; n++ ) {
+	/* velocity command pin */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.velocity",
+	    bus->busnum, bus->last_stepgen);
+	retval = hal_pin_float_new(buf, HAL_RD, &(slot->stepgen->sg[n].vel), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* velocity scaling parameter */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.velocity-scale",
+	    bus->busnum, bus->last_stepgen);
+	retval = hal_param_float_new(buf, HAL_WR, &(slot->stepgen->sg[n].vel_scale), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* velocity scaling parameter */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.freq",
+	    bus->busnum, bus->last_stepgen);
+	retval = hal_param_float_new(buf, HAL_RD, &(slot->stepgen->sg[n].freq), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* increment number to prepare for next output */
+	bus->last_stepgen++;
+    }
+//    add_wr_funct(write_digouts, slot, UxC_DOUTA, UxC_DOUTA);
     return 0;
 }
 
