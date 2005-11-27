@@ -4,6 +4,10 @@
 *               parallel port motion control boards, including
 *               the PPMC board set, the USC, and the UPC. 
 *
+* Usage:  halcmd loadrt hal_ppmc port_addr=<addr1>[,addr2[,addr3]]
+*               where 'addr1', 'addr2', and 'addr3' are the addresses
+*               of up to three parallel ports.
+*
 * Author: John Kasunich, Jon Elson
 * License: GPL Version 2
 *    
@@ -173,12 +177,18 @@ typedef struct slot_data_s {
     unsigned char ver;		/* slot version code */
     unsigned int slot_base;	/* base addr of this 16 byte slot */
     unsigned int port_addr;	/* addr of parport */
-    int num_rd_functs;		/* number of functions in array */
-    slot_funct_t *rd_functs[MAX_FUNCT];
-    int num_wr_functs;		/* number of functions in array */
-    slot_funct_t *wr_functs[MAX_FUNCT];
-    dout_t *digout;		/* data for digital outputs */
-    din_t *digin;		/* data for digital inputs */
+    unsigned char first_rd;	/* first epp address needed by read_all */
+    unsigned char last_rd;	/* last epp address needed by read_all */
+    unsigned char num_rd_functs;/* number of read functions */
+    unsigned char rd_buf[32];	/* cached data read from epp bus */
+    slot_funct_t *rd_functs[MAX_FUNCT];	/* array of read functions */
+    unsigned char first_wr;	/* first epp address needed by write_all */
+    unsigned char last_wr;	/* last epp address needed by write_all */
+    unsigned char num_wr_functs;/* number of write functions */
+    unsigned char wr_buf[32];	/* cached data to be written to epp bus */
+    slot_funct_t *wr_functs[MAX_FUNCT];	/* array of write functions */
+    dout_t *digout;		/* ptr to shmem data for digital outputs */
+    din_t *digin;		/* ptr to shmem data for digital inputs */
 } slot_data_t;
 
 /* this structure contains the runtime data for a complete EPP bus */
@@ -225,7 +235,7 @@ static int ClrTimeout(unsigned int port_addr);
 static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr);
 static unsigned short ReadMore(unsigned int port_addr);
 static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port_addr);
-//static void WrtMore(unsigned char byte, unsigned int port_addr);
+static void WrtMore(unsigned char byte, unsigned int port_addr);
 //static void SelWrt16(unsigned short word, unsigned char epp_addr, unsigned int port_addr);
 
 
@@ -233,8 +243,8 @@ static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot );
-static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot );
+static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot, int min_addr, int max_addr );
+static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, int min_addr, int max_addr );
 
 static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus);
 static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus);
@@ -338,6 +348,15 @@ int rtapi_app_main(void)
 	    slot->ver = 0;
 	    slot->slot_base = slotnum * SLOT_SIZE;
 	    slot->port_addr = port_addr[busnum];
+	    slot->first_rd = 31;
+	    slot->last_rd = 0;
+	    slot->first_wr = 31;
+	    slot->last_wr = 0;
+	    /* clear EPP read and write caches */
+	    for ( n = 0 ; n < 32 ; n++ ) {
+		slot->rd_buf[n] = 0;
+		slot->wr_buf[n] = 0;
+	    }
 	    /* clear function pointers */
 	    slot->num_rd_functs = 0;
 	    slot->num_wr_functs = 0;
@@ -361,6 +380,7 @@ int rtapi_app_main(void)
 		slot->id = 0;
 		slot->ver = 0;
 		rtapi_print_msg(RTAPI_MSG_INFO, "nothing detected\n");
+		ClrTimeout(slot->port_addr);
 		/* skip to next slot */
 		continue;
 	    }
@@ -503,6 +523,7 @@ static void read_all(void *arg, long period)
     bus_data_t *bus;
     slot_data_t *slot;
     int slotnum, functnum;
+    unsigned char n, eppaddr;
 
     /* get pointer to bus data structure */
     bus = *(bus_data_t **)(arg);
@@ -516,6 +537,19 @@ static void read_all(void *arg, long period)
 	if ( bus->slot_valid[slotnum] ) {
 	    /* point at slot data */
 	    slot = &(bus->slot_data[slotnum]);
+	    /* FIXME - code to latch encoders probably needs to go here */
+	    /* fetch data from EPP to cache */
+	    if ( slot->first_rd <= slot->last_rd ) {
+		/* need to read some data */
+		n = slot->first_rd;
+		eppaddr = slot->slot_base + slot->first_rd;
+		/* read first byte */
+		slot->rd_buf[n++] = SelRead(eppaddr, slot->port_addr);
+		/* read the rest */
+		while ( n <= slot->last_rd ) {
+		    slot->rd_buf[n++] = ReadMore(slot->port_addr);
+		}
+	    }
 	    /* loop thru all functions associated with slot */
 	    for ( functnum = 0 ; functnum < slot->num_rd_functs ; functnum++ ) {
 		/* call function */
@@ -530,6 +564,7 @@ static void write_all(void *arg, long period)
     bus_data_t *bus;
     slot_data_t *slot;
     int slotnum, functnum;
+    unsigned char n, eppaddr;
 
     /* get pointer to bus data structure */
     bus = *(bus_data_t **)(arg);
@@ -548,6 +583,19 @@ static void write_all(void *arg, long period)
 		/* call function */
 		(slot->wr_functs[functnum])(slot);
 	    }
+	    /* write data from cache to EPP */
+	    if ( slot->first_wr <= slot->last_wr ) {
+		/* need to write some data */
+		n = slot->first_wr;
+		eppaddr = slot->slot_base + slot->first_wr;
+		/* write first byte */
+		SelWrt(slot->wr_buf[n++], eppaddr, slot->port_addr);
+		/* write the rest */
+		while ( n <= slot->last_wr ) {
+		    WrtMore(slot->wr_buf[n++], slot->port_addr);
+		}
+	    }
+	    /* FIXME - do we need something here to strobe data? */
 	}
     }
 }
@@ -558,7 +606,7 @@ static void read_digins(slot_data_t *slot)
     unsigned char indata, mask;
 
     /* read the first 8 inputs */
-    indata = SelRead(slot->slot_base+UxC_DINA, slot->port_addr);
+    indata = slot->rd_buf[UxC_DINA];
     /* split the bits into 16 variables (8 regular, 8 inverted) */
     b = 0;
     mask = 0x01;
@@ -569,7 +617,7 @@ static void read_digins(slot_data_t *slot)
 	b++;
     }
     /* read the next 8 inputs */
-    indata = ReadMore(slot->port_addr);
+    indata = slot->rd_buf[UxC_DINB];
     /* and split them too */
     mask = 0x01;
     while ( b < 16 ) {
@@ -598,8 +646,8 @@ static void write_digouts(slot_data_t *slot)
 	}
 	mask <<= 1;
     }
-    /* write it to the hardware */
-    SelWrt(outdata, slot->slot_base+UxC_DOUTA, slot->port_addr);
+    /* write it to the hardware (cache) */
+    slot->wr_buf[UxC_DOUTA] = outdata;
 }
 
 
@@ -607,7 +655,17 @@ static void write_digouts(slot_data_t *slot)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot )
+/* these functions are used to register a runtime function to be called
+   by either read_all or write_all.  'min_addr' and 'max_addr' define
+   the range of EPP addresses that the function needs.  All addresses
+   needed by all functions associated with the slot woll be sequentially
+   be read into the rd_buf cache (or written from the wr_buf cache) 
+   by read_all or write_all respectively, to minimize the number of 
+   slow inb and outb operations needed.
+*/
+
+static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot,
+			int min_addr, int max_addr )
 {
     if ( slot->num_rd_functs >= MAX_FUNCT ) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
@@ -615,10 +673,17 @@ static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot )
 	return -1;
     }
     slot->rd_functs[slot->num_rd_functs++] = funct;
+    if ( slot->first_rd > min_addr ) {
+	slot->first_rd = min_addr;
+    }
+    if ( slot->last_rd < max_addr ) {
+	slot->last_rd = max_addr;
+    }
     return 0;
 }
 
-static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot )
+static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot,
+			int min_addr, int max_addr )
 {
     if ( slot->num_wr_functs >= MAX_FUNCT ) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
@@ -626,6 +691,12 @@ static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot )
 	return -1;
     }
     slot->wr_functs[slot->num_wr_functs++] = funct;
+    if ( slot->first_wr > min_addr ) {
+	slot->first_wr = min_addr;
+    }
+    if ( slot->last_wr < max_addr ) {
+	slot->last_wr = max_addr;
+    }
     return 0;
 }
 
@@ -664,7 +735,7 @@ static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_digin++;
     }
-    add_rd_funct(read_digins, slot);
+    add_rd_funct(read_digins, slot, UxC_DINA, UxC_DINB);
     return 0;
 }
 
@@ -704,7 +775,7 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_digout++;
     }
-    add_wr_funct(write_digouts, slot);
+    add_wr_funct(write_digouts, slot, UxC_DOUTA, UxC_DOUTA);
     return 0;
 }
 
@@ -731,7 +802,7 @@ static int ClrTimeout(unsigned int port_addr)
     if  (!(r & 0x01)) {
 	return 0;
     }
-rtapi_print("Timeout Detected!\n" );
+rtapi_print("EPP Bus Timeout!\n" );
     /* To clear timeout some chips require double read */
     BusReset(port_addr);
     r = rtapi_inb(STATUSPORT(port_addr));
@@ -855,8 +926,6 @@ static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port
     return;
 }
 
-#if 0 /* WrtMore is unused, at least for now */
-
 static void WrtMore(unsigned char byte, unsigned int port_addr)
 {
 //rtapi_print("WrtMore\n");   
@@ -864,8 +933,6 @@ static void WrtMore(unsigned char byte, unsigned int port_addr)
     rtapi_outb(byte,DATAPORT(port_addr));
     return;
 }
-
-#endif
 
 #if 0 /* SelWrt16 is unused, at least for now */
 
