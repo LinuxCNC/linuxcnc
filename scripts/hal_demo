@@ -303,7 +303,7 @@ if [ $1 = circle ] ; then
     bin/halcmd loadrt hal_parport cfg="0278"
     # install two frequency type step pulse generators, stepping type 0,
     # and also create two threads, one 50uS and one 1mS
-    bin/halcmd -V loadrt freqgen cfg="0 0" period=50000 fp_period=1000000
+    bin/halcmd -V loadrt freqgen step_type=0,0 period=50000 fp_period=1000000
     # install the siggen module
     bin/halcmd loadrt siggen
     # install two PID loops
