@@ -24,11 +24,11 @@
     quadrature, half- and full-step unipolar and bipolar, three phase,
     and five phase.  A 32 bit feedback value is provided indicating
     the current position of the motor (assuming no lost steps).
-    The number of counters and type of outputs is determined by a
-    config string provided on the insmod command line.  The string
-    consists of a series of decimal numbers.  Each number is the
-    stepping type for one channel.  So a command line like this:
-          insmod stepgen cfg="0 0 1 2"
+    The number of step generators and type of outputs is determined
+    by the insmod command line parameter 'step_type'.  It accepts
+    a comma separated (no spaces) list of up to 8 stepping types
+    to configure up to 8 channels.  So a command line like this:
+          insmod stepgen step_type=0,0,1,2
     will install four step generators, two using stepping type 0,
     one using type 1, and one using type 2.
 
@@ -295,6 +295,8 @@
 #include <float.h>
 #include <math.h>
 
+#define MAX_CHAN 8
+
 #ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -302,16 +304,9 @@ MODULE_DESCRIPTION("Step Pulse Generator for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif				/* MODULE_LICENSE */
-
-#define MAX_CHAN 8
-
 int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-
 MODULE_PARM(step_type, "1-8i");
-
-//static char *cfg = "0 0 0";	/* config string, default = 3 x step/dir */
-//MODULE_PARM(cfg, "s");
-//MODULE_PARM_DESC(cfg, "config string");
+MODULE_PARM_DESC(step_type, "stepping types for up to 8 channels");
 static long period = 0;		/* non-FP thread period, default = none */
 MODULE_PARM(period, "l");
 MODULE_PARM_DESC(period, "non-FP thread period (nsecs)");
@@ -386,19 +381,19 @@ static stepgen_t *stepgen_array;
 /* lookup tables for stepping types 2 and higher - phase A is the LSB */
 
 static const unsigned char master_lut[][10] = {
-    {1, 3, 2, 0, 0, 0, 0, 0, 0, 0},	/* Quadrature */
-    {1, 2, 4, 0, 0, 0, 0, 0, 0, 0},	/* Three Wire */
-    {1, 3, 2, 6, 4, 5, 0, 0, 0, 0},	/* Three Wire Half Step */
-    {1, 2, 4, 8, 0, 0, 0, 0, 0, 0},	/* Unipolar Full Step 1 */
-    {3, 6, 12, 9, 0, 0, 0, 0, 0, 0},	/* Unipoler Full Step 2 */
-    {1, 7, 14, 8, 0, 0, 0, 0, 0, 0},	/* Bipolar Full Step 1 */
-    {5, 6, 10, 9, 0, 0, 0, 0, 0, 0},	/* Bipoler Full Step 2 */
-    {1, 3, 2, 6, 4, 12, 8, 9, 0, 0},	/* Unipolar Half Step */
-    {1, 5, 7, 6, 14, 10, 8, 9, 0, 0},	/* Bipolar Half Step */
-    {1, 2, 4, 8, 16, 0, 0, 0, 0, 0},	/* Five Wire Unipolar */
-    {3, 6, 12, 24, 17, 0, 0, 0, 0, 0},	/* Five Wire Wave */
-    {1, 3, 2, 6, 4, 12, 8, 24, 16, 17},	/* Five Wire Uni Half */
-    {3, 7, 6, 14, 12, 28, 24, 25, 17, 19}	/* Five Wire Wave Half */
+    {1, 3, 2, 0, 0, 0, 0, 0, 0, 0},	/* type 2: Quadrature */
+    {1, 2, 4, 0, 0, 0, 0, 0, 0, 0},	/* type 3: Three Wire */
+    {1, 3, 2, 6, 4, 5, 0, 0, 0, 0},	/* type 4: Three Wire Half Step */
+    {1, 2, 4, 8, 0, 0, 0, 0, 0, 0},	/* 5: Unipolar Full Step 1 */
+    {3, 6, 12, 9, 0, 0, 0, 0, 0, 0},	/* 6: Unipoler Full Step 2 */
+    {1, 7, 14, 8, 0, 0, 0, 0, 0, 0},	/* 7: Bipolar Full Step 1 */
+    {5, 6, 10, 9, 0, 0, 0, 0, 0, 0},	/* 8: Bipoler Full Step 2 */
+    {1, 3, 2, 6, 4, 12, 8, 9, 0, 0},	/* 9: Unipolar Half Step */
+    {1, 5, 7, 6, 14, 10, 8, 9, 0, 0},	/* 10: Bipolar Half Step */
+    {1, 2, 4, 8, 16, 0, 0, 0, 0, 0},	/* 11: Five Wire Unipolar */
+    {3, 6, 12, 24, 17, 0, 0, 0, 0, 0},	/* 12: Five Wire Wave */
+    {1, 3, 2, 6, 4, 12, 8, 24, 16, 17},	/* 13: Five Wire Uni Half */
+    {3, 7, 6, 14, 12, 28, 24, 25, 17, 19}	/* 14: Five Wire Wave Half */
 };
 
 static const unsigned char cycle_len_lut[] =
@@ -407,7 +402,7 @@ static const unsigned char cycle_len_lut[] =
 static const unsigned char num_phases_lut[] =
     { 2, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, };
 
-#define MAX_STEP_TYPE 12
+#define MAX_STEP_TYPE 14
 
 #define STEP_PIN	0	/* output phase used for STEP signal */
 #define DIR_PIN		1	/* output phase used for DIR signal */
