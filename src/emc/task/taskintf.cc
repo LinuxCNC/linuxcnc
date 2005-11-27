@@ -1299,8 +1299,7 @@ int emcMotionInit()
 
 int emcMotionHalt()
 {
-    int r1;
-    int r2;
+    int r1, r2, r3;
     int t;
 
     r1 = -1;
@@ -1310,11 +1309,12 @@ int emcMotionHalt()
 	}
     }
 
-    r2 = emcTrajHalt();
+    r2 = emcTrajDisable();
+    r3 = emcTrajHalt();
 
     emcmotion_initialized = 0;
 
-    return (r1 == 0 && r2 == 0) ? 0 : -1;
+    return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
 }
 
 int emcMotionAbort()
