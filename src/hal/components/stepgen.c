@@ -963,15 +963,6 @@ static void update_pos(void *arg, long period)
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
-/* Is now shorter function.
-static int parse_step_type(char *cp)
-{
-    if (*cp == '\0') {
-	return -1;
-    }
-    return (int) simple_strtol(cp, NULL, 0);
-}
-*/
 
 static int export_stepgen(int num, stepgen_t * addr, int step_type)
 {
