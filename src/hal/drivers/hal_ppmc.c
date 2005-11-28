@@ -163,6 +163,7 @@ typedef struct {
 typedef struct {
     hal_float_t *vel;		/* velocity command */
     hal_float_t vel_scale;	/* parameter: scaling for vel to Hz */
+    hal_float_t max_vel;	/* velocity limit */
     hal_float_t freq;		/* parameter: velocity cmd scaled to Hz */
 } stepgen_t;
 
@@ -238,6 +239,7 @@ static void write_all(void *arg, long period);
 
 static void read_digins(slot_data_t *slot);
 static void write_digouts(slot_data_t *slot);
+static void write_stepgens(slot_data_t *slot);
 
 /***********************************************************************
 *                  REALTIME I/O FUNCTION DECLARATIONS                  *
@@ -526,6 +528,10 @@ void rtapi_app_exit(void)
 	    bus = bus_array[busnum];
 	    /* mark it invalid so RT code won't access */
 	    bus_array[busnum] = NULL;
+	    /* FIXME should we have code here that turns
+	       off all outputs, etc?  If so, it won't be
+	       pretty, because just like the regular code
+	       it will be different for every board. */
 	    /* and free the block */
 	    kfree(bus);
 	}
@@ -670,6 +676,112 @@ static void write_digouts(slot_data_t *slot)
     slot->wr_buf[UxC_DOUTA] = outdata;
 }
 
+static void write_stepgens(slot_data_t *slot)
+{
+    int n, reverse, run;
+    unsigned int divisor;
+    stepgen_t *sg;
+    double bd_max_freq, ch_max_freq, abs_scale, freq;
+    unsigned char control_byte;
+
+    /* pulse width cannot be zero (or one, HW bug) */
+    if ( slot->stepgen->pulse_width < 2 ) {
+	slot->stepgen->pulse_width = 2;
+    }
+    /* write it to the cache, inverted */
+    slot->wr_buf[RATE_WIDTH_0] = 256 - slot->stepgen->pulse_width;
+    /* calculate the max frequency, varies with pulse width */
+    bd_max_freq = 5000000.0 / slot->stepgen->pulse_width;
+    /* setup time cannot be zero or one, see above */
+    if ( slot->stepgen->setup_time < 2 ) {
+	slot->stepgen->setup_time = 2;
+    }
+    /* write it to the cache */
+    slot->wr_buf[RATE_SETUP_0] = 256 - slot->stepgen->setup_time;
+    /* now do the four individual stepgens */
+    control_byte = 0;
+    for ( n = 0 ; n < 4 ; n++ ) {
+	/* point to the specific stepgen */
+	sg = &(slot->stepgen->sg[n]);
+	/* validate the scale value */
+	if ( sg->vel_scale < 0.0 ) {
+	    if ( sg->vel_scale > -1e-20 ) {
+		/* too small, divide by zero is bad */
+		sg->vel_scale = -1.0;
+	    }
+	    abs_scale = -sg->vel_scale;
+	} else {
+	    if ( sg->vel_scale < 1e-20 ) {
+		sg->vel_scale = 1.0;
+	    }
+	    abs_scale = sg->vel_scale;
+	}
+	ch_max_freq = bd_max_freq;
+	/* check for user specified max velocity */
+	if (sg->max_vel <= 0.0) {
+	    /* set to zero if negative, and ignore if zero */
+	    sg->max_vel = 0.0;
+	} else {
+	    /* parameter is non-zero and positive, compare to max_freq */
+	    if ( (sg->max_vel * abs_scale) > ch_max_freq) {
+		/* parameter is too high, lower it */
+		sg->max_vel = ch_max_freq / abs_scale;
+	    } else {
+		/* lower max_freq to match parameter */
+		ch_max_freq = sg->max_vel * abs_scale;
+	    }
+	}
+	/* calculate desired frequency */
+	freq = *(sg->vel) * sg->vel_scale;
+	reverse = 0;
+	run = 1;
+	/* deal with negative */
+	if ( freq < 0.0 ) {
+	    /* negative */
+	    freq = -freq;
+	    reverse = 1;
+	}
+	/* apply limits */
+	if ( freq > ch_max_freq ) {
+	    freq = ch_max_freq;
+	    divisor = 10000000.0 / freq;
+	} else if ( freq < (10000000.0/16777214.0) ) {
+	    /* frequency would result in a divisor greater than 2^24-2 */
+	    freq = 0.0;
+	    divisor = 16777215;
+	    /* only way to get zero is to turn it off */
+	    run = 0;
+	} else {
+	    /* calculate divisor, round to nearest instead of truncating */
+	    divisor = ( 10000000.0 / freq ) + 0.5;
+	    /* calculate actual frequency (due to divisor roundoff) */
+	    freq = 10000000.0 / divisor;
+	}
+	/* save the frequency */
+	if ( reverse == 0 ) {	    
+	    sg->freq = freq;
+	} else {
+	    sg->freq = -freq;
+	}
+	/* set run and dir bits in the control byte */
+	control_byte >>= 2;
+	if ( run ) {
+	    control_byte |= 0x80;
+	}
+	if ( reverse ) {
+	    control_byte |= 0x40;
+	}
+	/* write divisor to the cache */
+	slot->wr_buf[RATE_GEN_0+(n*3)] = divisor & 0xff;
+	divisor >>= 8;
+	slot->wr_buf[RATE_GEN_0+(n*3)+1] = divisor & 0xff;
+	divisor >>= 8;
+	slot->wr_buf[RATE_GEN_0+(n*3)+2] = divisor & 0xff;
+    }
+    /* write control byte to cache */
+    slot->wr_buf[RATE_CTRL_0] = control_byte;
+}
+
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
@@ -803,6 +915,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 {
     int retval, n;
     char buf[HAL_NAME_LEN + 2];
+    stepgen_t *sg;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting step generators\n");
 
@@ -830,31 +943,40 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     }
     /* export per-stepgen pins and params */
     for ( n = 0 ; n < 4 ; n++ ) {
+	/* pointer to the stepgen struct */
+	sg = &(slot->stepgen->sg[n]);
 	/* velocity command pin */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.velocity",
 	    bus->busnum, bus->last_stepgen);
-	retval = hal_pin_float_new(buf, HAL_RD, &(slot->stepgen->sg[n].vel), comp_id);
+	retval = hal_pin_float_new(buf, HAL_RD, &(sg->vel), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* velocity scaling parameter */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.velocity-scale",
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.vel-scale",
 	    bus->busnum, bus->last_stepgen);
-	retval = hal_param_float_new(buf, HAL_WR, &(slot->stepgen->sg[n].vel_scale), comp_id);
+	retval = hal_param_float_new(buf, HAL_WR, &(sg->vel_scale), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
-	/* velocity scaling parameter */
+	/* maximum velocity parameter */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.max-vel",
+	    bus->busnum, bus->last_stepgen);
+	retval = hal_param_float_new(buf, HAL_WR, &(sg->max_vel), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* actual frequency parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.freq",
 	    bus->busnum, bus->last_stepgen);
-	retval = hal_param_float_new(buf, HAL_RD, &(slot->stepgen->sg[n].freq), comp_id);
+	retval = hal_param_float_new(buf, HAL_RD, &(sg->freq), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* increment number to prepare for next output */
 	bus->last_stepgen++;
     }
-//    add_wr_funct(write_digouts, slot, UxC_DOUTA, UxC_DOUTA);
+    add_wr_funct(write_stepgens, slot, RATE_GEN_0, RATE_WIDTH_0);
     return 0;
 }
 
