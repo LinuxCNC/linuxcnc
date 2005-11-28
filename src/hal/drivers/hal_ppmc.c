@@ -8,7 +8,7 @@
 *               where 'addr1', 'addr2', and 'addr3' are the addresses
 *               of up to three parallel ports.
 *
-* Author: John Kasunich, Jon Elson
+* Author: John Kasunich, Jon Elson, Stephen Wille Padnos
 * License: GPL Version 2
 *    
 * Copyright (c) 2005 All rights reserved.
@@ -174,6 +174,16 @@ typedef struct {
     hal_u8_t pulse_width;	/* pulse width in 100nS increments */
 } stepgens_t;
 
+
+/* runtime data for a single encoder */
+typedef struct {
+    hal_float_t *position;      /* output: scaled position pointer */
+    hal_s32_t *count;           /* output: unscaled encoder counts */
+    hal_float_t scale;          /* parameter: scale factor */
+    // hal_bit_t *index;        /* output: index flag */
+    signed long oldreading;     /* used to detect overflow / underflow of the counter */
+} encoder_t;
+
 /* this structure contains the runtime data for a single EPP bus slot */
 /* A single slot can contain a wide variety of "stuff", ranging 
    from PWM or stepper or DAC outputs, to encoder inputs, to digital
@@ -206,6 +216,7 @@ typedef struct slot_data_s {
     dout_t *digout;		/* ptr to shmem data for digital outputs */
     din_t *digin;		/* ptr to shmem data for digital inputs */
     stepgens_t *stepgen;	/* ptr to shmem data for step generators */
+    encoder_t *encoder;         /* ptr to shmem data for encoders */
 } slot_data_t;
 
 /* this structure contains the runtime data for a complete EPP bus */
@@ -241,6 +252,8 @@ static void read_digins(slot_data_t *slot);
 static void write_digouts(slot_data_t *slot);
 static void write_stepgens(slot_data_t *slot);
 
+static void read_encoders(slot_data_t *slot);
+
 /***********************************************************************
 *                  REALTIME I/O FUNCTION DECLARATIONS                  *
 ************************************************************************/
@@ -268,6 +281,7 @@ static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, int min_addr, in
 static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus);
 static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus);
 static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus);
+static int export_UxC_encoders(slot_data_t *slot, bus_data_t *bus);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -386,6 +400,9 @@ int rtapi_app_main(void)
 		slot->wr_functs[n] = NULL;
 	    }
 	    slot->digout = NULL;
+            slot->digin = NULL;
+            slot->stepgen = NULL;
+            slot->encoder = NULL;
 	}    
 	/* scan the bus */
 	for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum ++ ) {
@@ -431,6 +448,7 @@ int rtapi_app_main(void)
 		rv1 += export_UxC_digin(slot, bus);
 		rv1 += export_UxC_digout(slot, bus);
 		rv1 += export_USC_stepgen(slot, bus);
+                rv1 += export_UxC_encoders(slot, bus);
 		/* the USC occupies two slots, so skip the second one */
 		slotnum++;
 		break;
@@ -439,7 +457,8 @@ int rtapi_app_main(void)
 		rtapi_print_msg(RTAPI_MSG_INFO, "Univ. PWM Controller\n");
 		rv1 += export_UxC_digin(slot, bus);
 		rv1 += export_UxC_digout(slot, bus);
-		/* the UPC occupies two slots, so skip the second one */
+                rv1 += export_UxC_encoders(slot, bus);
+                /* the UPC occupies two slots, so skip the second one */
 		slotnum++;
 		break;
 	    default:
@@ -564,7 +583,11 @@ static void read_all(void *arg, long period)
 	    /* point at slot data */
 	    slot = &(bus->slot_data[slotnum]);
 	    /* FIXME - code to latch encoders probably needs to go here */
-	    /* fetch data from EPP to cache */
+	    SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);    /* software generated encoder latch */
+	    SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);    /* a little extra delay*/
+//	    SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);
+	    SelWrt(0x00, slot->slot_base + ENCRATE, slot->port_addr);    /* and return to normal */
+	       /* fetch data from EPP to cache */
 	    if ( slot->first_rd <= slot->last_rd ) {
 		/* need to read some data */
 		n = slot->first_rd;
@@ -676,6 +699,38 @@ static void write_digouts(slot_data_t *slot)
     slot->wr_buf[UxC_DOUTA] = outdata;
 }
 
+static void read_encoders(slot_data_t *slot)
+{
+    int i, byteindex;
+    union pos_tag {
+        signed long l;
+        struct byte_tag {
+            signed char b0;
+            signed char b1;
+            signed char b2;
+            signed char b3;
+        } byte;
+    } pos, oldpos;
+    
+    byteindex = ENCCNT0;        /* first encoder count register */
+    for (i = 0; i < 4; i++) {
+        oldpos.l = slot->encoder[i].oldreading;
+	pos.byte.b0 = (signed char)slot->rd_buf[byteindex++];
+	pos.byte.b1 = (signed char)slot->rd_buf[byteindex++];
+	pos.byte.b2 = (signed char)slot->rd_buf[byteindex++];
+        pos.byte.b3 = oldpos.byte.b3;
+        /* check for - to + transition */
+        if ((oldpos.byte.b2 < 0) && (pos.byte.b2 >= 0))
+            pos.byte.b3++;
+        else 
+            if ((oldpos.byte.b2 >= 0) && (pos.byte.b2 < 0))
+                pos.byte.b3--;
+	slot->encoder[i].oldreading = pos.l;
+	*(slot->encoder[i].count) = pos.l;
+	*(slot->encoder[i].position) = pos.l * slot->encoder[i].scale;
+    }
+}
+
 static void write_stepgens(slot_data_t *slot)
 {
     int n, reverse, run;
@@ -731,15 +786,17 @@ static void write_stepgens(slot_data_t *slot)
 		ch_max_freq = sg->max_vel * abs_scale;
 	    }
 	}
+	/* SWP - changed the sign for "reverse", now, when step output is fed back to
+		encoder input, the signs match */
 	/* calculate desired frequency */
 	freq = *(sg->vel) * sg->vel_scale;
-	reverse = 0;
+	reverse = 1;
 	run = 1;
 	/* deal with negative */
 	if ( freq < 0.0 ) {
 	    /* negative */
 	    freq = -freq;
-	    reverse = 1;
+	    reverse = 0;
 	}
 	/* apply limits */
 	if ( freq > ch_max_freq ) {
@@ -781,7 +838,6 @@ static void write_stepgens(slot_data_t *slot)
     /* write control byte to cache */
     slot->wr_buf[RATE_CTRL_0] = control_byte;
 }
-
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
@@ -977,6 +1033,75 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	bus->last_stepgen++;
     }
     add_wr_funct(write_stepgens, slot, RATE_GEN_0, RATE_WIDTH_0);
+    return 0;
+}
+/* Each of the encoders has the following:
+    params:
+        ppmc.n.encoder.m.scale      float
+    pins:
+        ppmc.n.encoder.m.position   float
+        ppmc.n.encoder.m.counts     s32
+    TODO:    ppmc.n.encoder.m.indexflag  bit
+    
+    the output value is position=counts * scale
+
+    Additionally, the encoder registers are zeroed, and the mode is set to latch 
+ */
+
+static int export_UxC_encoders(slot_data_t *slot, bus_data_t *bus)
+{
+    int retval, n;
+    char buf[HAL_NAME_LEN+2];
+    
+    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: exporting encoder pins / params\n");
+
+    /* do hardware init */
+    SelWrt(0x00, slot->slot_base+ENCCTRL, slot->port_addr);	/* clear encoder control register */
+    SelWrt(0x00, slot->slot_base+ENCRATE, slot->port_addr);	/* make this a non-master (no INTR) */
+    SelWrt(0xF0, slot->slot_base+ENCCTRL, slot->port_addr);	/* we'll reset all counters to 0 */
+    SelWrt(0x00, slot->slot_base+ENCLOAD, slot->port_addr);	/* clear encoder count load register */
+    WrtMore(0x00, slot->port_addr);
+    WrtMore(0x00, slot->port_addr);
+    ClrTimeout(slot->port_addr);				/* extra delay, just to be sure */
+    ClrTimeout(slot->port_addr);				/* extra delay, just to be sure */
+    ClrTimeout(slot->port_addr);				/* extra delay, just to be sure */
+    SelWrt(0x00, slot->slot_base+ENCCTRL, slot->port_addr);	/* clear encoder control register */
+
+    /* allocate shared memory for the encoder data */
+    slot->encoder = hal_malloc(4 * sizeof(encoder_t));
+    if (slot->encoder == 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "PPMC: ERROR: hal_malloc() failed\n");
+        return -1;
+    }
+    
+    /* export per-encoder pins and params */
+    for ( n = 0 ; n < 4 ; n++ ) {
+        /* scale input parameter */
+        rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.scale",
+                       bus->busnum, bus->last_encoder);
+        retval = hal_param_float_new(buf, HAL_WR, &(slot->encoder[n].scale), comp_id);
+        if (retval != 0) {
+            return retval;
+        }
+        /* velocity scaling parameter */
+        rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.position",
+                       bus->busnum, bus->last_encoder);
+        retval = hal_pin_float_new(buf, HAL_WR, &(slot->encoder[n].position), comp_id);
+        if (retval != 0) {
+            return retval;
+        }
+        /* velocity scaling parameter */
+        rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.count",
+                       bus->busnum, bus->last_encoder);
+        retval = hal_pin_s32_new(buf, HAL_WR, &(slot->encoder[n].count), comp_id);
+        if (retval != 0) {
+            return retval;
+        }
+        /* increment number to prepare for next output */
+        bus->last_encoder++;
+    }
+    add_rd_funct(read_encoders, slot, ENCCNT0, ENCCNT3+2);
     return 0;
 }
 
