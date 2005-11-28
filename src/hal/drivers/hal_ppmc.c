@@ -180,7 +180,7 @@ typedef struct {
     hal_float_t *position;      /* output: scaled position pointer */
     hal_s32_t *count;           /* output: unscaled encoder counts */
     hal_float_t scale;          /* parameter: scale factor */
-    // hal_bit_t *index;        /* output: index flag */
+    hal_bit_t *index;           /* output: index flag */
     signed long oldreading;     /* used to detect overflow / underflow of the counter */
 } encoder_t;
 
@@ -702,6 +702,8 @@ static void write_digouts(slot_data_t *slot)
 static void read_encoders(slot_data_t *slot)
 {
     int i, byteindex;
+    hal_u8_t mask = 0x01, indextemp;
+
     union pos_tag {
         signed long l;
         struct byte_tag {
@@ -712,6 +714,7 @@ static void read_encoders(slot_data_t *slot)
         } byte;
     } pos, oldpos;
     
+    indextemp = (hal_u8_t)(slot->rd_buf[ENCISR]);
     byteindex = ENCCNT0;        /* first encoder count register */
     for (i = 0; i < 4; i++) {
         oldpos.l = slot->encoder[i].oldreading;
@@ -728,6 +731,8 @@ static void read_encoders(slot_data_t *slot)
 	slot->encoder[i].oldreading = pos.l;
 	*(slot->encoder[i].count) = pos.l;
 	*(slot->encoder[i].position) = pos.l * slot->encoder[i].scale;
+	*(slot->encoder[i].index) = (((indextemp & mask) == mask) ? 1 : 0);
+	mask <<= 1;
     }
 }
 
@@ -1041,7 +1046,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     pins:
         ppmc.n.encoder.m.position   float
         ppmc.n.encoder.m.counts     s32
-    TODO:    ppmc.n.encoder.m.indexflag  bit
+        ppmc.n.encoder.m.index      bit
     
     the output value is position=counts * scale
 
@@ -1084,22 +1089,29 @@ static int export_UxC_encoders(slot_data_t *slot, bus_data_t *bus)
         if (retval != 0) {
             return retval;
         }
-        /* velocity scaling parameter */
+        /* scaled encoder position */
         rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.position",
                        bus->busnum, bus->last_encoder);
         retval = hal_pin_float_new(buf, HAL_WR, &(slot->encoder[n].position), comp_id);
         if (retval != 0) {
             return retval;
         }
-        /* velocity scaling parameter */
-        rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.count",
-                       bus->busnum, bus->last_encoder);
-        retval = hal_pin_s32_new(buf, HAL_WR, &(slot->encoder[n].count), comp_id);
-        if (retval != 0) {
-            return retval;
-        }
-        /* increment number to prepare for next output */
-        bus->last_encoder++;
+	/* raw encoder position */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.count",
+		       bus->busnum, bus->last_encoder);
+	retval = hal_pin_s32_new(buf, HAL_WR, &(slot->encoder[n].count), comp_id);
+	if (retval != 0) {
+		return retval;
+	}
+	/* encoder index bit */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.index",
+		       bus->busnum, bus->last_encoder);
+	retval = hal_pin_u8_new(buf, HAL_WR, &(slot->encoder[n].index), comp_id);
+	if (retval != 0) {
+		return retval;
+	}
+	/* increment number to prepare for next output */
+	bus->last_encoder++;
     }
     add_rd_funct(read_encoders, slot, ENCCNT0, ENCCNT3+2);
     return 0;
