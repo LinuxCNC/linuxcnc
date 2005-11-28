@@ -1113,7 +1113,7 @@ static int export_UxC_encoders(slot_data_t *slot, bus_data_t *bus)
 	/* increment number to prepare for next output */
 	bus->last_encoder++;
     }
-    add_rd_funct(read_encoders, slot, ENCCNT0, ENCCNT3+2);
+    add_rd_funct(read_encoders, slot, ENCCNT0, ENCISR);
     return 0;
 }
 
