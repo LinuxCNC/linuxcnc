@@ -546,10 +546,10 @@ void rtapi_app_exit(void)
 	    bus_array[busnum] = NULL;
 	    /* want to make sure everything is turned off */
 	    /* write zero to first EPP address */
-	    SelWrt(0, 0, bus->slot[0].port_addr);
+	    SelWrt(0, 0, bus->slot_data[0].port_addr);
 	    /* and to all the rest */
 	    for ( n = 1 ; n < 256 ; n++ ) {
-		WrtMore(0, bus->slot[0].port_addr);
+		WrtMore(0, bus->slot_data[0].port_addr);
 	    }
 	    /* and free the memory block */
 	    kfree(bus);
