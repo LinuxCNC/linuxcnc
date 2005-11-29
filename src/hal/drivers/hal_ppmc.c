@@ -260,15 +260,10 @@ static void read_encoders(slot_data_t *slot);
 
 static void BusReset(unsigned int port_addr);
 static int ClrTimeout(unsigned int port_addr);
-//static void SelAddr(unsigned char epp_addr, unsigned int port_addr);
-//static void WriteData(unsigned char byte, unsigned int port_addr);
-//static void WriteData16(unsigned short word, unsigned int port_addr);
-//static unsigned short ReadData(unsigned int port_addr);
 static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr);
 static unsigned short ReadMore(unsigned int port_addr);
 static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port_addr);
 static void WrtMore(unsigned char byte, unsigned int port_addr);
-//static void SelWrt16(unsigned short word, unsigned char epp_addr, unsigned int port_addr);
 
 
 /***********************************************************************
@@ -1117,7 +1112,7 @@ static int export_UxC_encoders(slot_data_t *slot, bus_data_t *bus)
     return 0;
 }
 
-/* utility functions */
+/* utility functions for EPP bus */
 
 /* reset all boards attached to the EPP bus */
 static void BusReset(unsigned int port_addr)
@@ -1127,19 +1122,17 @@ static void BusReset(unsigned int port_addr)
   return;
 }
 
-
 /* tests for an EPP bus timeout, and clears it if so */
 static int ClrTimeout(unsigned int port_addr)
 {
     unsigned char r;
-    
-//rtapi_print("ClrTimeout\n");   
 
     r = rtapi_inb(STATUSPORT(port_addr));
     
     if  (!(r & 0x01)) {
 	return 0;
     }
+/* remove after testing */
 rtapi_print("EPP Bus Timeout!\n" );
     /* To clear timeout some chips require double read */
     BusReset(port_addr);
@@ -1150,82 +1143,16 @@ rtapi_print("EPP Bus Timeout!\n" );
     return !(r & 0x01);
 }
 
-#if 0 /* these first five functions aren't used, the remaining ones seem to
-         duplicate what they do... why two sets? */
-
-/* sets the board and register for subsequent EPP data transfers */
-static void SelAddr(unsigned char epp_addr, unsigned int port_addr)
-{
-    /* writes a device address to the data port, toggles address strobe low,
-       and waits for handshake */
-    ClrTimeout(port_addr);
-#if 0   /* FIXME - I don't know why these are commented out, ask Jon E */
-    /* set port direction to output */
-    outb(rtapi_inb(CONTROLPORT(port_addr)) & 0xDF,CONTROLPORT(port_addr));
-#endif
-    /* set port direction to output */
-    rtapi_outb(0x04,CONTROLPORT(port_addr));
-    /* write epp address to port */
-    rtapi_outb(epp_addr,ADDRPORT(port_addr));
-    return;
-}
-
-static void WriteData(unsigned char byte, unsigned int port_addr)
-{
-    /* writes data to the data port, toggles data strobe low, 
-       and waits for handshake */
-    /* write byt to data port */
-    rtapi_outb(byte,DATAPORT(port_addr));
-    /* check for and clear timeout */
-    ClrTimeout(port_addr);
-    return;
-}
-
-static void WriteData16(unsigned short word, unsigned int port_addr)
-{
-    /* writes data to the data port, toggles data strobe low,
-       and waits for handshake */
-    /* write bytes to data port */
-    rtapi_outb(word & 0x00FF,DATAPORT(port_addr));
-    rtapi_outb(word >> 8,DATAPORT(port_addr));
-    /* FIXME why doesn't this one do the ClrTimeout() call? */
-    return;
-}
-
-static unsigned short ReadData(unsigned int port_addr)
-{
-#if 0   /* FIXME - I don't know why these are commented out, ask Jon E */
-    /* set port direction to input */
-    outb(rtapi_inb(CONTROLPORT(port_addr)) | 0x20,CONTROLPORT(port_addr));
-#endif
-    /* set port direction to input */
-    rtapi_outb(0x24,CONTROLPORT(port_addr));
-    /* read data byte */
-    return rtapi_inb(DATAPORT(port_addr));
-}
-
-#endif
-
+/* sets the EPP address and then reads one byte from that address */
 static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr)
 {
     unsigned char b;
-//rtapi_print("SelRead\n");   
-    /* writes a device address to the data port and toggles address strobe low,
-       waits for handshake, then inputs data byte and toggles data strobe low,
-       then high again */
+    
     ClrTimeout(port_addr);
-#if 0
-    /* set port direction to output */
-    rtapi_outb(rtapi_inb(CONTROLPORT(port_addr)) & 0xDF,CONTROLPORT(port_addr));
-#endif
     /* set port direction to output */
     rtapi_outb(0x04,CONTROLPORT(port_addr));
     /* write epp address to port */
     rtapi_outb(epp_addr,ADDRPORT(port_addr));
-#if 0
-    /* set port direction to input */
-    rtapi_outb(rtapi_inb(CONTROLPORT(port_addr)) | 0x20,CONTROLPORT(port_addr));
-#endif
     /* set port direction to input */
     rtapi_outb(0x24,CONTROLPORT(port_addr));
     /* read data value */
@@ -1234,27 +1161,20 @@ static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr)
 
 }
 
+/* reads one byte from EPP, use only after SelRead, and only 
+   when hardware has auto-increment address cntr */
 static unsigned short ReadMore(unsigned int port_addr)
 {
     unsigned char b;
-//rtapi_print("ReadMore\n");   
-    /* use only after a SelRead, reads the next succcesive byte */
     b = rtapi_inb(DATAPORT(port_addr));
     return b;
 
 }
 
+/* sets the EPP address and then writes one byte to that address */
 static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port_addr)
 {
-//rtapi_print("SelWrt\n");   
-    /* writes a device address to the data port and toggles address strobe low,
-       waits for handshake, then outputs data byte and toggles data strobe low,
-       then high again */
     ClrTimeout(port_addr);
-#if 0   /* FIXME - I don't know why these are commented out, ask Jon E */
-    /* set port direction to output */
-    rtapi_outb(rtapi_inb(CONTROLPORT(port_addr)) & 0xDF,CONTROLPORT(port_addr));
-#endif
     /* set port direction to output */
     rtapi_outb(0x04,CONTROLPORT(port_addr));
     /* write epp address to port */
@@ -1264,30 +1184,11 @@ static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port
     return;
 }
 
+/* writes one byte to EPP, use only after SelWrt, and only 
+   when hardware has auto-increment address cntr */
 static void WrtMore(unsigned char byte, unsigned int port_addr)
 {
-//rtapi_print("WrtMore\n");   
-    /* use only after SelWrt, write a byte to the next address */
     rtapi_outb(byte,DATAPORT(port_addr));
     return;
 }
 
-#if 0 /* SelWrt16 is unused, at least for now */
-
-static void SelWrt16(unsigned short word, unsigned char epp_addr, unsigned int port_addr)
-{
-  /* writes a device address to the data port and toggles address strobe low, and waits
-                for handshake, then (outputs data byte and toggles data strobe low, then
-                high again) repeat for 2nd byte */
-    ClrTimeout(port_addr);
-    /* set port direction to output */
-    rtapi_outb(rtapi_inb(CONTROLPORT(port_addr)) & 0xDF,CONTROLPORT(port_addr));
-    /* write epp address to port */
-    rtapi_outb(epp_addr,ADDRPORT(port_addr));
-    /* write data bytes to port */
-    rtapi_outb(word & 0x00FF,DATAPORT(port_addr));
-    rtapi_outb(word >> 8,DATAPORT(port_addr));
-    return;
-}
-
-#endif
