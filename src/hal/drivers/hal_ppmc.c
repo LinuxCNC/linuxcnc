@@ -90,31 +90,31 @@ MODULE_PARM_DESC(port_addr, "port address(es) for EPP bus(es)");
 #define SLOT_SIZE      16
 #define SLOT_ID_OFFSET 15
 
-#define ENCCNT0    0x00          /*  EPP address to read first byte of encoder counter */
-#define ENCCNT1    0x03
-#define ENCCNT2    0x06
-#define ENCCNT3    0x09
+#define ENCCNT0     0x00	/*  EPP address to read first byte of encoder counter */
+#define ENCCNT1     0x03
+#define ENCCNT2     0x06
+#define ENCCNT3     0x09
 
-#define ENCCTRL    0x03          /* EPP address of encoder control register */
-#define ENCRATE    0x04          /* interrupt rate register, only on master encoder */
-#define ENCISR     0x0C		//index sense register
-#define ENCLOAD    0x00          /* EPP address to write into first byte of preset */
+#define ENCCTRL     0x03	/* EPP address of encoder control register */
+#define ENCRATE     0x04	/* interrupt rate register, only on master encoder */
+#define ENCISR      0x0C	/* index sense register */
+#define ENCLOAD     0x00	/* EPP address to write into first byte of preset */
 				/* register for channels 0 - 3 */
 
-#define DAC_0      0x00          /* EPP address of low byte of DAC chan 0 */
-#define DAC_1      0x02          /* EPP address of low byte of DAC chan 1 */
-#define DAC_2      0x04          /* EPP address of low byte of DAC chan 2 */
-#define DAC_3      0x06          /* EPP address of low byte of DAC chan 3 */
+#define DAC_0       0x00	/* EPP address of low byte of DAC chan 0 */
+#define DAC_1       0x02		/* EPP address of low byte of DAC chan 1 */
+#define DAC_2       0x04	/* EPP address of low byte of DAC chan 2 */
+#define DAC_3       0x06	/* EPP address of low byte of DAC chan 3 */
 
-#define DAC_MODE_0 0x4C
+#define DAC_MODE_0  0x4C
 #define DAC_WRITE_0 0x48
 
-#define DAC_MODE_1 0x5C
+#define DAC_MODE_1  0x5C
 #define DAC_WRITE_1 0x58
 
-#define RATE_GEN_0      0x10       /* EPP addr of low byte of rate generator 0 LSB */
-//      RATE_GEN_0a     0x11       /* middle byte */
-//      RATE_GEN_0b     0x12       /* MSB */
+#define RATE_GEN_0      0x10	/* EPP addr of low byte of rate generator 0 LSB */
+//      RATE_GEN_0a     0x11	/* middle byte */
+//      RATE_GEN_0b     0x12	/* MSB */
 #define RATE_GEN_1      0x13
 #define RATE_GEN_2      0x16
 #define RATE_GEN_3      0x19
@@ -122,14 +122,14 @@ MODULE_PARM_DESC(port_addr, "port address(es) for EPP bus(es)");
 #define RATE_SETUP_0    0x1D
 #define RATE_WIDTH_0    0x1E
 
-#define UxC_DINA        0x0D       /* EPP address of digital inputs on univstep */
+#define UxC_DINA        0x0D	/* EPP address of digital inputs on univstep */
 #define UxC_DINB        0x0E
 #define UxC_ESTOP_IN    0x0E
 /* The "estop" input will always report OFF to the software, regardless
    of the actual state of the physical input, unless the "estop" output
    has being turned on by the software. */
 
-#define UxC_DOUTA       0x1F          /* EPP address of digital outputs */
+#define UxC_DOUTA       0x1F	/* EPP address of digital outputs */
 #define UxC_ESTOP_OUT   0x1F
 /* The physical output associated with the "estop" output will not come on
    unless the physical "estop" input is also on.  All physical outputs
@@ -138,11 +138,11 @@ MODULE_PARM_DESC(port_addr, "port address(es) for EPP bus(es)");
 /* These strange interactions between inputs and outputs are just a little
    crazy in my humble opinion */
 
-#define DIO_DINA        0x00          /* EPP address of digital inputs on DIO */
+#define DIO_DINA        0x00	/* EPP address of digital inputs on DIO */
 #define DIO_DINB        0x01
 #define DIO_ESTOP_IN    0x02
 
-#define DIO_DOUTA       0x00          /* EPP address of digital outputs */
+#define DIO_DOUTA       0x00	/* EPP address of digital outputs */
 #define DIO_ESTOP_OUT   0x01
 
 /***********************************************************************
@@ -203,7 +203,8 @@ typedef void (slot_funct_t)(struct slot_data_s *slot);
 typedef struct slot_data_s {
     unsigned char id;		/* slot id code */
     unsigned char ver;		/* slot version code */
-    unsigned int slot_base;	/* base addr of this 16 byte slot */
+    unsigned char strobe;	/* does this slot need a latch strobe */
+    unsigned char slot_base;	/* base addr of this 16 byte slot */
     unsigned int port_addr;	/* addr of parport */
     unsigned char first_rd;	/* first epp address needed by read_all */
     unsigned char last_rd;	/* last epp address needed by read_all */
@@ -278,7 +279,7 @@ static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, int min_addr, in
 static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus);
 static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus);
 static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus);
-static int export_UxC_encoders(slot_data_t *slot, bus_data_t *bus);
+static int export_encoders(slot_data_t *slot, bus_data_t *bus);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -378,6 +379,7 @@ int rtapi_app_main(void)
 	    /* clear stuff */
 	    slot->id = 0;
 	    slot->ver = 0;
+	    slot->strobe = 0;
 	    slot->slot_base = slotnum * SLOT_SIZE;
 	    slot->port_addr = port_addr[busnum];
 	    slot->first_rd = 31;
@@ -430,6 +432,7 @@ int rtapi_app_main(void)
 	    case 0x10:
 		boards++;
 		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC encoder card\n");
+		rv1 += export_encoders(slot, bus);
 		break;
 	    case 0x20:
 		boards++;
@@ -445,7 +448,7 @@ int rtapi_app_main(void)
 		rv1 += export_UxC_digin(slot, bus);
 		rv1 += export_UxC_digout(slot, bus);
 		rv1 += export_USC_stepgen(slot, bus);
-                rv1 += export_UxC_encoders(slot, bus);
+		rv1 += export_encoders(slot, bus);
 		/* the USC occupies two slots, so skip the second one */
 		slotnum++;
 		break;
@@ -454,8 +457,8 @@ int rtapi_app_main(void)
 		rtapi_print_msg(RTAPI_MSG_INFO, "Univ. PWM Controller\n");
 		rv1 += export_UxC_digin(slot, bus);
 		rv1 += export_UxC_digout(slot, bus);
-                rv1 += export_UxC_encoders(slot, bus);
-                /* the UPC occupies two slots, so skip the second one */
+		rv1 += export_encoders(slot, bus);
+		/* the UPC occupies two slots, so skip the second one */
 		slotnum++;
 		break;
 	    default:
@@ -582,12 +585,17 @@ static void read_all(void *arg, long period)
 	if ( bus->slot_valid[slotnum] ) {
 	    /* point at slot data */
 	    slot = &(bus->slot_data[slotnum]);
-	    /* FIXME - code to latch encoders probably needs to go here */
-	    SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);    /* software generated encoder latch */
-	    SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);    /* a little extra delay*/
-//	    SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);
-	    SelWrt(0x00, slot->slot_base + ENCRATE, slot->port_addr);    /* and return to normal */
-	       /* fetch data from EPP to cache */
+	    /* check if this slot needs a latch strobe */
+	    if ( slot->strobe == 1 ) {
+		/* set the strobe bit, master mode */
+		SelWrt(0x30, slot->slot_base + ENCRATE, slot->port_addr);
+		/* repeat to guarantee at least 2uS */
+		SelWrt(0x30, slot->slot_base + ENCRATE, slot->port_addr);
+		// SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);
+		/* end of strobe pulse, stay in master mode */
+		SelWrt(0x10, slot->slot_base + ENCRATE, slot->port_addr);
+	    }
+	    /* fetch data from EPP to cache */
 	    if ( slot->first_rd <= slot->last_rd ) {
 		/* need to read some data */
 		n = slot->first_rd;
@@ -1060,7 +1068,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     Additionally, the encoder registers are zeroed, and the mode is set to latch 
  */
 
-static int export_UxC_encoders(slot_data_t *slot, bus_data_t *bus)
+static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 {
     int retval, n;
     char buf[HAL_NAME_LEN+2];
@@ -1068,16 +1076,34 @@ static int export_UxC_encoders(slot_data_t *slot, bus_data_t *bus)
     rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: exporting encoder pins / params\n");
 
     /* do hardware init */
-    SelWrt(0x00, slot->slot_base+ENCCTRL, slot->port_addr);	/* clear encoder control register */
-    SelWrt(0x00, slot->slot_base+ENCRATE, slot->port_addr);	/* make this a non-master (no INTR) */
-    SelWrt(0xF0, slot->slot_base+ENCCTRL, slot->port_addr);	/* we'll reset all counters to 0 */
-    SelWrt(0x00, slot->slot_base+ENCLOAD, slot->port_addr);	/* clear encoder count load register */
+    /* clear encoder control register */
+    SelWrt(0x00, slot->slot_base+ENCCTRL, slot->port_addr);
+    /* is there already another board generating a latch strobe? */
+    if ( bus->have_master == 0 ) {
+	/* no, flag this slot to generate the strobe */
+	slot->strobe = 1;
+	/* make this a master board */
+	SelWrt(0x10, slot->slot_base+ENCRATE, slot->port_addr);
+	/* don't need any more masters */
+	bus->have_master = 1;
+    } else {
+	/* already have a master, don't need a strobe */
+	slot->strobe = 0;
+	/* make this a slave board */
+	SelWrt(0x00, slot->slot_base+ENCRATE, slot->port_addr);
+    }
+    /* we'll reset all counters to 0 */
+    SelWrt(0xF0, slot->slot_base+ENCCTRL, slot->port_addr);
+    /* clear encoder count load register */
+    SelWrt(0x00, slot->slot_base+ENCLOAD, slot->port_addr);
     WrtMore(0x00, slot->port_addr);
     WrtMore(0x00, slot->port_addr);
-    ClrTimeout(slot->port_addr);				/* extra delay, just to be sure */
-    ClrTimeout(slot->port_addr);				/* extra delay, just to be sure */
-    ClrTimeout(slot->port_addr);				/* extra delay, just to be sure */
-    SelWrt(0x00, slot->slot_base+ENCCTRL, slot->port_addr);	/* clear encoder control register */
+    /* extra delay, just to be sure */
+    ClrTimeout(slot->port_addr);
+    ClrTimeout(slot->port_addr);
+    ClrTimeout(slot->port_addr);
+    /* clear encoder control register */
+    SelWrt(0x00, slot->slot_base+ENCCTRL, slot->port_addr);
 
     /* allocate shared memory for the encoder data */
     slot->encoder = hal_malloc(4 * sizeof(encoder_t));
@@ -1086,7 +1112,6 @@ static int export_UxC_encoders(slot_data_t *slot, bus_data_t *bus)
                         "PPMC: ERROR: hal_malloc() failed\n");
         return -1;
     }
-    
     /* export per-encoder pins and params */
     for ( n = 0 ; n < 4 ; n++ ) {
         /* scale input parameter */

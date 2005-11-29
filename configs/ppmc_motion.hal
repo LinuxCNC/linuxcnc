@@ -27,3 +27,9 @@ linksp Zoutput => ppmc.0.stepgen.02.velocity
 setp ppmc.0.stepgen.00.vel-scale [AXIS_0]OUTPUT_SCALE
 setp ppmc.0.stepgen.01.vel-scale [AXIS_1]OUTPUT_SCALE
 setp ppmc.0.stepgen.02.vel-scale [AXIS_2]OUTPUT_SCALE
+
+# set preliminary PID gains
+setp pid.0.FF1 1
+setp pid.1.FF1 1
+setp pid.2.FF1 1
+
