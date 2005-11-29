@@ -1106,7 +1106,7 @@ static int export_UxC_encoders(slot_data_t *slot, bus_data_t *bus)
 	/* encoder index bit */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.index",
 		       bus->busnum, bus->last_encoder);
-	retval = hal_pin_u8_new(buf, HAL_WR, &(slot->encoder[n].index), comp_id);
+	retval = hal_pin_bit_new(buf, HAL_WR, &(slot->encoder[n].index), comp_id);
 	if (retval != 0) {
 		return retval;
 	}
