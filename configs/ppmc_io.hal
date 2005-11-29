@@ -1,15 +1,14 @@
-# HAL config file for ServoToGo STG ISA board
+# HAL config file for Pico Systems USC board
 #
-# install driver (only needed if stg_motion.hal doesn't get run)
-#loadrt hal_stg
+# install driver (only needed if ppmc_motion.hal doesn't get run)
+#loadrt hal_ppmc
 
 # add I/O to servo thread so they will be evaluated
 # every servo period
-addf ppmc.0.read servo-thread 1
-addf ppmc.0.write servo-thread -1
+# (only needed if ppmc_motion.hal doesn't get run)
+#addf ppmc.0.read servo-thread 1
+#addf ppmc.0.write servo-thread -1
 
-#uncomment following line if ADC's are needed (for example spindle-tach feedback)
-#addf stg.0.read-adcs servo-thread 1
 
 #
 # Connect motion controller I/Os

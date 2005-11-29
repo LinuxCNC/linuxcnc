@@ -1,0 +1,29 @@
+# HAL config file for Pico Systems USC board
+#
+# install driver
+loadrt hal_ppmc
+
+# add functions to servo thread so they will be evaluated
+# every servo period
+addf ppmc.0.read servo-thread 1
+addf ppmc.0.write servo-thread -1
+
+# connect position feedback signals to encoders
+linksp Xpos-fb <= ppmc.0.encoder.00.position
+linksp Ypos-fb <= ppmc.0.encoder.01.position
+linksp Zpos-fb <= ppmc.0.encoder.02.position
+
+# get feedback scaling from ini file
+setp ppmc.0.encoder.00.scale [AXIS_0]INPUT_SCALE 
+setp ppmc.0.encoder.01.scale [AXIS_1]INPUT_SCALE 
+setp ppmc.0.encoder.02.scale [AXIS_2]INPUT_SCALE 
+
+# connect PID output signals to step generators
+linksp Xoutput => ppmc.0.stepgen.00.velocity
+linksp Youtput => ppmc.0.stepgen.01.velocity
+linksp Zoutput => ppmc.0.stepgen.02.velocity
+
+# set output scaling from ini file 
+setp ppmc.0.stepgen.00.vel-scale [AXIS_0]OUTPUT_SCALE
+setp ppmc.0.stepgen.01.vel-scale [AXIS_1]OUTPUT_SCALE
+setp ppmc.0.stepgen.02.vel-scale [AXIS_2]OUTPUT_SCALE
