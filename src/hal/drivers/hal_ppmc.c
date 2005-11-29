@@ -730,7 +730,7 @@ static void read_encoders(slot_data_t *slot)
                 pos.byte.b3--;
 	slot->encoder[i].oldreading = pos.l;
 	*(slot->encoder[i].count) = pos.l;
-	*(slot->encoder[i].position) = pos.l * slot->encoder[i].scale;
+	*(slot->encoder[i].position) = pos.l / slot->encoder[i].scale;
 	*(slot->encoder[i].index) = (((indextemp & mask) == mask) ? 1 : 0);
 	mask <<= 1;
     }
