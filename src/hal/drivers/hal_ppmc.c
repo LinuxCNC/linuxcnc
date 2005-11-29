@@ -533,7 +533,7 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
-    int busnum;
+    int busnum, n;
     bus_data_t *bus;
 
     rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: shutting down\n");
@@ -544,11 +544,14 @@ void rtapi_app_exit(void)
 	    bus = bus_array[busnum];
 	    /* mark it invalid so RT code won't access */
 	    bus_array[busnum] = NULL;
-	    /* FIXME should we have code here that turns
-	       off all outputs, etc?  If so, it won't be
-	       pretty, because just like the regular code
-	       it will be different for every board. */
-	    /* and free the block */
+	    /* want to make sure everything is turned off */
+	    /* write zero to first EPP address */
+	    SelWrt(0, 0, bus->slot[0].port_addr);
+	    /* and to all the rest */
+	    for ( n = 1 ; n < 256 ; n++ ) {
+		WrtMore(0, bus->slot[0].port_addr);
+	    }
+	    /* and free the memory block */
 	    kfree(bus);
 	}
     }
