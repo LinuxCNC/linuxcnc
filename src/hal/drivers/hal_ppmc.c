@@ -62,6 +62,8 @@
 
 #define MAX_BUS 3	/* max number of parports (EPP busses) */
 
+#define	EPSILON		1e-20
+
 #ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -725,6 +727,13 @@ static void read_encoders(slot_data_t *slot)
                 pos.byte.b3--;
 	slot->encoder[i].oldreading = pos.l;
 	*(slot->encoder[i].count) = pos.l;
+	if (slot->encoder[i].scale < 0.0) {
+	    if (slot->encoder[i].scale > -EPSILON)
+		slot->encoder[i].scale = -1.0;
+	} else {
+	    if (slot->encoder[i].scale < EPSILON)
+		slot->encoder[i].scale = 1.0;
+	}
 	*(slot->encoder[i].position) = pos.l / slot->encoder[i].scale;
 	*(slot->encoder[i].index) = (((indextemp & mask) == mask) ? 1 : 0);
 	mask <<= 1;
@@ -760,13 +769,13 @@ static void write_stepgens(slot_data_t *slot)
 	sg = &(slot->stepgen->sg[n]);
 	/* validate the scale value */
 	if ( sg->vel_scale < 0.0 ) {
-	    if ( sg->vel_scale > -1e-20 ) {
+	    if ( sg->vel_scale > -EPSILON ) {
 		/* too small, divide by zero is bad */
 		sg->vel_scale = -1.0;
 	    }
 	    abs_scale = -sg->vel_scale;
 	} else {
-	    if ( sg->vel_scale < 1e-20 ) {
+	    if ( sg->vel_scale < EPSILON ) {
 		sg->vel_scale = 1.0;
 	    }
 	    abs_scale = sg->vel_scale;
