@@ -174,6 +174,7 @@ typedef struct {
     stepgen_t sg[4];		/* per generator data */
     hal_u8_t setup_time;	/* setup time in 100nS increments */
     hal_u8_t pulse_width;	/* pulse width in 100nS increments */
+    hal_u8_t pulse_space;	/* min pulse space in 100nS increments */
 } stepgens_t;
 
 
@@ -759,20 +760,26 @@ static void write_stepgens(slot_data_t *slot)
     double bd_max_freq, ch_max_freq, abs_scale, freq;
     unsigned char control_byte;
 
-    /* pulse width cannot be zero (or one, HW bug) */
+    /* pulse width cannot be less than 2 (HW limitation) */
     if ( slot->stepgen->pulse_width < 2 ) {
 	slot->stepgen->pulse_width = 2;
     }
     /* write it to the cache, inverted */
     slot->wr_buf[RATE_WIDTH_0] = 256 - slot->stepgen->pulse_width;
-    /* calculate the max frequency, varies with pulse width */
-    bd_max_freq = 5000000.0 / slot->stepgen->pulse_width;
-    /* setup time cannot be zero or one, see above */
+    /* pulse space cannot be less than 3 (HW limitation) */
+    if ( slot->stepgen->pulse_space < 3 ) {
+	slot->stepgen->pulse_space = 3;
+    }
+    /* setup time cannot be less than 2 (HW limit) */
     if ( slot->stepgen->setup_time < 2 ) {
 	slot->stepgen->setup_time = 2;
     }
-    /* write it to the cache */
+    /* write it to the cache, inverted */
     slot->wr_buf[RATE_SETUP_0] = 256 - slot->stepgen->setup_time;
+    /* calculate the max frequency, varies with pulse width and
+       min pulse spacing */
+    bd_max_freq = 10000000.0 / 
+	(slot->stepgen->pulse_width + slot->stepgen->pulse_space);
     /* now do the four individual stepgens */
     control_byte = 0;
     for ( n = 0 ; n < 4 ; n++ ) {
@@ -806,24 +813,22 @@ static void write_stepgens(slot_data_t *slot)
 		ch_max_freq = sg->max_vel * abs_scale;
 	    }
 	}
-	/* SWP - changed the sign for "reverse", now, when step output is fed back to
-		encoder input, the signs match */
 	/* calculate desired frequency */
 	freq = *(sg->vel) * sg->vel_scale;
-	reverse = 1;
+	/* deal with special cases - negative and very low frequency */
+	reverse = 0;
 	run = 1;
-	/* deal with negative */
 	if ( freq < 0.0 ) {
 	    /* negative */
 	    freq = -freq;
-	    reverse = 0;
+	    reverse = 1;
 	}
 	/* apply limits */
 	if ( freq > ch_max_freq ) {
 	    freq = ch_max_freq;
 	    divisor = 10000000.0 / freq;
-	} else if ( freq < (10000000.0/16777214.0) ) {
-	    /* frequency would result in a divisor greater than 2^24-2 */
+	} else if ( freq < (10000000.0/16777215.0) ) {
+	    /* frequency would result in a divisor greater than 2^24-1 */
 	    freq = 0.0;
 	    divisor = 16777215;
 	    /* only way to get zero is to turn it off */
@@ -845,9 +850,11 @@ static void write_stepgens(slot_data_t *slot)
 	if ( run ) {
 	    control_byte |= 0x80;
 	}
-	if ( reverse ) {
+	if ( !reverse ) {
 	    control_byte |= 0x40;
 	}
+	/* correct for an offset of 4 in the hardware */
+	divisor -= 4;
 	/* write divisor to the cache */
 	slot->wr_buf[RATE_GEN_0+(n*3)] = divisor & 0xff;
 	divisor >>= 8;
@@ -1014,6 +1021,12 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-width",
 	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     retval = hal_param_u8_new(buf, HAL_WR, &(slot->stepgen->pulse_width), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-space-min",
+	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
+    retval = hal_param_u8_new(buf, HAL_WR, &(slot->stepgen->pulse_space), comp_id);
     if (retval != 0) {
 	return retval;
     }
