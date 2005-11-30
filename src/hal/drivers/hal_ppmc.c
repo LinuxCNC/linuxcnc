@@ -112,6 +112,18 @@ MODULE_PARM_DESC(port_addr, "port address(es) for EPP bus(es)");
 #define DAC_MODE_1  0x5C
 #define DAC_WRITE_1 0x58
 
+#define PWM_GEN_0       0x10	/* EPP addr of low byte of PWM generator 0 LSB */
+//      PWM_GEN_0a      0x11	/* high byte MSB */
+#define PWM_GEN_1       0x12
+#define PWM_GEN_2       0x14
+#define PWM_GEN_3       0x16
+/* FIXME - I don't know if this is the right address... the map shows it as
+   0x1C, but the text on the webpage says it follows right after the data
+   registers, which would be 0x18...  yet another ambiguous document */
+#define PWM_CTRL_0      0x1C
+#define PWM_FREQ_LO     0x1D
+#define PWM_FREQ_HI     0x1E
+
 #define RATE_GEN_0      0x10	/* EPP addr of low byte of rate generator 0 LSB */
 //      RATE_GEN_0a     0x11	/* middle byte */
 //      RATE_GEN_0b     0x12	/* MSB */
@@ -163,8 +175,9 @@ typedef struct {
 
 /* this structure contains the runtime data for a step pulse generator */
 typedef struct {
-    hal_float_t *vel;		/* velocity command */
-    hal_float_t vel_scale;	/* parameter: scaling for vel to Hz */
+    hal_bit_t *enable;		/* enable pin for step generator */
+    hal_float_t *vel;		/* velocity command pin*/
+    hal_float_t scale;		/* parameter: scaling for vel to Hz */
     hal_float_t max_vel;	/* velocity limit */
     hal_float_t freq;		/* parameter: velocity cmd scaled to Hz */
 } stepgen_t;
@@ -177,6 +190,24 @@ typedef struct {
     hal_u8_t pulse_space;	/* min pulse space in 100nS increments */
 } stepgens_t;
 
+/* this structure contains the runtime data for a PWM generator */
+typedef struct {
+    hal_bit_t *enable;		/* enable pin for PWM generator */
+    hal_float_t *value;		/* value command pin */
+    hal_float_t scale;		/* parameter: scaling */
+    hal_float_t max_dc;		/* maximum duty cycle 0.0-1.0 */
+    hal_float_t min_dc;		/* minimum duty cycle 0.0-1.0 */
+    hal_float_t duty_cycle;	/* actual duty cycle output */
+} pwmgen_t;
+
+/* runtime data for a set of 4 PWM generators */
+typedef struct {
+    pwmgen_t pg[4];		/* per generator data */
+    hal_float_t freq;		/* PWM frequency */
+    hal_float_t old_freq;	/* previous value, to detect changes */
+    unsigned short period;	/* period in clock ticks */
+    double period_recip;	/* reciprocal of period */
+} pwmgens_t;
 
 /* runtime data for a single encoder */
 typedef struct {
@@ -220,6 +251,7 @@ typedef struct slot_data_s {
     dout_t *digout;		/* ptr to shmem data for digital outputs */
     din_t *digin;		/* ptr to shmem data for digital inputs */
     stepgens_t *stepgen;	/* ptr to shmem data for step generators */
+    pwmgens_t *pwmgen;		/* ptr to shmem data for PWM generators */
     encoder_t *encoder;         /* ptr to shmem data for encoders */
 } slot_data_t;
 
@@ -232,6 +264,7 @@ typedef struct {
     unsigned int last_digout;	/* used for numbering digital outputs */
     unsigned int last_digin;	/* used for numbering digital outputs */
     unsigned int last_stepgen;	/* used for numbering step generators */
+    unsigned int last_pwmgen;	/* used for numbering PWM generators */
     unsigned int last_encoder;	/* used for numbering encoders */
     char slot_valid[NUM_SLOTS];	/* tags for slots that are used */
     slot_data_t slot_data[NUM_SLOTS];  /* data for slots on EPP bus */
@@ -255,7 +288,7 @@ static void write_all(void *arg, long period);
 static void read_digins(slot_data_t *slot);
 static void write_digouts(slot_data_t *slot);
 static void write_stepgens(slot_data_t *slot);
-
+static void write_pwmgens(slot_data_t *slot);
 static void read_encoders(slot_data_t *slot);
 
 /***********************************************************************
@@ -280,6 +313,7 @@ static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, int min_addr, in
 static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus);
 static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus);
 static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus);
+static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus);
 static int export_encoders(slot_data_t *slot, bus_data_t *bus);
 
 /***********************************************************************
@@ -370,6 +404,7 @@ int rtapi_app_main(void)
 	bus->last_digout = 0;
 	bus->last_digin = 0;
 	bus->last_stepgen = 0;
+	bus->last_pwmgen = 0;
 	bus->last_encoder = 0;
 	/* clear the slot data structures (part of the bus struct) */
 	for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum ++ ) {
@@ -402,6 +437,7 @@ int rtapi_app_main(void)
 	    slot->digout = NULL;
             slot->digin = NULL;
             slot->stepgen = NULL;
+            slot->pwmgen = NULL;
             slot->encoder = NULL;
 	}    
 	/* scan the bus */
@@ -458,6 +494,7 @@ int rtapi_app_main(void)
 		rtapi_print_msg(RTAPI_MSG_INFO, "Univ. PWM Controller\n");
 		rv1 += export_UxC_digin(slot, bus);
 		rv1 += export_UxC_digout(slot, bus);
+		rv1 += export_UPC_pwmgen(slot, bus);
 		rv1 += export_encoders(slot, bus);
 		/* the UPC occupies two slots, so skip the second one */
 		slotnum++;
@@ -653,7 +690,6 @@ static void write_all(void *arg, long period)
 		    WrtMore(slot->wr_buf[n++], slot->port_addr);
 		}
 	    }
-	    /* FIXME - do we need something here to strobe data? */
 	}
     }
 }
@@ -786,17 +822,17 @@ static void write_stepgens(slot_data_t *slot)
 	/* point to the specific stepgen */
 	sg = &(slot->stepgen->sg[n]);
 	/* validate the scale value */
-	if ( sg->vel_scale < 0.0 ) {
-	    if ( sg->vel_scale > -EPSILON ) {
+	if ( sg->scale < 0.0 ) {
+	    if ( sg->scale > -EPSILON ) {
 		/* too small, divide by zero is bad */
-		sg->vel_scale = -1.0;
+		sg->scale = -1.0;
 	    }
-	    abs_scale = -sg->vel_scale;
+	    abs_scale = -sg->scale;
 	} else {
-	    if ( sg->vel_scale < EPSILON ) {
-		sg->vel_scale = 1.0;
+	    if ( sg->scale < EPSILON ) {
+		sg->scale = 1.0;
 	    }
-	    abs_scale = sg->vel_scale;
+	    abs_scale = sg->scale;
 	}
 	ch_max_freq = bd_max_freq;
 	/* check for user specified max velocity */
@@ -814,10 +850,15 @@ static void write_stepgens(slot_data_t *slot)
 	    }
 	}
 	/* calculate desired frequency */
-	freq = *(sg->vel) * sg->vel_scale;
+	freq = *(sg->vel) * sg->scale;
+	/* should we be running? */
+	if ( *(sg->enable) != 0 ) {
+	    run = 1;
+	} else {
+	    run = 0;
+	}
 	/* deal with special cases - negative and very low frequency */
 	reverse = 0;
-	run = 1;
 	if ( freq < 0.0 ) {
 	    /* negative */
 	    freq = -freq;
@@ -839,18 +880,16 @@ static void write_stepgens(slot_data_t *slot)
 	    /* calculate actual frequency (due to divisor roundoff) */
 	    freq = 10000000.0 / divisor;
 	}
-	/* save the frequency */
-	if ( reverse == 0 ) {	    
-	    sg->freq = freq;
-	} else {
-	    sg->freq = -freq;
-	}
-	/* set run and dir bits in the control byte */
+	/* set run bit in the control byte */
 	control_byte >>= 2;
 	if ( run ) {
 	    control_byte |= 0x80;
 	}
-	if ( !reverse ) {
+	/* set dir bit in the control byte, and save the frequency */
+	if ( reverse ) {	    
+	    sg->freq = -freq;
+	} else {
+	    sg->freq = freq;
 	    control_byte |= 0x40;
 	}
 	/* correct for an offset of 4 in the hardware */
@@ -864,6 +903,111 @@ static void write_stepgens(slot_data_t *slot)
     }
     /* write control byte to cache */
     slot->wr_buf[RATE_CTRL_0] = control_byte;
+}
+
+
+static void write_pwmgens(slot_data_t *slot)
+{
+    int n, reverse;
+    unsigned int period, start, len, stop;
+    pwmgen_t *pg;
+    double freq, dc, abs_dc;
+    unsigned char control_byte;
+
+    /* check for new frequency setting */
+    if ( slot->pwmgen->freq != slot->pwmgen->old_freq ) {
+	/* process new frequency value */
+	freq = slot->pwmgen->freq;
+	/* frequency must be between 153Hz and 500KHz */
+	if ( freq < 153.0 ) {
+	    freq = 153.0;
+	}
+	if ( freq > 500000.0 ) {
+	    freq = 500000.0;
+	}
+	/* calculate divisor */
+	period = (10000000.0 / freq) + 0.5;
+	/* calculate actual frequency (after rounding, etc) */
+	freq = 10000000.0 / period;
+	/* save values */
+	slot->pwmgen->freq = freq;
+	slot->pwmgen->old_freq = freq;
+	slot->pwmgen->period = period;
+	slot->pwmgen->period_recip = 1.0 / period;
+    }
+    /* calculate counter start value */
+    start = 65536 - slot->pwmgen->period;
+    /* write to cache */
+    slot->wr_buf[PWM_FREQ_LO] = start & 0xFF;
+    slot->wr_buf[PWM_FREQ_HI] = (start >> 8) & 0xFF;
+    /* now do the four individual pwmgens */
+    control_byte = 0;
+    for ( n = 0 ; n < 4 ; n++ ) {
+	/* point to the specific pwm generator */
+	pg = &(slot->pwmgen->pg[n]);
+	/* validate the scale value */
+	if ( pg->scale < 0.0 ) {
+	    if ( pg->scale > -EPSILON ) {
+		/* too small, divide by zero is bad */
+		pg->scale = -1.0;
+	    }
+	} else {
+	    if ( pg->scale < EPSILON ) {
+		pg->scale = 1.0;
+	    }
+	}
+	/* calculate desired duty cycle */
+	dc = *(pg->value) / pg->scale;
+	/* deal with negative values */
+	reverse = 0;
+	if ( dc < 0.0 ) {
+	    reverse = 1;
+	    abs_dc = -dc;
+	} else {
+	    abs_dc = dc;
+	}
+	/* reset any illegal duty cycle limits */
+	if (( pg->min_dc > 1.0 ) || ( pg->min_dc < 0.0 )) {
+	    pg->min_dc = 0.0;
+	} 
+	if (( pg->max_dc > 1.0 ) || ( pg->max_dc < 0.0 )) {
+	    pg->max_dc = 1.0;
+	} 
+	if ( pg->min_dc >= pg->max_dc ) {
+	    pg->min_dc = 0.0;
+	    pg->max_dc = 1.0;
+	}
+	/* apply limits */
+	if ( abs_dc > pg->max_dc ) {
+	    abs_dc = pg->max_dc;
+	} else if ( abs_dc < pg->min_dc ) {
+	    abs_dc = pg->min_dc;
+	}
+	/* calculate length of PWM pulse in clocks */
+	len = ( abs_dc * slot->pwmgen->period ) + 0.5;
+	/* calculate actual duty cycle (after rounding) */
+	abs_dc = len * slot->pwmgen->period_recip;
+	/* set run bit in the control byte */
+	control_byte >>= 2;
+	if ( *(pg->enable) != 0 ) {
+	    control_byte |= 0x80;
+	}
+	/* set dir bit in the control byte, and save the duty cycle */
+	if ( reverse ) {
+	    pg->duty_cycle = -abs_dc;
+	} else {
+	    pg->duty_cycle = abs_dc;
+	    control_byte |= 0x40;
+	}
+	/* calculate count at which to turn off output */
+	stop = start + len;
+	/* write count to the cache */
+	slot->wr_buf[PWM_GEN_0+(n*2)] = stop & 0xff;
+	stop >>= 8;
+	slot->wr_buf[PWM_GEN_0+(n*2)+1] = stop & 0xff;
+    }
+    /* write control byte to cache */
+    slot->wr_buf[PWM_CTRL_0] = control_byte;
 }
 
 /***********************************************************************
@@ -1034,6 +1178,13 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     for ( n = 0 ; n < 4 ; n++ ) {
 	/* pointer to the stepgen struct */
 	sg = &(slot->stepgen->sg[n]);
+	/* enable pin */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.enable",
+	    bus->busnum, bus->last_stepgen);
+	retval = hal_pin_bit_new(buf, HAL_RD, &(sg->enable), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
 	/* velocity command pin */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.velocity",
 	    bus->busnum, bus->last_stepgen);
@@ -1042,9 +1193,9 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	    return retval;
 	}
 	/* velocity scaling parameter */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.vel-scale",
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.scale",
 	    bus->busnum, bus->last_stepgen);
-	retval = hal_param_float_new(buf, HAL_WR, &(sg->vel_scale), comp_id);
+	retval = hal_param_float_new(buf, HAL_WR, &(sg->scale), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1068,6 +1219,86 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     add_wr_funct(write_stepgens, slot, RATE_GEN_0, RATE_WIDTH_0);
     return 0;
 }
+
+
+static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
+{
+    int retval, n;
+    char buf[HAL_NAME_LEN + 2];
+    pwmgen_t *pg;
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting PWM generators\n");
+
+    /* do hardware init */
+
+    /* allocate shared memory for the digital output data */
+    slot->pwmgen = hal_malloc(sizeof(pwmgens_t));
+    if (slot->pwmgen == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PPMC: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export params that apply to all four pwmgens */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d-%02d.freq",
+	bus->busnum, bus->last_pwmgen, bus->last_pwmgen+3);
+    retval = hal_param_float_new(buf, HAL_WR, &(slot->pwmgen->freq), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export per-pwmgen pins and params */
+    for ( n = 0 ; n < 4 ; n++ ) {
+	/* pointer to the pwmgen struct */
+	pg = &(slot->pwmgen->pg[n]);
+	/* enable pin */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.enable",
+	    bus->busnum, bus->last_pwmgen);
+	retval = hal_pin_bit_new(buf, HAL_RD, &(pg->enable), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* value command pin */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.value",
+	    bus->busnum, bus->last_pwmgen);
+	retval = hal_pin_float_new(buf, HAL_RD, &(pg->value), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* output scaling parameter */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.scale",
+	    bus->busnum, bus->last_pwmgen);
+	retval = hal_param_float_new(buf, HAL_WR, &(pg->scale), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* maximum duty cycle parameter */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.max-dc",
+	    bus->busnum, bus->last_pwmgen);
+	retval = hal_param_float_new(buf, HAL_WR, &(pg->max_dc), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* minimum duty cycle parameter */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.min-dc",
+	    bus->busnum, bus->last_pwmgen);
+	retval = hal_param_float_new(buf, HAL_WR, &(pg->min_dc), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* actual duty cycle parameter */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.duty-cycle",
+	    bus->busnum, bus->last_pwmgen);
+	retval = hal_param_float_new(buf, HAL_RD, &(pg->duty_cycle), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* increment number to prepare for next output */
+	bus->last_pwmgen++;
+    }
+    add_wr_funct(write_pwmgens, slot, PWM_GEN_0, PWM_GEN_3+1);
+    return 0;
+}
+
+
 /* Each of the encoders has the following:
     params:
         ppmc.n.encoder.m.scale      float

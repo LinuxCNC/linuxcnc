@@ -23,10 +23,15 @@ linksp Xoutput => ppmc.0.stepgen.00.velocity
 linksp Youtput => ppmc.0.stepgen.01.velocity
 linksp Zoutput => ppmc.0.stepgen.02.velocity
 
+# connect axis enables to step generators
+linksp Xenable => ppmc.0.stepgen.00.enable
+linksp Yenable => ppmc.0.stepgen.01.enable
+linksp Zenable => ppmc.0.stepgen.02.enable
+
 # set output scaling from ini file 
-setp ppmc.0.stepgen.00.vel-scale [AXIS_0]OUTPUT_SCALE
-setp ppmc.0.stepgen.01.vel-scale [AXIS_1]OUTPUT_SCALE
-setp ppmc.0.stepgen.02.vel-scale [AXIS_2]OUTPUT_SCALE
+setp ppmc.0.stepgen.00.scale [AXIS_0]OUTPUT_SCALE
+setp ppmc.0.stepgen.01.scale [AXIS_1]OUTPUT_SCALE
+setp ppmc.0.stepgen.02.scale [AXIS_2]OUTPUT_SCALE
 
 # set preliminary PID gains
 setp pid.0.FF1 1
