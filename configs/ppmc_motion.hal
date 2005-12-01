@@ -8,6 +8,13 @@ loadrt hal_ppmc
 addf ppmc.0.read servo-thread 1
 addf ppmc.0.write servo-thread -1
 
+# set sane pulse timing - these are basically Gecko numbers
+# both pulse width and space are aset to 3.5 uS, to prevent
+# problems if the outputs are inverted externally
+setp ppmc.0.stepgen.00-03.pulse-width 35
+setp ppmc.0.stepgen.00-03.pulse-space-min 35
+setp ppmc.0.stepgen.00-03.setup-time 10
+
 # connect position feedback signals to encoders
 linksp Xpos-fb <= ppmc.0.encoder.00.position
 linksp Ypos-fb <= ppmc.0.encoder.01.position
@@ -29,9 +36,12 @@ linksp Yenable => ppmc.0.stepgen.01.enable
 linksp Zenable => ppmc.0.stepgen.02.enable
 
 # set output scaling from ini file 
-setp ppmc.0.stepgen.00.scale [AXIS_0]OUTPUT_SCALE
-setp ppmc.0.stepgen.01.scale [AXIS_1]OUTPUT_SCALE
-setp ppmc.0.stepgen.02.scale [AXIS_2]OUTPUT_SCALE
+# note that these are using INPUT_SCALE - this is because the
+# input and output scales should (normally) be the same for a USC
+# and emc2 always rewrites OUTPUT_SCALE to 1
+setp ppmc.0.stepgen.00.scale [AXIS_0]INPUT_SCALE
+setp ppmc.0.stepgen.01.scale [AXIS_1]INPUT_SCALE
+setp ppmc.0.stepgen.02.scale [AXIS_2]INPUT_SCALE
 
 # set preliminary PID gains
 setp pid.0.FF1 1

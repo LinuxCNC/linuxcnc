@@ -1,6 +1,12 @@
 # HAL config file for Pico Systems USC board
+# this file should be specified in the [HAL] section of emc.ini
+# along with ppmc_motion.hal and core_servo.hal, like so:
+# [HAL]
+# HALFILE = core_servo.hal
+# HALFILE = ppmc_motion.hal
+# HALFILE = ppmc_io.hal
 #
-# install driver (only needed if ppmc_motion.hal doesn't get run)
+# load driver (only needed if ppmc_motion.hal doesn't get run)
 #loadrt hal_ppmc
 
 # add I/O to servo thread so they will be evaluated
