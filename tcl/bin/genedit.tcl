@@ -2,6 +2,17 @@
 # the next line restarts using wish \
 exec wish "$0" "$@"
 
+set TCLBIN tcl/bin
+set TCLSCRIPTS tcl/scripts
+
+if {[info exists env(EMC2_TCL_DIR)]} {
+    set TCLBIN $env(EMC2_TCL_DIR)
+    set TCLSCRIPTS $env(EMC2_TCL_DIR)
+    set TCLBIN $TCLBIN/bin
+    set TCLSCRIPTS $TCLSCRIPTS/scripts
+}
+
+
 # genedit.tcl
 #
 # geneditStart <name> ?<initial file>? ?<browser types>? runs an editor
@@ -22,11 +33,11 @@ exec wish "$0" "$@"
 # by name to extract things like the insertion point, selected text, etc.
 # Mods to fix copy, paste, delete add find and line number by rh 12/1999
 # Mods to add line numbering and find and replace by rh 12/1999.
-# Mod for a script menu that looks for *.ncw files in emc/tcl/scripts directory.
+# Mod for a script menu that looks for *.ncw files in emc2/tcl/scripts directory.
 
 proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"Text files" {.txt} }}}} {
 
-    global geneditFilename geneditTypes textwin
+    global geneditFilename geneditTypes textwin TCLSCRIPTS
 
     if {[winfo exists .$name]} {
         wm deiconify .$name
@@ -135,14 +146,15 @@ proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"T
         set scriptmenu $menubar.script
         menu $scriptmenu
         $menubar add cascade -label "Scripts" -menu $scriptmenu -underline 1
-        set scriptdir tcl/scripts
-        set files [exec /bin/ls $scriptdir]
-        foreach file $files {
-            if {[string match *.ncw $file]} {
-                set geneditfname [file rootname $file]
-                $scriptmenu add command -label $geneditfname -command "source $scriptdir/$file"
-            }
-        }
+        #replaced scriptdir
+	#set scriptdir tcl/scripts
+        set files [exec /bin/ls $TCLSCRIPTS]
+	foreach file $files {
+    	    if {[string match *.ncw $file]} {
+        	set geneditfname [file rootname $file]
+            	$scriptmenu add command -label $geneditfname -command "source $TCLSCRIPTS/$file"
+    	    }
+    	}
     }
 }
 
@@ -500,3 +512,5 @@ proc geneditReNumber {} {
     }
     set startnumbering 0
 }
+
+geneditStart genEditor

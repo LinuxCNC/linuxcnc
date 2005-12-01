@@ -1,13 +1,16 @@
 #!/bin/sh
 # we need to find the tcl dir, it was exported from emc.run \
 export EMC2_TCL_DIR
-# the next line restarts using iosh \
+# the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
 # emclog.tcl
 # EMC data logger
 # Needs emcsh to run-- this is sourced by tkemc, but it can be run
-# standalone. Make sure directory containing emcsh is in your path,
+# standalone. 
+# Make sure EMC2_TCL_DIR is exported and refers to your tcl dir
+# usually emc2/tcl/.
+# Make sure EMC2_EMCSH is exported containing emcsh with path,
 # or edit the exec line above with the path to emcsh.
 
 # check if any emc commands exist, and quit if not

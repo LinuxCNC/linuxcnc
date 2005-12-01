@@ -1,6 +1,18 @@
 #!/bin/sh
+# we need to find the tcl dir, it was exported from emc.run \
+export EMC2_TCL_DIR
 # the next line restarts using emcsh \
-exec bin/emcsh "$0" "$@"
+exec $EMC2_EMCSH "$0" "$@"
+
+set TCLBIN tcl/bin
+set TCLSCRIPTS tcl/scripts
+
+if {[info exists env(EMC2_TCL_DIR)]} {
+    set TCLBIN $env(EMC2_TCL_DIR)
+    set TCLSCRIPTS $env(EMC2_TCL_DIR)
+    set TCLBIN $TCLBIN/bin
+    set TCLSCRIPTS $TCLSCRIPTS/scripts
+}
 
 # emctuning.tcl
 # EMC system identification and autotuning program

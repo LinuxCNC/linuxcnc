@@ -1,7 +1,7 @@
 #!/bin/sh
 # we need to find the tcl dir, it was exported from emc.run \
 export EMC2_TCL_DIR
-# the next line restarts using iosh \
+# the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
 # emccalib.tcl
