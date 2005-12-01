@@ -513,4 +513,8 @@ proc geneditReNumber {} {
     set startnumbering 0
 }
 
-geneditStart genEditor
+# if we're not running inside tkemc, then pop us up in root window
+if {! [info exists tkemc]} {
+    geneditStart genEditor
+}
+
