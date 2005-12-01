@@ -288,7 +288,6 @@ static int loadToolTable(const char *filename,
     // open tool table file
     if (NULL == (fp = fopen(name, "r"))) {
 	// can't open file
-	fclose(fp);
 	return -1;
     }
     // clear out tool table
