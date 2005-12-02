@@ -157,6 +157,7 @@ int main(int argc, gchar * argv[])
     gtk_timeout_add(100, heartbeat, NULL);
     /* enter the main loop */
     gtk_main();
+    write_config_file(".scope.cfg");
 
     return (0);
 }
@@ -524,7 +525,6 @@ static void exit_from_hal(void)
 
 static void main_window_closed(GtkWidget * widget, gpointer * gdata)
 {
-    write_config_file(".scope.cfg");
     quit(0);
 }
 
