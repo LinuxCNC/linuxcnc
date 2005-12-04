@@ -726,9 +726,6 @@ int tcqInit(TC_QUEUE_STRUCT * tcq)
 int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc)
 {
 
-    // FIXME - debug only, remove later
-    rtapi_print("tcqPut()\n" );
-    
     /* check for initialized */
     if (0 == tcq || 0 == tcq->queue) {
 	return -1;
@@ -804,9 +801,6 @@ TC_STRUCT tcqGet(TC_QUEUE_STRUCT * tcq, int *status)
 int tcqRemove(TC_QUEUE_STRUCT * tcq, int n)
 {
 
-    // FIXME - debug only, remove later
-    rtapi_print("tcqRemove(%d)\n", n );
-    
     if (n <= 0) {
 	return 0;		/* okay to remove 0 or fewer */
     }

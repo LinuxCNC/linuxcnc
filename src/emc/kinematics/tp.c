@@ -31,8 +31,6 @@
 #include "../motion/motion.h"
 #include "../motion/mot_priv.h"
 
-// FIXME - debug only, remove later
-int print = 0;
 int output_chan = 0;
 
 int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
@@ -321,10 +319,6 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     PmPose tran_pose, goal_tran_pose;
     PmPose abc_pose, goal_abc_pose;
 
-    // FIXME - debug only, remove later
-    rtapi_print("tpAddLine()\n");
-    print = 10;
-
     if (0 == tp) {
 	return -1;
     }
@@ -400,10 +394,6 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     PmLine line_abc;
     PmPose endPose, circleGoalPose;
     PmPose abc_pose, goal_abc_pose;
-
-    // FIXME - debug only, remove later
-    rtapi_print("tpAddCircle()\n");
-    print = 10;
 
     if (0 == tp) {
 	return -1;
@@ -501,9 +491,6 @@ int tpRunCycle(TP_STRUCT * tp)
     // FIXME - debug only, remove later
     int n;
     
-    // FIXME - debug only, remove later
-    if (print) { print--; }
-    
     if (0 == tp) {
 	return -1;
     }
@@ -532,10 +519,6 @@ int tpRunCycle(TP_STRUCT * tp)
 	emcmot_hal_data->tc_acc[n] = 0.0;
     }
    
-    // FIXME - debug only, remove later
-    if ( tcqLen(&tp->queue) > 0 ) { print = 10; }
-    if (print) {rtapi_print("Queue len: %d\n", tcqLen(&tp->queue));}
-    
     /* this loops over the TC_STRUCT queue */
     for (t = 0; t < tcqLen(&tp->queue); t++) {
 	lastTcWasPureRotation = thisTcIsPureRotation;
