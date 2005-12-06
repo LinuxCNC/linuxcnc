@@ -2,8 +2,6 @@ N05 ( This program is copyright of Rab Gordon, Gary Drew, and Paul Corner.)
 N10 ( It is released here under a GPL without warranty to do with as you may.)
 N15 ( The part is cut from a 100x100x50mm block with the zero point at the )
 N20 ( center top of the block. Cutter is a 10mm ball nose. )
-N21 g54 g0 x0 y0 z0
-N22 g55 g0 x0 y0 z0
 N30 G21
 N40G90
 N50T1M6
@@ -4693,9 +4691,7 @@ N6881Y56.105Z-27.894
 N6891Y56.11Z-27.838
 N6901Y56.128Z-27.634
 N6911G0Z10.
-N6921Z100.
 N6931M9
-N6932 g0 g54 x0 y0 z0
 N6941M2
 
 
