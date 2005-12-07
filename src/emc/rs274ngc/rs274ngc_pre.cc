@@ -77,11 +77,52 @@ include an option for suppressing superfluous commands.
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+
 #include "inifile.hh"		// INIFILE
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 //#include "rs274ngc_errors.cc"
+
 extern char * _rs274ngc_errors[];
+
+#define LOG_FILE "emc_log"
+
+void Interp::doLog(char *fmt, ...)
+{
+    struct timeval tv;
+    struct tm *tm;
+    va_list ap;
+
+    va_start(ap, fmt);
+
+    if(log_file == NULL)
+    {
+       log_file = fopen(LOG_FILE, "a");
+    }
+
+    if(log_file == NULL)
+    {
+         fprintf(stderr, "(%d)Unable to open log file:%s\n",
+                  getpid(), LOG_FILE);
+    }
+
+    gettimeofday(&tv, NULL);
+    tm = localtime(&tv.tv_sec);
+
+    fprintf(log_file, "%04d%02d%02d-%02d:%02d:%02d.%03d ",
+	    tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
+	    tm->tm_hour, tm->tm_min, tm->tm_sec,
+	    tv.tv_usec/1000);
+
+    vfprintf(log_file, fmt, ap);
+    fflush(log_file);
+
+    va_end(ap);
+}
 
 /****************************************************************************/
 
@@ -153,7 +194,23 @@ int Interp::execute(const char *command)
     }
   }
 
-  for (n = 0; n < _setup.parameter_occurrence; n++) {   // copy parameter settings from parameter buffer into parameter table
+
+  // process control functions -- will skip if skipping
+  if (_setup.block1.o_number != 0)
+    {
+      CHP(convert_control_functions(&(_setup.block1), &_setup));
+      return INTERP_OK;
+    }
+
+  // skip if skipping
+  if(_setup.skipping_o)
+    {
+      logDebug("skipping to line: %d", _setup.skipping_o);
+      return INTERP_OK;
+    }
+
+  for (n = 0; n < _setup.parameter_occurrence; n++)
+  {  // copy parameter settings from parameter buffer into parameter table
     _setup.parameters[_setup.parameter_numbers[n]]
       = _setup.parameter_values[n];
   }
@@ -326,6 +383,12 @@ int Interp::init()
   write_g_codes((block_pointer) NULL, &_setup);
   write_m_codes((block_pointer) NULL, &_setup);
   write_settings(&_setup);
+
+  // initialization stuff for subroutines and control structures
+  _setup.call_level = 0;
+  _setup.defining_sub = 0;
+  _setup.skipping_o = 0;
+  _setup.oword_labels = 0;
 
   // Synch rest of settings to external world
   synch();
@@ -510,13 +573,41 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
   }
   CHK(((command == NULL) && (_setup.file_pointer == NULL)),
       INTERP_FILE_NOT_OPEN);
+
+  if(_setup.file_pointer)
+  {
+     _setup.block1.offset = ftell(_setup.file_pointer);
+  }
+
   read_status =
     read_text(command, _setup.file_pointer, _setup.linetext,
               _setup.blocktext, &_setup.line_length);
+
+  if(command)logDebug("%s:[cmd]:|%s|", name, command);
+  else logDebug("%s:|%s|", name, _setup.linetext);
+
   if ((read_status == INTERP_EXECUTE_FINISH)
       || (read_status == INTERP_OK)) {
     if (_setup.line_length != 0) {
       CHP(parse_line(_setup.blocktext, &(_setup.block1), &_setup));
+    }
+
+    else // Blank line (zero length)
+    {
+          /* RUM - this case reached when the block delete '/' character 
+             is used, or READ_FULL_COMMENT is OFF and a comment is the
+             only content of a line. 
+             If a block o-type is in effect, block->o_number needs to be 
+             incremented to allow o-extensions to work. 
+             Note that the the block is 'refreshed' by init_block(),
+             not created new, so this is a legal operation on block1. */
+        if (_setup.block1.o_type != O_none)
+        {
+            // Clear o_type, this isn't line isn't a command...
+            _setup.block1.o_type = 0;
+            // increment o_number
+            _setup.block1.o_number++;
+        }
     }
   } else if (read_status == INTERP_ENDFILE);
   else
@@ -560,6 +651,12 @@ int Interp::reset()
   _setup.linetext[0] = 0;
   _setup.blocktext[0] = 0;
   _setup.line_length = 0;
+
+  // initialization stuff for subroutines and control structures
+  _setup.call_level = 0;
+  _setup.defining_sub = 0;
+  _setup.skipping_o = 0;
+  _setup.oword_labels = 0;
 
   return INTERP_OK;
 }

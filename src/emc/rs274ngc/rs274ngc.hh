@@ -28,6 +28,11 @@
 
 #define DEBUG_EMC
 
+#define LOG(level, fmt, args...) \
+       doLog("%02d(%d):%s:%d -- " fmt "\n", \
+       level, getpid(), __FILE__, __LINE__ , ## args)
+#define logDebug(fmt, args...) LOG(0, fmt, ## args)
+
 class Interp {
 
 public:
@@ -324,6 +329,8 @@ private:
  int read_line_number(char *line, int *counter, block_pointer block);
  int read_m(char *line, int *counter, block_pointer block,
                   double *parameters);
+ int read_o(char *line, int *counter, block_pointer block,
+                  double *parameters);
  int read_one_item(char *line, int *counter, block_pointer block,
                          double *parameters);
  int read_operation(char *line, int *counter, int *operation);
@@ -362,6 +369,29 @@ private:
  int write_m_codes(block_pointer block, setup_pointer settings);
  int write_settings(setup_pointer settings);
 
+  // O_word stuff
+int Interp::control_save_offset( /* ARGUMENTS                   */
+ int line,                   /* (o-word) line number        */
+ block_pointer block,        /* pointer to a block of RS274/NGC instructions */
+ setup_pointer settings);     /* pointer to machine settings */
+
+int Interp::control_find_oword( /* ARGUMENTS                       */
+  int line,                 /* (o-word) line number             */
+  setup_pointer settings,   /* pointer to machine settings      */
+  int *o_index);             /* the index of o-word (returned) */
+
+int Interp::control_back_to( /* ARGUMENTS                       */
+ int line,                 /* (o-word) line number             */
+ setup_pointer settings);   /* pointer to machine settings      */
+
+int Interp::convert_control_functions( /* ARGUMENTS           */
+ block_pointer block,      /* pointer to a block of RS274/NGC instructions */
+ setup_pointer settings);   /* pointer to machine settings                  */
+
+void Interp::doLog(char *fmt, ...);
+
+ FILE *log_file;
+
 /* Internal arrays */
  static const int _gees[];
  static const int _ems[];
@@ -369,6 +399,7 @@ private:
  static const read_function_pointer _readers[];
 
  static setup _setup;
+
 
 };
 

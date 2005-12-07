@@ -750,7 +750,24 @@ int Interp::read_items(block_pointer block,      //!< pointer to a block being f
 
   if (line[counter] == '/')     /* skip the slash character if first */
     counter++;
-  if ((line[counter] == 'n') || (line[counter] == 'o')) {       /* added o */
+
+  if (line[counter] == 'o')
+ /* Handle 'o' explicitly here. Default is
+    to read letters via pointer calls to related
+    reader functions. 'o' control lines have their
+    own commands and command handlers. */
+    {
+      CHP(read_o(line, &counter, block, parameters));
+      return INTERP_OK;
+    }
+  else if(_setup.skipping_o != 0)
+  {
+      // if we are skipping, do NOT evaluate non-olines
+      return INTERP_OK;
+  }
+  else if (line[counter] == 'n')
+  {
+
     CHP(read_line_number(line, &counter, block));
   }
   for (; counter < length;) {
@@ -1170,6 +1187,55 @@ int Interp::read_operation(char *line,   //!< string: line of RS274/NGC code bei
     } else
       ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_X);
     break;
+
+      /* relational operators */
+    case 'e':
+      if(line[*counter] == 'q')
+	{
+	  *operation = EQ;
+	  *counter = (*counter + 1);
+	}
+      else
+        ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_E);
+      break;
+    case 'n':
+      if(line[*counter] == 'e')
+	{
+	  *operation = NE;
+	  *counter = (*counter + 1);
+	}
+      else
+        ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_N);
+      break;
+    case 'g':
+      if(line[*counter] == 'e')
+	{
+	  *operation = GE;
+	  *counter = (*counter + 1);
+	}
+      else if(line[*counter] == 't')
+	{
+	  *operation = GT;
+	  *counter = (*counter + 1);
+	}
+      else
+        ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_G);
+      break;
+    case 'l':
+      if(line[*counter] == 'e')
+	{
+	  *operation = LE;
+	  *counter = (*counter + 1);
+	}
+      else if(line[*counter] == 't')
+	{
+	  *operation = LT;
+	  *counter = (*counter + 1);
+	}
+      else
+        ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_L);
+      break;
+
   case 0:
     ERM(NCE_UNCLOSED_EXPRESSION);
   default:
@@ -1297,6 +1363,164 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
   }
   return INTERP_OK;
 }
+
+/****************************************************************************/
+
+/* read_o
+
+Returned Value: int
+   If read_real_value returns an error code, this returns that code.
+   If any of the following errors occur, this returns the error code shown.
+   Otherwise, it returns RS274NGC_OK.
+   1. The first character read is not o:
+      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
+
+Side effects:
+   counter is reset to point to the first character following the p value.
+   The p value setting is inserted in block.
+
+Called by: read_one_item
+
+When this function is called, counter is pointing at an item on the
+line that starts with the character 'o', indicating a o value
+setting. The function reads characters which tell how to set the o
+value, up to the start of the next item or the end of the line. This
+information is inserted in the block.
+
+O codes are used for:
+1.  sub
+2.  endsub
+3.  call
+4.  do
+5.  while
+6.  if
+7.  elseif
+8.  else
+9.  endif
+10. break
+11. continue
+12. endwhile
+13. return
+
+*/
+
+int Interp::read_o(    /* ARGUMENTS                                     */
+ char * line,         /* string: line of RS274/NGC code being processed */
+ int * counter,       /* pointer to a counter for position on the line  */
+ block_pointer block, /* pointer to a block being filled from the line  */
+ double * parameters) /* array of system parameters                     */
+{
+  static char name[] = "read_o";
+  double value;
+  int status;
+  int param_cnt;
+
+  CHK((line[*counter] != 'o'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+
+  // changed spec so we now read an expression
+  // so... we can have a parameter contain a function pointer!
+  *counter += 1;
+  CHP(read_integer_value(line, counter, &(block->line_number), parameters));
+
+  logDebug("In: %s line:%d |%s|", name, block->line_number, line);
+
+  block->o_number = block->line_number;
+
+#define CMP(txt) (strncmp(line+*counter, txt, strlen(txt)) == 0)
+  if(CMP("sub"))
+    {
+      block->o_type = O_sub;
+    }
+  else if(CMP("endsub"))
+    {
+      block->o_type = O_endsub;
+    }
+  else if(_setup.defining_sub == 1)
+    {
+      // we can not evaluate expressions -- so just skip on out
+      block->o_type = O_none;
+    }
+  else if(CMP("call"))
+    {
+      *counter += strlen("call");
+      block->o_type = O_call;
+
+      for(param_cnt=0;line[*counter] == '[';param_cnt++)
+	{
+	  logDebug("counter[%d] rest of line:|%s|", *counter,
+		   line+*counter);
+	  CHK((param_cnt >= INTERP_SUB_PARAMS),
+	      NCE_TOO_MANY_SUBROUTINE_PARAMETERS);
+	  CHP(read_real_expression(line, counter, &value, parameters));
+	  block->params[param_cnt] = value;
+	}
+      logDebug("set arg params:%d", param_cnt);
+
+      // zero the remaining params
+      for(;param_cnt < INTERP_SUB_PARAMS; param_cnt++)
+	{
+	  block->params[param_cnt] = 0.0;
+	}
+    }
+  else if(CMP("do"))
+    {
+      block->o_type = O_do;
+    }
+  else if(CMP("while"))
+    {
+      *counter += strlen("while");
+      block->o_type = O_while;
+      CHP(read_real_expression(line, counter, &value, parameters));
+      _setup.test_value = value;
+    }
+  else if(CMP("if"))
+    {
+      *counter += strlen("if");
+      block->o_type = O_if;
+      CHP(read_real_expression(line, counter, &value, parameters));
+      _setup.test_value = value;
+    }
+  else if(CMP("elseif"))
+    {
+      *counter += strlen("elseif");
+      block->o_type = O_elseif;
+      CHP(read_real_expression(line, counter, &value, parameters));
+      _setup.test_value = value;
+    }
+  else if(CMP("else"))
+    {
+      block->o_type = O_else;
+    }
+  else if(CMP("endif"))
+    {
+      block->o_type = O_endif;
+    }
+  else if(CMP("break"))
+    {
+      block->o_type = O_break;
+    }
+  else if(CMP("continue"))
+    {
+      block->o_type = O_continue;
+    }
+  else if(CMP("endwhile"))
+    {
+      block->o_type = O_endwhile;
+    }
+  else if(CMP("return"))
+    {
+      block->o_type = O_return;
+    }
+  else
+    {
+      // not legal
+      block->o_type = O_none;
+      ERP(NCE_UNKNOWN_COMMAND_IN_O_LINE);
+    }
+
+  return INTERP_OK;
+}
+
 
 /****************************************************************************/
 
@@ -1842,9 +2066,13 @@ as large as the number of precedence levels used. We are currently
 using four precedence levels (for right-bracket, plus-like operations,
 times-like operations, and power).
 
+N.B.: We are now using six levels (right-bracket, logical operations,
+relational operations, plus-like operations, times-like operations, and
+power).
+
 */
 
-#define MAX_STACK 5
+#define MAX_STACK 7
 
 int Interp::read_real_expression(char *line,     //!< string: line of RS274/NGC code being processed
                                 int *counter,   //!< pointer to a counter for position on the line 

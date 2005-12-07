@@ -35,8 +35,11 @@
 /* numerical constants */
 #define TOLERANCE_INCH 0.0005
 #define TOLERANCE_MM 0.005
-#define TOLERANCE_CONCAVE_CORNER 0.05   /* angle threshold for concavity for
-                                           cutter compensation, in radians */
+/* angle threshold for concavity for cutter compensation, in radians */
+#define TOLERANCE_CONCAVE_CORNER 0.05  
+#define TOLERANCE_EQUAL 0.0001 /* two numbers compare EQ if the
+				  difference is less than this */
+
 #define TINY 1e-12              /* for arc_data_r */
 #define UNKNOWN 1e-20
 
@@ -91,6 +94,32 @@
 #define NON_EXCLUSIVE_OR 8
 #define PLUS 9
 #define RIGHT_BRACKET 10
+
+/* relational operators (are binary operators)*/
+#define LT 11
+#define EQ 12
+#define NE 13
+#define LE 14
+#define GE 15
+#define GT 16
+#define RELATIONAL_OP_FIRST 11
+#define RELATIONAL_OP_LAST  16
+
+// O code
+#define O_none      0
+#define O_sub       1
+#define O_endsub    2
+#define O_call      3
+#define O_do        4
+#define O_while     5
+#define O_if        6
+#define O_elseif    7
+#define O_else      8
+#define O_endif     9
+#define O_break    10
+#define O_continue 11
+#define O_endwhile 12
+#define O_return   13
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -154,6 +183,11 @@
 // number of parameters in parameter table
 #define RS274NGC_MAX_PARAMETERS 5400
 
+// Subroutine parameters
+#define INTERP_SUB_PARAMS 30
+#define INTERP_OWORD_LABELS 1000
+#define INTERP_SUB_ROUTINE_LEVELS 10
+#define INTERP_FIRST_SUBROUTINE_PARAM 1
 
 /**********************/
 /*      TYPEDEFS      */
@@ -210,10 +244,29 @@ typedef struct block_struct
   double y_number;
   ON_OFF z_flag;
   double z_number;
+
+  // control (o-word) stuff
+  long     offset;   // start of line in file
+  int      o_type;
+  int      o_number;
+  double   params[INTERP_SUB_PARAMS];
 }
 block;
 
 typedef block *block_pointer;
+
+typedef struct context_struct {
+  long position;       // location (ftell) in file
+  int sequence_number; // location (line number) in file
+  double saved_params[INTERP_SUB_PARAMS];
+}context;
+
+typedef struct offset_struct {
+  int o_word;
+  int type;
+  long offset;
+  int sequence_number;
+}offset;
 
 // Declare class so that we can use it in the typedef.
 class Interp;
@@ -310,6 +363,18 @@ typedef struct setup_struct
   CANON_TOOL_TABLE tool_table[CANON_TOOL_MAX + 1];      // index is slot number
   int tool_table_index;         // tool index used with cutter comp
   double traverse_rate;         // rate for traverse motions
+
+  /* stuff for subroutines and control structures */
+  int defining_sub;                  // true if in a subroutine defn
+  int doing_continue;                // true if doing a continue
+  //int doing_break;                 // true if doing a break
+  int executed_if;                   // true if executed in current if
+  int skipping_o;                    // o_number we are skipping for (or zero)
+  double test_value;                 // value for "if", "while", "elseif"
+  int call_level;                    // current subroutine level
+  context sub_context[INTERP_SUB_ROUTINE_LEVELS];
+  int oword_labels;
+  offset oword_offset[INTERP_OWORD_LABELS];
 }
 setup;
 

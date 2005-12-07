@@ -226,6 +226,21 @@ char * _rs274ngc_errors[] = {
 /* 199 */ _("F word used with a g33"), // check_other_codes
 /* 200 */ _("G33 not supported"), // convert_straight
 /* 201 */ _("Canned cycles not supported"), // check_other_codes
-/* 202 */ _("Unknown error"), // dummy
+
+/* 202 */ _("Unknown operation name starting with e"), // read_operation
+/* 203 */ _("Unknown operation name starting with n"), // read_operation
+/* 204 */ _("Unknown operation name starting with g"), // read_operation
+/* 205 */ _("Unknown operation name starting with l"), // read_operation
+/* 206 */ _("Too many subroutine parameters"), // read_o
+/* 207 */ _("Too many subroutine levels"), // read_o
+/* 208 */ _("Unknown control command in o word"), // read_o
+/* 209 */ _("Too many oword labels"), // control_save_offset
+/* 210 */ _("Unknown oword number"),  // control_back_to
+/* 211 */ _("Nested subroutine definition"), // convert control functions
+/* 212 */ _("Not in subroutine definition"), // convert control functions
+/* 213 */ _("Return outside of subroutine"), // convert control functions
+/* 214 */ _("File not open"), // control back to
+
+/* 215 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*
