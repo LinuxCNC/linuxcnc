@@ -51,6 +51,15 @@ display errors only (default)
 \fB\-Q\fR
 display nothing, execute commands silently
 .TP
+\fB\-s\fR
+Script-friendly mode.  In this mode, \fIshow\fR will not output titles for the items
+shown.  Also, module names will be printed instead of ID codes in pin, param, and funct
+listings.  Threads are printed on a single line, with the thread period, FP usage and
+name first, followed by all of the functions in the thread, in execution order.  Signals
+are printed on a single line, with the type, value, and signal name first, followed by
+a list of pins connected to the signal, showing both the direction and the pin name.
+No prompt will be printed if both \fB-s\fR and \fB-f\fR are specified.
+.TP
 \fB\-v\fR
 display results of each command
 .TP
