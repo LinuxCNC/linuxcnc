@@ -41,11 +41,11 @@
    
     Encoders:
       Parameters:
-/totest	float	stg.<channel>.enc-scale
+	float	stg.<channel>.enc-scale
    
       Pins:
-/totest	s32	stg.<channel>.enc-counts
-/totest	float	stg.<channel>.enc-position
+	s32	stg.<channel>.enc-counts
+	float	stg.<channel>.enc-position
 
 /todo   bit	stg.<channel>.enc-index
 /todo  	bit	stg.<channel>.enc-idx-latch
@@ -205,6 +205,8 @@ typedef struct {
 /* dio data */
     io_pin port[4][8];				/* holds 4 ports each 8 pins, either input or output */
     unsigned char dir_bits;			/* remembers config (which port is input which is output) */
+    
+    unsigned char model;
 
 } stg_struct;
 
@@ -247,11 +249,11 @@ static int stg_dac_write(int ch, short value);
 
 /* adc related functions */
 static int stg_adc_init(int ch);
-static int stg_adc_start(unsigned short wAxis);
-static short stg_adc_read(int ch);
+static int stg_adc_start(void *arg, unsigned short wAxis);
+static short stg_adc_read(void *arg, int ch);
 
 /* counter related functions */
-static int stg_dio_init(stg_struct * addr);
+static int stg_dio_init(void);
 
 /* periodic functions registered to HAL */
 static void stg_adcs_read(void *arg, long period); //reads adc data from the board, check long description at the beginning of the function
@@ -340,7 +342,7 @@ int rtapi_app_main(void)
     }
     stg_driver->dir_bits = dir_bits; /* remember direction of each port, will be used in the write / read functions */
 
-    stg_dio_init(stg_driver);
+    stg_dio_init();
     
     /* export all the variables for each counter, dac */
     for (n = 0; n < num_chan; n++) {
@@ -543,7 +545,7 @@ static void stg_adcs_read(void *arg, long period)
     i = stg->adc_current_chan;
     if ((i >= 0) && (i < num_chan)) { 
 	/* we should have the conversion done for adc_num_chan */
-	ncounts = stg_adc_read(i);
+	ncounts = stg_adc_read(stg,i);
 	volts = 10.0 - (ncounts * 20.0 / 0x1FFF);
 	*(stg->adc_value[i]) = volts * stg->adc_gain[i] - stg->adc_offset[i];
     }
@@ -553,7 +555,7 @@ static void stg_adcs_read(void *arg, long period)
 	stg->adc_current_chan=0; //increase the channel, and roll back to 0 after all chans are done
 
     /* select the current channel with the mux, and start the conversion */
-    stg_adc_start(stg->adc_current_chan);
+    stg_adc_start(stg,stg->adc_current_chan);
     /* the next time this function runs, the result should be available */
 }
 
@@ -617,19 +619,31 @@ static void stg_di_read(void *arg, long period) //reads digital inputs from the 
     stg=arg;
     
     if ( (stg->dir_bits & 0x01) == 0) { // if port A is set as input, read the bits
-	val = inb(base + DIO_A);
+	if (stg->model == 1)
+	    val = inb(base + DIO_A);
+	else
+	    val = inb(base + PORT_A);
 	split_input(val, &(stg->port[0][0]), 8);
     }
     if ( (stg->dir_bits & 0x02) == 0) { // if port B is set as input, read the bits
-	val = inb(base + DIO_B);
+	if (stg->model == 1)
+    	    val = inb(base + DIO_B);
+	else
+	    val = inb(base + PORT_B);
 	split_input(val, &(stg->port[1][0]), 8);
     }
     if ( (stg->dir_bits & 0x04) == 0) { // if port C is set as input, read the bits
-	val = inb(base + DIO_C);
+	if (stg->model == 1)
+	    val = inb(base + DIO_C);
+	else
+	    val = inb(base + PORT_C);
 	split_input(val, &(stg->port[2][0]), 8);
     }
     if ( (stg->dir_bits & 0x08) == 0) { // if port D is set as input, read the bits
-	val = inb(base + DIO_D);
+	if (stg->model == 1)
+    	    val = inb(base + DIO_D);
+	else
+	    val = inb(base + PORT_D);
 	split_input(val, &(stg->port[3][0]), 8);
     }
 }
@@ -642,19 +656,31 @@ static void stg_do_write(void *arg, long period) //writes digital outputs to the
 
     if ( (stg->dir_bits & 0x01) != 0) { // if port A is set as output, write the bits
 	val = build_output(&(stg->port[0][0]), 8);
-	outb(val, base + DIO_A);
+	if (stg->model == 1)
+	    outb(val, base + DIO_A);
+	else
+	    outb(val, base + PORT_A);
     }
     if ( (stg->dir_bits & 0x02) != 0) { // if port B is set as output, write the bits
 	val = build_output(&(stg->port[1][0]), 8);
-	outb(val, base + DIO_B);
+	if (stg->model == 1)
+	    outb(val, base + DIO_B);
+	else
+	    outb(val, base + PORT_B);
     }
     if ( (stg->dir_bits & 0x04) != 0) { // if port C is set as output, write the bits
 	val = build_output(&(stg->port[2][0]), 8);
-	outb(val, base + DIO_C);
+	if (stg->model == 1)
+	    outb(val, base + DIO_C);
+	else
+	    outb(val, base + PORT_C);
     }
     if ( (stg->dir_bits & 0x08) != 0) { // if port D is set as output, write the bits
 	val = build_output(&(stg->port[3][0]), 8);
-	outb(val, base + DIO_D);
+	if (stg->model == 1)
+	    outb(val, base + DIO_D);
+	else
+	    outb(val, base + PORT_D);
     }
 }
 
@@ -670,6 +696,8 @@ static void stg_do_write(void *arg, long period) //writes digital outputs to the
 
 /*
   stg_counter_init() - Initializes the channel
+  
+  works the same for both cards (STG & STG2)
 */
 static int stg_counter_init(int ch)
 {
@@ -691,6 +719,8 @@ static int stg_counter_init(int ch)
 
 /*
   stg_dac_init() - Initializes the dac channel
+
+  works the same for both cards (STG & STG2)
 */
 static int stg_dac_init(int ch)
 {
@@ -709,10 +739,12 @@ static int stg_dac_init(int ch)
 */
 static int stg_adc_init(int ch)
 {
+
     /* not much to setup for the ADC's */
     /* only select the mode of operation we will work with AutoZero */
-    outb(0x0f, base + MIO_2);	// the second 82C55 is already configured (by running stg_dio_init)
-				// we only set bit 8 (AZ) to 1 to enable it
+    if (stg_driver->model == 1)
+	outb(0x0f, base + MIO_2);	// the second 82C55 is already configured (by running stg_dio_init)
+					// we only set bit 8 (AZ) to 1 to enable it
     return 0;
 }
 
@@ -720,40 +752,66 @@ static int stg_adc_init(int ch)
 /*
   stg_dio_init() - Initializes the dio's
 */
-static int stg_dio_init(stg_struct *addr)
+static int stg_dio_init(void)
 {
     /* we will select the directions of each port */
-    unsigned char control, tempINTC, tempIMR;
+    unsigned char control, tempINTC, tempIMR, tempCtrl0, tempCtrl1;
 
     control = 0x80; //set up |1|0|0|A|CH|0|B|CL|
-    if ( (addr->dir_bits & 0x01) == 0) // if port A is set as input, set bit accordingly
+    if ( (stg_driver->dir_bits & 0x01) == 0) // if port A is set as input, set bit accordingly
 	control |= 0x10;
-    if ( (addr->dir_bits & 0x02) == 0) // if port B is set as input, set bit accordingly
+    if ( (stg_driver->dir_bits & 0x02) == 0) // if port B is set as input, set bit accordingly
 	control |= 0x02;
-    if ( (addr->dir_bits & 0x04) == 0) // if port C is set as input, set bits accordingly
+    if ( (stg_driver->dir_bits & 0x04) == 0) // if port C is set as input, set bits accordingly
 	control |= 0x09;
     
-    // write the computed control to MIO_1
-    outb(control, base+MIO_1);
+    if (stg_driver->model == 1) {
+	// write the computed control to MIO_1
+	outb(control, base+MIO_1);
+    } else { //model STG2
+	// write port A,B,C direction to ABC_DIR
+	outb(control, base+ABC_DIR);
+    }
     
-    tempINTC = inb(base + INTC);
+	tempINTC = inb(base + INTC);
     
-    // next compute the directions for port D, located on the second 82C55
-    control = 0x82;
+    if (stg_driver->model == 1) {
+	// next compute the directions for port D, located on the second 82C55
+	control = 0x82;
     
-    if ( (addr->dir_bits & 0x08) == 0)// if port D is set as input, set bits accordingly
-	control = 0x92;
+	if ( (stg_driver->dir_bits & 0x08) == 0)// if port D is set as input, set bits accordingly
+	    control = 0x92;
 
-    tempIMR = inb(base + IMR); // get the current interrupt mask
+	tempIMR = inb(base + IMR); // get the current interrupt mask
         
-    outb(0xff, base + OCW1); //mask off all interrupts
+	outb(0xff, base + OCW1); //mask off all interrupts
     
-    // write the computed control to MIO_2
-    outb(control, base+MIO_2);
+	// write the computed control to MIO_2
+	outb(control, base+MIO_2);
     
-    outb(tempINTC, base + INTC); //restore interrupt control reg.
+	outb(tempINTC, base + INTC); //restore interrupt control reg.
     
-    outb(tempIMR, base+ OCW1); //restore int mask
+	outb(tempIMR, base+ OCW1); //restore int mask
+
+    } else { //model STG2
+    
+	// save contents of CNTRL0, it will get reinitialized
+	tempCtrl0 = inb(base+CNTRL0);
+	tempCtrl1 = inb(base+CNTRL1);
+    
+	// CNTRL0 output, BRDTST input, D output
+	control = 0x82;
+
+	if ( (stg_driver->dir_bits & 0x08) == 0)// if port D is set as input, set bits accordingly
+	    control = 0x8b;
+	
+	outb(0xff, base + CNTRL1); // disable interrupts
+	
+	outb(control, base + D_DIR); // set port D direction, also resets CNTRL0
+	
+	outb(tempCtrl0, base + CNTRL0);
+	outb( (tempCtrl1 & 0x0f) | 0xf0, base + CNTRL1);
+    }
     
     return 0;
 }
@@ -766,6 +824,9 @@ static int stg_dio_init(stg_struct *addr)
 
 /*
   stg_counter_read() - reads one channel
+  FIXME - todo, extend to 32 bits in software
+
+  works the same for both cards (STG & STG2)
 */
 static long stg_counter_read(int i)
 {
@@ -794,6 +855,8 @@ static long stg_counter_read(int i)
 
 /*
   stg_dac_write() - writes a dac channel
+  
+  works the same for both cards (STG & STG2)
 */
 static int stg_dac_write(int ch, short value)
 {        
@@ -805,28 +868,52 @@ static int stg_dac_write(int ch, short value)
 
 
 
-int stg_adc_start(unsigned short wAxis)
+int stg_adc_start(void *arg, unsigned short wAxis)
 {
-    /* do a dummy read from the ADC, just to set the input multiplexer to
-     the right channel */
-    inw(base + ADC_0 + (wAxis << 1));
+    stg_struct *stg;
+    unsigned char tempCtrl0;
 
-    /* wait 4 uS for settling time on the multiplexer and ADC. You probably
-     shouldn't really have a delay in a driver */
-    outb(0, 0x80);
-    outb(0, 0x80);
-    outb(0, 0x80);
-    outb(0, 0x80);
+    stg = arg;
+    
+    if (stg->model == 1) {
+	/* do a dummy read from the ADC, just to set the input multiplexer to
+	 the right channel */
+	inw(base + ADC_0 + (wAxis << 1));
 
-    /* now start conversion */
-    outw(0, base + ADC_0 + (wAxis << 1));
+	/* wait 4 uS for settling time on the multiplexer and ADC. You probably
+	 shouldn't really have a delay in a driver */
+	outb(0, 0x80);
+	outb(0, 0x80);
+	outb(0, 0x80);
+	outb(0, 0x80);
 
+	/* now start conversion */
+	outw(0, base + ADC_0 + (wAxis << 1));
+    } else { //model STG2
+
+	tempCtrl0 = inb(base+CNTRL0) & 0x07; // save IRQ
+	tempCtrl0 |= (wAxis << 4) | 0x88; //autozero & cal cycle
+	outb(tempCtrl0, CNTRL0); // select channel
+
+	/* wait 4 uS for settling time on the multiplexer and ADC. You probably
+	 shouldn't really have a delay in a driver */
+	outb(0, 0x80);
+	outb(0, 0x80);
+	outb(0, 0x80);
+	outb(0, 0x80);
+	
+	/* now start conversion */
+	outw(0, base + ADC_0);
+    }
     return 0;
 };
 
-static short stg_adc_read(int axis)
+static short stg_adc_read(void *arg, int axis)
 {
     short j;
+    stg_struct *stg;
+
+    stg = arg;
 
     /*
     there must have been a delay between stg_adc_start() and 
@@ -835,14 +922,26 @@ static short stg_adc_read(int axis)
     calls up with some intervening code
     */
 
-    /* make sure conversion is done, assume polling delay is done.
-    EOC (End Of Conversion) is bit 0x08 in IIR (Interrupt Request
-    Register) of Interrupt Controller.  Don't wait forever though
-    bail out eventually. */
 
-    for (j = 0; !(inb(base + IRR) & 0x08) && (j < 1000); j++);
+    if (stg->model == 1) {
+
+	/* make sure conversion is done, assume polling delay is done.
+	EOC (End Of Conversion) is bit 0x08 in IIR (Interrupt Request
+	Register) of Interrupt Controller.  Don't wait forever though
+	bail out eventually. */
+
+	for (j = 0; !(inb(base + IRR) & 0x08) && (j < 1000); j++);
     
-    j = inw(base + ADC_0 + (axis << 1));
+	j = inw(base + ADC_0 + (axis << 1));
+
+    } else { //model 2
+
+	for (j = 0; (inb(base + BRDTST) & 0x08) && (j < 1000); j++);
+	
+	j = inw(base + ADC_0);	
+    
+    }
+
 
     if (j & 0x1000)       /* is sign bit negative? */
 	j |= 0xf000;      /* sign extend */
@@ -859,7 +958,12 @@ static short stg_adc_read(int axis)
 
 static int stg_set_interrupt(short interrupt)
 {
-    unsigned char tempINTC=0x80;
+    unsigned char tempINTC;
+    
+    if (stg_driver->model == 1)
+	tempINTC=0x80;
+    else
+	tempINTC=0x88;//also CAL low, don|t want ADC to calibrate
     
     switch (interrupt) {
 	case 3: break;
@@ -872,7 +976,11 @@ static int stg_set_interrupt(short interrupt)
 	case 15: tempINTC |= 1;break;
 	default: tempINTC |= 4;break;
     }        
-    outb(tempINTC, base + INTC);
+    if (stg_driver->model == 1)
+	outb(tempINTC, base + INTC);
+    else
+	outb(tempINTC, base + CNTRL0);
+
     return 0;
 }
 
@@ -882,17 +990,25 @@ static int stg_init_card()
 	base = stg_autodetect();
     }
     if (base == 0x00) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no STG card found\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no STG or STG2 card found\n");
 	return -1;
     }
-    outb(0x92, base +  MIO_2);
+
+    if (stg_driver->model == 1) {
+	// initialize INTC as output
+	outb(0x92, base +  MIO_2);
     
-    stg_set_interrupt(5); // initialize it to smthg, we won't use it anyways
+	stg_set_interrupt(5); // initialize it to smthg, we won't use it anyways
     
-    outb(0x1a, base + ICW1); // initialize the 82C59 as single chip (STG docs say so:)
-    outb(0x00, base + ICW2); // ICW2 not used, must init it to 0
-    outb(0xff, base + OCW1); // mask off all interrupts
-     
+	outb(0x1a, base + ICW1); // initialize the 82C59 as single chip (STG docs say so:)
+	outb(0x00, base + ICW2); // ICW2 not used, must init it to 0
+	outb(0xff, base + OCW1); // mask off all interrupts
+    } else { //model 2
+	outb(0x8b, base + D_DIR); // initialize CONTRL0 output, BRDTST input
+    
+	stg_set_interrupt(5); // initialize it to smthg, we won't use it anyways
+    }
+    
     // all ok
     return 0;
 }
@@ -922,15 +1038,15 @@ unsigned short stg_autodetect()
 	    }
 	    if (k == 0x75) {
 		rtapi_print_msg(RTAPI_MSG_INFO,
-		    "STG: found card at address %x\n", address);
+		    "STG: found version 1 card at address %x\n", address);
+		stg_driver->model=1;
 		return address;	/* SER sequence is 01110101 */
 	    }
 	    if (k == 0x74) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "STG: ERROR: found version 2 card, not suported by this driver\n");
-		    /* \todo TODO extend the driver to support a type II STG board */
-		hal_exit(comp_id);
-		return -1;
+		    "STG: found version 2 card at address %x\n", address);
+		stg_driver->model=2;
+		return address;
 	    }
 	}
     }

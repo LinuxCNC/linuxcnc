@@ -57,6 +57,7 @@
 #define CNT7_D     0x0d
 #define CNT6_C     0x0e
 #define CNT7_C     0x0f
+
 #define DAC_0      0x10
 #define DAC_1      0x12
 #define DAC_2      0x14
@@ -65,6 +66,7 @@
 #define DAC_5      0x1a
 #define DAC_6      0x1c
 #define DAC_7      0x1e
+
 #define ADC_0      0x410
 #define ADC_1      0x412
 #define ADC_2      0x414
@@ -73,12 +75,24 @@
 #define ADC_5      0x41a
 #define ADC_6      0x41c
 #define ADC_7      0x41e
-#define DIO_A      0x400
-#define DIO_B      0x402
+
 #define BRDTST     0x403
-#define DIO_C      0x404
+
+#define DIO_A      0x400  /* Model 1 */
+#define DIO_B      0x402  /* Model 1 */
+#define DIO_C      0x404  /* Model 1 */
+#define DIO_D      0x401  /* Model 1 */
+#define PORT_A     0x400  /* Model 2, same function as DIO_A */
+#define PORT_B     0x402  /* Model 2, same function as DIO_B */
+#define PORT_C     0x404  /* Model 2, same function as DIO_C */
+#define PORT_D     0x405  /* Model 2, same function as DIO_D */
+
+#define CNTRL0     0x401  /* Model 2 */
+#define CNTRL1     0x40f  /* Model 2 */
+#define ABC_DIR    0x406  /* Model 2 */
+#define D_DIR      0x407  /* Model 2 */
+
 #define MIO_1      0x406
-#define DIO_D      0x401
 #define INTC       0x405
 #define MIO_2      0x407
 #define ODDRST     0x407
