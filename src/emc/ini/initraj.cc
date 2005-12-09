@@ -207,7 +207,7 @@ static int loadTraj()
     TRAJ_DEFAULT_VELOCITY = vel;
 
     // and set dynamic value
-    if (0 != emcTrajSetVelocity(vel)) {
+    if (0 != emcTrajSetVelocity(vel, vel)) {
 	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
 	    rcs_print("bad return value from emcTrajSetVelocity\n");
 	}

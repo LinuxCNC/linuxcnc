@@ -103,6 +103,7 @@ int tpInit(TP_STRUCT * tp)
     tp->vScale = tp->vRestore = 1.0;
     tp->aMax = 0.0;
     tp->vMax = 0.0;
+    tp->ini_maxvel = 0.0;
     tp->wMax = 0.0;
     tp->wDotMax = 0.0;
 
@@ -127,13 +128,14 @@ int tpSetCycleTime(TP_STRUCT * tp, double secs)
     return 0;
 }
 
-int tpSetVmax(TP_STRUCT * tp, double vMax)
+int tpSetVmax(TP_STRUCT * tp, double vMax, double ini_maxvel)
 {
-    if (0 == tp || vMax <= 0.0) {
+    if (0 == tp || vMax <= 0.0 || ini_maxvel <= 0.0) {
 	return -1;
     }
 
     tp->vMax = vMax;
+    tp->ini_maxvel = ini_maxvel;
 
     return 0;
 }
@@ -351,7 +353,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     pmLineInit(&line, goal_tran_pose, tran_pose);
     pmLineInit(&line_abc, goal_abc_pose, abc_pose);
     tcSetCycleTime(&tc, tp->cycleTime);
-    tcSetTVmax(&tc, tp->vMax);
+    tcSetTVmax(&tc, tp->vMax, tp->ini_maxvel);
     tcSetTAmax(&tc, tp->aMax);
     tcSetRVmax(&tc, tp->wMax);
     tcSetRAmax(&tc, tp->wDotMax);
@@ -414,7 +416,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tcInit(&tc);
     pmCircleInit(&circle, circleGoalPose, endPose, center, normal, turn);
     tcSetCycleTime(&tc, tp->cycleTime);
-    tcSetTVmax(&tc, tp->vMax);
+    tcSetTVmax(&tc, tp->vMax, tp->ini_maxvel);
     tcSetTAmax(&tc, tp->aMax);
     tcSetRVmax(&tc, tp->wMax);
     tcSetRAmax(&tc, tp->wDotMax);

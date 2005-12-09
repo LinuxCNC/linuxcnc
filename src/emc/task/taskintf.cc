@@ -62,6 +62,7 @@ static int emcmotion_initialized = 0;	// non-zero means both
 // saved value of velocity last sent out, so we don't send redundant requests
 // used by emcTrajSetVelocity(), emcMotionAbort()
 static double lastVel = -1.0;
+static double last_ini_maxvel = -1.0;
 
 // EMC_AXIS functions
 
@@ -870,7 +871,7 @@ int emcTrajSetTeleopVector(EmcPose vel)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajSetVelocity(double vel)
+int emcTrajSetVelocity(double vel, double ini_maxvel)
 {
     int retval;
 
@@ -879,6 +880,13 @@ int emcTrajSetVelocity(double vel)
     } else if (vel > TRAJ_MAX_VELOCITY) {
 	vel = TRAJ_MAX_VELOCITY;
     }
+
+    if (ini_maxvel < 0.0) {
+	    ini_maxvel = 0.0;
+    } else if (vel > TRAJ_MAX_VELOCITY) {
+	    ini_maxvel = TRAJ_MAX_VELOCITY;
+    }
+
 /*! \todo Another #if 0 */
 #if 0
     /*! \todo FIXME-- this fixes rapid rate reset problem */
@@ -890,11 +898,13 @@ int emcTrajSetVelocity(double vel)
 
     emcmotCommand.command = EMCMOT_SET_VEL;
     emcmotCommand.vel = vel;
+    emcmotCommand.ini_maxvel = ini_maxvel;
 
     retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (0 == retval) {
 	lastVel = vel;
+	last_ini_maxvel = ini_maxvel;
     }
 
     return retval;

@@ -182,6 +182,8 @@ extern "C" {
 	PmCartesian normal;	/* normal vec for circle */
 	int turn;		/* turns for circle */
 	double vel;		/* max velocity */
+        double ini_maxvel;      /* max velocity allowed by machine
+                                   constraints (the ini file) */
 	double acc;		/* max acceleration */
 	double backlash;	/* amount of backlash */
 	int id;			/* id for motion */

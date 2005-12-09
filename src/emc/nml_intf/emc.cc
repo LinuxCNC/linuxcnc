@@ -1260,6 +1260,7 @@ void EMC_TRAJ_SET_VELOCITY::update(CMS * cms)
 
     EMC_TRAJ_CMD_MSG::update(cms);
     cms->update(velocity);
+    cms->update(ini_maxvel);
 
 }
 

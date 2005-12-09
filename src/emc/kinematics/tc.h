@@ -42,6 +42,8 @@ typedef struct {
     double cycleTime;
     double targetPos;		/* positive motion progession */
     double vMax;		/* max velocity */
+    double ini_maxvel;		/* max velocity allowed by machine constraints
+                                   (ini file) */
     double vScale;		/* scale factor for vMax */
     double aMax;		/* max accel */
     double preVMax;		/* vel from previous blend */
@@ -86,7 +88,7 @@ extern int tcInit(TC_STRUCT * tc);
 extern int tcSetCycleTime(TC_STRUCT * tc, double secs);
 extern int tcSetLine(TC_STRUCT * tc, PmLine line, PmLine line_abc);
 extern int tcSetCircle(TC_STRUCT * tc, PmCircle circle, PmLine line_abc);
-extern int tcSetTVmax(TC_STRUCT * tc, double vmax);
+extern int tcSetTVmax(TC_STRUCT * tc, double vmax, double ini_maxvel);
 extern int tcSetRVmax(TC_STRUCT * tc, double vmax);
 extern int tcSetVscale(TC_STRUCT * tc, double vscale);
 extern int tcSetTAmax(TC_STRUCT * tc, double amax);

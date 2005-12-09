@@ -437,7 +437,7 @@ extern int emcTrajSetUnits(double linearUnits, double angularUnits);
 extern int emcTrajSetCycleTime(double cycleTime);
 extern int emcTrajSetMode(int axes);
 extern int emcTrajSetTeleopVector(EmcPose vel);
-extern int emcTrajSetVelocity(double vel);
+extern int emcTrajSetVelocity(double vel, double ini_maxvel);
 extern int emcTrajSetAcceleration(double acc);
 extern int emcTrajSetMaxVelocity(double vel);
 extern int emcTrajSetMaxAcceleration(double acc);
@@ -1371,6 +1371,7 @@ class EMC_TRAJ_SET_VELOCITY:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     double velocity;
+    double ini_maxvel;
 };
 
 class EMC_TRAJ_SET_ACCELERATION:public EMC_TRAJ_CMD_MSG {

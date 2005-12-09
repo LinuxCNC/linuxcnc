@@ -1563,7 +1563,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_VELOCITY_TYPE:
 	emcTrajSetVelocityMsg = (EMC_TRAJ_SET_VELOCITY *) cmd;
-	retval = emcTrajSetVelocity(emcTrajSetVelocityMsg->velocity);
+	retval = emcTrajSetVelocity(emcTrajSetVelocityMsg->velocity,
+			emcTrajSetVelocityMsg->ini_maxvel);
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:

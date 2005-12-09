@@ -57,6 +57,7 @@ int tcInit(TC_STRUCT * tc)
     tc->cycleTime = 0.0;
     tc->targetPos = 0.0;
     tc->vMax = 0.0;
+    tc->ini_maxvel = 0.0;
     tc->vScale = 1.0;
     tc->aMax = 0.0;
     tc->preVMax = 0.0;
@@ -199,13 +200,14 @@ int tcSetCircle(TC_STRUCT * tc, PmCircle circle, PmLine line_abc)
     return 0;
 }
 
-int tcSetTVmax(TC_STRUCT * tc, double _vMax)
+int tcSetTVmax(TC_STRUCT * tc, double _vMax, double _ini_maxvel)
 {
     if (_vMax < 0.0 || 0 == tc) {
 	return -1;
     }
 
     tc->tvMax = _vMax;
+    tc->ini_maxvel = _ini_maxvel;
 
     return 0;
 }
@@ -415,6 +417,10 @@ int tcRunCycle(TC_STRUCT * tc)
 	/* clamp scaled velocity against absolute limit */
 	if (newVel > tc->vLimit) {
 	    newVel = tc->vLimit;
+	}
+
+	if (newVel > tc->ini_maxvel) {
+	    newVel = tc->ini_maxvel;
 	}
 
 	if (tc->type == TC_CIRCULAR) {

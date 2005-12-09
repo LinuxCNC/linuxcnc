@@ -127,6 +127,7 @@ static double currentToolLengthOffset = 0.0;
   */
 
 static double lastVelSet = -1;
+static double last_ini_maxvel = -1;
 
 /*
   Feed rate is saved here; values are in mm/sec or deg/sec.
@@ -141,20 +142,26 @@ static int linear_move = 0;
 static int angular_move = 0;
 
 /* sends a request to set the vel, which is in internal units/sec */
-static int sendVelMsg(double vel)
+static int sendVelMsg(double vel, double ini_maxvel)
 {
     EMC_TRAJ_SET_VELOCITY velMsg;
 
     if (linear_move && !angular_move) {
 	velMsg.velocity = TO_EXT_LEN(vel);
+	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
     } else if (!linear_move && angular_move) {
 	velMsg.velocity = TO_EXT_ANG(vel);
+	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
     } else if (linear_move && angular_move) {
 	velMsg.velocity = TO_EXT_LEN(vel);
+	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
     }
 
-    if (velMsg.velocity != lastVelSet) {
+
+    if (velMsg.velocity != lastVelSet ||
+            velMsg.ini_maxvel != last_ini_maxvel) {
 	lastVelSet = velMsg.velocity;
+        last_ini_maxvel = velMsg.ini_maxvel;
 	interp_list.append(velMsg);
     }
     return 0;
@@ -347,7 +354,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     linearMoveMsg.end.c = TO_EXT_ANG(c);
 
     vel = getStraightVelocity(x, y, z, a, b, c);
-    sendVelMsg(vel);
+    sendVelMsg(vel, vel);
     interp_list.append(linearMoveMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
@@ -355,7 +362,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 void STRAIGHT_FEED(double x, double y, double z, double a, double b,
 		   double c)
 {
-    double vel;
+    double ini_maxvel, vel;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
     // convert to mm units
@@ -385,7 +392,7 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
     linearMoveMsg.end.b = TO_EXT_ANG(b);
     linearMoveMsg.end.c = TO_EXT_ANG(c);
 
-    vel = getStraightVelocity(x, y, z, a, b, c);
+    ini_maxvel = vel = getStraightVelocity(x, y, z, a, b, c);
 
     if (linear_move && !angular_move) {
 	if (vel > currentLinearFeedRate) {
@@ -401,7 +408,7 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
 	}
     }
 
-    sendVelMsg(vel);
+    sendVelMsg(vel, ini_maxvel);
     interp_list.append(linearMoveMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
@@ -409,7 +416,7 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
 void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
 		    double c)
 {
-    double vel;
+    double ini_maxvel, vel;
     EMC_TRAJ_PROBE probeMsg;
 
     // convert to mm units
@@ -438,7 +445,7 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
     probeMsg.pos.b = TO_EXT_ANG(b);
     probeMsg.pos.c = TO_EXT_ANG(c);
 
-    vel = getStraightVelocity(x, y, z, a, b, c);
+    ini_maxvel = vel = getStraightVelocity(x, y, z, a, b, c);
 
     if (linear_move && !angular_move) {
 	if (vel > currentLinearFeedRate) {
@@ -454,7 +461,7 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
 	}
     }
 
-    sendVelMsg(vel);
+    sendVelMsg(vel, ini_maxvel);
     interp_list.append(probeMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
@@ -644,7 +651,7 @@ void ARC_FEED(double first_end, double second_end,
     }
 
     // set proper velocity
-    sendVelMsg(vel);
+    sendVelMsg(vel, vel); /* XXX */
 
     /* 
        mapping of rotation to turns:

@@ -35,6 +35,8 @@ typedef struct {
     int queueSize;
     double cycleTime;
     double vMax;		/* vel for subsequent moves */
+    double ini_maxvel;          /* max velocity allowed by machine 
+                                   constraints (ini file) */
     double vScale, vRestore;
     double aMax;
     double vLimit;		/* absolute upper limit on all vels */
@@ -69,7 +71,7 @@ extern int tpDelete(TP_STRUCT * tp);
 extern int tpClear(TP_STRUCT * tp);
 extern int tpInit(TP_STRUCT * tp);
 extern int tpSetCycleTime(TP_STRUCT * tp, double secs);
-extern int tpSetVmax(TP_STRUCT * tp, double vmax);
+extern int tpSetVmax(TP_STRUCT * tp, double vmax, double ini_maxvel);
 extern int tpSetWmax(TP_STRUCT * tp, double vmax);
 extern int tpSetVlimit(TP_STRUCT * tp, double limit);
 extern int tpSetVscale(TP_STRUCT * tp, double scale);	/* 0.0 .. large */
