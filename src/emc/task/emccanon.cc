@@ -138,6 +138,8 @@ static double currentAngularFeedRate = 0.0;
 
 /* Used to indicate whether the current move is linear, angular, or 
    a combination of both. */
+   //AJ says: linear means axes XYZ move (lines or even circles)
+   //         angular means axes ABC move
 static int linear_move = 0;
 static int angular_move = 0;
 
@@ -151,7 +153,7 @@ static int sendVelMsg(double vel, double ini_maxvel)
 	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
     } else if (!linear_move && angular_move) {
 	velMsg.velocity = TO_EXT_ANG(vel);
-	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
+	velMsg.ini_maxvel = TO_EXT_ANG(ini_maxvel);
     } else if (linear_move && angular_move) {
 	velMsg.velocity = TO_EXT_LEN(vel);
 	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
@@ -651,8 +653,15 @@ void ARC_FEED(double first_end, double second_end,
 	}
 
 	break;
+    default:
+	//should never get here
+	break;
     }
 
+    // for arcs we always user linear move, as the ABC axes can't move (currently)
+    // linear move is actually a move involving axes X Y Z, not the type of the movement
+    linear_move = 1;
+    
     // set proper velocity
     sendVelMsg(vel, ini_maxvel);
 
