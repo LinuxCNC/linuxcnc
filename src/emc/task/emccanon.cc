@@ -542,11 +542,11 @@ void ARC_FEED(double first_end, double second_end,
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     int full_circle_in_active_plane = 0;
-    double v1, v2, vel;
+    double v1, v2, vel, ini_maxvel;
 
     /* Since there's no default case here,
        we need to initialise vel to something safe! */
-    vel = currentLinearFeedRate;
+    vel = ini_maxvel = currentLinearFeedRate;
 
     // convert to absolute mm units
     first_axis = FROM_PROG_LEN(first_axis);
@@ -578,6 +578,7 @@ void ARC_FEED(double first_end, double second_end,
 	vel = currentLinearFeedRate;
 	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
+	ini_maxvel = v1 < v2? v1: v2;
 	if (vel > v1) {
 	    vel = v1;
 	}
@@ -609,6 +610,7 @@ void ARC_FEED(double first_end, double second_end,
 	vel = currentLinearFeedRate;
 	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
+	ini_maxvel = v1 < v2? v1: v2;
 	if (vel > v1) {
 	    vel = v1;
 	}
@@ -640,6 +642,7 @@ void ARC_FEED(double first_end, double second_end,
 	vel = currentLinearFeedRate;
 	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
+	ini_maxvel = v1 < v2? v1: v2;
 	if (vel > v1) {
 	    vel = v1;
 	}
@@ -651,7 +654,7 @@ void ARC_FEED(double first_end, double second_end,
     }
 
     // set proper velocity
-    sendVelMsg(vel, vel); /* XXX */
+    sendVelMsg(vel, ini_maxvel);
 
     /* 
        mapping of rotation to turns:
