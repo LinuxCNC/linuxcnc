@@ -493,11 +493,13 @@ static void init_run_mode_window(void)
     /* and make them visible */
     gtk_widget_show(ctrl_usr->rm_normal_button);
     gtk_widget_show(ctrl_usr->rm_single_button);
-//    gtk_widget_show(ctrl_usr->rm_roll_button);
+#if 0 /* FIXME - roll mode not implemented yet */
+    gtk_widget_show(ctrl_usr->rm_roll_button);
+#endif
     gtk_widget_show(ctrl_usr->rm_stop_button);
 }
 
-/*! \todo FIXME - things not yet finished */
+/*  FIXME - things not yet finished */
 
 /** roll mode - display updates as frequently as possible, not just
     when acquisition is complete.  Also need to revisit pretrig
@@ -533,6 +535,32 @@ static void quit(int sig)
     gtk_main_quit();
 }
 
+int set_run_mode(int mode)
+{
+    GtkWidget *button;
+
+    if ( mode == 0 ) {
+	/* stop mode */
+	button = ctrl_usr->rm_stop_button;
+    } else if ( mode == 1 ) {
+	/* normal mode */
+	button = ctrl_usr->rm_normal_button;
+    } else if ( mode == 2 ) {
+	/* single sweep mode */
+	button = ctrl_usr->rm_single_button;
+#if 0 /* FIXME - roll mode not implemented yet */
+    } else if ( mode == 3 ) {
+	/* roll mode */
+	button = ctrl_usr->rm_roll_button;
+#endif
+    } else {
+	/* illegal mode */
+	return -1;
+    }
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 1);
+    return 0;
+}
+
 static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
@@ -563,11 +591,7 @@ static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata)
 	/* not pressed, ignore it */
 	return;
     }
-    
-    /* FIXME - this is for testing only */
-    read_config_file("scope.cfg");
-
-    //printf("Sorry, ROLL mode is not supported yet\n");
+    printf("Sorry, ROLL mode is not supported yet\n");
     /* 'push' the stop button */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->rm_stop_button),
 	TRUE);

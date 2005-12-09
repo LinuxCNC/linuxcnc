@@ -258,7 +258,11 @@ int set_channel_off(int chan_num);
 int set_vert_scale(int setting);
 int set_vert_pos(double setting);
 int set_vert_offset(double setting);
-
-
+int set_trigger_source(int chan);
+int set_trigger_level(double setting);
+int set_trigger_pos(double setting);
+int set_trigger_polarity(int setting);
+int set_trigger_mode(int mode);
+int set_run_mode(int mode);
 
 #endif /* HALSC_USR_H */

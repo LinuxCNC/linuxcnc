@@ -81,6 +81,7 @@ static gboolean dialog_set_offset(int chan_num);
 static void channel_changed(void);
 static void scale_changed(GtkAdjustment * adj, gpointer gdata);
 static void offset_changed(GtkEditable * editable, gchar * buf);
+static void offset_activated(GtkEditable * editable, gchar * button);
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
 static void chan_sel_button(GtkWidget * widget, gpointer gdata);
 
@@ -705,8 +706,14 @@ static gboolean dialog_set_offset(int chan_num)
 	vert->offset_entry, FALSE, TRUE, 0);
     snprintf(buf, BUFLEN, "%f", chan->vert_offset);
     gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), buf);
+    /* point at first char */
+    gtk_entry_set_position(GTK_ENTRY(vert->offset_entry), 0);
+    /* select all chars, so if the user types the original value goes away */
+    gtk_entry_select_region(GTK_ENTRY(vert->offset_entry), 0, strlen(buf));
+    /* make it active so user doesn't have to click on it */
+    gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
     gtk_widget_show(vert->offset_entry);
-    /* connect the offset entry to a function */
+    /* capture entry data to the buffer whenever the user types */
     gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "changed",
 	GTK_SIGNAL_FUNC(offset_changed), buf);
     /* set up a callback function when the window is destroyed */
@@ -718,6 +725,9 @@ static gboolean dialog_set_offset(int chan_num)
 	button, TRUE, TRUE, 4);
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
 	GTK_SIGNAL_FUNC(dialog_generic_button1), &dialog);
+    /* hit the "OK" button if the user hits enter */
+    gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "activate",
+	GTK_SIGNAL_FUNC(offset_activated), button);
     button = gtk_button_new_with_label("Cancel");
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
@@ -747,9 +757,18 @@ static void offset_changed(GtkEditable * editable, gchar * buf)
 {
     const char *text;
 
+    /* user typed something, save it in the buffer */
     text = gtk_entry_get_text(GTK_ENTRY(ctrl_usr->vert.offset_entry));
     strncpy(buf, text, BUFLEN);
 }
+
+static void offset_activated(GtkEditable * editable, gchar * button)
+{
+    /* user hit enter, generate a "clicked" event for the OK button */
+    gtk_button_clicked(GTK_BUTTON(button));
+}
+
+
 
 static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 {

@@ -76,11 +76,11 @@
    VPOS <float>		0.0-1.0, vertical position setting
    VOFF <float>		vertical offset
    TSOURCE <int>	channel number for trigger source
-   TLEVEL <?>		trigger level
+   TLEVEL <float>	0.0-1.0, trigger level setting
+   TPOS <float>		0.0-1.0, trigger position setting
    TPOLAR <enum>	triger polarity, RISE or FALL
-   TPOS <float>		0.0-1.0, trigger position
-   TMODE <?>		trigger mode
-   RMODE <?>		run mode   
+   TMODE <int>		0 = normal trigger, 1 = auto trigger
+   RMODE <int>		0 = stop, 1 = norm, 2 = single, 3 = roll
   
 */
 
@@ -128,6 +128,11 @@ static char *vscale_cmd(void * arg);
 static char *vpos_cmd(void * arg);
 static char *voff_cmd(void * arg);
 static char *tsource_cmd(void * arg);
+static char *tlevel_cmd(void * arg);
+static char *tpos_cmd(void * arg);
+static char *tpolar_cmd(void * arg);
+static char *tmode_cmd(void * arg);
+static char *rmode_cmd(void * arg);
 
 /***********************************************************************
 *                         LOCAL VARIABLES                              *
@@ -149,10 +154,11 @@ static const cmd_lut_entry_t cmd_lut[25] =
   { "vpos",	FLOAT,	vpos_cmd },
   { "voff",	FLOAT,	voff_cmd },
   { "tsource",	INT,	tsource_cmd },
-  { "tlevel",	FLOAT,	dummy_cmd },
-  { "tpolar",	STRING,	dummy_cmd },
-  { "tmode",	STRING,	dummy_cmd },
-  { "rmode",	STRING,	dummy_cmd },
+  { "tlevel",	FLOAT,	tlevel_cmd },
+  { "tpos",	FLOAT,	tpos_cmd },
+  { "tpolar",	INT,	tpolar_cmd },
+  { "tmode",	INT,	tmode_cmd },
+  { "rmode",	INT,	rmode_cmd },
   { "", 0, dummy_cmd }
 };
 
@@ -207,6 +213,19 @@ void write_config_file (char *filename)
     write_horiz_config(fp);
     write_vert_config(fp);
     write_trig_config(fp);
+    /* write run mode */
+    if (ctrl_usr->run_mode == NORMAL ) {
+	fprintf(fp, "RMODE 1\n" );
+    } else if ( ctrl_usr->run_mode == SINGLE ) {
+	fprintf(fp, "RMODE 2\n" );
+#if 0 /* FIXME - role mode not implemented yet */
+    } else if ( ctrl_usr->run_mode == ROLL ) {
+	fprintf(fp, "RMODE 3\n" );
+#endif
+    } else {
+	/* stop mode */
+	fprintf(fp, "RMODE 0\n" );
+    }
     fclose(fp);
 }
 
@@ -463,11 +482,75 @@ static char *tsource_cmd(void * arg)
     int *argp, rv;
     
     argp = (int *)(arg);
-//    rv = set_trig_src(*argp);
-rv = 1;
+    rv = set_trigger_source(*argp);
     if ( rv < 0 ) {
 	return "could not set trigger source";
     }
     return NULL;
 }
+
+static char *tlevel_cmd(void * arg)
+{
+    double *argp;
+    int rv;
+    
+    argp = (double *)(arg);
+    rv = set_trigger_level(*argp);
+    if ( rv < 0 ) {
+	return "could not set trigger level";
+    }
+    return NULL;
+}    
+
+static char *tpos_cmd(void * arg)
+{
+    double *argp;
+    int rv;
+    
+    argp = (double *)(arg);
+    rv = set_trigger_pos(*argp);
+    if ( rv < 0 ) {
+	return "could not set trigger position";
+    }
+    return NULL;
+}    
+
+static char *tpolar_cmd(void * arg)
+{
+    int *argp;
+    int rv;
+    
+    argp = (int *)(arg);
+    rv = set_trigger_polarity(*argp);
+    if ( rv < 0 ) {
+	return "could not set trigger polarity";
+    }
+    return NULL;
+}    
+
+static char *tmode_cmd(void * arg)
+{
+    int *argp;
+    int rv;
+    
+    argp = (int *)(arg);
+    rv = set_trigger_mode(*argp);
+    if ( rv < 0 ) {
+	return "could not set trigger mode";
+    }
+    return NULL;
+}    
+
+static char *rmode_cmd(void * arg)
+{
+    int *argp;
+    int rv;
+    
+    argp = (int *)(arg);
+    rv = set_run_mode(*argp);
+    if ( rv < 0 ) {
+	return "could not set run mode";
+    }
+    return NULL;
+}    
 

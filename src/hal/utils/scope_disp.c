@@ -65,27 +65,6 @@ static void draw_grid(void);
 static void draw_waveform(int chan_num, int highlight);
 static void handle_window_expose(GtkWidget * widget, gpointer data);
 
-/*
-static void init_horiz_window(void);
-static void init_acquire_function(void);
-static void acquire_popup(GtkWidget * widget, gpointer gdata);
-
-static void dialog_realtime_not_loaded(void);
-static void dialog_realtime_not_linked(void);
-static void dialog_realtime_not_running(void);
-static void acquire_selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, gpointer gdata);
-static void mult_changed(GtkAdjustment * adj, gpointer gdata);
-static void zoom_changed(GtkAdjustment * adj, gpointer gdata);
-static void pos_changed(GtkAdjustment * adj, gpointer gdata);
-static void rec_len_button(GtkWidget * widget, gpointer gdata);
-
-static void calc_horiz_scaling(void);
-
-static void refresh_horiz_info(void);
-static void refresh_pos_disp(void);
-*/
-
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
 ************************************************************************/
@@ -214,17 +193,13 @@ static gboolean alloc_color(GdkColor * color, GdkColormap * map,
 	((unsigned long) red) << 16 | ((unsigned long) green) << 8 |
 	((unsigned long) blue);
     retval = gdk_colormap_alloc_color(map, color, FALSE, TRUE);
-/*! \todo FIXME remove this after testing */
     if (retval == 0) {
 	printf("alloc_color( %d, %d, %d ) failed\n", red, green, blue);
     }
-/* end of FIXME */
     return retval;
 }
 
-/*! \todo FIXME - this will be needed if/when I allow user defined colors */
-/*! \todo Another #if 0 */
-#if 0
+#if 0 /* this will be needed if/when I allow user defined colors */
 static void free_color(GdkColor * color, GdkColormap * map)
 {
     gdk_colormap_free_colors(map, color, 1);
@@ -336,6 +311,10 @@ void draw_grid(void)
     }
 }
 
+/* waveform styles: if neither is defined, an intermediate style is used */
+// #define DRAW_STEPPED
+// #define DRAW_SMOOTH
+
 void draw_waveform(int chan_num, int highlight)
 {
     scope_data_t *dptr;
@@ -418,22 +397,20 @@ void draw_waveform(int chan_num, int highlight)
 	}
 	/* don't draw segment ending at first point */
 	if (n > start) {
-/*! \todo FIXME - maybe use smooth for analog and stepped for bits? */
-/*! \todo Another #if 0 */
-#if 0				/* this is a smoothed line display */
+#ifdef DRAW_SMOOTH
+	    /* this is a smoothed line display */
 	    gdk_draw_line(disp->win, disp->context, x1, y1, x2, y2);
-#endif
-/*! \todo Another #if 0 */
-#if 0				/* this is a stepped one */
+#else
+#ifdef DRAW_STEPPED
+	    /* this is a stepped one */
 	    gdk_draw_line(disp->win, disp->context, x1, y1, x1, y2);
 	    gdk_draw_line(disp->win, disp->context, x1, y2, x2, y2);
-#endif
-/*! \todo An #if 1 - FIX ME if this works */
-#if 1				/* this is a halfway between the two extremes 
-				 */
+#else
+	    /* this is halfway between the two extremes */
 	    midx = (x1 + x2) / 2;
 	    gdk_draw_line(disp->win, disp->context, x1, y1, midx, y2);
 	    gdk_draw_line(disp->win, disp->context, midx, y2, x2, y2);
+#endif
 #endif
 	}
 	/* end of this segment is start of next one */

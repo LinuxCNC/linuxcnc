@@ -198,17 +198,6 @@ void refresh_trigger(void)
 	format_signal_value(buf, BUFLEN, fp_level);
     }
     gtk_label_set_text_if(trig->level_label, buf);
-#if 0
-    adj->value = chan->level_index;
-    gtk_adjustment_changed(adj);
-    gtk_adjustment_value_changed(adj);
-    /* update the channel number and name display */
-    snprintf(num, BUFLEN, "%2d", trig->selected);
-    name = chan->name;
-    gtk_label_set_text_if(trig->chan_num_label, num);
-    gtk_label_set_text_if(trig->source_name_label, name);
-    request_display_refresh(1);
-#endif
 }
 
 void write_trig_config(FILE *fp)
@@ -218,13 +207,12 @@ void write_trig_config(FILE *fp)
     trig = &(ctrl_usr->trig);
     if (ctrl_shm->trig_chan > 0) {
 	fprintf(fp, "TSOURCE %d\n", ctrl_shm->trig_chan);
+	fprintf(fp, "TLEVEL %f\n", trig->level);
+	fprintf(fp, "TPOS %f\n", trig->position);
+	fprintf(fp, "TPOLAR %d\n", ctrl_shm->trig_edge);
     }
-    
-    
+    fprintf(fp, "TMODE %d\n", ctrl_shm->auto_trig);
 }
-
-
-
 
 /***********************************************************************
 *                       LOCAL FUNCTIONS                                *
@@ -434,16 +422,17 @@ static void dialog_select_trigger_source(void)
     /* we get here when the user makes a selection, hits Cancel, or closes
        the window */
     trig_list = NULL;
-    if ((dialog.retval == 0) || (dialog.retval == 2)) {
-	/* user either closed dialog, or hit cancel */
-	return;
-    }
-    /* user made a selection */
+}
+
+int set_trigger_source(int chan_num)
+{
+    ctrl_shm->trig_chan = chan_num;
     if (ctrl_usr->chan[ctrl_shm->trig_chan - 1].name == NULL) {
 	/* selected channel has no source */
 	ctrl_shm->trig_chan = 0;
     }
     refresh_trigger();
+    return 0;
 }
 
 /* If we come here, then the user has selected a row in the list. */
@@ -465,7 +454,7 @@ static void trigger_selection_made(GtkWidget * clist, gint row, gint column,
 	return;
     }
     /* If we get here, it should be a valid selection */
-    ctrl_shm->trig_chan = row + 1;
+    set_trigger_source(row + 1);
     /* set return value of dialog */
     dptr->retval = 1;
     /* destroy window to cause dialog_generic_destroyed() to be called */
@@ -473,22 +462,41 @@ static void trigger_selection_made(GtkWidget * clist, gint row, gint column,
     return;
 }
 
-static void level_changed(GtkAdjustment * adj, gpointer gdata)
+int set_trigger_level(double setting)
 {
     scope_trig_t *trig;
+    GtkAdjustment *adj;
 
-    trig = &(ctrl_usr->trig);
-    trig->level = adj->value / TRIG_LEVEL_RESOLUTION;
-    if ((ctrl_shm->trig_chan < 1) || (ctrl_shm->trig_chan > 16)) {
-	return;
+    /* range check setting */
+    if (( setting < 0.0 ) || ( setting > 1.0 )) {
+	return -1;
     }
+    /* point to data */
+    trig = &(ctrl_usr->trig);
+    /* set level */
+    trig->level = setting;
+    /* set level slider based on new setting */
+    adj = GTK_ADJUSTMENT(trig->level_adj);
+    gtk_adjustment_set_value(adj, trig->level * TRIG_LEVEL_RESOLUTION);
     refresh_trigger();
+    return 0;
 }
 
-static void pos_changed(GtkAdjustment * adj, gpointer gdata)
+static void level_changed(GtkAdjustment * adj, gpointer gdata)
+{
+    set_trigger_level(adj->value / TRIG_LEVEL_RESOLUTION);
+}
+
+int set_trigger_pos(double setting)
 {
     scope_trig_t *trig;
+    GtkAdjustment *adj;
 
+    /* range check setting */
+    if (( setting < 0.0 ) || ( setting > 1.0 )) {
+	return -1;
+    }
+    /* point to data */
     trig = &(ctrl_usr->trig);
     /* is acquisition in progress? */
     if (ctrl_shm->state != IDLE) {
@@ -496,20 +504,60 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctrl_usr->
 		rm_stop_button), TRUE);
     }
-    trig->position = adj->value / TRIG_POS_RESOLUTION;
+    /* set position */
+    trig->position = setting;
+    /* set position slider based on new setting */
+    adj = GTK_ADJUSTMENT(trig->pos_adj);
+    gtk_adjustment_set_value(adj, trig->position * TRIG_POS_RESOLUTION);
     refresh_trigger();
+    return 0;
+}
+
+static void pos_changed(GtkAdjustment * adj, gpointer gdata)
+{
+    set_trigger_pos(adj->value / TRIG_POS_RESOLUTION);
+}
+
+int set_trigger_polarity(int setting)
+{
+    if (setting == 0) {
+	ctrl_shm->trig_edge = 0;
+    } else if ( setting == 1 ) {
+	ctrl_shm->trig_edge = 1;
+    } else {
+	return -1;
+    }
+    refresh_trigger();
+    return 0;
 }
 
 static void edge_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
     if (ctrl_shm->trig_edge == 0) {
 	/* was falling edge, make rising */
-	ctrl_shm->trig_edge = 1;
+	set_trigger_polarity(1);
     } else {
 	/* was rising edge, make falling */
-	ctrl_shm->trig_edge = 0;
+	set_trigger_polarity(0);
     }
-    refresh_trigger();
+}
+
+int set_trigger_mode(int mode)
+{
+    GtkWidget *button;
+
+    if ( mode == 0 ) {
+	/* normal mode */
+	button = ctrl_usr->trig.normal_button;
+    } else if ( mode == 1 ) {
+	/* auto mode */
+	button = ctrl_usr->trig.auto_button;
+    } else {
+	/* illegal mode */
+	return -1;
+    }
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), 1);
+    return 0;
 }
 
 static void normal_button_clicked(GtkWidget * widget, gpointer * gdata)
