@@ -706,6 +706,7 @@ static gboolean dialog_set_offset(int chan_num)
 	vert->offset_entry, FALSE, TRUE, 0);
     snprintf(buf, BUFLEN, "%f", chan->vert_offset);
     gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), buf);
+    gtk_entry_set_max_length(GTK_ENTRY(vert->offset_entry), BUFLEN-1);
     /* point at first char */
     gtk_entry_set_position(GTK_ENTRY(vert->offset_entry), 0);
     /* select all chars, so if the user types the original value goes away */
