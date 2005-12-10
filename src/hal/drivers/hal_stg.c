@@ -1,6 +1,6 @@
 /********************************************************************
 * Description:  hal_stg.c
-*               This is the driver for an Servo-To-Go Model I board.
+*               This is the driver for Servo-To-Go Model I & II board.
 *
 * Author: Alex Joni
 * License: GPL Version 2
@@ -8,12 +8,12 @@
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change: 
-# $Revision$
+* $Revision$
 * $Author$
 * $Date$
 ********************************************************************/
 
-/** This is the driver for an Servo-To-Go Model I board.
+/** This is the driver for Servo-To-Go Model I & II board.
     The board includes 8 channels of quadrature encoder input,
     8 channels of analog input and output, 32 bits digital I/O,
     and an interval timer with interrupt.
@@ -53,7 +53,7 @@
 /todo  	bit	stg.<channel>.enc-reset-count
    
       Functions:
-/totest void    stg.<channel>.capture_position
+        void    stg.<channel>.capture_position
    
    
     DACs:
@@ -155,20 +155,23 @@
 #ifdef MODULE
 /* module information */
 MODULE_AUTHOR("Alex Joni");
-MODULE_DESCRIPTION("Driver for Servo-to-Go Model I for EMC HAL");
+MODULE_DESCRIPTION("Driver for Servo-to-Go Model I  & II for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
 static int base = 0x00;		/* board base address, 0 means autodetect */
 MODULE_PARM(base, "i");
 MODULE_PARM_DESC(base, "board base address, don't use for autodetect");
+static int model = 0;		/* board model, leave empty and autodetect */
+MODULE_PARM(model, "i");
+MODULE_PARM_DESC(model, "board model, use with caution. it overrides the detected model");
 static int num_chan = MAX_CHANS;	/* number of channels - default = 8 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
 static long period = 0;			/* thread period - default = no thread */
 MODULE_PARM(period, "l");
 MODULE_PARM_DESC(period, "thread period (nsecs)");
-static char *dio = "IIOO";		/* thread period - default = port A&B inputs, port C&D outputs */
+static char *dio = "IIOO";		/* dio config - default = port A&B inputs, port C&D outputs */
 MODULE_PARM(dio, "s");
 MODULE_PARM_DESC(dio, "dio config string - expects something like IIOO");
 #endif /* MODULE */
@@ -252,7 +255,7 @@ static int stg_adc_init(int ch);
 static int stg_adc_start(void *arg, unsigned short wAxis);
 static short stg_adc_read(void *arg, int ch);
 
-/* counter related functions */
+/* dio related functions */
 static int stg_dio_init(void);
 
 /* periodic functions registered to HAL */
@@ -293,7 +296,6 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-
     /* allocate shared memory for stg data */
     stg_driver = hal_malloc(num_chan * sizeof(stg_struct));
     if (stg_driver == 0) {
@@ -302,7 +304,7 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-    /* takes care of all initialisations, also autodetection if necessary */
+    /* takes care of all initialisations, also autodetection and model if necessary */
     if (stg_init_card() != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "STG: ERROR: stg_init_card() failed\n");
@@ -986,9 +988,15 @@ static int stg_set_interrupt(short interrupt)
 
 static int stg_init_card()
 {
+
     if (base == 0x00) {
 	base = stg_autodetect();
     }
+
+    if (model != 0) {
+	stg_driver->model = model; //overrides any detected model, use with caution
+    }
+    
     if (base == 0x00) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no STG or STG2 card found\n");
 	return -1;
