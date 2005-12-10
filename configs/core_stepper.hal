@@ -68,9 +68,9 @@ setp stepgen.1.maxvel [AXIS_1]MAX_VELOCITY
 setp stepgen.2.maxvel [AXIS_2]MAX_VELOCITY
 
 # set stepgen module accel limits - get values from ini file
-setp stepgen.0.maxaccel [AXIS_0]MAX_ACCELERATION
-setp stepgen.1.maxaccel [AXIS_1]MAX_ACCELERATION
-setp stepgen.2.maxaccel [AXIS_2]MAX_ACCELERATION
+setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
+setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
+setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
 
 # load realtime portion of scope, just to have it handy
 loadrt scope_rt
