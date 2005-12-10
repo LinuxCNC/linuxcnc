@@ -546,6 +546,19 @@ void ARC_FEED(double first_end, double second_end,
     int full_circle_in_active_plane = 0;
     double v1, v2, vel, ini_maxvel;
 
+    /* In response to  Bugs item #1274108 - rotary axis moves when coordinate
+       offsets used with A. Original code failed to include programOrigin on
+       rotary moves. */
+    a = FROM_PROG_ANG(a);
+    b = FROM_PROG_ANG(b);
+    c = FROM_PROG_ANG(c);
+    a += programOrigin.a;
+    b += programOrigin.b;
+    c += programOrigin.c;
+    a = TO_EXT_ANG(a);
+    b = TO_EXT_ANG(b);
+    c = TO_EXT_ANG(c);
+
     /* Since there's no default case here,
        we need to initialise vel to something safe! */
     vel = ini_maxvel = currentLinearFeedRate;
