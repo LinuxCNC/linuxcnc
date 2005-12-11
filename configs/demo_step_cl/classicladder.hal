@@ -1,0 +1,54 @@
+# PID loop test HAL config file for servos
+#
+# Run from your main emc2 directory
+#
+# before you can run this config file, you must load the
+# realtime modules and the HAL library
+#    scripts/realtime start
+# then you must tell halcmd where it can find the realtime
+# HAL modules.  do this by setting the HAL_RTMOD_DIR 
+# environment variable:
+#    export HAL_RTMOD_DIR=./rtlib
+#
+# then you can run this config file:
+#    bin/halcmd -f classicladder.hal
+#
+
+# first load realtime portion of classicladder, and create a 1mS thread
+loadrt classicladder_rt period=1000000
+
+# hook functions to realtime thread
+addf classicladder.0.refresh classicladder.thread 1
+
+# create some I/O signals
+newsig I0 bit
+newsig I1 bit
+newsig I2 bit
+newsig Q0 bit
+newsig Q1 bit
+newsig Q2 bit
+
+# connect I/O signals to classicladder
+linksp I0 => classicladder.0.in-00
+linksp I1 => classicladder.0.in-01
+linksp I2 => classicladder.0.in-02
+linksp Q0 <= classicladder.0.out-00
+linksp Q1 <= classicladder.0.out-01
+linksp Q2 <= classicladder.0.out-02
+
+# set the input signals
+sets I0 0
+sets I1 0
+sets I2 0
+
+# load realtime portion of scope, just to have it handy
+loadrt scope_rt
+
+# start realtime execution
+#start
+
+# end of halcmd file
+# to shut down and clean up, run the following commands:
+# bin/halcmd stop
+# bin/halcmd unloadrt all
+# scripts/realtime stop
