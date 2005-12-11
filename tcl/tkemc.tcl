@@ -7,12 +7,14 @@ exec $EMC2_EMCSH "$0" "$@"
 
 set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
+set TCLDIR tcl
 
 if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLBIN $env(EMC2_TCL_DIR)
     set TCLSCRIPTS $env(EMC2_TCL_DIR)
     set TCLBIN $TCLBIN/bin
     set TCLSCRIPTS $TCLSCRIPTS/scripts
+    set TCLDIR $env(EMC2_TCL_DIR)
 }
 
 
@@ -50,10 +52,14 @@ if ([info exists env(LANG)]) {
 }
 
 # read the application defaults
-foreach f {TkEmc configs/TkEmc /usr/X11R6/lib/X11/app-defaults/TkEmc} {
+set TKEMCCONF $TCLDIR/TkEmc
+if {[file exists $TKEMCCONF]} {
+    option readfile $TKEMCCONF startupFile
+}
+foreach f {TkEmc /usr/X11R6/lib/X11/app-defaults/TkEmc} {
     if {[file exists $f]} {
-        option readfile $f startupFile
-        break
+	option readfile $TKEMCCONF startupFile
+	break
     }
 }
 
