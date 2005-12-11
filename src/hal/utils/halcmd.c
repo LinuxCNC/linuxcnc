@@ -313,8 +313,13 @@ int main(int argc, char **argv)
     /* at this point all options are parsed, connect to HAL */
     /* create a unique module name, to allow for multiple halcmd's */
     snprintf(comp_name, HAL_NAME_LEN-1, "halcmd%d", getpid());
+    /* tell the signal handler that we might have the mutex */
+    hal_flag = 1;
     /* connect to the HAL */
     comp_id = hal_init(comp_name);
+    /* done with mutex */
+    hal_flag = 0;
+    /* check result */
     if (comp_id < 0) {
 	fprintf(stderr, "halcmd: hal_init() failed\n" );
 	fprintf(stderr, "NOTE: 'rtapi' kernel module must be loaded\n" );
@@ -345,7 +350,6 @@ int main(int argc, char **argv)
 	if (prompt_mode != 0) {
 	    rtapi_print("halcmd: ");
 	}
-	
 	/* read command line(s) from 'srcfile' */
 	while (fgets(cmd_buf, MAX_CMD_LEN, srcfile) != NULL) {
 	    linenumber++;
@@ -430,7 +434,9 @@ int main(int argc, char **argv)
 		    /* should never get here */
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d: Bad state in token parser\n", linenumber);
-		    done = 1;
+		    errorcount++;
+		    /* break out of switch and 2 loops, purists be damned */
+		    goto out;
 		}
 	    }
 	    /* tokens[] contains MAX_TOK+1 elements so there is always
@@ -440,14 +446,12 @@ int main(int argc, char **argv)
 	    if ( ( strcasecmp(tokens[0],"quit") == 0 ) || ( strcasecmp(tokens[0],"exit") == 0 ) ) {
 		break;
 	    }
-	    /* let the signal handler know that we might have the mutex */
-	    hal_flag = 1;
 	    /* process command */
-            retval = parse_cmd(tokens);
-	    /* done with the mutex, can simply exit on a signal */
-	    hal_flag = 0;
+	    retval = parse_cmd(tokens);
 	    /* did a signal happen while we were busy? */
 	    if ( done ) {
+		/* treat it as an error */
+		errorcount++;
 		/* exit from loop */
 		break;
 	    }
@@ -464,6 +468,9 @@ int main(int argc, char **argv)
 	}
     }
     /* all done */
+out:
+    /* tell the signal handler we might have the mutex */
+    hal_flag = 1;
     hal_exit(comp_id);
     if ( errorcount > 0 ) {
 	return 1;
@@ -527,7 +534,6 @@ static int parse_cmd(char *tokens[])
 {
     int retval;
 
-/*! \todo Another #if 0 */
 #if 0
     int n;
     /* for testing: prints tokens that make up the command */
@@ -535,6 +541,9 @@ static int parse_cmd(char *tokens[])
 	printf ( "HAL:%d: %02d:{%s}\n", linenumber, n, tokens[n] );
     }
 #endif
+    /* tell the signal handler that we might have the mutex and
+       can't just quit */
+    hal_flag = 1;
     /* tokens[0] is the command */
     if ((tokens[0][0] == '#') || (tokens[0][0] == '\0')) {
 	/* comment or blank line, do nothing */
@@ -647,6 +656,8 @@ static int parse_cmd(char *tokens[])
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown command '%s'\n", linenumber, tokens[0]);
 	retval = -1;
     }
+    /* tell the signal handler that we no longer can have the mutex */
+    hal_flag = 0;
     return retval;
 }
 
@@ -1331,7 +1342,7 @@ static int do_status_cmd(char *type)
     }
     if ((*type == '\0') || (strcmp(type, "all") == 0)) {
 	/* print everything */
-	/*! \todo FIXME - add other status functions here */
+	/* add other status functions here if/when they are defined */
 	print_lock_status();
 	print_mem_status();
     } else if (strcmp(type, "lock") == 0) {
