@@ -45,7 +45,7 @@ HEADERS = config.h
 # level code that might depend on it
 
 all headers indent : def_headers
-	chmod +x ../scripts/install.run
+	chmod +x ../scripts/emc
 	(cd rtapi; make headers)
 	(cd libnml; make headers)
 	(cd emc; make headers)
@@ -106,7 +106,7 @@ install_configs:
 install_bin:
 	install -d $(DESTDIR)$(bindir)
 	-cp -f ../bin/* $(DESTDIR)$(bindir)
-	cp ../scripts/install.run $(DESTDIR)$(bindir)/emc.run
+	cp ../scripts/emc $(DESTDIR)$(bindir)
 	chmod +x $(DESTDIR)$(bindir)/emc.run
 	@ echo "bin installed"
 

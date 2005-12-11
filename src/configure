@@ -5916,7 +5916,7 @@ fi
 # files that get created by ./configure                                      #
 ##############################################################################
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
-          ac_config_files="$ac_config_files ../scripts/install.run"
+          ac_config_files="$ac_config_files ../scripts/emc"
 
           ac_config_files="$ac_config_files Makefile.inc"
 cat >confcache <<\_ACEOF
@@ -6443,7 +6443,7 @@ for ac_config_target in $ac_config_targets
 do
   case "$ac_config_target" in
   # Handling of arguments.
-  "../scripts/install.run" ) CONFIG_FILES="$CONFIG_FILES ../scripts/install.run" ;;
+  "../scripts/emc" ) CONFIG_FILES="$CONFIG_FILES ../scripts/emc" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
