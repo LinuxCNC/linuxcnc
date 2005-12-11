@@ -88,7 +88,7 @@ loadrt pid num_chan=4
 loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=10 numMonostables=10 numPhysInputs=30 numPhysOutputs=30 numArithmExpr=4 numSections=4
 
 # invoke the user part of CL to silently load the program
-loadusr -w classicladder --nogui configs/mazak_rf.clp
+loadusr -w classicladder --nogui demo_mazak.clp
 
 # load the realtime part of halscope
 loadrt scope_rt
