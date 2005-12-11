@@ -1,0 +1,112 @@
+# core HAL config file for servos
+
+# first load the PID module, for three PID loops
+loadrt pid num_chan=3
+
+# hook functions to realtime thread
+addf pid.0.do-pid-calcs servo-thread 1
+addf pid.1.do-pid-calcs servo-thread 1
+addf pid.2.do-pid-calcs servo-thread 1
+
+# create three position feedback signals
+newsig Xpos-fb float
+newsig Ypos-fb float
+newsig Zpos-fb float
+
+# connect position feedback to PID loop
+linksp Xpos-fb => pid.0.feedback
+linksp Ypos-fb => pid.1.feedback
+linksp Zpos-fb => pid.2.feedback
+
+# connect position feedback to motion module
+linksp Xpos-fb => axis.0.motor-pos-fb
+linksp Ypos-fb => axis.1.motor-pos-fb
+linksp Zpos-fb => axis.2.motor-pos-fb
+
+# create PID to DAC output signals
+newsig Xoutput float
+newsig Youtput float
+newsig Zoutput float
+
+# connect output signals to output of PID loops
+linksp Xoutput <= pid.0.output
+linksp Youtput <= pid.1.output
+linksp Zoutput <= pid.2.output
+
+# set PID loop output limits to +/-1.00
+setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
+setp pid.1.maxoutput [AXIS_1]MAX_VELOCITY
+setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
+
+# set PID loop gains
+# NOTE: eventually these will be non-zero values as
+# needed to tune the performance of each axis.  The
+# initial values shown here are extremely conservative
+# to prevent unexpected behavior.  After this file 
+# has been "executed" by halcmd, the gains can be
+# interactively adjusted using commands like
+# "halcmd setp pid.<channel>.Pgain <value>"
+# Once the axis has been tuned to your satisfaction, 
+# do "halcmd show param | grep pid" to get a listing 
+# of the tuning parameters, and enter those values here.
+# FIXME - these should come from the ini file, but
+# I'd rather not have all the PID parameters in the 
+# ini file for a stepper machine, they just confuse
+# people.  I'd like emc to come with more than just
+# one sample ini file, one could be for steppers,
+# another for servos... need to disscuss this first.
+
+setp pid.0.Pgain 100
+setp pid.0.Igain 0
+setp pid.0.Dgain 0
+setp pid.0.bias 0
+setp pid.0.FF0 0
+setp pid.0.FF1 0
+# deadband should be just over 1 count
+setp pid.0.deadband 0.0005
+
+setp pid.1.Pgain 100
+setp pid.1.Igain 0
+setp pid.1.Dgain 0
+setp pid.1.bias 0
+setp pid.1.FF0 0
+setp pid.1.FF1 0
+setp pid.1.deadband 0.0005
+
+setp pid.2.Pgain 100
+setp pid.2.Igain 0
+setp pid.2.Dgain 0
+setp pid.2.bias 0
+setp pid.2.FF0 0
+setp pid.2.FF1 0
+setp pid.2.deadband 0.0005
+
+# create three position command signals
+newsig Xpos-cmd float
+newsig Ypos-cmd float
+newsig Zpos-cmd float
+
+# connect position commands to motion controller
+linksp Xpos-cmd <= axis.0.motor-pos-cmd
+linksp Ypos-cmd <= axis.1.motor-pos-cmd
+linksp Zpos-cmd <= axis.2.motor-pos-cmd
+
+# connect position commands to PID input
+linksp Xpos-cmd => pid.0.command
+linksp Ypos-cmd => pid.1.command
+linksp Zpos-cmd => pid.2.command
+
+# create bit signals to enable/disable the PID loops
+newsig Xenable bit
+newsig Yenable bit
+newsig Zenable bit
+
+# connect the signals to the motion controller
+linksp Xenable <= axis.0.amp-enable-out
+linksp Yenable <= axis.1.amp-enable-out
+linksp Zenable <= axis.2.amp-enable-out
+
+# connect the signals to the PID blocks
+linksp Xenable => pid.0.enable
+linksp Yenable => pid.1.enable
+linksp Zenable => pid.2.enable
