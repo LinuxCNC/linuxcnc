@@ -161,7 +161,8 @@ echo EMC2_IOSH=$EMC2_IOSH >>$PRINT_FILE
 # 1.3.4. look for ini file, check various places if no abs path specified
 INIFILE=
 if [ ! -n "$1" ] ; then                     # nothing specified, use default
-    INIFILE=$EMC2_CONFIG_DIR/emc.ini
+    EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR/sim
+    INIFILE=$EMC2_CONFIG_DIR/sim.ini
 elif echo $1 | $GREP / >>$DEBUG_FILE ; then # something specified, analyse
     # path specified, use it, but convert it to abs path
     INI_NAME=`echo $1 | sed s#\^.\*/##`
@@ -174,10 +175,11 @@ elif echo $1 | $GREP .ini >>$DEBUG_FILE ; then # filename but no path, check for
 	INIFILE=$EMC2_CONFIG_DIR/$1         #  use it
     fi
 else                                        # only name specified, no extension
-    if [-f $EMC2_CONFIG_DIR/$1.ini ] ; then   # check for configs/foo.ini
-	INIFILE=$EMC2_CONFIG_DIR/$1.ini     #  use it
-    elif [-f $EMC2_CONFIG_DIR/$1/$1.ini ] ; then # check for configs/foo/foo.ini
+    if [-f $EMC2_CONFIG_DIR/$1/$1.ini ] ; then # check for configs/foo/foo.ini
 	INIFILE=$EMC2_CONFIG_DIR/$1/$1.ini  #  use it
+	EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR/$1
+    elif [-f $EMC2_CONFIG_DIR/$1.ini ] ; then   # check for configs/foo.ini
+	INIFILE=$EMC2_CONFIG_DIR/$1.ini     #  use it
     fi
 fi
 if [ ! -f $INIFILE ] ; then
