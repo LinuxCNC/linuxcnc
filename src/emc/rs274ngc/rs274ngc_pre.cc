@@ -87,6 +87,8 @@ include an option for suppressing superfluous commands.
 #include "rs274ngc_return.hh"
 //#include "rs274ngc_errors.cc"
 
+#include "units.h"
+
 extern char * _rs274ngc_errors[];
 
 #define LOG_FILE "emc_log"
@@ -305,32 +307,34 @@ int Interp::init()
   CHK(((_setup.origin_index < 1) || (_setup.origin_index > 9)),
       NCE_COORDINATE_SYSTEM_INDEX_PARAMETER_5220_OUT_OF_RANGE);
   k = (5200 + (_setup.origin_index * 20));
-  SET_ORIGIN_OFFSETS((pars[k + 1] + pars[5211]),
-                     (pars[k + 2] + pars[5212]), (pars[k + 3] + pars[5213]),
+  SET_ORIGIN_OFFSETS(USER_TO_PROGRAM_LEN(pars[k + 1] + pars[5211]),
+                     USER_TO_PROGRAM_LEN(pars[k + 2] + pars[5212]), 
+                     USER_TO_PROGRAM_LEN(pars[k + 3] + pars[5213]),
 #ifndef LATHE
-                     (pars[k + 4] + pars[5214]),
-                     (pars[k + 5] + pars[5215]), (pars[k + 6] + pars[5216]));
+                     USER_TO_PROGRAM_ANG(pars[k + 4] + pars[5214]),
+                     USER_TO_PROGRAM_ANG(pars[k + 5] + pars[5215]),
+                     USER_TO_PROGRAM_ANG(pars[k + 6] + pars[5216]));
 #else
                      0, 0, 0);
 #endif
   SET_FEED_REFERENCE(CANON_XYZ);
 #ifndef LATHE
-  _setup.AA_axis_offset = pars[5214];
+  _setup.AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
 //_setup.Aa_current set in Interp::synch
-  _setup.AA_origin_offset = pars[k + 4];
-  _setup.BB_axis_offset = pars[5215];
+  _setup.AA_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 4]);
+  _setup.BB_axis_offset = USER_TO_PROGRAM_ANG(pars[5215]);
 //_setup.Bb_current set in Interp::synch
-  _setup.BB_origin_offset = pars[k + 5];
-  _setup.CC_axis_offset = pars[5216];
+  _setup.BB_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 5]);
+  _setup.CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
 //_setup.Cc_current set in Interp::synch
-  _setup.CC_origin_offset = pars[k + 6];
+  _setup.CC_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 6]);
 #endif
 //_setup.active_g_codes initialized below
 //_setup.active_m_codes initialized below
 //_setup.active_settings initialized below
-  _setup.axis_offset_x = pars[5211];
-  _setup.axis_offset_y = pars[5212];
-  _setup.axis_offset_z = pars[5213];
+  _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
+  _setup.axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
+  _setup.axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
 //_setup.block1 does not need initialization
   _setup.blocktext[0] = 0;
 //_setup.current_slot set in Interp::synch
@@ -353,9 +357,9 @@ int Interp::init()
 //_setup.mist set in Interp::synch
   _setup.motion_mode = G_80;
 //_setup.origin_index set above
-  _setup.origin_offset_x = pars[k + 1];
-  _setup.origin_offset_y = pars[k + 2];
-  _setup.origin_offset_z = pars[k + 3];
+  _setup.origin_offset_x = USER_TO_PROGRAM_LEN(pars[k + 1]);
+  _setup.origin_offset_y = USER_TO_PROGRAM_LEN(pars[k + 2]);
+  _setup.origin_offset_z = USER_TO_PROGRAM_LEN(pars[k + 3]);
 //_setup.parameters set above
 //_setup.parameter_occurrence does not need initialization
 //_setup.parameter_numbers does not need initialization

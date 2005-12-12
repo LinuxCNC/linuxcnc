@@ -29,6 +29,8 @@
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 
+#include "units.h"
+
 /****************************************************************************/
 
 /*! convert_arc
@@ -670,13 +672,13 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 #else
                        0, 0, 0);
 #endif
-    pars[5211] = settings->axis_offset_x;
-    pars[5212] = settings->axis_offset_y;
-    pars[5213] = settings->axis_offset_z;
+    pars[5211] = TO_EXT_LEN(settings->axis_offset_x);
+    pars[5212] = TO_EXT_LEN(settings->axis_offset_y);
+    pars[5213] = TO_EXT_LEN(settings->axis_offset_z);
 #ifndef LATHE
-    pars[5214] = settings->AA_axis_offset;
-    pars[5215] = settings->BB_axis_offset;
-    pars[5216] = settings->CC_axis_offset;
+    pars[5214] = TO_EXT_ANG(settings->AA_axis_offset);
+    pars[5215] = TO_EXT_ANG(settings->BB_axis_offset);
+    pars[5216] = TO_EXT_ANG(settings->CC_axis_offset);
 #endif
 
   } else if ((g_code == G_92_1) || (g_code == G_92_2)) {
@@ -718,26 +720,26 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     }
   } else if (g_code == G_92_3) {
     settings->current_x =
-      settings->current_x + settings->axis_offset_x - pars[5211];
+      settings->current_x + settings->axis_offset_x - USER_TO_PROGRAM_LEN(pars[5211]);
     settings->current_y =
-      settings->current_y + settings->axis_offset_y - pars[5212];
+      settings->current_y + settings->axis_offset_y - USER_TO_PROGRAM_LEN(pars[5212]);
     settings->current_z =
-      settings->current_z + settings->axis_offset_z - pars[5213];
+      settings->current_z + settings->axis_offset_z - USER_TO_PROGRAM_LEN(pars[5213]);
 #ifndef LATHE
     settings->AA_current =
-      settings->AA_current + settings->AA_axis_offset - pars[5214];
+      settings->AA_current + settings->AA_axis_offset - USER_TO_PROGRAM_ANG(pars[5214]);
     settings->BB_current =
-      settings->BB_current + settings->BB_axis_offset - pars[5215];
+      settings->BB_current + settings->BB_axis_offset - USER_TO_PROGRAM_ANG(pars[5215]);
     settings->CC_current =
-      settings->CC_current + settings->CC_axis_offset - pars[5216];
+      settings->CC_current + settings->CC_axis_offset - USER_TO_PROGRAM_ANG(pars[5216]);
 #endif
-    settings->axis_offset_x = pars[5211];
-    settings->axis_offset_y = pars[5212];
-    settings->axis_offset_z = pars[5213];
+    settings->axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
+    settings->axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
+    settings->axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
 #ifndef LATHE
-    settings->AA_axis_offset = pars[5214];
-    settings->BB_axis_offset = pars[5215];
-    settings->CC_axis_offset = pars[5216];
+    settings->AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
+    settings->BB_axis_offset = USER_TO_PROGRAM_ANG(pars[5215]);
+    settings->CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
 #endif
     SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
                        settings->origin_offset_y + settings->axis_offset_y,
@@ -1013,13 +1015,13 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->CC_current = (settings->CC_current + settings->CC_origin_offset);
 #endif
 
-  x = parameters[5201 + (origin * 20)];
-  y = parameters[5202 + (origin * 20)];
-  z = parameters[5203 + (origin * 20)];
+  x = USER_TO_PROGRAM_LEN(parameters[5201 + (origin * 20)]);
+  y = USER_TO_PROGRAM_LEN(parameters[5202 + (origin * 20)]);
+  z = USER_TO_PROGRAM_LEN(parameters[5203 + (origin * 20)]);
 #ifndef LATHE
-  a = parameters[5204 + (origin * 20)];
-  b = parameters[5205 + (origin * 20)];
-  c = parameters[5206 + (origin * 20)];
+  a = USER_TO_PROGRAM_ANG(parameters[5204 + (origin * 20)]);
+  b = USER_TO_PROGRAM_ANG(parameters[5205 + (origin * 20)]);
+  c = USER_TO_PROGRAM_ANG(parameters[5206 + (origin * 20)]);
 #endif
 
   settings->origin_offset_x = x;
@@ -2016,39 +2018,40 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
 
   if (block->x_flag == ON) {
     x = block->x_number;
-    parameters[5201 + (p_int * 20)] = x;
+    parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
   } else
-    x = parameters[5201 + (p_int * 20)];
+    x = USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]);
 
   if (block->y_flag == ON) {
     y = block->y_number;
-    parameters[5202 + (p_int * 20)] = y;
+    parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
   } else
-    y = parameters[5202 + (p_int * 20)];
+    y = USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]);
+
   if (block->z_flag == ON) {
     z = block->z_number;
-    parameters[5203 + (p_int * 20)] = z;
+    parameters[5203 + (p_int * 20)] = PROGRAM_TO_USER_LEN(z);
   } else
-    z = parameters[5203 + (p_int * 20)];
+    z = USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]);
 
 #ifndef LATHE
   if (block->a_flag == ON) {
     a = block->a_number;
-    parameters[5204 + (p_int * 20)] = a;
+    parameters[5204 + (p_int * 20)] = PROGRAM_TO_USER_ANG(a);
   } else
-    a = parameters[5204 + (p_int * 20)];
+    a = USER_TO_PROGRAM_ANG(parameters[5204 + (p_int * 20)]);
 
   if (block->b_flag == ON) {
     b = block->b_number;
-    parameters[5205 + (p_int * 20)] = b;
+    parameters[5205 + (p_int * 20)] = PROGRAM_TO_USER_ANG(b);
   } else
-    b = parameters[5205 + (p_int * 20)];
+    b = USER_TO_PROGRAM_ANG(parameters[5205 + (p_int * 20)]);
 
   if (block->c_flag == ON) {
     c = block->c_number;
-    parameters[5206 + (p_int * 20)] = c;
+    parameters[5206 + (p_int * 20)] = PROGRAM_TO_USER_ANG(c);
   } else
-    c = parameters[5206 + (p_int * 20)];
+    c = USER_TO_PROGRAM_ANG(parameters[5206 + (p_int * 20)]);
 #endif
 
 /* axis offsets could be included in the two sets of calculations for
@@ -2264,13 +2267,13 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 #endif
     settings->origin_index = 1;
     settings->parameters[5220] = 1.0;
-    settings->origin_offset_x = settings->parameters[5221];
-    settings->origin_offset_y = settings->parameters[5222];
-    settings->origin_offset_z = settings->parameters[5223];
+    settings->origin_offset_x = USER_TO_PROGRAM_LEN(settings->parameters[5221]);
+    settings->origin_offset_y = USER_TO_PROGRAM_LEN(settings->parameters[5222]);
+    settings->origin_offset_z = USER_TO_PROGRAM_LEN(settings->parameters[5223]);
 #ifndef LATHE
-    settings->AA_origin_offset = settings->parameters[5224];
-    settings->BB_origin_offset = settings->parameters[5225];
-    settings->CC_origin_offset = settings->parameters[5226];
+    settings->AA_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5224]);
+    settings->BB_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5225]);
+    settings->CC_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5226]);
 #endif
 
     settings->axis_offset_x = 0;

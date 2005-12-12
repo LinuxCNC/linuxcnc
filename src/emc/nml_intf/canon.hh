@@ -585,6 +585,9 @@ extern double GET_EXTERNAL_LENGTH_UNIT_FACTOR();
 // Returns the system length unit type
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE();
 
+extern double GET_EXTERNAL_LENGTH_UNITS();
+extern double GET_EXTERNAL_ANGLE_UNITS();
+
 // Returns the system value for mist coolant, zero = off, non-zero = on
 extern int GET_EXTERNAL_MIST();
 

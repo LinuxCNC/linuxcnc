@@ -54,8 +54,6 @@ static PM_QUATERNION quat(1, 0, 0, 0);
   defined here that are used for convenience but no longer have decls
   in the 6-axis canon.hh. So, we declare them here now.
 */
-extern double GET_EXTERNAL_LENGTH_UNITS(void);
-extern double GET_EXTERNAL_ANGLE_UNITS(void);
 extern void CANON_ERROR(const char *fmt, ...);
 
 /*
@@ -1388,7 +1386,7 @@ double GET_EXTERNAL_TRAVERSE_RATE()
     return traverse;
 }
 
-double GET_EXTERNAL_LENGTH_UNITS()
+double GET_EXTERNAL_LENGTH_UNITS(void)
 {
     double u;
 
@@ -1402,7 +1400,7 @@ double GET_EXTERNAL_LENGTH_UNITS()
     }
 }
 
-double GET_EXTERNAL_ANGLE_UNITS()
+double GET_EXTERNAL_ANGLE_UNITS(void)
 {
     double u;
 
