@@ -171,14 +171,14 @@ elif echo $1 | $GREP / >>$DEBUG_FILE ; then # something specified, analyse
     EMC2_CONFIG_DIR=$INIF_DIR               # remember the found ini dir
     INIFILE=$INIF_DIR/$INI_NAME
 elif echo $1 | $GREP .ini >>$DEBUG_FILE ; then # filename but no path, check for '.ini'
-    if [-f $EMC2_CONFIG_DIR/$1 ] ; then       # if it exists under configs,
+    if [ -f $EMC2_CONFIG_DIR/$1 ] ; then       # if it exists under configs,
 	INIFILE=$EMC2_CONFIG_DIR/$1         #  use it
     fi
 else                                        # only name specified, no extension
-    if [-f $EMC2_CONFIG_DIR/$1/$1.ini ] ; then # check for configs/foo/foo.ini
+    if [ -f $EMC2_CONFIG_DIR/$1/$1.ini ] ; then # check for configs/foo/foo.ini
 	INIFILE=$EMC2_CONFIG_DIR/$1/$1.ini  #  use it
 	EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR/$1
-    elif [-f $EMC2_CONFIG_DIR/$1.ini ] ; then   # check for configs/foo.ini
+    elif [ -f $EMC2_CONFIG_DIR/$1.ini ] ; then   # check for configs/foo.ini
 	INIFILE=$EMC2_CONFIG_DIR/$1.ini     #  use it
     fi
 fi
@@ -490,14 +490,9 @@ NUM=1
 CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
 while [ -n "$CFGFILE" ] ; do
     if [ ! -f $EMC2_CONFIG_DIR/$CFGFILE ] ; then
-	# try to see maybe we find it in the original dir
-	if [ ! -f $EMC2_ORIG_CONFIG_DIR/$CFGFILE ] ; then
-	    echo "Can't find HAL config file: $EMC2_CONFIG_DIR/$CFGFILE"
-	    Cleanup
-	    exit -1
-	else
-	    CFGFILE=$EMC2_ORIG_CONFIG_DIR/$CFGFILE
-	fi
+	echo "Can't find HAL config file: $EMC2_CONFIG_DIR/$CFGFILE"
+	Cleanup
+	exit -1
     else
 	CFGFILE=$EMC2_CONFIG_DIR/$CFGFILE
     fi
