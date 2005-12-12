@@ -190,6 +190,10 @@ typedef struct {
     hal_u8_t pulse_space;	/* min pulse space in 100nS increments */
 } stepgens_t;
 
+#define BOOT_NORMAL 0
+#define BOOT_REV    1
+#define BOOT_FWD    2
+
 /* this structure contains the runtime data for a PWM generator */
 typedef struct {
     hal_bit_t *enable;		/* enable pin for PWM generator */
@@ -198,6 +202,9 @@ typedef struct {
     hal_float_t max_dc;		/* maximum duty cycle 0.0-1.0 */
     hal_float_t min_dc;		/* minimum duty cycle 0.0-1.0 */
     hal_float_t duty_cycle;	/* actual duty cycle output */
+    hal_bit_t bootstrap;	/* enable bootstrap mode (pulses at startup) */
+    unsigned char boot_state;	/* state for bootstrap state machine */
+    unsigned char old_enable;	/* used to detect rising edge, for boot */
 } pwmgen_t;
 
 /* runtime data for a set of 4 PWM generators */
@@ -968,6 +975,36 @@ static void write_pwmgens(slot_data_t *slot)
 	}
 	/* calculate desired duty cycle */
 	dc = *(pg->value) / pg->scale;
+	/* Special code to deal with the requirements of the Pico PWM
+	   amps.  They need at least one PWM pulse in each direction 
+	   every time you enable the amps.  So we override the commanded
+	   duty cycle with +5%, then -5%, for one thread execution time 
+	   each, when we see a rising edge on enable.
+	*/
+	if ( pg->bootstrap != 0 ) {
+	    /* check for rising edge on enable */
+	    if (( *(pg->enable) != 0 ) && ( pg->old_enable == 0 )) {
+		/* kick off state machine */
+		pg->boot_state = BOOT_FWD;
+	    }
+	    pg->old_enable = *(pg->enable);
+	    /* now execute a state machine */
+	    switch(pg->boot_state) {
+	    case BOOT_NORMAL:
+		break;
+	    case BOOT_REV:
+		dc = -0.05;
+		pg->boot_state = BOOT_NORMAL;
+		break;
+	    case BOOT_FWD:
+		dc =  0.05;
+		pg->boot_state = BOOT_REV;
+		break;
+	    default:
+		pg->boot_state = BOOT_NORMAL;
+		break;
+	    }
+	}
 	/* deal with negative values */
 	reverse = 0;
 	if ( dc < 0.0 ) {
@@ -1315,6 +1352,16 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	if (retval != 0) {
 	    return retval;
 	}
+	/* bootstrap mode parameter */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.bootstrap",
+	    bus->busnum, bus->last_pwmgen);
+	retval = hal_param_bit_new(buf, HAL_WR, &(pg->bootstrap), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	pg->bootstrap = 0;
+	pg->boot_state = 0;
+	pg->old_enable = 0;
 	/* increment number to prepare for next output */
 	bus->last_pwmgen++;
     }
