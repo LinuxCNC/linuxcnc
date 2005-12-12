@@ -105,7 +105,7 @@ echo "SCRIPT=$SCRIPT" >>$PRINT_FILE
 SCRIPTNAME=`echo $SCRIPT | sed s#\^.\*/##`
 #and the path
 echo "SCRIPTNAME=$SCRIPTNAME" >>$PRINT_FILE
-SCRIPTDIR=`echo $SCRIPT | sed s/$SCRIPTNAME//`
+SCRIPTDIR=$(dirname $SCRIPT)
 SCRIPTDIR=$(cd $SCRIPTDIR ; pwd -P)
 echo $SCRIPTDIR >>$PRINT_FILE
 
