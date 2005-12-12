@@ -265,6 +265,20 @@ typedef enum {
     one HAL_WR pin is permitted.  This is equivalent to connecting
     two output pins together in an electronic circuit.  (HAL_RD_WR
     pins can be thought of as tri-state outputs.)
+    
+    HAL_RD vs HAL_WR are inconsistent between pins and parameters.
+    Someday I hope to fix this, but for now this comment will at
+    least explain it:
+    
+    For pins, a WR pin is an _output_ from the module, and a RD
+    pin is an input to the module.  IOW, the type explains what
+    the module does to the attached signal.
+    
+    For parameters, a WR pin is an input to the module, and RD
+    pin is an output from the module.  IOW, the type explains
+    what the _user_ can do with the parameter.
+    
+    I know, it's messed up, sorry.  :-/
 */
 typedef enum {
     HAL_RD = 16,
