@@ -140,11 +140,11 @@ EMC2_IOSH=$EMC2_BIN_DIR/iosh
 EMC2_ORIG_CONFIG_DIR=$EMC2_CONFIG_DIR
 
 # check for root privliges - hope to remove the need for this later
-if [ `$WHOAMI` != root ] ; then
-    echo "Sorry, you must be root to run EMC"
-    echo "try issuing the command with sudo in front of it"
-    exit -1
-fi
+#if [ `$WHOAMI` != root ] ; then
+#    echo "Sorry, you must be root to run EMC"
+#    echo "try issuing the command with sudo in front of it"
+#    exit -1
+#fi
 
 echo EMC2_DIR=$EMC2_DIR >>$PRINT_FILE
 echo EMC2_BIN_DIR=$EMC2_BIN_DIR >>$PRINT_FILE
@@ -356,12 +356,12 @@ function Cleanup() {
 	    # remove them
 	    for HAL_COMP in $HAL_RT_COMPS ; do
 		echo "Removing realtime HAL component $HAL_COMP" >>$PRINT_FILE
-		$RMMOD $HAL_COMP
+		sudo $RMMOD $HAL_COMP
 	    done
 	fi
 	# remove rtapi and RTOS modules
 	echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
-	$REALTIME stop
+	sudo $REALTIME stop
     fi
 
     # remove lock file
@@ -428,7 +428,7 @@ fi
 # 4.2. Now we can finally start loading EMC
 ################################################################################
 echo "Loading Real Time OS, RTAPI, and HAL_LIB modules" >>$PRINT_FILE
-if ! $REALTIME start ; then
+if ! sudo $REALTIME start ; then
     echo "Realtime system did not load"
     Cleanup
     exit -1
@@ -461,7 +461,7 @@ TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | env LANG=C $AWK -- '{printf "%d\n", $1
 # 4.3.3. load the motion module
 echo "$EMC2_RTLIB_DIR/$EMCMOT base_period=$BASE_PERIOD_NSEC servo_period=$SERVO_PERIOD_NSEC traj_period=$TRAJ_PERIOD_NSEC key=$SHMEM_KEY" >>$PRINT_FILE
 
-if ! $INSMOD $EMC2_RTLIB_DIR/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
+if ! sudo $INSMOD $EMC2_RTLIB_DIR/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
 		    		    servo_period_nsec=$SERVO_PERIOD_NSEC \
 				    traj_period_nsec=$TRAJ_PERIOD_NSEC \
 				    key=$SHMEM_KEY ; then
@@ -496,8 +496,13 @@ while [ -n "$CFGFILE" ] ; do
     else
 	CFGFILE=$EMC2_CONFIG_DIR/$CFGFILE
     fi
-    echo "Running HAL config file $CFGFILE" >>$PRINT_FILE
-    if ! $HALCMD -i $INIFILE -f $CFGFILE ; then
+    if $GREP -q loadrt $CFGFILE ; then 
+	SUDO=sudo
+    else
+	SUDO=
+    fi
+    echo "Running $SUDO HAL config file $CFGFILE" >>$PRINT_FILE
+    if ! $SUDO $HALCMD -i $INIFILE -f $CFGFILE ; then
 	echo "HAL config file $CFGFILE failed."
 	Cleanup
 	exit -1
