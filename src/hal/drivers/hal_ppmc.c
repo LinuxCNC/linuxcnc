@@ -574,7 +574,7 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
-    int busnum, n;
+    int busnum, n, m;
     bus_data_t *bus;
 
     rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: shutting down\n");
@@ -586,11 +586,13 @@ void rtapi_app_exit(void)
 	    /* mark it invalid so RT code won't access */
 	    bus_array[busnum] = NULL;
 	    /* want to make sure everything is turned off */
-	    /* write zero to first EPP address */
-	    SelWrt(0, 0, bus->slot_data[0].port_addr);
-	    /* and to all the rest */
-	    for ( n = 1 ; n < 256 ; n++ ) {
-		WrtMore(0, bus->slot_data[0].port_addr);
+	    /* write zero to the first byte of each slot */
+	    for ( n = 0 ; n < 256 ; n += 16 ) {
+		SelWrt(0, n, bus->slot_data[0].port_addr);
+		/* and to the remainder of the slot */
+		for ( m = 1 ; m < 32 ; m++ ) {
+		    WrtMore(0, bus->slot_data[0].port_addr);
+		}
 	    }
 	    /* and free the memory block */
 	    kfree(bus);
@@ -914,6 +916,14 @@ static void write_pwmgens(slot_data_t *slot)
     double freq, dc, abs_dc;
     unsigned char control_byte;
 
+    /* zero frequency is a special case, turn off everything */
+    if ( slot->pwmgen->freq == 0.0 ) {
+	slot->pwmgen->old_freq = slot->pwmgen->freq;
+	/* write control byte to cache */
+	slot->wr_buf[PWM_CTRL_0] = 0;
+	/* done */
+	return;
+    }
     /* check for new frequency setting */
     if ( slot->pwmgen->freq != slot->pwmgen->old_freq ) {
 	/* process new frequency value */
@@ -1000,7 +1010,7 @@ static void write_pwmgens(slot_data_t *slot)
 	    control_byte |= 0x40;
 	}
 	/* calculate count at which to turn off output */
-	stop = start + len;
+	stop = 65535 - len;
 	/* write count to the cache */
 	slot->wr_buf[PWM_GEN_0+(n*2)] = stop & 0xff;
 	stop >>= 8;
@@ -1131,6 +1141,7 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
 	if (retval != 0) {
 	    return retval;
 	}
+	slot->digout[n].invert = 0;
 	/* increment number to prepare for next output */
 	bus->last_digout++;
     }
@@ -1162,18 +1173,24 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     if (retval != 0) {
 	return retval;
     }
+    /* 10uS default setup time */
+    slot->stepgen->setup_time = 100;
     rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-width",
 	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     retval = hal_param_u8_new(buf, HAL_WR, &(slot->stepgen->pulse_width), comp_id);
     if (retval != 0) {
 	return retval;
     }
+    /* 4uS default pulse width */
+    slot->stepgen->pulse_width = 40;
     rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-space-min",
 	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     retval = hal_param_u8_new(buf, HAL_WR, &(slot->stepgen->pulse_space), comp_id);
     if (retval != 0) {
 	return retval;
     }
+    /* 4uS default pulse spacing */
+    slot->stepgen->pulse_space = 40;
     /* export per-stepgen pins and params */
     for ( n = 0 ; n < 4 ; n++ ) {
 	/* pointer to the stepgen struct */
@@ -1199,6 +1216,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	if (retval != 0) {
 	    return retval;
 	}
+	sg->scale = 1.0;
 	/* maximum velocity parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.max-vel",
 	    bus->busnum, bus->last_stepgen);
@@ -1206,6 +1224,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	if (retval != 0) {
 	    return retval;
 	}
+	sg->max_vel = 0.0;
 	/* actual frequency parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.freq",
 	    bus->busnum, bus->last_stepgen);
@@ -1231,7 +1250,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 
     /* do hardware init */
 
-    /* allocate shared memory for the digital output data */
+    /* allocate shared memory for the PWM generators */
     slot->pwmgen = hal_malloc(sizeof(pwmgens_t));
     if (slot->pwmgen == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1245,7 +1264,9 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
     if (retval != 0) {
 	return retval;
     }
-    /* export per-pwmgen pins and params */
+    /* set initial value for param */
+    slot->pwmgen->freq = 0.0;
+    /* export per-pwmgen pins and params, and set initial values */
     for ( n = 0 ; n < 4 ; n++ ) {
 	/* pointer to the pwmgen struct */
 	pg = &(slot->pwmgen->pg[n]);
@@ -1270,6 +1291,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	if (retval != 0) {
 	    return retval;
 	}
+	pg->scale = 1.0;
 	/* maximum duty cycle parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.max-dc",
 	    bus->busnum, bus->last_pwmgen);
@@ -1277,6 +1299,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	if (retval != 0) {
 	    return retval;
 	}
+	pg->max_dc = 1.0;
 	/* minimum duty cycle parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.min-dc",
 	    bus->busnum, bus->last_pwmgen);
@@ -1284,6 +1307,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	if (retval != 0) {
 	    return retval;
 	}
+	pg->min_dc = 0.0;
 	/* actual duty cycle parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.duty-cycle",
 	    bus->busnum, bus->last_pwmgen);
