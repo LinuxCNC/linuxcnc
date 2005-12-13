@@ -277,8 +277,8 @@ function KillTaskWithTimeout() {
 	done
 	if [ $WAIT -gt 0 ] ; then
 	    # gentle didn't work, get serious
-	    echo "Timeout, trying kill -9" >>$PRINT_FILE
-	    $KILL -9 $KILL_PID
+	    echo "Timeout, trying sudo kill -9" >>$PRINT_FILE
+	    sudo $KILL -9 $KILL_PID
 	    WAIT=$KILL_TIMEOUT
 	    # wait and see if it dissappears
 	    while [ $WAIT -gt 1 ] ; do
