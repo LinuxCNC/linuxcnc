@@ -13,13 +13,32 @@ In the source directory, build EMC2:
 make clean
 make
 
-to run the software, issue:
+to run the software go back to the top level directory, and issue:
 
-scripts/emc.run 
+scripts/emc
 
 
 Detailed description
 ====================
+
+
+Run-time script
+===============
+
+The runtime script is called emc, thus allowing you on an installed to just type
+'emc' and get it running.
+On a run-in-place system (e.g. the one you just got out of CVS), 
+the runscript is emc2/scripts/emc.
+When you just checked out a fresh copy of emc2, you'll see there is no 
+'scripts/emc', just a 'scripts/emc.in'.
+By running configure that one will get changed to 'scripts/emc'. configure will
+also replace some default values for your system (folders, paths, etc).
+The 'scripts/emc' just created isn't runnable at first, only after a run of 
+compiling the software (cd src && make), it will be executable, and can be run.
+
+
+Configure script
+================
 
    The `configure' shell script attempts to guess correct values for
 various system-dependent variables used during compilation.  It uses
