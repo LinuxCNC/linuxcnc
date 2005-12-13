@@ -25,6 +25,14 @@
 #*******************************************************************/
 
 
+echo "#########################################################"
+echo "# this file is obsolete, please use scripts/emc instead #"
+echo "#########################################################"
+
+exit -1
+
+# this file will eventually go away, right now it's kept as reference.
+
 DEBUG_FILE=/dev/null
 PRINT_FILE=/dev/null
 
