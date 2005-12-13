@@ -27,7 +27,7 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
 # locate the configs directory
 set BASEDIR ""
 if {[info exists env(EMC2_ORIG_CONFIG_DIR)]} {
-  set BASEDIR $env(EEMC2_ORIG_CONFIG_DIR)
+  set BASEDIR $env(EMC2_ORIG_CONFIG_DIR)
 }
 if {$BASEDIR == ""} {
   set BASEDIR configs/ 
@@ -50,12 +50,12 @@ set topokay [button $top.b1 -text Okay \
 set topcancel [button $top.b2 -text Cancel -command exit ]
 
 # radiobuttons inside topr are constructed from BASEDIR names
-set configs [string tolower [glob -tails -path $BASEDIR *] ]
+set configs [string tolower [glob -tails -path $BASEDIR */] ]
 
 # we want to exclude cvs and common directories from the listing
 foreach conf $configs { 
-  if {[lsearch $conf cvs]} {
-    if {[lsearch $conf common]} {
+  if {[lsearch $conf cvs/]} {
+    if {[lsearch $conf common/]} {
       radiobutton $topr.$conf -text $conf -variable existingconfigs \
         -value $conf -anchor w -command "getReadme $conf" 
       pack $topr.$conf -side top -expand yes -fill both -padx 4 -pady 2
