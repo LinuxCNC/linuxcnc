@@ -262,8 +262,8 @@ function KillTaskWithTimeout() {
     fi
     for KILL_PID in $KILL_PIDS ; do
 	echo "Killing task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
-	# first a "gentle" kill with signal TERM
-	$KILL $KILL_PID
+	# first a "gentle" sudo kill with signal TERM
+	sudo $KILL $KILL_PID
 	WAIT=$KILL_TIMEOUT
 	# wait and see if it dissappears
 	while [ $WAIT -gt 1 ] ; do
