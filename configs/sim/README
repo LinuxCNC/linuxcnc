@@ -1,0 +1,3 @@
+The sim set of files sets up a very basic EMC2 using ini, tbl, var, and a single hal file for simulated limit switches.  It also finds a file in configs/common that is a core_sim.hal and provides that functionality in common with other configurations.
+
+Select this if you have no fucnctional machine but want to edit some basic configuration stuff or play with one of the EMC2 the displays. 
