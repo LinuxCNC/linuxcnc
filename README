@@ -5,4 +5,22 @@ Please see the files in docs/
     COPYING - this software is released under the GPL
     AUTHORS - information about authors
     NEWS    - latest news
+
+
+Quickstart:
+-----------
+
+From the top level directory, switch to the source directory:
+
+  cd src
+
+In the source directory, build EMC2:
+
+  ./configure
+  make clean
+  make
+
+to run the software go back to the top level directory, and issue:
+
+  scripts/emc
     
