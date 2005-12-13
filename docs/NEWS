@@ -1,0 +1,17 @@
+# some of EMC2 History & News
+#############################
+
+
+2005.12.13 - new runscript, and config organisation
+             work towards the first release of emc2
+
+2005.xx.xx - emc2 now supports tool-changing in complex scenarios
+	    
+2005.xx.xx - classicladder now a HAL component, a software PLC
+	   
+2004.xx.xx - HAL (the Hardware Abstraction Layer) is used for 
+	     adressing hardware drivers, and allows fir simple configuration
+
+
+#developers: this file should hold a history of improvememnts, bugfixes, etc
+             it is usefull for keeping track of development
