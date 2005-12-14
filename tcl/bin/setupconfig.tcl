@@ -9,10 +9,10 @@ exec /usr/bin/wish "$0" "$@"
 #
 #  Author: Raymond E Henry
 #  License: GPL Version 2
-#    
+#
 #  Copyright (c) 2005 All rights reserved.
-# 
-#  Last change: 
+#
+#  Last change:
 # $Revision$
 # $Author$
 # $Date$
@@ -30,12 +30,12 @@ if {[info exists env(EMC2_ORIG_CONFIG_DIR)]} {
   set BASEDIR $env(EMC2_ORIG_CONFIG_DIR)
 }
 if {$BASEDIR == ""} {
-  set BASEDIR configs/ 
+  set BASEDIR configs/
 }
 
 # make a toplevel and a master frame.
 wm title . "EMC2 Sample Configuration Display"
-# wm geometry . 600x400 
+# wm geometry . 600x400
 set top [frame .main -borderwidth 2 -relief raised -padx 10 -pady 10 ]
 pack $top -expand yes -fill both
 
@@ -53,17 +53,17 @@ set topcancel [button $top.b2 -text Cancel -command exit ]
 set configs [string tolower [glob -tails -path $BASEDIR */] ]
 
 # we want to exclude cvs and common directories from the listing
-foreach conf $configs { 
+foreach conf $configs {
   if {[lsearch $conf cvs/]} {
     if {[lsearch $conf common/]} {
       radiobutton $topr.$conf -text $conf -variable existingconfigs \
-        -value $conf -anchor w -command "getReadme $conf" 
+        -value $conf -anchor w -command "getReadme $conf"
       pack $topr.$conf -side top -expand yes -fill both -padx 4 -pady 2
     }
   }
 }
 
-# widget layout 
+# widget layout
 grid configure  $topr -column 0 -row 0 -rowspan 3 \
   -sticky nsew -ipadx 5 -ipady 5
 grid configure $topd -column 1 -row 0 -columnspan 2\
@@ -76,7 +76,7 @@ grid configure $topokay -column 1 -row 2 \
   -sticky nsew -ipadx 5 -ipady 5
 grid configure $topcancel -column 2 -row 2 \
   -sticky nsew -ipadx 5 -ipady 5
- 
+
 # variable myname holds the name to be used for the configuration set.
 set myname generic1
 
@@ -88,6 +88,8 @@ proc getReadme {which} {
         displayThis "can't open $fname"
     } else {
         set tmpreadme [read $filein]
+        # reformat - remove line breaks, preserve paragraph breaks
+        regsub -all {([^\n])\n([^\n])} $tmpreadme {\1 \2} tmpreadme
         catch {close $filein}
         displayThis $tmpreadme
     }
