@@ -20,7 +20,8 @@ if {[info exists env(EMC2_TCL_DIR)]} {
 # Notes
 # This script presents a canvas with i/o condition displays
 # Based on a Fred Proctor post to emc@nist.gov
-#
+# Revised 12/14/05 to take out ini file references not available
+# in emc2
 
 wm title . "IO"
 global array buffer
@@ -57,32 +58,6 @@ for {set i 0} {$i < 5} {incr i 1} {
     $c create oval 75 [expr $i * 15 + 5] 85 [expr $i * 15 + 15] -fill green
 }
 
-# Attempt to set labels for io parport by reading ini file.
-# Need the same number of labels as signals
-set io_in_sigs {ESTOP_SENSE_INDEX  LUBE_SENSE_INDEX}
-set io_in_labels {"estp" "lube" "oth"}
-set io_out_sigs {SPINDLE_FORWARD_INDEX  SPINDLE_REVERSE_INDEX \
-    MIST_COOLANT_INDEX  FLOOD_COOLANT_INDEX SPINDLE_DECREASE_INDEX \
-    SPINDLE_INCREASE_INDEX  ESTOP_WRITE_INDEX  SPINDLE_BRAKE_INDEX \
-    SPINDLE_ON_INDEX }
-set io_out_labels {"s-fwd" "s-rev" "mist" "flood" "s-dec" "s-inc" "estp" "brak" "spin" "lube" "oth"}
-
-set in_sig_map {"none" "none" "none" "none" "none"}
-set i 0
-foreach insig $io_in_sigs {
-    set pinnum [emc_ini $insig EMCIO]
-    set in_sig_map [lreplace $in_sig_map $pinnum $pinnum [lindex $io_in_labels $i]]
-    incr i
-}
-
-set out_sig_map {"none" "none" "none" "none" "none" "none" "none" "none" "none" "none" "none" "none"}
-set i 0
-foreach outsig $io_out_sigs {
-    set pinnum [emc_ini $outsig EMCIO]
-    set out_sig_map [lreplace $out_sig_map $pinnum $pinnum [lindex $io_out_labels $i]]
-    incr i
-}
-
 set labelnames Number
 
 proc setLabels {} {
@@ -107,11 +82,6 @@ proc setLabels {} {
         Stepper {
             set leftdef {a0d a0s a1d a1s a2d a2s a3d a3s a4d a4s a5d a5s}
             set rightdef {"-lm" "+lm" "hom" "prb" "---"}
-            set labelnames IO_Signals
-        }
-        IO_Signals {
-            set leftdef $out_sig_map
-            set rightdef $in_sig_map
             set labelnames Number
         }
     }
