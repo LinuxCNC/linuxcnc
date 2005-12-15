@@ -1,133 +1,133 @@
 # HAL config file for Mesa Electronics 5i20 PCI board
 #
-# install driver
+# Install driver.
 #loadrt hal_m5i20
 
-# add I/O to servo thread so they will be evaluated
-# every servo period
+# Classicladder for machine logic (load the realtime portion).
+#loadrt classicladder_rt numRungs=4 numBits=16 numWords=4 numTimers=2 numMonostables=2 numPhysInputs=16 numPhysOutputs=8 numArithmExpr=4 numSections=1
+
+# Invoke the user part of CL to silently load the program.
+#loadusr -w classicladder --nogui ../configs/common/bridgeport.clp
+
+# Add I/O to servo thread so they will be evaluated
+# every servo period.
 addf m5i20.0.misc-update servo-thread 1
+#addf m5i20.0.adc-read servo-thread 1
 addf m5i20.0.digital-in-read servo-thread 1
+#addf classicladder.0.refresh servo-thread 1
 addf m5i20.0.digital-out-write servo-thread 1
 
 #
 # Connect motion controller I/Os
 #
 
-# connect limit/home switch outputs to motion controller
+# Connect limit/home switch outputs to motion controller.
 newsig Xminlim bit
 newsig Xmaxlim  bit
 newsig Xhome bit
-linksp Xminlim <= m5i20.0.in-00-not
+linksp Xminlim <= m5i20.0.in-00
 linksp Xminlim => axis.0.neg-lim-sw-in
-linksp Xmaxlim <= m5i20.0.in-01-not
+linksp Xmaxlim <= m5i20.0.in-01
 linksp Xmaxlim => axis.0.pos-lim-sw-in
-linksp Xhome <= m5i20.0.in-02-not
+linksp Xhome <= m5i20.0.in-02
 linksp Xhome => axis.0.home-sw-in
 
 newsig Yminlim bit
 newsig Ymaxlim  bit
 newsig Yhome bit
-linksp Yminlim <= m5i20.0.in-04-not
+linksp Yminlim <= m5i20.0.in-04
 linksp Yminlim => axis.1.neg-lim-sw-in
-linksp Ymaxlim <= m5i20.0.in-05-not
+linksp Ymaxlim <= m5i20.0.in-05
 linksp Ymaxlim => axis.1.pos-lim-sw-in
-linksp Yhome <= m5i20.0.in-06-not
+linksp Yhome <= m5i20.0.in-06
 linksp Yhome => axis.1.home-sw-in
 
 newsig Zminlim bit
 newsig Zmaxlim  bit
 newsig Zhome bit
-linksp Zminlim <= m5i20.0.in-08-not
+linksp Zminlim <= m5i20.0.in-08
 linksp Zminlim => axis.2.neg-lim-sw-in
-linksp Zmaxlim <= m5i20.0.in-09-not
+linksp Zmaxlim <= m5i20.0.in-09
 linksp Zmaxlim => axis.2.pos-lim-sw-in
-linksp Zhome <= m5i20.0.in-10-not
+linksp Zhome <= m5i20.0.in-10
 linksp Zhome => axis.2.home-sw-in
 
-# connect amp faults to motion controller
+# Connect amp faults to motion controller.
 newsig Xfault bit
 newsig Yfault  bit
 newsig Zfault bit
-linksp Xfault <= m5i20.0.in-03-not
+linksp Xfault <= m5i20.0.in-03
 linksp Xfault => axis.0.amp-fault-in
-linksp Yfault <= m5i20.0.in-07-not
+linksp Yfault <= m5i20.0.in-07
 linksp Yfault => axis.1.amp-fault-in
-linksp Zfault <= m5i20.0.in-11-not
+linksp Zfault <= m5i20.0.in-11
 linksp Zfault => axis.2.amp-fault-in
 
-# connect index pulses to motion controller
-newsig Xindex bit
-newsig Yindex  bit
-newsig Zindex bit
-linksp Xindex <= m5i20.0.enc-00-index
-linksp Xindex => axis.0.index-pulse-in
-linksp Yindex <= m5i20.0.enc-01-index
-linksp Yindex => axis.1.index-pulse-in
-linksp Zindex <= m5i20.0.enc-02-index
-linksp Zindex => axis.2.index-pulse-in
+# Connect amp enables to motion controller.
+linksp Xenable => m5i20.0.out-08
+linksp Yenable => m5i20.0.out-09
+linksp Zenable => m5i20.0.out-10
 
-# connect amp enables to motion controller
-linksp Xenable => m5i20.0.dac-00-enable
-linksp Yenable => m5i20.0.dac-01-enable
-linksp Zenable => m5i20.0.dac-02-enable
-
-# connect watchdog reset to motion controller
+# Connect watchdog reset to mot ion controller.
 #newsig WatchdogRst bit
 #linksp WatchdogRst <= m5i20.watchdog-reset
 #linksp WatchdogRst => motion.watchdog-reset-out
-
-# enable a 16ms watchdog and DAC auto reset
-setp m5i20.0.watchdog-timeout 16000
-setp m5i20.0.watchdog-control 3
 
 
 #
 # Connect I/O controller I/Os
 #
 
-# connect e-stop write/sense to I/O controller
+# Connect e-stop write/sense to I/O controller.
+#
+# The estop from the opto module should be jumpered to one of the
+# m5i20 estop pins. This will notify the moten of the estop condition
+# and it will zero the DACs and turn off all output even if the PC
+# has crashed.
+#
 newsig EstopSense bit
 newsig EstopWrite bit
-linksp EstopSense <= m5i20.0.estop-in
+linksp EstopSense <= m5i20.0.estop-in-not
+#linksp EstopSense <= m5i20.0.in-15
 linksp EstopSense => iocontrol.0.emc-enable-in
-linksp EstopWrite <= m5i20.0.out-00
-linksp EstopWrite => iocontrol.0.user-enable-out
+linksp EstopWrite => m5i20.0.out-07
+linksp EstopWrite <= iocontrol.0.user-enable-out
 
-# connect spindle fwd/rev to I/O controller
+# Connect spindle fwd/rev to I/O controller.
 newsig SpindleFwd bit
 newsig SpindleRev bit
-linksp SpindleFwd <= m5i20.0.out-01
-linksp SpindleFwd => iocontrol.0.spindle-forward
-linksp SpindleRev <= m5i20.0.out-02
-linksp SpindleRev => iocontrol.0.spindle-reverse
+linksp SpindleFwd => m5i20.0.out-00
+linksp SpindleFwd <= iocontrol.0.spindle-forward
+linksp SpindleRev => m5i20.0.out-01
+linksp SpindleRev <= iocontrol.0.spindle-reverse
 
-# connect spindle speed up/down to I/O controller
+# Connect spindle brake to I/O controller.
+newsig SpindleBrakeOn bit
+linksp SpindleBrakeOn => m5i20.0.out-02
+linksp SpindleBrakeOn <= iocontrol.0.spindle-brake
+
+# Connect spindle speed up/down to I/O controller.
 newsig SpindleUp bit
 newsig SpindleDown bit
-linksp SpindleUp <= m5i20.0.out-03
-linksp SpindleUp => iocontrol.0.spindle-incr-speed
-linksp SpindleDown <= m5i20.0.out-04
-linksp SpindleDown => iocontrol.0.spindle-decr-speed
+linksp SpindleUp => m5i20.0.out-03
+linksp SpindleUp <= iocontrol.0.spindle-incr-speed
+linksp SpindleDown => m5i20.0.out-04
+linksp SpindleDown <= iocontrol.0.spindle-decr-speed
 
-# connect spindle brake to I/O controller
-newsig SpindleBrakeOn bit
-linksp SpindleBrakeOn <= m5i20.0.out-05
-linksp SpindleBrakeOn => iocontrol.0.spindle-brake
-
-# connect mist/flood coolant to I/O controller
+# Connect mist/flood coolant to I/O controller.
 newsig MistOn bit
 newsig FloodOn bit
-linksp MistOn <= m5i20.0.out-06
-linksp MistOn => iocontrol.0.coolant-mist
-linksp FloodOn <= m5i20.0.out-07
-linksp FloodOn => iocontrol.0.coolant-flood
+linksp MistOn => m5i20.0.out-05
+linksp MistOn <= iocontrol.0.coolant-mist
+linksp FloodOn => m5i20.0.out-06
+linksp FloodOn <= iocontrol.0.coolant-flood
 
-# connect lube motor run to I/O controller
+# Connect lube motor run to I/O controller.
 newsig LubeOn bit
-linksp LubeOn <= m5i20.0.out-08
-linksp LubeOn => iocontrol.0.lube
+linksp LubeOn => m5i20.0.out-12
+linksp LubeOn <= iocontrol.0.lube
 
-# connect lube level to I/O controller
+# Connect lube level to I/O controller.
 newsig LubeLevel bit
-linksp LubeLevel <= m5i20.0.in-16
+linksp LubeLevel <= m5i20.0.in-14
 linksp LubeLevel => iocontrol.0.lube_level

@@ -1,20 +1,27 @@
 # HAL config file for Vital Systems MOTENC-100 PCI board
 #
-# install driver
+# Install driver.
 #loadrt hal_motenc
 
-# add I/O to servo thread so they will be evaluated
-# every servo period
+# Classicladder for machine logic (load the realtime portion).
+#loadrt classicladder_rt numRungs=4 numBits=16 numWords=4 numTimers=2 numMonostables=2 numPhysInputs=16 numPhysOutputs=8 numArithmExpr=4 numSections=1
+
+# Invoke the user part of CL to silently load the program.
+#loadusr -w classicladder --nogui ../configs/common/bridgeport.clp
+
+# Add I/O to servo thread so they will be evaluated
+# every servo period.
 addf motenc.0.misc-update servo-thread 1
 #addf motenc.0.adc-read servo-thread 1
 addf motenc.0.digital-in-read servo-thread 1
+#addf classicladder.0.refresh servo-thread 1
 addf motenc.0.digital-out-write servo-thread 1
 
 #
 # Connect motion controller I/Os
 #
 
-# connect limit/home switch outputs to motion controller
+# Connect limit/home switch outputs to motion controller.
 newsig Xminlim bit
 newsig Xmaxlim  bit
 newsig Xhome bit
@@ -45,7 +52,7 @@ linksp Zmaxlim => axis.2.pos-lim-sw-in
 linksp Zhome <= motenc.0.in-10
 linksp Zhome => axis.2.home-sw-in
 
-# connect amp faults to motion controller
+# Connect amp faults to motion controller.
 newsig Xfault bit
 newsig Yfault  bit
 newsig Zfault bit
@@ -56,23 +63,12 @@ linksp Yfault => axis.1.amp-fault-in
 linksp Zfault <= motenc.0.in-11
 linksp Zfault => axis.2.amp-fault-in
 
-# connect index pulses to motion controller
-newsig Xindex bit
-newsig Yindex  bit
-newsig Zindex bit
-linksp Xindex <= motenc.0.enc-00-index
-linksp Xindex => axis.0.index-pulse-in
-linksp Yindex <= motenc.0.enc-01-index
-linksp Yindex => axis.1.index-pulse-in
-linksp Zindex <= motenc.0.enc-02-index
-linksp Zindex => axis.2.index-pulse-in
+# Connect amp enables to motion controller.
+linksp Xenable => motenc.0.out-08
+linksp Yenable => motenc.0.out-09
+linksp Zenable => motenc.0.out-10
 
-# connect amp enables to motion controller
-linksp Xenable => motenc.0.out-12
-linksp Yenable => motenc.0.out-13
-linksp Zenable => motenc.0.out-14
-
-# connect watchdog reset to motion controller
+# Connect watchdog reset to mot ion controller.
 #newsig WatchdogRst bit
 #linksp WatchdogRst <= motenc.watchdog-reset
 #linksp WatchdogRst => motion.watchdog-reset-out
@@ -82,49 +78,56 @@ linksp Zenable => motenc.0.out-14
 # Connect I/O controller I/Os
 #
 
-# connect e-stop write/sense to I/O controller
+# Connect e-stop write/sense to I/O controller.
+#
+# The estop from the opto module should be jumpered to one of the
+# motenc estop pins. This will notify the moten of the estop condition
+# and it will zero the DACs and turn off all output even if the PC
+# has crashed.
+#
 newsig EstopSense bit
 newsig EstopWrite bit
-linksp EstopSense <= motenc.0.estop-in
+linksp EstopSense <= motenc.0.estop-in-not
+#linksp EstopSense <= motenc.0.in-15
 linksp EstopSense => iocontrol.0.emc-enable-in
-linksp EstopWrite <= motenc.0.out-00
-linksp EstopWrite => iocontrol.0.user-enable-out
+linksp EstopWrite => motenc.0.out-07
+linksp EstopWrite <= iocontrol.0.user-enable-out
 
-# connect spindle fwd/rev to I/O controller
+# Connect spindle fwd/rev to I/O controller.
 newsig SpindleFwd bit
 newsig SpindleRev bit
-linksp SpindleFwd <= motenc.0.out-01
-linksp SpindleFwd => iocontrol.0.spindle-forward
-linksp SpindleRev <= motenc.0.out-02
-linksp SpindleRev => iocontrol.0.spindle-reverse
+linksp SpindleFwd => motenc.0.out-00
+linksp SpindleFwd <= iocontrol.0.spindle-forward
+linksp SpindleRev => motenc.0.out-01
+linksp SpindleRev <= iocontrol.0.spindle-reverse
 
-# connect spindle speed up/down to I/O controller
+# Connect spindle brake to I/O controller.
+newsig SpindleBrakeOn bit
+linksp SpindleBrakeOn => motenc.0.out-02
+linksp SpindleBrakeOn <= iocontrol.0.spindle-brake
+
+# Connect spindle speed up/down to I/O controller.
 newsig SpindleUp bit
 newsig SpindleDown bit
-linksp SpindleUp <= motenc.0.out-03
-linksp SpindleUp => iocontrol.0.spindle-incr-speed
-linksp SpindleDown <= motenc.0.out-04
-linksp SpindleDown => iocontrol.0.spindle-decr-speed
+linksp SpindleUp => motenc.0.out-03
+linksp SpindleUp <= iocontrol.0.spindle-incr-speed
+linksp SpindleDown => motenc.0.out-04
+linksp SpindleDown <= iocontrol.0.spindle-decr-speed
 
-# connect spindle brake to I/O controller
-newsig SpindleBrakeOn bit
-linksp SpindleBrakeOn <= motenc.0.out-05
-linksp SpindleBrakeOn => iocontrol.0.spindle-brake
-
-# connect mist/flood coolant to I/O controller
+# Connect mist/flood coolant to I/O controller.
 newsig MistOn bit
 newsig FloodOn bit
-linksp MistOn <= motenc.0.out-06
-linksp MistOn => iocontrol.0.coolant-mist
-linksp FloodOn <= motenc.0.out-07
-linksp FloodOn => iocontrol.0.coolant-flood
+linksp MistOn => motenc.0.out-05
+linksp MistOn <= iocontrol.0.coolant-mist
+linksp FloodOn => motenc.0.out-06
+linksp FloodOn <= iocontrol.0.coolant-flood
 
-# connect lube motor run to I/O controller
+# Connect lube motor run to I/O controller.
 newsig LubeOn bit
-linksp LubeOn <= motenc.0.out-08
-linksp LubeOn => iocontrol.0.lube
+linksp LubeOn => motenc.0.out-12
+linksp LubeOn <= iocontrol.0.lube
 
-# connect lube level to I/O controller
+# Connect lube level to I/O controller.
 newsig LubeLevel bit
-linksp LubeLevel <= motenc.0.in-16
+linksp LubeLevel <= motenc.0.in-14
 linksp LubeLevel => iocontrol.0.lube_level

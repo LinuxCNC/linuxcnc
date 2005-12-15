@@ -1,37 +1,75 @@
 # HAL config file for Vital Systems MOTENC-100 PCI board
 #
-# install driver
+# Install driver.
 loadrt hal_motenc
 
-# add functions to servo thread so they will be evaluated
-# every servo period
+# Add functions to servo thread so they will be evaluated
+# every servo period.
 addf motenc.0.encoder-read servo-thread 1
 addf motenc.0.dac-write servo-thread 1
 
-# connect position feedback signals to encoders
+# Connect position feedback signals to encoders.
 linksp Xpos-fb <= motenc.0.enc-00-position
 linksp Ypos-fb <= motenc.0.enc-01-position
 linksp Zpos-fb <= motenc.0.enc-02-position
 
-# get feedback scaling from ini file
+# Get feedback scaling from ini file.
 setp motenc.0.enc-00-scale [AXIS_0]INPUT_SCALE 
 setp motenc.0.enc-01-scale [AXIS_1]INPUT_SCALE 
 setp motenc.0.enc-02-scale [AXIS_2]INPUT_SCALE 
 
-# connect PID output signals to DACs
+# Connect PID output signals to DACs.
 linksp Xoutput => motenc.0.dac-00-value
 linksp Youtput => motenc.0.dac-01-value
 linksp Zoutput => motenc.0.dac-02-value
 
-# set output scaling from ini file 
+# Set output scaling from ini file.
 setp motenc.0.dac-00-gain [AXIS_0]OUTPUT_SCALE
 setp motenc.0.dac-01-gain [AXIS_1]OUTPUT_SCALE
 setp motenc.0.dac-02-gain [AXIS_2]OUTPUT_SCALE
-# set output offset to zero
-# (Eventually this should come from the ini file too, but
-# I want to add an OUTPUT_OFFSET variable to the ini.
-# At present, the OUTPUT_SCALE actually has two values
-# and the second one is the offset.  This is ugly.)
-setp motenc.0.dac-00-offset 0
-setp motenc.0.dac-01-offset 0
-setp motenc.0.dac-02-offset 0
+
+# Set output offset from ini file.
+setp motenc.0.dac-00-offset [AXIS_0]OUTPUT_OFFSET
+setp motenc.0.dac-01-offset [AXIS_1]OUTPUT_OFFSET
+setp motenc.0.dac-02-offset [AXIS_2]OUTPUT_OFFSET
+
+# Get tuning params from ini file.
+setp pid.0.deadband [AXIS_0]DEADBAND
+setp pid.0.Pgain [AXIS_0]PGAIN
+setp pid.0.Igain [AXIS_0]IGAIN
+setp pid.0.Dgain [AXIS_0]DGAIN
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.bias [AXIS_0]BIAS
+
+setp pid.1.deadband [AXIS_1]DEADBAND
+setp pid.1.Pgain [AXIS_1]PGAIN
+setp pid.1.Igain [AXIS_1]IGAIN
+setp pid.1.Dgain [AXIS_1]DGAIN
+setp pid.1.FF0 [AXIS_1]FF0
+setp pid.1.FF1 [AXIS_1]FF1
+setp pid.1.bias [AXIS_1]BIAS
+
+setp pid.2.deadband [AXIS_2]DEADBAND
+setp pid.2.Pgain [AXIS_2]PGAIN
+setp pid.2.Igain [AXIS_2]IGAIN
+setp pid.2.Dgain [AXIS_2]DGAIN
+setp pid.2.FF0 [AXIS_2]FF0
+setp pid.2.FF1 [AXIS_2]FF1
+setp pid.2.bias [AXIS_2]BIAS
+
+# Get maximum (and minimum) output volts from ini file.
+setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
+setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
+setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
+
+# Connect index pulses to motion controller.
+newsig Xindex bit
+newsig Yindex  bit
+newsig Zindex bit
+linksp Xindex <= motenc.0.enc-00-index
+linksp Xindex => axis.0.index-pulse-in
+linksp Yindex <= motenc.0.enc-01-index
+linksp Yindex => axis.1.index-pulse-in
+linksp Zindex <= motenc.0.enc-02-index
+linksp Zindex => axis.2.index-pulse-in
