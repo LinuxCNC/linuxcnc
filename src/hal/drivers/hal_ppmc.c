@@ -777,10 +777,10 @@ static void read_encoders(slot_data_t *slot)
 	pos.byte.b2 = (signed char)slot->rd_buf[byteindex++];
         pos.byte.b3 = oldpos.byte.b3;
         /* check for - to + transition */
-        if ((oldpos.byte.b2 < 0) && (pos.byte.b2 >= 0))
+        if ((oldpos.byte.b2 & 0xc0) == 0xc0 && (pos.byte.b2 == 0))
             pos.byte.b3++;
-        else 
-            if ((oldpos.byte.b2 >= 0) && (pos.byte.b2 < 0))
+        else
+            if ((oldpos.byte.b2 == 0) && (pos.byte.b2 & 0xc0) == 0xc0)
                 pos.byte.b3--;
 	slot->encoder[i].oldreading = pos.l;
 	*(slot->encoder[i].count) = pos.l;
