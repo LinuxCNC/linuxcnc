@@ -1,4 +1,4 @@
-REQUIRED FOR EMC2'S FIRST RELEASE
+REQUIRED FOR EMC2'S FIRST RELEASE  (EMC-2.0)
 
 Time delay relay for HAL, two pins, in and out
 
@@ -10,4 +10,20 @@ https://sourceforge.net/tracker/index.php?func=detail&aid=1053350&group_id=6744&
 
 Finish cleaning up config directories
 https://sourceforge.net/tracker/index.php?func=detail&aid=1370927&group_id=6744&atid=356744
+
+Get the config picker/copier tool working
+
+Generate sample configs that are functionally equivalent to the following EMC1 configs:
+sim
+generic
+stg
+motenc
+univstep
+univpwm
+
+THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.2)
+
+A sim mode that works without realtime kernel patches
+
+Improved classicladder GUI
 
