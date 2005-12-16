@@ -1,0 +1,13 @@
+REQUIRED FOR EMC2'S FIRST RELEASE
+
+Time delay relay for HAL, two pins, in and out
+
+Investigate/fix missed-deadline reporting??
+https://sourceforge.net/tracker/index.php?func=detail&aid=1372949&group_id=6744&atid=106744
+
+Finish?/test make install 
+https://sourceforge.net/tracker/index.php?func=detail&aid=1053350&group_id=6744&atid=356744
+
+Finish cleaning up config directories
+https://sourceforge.net/tracker/index.php?func=detail&aid=1370927&group_id=6744&atid=356744
+
