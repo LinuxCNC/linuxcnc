@@ -45,12 +45,11 @@ linksp Zpos-fb <= motenc.0.enc-02-position
 
 # set feedback scaling
 # this is just an example
-#   500 counts/rev * 5 turns per inch = 2500 counts/in
-#   1/2500 = 0.0004 inches per count
+#   8192 counts/rev * 10 turns per inch = 81920 counts/in
 #
-setp motenc.0.enc-00-scale 0.0004
-setp motenc.0.enc-01-scale 0.0004
-setp motenc.0.enc-02-scale 0.0004
+setp motenc.0.enc-00-scale 81920
+setp motenc.0.enc-01-scale 81920
+setp motenc.0.enc-02-scale 81920
 
 # NOTE: you may want to comment out everything after here,
 # and run it... manually move the machine X axis by 1 inch
@@ -113,7 +112,7 @@ setp pid.0.bias 0
 setp pid.0.FF0 0
 setp pid.0.FF1 0
 # deadband should be just over 1 count
-setp pid.0.deadband 0.0005
+setp pid.0.deadband 0.000015
 
 setp pid.1.Pgain 0.01
 setp pid.1.Igain 0
@@ -121,7 +120,7 @@ setp pid.1.Dgain 0
 setp pid.1.bias 0
 setp pid.1.FF0 0
 setp pid.1.FF1 0
-setp pid.1.deadband 0.0005
+setp pid.1.deadband 0.000015
 
 setp pid.2.Pgain 0.01
 setp pid.2.Igain 0
@@ -129,7 +128,7 @@ setp pid.2.Dgain 0
 setp pid.2.bias 0
 setp pid.2.FF0 0
 setp pid.2.FF1 0
-setp pid.2.deadband 0.0005
+setp pid.2.deadband 0.000015
 
 # create three position command signals
 # eventually, these will come from EMC
