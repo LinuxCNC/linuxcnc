@@ -24,15 +24,15 @@ loadrt pid num_chan=3
 loadrt siggen
 
 # hook functions to realtime thread
-addf m5i20.0.encoder_read m5i20.thread 1
-addf m5i20.0.misc_update m5i20.thread 1
-addf m5i20.0.digital_in_read m5i20.thread 1
+addf m5i20.0.encoder-read m5i20.thread 1
+addf m5i20.0.misc-update m5i20.thread 1
+addf m5i20.0.digital-in-read m5i20.thread 1
 addf siggen.0.update m5i20.thread 1
-addf pid.0.do_pid_calcs m5i20.thread 1
-addf pid.1.do_pid_calcs m5i20.thread 1
-addf pid.2.do_pid_calcs m5i20.thread 1
-addf m5i20.0.digital_out_write m5i20.thread 1
-addf m5i20.0.dac_write m5i20.thread 1
+addf pid.0.do-pid-calcs m5i20.thread 1
+addf pid.1.do-pid-calcs m5i20.thread 1
+addf pid.2.do-pid-calcs m5i20.thread 1
+addf m5i20.0.digital-out-write m5i20.thread 1
+addf m5i20.0.dac-write m5i20.thread 1
 
 # create three position feedback signals
 newsig Xpos-fb float
@@ -171,37 +171,39 @@ setp siggen.0.offset 0
 setp siggen.0.amplitude 0.25
 
 # create a bit signal to enable/disable the PID loops
-newsig pid_enable bit
+newsig pid-enable bit
 
 # connect the signal to all three PID blocks
-linksp pid_enable => pid.0.enable
-linksp pid_enable => pid.1.enable
-linksp pid_enable => pid.2.enable
+linksp pid-enable => pid.0.enable
+linksp pid-enable => pid.1.enable
+linksp pid-enable => pid.2.enable
 
 # and to amp enables on motion controller
-linksp pid_enable => m5i20.0.dac-00-enable
-linksp pid_enable => m5i20.0.dac-01-enable
-linksp pid_enable => m5i20.0.dac-02-enable
+linksp pid-enable => m5i20.0.dac-00-enable
+linksp pid-enable => m5i20.0.dac-01-enable
+linksp pid-enable => m5i20.0.dac-02-enable
 
 # enable a 16ms watchdog and DAC auto reset
 setp m5i20.0.watchdog-timeout 16000
 setp m5i20.0.watchdog-control 3
 
-# you can either turn pid_enable on and off using the
+# you can either turn pid-enable on and off using the
 # "halcmd sets" command, or you can connect it to a 
 # digital input and turn it on and off with an external
 # switch
 # The line below sets the signal to 0 to ensure that the PID
 # loops are off until you explicitly turn them on.
-sets pid_enable 0
+sets pid-enable 0
 
 # The line below connects the signal to a digital input.
 # Uncomment and change the input number if that's what you
 # want to do
-#linksp pid_enable <= m5i20.0.in-00
+#linksp pid-enable <= m5i20.0.in-00
 
-# load realtime portion of scope, just to have it handy
+# load realtime portion of scope
 loadrt scope_rt
+# start up scope user interface
+loadusr halscope
 
 # start realtime execution
 start
