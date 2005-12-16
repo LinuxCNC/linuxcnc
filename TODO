@@ -13,13 +13,18 @@ https://sourceforge.net/tracker/index.php?func=detail&aid=1370927&group_id=6744&
 
 Get the config picker/copier tool working
 
-Generate sample configs that are functionally equivalent to the following EMC1 configs:
+Generate sample configs that are functionally equivalent to the following 
+EMC1 configs:
+
 sim
 generic
 stg
 motenc
 univstep
 univpwm
+
+Choose BASE_PERIOD carefully (larger) for non-stepper configs, especially for 
+those that use ISA cards
 
 THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.2)
 
