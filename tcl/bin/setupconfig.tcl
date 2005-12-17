@@ -28,8 +28,6 @@ proc get_config_list {} {
     # clear config and description lists
     set config_list [ list ]
     set details_list [ list ]
-    # change to the configs directory
-    cd $basedir
     # look at all subdirs
     foreach dir_name [ glob */ ] {
 	cd $dir_name
@@ -215,7 +213,7 @@ proc main_page {} {
     set t31 "restore a configuration, or do other configuration related tasks,"
     set t32 "click the CONFIG button.\n"
 
-    set f1 [ wizard_page { "CONFIG" "NEW" "QUIT" "RUN" } ]
+    set f1 [ wizard_page { "CONFIG" "QUIT" "RUN" } ]
     set l1 [ label $f1.l1 -text [ join [ list $t10 $t20 $t21 $t30 $t31 $t32 ] \n ]]
     pack $l1 -padx 10 -pady 10
     pack $f1
@@ -234,10 +232,6 @@ proc main_page {} {
 	    set wizard_state "config_manager"
 	    return
 	}
-	"NEW" {
-	    set wizard_state "new_intro"
-	    return
-	}
 	"RUN" {
 	    set wizard_state "choose_run_config"
 	    return
@@ -254,14 +248,14 @@ proc choose_run_config {} {
     global new_config_name new_config_template new_config_readme
     global run_config_name run_ini_name
 
-    # read the directory and set up list of possible templates
+    # read the directory and set up list of configs
     get_config_list
 
     # messages
-    set t1 "Please select and EMC2 configuration from the list below and click 'RUN'."
+    set t1 "Please select an EMC2 configuration from the list below and click 'RUN'."
     set t2 "\nDetails about the selected configuration:"
     
-    #set up a wizard page with three buttons
+    #set up a wizard page with two buttons
     set f1 [ wizard_page { "CANCEL" " RUN " } ]
     # add a detail picker to it with the configs
     detail_picker $f1 $t1 $config_list $t2 $details_list
@@ -305,6 +299,97 @@ proc choose_run_ini {} {
     return
 }
 
+proc config_manager {} {
+    # need globals to comminicate with wizard page buttons
+    global choice top wizard_state
+    global config_list details_list detail_picker_selection
+    # more globals for new and run config info
+    global new_config_name new_config_template new_config_readme
+    global run_config_name run_ini_name
+
+    # read the directory and set up list of configs
+    get_config_list
+
+    # messages
+    set t1 "This page is used to manage EMC2 machine configurations.\n"
+    set t2 "The list below shows all of the existing EMC2\nconfigurations on this computer.\n\nSelect a config, then click one of the buttons below.\n"
+    set t3 "\nDetails about the selected configuration:"
+
+    set f1 [ wizard_page { "EDIT" "BACKUP" "RESTORE" "DELETE" "NEW" "CANCEL" } ]
+    set l1 [ label $f1.l1 -text $t1 ]
+    pack $l1 -padx 10 -pady 2
+    # add a detail picker to it with the configs
+    detail_picker $f1 $t2 $config_list $t3 $details_list
+    pack $f1
+
+    # prep for the event loop
+    set choice "none"
+    # enter event loop
+    vwait choice
+    # a button was pushed, save selection
+    set value $detail_picker_selection
+    # clear the window
+    pack forget $f1
+    destroy $f1
+
+    switch $choice {
+	"CANCEL" {
+	    set wizard_state "main_page"
+	    return
+	}
+	"EDIT" {
+	    if { $value == "" } {
+		popup "You must choose a config first!"
+		return
+	    }
+	    set selected_config_name $value
+	    set wizard_state "not_implemented"
+	    return
+	}
+	"BACKUP" {
+	    if { $value == "" } {
+		popup "You must choose a config first!"
+		return
+	    }
+	    set selected_config_name $value
+	    set wizard_state "not_implemented"
+	    return
+	}
+	"RESTORE" {
+	    if { $value == "" } {
+		popup "You must choose a config first!"
+		return
+	    }
+	    set selected_config_name $value
+	    set wizard_state "not_implemented"
+	    return
+	}
+	"DELETE" {
+	    if { $value == "" } {
+		popup "You must choose a config first!"
+		return
+	    }
+	    set selected_config_name $value
+	    set wizard_state "not_implemented"
+	    return
+	}
+	"NEW" {
+	    set wizard_state "new_intro"
+	    return
+	}
+    }
+}    
+
+proc not_implemented {} {
+    # need globals to comminicate with wizard page buttons
+    global choice top wizard_state
+    
+    # not done yet
+    popup "Sorry, this function is not implemented yet.\n\nClick OK to return to the menu"
+    set wizard_state "config_manager"
+    return
+}
+
 proc new_intro {} {
     # need globals to comminicate with wizard page buttons
     global choice top wizard_state
@@ -327,11 +412,11 @@ proc new_intro {} {
 
     switch $choice {
 	"CANCEL" {
-	    set wizard_state "main_page"
+	    set wizard_state "config_manager"
 	    return
 	}
 	"<--BACK" {
-	    set wizard_state "choose_run_config"
+	    set wizard_state "config_manager"
 	    return
 	}
 	"NEXT-->" {
@@ -363,7 +448,7 @@ proc new_get_name {} {
 
     switch $choice {
 	"CANCEL" {
-	    set wizard_state "main_page"
+	    set wizard_state "config_manager"
 	    return
 	}
 	"<--BACK" {
@@ -422,7 +507,7 @@ proc new_get_template {} {
 
     switch $choice {
 	"CANCEL" {
-	    set wizard_state "main_page"
+	    set wizard_state "config_manager"
 	    return
 	}
 	"<--BACK" {
@@ -502,7 +587,7 @@ proc new_get_description {} {
 
     switch $choice {
 	"CANCEL" {
-	    set wizard_state "main_page"
+	    set wizard_state "config_manager"
 	    return
 	}
 	"<--BACK" {
@@ -561,7 +646,7 @@ proc new_verify {} {
 
     switch $choice {
 	"CANCEL" {
-	    set wizard_state "main_page"
+	    set wizard_state "config_manager"
 	    return
 	}
 	"<--BACK" {
@@ -796,7 +881,6 @@ proc new_do_copying {} {
     pack forget $f1
     destroy $f1
     set wizard_state "new_config_done"
-
 }
 
 proc new_config_done {} {
@@ -805,7 +889,7 @@ proc new_config_done {} {
     global new_config_name
     
     popup "Your new configuration '$new_config_name' has been created.\nClick OK to return to the main menu."
-    set wizard_state "main_page"
+    set wizard_state "config_manager"
     return
 }
 
@@ -826,7 +910,6 @@ proc new_config_error {} {
 proc state_machine {} {
     global choice wizard_state
 
-    set wizard_state "main_page"
     while { $wizard_state != "quit" } {
 	puts "state is $wizard_state"
 	# execute the code associated with the current state
@@ -869,6 +952,9 @@ if {$basedir == ""} {
     exit -1
 }
 
+set old_dir [ pwd ]
+cd $basedir
+
 # make a toplevel and a master frame.
 wm title . "EMC2 Configuration Manager"
 set top [frame .main -borderwidth 2 -relief raised ]
@@ -878,9 +964,26 @@ pack $top -expand yes -fill both
 # initialize a bunch of globals
 set run_config_name ""
 set run_ini_name ""
+set selected_config_name ""
+
+set wizard_state "main_page"
+
+if { $argc == 1 } {
+    if { [ lindex $argv 0 ] == "-run" } {
+	set wizard_state "choose_run_config"
+    } else {
+	puts "need to validate and run config '[ lindex $argv 0 ]'"
+	puts "without popping up a GUI window"
+	puts "but that isn't done yet, so we exit instead"
+	exit -1
+    }
+}
 
 state_machine
 puts Quitting!
+
+cd $old_dir
+
 exit
 
 
