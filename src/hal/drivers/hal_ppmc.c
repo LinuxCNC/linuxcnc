@@ -102,7 +102,7 @@ MODULE_PARM_DESC(port_addr, "port address(es) for EPP bus(es)");
 				/* register for channels 0 - 3 */
 
 #define DAC_0       0x00	/* EPP address of low byte of DAC chan 0 */
-#define DAC_1       0x02		/* EPP address of low byte of DAC chan 1 */
+#define DAC_1       0x02	/* EPP address of low byte of DAC chan 1 */
 #define DAC_2       0x04	/* EPP address of low byte of DAC chan 2 */
 #define DAC_3       0x06	/* EPP address of low byte of DAC chan 3 */
 
@@ -220,6 +220,7 @@ typedef struct {
 typedef struct {
     hal_float_t *position;      /* output: scaled position pointer */
     hal_s32_t *count;           /* output: unscaled encoder counts */
+    hal_s32_t *delta;		/* output: delta counts since last read */
     hal_float_t scale;          /* parameter: scale factor */
     hal_bit_t *index;           /* output: index flag */
     signed long oldreading;     /* used to detect overflow / underflow of the counter */
@@ -632,16 +633,17 @@ static void read_all(void *arg, long period)
 	if ( bus->slot_valid[slotnum] ) {
 	    /* point at slot data */
 	    slot = &(bus->slot_data[slotnum]);
-	    /* check if this slot needs a latch strobe */
-	    if ( slot->strobe == 1 ) {
-		/* set the strobe bit, master mode */
-		SelWrt(0x30, slot->slot_base + ENCRATE, slot->port_addr);
-		/* repeat to guarantee at least 2uS */
-		SelWrt(0x30, slot->slot_base + ENCRATE, slot->port_addr);
-		// SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);
-		/* end of strobe pulse, stay in master mode */
-		SelWrt(0x10, slot->slot_base + ENCRATE, slot->port_addr);
-	    }
+	    /* We should check if this slot needs a latch strobe, but the
+	       docs aren't clear about master operation without auto-latching.
+	       So, we always latch the values for all boards, and never use master mode */
+	    /* the check would be:  if ( slot->strobe == 1 )  */
+	    /* set the strobe bit, slave mode */
+	    SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);
+	    /* repeat to guarantee at least 2uS */
+	    SelWrt(0x20, slot->slot_base + ENCRATE, slot->port_addr);
+	    /* end of strobe pulse, stay in slave mode */
+	    SelWrt(0x00, slot->slot_base + ENCRATE, slot->port_addr);
+
 	    /* fetch data from EPP to cache */
 	    if ( slot->first_rd <= slot->last_rd ) {
 		/* need to read some data */
@@ -782,6 +784,7 @@ static void read_encoders(slot_data_t *slot)
         else
             if ((oldpos.byte.b2 == 0) && (pos.byte.b2 & 0xc0) == 0xc0)
                 pos.byte.b3--;
+	*(slot->encoder[i].delta) = pos.l - slot->encoder[i].oldreading;
 	slot->encoder[i].oldreading = pos.l;
 	*(slot->encoder[i].count) = pos.l;
 	if (slot->encoder[i].scale < 0.0) {
@@ -1447,6 +1450,13 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.count",
 		       bus->busnum, bus->last_encoder);
 	retval = hal_pin_s32_new(buf, HAL_WR, &(slot->encoder[n].count), comp_id);
+	if (retval != 0) {
+		return retval;
+	}
+	/* raw encoder delta */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.delta",
+		       bus->busnum, bus->last_encoder);
+	retval = hal_pin_s32_new(buf, HAL_WR, &(slot->encoder[n].delta), comp_id);
 	if (retval != 0) {
 		return retval;
 	}
