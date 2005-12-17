@@ -1,0 +1,12 @@
+The M5i20 configuration is for servo machines using a
+board manufactured by Mesa electronics.  This sample
+configuration includes 4 axes of motion, several additional
+encoder reading routines, as well as additional IO.
+
+This board reads its fpga code from the PC at the time
+of startup.  A sample fpga configuration is included and
+will be loaded when the EMC2 starts.
+
+You must have a M5i20 card in order for this configuration
+to start.
+
