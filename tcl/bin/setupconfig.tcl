@@ -202,6 +202,48 @@ proc detail_picker_refresh {} {
     $d_p_detail_widget configure -state disabled
 }
 
+################### MENU PROCEDURE DEFINITIONS #####################
+
+proc main_page {} {
+    # need globals to comminicate with wizard page buttons
+    global choice top wizard_state
+
+    set t10 "Welcome to EMC2!\n"
+    set t20 "To run EMC2 with an existing configuration,"
+    set t21 "click the RUN button.\n"
+    set t30 "To create a new configuration, edit a configuration, backup or"
+    set t31 "restore a configuration, or do other configuration related tasks,"
+    set t32 "click the CONFIG button.\n"
+
+    set f1 [ wizard_page { "CONFIG" "NEW" "QUIT" "RUN" } ]
+    set l1 [ label $f1.l1 -text [ join [ list $t10 $t20 $t21 $t30 $t31 $t32 ] \n ]]
+    pack $l1 -padx 10 -pady 10
+    pack $f1
+
+    set choice "none"
+    vwait choice
+    pack forget $f1
+    destroy $f1
+
+    switch $choice {
+	"QUIT" {
+	    set wizard_state "quit"
+	    return
+	}
+	"CONFIG" {
+	    set wizard_state "config_manager"
+	    return
+	}
+	"NEW" {
+	    set wizard_state "new_intro"
+	    return
+	}
+	"RUN" {
+	    set wizard_state "choose_run_config"
+	    return
+	}
+    }
+}    
 
 proc choose_run_config {} {
     # need globals to comminicate with wizard page buttons,
@@ -212,12 +254,15 @@ proc choose_run_config {} {
     global new_config_name new_config_template new_config_readme
     global run_config_name run_ini_name
 
+    # read the directory and set up list of possible templates
+    get_config_list
+
     # messages
-    set t1 "You did not specify an EMC configuration.\nPlease select one from the list below and click 'RUN',\nor click 'NEW' to create a new configuration."
+    set t1 "Please select and EMC2 configuration from the list below and click 'RUN'."
     set t2 "\nDetails about the selected configuration:"
     
     #set up a wizard page with three buttons
-    set f1 [ wizard_page { "NEW" "QUIT" " RUN " } ]
+    set f1 [ wizard_page { "CANCEL" " RUN " } ]
     # add a detail picker to it with the configs
     detail_picker $f1 $t1 $config_list $t2 $details_list
     # done
@@ -234,8 +279,8 @@ proc choose_run_config {} {
     destroy $f1
 
     switch $choice {
-	"QUIT" {
-	    set wizard_state "quit"
+	"CANCEL" {
+	    set wizard_state "main_page"
 	    return
 	}
 	"RUN" {
@@ -245,14 +290,6 @@ proc choose_run_config {} {
 	    }
 	    set run_config_name $value
 	    set wizard_state "choose_run_ini"
-	    return
-	}
-	"NEW" {
-	    # get ready for a fresh start
-	    set new_config_name ""
-	    set new_config_template ""
-	    set new_config_readme ""
-	    set wizard_state "new_intro"
 	    return
 	}
     }
@@ -271,20 +308,26 @@ proc choose_run_ini {} {
 proc new_intro {} {
     # need globals to comminicate with wizard page buttons
     global choice top wizard_state
+    global new_config_name new_config_template new_config_readme
 
-    set f1 [ wizard_page { "<--BACK" "QUIT" "NEXT-->" } ]
+    set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
     set l1 [ label $f1.l1 -text "You have chosen to create a new EMC2 configuration.\n\nThe next few screens will walk you through the process." ]
     pack $l1 -padx 10 -pady 10
     pack $f1
 
+    # get ready for a fresh start
+    set new_config_name ""
+    set new_config_template ""
+    set new_config_readme ""
+   
     set choice "none"
     vwait choice
     pack forget $f1
     destroy $f1
 
     switch $choice {
-	"QUIT" {
-	    set wizard_state "quit"
+	"CANCEL" {
+	    set wizard_state "main_page"
 	    return
 	}
 	"<--BACK" {
@@ -302,7 +345,7 @@ proc new_get_name {} {
     # need globals to comminicate with wizard page buttons
     global choice top wizard_state new_config_name
 
-    set f1 [ wizard_page { "<--BACK" "QUIT" "NEXT-->" } ]
+    set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
     set l1 [ label $f1.l1 -text "Please select a name for your new configuration." ]
     set l2 [ label $f1.l2 -text "(This will become a directory name, so please use only letters,\ndigits, period, dash, or underscore.)" ]
     set e1 [ entry $f1.e1 -width 30 -relief sunken -bg white -takefocus 1 ]
@@ -319,8 +362,8 @@ proc new_get_name {} {
     destroy $f1
 
     switch $choice {
-	"QUIT" {
-	    set wizard_state "quit"
+	"CANCEL" {
+	    set wizard_state "main_page"
 	    return
 	}
 	"<--BACK" {
@@ -354,12 +397,15 @@ proc new_get_template {} {
     global config_list details_list detail_picker_selection
     global new_config_name new_config_template new_config_readme
 
+    # read the directory and set up list of possible templates
+    get_config_list
+
     # messages
     set t1 "Please select one of these existing configurations as the template\nfor your new configuration.\n\nAll the files associated with the template will be copied into your new\nconfig, so you can make whatever modifications are needed."
     set t2 "\nDetails about the selected configuration:"
     
     #set up a wizard page with three buttons
-    set f1 [ wizard_page { "<--BACK" "QUIT" "NEXT-->" } ]
+    set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
     # add a header line
     set l1 [ label $f1.l1 -text "Creating new EMC2 configuration '$new_config_name'" ]
     pack $l1 -pady 10
@@ -375,8 +421,8 @@ proc new_get_template {} {
     destroy $f1
 
     switch $choice {
-	"QUIT" {
-	    set wizard_state "quit"
+	"CANCEL" {
+	    set wizard_state "main_page"
 	    return
 	}
 	"<--BACK" {
@@ -419,7 +465,7 @@ proc new_get_description {} {
     global choice top wizard_state 
     global new_config_name new_config_template new_config_readme
 
-    set f1 [ wizard_page { "<--BACK" "QUIT" "NEXT-->" } ]
+    set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
     # add a header line
     set l1 [ label $f1.l1 -text "Creating new EMC2 configuration '$new_config_name'\nbased on template '$new_config_template'" ]
     pack $l1 -pady 10
@@ -455,8 +501,8 @@ proc new_get_description {} {
     destroy $f1
 
     switch $choice {
-	"QUIT" {
-	    set wizard_state "quit"
+	"CANCEL" {
+	    set wizard_state "main_page"
 	    return
 	}
 	"<--BACK" {
@@ -480,7 +526,7 @@ proc new_verify {} {
     global choice top wizard_state 
     global new_config_name new_config_template new_config_readme
 
-    set f1 [ wizard_page { "<--BACK" "QUIT" "NEXT-->" } ]
+    set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
     # add a header line
     set l1 [ label $f1.l1 -text "You are about to create a new EMC2 configuration.\n\nPlease verify that this is what you want:\n\nName '$new_config_name'\nTemplate: '$new_config_template'\nDescription:" ]
     pack $l1 -pady 10
@@ -514,8 +560,8 @@ proc new_verify {} {
     destroy $f1
 
     switch $choice {
-	"QUIT" {
-	    set wizard_state "quit"
+	"CANCEL" {
+	    set wizard_state "main_page"
 	    return
 	}
 	"<--BACK" {
@@ -532,10 +578,244 @@ proc new_verify {} {
 proc new_do_copying {} {
     # need globals to communicate with wizard page buttons
     global choice top wizard_state
+    global new_config_name new_config_template new_config_readme
+
+    # set up page, only one button
+    set f1 [ wizard_page { "CANCEL" } ]
+    set choice "none"
+    # set up labels for the five progress messages that will be used
+    set l1 [ label $f1.l1 -text " " -width 70 -justify left ]
+    set l2 [ label $f1.l2 -text " " -width 70 -justify left ]
+    set l3 [ label $f1.l3 -text " " -width 70 -justify left ]
+    set l4 [ label $f1.l4 -text " " -width 70 -justify left ]
+    set l5 [ label $f1.l5 -text " " -width 70 -justify left ]
+    set lerr [ label $f1.lerr -text " " -width 70 -justify center ]
+    # pack everything
+    pack $l1 -padx 10 -pady 1
+    pack $l2 -padx 10 -pady 1
+    pack $l3 -padx 10 -pady 1
+    pack $l4 -padx 10 -pady 1
+    pack $l5 -padx 10 -pady 1
+    pack $lerr -padx 10 -pady 10
+    pack $f1
+
+    # set text for first message
+    $l1 configure -text "Creating new config directory '$new_config_name'..."
+    # update display
+    update
+    # create directory
+    file mkdir $new_config_name
+    # test for success
+    if { [ file isdirectory $new_config_name ] != 1 } {
+	# display error message
+	$lerr -text "ERROR: Config directory could not be created."
+	vwait choice
+	set wizard_state "new_config_error"
+	pack forget $f1
+	destroy $f1
+	return
+    }
+    $l1 configure -text "[ $l1 cget -text ] Done"
+    update
+    if { $choice != "none" } {
+	set wizard_state "new_config_error"
+	return
+    }
+
+    # switch to template directory
+    cd $new_config_template
+    # get list of files from template dir
+    set flist [ glob * ]
+    # switch back to main configs directory
+    cd ..
+
+    # split list into ini and non-ini files
+    set inifiles [ list ]
+    set otherfiles [ list ]
+    foreach fname $flist {
+	set filetype "normal"
+	# apply several tests to the file
+	if { [ file isfile $new_config_template/$fname ] != 1 } {
+	    set filetype "not_a_file"
+	}
+	if { [ regexp ".*\.ini$" $fname ] == 1 } {
+	    set filetype "ini"
+	}
+	if { [regexp ".*\.bak$" $fname ] == 1 } {
+	    set filetype "backup"
+	}
+	if { [regexp ".*\~$" $fname ] == 1 } {
+	    set filetype "backup"
+	}
+	if { $fname == "README" } {
+	    set filetype "readme"
+	}
+	# ok, testing complete, add it to appropriate list
+	if { $filetype == "normal" } {
+	    lappend otherfiles $fname
+	}
+	if { $filetype == "ini" } {
+	    lappend inifiles $fname
+	}
+    }
+    # now we need to parse the ini file(s) and do 2 things:
+    # 1) determine what files from the common/ dir are needed
+    # 2) change the ini to read those files from the local dir
+    $l2 configure -text "Checking for ini file(s)..."
+    update
+    if { $choice != "none" } {
+	set wizard_state "new_config_error"
+	return
+    }
+    set commonfiles [ list ]
+    foreach ininame $inifiles {
+	$l2 configure -text "Transferring ini file '$fname'..."
+	update
+	if { $choice != "none" } {
+	    set wizard_state "new_config_error"
+	    return
+	}
+	set inifilein [ open $new_config_template/$ininame r ]
+	# read the entire file into one long string
+	set initextin [ read $inifilein ]
+	close $inifilein
+
+	# remove '../common/' so the file is fetched from the local dir
+	regsub -all {\.\./common/([^[:space:]]+)} $initextin {\1} initextout
+
+	# write to the new ini file
+	set inifileout [ open $new_config_name/$ininame w ]
+	puts -nonewline $inifileout $initextout
+	close $inifileout
+
+	# split ini file into lines
+	set inilines [ split $initextin \n ]
+	foreach iniline $inilines {
+	    # add a trailing newline to each line
+	    set iniline $iniline\n
+	    # detect "../common/" and use substitution to remove all text before and after filename
+	    if { [ regsub {.*\.\./common/([^[:space:]]+)[[:space:]].*} $iniline {\1} commonfile ] == 1 } {
+		# '../common/' detected, need to copy the file from common dir
+		lappend commonfiles $commonfile
+	    }	
+	}
+    }
+    # done with inifiles
+    $l2 configure -text "[ $l2 cget -text ] Done"
+    update
+    if { $choice != "none" } {
+	set wizard_state "new_config_error"
+	return
+    }
+
+    # do README file
+    $l3 configure -text "Writing description file 'README'..."
+    update
+    # write to the new README file
+    set readmefile [ open $new_config_name/README w ]
+    puts $readmefile $new_config_readme
+    close $readmefile
+    $l3 configure -text "[ $l3 cget -text ] Done"
+    update
+    if { $choice != "none" } {
+	set wizard_state "new_config_error"
+	return
+    }
+
+    # do other files from template dir
+    $l4 configure -text "Checking for other template file(s)..."
+    update
+    if { $choice != "none" } {
+	set wizard_state "new_config_error"
+	return
+    }
+    foreach fname $otherfiles {
+	$l4 configure -text "Copying template file '$fname'..."
+	update
+	if { $choice != "none" } {
+	    set wizard_state "new_config_error"
+	    return
+	}
+	set filein [ open $new_config_template/$fname r ]
+	# read the entire file into one long string
+	set filetext [ read $filein ]
+	close $filein
+	# write to the new directory
+	set fileout [ open $new_config_name/$fname w ]
+	puts -nonewline $fileout $filetext
+	close $fileout
+    }
+    $l4 configure -text "[ $l4 cget -text ] Done"
+    update
+    if { $choice != "none" } {
+	set wizard_state "new_config_error"
+	return
+    }
+
+    $l5 configure -text "Checking for common file(s)..."
+    update
+    if { $choice != "none" } {
+	set wizard_state "new_config_error"
+	return
+    }
+    # remove duplicate common files
+    # first sort, so duplicates are together
+    set commontemp [ lsort $commonfiles ]
+    # make an empty list
+    set commonfiles [ list ]
+    # compare each item on input list to last item on output list
+    foreach commonfile $commontemp {
+	if { $commonfile != [ lindex $commonfiles end ] } {
+	    # they don't match, the input item is not yet in output
+	    lappend commonfiles $commonfile
+	}
+    }
+    foreach fname $commonfiles {
+	$l5 configure -text "Copying common file '$fname'..."
+	update
+	if { $choice != "none" } {
+	    set wizard_state "new_config_error"
+	    return
+	}
+	set filein [ open common/$fname r ]
+	# read the entire file into one long string
+	set filetext [ read $filein ]
+	close $filein
+	# write to the new directory
+	set fileout [ open $new_config_name/$fname w ]
+	puts -nonewline $fileout $filetext
+	close $fileout
+    }
+    $l5 configure -text "[ $l5 cget -text ] Done"
+    update
+    if { $choice != "none" } {
+	set wizard_state "new_config_error"
+	return
+    }
+
+    pack forget $f1
+    destroy $f1
+    set wizard_state "new_config_done"
+
+}
+
+proc new_config_done {} {
+    # need globals to comminicate with wizard page buttons
+    global choice top wizard_state
+    global new_config_name
+    
+    popup "Your new configuration '$new_config_name' has been created.\nClick OK to return to the main menu."
+    set wizard_state "main_page"
+    return
+}
+
+proc new_config_error {} {
+    # need globals to comminicate with wizard page buttons
+    global choice top wizard_state
     
     # not done yet
-    popup "The next step is to start copying files.\n\nBut thats not coded yet, so when you click OK, the program will end"
-    set wizard_state "quit"
+    popup "An error happened while creating the new configuration.\nIdeally this code would clean everything up and\nthen return to the main menu, but the cleanup isn't done yet.\nClick OK to return to the main menu."
+    set wizard_state "main_page"
     return
 }
 
@@ -546,7 +826,7 @@ proc new_do_copying {} {
 proc state_machine {} {
     global choice wizard_state
 
-    set wizard_state "choose_run_config"
+    set wizard_state "main_page"
     while { $wizard_state != "quit" } {
 	puts "state is $wizard_state"
 	# execute the code associated with the current state
@@ -589,9 +869,6 @@ if {$basedir == ""} {
     exit -1
 }
 
-# read the directory and set up lists
-get_config_list
-
 # make a toplevel and a master frame.
 wm title . "EMC2 Configuration Manager"
 set top [frame .main -borderwidth 2 -relief raised ]
@@ -601,7 +878,6 @@ pack $top -expand yes -fill both
 # initialize a bunch of globals
 set run_config_name ""
 set run_ini_name ""
-
 
 state_machine
 puts Quitting!
