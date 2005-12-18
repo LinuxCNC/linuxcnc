@@ -41,9 +41,9 @@ static Inifile *trajInifile = 0;
   ANGULAR_UNITS <float>         units per degree
   CYCLE_TIME <float>            cycle time for traj calculations
   DEFAULT_VELOCITY <float>      default velocity
-  DEFAULT_ACCELERATION <float>  default acceleration
   MAX_VELOCITY <float>          max velocity
   MAX_ACCELERATION <float>      max acceleration
+  DEFAULT_ACCELERATION <float>  default acceleration
   HOME <float> ...              world coords of home, in X Y Z R P W
 
   calls:
@@ -214,34 +214,6 @@ static int loadTraj()
 	return -1;
     }
 
-    if (NULL !=
-	(inistring = trajInifile->find("DEFAULT_ACCELERATION", "TRAJ"))) {
-	if (1 == sscanf(inistring, "%lf", &acc)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print
-		    ("invalid inifile value for [TRAJ] DEFAULT_ACCELERATION: %s\n",
-		     inistring);
-	    }
-	    acc = 1.0;		// default
-	}
-    } else {
-	// not found at all
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print
-		("can't find [TRAJ] DEFAULT_ACCELERATION, using default\n");
-	}
-	acc = 1.0;		// default
-    }
-    if (0 != emcTrajSetAcceleration(acc)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print("bad return value from emcTrajSetAcceleration\n");
-	}
-	return -1;
-    }
-
     if (NULL != (inistring = trajInifile->find("MAX_VELOCITY", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%lf", &vel)) {
 	    // found, and valid
@@ -303,6 +275,35 @@ static int loadTraj()
 	}
 	return -1;
     }
+
+    if (NULL !=
+	(inistring = trajInifile->find("DEFAULT_ACCELERATION", "TRAJ"))) {
+	if (1 == sscanf(inistring, "%lf", &acc)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print
+		    ("invalid inifile value for [TRAJ] DEFAULT_ACCELERATION: %s\n",
+		     inistring);
+	    }
+	    acc = 1.0;		// default
+	}
+    } else {
+	// not found at all
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print
+		("can't find [TRAJ] DEFAULT_ACCELERATION, using default\n");
+	}
+	acc = 1.0;		// default
+    }
+    if (0 != emcTrajSetAcceleration(acc)) {
+	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	    rcs_print("bad return value from emcTrajSetAcceleration\n");
+	}
+	return -1;
+    }
+
     // set coordinateMark[] to hold 1's for each coordinate present,
     // so that home position can be interpreted properly
     if (NULL != (inistring = trajInifile->find("COORDINATES", "TRAJ"))) {
