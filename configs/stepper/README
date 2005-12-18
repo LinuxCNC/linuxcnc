@@ -1,1 +1,20 @@
-This file is a place holder until we get a description of the setup from someone who knows.  If you are that person, then get it in here. 
+This configuration step is intended for basic stepper machines.
+You can have either standard pinout (EMC style) or xylotex pinout, by including 
+either one of those 2 .hal files. Certainly you could make a new one wich would 
+suit your own custom cabling.
+There are 2 ini files, one for inch setups (stepper_in.ini) and one for metric 
+setups (stepper_mm.ini).
+
+Detailed description:
+
+* ini files
+-- stepper_in.ini - inch setup for a stepper machine
+-- stepper_mm.ini - metric setup for a stepper machine
+
+* nml files
+-- it uses a default nml file (found in configs/common/emc.nml)
+
+* hal files
+-- it uses a default stepper hal file (configs/common/core_stepper.hal)
+-- standard_pinout.hal - include this from the ini to get you a standard pinout
+-- xylotex_pinout.hal -  include this from the ini to get you a xylotex pinout (e.g. step/dir are inverted)
