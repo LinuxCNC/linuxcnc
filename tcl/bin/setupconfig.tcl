@@ -17,6 +17,45 @@ exec wish "$0" "$@"
 # $Author$
 # $Date$
 ###############################################################
+#
+# usage:
+#    setupconfig [options] 
+#
+# options:
+#  --configs-dir <dir>
+#
+#   Assume that <dir> is the configs/ directory, and that
+#   subdirectories of <dir> contain individual configs.
+#   If --configs-dir is not given, the script attempts to
+#   find the directory itself, but that works only if it
+#   was run from the configs dir, or one directly above
+#   or below it.
+#
+#  --run [<config-name>/<ini-name>]
+#
+#   Validate the config-name/ini-name that was supplied (if
+#   any), if not supplied or invalid, go directly to the 
+#   screen that asks the user to choose a config.  Once
+#   the config is validated (or the user chooses one and 
+#   clicks "RUN", invoke the run script to run EMC using
+#   that configuration.
+#
+#  --get-config [<config-name>/<ini-name>]
+#
+#   Validate the config-name/ini-name that was supplied (if
+#   any), if not supplied or invalid, go directly to the 
+#   screen that asks the user to choose a config.  Once
+#   the config is validated (or the user chooses one and 
+#   clicks 'RUN', do _not_ invoke the run script to run it,
+#   instead simply print the chosen <config/ini> string and
+#   end.  (This mode is for use by the run script.)
+#
+# --run and --get-config are mutually exclusive.  If neither
+# is specificed, setupconfig displays a sequence of menus so
+# the user can manipulate configurations and run emc. 
+#
+###############################################################
+
 
 ################### PROCEDURE DEFINITIONS #####################
 
