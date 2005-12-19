@@ -17,6 +17,7 @@ obj-$(CONFIG_SIGGEN) += siggen.o
 obj-$(CONFIG_PID) += pid.o
 obj-$(CONFIG_PID) += threads.o
 obj-$(CONFIG_SUPPLY) += supply.o
+obj-$(CONFIG_TIMEDELAY) += timedelay.o
 
 EXTRA_CFLAGS := $(RTFLAGS) -I/usr/include -D__MODULE__
 
@@ -44,7 +45,8 @@ freqgen.c \
 siggen.c \
 pid.c \
 threads.c \
-supply.c
+supply.c \
+timedelay.c
 
 LIBS = \
 $(RTLIB_DIR)/blocks.o \
@@ -56,7 +58,8 @@ $(RTLIB_DIR)/freqgen.o \
 $(RTLIB_DIR)/siggen.o \
 $(RTLIB_DIR)/pid.o \
 $(RTLIB_DIR)/threads.o \
-$(RTLIB_DIR)/supply.o
+$(RTLIB_DIR)/supply.o \
+$(RTLIB_DIR)/timedelay.o
 
 endif
 

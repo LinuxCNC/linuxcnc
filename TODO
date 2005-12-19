@@ -1,6 +1,7 @@
 REQUIRED FOR EMC2'S FIRST RELEASE  (EMC-2.0)
 
-Time delay relay for HAL, two pins, in and out
+##Time delay relay for HAL, two pins, in and out
+DONE:  src/hal/components/timedelay.c
 
 Investigate/fix missed-deadline reporting??
 https://sourceforge.net/tracker/index.php?func=detail&aid=1372949&group_id=6744&atid=106744
