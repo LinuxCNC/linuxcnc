@@ -8,13 +8,19 @@ setups (stepper_mm.ini).
 Detailed description:
 
 * ini files
+
 -- stepper_in.ini - inch setup for a stepper machine
+
 -- stepper_mm.ini - metric setup for a stepper machine
 
 * nml files
+
 -- it uses a default nml file (found in configs/common/emc.nml)
 
 * hal files
+
 -- it uses a default stepper hal file (configs/common/core_stepper.hal)
+
 -- standard_pinout.hal - include this from the ini to get you a standard pinout
+
 -- xylotex_pinout.hal -  include this from the ini to get you a xylotex pinout (e.g. step/dir are inverted)
