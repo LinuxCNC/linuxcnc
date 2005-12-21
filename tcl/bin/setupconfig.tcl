@@ -27,9 +27,10 @@ exec wish "$0" "$@"
 #   Assume that <dir> is the configs/ directory, and that
 #   subdirectories of <dir> contain individual configs.
 #   If --configs-dir is not given, the script attempts to
-#   find the directory itself, but that works only if it
-#   was run from the configs dir, or one directly above
-#   or below it.
+#   find the directory itself, but that works only if the
+#   environment variable EMC2_ORIG_CONFIGS_DIR is set, or
+#   if the script was run from the configs dir, or one 
+#   directly above or below it.
 #
 #  --run [<config-name>/<ini-name>]
 #
@@ -37,7 +38,7 @@ exec wish "$0" "$@"
 #   any), if not supplied or invalid, go directly to the 
 #   screen that asks the user to choose a config.  Once
 #   the config is validated (or the user chooses one and 
-#   clicks "RUN", invoke the run script to run EMC using
+#   clicks "RUN"), invoke the run script to run EMC using
 #   that configuration.
 #
 #  --get-config [<config-name>/<ini-name>]
@@ -46,13 +47,19 @@ exec wish "$0" "$@"
 #   any), if not supplied or invalid, go directly to the 
 #   screen that asks the user to choose a config.  Once
 #   the config is validated (or the user chooses one and 
-#   clicks 'RUN', do _not_ invoke the run script to run it,
+#   clicks 'RUN'), do _not_ invoke the run script to run it,
 #   instead simply print the chosen <config/ini> string and
 #   end.  (This mode is for use by the run script.)
 #
-# --run and --get-config are mutually exclusive.  If neither
-# is specificed, setupconfig displays a sequence of menus so
-# the user can manipulate configurations and run emc. 
+#  --new
+#
+#   Skip the initial menu and go straight to the "create
+#   new config" sequence.
+#
+#  --run, --get-config, and --new are mutually exclusive. 
+#  If none of these is specified, setupconfig displays a 
+#  sequence of menus so the user can manipulate configurations
+#  and/or run emc. 
 #
 ###############################################################
 
@@ -62,7 +69,7 @@ exec wish "$0" "$@"
 # reads the directory, and fills in "config_list" and "details_list"
 
 proc get_config_list {} {
-    global config_list details_list basedir
+    global config_list details_list configs_dir
 
     # clear config and description lists
     set config_list [ list ]
@@ -287,6 +294,13 @@ proc choose_run_config {} {
     global new_config_name new_config_template new_config_readme
     global run_config_name run_ini_name
 
+puts "run config name is $run_config_name"
+    # if a config directory is already known, skip this stage
+    if { $run_config_name != "" } {
+	set wizard_state "choose_run_ini"
+	return
+    }
+ 
     # read the directory and set up list of configs
     get_config_list
 
@@ -331,9 +345,27 @@ proc choose_run_config {} {
 proc choose_run_ini {} {
     # need globals to comminicate with wizard page buttons
     global choice top wizard_state
+    global run_config_name
+    
+    if { [ file extension $run_config_name ] == ".ini" } {
+	# already have the ini
+	set wizard_state "execute_run"
+	return
+    }
+    # not done yet
+    popup "The next step is to see if there is more than one .ini fil in\n'$run_config_name'\nand if so, to pick one.\n\nBut thats not coded yet, so just click OK to continue"
+    set run_config_name $run_config_name/foobar.ini
+    set wizard_state "execute_run"
+    return
+}
+
+proc execute_run {} {
+    # need globals to comminicate with wizard page buttons
+    global choice top wizard_state
+    global run_config_name
     
     # not done yet
-    popup "The next step is to see if there is more than one .ini fil in\nthe chosen config, and if so, to pick one.\n\nBut thats not coded yet, so when you click OK, the program will end"
+    popup "The next step is to invoke the run script to run\n'$run_config_name'\n\nBut thats not coded yet, so just click OK to quit."
     set wizard_state "quit"
     return
 }
@@ -943,8 +975,219 @@ proc new_config_error {} {
 }
 
 
+# config validator
+#
+# this gets a config name, which can have multiple forms
+# it returns either a fully qualified path to the config directory
+# (or ini file, if specified), or displays an error message and returns ""
+#
+# input can be:
+#   name of config dir (assumed to be inside emc2 main configs dir)
+#   name of config dir and ini file (assumed to be inside main configs dir)
+#   absolute path to config dir (need not be in the emc2 main configs dir)
+#   relative path to config dir (need not be in the emc2 main configs dir)
+#   absolute path to ini file (need not be in the emc2 main configs dir)
+#   relative path to ini file (need not be in the emc2 main configs dir)
+
+proc resolve_config { input } {
+    global configs_dir
+
+    # no error messages if blank, just return
+    if { $input == "" } {
+	return ""
+    }
+    # make into an absolute path
+    set abs_input [ file normalize $input ]
+    # is it a directory? 
+    if { [ file isdirectory $abs_input ] == 1 } {
+	# it is a path to a directory, any .ini files inside?
+	set inis [ glob -nocomplain -directory $abs_input *.ini ]
+	if { [ llength $inis ] == 0 } {
+	    popup "ERROR: Not a valid config directory (contains no .ini files)\n\n'$input'\n($abs_input)\n\nClick OK to continue."
+	    return ""
+	}
+	return $abs_input
+    }
+    # is it a file?
+    if { [ file isfile $abs_input ] == 1 } {
+	# it is a path to a file, it is an .ini file?
+	if { [ file extension $abs_input ] != ".ini" } {
+	    popup "ERROR: Not a valid ini file (must end in .ini)\n\n'$input'\n($abs_input)\n\nClick OK to continue."
+	    return ""
+	}
+	return $abs_input
+    }
+    # check in main configs dir
+    set abs_input [ file join $configs_dir $input ]
+    # is it of the form <config-name>?
+    if { [ llength [ file split $input ] ] == 1 } {
+	# yes, does the config directory exist?   
+	if { [ file isdirectory $abs_input ] == 1 } {
+	     # it is a directory, any .ini files inside?
+	    set inis [ glob -nocomplain -directory $abs_input *.ini ]
+	    if { [ llength $inis ] != 0 } {
+		# yes, done
+		return $abs_input
+	    }
+	    popup "ERROR: Not a valid config directory (contains no .ini files)\n\n'$input'\n($abs_input)\n\nClick OK to continue."
+	    return ""
+	}
+	popup "ERROR: Config not found\n\n'$input'\n($abs_input)\n\nClick OK to continue."
+	return ""
+    }
+    # is it of the form <config-name>/<ini-name>?
+    if { [ llength [ file split $input ] ] == 2 } {
+	# yes, if no extension, add .ini
+	if { [ file extension $abs_input ] == "" } {
+	    set abs_input $abs_input.ini
+	}
+	# does the ini file exist?   
+	if { [ file isfile $abs_input ] == 1 } {
+	    # yes, done
+	    return $abs_input
+	}
+	popup "ERROR: config/ini not found\n\n'$input'\n($abs_input)\n\nClick OK to continue."
+	return ""
+    }
+    popup "ERROR: Not a valid config name\n(must be either <config-name> or <config-name>/<ini-name>)\n\n'$input'\n\nClick OK to continue."
+    return ""
+}   
+
+
 ################ MAIN PROGRAM STARTS HERE ####################
 
+# set options that are common to all widgets
+foreach class { Button Entry Label Listbox Scale Text } {
+    option add *$class.borderWidth 1  100
+}
+
+# make a toplevel and a master frame.
+wm title . "EMC2 Configuration Manager"
+set top [frame .main -borderwidth 2 -relief raised ]
+# want these too, but on windoze they cause an error? -padx 10 -pady 10 ]
+pack $top -expand yes -fill both
+
+# parse command line 
+
+# did the user specify --configs-dir?
+set configs_index [ lsearch $argv "--configs-dir" ]
+if { $configs_index >= 0 } {
+    # yes, get the directory name
+    set configs_dir [ lindex $argv [ expr $configs_index + 1 ]]
+    if { $configs_dir == "" || [ string equal -length 1 $configs_dir "-" ] == 1 } {
+	popup "ERROR: option '--configs_dir' must be followed by a directory name.\n\nClick OK to exit."
+	exit -1
+    }
+    if { [ file isdirectory $configs_dir ] != 1 } {
+	popup "ERROR: '--configs-dir' argument is\n\n'$configs_dir'\n\nwhich is not a directory.\n\nClick OK to exit."
+	exit -1
+    }
+    # make into absolute path to directory
+    set configs_dir [ file normalize $configs_dir ]
+    # remove option and its argument from argv
+    set argv [ lreplace $argv $configs_index [expr $configs_index + 1]]
+} else {
+    # configs dir not specified,figure it out later
+    set configs_dir ""
+}
+# we have several alternate ways to find the configs directory
+# we'll try them until one succeeds (or all fail and we give up)
+if { $configs_dir == "" } {
+    # try env variable
+    if { [ info exists env(EMC2_ORIG_CONFIG_DIR) ] } {
+	set configs_dir [ file normalize $env(EMC2_ORIG_CONFIG_DIR) ]
+	if { [ file isdirectory $configs_dir ] != 1 } {
+	    popup "ERROR: environment variable EMC2_ORIG_CONFIG_DIR is\n\n'$env(EMC2_ORIG_CONFIG_DIR)'\n\nwhich is not a directory.\n\nClick OK to exit."
+	    exit -1
+	}
+    }
+}
+if {$configs_dir == ""} {
+    # maybe we're running in the top level EMC2 dir
+    if { [ file isdirectory "configs" ] } {
+	set configs_dir [ file normalize "configs" ]
+    }
+}
+if {$configs_dir == ""} {
+    # maybe we're running in the configs dir or another at that level
+    if { [ file isdirectory "../configs" ] } {
+	set configs_dir [ file normalize "../configs" ]
+    }
+}
+if {$configs_dir == ""} {
+    # maybe we're running in an inidividual config dir
+    if { [ file isdirectory "../../configs" ] } {
+	set configs_dir [ file normalize "../../configs" ]
+    }
+}
+# if we still don't know where the configs are, we're screwed....
+if {$configs_dir == ""} {
+    # give up
+    popup "ERROR: Cannot find the EMC2 configurations directory.\nYou can specify the directory with the '--configs_dir <dir>' option.\n\nClick OK to exit."
+    exit -1
+}
+
+# check for more than one of --new, --run, and --getconfig
+set option_name ""
+set option_index ""
+set num_opts 0
+foreach option_type { "--new" "--run" "--get-config" } {
+    set temp [ lsearch $argv $option_type ]
+    if { $temp >= 0 } {
+	set num_opts [ expr $num_opts + 1 ]
+	set option_name $option_type
+	set option_index $temp
+    }
+}
+if { $num_opts > 1 } {
+    popup "ERROR: options '--run', '--new', and '--get-config' are\nmutually exclusive, please specify only one.\n\nClick OK to exit."
+    exit -1
+}
+
+# process --run, --new, or --get-config
+switch -- $option_name {
+    "--run" {
+	# get arg that follows '--run' (if any)
+	set run_config_name [ lindex $argv [ expr $option_index + 1 ] ]
+	# delete option and its arg from argv
+	set argv [ lreplace $argv $option_index [expr $option_index + 1] ]
+	# validate filename
+	set run_config_name [ resolve_config $run_config_name ]
+	# set mode and initial state
+	set wizard_state "choose_run_config"
+	set run_mode "run"
+    }
+    "--get-config" {
+	# get arg that follows '--get-config' (if any)
+	set run_config_name [ lindex $argv [ expr $option_index + 1 ] ]
+	# delete option and its arg from argv
+	set argv [ lreplace $argv $option_index [expr $option_index + 1] ]
+	# validate filename
+	set run_config_name [ resolve_config $run_config_name ]
+	# set mode and initial state
+	set wizard_state "choose_run_config"
+	set run_mode "print"
+    }
+    "--new" {
+	# delete option from argv
+	set argv [ lreplace $argv $option_index $option_index ]
+	# set initial state
+	set wizard_state "new_intro"
+    }
+    "" {
+	set wizard_state "main_page"
+    }
+}
+
+# at this point all legal options and their args have been deleted, 
+# anything left in 'argv' is an error
+if { [ llength $argv ] != 0 } {
+    popup "ERROR: unknown command line option:\n\n'$argv'\n\nClick OK to exit."
+    exit -1
+}
+
+set old_dir [ pwd ]
+cd $configs_dir
 
 proc state_machine {} {
     global choice wizard_state
@@ -953,68 +1196,6 @@ proc state_machine {} {
 	puts "state is $wizard_state"
 	# execute the code associated with the current state
 	$wizard_state
-    }
-}
-
-# set options that are common to all widgets
-foreach class { Button Entry Label Listbox Scale Text } {
-    option add *$class.borderWidth 1  100
-}
-
-# locate the configs directory
-set basedir ""
-if {[info exists env(EMC2_ORIG_CONFIG_DIR)]} {
-    set basedir $env(EMC2_ORIG_CONFIG_DIR)
-}
-if {$basedir == ""} {
-    # maybe we're running in the top level EMC2 dir
-    if { [ file isdirectory "configs" ] } {
-	set basedir configs/
-    }
-}
-if {$basedir == ""} {
-    # maybe we're running in the configs dir or another at that level
-    if { [ file isdirectory "../configs" ] } {
-	set basedir ../configs
-    }
-}
-if {$basedir == ""} {
-    # maybe we're running in an inidividual config dir
-    if { [ file isdirectory "../../configs" ] } {
-	set basedir ../
-    }
-}
-if {$basedir == ""} {
-    # give up
-    puts "Can't find configs directory"
-    puts "Check environment variable EMC2_ORIG_CONFIG_DIR"
-    exit -1
-}
-
-set old_dir [ pwd ]
-cd $basedir
-
-# make a toplevel and a master frame.
-wm title . "EMC2 Configuration Manager"
-set top [frame .main -borderwidth 2 -relief raised ]
-# want these too, but on windoze they cause an error? -padx 10 -pady 10 ]
-pack $top -expand yes -fill both
-
-# initialize a bunch of globals
-set run_config_name ""
-set run_ini_name ""
-set selected_config_name ""
-
-set wizard_state "main_page"
-
-if { $argc == 1 } {
-    if { [ lindex $argv 0 ] == "-run" } {
-	set wizard_state "choose_run_config"
-    } else {
-	puts "need to validate and run config '[ lindex $argv 0 ]'"
-	puts "without popping up a GUI window"
-	puts "but that isn't done yet, so we exit instead"
-	exit -1
     }
 }
 
