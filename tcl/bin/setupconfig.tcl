@@ -66,6 +66,39 @@ exec wish "$0" "$@"
 
 ################### PROCEDURE DEFINITIONS #####################
 
+# a kluge for older systems that don't have 'file normalize'
+# (which was introduced with tcl 8.4)
+# this version converts to an absolute path and eliminates 
+# any references to ./ and ../, but it doesn't do all the 
+# other things that normalize can do, such as resolve symlinks.
+# it seems good enough for what this program needs to do
+
+proc file_normalize { input } {
+    # make path absolute
+    if { [ file pathtype $input ] != "absolute" } {
+	set input [ file join [ pwd ] $input ]
+    }
+    # split into component parts
+    set path_list [ file split $input ]
+    # remove any instances of ./
+    set idx [ lsearch $path_list "." ]
+    while { $idx > 0 } {
+	set path_list [ lreplace $path_list $idx $idx ]
+	set idx [ lsearch $path_list "." ]
+    }
+    # remove any instances of ../ (and the preceding directory name)
+    set idx [ lsearch $path_list ".." ]
+    while { $idx > 0 } {
+	set path_list [ lreplace $path_list [ expr $idx -1 ] $idx ]
+	set idx [ lsearch $path_list ".." ]
+    }
+    set output ""
+    foreach name $path_list {
+	set output [ file join $output $name ]
+    }
+    return $output
+}
+
 # reads the directory, and fills in "config_list" and "details_list"
 
 proc get_config_list {} {
@@ -144,7 +177,6 @@ proc wizard_page { buttons } {
     pack $f2 -side bottom
     return $f1
 }
-
 
 # detail picker - lets you select from a list, displays details
 # of the selected item
@@ -246,10 +278,27 @@ proc detail_picker_refresh {} {
     $d_p_detail_widget configure -state disabled
 }
 
+# proc to select an item (used to set initial selection)
+proc detail_picker_select { item } {
+    # need globals to talk to the list and widget
+    global d_p_item_list d_p_item_widget 
+
+    set pick [ lsearch $d_p_item_list $item ]
+    # if 'item' isn't in the list, do nothing
+    if { $pick != -1 } {
+	# clear any existing selection
+	$d_p_item_widget selection clear 0 end
+	# mark the new selected item
+	$d_p_item_widget selection set $pick $pick
+	# invoke the callback to refresh
+	detail_picker_refresh
+    }
+}
+
 ################### MENU PROCEDURE DEFINITIONS #####################
 
 proc main_page {} {
-    # need globals to comminicate with wizard page buttons
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state
 
     set t10 "Welcome to EMC2!\n"
@@ -285,8 +334,8 @@ proc main_page {} {
     }
 }    
 
-proc choose_run_config {} {
-    # need globals to comminicate with wizard page buttons,
+proc check_run_config {} {
+    # need globals to communicate with wizard page buttons,
     # and for the configuration lists
     global choice top wizard_state
     global config_list details_list detail_picker_selection
@@ -294,13 +343,25 @@ proc choose_run_config {} {
     global new_config_name new_config_template new_config_readme
     global run_config_name run_ini_name
 
-puts "run config name is $run_config_name"
     # if a config directory is already known, skip this stage
     if { $run_config_name != "" } {
-	set wizard_state "choose_run_ini"
+	set wizard_state "check_run_ini"
 	return
     }
+    # otherwise, need to pick a config
+    set wizard_state "choose_run_config"
+    return
+}
  
+proc choose_run_config {} {
+    # need globals to communicate with wizard page buttons,
+    # and for the configuration lists
+    global choice top wizard_state
+    global config_list details_list detail_picker_selection
+    # more globals for new and run config info
+    global new_config_name new_config_template new_config_readme
+    global run_config_name run_ini_name
+
     # read the directory and set up list of configs
     get_config_list
 
@@ -314,6 +375,11 @@ puts "run config name is $run_config_name"
     detail_picker $f1 $t1 $config_list $t2 $details_list
     # done
     pack $f1
+
+    # pre-select the current run config, if any
+    if { $run_config_name != "" } {
+	detail_picker_select [ file tail $run_config_name ]
+    }
 
     # prep for the event loop
     set choice "none"
@@ -335,15 +401,15 @@ puts "run config name is $run_config_name"
 		popup "You must choose a config if you want to run EMC2!"
 		return
 	    }
-	    set run_config_name $value
-	    set wizard_state "choose_run_ini"
+	    set run_config_name [ file_normalize $value ]
+	    set wizard_state "check_run_ini"
 	    return
 	}
     }
 }
 
-proc choose_run_ini {} {
-    # need globals to comminicate with wizard page buttons
+proc check_run_ini {} {
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state
     global run_config_name
     
@@ -352,17 +418,100 @@ proc choose_run_ini {} {
 	set wizard_state "execute_run"
 	return
     }
-    # not done yet
-    popup "The next step is to see if there is more than one .ini fil in\n'$run_config_name'\nand if so, to pick one.\n\nBut thats not coded yet, so just click OK to continue"
-    set run_config_name $run_config_name/foobar.ini
-    set wizard_state "execute_run"
+    # get the names of all ini files in the selected directory
+    set temp [ glob -directory $run_config_name *.ini ]
+    set inis [ list ]
+    foreach ini $temp {
+	lappend inis [ file tail $ini ]
+    }
+    if { [ llength $inis ] == 0 } {
+	popup "ERROR: no ini file(s) found in config directory\n\n'$run_config_name'\n\nClick OK to continue."
+	set wizard_state "main_page"
+	return
+    }
+    if { [ llength $inis ] == 1 } {
+	# only one ini file, use it
+	set run_config_name [ file join $run_config_name [ lindex $inis 0 ] ]
+	set wizard_state "execute_run"
+	return
+    }
+    # more than one, must choose
+    set wizard_state "choose_run_ini"
     return
 }
 
-proc execute_run {} {
-    # need globals to comminicate with wizard page buttons
+proc choose_run_ini {} {
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state
     global run_config_name
+    
+    # get the names of all ini files in the selected directory
+    set temp [ glob -directory $run_config_name *.ini ]
+    set inis [ list ]
+    foreach ini $temp {
+	lappend inis [ file tail $ini ]
+    }
+    # set up a list box so the user can pick one
+    set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
+    set l1 [ label $f1.l1 -text "The config contains multiple ini files.\nPick one from the list below and click NEXT." ]
+    pack $l1 -padx 10 -pady 10
+    # listbox for the ini files
+    set lb [ listbox $f1.lb ]
+    # pack the listbox into the wizard page
+    pack $lb
+    # load the list with names
+    foreach ini $inis {
+        $lb insert end [ file rootname $ini ]
+    }
+    # set the size of the list box
+    $lb configure -height 8
+    # pack the page
+    pack $f1
+
+    # prep for the event loop
+    set choice "none"
+    # enter event loop
+    vwait choice
+    # a button was pushed, save selection
+
+    set pick [ $lb curselection ]
+    # clear the window
+    pack forget $f1
+    destroy $f1
+
+    switch $choice {
+	"CANCEL" {
+	    set wizard_state "main_page"
+	    return
+	}
+	"<--BACK" {
+	    set wizard_state "choose_run_config"
+	    return
+	}
+	"NEXT-->" {
+	    if { $pick == "" } {
+		popup "You must select one ini file!"
+		return
+	    }
+	    # add name of selected ini file to directory name
+	    set run_config_name [ file join $run_config_name [ lindex $inis $pick ] ]
+	    # done
+	    set wizard_state "execute_run"
+	    return
+	}
+    }
+}
+
+proc execute_run {} {
+    # need globals to communicate with wizard page buttons
+    global choice top wizard_state
+    global run_config_name run_mode
+
+    if { $run_mode == "print" } {
+	# all we need to do is print the desired config name and exit
+	puts $run_config_name
+	exit 0
+    }
     
     # not done yet
     popup "The next step is to invoke the run script to run\n'$run_config_name'\n\nBut thats not coded yet, so just click OK to quit."
@@ -371,7 +520,7 @@ proc execute_run {} {
 }
 
 proc config_manager {} {
-    # need globals to comminicate with wizard page buttons
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state
     global config_list details_list detail_picker_selection
     # more globals for new and run config info
@@ -452,7 +601,7 @@ proc config_manager {} {
 }    
 
 proc not_implemented {} {
-    # need globals to comminicate with wizard page buttons
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state
     
     # not done yet
@@ -462,7 +611,7 @@ proc not_implemented {} {
 }
 
 proc new_intro {} {
-    # need globals to comminicate with wizard page buttons
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state
     global new_config_name new_config_template new_config_readme
 
@@ -498,7 +647,7 @@ proc new_intro {} {
 }    
 
 proc new_get_name {} {
-    # need globals to comminicate with wizard page buttons
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state new_config_name
 
     set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
@@ -547,7 +696,7 @@ proc new_get_name {} {
 }    
     
 proc new_get_template {} {
-    # need globals to comminicate with wizard page buttons,
+    # need globals to communicate with wizard page buttons,
     # and for the configuration lists
     global choice top wizard_state
     global config_list details_list detail_picker_selection
@@ -617,7 +766,7 @@ proc new_get_template {} {
 }
 
 proc new_get_description {} {
-    # need globals to comminicate with wizard page buttons
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state 
     global new_config_name new_config_template new_config_readme
 
@@ -678,7 +827,7 @@ proc new_get_description {} {
 }    
 
 proc new_verify {} {
-    # need globals to comminicate with wizard page buttons
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state 
     global new_config_name new_config_template new_config_readme
 
@@ -955,17 +1104,19 @@ proc new_do_copying {} {
 }
 
 proc new_config_done {} {
-    # need globals to comminicate with wizard page buttons
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state
-    global new_config_name
+    global new_config_name run_config_name
     
     popup "Your new configuration '$new_config_name' has been created.\nClick OK to return to the main menu."
+    # set default run config to the newly created one
+    set run_config_name $new_config_name
     set wizard_state "config_manager"
     return
 }
 
 proc new_config_error {} {
-    # need globals to comminicate with wizard page buttons
+    # need globals to communicate with wizard page buttons
     global choice top wizard_state
     
     # not done yet
@@ -997,7 +1148,7 @@ proc resolve_config { input } {
 	return ""
     }
     # make into an absolute path
-    set abs_input [ file normalize $input ]
+    set abs_input [ file_normalize $input ]
     # is it a directory? 
     if { [ file isdirectory $abs_input ] == 1 } {
 	# it is a path to a directory, any .ini files inside?
@@ -1083,7 +1234,7 @@ if { $configs_index >= 0 } {
 	exit -1
     }
     # make into absolute path to directory
-    set configs_dir [ file normalize $configs_dir ]
+    set configs_dir [ file_normalize $configs_dir ]
     # remove option and its argument from argv
     set argv [ lreplace $argv $configs_index [expr $configs_index + 1]]
 } else {
@@ -1094,10 +1245,10 @@ if { $configs_index >= 0 } {
 # we'll try them until one succeeds (or all fail and we give up)
 if { $configs_dir == "" } {
     # try env variable
-    if { [ info exists env(EMC2_ORIG_CONFIG_DIR) ] } {
-	set configs_dir [ file normalize $env(EMC2_ORIG_CONFIG_DIR) ]
+    if { [ info exists env(EMC2_CONFIG_DIR) ] } {
+	set configs_dir [ file_normalize $env(EMC2_CONFIG_DIR) ]
 	if { [ file isdirectory $configs_dir ] != 1 } {
-	    popup "ERROR: environment variable EMC2_ORIG_CONFIG_DIR is\n\n'$env(EMC2_ORIG_CONFIG_DIR)'\n\nwhich is not a directory.\n\nClick OK to exit."
+	    popup "ERROR: environment variable EMC2_CONFIG_DIR is\n\n'$env(EMC2_CONFIG_DIR)'\n\nwhich is not a directory.\n\nClick OK to exit."
 	    exit -1
 	}
     }
@@ -1105,19 +1256,19 @@ if { $configs_dir == "" } {
 if {$configs_dir == ""} {
     # maybe we're running in the top level EMC2 dir
     if { [ file isdirectory "configs" ] } {
-	set configs_dir [ file normalize "configs" ]
+	set configs_dir [ file_normalize "configs" ]
     }
 }
 if {$configs_dir == ""} {
     # maybe we're running in the configs dir or another at that level
     if { [ file isdirectory "../configs" ] } {
-	set configs_dir [ file normalize "../configs" ]
+	set configs_dir [ file_normalize "../configs" ]
     }
 }
 if {$configs_dir == ""} {
     # maybe we're running in an inidividual config dir
     if { [ file isdirectory "../../configs" ] } {
-	set configs_dir [ file normalize "../../configs" ]
+	set configs_dir [ file_normalize "../../configs" ]
     }
 }
 # if we still don't know where the configs are, we're screwed....
@@ -1154,8 +1305,8 @@ switch -- $option_name {
 	# validate filename
 	set run_config_name [ resolve_config $run_config_name ]
 	# set mode and initial state
-	set wizard_state "choose_run_config"
 	set run_mode "run"
+	set wizard_state "check_run_config"
     }
     "--get-config" {
 	# get arg that follows '--get-config' (if any)
@@ -1165,16 +1316,21 @@ switch -- $option_name {
 	# validate filename
 	set run_config_name [ resolve_config $run_config_name ]
 	# set mode and initial state
-	set wizard_state "choose_run_config"
 	set run_mode "print"
+	set wizard_state "check_run_config"
     }
     "--new" {
 	# delete option from argv
 	set argv [ lreplace $argv $option_index $option_index ]
-	# set initial state
+	# set mode and initial state
+	set run_config_name ""
+	set run_mode "run"
 	set wizard_state "new_intro"
     }
     "" {
+	# set mode and initial state
+	set run_config_name ""
+	set run_mode "run"
 	set wizard_state "main_page"
     }
 }
@@ -1190,17 +1346,15 @@ set old_dir [ pwd ]
 cd $configs_dir
 
 proc state_machine {} {
-    global choice wizard_state
+    global choice wizard_state run_config_name
 
     while { $wizard_state != "quit" } {
-	puts "state is $wizard_state"
 	# execute the code associated with the current state
 	$wizard_state
     }
 }
 
 state_machine
-puts Quitting!
 
 cd $old_dir
 

@@ -6,14 +6,8 @@
 #     -v = verbose - prints info as it works
 #     -d = echos script commands to screen for debugging
 #
-# A. if <ini-file> not specified, uses $EMC2_CONFIG_DIR/emc.ini
-#
-# B. if <ini-file> is specified a few cases get considered:
-#
-# 1. if /path/to/foo.ini is specified it looks only there
-# 2. if foo.ini is specified, it looks in $EMC2_CONFIG_DIR/foo.ini
-# 3. if only foo is specified, it looks in  $EMC2_CONFIG_DIR/foo/foo.ini,
-# 3.1.           if that fails it then looks at $EMC2_CONFIG_DIR/foo.ini
+# this version calls emc2/tcl/bin/setupconfig.tcl to validate <ini-file> if
+# present, and to prompt the user for a configuration and ini file if not.
 #
 ################################################################################
 # Author:
@@ -133,11 +127,9 @@ fi
 # common from here..
 INIVAR=$EMC2_BIN_DIR/inivar
 HALCMD=$EMC2_BIN_DIR/halcmd
+SETUPCONFIG=$EMC2_TCL_DIR/bin/setupconfig.tcl
 EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
 EMC2_IOSH=$EMC2_BIN_DIR/iosh
-#EMC2_CONFIG_DIR may change if the user specifies an ini in a subdir 
-# e.g. configs/stepper, so keep the original value
-EMC2_ORIG_CONFIG_DIR=$EMC2_CONFIG_DIR
 
 # check for root privliges - hope to remove the need for this later
 #if [ `$WHOAMI` != root ] ; then
@@ -152,42 +144,35 @@ echo EMC2_TCL_DIR=$EMC2_TCL_DIR >>$PRINT_FILE
 echo EMC2_SCRIPT_DIR=$EMC2_SCRIPT_DIR >>$PRINT_FILE
 echo EMC2_RTLIB_DIR=$EMC2_RTLIB_DIR >>$PRINT_FILE
 echo EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR >>$PRINT_FILE
-echo EMC2_ORIG_CONFIG_DIR=$EMC2_ORIG_CONFIG_DIR >>$PRINT_FILE
 echo INIVAR=$INIVAR >>$PRINT_FILE
 echo HALCMD=$HALCMD >>$PRINT_FILE
+echo SETUPCONFIG=$SETUPCONFIG >>$PRINT_FILE
 echo EMC2_EMCSH=$EMC2_EMCSH >>$PRINT_FILE
 echo EMC2_IOSH=$EMC2_IOSH >>$PRINT_FILE
 
-# 1.3.4. look for ini file, check various places if no abs path specified
-INIFILE=
-if [ ! -n "$1" ] ; then                     # nothing specified, use default
-    EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR/sim
-    INIFILE=$EMC2_CONFIG_DIR/sim.ini
-elif echo $1 | $GREP / >>$DEBUG_FILE ; then # something specified, analyse
-    # path specified, use it, but convert it to abs path
-    INI_NAME=`echo $1 | sed s#\^.\*/##`
-    INIF_DIR=`echo $1 | sed s/$INI_NAME//`  # delete name to get path
-    INIF_DIR=$(cd $INIF_DIR ; pwd -P)
-    EMC2_CONFIG_DIR=$INIF_DIR               # remember the found ini dir
-    INIFILE=$INIF_DIR/$INI_NAME
-elif echo $1 | $GREP .ini >>$DEBUG_FILE ; then # filename but no path, check for '.ini'
-    if [ -f $EMC2_CONFIG_DIR/$1 ] ; then       # if it exists under configs,
-	INIFILE=$EMC2_CONFIG_DIR/$1         #  use it
-    fi
-else                                        # only name specified, no extension
-    if [ -f $EMC2_CONFIG_DIR/$1/$1.ini ] ; then # check for configs/foo/foo.ini
-	INIFILE=$EMC2_CONFIG_DIR/$1/$1.ini  #  use it
-	EMC2_CONFIG_DIR=$EMC2_CONFIG_DIR/$1
-    elif [ -f $EMC2_CONFIG_DIR/$1.ini ] ; then   # check for configs/foo.ini
-	INIFILE=$EMC2_CONFIG_DIR/$1.ini     #  use it
-    fi
+# ask tcl script to validate (or get from the user) the path to the ini file
+INIFILE=$($SETUPCONFIG --get-config $1)
+# it returns either a complete absolute path, or nothing at all
+if [ ! -n "$INIFILE" ] ; then
+    # nothing specified, exit
+    exit -1
 fi
+# delete directories from path, save name only
+INI_NAME=`echo $INIFILE | sed s#^.*/##`
+# delete name from path to get directory
+INI_DIR=`echo $INIFILE | sed s/$INI_NAME//`
+
+echo "Machine configuration directory is '$INI_DIR'"
+echo "Machine configuration file is '$INI_NAME'"
+
+# make sure ini file exists (the tcl script just did this, so we could 
+# eliminate this test, but it does no harm)
+
 if [ ! -f $INIFILE ] ; then
     echo "Could not find ini file '$INIFILE'"
     exit -1
 fi
 echo INIFILE=$INIFILE >>$PRINT_FILE
-
 
 ################################################################################
 # 2.  extract info from the ini file that we will need later
@@ -402,10 +387,10 @@ echo Starting emc...
 # trap ^C so that it's called if user interrupts script
 trap 'Cleanup ; exit 0' SIGINT SIGTERM
 
-# go to the dir where the config files are
-# either configs/ when run-in-place
-# or /usr/local/share/emc/configs (or wherever it was installed to)
-cd $EMC2_CONFIG_DIR
+# go to the dir where the ini file is
+# either configs/<specific-config> when run-in-place, or
+# /usr/local/share/emc/configs/<specific-config> (wherever it was installed)
+cd $INI_DIR
 
 # Create the lock file
 touch $LOCKFILE
@@ -489,12 +474,12 @@ $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 NUM=1
 CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
 while [ -n "$CFGFILE" ] ; do
-    if [ ! -f $EMC2_CONFIG_DIR/$CFGFILE ] ; then
-	echo "Can't find HAL config file: $EMC2_CONFIG_DIR/$CFGFILE"
+    if [ ! -f $INI_DIR/$CFGFILE ] ; then
+	echo "Can't find HAL config file: $INI_DIR/$CFGFILE"
 	Cleanup
 	exit -1
     else
-	CFGFILE=$EMC2_CONFIG_DIR/$CFGFILE
+	CFGFILE=$INI_DIR/$CFGFILE
     fi
     if $GREP -q loadrt $CFGFILE ; then 
 	SUDO=sudo
