@@ -323,6 +323,7 @@ static EMC_AXIS_ALTER *axis_alter_msg;
 
 static EMC_TRAJ_SET_SCALE *emcTrajSetScaleMsg;
 static EMC_TRAJ_SET_VELOCITY *emcTrajSetVelocityMsg;
+static EMC_TRAJ_SET_ACCELERATION *emcTrajSetAccelerationMsg;
 static EMC_TRAJ_LINEAR_MOVE *emcTrajLinearMoveMsg;
 static EMC_TRAJ_CIRCULAR_MOVE *emcTrajCircularMoveMsg;
 static EMC_TRAJ_DELAY *emcTrajDelayMsg;
@@ -534,6 +535,7 @@ static int emcTaskPlan(void)
 	    case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
 	    case EMC_TRAJ_SET_VELOCITY_TYPE:
+	    case EMC_TRAJ_SET_ACCELERATION_TYPE:
 	    case EMC_TASK_INIT_TYPE:
 	    case EMC_TASK_SET_MODE_TYPE:
 	    case EMC_TASK_SET_STATE_TYPE:
@@ -1275,6 +1277,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:
+    case EMC_TRAJ_SET_ACCELERATION_TYPE:
     case EMC_TRAJ_SET_TERM_COND_TYPE:
 	return EMC_TASK_EXEC_WAITING_FOR_IO;
 	break;
@@ -1565,6 +1568,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcTrajSetVelocityMsg = (EMC_TRAJ_SET_VELOCITY *) cmd;
 	retval = emcTrajSetVelocity(emcTrajSetVelocityMsg->velocity,
 			emcTrajSetVelocityMsg->ini_maxvel);
+	break;
+
+    case EMC_TRAJ_SET_ACCELERATION_TYPE:
+	emcTrajSetAccelerationMsg = (EMC_TRAJ_SET_ACCELERATION *) cmd;
+	retval = emcTrajSetAcceleration(emcTrajSetAccelerationMsg->acceleration);
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
@@ -2010,6 +2018,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
     case EMC_TRAJ_SET_VELOCITY_TYPE:
+    case EMC_TRAJ_SET_ACCELERATION_TYPE:
     case EMC_TRAJ_SET_TERM_COND_TYPE:
     case EMC_TRAJ_SET_OFFSET_TYPE:
     case EMC_TRAJ_SET_ORIGIN_TYPE:

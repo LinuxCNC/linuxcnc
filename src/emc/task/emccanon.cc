@@ -47,6 +47,18 @@
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
 #include "emcpos.h"
 
+#ifndef MIN
+#define MIN(a,b) ((a)<(b)?(a):(b))
+#endif
+
+#ifndef MIN3
+#define MIN3(a,b,c) (MIN(MIN((a),(b)),(c)))
+#endif
+
+#ifndef MAX
+#define MAX(a,b) ((a)>(b)?(a):(b))
+#endif
+
 static PM_QUATERNION quat(1, 0, 0, 0);
 
 /*
@@ -126,6 +138,7 @@ static double currentToolLengthOffset = 0.0;
 
 static double lastVelSet = -1;
 static double last_ini_maxvel = -1;
+static double lastAccSet = -1;
 
 /*
   Feed rate is saved here; values are in mm/sec or deg/sec.
@@ -157,7 +170,6 @@ static int sendVelMsg(double vel, double ini_maxvel)
 	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
     }
 
-
     if (velMsg.velocity != lastVelSet ||
             velMsg.ini_maxvel != last_ini_maxvel) {
 	lastVelSet = velMsg.velocity;
@@ -166,6 +178,26 @@ static int sendVelMsg(double vel, double ini_maxvel)
     }
     return 0;
 }
+
+static int sendAccMsg(double acc)
+{
+    EMC_TRAJ_SET_ACCELERATION accMsg;
+
+    if (linear_move && !angular_move) {
+	accMsg.acceleration = TO_EXT_LEN(acc);
+    } else if (!linear_move && angular_move) {
+	accMsg.acceleration = TO_EXT_ANG(acc);
+    } else if (linear_move && angular_move) {
+	accMsg.acceleration = TO_EXT_LEN(acc);
+    }
+
+    if (accMsg.acceleration != lastAccSet) {
+	lastAccSet = accMsg.acceleration;
+	interp_list.append(accMsg);
+    }
+    return 0;
+}
+
 
 /* Representation */
 void SET_ORIGIN_OFFSETS(double x, double y, double z,
@@ -227,6 +259,32 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
 {
     // nothing need be done here
 }
+
+double getStraightAcceleration(double x, double y, double z,
+			   double a, double b, double c)
+{
+    double dx, dy, dz, da, db, dc;
+    double acc=9e99;
+
+    dx = fabs(x - canonEndPoint.x);
+    dy = fabs(y - canonEndPoint.y);
+    dz = fabs(z - canonEndPoint.z);
+    da = fabs(a - canonEndPoint.a);
+    db = fabs(b - canonEndPoint.b);
+    dc = fabs(c - canonEndPoint.c);
+
+    if(dx) acc=MIN(acc, FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
+    if(dy) acc=MIN(acc, FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
+    if(dz) acc=MIN(acc, FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
+    if(da) acc=MIN(acc, FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3]));
+    if(db) acc=MIN(acc, FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4]));
+    if(dc) acc=MIN(acc, FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5]));
+
+    return (dx||dy||dz||da||db||dc)? acc: 0.0;
+}
+
+
+
 
 double getStraightVelocity(double x, double y, double z,
 			   double a, double b, double c)
@@ -323,7 +381,7 @@ double getStraightVelocity(double x, double y, double z,
 void STRAIGHT_TRAVERSE(double x, double y, double z,
 		       double a, double b, double c)
 {
-    double vel;
+    double vel, acc;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
     // convert to mm units
@@ -355,6 +413,10 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 
     vel = getStraightVelocity(x, y, z, a, b, c);
     sendVelMsg(vel, vel);
+
+    if((acc = getStraightAcceleration(x, y, z, a, b, c)))
+        sendAccMsg(acc);
+
     interp_list.append(linearMoveMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
@@ -362,7 +424,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 void STRAIGHT_FEED(double x, double y, double z, double a, double b,
 		   double c)
 {
-    double ini_maxvel, vel;
+    double ini_maxvel, vel, acc;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
     // convert to mm units
@@ -409,6 +471,10 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
     }
 
     sendVelMsg(vel, ini_maxvel);
+
+    if((acc = getStraightAcceleration(x, y, z, a, b, c)))
+        sendAccMsg(acc);
+
     interp_list.append(linearMoveMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
@@ -416,7 +482,7 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
 void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
 		    double c)
 {
-    double ini_maxvel, vel;
+    double ini_maxvel, vel, acc;
     EMC_TRAJ_PROBE probeMsg;
 
     // convert to mm units
@@ -462,6 +528,10 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
     }
 
     sendVelMsg(vel, ini_maxvel);
+
+    if((acc = getStraightAcceleration(x, y, z, a, b, c)))
+        sendAccMsg(acc);
+
     interp_list.append(probeMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
@@ -542,7 +612,7 @@ void ARC_FEED(double first_end, double second_end,
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     int full_circle_in_active_plane = 0;
-    double v1, v2, vel, ini_maxvel;
+    double v1, v2, a1, a2, vel, ini_maxvel, acc=0.0;
 
     /* In response to  Bugs item #1274108 - rotary axis moves when coordinate
        offsets used with A. Original code failed to include programOrigin on
@@ -591,13 +661,11 @@ void ARC_FEED(double first_end, double second_end,
 	vel = currentLinearFeedRate;
 	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
-	ini_maxvel = v1 < v2? v1: v2;
-	if (vel > v1) {
-	    vel = v1;
-	}
-	if (vel > v2) {
-	    vel = v2;
-	}
+	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
+	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
+        ini_maxvel = MIN(v1, v2);
+        vel = MIN3(vel, v1, v2);
+        acc = MIN(a1, a2);
 
 	break;
 
@@ -623,13 +691,11 @@ void ARC_FEED(double first_end, double second_end,
 	vel = currentLinearFeedRate;
 	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
-	ini_maxvel = v1 < v2? v1: v2;
-	if (vel > v1) {
-	    vel = v1;
-	}
-	if (vel > v2) {
-	    vel = v2;
-	}
+	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
+	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
+        ini_maxvel = MIN(v1, v2);
+        vel = MIN3(vel, v1, v2);
+        acc = MIN(a1, a2);
 
 	break;
 
@@ -655,13 +721,11 @@ void ARC_FEED(double first_end, double second_end,
 	vel = currentLinearFeedRate;
 	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
-	ini_maxvel = v1 < v2? v1: v2;
-	if (vel > v1) {
-	    vel = v1;
-	}
-	if (vel > v2) {
-	    vel = v2;
-	}
+	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
+	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
+	ini_maxvel = MIN(v1, v2);
+        vel = MIN3(vel, v1, v2);
+        acc = MIN(a1, a2);
 
 	break;
     default:
@@ -675,6 +739,7 @@ void ARC_FEED(double first_end, double second_end,
     
     // set proper velocity
     sendVelMsg(vel, ini_maxvel);
+    if(acc) sendAccMsg(acc);
 
     /* 
        mapping of rotation to turns:
