@@ -36,12 +36,6 @@
 // FIXME - debug only, remove later
 extern int print;
 
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-/* the byte of output that gets written, persisting across all TC_STRUCTs,
-  also referenced in tp.c for aborting */
- unsigned char tcDoutByte = 0;
-#endif
 
 #define TC_VEL_EPSILON 0.0001	/* number below which v is considered 0 */
 #define TC_SCALE_EPSILON 0.0001	/* number below which scale is considered 0 */
@@ -89,13 +83,6 @@ int tcInit(TC_STRUCT * tc)
 
     pmLineInit(&tc->line, zero, zero);
     pmLineInit(&tc->line_abc, zero, zero);
-    /* since type is TC_LINEAR, don't need to set circle params */
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-    tc->douts = 0;
-    tc->doutstarts = 0;
-    tc->doutends = 0;
-#endif
     return 0;
 }
 
@@ -141,26 +128,8 @@ int tcSetLine(TC_STRUCT * tc, PmLine line, PmLine line_abc)
 	tc->vMax = tc->abc_vMax;
 	tc->targetPos = abc_mag;
     } else {
-	if (0)
-/*! \todo don't know why this is #if 0'ed out */
-#if 0
-	    if (tc->abc_mag > 1e-6)
-#endif
-	    {
-		if (tc->abc_aMax * tmag / abc_mag < tc->taMax) {
-		    tc->aMax = tc->abc_aMax * tmag / abc_mag;
-		} else {
-		    tc->aMax = tc->taMax;
-		}
-		if (tc->abc_vMax * tmag / abc_mag < tc->tvMax) {
-		    tc->vMax = tc->abc_vMax * tmag / abc_mag;
-		} else {
-		    tc->vMax = tc->tvMax;
-		}
-	    } else {
-		tc->aMax = tc->taMax;
-		tc->vMax = tc->tvMax;
-	    }
+        tc->aMax = tc->taMax;
+        tc->vMax = tc->tvMax;
 	tc->targetPos = tmag;
     }
 
@@ -375,33 +344,11 @@ int tcRunCycle(TC_STRUCT * tc)
 	    0.25 * tc->cycleTime * tc->cycleTime - 2.0 / tc->aMax * discr;
 	newVel = -0.5 * tc->aMax * tc->cycleTime + tc->aMax * sqrt(discr);
     }
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-    if (tc->tcFlag == TC_IS_UNSET) {
-	/* it's the start of this segment, so set any start output bits */
-	if (tc->douts) {
-	    /* Fred's original code.. tcDoutByte |= (tc->douts &
-	         tc->doutstarts); tcDoutByte &= (~tc->douts | tc->doutstarts);
-	          extMotDout(tcDoutByte); */
-	    extDioWrite(tc->doutIndex, tc->doutstarts);
-	}
-    }
-#endif
     if (newVel <= 0.0) {
 	newVel = 0.0;
 	newAccel = 0;
 	newPos = tc->targetPos;
 	tc->tcFlag = TC_IS_DONE;
-	/* set any end output bits */
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-	if (tc->douts) {
-	    /* Fred's original code.. tcDoutByte |= (tc->douts &
-	          tc->doutends); tcDoutByte &= (~tc->douts | tc->doutends);
-	          extMotDout(tcDoutByte); */
-	    extDioWrite(tc->doutIndex, tc->doutends);
-	}
-#endif
     } else {
 	/* clamp velocity to scaled max, and note if it's scaled back. This
 	   will cause a deceleration which we will NOT flag as a TC_IS_DECEL
@@ -542,40 +489,6 @@ EmcPose tcGetPos(TC_STRUCT * tc)
     }
 
     return v;
-}
-
-EmcPose tcGetGoalPos(TC_STRUCT * tc)
-{
-    PmPose v;
-    EmcPose ev;
-
-    if (0 == tc) {
-	ev.tran.x = ev.tran.y = ev.tran.z = 0.0;
-	ev.a = ev.b = ev.c = 0.0;
-	return ev;
-    }
-
-    if (tc->type == TC_LINEAR) {
-	v = tc->line.end;
-    } else if (tc->type == TC_CIRCULAR) {
-	/* we don't save start or end vector in TC_STRUCT to save space. To
-	   get end, call pmCirclePoint with final angle. tcGetGoalPos() is
-	   called infrequently so this space-time tradeoff is done. If this
-	   function is called often, we should save end point in the
-	   PM_CIRCLE struct. This will increase all TC_STRUCTS but make
-	   tcGetGoalPos() run faster. */
-	pmCirclePoint(&tc->circle, tc->circle.angle, &v);
-    } else {
-	v.tran.x = v.tran.y = v.tran.z = 0.0;
-	v.rot.s = 1.0;
-	v.rot.x = v.rot.y = v.rot.z = 0.0;
-    }
-
-    ev.tran = v.tran;
-    ev.a = tc->line_abc.end.tran.x;
-    ev.b = tc->line_abc.end.tran.y;
-    ev.c = tc->line_abc.end.tran.z;
-    return ev;
 }
 
 double tcGetVel(TC_STRUCT * tc)
@@ -757,52 +670,6 @@ int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc)
     return 0;
 }
 
-/* get the first item from the beginning of the queue */
-TC_STRUCT tcqGet(TC_QUEUE_STRUCT * tcq, int *status)
-{
-    TC_STRUCT tc;
-
-    // FIXME - debug only, remove later
-    rtapi_print("tcqGet()\n" );
-    
-    if ((0 == tcq) || (0 == tcq->queue) ||	/* not initialized */
-	((tcq->start == tcq->end) && !tcq->allFull)) {	/* empty queue */
-	if (0 != status) {
-	    *status = -1;	/* set status flag, if passed */
-	}
-	tc.cycleTime = 0;
-	tc.targetPos = 0;	/* positive motion progession */
-	tc.vMax = 0;		/* max velocity */
-	tc.vScale = 0;		/* scale factor for vMax */
-	tc.aMax = 0;		/* max accel */
-	tc.preVMax = 0;		/* vel from previous blend */
-	tc.preAMax = 0;		/* decel (negative) from previous blend */
-	tc.vLimit = 0;		/* abs vel limit, including scale */
-	tc.toGo = 0;
-	tc.currentPos = 0;
-	tc.currentVel = 0;
-	tc.currentAccel = 0;
-	tc.tcFlag = 0;		/* TC_IS_DONE,ACCEL,CONST,DECEL */
-	tc.type = 0;		/* TC_LINEAR, TC_CIRCULAR */
-	tc.id = 0;		/* id for motion segment */
-	tc.termCond = 0;	/* TC_END_STOP,BLEND */
-	return tc;
-    }
-
-    /* get current int and set status for returning */
-    if (0 != status) {
-	*status = 0;
-    }
-    tc = tcq->queue[tcq->start];
-
-    /* update start ptr and reset allFull flag and len */
-    tcq->start = (tcq->start + 1) % tcq->size;
-    tcq->allFull = 0;
-    tcq->_len--;
-
-    return tc;
-}
-
 /* remove n items from the queue */
 int tcqRemove(TC_QUEUE_STRUCT * tcq, int n)
 {
@@ -852,16 +719,6 @@ TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n, int *status)
     return &(tcq->queue[(tcq->start + n) % tcq->size]);
 }
 
-/* look at the last item in the list, without removing */
-TC_STRUCT *tcqLast(TC_QUEUE_STRUCT * tcq, int *status)
-{
-    if (0 == tcq) {
-	return (TC_STRUCT *) 0;
-    }
-
-    return tcqItem(tcq, tcq->_len - 1, status);
-}
-
 /* get the full status of the queue */
 #define TC_QUEUE_MARGIN 10
 int tcqFull(TC_QUEUE_STRUCT * tcq)
@@ -888,93 +745,6 @@ int tcqFull(TC_QUEUE_STRUCT * tcq)
     return 0;
 }
 
-/*
-   tcRunPreCycle() makes a copy of the TC_STRUCT and calls tcRunCycle()
-   on it, returning the ratio of the resulting currentPos to the targetPos.
-   The TC_STRUCT passed is not affected, so you need to call tcRunCycle()
-   to actually do it.
-   This is used to synchronize to TC_STRUCTs so that one can be slaved
-   to another so they both arrive at the same time. To do this, run
-   tcRunPreCycle() on both, and take the smallest as the one to slave to.
-   Use its ratio as the arg to the tcForceCycle() of the other.
-*/
-double tcRunPreCycle(const TC_STRUCT * tc)
-{
-    TC_STRUCT preTc;
-    double ratio;		/* ratio of (new pos) / (target pos) */
-
-    if (0 == tc) {
-	return -1;
-    }
-
-    if (tc->targetPos <= 0.0) {
-	/* already there */
-	ratio = 1.0;
-    } else {
-	preTc = *tc;
-	tcRunCycle(&preTc);
-	ratio = preTc.currentPos / preTc.targetPos;
-    }
-
-    if (preTc.tcFlag == TC_IS_DONE) {
-	/* if it'll be done, may as well return 100% */
-	return 1.0;
-    }
-
-    return ratio;
-}
-
-/*
-   Using the ratio of how far along the line toward targetPos we want
-   to set the TC_STRUCT, sets these:
-
-   currentPos
-   toGo
-   currentVel
-   currentAccel
-   tcFlag
-
-   for the TC_STRUCT.
-*/
-int tcForceCycle(TC_STRUCT * tc, double ratio)
-{
-    double newPos;
-    double newToGo;
-    double newVel;
-    double newAccel;
-    int newTcFlag;
-
-    if (0 == tc) {
-	return -1;
-    }
-
-    newPos = ratio * tc->targetPos;
-    newToGo = newPos - tc->currentPos;
-
-    if (ratio >= 1.0) {
-	newVel = 0.0;
-	newAccel = 0.0;
-	newTcFlag = TC_IS_DONE;
-    } else {
-	newVel = (newPos - tc->currentPos) / tc->cycleTime;
-	newAccel = (newVel - tc->currentVel) / tc->cycleTime;
-	if (newAccel > 0.0) {
-	    newTcFlag = TC_IS_ACCEL;
-	} else if (newAccel < 0.0) {
-	    newTcFlag = TC_IS_DECEL;
-	} else {
-	    newTcFlag = TC_IS_CONST;
-	}
-    }
-
-    tc->currentPos = newPos;
-    tc->toGo = newToGo;
-    tc->currentVel = newVel;
-    tc->currentAccel = newAccel;
-    tc->tcFlag = newTcFlag;
-
-    return 0;
-}
 
 PmCartesian tcGetUnitCart(TC_STRUCT * tc)
 {
@@ -1006,19 +776,3 @@ PmCartesian tcGetUnitCart(TC_STRUCT * tc)
     return fake;
 }
 
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-
-int tcSetDout(TC_STRUCT * tc, int doutIndex, unsigned char starts,
-	      unsigned char ends)
-{
-    if (0 == tc) {
-	return -1;
-    }
-    tc->douts = 1;
-    tc->doutIndex = doutIndex;
-    tc->doutstarts = starts;
-    tc->doutends = ends;
-    return 0;
-}
-#endif

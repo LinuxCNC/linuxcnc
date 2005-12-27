@@ -41,10 +41,10 @@
 typedef struct {
     double cycleTime;
     double targetPos;		/* positive motion progession */
-    double vMax;		/* max velocity */
+    double vMax;		/* velocity requested by F word */
     double ini_maxvel;		/* max velocity allowed by machine constraints
                                    (ini file) */
-    double vScale;		/* scale factor for vMax */
+    double vScale;		/* scale factor for vMax (feed override) */
     double aMax;		/* max accel */
     double preVMax;		/* vel from previous blend */
     double preAMax;		/* decel (negative) from previous blend */
@@ -68,19 +68,7 @@ typedef struct {
     double abc_aMax;		/* maximum rotational accelleration */
     PmCartesian unitCart;
     int output_chan;		/* output channel used for HAL stuff */
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-    unsigned char douts;	/* mask for douts to set */
-    int doutIndex;		/* index for dout value */
-    unsigned char doutstarts;	/* mask for dout start vals */
-    unsigned char doutends;	/* mask for dout end vals */
-#endif
 } TC_STRUCT;
-
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-extern unsigned char tcDoutByte;
-#endif
 
 /* TC_STRUCT functions */
 
@@ -101,7 +89,6 @@ extern int tcSetTermCond(TC_STRUCT * tc, int cond);
 extern int tcGetTermCond(TC_STRUCT * tc);
 extern int tcRunCycle(TC_STRUCT * tc);
 extern EmcPose tcGetPos(TC_STRUCT * tc);
-extern EmcPose tcGetGoalPos(TC_STRUCT * tc);
 extern double tcGetVel(TC_STRUCT * tc);
 extern double tcGetAccel(TC_STRUCT * tc);
 extern PmCartesian tcGetUnitCart(TC_STRUCT * tc);
@@ -112,14 +99,7 @@ extern int tcIsConst(TC_STRUCT * tc);
 extern int tcIsDecel(TC_STRUCT * tc);
 extern int tcIsPaused(TC_STRUCT * tc);
 extern void tcPrint(TC_STRUCT * tc);
-extern double tcRunPreCycle(const TC_STRUCT * tc);
-extern int tcForceCycle(TC_STRUCT * tc, double ratio);
 
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-extern int tcSetDout(TC_STRUCT * tc, int index, unsigned char starts,
-		     unsigned char ends);
-#endif
 
 /* queue of TC_STRUCT elements*/
 
@@ -146,9 +126,6 @@ extern int tcqInit(TC_QUEUE_STRUCT * tcq);
 /* put tc on end */
 extern int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc);
 
-/* get tcq from front */
-extern TC_STRUCT tcqGet(TC_QUEUE_STRUCT * tcq, int *status);
-
 /* remove n tcs from front */
 extern int tcqRemove(TC_QUEUE_STRUCT * tcq, int n);
 
@@ -157,9 +134,6 @@ extern int tcqLen(TC_QUEUE_STRUCT * tcq);
 
 /* look at nth item, first is 0 */
 extern TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n, int *status);
-
-/* look at last item */
-extern TC_STRUCT *tcqLast(TC_QUEUE_STRUCT * tcq, int *status);
 
 /* get full status */
 extern int tcqFull(TC_QUEUE_STRUCT * tcq);

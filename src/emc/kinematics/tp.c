@@ -54,15 +54,6 @@ int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
     return tpInit(tp);
 }
 
-int tpDelete(TP_STRUCT * tp)
-{
-    if (0 == tp) {
-	return 0;
-    }
-
-    return tcqDelete(&tp->queue);
-}
-
 /*
   tpClear() is a "soft init" in the sense that the TP_STRUCT configuration
   parameters (cycleTime, vMax, and aMax) are left alone, but the queue is
@@ -140,17 +131,6 @@ int tpSetVmax(TP_STRUCT * tp, double vMax, double ini_maxvel)
     return 0;
 }
 
-int tpSetWmax(TP_STRUCT * tp, double wMax)
-{
-    if (0 == tp || wMax <= 0.0) {
-	return -1;
-    }
-
-    tp->wMax = wMax;
-
-    return 0;
-}
-
 int tpSetVlimit(TP_STRUCT * tp, double vLimit)
 {
     if (0 == tp || vLimit <= 0.0) {
@@ -211,17 +191,6 @@ int tpSetAmax(TP_STRUCT * tp, double aMax)
     return 0;
 }
 
-int tpSetWDotmax(TP_STRUCT * tp, double wdotmax)
-{
-    if (0 == tp || wdotmax <= 0.0) {
-	return -1;
-    }
-
-    tp->wDotMax = wdotmax;
-
-    return 0;
-}
-
 /*
   tpSetId() sets the id that will be used for the next appended motions.
   nextId is incremented so that the next time a motion is appended its id
@@ -238,18 +207,6 @@ int tpSetId(TP_STRUCT * tp, int id)
     tp->nextId = id;
 
     return 0;
-}
-
-/*
-  tpGetNextId() returns the id that will be used for the next appended motion.
-  */
-int tpGetNextId(TP_STRUCT * tp)
-{
-    if (0 == tp) {
-	return -1;
-    }
-
-    return tp->nextId;
 }
 
 /*
@@ -367,15 +324,6 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tc.output_chan = output_chan;
     if ( ++output_chan >= 4 ) { output_chan = 0; }
     
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-    if (tp->douts) {
-	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
-	tp->douts = 0;
-	tp->doutstart = 0;
-	tp->doutend = 0;
-    }
-#endif
     if (-1 == tcqPut(&tp->queue, tc)) {
 	return -1;
     }
@@ -442,17 +390,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     // FIXME - debug only, remove later
     tc.output_chan = output_chan;
     if ( ++output_chan >= 4 ) { output_chan = 0; }
-    
    
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-    if (tp->douts) {
-	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
-	tp->douts = 0;
-	tp->doutstart = 0;
-	tp->doutend = 0;
-    }
-#endif
     if (-1 == tcqPut(&tp->queue, tc)) {
 	return -1;
     }
@@ -677,15 +615,6 @@ int tpRunCycle(TP_STRUCT * tp)
 	/* all paused and we're aborting-- clear out the TP queue */
 	/* first set the motion outputs to the end values for the current
 	   move */
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-	if (tp->douts && 0 != thisTc) {
-	    /* Fred's original code.. tcDoutByte |= (thisTc->douts &
-	          thisTc->doutends); tcDoutByte &= (~thisTc->douts |
-	          thisTc->doutends); extMotDout(tcDoutByte); */
-	    extDioWrite(thisTc->doutIndex, thisTc->doutends);
-	}
-#endif
 	tcqInit(&tp->queue);
 	tp->goalPos = tp->currentPos;
 	tp->done = 1;
@@ -858,46 +787,3 @@ void tpPrint(TP_STRUCT * tp)
 #endif				/* ULAPI */
 }
 
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-
-int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
-	      double end)
-{
-    /*! \todo FIXME-- unimplemented due to large size required for doubles */
-    return 0;
-}
-
-int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
-	      unsigned char end)
-{
-    if (0 == tp) {
-	return -1;
-    }
-
-    tp->doutIndex = index;
-    tp->doutstart = start;
-    tp->doutend = end;
-    tp->douts = 1;
-
-/* Fred's original code..
-    if (index > 7) {
-	return -1;
-    }
-
-    tp->douts |= (1 << index);
-    if (start == 0) {
-	tp->doutstart &= (0xFF ^ (1 << index));
-    } else {
-	tp->doutstart |= (1 << index);
-    }
-    if (end == 0) {
-	tp->doutend &= (0xFF ^ (1 << index));
-    } else {
-	tp->doutend |= (1 << index);
-    } */
-
-    return 0;
-}
-
-#endif

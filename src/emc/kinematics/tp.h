@@ -52,33 +52,17 @@ typedef struct {
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - needed for synchronous I/O */
-      unsigned char douts;
-        			/* mask for douts to set */
-      int doutIndex;
-           			/* index for dout values */
-      unsigned char doutstart;
-      				/* mask for dout start vals */
-      unsigned char doutend;
-       				/* mask for dout end vals */
-#endif
 } TP_STRUCT;
 
 extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
-extern int tpDelete(TP_STRUCT * tp);
 extern int tpClear(TP_STRUCT * tp);
 extern int tpInit(TP_STRUCT * tp);
 extern int tpSetCycleTime(TP_STRUCT * tp, double secs);
 extern int tpSetVmax(TP_STRUCT * tp, double vmax, double ini_maxvel);
-extern int tpSetWmax(TP_STRUCT * tp, double vmax);
 extern int tpSetVlimit(TP_STRUCT * tp, double limit);
 extern int tpSetVscale(TP_STRUCT * tp, double scale);	/* 0.0 .. large */
 extern int tpSetAmax(TP_STRUCT * tp, double amax);
-extern int tpSetWDotmax(TP_STRUCT * tp, double amax);
 extern int tpSetId(TP_STRUCT * tp, int id);
-extern int tpGetNextId(TP_STRUCT * tp);
 extern int tpGetExecId(TP_STRUCT * tp);
 extern int tpSetTermCond(TP_STRUCT * tp, int cond);
 extern int tpGetTermCond(TP_STRUCT * tp);
@@ -96,13 +80,5 @@ extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
 extern void tpPrint(TP_STRUCT * tp);
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - needed for synchronous I/O */
-extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
-		      double end);
-extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
-		      unsigned char end);
-#endif
 
 #endif				/* TP_H */
