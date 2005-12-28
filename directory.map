@@ -23,15 +23,25 @@ Overview of the emc2 directory:
     |
     |--- bin/ (user mode binaries)
     |
-    |--- configs/ (emc.ini, CL configs, etc)
-    |
+    |--- configs/ 
+    |     |
+    |     |--- demo_mazak/    (sample mazak config files)
+    |     |--- demo_step_cl/  (sample stepper with ladder IO)
+    |     |--- demo_m5i20/    (sample servo using Mesa PCI)
+    |     |--- demo_motenc/   (sample servo using Vital PCI)
+    |     |--- demo_sim/      (simulated motion and IO)
+    |     |--- demo_stepper   (parport stepper driver) 
+    |     |--- demo_stg       (smaple servo using STG ISA)
+    |     |--- demo_univpwm   (smaple PICO servo generator)
+    |     |--- demo_univstep  (smaple PICO stepper generator)
+    |     |
     |--- docs/ (All the important and relevant Docs.)
     |     |    (API and source notes should be in each src dir.)
     |     |
     |     |--- handbooks/  (PDF versions of handbooks)
     |     |                (LyX source is in the documents tree)
     |     |
-    |     |--- man/  (man pages)
+    |     |--- man/ (man pages)
     |            |
     |            |--- man1/  (user man pages)
     |            |--- man3/  (API man pages)
