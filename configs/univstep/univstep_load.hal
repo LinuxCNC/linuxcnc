@@ -1,0 +1,23 @@
+# sample file pulls all load commands into a single file
+# when emc2 starts it loads motmod and iocontrol
+# next load the PID module, for four PID loops
+loadrt pid num_chan=4
+addf pid.0.do-pid-calcs servo-thread 1
+addf pid.1.do-pid-calcs servo-thread 1
+addf pid.2.do-pid-calcs servo-thread 1
+addf pid.3.do-pid-calcs servo-thread 1
+
+# install driver
+loadrt hal_ppmc
+addf ppmc.0.read servo-thread 1
+addf ppmc.0.write servo-thread -1
+
+# load realtime portion of scope, just to have it handy
+loadrt scope_rt
+
+# make some signals for the scope for tuning.
+loadrt blocks ddt=4
+
+
+
+
