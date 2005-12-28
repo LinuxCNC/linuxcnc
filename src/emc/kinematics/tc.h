@@ -79,7 +79,6 @@ extern int tcRunCycle(TC_STRUCT * tc);
 extern EmcPose tcGetPos(TC_STRUCT * tc);
 extern PmCartesian tcGetUnitCart(TC_STRUCT * tc);
 extern int tcIsPaused(TC_STRUCT * tc);
-extern void tcPrint(TC_STRUCT * tc);
 
 
 /* queue of TC_STRUCT elements*/

@@ -87,7 +87,7 @@ int tpClear(TP_STRUCT * tp)
     return 0;
 }
 
-static int tpInit(TP_STRUCT * tp)
+int tpInit(TP_STRUCT * tp)
 {
     tp->cycleTime = 0.0;
     tp->vLimit = 0.0;
@@ -775,39 +775,5 @@ int tpActiveDepth(TP_STRUCT * tp)
     }
 
     return tp->activeDepth;
-}
-
-void tpPrint(TP_STRUCT * tp)
-{
-#ifdef ULAPI
-    /* We don't really want to print this lot out from within a realtime
-       module as it will send kernel logging daemon nuts */
-
-    int t;
-
-    if (0 == tp) {
-	rtapi_print_msg(1, "\n");
-	return;
-    }
-
-    rtapi_print_msg(1, "queueSize:\t%d\n", tp->queueSize);
-    rtapi_print_msg(1, "cycleTime:\t%f\n", tp->cycleTime);
-    rtapi_print_msg(1, "vMax:\t\t%f\n", tp->vMax);
-    rtapi_print_msg(1, "aMax:\t\t%f\n", tp->aMax);
-    rtapi_print_msg(1, "currentPos:\t%f\t%f\t%f\n",
-		    tp->currentPos.tran.x, tp->currentPos.tran.y,
-		    tp->currentPos.tran.z);
-    rtapi_print_msg(1, "goalPos:\t%f\t%f\t%f\n", tp->goalPos.tran.x,
-		    tp->goalPos.tran.y, tp->goalPos.tran.z);
-    rtapi_print_msg(1, "done:      \t%d\n", tpIsDone(tp));
-    rtapi_print_msg(1, "paused:    \t%d\n", tpIsPaused(tp));
-    rtapi_print_msg(1, "queueDepth:\t%d\n", tpQueueDepth(tp));
-    rtapi_print_msg(1, "activeDepth:\t%d\n", tpActiveDepth(tp));
-
-    for (t = 0; t < tp->depth; t++) {
-	rtapi_print_msg(1, "\t---\tTC %d\t---\n", t + 1);
-	tcPrint(tcqItem(&tp->queue, t, 0));
-    }
-#endif				/* ULAPI */
 }
 

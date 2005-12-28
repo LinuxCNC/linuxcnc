@@ -81,6 +81,5 @@ extern int tpIsDone(TP_STRUCT * tp);
 extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
-extern void tpPrint(TP_STRUCT * tp);
 
 #endif				/* TP_H */

@@ -266,17 +266,6 @@ int tcRunCycle(TC_STRUCT * tc)
 	    }
 	}
 
-#ifdef A_CHANGE_MAX
-	if (newAccel > A_CHANGE_MAX * tc->cycleTime + tc->currentAccel) {
-	    newAccel = A_CHANGE_MAX * tc->cycleTime + tc->currentAccel;
-	    newVel = tc->currentVel + newAccel * tc->cycleTime;
-	} else if (newAccel <
-		   -A_CHANGE_MAX * tc->cycleTime + tc->currentAccel) {
-	    newAccel = -A_CHANGE_MAX * tc->cycleTime + tc->currentAccel;
-	    newVel = tc->currentVel + newAccel * tc->cycleTime;
-	}
-#endif
-
 	tc->toGo = (newVel + tc->currentVel) * 0.5 * tc->cycleTime;
 	newPos = tc->currentPos + tc->toGo;
 
@@ -364,41 +353,6 @@ int tcIsPaused(TC_STRUCT * tc)
     }
 
     return (tc->tcFlag == TC_IS_PAUSED);
-}
-
-void tcPrint(TC_STRUCT * tc)
-{
-#ifdef ULAPI
-    /* We don't really want to print this lot out from within a realtime
-       module as it will send kernel logging daemon nuts */
-
-    if (0 == tc) {
-	rtapi_print_msg(1, "\n");
-	return;
-    }
-
-    rtapi_print_msg(1, "cycleTime:    %f\n", tc->cycleTime);
-    rtapi_print_msg(1, "targetPos:    %f\n", tc->targetPos);
-    rtapi_print_msg(1, "vMax:         %f\n", tc->vMax);
-    rtapi_print_msg(1, "vLimit:       %f\n", tc->vLimit);
-    rtapi_print_msg(1, "vScale        %f\n", tc->vScale);
-    rtapi_print_msg(1, "aMax:         %f\n", tc->aMax);
-    rtapi_print_msg(1, "toGo:         %f\n", tc->toGo);
-    rtapi_print_msg(1, "currentPos:   %f\n", tc->currentPos);
-    rtapi_print_msg(1, "currentVel:   %f\n", tc->currentVel);
-    rtapi_print_msg(1, "currentAccel: %f\n", tc->currentAccel);
-    rtapi_print_msg(1, "tcFlag:       %s\n",
-		    tc->tcFlag == TC_IS_UNSET ? "UNSET" : tc->tcFlag ==
-		    TC_IS_DONE ? "DONE" : tc->tcFlag ==
-		    TC_IS_ACCEL ? "ACCEL" : tc->tcFlag ==
-		    TC_IS_CONST ? "CONST" : tc->tcFlag ==
-		    TC_IS_DECEL ? "DECEL" : tc->tcFlag ==
-		    TC_IS_PAUSED ? "PAUSED" : "?");
-    rtapi_print_msg(1, "type:         %s\n",
-		    tc->type == TC_LINEAR ? "LINEAR" : tc->type ==
-		    TC_CIRCULAR ? "CIRCULAR" : "?");
-    rtapi_print_msg(1, "id:           %d\n", tc->id);
-#endif				/* ULAPI */
 }
 
 /* TC_QUEUE_STRUCT definitions */
