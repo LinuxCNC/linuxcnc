@@ -73,30 +73,11 @@ typedef struct {
 /* TC_STRUCT functions */
 
 extern int tcInit(TC_STRUCT * tc);
-extern int tcSetCycleTime(TC_STRUCT * tc, double secs);
 extern int tcSetLine(TC_STRUCT * tc, PmLine line, PmLine line_abc);
 extern int tcSetCircle(TC_STRUCT * tc, PmCircle circle, PmLine line_abc);
-extern int tcSetTVmax(TC_STRUCT * tc, double vmax, double ini_maxvel);
-extern int tcSetRVmax(TC_STRUCT * tc, double vmax);
-extern int tcSetVscale(TC_STRUCT * tc, double vscale);
-extern int tcSetTAmax(TC_STRUCT * tc, double amax);
-extern int tcSetRAmax(TC_STRUCT * tc, double wmax);
-extern int tcSetPremax(TC_STRUCT * tc, double vmax, double amax);
-extern int tcSetVlimit(TC_STRUCT * tc, double vlimit);
-extern int tcSetId(TC_STRUCT * tc, int id);
-extern int tcGetId(TC_STRUCT * tc);
-extern int tcSetTermCond(TC_STRUCT * tc, int cond);
-extern int tcGetTermCond(TC_STRUCT * tc);
 extern int tcRunCycle(TC_STRUCT * tc);
 extern EmcPose tcGetPos(TC_STRUCT * tc);
-extern double tcGetVel(TC_STRUCT * tc);
-extern double tcGetAccel(TC_STRUCT * tc);
 extern PmCartesian tcGetUnitCart(TC_STRUCT * tc);
-extern int tcGetTcFlag(TC_STRUCT * tc);
-extern int tcIsDone(TC_STRUCT * tc);
-extern int tcIsAccel(TC_STRUCT * tc);
-extern int tcIsConst(TC_STRUCT * tc);
-extern int tcIsDecel(TC_STRUCT * tc);
 extern int tcIsPaused(TC_STRUCT * tc);
 extern void tcPrint(TC_STRUCT * tc);
 

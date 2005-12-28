@@ -36,8 +36,10 @@ typedef struct {
     double cycleTime;
     double vMax;		/* vel for subsequent moves */
     double ini_maxvel;          /* max velocity allowed by machine 
-                                   constraints (ini file) */
-    double vScale, vRestore;
+                                   constraints (ini file) for
+                                   subsequent moves */
+    double vScale, vRestore;    /* feed override value and a place
+                                   to save it when pausing */
     double aMax;
     double vLimit;		/* absolute upper limit on all vels */
     double wMax;		/* rotational velocity max */

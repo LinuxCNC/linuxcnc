@@ -87,7 +87,7 @@ int tpClear(TP_STRUCT * tp)
     return 0;
 }
 
-int tpInit(TP_STRUCT * tp)
+static int tpInit(TP_STRUCT * tp)
 {
     tp->cycleTime = 0.0;
     tp->vLimit = 0.0;
@@ -119,6 +119,14 @@ int tpSetCycleTime(TP_STRUCT * tp, double secs)
     return 0;
 }
 
+// This is called before adding lines or circles, specifying
+// vMax (the velocity requested by the F word) and
+// ini_maxvel, the max velocity possible before meeting
+// a machine constraint caused by an AXIS's max velocity.
+// (the TP is allowed to go up to this high when feed 
+// override >100% is requested)  These settings apply to
+// subsequent moves until changed.
+
 int tpSetVmax(TP_STRUCT * tp, double vMax, double ini_maxvel)
 {
     if (0 == tp || vMax <= 0.0 || ini_maxvel <= 0.0) {
@@ -131,6 +139,11 @@ int tpSetVmax(TP_STRUCT * tp, double vMax, double ini_maxvel)
     return 0;
 }
 
+// I think this is the [TRAJ] max velocity.  This should
+// be the max velocity of the TOOL TIP, not necessarily
+// any particular axis.  This applies to subsequent moves
+// until changed.
+
 int tpSetVlimit(TP_STRUCT * tp, double vLimit)
 {
     if (0 == tp || vLimit <= 0.0) {
@@ -141,6 +154,8 @@ int tpSetVlimit(TP_STRUCT * tp, double vLimit)
 
     return 0;
 }
+
+// feed override, 1.0 = 100%
 
 int tpSetVscale(TP_STRUCT * tp, double scale)
 {
@@ -173,12 +188,14 @@ int tpSetVscale(TP_STRUCT * tp, double scale)
 	depth = tcqLen(&tp->queue);
 	for (t = 0; t < depth; t++) {
 	    thisTc = tcqItem(&tp->queue, t, 0);
-	    tcSetVscale(thisTc, scale);
+            thisTc->vScale = scale;
 	}
     }
 
     return 0;
 }
+
+// Set max accel
 
 int tpSetAmax(TP_STRUCT * tp, double aMax)
 {
@@ -309,16 +326,19 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
 
     pmLineInit(&line, goal_tran_pose, tran_pose);
     pmLineInit(&line_abc, goal_abc_pose, abc_pose);
-    tcSetCycleTime(&tc, tp->cycleTime);
-    tcSetTVmax(&tc, tp->vMax, tp->ini_maxvel);
-    tcSetTAmax(&tc, tp->aMax);
-    tcSetRVmax(&tc, tp->wMax);
-    tcSetRAmax(&tc, tp->wDotMax);
-    tcSetVscale(&tc, tp->vScale);
-    tcSetVlimit(&tc, tp->vLimit);
+
+    tc.cycleTime = tp->cycleTime;
+    tc.tvMax = tp->vMax;
+    tc.ini_maxvel = tp->ini_maxvel;
+    tc.taMax = tp->aMax;
+    tc.abc_vMax = tp->aMax;
+    tc.abc_aMax = tp->wDotMax;
+    tc.vScale = tp->vScale;
+    tc.vLimit = tp->vLimit;
+    tc.id = tp->nextId;
+    tc.termCond = tp->termCond;
+
     tcSetLine(&tc, line, line_abc);
-    tcSetId(&tc, tp->nextId);
-    tcSetTermCond(&tc, tp->termCond);
     
     // FIXME - debug only, remove later
     tc.output_chan = output_chan;
@@ -363,13 +383,15 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 
     tcInit(&tc);
     pmCircleInit(&circle, circleGoalPose, endPose, center, normal, turn);
-    tcSetCycleTime(&tc, tp->cycleTime);
-    tcSetTVmax(&tc, tp->vMax, tp->ini_maxvel);
-    tcSetTAmax(&tc, tp->aMax);
-    tcSetRVmax(&tc, tp->wMax);
-    tcSetRAmax(&tc, tp->wDotMax);
-    tcSetVscale(&tc, tp->vScale);
-    tcSetVlimit(&tc, tp->vLimit);
+
+    tc.cycleTime = tp->cycleTime;
+    tc.tvMax = tp->vMax;
+    tc.ini_maxvel = tp->ini_maxvel;
+    tc.taMax = tp->aMax;
+    tc.abc_vMax = tp->aMax;
+    tc.abc_aMax = tp->wDotMax;
+    tc.vScale = tp->vScale;
+    tc.vLimit = tp->vLimit;
 
     abc_pose.tran.x = end.a;
     abc_pose.tran.y = end.b;
@@ -384,8 +406,9 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     pmLineInit(&line_abc, goal_abc_pose, abc_pose);
 
     tcSetCircle(&tc, circle, line_abc);
-    tcSetId(&tc, tp->nextId);
-    tcSetTermCond(&tc, tp->termCond);
+
+    tc.id = tp->nextId;
+    tc.termCond = tp->termCond;
     
     // FIXME - debug only, remove later
     tc.output_chan = output_chan;
@@ -465,7 +488,7 @@ int tpRunCycle(TP_STRUCT * tp)
 	/* get a pointer to a TC_STRUCT in the queue */
 	thisTc = tcqItem(&tp->queue, t, 0);
 	/* if missing or finished, plan to remove it */
-	if (0 == thisTc || tcIsDone(thisTc)) {
+	if (0 == thisTc || thisTc->tcFlag == TC_IS_DONE) {
 	    if (t <= toRemove) {
 		toRemove++;
 	    }
@@ -533,12 +556,13 @@ int tpRunCycle(TP_STRUCT * tp)
 	/* here we calculate the contribution to motion of a single
 	   line or circle, which may later be blended with others */
 	before = tcGetPos(thisTc);
-	tcSetPremax(thisTc, preVMax, preAMax);
+        thisTc->preVMax = preVMax;
+        thisTc->preAMax = preAMax;
 	tcRunCycle(thisTc);
 	after = tcGetPos(thisTc);
 	
 	if (tp->activeDepth <= toRemove) {
-	    tp->execId = tcGetId(thisTc);
+	    tp->execId = thisTc->id;
 	}
 	/* calculate the move contributed by this TC */
 	pmCartCartSub(after.tran, before.tran, &after.tran);
@@ -548,7 +572,7 @@ int tpRunCycle(TP_STRUCT * tp)
 	sumPos.b += after.b - before.b;
 	sumPos.c += after.c - before.c;
 
-	if (tcIsDone(thisTc)) {
+	if (thisTc->tcFlag == TC_IS_DONE) {
 	    /* this one is done-- blend in the next one */
 	    if (t <= toRemove) {
 		toRemove++;
@@ -559,15 +583,15 @@ int tpRunCycle(TP_STRUCT * tp)
 	/* this one is still active-- increment active count */
 	tp->activeDepth++;
 
-	if (tcIsDecel(thisTc)
-	    && tcGetTermCond(thisTc) == TC_TERM_COND_BLEND) {
+	if (thisTc->tcFlag == TC_IS_DECEL
+	    && thisTc->termCond == TC_TERM_COND_BLEND) {
 
-            preAMax = thisTc->aMax + tcGetAccel(thisTc);
+            preAMax = thisTc->aMax + thisTc->currentAccel;
 
 	    /* this one is decelerating-- blend in the next one with credit
 	       for this decel */
-	    thisAccel = tcGetAccel(thisTc);
-	    thisVel = tcGetVel(thisTc);
+	    thisAccel = thisTc->currentAccel;
+	    thisVel = thisTc->currentVel;
 	    unitCart = tcGetUnitCart(thisTc);
 	    
 	    pmCartScalMult(unitCart, thisAccel, &thisAccelCart);
