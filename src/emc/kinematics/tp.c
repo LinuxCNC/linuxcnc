@@ -188,7 +188,7 @@ int tpSetVscale(TP_STRUCT * tp, double scale)
 	depth = tcqLen(&tp->queue);
 	for (t = 0; t < depth; t++) {
 	    thisTc = tcqItem(&tp->queue, t, 0);
-            thisTc->vScale = scale;
+            thisTc->feed_override = scale;
 	}
     }
 
@@ -269,6 +269,10 @@ int tpGetTermCond(TP_STRUCT * tp)
     return tp->termCond;
 }
 
+// Used to tell the tp the initial position.  It sets
+// the current position AND the goal position to be the same.  
+// Used only at TP initialization and when switching modes.
+
 int tpSetPos(TP_STRUCT * tp, EmcPose pos)
 {
     if (0 == tp) {
@@ -281,80 +285,68 @@ int tpSetPos(TP_STRUCT * tp, EmcPose pos)
     return 0;
 }
 
-/* 'tpAddLine()' adds a straight line move to the motion
-    queue (I think).  Based on how it is called, tp is
-    a pointer to the queue where it should be added, and
-    end is the endpoint (the start point is presumed to
-    be the current location.
-*/
+// Add a straight line to the tc queue.  This is a coordinated
+// move in any or all of the six axes.  it goes from the end
+// of the previous move to the new end specified here at the
+// currently-active accel and vel settings from the tp struct.
 
 int tpAddLine(TP_STRUCT * tp, EmcPose end)
 {
     TC_STRUCT tc;
-    PmLine line, line_abc;
-    PmPose tran_pose, goal_tran_pose;
-    PmPose abc_pose, goal_abc_pose;
+    PmLine line_xyz, line_abc;
+    PmPose start_xyz, end_xyz, start_abc, end_abc;
+    PmQuaternion identity_quat = { 1.0, 0.0, 0.0, 0.0 };
 
-    if (0 == tp) {
+    if (!tp || tp->aborting)
 	return -1;
-    }
 
-    if (tp->aborting) {
-	return -1;
-    }
+    start_xyz.tran = tp->goalPos.tran;
+    end_xyz.tran = end.tran;
 
-    tran_pose.tran = end.tran;
-    tran_pose.rot.s = 1.0;
-    tran_pose.rot.x = tran_pose.rot.y = tran_pose.rot.z = 0.0;
-    goal_tran_pose.tran = tp->goalPos.tran;
-    goal_tran_pose.rot.s = 1.0;
-    goal_tran_pose.rot.x = goal_tran_pose.rot.y = goal_tran_pose.rot.z =
-	0.0;
+    start_abc.tran.x = tp->goalPos.a;
+    start_abc.tran.y = tp->goalPos.b;
+    start_abc.tran.z = tp->goalPos.c;
+    end_abc.tran.x = end.a;
+    end_abc.tran.y = end.b;
+    end_abc.tran.z = end.c;
 
-    abc_pose.tran.x = end.a;
-    abc_pose.tran.y = end.b;
-    abc_pose.tran.z = end.c;
-    abc_pose.rot.s = 1.0;
-    abc_pose.rot.x = abc_pose.rot.y = abc_pose.rot.z = 0.0;
-    goal_abc_pose.tran.x = tp->goalPos.a;
-    goal_abc_pose.tran.y = tp->goalPos.b;
-    goal_abc_pose.tran.z = tp->goalPos.c;
-    goal_abc_pose.rot.s = 1.0;
-    goal_abc_pose.rot.x = goal_abc_pose.rot.y = goal_abc_pose.rot.z = 0.0;
+    start_xyz.rot = identity_quat;
+    end_xyz.rot = identity_quat;
+    start_abc.rot = identity_quat;
+    end_abc.rot = identity_quat;
 
-    tcInit(&tc);
+    pmLineInit(&line_xyz, start_xyz, end_xyz);
+    pmLineInit(&line_abc, start_abc, end_abc);
 
-    pmLineInit(&line, goal_tran_pose, tran_pose);
-    pmLineInit(&line_abc, goal_abc_pose, abc_pose);
-
-    tc.cycleTime = tp->cycleTime;
-    tc.tvMax = tp->vMax;
-    tc.ini_maxvel = tp->ini_maxvel;
-    tc.taMax = tp->aMax;
-    tc.abc_vMax = tp->aMax;
-    tc.abc_aMax = tp->wDotMax;
-    tc.vScale = tp->vScale;
-    tc.vLimit = tp->vLimit;
+    tc.cycle_time = tp->cycleTime;
+    tc.target = line_xyz.tmag < 1e-6? line_abc.tmag: line_xyz.tmag;
+    tc.progress = 0.0;
+    tc.vel = tp->vMax;
+    tc.accel = tp->aMax;
+    tc.feed_override = tp->vScale;
+    tc.maxvel = tp->ini_maxvel;
     tc.id = tp->nextId;
-    tc.termCond = tp->termCond;
 
-    tcSetLine(&tc, line, line_abc);
-    
-    // FIXME - debug only, remove later
-    tc.output_chan = output_chan;
-    if ( ++output_chan >= 4 ) { output_chan = 0; }
-    
-    if (-1 == tcqPut(&tp->queue, tc)) {
+    tc.coords.line.xyz = line_xyz;
+    tc.coords.line.abc = line_abc;
+    tc.motion_type = TC_LINEAR;
+
+    if (tcqPut(&tp->queue, tc) == -1) {
 	return -1;
     }
 
-    tp->goalPos = end;
+    tp->goalPos = end;      // remember the end of this move, as it's
+                            // the start of the next one.
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     tp->nextId++;
 
     return 0;
 }
+
+// likewise, this adds a circular (circle, arc, helix) move from
+// the end of the last move to this new position.  end is the
+// xyzabc of the destination, center/normal/turn specify the arc.
 
 int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 		PmCartesian center, PmCartesian normal, int turn)
@@ -362,59 +354,51 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     TC_STRUCT tc;
     PmCircle circle;
     PmLine line_abc;
-    PmPose endPose, circleGoalPose;
-    PmPose abc_pose, goal_abc_pose;
+    PmPose start_xyz, end_xyz, start_abc, end_abc;
+    double helix_z_component;   // z of the helix's cylindrical coord system
+    double helix_length;
+    PmQuaternion identity_quat = { 1.0, 0.0, 0.0, 0.0 };
 
-    if (0 == tp) {
+    if (!tp || tp->aborting) 
 	return -1;
-    }
 
-    if (tp->aborting) {
-	return -1;
-    }
+    start_xyz.tran = tp->goalPos.tran;
+    end_xyz.tran = end.tran;
 
-    endPose.tran = end.tran;
-    endPose.rot.s = 1.0;
-    endPose.rot.x = endPose.rot.y = endPose.rot.z = 0.0;
-    circleGoalPose.tran = tp->goalPos.tran;
-    circleGoalPose.rot.s = 1.0;
-    circleGoalPose.rot.x = circleGoalPose.rot.y = circleGoalPose.rot.z =
-	0.0;
+    start_abc.tran.x = tp->goalPos.a;
+    start_abc.tran.y = tp->goalPos.b;
+    start_abc.tran.z = tp->goalPos.c;
+    end_abc.tran.x = end.a;
+    end_abc.tran.y = end.b;
+    end_abc.tran.z = end.c;
 
-    tcInit(&tc);
-    pmCircleInit(&circle, circleGoalPose, endPose, center, normal, turn);
+    start_xyz.rot = identity_quat;
+    end_xyz.rot = identity_quat;
+    start_abc.rot = identity_quat;
+    end_abc.rot = identity_quat;
 
-    tc.cycleTime = tp->cycleTime;
-    tc.tvMax = tp->vMax;
-    tc.ini_maxvel = tp->ini_maxvel;
-    tc.taMax = tp->aMax;
-    tc.abc_vMax = tp->aMax;
-    tc.abc_aMax = tp->wDotMax;
-    tc.vScale = tp->vScale;
-    tc.vLimit = tp->vLimit;
+    pmCircleInit(&circle, start_xyz, end_xyz, center, normal, turn);
+    pmLineInit(&line_abc, start_abc, end_abc);
 
-    abc_pose.tran.x = end.a;
-    abc_pose.tran.y = end.b;
-    abc_pose.tran.z = end.c;
-    abc_pose.rot.s = 1.0;
-    abc_pose.rot.x = abc_pose.rot.y = abc_pose.rot.z = 0.0;
-    goal_abc_pose.tran.x = tp->goalPos.a;
-    goal_abc_pose.tran.y = tp->goalPos.b;
-    goal_abc_pose.tran.z = tp->goalPos.c;
-    goal_abc_pose.rot.s = 1.0;
-    goal_abc_pose.rot.x = goal_abc_pose.rot.y = goal_abc_pose.rot.z = 0.0;
-    pmLineInit(&line_abc, goal_abc_pose, abc_pose);
+    // find helix length
+    pmCartMag(circle.rHelix, &helix_z_component);
+    helix_length = pmSqrt(pmSq(circle.angle * circle.radius) +
+                          pmSq(helix_z_component));
 
-    tcSetCircle(&tc, circle, line_abc);
-
+    tc.cycle_time = tp->cycleTime;
+    tc.target = helix_length;
+    tc.progress = 0.0;
+    tc.vel = tp->vMax;
+    tc.accel = tp->aMax;
+    tc.feed_override = tp->vScale;
+    tc.maxvel = tp->ini_maxvel;
     tc.id = tp->nextId;
-    tc.termCond = tp->termCond;
-    
-    // FIXME - debug only, remove later
-    tc.output_chan = output_chan;
-    if ( ++output_chan >= 4 ) { output_chan = 0; }
-   
-    if (-1 == tcqPut(&tp->queue, tc)) {
+
+    tc.coords.circle.xyz = circle;
+    tc.coords.circle.abc = line_abc;
+    tc.motion_type = TC_CIRCULAR;
+
+    if (tcqPut(&tp->queue, tc) == -1) {
 	return -1;
     }
 
@@ -426,229 +410,8 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     return 0;
 }
 
-/* what the hell does this do?  It is one of the key functions in
-   the whole planner, and it doesn't have any overall comments :-(
-*/
-
 int tpRunCycle(TP_STRUCT * tp)
 {
-    EmcPose sumPos;
-    PmCartesian unitCart;
-    double thisAccel = 0.0, thisVel = 0.0;
-    PmCartesian thisAccelCart, thisVelCart;
-    PmCartesian accelCart, velCart;
-    double currentAccelMag = 0.0, currentVelMag = 0.0;
-#ifdef OLD_CODE
-    double dot = 0.0;
-#endif
-
-    int toRemove = 0;
-    TC_STRUCT *thisTc = 0;
-    int lastTcWasPureRotation = 0;
-    int thisTcIsPureRotation = 0;
-    int t;
-    EmcPose before, after;
-    double preVMax = 0.0;
-    double preAMax = 0.0;
-
-    // FIXME - debug only, remove later
-    int n;
-    
-    if (0 == tp) {
-	return -1;
-    }
-
-    sumPos.tran.x = sumPos.tran.y = sumPos.tran.z = 0.0;
-    unitCart.x = unitCart.y = unitCart.z = 0.0;
-    accelCart.x = accelCart.y = accelCart.z = 0.0;
-    velCart.x = velCart.y = velCart.z = 0.0;
-    sumPos.a = sumPos.b = sumPos.c = 0.0;
-
-    /* correct accumulation of errors between currentPos and before */
-    after.tran.x = before.tran.x = tp->currentPos.tran.x;
-    after.tran.y = before.tran.y = tp->currentPos.tran.y;
-    after.tran.z = before.tran.z = tp->currentPos.tran.z;
-    after.a = before.a = tp->currentPos.a;
-    after.b = before.b = tp->currentPos.b;
-    after.c = before.c = tp->currentPos.c;
-
-    /* run all TCs at and before this one */
-    tp->activeDepth = 0;
-    
-    // FIXME - debug only, remove later
-    for ( n = 0 ; n < 4 ; n++ ) {
-	emcmot_hal_data->tc_pos[n] = 0.0;
-	emcmot_hal_data->tc_vel[n] = 0.0;
-	emcmot_hal_data->tc_acc[n] = 0.0;
-    }
-   
-    /* this loops over the TC_STRUCT queue */
-    for (t = 0; t < tcqLen(&tp->queue); t++) {
-	lastTcWasPureRotation = thisTcIsPureRotation;
-	/* get a pointer to a TC_STRUCT in the queue */
-	thisTc = tcqItem(&tp->queue, t, 0);
-	/* if missing or finished, plan to remove it */
-	if (0 == thisTc || thisTc->tcFlag == TC_IS_DONE) {
-	    if (t <= toRemove) {
-		toRemove++;
-	    }
-	    continue;
-	}
-	thisTcIsPureRotation = thisTc->tmag < TP_PURE_ROTATION_EPSILON;
-
-	if (thisTc->currentPos <= 0.0 && (tp->pausing || tp->aborting)) {
-	    continue;
-	}
-	/* If either this move or the last move was a pure rotation reset the
-	   velocity and acceleration and block any blending */
-	if (lastTcWasPureRotation || thisTcIsPureRotation) {
-	    velCart.x = velCart.y = velCart.z = 0.0;
-	    accelCart.x = accelCart.y = accelCart.z = 0.0;
-	    currentVelMag = 0.0;
-	    currentAccelMag = 0.0;
-	    if (thisVel > TP_VEL_EPSILON) {
-		preVMax = thisTc->vMax;
-	    }
-	    if (thisAccel > TP_ACCEL_EPSILON
-		|| thisAccel < -TP_ACCEL_EPSILON) {
-		preAMax = thisTc->aMax;
-	    }
-	} else {
-	    unitCart = tcGetUnitCart(thisTc);
-
-	    /* The combined velocity of this move and the next one will be
-	       square root(currentVelocity^2 + nextVel^2 + 2*the dot
-	       product). to prevent the combined move from exceeding vMax
-	       preVMax may need adjustment. tcRunCycle will subtract preVMax
-	       from vMax and clamp the velocity to this value. */
-	    pmCartMag(velCart, &currentVelMag);
-#ifdef OLD_CODE
-	    if (currentVelMag >= TP_VEL_EPSILON) {
-		pmCartCartDot(velCart, unitCart, &dot);
-		preVMax =
-		    thisTc->vMax + dot - pmSqrt(pmSq(dot) -
-						pmSq(currentVelMag) +
-						pmSq(thisTc->vMax));
-	    } else
-#endif
-            {
-		preVMax = 0.0;
-	    }
-
-	    /* The combined acceleration of this move and the next one will
-	       be square root(currentAcceleration^2 + nextAccel^2 + 2*the dot 
-	       product). to prevent the combined move from exceeding vMax
-	       preVMax may need adjustment. tcRunCycle will subtract preVMax
-	       from vMax and clamp the acceleration to this value. */
-	    pmCartMag(accelCart, &currentAccelMag);
-	    if (currentAccelMag >= TP_ACCEL_EPSILON) {
-#ifdef OLD_CODE
-		pmCartCartDot(accelCart, unitCart, &dot);
-		preAMax =
-		    thisTc->aMax + dot - pmSqrt(pmSq(dot) -
-						pmSq(currentAccelMag) +
-						pmSq(thisTc->aMax));
-#endif
-	    } else {
-		preAMax = 0.0;
-	    }
-	}
-	/* here we calculate the contribution to motion of a single
-	   line or circle, which may later be blended with others */
-	before = tcGetPos(thisTc);
-        thisTc->preVMax = preVMax;
-        thisTc->preAMax = preAMax;
-	tcRunCycle(thisTc);
-	after = tcGetPos(thisTc);
-	
-	if (tp->activeDepth <= toRemove) {
-	    tp->execId = thisTc->id;
-	}
-	/* calculate the move contributed by this TC */
-	pmCartCartSub(after.tran, before.tran, &after.tran);
-	/* add it to the running sum */
-	pmCartCartAdd(sumPos.tran, after.tran, &sumPos.tran);
-	sumPos.a += after.a - before.a;
-	sumPos.b += after.b - before.b;
-	sumPos.c += after.c - before.c;
-
-	if (thisTc->tcFlag == TC_IS_DONE) {
-	    /* this one is done-- blend in the next one */
-	    if (t <= toRemove) {
-		toRemove++;
-	    }
-	    continue;
-	}
-
-	/* this one is still active-- increment active count */
-	tp->activeDepth++;
-
-	if (thisTc->tcFlag == TC_IS_DECEL
-	    && thisTc->termCond == TC_TERM_COND_BLEND) {
-
-            preAMax = thisTc->aMax + thisTc->currentAccel;
-
-	    /* this one is decelerating-- blend in the next one with credit
-	       for this decel */
-	    thisAccel = thisTc->currentAccel;
-	    thisVel = thisTc->currentVel;
-	    unitCart = tcGetUnitCart(thisTc);
-	    
-	    pmCartScalMult(unitCart, thisAccel, &thisAccelCart);
-	    pmCartCartAdd(thisAccelCart, accelCart, &accelCart);
-	    
-	    pmCartScalMult(unitCart, thisVel, &thisVelCart);
-	    pmCartCartAdd(thisVelCart, velCart, &velCart);
-	    /* continue looping to get next TC */
-	    continue;
-	} else {
-	    /* this one is either accelerating or constant-- no room for any
-	       more blending */
-	    preVMax = 0.0;
-	    preAMax = 0.0;
-	    /* exit loop, nothing else to blend */
-	    break;
-	}
-    } /* end of loop over TC_STRUCT queue */
-
-    // FIXME - debug only, remove later
-    emcmot_hal_data->traj_active_tc = tp->activeDepth;
-
-    if (toRemove > 0) {
-	tcqRemove(&tp->queue, toRemove);
-	tp->depth = tcqLen(&tp->queue);
-	if (tp->depth == 0) {
-	    tp->done = 1;
-	    tp->activeDepth = 0;
-	    tp->execId = 0;
-	}
-    }
-
-    /* increment current position with sum of increments */
-    pmCartCartAdd(tp->currentPos.tran, sumPos.tran, &tp->currentPos.tran);
-    tp->currentPos.a += sumPos.a;
-    tp->currentPos.b += sumPos.b;
-    tp->currentPos.c += sumPos.c;
-
-    // FIXME - debug only, remove later
-    emcmot_hal_data->traj_pos_out = tp->currentPos.tran.x;
-    emcmot_hal_data->traj_vel_out = sumPos.tran.x / tp->cycleTime;
-    
-    /* check for abort done */
-    if (tp->aborting && (tpIsPaused(tp) || tpIsDone(tp))) {
-	/* all paused and we're aborting-- clear out the TP queue */
-	/* first set the motion outputs to the end values for the current
-	   move */
-	tcqInit(&tp->queue);
-	tp->goalPos = tp->currentPos;
-	tp->done = 1;
-	tp->depth = 0;
-	tp->activeDepth = 0;
-	tp->aborting = 0;
-	tp->execId = 0;
-	tpResume(tp);
-    }
-
     return 0;
 }
 
@@ -751,7 +514,9 @@ int tpIsPaused(TP_STRUCT * tp)
     }
 
     for (t = 0; t < tp->activeDepth; t++) {
-	if (!tcIsPaused(tcqItem(&tp->queue, t, 0))) {
+        TC_STRUCT *tc;
+        tc = tcqItem(&tp->queue, t, 0);
+        if (tc->feed_override != 0) {
 	    return 0;
 	}
     }

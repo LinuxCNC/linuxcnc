@@ -21,14 +21,6 @@
 #include "posemath.h"
 #include "emcpos.h"
 
-/* values for tcFlag */
-#define TC_IS_UNSET -1
-#define TC_IS_DONE 1
-#define TC_IS_ACCEL 2
-#define TC_IS_CONST 3
-#define TC_IS_DECEL 4
-#define TC_IS_PAUSED 5
-
 /* values for endFlag */
 #define TC_TERM_COND_STOP 1
 #define TC_TERM_COND_BLEND 2
@@ -39,46 +31,39 @@
 /* structure for individual trajectory elements */
 
 typedef struct {
-    double cycleTime;
-    double targetPos;		/* positive motion progession */
-    double vMax;		/* velocity requested by F word */
-    double ini_maxvel;		/* max velocity allowed by machine constraints
-                                   (ini file) */
-    double vScale;		/* scale factor for vMax (feed override) */
-    double aMax;		/* max accel */
-    double preVMax;		/* vel from previous blend */
-    double preAMax;		/* decel (negative) from previous blend */
-    double vLimit;		/* abs vel limit, including scale */
-    double toGo;
-    double currentPos;
-    double currentVel;
-    double currentAccel;
-    int tcFlag;			/* TC_IS_DONE,ACCEL,CONST,DECEL */
-    int type;			/* TC_LINEAR, TC_CIRCULAR */
-    int id;			/* id for motion segment */
-    int termCond;		/* TC_END_STOP,BLEND */
-    PmLine line;
-    PmLine line_abc;
-    PmCircle circle;
-    double tmag;		/* magnitude of translation */
-    double abc_mag;		/* magnitude of rotation */
-    double tvMax;		/* maximum translational velocity */
-    double taMax;		/* maximum translational accelleration */
-    double abc_vMax;		/* maximum rotational velocity */
-    double abc_aMax;		/* maximum rotational accelleration */
-    PmCartesian unitCart;
-    int output_chan;		/* output channel used for HAL stuff */
+    PmLine xyz;
+    PmLine abc;
+} PmLine6;
+
+typedef struct {
+    PmCircle xyz;
+    PmLine abc;
+} PmCircle6;
+
+typedef struct {
+    double cycle_time;
+    double progress;        // where are we in the segment?  0..target
+    double target;          // segment's end position
+    double vel;             // vel requested by F word, calc'd by task
+    double accel;           // accel calc'd by task
+    double feed_override;   // feed override requested by user
+    double maxvel;          // max possible vel (feed override stops here)
+    
+    int id;                 // segment's serial number - maybe not needed?
+
+    union {                 // describes the segment's start and end positions
+        PmLine6 line;
+        PmCircle6 circle;
+    } coords;
+
+    char motion_type;       // TC_LINEAR (coords.line) or 
+                            // TC_CIRCULAR (coords.circle)
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
 
-extern int tcInit(TC_STRUCT * tc);
-extern int tcSetLine(TC_STRUCT * tc, PmLine line, PmLine line_abc);
-extern int tcSetCircle(TC_STRUCT * tc, PmCircle circle, PmLine line_abc);
-extern int tcRunCycle(TC_STRUCT * tc);
 extern EmcPose tcGetPos(TC_STRUCT * tc);
 extern PmCartesian tcGetUnitCart(TC_STRUCT * tc);
-extern int tcIsPaused(TC_STRUCT * tc);
 
 
 /* queue of TC_STRUCT elements*/
