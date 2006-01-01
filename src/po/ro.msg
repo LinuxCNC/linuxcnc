@@ -265,7 +265,7 @@
 ::msgcat::mcset de "An error happened while creating the new configuration.\nIdeally this code would clean everything up and\nthen return to the main menu, but the cleanup isn't done yet.\nClick OK to return to the main menu." ""
 
 # resolve_config {}
-::msgcat::mcset de "ERROR: Not a valid config directory (contains no .ini files)\n\n'$input'\n($abs_input)\n\nClick OK to continue." ""
+::msgcat::mcset de "ERROR: Not a valid config directory (contains no .ini files)" ""
 ::msgcat::mcset de "ERROR: Not a valid ini file (must end in .ini)" ""
 ::msgcat::mcset de "Click OK to continue." ""
 ::msgcat::mcset de "ERROR: Not a valid config directory (contains no .ini files)" ""
