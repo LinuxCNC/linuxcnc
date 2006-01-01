@@ -13,7 +13,7 @@
 # Author:
 # License: GPL Version 2
 # System: Linux
-#    
+#
 # Copyright (c) 2004 All rights reserved.
 #
 # Last change:
@@ -31,17 +31,17 @@ PRINT_FILE=/dev/null
 while ARG=$1 ; ! [ "$ARG" = "${ARG#-}" ] ; do
     # argument is an option
     if [ $ARG = "-d" ] ; then
-	# enable echoing of script and command output
-	DEBUG_FILE=/dev/tty
-	echo "Debug mode on" >$DEBUG_FILE
-	set -x;
+  # enable echoing of script and command output
+  DEBUG_FILE=/dev/tty
+  echo "Debug mode on" >$DEBUG_FILE
+  set -x;
     elif [ $ARG = "-v" ] ; then
-	# enable printing of verbose messages
-	PRINT_FILE=/dev/tty
-	echo "Verbose mode on" >$PRINT_FILE
+  # enable printing of verbose messages
+  PRINT_FILE=/dev/tty
+  echo "Verbose mode on" >$PRINT_FILE
     else
-	echo "Unknown option '$ARG'"
-	exit -1
+  echo "Unknown option '$ARG'"
+  exit -1
     fi
     # discard option, check next argument
     shift
@@ -165,7 +165,7 @@ INI_DIR=`echo $INIFILE | sed s/$INI_NAME//`
 echo "Machine configuration directory is '$INI_DIR'"
 echo "Machine configuration file is '$INI_NAME'"
 
-# make sure ini file exists (the tcl script just did this, so we could 
+# make sure ini file exists (the tcl script just did this, so we could
 # eliminate this test, but it does no harm)
 
 if [ ! -f $INIFILE ] ; then
@@ -185,29 +185,29 @@ function GetFromIni {
     name=$1
     retval=`$INIVAR -ini $INIFILE -var $1 -sec $2 2>>$DEBUG_FILE`
     if [ ! -n "$1" ] ; then
-	echo "Can't find variable $1 in section [$2] of file $INIFILE."
-	exit -1
+  echo "Can't find variable $1 in section [$2] of file $INIFILE."
+  exit -1
     fi
     echo "$name=$retval" >>$PRINT_FILE
 }
 # 2.2. get param file
-GetFromIni PARAMETER_FILE RS274NGC 
+GetFromIni PARAMETER_FILE RS274NGC
 RS274NGC_PARAMFILE=$retval
 
 # 2.3. get emcmot information
-GetFromIni EMCMOT EMCMOT 
+GetFromIni EMCMOT EMCMOT
 EMCMOT=$retval$MODULE_EXT # add module extension
 
 # 2.4. get emcio information
-GetFromIni EMCIO EMCIO 
+GetFromIni EMCIO EMCIO
 EMCIO=$retval
 
 # 2.5. get emctask information
-GetFromIni TASK TASK 
+GetFromIni TASK TASK
 EMCTASK=$retval
 
 # 2.6. get emcserver information
-GetFromIni EMCSERVER EMCSERVER 
+GetFromIni EMCSERVER EMCSERVER
 EMCSERVER=$retval
 
 # 2.7. get emcstrip information
@@ -242,43 +242,43 @@ KILL_TIMEOUT=10
 function KillTaskWithTimeout() {
     KILL_PIDS=`$PIDOF $KILL_TASK`
     if [ ! -n "$KILL_PIDS" ] ; then
-	echo "Could not find pid(s) for task $KILL_TASK"
-	return -1
+  echo "Could not find pid(s) for task $KILL_TASK"
+  return -1
     fi
     for KILL_PID in $KILL_PIDS ; do
-	echo "Killing task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
-	# first a "gentle" sudo kill with signal TERM
-	sudo $KILL $KILL_PID
-	WAIT=$KILL_TIMEOUT
-	# wait and see if it dissappears
-	while [ $WAIT -gt 1 ] ; do
-	    # see if it's still alive
-	    if $PS $KILL_PID >>$DEBUG_FILE ; then
-		WAIT=$(($WAIT-1))
-		sleep 1
-	    else
-		WAIT=0
-	    fi
-	done
-	if [ $WAIT -gt 0 ] ; then
-	    # gentle didn't work, get serious
-	    echo "Timeout, trying sudo kill -9" >>$PRINT_FILE
-	    sudo $KILL -9 $KILL_PID
-	    WAIT=$KILL_TIMEOUT
-	    # wait and see if it dissappears
-	    while [ $WAIT -gt 1 ] ; do
-		# see if it's still alive
-		if $PS $KILL_PID >>$DEBUG_FILE ; then
-		    WAIT=$(($WAIT-1))
-		    sleep 1
-		else
-		    WAIT=0
-		fi
-	    done
-	fi
-	if [ $WAIT -gt 0 ] ; then
-	    echo "Could not kill task $KILL_TASK, PID=$KILL_PID"
-	fi
+  echo "Killing task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
+  # first a "gentle" sudo kill with signal TERM
+  sudo $KILL $KILL_PID
+  WAIT=$KILL_TIMEOUT
+  # wait and see if it dissappears
+  while [ $WAIT -gt 1 ] ; do
+      # see if it's still alive
+      if $PS $KILL_PID >>$DEBUG_FILE ; then
+    WAIT=$(($WAIT-1))
+    sleep 1
+      else
+    WAIT=0
+      fi
+  done
+  if [ $WAIT -gt 0 ] ; then
+      # gentle didn't work, get serious
+      echo "Timeout, trying sudo kill -9" >>$PRINT_FILE
+      sudo $KILL -9 $KILL_PID
+      WAIT=$KILL_TIMEOUT
+      # wait and see if it dissappears
+      while [ $WAIT -gt 1 ] ; do
+    # see if it's still alive
+    if $PS $KILL_PID >>$DEBUG_FILE ; then
+        WAIT=$(($WAIT-1))
+        sleep 1
+    else
+        WAIT=0
+    fi
+      done
+  fi
+  if [ $WAIT -gt 0 ] ; then
+      echo "Could not kill task $KILL_TASK, PID=$KILL_PID"
+  fi
     done
 }
 
@@ -296,62 +296,62 @@ function Cleanup() {
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of emc
     for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh axis ; do
-	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
-	    KillTaskWithTimeout
-	fi
+  if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
+      KillTaskWithTimeout
+  fi
     done
     sleep 1
 
     # now kill all the other user space components of emc
     for KILL_TASK in emcsvr emcstripchart bridgeporttask milltask minimilltask bridgeportio minimillio simio io classicladder; do
-	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
-	    KillTaskWithTimeout
-	fi
+  if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
+      KillTaskWithTimeout
+  fi
     done
 
     # now the realtime stuff
     # check for rtapi
     if [ -n "` $LSMOD | $AWK -- '$1 ~ /^rtapi$/ { print $1 }'`" ] ; then
-	# rtapi loaded, check for hal_lib
-	if [ -n "` $LSMOD | $AWK -- '$1 ~ /^hal_lib$/ { print $1 }'`" ] ; then
-	    # hal_lib loaded, stop realtime threads
-	    $HALCMD stop
-	    # check for any hal_meters
-	    if $PIDOF halmeter >>$DEBUG_FILE ; then
-		# get rid of them
-		KILL_TASK=halmeter
-		KillTaskWithTimeout
-	    fi
-	    # check for any halcmds
-	    if $PIDOF halcmd >>$DEBUG_FILE ; then
-		# get rid of them
-		KILL_TASK=halcmd
-		KillTaskWithTimeout
-	    fi
-	    # check for user space HAL components
-	    HAL_USR_COMPS=`$HALCMD show comp | $GREP -v halcmd | $AWK -- '$2 ~ /^User$/ { print $3 }'`
-	    # remove them
-	    for HAL_COMP in $HAL_USR_COMPS ; do
-		echo "Removing user space HAL component $HAL_COMP" >>$PRINT_FILE
-		KILL_TASK=$HAL_COMP
-		KillTaskWithTimeout
-	    done
-	    # check for realtime HAL components (including motion module)
-	    HAL_RT_COMPS=`$HALCMD show comp | $AWK -- '$2 ~ /^RT$/ { print $3 }'`
-	    # remove them
-	    for HAL_COMP in $HAL_RT_COMPS ; do
-		echo "Removing realtime HAL component $HAL_COMP" >>$PRINT_FILE
-		sudo $RMMOD $HAL_COMP
-	    done
-	fi
-	# remove rtapi and RTOS modules
-	echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
-	sudo $REALTIME stop
+  # rtapi loaded, check for hal_lib
+  if [ -n "` $LSMOD | $AWK -- '$1 ~ /^hal_lib$/ { print $1 }'`" ] ; then
+      # hal_lib loaded, stop realtime threads
+      $HALCMD stop
+      # check for any hal_meters
+      if $PIDOF halmeter >>$DEBUG_FILE ; then
+    # get rid of them
+    KILL_TASK=halmeter
+    KillTaskWithTimeout
+      fi
+      # check for any halcmds
+      if $PIDOF halcmd >>$DEBUG_FILE ; then
+    # get rid of them
+    KILL_TASK=halcmd
+    KillTaskWithTimeout
+      fi
+      # check for user space HAL components
+      HAL_USR_COMPS=`$HALCMD show comp | $GREP -v halcmd | $AWK -- '$2 ~ /^User$/ { print $3 }'`
+      # remove them
+      for HAL_COMP in $HAL_USR_COMPS ; do
+    echo "Removing user space HAL component $HAL_COMP" >>$PRINT_FILE
+    KILL_TASK=$HAL_COMP
+    KillTaskWithTimeout
+      done
+      # check for realtime HAL components (including motion module)
+      HAL_RT_COMPS=`$HALCMD show comp | $AWK -- '$2 ~ /^RT$/ { print $3 }'`
+      # remove them
+      for HAL_COMP in $HAL_RT_COMPS ; do
+    echo "Removing realtime HAL component $HAL_COMP" >>$PRINT_FILE
+    sudo $RMMOD $HAL_COMP
+      done
+  fi
+  # remove rtapi and RTOS modules
+  echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
+  sudo $REALTIME stop
     fi
 
     # remove lock file
     if [ -f $LOCKFILE ] ; then
-	rm $LOCKFILE
+  rm $LOCKFILE
     fi
 
     echo "Cleanup done"
@@ -447,9 +447,9 @@ TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | env LANG=C $AWK -- '{printf "%d\n", $1
 echo "$EMC2_RTLIB_DIR/$EMCMOT base_period=$BASE_PERIOD_NSEC servo_period=$SERVO_PERIOD_NSEC traj_period=$TRAJ_PERIOD_NSEC key=$SHMEM_KEY" >>$PRINT_FILE
 
 if ! sudo $INSMOD $EMC2_RTLIB_DIR/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
-		    		    servo_period_nsec=$SERVO_PERIOD_NSEC \
-				    traj_period_nsec=$TRAJ_PERIOD_NSEC \
-				    key=$SHMEM_KEY ; then
+                servo_period_nsec=$SERVO_PERIOD_NSEC \
+            traj_period_nsec=$TRAJ_PERIOD_NSEC \
+            key=$SHMEM_KEY ; then
     echo "Motion module $EMCMOT did not load..."
     echo "check system log for error messages"
     Cleanup
@@ -467,7 +467,7 @@ if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
     Cleanup
     exit 1
 fi
-$EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
+sudo $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 
 # 4.3.6. execute HALCMD config files (if any)
 # get first config file name from ini file
@@ -475,22 +475,22 @@ NUM=1
 CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
 while [ -n "$CFGFILE" ] ; do
     if [ ! -f $INI_DIR/$CFGFILE ] ; then
-	echo "Can't find HAL config file: $INI_DIR/$CFGFILE"
-	Cleanup
-	exit -1
+  echo "Can't find HAL config file: $INI_DIR/$CFGFILE"
+  Cleanup
+  exit -1
     else
-	CFGFILE=$INI_DIR/$CFGFILE
+  CFGFILE=$INI_DIR/$CFGFILE
     fi
-    if $GREP -q loadrt $CFGFILE ; then 
-	SUDO=sudo
+    if $GREP -q loadrt $CFGFILE ; then
+  SUDO=sudo
     else
-	SUDO=
+  SUDO=
     fi
     echo "Running $SUDO HAL config file $CFGFILE" >>$PRINT_FILE
     if ! $SUDO $HALCMD -i $INIFILE -f $CFGFILE ; then
-	echo "HAL config file $CFGFILE failed."
-	Cleanup
-	exit -1
+  echo "HAL config file $CFGFILE failed."
+  Cleanup
+  exit -1
     fi
     # get next config file name from ini file
     NUM=$(($NUM+1))
@@ -503,12 +503,12 @@ NUM=1
 HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2>>$DEBUG_FILE`
 while [ -n "$HALCOMMAND" ] ; do
     if [ -n "$HALCOMMAND" ] ; then
-	echo "Running HAL command: $HALCOMMAND" >>$PRINT_FILE
-	if ! $HALCMD $HALCOMMAND ; then
-	    echo "ini file HAL command $HALCOMMAND failed."
-	    Cleanup
-	    exit -1
-	fi
+  echo "Running HAL command: $HALCOMMAND" >>$PRINT_FILE
+  if ! $HALCMD $HALCOMMAND ; then
+      echo "ini file HAL command $HALCOMMAND failed."
+      Cleanup
+      exit -1
+  fi
     fi
     # get next command from ini file
     NUM=$(($NUM+1))
@@ -531,9 +531,9 @@ $EMC2_BIN_DIR/$EMCTASK -ini $INIFILE &
 if [ -n "$EMCSERVER" ] ; then
     echo "Starting EMC server program: $EMCSERVER" >>$PRINT_FILE
     if [ ! -x $EMC2_BIN_DIR/$EMCSERVER ] ; then
-	echo "Can't execute server program $EMC2_BIN_DIR/$EMCSERVER"
-	Cleanup
-	exit 1
+  echo "Can't execute server program $EMC2_BIN_DIR/$EMCSERVER"
+  Cleanup
+  exit 1
     fi
     $EMC2_BIN_DIR/$EMCSERVER -ini $INIFILE &
 fi
@@ -542,9 +542,9 @@ fi
 if [ -n "$EMCSTRIP" ] ; then
     echo "Starting EMC stripchart program: $EMCSTRIP" >>$PRINT_FILE
     if [ ! -x $EMC2_BIN_DIR/$EMCSTRIP ] ; then
-	echo "Can't execute server program $EMC2_BIN_DIR/$EMCSTRIP"
-	Cleanup
-	exit 1
+  echo "Can't execute server program $EMC2_BIN_DIR/$EMCSTRIP"
+  Cleanup
+  exit 1
     fi
     $EMC2_BIN_DIR/$EMCSTRIP $EMCSTRIP_OPTIONS -- -ini $INIFILE &
 fi
@@ -562,9 +562,9 @@ case $EMCDISPLAY in
   tkemc|mini)
     # tkemc and mini are in the tcl directory, not the bin directory
     if [ ! -x $EMC2_TCL_DIR/$EMCDISPLAY.tcl ] ; then
-	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl"
-	Cleanup
-	exit 1
+  echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl"
+  Cleanup
+  exit 1
     fi
     export EMC2_TCL_DIR=$EMC2_TCL_DIR
     export EMC2_EMCSH=$EMC2_EMCSH
@@ -579,9 +579,9 @@ case $EMCDISPLAY in
   *)
     # all other displays are assumed to be in the bin directory
     if [ ! -x $EMC2_BIN_DIR/$EMCDISPLAY ] ; then
-	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY"
-	Cleanup
-	exit 1
+  echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY"
+  Cleanup
+  exit 1
     fi
     $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE
   ;;
