@@ -1172,7 +1172,7 @@ proc resolve_config { input } {
 	# it is a path to a directory, any .ini files inside?
 	set inis [ glob -nocomplain -directory $abs_input *.ini ]
 	if { [ llength $inis ] == 0 } {
-	    popup [msgcat::mc "ERROR: Not a valid config directory (contains no .ini files)\n\n'$input'\n($abs_input)\n\nClick OK to continue."]
+	    popup [msgcat::mc "ERROR: Not a valid config directory (contains no .ini files)"]"\n\n'$input'\n($abs_input)\n\nClick OK to continue."
 	    return ""
 	}
 	return $abs_input
@@ -1244,7 +1244,7 @@ if { $configs_index >= 0 } {
     # yes, get the directory name
     set configs_dir [ lindex $argv [ expr $configs_index + 1 ]]
     if { $configs_dir == "" || [ string equal -length 1 $configs_dir "-" ] == 1 } {
-	popup [msgcat::mc "ERROR: option '--configs_dir' must be followed by a directory name."]"\n\n"[msgcat::mc "Click OK to exit."]
+	popup [msgcat::mc "ERROR: option '--configs-dir' must be followed by a directory name."]"\n\n"[msgcat::mc "Click OK to exit."]
 	exit -1
     }
     if { [ file isdirectory $configs_dir ] != 1 } {
@@ -1292,7 +1292,7 @@ if {$configs_dir == ""} {
 # if we still don't know where the configs are, we're screwed....
 if {$configs_dir == ""} {
     # give up
-    popup [msgcat::mc "ERROR: Cannot find the EMC2 configurations directory.\nYou can specify the directory with the '--configs_dir <dir>' option."]"\n\n"[msgcat::mc "Click OK to exit."]
+    popup [msgcat::mc "ERROR: Cannot find the EMC2 configurations directory.\nYou can specify the directory with the '--configs-dir <dir>' option."]"\n\n"[msgcat::mc "Click OK to exit."]
     exit -1
 }
 
