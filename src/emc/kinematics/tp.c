@@ -460,36 +460,23 @@ int tpRunCycle(TP_STRUCT * tp)
         return 0;
     }
 
-    if(tc->active == 0) {
-        // this means this tc is being read for the first time.
-        // we need a traj cycle at the initial position, so 
-        // we set that and return before increment happens below.
-        tc->active = 1;
-        tp->currentPos = tcGetPos(tc);
-        tp->execId = tc->id;
-        tp->depth = tp->activeDepth = 1;
-        return 0;
-    }
-
     if (tc->target - tc->progress < 1e-6) {
-        // now done with this move
+        // done with this move
         tcqRemove(&tp->queue, 1);
 
         // so get next move
         tc = tcqItem(&tp->queue, 0);
         if(!tc) return 0;
-
-        // again this is the first read of this tc, so we set
-        // position and return.
-        tc->active = 1;
-        tp->currentPos = tcGetPos(tc);
-        tp->execId = tc->id;
-        tp->depth = tp->activeDepth = 1;
-        return 0;
     }
 
-    // we're in the middle of this tc somewhere, so move along
-    // the right amount
+    if(tc->active == 0) {
+        // this means this tc is being read for the first time.
+        tc->active = 1;
+        tp->depth = tp->activeDepth = 1;
+        tp->execId = tc->id;
+    }
+
+    // move along the segment the right amount
     increment = (tc->vel * tc->feed_override) * tc->cycle_time;
     tc->progress += increment;
 
