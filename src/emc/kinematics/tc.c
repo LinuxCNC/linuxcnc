@@ -35,18 +35,27 @@ EmcPose tcGetPos(TC_STRUCT * tc)
     PmPose abc;
 
     if (tc->motion_type == TC_LINEAR) {
-	pmLinePoint(&tc->coords.line.xyz, tc->progress, &xyz);
-
-        // progress goes to the end of xyz; we get the position along abc by
-        // scaling progress to abc's length.
-        pmLinePoint(&tc->coords.line.abc, 
-                    tc->progress * tc->coords.line.abc.tmag / tc->coords.line.xyz.tmag,
-                    &abc);
+        if (tc->coords.line.xyz.tmag < 1e-6) {
+            // no xyz move, so progress is along the abc line
+            pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
+            pmLinePoint(&tc->coords.line.abc, tc->progress, &abc);
+        } else {
+            // progress is along xyz, and abc moves to end at the same time.
+            pmLinePoint(&tc->coords.line.xyz, tc->progress, &xyz);
+            pmLinePoint(&tc->coords.line.abc, 
+                        tc->progress * tc->coords.line.abc.tmag / tc->target,
+                        &abc);
+        }
     } else {
+        // progress is always along the xyz circle.  This simplification 
+        // is possible since zero-radius arcs are not allowed by the interp.
 	pmCirclePoint(&tc->coords.circle.xyz,
-		      tc->progress * tc->coords.circle.xyz.angle / tc->target, &xyz);
+		      tc->progress * tc->coords.circle.xyz.angle / tc->target, 
+                      &xyz);
+        // abc moves to end at the same time as the circular move.
         pmLinePoint(&tc->coords.circle.abc,
-                    tc->progress * tc->coords.circle.abc.tmag / tc->target, &abc);
+                    tc->progress * tc->coords.circle.abc.tmag / tc->target, 
+                    &abc);
     }
 
     pos.tran = xyz.tran;
@@ -79,7 +88,8 @@ PmCartesian tcGetUnitCart(TC_STRUCT * tc)
     }
 }
 
-/* TC_QUEUE_STRUCT definitions */
+// These following functions implement the motion queue that
+// is fed by tpAddLine/tpAddCircle and consumed by tpRunCycle.
 
 int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size, TC_STRUCT * tcSpace)
 {
@@ -184,18 +194,11 @@ int tcqLen(TC_QUEUE_STRUCT * tcq)
 }
 
 /* get the nth item from the queue, [0..len-1], without removing */
-TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n, int *status)
+TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n)
 {
     if ((0 == tcq) || (0 == tcq->queue) ||	/* not initialized */
 	(n < 0) || (n >= tcq->_len)) {	/* n too large */
-	if (0 != status) {
-	    *status = -1;
-	}
 	return (TC_STRUCT *) 0;
-    }
-
-    if (0 != status) {
-	*status = 0;
     }
     return &(tcq->queue[(tcq->start + n) % tcq->size]);
 }

@@ -26,11 +26,6 @@
 #include "tc.h"
 #include "tp.h"
 
-// FIXME - debug only, remove later
-#include <hal.h>
-#include "../motion/motion.h"
-#include "../motion/mot_priv.h"
-
 int output_chan = 0;
 
 int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
@@ -78,8 +73,7 @@ int tpClear(TP_STRUCT * tp)
     tp->execId = 0;
     tp->termCond = TC_TERM_COND_BLEND;
     tp->done = 1;
-    tp->depth = 0;
-    tp->activeDepth = 0;
+    tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
     tp->pausing = 0;
     tp->vScale = tp->vRestore;
@@ -187,7 +181,7 @@ int tpSetVscale(TP_STRUCT * tp, double scale)
 
 	depth = tcqLen(&tp->queue);
 	for (t = 0; t < depth; t++) {
-	    thisTc = tcqItem(&tp->queue, t, 0);
+	    thisTc = tcqItem(&tp->queue, t);
             thisTc->feed_override = scale;
 	}
     }
@@ -297,8 +291,14 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     PmPose start_xyz, end_xyz, start_abc, end_abc;
     PmQuaternion identity_quat = { 1.0, 0.0, 0.0, 0.0 };
 
-    if (!tp || tp->aborting)
+    if (!tp) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "TP is null\n");
+        return -1;
+    }
+    if (tp->aborting) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "TP is aborting\n");
 	return -1;
+    }
 
     start_xyz.tran = tp->goalPos.tran;
     end_xyz.tran = end.tran;
@@ -332,6 +332,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tc.motion_type = TC_LINEAR;
 
     if (tcqPut(&tp->queue, tc) == -1) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
 	return -1;
     }
 
@@ -346,7 +347,11 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
 
 // likewise, this adds a circular (circle, arc, helix) move from
 // the end of the last move to this new position.  end is the
-// xyzabc of the destination, center/normal/turn specify the arc.
+// xyzabc of the destination, center/normal/turn specify the arc
+// in a way that makes sense to pmCircleInit (we don't care about
+// the details here.)  Note that degenerate arcs/circles are not
+// allowed; we are guaranteed to have a move in xyz so target is
+// always the circle/arc/helical length.
 
 int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 		PmCartesian center, PmCartesian normal, int turn)
@@ -412,6 +417,64 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 
 int tpRunCycle(TP_STRUCT * tp)
 {
+    // vel = (new position - old position) / cycle time
+    // (two position points required)
+    //
+    // acc = (new vel - old vel) / cycle time
+    // (three position points required)
+
+    TC_STRUCT *tc;
+    double increment;
+
+    if(tp->aborting) {
+        tcqInit(&tp->queue);
+        tp->goalPos = tp->currentPos;
+        tp->done = 1;
+        tp->depth = tp->activeDepth = 0;
+        tp->aborting = 0;
+        tp->execId = 0;
+        tpResume(tp);
+        return 0;
+    }
+    if(tp->pausing) return 0;
+
+    tc = tcqItem(&tp->queue, 0);
+    if(!tc) {
+        tp->done = 1;
+        tp->depth = tp->activeDepth = 0;
+        tp->execId = 0;
+        return 0;
+    }
+    if(tc->active == 0) {
+        tc->active = 1;
+        tp->currentPos = tcGetPos(tc);
+        tp->execId = tc->id;
+        tp->depth = tp->activeDepth = 1;
+        return 0;
+    }
+
+    if (tc->target - tc->progress < 1e-6) {
+        // done with this move
+        tcqRemove(&tp->queue, 1);
+
+        // get next move
+        tc = tcqItem(&tp->queue, 0);
+        if(!tc) return 0;
+
+        tc->active = 1;
+        tp->currentPos = tcGetPos(tc);
+        tp->execId = tc->id;
+        tp->depth = tp->activeDepth = 1;
+        return 0;
+    }
+
+    increment = (tc->vel * tc->feed_override) * tc->cycle_time;
+    tc->progress += increment;
+    if(tc->progress > tc->target) 
+        tc->progress = tc->target;
+
+    tp->currentPos = tcGetPos(tc);
+
     return 0;
 }
 
@@ -515,7 +578,7 @@ int tpIsPaused(TP_STRUCT * tp)
 
     for (t = 0; t < tp->activeDepth; t++) {
         TC_STRUCT *tc;
-        tc = tcqItem(&tp->queue, t, 0);
+        tc = tcqItem(&tp->queue, t);
         if (tc->feed_override != 0) {
 	    return 0;
 	}

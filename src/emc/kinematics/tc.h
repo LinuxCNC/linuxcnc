@@ -58,6 +58,7 @@ typedef struct {
 
     char motion_type;       // TC_LINEAR (coords.line) or 
                             // TC_CIRCULAR (coords.circle)
+    char active;
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
@@ -98,7 +99,7 @@ extern int tcqRemove(TC_QUEUE_STRUCT * tcq, int n);
 extern int tcqLen(TC_QUEUE_STRUCT * tcq);
 
 /* look at nth item, first is 0 */
-extern TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n, int *status);
+extern TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n);
 
 /* get full status */
 extern int tcqFull(TC_QUEUE_STRUCT * tcq);
