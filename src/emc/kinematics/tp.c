@@ -415,6 +415,14 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     return 0;
 }
 
+// This is the brains of the operation.  It's called every TRAJ period
+// and is expected to set tp->currentPos to the new machine position.
+// Lots of other tp fields (depth, done, etc) have to be twiddled to
+// communicate the status; I think those are spelled out here correctly
+// and I can't clean it up without breaking the API that the TP presents
+// to motion.  It's not THAT bad and in the interest of not touching
+// stuff outside this directory, I'm going to leave it for now.
+
 int tpRunCycle(TP_STRUCT * tp)
 {
     // vel = (new position - old position) / cycle time
@@ -427,6 +435,7 @@ int tpRunCycle(TP_STRUCT * tp)
     double increment;
 
     if(tp->aborting) {
+        // an abort message has come
         tcqInit(&tp->queue);
         tp->goalPos = tp->currentPos;
         tp->done = 1;
@@ -436,16 +445,25 @@ int tpRunCycle(TP_STRUCT * tp)
         tpResume(tp);
         return 0;
     }
+
+    // if paused, don't move
     if(tp->pausing) return 0;
 
     tc = tcqItem(&tp->queue, 0);
     if(!tc) {
+        // this means the motion queue is empty.  This can represent
+        // the end of the program OR QUEUE STARVATION.  In either case,
+        // I want to stop.  Some may not agree that's what it should do.
         tp->done = 1;
         tp->depth = tp->activeDepth = 0;
         tp->execId = 0;
         return 0;
     }
+
     if(tc->active == 0) {
+        // this means this tc is being read for the first time.
+        // we need a traj cycle at the initial position, so 
+        // we set that and return before increment happens below.
         tc->active = 1;
         tp->currentPos = tcGetPos(tc);
         tp->execId = tc->id;
@@ -454,13 +472,15 @@ int tpRunCycle(TP_STRUCT * tp)
     }
 
     if (tc->target - tc->progress < 1e-6) {
-        // done with this move
+        // now done with this move
         tcqRemove(&tp->queue, 1);
 
-        // get next move
+        // so get next move
         tc = tcqItem(&tp->queue, 0);
         if(!tc) return 0;
 
+        // again this is the first read of this tc, so we set
+        // position and return.
         tc->active = 1;
         tp->currentPos = tcGetPos(tc);
         tp->execId = tc->id;
@@ -468,8 +488,15 @@ int tpRunCycle(TP_STRUCT * tp)
         return 0;
     }
 
+    // we're in the middle of this tc somewhere, so move along
+    // the right amount
     increment = (tc->vel * tc->feed_override) * tc->cycle_time;
     tc->progress += increment;
+
+    // don't move past the end, which will give tcGetPos fits.
+    // I may need to choose increment more carefully (which 
+    // might mean reducing the velocity just a bit) to come as
+    // close as possible to the endpoint on the final increment.
     if(tc->progress > tc->target) 
         tc->progress = tc->target;
 
