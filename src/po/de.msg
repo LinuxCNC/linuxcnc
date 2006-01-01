@@ -178,7 +178,7 @@
 ################################################################################
 # Translations for setupconfig.tcl                                             #
 ################################################################################
-::msgcat::mcset de "No details available." ""
+::msgcat::mcset de "No details available." "Keine Details verfügbar."
 
 # main_page {}
 ::msgcat::mcset de "Welcome to EMC2!\n" "Willkommen zu EMC2"
@@ -265,7 +265,7 @@
 ::msgcat::mcset de "An error happened while creating the new configuration.\nIdeally this code would clean everything up and\nthen return to the main menu, but the cleanup isn't done yet.\nClick OK to return to the main menu." "Ein Fehler ist aufgetreten während die Konfiguration erstellt wurde.\nIdealerweise würde der Code hier alles\nrückgängig machen und dann zum Menü zurückkehren,\nleider ist das noch nicht implementiert.\nDrücke OK um zum Menü zurückzukehren."
 
 # resolve_config {}
-::msgcat::mcset de "ERROR: Not a valid config directory (contains no .ini files)\n\n'$input'\n($abs_input)\n\nClick OK to continue." ""
+::msgcat::mcset de "ERROR: Not a valid config directory (contains no .ini files)" "Kein valider Konfigurationsordner (keine .ini Dateien verfügbar)"
 ::msgcat::mcset de "ERROR: Not a valid ini file (must end in .ini)" "FEHLER: Keine valide ini Datei (muss in .ini enden)"
 ::msgcat::mcset de "Click OK to continue." "Drücke OK um fortzufahren."
 ::msgcat::mcset de "ERROR: Not a valid config directory (contains no .ini files)" "FEHLER: kein valider Konfigordner (beinhaltet keine .ini Datei)"
