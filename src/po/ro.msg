@@ -274,11 +274,11 @@
 
 # main program
 ::msgcat::mcset de "EMC2 Configuration Manager" ""
-::msgcat::mcset de "ERROR: option '--configs_dir' must be followed by a directory name." ""
+::msgcat::mcset de "ERROR: option '--configs-dir' must be followed by a directory name." ""
 ::msgcat::mcset de "Click OK to exit." ""
 ::msgcat::mcset de "ERROR: '--configs-dir' argument is" ""
 ::msgcat::mcset de "which is not a directory." ""
 ::msgcat::mcset de "ERROR: environment variable EMC2_CONFIG_DIR is" ""
-::msgcat::mcset de "ERROR: Cannot find the EMC2 configurations directory.\nYou can specify the directory with the '--configs_dir <dir>' option." ""
+::msgcat::mcset de "ERROR: Cannot find the EMC2 configurations directory.\nYou can specify the directory with the '--configs-dir <dir>' option." ""
 ::msgcat::mcset de "ERROR: options '--run', '--new', and '--get-config' are\nmutually exclusive, please specify only one." ""
 ::msgcat::mcset de "ERROR: unknown command line option:" ""
