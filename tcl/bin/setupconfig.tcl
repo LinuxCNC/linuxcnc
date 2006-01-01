@@ -66,6 +66,24 @@ exec wish "$0" "$@"
 
 ################### PROCEDURE DEFINITIONS #####################
 
+# Internationalisation (i18n)
+# in order to use i18n, all the strings will be called [msgcat::mc "string-foo"]
+# instead of "string-foo".
+# Thus msgcat searches for a translation of the string, and in case one isn't 
+# found, the original string is used.
+# In order to properly use locale's the env variable LANG is queried.
+# If LANG is defined, then the folder src/po is searched for files
+# called *.msg, (e.g. en_US.msg).
+# That file should contain all the translations regarding tcl scripts 
+# (tkemc, mini, setupconfig.tcl, etc)
+
+package require msgcat
+if ([info exists env(LANG)]) {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload "../../src/po"
+}
+
+
 # a kluge for older systems that don't have 'file normalize'
 # (which was introduced with tcl 8.4)
 # this version converts to an absolute path and eliminates 
@@ -128,7 +146,7 @@ proc get_config_list {} {
 		lappend details_list $descr
 	    } else {
 		# no description, gotta tell the user something
-		lappend details_list "No details available."
+		lappend details_list [msgcat::mc "No details available."]
 	    }
 	}
 	# back to main configs directory
@@ -301,12 +319,12 @@ proc main_page {} {
     # need globals to communicate with wizard page buttons
     global choice top wizard_state
 
-    set t10 "Welcome to EMC2!\n"
-    set t20 "To run EMC2 with an existing configuration,"
-    set t21 "click the RUN button.\n"
-    set t30 "To create a new configuration, edit a configuration, backup or"
-    set t31 "restore a configuration, or do other configuration related tasks,"
-    set t32 "click the CONFIG button.\n"
+    set t10 [msgcat::mc "Welcome to EMC2!\n"]
+    set t20 [msgcat::mc "To run EMC2 with an existing configuration,"]
+    set t21 [msgcat::mc "click the RUN button.\n"]
+    set t30 [msgcat::mc "To create a new configuration, edit a configuration, backup or"]
+    set t31 [msgcat::mc "restore a configuration, or do other configuration related tasks,"]
+    set t32 [msgcat::mc "click the CONFIG button.\n"]
 
     set f1 [ wizard_page { "CONFIG" "QUIT" "RUN" } ]
     set l1 [ label $f1.l1 -text [ join [ list $t10 $t20 $t21 $t30 $t31 $t32 ] \n ]]
@@ -366,8 +384,8 @@ proc choose_run_config {} {
     get_config_list
 
     # messages
-    set t1 "Please select an EMC2 configuration from the list below and click 'RUN'."
-    set t2 "\nDetails about the selected configuration:"
+    set t1 [msgcat::mc "Please select an EMC2 configuration from the list below and click 'RUN'."]
+    set t2 [msgcat::mc "\nDetails about the selected configuration:"]
     
     #set up a wizard page with two buttons
     set f1 [ wizard_page { "CANCEL" " RUN " } ]
@@ -398,7 +416,7 @@ proc choose_run_config {} {
 	}
 	"RUN" {
 	    if { $value == "" } {
-		popup "You must choose a config if you want to run EMC2!"
+		popup [msgcat::mc "You must choose a config if you want to run EMC2!"]
 		return
 	    }
 	    set run_config_name [ file_normalize $value ]
@@ -425,7 +443,7 @@ proc check_run_ini {} {
 	lappend inis [ file tail $ini ]
     }
     if { [ llength $inis ] == 0 } {
-	popup "ERROR: no ini file(s) found in config directory\n\n'$run_config_name'\n\nClick OK to continue."
+	popup [msgcat::mc "ERROR: no ini file(s) found in config directory"]"\n\n'$run_config_name'\n\n"[msgcat::mc "Click OK to continue."]
 	set wizard_state "main_page"
 	return
     }
@@ -453,7 +471,7 @@ proc choose_run_ini {} {
     }
     # set up a list box so the user can pick one
     set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
-    set l1 [ label $f1.l1 -text "The config contains multiple ini files.\nPick one from the list below and click NEXT." ]
+    set l1 [ label $f1.l1 -text [msgcat::mc "The config contains multiple ini files.\nPick one from the list below and click NEXT."] ]
     pack $l1 -padx 10 -pady 10
     # listbox for the ini files
     set lb [ listbox $f1.lb ]
@@ -490,7 +508,7 @@ proc choose_run_ini {} {
 	}
 	"NEXT-->" {
 	    if { $pick == "" } {
-		popup "You must select one ini file!"
+		popup [msgcat::mc "You must select one ini file!"]
 		return
 	    }
 	    # add name of selected ini file to directory name
@@ -514,7 +532,7 @@ proc execute_run {} {
     }
     
     # not done yet
-    popup "The next step is to invoke the run script to run\n'$run_config_name'\n\nBut thats not coded yet, so just click OK to quit."
+    popup [msgcat::mc "The next step is to invoke the run script to run"]"\n'$run_config_name'\n\n"[msgcat::mc "But thats not coded yet, so just click OK to quit."]
     set wizard_state "quit"
     return
 }
@@ -531,9 +549,9 @@ proc config_manager {} {
     get_config_list
 
     # messages
-    set t1 "This page is used to manage EMC2 machine configurations.\n"
-    set t2 "The list below shows all of the existing EMC2\nconfigurations on this computer.\n\nSelect a config, then click one of the buttons below.\n"
-    set t3 "\nDetails about the selected configuration:"
+    set t1 [msgcat::mc "This page is used to manage EMC2 machine configurations.\n"]
+    set t2 [msgcat::mc "The list below shows all of the existing EMC2\nconfigurations on this computer.\n\nSelect a config, then click one of the buttons below.\n"]
+    set t3 [msgcat::mc "\nDetails about the selected configuration:"]
 
     set f1 [ wizard_page { "EDIT" "BACKUP" "RESTORE" "DELETE" "NEW" "CANCEL" } ]
     set l1 [ label $f1.l1 -text $t1 ]
@@ -605,7 +623,7 @@ proc not_implemented {} {
     global choice top wizard_state
     
     # not done yet
-    popup "Sorry, this function is not implemented yet.\n\nClick OK to return to the menu"
+    popup [msgcat::mc "Sorry, this function is not implemented yet.\n\nClick OK to return to the menu"]
     set wizard_state "config_manager"
     return
 }
@@ -616,7 +634,7 @@ proc new_intro {} {
     global new_config_name new_config_template new_config_readme
 
     set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
-    set l1 [ label $f1.l1 -text "You have chosen to create a new EMC2 configuration.\n\nThe next few screens will walk you through the process." ]
+    set l1 [ label $f1.l1 -text [msgcat::mc "You have chosen to create a new EMC2 configuration.\n\nThe next few screens will walk you through the process."] ]
     pack $l1 -padx 10 -pady 10
     pack $f1
 
@@ -651,8 +669,8 @@ proc new_get_name {} {
     global choice top wizard_state new_config_name
 
     set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
-    set l1 [ label $f1.l1 -text "Please select a name for your new configuration." ]
-    set l2 [ label $f1.l2 -text "(This will become a directory name, so please use only letters,\ndigits, period, dash, or underscore.)" ]
+    set l1 [ label $f1.l1 -text [msgcat::mc "Please select a name for your new configuration."] ]
+    set l2 [ label $f1.l2 -text [msgcat::mc "(This will become a directory name, so please use only letters,\ndigits, period, dash, or underscore.)"] ]
     set e1 [ entry $f1.e1 -width 30 -relief sunken -bg white -takefocus 1 ]
     $e1 insert 0 $new_config_name
     pack $l1 -padx 10 -pady 10
@@ -681,11 +699,11 @@ proc new_get_name {} {
 		return
 	    }
 	    if { [ regexp {[^[:alnum:]_\-.]} $value ] == 1 } {
-		popup "'$value' contains illegal characters!\nPlease choose a new name."
+		popup "'$value' "[msgcat::mc "contains illegal characters!\nPlease choose a new name."]
 		return
 	    }
 	    if { [ file exists $value ] == 1 } {
-		popup "A directory or file called '$value' already exists!\nPlease choose a new name."
+		popup [msgcat::mc "A directory or file called"]" '$value' "[msgcat::mc "already exists!\nPlease choose a new name."]
 		return
 	    }
 	    set new_config_name $value
@@ -706,13 +724,13 @@ proc new_get_template {} {
     get_config_list
 
     # messages
-    set t1 "Please select one of these existing configurations as the template\nfor your new configuration.\n\nAll the files associated with the template will be copied into your new\nconfig, so you can make whatever modifications are needed."
-    set t2 "\nDetails about the selected configuration:"
+    set t1 [msgcat::mc "Please select one of these existing configurations as the template\nfor your new configuration.\n\nAll the files associated with the template will be copied into your new\nconfig, so you can make whatever modifications are needed."]
+    set t2 [msgcat::mc "\nDetails about the selected configuration:"]
     
     #set up a wizard page with three buttons
     set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
     # add a header line
-    set l1 [ label $f1.l1 -text "Creating new EMC2 configuration '$new_config_name'" ]
+    set l1 [ label $f1.l1 -text [msgcat::mc "Creating new EMC2 configuration"]" '$new_config_name'" ]
     pack $l1 -pady 10
     # add a detail picker to it with the configs
     detail_picker $f1 $t1 $config_list $t2 $details_list
@@ -740,7 +758,7 @@ proc new_get_template {} {
 		return
 	    }
 	    if { [ file isdirectory $value ] != 1 } {
-		popup "A internal error has occurred, or the template directory was deleted.\nClick OK to quit"
+		popup [msgcat::mc "A internal error has occurred, or the template directory was deleted.\nClick OK to quit"]
 		set wizard_state "quit"
 		return
 	    }
@@ -757,7 +775,7 @@ proc new_get_template {} {
 		set new_config_readme $descr
 	    } else {
 		# no description, gotta tell the user something
-		set new_config_readme "Enter a description here"
+		set new_config_readme [msgcat::mc "Enter a description here"]
 	    }
 	    set wizard_state "new_get_description"
 	    return
@@ -772,10 +790,10 @@ proc new_get_description {} {
 
     set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
     # add a header line
-    set l1 [ label $f1.l1 -text "Creating new EMC2 configuration '$new_config_name'\nbased on template '$new_config_template'" ]
+    set l1 [ label $f1.l1 -text [msgcat::mc "Creating new EMC2 configuration"]" '$new_config_name'\n"[msgcat::mc "based on template"]" '$new_config_template'" ]
     pack $l1 -pady 10
-    set l2 [ label $f1.l2 -text "Please enter a description of your configuration.\n\nThe box below has been preloaded with the description of the template, but\nit is strongly recommended that you revise it.  At a minimum,\nput your name and some specifics about your machine here." ]
-    set l3 [ label $f1.l3 -text "(If you ever need help, someone may ask you to send them your\nconfiguration, and this information could be very usefull.)" ]
+    set l2 [ label $f1.l2 -text [msgcat::mc "Please enter a description of your configuration.\n\nThe box below has been preloaded with the description of the template, but\nit is strongly recommended that you revise it.  At a minimum,\nput your name and some specifics about your machine here."] ]
+    set l3 [ label $f1.l3 -text [msgcat::mc "(If you ever need help, someone may ask you to send them your\nconfiguration, and this information could be very usefull.)"] ]
 
     # subframe for the text entry box and its scrollbar
     set f3 [ frame $f1.f3 ]
@@ -816,7 +834,7 @@ proc new_get_description {} {
 	}
 	"NEXT-->" {
 	    if { $value == "\n" } {
-		popup "You must enter at least one word!"
+		popup [msgcat::mc "You must enter at least one word!"]
 		return
 	    }
 	    set new_config_readme $value
@@ -833,9 +851,9 @@ proc new_verify {} {
 
     set f1 [ wizard_page { "<--BACK" "CANCEL" "NEXT-->" } ]
     # add a header line
-    set l1 [ label $f1.l1 -text "You are about to create a new EMC2 configuration.\n\nPlease verify that this is what you want:\n\nName '$new_config_name'\nTemplate: '$new_config_template'\nDescription:" ]
+    set l1 [ label $f1.l1 -text [msgcat::mc "You are about to create a new EMC2 configuration.\n\nPlease verify that this is what you want:"]"\n\n"[msgcat::mc "Name"]" '$new_config_name'\n"[msgcat::mc "Template"]": '$new_config_template'\n"[msgcat::mc "Description"]":" ]
     pack $l1 -pady 10
-    set l2 [ label $f1.l2 -text "If this information is correct, click NEXT to create\nthe configuration directory and begin copying files." ]
+    set l2 [ label $f1.l2 -text [msgcat::mc "If this information is correct, click NEXT to create\nthe configuration directory and begin copying files."] ]
 
     # subframe for the text box and its scrollbar
     set f3 [ frame $f1.f3 ]
@@ -905,7 +923,7 @@ proc new_do_copying {} {
     pack $f1
 
     # set text for first message
-    $l1 configure -text "Creating new config directory '$new_config_name'..."
+    $l1 configure -text [msgcat::mc "Creating new config directory"]" '$new_config_name'..."
     # update display
     update
     # create directory
@@ -913,14 +931,14 @@ proc new_do_copying {} {
     # test for success
     if { [ file isdirectory $new_config_name ] != 1 } {
 	# display error message
-	$lerr -text "ERROR: Config directory could not be created."
+	$lerr -text [msgcat::mc "ERROR: Config directory could not be created."]
 	vwait choice
 	set wizard_state "new_config_error"
 	pack forget $f1
 	destroy $f1
 	return
     }
-    $l1 configure -text "[ $l1 cget -text ] Done"
+    $l1 configure -text "[ $l1 cget -text ] "[msgcat::mc "Done"]
     update
     if { $choice != "none" } {
 	set wizard_state "new_config_error"
@@ -966,7 +984,7 @@ proc new_do_copying {} {
     # now we need to parse the ini file(s) and do 2 things:
     # 1) determine what files from the common/ dir are needed
     # 2) change the ini to read those files from the local dir
-    $l2 configure -text "Checking for ini file(s)..."
+    $l2 configure -text [msgcat::mc "Checking for ini file(s)..."]
     update
     if { $choice != "none" } {
 	set wizard_state "new_config_error"
@@ -974,7 +992,7 @@ proc new_do_copying {} {
     }
     set commonfiles [ list ]
     foreach ininame $inifiles {
-	$l2 configure -text "Transferring ini file '$fname'..."
+	$l2 configure -text [msgcat::mc "Transferring ini file"]" '$fname'..."
 	update
 	if { $choice != "none" } {
 	    set wizard_state "new_config_error"
@@ -1006,7 +1024,7 @@ proc new_do_copying {} {
 	}
     }
     # done with inifiles
-    $l2 configure -text "[ $l2 cget -text ] Done"
+    $l2 configure -text "[ $l2 cget -text ] "[msgcat::mc "Done"]
     update
     if { $choice != "none" } {
 	set wizard_state "new_config_error"
@@ -1014,13 +1032,13 @@ proc new_do_copying {} {
     }
 
     # do README file
-    $l3 configure -text "Writing description file 'README'..."
+    $l3 configure -text [msgcat::mc "Writing description file 'README'..."]
     update
     # write to the new README file
     set readmefile [ open $new_config_name/README w ]
     puts $readmefile $new_config_readme
     close $readmefile
-    $l3 configure -text "[ $l3 cget -text ] Done"
+    $l3 configure -text "[ $l3 cget -text ] "[msgcat::mc "Done"]
     update
     if { $choice != "none" } {
 	set wizard_state "new_config_error"
@@ -1028,14 +1046,14 @@ proc new_do_copying {} {
     }
 
     # do other files from template dir
-    $l4 configure -text "Checking for other template file(s)..."
+    $l4 configure -text [msgcat::mc "Checking for other template file(s)..."]
     update
     if { $choice != "none" } {
 	set wizard_state "new_config_error"
 	return
     }
     foreach fname $otherfiles {
-	$l4 configure -text "Copying template file '$fname'..."
+	$l4 configure -text [msgcat::mc "Copying template file"]" '$fname'..."
 	update
 	if { $choice != "none" } {
 	    set wizard_state "new_config_error"
@@ -1050,14 +1068,14 @@ proc new_do_copying {} {
 	puts -nonewline $fileout $filetext
 	close $fileout
     }
-    $l4 configure -text "[ $l4 cget -text ] Done"
+    $l4 configure -text "[ $l4 cget -text ] "[msgcat::mc "Done"]
     update
     if { $choice != "none" } {
 	set wizard_state "new_config_error"
 	return
     }
 
-    $l5 configure -text "Checking for common file(s)..."
+    $l5 configure -text [msgcat::mc "Checking for common file(s)..."]
     update
     if { $choice != "none" } {
 	set wizard_state "new_config_error"
@@ -1076,7 +1094,7 @@ proc new_do_copying {} {
 	}
     }
     foreach fname $commonfiles {
-	$l5 configure -text "Copying common file '$fname'..."
+	$l5 configure -text [msgcat::mc "Copying common file"]" '$fname'..."
 	update
 	if { $choice != "none" } {
 	    set wizard_state "new_config_error"
@@ -1091,7 +1109,7 @@ proc new_do_copying {} {
 	puts -nonewline $fileout $filetext
 	close $fileout
     }
-    $l5 configure -text "[ $l5 cget -text ] Done"
+    $l5 configure -text "[ $l5 cget -text ] "[msgcat::mc "Done"]
     update
     if { $choice != "none" } {
 	set wizard_state "new_config_error"
@@ -1108,7 +1126,7 @@ proc new_config_done {} {
     global choice top wizard_state
     global new_config_name run_config_name
     
-    popup "Your new configuration '$new_config_name' has been created.\nClick OK to return to the main menu."
+    popup [msgcat::mc "Your new configuration"]" '$new_config_name' "[msgcat::mc "has been created.\nClick OK to return to the main menu."]
     # set default run config to the newly created one
     set run_config_name $new_config_name
     set wizard_state "config_manager"
@@ -1120,7 +1138,7 @@ proc new_config_error {} {
     global choice top wizard_state
     
     # not done yet
-    popup "An error happened while creating the new configuration.\nIdeally this code would clean everything up and\nthen return to the main menu, but the cleanup isn't done yet.\nClick OK to return to the main menu."
+    popup [msgcat::mc "An error happened while creating the new configuration.\nIdeally this code would clean everything up and\nthen return to the main menu, but the cleanup isn't done yet.\nClick OK to return to the main menu."]
     set wizard_state "main_page"
     return
 }
@@ -1154,7 +1172,7 @@ proc resolve_config { input } {
 	# it is a path to a directory, any .ini files inside?
 	set inis [ glob -nocomplain -directory $abs_input *.ini ]
 	if { [ llength $inis ] == 0 } {
-	    popup "ERROR: Not a valid config directory (contains no .ini files)\n\n'$input'\n($abs_input)\n\nClick OK to continue."
+	    popup [msgcat::mc "ERROR: Not a valid config directory (contains no .ini files)\n\n'$input'\n($abs_input)\n\nClick OK to continue."]
 	    return ""
 	}
 	return $abs_input
@@ -1163,7 +1181,7 @@ proc resolve_config { input } {
     if { [ file isfile $abs_input ] == 1 } {
 	# it is a path to a file, it is an .ini file?
 	if { [ file extension $abs_input ] != ".ini" } {
-	    popup "ERROR: Not a valid ini file (must end in .ini)\n\n'$input'\n($abs_input)\n\nClick OK to continue."
+	    popup [msgcat::mc "ERROR: Not a valid ini file (must end in .ini)"]"\n\n'$input'\n($abs_input)\n\n"[msgcat::mc "Click OK to continue."]
 	    return ""
 	}
 	return $abs_input
@@ -1180,10 +1198,10 @@ proc resolve_config { input } {
 		# yes, done
 		return $abs_input
 	    }
-	    popup "ERROR: Not a valid config directory (contains no .ini files)\n\n'$input'\n($abs_input)\n\nClick OK to continue."
+	    popup [msgcat::mc "ERROR: Not a valid config directory (contains no .ini files)"]"\n\n'$input'\n($abs_input)\n\n"[msgcat::mc "Click OK to continue."]
 	    return ""
 	}
-	popup "ERROR: Config not found\n\n'$input'\n($abs_input)\n\nClick OK to continue."
+	popup [msgcat::mc "ERROR: Config not found"]"\n\n'$input'\n($abs_input)\n\n"[msgcat::mc "Click OK to continue."]
 	return ""
     }
     # is it of the form <config-name>/<ini-name>?
@@ -1197,10 +1215,10 @@ proc resolve_config { input } {
 	    # yes, done
 	    return $abs_input
 	}
-	popup "ERROR: config/ini not found\n\n'$input'\n($abs_input)\n\nClick OK to continue."
+	popup [msgcat::mc "ERROR: config/ini not found"]"\n\n'$input'\n($abs_input)\n\n"[msgcat::mc "Click OK to continue."]
 	return ""
     }
-    popup "ERROR: Not a valid config name\n(must be either <config-name> or <config-name>/<ini-name>)\n\n'$input'\n\nClick OK to continue."
+    popup [msgcat::mc "ERROR: Not a valid config name\n(must be either <config-name> or <config-name>/<ini-name>)"]"\n\n'$input'\n\n"[msgcat::mc "Click OK to continue."]
     return ""
 }   
 
@@ -1213,7 +1231,7 @@ foreach class { Button Entry Label Listbox Scale Text } {
 }
 
 # make a toplevel and a master frame.
-wm title . "EMC2 Configuration Manager"
+wm title . [msgcat::mc "EMC2 Configuration Manager"]
 set top [frame .main -borderwidth 2 -relief raised ]
 # want these too, but on windoze they cause an error? -padx 10 -pady 10 ]
 pack $top -expand yes -fill both
@@ -1226,11 +1244,11 @@ if { $configs_index >= 0 } {
     # yes, get the directory name
     set configs_dir [ lindex $argv [ expr $configs_index + 1 ]]
     if { $configs_dir == "" || [ string equal -length 1 $configs_dir "-" ] == 1 } {
-	popup "ERROR: option '--configs_dir' must be followed by a directory name.\n\nClick OK to exit."
+	popup [msgcat::mc "ERROR: option '--configs_dir' must be followed by a directory name."]"\n\n"[msgcat::mc "Click OK to exit."]
 	exit -1
     }
     if { [ file isdirectory $configs_dir ] != 1 } {
-	popup "ERROR: '--configs-dir' argument is\n\n'$configs_dir'\n\nwhich is not a directory.\n\nClick OK to exit."
+	popup [msgcat::mc "ERROR: '--configs-dir' argument is"]"\n\n'$configs_dir'\n\n"[msgcat::mc "which is not a directory."]"\n\n"[msgcat::mc "Click OK to exit."]
 	exit -1
     }
     # make into absolute path to directory
@@ -1248,7 +1266,7 @@ if { $configs_dir == "" } {
     if { [ info exists env(EMC2_CONFIG_DIR) ] } {
 	set configs_dir [ file_normalize $env(EMC2_CONFIG_DIR) ]
 	if { [ file isdirectory $configs_dir ] != 1 } {
-	    popup "ERROR: environment variable EMC2_CONFIG_DIR is\n\n'$env(EMC2_CONFIG_DIR)'\n\nwhich is not a directory.\n\nClick OK to exit."
+	    popup [msgcat::mc "ERROR: environment variable EMC2_CONFIG_DIR is"]"\n\n'$env(EMC2_CONFIG_DIR)'\n\n"[msgcat::mc "which is not a directory."]"\n\n"[msgcat::mc "Click OK to exit."]
 	    exit -1
 	}
     }
@@ -1274,7 +1292,7 @@ if {$configs_dir == ""} {
 # if we still don't know where the configs are, we're screwed....
 if {$configs_dir == ""} {
     # give up
-    popup "ERROR: Cannot find the EMC2 configurations directory.\nYou can specify the directory with the '--configs_dir <dir>' option.\n\nClick OK to exit."
+    popup [msgcat::mc "ERROR: Cannot find the EMC2 configurations directory.\nYou can specify the directory with the '--configs_dir <dir>' option."]"\n\n"[msgcat::mc "Click OK to exit."]
     exit -1
 }
 
@@ -1291,7 +1309,7 @@ foreach option_type { "--new" "--run" "--get-config" } {
     }
 }
 if { $num_opts > 1 } {
-    popup "ERROR: options '--run', '--new', and '--get-config' are\nmutually exclusive, please specify only one.\n\nClick OK to exit."
+    popup [msgcat::mc "ERROR: options '--run', '--new', and '--get-config' are\nmutually exclusive, please specify only one."]"\n\n"[msgcat::mc "Click OK to exit."]
     exit -1
 }
 
@@ -1338,7 +1356,7 @@ switch -- $option_name {
 # at this point all legal options and their args have been deleted, 
 # anything left in 'argv' is an error
 if { [ llength $argv ] != 0 } {
-    popup "ERROR: unknown command line option:\n\n'$argv'\n\nClick OK to exit."
+    popup [msgcat::mc "ERROR: unknown command line option:"]"\n\n'$argv'\n\n"[msgcat::mc "Click OK to exit."]
     exit -1
 }
 
