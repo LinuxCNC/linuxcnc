@@ -48,7 +48,11 @@ typedef struct {
     double accel;           // accel calc'd by task
     double feed_override;   // feed override requested by user
     double maxvel;          // max possible vel (feed override stops here)
+    double increment;       // keep track of current step (vel * cycle_time)
     
+    double cruise_start;    // when progress gets here, we stop accelerating
+    double decel_start;     // begin decel here in order to stop at the end
+
     int id;                 // segment's serial number - maybe not needed?
 
     union {                 // describes the segment's start and end positions

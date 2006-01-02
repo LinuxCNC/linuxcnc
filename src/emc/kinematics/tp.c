@@ -432,7 +432,8 @@ int tpRunCycle(TP_STRUCT * tp)
     // (three position points required)
 
     TC_STRUCT *tc;
-    double increment;
+    // distance required for acceleration to requested velocity:
+    double drfatrv;
 
     if(tp->aborting) {
         // an abort message has come
@@ -471,22 +472,45 @@ int tpRunCycle(TP_STRUCT * tp)
 
     if(tc->active == 0) {
         // this means this tc is being read for the first time.
-        tc->active = 1;
+        
+        tc->increment = 0;
         tp->depth = tp->activeDepth = 1;
         tp->execId = tc->id;
+
+        if(tc->vel > tp->vLimit) 
+            tc->vel = tp->vLimit;
+
+        drfatrv = 0.5 * pmSq(tc->vel) / tc->accel;
+
+        if(2 * drfatrv >= tc->target) {
+            // move is too short for a cruise phase (can't reach vel)
+
+            // time it takes to accelerate to our max reachable vel
+            double t = pmSqrt(tc->target / tc->accel);
+
+            // so that max reachable vel is 
+            tc->vel = tc->accel * t;
+        }
     }
 
+    drfatrv = 0.5 * pmSq(tc->vel) / tc->accel;
+
     // move along the segment the right amount
-    increment = (tc->vel * tc->feed_override) * tc->cycle_time;
-    tc->progress += increment;
 
-    // don't move past the end, which will give tcGetPos fits.
-    // I may need to choose increment more carefully (which 
-    // might mean reducing the velocity just a bit) to come as
-    // close as possible to the endpoint on the final increment.
-    if(tc->progress > tc->target) 
-        tc->progress = tc->target;
+    if(tc->active && tc->target - tc->progress <= drfatrv) {
+        // decelerate
+        if(tc->increment - tc->accel * pmSq(tc->cycle_time) > 0) 
+            tc->increment -= tc->accel * pmSq(tc->cycle_time);
+    } else {
+        // otherwise, accel or cruise
+        tc->increment += tc->accel * pmSq(tc->cycle_time);
+        if(tc->increment > tc->vel * tc->cycle_time) 
+            tc->increment = tc->vel * tc->cycle_time;
+    }
 
+    tc->active = 1;
+
+    tc->progress += tc->increment;
     tp->currentPos = tcGetPos(tc);
 
     return 0;
