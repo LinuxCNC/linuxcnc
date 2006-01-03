@@ -247,11 +247,11 @@ msgstr  "Werkzeugbahnkorrektur funktioniert nur innerhalb der xy-Ebene"
 
 #: rs274ngc_errors.cc:79
 msgid   "Cannot turn cutter radius comp on when on"
-msgstr  "Werkzeugbahnkorrektur kann nicht aktiviert werden wenn"
+msgstr  "Werkzeugbahnkorrektur kann nicht aktiviert werden wenn schon aktiv"
 
 #: rs274ngc_errors.cc:80
 msgid   "Cannot use a word"
-msgstr  "An dieser Stelle kann kein Wort benutzt werden"
+msgstr  "Das Koordinaten-Wort A kann hier nicht verwendet werden"
 
 #: rs274ngc_errors.cc:81
 msgid   "Cannot use axis values with g80"
@@ -427,15 +427,15 @@ msgstr  "Fehlende linke Klammer nach unärem Operationsnamen"
 
 #: rs274ngc_errors.cc:123
 msgid   "Line number greater than 99999"
-msgstr  "Zeilennummer größer 99999"
+msgstr  "Zeilennummer größer als 99999"
 
 #: rs274ngc_errors.cc:124
 msgid   "Line with g10 does not have l2"
-msgstr  "Zeile mit g10 enthält kein l2"
+msgstr  "Zeile mit G10 enthält kein L2"
 
 #: rs274ngc_errors.cc:125
-msgid   "M code greater than 99"
-msgstr  "M-Kommando größer als 99"
+msgid   "M code greater than 199"
+msgstr  "M-Kommando größer als 199"
 
 #: rs274ngc_errors.cc:126
 msgid   "Mixed radius ijk format for arc"
@@ -531,7 +531,7 @@ msgstr  "F-Kommando mit negativer Zahl"
 
 #: rs274ngc_errors.cc:149
 msgid   "Negative g code used"
-msgstr  "G-Kommando mit negativer Zahl"
+msgstr  "G-Wort mit negativer Zahl"
 
 #: rs274ngc_errors.cc:150
 msgid   "Negative h word tool length offset index used"
@@ -627,15 +627,15 @@ msgstr  "Angabe von R, I, J oder K fehlt bei einem Kreisbogen"
 
 #: rs274ngc_errors.cc:173
 msgid   "R less than x in cycle in yz plane"
-msgstr  "R ist kleiner als X während eines Zyklus in der yz-Ebene"
+msgstr  "R ist kleiner als X während eines Zyklus in der YZ-Ebene"
 
 #: rs274ngc_errors.cc:174
 msgid   "R less than y in cycle in xz plane"
-msgstr  "R ist kleiner als Y während eines Zyklus in der xz-Ebene"
+msgstr  "R ist kleiner als Y während eines Zyklus in der XZ-Ebene"
 
 #: rs274ngc_errors.cc:175
 msgid   "R less than z in cycle in xy plane"
-msgstr  "R ist kleiner als Z während eines Zyklus in der xy-Ebene"
+msgstr  "R ist kleiner als Z während eines Zyklus in der XY-Ebene"
 
 #: rs274ngc_errors.cc:176
 msgid   "R word with no g code that uses it"
@@ -663,7 +663,7 @@ msgstr  "Fehlender Schrägstrich nach dem ersten Argument in einer atan-Funktion"
 
 #: rs274ngc_errors.cc:182
 msgid   "Spindle not turning clockwise in g84"
-msgstr  "g84, aber Werkzeug-Spindel dreht sich nicht im Uhrzeigersin"
+msgstr  "g84, aber Werkzeug-Spindel dreht sich nicht im Uhrzeigersinn"
 
 #: rs274ngc_errors.cc:183
 msgid   "Spindle not turning in g86"
@@ -693,10 +693,11 @@ msgstr  "Zu viele M-Codes auf einer Zeile"
 msgid   "Tool length offset index too big"
 msgstr  "Werkzeug-Längen-Index zu groß"
 
-# Anmerkung:FJ: Tool max? Was das? 
+# Anmerkung:FJ: Tool max? Was das?
+# Anmerkung:AJ: sollte "Index in tool table file too large" sein 
 #: rs274ngc_errors.cc:190
 msgid   "Tool max too large"
-msgstr  "Werkzeug max zu groß"
+msgstr  "Werkzeug-Datei-Index zu groß"
 
 #: rs274ngc_errors.cc:191
 msgid   "Tool radius index too big"
@@ -728,11 +729,11 @@ msgstr  "Nicht abgeschlossener Ausdruck"
 
 #: rs274ngc_errors.cc:198
 msgid   "Unknown g code used"
-msgstr  "Verwendung eines unbekannten G-Kommandos"
+msgstr  "Unbekanntes G-Kommando"
 
 #: rs274ngc_errors.cc:199
 msgid   "Unknown m code used"
-msgstr  "Verwendung eines unbekannten M-Kommandos"
+msgstr  "Unbekanntes M-Kommando"
 
 #: rs274ngc_errors.cc:200
 msgid   "Unknown operation"
@@ -792,7 +793,7 @@ msgstr  "Unbekanntes Wort, wo unäre Operation erwartet"
 
 #: rs274ngc_errors.cc:214
 msgid   "X and y words missing for arc in xy plane"
-msgstr  "X- und Y-Worte fehlen für einen Kreisbogen in der xy-Ebene"
+msgstr  "X- und Y-Worte fehlen für einen Kreisbogen in der XY-Ebene"
 
 #: rs274ngc_errors.cc:215
 msgid   "X and z words missing for arc in xz plane"
