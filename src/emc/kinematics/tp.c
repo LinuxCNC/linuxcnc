@@ -254,15 +254,6 @@ int tpSetTermCond(TP_STRUCT * tp, int cond)
     return 0;
 }
 
-int tpGetTermCond(TP_STRUCT * tp)
-{
-    if (0 == tp) {
-	return -1;
-    }
-
-    return tp->termCond;
-}
-
 // Used to tell the tp the initial position.  It sets
 // the current position AND the goal position to be the same.  
 // Used only at TP initialization and when switching modes.
@@ -432,8 +423,7 @@ int tpRunCycle(TP_STRUCT * tp)
     // (three position points required)
 
     TC_STRUCT *tc;
-    // distance required for acceleration to requested velocity:
-    double drfatrv;
+    double max_dv, tiny_dp, to_go, vel_req;
 
     if(tp->aborting) {
         // an abort message has come
@@ -461,7 +451,12 @@ int tpRunCycle(TP_STRUCT * tp)
         return 0;
     }
 
-    if (tc->target - tc->progress < 1e-6) {
+    // max change in velocity per cycle allowed by accel constraint
+    max_dv = tc->accel * tc->cycle_time;
+    // displacement under which we consider the motion done
+    tiny_dp = max_dv * tc->cycle_time * 0.001;
+
+    if (tc->target - tc->progress < tiny_dp) {
         // done with this move
         tcqRemove(&tp->queue, 1);
 
@@ -476,41 +471,47 @@ int tpRunCycle(TP_STRUCT * tp)
         tc->increment = 0;
         tp->depth = tp->activeDepth = 1;
         tp->execId = tc->id;
+        tc->active = 1;
 
+        // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
         if(tc->vel > tp->vLimit) 
             tc->vel = tp->vLimit;
-
-        drfatrv = 0.5 * pmSq(tc->vel) / tc->accel;
-
-        if(2 * drfatrv >= tc->target) {
-            // move is too short for a cruise phase (can't reach vel)
-
-            // time it takes to accelerate to our max reachable vel
-            double t = pmSqrt(tc->target / tc->accel);
-
-            // so that max reachable vel is 
-            tc->vel = tc->accel * t;
-        }
     }
 
-    drfatrv = 0.5 * pmSq(tc->vel) / tc->accel;
+    // this algorithm stolen unabashedly from jmkasunich's work in 
+    // motion/control.c
 
-    // move along the segment the right amount
+    max_dv = tc->accel * tc->cycle_time;
+    tiny_dp = max_dv * tc->cycle_time * 0.001;
 
-    if(tc->active && tc->target - tc->progress <= drfatrv) {
-        // decelerate
-        if(tc->increment - tc->accel * pmSq(tc->cycle_time) > 0) 
-            tc->increment -= tc->accel * pmSq(tc->cycle_time);
-    } else {
-        // otherwise, accel or cruise
-        tc->increment += tc->accel * pmSq(tc->cycle_time);
-        if(tc->increment > tc->vel * tc->cycle_time) 
-            tc->increment = tc->vel * tc->cycle_time;
-    }
+    // how far to go?
+    to_go = tc->target - tc->progress;
 
-    tc->active = 1;
+    // request velocity that will bring us to the target but will still
+    // allow a stop at the end of the motion
+    if(to_go > tiny_dp) 
+        vel_req = -max_dv + pmSqrt(2.0 * tc->accel * to_go + pmSq(max_dv));
+    else
+        vel_req = 0.0;
 
-    tc->progress += tc->increment;
+    // clamp at requested feed
+    if(vel_req > tc->vel)
+        vel_req = tc->vel;
+
+    // scale by feed override and clamp to machine constraints 
+    // [AXIS_*] MAX_VELOCITY
+    vel_req *= tc->feed_override;
+    if(vel_req > tc->maxvel)
+        vel_req = tc->maxvel;
+
+    // ramp velocity toward request at axis accel limit 
+    if(vel_req > tc->increment + max_dv)
+        tc->increment += max_dv;
+    else
+        tc->increment = vel_req;
+
+    // move
+    tc->progress += tc->increment * tc->cycle_time;
     tp->currentPos = tcGetPos(tc);
 
     return 0;

@@ -67,7 +67,6 @@ extern int tpSetAmax(TP_STRUCT * tp, double amax);
 extern int tpSetId(TP_STRUCT * tp, int id);
 extern int tpGetExecId(TP_STRUCT * tp);
 extern int tpSetTermCond(TP_STRUCT * tp, int cond);
-extern int tpGetTermCond(TP_STRUCT * tp);
 extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
 extern int tpAddLine(TP_STRUCT * tp, EmcPose end);
 extern int tpAddCircle(TP_STRUCT * tp, EmcPose end,

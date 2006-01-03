@@ -50,9 +50,6 @@ typedef struct {
     double maxvel;          // max possible vel (feed override stops here)
     double increment;       // keep track of current step (vel * cycle_time)
     
-    double cruise_start;    // when progress gets here, we stop accelerating
-    double decel_start;     // begin decel here in order to stop at the end
-
     int id;                 // segment's serial number - maybe not needed?
 
     union {                 // describes the segment's start and end positions
@@ -62,14 +59,12 @@ typedef struct {
 
     char motion_type;       // TC_LINEAR (coords.line) or 
                             // TC_CIRCULAR (coords.circle)
-    char active;
+    char active;            // this motion is being executed
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
 
 extern EmcPose tcGetPos(TC_STRUCT * tc);
-extern PmCartesian tcGetUnitCart(TC_STRUCT * tc);
-
 
 /* queue of TC_STRUCT elements*/
 

@@ -28,6 +28,12 @@
 #include "emcpos.h"
 #include "tc.h"
 
+
+// the motion's target is its length; progress starts at zero and represents
+// the progress along the length toward target.  This function calculates 
+// the machine position along the motion's path corresponding to the current
+// progress.
+
 EmcPose tcGetPos(TC_STRUCT * tc)
 {
     EmcPose pos;
@@ -40,7 +46,8 @@ EmcPose tcGetPos(TC_STRUCT * tc)
             pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
             pmLinePoint(&tc->coords.line.abc, tc->progress, &abc);
         } else {
-            // progress is along xyz, and abc moves to end at the same time.
+            // progress is along xyz, and abc moves proportionally in order
+            // to end at the same time.
             pmLinePoint(&tc->coords.line.xyz, tc->progress, &xyz);
             pmLinePoint(&tc->coords.line.abc, 
                         tc->progress * tc->coords.line.abc.tmag / tc->target,
@@ -52,7 +59,8 @@ EmcPose tcGetPos(TC_STRUCT * tc)
 	pmCirclePoint(&tc->coords.circle.xyz,
 		      tc->progress * tc->coords.circle.xyz.angle / tc->target, 
                       &xyz);
-        // abc moves to end at the same time as the circular move.
+        // abc moves proportionally in order to end at the same time as the 
+        // circular xyz move.
         pmLinePoint(&tc->coords.circle.abc,
                     tc->progress * tc->coords.circle.abc.tmag / tc->target, 
                     &abc);
@@ -66,30 +74,10 @@ EmcPose tcGetPos(TC_STRUCT * tc)
     return pos;
 }
 
-PmCartesian tcGetUnitCart(TC_STRUCT * tc)
-{
-    PmPose currentPose;
-    PmCartesian radialCart, unitCart;
-
-    if (tc->motion_type == TC_LINEAR) {
-	pmCartCartSub(tc->coords.line.xyz.end.tran, 
-                      tc->coords.line.xyz.start.tran,
-		      &unitCart);
-	pmCartUnit(unitCart, &unitCart);
-	return (unitCart);
-    } else {
-	pmCirclePoint(&tc->coords.circle.xyz, tc->progress, &currentPose);
-	pmCartCartSub(currentPose.tran, tc->coords.circle.xyz.center, 
-                      &radialCart);
-	pmCartCartCross(tc->coords.circle.xyz.normal, radialCart, 
-                        &unitCart);
-	pmCartUnit(unitCart, &unitCart);
-	return (unitCart);
-    }
-}
-
 // These following functions implement the motion queue that
 // is fed by tpAddLine/tpAddCircle and consumed by tpRunCycle.
+// They have been fully working for a long time and a wise programmer
+// won't mess with them.
 
 int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size, TC_STRUCT * tcSpace)
 {
