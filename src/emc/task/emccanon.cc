@@ -168,7 +168,10 @@ static int sendVelMsg(double vel, double ini_maxvel)
     } else if (linear_move && angular_move) {
 	velMsg.velocity = TO_EXT_LEN(vel);
 	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
-    }
+    } else { //seems this case was forgotten, neither linear, neither angular move (we are only sending vel)
+	velMsg.velocity = TO_EXT_LEN(vel);
+	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
+    }	
 
     if (velMsg.velocity != lastVelSet ||
             velMsg.ini_maxvel != last_ini_maxvel) {
@@ -247,6 +250,7 @@ void SET_TRAVERSE_RATE(double rate)
 
 void SET_FEED_RATE(double rate)
 {
+
     /* convert from /min to /sec */
     rate /= 60.0;
 
@@ -1429,7 +1433,6 @@ double GET_EXTERNAL_FEED_RATE()
 
     // convert from external to program units
     feed = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->motion.traj.velocity));
-
     // now convert from per-sec to per-minute
     feed *= 60.0;
 
