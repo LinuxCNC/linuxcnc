@@ -73,13 +73,20 @@ CheckConfig(){
 
 CheckStatus(){
     # check loaded/unloaded status of modules
+    unset NOTLOADED
     for MOD in $MODULES_UNLOAD ; do
 	if /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
 	    echo "$MOD is loaded"
 	else
 	    echo "$MOD is not loaded"
+            NOTLOADED=NOT
 	fi
     done
+    if [ -z $NOTLOADED ]; then
+        exit 0
+    else
+        exit 1
+    fi
 }
 
 CheckRoot(){
