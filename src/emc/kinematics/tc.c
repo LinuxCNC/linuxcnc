@@ -1,10 +1,11 @@
-/********************************************************************
+/*!
+********************************************************************
 * Description: tc.c
-*   Discriminate-based trajectory planning
+*\brief Discriminate-based trajectory planning
 *
-*   Derived from a work by Fred Proctor & Will Shackleford
+*\author Derived from a work by Fred Proctor & Will Shackleford
+*\author rewritten by Chris Radek
 *
-* Author:
 * License: GPL Version 2
 * System: Linux
 *    
@@ -29,11 +30,20 @@
 #include "tc.h"
 
 
-// the motion's target is its length; progress starts at zero and represents
-// the progress along the length toward target.  This function calculates 
-// the machine position along the motion's path corresponding to the current
-// progress.
-
+/*! tcGetPos() function
+ *
+ * \brief This function calculates the machine position along the motion's path.
+ *
+ * As we move along a TC, from zero to its length, we call this function repeatedly,
+ * with an increasing tc->progress.
+ * This function calculates the machine position along the motion's path 
+ * corresponding to the current progress.
+ * It gets called at the end of tpRunCycle()
+ * 
+ * @param    tc    the current TC that is beeing planned
+ *
+ * @return	 EmcPose   returns a position (\ref EmcPose = datatype carrying XYZABC information
+ */   
 EmcPose tcGetPos(TC_STRUCT * tc)
 {
     EmcPose pos;
@@ -53,10 +63,10 @@ EmcPose tcGetPos(TC_STRUCT * tc)
                         tc->progress * tc->coords.line.abc.tmag / tc->target,
                         &abc);
         }
-    } else {
+    } else { //we have TC_CIRCULAR
         // progress is always along the xyz circle.  This simplification 
         // is possible since zero-radius arcs are not allowed by the interp.
-	pmCirclePoint(&tc->coords.circle.xyz,
+		pmCirclePoint(&tc->coords.circle.xyz,
 		      tc->progress * tc->coords.circle.xyz.angle / tc->target, 
                       &xyz);
         // abc moves proportionally in order to end at the same time as the 
@@ -74,11 +84,28 @@ EmcPose tcGetPos(TC_STRUCT * tc)
     return pos;
 }
 
-// These following functions implement the motion queue that
-// is fed by tpAddLine/tpAddCircle and consumed by tpRunCycle.
-// They have been fully working for a long time and a wise programmer
-// won't mess with them.
+/*!
+ * \subsection TC queue functions
+ * These following functions implement the motion queue that
+ * is fed by tpAddLine/tpAddCircle and consumed by tpRunCycle.
+ * They have been fully working for a long time and a wise programmer
+ * won't mess with them.
+ */
 
+
+/*! tcqCreate() function
+ *
+ * \brief Creates a new queue for TC elements.
+ *
+ * This function creates a new queue for TC elements. 
+ * It gets called by tpCreate()
+ * 
+ * @param    tcq       pointer to the new TC_QUEUE_STRUCT
+ * @param	 _size	   size of the new queue
+ * @param	 tcSpace   holds the space allocated for the new queue, allocated in motion.c
+ *
+ * @return	 int	   returns success or failure
+ */   
 int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size, TC_STRUCT * tcSpace)
 {
     if (_size <= 0 || 0 == tcq) {
@@ -97,6 +124,19 @@ int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size, TC_STRUCT * tcSpace)
     }
 }
 
+/*! tcqDelete() function
+ *
+ * \brief Deletes a queue holding TC elements.
+ *
+ * This function creates deletes a queue. It doesn't free the space
+ * only throws the pointer away. 
+ * It gets called by tpDelete() 
+ * \todo FIXME, it seems tpDelete() is gone, and this function isn't used.
+ * 
+ * @param    tcq       pointer to the TC_QUEUE_STRUCT
+ *
+ * @return	 int	   returns success
+ */   
 int tcqDelete(TC_QUEUE_STRUCT * tcq)
 {
     if (0 != tcq && 0 != tcq->queue) {
@@ -107,6 +147,18 @@ int tcqDelete(TC_QUEUE_STRUCT * tcq)
     return 0;
 }
 
+/*! tcqInit() function
+ *
+ * \brief Initializes a queue with TC elements.
+ *
+ * This function initializes a queue with TC elements. 
+ * It gets called by tpClear() and  
+ * 	  	   		  by tpRunCycle() when we are aborting
+ * 
+ * @param    tcq       pointer to the TC_QUEUE_STRUCT
+ *
+ * @return	 int	   returns success or failure (if no tcq found)
+ */
 int tcqInit(TC_QUEUE_STRUCT * tcq)
 {
     if (0 == tcq) {
@@ -120,18 +172,28 @@ int tcqInit(TC_QUEUE_STRUCT * tcq)
     return 0;
 }
 
-/* put sometc on the end of the queue */
+/*! tcqPut() function
+ *
+ * \brief puts a TC element at the end of the queue
+ *
+ * This function adds a tc element at the end of the queue. 
+ * It gets called by tpAddLine() and tpAddCircle()
+ * 
+ * @param    tcq       pointer to the new TC_QUEUE_STRUCT
+ * @param	 tc        the new TC element to be added
+ *
+ * @return	 int	   returns success or failure
+ */   
 int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc)
 {
-
     /* check for initialized */
     if (0 == tcq || 0 == tcq->queue) {
-	return -1;
+	    return -1;
     }
 
     /* check for allFull, so we don't overflow the queue */
     if (tcq->allFull) {
-	return -1;
+	    return -1;
     }
 
     /* add it */
@@ -149,18 +211,32 @@ int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc)
     return 0;
 }
 
-/* remove n items from the queue */
+/*! tcqRemove() function
+ *
+ * \brief removes n items from the queue
+ *
+ * This function removes the first n items from the queue,
+ * after checking that they can be removed 
+ * (queue initialized, queue not empty, enough elements in it) 
+ * Function gets called by tpRunCycle() with n=1
+ * \todo FIXME: Optimize the code to remove only 1 element, might speed it up
+ * 
+ * @param    tcq       pointer to the new TC_QUEUE_STRUCT
+ * @param	 n         the number of TC elements to be removed
+ *
+ * @return	 int	   returns success or failure
+ */   
 int tcqRemove(TC_QUEUE_STRUCT * tcq, int n)
 {
 
     if (n <= 0) {
-	return 0;		/* okay to remove 0 or fewer */
+	    return 0;		/* okay to remove 0 or fewer */
     }
 
     if ((0 == tcq) || (0 == tcq->queue) ||	/* not initialized */
 	((tcq->start == tcq->end) && !tcq->allFull) ||	/* empty queue */
 	(n > tcq->_len)) {	/* too many requested */
-	return -1;
+	    return -1;
     }
 
     /* update start ptr and reset allFull flag and len */
@@ -171,17 +247,35 @@ int tcqRemove(TC_QUEUE_STRUCT * tcq, int n)
     return 0;
 }
 
-/* how many items are in the queue? */
+/*! tcqLen() function
+ *
+ * \brief returns the number of elements in the queue
+ *
+ * Function gets called by tpSetVScale(), tpAddLine(), tpAddCircle()
+ * 
+ * @param    tcq       pointer to the TC_QUEUE_STRUCT
+ *
+ * @return	 int	   returns number of elements
+ */   
 int tcqLen(TC_QUEUE_STRUCT * tcq)
 {
     if (0 == tcq) {
-	return -1;
+	    return -1;
     }
 
     return tcq->_len;
 }
 
-/* get the nth item from the queue, [0..len-1], without removing */
+/*! tcqItem() function
+ *
+ * \brief gets the n-th TC element in the queue, without removing it
+ *
+ * Function gets called by tpSetVScale(), tpRunCycle(), tpIsPaused()
+ * 
+ * @param    tcq       pointer to the TC_QUEUE_STRUCT
+ *
+ * @return	 TC_STRUCT returns the TC elements
+ */   
 TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n)
 {
     if ((0 == tcq) || (0 == tcq->queue) ||	/* not initialized */
@@ -191,12 +285,27 @@ TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n)
     return &(tcq->queue[(tcq->start + n) % tcq->size]);
 }
 
-/* get the full status of the queue */
+/*! 
+ * \def TC_QUEUE_MARGIN
+ * sets up a margin at the end of the queue, to reduce effects of race conditions
+ */
 #define TC_QUEUE_MARGIN 10
+
+/*! tcqFull() function
+ *
+ * \brief get the full status of the queue 
+ * Function returns full if the count is closer to the end of the queue than TC_QUEUE_MARGIN
+ *
+ * Function called by update_status() in control.c 
+ * 
+ * @param    tcq       pointer to the TC_QUEUE_STRUCT
+ *
+ * @return	 int       returns status (0==not full, 1==full)
+ */   
 int tcqFull(TC_QUEUE_STRUCT * tcq)
 {
     if (0 == tcq) {
-	return 1;		/* null queue is full, for safety */
+	   return 1;		/* null queue is full, for safety */
     }
 
     /* call the queue full if the length is into the margin, so reduce the
@@ -205,12 +314,12 @@ int tcqFull(TC_QUEUE_STRUCT * tcq)
 
     if (tcq->size <= TC_QUEUE_MARGIN) {
 	/* no margin available, so full means really all full */
-	return tcq->allFull;
+	    return tcq->allFull;
     }
 
     if (tcq->_len >= tcq->size - TC_QUEUE_MARGIN) {
 	/* we're into the margin, so call it full */
-	return 1;
+	    return 1;
     }
 
     /* we're not into the margin */
