@@ -19,46 +19,146 @@ exec /usr/bin/wish "$0" "$@"
 ###############################################################
 
 # TODO
-# trap the kill button and ask discard or save.
-# test for bin/halcmd and disable calls to it if not
-# add fallback to setupconfig.tcl and work through copy and run
 # add a run under the file menu with reference to setupconfig.tcl
 # add the control stuff for modify and tune
 # include loadrt and addf with auto refreshHal calls
 # and tests for already loaded if so unload first
-# tests for linked write pins before linkxx
+# tests for already linked write pins before linkxx
 # flesh out the save and reload.
+# remove cruft!!!!!
 
-# since this script isn't worth a pinch of spit unless running
-# alongside a emc2 I'll use this to kill it until we find a way
-# to use it across a network
-switch $tcl_platform(platform) {
-    windows {
-        tk_messageBox  -icon error -type ok -message "Nothing to do, 'cause you're not running a real-time operating system.  When you get this running along with EMC2 then you're ready to go."
+proc initializeConfig {} {
+    global tcl_platform
+    # four ordinal tests are used as this script starts
+    # 1 -- ms, if yes quit - else
+    # 2 -- bwidget, if no quit - else
+    # 3 -- Is script running in place if no quit - else
+    # 4 -- running emc2 or hal if yes run this - else
+    # 4 -- question setupconfig.tcl? if yes -> go after setup
+    #      if no -> start scripts/demo
+    
+    # 1 -- since this script isn't worth a pinch of spit unless running
+    # alongside a emc2 I'll use this to kill it until we find a way
+    # to use it across a network
+    switch $tcl_platform(platform) {
+        windows {
+            tk_messageBox  -icon error -type ok -message "Nothing to do, 'cause you're not running a real-time operating system.  Halconfig works best when it is interacting with a real, running HAL.  When you get this running along with EMC2 then you've got something."
+            exit
+            destroy .
+        }
+            default {
+            option add *ScrolledWindow.size 14
+        }
+    }
+    
+    # 2 -- BWidget package is used for the Tree widget
+    # If you don't find it with this package it is available in
+    # the Axis display package
+    set isbwidget ""
+    set isbwidget [glob -directory /usr/lib -nocomplain \
+        -types d bwidget* ]
+    if {$isbwidget == ""} {
+        tk_messageBox -icon error -type ok -message "Darn.  I didn't find the bwidget library in the usual place\n\n/usr/lib/bwidget-##.\n\nIf this is a linux box and you have the Axis display stuff loaded, it has an older copy of Bwidget that you could link to the location shown above."
         exit
         destroy .
+    } else {
+        package require BWidget
     }
-    default {
-        option add *ScrolledWindow.size 14
+    
+    # 3 -- Are we where we ought to be.
+    set thisdir [file tail [pwd]]
+    if { $thisdir != "emc2"} {
+         tk_messageBox -icon error -type ok -message "The configuration script needs to be run from the main EMC2 directory"
+         exit
+         destroy .
+    }
+    
+    # 4 -- is a hal running?
+    # first level of test is to see if module is in there.
+    set temp ""
+    set tempmod ""
+    set temp [lsearch [exec /sbin/lsmod] hal_lib]
+    if {$temp == -1} {
+        noHal
+    } else {
+        # check status reply for "not" 
+        set tempmod [exec scripts/realtime "status"]
+        set isnot [string match *not* $tempmod]
+        if {$tempmod == "-1"} {
+            if {$isnot != 1} {
+                noHal
+            }
+        }
+    }
+    # end of initial startup tests
+}
+
+proc noHal {} {
+    global demoisup
+    set demoisup no
+    set thisanswer [tk_messageBox -type yesnocancel -message "It looks like HAL is not loaded.  If you'd like to go to the configuration and startup script press yes.  If you'd like to start a HAL demo press no. To stop this script, press cancel."]
+    switch -- $thisanswer {
+        yes {
+            wm withdraw .
+            [exec tcl/bin/setupconfig.tcl]
+        }
+        no {
+           # this works to start a hal but halconfig doesn't live
+            set tmp [exec sudo scripts/realtime load & ]
+            set demoisup yes
+            after 1000 
+        }
+        cancel {
+            killHal
+        }
     }
 }
 
-# BWidget package is used for the Tree widget
-# If you don't find it with this package it is available in
-# the Axis display package
+    
+# run the init test process
+initializeConfig
+    
+# provide for some initial i18n -- needs lots of text work
+package require msgcat
+if ([info exists env(LANG)]) {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload "../../src/po"
+}
 
-set isbwidget [glob -directory /usr/lib -nocomplain \
-    -types d bwidget* ]
+# startup a toplevel and give it a few default characteristics
+# including size and position
+wm title . "HAL Configuration"
+wm protocol . WM_DELETE_WINDOW tk_
+set masterwidth 700
+set masterheight 450
+# set fixed size for configuration display and center
+set xmax [winfo screenwidth .]
+set ymax [winfo screenheight .]
+set x [expr ($xmax - $masterwidth )  / 2 ]
+set y [expr ($ymax - $masterheight )  / 2]
+wm geometry . "${masterwidth}x${masterheight}+$x+$y"
 
-if {$isbwidget == ""} {
-    tk_messageBox -icon error -type ok -message "Darn.  I didn't find the bwidget library in the usual place\n\n/usr/lib/bwidget-##.\n\nIf this is a linux box and you have the Axis display stuff loaded, it has an older copy of Bwidget that you could link it to the location shown above."
+# trap mouseclick on window manager delete
+wm protocol . WM_DELETE_WINDOW askKill
+proc askKill {} {
+    global configdir
+    set tmp [tk_messageBox -icon error -type yesno \
+        -message "Would you like to save your configuration before you exit?"]
+    switch -- $tmp {
+        yes {saveHal $configdir ; killHal}
+        no {killHal}
+    }
+}
+
+proc killHal {} {
+    global demoisup
+    if {$demoisup == "yes"} {
+        set demoisup no
+        set tmp [exec sudo scripts/realtime unload & ]
+    }
     exit
     destroy .
 }
-
-
-package require BWidget
-
 
 # add a few default characteristics to the display
 foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
@@ -66,17 +166,16 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
     option add *$class.borderWidth 1  100
 }
 
-##########
-# Here we create a few strings that control HAL based behavior
+##
+# Create a few strings that control HAL based behavior
 # nodenames are the text applied to the toplevel tree nodes
-# Although these are HAL names they could be internationalized
+# they could be internationalized
 set nodenames {Components Pins Parameters Signals Functions Threads}
-
-# searchnames is the real name to be used to reference each toplevel
-# tree node these can not be internationalized and are used to show
-# or list hal when the nodename above is clicked or a view menu
-# is activated
+# searchnames is the real name to be used to reference
 set searchnames {comp pin param sig funct thread}
+# add a few names to test and make subnodes to the signal node
+# a linkpp signal will be sorted by it's pin name so ignore here
+set signodes {X Y Z A "Spindle"}
 
 # workmodes are set from the menu
 # possible workmodes include showhal modifyhal tunehal watchhal ...
@@ -103,17 +202,6 @@ set workmode showhal
 # The layout is fixed sized and uses the place manager to
 # fix this layout.  It can be expanded by the user after startup.
 
-
-
-wm title . "HAL Configuration"
-set masterwidth 700
-set masterheight 450
-# set fixed size for configuration display and center
-set xmax [winfo screenwidth .]
-set ymax [winfo screenheight .]
-set x [expr ($xmax - $masterwidth )  / 2 ]
-set y [expr ($ymax - $masterheight )  / 2]
-wm geometry . "${masterwidth}x${masterheight}+$x+$y"
 set top [frame .main -bg white]
 pack $top -padx 4 -pady 4 -fill both -expand yes
 
@@ -122,6 +210,8 @@ set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 0]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu -underline 0
+        $filemenu add command -label [msgcat::mc "Run Hal"] \
+            -command {} -underline 0
         $filemenu add command -label [msgcat::mc "Refresh"] \
             -command {refreshHal} -underline 0
         $filemenu add command -label [msgcat::mc "Save"] \
@@ -176,17 +266,6 @@ set helpmenu [menu $menubar.help -tearoff 0]
             -command {showHelp thread} -underline 0
 . configure -menu $menubar
 
-# set tf [frame $top.maint -width 200]
-# set df [frame $top.maind  -width 300]
-# set cf [frame $top.mainc ]
-# grid configure  $tf -column 0 -row 0 -sticky nsew
-# grid configure $df -column 1 -row 0 -sticky nsew
-# grid configure $cf -column 0 -row 1 -columnspan 2 -sticky nsew
-# grid columnconfigure $top 0 -weight 1
-# grid columnconfigure $top 1 -weight 2
-# grid rowconfigure $top 0 -weight 3
-# grid rowconfigure $top 1 -weight 1
-
 # build the tree area in the upper left
 # fixme add a slider
 set tf [frame $top.maint]
@@ -236,46 +315,35 @@ proc exHal {what} {
     refreshHal
 }
 
-# create an empty array to hold modify elements
-# array elements are created from what is clicked in tree
-# and shown in control
-array set controlarray {}
-
-# process uses it's own halcmd for showing
-# separates the arg using xxx-yyy
-# where xxx is the first part of the arg
-proc showHal {which} {
-    global workmode controlarray
-    set thislist [split $which "+"]
-    set searchbase [lindex $thislist 0]
-    set searchstring [lindex $thislist 1]
-    set thisret [exec bin/halcmd show $searchbase $searchstring]
-    switch -- $workmode {
-        showhal {
-            displayThis $thisret
-        }
-        modifyhal {
-            set asize [array size controlarray]
-            array set controlarray "$asize $which"
-            displayAddThis $thisret
-        }
-        tunehal {
-            displayThis "Move along.  Nothing to see here yet."
-        }
-        default {
-            displayThis "Something went way wrong with settings."
-        }
+# writeNode handles actual tree node insertion
+proc writeNode {arg} {
+    global treew treenodes
+#    puts $arg
+    set j [lindex $arg 0]
+    set base [lindex $arg 1]
+    set node [lindex $arg 2]
+    set name [lindex $arg 3]
+    set leaf [lindex $arg 4]
+    $treew insert $j  $base  $node -text $name
+    if {$leaf > 0} {
+        lappend treenodes $node
     }
 }
 
 # listhal sets listed pin, param, and sig stuff from a running hal
-# it is run during setup or refresh of the navigation tree
+# it is run from refresh of the navigation tree
 proc listHal {} {
+    global searchnames nodenames
+    set i 0
+    foreach node $searchnames {
+        writeNode "$i root $node [lindex $nodenames $i] 1"
+        incr i
+    }
     set pinstring [exec bin/halcmd list "pin"]
     set paramstring [exec bin/halcmd list "param"]
     set sigstring [exec bin/halcmd list "sig"]
-    makeNodePin $pinstring
-    makeNodeParam $paramstring
+    makeNodeP param $paramstring
+    makeNodeP pin $pinstring
     makeNodeSig $sigstring
 }
 
@@ -288,29 +356,25 @@ proc listHal {} {
 # a node is made below param named param+pid
 # below it a node named param+pid.0
 # and below a leaf param+pid.0.FF0
-#
-# the last tree problem is the stacking order of nodes within
-# each parent node.  This is done by assigning a number during
-# $treename insert (stack number)
 
-proc makeNodeParam {paramstring} {
-    global treew
+proc makeNodeP {which pstring} {
+    global treew 
     # make an array to hold position counts
     array set pcounts {1 1 2 1 3 1 4 1 5 1}
     # consider each listed element
-    foreach param $paramstring {
-        set elementlist [split $param "." ]
-        set numbnodes [llength $elementlist]
+    foreach p $pstring {
+        set elementlist [split $p "." ]
+        set lastnode [llength $elementlist]
         set i 1
         foreach element $elementlist {
             switch $i {
                 1 {
-                    set snode "param+$element"
+                    set snode "$which+$element"
                     if {! [$treew exists "$snode"] } {
+                        set leaf [expr $lastnode - 1]
                         set j [lindex [array get pcounts 1] end]
-                        $treew insert $j  param  "$snode" \
-                            -text $element
-                        array set pcounts "1 [incr j]"
+                        writeNode "$j $which $snode $element $leaf"
+                        array set pcounts "1 [incr j] 2 1 3 1 4 1 5 1"
                         set j 0
                     }
                     set i 2
@@ -318,10 +382,10 @@ proc makeNodeParam {paramstring} {
                 2 {
                     set ssnode "$snode.$element"
                     if {! [$treew exists "$ssnode"] } {
+                        set leaf [expr $lastnode - 2]
                         set j [lindex [array get pcounts 2] end]
-                        $treew insert $j  $snode  "$ssnode" \
-                            -text $element
-                        array set pcounts "2 [incr j]"
+                        writeNode "$j $snode $ssnode $element $leaf"
+                        array set pcounts "2 [incr j] 3 1 4 1 5 1"
                         set j 0
                     }
                     set i 3
@@ -329,10 +393,10 @@ proc makeNodeParam {paramstring} {
                 3 {
                     set sssnode "$ssnode.$element"
                     if {! [$treew exists "$sssnode"] } {
+                        set leaf [expr $lastnode - 3]
                         set j [lindex [array get pcounts 3] end]
-                        $treew insert $j  $ssnode  "$sssnode" \
-                            -text $element
-                        array set pcounts "3 [incr j]"
+                        writeNode "$j $ssnode $sssnode $element $leaf"
+                        array set pcounts "3 [incr j] 4 1 5 1"
                         set j 0
                     }
                     set i 4
@@ -340,132 +404,167 @@ proc makeNodeParam {paramstring} {
                 4 {
                     set ssssnode "$sssnode.$element"
                     if {! [$treew exists "$ssssnode"] } {
+                        set leaf [expr $lastnode - 4]
                         set j [lindex [array get pcounts 4] end]
-                        $treew insert $j  $sssnode  "$ssssnode" \
-                            -text $element
-                        array set pcounts "4 [incr j]"
+                        writeNode "$j $sssnode $ssssnode $element $leaf"
+                        array set pcounts "4 [incr j] 5 1"
                         set j 0
                     }
                     set i 4
                 }
                 5 {
-                    set sssssnode "$ssssnode.$element"
+                    set sssssnode "$ssssnode.$element"]
                     if {! [$treew exists "$sssssnode"] } {
+                        set leaf [expr $lastnode - 5]
                         set j [lindex [array get pcounts 5] end]
-                        $treew insert $j  $ssssnode  "$sssssnode" \
-                            -text $element
+                        writeNode "$j $ssssnode $sssssnode $element $leaf"
                         array set pcounts "5 [incr j]"
                         set j 0
                     }
                 }
-            } ; # end of switch
-        } ; # end of element foreach
-    } ; # end of param foreach
+              # end of node making switch
+            }
+           # end of element foreach
+         }
+        # end of param foreach
+    }
     # empty the counts array in preparation for next proc call
     array unset pcounts {}
-} ; # end of makeNodeParam
+}
 
-proc makeNodePin {pinstring} {
-    global treew
-    # make an array to hold position counts
-    array set pcounts {1 1 2 1 3 1 4 1 5 1}
-    # consider each listed element
-    foreach pin $pinstring {
-        set elementlist [split $pin "." ]
-        set numbnodes [llength $elementlist]
-        set i 1
-        foreach element $elementlist {
-            switch $i {
-                1 {
-                    set snode "pin+$element"
-                    if {! [$treew exists "$snode"] } {
-                        set j [lindex [array get pcounts 1] end]
-                        $treew insert $j  pin  "$snode" \
-                            -text $element
-                        array set pcounts "1 [incr j]"
-                        set j 0
-                    }
-                    set i 2
-                }
-                2 {
-                    set ssnode "$snode.$element"
-                    if {! [$treew exists "$ssnode"] } {
-                        set j [lindex [array get pcounts 2] end]
-                        $treew insert $j  $snode  "$ssnode" \
-                            -text $element
-                        array set pcounts "2 [incr j]"
-                        set j 0
-                    }
-                    set i 3
-                }
-                3 {
-                    set sssnode "$ssnode.$element"
-                    if {! [$treew exists "$sssnode"] } {
-                        set j [lindex [array get pcounts 3] end]
-                        $treew insert $j  $ssnode  "$sssnode" \
-                            -text $element
-                        array set pcounts "3 [incr j]"
-                        set j 0
-                    }
-                    set i 4
-                }
-                4 {
-                    set ssssnode "$sssnode.$element"
-                    if {! [$treew exists "$ssssnode"] } {
-                        set j [lindex [array get pcounts 4] end]
-                        $treew insert $j  $sssnode  "$ssssnode" \
-                            -text $element
-                        array set pcounts "4 [incr j]"
-                        set j 0
-                    }
-                    set i 4
-                }
-                5 {
-                    set sssssnode "$ssssnode.$element"
-                    if {! [$treew exists "$sssssnode"] } {
-                        set j [lindex [array get pcounts 5] end]
-                        $treew insert $j  $ssssnode  "$sssssnode" \
-                            -text $element
-                        array set pcounts "5 [incr j]"
-                        set j 0
-                    }
-                }
-            } ; # end of switch
-        } ; # end of element foreach
-    } ; # end of pin foreach
-    # empty the counts array in preparation for next proc call
-    array unset pcounts {}
-} ; # end of makeNodePin
-
-# fixme - single flat nodes now
-# sig may be manmade or it may be a pin name
-# start by searching element for "." to make first word a node
-# otherwise start with the first letter.
+# signal node is not easy and assumes more about HAL than
+# pins or params.  For this reason the variable signodes
+# supplies a set of sig -> subnodes to build around
+# then it finds dot separated sigs and builds a node with them
+# finally it makes leaves under sig for remaining signals
 proc makeNodeSig {sigstring} {
-    global treew
-    set j 1
-    foreach element $sigstring {
-        $treew insert $j  sig  "sig+$element" -text $element
+    global treew signodes
+    # build sublists dotstring, each signode element, and remainder
+    foreach nodename $signodes {
+        set nodesig$nodename ""
+    }
+    set dotsig ""
+    set remainder ""
+    foreach tmp $sigstring {
+        set i 0
+        if {[string match *.* $tmp]} {
+            lappend dotsig $tmp
+            set i 1
+            break
+        }
+   
+        foreach nodename $signodes {
+            if {[string match *$nodename* $tmp]} {
+                lappend nodesig$nodename $tmp
+                set i 1
+                break
+            }
+        }
+        if {$i == 0} {
+            lappend remainder $tmp
+        }
+    }
+    set i 0
+    # build the signode named nodes and leaves
+    foreach nodename $signodes {
+        set tmpstring [set nodesig$nodename]
+        if {$tmpstring != ""} {
+            set snode "sig+$nodename"
+            writeNode "$i sig $snode $nodename 1"
+            incr i
+            set j 0
+            foreach tmp [set nodesig$nodename] {
+                set ssnode sig+$tmp
+                writeNode "$j $snode $ssnode $tmp 0"
+                incr j
+            }
+        }
+    }
+    set j 0
+    # build the linkpp based signals just below signode
+    foreach tmp $dotsig {
+        set tmplist [split $tmp "."]
+        set tmpmain [lindex $tmplist 0]
+        set tmpname [lindex $tmplist end] 
+        set snode sig+$tmpmain
+        if {! [$treew exists "$snode"] } {
+            writeNode "$i sig $snode $tmpmain 1"
+            incr i
+        }
+        set ssnode sig+$tmp
+        writeNode "$j $snode $ssnode $tmp 0"
         incr j
     }
-}
-
-
-proc refreshHal {} {
-    global treew searchnames nodenames
-    # clean out the tree
-    $treew delete [$treew nodes root]
-    #fill in default HAL nodes
-    set i 0
-    foreach node $searchnames {
-        $treew insert $i root $node -text [lindex $nodenames $i]
+    # build the remaining leaves at the bottom of list
+    foreach tmp $remainder {
+        set snode sig+$tmp
+        writeNode "$i sig $snode $tmp 1"
         incr i
     }
-    listHal
+
 }
 
+# refreshHal is the starting point for building a tree.
+set opennodes "none"
+proc refreshHal {} {
+    global treew treenodes opennodes
+    if {[info exists treenodes]} {
+        if {[info exists tmpnodes]} {unset tmpnodes}
+        foreach node $treenodes {
+            if {[$treew itemcget $node -open]} {
+                lappend tmpnodes $node
+            }
+        }
+    }
+    if {[info exists tmpnodes]} {
+        set opennodes $tmpnodes
+    }
+    # clean out the tree
+    $treew delete [$treew nodes root]
+    # reread hal and make nodes
+    listHal
+    # read opennodes and set tree state
+    foreach node $opennodes {
+        if {[$treew exists $node]} {
+            $treew opentree $node no
+        }
+    }
+}
 
+# Tree code above looks like crap but works fairly well
 
+# create an empty array to hold modify mode elements
+# array elements are created from what is clicked in tree
+array set controlarray {}
+
+# all clicks on tree node names go into showHal
+# process uses it's own halcmd for showing
+# action depends upon workmode which is not complete
+proc showHal {which} {
+    global workmode controlarray
+    set thisnode $which
+    set thislist [split $which "+"]
+    set searchbase [lindex $thislist 0]
+    set searchstring [lindex $thislist 1]
+    switch -- $workmode {
+        showhal {
+            set thisret [exec bin/halcmd show $searchbase $searchstring]
+            displayThis $thisret
+        }
+        modifyhal {
+            set asize [array size controlarray]
+            array set controlarray "$asize $which"
+            set thisret [exec bin/halcmd -s show $searchbase $searchstring]
+            displayAddThis $thisret
+        }
+        tunehal {
+            displayThis "Move along.  Nothing to see here yet."
+        }
+        default {
+            displayThis "Something went way wrong with settings."
+        }
+    }
+}
 
 # proc switches the insert and removal of upper right stuff
 # This also removes any modify array variables
@@ -474,26 +573,24 @@ proc displayThis {str} {
   $disp delete 1.0 end
   $disp insert end $str
   array unset controlarray {}
-  updateControl
+#  updateControl
 }
 
+# fixme from here down.
 # no delete of existing display with this
-# adds the
+# fixme, header lines for this
 proc displayAddThis {str} {
     global disp controlarray
-    $disp insert end "\n $str"
-    updateControl
+    $disp insert end "\n$str"
+#    updateControl
 }
 
 # reads controlarray and builds control display
 proc updateControl {} {
     global controlarray
-    puts "setup a control display from"
-    puts "[array get controlarray]"
+#    puts "setup a control display from"
+#    puts "[array get controlarray]"
 }
-
-
-
 
 # buildThis is written in anticipation of the need to use
 # the string returned by clicking a tree node in different
@@ -521,9 +618,6 @@ proc getHalSearch {which what} {
   displayThis $tmpstr
 }
 
-
-
-
 proc saveHal {which} {
     puts "I would save if I could save.  My plan is to issue bin/halcmd save net to handle the most of the work.  Will need to save loadrts and details in xxx_load.hal.  This had the arg $which with it."
     switch -- $which {
@@ -533,6 +627,7 @@ proc saveHal {which} {
     }
 }
 
+# start the tree building process
 refreshHal
 
 proc showHelp {which} {
