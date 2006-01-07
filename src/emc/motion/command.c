@@ -253,6 +253,19 @@ static void clearHomes(int joint_num)
     }
 }
 
+
+/*! \function emcmotDioWrite()
+
+  sets or clears a HAL DIO pin, 
+  pins get exported at runtime
+  
+*/
+void emcmotDioWrite(int index, char value)
+{
+    rtapi_print_msg(RTAPI_MSG_DBG, "emcmotDioWrite called with index=%d, value=%d \n",index,value);
+}
+
+
 /*
   emcmotCommandHandler() is called each main cycle to read the
   shared memory buffer
@@ -1097,27 +1110,26 @@ check_stuff ( "before command_handler()" );
 	    emcmotConfig->debug = emcmotCommand->debug;
 	    emcmot_config_change();
 	    break;
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - needed for synchronous I/O */
+	/* needed for synchronous I/O */
 	case EMCMOT_SET_AOUT:
 	    if (emcmotCommand->now) {
-		extAioWrite(emcmotCommand->index, emcmotCommand->minLimit);
+		//extAioWrite(emcmotCommand->index, emcmotCommand->minLimit);
 	    } else {
-		tpSetAout(&emcmotDebug->queue, emcmotCommand->index,
-		    emcmotCommand->minLimit, emcmotCommand->maxLimit);
+		tpSetAout(&emcmotDebug->queue, emcmotCommand->out,
+		    emcmotCommand->start, emcmotCommand->end);
 	    }
 	    break;
 
 	case EMCMOT_SET_DOUT:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_DOUT");
 	    if (emcmotCommand->now) {
-		extDioWrite(emcmotCommand->index, emcmotCommand->start);
+		//extDioWrite(emcmotCommand->index, emcmotCommand->start); //comment out for now
+		emcmotDioWrite(emcmotCommand->out, emcmotCommand->start);
 	    } else {
-		tpSetDout(&emcmotDebug->queue, emcmotCommand->index,
+		tpSetDout(&emcmotDebug->queue, emcmotCommand->out,
 		    emcmotCommand->start, emcmotCommand->end);
 	    }
 	    break;
-#endif
 
 /*! \todo Another #if 0 */
 #if 0

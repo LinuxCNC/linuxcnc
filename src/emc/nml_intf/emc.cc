@@ -1527,6 +1527,7 @@ void EMC_MOTION_SET_AOUT::update(CMS * cms)
     cms->update(index);
     cms->update(start);
     cms->update(end);
+    cms->update(now);
 
 }
 
@@ -3121,6 +3122,7 @@ void EMC_MOTION_SET_DOUT::update(CMS * cms)
     cms->update(index);
     cms->update(start);
     cms->update(end);
+    cms->update(now);
 
 }
 

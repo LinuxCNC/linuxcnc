@@ -1290,6 +1290,8 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION;
 	break;
 
+    case EMC_AUX_AIO_WRITE_TYPE: /*! \todo FIXME it is weird for these to end up in a different place */
+    case EMC_AUX_DIO_WRITE_TYPE: /*        the EMC_MOTION_SET_* ones end up in the motion controller, it is weird to have these set in a differnet place */
     case EMC_TOOL_LOAD_TYPE:
     case EMC_TOOL_UNLOAD_TYPE:
     case EMC_COOLANT_MIST_ON_TYPE:
@@ -1333,7 +1335,16 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_MOTION_SET_AOUT_TYPE:
+	if (((EMC_MOTION_SET_AOUT *) cmd)->now) {
+    	    return EMC_TASK_EXEC_WAITING_FOR_MOTION;
+	}
+	return EMC_TASK_EXEC_DONE;
+	break;
+
     case EMC_MOTION_SET_DOUT_TYPE:
+	if (((EMC_MOTION_SET_DOUT *) cmd)->now) {
+    	    return EMC_TASK_EXEC_WAITING_FOR_MOTION;
+	}
 	return EMC_TASK_EXEC_DONE;
 	break;
 
@@ -1664,20 +1675,21 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    emcTrajSetTeleopVector(((EMC_TRAJ_SET_TELEOP_VECTOR *) cmd)->
 				   vector);
 	break;
-/*! \todo Another #if 0 */
-#if 0
+
     case EMC_MOTION_SET_AOUT_TYPE:
 	retval = emcMotionSetAout(((EMC_MOTION_SET_AOUT *) cmd)->index,
 				  ((EMC_MOTION_SET_AOUT *) cmd)->start,
-				  ((EMC_MOTION_SET_AOUT *) cmd)->end);
+				  ((EMC_MOTION_SET_AOUT *) cmd)->end,
+				  ((EMC_MOTION_SET_AOUT *) cmd)->now);
 	break;
 
     case EMC_MOTION_SET_DOUT_TYPE:
 	retval = emcMotionSetDout(((EMC_MOTION_SET_DOUT *) cmd)->index,
 				  ((EMC_MOTION_SET_DOUT *) cmd)->start,
-				  ((EMC_MOTION_SET_DOUT *) cmd)->end);
+				  ((EMC_MOTION_SET_DOUT *) cmd)->end,
+				  ((EMC_MOTION_SET_AOUT *) cmd)->now);
 	break;
-#endif
+
     case EMC_SET_DEBUG_TYPE:
 	/* set the debug level here */
 	EMC_DEBUG = ((EMC_SET_DEBUG *) cmd)->debug;

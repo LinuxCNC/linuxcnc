@@ -1669,3 +1669,90 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
     return 0;
 }
 
+void SET_MOTION_OUTPUT_BIT(int index)
+{
+  EMC_MOTION_SET_DOUT dout_msg;
+
+  dout_msg.index = index;
+  dout_msg.start = 1;		// startvalue = 1
+  dout_msg.end = 1;		// endvalue = 1, means it nots get reset after current motion
+  dout_msg.now = 1;		// immediate
+
+  interp_list.append(dout_msg);
+
+  return;
+}
+
+void CLEAR_MOTION_OUTPUT_BIT(int index)
+{
+  EMC_MOTION_SET_DOUT dout_msg;
+
+  dout_msg.index = index;
+  dout_msg.start = 0;
+  dout_msg.end = 0;		// unused
+  dout_msg.now = 1;		// immediate
+
+  interp_list.append(dout_msg);
+
+  return;
+}
+
+void SET_AUX_OUTPUT_BIT(int index)
+{
+  EMC_AUX_DIO_WRITE dio_msg;
+
+  dio_msg.index = index;
+  dio_msg.value = 1;
+
+  interp_list.append(dio_msg);
+
+  return;
+}
+
+void CLEAR_AUX_OUTPUT_BIT(int index)
+{
+  EMC_AUX_DIO_WRITE dio_msg;
+
+  dio_msg.index = index;
+  dio_msg.value = 0;
+
+  interp_list.append(dio_msg);
+
+  return;
+}
+
+/*! \function SET_MOTION_OUTPUT_VALUE
+
+  sets a AIO value, not used by the RS274 Interp,
+  not fully implemented in the motion controller either
+*/
+void SET_MOTION_OUTPUT_VALUE(int index, double value)
+{
+  EMC_MOTION_SET_AOUT aout_msg;
+
+  aout_msg.index = index;
+  aout_msg.start = value;
+  aout_msg.end = value;		// unused
+  aout_msg.now = 1;		// immediate
+
+  interp_list.append(aout_msg);
+
+  return;
+}
+
+/*! \function SET_AUX_OUTPUT_VALUE
+
+  sets a AIO value, not used by the RS274 Interp,
+  not fully implemented in the motion controller either
+*/
+void SET_AUX_OUTPUT_VALUE(int index, double value)
+{
+  EMC_AUX_AIO_WRITE aio_msg;
+
+  aio_msg.index = index;
+  aio_msg.value = value;
+
+  interp_list.append(aio_msg);
+
+  return;
+}

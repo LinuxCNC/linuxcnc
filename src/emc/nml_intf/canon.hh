@@ -705,4 +705,12 @@ extern USER_DEFINED_FUNCTION_TYPE
 extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
 				     int num);
 
+extern void SET_MOTION_OUTPUT_BIT(int index);
+extern void CLEAR_MOTION_OUTPUT_BIT(int index);
+extern void SET_AUX_OUTPUT_BIT(int index);
+extern void CLEAR_AUX_OUTPUT_BIT(int index);
+
+extern void SET_MOTION_OUTPUT_VALUE(int index, double value);
+extern void SET_AUX_OUTPUT_VALUE(int index, double value);
+
 #endif				/* ifndef CANON_HH */

@@ -367,15 +367,15 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tc.output_chan = output_chan;
     if ( ++output_chan >= 4 ) { output_chan = 0; }
     
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
+    /* This is related to synchronous I/O */
+    /* get the values added to TP, and add them to the current TC */
     if (tp->douts) {
 	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
 	tp->douts = 0;
 	tp->doutstart = 0;
 	tp->doutend = 0;
     }
-#endif
+
     if (-1 == tcqPut(&tp->queue, tc)) {
 	return -1;
     }
@@ -444,15 +444,15 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     if ( ++output_chan >= 4 ) { output_chan = 0; }
     
    
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
+    /* This is related to synchronous I/O */
+    /* get the values added to TP, and add them to the current TC */
     if (tp->douts) {
 	tcSetDout(&tc, tp->doutIndex, tp->doutstart, tp->doutend);
 	tp->douts = 0;
 	tp->doutstart = 0;
 	tp->doutend = 0;
     }
-#endif
+
     if (-1 == tcqPut(&tp->queue, tc)) {
 	return -1;
     }
@@ -677,15 +677,11 @@ int tpRunCycle(TP_STRUCT * tp)
 	/* all paused and we're aborting-- clear out the TP queue */
 	/* first set the motion outputs to the end values for the current
 	   move */
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
+	/* This is related to synchronous I/O */
 	if (tp->douts && 0 != thisTc) {
-	    /* Fred's original code.. tcDoutByte |= (thisTc->douts &
-	          thisTc->doutends); tcDoutByte &= (~thisTc->douts |
-	          thisTc->doutends); extMotDout(tcDoutByte); */
-	    extDioWrite(thisTc->doutIndex, thisTc->doutends);
+	    emcmotDioWrite(thisTc->doutIndex, thisTc->doutends);
 	}
-#endif
+	
 	tcqInit(&tp->queue);
 	tp->goalPos = tp->currentPos;
 	tp->done = 1;
@@ -858,15 +854,14 @@ void tpPrint(TP_STRUCT * tp)
 #endif				/* ULAPI */
 }
 
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-
+/* This is related to synchronous I/O */
 int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
 	      double end)
 {
-    /*! \todo FIXME-- unimplemented due to large size required for doubles */
+    /* \todo FIXME-- unimplemented due to large size required for doubles */
     return 0;
 }
+
 
 int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
 	      unsigned char end)
@@ -880,24 +875,5 @@ int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
     tp->doutend = end;
     tp->douts = 1;
 
-/* Fred's original code..
-    if (index > 7) {
-	return -1;
-    }
-
-    tp->douts |= (1 << index);
-    if (start == 0) {
-	tp->doutstart &= (0xFF ^ (1 << index));
-    } else {
-	tp->doutstart |= (1 << index);
-    }
-    if (end == 0) {
-	tp->doutend &= (0xFF ^ (1 << index));
-    } else {
-	tp->doutend |= (1 << index);
-    } */
-
     return 0;
 }
-
-#endif

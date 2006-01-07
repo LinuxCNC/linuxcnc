@@ -1356,36 +1356,50 @@ int emcMotionSetDebug(int debug)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - These are essential if you are to coordinate IO with
-          motion. For example, turning a laser on or off at the
-	  correct point during a move.
-	  Abandon this, and you alienate part of the user base.
+/*! \function emcMotionSetAout()
+    
+    This function sends a EMCMOT_SET_AOUT message to the motion controller.
+    That one plans a AOUT command when motion starts or right now.
+
+    @parameter	index	which output gets modified
+    @parameter	now	wheather change is imediate or synched with motion
+    @parameter	start	value set at start of motion
+    @parameter	end	value set at end of motion
 */
-int emcMotionSetAout(unsigned char index, double start, double end)
+int emcMotionSetAout(unsigned char index, double start, double end, unsigned char now)
 {
     emcmotCommand.command = EMCMOT_SET_AOUT;
-    /*! \todo FIXME-- if this works, set up some dedicated cmd fields instead of
-       borrowing these */
+    emcmotCommand.now = now;
     emcmotCommand.out = index;
+  /*! \todo FIXME-- if this works, set up some dedicated cmd fields instead of
+     borrowing these */
     emcmotCommand.minLimit = start;
     emcmotCommand.maxLimit = end;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+/*! \function emcMotionSetDout()
+    
+    This function sends a EMCMOT_SET_DOUT message to the motion controller.
+    That one plans a DOUT command when motion starts or right now.
+
+    @parameter	index	which output gets modified
+    @parameter	now	wheather change is imediate or synched with motion
+    @parameter	start	value set at start of motion
+    @parameter	end	value set at end of motion
+*/
 int emcMotionSetDout(unsigned char index, unsigned char start,
-		     unsigned char end)
+		     unsigned char end, unsigned char now)
 {
     emcmotCommand.command = EMCMOT_SET_DOUT;
+    emcmotCommand.now = now;
     emcmotCommand.out = index;
     emcmotCommand.start = start;
     emcmotCommand.end = end;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
-#endif
 
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {

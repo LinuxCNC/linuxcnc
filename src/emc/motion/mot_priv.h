@@ -153,6 +153,9 @@ extern emcmot_error_t *emcmotError;
 extern void emcmotCommandHandler(void *arg, long period);
 extern void emcmotController(void *arg, long period);
 
+/* these are related to synchronized I/O */
+extern void emcmotDioWrite(int index, char value);
+
 /* loops through the active joints and checks if any are not homed */
 extern int checkAllHomed(void);
 

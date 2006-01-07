@@ -1650,11 +1650,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   static char name[] = "convert_m";
   int status;
   int index;
-/*! \todo The M62-65 commands are not currently supported by the IO
-          sub-system */
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIX-ME Impliment these at a later stage... */
+
+  /* The M62-65 commands are used for DIO */
+  /* M62 sets a DIO synched with motion
+     M63 clears a DIO synched with motion
+     M64 sets a DIO imediately
+     M65 clears a DIO imediately */
+
   if (block->m_modes[5] == 62) {
     SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 63) {
@@ -1664,7 +1666,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   } else if (block->m_modes[5] == 65) {
     CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   }
-#endif
+
   if (block->m_modes[6] != -1) {
     CHP(convert_tool_change(settings));
   }

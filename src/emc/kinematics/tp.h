@@ -52,18 +52,11 @@ typedef struct {
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - needed for synchronous I/O */
-      unsigned char douts;
-        			/* mask for douts to set */
-      int doutIndex;
-           			/* index for dout values */
-      unsigned char doutstart;
-      				/* mask for dout start vals */
-      unsigned char doutend;
-       				/* mask for dout end vals */
-#endif
+/* needed for synchronous I/O */
+    unsigned char douts;	/* flag that tells us if there are douts to get set/unset */ 
+    int doutIndex;		/* which output pin gets set */
+    unsigned char doutstart;	/* value applied at motion start */
+    unsigned char doutend;	/* value applied at motion end */
 } TP_STRUCT;
 
 extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
@@ -96,13 +89,10 @@ extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
 extern void tpPrint(TP_STRUCT * tp);
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - needed for synchronous I/O */
+/* - needed for synchronous I/O */
 extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
-		      double end);
+		     double end);
 extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
-		      unsigned char end);
-#endif
+		     unsigned char end);
 
 #endif				/* TP_H */

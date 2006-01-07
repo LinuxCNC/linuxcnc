@@ -147,7 +147,9 @@ extern "C" {
 	EMCMOT_SET_NUM_AXES,	/* set the number of axes */
 	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
 	EMCMOT_SET_HOMING_PARAMS,	/* sets axis homing parameters */
-	EMCMOT_SET_DEBUG	/* sets the debug level */
+	EMCMOT_SET_DEBUG,       /* sets the debug level */
+	EMCMOT_SET_DOUT,        /* sets or unsets a DIO, this can be imediate or synched with motion */
+	EMCMOT_SET_AOUT 	/* sets or unsets a AIO, this can be imediate or synched with motion */
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -199,7 +201,7 @@ extern "C" {
 	double maxFerror;	/* max following error */
 	int wdWait;		/* cycle to wait before toggling wd */
 	int debug;		/* debug level, from DEBUG in .ini file */
-	unsigned char out, start, end;	/* motion index, start, and end bits */
+	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=wether now or synched, out = which gets set, start=start value, end=end value */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
 

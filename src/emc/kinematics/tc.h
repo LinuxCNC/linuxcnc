@@ -68,16 +68,14 @@ typedef struct {
     double abc_aMax;		/* maximum rotational accelleration */
     PmCartesian unitCart;
     int output_chan;		/* output channel used for HAL stuff */
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
-    unsigned char douts;	/* mask for douts to set */
-    int doutIndex;		/* index for dout value */
-    unsigned char doutstarts;	/* mask for dout start vals */
-    unsigned char doutends;	/* mask for dout end vals */
-#endif
+    /* This is related to synchronous I/O */
+    unsigned char douts;	/* flag that tells us if there are douts to get set/unset */ 
+    int doutIndex;		/* which output pin gets set */
+    unsigned char doutstarts;	/* value applied at motion start */
+    unsigned char doutends;	/* value applied at motion end */
 } TC_STRUCT;
 
-/*! \todo This is related to synchronous I/O, and will be fixed later */
+/*! This is related to synchronous I/O, and will be fixed later */
 #if 0
 extern unsigned char tcDoutByte;
 #endif
@@ -115,11 +113,9 @@ extern void tcPrint(TC_STRUCT * tc);
 extern double tcRunPreCycle(const TC_STRUCT * tc);
 extern int tcForceCycle(TC_STRUCT * tc, double ratio);
 
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
+/* This is related to synchronous I/O */
 extern int tcSetDout(TC_STRUCT * tc, int index, unsigned char starts,
 		     unsigned char ends);
-#endif
 
 /* queue of TC_STRUCT elements*/
 

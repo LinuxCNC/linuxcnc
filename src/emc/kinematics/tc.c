@@ -36,12 +36,9 @@
 // FIXME - debug only, remove later
 extern int print;
 
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
 /* the byte of output that gets written, persisting across all TC_STRUCTs,
   also referenced in tp.c for aborting */
  unsigned char tcDoutByte = 0;
-#endif
 
 #define TC_VEL_EPSILON 0.0001	/* number below which v is considered 0 */
 #define TC_SCALE_EPSILON 0.0001	/* number below which scale is considered 0 */
@@ -90,12 +87,10 @@ int tcInit(TC_STRUCT * tc)
     pmLineInit(&tc->line, zero, zero);
     pmLineInit(&tc->line_abc, zero, zero);
     /* since type is TC_LINEAR, don't need to set circle params */
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
+    /* This is related to digital outs */
     tc->douts = 0;
     tc->doutstarts = 0;
     tc->doutends = 0;
-#endif
     return 0;
 }
 
@@ -375,33 +370,26 @@ int tcRunCycle(TC_STRUCT * tc)
 	    0.25 * tc->cycleTime * tc->cycleTime - 2.0 / tc->aMax * discr;
 	newVel = -0.5 * tc->aMax * tc->cycleTime + tc->aMax * sqrt(discr);
     }
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
+    /* This is related to synchronous I/O */
     if (tc->tcFlag == TC_IS_UNSET) {
 	/* it's the start of this segment, so set any start output bits */
 	if (tc->douts) {
-	    /* Fred's original code.. tcDoutByte |= (tc->douts &
-	         tc->doutstarts); tcDoutByte &= (~tc->douts | tc->doutstarts);
-	          extMotDout(tcDoutByte); */
-	    extDioWrite(tc->doutIndex, tc->doutstarts);
+	    emcmotDioWrite(tc->doutIndex, tc->doutstarts);
 	}
     }
-#endif
+
     if (newVel <= 0.0) {
 	newVel = 0.0;
 	newAccel = 0;
 	newPos = tc->targetPos;
 	tc->tcFlag = TC_IS_DONE;
 	/* set any end output bits */
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
+	
+	/* This is related to synchronous I/O */
+	/* we are at the end of a segment, so we set the end value */
 	if (tc->douts) {
-	    /* Fred's original code.. tcDoutByte |= (tc->douts &
-	          tc->doutends); tcDoutByte &= (~tc->douts | tc->doutends);
-	          extMotDout(tcDoutByte); */
-	    extDioWrite(tc->doutIndex, tc->doutends);
+	    emcmotDioWrite(tc->doutIndex, tc->doutends); //this function should take care of HAL synchronous DIO's
 	}
-#endif
     } else {
 	/* clamp velocity to scaled max, and note if it's scaled back. This
 	   will cause a deceleration which we will NOT flag as a TC_IS_DECEL
@@ -490,7 +478,7 @@ int tcRunCycle(TC_STRUCT * tc)
     tc->currentVel = newVel;
     tc->currentAccel = newAccel;
     
-    // FIXME - debug only, remove later
+    /*! \todo FIXME - debug only, remove later */
     emcmot_hal_data->tc_pos[tc->output_chan] = newPos;
     emcmot_hal_data->tc_vel[tc->output_chan] = newVel;
     emcmot_hal_data->tc_acc[tc->output_chan] = newAccel;
@@ -1006,8 +994,7 @@ PmCartesian tcGetUnitCart(TC_STRUCT * tc)
     return fake;
 }
 
-/*! \todo This is related to synchronous I/O, and will be fixed later */
-#if 0
+/* This is related to synchronous I/O */
 
 int tcSetDout(TC_STRUCT * tc, int doutIndex, unsigned char starts,
 	      unsigned char ends)
@@ -1015,10 +1002,9 @@ int tcSetDout(TC_STRUCT * tc, int doutIndex, unsigned char starts,
     if (0 == tc) {
 	return -1;
     }
-    tc->douts = 1;
-    tc->doutIndex = doutIndex;
-    tc->doutstarts = starts;
-    tc->doutends = ends;
+    tc->douts = 1;             // we have a digital out
+    tc->doutIndex = doutIndex; // which output gets the value
+    tc->doutstarts = starts;   // start value
+    tc->doutends = ends;       // end value
     return 0;
 }
-#endif

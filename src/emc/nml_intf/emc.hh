@@ -474,9 +474,10 @@ extern int emcMotionInit();
 extern int emcMotionHalt();
 extern int emcMotionAbort();
 extern int emcMotionSetDebug(int debug);
-extern int emcMotionSetAout(unsigned char index, double start, double end);
+extern int emcMotionSetAout(unsigned char index, double start, double end,
+                            unsigned char now);
 extern int emcMotionSetDout(unsigned char index, unsigned char start,
-			    unsigned char end);
+			    unsigned char end, unsigned char now);
 
 class EMC_MOTION_STAT;		// forward decl
 extern int emcMotionUpdate(EMC_MOTION_STAT * stat);
@@ -1790,6 +1791,7 @@ class EMC_MOTION_SET_AOUT:public EMC_MOTION_CMD_MSG {
     unsigned char index;	// which to set
     double start;		// value at start
     double end;			// value at end
+    unsigned char now;		// wether command is imediate or synched with motion
 };
 
 class EMC_MOTION_SET_DOUT:public EMC_MOTION_CMD_MSG {
@@ -1804,6 +1806,7 @@ class EMC_MOTION_SET_DOUT:public EMC_MOTION_CMD_MSG {
     unsigned char index;	// which to set
     unsigned char start;	// binary value at start
     unsigned char end;		// binary value at end
+    unsigned char now;		// wether command is imediate or synched with motion
 };
 
 // EMC_MOTION status base class
