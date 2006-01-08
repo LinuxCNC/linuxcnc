@@ -1,6 +1,13 @@
 # some of EMC2 History & News
 #############################
 
+2006.01.08 - M62/M63 digital outputs synchronous to motion
+             M64/M65 digital outputs that get set right away
+	     
+2006.01.06 - work on halconfig.tcl, it is used to display/configure HAL data
+
+2005.12.20 - a new config picker has been written, if you start just the 
+             runscript this one helps you choose a config to run
 
 2005.12.13 - new runscript, and config organisation
              work towards the first release of emc2
