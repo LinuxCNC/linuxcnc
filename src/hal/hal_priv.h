@@ -176,6 +176,7 @@ typedef struct {
     int type;			/* 1 if realtime, 0 if not */
     void *shmem_base;		/* base of shmem for this component */
     char name[HAL_NAME_LEN + 1];	/* component name */
+    char *insmod_args;		/* args passed to insmod when loaded */
 } hal_comp_t;
 
 /** HAL 'pin' data structure.

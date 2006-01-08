@@ -266,6 +266,7 @@ int hal_init(char *name)
     comp->type = 0;
 #endif
     comp->shmem_base = hal_shmem_base;
+    comp->insmod_args = NULL;
     rtapi_snprintf(comp->name, HAL_NAME_LEN, "%s", hal_name);
     /* insert new structure at head of list */
     comp->next_ptr = hal_data->comp_list_ptr;
