@@ -1,7 +1,6 @@
 /********************************************************************
 * Description: emcmotcfg.h
-*   Default values for compile-time parameters, used to initialize
-*   global variables in emcmotcfg.c.
+*   Default values for compile-time parameters.
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
 *
@@ -27,6 +26,10 @@
    Note: this is not a global variable but a compile-time parameter
    since it sets array sizes, etc. */
 #define EMCMOT_MAX_AXIS 8
+
+/* number of motion synched DIO's supported (increase this value to 
+   suit your needs) */
+#define EMCMOT_MAX_DIO 4
 
 #define EMCMOT_ERROR_NUM 32	/* how many errors we can queue */
 #define EMCMOT_ERROR_LEN 256	/* how long error string can be */
