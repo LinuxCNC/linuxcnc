@@ -1290,8 +1290,6 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION;
 	break;
 
-    case EMC_AUX_AIO_WRITE_TYPE: /*! \todo FIXME it is weird for these to end up in a different place */
-    case EMC_AUX_DIO_WRITE_TYPE: /*        the EMC_MOTION_SET_* ones end up in the motion controller, it is weird to have these set in a differnet place */
     case EMC_TOOL_LOAD_TYPE:
     case EMC_TOOL_UNLOAD_TYPE:
     case EMC_COOLANT_MIST_ON_TYPE:
@@ -1687,7 +1685,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcMotionSetDout(((EMC_MOTION_SET_DOUT *) cmd)->index,
 				  ((EMC_MOTION_SET_DOUT *) cmd)->start,
 				  ((EMC_MOTION_SET_DOUT *) cmd)->end,
-				  ((EMC_MOTION_SET_AOUT *) cmd)->now);
+				  ((EMC_MOTION_SET_DOUT *) cmd)->now);
 	break;
 
     case EMC_SET_DEBUG_TYPE:

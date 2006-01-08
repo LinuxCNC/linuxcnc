@@ -1669,54 +1669,115 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
     return 0;
 }
 
+/*! \function SET_MOTION_OUTPUT_BIT
+
+  sets a DIO pin
+  this message goes to task, then to motion which sets the DIO 
+  when the first motion starts.
+  The pin gets set with value 1 at the begin of motion, and stays 1 at the end of motion
+  (this behaviour can be changed if needed)
+  
+  warning: setting more then one for a motion segment will clear out the previous ones 
+  (the TP doesn't implement a queue of these), 
+  use SET_AUX_OUTPUT_BIT instead, that allows to set the value right away
+*/
 void SET_MOTION_OUTPUT_BIT(int index)
 {
   EMC_MOTION_SET_DOUT dout_msg;
 
   dout_msg.index = index;
   dout_msg.start = 1;		// startvalue = 1
-  dout_msg.end = 1;		// endvalue = 1, means it nots get reset after current motion
-  dout_msg.now = 1;		// immediate
+  dout_msg.end = 1;		// endvalue = 1, means it doesn't get reset after current motion
+  dout_msg.now = 0;		// not immediate, but synched with motion (goes to the TP)
 
   interp_list.append(dout_msg);
 
   return;
 }
 
+/*! \function CLEAR_MOTION_OUTPUT_BIT
+
+  clears a DIO pin
+  this message goes to task, then to motion which clears the DIO 
+  when the first motion starts.
+  The pin gets set with value 0 at the begin of motion, and stays 0 at the end of motion
+  (this behaviour can be changed if needed)
+  
+  warning: setting more then one for a motion segment will clear out the previous ones 
+  (the TP doesn't implement a queue of these), 
+  use CLEAR_AUX_OUTPUT_BIT instead, that allows to set the value right away
+*/
 void CLEAR_MOTION_OUTPUT_BIT(int index)
 {
   EMC_MOTION_SET_DOUT dout_msg;
 
   dout_msg.index = index;
-  dout_msg.start = 0;
-  dout_msg.end = 0;		// unused
-  dout_msg.now = 1;		// immediate
+  dout_msg.start = 0;           // startvalue = 1
+  dout_msg.end = 0;		// endvalue = 0, means it stays 0 after current motion
+  dout_msg.now = 0;		// not immediate, but synched with motion (goes to the TP)
 
   interp_list.append(dout_msg);
 
   return;
 }
 
+/*! \function SET_AUX_OUTPUT_BIT
+
+  sets a DIO pin
+  this message goes to task, then to motion which sets the DIO 
+  right away.
+  The pin gets set with value 1 at the begin of motion, and stays 1 at the end of motion
+  (this behaviour can be changed if needed)
+  you can use any number of these, as the effect is imediate  
+*/
 void SET_AUX_OUTPUT_BIT(int index)
 {
+/* we're gonna use the EMC_MOTION_SET_DOUT for now
   EMC_AUX_DIO_WRITE dio_msg;
 
   dio_msg.index = index;
   dio_msg.value = 1;
 
-  interp_list.append(dio_msg);
+  interp_list.append(dio_msg); */
+
+  EMC_MOTION_SET_DOUT dout_msg;
+
+  dout_msg.index = index;
+  dout_msg.start = 1;		// startvalue = 1
+  dout_msg.end = 1;		// endvalue = 1, means it doesn't get reset after current motion
+  dout_msg.now = 1;		// immediate, we don't care about synching for AUX
+
+  interp_list.append(dout_msg);
 
   return;
 }
 
+/*! \function CLEAR_AUX_OUTPUT_BIT
+
+  clears a DIO pin
+  this message goes to task, then to motion which clears the DIO 
+  right away.
+  The pin gets set with value 0 at the begin of motion, and stays 0 at the end of motion
+  (this behaviour can be changed if needed)
+  you can use any number of these, as the effect is imediate  
+*/
 void CLEAR_AUX_OUTPUT_BIT(int index)
 {
+/* we're gonna use the EMC_MOTION_SET_DOUT for now
   EMC_AUX_DIO_WRITE dio_msg;
 
   dio_msg.index = index;
   dio_msg.value = 0;
 
-  interp_list.append(dio_msg);
+  interp_list.append(dio_msg);*/
+  EMC_MOTION_SET_DOUT dout_msg;
+
+  dout_msg.index = index;
+  dout_msg.start = 0;           // startvalue = 1
+  dout_msg.end = 0;		// endvalue = 0, means it stays 0 after current motion
+  dout_msg.now = 1;		// immediate, we don't care about synching for AUX
+
+  interp_list.append(dout_msg);
 
   return;
 }
@@ -1730,10 +1791,10 @@ void SET_MOTION_OUTPUT_VALUE(int index, double value)
 {
   EMC_MOTION_SET_AOUT aout_msg;
 
-  aout_msg.index = index;
-  aout_msg.start = value;
-  aout_msg.end = value;		// unused
-  aout_msg.now = 1;		// immediate
+  aout_msg.index = index;	// which output
+  aout_msg.start = value;	// start value
+  aout_msg.end = value;		// end value
+  aout_msg.now = 0;		// immediate=1, or synched when motion start=0
 
   interp_list.append(aout_msg);
 
