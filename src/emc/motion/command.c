@@ -259,12 +259,35 @@ static void clearHomes(int joint_num)
   sets or clears a HAL DIO pin, 
   pins get exported at runtime
   
+  index is valid from 0 to EMCMOT_MAX_DIO, defined in emcmotcfg.h
+  
 */
 void emcmotDioWrite(int index, char value)
 {
-    rtapi_print_msg(RTAPI_MSG_DBG, "emcmotDioWrite called with index=%d, value=%d \n",index,value);
+    if ((index >= EMCMOT_MAX_DIO) || (index < 0)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase EMCMOT_MAX_DIO)\n",index,EMCMOT_MAX_DIO);
+    } else {
+	if (value != 0) {
+	    *(emcmot_hal_data->synch_do[index])=1;
+	} else {
+	    *(emcmot_hal_data->synch_do[index])=0;
+	}
+    }
 }
 
+/*! \function emcmotAioWrite()
+
+  sets or clears a HAL AIO pin, 
+  pins get exported at runtime
+  
+  \todo Implement function, it doesn't do anything right now
+  RS274NGC doesn't support it now, only defined/used in emccanon.cc
+  
+*/
+void emcmotAioWrite(int index, double value)
+{
+    rtapi_print_msg(RTAPI_MSG_ERR, "emcmotAioWrite called, yet not implemented\n");
+}
 
 /*
   emcmotCommandHandler() is called each main cycle to read the
@@ -1112,9 +1135,9 @@ check_stuff ( "before command_handler()" );
 	    break;
 	/* needed for synchronous I/O */
 	case EMCMOT_SET_AOUT:
-	    if (emcmotCommand->now) {
-		//extAioWrite(emcmotCommand->index, emcmotCommand->minLimit);
-	    } else {
+	    if (emcmotCommand->now) { //we set it right away
+		emcmotAioWrite(emcmotCommand->out, emcmotCommand->minLimit);
+	    } else { // we put it on the TP queue, warning: only room for one in there, any new ones will overwrite
 		tpSetAout(&emcmotDebug->queue, emcmotCommand->out,
 		    emcmotCommand->start, emcmotCommand->end);
 	    }
@@ -1122,32 +1145,14 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_SET_DOUT:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_DOUT");
-	    if (emcmotCommand->now) {
-		//extDioWrite(emcmotCommand->index, emcmotCommand->start); //comment out for now
+	    if (emcmotCommand->now) { //we set it right away
 		emcmotDioWrite(emcmotCommand->out, emcmotCommand->start);
-	    } else {
+	    } else { // we put it on the TP queue, warning: only room for one in there, any new ones will overwrite
 		tpSetDout(&emcmotDebug->queue, emcmotCommand->out,
 		    emcmotCommand->start, emcmotCommand->end);
 	    }
 	    break;
 
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - needed for M62/M63 */
-	case EMCMOT_SET_INDEX_BIT:
-	    if (emcmotCommand->level) {
-		/* Set bit */
-		extDioWrite(emcmotCommand->index, 1);
-	    } else {
-		/* Clear bit */
-		extDioWrite(emcmotCommand->index, 0);
-	    }
-	    break;
-
-	case EMCMOT_READ_INDEX_BIT:
-	    extDioRead(emcmotCommand->index, &(emcmotStatus->level));
-	    break;
-#endif
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
 	    reportError("unrecognized command %d", emcmotCommand->command);
