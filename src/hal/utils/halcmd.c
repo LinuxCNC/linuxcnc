@@ -118,6 +118,7 @@ static char *data_arrow2(int dir);
 static char *data_value(int type, void *valptr);
 static char *data_value2(int type, void *valptr);
 static int do_save_cmd(char *type);
+static void save_comps(void);
 static void save_signals(void);
 static void save_links(int arrows);
 static void save_nets(int arrows);
@@ -1367,7 +1368,9 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     char mod_path[MAX_CMD_LEN+1];
     char *cp1, *cp2, *cp3;
     char *argv[MAX_TOK+1];
+    char arg_string[MAX_CMD_LEN+1];
     int n, m, retval, status;
+    hal_comp_t *comp;
     pid_t pid;
 
     /* are we running as root? */
@@ -1525,6 +1528,36 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	    "HAL:%d: ERROR: insmod failed, returned %d\n", linenumber, retval );
 	return -1;
     }
+    /* make the args that were passed to the module into a single string */
+    n = 0;
+    arg_string[0] = '\0';
+    while ( args[n][0] != '\0' ) {
+	strncat(arg_string, args[n++], MAX_CMD_LEN);
+	strncat(arg_string, " ", MAX_CMD_LEN);
+    }
+    /* allocate HAL shmem for the string */
+    cp1 = hal_malloc(strlen(arg_string)+1);
+    if ( cp1 == NULL ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: failed to allocate memory for module args\n",
+	     linenumber );
+	return -1;
+    }
+    /* copy string to shmem */
+    strcpy (cp1, arg_string);
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* search component list for the newly loaded component */
+    comp = halpr_find_comp_by_name(mod_name);
+    if (comp == 0) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL:%d: ERROR: module '%s' not loaded\n", linenumber, mod_name);
+	return HAL_INVAL;
+    }
+    /* link args to comp struct */
+    comp->insmod_args = cp1;
+    rtapi_mutex_give(&(hal_data->mutex));
     /* print success message */
     rtapi_print_msg(RTAPI_MSG_INFO, "Realtime module '%s' loaded\n",
 	mod_name);
@@ -2615,10 +2648,13 @@ static int do_save_cmd(char *type)
     }
     if (*type == '\0') {
 	/* save everything */
+	save_comps();
 	save_signals();
 	save_links(0);
 	save_params();
 	save_threads();
+    } else if (strcmp(type, "comp") == 0) {
+	save_comps();
     } else if (strcmp(type, "sig") == 0) {
 	save_signals();
     } else if (strcmp(type, "link") == 0) {
@@ -2638,6 +2674,29 @@ static int do_save_cmd(char *type)
 	return -1;
     }
     return 0;
+}
+
+static void save_comps(void)
+{
+    int next;
+    hal_comp_t *comp;
+
+    rtapi_print("# components\n");
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->comp_list_ptr;
+    while (next != 0) {
+	comp = SHMPTR(next);
+	if ( comp->type == 1 ) {
+	    /* only print realtime components */
+	    if ( comp->insmod_args == NULL ) {
+		rtapi_print("#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
+	    } else {
+		rtapi_print("loadrt %s %s\n", comp->name, comp->insmod_args);
+	    }
+	}
+	next = comp->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
 }
 
 static void save_signals(void)
@@ -2874,10 +2933,10 @@ static int do_help_cmd(char *command)
 	printf("save [type]\n");
 	printf("  Prints HAL items as commands that can be redirected to\n");
 	printf("  a file and later restored using \"halcmd -f filename\".\n");
-	printf("  Type can be 'sig', 'link[a]', 'net[a]', 'param', or\n");
-	printf("  'thread'.  ('linka' and 'neta' show arrows for pin\n");
+	printf("  Type can be 'comp', 'sig', 'link[a]', 'net[a]', 'param',\n");
+	printf("  or 'thread'.  ('linka' and 'neta' show arrows for pin\n");
 	printf("  direction.)  If 'type' is omitted, does the equivalent\n");
-	printf("  of 'sig', 'link', 'param', and 'thread'.\n");
+	printf("  of 'comp', 'sig', 'link', 'param', and 'thread'.\n");
     } else if (strcmp(command, "start") == 0) {
 	printf("start\n");
 	printf("  Starts all realtime threads.\n");
