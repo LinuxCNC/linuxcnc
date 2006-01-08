@@ -237,7 +237,7 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
     return i;
 }
 
-#define BUFFERLEN 128
+#define BUFFERLEN 1024
 
 void rtapi_print(const char *fmt, ...)
 {
