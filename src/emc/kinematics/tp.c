@@ -858,6 +858,7 @@ void tpPrint(TP_STRUCT * tp)
 int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
 	      double end)
 {
+    emcmotAioWrite(index, start);
     /* \todo FIXME-- unimplemented due to large size required for doubles */
     return 0;
 }
