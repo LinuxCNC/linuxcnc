@@ -99,6 +99,8 @@ typedef struct {
     hal_float_t debug_float_0;	/* RPA: generic param, for debugging */
     hal_float_t debug_float_1;	/* RPA: generic param, for debugging */
     
+    hal_bit_t *synch_do[EMCMOT_MAX_DIO]; /* WPI array: output pins for motion synched IO */
+    
     // FIXME - debug only, remove later
     hal_float_t traj_pos_out;	/* RPA: traj internals, for debugging */
     hal_float_t traj_vel_out;	/* RPA: traj internals, for debugging */
@@ -155,6 +157,7 @@ extern void emcmotController(void *arg, long period);
 
 /* these are related to synchronized I/O */
 extern void emcmotDioWrite(int index, char value);
+extern void emcmotAioWrite(int index, double value);
 
 /* loops through the active joints and checks if any are not homed */
 extern int checkAllHomed(void);

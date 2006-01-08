@@ -303,6 +303,17 @@ static int init_hal_io(void)
 	return retval;
     }
 
+    /* export motion-synched digital output pins */
+    for (n = 0; n < EMCMOT_MAX_DIO; n++) {
+	rtapi_snprintf(buf, HAL_NAME_LEN, "motion.digital-out-%02d",n);
+	retval =
+	    hal_pin_bit_new(buf, HAL_WR, &(emcmot_hal_data->synch_do[n]),
+	    mot_comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+    }
+
     /* export machine wide hal parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-enabled");
     retval =
@@ -420,6 +431,12 @@ static int init_hal_io(void)
     /* default value of enable is TRUE, so simple machines
        can leave it disconnected */
     *(emcmot_hal_data->enable) = 1;
+    
+    /* motion synched dio, init to not enabled */
+    for (n = 0; n < EMCMOT_MAX_DIO; n++) {
+	 *(emcmot_hal_data->synch_do[n]) = 0;
+    }
+    
     /*! \todo FIXME - these don't really need initialized, since they are written
        with data from the emcmotStatus struct */
     emcmot_hal_data->motion_enabled = 0;
