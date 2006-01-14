@@ -92,7 +92,7 @@ proc initializeConfig {} {
     }
     # end of initial startup tests
 }
-
+set demoisup no
 proc noHal {} {
     global demoisup
     set demoisup no
@@ -216,6 +216,8 @@ set filemenu [menu $menubar.file -tearoff 0]
             -command {refreshHal} -underline 0
         $filemenu add command -label [msgcat::mc "Save"] \
             -command {saveHal save} -underline 0
+        $filemenu add command -label [msgcat::mc "Save As"] \
+            -command {saveHal saveas} -underline 0
         $filemenu add command -label [msgcat::mc "Save and Exit"] \
             -command {saveHal saveandexit} -underline 1
         $filemenu add command -label [msgcat::mc "Exit"] \
@@ -309,7 +311,6 @@ proc exHal {what} {
     set numwords [llength $what]
     for {set j 0} {$j < $numwords} {incr j} {
         set word$j [lindex $what $j]
-        puts "[set word$j]"
     }
     exec bin/halcmd $word0 $word1 $word2 $word3
     refreshHal
@@ -318,7 +319,6 @@ proc exHal {what} {
 # writeNode handles actual tree node insertion
 proc writeNode {arg} {
     global treew treenodes
-#    puts $arg
     set j [lindex $arg 0]
     set base [lindex $arg 1]
     set node [lindex $arg 2]
@@ -449,15 +449,15 @@ proc makeNodeSig {sigstring} {
         set i 0
         if {[string match *.* $tmp]} {
             lappend dotsig $tmp
+            puts "tmp is $tmp"
+            puts $dotsig
             set i 1
-            break
         }
    
         foreach nodename $signodes {
             if {[string match *$nodename* $tmp]} {
                 lappend nodesig$nodename $tmp
                 set i 1
-                break
             }
         }
         if {$i == 0} {
@@ -619,13 +619,19 @@ proc getHalSearch {which what} {
 }
 
 proc saveHal {which} {
-    puts "I would save if I could save.  My plan is to issue bin/halcmd save net to handle the most of the work.  Will need to save loadrts and details in xxx_load.hal.  This had the arg $which with it."
+    puts "This had the arg $which with it."
     switch -- $which {
-        save {}
-        saveandexit {}
-        exit {destroy . }
+        save {
+            displayThis [exec bin/halcmd save "comp"]
+        }
+        saveas {}
+        saveandexit {
+            exit {destroy . }
+        }
     }
 }
+
+
 
 # start the tree building process
 refreshHal
