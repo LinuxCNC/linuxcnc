@@ -242,6 +242,12 @@ set settingsmenu [menu $menubar.settings -tearoff 0]
             -menu $settingsmenu -underline 0
         $settingsmenu add command -label [msgcat::mc "Show"] \
             -command {set workmode showhal} -underline 0
+        $settingsmenu add command -label [msgcat::mc "Watch"] \
+            -underline 0 -command {
+                displayThis {} 
+                set workmode watchhal
+                watchHal
+            } 
         $settingsmenu add command -label [msgcat::mc "Modify"] \
             -command {displayThis {} ; set workmode modifyhal} \
             -underline 0
@@ -291,6 +297,7 @@ set cf [labelframe $top.mainc -text "Control" -bg gray96 ]
 # set up a temporary entry widget and button for editing
 set lab [label $cf.label -text "Enter a proper HAL command :"]
 set com [entry $cf.entry -textvariable halcommand]
+bind $com <KeyPress-Return> {exHal $halcommand}
 set ex [button $cf.execute -text Execute \
     -command {exHal $halcommand} ]
 pack $lab -side left -padx 5
@@ -449,8 +456,6 @@ proc makeNodeSig {sigstring} {
         set i 0
         if {[string match *.* $tmp]} {
             lappend dotsig $tmp
-            puts "tmp is $tmp"
-            puts $dotsig
             set i 1
         }
    
@@ -533,8 +538,10 @@ proc refreshHal {} {
 
 # Tree code above looks like crap but works fairly well
 
+
 # create an empty array to hold modify mode elements
 # array elements are created from what is clicked in tree
+# each element of controlarray is a complete node name
 array set controlarray {}
 
 # all clicks on tree node names go into showHal
@@ -551,9 +558,15 @@ proc showHal {which} {
             set thisret [exec bin/halcmd show $searchbase $searchstring]
             displayThis $thisret
         }
+        watchhal {
+            set asize [array size controlarray]
+            array set controlarray "$asize $which"
+            watchHal
+        }
         modifyhal {
             set asize [array size controlarray]
             array set controlarray "$asize $which"
+            puts [array get controlarray ]
             set thisret [exec bin/halcmd -s show $searchbase $searchstring]
             displayAddThis $thisret
         }
@@ -565,6 +578,23 @@ proc showHal {which} {
         }
     }
 }
+proc watchHal {} {
+    global workmode controlarray k
+    set arraynames [array names controlarray]
+    set tmpstring ""
+    foreach name $arraynames {
+        set rawname [lindex [array get controlarray $name] end]
+        set rawsplit [split $rawname +]
+        set showtype [lindex $rawsplit 0]
+        set showthis [lindex $rawsplit 1]
+        lappend tmpstring [exec bin/halcmd -s show $showtype $showthis]
+    }
+    displayThis $tmpstring
+    if {$workmode == "watchhal" } {
+        after 2000 {watchHal}
+    }    
+}
+
 
 # proc switches the insert and removal of upper right stuff
 # This also removes any modify array variables
@@ -592,10 +622,18 @@ proc updateControl {} {
 #    puts "[array get controlarray]"
 }
 
+
+
+
+
+
 # buildThis is written in anticipation of the need to use
 # the string returned by clicking a tree node in different
 # ways for each different type of hal element
 # and for each different type of configuration task
+
+
+
 
 proc buildThis {what} {
   # firstword is the type of hal element pin, param, sig, etc
@@ -611,6 +649,7 @@ proc buildThis {what} {
     displayThis "This is where some extra handling of the tree node return is needed."
   }
 }
+
 
 proc getHalSearch {which what} {
   set tmpstr "empty"
