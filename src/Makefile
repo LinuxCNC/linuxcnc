@@ -204,13 +204,13 @@ clean :
 tgz: clean
 	rm -rf /tmp/emc2-tgz-temp/emc2
 	install -d /tmp/emc2-tgz-temp/emc2/
-	cp -R ./ /tmp/emc2-tgz-temp/emc2/
+	cp -R ../ /tmp/emc2-tgz-temp/emc2/
 
 # Remove Makefile.inc to force a rerun of ./configure
 # on the target machine where emc2.tar.gz will be copied to
-	rm /tmp/emc2-tgz-temp/emc2/Makefile.inc
-	rm /tmp/emc2-tgz-temp/emc2/config.status
-	rm /tmp/emc2-tgz-temp/emc2/config.log
+	rm -f /tmp/emc2-tgz-temp/emc2/src/Makefile.inc
+	rm -f /tmp/emc2-tgz-temp/emc2/src/config.status
+	rm -f /tmp/emc2-tgz-temp/emc2/src/config.log
 	rm -f /tmp/emc2-tgz-temp/emc2/emc2.tar.gz
 	cd /tmp/emc2-tgz-temp ; tar -czf emc2.tar.gz emc2 --exclude *CVS*
 	mv /tmp/emc2-tgz-temp/emc2.tar.gz ./
