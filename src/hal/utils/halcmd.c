@@ -2159,7 +2159,7 @@ static void print_param_info(char *pattern)
 		rtapi_print("%s %s %s %s %s\n",
 		    comp->name, data_type((int) param->type),
 		    data_dir((int) param->dir),
-		    data_value((int) param->type, SHMPTR(param->data_ptr)),
+		    data_value2((int) param->type, SHMPTR(param->data_ptr)),
 		    param->name);
 	    } 
 	}
