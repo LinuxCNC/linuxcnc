@@ -49,37 +49,34 @@ setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
 # Once the axis has been tuned to your satisfaction, 
 # do "halcmd show param | grep pid" to get a listing 
 # of the tuning parameters, and enter those values here.
-# FIXME - these should come from the ini file, but
-# I'd rather not have all the PID parameters in the 
-# ini file for a stepper machine, they just confuse
-# people.  I'd like emc to come with more than just
-# one sample ini file, one could be for steppers,
-# another for servos... need to disscuss this first.
 
-setp pid.0.Pgain 100
-setp pid.0.Igain 0
-setp pid.0.Dgain 0
-setp pid.0.bias 0
-setp pid.0.FF0 0
-setp pid.0.FF1 0
+# the values below come from the ini
+setp pid.0.Pgain [AXIS_0]P
+setp pid.0.Igain [AXIS_0]I
+setp pid.0.Dgain [AXIS_0]D
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
 # deadband should be just over 1 count
-setp pid.0.deadband 0.0005
+setp pid.0.deadband [AXIS_0]DEADBAND
 
-setp pid.1.Pgain 100
-setp pid.1.Igain 0
-setp pid.1.Dgain 0
-setp pid.1.bias 0
-setp pid.1.FF0 0
-setp pid.1.FF1 0
-setp pid.1.deadband 0.0005
+setp pid.1.Pgain [AXIS_1]P
+setp pid.1.Igain [AXIS_1]I
+setp pid.1.Dgain [AXIS_1]D
+setp pid.1.bias [AXIS_1]BIAS
+setp pid.1.FF0 [AXIS_1]FF0
+setp pid.1.FF1 [AXIS_1]FF1
+# deadband should be just over 1 count
+setp pid.1.deadband [AXIS_1]DEADBAND
 
-setp pid.2.Pgain 100
-setp pid.2.Igain 0
-setp pid.2.Dgain 0
-setp pid.2.bias 0
-setp pid.2.FF0 0
-setp pid.2.FF1 0
-setp pid.2.deadband 0.0005
+setp pid.2.Pgain [AXIS_2]P
+setp pid.2.Igain [AXIS_2]I
+setp pid.2.Dgain [AXIS_2]D
+setp pid.2.bias [AXIS_2]BIAS
+setp pid.2.FF0 [AXIS_2]FF0
+setp pid.2.FF1 [AXIS_2]FF1
+# deadband should be just over 1 count
+setp pid.2.deadband [AXIS_2]DEADBAND
 
 # create three position command signals
 newsig Xpos-cmd float
