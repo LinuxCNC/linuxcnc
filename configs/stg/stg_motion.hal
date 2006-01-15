@@ -1,7 +1,9 @@
 # HAL config file for ServoToGo STG ISA board
 #
-# install driver
-loadrt hal_stg
+# install driver, this should autodetect the board
+# if that doesn't work, try using base=0xABC, where ABC matches your setup
+# loadrt hal_stg base=0x200
+loadrt hal_stg 
 
 # add functions to servo thread so they will be evaluated
 # every servo period
@@ -28,10 +30,6 @@ setp stg.0.dac-gain [AXIS_0]OUTPUT_SCALE
 setp stg.1.dac-gain [AXIS_1]OUTPUT_SCALE
 setp stg.2.dac-gain [AXIS_2]OUTPUT_SCALE
 # set output offset to zero
-# (Eventually this should come from the ini file too, but
-# I want to add an OUTPUT_OFFSET variable to the ini.
-# At present, the OUTPUT_SCALE actually has two values
-# and the second one is the offset.  This is ugly.)
-setp stg.0.dac-offset 0
-setp stg.1.dac-offset 0
-setp stg.2.dac-offset 0
+setp stg.0.dac-offset [AXIS_0]OUTPUT_OFFSET
+setp stg.1.dac-offset [AXIS_1]OUTPUT_OFFSET
+setp stg.2.dac-offset [AXIS_2]OUTPUT_OFFSET

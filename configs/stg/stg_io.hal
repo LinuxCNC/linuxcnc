@@ -88,12 +88,18 @@ linksp Zenable => stg.out-02
 #
 
 # connect e-stop write/sense to I/O controller
+# these connections assume an external ESTOP circuitry will be used
+# if it's not used, comment the next lines and uncomment the loopback
 newsig EstopSense bit
 newsig EstopWrite bit
 linksp EstopSense <= stg.in-12
 linksp EstopSense => iocontrol.0.emc-enable-in
 linksp EstopWrite <= stg.out-07
 linksp EstopWrite => iocontrol.0.user-enable-out
+
+# ESTOP loopback, only use this for a simple machine without external ESTOP
+# you really SHOULDN'T use a servo machine without proper ESTOP
+#linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # connect spindle fwd/rev to I/O controller
 newsig SpindleFwd bit
