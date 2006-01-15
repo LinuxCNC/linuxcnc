@@ -67,7 +67,6 @@
 #endif
 
 #include <stdarg.h>		/* va_* */
-#include <linux/config.h>	/* need to know about CONFIG_X86_HAS_TSC */
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>		/* replaces malloc.h in recent kernels */
@@ -525,15 +524,12 @@ long int rtapi_clock_set_period(long int nsecs)
 
 long long int rtapi_get_time(void)
 {
-#ifdef CONFIG_X86_HAS_TSC
-    /* This will only work if the kernel is compiled for a 586TSC
-       (Pentium-Classic) or higher. Should return a true time in nSec or zero 
-       if no TSC. */
+    /* according to RTAI docs, this function exists regardless of the actual
+       CPU capabilities.  If the machine has a high accuracy timer (TSC or
+       other) it will be used, if not the 8254 timer will be used.  If for
+       some reason even that doesn't work, the function returns zero.
+    */
     return rt_get_cpu_time_ns();
-#else
-     /* no reliable, thread safe way to get time without a TSC, so we punt */
-    return (0LL);
-#endif
 }
 
 void rtapi_delay(long int nsec)
