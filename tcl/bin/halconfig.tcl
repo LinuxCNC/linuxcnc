@@ -240,19 +240,27 @@ set viewmenu [menu $menubar.view -tearoff 0]
 set settingsmenu [menu $menubar.settings -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Settings"] \
             -menu $settingsmenu -underline 0
-        $settingsmenu add command -label [msgcat::mc "Show"] \
-            -command {set workmode showhal} -underline 0
-        $settingsmenu add command -label [msgcat::mc "Watch"] \
-            -underline 0 -command {
-                displayThis {} 
-                set workmode watchhal
+        set temprad showit
+        $settingsmenu add radiobutton -label [msgcat::mc "Show"] \
+            -variable workmode -value showhal -underline 0 \
+            -command {
+                displayThis {Switched to show mode.}
+            }
+        $settingsmenu add radiobutton -label [msgcat::mc "Watch"] \
+            -variable workmode -value watchhal  -underline 0 \
+            -command {
+                displayThis {Switched to watch mode.}
                 watchHal
+            }
+        $settingsmenu add radiobutton -label [msgcat::mc "Modify"] \
+            -variable workmode -value modifyhal  -underline 0 \
+            -command {
+                displayThis {Switched to modify mode.}
             } 
-        $settingsmenu add command -label [msgcat::mc "Modify"] \
-            -command {displayThis {} ; set workmode modifyhal} \
-            -underline 0
-        $settingsmenu add command -label [msgcat::mc "Tune"] \
-            -command {set workmode tunehal} -underline 0
+        $settingsmenu add radiobutton -label [msgcat::mc "Tune"] \
+            -variable workmode -value tunehal  -underline 0 \
+            -command {
+            }
 set helpmenu [menu $menubar.help -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Help"] \
             -menu $helpmenu -underline 0
@@ -578,6 +586,7 @@ proc showHal {which} {
         }
     }
 }
+
 proc watchHal {} {
     global workmode controlarray k
     set arraynames [array names controlarray]
@@ -587,14 +596,29 @@ proc watchHal {} {
         set rawsplit [split $rawname +]
         set showtype [lindex $rawsplit 0]
         set showthis [lindex $rawsplit 1]
-        lappend tmpstring [exec bin/halcmd -s show $showtype $showthis]
+        switch -- $showtype {
+            pin {
+                set tmp [exec bin/halcmd -s show $showtype $showthis]
+                append tmpstring "[lindex $tmp 4 ] [lindex $tmp 3 ]" \n
+            }
+            param {
+                set tmp [exec bin/halcmd -s show $showtype $showthis]
+                append tmpstring "[lindex $tmp 4 ] [lindex $tmp 3 ]" \n
+            }
+            sig {
+                set tmp [exec bin/halcmd -s show $showtype $showthis]
+                append tmpstring "[lindex $tmp 2 ] [lindex $tmp 1 ]" \n
+            }
+            default {
+                append tmpstring "Not really anything to watch in $showtype" \n
+            }
+        }
     }
     displayThis $tmpstring
     if {$workmode == "watchhal" } {
         after 2000 {watchHal}
     }    
 }
-
 
 # proc switches the insert and removal of upper right stuff
 # This also removes any modify array variables
