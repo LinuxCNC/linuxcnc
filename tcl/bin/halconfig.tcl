@@ -587,6 +587,9 @@ proc showHal {which} {
     }
 }
 
+# strips extra stuff from halcmd -s show and updates
+# next step here is to make the display show indicators
+# and convert "xxx e2" to common numbers
 proc watchHal {} {
     global workmode controlarray k
     set arraynames [array names controlarray]
@@ -597,13 +600,13 @@ proc watchHal {} {
         set showtype [lindex $rawsplit 0]
         set showthis [lindex $rawsplit 1]
         switch -- $showtype {
-            pin {
-                set tmp [exec bin/halcmd -s show $showtype $showthis]
-                append tmpstring "[lindex $tmp 4 ] [lindex $tmp 3 ]" \n
-            }
+            pin {-}
             param {
                 set tmp [exec bin/halcmd -s show $showtype $showthis]
-                append tmpstring "[lindex $tmp 4 ] [lindex $tmp 3 ]" \n
+                set pinname [lindex $tmp 4]
+                set value [lindex $tmp 3]
+                if {[lindex $tmp 1] == "float"} {set value [expr $value]}
+                append tmpstring "$pinname $value" \n
             }
             sig {
                 set tmp [exec bin/halcmd -s show $showtype $showthis]
@@ -617,7 +620,7 @@ proc watchHal {} {
     displayThis $tmpstring
     if {$workmode == "watchhal" } {
         after 2000 {watchHal}
-    }    
+    }
 }
 
 # proc switches the insert and removal of upper right stuff
