@@ -182,7 +182,7 @@ int rtapi_app_main(void)
     n = 0; /* port number */
 
     /* STEP 1: initialise the driver */
-    comp_id = hal_init("SKELETON");
+    comp_id = hal_init("hal_skeleton");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SKELETON: ERROR: hal_init() failed\n");
