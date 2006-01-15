@@ -50,6 +50,7 @@ all : headers $(LIBS) modules
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd user_comps; make $@)
 	(cd classicladder; make $@)
 
 # Generic rules
@@ -89,24 +90,28 @@ headers: def_headers
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd user_comps; make $@)
 	(cd classicladder; make $@)
 
 indent: def_indent
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd user_comps; make $@)
 	(cd classicladder; make $@)
 
 depend: def_depend
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd user_comps; make $@)
 	(cd classicladder; make $@)
 
 clean :  def_clean kclean
 	(cd utils; make $@)
 	(cd drivers; make $@)
 	(cd components; make $@)
+	(cd user_comps; make $@)
 	(cd classicladder; make $@)
 
 kclean:
