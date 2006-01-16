@@ -73,7 +73,7 @@
 #include <linux/ctype.h>	/* isdigit */
 #include <linux/delay.h>	/* udelay */
 #include <asm/uaccess.h>	/* copy_from_user() */
-#include <linux/time.h>		/* timeval & gettimeofday() */
+#include <linux/time.h>		/* timeval & do_gettimeofday() */
 
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
@@ -524,12 +524,15 @@ long int rtapi_clock_set_period(long int nsecs)
 
 long long int rtapi_get_time(void)
 {
-    /* according to RTAI docs, this function exists regardless of the actual
-       CPU capabilities.  If the machine has a high accuracy timer (TSC or
-       other) it will be used, if not the 8254 timer will be used.  If for
-       some reason even that doesn't work, the function returns zero.
-    */
-    return rt_get_cpu_time_ns();
+    struct timeval tv;
+
+    /* call the kernel's internal implementation of gettimeofday() */
+    /* unfortunately timeval has only usec, struct timespec would be
+       better, it has nsec resolution.  Doing this right probably
+       involves a number of ifdefs based on kernel version and such */
+    do_gettimeofday(&tv);
+    /* convert to nanoseconds */
+    return (tv.tv_sec * 1000000000LL) + (tv.tv_usec * 1000L);
 }
 
 void rtapi_delay(long int nsec)
