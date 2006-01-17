@@ -526,13 +526,19 @@ long long int rtapi_get_time(void)
 {
     struct timeval tv;
 
+    //AJ: commenting the following code out, as it seems on some systems it
+    // really breaks
+    
     /* call the kernel's internal implementation of gettimeofday() */
     /* unfortunately timeval has only usec, struct timespec would be
        better, it has nsec resolution.  Doing this right probably
        involves a number of ifdefs based on kernel version and such */
-    do_gettimeofday(&tv);
+    /*do_gettimeofday(&tv);*/
     /* convert to nanoseconds */
-    return (tv.tv_sec * 1000000000LL) + (tv.tv_usec * 1000L);
+    /*return (tv.tv_sec * 1000000000LL) + (tv.tv_usec * 1000L);*/
+    
+    //reverted to old code for now
+    return rt_get_cpu_time_ns();    
 }
 
 void rtapi_delay(long int nsec)
