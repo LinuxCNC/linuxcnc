@@ -539,6 +539,7 @@ proc config_manager {} {
     # more globals for new and run config info
     global new_config_name new_config_template new_config_readme
     global run_config_name run_ini_name
+    global selected_config_name
 
     # read the directory and set up list of configs
     get_config_list
@@ -603,7 +604,7 @@ proc config_manager {} {
 		return
 	    }
 	    set selected_config_name $value
-	    set wizard_state "not_implemented"
+	    set wizard_state "delete_verify"
 	    return
 	}
 	"New" {
@@ -1162,7 +1163,106 @@ proc new_config_error {} {
     
     # not done yet
     popup [ msgcat::mc "An error happened while creating the new configuration.\nIdeally this code would clean everything up and\nthen return to the main menu, but the cleanup isn't done yet.\n" ][ msgcat::mc "Click 'OK' to return to the main menu." ]
-    set wizard_state "main_page"
+    set wizard_state "config_manager"
+    return
+}
+
+
+proc delete_verify {} {
+    # need globals to communicate with wizard page buttons
+    global choice top wizard_state 
+    global selected_config_name
+
+    set f1 [ wizard_page { "Cancel" "Finish" } ]
+    # add a header line
+    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "WARNING!\n\nYou are about to delete the existing EMC2 configuration called:\n\n'%s'\n\nThis means that the directory\n'%s'\nand all files and subdirectories in it will be deleted." ] $selected_config_name [ file join [ pwd ] $selected_config_name ] ] ]
+    pack $l1 -pady 10
+    pack $f1
+
+    set choice "none"
+    vwait choice
+    pack forget $f1
+    destroy $f1
+
+    switch $choice {
+	"Cancel" {
+	    set wizard_state "config_manager"
+	    return
+	}
+	"Finish" {
+	    set wizard_state "delete_do_it"
+	    return
+	}
+    }
+}    
+
+proc delete_do_it {} {
+    # need globals to communicate with wizard page buttons
+    global choice top wizard_state
+    global selected_config_name
+
+    # set up page, only one button
+    set f1 [ wizard_page { "Cancel" } ]
+    set choice "none"
+    # set up labels
+    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Deleting config '%s'..." ] $selected_config_name ] -width 70 -justify left ]
+    set lerr [ label $f1.lerr -text " " -width 70 -justify center ]
+    pack $l1 -padx 10 -pady 1
+    pack $lerr -padx 10 -pady 10
+    pack $f1
+    # update display
+    update
+    # verify that we are in the right place
+    if { [ file isdirectory $selected_config_name ] != 1 } {
+	# display error message
+	$lerr -text [msgcat::mc "ERROR: Config directory not found."]
+	vwait choice
+	pack forget $f1
+	destroy $f1
+	set wizard_state "delete_config_error"
+	return
+    }
+    # switch to the directory
+    cd $selected_config_name
+    # delete everything
+    eval exec rm -rf [ glob * ]
+    # switch back to main configs directory
+    cd ..
+    # delete the directory
+    exec rmdir $selected_config_name
+    # all done, update GUI
+    update
+    # and clean up
+    if { $choice != "none" } {
+	pack forget $f1
+	destroy $f1
+	set wizard_state "delete_config_error"
+	return
+    }
+    pack forget $f1
+    destroy $f1
+    set wizard_state "delete_config_done"
+}
+
+proc delete_config_done {} {
+    # need globals to communicate with wizard page buttons
+    global choice top wizard_state
+    global selected_config_name
+    
+    popup [ format [ msgcat::mc "The configuration '%s' has been deleted.\n" ] $selected_config_name ][ msgcat::mc "Click 'OK' to return to the main menu." ]
+    # clear selected config name, that config is gone now
+    set selected_config_name ""
+    set wizard_state "config_manager"
+    return
+}
+
+proc delete_config_error {} {
+    # need globals to communicate with wizard page buttons
+    global choice top wizard_state
+    
+    # not done yet
+    popup [ msgcat::mc "An error happened while deleting the configuration.\n" ][ msgcat::mc "Click 'OK' to return to the main menu." ]
+    set wizard_state "config_manager"
     return
 }
 
