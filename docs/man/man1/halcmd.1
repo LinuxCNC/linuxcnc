@@ -175,8 +175,12 @@ their functions.
 Prints HAL items to \fIstdout\fR in human readable format.
 \fIitem\fR can be one of "\fBcomp\fR" (components), "\fBpin\fR",
 "\fBsig\fR" (signals), "\fBparam\fR" (parameters), "\fBfunct\fR"
-(functions), or "\fBthread\fR".  If \fIitem\fR is omitted,
+(functions), or "\fBthread\fR".  The type "\fBall\fR" can be used to show
+matching items of all the preceeding types.  If \fIitem\fR is omitted,
 \fBshow\fR will print everything.
+.TP
+\fBitem\fR
+This is equivalent to \fBshow all [item]\fR.
 .TP
 \fBsave\fR [\fIitem\fR]
 Prints HAL items to \fIstdout\fR in the form of HAL commands.
