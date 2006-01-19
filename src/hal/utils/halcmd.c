@@ -304,9 +304,9 @@ int main(int argc, char **argv)
 	}
     }
     /* don't print prompt in script mode (this may change later) */
-    if (scriptmode != 0) {
-        prompt_mode = 0;
-    }
+//    if (scriptmode != 0) {
+//        prompt_mode = 0;
+//    }
     /* register signal handlers - if the process is killed
        we need to call hal_exit() to free the shared memory */
     signal(SIGINT, quit);
@@ -349,7 +349,8 @@ int main(int argc, char **argv)
 	}
     } else {
 	if (prompt_mode != 0) {
-	    rtapi_print("halcmd: ");
+	    rtapi_print(scriptmode == 1 ? "%\n" : "halcmd: ");
+	    fflush(stdout);
 	}
 	/* read command line(s) from 'srcfile' */
 	while (fgets(cmd_buf, MAX_CMD_LEN, srcfile) != NULL) {
@@ -464,7 +465,8 @@ int main(int argc, char **argv)
 		break;
 	    }
 	    if (prompt_mode != 0) {
-		rtapi_print("halcmd: ");
+		rtapi_print(scriptmode == 1 ? "%\n" : "halcmd: ");
+		fflush(stdout);
 	    }
 	}
     }
@@ -533,7 +535,7 @@ static int release_HAL_mutex(void)
 
 static int parse_cmd(char *tokens[])
 {
-    int retval;
+    int retval=0;
 
 #if 0
     int n;
@@ -654,8 +656,14 @@ static int parse_cmd(char *tokens[])
 	    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime threads stopped\n");
 	}
     } else {
-	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown command '%s'\n", linenumber, tokens[0]);
-	retval = -1;
+	if ((tokens[1][0] == '\0') && (tokens[2][0] == '\0')) {
+	/* try to match params, signals, pins, and return the value of the named item(s) */
+	    retval = do_show_cmd("all", tokens[0]);
+	}
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown command '%s'\n", linenumber, tokens[0]);
+	    retval = -1;
+	}
     }
     /* tell the signal handler that we no longer can have the mutex */
     hal_flag = 0;
