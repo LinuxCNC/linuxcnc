@@ -236,7 +236,7 @@ typedef struct {
 
 #define MAX_FUNCT 10
 
-struct slot_data_s {};
+struct slot_data_s;
 
 typedef void (slot_funct_t)(struct slot_data_s *slot);
 
