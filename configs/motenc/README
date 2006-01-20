@@ -5,6 +5,15 @@ then get it in here.
 We need to know any differences between the 100 and Lite
 versions as well as running multiple cards.
 
+Multiple cards are supported by reading the board id jumper
+settings and using them as the <boardId> in the exported
+HAL names. There are two jumers on J3 of the motenc-100
+board that are defined as the board id. Installing a jumper
+causes the correspoding bit to read as zero. Since there are
+two board id jumpers, up to four cards are supported. Using
+the board id allows the configuration to be independant of
+which PCI slot the card is plugged into.
+
 This configuration will require one of these cards at the
 time of startup.
 
