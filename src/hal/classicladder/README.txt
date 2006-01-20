@@ -6,6 +6,12 @@ http://www.sourceforge.net/projects/classicladder
 http://www.multimania.com/mavati/classicladder
 February 2001
 
+NOTICE: This version of ClassicLadder has been modified to work with 
+the HAL (hardware abstraction layer), part of the EMC2 project.
+Bugs should be reported to the EMC2 project, not to the original
+author of Classicladder.
+
+
 Version 0.7.3 (28 December 2004)
 --------------------------------
 
@@ -29,7 +35,7 @@ displaying dynamically it under Gtk, to see if my first idea to realise all
 this works.
 And as quickly I've found that it advanced quite well, I've continued with
 more complex elements : timer, multiples rungs, etc...
-Voilà, here is this work...
+Voilï¿½ here is this work...
 And for the controller at job? Well, in fact, it's already a lot of work to
 do the basic features of the traffic lights and I don't think we will add
 a ladder language to it one day... ;-)

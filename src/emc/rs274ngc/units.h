@@ -1,3 +1,19 @@
+/********************************************************************
+* Description:  units.h
+*               Unit conversion macros and constants
+*
+* Derived from a work by Fred Proctor & Will Shackleford
+*
+* License: GPL Version 2
+*    
+* Copyright (c) 2005 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
+
 /* macros for converting internal (mm/deg) units to external units */
 #define TO_EXT_LEN(mm) ((mm) * GET_EXTERNAL_LENGTH_UNITS())
 #define TO_EXT_ANG(deg) ((deg) * GET_EXTERNAL_ANGLE_UNITS())

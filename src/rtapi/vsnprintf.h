@@ -1,3 +1,19 @@
+/********************************************************************
+* Description: vsnprintf.h
+*   Implementation of vsnprintf for kernel space.
+*
+*   Derived from the Linux 2.4.18 kernel  (linux/lib/vsprintf.c)
+*
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* Last change:
+* $Revision$
+* $Author$
+* $Date$
+********************************************************************/
 /** vsnprintf.h
 
 This file implements a vsnprintf for use in kernel space.  It is
@@ -7,6 +23,20 @@ vsnprintf, only vsprintf.  To avoid difficulties with 64 bit
 math, we take the simple approach - we don't support longlong
 values (or floating point).
 */
+
+/* This is free software; you can redistribute it and/or modify it
+   under the terms of version 2 of the GNU General Public License
+   as published by the Free Software Foundation.  This code is
+   distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY 
+   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+   License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this library; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
+*/
+
 
 /* we use this so that we can do without the string library */
 static int strn_len(const char *s, int count)

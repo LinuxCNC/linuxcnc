@@ -1,6 +1,7 @@
 /******************************************************************************
  *
  * Copyright (C) 2005 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
+ * License: GPL Version 2
  *
  * $RCSfile$
  * $Author$
