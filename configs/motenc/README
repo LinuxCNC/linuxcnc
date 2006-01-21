@@ -1,5 +1,5 @@
 This configuration is intended for servo machines running the
-Vitalsystems (www.vsi99.com) Motenc or the Motenc-Lite card.
+Vitalsystems (www.vsi99.com) Motenc-100 or Motenc-Lite card.
 
 You can either have a standard pinout, or you could make a new
 one which would suit your own custom cabling. The changes are
