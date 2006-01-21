@@ -94,20 +94,14 @@ install_modules:
 install_configs:
 	install -d $(DESTDIR)$(sysconfdir)
 	cp ../emc2.gif $(DESTDIR)$(sysconfdir)
-	cp ../configs/*.hal $(DESTDIR)$(sysconfdir)
-	cp ../configs/TkEmc $(DESTDIR)$(sysconfdir)
-	cp ../configs/*.ini $(DESTDIR)$(sysconfdir)
-	cp ../configs/*.clp $(DESTDIR)$(sysconfdir)
-	cp ../configs/*.var $(DESTDIR)$(sysconfdir)
-	cp ../configs/*.nml $(DESTDIR)$(sysconfdir)
-	cp ../configs/*.tbl $(DESTDIR)$(sysconfdir)
+	cp -rf ../configs/* $(DESTDIR)$(sysconfdir)
 	@ echo "configs installed"
 
 install_bin:
 	install -d $(DESTDIR)$(bindir)
 	-cp -f ../bin/* $(DESTDIR)$(bindir)
 	cp ../scripts/emc $(DESTDIR)$(bindir)
-	chmod +x $(DESTDIR)$(bindir)/emc.run
+	chmod +x $(DESTDIR)$(bindir)/emc
 	@ echo "bin installed"
 
 install_lib:
