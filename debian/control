@@ -1,0 +1,15 @@
+Source: emc2
+Section: misc
+Priority: extra
+Maintainer: Alex Joni <alex_joni@users.sourceforge.nt>  
+Build-Depends: debhelper (>> 4.0.0), linux-headers-2.6.12.6-rtai, linux-source-2.6.12.6-rtai, linux-image-2.6.12.6-rtai, rtai-dev-2.6.12.6-rtai
+Standards-Version: 2.0.0-rc0
+
+Package: emc2
+Architecture: any
+Depends: ${shlibs:Depends}, linux-image-2.6.12.6-rtai, rtai-modules-2.6.12.6-rtai
+Provides: emc2
+Suggests: python-axis
+Description: PC based motion control for RTAI and RTLinux patched kernels.
+ emc2 provides motion control for CNC machine tools and
+ robotic applications (milling, cutting, routing, etc.).
