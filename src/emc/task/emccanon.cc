@@ -860,6 +860,9 @@ void START_SPINDLE_CLOCKWISE()
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
+    if (spindleSpeed == 0)
+	CANON_ERROR("Spindle speed needs to be non-zero in order to enable.\nIf speed is 0 we have no way of telling that you really wanted clockwise.");
+
     emc_spindle_on_msg.speed = spindleSpeed;
 
     interp_list.append(emc_spindle_on_msg);
@@ -870,6 +873,9 @@ void START_SPINDLE_CLOCKWISE()
 void START_SPINDLE_COUNTERCLOCKWISE()
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
+
+    if (spindleSpeed == 0)
+	CANON_ERROR("Spindle speed needs to be non-zero in order to enable.\nIf speed is 0 we have no way of telling that you really wanted counterclockwise.");
 
     emc_spindle_on_msg.speed = -spindleSpeed;
 

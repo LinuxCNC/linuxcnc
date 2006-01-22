@@ -1047,7 +1047,7 @@ int main(int argc, char *argv[])
 	    emcioStatus.spindle.increasing = 0;
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SPINDLE_ON %f RPM\n",
 			    emcioStatus.spindle.speed);
-	    if (((EMC_SPINDLE_ON *) emcioCommand)->speed > 0) {
+	    if (((EMC_SPINDLE_ON *) emcioCommand)->speed >= 0) {
 		emcioStatus.spindle.direction = 1;
 		*(iocontrol_data->spindle_on) = 1;
 		*(iocontrol_data->spindle_forward) = 1;
