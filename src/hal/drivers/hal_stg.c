@@ -6,6 +6,7 @@
 * License: GPL Version 2
 *    
 * Copyright (c) 2004 All rights reserved.
+* see below for aditional notes
 *
 * Last change: 
 * $Revision$
@@ -111,6 +112,8 @@
 
 /* Based on STGMEMBS.CPP from the Servo To Go Windows drivers 
     - Copyright (c) 1996 Servo To Go Inc and released under GPL Version 2 */
+/* Also relates to the EMC1 code (very similar to STGMEMBS.CPP)
+    work done by Fred Proctor, Will Shackleford */
 
 /** This program is free software; you can redistribute it and/or
     modify it under the terms of version 2.1 of the GNU General
