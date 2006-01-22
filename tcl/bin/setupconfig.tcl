@@ -586,7 +586,7 @@ proc config_manager {} {
 		return
 	    }
 	    set selected_config_name $value
-	    set wizard_state "not_implemented"
+	    set wizard_state "backup_verify"
 	    return
 	}
 	"Restore" {
@@ -1224,8 +1224,11 @@ proc delete_do_it {} {
     }
     # switch to the directory
     cd $selected_config_name
-    # delete everything
+    # delete everything (except hidden files)
     eval exec rm -rf [ glob * ]
+    # delete hidden files (ones that start with '.' but not '..' )
+    regsub \.\. [ glob .?* ] "" hidden
+    eval exec rm -rf $hidden
     # switch back to main configs directory
     cd ..
     # delete the directory
@@ -1266,6 +1269,128 @@ proc delete_config_error {} {
     return
 }
 
+proc backup_verify {} {
+    # need globals to communicate with wizard page buttons
+    global choice top wizard_state 
+    global selected_config_name backup_path
+
+    set f1 [ wizard_page { "Cancel" "Finish" } ]
+    # add a header line
+    
+    set timetag [ clock format [ clock seconds ] -format %Y-%m-%d-%H%M ]
+    set backup_file $selected_config_name-$timetag
+    set backup_path [ file join [ pwd ] backup $backup_file.tar.gz ]
+    
+    # introductory message    
+    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "You are about to create a backup of the '%s'configuration.\nThe backup will be stored in the file shown below (change the name if you want it elsewhere)." ] $selected_config_name ] ]
+    pack $l1 -pady 10
+    
+    # entry with the filename
+    set e1 [ entry $f1.e1 -width 0 ]
+    $e1 insert 0 $backup_path
+    pack $e1 -pady 10
+    
+    pack $f1
+
+    set choice "none"
+    vwait choice
+    set backup_path [ $e1 get ]
+    pack forget $f1
+    destroy $f1
+
+    switch $choice {
+	"Cancel" {
+	    set wizard_state "config_manager"
+	    return
+	}
+	"Finish" {
+	
+	    set wizard_state "backup_do_it"
+	    return
+	}
+    }
+}    
+
+proc backup_do_it {} {
+    # need globals to communicate with wizard page buttons
+    global choice top wizard_state
+    global selected_config_name backup_path
+
+    # set up page, only one button
+    set f1 [ wizard_page { "Cancel" } ]
+    set choice "none"
+    # set up labels
+    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Backing up config '%s'..." ] $selected_config_name ] -width 70 -justify left ]
+    set lerr [ label $f1.lerr -text " " -width 70 -justify center ]
+    pack $l1 -padx 10 -pady 1
+    pack $lerr -padx 10 -pady 10
+    pack $f1
+    # update display
+    update
+    # verify that we are in the right place
+    if { [ file isdirectory $selected_config_name ] != 1 } {
+	# display error message
+	$lerr -text [msgcat::mc "ERROR: Config directory not found."]
+	vwait choice
+	pack forget $f1
+	destroy $f1
+	set wizard_state "backup_config_error"
+	return
+    }
+    # make sure there is a configs/backup directory
+    if { [ file isdirectory backup ] != 1 } {
+	# create it
+	exec mkdir backup
+	# see if that worked
+	if { [ file isdirectory backup ] != 1 } {
+	    $lerr -text [msgcat::mc "ERROR: Could not create backup directory."]
+	    vwait choice
+	    pack forget $f1
+	    destroy $f1
+	    set wizard_state "backup_config_error"
+	    return
+	}
+    }
+    
+    # this is less than perfect - for one thing, if there is a CVS subdir it recurses
+    # down into it.
+    
+    exec tar -czf $backup_path $selected_config_name
+    
+    # all done, update GUI
+    update
+    # and clean up
+    if { $choice != "none" } {
+	pack forget $f1
+	destroy $f1
+	set wizard_state "backup_config_error"
+	return
+    }
+    pack forget $f1
+    destroy $f1
+    set wizard_state "backup_config_done"
+}
+
+
+proc backup_config_done {} {
+    # need globals to communicate with wizard page buttons
+    global choice top wizard_state
+    global selected_config_name backup_path
+    
+    popup [ format [ msgcat::mc "The configuration '%s' has been backed up to\n'%s'\n\n" ] $selected_config_name $backup_path ][ msgcat::mc "Click 'OK' to return to the main menu." ]
+    set wizard_state "config_manager"
+    return
+}
+
+proc backup_config_error {} {
+    # need globals to communicate with wizard page buttons
+    global choice top wizard_state
+    
+    # not done yet
+    popup [ msgcat::mc "An error happened while backing up the configuration.\n" ][ msgcat::mc "Click 'OK' to return to the main menu." ]
+    set wizard_state "config_manager"
+    return
+}
 
 # config validator
 #
