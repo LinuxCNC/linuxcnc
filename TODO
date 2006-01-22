@@ -1,59 +1,59 @@
 REQUIRED FOR EMC2'S FIRST RELEASE  (EMC-2.0)
 
 
-##Time delay relay for HAL, two pins, in and out
-DONE:  src/hal/components/timedelay.c
+DONE     ##Time delay relay for HAL, two pins, in and out
+         src/hal/components/timedelay.c
 
-Finish?/test make install
-https://sourceforge.net/tracker/index.php?func=detail&aid=1053350&group_id=6744&atid=356744
-Cradek will work on testing and any tweaks needed
+ASSIGNED Finish?/test make install
+         https://sourceforge.net/tracker/index.php?func=detail&aid=1053350&group_id=6744&atid=356744
+         Cradek will work on testing and any tweaks needed
  
-Finish cleaning up config directories
-https://sourceforge.net/tracker/index.php?func=detail&aid=1370927&group_id=6744&atid=356744
-DONE
+DONE     Finish cleaning up config directories
+         https://sourceforge.net/tracker/index.php?func=detail&aid=1370927&group_id=6744&atid=356744
 
-Get the config picker/copier tool working
-DONE (basics)
 
-Get the config picker tool's backup function working (to allow people to send their confi
-when they need support)
-JMK
+DONE     Get the config picker/copier tool working
+         (basics)
+
+ASSIGNED Get the config picker tool's backup function working (to allow people to send their confi
+         when they need support)
+         JMK
 
 resolve any possible GPL ambiguities
-* hal/classicladder - mark files that have been modified JMK/PeteV
-* hal/classicladder/README.txt - add notice "CL has been modified for EMC2,
-report bugs to EMC2 team, not original author"  DONE
-* hal/drivers/m5i20_HM5-4E.h - add license notice.  PeteV?
-* hal/drivers/hal_stg - does it use EMC1 code?  credit Fred/Will if so (alex)
-* hal/drivers/hal_motenc - no EMC1 code used, nothing to do DONE
-* rtapi/vsnpintf.h - came from kernel source, add GPL notice  DONE
-* emc/kinematics prflib.h & trajectory.h - delete, not used  DONE
-* emc/rs274ngc/units.h - add license header & attribution  DONE
-NOTE: units.h duplicates defines in emccanon.cc.  If possible, emccanon.cc
-should use this header instead of duplicating the defines
-* tcl/*.tcl - Add GPL notices to files that don't have them
+NOT DONE * hal/classicladder - mark files that have been modified JMK/PeteV
+DONE     * hal/classicladder/README.txt - add notice "CL has been modified for EMC2,
+         report bugs to EMC2 team, not original author" 
+NOT DONE * hal/drivers/m5i20_HM5-4E.h - add license notice.  PeteV?
+DONE     * hal/drivers/hal_stg - does it use EMC1 code?  credit Fred/Will if so (Alex)
+DONE     * hal/drivers/hal_motenc - no EMC1 code used, nothing to do DONE
+DONE     * rtapi/vsnpintf.h - came from kernel source, add GPL notice  DONE
+DONE     * emc/kinematics prflib.h & trajectory.h - delete, not used  DONE
+DONE     * emc/rs274ngc/units.h - add license header & attribution  DONE
+         NOTE: units.h duplicates defines in emccanon.cc.  If possible, emccanon.cc
+         should use this header instead of duplicating the defines
+NOT DONE * tcl/*.tcl - Add GPL notices to files that don't have them
 
-COPYING - implies that everything is GPL, revise to mention that 
-interfaces are LGPL, also acknowlege EMC1 authors and explain that
-formerly Public Domain EMC1 code is covered under GPL now.  DONE
+DONE     COPYING - implies that everything is GPL, revise to mention that 
+         interfaces are LGPL, also acknowlege EMC1 authors and explain that
+         formerly Public Domain EMC1 code is covered under GPL now.  DONE
 
-HAL driver for Vigalent card?
-Need docs and a volunteer with a card
+PENDING  HAL driver for Vigalent card?
+         Need docs and a volunteer with a card
 
 Generate sample configs that are functionally equivalent to the following 
 EMC1 configs:
 
-Old name   New name    Responsible
-sim        sim         JMK
-generic    stepper     DONE, JMK to review accel headroom
-stg        stg         Alex
-motenc     motenc      needs a README: PeteV?
-univstep   univstep    DONE
-univpwm    univpwm     RayH, JonE
------      step-cl     DONE
------      m5i20       ??
+Status   Old name   New name    Responsible
+DONE     sim        sim         JMK
+DONE     generic    stepper     DONE, JMK to review accel headroom
+DONE     stg        stg         Alex (stg1&2)
+DONE     motenc     motenc      needs a README: PeteV
+DONE     univstep   univstep    DONE
+NOT DONE univpwm    univpwm     RayH, JonE
+DONE     -----      step-cl     DONE
+DONE     -----      m5i20       petev
 
-Need to come up with a way to handle "bridgeport" style machines (more I/O than generic)
+NOT DONE Need to come up with a way to handle "bridgeport" style machines (more I/O than generic)
 
 
 
