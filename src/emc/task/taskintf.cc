@@ -1087,7 +1087,7 @@ int emcTrajSetTermCond(int cond)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajLinearMove(EmcPose end)
+int emcTrajLinearMove(EmcPose end, int type)
 {
 
     emcmotCommand.command = EMCMOT_SET_LINE;
@@ -1095,6 +1095,7 @@ int emcTrajLinearMove(EmcPose end)
     emcmotCommand.pos = end;
 
     emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.motion_type = type;
 
 #ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.pos.tran.x) ||
@@ -1109,11 +1110,12 @@ int emcTrajLinearMove(EmcPose end)
 }
 
 int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
-			PM_CARTESIAN normal, int turn)
+			PM_CARTESIAN normal, int turn, int type)
 {
     emcmotCommand.command = EMCMOT_SET_CIRCLE;
 
     emcmotCommand.pos = end;
+    emcmotCommand.motion_type = type;
 
     emcmotCommand.center.x = center.x;
     emcmotCommand.center.y = center.y;
@@ -1224,6 +1226,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->activeQueue = emcmotStatus.activeDepth;
     stat->queueFull = emcmotStatus.queueFull;
     stat->id = emcmotStatus.id;
+    stat->motion_type = emcmotStatus.motionType;
     if (EMC_DEBUG_MOTION_TIME & EMC_DEBUG) {
 	if (stat->id != last_id) {
 	    if (last_id != last_id_printed) {

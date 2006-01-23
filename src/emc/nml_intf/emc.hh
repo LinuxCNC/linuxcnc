@@ -344,6 +344,11 @@ enum EMC_TRAJ_MODE_ENUM {
     EMC_TRAJ_MODE_TELEOP = 3	// velocity based world coordinates motion,
 };
 
+#define EMC_MOTION_TYPE_TRAVERSE 1
+#define EMC_MOTION_TYPE_FEED 2
+#define EMC_MOTION_TYPE_ARC 3
+#define EMC_MOTION_TYPE_TOOLCHANGE 4
+
 // --------------
 // EMC VOCABULARY
 // --------------
@@ -453,9 +458,9 @@ extern int emcTrajPause();
 extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
-extern int emcTrajLinearMove(EmcPose end);
+extern int emcTrajLinearMove(EmcPose end, int type);
 extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
-			       PM_CARTESIAN normal, int turn);
+			       PM_CARTESIAN normal, int turn, int type);
 extern int emcTrajSetTermCond(int cond);
 extern int emcTrajSetOffset(EmcPose offset);
 extern int emcTrajSetOrigin(EmcPose origin);
@@ -1540,6 +1545,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
+    int type;
     EmcPose end;		// end point
 };
 
@@ -1557,6 +1563,7 @@ class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
     PM_CARTESIAN center;
     PM_CARTESIAN normal;
     int turn;
+    int type;
 };
 
 class EMC_TRAJ_SET_TERM_COND:public EMC_TRAJ_CMD_MSG {
@@ -1735,6 +1742,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     // signal.
     int probeval;		// Current value of probe input.
     int kinematics_type;	// identity=1,serial=2,parallel=3,custom=4
+    int motion_type;
 };
 
 // emc_MOTION is aggregate of all EMC motion-related status classes

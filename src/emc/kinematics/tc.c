@@ -318,6 +318,26 @@ int tcGetTermCond(TC_STRUCT * tc)
     return tc->termCond;
 }
 
+int tcSetMotionType(TC_STRUCT * tc, int type)
+{
+    if (0 == tc) {
+        return -1;
+    }
+
+    tc->motionType = type;
+    return 0;
+}
+
+int tcGetMotionType(TC_STRUCT * tc)
+{
+    if (0 == tc) {
+	return -1;
+    }
+
+    return tc->motionType;
+}
+
+
 int tcRunCycle(TC_STRUCT * tc)
 {
     double newPos;

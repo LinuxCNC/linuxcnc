@@ -186,6 +186,7 @@ extern "C" {
 	double vel;		/* max velocity */
         double ini_maxvel;      /* max velocity allowed by machine
                                    constraints (the ini file) */
+        int motion_type;        /* this move is because of traverse, feed, arc, or toolchange */
 	double acc;		/* max acceleration */
 	double backlash;	/* amount of backlash */
 	int id;			/* id for motion */
@@ -556,6 +557,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 				   after last probeTripped */
 	int level;
 	unsigned char tail;	/* flag count for mutex detect */
+        int motionType;
     } emcmot_status_t;
 
 /*********************************

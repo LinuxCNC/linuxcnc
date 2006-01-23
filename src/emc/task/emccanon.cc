@@ -421,6 +421,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     if((acc = getStraightAcceleration(x, y, z, a, b, c)))
         sendAccMsg(acc);
 
+    linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
     interp_list.append(linearMoveMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
@@ -479,6 +480,7 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
     if((acc = getStraightAcceleration(x, y, z, a, b, c)))
         sendAccMsg(acc);
 
+    linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
     interp_list.append(linearMoveMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
@@ -762,6 +764,7 @@ void ARC_FEED(double first_end, double second_end,
 	linearMoveMsg.end.b = b;
 	linearMoveMsg.end.c = c;
 
+        linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
 	interp_list.append(linearMoveMsg);
     } else if (rotation > 0) {
 
@@ -794,6 +797,7 @@ void ARC_FEED(double first_end, double second_end,
 	circularMoveMsg.end.b = b;
 	circularMoveMsg.end.c = c;
 
+        circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 	interp_list.append(circularMoveMsg);
     } else {
 	// reverse turn
@@ -826,6 +830,7 @@ void ARC_FEED(double first_end, double second_end,
 	circularMoveMsg.end.b = b;
 	circularMoveMsg.end.c = c;
 
+        circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 	interp_list.append(circularMoveMsg);
     }
 
@@ -969,6 +974,7 @@ void CHANGE_TOOL(int slot)
 	linear_move_msg.end.a = 0.0;
 	linear_move_msg.end.b = 0.0;
 	linear_move_msg.end.c = 0.0;
+        linear_move_msg.type = EMC_MOTION_TYPE_TOOLCHANGE;
 	interp_list.append(linear_move_msg);
 	/*! \todo FIXME-- orient spindle command goes here. We don't yet have an NML 
 	   message for this. */
@@ -983,6 +989,7 @@ void CHANGE_TOOL(int slot)
 	linear_move_msg.end.a = 0.0;
 	linear_move_msg.end.b = 0.0;
 	linear_move_msg.end.c = 0.0;
+        linear_move_msg.type = EMC_MOTION_TYPE_TOOLCHANGE;
 	interp_list.append(linear_move_msg);
 	/* second EMC_TOOL_LOAD message tells emcio rotate carousel */
 	interp_list.append(load_tool_msg);
@@ -995,6 +1002,7 @@ void CHANGE_TOOL(int slot)
 	linear_move_msg.end.a = 0.0;
 	linear_move_msg.end.b = 0.0;
 	linear_move_msg.end.c = 0.0;
+        linear_move_msg.type = EMC_MOTION_TYPE_TOOLCHANGE;
 	interp_list.append(linear_move_msg);
     }
 

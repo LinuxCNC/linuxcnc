@@ -73,6 +73,7 @@ typedef struct {
     int doutIndex;		/* which output pin gets set */
     unsigned char doutstarts;	/* value applied at motion start */
     unsigned char doutends;	/* value applied at motion end */
+    int motionType;        /* motion is due to a feed, traverse, probe, arc */
 } TC_STRUCT;
 
 /*! This is related to synchronous I/O, and will be fixed later */
@@ -112,6 +113,8 @@ extern int tcIsPaused(TC_STRUCT * tc);
 extern void tcPrint(TC_STRUCT * tc);
 extern double tcRunPreCycle(const TC_STRUCT * tc);
 extern int tcForceCycle(TC_STRUCT * tc, double ratio);
+extern int tcSetMotionType(TC_STRUCT *tc, int type);
+extern int tcGetMotionType(TC_STRUCT *tc);
 
 /* This is related to synchronous I/O */
 extern int tcSetDout(TC_STRUCT * tc, int index, unsigned char starts,

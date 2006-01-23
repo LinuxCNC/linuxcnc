@@ -1993,6 +1993,7 @@ static void update_status(void)
     emcmotStatus->depth = tpQueueDepth(&emcmotDebug->queue);
     emcmotStatus->activeDepth = tpActiveDepth(&emcmotDebug->queue);
     emcmotStatus->id = tpGetExecId(&emcmotDebug->queue);
+    emcmotStatus->motionType = tpGetMotionType(&emcmotDebug->queue);
     emcmotStatus->queueFull = tcqFull(&emcmotDebug->queue.queue);
 
     /* check to see if we should pause in order to implement

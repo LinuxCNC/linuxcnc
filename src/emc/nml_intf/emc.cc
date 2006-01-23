@@ -1671,6 +1671,7 @@ void EMC_TRAJ_LINEAR_MOVE::update(CMS * cms)
 
     EMC_TRAJ_CMD_MSG::update(cms);
     EmcPose_update(cms, &end);
+    cms->update(type);
 
 }
 
@@ -1687,6 +1688,7 @@ void EMC_TRAJ_CIRCULAR_MOVE::update(CMS * cms)
     cms->update(center);
     cms->update(normal);
     cms->update(turn);
+    cms->update(type);
 
 }
 
@@ -2569,6 +2571,7 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(probing);
     cms->update(probeval);
     cms->update(kinematics_type);
+    cms->update(motion_type);
 
 }
 

@@ -85,6 +85,7 @@ int tpClear(TP_STRUCT * tp)
     tp->goalPos.c = tp->currentPos.c;
     tp->nextId = 0;
     tp->execId = 0;
+    tp->motionType = 0;
     tp->termCond = TC_TERM_COND_BLEND;
     tp->done = 1;
     tp->depth = 0;
@@ -265,6 +266,15 @@ int tpGetExecId(TP_STRUCT * tp)
     return tp->execId;
 }
 
+int tpGetMotionType(TP_STRUCT * tp)
+{
+    if (0 == tp) {
+        return 0;
+    }
+
+    return tp->motionType;
+}
+
 /*
   tpSetTermCond(tp, cond) sets the termination condition for all subsequent
   queued moves. If cond is TC_TERM_STOP, motion comes to a stop before
@@ -314,7 +324,7 @@ int tpSetPos(TP_STRUCT * tp, EmcPose pos)
     be the current location.
 */
 
-int tpAddLine(TP_STRUCT * tp, EmcPose end)
+int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
 {
     TC_STRUCT tc;
     PmLine line, line_abc;
@@ -362,6 +372,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tcSetLine(&tc, line, line_abc);
     tcSetId(&tc, tp->nextId);
     tcSetTermCond(&tc, tp->termCond);
+    tcSetMotionType(&tc, type);
     
     // FIXME - debug only, remove later
     tc.output_chan = output_chan;
@@ -389,7 +400,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
 }
 
 int tpAddCircle(TP_STRUCT * tp, EmcPose end,
-		PmCartesian center, PmCartesian normal, int turn)
+		PmCartesian center, PmCartesian normal, int turn, int type)
 {
     TC_STRUCT tc;
     PmCircle circle;
@@ -437,6 +448,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 
     tcSetCircle(&tc, circle, line_abc);
     tcSetId(&tc, tp->nextId);
+    tcSetMotionType(&tc, type);
     tcSetTermCond(&tc, tp->termCond);
     
     // FIXME - debug only, remove later
@@ -601,6 +613,7 @@ int tpRunCycle(TP_STRUCT * tp)
 	
 	if (tp->activeDepth <= toRemove) {
 	    tp->execId = tcGetId(thisTc);
+            tp->motionType = tcGetMotionType(thisTc);
 	}
 	/* calculate the move contributed by this TC */
 	pmCartCartSub(after.tran, before.tran, &after.tran);
@@ -659,6 +672,7 @@ int tpRunCycle(TP_STRUCT * tp)
 	    tp->done = 1;
 	    tp->activeDepth = 0;
 	    tp->execId = 0;
+            tp->motionType = 0;
 	}
     }
 
@@ -689,6 +703,7 @@ int tpRunCycle(TP_STRUCT * tp)
 	tp->activeDepth = 0;
 	tp->aborting = 0;
 	tp->execId = 0;
+        tp->motionType = 0;
 	tpResume(tp);
     }
 
