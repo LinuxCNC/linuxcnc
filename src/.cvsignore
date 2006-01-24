@@ -1,0 +1,5 @@
+.tmp
+Makefile.inc
+config.h
+config.log
+config.status

@@ -1,0 +1,4 @@
+*.cmd
+*.ko
+.tmp_versions
+*.mod.c
