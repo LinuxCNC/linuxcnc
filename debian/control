@@ -1,7 +1,7 @@
 Source: emc2
 Section: misc
 Priority: extra
-Maintainer: Alex Joni <alex_joni@users.sourceforge.nt>  
+Maintainer: Alex Joni <alex_joni@users.sourceforge.net>  
 Build-Depends: debhelper (>> 4.0.0), linux-headers-2.6.12.6-rtai, linux-source-2.6.12.6-rtai, linux-image-2.6.12.6-rtai, rtai-dev-2.6.12.6-rtai
 Standards-Version: 2.0.0-rc0
 
