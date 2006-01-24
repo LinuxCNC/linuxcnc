@@ -18,22 +18,24 @@
 #ifndef SINCOS_H
 #define SINCOS_H
 
+#include "config.h"
 /*
   for each platform that has built-in support for the sincos function,
-  define SINCOS_SUPPORT here
+  that should be discovered by ./configure
 */
 
-#if defined (__GLIBC__) && defined(__USE_GNU) && defined(__FAST_MATH__)
-#define SINCOS_SUPPORT
+/* testing for sincos now supported by ./configure */
+#ifdef HAVE___SINCOS
 #define sincos __sincos
 #endif
 
+
 /*
-  all other platforms will not have SINCOS_SUPPORT defined, and will
+  all other platforms will not have __sincos, and will
   get the declaration for the explicit function
 */
 
-#ifndef SINCOS_SUPPORT
+#ifndef HAVE___SINCOS
 
 extern void sincos(double x, double *sx, double *cx);
 

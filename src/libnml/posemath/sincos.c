@@ -26,7 +26,7 @@
 
 #include "sincos.h"
 
-#ifndef SINCOS_SUPPORT
+#ifndef HAVE___SINCOS
 
 #include "posemath.h"
 
