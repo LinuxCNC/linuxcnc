@@ -41,7 +41,7 @@ $(BIN_DIR)/milltask: \
 	$(TMP_DIR)/emctask.o \
 	$(TMP_DIR)/emccanon.o \
 	$(TMP_DIR)/emctaskmain.o \
-	$(TMP_DIR)/rs274.o \
+	$(LIB_DIR)/librs274.a \
 	$(TMP_DIR)/usrmotintf.o \
 	$(TMP_DIR)/emcmotutil.o \
 	$(TMP_DIR)/taskintf.o \

@@ -41,7 +41,7 @@ OBJS = \
 	rs274ngc_errors.o \
 	rs274ngc_pre.o
 
-all: headers $(SRCS:%.cc=$(TMP_DIR)/%.o) $(TMP_DIR)/rs274.o
+all: headers $(SRCS:%.cc=$(TMP_DIR)/%.o) $(LIB_DIR)/librs274.a
 
 include ../../Make.rules
 
@@ -50,6 +50,11 @@ LOCAL_CXXFLAGS = -Wno-unused
 # this set of flags is for lathe interp
 #LOCAL_CXXFLAGS = -Wno-unused -DLATHE
 # FIXME - need a way to make both
+
+$(LIB_DIR)/librs274.a: $(OBJS)
+	rm -f $@
+	$(AR) $(ARFLAGS) $@ $^
+	chmod 664 $@
 
 $(TMP_DIR)/rs274.o: $(OBJS)
 	rm -f $@
@@ -64,6 +69,6 @@ headers: def_headers
 depend: def_depend
 
 clean: def_clean
-	rm -f $(TMP_DIR)/rs274.o
+	rm -f $(TMP_DIR)/rs274.o $(LIB_DIR)/librs274.a
 
 .PHONY: all clean install indent depend headers
