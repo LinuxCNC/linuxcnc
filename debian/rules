@@ -37,7 +37,7 @@ install: build
 	dh_installdirs
 	#start the install
 	mkdir -p debian/tmp/emc2
-	(cd src; export DESTDIR=`pwd`/../debian/tmp/emc2; $(MAKE) $@)
+	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
