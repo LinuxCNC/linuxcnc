@@ -18,15 +18,16 @@ exec /usr/bin/wish "$0" "$@"
 # $Date$
 ###############################################################
 
-# TODO
-# add a run under the file menu with reference to setupconfig.tcl
-# add the control stuff for modify and tune
-# include loadrt and addf with auto refreshHal calls
-# and tests for already loaded if so unload first
-# tests for already linked write pins before linkxx
-# flesh out the save and reload.
-# remove cruft!!!!!
+# Script accesses HAL through two modes halcmd show xxx for show
+# and open halcmd -skf for building tree, watch, edit, and such 
 
+# TODO
+# add edit widget set
+# add tune widget set
+# flesh out the save and reload with modified .ini file.
+# clean up and remove cruft!!!!!
+
+#----------Testing of run environment----------
 proc initializeConfig {} {
     global tcl_platform
     # four ordinal tests are used as this script starts
@@ -52,6 +53,7 @@ proc initializeConfig {} {
     }
     
     # 2 -- BWidget package is used for the Tree widget
+    # with bdi, apt-get install bwidget will work
     # If you don't find it with this package it is available in
     # the Axis display package
     set isbwidget ""
@@ -90,8 +92,9 @@ proc initializeConfig {} {
             }
         }
     }
-    # end of initial startup tests
 }
+
+# proc allows user to choose some startup stuff if env is okay.
 set demoisup no
 proc noHal {} {
     global demoisup
@@ -109,15 +112,16 @@ proc noHal {} {
             after 1000 
         }
         cancel {
-            killHal
+            killHalConfig
         }
     }
 }
 
-    
 # run the init test process
 initializeConfig
-    
+#
+#----------end of environment tests----------
+
 # provide for some initial i18n -- needs lots of text work
 package require msgcat
 if ([info exists env(LANG)]) {
@@ -125,8 +129,10 @@ if ([info exists env(LANG)]) {
     msgcat::mcload "../../src/po"
 }
 
-# startup a toplevel and give it a few default characteristics
+#----------start toplevel----------
+#
 # including size and position
+
 wm title . "HAL Configuration"
 wm protocol . WM_DELETE_WINDOW tk_
 set masterwidth 700
@@ -138,44 +144,95 @@ set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
 wm geometry . "${masterwidth}x${masterheight}+$x+$y"
 
-# trap mouseclick on window manager delete
-wm protocol . WM_DELETE_WINDOW askKill
-proc askKill {} {
-    global configdir
-    set tmp [tk_messageBox -icon error -type yesno \
-        -message "Would you like to save your configuration before you exit?"]
-    switch -- $tmp {
-        yes {saveHal $configdir ; killHal}
-        no {killHal}
-    }
-}
-
-proc killHal {} {
-    global demoisup
-    if {$demoisup == "yes"} {
-        set demoisup no
-        set tmp [exec sudo scripts/realtime unload & ]
-    }
-    exit
-    destroy .
-}
-
 # add a few default characteristics to the display
 foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
     Message Radiobutton Scale } {
     option add *$class.borderWidth 1  100
 }
 
-##
-# Create a few strings that control HAL based behavior
-# nodenames are the text applied to the toplevel tree nodes
-# they could be internationalized
-set nodenames {Components Pins Parameters Signals Functions Threads}
-# searchnames is the real name to be used to reference
-set searchnames {comp pin param sig funct thread}
-# add a few names to test and make subnodes to the signal node
-# a linkpp signal will be sorted by it's pin name so ignore here
-set signodes {X Y Z A "Spindle"}
+# trap mouse click on window manager delete and ask to save
+wm protocol . WM_DELETE_WINDOW askKill
+proc askKill {} {
+    global configdir
+    set tmp [tk_messageBox -icon error -type yesno \
+        -message "Would you like to save your configuration before you exit?"]
+    switch -- $tmp {
+        yes {saveHAL $configdir ; killHalConfig}
+        no {killHalConfig}
+    }
+}
+
+# clean up a couple of possible problems during shutdown
+proc killHalConfig {} {
+    global demoisup fid
+    if {$demoisup == "yes"} {
+        set demoisup no
+        set tmp [exec sudo scripts/realtime unload & ]
+    }
+    if {[info exists fid] && $fid != ""} {
+        catch flush $fid
+        catch close $fid
+    }
+    exit
+    destroy .
+}
+
+#----------open channel to halcmd ----------
+#
+# These procs open a channel to halcmd, send commands and receive
+# replies including % return and empty lines. They work like this;
+# 1 -- openHALCMD creates the channel and sets var "fid" as its
+# ident. It registers fid with the event handler for "read" events.
+# 2 -- exHAL sets global var chanflag to rd, sends a proper command,
+# and sets "vwait chanflag" in the event handler.  So exHAL waits
+# when channel read is seen while getsHAL builds a global variable
+# named returnstring.
+# 3 -- At the end of read, halcmd sends % a couple times
+# so getsHAL watches and changes chanflag to wr which causes
+# exHAL to return the value of returnstring to whomever initiated
+# the command by issuing something like "set myret [exHAL argv]."
+
+proc openHALCMD {} {
+    global fid
+    set fid [open "|bin/halcmd -skf" "r+"]
+    fconfigure $fid -buffering line -blocking on
+    fileevent $fid readable {getsHAL}
+}
+
+proc exHAL {argv} {
+    global fid chanflag returnstring
+    set chanflag rd
+    puts $fid "${argv}\n"
+#    puts "Proc exHAL, fid = '$fid', argv = '$argv'"
+    vwait chanflag
+    set tmp $returnstring
+    set returnstring ""
+    return $tmp
+}
+
+# getsHAL uses a real bastard kludge to get round halcmd -skf prob
+# if watches for 2 lines showing % and says return if yes
+set returnstring ""
+set lasttmp ""
+proc getsHAL {} {
+    global fid chanflag returnstring lasttmp
+    set retlength [gets $fid tmp]
+#    puts "$retlength Line is \n--$tmp--"
+    if {$retlength > 2} {
+        append returnstring $tmp
+    } elseif {$tmp == "\%"} {
+        if {$lasttmp != $tmp} {
+            set lasttmp $tmp
+        } else {
+            set chanflag wr
+            set lasttmp ""
+        }
+    }
+}
+
+openHALCMD
+#
+#----------end of open halcmd----------
 
 # workmodes are set from the menu
 # possible workmodes include showhal modifyhal tunehal watchhal ...
@@ -211,32 +268,32 @@ set filemenu [menu $menubar.file -tearoff 0]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu -underline 0
         $filemenu add command -label [msgcat::mc "Run Hal"] \
-            -command {} -underline 0
+            -command {} -underline 0 -state disabled
         $filemenu add command -label [msgcat::mc "Refresh"] \
-            -command {refreshHal} -underline 0
+            -command {refreshHAL} -underline 0
         $filemenu add command -label [msgcat::mc "Save"] \
-            -command {saveHal save} -underline 0
+            -command {saveHAL save} -underline 0 -state disabled
         $filemenu add command -label [msgcat::mc "Save As"] \
-            -command {saveHal saveas} -underline 0
+            -command {saveHAL saveas} -underline 0 -state disabled
         $filemenu add command -label [msgcat::mc "Save and Exit"] \
-            -command {saveHal saveandexit} -underline 1
+            -command {saveHAL saveandexit} -underline 1 -state disabled
         $filemenu add command -label [msgcat::mc "Exit"] \
-            -command {saveHal exit} -underline 0
+            -command {killHalConfig} -underline 0
 set viewmenu [menu $menubar.view -tearoff 0]
     $menubar add cascade -label [msgcat::mc "View"] \
             -menu $viewmenu -underline 0
         $viewmenu add command -label [msgcat::mc "Components"] \
-            -command {showHal comp} -underline 1
+            -command {showHAL comp} -underline 1
         $viewmenu add command -label [msgcat::mc "Pins"] \
-            -command {showHal pin} -underline 1
+            -command {showHAL pin} -underline 1
         $viewmenu add command -label [msgcat::mc "Parameters"] \
-            -command {showHal param} -underline 1
+            -command {showHAL param} -underline 1
         $viewmenu add command -label [msgcat::mc "Signals"] \
-            -command {showHal sig} -underline 1
+            -command {showHAL sig} -underline 1
         $viewmenu add command -label [msgcat::mc "Functions"] \
-            -command {showHal funct} -underline 1
+            -command {showHAL funct} -underline 1
         $viewmenu add command -label [msgcat::mc "Threads"] \
-            -command {showHal thread} -underline 1
+            -command {showHAL thread} -underline 1
 set settingsmenu [menu $menubar.settings -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Settings"] \
             -menu $settingsmenu -underline 0
@@ -283,7 +340,7 @@ set helpmenu [menu $menubar.help -tearoff 0]
 . configure -menu $menubar
 
 # build the tree area in the upper left
-# fixme add a slider
+# FIXME add a slider
 set tf [frame $top.maint]
 set treew [Tree $tf.t  -width 10]
 pack $treew -side top -fill both -expand yes
@@ -292,22 +349,23 @@ pack $treew -side top -fill both -expand yes
 # so a call using it includes that one arg.
 # no two nodes can have the same name even with different paths
 # so this return will be unique to each pin, param, or signal
-$treew bindText <Button-1> {showHal   }
+$treew bindText <Button-1> {showHAL   }
 
 # build text area upper right for display
-# add a slider
+# FIXME add a slider
 set df [frame $top.maind ]
 set disp [text $df.tx -bg grey93 -relief flat -width 40 -wrap word]
 pack $disp -side top -fill both -expand yes
 
 # create a small lower display area for editing work.
+# might build several frames like cf for different modes
 set cf [labelframe $top.mainc -text "Control" -bg gray96 ]
 # set up a temporary entry widget and button for editing
 set lab [label $cf.label -text "Enter a proper HAL command :"]
 set com [entry $cf.entry -textvariable halcommand]
-bind $com <KeyPress-Return> {exHal $halcommand}
+bind $com <KeyPress-Return> {exHAL $halcommand ; refreshHAL}
 set ex [button $cf.execute -text Execute \
-    -command {exHal $halcommand} ]
+    -command {exHAL $halcommand ; refreshHAL} ]
 pack $lab -side left -padx 5
 pack $com -side left -fill x -expand yes
 pack $ex -side left -padx 5
@@ -317,51 +375,8 @@ place configure $tf -in $top -x 2 -y 2 -relheight .69 -relwidth .3
 place configure $df -in $top -relx .31 -y 2 -relheight .69 -relwidth .69
 place configure $cf -in $top -x 2 -rely .7 -relheight .29 -relwidth .99
 
-# temporary hacked up entry stuff.
-proc exHal {what} {
-    set word0 ""
-    set word1 ""
-    set word2 ""
-    set word3 ""
-    set numwords [llength $what]
-    for {set j 0} {$j < $numwords} {incr j} {
-        set word$j [lindex $what $j]
-    }
-    exec bin/halcmd $word0 $word1 $word2 $word3
-    refreshHal
-}
-
-# writeNode handles actual tree node insertion
-proc writeNode {arg} {
-    global treew treenodes
-    set j [lindex $arg 0]
-    set base [lindex $arg 1]
-    set node [lindex $arg 2]
-    set name [lindex $arg 3]
-    set leaf [lindex $arg 4]
-    $treew insert $j  $base  $node -text $name
-    if {$leaf > 0} {
-        lappend treenodes $node
-    }
-}
-
-# listhal sets listed pin, param, and sig stuff from a running hal
-# it is run from refresh of the navigation tree
-proc listHal {} {
-    global searchnames nodenames
-    set i 0
-    foreach node $searchnames {
-        writeNode "$i root $node [lindex $nodenames $i] 1"
-        incr i
-    }
-    set pinstring [exec bin/halcmd list "pin"]
-    set paramstring [exec bin/halcmd list "param"]
-    set sigstring [exec bin/halcmd list "sig"]
-    makeNodeP param $paramstring
-    makeNodeP pin $pinstring
-    makeNodeSig $sigstring
-}
-
+#----------tree widget stuff----------
+#
 # the tree node name needs to be nearly
 # equivalent to the hal element name but since no two
 # nodes can be named the same, and pins and params often are
@@ -371,6 +386,62 @@ proc listHal {} {
 # a node is made below param named param+pid
 # below it a node named param+pid.0
 # and below a leaf param+pid.0.FF0
+#
+# a global var -- treenodes -- holds the names of existing nodes
+# nodenames are the text applied to the toplevel tree nodes
+# they could be internationalized
+set nodenames {Components Pins Parameters Signals Functions Threads}
+# searchnames is the real name to be used to reference
+set searchnames {comp pin param sig funct thread}
+# add a few names to test and make subnodes to the signal node
+# a linkpp signal is sorted by it's pin name so ignore here
+set signodes {X Y Z A "Spindle"}
+
+
+# refreshHAL is the starting point for building/rebuilding a tree.
+# First empty tmpnodes, the list of all nodes that are open
+# Look through tree for current list of open nodes
+# Clean out the entire tree
+# Call listHAL to read HAL for pin, param, sig names and build new tree
+# Open old nodes if they still exist
+set treenodes ""
+proc refreshHAL {} {
+    global treew treenodes
+    set tmpnodes ""
+    # look through tree for nodes that are displayed
+    foreach node $treenodes {
+        if {[$treew itemcget $node -open]} {
+            lappend tmpnodes $node
+        }
+    }
+    # clean out the old tree
+    $treew delete [$treew nodes root]
+    # reread hal and make new nodes
+    listHAL
+    # read opennodes and set tree state if they still exist
+    foreach node $tmpnodes {
+        if {[$treew exists $node]} {
+            $treew opentree $node no
+        }
+    }
+}
+
+# listhal gets pin, param, and sig stuff
+# and calls makeNodeX with list of stuff found.
+proc listHAL {} {
+    global searchnames nodenames
+    set i 0
+    foreach node $searchnames {
+        writeNode "$i root $node [lindex $nodenames $i] 1"
+        incr i
+    }
+    set pinstring [exHAL { list pin }]
+    makeNodeP pin $pinstring
+    set paramstring [exHAL { list param }]
+    makeNodeP param $paramstring
+    set sigstring [exHAL { list sig }]
+    makeNodeSig $sigstring
+}
 
 proc makeNodeP {which pstring} {
     global treew 
@@ -447,10 +518,11 @@ proc makeNodeP {which pstring} {
     array unset pcounts {}
 }
 
-# signal node is not easy and assumes more about HAL than
-# pins or params.  For this reason the variable signodes
+# signal node assumes more about HAL than pins or params.
+# For this reason the variable signodes
 # supplies a set of sig -> subnodes to build around
 # then it finds dot separated sigs and builds a node with them
+# these are most often made by linkpp sorts of commands
 # finally it makes leaves under sig for remaining signals
 proc makeNodeSig {sigstring} {
     global treew signodes
@@ -511,40 +583,27 @@ proc makeNodeSig {sigstring} {
     # build the remaining leaves at the bottom of list
     foreach tmp $remainder {
         set snode sig+$tmp
-        writeNode "$i sig $snode $tmp 1"
+        writeNode "$i sig $snode $tmp 0"
         incr i
     }
 
 }
 
-# refreshHal is the starting point for building a tree.
-set opennodes "none"
-proc refreshHal {} {
-    global treew treenodes opennodes
-    if {[info exists treenodes]} {
-        if {[info exists tmpnodes]} {unset tmpnodes}
-        foreach node $treenodes {
-            if {[$treew itemcget $node -open]} {
-                lappend tmpnodes $node
-            }
-        }
-    }
-    if {[info exists tmpnodes]} {
-        set opennodes $tmpnodes
-    }
-    # clean out the tree
-    $treew delete [$treew nodes root]
-    # reread hal and make nodes
-    listHal
-    # read opennodes and set tree state
-    foreach node $opennodes {
-        if {[$treew exists $node]} {
-            $treew opentree $node no
-        }
+# writeNode handles tree node insertion for makeNodeX
+# builds a global list -- treenodes -- but not leaves
+proc writeNode {arg} {
+    global treew treenodes
+#    set treenodes ""
+    scan $arg {%i %s %s %s %i} j base node name leaf
+    $treew insert $j  $base  $node -text $name
+    if {$leaf > 0} {
+        lappend treenodes $node
     }
 }
 
 # Tree code above looks like crap but works fairly well
+#
+#----------end of tree building processes----------
 
 
 # create an empty array to hold modify mode elements
@@ -552,10 +611,12 @@ proc refreshHal {} {
 # each element of controlarray is a complete node name
 array set controlarray {}
 
-# all clicks on tree node names go into showHal
-# process uses it's own halcmd for showing
+# all clicks on tree node names go into showHAL
+# process uses it's own halcmd show so that displayed
+# info looks like what is in the Hal_Introduction.pdf
 # action depends upon workmode which is not complete
-proc showHal {which} {
+# FIXME use scan rather than split and lindex
+proc showHAL {which} {
     global workmode controlarray
     set thisnode $which
     set thislist [split $which "+"]
@@ -575,7 +636,7 @@ proc showHal {which} {
             set asize [array size controlarray]
             array set controlarray "$asize $which"
             puts [array get controlarray ]
-            set thisret [exec bin/halcmd -s show $searchbase $searchstring]
+            set thisret [exHAL "show $searchbase $searchstring"]
             displayAddThis $thisret
         }
         tunehal {
@@ -584,42 +645,6 @@ proc showHal {which} {
         default {
             displayThis "Something went way wrong with settings."
         }
-    }
-}
-
-# strips extra stuff from halcmd -s show and updates
-# next step here is to make the display show indicators
-# and convert "xxx e2" to common numbers
-proc watchHal {} {
-    global workmode controlarray k
-    set arraynames [array names controlarray]
-    set tmpstring ""
-    foreach name $arraynames {
-        set rawname [lindex [array get controlarray $name] end]
-        set rawsplit [split $rawname +]
-        set showtype [lindex $rawsplit 0]
-        set showthis [lindex $rawsplit 1]
-        switch -- $showtype {
-            pin {-}
-            param {
-                set tmp [exec bin/halcmd -s show $showtype $showthis]
-                set pinname [lindex $tmp 4]
-                set value [lindex $tmp 3]
-                if {[lindex $tmp 1] == "float"} {set value [expr $value]}
-                append tmpstring "$pinname $value" \n
-            }
-            sig {
-                set tmp [exec bin/halcmd -s show $showtype $showthis]
-                append tmpstring "[lindex $tmp 2 ] [lindex $tmp 1 ]" \n
-            }
-            default {
-                append tmpstring "Not really anything to watch in $showtype" \n
-            }
-        }
-    }
-    displayThis $tmpstring
-    if {$workmode == "watchhal" } {
-        after 2000 {watchHal}
     }
 }
 
@@ -642,6 +667,46 @@ proc displayAddThis {str} {
 #    updateControl
 }
 
+
+# strips extra stuff from halcmd -s show and updates
+# next step here is to make the display show indicators
+# FIXME use scan and streamline
+# FIXME preserve order of clicks
+# FIXME this is damn slow so need long delay
+proc watchHal {} {
+    global workmode controlarray k
+    set arraynames [array names controlarray]
+    set tmpstring ""
+    foreach name $arraynames {
+        # FIXME use scan
+        set rawname [lindex [array get controlarray $name] end]
+        set rawsplit [split $rawname +]
+        set showtype [lindex $rawsplit 0]
+        set showthis [lindex $rawsplit 1]
+        switch -- $showtype {
+            pin {-}
+            param {
+                set tmp [exHAL "show $showtype $showthis"]
+                set pinname [lindex $tmp 4]
+                set value [lindex $tmp 3]
+                if {[lindex $tmp 1] == "float"} {set value [expr $value]}
+                append tmpstring "$pinname $value" \n
+            }
+            sig {
+                set tmp [exec bin/halcmd -s show $showtype $showthis]
+                append tmpstring "[lindex $tmp 2 ] [lindex $tmp 1 ]" \n
+            }
+            default {
+                append tmpstring "Not really anything to watch in $showtype" \n
+            }
+        }
+    }
+    displayThis $tmpstring
+    if {$workmode == "watchhal" } {
+        after 5000 {watchHal}
+    }
+}
+
 # reads controlarray and builds control display
 proc updateControl {} {
     global controlarray
@@ -649,42 +714,11 @@ proc updateControl {} {
 #    puts "[array get controlarray]"
 }
 
-
-
-
-
-
-# buildThis is written in anticipation of the need to use
-# the string returned by clicking a tree node in different
-# ways for each different type of hal element
-# and for each different type of configuration task
-
-
-
-
-proc buildThis {what} {
-  # firstword is the type of hal element pin, param, sig, etc
-  set firstword [lindex [split $what .] 0]
-  # nodeshow is the remainder of the returned node name
-  set nodeshow [string replace $what 0 [string length $firstword] ]
-  # here we pass the pair of args to a show routine.
-  # these could as easily be passed to a linkxx routine
-  # the specific selected task would be a switch command here
-  if {$firstword == "pin" || $firstword == "param"} {
-    getHalSearch $firstword $nodeshow
-  } else {
-    displayThis "This is where some extra handling of the tree node return is needed."
-  }
-}
-
-
-proc getHalSearch {which what} {
-  set tmpstr "empty"
-  set tmpstr [exec bin/halcmd "show" $which $what]
-  displayThis $tmpstr
-}
-
-proc saveHal {which} {
+#----------save config----------
+#
+# save will assume that restarting is from a comp and netlist
+# we need to build these files and copy .ini for the new
+proc saveHAL {which} {
     puts "This had the arg $which with it."
     switch -- $which {
         save {
@@ -698,10 +732,8 @@ proc saveHal {which} {
 }
 
 
-
-# start the tree building process
-refreshHal
-
+#----------Help processes----------
+#
 proc showHelp {which} {
     global helpabout helpmain helpcomponent helppin helpparameter
     global helpsignal helpfunction helpthread
@@ -758,3 +790,7 @@ set helpfunction {
 set helpthread {
     This is the thread help
 }
+
+#
+#----------end of help processes----------
+
