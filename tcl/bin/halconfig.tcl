@@ -196,13 +196,14 @@ proc openHALCMD {} {
     global fid
     set fid [open "|bin/halcmd -skf" "r+"]
     fconfigure $fid -buffering line -blocking on
+    gets $fid
     fileevent $fid readable {getsHAL}
 }
 
 proc exHAL {argv} {
     global fid chanflag returnstring
     set chanflag rd
-    puts $fid "${argv}\n"
+    puts $fid "${argv}"
 #    puts "Proc exHAL, fid = '$fid', argv = '$argv'"
     vwait chanflag
     set tmp $returnstring
@@ -210,23 +211,16 @@ proc exHAL {argv} {
     return $tmp
 }
 
-# getsHAL uses a real bastard kludge to get round halcmd -skf prob
-# if watches for 2 lines showing % and says return if yes
+# getsHAL appends lines to returnstring until it receives a line with just a percent sign "%" on it
+# Once the % is received, the global var chanflag is set to "wr"
 set returnstring ""
-set lasttmp ""
 proc getsHAL {} {
-    global fid chanflag returnstring lasttmp
-    set retlength [gets $fid tmp]
-#    puts "$retlength Line is \n--$tmp--"
-    if {$retlength > 2} {
+    global fid chanflag returnstring
+    gets $fid tmp
+    if {$tmp != "\%"} {
         append returnstring $tmp
-    } elseif {$tmp == "\%"} {
-        if {$lasttmp != $tmp} {
-            set lasttmp $tmp
-        } else {
-            set chanflag wr
-            set lasttmp ""
-        }
+    } else {
+        set chanflag wr
     }
 }
 
