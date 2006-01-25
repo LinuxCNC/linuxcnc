@@ -667,6 +667,8 @@ proc displayAddThis {str} {
 #    updateControl
 }
 
+# start up the tree discovery stuff
+refreshHAL
 
 # strips extra stuff from halcmd -s show and updates
 # next step here is to make the display show indicators
