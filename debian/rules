@@ -7,10 +7,6 @@
 
 build: build-stamp
 build-stamp:
-	# dh_error is not a valid command and will generate an error in
-	# it's self - An abort is sane, so it doesn't matter...
-	dh_error "Comment this line, but beware (you're on your own)."
-	dh_error "Likewise, remember to uncomment make install from src/Makefile)."
 	dh_testdir
 
 	# Add here commands to compile the package.

@@ -2,12 +2,12 @@ Source: emc2
 Section: misc
 Priority: extra
 Maintainer: Alex Joni <alex_joni@users.sourceforge.net>  
-Build-Depends: debhelper (>> 4.0.0), linux-headers-2.6.12.6-rtai, linux-source-2.6.12.6-rtai, linux-image-2.6.12.6-rtai, rtai-dev-2.6.12.6-rtai
+Build-Depends: debhelper (>> 4.0.0)
 Standards-Version: 2.0.0-rc0
 
 Package: emc2
 Architecture: any
-Depends: ${shlibs:Depends}, linux-image-2.6.12.6-rtai, rtai-modules-2.6.12.6-rtai
+Depends: ${shlibs:Depends}
 Provides: emc2
 Suggests: python-axis
 Description: PC based motion control for RTAI and RTLinux patched kernels.

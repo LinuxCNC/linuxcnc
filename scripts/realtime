@@ -3,8 +3,8 @@
 CheckConfig(){
     RTAPICONF=
     # check for rtapi.conf in /etc/ first...
-    if [ -f /etc/rtapi.conf ] ; then
-	RTAPICONF=/etc/rtapi.conf
+    if [ -f /etc/emc2/rtapi.conf ] ; then
+	RTAPICONF=/etc/emc2/rtapi.conf
     else
 	# check in the emc2 scripts directory
 	# $0 is the command to run this script
@@ -27,6 +27,10 @@ CheckConfig(){
     old_path=$MODPATH
     # Import the config
     source $RTAPICONF
+    if [ ! -e $RTLIB_DIR/.runinfo -a -e $RTLIB_DIR/emc2/.runinfo ]; then
+        # installed system: we don't want our modules mixed up with rtai
+        RTLIB_DIR=$RTLIB_DIR/emc2
+    fi
     # Export the module path specified in the config.
     export MODPATH
     # Generate module lists for loading and unloading

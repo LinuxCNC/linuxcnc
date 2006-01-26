@@ -172,7 +172,7 @@ $(EMC2_HOME)/scripts/rtapi.conf: $(SRC_DIR)/Makefile.inc
 # For installation, the fully qualified paths in the scripts need
 # to get changed. 
 
-RTAPICONFDIR=$(DESTDIR)/etc
+RTAPICONFDIR=$(DESTDIR)/etc/emc2
 RTAPICONF=$(RTAPICONFDIR)/rtapi.conf
 
 install:

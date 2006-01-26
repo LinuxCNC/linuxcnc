@@ -86,15 +86,16 @@ install_rtscript:
 	#@ echo "realtime script installed"
 
 install_modules:
-	install -d $(DESTDIR)$(moduledir)
-	-cp -f ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)
-	cp -f ../rtlib/.runinfo $(DESTDIR)$(moduledir)
+	install -d $(DESTDIR)$(moduledir)/emc2
+	-cp -f ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)/emc2
+	cp -f ../rtlib/.runinfo $(DESTDIR)$(moduledir)/emc2
 	@ echo "kernel modules installed"
 
 install_configs:
-	install -d $(DESTDIR)$(sysconfdir)
-	cp ../emc2.gif $(DESTDIR)$(sysconfdir)
-	cp -rf ../configs/* $(DESTDIR)$(sysconfdir)
+	install -d $(DESTDIR)$(sysconfdir)/emc2
+	cp ../emc2.gif $(DESTDIR)$(sysconfdir)/emc2
+	cp -rf ../configs/* $(DESTDIR)$(sysconfdir)/emc2
+	(cd $(DESTDIR)$(sysconfdir)/emc2; find . -type d -name CVS|xargs rm -r)
 	@ echo "configs installed"
 
 install_bin:
@@ -138,10 +139,13 @@ install_man : $(MAN_FILES)
 	(cd hal; make $@)
 
 #if you want to test, uncomment the following line (not safe till further testing)
-#install: install_rtscript install_modules install_configs\
-#	install_bin install_lib install_docs install_ncfiles\
-#	install_tcl
-#	(cd rtapi; make $@)
+install: install_rtscript install_modules install_configs\
+	install_bin install_lib install_docs install_ncfiles\
+	install_tcl
+	(cd rtapi; make $@)
+
+deb: all
+	(cd .. && debian/rules build && fakeroot debian/rules binary)
 
 modules: headers
 	(cd rtapi; make $@)

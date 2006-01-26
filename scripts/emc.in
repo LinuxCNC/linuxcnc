@@ -117,8 +117,8 @@ else
 # 1.3.3. for an installed system:
 EMC2_BIN_DIR=$bindir
 EMC2_TCL_DIR=$tcldir
-EMC2_RTLIB_DIR=$moduledir
-EMC2_CONFIG_DIR=$sysconfdir
+EMC2_RTLIB_DIR=$moduledir/emc2
+EMC2_CONFIG_DIR=$sysconfdir/emc2
 EMC2_NCFILES_DIR=$ncfilesdir
 REALTIME=/etc/init.d/realtime
 EMC2_IMAGEDIR=$EMC2_CONFIG_DIR
@@ -151,7 +151,7 @@ echo EMC2_EMCSH=$EMC2_EMCSH >>$PRINT_FILE
 echo EMC2_IOSH=$EMC2_IOSH >>$PRINT_FILE
 
 # ask tcl script to validate (or get from the user) the path to the ini file
-INIFILE=$($SETUPCONFIG --get-config $1)
+INIFILE=$($SETUPCONFIG --configs-dir $EMC2_CONFIG_DIR --get-config $1)
 # it returns either a complete absolute path, or nothing at all
 if [ ! -n "$INIFILE" ] ; then
     # nothing specified, exit
