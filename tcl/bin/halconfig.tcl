@@ -353,13 +353,13 @@ proc sSlide {f a b} {
     $f.sc set $a $b
 }
 
-# canvas area upper right for watch
+# canvas area upper right for watch mode
 set dc [frame $top.maincanvas ]
-set cisp [canvas $dc.c -bg grey93 -yscrollcommand "sSlide $dc" ]
-set stc $dc.sc
-scrollbar $stc -orient vert -command "$cisp yview"
-pack $stc -side right -fill y
+set cisp [canvas $dc.c -bg white ]
 pack $cisp -side right -fill both -expand yes
+
+# button and entry area upper right for tune
+set dt [frame $top.maintune]
 
 
 # create a small lower display area for editing work.
@@ -617,10 +617,7 @@ proc writeNode {arg} {
 array set controlarray {}
 
 # all clicks on tree node names go into workMode
-# process uses it's own halcmd show so that displayed
-# info looks like what is in the Hal_Introduction.pdf
 # action depends upon workmode which is not complete
-# FIXME use scan rather than split and lindex
 
 proc workMode {which} {
     global workmode 
@@ -650,22 +647,27 @@ proc workMode {which} {
     }
 }
 
+# swaps frames if current frame is not already mapped
 proc swapDisplay {where to} {
     global top df dc de cf
-    switch -- $where {
-    display {
-        foreach olddisplay {dc df dc } {
-            place forget [set $olddisplay]
+    if {![winfo ismapped [set $to]]} {
+        switch -- $where {
+        display {
+            foreach olddisplay {dc df dc } {
+                place forget [set $olddisplay]
+            }
+            place configure [set $to] -in $top -relx .31 -y 2 \
+                -relheight .69 -relwidth .69
         }
-        place configure [set $to] -in $top -relx .31 -y 2 \
-            -relheight .69 -relwidth .69
-        }
-    control {
+        control {
     
+            }
         }
     }    
 }
 
+# process uses it's own halcmd show so that displayed
+# info looks like what is in the Hal_Introduction.pdf
 proc showHAL {which} {
     if {$which == "zzz"} {
         displayThis "Select a node to show."
@@ -679,27 +681,92 @@ proc showHAL {which} {
     displayThis $thisret
 }
 
-proc watchHAL {which} {
-    global controlarray cisp
-    if {$which == "zzz"} {
-    # Put intro message here.
-    }
-    set asize [array size controlarray]
-    array set controlarray "$asize $which"
-    #setup canvas stuff here as this is temp to show something
-    global cisp
-    for {set i 0} {$i < 10} {incr i 1} {
-        $cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
-        -fill firebrick4
-    }
 
-    set leftdef { -- -- -- -- -- -- -- -- -- -- -- -- }
-    for {set i 0} {$i < 10} {incr i 1} {
-        set label "[lindex $leftdef $i]"
-        $cisp create text 40 [expr $i * 20 + 12] -text $label \
-            -anchor w -tag labelz
+# need control widgets here to remove a variable
+# and to clear the list
+# would be nice to be able to mouseover but...
+# that's way beyond me now
+set watchlist ""
+set watchstring ""
+proc watchHAL {which} {
+    global watchlist watchstring cisp treew
+    
+    # open up the tree to display individual leaves
+    foreach node {pin param sig} {$treew opentree $node}
+    
+    # if it's a first switch to watchhal mode
+    if {$which == "zzz"} {
+        $cisp create text 40 [expr 1 * 20 + 12] -anchor w -tag firstmessage\
+            -text "<-- Select a Leaf.  Click on its name."
+        return
+    } else {
+        $cisp delete firstmessage
+    }
+    lappend watchlist $which
+    set i [llength $watchlist]
+    set label [lindex [split $which +] end]
+    set tmplist [split $which +]
+    set vartype [lindex $tmplist 0]
+    set varname [lindex $tmplist end]
+    set ret [exHAL "show $vartype $varname"]
+    if {[lsearch $ret "bit"] != -1 } {
+        $cisp create oval 20 [expr $i * 20 + 5] 35 [expr $i * 20 + 20] \
+            -fill firebrick4 -tag oval$i
+        $cisp create text 80 [expr $i * 20 + 12] -text $label \
+            -anchor w -tag $label
+    } else {
+        # other gets a text display for value
+        $cisp create text 10 [expr $i * 20 + 12] -text "xxxx" \
+            -anchor w -tag text$i
+        $cisp create text 80 [expr $i * 20 + 12] -text $label \
+            -anchor w -tag $label
+        }
+    set tmplist [split $which +]
+    set vartype [lindex $tmplist 0]
+    set varname [lindex $tmplist end]
+    lappend watchstring "$i $vartype $varname "
+    watchLoop
+}
+
+# watchHAL prepares a string of {i HALtype name} sets
+# watchLoop submits these to halcmd and sets canvas
+# color or value based on that reply 
+proc watchLoop {} {
+    global cisp watchstring
+    set which $watchstring
+    foreach var $which {
+        scan $var {%i %s %s} cnum vartype varname
+        if {$vartype == "sig" } {
+            set ret [lindex [exHAL "show $vartype $varname"] 1]
+        } else {
+            set ret [lindex [exHAL "show $vartype $varname"] 3]
+            if {$ret == "TRUE"} {
+                $cisp itemconfigure oval$cnum -fill yellow
+            } elseif {$ret == "FALSE"} {
+                $cisp itemconfigure oval$cnum -fill firebrick4
+            } else {
+                set value [expr $ret]
+                $cisp itemconfigure text$cnum -text $value
+            }
+        }
+    }
+    after 5000 watchLoop
+}
+
+
+
+proc watchReset {del} {
+    global watchlist
+    set place [lsearch $watchlist $del]
+    if {$place != -1 } {
+        set watchlist [lreplace $watchlist $place]
+        # empty the canvas
+        foreach var $watchlist {
+            watchHAL $var
+        }
     }
 }
+
 
 proc modifyHAL {which} {
     global controlarray
@@ -737,50 +804,12 @@ proc displayAddThis {str} {
 # start up the tree discovery stuff
 refreshHAL
 
-# strips extra stuff from halcmd -s show and updates
-# next step here is to make the display show indicators
-# FIXME preserve order of clicks
-# FIXME this is damn slow so need long delay and speed
-proc watchHALxx {} {
-    global workmode controlarray k
-    set arraynames [array names controlarray]
-    set tmpstring ""
-    foreach name $arraynames {
-        set rawsplit [split [lindex [array get controlarray $name] end] +]
-        scan $rawsplit {%s %s} showtype showthis
-        set showtype [lindex $rawsplit 0]
-        set showthis [lindex $rawsplit 1]
-        switch -- $showtype {
-            pin {-}
-            param {
-                set tmp [exHAL "show $showtype $showthis"]
-                set pinname [lindex $tmp 4]
-                set value [lindex $tmp 3]
-                if {[lindex $tmp 1] == "float"} {set value [expr $value]}
-                append tmpstring "$pinname $value" \n
-            }
-            sig {
-                set tmp [exec bin/halcmd -s show $showtype $showthis]
-                append tmpstring "[lindex $tmp 2 ] [lindex $tmp 1 ]" \n
-            }
-            default {
-                append tmpstring "Not really anything to watch in $showtype" \n
-            }
-        }
-    }
-    displayThis $tmpstring
-    if {$workmode == "watchHAL" } {
-        after 5000 {watchHAL}
-    }
-}
-
 
 #----------save config----------
 #
 # save will assume that restarting is from a comp and netlist
 # we need to build these files and copy .ini for the new
 proc saveHAL {which} {
-    puts "This had the arg $which with it."
     switch -- $which {
         save {
             displayThis [exec bin/halcmd save "comp"]
