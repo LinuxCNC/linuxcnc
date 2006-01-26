@@ -229,7 +229,7 @@ openHALCMD
 #----------end of open halcmd----------
 
 # workmodes are set from the menu
-# possible workmodes include showhal modifyhal tunehal watchhal ...
+# possible workmodes include showhal modifyhal tunehal watchHAL ...
 # only showhal does much special now.
 set workmode showhal
 
@@ -277,41 +277,33 @@ set viewmenu [menu $menubar.view -tearoff 0]
     $menubar add cascade -label [msgcat::mc "View"] \
             -menu $viewmenu -underline 0
         $viewmenu add command -label [msgcat::mc "Components"] \
-            -command {showHAL comp} -underline 1
+            -command {workMode comp} -underline 1
         $viewmenu add command -label [msgcat::mc "Pins"] \
-            -command {showHAL pin} -underline 1
+            -command {workMode pin} -underline 1
         $viewmenu add command -label [msgcat::mc "Parameters"] \
-            -command {showHAL param} -underline 1
+            -command {workMode param} -underline 1
         $viewmenu add command -label [msgcat::mc "Signals"] \
-            -command {showHAL sig} -underline 1
+            -command {workMode sig} -underline 1
         $viewmenu add command -label [msgcat::mc "Functions"] \
-            -command {showHAL funct} -underline 1
+            -command {workMode funct} -underline 1
         $viewmenu add command -label [msgcat::mc "Threads"] \
-            -command {showHAL thread} -underline 1
+            -command {workMode thread} -underline 1
 set settingsmenu [menu $menubar.settings -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Settings"] \
             -menu $settingsmenu -underline 0
-        set temprad showit
         $settingsmenu add radiobutton -label [msgcat::mc "Show"] \
             -variable workmode -value showhal -underline 0 \
-            -command {
-                displayThis {Switched to show mode.}
-            }
+            -command {workMode {zzz} }
         $settingsmenu add radiobutton -label [msgcat::mc "Watch"] \
             -variable workmode -value watchhal  -underline 0 \
-            -command {
-                displayThis {Switched to watch mode.}
-                watchHal
-            }
+            -command {workMode {zzz} }
         $settingsmenu add radiobutton -label [msgcat::mc "Modify"] \
             -variable workmode -value modifyhal  -underline 0 \
-            -command {
-                displayThis {Switched to modify mode.}
-            } 
+            -command {workMode {zzz} }
         $settingsmenu add radiobutton -label [msgcat::mc "Tune"] \
             -variable workmode -value tunehal  -underline 0 \
-            -command {
-            }
+            -command {workMode {zzz} }
+            
 set helpmenu [menu $menubar.help -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Help"] \
             -menu $helpmenu -underline 0
@@ -334,22 +326,41 @@ set helpmenu [menu $menubar.help -tearoff 0]
 . configure -menu $menubar
 
 # build the tree area in the upper left
-# FIXME add a slider
 set tf [frame $top.maint]
-set treew [Tree $tf.t  -width 10]
-pack $treew -side top -fill both -expand yes
+set treew [Tree $tf.t  -width 10 -yscrollcommand "sSlide $tf" ]
+set str $tf.sc
+scrollbar $str -orient vert -command "$treew yview"
+pack $str -side right -fill y
+pack $treew -side right -fill both -expand yes
 
 # This binding to treew returns the name of the node clicked
 # so a call using it includes that one arg.
 # no two nodes can have the same name even with different paths
 # so this return will be unique to each pin, param, or signal
-$treew bindText <Button-1> {showHAL   }
+$treew bindText <Button-1> {workMode   }
 
 # build text area upper right for display
-# FIXME add a slider
 set df [frame $top.maind ]
-set disp [text $df.tx -bg grey93 -relief flat -width 40 -wrap word]
-pack $disp -side top -fill both -expand yes
+set disp [text $df.tx -bg grey93 -relief flat -width 40 -wrap word \
+    -yscrollcommand "sSlide $df"]
+set stt $df.sc
+scrollbar $stt -orient vert -command "$disp yview"
+pack $stt -side right -fill y
+pack $disp -side right -fill both -expand yes
+
+# slider processes
+proc sSlide {f a b} {
+    $f.sc set $a $b
+}
+
+# canvas area upper right for watch
+set dc [frame $top.maincanvas ]
+set cisp [canvas $dc.c -bg grey93 -yscrollcommand "sSlide $dc" ]
+set stc $dc.sc
+scrollbar $stc -orient vert -command "$cisp yview"
+pack $stc -side right -fill y
+pack $cisp -side right -fill both -expand yes
+
 
 # create a small lower display area for editing work.
 # might build several frames like cf for different modes
@@ -600,49 +611,111 @@ proc writeNode {arg} {
 #----------end of tree building processes----------
 
 
-# create an empty array to hold modify mode elements
+# create empty arrays to hold modify mode elements
 # array elements are created from what is clicked in tree
 # each element of controlarray is a complete node name
 array set controlarray {}
 
-# all clicks on tree node names go into showHAL
+# all clicks on tree node names go into workMode
 # process uses it's own halcmd show so that displayed
 # info looks like what is in the Hal_Introduction.pdf
 # action depends upon workmode which is not complete
 # FIXME use scan rather than split and lindex
-proc showHAL {which} {
-    global workmode controlarray
-    set thisnode $which
-    set thislist [split $which "+"]
-    set searchbase [lindex $thislist 0]
-    set searchstring [lindex $thislist 1]
+
+proc workMode {which} {
+    global workmode 
     switch -- $workmode {
         showhal {
-            set thisret [exec bin/halcmd show $searchbase $searchstring]
-            displayThis $thisret
+            swapDisplay display df
+            showHAL $which
         }
         watchhal {
-            set asize [array size controlarray]
-            array set controlarray "$asize $which"
-            watchHal
+            swapDisplay display dc
+            watchHAL $which
         }
         modifyhal {
-            set asize [array size controlarray]
-            array set controlarray "$asize $which"
-            puts [array get controlarray ]
-            set thisret [exHAL "show $searchbase $searchstring"]
-            displayAddThis $thisret
+            swapDisplay display df
+            swapDisplay control cf
+            modifyHAL $which
         }
         tunehal {
-            displayThis "Move along.  Nothing to see here yet."
+            swapDisplay display df
+            swapDisplay control cf
+            tuneHAL $which
         }
         default {
+            swapDisplay display df
             displayThis "Something went way wrong with settings."
         }
     }
 }
 
-# proc switches the insert and removal of upper right stuff
+proc swapDisplay {where to} {
+    global top df dc de cf
+    switch -- $where {
+    display {
+        foreach olddisplay {dc df dc } {
+            place forget [set $olddisplay]
+        }
+        place configure [set $to] -in $top -relx .31 -y 2 \
+            -relheight .69 -relwidth .69
+        }
+    control {
+    
+        }
+    }    
+}
+
+proc showHAL {which} {
+    if {$which == "zzz"} {
+        displayThis "Select a node to show."
+        return
+    }
+    set thisnode $which
+    set thislist [split $which "+"]
+    set searchbase [lindex $thislist 0]
+    set searchstring [lindex $thislist 1]
+    set thisret [exec bin/halcmd show $searchbase $searchstring]
+    displayThis $thisret
+}
+
+proc watchHAL {which} {
+    global controlarray cisp
+    if {$which == "zzz"} {
+    # Put intro message here.
+    }
+    set asize [array size controlarray]
+    array set controlarray "$asize $which"
+    #setup canvas stuff here as this is temp to show something
+    global cisp
+    for {set i 0} {$i < 10} {incr i 1} {
+        $cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
+        -fill firebrick4
+    }
+
+    set leftdef { -- -- -- -- -- -- -- -- -- -- -- -- }
+    for {set i 0} {$i < 10} {incr i 1} {
+        set label "[lindex $leftdef $i]"
+        $cisp create text 40 [expr $i * 20 + 12] -text $label \
+            -anchor w -tag labelz
+    }
+}
+
+proc modifyHAL {which} {
+    global controlarray
+    set asize [array size controlarray]
+    array set controlarray "$asize $which"
+    puts [array get controlarray ]
+    set thisret [exHAL "show $searchbase $searchstring"]
+    displayAddThis $thisret
+}
+
+proc tuneHAL {which} {
+    global tunearray
+    displayThis "Move along.  Nothing to see here yet."
+}
+
+# proc switches the insert and removal of upper right text
 # This also removes any modify array variables
 proc displayThis {str} {
   global disp controlarray
@@ -666,17 +739,15 @@ refreshHAL
 
 # strips extra stuff from halcmd -s show and updates
 # next step here is to make the display show indicators
-# FIXME use scan and streamline
 # FIXME preserve order of clicks
-# FIXME this is damn slow so need long delay
-proc watchHal {} {
+# FIXME this is damn slow so need long delay and speed
+proc watchHALxx {} {
     global workmode controlarray k
     set arraynames [array names controlarray]
     set tmpstring ""
     foreach name $arraynames {
-        # FIXME use scan
-        set rawname [lindex [array get controlarray $name] end]
-        set rawsplit [split $rawname +]
+        set rawsplit [split [lindex [array get controlarray $name] end] +]
+        scan $rawsplit {%s %s} showtype showthis
         set showtype [lindex $rawsplit 0]
         set showthis [lindex $rawsplit 1]
         switch -- $showtype {
@@ -698,17 +769,11 @@ proc watchHal {} {
         }
     }
     displayThis $tmpstring
-    if {$workmode == "watchhal" } {
-        after 5000 {watchHal}
+    if {$workmode == "watchHAL" } {
+        after 5000 {watchHAL}
     }
 }
 
-# reads controlarray and builds control display
-proc updateControl {} {
-    global controlarray
-#    puts "setup a control display from"
-#    puts "[array get controlarray]"
-}
 
 #----------save config----------
 #
