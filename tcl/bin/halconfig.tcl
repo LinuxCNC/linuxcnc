@@ -692,7 +692,7 @@ proc watchHAL {which} {
     global watchlist watchstring cisp treew
     
     # open up the tree to display individual leaves
-    foreach node {pin param sig} {$treew opentree $node}
+#    foreach node {pin param sig} {$treew opentree $node}
     
     # if it's a first switch to watchhal mode
     if {$which == "zzz"} {
@@ -701,6 +701,10 @@ proc watchHAL {which} {
         return
     } else {
         $cisp delete firstmessage
+    }
+    # return if variable is already used.
+    if {[lsearch $watchlist $which] != -1} {
+        return
     }
     lappend watchlist $which
     set i [llength $watchlist]
@@ -745,7 +749,7 @@ proc watchLoop {} {
             } elseif {$ret == "FALSE"} {
                 $cisp itemconfigure oval$cnum -fill firebrick4
             } else {
-                set value [expr $ret]
+                set value [catch expr $ret]
                 $cisp itemconfigure text$cnum -text $value
             }
         }
