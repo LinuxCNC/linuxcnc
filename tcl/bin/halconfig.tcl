@@ -501,10 +501,10 @@ proc makeNodeP {which pstring} {
                         array set pcounts "4 [incr j] 5 1"
                         set j 0
                     }
-                    set i 4
+                    set i 5
                 }
                 5 {
-                    set sssssnode "$ssssnode.$element"]
+                    set sssssnode "$ssssnode.$element"
                     if {! [$treew exists "$sssssnode"] } {
                         set leaf [expr $lastnode - 5]
                         set j [lindex [array get pcounts 5] end]
