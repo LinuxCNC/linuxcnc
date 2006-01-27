@@ -167,30 +167,81 @@ proc button_pushed { button_name } {
 proc popup { message } {
     global choice top
 
+    bind . <Escape> {button_pushed OK}
+    bind . <Return> {button_pushed OK}
+    wm protocol . WM_DELETE_WINDOW {button_pushed OK}
     set f1 [ frame $top.f1 ]
     set lbl [ label $f1.lbl -text $message -padx 20 -pady 10 ]
-    set but [ button $f1.but -text OK -command "button_pushed OK" ]
+    set but [ button $f1.but -text OK -command "button_pushed OK" -default active]
+    bind [winfo toplevel $top] <Return> { button_pushed OK }
     pack $lbl -side top
     pack $but -side bottom -padx 10 -pady 10
     pack $f1
-    set choice "none"
-    vwait choice
+
+    wizard_event_loop $f1
+
     pack forget $f1
     destroy $f1
 }
 
+# button_listbox_change - Utility function for button_depends_on_listbox
+proc button_listbox_change {b lb} {
+    global top
+    set b $top.f1.f2.[string tolower $b]
+    if {[$lb curselection] == {}} {
+        $b configure -state disabled
+    } {
+        $b configure -state normal
+    }
+}
+
+# button_depends_on_listbox - Sometimes, a button should not be enabled until
+# an item is selected This function enforces that.
+proc button_depends_on_listbox {b lb} {
+    bind $lb <<ListboxSelect>> "+[list button_listbox_change $b $lb]"
+    button_listbox_change $b $lb
+}
+
+# wizard_event_loop - call this after setting up the wizard.  Returned
+# value is the english name of the button chosen, which is also in $choice
+# The wizard is not yet destroyed when this function returns.
+proc wizard_event_loop {f1} {
+    if {[winfo exists $f1.f2]} {raise $f1.f2}
+    update idletasks
+    focus [tk_focusNext .]
+    set choice "none"
+    vwait choice
+}
+
+
 # generic wizard page - defines a frame with multiple buttons at the bottom
 # Returns the frame widget so page specific stuff can be packed on top
 
-proc wizard_page { buttons } {
+proc wizard_page { buttons {default ""} {abort ""}} {
     global choice top
 
     set f1 [ frame $top.f1 ]
     set f2 [ frame $f1.f2 ]
+    set tl [winfo toplevel $top]
+
+    bind $tl <Return> {}
+    bind $tl <Escape> {}
+    wm protocol $tl WM_DELETE_WINDOW { button_pushed WM_CLOSE }
+
     foreach button_name $buttons {
 	set bname [ string tolower $button_name ]
         button $f2.$bname -text [ msgcat::mc $button_name ] -command "button_pushed \"$button_name\""
 	pack $f2.$bname -side left -padx 10 -pady 10
+        if {$button_name == $default} {
+            $f2.$bname configure -default active
+            bind $tl <Return> [list $f2.$bname invoke]
+        } else { 
+            $f2.$bname configure -default normal
+        }
+        if {$button_name == $abort} {
+            bind $tl <Escape> [list $f2.$bname invoke]
+            wm protocol $tl WM_DELETE_WINDOW [list $f2.$bname invoke]
+        }
     }
     pack $f2 -side bottom
     return $f1
@@ -218,10 +269,10 @@ proc detail_picker { parent_wgt item_text item_list detail_text detail_list } {
     pack $l1 -pady 6
 
     # subframe for the list and its scrollbar
-    set f2 [ frame $f1.f2 ]
+    set f2 [ frame $f1.f2 -highlightt 1 ]
 
     # listbox for the items
-    set lb [ listbox $f2.lb ]
+    set lb [ listbox $f2.lb -highlightt 0 ]
     set d_p_item_widget $lb
     # pack the listbox into its subframe
     pack $lb -side left -fill y -expand y
@@ -255,7 +306,7 @@ proc detail_picker { parent_wgt item_text item_list detail_text detail_list } {
     pack $l2 -pady 6
 	
     # subframe for the detail box and its scrollbar
-    set f3 [ frame $f1.f3 ]
+    set f3 [ frame $f1.f3 -highlightt 1 ]
     # a text box to display the details
     set tb [ text $f3.tb -width 60 -height 10 -wrap word -padx 6 -pady 6 \
              -relief sunken -takefocus 0 -state disabled ]
@@ -263,7 +314,7 @@ proc detail_picker { parent_wgt item_text item_list detail_text detail_list } {
     # pack the text box into its subframe
     pack $tb -side left -fill y -expand y
     # need a scrollbar
-    set dscr [ scrollbar $f3.scr -command "$tb yview" ]
+    set dscr [ scrollbar $f3.scr -command "$tb yview" -takefocus 1 -highlightt 0]
     # link the text box to the scrollbar
     $tb configure -yscrollcommand "$dscr set"
     # pack the scrollbar into the subframe
@@ -272,6 +323,8 @@ proc detail_picker { parent_wgt item_text item_list detail_text detail_list } {
     pack $f3
     # and finally pack the main frame into the parent
     pack $f1
+
+    set lb
 }
 
 # callback to display the details when the user selects different items
@@ -309,7 +362,7 @@ proc detail_picker_select { item } {
 	# mark the new selected item
 	$d_p_item_widget selection set $pick $pick
 	# invoke the callback to refresh
-	detail_picker_refresh
+        event generate $d_p_item_widget <<ListboxSelect>>
     }
 }
 
@@ -321,13 +374,13 @@ proc main_page {} {
 
     set msg [msgcat::mc "Welcome to EMC2!\n\nTo run EMC2 with an existing configuration, click the 'Run' button.\nTo create a new configuration, edit, backup, or restore a configuration,\nor do other configuration related tasks, click the 'Config' button."]
 
-    set f1 [ wizard_page { "Config" "Quit" "Run" } ]
+    set f1 [ wizard_page { "Config" "Quit" "Run" } "Run" "Quit" ]
     set l1 [ label $f1.l1 -text $msg ]
     pack $l1 -padx 10 -pady 10
     pack $f1
 
-    set choice "none"
-    vwait choice
+    wizard_event_loop $f1
+
     pack forget $f1
     destroy $f1
 
@@ -383,9 +436,11 @@ proc choose_run_config {} {
     set t2 [msgcat::mc "\nDetails about the selected configuration:"]
     
     #set up a wizard page with two buttons
-    set f1 [ wizard_page { "Cancel" "Run" } ]
+    set f1 [ wizard_page { "Cancel" "Run" } Run Cancel ]
     # add a detail picker to it with the configs
-    detail_picker $f1 $t1 $config_list $t2 $details_list
+    set lb [detail_picker $f1 $t1 $config_list $t2 $details_list]
+    button_depends_on_listbox "Run" $lb
+    bind $lb <Double-Button-1> [list button_pushed Run]
     # done
     pack $f1
 
@@ -394,10 +449,8 @@ proc choose_run_config {} {
 	detail_picker_select [ file tail $run_config_name ]
     }
 
-    # prep for the event loop
-    set choice "none"
-    # enter event loop
-    vwait choice
+    wizard_event_loop $f1
+
     # a button was pushed, save selection
     set value $detail_picker_selection
     # clear the window
@@ -465,7 +518,7 @@ proc choose_run_ini {} {
 	lappend inis [ file tail $ini ]
     }
     # set up a list box so the user can pick one
-    set f1 [ wizard_page { "< Back" "Cancel" "Next >" } ]
+    set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel" ]
     set l1 [ label $f1.l1 -text [msgcat::mc "The config contains multiple ini files.\nPick one from the list below and click 'Next'."] ]
     pack $l1 -padx 10 -pady 10
     # listbox for the ini files
@@ -476,16 +529,14 @@ proc choose_run_ini {} {
     foreach ini $inis {
         $lb insert end [ file rootname $ini ]
     }
+    button_depends_on_listbox "Next >" $lb
+    bind $lb <Double-Button-1> [list button_pushed "Next >"]
     # set the size of the list box
     $lb configure -height 8
     # pack the page
     pack $f1
 
-    # prep for the event loop
-    set choice "none"
-    # enter event loop
-    vwait choice
-    # a button was pushed, save selection
+    wizard_event_loop $f1
 
     set pick [ $lb curselection ]
     # clear the window
@@ -549,17 +600,20 @@ proc config_manager {} {
     set t2 [msgcat::mc "The list below shows all of the existing EMC2\nconfigurations on this computer.\n\nSelect a config, then click one of the buttons below.\n"]
     set t3 [msgcat::mc "\nDetails about the selected configuration:"]
 
-    set f1 [ wizard_page { "Edit" "Backup" "Restore" "Delete" "New" "Cancel" } ]
+    set f1 [ wizard_page { "Edit" "Backup" "Restore" "Delete" "New" "Cancel" } "Edit" "Cancel" ]
     set l1 [ label $f1.l1 -text $t1 ]
     pack $l1 -padx 10 -pady 2
     # add a detail picker to it with the configs
-    detail_picker $f1 $t2 $config_list $t3 $details_list
+    set lb [detail_picker $f1 $t2 $config_list $t3 $details_list]
+    button_depends_on_listbox Edit $lb
+    button_depends_on_listbox Backup $lb
+    button_depends_on_listbox Restore $lb
+    button_depends_on_listbox Delete $lb
+    bind $lb <Double-Button-1> [list button_pushed "Edit"]
     pack $f1
 
-    # prep for the event loop
-    set choice "none"
-    # enter event loop
-    vwait choice
+    wizard_event_loop $f1
+
     # a button was pushed, save selection
     set value $detail_picker_selection
     # clear the window
@@ -629,7 +683,7 @@ proc new_intro {} {
     global choice top wizard_state
     global new_config_name new_config_template new_config_readme
 
-    set f1 [ wizard_page { "< Back" "Cancel" "Next >" } ]
+    set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
     set l1 [ label $f1.l1 -text [msgcat::mc "You have chosen to create a new EMC2 configuration.\n\nThe next few screens will walk you through the process."] ]
     pack $l1 -padx 10 -pady 10
     pack $f1
@@ -639,8 +693,8 @@ proc new_intro {} {
     set new_config_template ""
     set new_config_readme ""
    
-    set choice "none"
-    vwait choice
+    wizard_event_loop $f1
+
     pack forget $f1
     destroy $f1
 
@@ -664,7 +718,7 @@ proc new_get_name {} {
     # need globals to communicate with wizard page buttons
     global choice top wizard_state new_config_name
 
-    set f1 [ wizard_page { "< Back" "Cancel" "Next >" } ]
+    set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
     set l1 [ label $f1.l1 -text [msgcat::mc "Please select a name for your new configuration."] ]
     set l2 [ label $f1.l2 -text [msgcat::mc "(This will become a directory name, so please use only letters,\ndigits, period, dash, or underscore.)"] ]
     set e1 [ entry $f1.e1 -width 30 -relief sunken -bg white -takefocus 1 ]
@@ -674,8 +728,8 @@ proc new_get_name {} {
     pack $l2 -padx 10 -pady 10
     pack $f1
 
-    set choice "none"
-    vwait choice
+    wizard_event_loop $f1
+
     set value [ $e1 get ]
     pack forget $f1
     destroy $f1
@@ -724,17 +778,19 @@ proc new_get_template {} {
     set t2 [msgcat::mc "\nDetails about the selected configuration:"]
     
     #set up a wizard page with three buttons
-    set f1 [ wizard_page { "< Back" "Cancel" "Next >" } ]
+    set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
     # add a header line
     set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Creating new EMC2 configuration '%s'" ] $new_config_name ] ]
     pack $l1 -pady 10
     # add a detail picker to it with the configs
-    detail_picker $f1 $t1 $config_list $t2 $details_list
+    set lb [detail_picker $f1 $t1 $config_list $t2 $details_list]
+    button_depends_on_listbox "Next >" $lb
+    bind $lb <Double-Button-1> [list button_pushed "Next >"]
     # done
     pack $f1
 
-    set choice "none"
-    vwait choice
+    wizard_event_loop $f1
+
     set value $detail_picker_selection
     pack forget $f1
     destroy $f1
@@ -785,7 +841,7 @@ proc new_get_description {} {
     global choice top wizard_state 
     global new_config_name new_config_template new_config_readme
 
-    set f1 [ wizard_page { "< Back" "Cancel" "Next >" } ]
+    set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
     # add a header line
     set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Creating new EMC2 configuration '%s'\nbased on template '%s'" ] $new_config_name $new_config_template ] ]
     pack $l1 -pady 10
@@ -793,15 +849,15 @@ proc new_get_description {} {
     set l3 [ label $f1.l3 -text [msgcat::mc "(If you ever need help, someone may ask you to send them your\nconfiguration, and this information could be very usefull.)"] ]
 
     # subframe for the text entry box and its scrollbar
-    set f3 [ frame $f1.f3 ]
+    set f3 [ frame $f1.f3 -highlightt 1 ]
     #  text box
     set tb [ text $f3.tb -width 60 -height 10 -wrap word -padx 6 -pady 6 \
-             -relief sunken -takefocus 1 -state normal -bg white ]
+             -relief sunken -state normal -bg white -highlightt 0 ]
     $tb insert end $new_config_readme
     # pack the text box into its subframe
     pack $tb -side left -fill y -expand y
     # need a scrollbar
-    set scr [ scrollbar $f3.sc -command "$tb yview" ]
+    set scr [ scrollbar $f3.sc -command "$tb yview" -takefocus 1 -highlightt 0 ]
     # link the text box to the scrollbar
     $tb configure -yscrollcommand "$scr set"
     # pack the scrollbar into the subframe
@@ -814,8 +870,8 @@ proc new_get_description {} {
     pack $l3 -padx 10 -pady 10
     pack $f1
 
-    set choice "none"
-    vwait choice
+    wizard_event_loop $f1
+
     set value [ $tb get 1.0 end ]
     pack forget $f1
     destroy $f1
@@ -846,23 +902,23 @@ proc new_verify {} {
     global choice top wizard_state 
     global new_config_name new_config_template new_config_readme
 
-    set f1 [ wizard_page { "< Back" "Cancel" "Finish" } ]
+    set f1 [ wizard_page { "< Back" "Cancel" "Finish" } "Finish" "Cancel"]
     # add a header line
     set l1 [ label $f1.l1 -text [ format [ msgcat::mc "You are about to create a new EMC2 configuration.\n\nPlease verify that this is what you want:\n\nName: '%s'\nTemplate: '%s'\nDescription:" ] $new_config_name $new_config_template ] ]
     pack $l1 -pady 10
     set l2 [ label $f1.l2 -text [msgcat::mc "If this information is correct, click 'Finish' to create\nthe configuration directory and begin copying files."] ]
 
     # subframe for the text box and its scrollbar
-    set f3 [ frame $f1.f3 ]
+    set f3 [ frame $f1.f3 -highlightt 1 ]
     #  text box
     set tb [ text $f3.tb -width 60 -height 10 -wrap word -padx 6 -pady 6 \
-             -relief sunken -takefocus 1 -state normal ]
+             -relief sunken -takefocus 1 -state normal -highlightt 0 ]
     $tb insert end $new_config_readme
     $tb configure -state disabled
     # pack the text box into its subframe
     pack $tb -side left -fill y -expand y
     # need a scrollbar
-    set scr [ scrollbar $f3.sc -command "$tb yview" ]
+    set scr [ scrollbar $f3.sc -command "$tb yview" -takefocus 1 ]
     # link the text box to the scrollbar
     $tb configure -yscrollcommand "$scr set"
     # pack the scrollbar into the subframe
@@ -874,8 +930,8 @@ proc new_verify {} {
     pack $l2 -padx 10 -pady 10
     pack $f1
 
-    set choice "none"
-    vwait choice
+    wizard_event_loop $f1
+
     pack forget $f1
     destroy $f1
 
@@ -901,7 +957,7 @@ proc new_do_copying {} {
     global new_config_name new_config_template new_config_readme
 
     # set up page, only one button
-    set f1 [ wizard_page { "Cancel" } ]
+    set f1 [ wizard_page { "Cancel" } {} "Cancel" ]
     set choice "none"
     # set up labels for the five progress messages that will be used
     set l1 [ label $f1.l1 -text " " -width 70 -justify left ]
@@ -1173,14 +1229,14 @@ proc delete_verify {} {
     global choice top wizard_state 
     global selected_config_name
 
-    set f1 [ wizard_page { "Cancel" "Finish" } ]
+    set f1 [ wizard_page { "Cancel" "Finish" } "" "Cancel"]
     # add a header line
     set l1 [ label $f1.l1 -text [ format [ msgcat::mc "WARNING!\n\nYou are about to delete the existing EMC2 configuration called:\n\n'%s'\n\nThis means that the directory\n'%s'\nand all files and subdirectories in it will be deleted." ] $selected_config_name [ file join [ pwd ] $selected_config_name ] ] ]
     pack $l1 -pady 10
     pack $f1
 
-    set choice "none"
-    vwait choice
+    wizard_event_loop $f1
+
     pack forget $f1
     destroy $f1
 
@@ -1202,7 +1258,7 @@ proc delete_do_it {} {
     global selected_config_name
 
     # set up page, only one button
-    set f1 [ wizard_page { "Cancel" } ]
+    set f1 [ wizard_page { "Cancel" } "" "Cancel"]
     set choice "none"
     # set up labels
     set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Deleting config '%s'..." ] $selected_config_name ] -width 70 -justify left ]
@@ -1274,7 +1330,7 @@ proc backup_verify {} {
     global choice top wizard_state 
     global selected_config_name backup_path
 
-    set f1 [ wizard_page { "Cancel" "Finish" } ]
+    set f1 [ wizard_page { "Cancel" "Finish" } "Finish" "Cancel"]
     # add a header line
     
     set timetag [ clock format [ clock seconds ] -format %Y-%m-%d-%H%M ]
@@ -1292,8 +1348,8 @@ proc backup_verify {} {
     
     pack $f1
 
-    set choice "none"
-    vwait choice
+    wizard_event_loop $f1
+
     set backup_path [ $e1 get ]
     pack forget $f1
     destroy $f1
@@ -1317,7 +1373,7 @@ proc backup_do_it {} {
     global selected_config_name backup_path
 
     # set up page, only one button
-    set f1 [ wizard_page { "Cancel" } ]
+    set f1 [ wizard_page { "Cancel" } "" "Cancel"]
     set choice "none"
     # set up labels
     set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Backing up config '%s'..." ] $selected_config_name ] -width 70 -justify left ]
