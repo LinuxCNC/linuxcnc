@@ -41,7 +41,7 @@ OBJS = \
 	rs274ngc_errors.o \
 	rs274ngc_pre.o
 
-all: headers $(SRCS:%.cc=$(TMP_DIR)/%.o) $(LIB_DIR)/librs274.a
+all: headers $(SRCS:%.cc=$(TMP_DIR)/%.o) $(LIB_DIR)/librs274.a $(TMP_DIR)/rs274.o
 
 include ../../Make.rules
 
