@@ -748,16 +748,21 @@ proc new_intro {} {
     }
 }    
 
+proc good_filename_character c { regexp {^[-\000-\037a-zA-Z0-9._]*$} $c }
+
 proc new_get_name {} {
     # need globals to communicate with wizard page buttons
-    global choice top wizard_state new_config_name
+    global choice top wizard_state new_config_name new_name
 
     set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
     set l1 [ label $f1.l1 -text [msgcat::mc "Please select a name for your new configuration."] ]
     set l2 [ label $f1.l2 -text [msgcat::mc "(This will become a directory name, so please use only letters,\ndigits, period, dash, or underscore.)"] ]
-    set e1 [ entry $f1.e1 -width 30 -relief sunken -bg white -takefocus 1 -text new_name]
+    set e1 [ entry $f1.e1 -width 30 -relief sunken -bg white -takefocus 1 -textvariable new_name]
 
-    $e1 insert 0 $new_config_name
+    bind $e1 <Key> { if {![good_filename_character %A]} break }
+    
+    if {![info exists new_config_name]} {set new_config_name ""}
+    set new_name $new_config_name
     pack $l1 -padx 10 -pady 10
     pack $e1 -padx 10 -pady 1
     pack $l2 -padx 10 -pady 10
