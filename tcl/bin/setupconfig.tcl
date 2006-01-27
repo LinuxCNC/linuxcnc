@@ -173,11 +173,9 @@ proc popup { message } {
     bind . <Return> {button_pushed OK}
     wm protocol . WM_DELETE_WINDOW {button_pushed OK}
     set f1 [ frame $top.f1 ]
-    set lab [label $f1.l -image $logo]
     set lbl [ label $f1.lbl -text $message -padx 20 -pady 10 ]
     set but [ button $f1.but -text OK -command "button_pushed OK" -default active]
     bind [winfo toplevel $top] <Return> { button_pushed OK }
-    pack $lab -side left -anchor nw
     pack $lbl -side top
     pack $but -side bottom -padx 10 -pady 10
     pack $f1 -anchor nw -fill both -expand 1
@@ -246,11 +244,10 @@ proc wizard_event_loop {f1} {
 # Returns the frame widget so page specific stuff can be packed on top
 
 proc wizard_page { buttons {default ""} {abort ""}} {
-    global choice top logo
+    global choice top
 
     set f1 [ frame $top.f1 ]
     set f2 [ frame $f1.f2 ]
-    set lab [label $f1.l -image $logo]
     set tl [winfo toplevel $top]
 
     bind $tl <Return> {}
@@ -272,7 +269,6 @@ proc wizard_page { buttons {default ""} {abort ""}} {
             wm protocol $tl WM_DELETE_WINDOW [list $f2.$bname invoke]
         }
     }
-    pack $lab -side left
     pack $f2 -side bottom
     return $f1
 }
@@ -1578,9 +1574,11 @@ foreach class { Button Entry Label Listbox Scale Text } {
 
 # make a toplevel and a master frame.
 wm title . [msgcat::mc "EMC2 Configuration Manager"]
-set top [frame .main -borderwidth 2 -relief raised ]
+set logo [label .logo -image $logo]
+set top [frame .main -borderwidth 0 -relief flat ]
 # want these too, but on windoze they cause an error? -padx 10 -pady 10 ]
-pack $top -expand yes -fill both
+pack $logo -side left -anchor nw
+pack $top -side left -expand yes -fill both
 
 # parse command line 
 
@@ -1719,7 +1717,7 @@ proc state_machine {} {
     }
 }
 
-wm geo . 750x480
+wm geo . 780x480
 wm resiz . 0 0
 state_machine
 
