@@ -174,7 +174,7 @@ proc popup { message } {
     wm protocol . WM_DELETE_WINDOW {button_pushed OK}
     set f1 [ frame $top.f1 ]
     set lbl [ label $f1.lbl -text $message -padx 20 -pady 10 ]
-    set but [ button $f1.but -text OK -command "button_pushed OK" -default active]
+    set but [ button $f1.but -text OK -command "button_pushed OK" -default active -width 8]
     bind [winfo toplevel $top] <Return> { button_pushed OK }
     pack $lbl -side top
     pack $but -side bottom -padx 10 -pady 10
@@ -256,8 +256,19 @@ proc wizard_page { buttons {default ""} {abort ""}} {
 
     foreach button_name $buttons {
 	set bname [ string tolower $button_name ]
-        button $f2.$bname -text [ msgcat::mc $button_name ] -command "button_pushed \"$button_name\""
-	pack $f2.$bname -side left -padx 10 -pady 10
+        set text [msgcat::mc $button_name]
+                
+        button $f2.$bname -text $text -command "button_pushed \"$button_name\""
+
+        set font [$f2.$bname cget -font]
+        set ave_width [font measure $font "0"]
+        set text_width [font measure $font $text]
+        if {$text_width > 8*$ave_width} { 
+            $f2.$bname configure -width 0
+        } else {
+            $f2.$bname configure -width 8
+        }
+	pack $f2.$bname -side left -padx 4 -pady 4
         if {$button_name == $default} {
             $f2.$bname configure -default active
             bind $tl <Return> [list $f2.$bname invoke]
