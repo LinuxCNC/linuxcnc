@@ -63,6 +63,8 @@ exec wish "$0" "$@"
 #
 ###############################################################
 
+# This logo is used on all the pages
+set logo [image create photo -file emc2-wizard.gif]
 
 ################### PROCEDURE DEFINITIONS #####################
 
@@ -165,23 +167,48 @@ proc button_pushed { button_name } {
 # generic popup, displays a message and waits for "OK" click
 
 proc popup { message } {
-    global choice top
+    global choice top logo
 
     bind . <Escape> {button_pushed OK}
     bind . <Return> {button_pushed OK}
     wm protocol . WM_DELETE_WINDOW {button_pushed OK}
     set f1 [ frame $top.f1 ]
+    set lab [label $f1.l -image $logo]
     set lbl [ label $f1.lbl -text $message -padx 20 -pady 10 ]
     set but [ button $f1.but -text OK -command "button_pushed OK" -default active]
     bind [winfo toplevel $top] <Return> { button_pushed OK }
+    pack $lab -side left -anchor nw
     pack $lbl -side top
     pack $but -side bottom -padx 10 -pady 10
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
 
     pack forget $f1
     destroy $f1
+}
+
+# button_entry_change - Utility function for button_depends_on_entry
+proc button_entry_change {b t name1 name2 op} {
+    puts stderr [list button_entry_change $b $t $name1 $name2 op]
+    upvar \#0 $t v
+    if {$v == ""} {
+        $b configure -state disabled
+    } else {
+        $b configure -state normal
+    }
+}
+
+# button_depends_on_variable - Sometimes, a button should not be enabled until
+# text is entered
+proc button_depends_on_variable {b v e} {
+    global top
+    global $v
+    set b $top.f1.f2.[string tolower $b]
+    set cmd [list button_entry_change $b $v]
+    bind $e <Destroy> [list trace remove variable $v write $cmd]
+    trace add variable $v write $cmd
+    button_entry_change $b $v . . .
 }
 
 # button_listbox_change - Utility function for button_depends_on_listbox
@@ -194,6 +221,7 @@ proc button_listbox_change {b lb} {
         $b configure -state normal
     }
 }
+
 
 # button_depends_on_listbox - Sometimes, a button should not be enabled until
 # an item is selected This function enforces that.
@@ -218,10 +246,11 @@ proc wizard_event_loop {f1} {
 # Returns the frame widget so page specific stuff can be packed on top
 
 proc wizard_page { buttons {default ""} {abort ""}} {
-    global choice top
+    global choice top logo
 
     set f1 [ frame $top.f1 ]
     set f2 [ frame $f1.f2 ]
+    set lab [label $f1.l -image $logo]
     set tl [winfo toplevel $top]
 
     bind $tl <Return> {}
@@ -243,6 +272,7 @@ proc wizard_page { buttons {default ""} {abort ""}} {
             wm protocol $tl WM_DELETE_WINDOW [list $f2.$bname invoke]
         }
     }
+    pack $lab -side left
     pack $f2 -side bottom
     return $f1
 }
@@ -269,10 +299,13 @@ proc detail_picker { parent_wgt item_text item_list detail_text detail_list } {
     pack $l1 -pady 6
 
     # subframe for the list and its scrollbar
-    set f2 [ frame $f1.f2 -highlightt 1 ]
+    set f2 [ frame $f1.f2]
 
     # listbox for the items
-    set lb [ listbox $f2.lb -highlightt 0 ]
+    set la [ label $f2.la -text [msgcat::mc "Available Configurations:"]]
+    pack $la -side top -anchor w
+    set fl [frame $f2.fl -highlightt 1 ]
+    set lb [ listbox $fl.lb -highlightt 0 ]
     set d_p_item_widget $lb
     # pack the listbox into its subframe
     pack $lb -side left -fill y -expand y
@@ -283,10 +316,10 @@ proc detail_picker { parent_wgt item_text item_list detail_text detail_list } {
         $lb insert end $item
     }
     # if more than 'max' entries, use a scrollbar
-    set max_items 6
+    set max_items 16
     if { [ $lb size ] >= $max_items } {
 	# need a scrollbar
-	set lscr [ scrollbar $f2.scr -command "$lb yview" ]
+	set lscr [ scrollbar $fl.scr -command "$lb yview" ]
 	# set the listbox to the max height
 	$lb configure -height $max_items
 	# link it to the scrollbar
@@ -299,11 +332,12 @@ proc detail_picker { parent_wgt item_text item_list detail_text detail_list } {
 	$lb configure -height [ expr { [ $lb size ] + 1 } ]
     }
     # pack the subframe into the main frame
-    pack $f2
+    pack $fl -side left -anchor nw -padx 3 -fill y -expand 1
+    pack $f2 -side left -anchor nw -padx 3 -fill y -expand 1
 
     # label for the details box
     set l2 [ label $f1.l2 -text $detail_text ]
-    pack $l2 -pady 6
+    pack $l2 -anchor w -padx 3
 	
     # subframe for the detail box and its scrollbar
     set f3 [ frame $f1.f3 -highlightt 1 ]
@@ -320,9 +354,9 @@ proc detail_picker { parent_wgt item_text item_list detail_text detail_list } {
     # pack the scrollbar into the subframe
     pack $dscr -fill y -side right
     # pack the subframe into the main frame
-    pack $f3
+    pack $f3 -side left -anchor nw -padx 3 -fill y
     # and finally pack the main frame into the parent
-    pack $f1
+    pack $f1 -fill y -expand 1
 
     set lb
 }
@@ -377,7 +411,7 @@ proc main_page {} {
     set f1 [ wizard_page { "Config" "Quit" "Run" } "Run" "Quit" ]
     set l1 [ label $f1.l1 -text $msg ]
     pack $l1 -padx 10 -pady 10
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
 
@@ -433,7 +467,7 @@ proc choose_run_config {} {
 
     # messages
     set t1 [msgcat::mc "Please select an EMC2 configuration from the list below and click 'Run'."]
-    set t2 [msgcat::mc "\nDetails about the selected configuration:"]
+    set t2 [msgcat::mc "Details about the selected configuration:"]
     
     #set up a wizard page with two buttons
     set f1 [ wizard_page { "Cancel" "Run" } Run Cancel ]
@@ -442,7 +476,7 @@ proc choose_run_config {} {
     button_depends_on_listbox "Run" $lb
     bind $lb <Double-Button-1> [list button_pushed Run]
     # done
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     # pre-select the current run config, if any
     if { $run_config_name != "" } {
@@ -534,7 +568,7 @@ proc choose_run_ini {} {
     # set the size of the list box
     $lb configure -height 8
     # pack the page
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
 
@@ -598,7 +632,7 @@ proc config_manager {} {
     # messages
     set t1 [msgcat::mc "This page is used to manage EMC2 machine configurations.\n"]
     set t2 [msgcat::mc "The list below shows all of the existing EMC2\nconfigurations on this computer.\n\nSelect a config, then click one of the buttons below.\n"]
-    set t3 [msgcat::mc "\nDetails about the selected configuration:"]
+    set t3 [msgcat::mc "Details about the selected configuration:"]
 
     set f1 [ wizard_page { "Edit" "Backup" "Restore" "Delete" "New" "Cancel" } "Edit" "Cancel" ]
     set l1 [ label $f1.l1 -text $t1 ]
@@ -610,7 +644,7 @@ proc config_manager {} {
     button_depends_on_listbox Restore $lb
     button_depends_on_listbox Delete $lb
     bind $lb <Double-Button-1> [list button_pushed "Edit"]
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
 
@@ -686,7 +720,7 @@ proc new_intro {} {
     set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
     set l1 [ label $f1.l1 -text [msgcat::mc "You have chosen to create a new EMC2 configuration.\n\nThe next few screens will walk you through the process."] ]
     pack $l1 -padx 10 -pady 10
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     # get ready for a fresh start
     set new_config_name ""
@@ -721,12 +755,15 @@ proc new_get_name {} {
     set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
     set l1 [ label $f1.l1 -text [msgcat::mc "Please select a name for your new configuration."] ]
     set l2 [ label $f1.l2 -text [msgcat::mc "(This will become a directory name, so please use only letters,\ndigits, period, dash, or underscore.)"] ]
-    set e1 [ entry $f1.e1 -width 30 -relief sunken -bg white -takefocus 1 ]
+    set e1 [ entry $f1.e1 -width 30 -relief sunken -bg white -takefocus 1 -text new_name]
+
     $e1 insert 0 $new_config_name
     pack $l1 -padx 10 -pady 10
     pack $e1 -padx 10 -pady 1
     pack $l2 -padx 10 -pady 10
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
+
+    button_depends_on_variable "Next >" new_name $f1.e1
 
     wizard_event_loop $f1
 
@@ -775,7 +812,7 @@ proc new_get_template {} {
 
     # messages
     set t1 [msgcat::mc "Please select one of these existing configurations as the template\nfor your new configuration.\n\nAll the files associated with the template will be copied into your new\nconfig, so you can make whatever modifications are needed."]
-    set t2 [msgcat::mc "\nDetails about the selected configuration:"]
+    set t2 [msgcat::mc "Details about the selected configuration:"]
     
     #set up a wizard page with three buttons
     set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
@@ -787,7 +824,7 @@ proc new_get_template {} {
     button_depends_on_listbox "Next >" $lb
     bind $lb <Double-Button-1> [list button_pushed "Next >"]
     # done
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
 
@@ -868,7 +905,7 @@ proc new_get_description {} {
     pack $l2 -padx 10 -pady 10
     pack $f3 -padx 10 -pady 1
     pack $l3 -padx 10 -pady 10
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
 
@@ -928,7 +965,7 @@ proc new_verify {} {
     pack $l1 -padx 10 -pady 10
     pack $f3 -padx 10 -pady 1
     pack $l2 -padx 10 -pady 10
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
 
@@ -973,7 +1010,7 @@ proc new_do_copying {} {
     pack $l4 -padx 10 -pady 1
     pack $l5 -padx 10 -pady 1
     pack $lerr -padx 10 -pady 10
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     # set text for first message
     $l1 configure -text [ format [ msgcat::mc "Creating new config directory '%s'..." ] $new_config_name ]
@@ -1233,7 +1270,7 @@ proc delete_verify {} {
     # add a header line
     set l1 [ label $f1.l1 -text [ format [ msgcat::mc "WARNING!\n\nYou are about to delete the existing EMC2 configuration called:\n\n'%s'\n\nThis means that the directory\n'%s'\nand all files and subdirectories in it will be deleted." ] $selected_config_name [ file join [ pwd ] $selected_config_name ] ] ]
     pack $l1 -pady 10
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
 
@@ -1265,7 +1302,7 @@ proc delete_do_it {} {
     set lerr [ label $f1.lerr -text " " -width 70 -justify center ]
     pack $l1 -padx 10 -pady 1
     pack $lerr -padx 10 -pady 10
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
     # update display
     update
     # verify that we are in the right place
@@ -1346,7 +1383,7 @@ proc backup_verify {} {
     $e1 insert 0 $backup_path
     pack $e1 -pady 10
     
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
 
@@ -1380,7 +1417,7 @@ proc backup_do_it {} {
     set lerr [ label $f1.lerr -text " " -width 70 -justify center ]
     pack $l1 -padx 10 -pady 1
     pack $lerr -padx 10 -pady 10
-    pack $f1
+    pack $f1 -anchor nw -fill both -expand 1
     # update display
     update
     # verify that we are in the right place
@@ -1657,6 +1694,7 @@ switch -- $option_name {
     }
 }
 
+
 # at this point all legal options and their args have been deleted, 
 # anything left in 'argv' is an error
 if { [ llength $argv ] != 0 } {
@@ -1676,6 +1714,8 @@ proc state_machine {} {
     }
 }
 
+wm geo . 750x480
+wm resiz . 0 0
 state_machine
 
 cd $old_dir
