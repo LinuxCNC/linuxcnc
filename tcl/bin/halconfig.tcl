@@ -21,7 +21,7 @@ exec /usr/bin/wish "$0" "$@"
 # Script accesses HAL through two modes halcmd show xxx for show
 # and open halcmd -skf for building tree, watch, edit, and such 
 
-# TODO
+# TO-DO
 # add edit widget set
 # add tune widget set
 # flesh out the save and reload with modified .ini file.
@@ -129,53 +129,6 @@ if ([info exists env(LANG)]) {
     msgcat::mcload "../../src/po"
 }
 
-#----------start toplevel----------
-#
-# including size and position
-
-wm title . "HAL Configuration"
-wm protocol . WM_DELETE_WINDOW tk_
-set masterwidth 700
-set masterheight 450
-# set fixed size for configuration display and center
-set xmax [winfo screenwidth .]
-set ymax [winfo screenheight .]
-set x [expr ($xmax - $masterwidth )  / 2 ]
-set y [expr ($ymax - $masterheight )  / 2]
-wm geometry . "${masterwidth}x${masterheight}+$x+$y"
-
-# add a few default characteristics to the display
-foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
-    Message Radiobutton Scale } {
-    option add *$class.borderWidth 1  100
-}
-
-# trap mouse click on window manager delete and ask to save
-wm protocol . WM_DELETE_WINDOW askKill
-proc askKill {} {
-    global configdir
-    set tmp [tk_messageBox -icon error -type yesno \
-        -message "Would you like to save your configuration before you exit?"]
-    switch -- $tmp {
-        yes {saveHAL $configdir ; killHalConfig}
-        no {killHalConfig}
-    }
-}
-
-# clean up a couple of possible problems during shutdown
-proc killHalConfig {} {
-    global demoisup fid
-    if {$demoisup == "yes"} {
-        set demoisup no
-        set tmp [exec sudo scripts/realtime unload & ]
-    }
-    if {[info exists fid] && $fid != ""} {
-        catch flush $fid
-        catch close $fid
-    }
-    exit
-    destroy .
-}
 
 #----------open channel to halcmd ----------
 #
@@ -228,9 +181,59 @@ openHALCMD
 #
 #----------end of open halcmd----------
 
+
+#----------start toplevel----------
+#
+# including size and position
+
+wm title . "HAL Configuration"
+wm protocol . WM_DELETE_WINDOW tk_
+set masterwidth 700
+set masterheight 450
+# set fixed size for configuration display and center
+set xmax [winfo screenwidth .]
+set ymax [winfo screenheight .]
+set x [expr ($xmax - $masterwidth )  / 2 ]
+set y [expr ($ymax - $masterheight )  / 2]
+wm geometry . "${masterwidth}x${masterheight}+$x+$y"
+set top [frame .main ]
+pack $top -padx 4 -pady 4 -fill both -expand yes
+
+# add a few default characteristics to the display
+foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
+    Message Radiobutton Scale } {
+    option add *$class.borderWidth 1  100
+}
+
+# trap mouse click on window manager delete and ask to save
+wm protocol . WM_DELETE_WINDOW askKill
+proc askKill {} {
+    global configdir
+    set tmp [tk_messageBox -icon error -type yesno \
+        -message "Would you like to save your configuration before you exit?"]
+    switch -- $tmp {
+        yes {saveHAL $configdir ; killHalConfig}
+        no {killHalConfig}
+    }
+}
+
+# clean up a couple of possible problems during shutdown
+proc killHalConfig {} {
+    global demoisup fid
+    if {$demoisup == "yes"} {
+        set demoisup no
+        set tmp [exec sudo scripts/realtime unload & ]
+    }
+    if {[info exists fid] && $fid != ""} {
+        catch flush $fid
+        catch close $fid
+    }
+    exit
+    destroy .
+}
+
 # workmodes are set from the menu
-# possible workmodes include showhal modifyhal tunehal watchHAL ...
-# only showhal does much special now.
+# possible workmodes include showhal watchhal modifyhal tunehal 
 set workmode showhal
 
 ##########
@@ -242,20 +245,35 @@ set workmode showhal
 #########################################
 #  Tree         # Main                  #
 #  Navigation   # Text display          #
-#  (frame - $tf)# (frame - $df)         #
+#  (frame - $tf)# (frame - $ds)         #
 #  ($treew)     # (text - $disp)        #
 #               # (displayThis {str})   #
+#               #########################
+#               #  Command area         #
+#               #  ()                   #
 #########################################
-#  Command area                         #
-#  (frame - $cf)                        #
-#########################################
 
-# The layout is fixed sized and uses the place manager to
-# fix this layout.  It can be expanded by the user after startup.
+# build the tree frame left side
+set tf [frame $top.maint]
 
-set top [frame .main -bg white]
-pack $top -padx 4 -pady 4 -fill both -expand yes
+# Build right side display and control area
+# Each mode will have a unique set of widgets inside frame
+set ds [labelframe $top.s -text Show ]
+set dw [labelframe $top.w -text Watch ]
+set dm [labelframe $top.m -text Modify ]
+set dt [labelframe $top.t -text Tune ]
 
+# use place manager for fixed locations of frames within top
+# place show for starting up
+place configure $tf -in $top -x 2 -y 2 -relheight .99 -relwidth .3
+place configure $ds -in $top -relx .31 -y 2 -relheight .99 -relwidth .69
+
+# slider process is used for several widgets
+proc sSlide {f a b} {
+    $f.sc set $a $b
+}
+
+# Build the menu
 # fixme clean up the underlines so they are unique under each set
 set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 0]
@@ -276,18 +294,18 @@ set filemenu [menu $menubar.file -tearoff 0]
 set viewmenu [menu $menubar.view -tearoff 0]
     $menubar add cascade -label [msgcat::mc "View"] \
             -menu $viewmenu -underline 0
-        $viewmenu add command -label [msgcat::mc "Components"] \
-            -command {workMode comp} -underline 1
-        $viewmenu add command -label [msgcat::mc "Pins"] \
-            -command {workMode pin} -underline 1
-        $viewmenu add command -label [msgcat::mc "Parameters"] \
-            -command {workMode param} -underline 1
-        $viewmenu add command -label [msgcat::mc "Signals"] \
-            -command {workMode sig} -underline 1
-        $viewmenu add command -label [msgcat::mc "Functions"] \
-            -command {workMode funct} -underline 1
-        $viewmenu add command -label [msgcat::mc "Threads"] \
-            -command {workMode thread} -underline 1
+        $viewmenu add command -label [msgcat::mc "Expand Tree"] \
+            -command {showNode {open}} -underline 1
+        $viewmenu add command -label [msgcat::mc "Collapse Tree"] \
+            -command {showNode {close}} -underline 1
+        $viewmenu add command -label [msgcat::mc "Show Pins"] \
+            -command {showNode {pin}} -underline 1
+        $viewmenu add command -label [msgcat::mc "Show Parameters"] \
+            -command {showNode {param}} -underline 1
+        $viewmenu add command -label [msgcat::mc "Show Signals"] \
+            -command {showNode {sig}} -underline 1
+        $viewmenu add command -label [msgcat::mc ""] \
+            -command {} -underline 1
 set settingsmenu [menu $menubar.settings -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Settings"] \
             -menu $settingsmenu -underline 0
@@ -325,60 +343,42 @@ set helpmenu [menu $menubar.help -tearoff 0]
             -command {showHelp thread} -underline 0
 . configure -menu $menubar
 
-# build the tree area in the upper left
-set tf [frame $top.maint]
+
+# build the tree widgets left side
 set treew [Tree $tf.t  -width 10 -yscrollcommand "sSlide $tf" ]
 set str $tf.sc
 scrollbar $str -orient vert -command "$treew yview"
 pack $str -side right -fill y
 pack $treew -side right -fill both -expand yes
-
-# This binding to treew returns the name of the node clicked
-# so a call using it includes that one arg.
-# no two nodes can have the same name even with different paths
-# so this return will be unique to each pin, param, or signal
 $treew bindText <Button-1> {workMode   }
 
-# build text area upper right for display
-set df [frame $top.maind ]
-set disp [text $df.tx -bg grey93 -relief flat -width 40 -wrap word \
-    -yscrollcommand "sSlide $df"]
-set stt $df.sc
+
+# build show mode right side
+set stf [frame $ds.tf]
+set disp [text $stf.tx -relief flat -width 40 -wrap word \
+    -height 30 -yscrollcommand "sSlide $stf"]
+set stt $stf.sc
 scrollbar $stt -orient vert -command "$disp yview"
 pack $stt -side right -fill y
 pack $disp -side right -fill both -expand yes
 
-# slider processes
-proc sSlide {f a b} {
-    $f.sc set $a $b
-}
-
-# canvas area upper right for watch mode
-set dc [frame $top.maincanvas ]
-set cisp [canvas $dc.c -bg white ]
-pack $cisp -side right -fill both -expand yes
-
-# button and entry area upper right for tune
-set dt [frame $top.maintune]
-
-
-# create a small lower display area for editing work.
-# might build several frames like cf for different modes
-set cf [labelframe $top.mainc -text "Control" -bg gray96 ]
-# set up a temporary entry widget and button for editing
-set lab [label $cf.label -text "Enter a proper HAL command :"]
-set com [entry $cf.entry -textvariable halcommand]
+set cfent [frame $ds.command]
+set lab [label $cfent.label -text "Enter HAL command :"]
+set com [entry $cfent.entry -textvariable halcommand]
 bind $com <KeyPress-Return> {exHAL $halcommand ; refreshHAL}
-set ex [button $cf.execute -text Execute \
+set ex [button $cfent.execute -text Execute \
     -command {exHAL $halcommand ; refreshHAL} ]
 pack $lab -side left -padx 5
 pack $com -side left -fill x -expand yes
 pack $ex -side left -padx 5
 
-# use place manager for fixed locations of frames within top
-place configure $tf -in $top -x 2 -y 2 -relheight .69 -relwidth .3
-place configure $df -in $top -relx .31 -y 2 -relheight .69 -relwidth .69
-place configure $cf -in $top -x 2 -rely .7 -relheight .29 -relwidth .99
+pack $stf $cfent -side top -fill x -expand yes
+
+
+# Build watch mode right side
+set cisp [canvas $dw.c ]
+pack $cisp -side right -fill both -expand yes
+
 
 #----------tree widget stuff----------
 #
@@ -598,13 +598,37 @@ proc makeNodeSig {sigstring} {
 # builds a global list -- treenodes -- but not leaves
 proc writeNode {arg} {
     global treew treenodes
-#    set treenodes ""
     scan $arg {%i %s %s %s %i} j base node name leaf
     $treew insert $j  $base  $node -text $name
     if {$leaf > 0} {
         lappend treenodes $node
     }
 }
+
+# FIXME close other that $which for pin, param, sig
+proc showNode {which} {
+    global treew
+    switch -- $which {
+        open {-}
+        close {
+            foreach type {pin param sig} {
+                $treew ${which}tree $type
+            }
+        }
+        pin {-}
+        param {-}
+        sig {
+            foreach type {pin param sig} {
+                $treew closetree $type
+            }
+            $treew opentree $which
+            $treew see $which
+        }
+        default {}
+    }
+    focus -force $treew
+}
+
 
 # Tree code above looks like crap but works fairly well
 #
@@ -617,54 +641,47 @@ proc writeNode {arg} {
 array set controlarray {}
 
 # all clicks on tree node names go into workMode
-# action depends upon workmode which is not complete
-
+# tree click action depends upon workmode
+# workmode only affects display side {ds dw dm dt}
 proc workMode {which} {
     global workmode 
     switch -- $workmode {
         showhal {
-            swapDisplay display df
+            swapDisplay ds
             showHAL $which
         }
         watchhal {
-            swapDisplay display dc
+            swapDisplay dw
             watchHAL $which
         }
         modifyhal {
-            swapDisplay display df
-            swapDisplay control cf
+            swapDisplay display dm
             modifyHAL $which
         }
         tunehal {
-            swapDisplay display df
-            swapDisplay control cf
+            swapDisplay display dt
             tuneHAL $which
         }
         default {
-            swapDisplay display df
+            swapDisplay display ds
             displayThis "Something went way wrong with settings."
         }
     }
 }
 
-# swaps frames if current frame is not already mapped
-proc swapDisplay {where to} {
-    global top df dc de cf
-    if {![winfo ismapped [set $to]]} {
-        switch -- $where {
-        display {
-            foreach olddisplay {dc df dc } {
-                place forget [set $olddisplay]
-            }
-            place configure [set $to] -in $top -relx .31 -y 2 \
-                -relheight .69 -relwidth .69
+# handles swap of the display frames
+proc swapDisplay {arg} {
+    global top ds dw dm dt
+    set next [set $arg]
+    if {![winfo ismapped $next]} {
+        foreach eachdisplay {ds dw dm dt} {
+            place forget [set $eachdisplay]
         }
-        control {
-    
-            }
-        }
-    }    
+        place configure $next -in $top -relx .31 -y 2 \
+            -relheight .99 -relwidth .69
+    }
 }
+
 
 # process uses it's own halcmd show so that displayed
 # info looks like what is in the Hal_Introduction.pdf
@@ -749,7 +766,7 @@ proc watchLoop {} {
             } elseif {$ret == "FALSE"} {
                 $cisp itemconfigure oval$cnum -fill firebrick4
             } else {
-                set value [catch expr $ret]
+                set value [expr $ret]
                 $cisp itemconfigure text$cnum -text $value
             }
         }
@@ -757,10 +774,11 @@ proc watchLoop {} {
     after 5000 watchLoop
 }
 
-
-
 proc watchReset {del} {
     global watchlist
+    if {$del == "all"} {
+        
+    }
     set place [lsearch $watchlist $del]
     if {$place != -1 } {
         set watchlist [lreplace $watchlist $place]
