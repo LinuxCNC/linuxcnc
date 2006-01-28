@@ -1,0 +1,2 @@
+#!/bin/sh
+[ -x /etc/init.d/udev ] && /etc/init.d/udev restart
