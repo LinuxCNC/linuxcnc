@@ -1389,89 +1389,92 @@ static void get_pos_cmds(void)
 	for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
-	    joint->free_tp_active = 0;
-	    /* compute max change in velocity per servo period */
-	    max_dv = joint->acc_limit * servo_period;
-	    /* compute a tiny position range, to be treated as zero */
-	    tiny_dp = max_dv * servo_period * 0.001;
-	    /* calculate desired velocity */
-	    if (joint->free_tp_enable) {
-		/* planner enabled, request a velocity that tends to drive
-		   pos_err to zero, but allows for stopping without position
-		   overshoot */
-		pos_err = joint->free_pos_cmd - joint->pos_cmd;
-		/* positive and negative errors require some sign flipping to
-		   avoid sqrt(negative) */
-		if (pos_err > tiny_dp) {
-		    vel_req =
-			-max_dv + sqrt(2.0 * joint->acc_limit * pos_err +
-			max_dv * max_dv);
-		    /* mark joint active */
-		    joint->free_tp_active = 1;
-		} else if (pos_err < -tiny_dp) {
-		    vel_req =
-			max_dv - sqrt(-2.0 * joint->acc_limit * pos_err +
-			max_dv * max_dv);
-		    /* mark joint active */
-		    joint->free_tp_active = 1;
+	    //AJ: only need to worry about free mode if joint is active
+	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
+		joint->free_tp_active = 0;
+		/* compute max change in velocity per servo period */
+		max_dv = joint->acc_limit * servo_period;
+		/* compute a tiny position range, to be treated as zero */
+		tiny_dp = max_dv * servo_period * 0.001;
+		/* calculate desired velocity */
+		if (joint->free_tp_enable) {
+		    /* planner enabled, request a velocity that tends to drive
+		       pos_err to zero, but allows for stopping without position
+		       overshoot */
+		    pos_err = joint->free_pos_cmd - joint->pos_cmd;
+		    /* positive and negative errors require some sign flipping to
+		       avoid sqrt(negative) */
+		    if (pos_err > tiny_dp) {
+			vel_req =
+			    -max_dv + sqrt(2.0 * joint->acc_limit * pos_err +
+			    max_dv * max_dv);
+			/* mark joint active */
+			joint->free_tp_active = 1;
+		    } else if (pos_err < -tiny_dp) {
+			vel_req =
+			    max_dv - sqrt(-2.0 * joint->acc_limit * pos_err +
+			    max_dv * max_dv);
+			/* mark joint active */
+			joint->free_tp_active = 1;
+		    } else {
+			/* within 'tiny_dp' of desired pos, no need to move */
+			vel_req = 0.0;
+		    }
 		} else {
-		    /* within 'tiny_dp' of desired pos, no need to move */
+		    /* planner disabled, request zero velocity */
 		    vel_req = 0.0;
+		    /* and set command to present position to avoid movement when
+		       next enabled */
+		    joint->free_pos_cmd = joint->pos_cmd;
 		}
-	    } else {
-		/* planner disabled, request zero velocity */
-		vel_req = 0.0;
-		/* and set command to present position to avoid movement when
-		   next enabled */
-		joint->free_pos_cmd = joint->pos_cmd;
-	    }
-	    /* if we move at all, clear AT_HOME flag */
-	    if (joint->free_tp_active) {
-		SET_JOINT_AT_HOME_FLAG(joint, 0);
-	    }
-	    /* velocity limit = planner limit * global scale factor */
-	    /* the global factor is used for feedrate override */
-	    vel_lim = joint->free_vel_lim * emcmotStatus->qVscale;
-	    /* must not be greater than the joint physical limit */
-	    if (vel_lim > joint->vel_limit) {
-		vel_lim = joint->vel_limit;
-	    }
-	    /* limit velocity request */
-	    if (vel_req > vel_lim) {
-		vel_req = vel_lim;
-	    } else if (vel_req < -vel_lim) {
-		vel_req = -vel_lim;
-	    }
-	    /* ramp velocity toward request at axis accel limit */
-	    if (vel_req > joint->vel_cmd + max_dv) {
-		joint->vel_cmd += max_dv;
-	    } else if (vel_req < joint->vel_cmd - max_dv) {
-		joint->vel_cmd -= max_dv;
-	    } else {
-		joint->vel_cmd = vel_req;
-	    }
-	    /* check for still moving */
-	    if (joint->vel_cmd != 0.0) {
-		/* yes, mark joint active */
-		joint->free_tp_active = 1;
-	    }
-	    /* integrate velocity to get new position */
-	    joint->pos_cmd += joint->vel_cmd * servo_period;
-	    /* copy to coarse_pos */
-	    joint->coarse_pos = joint->pos_cmd;
-	    /* update joint status flag and overall status flag */
-	    if ( joint->free_tp_active ) {
-		/* active TP means we're moving, so not in position */
-		SET_JOINT_INPOS_FLAG(joint, 0);
-		SET_MOTION_INPOS_FLAG(0);
-		/* check to see if this move is with limits disabled */
-		if ( emcmotStatus->overrideLimits ) {
-		    emcmotDebug->overriding = 1;
+		/* if we move at all, clear AT_HOME flag */
+		if (joint->free_tp_active) {
+		    SET_JOINT_AT_HOME_FLAG(joint, 0);
 		}
-	    } else {
-		SET_JOINT_INPOS_FLAG(joint, 1);
-	    }
-	}
+		/* velocity limit = planner limit * global scale factor */
+		/* the global factor is used for feedrate override */
+		vel_lim = joint->free_vel_lim * emcmotStatus->qVscale;
+		/* must not be greater than the joint physical limit */
+		if (vel_lim > joint->vel_limit) {
+		    vel_lim = joint->vel_limit;
+		}
+		/* limit velocity request */
+		if (vel_req > vel_lim) {
+		    vel_req = vel_lim;
+		} else if (vel_req < -vel_lim) {
+		    vel_req = -vel_lim;
+		}
+		/* ramp velocity toward request at axis accel limit */
+		if (vel_req > joint->vel_cmd + max_dv) {
+		    joint->vel_cmd += max_dv;
+		} else if (vel_req < joint->vel_cmd - max_dv) {
+		    joint->vel_cmd -= max_dv;
+		} else {
+		    joint->vel_cmd = vel_req;
+		}
+		/* check for still moving */
+		if (joint->vel_cmd != 0.0) {
+		    /* yes, mark joint active */
+		    joint->free_tp_active = 1;
+		}
+		/* integrate velocity to get new position */
+		joint->pos_cmd += joint->vel_cmd * servo_period;
+		/* copy to coarse_pos */
+		joint->coarse_pos = joint->pos_cmd;
+		/* update joint status flag and overall status flag */
+		if ( joint->free_tp_active ) {
+		    /* active TP means we're moving, so not in position */
+		    SET_JOINT_INPOS_FLAG(joint, 0);
+		    SET_MOTION_INPOS_FLAG(0);
+		    /* check to see if this move is with limits disabled */
+		    if ( emcmotStatus->overrideLimits ) {
+			emcmotDebug->overriding = 1;
+		    }
+		} else {
+		    SET_JOINT_INPOS_FLAG(joint, 1);
+		}
+	    }//if (GET_JOINT_ACTIVE_FLAG(join))
+	}//for loop for joints
 	/* if overriding is true and we're in position, the jog
 	   is complete, and the limits should be re-enabled */
 	if ( (emcmotDebug->overriding ) && ( GET_MOTION_INPOS_FLAG() ) ) {
