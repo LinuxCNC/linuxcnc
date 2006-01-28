@@ -419,8 +419,6 @@ if ! sudo $REALTIME start ; then
     exit -1
 fi
 
-sleep 1
-
 # 4.3. Prepare to load real time motion module
 echo "Loading EMC Motion module: $EMCMOT" >>$PRINT_FILE
 if [ ! -f $EMC2_RTLIB_DIR/$EMCMOT ] ; then
@@ -458,8 +456,6 @@ if ! sudo $INSMOD $EMC2_RTLIB_DIR/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
     exit -1
 fi
 
-sleep 1
-
 # 4.3.4. export the location of the HAL realtime modules so that
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
@@ -472,6 +468,8 @@ if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
     exit 1
 fi
 sudo $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
+
+sleep 2
 
 # 4.3.6. execute HALCMD config files (if any)
 # get first config file name from ini file
