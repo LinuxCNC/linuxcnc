@@ -64,7 +64,13 @@ exec wish "$0" "$@"
 ###############################################################
 
 # This logo is used on all the pages
-set logo [image create photo -file emc2-wizard.gif]
+set wizard_image_search "/etc/emc2/emc2-wizard.gif /usr/local/etc/emc2-wizard.gif emc2-wizard.gif"
+
+foreach wizard_image $wizard_image_search {
+    if { [file exists $wizard_image] } {
+        set logo [image create photo -file $wizard_image]
+    }
+}
 
 ################### PROCEDURE DEFINITIONS #####################
 

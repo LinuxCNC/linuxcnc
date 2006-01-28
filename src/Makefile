@@ -93,7 +93,7 @@ install_modules:
 
 install_configs:
 	install -d $(DESTDIR)$(sysconfdir)/emc2
-	cp ../emc2.gif $(DESTDIR)$(sysconfdir)/emc2
+	cp ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
 	cp -rf ../configs/* $(DESTDIR)$(sysconfdir)/emc2
 	(cd $(DESTDIR)$(sysconfdir)/emc2; find . -type d -name CVS|xargs rm -r)
 	@ echo "configs installed"

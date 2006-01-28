@@ -32,7 +32,8 @@ install: build
 	dh_clean -k
 	dh_installdirs
 	#start the install
-	mkdir -p debian/tmp
+	mkdir -p debian/tmp/etc/udev/rules.d
+	echo 'KERNEL=="RTAI_SHM" SYMLINK=="rtai_shm" MODE="0666"' >debian/tmp/etc/udev/rules.d/emc2.rules
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 # Build architecture-independent files here.
 binary-indep: build install
