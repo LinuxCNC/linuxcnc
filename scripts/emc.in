@@ -450,6 +450,8 @@ if ! $SUDO $INSMOD $EMC2_RTLIB_DIR/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
     exit -1
 fi
 
+sleep 2
+
 # 4.3.4. export the location of the HAL realtime modules so that
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
