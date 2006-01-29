@@ -72,11 +72,12 @@ int main(int argc, char **argv) {
         inserting = 1;
 
     mod = argv[2];
-    last_slash = strrchr(mod, '/');
-    dot = strrchr(mod, '.');
 
     if(inserting) {
-        if(!last_slash || !dot) error(argc, argv);
+        last_slash = strrchr(mod, '/');
+        dot = strrchr(mod, '.');
+
+        if(!last_slash || !dot || strstr(mod, "..")) error(argc, argv);
 
         /* length of module name, excluding path, excluding dot and extension */
         module_basename_len = dot - last_slash - 1;
