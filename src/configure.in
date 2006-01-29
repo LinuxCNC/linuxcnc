@@ -596,6 +596,23 @@ AC_SUBST(GTK_CFLAGS)
 # Check for all the utility programs we need to build and install emc        #
 # as well as those we use in the emc scripts...                              #
 ##############################################################################
+
+AC_ARG_WITH(sudo,
+    [  --with-sudo=<sudo/gksudo>            sudo variant],
+    [
+	case "$withval" in
+	"" | y | ye | yes)
+	    AC_MSG_ERROR([You must supply an argument to --with-sudo.])
+	  ;;
+	n | no | none)
+	    SUDO=""
+	  ;;
+	*)
+	    SUDO="$withval"
+	esac
+    ])
+
+
 AC_PROG_CXX
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
@@ -603,6 +620,7 @@ AC_PATH_PROG(AR,ar, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(GREP, grep, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(INSTALL, install, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(SED, sed, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(SUDO, sudo,"", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(PS, ps, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(KILL, kill, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(WHOAMI, whoami, "", /bin:/usr/bin:/usr/local/bin)
@@ -613,6 +631,7 @@ AC_PATH_PROG(LSMOD, lsmod, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(PIDOF, pidof, "", /bin:/sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
 
+AC_SUBST(SUDO)
 
 ##############################################################################
 # Section 4 - Check for math support                                         #
