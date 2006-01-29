@@ -7,6 +7,9 @@ if {$argc < 1} {
   exit
 }
 
+. configure -borderwidth 0 -highlightthickness 0
+wm overrideredirect . 1
+
 set img [lindex $argv 0]
 
 set imgtime 5
@@ -29,18 +32,16 @@ if {[catch {image create photo image1 -file $img}]} {
   exit
 }
 
-label .label -image image1
+label .label -image image1 -borderwidth 0 -highlightthickness 0
 pack .label
 
 # Center popup in screen.
 
-after idle {
-    update idletasks
-    set xmax [winfo screenwidth .]
-    set ymax [winfo screenheight .]
-    set x [expr ($xmax - [winfo reqwidth . ] )  / 2 ]
-    set y [expr ($ymax - [winfo reqheight . ] )  / 2]
-    wm geometry . "+$x+$y"
-}
+update idletasks
+set xmax [winfo screenwidth .]
+set ymax [winfo screenheight .]
+set x [expr ($xmax - [image width image1] )  / 2]
+set y [expr ($ymax - [image width image1] )  / 2]
+wm geometry . "+$x+$y"
 
 after $imgtime exit
