@@ -60,6 +60,7 @@ WHOAMI=@WHOAMI@
 AWK=@AWK@
 IPCS=@IPCS@
 KILL=@KILL@
+SUDO=@SUDO@
 
 ################################################################################
 # 1.3. Directories                           values get replaced by configure  #
@@ -130,13 +131,6 @@ HALCMD=$EMC2_BIN_DIR/halcmd
 SETUPCONFIG=$EMC2_TCL_DIR/bin/setupconfig.tcl
 EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
 EMC2_IOSH=$EMC2_BIN_DIR/iosh
-
-# check for root privliges - hope to remove the need for this later
-#if [ `$WHOAMI` != root ] ; then
-#    echo "Sorry, you must be root to run EMC"
-#    echo "try issuing the command with sudo in front of it"
-#    exit -1
-#fi
 
 echo EMC2_DIR=$EMC2_DIR >>$PRINT_FILE
 echo EMC2_BIN_DIR=$EMC2_BIN_DIR >>$PRINT_FILE
@@ -248,7 +242,7 @@ function KillTaskWithTimeout() {
     for KILL_PID in $KILL_PIDS ; do
 	echo "Killing task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
 	# first a "gentle" sudo kill with signal TERM
-	sudo $KILL $KILL_PID
+	$SUDO $KILL $KILL_PID
 	WAIT=$KILL_TIMEOUT
 	# wait and see if it dissappears
 	while [ $WAIT -gt 1 ] ; do
@@ -262,8 +256,8 @@ function KillTaskWithTimeout() {
 	done
 	if [ $WAIT -gt 0 ] ; then
 	    # gentle didn't work, get serious
-	    echo "Timeout, trying sudo kill -9" >>$PRINT_FILE
-	    sudo $KILL -9 $KILL_PID
+	    echo "Timeout, trying $SUDO kill -9" >>$PRINT_FILE
+	    $SUDO $KILL -9 $KILL_PID
 	    WAIT=$KILL_TIMEOUT
 	    # wait and see if it dissappears
 	    while [ $WAIT -gt 1 ] ; do
@@ -341,12 +335,12 @@ function Cleanup() {
 	    # remove them
 	    for HAL_COMP in $HAL_RT_COMPS ; do
 		echo "Removing realtime HAL component $HAL_COMP" >>$PRINT_FILE
-		sudo $RMMOD $HAL_COMP
+		$SUDO $RMMOD $HAL_COMP
 	    done
 	fi
 	# remove rtapi and RTOS modules
 	echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
-	sudo $REALTIME stop
+	$SUDO $REALTIME stop
     fi
 
     # remove lock file
@@ -413,7 +407,7 @@ fi
 # 4.2. Now we can finally start loading EMC
 ################################################################################
 echo "Loading Real Time OS, RTAPI, and HAL_LIB modules" >>$PRINT_FILE
-if ! sudo $REALTIME start ; then
+if ! $SUDO $REALTIME start ; then
     echo "Realtime system did not load"
     Cleanup
     exit -1
@@ -446,7 +440,7 @@ TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | env LANG=C $AWK -- '{printf "%d\n", $1
 # 4.3.3. load the motion module
 echo "$EMC2_RTLIB_DIR/$EMCMOT base_period=$BASE_PERIOD_NSEC servo_period=$SERVO_PERIOD_NSEC traj_period=$TRAJ_PERIOD_NSEC key=$SHMEM_KEY" >>$PRINT_FILE
 
-if ! sudo $INSMOD $EMC2_RTLIB_DIR/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
+if ! $SUDO $INSMOD $EMC2_RTLIB_DIR/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
 		    		    servo_period_nsec=$SERVO_PERIOD_NSEC \
 				    traj_period_nsec=$TRAJ_PERIOD_NSEC \
 				    key=$SHMEM_KEY ; then
@@ -467,7 +461,7 @@ if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
     Cleanup
     exit 1
 fi
-sudo $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
+$SUDO $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 
 sleep 2
 
@@ -484,12 +478,12 @@ while [ -n "$CFGFILE" ] ; do
 	CFGFILE=$INI_DIR/$CFGFILE
     fi
     if $GREP -q loadrt $CFGFILE ; then 
-	SUDO=sudo
+	SUDOV=$SUDO
     else
-	SUDO=
+	SUDOV=
     fi
-    echo "Running $SUDO HAL config file $CFGFILE" >>$PRINT_FILE
-    if ! $SUDO $HALCMD -i $INIFILE -f $CFGFILE ; then
+    echo "Running $SUDOV HAL config file $CFGFILE" >>$PRINT_FILE
+    if ! $SUDOV $HALCMD -i $INIFILE -f $CFGFILE ; then
 	echo "HAL config file $CFGFILE failed."
 	Cleanup
 	exit -1
