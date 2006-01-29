@@ -20,8 +20,16 @@ think of a better way.
 /* module name, between last / and ., must be one of these */
 
 char *module_whitelist[] = {
-    "scope_rt", "blocks", "motmod", "hal_lib", "rtapi", "rtai_math",
-    "rtai_sem", "rtai_shm", "rtai_fifos", "rtai_up", "rtai_hal", "adeos",
+    "rtai_math", "rtai_sem", "rtai_shm", "rtai_fifos", "rtai_up", 
+    "rtai_hal", "adeos",
+
+    "blocks", "classicladder_rt", "debounce", "encoder", "encoder_ratio",
+    "extint", "fifotask", "freqgen", "hal_ax5214h", "hal_evoreg",
+    "hal_lib", "hal_m5i20", "hal_motenc", "hal_parport", "hal_ppmc",
+    "hal_skeleton", "hal_stg", "hal_tiro", "master", "motmod", "pid",
+    "rtapi", "scope_rt", "shmemtask", "siggen", "slave", "stepgen",
+    "supply", "threads", "timedelay", "timertask", 
+
     NULL
 };
 
