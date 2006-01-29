@@ -298,14 +298,16 @@ set viewmenu [menu $menubar.view -tearoff 0]
             -command {showNode {open}} -underline 1
         $viewmenu add command -label [msgcat::mc "Collapse Tree"] \
             -command {showNode {close}} -underline 1
-        $viewmenu add command -label [msgcat::mc "Show Pins"] \
+        $viewmenu add separator
+        $viewmenu add command -label [msgcat::mc "Expand Pins"] \
             -command {showNode {pin}} -underline 1
-        $viewmenu add command -label [msgcat::mc "Show Parameters"] \
+        $viewmenu add command -label [msgcat::mc "Expand Parameters"] \
             -command {showNode {param}} -underline 1
-        $viewmenu add command -label [msgcat::mc "Show Signals"] \
+        $viewmenu add command -label [msgcat::mc "Expand Signals"] \
             -command {showNode {sig}} -underline 1
-        $viewmenu add command -label [msgcat::mc ""] \
-            -command {} -underline 1
+        $viewmenu add separator
+        $viewmenu add command -label [msgcat::mc "Erase Watch"] \
+            -command {watchReset all} -underline 1
 set settingsmenu [menu $menubar.settings -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Settings"] \
             -menu $settingsmenu -underline 0
@@ -362,18 +364,18 @@ scrollbar $stt -orient vert -command "$disp yview"
 pack $stt -side right -fill y
 pack $disp -side right -fill both -expand yes
 
+set seps [frame $ds.sep -bg black -borderwidth 2]
+
 set cfent [frame $ds.command]
 set lab [label $cfent.label -text "Enter HAL command :"]
 set com [entry $cfent.entry -textvariable halcommand]
 bind $com <KeyPress-Return> {exHAL $halcommand ; refreshHAL}
 set ex [button $cfent.execute -text Execute \
     -command {exHAL $halcommand ; refreshHAL} ]
-pack $lab -side left -padx 5
-pack $com -side left -fill x -expand yes
-pack $ex -side left -padx 5
-
-pack $stf $cfent -side top -fill x -expand yes
-
+pack $lab -side left -padx 5 -pady 3
+pack $com -side left -fill x -expand yes -pady 3
+pack $ex -side left -padx 5 -pady 3
+pack $stf $seps $cfent -side top -fill x -expand yes
 
 # Build watch mode right side
 set cisp [canvas $dw.c ]
@@ -411,7 +413,7 @@ set signodes {X Y Z A "Spindle"}
 # Open old nodes if they still exist
 set treenodes ""
 proc refreshHAL {} {
-    global treew treenodes
+    global treew treenodes oldvar
     set tmpnodes ""
     # look through tree for nodes that are displayed
     foreach node $treenodes {
@@ -429,6 +431,7 @@ proc refreshHAL {} {
             $treew opentree $node no
         }
     }
+    if {[info exists oldvar]} {showHAL $oldvar}
 }
 
 # listhal gets pin, param, and sig stuff
@@ -605,7 +608,6 @@ proc writeNode {arg} {
     }
 }
 
-# FIXME close other that $which for pin, param, sig
 proc showNode {which} {
     global treew
     switch -- $which {
@@ -643,20 +645,22 @@ array set controlarray {}
 # all clicks on tree node names go into workMode
 # tree click action depends upon workmode
 # workmode only affects display side {ds dw dm dt}
+# oldvar keeps the last value of which for refresh of display
+set oldvar ""
 proc workMode {which} {
-    global workmode 
+    global workmode oldvar watchflag
     switch -- $workmode {
         showhal {
             swapDisplay ds
             showHAL $which
         }
         watchhal {
+            set watchflag 0  
             swapDisplay dw
             watchHAL $which
         }
         modifyhal {
             swapDisplay display dm
-            modifyHAL $which
         }
         tunehal {
             swapDisplay display dt
@@ -664,9 +668,10 @@ proc workMode {which} {
         }
         default {
             swapDisplay display ds
-            displayThis "Something went way wrong with settings."
+            displayThis "Mode went way wrong."
         }
     }
+    set oldvar $which
 }
 
 # handles swap of the display frames
@@ -699,22 +704,17 @@ proc showHAL {which} {
 }
 
 
-# need control widgets here to remove a variable
-# and to clear the list
 # would be nice to be able to mouseover but...
 # that's way beyond me now
 set watchlist ""
 set watchstring ""
 proc watchHAL {which} {
-    global watchlist watchstring cisp treew
-    
-    # open up the tree to display individual leaves
-#    foreach node {pin param sig} {$treew opentree $node}
-    
-    # if it's a first switch to watchhal mode
+    global watchlist watchstring watching cisp
     if {$which == "zzz"} {
         $cisp create text 40 [expr 1 * 20 + 12] -anchor w -tag firstmessage\
             -text "<-- Select a Leaf.  Click on its name."
+        set watchlist ""
+        set watchstring ""
         return
     } else {
         $cisp delete firstmessage
@@ -746,14 +746,16 @@ proc watchHAL {which} {
     set vartype [lindex $tmplist 0]
     set varname [lindex $tmplist end]
     lappend watchstring "$i $vartype $varname "
-    watchLoop
+    if {$watching == 0} {watchLoop} 
 }
 
 # watchHAL prepares a string of {i HALtype name} sets
 # watchLoop submits these to halcmd and sets canvas
-# color or value based on that reply 
+# color or value based on reply
+set watching 0
 proc watchLoop {} {
-    global cisp watchstring
+    global cisp watchstring watching workmode
+    set watching 1
     set which $watchstring
     foreach var $which {
         scan $var {%i %s %s} cnum vartype varname
@@ -771,14 +773,20 @@ proc watchLoop {} {
             }
         }
     }
-    after 5000 watchLoop
+    if {$workmode == "watchhal"} {
+        after 1000 watchLoop
+    } else {
+        set watching 0
+    }
 }
 
 proc watchReset {del} {
-    global watchlist
+    global watchlist cisp
     if {$del == "all"} {
-        
-    }
+        $cisp delete all
+        watchHAL zzz
+        return
+    } 
     set place [lsearch $watchlist $del]
     if {$place != -1 } {
         set watchlist [lreplace $watchlist $place]
@@ -788,7 +796,6 @@ proc watchReset {del} {
         }
     }
 }
-
 
 proc modifyHAL {which} {
     global controlarray
