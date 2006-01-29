@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
         exec_argv[2] = NULL;
     }
 
-    execv(exec_argv[0], exec_argv);
+    execve(exec_argv[0], exec_argv, NULL);
 
     perror("execv failed");
     return 1;
