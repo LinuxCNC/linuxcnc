@@ -189,6 +189,10 @@ int main(int argc, char **argv)
     char cmd_buf[MAX_CMD_LEN+1];
     char *tokens[MAX_TOK+1];
 
+    /* this program is probably setuid root.  Let's drop root privs until we 
+     * really need them (I think they are needed for insmod, rmmod only.) */
+    seteuid(getuid());
+
     if (argc < 2) {
 	/* no args specified, print help */
 	print_help_general(0);
@@ -674,13 +678,6 @@ static int do_lock_cmd(char *command)
 {
     int retval=0;
 
-    /* are we running as root? */
-    if ( geteuid() != 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: Must be root to lock HAL\n", linenumber);
-	return -2;
-    }
-
     /* if command is blank, want to lock everything */
     if (*command == '\0') {
 	retval = hal_set_lock(HAL_LOCK_ALL);
@@ -705,13 +702,6 @@ static int do_lock_cmd(char *command)
 static int do_unlock_cmd(char *command)
 {
     int retval=0;
-
-    /* are we running as root? */
-    if ( geteuid() != 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: Must be root to unlock HAL\n", linenumber);
-	return -2;
-    }
 
     /* if command is blank, want to lock everything */
     if (*command == '\0') {
@@ -1381,13 +1371,6 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     hal_comp_t *comp;
     pid_t pid;
 
-    /* are we running as root? */
-    if ( geteuid() != 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: Must be root to load realtime modules\n", linenumber);
-	return HAL_PERM;
-    }
-    
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: HAL is locked, loading of modules is not permitted\n", linenumber);
@@ -1504,7 +1487,15 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n++] );
 	}
 	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
-	/* call execv() to invoke insmod */
+        /* reclaim root privs */
+        seteuid(0);
+        /* are we running as root? */
+        if ( geteuid() != 0 ) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL:%d: ERROR: Must be root to load realtime modules\n", linenumber);
+            return HAL_PERM;
+        }
+        /* call execv() to invoke insmod */
 	execv(insmod_path, argv);
 	/* should never get here */
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1700,12 +1691,6 @@ static int unloadrt_comp(char *mod_name)
     char *argv[3];
     pid_t pid;
 
-    /* are we running as root? */
-    if ( geteuid() != 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: Must be root to unload realtime modules\n", linenumber);
-	return -2;
-    }
     /* check for rmmod */
     if ( rmmod_path == NULL ) {
 	/* need to find rmmod */
@@ -1743,6 +1728,15 @@ static int unloadrt_comp(char *mod_name)
 	argv[2] = NULL;
 	/* print debugging info if "very verbose" (-V) */
 	rtapi_print_msg(RTAPI_MSG_DBG, "%s %s\n", argv[0], argv[1] );
+
+        /* reclaim root privs */
+        seteuid(0);
+        /* are we running as root? */
+        if ( geteuid() != 0 ) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL:%d: ERROR: Must be root to unload realtime modules\n", linenumber);
+            return -2;
+        }
 	/* call execv() to invoke rmmod */
 	execv(rmmod_path, argv);
 	/* should never get here */
