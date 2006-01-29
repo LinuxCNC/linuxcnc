@@ -69,4 +69,4 @@ linksp zflt axis.2.amp-fault-in
 # load realtime portion of scope
 loadrt scope_rt
 # start up scope user interface
-loadusr halscope
+# loadusr halscope

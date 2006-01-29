@@ -598,7 +598,7 @@ AC_SUBST(GTK_CFLAGS)
 ##############################################################################
 
 AC_ARG_WITH(sudo,
-    [  --with-sudo=<sudo/gksudo>            sudo variant],
+    [  --with-sudo=<sudo/gksudo>               sudo variant],
     [
 	case "$withval" in
 	"" | y | ye | yes)
@@ -609,6 +609,36 @@ AC_ARG_WITH(sudo,
 	  ;;
 	*)
 	    SUDO="$withval"
+	esac
+    ])
+
+AC_ARG_WITH(rmmod,
+    [  --with-rmmod=</path/rmmod>              rmmod variant],
+    [
+	case "$withval" in
+	"" | y | ye | yes)
+	    AC_MSG_ERROR([You must supply an argument to --with-rmmod.])
+	  ;;
+	n | no | none)
+	    RMMOD=""
+	  ;;
+	*)
+	    RMMOD="$withval"
+	esac
+    ])
+
+AC_ARG_WITH(insmod,
+    [  --with-insmod=</path/insmod>            insmod variant],
+    [
+	case "$withval" in
+	"" | y | ye | yes)
+	    AC_MSG_ERROR([You must supply an argument to --with-insmod.])
+	  ;;
+	n | no | none)
+	    INSMOD=""
+	  ;;
+	*)
+	    INSMOD="$withval"
 	esac
     ])
 

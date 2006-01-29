@@ -50,6 +50,7 @@ all headers indent : def_headers
 	(cd libnml; make headers)
 	(cd emc; make headers)
 	(cd hal; make headers)
+	(cd module_helper; make $@)
 	(cd rtapi; make $@)
 	(cd libnml; make $@)
 	(cd hal; make $@)
@@ -103,6 +104,10 @@ install_bin:
 	-cp -f ../bin/* $(DESTDIR)$(bindir)
 	cp ../scripts/emc $(DESTDIR)$(bindir)
 	chmod +x $(DESTDIR)$(bindir)/emc
+	cp module_helper/emc_module_helper $(DESTDIR)$(bindir)
+	# these will fail unless you're root (or using fakeroot with make deb)
+	chown root $(DESTDIR)$(bindir)/emc_module_helper $(DESTDIR)$(bindir)/io $(DESTDIR)$(bindir)/halcmd
+	chmod 4755 $(DESTDIR)$(bindir)/emc_module_helper $(DESTDIR)$(bindir)/io $(DESTDIR)$(bindir)/halcmd
 	@ echo "bin installed"
 
 install_lib:
@@ -187,6 +192,7 @@ examples :
 # it changes to all the source sub-directories, calls make there, and
 # then returns to the top level directory and cleans that up too.
 clean :
+	(cd module_helper; make $@)
 	(cd rtapi; make $@)
 	(cd hal; make $@)
 	(cd libnml; make $@)

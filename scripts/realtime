@@ -22,6 +22,19 @@ CheckConfig(){
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
 	exit -1
     fi
+    for i in src/module_helper/emc_module_helper \
+             ../src/module_helper/emc_module_helper \
+             /usr/bin/emc_module_helper \
+             /usr/local/bin/emc_module_helper \
+             /sbin/emc_module_helper;  do
+        [ -x $i -a -u $i ] && MODULE_HELPER=$i;
+    done
+    if [ -z $MODULE_HELPER ]; then
+        echo "Cannot find emc_module_helper or it is not installed" \
+             "properly (setuid root.)"
+        exit -1
+    fi
+        
     # Save the system variable MODPATH so that it can be
     # re-exported on exit.
     old_path=$MODPATH
@@ -55,8 +68,13 @@ CheckConfig(){
 		# remove the .o  (or .ko) from the end
 		MOD="${TMP%$MODULE_EXT}"
 	    fi
-	fi
+            MOD=${MODPATH}/${MOD}${MODULE_EXT}
+        else
+            MOD=`find /lib/modules/$(uname -r) -name $MOD$MODULE_EXT`
+        fi
 	MODULES_LOAD="$MODULES_LOAD $MOD"
+        MOD="${MOD##*/}"
+        MOD="${MOD%$MODULE_EXT}"
 	MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
     done
     MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
@@ -93,27 +111,6 @@ CheckStatus(){
     fi
 }
 
-CheckRoot(){
-    # checks to see if the user is root
-    # first try whoami, then id
-    if type whoami >/dev/null 2>/dev/null ; then
-	if [ ! `whoami` = root ] ; then
-	    echo "ERROR:  You must be root to run this command"
-	    DoExit
-	    exit -1
-	fi
-    elif type id >/dev/null 2>/dev/null ; then
-	if [ ! `id -u` = 0 ] ; then
-	    echo "ERROR:  You must be root to run this command"
-	    DoExit
-	    exit -1
-	fi
-    fi
-    # if we get here, either the user is root, or both whoami
-    # and id don't exist on this system... in either case we
-    # should attempt to load/unload modules, so we return
-}
-
 CheckMem(){
 # check for user space processes using shared memory
     if [ -e /dev/mbuff ] ; then
@@ -138,21 +135,14 @@ CheckMem(){
 }
 
 Load(){
-    if [ "$RTAI" = "3" ] ; then
-	if [ "$VERBOSE" = "1" ] ; then
-	    ( cd $RTLIB_DIR ;  $RTAI_LOAD --verbose )
-	else
-	    ( cd $RTLIB_DIR ; $RTAI_LOAD )
-	fi
-    fi
     for MOD in $MODULES_LOAD ; do
 	# check to see if the module is already installed
 	if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
 	    # install the module - use insmod
 	    if [ "$VERBOSE" = "1" ] ; then
-	        /sbin/insmod $MOD
+	        $MODULE_HELPER insert $MOD
 	    else
-	        /sbin/insmod $MOD 1>/dev/null
+	        $MODULE_HELPER insert $MOD 1>/dev/null
 	    fi
         fi
     done
@@ -182,7 +172,7 @@ CheckLoaded(){
 Unload(){
     for module in $MODULES_UNLOAD ; do
         if /sbin/lsmod | awk '{print $1}' | grep -x $module >/dev/null ; then
-	    /sbin/rmmod $module
+	    $MODULE_HELPER remove $module
 	fi
     done
 }
@@ -219,14 +209,12 @@ fi
 case "$CMD" in
   start|load)
 	CheckConfig
-	CheckRoot
 	Load
 	CheckLoaded
 	DoExit
 	;;
   restart|reload)
 	CheckConfig
-	CheckRoot
 	CheckMem
 	Unload
 	CheckUnloaded
@@ -236,7 +224,6 @@ case "$CMD" in
 	;;
   stop|unload)
 	CheckConfig
-	CheckRoot
 	CheckMem
 	Unload
 	CheckUnloaded

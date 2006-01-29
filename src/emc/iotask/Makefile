@@ -26,6 +26,8 @@ $(BIN_DIR)/io: $(TMP_DIR)/ioControl.o \
 	$(LIB_DIR)/hal_lib.o 
 	@ echo "Linking $@"
 	$(CXX) $^ $(CFLAGS) $(ULFLAGS) -o $@
+	sudo chown root $@
+	sudo chmod 4755 $@
 
 $(BIN_DIR)/simio: $(TMP_DIR)/simIoControl.o \
 	$(LIB_DIR)/libemc.a \

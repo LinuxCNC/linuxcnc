@@ -860,7 +860,9 @@ Optional Packages:
   --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not
   --with-module-dir=<module-dir>          Installation directory for kernel modules
   --with-gtk_ver=<GTK-version>            GTK version
-  --with-sudo=<sudo/gksudo>            sudo variant
+  --with-sudo=<sudo/gksudo>               sudo variant
+  --with-rmmod=</path/rmmod>              rmmod variant
+  --with-insmod=</path/insmod>            insmod variant
   --with-make-quiet                       make will run quietly
   --with-locale-dir=DIR   Location of the locale file(s)
                           DATADIR/locale
@@ -3322,6 +3324,46 @@ echo "$as_me: error: You must supply an argument to --with-sudo." >&2;}
 	  ;;
 	*)
 	    SUDO="$withval"
+	esac
+
+fi;
+
+
+# Check whether --with-rmmod or --without-rmmod was given.
+if test "${with_rmmod+set}" = set; then
+  withval="$with_rmmod"
+
+	case "$withval" in
+	"" | y | ye | yes)
+	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-rmmod." >&5
+echo "$as_me: error: You must supply an argument to --with-rmmod." >&2;}
+   { (exit 1); exit 1; }; }
+	  ;;
+	n | no | none)
+	    RMMOD=""
+	  ;;
+	*)
+	    RMMOD="$withval"
+	esac
+
+fi;
+
+
+# Check whether --with-insmod or --without-insmod was given.
+if test "${with_insmod+set}" = set; then
+  withval="$with_insmod"
+
+	case "$withval" in
+	"" | y | ye | yes)
+	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-insmod." >&5
+echo "$as_me: error: You must supply an argument to --with-insmod." >&2;}
+   { (exit 1); exit 1; }; }
+	  ;;
+	n | no | none)
+	    INSMOD=""
+	  ;;
+	*)
+	    INSMOD="$withval"
 	esac
 
 fi;

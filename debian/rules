@@ -50,7 +50,7 @@ binary-arch: build install
 	dh_link
 	dh_strip
 	dh_compress
-	dh_fixperms
+	dh_fixperms -X/emc_module_helper -X/io -X/halcmd
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol

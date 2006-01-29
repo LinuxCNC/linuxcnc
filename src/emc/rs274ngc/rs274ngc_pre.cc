@@ -91,7 +91,7 @@ include an option for suppressing superfluous commands.
 
 extern char * _rs274ngc_errors[];
 
-#define LOG_FILE "emc_log"
+#define LOG_FILE "/dev/null"
 
 void Interp::doLog(char *fmt, ...)
 {

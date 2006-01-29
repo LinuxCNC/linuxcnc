@@ -675,7 +675,7 @@ static int do_lock_cmd(char *command)
     int retval=0;
 
     /* are we running as root? */
-    if ( getuid() != 0 ) {
+    if ( geteuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: Must be root to lock HAL\n", linenumber);
 	return -2;
@@ -707,7 +707,7 @@ static int do_unlock_cmd(char *command)
     int retval=0;
 
     /* are we running as root? */
-    if ( getuid() != 0 ) {
+    if ( geteuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: Must be root to unlock HAL\n", linenumber);
 	return -2;
@@ -1382,7 +1382,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     pid_t pid;
 
     /* are we running as root? */
-    if ( getuid() != 0 ) {
+    if ( geteuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: Must be root to load realtime modules\n", linenumber);
 	return HAL_PERM;
@@ -1701,7 +1701,7 @@ static int unloadrt_comp(char *mod_name)
     pid_t pid;
 
     /* are we running as root? */
-    if ( getuid() != 0 ) {
+    if ( geteuid() != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: Must be root to unload realtime modules\n", linenumber);
 	return -2;
@@ -1908,7 +1908,7 @@ static int do_loadusr_cmd(char *args[])
     }
     if ( root_flag ) {
 	/* are we running as root? */
-	if ( getuid() != 0 ) {
+	if ( geteuid() != 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL:%d: ERROR: Must be root to run %s\n", linenumber, prog_name);
 	    return HAL_PERM;
