@@ -24,27 +24,27 @@ Overview of the emc2 directory:
     |--- bin/ (user mode binaries)
     |
     |--- configs/ 
-    |     |
-    |     |--- demo_mazak/    (sample mazak config files)
-    |     |--- demo_step_cl/  (sample stepper with ladder IO)
-    |     |--- demo_m5i20/    (sample servo using Mesa PCI)
-    |     |--- demo_motenc/   (sample servo using Vital PCI)
-    |     |--- demo_sim/      (simulated motion and IO)
-    |     |--- demo_stepper   (parport stepper driver) 
-    |     |--- demo_stg       (smaple servo using STG ISA)
-    |     |--- demo_univpwm   (smaple PICO servo generator)
-    |     |--- demo_univstep  (smaple PICO stepper generator)
-    |     |
+    |      |
+    |      |--- demo_mazak/    (sample mazak config files)
+    |      |--- demo_step_cl/  (sample stepper with ladder IO)
+    |      |--- m5i20/         (sample servo using Mesa PCI)
+    |      |--- motenc/        (sample servo using Vital PCI)
+    |      |--- sim/           (simulated motion and IO)
+    |      |--- stepper        (parport stepper driver) 
+    |      |--- stg            (sample servo using STG ISA)
+    |      |--- univpwm        (sample PICO servo generator)
+    |      \--- univstep       (sample PICO stepper generator)
+    |
     |--- docs/ (All the important and relevant Docs.)
-    |     |    (API and source notes should be in each src dir.)
-    |     |
-    |     |--- handbooks/  (PDF versions of handbooks)
-    |     |                (LyX source is in the documents tree)
-    |     |
-    |     |--- man/ (man pages)
-    |            |
-    |            |--- man1/  (user man pages)
-    |            |--- man3/  (API man pages)
+    |      |    (API and source notes should be in each src dir.)
+    |      |
+    |      |--- handbooks/  (PDF versions of handbooks)
+    |      |                (LyX source is in the documents tree)
+    |      |
+    |      \--- man/ (man pages)
+    |             |
+    |             |--- man1/  (user man pages)
+    |             \--- man3/  (API man pages)
     |
     |--- include/ (headers installed here - originals in src/xxx/)
     |
@@ -54,7 +54,7 @@ Overview of the emc2 directory:
     |
     |--- rtlib/ (kernel mode object files, only after a successfull compile)
     |
-    |--- scripts/ (bash scripts like emc.run, realtime, load_rtapi, unload_rtapi, etc.)
+    |--- scripts/ (bash scripts like emc, realtime, load_rtapi, unload_rtapi, etc.)
     |
     |--- src/ (source tree - configure script, top level makefile,
     |      |      Makefile.inc, etc)
@@ -63,21 +63,21 @@ Overview of the emc2 directory:
     |      |      |
     |      |      |--- canterp/       (interpreter for canonical commands)
     |      |      |--- ini/           (inifile related operations)
-    |      |      |--- iotask/        (IO interface, lots oh HAL pins(
+    |      |      |--- iotask/        (IO interface, lots of HAL pins)
     |      |      |--- kinematics/    (trajectory planner and kinematics)
     |      |      |--- log/           (emc motion log?)
     |      |      |--- motion/        (motion controller, talks through SHM to the rest of EMC)
     |      |      |--- nml_intf/      (emc specific NML implementation, all messages sent in emc)
     |      |      |--- rs274ngc/      (the rs274 g-code interpreter)
     |      |      |--- task/          (core component in emc, dispatches actions to other parts)
-    |      |      |--- usr_intf/      (interface to GUI and IO through emcsh and iosh)
+    |      |      \--- usr_intf/      (interface to GUI and IO through emcsh and iosh)
     |      |
-    |      |--- hal/ (hal_lib.c, hal.h, etc.)
+    |      |--- hal/ (hal_lib.c, hal.h, etc.) (the Hardware Abstraction Layer, provides a unified interface across all hardware)
     |      |      |
-    |      |      |--- utils/         (halcmd, halscope, halmeter, etc)
-    |      |      |--- drivers/       (parport, stg, PPMC, USC, etc.)
-    |      |      |--- components/    (encoder, stepgen, PID, etc.)
-    |      |      |--- classicladder  (cl component, a software PLC)
+    |      |      |--- utils/         (halcmd, halscope, halmeter, etc) (used as debugging and helper programs)
+    |      |      |--- drivers/       (parport, stg, PPMC, USC, etc.)   (actual hardware drivers)
+    |      |      |--- components/    (encoder, stepgen, PID, etc.)     (software HAL components)
+    |      |      \--- classicladder  (cl component, a software PLC)    (software Programable Logic Controller)
     |      |
     |      |--- libnml/ (a clean implementation of RCSLIB)
     |      |      |
@@ -88,24 +88,34 @@ Overview of the emc2 directory:
     |      |      |--- nml/
     |      |      |--- os_intf/
     |      |      |--- posemath/
-    |      |      |--- rcs/
+    |      |      \--- rcs/
     |      |
     |      |--- po/    (Translation files for i18n support)
     |      |
     |      |--- .tmp/   (temp directory for intermediate objects.)
     |      |
-    |      |--- .rt_tmp/ (temp directory for RT objects.)
+    |      |--- .rt_tmp/   (temp directory for RT objects.)
     |      |       (N.B. These two should not appear in CVS)
     |      |       (and will be deleted during a 'make clean')
-    |      |--- rtapi/ (*.c and *.h for RTAPI)
+    |      |
+    |      \--- rtapi/   (*.c and *.h for RTAPI) (unified RT API, wraps over RTLinux and RTAI)
     |             |
-    |             |--- examples/
-    |             |      |--- timer_example/ (*.c & *.h)
-    |             |      |--- shmem_example/ (*.c & *.h)
-    |             |      |--- etc.
+    |             \--- examples/   (testing examples for the RTAPI)
+    |                    |--- timer_example/ (*.c & *.h)
+    |                    |--- shmem_example/ (*.c & *.h)
+    |                    \--- etc.
     |
     |
-    |--- tcl/  (tkemc, mini and other tcl scripts)
+    \--- tcl/  (tkemc.tcl, mini.tcl - the tcl GUI's)
+           |
+           |--- bin/   (tcl helper executables)
+           |      |
+           |      |--- popimage   (provides a splashscreen for emc)
+           |      |--- halconfig.tcl   (lets user view/edit a HAL configuration easyly)
+           |      |--- setupconfig.tcl (provides help for config related tasks)
+           |      \--- etc.
+           |
+           \--- scripts/   (tcl helper scripts)
 
 Overview of the emc2 install dirs:
 
@@ -114,11 +124,9 @@ Overview of the emc2 install dirs:
    |
    |--- etc/
    |      |
-   |      |--- rc.d/
+   |      \--- init.d/
    |             |
-   |             |--- init.d/
-   |                    |
-   |                    |--- realtime (realtime start/stop script)
+   |             \--- realtime (realtime start/stop script)
    |
    |
    |--- $(prefix)  (default: /usr/local)
@@ -128,41 +136,36 @@ Overview of the emc2 install dirs:
    |      |
    |      |--- sbin/ (known as $sbindir, )
    |      |
-   |      |--- etc/  (known as $sysconfdir, config files from configs/)
-   |      |      |
-   |      |      |--- emc.ini
-   |      |      |--- core-stepper.hal
-   |      |      |--- and more
+   |      |--- etc/  (known as $sysconfdir, config files and subdirs from configs/)
    |      |
    |      |--- lib/  (known as $libdir, lib files *.so from libs/)
    |      |
-   |      |--- share/
+   |      \--- share/
    |             |
-   |             |--- emc/
+   |             \--- emc/
    |                    |
    |                    |
    |                    |--- docs/
    |                    |      |
-   |                    |      |---  (All the important and relevant Docs.)
+   |                    |      \---  (All the important and relevant Docs.)
    |                    |
    |                    |--- handbooks/
    |                    |      |
-   |                    |      |--- (PDF versions of handbooks)
+   |                    |      \--- (PDF versions of handbooks)
    |                    |
-   |                    |--- nc_files/
+   |                    \--- nc_files/
    |                           |
-   |                           |--- (Sample NC files)
+   |                           \--- (Sample NC files)
    |
    |--- $MAN_DIR/  (default: /usr/local/man)
    |      |
    |      |--- man1/
    |      |      |
-   |      |      |
+   |      |      
    |      |
-   |      |--- man3/
+   |      \--- man3/
    |             |
-   |             |
+   |             
    |       
-   |--- $moduledir/  (default: /lib/modules/${KVER}/hal)
-                     (actually based on where ./configure finds
+   \--- $moduledir/  (based on where ./configure finds
                       the RTOS modules)
