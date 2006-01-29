@@ -1,6 +1,8 @@
 # some of EMC2 History & News
 #############################
 
+2006.01.28 - fixed bug #1205237, mode switching sometimes hung
+
 2006.01.08 - M62/M63 digital outputs synchronous to motion
              M64/M65 digital outputs that get set right away
 	     
