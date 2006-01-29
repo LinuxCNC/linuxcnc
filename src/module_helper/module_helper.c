@@ -82,6 +82,8 @@ int main(int argc, char **argv) {
         /* length of module name, excluding path, excluding dot and extension */
         module_basename_len = dot - last_slash - 1;
 
+        if(module_basename_len < 1) error(argc, argv);
+
         for(i=0; module_whitelist[i]; i++)
             if(!strncmp(last_slash+1, module_whitelist[i], module_basename_len))
                 module_ok = 1;
