@@ -60,7 +60,6 @@ int main(int argc, char **argv) {
     char *last_slash, *dot;
     int i;
     int inserting = 0;
-    int module_basename_len;
     int module_ok = 0, path_ok = 0;
     char **exec_argv;
 
@@ -79,13 +78,9 @@ int main(int argc, char **argv) {
 
         if(!last_slash || !dot || strstr(mod, "..")) error(argc, argv);
 
-        /* length of module name, excluding path, excluding dot and extension */
-        module_basename_len = dot - last_slash - 1;
-
-        if(module_basename_len < 1) error(argc, argv);
-
         for(i=0; module_whitelist[i]; i++)
-            if(!strncmp(last_slash+1, module_whitelist[i], module_basename_len))
+            if(!strncmp(last_slash+1, module_whitelist[i], 
+                        strlen(module_whitelist[i])))
                 module_ok = 1;
 
         for(i=0; path_whitelist[i]; i++)
