@@ -194,7 +194,6 @@ proc popup { message } {
 
 # button_entry_change - Utility function for button_depends_on_entry
 proc button_entry_change {b t name1 name2 op} {
-    puts stderr [list button_entry_change $b $t $name1 $name2 op]
     upvar \#0 $t v
     if {$v == ""} {
         $b configure -state disabled
