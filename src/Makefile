@@ -111,7 +111,6 @@ install_bin:
 	-cp -f ../bin/* $(DESTDIR)$(bindir)
 	cp ../scripts/emc $(DESTDIR)$(bindir)
 	chmod +x $(DESTDIR)$(bindir)/emc
-	cp module_helper/emc_module_helper $(DESTDIR)$(bindir)
 	# these will fail unless you're root (or using fakeroot with make deb)
 	chown root $(DESTDIR)$(bindir)/emc_module_helper $(DESTDIR)$(bindir)/halcmd
 	chmod 4755 $(DESTDIR)$(bindir)/emc_module_helper $(DESTDIR)$(bindir)/halcmd
