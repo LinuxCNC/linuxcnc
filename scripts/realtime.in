@@ -22,8 +22,8 @@ CheckConfig(){
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
 	exit -1
     fi
-    INSMOD="/usr/bin/sudo insmod"
-    RMMOD="/usr/bin/sudo rmmod"
+    INSMOD="@INSMOD@"
+    RMMOD="@RMMOD@"
 
     # Save the system variable MODPATH so that it can be
     # re-exported on exit.

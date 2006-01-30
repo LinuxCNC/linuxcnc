@@ -46,6 +46,7 @@ HEADERS = config.h
 
 all headers indent : def_headers
 	chmod +x ../scripts/emc
+	chmod +x ../scripts/realtime
 	(cd rtapi; make headers)
 	(cd libnml; make headers)
 	(cd emc; make headers)
