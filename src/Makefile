@@ -112,7 +112,7 @@ install_bin:
 
 setuid:
 	sudo chown root module_helper/emc_module_helper ../bin/halcmd
-	sudo chmod 4755 module_helper/emc_module_helper ../bin/halcmd
+	sudo chmod 4750 module_helper/emc_module_helper ../bin/halcmd
 
 install_lib:
 	install -d $(DESTDIR)$(libdir)
