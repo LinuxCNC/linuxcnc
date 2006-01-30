@@ -141,6 +141,8 @@ install_tcl:
 	install -d $(DESTDIR)$(tcldir)
 	install -d $(DESTDIR)$(tcldir)/bin
 	install -d $(DESTDIR)$(tcldir)/scripts
+	install -d $(DESTDIR)/usr/X11R6/lib/X11/app-defaults
+	-cp -f ../tcl/TkEmc $(DESTDIR)/usr/X11R6/lib/X11/app-defaults
 	-cp -f ../tcl/* $(DESTDIR)$(tcldir)
 	-cp -f ../tcl/bin/* $(DESTDIR)$(tcldir)/bin/
 	-cp -f ../tcl/scripts/* $(DESTDIR)$(tcldir)/scripts/
