@@ -655,8 +655,8 @@ AC_PATH_PROG(PS, ps, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(KILL, kill, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(WHOAMI, whoami, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(AWK, awk, "", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(INSMOD, insmod, "", /sbin:/usr/sbin:/usr/local/sbin)
-AC_PATH_PROG(RMMOD, rmmod, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(INSMOD, insmod, /usr/bin/sudo insmod, /)
+AC_PATH_PROG(RMMOD, rmmod, /usr/bin/sudo rmmod, /)
 AC_PATH_PROG(LSMOD, lsmod, "", /sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(PIDOF, pidof, "", /bin:/sbin:/usr/sbin:/usr/local/sbin)
 AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
@@ -942,7 +942,7 @@ fi
 # files that get created by ./configure                                      #
 ##############################################################################
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
-AC_CONFIG_FILES([../scripts/emc])
+AC_CONFIG_FILES([../scripts/emc ../scripts/realtime])
 AC_OUTPUT(Makefile.inc)
 
 ##############################################################################

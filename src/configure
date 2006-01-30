@@ -4211,8 +4211,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="/sbin:/usr/sbin:/usr/local/sbin"
-for as_dir in $as_dummy
+for as_dir in /
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -4225,7 +4224,7 @@ do
 done
 done
 
-  test -z "$ac_cv_path_INSMOD" && ac_cv_path_INSMOD=""""
+  test -z "$ac_cv_path_INSMOD" && ac_cv_path_INSMOD="/usr/bin/sudo insmod"
   ;;
 esac
 fi
@@ -4252,8 +4251,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="/sbin:/usr/sbin:/usr/local/sbin"
-for as_dir in $as_dummy
+for as_dir in /
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -4266,7 +4264,7 @@ do
 done
 done
 
-  test -z "$ac_cv_path_RMMOD" && ac_cv_path_RMMOD=""""
+  test -z "$ac_cv_path_RMMOD" && ac_cv_path_RMMOD="/usr/bin/sudo rmmod"
   ;;
 esac
 fi
@@ -6225,7 +6223,7 @@ fi
 # files that get created by ./configure                                      #
 ##############################################################################
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
-          ac_config_files="$ac_config_files ../scripts/emc"
+                    ac_config_files="$ac_config_files ../scripts/emc ../scripts/realtime"
 
           ac_config_files="$ac_config_files Makefile.inc"
 cat >confcache <<\_ACEOF
@@ -6753,6 +6751,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "../scripts/emc" ) CONFIG_FILES="$CONFIG_FILES ../scripts/emc" ;;
+  "../scripts/realtime" ) CONFIG_FILES="$CONFIG_FILES ../scripts/realtime" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
