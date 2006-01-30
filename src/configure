@@ -3328,47 +3328,6 @@ echo "$as_me: error: You must supply an argument to --with-sudo." >&2;}
 
 fi;
 
-
-# Check whether --with-rmmod or --without-rmmod was given.
-if test "${with_rmmod+set}" = set; then
-  withval="$with_rmmod"
-
-	case "$withval" in
-	"" | y | ye | yes)
-	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-rmmod." >&5
-echo "$as_me: error: You must supply an argument to --with-rmmod." >&2;}
-   { (exit 1); exit 1; }; }
-	  ;;
-	n | no | none)
-	    RMMOD=""
-	  ;;
-	*)
-	    RMMOD="$withval"
-	esac
-
-fi;
-
-
-# Check whether --with-insmod or --without-insmod was given.
-if test "${with_insmod+set}" = set; then
-  withval="$with_insmod"
-
-	case "$withval" in
-	"" | y | ye | yes)
-	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-insmod." >&5
-echo "$as_me: error: You must supply an argument to --with-insmod." >&2;}
-   { (exit 1); exit 1; }; }
-	  ;;
-	n | no | none)
-	    INSMOD=""
-	  ;;
-	*)
-	    INSMOD="$withval"
-	esac
-
-fi;
-
-
 ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -4211,7 +4170,8 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in /
+as_dummy="/sbin:/usr/sbin:/bin:/usr/bin"
+for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -4224,7 +4184,7 @@ do
 done
 done
 
-  test -z "$ac_cv_path_INSMOD" && ac_cv_path_INSMOD="/usr/bin/sudo /sbin/insmod"
+  test -z "$ac_cv_path_INSMOD" && ac_cv_path_INSMOD=""""
   ;;
 esac
 fi
@@ -4251,7 +4211,8 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in /
+as_dummy="/sbin:/usr/sbin:/bin:/usr/bin"
+for as_dir in $as_dummy
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -4264,7 +4225,7 @@ do
 done
 done
 
-  test -z "$ac_cv_path_RMMOD" && ac_cv_path_RMMOD="/usr/bin/sudo /sbin/rmmod"
+  test -z "$ac_cv_path_RMMOD" && ac_cv_path_RMMOD=""""
   ;;
 esac
 fi
@@ -4401,6 +4362,54 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
+
+
+# Check whether --with-rmmod or --without-rmmod was given.
+if test "${with_rmmod+set}" = set; then
+  withval="$with_rmmod"
+
+	case "$withval" in
+	"" | y | ye | yes)
+	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-rmmod." >&5
+echo "$as_me: error: You must supply an argument to --with-rmmod." >&2;}
+   { (exit 1); exit 1; }; }
+	  ;;
+	n | no | none)
+	    RMMOD=""
+	  ;;
+	*)
+	    RMMOD="$withval"
+	esac
+
+else
+
+        RMMOD="$SUDO $RMMOD"
+
+fi;
+
+
+# Check whether --with-insmod or --without-insmod was given.
+if test "${with_insmod+set}" = set; then
+  withval="$with_insmod"
+
+	case "$withval" in
+	"" | y | ye | yes)
+	    { { echo "$as_me:$LINENO: error: You must supply an argument to --with-insmod." >&5
+echo "$as_me: error: You must supply an argument to --with-insmod." >&2;}
+   { (exit 1); exit 1; }; }
+	  ;;
+	n | no | none)
+	    INSMOD=""
+	  ;;
+	*)
+	    INSMOD="$withval"
+	esac
+
+else
+
+        INSMOD="$SUDO $INSMOD"
+
+fi;
 
 
 

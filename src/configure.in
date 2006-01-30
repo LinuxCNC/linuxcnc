@@ -612,6 +612,24 @@ AC_ARG_WITH(sudo,
 	esac
     ])
 
+AC_PROG_CXX
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+AC_PATH_PROG(AR,ar, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(GREP, grep, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(INSTALL, install, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(SED, sed, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(SUDO, sudo,"", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(PS, ps, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(KILL, kill, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(WHOAMI, whoami, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(AWK, awk, "", /bin:/usr/bin:/usr/local/bin)
+AC_PATH_PROG(INSMOD, insmod, "", /sbin:/usr/sbin:/bin:/usr/bin)
+AC_PATH_PROG(RMMOD, rmmod, "", /sbin:/usr/sbin:/bin:/usr/bin)
+AC_PATH_PROG(LSMOD, lsmod, "", /sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(PIDOF, pidof, "", /bin:/sbin:/usr/sbin:/usr/local/sbin)
+AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
+
 AC_ARG_WITH(rmmod,
     [  --with-rmmod=</path/rmmod>              rmmod variant],
     [
@@ -625,6 +643,9 @@ AC_ARG_WITH(rmmod,
 	*)
 	    RMMOD="$withval"
 	esac
+    ],
+    [
+        RMMOD="$SUDO $RMMOD"
     ])
 
 AC_ARG_WITH(insmod,
@@ -640,26 +661,10 @@ AC_ARG_WITH(insmod,
 	*)
 	    INSMOD="$withval"
 	esac
+    ],
+    [
+        INSMOD="$SUDO $INSMOD"
     ])
-
-
-AC_PROG_CXX
-AC_PROG_MAKE_SET
-AC_PROG_RANLIB
-AC_PATH_PROG(AR,ar, "", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(GREP, grep, "", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(INSTALL, install, "", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(SED, sed, "", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(SUDO, sudo,"", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(PS, ps, "", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(KILL, kill, "", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(WHOAMI, whoami, "", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(AWK, awk, "", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(INSMOD, insmod, /usr/bin/sudo /sbin/insmod, /)
-AC_PATH_PROG(RMMOD, rmmod, /usr/bin/sudo /sbin/rmmod, /)
-AC_PATH_PROG(LSMOD, lsmod, "", /sbin:/usr/sbin:/usr/local/sbin)
-AC_PATH_PROG(PIDOF, pidof, "", /bin:/sbin:/usr/sbin:/usr/local/sbin)
-AC_PATH_PROG(IPCS, ipcs, "", /bin:/usr/bin:/usr/local/bin)
 
 AC_SUBST(SUDO)
 
