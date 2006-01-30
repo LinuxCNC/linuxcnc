@@ -134,7 +134,7 @@ proc get_config_list {} {
     set config_list [ list ]
     set details_list [ list ]
     # look at all subdirs
-    foreach dir_name [ glob */ ] {
+    foreach dir_name [ lsort [ glob */ ] ] {
 	cd $dir_name
 	# is there an ini file (or more than one) inside?
 	set inifnames [concat [ glob -nocomplain *.ini ]]
