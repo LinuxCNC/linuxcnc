@@ -907,6 +907,11 @@ proc new_get_description {} {
     #  text box
     set tb [ text $f3.tb -width 60 -height 10 -wrap word -padx 6 -pady 6 \
              -relief sunken -state normal -bg white -highlightt 0 ]
+    bind $tb <Control-Return> {# Nothing}
+    set binding [bind Text <Return>]
+    if {$binding == ""} { set binding [bind Text <Key>] }
+    bind $tb <Return> $binding
+    bind $tb <Return> +break
     $tb insert end $new_config_readme
     # pack the text box into its subframe
     pack $tb -side left -fill y -expand y
