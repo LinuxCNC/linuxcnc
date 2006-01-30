@@ -22,19 +22,9 @@ CheckConfig(){
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
 	exit -1
     fi
-    for i in src/module_helper/emc_module_helper \
-             ../src/module_helper/emc_module_helper \
-             /usr/bin/emc_module_helper \
-             /usr/local/bin/emc_module_helper \
-             /sbin/emc_module_helper;  do
-        [ -x $i -a -u $i ] && MODULE_HELPER=$i;
-    done
-    if [ -z $MODULE_HELPER ]; then
-        echo "Cannot find emc_module_helper or it is not installed" \
-             "properly (setuid root.)"
-        exit -1
-    fi
-        
+    INSMOD="/usr/bin/sudo insmod"
+    RMMOD="/usr/bin/sudo rmmod"
+
     # Save the system variable MODPATH so that it can be
     # re-exported on exit.
     old_path=$MODPATH
@@ -140,9 +130,9 @@ Load(){
 	if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
 	    # install the module - use insmod
 	    if [ "$VERBOSE" = "1" ] ; then
-	        $MODULE_HELPER insert $MOD
+	        $INSMOD $MOD
 	    else
-	        $MODULE_HELPER insert $MOD 1>/dev/null
+	        $INSMOD $MOD 1>/dev/null
 	    fi
         fi
     done
@@ -172,7 +162,7 @@ CheckLoaded(){
 Unload(){
     for module in $MODULES_UNLOAD ; do
         if /sbin/lsmod | awk '{print $1}' | grep -x $module >/dev/null ; then
-	    $MODULE_HELPER remove $module
+	    $RMMOD $module
 	fi
     done
 }
