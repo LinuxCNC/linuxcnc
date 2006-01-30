@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
         ext = check_whitelist(last_slash + 1, module_whitelist);
         if(!ext) error(argc, argv);
 
-        char *end = check_whitelist(ext, ext_whitelist);
+        end = check_whitelist(ext, ext_whitelist);
         if(!end || *end) error(argc, argv);
 
         if(!check_whitelist(mod, path_whitelist)) error(argc, argv);

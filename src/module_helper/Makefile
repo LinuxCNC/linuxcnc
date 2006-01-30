@@ -1,8 +1,8 @@
-PROMPT="Please enter your password: "
+include ../Makefile.inc
 
-all: emc_module_helper
+all: $(BIN_DIR)/emc_module_helper
 	
-emc_module_helper: module_helper.c
+$(BIN_DIR)/emc_module_helper: module_helper.c
 	$(CC) -Wall -o $@ $<
 
 clean:
