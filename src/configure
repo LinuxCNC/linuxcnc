@@ -4224,7 +4224,7 @@ do
 done
 done
 
-  test -z "$ac_cv_path_INSMOD" && ac_cv_path_INSMOD="/usr/bin/sudo insmod"
+  test -z "$ac_cv_path_INSMOD" && ac_cv_path_INSMOD="/usr/bin/sudo /sbin/insmod"
   ;;
 esac
 fi
@@ -4264,7 +4264,7 @@ do
 done
 done
 
-  test -z "$ac_cv_path_RMMOD" && ac_cv_path_RMMOD="/usr/bin/sudo rmmod"
+  test -z "$ac_cv_path_RMMOD" && ac_cv_path_RMMOD="/usr/bin/sudo /sbin/rmmod"
   ;;
 esac
 fi
