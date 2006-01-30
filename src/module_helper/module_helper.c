@@ -98,7 +98,7 @@ char *check_whitelist(char *target, char *table[]) {
 int main(int argc, char **argv) {
     char *mod;
     char *last_slash;
-    char *ext;
+    char *ext, *end;
     int i;
     int inserting = 0;
     char **exec_argv;
@@ -123,7 +123,8 @@ int main(int argc, char **argv) {
         ext = check_whitelist(last_slash + 1, module_whitelist);
         if(!ext) error(argc, argv);
 
-        if(!check_whitelist(ext, ext_whitelist)) error(argc, argv);
+        char *end = check_whitelist(ext, ext_whitelist);
+        if(!end || *end) error(argc, argv);
 
         if(!check_whitelist(mod, path_whitelist)) error(argc, argv);
 
@@ -135,7 +136,7 @@ int main(int argc, char **argv) {
         }
         exec_argv[argc-1] = NULL;
     } else {
-        char *end = check_whitelist(mod, module_whitelist);
+        end = check_whitelist(mod, module_whitelist);
 
         /* Check that end is not NULL (whitelist succeeded) and that it is the end of the string */
         if(!end || *end) error(argc, argv);
