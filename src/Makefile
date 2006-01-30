@@ -56,6 +56,12 @@ all headers indent : def_headers
 	(cd libnml; make $@)
 	(cd hal; make $@)
 	(cd emc; make $@)
+	@echo 
+	@echo '########################################################'
+	@echo '# If you intend to run-in-place (without make install) #'
+	@echo "# don't forget to run: sudo make setuid                #"
+	@echo '########################################################'
+	@echo
 
 # Generic rules
 include Make.rules
