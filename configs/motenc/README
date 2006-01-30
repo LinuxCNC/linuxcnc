@@ -12,11 +12,11 @@ adjust the jumper.
 
 Multiple cards are supported by reading the board id jumper
 settings and using them as the <boardId> in the exported
-HAL names. There are two jumers on J3 of the motenc-100
+HAL names. There are two jumpers on J3 of the motenc-100
 board that are defined as the board id. Installing a jumper
-causes the correspoding bit to read as zero. Since there are
+causes the corresponding bit to read as zero. Since there are
 two board id jumpers, up to four cards are supported. Using
-the board id allows the configuration to be independant of
+the board id allows the configuration to be independent of
 which PCI slot the card is plugged into.
 
 Detailed description:
@@ -42,7 +42,7 @@ planned / implemented properly (that means use an external ESTOP chain, and let
 EMC know about it, and let EMC interrupt the external chain too).
 Read more about this in the wiki at http://wiki.linuxcnc.org/
 
-* aditional files
+* additional files
 
 -- motenc.tbl - this is the tool table file, and it holds definitions for the
 tools used, along with tool sizes for compensation (tool length & tool diameter)

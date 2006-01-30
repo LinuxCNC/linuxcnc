@@ -1,7 +1,7 @@
 Demo_mazak is a complex set of HAL drivers.  These include
 the Motenc-Lite motion card, a PMDX parport card, and a
 general purpose ISA slot IO card.  This setup is used
-for the Maxak V5 at Cardinal Engineering and is included
+for the Mazak V5 at Cardinal Engineering and is included
 here as an example of a way to spread HAL abilities across
 a number of devices.
 
