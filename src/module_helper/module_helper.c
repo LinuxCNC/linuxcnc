@@ -89,8 +89,8 @@ char *check_whitelist(char *target, char *table[]) {
     int i;
     if(!target) return 0;
     for(i=0; table[i]; i++) {
-        int l = strlen(table[i]);
-        if(!strncmp(target, table[i], l)) return target + l;
+        int sz = strlen(table[i]);
+        if(!strncmp(target, table[i], sz)) return target + sz;
     }
     return 0;
 }
