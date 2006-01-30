@@ -114,8 +114,6 @@ endif
 $(BIN_DIR)/halcmd : $(TMP_DIR)/halcmd.o $(LIB_DIR)/ulapi.o $(LIB_DIR)/hal_lib.o
 	@ echo "Linking $@"
 	$(CXX) $^ -L$(LIB_DIR) -lnml -Wl,-rpath,$(LIB_DIR) -o $@
-	sudo chown root $@
-	sudo chmod 4755 $@
 
 # rule to link halmeter
 
