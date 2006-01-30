@@ -28,11 +28,13 @@ SUCCEED ./emc_module_helper remove rtapi
 
 # These should fail
 FAIL ./emc_module_helper insert /lib/modules/../../rtapi.ko
-FAIL ./emc_module_helper insert /lib/modules/../../rtapicheese.ko
-FAIL ./emc_module_helper insert /lib/modules/../../r.ko
-FAIL ./emc_module_helper insert /lib/modules/../../rtapi.cheese.ko
-FAIL ./emc_module_helper insert /lib/modules/../../.cheese.ko
-FAIL ./emc_module_helper insert /lib/modules/../../.ko
+FAIL ./emc_module_helper insert /lib/modules/rtapi.ok
+FAIL ./emc_module_helper insert /lib/modules/rtapi.oo
+FAIL ./emc_module_helper insert /lib/modules/rtapicheese.ko
+FAIL ./emc_module_helper insert /lib/modules/r.ko
+FAIL ./emc_module_helper insert /lib/modules/rtapi.cheese.ko
+FAIL ./emc_module_helper insert /lib/modules/.cheese.ko
+FAIL ./emc_module_helper insert /lib/modules/.ko
 
 FAIL ./emc_module_helper remove rtapicheese
 FAIL ./emc_module_helper remove r
