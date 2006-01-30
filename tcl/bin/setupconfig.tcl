@@ -69,8 +69,14 @@ set wizard_image_search "/etc/emc2/emc2-wizard.gif /usr/local/etc/emc2/emc2-wiza
 foreach wizard_image $wizard_image_search {
     if { [file exists $wizard_image] } {
         set logo [image create photo -file $wizard_image]
+        break
     }
 }
+
+option add *font {Helvetica -12}
+option add *Text*background white
+option add *Entry*background white
+option add *Listbox*background white
 
 ################### PROCEDURE DEFINITIONS #####################
 
@@ -307,8 +313,8 @@ proc detail_picker { parent_wgt item_text item_list detail_text detail_list } {
     set f1 [ frame $parent_wgt.f1 ]
     
     # label for the item list
-    set l1 [ label $f1.l1 -text $item_text ]
-    pack $l1 -pady 6
+    set l1 [ label $f1.l1 -text $item_text -justify left]
+    pack $l1 -pady 6 -anchor w
 
     # subframe for the list and its scrollbar
     set f2 [ frame $f1.f2]
@@ -352,15 +358,16 @@ proc detail_picker { parent_wgt item_text item_list detail_text detail_list } {
     pack $l2 -anchor w -padx 3
 	
     # subframe for the detail box and its scrollbar
-    set f3 [ frame $f1.f3 -highlightt 1 ]
+    set f3 [ frame $f1.f3 -highlightt 1 -borderwidth 2 -relief sunken]
     # a text box to display the details
     set tb [ text $f3.tb -width 60 -height 10 -wrap word -padx 6 -pady 6 \
-             -relief sunken -takefocus 0 -state disabled ]
+             -takefocus 0 -highlightt 0 -state disabled \
+             -relief flat -borderwidth 0 ]
     set d_p_detail_widget $tb
     # pack the text box into its subframe
     pack $tb -side left -fill y -expand y
     # need a scrollbar
-    set dscr [ scrollbar $f3.scr -command "$tb yview" -takefocus 1 -highlightt 0]
+    set dscr [ scrollbar $f3.scr -command "$tb yview" -takefocus 1 -highlightt 0 -bd 0 -elementborderwidth 2 ]
     # link the text box to the scrollbar
     $tb configure -yscrollcommand "$dscr set"
     # pack the scrollbar into the subframe
@@ -418,11 +425,11 @@ proc main_page {} {
     # need globals to communicate with wizard page buttons
     global choice top wizard_state
 
-    set msg [msgcat::mc "Welcome to EMC2!\n\nTo run EMC2 with an existing configuration, click the 'Run' button.\nTo create a new configuration, edit, backup, or restore a configuration,\nor do other configuration related tasks, click the 'Config' button."]
+    set msg [msgcat::mc "Welcome to EMC2!\n\nTo run EMC2 with an existing configuration, click the 'Run' button.\nTo create a new configuration, edit, backup, or restore a configuration,\nor do other configuration related tasks, click the 'Configure' button."]
 
-    set f1 [ wizard_page { "Config" "Quit" "Run" } "Run" "Quit" ]
-    set l1 [ label $f1.l1 -text $msg ]
-    pack $l1 -padx 10 -pady 10
+    set f1 [ wizard_page { "Run" "Configure" "Quit" } "Run" "Quit" ]
+    set l1 [ label $f1.l1 -text $msg -justify left]
+    pack $l1 -padx 10 -pady 10 -anchor w
     pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
@@ -435,7 +442,7 @@ proc main_page {} {
 	    set wizard_state "quit"
 	    return
 	}
-	"Config" {
+	"Configure" {
 	    set wizard_state "config_manager"
 	    return
 	}
@@ -478,11 +485,11 @@ proc choose_run_config {} {
     get_config_list
 
     # messages
-    set t1 [msgcat::mc "Please select an EMC2 configuration from the list below and click 'Run'."]
+    set t1 [msgcat::mc "Please select an EMC2 configuration from the list below and click 'Run'.\nTo create a new configuration, backup, restore, or erase configurations, click 'Configure'."]
     set t2 [msgcat::mc "Details about the selected configuration:"]
     
     #set up a wizard page with two buttons
-    set f1 [ wizard_page { "Cancel" "Run" } Run Cancel ]
+    set f1 [ wizard_page { "Run" "Configure" "Quit" } Run Quit ]
     # add a detail picker to it with the configs
     set lb [detail_picker $f1 $t1 $config_list $t2 $details_list]
     button_depends_on_listbox "Run" $lb
@@ -504,9 +511,12 @@ proc choose_run_config {} {
     destroy $f1
 
     switch $choice {
-	"Cancel" {
-	    set wizard_state "main_page"
+        "Configure" {
+	    set wizard_state "config_manager"
 	    return
+        }
+	"Quit" {
+            exit
 	}
 	"Run" {
 	    if { $value == "" } {
@@ -565,8 +575,8 @@ proc choose_run_ini {} {
     }
     # set up a list box so the user can pick one
     set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel" ]
-    set l1 [ label $f1.l1 -text [msgcat::mc "The config contains multiple ini files.\nPick one from the list below and click 'Next'."] ]
-    pack $l1 -padx 10 -pady 10
+    set l1 [ label $f1.l1 -text [msgcat::mc "The config contains multiple ini files.\nPick one from the list below and click 'Next'."] -justify left]
+    pack $l1 -padx 10 -pady 10 -anchor w
     # listbox for the ini files
     set lb [ listbox $f1.lb ]
     # pack the listbox into the wizard page
@@ -647,8 +657,8 @@ proc config_manager {} {
     set t3 [msgcat::mc "Details about the selected configuration:"]
 
     set f1 [ wizard_page { "Edit" "Backup" "Restore" "Delete" "New" "Cancel" } "Edit" "Cancel" ]
-    set l1 [ label $f1.l1 -text $t1 ]
-    pack $l1 -padx 10 -pady 2
+    set l1 [ label $f1.l1 -text $t1 -justify left]
+    pack $l1 -padx 10 -pady 2 -anchor w
     # add a detail picker to it with the configs
     set lb [detail_picker $f1 $t2 $config_list $t3 $details_list]
     button_depends_on_listbox Edit $lb
@@ -730,8 +740,8 @@ proc new_intro {} {
     global new_config_name new_config_template new_config_readme
 
     set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
-    set l1 [ label $f1.l1 -text [msgcat::mc "You have chosen to create a new EMC2 configuration.\n\nThe next few screens will walk you through the process."] ]
-    pack $l1 -padx 10 -pady 10
+    set l1 [ label $f1.l1 -text [msgcat::mc "You have chosen to create a new EMC2 configuration.\n\nThe next few screens will walk you through the process."] -justify left]
+    pack $l1 -padx 10 -pady 10 -anchor w
     pack $f1 -anchor nw -fill both -expand 1
 
     # get ready for a fresh start
@@ -767,17 +777,17 @@ proc new_get_name {} {
     global choice top wizard_state new_config_name new_name
 
     set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
-    set l1 [ label $f1.l1 -text [msgcat::mc "Please select a name for your new configuration."] ]
-    set l2 [ label $f1.l2 -text [msgcat::mc "(This will become a directory name, so please use only letters,\ndigits, period, dash, or underscore.)"] ]
+    set l1 [ label $f1.l1 -text [msgcat::mc "Please select a name for your new configuration."] -justify left]
+    set l2 [ label $f1.l2 -text [msgcat::mc "(This will become a directory name, so please use only letters,\ndigits, period, dash, or underscore.)"] -justify left]
     set e1 [ entry $f1.e1 -width 30 -relief sunken -bg white -takefocus 1 -textvariable new_name]
 
     bind $e1 <Key> { if {![good_filename_character %A]} break }
     
     if {![info exists new_config_name]} {set new_config_name ""}
     set new_name $new_config_name
-    pack $l1 -padx 10 -pady 10
+    pack $l1 -padx 10 -pady 10 -anchor w
     pack $e1 -padx 10 -pady 1
-    pack $l2 -padx 10 -pady 10
+    pack $l2 -padx 10 -pady 10 -anchor w
     pack $f1 -anchor nw -fill both -expand 1
 
     button_depends_on_variable "Next >" new_name $f1.e1
@@ -834,8 +844,8 @@ proc new_get_template {} {
     #set up a wizard page with three buttons
     set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
     # add a header line
-    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Creating new EMC2 configuration '%s'" ] $new_config_name ] ]
-    pack $l1 -pady 10
+    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Creating new EMC2 configuration '%s'" ] $new_config_name ] -justify left]
+    pack $l1 -pady 10 -anchor w
     # add a detail picker to it with the configs
     set lb [detail_picker $f1 $t1 $config_list $t2 $details_list]
     button_depends_on_listbox "Next >" $lb
@@ -897,10 +907,10 @@ proc new_get_description {} {
 
     set f1 [ wizard_page { "< Back" "Cancel" "Next >" } "Next >" "Cancel"]
     # add a header line
-    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Creating new EMC2 configuration '%s'\nbased on template '%s'" ] $new_config_name $new_config_template ] ]
-    pack $l1 -pady 10
-    set l2 [ label $f1.l2 -text [msgcat::mc "Please enter a description of your configuration.\n\nThe box below has been preloaded with the description of the template, but\nit is strongly recommended that you revise it.  At a minimum,\nput your name and some specifics about your machine here."] ]
-    set l3 [ label $f1.l3 -text [msgcat::mc "(If you ever need help, someone may ask you to send them your\nconfiguration, and this information could be very usefull.)"] ]
+    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Creating new EMC2 configuration '%s'\nbased on template '%s'" ] $new_config_name $new_config_template ] -justify left]
+    pack $l1 -pady 10 -anchor w
+    set l2 [ label $f1.l2 -text [msgcat::mc "Please enter a description of your configuration.\n\nThe box below has been preloaded with the description of the template, but\nit is strongly recommended that you revise it.  At a minimum,\nput your name and some specifics about your machine here."] -justify left ]
+    set l3 [ label $f1.l3 -text [msgcat::mc "(If you ever need help, someone may ask you to send them your\nconfiguration, and this information could be very usefull.)"] -justify left ]
 
     # subframe for the text entry box and its scrollbar
     set f3 [ frame $f1.f3 -highlightt 1 ]
@@ -923,10 +933,10 @@ proc new_get_description {} {
     pack $scr -fill y -side right
   
     # pack things into the main frame    
-    pack $l1 -padx 10 -pady 10
-    pack $l2 -padx 10 -pady 10
+    pack $l1 -padx 10 -pady 10 -anchor w
+    pack $l2 -padx 10 -pady 10 -anchor w
     pack $f3 -padx 10 -pady 1
-    pack $l3 -padx 10 -pady 10
+    pack $l3 -padx 10 -pady 10 -anchor w
     pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
@@ -963,9 +973,9 @@ proc new_verify {} {
 
     set f1 [ wizard_page { "< Back" "Cancel" "Finish" } "Finish" "Cancel"]
     # add a header line
-    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "You are about to create a new EMC2 configuration.\n\nPlease verify that this is what you want:\n\nName: '%s'\nTemplate: '%s'\nDescription:" ] $new_config_name $new_config_template ] ]
+    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "You are about to create a new EMC2 configuration.\n\nPlease verify that this is what you want:\n\nName: '%s'\nTemplate: '%s'\nDescription:" ] $new_config_name $new_config_template ] -justify left ]
     pack $l1 -pady 10
-    set l2 [ label $f1.l2 -text [msgcat::mc "If this information is correct, click 'Finish' to create\nthe configuration directory and begin copying files."] ]
+    set l2 [ label $f1.l2 -text [msgcat::mc "If this information is correct, click 'Finish' to create\nthe configuration directory and begin copying files."] -justify left ]
 
     # subframe for the text box and its scrollbar
     set f3 [ frame $f1.f3 -highlightt 1 ]
@@ -984,9 +994,9 @@ proc new_verify {} {
     pack $scr -fill y -side right
   
     # pack things into the main frame    
-    pack $l1 -padx 10 -pady 10
+    pack $l1 -padx 10 -pady 10 -anchor w
     pack $f3 -padx 10 -pady 1
-    pack $l2 -padx 10 -pady 10
+    pack $l2 -padx 10 -pady 10 -anchor w
     pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
@@ -1290,8 +1300,8 @@ proc delete_verify {} {
 
     set f1 [ wizard_page { "Cancel" "Finish" } "" "Cancel"]
     # add a header line
-    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "WARNING!\n\nYou are about to delete the existing EMC2 configuration called:\n\n'%s'\n\nThis means that the directory\n'%s'\nand all files and subdirectories in it will be deleted." ] $selected_config_name [ file join [ pwd ] $selected_config_name ] ] ]
-    pack $l1 -pady 10
+    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "WARNING!\n\nYou are about to delete the existing EMC2 configuration called:\n\n'%s'\n\nThis means that the directory\n'%s'\nand all files and subdirectories in it will be deleted." ] $selected_config_name [ file join [ pwd ] $selected_config_name ] ] -justify left ]
+    pack $l1 -pady 10 -anchor w
     pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
@@ -1322,7 +1332,7 @@ proc delete_do_it {} {
     # set up labels
     set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Deleting config '%s'..." ] $selected_config_name ] -width 70 -justify left ]
     set lerr [ label $f1.lerr -text " " -width 70 -justify center ]
-    pack $l1 -padx 10 -pady 1
+    pack $l1 -padx 10 -pady 1 -anchor w
     pack $lerr -padx 10 -pady 10
     pack $f1 -anchor nw -fill both -expand 1
     # update display
@@ -1384,6 +1394,19 @@ proc delete_config_error {} {
     return
 }
 
+proc browse_save {e1} {
+    set p [$e1 get]
+    set f [tk_getSaveFile \
+        -initialdir [file dirname $p] \
+        -initialfile  [file tail $p] \
+        -parent . \
+        -title "Save backup as" \
+        -filetypes {
+            {{Compressed TAR file} {.tar.gz}}
+    }]
+    if {$f != ""} { $e1 delete 0 end; $e1 insert end $f }
+}
+
 proc backup_verify {} {
     # need globals to communicate with wizard page buttons
     global choice top wizard_state 
@@ -1397,14 +1420,18 @@ proc backup_verify {} {
     set backup_path [ file join [ pwd ] backup $backup_file.tar.gz ]
     
     # introductory message    
-    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "You are about to create a backup of the '%s'configuration.\nThe backup will be stored in the file shown below (change the name if you want it elsewhere)." ] $selected_config_name ] ]
-    pack $l1 -pady 10
+    set l1 [ label $f1.l1 -text [ format [ msgcat::mc "You are about to create a backup of the '%s'configuration.\nThe backup will be stored in the file shown below (change the name if you want it elsewhere)." ] $selected_config_name ] -justify left]
+    pack $l1 -pady 10 -anchor w
     
+    frame $f1.filename
     # entry with the filename
-    set e1 [ entry $f1.e1 -width 0 ]
+    set e1 [ entry $f1.filename.e1 -width 0 ]
     $e1 insert 0 $backup_path
-    pack $e1 -pady 10
-    
+    pack $e1 -side left -fill x -expand 1
+    button $f1.filename.browse -command [list browse_save $e1] \
+        -text Browse... -pady 0
+    pack $f1.filename.browse -side left -fill y
+    pack $f1.filename -fill x -expand 0
     pack $f1 -anchor nw -fill both -expand 1
 
     wizard_event_loop $f1
@@ -1437,7 +1464,7 @@ proc backup_do_it {} {
     # set up labels
     set l1 [ label $f1.l1 -text [ format [ msgcat::mc "Backing up config '%s'..." ] $selected_config_name ] -width 70 -justify left ]
     set lerr [ label $f1.lerr -text " " -width 70 -justify center ]
-    pack $l1 -padx 10 -pady 1
+    pack $l1 -padx 10 -pady 1 -anchor w
     pack $lerr -padx 10 -pady 10
     pack $f1 -anchor nw -fill both -expand 1
     # update display
