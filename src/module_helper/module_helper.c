@@ -43,7 +43,10 @@ char *path_whitelist[] = {
 void error(int argc, char **argv) {
     int i;
     char *prog = argv[0];
-    
+
+    /* drop root privs permanently */
+    setuid(getuid());
+
     fprintf(stderr, "%s: Invalid usage with args:", argv[0]);
     for(i=1; i<argc; i++) {
         fprintf(stderr, " %s", argv[i]);
@@ -65,11 +68,14 @@ void error(int argc, char **argv) {
 
 int main(int argc, char **argv) {
     char *mod;
-    char *last_slash, *dot;
+    char *last_slash;
     int i;
     int inserting = 0;
     int module_ok = 0, path_ok = 0;
     char **exec_argv;
+
+    /* drop root privs temporarily */
+    seteuid(getuid());
 
     if(argc < 3) error(argc, argv);
     if(strcmp(argv[1], "insert") && strcmp(argv[1], "remove")) error(argc, argv);
@@ -82,9 +88,8 @@ int main(int argc, char **argv) {
 
     if(inserting) {
         last_slash = strrchr(mod, '/');
-        dot = strrchr(mod, '.');
 
-        if(!last_slash || !dot || strstr(mod, "..")) error(argc, argv);
+        if(!last_slash || strstr(mod, "..")) error(argc, argv);
 
         for(i=0; module_whitelist[i]; i++)
             if(!strncmp(last_slash+1, module_whitelist[i], 
@@ -115,6 +120,8 @@ int main(int argc, char **argv) {
         exec_argv[2] = NULL;
     }
 
+    /* reinstate root privs */
+    seteuid(0);
     execve(exec_argv[0], exec_argv, NULL);
 
     perror("execv failed");
