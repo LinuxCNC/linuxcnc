@@ -110,6 +110,10 @@ install_bin:
 	chmod 4755 $(DESTDIR)$(bindir)/emc_module_helper $(DESTDIR)$(bindir)/halcmd
 	@ echo "bin installed"
 
+setuid:
+	sudo chown root module_helper/emc_module_helper ../bin/halcmd
+	sudo chmod 4755 module_helper/emc_module_helper ../bin/halcmd
+
 install_lib:
 	install -d $(DESTDIR)$(libdir)
 	(if (test -f ../lib/*.so) ; then cp ../lib/*.so $(DESTDIR)$(libdir); fi)
