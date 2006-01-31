@@ -58,7 +58,7 @@ if {[file exists $TKEMCCONF]} {
 }
 foreach f {TkEmc /usr/X11R6/lib/X11/app-defaults/TkEmc} {
     if {[file exists $f]} {
-	option readfile $TKEMCCONF startupFile
+	option readfile $f
 	break
     }
 }
