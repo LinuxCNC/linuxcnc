@@ -2,21 +2,19 @@
 
 CheckConfig(){
     RTAPICONF=
-    # check for rtapi.conf in /etc/ first...
-    if [ -f /etc/emc2/rtapi.conf ] ; then
-	RTAPICONF=/etc/emc2/rtapi.conf
-    else
-	# check in the emc2 scripts directory
-	# $0 is the command to run this script
-	# strip the script name to leave the path
-	SCRIPT_DIR=`echo $0 | sed s#realtime## `
-	# the path might be relative
-	# convert it to an absolute path
-	SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
-	# now look for rtapi.conf there
-	if [ -f $SCRIPT_DIR/rtapi.conf ] ; then
-	    RTAPICONF=$SCRIPT_DIR/rtapi.conf
-	fi
+    # check in the emc2 scripts directory
+    # $0 is the command to run this script
+    # strip the script name to leave the path
+    SCRIPT_DIR=`echo $0 | sed s#realtime## `
+    # the path might be relative
+    # convert it to an absolute path
+    SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
+    # now look for rtapi.conf there
+    if [ -f $SCRIPT_DIR/rtapi.conf ] ; then
+	RTAPICONF=$SCRIPT_DIR/rtapi.conf
+    # check for rtapi.conf in /etc/ second...
+    elif [ -f /etc/emc2/rtapi.conf ] ; then
+	    RTAPICONF=/etc/emc2/rtapi.conf
     fi
     if [ -z "$RTAPICONF" ] ; then
 	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
