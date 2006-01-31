@@ -117,8 +117,8 @@ install_bin:
 	@ echo "bin installed"
 
 setuid:
-	chown root module_helper/emc_module_helper ../bin/halcmd
-	chmod 4750 module_helper/emc_module_helper ../bin/halcmd
+	chown root ../bin/emc_module_helper ../bin/halcmd
+	chmod 4750 ../bin/emc_module_helper ../bin/halcmd
 
 install_lib:
 	install -d $(DESTDIR)$(libdir)
