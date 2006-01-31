@@ -1689,8 +1689,8 @@ static int iniLoad(const char *filename)
     if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
 	if (NULL != (inistring = inifile.find("VERSION", "EMC"))) {
 	    // print version
-	    sscanf(inistring, "$Revision: %s", version);
-	    rcs_print("Version:  %s\n", version);
+	    if(sscanf(inistring, "$Revision: %s", version) == 1)
+		    rcs_print("Version:  %s\n", version);
 	} else {
 	    // not found, not fatal
 	    rcs_print("Version:  (not found)\n");

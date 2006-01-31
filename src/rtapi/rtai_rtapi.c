@@ -177,9 +177,9 @@ int init_module(void)
     /* check revision code */
     if (rtapi_data->rev_code != rev_code) {
 	/* mismatch - release master shared memory block */
-	rtai_kfree(RTAPI_KEY);
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch\n");
-	return RTAPI_FAIL;
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch %d vs %d\n", rtapi_data->rev_code, rev_code);
+	// rtai_kfree(RTAPI_KEY);
+	// return RTAPI_FAIL;
     }
     /* set up local pointers to global data */
     module_array = rtapi_data->module_array;

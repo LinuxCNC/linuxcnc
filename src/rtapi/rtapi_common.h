@@ -225,6 +225,8 @@ static void setup_revision_info(void)
     char *cp;
 
     /* point to start of revision number (skip text) */
+    if(strlen(rev) < 11) return;
+
     rev_str = &(rev[11]);
     /* end of number is marked by a space... replace it with a '\0' */
     cp = rev_str;

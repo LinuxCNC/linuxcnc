@@ -142,8 +142,8 @@ static int iniLoad(const char *filename)
 
     if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
 	if (NULL != (inistring = inifile.find("VERSION", "EMC"))) {
-	    sscanf(inistring, "$Revision: %s", version);
-	    rtapi_print("Version:  %s\n", version);
+	    if(sscanf(inistring, "$Revision: %s", version) == 1)
+		    rtapi_print("Version:  %s\n", version);
 	}
 
 	if (NULL != (inistring = inifile.find("MACHINE", "EMC"))) {
