@@ -120,8 +120,8 @@ int rtapi_init(char *modname)
     if (rtapi_data->rev_code != rev_code) {
 	/* mismatch - release master shared memory block */
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch %d vs %d\n", rtapi_data->rev_code, rev_code);
-	// rtai_free(RTAPI_KEY, rtapi_data);
-	// return RTAPI_FAIL;
+	rtai_free(RTAPI_KEY, rtapi_data);
+	return RTAPI_FAIL;
     }
     /* set up local pointers to global data */
     module_array = rtapi_data->module_array;
