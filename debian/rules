@@ -10,7 +10,7 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	src/configure
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --with-insmod="/usr/bin/emc_module_helper insert" --with-rmmod="/usr/bin/emc_module_helper remove"
 	(cd src; $(MAKE) -s )
 	touch build-stamp
 
@@ -20,7 +20,7 @@ clean:
 	rm -f build-stamp
 
 	# Add here commands to clean up after the build process.
-	cd src && ./configure
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --with-insmod="/usr/bin/emc_module_helper insert" --with-rmmod="/usr/bin/emc_module_helper remove"
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 
