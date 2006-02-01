@@ -122,9 +122,13 @@ setuid:
 
 install_lib:
 	install -d $(DESTDIR)$(libdir)
-	(if (test -f ../lib/*.so) ; then cp ../lib/*.so $(DESTDIR)$(libdir); fi)
-	-(rm -f ../lib/*.a ../lib/*.o 2>/dev/null)
+	cp ../lib/*.{so,a} $(DESTDIR)$(libdir)
 	@ echo "lib installed"
+
+install_headers:
+	install -d $(DESTDIR)$(includedir)
+	cp ../include/*.{h,hh} $(DESTDIR)$(includedir)
+	@ echo "headers installed"
 
 install_docs:
 	install -d $(DESTDIR)$(docsdir)
@@ -158,7 +162,7 @@ install_man : $(MAN_FILES)
 #if you want to test, uncomment the following line (not safe till further testing)
 install: install_rtscript install_modules install_configs\
 	install_bin install_lib install_docs install_ncfiles\
-	install_tcl
+	install_tcl install_headers
 	(cd rtapi; make $@)
 
 deb: all

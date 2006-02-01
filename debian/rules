@@ -35,6 +35,11 @@ install: build
 	mkdir -p debian/tmp
 	-(cd debian/extras && find . |cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
+	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include
+	cp -va include debian/tmp/usr/include/emc2
+	cp -a lib/*.a debian/tmp/usr/lib
+	dh_movefiles
+
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.

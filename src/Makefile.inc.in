@@ -33,6 +33,7 @@ localstatedir = @localstatedir@
 libdir = @libdir@
 infodir = @infodir@
 mandir = @mandir@
+includedir = @includedir@
 moduledir = @MODULE_DIR@
 kernelvers = @KERNEL_VERS@
 
