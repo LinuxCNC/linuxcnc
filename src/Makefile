@@ -145,8 +145,8 @@ install_tcl:
 	install -d $(DESTDIR)$(tcldir)
 	install -d $(DESTDIR)$(tcldir)/bin
 	install -d $(DESTDIR)$(tcldir)/scripts
-	install -d $(DESTDIR)/usr/X11R6/lib/X11/app-defaults
-	-cp -f ../tcl/TkEmc $(DESTDIR)/usr/X11R6/lib/X11/app-defaults
+	install -d $(DESTDIR)/etc/X11/app-defaults
+	-cp -f ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
 	-cp -f ../tcl/* $(DESTDIR)$(tcldir)
 	-cp -f ../tcl/bin/* $(DESTDIR)$(tcldir)/bin/
 	-cp -f ../tcl/scripts/* $(DESTDIR)$(tcldir)/scripts/
@@ -216,7 +216,7 @@ clean :
 	find . -name "*~" -exec rm -f {} \;
 	find . -name "*.bak" -exec rm -f {} \;
 	find . -name core -exec rm -f {} \;
-	rm -f ../include/* ../lib/* ../rtlib/* ../bin/*
+	-rm -f ../include/* ../lib/* ../rtlib/* ../bin/*
 	rm -f .tmp/* .rt_tmp/*
 
 tgz: clean

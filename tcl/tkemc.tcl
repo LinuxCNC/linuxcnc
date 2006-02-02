@@ -56,7 +56,7 @@ set TKEMCCONF $TCLDIR/TkEmc
 if {[file exists $TKEMCCONF]} {
     option readfile $TKEMCCONF startupFile
 }
-foreach f {TkEmc /usr/X11R6/lib/X11/app-defaults/TkEmc} {
+foreach f {TkEmc /usr/X11R6/lib/X11/app-defaults/TkEmc /etc/X11/app-defaults/TkEmc} {
     if {[file exists $f]} {
 	option readfile $f
 	break

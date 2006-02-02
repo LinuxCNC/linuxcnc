@@ -46,7 +46,7 @@ LANGUAGES = @LANGUAGES@
 #still needs discussion
 initd_dir = /etc/init.d
 moduledir = @MODULE_DIR@
-docsdir = ${prefix}/share/emc/docs
+docsdir = ${prefix}/share/doc/emc2
 ncfilesdir = ${prefix}/share/emc/ncfiles
 tcldir = ${prefix}/share/emc/tcl
 
