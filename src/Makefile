@@ -216,10 +216,8 @@ clean :
 	find . -name "*~" -exec rm -f {} \;
 	find . -name "*.bak" -exec rm -f {} \;
 	find . -name core -exec rm -f {} \;
-	-(rm -f ../include/* ../lib/* ../rtlib/* ../bin/* 2>/dev/null)
-	(if [ -d $(TMP_DIR) ] ; then rm -fR $(TMP_DIR) ; fi)
-	(if [ -d $(RTTMP_DIR) ] ; then rm -fR $(RTTMP_DIR) ; fi)
-	(if [ -d $(GTKTMP_DIR) ] ; then rm -fR $(GTKTMP_DIR) ; fi)
+	rm -f ../include/* ../lib/* ../rtlib/* ../bin/*
+	rm -f .tmp/* .rt_tmp/*
 
 tgz: clean
 	rm -rf /tmp/emc2-tgz-temp/emc2
