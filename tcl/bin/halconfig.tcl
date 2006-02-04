@@ -35,7 +35,7 @@ proc initializeConfig {} {
     # 2 -- bwidget, if no quit - else
     # 3 -- Is script running in place if no quit - else
     # 4 -- running emc2 or hal if yes run this - else
-    # 4 -- question setupconfig.tcl? if yes -> go after setup
+    # 5 -- question setupconfig.tcl? if yes -> go after setup
     #      if no -> start scripts/demo
     
     # 1 -- since this script isn't worth a pinch of spit unless running
@@ -209,11 +209,12 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
 wm protocol . WM_DELETE_WINDOW askKill
 proc askKill {} {
     global configdir
-    set tmp [tk_messageBox -icon error -type yesno \
+    set tmp [tk_messageBox -icon error -type yesnocancel \
         -message "Would you like to save your configuration before you exit?"]
     switch -- $tmp {
         yes {saveHAL $configdir ; killHalConfig}
         no {killHalConfig}
+        cancel {return}
     }
 }
 
@@ -258,15 +259,15 @@ set tf [frame $top.maint]
 
 # Build right side display and control area
 # Each mode will have a unique set of widgets inside frame
-set ds [labelframe $top.s -text Show ]
-set dw [labelframe $top.w -text Watch ]
-set dm [labelframe $top.m -text Modify ]
-set dt [labelframe $top.t -text Tune ]
+set showhal [labelframe $top.s -text Show ]
+set watchhal [labelframe $top.w -text Watch ]
+set modifyhal [labelframe $top.m -text Modify ]
+set tunehal [labelframe $top.t -text Tune ]
 
 # use place manager for fixed locations of frames within top
 # place show for starting up
 place configure $tf -in $top -x 2 -y 2 -relheight .99 -relwidth .3
-place configure $ds -in $top -relx .31 -y 2 -relheight .99 -relwidth .69
+place configure $showhal -in $top -relx .31 -y 2 -relheight .99 -relwidth .69
 
 # slider process is used for several widgets
 proc sSlide {f a b} {
@@ -313,16 +314,16 @@ set settingsmenu [menu $menubar.settings -tearoff 0]
             -menu $settingsmenu -underline 0
         $settingsmenu add radiobutton -label [msgcat::mc "Show"] \
             -variable workmode -value showhal -underline 0 \
-            -command {workMode {zzz} }
+            -command {showMode showhal }
         $settingsmenu add radiobutton -label [msgcat::mc "Watch"] \
             -variable workmode -value watchhal  -underline 0 \
-            -command {workMode {zzz} }
+            -command {showMode watchhal }
         $settingsmenu add radiobutton -label [msgcat::mc "Modify"] \
             -variable workmode -value modifyhal  -underline 0 \
-            -command {workMode {zzz} }
+            -command {showMode modifyhal }
         $settingsmenu add radiobutton -label [msgcat::mc "Tune"] \
             -variable workmode -value tunehal  -underline 0 \
-            -command {workMode {zzz} }
+            -command {showMode tunehal }
             
 set helpmenu [menu $menubar.help -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Help"] \
@@ -345,7 +346,6 @@ set helpmenu [menu $menubar.help -tearoff 0]
             -command {showHelp thread} -underline 0
 . configure -menu $menubar
 
-
 # build the tree widgets left side
 set treew [Tree $tf.t  -width 10 -yscrollcommand "sSlide $tf" ]
 set str $tf.sc
@@ -355,34 +355,7 @@ pack $treew -side right -fill both -expand yes
 $treew bindText <Button-1> {workMode   }
 
 
-# build show mode right side
-set stf [frame $ds.tf]
-set disp [text $stf.tx -relief flat -width 40 -wrap word \
-    -height 30 -yscrollcommand "sSlide $stf"]
-set stt $stf.sc
-scrollbar $stt -orient vert -command "$disp yview"
-pack $stt -side right -fill y
-pack $disp -side right -fill both -expand yes
-
-set seps [frame $ds.sep -bg black -borderwidth 2]
-
-set cfent [frame $ds.command]
-set lab [label $cfent.label -text "Enter HAL command :"]
-set com [entry $cfent.entry -textvariable halcommand]
-bind $com <KeyPress-Return> {exHAL $halcommand ; refreshHAL}
-set ex [button $cfent.execute -text Execute \
-    -command {exHAL $halcommand ; refreshHAL} ]
-pack $lab -side left -padx 5 -pady 3
-pack $com -side left -fill x -expand yes -pady 3
-pack $ex -side left -padx 5 -pady 3
-pack $stf $seps $cfent -side top -fill x -expand yes
-
-# Build watch mode right side
-set cisp [canvas $dw.c ]
-pack $cisp -side right -fill both -expand yes
-
-
-#----------tree widget stuff----------
+#----------tree widget handlers----------
 #
 # the tree node name needs to be nearly
 # equivalent to the hal element name but since no two
@@ -409,7 +382,7 @@ set signodes {X Y Z A "Spindle"}
 # First empty tmpnodes, the list of all nodes that are open
 # Look through tree for current list of open nodes
 # Clean out the entire tree
-# Call listHAL to read HAL for pin, param, sig names and build new tree
+# Call listHAL to read HAL for searchnames and build new tree
 # Open old nodes if they still exist
 set treenodes ""
 proc refreshHAL {} {
@@ -431,24 +404,36 @@ proc refreshHAL {} {
             $treew opentree $node no
         }
     }
-    if {[info exists oldvar]} {showHAL $oldvar}
+    showHAL $oldvar
 }
 
-# listhal gets pin, param, and sig stuff
+# listhal gets $searchname stuff
 # and calls makeNodeX with list of stuff found.
 proc listHAL {} {
     global searchnames nodenames
     set i 0
     foreach node $searchnames {
         writeNode "$i root $node [lindex $nodenames $i] 1"
-        incr i
+        set ${node}str [exHAL "list $node" ]
+#        puts "this is $node --\n [set ${node}str]"
+        switch -- $node {
+            pin {-}
+            param {
+                makeNodeP $node [set ${node}str]
+            }
+            sig {
+                makeNodeSig $sigstr
+            }
+            comp {-}
+            funct {-}
+            thread {
+                makeNodeOther $node [set ${node}str]
+            }
+            default {}
+        }
+    
+    incr i
     }
-    set pinstring [exHAL { list pin }]
-    makeNodeP pin $pinstring
-    set paramstring [exHAL { list param }]
-    makeNodeP param $paramstring
-    set sigstring [exHAL { list sig }]
-    makeNodeSig $sigstring
 }
 
 proc makeNodeP {which pstring} {
@@ -597,6 +582,19 @@ proc makeNodeSig {sigstring} {
 
 }
 
+proc makeNodeOther {which otherstring} {
+    global treew
+    set i 0
+    foreach element $otherstring {
+        set snode "$which+$element"
+        if {! [$treew exists "$snode"] } {
+            set leaf 0
+            writeNode "$i $which $snode $element $leaf"
+        }
+        incr i
+    }
+}
+
 # writeNode handles tree node insertion for makeNodeX
 # builds a global list -- treenodes -- but not leaves
 proc writeNode {arg} {
@@ -631,66 +629,196 @@ proc showNode {which} {
     focus -force $treew
 }
 
-
 # Tree code above looks like crap but works fairly well
+# Startup needs [showMode "showhal"] before refreshHAL
 #
 #----------end of tree building processes----------
 
-
-# create empty arrays to hold modify mode elements
-# array elements are created from what is clicked in tree
 # each element of controlarray is a complete node name
 array set controlarray {}
 
+# showmode handles the menu selection of mode
+# modelist is used to separate first time from repeats
+set modelist {0 0 0 0}
+proc showMode {mode} {
+    global top showhal watchhal modifyhal tunehal modelist
+    switch -- $mode {
+        showhal {
+            if {![lindex $modelist 0]} {
+                makeShow
+                lset modelist 0 1
+            } 
+        }
+        watchhal {
+            if {![lindex $modelist 1]} {
+                makeWatch
+                lset modelist 1 1
+            }
+        }
+        modifyhal {
+            if {![lindex $modelist 2]} {
+                makeModify
+                lset modelist 2 1
+            }
+        }
+        tunehal {
+            if {![lindex $modelist 3]} {
+                makeTune
+                lset modelist 3 1
+            }
+        }
+        default {
+        }
+    }
+    # handles swap of the display frames if needed
+    if {![winfo ismapped [set $mode]]} {
+        foreach eachdisplay {showhal watchhal modifyhal tunehal} {
+            place forget [set $eachdisplay]
+        }
+        place configure [set $mode] -in $top -relx .31 -y 2 \
+            -relheight .99 -relwidth .69
+    }
+}
+
+set axnum 0
+set numaxes 4
+set oldvar "zzz"
+# build show mode right side
+proc makeShow {} {
+    global showhal disp
+    set what full
+    if {$what == "full"} {
+        set stf [frame $showhal.tf]
+        set disp [text $stf.tx -relief flat -width 40 -wrap word \
+            -height 28 -yscrollcommand "sSlide $stf"]
+        set stt $stf.sc
+        scrollbar $stt -orient vert -command "$disp yview"
+        pack $stt -side right -fill y
+        pack $disp -side right -fill both -expand yes
+        set seps [frame $showhal.sep -bg black -borderwidth 2]
+        set cfent [frame $showhal.command]
+        set lab [label $cfent.label -text "Enter HAL command :"]
+        set com [entry $cfent.entry -textvariable halcommand]
+        bind $com <KeyPress-Return> {exHAL $halcommand ; refreshHAL}
+        set ex [button $cfent.execute -text Execute \
+            -command {exHAL $halcommand ; refreshHAL} ]
+        pack $lab -side left -padx 5 -pady 3
+        pack $com -side left -fill x -expand yes -pady 3
+        pack $ex -side left -padx 5 -pady 3
+        pack $stf $seps $cfent -side top -fill x -expand yes
+    }
+}
+
+proc makeWatch {} {
+    global cisp watchhal
+    set cisp [canvas $watchhal.c ]
+    pack $cisp -side right -fill both -expand yes
+}
+
+proc makeModify {} {
+    global modifyhal modtext focusname
+    set mcsets { {loadrt 1} {unloadrt 1} {addf 1} {delf 1} \
+        {linkpp 2} {linkps 2} {linksp 2} {newsig 2} {delsig 1} }
+    set moddisplay [frame $modifyhal.textframe ]
+    set modtext [text $moddisplay.text -width 40 -height 8 -wrap word \
+        -takefocus 0 -relief groove]
+    pack $modtext -side top -fill both -expand yes
+    grid configure $moddisplay -row 0 -column 0 -columnspan 4 -sticky nsew
+    set j 1
+    foreach cset $mcsets {
+        set halmodcmd ""
+        scan $cset { %s %i } commandname numvars
+        if {$numvars == 2} {
+            set colspan 1
+        } else {
+            set colspan 2
+        }
+        label $modifyhal.$commandname -text "$commandname: " -anchor w
+        grid configure $modifyhal.$commandname -row $j -column 0 -sticky nsew
+        for {set i 1} {$i <= $numvars} {incr i} {
+            set $commandname$i ""
+            entry $modifyhal.e$commandname$i -textvariable $commandname$i
+            grid configure $modifyhal.e$commandname$i -row $j -column $i \
+                -columnspan $colspan -sticky nsew
+        }
+        if {$i == "2"} {
+            set tmp [subst {$commandname \$${commandname}1}]
+        } else {
+            set tmp [subst {$commandname \$${commandname}1 \$${commandname}2}]
+        }
+        button $modifyhal.b$commandname -text "Execute" \
+            -command [subst {modHAL "$tmp"}]
+        grid configure $modifyhal.b$commandname -row $j -column 3 -sticky nsew
+        incr j
+    }
+}
+
+# FIXME allow for more than one tunable system
+proc makeTune {} {
+    global tunehal
+    # tunelist holds the found tunable modules
+    set tunelist ""
+    set ret [exHAL "list comp"]
+    foreach sys { ppmc stg m5i20 evoreg stepgen freqgen  } {
+        set tmp [lsearch -inline -regexp $ret $sys]
+        if {$tmp != -1} {
+            append tunelist $tmp
+        }
+    }
+    # we start listing possible tuning variables
+    set pidlist {Pgain Igain Dgain FF0 FF1 bias deadband}
+    set hal_ppmc "$pidlist ppmc.0.encoder.00.scale"
+    # create the top labels
+    set axlabel [label $tunehal.label -text "Axis : " -anchor e]
+    set axname [label $tunehal.lname -textvariable axnum]
+    set i 1
+    grid configure $axlabel $axname -sticky nsew
+    # create the set of tuning widgets
+    foreach var [set $tunelist] {
+        set na [label $tunehal.l$i -text "$var : " -anchor e]
+        set ent [entry $tunehal.e$i -textvariable var$i]
+        set bt [button $tunehal.b$i -text set \
+            -command [setTuneVar "$i"]]
+        grid configure $na $ent $bt -sticky nsew
+        incr i
+    }
+    tuneHAL 0
+}
+
+
 # all clicks on tree node names go into workMode
-# tree click action depends upon workmode
-# workmode only affects display side {ds dw dm dt}
-# oldvar keeps the last value of which for refresh of display
-set oldvar ""
+# action depends upon selected mode and node
+# oldvar keeps the last HAL variable for refresh
+
 proc workMode {which} {
     global workmode oldvar watchflag
     switch -- $workmode {
         showhal {
-            swapDisplay ds
             showHAL $which
         }
         watchhal {
-            set watchflag 0  
-            swapDisplay dw
             watchHAL $which
         }
         modifyhal {
-            swapDisplay display dm
+            setModifyVar $which
         }
         tunehal {
-            swapDisplay display dt
             tuneHAL $which
         }
         default {
-            swapDisplay display ds
+            swapDisplay display showhal
             displayThis "Mode went way wrong."
         }
     }
     set oldvar $which
 }
 
-# handles swap of the display frames
-proc swapDisplay {arg} {
-    global top ds dw dm dt
-    set next [set $arg]
-    if {![winfo ismapped $next]} {
-        foreach eachdisplay {ds dw dm dt} {
-            place forget [set $eachdisplay]
-        }
-        place configure $next -in $top -relx .31 -y 2 \
-            -relheight .99 -relwidth .69
-    }
-}
-
 
 # process uses it's own halcmd show so that displayed
 # info looks like what is in the Hal_Introduction.pdf
 proc showHAL {which} {
+    global disp
+    if {![info exists disp]} {return}
     if {$which == "zzz"} {
         displayThis "Select a node to show."
         return
@@ -782,55 +910,84 @@ proc watchLoop {} {
 
 proc watchReset {del} {
     global watchlist cisp
-    if {$del == "all"} {
-        $cisp delete all
-        watchHAL zzz
-        return
-    } 
-    set place [lsearch $watchlist $del]
-    if {$place != -1 } {
-        set watchlist [lreplace $watchlist $place]
-        # empty the canvas
-        foreach var $watchlist {
-            watchHAL $var
+    $cisp delete all
+    switch -- $del {
+        all {
+            watchHAL zzz
+            return
+        }
+        default {
+            set place [lsearch $watchlist $del]
+            if {$place != -1 } {
+            set watchlist [lreplace $watchlist $place]
+                foreach var $watchlist {
+                    watchHAL $var
+                }
+            } else {            
+                watchHAL zzz
+            }
         }
     }
 }
 
-proc modifyHAL {which} {
-    global controlarray
-    set asize [array size controlarray]
-    array set controlarray "$asize $which"
-    puts [array get controlarray ]
-    set thisret [exHAL "show $searchbase $searchstring"]
-    displayAddThis $thisret
+proc modHAL {command} {
+    global modtext
+    set str [exHAL "$command"]
+    $modtext delete 1.0 end
+    $modtext insert end $str
+    refreshHAL
+}
+# FIXME could expand tree to make leaves of threads
+# and of all modules in the library
+proc setModifyVar {which} {
+    global modtext treenodes modifyhal
+    # test to see if which is a leaf or node
+    set isleaf [lsearch $treenodes $which]
+    if {$isleaf == -1} {
+        set str "Click on the entry where you would like $which to go."
+        set tmp [split $which +]
+        scan $tmp { %s %s } haltype varname
+        # setup mode of entry widgets in modifyhal so they match
+        # haltype above and so a click on available widget
+        # inserts the varname above
+        $modifyhal.elinkpp1 insert 0 $varname
+    } else {
+        set str "$which is not a leaf, try again"
+    }
+    $modtext delete 1.0 end
+    $modtext insert end $str
+}
+
+proc modMod {which} {
+
+
+}   
+proc halMOD {argv} {
+    
+}
+
+proc setTuneVar {which} {
+
 }
 
 proc tuneHAL {which} {
-    global tunearray
-    displayThis "Move along.  Nothing to see here yet."
+    
+
 }
+
+
 
 # proc switches the insert and removal of upper right text
 # This also removes any modify array variables
 proc displayThis {str} {
-  global disp controlarray
-  $disp delete 1.0 end
-  $disp insert end $str
-  array unset controlarray {}
-#  updateControl
-}
-
-# fixme from here down.
-# no delete of existing display with this
-# fixme, header lines for this
-proc displayAddThis {str} {
     global disp controlarray
-    $disp insert end "\n$str"
-#    updateControl
+    $disp delete 1.0 end
+    $disp insert end $str
 }
 
-# start up the tree discovery stuff
+
+#----------start up the displays----------
+showMode showhal
 refreshHAL
 
 
@@ -876,7 +1033,7 @@ set helpabout {
      Copyright Raymond E Henry. 2006
      License: GPL Version 2
 
-     Halconfig is an EMC2 configuration tool.  It should be started from the emc2 directory and will require that you have started an instance of emc2 or work up a new configuration from scratch.
+     Halconfig is an EMC2 configuration tool.  It should be started from the emc2 directory and will require that you have started an instance of emc2 or work up a new configuration starting with a demo rt script.
 
      This script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law.}
 
@@ -912,4 +1069,9 @@ set helpthread {
 
 #
 #----------end of help processes----------
+
+# temp testing stuff
+# set inf globals
+# puts "Temp listing $inf "
+# puts [info $inf]
 
