@@ -72,5 +72,7 @@ folks.  Deferred until we have more time.
 
 A sim mode that works without realtime kernel patches
 
+A failed emc run should collect data and give the option of sending it to the developers.
+
 Improved classicladder GUI
 
