@@ -4,10 +4,11 @@ export EMC2_TCL_DIR
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
-
+#first define some default directories
 set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
 set TCLDIR tcl
+set HELPDIR ../../docs/help
 
 if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLBIN $env(EMC2_TCL_DIR)
@@ -17,6 +18,9 @@ if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLDIR $env(EMC2_TCL_DIR)
 }
 
+if {[info exists env(EMC2_HELP_DIR)]} {
+    set HELPDIR $env(EMC2_HELP_DIR)
+}
 
 # Tk GUI for the Enhanced Machine Controller
 
@@ -277,18 +281,19 @@ proc popupParamEditor {} {
 
 set helpfilename [emc_ini "HELP_FILE" "DISPLAY"]
 if {[string length $helpfilename] == 0} {
-    set helpfilename "doc/help.txt"
+    set helpfilename "tkemc.txt"
 }
 
 # pop up the help window
 proc popupHelp {} {
     global helpfilename
+    global HELPDIR
 
     # create an editor as top-level ".help"
-    if {[file isfile $helpfilename]} {
-        geneditStart help $helpfilename
+    if {[file isfile $HELPDIR/$helpfilename]} {
+        geneditStart help $HELPDIR/$helpfilename
     } else {
-        geneditStart help "help.txt"
+        geneditStart help $HELPDIR/tkemc.txt
     }
 
     # disable menu entries that don't apply to read-only text
