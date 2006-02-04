@@ -132,6 +132,7 @@ install_headers:
 
 install_docs:
 	install -d $(DESTDIR)$(docsdir)
+	install -d $(DESTDIR)$(docsdir)/help
 	-cp -f ../docs/* $(DESTDIR)$(docsdir)
 	-cp -f ../docs/help/* $(DESTDIR)$(docsdir)/help
 	@ echo "docs installed"
