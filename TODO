@@ -4,9 +4,10 @@ REQUIRED FOR EMC2'S FIRST RELEASE  (EMC-2.0)
 DONE     ##Time delay relay for HAL, two pins, in and out
          src/hal/components/timedelay.c
 
-ASSIGNED Finish?/test make install
+DONE     Finish?/test make install
          https://sourceforge.net/tracker/index.php?func=detail&aid=1053350&group_id=6744&atid=356744
-         Cradek will work on testing and any tweaks needed
+         Working as a normal make install and with debian building 
+         by the usual dpkg-buildpackage
  
 DONE     Finish cleaning up config directories
          https://sourceforge.net/tracker/index.php?func=detail&aid=1370927&group_id=6744&atid=356744
