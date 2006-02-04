@@ -38,6 +38,9 @@ if ([info exists env(EMC2_TCL_DIR)]) {
     set emc2tcldir $env(EMC2_TCL_DIR)
 }
 
+if {[info exists env(EMC2_HELP_DIR)]} {
+    set HELPDIR $env(EMC2_HELP_DIR)
+}
 
 # wheelEvent code curtesy of Tsahi Levent-Levi - on activestate web site.
 # this only works properly on TNG's RedHat 7.2 or newer os's.
@@ -2774,8 +2777,12 @@ update
 # -----RIGHT HELP-----
 
 set helpFile [emc_ini HELP_FILE DISPLAY ]
+if {[string length $helpFile] == 0} {
+    set helpFile "tkemc.txt"
+}
+
 proc popinHelp {} {
-    global popinframe helpFile
+    global popinframe helpFile HELPDIR
     set helpwidth 80
     set helpheight 30
     set helpframe [frame $popinframe.help ]
@@ -2789,9 +2796,10 @@ proc popinHelp {} {
     pack $helptextwin -side top -fill both -expand true
     pack $helptextframe -side top -fill both -expand yes
     # insert contents of filename, if it exists
-    if { [file isfile $helpFile ] == 1} {
-        set fname $helpFile
+    if { [file isfile $HELPDIR/$helpFile ] == 1} {
+        set fname $HELPDIR/$helpFile
     }
+    
     if {[catch {open $fname} filein]} {
         mText "can't open $fname"
     } else {
