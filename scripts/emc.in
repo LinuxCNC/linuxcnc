@@ -107,6 +107,7 @@ if (test "$SCRIPTDIR" = "$EMC2_HOME/scripts");  then
 # 1.3.2. for a run-in-place system:
 EMC2_BIN_DIR=@EMC2_HOME@/bin
 EMC2_TCL_DIR=@EMC2_HOME@/tcl
+EMC2_HELP_DIR=@EMC2_HOME@/docs/help
 EMC2_RTLIB_DIR=@EMC2_HOME@/rtlib
 EMC2_CONFIG_DIR=@EMC2_HOME@/configs
 EMC2_NCFILES_DIR=@EMC2_HOME@/nc_files
@@ -117,6 +118,7 @@ else
 # 1.3.3. for an installed system:
 EMC2_BIN_DIR=$bindir
 EMC2_TCL_DIR=$tcldir
+EMC2_HELP_DIR=$docsdir/help
 EMC2_RTLIB_DIR=$moduledir/emc2
 EMC2_CONFIG_DIR=$sysconfdir/emc2
 EMC2_NCFILES_DIR=$ncfilesdir
@@ -548,6 +550,12 @@ $LSMOD >>$DEBUG_FILE
 
 sleep 1
 
+#export some common directories, used by some of the GUI's
+export EMC2_TCL_DIR=$EMC2_TCL_DIR
+export EMC2_EMCSH=$EMC2_EMCSH
+export EMC2_IOSH=$EMC2_IOSH
+export EMC2_HELP_DIR=$EMC2_HELP_DIR
+
 # 4.3.12. Run display in foreground
 echo "Starting EMC DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
 case $EMCDISPLAY in
@@ -558,9 +566,6 @@ case $EMCDISPLAY in
 	Cleanup
 	exit 1
     fi
-    export EMC2_TCL_DIR=$EMC2_TCL_DIR
-    export EMC2_EMCSH=$EMC2_EMCSH
-    export EMC2_IOSH=$EMC2_IOSH
     $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE
   ;;
   dummy)
