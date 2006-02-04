@@ -133,6 +133,7 @@ install_headers:
 install_docs:
 	install -d $(DESTDIR)$(docsdir)
 	-cp -f ../docs/* $(DESTDIR)$(docsdir)
+	-cp -f ../docs/help/* $(DESTDIR)$(docsdir)/help
 	@ echo "docs installed"
 
 # to be added, when there is a nc_files dir
