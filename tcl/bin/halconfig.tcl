@@ -716,7 +716,7 @@ proc makeWatch {} {
 }
 
 proc makeModify {} {
-    global modifyhal modtext focusname
+    global modifyhal modtext focusname mcsets
     set mcsets { {loadrt 1} {unloadrt 1} {addf 1} {delf 1} \
         {linkpp 2} {linkps 2} {linksp 2} {newsig 2} {delsig 1} }
     set moddisplay [frame $modifyhal.textframe ]
@@ -737,7 +737,10 @@ proc makeModify {} {
         grid configure $modifyhal.$commandname -row $j -column 0 -sticky nsew
         for {set i 1} {$i <= $numvars} {incr i} {
             set $commandname$i ""
-            entry $modifyhal.e$commandname$i -textvariable $commandname$i
+            entry $modifyhal.e$commandname$i -textvariable $commandname$i \
+                -bg white
+            bind $modifyhal.e$commandname$i <Button-1> \
+                "copyVar $modifyhal.e$commandname$i"
             grid configure $modifyhal.e$commandname$i -row $j -column $i \
                 -columnspan $colspan -sticky nsew
         }
@@ -753,9 +756,23 @@ proc makeModify {} {
     }
 }
 
+array set modtypes {
+    comp ".main.m.eloadrt1 .main.m.eunloadrt1"
+    funct ".main.m.eaddf1 .main.m.edelf1"
+    thread ".main.m.eaddf1"
+    pin ".main.m.elinkpp1 .main.m.elinkpp2 .main.m.elinkps1 \
+        .main.m.elinksp2" 
+    sig ".main.m.elinkps2 .main.m.elinksp1 .main.m.enewsig1 \
+        .main.m.edelsig1"
+}
+
+set modlist ".main.m.eloadrt1 .main.m.eunloadrt1 .main.m.eaddf1 .main.m.edelf1 .main.m.elinkpp1 .main.m.elinkpp2 .main.m.elinkps1 .main.m.elinksp2 .main.m.elinkps2 .main.m.elinksp1 .main.m.enewsig1 .main.m.edelsig1"
+
 # FIXME allow for more than one tunable system
+# FIXME get the number of axes from ini if available
+set numaxes 4
 proc makeTune {} {
-    global tunehal
+    global tunehal numaxes
     # tunelist holds the found tunable modules
     set tunelist ""
     set ret [exHAL "list comp"]
@@ -768,11 +785,17 @@ proc makeTune {} {
     # we start listing possible tuning variables
     set pidlist {Pgain Igain Dgain FF0 FF1 bias deadband}
     set hal_ppmc "$pidlist ppmc.0.encoder.00.scale"
+    set tb [frame $tunehal.buttonframe -bg red ]
+    for {set j 0 } {$j < $numaxes } {incr j} {
+        set tmpb [button $tb.b$j -text "Axis $j" -command "tuneAxis $j"]
+        pack $tmpb -side left -fill x -expand yes
+    }
+    grid configure $tb -columnspan 3 -sticky nsew
     # create the top labels
-    set axlabel [label $tunehal.label -text "Axis : " -anchor e]
-    set axname [label $tunehal.lname -textvariable axnum]
+#    set axlabel [label $tunehal.label -text "Axis : " -anchor e]
+#    set axname [label $tunehal.lname -textvariable axnum]
     set i 1
-    grid configure $axlabel $axname -sticky nsew
+#    grid configure $axlabel $axname -sticky nsew
     # create the set of tuning widgets
     foreach var [set $tunelist] {
         set na [label $tunehal.l$i -text "$var : " -anchor e]
@@ -782,16 +805,25 @@ proc makeTune {} {
         grid configure $na $ent $bt -sticky nsew
         incr i
     }
+    tuneAxis 0
     tuneHAL 0
 }
 
+set lastaxistuned 0
+proc tuneAxis {which} {
+    global tunehal numaxes lastaxistuned
+    $tunehal.buttonframe.b$lastaxistuned configure -bg gray98
+    $tunehal.buttonframe.b$which configure -bg yellow
+    set lastaxistuned $which
+}
 
 # all clicks on tree node names go into workMode
 # action depends upon selected mode and node
 # oldvar keeps the last HAL variable for refresh
 
 proc workMode {which} {
-    global workmode oldvar watchflag
+    global workmode oldvar thisvar
+    set thisvar $which
     switch -- $workmode {
         showhal {
             showHAL $which
@@ -799,6 +831,7 @@ proc workMode {which} {
         watchhal {
             watchHAL $which
         }
+        # doesn't do anything now with bind to entry widgets
         modifyhal {
             setModifyVar $which
         }
@@ -832,8 +865,6 @@ proc showHAL {which} {
 }
 
 
-# would be nice to be able to mouseover but...
-# that's way beyond me now
 set watchlist ""
 set watchstring ""
 proc watchHAL {which} {
@@ -930,6 +961,7 @@ proc watchReset {del} {
     }
 }
 
+# modHAL gets the return from a halcmd and displays it.
 proc modHAL {command} {
     global modtext
     set str [exHAL "$command"]
@@ -937,25 +969,73 @@ proc modHAL {command} {
     $modtext insert end $str
     refreshHAL
 }
-# FIXME could expand tree to make leaves of threads
-# and of all modules in the library
+
 proc setModifyVar {which} {
-    global modtext treenodes modifyhal
+    global modtext treenodes modifyhal modlist modtypes
     # test to see if which is a leaf or node
     set isleaf [lsearch $treenodes $which]
     if {$isleaf == -1} {
-        set str "Click on the entry where you would like $which to go."
+        foreach w $modlist {
+            $w configure -bg white
+        }
         set tmp [split $which +]
         scan $tmp { %s %s } haltype varname
         # setup mode of entry widgets in modifyhal so they match
         # haltype above and so a click on available widget
         # inserts the varname above
-        $modifyhal.elinkpp1 insert 0 $varname
+        switch -- $haltype {
+            pin {
+                set str "Click a highlighted entry where $which should go."
+                set tmp [lindex [array get modtypes pin] 1]
+                foreach widget $tmp {
+                    $widget configure -bg lightgreen
+                }
+            }
+            param {
+                set str "Nothing to be done for parameters here. Try the tuning page"
+            }
+            sig {
+                set str "Click a highlighted entry where $which should go."
+                set tmp [lindex [array get modtypes sig] 1]
+                foreach widget $tmp {
+                    $widget configure -bg lightgreen
+                }
+            }
+            comp {
+                set str "Click a highlighted entry where $which should go."
+                set tmp [lindex [array get modtypes comp] 1]
+                foreach widget $tmp {
+                    $widget configure -bg lightgreen
+                }
+            }
+            funct {
+                set str "Click a highlighted entry where $which should go."
+                set tmp [lindex [array get modtypes funct] 1]
+                foreach widget $tmp {
+                    $widget configure -bg lightgreen
+                }
+            }
+            thread {
+                set str "Click a highlighted entry where $which should go."
+                set tmp [lindex [array get modtypes thread] 1]
+                foreach widget $tmp {
+                    $widget configure -bg lightgreen
+                }
+            }
+        }            
     } else {
         set str "$which is not a leaf, try again"
     }
     $modtext delete 1.0 end
     $modtext insert end $str
+}
+
+proc copyVar {var} {
+    global thisvar
+#    puts $var
+    set tmpvar [lindex [split $thisvar +] end]
+    $var insert 0 $tmpvar
+
 }
 
 proc modMod {which} {
