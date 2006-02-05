@@ -127,6 +127,7 @@ usr/share/doc/emc2/Hal_Introduction.pdf
 usr/share/doc/emc2/INSTALL
 usr/share/doc/emc2/NEWS
 usr/share/doc/emc2/README
+usr/share/doc/emc2/help/tkemc.txt
 usr/share/emc/ncfiles/3D_Chips.ngc
 usr/share/emc/ncfiles/cds.ngc
 usr/share/emc/ncfiles/M101

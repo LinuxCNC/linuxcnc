@@ -7,7 +7,7 @@ Standards-Version: 2.0.0-rc0
 
 Package: emc2
 Architecture: any
-Depends: ${shlibs:Depends},linux-image-2.6.12-magma,rtai-modules-2.6.12-magma,libgtk1.2,tcl8.4,tk8.4
+Depends: ${shlibs:Depends},linux-image-2.6.12-magma,rtai-modules-2.6.12-magma,libgtk1.2,tcl8.4,tk8.4,bwidget
 Provides: emc2
 Suggests: emc2-axis
 Description: PC based motion controller for real-time Linux.
