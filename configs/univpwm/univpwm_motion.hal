@@ -2,12 +2,21 @@
 #
 # NOTE: this is a copy of the stepper board file, it will be edited soon for PWM - do not use yet
 
-# set sane pulse timing - these are basically Gecko numbers
-# both pulse width and space are aset to 3.5 uS, to prevent
-# problems if the outputs are inverted externally
-setp ppmc.0.stepgen.00-03.pulse-width 35
-setp ppmc.0.stepgen.00-03.pulse-space-min 35
-setp ppmc.0.stepgen.00-03.setup-time 10
+# set the PWM frequency to suit Pico's PWM amps (50KHz)
+# users with other amps may need to change this
+setp ppmc.0.pwm.00-03.freq 50000
+# turn on bootstrapping for the MOSFET drivers
+# this also depends on the amplifiers
+setp ppmc.0.pwm.00.bootstrap TRUE
+setp ppmc.0.pwm.01.bootstrap TRUE
+setp ppmc.0.pwm.02.bootstrap TRUE
+setp ppmc.0.pwm.03.bootstrap TRUE
+# set max duty cycle to 99.5% for the MOSFET drives
+# at 50KHz this corresponds to 100nS
+setp ppmc.0.pwm.00.max-dc 0.995
+setp ppmc.0.pwm.01.max-dc 0.995
+setp ppmc.0.pwm.02.max-dc 0.995
+setp ppmc.0.pwm.03.max-dc 0.995
 
 # connect position feedback signals to encoders
 linksp Xpos-fb <= ppmc.0.encoder.00.position
@@ -22,25 +31,26 @@ setp ppmc.0.encoder.02.scale [AXIS_2]INPUT_SCALE
 setp ppmc.0.encoder.03.scale [AXIS_3]INPUT_SCALE
 
 # connect PID output signals to step generators
-linksp Xoutput => ppmc.0.stepgen.00.velocity
-linksp Youtput => ppmc.0.stepgen.01.velocity
-linksp Zoutput => ppmc.0.stepgen.02.velocity
-linksp Aoutput => ppmc.0.stepgen.03.velocity
+linksp Xoutput => ppmc.0.pwm.00.value
+linksp Youtput => ppmc.0.pwm.01.value
+linksp Zoutput => ppmc.0.pwm.02.value
+linksp Aoutput => ppmc.0.pwm.03.value
 
 # connect axis enables to step generators
-linksp Xenable => ppmc.0.stepgen.00.enable
-linksp Yenable => ppmc.0.stepgen.01.enable
-linksp Zenable => ppmc.0.stepgen.02.enable
-linksp Aenable => ppmc.0.stepgen.03.enable
+linksp Xenable => ppmc.0.pwm.00.enable
+linksp Yenable => ppmc.0.pwm.01.enable
+linksp Zenable => ppmc.0.pwm.02.enable
+linksp Aenable => ppmc.0.pwm.03.enable
 
 # set output scaling from ini file
-# note that these are using INPUT_SCALE - this is because the
-# input and output scales should (normally) be the same for a USC
-# and emc2 always rewrites OUTPUT_SCALE to 1
-setp ppmc.0.stepgen.00.scale [AXIS_0]INPUT_SCALE
-setp ppmc.0.stepgen.01.scale [AXIS_1]INPUT_SCALE
-setp ppmc.0.stepgen.02.scale [AXIS_2]INPUT_SCALE
-setp ppmc.0.stepgen.03.scale [AXIS_3]INPUT_SCALE
+# note that these are using PWM_OUTPUT_SCALE - they should
+# use OUTPUT_SCALE, but right now EMC2 re-writes that to
+# 1 on shutdown for some reason.  Once that is fixed, this
+# should be changed
+setp ppmc.0.pwm.00.scale [AXIS_0]PWM_OUTPUT_SCALE
+setp ppmc.0.pwm.01.scale [AXIS_1]PWM_OUTPUT_SCALE
+setp ppmc.0.pwm.02.scale [AXIS_2]PWM_OUTPUT_SCALE
+setp ppmc.0.pwm.03.scale [AXIS_3]PWM_OUTPUT_SCALE
 
 # add a couple of tuning test links
 # if these are useful will want to add them to the other axes as well
