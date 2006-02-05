@@ -58,8 +58,9 @@ all headers indent : def_headers
 	(cd emc; make $@)
 	@echo 
 	@echo '########################################################'
-	@echo '# If you intend to run-in-place (without make install) #'
-	@echo "# don't forget to run: sudo make setuid                #"
+	@echo '# You have now compiled EMC2.  You can either install  #'
+	@echo '# it or run it in-place.  To run in-place, now run:    #'
+	@echo '# sudo make setuid                                     #'
 	@echo '########################################################'
 	@echo
 
