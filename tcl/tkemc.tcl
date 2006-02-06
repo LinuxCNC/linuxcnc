@@ -1,6 +1,8 @@
 #!/bin/sh
-# we need to find the tcl dir, it was exported from emc.run \
+# we need to find the tcl dir, it was exported from emc \
 export EMC2_TCL_DIR
+# and some apps need the realtime script, so export that too \
+export REALTIME
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
@@ -53,6 +55,7 @@ package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
     msgcat::mcload "../src/po"
+    #FIXME need to add location for installed po files
 }
 
 # read the application defaults
@@ -412,7 +415,7 @@ proc popupAbout {} {
     }
     toplevel .about
     wm title .about [msgcat::mc "About TkEmc"]
-    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller\n\nPublic Domain (1999)"]
+    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (emc2)\n\nPublic Domain (1999)"]
     frame .about.buttons
     button .about.buttons.ok -default active -text OK -command "destroy .about"
     pack .about.msg -side top
@@ -788,13 +791,17 @@ if { $windows == 0 } {
     }
 }
 
+# add halconfig, to help for HAL setup, it's under Scripts, but it's in the TCL_BIN_DIR
+$scriptsmenu add separator
+$scriptsmenu add command -label "HAL Config" -command "exec $TCLBIN/halconfig.tcl -- -ini $EMC_INIFILE &"
+
 # add the help menu
 set helpmenu [menu $menubar.help -tearoff 0]
 $menubar add cascade -label [msgcat::mc "Help"] -menu $helpmenu -underline 0
 $helpmenu add command -label [msgcat::mc "Help..."] -command {popupHelp} -underline 0
 $helpmenu add check -label [msgcat::mc "Balloon help"] -variable do_balloons
-$helpmenu add separator
-$helpmenu add command -label [msgcat::mc "Info..."] -command {catch {exec tcl/sysinfo.tcl -- -ini $EMC_INIFILE}} -underline 0
+#$helpmenu add separator
+#$helpmenu add command -label [msgcat::mc "Info..."] -command {catch {exec tcl/sysinfo.tcl -- -ini $EMC_INIFILE}} -underline 0
 $helpmenu add separator
 $helpmenu add command -label [msgcat::mc "About..."] -command {popupAbout} -underline 0
 
