@@ -1,5 +1,9 @@
 #!/bin/sh
-# the next line restarts using emcsh \
+# we need to find the tcl dir, it was exported from emc \
+export EMC2_TCL_DIR
+# and some apps need the emc2_bin_dir, so export that too \
+export REALTIME
+# the next line restarts using wish \
 exec /usr/bin/wish "$0" "$@"
 
 ###############################################################
@@ -18,6 +22,26 @@ exec /usr/bin/wish "$0" "$@"
 # $Date$
 ###############################################################
 
+#first define some default directories
+set TCLBIN tcl/bin
+set TCLSCRIPTS tcl/scripts
+set TCLDIR tcl
+set REALTIME scripts/realtime
+
+if {[info exists env(EMC2_TCL_DIR)]} {
+    set TCLBIN $env(EMC2_TCL_DIR)
+    set TCLSCRIPTS $env(EMC2_TCL_DIR)
+    set TCLBIN $TCLBIN/bin
+    set TCLSCRIPTS $TCLSCRIPTS/scripts
+    set TCLDIR $env(EMC2_TCL_DIR)
+}
+
+if {[info exists env(REALTIME)]} {
+    set REALTIME $env(REALTIME)
+}
+
+puts "TCLBIN=$TCLBIN"
+
 # Script accesses HAL through two modes halcmd show xxx for show
 # and open halcmd -skf for building tree, watch, edit, and such 
 
@@ -27,9 +51,11 @@ exec /usr/bin/wish "$0" "$@"
 # flesh out the save and reload with modified .ini file.
 # clean up and remove cruft!!!!!
 
+
+
 #----------Testing of run environment----------
 proc initializeConfig {} {
-    global tcl_platform
+    global tcl_platform REALTIME
     # four ordinal tests are used as this script starts
     # 1 -- ms, if yes quit - else
     # 2 -- bwidget, if no quit - else
@@ -68,12 +94,22 @@ proc initializeConfig {} {
     }
     
     # 3 -- Are we where we ought to be.
-    set thisdir [file tail [pwd]]
-    if { $thisdir != "emc2"} {
-         tk_messageBox -icon error -type ok -message "The configuration script needs to be run from the main EMC2 directory"
+    #we don't need to be anywhere, but we need to reach halcmd
+
+    set haltest [exec halcmd]
+    if {$haltest == ""} {
+         tk_messageBox -icon error -type ok -message "The configuration script needs to be run from the main EMC2 directory. Please add the emc2/bin dir to PATH before running this command"
          exit
          destroy .
     }
+    
+    #old test checking for emc2 topdir, doesn't work for installed systems
+    #set thisdir [file tail [pwd]]
+    #if { $thisdir != "emc2"} {
+    #     tk_messageBox -icon error -type ok -message "The configuration script needs to be run from the main EMC2 directory"
+    #     exit
+    #     destroy .
+    #}
     
     # 4 -- is a hal running?
     # first level of test is to see if module is in there.
@@ -84,7 +120,7 @@ proc initializeConfig {} {
         noHal
     } else {
         # check status reply for "not" 
-        set tempmod [exec scripts/realtime "status"]
+        set tempmod [exec $REALTIME "status"]
         set isnot [string match *not* $tempmod]
         if {$tempmod == "-1"} {
             if {$isnot != 1} {
@@ -97,17 +133,17 @@ proc initializeConfig {} {
 # proc allows user to choose some startup stuff if env is okay.
 set demoisup no
 proc noHal {} {
-    global demoisup
+    global demoisup REALTIME TCLBIN
     set demoisup no
     set thisanswer [tk_messageBox -type yesnocancel -message "It looks like HAL is not loaded.  If you'd like to go to the configuration and startup script press yes.  If you'd like to start a HAL demo press no. To stop this script, press cancel."]
     switch -- $thisanswer {
         yes {
             wm withdraw .
-            [exec tcl/bin/setupconfig.tcl]
+            [exec $TCLBIN/setupconfig.tcl]
         }
         no {
            # this works to start a hal but halconfig doesn't live
-            set tmp [exec sudo scripts/realtime load & ]
+            set tmp [exec sudo $REALTIME load & ]
             set demoisup yes
             after 1000 
         }
@@ -127,6 +163,7 @@ package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
     msgcat::mcload "../../src/po"
+    #FIXME add location for installed lang files
 }
 
 
@@ -147,7 +184,7 @@ if ([info exists env(LANG)]) {
 
 proc openHALCMD {} {
     global fid
-    set fid [open "|bin/halcmd -skf" "r+"]
+    set fid [open "|halcmd -skf" "r+"]
     fconfigure $fid -buffering line -blocking on
     gets $fid
     fileevent $fid readable {getsHAL}
@@ -220,10 +257,10 @@ proc askKill {} {
 
 # clean up a couple of possible problems during shutdown
 proc killHalConfig {} {
-    global demoisup fid
+    global demoisup fid REALTIME
     if {$demoisup == "yes"} {
         set demoisup no
-        set tmp [exec sudo scripts/realtime unload & ]
+        set tmp [exec sudo $REALTIME unload & ]
     }
     if {[info exists fid] && $fid != ""} {
         catch flush $fid
@@ -860,7 +897,7 @@ proc showHAL {which} {
     set thislist [split $which "+"]
     set searchbase [lindex $thislist 0]
     set searchstring [lindex $thislist 1]
-    set thisret [exec bin/halcmd show $searchbase $searchstring]
+    set thisret [exec halcmd show $searchbase $searchstring]
     displayThis $thisret
 }
 
@@ -1078,7 +1115,7 @@ refreshHAL
 proc saveHAL {which} {
     switch -- $which {
         save {
-            displayThis [exec bin/halcmd save "comp"]
+            displayThis [exec halcmd save "comp"]
         }
         saveas {}
         saveandexit {
