@@ -552,6 +552,7 @@ sleep 1
 
 #export some common directories, used by some of the GUI's
 export EMC2_TCL_DIR=$EMC2_TCL_DIR
+export EMC2_BIN_DIR=$EMC2_BIN_DIR
 export EMC2_EMCSH=$EMC2_EMCSH
 export EMC2_IOSH=$EMC2_IOSH
 export EMC2_HELP_DIR=$EMC2_HELP_DIR
