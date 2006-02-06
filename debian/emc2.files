@@ -73,12 +73,6 @@ etc/emc2/sim/sim.tbl
 etc/emc2/sim/sim.var
 etc/emc2/sim/simulated_limits.hal
 etc/emc2/sim/test.vcp
-etc/emc2/sim-AXIS/README
-etc/emc2/sim-AXIS/sim.ini
-etc/emc2/sim-AXIS/sim.tbl
-etc/emc2/sim-AXIS/sim.var
-etc/emc2/sim-AXIS/simulated_limits.hal
-etc/emc2/sim-AXIS/test.vcp
 etc/emc2/stepper/README
 etc/emc2/stepper/standard_pinout.hal
 etc/emc2/stepper/stepper.tbl
