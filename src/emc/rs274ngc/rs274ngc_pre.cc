@@ -805,11 +805,6 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   int index;                    // index into _required_parameters
   int k;
 
-/*! \todo FIXME - stat() and chown() can disappear when we no longer need
-   to run as root. */
-  struct stat ini_stat;
-  stat(filename, &ini_stat);		// save the ownership details.
-
   // rename as .bak
   strcpy(line, filename);
   strcat(line, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
@@ -863,11 +858,6 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
     }
   }
   fclose(outfile);
-
-  /* Update the uid and gid of the new ini file - else it will end up
-     being owned by root */
-  chown(filename, ini_stat.st_uid, ini_stat.st_gid);
-
   return INTERP_OK;
 }
 
