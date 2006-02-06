@@ -235,7 +235,9 @@ KILL_TIMEOUT=10
 # if it doesn't work, kill -9 is used
 ################################################################################
 function KillTaskWithTimeout() {
-    KILL_PIDS=`$PIDOF $KILL_TASK`
+    if [ ! -n "$KILL_PIDS" ] ; then
+	KILL_PIDS=`$PIDOF $KILL_TASK`
+    fi
     if [ ! -n "$KILL_PIDS" ] ; then
 	echo "Could not find pid(s) for task $KILL_TASK"
 	return -1
@@ -274,6 +276,7 @@ function KillTaskWithTimeout() {
 	if [ $WAIT -gt 0 ] ; then
 	    echo "Could not kill task $KILL_TASK, PID=$KILL_PID"
 	fi
+	KILL_PIDS=
     done
 }
 
@@ -303,6 +306,12 @@ function Cleanup() {
 	    KillTaskWithTimeout
 	fi
     done
+
+    # check for halconfig, and bring it down if it's around
+    if [ -n "`ps auxw | grep halconfig.tcl | awk {'print $2'}`" ] ; then
+	KILL_PIDS=`ps auxw | grep halconfig.tcl | awk {'print $2'}`
+	KillTaskWithTimeout
+    fi
 
     # now the realtime stuff
     # check for rtapi
@@ -381,6 +390,9 @@ echo Starting emc...
 
 # trap ^C so that it's called if user interrupts script
 trap 'Cleanup ; exit 0' SIGINT SIGTERM
+
+#put the EMC2_BIN_DIR in PATH
+PATH=$EMC2_BIN_DIR:$PATH
 
 # go to the dir where the ini file is
 # either configs/<specific-config> when run-in-place, or
@@ -552,10 +564,10 @@ sleep 1
 
 #export some common directories, used by some of the GUI's
 export EMC2_TCL_DIR=$EMC2_TCL_DIR
-export EMC2_BIN_DIR=$EMC2_BIN_DIR
 export EMC2_EMCSH=$EMC2_EMCSH
 export EMC2_IOSH=$EMC2_IOSH
 export EMC2_HELP_DIR=$EMC2_HELP_DIR
+export REALTIME=$REALTIME
 
 # 4.3.12. Run display in foreground
 echo "Starting EMC DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
