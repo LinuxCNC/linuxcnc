@@ -4,6 +4,21 @@ export EMC2_TCL_DIR
 # the next line restarts using iosh \
 exec $EMC2_EMCSH "$0" "$@"
 
+#********************************************************************
+# Description:  Set_Coordinates.tcl
+#               This file, ' Set_Coordinates.tcl', is a script that lets
+#               the user chose between different coordinate systems
+#
+# Author: Fred Proctor, Ray Henry
+# License: GPL Version 2
+#    
+# Copyright (c) 2005 All rights reserved.
+#
+# Last change: 
+# $Revision$
+# $Author$
+# $Date$
+#********************************************************************/
 
 set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts

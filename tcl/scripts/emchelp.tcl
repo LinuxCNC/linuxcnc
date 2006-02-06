@@ -1,3 +1,18 @@
+#********************************************************************
+# Description:  emchelp.tcl
+#               This file, 'emchelp.tcl', implements messages for tkemc 
+#               baloon help.
+#
+# Author: 
+# License: GPL Version 2
+#    
+# Copyright (c) 2005 All rights reserved.
+#
+# Last change: 
+# $Revision$
+# $Author$
+# $Date$
+#********************************************************************/
 # Functions that return help strings for various EMC settings
 
 # Units help, for help with widgets that get their settings from
