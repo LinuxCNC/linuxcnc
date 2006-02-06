@@ -72,7 +72,7 @@
 #include <sys/fcntl.h>		/* O_RDWR, needed for rtai_shm.h */
 #include <rtai_shm.h>		/* rtai_malloc,free() */
 #include <malloc.h>		/* malloc(), free() */
-#include <asm/io.h>		/* inb(), outb() */
+#include <sys/io.h>		/* inb(), outb() */
 
 #include "rtapi.h"		/* public RTAPI decls */
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */

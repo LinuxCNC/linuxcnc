@@ -2083,6 +2083,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC_DONE;
 	break;
     }
+    return EMC_TASK_EXEC_DONE; // unreached
 }
 
 /*

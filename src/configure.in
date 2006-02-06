@@ -395,7 +395,7 @@ else
 fi
 
 if test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
-  WFLAGS="-Wno-strict-aliasing"
+  WFLAGS="-Wno-strict-aliasing -fno-strict-aliasing"
 else
   WFLAGS=""
 fi

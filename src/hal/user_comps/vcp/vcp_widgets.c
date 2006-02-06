@@ -485,6 +485,11 @@ printf ( "init led\n" );
     }
     /* create the GTK widget here, see scope_disp.c for ideas */
     
+    /* eliminate warning until someone writes the correct
+     * thing here */
+    gwp = NULL;
+
+
     
     wp->gtk_widget = gwp;
     wp->gtk_type = NONE;

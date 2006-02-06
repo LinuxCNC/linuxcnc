@@ -524,7 +524,7 @@ long int rtapi_clock_set_period(long int nsecs)
 
 long long int rtapi_get_time(void)
 {
-    struct timeval tv;
+    //struct timeval tv;
 
     //AJ: commenting the following code out, as it seems on some systems it
     // really breaks
@@ -608,7 +608,7 @@ int rtapi_prio_next_lower(int prio)
    (Most tasks are infinite loops, and don't return.)
 */
 
-static void wrapper(int task_id)
+static void wrapper(long task_id)
 {
     task_data *task;
 
@@ -626,7 +626,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     int prio, int owner, unsigned long int stacksize, int uses_fp)
 {
     int n;
-    int task_id;
+    long task_id;
     int retval;
     task_data *task;
 

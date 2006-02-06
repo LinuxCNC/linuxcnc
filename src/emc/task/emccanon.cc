@@ -646,6 +646,7 @@ void ARC_FEED(double first_end, double second_end,
 
     /* associate x with x, etc., offset by program origin, and set normals */
     switch (activePlane) {
+    default: // to eliminate "uninitalized" warnings
     case CANON_PLANE_XY:
 
 	// offset and align args properly
@@ -733,9 +734,6 @@ void ARC_FEED(double first_end, double second_end,
         vel = MIN3(vel, v1, v2);
         acc = MIN(a1, a2);
 
-	break;
-    default:
-	//should never get here
 	break;
     }
 
