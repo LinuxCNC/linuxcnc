@@ -148,6 +148,3 @@ usr/share/emc/tcl/mini.tcl
 usr/share/emc/tcl/TkEmc
 usr/share/emc/tcl/tkemc.tcl
 etc/X11/app-defaults/TkEmc
-usr/share/applications/emc2.desktop
-usr/share/pixmaps/emc2icon.png
-etc/udev/rules.d/emc2.rules
