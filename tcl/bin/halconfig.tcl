@@ -1,4 +1,16 @@
 #!/bin/sh
+# if there is no env variable HALCMD, check for run-in-place \
+if [ ! -n "$HALCMD" ] ; then 
+# check how the script was run \
+ SCRIPT=`which $0 | grep $0`
+# check for rip bindir \
+ EMC2BINDIR=$(cd $(dirname $SCRIPT); cd ../../bin; pwd -P) 
+# we need to pass HALCMD along if it exists \
+ HALCMD=$EMC2BINDIR/halcmd
+# end of run-in-place test \
+fi
+# export HALCMD \
+export HALCMD 
 # we need to find the tcl dir, it was exported from emc \
 export EMC2_TCL_DIR
 # and some apps need the emc2_bin_dir, so export that too \
@@ -28,6 +40,11 @@ set TCLSCRIPTS tcl/scripts
 set TCLDIR tcl
 set REALTIME scripts/realtime
 
+# default location for halcmd is in ./bin/
+# if this file is needed to run a different location of halcmd
+# the env(HALCMD) will hold the absolute path to it
+set HALCMD bin/halcmd
+
 if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLBIN $env(EMC2_TCL_DIR)
     set TCLSCRIPTS $env(EMC2_TCL_DIR)
@@ -40,7 +57,12 @@ if {[info exists env(REALTIME)]} {
     set REALTIME $env(REALTIME)
 }
 
-puts "TCLBIN=$TCLBIN"
+# get the absolute path to HALCMD if it exists
+if {[info exists env(HALCMD)]} {
+    set HALCMD $env(HALCMD)
+}
+
+puts "HALCMD=$HALCMD"
 
 # Script accesses HAL through two modes halcmd show xxx for show
 # and open halcmd -skf for building tree, watch, edit, and such 
@@ -55,7 +77,7 @@ puts "TCLBIN=$TCLBIN"
 
 #----------Testing of run environment----------
 proc initializeConfig {} {
-    global tcl_platform REALTIME
+    global tcl_platform REALTIME HALCMD
     # four ordinal tests are used as this script starts
     # 1 -- ms, if yes quit - else
     # 2 -- bwidget, if no quit - else
@@ -96,7 +118,7 @@ proc initializeConfig {} {
     # 3 -- Are we where we ought to be.
     #we don't need to be anywhere, but we need to reach halcmd
 
-    set haltest [exec halcmd]
+    set haltest [exec $HALCMD]
     if {$haltest == ""} {
          tk_messageBox -icon error -type ok -message "The configuration script needs to be run from the main EMC2 directory. Please add the emc2/bin dir to PATH before running this command"
          exit
@@ -143,7 +165,7 @@ proc noHal {} {
         }
         no {
            # this works to start a hal but halconfig doesn't live
-            set tmp [exec sudo $REALTIME load & ]
+            set tmp [exec $REALTIME load & ]
             set demoisup yes
             after 1000 
         }
@@ -183,8 +205,8 @@ if ([info exists env(LANG)]) {
 # the command by issuing something like "set myret [exHAL argv]."
 
 proc openHALCMD {} {
-    global fid
-    set fid [open "|halcmd -skf" "r+"]
+    global fid HALCMD
+    set fid [open "|$HALCMD -skf" "r+"]
     fconfigure $fid -buffering line -blocking on
     gets $fid
     fileevent $fid readable {getsHAL}
@@ -260,7 +282,7 @@ proc killHalConfig {} {
     global demoisup fid REALTIME
     if {$demoisup == "yes"} {
         set demoisup no
-        set tmp [exec sudo $REALTIME unload & ]
+        set tmp [exec $REALTIME unload & ]
     }
     if {[info exists fid] && $fid != ""} {
         catch flush $fid
@@ -887,7 +909,7 @@ proc workMode {which} {
 # process uses it's own halcmd show so that displayed
 # info looks like what is in the Hal_Introduction.pdf
 proc showHAL {which} {
-    global disp
+    global disp HALCMD
     if {![info exists disp]} {return}
     if {$which == "zzz"} {
         displayThis "Select a node to show."
@@ -897,7 +919,7 @@ proc showHAL {which} {
     set thislist [split $which "+"]
     set searchbase [lindex $thislist 0]
     set searchstring [lindex $thislist 1]
-    set thisret [exec halcmd show $searchbase $searchstring]
+    set thisret [exec $HALCMD show $searchbase $searchstring]
     displayThis $thisret
 }
 
@@ -1113,9 +1135,10 @@ refreshHAL
 # save will assume that restarting is from a comp and netlist
 # we need to build these files and copy .ini for the new
 proc saveHAL {which} {
+    global HALCMD
     switch -- $which {
         save {
-            displayThis [exec halcmd save "comp"]
+            displayThis [exec $HALCMD save "comp"]
         }
         saveas {}
         saveandexit {
