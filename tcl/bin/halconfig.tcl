@@ -959,14 +959,14 @@ proc watchLoop {} {
             set ret [lindex [exHAL "show $vartype $varname"] 1]
         } else {
             set ret [lindex [exHAL "show $vartype $varname"] 3]
-            if {$ret == "TRUE"} {
-                $cisp itemconfigure oval$cnum -fill yellow
-            } elseif {$ret == "FALSE"} {
-                $cisp itemconfigure oval$cnum -fill firebrick4
-            } else {
-                set value [expr $ret]
-                $cisp itemconfigure text$cnum -text $value
-            }
+        }
+        if {$ret == "TRUE"} {
+            $cisp itemconfigure oval$cnum -fill yellow
+        } elseif {$ret == "FALSE"} {
+            $cisp itemconfigure oval$cnum -fill firebrick4
+        } else {
+            set value [expr $ret]
+            $cisp itemconfigure text$cnum -text $value
         }
     }
     if {$workmode == "watchhal"} {
