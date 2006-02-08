@@ -45,8 +45,6 @@ HEADERS = config.h
 # level code that might depend on it
 
 all headers indent : def_headers
-	chmod +x ../scripts/emc
-	chmod +x ../scripts/realtime
 	$(MAKE) -C rtapi headers
 	$(MAKE) -C libnml headers
 	$(MAKE) -C emc headers
