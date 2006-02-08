@@ -217,7 +217,7 @@ clean :
 	find . -name "*~" -exec rm -f {} \;
 	find . -name "*.bak" -exec rm -f {} \;
 	find . -name core -exec rm -f {} \;
-	-rm -f ../include/* ../lib/* ../rtlib/* ../bin/* 2>/dev/null
+	rm -f ../include/* ../lib/* ../rtlib/* ../bin/* 2>/dev/null || true
 	rm -f .tmp/* .rt_tmp/*
 
 tgz: clean
