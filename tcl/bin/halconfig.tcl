@@ -1,14 +1,4 @@
 #!/bin/sh
-# if there is no env variable HALCMD, check for run-in-place \
-if [ ! -n "$HALCMD" ] ; then 
-# check how the script was run \
- SCRIPT=`which $0 | grep $0`
-# check for rip bindir \
- EMC2BINDIR=$(cd $(dirname $SCRIPT); cd ../../bin; pwd -P) 
-# we need to pass HALCMD along if it exists \
- HALCMD=$EMC2BINDIR/halcmd
-# end of run-in-place test \
-fi
 # export HALCMD \
 export HALCMD 
 # we need to find the tcl dir, it was exported from emc \
