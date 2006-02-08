@@ -86,7 +86,7 @@ proc initializeConfig {} {
     set isbwidget [glob -directory /usr/lib -nocomplain \
         -types d bwidget* ]
     if {$isbwidget == ""} {
-        tk_messageBox -icon error -type ok -message "Darn.  I didn't find the bwidget library in the usual place\n\n/usr/lib/bwidget-##.\n\nIf this is a linux box and you have the Axis display stuff loaded, it has an older copy of Bwidget that you could link to the location shown above."
+        tk_messageBox -icon error -type ok -message "Can't find the bwidget package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."
         exit
         destroy .
     } else {
