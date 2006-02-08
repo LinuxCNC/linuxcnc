@@ -7152,6 +7152,11 @@ s,@abs_top_builddir@,$ac_abs_top_builddir,;t t
     rm -f $tmp/out
   fi
 
+  # Run the commands associated with the file.
+  case $ac_file in
+    ../scripts/emc ) chmod +x ../scripts/emc ../scripts/realtime ;;
+    ../scripts/realtime ) chmod +x ../scripts/emc ../scripts/realtime ;;
+  esac
 done
 _ACEOF
 cat >>$CONFIG_STATUS <<\_ACEOF
