@@ -165,8 +165,6 @@ proc noHal {} {
     }
 }
 
-# run the init test process
-initializeConfig
 #
 #----------end of environment tests----------
 
@@ -245,8 +243,6 @@ set ymax [winfo screenheight .]
 set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
 wm geometry . "${masterwidth}x${masterheight}+$x+$y"
-set top [frame .main ]
-pack $top -padx 4 -pady 4 -fill both -expand yes
 
 # add a few default characteristics to the display
 foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
@@ -281,6 +277,13 @@ proc killHalConfig {} {
     exit
     destroy .
 }
+
+# run the init test process
+initializeConfig
+
+set top [frame .main ]
+pack $top -padx 4 -pady 4 -fill both -expand yes
+
 
 # workmodes are set from the menu
 # possible workmodes include showhal watchhal modifyhal tunehal 
@@ -871,7 +874,7 @@ proc tuneAxis {which} {
 # oldvar keeps the last HAL variable for refresh
 
 proc workMode {which} {
-    global workmode oldvar thisvar
+    global workmode oldvar thisvar newmodvar
     set thisvar $which
     switch -- $workmode {
         showhal {
@@ -880,8 +883,8 @@ proc workMode {which} {
         watchhal {
             watchHAL $which
         }
-        # doesn't do anything now with bind to entry widgets
         modifyhal {
+            set newmodvar 0
             setModifyVar $which
         }
         tunehal {
@@ -1080,11 +1083,13 @@ proc setModifyVar {which} {
 }
 
 proc copyVar {var} {
-    global thisvar
-#    puts $var
-    set tmpvar [lindex [split $thisvar +] end]
-    $var insert 0 $tmpvar
-
+    global thisvar newmodvar
+    if {$newmodvar == 0 } {
+    #    puts $var
+        set tmpvar [lindex [split $thisvar +] end]
+        $var insert 0 $tmpvar
+        set newmodvar 1
+    }
 }
 
 proc modMod {which} {
