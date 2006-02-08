@@ -568,6 +568,7 @@ export EMC2_EMCSH=$EMC2_EMCSH
 export EMC2_IOSH=$EMC2_IOSH
 export EMC2_HELP_DIR=$EMC2_HELP_DIR
 export REALTIME=$REALTIME
+export HALCMD=$HALCMD
 
 # 4.3.12. Run display in foreground
 echo "Starting EMC DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
