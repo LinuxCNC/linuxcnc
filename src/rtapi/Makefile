@@ -84,21 +84,21 @@ modules_install:
 endif
 
 headers: def_headers
-	(cd examples; make $@)
+	$(MAKE) -C examples $@
 
 examples:
-	(cd examples; make all)
+	$(MAKE) -C examples all
 
 indent: def_indent
-	(cd examples; make $@)
+	$(MAKE) -C examples $@
 
 depend: def_depend
-	(cd examples; make $@)
+	$(MAKE) -C examples $@
 
 # note that we always clean the examples, even if not
 # configured to make them
 clean: def_clean kclean
-	(cd examples; make $@)
+	$(MAKE) -C examples $@
 	- rm -f $(EMC2_HOME)/scripts/rtapi.conf
 
 kclean:

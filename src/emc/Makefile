@@ -44,75 +44,75 @@ endif
 PWD := $(shell pwd)
 
 all: headers modules
-	(cd ini; make $@)
-	(cd nml_intf; make $@)
-	(cd rs274ngc; make $@)
-	(cd canterp; make $@)
-	(cd kinematics; make $@)
-	(cd motion; make $@)
-	(cd iotask; make $@)
-	(cd task; make $@)
-	(cd usr_intf; make $@)
+	$(MAKE) -C ini $@
+	$(MAKE) -C nml_intf $@
+	$(MAKE) -C rs274ngc $@
+	$(MAKE) -C canterp $@
+	$(MAKE) -C kinematics $@
+	$(MAKE) -C motion $@
+	$(MAKE) -C iotask $@
+	$(MAKE) -C task $@
+	$(MAKE) -C usr_intf $@
 
 
 headers: def_headers
-	(cd ini; make $@)
-	(cd nml_intf; make $@)
-	(cd rs274ngc; make $@)
-	(cd canterp; make $@)
-	(cd kinematics; make $@)
-	(cd motion; make $@)
-	(cd iotask; make $@)
-	(cd task; make $@)
-	(cd usr_intf; make $@)
+	$(MAKE) -C ini $@
+	$(MAKE) -C nml_intf $@
+	$(MAKE) -C rs274ngc $@
+	$(MAKE) -C canterp $@
+	$(MAKE) -C kinematics $@
+	$(MAKE) -C motion $@
+	$(MAKE) -C iotask $@
+	$(MAKE) -C task $@
+	$(MAKE) -C usr_intf $@
 
 indent: def_indent
-	(cd ini; make $@)
-	(cd nml_intf; make $@)
-	(cd rs274ngc; make $@)
-	(cd canterp; make $@)
-	(cd kinematics; make $@)
-	(cd motion; make $@)
-	(cd iotask; make $@)
-	(cd task; make $@)
-	(cd usr_intf; make $@)
+	$(MAKE) -C ini $@
+	$(MAKE) -C nml_intf $@
+	$(MAKE) -C rs274ngc $@
+	$(MAKE) -C canterp $@
+	$(MAKE) -C kinematics $@
+	$(MAKE) -C motion $@
+	$(MAKE) -C iotask $@
+	$(MAKE) -C task $@
+	$(MAKE) -C usr_intf $@
 
 depend: def_depend
-	(cd ini; make $@)
-	(cd nml_intf; make $@)
-	(cd rs274ngc; make $@)
-	(cd canterp; make $@)
-	(cd kinematics; make $@)
-	(cd motion; make $@)
-	(cd iotask; make $@)
-	(cd task; make $@)
-	(cd usr_intf; make $@)
+	$(MAKE) -C ini $@
+	$(MAKE) -C nml_intf $@
+	$(MAKE) -C rs274ngc $@
+	$(MAKE) -C canterp $@
+	$(MAKE) -C kinematics $@
+	$(MAKE) -C motion $@
+	$(MAKE) -C iotask $@
+	$(MAKE) -C task $@
+	$(MAKE) -C usr_intf $@
 
 clean: def_clean kclean
-	(cd ini; make $@)
-	(cd nml_intf; make $@)
-	(cd rs274ngc; make $@)
-	(cd canterp; make $@)
-	(cd kinematics; make $@)
-	(cd motion; make $@)
-	(cd iotask; make $@)
-	(cd task; make $@)
-	(cd usr_intf; make $@)
+	$(MAKE) -C ini $@
+	$(MAKE) -C nml_intf $@
+	$(MAKE) -C rs274ngc $@
+	$(MAKE) -C canterp $@
+	$(MAKE) -C kinematics $@
+	$(MAKE) -C motion $@
+	$(MAKE) -C iotask $@
+	$(MAKE) -C task $@
+	$(MAKE) -C usr_intf $@
 
 kclean:
 	- rm -f .*.cmd *.o *.mod.* *.ko
 	- rm -fR .tmp_versions
 
 install:
-	(cd ini; make $@)
-	(cd nml_intf; make $@)
-	(cd rs274ngc; make $@)
-	(cd canterp; make $@)
-	(cd kinematics; make $@)
-	(cd motion; make $@)
-	(cd iotask; make $@)
-	(cd task; make $@)
-	(cd usr_intf; make $@)
+	$(MAKE) -C ini $@
+	$(MAKE) -C nml_intf $@
+	$(MAKE) -C rs274ngc $@
+	$(MAKE) -C canterp $@
+	$(MAKE) -C kinematics $@
+	$(MAKE) -C motion $@
+	$(MAKE) -C iotask $@
+	$(MAKE) -C task $@
+	$(MAKE) -C usr_intf $@
 
 # Generic rules
 include $(SRC_DIR)/Make.rules

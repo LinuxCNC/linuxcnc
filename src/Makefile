@@ -47,15 +47,15 @@ HEADERS = config.h
 all headers indent : def_headers
 	chmod +x ../scripts/emc
 	chmod +x ../scripts/realtime
-	(cd rtapi; make headers)
-	(cd libnml; make headers)
-	(cd emc; make headers)
-	(cd hal; make headers)
-	(cd module_helper; make $@)
-	(cd rtapi; make $@)
-	(cd libnml; make $@)
-	(cd hal; make $@)
-	(cd emc; make $@)
+	$(MAKE) -C rtapi headers
+	$(MAKE) -C libnml headers
+	$(MAKE) -C emc headers
+	$(MAKE) -C hal headers
+	$(MAKE) -C module_helper $@
+	$(MAKE) -C rtapi $@
+	$(MAKE) -C libnml $@
+	$(MAKE) -C hal $@
+	$(MAKE) -C emc $@
 	@echo 
 	@echo '########################################################'
 	@echo '# You have now compiled EMC2.  You can either install  #'
@@ -159,29 +159,29 @@ install_tcl:
 	#@ echo "locale installed"
 
 install_man : $(MAN_FILES)
-	(cd rtapi; make $@)
-	(cd hal; make $@)
+	$(MAKE) -C rtapi $@
+	$(MAKE) -C hal $@
 
 #if you want to test, uncomment the following line (not safe till further testing)
 install: install_rtscript install_modules install_configs\
 	install_bin install_lib install_docs install_ncfiles\
 	install_tcl install_headers
-	(cd rtapi; make $@)
+	$(MAKE) -C rtapi $@
 
 deb: all
 	(cd .. && debian/rules build && fakeroot debian/rules binary)
 
 modules: headers
-	(cd rtapi; make $@)
-	(cd hal; make $@)
-	(cd emc; make $@)
+	$(MAKE) -C rtapi $@
+	$(MAKE) -C hal $@
+	$(MAKE) -C emc $@
 
 ifeq ($(BUILD_SYS),kbuild)
 
 modules_install: modules
-	(cd rtapi; make $@)
-	(cd hal; make $@)
-	(cd emc; make $@)
+	$(MAKE) -C rtapi $@
+	$(MAKE) -C hal $@
+	$(MAKE) -C emc $@
 	depmod 2>/dev/null
 
 endif
@@ -197,25 +197,25 @@ uninstall :
 # files are installed, then runs the depend target in each directory
 
 depend : headers
-	(cd rtapi; make $@)
-	(cd hal; make $@)
-	(cd libnml; make $@)
-	(cd emc; make $@)
+	$(MAKE) -C rtapi $@
+	$(MAKE) -C hal $@
+	$(MAKE) -C libnml $@
+	$(MAKE) -C emc $@
 
 # this rule handles the examples target
 # it only enters directories that have examples
 examples :
-	(cd rtapi; make $@)
+	$(MAKE) -C rtapi $@
 
 # this rule handles the clean target
 # it changes to all the source sub-directories, calls make there, and
 # then returns to the top level directory and cleans that up too.
 clean :
-	(cd module_helper; make $@)
-	(cd rtapi; make $@)
-	(cd hal; make $@)
-	(cd libnml; make $@)
-	(cd emc; make $@)
+	$(MAKE) -C module_helper $@
+	$(MAKE) -C rtapi $@
+	$(MAKE) -C hal $@
+	$(MAKE) -C libnml $@
+	$(MAKE) -C emc $@
 	find . -name "*~" -exec rm -f {} \;
 	find . -name "*.bak" -exec rm -f {} \;
 	find . -name core -exec rm -f {} \;

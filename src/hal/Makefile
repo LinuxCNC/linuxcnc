@@ -47,11 +47,11 @@ PWD := $(shell pwd)
 
 
 all : headers $(LIBS) modules
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
-	(cd user_comps; make $@)
-	(cd classicladder; make $@)
+	$(MAKE) -C utils $@
+	$(MAKE) -C drivers $@
+	$(MAKE) -C components $@
+	$(MAKE) -C user_comps $@
+	$(MAKE) -C classicladder $@
 
 # Generic rules
 include $(SRC_DIR)/Make.rules
@@ -64,16 +64,16 @@ ifeq ($(BUILD_SYS),kbuild)
 modules: headers
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules
 	- cp *.ko $(RTLIB_DIR)/
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
-	(cd classicladder; make $@)
+	$(MAKE) -C utils $@
+	$(MAKE) -C drivers $@
+	$(MAKE) -C components $@
+	$(MAKE) -C classicladder $@
 
 modules_install: modules
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
-	(cd classicladder; make $@)
+	$(MAKE) -C utils $@
+	$(MAKE) -C drivers $@
+	$(MAKE) -C components $@
+	$(MAKE) -C classicladder $@
 
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 modules_install
 	depmod 2>/dev/null
@@ -87,32 +87,32 @@ modules_install:
 endif
 
 headers: def_headers
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
-	(cd user_comps; make $@)
-	(cd classicladder; make $@)
+	$(MAKE) -C utils $@
+	$(MAKE) -C drivers $@
+	$(MAKE) -C components $@
+	$(MAKE) -C user_comps $@
+	$(MAKE) -C classicladder $@
 
 indent: def_indent
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
-	(cd user_comps; make $@)
-	(cd classicladder; make $@)
+	$(MAKE) -C utils $@
+	$(MAKE) -C drivers $@
+	$(MAKE) -C components $@
+	$(MAKE) -C user_comps $@
+	$(MAKE) -C classicladder $@
 
 depend: def_depend
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
-	(cd user_comps; make $@)
-	(cd classicladder; make $@)
+	$(MAKE) -C utils $@
+	$(MAKE) -C drivers $@
+	$(MAKE) -C components $@
+	$(MAKE) -C user_comps $@
+	$(MAKE) -C classicladder $@
 
 clean :  def_clean kclean
-	(cd utils; make $@)
-	(cd drivers; make $@)
-	(cd components; make $@)
-	(cd user_comps; make $@)
-	(cd classicladder; make $@)
+	$(MAKE) -C utils $@
+	$(MAKE) -C drivers $@
+	$(MAKE) -C components $@
+	$(MAKE) -C user_comps $@
+	$(MAKE) -C classicladder $@
 
 kclean:
 	- rm -f .*.cmd *.o *.mod.* *.ko

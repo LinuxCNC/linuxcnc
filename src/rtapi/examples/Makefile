@@ -35,18 +35,18 @@ KDIR := /lib/modules/$(shell uname -r)/build
 endif
 
 all headers depend indent install: modules
-	(cd extint; make $@)
-	(cd timer; make $@)
-	(cd shmem; make $@)
-	(cd semaphore; make $@)
-	(cd fifo; make $@)
+	$(MAKE) -C extint $@
+	$(MAKE) -C timer $@
+	$(MAKE) -C shmem $@
+	$(MAKE) -C semaphore $@
+	$(MAKE) -C fifo $@
 
 clean: kclean
-	(cd extint; make $@)
-	(cd timer; make $@)
-	(cd shmem; make $@)
-	(cd semaphore; make $@)
-	(cd fifo; make $@)
+	$(MAKE) -C extint $@
+	$(MAKE) -C timer $@
+	$(MAKE) -C shmem $@
+	$(MAKE) -C semaphore $@
+	$(MAKE) -C fifo $@
 
 # Only on kbuild build systems is it required to do the 'make modules'
 # all older system build the traditional way
