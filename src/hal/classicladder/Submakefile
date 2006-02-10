@@ -1,13 +1,4 @@
-#CLASSICLADDERKSRCS := $(patsubst %,hal/classicladder/%,
-	#module_rt.c \
-	#calc_rt.c \
-	#vars_access.c \
-	#arithm_eval.c \
-	#manager.c \
-	#arrays.c \
-#classicladder_rt-objs := $(patsubst %.c,objects/%.o, \
-
-CLASSICLADDERSRCS := $(patsubst %,hal/classicladder/%, \
+CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	arithm_eval.c \
 	arrays.c \
 	calc.c \
@@ -25,7 +16,7 @@ CLASSICLADDERSRCS := $(patsubst %,hal/classicladder/%, \
 	editproperties_gtk.c \
 	manager_gtk.c)
 ifdef SEQUENTIAL_SUPPORT
-CLASSICLADDERSRCS += $(patsubst %,hal/classicladder/%, \
+CLASSICLADDERSRCS += $(addprefix hal/classicladder/, \
 	calc_sequential.cc \
 	files_sequential.cc)
 endif

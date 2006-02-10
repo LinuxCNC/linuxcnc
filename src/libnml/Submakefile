@@ -1,4 +1,4 @@
-LIBNMLSRCS := $(patsubst %, libnml/%, \
+LIBNMLSRCS := $(addprefix libnml/, \
 	rcs/rcs_print.cc rcs/rcs_exit.cc \
 \
 	posemath/_posemath.c posemath/posemath.cc posemath/sincos.c \

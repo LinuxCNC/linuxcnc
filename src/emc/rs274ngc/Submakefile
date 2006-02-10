@@ -1,6 +1,6 @@
 INCLUDES += emc/rs274ngc
 
-LIBRS274SRCS := $(patsubst %,emc/rs274ngc/%, \
+LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_arc.cc \
 	interp_array.cc \
 	interp_check.cc \
