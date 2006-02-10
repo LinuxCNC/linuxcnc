@@ -3,3 +3,6 @@ Makefile.inc
 config.h
 config.log
 config.status
+objects
+depends
+autom4te.cache

@@ -1,0 +1,6 @@
+INCLUDES += libnml/os_intf
+
+../include/%.h: ./libnml/os_intf/%.h
+	cp $^ $@
+../include/%.hh: ./libnml/os_intf/%.hh
+	cp $^ $@

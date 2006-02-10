@@ -1,0 +1,9 @@
+fooSRCS := \
+	path/src.cc
+USERSRCS += $(fooSRCS)
+
+$(call TOOBJSDEPS, $(fooSRCS)) : EXTRAFLAGS = -Dfoo
+
+../bin/foo: $(call TOOBJS, $(fooSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) -o $@ $^ 
+userspace: ../bin/foo

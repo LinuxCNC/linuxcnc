@@ -1,0 +1,16 @@
+INCLUDES += libnml/inifile
+
+../include/%.h: ./libnml/inifile/%.h
+	cp $^ $@
+../include/%.hh: ./libnml/inifile/%.hh
+	cp $^ $@
+
+INIFILESRCS := \
+	libnml/inifile/inifile.cc \
+	libnml/inifile/inivar.cc \
+
+USERSRCS += $(INIFILESRCS)
+
+../bin/inivar: $(call TOOBJS, $(INIFILESRCS))
+	$(CXX) -o $@ $^ 
+TARGETS += ../bin/inivar

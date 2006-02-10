@@ -1,0 +1,11 @@
+SIMIOSRCS := emc/iotask/simIoControl.cc $(ULAPISRCS) hal/hal_lib.c
+IOSRCS := emc/iotask/ioControl.cc $(ULAPISRCS) hal/hal_lib.c
+USERSRCS += $(SIMIOSRCS) $(IOSRCS)
+
+../bin/simio: $(call TOOBJS, $(SIMIOSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $^ 
+TARGETS += ../bin/simio
+
+../bin/io: $(call TOOBJS, $(IOSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $^ 
+TARGETS += ../bin/io

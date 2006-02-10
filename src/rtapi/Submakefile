@@ -1,0 +1,6 @@
+INCLUDES += rtapi
+
+../include/%.h: ./rtapi/%.h
+	cp $^ $@
+../include/%.hh: ./rtapi/%.hh
+	cp $^ $@

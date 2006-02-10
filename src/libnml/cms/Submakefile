@@ -1,0 +1,6 @@
+INCLUDES += libnml/cms
+
+../include/%.h: ./libnml/cms/%.h
+	cp $^ $@
+../include/%.hh: ./libnml/cms/%.hh
+	cp $^ $@

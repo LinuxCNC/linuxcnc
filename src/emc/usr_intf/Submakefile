@@ -1,0 +1,31 @@
+EMCSHSRCS := emc/usr_intf/emcsh.cc
+IOSHSRCS := emc/usr_intf/iosh.cc \
+	emc/motion/usrmotintf.cc \
+	emc/motion/emcmotglb.c \
+	emc/motion/emcmotutil.c \
+	$(ULAPISRCS)
+USRMOTSRCS := \
+	emc/usr_intf/usrmot.c \
+	emc/motion/usrmotintf.cc \
+	emc/motion/emcmotglb.c \
+	emc/motion/emcmotutil.c \
+	$(ULAPISRCS)
+
+TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
+USERSRCS += $(EMCSHSRCS) $(IOSHSRCS) $(USRMOTSRCS)
+
+$(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
+
+../bin/emcsh: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
+TARGETS += ../bin/emcsh
+
+../bin/iosh: $(call TOOBJS, $(IOSHSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
+TARGETS += ../bin/iosh
+
+../bin/usrmot: $(call TOOBJS, $(USRMOTSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
+TARGETS += ../bin/usrmot
+
+

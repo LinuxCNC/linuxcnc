@@ -1,0 +1,50 @@
+#CLASSICLADDERKSRCS := $(patsubst %,hal/classicladder/%,
+	#module_rt.c \
+	#calc_rt.c \
+	#vars_access.c \
+	#arithm_eval.c \
+	#manager.c \
+	#arrays.c \
+#classicladder_rt-objs := $(patsubst %.c,objects/%.o, \
+
+CLASSICLADDERSRCS := $(patsubst %,hal/classicladder/%, \
+	arithm_eval.c \
+	arrays.c \
+	calc.c \
+	classicladder.c \
+	files.c \
+	manager.c \
+	protocol_modbus_slave.c \
+	socket_server.c \
+	vars_access.c \
+	classicladder_gtk.c \
+	config_gtk.c \
+	drawing.c \
+	edit.c \
+	edit_gtk.c \
+	editproperties_gtk.c \
+	manager_gtk.c)
+ifdef SEQUENTIAL_SUPPORT
+CLASSICLADDERSRCS += $(patsubst %,hal/classicladder/%, \
+	calc_sequential.cc \
+	files_sequential.cc)
+endif
+	
+GTK_CFLAGS +=	-DGTK_INTERFACE
+ifeq ($(GTK_VERSION), 1.2)
+GTK_CFLAGS += -DNO_GTK_STYLE_GET_FONT
+endif
+
+
+ifdef SEQUENTIAL_SUPPORT
+$(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS) -DSEQUENTIAL_SUPPORT
+else
+$(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
+endif
+
+USERSRCS += $(CLASSICLADDERSRCS)
+
+../bin/classicladder: $(call TOOBJS, $(CLASSICLADDERSRCS) hal/hal_lib.c $(ULAPISRCS))
+	$(CC) $(CFLAGS) $(ULFLAGS) -lpthread -o $@ $^ $(GTK_LIBS)
+
+TARGETS += ../bin/classicladder

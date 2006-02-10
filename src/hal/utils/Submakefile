@@ -1,0 +1,51 @@
+HALCMDSRCS := \
+	hal/utils/halcmd.c \
+	$(ULAPISRCS) \
+	hal/hal_lib.c
+USERSRCS += $(HALCMDSRCS)
+
+
+../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
+TARGETS += ../bin/halcmd
+
+
+HALMETERSRCS := \
+    hal/utils/meter.c \
+    hal/utils/miscgtk.c \
+    $(ULAPISRCS) \
+    hal/hal_lib.c
+
+USERSRCS += $(HALMETERSRCS)
+
+../bin/halmeter: $(call TOOBJS, $(HALMETERSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
+TARGETS += ../bin/halmeter
+
+HALSCOPESRCS := \
+    hal/utils/scope.c \
+    hal/utils/scope_horiz.c \
+    hal/utils/scope_vert.c \
+    hal/utils/scope_trig.c \
+    hal/utils/scope_disp.c \
+    hal/utils/scope_files.c \
+    hal/utils/miscgtk.c \
+    $(ULAPISRCS) \
+    hal/hal_lib.c
+
+USERSRCS += $(HALSCOPESRCS)
+
+../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
+TARGETS += ../bin/halscope
+
+HALGTKSRCS := \
+    hal/utils/scope.c \
+    hal/utils/scope_horiz.c \
+    hal/utils/scope_vert.c \
+    hal/utils/scope_trig.c \
+    hal/utils/scope_disp.c \
+    hal/utils/scope_files.c \
+    hal/utils/meter.c \
+    hal/utils/miscgtk.c
+$(call TOOBJSDEPS, $(HALGTKSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)

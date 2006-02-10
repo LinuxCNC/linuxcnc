@@ -1,0 +1,10 @@
+
+MODULE_HELPERSRCS := \
+	module_helper/module_helper.c
+USERSRCS += $(MODULE_HELPERSRCS)
+
+$(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
+
+../bin/emc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS))
+	$(CXX) -o $@ $^ 
+TARGETS += ../bin/emc_module_helper

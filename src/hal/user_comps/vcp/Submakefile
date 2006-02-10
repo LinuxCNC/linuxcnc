@@ -1,0 +1,17 @@
+ifdef GTK_VERSION
+
+HALVCPSRCS := \
+	hal/user_comps/vcp/tokenizer.c \
+	hal/user_comps/vcp/vcp_main.c \
+	hal/user_comps/vcp/vcp_widgets.c \
+	$(ULAPISRCS) \
+	hal/hal_lib.c
+
+$(call TOOBJSDEPS, $(HALVCPSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
+
+USERSRCS += $(HALVCPSRCS)
+../bin/halvcp: $(call TOOBJS, $(HALVCPSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $^ $(GTK_LIBS)
+TARGETS += ../bin/halvcp
+
+endif

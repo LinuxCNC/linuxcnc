@@ -1,241 +1,264 @@
-# top level Makefile
-# -------------
-#
-# Notes on syntax:
-# @ causes each command NOT to be echoed to the console.
-# - allows the rule to continue after an error.
-#
-#
-# Notes on targets:
-#
-# all - default target, makes the whole thing except examples
-# examples - makes rtapi examples, run after "make all"
-# headers - copies public header files to INC_DIR (emc2/include)
-# depend - generate dependency file(s)
-# indent - formats source code
-# install - installs emc2 files to system directories
-#           right now this is commented out (uncomment it if you want to test)
-# install_rtscript - this installs the realtime script to /etc/init.d/ and rtapi.conf to /etc
-# install_modules - installed the modules to the modulesdir (found by config)
-# install_configs - installs the configs to $sysconfdir (usually /usr/local/etc)
-# install_bin - installs bins to $bindir (usually /usr/local/bin)
-# install_lib - installs libs to $libdir
-# install_docs - installs docs to $docdir
-# install_ncfiles - installs ncfiles 
-# install_tcl - installs tcl code
-# install_man - installs man pages
-# uninstall - removes emc2 files from system directories
-#           - FIXME - not done yet (will need a list of installed files)
-# clean - cleans up temp files, backups, object files, binaries, etc.
-# tgz - creates emc2.tar.gz containing the sources (does a clean first)
-#       Usefull to produce an tarball of the latest CVS
-# deb - FIXME - this should produce a deb package using the make install rule
-# rpm - FIXME - this should produce a rpm package using the make install rule
-#
-#
-# Makefile.inc contains directory paths and other system dependent stuff
-include Makefile.inc
+include $(PWD)/Makefile.inc
 
-HEADERS = config.h
+ifeq ($(KERNELRELEASE),)
+default: userspace modules
+	
+TARGETS :=
+SUBDIRS := \
+    libnml/linklist libnml/cms libnml/rcs libnml/inifile libnml/os_intf \
+    libnml/nml libnml/buffer libnml/posemath libnml \
+    \
+    rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
+    rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
+    \
+    hal/components hal/drivers hal/user_comps/vcp hal/user_comps \
+    hal/classicladder hal/utils hal \
+    \
+    emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
+    emc/motion emc/ini emc/rs274ngc emc \
+    \
+    module_helper
 
-#
-# this rule handles most targets
-# it simply changes to all the source sub-directories and calls make there
-# note the order - low level code like rtapi is made first, before higher
-# level code that might depend on it
+ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c 
 
-all headers indent : def_headers
-	$(MAKE) -C rtapi headers
-	$(MAKE) -C libnml headers
-	$(MAKE) -C emc headers
-	$(MAKE) -C hal headers
-	$(MAKE) -C module_helper $@
-	$(MAKE) -C rtapi $@
-	$(MAKE) -C libnml $@
-	$(MAKE) -C hal $@
-	$(MAKE) -C emc $@
-	@echo 
-	@echo '########################################################'
-	@echo '# You have now compiled EMC2.  You can either install  #'
-	@echo '# it or run it in-place.  To run in-place, now run:    #'
-	@echo '# sudo make setuid                                     #'
-	@echo '########################################################'
-	@echo
+INCLUDES := .
 
-# Generic rules
-include Make.rules
+USERSRCS := 
+PROGRAMS := 
 
-# these variables are used to build a list of all
-# man pages that need to be installed
+TOOBJS = $(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1)))
+TODEPS = $(patsubst %.cc,depends/%.d,$(patsubst %.c,depends/%.d,$(1)))
+TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS,$(1))
 
-ifneq ($(strip $(MAN_DIR)),)
-# MAN_DIR exists, generate list of man pages
-MAN1_FILES := $(patsubst docs/man/%,$(MAN_DIR)/%,$(wildcard docs/man/man1/*.1))
-MAN3_FILES := $(patsubst docs/man/%,$(MAN_DIR)/%,$(wildcard docs/man/man3/*.3))
-MAN_FILES = $(MAN1_FILES) $(MAN3_FILES)
-else
-# no man dir, do nothing
-MAN_FILES =
+SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
+-include $(SUBMAKEFILES)
+
+ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
+$(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
+
+CUSEROBJS := $(call TOOBJS,$(filter %.c,$(USERSRCS)))
+CXXUSEROBJS += $(call TOOBJS,$(filter %.cc,$(USERSRCS)))
+
+DEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
+include $(DEPS)
+INCLUDE := -I$(RTDIR)/include $(patsubst %,-I%, $(INCLUDES))
+OPT := -O
+DEBUG := -g -Wall
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
+CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
+RPATH := $(shell cd ../lib; /bin/pwd)
+LDFLAGS := -Wl,-rpath,$(RPATH)
+
+depends/%.d: %.cc
+	@mkdir -p $(dir $@)
+	@echo Depending $<
+	@$(CXX) -MM -MG -MT "$@ $(patsubst depends/%.d,objs/%.o,$@)" \
+		$(CXXFLAGS) $(EXTRAFLAGS) $< -o $@.tmp && mv -f $@.tmp $@
+depends/%.d: %.c 
+	@mkdir -p $(dir $@)
+	@echo Depending $<
+	@$(CC) -MM -MG -MT "$@ $(patsubst depends/%.d,objs/%.o,$@)" \
+		$(CFLAGS) $(EXTRAFLAGS) $< -o $@.tmp && mv -f $@.tmp $@
+
+$(sort $(CUSEROBJS)) : objects/%.o: %.c
+	@echo Compiling $< $(EXTRAFLAGS)
+	@mkdir -p $(dir $@)
+	@$(CC) -c $(CFLAGS) $(EXTRAFLAGS) $< -o $@
+
+$(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
+	@echo Compiling $< $(EXTRAFLAGS)
+	@mkdir -p $(dir $@)
+	@$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
+
+
+HEADERS := \
+    emc/nml_intf/canon.hh \
+    libnml/nml/cmd_msg.hh \
+    libnml/cms/cms.hh \
+    libnml/cms/cms_aup.hh \
+    libnml/cms/cms_cfg.hh \
+    libnml/cms/cms_dup.hh \
+    libnml/cms/cms_srv.hh \
+    libnml/cms/cms_up.hh \
+    libnml/cms/cms_user.hh \
+    libnml/cms/cms_xup.hh \
+    libnml/cms/cmsdiag.hh \
+    config.h \
+    emc/kinematics/cubic.h \
+    emc/nml_intf/emc.hh \
+    emc/nml_intf/emccfg.h \
+    emc/nml_intf/emcglb.h \
+    emc/motion/emcmotcfg.h \
+    emc/motion/emcmotglb.h \
+    emc/nml_intf/emcpos.h \
+    emc/ini/iniaux.hh \
+    emc/ini/iniaxis.hh \
+    emc/ini/inicool.hh \
+    emc/ini/inilube.hh \
+    emc/ini/inispin.hh \
+    emc/ini/initool.hh \
+    emc/ini/initraj.hh \
+    emc/nml_intf/interp.hh \
+    emc/rs274ngc/interp_internal.hh \
+    emc/nml_intf/interp_return.hh \
+    emc/nml_intf/interpl.hh \
+    emc/kinematics/kinematics.h \
+    emc/kinematics/mmxavg.h \
+    emc/motion/motion.h \
+    libnml/nml/nml.hh \
+    libnml/nml/nml_mod.hh \
+    libnml/nml/nml_oi.hh \
+    libnml/nml/nml_srv.hh \
+    libnml/nml/nmldiag.hh \
+    libnml/nml/nmlmsg.hh \
+    rtapi/procfs_macros.h \
+    emc/rs274ngc/rs274ngc.hh \
+    rtapi/rtapi.h \
+    rtapi/rtapi_app.h \
+    libnml/nml/stat_msg.hh \
+    emc/kinematics/tc.h \
+    libnml/cms/tcp_opts.hh \
+    libnml/cms/tcp_srv.hh \
+    emc/kinematics/tp.h \
+    emc/motion/usrmotintf.h \
+    libnml/rcs/rcs.hh \
+    libnml/posemath/posemath.h \
+    libnml/rcs/rcs_print.hh \
+    libnml/linklist/linklist.hh \
+    libnml/buffer/physmem.hh \
+    libnml/buffer/rem_msg.hh \
+    libnml/rcs/rcsversion.h \
+    libnml/rcs/rcs_exit.hh \
+    libnml/inifile/inifile.hh \
+    libnml/os_intf/timer.hh
+
+TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
+
+userspace: $(TARGETS)
+
+ifndef KDIR
+KDIR := $(shell cd /lib/modules/$(shell uname -r)/build; /bin/pwd)
 endif
 
-# this rule installs a single man page
+modules:
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) V=0 -o $(KDIR)/Module.symvers modules 
+	cp *.ko ../rtlib/
 
-$(MAN_DIR)/% : docs/man/%
-	@ echo "install man page $*"
-	@ cp $< $@
+modclean:
+	find -name '.*.cmd' -or -name '*.ko' -or -name '*.mod.c' -or -name '*.mod.o' | xargs rm -f
+	-rm -rf .tmp_versions *.o
 
-# this rule handles the install target
-# its dependency installs all the man pages
+clean: modclean
+	-rm -rf objects $(TARGETS)
 
-install_rtscript:
-	install -d $(DESTDIR)$(initd_dir)
-	cp ../scripts/realtime $(DESTDIR)$(initd_dir)/
-	#@ echo "realtime script installed"
+depclean: clean
+	-rm -rf depends
 
-install_modules:
-	install -d $(DESTDIR)$(moduledir)/emc2
-	-cp -f ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)/emc2
-	cp -f ../rtlib/.runinfo $(DESTDIR)$(moduledir)/emc2
-	@ echo "kernel modules installed"
-
-install_configs:
-	install -d $(DESTDIR)$(sysconfdir)/emc2
-	cp ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
-	cp -rf ../configs/* $(DESTDIR)$(sysconfdir)/emc2
-	(cd $(DESTDIR)$(sysconfdir)/emc2; find . -type d -name CVS|xargs rm -r)
-	@ echo "configs installed"
-
-install_bin:
-	install -d $(DESTDIR)$(bindir)
-	-cp -f ../bin/* $(DESTDIR)$(bindir)
-	cp ../scripts/emc $(DESTDIR)$(bindir)
-	chmod +x $(DESTDIR)$(bindir)/emc
-	# these will fail unless you're root (or using fakeroot with make deb)
-	chown root $(DESTDIR)$(bindir)/emc_module_helper $(DESTDIR)$(bindir)/halcmd
-	chmod 4755 $(DESTDIR)$(bindir)/emc_module_helper $(DESTDIR)$(bindir)/halcmd
-	@ echo "bin installed"
-
+# So that nothing is built as root, this rule does not depend on the touched files
+# (Note that files in depends/ might be rebuilt, and there's little that can be done
+# about it)
 setuid:
 	chown root ../bin/emc_module_helper ../bin/halcmd
 	chmod 4750 ../bin/emc_module_helper ../bin/halcmd
 
-install_lib:
-	install -d $(DESTDIR)$(libdir)
-	cp ../lib/*.{so,a} $(DESTDIR)$(libdir)
-	@ echo "lib installed"
+../include/%.h: %.h
+	cp $^ $@
+../include/%.hh: %.hh
+	cp $^ $@
+else
+# KERNELRELEASE nonempty, therefore building modules
 
-install_headers:
-	install -d $(DESTDIR)$(includedir)
-	cp ../include/*.{h,hh} $(DESTDIR)$(includedir)
-	@ echo "headers installed"
+EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I/usr/include -I$(PWD) -I$(PWD)/libnml/linklist \
+	-I$(PWD)/libnml/cms -I$(PWD)/libnml/rcs -I$(PWD)/libnml/inifile \
+	-I$(PWD)/libnml/os_intf -I$(PWD)/libnml/nml -I$(PWD)/libnml/buffer \
+	-I$(PWD)/libnml/posemath -I$(PWD)/rtapi -I$(PWD)/hal -I$(PWD)/emc/nml_intf \
+	-I$(PWD)/emc/kinematics -I$(PWD)/emc/motion
 
-install_docs:
-	install -d $(DESTDIR)$(docsdir)
-	install -d $(DESTDIR)$(docsdir)/help
-	-cp -f ../docs/* $(DESTDIR)$(docsdir)
-	-cp -f ../docs/help/* $(DESTDIR)$(docsdir)/help
-	@ echo "docs installed"
-
-# to be added, when there is a nc_files dir
-install_ncfiles:
-	install -d $(DESTDIR)$(ncfilesdir)
-	-GLOBIGNORE=CVS && cp -f ../nc_files/* $(DESTDIR)$(ncfilesdir)
-	@ echo "nc_files installed"
-
-install_tcl:
-	install -d $(DESTDIR)$(tcldir)
-	install -d $(DESTDIR)$(tcldir)/bin
-	install -d $(DESTDIR)$(tcldir)/scripts
-	install -d $(DESTDIR)/etc/X11/app-defaults
-	-cp -f ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
-	-cp -f ../tcl/* $(DESTDIR)$(tcldir)
-	-cp -f ../tcl/bin/* $(DESTDIR)$(tcldir)/bin/
-	-cp -f ../tcl/scripts/* $(DESTDIR)$(tcldir)/scripts/
-	@ echo "tcl installed"
-	
-	#install -d /usr/share/locale/$(locale)/LC_MESSAGES
-	#@ echo "locale installed"
-
-install_man : $(MAN_FILES)
-	$(MAKE) -C rtapi $@
-	$(MAKE) -C hal $@
-
-#if you want to test, uncomment the following line (not safe till further testing)
-install: install_rtscript install_modules install_configs\
-	install_bin install_lib install_docs install_ncfiles\
-	install_tcl install_headers
-	$(MAKE) -C rtapi $@
-
-deb: all
-	(cd .. && debian/rules build && fakeroot debian/rules binary)
-
-modules: headers
-	$(MAKE) -C rtapi $@
-	$(MAKE) -C hal $@
-	$(MAKE) -C emc $@
-
-ifeq ($(BUILD_SYS),kbuild)
-
-modules_install: modules
-	$(MAKE) -C rtapi $@
-	$(MAKE) -C hal $@
-	$(MAKE) -C emc $@
-	depmod 2>/dev/null
-
+ifdef SEQUENTIAL_SUPPORT
+EXTRA_CFLAGS += -DSEQUENTIAL_SUPPORT
 endif
 
-# this rule handles the uninstall target
-# it removes all the man pages
 
-uninstall :
-	@ rm $(MAN_FILES)
+# Subdirectory:  rtapi
+obj-$(CONFIG_RTAPI) += rtapi/$(RTPREFIX)_rtapi.o
 
-# this rule handles the depend target
-# it first updates the headers target to ensure that the header
-# files are installed, then runs the depend target in each directory
+# Subdirectory: rtapi/examples (unneeded?)
 
-depend : headers
-	$(MAKE) -C rtapi $@
-	$(MAKE) -C hal $@
-	$(MAKE) -C libnml $@
-	$(MAKE) -C emc $@
+# Subdirectory: hal/components
+obj-$(CONFIG_BLOCKS) += blocks.o
+blocks-objs := hal/components/blocks.o
+obj-$(CONFIG_DEBOUNCE) += debounce.o
+debounce-objs := hal/components/debounce.o
+obj-$(CONFIG_ENCODER) += encoder.o
+encoder-objs := hal/components/encoder.o
+obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio.o
+encoder_ratio-objs := hal/components/encoder_ratio.o
+obj-$(CONFIG_STEPGEN) += stepgen.o
+stepgen-objs := hal/components/stepgen.o
+obj-$(CONFIG_FREQGEN) += freqgen.o
+freqgen-objs := hal/components/freqgen.o
+obj-$(CONFIG_SIGGEN) += siggen.o
+siggen-objs := hal/components/siggen.o
+obj-$(CONFIG_PID) += pid.o
+pid-objs := hal/components/pid.o
+obj-$(CONFIG_PID) += threads.o
+threads-objs := hal/components/threads.o
+obj-$(CONFIG_SUPPLY) += supply.o
+supply-objs := hal/components/supply.o
+obj-$(CONFIG_TIMEDELAY) += timedelay.o
+timedelay-objs := hal/components/timedelay.o
 
-# this rule handles the examples target
-# it only enters directories that have examples
-examples :
-	$(MAKE) -C rtapi $@
+# Subdirectory: hal/drivers
+obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
+hal_parport-objs := hal/drivers/hal_parport.o
+obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
+hal_tiro-objs := hal/drivers/hal_tiro.o
+obj-$(CONFIG_HAL_STG) += hal_stg.o
+hal_stg-objs := hal/drivers/hal_stg.o
+obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
+hal_evoreg-objs := hal/drivers/hal_evoreg.o
+obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
+hal_motenc-objs := hal/drivers/hal_motenc.o
+obj-$(CONFIG_HAL_MOTENC) += hal_m5i20.o
+hal_m5i20-objs := hal/drivers/hal_m5i20.o
+obj-$(CONFIG_HAL_MOTENC) += hal_ax5214h.o
+hal_ax5214h-objs := hal/drivers/hal_ax5214h.o
+obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
+hal_ppmc-objs := hal/drivers/hal_ppmc.o
+obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
+hal_skeleton-objs := hal/drivers/hal_skeleton.o
 
-# this rule handles the clean target
-# it changes to all the source sub-directories, calls make there, and
-# then returns to the top level directory and cleans that up too.
-clean :
-	$(MAKE) -C module_helper $@
-	$(MAKE) -C rtapi $@
-	$(MAKE) -C hal $@
-	$(MAKE) -C libnml $@
-	$(MAKE) -C emc $@
-	find . -name "*~" -exec rm -f {} \;
-	find . -name "*.bak" -exec rm -f {} \;
-	find . -name core -exec rm -f {} \;
-	rm -f ../include/* ../lib/* ../rtlib/* ../bin/* 2>/dev/null || true
-	rm -f .tmp/* .rt_tmp/*
+obj-$(CONFIG_CLASSICLADDER_RT) += classicladder_rt.o
+classicladder_rt-objs := hal/classicladder/module_rt.o
+classicladder_rt-objs += hal/classicladder/calc_rt.o
+classicladder_rt-objs += hal/classicladder/vars_access.o
+classicladder_rt-objs += hal/classicladder/arithm_eval.o
+classicladder_rt-objs += hal/classicladder/manager.o
+classicladder_rt-objs += hal/classicladder/arrays.o
 
-tgz: clean
-	rm -rf /tmp/emc2-tgz-temp/emc2
-	install -d /tmp/emc2-tgz-temp/emc2/
-	cp -R ../ /tmp/emc2-tgz-temp/emc2/
+ifdef SEQUENTIAL_SUPPORT
+classicladder_rt-objs += hal/classicladder/calc_sequential_rt.o
+endif
 
-# Remove Makefile.inc to force a rerun of ./configure
-# on the target machine where emc2.tar.gz will be copied to
-	rm -f /tmp/emc2-tgz-temp/emc2/src/Makefile.inc
-	rm -f /tmp/emc2-tgz-temp/emc2/src/config.status
-	rm -f /tmp/emc2-tgz-temp/emc2/src/config.log
-	rm -f /tmp/emc2-tgz-temp/emc2/emc2.tar.gz
-	cd /tmp/emc2-tgz-temp ; tar -czf emc2.tar.gz emc2 --exclude *CVS*
-	mv /tmp/emc2-tgz-temp/emc2.tar.gz ./
-	rm -rf /tmp/emc2-tgz-temp
+obj-m += scope_rt.o
+scope_rt-objs := hal/utils/scope_rt.o
 
-docs:
-	doxygen doxconfig
+obj-m += hal_lib.o
+hal_lib-objs := hal/hal_lib.o
 
-.PHONY : all examples headers depend indent modules install clean
+obj-$(CONFIG_MOTMOD) += motmod.o
+motmod-objs := emc/kinematics/cubic.o 
+motmod-objs += emc/kinematics/mmxavg.o 
+motmod-objs += emc/kinematics/tc.o 
+motmod-objs += emc/kinematics/tp.o 
+motmod-objs += emc/kinematics/trivkins.o
+motmod-objs += emc/motion/motion.o 
+motmod-objs += emc/motion/command.o 
+motmod-objs += emc/motion/control.o 
+motmod-objs += emc/motion/emcmotglb.o 
+motmod-objs += emc/motion/emcmotutil.o 
+motmod-objs += libnml/posemath/_posemath.o
+motmod-objs += libnml/posemath/sincos.o
+
+endif

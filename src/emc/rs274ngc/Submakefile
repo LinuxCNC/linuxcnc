@@ -1,0 +1,31 @@
+INCLUDES += emc/rs274ngc
+
+LIBRS274SRCS := $(patsubst %,emc/rs274ngc/%, \
+	interp_arc.cc \
+	interp_array.cc \
+	interp_check.cc \
+	interp_convert.cc \
+	interp_cycles.cc \
+	interp_execute.cc \
+	interp_find.cc \
+	interp_internal.cc \
+	interp_inverse.cc \
+	interp_read.cc \
+	interp_write.cc \
+	interp_o_word.cc \
+	rs274ngc_errors.cc \
+	rs274ngc_pre.cc)
+USERSRCS += $(LIBRS274SRCS)
+
+$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC
+
+TARGETS += ../lib/librs274.so
+
+../lib/librs274.so: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS))
+	rm -f $@
+	$(CXX) -shared -Wl,-soname,librs274.so -o $@ $^
+
+../include/%.h: ./emc/rs274ngc/%.h
+	cp $^ $@
+../include/%.hh: ./emc/rs274ngc/%.hh
+	cp $^ $@

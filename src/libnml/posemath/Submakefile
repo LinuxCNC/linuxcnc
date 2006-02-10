@@ -1,0 +1,6 @@
+INCLUDES += libnml/posemath
+
+../include/%.h: ./libnml/posemath/%.h
+	cp $^ $@
+../include/%.hh: ./libnml/posemath/%.hh
+	cp $^ $@

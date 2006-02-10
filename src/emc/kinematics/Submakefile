@@ -1,0 +1,6 @@
+INCLUDES += emc/kinematics
+
+../include/%.h: ./emc/kinematics/%.h
+	cp $^ $@
+../include/%.hh: ./emc/kinematics/%.hh
+	cp $^ $@
