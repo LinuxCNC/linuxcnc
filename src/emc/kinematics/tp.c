@@ -71,6 +71,7 @@ int tpClear(TP_STRUCT * tp)
     tp->goalPos.c = tp->currentPos.c;
     tp->nextId = 0;
     tp->execId = 0;
+    tp->motionType = 0;
     tp->termCond = TC_TERM_COND_BLEND;
     tp->done = 1;
     tp->depth = tp->activeDepth = 0;
@@ -275,7 +276,7 @@ int tpSetPos(TP_STRUCT * tp, EmcPose pos)
 // of the previous move to the new end specified here at the
 // currently-active accel and vel settings from the tp struct.
 
-int tpAddLine(TP_STRUCT * tp, EmcPose end)
+int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
 {
     TC_STRUCT tc;
     PmLine line_xyz, line_abc;
@@ -321,6 +322,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
     tc.coords.line.xyz = line_xyz;
     tc.coords.line.abc = line_abc;
     tc.motion_type = TC_LINEAR;
+    tc.canon_motion_type = type;
 
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
@@ -345,7 +347,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end)
 // always the circle/arc/helical length.
 
 int tpAddCircle(TP_STRUCT * tp, EmcPose end,
-		PmCartesian center, PmCartesian normal, int turn)
+		PmCartesian center, PmCartesian normal, int turn, int type)
 {
     TC_STRUCT tc;
     PmCircle circle;
@@ -393,6 +395,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.coords.circle.xyz = circle;
     tc.coords.circle.abc = line_abc;
     tc.motion_type = TC_CIRCULAR;
+    tc.canon_motion_type = type;
 
     if (tcqPut(&tp->queue, tc) == -1) {
 	return -1;
@@ -433,6 +436,7 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->depth = tp->activeDepth = 0;
         tp->aborting = 0;
         tp->execId = 0;
+        tp->motionType = 0;
         tpResume(tp);
         return 0;
     }
@@ -448,6 +452,7 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->done = 1;
         tp->depth = tp->activeDepth = 0;
         tp->execId = 0;
+        tp->motionType = 0;
         return 0;
     }
 
@@ -471,6 +476,7 @@ int tpRunCycle(TP_STRUCT * tp)
         tc->increment = 0;
         tp->depth = tp->activeDepth = 1;
         tp->execId = tc->id;
+        tp->motionType = tc->canon_motion_type;
         tc->active = 1;
 
         // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
@@ -576,6 +582,11 @@ int tpAbort(TP_STRUCT * tp)
     return 0;
 }
 
+int tpGetMotionType(TP_STRUCT * tp)
+{
+    return tp->motionType;
+}
+
 EmcPose tpGetPos(TP_STRUCT * tp)
 {
     EmcPose retval;
@@ -642,5 +653,13 @@ int tpActiveDepth(TP_STRUCT * tp)
     }
 
     return tp->activeDepth;
+}
+
+int tpSetAout(TP_STRUCT *tp, unsigned char index, double start, double end) {
+    return 0;
+}
+
+int tpSetDout(TP_STRUCT *tp, int index, unsigned char start, unsigned char end) {
+    return 0;
 }
 

@@ -54,6 +54,7 @@ typedef struct {
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
+    int motionType;
 } TP_STRUCT;
 
 extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
@@ -68,9 +69,10 @@ extern int tpSetId(TP_STRUCT * tp, int id);
 extern int tpGetExecId(TP_STRUCT * tp);
 extern int tpSetTermCond(TP_STRUCT * tp, int cond);
 extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
-extern int tpAddLine(TP_STRUCT * tp, EmcPose end);
+extern int tpAddLine(TP_STRUCT * tp, EmcPose end, int type);
 extern int tpAddCircle(TP_STRUCT * tp, EmcPose end,
-		       PmCartesian center, PmCartesian normal, int turn);
+		       PmCartesian center, PmCartesian normal, 
+                       int turn, int type);
 extern int tpRunCycle(TP_STRUCT * tp);
 extern int tpPause(TP_STRUCT * tp);
 extern int tpResume(TP_STRUCT * tp);
@@ -80,5 +82,9 @@ extern int tpIsDone(TP_STRUCT * tp);
 extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
+extern int tpGetMotionType(TP_STRUCT * tp);
+
+extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
+extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end);
 
 #endif				/* TP_H */

@@ -60,6 +60,7 @@ typedef struct {
     char motion_type;       // TC_LINEAR (coords.line) or 
                             // TC_CIRCULAR (coords.circle)
     char active;            // this motion is being executed
+    int canon_motion_type;  // this motion is due to which canon function?
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
