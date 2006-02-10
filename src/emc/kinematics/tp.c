@@ -33,6 +33,9 @@
 
 int output_chan = 0;
 
+// try the TP from BDI4
+#define	OLD_CODE
+
 int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
 {
     if (0 == tp) {
