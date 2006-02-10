@@ -58,7 +58,7 @@ depends/%.d: %.cc
 depends/%.d: %.c 
 	@mkdir -p $(dir $@)
 	@echo Depending $<
-	@$(CC) -MM -MG -MT "$@ $(patsubst depends/%.d,objs/%.o,$@)" \
+	@gcc -MM -MG -MT "$@ $(patsubst depends/%.d,objs/%.o,$@)" \
 		$(CFLAGS) $(EXTRAFLAGS) $< -o $@.tmp && mv -f $@.tmp $@
 
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
