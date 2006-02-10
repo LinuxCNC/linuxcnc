@@ -181,7 +181,8 @@ endif
 
 
 # Subdirectory:  rtapi
-obj-$(CONFIG_RTAPI) += rtapi/$(RTPREFIX)_rtapi.o
+obj-$(CONFIG_RTAPI) += rtapi.o
+rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
 
 # Subdirectory: rtapi/examples (unneeded?)
 
