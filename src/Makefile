@@ -142,7 +142,7 @@ KDIR := $(shell cd /lib/modules/$(shell uname -r)/build; /bin/pwd)
 endif
 
 modules:
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) V=0 -o $(KDIR)/Module.symvers modules 
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 -o $(KDIR)/Module.symvers modules 
 	cp *.ko ../rtlib/
 
 modclean:
@@ -169,11 +169,12 @@ setuid:
 else
 # KERNELRELEASE nonempty, therefore building modules
 
-EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I/usr/include -I$(PWD) -I$(PWD)/libnml/linklist \
+EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I$(PWD) -I$(PWD)/libnml/linklist \
 	-I$(PWD)/libnml/cms -I$(PWD)/libnml/rcs -I$(PWD)/libnml/inifile \
 	-I$(PWD)/libnml/os_intf -I$(PWD)/libnml/nml -I$(PWD)/libnml/buffer \
-	-I$(PWD)/libnml/posemath -I$(PWD)/rtapi -I$(PWD)/hal -I$(PWD)/emc/nml_intf \
-	-I$(PWD)/emc/kinematics -I$(PWD)/emc/motion
+	-I$(PWD)/libnml/posemath -I$(PWD)/rtapi -I$(PWD)/hal \
+	-I$(PWD)/emc/nml_intf -I$(PWD)/emc/kinematics -I$(PWD)/emc/motion \
+	-I/usr/include
 
 ifdef SEQUENTIAL_SUPPORT
 EXTRA_CFLAGS += -DSEQUENTIAL_SUPPORT
