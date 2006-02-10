@@ -37,6 +37,9 @@ char *module_whitelist[] = {
 
 char *path_whitelist[] = {
     "/lib/modules", "/usr/realtime",
+#ifdef RIP_MODULEDIR
+    RIP_MODULEDIR ,
+#endif
     NULL
 };
 

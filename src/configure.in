@@ -59,6 +59,8 @@ RTAI3_MOD=""
 RTAI_MOD=""
 RTL_MOD=""
 
+BUILD_TOPLEVEL="$(cd ..; pwd -P)"
+
 ##############################################################################
 # Subsection 2.1                                                             #
 # Check for arguments to ./configure                                         #
@@ -509,6 +511,25 @@ if test "x" = "x$MODULE_DIR"; then
    fi
 fi
 
+AC_ARG_ENABLE(run-in-place,
+    [  --enable-run-in-place   Configure EMC to run without make install],
+    [
+        case "$enableval" in
+        Y*|y*)
+            RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib"
+            RUN_IN_PLACE=yes
+            AC_MSG_RESULT([configuring for run-in-place])
+        ;;
+        *)
+            RUN_IN_PLACE=no
+        ;;
+    esac
+    ],
+    [
+        RUN_IN_PLACE=no
+        AC_MSG_RESULT([$MODULE_DIR])
+    ])
+
 # uncomment this if we decide to use the extra/ directory (if present) for 
 # our realtime modules
 #if ! test "x" = "x$MODULE_DIR" ; then
@@ -523,7 +544,7 @@ if test "x" = "x$MODULE_DIR"; then
 fi
 
 AC_SUBST([MODULE_DIR])
-AC_MSG_RESULT([$MODULE_DIR])
+AC_SUBST([RIP_MODULE_DIR])
 
 ##############################################################################
 # Subsection 3.4 - check for GTK                                             #
@@ -597,21 +618,6 @@ AC_SUBST(GTK_CFLAGS)
 # as well as those we use in the emc scripts...                              #
 ##############################################################################
 
-AC_ARG_WITH(sudo,
-    [  --with-sudo=<sudo/gksudo>               sudo variant],
-    [
-	case "$withval" in
-	"" | y | ye | yes)
-	    AC_MSG_ERROR([You must supply an argument to --with-sudo.])
-	  ;;
-	n | no | none)
-	    SUDO=""
-	  ;;
-	*)
-	    SUDO="$withval"
-	esac
-    ])
-
 AC_PROG_CXX
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
@@ -619,7 +625,6 @@ AC_PATH_PROG(AR,ar, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(GREP, grep, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(INSTALL, install, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(SED, sed, "", /bin:/usr/bin:/usr/local/bin)
-AC_PATH_PROG(SUDO, sudo,"", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(PS, ps, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(KILL, kill, "", /bin:/usr/bin:/usr/local/bin)
 AC_PATH_PROG(WHOAMI, whoami, "", /bin:/usr/bin:/usr/local/bin)
@@ -645,7 +650,14 @@ AC_ARG_WITH(rmmod,
 	esac
     ],
     [
-        RMMOD="$SUDO $RMMOD"
+        case $RUN_IN_PLACE in
+        y*|Y*)
+            RMMOD="$BUILD_TOPLEVEL/bin/emc_module_helper remove"
+        ;;
+        *)
+            RMMOD="$prefix/bin/emc_module_helper remove"
+        ;;
+        esac
     ])
 
 AC_ARG_WITH(insmod,
@@ -663,10 +675,15 @@ AC_ARG_WITH(insmod,
 	esac
     ],
     [
-        INSMOD="$SUDO $INSMOD"
+        case $RUN_IN_PLACE in
+        y*|Y*)
+            INSMOD="$BUILD_TOPLEVEL/bin/emc_module_helper insert"
+        ;;
+        *)
+            INSMOD="$prefix/bin/emc_module_helper insert"
+        ;;
+        esac
     ])
-
-AC_SUBST(SUDO)
 
 ##############################################################################
 # Section 4 - Check for math support                                         #
@@ -850,6 +867,8 @@ else
    TCL_LIBS="$TCL_LIB_SPEC"
 fi
 
+AC_MSG_CHECKING([for tk])
+
 # search for tkConfig.sh
 TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | head -n1)
 if (test "x$TKCONFIG" = "x"); then
@@ -904,7 +923,7 @@ AC_SUBST([MAKEFLAGS])
 
 # if you don't have nls tools, allow a way out!
 AC_ARG_ENABLE(nls,
-              [  --disable-nls                  don't use NLS],
+              [  --disable-nls           don't use NLS],
               USE_NLS=no, USE_NLS=yes)
 AC_SUBST(USE_NLS)
 

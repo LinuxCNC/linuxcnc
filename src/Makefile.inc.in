@@ -35,6 +35,7 @@ infodir = @infodir@
 mandir = @mandir@
 includedir = @includedir@
 moduledir = @MODULE_DIR@
+rip_moduledir = @RIP_MODULE_DIR@
 kernelvers = @KERNEL_VERS@
 
 # i18n variables:
@@ -45,7 +46,6 @@ LANGUAGES = @LANGUAGES@
 
 #still needs discussion
 initd_dir = /etc/init.d
-moduledir = @MODULE_DIR@
 docsdir = ${prefix}/share/doc/emc2
 ncfilesdir = ${prefix}/share/emc/ncfiles
 tcldir = ${prefix}/share/emc/tcl
