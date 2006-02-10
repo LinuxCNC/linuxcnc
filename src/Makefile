@@ -1,9 +1,15 @@
 include $(PWD)/Makefile.inc
 
 ifeq ($(KERNELRELEASE),)
+# When KERNELRELEASE is not defined, this is the userspace build.
+# The "modules" target is the gateway to the 
 default: userspace modules
 	
+# Create the variable with := so that subsequent += alterations keep it
+# as a "substitute at assignment time" variable
 TARGETS :=
+
+# Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \
     libnml/linklist libnml/cms libnml/rcs libnml/inifile libnml/os_intf \
     libnml/nml libnml/buffer libnml/posemath libnml \
@@ -21,11 +27,17 @@ SUBDIRS := \
 
 ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c 
 
+# Each item in INCLUDES is transformed into a -I directive later on
+# The top directory is always included
 INCLUDES := .
 
 USERSRCS := 
 PROGRAMS := 
 
+# When used like $(call TOxxx, ...) these turn a list of source files
+# into the corresponding list of object files, dependency files,
+# or both.  When a source file has to be compiled with special flags,
+# TOOBJSDEPS is used.  See Submakefile.skel for an example.
 TOOBJS = $(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1)))
 TODEPS = $(patsubst %.cc,depends/%.d,$(patsubst %.c,depends/%.d,$(1)))
 TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS,$(1))
@@ -33,23 +45,34 @@ TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS,$(1))
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 -include $(SUBMAKEFILES)
 
+# This checks that all the things listed in USERSRCS are either C files
+# or C++ files
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
 $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
 $(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
 
+# Find the list of object files for each type of source file
 CUSEROBJS := $(call TOOBJS,$(filter %.c,$(USERSRCS)))
 CXXUSEROBJS += $(call TOOBJS,$(filter %.cc,$(USERSRCS)))
 
+# Find the dependency filenames, the include them all
 DEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 include $(DEPS)
+
+# Each directory in $(INCLDUES) is passed as a -I directory when compiling.
 INCLUDE := -I$(RTDIR)/include $(patsubst %,-I%, $(INCLUDES))
+
+# Compilation options.  Perhaps some of these should come from Makefile.inc?
 OPT := -O
 DEBUG := -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
+
+# Used when linking so that the .so files are found where they're expected
 RPATH := $(shell cd ../lib; /bin/pwd)
 LDFLAGS := -Wl,-rpath,$(RPATH)
 
+# Rules to make .d (dependency) files.
 depends/%.d: %.cc
 	@mkdir -p $(dir $@)
 	@echo Depending $<
@@ -61,6 +84,7 @@ depends/%.d: %.c
 	@gcc -MM -MG -MT "$@ $(patsubst depends/%.d,objs/%.o,$@)" \
 		$(CFLAGS) $(EXTRAFLAGS) $< -o $@.tmp && mv -f $@.tmp $@
 
+# Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
 	@echo Compiling $< $(EXTRAFLAGS)
 	@mkdir -p $(dir $@)
@@ -71,10 +95,40 @@ $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 	@mkdir -p $(dir $@)
 	@$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
 
-
+# For each file to be copied to ../include, its location in the source tree
+# is listed here.  Note that due to $(INCLUDE), defined above, the include
+# files in the source tree are the ones used when building emc2.  The copy
+# in ../include is used when building external components of emc2.
 HEADERS := \
+    config.h \
+    emc/ini/iniaux.hh \
+    emc/ini/iniaxis.hh \
+    emc/ini/inicool.hh \
+    emc/ini/inilube.hh \
+    emc/ini/inispin.hh \
+    emc/ini/initool.hh \
+    emc/ini/initraj.hh \
+    emc/kinematics/cubic.h \
+    emc/kinematics/kinematics.h \
+    emc/kinematics/mmxavg.h \
+    emc/kinematics/tc.h \
+    emc/kinematics/tp.h \
+    emc/motion/emcmotcfg.h \
+    emc/motion/emcmotglb.h \
+    emc/motion/motion.h \
+    emc/motion/usrmotintf.h \
     emc/nml_intf/canon.hh \
-    libnml/nml/cmd_msg.hh \
+    emc/nml_intf/emc.hh \
+    emc/nml_intf/emccfg.h \
+    emc/nml_intf/emcglb.h \
+    emc/nml_intf/emcpos.h \
+    emc/nml_intf/interp.hh \
+    emc/nml_intf/interp_return.hh \
+    emc/nml_intf/interpl.hh \
+    emc/rs274ngc/interp_internal.hh \
+    emc/rs274ngc/rs274ngc.hh \
+    libnml/buffer/physmem.hh \
+    libnml/buffer/rem_msg.hh \
     libnml/cms/cms.hh \
     libnml/cms/cms_aup.hh \
     libnml/cms/cms_cfg.hh \
@@ -84,67 +138,50 @@ HEADERS := \
     libnml/cms/cms_user.hh \
     libnml/cms/cms_xup.hh \
     libnml/cms/cmsdiag.hh \
-    config.h \
-    emc/kinematics/cubic.h \
-    emc/nml_intf/emc.hh \
-    emc/nml_intf/emccfg.h \
-    emc/nml_intf/emcglb.h \
-    emc/motion/emcmotcfg.h \
-    emc/motion/emcmotglb.h \
-    emc/nml_intf/emcpos.h \
-    emc/ini/iniaux.hh \
-    emc/ini/iniaxis.hh \
-    emc/ini/inicool.hh \
-    emc/ini/inilube.hh \
-    emc/ini/inispin.hh \
-    emc/ini/initool.hh \
-    emc/ini/initraj.hh \
-    emc/nml_intf/interp.hh \
-    emc/rs274ngc/interp_internal.hh \
-    emc/nml_intf/interp_return.hh \
-    emc/nml_intf/interpl.hh \
-    emc/kinematics/kinematics.h \
-    emc/kinematics/mmxavg.h \
-    emc/motion/motion.h \
+    libnml/cms/tcp_opts.hh \
+    libnml/cms/tcp_srv.hh \
+    libnml/inifile/inifile.hh \
+    libnml/linklist/linklist.hh \
+    libnml/nml/cmd_msg.hh \
     libnml/nml/nml.hh \
     libnml/nml/nml_mod.hh \
     libnml/nml/nml_oi.hh \
     libnml/nml/nml_srv.hh \
     libnml/nml/nmldiag.hh \
     libnml/nml/nmlmsg.hh \
-    rtapi/procfs_macros.h \
-    emc/rs274ngc/rs274ngc.hh \
-    rtapi/rtapi.h \
-    rtapi/rtapi_app.h \
     libnml/nml/stat_msg.hh \
-    emc/kinematics/tc.h \
-    libnml/cms/tcp_opts.hh \
-    libnml/cms/tcp_srv.hh \
-    emc/kinematics/tp.h \
-    emc/motion/usrmotintf.h \
-    libnml/rcs/rcs.hh \
+    libnml/os_intf/timer.hh \
     libnml/posemath/posemath.h \
-    libnml/rcs/rcs_print.hh \
-    libnml/linklist/linklist.hh \
-    libnml/buffer/physmem.hh \
-    libnml/buffer/rem_msg.hh \
-    libnml/rcs/rcsversion.h \
+    libnml/rcs/rcs.hh \
     libnml/rcs/rcs_exit.hh \
-    libnml/inifile/inifile.hh \
-    libnml/os_intf/timer.hh
+    libnml/rcs/rcs_print.hh \
+    libnml/rcs/rcsversion.h \
+    rtapi/procfs_macros.h \
+    rtapi/rtapi.h \
+    rtapi/rtapi_app.h
 
+# Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 
+# And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
 
+# This is the gateway into the crazy world of "kbuild", the linux 2.6 system
+# for building kernel modules.  Other kernel module build styles need to be
+# accomodated here.
 ifndef KDIR
 KDIR := $(shell cd /lib/modules/$(shell uname -r)/build; /bin/pwd)
 endif
 
+# '-o $(KDIR)/Module.symvers' silences warnings about that file being missing
 modules:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 -o $(KDIR)/Module.symvers modules 
 	cp *.ko ../rtlib/
 
+# These rules clean things up.  'modclean' cleans files generated by 'modules'
+# (except that it doesn't remove the modules that were copied to rtlib)
+# 'clean' cleans everything but dependency files, and 'depclean' cleans them
+# too.
 modclean:
 	find -name '.*.cmd' -or -name '*.ko' -or -name '*.mod.c' -or -name '*.mod.o' | xargs rm -f
 	-rm -rf .tmp_versions *.o
@@ -155,20 +192,26 @@ clean: modclean
 depclean: clean
 	-rm -rf depends
 
-# So that nothing is built as root, this rule does not depend on the touched files
-# (Note that files in depends/ might be rebuilt, and there's little that can be done
-# about it)
+# So that nothing is built as root, this rule does not depend on the touched
+# files (Note that files in depends/ might be rebuilt, and there's little that
+# can be done about it)
 setuid:
 	chown root ../bin/emc_module_helper ../bin/halcmd
 	chmod 4750 ../bin/emc_module_helper ../bin/halcmd
 
+# Thiese rules allows a header file from this directory to be installed into
+# ../include.  A pair of rules like these will exist in the Submakefile
+# of each file that contains headers.
 ../include/%.h: %.h
 	cp $^ $@
 ../include/%.hh: %.hh
 	cp $^ $@
 else
-# KERNELRELEASE nonempty, therefore building modules
+# KERNELRELEASE is nonempty, therefore we are building modules using the
+# "kbuild" system.  $(PWD) is used here, instead of relative paths, because
+# that's what kbuild seems to require
 
+# -I/usr/include seems fishy, but it's what the old system used
 EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I$(PWD) -I$(PWD)/libnml/linklist \
 	-I$(PWD)/libnml/cms -I$(PWD)/libnml/rcs -I$(PWD)/libnml/inifile \
 	-I$(PWD)/libnml/os_intf -I$(PWD)/libnml/nml -I$(PWD)/libnml/buffer \
@@ -180,6 +223,11 @@ ifdef SEQUENTIAL_SUPPORT
 EXTRA_CFLAGS += -DSEQUENTIAL_SUPPORT
 endif
 
+# For each module, there's an addition to obj-m or obj-$(CONFIG_foo)
+# plus a definition of foo-objs, which contains the full path to the
+# object file(s) that the module contains.  Unfortunately, this setup pollutes
+# the source directory with object files and other temporaries, but I can't
+# find a way around it.
 
 # Subdirectory:  rtapi
 obj-$(CONFIG_RTAPI) += rtapi.o
