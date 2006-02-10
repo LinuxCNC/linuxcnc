@@ -1,3 +1,5 @@
+.tmp_versions
+*.ko *.mod.[co] *.cmd
 .tmp
 Makefile.inc
 config.h
