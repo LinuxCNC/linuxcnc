@@ -1,0 +1,24 @@
+#!/bin/bash
+################################################################################
+#
+# @configure_input@ 
+# on @DATE@
+#
+# Description:  emc-config
+#               This file, '@bindir@/emc-config', calls the actual tcl interface 
+#               setupconfig.tcl
+#
+# Author: Alex Joni
+# License: GPL Version 2
+# System: Linux
+#    
+# Copyright (c) 2004 All rights reserved.
+#
+# Last change:
+# $Revision$
+# $Author$
+# $Date$
+################################################################################
+
+
+@EMC2_TCL_DIR@/bin/setupconfig.tcl --with-configs-dir=@EMC2_CONFIG_DIR@
