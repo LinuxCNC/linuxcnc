@@ -59,8 +59,6 @@ int Interp::convert_cycle_g81(CANON_PLANE plane, //!< selected plane
                              double clear_z,    //!< z-value of clearance plane      
                              double bottom_z)   //!< value of z at bottom of cycle   
 {
-  static char name[] = "convert_cycle_g81";
-
   cycle_feed(plane, x, y, bottom_z);
   cycle_traverse(plane, x, y, clear_z);
 
@@ -99,8 +97,6 @@ int Interp::convert_cycle_g82(CANON_PLANE plane, //!< selected plane
                              double bottom_z,   //!< value of z at bottom of cycle   
                              double dwell)      //!< dwell time                      
 {
-  static char name[] = "convert_cycle_g82";
-
   cycle_feed(plane, x, y, bottom_z);
   DWELL(dwell);
   cycle_traverse(plane, x, y, clear_z);
@@ -263,8 +259,6 @@ int Interp::convert_cycle_g85(CANON_PLANE plane, //!< selected plane
                              double clear_z,    //!< z-value of clearance plane      
                              double bottom_z)   //!< value of z at bottom of cycle   
 {
-  static char name[] = "convert_cycle_g85";
-
   cycle_feed(plane, x, y, bottom_z);
   cycle_feed(plane, x, y, clear_z);
 
@@ -514,8 +508,6 @@ int Interp::convert_cycle_g89(CANON_PLANE plane, //!< selected plane
                              double bottom_z,   //!< value of z at bottom of cycle   
                              double dwell)      //!< dwell time                      
 {
-  static char name[] = "convert_cycle_g89";
-
   cycle_feed(plane, x, y, bottom_z);
   DWELL(dwell);
   cycle_feed(plane, x, y, clear_z);
@@ -1289,7 +1281,6 @@ int Interp::cycle_feed(CANON_PLANE plane,        //!< currently selected plane
                       double end2,      //!< second coordinate value   
                       double end3)      //!< third coordinate value    
 {
-  static char name[] = "cycle_feed";
 
   if (plane == CANON_PLANE_XY)
     STRAIGHT_FEED(end1, end2, end3,
@@ -1345,7 +1336,6 @@ int Interp::cycle_traverse(CANON_PLANE plane,    //!< currently selected plane
                           double end2,  //!< second coordinate value  
                           double end3)  //!< third coordinate value   
 {
-  static char name[] = "cycle_traverse";
   if (plane == CANON_PLANE_XY)
     STRAIGHT_TRAVERSE(end1, end2, end3,
 #ifndef LATHE

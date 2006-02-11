@@ -215,7 +215,6 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
                                       block_pointer block,      //!< pointer to a block of RS274 instructions  
                                       setup_pointer settings)   //!< pointer to machine settings               
 {
-  static char name[] = "inverse_time_rate_straight";
   double length;
   double rate;
 

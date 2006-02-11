@@ -372,7 +372,6 @@ Called by:  Interp::read
 
 int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
 {
-  static char name[] = "set_probe_data";
 
   settings->current_x = GET_EXTERNAL_POSITION_X();
   settings->current_y = GET_EXTERNAL_POSITION_Y();

@@ -792,7 +792,6 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   char MSG_STR[] = "msg,";
   char SYSTEM_STR[] = "system,";
   int m, n, start;
-  int item;
 
   // step over leading white space in comment
   m = 0;
@@ -1649,7 +1648,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 {
   static char name[] = "convert_m";
   int status;
-  int index;
 
   /* The M62-65 commands are used for DIO */
   /* M62 sets a DIO synched with motion
@@ -2003,7 +2001,6 @@ See documentation of convert_coordinate_system for more information.
 int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
                          setup_pointer settings)        //!< pointer to machine settings                 
 {
-  static char name[] = "convert_setup";
   double x;
   double y;
   double z;
@@ -2890,8 +2887,6 @@ to this one.
 
 int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine settings
 {
-  static char name[] = "convert_tool_change";
-
   CHANGE_TOOL(settings->selected_tool_slot);
   settings->current_slot = settings->selected_tool_slot;
   settings->spindle_turning = CANON_STOPPED;
