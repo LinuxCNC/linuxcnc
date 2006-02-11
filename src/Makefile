@@ -7,6 +7,7 @@ ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the 
 default: userspace modules
+	@echo "You need to issue 'sudo make setuid' now !!!"
 	
 # Create the variable with := so that subsequent += alterations keep it
 # as a "substitute at assignment time" variable
