@@ -21,4 +21,4 @@
 ################################################################################
 
 
-@EMC2_TCL_DIR@/bin/setupconfig.tcl --with-configs-dir=@EMC2_CONFIG_DIR@
+@EMC2_TCL_DIR@/bin/setupconfig.tcl --configs-dir @EMC2_CONFIG_DIR@
