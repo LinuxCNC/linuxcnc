@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT WFLAGS CPP EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE MAKEFLAGS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT WFLAGS CPP EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_CONFIG_DIR EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE MAKEFLAGS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -3254,7 +3254,42 @@ fi
 
 
 ##############################################################################
-# Subsection 3.4 - check for GTK                                             #
+# Subsection 3.4 - define default dirs, these get used in a lot of places    #
+# we decide based on RIP or install where stuff goes                         #
+##############################################################################
+
+if test "xyes" = "x$RUN_IN_PLACE"; then
+    EMC2_BIN_DIR=$EMC2_HOME/bin
+    EMC2_TCL_DIR=$EMC2_HOME/tcl
+    EMC2_HELP_DIR=$EMC2_HOME/docs/help
+    EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
+    EMC2_CONFIG_DIR=$EMC2_HOME/configs
+    EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
+    REALTIME=$EMC2_HOME/scripts/realtime
+    EMC2_IMAGE_DIR=$EMC2_HOME
+
+else
+    EMC2_BIN_DIR=${bindir}
+    EMC2_TCL_DIR=${prefix}/share/emc/tcl
+    EMC2_HELP_DIR=${prefix}/share/doc/emc2
+    EMC2_RTLIB_DIR=$MODULE_DIR/emc2
+    EMC2_CONFIG_DIR=${sysconfdir}/emc2
+    EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
+    REALTIME=/etc/init.d/realtime
+    EMC2_IMAGE_DIR=$EMC2_CONFIG_DIR
+fi
+
+
+
+
+
+
+
+
+
+
+##############################################################################
+# Subsection 3.5 - check for GTK                                             #
 #                                                                            #
 # Provides the user the possibility to specify (--with-gtk_ver=<version>)    #
 # If not specified a search for a gtk script is done:                        #
@@ -3327,7 +3362,7 @@ fi
 
 
 ##############################################################################
-# Subsection 3.5 - check for utility programs needed to build and run EMC    #
+# Subsection 3.6 - check for utility programs needed to build and run EMC    #
 #                                                                            #
 # Check for all the utility programs we need to build and install emc        #
 # as well as those we use in the emc scripts...                              #
@@ -4347,14 +4382,7 @@ echo "$as_me: error: You must supply an argument to --with-rmmod." >&2;}
 
 else
 
-        case $RUN_IN_PLACE in
-        y*|Y*)
-            RMMOD="$BUILD_TOPLEVEL/bin/emc_module_helper remove"
-        ;;
-        *)
-            RMMOD="$prefix/bin/emc_module_helper remove"
-        ;;
-        esac
+            RMMOD="$EMC2_BIN_DIR/emc_module_helper remove"
 
 fi;
 
@@ -6215,6 +6243,8 @@ fi
 
           ac_config_files="$ac_config_files ../scripts/realtime"
 
+          ac_config_files="$ac_config_files ../bin/emc-config"
+
           ac_config_files="$ac_config_files Makefile.inc"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6742,6 +6772,7 @@ do
   # Handling of arguments.
   "../scripts/emc" ) CONFIG_FILES="$CONFIG_FILES ../scripts/emc" ;;
   "../scripts/realtime" ) CONFIG_FILES="$CONFIG_FILES ../scripts/realtime" ;;
+  "../bin/emc-config" ) CONFIG_FILES="$CONFIG_FILES ../bin/emc-config" ;;
   "Makefile.inc" ) CONFIG_FILES="$CONFIG_FILES Makefile.inc" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
@@ -6855,6 +6886,14 @@ s,@BUILD_SYS@,$BUILD_SYS,;t t
 s,@EXT_RTFLAGS@,$EXT_RTFLAGS,;t t
 s,@MODULE_DIR@,$MODULE_DIR,;t t
 s,@RIP_MODULE_DIR@,$RIP_MODULE_DIR,;t t
+s,@EMC2_BIN_DIR@,$EMC2_BIN_DIR,;t t
+s,@EMC2_TCL_DIR@,$EMC2_TCL_DIR,;t t
+s,@EMC2_HELP_DIR@,$EMC2_HELP_DIR,;t t
+s,@EMC2_RTLIB_DIR@,$EMC2_RTLIB_DIR,;t t
+s,@EMC2_CONFIG_DIR@,$EMC2_CONFIG_DIR,;t t
+s,@EMC2_NCFILES_DIR@,$EMC2_NCFILES_DIR,;t t
+s,@REALTIME@,$REALTIME,;t t
+s,@EMC2_IMAGE_DIR@,$EMC2_IMAGE_DIR,;t t
 s,@GTK_VER@,$GTK_VER,;t t
 s,@GTK_LIBS@,$GTK_LIBS,;t t
 s,@GTK_CFLAGS@,$GTK_CFLAGS,;t t
@@ -7137,6 +7176,7 @@ s,@abs_top_builddir@,$ac_abs_top_builddir,;t t
   case $ac_file in
     ../scripts/emc ) chmod +x ../scripts/emc ;;
     ../scripts/realtime ) chmod +x ../scripts/realtime ;;
+    ../bin/emc-config ) chmod +x ../bin/emc-config ;;
   esac
 done
 _ACEOF

@@ -547,7 +547,42 @@ AC_SUBST([MODULE_DIR])
 AC_SUBST([RIP_MODULE_DIR])
 
 ##############################################################################
-# Subsection 3.4 - check for GTK                                             #
+# Subsection 3.4 - define default dirs, these get used in a lot of places    #
+# we decide based on RIP or install where stuff goes                         #
+##############################################################################
+
+if test "xyes" = "x$RUN_IN_PLACE"; then
+    EMC2_BIN_DIR=$EMC2_HOME/bin
+    EMC2_TCL_DIR=$EMC2_HOME/tcl
+    EMC2_HELP_DIR=$EMC2_HOME/docs/help
+    EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
+    EMC2_CONFIG_DIR=$EMC2_HOME/configs
+    EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
+    REALTIME=$EMC2_HOME/scripts/realtime
+    EMC2_IMAGE_DIR=$EMC2_HOME
+
+else
+    EMC2_BIN_DIR=${bindir}
+    EMC2_TCL_DIR=${prefix}/share/emc/tcl
+    EMC2_HELP_DIR=${prefix}/share/doc/emc2
+    EMC2_RTLIB_DIR=$MODULE_DIR/emc2
+    EMC2_CONFIG_DIR=${sysconfdir}/emc2
+    EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
+    REALTIME=/etc/init.d/realtime
+    EMC2_IMAGE_DIR=$EMC2_CONFIG_DIR
+fi
+
+AC_SUBST([EMC2_BIN_DIR])
+AC_SUBST([EMC2_TCL_DIR])
+AC_SUBST([EMC2_HELP_DIR])
+AC_SUBST([EMC2_RTLIB_DIR])
+AC_SUBST([EMC2_CONFIG_DIR])
+AC_SUBST([EMC2_NCFILES_DIR])
+AC_SUBST([REALTIME])
+AC_SUBST([EMC2_IMAGE_DIR])
+
+##############################################################################
+# Subsection 3.5 - check for GTK                                             #
 #                                                                            #
 # Provides the user the possibility to specify (--with-gtk_ver=<version>)    #
 # If not specified a search for a gtk script is done:                        #
@@ -612,7 +647,7 @@ AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
 
 ##############################################################################
-# Subsection 3.5 - check for utility programs needed to build and run EMC    #
+# Subsection 3.6 - check for utility programs needed to build and run EMC    #
 #                                                                            #
 # Check for all the utility programs we need to build and install emc        #
 # as well as those we use in the emc scripts...                              #
@@ -650,14 +685,7 @@ AC_ARG_WITH(rmmod,
 	esac
     ],
     [
-        case $RUN_IN_PLACE in
-        y*|Y*)
-            RMMOD="$BUILD_TOPLEVEL/bin/emc_module_helper remove"
-        ;;
-        *)
-            RMMOD="$prefix/bin/emc_module_helper remove"
-        ;;
-        esac
+            RMMOD="$EMC2_BIN_DIR/emc_module_helper remove"
     ])
 
 AC_ARG_WITH(insmod,
@@ -968,6 +996,7 @@ fi
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
 AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
+AC_CONFIG_FILES([../bin/emc-config], [chmod +x ../bin/emc-config])
 AC_OUTPUT(Makefile.inc)
 
 ##############################################################################
