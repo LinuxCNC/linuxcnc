@@ -1,6 +1,8 @@
 # some of EMC2 History & News
 #############################
 
+2006.02.10 - The build process has been replaced, no more recursive $(MAKE)
+
 2006.01.28 - fixed bug #1205237, mode switching sometimes hung
 
 2006.01.08 - M62/M63 digital outputs synchronous to motion
