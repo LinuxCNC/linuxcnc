@@ -49,3 +49,9 @@ HALGTKSRCS := \
     hal/utils/meter.c \
     hal/utils/miscgtk.c
 $(call TOOBJSDEPS, $(HALGTKSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
+
+M5I20CFGSRCS := hal/utils/m5i20cfg.c
+USERSRCS += $(M5I20CFGSRCS)
+../bin/m5i20cfg: $(call TOOBJS, $(M5I20CFGSRCS))
+	$(CXX) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/m5i20cfg
