@@ -20,7 +20,8 @@ $(call TOOBJSDEPS, $(LIBEMCSRCS)) : EXTRAFLAGS=-fPIC
 TARGETS += ../lib/libemc.a
 
 ../lib/libemc.a: $(call TOOBJS,$(LIBEMCSRCS))
-	rm -f $@
+	@mkdir -p ../lib
+	@rm -f $@
 	$(AR) $(ARFLAGS) $@ $^
 
 ../include/%.h: ./emc/nml_intf/%.h

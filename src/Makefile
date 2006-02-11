@@ -1,5 +1,6 @@
 # Delete the default suffix rules
 .SUFFIXES:
+.PHONY: default userspace modules clean modclean depclean install
 
 include $(PWD)/Makefile.inc
 
@@ -73,8 +74,7 @@ CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 
 # Used when linking so that the .so files are found where they're expected
-RPATH := $(shell cd ../lib; /bin/pwd)
-LDFLAGS := -Wl,-rpath,$(RPATH)
+LDFLAGS := -Wl,-rpath,$(LIB_DIR)
 
 # Rules to make .d (dependency) files.
 $(sort $(call TODEPS, $(filter %.cc,$(USERSRCS)))): depends/%.d: %.cc
@@ -174,7 +174,7 @@ userspace: $(TARGETS)
 # for building kernel modules.  Other kernel module build styles need to be
 # accomodated here.
 ifndef KDIR
-KDIR := $(shell cd /lib/modules/$(shell uname -r)/build; /bin/pwd)
+KDIR := $(shell cd $(KERNELDIR); /bin/pwd)
 endif
 
 ifeq ($(BUILD_SYS),kbuild)
