@@ -1,5 +1,7 @@
 emc2 (2.0.0-alpha4.1) testing; urgency=low
 
+  * 2006.02.10 - The build process has been replaced, no more recursive $(MAKE)
+  
   * Tweak configure flags
 
  -- Jeff Epler <jepler@unpythonic.net>  Wed,  1 Feb 2006 10:51:00 -0600
