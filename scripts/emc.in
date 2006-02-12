@@ -338,10 +338,19 @@ LOCKFILE=/tmp/emc.lock
 
 # Check for lock file
 if [ -f $LOCKFILE ]; then
-  echo -n "EMC still running -- Want to restart it? (default is yes) [Y/n]"
-  read -t 5 input || input=Y
+  if tty -s; then
+    echo -n "EMC is still running.  Restart it? [Y/n] "
+    read input || input=Y
+  else
+    input=$(wish <<EOF
+wm wi .
+puts [tk_messageBox -title EMC -message "EMC is still running.  Restart it?" -type yesno]
+exit
+EOF
+)
+  fi
   case $input in
-    y|Y)
+    y|Y|yes)
       echo Cleaning up old emc...
       Cleanup
     ;;
