@@ -272,7 +272,7 @@ install:
 	$(FILE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) $(TCL) $(DESTDIR)$(tcldir)
-	$(FILE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
+	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) $(TCL_SCRIPTS) $(DESTDIR)$(tcldir)/scripts
 endif
 endif
