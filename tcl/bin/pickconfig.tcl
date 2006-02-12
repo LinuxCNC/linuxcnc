@@ -266,13 +266,11 @@ proc sSlide {f a b} {
 }
 
 # called when user clicks tree node
-proc node_clicked { {node {}} } {
+proc node_clicked {} {
     global tree detail_box button_ok
-    
-    if {$node == ""} {
-        set node [$tree selection get]
-        if {$node == ""} return
-    }
+
+    set node [$tree selection get]
+    if {$node == ""} return
     
     if { [ regexp {.*\.ini$} $node ] == 1 } {
 	# an ini node, acceptable
@@ -495,7 +493,8 @@ foreach dir $configs_dir_list {
 	    }
 	    # add inifile to tree
 	    set inifile [ lindex $inifile_list 0 ]
-	    $tree insert end $dir $inifile -text [ file tail $inifile ] -open 1
+            set parts [file split $inifile]
+	    $tree insert end $dir $inifile -text [lindex $parts end-1] -open 1
 	} elseif { [ llength $inifile_list ] > 1 } {
 	    # multiples, use second level
 	    # add dir to tree if not already
