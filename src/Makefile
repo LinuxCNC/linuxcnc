@@ -6,7 +6,7 @@ include $(PWD)/Makefile.inc
 
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
-# The "modules" target is the gateway to the 
+# The "modules" target is the gateway to the kernel module build.
 default: userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 	@echo "You now need to run 'sudo make setuid' in order to run in place."
@@ -62,7 +62,7 @@ $(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
 CUSEROBJS := $(call TOOBJS,$(filter %.c,$(USERSRCS)))
 CXXUSEROBJS += $(call TOOBJS,$(filter %.cc,$(USERSRCS)))
 
-# Find the dependency filenames, the include them all
+# Find the dependency filenames, then include them all
 DEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 include $(DEPS)
 
@@ -216,16 +216,19 @@ setuid:
 	cp $^ $@
 
 ifeq ($(RUN_IN_PLACE),yes)
+define ERROR_MESSAGE
+You configured run-in-place, but are trying to install.  
+For an installable version, run configure without --enable-run-in-place 
+and rebuild
+endef
 install:
-	@echo "You have configured to run in place, but now are trying to install.  For an"
-	@echo "installable version, run configure without --enable-run-in-place and rebuild."
+	$(error $(ERROR_MESSAGE))
 else
 
 DIR=install -d -m 0755 -o root
 FILE=install -m 0644 -o root
 EXE=install -m 0755 -o root
 SETUID=install -m 4755 -o root
-
 
 NOCVS=$(filter-out %CVS,$(1))
 GLOB=$(call NOCVS,$(wildcard $(1)))
@@ -271,8 +274,6 @@ install:
 	$(FILE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) $(TCL_SCRIPTS) $(DESTDIR)$(tcldir)/scripts
 endif
-
-
 endif
 
 # KERNELRELEASE is nonempty, therefore we are building modules using the
