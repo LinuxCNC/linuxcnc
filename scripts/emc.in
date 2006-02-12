@@ -6,8 +6,8 @@
 #     -v = verbose - prints info as it works
 #     -d = echos script commands to screen for debugging
 #
-# this version calls emc2/tcl/bin/setupconfig.tcl to validate <ini-file> if
-# present, and to prompt the user for a configuration and ini file if not.
+# this version calls emc2/tcl/bin/pickconfig.tcl to pick an ini file if one
+# is not specified on the command line
 #
 ################################################################################
 # Author:
@@ -84,7 +84,7 @@ MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 # 1.3. INIFILE                           find inifile to use                   #
 ################################################################################
 
-INIFILE=
+INIFILE=$1
 
 # 1.3.1. Determine if we have run-in place or installed system
 RUN_IN_PLACE=@RUN_IN_PLACE@
@@ -94,7 +94,7 @@ echo RUN_IN_PLACE=$RUN_IN_PLACE >>$PRINT_FILE
 # common from here..
 INIVAR=$EMC2_BIN_DIR/inivar
 HALCMD=$EMC2_BIN_DIR/halcmd
-SETUPCONFIG=$EMC2_TCL_DIR/bin/setupconfig.tcl
+PICKCONFIG=$EMC2_TCL_DIR/bin/pickconfig.tcl
 EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
 EMC2_IOSH=$EMC2_BIN_DIR/iosh
 
@@ -110,11 +110,15 @@ echo SETUPCONFIG=$SETUPCONFIG >>$PRINT_FILE
 echo EMC2_EMCSH=$EMC2_EMCSH >>$PRINT_FILE
 echo EMC2_IOSH=$EMC2_IOSH >>$PRINT_FILE
 
-# ask tcl script to validate (or get from the user) the path to the ini file
-INIFILE=$($SETUPCONFIG --configs-dir $EMC2_CONFIG_DIR --get-config $1)
-# it returns either a complete absolute path, or nothing at all
+# was an inifile specified on the command line?
 if [ ! -n "$INIFILE" ] ; then
-    # nothing specified, exit
+    # nothing specified, get from the user
+    INIFILE=$($PICKCONFIG $EMC2_CONFIG_DIR)
+    # it returns either a path, or nothing at all
+fi
+
+if [ ! -n "$INIFILE" ] ; then
+    # still nothing specified, exit
     exit -1
 fi
 # delete directories from path, save name only
