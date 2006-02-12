@@ -250,7 +250,6 @@ DOCS_HELP=$(call GLOB,../docs/help/*)
 NC_FILES=$(call GLOB,../nc_files/*)
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
-TCL_SCRIPTS=$(call GLOB,../tcl/scripts/*.tcl)
 
 install:
 	@echo "Installing in $(DESTDIR) with prefix $(prefix)"
@@ -279,7 +278,8 @@ install:
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
-	$(EXE) $(TCL_SCRIPTS) $(DESTDIR)$(tcldir)/scripts
+	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
+	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 endif
 endif
 
