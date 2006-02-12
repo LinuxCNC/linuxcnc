@@ -237,8 +237,6 @@ pack $f5 -side bottom -anchor e -fill none -expand n -padx 15
 
 pack $f1 -fill both -expand y
 
-update
-
 set config_count 0
 foreach dir $configs_dir_list {
     set dir_in_tree 0
