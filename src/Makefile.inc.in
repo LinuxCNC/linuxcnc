@@ -6,23 +6,33 @@
 # Directories
 #############
 
-EMC2_HOME = @EMC2_HOME@
-SRC_DIR   = @EMC2_HOME@/src
-BIN_DIR   = @EMC2_HOME@/bin
-LIB_DIR   = @EMC2_HOME@/lib
-RTLIB_DIR = @EMC2_HOME@/rtlib
-INC_DIR   = @EMC2_HOME@/include
-TMP_DIR   = @EMC2_HOME@/src/.tmp
-RTTMP_DIR = @EMC2_HOME@/src/.rt_tmp
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+EMC2_HOME=@EMC2_HOME@
+
+#used for install stuff
+#but have them here as reference
+#build system only uses EMC2_RTLIB_DIR when creating rtapi.conf
+EMC2_BIN_DIR=@EMC2_BIN_DIR@
+EMC2_TCL_DIR=@EMC2_TCL_DIR@
+EMC2_HELP_DIR=@EMC2_HELP_DIR@
+EMC2_RTLIB_DIR=@EMC2_RTLIB_DIR@
+EMC2_CONFIG_DIR=@EMC2_CONFIG_DIR@
+EMC2_USER_CONFIG_DIR=~/emc2/configs
+EMC2_SYSTEM_CONFIG_DIR=/usr/local/etc/emc2/configs
+EMC2_NCFILES_DIR=@EMC2_NCFILES_DIR@
+REALTIME=@REALTIME@
+EMC2_IMAGEDIR=@EMC2_IMAGE_DIR@
+
+MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
+
+# used for building
 RTDIR     = @RTDIR@
 
+
 # Standard configure directories
-
-prefix = @prefix@
-
-
-exec_prefix = @exec_prefix@
-
+# do we really need these?
 bindir = @bindir@
 sbindir = @sbindir@
 libexecdir = @libexecdir@
@@ -45,6 +55,7 @@ localedir = @LOCALEDIR@
 LANGUAGES = @LANGUAGES@
 
 #still needs discussion
+# do we really need these?
 initd_dir = /etc/init.d
 docsdir = ${prefix}/share/doc/emc2
 ncfilesdir = ${prefix}/share/emc/ncfiles
