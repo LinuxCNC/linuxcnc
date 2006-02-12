@@ -223,11 +223,8 @@ else
 
 DIR=install -d -m 0755 -o root
 FILE=install -m 0644 -o root
-
-# with user-groups, *750 is a nice default, and the administrator can
-# set up an emc group if he wants to let more than one user run emc.
-EXE=install -m 0750 -o root
-SETUID=install -m 4750 -o root
+EXE=install -m 0755 -o root
+SETUID=install -m 4755 -o root
 
 
 NOCVS=$(filter-out %CVS,$(1))
@@ -262,8 +259,8 @@ install:
 	$(shell $(INSTALL_CONFIGS))
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
-	$(SETUID) $(filter ../bin/emc_module_helper,$(TARGETS)) \
-       		$(DESTDIR)$(bindir)
+	$(SETUID) ../bin/halcmd ../bin/emc_module_helper \
+		$(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so,$(TARGETS)) $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
