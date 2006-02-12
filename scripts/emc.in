@@ -50,6 +50,9 @@ done
 ################################################################################
 # 1.2. check for some programs that we need, values get replaced by configure  #
 ################################################################################
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
 INSMOD="@INSMOD@"
 RMMOD="@RMMOD@"
 LSMOD=@LSMOD@
@@ -64,8 +67,6 @@ KILL=@KILL@
 ################################################################################
 # 1.3. Directories                           values get replaced by configure  #
 ################################################################################
-prefix=@prefix@
-exec_prefix=@exec_prefix@
 
 EMC2_HOME=@EMC2_HOME@
 
