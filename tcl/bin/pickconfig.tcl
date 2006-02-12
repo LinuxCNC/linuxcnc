@@ -363,8 +363,12 @@ proc sSlide {f a b} {
 }
 
 # called when user clicks tree node
-proc node_clicked { node } {
+proc node_clicked { {node {}} } {
     global tree detail_box
+    if {$node == ""} {
+        set node [$tree selection get]
+        if {$node == ""} return
+    }
     
     if { [ regexp {.*\.ini$} $node ] == 1 } {
 	# an ini node, acceptable
@@ -387,7 +391,7 @@ proc node_clicked { node } {
 	    set dir ""
 	    set readme ""
 	}
-	$tree selection clear
+	#$tree selection clear
 	# disable the OK button
 
 
@@ -517,15 +521,16 @@ set f2 [ frame $f1.f2 -highlightt 0 -borderwidth 0 -relief flat]
 # subframe for the tree and its scrollbar
 set f3 [ frame $f2.f3 -highlightt 1 -borderwidth 2 -relief sunken]
 # the tree
-set tree [Tree $f3.tree  -width 25 -relief flat ]
+set tree [Tree $f3.tree  -width 25 -relief flat -padx 4 ]
 # pack the tree into its subframe
 pack $tree -side left -fill y -expand y
-$tree bindText <Button-1> { node_clicked }
-# FIXME - these are an attempt to get it to work from keyboard as
-# well as mouse.  No luck yet
-$tree bindText <Key-Up> { node_clicked }
-$tree bindText <Key-Down> { node_clicked }
-$tree bindText <Key-Select> { node_clicked }
+bind $tree <<TreeSelect>> { node_clicked }
+
+# bwidget 1.7.0 does not generate <<TreeSelect>> events for keyboard navigation.
+# These bindings fix that.
+bind $tree.c <KeyPress-Up> [list +event generate $tree <<TreeSelect>>]
+bind $tree.c <KeyPress-Down> [list +event generate $tree <<TreeSelect>>]
+
 # need a scrollbar
 set tscr [ scrollbar $f3.scr -command "$tree yview" -takefocus 1 -highlightt 0 -bd 0 -elementborderwidth 2 ]
 # link the tree to the scrollbar
