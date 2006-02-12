@@ -176,7 +176,7 @@ userspace: $(TARGETS)
 # for building kernel modules.  Other kernel module build styles need to be
 # accomodated here.
 ifndef KDIR
-KDIR := $(shell cd $(KERNELDIR); /bin/pwd)
+KDIR := $(shell cd /lib/modules/$(shell uname -r)/build; /bin/pwd)
 endif
 
 ifeq ($(BUILD_SYS),kbuild)
