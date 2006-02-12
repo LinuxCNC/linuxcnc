@@ -241,6 +241,7 @@ set config_count 0
 foreach dir $configs_dir_list {
     set dir_in_tree 0
     set subdir_list [ glob -nocomplain $dir/*/ ]
+    set subdir_list [ lsort $subdir_list ]
     foreach subdir $subdir_list {
 	set inifile_list [ glob -nocomplain $subdir*.ini ]
 	if { [ llength $inifile_list ] == 1 } {
