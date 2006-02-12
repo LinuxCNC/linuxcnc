@@ -3,6 +3,7 @@
 CheckConfig(){
     RUN_IN_PLACE=@RUN_IN_PLACE@
     prefix=@prefix@
+    exec_prefix=@exec_prefix@
     sysconfdir=@sysconfdir@
     if [ $RUN_IN_PLACE = yes ]; then
         RTAPICONF=
