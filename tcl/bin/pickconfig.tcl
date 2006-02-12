@@ -100,164 +100,12 @@ proc initialize_config {} {
     }
 }
 
-# a kluge for older systems that don't have 'file normalize'
-# (which was introduced with tcl 8.4)
-# this version converts to an absolute path and eliminates 
-# any references to ./ and ../, but it doesn't do all the 
-# other things that normalize can do, such as resolve symlinks.
-# it seems good enough for what this program needs to do
-
-proc file_normalize { input } {
-    # make path absolute
-    if { [ file pathtype $input ] != "absolute" } {
-	set input [ file join [ pwd ] $input ]
-    }
-    # split into component parts
-    set path_list [ file split $input ]
-    # remove any instances of ./
-    set idx [ lsearch $path_list "." ]
-    while { $idx > 0 } {
-	set path_list [ lreplace $path_list $idx $idx ]
-	set idx [ lsearch $path_list "." ]
-    }
-    # remove any instances of ../ (and the preceding directory name)
-    set idx [ lsearch $path_list ".." ]
-    while { $idx > 0 } {
-	set path_list [ lreplace $path_list [ expr $idx -1 ] $idx ]
-	set idx [ lsearch $path_list ".." ]
-    }
-    set output ""
-    foreach name $path_list {
-	set output [ file join $output $name ]
-    }
-    return $output
-}
-
 # main button callback, it assigns the button name to 'choice'
 
 proc button_pushed { button_name } {
     global choice
 
     set choice $button_name
-}
-
-# generic popup, displays a message and waits for "OK" click
-
-proc popup { message } {
-    global choice top logo
-
-    bind . <Escape> {button_pushed OK}
-    bind . <Return> {button_pushed OK}
-    wm protocol . WM_DELETE_WINDOW {button_pushed OK}
-    set f1 [ frame $top.f1 ]
-    set lbl [ label $f1.lbl -text $message -padx 20 -pady 10 ]
-    set but [ button $f1.but -text OK -command "button_pushed OK" -default active -width 8]
-    bind [winfo toplevel $top] <Return> { button_pushed OK }
-    pack $lbl -side top
-    pack $but -side bottom -padx 10 -pady 10
-    pack $f1 -anchor nw -fill both -expand 1
-
-    wizard_event_loop $f1
-
-    pack forget $f1
-    destroy $f1
-}
-
-# config validator  FIXME - needs rewritten to support multiple dirs
-# or maybe its obsolete
-#
-# this gets a config name, which can have multiple forms
-# it returns either a fully qualified path to the config directory
-# (or ini file, if specified), or displays an error message and returns ""
-#
-# input can be:
-# THE FOLLOWING SHOULD NOW ALLOW ANY DIR IN CONFIGS PATH
-#   name of config dir (assumed to be inside emc2 main configs dir)
-#   name of config dir and ini file (assumed to be inside main configs dir)
-# DO WE WANT TO ALLOW CONFIGS NOT IN CONFIGS PATH?
-#   absolute path to config dir (need not be in the emc2 main configs dir)
-#   relative path to config dir (need not be in the emc2 main configs dir)
-#   absolute path to ini file (need not be in the emc2 main configs dir)
-#   relative path to ini file (need not be in the emc2 main configs dir)
-
-proc resolve_config { input } {
-    global configs_dir
-
-    # no error messages if blank, just return
-    if { $input == "" } {
-	return ""
-    }
-    # make into an absolute path
-    set abs_input [ file_normalize $input ]
-    # is it a directory? 
-    if { [ file isdirectory $abs_input ] == 1 } {
-	# it is a path to a directory, any .ini files inside?
-	set inis [ glob -nocomplain -directory $abs_input *.ini ]
-	if { [ llength $inis ] == 0 } {
-	    popup [ format [ msgcat::mc "ERROR: Not a valid config directory (contains no .ini files)\n\n'%s'\n(%s)\n\n" ] $input $abs_input ][ msgcat::mc "Click 'OK' to continue." ]
-	    return ""
-	}
-	return $abs_input
-    }
-    # is it a file?
-    if { [ file isfile $abs_input ] == 1 } {
-	# it is a path to a file, it is an .ini file?
-	if { [ file extension $abs_input ] != ".ini" } {
-	    popup [ format [ msgcat::mc "ERROR: Not a valid ini file (must end with '.ini')\n\n'%s'\n(%s)\n\n" ] $input $abs_input ][ msgcat::mc "Click 'OK' to continue." ]
-	    return ""
-	}
-	return $abs_input
-    }
-    # check in main configs dir
-    set abs_input [ file join $configs_dir $input ]
-    # is it of the form <config-name>?
-    if { [ llength [ file split $input ] ] == 1 } {
-	# yes, does the config directory exist?   
-	if { [ file isdirectory $abs_input ] == 1 } {
-	     # it is a directory, any .ini files inside?
-	    set inis [ glob -nocomplain -directory $abs_input *.ini ]
-	    if { [ llength $inis ] != 0 } {
-		# yes, done
-		return $abs_input
-	    }
-	    popup [ format [ msgcat::mc "ERROR: Not a valid config directory (contains no .ini files)\n\n'%s'\n(%s)\n\n"] $input $abs_input ][ msgcat::mc "Click 'OK' to continue." ]
-	    return ""
-	}
-	popup [ format [ msgcat::mc "ERROR: Config not found\n\n'%s'\n(%s)\n\n" ] $input $abs_input ][ msgcat::mc "Click 'OK' to continue." ]
-	return ""
-    }
-    # is it of the form <config-name>/<ini-name>?
-    if { [ llength [ file split $input ] ] == 2 } {
-	# yes, if no extension, add .ini
-	if { [ file extension $abs_input ] == "" } {
-	    set abs_input $abs_input.ini
-	}
-	# does the ini file exist?   
-	if { [ file isfile $abs_input ] == 1 } {
-	    # yes, done
-	    return $abs_input
-	}
-	popup [ format [ msgcat::mc "ERROR: config/ini not found\n\n'%s'\n(%s)\n\n" ] $input $abs_input ][ msgcat::mc "Click 'OK' to continue." ]
-	return ""
-    }
-    popup [format [ msgcat::mc "ERROR: Not a valid config name\n(must be either <config-name> or <config-name>/<ini-name>)\n\n'%s'\n\n"] $input ][ msgcat::mc "Click 'OK' to continue." ]
-    return ""
-}   
-
-
-
-
-################### FIXME - this divider is just an editing aid, remove it ###################
-
-proc find_config { config } {
-    global configs_dir_list
-
-    foreach configs_dir $configs_dir_list {
-	if { [ file isdirectory [ file join $configs_dir $config ]] == 1 } {
-	    return [ file join $configs_dir $config ]
-	}
-    }
-    return
 }
 
 # slider process is used for several widgets
@@ -267,18 +115,21 @@ proc sSlide {f a b} {
 
 # called when user clicks tree node
 proc node_clicked {} {
-    global tree detail_box button_ok
+    global tree detail_box button_ok inifile
 
     set node [$tree selection get]
     if {$node == ""} return
     
+    $tree selection set $node
     if { [ regexp {.*\.ini$} $node ] == 1 } {
 	# an ini node, acceptable
 	set dir [ file dirname $node ]
 	set readme [ file join $dir README ]
-	$tree selection set $node
+	# save selection
+	set inifile $node
         # enable the OK button
-        $button_ok configure -state normal
+	$button_ok configure -state normal
+	bind . <Return> {button_pushed OK}
     } else {
 	# not an ini node, can't select it
 	if { [ $tree parent $node ] != "root" } {
@@ -292,9 +143,12 @@ proc node_clicked {} {
 	    set dir ""
 	    set readme ""
 	}
-	#$tree selection clear
+	# clear selection
+	set inifile ""
 	# disable the OK button
-        $button_ok configure -state disabled
+	$button_ok configure -state disabled
+	bind . <Return>
+
     }
     # enable changes to the details widget
     $detail_box configure -state normal
@@ -318,15 +172,7 @@ proc node_clicked {} {
     $detail_box configure -state disabled
 }
 
-
-
-
 ################ MAIN PROGRAM STARTS HERE ####################
-
-# set options that are common to all widgets
-foreach class { Button Entry Label Listbox Scale Text } {
-    option add *$class.borderWidth 1  100
-}
 
 # parse command line 
 
@@ -390,9 +236,44 @@ if { [ llength $argv ] != 0 } {
 # if --config (and possibly --ini) were specified, try to find
 # a matching entry before popping up a GUI
 
+set inifile ""
+if { $config_name != "" } {
+    # go thru path looking for a match
+    foreach dir $configs_dir_list {
+	set subdir [ file join $dir $config_name ]
+	if { [ file isdirectory $subdir ] == 1 } {
+	    # found matching directory
+	    # did the user specify --ini?
+	    if { $ini_name != "" } {
+		set inifile [ file join $subdir $ini_name.ini ]
+		# yes, is there a matching one in the dir?
+		if { [ file isfile $inifile ] == 1 } {
+		    # yes, print it and exit
+		    puts $inifile
+		    exit 0
+		}
+	    } else {
+		# no -ini named, is there more than one in the dir?
+		set inifile_list [ glob -nocomplain $subdir/*.ini ]
+		if { [ llength $inifile_list ] == 1 } {
+		    # only one ini file, use it
+		    set inifile [ lindex $inifile_list 0 ]
+		    puts $inifile
+		    exit 0
+		}
+	    }
+	}
+    }
+}
 
+# at this point, we were unable to pick a config/ini from 
+# the args provided by the user (if any), so we pop up a GUI
+# and ask him to pick one
 
-
+# set options that are common to all widgets
+foreach class { Button Entry Label Listbox Scale Text } {
+    option add *$class.borderWidth 1  100
+}
 
 # make a toplevel and a master frame.
 wm title . [msgcat::mc "EMC2 Configuration Selector"]
@@ -411,9 +292,7 @@ initialize_config
 # a frame for packing the top window
 set f1 [ frame $top.f1 ]
 
-set message "Welcome to EMC2.\n\nSelect a machine configuration from the list on the left (items ending in '.ini' are configurations).\nDetails about the selected configuration will appear in the display on the right.\nClick 'OK' to run the selected configuration"
-
-set message "THIS PROGRAM IS NOT FINISHED.  DON'T USE IT.  IF YOU USE IT AND IT BREAKS, SERVES YOU RIGHT!  IT WAS COMMITTED TO CVS ONLY TO ALLOW ANOTHER DEVELOPER TO SEE IT!!!"
+set message "Welcome to EMC2.\n\nSelect a machine configuration from the list on the left.\nDetails about the selected configuration will appear in the display on the right.\nClick 'OK' to run the selected configuration"
 
 set lbl [ label $f1.lbl -text $message -justify left -padx 20 -pady 10 -wraplength 600 ]
 pack $lbl
@@ -517,14 +396,14 @@ foreach dir $configs_dir_list {
 # THE PROC SHOULD END HERE
 
 bind . <Escape> {button_pushed Cancel}
-# bind . <Return> {button_pushed OK}
+bind . <Return> 
 wm protocol . WM_DELETE_WINDOW {button_pushed Cancel}
 
-
-
 vwait choice
-puts $choice
 
+if { $choice == "OK" } {
+    puts $inifile
+}
 
 exit
 
