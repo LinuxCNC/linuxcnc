@@ -703,14 +703,7 @@ AC_ARG_WITH(insmod,
 	esac
     ],
     [
-        case $RUN_IN_PLACE in
-        y*|Y*)
-            INSMOD="$BUILD_TOPLEVEL/bin/emc_module_helper insert"
-        ;;
-        *)
-            INSMOD="$prefix/bin/emc_module_helper insert"
-        ;;
-        esac
+            INSMOD="$EMC2_BIN_DIR/emc_module_helper insert"
     ])
 
 ##############################################################################
