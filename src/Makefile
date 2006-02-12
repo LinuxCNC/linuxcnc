@@ -244,7 +244,7 @@ DOCS=AUTHORS Hal_Introduction.pdf INSTALL NEWS README
 DOCS_HELP=$(call GLOB,../docs/help/*)
 NC_FILES=$(call GLOB,../nc_files/*)
 TCL=$(call GLOB,../tcl/*.tcl)
-TCL_BIN=$(call GLOB,../tcl/bin/*.tcl)
+TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 TCL_SCRIPTS=$(call GLOB,../tcl/scripts/*.tcl)
 
 install:
@@ -258,8 +258,10 @@ install:
 	$(FILE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)/emc2
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
+	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/emc2
 	$(shell $(INSTALL_CONFIGS))
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(SETUID) $(filter ../bin/emc_module_helper,$(TARGETS)) \
        		$(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so,$(TARGETS)) $(DESTDIR)$(libdir)
