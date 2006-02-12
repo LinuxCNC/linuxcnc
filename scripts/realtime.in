@@ -1,24 +1,30 @@
 #! /bin/bash
 
 CheckConfig(){
-    RTAPICONF=
-    # check in the emc2 scripts directory
-    # $0 is the command to run this script
-    # strip the script name to leave the path
-    SCRIPT_DIR=`echo $0 | sed s#realtime## `
-    # the path might be relative
-    # convert it to an absolute path
-    SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
-    # now look for rtapi.conf there
-    if [ -f $SCRIPT_DIR/rtapi.conf ] ; then
-	RTAPICONF=$SCRIPT_DIR/rtapi.conf
-    # check for rtapi.conf in /etc/ second...
-    elif [ -f /etc/emc2/rtapi.conf ] ; then
-	    RTAPICONF=/etc/emc2/rtapi.conf
+    RUN_IN_PLACE=@RUN_IN_PLACE@
+    prefix=@prefix@
+    sysconfdir=@sysconfdir@
+    if [ $RUN_IN_PLACE = yes ]; then
+        RTAPICONF=
+        # check in the emc2 scripts directory
+        # $0 is the command to run this script
+        # strip the script name to leave the path
+        SCRIPT_DIR=${0%/*}
+        # the path might be relative
+        # convert it to an absolute path
+        SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
+        # now look for rtapi.conf there
+        if [ -f $SCRIPT_DIR/rtapi.conf ] ; then
+            RTAPICONF=$SCRIPT_DIR/rtapi.conf
+        fi
+    else
+        if [ -f $sysconfdir/emc2/rtapi.conf ]; then
+                RTAPICONF=$sysconfdir/emc2/rtapi.conf
+        fi
     fi
     if [ -z "$RTAPICONF" ] ; then
-	echo "Missing rtapi.conf. Did you run 'make rtapi' ?"
-	exit -1
+	echo "Missing rtapi.conf.  Check your installation." 1>&2
+	exit 1
     fi
     INSMOD="@INSMOD@"
     RMMOD="@RMMOD@"
@@ -75,7 +81,7 @@ CheckConfig(){
     else
 	echo "ERROR: can't find \"fuser\", used to verify that it is safe to shutdown realtime"
 	DoExit
-	exit -1
+	exit 1
     fi
 
 
@@ -108,7 +114,7 @@ CheckMem(){
 	    echo "ERROR:  Can't remove RTLinux modules, kill the following process(es) first"
 	    $FUSER -v /dev/mbuff
 	    DoExit
-	    exit -1
+	    exit 1
 	fi
     elif [ -e /dev/rtai_shm ] ; then
 	# device file exists, check for processes using it
@@ -117,7 +123,7 @@ CheckMem(){
 	    echo "ERROR:  Can't remove RTAI modules, kill the following process(es) first"
 	    $FUSER -v /dev/rtai_shm
 	    DoExit
-	    exit -1
+	    exit 1
 	fi
     fi
 }
@@ -153,7 +159,7 @@ CheckLoaded(){
     done
     if [ -n "$STATUS" ] ; then
 	DoExit
-	exit -1
+	exit 1
     fi
 }
 
@@ -177,7 +183,7 @@ CheckUnloaded(){
     done
     if [ -n "$STATUS" ] ; then
 	DoExit
-	exit -1
+	exit 1
     fi
 }
 
