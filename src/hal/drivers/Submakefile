@@ -1,0 +1,13 @@
+# This is a skeleton makefile for a subdirectory
+
+# HALSKELETONSRCS is a nice way to collect some source file names.  Use $(patsubst) or
+# $(addprefix) if you are listing a bunch of files from a subdirectory and
+# would like to save a few keystrokes.
+HALSKELETONSRCS := \
+	hal/drivers/hal_skeleton.c hal/hal_lib.c $(ULAPISRCS)
+USERSRCS += $(HALSKELETONSRCS)
+
+# This is how the binary 'hal_skeleton' is linked.
+../bin/hal_skeleton: $(call TOOBJS, $(HALSKELETONSRCS))
+	$(CXX) -o $@ $^ 
+userspace: ../bin/hal_skeleton
