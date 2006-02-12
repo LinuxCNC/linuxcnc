@@ -267,14 +267,15 @@ install:
 	$(SETUID) ../bin/halcmd ../bin/emc_module_helper \
 		$(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so,$(TARGETS)) $(DESTDIR)$(libdir)
+	ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)/help
 	$(FILE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
-	$(FILE) $(TCL) $(DESTDIR)$(tcldir)
+	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
-	$(FILE) $(TCL_SCRIPTS) $(DESTDIR)$(tcldir)/scripts
+	$(EXE) $(TCL_SCRIPTS) $(DESTDIR)$(tcldir)/scripts
 endif
 endif
 
