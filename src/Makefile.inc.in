@@ -10,6 +10,7 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 
 EMC2_HOME=@EMC2_HOME@
+LIB_DIR=@EMC2_HOME@/lib
 
 #used for install stuff
 #but have them here as reference
@@ -24,6 +25,7 @@ EMC2_SYSTEM_CONFIG_DIR=/usr/local/etc/emc2/configs
 EMC2_NCFILES_DIR=@EMC2_NCFILES_DIR@
 REALTIME=@REALTIME@
 EMC2_IMAGEDIR=@EMC2_IMAGE_DIR@
+
 
 MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 
