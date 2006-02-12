@@ -75,8 +75,12 @@ DEBUG := -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 
-# Used when linking so that the .so files are found where they're expected
+ifeq ($(RUN_IN_PLACE),yes)
+# Used when linking for rip only so that the .so files are found.
+# important not to use this for installed version, since we want
+# those libs to come from the system path.
 LDFLAGS := -Wl,-rpath,$(LIB_DIR)
+endif
 
 # Rules to make .d (dependency) files.
 $(sort $(call TODEPS, $(filter %.cc,$(USERSRCS)))): depends/%.d: %.cc
