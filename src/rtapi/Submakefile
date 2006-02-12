@@ -20,7 +20,7 @@ RTL_MOD="rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo"
 	@ echo "EMC2_HOME='$(EMC2_HOME)'" >>$@
 	@ echo "MAN_DIR='$(MAN_DIR)'" >> $@
 	@ echo "KERNELDIR='$(KERNELDIR)'" >> $@
-	@ echo "RTLIB_DIR='$(RTLIB_DIR)'" >> $@
+	@ echo "RTLIB_DIR='$(EMC2_RTLIB_DIR)'" >> $@
 	@ echo "MODULE_EXT='$(MODULE_EXT)'" >> $@
 	@ echo  >> $@
 	@ echo "# Sets the default DEBUG level" >> $@
@@ -32,7 +32,7 @@ RTL_MOD="rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo"
 	@ echo "# List of realtime kernel modules to be loaded" >> $@
 	@ if [ "$(RTAI)" = "3" ] ; then \
 	    echo "MODULES='$(RTAI3_MOD)'" >> $@ ; \
-	    echo "$(RTAI3_RUN)" > $(RTLIB_DIR)/.runinfo ; \
+	    echo "$(RTAI3_RUN)" > $(EMC2_RTLIB_DIR)/.runinfo ; \
 	    echo "RTAI='$(RTAI)'" >> $@ ; \
 	    echo "RTAI_LOAD='$(RTDIR)/bin/rtai-load'" >> $@ ; \
 	elif [ "$(RTPREFIX)" = "rtai" ] ; then \
