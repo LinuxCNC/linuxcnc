@@ -254,7 +254,7 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
 wm protocol . WM_DELETE_WINDOW askKill
 proc askKill {} {
     global configdir
-    set tmp [tk_messageBox -icon error -type yesnocancel \
+    set tmp [tk_messageBox -icon question -type yesnocancel \
         -message "Would you like to save your configuration before you exit?"]
     switch -- $tmp {
         yes {saveHAL $configdir ; killHalConfig}
