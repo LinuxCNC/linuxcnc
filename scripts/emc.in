@@ -340,7 +340,7 @@ LOCKFILE=/tmp/emc.lock
 if [ -f $LOCKFILE ]; then
   if tty -s; then
     echo -n "EMC is still running.  Restart it? [Y/n] "
-    read input || input=Y
+    read input; [ -z $input ] && input=y
   else
     input=$(wish <<EOF
 wm wi .
