@@ -507,7 +507,8 @@ foreach dir $configs_dir_list {
 	    # add second level entries, one per inifile
 	    foreach inifile $inifile_list {
 		# add subdir to tree
-		$tree insert end $subdir $inifile -text [ file tail $inifile ] -open 1
+                set text [file rootname [file tail $inifile]]
+		$tree insert end $subdir $inifile -text $text -open 1
 	    }
 	}
     }
