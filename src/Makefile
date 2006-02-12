@@ -232,12 +232,13 @@ SETUID=install -m 4755 -o root
 
 NOCVS=$(filter-out %CVS,$(1))
 GLOB=$(call NOCVS,$(wildcard $(1)))
-
 CONFIGS=$(subst ../configs/,,$(call GLOB,../configs/*))
-INSTALL_CONFIGS=$(foreach config,$(CONFIGS), \
-		$(DIR) $(DESTDIR)$(sysconfdir)/emc2/sample-configs/$(config); \
-		$(FILE) $(call GLOB,../configs/$(config)/*) \
-	       	$(DESTDIR)$(sysconfdir)/emc2/sample-configs/$(config);)
+define INSTALL_CONFIG
+$(DIR) $(DESTDIR)$(sysconfdir)/emc2/sample-configs/$(1)
+$(FILE) $(call GLOB,../configs/$(1)/*) $(DESTDIR)$(sysconfdir)/emc2/sample-configs/$(1)
+
+endef
+INSTALL_CONFIGS=$(foreach config,$(CONFIGS), $(call INSTALL_CONFIG,$(config)))
 
 DOCS=AUTHORS Hal_Introduction.pdf INSTALL NEWS README
 
@@ -259,7 +260,7 @@ install:
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)/emc2
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
 	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/emc2
-	$(shell $(INSTALL_CONFIGS))
+	$(INSTALL_CONFIGS)
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/halcmd ../bin/emc_module_helper \
