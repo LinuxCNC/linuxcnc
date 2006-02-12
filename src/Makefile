@@ -252,6 +252,7 @@ install:
 	@echo "Installing in $(DESTDIR) with prefix $(prefix)"
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(moduledir)/emc2 \
 		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
+		$(DESTDIR)/usr/local/etc/emc2/configs \
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir) \
 		$(DESTDIR)$(docsdir)/help $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
