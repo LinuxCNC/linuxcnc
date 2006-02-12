@@ -20,35 +20,13 @@ exec wish "$0" "$@"
 ###############################################################
 #
 # usage:
-#    pickconfig [options]
+#    pickconfig <config-path>
 #
-#   Validates a desired emc2 config or asks the user to choose
-#   one, then prints the complete path to the ini file.
-#
-# options:
-#  --configs-path <dir>[:<dir>]
-#
-#   Required - if not supplied, exits with an error
-#   Colon separated list of directorys in which to search
-#   for configurations. 
-#
-#  --config <config-name>
-#
-#   Desired configuration name.  If specified, pickconfig
-#   will search the configs-path and use the first sub-
-#   directory that matches.  If there is no match, or if
-#   this option was not specified, it will display a list
-#   of all configurations and ask the user to choose one.
-#
-#  --ini <ini-name>
-#
-#   Desired ini file name.  If specified, and if a matching
-#   one is found in the chosen config, it will be used.  If
-#   no match exists, or if this option was not specified,
-#   and the chosen config contains more than one ini file 
-#   it will list all the ini files and ask the user to choose
-#   one.  If the chosen config contains only one ini file, 
-#   that file will be used regardless of any -ini option.
+#    <config-path> is one or more directories (separated with
+#    colons) in which pickconfig should search for configs.
+#    pickconfig will open a GUI window displaying all configs
+#    that it finds and ask the user to choose one, then print
+#    the path to the chosen config and exit.
 #
 ###############################################################
 
@@ -167,101 +145,14 @@ proc node_clicked {} {
 ################ MAIN PROGRAM STARTS HERE ####################
 
 # parse command line 
-
-# process --configs-path
-set option_index [ lsearch $argv "--configs-path" ]
-if { $option_index >= 0 } {
-    # get the directory(s)
-    set configs_path [ lindex $argv [ expr $option_index + 1 ]]
-    if { $configs_path == "" || [ string equal -length 1 $configs_path "-" ] == 1 } {
-	puts stderr [msgcat::mc "ERROR: option '--configs-path' must be followed by directory name(s)"]
-	exit 1
-    }
-    # split into a list of dirs
-    set configs_dir_list [ split $configs_path ":" ]
-    # remove option and its argument from argv
-    set argv [ lreplace $argv $option_index [expr $option_index + 1]]
-} else {
-    puts stderr [ msgcat::mc "ERROR: must specify --configs-path <path-to-configs>" ]
+set configs_path [ lindex $argv 0 ]
+if { $configs_path == "" } {
+    puts stderr [ msgcat::mc "ERROR: must specify a path to search for configurations" ]
     exit 1
 }
-
-# process --config
-set option_index [ lsearch $argv "--config" ]
-if { $option_index >= 0 } {
-    # get arg that follows '--config' (if any)
-    set config_name [ lindex $argv [ expr $option_index + 1 ] ]
-    # make sure it exists and isn't another option
-    if { $config_name == "" || [ string equal -length 1 $config_name "-" ] == 1 } {
-	puts stderr [msgcat::mc "ERROR: option '--config' must be followed by a name"]
-	exit 1
-    }
-    # delete option and its arg from argv
-    set argv [ lreplace $argv $option_index [expr $option_index + 1] ]
-} else {
-    set config_name ""
-}
-
-# process --ini
-set option_index [ lsearch $argv "--ini" ]
-if { $option_index >= 0 } {
-    # get arg that follows '--ini' (if any)
-    set ini_name [ lindex $argv [ expr $option_index + 1 ] ]
-    # make sure it exists and isn't another option
-    if { $ini_name == "" || [ string equal -length 1 $ini_name "-" ] == 1 } {
-	puts stderr [msgcat::mc "ERROR: option '--ini' must be followed by a name"]
-	exit 1
-    }
-    # delete option and its arg from argv
-    set argv [ lreplace $argv $option_index [expr $option_index + 1] ]
-} else {
-    set ini_name ""
-}
-
-# at this point all legal options and their args have been deleted, 
-# anything left in 'argv' is an error
-if { [ llength $argv ] != 0 } {
-    puts stderr [ format [ msgcat::mc "ERROR: unknown command line option: '%s'"] $argv ]
-    exit 1
-}
-
-# if --config (and possibly --ini) were specified, try to find
-# a matching entry before popping up a GUI
-
-set inifile ""
-if { $config_name != "" } {
-    # go thru path looking for a match
-    foreach dir $configs_dir_list {
-	set subdir [ file join $dir $config_name ]
-	if { [ file isdirectory $subdir ] == 1 } {
-	    # found matching directory
-	    # did the user specify --ini?
-	    if { $ini_name != "" } {
-		set inifile [ file join $subdir $ini_name.ini ]
-		# yes, is there a matching one in the dir?
-		if { [ file isfile $inifile ] == 1 } {
-		    # yes, print it and exit
-		    puts $inifile
-		    exit 0
-		}
-	    } else {
-		# no -ini named, is there more than one in the dir?
-		set inifile_list [ glob -nocomplain $subdir/*.ini ]
-		if { [ llength $inifile_list ] == 1 } {
-		    # only one ini file, use it
-		    set inifile [ lindex $inifile_list 0 ]
-		    puts $inifile
-		    exit 0
-		}
-	    }
-	}
-    }
-}
-
-# at this point, we were unable to pick a config/ini from 
-# the args provided by the user (if any), so we pop up a GUI
-# and ask him to pick one
-
+# split into a list of dirs
+set configs_dir_list [ split $configs_path ":" ]
+ 
 # set options that are common to all widgets
 foreach class { Button Entry Label Listbox Scale Text } {
     option add *$class.borderWidth 1  100
@@ -278,8 +169,6 @@ wm geo . 780x480
 wm resiz . 0 0
 
 initialize_config
-
-# THE FOLLOWING SHOULD PROBABLY BE A PROC
 
 # a frame for packing the top window
 set f1 [ frame $top.f1 ]
@@ -350,6 +239,7 @@ pack $f1 -fill both -expand y
 
 update
 
+set config_count 0
 foreach dir $configs_dir_list {
     set dir_in_tree 0
     set subdir_list [ glob -nocomplain $dir/*/ ]
@@ -366,6 +256,7 @@ foreach dir $configs_dir_list {
 	    set inifile [ lindex $inifile_list 0 ]
             set parts [file split $inifile]
 	    $tree insert end $dir $inifile -text [lindex $parts end-1] -open 1
+	    incr config_count
 	} elseif { [ llength $inifile_list ] > 1 } {
 	    # multiples, use second level
 	    # add dir to tree if not already
@@ -377,15 +268,19 @@ foreach dir $configs_dir_list {
 	    $tree insert end $dir $subdir -text [ file tail $subdir ] -open 1
 	    # add second level entries, one per inifile
 	    foreach inifile $inifile_list {
-		# add subdir to tree
+		# add inifile to tree
                 set text [file rootname [file tail $inifile]]
 		$tree insert end $subdir $inifile -text $text -open 1
+		incr config_count
 	    }
 	}
     }
 }
 
-# THE PROC SHOULD END HERE
+if { $config_count == 0 } {
+    puts stderr [ msgcat::mc "ERROR: no configurations found in path" ]
+    exit 1
+}
 
 bind . <Escape> {button_pushed Cancel}
 bind . <Return> ""
