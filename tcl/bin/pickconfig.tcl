@@ -123,39 +123,12 @@ proc node_clicked {} {
     $tree selection set $node
     if { [ regexp {.*\.ini$} $node ] == 1 } {
 	# an ini node, acceptable
-	set dir [ file dirname $node ]
-	set readme [ file join $dir README ]
-	# save selection
-	set inifile $node
-        # enable the OK button
-	$button_ok configure -state normal
-	bind . <Return> {button_pushed OK}
-    } else {
-	# not an ini node, can't select it
-	if { [ $tree parent $node ] != "root" } {
-	    # its a subdir with more than one ini
-	    # so it should have a readme
-	    set dir $node
-	    set readme [ file join $dir README ]
-	} else {
-	    # its one of the top level path dirs
-	    # not a config, but a dir that holds configs
-	    set dir ""
-	    set readme ""
-	}
-	# clear selection
-	set inifile ""
-	# disable the OK button
-	$button_ok configure -state disabled
-	bind . <Return>
-
-    }
-    # enable changes to the details widget
-    $detail_box configure -state normal
-    # remove old test
-    $detail_box delete 1.0 end
-    # add new text
-    if { $readme != "" } {
+	# enable changes to the details widget
+	$detail_box configure -state normal
+	# remove old text
+	$detail_box delete 1.0 end
+	# add new text
+	set readme [ file join [ file dirname $node ] README ]
 	if { [ file isfile $readme ] } {
 	    # description found, read it
 	    set descr [ read -nonewline [ open $readme ]]
@@ -167,9 +140,28 @@ proc node_clicked {} {
 	    # no description, gotta tell the user something
 	    $detail_box insert end [msgcat::mc "No details available."]
 	}
+	# lock it again
+	$detail_box configure -state disabled
+	# save selection
+	set inifile $node
+        # enable the OK button
+	$button_ok configure -state normal
+	bind . <Return> {button_pushed OK}
+    } else {
+	# not an ini node, can't use it
+	# enable changes to the details widget
+	$detail_box configure -state normal
+	# remove old text
+	$detail_box delete 1.0 end
+	# lock it again
+	$detail_box configure -state disabled
+	# clear selection
+	set inifile ""
+	# disable the OK button
+	$button_ok configure -state disabled
+	bind . <Return> ""
+
     }
-    # lock it again
-    $detail_box configure -state disabled
 }
 
 ################ MAIN PROGRAM STARTS HERE ####################
@@ -396,7 +388,7 @@ foreach dir $configs_dir_list {
 # THE PROC SHOULD END HERE
 
 bind . <Escape> {button_pushed Cancel}
-bind . <Return> 
+bind . <Return> ""
 wm protocol . WM_DELETE_WINDOW {button_pushed Cancel}
 
 vwait choice
