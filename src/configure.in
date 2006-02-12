@@ -566,10 +566,10 @@ else
     EMC2_TCL_DIR=${prefix}/share/emc/tcl
     EMC2_HELP_DIR=${prefix}/share/doc/emc2
     EMC2_RTLIB_DIR=$MODULE_DIR/emc2
-    EMC2_CONFIG_DIR=${sysconfdir}/emc2/sample-configs
+    EMC2_CONFIG_DIR=sample-configs
     EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
     REALTIME=/etc/init.d/realtime
-    EMC2_IMAGE_DIR=$EMC2_CONFIG_DIR
+    EMC2_IMAGE_DIR=${sysconfdir}/emc2/
 fi
 
 AC_SUBST([EMC2_BIN_DIR])
