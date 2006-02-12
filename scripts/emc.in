@@ -74,7 +74,7 @@ EMC2_TCL_DIR=@EMC2_TCL_DIR@
 EMC2_HELP_DIR=@EMC2_HELP_DIR@
 EMC2_RTLIB_DIR=@EMC2_RTLIB_DIR@
 EMC2_CONFIG_DIR=@EMC2_CONFIG_DIR@
-EMC2_USER_CONFIG_DIR=~/emc2/configs
+EMC2_USER_CONFIG_DIR='~/emc2/configs'
 EMC2_SYSTEM_CONFIG_DIR=/usr/local/etc/emc2/configs
 EMC2_NCFILES_DIR=@EMC2_NCFILES_DIR@
 REALTIME=@REALTIME@
@@ -115,7 +115,7 @@ echo EMC2_IOSH=$EMC2_IOSH >>$PRINT_FILE
 # was an inifile specified on the command line?
 if [ ! -n "$INIFILE" ] ; then
     # nothing specified, get from the user
-    INIFILE=$($PICKCONFIG $EMC2_USER_CONFIG_DIR:$EMC2_SYSTEM_CONFIG_DIR:$EMC2_CONFIG_DIR)
+    INIFILE=$($PICKCONFIG "$EMC2_USER_CONFIG_DIR:$EMC2_SYSTEM_CONFIG_DIR:$EMC2_CONFIG_DIR")
     # it returns either a path, or nothing at all
 fi
 
