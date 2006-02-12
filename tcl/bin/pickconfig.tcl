@@ -295,7 +295,7 @@ set f1 [ frame $top.f1 ]
 set message "Welcome to EMC2.\n\nSelect a machine configuration from the list on the left.\nDetails about the selected configuration will appear in the display on the right.\nClick 'OK' to run the selected configuration"
 
 set lbl [ label $f1.lbl -text $message -justify left -padx 20 -pady 10 -wraplength 600 ]
-pack $lbl
+pack $lbl -anchor w
 
 # a subframe for the tree/detail box 
 set f2 [ frame $f1.f2 -highlightt 0 -borderwidth 0 -relief flat]
@@ -352,7 +352,7 @@ set button_ok $f5.ok
 $button_ok configure -state disabled
 $f5.ok configure -width 8
 pack $f5.ok -side right -padx 4 -pady 4
-pack $f5 -side bottom -anchor e -fill none -expand n
+pack $f5 -side bottom -anchor e -fill none -expand n -padx 15
 
 pack $f1 -fill both -expand y
 
