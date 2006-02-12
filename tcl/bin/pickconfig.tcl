@@ -163,103 +163,6 @@ proc popup { message } {
     destroy $f1
 }
 
-# button_entry_change - Utility function for button_depends_on_entry
-proc button_entry_change {b t name1 name2 op} {
-    upvar \#0 $t v
-    if {$v == ""} {
-        $b configure -state disabled
-    } else {
-        $b configure -state normal
-    }
-}
-
-# button_depends_on_variable - Sometimes, a button should not be enabled until
-# text is entered
-proc button_depends_on_variable {b v e} {
-    global top
-    global $v
-    set b $top.f1.f2.[string tolower $b]
-    set cmd [list button_entry_change $b $v]
-    bind $e <Destroy> [list trace remove variable $v write $cmd]
-    trace add variable $v write $cmd
-    button_entry_change $b $v . . .
-}
-
-# button_listbox_change - Utility function for button_depends_on_listbox
-proc button_listbox_change {b lb} {
-    global top
-    set b $top.f1.f2.[string tolower $b]
-    if {[$lb curselection] == {}} {
-        $b configure -state disabled
-    } {
-        $b configure -state normal
-    }
-}
-
-
-# button_depends_on_listbox - Sometimes, a button should not be enabled until
-# an item is selected This function enforces that.
-proc button_depends_on_listbox {b lb} {
-    bind $lb <<ListboxSelect>> "+[list button_listbox_change $b $lb]"
-    button_listbox_change $b $lb
-}
-
-# wizard_event_loop - call this after setting up the wizard.  Returned
-# value is the english name of the button chosen, which is also in $choice
-# The wizard is not yet destroyed when this function returns.
-proc wizard_event_loop {f1} {
-    if {[winfo exists $f1.f2]} {raise $f1.f2}
-    update idletasks
-    focus [tk_focusNext .]
-    set choice "none"
-    vwait choice
-}
-
-
-# generic wizard page - defines a frame with multiple buttons at the bottom
-# Returns the frame widget so page specific stuff can be packed on top
-
-proc wizard_page { buttons {default ""} {abort ""}} {
-    global choice top
-
-    set f1 [ frame $top.f1 ]
-    set f2 [ frame $f1.f2 ]
-    set tl [winfo toplevel $top]
-
-    bind $tl <Return> {}
-    bind $tl <Escape> {}
-    wm protocol $tl WM_DELETE_WINDOW { button_pushed WM_CLOSE }
-
-    foreach button_name $buttons {
-	set bname [ string tolower $button_name ]
-        set text [msgcat::mc $button_name]
-                
-        button $f2.$bname -text $text -command "button_pushed \"$button_name\""
-
-        set font [$f2.$bname cget -font]
-        set ave_width [font measure $font "0"]
-        set text_width [font measure $font $text]
-        if {$text_width > 8*$ave_width} { 
-            $f2.$bname configure -width 0
-        } else {
-            $f2.$bname configure -width 8
-        }
-	pack $f2.$bname -side left -padx 4 -pady 4
-        if {$button_name == $default} {
-            $f2.$bname configure -default active
-            bind $tl <Return> [list $f2.$bname invoke]
-        } else { 
-            $f2.$bname configure -default normal
-        }
-        if {$button_name == $abort} {
-            bind $tl <Escape> [list $f2.$bname invoke]
-            wm protocol $tl WM_DELETE_WINDOW [list $f2.$bname invoke]
-        }
-    }
-    pack $f2 -side bottom
-    return $f1
-}
-
 # config validator  FIXME - needs rewritten to support multiple dirs
 # or maybe its obsolete
 #
@@ -364,7 +267,8 @@ proc sSlide {f a b} {
 
 # called when user clicks tree node
 proc node_clicked { {node {}} } {
-    global tree detail_box
+    global tree detail_box button_ok
+    
     if {$node == ""} {
         set node [$tree selection get]
         if {$node == ""} return
@@ -376,8 +280,7 @@ proc node_clicked { {node {}} } {
 	set readme [ file join $dir README ]
 	$tree selection set $node
         # enable the OK button
-	
-
+        $button_ok configure -state normal
     } else {
 	# not an ini node, can't select it
 	if { [ $tree parent $node ] != "root" } {
@@ -393,8 +296,7 @@ proc node_clicked { {node {}} } {
 	}
 	#$tree selection clear
 	# disable the OK button
-
-
+        $button_ok configure -state disabled
     }
     # enable changes to the details widget
     $detail_box configure -state normal
@@ -487,6 +389,9 @@ if { [ llength $argv ] != 0 } {
     exit 1
 }
 
+# if --config (and possibly --ini) were specified, try to find
+# a matching entry before popping up a GUI
+
 
 
 
@@ -566,6 +471,8 @@ button $f5.cancel -text Cancel -command "button_pushed Cancel"
 $f5.cancel configure -width 8
 pack $f5.cancel -side right -padx 4 -pady 4
 button $f5.ok -text OK -command "button_pushed OK"
+set button_ok $f5.ok
+$button_ok configure -state disabled
 $f5.ok configure -width 8
 pack $f5.ok -side right -padx 4 -pady 4
 pack $f5 -side bottom -anchor e -fill none -expand n
