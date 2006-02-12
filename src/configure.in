@@ -545,6 +545,7 @@ fi
 
 AC_SUBST([MODULE_DIR])
 AC_SUBST([RIP_MODULE_DIR])
+AC_SUBST([RUN_IN_PLACE])
 
 ##############################################################################
 # Subsection 3.4 - define default dirs, these get used in a lot of places    #
@@ -560,7 +561,6 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
     REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
-
 else
     EMC2_BIN_DIR=${bindir}
     EMC2_TCL_DIR=${prefix}/share/emc/tcl

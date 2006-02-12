@@ -53,6 +53,7 @@ tcldir = ${prefix}/share/emc/tcl
 
 # /Standard configure directories
 
+RUN_IN_PLACE = @RUN_IN_PLACE@
 RTNAME = @RTNAME@
 RTPREFIX = @RTPREFIX@
 RTAI = @RTAI@
