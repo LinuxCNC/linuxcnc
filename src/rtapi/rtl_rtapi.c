@@ -74,6 +74,7 @@
 #include <linux/ctype.h>	/* isdigit */
 #include <linux/delay.h>	/* udelay */
 #include <asm/uaccess.h>	/* copy_from_user() */
+#include <asm/msr.h>		/* rdtscll() */
 
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
@@ -579,6 +580,14 @@ long int rtapi_clock_set_period(long int nsecs)
 long long int rtapi_get_time(void)
 {
     return gethrtime();
+}
+
+long long int rtapi_get_time(void)
+{
+    long long int retval;
+    
+    rdtscll(retval);
+    return retval;
 }
 
 void rtapi_delay(long int nsec)

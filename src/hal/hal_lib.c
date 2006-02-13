@@ -2063,7 +2063,7 @@ static void thread_task(void *arg)
 	    funct_root = (hal_funct_entry_t *) & (thread->funct_list);
 	    funct_entry = SHMPTR(funct_root->links.next);
 	    /* execution time logging */
-	    start_time = rtapi_get_time();
+	    start_time = rtapi_get_clocks();
 	    end_time = start_time;
 	    thread_start_time = start_time;
 	    /* run thru function list */
@@ -2071,7 +2071,7 @@ static void thread_task(void *arg)
 		/* call the function */
 		funct_entry->funct(funct_entry->arg, thread->period);
 		/* capture execution time */
-		end_time = rtapi_get_time();
+		end_time = rtapi_get_clocks();
 		/* point to function structure */
 		funct = SHMPTR(funct_entry->funct_ptr);
 		/* update execution time data */

@@ -73,6 +73,7 @@
 #include <linux/ctype.h>	/* isdigit */
 #include <linux/delay.h>	/* udelay */
 #include <asm/uaccess.h>	/* copy_from_user() */
+#include <asm/msr.h>		/* rdtscll() */
 #include <linux/time.h>		/* timeval & do_gettimeofday() */
 
 #ifndef LINUX_VERSION_CODE
@@ -538,7 +539,25 @@ long long int rtapi_get_time(void)
     /*return (tv.tv_sec * 1000000000LL) + (tv.tv_usec * 1000L);*/
     
     //reverted to old code for now
+    /* this is a monstrosity that seems to take several MICROSECONDS!!!
+       on some boxes.  Why the RTAI folks even bothered I have no idea!
+       If you have any need for speed at all use rtapi_get_clocks()!!
+    */
     return rt_get_cpu_time_ns();    
+}
+
+/* This returns a result in clocks instead of nS, and needs to be used
+   with care around CPUs that change the clock speed to save power and
+   other disgusting, non-realtime oriented behavior.  But at least it
+   doesn't take a week every time you call it.
+*/
+
+long long int rtapi_get_clocks(void)
+{
+    long long int retval;
+
+    rdtscll(retval);
+    return retval;    
 }
 
 void rtapi_delay(long int nsec)
@@ -1646,6 +1665,7 @@ EXPORT_SYMBOL(rtapi_set_msg_level);
 EXPORT_SYMBOL(rtapi_get_msg_level);
 EXPORT_SYMBOL(rtapi_clock_set_period);
 EXPORT_SYMBOL(rtapi_get_time);
+EXPORT_SYMBOL(rtapi_get_clocks);
 EXPORT_SYMBOL(rtapi_delay);
 EXPORT_SYMBOL(rtapi_delay_max);
 EXPORT_SYMBOL(rtapi_prio_highest);

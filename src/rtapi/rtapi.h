@@ -272,6 +272,13 @@ extern "C" {			/* Need this when the header is included in a
     Returns a 64 bit value.  The resolution of the returned value may
     be as good as one nano-second, or as poor as several microseconds.
     May be called from init/cleanup code, and from within realtime tasks.
+    
+    Experience has shown that the implementation of this function in
+    some RTOS/Kernel combinations is horrible.  It can take up to 
+    several microseconds, which is at least 100 times longer than it
+    should, and perhaps a thousand times longer.  Use it only if you
+    MUST have results in seconds instead of clocks, and use it sparingly.
+    See rtapi_get_clocks() instead.
 
     Note that longlong math may be poorly supported on some platforms,
     especially in kernel space. Also note that rtapi_print() will NOT
@@ -282,6 +289,33 @@ extern "C" {			/* Need this when the header is included in a
     This will work for times up to about 2 seconds.
 */
     extern long long int rtapi_get_time(void);
+
+/** rtapi_get_clocks returns the current time in CPU clocks.  It is 
+    fast, since it just reads the TSC in the CPU instead of calling a
+    kernel or RTOS function.  Of course, times measured in CPU clocks
+    are not as convenient, but for relative measurements this works
+    fine.  Its absolute value means nothing, but it is monotonically
+    increasing* and can be used to schedule future events, or to time
+    the duration of some activity.  (* on SMP machines, the two TSC's
+    may get out of sync, so if a task reads the TSC, gets swapped to
+    the other CPU, and reads again, the value may decrease.  RTAPI
+    tries to force all RT tasks to run on one CPU.)
+    Returns a 64 bit value.  The resolution of the returned value is
+    one CPU clock, which is usually a few nanoseconds to a fraction of
+    a nanosecond.
+    May be called from init/cleanup code, and from within realtime tasks.
+    
+    Note that longlong math may be poorly supported on some platforms,
+    especially in kernel space. Also note that rtapi_print() will NOT
+    print longlongs.  Most time measurements are relative, and should
+    be done like this:  deltat = (long int)(end_time - start_time);
+    where end_time and start_time are longlong values returned from
+    rtapi_get_time, and deltat is an ordinary long int (32 bits).
+    This will work for times up to a second or so, depending on the
+    CPU clock frequency.  It is best used for millisecond and 
+    microsecond scale measurements though.
+*/
+    extern long long int rtapi_get_clocks(void);
 
 /** rtapi_delay() is a simple delay.  It is intended only for short
     delays, since it simply loops, wasting CPU cycles.  'nsec' is the
