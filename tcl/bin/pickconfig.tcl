@@ -188,6 +188,7 @@ set tree [Tree $f3.tree  -width 25 -relief flat -padx 4 ]
 # pack the tree into its subframe
 pack $tree -side left -fill y -expand y
 bind $tree <<TreeSelect>> { node_clicked }
+$tree bindText <Double-1> { puts stderr Double; $f5.ok invoke ;# }
 
 # bwidget 1.7.0 does not generate <<TreeSelect>> events for keyboard navigation.
 # These bindings fix that.
