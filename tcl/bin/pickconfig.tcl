@@ -239,6 +239,9 @@ pack $f1 -fill both -expand y
 
 set config_count 0
 foreach dir $configs_dir_list {
+    set dir [file normalize $dir]
+    if {[info exists seen($dir)]} continue
+    set seen($dir) 1
     set dir_in_tree 0
     set subdir_list [ glob -nocomplain $dir/*/ ]
     set subdir_list [ lsort $subdir_list ]
@@ -275,6 +278,7 @@ foreach dir $configs_dir_list {
 	}
     }
 }
+unset seen
 
 if { $config_count == 0 } {
     puts stderr [ format [ msgcat::mc "ERROR: no configurations found in path '%s'" ] $configs_path ]
