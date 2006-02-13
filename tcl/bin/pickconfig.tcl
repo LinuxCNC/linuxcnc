@@ -289,6 +289,7 @@ bind . <Escape> {button_pushed Cancel}
 bind . <Return> ""
 wm protocol . WM_DELETE_WINDOW {button_pushed Cancel}
 
+focus $tree
 vwait choice
 
 if { $choice == "OK" } {
