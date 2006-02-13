@@ -87,10 +87,12 @@ MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 # 1.3. INIFILE                           find inifile to use                   #
 ################################################################################
 
-case $1 in
-  /*) INIFILE=$1 ;;
-  *)  INIFILE=`pwd`/$1;;
-esac
+if [ ! -z $1 ]; then
+    case $1 in
+      /*) INIFILE=$1 ;;
+      *)  INIFILE=`pwd`/$1;;
+    esac
+fi
 
 # 1.3.1. Determine if we have run-in place or installed system
 RUN_IN_PLACE=@RUN_IN_PLACE@
