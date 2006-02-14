@@ -4,6 +4,8 @@ HALCMDSRCS := \
 	hal/hal_lib.c
 USERSRCS += $(HALCMDSRCS)
 
+$(call TOOBJSDEPS, hal/utils/halcmd.c): EXTRAFLAGS = -DEMC2_BIN_DIR="\"$(EMC2_BIN_DIR)\""
+$(call TOOBJS, hal/utils/halcmd.c): Makefile.inc
 
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemc.a ../lib/libnml.so
 	$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)

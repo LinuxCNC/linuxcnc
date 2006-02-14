@@ -208,8 +208,8 @@ depclean: clean
 # files (Note that files in depends/ might be rebuilt, and there's little that
 # can be done about it)
 setuid:
-	chown root ../bin/emc_module_helper ../bin/halcmd
-	chmod 4750 ../bin/emc_module_helper ../bin/halcmd
+	chown root ../bin/emc_module_helper
+	chmod 4750 ../bin/emc_module_helper
 
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
@@ -267,10 +267,9 @@ install:
 	$(INSTALL_CONFIGS)
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
-	$(SETUID) ../bin/halcmd ../bin/emc_module_helper \
-		$(DESTDIR)$(bindir)
+	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so,$(TARGETS)) $(DESTDIR)$(libdir)
-	ldconfig $(DESTDIR)$(libdir)
+	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)/help

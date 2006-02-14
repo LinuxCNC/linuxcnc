@@ -46,6 +46,10 @@
 #error This is a user mode component only!
 #endif
 
+#ifndef EMC2_BIN_DIR
+#error Need to define EMC2_BIN_DIR so I know where to find emc_module_helper!
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -188,10 +192,6 @@ int main(int argc, char **argv)
     FILE *srcfile = NULL;
     char cmd_buf[MAX_CMD_LEN+1];
     char *tokens[MAX_TOK+1];
-
-    /* this program is probably setuid root.  Let's drop root privs until we 
-     * really need them (I think they are needed for insmod, rmmod only.) */
-    seteuid(getuid());
 
     if (argc < 2) {
 	/* no args specified, print help */
@@ -1359,7 +1359,6 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 {
     /* note: these are static so that the various searches can
        be skipped for subsequent commands */
-    static char *insmod_path = NULL;
     static char *rtmod_dir = NULL;
     static char path_buf[MAX_CMD_LEN+1];
     struct stat stat_buf;
@@ -1375,19 +1374,6 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: HAL is locked, loading of modules is not permitted\n", linenumber);
 	return HAL_PERM;
-    }
-    
-    /* check for insmod */
-    if ( insmod_path == NULL ) {
-	/* need to find insmod */
-	if ( stat("/sbin/insmod", &stat_buf) == 0 ) {
-	    insmod_path = "/sbin/insmod";
-	}
-    }
-    if ( insmod_path == NULL ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: Cannot locate 'insmod' command\n", linenumber);
-	return -2;
     }
     /* check environment for path to realtime HAL modules */
     if ( rtmod_dir == NULL ) {
@@ -1470,36 +1456,29 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     }
     if ( pid == 0 ) {
 	/* this is the child process - prepare to exec() insmod */
-	argv[0] = insmod_path;
-	argv[1] = mod_path;
+	argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+        argv[1] = "insert";
+	argv[2] = mod_path;
 	/* loop thru remaining arguments */
 	n = 0;
-	m = 2;
+	m = 3;
 	while ( args[n][0] != '\0' ) {
 	    argv[m++] = args[n++];
 	}
 	/* add a NULL to terminate the argv array */
 	argv[m] = NULL;
 	/* print debugging info if "very verbose" (-V) */
-	rtapi_print_msg(RTAPI_MSG_DBG, "%s %s ", argv[0], argv[1] );
-	n = 2;
+	rtapi_print_msg(RTAPI_MSG_DBG, "%s %s %s ", argv[0], argv[1], argv[2] );
+	n = 3;
 	while ( argv[n] != NULL ) {
 	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n++] );
 	}
 	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
-        /* reclaim root privs */
-        seteuid(0);
-        /* are we running as root? */
-        if ( geteuid() != 0 ) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "HAL:%d: ERROR: Must be root to load realtime modules\n", linenumber);
-            return HAL_PERM;
-        }
         /* call execv() to invoke insmod */
-	execv(insmod_path, argv);
+	execv(argv[0], argv);
 	/* should never get here */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, insmod_path );
+	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, argv[0] );
 	exit(1);
     }
     /* this is the parent process, wait for child to end */
@@ -1685,24 +1664,10 @@ static int do_unloadrt_cmd(char *mod_name)
 
 static int unloadrt_comp(char *mod_name)
 {
-    static char *rmmod_path = NULL;
-    struct stat stat_buf;
     int retval, status;
     char *argv[3];
     pid_t pid;
 
-    /* check for rmmod */
-    if ( rmmod_path == NULL ) {
-	/* need to find rmmod */
-	if ( stat("/sbin/rmmod", &stat_buf) == 0 ) {
-	    rmmod_path = "/sbin/rmmod";
-	}
-    }
-    if ( rmmod_path == NULL ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: Cannot locate 'rmmod' command\n", linenumber);
-	return -2;
-    }
     /* now we need to fork, and then exec rmmod.... */
     /* disconnect from the HAL shmem area before forking */
     hal_exit(comp_id);
@@ -1722,26 +1687,18 @@ static int unloadrt_comp(char *mod_name)
     }
     if ( pid == 0 ) {
 	/* this is the child process - prepare to exec() rmmod */
-	argv[0] = rmmod_path;
-	argv[1] = mod_name;
+	argv[0] = EMC2_BIN_DIR "/emc_module_helper";
+	argv[1] = "remove";
+	argv[2] = mod_name;
 	/* add a NULL to terminate the argv array */
-	argv[2] = NULL;
+	argv[3] = NULL;
 	/* print debugging info if "very verbose" (-V) */
-	rtapi_print_msg(RTAPI_MSG_DBG, "%s %s\n", argv[0], argv[1] );
-
-        /* reclaim root privs */
-        seteuid(0);
-        /* are we running as root? */
-        if ( geteuid() != 0 ) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "HAL:%d: ERROR: Must be root to unload realtime modules\n", linenumber);
-            return -2;
-        }
+	rtapi_print_msg(RTAPI_MSG_DBG, "%s %s %s\n", argv[0], argv[1], argv[2] );
 	/* call execv() to invoke rmmod */
-	execv(rmmod_path, argv);
+	execv(argv[0], argv);
 	/* should never get here */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, rmmod_path);
+	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, argv[0] );
 	exit(1);
     }
     /* this is the parent process, wait for child to end */
@@ -1778,7 +1735,7 @@ static int unloadrt_comp(char *mod_name)
 
 static int do_loadusr_cmd(char *args[])
 {
-    int wait_flag, ignore_flag, root_flag;
+    int wait_flag, ignore_flag;
     char *prog_name;
     char prog_path[MAX_CMD_LEN+1];
     char *cp1, *cp2, *envpath;
@@ -1795,7 +1752,6 @@ static int do_loadusr_cmd(char *args[])
     /* check for options (-w, -i, and/or -r) */
     wait_flag = 0;
     ignore_flag = 0;
-    root_flag = 0;
     prog_name = NULL;
     while ( **args == '-' ) {
 	/* this argument contains option(s) */
@@ -1806,8 +1762,6 @@ static int do_loadusr_cmd(char *args[])
 		wait_flag = 1;
 	    } else if ( *cp1 == 'i' ) {
 		ignore_flag = 1;
-	    } else if ( *cp1 == 'r' ) {
-		root_flag = 1;
 	    } else {
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL:%d: ERROR: unknown loadusr option '-%c'\n", linenumber, *cp1);
@@ -1900,14 +1854,6 @@ static int do_loadusr_cmd(char *args[])
 	    "HAL:%d: ERROR: Can't find program '%s'\n", linenumber, prog_name);
 	return -1;
     }
-    if ( root_flag ) {
-	/* are we running as root? */
-	if ( geteuid() != 0 ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: Must be root to run %s\n", linenumber, prog_name);
-	    return HAL_PERM;
-	}
-    }    
     /* now we need to fork, and then exec the program.... */
     /* disconnect from the HAL shmem area before forking */
     hal_exit(comp_id);
@@ -2826,17 +2772,15 @@ static int do_help_cmd(char *command)
     } else if (strcmp(command, "loadrt") == 0) {
 	printf("loadrt modname [modarg(s)]\n");
 	printf("  Loads realtime HAL module 'modname', passing 'modargs'\n");
-	printf("  to the module.  Must be root to run this command.\n");
+	printf("  to the module.\n");
     } else if (strcmp(command, "unloadrt") == 0) {
 	printf("unloadrt modname\n");
 	printf("  Unloads realtime HAL module 'modname'.  If 'modname'\n");
-	printf("  is 'all', unloads all realtime modules.  Must be root\n" );
-	printf("  to run this command.\n");
+	printf("  is 'all', unloads all realtime modules.\n");
     } else if (strcmp(command, "loadusr") == 0) {
 	printf("loadusr [options] progname [progarg(s)]\n");
 	printf("  Starts user space program 'progname', passing\n");
 	printf("  'progargs' to it.  Options are:\n");
-	printf("  -r  run program as root\n");
 	printf("  -w  wait for program to finish\n");
 	printf("  -i  ignore program return value (use with -w)\n");
     } else if ((strcmp(command, "linksp") == 0) || (strcmp(command,"linkps") == 0)) {
