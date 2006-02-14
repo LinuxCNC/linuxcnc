@@ -44,6 +44,7 @@ option add *font {Helvetica -12}
 option add *Text*background white
 option add *Entry*background white
 option add *Listbox*background white
+option add *Tree*background white
 
 ################### PROCEDURE DEFINITIONS #####################
 
@@ -66,15 +67,12 @@ if ([info exists env(LANG)]) {
 
 proc initialize_config {} {
     # need bwidget
-    set isbwidget ""
-    set isbwidget [glob -directory /usr/lib -nocomplain \
-        -types d bwidget* ]
-    if {$isbwidget == ""} {
+    set result [catch {package require BWidget}]
+    if {$result != 0} {
+        puts stderr $result
         tk_messageBox -icon error -type ok -message "Can't find the bwidget package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."
         exit
         destroy .
-    } else {
-        package require BWidget
     }
 }
 
@@ -170,6 +168,13 @@ wm resiz . 0 0
 
 initialize_config
 
+proc SW { args } {
+    set res [eval ScrolledWindow $args -borderwidth 2 -relief sunken]
+    $res configure -borderwidth 2 -relief sunken
+    $res.vscroll configure -relief flat
+    ::${res}:cmd configure -highlightthickness 1
+    return $res
+}
 # a frame for packing the top window
 set f1 [ frame $top.f1 ]
 
@@ -179,14 +184,16 @@ set lbl [ label $f1.lbl -text $message -justify left -padx 20 -pady 10 -wrapleng
 pack $lbl -anchor w
 
 # a subframe for the tree/detail box 
-set f2 [ frame $f1.f2 -highlightt 0 -borderwidth 0 -relief flat]
+set f2 [ frame $f1.f2 -borderwidth 0 -relief flat]
 
-# subframe for the tree and its scrollbar
-set f3 [ frame $f2.f3 -highlightt 1 -borderwidth 2 -relief sunken]
+# Let the tree scroll
+set s1 [ SW $f2.f3 -scrollbar vertical]
 # the tree
-set tree [Tree $f3.tree  -width 25 -relief flat -padx 4 ]
+set tree [Tree $s1.tree -highlightthickness 0 -width 25 -relief flat -padx 4]
+$s1 setwidget $tree
+pack $s1 -fill y -expand n -side left
+
 # pack the tree into its subframe
-pack $tree -side left -fill y -expand y
 bind $tree <<TreeSelect>> { node_clicked }
 $tree bindText <Double-1> { puts stderr Double; $f5.ok invoke ;# }
 
@@ -195,44 +202,27 @@ $tree bindText <Double-1> { puts stderr Double; $f5.ok invoke ;# }
 bind $tree.c <KeyPress-Up> [list +event generate $tree <<TreeSelect>>]
 bind $tree.c <KeyPress-Down> [list +event generate $tree <<TreeSelect>>]
 
-# need a scrollbar
-set tscr [ scrollbar $f3.scr -command "$tree yview" -takefocus 1 -highlightt 0 -bd 0 -elementborderwidth 2 ]
-# link the tree to the scrollbar
-$tree configure -yscrollcommand "$tscr set"
-# pack the scrollbar into the subframe
-pack $tscr -side right -fill y -expand y
-# pack the subframe into the main frame
-pack $f3 -side left -anchor center -padx 3 -fill y -expand y
-
-# subframe for the detail box and its scrollbar
-set f4 [ frame $f2.f4 -highlightt 1 -borderwidth 2 -relief sunken]
+# Let the text scroll
+set f4 [ SW $f2.f4 -scrollbar vertical]
 # a text box to display the details
-set tb [ text $f4.tb -width 45 -wrap word -padx 6 -pady 6 \
-         -takefocus 0 -highlightt 0 -state disabled \
-         -relief flat -borderwidth 0 ]
+set tb [ text $f4.tb -width 30 -wrap word -padx 6 -pady 6 \
+         -takefocus 0 -state disabled \
+         -relief flat -borderwidth 0 -height 12 -background #d9d9d9]
+$f4.vscroll configure -takefocus 1
+$f4 setwidget $tb
 set detail_box $tb
-# pack the text box into its subframe
-pack $tb -side left -fill both -expand y 
-# need a scrollbar
-set dscr [ scrollbar $f4.scr -command "$tb yview" -takefocus 1 -highlightt 0 -bd 0 -elementborderwidth 2 ]
-# link the text box to the scrollbar
-$tb configure -yscrollcommand "$dscr set"
-# pack the scrollbar into the subframe
-pack $dscr -side right -fill y -expand y
 # pack the subframe into the main frame
-pack $f4 -side right -padx 3 -fill both -expand y
+pack $f2 -side top -fill both -expand y
+pack $f4 -side left -padx 3 -fill both -expand y
 
-pack $f2 
 
 # a subframe for the buttons
 set f5 [ frame $f1.f5 ]
-button $f5.cancel -text Cancel -command "button_pushed Cancel"
-$f5.cancel configure -width 8
-pack $f5.cancel -side right -padx 4 -pady 4
-button $f5.ok -text OK -command "button_pushed OK"
+button $f5.ok -text OK -command "button_pushed OK" -width 8
 set button_ok $f5.ok
 $button_ok configure -state disabled
-$f5.ok configure -width 8
+button $f5.cancel -text Cancel -command "button_pushed Cancel" -width 8
+pack $f5.cancel -side right -padx 4 -pady 4
 pack $f5.ok -side right -padx 4 -pady 4
 pack $f5 -side bottom -anchor e -fill none -expand n -padx 15
 
