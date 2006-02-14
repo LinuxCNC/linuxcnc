@@ -3,6 +3,8 @@
 export EMC2_TCL_DIR
 # and some apps need the realtime script, so export that too \
 export REALTIME
+# and the emc2 version string \
+export EMC2VERSION
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
@@ -407,6 +409,7 @@ proc popupDiagnostics {} {
 
 # pop up the about box
 proc popupAbout {} {
+    global env
     if {[winfo exists .about]} {
         wm deiconify .about
         raise .about
@@ -415,7 +418,7 @@ proc popupAbout {} {
     }
     toplevel .about
     wm title .about [msgcat::mc "About TkEmc"]
-    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (emc2)\n\nPublic Domain (1999)"]
+    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(EMC2 %s)" [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (emc2)\n\nPublic Domain (1999)"] $env(EMC2VERSION) ]
     frame .about.buttons
     button .about.buttons.ok -default active -text OK -command "destroy .about"
     pack .about.msg -side top
