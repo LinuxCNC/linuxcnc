@@ -119,6 +119,8 @@ echo SETUPCONFIG=$SETUPCONFIG >>$PRINT_FILE
 echo EMC2_EMCSH=$EMC2_EMCSH >>$PRINT_FILE
 echo EMC2_IOSH=$EMC2_IOSH >>$PRINT_FILE
 
+echo "EMC2 - $EMC2VERSION" 
+
 # was an inifile specified on the command line?
 if [ ! -n "$INIFILE" ] ; then
     # nothing specified, get from the user
