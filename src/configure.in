@@ -35,6 +35,13 @@ AC_CONFIG_HEADER(config.h)
 PACKAGE="emc2"
 AC_SUBST([PACKAGE])
 
+if test -f ../VERSION; then
+    EMC2VERSION="$(cat ../VERSION)"
+else
+    EMC2VERSION="Undetermined"
+fi
+AC_SUBST([EMC2VERSION])
+
 ##############################################################################
 # Section 2                                                                  #
 # RealTime checking (either RTAI, or RT-Linux)                               #
