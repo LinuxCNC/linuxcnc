@@ -27,8 +27,8 @@
 ##############################################################################
 
 AC_PREREQ(2.53)
-#AC_INIT(EMC2, 0.1, emc-developer@lists.sourceforge.net)
-AC_INIT(emc/motion/motion.c)
+AC_INIT(EMC2, m4_normalize(esyscmd([cat ../VERSION])), emc-developer@lists.sourceforge.net)
+AC_CONFIG_SRCDIR(emc/motion/motion.c)
 AC_CONFIG_HEADER(config.h)
 
 # EMC2 internationalisation package name:
