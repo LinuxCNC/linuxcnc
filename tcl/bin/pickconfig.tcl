@@ -168,8 +168,7 @@ wm resiz . 0 0
 initialize_config
 
 proc SW { args } {
-    set res [eval ScrolledWindow $args -borderwidth 2 -relief sunken]
-    $res configure -borderwidth 2 -relief sunken
+    set res [eval ScrolledWindow $args]
     $res.vscroll configure -relief flat
     ::${res}:cmd configure -highlightthickness 1
     return $res
@@ -187,6 +186,7 @@ set f2 [ frame $f1.f2 -borderwidth 0 -relief flat]
 
 # Let the tree scroll
 set s1 [ SW $f2.f3 -scrollbar vertical]
+$s1 configure -relief sunken -borderwidth 2
 # the tree
 set tree [Tree $s1.tree -highlightthickness 0 -width 25 -relief flat -padx 4]
 $s1 setwidget $tree
@@ -203,6 +203,7 @@ bind $tree.c <KeyPress-Down> [list +event generate $tree <<TreeSelect>>]
 
 # Let the text scroll
 set f4 [ SW $f2.f4 -scrollbar vertical]
+$s1 configure
 # a text box to display the details
 set tb [ text $f4.tb -width 30 -wrap word -padx 6 -pady 6 \
          -takefocus 0 -state disabled \
@@ -217,10 +218,10 @@ pack $f4 -side left -padx 3 -fill both -expand y
 
 # a subframe for the buttons
 set f5 [ frame $f1.f5 ]
-button $f5.ok -text OK -command "button_pushed OK" -width 8
+button $f5.ok -text OK -command "button_pushed OK" -width 8 -default active
 set button_ok $f5.ok
 $button_ok configure -state disabled
-button $f5.cancel -text Cancel -command "button_pushed Cancel" -width 8
+button $f5.cancel -text Cancel -command "button_pushed Cancel" -width 8 -default normal
 pack $f5.cancel -side right -padx 4 -pady 4
 pack $f5.ok -side right -padx 4 -pady 4
 pack $f5 -side bottom -anchor e -fill none -expand n -padx 15
