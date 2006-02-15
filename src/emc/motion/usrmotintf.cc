@@ -839,25 +839,6 @@ int usrmotInit(char *modname)
     emcmotConfig = &(emcmotStruct->config);
     emcmotError = &(emcmotStruct->error);
 
-/*! \todo FIXME - testing code */
-    printf ( "sizeof(emcmot_struct_t) (total shmem): %d\n", sizeof(emcmot_struct_t) );
-    printf ( "sizeof(emcmot_command_t):      %d\n", sizeof(emcmot_command_t) );
-    printf ( "sizeof(emcmot_status_t):       %d\n", sizeof(emcmot_status_t) );
-    printf ( "sizeof(emcmot_debug_t):        %d\n", sizeof(emcmot_debug_t) );
-    printf ( "sizeof(emcmot_config_t):       %d\n", sizeof(emcmot_config_t) );
-    printf ( "sizeof(emcmot_error_t):        %d\n", sizeof(emcmot_error_t) );
-    printf ( "sizeof(emcmot_joint_t):        %d\n", sizeof(emcmot_joint_t) );
-    printf ( "sizeof(emcmot_joint_status_t): %d\n", sizeof(emcmot_joint_status_t) );
-    printf ( "sizeof(CUBIC_STRUCT):          %d\n", sizeof(CUBIC_STRUCT) );
-    printf ( "sizeof(emcmot_comp_t):         %d\n", sizeof(emcmot_comp_t) );
-
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - comp structs no longer part of status structure */
-    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-	emcmotComp[axis] = &(emcmotStatus->joints[axis].comp);
-    }
-#endif
     emcmotshmem = emcmotStruct;
 
     inited = 1;
