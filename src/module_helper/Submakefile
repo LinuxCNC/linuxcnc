@@ -6,7 +6,7 @@ USERSRCS += $(MODULE_HELPERSRCS)
 $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
 
 ifneq ($(rip_moduledir),)
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS += -DRIP_MODULEDIR="\"$(rip_moduledir)\""
+    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS += -DRIP_MODULEDIR="\"$(rip_moduledir)\"" -DMODULE_EXT=\"$(MODULE_EXT)\"
 endif
 
 $(call TOOBJS, $(MODULE_HELPERSRCS)): Makefile.inc
