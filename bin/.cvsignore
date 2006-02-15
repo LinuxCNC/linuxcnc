@@ -1,4 +1,6 @@
 classicladder
+emc-config
+emc_module_helper
 emcsh
 emcsvr
 fifousr
@@ -17,4 +19,3 @@ milltaskcanon
 shmemusr
 simio
 usrmot
-emc_module_helper
