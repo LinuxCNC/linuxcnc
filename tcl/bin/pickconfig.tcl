@@ -41,7 +41,6 @@ foreach wizard_image $wizard_image_search {
 }
 
 option add *font {Helvetica -12}
-option add *Text*background white
 option add *Entry*background white
 option add *Listbox*background white
 option add *Tree*background white
@@ -207,7 +206,7 @@ set f4 [ SW $f2.f4 -scrollbar vertical]
 # a text box to display the details
 set tb [ text $f4.tb -width 30 -wrap word -padx 6 -pady 6 \
          -takefocus 0 -state disabled \
-         -relief flat -borderwidth 0 -height 12 -background #d9d9d9]
+         -relief flat -borderwidth 0 -height 12]
 $f4.vscroll configure -takefocus 1
 $f4 setwidget $tb
 set detail_box $tb
