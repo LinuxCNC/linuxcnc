@@ -6255,6 +6255,8 @@ fi
 # files that get created by ./configure                                      #
 ##############################################################################
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
+          ac_config_files="$ac_config_files ../scripts/rtapi.conf"
+
           ac_config_files="$ac_config_files ../scripts/emc"
 
           ac_config_files="$ac_config_files ../scripts/realtime"
@@ -6786,6 +6788,7 @@ for ac_config_target in $ac_config_targets
 do
   case "$ac_config_target" in
   # Handling of arguments.
+  "../scripts/rtapi.conf" ) CONFIG_FILES="$CONFIG_FILES ../scripts/rtapi.conf" ;;
   "../scripts/emc" ) CONFIG_FILES="$CONFIG_FILES ../scripts/emc" ;;
   "../scripts/realtime" ) CONFIG_FILES="$CONFIG_FILES ../scripts/realtime" ;;
   "../bin/emc-config" ) CONFIG_FILES="$CONFIG_FILES ../bin/emc-config" ;;
