@@ -3,10 +3,10 @@ MODULE_HELPERSRCS := \
 	module_helper/module_helper.c
 USERSRCS += $(MODULE_HELPERSRCS)
 
-$(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
+$(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror -DMODULE_EXT=\"$(MODULE_EXT)\"
 
 ifneq ($(rip_moduledir),)
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS += -DRIP_MODULEDIR="\"$(rip_moduledir)\"" -DMODULE_EXT=\"$(MODULE_EXT)\"
+    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS += -DRIP_MODULEDIR="\"$(rip_moduledir)\""
 endif
 
 $(call TOOBJS, $(MODULE_HELPERSRCS)): Makefile.inc
