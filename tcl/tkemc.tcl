@@ -1081,34 +1081,6 @@ bind $pos5d <ButtonPress-3> {axisSelect 5; popupAxisOffset 5}
 # comes from the X resource file, and don't bother parsing this for
 # the radio buttons but set them to some typical value.
 
-set userfont [emc_ini "POSITION_FONT" "DISPLAY"]
-if {$userfont != ""} {
-    set fontfamily [lindex $userfont 0]
-    set fontsize [lindex $userfont 1]
-    set fontstyle [lindex $userfont 2]
-    # now override the X resource value with the ini file font
-    set nf $userfont
-    $pos0l config -font $nf
-    $pos0d config -font $nf
-    $pos1l config -font $nf
-    $pos1d config -font $nf
-    $pos2l config -font $nf
-    $pos2d config -font $nf
-    $pos3l config -font $nf
-    $pos3d config -font $nf
-    $pos4l config -font $nf
-    $pos4d config -font $nf
-    $pos5l config -font $nf
-    $pos5d config -font $nf
-} else {
-# FIXME-- can get the actual font from the TkEmc X resource value, which is
-# a pain to parse into family-size-style. Here we'll just default the 
-# buttons to these typical settings
-    set fontfamily Courier
-    set fontsize 56
-    set fontstyle bold
-}
-
 proc setfont {} {
     global fontfamily fontsize fontstyle
     global pos0l pos0d
@@ -1132,6 +1104,36 @@ proc setfont {} {
     $pos4d config -font $nf
     $pos5l config -font $nf
     $pos5d config -font $nf
+}
+
+set userfont [emc_ini "POSITION_FONT" "DISPLAY"]
+if {$userfont != ""} {
+    set fontfamily [lindex $userfont 0]
+    set fontsize [lindex $userfont 1]
+    set fontstyle [lindex $userfont 2]
+    # now override the X resource value with the ini file font
+    set nf $userfont
+    $pos0l config -font $nf
+    $pos0d config -font $nf
+    $pos1l config -font $nf
+    $pos1d config -font $nf
+    $pos2l config -font $nf
+    $pos2d config -font $nf
+    $pos3l config -font $nf
+    $pos3d config -font $nf
+    $pos4l config -font $nf
+    $pos4d config -font $nf
+    $pos5l config -font $nf
+    $pos5d config -font $nf
+} else {
+# FIXME-- can get the actual font from the TkEmc X resource value, which is
+# a pain to parse into family-size-style. Here we'll just default the 
+# buttons to these typical settings
+    puts stdout "default font"
+    set fontfamily {courier 10 pitch}
+    set fontsize 48
+    set fontstyle bold
+    setfont
 }
 
 set limoridebutton [button $limoride.button -text [msgcat::mc "override limits"] -command {toggleLimitOverride} -takefocus 0]
@@ -1830,7 +1832,7 @@ proc popupFont {} {
 
     label $f.label -text Font
     pack $f.label
-    foreach i {Helvetica Courier Times} {
+    foreach i {Helvetica Courier {courier 10 pitch} Times} {
 	radiobutton $f.b$i -text $i -variable fontfamily -value $i
 	pack $f.b$i -side top -anchor w
     }
