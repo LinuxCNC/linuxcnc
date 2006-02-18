@@ -2,7 +2,11 @@
 .SUFFIXES:
 .PHONY: default userspace modules clean modclean depclean install
 
-include $(PWD)/Makefile.inc
+ifeq ($(BASEPWD),)
+BASEPWD := $(shell pwd)
+export BASEPWD
+endif
+include $(BASEPWD)/Makefile.inc
 
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
