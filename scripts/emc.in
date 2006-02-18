@@ -124,7 +124,11 @@ echo "EMC2 - $EMC2VERSION"
 # was an inifile specified on the command line?
 if [ ! -n "$INIFILE" ] ; then
     # nothing specified, get from the user
-    INIFILE=$($PICKCONFIG "$EMC2_USER_CONFIG_DIR:$EMC2_SYSTEM_CONFIG_DIR:$EMC2_CONFIG_DIR")
+    if [ x$RUN_IN_PLACE = xyes ]; then
+        INIFILE=$($PICKCONFIG "$EMC2_CONFIG_DIR")
+    else
+        INIFILE=$($PICKCONFIG "$EMC2_USER_CONFIG_DIR:$EMC2_SYSTEM_CONFIG_DIR:$EMC2_CONFIG_DIR")
+    fi
     # it returns either a path, or nothing at all
 fi
 
