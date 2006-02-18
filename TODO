@@ -76,3 +76,6 @@ A failed emc run should collect data and give the option of sending it to the de
 
 Improved classicladder GUI
 
+Change halcmd to use GNU getline in interactive mode (history, tab completion, etc)
+
+
