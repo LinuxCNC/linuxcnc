@@ -1,6 +1,9 @@
 # some of EMC2 History & News
 #############################
 
+2006.02.12 - Fixed a bug that was causing the RT code to run very slowly,
+             forcing users to set BASE_PERIOD very long.
+
 2006.02.10 - The build process has been replaced, no more recursive $(MAKE)
 
 2006.01.28 - fixed bug #1205237, mode switching sometimes hung
