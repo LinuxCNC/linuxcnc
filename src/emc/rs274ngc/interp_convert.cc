@@ -1721,14 +1721,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     settings->feed_override = OFF;
     settings->speed_override = OFF;
   }
-/*! \todo Check that user defined custom M codes are supported.
-          These are M100-199 with optional P & Q parameters.    
-*/
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIX-ME Impliment these at a later stage... */
   /* user-defined M codes */
-  for (index = 100; index < 200; index++) {
+  for (int index = 100; index < 200; index++) {
     if (block->m_modes[index] == index) {
       if (USER_DEFINED_FUNCTION[index - 100] != 0) {
         (*(USER_DEFINED_FUNCTION[index - 100])) (index - 100,
@@ -1739,7 +1733,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       }
     }
   }
-#endif
   return INTERP_OK;
 }
 
