@@ -324,11 +324,11 @@ int rtapi_app_main(void)
     }
 
     /* takes care of all initialisations, also autodetection and model if necessary */
-    if (vti_init_card() != 0) {
+    if ((retval=vti_init_card()) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti_init_card() failed\n");
 	hal_exit(comp_id);
-	return -1;
+	return retval;
     }
 
     retval = vti_parse_dio();
@@ -855,7 +855,8 @@ static int vti_set_interrupt(short interrupt)
 
 static int vti_init_card()
 {
-    if (vti_autodetect() != -1) {
+    int retval=vti_autodetect();
+    if (retval == 0) {
 	encoder = (volatile struct encoder *)
 	    ioremap(pci_resource_start(dev, 2), sizeof(encoder));
 	dac =
@@ -866,9 +867,9 @@ static int vti_init_card()
 		3), sizeof(timer));
 	ip = (volatile struct ip *) ioremap(pci_resource_start(dev, 5),
 	    sizeof(ip));
-    } else
-      {
-	return (-1);}
+    } else {
+	return (retval);
+    }
     rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Encoders mapped to : %x2\n",
 	(int) encoder);
     encoder->Status = 0;
@@ -887,7 +888,7 @@ static int vti_autodetect()
 	return (0);
     } else {
 	rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Exiting with auto detect failed\n");
-	return (-1);
+	return (-ENODEV);
     }
 }
 
