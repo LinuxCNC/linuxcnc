@@ -279,6 +279,7 @@ install:
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)/help
 	$(FILE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
+	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
