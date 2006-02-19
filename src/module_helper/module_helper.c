@@ -28,7 +28,7 @@ char *module_whitelist[] = {
     "hal_lib", "hal_m5i20", "hal_motenc", "hal_parport", "hal_ppmc",
     "hal_skeleton", "hal_stg", "hal_tiro", "master", "motmod", "pid",
     "rtapi", "scope_rt", "shmemtask", "siggen", "slave", "stepgen",
-    "supply", "threads", "timedelay", "timertask", 
+    "supply", "threads", "timedelay", "timertask", "hal_vti",
 
     NULL
 };
