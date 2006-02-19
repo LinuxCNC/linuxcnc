@@ -50,6 +50,9 @@
 /*
 	Vigilant Technologies' board decls
 */
+#define VENDOR 0x10b5
+#define DEVICE 0x9050
+
 #define MAX_CHANS  4
 #define MAX_IO_PORTS 17
 #define PINS_PER_PORT 8
@@ -103,7 +106,7 @@ typedef union
 {
   signed long int	Long;
   signed short int	Word[2];
-} LongWord;
+} Longword;
     
 
 #endif
