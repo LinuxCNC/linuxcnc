@@ -10,8 +10,8 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc 
-	(cd src; $(MAKE) -s )
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man
+	(cd src; $(MAKE))
 	touch build-stamp
 
 clean:
@@ -21,7 +21,7 @@ clean:
 
 	# Add here commands to clean up after the build process.
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc
-	cd src && $(MAKE) clean -s
+	cd src && $(MAKE) depclean -s
 	rm -f Makefile.inc
 
 	dh_clean

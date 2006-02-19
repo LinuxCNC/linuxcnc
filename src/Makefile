@@ -263,7 +263,8 @@ install:
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir) \
 		$(DESTDIR)$(docsdir)/help $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
-		$(DESTDIR)$(tcldir)/scripts
+		$(DESTDIR)$(tcldir)/scripts $(DESTDIR)$(mandir)/man1
+	$(FILE) ../docs/man/man1/halcmd.1 $(DESTDIR)$(mandir)/man1
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)/emc2
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
