@@ -200,7 +200,8 @@ echo EMCSTRIP_OPTIONS=$EMCSTRIP_OPTIONS >>$PRINT_FILE
 
 # 2.8. get display information
 GetFromIni DISPLAY DISPLAY
-EMCDISPLAY=$retval
+EMCDISPLAY=`(set -- $retval ; echo $1 )`
+EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 
 # 2.9. get NML config information
 GetFromIni NML_FILE EMC
@@ -569,11 +570,11 @@ case $EMCDISPLAY in
   tkemc|mini)
     # tkemc and mini are in the tcl directory, not the bin directory
     if [ ! -x $EMC2_TCL_DIR/$EMCDISPLAY.tcl ] ; then
-	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl"
+	echo "Can't execute DISPLAY program $EMC2_TCL_DIR/$EMCDISPLAY.tcl $EMCDISPLAYARGS"
 	Cleanup
 	exit 1
     fi
-    $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE
+    $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE $EMCDISPLAYARGS
   ;;
   dummy)
     # dummy display just waits for <ENTER>
@@ -583,11 +584,11 @@ case $EMCDISPLAY in
   *)
     # all other displays are assumed to be in the bin directory
     if [ ! -x $EMC2_BIN_DIR/$EMCDISPLAY ] ; then
-	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY"
+	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY $EMCDISPLAYARGS"
 	Cleanup
 	exit 1
     fi
-    $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE
+    $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS
   ;;
 esac
 
