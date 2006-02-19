@@ -1073,8 +1073,6 @@ void COMMENT(char *comment)
     char probefilename[LINELEN];
     char *ptr;
 
-    printf("COMMENT: %s\n", comment);
-
     // set RPY orientation for subsequent moves
     if (!strncmp(comment, "RPY", strlen("RPY"))) {
 	PM_RPY rpy;
