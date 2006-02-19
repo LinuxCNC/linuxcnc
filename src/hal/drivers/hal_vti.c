@@ -30,18 +30,18 @@
 		- autodetects the address
 	or
 
-	insmod hal_stg base=0x200 num_chan=8 dio="I|O|ii|io|oi|oo..."
+	insmod hal_vti base=0x200 num_chan=4 dio="I|O|ii|io|oi|oo..."
 
-	Check your Hardware manual for your base address.
+	Check your Hardware manual for your base address (ISA bus only).
 
 	The digital inputs/outputs configuration is determined by a
 	config string passed to insmod when loading the module.
 	The format consists of a character string that sets the
 	direction of each group of pins. Each character or character pair
-	of the direction string is one of "I" or "O", "O" or "o". The individual
-	and character pair formats may be used interchangably in the same string,
-	however the lower case format must always appear in pairs. The
-	representatiom of each character or character pair is as follows:
+	of the direction string is one of "I", "O", "ii", "io", "oi" or "oo". 
+	The individual and character pair formats may be used interchangably in 
+	the same string, however the lower case format must always appear in 
+	pairs. The representatiom of each character or character pair is as follows:
 
 	  I: 8 (0..7)  Inputs
 	  O: 8 (0..7)  Outputs
@@ -52,66 +52,66 @@
 
 	There are characters or character pairs equal to the number of I/O
 	ports (sets of 8 DIO) configured on the ENCDAC board and the expanded
-	I/O module, where the first port is for the * I/O on the ENCDAC board
+	I/O module, where the first port is for the I/O on the ENCDAC board
 	itself.
 
 	The following items are exported to the HAL.
 
 	Encoders:
 	  Parameters:
-	float	stg.<channel>.enc-scale
+	float	vti.<channel>.enc-scale
 
 	  Pins:
-	s32	stg.<channel>.enc-counts
-	float	stg.<channel>.enc-position
+	s32	vti.<channel>.enc-counts
+	float	vti.<channel>.enc-position
 
-/todo   bit	stg.<channel>.enc-index
-/todo  	bit	stg.<channel>.enc-idx-latch
-/todo  	bit	stg.<channel>.enc-latch-index
-/todo  	bit	stg.<channel>.enc-reset-count
+/todo   bit	vti.<channel>.enc-index
+/todo  	bit	vti.<channel>.enc-idx-latch
+/todo  	bit	vti.<channel>.enc-latch-index
+/todo  	bit	vti.<channel>.enc-reset-count
 
 	  Functions:
-		void    stg.<channel>.capture_position
+		void    vti.<channel>.capture_position
 
 	DACs:
 	  Parameters:
-	float	stg.<channel>.dac-offset
-	float	stg.<channel>.dac-gain
+	float	vti.<channel>.dac-offset
+	float	vti.<channel>.dac-gain
 
 	  Pins:
-	float	stg.<channel>.dac-value
+	float	vti.<channel>.dac-value
 
 	  Functions:
-	void    stg.<channel>.dac-write
+	void    vti.<channel>.dac-write
 
 	ADC:
 	  Parameters:
-/totest	float	stg.<channel>.adc-offset
-/totest	float	stg.<channel>.adc-gain
+/totest	float	vti.<channel>.adc-offset
+/totest	float	vti.<channel>.adc-gain
 
 	  Pins:
-/totest	float	stg.<channel>.adc-value
+/totest	float	vti.<channel>.adc-value
 
 	  Functions:
-/totest	void    stg.<channel>.adc-read
+/totest	void    vti.<channel>.adc-read
 
 	Digital In:
 	  Pins:
-	bit	stg.in-<pinnum>
-	bit	stg.in-<pinnum>-not
+	bit	vti.in-<pinnum>
+	bit	vti.in-<pinnum>-not
 
 	  Functions:
-	void    stg.digital-in-read
+	void    vti.digital-in-read
 
 	Digital Out:
 	  Parameters:
-	bit	stg.out-<pinnum>-invert
+	bit	vti.out-<pinnum>-invert
 
 	  Pins:
-	bit	stg.out-<pinnum>
+	bit	vti.out-<pinnum>
 
 	  Functions:
-	void    stg.digital-out-write
+	void    vti.digital-out-write
 
 */
 
@@ -178,13 +178,6 @@ MODULE_DESCRIPTION
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
-static int base = 0x00;		/* board base address, 0 means autodetect */
-MODULE_PARM(base, "i");
-MODULE_PARM_DESC(base, "board base address, don't use for autodetect");
-static int model = 0;		/* board model, leave empty and autodetect */
-MODULE_PARM(model, "i");
-MODULE_PARM_DESC(model,
-    "board model, use with caution. it overrides the detected model");
 static int num_chan = MAX_CHANS;	/* number of channels - default = 8 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
@@ -246,9 +239,6 @@ volatile struct ip *ip = NULL;
 static int comp_id;		/* component ID */
 static int outpinnum = 0, inputpinnum = 0;
 
-#define DATA(x) (base + (2 * x) - (x % 2))	/* Address of Data register 0 */
-#define CTRL(x) (base + (2 * (x+1)) - (x % 2))	/* Address of Control register 0 */
-
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
@@ -265,10 +255,10 @@ static int export_output_pin(int pinnum, io_pin * pin);
 
 /* initializes the vti, takes care of autodetection, all initialisations */
 static int vti_init_card(void);
-/* sets up interrupt to be used */
-static int vti_set_interrupt(short interrupt);
+/* sets up interrupt to be used - unused for now*/
+/*static int vti_set_interrupt(short interrupt);*/
 /* scans possible addresses for vti cards */
-static unsigned short vti_autodetect(void);
+static int vti_autodetect(void);
 
 /* counter related functions */
 static int vti_counter_init(int channels);
@@ -394,7 +384,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: installed %d adcs\n", num_chan);
+    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: installed %d adcs\n", 0);
 
     retval = hal_export_funct("vti.di-read", vti_di_read,
 	vti_driver, 0, 0, comp_id);
@@ -452,18 +442,20 @@ static int vti_parse_dio(void)
 	    break;
 	case 'i':
 	    vti_driver->dir_bits[nibble] = 0;
-	    if (dio[i + 1] == 'i')
+	    i++;
+	    if (dio[i] == 'i')
 		vti_driver->dir_bits[nibble + 1] = 0;
-	    else if (dio[i + 1] == 'o')
+	    else if (dio[i] == 'o')
 		vti_driver->dir_bits[nibble + 1] = 1;
 	    else
 		return -1;
 	    break;
 	case 'o':
 	    vti_driver->dir_bits[nibble] = 1;
-	    if (dio[i + 1] == 'i')
+	    i++;
+	    if (dio[i] == 'i')
 		vti_driver->dir_bits[nibble + 1] = 0;
-	    else if (dio[i + 1] == 'o')
+	    else if (dio[i] == 'o')
 		vti_driver->dir_bits[nibble + 1] = 1;
 	    else
 		return -1;
@@ -634,9 +626,9 @@ static void vti_di_read(void *arg, long period)	//reads digital inputs from the 
     /* Get Extended I/O inputs */
     for (i = 1; i < MAX_IO_PORTS; i++) {
 	if (vti->dir_bits[i * 2] == 0)
-	    split_input(dac->dio[i - 1], &(vti->port[i][0]), 4);
+	    split_input(dac->DIO[i - 1], &(vti->port[i][0]), 4);
 	if (vti->dir_bits[i * 2 + 1] == 0)
-	    split_input(dac->dio[i - 1], &(vti->port[i][4]), 4);
+	    split_input(dac->DIO[i - 1], &(vti->port[i][4]), 4);
     }
 }
 
@@ -818,7 +810,8 @@ static long vti_counter_read(int axis)
     if (axis < 4)
 	EncData.Word[0] = encoder->Counter[axis];
     else
-	EncData.Word[0] = ip->Counter[axis];
+//	EncData.Word[0] = ip->Counter[axis-4]  - I don't understand the address space layout for the IP module
+	;
     return EncData.Long;
 }
 
@@ -854,15 +847,15 @@ static short vti_adc_read(void *arg, int axis)
 *                       BOARD INIT FUNCTIONS                           *
 *                  functions for autodetec, irq init                   *
 ************************************************************************/
+/*
 static int vti_set_interrupt(short interrupt)
 {
     return 0;			// No interrupts necessary for VTI board
-}
+}*/
 
 static int vti_init_card()
 {
-
-    if (vti_autodetect()) {
+    if (vti_autodetect() != -1) {
 	encoder = (volatile struct encoder *)
 	    ioremap(pci_resource_start(dev, 2), sizeof(encoder));
 	dac =
@@ -874,8 +867,9 @@ static int vti_init_card()
 	ip = (volatile struct ip *) ioremap(pci_resource_start(dev, 5),
 	    sizeof(ip));
     } else
-	return (-1);
-    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Encoders mapped to : %2\n",
+      {
+	return (-1);}
+    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Encoders mapped to : %x2\n",
 	(int) encoder);
     encoder->Status = 0;
     encoder->Reset = 0;
@@ -884,7 +878,7 @@ static int vti_init_card()
 }
 
 /* scans possible addresses for vti cards */
-unsigned short vti_autodetect()
+static int vti_autodetect()
 {
     dev = pci_find_device(VENDOR, DEVICE, dev);
     if (dev) {
@@ -892,7 +886,7 @@ unsigned short vti_autodetect()
 	    "VTI: Card detected in slot: %2x\n", PCI_SLOT(dev->devfn));
 	return (0);
     } else {
-	rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Auto detect failed");
+	rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Exiting with auto detect failed\n");
 	return (-1);
     }
 }
