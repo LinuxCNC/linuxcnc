@@ -308,11 +308,11 @@ int rtapi_app_main(void)
     }
 
     /* takes care of all initialisations, also autodetection and model if necessary */
-    if (stg_init_card() != 0) {
+    if ((retval=stg_init_card()) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "STG: ERROR: stg_init_card() failed\n");
 	hal_exit(comp_id);
-	return -1;
+	return retval;
     }
 
     /* dio should be a string of 4 'I" or "O" characters */
@@ -1002,7 +1002,7 @@ static int stg_init_card()
     
     if (base == 0x00) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: no STG or STG2 card found\n");
-	return -1;
+	return -ENODEV;
     }
 
     if (stg_driver->model == 1) {
