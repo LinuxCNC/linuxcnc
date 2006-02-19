@@ -77,18 +77,23 @@ Anything following '\fB#\fR' on a line is a comment.
 .TP
 \fBloadrt\fR \fImodname\fR
 (\fIload\fR \fIr\fReal\fIt\fRime module)  Loads a realtime HAL
-module called \fImodname\fR.  Halcmd looks in the directory
+module called \fImodname\fR.  \fBhalcmd\fR looks in the directory
 specified by environment variable HAL_RTMOD_DIR for the module.
-It must be run with root privliges to install the module (which
-is done by forking and executing "insmod").  Fails if not root,
-or the module can't be found, or insmod can't load it.
+\fBhalcmd\fR calls the \fBemc_module_helper\fR to load realtime
+modules.  \fBemc_module_helper\fR is a setuid program and 
+is compiled with a whitelist of modules it is allowed to load.
+This is currently just a list of \fBEMC\fR-related modules.  The
+\fBemc_module_helper\fR execs insmod, so return codes and error
+messages are those from insmod.  Administrators who wish to 
+restrict which users can load these \fBEMC\fR-related kernel 
+modules can do this by setting the permissions and group on 
+\fBemc_module_helper\fR appropriately.
 .TP
 \fBunloadrt\fR \fImodname\fR
 (\fIunload\fR \fIr\fReal\fIt\fRime module)  Unloads a realtime HAL
 module called \fImodname\fR.  If \fImodname\fR is "all", it will
-unload all currently loaded realtime HAL modules.  It must be run
-with root privliges.  Fails if not root, or if \fImodname\fR is
-not loaded, or if rmmod can't remove it.
+unload all currently loaded realtime HAL modules.  \fBunloadrt\fR
+also works by execing \fBemc_module_helper\fR, just like \fBloadrt\fR.
 .TP
 \fBnewsig\fR \fIsigname\fR \fItype\fR
 (\fInew\fR \fIsig\fRnal)  Creates a new HAL signal called
@@ -216,12 +221,6 @@ looks for the realtime module directory if the environment
 variable HAL_RTMOD_DIR is not present.  That code should
 probably be removed, but I need to come up with a better
 method first.
-.PP
-Eventually, I want to be able to make \fBhalcmd\fR setuid, so
-that normal users can configure the HAL.  Before that can happen,
-it must be re-written to get the HAL module directory in a
-secure way, so that it can't be used to load arbitrary kernel
-modules from a user specified directory.
 .SH AUTHOR
 Written by John Kasunich, as part of the Enhanced Machine
 Controller (EMC) project.
