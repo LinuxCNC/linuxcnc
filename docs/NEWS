@@ -1,6 +1,8 @@
 # some of EMC2 History & News
 #############################
 
+2006.02.20 - added a manpage for the runscript.
+
 2006.02.12 - Fixed a bug that was causing the RT code to run very slowly,
              forcing users to set BASE_PERIOD very long.
 
