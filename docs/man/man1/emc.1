@@ -1,0 +1,118 @@
+.\" Copyright (c) 2006 Alex Joni
+.\"                (alex_joni AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH EMC "1"  "2006-02-20" "EMC Documentation" "EMC Script Manual"
+.SH NAME
+emc \- startup script for EMC (The Enhanced Machine Controller)
+.SH SYNOPSIS
+.B emc
+[\fIOPTIONS\fR] [\fIINIFILE\fR]
+.SH DESCRIPTION
+\fBemc\fR is used to properly startup EMC (The Enhanced Machine
+Controller). It takes care of setting a number of environment
+variables, sets up the realtime system, and initializes a number
+of EMC components (IO, Motion, GUI, HAL, etc). 
+\fBemc\fR takes a number of parameters which affect the way it operates.
+The most important parameter is the ini-file, or the configuration
+name you would like to run. In case it's missing from the invocation, 
+the \fBemc\fR script calls a graphical wizard to let you choose one 
+of the existing configurations.
+.SH OPTIONS
+.TP
+\fB\-v\fR 
+Be a little bit verbose. This way the runscript prints information
+as it works.
+.TP
+\fB\-d\fR
+Prints lots of debug information. It echos all commands that 
+get executed to the screen. This mode is usefull when something is
+not working as it should.
+.SH INIFILE
+The ini file is the main piece of an EMC configuration. It is not
+the only part of an configuration, there are various others (NML 
+files, HAL files, TBL files, VAR files). It is however the most
+important one, because it is the file that holds the configuration
+together. It can adjust a lot of parameters, but it also tells the
+\fBemc\fR runscript which other files to load and use.
+
+There are numerous ways to specify which config to use:
+
+.TP
+\fIabsolute path\fR
+specify the absolute path to an ini
+.br
+e.g. '\fBemc\fR \fI/usr/local/emc2/configs/sim/sim.ini\fR'
+.TP	    
+\fIrelative path\fR 
+specify a relative path from the current directory
+.br
+e.g. '\fBemc\fR \fIconfigs/sim/sim.ini\fR'
+.TP	    
+\fIno config specified\fR 
+this special case will be treated based on the type of setup you have.
+
+Run-in-place systems (where you can run emc2 from within the 
+compiled sources), will pop up a config chooser that lets you select
+any config in the \fI$EMC2_CONFIG_DIR\fR. That translates to configs/
+and the directories under it (e.g. configs/stg/)
+    
+The other possibility to run emc2 is the more traditional way, in which
+you first compile, then install. In this case the config chooser will 
+look in more than one place.
+It will look at \fI$EMC2_USER_CONFIG_DIR\fR, \fI$EMC2_SYSTEM_CONFIG_DIR\fR
+and \fI$EMC2_CONFIG_DIR\fR. The actual locations depend on the system
+you are running on, but usually they are defined like this:
+.br
+\fI$EMC2_USER_CONFIG_DIR\fR=~/emc2/configs
+.br
+\fI$EMC2_SYSTEM_CONFIG_DIR\fR=/usr/local/etc/emc2/configs
+.br
+\fI$EMC2_CONFIG_DIR\fR=/etc/emc2/sample-configs
+.SH EXAMPLES
+    
+    \fBemc\fR
+    
+    \fBemc\fR \fIconfigs/sim/sim.ini\fR
+    
+    \fBemc\fR \fI/etc/emc2/sample-configs/stepper/stepper_mm.ini\fR
+
+.SH "SEE ALSO"
+    \fBhalcmd(1)\fR
+
+.SH HISTORY
+
+.SH BUGS
+None known at this time. 
+.PP
+.SH AUTHOR
+Written by Alex Joni, as part of the Enhanced Machine
+Controller (EMC) project.
+.SH REPORTING BUGS
+Report bugs to alex_joni AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2006 Alex Joni.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
