@@ -433,6 +433,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/hal_parport.o: $(addprefix objects/rt,$(hal_parport-objs))
 ../rtlib/hal_tiro.o: $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg.o: $(addprefix objects/rt,$(hal_stg-objs))
+../rtlib/hal_vti.o: $(addprefix objects/rt,$(hal_vti-objs))
 ../rtlib/hal_evoreg.o: $(addprefix objects/rt,$(hal_evoreg-objs))
 ../rtlib/hal_motenc.o: $(addprefix objects/rt,$(hal_motenc-objs))
 ../rtlib/hal_m5i20.o: $(addprefix objects/rt,$(hal_m5i20-objs))
