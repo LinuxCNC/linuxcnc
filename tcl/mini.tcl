@@ -177,7 +177,7 @@ set helpfilename [emc_ini HELP_FILE DISPLAY]
 # set some initial values to variables to be used during a run
 emc_set_timeout 1.0
 emc_set_wait received
-emc_update
+time emc_update
 set modifier Alt
 set modifierstring "Alt"
 set oldstatusstring "idle"
@@ -872,10 +872,6 @@ append sgeom $stwidth x $stheight + 0 + 0
 wm geometry "." $sgeom
 pack $top -side top -fill both -expand yes
 
-# calling update now pops up the window, even though it is
-# blank... keeps the user happy while the rest of init happens
-update
-
 # Pick up colors for resets
 if {$optionfile != "" } {
     set defbg [option get $top background background]
@@ -997,9 +993,6 @@ $infomenu add command -label "Check It" -command {checkIt}
 $helpmenu add checkbutton -label "Help..." -variable popArray(Help) -command {popIn Help} -underline 0
 $helpmenu add command -label "About..." -command {popupAboutx} -underline 0
 
-# make stuff visible as it is created
-update
-
 # ----------UP WIDGETS----------
 
 # Fill the up frame with buttons.
@@ -1047,9 +1040,6 @@ bind $manbutton <ButtonPress-1> {showMode manual}
 
 pack $stopbutton $abortbutton $feedholdbutton $mdibutton $autobutton \
     $manbutton -side right -fill both -expand yes
-
-# make stuff visible as it is created
-update
 
 # ----------LEFT WIDGETS ----------
 
@@ -1205,9 +1195,6 @@ proc viewInfo {what} {
     }
 }
 
-# make stuff visible as it is created
-update
-
 # ----------RIGHT WIDGETS----------
 
 # toggleView moves the variable widget stack focus up one
@@ -1256,9 +1243,6 @@ proc popIn {which} {
     popInToggle
     }
 }
-
-# make stuff visible as it is created
-update
 
 # ----------RIGHT - TOOL SETUP----------
 
@@ -1400,9 +1384,6 @@ proc updateToolFile {} {
 }
 
 # -----end of tool setup
-
-# make stuff visible as it is created
-update
 
 # ----------RIGHT - OFFSETS SYSTEM SETUP----------
 
@@ -1698,9 +1679,6 @@ proc loadVarFile {} {
 
 # -----end of coord -----
 
-# make stuff visible as it is created
-update
-
 # ----------RIGHT - BACKPLOT----------
 
 # These set the axis directions.  +1 one plots like graph
@@ -1728,13 +1706,6 @@ set size 40
 
 # Set the colours for different modes here
 set plotcolour {limegreen black red blue yellow3 white}
-
-# Evaluate the number of clock clicks per second
-# Value dependent on machine !!
-set t1 [clock clicks]
-after 10000
-set t2 [clock clicks]
-set ticks [expr ($t2-$t1)/10000]
 
 # procedure to show window .
 proc popinPlot {} {
@@ -2158,8 +2129,6 @@ proc redraw {args} {
         set statusflag 0
     }
     # time the redraw proc
-    set timer [clock clicks]
-
     $3dplot delete all
 
     # set the first set of coordinates from the list then call vector
@@ -2193,7 +2162,6 @@ proc redraw {args} {
         -fill red -arrow first -tags 3darrow
     set A $atemp; set B $btemp; set C $ctemp
 
-    set timer [expr ([clock clicks] - $timer)/$ticks]
     # If emc was forced to pause - restart.
     if {$statusflag == 1} {
         emc_resume
@@ -2332,9 +2300,6 @@ proc setInitialPlotview {} {
 }
 
 # -----end of backplot-----
-
-# make stuff visible as it is created
-update
 
 # ----editor widgets -----
 
@@ -2771,9 +2736,6 @@ proc editReNumber {} {
 
 # -----end editor ------
 
-# make stuff visible as it is created
-update
-
 # -----RIGHT HELP-----
 
 set helpFile [emc_ini HELP_FILE DISPLAY ]
@@ -2926,10 +2888,6 @@ set offsetsetting ""
 
 grid $limoridebutton -column 0 -row 0 -sticky nsew
 grid $homebutton -column 0 -row 3 -sticky nsew
-
-
-# make stuff visible as it is created
-update
 
 # ----------MANUAL MODE WIDGETS----------
 
@@ -3246,9 +3204,6 @@ proc showRestart {} {
 
 hideRestart
 toggleEstop
-
-# make stuff visible as it is created
-update
 
 # ----------INITIAL VALUES FOR LOOP----------
 
