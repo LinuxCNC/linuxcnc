@@ -312,7 +312,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE EMC2VERSION RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT WFLAGS CPP EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_CONFIG_DIR EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE MAKEFLAGS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE EMC2VERSION RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT WFLAGS CPP EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE MAKEFLAGS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1649,6 +1649,7 @@ echo "${ECHO_T}ok" >&6
         RTFLAGS=`$RTS --cflags-fp | head -n 1`
 	RTFLAGS="$RTFLAGS -DRTAI=1"
 	KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[ ="]+' '{print $2}')
+#"
 	KERNELDIR=$(cd $KERNELDIR ; pwd -P )
     fi
 
@@ -3287,7 +3288,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_TCL_DIR=$EMC2_HOME/tcl
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
-    EMC2_CONFIG_DIR=$EMC2_HOME/configs
+    EMC2_CONFIG_PATH="$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
     REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
@@ -3296,7 +3297,7 @@ else
     EMC2_TCL_DIR=${prefix}/share/emc/tcl
     EMC2_HELP_DIR=${prefix}/share/doc/emc2
     EMC2_RTLIB_DIR=$MODULE_DIR/emc2
-    EMC2_CONFIG_DIR=${sysconfdir}/emc2/sample-configs
+    EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $sysconfdir)"/emc2/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
     REALTIME=/etc/init.d/realtime
     EMC2_IMAGE_DIR=${sysconfdir}/emc2/
@@ -6257,6 +6258,8 @@ fi
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
           ac_config_files="$ac_config_files ../scripts/rtapi.conf"
 
+          ac_config_files="$ac_config_files ../docs/man/man1/emc.1"
+
           ac_config_files="$ac_config_files ../scripts/emc"
 
           ac_config_files="$ac_config_files ../scripts/realtime"
@@ -6789,6 +6792,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "../scripts/rtapi.conf" ) CONFIG_FILES="$CONFIG_FILES ../scripts/rtapi.conf" ;;
+  "../docs/man/man1/emc.1" ) CONFIG_FILES="$CONFIG_FILES ../docs/man/man1/emc.1" ;;
   "../scripts/emc" ) CONFIG_FILES="$CONFIG_FILES ../scripts/emc" ;;
   "../scripts/realtime" ) CONFIG_FILES="$CONFIG_FILES ../scripts/realtime" ;;
   "../bin/emc-config" ) CONFIG_FILES="$CONFIG_FILES ../bin/emc-config" ;;
@@ -6911,7 +6915,7 @@ s,@EMC2_BIN_DIR@,$EMC2_BIN_DIR,;t t
 s,@EMC2_TCL_DIR@,$EMC2_TCL_DIR,;t t
 s,@EMC2_HELP_DIR@,$EMC2_HELP_DIR,;t t
 s,@EMC2_RTLIB_DIR@,$EMC2_RTLIB_DIR,;t t
-s,@EMC2_CONFIG_DIR@,$EMC2_CONFIG_DIR,;t t
+s,@EMC2_CONFIG_PATH@,$EMC2_CONFIG_PATH,;t t
 s,@EMC2_NCFILES_DIR@,$EMC2_NCFILES_DIR,;t t
 s,@REALTIME@,$REALTIME,;t t
 s,@EMC2_IMAGE_DIR@,$EMC2_IMAGE_DIR,;t t

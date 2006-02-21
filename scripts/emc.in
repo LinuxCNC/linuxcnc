@@ -74,9 +74,7 @@ EMC2_BIN_DIR=@EMC2_BIN_DIR@
 EMC2_TCL_DIR=@EMC2_TCL_DIR@
 EMC2_HELP_DIR=@EMC2_HELP_DIR@
 EMC2_RTLIB_DIR=@EMC2_RTLIB_DIR@
-EMC2_CONFIG_DIR=@EMC2_CONFIG_DIR@
-EMC2_USER_CONFIG_DIR='~/emc2/configs'
-EMC2_SYSTEM_CONFIG_DIR=/usr/local/etc/emc2/configs
+EMC2_CONFIG_PATH="@EMC2_CONFIG_PATH@"
 EMC2_NCFILES_DIR=@EMC2_NCFILES_DIR@
 REALTIME=@REALTIME@
 EMC2_IMAGEDIR=@EMC2_IMAGE_DIR@
@@ -124,11 +122,7 @@ echo "EMC2 - $EMC2VERSION"
 # was an inifile specified on the command line?
 if [ ! -n "$INIFILE" ] ; then
     # nothing specified, get from the user
-    if [ x$RUN_IN_PLACE = xyes ]; then
-        INIFILE=$($PICKCONFIG "$EMC2_CONFIG_DIR")
-    else
-        INIFILE=$($PICKCONFIG "$EMC2_USER_CONFIG_DIR:$EMC2_SYSTEM_CONFIG_DIR:$EMC2_CONFIG_DIR")
-    fi
+    INIFILE=$($PICKCONFIG "$EMC2_CONFIG_PATH")
     # it returns either a path, or nothing at all
 fi
 
