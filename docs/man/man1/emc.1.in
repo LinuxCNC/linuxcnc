@@ -1,0 +1,103 @@
+.\" Copyright (c) 2006 Alex Joni
+.\"                (alex_joni AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH EMC "1"  "2006-02-20" "EMC Documentation" "EMC Script Manual"
+.SH NAME
+emc \- EMC (The Enhanced Machine Controller)
+.SH SYNOPSIS
+.B emc
+[\fIOPTIONS\fR] [\fIINIFILE\fR]
+.SH DESCRIPTION
+\fBemc\fR is used to start EMC (The Enhanced Machine Controller). It
+starts the realtime system and then initializes a number of EMC
+components (IO, Motion, GUI, HAL, etc).  The most important parameter
+is \fIINIFILE\fR, which specifies the configuration name you would like
+to run. If \fIINIFILE\fR is not specified, the \fBemc\fR script presents
+a graphical wizard to let you choose one.
+.SH OPTIONS
+.TP
+\fB\-v\fR 
+Be a little bit verbose. This causes the script to print information
+as it works.
+.TP
+\fB\-d\fR
+Print lots of debug information. All executed commands
+are echoed to the screen. This mode is useful when something is
+not working as it should.
+.TP
+\fBINIFILE\fR
+The ini file is the main piece of an EMC configuration. It is not the
+entire configuration; there are various other files that go with it
+(NML files, HAL files, TBL files, VAR files). It is, however, the most
+important one, because it is the file that holds the configuration
+together. It can adjust a lot of parameters itself, but it also tells
+the \fBemc\fR script which other files to load and use.
+
+There are several ways to specify which config to use:
+
+Specify the absolute path to an ini, e.g.
+.br
+\fBemc\fR \fI/usr/local/emc2/configs/sim/sim.ini\fR
+
+Specify a relative path from the current directory, e.g.
+.br
+\fBemc\fR \fIconfigs/sim/sim.ini\fR
+
+In the case where the \fBINIFILE\fR is not specified, the behavior will
+depend on whether you configured emc with \fB--enable-run-in-place\fR.
+If so, the emc config chooser will search only the configs directory in
+your source tree.  If not (or if you are using a packaged version of emc),
+it may search several directories.  The config chooser is currently set
+to search the path:
+
+.nf
+\fB@EMC2_CONFIG_PATH@\fR
+
+.SH EXAMPLES
+    
+\fBemc\fR
+
+\fBemc\fR \fIconfigs/sim/sim.ini\fR
+
+\fBemc\fR \fI/etc/emc2/sample-configs/stepper/stepper_mm.ini\fR
+
+.SH "SEE ALSO"
+\fBhalcmd(1)\fR
+
+.SH HISTORY
+
+.SH BUGS
+None known at this time. 
+.PP
+.SH AUTHOR
+This man page written by Alex Joni, as part of the Enhanced Machine
+Controller (EMC) project.
+.SH REPORTING BUGS
+Report bugs to alex_joni AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2006 Alex Joni.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
