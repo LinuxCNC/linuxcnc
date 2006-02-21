@@ -23,7 +23,7 @@
 .\"
 .\"
 .\"
-.TH EMC "1"  "2006-02-20" "EMC Documentation" "EMC Script Manual"
+.TH EMC "1"  "2006-02-20" "EMC Documentation" "The Enhanced Machine Controller"
 .SH NAME
 emc \- EMC (The Enhanced Machine Controller)
 .SH SYNOPSIS
