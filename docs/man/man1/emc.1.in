@@ -28,7 +28,7 @@
 emc \- EMC (The Enhanced Machine Controller)
 .SH SYNOPSIS
 .B emc
-[\fIOPTIONS\fR] [\fIINIFILE\fR]
+[\fI-v\fR] [\fI-d\fR] [\fIINIFILE\fR]
 .SH DESCRIPTION
 \fBemc\fR is used to start EMC (The Enhanced Machine Controller). It
 starts the realtime system and then initializes a number of EMC
@@ -53,7 +53,7 @@ entire configuration; there are various other files that go with it
 (NML files, HAL files, TBL files, VAR files). It is, however, the most
 important one, because it is the file that holds the configuration
 together. It can adjust a lot of parameters itself, but it also tells
-the \fBemc\fR script which other files to load and use.
+\fBemc\fR which other files to load and use.
 
 There are several ways to specify which config to use:
 
@@ -65,12 +65,12 @@ Specify a relative path from the current directory, e.g.
 .br
 \fBemc\fR \fIconfigs/sim/sim.ini\fR
 
-In the case where the \fBINIFILE\fR is not specified, the behavior will
-depend on whether you configured emc with \fB--enable-run-in-place\fR.
-If so, the emc config chooser will search only the configs directory in
-your source tree.  If not (or if you are using a packaged version of emc),
-it may search several directories.  The config chooser is currently set
-to search the path:
+Otherwise, in the case where the \fBINIFILE\fR is not specified,
+the behavior will depend on whether you configured emc with
+\fB--enable-run-in-place\fR.  If so, the emc config chooser will search
+only the configs directory in your source tree.  If not (or if you are
+using a packaged version of emc), it may search several directories.
+The config chooser is currently set to search the path:
 
 .nf
 \fB@EMC2_CONFIG_PATH@\fR
