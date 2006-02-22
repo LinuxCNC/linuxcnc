@@ -201,7 +201,7 @@ endif
 modclean:
 	find -name '.*.cmd' -or -name '*.ko' -or -name '*.mod.c' -or -name '*.mod.o' | xargs rm -f
 	-rm -rf .tmp_versions
-	-rm ../rtlib/*.ko
+	-rm -f ../rtlib/*.ko
 
 depclean:
 	-rm -rf depends
