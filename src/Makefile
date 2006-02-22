@@ -200,13 +200,16 @@ endif
 # too.
 modclean:
 	find -name '.*.cmd' -or -name '*.ko' -or -name '*.mod.c' -or -name '*.mod.o' | xargs rm -f
-	-rm -rf .tmp_versions *.o
+	-rm -rf .tmp_versions
+	-rm ../rtlib/*.ko
 
-clean: modclean
-	-rm -rf objects $(TARGETS)
-
-depclean: clean
+depclean:
 	-rm -rf depends
+
+clean: depclean modclean
+	find . -name '*.o' |xargs rm -f
+	-rm -rf objects 
+	-rm -f $(TARGETS)
 
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
