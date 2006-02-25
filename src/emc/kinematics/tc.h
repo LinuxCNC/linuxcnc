@@ -148,6 +148,9 @@ extern int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc);
 /* get tcq from front */
 extern TC_STRUCT tcqGet(TC_QUEUE_STRUCT * tcq, int *status);
 
+/* get pointer to tcq from end */
+extern TC_STRUCT *tcqGetLast(TC_QUEUE_STRUCT * tcq);
+
 /* remove n tcs from front */
 extern int tcqRemove(TC_QUEUE_STRUCT * tcq, int n);
 

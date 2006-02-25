@@ -765,6 +765,17 @@ int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc)
     return 0;
 }
 
+TC_STRUCT *tcqGetLast(TC_QUEUE_STRUCT * tcq)
+{
+    signed int last;
+
+    if(tcq->_len <= 0) return NULL;
+
+    last = tcq->end -1;
+    if(last < 0) last = tcq->size;
+    return &(tcq->queue[last]);
+}
+
 /* get the first item from the beginning of the queue */
 TC_STRUCT tcqGet(TC_QUEUE_STRUCT * tcq, int *status)
 {

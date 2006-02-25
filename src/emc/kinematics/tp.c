@@ -33,9 +33,6 @@
 
 int output_chan = 0;
 
-// try the TP from BDI4
-#define	OLD_CODE
-
 int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
 {
     if (0 == tp) {
@@ -330,6 +327,7 @@ int tpSetPos(TP_STRUCT * tp, EmcPose pos)
 int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
 {
     TC_STRUCT tc;
+    TC_STRUCT *last;
     PmLine line, line_abc;
     PmPose tran_pose, goal_tran_pose;
     PmPose abc_pose, goal_abc_pose;
@@ -388,6 +386,30 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
 	tp->douts = 0;
 	tp->doutstart = 0;
 	tp->doutend = 0;
+    }
+
+    if (( last = tcqGetLast(&tp->queue) )) {
+        PmCartesian thisdir, lastdir;
+        double dot;
+
+        pmCartCartSub(line.end.tran, line.start.tran, &thisdir);
+        pmCartUnit(thisdir, &thisdir);
+
+        if (last->type == TC_LINEAR) {
+            pmCartCartSub(last->line.end.tran, last->line.start.tran,
+                          &lastdir);
+        } else {
+            PmPose endpoint;
+            PmCartesian radialCart;
+
+            pmCirclePoint(&last->circle, last->circle.angle, &endpoint);
+            pmCartCartSub(endpoint.tran, last->circle.center, &radialCart);
+            pmCartCartCross(last->circle.normal, radialCart, &lastdir);
+        }
+        pmCartUnit(lastdir, &lastdir);
+
+        pmCartCartDot(lastdir, thisdir, &dot);
+        if(dot < 0.0) last->termCond = TC_TERM_COND_STOP;
     }
 
     if (-1 == tcqPut(&tp->queue, tc)) {
@@ -492,9 +514,6 @@ int tpRunCycle(TP_STRUCT * tp)
     PmCartesian thisAccelCart, thisVelCart;
     PmCartesian accelCart, velCart;
     double currentAccelMag = 0.0, currentVelMag = 0.0;
-#ifdef OLD_CODE
-    double dot = 0.0;
-#endif
 
     int toRemove = 0;
     TC_STRUCT *thisTc = 0;
@@ -576,18 +595,7 @@ int tpRunCycle(TP_STRUCT * tp)
 	       preVMax may need adjustment. tcRunCycle will subtract preVMax
 	       from vMax and clamp the velocity to this value. */
 	    pmCartMag(velCart, &currentVelMag);
-#ifdef OLD_CODE
-	    if (currentVelMag >= TP_VEL_EPSILON) {
-		pmCartCartDot(velCart, unitCart, &dot);
-		preVMax =
-		    thisTc->vMax + dot - pmSqrt(pmSq(dot) -
-						pmSq(currentVelMag) +
-						pmSq(thisTc->vMax));
-	    } else
-#endif
-            {
-		preVMax = 0.0;
-	    }
+            preVMax = 0.0;
 
 	    /* The combined acceleration of this move and the next one will
 	       be square root(currentAcceleration^2 + nextAccel^2 + 2*the dot 
@@ -595,15 +603,7 @@ int tpRunCycle(TP_STRUCT * tp)
 	       preVMax may need adjustment. tcRunCycle will subtract preVMax
 	       from vMax and clamp the acceleration to this value. */
 	    pmCartMag(accelCart, &currentAccelMag);
-	    if (currentAccelMag >= TP_ACCEL_EPSILON) {
-#ifdef OLD_CODE
-		pmCartCartDot(accelCart, unitCart, &dot);
-		preAMax =
-		    thisTc->aMax + dot - pmSqrt(pmSq(dot) -
-						pmSq(currentAccelMag) +
-						pmSq(thisTc->aMax));
-#endif
-	    } else {
+	    if (currentAccelMag < TP_ACCEL_EPSILON) {
 		preAMax = 0.0;
 	    }
 	}
