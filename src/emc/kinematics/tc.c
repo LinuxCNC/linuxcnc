@@ -455,8 +455,8 @@ int tcRunCycle(TC_STRUCT * tc)
 		newVel = tc->currentVel + newAccel * tc->cycleTime;
 	    }
 	} else {
-	    if (newAccel < -tc->aMax) {
-		newAccel = -tc->aMax;
+	    if (newAccel < -tc->aMax + tc->preAMax) {
+		newAccel = -tc->aMax + tc->preAMax;
 		newVel = tc->currentVel + newAccel * tc->cycleTime;
 	    }
 	}

@@ -409,7 +409,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
         pmCartUnit(lastdir, &lastdir);
 
         pmCartCartDot(lastdir, thisdir, &dot);
-        if(dot < 0.0) last->termCond = TC_TERM_COND_STOP;
+        if(dot < 0.0) tcSetTermCond(last, TC_TERM_COND_STOP);
     }
 
     if (-1 == tcqPut(&tp->queue, tc)) {
@@ -427,7 +427,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
 int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 		PmCartesian center, PmCartesian normal, int turn, int type)
 {
-    TC_STRUCT tc;
+    TC_STRUCT tc, *last;
     PmCircle circle;
     PmLine line_abc;
     PmPose endPose, circleGoalPose;
@@ -479,7 +479,6 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     // FIXME - debug only, remove later
     tc.output_chan = output_chan;
     if ( ++output_chan >= 4 ) { output_chan = 0; }
-    
    
     /* This is related to synchronous I/O */
     /* get the values added to TP, and add them to the current TC */
@@ -488,6 +487,31 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 	tp->douts = 0;
 	tp->doutstart = 0;
 	tp->doutend = 0;
+    }
+
+    if (( last = tcqGetLast(&tp->queue) )) {
+        PmCartesian thisdir, lastdir;
+        PmPose endpoint;
+        PmCartesian radialCart;
+        double dot;
+
+        pmCirclePoint(&tc.circle, 0, &endpoint);
+        pmCartCartSub(endpoint.tran, tc.circle.center, &radialCart);
+        pmCartCartCross(tc.circle.normal, radialCart, &thisdir);
+        pmCartUnit(thisdir, &thisdir);
+
+        if (last->type == TC_LINEAR) {
+            pmCartCartSub(last->line.end.tran, last->line.start.tran,
+                          &lastdir);
+        } else {
+            pmCirclePoint(&last->circle, last->circle.angle, &endpoint);
+            pmCartCartSub(endpoint.tran, last->circle.center, &radialCart);
+            pmCartCartCross(last->circle.normal, radialCart, &lastdir);
+        }
+        pmCartUnit(lastdir, &lastdir);
+
+        pmCartCartDot(lastdir, thisdir, &dot);
+        if(dot < 0.0) tcSetTermCond(last, TC_TERM_COND_STOP);
     }
 
     if (-1 == tcqPut(&tp->queue, tc)) {
@@ -587,6 +611,8 @@ int tpRunCycle(TP_STRUCT * tp)
 		preAMax = thisTc->aMax;
 	    }
 	} else {
+            double dot, accelMag;
+            PmCartesian velUnit;
 	    unitCart = tcGetUnitCart(thisTc);
 
 	    /* The combined velocity of this move and the next one will be
@@ -602,10 +628,16 @@ int tpRunCycle(TP_STRUCT * tp)
 	       product). to prevent the combined move from exceeding vMax
 	       preVMax may need adjustment. tcRunCycle will subtract preVMax
 	       from vMax and clamp the acceleration to this value. */
-	    pmCartMag(accelCart, &currentAccelMag);
-	    if (currentAccelMag < TP_ACCEL_EPSILON) {
-		preAMax = 0.0;
-	    }
+            pmCartMag(accelCart, &accelMag);
+            if(accelMag > .001) {
+                pmCartUnit(velCart, &velUnit);
+                pmCartCartDot(velUnit, unitCart, &dot);
+
+                pmCartMag(accelCart, &currentAccelMag);
+                preAMax = currentAccelMag * (1.0 - fabs(dot));
+            } else {
+                preAMax = 0.0;
+            }
 	}
 	/* here we calculate the contribution to motion of a single
 	   line or circle, which may later be blended with others */
