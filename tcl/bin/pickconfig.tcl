@@ -66,10 +66,10 @@ if ([info exists env(LANG)]) {
 
 proc initialize_config {} {
     # need bwidget
-    set result [catch {package require BWidget}]
+    set result [catch {package require BWidget 1.7}]
     if {$result != 0} {
         puts stderr $result
-        tk_messageBox -icon error -type ok -message "Can't find the bwidget package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."
+        tk_messageBox -icon error -type ok -message "Can't find the bwidget 1.7 package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."
         exit
         destroy .
     }
