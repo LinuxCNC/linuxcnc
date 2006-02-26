@@ -389,6 +389,8 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     }
 
     if (( last = tcqGetLast(&tp->queue) )) {
+        // don't blend moves that involve direction changes of
+        // 90 degrees or more
         PmCartesian thisdir, lastdir;
         double dot;
 
@@ -409,7 +411,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
         pmCartUnit(lastdir, &lastdir);
 
         pmCartCartDot(lastdir, thisdir, &dot);
-        if(dot < 0.0) last->termCond = TC_TERM_COND_STOP;
+        if(dot <= 0.01) last->termCond = TC_TERM_COND_STOP;
     }
 
     if (-1 == tcqPut(&tp->queue, tc)) {
@@ -491,6 +493,8 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     }
 
     if (( last = tcqGetLast(&tp->queue) )) {
+        // don't blend moves that involve direction changes of
+        // 90 degrees or more
         PmCartesian thisdir, lastdir;
         PmPose endpoint;
         PmCartesian radialCart;
@@ -512,7 +516,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
         pmCartUnit(lastdir, &lastdir);
  
         pmCartCartDot(lastdir, thisdir, &dot);
-        if(dot < 0.0) tcSetTermCond(last, TC_TERM_COND_STOP);
+        if(dot <= 0.01) tcSetTermCond(last, TC_TERM_COND_STOP);
     }
 
     if (-1 == tcqPut(&tp->queue, tc)) {
