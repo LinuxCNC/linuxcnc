@@ -409,7 +409,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
         pmCartUnit(lastdir, &lastdir);
 
         pmCartCartDot(lastdir, thisdir, &dot);
-        if(dot < 0.0) tcSetTermCond(last, TC_TERM_COND_STOP);
+        if(dot < 0.0) last->termCond = TC_TERM_COND_STOP;
     }
 
     if (-1 == tcqPut(&tp->queue, tc)) {
@@ -479,6 +479,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     // FIXME - debug only, remove later
     tc.output_chan = output_chan;
     if ( ++output_chan >= 4 ) { output_chan = 0; }
+    
    
     /* This is related to synchronous I/O */
     /* get the values added to TP, and add them to the current TC */
@@ -494,12 +495,12 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
         PmPose endpoint;
         PmCartesian radialCart;
         double dot;
-
+ 
         pmCirclePoint(&tc.circle, 0, &endpoint);
         pmCartCartSub(endpoint.tran, tc.circle.center, &radialCart);
         pmCartCartCross(tc.circle.normal, radialCart, &thisdir);
         pmCartUnit(thisdir, &thisdir);
-
+ 
         if (last->type == TC_LINEAR) {
             pmCartCartSub(last->line.end.tran, last->line.start.tran,
                           &lastdir);
@@ -509,7 +510,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
             pmCartCartCross(last->circle.normal, radialCart, &lastdir);
         }
         pmCartUnit(lastdir, &lastdir);
-
+ 
         pmCartCartDot(lastdir, thisdir, &dot);
         if(dot < 0.0) tcSetTermCond(last, TC_TERM_COND_STOP);
     }
@@ -611,33 +612,8 @@ int tpRunCycle(TP_STRUCT * tp)
 		preAMax = thisTc->aMax;
 	    }
 	} else {
-            double dot, accelMag;
-            PmCartesian velUnit;
-	    unitCart = tcGetUnitCart(thisTc);
-
-	    /* The combined velocity of this move and the next one will be
-	       square root(currentVelocity^2 + nextVel^2 + 2*the dot
-	       product). to prevent the combined move from exceeding vMax
-	       preVMax may need adjustment. tcRunCycle will subtract preVMax
-	       from vMax and clamp the velocity to this value. */
-	    pmCartMag(velCart, &currentVelMag);
             preVMax = 0.0;
-
-	    /* The combined acceleration of this move and the next one will
-	       be square root(currentAcceleration^2 + nextAccel^2 + 2*the dot 
-	       product). to prevent the combined move from exceeding vMax
-	       preVMax may need adjustment. tcRunCycle will subtract preVMax
-	       from vMax and clamp the acceleration to this value. */
-            pmCartMag(accelCart, &accelMag);
-            if(accelMag > .001) {
-                pmCartUnit(velCart, &velUnit);
-                pmCartCartDot(velUnit, unitCart, &dot);
-
-                pmCartMag(accelCart, &currentAccelMag);
-                preAMax = currentAccelMag * (1.0 - fabs(dot));
-            } else {
-                preAMax = 0.0;
-            }
+            preAMax = 0.0;
 	}
 	/* here we calculate the contribution to motion of a single
 	   line or circle, which may later be blended with others */
