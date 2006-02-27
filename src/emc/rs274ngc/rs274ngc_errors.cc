@@ -240,7 +240,8 @@ char * _rs274ngc_errors[] = {
 /* 212 */ _("Not in subroutine definition"), // convert control functions
 /* 213 */ _("Return outside of subroutine"), // convert control functions
 /* 214 */ _("File not open"), // control back to
+/* 215 */ _("Need tool prepared -Txx- for toolchange"), // if M6 is issued without Txx
 
-/* 215 */ _("Unknown error"), // dummy
+/* 216 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*

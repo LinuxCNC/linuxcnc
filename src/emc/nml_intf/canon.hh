@@ -684,6 +684,11 @@ extern int GET_EXTERNAL_TOOL_MAX();
 // tool in the spindle.
 extern int GET_EXTERNAL_TOOL_SLOT();
 
+// Returns the system value for the selected slot. That one will be the next
+// valid tool after a toolchange (m6). Return value -1 means there is no
+// selected tool.
+extern int GET_EXTERNAL_SELECTED_TOOL_SLOT();
+
 // Returns the CANON_TOOL_TABLE structure associated with the tool
 // in the given pocket
 extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket);

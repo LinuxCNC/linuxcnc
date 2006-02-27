@@ -900,7 +900,7 @@ int Interp::synch()
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   _setup.mist = (GET_EXTERNAL_MIST() != 0) ? ON : OFF;
   _setup.plane = GET_EXTERNAL_PLANE();
-  _setup.selected_tool_slot = GET_EXTERNAL_TOOL_SLOT();
+  _setup.selected_tool_slot = GET_EXTERNAL_SELECTED_TOOL_SLOT();
   _setup.speed = GET_EXTERNAL_SPEED();
   _setup.spindle_turning = GET_EXTERNAL_SPINDLE();
   _setup.tool_max = GET_EXTERNAL_TOOL_MAX();

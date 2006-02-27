@@ -2880,6 +2880,9 @@ to this one.
 
 int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine settings
 {
+  static char name[] = "convert_tool_change";
+  if (settings->selected_tool_slot < 0) 
+    ERM(NCE_TXX_MISSING_FOR_M6);
   CHANGE_TOOL(settings->selected_tool_slot);
   settings->current_slot = settings->selected_tool_slot;
   settings->spindle_turning = CANON_STOPPED;

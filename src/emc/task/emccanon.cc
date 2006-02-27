@@ -1660,6 +1660,12 @@ int GET_EXTERNAL_TOOL_SLOT()
     return emcStatus->io.tool.toolInSpindle;
 }
 
+int GET_EXTERNAL_SELECTED_TOOL_SLOT()
+{
+    return emcStatus->io.tool.toolPrepped;
+}
+
+
 CANON_PLANE GET_EXTERNAL_PLANE()
 {
     return activePlane;
