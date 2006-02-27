@@ -1124,6 +1124,7 @@ foreach axnum $axiscoordmap {
     lappend posnames pos${axnum} "pos${axnum}l" "pos${axnum}d" jointlabel${axnum} worldlabel${axnum}
 }
 
+setfontx
 set realfeedoverride [emc_feed_override]
 set feedoverride $realfeedoverride
 set oldfeedoverride $feedoverride
