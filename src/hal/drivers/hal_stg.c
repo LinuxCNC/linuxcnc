@@ -42,11 +42,11 @@
    
     Encoders:
       Parameters:
-	float	stg.<channel>.enc-scale
+	float	stg.<channel>.position-scale  (counts per unit)
    
       Pins:
-	s32	stg.<channel>.enc-counts
-	float	stg.<channel>.enc-position
+	s32	stg.<channel>.counts
+	float	stg.<channel>.position
 
 /todo   bit	stg.<channel>.enc-index
 /todo  	bit	stg.<channel>.enc-idx-latch
@@ -178,6 +178,8 @@ static char *dio = "IIOO";		/* dio config - default = port A&B inputs, port C&D 
 MODULE_PARM(dio, "s");
 MODULE_PARM_DESC(dio, "dio config string - expects something like IIOO");
 #endif /* MODULE */
+
+#define	EPSILON		1e-20
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -492,8 +494,16 @@ static void stg_counter_capture(void *arg, long period)
     for (n = 0; n < num_chan; n++) {
 	/* capture raw counts to latches */
 	*(stg->count[n]) = stg_counter_read(n);
+	/* make sure scale isn't zero or tiny to avoid divide error */
+	if (stg->pos_scale[n] < 0.0) {
+	    if (stg->pos_scale[n] > -EPSILON)
+		stg->pos_scale[n] = -1.0;
+	} else {
+	    if (stg->pos_scale[n] < EPSILON)
+		stg->pos_scale[n] = 1.0;
+	}
 	/* scale count to make floating point position */
-	*(stg->pos[n]) = *(stg->count[n]) * stg->pos_scale[n];
+	*(stg->pos[n]) = *(stg->count[n]) / stg->pos_scale[n];
     }
     /* done */
 }
