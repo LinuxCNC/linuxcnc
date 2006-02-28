@@ -1054,7 +1054,7 @@ unsigned short stg_autodetect()
 		return address;	/* SER sequence is 01110101 */
 	    }
 	    if (k == 0x74) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
+		rtapi_print_msg(RTAPI_MSG_INFO,
 		    "STG: found version 2 card at address %x\n", address);
 		stg_driver->model=2;
 		return address;
