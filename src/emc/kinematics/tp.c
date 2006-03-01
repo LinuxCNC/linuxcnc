@@ -313,8 +313,8 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     tc.cycle_time = tp->cycleTime;
     tc.target = line_xyz.tmag < 1e-6? line_abc.tmag: line_xyz.tmag;
     tc.progress = 0.0;
-    tc.vel = tp->vMax;
-    tc.accel = tp->aMax;
+    tc.reqvel = tp->vMax;
+    tc.maxaccel = tp->aMax;
     tc.feed_override = tp->vScale;
     tc.maxvel = tp->ini_maxvel;
     tc.id = tp->nextId;
@@ -387,8 +387,8 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.cycle_time = tp->cycleTime;
     tc.target = helix_length;
     tc.progress = 0.0;
-    tc.vel = tp->vMax;
-    tc.accel = tp->aMax;
+    tc.reqvel = tp->vMax;
+    tc.maxaccel = tp->aMax;
     tc.feed_override = tp->vScale;
     tc.maxvel = tp->ini_maxvel;
     tc.id = tp->nextId;
@@ -427,24 +427,8 @@ int tpRunCycle(TP_STRUCT * tp)
     // acc = (new vel - old vel) / cycle time
     // (three position points required)
 
+    double discr, newvel, newaccel;
     TC_STRUCT *tc;
-    double max_dv, tiny_dp, to_go, vel_req;
-
-    if(tp->aborting) {
-        // an abort message has come
-        tcqInit(&tp->queue);
-        tp->goalPos = tp->currentPos;
-        tp->done = 1;
-        tp->depth = tp->activeDepth = 0;
-        tp->aborting = 0;
-        tp->execId = 0;
-        tp->motionType = 0;
-        tpResume(tp);
-        return 0;
-    }
-
-    // if paused, don't move
-    if(tp->pausing) return 0;
 
     tc = tcqItem(&tp->queue, 0);
     if(!tc) {
@@ -458,12 +442,25 @@ int tpRunCycle(TP_STRUCT * tp)
         return 0;
     }
 
-    // max change in velocity per cycle allowed by accel constraint
-    max_dv = tc->accel * tc->cycle_time;
-    // displacement under which we consider the motion done
-    tiny_dp = max_dv * tc->cycle_time * 0.001;
+    if(tp->aborting) {
+        // an abort message has come
+        if(tc->currentvel == 0.0) {
+            tcqInit(&tp->queue);
+            tp->goalPos = tp->currentPos;
+            tp->done = 1;
+            tp->depth = tp->activeDepth = 0;
+            tp->aborting = 0;
+            tp->execId = 0;
+            tp->motionType = 0;
+            tpResume(tp);
+            return 0;
+        } else {
+            rtapi_print("not yet stopped, currentvel %d\n", (int)(tc->currentvel*1000.0));
+            tc->reqvel = 0.0;
+        }
+    }
 
-    if (tc->target - tc->progress < tiny_dp) {
+    if (tc->target == tc->progress) {
         // done with this move
         tcqRemove(&tp->queue, 1);
 
@@ -475,51 +472,51 @@ int tpRunCycle(TP_STRUCT * tp)
     if(tc->active == 0) {
         // this means this tc is being read for the first time.
         
-        tc->increment = 0;
+        tc->currentvel = 0;
         tp->depth = tp->activeDepth = 1;
         tp->execId = tc->id;
         tp->motionType = tc->canon_motion_type;
         tc->active = 1;
 
         // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
-        if(tc->vel > tp->vLimit) 
-            tc->vel = tp->vLimit;
+        if(tc->maxvel > tp->vLimit) 
+            tc->maxvel = tp->vLimit;
     }
 
-    // this algorithm stolen unabashedly from jmkasunich's work in 
-    // motion/control.c
+    discr = 0.5 * tc->cycle_time * tc->currentvel - (tc->target - tc->progress);
+    if(discr > 0.0) {
+        newvel = 0.0;
+    } else {
+        discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->maxaccel * discr;
+        newvel = -0.5 * tc->maxaccel * tc->cycle_time + tc->maxaccel * pmSqrt(discr);
+    }
 
-    max_dv = tc->accel * tc->cycle_time;
-    tiny_dp = max_dv * tc->cycle_time * 0.001;
+    if(newvel <= 0.0) {
+        newvel = newaccel = 0.0;
+        tc->progress = tc->target;
+    } else {
+        if(newvel > tc->reqvel * tc->feed_override) 
+            newvel = tc->reqvel * tc->feed_override;
+        if(newvel > tc->maxvel) newvel = tc->maxvel;
 
-    // how far to go?
-    to_go = tc->target - tc->progress;
+        if(tc->motion_type == TC_CIRCULAR &&
+                newvel > pmSqrt(tc->maxaccel * tc->coords.circle.xyz.radius))
+            newvel = pmSqrt(tc->maxaccel * tc->coords.circle.xyz.radius);
 
-    // request velocity that will bring us to the target but will still
-    // allow a stop at the end of the motion
-    if(to_go > tiny_dp) 
-        vel_req = -max_dv + pmSqrt(2.0 * tc->accel * to_go + pmSq(max_dv));
-    else
-        vel_req = 0.0;
-
-    // clamp at requested feed
-    if(vel_req > tc->vel)
-        vel_req = tc->vel;
-
-    // scale by feed override and clamp to machine constraints 
-    // [AXIS_*] MAX_VELOCITY
-    vel_req *= tc->feed_override;
-    if(vel_req > tc->maxvel)
-        vel_req = tc->maxvel;
-
-    // ramp velocity toward request at axis accel limit 
-    if(vel_req > tc->increment + max_dv)
-        tc->increment += max_dv;
-    else
-        tc->increment = vel_req;
+        newaccel = (newvel - tc->currentvel) / tc->cycle_time;
+        if(newaccel > 0.0 && newaccel > tc->maxaccel) {
+            newaccel = tc->maxaccel;
+            newvel = tc->currentvel + newaccel * tc->cycle_time;
+        }
+        if(newaccel < 0.0 && newaccel < -tc->maxaccel) {
+            newaccel = -tc->maxaccel;
+            newvel = tc->currentvel + newaccel * tc->cycle_time;
+        }
+        tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
+    }
+    tc->currentvel = newvel;
 
     // move
-    tc->progress += tc->increment * tc->cycle_time;
     tp->currentPos = tcGetPos(tc);
 
     return 0;

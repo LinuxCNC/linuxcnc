@@ -44,11 +44,11 @@ typedef struct {
     double cycle_time;
     double progress;        // where are we in the segment?  0..target
     double target;          // segment's end position
-    double vel;             // vel requested by F word, calc'd by task
-    double accel;           // accel calc'd by task
+    double reqvel;          // vel requested by F word, calc'd by task
+    double maxaccel;        // accel calc'd by task
     double feed_override;   // feed override requested by user
     double maxvel;          // max possible vel (feed override stops here)
-    double increment;       // keep track of current step (vel * cycle_time)
+    double currentvel;      // keep track of current step (vel * cycle_time)
     
     int id;                 // segment's serial number - maybe not needed?
 
