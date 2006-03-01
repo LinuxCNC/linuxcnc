@@ -6,8 +6,8 @@
     modules.
 */
 /********************************************************************
-* Description:  hal_priv.c
-*               This file, 'hal_priv.c', contains declarations of 
+* Description:  hal_priv.h
+*               This file, 'hal_priv.h', contains declarations of 
 *               most of the internal data structures used by the HAL.  
 *               It is NOT needed by most HAL components.  However, 
 *               some components that interact more closely with the 
