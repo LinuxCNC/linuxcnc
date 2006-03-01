@@ -1442,7 +1442,8 @@ double GET_EXTERNAL_FEED_RATE()
     double feed;
 
     // convert from external to program units
-    feed = TO_PROG_LEN(FROM_EXT_LEN(emcStatus->motion.traj.velocity));
+    // it is wrong to use emcStatus->motion.traj.velocity here, as that is the traj speed regardless of G0 / G1
+    feed = TO_PROG_LEN(FROM_EXT_LEN(currentLinearFeedRate));
     // now convert from per-sec to per-minute
     feed *= 60.0;
 
