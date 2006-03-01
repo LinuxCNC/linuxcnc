@@ -68,9 +68,11 @@ $(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
 CUSEROBJS := $(call TOOBJS,$(filter %.c,$(USERSRCS)))
 CXXUSEROBJS += $(call TOOBJS,$(filter %.cc,$(USERSRCS)))
 
+ifneq ($(MAKECMDGOALS),clean)
 # Find the dependency filenames, then include them all
 DEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 include $(DEPS)
+endif
 
 # Each directory in $(INCLDUES) is passed as a -I directory when compiling.
 INCLUDE := -I$(RTDIR)/include $(patsubst %,-I%, $(INCLUDES))
@@ -203,6 +205,7 @@ endif
 modclean:
 	find -name '.*.cmd' -or -name '*.ko' -or -name '*.mod.c' -or -name '*.mod.o' | xargs rm -f
 	-rm -rf .tmp_versions
+	find . -name .tmp_versions |xargs rm -rf
 	-rm -f ../rtlib/*.ko
 
 depclean:
