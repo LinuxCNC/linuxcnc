@@ -1534,7 +1534,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	return HAL_INVAL;
     }
     /* link args to comp struct */
-    comp->insmod_args = cp1;
+    comp->insmod_args = SHMOFF(cp1);
     rtapi_mutex_give(&(hal_data->mutex));
     /* print success message */
     rtapi_print_msg(RTAPI_MSG_INFO, "Realtime module '%s' loaded\n",
@@ -2636,10 +2636,10 @@ static void save_comps(void)
 	comp = SHMPTR(next);
 	if ( comp->type == 1 ) {
 	    /* only print realtime components */
-	    if ( comp->insmod_args == NULL ) {
+	    if ( comp->insmod_args == 0 ) {
 		rtapi_print("#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
 	    } else {
-		rtapi_print("loadrt %s %s\n", comp->name, comp->insmod_args);
+		rtapi_print("loadrt %s %s\n", comp->name, SHMPTR(comp->insmod_args));
 	    }
 	}
 	next = comp->next_ptr;
