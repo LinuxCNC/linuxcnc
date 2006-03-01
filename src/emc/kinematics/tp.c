@@ -435,10 +435,14 @@ int tpRunCycle(TP_STRUCT * tp)
         // this means the motion queue is empty.  This can represent
         // the end of the program OR QUEUE STARVATION.  In either case,
         // I want to stop.  Some may not agree that's what it should do.
+        tcqInit(&tp->queue);
+        tp->goalPos = tp->currentPos;
         tp->done = 1;
         tp->depth = tp->activeDepth = 0;
+        tp->aborting = 0;
         tp->execId = 0;
         tp->motionType = 0;
+        tpResume(tp);
         return 0;
     }
 
