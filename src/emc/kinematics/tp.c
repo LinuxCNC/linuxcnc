@@ -318,6 +318,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     tc.feed_override = tp->vScale;
     tc.maxvel = tp->ini_maxvel;
     tc.id = tp->nextId;
+    tc.active = 0;
 
     tc.coords.line.xyz = line_xyz;
     tc.coords.line.abc = line_abc;
@@ -391,6 +392,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.feed_override = tp->vScale;
     tc.maxvel = tp->ini_maxvel;
     tc.id = tp->nextId;
+    tc.active = 0;
 
     tc.coords.circle.xyz = circle;
     tc.coords.circle.abc = line_abc;
