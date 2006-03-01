@@ -489,6 +489,7 @@ int tpRunCycle(TP_STRUCT * tp)
 
     discr = 0.5 * tc->cycle_time * tc->currentvel - (tc->target - tc->progress);
     if(discr > 0.0) {
+        // should never happen: means we've overshot the target
         newvel = 0.0;
     } else {
         discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->maxaccel * discr;
@@ -496,9 +497,12 @@ int tpRunCycle(TP_STRUCT * tp)
     }
 
     if(newvel <= 0.0) {
+        // also should never happen - if we already finished this tc, it was
+        // caught above
         newvel = newaccel = 0.0;
         tc->progress = tc->target;
     } else {
+        // constrain velocity
         if(newvel > tc->reqvel * tc->feed_override) 
             newvel = tc->reqvel * tc->feed_override;
         if(newvel > tc->maxvel) newvel = tc->maxvel;
@@ -507,7 +511,10 @@ int tpRunCycle(TP_STRUCT * tp)
                 newvel > pmSqrt(tc->maxaccel * tc->coords.circle.xyz.radius))
             newvel = pmSqrt(tc->maxaccel * tc->coords.circle.xyz.radius);
 
+        // get resulting acceleration
         newaccel = (newvel - tc->currentvel) / tc->cycle_time;
+        
+        // constrain acceleration and get resulting velocity
         if(newaccel > 0.0 && newaccel > tc->maxaccel) {
             newaccel = tc->maxaccel;
             newvel = tc->currentvel + newaccel * tc->cycle_time;
@@ -516,11 +523,12 @@ int tpRunCycle(TP_STRUCT * tp)
             newaccel = -tc->maxaccel;
             newvel = tc->currentvel + newaccel * tc->cycle_time;
         }
+        // update position in this tc
         tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
     }
     tc->currentvel = newvel;
 
-    // move
+    // move machine
     tp->currentPos = tcGetPos(tc);
 
     return 0;
