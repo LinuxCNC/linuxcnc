@@ -314,9 +314,9 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     tc.target = line_xyz.tmag < 1e-6? line_abc.tmag: line_xyz.tmag;
     tc.progress = 0.0;
     tc.reqvel = tp->vMax;
-    tc.maxaccel = tp->aMax;
+    tc.maxaccel = tp->aMax * 0.95;
     tc.feed_override = tp->vScale;
-    tc.maxvel = tp->ini_maxvel;
+    tc.maxvel = tp->ini_maxvel * 0.95;
     tc.id = tp->nextId;
     tc.active = 0;
 
@@ -388,9 +388,9 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.target = helix_length;
     tc.progress = 0.0;
     tc.reqvel = tp->vMax;
-    tc.maxaccel = tp->aMax;
+    tc.maxaccel = tp->aMax * 0.95;
     tc.feed_override = tp->vScale;
-    tc.maxvel = tp->ini_maxvel;
+    tc.maxvel = tp->ini_maxvel * 0.95;
     tc.id = tp->nextId;
     tc.active = 0;
 
@@ -419,7 +419,8 @@ void tcRunCycle(TC_STRUCT *tc, double *v, double *a) {
         newvel = 0.0;
     } else {
         discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->maxaccel * discr;
-        newvel = -0.5 * tc->maxaccel * tc->cycle_time + tc->maxaccel * pmSqrt(discr);
+        newvel = -0.5 * tc->maxaccel * tc->cycle_time + 
+            tc->maxaccel * pmSqrt(discr);
     }
 
     if(newvel <= 0.0) {
@@ -476,7 +477,7 @@ int tpRunCycle(TP_STRUCT * tp)
 
     TC_STRUCT *tc, *nexttc;
     double next_peakvel = 0.0, primary_vel, primary_accel;
-    int blend = 0;
+    int blend = 0;  // we have two consecutive segments; blend them
     EmcPose primary_before, primary_after;
     EmcPose secondary_before, secondary_after;
     PmPose primary_displacement, secondary_displacement;
@@ -510,7 +511,6 @@ int tpRunCycle(TP_STRUCT * tp)
             tpResume(tp);
             return 0;
         } else {
-            rtapi_print("not yet stopped, currentvel %d\n", (int)(tc->currentvel*1000.0));
             tc->reqvel = 0.0;
         }
     }
@@ -533,13 +533,16 @@ int tpRunCycle(TP_STRUCT * tp)
     // we know to start blending it in when the current tc goes below
     // this velocity...
     if(nexttc && nexttc->maxaccel) {
-        next_peakvel = nexttc->maxaccel * pmSqrt(nexttc->target / nexttc->maxaccel);
+        next_peakvel = nexttc->maxaccel * 
+            pmSqrt(nexttc->target / nexttc->maxaccel);
         if(next_peakvel > nexttc->reqvel * nexttc->feed_override) {
-            // segment has a cruise phase so let's blend over the whole accel period if possible
+            // segment has a cruise phase so let's blend over the 
+            // whole accel period if possible
             next_peakvel = nexttc->reqvel * nexttc->feed_override;
         } else {
-            // segment has a triangular vel profile - blend for somewhat less than half of it
-            // so we're sure to at least touch the segment's path somewhere
+            // segment has a triangular vel profile - blend for somewhat 
+            // less than half of it so we're sure to at least touch 
+            // the segment's path somewhere
             next_peakvel *= 0.8;
         }
         blend = 1;
@@ -558,43 +561,59 @@ int tpRunCycle(TP_STRUCT * tp)
         // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
         if(tc->maxvel > tp->vLimit) 
             tc->maxvel = tp->vLimit;
+
+        // honor accel constraint if we happen to make an acute angle
+        // with the next segment.  A dot product test could often 
+        // eliminate this.
+        if(blend)
+            tc->maxaccel /= 2.0;
+    }
+
+    if(blend && nexttc->active == 0) {
+        // this means this tc is being read for the first time.
+        
+        nexttc->currentvel = 0;
+        tp->depth = tp->activeDepth = 1;
+        nexttc->active = 1;
+        nexttc->blending = 0;
+
+        // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
+        if(nexttc->maxvel > tp->vLimit) 
+            nexttc->maxvel = tp->vLimit;
+
+        // honor accel constraint if we happen to make an acute angle
+        // with the next segment.  A dot product test could often 
+        // eliminate this but we'd need to look ahead one more segment.
+        if(blend)
+            nexttc->maxaccel /= 2.0;
     }
 
     primary_before = tcGetPos(tc);
     tcRunCycle(tc, &primary_vel, &primary_accel);
     primary_after = tcGetPos(tc);
-    pmCartCartSub(primary_after.tran, primary_before.tran, &primary_displacement.tran);
+    pmCartCartSub(primary_after.tran, primary_before.tran, 
+            &primary_displacement.tran);
 
     // blend criteria
-    if(tc->blending || (blend && primary_accel < 0.0 && primary_vel < next_peakvel)) {
-        // make sure we continue to blend this segment even if its accel reaches 0
+    if(tc->blending || 
+            (blend && primary_accel < 0.0 && primary_vel < next_peakvel)) {
+        // make sure we continue to blend this segment even when its 
+        // accel reaches 0 (at the very end)
         tc->blending = 1;
 
         // hack to show blends in axis
         tp->motionType = 0;
 
-        if(nexttc->active == 0) {
-            // this means this tc is being read for the first time.
-            
-            nexttc->currentvel = 0;
-            tp->depth = tp->activeDepth = 1;
-            //tp->execId = tc->id;
-            //tp->motionType = tc->canon_motion_type;
-            nexttc->active = 1;
-            nexttc->blending = 0;
-
-            // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
-            if(nexttc->maxvel > tp->vLimit) 
-                nexttc->maxvel = tp->vLimit;
-        }
-
         secondary_before = tcGetPos(nexttc);
         tcRunCycle(nexttc, NULL, NULL);
         secondary_after = tcGetPos(nexttc);
-        pmCartCartSub(secondary_after.tran, secondary_before.tran, &secondary_displacement.tran);
+        pmCartCartSub(secondary_after.tran, secondary_before.tran, 
+                &secondary_displacement.tran);
 
-        pmCartCartAdd(tp->currentPos.tran, primary_displacement.tran, &tp->currentPos.tran);
-        pmCartCartAdd(tp->currentPos.tran, secondary_displacement.tran, &tp->currentPos.tran);
+        pmCartCartAdd(tp->currentPos.tran, primary_displacement.tran, 
+                &tp->currentPos.tran);
+        pmCartCartAdd(tp->currentPos.tran, secondary_displacement.tran, 
+                &tp->currentPos.tran);
     } else {
         tp->motionType = tc->canon_motion_type;
         tp->currentPos = primary_after;
