@@ -411,6 +411,53 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     return 0;
 }
 
+void tcRunCycle(TC_STRUCT *tc, double *v, double *a) {
+    double discr, newvel, newaccel;
+    discr = 0.5 * tc->cycle_time * tc->currentvel - (tc->target - tc->progress);
+    if(discr > 0.0) {
+        // should never happen: means we've overshot the target
+        newvel = 0.0;
+    } else {
+        discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->maxaccel * discr;
+        newvel = -0.5 * tc->maxaccel * tc->cycle_time + tc->maxaccel * pmSqrt(discr);
+    }
+
+    if(newvel <= 0.0) {
+        // also should never happen - if we already finished this tc, it was
+        // caught above
+        newvel = newaccel = 0.0;
+        tc->progress = tc->target;
+    } else {
+        // constrain velocity
+        if(newvel > tc->reqvel * tc->feed_override) 
+            newvel = tc->reqvel * tc->feed_override;
+        if(newvel > tc->maxvel) newvel = tc->maxvel;
+
+        if(tc->motion_type == TC_CIRCULAR &&
+                newvel > pmSqrt(tc->maxaccel * tc->coords.circle.xyz.radius))
+            newvel = pmSqrt(tc->maxaccel * tc->coords.circle.xyz.radius);
+
+        // get resulting acceleration
+        newaccel = (newvel - tc->currentvel) / tc->cycle_time;
+        
+        // constrain acceleration and get resulting velocity
+        if(newaccel > 0.0 && newaccel > tc->maxaccel) {
+            newaccel = tc->maxaccel;
+            newvel = tc->currentvel + newaccel * tc->cycle_time;
+        }
+        if(newaccel < 0.0 && newaccel < -tc->maxaccel) {
+            newaccel = -tc->maxaccel;
+            newvel = tc->currentvel + newaccel * tc->cycle_time;
+        }
+        // update position in this tc
+        tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
+    }
+    tc->currentvel = newvel;
+    if(v) *v = newvel;
+    if(a) *a = newaccel;
+}
+
+
 // This is the brains of the operation.  It's called every TRAJ period
 // and is expected to set tp->currentPos to the new machine position.
 // Lots of other tp fields (depth, done, etc) have to be twiddled to
@@ -427,8 +474,12 @@ int tpRunCycle(TP_STRUCT * tp)
     // acc = (new vel - old vel) / cycle time
     // (three position points required)
 
-    double discr, newvel, newaccel;
-    TC_STRUCT *tc;
+    TC_STRUCT *tc, *nexttc;
+    double next_peakvel = 0.0, primary_vel, primary_accel;
+    int blend = 0;
+    EmcPose primary_before, primary_after;
+    EmcPose secondary_before, secondary_after;
+    PmPose primary_displacement, secondary_displacement;
 
     tc = tcqItem(&tp->queue, 0);
     if(!tc) {
@@ -473,6 +524,27 @@ int tpRunCycle(TP_STRUCT * tp)
         if(!tc) return 0;
     }
 
+    // now we have the active tc.  get the upcoming one, if there is one.
+    // it's not an error if there isn't another one - we just don't
+    // do blending.  This happens in MDI for instance.
+    nexttc = tcqItem(&tp->queue, 1);
+
+    // calculate the approximate peak velocity the nexttc will hit.
+    // we know to start blending it in when the current tc goes below
+    // this velocity...
+    if(nexttc && nexttc->maxaccel) {
+        next_peakvel = nexttc->maxaccel * pmSqrt(nexttc->target / nexttc->maxaccel);
+        if(next_peakvel > nexttc->reqvel * nexttc->feed_override) {
+            // segment has a cruise phase so let's blend over the whole accel period if possible
+            next_peakvel = nexttc->reqvel * nexttc->feed_override;
+        } else {
+            // segment has a triangular vel profile - blend for somewhat less than half of it
+            // so we're sure to at least touch the segment's path somewhere
+            next_peakvel *= 0.8;
+        }
+        blend = 1;
+    }
+
     if(tc->active == 0) {
         // this means this tc is being read for the first time.
         
@@ -481,55 +553,52 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->execId = tc->id;
         tp->motionType = tc->canon_motion_type;
         tc->active = 1;
+        tc->blending = 0;
 
         // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
         if(tc->maxvel > tp->vLimit) 
             tc->maxvel = tp->vLimit;
     }
 
-    discr = 0.5 * tc->cycle_time * tc->currentvel - (tc->target - tc->progress);
-    if(discr > 0.0) {
-        // should never happen: means we've overshot the target
-        newvel = 0.0;
-    } else {
-        discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->maxaccel * discr;
-        newvel = -0.5 * tc->maxaccel * tc->cycle_time + tc->maxaccel * pmSqrt(discr);
-    }
+    primary_before = tcGetPos(tc);
+    tcRunCycle(tc, &primary_vel, &primary_accel);
+    primary_after = tcGetPos(tc);
+    pmCartCartSub(primary_after.tran, primary_before.tran, &primary_displacement.tran);
 
-    if(newvel <= 0.0) {
-        // also should never happen - if we already finished this tc, it was
-        // caught above
-        newvel = newaccel = 0.0;
-        tc->progress = tc->target;
-    } else {
-        // constrain velocity
-        if(newvel > tc->reqvel * tc->feed_override) 
-            newvel = tc->reqvel * tc->feed_override;
-        if(newvel > tc->maxvel) newvel = tc->maxvel;
+    // blend criteria
+    if(tc->blending || (blend && primary_accel < 0.0 && primary_vel < next_peakvel)) {
+        // make sure we continue to blend this segment even if its accel reaches 0
+        tc->blending = 1;
 
-        if(tc->motion_type == TC_CIRCULAR &&
-                newvel > pmSqrt(tc->maxaccel * tc->coords.circle.xyz.radius))
-            newvel = pmSqrt(tc->maxaccel * tc->coords.circle.xyz.radius);
+        // hack to show blends in axis
+        tp->motionType = 0;
 
-        // get resulting acceleration
-        newaccel = (newvel - tc->currentvel) / tc->cycle_time;
-        
-        // constrain acceleration and get resulting velocity
-        if(newaccel > 0.0 && newaccel > tc->maxaccel) {
-            newaccel = tc->maxaccel;
-            newvel = tc->currentvel + newaccel * tc->cycle_time;
+        if(nexttc->active == 0) {
+            // this means this tc is being read for the first time.
+            
+            nexttc->currentvel = 0;
+            tp->depth = tp->activeDepth = 1;
+            //tp->execId = tc->id;
+            //tp->motionType = tc->canon_motion_type;
+            nexttc->active = 1;
+            nexttc->blending = 0;
+
+            // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
+            if(nexttc->maxvel > tp->vLimit) 
+                nexttc->maxvel = tp->vLimit;
         }
-        if(newaccel < 0.0 && newaccel < -tc->maxaccel) {
-            newaccel = -tc->maxaccel;
-            newvel = tc->currentvel + newaccel * tc->cycle_time;
-        }
-        // update position in this tc
-        tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
-    }
-    tc->currentvel = newvel;
 
-    // move machine
-    tp->currentPos = tcGetPos(tc);
+        secondary_before = tcGetPos(nexttc);
+        tcRunCycle(nexttc, NULL, NULL);
+        secondary_after = tcGetPos(nexttc);
+        pmCartCartSub(secondary_after.tran, secondary_before.tran, &secondary_displacement.tran);
+
+        pmCartCartAdd(tp->currentPos.tran, primary_displacement.tran, &tp->currentPos.tran);
+        pmCartCartAdd(tp->currentPos.tran, secondary_displacement.tran, &tp->currentPos.tran);
+    } else {
+        tp->motionType = tc->canon_motion_type;
+        tp->currentPos = primary_after;
+    }
 
     return 0;
 }

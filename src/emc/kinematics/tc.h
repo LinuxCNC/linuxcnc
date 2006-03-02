@@ -61,6 +61,7 @@ typedef struct {
                             // TC_CIRCULAR (coords.circle)
     char active;            // this motion is being executed
     int canon_motion_type;  // this motion is due to which canon function?
+    int blending;           // segment is being blended into following segment
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
