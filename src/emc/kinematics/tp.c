@@ -524,6 +524,9 @@ int tpRunCycle(TP_STRUCT * tp)
         if(!tc) return 0;
     }
 
+    // report our line number to the guis
+    tp->execId = tc->id;
+
     // now we have the active tc.  get the upcoming one, if there is one.
     // it's not an error if there isn't another one - we just don't
     // do blending.  This happens in MDI for instance.
@@ -553,7 +556,6 @@ int tpRunCycle(TP_STRUCT * tp)
         
         tc->currentvel = 0;
         tp->depth = tp->activeDepth = 1;
-        tp->execId = tc->id;
         tp->motionType = tc->canon_motion_type;
         tc->active = 1;
         tc->blending = 0;
