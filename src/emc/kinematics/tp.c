@@ -324,6 +324,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     tc.coords.line.abc = line_abc;
     tc.motion_type = TC_LINEAR;
     tc.canon_motion_type = type;
+    tc.blend_with_next = tp->termCond == TC_TERM_COND_BLEND;
 
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
@@ -398,6 +399,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.coords.circle.abc = line_abc;
     tc.motion_type = TC_CIRCULAR;
     tc.canon_motion_type = type;
+    tc.blend_with_next = tp->termCond == TC_TERM_COND_BLEND;
 
     if (tcqPut(&tp->queue, tc) == -1) {
 	return -1;
@@ -477,7 +479,6 @@ int tpRunCycle(TP_STRUCT * tp)
 
     TC_STRUCT *tc, *nexttc;
     double next_peakvel = 0.0, primary_vel, primary_accel;
-    int blend = 0;  // we have two consecutive segments; blend them
     EmcPose primary_before, primary_after;
     EmcPose secondary_before, secondary_after;
     PmPose primary_displacement, secondary_displacement;
@@ -530,7 +531,10 @@ int tpRunCycle(TP_STRUCT * tp)
     // now we have the active tc.  get the upcoming one, if there is one.
     // it's not an error if there isn't another one - we just don't
     // do blending.  This happens in MDI for instance.
-    nexttc = tcqItem(&tp->queue, 1);
+    if(tc->blend_with_next) 
+        nexttc = tcqItem(&tp->queue, 1);
+    else
+        nexttc = NULL;
 
     // calculate the approximate peak velocity the nexttc will hit.
     // we know to start blending it in when the current tc goes below
@@ -548,7 +552,6 @@ int tpRunCycle(TP_STRUCT * tp)
             // the segment's path somewhere
             next_peakvel *= 0.8;
         }
-        blend = 1;
     }
 
     if(tc->active == 0) {
@@ -567,11 +570,11 @@ int tpRunCycle(TP_STRUCT * tp)
         // honor accel constraint if we happen to make an acute angle
         // with the next segment.  A dot product test could often 
         // eliminate this.
-        if(blend)
+        if(tc->blend_with_next) 
             tc->maxaccel /= 2.0;
     }
 
-    if(blend && nexttc->active == 0) {
+    if(nexttc && nexttc->active == 0) {
         // this means this tc is being read for the first time.
         
         nexttc->currentvel = 0;
@@ -584,9 +587,8 @@ int tpRunCycle(TP_STRUCT * tp)
             nexttc->maxvel = tp->vLimit;
 
         // honor accel constraint if we happen to make an acute angle
-        // with the next segment.  A dot product test could often 
-        // eliminate this but we'd need to look ahead one more segment.
-        if(blend)
+        // with the above segment or the following one
+        if(tc->blend_with_next || nexttc->blend_with_next) 
             nexttc->maxaccel /= 2.0;
     }
 
@@ -598,7 +600,7 @@ int tpRunCycle(TP_STRUCT * tp)
 
     // blend criteria
     if(tc->blending || 
-            (blend && primary_accel < 0.0 && primary_vel < next_peakvel)) {
+            (nexttc && primary_accel < 0.0 && primary_vel < next_peakvel)) {
         // make sure we continue to blend this segment even when its 
         // accel reaches 0 (at the very end)
         tc->blending = 1;

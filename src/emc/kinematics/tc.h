@@ -50,7 +50,7 @@ typedef struct {
     double maxvel;          // max possible vel (feed override stops here)
     double currentvel;      // keep track of current step (vel * cycle_time)
     
-    int id;                 // segment's serial number - maybe not needed?
+    int id;                 // segment's serial number
 
     union {                 // describes the segment's start and end positions
         PmLine6 line;
@@ -61,6 +61,8 @@ typedef struct {
                             // TC_CIRCULAR (coords.circle)
     char active;            // this motion is being executed
     int canon_motion_type;  // this motion is due to which canon function?
+    int blend_with_next;    // gcode requests continuous feed at the end of 
+                            // this segment (g64 mode)
     int blending;           // segment is being blended into following segment
 } TC_STRUCT;
 
