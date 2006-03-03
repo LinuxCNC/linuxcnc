@@ -520,6 +520,11 @@ static void stg_dacs_write(void *arg, long period)
     for (i=0;i < num_chan; i++) {
 	/* scale the voltage to be written based on offset and gain */
 	volts = (*(stg->dac_value[i]) - stg->dac_offset[i]) * stg->dac_gain[i];
+        /* clamp the scaled voltage value to the -10V to 10V output range of the STG */
+        if (volts < -10.0)
+                volts = -10.0;
+        if (volts > 10.0)
+                volts = 10.0;
 	/* compute the value for the DAC, the extra - in there is STG specific */
 	ncounts = (short) ((-10.0 - volts) / 20.0 * 0x1FFF);
 	/* write it to the card */	
