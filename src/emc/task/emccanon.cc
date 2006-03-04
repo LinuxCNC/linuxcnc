@@ -104,6 +104,12 @@ static void canonUpdateEndPoint(double x, double y, double z, double a,
    Set to 0 (invalid) at start, so first call will send command out */
 static CANON_MOTION_MODE canonMotionMode = 0;
 
+/* motion path-following tolerance is used to set the max path-following
+   deviation during CANON_CONTINUOUS.
+   If this param is 0, then it will behave as emc always did, allowing
+   almost any deviation trying to keep speed up. */
+static double canonMotionTolerance = 0.0;
+
 /* macros for converting internal (mm/deg) units to external units */
 #define TO_EXT_LEN(mm) ((mm) * GET_EXTERNAL_LENGTH_UNITS())
 #define TO_EXT_ANG(deg) ((deg) * GET_EXTERNAL_ANGLE_UNITS())
@@ -544,9 +550,13 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
 
 /* Machining Attributes */
 
-void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode)
+void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 {
     EMC_TRAJ_SET_TERM_COND setTermCondMsg;
+
+    if (tolerance != canonMotionTolerance) {
+	canonMotionTolerance = tolerance;
+    }
 
     if (mode != canonMotionMode) {
 	canonMotionMode = mode;
@@ -554,6 +564,7 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode)
 	switch (mode) {
 	case CANON_CONTINUOUS:
 	    setTermCondMsg.cond = EMC_TRAJ_TERM_COND_BLEND;
+	    setTermCondMsg.tolerance = canonMotionTolerance;
 	    break;
 
 	default:
@@ -568,6 +579,11 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode)
 CANON_MOTION_MODE GET_MOTION_CONTROL_MODE()
 {
     return canonMotionMode;
+}
+
+double GET_MOTION_CONTROL_TOLERANCE()
+{
+    return canonMotionTolerance;
 }
 
 void SELECT_PLANE(CANON_PLANE in_plane)
@@ -1280,7 +1296,7 @@ void INIT_CANON()
     canonEndPoint.a = 0.0;
     canonEndPoint.b = 0.0;
     canonEndPoint.c = 0.0;
-    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS);
+    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
     spindleSpeed = 0.0;
     preppedTool = 0;
     linear_move = 0;
@@ -1645,6 +1661,12 @@ CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
 {
     return canonMotionMode;
 }
+
+double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE()
+{
+    return canonMotionTolerance;
+}
+
 
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE()
 {

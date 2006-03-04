@@ -856,17 +856,22 @@ already in force.
 */
 
 int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_61, G61_1, || G_64)
+				double tolerance,    //tolerance for the path following in G64
                                 setup_pointer settings) //!< pointer to machine settings                 
 {
   static char name[] = "convert_control_mode";
   if (g_code == G_61) {
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH);
+    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
     settings->control_mode = CANON_EXACT_PATH;
   } else if (g_code == G_61_1) {
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_STOP);
+    SET_MOTION_CONTROL_MODE(CANON_EXACT_STOP, 0);
     settings->control_mode = CANON_EXACT_STOP;
   } else if (g_code == G_64) {
-    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS);
+	if (tolerance >= 0) {
+	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance);
+	} else {
+	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
+	}
     settings->control_mode = CANON_CONTINUOUS;
   } else
     ERM(NCE_BUG_CODE_NOT_G61_G61_1_OR_G64);
@@ -1422,7 +1427,7 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
     CHP(convert_coordinate_system(block->g_modes[12], settings));
   }
   if (block->g_modes[13] != -1) {
-    CHP(convert_control_mode(block->g_modes[13], settings));
+    CHP(convert_control_mode(block->g_modes[13], block->p_number, settings));
   }
   if (block->g_modes[3] != -1) {
     CHP(convert_distance_mode(block->g_modes[3], settings));
@@ -2420,6 +2425,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   double CC_end;
   int status;
 
+  printf("convert_straight: feed_rate=%f\n",settings->feed_rate);
   if (move == G_1) {
     if (settings->feed_mode == UNITS_PER_MINUTE) {
       CHK((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);

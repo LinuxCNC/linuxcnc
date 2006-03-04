@@ -292,12 +292,15 @@ for the same motions.
 
 */
 
-extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode);
+extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance);
 
 /*
 
 This sets the motion control mode to one of: CANON_EXACT_STOP,
 CANON_EXACT_PATH, or CANON_CONTINUOUS.
+
+For CANON_CONTINUOUS another parameter defines the maximum path deviation. 
+If tolerance=0 then any path deviation may occur, speed is maximized.
 
 */
 
@@ -593,6 +596,9 @@ extern int GET_EXTERNAL_MIST();
 
 // Returns the current motion control mode
 extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
+
+// Returns the current motion path-following tolerance
+extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
 
 /* The interpreter is not using these six GET_EXTERNAL_ORIGIN functions
 

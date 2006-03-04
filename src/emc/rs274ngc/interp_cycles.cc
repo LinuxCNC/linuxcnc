@@ -703,6 +703,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
+  double save_tolerance;
   int status;
 
   plane = CANON_PLANE_XY;
@@ -745,8 +746,9 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH);
+    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
   switch (motion) {
   case G_81:
@@ -833,7 +835,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   settings->cycle_cc = block->z_number;
 
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(save_mode);
+    SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
 
   return INTERP_OK;
 }
@@ -906,6 +908,7 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
+  double save_tolerance; //save the current tolerance, to restore it lateron
   int status;
 
   plane = CANON_PLANE_YZ;
@@ -948,8 +951,9 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH);
+    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
   switch (motion) {
   case G_81:
@@ -1036,7 +1040,7 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   settings->cycle_cc = block->x_number;
 
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(save_mode);
+    SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
 
   return INTERP_OK;
 }
@@ -1117,6 +1121,7 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
+  double save_tolerance; //save current path-following tolerance, to restore it lateron
   int status;
 
   plane = CANON_PLANE_XZ;
@@ -1159,8 +1164,9 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH);
+    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
   switch (motion) {
   case G_81:
@@ -1247,7 +1253,7 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   settings->cycle_cc = block->y_number;
 
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(save_mode);
+    SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
 
   return INTERP_OK;
 }

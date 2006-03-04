@@ -1577,6 +1577,8 @@ class EMC_TRAJ_SET_TERM_COND:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     int cond;
+    double tolerance; // used to set the precision/tolerance of path deviation 
+		      // during CONTINUOUS motion mode. 
 };
 
 class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {
