@@ -94,12 +94,12 @@ endif
 $(sort $(call TODEPS, $(filter %.cc,$(USERSRCS)))): depends/%.d: %.cc
 	@mkdir -p $(dir $@)
 	@echo Depending $<
-	@$(CXX) -MM -MG -MT "$@ $(patsubst depends/%.d,objs/%.o,$@)" \
+	@$(CXX) -MM -MG -MT "$@ $(patsubst depends/%.d,objects/%.o,$@)" \
 		$(CXXFLAGS) $(EXTRAFLAGS) $< -o $@.tmp && mv -f $@.tmp $@
 $(sort $(call TODEPS, $(filter %.c,$(USERSRCS)))): depends/%.d: %.c 
 	@mkdir -p $(dir $@)
 	@echo Depending $<
-	@gcc -MM -MG -MT "$@ $(patsubst depends/%.d,objs/%.o,$@)" \
+	@gcc -MM -MG -MT "$@ $(patsubst depends/%.d,objects/%.o,$@)" \
 		$(CFLAGS) $(EXTRAFLAGS) $< -o $@.tmp && mv -f $@.tmp $@
 
 # Rules to make .o (object) files
