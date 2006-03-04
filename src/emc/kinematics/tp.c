@@ -73,6 +73,7 @@ int tpClear(TP_STRUCT * tp)
     tp->execId = 0;
     tp->motionType = 0;
     tp->termCond = TC_TERM_COND_BLEND;
+    tp->tolerance = 0.0;
     tp->done = 1;
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
@@ -240,7 +241,7 @@ int tpGetExecId(TP_STRUCT * tp)
   a subsequent move begins. If cond is TC_TERM_BLEND, the following move
   is begun when the current move decelerates.
   */
-int tpSetTermCond(TP_STRUCT * tp, int cond)
+int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance)
 {
     if (0 == tp) {
 	return -1;
@@ -251,6 +252,7 @@ int tpSetTermCond(TP_STRUCT * tp, int cond)
     }
 
     tp->termCond = cond;
+    tp->tolerance = tolerance;
 
     return 0;
 }
@@ -325,6 +327,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     tc.motion_type = TC_LINEAR;
     tc.canon_motion_type = type;
     tc.blend_with_next = tp->termCond == TC_TERM_COND_BLEND;
+    tc.tolerance = tp->tolerance;
 
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
@@ -400,6 +403,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.motion_type = TC_CIRCULAR;
     tc.canon_motion_type = type;
     tc.blend_with_next = tp->termCond == TC_TERM_COND_BLEND;
+    tc.tolerance = tp->tolerance;
 
     if (tcqPut(&tp->queue, tc) == -1) {
 	return -1;
@@ -481,8 +485,6 @@ int tpRunCycle(TP_STRUCT * tp)
     EmcPose primary_before, primary_after;
     EmcPose secondary_before, secondary_after;
     PmPose primary_displacement, secondary_displacement;
-    double tolerance = 0.1; // hardcoded for this branch: on HEAD it
-                            // will come from the interp.
 
     tc = tcqItem(&tp->queue, 0);
     if(!tc) {
@@ -578,7 +580,7 @@ int tpRunCycle(TP_STRUCT * tp)
             }
         }
 
-        if(tolerance) {
+        if(tc->tolerance) {
             double tblend_vel;
             double dot;
             double theta;
@@ -590,7 +592,7 @@ int tpRunCycle(TP_STRUCT * tp)
 
             theta = acos(-dot)/2.0; 
             if(cos(theta) > 0.001) {
-                tblend_vel = 2.0 * pmSqrt(tc->maxaccel * tolerance / cos(theta));
+                tblend_vel = 2.0 * pmSqrt(tc->maxaccel * tc->tolerance / cos(theta));
                 if(tblend_vel < tc->blend_vel)
                     tc->blend_vel = tblend_vel;
             }

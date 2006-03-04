@@ -65,6 +65,8 @@ typedef struct {
                             // this segment (g64 mode)
     int blending;           // segment is being blended into following segment
     double blend_vel;       // velocity below which we should start blending
+    double tolerance;       // during the blend at the end of this move, 
+                            // stay within this distance from the path.
 } TC_STRUCT;
 
 /* TC_STRUCT functions */

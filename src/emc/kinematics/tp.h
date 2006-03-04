@@ -55,6 +55,9 @@ typedef struct {
     int aborting;
     int pausing;
     int motionType;
+    double tolerance;           /* for subsequent motions, stay within this
+                                   distance of the programmed path during
+                                   blends */
 } TP_STRUCT;
 
 extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
