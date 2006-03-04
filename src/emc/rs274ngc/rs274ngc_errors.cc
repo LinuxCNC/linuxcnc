@@ -164,7 +164,7 @@ char * _rs274ngc_errors[] = {
 /* 137 */ _("Offset index missing"), // convert_tool_length_offset
 /* 138 */ _("P value not an integer with g10 l2"), // check_g_codes
 /* 139 */ _("P value out of range with g10 l2"), // check_g_codes
-/* 140 */ _("P word with no g4 g10 g82 g86 g88 g89"), // check_other_codes
+/* 140 */ _("P word with no g4 g10 g64 g82 g86 g88 g89"), // check_other_codes
 /* 141 */ _("Parameter file out of order"), // Interp::restore_parameters, Interp::save_parameters
 /* 142 */ _("Parameter number out of range"), // read_parameter, read_parameter_setting, Interp::restore_parameters, Interp::save_parameters
 /* 143 */ _("Q word missing with g83"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx

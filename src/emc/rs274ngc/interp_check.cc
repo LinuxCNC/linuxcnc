@@ -206,7 +206,7 @@ Returned Value: int
    9. A l_number is in a block with no G code that uses it:
       NCE_L_WORD_WITH_NO_CANNED_CYCLE_OR_G10
   10. A p_number is in a block with no G code that uses it:
-      NCE_P_WORD_WITH_NO_G4_G10_G82_G86_G88_G89
+      NCE_P_WORD_WITH_NO_G4_G10_G64_G82_G86_G88_G89
   11. A q_number is in a block with no G code that uses it:
       NCE_Q_WORD_WITH_NO_G83
   12. An r_number is in a block with no G code that uses it:
@@ -287,6 +287,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   if (block->p_number != -1.0) {
     CHK(((block->g_modes[0] != G_10) &&
          (block->g_modes[0] != G_4) &&
+	 (block->g_modes[13] != G_64) &&
          (block->m_modes[5] != 62) &&
          (block->m_modes[5] != 63) &&
          (block->m_modes[5] != 64) &&
@@ -294,7 +295,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          (block->user_m != 1) &&
          (motion != G_82) && (motion != G_86) &&
          (motion != G_88) && (motion != G_89)),
-        NCE_P_WORD_WITH_NO_G4_G10_G82_G86_G88_G89);
+        NCE_P_WORD_WITH_NO_G4_G10_G64_G82_G86_G88_G89);
   }
 
   if (block->q_number != -1.0) {
