@@ -554,12 +554,9 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 {
     EMC_TRAJ_SET_TERM_COND setTermCondMsg;
 
-    if (tolerance != canonMotionTolerance) {
-	canonMotionTolerance = tolerance;
-    }
-
-    if (mode != canonMotionMode) {
+    if ((mode != canonMotionMode) || (tolerance != canonMotionTolerance)) {
 	canonMotionMode = mode;
+	canonMotionTolerance = tolerance;
 
 	switch (mode) {
 	case CANON_CONTINUOUS:
