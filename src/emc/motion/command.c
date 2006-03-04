@@ -745,7 +745,7 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_SET_TERM_COND:
 	    /* sets termination condition for motion emcmotDebug->queue */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_TERM_COND");
-	    tpSetTermCond(&emcmotDebug->queue, emcmotCommand->termCond);
+	    tpSetTermCond(&emcmotDebug->queue, emcmotCommand->termCond, emcmotCommand->tolerance);
 	    break;
 
 	case EMCMOT_SET_LINE:

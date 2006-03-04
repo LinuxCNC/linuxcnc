@@ -191,6 +191,7 @@ extern "C" {
 	double backlash;	/* amount of backlash */
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
+	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
 	int axis;		/* which index to use for below */
 	double scale;		/* velocity scale arg */
 	double offset;		/* input, output, or home offset arg */

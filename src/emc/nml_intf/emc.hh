@@ -461,7 +461,7 @@ extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(EmcPose end, int type);
 extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
 			       PM_CARTESIAN normal, int turn, int type);
-extern int emcTrajSetTermCond(int cond);
+extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetOffset(EmcPose offset);
 extern int emcTrajSetOrigin(EmcPose origin);
 extern int emcTrajSetHome(EmcPose home);

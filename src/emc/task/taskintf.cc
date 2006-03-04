@@ -1076,13 +1076,14 @@ int emcTrajDelay(double delay)
     return 0;
 }
 
-int emcTrajSetTermCond(int cond)
+int emcTrajSetTermCond(int cond, double tolerance)
 {
     emcmotCommand.command = EMCMOT_SET_TERM_COND;
     emcmotCommand.termCond =
 	(cond ==
 	 EMC_TRAJ_TERM_COND_STOP ? EMCMOT_TERM_COND_STOP :
 	 EMCMOT_TERM_COND_BLEND);
+    emcmotCommand.tolerance = tolerance;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }

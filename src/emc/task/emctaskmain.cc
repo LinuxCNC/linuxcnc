@@ -1624,7 +1624,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_TERM_COND_TYPE:
 	emcTrajSetTermCondMsg = (EMC_TRAJ_SET_TERM_COND *) cmd;
-	retval = emcTrajSetTermCond(emcTrajSetTermCondMsg->cond);
+	retval = emcTrajSetTermCond(emcTrajSetTermCondMsg->cond, emcTrajSetTermCondMsg->tolerance);
 	break;
 
     case EMC_TRAJ_SET_OFFSET_TYPE:
