@@ -36,8 +36,10 @@ typedef struct {
     double cycleTime;
     double vMax;		/* vel for subsequent moves */
     double ini_maxvel;          /* max velocity allowed by machine 
-                                   constraints (ini file) */
-    double vScale, vRestore;
+                                   constraints (ini file) for
+                                   subsequent moves */
+    double vScale, vRestore;    /* feed override value and a place
+                                   to save it when pausing */
     double aMax;
     double vLimit;		/* absolute upper limit on all vels */
     double wMax;		/* rotational velocity max */
@@ -52,35 +54,25 @@ typedef struct {
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
-/* needed for synchronous I/O */
-    unsigned char douts;	/* flag that tells us if there are douts to get set/unset */ 
-    int doutIndex;		/* which output pin gets set */
-    unsigned char doutstart;	/* value applied at motion start */
-    unsigned char doutend;	/* value applied at motion end */
     int motionType;
 } TP_STRUCT;
 
 extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
-extern int tpDelete(TP_STRUCT * tp);
 extern int tpClear(TP_STRUCT * tp);
 extern int tpInit(TP_STRUCT * tp);
 extern int tpSetCycleTime(TP_STRUCT * tp, double secs);
 extern int tpSetVmax(TP_STRUCT * tp, double vmax, double ini_maxvel);
-extern int tpSetWmax(TP_STRUCT * tp, double vmax);
 extern int tpSetVlimit(TP_STRUCT * tp, double limit);
 extern int tpSetVscale(TP_STRUCT * tp, double scale);	/* 0.0 .. large */
 extern int tpSetAmax(TP_STRUCT * tp, double amax);
-extern int tpSetWDotmax(TP_STRUCT * tp, double amax);
 extern int tpSetId(TP_STRUCT * tp, int id);
-extern int tpGetNextId(TP_STRUCT * tp);
 extern int tpGetExecId(TP_STRUCT * tp);
-extern int tpGetMotionType(TP_STRUCT *tp);
 extern int tpSetTermCond(TP_STRUCT * tp, int cond);
-extern int tpGetTermCond(TP_STRUCT * tp);
 extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
 extern int tpAddLine(TP_STRUCT * tp, EmcPose end, int type);
 extern int tpAddCircle(TP_STRUCT * tp, EmcPose end,
-		       PmCartesian center, PmCartesian normal, int turn, int type);
+		       PmCartesian center, PmCartesian normal, 
+                       int turn, int type);
 extern int tpRunCycle(TP_STRUCT * tp);
 extern int tpPause(TP_STRUCT * tp);
 extern int tpResume(TP_STRUCT * tp);
@@ -90,11 +82,9 @@ extern int tpIsDone(TP_STRUCT * tp);
 extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
-extern void tpPrint(TP_STRUCT * tp);
-/* - needed for synchronous I/O */
-extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start,
-		     double end);
-extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start,
-		     unsigned char end);
+extern int tpGetMotionType(TP_STRUCT * tp);
+
+extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
+extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end);
 
 #endif				/* TP_H */
