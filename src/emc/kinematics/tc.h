@@ -64,11 +64,14 @@ typedef struct {
     int blend_with_next;    // gcode requests continuous feed at the end of 
                             // this segment (g64 mode)
     int blending;           // segment is being blended into following segment
+    double blend_vel;       // velocity below which we should start blending
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
 
 extern EmcPose tcGetPos(TC_STRUCT * tc);
+PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc);
+PmCartesian tcGetStartingUnitVector(TC_STRUCT *tc);
 
 /* queue of TC_STRUCT elements*/
 

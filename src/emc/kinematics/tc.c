@@ -29,6 +29,39 @@
 #include "emcpos.h"
 #include "tc.h"
 
+PmCartesian tcGetStartingUnitVector(TC_STRUCT *tc) {
+    PmCartesian v;
+
+    if(tc->motion_type == TC_LINEAR) {
+        pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, &v);
+    } else {
+        PmPose startpoint;
+        PmCartesian radius;
+
+        pmCirclePoint(&tc->coords.circle.xyz, 0.0, &startpoint);
+        pmCartCartSub(startpoint.tran, tc->coords.circle.xyz.center, &radius);
+        pmCartCartCross(tc->coords.circle.xyz.normal, radius, &v);
+    }
+    pmCartUnit(v, &v);
+    return v;
+}
+
+PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc) {
+    PmCartesian v;
+
+    if(tc->motion_type == TC_LINEAR) {
+        pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, &v);
+    } else {
+        PmPose startpoint;
+        PmCartesian radius;
+
+        pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &startpoint);
+        pmCartCartSub(startpoint.tran, tc->coords.circle.xyz.center, &radius);
+        pmCartCartCross(tc->coords.circle.xyz.normal, radius, &v);
+    }
+    pmCartUnit(v, &v);
+    return v;
+}
 
 /*! tcGetPos() function
  *

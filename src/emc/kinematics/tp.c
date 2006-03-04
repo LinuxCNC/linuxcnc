@@ -460,7 +460,6 @@ void tcRunCycle(TC_STRUCT *tc, double *v, double *a) {
     if(a) *a = newaccel;
 }
 
-
 // This is the brains of the operation.  It's called every TRAJ period
 // and is expected to set tp->currentPos to the new machine position.
 // Lots of other tp fields (depth, done, etc) have to be twiddled to
@@ -478,10 +477,12 @@ int tpRunCycle(TP_STRUCT * tp)
     // (three position points required)
 
     TC_STRUCT *tc, *nexttc;
-    double next_peakvel = 0.0, primary_vel, primary_accel;
+    double primary_vel, primary_accel;
     EmcPose primary_before, primary_after;
     EmcPose secondary_before, secondary_after;
     PmPose primary_displacement, secondary_displacement;
+    double tolerance = 0.1; // hardcoded for this branch: on HEAD it
+                            // will come from the interp.
 
     tc = tcqItem(&tp->queue, 0);
     if(!tc) {
@@ -536,24 +537,6 @@ int tpRunCycle(TP_STRUCT * tp)
     else
         nexttc = NULL;
 
-    // calculate the approximate peak velocity the nexttc will hit.
-    // we know to start blending it in when the current tc goes below
-    // this velocity...
-    if(nexttc && nexttc->maxaccel) {
-        next_peakvel = nexttc->maxaccel * 
-            pmSqrt(nexttc->target / nexttc->maxaccel);
-        if(next_peakvel > nexttc->reqvel * nexttc->feed_override) {
-            // segment has a cruise phase so let's blend over the 
-            // whole accel period if possible
-            next_peakvel = nexttc->reqvel * nexttc->feed_override;
-        } else {
-            // segment has a triangular vel profile - blend for somewhat 
-            // less than half of it so we're sure to at least touch 
-            // the segment's path somewhere
-            next_peakvel *= 0.8;
-        }
-    }
-
     if(tc->active == 0) {
         // this means this tc is being read for the first time.
         
@@ -576,7 +559,43 @@ int tpRunCycle(TP_STRUCT * tp)
 
     if(nexttc && nexttc->active == 0) {
         // this means this tc is being read for the first time.
-        
+
+        // calculate the approximate peak velocity the nexttc will hit.
+        // we know to start blending it in when the current tc goes below
+        // this velocity...
+        if(nexttc->maxaccel) {
+            tc->blend_vel = nexttc->maxaccel * 
+                pmSqrt(nexttc->target / nexttc->maxaccel);
+            if(tc->blend_vel > nexttc->reqvel * nexttc->feed_override) {
+                // segment has a cruise phase so let's blend over the 
+                // whole accel period if possible
+                tc->blend_vel = nexttc->reqvel * nexttc->feed_override;
+            } else {
+                // segment has a triangular vel profile - blend for somewhat 
+                // less than half of it so we're sure to at least touch 
+                // the segment's path somewhere
+                tc->blend_vel *= 0.8;
+            }
+        }
+
+        if(tolerance) {
+            double tblend_vel;
+            double dot;
+            double theta;
+            PmCartesian v1, v2;
+
+            v1 = tcGetEndingUnitVector(tc);
+            v2 = tcGetStartingUnitVector(nexttc);
+            pmCartCartDot(v1, v2, &dot);
+
+            theta = acos(-dot)/2.0; 
+            if(cos(theta) > 0.001) {
+                tblend_vel = 2.0 * pmSqrt(tc->maxaccel * tolerance / cos(theta));
+                if(tblend_vel < tc->blend_vel)
+                    tc->blend_vel = tblend_vel;
+            }
+        }
+
         nexttc->currentvel = 0;
         tp->depth = tp->activeDepth = 1;
         nexttc->active = 1;
@@ -600,7 +619,7 @@ int tpRunCycle(TP_STRUCT * tp)
 
     // blend criteria
     if(tc->blending || 
-            (nexttc && primary_accel < 0.0 && primary_vel < next_peakvel)) {
+            (nexttc && primary_accel < 0.0 && primary_vel < tc->blend_vel)) {
         // make sure we continue to blend this segment even when its 
         // accel reaches 0 (at the very end)
         tc->blending = 1;
