@@ -59,6 +59,7 @@ typedef struct {
     float disp_scale;		/* display scale (sec/div) */
     int zoom_setting;		/* setting of zoom slider (1-9) */
     float pos_setting;		/* setting of position slider (0.0-1.0) */
+    long x0;
     /* widgets for main window */
     GtkWidget *disp_area;
     GdkGC *disp_context;

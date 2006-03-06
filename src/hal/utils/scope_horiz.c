@@ -87,6 +87,11 @@ static void refresh_pos_disp(void);
 static void format_time_value(char *buf, int buflen, float timeval);
 static void format_freq_value(char *buf, int buflen, float freqval);
 
+/* manipulation functions */
+static gint horiz_press(GtkWidget *widget, GdkEventButton *event);
+static gint horiz_release(GtkWidget *widget, GdkEventButton *event);
+static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event);
+
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
 ************************************************************************/
@@ -172,6 +177,15 @@ static void init_horiz_window(void)
 	TRUE, 0);
     /* graphic horizontal display */
     horiz->disp_area = gtk_drawing_area_new();
+    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "button_press_event", 
+        GTK_SIGNAL_FUNC(horiz_press), 0);
+    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "button_release_event", 
+        GTK_SIGNAL_FUNC(horiz_release), 0);
+    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "motion_notify_event", 
+        GTK_SIGNAL_FUNC(horiz_motion), 0);
+    gtk_widget_set_events(GTK_WIDGET(horiz->disp_area),
+        GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+        | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);
     gtk_box_pack_start(GTK_BOX(hbox), horiz->disp_area, TRUE, TRUE, 0);
     gtk_widget_show(horiz->disp_area);
     /* label for state */
@@ -1158,3 +1172,69 @@ static void format_freq_value(char *buf, int buflen, float freqval)
     snprintf(buf, buflen, "%0.*f %s", decimals, freqval, units);
 }
 
+static gint horiz_press(GtkWidget *widget, GdkEventButton *event) {
+    ctrl_usr->horiz.x0 = event->x;
+    return TRUE;
+}
+
+static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
+    scope_horiz_t *horiz = &(ctrl_usr->horiz);
+
+    int motion;
+
+    int pre_trig, width;
+    float disp_center, disp_start, disp_end;
+    float rec_start, rec_curr, rec_end;
+    float min, max, span, scale;
+    float newpos; 
+
+    int x, y;
+    GdkModifierType state;
+
+    if (event->is_hint)
+        gdk_window_get_pointer (event->window, &x, &y, &state);
+    else
+    {
+        x = event->x;
+        y = event->y;
+        state = event->state;
+    }
+      
+    if(!(state & GDK_BUTTON1_MASK)) return TRUE;
+
+    motion = x - horiz->x0;
+
+    gdk_window_get_geometry(horiz->disp_area->window, 0, 0, &width, 0, 0);
+
+    pre_trig = ctrl_shm->rec_len * ctrl_usr->trig.position;
+    rec_start = -pre_trig * horiz->sample_period;
+    rec_end = (ctrl_shm->rec_len - pre_trig) * horiz->sample_period;
+    rec_curr = rec_start + (ctrl_shm->samples * horiz->sample_period);
+    disp_center = rec_start + horiz->pos_setting * (rec_end - rec_start);
+    disp_start = disp_center - 5.0 * horiz->disp_scale;
+    disp_end = disp_center + 5.0 * horiz->disp_scale;
+
+    if (rec_start < disp_start) {
+	min = rec_start;
+    } else {
+	min = disp_start;
+    }
+    if (rec_end > disp_end) {
+	max = rec_end;
+    } else {
+	max = disp_end;
+    }
+    span = max - min;
+    scale = (width - 1) / span;
+
+    newpos = GTK_ADJUSTMENT(horiz->pos_adj)->value
+        + motion * 100 / scale;
+    gtk_adjustment_set_value(GTK_ADJUSTMENT(horiz->pos_adj), newpos);
+    
+    horiz->x0 = event->x;
+    return TRUE;
+}
+
+static gint horiz_release(GtkWidget *widget, GdkEventButton *event) {
+    return TRUE;
+}
