@@ -2425,7 +2425,6 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   double CC_end;
   int status;
 
-  printf("convert_straight: feed_rate=%f\n",settings->feed_rate);
   if (move == G_1) {
     if (settings->feed_mode == UNITS_PER_MINUTE) {
       CHK((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
