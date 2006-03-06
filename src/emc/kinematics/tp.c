@@ -562,24 +562,37 @@ int tpRunCycle(TP_STRUCT * tp)
     if(nexttc && nexttc->active == 0) {
         // this means this tc is being read for the first time.
 
-        // calculate the approximate peak velocity the nexttc will hit.
-        // we know to start blending it in when the current tc goes below
-        // this velocity...
-        if(nexttc->maxaccel) {
-            tc->blend_vel = nexttc->maxaccel * 
-                pmSqrt(nexttc->target / nexttc->maxaccel);
-            if(tc->blend_vel > nexttc->reqvel * nexttc->feed_override) {
-                // segment has a cruise phase so let's blend over the 
-                // whole accel period if possible
-                tc->blend_vel = nexttc->reqvel * nexttc->feed_override;
-            } else {
-                // segment has a triangular vel profile - blend for somewhat 
-                // less than half of it so we're sure to at least touch 
-                // the segment's path somewhere
-                tc->blend_vel *= 0.8;
-            }
-        }
+        nexttc->currentvel = 0;
+        tp->depth = tp->activeDepth = 1;
+        nexttc->active = 1;
+        nexttc->blending = 0;
 
+        // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
+        if(nexttc->maxvel > tp->vLimit) 
+            nexttc->maxvel = tp->vLimit;
+
+        // honor accel constraint if we happen to make an acute angle
+        // with the above segment or the following one
+        if(tc->blend_with_next || nexttc->blend_with_next) 
+            nexttc->maxaccel /= 2.0;
+    }
+
+    // calculate the approximate peak velocity the nexttc will hit.
+    // we know to start blending it in when the current tc goes below
+    // this velocity...
+    if(nexttc && nexttc->maxaccel) {
+        tc->blend_vel = nexttc->maxaccel * 
+            pmSqrt(nexttc->target / nexttc->maxaccel);
+        if(tc->blend_vel > nexttc->reqvel * nexttc->feed_override) {
+            // segment has a cruise phase so let's blend over the 
+            // whole accel period if possible
+            tc->blend_vel = nexttc->reqvel * nexttc->feed_override;
+        } else {
+            // segment has a triangular vel profile - blend for somewhat 
+            // less than half of it so we're sure to at least touch 
+            // the segment's path somewhere
+            tc->blend_vel *= 0.8;
+        }
         if(tc->tolerance) {
             double tblend_vel;
             double dot;
@@ -597,20 +610,6 @@ int tpRunCycle(TP_STRUCT * tp)
                     tc->blend_vel = tblend_vel;
             }
         }
-
-        nexttc->currentvel = 0;
-        tp->depth = tp->activeDepth = 1;
-        nexttc->active = 1;
-        nexttc->blending = 0;
-
-        // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
-        if(nexttc->maxvel > tp->vLimit) 
-            nexttc->maxvel = tp->vLimit;
-
-        // honor accel constraint if we happen to make an acute angle
-        // with the above segment or the following one
-        if(tc->blend_with_next || nexttc->blend_with_next) 
-            nexttc->maxaccel /= 2.0;
     }
 
     primary_before = tcGetPos(tc);
