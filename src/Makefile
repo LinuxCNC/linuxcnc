@@ -432,7 +432,7 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
 	@echo Depending $<
-	@gcc -MM -MG -MT "$@ $(patsubst depends/%.d,objs/%.o,$@)" \
+	@gcc -MM -MG -MT "$@ $(patsubst depends/%.d,objects/%.o,$@)" \
 		$(EXTRA_CFLAGS) $< -o $@.tmp && mv -f $@.tmp $@
 
 
