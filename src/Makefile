@@ -11,7 +11,7 @@ include $(BASEPWD)/Makefile.inc
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-default: userspace modules
+default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 	@echo "You now need to run 'sudo make setuid' in order to run in place."
 endif
@@ -231,6 +231,15 @@ setuid:
 ../include/%.hh: %.hh
 	cp $^ $@
 
+DIR=install -d -m 0755 -o root
+FILE=install -m 0644 -o root
+CONFIGFILE=install -m 0644
+EXE=install -m 0755 -o root
+SETUID=install -m 4755 -o root
+NOCVS=$(filter-out %CVS,$(1))
+GLOB=$(call NOCVS,$(wildcard $(1)))
+CONFIGS=$(subst ../configs/,,$(call GLOB,../configs/*))
+
 ifeq ($(RUN_IN_PLACE),yes)
 define ERROR_MESSAGE
 You configured run-in-place, but are trying to install.  
@@ -241,14 +250,6 @@ install:
 	$(error $(ERROR_MESSAGE))
 else
 
-DIR=install -d -m 0755 -o root
-FILE=install -m 0644 -o root
-EXE=install -m 0755 -o root
-SETUID=install -m 4755 -o root
-
-NOCVS=$(filter-out %CVS,$(1))
-GLOB=$(call NOCVS,$(wildcard $(1)))
-CONFIGS=$(subst ../configs/,,$(call GLOB,../configs/*))
 define INSTALL_CONFIG
 $(DIR) $(DESTDIR)$(sysconfdir)/emc2/sample-configs/$(1)
 $(FILE) $(call GLOB,../configs/$(1)/*) $(DESTDIR)$(sysconfdir)/emc2/sample-configs/$(1)
@@ -294,8 +295,27 @@ install:
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
-endif
-endif
+endif # RUN_IN_PLACE
+
+CONF=../configs
+COMMON=$(CONF)/common
+
+.PHONY: configs $(CONFIGS)
+configs: $(CONFIGS)
+	
+demo_mazak univpwm univstep:
+	$(CONFIGFILE) $(COMMON)/emc.nml $(CONF)/$@
+
+demo_step_cl stepper:
+	$(CONFIGFILE) $(COMMON)/emc.nml $(COMMON)/core_stepper.hal $(CONF)/$@
+
+motenc m5i20 stg:
+	$(CONFIGFILE) $(COMMON)/emc.nml $(COMMON)/core_servo.hal $(CONF)/$@
+
+sim:
+	$(CONFIGFILE) $(COMMON)/emc.nml $(COMMON)/core_sim.hal $(CONF)/$@
+
+endif # userspace
 
 # KERNELRELEASE is nonempty, therefore we are building modules using the
 # "kbuild" system.  $(PWD) is used here, instead of relative paths, because
