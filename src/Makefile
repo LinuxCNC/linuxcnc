@@ -303,7 +303,7 @@ COMMON=$(CONF)/common
 .PHONY: configs $(CONFIGS)
 configs: $(CONFIGS)
 	
-demo_mazak univpwm univstep:
+demo_mazak univpwm univstep stepper-xyza:
 	$(CONFIGFILE) $(COMMON)/emc.nml $(CONF)/$@
 
 demo_step_cl stepper:
