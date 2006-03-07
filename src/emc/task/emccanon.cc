@@ -274,8 +274,12 @@ double getStraightAcceleration(double x, double y, double z,
 			   double a, double b, double c)
 {
     double dx, dy, dz, da, db, dc;
-    double acc=9e99;
+    double tx, ty, tz, ta, tb, tc, tmax;
+    double acc, dtot;
 
+    acc = 0.0; // if a move to nowhere
+
+    // Compute absolute travel distance for each axis:
     dx = fabs(x - canonEndPoint.x);
     dy = fabs(y - canonEndPoint.y);
     dz = fabs(z - canonEndPoint.z);
@@ -283,18 +287,71 @@ double getStraightAcceleration(double x, double y, double z,
     db = fabs(b - canonEndPoint.b);
     dc = fabs(c - canonEndPoint.c);
 
-    if(dx) acc=MIN(acc, FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
-    if(dy) acc=MIN(acc, FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
-    if(dz) acc=MIN(acc, FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
-    if(da) acc=MIN(acc, FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3]));
-    if(db) acc=MIN(acc, FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4]));
-    if(dc) acc=MIN(acc, FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5]));
+    // Figure out what kind of move we're making:
+    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0) {
+	linear_move = 0;
+    } else {
+	linear_move = 1;
+    }
+    if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
+	angular_move = 0;
+    } else {
+	angular_move = 1;
+    }
 
-    return (dx||dy||dz||da||db||dc)? acc: 0.0;
+    // Pure linear move:
+    if (linear_move && !angular_move) {
+	tx = fabs(dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
+	ty = fabs(dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
+	tz = fabs(dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
+	tmax = tx > ty ? tx : ty;
+	tmax = tz > tmax ? tz : tmax;
+
+	dtot = sqrt(dx * dx + dy * dy + dz * dz);
+	if (tmax > 0.0) {
+	    acc = dtot / tmax;
+	}
+    }
+    // Pure angular move:
+    else if (!linear_move && angular_move) {
+	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
+	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
+	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+	tmax = ta > tb ? ta : tb;
+	tmax = tc > tmax ? tc : tmax;
+
+	dtot = sqrt(da * da + db * db + dc * dc);
+	if (tmax > 0.0) {
+	    acc = dtot / tmax;
+	}
+    }
+    // Combination angular and linear move:
+    else if (linear_move && angular_move) {
+	tx = fabs(dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
+	ty = fabs(dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
+	tz = fabs(dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
+	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
+	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
+	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+	tmax = tx > ty ? tx : ty;
+	tmax = tz > tmax ? tz : tmax;
+	tmax = ta > tmax ? ta : tmax;
+	tmax = tb > tmax ? tb : tmax;
+	tmax = tc > tmax ? tc : tmax;
+
+/*  According to NIST IR6556 Section 2.1.2.5 Paragraph A
+    a combnation move is handled like a linear move, except
+    that the angular axes are allowed sufficient time to
+    complete their motion coordinated with the motion of
+    the linear axes.
+*/
+	dtot = sqrt(dx * dx + dy * dy + dz * dz);
+	if (tmax > 0.0) {
+	    acc = dtot / tmax;
+	}
+    }
+    return acc;
 }
-
-
-
 
 double getStraightVelocity(double x, double y, double z,
 			   double a, double b, double c)
@@ -345,9 +402,9 @@ double getStraightVelocity(double x, double y, double z,
     }
     // Pure angular move:
     else if (!linear_move && angular_move) {
-	ta = fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3]));
-	tb = fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4]));
-	tc = fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5]));
+	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
+	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
+	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
 	tmax = ta > tb ? ta : tb;
 	tmax = tc > tmax ? tc : tmax;
 
@@ -363,9 +420,9 @@ double getStraightVelocity(double x, double y, double z,
 	tx = fabs(dx / FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]));
 	ty = fabs(dy / FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]));
 	tz = fabs(dz / FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]));
-	ta = fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3]));
-	tb = fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4]));
-	tc = fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5]));
+	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
+	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
+	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
 	tmax = tx > ty ? tx : ty;
 	tmax = tz > tmax ? tz : tmax;
 	tmax = ta > tmax ? ta : tmax;
