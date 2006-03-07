@@ -484,7 +484,7 @@ int tpRunCycle(TP_STRUCT * tp)
     double primary_vel, primary_accel;
     EmcPose primary_before, primary_after;
     EmcPose secondary_before, secondary_after;
-    PmPose primary_displacement, secondary_displacement;
+    EmcPose primary_displacement, secondary_displacement;
 
     tc = tcqItem(&tp->queue, 0);
     if(!tc) {
@@ -617,6 +617,9 @@ int tpRunCycle(TP_STRUCT * tp)
     primary_after = tcGetPos(tc);
     pmCartCartSub(primary_after.tran, primary_before.tran, 
             &primary_displacement.tran);
+    primary_displacement.a = primary_after.a - primary_before.a;
+    primary_displacement.b = primary_after.b - primary_before.b;
+    primary_displacement.c = primary_after.c - primary_before.c;
 
     // blend criteria
     if(tc->blending || 
@@ -633,11 +636,17 @@ int tpRunCycle(TP_STRUCT * tp)
         secondary_after = tcGetPos(nexttc);
         pmCartCartSub(secondary_after.tran, secondary_before.tran, 
                 &secondary_displacement.tran);
+        secondary_displacement.a = secondary_after.a - secondary_before.a;
+        secondary_displacement.b = secondary_after.b - secondary_before.b;
+        secondary_displacement.c = secondary_after.c - secondary_before.c;
 
         pmCartCartAdd(tp->currentPos.tran, primary_displacement.tran, 
                 &tp->currentPos.tran);
         pmCartCartAdd(tp->currentPos.tran, secondary_displacement.tran, 
                 &tp->currentPos.tran);
+        tp->currentPos.a += primary_displacement.a + secondary_displacement.a;
+        tp->currentPos.b += primary_displacement.b + secondary_displacement.b;
+        tp->currentPos.c += primary_displacement.c + secondary_displacement.c;
     } else {
         tp->motionType = tc->canon_motion_type;
         tp->currentPos = primary_after;
