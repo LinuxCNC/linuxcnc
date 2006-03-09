@@ -688,7 +688,8 @@ void ARC_FEED(double first_end, double second_end,
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     int full_circle_in_active_plane = 0;
-    double v1, v2, a1, a2, vel, ini_maxvel, acc=0.0;
+    double v1, v2, v3, a1, a2, a3, vel, ini_maxvel, acc=0.0;
+    int helix=0;
 
     /* In response to  Bugs item #1274108 - rotary axis moves when coordinate
        offsets used with A. Original code failed to include programOrigin on
@@ -743,6 +744,7 @@ void ARC_FEED(double first_end, double second_end,
         ini_maxvel = MIN(v1, v2);
         vel = MIN3(vel, v1, v2);
         acc = MIN(a1, a2);
+        if(fabs(axis_end_point - canonEndPoint.z) > 0.001) helix=1;
 
 	break;
 
@@ -773,6 +775,7 @@ void ARC_FEED(double first_end, double second_end,
         ini_maxvel = MIN(v1, v2);
         vel = MIN3(vel, v1, v2);
         acc = MIN(a1, a2);
+        if(fabs(axis_end_point - canonEndPoint.x) > 0.001) helix=1;
 
 	break;
 
@@ -803,6 +806,7 @@ void ARC_FEED(double first_end, double second_end,
 	ini_maxvel = MIN(v1, v2);
         vel = MIN3(vel, v1, v2);
         acc = MIN(a1, a2);
+        if(fabs(axis_end_point - canonEndPoint.y) > 0.001) helix=1;
 
 	break;
     }
@@ -810,7 +814,20 @@ void ARC_FEED(double first_end, double second_end,
     // for arcs we always user linear move, as the ABC axes can't move (currently)
     // linear move is actually a move involving axes X Y Z, not the type of the movement
     linear_move = 1;
-    
+
+    // a helix moves in all axes
+    if(helix) {
+	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
+	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
+	v3 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
+	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
+	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
+	a3 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
+        ini_maxvel = MIN3(v1, v2, v3);
+        vel = MIN(ini_maxvel, vel);
+        acc = MIN3(a1, a2, a3);
+    }
+
     // set proper velocity
     sendVelMsg(vel, ini_maxvel);
     if(acc) sendAccMsg(acc);
