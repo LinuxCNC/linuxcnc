@@ -593,6 +593,9 @@ int tpRunCycle(TP_STRUCT * tp)
             // the segment's path somewhere
             tc->blend_vel *= 0.8;
         }
+        if(tc->maxaccel < nexttc->maxaccel)
+            tc->blend_vel *= tc->maxaccel/nexttc->maxaccel;
+
         if(tc->tolerance) {
             double tblend_vel;
             double dot;
