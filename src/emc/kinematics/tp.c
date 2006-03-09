@@ -417,15 +417,15 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     return 0;
 }
 
-void tcRunCycle(TC_STRUCT *tc, double *v, double *a) {
-    double discr, newvel, newaccel;
+void tcRunCycle(TC_STRUCT *tc, double *v, int *on_final_decel) {
+    double discr, maxnewvel, newvel, newaccel=0;
     discr = 0.5 * tc->cycle_time * tc->currentvel - (tc->target - tc->progress);
     if(discr > 0.0) {
         // should never happen: means we've overshot the target
         newvel = 0.0;
     } else {
         discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->maxaccel * discr;
-        newvel = -0.5 * tc->maxaccel * tc->cycle_time + 
+        newvel = maxnewvel = -0.5 * tc->maxaccel * tc->cycle_time + 
             tc->maxaccel * pmSqrt(discr);
     }
 
@@ -461,7 +461,7 @@ void tcRunCycle(TC_STRUCT *tc, double *v, double *a) {
     }
     tc->currentvel = newvel;
     if(v) *v = newvel;
-    if(a) *a = newaccel;
+    if(on_final_decel) *on_final_decel = fabs(maxnewvel - newvel) < 0.001;
 }
 
 // This is the brains of the operation.  It's called every TRAJ period
@@ -481,7 +481,8 @@ int tpRunCycle(TP_STRUCT * tp)
     // (three position points required)
 
     TC_STRUCT *tc, *nexttc;
-    double primary_vel, primary_accel;
+    double primary_vel;
+    int on_final_decel;
     EmcPose primary_before, primary_after;
     EmcPose secondary_before, secondary_after;
     EmcPose primary_displacement, secondary_displacement;
@@ -616,7 +617,7 @@ int tpRunCycle(TP_STRUCT * tp)
     }
 
     primary_before = tcGetPos(tc);
-    tcRunCycle(tc, &primary_vel, &primary_accel);
+    tcRunCycle(tc, &primary_vel, &on_final_decel);
     primary_after = tcGetPos(tc);
     pmCartCartSub(primary_after.tran, primary_before.tran, 
             &primary_displacement.tran);
@@ -626,7 +627,7 @@ int tpRunCycle(TP_STRUCT * tp)
 
     // blend criteria
     if(tc->blending || 
-            (nexttc && primary_accel < 0.0 && primary_vel < tc->blend_vel)) {
+            (nexttc && on_final_decel && primary_vel < tc->blend_vel)) {
         // make sure we continue to blend this segment even when its 
         // accel reaches 0 (at the very end)
         tc->blending = 1;
