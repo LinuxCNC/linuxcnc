@@ -422,7 +422,7 @@ void tcRunCycle(TC_STRUCT *tc, double *v, int *on_final_decel) {
     discr = 0.5 * tc->cycle_time * tc->currentvel - (tc->target - tc->progress);
     if(discr > 0.0) {
         // should never happen: means we've overshot the target
-        newvel = 0.0;
+        newvel = maxnewvel = 0.0;
     } else {
         discr = 0.25 * pmSq(tc->cycle_time) - 2.0 / tc->maxaccel * discr;
         newvel = maxnewvel = -0.5 * tc->maxaccel * tc->cycle_time + 
