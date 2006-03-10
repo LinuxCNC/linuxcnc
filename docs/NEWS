@@ -1,6 +1,17 @@
 # some of EMC2 History & News
 #############################
 
+2006.03.10 - minor bugfix in tkemc for jogging
+
+2006.03.10 - added genhexkins, with a minitetra sample config. 
+             This proves emc2 works just as good with hexapods as emc1 did.
+
+2006.03.10 - added VTI support & sample configs
+
+2006.03.07 - lots of fixes to the TP (most were wrong in the old one aswell)
+
+2006.03.05 - new Trajectory Planner
+
 2006.02.20 - added a manpage for the runscript.
 
 2006.02.12 - Fixed a bug that was causing the RT code to run very slowly,
