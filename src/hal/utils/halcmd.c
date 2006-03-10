@@ -2164,7 +2164,7 @@ static void print_thread_info(char *pattern)
 
     if (scriptmode == 0) {
 	rtapi_print("Realtime Threads:\n");
-	rtapi_print("   Period   FP   Name\n");
+	rtapi_print("   Period   FP   Name    (Time, Max-Time)\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     len = strlen(pattern);
@@ -2173,8 +2173,9 @@ static void print_thread_info(char *pattern)
 	tptr = SHMPTR(next_thread);
 	if ( strncmp(pattern, tptr->name, len) == 0 ) {
 		/* note that the scriptmode format string has no \n */
-	    rtapi_print(((scriptmode == 0) ? "%11d %s  %s\n" : "%11d %s  %s"),
-		tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name);
+		// TODO FIXME add thread runtime and max runtime to this print
+	    rtapi_print(((scriptmode == 0) ? "%11d %s  %s    ( %d, %d )\n" : "%d %s %s %d %d"),
+		tptr->period, (tptr->uses_fp ? "YES" : "NO "), tptr->name, tptr->runtime, tptr->maxtime);
 	    list_root = &(tptr->funct_list);
 	    list_entry = list_next(list_root);
 	    n = 1;
