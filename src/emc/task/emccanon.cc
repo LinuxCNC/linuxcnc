@@ -301,38 +301,38 @@ double getStraightAcceleration(double x, double y, double z,
 
     // Pure linear move:
     if (linear_move && !angular_move) {
-	tx = fabs(dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
-	ty = fabs(dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
-	tz = fabs(dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
+	tx = sqrt(2.0 * dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
+	ty = sqrt(2.0 * dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
+	tz = sqrt(2.0 * dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
 	tmax = tx > ty ? tx : ty;
 	tmax = tz > tmax ? tz : tmax;
 
 	dtot = sqrt(dx * dx + dy * dy + dz * dz);
 	if (tmax > 0.0) {
-	    acc = dtot / tmax;
+	    acc = 2.0 * dtot / (tmax * tmax);
 	}
     }
     // Pure angular move:
     else if (!linear_move && angular_move) {
-	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
-	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
-	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+	ta = da? sqrt(2.0 * da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
+	tb = db? sqrt(2.0 * db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
+	tc = dc? sqrt(2.0 * dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
 	tmax = ta > tb ? ta : tb;
 	tmax = tc > tmax ? tc : tmax;
 
 	dtot = sqrt(da * da + db * db + dc * dc);
 	if (tmax > 0.0) {
-	    acc = dtot / tmax;
+	    acc = 2.0 * dtot / (tmax * tmax);
 	}
     }
     // Combination angular and linear move:
     else if (linear_move && angular_move) {
-	tx = fabs(dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
-	ty = fabs(dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
-	tz = fabs(dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
-	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
-	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
-	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+	tx = sqrt(2.0 * dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
+	ty = sqrt(2.0 * dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
+	tz = sqrt(2.0 * dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
+	ta = da? sqrt(2.0 * da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
+	tb = db? sqrt(2.0 * db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
+	tc = dc? sqrt(2.0 * dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
 	tmax = tx > ty ? tx : ty;
 	tmax = tz > tmax ? tz : tmax;
 	tmax = ta > tmax ? ta : tmax;
@@ -347,7 +347,7 @@ double getStraightAcceleration(double x, double y, double z,
 */
 	dtot = sqrt(dx * dx + dy * dy + dz * dz);
 	if (tmax > 0.0) {
-	    acc = dtot / tmax;
+	    acc = 2.0 * dtot / (tmax * tmax);
 	}
     }
     return acc;
