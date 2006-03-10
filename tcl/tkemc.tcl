@@ -1561,7 +1561,7 @@ proc minusDone {} {
     
     jogStop $minusAxis
     bind ManualBindings <KeyPress-minus> minusDown
-    set $minusAxis -1
+    set minusAxis -1
 }
 
 proc minusDown {} {
@@ -1573,11 +1573,11 @@ proc minusDown {} {
 
     bind ManualBindings <KeyPress-minus> {}
     after cancel minusDone
-    jogNeg $activeAxis
+    jogNeg $minusAxis
 }
 
 proc minusUp {} {
-    global debounceTime
+    global debounceTime 
 
     after cancel minusDone
     after $debounceTime minusDone
@@ -1590,8 +1590,8 @@ proc equalDone {} {
     global equalAxis
     
     jogStop $equalAxis
+    set equalAxis -1
     bind ManualBindings <KeyPress-equal> equalDown
-    set $equalAxis -1
 }
 
 proc equalDown {} {
@@ -1603,7 +1603,7 @@ proc equalDown {} {
 
     bind ManualBindings <KeyPress-equal> {}
     after cancel equalDone
-    jogPos $activeAxis
+    jogPos $equalAxis
 }
 
 proc equalUp {} {
