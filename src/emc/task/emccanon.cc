@@ -613,7 +613,7 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 
     if ((mode != canonMotionMode) || (tolerance != canonMotionTolerance)) {
 	canonMotionMode = mode;
-	canonMotionTolerance = tolerance;
+	canonMotionTolerance =  FROM_PROG_LEN(tolerance);
 
 	switch (mode) {
 	case CANON_CONTINUOUS:
