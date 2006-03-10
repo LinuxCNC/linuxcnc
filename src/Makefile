@@ -1,6 +1,6 @@
 # Delete the default suffix rules
 .SUFFIXES:
-.PHONY: default userspace modules clean modclean depclean install
+.PHONY: default userspace modules clean modclean depclean install axis
 
 ifeq ($(BASEPWD),)
 BASEPWD := $(shell pwd)
@@ -15,7 +15,13 @@ default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 	@echo "You now need to run 'sudo make setuid' in order to run in place."
 endif
-	
+
+ifeq ($(BUILD_AXIS),yes)
+default: axis
+axis: userspace
+	cd $(AXIS_DIR) && env EMCROOT=../.. python setup.py -q install
+endif
+
 # Create the variable with := so that subsequent += alterations keep it
 # as a "substitute at assignment time" variable
 TARGETS :=

@@ -990,6 +990,25 @@ if test "$USE_NLS" = "yes"; then
   AC_SUBST(LOCALEDIR)
 fi
 
+AC_MSG_CHECKING(for AXIS source)
+BUILD_AXIS=no
+AXIS_DIR=
+for candidate in axis*
+do
+    if test -f $candidate/setup.py
+    then 
+        AXIS_DIR=$candidate
+        BUILD_AXIS=yes
+        break
+    fi
+done
+case $BUILD_AXIS in 
+    no) AC_MSG_RESULT([Not found]) ;;
+    yes) AC_MSG_RESULT([will build axis from $AXIS_DIR]) ;;
+esac
+AC_SUBST([BUILD_AXIS])
+AC_SUBST([AXIS_DIR])
+
 
 ##############################################################################
 # files that get created by ./configure                                      #
