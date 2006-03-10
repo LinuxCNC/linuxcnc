@@ -134,6 +134,7 @@ HEADERS := \
     emc/ini/initraj.hh \
     emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
+    emc/kinematics/genhexkins.h \
     emc/kinematics/mmxavg.h \
     emc/kinematics/tc.h \
     emc/kinematics/tp.h \
@@ -424,7 +425,7 @@ motmod-objs := emc/kinematics/cubic.o
 motmod-objs += emc/kinematics/mmxavg.o 
 motmod-objs += emc/kinematics/tc.o 
 motmod-objs += emc/kinematics/tp.o 
-motmod-objs += emc/kinematics/trivkins.o
+motmod-objs += emc/kinematics/$(KINEMATICS).o
 motmod-objs += emc/motion/motion.o 
 motmod-objs += emc/motion/command.o 
 motmod-objs += emc/motion/control.o 

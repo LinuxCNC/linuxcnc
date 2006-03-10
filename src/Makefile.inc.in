@@ -3,6 +3,14 @@
 # on @DATE@
 #
 
+# User definable build-options
+# use the next few lines to define the kind of kinematics you want linked
+# into the motion module
+KINEMATICS=trivkins
+#KINEMATICS=genhexkins
+
+
+
 # Directories
 #############
 
