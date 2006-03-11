@@ -59,6 +59,10 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #endif
 
+#ifndef MAX4
+#define MAX4(a,b,c,d) (MAX(MAX((a),(b)),MAX((c),(d))))
+#endif
+
 static PM_QUATERNION quat(1, 0, 0, 0);
 
 /*
@@ -688,8 +692,9 @@ void ARC_FEED(double first_end, double second_end,
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     int full_circle_in_active_plane = 0;
-    double v1, v2, v3, a1, a2, a3, vel, ini_maxvel, acc=0.0;
-    int helix=0;
+    double v1, v2, a1, a2, vel, ini_maxvel, acc=0.0;
+    double radius, angle, theta1, theta2, helical_length, axis_len;
+    double tmax, thelix, ta, tb, tc, da, db, dc;
 
     /* In response to  Bugs item #1274108 - rotary axis moves when coordinate
        offsets used with A. Original code failed to include programOrigin on
@@ -703,6 +708,10 @@ void ARC_FEED(double first_end, double second_end,
     a = TO_EXT_ANG(a);
     b = TO_EXT_ANG(b);
     c = TO_EXT_ANG(c);
+
+    da = fabs(canonEndPoint.a - a);
+    db = fabs(canonEndPoint.b - b);
+    dc = fabs(canonEndPoint.c - c);
 
     /* Since there's no default case here,
        we need to initialise vel to something safe! */
@@ -735,17 +744,23 @@ void ARC_FEED(double first_end, double second_end,
 	normal.y = 0.0;
 	normal.z = 1.0;
 
-	// limit vel to min of X-Y-F
-	vel = currentLinearFeedRate;
+        theta1 = atan2(canonEndPoint.y - center.y, canonEndPoint.x - center.x);
+        theta2 = atan2(end.tran.y - center.y, end.tran.x - center.x);
+        radius = hypot(canonEndPoint.x - center.x, canonEndPoint.y - center.y);
+        axis_len = fabs(end.tran.z - canonEndPoint.z);
+
 	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
 	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
         ini_maxvel = MIN(v1, v2);
-        vel = MIN3(vel, v1, v2);
         acc = MIN(a1, a2);
-        if(fabs(axis_end_point - canonEndPoint.z) > 0.001) helix=1;
-
+        if(fabs(axis_end_point - canonEndPoint.z) > 0.001) {
+            v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
+            a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
+            ini_maxvel = MIN(ini_maxvel, v1);
+            acc = MIN(acc, a1);
+        }
 	break;
 
     case CANON_PLANE_YZ:
@@ -766,16 +781,23 @@ void ARC_FEED(double first_end, double second_end,
 	normal.z = 0.0;
 	normal.x = 1.0;
 
-	// limit vel to min of Y-Z-F
-	vel = currentLinearFeedRate;
+        theta1 = atan2(canonEndPoint.z - center.z, canonEndPoint.y - center.y);
+        theta2 = atan2(end.tran.z - center.z, end.tran.y - center.y);
+        radius = hypot(canonEndPoint.y - center.y, canonEndPoint.z - center.z);
+        axis_len = fabs(end.tran.x - canonEndPoint.x);
+
 	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
 	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
         ini_maxvel = MIN(v1, v2);
-        vel = MIN3(vel, v1, v2);
         acc = MIN(a1, a2);
-        if(fabs(axis_end_point - canonEndPoint.x) > 0.001) helix=1;
+        if(fabs(axis_end_point - canonEndPoint.x) > 0.001) {
+            v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
+            a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
+            ini_maxvel = MIN(ini_maxvel, v1);
+            acc = MIN(acc, a1);
+        }
 
 	break;
 
@@ -797,39 +819,64 @@ void ARC_FEED(double first_end, double second_end,
 	normal.x = 0.0;
 	normal.y = 1.0;
 
-	// limit vel to min of X-Z-F}
-	vel = currentLinearFeedRate;
+        theta1 = atan2(canonEndPoint.z - center.z, canonEndPoint.x - center.x);
+        theta2 = atan2(end.tran.z - center.z, end.tran.x - center.x);
+        radius = hypot(canonEndPoint.x - center.x, canonEndPoint.z - center.z);
+        axis_len = fabs(end.tran.y - canonEndPoint.y);
+
 	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
 	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
 	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
 	ini_maxvel = MIN(v1, v2);
-        vel = MIN3(vel, v1, v2);
         acc = MIN(a1, a2);
-        if(fabs(axis_end_point - canonEndPoint.y) > 0.001) helix=1;
-
+        if(fabs(axis_end_point - canonEndPoint.y) > 0.001) {
+            v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
+            a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
+            ini_maxvel = MIN(ini_maxvel, v1);
+            acc = MIN(acc, a1);
+        }
 	break;
+    }
+
+    if(rotation < 0.0) {
+        if(theta2 >= theta1) theta2 -= M_PI * 2.0;
+    } else {
+        if(theta2 <= theta1) theta2 += M_PI * 2.0;
+    }
+    angle = theta2 - theta1;
+    helical_length = hypot(angle * radius, axis_len);
+    printf("helical_length %f\n", helical_length);
+
+    thelix = fabs(helical_length / ini_maxvel);
+    ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
+    tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
+    tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
+    tmax = MAX4(thelix, ta, tb, tc);
+
+    if (tmax <= 0.0) {
+        vel = currentLinearFeedRate;
+    } else {
+        ini_maxvel = helical_length / tmax;
+        vel = MIN(vel, ini_maxvel);
     }
 
     // for arcs we always user linear move, as the ABC axes can't move (currently)
     // linear move is actually a move involving axes X Y Z, not the type of the movement
     linear_move = 1;
 
-    // a helix moves in all axes
-    if(helix) {
-	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
-	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
-	v3 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
-	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
-	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
-	a3 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
-        ini_maxvel = MIN3(v1, v2, v3);
-        vel = MIN(ini_maxvel, vel);
-        acc = MIN3(a1, a2, a3);
-    }
-
     // set proper velocity
     sendVelMsg(vel, ini_maxvel);
+
+    thelix = sqrt(2.0 * helical_length / acc);
+    ta = da? sqrt(2.0 * da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
+    tb = db? sqrt(2.0 * db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
+    tc = dc? sqrt(2.0 * dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+    tmax = MAX4(thelix, ta, tb, tc);
+
+    if (tmax > 0.0) {
+        acc = 2.0 * helical_length / (tmax * tmax);
+    }
     if(acc) sendAccMsg(acc);
 
     /* 
