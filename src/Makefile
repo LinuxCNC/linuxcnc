@@ -19,7 +19,7 @@ endif
 ifeq ($(BUILD_AXIS),yes)
 default: axis
 axis: userspace
-	cd $(AXIS_DIR) && env EMCROOT=../.. python setup.py -q install
+	cd $(AXIS_DIR) && env EMCROOT=`cd ../.. && pwd` python setup.py -q install
 endif
 
 # Create the variable with := so that subsequent += alterations keep it
@@ -77,7 +77,8 @@ CXXUSEROBJS += $(call TOOBJS,$(filter %.cc,$(USERSRCS)))
 ifneq ($(MAKECMDGOALS),clean)
 # Find the dependency filenames, then include them all
 DEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
-include $(DEPS)
+-include $(DEPS)
+Makefile: $(DEPS)
 endif
 
 # Each directory in $(INCLDUES) is passed as a -I directory when compiling.
@@ -195,7 +196,10 @@ userspace: $(TARGETS)
 # for building kernel modules.  Other kernel module build styles need to be
 # accomodated here.
 ifndef KDIR
-KDIR := $(shell cd /lib/modules/$(shell uname -r)/build; /bin/pwd)
+ifeq ($(wildcard /lib/modules/$(shell uname -r)/build/Makefile),)
+$(error KDIR is not set and /lib/modules/$(shell uname -r)/build is not a valid kernel build location.)
+endif
+KDIR := $(shell cd /lib/modules/$(shell uname -r)/build && /bin/pwd)
 endif
 
 ifeq ($(BUILD_SYS),kbuild)
@@ -486,5 +490,6 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/motmod.o: $(addprefix objects/rt,$(motmod-objs))
 
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))
-include $(RTDEPS)
+-include $(RTDEPS)
+Makefile: $(RTDEPS)
 endif
