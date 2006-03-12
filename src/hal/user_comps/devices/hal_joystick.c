@@ -1,7 +1,24 @@
-/** This file, 'hal_joystick.c', is a user space driver that allows
-    HAL pins to be controlled by a joystick.  It uses standard Linux 
-    methods to access the joystick, and should work with any joystick
-    that Linux recognizes.
+/********************************************************************
+* Description:  hal_joystick.c
+*               Joystick driver for HAL
+*
+* Author: John Kasunich
+* License: GPL Version 2.1
+*
+* Copyright (c) 2006 All rights reserved.
+*
+* Last change: 
+# $Revision$
+* $Author$
+* $Date$
+********************************************************************/
+
+/** 'hal_joystick.c', is a user space driver that allows  HAL pins to
+    be controlled by a joystick.  It uses standard Linux  methods to 
+    access the joystick, and should work with any joystick that Linux
+    recognizes.  It is a user space program, so there is no hard
+    realtime guarantee, but under all but the worst loading it is
+    quite responsive.
 */
 
 /** Copyright (C) 2006 John Kasunich
@@ -28,7 +45,7 @@
     All machinery must be designed to comply with local and national 
     safety codes, and the authors of this software can not, and do 
     not, take any responsibility for such compliance.
-    
+
     This code was written as part of the EMC HAL project.  For more
     information, go to www.linuxcnc.org.
 */
