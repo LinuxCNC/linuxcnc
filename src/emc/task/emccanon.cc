@@ -615,7 +615,7 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 {
     EMC_TRAJ_SET_TERM_COND setTermCondMsg;
 
-    if ((mode != canonMotionMode) || (FROM_PROG_LEN(tolerance) != canonMotionTolerance)) {
+    if ((mode != canonMotionMode) || (TO_EXT_LEN(FROM_PROG_LEN(tolerance)) != canonMotionTolerance)) {
 	canonMotionMode = mode;
 	canonMotionTolerance =  TO_EXT_LEN(FROM_PROG_LEN(tolerance));
 
