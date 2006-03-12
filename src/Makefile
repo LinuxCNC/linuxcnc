@@ -34,8 +34,8 @@ SUBDIRS := \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
     \
-    hal/components hal/drivers hal/user_comps/vcp hal/user_comps \
-    hal/classicladder hal/utils hal \
+    hal/components hal/drivers hal/user_comps/vcp hal/user_comps/devices \
+    hal/user_comps hal/classicladder hal/utils hal \
     \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc \

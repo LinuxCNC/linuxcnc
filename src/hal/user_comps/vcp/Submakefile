@@ -10,8 +10,10 @@ HALVCPSRCS := \
 $(call TOOBJSDEPS, $(HALVCPSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
 
 USERSRCS += $(HALVCPSRCS)
-../bin/halvcp: $(call TOOBJS, $(HALVCPSRCS)) ../lib/libemc.a ../lib/libnml.so
+
+../bin/halvcp: $(call TOOBJS, $(HALVCPSRCS))
 	$(CXX) $(LDFLAGS) -o $@ $^ $(GTK_LIBS)
+
 TARGETS += ../bin/halvcp
 
 endif
