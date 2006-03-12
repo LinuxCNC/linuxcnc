@@ -1,4 +1,4 @@
-##############################################################################
+#####################################################################
 # balloon.tcl - procedures used by balloon help
 #
 # Copyright (C) 1996-1997 Stewart Allen
@@ -27,8 +27,10 @@
 #  5-Jul-2001  FMP added -justify left to the balloon help label;
 #              enable_balloons
 
-##############################################################################
-#
+#####################################################################
+# Sourced by tkemc
+# Uses emchelp.tcl for specific widget help messages
+#####################################################################
 
 set do_balloons 0
 
