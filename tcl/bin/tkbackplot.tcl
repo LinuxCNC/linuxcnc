@@ -4,6 +4,24 @@ export EMC2_TCL_DIR
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
+###############################################################
+# Description:  genedit.tcl
+#               This file dumps info to a logging file from tkmc.
+#
+#  Authors: Ray Henry & Paul Corner
+#  This software is public domain. May 2000, Ray Henry
+#
+#  Last change:
+# $Revision$
+# $Author$
+# $Date$
+###############################################################
+# This is plot processes for tkemc popup under the view menu 
+# of tkemc.  The fixed size of the canvas viewing area is 500x250 
+# pixels less scrollbars.  The full canvas could be much larger.
+# Several local variables may be set below to match machines.
+###############################################################
+
 set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
 
@@ -14,12 +32,7 @@ if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLSCRIPTS $TCLSCRIPTS/scripts
 }
 
-# This is plot processes for tkemc popup under the view menu of tkemc.
-# This software is public domain. May 2000, Ray Henry, rehenry@up.net
-# The fixed size of the canvas viewing area is 500x250 pixels less scrollbars.
-# The full canvas may be much larger.
-
-# These are used to stagger plot zero from canvas zero.
+# These offset plot zero from canvas zero.
 set xoffset 0
 set yoffset 0
 set zoffset 0

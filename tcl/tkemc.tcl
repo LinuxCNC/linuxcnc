@@ -8,6 +8,27 @@ export EMC2VERSION
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
+###############################################################
+# Description:  popimage
+#               A Tcl/Tk GUI script that defines default  
+#               emc interface functionality. 
+#
+#  Derived from a work by Fred Proctor & Will Shackleford
+#  Author: 
+#  License: GPL Version 2
+#
+#  Copyright (c) 2006 All rights reserved.
+#
+#  Last change:
+# $Revision$
+# $Author$
+# $Date$
+###############################################################
+# Uses the emcsh library of tcl/tk functions.
+# Provides default display or operators for each NML message
+###############################################################
+
+
 #first define some default directories
 set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts

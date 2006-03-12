@@ -4,11 +4,28 @@ export EMC2_TCL_DIR
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
-# emcdebug.tcl
+###############################################################
+# Description:  emcdebug.tcl
+#               This file sets debug levesl from tkemc.
+#
+#  Derived from a work by Fred Proctor & Will Shackleford
+#  Author: 
+#  License: GPL Version 2
+#
+#  Copyright (c) 2005 All rights reserved.
+#
+#  Last change:
+# $Revision$
+# $Author$
+# $Date$
+###############################################################
+#
 # Sets value of EMC_DEBUG, so you can turn on/off what you want dumped
 # Needs emcsh to run-- this is sourced by tkemc, but it can be run
 # standalone. Make sure directory containing emcsh is in your path,
 # or edit the exec line above with the path to emcsh.
+#
+###############################################################
 
 # check if any emc commands exist, and quit if not
 if {! [string length [info commands emc_plat]]} {

@@ -4,6 +4,28 @@ export EMC2_TCL_DIR
 # the next line restarts using iosh \
 exec $EMC2_IOSH "$0" "$@"
 
+###############################################################
+# Description:  tkio.tcl
+#               A Tcl/Tk PLC that matches bridgeporttask 
+#               functionality.  It allows for modified logic
+#               without a recompile.
+#
+#  Derived from a work by Fred Proctor & Will Shackleford
+#  Author: 
+#  License: GPL Version 2
+#
+#  Copyright (c) 2005 All rights reserved.
+#
+#  Last change:
+# $Revision$
+# $Author$
+# $Date$
+###############################################################
+# Uses INB and OUTB to read and write pins 
+# Includes handy parallel port pin mapping functions
+# Provides loopback between IO commands and status
+###############################################################
+
 set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
 
@@ -16,8 +38,6 @@ if {[info exists env(EMC2_TCL_DIR)]} {
 
 # FIXME
 # Change EMC_TOOL_ABORT in bridgeport,minimill,tkio to EMC_IO_ABORT
-
-# convenient parallel port bit mapping functions
 
 # parportSetBit <bit> <val> sets bit 0-11 to 0 or 1. This uses
 # the IO_BASE_ADDRESS global as the base. Bits 8-11 get mapped

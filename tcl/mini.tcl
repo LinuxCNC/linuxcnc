@@ -4,27 +4,33 @@ export EMC2_TCL_DIR
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
-
+###############################################################
+# Description:  mini.tcl
+#               A Tcl/Tk script that interfaces with EMC2.  It 
+#               sets estop to off and machine on when started.
+#               Provides a mostly flat single window display.
+#
+#  Authors: Ray Henry and Paul Corner
+#  License: GPL Version 2
+#
+#  Copyright (c) 2003 All rights reserved.
+#
+#  Last change:
+# $Revision$
+# $Author$
+# $Date$
+###############################################################
+#  INI variables include
+#  [DISPLAY]
+#  Introductory graphic
+#  INTRO_GRAPHIC = emc2.gif
+#  INTRO_TIME = 5
+#  If time is set to zero no image is used
+###############################################################
 # Autosizing Extended Tk GUI for the Enhanced Machine Controller
-# GPL Copyright 2003 Raymond E. Henry <rehenry@up.net>
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-# This gui requires two option files TkEmcL for screens larger than 1000 wide
-# and TkEmcS for smaller screens.
-
-# fixme toggleJog stuff does not work with dual defined increments
+# This gui requires two option files TkEmcL for screens larger 
+# than 1000 wide and TkEmcS for smaller screens.
+###############################################################
 
 set tkemc 1
 package require msgcat
@@ -53,7 +59,7 @@ proc wheelEvent { x y delta } {
 
     if {$widget != ""} {
         # Make sure we've got a vertical scrollbar for this widget
-        if {[catch "$widget cget -yscrollcommand" cmd]} return
+        if { [catch "$widget cget -yscrollcommand" cmd] } return
 
         if {$cmd != ""} {
             # Find out the scrollbar widget we're using
@@ -80,7 +86,7 @@ bind all <MouseWheel> "+wheelEvent %X %Y %D"
 
 # set the cycle time for display updating
 set temp [emc_ini "CYCLE_TIME" "DISPLAY"]
-if {[string length $temp] == 0} {
+if { [string length $temp] == 0} {
     set temp 0.200
 }
 set displayCycleTime [expr {int($temp * 1000 + 0.5)}]
@@ -89,12 +95,12 @@ set displayCycleTime [expr {int($temp * 1000 + 0.5)}]
 set debounceTime 150
 
 set toolfilename [emc_ini "TOOL_TABLE" "EMCIO"]
-if {[string length $toolfilename] == 0} {
+if { [string length $toolfilename] == 0} {
     set toolfilename "emc.tbl"
 }
 
 set paramfilename [emc_ini "PARAMETER_FILE" "RS274NGC"]
-if {[string length $paramfilename] == 0} {
+if { [string length $paramfilename] == 0} {
     set paramfilename "emc.var"
 }
 
@@ -172,12 +178,12 @@ foreach temp $axiscoordmap {
  }
 
 set programDirectory [emc_ini PROGRAM_PREFIX DISPLAY]
-set helpfilename [emc_ini HELP_FILE DISPLAY]
+# set HELPDIRname [emc_ini HELP_FILE DISPLAY]
 
 # set some initial values to variables to be used during a run
 emc_set_timeout 1.0
 emc_set_wait received
-time emc_update
+emc_update
 set modifier Alt
 set modifierstring "Alt"
 set oldstatusstring "idle"
@@ -198,7 +204,7 @@ proc toggleJogType {} {
 # fixme to work with both rotary and linear
 proc toggleJogIncrement {} {
     global jogType jogIncrement
-
+set units "0"
     if {$jogType == "continuous"} {
         set jogType $jogIncrement
     } else {
@@ -211,8 +217,14 @@ proc toggleJogIncrement {} {
         } elseif {$jogIncrement == "0.1000"} {
             set jogIncrement 1.0000
         } elseif {$jogIncrement == "1.0000"} {
+            set jogIncrement 5.0000
+        } elseif {$jogIncrement == "5.0000"} {
+            set jogIncrement 10.0000
+        } elseif {$jogIncrement == "10.0000"} {
             set jogIncrement 0.0001
         }
+        set units [emc_program_linear_units]
+        puts "program_units $units"
         set jogType $jogIncrement
     }
 }
@@ -220,12 +232,17 @@ proc toggleJogIncrement {} {
 # given axis, determines speed and cont v. incr and jogs it neg
 proc jogNeg {axis} {
     global activeAxis jogSpeed jogType jogIncrement axiscoordmap
+set units "0"
     set activeAxis $axis
     if { [emc_teleop_enable] == 0 } {
 	set axisToJog [ lindex $axiscoordmap $axis ]
     } else {
 	set axisToJog $axis
     }
+
+        catch { set units [emc_program_linear_units] }
+        puts "program_units $units $axisToJog"
+
     if {$jogType == "continuous"} {
         emc_jog $axisToJog -$jogSpeed
     } else {
@@ -236,12 +253,17 @@ proc jogNeg {axis} {
 # given axis, determines speed and cont v. incr and jogs it pos
 proc jogPos {axis} {
     global activeAxis jogSpeed jogType jogIncrement axiscoordmap
+set units "0"
     set activeAxis $axis
     if { [emc_teleop_enable] == 0 } {
 	set axisToJog [ lindex $axiscoordmap $axis ]
     } else {
 	set axisToJog $axis
     }
+
+        catch { set units [emc_program_linear_units] }
+        puts "program_units $units $axisToJog"
+
     if {$jogType == "continuous"} {
         emc_jog $axisToJog $jogSpeed
     } else {
@@ -278,19 +300,12 @@ proc decrJogSpeed {} {
 }
 
 proc minusDone {} {
-    global minusAxis
-    
-    jogStop $minusAxis
+    jogStop
     bind ManualBindings <KeyPress-minus> minusDown
-    set $minusAxis -1
 }
 
 proc minusDown {} {
-    global minusAxis activeAxis
-    
-    if {$minusAxis < 0} {
-	set minusAxis $activeAxis
-    }
+    global activeAxis
     bind ManualBindings <KeyPress-minus> {}
     after cancel minusDone
     jogNeg $activeAxis
@@ -303,20 +318,12 @@ proc minusUp {} {
 }
 
 proc equalDone {} {
-    global equalAxis
-    
-    jogStop $equalAxis
+    jogStop
     bind ManualBindings <KeyPress-equal> equalDown
-    set $equalAxis -1
 }
 
 proc equalDown {} {
-    global equalAxis activeAxis
-    
-    if {$equalAxis < 0} {
-       set equalAxis $activeAxis
-    }
-
+    global activeAxis
     bind ManualBindings <KeyPress-equal> {}
     after cancel equalDone
     jogPos $activeAxis
@@ -328,7 +335,7 @@ proc equalUp {} {
     after $debounceTime equalDone
 }
 proc leftDone {} {
-    jogStop 0
+    jogStop
     bind ManualBindings <KeyPress-Left> leftDown
 }
 
@@ -345,7 +352,7 @@ proc leftUp {} {
     after $debounceTime leftDone
 }
 proc rightDone {} {
-    jogStop 0
+    jogStop
     bind ManualBindings <KeyPress-Right> rightDown
 }
 
@@ -362,7 +369,7 @@ proc rightUp {} {
     after $debounceTime rightDone
 }
 proc downDone {} {
-    jogStop 1
+    jogStop
     bind ManualBindings <KeyPress-Down> downDown
 }
 
@@ -379,7 +386,7 @@ proc downUp {} {
     after $debounceTime downDone
 }
 proc upDone {} {
-    jogStop 1
+    jogStop
     bind ManualBindings <KeyPress-Up> upDown
 }
 
@@ -397,7 +404,7 @@ proc upUp {} {
 }
 
 proc priorDone {} {
-    jogStop 2
+    jogStop
     bind ManualBindings <KeyPress-Prior> priorDown
 }
 
@@ -415,7 +422,7 @@ proc priorUp {} {
 }
 
 proc nextDone {} {
-    jogStop 2
+    jogStop
     bind ManualBindings <KeyPress-Next> nextDown
 }
 
@@ -440,11 +447,11 @@ proc nextUp {} {
 # Setup incremental jogs for both linear and rotary axes.
 # Read default values for these if they exist in ini.
 set jogType continuous
-set linjogincr 0.0100
+set linjogincr 0.100
 set oldlinjogincr 0.0100
 set templin [emc_ini  "DEFAULT_LINEAR_JOG_INCREMENT"  "DISPLAY"]
 if {$templin != ""} {
-    set oldlinjogincr $templin
+#    set oldlinjogincr 1.0
 }
 
 set oldrotjogincr 1
@@ -453,12 +460,14 @@ set temprot [emc_ini  "DEFAULT_ROTARY_JOG_INCREMENT"  "DISPLAY"]
 if {$temprot != ""} {
     set oldrotjogincr $temprot
 }
+
 set jogIncrement $oldlinjogincr
 
 proc axisSelectx {axis} {
     global activeAxis axiscoordmap axisType jogplustext jognegtext worldlabellist
     global feedscale maxJogSpeedAxis maxJogSpeed axishometext
     global iframe irframe jogIncrement oldlinjogincr oldrotjogincr
+    global unitsetting immframe
     # clear all display settings
     foreach axnum $axiscoordmap {
         global pos${axnum}
@@ -489,12 +498,19 @@ proc axisSelectx {axis} {
         if {$axisType($oldaxis) == "LINEAR" && $axisType($temp) == "ANGULAR" } {
             set oldlinjogincr $jogIncrement
             grid forget $iframe
+            grid forget $immframe
             grid configure $irframe -column 6 -row 0 -rowspan 5 -sticky nsew
             set jogIncrement $oldrotjogincr
         } elseif {$axisType($oldaxis) == "ANGULAR" && $axisType($temp) == "LINEAR" } {
             set oldrotjogincr $jogIncrement
             grid forget $irframe
-            grid configure $iframe -column 6 -row 0 -rowspan 5 -sticky nsew
+            if { $unitsetting == "(mm)" } {
+                grid forget $iframe
+                grid configure $immframe -column 6 -row 0 -rowspan 5 -sticky nsew
+            } else {
+                grid forget $immframe
+                grid configure $iframe -column 6 -row 0 -rowspan 5 -sticky nsew
+            }
             set jogIncrement $oldlinjogincr
         }
     }
@@ -681,25 +697,25 @@ proc showMode {which} {
 
 proc toggleEstop {} {
     global coord
-    if {[emc_estop] == "on"} {
+    if { [emc_estop] == "on"} {
         emc_estop off
         emc_wait done
         emc_machine on
         if { [info exists coord ] } {
-            $coord.bzero configure -bg lightgreen -state normal
+            catch {$coord.bzero configure -bg lightgreen -state normal}
         }
     } else {
         emc_estop on
         emc_wait done
         emc_machine off
         if { [info exists coord ] } {
-            $coord.bzero configure -bg lightgray -state disabled
+            catch {$coord.bzero configure -bg lightgray -state disabled}
         }
     }
 }
 
 proc toggleMachine {} {
-    if {[emc_machine] == "off"} {
+    if { [emc_machine] == "off"} {
         emc_machine on
     } else {
         emc_machine off
@@ -707,7 +723,7 @@ proc toggleMachine {} {
 }
 
 proc toggleMist {} {
-    if {[emc_mist] == "off"} {
+    if { [emc_mist] == "off"} {
         emc_mist on
     } else {
         emc_mist off
@@ -715,7 +731,7 @@ proc toggleMist {} {
 }
 
 proc toggleFlood {} {
-    if {[emc_flood] == "off"} {
+    if { [emc_flood] == "off"} {
         emc_flood on
     } else {
         emc_flood off
@@ -723,7 +739,7 @@ proc toggleFlood {} {
 }
 
 proc toggleBrake {} {
-    if {[emc_brake] == "on"} {
+    if { [emc_brake] == "on"} {
         emc_brake off
     } else {
         emc_brake on
@@ -754,7 +770,7 @@ proc toggleFeedhold {} {
 # jog type only exists at the interface level
 
 proc setJogType {which} {
-    global jogType jogincrement jogcontinuous  iframe irframe
+    global jogType jogincrement jogcontinuous iframe immframe irframe
     if {$which == "continuous"} {
         set jogType "continuous"
         set thisstate disabled
@@ -768,6 +784,7 @@ proc setJogType {which} {
     }
     for {set x 1} {$x < 6} {incr x} {
         eval [list "${iframe}.r${x}" configure -state ${thisstate}]
+        eval [list "${immframe}.r${x}" configure -state ${thisstate}]
         eval [list "${irframe}.r${x}" configure -state ${thisstate}]
     }
 }
@@ -813,7 +830,7 @@ if {$swidth <=1000} {
 
 # read the application defaults
 foreach f "TkEmc$optionfile /usr/X11R6/lib/X11/app-defaults/TkEmc$optionfile" {
-    if {[file exists $f]} {
+    if { [file exists $f] } {
         option readfile $f startupFile
         break
     } else {
@@ -824,7 +841,8 @@ foreach f "TkEmc$optionfile /usr/X11R6/lib/X11/app-defaults/TkEmc$optionfile" {
 proc popupAboutx {} {
     tk_messageBox  -title "ABOUT"  -default "ok" -message "TkMini \
         \n\nTcl/Tk GUI for Enhanced Machine Controller\n\nGPL Copyright 2003 \
-        \nRay Henry <rehenry@up.net>
+        \nRay Henry <rehenry@up.net>\n\n\
+        3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n\
         \nThis software comes with ABSOLUTELY NO GUARANTEE!  \
         \nFor details see the copyright.html file in this directory."
 }
@@ -993,6 +1011,7 @@ $infomenu add command -label "Check It" -command {checkIt}
 $helpmenu add checkbutton -label "Help..." -variable popArray(Help) -command {popIn Help} -underline 0
 $helpmenu add command -label "About..." -command {popupAboutx} -underline 0
 
+
 # ----------UP WIDGETS----------
 
 # Fill the up frame with buttons.
@@ -1041,6 +1060,7 @@ bind $manbutton <ButtonPress-1> {showMode manual}
 pack $stopbutton $abortbutton $feedholdbutton $mdibutton $autobutton \
     $manbutton -side right -fill both -expand yes
 
+
 # ----------LEFT WIDGETS ----------
 
 # The left widgets show machine state and position
@@ -1053,6 +1073,12 @@ set unitsetting "auto"
 set oldunitsetting $unitsetting
 # jointworld can be joint or world
 # set initial conditions for older emc systems using identity between joint/world.
+
+    # set the unit information
+    catch {set unitsetting [emc_display_linear_units] }
+    if {$oldunitsetting != $unitsetting} {
+        set oldunitsetting $unitsetting
+    }
 
 
 # FIXME - Remove the jointworld stuff throughout
@@ -1124,14 +1150,13 @@ foreach axnum $axiscoordmap {
     lappend posnames pos${axnum} "pos${axnum}l" "pos${axnum}d" jointlabel${axnum} worldlabel${axnum}
 }
 
-setfontx
 set realfeedoverride [emc_feed_override]
 set feedoverride $realfeedoverride
 set oldfeedoverride $feedoverride
 
 # read the max feed override from the ini file
 set temp [emc_ini "MAX_FEED_OVERRIDE" "DISPLAY"]
-if {[string length $temp] == 0} {
+if { [string length $temp] == 0} {
     set temp 1
 }
 set maxFeedOverride [int [expr $temp * 100 + 0.5]]
@@ -1196,6 +1221,9 @@ proc viewInfo {what} {
     }
 }
 
+setfontx
+update
+
 # ----------RIGHT WIDGETS----------
 
 # toggleView moves the variable widget stack focus up one
@@ -1225,7 +1253,7 @@ proc popInToggle {} {
 }
 
 proc popIn {which} {
-    global popinframe popArray
+    global popinframe popArray undo_id
     # this uses pack forget to hide all existing popins
     set temp ""
     set temp [winfo children $popinframe]
@@ -1244,6 +1272,7 @@ proc popIn {which} {
     popInToggle
     }
 }
+
 
 # ----------RIGHT - TOOL SETUP----------
 
@@ -1272,7 +1301,7 @@ proc loadToolText {} {
     set toolfilename [emc_ini "TOOL_TABLE" "EMCIO"]
     $tooltext config -state normal
     $tooltext delete 1.0 end
-    if {[catch {open $toolfilename} programin]} {
+    if { [catch {open $toolfilename} programin] } {
         return
     } else {
         $tooltext insert end [read $programin]
@@ -1386,10 +1415,11 @@ proc updateToolFile {} {
 
 # -----end of tool setup
 
+
 # ----------RIGHT - OFFSETS SYSTEM SETUP----------
 
 set paramfilename [emc_ini "PARAMETER_FILE" "RS274NGC"]
-if {[string length $paramfilename] == 0} {
+if { [string length $paramfilename] == 0} {
     set paramfilename "emc.var"
 }
 set numaxis [emc_ini "AXES" "TRAJ"]
@@ -1398,7 +1428,7 @@ set nameaxis [emc_ini "COORDINATES" "TRAJ"]
 set vartext [text $top.vartext]
 $vartext config -state normal
 $vartext delete 1.0 end
-if {[catch {open $paramfilename} programin]} {
+if { [catch {open $paramfilename} programin] } {
     return
 } else {
     $vartext insert end [read $programin]
@@ -1659,7 +1689,7 @@ proc setVarValues {} {
 proc saveFile {textwidget name} {
     global $textwidget
     catch {file copy -force $name $name.bak}
-    if {[catch {open $name w} fileout]} {
+    if { [catch {open $name w} fileout] } {
         mText "can't save $name"
         return
     }
@@ -1707,6 +1737,13 @@ set size 40
 
 # Set the colours for different modes here
 set plotcolour {limegreen black red blue yellow3 white}
+
+# Evaluate the number of clock clicks per second
+# Value dependent on machine !!
+set t1 [clock clicks]
+after 10000
+set t2 [clock clicks]
+set ticks [expr ($t2-$t1)/10000]
 
 # procedure to show window .
 proc popinPlot {} {
@@ -2090,7 +2127,7 @@ proc 3Dview {args} {
     set A $atemp; set B $btemp; set C $ctemp
     # If 3d_plot has been reset - do a redraw first
     #  to update the rotates and zoom
-    if {[llength $3d_plot] <=9} {
+    if { [llength $3d_plot] <=9} {
         redraw
      }
 }
@@ -2118,18 +2155,20 @@ proc redraw {args} {
        set zoom [ expr $zoom+1]
    }
 
-    if {[emc_program_status] == "running" } {
+    if { [emc_program_status] == "running" } {
         set statusflag 1
     # If emc is running, issue a pause command
     # and wait until IDLE status is reached.
         emc_pause
-    while {[emc_program_status] == "running" } {
+    while { [emc_program_status] == "running" } {
         # Just loop until paused
     }
     } else {
         set statusflag 0
     }
     # time the redraw proc
+    set timer [clock clicks]
+
     $3dplot delete all
 
     # set the first set of coordinates from the list then call vector
@@ -2163,6 +2202,7 @@ proc redraw {args} {
         -fill red -arrow first -tags 3darrow
     set A $atemp; set B $btemp; set C $ctemp
 
+    set timer [expr ([clock clicks] - $timer)/$ticks]
     # If emc was forced to pause - restart.
     if {$statusflag == 1} {
         emc_resume
@@ -2304,88 +2344,109 @@ proc setInitialPlotview {} {
 
 # ----editor widgets -----
 
+set saveTextMsg 0
 set editFilename ""
 set initialDir $programDirectory
+set MODIFIED "Modified..."
+
+set winTitle "mini"
+set version "Version 0.7.9"
 
 proc popinEditor {} {
     global editFilename textwin programnamestring
-    global editwidth editheight popinframe
-    global emc2tcldir
+    global editwidth editheight popinframe undo_id
 
     set editTypes {{"All files" *} {Text files} {.txt}}
 
-    if {![info exists editwidth]} {set editwidth 80}
-    if {![info exists editheight]} {set editheight 40}
+    if { ![info exists editwidth] } {set editwidth 80}
+    if { ![info exists editheight] } {set editheight 40}
     set editframe [frame $popinframe.editor ]
     pack $editframe -side top -fill both -expand yes
     set textframe [frame $editframe.textframe ]
     set textwin [text  $textframe.textwin  -width $editwidth -height $editheight -padx 4 -wrap word \
-         -yscrollcommand "editScrolltext $textframe" ]
+         -yscrollcommand "editScrolltext $textframe" -bg "white"]
     set scrolly $textframe.scrolly
     scrollbar $scrolly -orient vert -command "$textwin yview" -width 8
     pack $scrolly -side right -fill y
     pack $textwin -side top -fill both -expand true
-
-    bind $textwin <Control-c> "editCopyIt $textwin; break"
-    bind $textwin <Control-v> "editPasteIt $textwin; break"
-    bind $textwin <Control-x> "editCutIt $textwin; break"
-    bind $textwin <Control-a> "editSelectAll $textwin; break"
 
     set menubar [frame $editframe.menuframe -relief raised -bd 2]
     pack $menubar -side top -fill x -expand yes
     menubutton $menubar.file -text "file" -menu $menubar.file.menu
     menubutton $menubar.edit -text "edit" -menu $menubar.edit.menu
     menubutton $menubar.settings -text "settings" -menu $menubar.settings.menu
-    menubutton $menubar.scripts -text "scripts" -menu $menubar.scripts.menu
+#    menubutton $menubar.scripts -text "scripts" -menu $menubar.scripts.menu
     menubutton $menubar.help -text "Help" -menu $menubar.help.menu
     pack $menubar.file -side left
     pack $menubar.edit -side left
     pack $menubar.settings -side left
-    pack $menubar.scripts -side left
+#    pack $menubar.scripts -side left
     pack $menubar.help -side right
     set filemenu $menubar.file.menu
     set editmenu $menubar.edit.menu
     set settingsmenu $menubar.settings.menu
-    set scriptsmenu $menubar.scripts.menu
+#    set scriptsmenu $menubar.scripts.menu
     set helpmenu $menubar.help.menu
     menu $filemenu
     menu $editmenu
     menu $settingsmenu
-    menu $scriptsmenu
+# Comment out scripts - These are causing problems ATM.
+#    menu $scriptsmenu
     menu $helpmenu
 
-    $filemenu add command -label "New..." -underline 0 -command "editNewFile" -accelerator "Ctrl+N"
-    $filemenu add command -label "Open..." -underline 0 -command "editOpenFile" -accelerator "Ctrl+O"
-    $filemenu add command -label "Save" -underline 0 -command "editSaveFile" -accelerator "Ctrl+S"
-    $filemenu add command -label "Save As..." -underline 5 -command "editSaveFileAs"
+    $filemenu add command -label "New..." -underline 0 -command "filesetasnew" -accelerator Ctrl+n
+    $filemenu add command -label "Open..." -underline 0 -command "filetoopen" -accelerator Ctrl+o
+    $filemenu add command -label "Save" -underline 0 -command "filetosave" -accelerator Ctrl+s
+    $filemenu add command -label "Save As..." -underline 5 -command "filesaveas"
     $filemenu add separator
-    $filemenu add command -label "Save and Load" \
-        -command "editSaveFile ; changeProgram" -underline 1
+    $filemenu add command -label "Save and Load" -command "filetosave ; changeProgram" -underline 1
 
-    $editmenu add command -label "Cut" -underline 2 -command "editCutIt $textwin" -accelerator "Ctrl+X"
-    $editmenu add command -label "Copy" -underline 0 -command "editCopyIt $textwin" -accelerator "Ctrl+C"
-    $editmenu add command -label "Paste" -underline 0 -command "editPasteIt $textwin" -accelerator "Ctrl+V"
-    $editmenu add command -label "Undo" -underline 0 -command "editUndoIt $textwin" -accelerator "Ctrl+U"
+    $editmenu add command -label "Undo" -underline 0 -command "undo_menu_proc" -accelerator Ctrl+z
+    $editmenu add command -label "Redo" -underline 0 -command "redo_menu_proc" -accelerator Ctrl+y
     $editmenu add separator
-    $editmenu add command -label "Select All" -underline 7 -command "focus $textwin; editSelectAll $textwin" -accelerator "Ctrl+A"
+    $editmenu add command -label "Cut" -underline 2 -command "cuttext" -accelerator "Ctrl+X"
+    $editmenu add command -label "Copy" -underline 0 -command "copytext" -accelerator "Ctrl+C"
+    $editmenu add command -label "Paste" -underline 0 -command "pastetext" -accelerator "Ctrl+V"
+    $editmenu add command -label "Delete" -underline 0 -command "deletetext" -accelerator Del
     $editmenu add separator
-    $editmenu add command -label "Find Text" -underline 0 -command "editEnterText $textwin"
+    $editmenu add command -label "Select All" -underline 7 -command "$textwin tag add sel 1.0 end" -accelerator "Ctrl+A"
+    $editmenu add separator
+    $editmenu add command -label "Find" -underline 0 -command "findtext find" -accelerator Ctrl+f
+#    $editmenu add command -label "Find Next" -underline 0 -command "findnext find" -accelerator F3
+    $editmenu add command -label "Replace" -underline 0 -command "findtext replace" -accelerator Ctrl+r
     $editmenu add command -label "Renumber File" -underline 0 -command "editSetLineNumber 1"
 
     $settingsmenu add command -label "No Numbering" -underline 0 -command "set startnumbering 0"
     $settingsmenu add separator
     $settingsmenu add command -label "Line Numbering" -underline 0 -command "editSetLineNumber 0"
 
-    # adds a script menu that looks for *.ncw files and adds their filename to script menu
-    #set scriptdir [file join [pwd] tcl scripts ]
-    set scriptdir $emc2tcldir/scripts
-    set files [exec /bin/ls $scriptdir]
-    foreach file $files {
-        if {[string match *.ncw $file]} {
-            set editfname [file rootname $file]
-            $scriptsmenu add command -label $editfname -command "source $scriptdir/$file"
-        }
-    }
+    $helpmenu add command -label "Help" -underline 0 -command "helpme"
+    $helpmenu add command -label "About" -underline 0 -command "aboutme"
+
+#    bind $textwin <Control-c> "editCopyIt $textwin; break"
+#    bind $textwin <Control-v> "editPasteIt $textwin; break"
+#    bind $textwin <Control-x> "editCutIt $textwin; break"
+#    bind $textwin <Control-a> "editSelectAll $textwin; break"
+
+#    bind $textwin <F3> {findnext find}
+    bind $textwin <Control-x> {cuttext}
+    bind $textwin <Control-c> {copytext}
+    bind $textwin <Control-s> {filetosave}
+    bind Text <Control-o> {}
+    bind Text <Control-f> {}
+    bind $textwin <Control-o> {filetoopen}
+    bind $textwin <Control-z> {undo_menu_proc}
+    bind $textwin <Control-y> {redo_menu_proc}
+    bind $textwin <Control-f> {findtext find}
+    bind $textwin <Control-r> {findtext replace}
+    event delete <<Cut>> <Control-x>
+    event delete <<Paste>> <Control-v>
+    event delete <<Paste>> <Control-Key-y>
+    # more bindings
+    bind Text <Control-v> {}
+    bind $textwin <Control-v> {pastetext}
+
+
     pack $textframe -side top -fill both -expand yes
     # insert contents of filename, if it exists
     if { [file isfile $programnamestring] == 1} {
@@ -2397,6 +2458,7 @@ proc popinEditor {} {
     } else {
         loadEditorText
     }
+    set undo_id [new textUndoer $textwin]
 }
 
 proc editScrolltext {tf a b} {
@@ -2410,10 +2472,10 @@ proc loadEditorText { } {
     } else {
     set fname $editFilename
     }
-    if {[file isfile $fname] == 0} {
+    if { [file isfile $fname] == 0} {
         return
     }
-    if {[catch {open $fname} filein]} {
+    if { [catch {open $fname} filein] } {
         puts stdout "can't open $fname"
     } else {
         $textwin delete 1.0 end
@@ -2421,213 +2483,6 @@ proc loadEditorText { } {
         catch {close $filein}
     }
 }
-
-proc editOpenFile {} {
-    global textwin editFilename initialDir
-    set fname [tk_getOpenFile -initialdir $initialDir  ]
-    set editFileDirectory [file dirname $fname]
-    if {[string length $fname] == 0} {
-        return
-    }
-    $textwin delete 1.0 end
-    if {[catch {open $fname} filein]} {
-        puts stdout "can't open $fname"
-    } else {
-        $textwin insert end [read $filein]
-        catch {close $filein}
-        set editFilename $fname
-    }
-}
-
-proc editSaveFile {} {
-    global editFilename textwin
-    catch {file copy -force $editFilename $editFilename.bak}
-    if {[catch {open $editFilename w} fileout]} {
-        puts stdout "can't save $editFilename"
-        return
-    }
-    puts $fileout [$textwin get 1.0 end]
-    catch {close $fileout}
-}
-
-proc editNewFile {} {
-    global editFilename textwin
-    $textwin delete 1.0 end
-    editSaveFileAs
-}
-
-proc editSaveFileAs {} {
-    global editFilename editTypes initialDir
-    set fname [tk_getSaveFile -initialdir $initialDir]
-    if {[string length $fname] == 0} {
-        return
-    }
-    set editFilename $fname
-    editSaveFile
-    return $fname
-}
-
-proc editCutIt {w} {
-    global selecttext selectlocation
-    set selecttext [selection get STRING]
-    set selectlocation [$w index insert]
-    $w delete "insert - [string length $selecttext] chars" insert
-}
-
-proc editCopyIt {w} {
-    global selecttext
-    set selecttext [selection get STRING]
-    # should drop text tags here
-    # should disable copy until a paste
-}
-
-proc editPasteIt {w} {
-    global selecttext
-    $w insert insert $selecttext
-    # should set copy menubutton to normal here
-}
-
-proc editUndoIt {w} {
-    global selecttext selectlocation
-    $w mark set insert "$selectlocation -[string length $selecttext] chars"
-    set templocation [$w index insert]
-    puts "the text to undo is $selecttext and the place to put it is $templocation"
-    $w insert insert $selecttext
-}
-
-proc editSelectAll {w} {
-    event generate $w <Control-slash>
-}
-
-# Find text processes - editEnterText includes hard location from top right.
-proc editEnterText {ed} {
-    global textwin
-    toplevel .find
-    wm title .find "Find"
-    set findit ".find"
-    wm geometry $findit 275x150-50+100
-
-    label $findit.label1 -text "Find :" -anchor e
-    place $findit.label1 -x 5 -y 5 -width 60 -height 20
-
-    entry $findit.entry1 -relief sunken -textvariable sword
-    place $findit.entry1 -x 70  -y 5 -width 110 -height 20
-
-    label $findit.label2 -text "Replace :" -anchor e
-    place $findit.label2 -x 5 -y 30 -width 60 -height 20
-
-    entry $findit.entry2 -relief sunken -textvariable rword
-    place $findit.entry2 -x 70 -y 30 -width 110 -height 20
-
-    button $findit.button1 -text "Find All" -command {editFindAll $sword}
-    place $findit.button1 -x 5 -y 70 -width 130 -height 30
-
-    button $findit.button2 -text "Replace All" -command {editReplaceAll $sword $rword}
-    place $findit.button2 -x 5 -y 110 -width 130 -height 30
-
-    button $findit.button3 -text "Skip This" -command {editSkipWord $sword}
-    place $findit.button3 -x 140 -y 70 -width 130 -height 30
-
-    button $findit.button4 -text "Replace This" -command {editReplaceWord $sword $rword}
-    place $findit.button4 -x 140 -y 110 -width 130 -height 30
-
-    button $findit.button5 -text Cancel -command "focus -force $textwin; destroy $findit"
-    place $findit.button5 -x 210 -y 5 -width 60 -height 30
-
-    button $findit.button6 -text Clear -command {
-        $textwin tag delete $sword
-        $textwin tag delete q
-    }
-    place $findit.button6 -x 210 -y 35 -width 60 -height 30
-    # set focus to entry widget 1
-    focus -force ".find"
-    bind ".find" <FocusOut> {destroy ".find"}
-}
-
-proc editFindAll {sword} {
-    global textwin
-    set firstplace 1.0
-    set l1 [string length $sword]
-    scan [$textwin index end] %d nl
-    set thisplace [$textwin index insert]
-    for {set i 1} {$i < $nl} {incr i} {
-        $textwin mark set last $i.end
-        set lastplace [$textwin index last]
-        set thisplace [$textwin search -forwards -nocase $sword $thisplace $lastplace]
-        if {$thisplace != ""} {
-            $textwin mark set insert $thisplace
-            scan [$textwin index "insert + $l1 chars"] %f lastplace
-            $textwin tag add $sword $thisplace $lastplace
-            $textwin tag configure $sword -background lightblue
-            $textwin mark set insert "insert + $l1 chars"
-            set thisplace $lastplace
-        } else {
-            set thisplace $lastplace
-        }
-    }
-    $textwin mark set insert 1.0
-    editNextWord $sword
-}
-
-proc editNextWord {sword} {
-    global textwin
-    set findnext [$textwin tag nextrange $sword insert]
-    if {$findnext == ""} {
-        $textwin mark set insert 1.0
-        $textwin see insert
-        return
-    }
-    set start [lindex $findnext 0]
-    set last [lindex $findnext end]
-    catch {$textwin mark set insert $start}
-    $textwin tag add q $start $last
-    $textwin tag raise q
-    $textwin tag configure q -background darkred -foreground white
-    $textwin see "insert + 5 lines"
-}
-
-proc editSkipWord {sword} {
-    global textwin
-    set l1 [string length $sword]
-    $textwin tag remove q insert "insert + $l1 chars"
-    $textwin tag remove $sword insert "insert + $l1 chars"
-    editNextWord $sword
-}
-
-proc editReplaceWord {sword rword} {
-    global textwin
-    set l1 [string length $sword]
-    set l2 [string length $rword]
-    $textwin tag remove q insert "insert + $l1 chars"
-    $textwin tag remove $sword insert "insert + $l1 chars"
-    $textwin delete insert "insert + $l1 chars"
-    $textwin insert insert $rword
-    $textwin mark set insert "insert + $l2 chars"
-    editNextWord $sword
-}
-
-proc editReplaceAll {sword rword} {
-    global textwin
-    set l1 [string length $sword]
-    set l2 [string length $rword]
-    scan [$textwin index end] %d nl
-    set thisplace [$textwin index 1.0]
-    for {set i 1} {$i < $nl} {incr i} {
-        $textwin mark set last $i.end
-        set lastplace [$textwin index last]
-        set thisplace [$textwin search -forwards -nocase $sword $thisplace $lastplace]
-        if {$thisplace != ""} {
-            $textwin mark set insert $thisplace
-            $textwin delete insert "insert + $l1 chars"
-            $textwin insert insert $rword
-            $textwin mark set insert "insert + $l2 chars"
-            set thisplace [$textwin index insert]
-        } else {
-            set thisplace $lastplace
-        }
-    }
-}
-
 
 # Any positive integer can be used for lineincrement.
 # A 0 startnumbering value means lines will not be numbered when enter is pressed.
@@ -2703,49 +2558,795 @@ proc editReNumber {} {
     scan [$textwin index end] %d nl
     for {set i 1} {$i < $nl} {incr i} {
         if {$number > 99999} {set number 0}
-        $textwin insert $i.0 n$number$space
-        set l1 [string length n$number$space]
-        $textwin mark set insert "$i.$l1"
-        set character [$textwin get insert]
-        if {$character == "/"} {
-            $textwin insert $i.0 "/"
-            $textwin delete insert
-        }
-        set character [$textwin get insert]
-        if {$character == "n" || $character == "N"} {
-            set firstplace [$textwin index insert]
-
-            # find the last number in the n word
-            $textwin mark set insert "insert + 1 chars"
-            set character [$textwin get insert]
-            while {[string match {[0-9]} $character] == 1} {
-                $textwin mark set insert "insert + 1 chars"
-                set character [$textwin get insert]
+        set editline [$textwin get $i.0 $i.end ]
+        set editline [string trimleft $editline " "]
+        if { ! [ regexp ^% $editline ] } {
+            if { [ regexp -nocase {^[nN](\d*)(\s*)} $editline ] } {
+                regsub -nocase {^[nN](\d*)(\s*)} $editline "n$number$space" editline
+            } else {
+                set editline "n$number$space$editline"
             }
-
-            # find the first character of the next word using space and tab
-            while {$character == " " || $character == " "} {
-                $textwin mark set insert "insert + 1 chars"
-                set character [$textwin get insert]
-            }
-            $textwin delete "$firstplace" "insert"
         }
+        $textwin delete $i.0 $i.end
+        $textwin insert $i.0 "$editline"
+
         incr number $lineincrement
     }
     set startnumbering 0
+}
+
+
+###############################################################################
+# 
+# Tk NotePad is designed to be a single Tcl/Tk script, that is functional cross 
+# platform, but is intended mainly for Linux.
+# 
+# This script is freeware, however there is some 'borrowed code' now contained in 
+# this script. See the file license.txt to see what that means. Basically I 
+# modified their code and am now redistributing it, and giving them proper credit.
+# As I understand it that is they way it works. This script itself then becomes 
+# yours to modify, crop, cut, paste, or whatever. It is distributed under the 
+# Tcl/Tk liscense, the licesnse.txt file, and I guess that makes it LGPL? I'm not
+# a lawyer, so don't ask me!
+# 
+# NOTE: It works on Windows, but BETTER on Linux!
+# 
+# 	Joseph Acosta joeja@mindspring.com
+# 
+###############################################################################
+
+# this proc just sets the title to what it is passed
+proc settitle {WinTitleName} {
+    global winTitle editFilename
+    wm title . "$winTitle - $WinTitleName"
+    set editFilename $WinTitleName
+}
+
+# proc to open files or read a pipe
+proc openoninit {thefile} {
+    global textwin
+    $textwin delete 0.0 end
+    if [string match " " $thefile] {  
+        fconfigure stdin -blocking 0
+        set incoming [read stdin 1]
+        if [expr [string length $incoming] == 0] {
+            fconfigure stdin -blocking 1
+        } else {
+            fconfigure stdin -blocking 1
+            $textwin insert end $incoming
+            while {![eof stdin]} {
+                $textwin insert end [read -nonewline stdin]
+            }
+        }
+    } else {
+        if [ file exists $thefile ] {
+            set newnamefile [open $thefile r]
+        } else {
+            set newnamefile [open $thefile a+]
+        }
+        while {![eof $newnamefile]} {
+	       $textwin insert end [read -nonewline $newnamefile ] 
+        }
+        close $newnamefile
+        settitle $thefile
+    }
+}
+
+# help menu
+proc helpme {} {
+	tk_messageBox -title "Basic Help" -type ok -message "This is a simple ASCII editor like many others.
+
+Ctrl+O  Open
+Ctrl+S  Save
+Ctrl+Z  Undo
+Ctrl+Y  Redo
+Ctrl+X  Cut
+Ctrl+C  Copy
+Ctrl+V  Paste
+Del     Delete
+Ctrl+A  Select All
+
+Ctrl+F  Find
+Ctrl+R  Replace "
+
+}
+
+# about menu
+proc aboutme {} {
+        global winTitle version
+	tk_messageBox -title "About" -type ok -message "tknotepad by Joseph Acosta. <joeja@mindspring.com>\n\n\
+        Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"
+}
+
+# generic case switcher for message box
+proc switchcase {yesfn nofn} {
+    global saveTextMsg
+    if [ expr [string compare $saveTextMsg 1] ==0 ] { 
+	set answer [tk_messageBox -message "The contents of this file may have changed, do you wish to to save your changes?" \
+	-title "New Confirm?" -type yesnocancel -icon question]
+	case $answer {
+	     yes { if {[eval $yesfn] == 1} { $nofn } }
+             no {$nofn }
+	}
+    } else {
+   	$nofn
+    }
+}
+
+# new file
+proc filesetasnew {} {
+    global editFilename winTitle
+    switchcase filetosave setTextTitleAsNew
+}
+
+proc setTextTitleAsNew {} {
+    global textwin
+    $textwin delete 0.0 end
+    global winTitle editFilename
+    set editFilename " "
+    wm title . $winTitle
+    outccount
+}
+
+# bring up open win
+proc showopenwin {} {
+    global programDirectory
+    set types {
+	{"gcode files" {*.ngc *.nc *.tap} }
+	{"All files"		*}
+    }
+    set file [tk_getOpenFile -filetypes $types -parent . -initialdir $programDirectory]
+###if [string compare $file ""]
+    if { [string len $file] > 0} {
+        set programDirectory [file dirname $file]
+        setTextTitleAsNew
+        openoninit $file
+        outccount
+    }
+}
+
+
+
+#open an existing file
+proc filetoopen {} {
+  	switchcase filetosave showopenwin
+}
+
+# generic save function
+proc writesave {nametosave} {
+    global textwin
+    set FileNameToSave [open $nametosave w+]
+    puts -nonewline $FileNameToSave [$textwin get 0.0 end]
+    close $FileNameToSave
+    outccount
+}
+
+#save a file
+proc filetosave {} {
+    global editFilename
+    #check if file exists file
+    if [file exists $editFilename] {
+	writesave $editFilename
+        return 1
+    } else {
+	 return [eval filesaveas]
+    }
+}
+
+#save a file as
+proc filesaveas {} {
+    global editFilename
+    set types {
+	{"gcode files" {*.ngc *.nc *.tap} }
+	{"All files"		*}
+    }
+    set myfile [tk_getSaveFile -filetypes $types -parent .  -initialdir "~/gcode" -initialfile $editFilename]
+    if { [expr [string compare $myfile ""]] != 0} {
+	writesave  $myfile 
+	settitle $myfile
+        return 1
+    }
+    return 0
+}
+
+# proc to set child window position
+proc setwingeom {wintoset} {
+    wm resizable $wintoset 0 0
+    set myx [expr (([winfo screenwidth .]/2) - ([winfo reqwidth $wintoset]))]
+    set myy [expr (([winfo screenheight .]/2) - ([winfo reqheight $wintoset]/2))]
+    wm geometry $wintoset +$myx+$myy
+    set topwin [ winfo parent $wintoset ]
+    if { [ winfo viewable [ winfo toplevel $topwin ] ] } {
+        wm transient $wintoset $topwin
+    }
+}
+
+# procedure to setup the printer
+proc printseupselection {} {
+	global printCommand
+	set print .print
+	catch {destroy $print}
+	toplevel $print
+	wm title $print "Print Setup"
+	setwingeom $print
+	frame $print.top 
+	frame $print.bottom
+	label $print.top.label -text "Print Command: "
+	entry $print.top.print -textvariable printsetupnew -width 40
+	$print.top.print delete 0 end
+	set printvar $printCommand 
+	$print.top.print insert 0 $printvar
+	button $print.bottom.ok -text "OK" -command "addtoprint $print"
+	button $print.bottom.cancel -text "Cancel" -command "destroy $print"
+
+	pack $print.top -side top -expand 0 
+	pack $print.bottom -side bottom -expand 0 
+	pack $print.top.label $print.top.print -in $print.top -side left -fill x -fill y
+	pack $print.bottom.ok $print.bottom.cancel -in $print.bottom -side left -fill x -fill y
+	bind $print <Return> "addtoprint $print"
+	bind $print <Escape> "destroy $print"
+
+    proc addtoprint {prnt} {
+         global printCommand
+         set printCommand [$prnt.top.print get]
+         destroy $prnt
+    }
+}
+
+# procedure to print
+proc selectprint {} {
+    global textwin
+    set TempPrintFile [open /tmp/tkpadtmpfile w]
+    puts -nonewline $TempPrintFile [$textwin get 0.0 end]
+    close $TempPrintFile
+    global printCommand
+    set prncmd $printCommand	
+    eval exec $prncmd /tmp/tkpadtmpfile
+    eval exec rm -f /tmp/tkpadtmpfile
+}
+
+#cut text procedure
+proc deletetext {} {
+    set cuttexts [selection own]
+    if {$cuttexts != "" } {
+        $cuttexts delete sel.first sel.last
+        selection clear
+    }
+    inccount
+}
+
+#cut text procedure
+proc cuttext {} {
+    global textwin
+    tk_textCut $textwin
+    inccount
+}
+
+#copy text procedure
+proc copytext {} {
+    global textwin
+    tk_textCopy $textwin
+    inccount
+}
+
+#paste text procedure
+proc pastetext {} {
+    global textwin
+    global tcl_platform
+    if {"$tcl_platform(platform)" == "unix"} {
+	catch {$textwin delete sel.first sel.last}
+    }
+    tk_textPaste $textwin
+    inccount
+}
+
+proc FindIt {w} {
+    global textwin
+    global SearchString SearchPos SearchDir findcase 
+    $textwin tag configure sel -background green
+    if {$SearchString!=""} {
+    	if {$findcase=="1"} {
+            set caset "-exact"
+	} else {
+	    set caset "-nocase"
+	}
+	if {$SearchDir == "forwards"} {
+	    set limit end
+	} else {
+	    set limit 1.0
+	}
+	set SearchPos [ $textwin search -count len $caset -$SearchDir $SearchString $SearchPos $limit]
+	set len [string length $SearchString]
+	if {$SearchPos != ""} {
+            $textwin see $SearchPos
+	    tk::TextSetCursor $textwin $SearchPos
+	    $textwin tag add sel $SearchPos  "$SearchPos + $len char"
+
+	    if {$SearchDir == "forwards"} {
+                set SearchPos "$SearchPos + $len char"
+	    }         
+        } else {
+	    set SearchPos "0.0"
+	}
+    }
+    focus $textwin
+}
+
+proc ReplaceIt {} {
+    global SearchString SearchDir ReplaceString SearchPos findcase
+    global textwin
+	if {$SearchString != ""} {
+	    if {$findcase=="1"} {
+		set caset "-exact"
+	    } else {
+		set caset "-nocase"
+	    }
+	    if {$SearchDir == "forwards"} {
+		set limit end
+	    } else {
+		set limit 1.0
+	    }
+	    set SearchPos [ $textwin search -count len $caset -$SearchDir $SearchString $SearchPos $limit]
+		set len [string length $SearchString]
+	    if {$SearchPos != ""} {
+        		$textwin see $SearchPos
+               		$textwin delete $SearchPos "$SearchPos+$len char"
+        		$textwin insert $SearchPos $ReplaceString
+		if {$SearchDir == "forwards"} {
+        			set SearchPos "$SearchPos+$len char"
+		}         
+	    } else {
+	       	set SearchPos "0.0"
+	    }
+	}
+	inccount
+}
+
+proc ReplaceAll {} {
+      global SearchPos SearchString
+       if {$SearchString != ""} {
+                ReplaceIt
+	while {$SearchPos!="0.0"} {
+		ReplaceIt
+	}
+       }
+}
+
+proc CancelFind {w} {
+    global textwin
+    $textwin tag delete tg1
+    destroy $w
+}
+
+proc ResetFind {} {
+    global SearchPos
+    set SearchPos insert
+}
+
+# procedure to find text
+proc findtext {typ} {
+	global SearchString SearchDir ReplaceString findcase c find
+	set find .find
+	catch {destroy $find}
+	toplevel $find
+	wm title $find "Find"
+	setwingeom $find
+	ResetFind
+	frame $find.l
+	frame $find.l.f1
+	label $find.l.f1.label -text "Find what:" -width 11  
+	entry $find.l.f1.entry  -textvariable SearchString -width 30 
+	pack $find.l.f1.label $find.l.f1.entry -side left
+	$find.l.f1.entry selection range 0 end
+	if {$typ=="replace"} {
+		frame $find.l.f2
+		label $find.l.f2.label2 -text "Replace with:" -width 11
+		entry $find.l.f2.entry2  -textvariable ReplaceString -width 30 
+		pack $find.l.f2.label2 $find.l.f2.entry2 -side left
+		pack $find.l.f1 $find.l.f2 -side top
+	} else {
+		pack $find.l.f1
+	}
+	frame $find.f2
+	button $find.f2.button1 -text "Find Next" -command "FindIt $find" -width 10 -height 1 -underline 5 
+	button $find.f2.button2 -text "Cancel" -command "CancelFind $find" -width 10 -underline 0
+	if {$typ=="replace"} {
+		button $find.f2.button3 -text "Replace" -command ReplaceIt -width 10 -height 1 -underline 0
+		button $find.f2.button4 -text "Replace All" -command ReplaceAll -width 10 -height 1 -underline 8		
+		pack $find.f2.button3 $find.f2.button4 $find.f2.button2  -pady 4
+	} else {
+		pack $find.f2.button1 $find.f2.button2  -pady 4
+	}
+	frame $find.l.f4
+	frame $find.l.f4.f3 -borderwidth 2 -relief groove
+	radiobutton $find.l.f4.f3.up -text "Up" -underline 0 -variable SearchDir -value "backwards" 
+	radiobutton $find.l.f4.f3.down -text "Down"  -underline 0 -variable SearchDir -value "forwards" 
+	$find.l.f4.f3.down invoke
+	pack $find.l.f4.f3.up $find.l.f4.f3.down -side left 
+	checkbutton $find.l.f4.cbox1 -text "Match case" -variable findcase -underline 0 
+	pack $find.l.f4.cbox1 $find.l.f4.f3 -side left -padx 10
+	pack $find.l.f4 -pady 11
+	pack $find.l $find.f2 -side left -padx 1
+	bind $find <Escape> "destroy $find"
+
+     # each widget must be bound to the events of the other widgets
+     proc bindevnt {widgetnm types find} {
+	if {$types=="replace"} {
+		bind $widgetnm <Return> "ReplaceIt"
+		bind $widgetnm <Control-r> "ReplaceIt"
+		bind $widgetnm <Control-a> "ReplaceAll"
+	} else {
+		bind $widgetnm <Return> "FindIt $find"
+		bind $widgetnm <Control-n> "FindIt $find"
+	}
+	bind $widgetnm <Control-m> { $find.l.f4.cbox1 invoke }
+	bind $widgetnm <Control-u> { $find.l.f4.f3.up invoke }
+	bind $widgetnm <Control-d> { $find.l.f4.f3.down invoke }
+     }
+	if {$typ == "replace"} {
+   		bindevnt $find.f2.button3 $typ $find
+		bindevnt $find.f2.button4 $typ $find
+	} else {
+		bindevnt $find.f2.button1 $typ $find
+  	        bindevnt $find.f2.button2 $typ $find
+	}
+        bindevnt $find.l.f4.f3.up  $typ $find
+        bindevnt $find.l.f4.f3.down $typ $find
+        bindevnt $find.l.f4.cbox1 $typ $find
+	bindevnt $find.l.f1.entry $typ $find	
+	bind $find <Control-c> "destroy $find"
+	focus $find.l.f1.entry
+	grab $find
+}
+
+# proc for find next
+proc findnext {typof} {
+	global SearchString SearchDir ReplaceString findcase c find
+	if [catch {expr [string compare $SearchString "" ] }] {
+		findtext $typof
+	} else {
+	 	FindIt $find
+	}
+}
+
+#procedure to set the time change %R to %I:%M for 12 hour time display
+proc printtime {} {
+    global textwin
+    $textwin insert insert [clock format [clock seconds] -format "%R %p %D"]
+    inccount
+}
+
+# binding for wordwrap
+proc wraptext {} {
+    global wordWrap
+    if [expr [string compare $wordWrap word] == 0] {
+	set wordWrap none	
+    } else {
+	set wordWrap word
+    }
+    $textwin configure -wrap $wordWrap
+}
+
+## NOTE modifiedstatus is declared in the linenum.pth 
+## so if it it not included we dont want to throw the error
+## we just want to ignore, thus the catch...
+# this sets saveTextMsg to 1 for message boxes
+proc inccount {} {
+    global saveTextMsg MODIFIED
+    set saveTextMsg 1
+    catch {modifiedstatus $MODIFIED}
+}
+# this resets saveTextMsg to 0
+proc outccount {} {
+    global saveTextMsg 
+    set saveTextMsg 0
+    catch {modifiedstatus " "}
+}
+
+###################################################################
+#set zed_dir [file dirname [info script]] 
+# here is where the undo stuff begins
+if {![info exists classNewId]} {
+    # work around object creation between multiple include of this file problem
+    set classNewId 0
+}
+
+proc new {className args} {
+    # calls the constructor for the class with optional arguments
+    # and returns a unique object identifier independent of the class name
+
+    global classNewId
+    # use local variable for id for new can be called recursively
+    set id [incr classNewId]
+    if {[llength [info procs ${className}:$className]]>0} {
+        # avoid catch to track errors
+        eval ${className}:$className $id $args
+    }
+    return $id
+}
+
+proc delete {className id} {
+    # calls the destructor for the class and delete all the object data members
+
+    if {[llength [info procs ${className}:~$className]]>0} {
+        # avoid catch to track errors
+        ${className}:~$className $id
+    }
+    global $className
+    # and delete all this object array members if any (assume that they were stored as $className($id,memberName))
+    foreach name [array names $className "$id,*"] {
+        unset ${className}($name)
+    }
+}
+
+proc lifo:lifo {id {size 2147483647}} {
+    global lifo
+    set lifo($id,maximumSize) $size
+    lifo:empty $id
+}
+
+proc lifo:push {id data} {
+    global lifo 
+    inccount
+    lifo:tidyUp $id
+    if {$lifo($id,size)>=$lifo($id,maximumSize)} {
+        unset lifo($id,data,$lifo($id,first))
+        incr lifo($id,first)
+        incr lifo($id,size) -1
+    }
+    set lifo($id,data,[incr lifo($id,last)]) $data
+    incr lifo($id,size)
+}
+
+proc lifo:pop {id} {
+    global lifo 
+    inccount
+    lifo:tidyUp $id
+    if {$lifo($id,last)<$lifo($id,first)} {
+        error "lifo($id) pop error, empty"
+    }
+    # delay unsetting popped data to improve performance by avoiding a data copy
+    set lifo($id,unset) $lifo($id,last)
+    incr lifo($id,last) -1
+    incr lifo($id,size) -1
+    return $lifo($id,data,$lifo($id,unset))
+}
+
+proc lifo:tidyUp {id} {
+    global lifo
+    if {[info exists lifo($id,unset)]} {
+        unset lifo($id,data,$lifo($id,unset))
+        unset lifo($id,unset)
+    }
+}
+
+proc lifo:empty {id} {
+    global lifo
+    lifo:tidyUp $id
+    foreach name [array names lifo $id,data,*] {
+        unset lifo($name)
+    }
+    set lifo($id,size) 0
+    set lifo($id,first) 0
+    set lifo($id,last) -1
+}
+
+proc textUndoer:textUndoer {id widget {depth 2147483647}} {
+    global textUndoer
+
+    if {[string compare [winfo class $widget] Text]!=0} {
+        error "textUndoer error: widget $widget is not a text widget"
+    }
+    set textUndoer($id,widget) $widget
+    set textUndoer($id,originalBindingTags) [bindtags $widget]
+    bindtags $widget [concat $textUndoer($id,originalBindingTags) UndoBindings($id)]
+
+    bind UndoBindings($id) <Control-u> "textUndoer:undo $id"
+
+    # self destruct automatically when text widget is gone
+    bind UndoBindings($id) <Destroy> "delete textUndoer $id"
+    # rename widget command
+    rename $widget [set textUndoer($id,originalCommand) textUndoer:original$widget]
+    # and intercept modifying instructions before calling original command
+    proc $widget {args} "textUndoer:checkpoint $id \$args; 
+		global search_count;
+		eval $textUndoer($id,originalCommand) \$args"
+
+    set textUndoer($id,commandStack) [new lifo $depth]
+    set textUndoer($id,cursorStack) [new lifo $depth]
+    #lee 
+    textRedoer:textRedoer $id $widget $depth 
+}
+
+proc textUndoer:~textUndoer {id} {
+    global textUndoer
+
+    bindtags $textUndoer($id,widget) $textUndoer($id,originalBindingTags)
+    rename $textUndoer($id,widget) ""
+    catch { rename $textUndoer($id,originalCommand) $textUndoer($id,widget) }
+    delete lifo $textUndoer($id,commandStack)
+    delete lifo $textUndoer($id,cursorStack)
+    #lee
+    textRedoer:~textRedoer $id
+}
+
+proc textUndoer:checkpoint {id arguments} {
+    global textUndoer textRedoer
+
+    # do nothing if non modifying command
+    if {[string compare [lindex $arguments 0] insert]==0} {
+        textUndoer:processInsertion $id [lrange $arguments 1 end]
+        if {$textRedoer($id,redo) == 0} {
+           textRedoer:reset $id
+        }
+    }
+    if {[string compare [lindex $arguments 0] delete]==0} {
+        textUndoer:processDeletion $id [lrange $arguments 1 end]
+        if {$textRedoer($id,redo) == 0} {
+           textRedoer:reset $id
+        }
+    }
+}
+
+proc textUndoer:processInsertion {id arguments} {
+    global textUndoer
+
+    set number [llength $arguments]
+    set length 0
+    # calculate total insertion length while skipping tags in arguments
+    for {set index 1} {$index<$number} {incr index 2} {
+        incr length [string length [lindex $arguments $index]]
+    }
+    if {$length>0} {
+        set index [$textUndoer($id,originalCommand) index [lindex $arguments 0]]
+        lifo:push $textUndoer($id,commandStack) "delete $index $index+${length}c"
+        lifo:push $textUndoer($id,cursorStack) [$textUndoer($id,originalCommand) index insert]
+    }
+}
+
+proc textUndoer:processDeletion {id arguments} {
+    global textUndoer
+
+    set command $textUndoer($id,originalCommand)
+    lifo:push $textUndoer($id,cursorStack) [$command index insert]
+
+    set start [$command index [lindex $arguments 0]]
+    if {[llength $arguments]>1} {
+        lifo:push $textUndoer($id,commandStack) "insert $start [list [$command get $start [lindex $arguments 1]]]"
+    } else {
+        lifo:push $textUndoer($id,commandStack) "insert $start [list [$command get $start]]"
+    }
+}
+
+proc textUndoer:undo {id} {
+    global textUndoer
+
+puts "$textUndoer($id,commandStack)"
+
+    if {[catch {set cursor [lifo:pop $textUndoer($id,cursorStack)]}]} {
+        return
+    }
+    if {[catch {set popArgs [lifo:pop $textUndoer($id,commandStack)]}]} {
+        return
+    }
+    textRedoer:checkpoint $id $popArgs
+    
+    eval $textUndoer($id,originalCommand) $popArgs
+    # now restore cursor position
+    $textUndoer($id,originalCommand) mark set insert $cursor
+    # make sure insertion point can be seen
+    $textUndoer($id,originalCommand) see insert
+}
+
+
+proc textUndoer:reset {id} {
+    global textUndoer
+    lifo:empty $textUndoer($id,commandStack)
+    lifo:empty $textUndoer($id,cursorStack)
+}
+
+#########################################################################
+proc textRedoer:textRedoer {id widget {depth 2147483647}} {
+    global textRedoer
+    if {[string compare [winfo class $widget] Text]!=0} {
+        error "textRedoer error: widget $widget is not a text widget"
+    }
+    set textRedoer($id,commandStack) [new lifo $depth]
+    set textRedoer($id,cursorStack) [new lifo $depth]
+    set textRedoer($id,redo) 0
+}
+
+proc textRedoer:~textRedoer {id} {
+    global textRedoer
+    delete lifo $textRedoer($id,commandStack)
+    delete lifo $textRedoer($id,cursorStack)
+}
+
+
+proc textRedoer:checkpoint {id arguments} {
+    global textUndoer textRedoer
+    # do nothing if non modifying command
+    if {[string compare [lindex $arguments 0] insert]==0} {
+        textRedoer:processInsertion $id [lrange $arguments 1 end]
+    }
+    if {[string compare [lindex $arguments 0] delete]==0} {
+        textRedoer:processDeletion $id [lrange $arguments 1 end]
+    }
+}
+
+proc textRedoer:processInsertion {id arguments} {
+    global textUndoer textRedoer
+    set number [llength $arguments]
+    set length 0
+    # calculate total insertion length while skipping tags in arguments
+    for {set index 1} {$index<$number} {incr index 2} {
+        incr length [string length [lindex $arguments $index]]
+    }
+    if {$length>0} {
+        set index [$textUndoer($id,originalCommand) index [lindex $arguments 0]]
+        lifo:push $textRedoer($id,commandStack) "delete $index $index+${length}c"
+        lifo:push $textRedoer($id,cursorStack) [$textUndoer($id,originalCommand) index insert]
+    }
+}
+
+proc textRedoer:processDeletion {id arguments} {
+    global textUndoer textRedoer
+    set command $textUndoer($id,originalCommand)
+    lifo:push $textRedoer($id,cursorStack) [$command index insert]
+
+    set start [$command index [lindex $arguments 0]]
+    if {[llength $arguments]>1} {
+        lifo:push $textRedoer($id,commandStack) "insert $start [list [$command get $start [lindex $arguments 1]]]"
+    } else {
+        lifo:push $textRedoer($id,commandStack) "insert $start [list [$command get $start]]"
+    }
+}
+
+proc textRedoer:redo {id} {
+    global textUndoer textRedoer
+    if {[catch {set cursor [lifo:pop $textRedoer($id,cursorStack)]}]} {
+        return
+    }
+    set textRedoer($id,redo) 1
+    set popArgs [lifo:pop $textRedoer($id,commandStack)]     
+    textUndoer:checkpoint $id $popArgs
+    eval $textUndoer($id,originalCommand) $popArgs
+    set textRedoer($id,redo) 0
+    # now restore cursor position
+    $textUndoer($id,originalCommand) mark set insert $cursor
+    # make sure insertion point can be seen
+    $textUndoer($id,originalCommand) see insert
+}
+
+
+proc textRedoer:reset {id} {
+    global textRedoer
+    lifo:empty $textRedoer($id,commandStack)
+    lifo:empty $textRedoer($id,cursorStack)
+}
+
+# end of where you'd source in undo.tcl
+#set undo_id [new textUndoer $textwin]
+
+proc undo_menu_proc {} {
+	global undo_id
+	textUndoer:undo $undo_id
+	inccount
+}
+
+proc redo_menu_proc {} {
+	global undo_id
+	textRedoer:redo $undo_id
+	inccount
 }
 
 # -----end editor ------
 
 # -----RIGHT HELP-----
 
-set helpFile [emc_ini HELP_FILE DISPLAY ]
-if {[string length $helpFile] == 0} {
-    set helpFile "tkemc.txt"
-}
-
+set HELPDIR [emc_ini HELP_FILE DISPLAY ]
 proc popinHelp {} {
-    global popinframe helpFile HELPDIR
+    global popinframe HELPDIR HELPDIR
     set helpwidth 80
     set helpheight 30
     set helpframe [frame $popinframe.help ]
@@ -2759,11 +3360,10 @@ proc popinHelp {} {
     pack $helptextwin -side top -fill both -expand true
     pack $helptextframe -side top -fill both -expand yes
     # insert contents of filename, if it exists
-    if { [file isfile $HELPDIR/$helpFile ] == 1} {
-        set fname $HELPDIR/$helpFile
+    if { [file isfile $HELPDIR/$HELPDIR ] == 1} {
+        set fname $HELPDIR/$HELPDIR
     }
-    
-    if {[catch {open $fname} filein]} {
+    if { [catch {open $fname} filein] } {
         mText "can't open $fname"
     } else {
         $helptextwin delete 1.0 end
@@ -2774,92 +3374,6 @@ proc popinHelp {} {
 
 proc helpScrolltext {tf a b} {
     $tf.scrolly set $a $b
-}
-
-
-# ----- RIGHT DIAGNOSTIC -----
-
-# pop in the diagnostics window
-proc popinDiagnostics {} {
-    global popinframe
-    global taskhb taskcmd tasknum taskstatus
-    global iohb iocmd ionum iostatus
-    global motionhb motioncmd motionnum motionstatus
-    set d [frame $popinframe.diagnostics]
-    pack $d -side top -fill both -expand yes
-    label $d.task -text "Task" -anchor center
-    frame $d.taskhb
-    label $d.taskhb.lab -text "Heartbeat:" -anchor w
-    label $d.taskhb.val -textvariable taskhb -anchor e
-    frame $d.taskcmd
-    label $d.taskcmd.lab -text "Command:" -anchor w
-    label $d.taskcmd.val -textvariable taskcmd -anchor e
-    frame $d.tasknum
-    label $d.tasknum.lab -text "Command #:" -anchor w
-    label $d.tasknum.val -textvariable tasknum -anchor e
-    frame $d.taskstatus
-    label $d.taskstatus.lab -text "Status:" -anchor w
-    label $d.taskstatus.val -textvariable taskstatus -anchor e
-    pack $d.taskhb.lab -side left
-    pack $d.taskhb.val -side right
-    pack $d.taskcmd.lab -side left
-    pack $d.taskcmd.val -side right
-    pack $d.tasknum.lab -side left
-    pack $d.tasknum.val -side right
-    pack $d.taskstatus.lab -side left
-    pack $d.taskstatus.val -side right
-    label $d.io -text "I/O" -anchor center
-    frame $d.iohb
-    label $d.iohb.lab -text "Heartbeat:" -anchor w
-    label $d.iohb.val -textvariable iohb -anchor e
-    frame $d.iocmd
-    label $d.iocmd.lab -text "Command:" -anchor w
-    label $d.iocmd.val -textvariable iocmd -anchor e
-    frame $d.ionum
-    label $d.ionum.lab -text "Command #:" -anchor w
-    label $d.ionum.val -textvariable ionum -anchor e
-    frame $d.iostatus
-    label $d.iostatus.lab -text "Status:" -anchor w
-    label $d.iostatus.val -textvariable iostatus -anchor e
-    pack $d.iohb.lab -side left
-    pack $d.iohb.val -side right
-    pack $d.iocmd.lab -side left
-    pack $d.iocmd.val -side right
-    pack $d.ionum.lab -side left
-    pack $d.ionum.val -side right
-    pack $d.iostatus.lab -side left
-    pack $d.iostatus.val -side right
-    label $d.motion -text "Motion" -anchor center
-    frame $d.motionhb
-    label $d.motionhb.lab -text "Heartbeat:" -anchor w
-    label $d.motionhb.val -textvariable motionhb -anchor e
-    frame $d.motioncmd
-    label $d.motioncmd.lab -text "Command:" -anchor w
-    label $d.motioncmd.val -textvariable motioncmd -anchor e
-    frame $d.motionnum
-    label $d.motionnum.lab -text "Command #:" -anchor w
-    label $d.motionnum.val -textvariable motionnum -anchor e
-    frame $d.motionstatus
-    label $d.motionstatus.lab -text "Status:" -anchor w
-    label $d.motionstatus.val -textvariable motionstatus -anchor e
-    pack $d.motionhb.lab -side left
-    pack $d.motionhb.val -side right
-    pack $d.motioncmd.lab -side left
-    pack $d.motioncmd.val -side right
-    pack $d.motionnum.lab -side left
-    pack $d.motionnum.val -side right
-    pack $d.motionstatus.lab -side left
-    pack $d.motionstatus.val -side right
-    grid $d.task $d.io -sticky ew -padx 4 -pady 4
-    grid $d.taskhb $d.iohb -sticky ew -padx 4
-    grid $d.taskcmd $d.iocmd -sticky ew -padx 4
-    grid $d.tasknum $d.ionum -sticky ew -padx 4
-    grid $d.taskstatus $d.iostatus -sticky ew -padx 4
-    grid $d.motion  -sticky ew -padx 4 -pady 4
-    grid $d.motionhb  -sticky ew -padx 4
-    grid $d.motioncmd -sticky ew -padx 4
-    grid $d.motionnum -sticky ew -padx 4
-    grid $d.motionstatus -sticky ew -padx 4
 }
 
 # ----------DOWN WIDGETS----------
@@ -2883,18 +3397,19 @@ set limoridebuttonabg [$limoridebutton cget -activebackground]
 # bind $limoridebutton <ButtonPress-1> {emc_override_limit}
 
 set homebutton [button $setframe.home -text "home" -takefocus 0]
-bind $homebutton <ButtonPress-1> {emc_home [ lindex $axiscoordmap $activeAxis]}
+bind $homebutton <ButtonPress-1> {emc_home [ lindex $axiscoordmap $activeAxis] }
 
 set offsetsetting ""
 
 grid $limoridebutton -column 0 -row 0 -sticky nsew
 grid $homebutton -column 0 -row 3 -sticky nsew
 
+
 # ----------MANUAL MODE WIDGETS----------
 
 # read the default jog speed
 set temp [emc_ini "DEFAULT_VELOCITY" "TRAJ"]
-if {[string length $temp] == 0} {
+if { [string length $temp] == 0} {
     set temp 1
 }
 set jogSpeed [int [expr $temp * 60 + 0.5]]
@@ -2930,6 +3445,20 @@ radiobutton $iframe.r4 -text "0.1000" -variable jogIncrement -value "0.1000" -an
 radiobutton $iframe.r5 -text "1.0000" -variable jogIncrement -value "1.0000" -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled
 pack $iframe.r5 $iframe.r4 $iframe.r3 $iframe.r2 $iframe.r1 -side top -fill both -expand yes
+
+set immframe [frame $manframe.metricincrement -borderwidth 1 -relief sunken ]
+radiobutton $immframe.r1 -text "0.01" -variable jogIncrement -value "0.0100" -anchor w \
+        -anchor w -padx 4 -command {set jogtype increment} -state disabled -width 7
+radiobutton $immframe.r2 -text "0.10" -variable jogIncrement -value "0.1000" -anchor w \
+        -anchor w -padx 4 -command {set jogtype increment} -state disabled
+radiobutton $immframe.r3 -text "1.00" -variable jogIncrement -value "1.0000" -anchor w \
+        -anchor w -padx 4 -command {set jogtype increment} -state disabled
+radiobutton $immframe.r4 -text "5.00" -variable jogIncrement -value "5.0000" -anchor w \
+        -anchor w -padx 4 -command {set jogtype increment} -state disabled
+radiobutton $immframe.r5 -text "10.00" -variable jogIncrement -value "10.0000" -anchor w \
+        -anchor w -padx 4 -command {set jogtype increment} -state disabled
+pack $immframe.r5 $immframe.r4 $immframe.r3 $immframe.r2 $immframe.r1 -side top -fill both -expand yes
+
 
 radiobutton $irframe.r1 -text "0.01" -variable jogIncrement -value 0.01 -anchor w \
         -anchor w -padx 4 -command {set jogtype increment} -state disabled  -width 7
@@ -2984,6 +3513,7 @@ grid $jogposbutton -column 4 -row 2 -sticky nsew
 grid configure $jogposbutton -columnspan 2 -rowspan 3
 
 grid configure $iframe -column 6 -row 0 -rowspan 5 -sticky nsew
+grid configure $immframe -column 6 -row 0 -rowspan 5 -sticky nsew
 
 # grid $manframe.r5 -column 6 -row 0 -sticky nsew
 # grid $manframe.r4 -column 6 -row 1 -sticky nsew
@@ -3009,6 +3539,7 @@ grid rowconfigure $manframe 4 -weight 1
 # Initialize with axis 0
 axisSelectx [ lindex $axiscoordmap 0 ]
 
+update
 
 # ----------SPINDLE CONTROL WIDGETS----------
 # popped in with full right manual mode
@@ -3143,11 +3674,13 @@ proc fileDialog {} {
         {"NC files" {.nc .ngc}}
     }
     set f [tk_getOpenFile -filetypes $types -initialdir $programDirectory]
-    if {[string len $f] > 0} {
+    if { [string len $f] > 0} {
         set programDirectory [file dirname $f]
         set programnamestring $f
-       loadProgramText
-       loadProgram
+        loadProgramText
+        loadProgram
+        catch {openoninit $f}
+        outccount
     }
 }
 
@@ -3184,7 +3717,7 @@ proc loadProgramText {} {
     # close the current program
     catch {close $programin}
     # open the new program, if it's not "none"
-    if {[catch {open $programnamestring} programin]} {
+    if { [catch {open $programnamestring} programin] } {
         puts stdout "can't open $programnamestring"
     } else {
         $programfiletext insert end [read $programin]
@@ -3206,12 +3739,11 @@ proc showRestart {} {
 hideRestart
 toggleEstop
 
+
 # ----------INITIAL VALUES FOR LOOP----------
 
 setKeyBindingsx
 set activeAxis 0
-set minusAxis -1
-set equalAxis -1
 set syncingFeedOverride 0
 
 # force explicit updates, so calls to emc_estop, for example, don't
@@ -3232,6 +3764,7 @@ set modeInDisplay "manual"
 set oldmode "manual"
 set jogType incremental
 setJogType continuous
+# axisSelectx "A"
 
 set lastjointworld $jointworld
 set lastactcmd $actcmd
@@ -3240,6 +3773,8 @@ set emc_teleop_enable_command_given 0
 set offsetactive 3
 set oldoffsetactive 3
 set oldrestartline 0
+
+axisSelectx "X"
 
 
 # ----------LOOP TO SET VALUES ----------
@@ -3265,9 +3800,9 @@ proc updateMini {} {
     global programcodestring
     global programnamestring programin activeLine programstatusstring
     global programfiletext
-    global taskhb taskcmd tasknum taskstatus
-    global iohb iocmd ionum iostatus
-    global motionhb motioncmd motionnum motionstatus
+#    global taskhb taskcmd tasknum taskstatus
+#    global iohb iocmd ionum iostatus
+#    global motionhb motioncmd motionnum motionstatus
     global oldstatusstring jogSpeed
     global axiscoordmap
     global popinframe feedholdbutton stopbutton feedtext
@@ -3288,15 +3823,15 @@ proc updateMini {} {
     # now update labels
 
     # set the unit information
-    catch {set unitsetting [emc_display_linear_units]}
+    catch {set unitsetting [emc_display_linear_units] }
     if {$oldunitsetting != $unitsetting} {
         set oldunitsetting $unitsetting
     }
 
-    if {[emc_estop] == "on"} {
+    if { [emc_estop] == "on"} {
         set estoplabel "ESTOPPED"
         $stopbutton configure -bg gray -fg black -relief sunken
-    } elseif {[emc_machine] == "on"} {
+    } elseif { [emc_machine] == "on"} {
         set estoplabel "ESTOP PUSH"
         $stopbutton configure -bg red -fg black -relief raised
     } else {
@@ -3304,39 +3839,39 @@ proc updateMini {} {
         $stopbutton configure -bg green -fg black -relief sunken
     }
 
-    if {[emc_spindle] == "forward"} {
+    if { [emc_spindle] == "forward"} {
         set spindlelabel "SPINDLE FORWARD"
-    } elseif {[emc_spindle] == "reverse"} {
+    } elseif { [emc_spindle] == "reverse"} {
         set spindlelabel "SPINDLE REVERSE"
-    } elseif {[emc_spindle] == "off"} {
+    } elseif { [emc_spindle] == "off"} {
         set spindlelabel "SPINDLE OFF"
-    } elseif {[emc_spindle] == "increase"} {
+    } elseif { [emc_spindle] == "increase"} {
         set spindlelabel "SPINDLE INCREASE"
-    } elseif {[emc_spindle] == "decrease"} {
+    } elseif { [emc_spindle] == "decrease"} {
         set spindlelabel "SPINDLE DECREASE"
     } else {
         set spindlelabel "SPINDLE ?"
     }
 
-    if {[emc_brake] == "on"} {
+    if { [emc_brake] == "on"} {
         set brakelabel "BRAKE ON"
-    } elseif {[emc_brake] == "off"} {
+    } elseif { [emc_brake] == "off"} {
         set brakelabel "BRAKE OFF"
     } else {
         set brakelabel "BRAKE ?"
     }
 
-    if {[emc_mist] == "on"} {
+    if { [emc_mist] == "on"} {
         set mistlabel "MIST ON"
-    } elseif {[emc_mist] == "off"} {
+    } elseif { [emc_mist] == "off"} {
         set mistlabel "MIST OFF"
     } else {
         set mistlabel "MIST ?"
     }
 
-    if {[emc_flood] == "on"} {
+    if { [emc_flood] == "on"} {
         set floodlabel "FLOOD ON"
-    } elseif {[emc_flood] == "off"} {
+    } elseif { [emc_flood] == "off"} {
         set floodlabel "FLOOD OFF"
     } else {
         set floodlabel "FLOOD ?"
@@ -3442,9 +3977,9 @@ proc updateMini {} {
 
     # color the numbers
     foreach axnum $axiscoordmap {
-        if {[emc_joint_limit ${axnum} ] != "ok"} {
+        if { [emc_joint_limit ${axnum} ] != "ok"} {
             [set "pos${axnum}d"] config -foreground red
-        } elseif {[emc_joint_homed ${axnum} ] == "homed"} {
+        } elseif { [emc_joint_homed ${axnum} ] == "homed"} {
             [set "pos${axnum}d"] config -foreground darkgreen
         } else {
             [set "pos${axnum}d"] config -foreground gold3
@@ -3509,25 +4044,10 @@ proc updateMini {} {
     }
 
     # enable plotting if plotter exists
-    if {[winfo exists $popinframe.plot]} {
+    if { [winfo exists $popinframe.plot] } {
         updatePlot
     }
 
-   # get diagnostics info
-    if {[winfo exists $popinframe.diagnostics]} {
-        set taskhb [emc_task_heartbeat]
-        set taskcmd [emc_task_command]
-        set tasknum [emc_task_command_number]
-        set taskstatus [emc_task_command_status]
-        set iohb [emc_io_heartbeat]
-        set iocmd [emc_io_command]
-        set ionum [emc_io_command_number]
-        set iostatus [emc_io_command_status]
-        set motionhb [emc_motion_heartbeat]
-        set motioncmd [emc_motion_command]
-        set motionnum [emc_motion_command_number]
-        set motionstatus [emc_motion_command_status]
-    }
 
 # schedule this again
     after $displayCycleTime updateMini
@@ -3540,5 +4060,5 @@ rightConfig split
 
 proc checkIt {} {
     global activeAxis
-    mText " Return from ini [emc_ini IO_8255_ADDRESS EMCIO] "
+    mText "No checkIt set see line 4055 in mini.tcl "
 }

@@ -4,6 +4,21 @@ export EMC2_TCL_DIR
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
+###############################################################
+# Description:  emclog.tcl
+#               This file dumps info to a logging file from tkmc.
+#
+#  Derived from a work by Fred Proctor & Will Shackleford
+#  Author: 
+#  License: GPL Version 2
+#
+#  Copyright (c) 2005 All rights reserved.
+#
+#  Last change:
+# $Revision$
+# $Author$
+# $Date$
+###############################################################
 # emclog.tcl
 # EMC data logger
 # Needs emcsh to run-- this is sourced by tkemc, but it can be run
@@ -12,6 +27,7 @@ exec $EMC2_EMCSH "$0" "$@"
 # usually emc2/tcl/.
 # Make sure EMC2_EMCSH is exported containing emcsh with path,
 # or edit the exec line above with the path to emcsh.
+###############################################################
 
 # check if any emc commands exist, and quit if not
 if {! [string length [info commands emc_plat]]} {

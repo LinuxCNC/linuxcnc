@@ -2,17 +2,21 @@
 # the next line restarts using wish \
 exec wish "$0" "$@"
 
-set TCLBIN tcl/bin
-set TCLSCRIPTS tcl/scripts
-
-if {[info exists env(EMC2_TCL_DIR)]} {
-    set TCLBIN $env(EMC2_TCL_DIR)
-    set TCLSCRIPTS $env(EMC2_TCL_DIR)
-    set TCLBIN $TCLBIN/bin
-    set TCLSCRIPTS $TCLSCRIPTS/scripts
-}
-
-
+###############################################################
+# Description:  genedit.tcl
+#               This file dumps info to a logging file from tkmc.
+#
+#  Derived from a work by Fred Proctor & Will Shackleford
+#  Author: 
+#  License: GPL Version 2
+#
+#  Copyright (c) 2005 All rights reserved.
+#
+#  Last change:
+# $Revision$
+# $Author$
+# $Date$
+###############################################################
 # genedit.tcl
 #
 # geneditStart <name> ?<initial file>? ?<browser types>? runs an editor
@@ -33,7 +37,18 @@ if {[info exists env(EMC2_TCL_DIR)]} {
 # by name to extract things like the insertion point, selected text, etc.
 # Mods to fix copy, paste, delete add find and line number by rh 12/1999
 # Mods to add line numbering and find and replace by rh 12/1999.
-# Mod for a script menu that looks for *.ncw files in emc2/tcl/scripts directory.
+# Mod for a script menu that looks for *.ncw files in $TCLSCRIPTS directory.
+###############################################################
+
+set TCLBIN tcl/bin
+set TCLSCRIPTS tcl/scripts
+
+if {[info exists env(EMC2_TCL_DIR)]} {
+    set TCLBIN $env(EMC2_TCL_DIR)
+    set TCLSCRIPTS $env(EMC2_TCL_DIR)
+    set TCLBIN $TCLBIN/bin
+    set TCLSCRIPTS $TCLSCRIPTS/scripts
+}
 
 proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"Text files" {.txt} }}}} {
 
