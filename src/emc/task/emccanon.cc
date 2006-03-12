@@ -681,8 +681,6 @@ void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)
 
 /* Machining Functions */
 
-/*! \todo FIXME-- check arc feed against max velocity, using some sort of
-   suboptimal check, like tangential distance */
 void ARC_FEED(double first_end, double second_end,
 	      double first_axis, double second_axis, int rotation,
 	      double axis_end_point, double a, double b, double c)
