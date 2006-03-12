@@ -633,7 +633,12 @@ int tpRunCycle(TP_STRUCT * tp)
         tc->blending = 1;
 
         // hack to show blends in axis
-        tp->motionType = 0;
+        // tp->motionType = 0;
+
+        if(tc->currentvel > nexttc->currentvel)
+            tp->motionType = tc->canon_motion_type;
+        else
+            tp->motionType = nexttc->canon_motion_type;
 
         secondary_before = tcGetPos(nexttc);
         tcRunCycle(nexttc, NULL, NULL);
