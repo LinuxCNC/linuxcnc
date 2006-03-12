@@ -305,38 +305,38 @@ double getStraightAcceleration(double x, double y, double z,
 
     // Pure linear move:
     if (linear_move && !angular_move) {
-	tx = sqrt(2.0 * dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
-	ty = sqrt(2.0 * dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
-	tz = sqrt(2.0 * dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
+	tx = (dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
+	ty = (dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
+	tz = (dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
 	tmax = tx > ty ? tx : ty;
 	tmax = tz > tmax ? tz : tmax;
 
 	dtot = sqrt(dx * dx + dy * dy + dz * dz);
 	if (tmax > 0.0) {
-	    acc = 2.0 * dtot / (tmax * tmax);
+	    acc = dtot / tmax;
 	}
     }
     // Pure angular move:
     else if (!linear_move && angular_move) {
-	ta = da? sqrt(2.0 * da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
-	tb = db? sqrt(2.0 * db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
-	tc = dc? sqrt(2.0 * dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+	ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
+	tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
+	tc = dc? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
 	tmax = ta > tb ? ta : tb;
 	tmax = tc > tmax ? tc : tmax;
 
 	dtot = sqrt(da * da + db * db + dc * dc);
 	if (tmax > 0.0) {
-	    acc = 2.0 * dtot / (tmax * tmax);
+	    acc = dtot / tmax;
 	}
     }
     // Combination angular and linear move:
     else if (linear_move && angular_move) {
-	tx = sqrt(2.0 * dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
-	ty = sqrt(2.0 * dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
-	tz = sqrt(2.0 * dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
-	ta = da? sqrt(2.0 * da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
-	tb = db? sqrt(2.0 * db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
-	tc = dc? sqrt(2.0 * dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+	tx = (dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]));
+	ty = (dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]));
+	tz = (dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]));
+	ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
+	tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
+	tc = dc? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
 	tmax = tx > ty ? tx : ty;
 	tmax = tz > tmax ? tz : tmax;
 	tmax = ta > tmax ? ta : tmax;
@@ -351,7 +351,7 @@ double getStraightAcceleration(double x, double y, double z,
 */
 	dtot = sqrt(dx * dx + dy * dy + dz * dz);
 	if (tmax > 0.0) {
-	    acc = 2.0 * dtot / (tmax * tmax);
+	    acc = dtot / tmax;
 	}
     }
     return acc;
@@ -691,7 +691,6 @@ void ARC_FEED(double first_end, double second_end,
     PM_CARTESIAN center, normal;
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
-    int full_circle_in_active_plane = 0;
     double v1, v2, a1, a2, vel, ini_maxvel, acc=0.0;
     double radius, angle, theta1, theta2, helical_length, axis_len;
     double tmax, thelix, ta, tb, tc, da, db, dc;
@@ -705,9 +704,6 @@ void ARC_FEED(double first_end, double second_end,
     a += programOrigin.a;
     b += programOrigin.b;
     c += programOrigin.c;
-    a = TO_EXT_ANG(a);
-    b = TO_EXT_ANG(b);
-    c = TO_EXT_ANG(c);
 
     da = fabs(canonEndPoint.a - a);
     db = fabs(canonEndPoint.b - b);
@@ -734,9 +730,6 @@ void ARC_FEED(double first_end, double second_end,
 	end.tran.y = second_end + programOrigin.y;
 	end.tran.z = axis_end_point + programOrigin.z;
 	end.tran.z += currentToolLengthOffset;
-	if (canonEndPoint.x == end.tran.x && canonEndPoint.y == end.tran.y) {
-	    full_circle_in_active_plane = 1;
-	}
 	center.x = first_axis + programOrigin.x;
 	center.y = second_axis + programOrigin.y;
 	center.z = end.tran.z;
@@ -755,7 +748,7 @@ void ARC_FEED(double first_end, double second_end,
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
         ini_maxvel = MIN(v1, v2);
         acc = MIN(a1, a2);
-        if(fabs(axis_end_point - canonEndPoint.z) > 0.001) {
+        if(axis_len > 0.001) {
             v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
             a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
             ini_maxvel = MIN(ini_maxvel, v1);
@@ -770,9 +763,6 @@ void ARC_FEED(double first_end, double second_end,
 	end.tran.z = second_end + programOrigin.z;
 	end.tran.x = axis_end_point + programOrigin.x;
 	end.tran.z += currentToolLengthOffset;
-	if (canonEndPoint.z == end.tran.z && canonEndPoint.y == end.tran.y) {
-	    full_circle_in_active_plane = 1;
-	}
 
 	center.y = first_axis + programOrigin.y;
 	center.z = second_axis + programOrigin.z;
@@ -792,7 +782,7 @@ void ARC_FEED(double first_end, double second_end,
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
         ini_maxvel = MIN(v1, v2);
         acc = MIN(a1, a2);
-        if(fabs(axis_end_point - canonEndPoint.x) > 0.001) {
+        if(axis_len > 0.001) {
             v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
             a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
             ini_maxvel = MIN(ini_maxvel, v1);
@@ -808,9 +798,6 @@ void ARC_FEED(double first_end, double second_end,
 	end.tran.x = second_end + programOrigin.x;
 	end.tran.y = axis_end_point + programOrigin.y;
 	end.tran.z += currentToolLengthOffset;
-	if (canonEndPoint.x == end.tran.x && canonEndPoint.z == end.tran.z) {
-	    full_circle_in_active_plane = 1;
-	}
 
 	center.z = first_axis + programOrigin.z;
 	center.x = second_axis + programOrigin.x;
@@ -819,8 +806,8 @@ void ARC_FEED(double first_end, double second_end,
 	normal.x = 0.0;
 	normal.y = 1.0;
 
-        theta1 = atan2(canonEndPoint.z - center.z, canonEndPoint.x - center.x);
-        theta2 = atan2(end.tran.z - center.z, end.tran.x - center.x);
+        theta1 = atan2(canonEndPoint.x - center.x, canonEndPoint.z - center.z);
+        theta2 = atan2(end.tran.x - center.x, end.tran.z - center.z);
         radius = hypot(canonEndPoint.x - center.x, canonEndPoint.z - center.z);
         axis_len = fabs(end.tran.y - canonEndPoint.y);
 
@@ -830,7 +817,7 @@ void ARC_FEED(double first_end, double second_end,
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
 	ini_maxvel = MIN(v1, v2);
         acc = MIN(a1, a2);
-        if(fabs(axis_end_point - canonEndPoint.y) > 0.001) {
+        if(axis_len > 0.001) {
             v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
             a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
             ini_maxvel = MIN(ini_maxvel, v1);
@@ -839,14 +826,13 @@ void ARC_FEED(double first_end, double second_end,
 	break;
     }
 
-    if(rotation < 0.0) {
+    if(rotation < 0) {
         if(theta2 >= theta1) theta2 -= M_PI * 2.0;
     } else {
         if(theta2 <= theta1) theta2 += M_PI * 2.0;
     }
     angle = theta2 - theta1;
     helical_length = hypot(angle * radius, axis_len);
-    printf("helical_length %f\n", helical_length);
 
     thelix = fabs(helical_length / ini_maxvel);
     ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
@@ -868,15 +854,16 @@ void ARC_FEED(double first_end, double second_end,
     // set proper velocity
     sendVelMsg(vel, ini_maxvel);
 
-    thelix = sqrt(2.0 * helical_length / acc);
-    ta = da? sqrt(2.0 * da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
-    tb = db? sqrt(2.0 * db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
-    tc = dc? sqrt(2.0 * dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+    thelix = (helical_length / acc);
+    ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
+    tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
+    tc = dc? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
     tmax = MAX4(thelix, ta, tb, tc);
 
     if (tmax > 0.0) {
-        acc = 2.0 * helical_length / (tmax * tmax);
+        acc = helical_length / tmax;
     }
+
     if(acc) sendAccMsg(acc);
 
     /* 
@@ -892,24 +879,13 @@ void ARC_FEED(double first_end, double second_end,
 	linearMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
 
 	// fill in the orientation
-	linearMoveMsg.end.a = a;
-	linearMoveMsg.end.b = b;
-	linearMoveMsg.end.c = c;
+	linearMoveMsg.end.a = TO_EXT_ANG(a);
+	linearMoveMsg.end.b = TO_EXT_ANG(b);
+	linearMoveMsg.end.c = TO_EXT_ANG(c);
 
         linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
 	interp_list.append(linearMoveMsg);
     } else if (rotation > 0) {
-
-/*! \todo Another #if 0 */
-#if 0
-	// This should not be needed anymore with fix in _posemath.c 
-	// If starting and ending on same point move around the
-	// circle, don't just stay put.
-	if (full_circle_in_active_plane) {
-	    rotation++;
-	}
-#endif
-
 	circularMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
 	circularMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
 	circularMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
@@ -925,24 +901,15 @@ void ARC_FEED(double first_end, double second_end,
 	circularMoveMsg.turn = rotation - 1;
 
 	// fill in the orientation
-	circularMoveMsg.end.a = a;
-	circularMoveMsg.end.b = b;
-	circularMoveMsg.end.c = c;
+	circularMoveMsg.end.a = TO_EXT_ANG(a);
+	circularMoveMsg.end.b = TO_EXT_ANG(b);
+	circularMoveMsg.end.c = TO_EXT_ANG(c);
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 	interp_list.append(circularMoveMsg);
     } else {
 	// reverse turn
 
-/*! \todo Another #if 0 */
-#if 0
-	// This should not be needed anymore with fix in _posemath.c 
-	// If starting and ending on same point move around the
-	// circle, don't just stay put.
-	if (full_circle_in_active_plane) {
-	    rotation--;
-	}
-#endif
 	circularMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
 	circularMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
 	circularMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
@@ -958,9 +925,9 @@ void ARC_FEED(double first_end, double second_end,
 	circularMoveMsg.turn = rotation;
 
 	// fill in the orientation
-	circularMoveMsg.end.a = a;
-	circularMoveMsg.end.b = b;
-	circularMoveMsg.end.c = c;
+	circularMoveMsg.end.a = TO_EXT_ANG(a);
+	circularMoveMsg.end.b = TO_EXT_ANG(b);
+	circularMoveMsg.end.c = TO_EXT_ANG(c);
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 	interp_list.append(circularMoveMsg);
