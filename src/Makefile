@@ -195,6 +195,8 @@ userspace: $(TARGETS)
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
 # for building kernel modules.  Other kernel module build styles need to be
 # accomodated here.
+ifeq ($(BUILD_SYS),kbuild)
+
 ifndef KDIR
 ifeq ($(wildcard /lib/modules/$(shell uname -r)/build/Makefile),)
 $(error KDIR is not set and /lib/modules/$(shell uname -r)/build is not a valid kernel build location.)
@@ -202,7 +204,6 @@ endif
 KDIR := $(shell cd /lib/modules/$(shell uname -r)/build && /bin/pwd)
 endif
 
-ifeq ($(BUILD_SYS),kbuild)
 # '-o $(KDIR)/Module.symvers' silences warnings about that file being missing
 modules:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 -o $(KDIR)/Module.symvers modules 
