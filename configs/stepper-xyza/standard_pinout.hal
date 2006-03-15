@@ -15,6 +15,9 @@ linksp Ystep parport.0.pin-05-out
 linksp Ydir  parport.0.pin-04-out
 linksp Zstep parport.0.pin-07-out
 linksp Zdir  parport.0.pin-06-out
+linksp Astep parport.0.pin-09-out
+linksp Adir  parport.0.pin-08-out
+
 
 # create a signal for the estop loopback
 linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
