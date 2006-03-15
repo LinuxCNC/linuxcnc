@@ -6,7 +6,7 @@ loadrt hal_m5i20
 # Add functions to servo thread so they will be evaluated
 # every servo period.
 addf m5i20.0.encoder-read servo-thread 1
-addf m5i20.0.dac-write servo-thread 1
+addf m5i20.0.dac-write servo-thread -1
 
 # Connect position feedback signals to encoders.
 linksp Xpos-fb <= m5i20.0.enc-00-position

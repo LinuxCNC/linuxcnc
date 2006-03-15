@@ -15,7 +15,7 @@ addf m5i20.0.misc-update servo-thread 1
 #addf m5i20.0.adc-read servo-thread 1
 addf m5i20.0.digital-in-read servo-thread 1
 #addf classicladder.0.refresh servo-thread 1
-addf m5i20.0.digital-out-write servo-thread 1
+addf m5i20.0.digital-out-write servo-thread -1
 
 #
 # Connect motion controller I/Os
@@ -135,3 +135,7 @@ linksp LubeOn <= iocontrol.0.lube
 newsig LubeLevel bit
 linksp LubeLevel <= m5i20.0.in-14
 linksp LubeLevel => iocontrol.0.lube_level
+
+# Loop back tool loading pins
+linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
