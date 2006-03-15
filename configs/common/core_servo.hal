@@ -4,9 +4,9 @@
 loadrt pid num_chan=3
 
 # hook functions to realtime thread
-addf pid.0.do-pid-calcs servo-thread 1
-addf pid.1.do-pid-calcs servo-thread 1
-addf pid.2.do-pid-calcs servo-thread 1
+addf pid.0.do-pid-calcs servo-thread 3
+addf pid.1.do-pid-calcs servo-thread 3
+addf pid.2.do-pid-calcs servo-thread 3
 
 # create three position feedback signals
 newsig Xpos-fb float
