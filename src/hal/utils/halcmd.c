@@ -1359,11 +1359,11 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 {
     /* note: these are static so that the various searches can
        be skipped for subsequent commands */
-    static char *rtmod_dir = NULL;
+    static char *rtmod_dir = HAL_RTMOD_DIR;
     static char path_buf[MAX_CMD_LEN+1];
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
-    char *cp1, *cp2, *cp3;
+    char *cp1, *cp2;
     char *argv[MAX_TOK+1];
     char arg_string[MAX_CMD_LEN+1];
     int n, m, retval, status;
@@ -1374,46 +1374,6 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: HAL is locked, loading of modules is not permitted\n", linenumber);
 	return HAL_PERM;
-    }
-    /* check environment for path to realtime HAL modules */
-    if ( rtmod_dir == NULL ) {
-	rtmod_dir = getenv("HAL_RTMOD_DIR");
-    }
-    /* the following is an attempt to locate the directory
-       where the HAL modules are stored.  It depends on the emc2
-       directory tree being laid out per 'emc2/directory.map'.
-       There is probably a better way of doing this... 
-       make install takes care of HAL_RTMOD_DIR */
-    if ( rtmod_dir == NULL ) {
-	/* no env variable, try to locate the directory based on
-	   where this executable lives (should be in the emc2 tree) */
-	n = readlink("/proc/self/exe", path_buf, MAX_CMD_LEN-10);
-	if ( n > 0 ) {
-	    path_buf[n] = '\0';
-	    /* have path to executabie, find last two '/' */
-	    cp3 = cp2 = "";
-	    cp1 = path_buf;
-	    while ( *cp1 != '\0' ) {
-		if ( *cp1 == '/' ) {
-		    cp3 = cp2;
-		    cp2 = cp1;
-		}
-		cp1++;
-	    }
-	    if ( *cp3 == '/' ) {
-		/* chop "/bin/halcmd" from end of path */
-		*cp3 = '\0';
-		/* and append "/rtlib" */
-		strncat(path_buf, "/rtlib", MAX_CMD_LEN-strlen(path_buf));
-		rtmod_dir = path_buf;
-	    }
-	}
-    }
-    if ( rtmod_dir == NULL ) {
-	/* still don't know where the modules are */
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: Cannot locate realtime modules directory\n", linenumber);
-	return -2;
     }
     if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
