@@ -406,6 +406,7 @@ static const unsigned char num_phases_lut[] =
 #define DIR_PIN		1	/* output phase used for DIR signal */
 #define UP_PIN		0	/* output phase used for UP signal */
 #define DOWN_PIN	1	/* output phase used for DOWN signal */
+#define COUNT_PIN       2       /* output phase used for COUNT signal */
 
 /* other globals */
 static int comp_id;		/* component ID */
@@ -680,6 +681,7 @@ static void make_pulses(void *arg, long period)
 	    /* pesudo-PWM */
 	    *(freqgen->phase[UP_PIN]) = tmp_step & ~tmp_dir;
 	    *(freqgen->phase[DOWN_PIN]) = tmp_step & tmp_dir;
+            *(freqgen->phase[COUNT_PIN]) = tmp_step;
 	    /* count the step for feedback */
 	    if (tmp_step) {
 		if (tmp_dir) {
@@ -750,7 +752,9 @@ static void update_freq(void *arg, long period)
 	    limf =
 		maxf / (freqgen->wd.st0.step_len +
 		freqgen->wd.st0.step_space);
-	} else {
+	} else if(freqgen->wd.st0.step_type == 1) {
+            limf = 2*maxf;
+        }else {
 	    limf = maxf;
 	}
 	/* check for illegal (negative) maxfreq parameter */
@@ -973,6 +977,13 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
 	    return retval;
 	}
 	*(addr->phase[DOWN_PIN]) = 0;
+	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.count", num);
+	retval =
+	    hal_pin_bit_new(buf, HAL_WR, &(addr->phase[COUNT_PIN]), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	*(addr->phase[COUNT_PIN]) = 0;
     } else {
 	/* setup for stepping types 2 and higher */
 	addr->wd.st2.state = 0;
