@@ -1018,7 +1018,6 @@ AC_CONFIG_FILES([../scripts/rtapi.conf])
 AC_CONFIG_FILES([../docs/man/man1/emc.1])
 AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
-AC_CONFIG_FILES([../bin/emc-config], [chmod +x ../bin/emc-config])
 AC_OUTPUT(Makefile.inc)
 
 ##############################################################################
