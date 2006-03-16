@@ -1,4 +1,4 @@
-/** This file, 'halmeter.c', is a GUI program that serves as a simple
+/** This file, 'meter.c', is a GUI program that serves as a simple
     meter to look at HAL signals.  It is a user space component and
     uses GTK 1.2 for the GUI code.  It allows you to view one pin,
     signal, or parameter, and updates its display about 10 times
@@ -96,6 +96,7 @@ int comp_id;			/* HAL component ID */
 GtkWidget *main_window;
 
 meter_t *meter;
+int small;
 
 /***********************************************************************
 *                  LOCAL FUNCTION PROTOTYPES                           *
@@ -138,36 +139,50 @@ int main(int argc, gchar * argv[])
     GtkWidget *vbox, *hbox;
     GtkWidget *button_select, *button_exit;
     char buf[30];
-    int initial_type;
-    char *initial_name;
+    int initial_type, n, height;
+    char *initial_name, *win_name;
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
 
     /* process my own command line args (if any) here */
-    if (argc == 3) {
+    small = 0;
+    n = 1;
+    if ( argc > n ) {
+	if ( strcmp (argv[n], "-s") == 0 ) {
+	    small = 1;
+	    n++;
+	}
+    }
+    if (argc > n) {
 	/* check for user specified initial probe point */
-	if (strncmp(argv[1], "pin", 3) == 0) {
+	if (strncmp(argv[n], "pin", 3) == 0) {
 	    /* initial probe is a pin */
 	    initial_type = 0;
-	} else if (strncmp(argv[1], "sig", 3) == 0) {
+	} else if (strncmp(argv[n], "sig", 3) == 0) {
 	    /* initial probe is a signal */
 	    initial_type = 1;
-	} else if (strncmp(argv[1], "par", 3) == 0) {
+	} else if (strncmp(argv[n], "par", 3) == 0) {
 	    /* initial probe is a parameter */
 	    initial_type = 2;
 	} else {
-	    printf("ERROR: '%s' is not a valid probe type\n", argv[1]);
+	    printf("ERROR: '%s' is not a valid probe type\n", argv[n]);
 	    return -1;
 	}
-	initial_name = argv[2];
+	n++;
+	if ( argc > n ) {
+	    initial_name = argv[n];
+	} else {
+	    printf("ERROR: no pin/signal/parameter name\n");
+	    return -1;
+	}
     } else {
 	initial_type = 0;
 	initial_name = NULL;
     }
 
     /* create a unique module name */
-    snprintf(buf, 29, "meter%d", getpid());
+    snprintf(buf, 29, "halmeter-%d", getpid());
     /* connect to the HAL */
     comp_id = hal_init(buf);
     if (comp_id < 0) {
@@ -181,10 +196,18 @@ int main(int argc, gchar * argv[])
 
     /* create main window, set it's size, and lock the size */
     main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_usize(GTK_WIDGET(main_window), 220, 80);
+    /* ideally this wouldn't be fixed size in pixels */
+    if ( small ) {
+	height = 22;
+	win_name = initial_name;
+    } else {
+	height = 80;
+	win_name = "Hal Meter";
+    }
+    gtk_widget_set_usize(GTK_WIDGET(main_window), 270, height);
     gtk_window_set_policy(GTK_WINDOW(main_window), FALSE, FALSE, FALSE);
     /* set main window title */
-    gtk_window_set_title(GTK_WINDOW(main_window), "HAL Meter");
+    gtk_window_set_title(GTK_WINDOW(main_window), win_name);
     /* this makes the application exit when the window is closed */
     gtk_signal_connect(GTK_OBJECT(main_window), "destroy",
 	GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
@@ -201,7 +224,7 @@ int main(int argc, gchar * argv[])
     if (meter == NULL) {
 	exit(-1);
     }
-    
+
     /* set up for initial probe, if any */
     if (initial_name != NULL) {
 	meter->probe->pickname = initial_name;
@@ -214,35 +237,39 @@ int main(int argc, gchar * argv[])
     gtk_widget_show(meter->value_label);
 
     /* add the meter's name label to the vbox */
-    gtk_box_pack_start(GTK_BOX(vbox), meter->name_label, TRUE, TRUE, 0);
-    gtk_widget_show(meter->name_label);
+    if ( !small ) {
+	gtk_box_pack_start(GTK_BOX(vbox), meter->name_label, TRUE, TRUE, 0);
+	gtk_widget_show(meter->name_label);
+    }
 
     /* arrange for periodic refresh of the value */
     gtk_timeout_add(100, refresh_value, meter);
 
     /* an hbox to hold the select and exit buttons */
-    hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, FALSE, TRUE, 0);
+    if ( !small ) {
+	hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, FALSE, TRUE, 0);
 
-    /* create the buttons and add them to the hbox */
-    button_select = gtk_button_new_with_label("Select");
-    button_exit = gtk_button_new_with_label("Exit");
+	/* create the buttons and add them to the hbox */
+	button_select = gtk_button_new_with_label("Select");
+	button_exit = gtk_button_new_with_label("Exit");
 
-    gtk_box_pack_start(GTK_BOX(hbox), button_select, TRUE, TRUE, 4);
-    gtk_box_pack_start(GTK_BOX(hbox), button_exit, TRUE, TRUE, 4);
+	gtk_box_pack_start(GTK_BOX(hbox), button_select, TRUE, TRUE, 4);
+	gtk_box_pack_start(GTK_BOX(hbox), button_exit, TRUE, TRUE, 4);
 
-    /* make the application exit when the 'exit' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_exit), "clicked",
-	GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
+	/* make the application exit when the 'exit' button is clicked */
+	gtk_signal_connect(GTK_OBJECT(button_exit), "clicked",
+	    GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
 
-    /* activate the selection window when the 'select' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_select), "clicked",
-	GTK_SIGNAL_FUNC(popup_probe_window), meter->probe);
+	/* activate selection window when the 'select' button is clicked */
+	gtk_signal_connect(GTK_OBJECT(button_select), "clicked",
+	    GTK_SIGNAL_FUNC(popup_probe_window), meter->probe);
 
-    gtk_widget_show(button_select);
-    gtk_widget_show(button_exit);
+	gtk_widget_show(button_select);
+	gtk_widget_show(button_exit);
+    }
 
-    /* The interface is completely set up so we show the window and enter the
-       gtk_main loop. */
+    /* The interface is now set up so we show the window and
+       enter the gtk_main loop. */
     gtk_widget_show(main_window);
     gtk_main();
 
@@ -275,11 +302,13 @@ static meter_t *meter_new(void)
     gtk_label_set_line_wrap(GTK_LABEL(new->value_label), FALSE);
 
     /* create a label widget to hold the name */
-    new->name_label = gtk_label_new("------");
-    /* center justify text, no wordwrap */
-    gtk_label_set_justify(GTK_LABEL(new->name_label), GTK_JUSTIFY_CENTER);
-    gtk_label_set_line_wrap(GTK_LABEL(new->name_label), FALSE);
-
+    if ( !small ) {
+	new->name_label = gtk_label_new("------");
+	/* center justify text, no wordwrap */
+	gtk_label_set_justify(GTK_LABEL(new->name_label),
+	    GTK_JUSTIFY_CENTER);
+	gtk_label_set_line_wrap(GTK_LABEL(new->name_label), FALSE);
+    }
     return new;
 }
 
@@ -325,11 +354,11 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     if (probe->window == NULL) {
 	create_probe_window(probe);
     }
-    
+
     /* this selects the page holding the current selected probe */
-    if (probe->listnum >= 0)
+    if (probe->listnum >= 0) {
 	gtk_notebook_set_page((GtkNotebook *)probe->notebook, probe->listnum);
-    
+    }
     gtk_clist_clear(GTK_CLIST(probe->lists[0]));
     gtk_clist_clear(GTK_CLIST(probe->lists[1]));
     gtk_clist_clear(GTK_CLIST(probe->lists[2]));
@@ -341,11 +370,13 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	name = pin->name;
 	gtk_clist_append(GTK_CLIST(probe->lists[0]), &name);
 
-	/* if we have a pin selected, and it matches the current one, mark this row) */
+	/* if we have a pin selected, and it matches the current one,
+	   mark this row) */
 	if ((probe->listnum == 0) && (probe->pin == pin)) {
 	    gtk_clist_select_row(GTK_CLIST(probe->lists[0]), row, 0);
 	    /* Get the text from the list */
-	    gtk_clist_get_text(GTK_CLIST(probe->lists[0]), row, 0, &(probe->pickname));
+	    gtk_clist_get_text(GTK_CLIST(probe->lists[0]), row, 0,
+		&(probe->pickname));
 	}
 	
 	next = pin->next_ptr;
@@ -358,11 +389,13 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	name = sig->name;
 	gtk_clist_append(GTK_CLIST(probe->lists[1]), &name);
 
-	/* if we have a signal selected, and it matches the current one, mark this row) */
+	/* if we have a signal selected, and it matches the current
+	   one, mark this row) */
 	if ((probe->listnum == 1) && (probe->sig == sig)) {
 	    gtk_clist_select_row(GTK_CLIST(probe->lists[1]), row, 0);
 	    /* Get the text from the list */
-	    gtk_clist_get_text(GTK_CLIST(probe->lists[1]), row, 0, &(probe->pickname));
+	    gtk_clist_get_text(GTK_CLIST(probe->lists[1]), row, 0,
+		&(probe->pickname));
 	}
 
 	next = sig->next_ptr;
@@ -375,11 +408,13 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	name = param->name;
 	gtk_clist_append(GTK_CLIST(probe->lists[2]), &name);
 
-	/* if we have a param selected, and it matches the current one, mark this row) */
+	/* if we have a param selected, and it matches the current
+	   one, mark this row) */
 	if ((probe->listnum == 2) && (probe->param == param)) {
 	    gtk_clist_select_row(GTK_CLIST(probe->lists[2]), row, 0);
 	    /* Get the text from the list */
-	    gtk_clist_get_text(GTK_CLIST(probe->lists[2]), row, 0, &(probe->pickname));
+	    gtk_clist_get_text(GTK_CLIST(probe->lists[2]), row, 0,
+		&(probe->pickname));
 	}
 	
 	next = param->next_ptr;
@@ -448,7 +483,9 @@ static int refresh_value(gpointer data)
 	value_str = "---";
     }
     gtk_label_set_text(GTK_LABEL(meter->value_label), value_str);
-    gtk_label_set_text(GTK_LABEL(meter->name_label), name_str);
+    if (!small) {
+	gtk_label_set_text(GTK_LABEL(meter->name_label), name_str);
+    }
     return 1;
 }
 

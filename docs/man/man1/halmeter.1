@@ -1,0 +1,105 @@
+.\" Copyright (c) 2006 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH HALMETER "1"  "2006-03-13" "EMC Documentation" "HAL User's Manual"
+.SH NAME
+halmeter \- observe HAL pins, signals, and parameters
+.SH SYNOPSIS
+.B halmeter
+[\fB-s\fR] [\fBpin\fR|\fBsig\fR|\fBparam\fR \fIname\fR]
+.SH DESCRIPTION
+\fBhalmeter\fR is used to observe HAL (Hardware Abstraction
+Layer) pins, signals, or parameters.  It serves the same
+purpose as a multimeter does when working on physical systems.
+.SH OPTIONS
+.TP
+\fBpin\fR \fIname\fR
+display the HAL pin \fIname\fR.
+.TP
+\fBsig\fR \fIname\fR
+display the HAL signal \fIname\fR.
+.TP
+\fBparam\fR \fIname\fR
+display the HAL parameter \fIname\fR.
+.TP
+If neither \fBpin\fR, \fBsig\fR, or \fBparam\fR are specified, the
+window starts out blank and the user must select an item to observe.
+.TP
+\fB\-s\fR
+small window.  Non-interactive, must be used with \fBpin\fR, \fBsig\fR,
+or \fBparam\fR to select the item to display.  The item name is displayed 
+in the title bar instead of the window, and there are no SELECT or EXIT
+buttons.  Handy when you want a lot of meters in a small space.
+.SH USAGE
+Unless \fB\-s\fR is specified, there are two buttons, SELECT and EXIT.
+SELECT opens a dialog box to select the item (pin, signal, or parameter)
+to be observed.   EXIT does what you expect.
+
+The selection dialog has OK, ACCEPT, and CANCEL buttons.  OK displays
+the selected item and closes the dialog.  ACCEPT displays the selected
+item but keeps the selection dialog open.  CANCEL closes the dialog
+without changing the displayed item.
+
+.SH EXAMPLES
+
+.TP
+\fBhalmeter\fR
+Opens a meter window, with nothing initially displayed.  Use the SELECT
+button to choose an item to observe.  Does not return until the window
+is closed.
+.TP
+\fBhalmeter &\fR
+Open a meter window, with nothing initially displayed.  Use the SELECT
+button to choose an item.  Runs in the background leaving the shell 
+free for other commands.
+.TP
+\fBhalmeter pin\fR \fIparport.0.pin-03-out\fR \fB&\fR
+Open a meter window, initially displaying HAL pin \fIparport.0.pin-03-out\fR.
+The SELECT button can be used to display other items.  Runs in background.
+
+.TP
+\fBhalmeter -s pin\fR \fIparport.0.pin-03-out\fR \fB&\fR
+Open a small meter window, displaying HAL pin \fIparport.0.pin-03-out\fR.
+The displayed item cannot be changed.  Runs in background.
+
+.SH "SEE ALSO"
+
+.SH HISTORY
+
+.SH BUGS
+\fBhalmeter\fR uses scientific notation to display floating point numbers.
+This was done to handle the large dynamic range of HAL float signals, but
+is very ugly.  I would like to add range buttons and autoranging to make 
+it more like a real Digital Multimeter (DMM).
+.SH AUTHOR
+Written by John Kasunich, as part of the Enhanced Machine
+Controller (EMC) project.
+.SH REPORTING BUGS
+Report bugs to jmkasunich AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2003 John Kasunich.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
