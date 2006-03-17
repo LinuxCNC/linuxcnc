@@ -24,14 +24,14 @@ loadrt pid num_chan=3
 loadrt siggen
 
 # hook functions to realtime thread
-addf motenc.0.encoder-read motenc.thread 1
-addf motenc.0.digital-in-read motenc.thread 1
-addf siggen.0.update motenc.thread 1
-addf pid.0.do-pid-calcs motenc.thread 1
-addf pid.1.do-pid-calcs motenc.thread 1
-addf pid.2.do-pid-calcs motenc.thread 1
-addf motenc.0.digital-out-write motenc.thread 1
-addf motenc.0.dac-write motenc.thread 1
+addf motenc.0.encoder-read motenc.thread
+addf motenc.0.digital-in-read motenc.thread
+addf siggen.0.update motenc.thread
+addf pid.0.do-pid-calcs motenc.thread
+addf pid.1.do-pid-calcs motenc.thread
+addf pid.2.do-pid-calcs motenc.thread
+addf motenc.0.digital-out-write motenc.thread
+addf motenc.0.dac-write motenc.thread
 
 # create three position feedback signals
 newsig Xpos-fb float

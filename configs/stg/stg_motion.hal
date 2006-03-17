@@ -7,8 +7,10 @@ loadrt hal_stg
 
 # add functions to servo thread so they will be evaluated
 # every servo period
+# read inputs first
 addf stg.capture-position servo-thread 1
-addf stg.write-dacs servo-thread 1
+# write outputs last
+addf stg.write-dacs servo-thread -1
 
 # connect position feedback signals to encoders
 linksp Xpos-fb <= stg.0.position

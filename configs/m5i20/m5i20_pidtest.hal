@@ -24,15 +24,15 @@ loadrt pid num_chan=3
 loadrt siggen
 
 # hook functions to realtime thread
-addf m5i20.0.encoder-read m5i20.thread 1
-addf m5i20.0.misc-update m5i20.thread 1
-addf m5i20.0.digital-in-read m5i20.thread 1
-addf siggen.0.update m5i20.thread 1
-addf pid.0.do-pid-calcs m5i20.thread 1
-addf pid.1.do-pid-calcs m5i20.thread 1
-addf pid.2.do-pid-calcs m5i20.thread 1
-addf m5i20.0.digital-out-write m5i20.thread 1
-addf m5i20.0.dac-write m5i20.thread 1
+addf m5i20.0.encoder-read m5i20.thread
+addf m5i20.0.misc-update m5i20.thread
+addf m5i20.0.digital-in-read m5i20.thread
+addf siggen.0.update m5i20.thread
+addf pid.0.do-pid-calcs m5i20.thread
+addf pid.1.do-pid-calcs m5i20.thread
+addf pid.2.do-pid-calcs m5i20.thread
+addf m5i20.0.digital-out-write m5i20.threa1
+addf m5i20.0.dac-write m5i20.thread
 
 # create three position feedback signals
 newsig Xpos-fb float

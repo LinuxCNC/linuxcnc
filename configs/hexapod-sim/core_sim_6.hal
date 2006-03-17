@@ -1,5 +1,9 @@
 # core HAL config file for simulation
 
+# add motion controller functions to servo thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
 # create HAL signals for position commands from motion module
 newsig Xpos float
 linksp Xpos <= axis.0.motor-pos-cmd

@@ -5,7 +5,9 @@
 loadrt hal_parport cfg="0x0378"
 #
 # next connect the parport functions to threads
+# read inputs first
 addf parport.0.read base-thread 1
+# write outputs last
 addf parport.0.write base-thread -1
 #
 # finally connect physical pins to the signals

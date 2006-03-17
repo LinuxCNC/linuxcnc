@@ -101,47 +101,40 @@ setp debounce.0.delay 3
 
 # connect I/O driver functions to thread(s)
 #
-# NOTE: this would be _much_ easier if we allowed HAL to
-# load all the realtime modules, including the core EMC
-# ones.  As it is however, the EMC motion controller is
-# loaded by the run script, so we need to make sure that
-# input drivers execute before the motion module, and the
-# PID calcs and output drivers run after the motion module.
-# The number at the end of each line is the position in
-# the thread.
-addf motenc.3.encoder-read          servo-thread 1
-addf motenc.3.digital-in-read       servo-thread 2
-addf ax5214h.0.read                 servo-thread 3
-addf estop.0                        servo-thread 4
-addf encoder.capture-position       servo-thread 5
-addf motenc.3.adc-read              servo-thread 6
+addf motenc.3.encoder-read          servo-thread
+addf motenc.3.digital-in-read       servo-thread
+addf ax5214h.0.read                 servo-thread
+addf estop.0                        servo-thread
+addf encoder.capture-position       servo-thread
+addf motenc.3.adc-read              servo-thread
 
 # ladder logic is executed once all the inputs are read
-addf classicladder.0.refresh        servo-thread 7
+addf classicladder.0.refresh        servo-thread
 
+# now we run the motion controller
+addf motion-command-handler         servo-thread
+addf motion-controller              servo-thread
 
 # pid calculations are done after the motion module
-# has determined new position commands.  By passing
-# -1 to the addf command, the functions are installed
-# after the motion module.
-addf pid.0.do-pid-calcs             servo-thread -1
-addf pid.1.do-pid-calcs             servo-thread -1
-addf pid.2.do-pid-calcs             servo-thread -1
+# has determined new position commands.
+addf pid.0.do-pid-calcs             servo-thread
+addf pid.1.do-pid-calcs             servo-thread
+addf pid.2.do-pid-calcs             servo-thread
 
 # spindle signal handling is done next
-addf pid.3.do-pid-calcs             servo-thread -1
-addf mux2.0                         servo-thread -1
-addf scale.0                        servo-thread -1
-addf scale.1                        servo-thread -1
-addf mux4.0                         servo-thread -1
-addf wcomp.0                        servo-thread -1
-addf wcomp.1                        servo-thread -1
+addf pid.3.do-pid-calcs             servo-thread
+addf mux2.0                         servo-thread
+addf scale.0                        servo-thread
+addf scale.1                        servo-thread
+addf mux4.0                         servo-thread
+addf wcomp.0                        servo-thread
+addf wcomp.1                        servo-thread
 
 # output drivers are loaded last
-addf motenc.3.dac-write             servo-thread -1
-addf motenc.3.digital-out-write     servo-thread -1
-addf ax5214h.0.write                servo-thread -1
-addf parport.0.write                servo-thread -1
+addf motenc.3.dac-write             servo-thread
+addf motenc.3.digital-out-write     servo-thread
+addf ax5214h.0.write                servo-thread
+addf parport.0.write                servo-thread
 
 # the base thread (fast thread) isn't needed for step pulse
 # generation since this is a servo machine.  However we use

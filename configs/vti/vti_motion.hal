@@ -7,8 +7,10 @@ loadrt hal_vti num_chan=4 dio="IOIO"
 
 # add functions to servo thread so they will be evaluated
 # every servo period
+# read inputs first
 addf vti.capture-position servo-thread 1
-addf vti.write-dacs servo-thread 1
+# write outputs last
+addf vti.write-dacs servo-thread -1
 
 # connect position feedback signals to encoders
 linksp Xpos-fb <= vti.0.position

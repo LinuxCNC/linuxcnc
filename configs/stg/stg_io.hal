@@ -5,7 +5,9 @@
 
 # add I/O to servo thread so they will be evaluated
 # every servo period
+# read inputs first
 addf stg.di-read servo-thread 1
+# write outputs last
 addf stg.do-write servo-thread 1
 
 #uncomment following line if ADC's are needed (for example spindle-tach feedback)

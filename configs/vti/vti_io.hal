@@ -5,8 +5,10 @@
 
 # add I/O to servo thread so they will be evaluated
 # every servo period
+# read inputs first
 addf vti.di-read servo-thread 1
-addf vti.do-write servo-thread 1
+# write outputs last
+addf vti.do-write servo-thread -1
 
 #uncomment following line if ADC's are needed (for example spindle-tach feedback)
 #addf vti.0.read-adcs servo-thread 1

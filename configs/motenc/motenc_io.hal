@@ -13,11 +13,14 @@
 
 # Add I/O to servo thread so they will be evaluated
 # every servo period.
+# inputs get read at the beginning of the thread
 addf motenc.0.misc-update servo-thread 1
 #addf motenc.0.adc-read servo-thread 1
 addf motenc.0.digital-in-read servo-thread 1
 #addf classicladder.0.refresh servo-thread 1
-addf motenc.0.digital-out-write servo-thread 1
+
+# outputs get refreshed at the end of the thread
+addf motenc.0.digital-out-write servo-thread -1
 
 #
 # Connect motion controller I/Os

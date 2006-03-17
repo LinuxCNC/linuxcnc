@@ -5,15 +5,15 @@ loadrt blocks wcomp=9
 
 # add comparators to servo thread so they will be evaluated
 # every servo period
-addf wcomp.0 servo-thread 1
-addf wcomp.1 servo-thread 1
-addf wcomp.2 servo-thread 1
-addf wcomp.3 servo-thread 1
-addf wcomp.4 servo-thread 1
-addf wcomp.5 servo-thread 1
-addf wcomp.6 servo-thread 1
-addf wcomp.7 servo-thread 1
-addf wcomp.8 servo-thread 1
+addf wcomp.0 servo-thread
+addf wcomp.1 servo-thread
+addf wcomp.2 servo-thread
+addf wcomp.3 servo-thread
+addf wcomp.4 servo-thread
+addf wcomp.5 servo-thread
+addf wcomp.6 servo-thread
+addf wcomp.7 servo-thread
+addf wcomp.8 servo-thread
 
 # connect position feedback from step generators
 # to window comparators
