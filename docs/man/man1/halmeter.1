@@ -50,34 +50,34 @@ window starts out blank and the user must select an item to observe.
 \fB\-s\fR
 small window.  Non-interactive, must be used with \fBpin\fR, \fBsig\fR,
 or \fBparam\fR to select the item to display.  The item name is displayed 
-in the title bar instead of the window, and there are no SELECT or EXIT
+in the title bar instead of the window, and there are no "Select" or "Exit"
 buttons.  Handy when you want a lot of meters in a small space.
 .SH USAGE
-Unless \fB\-s\fR is specified, there are two buttons, SELECT and EXIT.
-SELECT opens a dialog box to select the item (pin, signal, or parameter)
-to be observed.   EXIT does what you expect.
+Unless \fB\-s\fR is specified, there are two buttons, "Select" and "Exit".
+"Select" opens a dialog box to select the item (pin, signal, or parameter)
+to be observed.  "Exit" does what you expect.
 
-The selection dialog has OK, ACCEPT, and CANCEL buttons.  OK displays
-the selected item and closes the dialog.  ACCEPT displays the selected
-item but keeps the selection dialog open.  CANCEL closes the dialog
+The selection dialog has "OK" "Apply", and "Cancel" buttons.  OK displays
+the selected item and closes the dialog.  "Apply" displays the selected
+item but keeps the selection dialog open.  "Cancel" closes the dialog
 without changing the displayed item.
 
 .SH EXAMPLES
 
 .TP
 \fBhalmeter\fR
-Opens a meter window, with nothing initially displayed.  Use the SELECT
+Opens a meter window, with nothing initially displayed.  Use the "Select"
 button to choose an item to observe.  Does not return until the window
 is closed.
 .TP
 \fBhalmeter &\fR
-Open a meter window, with nothing initially displayed.  Use the SELECT
+Open a meter window, with nothing initially displayed.  Use the "Select"
 button to choose an item.  Runs in the background leaving the shell 
 free for other commands.
 .TP
 \fBhalmeter pin\fR \fIparport.0.pin-03-out\fR \fB&\fR
 Open a meter window, initially displaying HAL pin \fIparport.0.pin-03-out\fR.
-The SELECT button can be used to display other items.  Runs in background.
+The "Select" button can be used to display other items.  Runs in background.
 
 .TP
 \fBhalmeter -s pin\fR \fIparport.0.pin-03-out\fR \fB&\fR

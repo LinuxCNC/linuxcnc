@@ -124,8 +124,8 @@ static int refresh_value(gpointer data);
 static char *data_value(int type, void *valptr);
 
 static void create_probe_window(probe_t * probe);
-static void accept_selection(GtkWidget * widget, gpointer data);
-static void accept_selection_and_close(GtkWidget * widget, gpointer data);
+static void apply_selection(GtkWidget * widget, gpointer data);
+static void apply_selection_and_close(GtkWidget * widget, gpointer data);
 static void close_selection(GtkWidget * widget, gpointer data);
 static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, gpointer data);
@@ -229,7 +229,7 @@ int main(int argc, gchar * argv[])
     if (initial_name != NULL) {
 	meter->probe->pickname = initial_name;
 	meter->probe->listnum = initial_type;
-	accept_selection(NULL, meter->probe);
+	apply_selection(NULL, meter->probe);
     }
 
     /* add the meter's value label to the vbox */
@@ -543,7 +543,7 @@ static char *data_value(int type, void *valptr)
 static void create_probe_window(probe_t * probe)
 {
     GtkWidget *vbox, *hbox, *notebk;
-    GtkWidget *button_OK, *button_accept, *button_cancel;
+    GtkWidget *button_OK, *button_apply, *button_cancel;
     GtkWidget *scrolled_window;
     gchar *tab_label_text[3];
     gint n;
@@ -611,32 +611,32 @@ static void create_probe_window(probe_t * probe)
     }
     gtk_widget_show(notebk);
 
-    /* an hbox to hold the OK, accept, and cancel buttons */
+    /* an hbox to hold the OK, apply, and cancel buttons */
     hbox = gtk_hbox_new_in_box(TRUE, 0, 0, vbox, FALSE, TRUE, 0);
 
     /* create the buttons and add them to the hbox */
     button_OK = gtk_button_new_with_label("OK");
-    button_accept = gtk_button_new_with_label("Accept");
+    button_apply = gtk_button_new_with_label("Apply");
     button_cancel = gtk_button_new_with_label("Cancel");
 
     gtk_box_pack_start(GTK_BOX(hbox), button_OK, TRUE, TRUE, 4);
-    gtk_box_pack_start(GTK_BOX(hbox), button_accept, TRUE, TRUE, 4);
+    gtk_box_pack_start(GTK_BOX(hbox), button_apply, TRUE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(hbox), button_cancel, TRUE, TRUE, 4);
 
     /* activate the new selection if 'OK' button is clicked */
     gtk_signal_connect(GTK_OBJECT(button_OK), "clicked",
-	GTK_SIGNAL_FUNC(accept_selection_and_close), probe);
+	GTK_SIGNAL_FUNC(apply_selection_and_close), probe);
 
-    /* activate the new selection if 'accept' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_accept), "clicked",
-	GTK_SIGNAL_FUNC(accept_selection), probe);
+    /* activate the new selection if 'apply' button is clicked */
+    gtk_signal_connect(GTK_OBJECT(button_apply), "clicked",
+	GTK_SIGNAL_FUNC(apply_selection), probe);
 
     /* make the window disappear if 'cancel' button is clicked */
     gtk_signal_connect(GTK_OBJECT(button_cancel), "clicked",
 	GTK_SIGNAL_FUNC(close_selection), probe);
 
     gtk_widget_show(button_OK);
-    gtk_widget_show(button_accept);
+    gtk_widget_show(button_apply);
     gtk_widget_show(button_cancel);
 
     /* set probe->window to NULL if window is destroyed */
@@ -646,7 +646,7 @@ static void create_probe_window(probe_t * probe)
     /* done */
 }
 
-static void accept_selection(GtkWidget * widget, gpointer data)
+static void apply_selection(GtkWidget * widget, gpointer data)
 {
     probe_t *probe;
 
@@ -675,9 +675,9 @@ static void accept_selection(GtkWidget * widget, gpointer data)
        wish to display, or all three are NULL if the item doesn't exist */
 }
 
-static void accept_selection_and_close(GtkWidget * widget, gpointer data)
+static void apply_selection_and_close(GtkWidget * widget, gpointer data)
 {
-    accept_selection(widget, data);
+    apply_selection(widget, data);
     close_selection(widget, data);
 }
 
