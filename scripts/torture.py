@@ -11,12 +11,19 @@ Turning feed override past 100% has also helped turn up bugs.
 from random import *
 from math import sin, cos, pi
 
+distances = [-10,1,-.1,0,0,.1,1,10]
+radii = [.1, 1, 10]
+arcangles = range(0, 360, 45)
+aangles = [-361,-89,-1,1,91,359]
+chance_angular = .5
+chance_angular_helix = .5
+
 def feed():
     "Half the time, change the feed rate"
     if random() < .5: return
     print "F%d" % randrange(100, 1000, 10),
 
-def torture_arc(x, y, z):
+def torture_arc(x, y, z, a):
     "Generate a random arc (helix)"
     plane = randrange(3)
     print "G%d" % (plane+17),
@@ -26,10 +33,10 @@ def torture_arc(x, y, z):
 
     feed()
 
-    theta = randrange(0, 360, 15) * pi / 180
-    theta1 = randrange(0, 361, 15) * pi / 180
-    r = randrange(1, 11)
-    q = randrange(-10, 11)/2.
+    theta = choice(arcangles)
+    theta1 = choice(arcangles)
+    r = choice(radii)
+    q = choice(distances)
 
     print "(%d %d)" % (theta*180/pi, theta1*180/pi),
     if plane == 0: # XY plane
@@ -59,11 +66,15 @@ def torture_arc(x, y, z):
         y = y + oy + cos(theta1)*r
         z = z + oz + sin(theta1)*r
 
+    if random() < chance_angular_helix:
+        a = a + choice(aangles)
+        print "A%f" % a,
+
     print "X%f Y%f Z%f" % (x, y, z)
 
-    return x, y, z
+    return x, y, z, a
 
-def torture_line(x, y, z):
+def torture_line(x, y, z, a):
     "Generate a random traverse or straight feed"
     kind = randrange(2)
     print "G%d" % kind,
@@ -74,9 +85,12 @@ def torture_line(x, y, z):
     y = y + randrange(-10, 11)/2.
     z = z + randrange(-10, 11)/2.
 
+    if random() < chance_angular:
+        a = a + randrange(-180, 80)/2.
+        print "A%f" % a,
     print "X%f Y%f Z%f" % (x, y, z)
 
-    return x, y, z
+    return x, y, z, a
 
 def torture_main(runs):
     """Generate random chains of movement several times, restarting near the
@@ -87,15 +101,18 @@ def torture_main(runs):
 
     print "g21"
     for i in range(runs):
-        x = y = 0
+        a = x = y = 0
         z = 20
-        print "G0 X0 Y0 Z20"
+        if chance_angular or chance_angular_helix:
+            print "G0 X0 Y0 A0 Z20"
+        else:
+            print "G0 X0 Y0 Z20"
         print "F100"
 
         while 1:
-            x, y, z = choice(funcs)(x, y, z)
-            if R(x) or R(y) or R(z,-10,30): break
+            x, y, z, a = choice(funcs)(x, y, z, a)
+            if R(x) or R(y) or R(z,-10,30) or R(a,-30000,30000): break
 
 # Do ten runs then print m2
-torture_main(10)
+torture_main(20)
 print "m2"
