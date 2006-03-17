@@ -1020,33 +1020,6 @@ static int init_threads(void)
     }
 #endif
 
-    /* add command handler function to servo thread */
-    retval =
-	hal_add_funct_to_thread("motion-command-handler", "servo-thread", 1);
-    if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: failed to add motion-command-handler to servo-thread\n");
-	return -1;
-    }
-    /* add motion controller function to servo thread */
-    retval = hal_add_funct_to_thread("motion-controller", "servo-thread", 2);
-    if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: failed to add motion-controller to servo-thread\n");
-	return -1;
-    }
-/*! \todo Another #if 0 */
-#if 0
-    /*! \todo FIXME - currently traj and handler are all inside the controller */
-    /* add trajectory planner function to traj thread */
-    retval = hal_add_funct_to_thread("motion-traj-planner", "traj-thread", 1);
-    if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: failed to add motion-traj-planner to traj-thread\n");
-	return -1;
-    }
-#endif
-
     /* init the time and rate using functions to affect traj, and the cubics
        properly, since they're coupled */
 
