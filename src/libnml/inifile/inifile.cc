@@ -482,13 +482,6 @@ const char *iniFind(void *fp, const char *tag, const char *section)
     char *value_string;
     char *end_value_string;
 
-    static bool depreciate = true;
-    /* Print one warning that this call *should* be depreciated. */
-    if (depreciate) {
-        fprintf(stderr, "iniFind is depreciated\n");
-        depreciate = false;
-    }
-
     /* check valid file */
     if (NULL == fp)
 	return NULL;
