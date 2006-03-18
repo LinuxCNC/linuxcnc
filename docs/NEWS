@@ -1,6 +1,10 @@
 # some of EMC2 History & News
 #############################
 
+2006.03.18 - A new pin "count" exists for freqgen.  It is the same as the 
+             internal symbol "count" shown in the hal introduction.pdf,
+             or the result of up OR down if there was an "OR" component.
+
 2006.03.12 - If a copy of axis 1.3a0 or newer is detected inside src/
              it will be automatically built and installed for
              --enable-run-in-place use
