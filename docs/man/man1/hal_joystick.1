@@ -1,0 +1,81 @@
+.\" Copyright (c) 2006 John Kasunich
+.\"                (jmkasunich AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH HAL_JOYSTICK "1"  "2006-03-13" "EMC Documentation" "HAL User's Manual"
+.SH NAME
+hal_joystick \- control HAL pins with a joystick
+.SH SYNOPSIS
+\fBhal_joystick\fR [\fB-d\fR \fIdevice\fR] [\fB-p\fR \fIprefix\fR]
+.SH DESCRIPTION
+\fBhal_joystick\fR allows a joystick to generate HAL (Hardware Abstraction
+Layer) signals.  Although not a hard realtime component, it is quite 
+responsive under moderate system load.  It provides analog (float) HAL
+pins for each joystick axis, and digital (bit) pins for each joystick
+button or trigger.
+.SH OPTIONS
+.TP
+\fB-d\fR \fIdevice\fR
+use \fIdevice\fR as the joystick device (default is /dev/js0).
+.TP
+\fB-p\fR \fIprefix\fR
+use \fIprefix\fR for the HAL pin names (default is "joystick.0").
+.SH USAGE
+\fBhal_joystick\fR runs forever until interrupted with SIGINT or SIGTERM.
+Normally it would be invoked as \fBhal_joystick &\fR to run in the background.
+
+For each joystick axis, it exports a HAL float pin called "<prefix>.axis.<N>" where N is an integer, starting at zero.  The value of the pin will range from
+-1.0 to +1.0 as the axis is moved thru its range of motion.
+
+For each joystick button, it exports a HAL bit pin called "<prefix>.button.<M>"
+where M is also an integer starting at zero.
+
+The mapping of axis and buttons to N and M are joystick dependent, as is the
+direction of motion that results in positive values of the axis pin.
+\fBhal_joystick\fR uses the numbering and direction that is reported by the
+Linux joystick driver.  For modern USB or other digital joysticks, the Linux
+driver figures out the number of axis and buttons automatically.  For older 
+analog joysticks, the driver may need configured by the user.  See Linux
+documentation for more details.  Once the Linux driver is properly configured,
+the HAL driver will configure itself to match automatically.
+.SH "SEE ALSO"
+
+.SH HISTORY
+
+.SH BUGS
+Perhaps the analog axes should have a "scale" parameter that could be used
+to scale the -1.0 to +1.0 range to whatever the user needs. It would also
+allow the direction of an axis to be reversed by using a negative scale.
+This can already be done using a HAL scale block, but a built-in scale 
+parameter would be more convenient.
+.SH AUTHOR
+Written by John Kasunich, as part of the Enhanced Machine
+Controller (EMC) project.
+.SH REPORTING BUGS
+Report bugs to jmkasunich AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2003 John Kasunich.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
