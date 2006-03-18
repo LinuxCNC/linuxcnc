@@ -1,0 +1,136 @@
+loadrt hal_parport cfg="0x378"
+
+loadrt encoder num_chan=2 period=50000
+
+newsig Xpos-fb float
+newsig Ypos-fb float
+
+setp encoder.0.position-scale [AXIS_0]INPUT_SCALE
+setp encoder.1.position-scale [AXIS_1]INPUT_SCALE
+
+linkpp encoder.0.phase-A <= parport.0.pin-10-in
+linkpp encoder.0.phase-B <= parport.0.pin-11-in
+linkpp encoder.1.phase-A <= parport.0.pin-12-in
+linkpp encoder.1.phase-B <= parport.0.pin-13-in
+
+linksp Xpos-fb <= encoder.0.position
+linksp Ypos-fb <= encoder.1.position
+
+newsig Xvel-cmd float
+newsig Yvel-cmd float
+
+loadrt pid num_chan=2
+linksp Xpos-fb => pid.0.feedback
+linksp Ypos-fb => pid.1.feedback
+linksp Xpos-fb => axis.0.motor-pos-fb
+linksp Ypos-fb => axis.1.motor-pos-fb
+
+linksp Xvel-cmd <= pid.0.output
+linksp Yvel-cmd <= pid.1.output
+
+loadrt freqgen step_type=1,1
+linksp Xvel-cmd => freqgen.0.velocity
+linksp Yvel-cmd => freqgen.1.velocity
+
+newsig Xpwm bit
+newsig Ypwm bit
+linkps freqgen.0.count Xpwm
+linkps freqgen.1.count Ypwm
+
+loadrt blocks comp=2 constant=1 ddt=4
+setp constant.0.value 0.0
+linkpp constant.0.out comp.0.in0
+linksp constant.0.out comp.1.in0
+linksp Xvel-cmd comp.0.in1
+linksp Yvel-cmd comp.1.in1
+newsig Xdir bit
+newsig Ydir bit
+linkps comp.0.out => Xdir
+linkps comp.1.out => Ydir
+
+linksp Xdir    => parport.0.pin-02-out
+linksp Xdir    => parport.0.pin-04-out
+setp parport.0.pin-02-out-invert TRUE
+linksp Xpwm => parport.0.pin-03-out
+
+linksp Ydir    => parport.0.pin-05-out
+linksp Ydir    => parport.0.pin-07-out
+setp parport.0.pin-05-out-invert TRUE
+linksp Ypwm => parport.0.pin-06-out
+
+setp pid.0.maxoutput 1.0
+setp pid.1.maxoutput 1.0
+
+# the values below come from the ini
+setp pid.0.Pgain [AXIS_0]P
+setp pid.0.Igain [AXIS_0]I
+setp pid.0.Dgain [AXIS_0]D
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+# deadband should be just over 1 count
+setp pid.0.deadband [AXIS_0]DEADBAND
+
+setp pid.1.Pgain [AXIS_1]P
+setp pid.1.Igain [AXIS_1]I
+setp pid.1.Dgain [AXIS_1]D
+setp pid.1.bias [AXIS_1]BIAS
+setp pid.1.FF0 [AXIS_1]FF0
+setp pid.1.FF1 [AXIS_1]FF1
+# deadband should be just over 1 count
+setp pid.1.deadband [AXIS_1]DEADBAND
+
+newsig Xpos-cmd float
+newsig Ypos-cmd float
+linksp Xpos-cmd <= axis.0.motor-pos-cmd
+linksp Ypos-cmd <= axis.1.motor-pos-cmd
+linkps pid.0.command <= Xpos-cmd
+linkps pid.1.command <= Ypos-cmd
+linkpp pid.0.enable axis.0.amp-enable-out
+linkpp pid.1.enable axis.1.amp-enable-out
+
+addf parport.0.read            base-thread 1
+addf encoder.update-counters   base-thread 2
+addf freqgen.make-pulses       base-thread 3
+addf parport.0.write           base-thread 4
+
+addf motion-command-handler    servo-thread 1
+addf encoder.capture-position  servo-thread 2
+addf pid.0.do-pid-calcs        servo-thread 3
+addf pid.1.do-pid-calcs        servo-thread 4
+addf constant.0                servo-thread 5
+addf comp.0                    servo-thread 6
+addf comp.1                    servo-thread 7
+addf freqgen.update-freq       servo-thread 8
+addf ddt.0                     servo-thread 9
+addf ddt.1                     servo-thread 10
+addf ddt.2                     servo-thread 11
+addf ddt.3                     servo-thread 12
+addf motion-controller         servo-thread 13
+
+linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+newsig Xvel float
+newsig Xacc float
+linksp Xpos-cmd => ddt.0.in
+linkps ddt.0.out => Xvel
+linksp Xvel => ddt.1.in
+linkps ddt.1.out => Xacc
+newsig Yvel float
+newsig Yacc float
+linksp Ypos-cmd => ddt.2.in
+linkps ddt.2.out => Yvel
+linksp Yvel => ddt.3.in
+linkps ddt.3.out => Yacc
+
+loadrt scope_rt
+loadusr halscope
+
+# These depend on the rounded BASE_PERIOD
+#setp freqgen.0.velocity-scale 19885
+#setp freqgen.1.velocity-scale 19885
+setp freqgen.0.velocity-scale 49885
+setp freqgen.1.velocity-scale 49885
+
+linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
