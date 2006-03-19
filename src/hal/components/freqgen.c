@@ -755,18 +755,19 @@ static void update_freq(void *arg, long period)
 	} else {
 	    limf = maxf;
 	}
-	/* check for illegal (negative) maxfreq parameter */
+	/* check for user specified frequency limit parameter */
 	if (freqgen->maxfreq <= 0.0) {
 	    /* set to zero if negative */
 	    freqgen->maxfreq = 0.0;
-	}
-	/* check limf against maxfreq parameter */
-	if (freqgen->maxfreq > limf) {
-	    /* parameter is too high, lower it */
-	    freqgen->maxfreq = limf;
 	} else {
-	    /* lower limit to match parameter */
-	    limf = freqgen->maxfreq;
+	    /* parameter is non-zero, compare to limf */
+	    if (freqgen->maxfreq > limf) {
+		/* parameter is too high, lower it */
+		freqgen->maxfreq = limf;
+	    } else {
+		/* lower limit to match parameter */
+		limf = freqgen->maxfreq;
+	    }
 	}
 	/* convert velocity command to Hz */
 	tmpf = *(freqgen->vel) * freqgen->vel_scale;
