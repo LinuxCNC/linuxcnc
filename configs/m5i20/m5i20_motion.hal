@@ -35,30 +35,6 @@ setp m5i20.0.dac-00-offset [AXIS_0]OUTPUT_OFFSET
 setp m5i20.0.dac-01-offset [AXIS_1]OUTPUT_OFFSET
 setp m5i20.0.dac-02-offset [AXIS_2]OUTPUT_OFFSET
 
-# Get tuning params from ini file.
-setp pid.0.deadband [AXIS_0]DEADBAND
-setp pid.0.Pgain [AXIS_0]P
-setp pid.0.Igain [AXIS_0]I
-setp pid.0.Dgain [AXIS_0]D
-setp pid.0.FF0 [AXIS_0]FF0
-setp pid.0.FF1 [AXIS_0]FF1
-setp pid.0.bias [AXIS_0]BIAS
-
-setp pid.1.deadband [AXIS_1]DEADBAND
-setp pid.1.Pgain [AXIS_1]P
-setp pid.1.Igain [AXIS_1]I
-setp pid.1.Dgain [AXIS_1]D
-setp pid.1.FF0 [AXIS_1]FF0
-setp pid.1.FF1 [AXIS_1]FF1
-setp pid.1.bias [AXIS_1]BIAS
-
-setp pid.2.deadband [AXIS_2]DEADBAND
-setp pid.2.Pgain [AXIS_2]P
-setp pid.2.Igain [AXIS_2]I
-setp pid.2.Dgain [AXIS_2]D
-setp pid.2.FF0 [AXIS_2]FF0
-setp pid.2.FF1 [AXIS_2]FF1
-setp pid.2.bias [AXIS_2]BIAS
 
 # Get maximum (and minimum) output volts from ini file.
 setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
