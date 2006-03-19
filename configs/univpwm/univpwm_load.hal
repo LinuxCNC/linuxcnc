@@ -16,8 +16,8 @@ loadrt blocks ddt=4
 # read inputs first
 addf ppmc.0.read servo-thread
 # then run the motion controller
-addf motion-command-handler
-addf motion-controller
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
 # then the PID loops
 addf pid.0.do-pid-calcs servo-thread
 addf pid.1.do-pid-calcs servo-thread
