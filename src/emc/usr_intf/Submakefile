@@ -10,9 +10,10 @@ USRMOTSRCS := \
 	emc/motion/emcmotglb.c \
 	emc/motion/emcmotutil.c \
 	$(ULAPISRCS)
+HALUISRCS := emc/usr_intf/halui.cc $(ULAPISRCS) hal/hal_lib.c
 
 TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
-USERSRCS += $(EMCSHSRCS) $(IOSHSRCS) $(USRMOTSRCS)
+USERSRCS += $(EMCSHSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS)
 
 $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 
@@ -28,4 +29,7 @@ TARGETS += ../bin/iosh
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
 TARGETS += ../bin/usrmot
 
+../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ 
+TARGETS += ../bin/halui
 
