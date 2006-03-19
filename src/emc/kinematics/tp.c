@@ -598,6 +598,20 @@ int tpRunCycle(TP_STRUCT * tp)
             tc->blend_vel *= tc->maxaccel/nexttc->maxaccel;
 
         if(tc->tolerance) {
+            /* see diagram blend.fig.  T (blend tolerance) is given, theta
+             * is calculated from dot(s1,s2)
+             *
+             * blend criteria: we are decelerating at the end of segment s1
+             * and we pass distance d from the end.  
+             * find the corresponding velocity v when passing d.
+             *
+             * in the drawing note d = 2T/cos(theta)
+             *
+             * when v1 is decelerating at a to stop, v = at, t = v/a
+             * so required d = .5 a (v/a)^2
+             *
+             * equate the two expressions for d and solve for v
+             */
             double tblend_vel;
             double dot;
             double theta;
