@@ -315,6 +315,9 @@ void capture_complete(void)
     default:
 	break;
     }
+	
+	//uncomment me to write log files
+	//write_log_file("scope.log");
     refresh_display();
 }
 

@@ -1,6 +1,6 @@
 /** This file, 'scope_files.c', handles file I/O for halscope.
     It includes code to save and restore front panel setups,
-    and eventually to save captured scope data.
+    and a clunky way to save captured scope data.
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -227,6 +227,106 @@ void write_config_file (char *filename)
 	fprintf(fp, "RMODE 0\n" );
     }
     fclose(fp);
+}
+
+/* writes captured data to disk */
+//add some kind of log_style variable to ctrl_usr or ctrl_usr->disp
+/* style 0 interlaced channels, style 1 separated channels */
+void write_log_file (char *filename)
+{
+	scope_data_t *sample;
+	scope_data_t *maxsamples;
+	int sample_len, chan_num;
+	char *label;
+    //scope_disp_t *disp;
+    scope_chan_t *chan;
+    hal_type_t type;
+    FILE *fp;
+	
+	chan_num=1; //only log the first channel, for testing purposes
+	
+    fp = fopen(filename, "w");
+    if ( fp == NULL ) {
+	fprintf(stderr, "ERROR: log file '%s' could not be created\n", filename );
+	return;
+    }
+    /* write data */
+	fprintf(fp, "Data goes here... \n" );
+	
+    //disp = &(ctrl_usr->disp);
+    chan = &(ctrl_usr->chan[chan_num - 1]);
+    sample_len = ctrl_shm->sample_len;
+    type = chan->data_type;
+	//add some array overflow checks here?
+	//duh.. how do i concatenate strings in C?
+    label = chan->name;
+	/* maxsamples points to the end of the display buffer */
+	maxsamples = (ctrl_usr->samples + ctrl_usr->disp_buf);
+	fprintf(stderr, "maxsamples = %p \n", maxsamples);
+
+    /* point to first sample in the record for this channel */
+    sample = ctrl_usr->disp_buf + ctrl_usr->vert.data_offset[chan_num - 1];
+	while (sample <= maxsamples) {
+	write_sample( fp, label, sample, type);
+
+	/* point to next sample */
+	sample += sample_len;
+
+    }
+
+
+
+	/* start at the beginning of the display buffer */
+	//for (sample = ctrl_usr->disp_buf; sample <= maxsamples ; sample++){
+		
+	//	fprintf(fp, "%d\n", *sample );
+	//}
+	////fprintf(fp, "Number of channels: %s \n", ctrl_shm->sample_len );
+    
+    fclose(fp);
+    fprintf(stderr, "Log file '%s' written.\n", filename );
+}
+
+/* format the data and print it */
+void write_sample(FILE *fp, char *label, scope_data_t *dptr, hal_type_t type)
+{
+	double data_value;
+	switch (type) {
+		case HAL_BIT:
+			if (dptr->d_u8) {
+			data_value = 1.0;
+			} else {
+			data_value = 0.0;
+			};
+			break;
+		case HAL_FLOAT:
+			data_value = dptr->d_float;
+			break;
+		case HAL_S8:
+			data_value = dptr->d_s8;
+			break;
+		case HAL_U8:
+			data_value = dptr->d_u8;
+			break;
+		case HAL_S16:
+			data_value = dptr->d_s16;
+			break;
+		case HAL_U16:
+			data_value = dptr->d_u16;
+			break;
+		case HAL_S32:
+			data_value = dptr->d_s32;
+			break;
+		case HAL_U32:
+			data_value = dptr->d_u32;
+			break;
+		default:
+			data_value = 0.0;
+			break;
+		}
+	/*actually write the data to disk */
+	/* this should look something like CHAN1 1.234 */
+	fprintf(fp, "%s %f ", label, data_value );
 }
 
 

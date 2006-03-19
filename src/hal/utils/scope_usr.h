@@ -242,6 +242,8 @@ void write_config_file (char *filename);
 void write_horiz_config(FILE *fp);
 void write_vert_config(FILE *fp);
 void write_trig_config(FILE *fp);
+void write_log_file (char *filename);
+void write_sample(FILE *fp, char *label, scope_data_t *dptr, hal_type_t type);
 
 /* the following functions set various parameters, they are normally
    called by the GUI, but can also be called by code reading a file
