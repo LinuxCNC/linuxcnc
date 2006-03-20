@@ -112,10 +112,6 @@ typedef struct {
 /* ptr to array of sim_enc_t structs in shared memory, 1 per channel */
 static sim_enc_t *sim_enc_array;
 
-/* lookup tables for A and B phases - phase A is the LSB */
-
-static const unsigned char master_lut[4] = {1, 3, 2, 0};
-
 /* other globals */
 static int comp_id;		/* component ID */
 static long periodns;		/* makepulses function period in nanosec */
@@ -169,11 +165,9 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-rtapi_print ("after allocation, about to enter export loop\n" );
     /* export all the variables for each simulated encoder */
     for (n = 0; n < num_chan; n++) {
 	/* export all vars */
-rtapi_print ("calling export for encoder %d, address is %p\n", n, &(sim_enc_array[n]) );
 	retval = export_sim_enc(n, &(sim_enc_array[n]));
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -259,7 +253,7 @@ static void make_pulses(void *arg, long period)
 		    /* state overflow, roll over */
 		    sim_enc->state = 0;
 		    /* increment cycle, detect overflow */
-		    if (++(sim_enc->cycle) > sim_enc->ppr) {
+		    if (++(sim_enc->cycle) >= sim_enc->ppr) {
 			/* cycle overflow, roll over */
 			sim_enc->cycle = 0;
 		    }
@@ -348,8 +342,7 @@ static int export_sim_enc(int num, sim_enc_t * addr)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-//    rtapi_set_msg_level(RTAPI_MSG_WARN);
-rtapi_print ( "in export_sim_enc, addr = %p\n", addr );
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export param variable for pulses per rev */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.ppr", num);
     retval = hal_param_u32_new(buf, HAL_WR, &(addr->ppr), comp_id);
@@ -362,13 +355,6 @@ rtapi_print ( "in export_sim_enc, addr = %p\n", addr );
     if (retval != 0) {
 	return retval;
     }
-    /* init parameter */
-    addr->ppr = 100;
-    /* init the state variables */
-    addr->accum = 0;
-    addr->addval = 0;
-    addr->state = 0;
-    addr->cycle = 0;
     /* export pins for output phases */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.phase-A", num);
     retval = hal_pin_bit_new(buf, HAL_WR, &(addr->phaseA), comp_id);
@@ -385,11 +371,18 @@ rtapi_print ( "in export_sim_enc, addr = %p\n", addr );
     if (retval != 0) {
 	return retval;
     }
+    /* init parameter */
+    addr->ppr = 100;
+    /* init the state variables */
+    addr->accum = 0;
+    addr->addval = 0;
+    addr->state = 0;
+    addr->cycle = 0;
     /* init the outputs */
     *(addr->phaseA) = 0;
     *(addr->phaseB) = 0;
     *(addr->phaseZ) = 0;
     /* restore saved message level */
-//    rtapi_set_msg_level(msg);
+    rtapi_set_msg_level(msg);
     return 0;
 }
