@@ -151,6 +151,8 @@ typedef struct {
     GtkObject *pos_adj;
 } scope_trig_t;
 
+
+
 /* this struct holds control data related to the display */
 /* it lives in user space (as part of the master control struct) */
 
@@ -174,6 +176,15 @@ typedef struct {
 
     GdkGC *context;		/* graphics context for drawing */
 } scope_disp_t;
+
+/* log file display mode */
+
+typedef enum { INTERLACED, NOT_INTERLACED } log_order_t;
+
+typedef struct {
+	log_order_t log_order;
+	
+} scope_log_t;
 
 /* this is the master user space control structure */
 
@@ -207,6 +218,7 @@ typedef struct {
     scope_vert_t vert;		/* vertical control data */
     scope_trig_t trig;		/* triggering data */
     scope_disp_t disp;		/* display data */
+	scope_log_t log;  		/* logging preferences */
 } scope_usr_control_t;
 
 /***********************************************************************

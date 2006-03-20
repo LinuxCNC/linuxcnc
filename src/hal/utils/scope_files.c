@@ -230,58 +230,80 @@ void write_config_file (char *filename)
 }
 
 /* writes captured data to disk */
-//add some kind of log_style variable to ctrl_usr or ctrl_usr->disp
-/* style 0 interlaced channels, style 1 separated channels */
+
 void write_log_file (char *filename)
 {
-	scope_data_t *sample;
-	scope_data_t *maxsamples;
-	int sample_len, chan_num;
-	char *label;
+	scope_data_t *dptr, *start;
+	scope_horiz_t *horiz;
+	int sample_len, chan_num, sample_period_ns, samples, n;
+	char *label[16];
     //scope_disp_t *disp;
+	scope_log_t *log;
     scope_chan_t *chan;
-    hal_type_t type;
+    hal_type_t type[16];
     FILE *fp;
 	
-	chan_num=1; //only log the first channel, for testing purposes
-	
+
+
     fp = fopen(filename, "w");
     if ( fp == NULL ) {
 	fprintf(stderr, "ERROR: log file '%s' could not be created\n", filename );
 	return;
     }
-    /* write data */
-	fprintf(fp, "Data goes here... \n" );
-	
+
+	/* fill in local variables */
+	for (chan_num=0; chan_num<16; chan_num++) {
+		chan = &(ctrl_usr->chan[chan_num]);
+	    label[chan_num] = chan->name;
+	 	type[chan_num] = chan->data_type;
+	}    
+	/* sample_len is really the number of channels, don't let it fool you */
+	sample_len = ctrl_shm->sample_len;
     //disp = &(ctrl_usr->disp);
-    chan = &(ctrl_usr->chan[chan_num - 1]);
-    sample_len = ctrl_shm->sample_len;
-    type = chan->data_type;
-	//add some array overflow checks here?
-	//duh.. how do i concatenate strings in C?
-    label = chan->name;
-	/* maxsamples points to the end of the display buffer */
-	maxsamples = (ctrl_usr->samples + ctrl_usr->disp_buf);
-	fprintf(stderr, "maxsamples = %p \n", maxsamples);
+	n=0;
+	samples = ctrl_usr->samples*sample_len ;
+	//fprintf(stderr, "maxsamples = %p \n", maxsamples);
+	log = &(ctrl_usr->log);
+	horiz = &(ctrl_usr->horiz);
+	sample_period_ns = horiz->thread_period_ns * ctrl_shm->mult;
 
-    /* point to first sample in the record for this channel */
-    sample = ctrl_usr->disp_buf + ctrl_usr->vert.data_offset[chan_num - 1];
-	while (sample <= maxsamples) {
-	write_sample( fp, label, sample, type);
+	//for testing, this will be a check box or something eventually
+	log->log_order=INTERLACED;
 
-	/* point to next sample */
-	sample += sample_len;
+    /* write data */
+    fprintf(fp, "Sampling period is %i nSec \n", sample_period_ns );
 
-    }
+	/* point to the first sample in the display buffer */
+	start = ctrl_usr->disp_buf ;
 
-
-
-	/* start at the beginning of the display buffer */
-	//for (sample = ctrl_usr->disp_buf; sample <= maxsamples ; sample++){
-		
-	//	fprintf(fp, "%d\n", *sample );
-	//}
-	////fprintf(fp, "Number of channels: %s \n", ctrl_shm->sample_len );
+	switch (log->log_order) {
+		case INTERLACED:
+				while (n <= samples) {
+				
+					for (chan_num=0; chan_num<sample_len; chan_num++) {	
+						dptr=start+n;	
+						if ((n%sample_len)==0){
+						fprintf( fp, "\n");
+						}
+						write_sample( fp, label[chan_num], dptr, type[chan_num]);
+						/* point to next sample */
+						n++;
+					}
+   				 }
+				break;
+		case NOT_INTERLACED:
+				for (chan_num=0; chan_num<sample_len; chan_num++) {
+					n=chan_num;
+					while (n <= samples) {
+						dptr=start+n;
+						write_sample( fp, label[chan_num], dptr, type[chan_num]);
+						fprintf( fp, "\n");
+						/* point to next sample */
+						n += sample_len;
+					}
+   				 }
+				break;
+	}
     
     fclose(fp);
     fprintf(stderr, "Log file '%s' written.\n", filename );
