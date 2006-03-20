@@ -80,6 +80,8 @@
 #define MAX_EXPECTED_SIGS 999
 
 static int release_HAL_mutex(void);
+static int replace_vars(char *source_str, char *dest_str, int max_chars);
+static int tokenize(char *src, char **tokens);
 static int parse_cmd(char *tokens[]);
 static int do_help_cmd(char *command);
 static int do_lock_cmd(char *command);
@@ -172,6 +174,105 @@ static void quit(int sig)
     }
 }
 
+
+/* tokenize():
+   this sets an array of pointers to each non-whitespace token in the input line
+*/
+static int tokenize(char *cmd_buf, char **tokens)
+{
+    enum { BETWEEN_TOKENS,
+           IN_TOKEN,
+	   SINGLE_QUOTE,
+	   DOUBLE_QUOTE,
+	   END_OF_LINE } state;
+    char *cp1;
+    int m;
+
+    /* convert a line of text into individual tokens */
+    m = 0;
+    cp1 = cmd_buf;
+    state = BETWEEN_TOKENS;
+    while ( m < MAX_TOK ) {
+	switch ( state ) {
+	case BETWEEN_TOKENS:
+	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line */
+		state = END_OF_LINE;
+	    } else if ( isspace(*cp1) ) {
+		/* whitespace, skip it */
+		cp1++;
+	    } else {
+		/* first char of a token */
+		tokens[m] = cp1++;
+		state = IN_TOKEN;
+	    }
+	    break;
+	case IN_TOKEN:
+	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line, terminate current token */
+		*cp1++ = '\0';
+		m++;
+		state = END_OF_LINE;
+	    } else if ( *cp1 == '\'' ) {
+		/* start of a quoted string */
+		cp1++;
+		state = SINGLE_QUOTE;
+	    } else if ( *cp1 == '\"' ) {
+		/* start of a quoted string */
+		cp1++;
+		state = DOUBLE_QUOTE;
+	    } else if ( isspace(*cp1) ) {
+		/* end of the current token */
+		*cp1++ = '\0';
+		m++;
+		state = BETWEEN_TOKENS;
+	    } else {
+		/* ordinary character */
+		cp1++;
+	    }
+	    break;
+	case SINGLE_QUOTE:
+	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line, terminate current token */
+		*cp1++ = '\0';
+		m++;
+		state = END_OF_LINE;
+	    } else if ( *cp1 == '\'' ) {
+		/* end of quoted string */
+		cp1++;
+		state = IN_TOKEN;
+	    } else {
+		/* ordinary character */
+		cp1++;
+	    }
+	    break;
+	case DOUBLE_QUOTE:
+	    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
+		/* end of the line, terminate current token */
+		*cp1++ = '\0';
+		m++;
+		state = END_OF_LINE;
+	    } else if ( *cp1 == '\"' ) {
+		/* end of quoted string */
+		cp1++;
+		state = IN_TOKEN;
+	    } else {
+		/* ordinary character, copy to buffer */
+		cp1++;
+	    }
+	    break;
+	case END_OF_LINE:
+	    *cp1 = '\0';
+	    tokens[m++] = cp1;
+	    break;
+	default:
+	    /* should never get here */
+	    return -1;
+	}
+    }
+    return 0;
+}
+
 /* main() is responsible for parsing command line options, and then
    parsing either a single command from the command line or a series
    of commands from a file or standard input.  It breaks the command[s]
@@ -181,16 +282,11 @@ static void quit(int sig)
 
 int main(int argc, char **argv)
 {
-    int n, m, fd;
+    int n, fd;
     int keep_going, retval, errorcount;
-    enum { BETWEEN_TOKENS,
-           IN_TOKEN,
-	   SINGLE_QUOTE,
-	   DOUBLE_QUOTE,
-	   END_OF_LINE } state;
     char *cp1, *filename = NULL;
     FILE *srcfile = NULL;
-    char cmd_buf[MAX_CMD_LEN+1];
+    char raw_buf[MAX_CMD_LEN+1], cmd_buf[2*MAX_CMD_LEN];
     char *tokens[MAX_TOK+1];
 
     if (argc < 2) {
@@ -335,21 +431,38 @@ int main(int argc, char **argv)
     /* HAL init is OK, let's process the command(s) */
     if (srcfile == NULL) {
 	/* the remaining command line args are parts of the command */
-	m = 0;
-	while ((n < argc) && (n < MAX_TOK)) {
-	    tokens[m++] = argv[n++];
+	/* copy them to a long string for variable replacement */
+	raw_buf[0] = '\0';
+	while (n < argc) {
+	    strcat(raw_buf, argv[n++]);
+	    strcat(raw_buf, " ");
 	}
-	/* and the remaining space in the tokens array is empty */
-	while (m < MAX_TOK) {
-	    tokens[m++] = "";
+	raw_buf[strlen(raw_buf)]='\0';
+	
+	retval = replace_vars(raw_buf, cmd_buf, sizeof(cmd_buf)-2);
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL:%d: bad variable replacement\n", linenumber);
+	} else {
+	    retval = tokenize(cmd_buf, tokens);
+	    /* tokens[] contains MAX_TOK+1 elements so there is always
+	       at least one empty one at the end... make it empty now */
+	    if (retval != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: Bad state in token parser\n", linenumber);
+		/* the only error that can happen here is so strange, that we exit the program */
+		goto out;
+	    }
 	}
 	/* tokens[] contains MAX_TOK+1 elements so there is always
 	   at least one empty one at the end... make it empty now */
 	tokens[MAX_TOK] = "";
 	/* process the command */
-	retval = parse_cmd(tokens);
-	if ( retval != 0 ) {
-	    errorcount++;
+	if (retval == 0) {
+	    retval = parse_cmd(tokens);
+	    if ( retval != 0 ) {
+		errorcount++;
+	    }
 	}
     } else {
 	if (prompt_mode != 0) {
@@ -357,103 +470,33 @@ int main(int argc, char **argv)
 	    fflush(stdout);
 	}
 	/* read command line(s) from 'srcfile' */
-	while (fgets(cmd_buf, MAX_CMD_LEN, srcfile) != NULL) {
+	while (fgets(raw_buf, MAX_CMD_LEN, srcfile) != NULL) {
 	    linenumber++;
-	    /* convert a line of text into individual tokens */
-	    m = 0;
-	    cp1 = cmd_buf;
-	    state = BETWEEN_TOKENS;
-	    while ( m < MAX_TOK ) {
-		switch ( state ) {
-		case BETWEEN_TOKENS:
-		    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
-			/* end of the line */
-			state = END_OF_LINE;
-		    } else if ( isspace(*cp1) ) {
-			/* whitespace, skip it */
-			cp1++;
-		    } else {
-			/* first char of a token */
-			tokens[m] = cp1++;
-			state = IN_TOKEN;
-		    }
-		    break;
-		case IN_TOKEN:
-		    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
-			/* end of the line, terminate current token */
-			*cp1++ = '\0';
-			m++;
-			state = END_OF_LINE;
-		    } else if ( *cp1 == '\'' ) {
-			/* start of a quoted string */
-			cp1++;
-			state = SINGLE_QUOTE;
-		    } else if ( *cp1 == '\"' ) {
-			/* start of a quoted string */
-			cp1++;
-			state = DOUBLE_QUOTE;
-		    } else if ( isspace(*cp1) ) {
-			/* end of the current token */
-			*cp1++ = '\0';
-			m++;
-			state = BETWEEN_TOKENS;
-		    } else {
-			/* ordinary character */
-			cp1++;
-		    }
-		    break;
-		case SINGLE_QUOTE:
-		    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
-			/* end of the line, terminate current token */
-			*cp1++ = '\0';
-			m++;
-			state = END_OF_LINE;
-		    } else if ( *cp1 == '\'' ) {
-			/* end of quoted string */
-			cp1++;
-			state = IN_TOKEN;
-		    } else {
-			/* ordinary character */
-			cp1++;
-		    }
-		    break;
-		case DOUBLE_QUOTE:
-		    if (( *cp1 == '\n' ) || ( *cp1 == '\0' )) {
-			/* end of the line, terminate current token */
-			*cp1++ = '\0';
-			m++;
-			state = END_OF_LINE;
-		    } else if ( *cp1 == '\"' ) {
-			/* end of quoted string */
-			cp1++;
-			state = IN_TOKEN;
-		    } else {
-			/* ordinary character, copy to buffer */
-			cp1++;
-		    }
-		    break;
-		case END_OF_LINE:
-		    *cp1 = '\0';
-		    tokens[m++] = cp1;
-		    break;
-		default:
-		    /* should never get here */
+	    /* do variable replacements on command line */
+	    retval = replace_vars(raw_buf, cmd_buf, sizeof(cmd_buf)-2);
+	    if (retval != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL:%d: bad variable replacement\n", linenumber);
+	    }
+	    if (retval==0) {
+		retval = tokenize(cmd_buf, tokens);
+		/* tokens[] contains MAX_TOK+1 elements so there is always
+		   at least one empty one at the end... make it empty now */
+		if (retval != 0) {
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d: Bad state in token parser\n", linenumber);
-		    errorcount++;
-		    /* break out of switch and 2 loops, purists be damned */
+		    /* the only error that can happen here is so strange, that we exit the program */
 		    goto out;
 		}
 	    }
-	    /* tokens[] contains MAX_TOK+1 elements so there is always
-	       at least one empty one at the end... make it empty now */
 	    tokens[MAX_TOK] = "";
 	    /* the "quit" command is not handled by parse_cmd() */
 	    if ( ( strcasecmp(tokens[0],"quit") == 0 ) || ( strcasecmp(tokens[0],"exit") == 0 ) ) {
 		break;
 	    }
 	    /* process command */
-	    retval = parse_cmd(tokens);
+	    if (retval == 0)
+		retval = parse_cmd(tokens);
 	    /* did a signal happen while we were busy? */
 	    if ( done ) {
 		/* treat it as an error */
@@ -532,6 +575,112 @@ static int release_HAL_mutex(void)
     return HAL_SUCCESS;
 
 }
+
+/* replace_vars:
+   replaces environment and ini var references in source_str.
+   This routine does string replacement only
+   return value is 0 on success (ie, no variable lookups failed)
+   The source string is not modified
+
+   In case of an error, dest_str will contain everything that was
+   successfully replaced, but will not contain anything past the
+   var that caused the error.
+
+   environment vars are in the following formats:
+   $envvar<whitespace>
+   $(envvar)<any char>
+
+   ini vars are in the following formats:
+   [SECTION]VAR<whitespace>
+   [SECTION](VAR)<any char>
+   
+   return values:
+   0	success
+   -1	missing close parenthesis
+   -2	null variable name (either environment or ini varname)
+   -3	missing close square bracket
+   -4	environment variable not found
+   -5	ini variable not found
+*/
+static int replace_vars(char *source_str, char *dest_str, int max_chars)
+{
+    int retval = 0, loopcount=0;
+    int next_delim, remaining;
+    char *replacement, sec[128], var[128];
+    char *sp=source_str, *dp=dest_str, *secP, *varP;
+    const char 
+	* words = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_";
+
+    dest_str[max_chars-1] = '\0';	/* make sure there's a terminator */
+    while ((remaining = strlen(sp)) > 0) {
+	loopcount++;
+	next_delim=strcspn(sp, "$[");
+	strncpy(dp, sp, next_delim);
+	dp[next_delim]='\0';
+	dp += next_delim;
+	sp += next_delim;
+	if (next_delim < remaining) {		/* a new delimiter was found */
+	    switch (*sp++) {	/* this is the found delimiter, since sp was incremented */
+	    case '$':
+		varP = sp;
+		if (*sp=='(') {		/* look for a parenthesized var */
+		    varP=++sp;
+		    next_delim=strcspn(varP, ")");
+		    if (next_delim > strlen(varP))	/* error - no matching parens */
+			return -1;
+		    sp++;
+		} else next_delim = strspn(varP, words);
+		if (next_delim == 0)
+		    return -2;
+		strncpy(var, varP, next_delim);
+		var[next_delim]='\0';
+		replacement = getenv(var);
+		if (replacement == NULL)
+		    return -4;
+		strcat(dp, replacement);
+		dp += strlen(replacement);
+		sp += next_delim;
+		break;
+	    case '[':
+		secP = sp;
+		next_delim = strcspn(secP, "]");
+		if (next_delim > strlen(secP))	/* error - no matching square bracket */
+		    return -3;
+		strncpy(sec, secP, next_delim);
+		sec[next_delim]='\0';
+		sp += next_delim+1;
+		varP = sp;		/* should point past the ']' now */
+		if (*sp=='(') {		/* look for a parenthesized var */
+		    varP=++sp;
+		    next_delim=strcspn(varP, ")");
+		    if (next_delim > strlen(varP))	/* error - no matching parens */
+			return -1;
+		    sp++;
+		} else next_delim = strspn(varP, words);
+		if (next_delim == 0)
+		    return -2;
+		strncpy(var, varP, next_delim);
+		var[next_delim]='\0';
+		if ( strlen(sec) > 0 ) {
+		/* get value from ini file */
+		/* cast to char ptr, we are discarding the 'const' */
+		    replacement = (char *) iniFind(inifile, var, sec);
+		} else {
+		/* no section specified */
+		    replacement = (char *) iniFind(inifile, var, NULL);
+		}
+		if (replacement==NULL)
+		    return -5;
+		strcat(dp, replacement);
+		dp += strlen(replacement);
+		sp += next_delim;
+		break;
+	    }
+	}
+    }
+    return retval;
+}
+
 /* parse_cmd() decides which command has been invoked, gathers any
    arguments that are needed, and calls a function to execute the
    command.
@@ -838,60 +987,9 @@ static int do_setp_cmd(char *name, char *value)
     float fval;
     long lval;
     unsigned long ulval;
-    char *envvar = NULL;
-#ifndef NO_INI
-    char *section = NULL;
-    char *variable = NULL;
-#endif
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s' to '%s'\n", name, value);
-    /* check for special cases of 'value' */
     cp = value;
-    if ( *cp == '$' ) {
-	/* environment variable reference */
-	/* skip over '$' to name of variable */
-	cp++;
-	envvar = getenv(cp);
-	if ( envvar == NULL ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: env variable '%s' not found\n", linenumber, cp);
-	    return HAL_INVAL;
-	}
-	value = envvar;
-    }
-#ifndef NO_INI
-    else if ( *cp == '[' ) {
-	/* ini file variable reference */
-	/* skip over leading '[' and save ptr to start of section name */
-	section = ++cp;
-	/* look for end of section name */
-	while ( *cp != ']' ) {
-	    if ( *cp == '\0' ) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL:%d: ERROR: ini file reference '%s' missing ']'\n", linenumber, value);
-		return HAL_INVAL;
-	    }
-	    cp++;
-	}
-	/* found trailing ']', replace with '\0' to end section */
-	*cp = '\0';
-	/* skip over '\0' and save pointer to variable name */
-	variable = ++cp;
-	if ( *section != '\0' ) {
-	    /* get value from ini file */
-	    /* cast to char ptr, we are discarding the 'const' */
-	    value = (char *) iniFind(inifile, variable, section);
-	} else {
-	    /* no section specified */
-	    value = (char *) iniFind(inifile, variable, NULL);
-	}
-	if ( value == NULL ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: ini file variable '[%s]%s' not found\n", linenumber, section, variable);
-	    return HAL_INVAL;
-	}
-    }
-#endif /* NO_INI */
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* search param list for name */
@@ -1056,60 +1154,9 @@ static int do_sets_cmd(char *name, char *value)
     float fval;
     long lval;
     unsigned long ulval;
-    char *envvar = NULL;
-#ifndef NO_INI
-    char *section = NULL;
-    char *variable = NULL;
-#endif
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting signal '%s'\n", name);
-    /* check for special cases of 'value' */
     cp = value;
-    if ( *cp == '$' ) {
-	/* environment variable reference */
-	/* skip over '$' to name of variable */
-	cp++;
-	envvar = getenv(cp);
-	if ( envvar == NULL ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: env variable '%s' not found\n", linenumber, cp);
-	    return HAL_INVAL;
-	}
-	value = envvar;
-    }
-#ifndef NO_INI
-    else if ( *cp == '[' ) {
-	/* ini file variable reference */
-	/* skip over leading '[' and save ptr to start of section name */
-	section = ++cp;
-	/* look for end of section name */
-	while ( *cp != ']' ) {
-	    if ( *cp == '\0' ) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL:%d: ERROR: ini file reference '%s' missing ']'\n", linenumber, value);
-		return HAL_INVAL;
-	    }
-	    cp++;
-	}
-	/* found trailing ']', replace with '\0' to end section */
-	*cp = '\0';
-	/* skip over '\0' and save pointer to variable name */
-	variable = ++cp;
-	if ( *section != '\0' ) {
-	    /* get value from ini file */
-	    /* cast to char ptr, we are discarding the 'const' */
-	    value = (char *) iniFind(inifile, variable, section);
-	} else {
-	    /* no section specified */
-	    value = (char *) iniFind(inifile, variable, NULL);
-	}
-	if ( value == NULL ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: ini file variable '[%s]%s' not found\n", linenumber, section, variable);
-	    return HAL_INVAL;
-	}
-    }
-#endif /* NO_INI */
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* search signal list for name */
