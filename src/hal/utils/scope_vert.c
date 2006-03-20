@@ -550,6 +550,7 @@ static void init_chan_sel_window(void)
 static void init_chan_info_window(void)
 {
     scope_vert_t *vert;
+    scope_log_t *log;
 
     vert = &(ctrl_usr->vert);
 
@@ -574,7 +575,6 @@ static void init_chan_info_window(void)
     gtk_widget_show(vert->source_name_button);
 
 
-	scope_log_t *log;
 	log=&(ctrl_usr->log);
 
 	/* a button to save logs  */
