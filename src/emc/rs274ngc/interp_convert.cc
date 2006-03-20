@@ -96,11 +96,9 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   double end_x;
   double end_y;
   double end_z;
-#ifndef LATHE
   double AA_end;
   double BB_end;
   double CC_end;
-#endif
 
   ijk_flag = ((block->i_flag || block->j_flag) || block->k_flag) ? ON : OFF;
   first = (settings->program_x == UNKNOWN);
@@ -151,11 +149,8 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   }
 
   find_ends(block, settings, &end_x, &end_y, &end_z,
-#ifndef LATHE
             &AA_end, &BB_end, &CC_end);
-#else
-            0, 0, 0);
-#endif
+
   settings->motion_mode = move;
 
   if (settings->plane == CANON_PLANE_XY) {
@@ -165,28 +160,16 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
         convert_arc2(move, block, settings,
                      &(settings->current_x), &(settings->current_y),
                      &(settings->current_z), end_x, end_y, end_z,
-#ifndef LATHE
                      AA_end, BB_end, CC_end,
-#else
-                     0, 0, 0,
-#endif
                      block->i_number, block->j_number);
       CHP(status);
     } else if (first) {
       status = convert_arc_comp1(move, block, settings, end_x, end_y, end_z,
-#ifndef LATHE
                                  AA_end, BB_end, CC_end);
-#else
-                                 0, 0, 0);
-#endif
       CHP(status);
     } else {
       status = convert_arc_comp2(move, block, settings, end_x, end_y, end_z,
-#ifndef LATHE
                                  AA_end, BB_end, CC_end);
-#else
-                                 0, 0, 0);
-#endif
 
       CHP(status);
     }
@@ -195,11 +178,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       convert_arc2(move, block, settings,
                    &(settings->current_z), &(settings->current_x),
                    &(settings->current_y), end_z, end_x, end_y,
-#ifndef LATHE
                    AA_end, BB_end, CC_end,
-#else
-                   0, 0, 0,
-#endif
                    block->k_number, block->i_number);
     CHP(status);
   } else if (settings->plane == CANON_PLANE_YZ) {
@@ -207,11 +186,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       convert_arc2(move, block, settings,
                    &(settings->current_y), &(settings->current_z),
                    &(settings->current_x), end_y, end_z, end_x,
-#ifndef LATHE
                    AA_end, BB_end, CC_end,
-#else
-                   0, 0, 0,
-#endif
                    block->j_number, block->k_number);
     CHP(status);
   } else
@@ -276,19 +251,13 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
     inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
                           turn, end1, end2, end3, block, settings);
   ARC_FEED(end1, end2, center1, center2, turn, end3,
-#ifndef LATHE
            AA_end, BB_end, CC_end);
-#else
-           0, 0, 0);
-#endif
   *current1 = end1;
   *current2 = end2;
   *current3 = end3;
-#ifndef LATHE
   settings->AA_current = AA_end;
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
-#endif
   return INTERP_OK;
 }
 
@@ -376,19 +345,13 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                           settings->current_z, center_x, center_y, turn,
                           end_x, end_y, end_z, block, settings);
   ARC_FEED(end_x, end_y, center_x, center_y, turn, end_z,
-#ifndef LATHE
            AA_end, BB_end, CC_end);
-#else
-           0, 0, 0);
-#endif
   settings->current_x = end_x;
   settings->current_y = end_y;
   settings->current_z = end_z;
-#ifndef LATHE
   settings->AA_current = AA_end;
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
-#endif
 
   return INTERP_OK;
 }
@@ -517,17 +480,9 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                              end_x, end_y, end_z, block, settings);
     ARC_FEED(mid_x, mid_y, start_x, start_y, ((side == LEFT) ? -1 : 1),
              settings->current_z,
-#ifndef LATHE
              AA_end, BB_end, CC_end);
-#else
-             0, 0, 0);
-#endif
     ARC_FEED(end_x, end_y, center_x, center_y, turn, end_z,
-#ifndef LATHE
              AA_end, BB_end, CC_end);
-#else
-             0, 0, 0);
-#endif
   } else {                      /* one arc needed */
 
     if (settings->feed_mode == INVERSE_TIME)
@@ -535,21 +490,15 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                             settings->current_z, center_x, center_y, turn,
                             end_x, end_y, end_z, block, settings);
     ARC_FEED(end_x, end_y, center_x, center_y, turn, end_z,
-#ifndef LATHE
              AA_end, BB_end, CC_end);
-#else
-             0, 0, 0);
-#endif
   }
 
   settings->current_x = end_x;
   settings->current_y = end_y;
   settings->current_z = end_z;
-#ifndef LATHE
   settings->AA_current = AA_end;
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
-#endif
 
   return INTERP_OK;
 }
@@ -641,7 +590,6 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
         (settings->current_z + settings->axis_offset_z - block->z_number);
       settings->current_z = block->z_number;
     }
-#ifndef LATHE
     if (block->a_flag == ON) {
       settings->AA_axis_offset = (settings->AA_current +
                                   settings->AA_axis_offset - block->a_number);
@@ -657,66 +605,49 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                                   settings->CC_axis_offset - block->c_number);
       settings->CC_current = block->c_number;
     }
-#endif
 
     SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
                        settings->origin_offset_y + settings->axis_offset_y,
                        settings->origin_offset_z + settings->axis_offset_z,
-#ifndef LATHE
                        (settings->AA_origin_offset +
                         settings->AA_axis_offset),
                        (settings->BB_origin_offset +
                         settings->BB_axis_offset),
                        (settings->CC_origin_offset +
                         settings->CC_axis_offset));
-#else
-                       0, 0, 0);
-#endif
     pars[5211] = TO_EXT_LEN(settings->axis_offset_x);
     pars[5212] = TO_EXT_LEN(settings->axis_offset_y);
     pars[5213] = TO_EXT_LEN(settings->axis_offset_z);
-#ifndef LATHE
     pars[5214] = TO_EXT_ANG(settings->AA_axis_offset);
     pars[5215] = TO_EXT_ANG(settings->BB_axis_offset);
     pars[5216] = TO_EXT_ANG(settings->CC_axis_offset);
-#endif
 
   } else if ((g_code == G_92_1) || (g_code == G_92_2)) {
     settings->current_x = settings->current_x + settings->axis_offset_x;
     settings->current_y = settings->current_y + settings->axis_offset_y;
     settings->current_z = settings->current_z + settings->axis_offset_z;
-#ifndef LATHE
     settings->AA_current = (settings->AA_current + settings->AA_axis_offset);
     settings->BB_current = (settings->BB_current + settings->BB_axis_offset);
     settings->CC_current = (settings->CC_current + settings->CC_axis_offset);
-#endif
     SET_ORIGIN_OFFSETS(settings->origin_offset_x,
                        settings->origin_offset_y, settings->origin_offset_z,
-#ifndef LATHE
                        settings->AA_origin_offset,
                        settings->BB_origin_offset,
                        settings->CC_origin_offset);
-#else
-                       0, 0, 0);
-#endif
 
     settings->axis_offset_x = 0.0;
     settings->axis_offset_y = 0.0;
     settings->axis_offset_z = 0.0;
-#ifndef LATHE
     settings->AA_axis_offset = 0.0;
     settings->BB_axis_offset = 0.0;
     settings->CC_axis_offset = 0.0;
-#endif
     if (g_code == G_92_1) {
       pars[5211] = 0.0;
       pars[5212] = 0.0;
       pars[5213] = 0.0;
-#ifndef LATHE
       pars[5214] = 0.0;
       pars[5215] = 0.0;
       pars[5216] = 0.0;
-#endif
     }
   } else if (g_code == G_92_3) {
     settings->current_x =
@@ -725,35 +656,27 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
       settings->current_y + settings->axis_offset_y - USER_TO_PROGRAM_LEN(pars[5212]);
     settings->current_z =
       settings->current_z + settings->axis_offset_z - USER_TO_PROGRAM_LEN(pars[5213]);
-#ifndef LATHE
     settings->AA_current =
       settings->AA_current + settings->AA_axis_offset - USER_TO_PROGRAM_ANG(pars[5214]);
     settings->BB_current =
       settings->BB_current + settings->BB_axis_offset - USER_TO_PROGRAM_ANG(pars[5215]);
     settings->CC_current =
       settings->CC_current + settings->CC_axis_offset - USER_TO_PROGRAM_ANG(pars[5216]);
-#endif
     settings->axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
     settings->axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
     settings->axis_offset_z = USER_TO_PROGRAM_LEN(pars[5213]);
-#ifndef LATHE
     settings->AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
     settings->BB_axis_offset = USER_TO_PROGRAM_ANG(pars[5215]);
     settings->CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
-#endif
     SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
                        settings->origin_offset_y + settings->axis_offset_y,
                        settings->origin_offset_z + settings->axis_offset_z,
-#ifndef LATHE
                        (settings->AA_origin_offset +
                         settings->AA_axis_offset),
                        (settings->BB_origin_offset +
                         settings->BB_axis_offset),
                        (settings->CC_origin_offset +
                         settings->CC_axis_offset));
-#else
-                       0, 0, 0);
-#endif
 
   } else
     ERM(NCE_BUG_CODE_NOT_IN_G92_SERIES);
@@ -957,11 +880,9 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   double x;
   double y;
   double z;
-#ifndef LATHE
   double a;
   double b;
   double c;
-#endif
   double *parameters;
 
   parameters = settings->parameters;
@@ -1013,48 +934,36 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->current_x = (settings->current_x + settings->origin_offset_x);
   settings->current_y = (settings->current_y + settings->origin_offset_y);
   settings->current_z = (settings->current_z + settings->origin_offset_z);
-#ifndef LATHE
   settings->AA_current = (settings->AA_current + settings->AA_origin_offset);
   settings->BB_current = (settings->BB_current + settings->BB_origin_offset);
   settings->CC_current = (settings->CC_current + settings->CC_origin_offset);
-#endif
 
   x = USER_TO_PROGRAM_LEN(parameters[5201 + (origin * 20)]);
   y = USER_TO_PROGRAM_LEN(parameters[5202 + (origin * 20)]);
   z = USER_TO_PROGRAM_LEN(parameters[5203 + (origin * 20)]);
-#ifndef LATHE
   a = USER_TO_PROGRAM_ANG(parameters[5204 + (origin * 20)]);
   b = USER_TO_PROGRAM_ANG(parameters[5205 + (origin * 20)]);
   c = USER_TO_PROGRAM_ANG(parameters[5206 + (origin * 20)]);
-#endif
 
   settings->origin_offset_x = x;
   settings->origin_offset_y = y;
   settings->origin_offset_z = z;
-#ifndef LATHE
   settings->AA_origin_offset = a;
   settings->BB_origin_offset = b;
   settings->CC_origin_offset = c;
-#endif
 
   settings->current_x = (settings->current_x - x);
   settings->current_y = (settings->current_y - y);
   settings->current_z = (settings->current_z - z);
-#ifndef LATHE
   settings->AA_current = (settings->AA_current - a);
   settings->BB_current = (settings->BB_current - b);
   settings->CC_current = (settings->CC_current - c);
-#endif
 
   SET_ORIGIN_OFFSETS(x + settings->axis_offset_x,
                      y + settings->axis_offset_y, z + settings->axis_offset_z,
-#ifndef LATHE
                      a + settings->AA_axis_offset,
                      b + settings->BB_axis_offset,
                      c + settings->CC_axis_offset);
-#else
-                     0, 0, 0);
-#endif
   return INTERP_OK;
 }
 
@@ -1497,45 +1406,27 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   CHK((settings->cutter_comp_side != OFF),
       NCE_CANNOT_USE_G28_OR_G30_WITH_CUTTER_RADIUS_COMP);
   STRAIGHT_TRAVERSE(end_x, end_y, end_z,
-#ifndef LATHE
                     AA_end, BB_end, CC_end);
-#else
-                    0, 0, 0);
-#endif
   if (move == G_28) {
     find_relative(parameters[5161], parameters[5162], parameters[5163],
-#ifndef LATHE
                   parameters[5164], parameters[5165], parameters[5166],
-#else
-                  0, 0, 0,
-#endif
                   &end_x, &end_y, &end_z,
                   &AA_end2, &BB_end2, &CC_end2, settings);
   } else if (move == G_30) {
     find_relative(parameters[5181], parameters[5182], parameters[5183],
-#ifndef LATHE
                   parameters[5184], parameters[5185], parameters[5186],
-#else
-                  0, 0, 0,
-#endif
                   &end_x, &end_y, &end_z,
                   &AA_end2, &BB_end2, &CC_end2, settings);
   } else
     ERM(NCE_BUG_CODE_NOT_G28_OR_G30);
   STRAIGHT_TRAVERSE(end_x, end_y, end_z,
-#ifndef LATHE
                     AA_end, BB_end, CC_end);
-#else
-                    0, 0, 0);
-#endif
   settings->current_x = end_x;
   settings->current_y = end_y;
   settings->current_z = end_z;
-#ifndef LATHE
   settings->AA_current = AA_end2;
   settings->BB_current = BB_end2;
   settings->CC_current = CC_end2;
-#endif
   return INTERP_OK;
 }
 
@@ -1882,11 +1773,9 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   double end_x;
   double end_y;
   double end_z;
-#ifndef LATHE
   double AA_end;
   double BB_end;
   double CC_end;
-#endif
 
   CHK((((block->x_flag == OFF) && (block->y_flag == OFF)) &&
        (block->z_flag == OFF)), NCE_X_Y_AND_Z_WORDS_ALL_MISSING_WITH_G38_2);
@@ -1896,17 +1785,9 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);
   CHK((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
   find_ends(block, settings, &end_x, &end_y, &end_z,
-#ifndef LATHE
             &AA_end, &BB_end, &CC_end);
-#else
-            0, 0, 0);
-#endif
-  if (0
-#ifndef LATHE
-      || (AA_end != settings->AA_current)
-      || (BB_end != settings->BB_current) || (CC_end != settings->CC_current)
-#endif
-    )
+  if ( (AA_end != settings->AA_current) || (BB_end != settings->BB_current) 
+    || (CC_end != settings->CC_current))
     ERM(NCE_CANNOT_MOVE_ROTARY_AXES_DURING_PROBING);
   distance = sqrt(pow((settings->current_x - end_x), 2) +
                   pow((settings->current_y - end_y), 2) +
@@ -1916,11 +1797,7 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
       NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT);
   TURN_PROBE_ON();
   STRAIGHT_PROBE(end_x, end_y, end_z,
-#ifndef LATHE
                  AA_end, BB_end, CC_end);
-#else
-                 0, 0, 0);
-#endif
 
   TURN_PROBE_OFF();
   settings->motion_mode = G_38_2;
@@ -2002,11 +1879,9 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   double x;
   double y;
   double z;
-#ifndef LATHE
   double a;
   double b;
   double c;
-#endif
   double *parameters;
   int p_int;
 
@@ -2031,7 +1906,6 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   } else
     z = USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]);
 
-#ifndef LATHE
   if (block->a_flag == ON) {
     a = block->a_number;
     parameters[5204 + (p_int * 20)] = PROGRAM_TO_USER_ANG(a);
@@ -2049,7 +1923,6 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     parameters[5206 + (p_int * 20)] = PROGRAM_TO_USER_ANG(c);
   } else
     c = USER_TO_PROGRAM_ANG(parameters[5206 + (p_int * 20)]);
-#endif
 
 /* axis offsets could be included in the two sets of calculations for
    current_x, current_y, etc., but do not need to be because the results
@@ -2058,43 +1931,33 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->current_x = (settings->current_x + settings->origin_offset_x);
     settings->current_y = (settings->current_y + settings->origin_offset_y);
     settings->current_z = (settings->current_z + settings->origin_offset_z);
-#ifndef LATHE
     settings->AA_current =
       (settings->AA_current + settings->AA_origin_offset);
     settings->BB_current =
       (settings->BB_current + settings->BB_origin_offset);
     settings->CC_current =
       (settings->CC_current + settings->CC_origin_offset);
-#endif
 
     settings->origin_offset_x = x;
     settings->origin_offset_y = y;
     settings->origin_offset_z = z;
-#ifndef LATHE
     settings->AA_origin_offset = a;
     settings->BB_origin_offset = b;
     settings->CC_origin_offset = c;
-#endif
 
     settings->current_x = (settings->current_x - x);
     settings->current_y = (settings->current_y - y);
     settings->current_z = (settings->current_z - z);
-#ifndef LATHE
     settings->AA_current = (settings->AA_current - a);
     settings->BB_current = (settings->BB_current - b);
     settings->CC_current = (settings->CC_current - c);
-#endif
 
     SET_ORIGIN_OFFSETS(x + settings->axis_offset_x,
                        y + settings->axis_offset_y,
                        z + settings->axis_offset_z,
-#ifndef LATHE
                        a + settings->AA_axis_offset,
                        b + settings->BB_axis_offset,
                        c + settings->CC_axis_offset);
-#else
-                       0, 0, 0);
-#endif
   }
 #ifdef DEBUG_EMC
   else
@@ -2254,52 +2117,40 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
       + settings->origin_offset_y + settings->axis_offset_y;
     settings->current_z = settings->current_z
       + settings->origin_offset_z + settings->axis_offset_z;
-#ifndef LATHE
     settings->AA_current = settings->AA_current
       + settings->AA_origin_offset + settings->AA_axis_offset;
     settings->BB_current = settings->BB_current
       + settings->BB_origin_offset + settings->BB_axis_offset;
     settings->CC_current = settings->CC_current
       + settings->CC_origin_offset + settings->CC_axis_offset;
-#endif
     settings->origin_index = 1;
     settings->parameters[5220] = 1.0;
     settings->origin_offset_x = USER_TO_PROGRAM_LEN(settings->parameters[5221]);
     settings->origin_offset_y = USER_TO_PROGRAM_LEN(settings->parameters[5222]);
     settings->origin_offset_z = USER_TO_PROGRAM_LEN(settings->parameters[5223]);
-#ifndef LATHE
     settings->AA_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5224]);
     settings->BB_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5225]);
     settings->CC_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5226]);
-#endif
 
     settings->axis_offset_x = 0;
     settings->axis_offset_y = 0;
     settings->axis_offset_z = 0;
-#ifndef LATHE
     settings->AA_axis_offset = 0;
     settings->BB_axis_offset = 0;
     settings->CC_axis_offset = 0;
-#endif
 
     settings->current_x = settings->current_x - settings->origin_offset_x;
     settings->current_y = settings->current_y - settings->origin_offset_y;
     settings->current_z = settings->current_z - settings->origin_offset_z;
-#ifndef LATHE
     settings->AA_current = settings->AA_current - settings->AA_origin_offset;
     settings->BB_current = settings->BB_current - settings->BB_origin_offset;
     settings->CC_current = settings->CC_current - settings->CC_origin_offset;
-#endif
 
     SET_ORIGIN_OFFSETS(settings->origin_offset_x,
                        settings->origin_offset_y, settings->origin_offset_z,
-#ifndef LATHE
                        settings->AA_origin_offset,
                        settings->BB_origin_offset,
                        settings->CC_origin_offset);
-#else
-                       0, 0, 0);
-#endif
 
 /*2*/ if (settings->plane != CANON_PLANE_XY) {
       SELECT_PLANE(CANON_PLANE_XY);
@@ -2445,47 +2296,27 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     if (settings->program_x == UNKNOWN) {
       status =
         convert_straight_comp1(move, block, settings, end_x, end_y, end_z,
-#ifndef LATHE
                                AA_end, BB_end, CC_end);
-#else
-                               0, 0, 0);
-#endif
 
       CHP(status);
     } else {
       status =
         convert_straight_comp2(move, block, settings, end_x, end_y, end_z,
-#ifndef LATHE
                                AA_end, BB_end, CC_end);
-#else
-                               0, 0, 0);
-#endif
       CHP(status);
     }
   } else if (move == G_0) {
     STRAIGHT_TRAVERSE(end_x, end_y, end_z,
-#ifndef LATHE
                       AA_end, BB_end, CC_end);
-#else
-                      0, 0, 0);
-#endif
     settings->current_x = end_x;
     settings->current_y = end_y;
   } else if (move == G_1) {
     if (settings->feed_mode == INVERSE_TIME)
       inverse_time_rate_straight(end_x, end_y, end_z,
-#ifndef LATHE
                                  AA_end, BB_end, CC_end,
-#else
-                                 0, 0, 0,
-#endif
                                  block, settings);
     STRAIGHT_FEED(end_x, end_y, end_z,
-#ifndef LATHE
                   AA_end, BB_end, CC_end);
-#else
-                  0, 0, 0);
-#endif
     settings->current_x = end_x;
     settings->current_y = end_y;
   } else
@@ -2493,22 +2324,16 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
 /*! \todo G33 needs to call the canonical commands to sync spindle
           to motion - That can not be done until the low level motion
           can support slaved moves. */
-#ifndef LATHE
-      ERM(NCE_G33_NOT_SUPPORTED);
-#else
     COMMENT("Call THREADING_FUNCTION here");
     COMMENT("in the meantime, do STRAIGHT_TRAVERSE");
     STRAIGHT_TRAVERSE(end_x, end_y, end_z, 0, 0, 0);
-#endif    
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
 
   settings->current_z = end_z;
-#ifndef LATHE
   settings->AA_current = AA_end;
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
-#endif
   return INTERP_OK;
 }
 
@@ -2584,26 +2409,14 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   cy = (py + (radius * sin(alpha)));
   if (move == G_0)
     STRAIGHT_TRAVERSE(cx, cy, end_z,
-#ifndef LATHE
                       AA_end, BB_end, CC_end);
-#else
-                      0, 0, 0);
-#endif
   else if (move == G_1) {
     if (settings->feed_mode == INVERSE_TIME)
       inverse_time_rate_straight(cx, cy, end_z,
-#ifndef LATHE
                                  AA_end, BB_end, CC_end,
-#else
-                                 0, 0, 0,
-#endif
                                  block, settings);
     STRAIGHT_FEED(cx, cy, end_z,
-#ifndef LATHE
                   AA_end, BB_end, CC_end);
-#else
-                  0, 0, 0);
-#endif
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
 
@@ -2717,26 +2530,14 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     end_y = settings->current_y;
     if (move == G_0)
       STRAIGHT_TRAVERSE(end_x, end_y, end_z,
-#ifndef LATHE
                         AA_end, BB_end, CC_end);
-#else
-                        0, 0, 0);
-#endif
     else if (move == G_1) {
       if (settings->feed_mode == INVERSE_TIME)
         inverse_time_rate_straight(end_x, end_y, end_z,
-#ifndef LATHE
                                    AA_end, BB_end, CC_end,
-#else
-                                   0, 0, 0,
-#endif
                                    block, settings);
       STRAIGHT_FEED(end_x, end_y, end_z,
-#ifndef LATHE
                     AA_end, BB_end, CC_end);
-#else
-                    0, 0, 0);
-#endif
     } else
       ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
   } else {
@@ -2767,51 +2568,27 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP);
     if (move == G_0)
       STRAIGHT_TRAVERSE(end_x, end_y, end_z,
-#ifndef LATHE
                         AA_end, BB_end, CC_end);
-#else
-                        0, 0, 0);
-#endif
     else if (move == G_1) {
       if (beta > small) {       /* ARC NEEDED */
         if (settings->feed_mode == INVERSE_TIME)
           inverse_time_rate_as(start_x, start_y,
                                (side == LEFT) ? -1 : 1, mid_x,
                                mid_y, end_x, end_y, end_z,
-#ifndef LATHE
                                AA_end, BB_end, CC_end,
-#else
-                               0, 0, 0,
-#endif
                                block, settings);
         ARC_FEED(mid_x, mid_y, start_x, start_y,
                  ((side == LEFT) ? -1 : 1), settings->current_z,
-#ifndef LATHE
                  AA_end, BB_end, CC_end);
-#else
-                 0, 0, 0);
-#endif
         STRAIGHT_FEED(end_x, end_y, end_z,
-#ifndef LATHE
                       AA_end, BB_end, CC_end);
-#else
-                      0, 0, 0);
-#endif
       } else {
         if (settings->feed_mode == INVERSE_TIME)
           inverse_time_rate_straight(end_x, end_y, end_z,
-#ifndef LATHE
                                      AA_end, BB_end, CC_end,
-#else
-                                     0, 0, 0,
-#endif
                                      block, settings);
         STRAIGHT_FEED(end_x, end_y, end_z,
-#ifndef LATHE
                       AA_end, BB_end, CC_end);
-#else
-                      0, 0, 0);
-#endif
       }
     } else
       ERM(NCE_BUG_CODE_NOT_G0_OR_G1);

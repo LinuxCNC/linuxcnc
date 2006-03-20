@@ -207,14 +207,12 @@ typedef int ON_OFF;
 
 typedef struct block_struct
 {
-#ifndef LATHE
   ON_OFF a_flag;
   double a_number;
   ON_OFF b_flag;
   double b_number;
   ON_OFF c_flag;
   double c_number;
-#endif
   char comment[256];
   int d_number;
   double f_number;
@@ -289,7 +287,6 @@ and is not represented here
 
 typedef struct setup_struct
 {
-#ifndef LATHE
   double AA_axis_offset;        // A-axis g92 offset
   double AA_current;            // current A-axis position
   double AA_origin_offset;      // A-axis origin offset
@@ -299,7 +296,6 @@ typedef struct setup_struct
   double CC_axis_offset;        // C-axis g92offset
   double CC_current;            // current C-axis position
   double CC_origin_offset;      // C-axis origin offset
-#endif
   int active_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int active_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double active_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.

@@ -148,11 +148,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   int mode1;
 
   axis_flag = ((block->x_flag == ON) || (block->y_flag == ON) ||
-#ifndef LATHE
-               (block->a_flag == ON) ||
-               (block->b_flag == ON) || (block->c_flag == ON) ||
-#endif
-               (block->z_flag == ON));
+               (block->z_flag == ON) || (block->a_flag == ON) ||
+               (block->b_flag == ON) || (block->c_flag == ON) );
   mode0 = block->g_modes[0];
   mode1 = block->g_modes[1];
   mode_zero_covets_axes =
@@ -225,11 +222,9 @@ The rules for the indicators for slots whose values may be read are:
 int Interp::init_block(block_pointer block)      //!< pointer to a block to be initialized or reset
 {
   int n;
-#ifndef LATHE
   block->a_flag = OFF;
   block->b_flag = OFF;
   block->c_flag = OFF;
-#endif
   block->comment[0] = 0;
   block->d_number = -1;
   block->f_number = -1.0;
@@ -376,19 +371,15 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
   settings->current_x = GET_EXTERNAL_POSITION_X();
   settings->current_y = GET_EXTERNAL_POSITION_Y();
   settings->current_z = GET_EXTERNAL_POSITION_Z();
-#ifndef LATHE
   settings->AA_current = GET_EXTERNAL_POSITION_A();
   settings->BB_current = GET_EXTERNAL_POSITION_B();
   settings->CC_current = GET_EXTERNAL_POSITION_C();
-#endif
   settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
   settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
-#ifndef LATHE
   settings->parameters[5064] = GET_EXTERNAL_PROBE_POSITION_A();
   settings->parameters[5065] = GET_EXTERNAL_PROBE_POSITION_B();
   settings->parameters[5066] = GET_EXTERNAL_PROBE_POSITION_C();
-#endif
   settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
   return INTERP_OK;
 }

@@ -735,12 +735,8 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
 
   if (old_cc < r) {
     STRAIGHT_TRAVERSE(settings->current_x, settings->current_y, r,
-#ifndef LATHE
                       settings->AA_current, settings->BB_current,
                       settings->CC_current);
-#else
-                      0, 0, 0);
-#endif
     old_cc = r;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
@@ -940,12 +936,8 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
 
   if (old_cc < r) {
     STRAIGHT_TRAVERSE(r, settings->current_y, settings->current_z,
-#ifndef LATHE
                       settings->AA_current, settings->BB_current,
                       settings->CC_current);
-#else
-                      0, 0, 0);
-#endif
     old_cc = r;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
@@ -1153,12 +1145,8 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
 
   if (old_cc < r) {
     STRAIGHT_TRAVERSE(settings->current_x, r, settings->current_z,
-#ifndef LATHE
                       settings->AA_current, settings->BB_current,
                       settings->CC_current);
-#else
-                      0, 0, 0);
-#endif
     old_cc = r;
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
@@ -1290,25 +1278,13 @@ int Interp::cycle_feed(CANON_PLANE plane,        //!< currently selected plane
 
   if (plane == CANON_PLANE_XY)
     STRAIGHT_FEED(end1, end2, end3,
-#ifndef LATHE
                   _setup.AA_current, _setup.BB_current, _setup.CC_current);
-#else
-                  0, 0, 0);
-#endif
   else if (plane == CANON_PLANE_YZ)
     STRAIGHT_FEED(end3, end1, end2,
-#ifndef LATHE
                   _setup.AA_current, _setup.BB_current, _setup.CC_current);
-#else
-                  0, 0, 0);
-#endif
   else                          /* if (plane == CANON_PLANE_XZ) */
     STRAIGHT_FEED(end2, end3, end1,
-#ifndef LATHE
                   _setup.AA_current, _setup.BB_current, _setup.CC_current);
-#else
-                  0, 0, 0);
-#endif
   return INTERP_OK;
 }
 
@@ -1344,29 +1320,17 @@ int Interp::cycle_traverse(CANON_PLANE plane,    //!< currently selected plane
 {
   if (plane == CANON_PLANE_XY)
     STRAIGHT_TRAVERSE(end1, end2, end3,
-#ifndef LATHE
                       _setup.AA_current, _setup.BB_current,
                       _setup.CC_current);
-#else
-                      0, 0, 0);
-#endif
   else if (plane == CANON_PLANE_YZ)
     STRAIGHT_TRAVERSE(end3, end1, end2,
-#ifndef LATHE
                       _setup.AA_current, _setup.BB_current,
                       _setup.CC_current);
-#else
-                      0, 0, 0);
-#endif
 
   else                          /* if (plane == CANON_PLANE_XZ) */
     STRAIGHT_TRAVERSE(end2, end3, end1,
-#ifndef LATHE
                       _setup.AA_current, _setup.BB_current,
                       _setup.CC_current);
-#else
-                      0, 0, 0);
-#endif
 
   return INTERP_OK;
 }

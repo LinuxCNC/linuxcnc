@@ -79,18 +79,10 @@ int Interp::read_a(char *line,   //!< string: line of RS274/NGC code being proce
 
   CHK((line[*counter] != 'a'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-#ifndef LATHE
   CHK((block->a_flag != OFF), NCE_MULTIPLE_A_WORDS_ON_ONE_LINE);
-#endif
   CHP(read_real_value(line, counter, &value, parameters));
-#ifndef LATHE
   block->a_flag = ON;
   block->a_number = value;
-#else
-#ifdef AXIS_ERROR
-  ERM(NCE_CANNOT_USE_A_WORD);
-#endif /* ifdef AXIS_ERROR */
-#endif /* ifdef AA */
   return INTERP_OK;
 }
 
@@ -199,18 +191,10 @@ int Interp::read_b(char *line,   //!< string: line of RS274/NGC code being proce
 
   CHK((line[*counter] != 'b'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-#ifndef LATHE
   CHK((block->b_flag != OFF), NCE_MULTIPLE_B_WORDS_ON_ONE_LINE);
-#endif
   CHP(read_real_value(line, counter, &value, parameters));
-#ifndef LATHE
   block->b_flag = ON;
   block->b_number = value;
-#else
-#ifdef AXIS_ERROR
-  ERM(NCE_CANNOT_USE_B_WORD);
-#endif /* ifdef AXIS_ERROR */
-#endif /* ifdef BB */
   return INTERP_OK;
 }
 
@@ -264,18 +248,10 @@ int Interp::read_c(char *line,   //!< string: line of RS274/NGC code being proce
 
   CHK((line[*counter] != 'c'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-#ifndef LATHE
   CHK((block->c_flag != OFF), NCE_MULTIPLE_C_WORDS_ON_ONE_LINE);
-#endif
   CHP(read_real_value(line, counter, &value, parameters));
-#ifndef LATHE
   block->c_flag = ON;
   block->c_number = value;
-#else
-#ifdef AXIS_ERROR
-  ERM(NCE_CANNOT_USE_C_WORD);
-#endif /* ifdef AXIS_ERROR */
-#endif /* ifdef CC */
   return INTERP_OK;
 }
 

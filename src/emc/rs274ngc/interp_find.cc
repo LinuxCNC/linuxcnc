@@ -161,7 +161,6 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
                                  settings->origin_offset_z +
                                  settings->
                                  axis_offset_z)) : settings->current_z;
-#ifndef LATHE
     *AA_p = (block->a_flag == ON) ? (block->a_number -
                                      (settings->AA_origin_offset +
                                       settings->
@@ -176,7 +175,6 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
        ON) ? (block->c_number - (settings->CC_origin_offset +
                                  settings->
                                  CC_axis_offset)) : settings->CC_current;
-#endif
   } else if (mode == MODE_ABSOLUTE) {
     *px = (block->x_flag == ON) ? block->x_number :
       (comp && middle) ? settings->program_x : settings->current_x;
@@ -185,11 +183,9 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
       (comp && middle) ? settings->program_y : settings->current_y;
 
     *pz = (block->z_flag == ON) ? block->z_number : settings->current_z;
-#ifndef LATHE
     *AA_p = (block->a_flag == ON) ? block->a_number : settings->AA_current;
     *BB_p = (block->b_flag == ON) ? block->b_number : settings->BB_current;
     *CC_p = (block->c_flag == ON) ? block->c_number : settings->CC_current;
-#endif
   } else {                      /* mode is MODE_INCREMENTAL */
 
     *px = (block->x_flag == ON)
@@ -208,7 +204,6 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
     *pz = (block->z_flag == ON) ?
       (settings->current_z + block->z_number) : settings->current_z;
-#ifndef LATHE
     *AA_p = (block->a_flag == ON) ?
       (settings->AA_current + block->a_number) : settings->AA_current;
     *BB_p =
@@ -217,7 +212,6 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
     *CC_p =
       (block->c_flag ==
        ON) ? (settings->CC_current + block->c_number) : settings->CC_current;
-#endif
   }
   return INTERP_OK;
 }
@@ -264,11 +258,9 @@ int Interp::find_relative(double x1,     //!< absolute x position
     (z1 -
      (settings->tool_length_offset + settings->origin_offset_z +
       settings->axis_offset_z));
-#ifndef LATHE
   *AA_2 = (AA_1 - (settings->AA_origin_offset + settings->AA_axis_offset));
   *BB_2 = (BB_1 - (settings->BB_origin_offset + settings->BB_axis_offset));
   *CC_2 = (CC_1 - (settings->CC_origin_offset + settings->CC_axis_offset));
-#endif
   return INTERP_OK;
 }
 
@@ -319,21 +311,14 @@ double Interp::find_straight_length(double x2,   //!< X-coordinate of end point
                                    double CC_1        //!< C-coordinate of start point  
   )
 {
-  if ((x1 != x2) || (y1 != y2) || (z1 != z2) || (1
-#ifndef LATHE
-                                                 && (AA_2 == AA_1)
+  if ((x1 != x2) || (y1 != y2) || (z1 != z2) || ((AA_2 == AA_1)
                                                  && (BB_2 == BB_1)
                                                  && (CC_2 == CC_1)
-#endif
       ))                        /* straight line */
     return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2) + pow((z2 - z1), 2));
   else
-    return sqrt(0 +
-#ifndef LATHE
-                pow((AA_2 - AA_1), 2) +
-                pow((BB_2 - BB_1), 2) + pow((CC_2 - CC_1), 2) +
-#endif
-                0);
+    return sqrt(pow((AA_2 - AA_1), 2) +
+                pow((BB_2 - BB_1), 2) + pow((CC_2 - CC_1), 2));
 }
 
 /****************************************************************************/

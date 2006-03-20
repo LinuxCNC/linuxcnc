@@ -168,17 +168,9 @@ int Interp::inverse_time_rate_as(double start_x, //!< x coord of last program po
      (settings->current_x, settings->current_y, settings->current_z,
       start_x, start_y, turn, mid_x, mid_y,
       settings->current_z) + find_straight_length(end_x, end_y, end_z,
-#ifndef LATHE
                             AA_end, BB_end, CC_end,
-#else
-			    0, 0, 0,
-#endif
                             mid_x, mid_y, settings->current_z,
-#ifndef LATHE
                             AA_end, BB_end, CC_end));
-#else
-			    0, 0, 0));
-#endif
 
 
   rate = MAX(0.1, (length * block->f_number));
@@ -219,17 +211,9 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
   double rate;
 
   length = find_straight_length(end_x, end_y, end_z,
-#ifndef LATHE
                                 AA_end, BB_end, CC_end,
-#else
-				0, 0, 0,
-#endif
                                 settings->current_x, settings->current_y, settings->current_z,
-#ifndef LATHE
                                 settings->AA_current, settings->BB_current, settings->CC_current);
-#else
-				0, 0, 0);
-#endif
 
   rate = MAX(0.1, (length * block->f_number));
   SET_FEED_RATE(rate);

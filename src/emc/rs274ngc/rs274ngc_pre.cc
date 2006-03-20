@@ -310,15 +310,10 @@ int Interp::init()
   SET_ORIGIN_OFFSETS(USER_TO_PROGRAM_LEN(pars[k + 1] + pars[5211]),
                      USER_TO_PROGRAM_LEN(pars[k + 2] + pars[5212]), 
                      USER_TO_PROGRAM_LEN(pars[k + 3] + pars[5213]),
-#ifndef LATHE
                      USER_TO_PROGRAM_ANG(pars[k + 4] + pars[5214]),
                      USER_TO_PROGRAM_ANG(pars[k + 5] + pars[5215]),
                      USER_TO_PROGRAM_ANG(pars[k + 6] + pars[5216]));
-#else
-                     0, 0, 0);
-#endif
   SET_FEED_REFERENCE(CANON_XYZ);
-#ifndef LATHE
   _setup.AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
 //_setup.Aa_current set in Interp::synch
   _setup.AA_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 4]);
@@ -328,7 +323,6 @@ int Interp::init()
   _setup.CC_axis_offset = USER_TO_PROGRAM_ANG(pars[5216]);
 //_setup.Cc_current set in Interp::synch
   _setup.CC_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 6]);
-#endif
 //_setup.active_g_codes initialized below
 //_setup.active_m_codes initialized below
 //_setup.active_settings initialized below
@@ -886,11 +880,9 @@ int Interp::synch()
   char file_name[LINELEN];
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-#ifndef LATHE
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
   _setup.BB_current = GET_EXTERNAL_POSITION_B();
   _setup.CC_current = GET_EXTERNAL_POSITION_C();
-#endif
   _setup.current_slot = GET_EXTERNAL_TOOL_SLOT();
   _setup.current_x = GET_EXTERNAL_POSITION_X();
   _setup.current_y = GET_EXTERNAL_POSITION_Y();
