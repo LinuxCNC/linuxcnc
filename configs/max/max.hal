@@ -1,36 +1,80 @@
-# core HAL config file for steppers
-
+# HAL config file for MAX NC test machine
+#######################################################
+# first load all the HAL modules we're going to need
+#######################################################
+# main motion controller module
+# (right now the run script does this, uncomment when changed)
+# loadrt motmod
+# using steppers....
 loadrt stepgen step_type=0,0,0
+# I/O thru the parport
+loadrt hal_parport cfg="0x0378"
+# counting the spindle encoder in software
 loadrt encoder num_chan=1
+# no encoder installed yet, so fake it
 loadrt sim_encoder num_chan=1
+# misc blocks needed to do fun things
+loadrt blocks ddt=6 not=1 comp=1
+# signal generator, for various stimuli
+loadrt siggen num_chan=1
+# gotta see whats happening
+loadrt scope_rt
 
-linkpp sim-encoder.0.phase-A => encoder.0.phase-A
-linkpp sim-encoder.0.phase-B => encoder.0.phase-B
-linkpp sim-encoder.0.phase-Z => encoder.0.phase-Z
+#######################################################
+# now define the realtime threads
+# (right now the motion module does that, uncomment when changed)
+#######################################################
+# loadrt threads name1=base-thread period1=[EMCMOT]BASE_PERIOD name2=servo-thread period2=[EMCMOT]SERVO_PERIOD
 
-# encoder is 400 ppr so vel=1 (rpm) gives 400Hz
-newsig spindle-speed float
-linksp spindle-speed => sim-encoder.0.speed
-sets spindle-speed 1.0 # rps
 
-setp encoder.0.position-scale 0.9 # 400 pps => degrees
-#newsig index-enable bit
-#linksp index-enable => encoder.0.index-enable
-#sets index-enable 1
+#######################################################
+# add realtime functions to the threads
+# first the high speed thread
+#######################################################
+# first we read parport inputs
+addf parport.0.read		base-thread
+# generate simulated spindle encoder pulses (remove later)
+addf sim-encoder.make-pulses	base-thread
+# count spindle encoder pulses
+addf encoder.capture-position	base-thread
+# generate step and dir signals
+addf stepgen.make-pulses	base-thread
+# write to outputs
+addf parport.0.write		base-thread
 
-addf stepgen.update-freq servo-thread -1
-addf sim-encoder.update-speed servo-thread -1
 
-addf stepgen.make-pulses base-thread -1
-addf sim-encoder.make-pulses base-thread -1
 
-addf stepgen.capture-position servo-thread 1
-addf encoder.capture-position servo-thread 1
-addf encoder.update-counters base-thread -1
+# now the servo thread
+########################################################
+# capture axis and spindle positions
+addf stepgen.capture-position	servo-thread
+addf encoder.capture-position	servo-thread
+# process motion commands coming from user space
+addf motion-command-handler	servo-thread
+# run main motion controller
+addf motion-controller		servo-thread
+# differentiators to make vel and acc signals
+addf ddt.0			servo-thread
+addf ddt.1			servo-thread
+addf ddt.2			servo-thread
+addf ddt.3			servo-thread
+addf ddt.4			servo-thread
+addf ddt.5			servo-thread
+# other misc blocks
+addf siggen.0.update		servo-thread
+addf comp.0			servo-thread
+addf not.0			servo-thread
+# update output info, axis and spindle
+addf stepgen.update-freq	servo-thread
+addf sim-encoder.update-speed	servo-thread
 
-# new hal change
-addf motion-command-handler servo-thread
-addf motion-controller servo-thread
+
+
+#######################################################
+# interconnections
+#
+# first, the basic stepper machine connections
+#######################################################
 
 # connect position commands from motion module to step generator
 newsig Xpos-cmd float
@@ -55,44 +99,6 @@ newsig Zpos-fb float
 linksp Zpos-fb <= stepgen.2.position-fb
 linksp Zpos-fb => axis.2.motor-pos-fb
 
-# send the position commands thru differentiators to
-# generate velocity and accel signals
-# first load the block module with 6 differentiators
-loadrt blocks ddt=7
-# link the differentiator functions into the code
-addf ddt.0 servo-thread
-addf ddt.1 servo-thread
-addf ddt.2 servo-thread
-addf ddt.3 servo-thread
-addf ddt.4 servo-thread
-addf ddt.5 servo-thread
-addf ddt.6 servo-thread
-
-# define the signals, and hook them up
-newsig Xvel float
-newsig Xacc float
-newsig Xjerk float
-linksp Xpos-cmd => ddt.0.in
-linkps ddt.0.out => Xvel
-linksp Xvel => ddt.1.in
-linkps ddt.1.out => Xacc
-linksp Xacc => ddt.6.in
-linkps ddt.6.out => Xjerk
-
-newsig Yvel float
-newsig Yacc float
-linksp Ypos-cmd => ddt.2.in
-linkps ddt.2.out => Yvel
-linksp Yvel => ddt.3.in
-linkps ddt.3.out => Yacc
-
-newsig Zvel float
-newsig Zacc float
-linksp Zpos-cmd => ddt.4.in
-linkps ddt.4.out => Zvel
-linksp Zvel => ddt.5.in
-linkps ddt.5.out => Zacc
-
 # connect enable signals for step generators
 newsig Xen bit
 linksp Xen <= axis.0.amp-enable-out
@@ -104,7 +110,6 @@ newsig Zen bit
 linksp Zen <= axis.2.amp-enable-out
 linksp Zen => stepgen.2.enable
 
-
 # connect signals to step pulse generator outputs
 newsig Xstep bit
 newsig Xdir  bit
@@ -112,12 +117,40 @@ newsig Ystep bit
 newsig Ydir  bit
 newsig Zstep bit
 newsig Zdir  bit
-linkps stepgen.0.step Xstep
-linkps stepgen.0.dir  Xdir
-linkps stepgen.1.step Ystep
-linkps stepgen.1.dir  Ydir
-linkps stepgen.2.step Zstep
-linkps stepgen.2.dir  Zdir
+linkps stepgen.0.step => Xstep
+linkps stepgen.0.dir  => Xdir
+linkps stepgen.1.step => Ystep
+linkps stepgen.1.dir  => Ydir
+linkps stepgen.2.step => Zstep
+linkps stepgen.2.dir  => Zdir
+
+# create a signal for the estop loopback
+linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
+
+# create a signal for "spindle on"
+newsig spindle_on bit
+linksp spindle_on <= iocontrol.0.spindle-on
+
+# connect physical pins to the signals
+linksp Xstep		=> parport.0.pin-03-out
+linksp Xdir		=> parport.0.pin-02-out
+linksp Ystep		=> parport.0.pin-05-out
+linksp Ydir		=> parport.0.pin-04-out
+linksp Zstep		=> parport.0.pin-07-out
+linksp Zdir		=> parport.0.pin-06-out
+# amp enable (active lo)
+linksp Xen		=> parport.0.pin-01-out
+setp parport.0.pin-01-out-invert 1
+# spindle enable (active lo)
+linksp spindle_on	=> parport.0.pin-14-out
+setp parport.0.pin-14-out-invert 1
+
+#######################################################
+# set scaling and other parameters of the basic machine
 
 # set stepgen module scaling - get values from ini file
 setp stepgen.0.position-scale [AXIS_0]INPUT_SCALE
@@ -135,40 +168,95 @@ setp stepgen.0.maxaccel [AXIS_0]HAL_MAXACCEL
 setp stepgen.1.maxaccel [AXIS_1]HAL_MAXACCEL
 setp stepgen.2.maxaccel [AXIS_2]HAL_MAXACCEL
 
-# load realtime portion of scope, just to have it handy
-loadrt scope_rt
+# end of basic machine
+
+#######################################################
+# Beginning of threading related stuff
+#
+# TOTALLY EXPERIMENTAL AND PROBABLY BUSTED!
+# 
+#######################################################
+
+# spindle speed control (simulated for now)
+newsig spindle-speed-cmd float
+linksp spindle-speed-cmd => sim-encoder.0.speed
+# this should come from EMC eventually
+sets spindle-speed 1.0 # rps
+
+# spindle encoder
+# connect encoder signals to encoder counter
+newsig spindle-phase-A bit
+newsig spindle-phase-B bit
+newsig spindle-phase-Z bit
+linksp spindle-phase-A => encoder.0.phase-A
+linksp spindle-phase-B => encoder.0.phase-B
+linksp spindle-phase-Z => encoder.0.phase-Z
+
+# replace these when the real encoder shows up
+linkps sim-encoder.0.phase-A => spindle-phase-A
+linkps sim-encoder.0.phase-B => spindle-phase-B
+linkps sim-encoder.0.phase-Z => spindle-phase-Z
+
+# assume 120 ppr = 480 counts/rev for the spindle
+setp sim-encoder.0.ppr 120
+# scale encoder output to read in revolutions
+# (that way thread pitches can be straightforward,
+#  a 20 tpi thread would multiply the encoder output
+#  by 1/20, etc)
+setp encoder.0.position-scale 480
+
+# encoder reset control
+# this signal will eventually be driven by the motion
+# controller, TRUE for synced motion, FALSE the rest of
+# the time.
+newsig spindle-sync bit
+# needs inverted to connect to index enable
+newsig spindle-index-en bit
+linksp spindle-sync	=> not.0.in
+linkps not.0.out	=> spindle-index-enable
+linksp spindle-index-en	=> encoder.0.index-enable
+
+# for now we want to switch from sync to unsync every second or so
+# so fake it - send a siggen square wave into a comparator to drive
+# the sync bit
+newsig square float
+linkps siggen.0.square	=> square
+linksp square		=> comp.0.in0
+# the other comparater input defaults to 0.0, that works for now
+# connect output
+linkps comp.0.out	=> spindle-sync
+
+
+#######################################################
+# make vel and accel sigs for testing
+#######################################################
+
+# send the position commands thru differentiators to
+# generate velocity and accel signals (for testing)
+
+# define the signals, and hook them up
+newsig Xvel float
+newsig Xacc float
+linksp Xpos-cmd => ddt.0.in
+linkps ddt.0.out => Xvel
+linksp Xvel => ddt.1.in
+linkps ddt.1.out => Xacc
+
+newsig Yvel float
+newsig Yacc float
+linksp Ypos-cmd => ddt.2.in
+linkps ddt.2.out => Yvel
+linksp Yvel => ddt.3.in
+linkps ddt.3.out => Yacc
+
+newsig Zvel float
+newsig Zacc float
+linksp Zpos-cmd => ddt.4.in
+linkps ddt.4.out => Zvel
+linksp Zvel => ddt.5.in
+linkps ddt.5.out => Zacc
+
+#######################################################
+# want a scope to observe things
 loadusr halscope
-# standard pinout config file for 3-axis steppers
-# using a parport for I/O
-#
-# first load the parport driver
-loadrt hal_parport cfg="0x0378"
-#
-# next connect the parport functions to threads
-addf parport.0.read base-thread 1
-addf parport.0.write base-thread -1
-#
-# finally connect physical pins to the signals
-linksp Xstep parport.0.pin-03-out
-linksp Xdir  parport.0.pin-02-out
-linksp Ystep parport.0.pin-05-out
-linksp Ydir  parport.0.pin-04-out
-linksp Zstep parport.0.pin-07-out
-linksp Zdir  parport.0.pin-06-out
-
-# create a signal for the estop loopback
-linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
-
-# create signals for tool loading loopback
-linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
-linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
-
-setp parport.0.pin-01-out-invert 1
-linksp Xen => parport.0.pin-01-out
-
-# create a signal for "spindle on"
-setp parport.0.pin-14-out-invert 1
-newsig spindle_on bit
-linksp spindle_on <= iocontrol.0.spindle-on
-linksp spindle_on => parport.0.pin-14-out
 
