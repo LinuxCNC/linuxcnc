@@ -355,7 +355,7 @@ static int export_counter(int num, counter_t * addr)
 	return retval;
     }
     /* export pin for the index input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.phase-I", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.phase-Z", num);
     retval = hal_pin_bit_new(buf, HAL_RD, &(addr->phaseZ), comp_id);
     if (retval != 0) {
 	return retval;
