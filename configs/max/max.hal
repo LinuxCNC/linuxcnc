@@ -14,9 +14,9 @@ loadrt encoder num_chan=1
 # no encoder installed yet, so fake it
 loadrt sim_encoder num_chan=1
 # misc blocks needed to do fun things
-loadrt blocks ddt=6 not=1 comp=1
+loadrt blocks ddt=6 not=1 comp=1 sum2=1
 # signal generator, for various stimuli
-loadrt siggen num_chan=1
+loadrt siggen num_chan=2
 # gotta see whats happening
 loadrt scope_rt
 
@@ -62,8 +62,10 @@ addf ddt.4			servo-thread
 addf ddt.5			servo-thread
 # other misc blocks
 addf siggen.0.update		servo-thread
+addf siggen.1.update		servo-thread
 addf comp.0			servo-thread
 addf not.0			servo-thread
+addf sum2.0                     servo-thread
 # update output info, axis and spindle
 addf stepgen.update-freq	servo-thread
 addf sim-encoder.update-speed	servo-thread
@@ -179,9 +181,19 @@ setp stepgen.2.maxaccel [AXIS_2]HAL_MAXACCEL
 
 # spindle speed control (simulated for now)
 newsig spindle-speed-cmd float
-linksp spindle-speed-cmd => sim-encoder.0.speed
 # this should come from EMC eventually
 sets spindle-speed-cmd 1.0 # rps
+
+# pretend our spindle motor is excessively crappy
+setp siggen.1.amplitude 0.3
+setp siggen.1.frequency 1.5
+
+newsig spindle-speed-sum float
+linksp spindle-speed-cmd => sum2.0.in0
+linkpp siggen.1.sine => sum2.0.in1
+linkps sum2.0.out => spindle-speed-sum
+
+linksp spindle-speed-sum => sim-encoder.0.speed
 
 # spindle encoder
 # connect encoder signals to encoder counter
@@ -225,7 +237,17 @@ linkps siggen.0.square	=> square
 linksp square		=> comp.0.in0
 # the other comparater input defaults to 0.0, that works for now
 # connect output
-linkps comp.0.out	=> spindle-sync
+
+# this turns the ramping on and off for demo
+#linkps comp.0.out	=> spindle-sync
+
+# hook up motion controller's sync output
+linkps motion.spindle-sync => spindle-sync
+
+# report our revolution count to the motion controller
+newsig spindle-pos float
+linkps encoder.0.position => spindle-pos
+linksp spindle-pos => motion.spindle-revs
 
 
 #######################################################
