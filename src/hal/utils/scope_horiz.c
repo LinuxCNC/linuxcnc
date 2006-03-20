@@ -496,8 +496,6 @@ static void dialog_realtime_not_linked(void)
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
     gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, FALSE, FALSE);
-    /* window should appear in center of screen */
-    gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
     /* set title */
     gtk_window_set_title(GTK_WINDOW(dialog.window), title);
     /* display message */

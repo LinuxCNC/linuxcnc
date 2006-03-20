@@ -196,8 +196,6 @@ int dialog_generic_msg(GtkWidget * parent, gchar * title, gchar * msg,
     /* create dialog window, disable resizing */
     dialog.window = gtk_dialog_new();
     gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, FALSE, FALSE);
-    /* window should appear in center of screen */
-    gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
     /* set title */
     if (title != NULL) {
 	gtk_window_set_title(GTK_WINDOW(dialog.window), title);

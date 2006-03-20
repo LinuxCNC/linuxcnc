@@ -690,8 +690,6 @@ static gboolean dialog_set_offset(int chan_num)
     dialog.app_data = buf;
     /* allow user to grow but not shrink the window */
     gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
-    /* window should appear in center of screen */
-    gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
     /* set title */
     gtk_window_set_title(GTK_WINDOW(dialog.window), title);
     /* display message */

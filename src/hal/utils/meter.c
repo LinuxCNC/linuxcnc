@@ -550,11 +550,9 @@ static void create_probe_window(probe_t * probe)
 
     /* create window, set it's size */
     probe->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_usize(GTK_WIDGET(probe->window), -2, 300);
+    gtk_widget_set_usize(GTK_WIDGET(probe->window), -2, 400);
     /* allow user to grow but not shrink the window */
     gtk_window_set_policy(GTK_WINDOW(probe->window), FALSE, TRUE, FALSE);
-    /* window should appear in center of screen */
-    gtk_window_set_position(GTK_WINDOW(probe->window), GTK_WIN_POS_CENTER);
     /* set set_probe window title */
     gtk_window_set_title(GTK_WINDOW(probe->window), probe->probe_name);
 
