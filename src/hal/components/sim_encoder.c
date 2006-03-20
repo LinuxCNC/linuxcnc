@@ -369,10 +369,6 @@ rtapi_print ( "in export_sim_enc, addr = %p\n", addr );
     addr->addval = 0;
     addr->state = 0;
     addr->cycle = 0;
-    /* init the outputs */
-    *(addr->phaseA) = 0;
-    *(addr->phaseB) = 0;
-    *(addr->phaseZ) = 0;
     /* export pins for output phases */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.phase-A", num);
     retval = hal_pin_bit_new(buf, HAL_WR, &(addr->phaseA), comp_id);
@@ -389,6 +385,10 @@ rtapi_print ( "in export_sim_enc, addr = %p\n", addr );
     if (retval != 0) {
 	return retval;
     }
+    /* init the outputs */
+    *(addr->phaseA) = 0;
+    *(addr->phaseB) = 0;
+    *(addr->phaseZ) = 0;
     /* restore saved message level */
 //    rtapi_set_msg_level(msg);
     return 0;
