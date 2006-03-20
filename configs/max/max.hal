@@ -6,7 +6,7 @@ loadrt sim_encoder num_chan=1
 
 linkpp sim-encoder.0.phase-A => encoder.0.phase-A
 linkpp sim-encoder.0.phase-B => encoder.0.phase-B
-linkpp sim-encoder.0.phase-Z => encoder.0.phase-I
+linkpp sim-encoder.0.phase-Z => encoder.0.phase-Z
 
 # encoder is 400 ppr so vel=1 (rpm) gives 400Hz
 newsig spindle-speed float
