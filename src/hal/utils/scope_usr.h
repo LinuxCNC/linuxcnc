@@ -177,13 +177,19 @@ typedef struct {
     GdkGC *context;		/* graphics context for drawing */
 } scope_disp_t;
 
-/* log file display mode */
+/* this struct holds data relating to logging */ 
 
 typedef enum { INTERLACED, NOT_INTERLACED } log_order_t;
-
+typedef enum { OVERWRITE, APPEND } log_append_t;
 typedef struct {
-	log_order_t log_order;
-	
+	/* logging preferences */
+	log_order_t order; /* order that fields are written */
+	int auto_save; /* save log every trigger */
+	char *filename, *default_filename;
+	log_append_t append;
+	GtkWidget *log_win;
+	GtkWidget *log_prefs_button;
+	GtkWidget *log_prefs_label;
 } scope_log_t;
 
 /* this is the master user space control structure */
@@ -205,6 +211,7 @@ typedef struct {
     GtkWidget *vert_info_win;
     GtkWidget *waveform_win;
     GtkWidget *run_mode_win;
+
     GtkWidget *trig_info_win;
     GtkWidget *trig_mode_win;
     /* top level controls */

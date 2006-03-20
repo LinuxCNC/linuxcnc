@@ -84,6 +84,7 @@ static void offset_changed(GtkEditable * editable, gchar * buf);
 static void offset_activated(GtkEditable * editable, gchar * button);
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
 static void chan_sel_button(GtkWidget * widget, gpointer gdata);
+static void log_prefs_button_clicked(GtkWidget * widget, gpointer gdata);
 
 /* helper functions */
 static void format_scale_value(char *buf, int buflen, float value);
@@ -571,6 +572,27 @@ static void init_chan_info_window(void)
     gtk_signal_connect(GTK_OBJECT(vert->source_name_button), "clicked",
 	GTK_SIGNAL_FUNC(change_source_button), NULL);
     gtk_widget_show(vert->source_name_button);
+
+
+	scope_log_t *log;
+	log=&(ctrl_usr->log);
+
+	/* a button to save logs  */
+	//doesnt really belong here but no room otherwise
+    log->log_prefs_button = gtk_button_new_with_label("Logging");
+    gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_info_win),
+	log->log_prefs_button, FALSE, FALSE, 3);
+
+    log->log_prefs_label = (GTK_BIN(log->log_prefs_button))->child;
+    gtk_label_set_justify(GTK_LABEL(log->log_prefs_label),
+	GTK_JUSTIFY_RIGHT);
+    gtk_label_size_to_fit(GTK_LABEL(log->log_prefs_label),
+	"Logging");
+    /* activate the source selection dialog if button is clicked */
+    gtk_signal_connect(GTK_OBJECT(log->log_prefs_button), "clicked",
+	GTK_SIGNAL_FUNC(log_prefs_button_clicked), NULL);
+    gtk_widget_show(log->log_prefs_button);
+	
 }
 
 static void init_vert_info_window(void)
@@ -690,6 +712,8 @@ static gboolean dialog_set_offset(int chan_num)
     dialog.app_data = buf;
     /* allow user to grow but not shrink the window */
     gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
+    /* window should appear in center of screen */
+    gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
     /* set title */
     gtk_window_set_title(GTK_WINDOW(dialog.window), title);
     /* display message */
@@ -768,6 +792,11 @@ static void offset_activated(GtkEditable * editable, gchar * button)
 }
 
 
+static void log_prefs_button_clicked(GtkWidget * widget, gpointer gdata)
+{
+    printf("Sorry, logging is not finished yet\n");
+   
+}
 
 static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 {
@@ -887,9 +916,11 @@ static gboolean dialog_select_source(int chan_num)
     dialog.window = gtk_dialog_new();
     dialog.app_data = &chan_num;
     /* set initial height of window */
-    gtk_widget_set_usize(GTK_WIDGET(dialog.window), -2, 400);
+    gtk_widget_set_usize(GTK_WIDGET(dialog.window), -2, 300);
     /* allow user to grow but not shrink the window */
     gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
+    /* window should appear in center of screen */
+    gtk_window_set_position(GTK_WINDOW(dialog.window), GTK_WIN_POS_CENTER);
     /* set title */
     gtk_window_set_title(GTK_WINDOW(dialog.window), title);
     /* display message */

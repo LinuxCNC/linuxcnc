@@ -268,7 +268,7 @@ void write_log_file (char *filename)
 	sample_period_ns = horiz->thread_period_ns * ctrl_shm->mult;
 
 	//for testing, this will be a check box or something eventually
-	log->log_order=INTERLACED;
+	log->order=INTERLACED;
 
     /* write data */
     fprintf(fp, "Sampling period is %i nSec \n", sample_period_ns );
@@ -276,7 +276,7 @@ void write_log_file (char *filename)
 	/* point to the first sample in the display buffer */
 	start = ctrl_usr->disp_buf ;
 
-	switch (log->log_order) {
+	switch (log->order) {
 		case INTERLACED:
 				while (n <= samples) {
 				
