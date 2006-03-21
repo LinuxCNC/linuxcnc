@@ -178,13 +178,12 @@ setp stepgen.2.maxaccel [AXIS_2]HAL_MAXACCEL
 # 
 #######################################################
 
-# spindle speed control (simulated for now)
+# spindle speed control
 newsig spindle-speed-cmd float
-# this should come from EMC eventually
-sets spindle-speed-cmd 1.0 # rps
+linkps iocontrol.0.spindle-speed-out => spindle-speed-cmd
 
 # pretend our spindle motor is excessively crappy
-setp siggen.0.amplitude 0.5
+setp siggen.0.amplitude 60.0
 setp siggen.0.frequency 1.5
 
 newsig spindle-speed-sum float
