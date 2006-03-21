@@ -1491,6 +1491,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_x = (settings->origin_offset_x * INCH_PER_MM);
       settings->origin_offset_y = (settings->origin_offset_y * INCH_PER_MM);
       settings->origin_offset_z = (settings->origin_offset_z * INCH_PER_MM);
+      settings->feed_rate = GET_EXTERNAL_FEED_RATE();
     }
   } else if (g_code == G_21) {
     USE_LENGTH_UNITS(CANON_UNITS_MM);
@@ -1505,6 +1506,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->origin_offset_x = (settings->origin_offset_x * MM_PER_INCH);
       settings->origin_offset_y = (settings->origin_offset_y * MM_PER_INCH);
       settings->origin_offset_z = (settings->origin_offset_z * MM_PER_INCH);
+      settings->feed_rate = GET_EXTERNAL_FEED_RATE();
     }
   } else
     ERM(NCE_BUG_CODE_NOT_G20_OR_G21);
