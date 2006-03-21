@@ -24,7 +24,7 @@
 /* These structs hold data associated with objects like tasks, etc. */
 /* Task handles are pointers to these structs.                      */
 
-struct ulapi_shmem {
+struct rtapi_shmem {
   int magic;			/* to check for valid handle */
   int key;			/* key to shared memory area */
   int id;			/* OS identifier for shmem */
@@ -36,45 +36,44 @@ struct ulapi_shmem {
 #define SHMEM_MAGIC   25453	/* random numbers used as signatures */
 
 
-int ulapi_init(void)
+int rtapi_init(char *modname)
 {
   /* does nothing, for now */
-  return ULAPI_SUCCESS;
+  return RTAPI_SUCCESS;
 }
 
 
-int ulapi_exit(void)
+int rtapi_exit(int module_id)
 {
   /* does nothing, for now */
-  return ULAPI_SUCCESS;
+  return RTAPI_SUCCESS;
 }
 
 
-int ulapi_shmem_new(int key, unsigned long int size,
-		    ulapi_shmem_handle * shmemptr)
+int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {
-  ulapi_shmem_handle shmem;
+  rtapi_shmem_handle shmem;
 
   /* validate shmemptr */
   if (shmemptr == NULL)
-    return ULAPI_INVAL;
+    return RTAPI_INVAL;
 
   /* alloc space for shmem structure */
-  shmem = malloc(sizeof(struct ulapi_shmem));
+  shmem = malloc(sizeof(struct rtapi_shmem));
   if (shmem == NULL)
-    return ULAPI_NOMEM;
+    return RTAPI_NOMEM;
 
   /* now get shared memory block from OS */
   shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0666);
   if (shmem->id == -1) {
     free(shmem);
-    return ULAPI_NOMEM;
+    return RTAPI_NOMEM;
   }
   /* and map it into process space */
   shmem->mem = shmat(shmem->id, 0, 0);
   if ((int) (shmem->mem) == -1) {
     free(shmem);
-    return ULAPI_NOMEM;
+    return RTAPI_NOMEM;
   }
 
   /* label as a valid shmem structure */
@@ -85,34 +84,34 @@ int ulapi_shmem_new(int key, unsigned long int size,
 
   /* return handle to the caller */
   *shmemptr = shmem;
-  return ULAPI_SUCCESS;
+  return RTAPI_SUCCESS;
 }
 
 
-int ulapi_shmem_getptr(ulapi_shmem_handle shmem, void **ptr)
+int rtapi_shmem_getptr(rtapi_shmem_handle shmem, void **ptr)
 {
   /* validate shmem handle */
   if (shmem == NULL)
-    return ULAPI_BADH;
+    return RTAPI_BADH;
   if (shmem->magic != SHMEM_MAGIC)
-    return ULAPI_BADH;
+    return RTAPI_BADH;
 
   /* pass memory address back to caller */
   *ptr = shmem->mem;
-  return ULAPI_SUCCESS;
+  return RTAPI_SUCCESS;
 }
 
 
-int ulapi_shmem_delete(ulapi_shmem_handle shmem)
+int rtapi_shmem_delete(rtapi_shmem_handle shmem)
 {
   struct shmid_ds d;
   int r1, r2;
 
   /* validate shmem handle */
   if (shmem == NULL)
-    return ULAPI_BADH;
+    return RTAPI_BADH;
   if (shmem->magic != SHMEM_MAGIC)
-    return ULAPI_BADH;
+    return RTAPI_BADH;
 
   /* unmap the shared memory */
   r1 = shmdt(shmem->mem);
@@ -129,31 +128,31 @@ int ulapi_shmem_delete(ulapi_shmem_handle shmem)
   free(shmem);
 
   if ((r1 != 0) || (r2 != 0))
-    return ULAPI_FAIL;
-  return ULAPI_SUCCESS;
+    return RTAPI_FAIL;
+  return RTAPI_SUCCESS;
 }
 
 
 /* FIXME - no support for fifos */
 
-int ulapi_fifo_new(int key, unsigned long int size, char mode,
-		   ulapi_fifo_handle * fifoptr)
+int rtapi_fifo_new(int key, unsigned long int size, char mode,
+		   rtapi_fifo_handle * fifoptr)
 {
-  return ULAPI_UNSUP;
+  return RTAPI_UNSUP;
 }
 
-int ulapi_fifo_delete(ulapi_fifo_handle fifo)
+int rtapi_fifo_delete(rtapi_fifo_handle fifo)
 {
-  return ULAPI_UNSUP;
+  return RTAPI_UNSUP;
 }
 
-int ulapi_fifo_read(ulapi_fifo_handle fifo, char *buf, unsigned long int size)
+int rtapi_fifo_read(rtapi_fifo_handle fifo, char *buf, unsigned long int size)
 {
-  return ULAPI_UNSUP;
+  return RTAPI_UNSUP;
 }
 
-int ulapi_fifo_write(ulapi_fifo_handle fifo,
+int rtapi_fifo_write(rtapi_fifo_handle fifo,
 		     char *buf, unsigned long int size)
 {
-  return ULAPI_UNSUP;
+  return RTAPI_UNSUP;
 }
