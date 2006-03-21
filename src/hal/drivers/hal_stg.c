@@ -748,7 +748,7 @@ static int stg_dac_init(int ch)
     
     /* set all DAC's to 0 on startup */
     for (i=0; i < num_chan; i++) {
-	stg_dac_write(i, 0);
+	stg_dac_write(i, 0x1000); //by Xuecheng, 0x1000 coresponds to 0V 
     }
     return 0;
 }
@@ -1051,7 +1051,7 @@ unsigned short stg_autodetect()
 	address = i * 0x20 + 0x200;
 
 	/* does jumper = i? */
-	if ((inb(address + BRDTST) & 0x0f) == i) {
+	//if ((inb(address + BRDTST) & 0x0f) == i) { // by Xuecheng, not necessary
 	    k = 0;		// var for getting the serial
 	    for (j = 0; j < 8; j++) {
 		ofs = (inb(address + BRDTST) >> 4);
@@ -1074,7 +1074,7 @@ unsigned short stg_autodetect()
 		stg_driver->model=2;
 		return address;
 	    }
-	}
+	//}
     }
     return (0);
 }
