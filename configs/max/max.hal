@@ -14,9 +14,7 @@ loadrt encoder num_chan=1
 # no encoder installed yet, so fake it
 loadrt sim_encoder num_chan=1
 # misc blocks needed to do fun things
-loadrt blocks ddt=6 not=1 comp=1 sum2=1
-# signal generator, for various stimuli
-loadrt siggen num_chan=1
+loadrt blocks ddt=6 not=1
 # gotta see whats happening
 loadrt scope_rt
 
@@ -61,10 +59,7 @@ addf ddt.3			servo-thread
 addf ddt.4			servo-thread
 addf ddt.5			servo-thread
 # other misc blocks
-addf siggen.0.update		servo-thread
-addf comp.0			servo-thread
 addf not.0			servo-thread
-addf sum2.0                     servo-thread
 # update output info, axis and spindle
 addf stepgen.update-freq	servo-thread
 addf sim-encoder.update-speed	servo-thread
@@ -181,17 +176,7 @@ setp stepgen.2.maxaccel [AXIS_2]HAL_MAXACCEL
 # spindle speed control
 newsig spindle-speed-cmd float
 linkps iocontrol.0.spindle-speed-out => spindle-speed-cmd
-
-# pretend our spindle motor is excessively crappy
-setp siggen.0.amplitude 60.0
-setp siggen.0.frequency 1.5
-
-newsig spindle-speed-sum float
-linksp spindle-speed-cmd => sum2.0.in0
-linkpp siggen.0.sine => sum2.0.in1
-linkps sum2.0.out => spindle-speed-sum
-
-linksp spindle-speed-sum => sim-encoder.0.speed
+linksp spindle-speed-cmd => sim-encoder.0.speed
 
 # spindle encoder
 # connect encoder signals to encoder counter
