@@ -196,7 +196,7 @@ if { $windows == 0 } {
     source $TCLBIN/genedit.tcl
 
     # load the EMC calibrator
-    source $TCLBIN/emccalib.tcl
+#    source $TCLBIN/emccalib.tcl
 
     # load the EMC data logger
     source $TCLBIN/emclog.tcl
@@ -784,7 +784,7 @@ $viewmenu add command -label [msgcat::mc "Backplot..."] -command {popupPlot} -un
 # add the Settings menu
 set settingsmenu [menu $menubar.settings -tearoff 0]
 $menubar add cascade -label [msgcat::mc "Settings"] -menu $settingsmenu -underline 0
-$settingsmenu add command -label [msgcat::mc "Calibration..."] -command {popupCalibration} -underline 0 -state disabled
+$settingsmenu add command -label [msgcat::mc "Calibration..."] -command "exec $TCLBIN/emccalib.tcl -- -ini $EMC_INIFILE &"
 $settingsmenu add command -label [msgcat::mc "Logging..."] -command {popupLog} -underline 0
 $settingsmenu add command -label [msgcat::mc "Testing..."] -command {popupTesting} -underline 0 -state disabled
 $settingsmenu add command -label [msgcat::mc "Debug..."] -command {popupDebug} -underline 0
