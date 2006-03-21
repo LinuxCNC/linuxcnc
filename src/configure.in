@@ -76,6 +76,24 @@ BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 # accept --with-rtlinuxpro=<path> from commandline                           #
 ##############################################################################
 
+AC_ARG_ENABLE(simulator,
+    [  --enable-simulator   Configure to run without any true realtime component],
+    [
+        case "$enableval" in
+            Y*|y*)
+                SIMULATOR=yes
+                RTS=simulator
+                AC_MSG_RESULT([configuring for simulator])
+            ;;
+            *)
+                SIMULATOR=no
+        esac
+    ],
+    [
+        SIMULATOR=no
+    ])
+AC_SUBST(SIMULATOR)
+
 # check for path from --with-rtai=<path>
 AC_ARG_WITH(rtai,
     [  --with-rtai=<path to RTAI>              path where RTAI is installed],
@@ -148,7 +166,9 @@ fi
 ##############################################################################
 
 #at this point if RTDIR is empty, we need to find RT ourselves
-if (test -z "$RTDIR" ); then
+if test $SIMULATOR = yes; then
+  RTS=sim
+elif test -z "$RTDIR"; then
   RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" -o -name "realtime-config" 2>/dev/null)
   if (test "$RTS" = "" ) ; then
     AC_MSG_ERROR([RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>])
@@ -322,6 +342,10 @@ elif (test `echo $RTS | awk -F/ '{print $NF }'` = "rtl-config"); then
     RTFLAGS=`$RTS --cflags`
     KERNELDIR=`$RTS --linux`
 # elif test for RTLinux-Pro ???
+elif (test $RTS = sim); then
+    RTPREFIX=sim
+    RTDIR=$(pwd -P)
+    RTFLAGS=-DSIMULATOR
 fi
 
 AC_SUBST([RTNAME])
@@ -392,6 +416,7 @@ fi
 # AC_PROG_CC's in this file
 # modified to test only once
 AC_PROG_CC([$RTSCC gcc egcs])
+AC_PROG_CPP()
 
 if test -z "$CC"; then
   AC_MSG_ERROR([no acceptable cc found])
@@ -421,6 +446,7 @@ AC_SUBST([WFLAGS])
 # compiled against.                                                          #
 ##############################################################################
 
+if test $RTS '!=' sim; then
 AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
 
 # Unfortunately, many distributions (redhat, mandrake) have #defines
@@ -517,6 +543,7 @@ if test "x" = "x$MODULE_DIR"; then
    if test -d /usr/realtime/ ; then
        MODULE_DIR=`(find /usr/realtime/ \( -name "mbuff${MODEXT}" -o -name "rtai_shm${MODEXT}" \) -printf "%h")`
    fi
+fi
 fi
 
 AC_ARG_ENABLE(run-in-place,
