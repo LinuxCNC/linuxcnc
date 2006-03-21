@@ -50,16 +50,16 @@ if ([info exists env(LANG)]) {
 
 proc popupCalibration {} {
     global axisentry activeAxis top initext HALCMD
-    global logo numaxes EMC_INIFILE af0 af1 af2 af3 af4 af5 af6
+    global logo numaxes EMC_INIFILE 
     set numaxes [emc_ini "AXES" "TRAJ"]
     for {set i 0} {$i<$numaxes} {incr i} {
-        global inilookup$i
+        global inilookup$i af$i
     }
     
     # default location for halcmd is in ./bin/
     # if this file is needed to run a different location of halcmd
     # the env(HALCMD) will hold the absolute path to it
-    set HALCMD bin/halcmd
+    set HALCMD ../../bin/halcmd
 
     # get the absolute path to HALCMD if it exists
     if {[info exists env(HALCMD)]} {
@@ -179,22 +179,27 @@ proc popupCalibration {} {
         set j 0
         foreach thishalline [set inilookup$i] {
             set thisininame [lindex [split $thishalline "\]" ] end ]
+            set thishalcommand [lindex $thishalline 1]
+            global tvar$i$j
+            set tmpvar tvar$i$j
+            set $tmpvar [expr [lindex [split [exec $HALCMD -s show param $thishalcommand] " "] 3]]
             label [set af$i].label$j -text "$thisininame" \
                 -width 20 -anchor e
-            entry [set af$i].entry$j -width 10 \
-                -textvariable inivariable$i$j
+            entry [set af$i].entry$j -width 12 \
+                -textvariable $tmpvar
             grid [set af$i].label$j [set af$i].entry$j
             incr j
+
         }
     }
-
+    
     frame $top.buttons
     button $top.buttons.ok -text "Save" -default active \
-        -command {changIt save }
+        -command {changeIt save } -state disabled
     button $top.buttons.apply -text Apply \
-        -command {changeIt apply}
+        -command {changeIt apply} -state disabled
     button $top.buttons.revert -text Revert \
-        -command {changeIt revert}
+        -command {changeIt revert} -state disabled
     button $top.buttons.cancel -text Quit \
         -command {changeIt quit}
     pack $top.buttons.ok $top.buttons.apply $top.buttons.revert \
@@ -237,6 +242,4 @@ proc changeIt {how } {
 
 popupCalibration
 selectAxis 0
-puts [pwd]
-# puts [exec $HALCMD show threads]
 
