@@ -1,163 +1,242 @@
 #!/bin/sh
-# we need to find the tcl dir, it was exported from emc.run \
+# we need to find the tcl dir, it was exported from emc \
 export EMC2_TCL_DIR
+# and some apps need the realtime script, so export that too \
+export REALTIME
+# and the emc2 version string \
+export EMC2VERSION
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
-# emccalib.tcl
+###############################################################
+# Description:  emccalib.tcl
+#               A Tcl/Tk script that interfaces with EMC2 
+#               through tkemc.  It configures tuning variables 
+#               on the fly and saves final values when the 
+#               script is shut down.
+#
+#  Author: Ray Henry
+#  License: GPL Version 2
+#
+#  Copyright (c) 2003 All rights reserved.
+#
+#  Last change:
+# $Revision$
+# $Author$
+# $Date$
+###############################################################
 # EMC parameter setting application
-# Needs emcsh to run-- this is sourced by tkemc, but it can be run
-# standalone. Make sure directory containing emcsh is in your path,
-# or edit the exec line above with the path to emcsh.
+# Needs emcsh to run-- 
+#    1 find and load the ini file
+#    2 find the number of axes for the system.
+#    3 set up an array holding section names and line numbers 
+#        arrayname is sectionarray
+#    4 read the ini for .hal file names
+#        list is named halfilelist
+#    5 read the .hal files for ini references.
+#    6 make a set of widgets with HAL file and HAL names
+#    7 Build display widgets for each HAL element
+#        (wonder how to scale sliders if used)
+#    8 Issue halcmd as values change
+#    9 Write changes to ini when done.
+###############################################################
 
-# check if any emc commands exist, and quit if not
-if {! [string length [info commands emc_plat]]} {
-    error "emccalib needs to run from \"emcsh\""
+package require msgcat
+if ([info exists env(LANG)]) {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload "../src/po"
+    #FIXME need to add location for installed po files
 }
 
-if {! [info exists activeAxis]} {
-    set activeAxis 0
-}
-
-proc popdownCalibration {w} {
-    destroy $w
-    if {$w == "."} {
-        exit
+proc popupCalibration {} {
+    global axisentry activeAxis top initext HALCMD
+    global logo numaxes EMC_INIFILE af0 af1 af2 af3 af4 af5 af6
+    set numaxes [emc_ini "AXES" "TRAJ"]
+    for {set i 0} {$i<$numaxes} {incr i} {
+        global inilookup$i
     }
-}
+    
+    # default location for halcmd is in ./bin/
+    # if this file is needed to run a different location of halcmd
+    # the env(HALCMD) will hold the absolute path to it
+    set HALCMD bin/halcmd
 
-proc popupCalibration {{w .calibwindow}} {
-    global axisentry pgain igain dgain ff0 ff1 ff2
-    global backlash bias maxerror deadband
-    global activeAxis
+    # get the absolute path to HALCMD if it exists
+    if {[info exists env(HALCMD)]} {
+        set HALCMD $env(HALCMD)
+    }
 
-    # trap "." as window name, and erase it, so that widgets
-    # don't begin with two dots. We'll refer to the passed-in
-    # name "w" here; in code following this setup we'll use the
-    # modified name "lw"
-    if {$w == "."} {
-        set lw ""
-        wm title $w "EMC Calibration"
-    } else {
-        set lw $w
-        if {[winfo exists $w]} {
-            wm deiconify $w
-            raise $w
-            focus $w
-            return
+    # This logo is used on all the pages
+    set wizard_image_search {
+        /etc/emc2/emc2-wizard.gif \
+        /usr/local/etc/emc2/emc2-wizard.gif \
+        emc2-wizard.gif}
+
+    set logo ""
+    foreach wizard_image $wizard_image_search {
+        if { [file exists $wizard_image] } {
+            set logo [image create photo -file $wizard_image]
+            break
         }
-        toplevel $w
-        wm title $w "EMC Calibration"
     }
 
-    # use "lw" as name of top level from now on
+    # Find the name of the ini file used for this run.
+    set thisinifile "$EMC_INIFILE"
+    set thisconfigdir [file dirname $thisinifile]
 
-    # force the selected axis to be the active axis
-    set axisentry $activeAxis
+    wm title . [msgcat::mc "EMC2 Axis Calibration"]
+    set logo [label .logo -image $logo]
+    set top [frame .main ]
+    pack $logo -side left -anchor nw
+    pack $top -side left -expand yes -fill both \
+        -padx 18 -pady 18 -anchor n
 
-    # get the parameters from the controller
-    set pgain [emc_axis_gains $activeAxis p]
-    set igain [emc_axis_gains $activeAxis i]
-    set dgain [emc_axis_gains $activeAxis d]
-    set ff0 [emc_axis_gains $activeAxis ff0]
-    set ff1 [emc_axis_gains $activeAxis ff1]
-    set ff2 [emc_axis_gains $activeAxis ff2]
-    set backlash [emc_axis_backlash $activeAxis]
-    set bias [emc_axis_gains $activeAxis bias]
-    set maxerror [emc_axis_gains $activeAxis maxerror]
-    set deadband [emc_axis_gains $activeAxis deadband]
+    # use "top" as name of working frame
+    set axisframe [frame $top.axes ]
+    for {set i 0} {$i<$numaxes} {incr i} {
+        button $axisframe.b$i -text "Axis $i" -command "selectAxis $i"
+        pack  $axisframe.b$i -side left -fill both -expand yes
+    }
+   
+    # Make a text widget to hold the ini file and
+    # put a copy of the inifile in this text widget
+    set initext [text $top.initext]
+    $initext config -state normal
+    $initext delete 1.0 end
+    if {[catch {open $thisinifile} programin]} {
+        return
+    } else {
+        $initext insert end [read $programin]
+        catch {close $programin}
+    }
 
-    label $lw.title -text "Axis Calibration" -width 30 -anchor center
-    pack $lw.title -side top -fill x
+    # setup array with section names and line numbers
+    # sections are without [] around
+    # line numbering starts from 1 as do unix line numbers
+    array set sectionarray {}
+    scan [$initext index end] %d nl
+    set inilastline $nl
+    for {set i 1} {$i < $nl} {incr i} {
+        if { [$initext get $i.0] == "\[" } {
+            set inisectionname [$initext get $i.1 $i.end]
+            set inisectionname [string trimright $inisectionname \] ]
+            array set sectionarray "$inisectionname $i"
+        }
+    }
 
-    frame $lw.axis
-    label $lw.axis.lab -text "Axis:" -anchor w
-    entry $lw.axis.ent -width 20 -textvariable axisentry
-    pack $lw.axis -side top -fill x
-    pack $lw.axis.lab -side left
-    pack $lw.axis.ent -side right
+    # Find the HALFILE names between HAL and TRAJ
+    set startline $sectionarray(HAL)
+    set endline $sectionarray(TRAJ)
+    set halfilelist ""
+    for {set i $startline} {$i < $endline} {incr i} {
+        set thisstring [$initext get $i.0 $i.end]
+        if { [lindex $thisstring 0] == "HALFILE" } {
+            set thishalname [lindex $thisstring end]
+            lappend halfilelist $thisconfigdir/$thishalname
+        }
+    }
 
-    frame $lw.p
-    label $lw.p.lab -text "P Gain:" -anchor w
-    entry $lw.p.ent -width 20 -textvariable pgain
-    pack $lw.p -side top -fill x
-    pack $lw.p.lab -side left
-    pack $lw.p.ent -side right
+    # make a second text widget for scratch writing
+    set scratchtext [text $top.scratchtext]
 
-    frame $lw.i
-    label $lw.i.lab -text "I Gain:" -anchor w
-    entry $lw.i.ent -width 20 -textvariable igain
-    pack $lw.i -side top -fill x
-    pack $lw.i.lab -side left
-    pack $lw.i.ent -side right
+    # do some initial work for each axis
+    for {set i 0} {$i < $numaxes} {incr i} {
+        set inilookup$i ""
+        set af$i [frame $top.ax$i]
+    }
 
-    frame $lw.d
-    label $lw.d.lab -text "D Gain:" -anchor w
-    entry $lw.d.ent -width 20 -textvariable dgain
-    pack $lw.d -side top -fill x
-    pack $lw.d.lab -side left
-    pack $lw.d.ent -side right
+    # Search each .hal file for [AXIS
+    foreach fname $halfilelist {
+        $scratchtext config -state normal
+        $scratchtext delete 1.0 end
+        if {[catch {open $fname} programin]} {
+            return
+        } else {
+            $scratchtext insert end [read $programin]
+            catch {close $programin}
+        }
+        scan [$scratchtext index end] %d nl
+        for {set i 1} {$i < $nl} {incr i} {
+            set tmpstring [$scratchtext get $i.0 $i.end]
+            if {[lsearch -regexp $tmpstring AXIS] > -1} { 
+                for {set j 0} {$j < $numaxes} {incr j} {
+                    if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
+                        lappend inilookup$j $tmpstring
+                        break
+                    }
+                }
+            }
+        }
+    }
 
-    frame $lw.ff0
-    label $lw.ff0.lab -text "Pos FF Gain:" -anchor w
-    entry $lw.ff0.ent -width 20 -textvariable ff0
-    pack $lw.ff0 -side top -fill x
-    pack $lw.ff0.lab -side left
-    pack $lw.ff0.ent -side right
+    # Now build var names and entry widgets for each found var
+    # this code is a real "hard way" to do this but...
+    # thishalline is the setp command to issue through halcmd 
+    # thisinisection is the ini section to edit
+    # this ininame is the ini variable name to change with new value
+    for {set i 0} {$i<$numaxes} {incr i} {
+        set thisinisection AXIS_$i
+        set j 0
+        foreach thishalline [set inilookup$i] {
+            set thisininame [lindex [split $thishalline "\]" ] end ]
+            label [set af$i].label$j -text "$thisininame" \
+                -width 20 -anchor e
+            entry [set af$i].entry$j -width 10 \
+                -textvariable inivariable$i$j
+            grid [set af$i].label$j [set af$i].entry$j
+            incr j
+        }
+    }
 
-    frame $lw.ff1
-    label $lw.ff1.lab -text "Vel FF Gain:" -anchor w
-    entry $lw.ff1.ent -width 20 -textvariable ff1
-    pack $lw.ff1 -side top -fill x
-    pack $lw.ff1.lab -side left
-    pack $lw.ff1.ent -side right
-
-    frame $lw.ff2
-    label $lw.ff2.lab -text "Acc FF Gain:" -anchor w
-    entry $lw.ff2.ent -width 20 -textvariable ff2
-    pack $lw.ff2 -side top -fill x
-    pack $lw.ff2.lab -side left
-    pack $lw.ff2.ent -side right
-
-    frame $lw.backlash
-    label $lw.backlash.lab -text "Backlash:" -anchor w
-    entry $lw.backlash.ent -width 20 -textvariable backlash
-    pack $lw.backlash -side top -fill x
-    pack $lw.backlash.lab -side left
-    pack $lw.backlash.ent -side right
-
-    frame $lw.bias
-    label $lw.bias.lab -text "Bias:" -anchor w
-    entry $lw.bias.ent -width 20 -textvariable bias
-    pack $lw.bias -side top -fill x
-    pack $lw.bias.lab -side left
-    pack $lw.bias.ent -side right
-
-    frame $lw.maxerror
-    label $lw.maxerror.lab -text "Max Cum Error:" -anchor w
-    entry $lw.maxerror.ent -width 20 -textvariable maxerror
-    pack $lw.maxerror -side top -fill x
-    pack $lw.maxerror.lab -side left
-    pack $lw.maxerror.ent -side right
-
-    frame $lw.deadband
-    label $lw.deadband.lab -text "Deadband:" -anchor w
-    entry $lw.deadband.ent -width 20 -textvariable deadband
-    pack $lw.deadband -side top -fill x
-    pack $lw.deadband.lab -side left
-    pack $lw.deadband.ent -side right
-
-    frame $lw.buttons
-    button $lw.buttons.ok -text OK -default active -command "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$bias \$maxerror \$deadband; emc_axis_backlash \$activeAxis \$backlash; popdownCalibration $w"
-    button $lw.buttons.cancel -text Cancel -command "popdownCalibration $w"
-
-    pack $lw.buttons -side bottom -fill x -pady 2m
-    pack $lw.buttons.ok $lw.buttons.cancel -side left -expand 1
-    bind $w <Return> "emc_axis_gains \$activeAxis all \$pgain \$igain \$dgain \$ff0 \$ff1 \$ff2 \$bias \$maxerror \$deadband; emc_axis_backlash \$activeAxis \$backlash; popdownCalibration $w"
+    frame $top.buttons
+    button $top.buttons.ok -text "Save" -default active \
+        -command {changIt save }
+    button $top.buttons.apply -text Apply \
+        -command {changeIt apply}
+    button $top.buttons.revert -text Revert \
+        -command {changeIt revert}
+    button $top.buttons.cancel -text Quit \
+        -command {changeIt quit}
+    pack $top.buttons.ok $top.buttons.apply $top.buttons.revert \
+        $top.buttons.cancel -side left -expand 1
+#    pack $axisframe -side top -fill x -expand yes
+#    pack $top.buttons -side bottom -fill x -expand yes
+    grid configure $axisframe -row 0 -sticky ew
+    grid rowconfigure $top 1 -weight 1
+    grid configure $top.buttons -row 2 -sticky ew
 
 }
 
-# if we're not running inside tkemc, then pop us up in root window
-if {! [info exists tkemc]} {
-    popupCalibration .
+proc selectAxis {which} {
+    global numaxes axisentry top
+    set axisentry $which
+    for {set i 0} {$i<$numaxes} {incr i} {
+        global af$i
+        $top.axes.b$i configure -relief raised
+        grid remove [set af$i]
+    }
+    $top.axes.b$which configure -relief sunken
+    grid configure [set af$which] -row 1 -sticky nsew
 }
+
+proc changeIt {how } {
+    switch -- $how {
+    save {set tmp save}
+    apply {set tmp apply}
+    revert {set tmp revert}
+    quit {
+        set tmp quit
+        # build a check for changed values here and ask
+        destroy .
+    }
+    default {}
+    }
+    puts "pressed $tmp"
+}
+
+
+popupCalibration
+selectAxis 0
+puts [pwd]
+# puts [exec $HALCMD show threads]
+
