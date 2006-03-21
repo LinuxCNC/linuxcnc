@@ -619,7 +619,6 @@ int tpRunCycle(TP_STRUCT * tp)
     }
 
     if(tc->synchronized) {
-        // to come from interp
         double pos_error = emcmotStatus->spindleRevs * tc->uu_per_rev - tc->progress;
 
         tc->reqvel = pos_error/tc->cycle_time;
