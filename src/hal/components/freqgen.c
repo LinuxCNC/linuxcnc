@@ -363,7 +363,6 @@ typedef struct {
     hal_s32_t rawcount;		/* param: current position (feedback) */
     hal_s32_t *count;		/* captured binary count value */
     hal_float_t pos_scale;	/* parameter: scaling factor for pos */
-    hal_bit_t invert_scale;     /* parameter: are scales inverted? */
     float old_scale;		/* stored scale value */
     double scale_recip;		/* reciprocal value used for scaling */
     hal_float_t *pos;		/* scaled position (floating point) */
@@ -771,11 +770,7 @@ static void update_freq(void *arg, long period)
 	    }
 	}
 	/* convert velocity command to Hz */
-	if(freqgen->invert_scale) {
-	    tmpf = *(freqgen->vel) * freqgen->maxfreq / freqgen->vel_scale;
-	} else {
-	    tmpf = *(freqgen->vel) * freqgen->vel_scale;
-	}
+	tmpf = *(freqgen->vel) * freqgen->vel_scale;
 	/* limit the commanded frequency */
 	if (tmpf > limf) {
 	    tmpf = limf;
@@ -844,12 +839,6 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-    /* export param variable for raw counts */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.invert_scale", num);
-    retval = hal_param_bit_new(buf, HAL_WR, &(addr->invert_scale), comp_id);
-    if (retval != 0) {
-	return retval;
-    }
     /* export param variable for raw counts */
     rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.rawcounts", num);
     retval = hal_param_s32_new(buf, HAL_RD, &(addr->rawcount), comp_id);
