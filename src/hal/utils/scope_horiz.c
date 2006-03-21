@@ -446,10 +446,10 @@ static void dialog_realtime_not_loaded(void)
     gint retval;
 
     title = "Realtime component not loaded";
-    msg = "HALSCOPE uses a realtime component called scope_rt.o'\n"
+    msg = "HALSCOPE uses a realtime component called scope_rt'\n"
 	"to sample signals for display.  It is not currently loaded.\n\n"
 	"Please do one of the following:\n\n"
-	"Load the component (using insmod), then click 'OK'\n"
+	"Load the component (using 'halcmd loadrt scope_rt'), then click 'OK'\n"
 	"or\n" "Click 'Quit' to exit HALSCOPE";
     retval =
 	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Quit",
