@@ -77,7 +77,7 @@ BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 ##############################################################################
 
 AC_ARG_ENABLE(simulator,
-    [  --enable-simulator   Configure to run without any true realtime component],
+    [  --enable-simulator      Run without any true realtime component],
     [
         case "$enableval" in
             Y*|y*)

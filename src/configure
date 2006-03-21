@@ -853,7 +853,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-simulator   Configure to run without any true realtime component
+  --enable-simulator      Run without any true realtime component
   --enable-run-in-place   Configure EMC to run without make install
   --disable-nls           don't use NLS
 
