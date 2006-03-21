@@ -16,7 +16,7 @@ loadrt sim_encoder num_chan=1
 # misc blocks needed to do fun things
 loadrt blocks ddt=6 not=1 comp=1 sum2=1
 # signal generator, for various stimuli
-loadrt siggen num_chan=2
+loadrt siggen num_chan=1
 # gotta see whats happening
 loadrt scope_rt
 
@@ -62,7 +62,6 @@ addf ddt.4			servo-thread
 addf ddt.5			servo-thread
 # other misc blocks
 addf siggen.0.update		servo-thread
-addf siggen.1.update		servo-thread
 addf comp.0			servo-thread
 addf not.0			servo-thread
 addf sum2.0                     servo-thread
@@ -185,12 +184,12 @@ newsig spindle-speed-cmd float
 sets spindle-speed-cmd 1.0 # rps
 
 # pretend our spindle motor is excessively crappy
-setp siggen.1.amplitude 0.5
-setp siggen.1.frequency 1.5
+setp siggen.0.amplitude 0.5
+setp siggen.0.frequency 1.5
 
 newsig spindle-speed-sum float
 linksp spindle-speed-cmd => sum2.0.in0
-linkpp siggen.1.sine => sum2.0.in1
+linkpp siggen.0.sine => sum2.0.in1
 linkps sum2.0.out => spindle-speed-sum
 
 linksp spindle-speed-sum => sim-encoder.0.speed
@@ -227,19 +226,6 @@ newsig spindle-index-en bit
 linksp spindle-sync	=> not.0.in
 linkps not.0.out	=> spindle-index-en
 linksp spindle-index-en	=> encoder.0.index-enable
-
-# for now we want to switch from sync to unsync every second or so
-# so fake it - send a siggen square wave into a comparator to drive
-# the sync bit
-newsig square float
-setp siggen.0.frequency 0.5
-linkps siggen.0.square	=> square
-linksp square		=> comp.0.in0
-# the other comparater input defaults to 0.0, that works for now
-# connect output
-
-# this turns the ramping on and off for demo
-#linkps comp.0.out	=> spindle-sync
 
 # hook up motion controller's sync output
 linkps motion.spindle-sync => spindle-sync
