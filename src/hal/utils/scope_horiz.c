@@ -444,10 +444,19 @@ static void dialog_realtime_not_loaded(void)
 {
     gchar *title, *msg;
     gint retval;
+    static int first_time=1;
 
+    if(first_time) {
+        first_time = 0;
+        system("halcmd loadrt scope_rt");
+        sleep(1);
+        return;
+    }
     title = "Realtime component not loaded";
     msg = "HALSCOPE uses a realtime component called scope_rt'\n"
-	"to sample signals for display.  It is not currently loaded.\n\n"
+	"to sample signals for display.  It is not currently loaded\n"
+        "and attempting to load it automatically failed.  More information\n"
+        "may be available in the terminal where halscope was started.\n\n"
 	"Please do one of the following:\n\n"
 	"Load the component (using 'halcmd loadrt scope_rt'), then click 'OK'\n"
 	"or\n" "Click 'Quit' to exit HALSCOPE";
