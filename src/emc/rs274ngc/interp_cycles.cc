@@ -215,6 +215,7 @@ int Interp::convert_cycle_g84(CANON_PLANE plane, //!< selected plane
 
   CHK((direction != CANON_CLOCKWISE),
       NCE_SPINDLE_NOT_TURNING_CLOCKWISE_IN_G84);
+#if 0
   START_SPEED_FEED_SYNCH();
   cycle_feed(plane, x, y, bottom_z);
   STOP_SPINDLE_TURNING();
@@ -224,6 +225,7 @@ int Interp::convert_cycle_g84(CANON_PLANE plane, //!< selected plane
     STOP_SPEED_FEED_SYNCH();
   STOP_SPINDLE_TURNING();
   START_SPINDLE_CLOCKWISE();
+#endif
 
   return INTERP_OK;
 }

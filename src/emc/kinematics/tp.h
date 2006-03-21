@@ -88,7 +88,7 @@ extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
 extern int tpGetMotionType(TP_STRUCT * tp);
-extern int tpSetSynchronization(TP_STRUCT * tp, double sync);
+extern int tpSetSpindleSync(TP_STRUCT * tp, double sync);
 
 extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
 extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end);

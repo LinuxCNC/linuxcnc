@@ -273,7 +273,6 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (motion == G_33) {
-    printf("\nG33 f=%f\n", block->f_number);
     CHK((block->k_flag == OFF),	NCE_K_WORD_MISSING_WITH_G33);
     CHK((block->f_number != -1), NCE_F_WORD_USED_WITH_G33);
   }

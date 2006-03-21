@@ -492,6 +492,9 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_TRAJ_SET_TERM_COND_TYPE:
 	((EMC_TRAJ_SET_TERM_COND *) buffer)->update(cms);
 	break;
+    case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
+        ((EMC_TRAJ_SET_SPINDLESYNC *) buffer)->update(cms);
+        break;
     case EMC_TRAJ_SET_UNITS_TYPE:
 	((EMC_TRAJ_SET_UNITS *) buffer)->update(cms);
 	break;
@@ -813,6 +816,8 @@ const char *emc_symbol_lookup(long type)
 	return "EMC_TRAJ_SET_TELEOP_VECTOR";
     case EMC_TRAJ_SET_TERM_COND_TYPE:
 	return "EMC_TRAJ_SET_TERM_COND";
+    case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
+	return "EMC_TRAJ_SET_SPINDLESYNC";
     case EMC_TRAJ_SET_UNITS_TYPE:
 	return "EMC_TRAJ_SET_UNITS";
     case EMC_TRAJ_SET_VELOCITY_TYPE:
@@ -1716,6 +1721,12 @@ void EMC_TRAJ_SET_TERM_COND::update(CMS * cms)
     cms->update(cond);
     cms->update(tolerance);
 
+}
+
+void EMC_TRAJ_SET_SPINDLESYNC::update(CMS * cms)
+{
+    EMC_TRAJ_CMD_MSG::update(cms);
+    cms->update(spindlesync);
 }
 
 /*

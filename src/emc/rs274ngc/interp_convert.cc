@@ -2323,12 +2323,11 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
   } else
     if (move == G_33) {
-/*! \todo G33 needs to call the canonical commands to sync spindle
-          to motion - That can not be done until the low level motion
-          can support slaved moves. */
-    COMMENT("Call THREADING_FUNCTION here");
-    COMMENT("in the meantime, do STRAIGHT_TRAVERSE");
-    STRAIGHT_TRAVERSE(end_x, end_y, end_z, 0, 0, 0);
+    START_SPEED_FEED_SYNCH(block->k_number);
+    STRAIGHT_FEED(end_x, end_y, end_z, 0.0, 0.0, 0.0);
+    STOP_SPEED_FEED_SYNCH();
+    settings->current_x = end_x;
+    settings->current_y = end_y;
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
 

@@ -328,6 +328,7 @@ static EMC_TRAJ_LINEAR_MOVE *emcTrajLinearMoveMsg;
 static EMC_TRAJ_CIRCULAR_MOVE *emcTrajCircularMoveMsg;
 static EMC_TRAJ_DELAY *emcTrajDelayMsg;
 static EMC_TRAJ_SET_TERM_COND *emcTrajSetTermCondMsg;
+static EMC_TRAJ_SET_SPINDLESYNC *emcTrajSetSpindlesyncMsg;
 
 // These classes are commented out because the compiler
 // complains that they are "defined but not used".
@@ -1279,6 +1280,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_VELOCITY_TYPE:
     case EMC_TRAJ_SET_ACCELERATION_TYPE:
     case EMC_TRAJ_SET_TERM_COND_TYPE:
+    case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
 	return EMC_TASK_EXEC_WAITING_FOR_IO;
 	break;
 
@@ -1626,6 +1628,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcTrajSetTermCondMsg = (EMC_TRAJ_SET_TERM_COND *) cmd;
 	retval = emcTrajSetTermCond(emcTrajSetTermCondMsg->cond, emcTrajSetTermCondMsg->tolerance);
 	break;
+
+    case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
+        emcTrajSetSpindlesyncMsg = (EMC_TRAJ_SET_SPINDLESYNC *) cmd;
+        retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->spindlesync);
+        break;
 
     case EMC_TRAJ_SET_OFFSET_TYPE:
 	// update tool offset
@@ -2031,6 +2038,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_VELOCITY_TYPE:
     case EMC_TRAJ_SET_ACCELERATION_TYPE:
     case EMC_TRAJ_SET_TERM_COND_TYPE:
+    case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
     case EMC_TRAJ_SET_OFFSET_TYPE:
     case EMC_TRAJ_SET_ORIGIN_TYPE:
     case EMC_TRAJ_PROBE_TYPE:

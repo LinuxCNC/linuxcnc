@@ -149,7 +149,8 @@ extern "C" {
 	EMCMOT_SET_HOMING_PARAMS,	/* sets axis homing parameters */
 	EMCMOT_SET_DEBUG,       /* sets the debug level */
 	EMCMOT_SET_DOUT,        /* sets or unsets a DIO, this can be imediate or synched with motion */
-	EMCMOT_SET_AOUT 	/* sets or unsets a AIO, this can be imediate or synched with motion */
+	EMCMOT_SET_AOUT,	/* sets or unsets a AIO, this can be imediate or synched with motion */
+        EMCMOT_SET_SPINDLESYNC, /* syncronize motion to spindle encoder */
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -187,6 +188,7 @@ extern "C" {
         double ini_maxvel;      /* max velocity allowed by machine
                                    constraints (the ini file) */
         int motion_type;        /* this move is because of traverse, feed, arc, or toolchange */
+        double spindlesync;     /* user units per spindle revolution, 0 = no sync */
 	double acc;		/* max acceleration */
 	double backlash;	/* amount of backlash */
 	int id;			/* id for motion */

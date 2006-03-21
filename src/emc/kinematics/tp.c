@@ -725,7 +725,7 @@ int tpRunCycle(TP_STRUCT * tp)
     return 0;
 }
 
-int tpSetSynchronization(TP_STRUCT * tp, double sync) {
+int tpSetSpindleSync(TP_STRUCT * tp, double sync) {
     if(sync) {
         tp->synchronized = 1;
         tp->uu_per_rev = sync;

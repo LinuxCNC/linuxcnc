@@ -121,6 +121,7 @@
 #define EMC_TRAJ_PROBE_TYPE                          ((NMLTYPE) 229)
 #define EMC_TRAJ_SET_TELEOP_ENABLE_TYPE              ((NMLTYPE) 230)
 #define EMC_TRAJ_SET_TELEOP_VECTOR_TYPE              ((NMLTYPE) 231)
+#define EMC_TRAJ_SET_SPINDLESYNC_TYPE                ((NMLTYPE) 232)
 
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
 
@@ -462,6 +463,7 @@ extern int emcTrajLinearMove(EmcPose end, int type);
 extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
 			       PM_CARTESIAN normal, int turn, int type);
 extern int emcTrajSetTermCond(int cond, double tolerance);
+extern int emcTrajSetSpindleSync(double spindlesync);
 extern int emcTrajSetOffset(EmcPose offset);
 extern int emcTrajSetOrigin(EmcPose origin);
 extern int emcTrajSetHome(EmcPose home);
@@ -1579,6 +1581,16 @@ class EMC_TRAJ_SET_TERM_COND:public EMC_TRAJ_CMD_MSG {
     int cond;
     double tolerance; // used to set the precision/tolerance of path deviation 
 		      // during CONTINUOUS motion mode. 
+};
+
+class EMC_TRAJ_SET_SPINDLESYNC:public EMC_TRAJ_CMD_MSG {
+    public:
+        EMC_TRAJ_SET_SPINDLESYNC():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_SPINDLESYNC_TYPE,
+                sizeof(EMC_TRAJ_SET_SPINDLESYNC)) {
+        };
+
+        void update(CMS * cms);
+        double spindlesync;
 };
 
 class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {

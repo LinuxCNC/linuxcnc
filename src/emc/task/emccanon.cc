@@ -664,14 +664,18 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
     // nothing need be done here
 }
 
-void START_SPEED_FEED_SYNCH()
+void START_SPEED_FEED_SYNCH(double sync)
 {
-    /*! \todo FIXME-- unimplemented */
+    EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
+    spindlesyncMsg.spindlesync = sync;
+    interp_list.append(spindlesyncMsg);
 }
 
 void STOP_SPEED_FEED_SYNCH()
 {
-    /*! \todo FIXME-- unimplemented */
+    EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
+    spindlesyncMsg.spindlesync = 0.0;
+    interp_list.append(spindlesyncMsg);
 }
 
 void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)

@@ -1076,6 +1076,14 @@ int emcTrajDelay(double delay)
     return 0;
 }
 
+int emcTrajSetSpindleSync(double sync) 
+{
+    emcmotCommand.command = EMCMOT_SET_SPINDLESYNC;
+    emcmotCommand.spindlesync = sync;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 int emcTrajSetTermCond(int cond, double tolerance)
 {
     emcmotCommand.command = EMCMOT_SET_TERM_COND;
