@@ -206,7 +206,7 @@ endif
 
 # '-o $(KDIR)/Module.symvers' silences warnings about that file being missing
 modules:
-	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) CC=$(CC) V=0 -o $(KDIR)/Module.symvers modules 
+	$(MAKE) -C $(KDIR) SUBDIRS=`pwd` CC=$(CC) V=0 -o $(KDIR)/Module.symvers modules 
 	-cp *$(MODULE_EXT) ../rtlib/
 endif
 
