@@ -67,6 +67,8 @@ typedef struct {
     double blend_vel;       // velocity below which we should start blending
     double tolerance;       // during the blend at the end of this move, 
                             // stay within this distance from the path.
+    int synchronized;       // spindle sync required for this move
+    double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
 } TC_STRUCT;
 
 /* TC_STRUCT functions */

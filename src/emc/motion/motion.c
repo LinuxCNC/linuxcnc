@@ -295,6 +295,22 @@ static int init_hal_io(void)
 	return retval;
     }
 
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.spindle-sync");
+    retval =
+	hal_pin_bit_new(buf, HAL_WR, &(emcmot_hal_data->spindle_sync),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.spindle-revs");
+    retval =
+	hal_pin_float_new(buf, HAL_RD, &(emcmot_hal_data->spindle_revs),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.enable");
     retval =
 	hal_pin_bit_new(buf, HAL_RD, &(emcmot_hal_data->enable),

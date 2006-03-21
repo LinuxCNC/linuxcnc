@@ -26,6 +26,10 @@
 #include "tc.h"
 #include "tp.h"
 
+#include "../motion/motion.h"
+
+extern emcmot_status_t *emcmotStatus;
+
 int output_chan = 0;
 
 int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
@@ -79,6 +83,8 @@ int tpClear(TP_STRUCT * tp)
     tp->aborting = 0;
     tp->pausing = 0;
     tp->vScale = tp->vRestore;
+    tp->synchronized = 0;
+    tp->uu_per_rev = 0.0;
 
     return 0;
 }
@@ -329,6 +335,9 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     tc.blend_with_next = tp->termCond == TC_TERM_COND_BLEND;
     tc.tolerance = tp->tolerance;
 
+    tc.synchronized = tp->synchronized;
+    tc.uu_per_rev = tp->uu_per_rev;
+
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
 	return -1;
@@ -404,6 +413,9 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.canon_motion_type = type;
     tc.blend_with_next = tp->termCond == TC_TERM_COND_BLEND;
     tc.tolerance = tp->tolerance;
+
+    tc.synchronized = tp->synchronized;
+    tc.uu_per_rev = tp->uu_per_rev;
 
     if (tcqPut(&tp->queue, tc) == -1) {
 	return -1;
@@ -486,6 +498,8 @@ int tpRunCycle(TP_STRUCT * tp)
     EmcPose primary_before, primary_after;
     EmcPose secondary_before, secondary_after;
     EmcPose primary_displacement, secondary_displacement;
+    static double oldrevs;
+    static int waiting = 0;
 
     tc = tcqItem(&tp->queue, 0);
     if(!tc) {
@@ -521,6 +535,7 @@ int tpRunCycle(TP_STRUCT * tp)
     }
 
     if (tc->target == tc->progress) {
+        if(tc->synchronized) emcmotStatus->spindleSync = 0;
         // done with this move
         tcqRemove(&tp->queue, 1);
 
@@ -532,6 +547,19 @@ int tpRunCycle(TP_STRUCT * tp)
     // report our line number to the guis
     tp->execId = tc->id;
 
+    if(waiting) {
+        double r;
+        if((r = emcmotStatus->spindleRevs) >= oldrevs) {
+            /* haven't passed index yet */
+            oldrevs = r;
+            return 0;
+        } else {
+            /* passed index, start the move */
+            emcmotStatus->spindleSync = 1;
+            waiting=0;
+        }
+    }
+
     // now we have the active tc.  get the upcoming one, if there is one.
     // it's not an error if there isn't another one - we just don't
     // do blending.  This happens in MDI for instance.
@@ -539,6 +567,12 @@ int tpRunCycle(TP_STRUCT * tp)
         nexttc = tcqItem(&tp->queue, 1);
     else
         nexttc = NULL;
+
+    if(nexttc && nexttc->synchronized) {
+        // we'll have to stop at the end of tc.
+        tc->blend_with_next = 0;
+        nexttc = NULL;
+    }
 
     if(tc->active == 0) {
         // this means this tc is being read for the first time.
@@ -549,6 +583,12 @@ int tpRunCycle(TP_STRUCT * tp)
         tc->active = 1;
         tc->blending = 0;
 
+        if(tc->synchronized) {
+            waiting = 1;
+            oldrevs = emcmotStatus->spindleRevs;
+            // don't move: wait
+            return 0;
+        }
         // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
         if(tc->maxvel > tp->vLimit) 
             tc->maxvel = tp->vLimit;
@@ -576,6 +616,14 @@ int tpRunCycle(TP_STRUCT * tp)
         // with the above segment or the following one
         if(tc->blend_with_next || nexttc->blend_with_next) 
             nexttc->maxaccel /= 2.0;
+    }
+
+    if(tc->synchronized) {
+        // to come from interp
+        double pos_error = emcmotStatus->spindleRevs * tc->uu_per_rev - tc->progress;
+
+        tc->reqvel = pos_error/tc->cycle_time;
+        if(tc->reqvel < 0.0) tc->reqvel = 0.0;
     }
 
     // calculate the approximate peak velocity the nexttc will hit.
@@ -674,6 +722,16 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->motionType = tc->canon_motion_type;
         tp->currentPos = primary_after;
     }
+
+    return 0;
+}
+
+int tpSetSynchronization(TP_STRUCT * tp, double sync) {
+    if(sync) {
+        tp->synchronized = 1;
+        tp->uu_per_rev = sync;
+    } else
+        tp->synchronized = 0;
 
     return 0;
 }

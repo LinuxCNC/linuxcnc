@@ -185,7 +185,7 @@ newsig spindle-speed-cmd float
 sets spindle-speed-cmd 1.0 # rps
 
 # pretend our spindle motor is excessively crappy
-setp siggen.1.amplitude 0.3
+setp siggen.1.amplitude 0.5
 setp siggen.1.frequency 1.5
 
 newsig spindle-speed-sum float

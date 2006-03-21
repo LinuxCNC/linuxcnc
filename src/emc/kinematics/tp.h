@@ -58,6 +58,8 @@ typedef struct {
     double tolerance;           /* for subsequent motions, stay within this
                                    distance of the programmed path during
                                    blends */
+    int synchronized;           /* motion synchronized with spindle */
+    double uu_per_rev;          /* user units per spindle revolution */
 } TP_STRUCT;
 
 extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
@@ -86,6 +88,7 @@ extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
 extern int tpGetMotionType(TP_STRUCT * tp);
+extern int tpSetSynchronization(TP_STRUCT * tp, double sync);
 
 extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
 extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end);

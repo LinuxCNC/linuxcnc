@@ -282,6 +282,8 @@ static void process_inputs(void)
 	emcmotStatus->probeVal = 0;
     }
 
+    emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
+
     /* read and process per-joint inputs */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to axis HAL data */
@@ -1907,6 +1909,7 @@ static void output_to_hal(void)
     emcmot_hal_data->debug_bit_1 = emcmotStatus->carte_pos_fb_ok;
     emcmot_hal_data->debug_float_0 = 0.0;
     emcmot_hal_data->debug_float_1 = 0.0;
+    *emcmot_hal_data->spindle_sync = emcmotStatus->spindleSync;
 
     /* output axis info to HAL for scoping, etc */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {

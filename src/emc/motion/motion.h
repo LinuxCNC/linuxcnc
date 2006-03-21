@@ -559,6 +559,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int level;
 	unsigned char tail;	/* flag count for mutex detect */
         int motionType;
+        
+        int spindleSync;        /* request synchronization: 
+                                   tell spindle encoder to not reset at index */
+        double spindleRevs;     /* position of spindle in revolutions */
     } emcmot_status_t;
 
 /*********************************
