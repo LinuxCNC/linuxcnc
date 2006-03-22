@@ -180,7 +180,7 @@ proc popupCalibration {} {
                         grid $thislabel $thisentry
                         lappend namearray($j) $lowername
                         lappend commandarray($j) $thishalcommand
-                        lappend valarray($j) axis$j-$lowername
+                        lappend valarray($j) $tmpval
                         break
                     }
                 }
@@ -194,7 +194,7 @@ proc popupCalibration {} {
     button $top.buttons.apply -text Apply \
         -command {changeIt apply}
     button $top.buttons.revert -text Revert \
-        -command {changeIt revert} -state disabled
+        -command {changeIt revert}
     button $top.buttons.cancel -text Quit \
         -command {changeIt quit}
     pack $top.buttons.ok $top.buttons.apply $top.buttons.revert \
@@ -219,6 +219,7 @@ proc selectAxis {which} {
 
 proc changeIt {how } {
     global axisentry sectionarray namearray commandarray valarray HALCMD
+    global numaxes
     switch -- $how {
     save {
         set tmp save
@@ -229,7 +230,6 @@ proc changeIt {how } {
         # and open $EMC_INIFILE and save contents of initext widget
     }
     apply {
-        set tmp apply
         set varnames [lindex [array get namearray $axisentry] end]
         set varcommands [lindex [array get commandarray $axisentry] end]
         set maxvarnum [llength $varnames]
@@ -242,25 +242,42 @@ proc changeIt {how } {
         }
     }
     revert {
-        set tmp revert
         # get list of old values from apply before it changes them
         # need some work here to setup variables
+        
         # for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
         # set thisret [exec $HALCMD setp $tmpcmd $oldval]
         # }
     }
     quit {
-        set tmp quit
         # build a check for changed values here and ask
-        # this command yields the starting values for all vars.
-        # put this into a loop to numaxes and compare with current
-#         set varvalues [lindex [array get valarray $axisentry] end]
+        for {set j 0} {$j < $numaxes} {incr j} {
+            set oldvals [lindex [array get valarray $j] 1]
+            set cmds [lindex [array get commandarray $j] 1]
+            set k 0
+            foreach cmd $cmds {
+                set tmpval [expr [lindex [split \
+                    [exec $HALCMD -s show param $cmd] " "] 3]]
+                set oldval [lindex $oldvals $k]
+                if {$tmpval != $oldval} {
+                    set answer [tk_messageBox -message "The HAL parameter \n \
+                        $cmd \n has changed. \n Really quit?" \
+                        -type yesno -icon question] 
+                    switch -- $answer { \
+                            yes exit
+                            no {return}
+                    }
+                
+                }
+                incr k
+            }
+        
+        }
 
         destroy .
     }
     default {}
     }
-    puts "pressed $tmp"
 }
 
 popupCalibration
