@@ -33,8 +33,10 @@ exec $EMC2_EMCSH "$0" "$@"
 #        arrayname is sectionarray
 #    4 read the ini for .hal file names
 #        list is named halfilelist
-#    5 read the .hal files for ini references.
-#    6 make a set of widgets with HAL file and HAL names
+#    5 read the .hal files for ini references
+#        One list for each axis to $numaxes
+#        Lists named inilookup0 where number is axis number
+#    6 make a set of widgets with ini file names
 #    7 Build display widgets for each HAL element
 #        (wonder how to scale sliders if used)
 #    8 Issue halcmd as values change
@@ -50,10 +52,10 @@ if ([info exists env(LANG)]) {
 
 proc popupCalibration {} {
     global axisentry activeAxis top initext HALCMD
-    global logo numaxes EMC_INIFILE 
+    global logo numaxes EMC_INIFILE namearray commandarray valarray
     set numaxes [emc_ini "AXES" "TRAJ"]
     for {set i 0} {$i<$numaxes} {incr i} {
-        global inilookup$i af$i
+        global af$i
     }
     
     # default location for halcmd is in ./bin/
@@ -66,7 +68,7 @@ proc popupCalibration {} {
         set HALCMD $env(HALCMD)
     }
 
-    # This logo is used on all the pages
+    # Wizard logo
     set wizard_image_search {
         /etc/emc2/emc2-wizard.gif \
         /usr/local/etc/emc2/emc2-wizard.gif \
@@ -139,13 +141,13 @@ proc popupCalibration {} {
     # make a second text widget for scratch writing
     set scratchtext [text $top.scratchtext]
 
-    # do some initial work for each axis
-    for {set i 0} {$i < $numaxes} {incr i} {
-        set inilookup$i ""
-        set af$i [frame $top.ax$i]
+    # make a frame to hold widgets for each axis
+    for {set j 0} {$j < $numaxes} {incr j} {
+        set af$j [frame $top.ax$j]
     }
 
-    # Search each .hal file for [AXIS
+    # New halconfig allows for ini reads from most any location
+    # For axis tuning search each .hal file for AXIS
     foreach fname $halfilelist {
         $scratchtext config -state normal
         $scratchtext delete 1.0 end
@@ -155,13 +157,30 @@ proc popupCalibration {} {
             $scratchtext insert end [read $programin]
             catch {close $programin}
         }
+       
+        # find the ini references in this hal and build widgets        
         scan [$scratchtext index end] %d nl
         for {set i 1} {$i < $nl} {incr i} {
             set tmpstring [$scratchtext get $i.0 $i.end]
             if {[lsearch -regexp $tmpstring AXIS] > -1} { 
                 for {set j 0} {$j < $numaxes} {incr j} {
                     if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
-                        lappend inilookup$j $tmpstring
+                        # this is a hal file search ordered loop
+                        set thisininame [lindex [split $tmpstring "\]" ] end ]
+                        set lowername "[string tolower $thisininame]"
+                        set thishalcommand [lindex $tmpstring 1]
+                        set tmpval [expr [lindex [split \
+                            [exec $HALCMD -s show param $thishalcommand] " "] 3]]
+                        global axis$j-$lowername
+                        set axis$j-$lowername $tmpval
+                        set thislabel [label [set af$j].label-$j-$lowername \
+                            -text "$thisininame" -width 20 -anchor e]
+                        set thisentry [entry [set af$j].entry-$lowername \
+                        -width 12 -textvariable axis$j-$lowername]
+                        grid $thislabel $thisentry
+                        lappend namearray($j) $lowername
+                        lappend commandarray($j) $thishalcommand
+                        lappend valarray($j) axis$j-$lowername
                         break
                     }
                 }
@@ -169,47 +188,21 @@ proc popupCalibration {} {
         }
     }
 
-    # Now build var names and entry widgets for each found var
-    # this code is a real "hard way" to do this but...
-    # thishalline is the setp command to issue through halcmd 
-    # thisinisection is the ini section to edit
-    # this ininame is the ini variable name to change with new value
-    for {set i 0} {$i<$numaxes} {incr i} {
-        set thisinisection AXIS_$i
-        set j 0
-        foreach thishalline [set inilookup$i] {
-            set thisininame [lindex [split $thishalline "\]" ] end ]
-            set thishalcommand [lindex $thishalline 1]
-            global tvar$i$j
-            set tmpvar tvar$i$j
-            set $tmpvar [expr [lindex [split [exec $HALCMD -s show param $thishalcommand] " "] 3]]
-            label [set af$i].label$j -text "$thisininame" \
-                -width 20 -anchor e
-            entry [set af$i].entry$j -width 12 \
-                -textvariable $tmpvar
-            grid [set af$i].label$j [set af$i].entry$j
-            incr j
-
-        }
-    }
-    
     frame $top.buttons
     button $top.buttons.ok -text "Save" -default active \
         -command {changeIt save } -state disabled
     button $top.buttons.apply -text Apply \
-        -command {changeIt apply} -state disabled
+        -command {changeIt apply}
     button $top.buttons.revert -text Revert \
         -command {changeIt revert} -state disabled
     button $top.buttons.cancel -text Quit \
         -command {changeIt quit}
     pack $top.buttons.ok $top.buttons.apply $top.buttons.revert \
         $top.buttons.cancel -side left -expand 1
-#    pack $axisframe -side top -fill x -expand yes
-#    pack $top.buttons -side bottom -fill x -expand yes
+    # grid the top display to keep stuff in place
     grid configure $axisframe -row 0 -sticky ew
     grid rowconfigure $top 1 -weight 1
     grid configure $top.buttons -row 2 -sticky ew
-
 }
 
 proc selectAxis {which} {
@@ -225,20 +218,50 @@ proc selectAxis {which} {
 }
 
 proc changeIt {how } {
+    global axisentry sectionarray namearray commandarray valarray HALCMD
     switch -- $how {
-    save {set tmp save}
-    apply {set tmp apply}
-    revert {set tmp revert}
+    save {
+        set tmp save
+        # need to lookup each hal param value
+        # compare with ini value from initext using array get sectionarray   
+        # for section line numbers
+        # change those that need to be changed.
+        # and open $EMC_INIFILE and save contents of initext widget
+    }
+    apply {
+        set tmp apply
+        set varnames [lindex [array get namearray $axisentry] end]
+        set varcommands [lindex [array get commandarray $axisentry] end]
+        set maxvarnum [llength $varnames]
+        for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
+            set var axis$axisentry-[lindex $varnames $listnum]
+            global $var
+            set tmpval [set $var]
+            set tmpcmd [lindex $varcommands $listnum]
+            set thisret [exec $HALCMD setp $tmpcmd $tmpval]
+        }
+    }
+    revert {
+        set tmp revert
+        # get list of old values from apply before it changes them
+        # need some work here to setup variables
+        # for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
+        # set thisret [exec $HALCMD setp $tmpcmd $oldval]
+        # }
+    }
     quit {
         set tmp quit
         # build a check for changed values here and ask
+        # this command yields the starting values for all vars.
+        # put this into a loop to numaxes and compare with current
+#         set varvalues [lindex [array get valarray $axisentry] end]
+
         destroy .
     }
     default {}
     }
     puts "pressed $tmp"
 }
-
 
 popupCalibration
 selectAxis 0
