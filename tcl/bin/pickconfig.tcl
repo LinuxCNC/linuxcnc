@@ -69,7 +69,7 @@ proc initialize_config {} {
     set result [catch {package require BWidget 1.7}]
     if {$result != 0} {
         puts stderr $result
-        tk_messageBox -icon error -type ok -message "Can't find the bwidget 1.7 package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."
+        tk_messageBox -icon error -type ok -message [msgcat::mc "Can't find the bwidget 1.7 package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."]
         exit
         destroy .
     }
@@ -176,7 +176,7 @@ proc SW { args } {
 # a frame for packing the top window
 set f1 [ frame $top.f1 ]
 
-set message "Welcome to EMC2.\n\nSelect a machine configuration from the list on the left.\nDetails about the selected configuration will appear in the display on the right.\nClick 'OK' to run the selected configuration"
+set message [msgcat::mc "Welcome to EMC2.\n\nSelect a machine configuration from the list on the left.\nDetails about the selected configuration will appear in the display on the right.\nClick 'OK' to run the selected configuration"]
 
 set lbl [ label $f1.lbl -text $message -justify left -padx 20 -pady 10 -wraplength 600 ]
 pack $lbl -anchor w
