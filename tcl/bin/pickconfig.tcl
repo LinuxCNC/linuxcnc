@@ -61,7 +61,7 @@ option add *Tree*background white
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload "../../src/po"
+    msgcat::mcload "src/po"
 }
 
 proc initialize_config {} {
@@ -218,10 +218,10 @@ pack $f4 -side left -padx 3 -fill both -expand y
 
 # a subframe for the buttons
 set f5 [ frame $f1.f5 ]
-button $f5.ok -text OK -command "button_pushed OK" -width 8 -default active
+button $f5.ok -text [msgcat::mc "OK"] -command "button_pushed OK" -width 8 -default active
 set button_ok $f5.ok
 $button_ok configure -state disabled
-button $f5.cancel -text Cancel -command "button_pushed Cancel" -width 8 -default normal
+button $f5.cancel -text [msgcat::mc  "Cancel"] -command "button_pushed Cancel" -width 8 -default normal
 pack $f5.cancel -side right -padx 4 -pady 4
 pack $f5.ok -side right -padx 4 -pady 4
 pack $f5 -side bottom -anchor e -fill none -expand n -padx 15
