@@ -635,15 +635,19 @@ int tpRunCycle(TP_STRUCT * tp)
     }
 
     if(tc->synchronized) {
-        double pos_error = (emcmotStatus->spindleRevs - spindleoffset) * tc->uu_per_rev - tc->progress;
+        double pos_error;
+        double revs = emcmotStatus->spindleRevs;
 
-        tc->reqvel = pos_error/tc->cycle_time;
+        pos_error = (revs - spindleoffset) * tc->uu_per_rev - (tc->progress + nexttc->progress);
+
+        tc->reqvel = pos_error/tc->cycle_time/2.0;
+        tc->feed_override = 1.0;
         if(tc->reqvel < 0.0) tc->reqvel = 0.0;
         if(nexttc) {
             nexttc->reqvel = pos_error/nexttc->cycle_time;
+            nexttc->feed_override = 1.0;
             if(nexttc->reqvel < 0.0) nexttc->reqvel = 0.0;
         }
-
     }
 
     // calculate the approximate peak velocity the nexttc will hit.
