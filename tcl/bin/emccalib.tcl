@@ -194,7 +194,7 @@ proc popupCalibration {} {
     button $top.buttons.apply -text Apply \
         -command {changeIt apply}
     button $top.buttons.revert -text Revert \
-        -command {changeIt revert}
+        -command {changeIt revert} -state disabled
     button $top.buttons.cancel -text Quit \
         -command {changeIt quit}
     pack $top.buttons.ok $top.buttons.apply $top.buttons.revert \
@@ -219,7 +219,7 @@ proc selectAxis {which} {
 
 proc changeIt {how } {
     global axisentry sectionarray namearray commandarray valarray HALCMD
-    global numaxes
+    global numaxes top oldvalarray
     switch -- $how {
     save {
         set tmp save
@@ -230,24 +230,38 @@ proc changeIt {how } {
         # and open $EMC_INIFILE and save contents of initext widget
     }
     apply {
+        # $top.buttons.ok configure -state normal
+        $top.buttons.revert configure -state normal
         set varnames [lindex [array get namearray $axisentry] end]
         set varcommands [lindex [array get commandarray $axisentry] end]
         set maxvarnum [llength $varnames]
         for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-            set var axis$axisentry-[lindex $varnames $listnum]
+            set var "axis$axisentry-[lindex $varnames $listnum]"
             global $var
             set tmpval [set $var]
             set tmpcmd [lindex $varcommands $listnum]
+            # get list of old values before changeIt apply changes them
+            set tmpold [expr [lindex [split \
+                [exec $HALCMD -s show param $tmpcmd] " "] 3]]
+            lappend oldvalarray($axisentry) $tmpold
             set thisret [exec $HALCMD setp $tmpcmd $tmpval]
         }
+        puts [array get oldvalarray]
     }
     revert {
-        # get list of old values from apply before it changes them
-        # need some work here to setup variables
-        
-        # for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-        # set thisret [exec $HALCMD setp $tmpcmd $oldval]
-        # }
+        set varnames [lindex [array get namearray $axisentry] end]
+        set varcommands [lindex [array get commandarray $axisentry] end]
+        set maxvarnum [llength $varnames]
+        set oldvarvals [lindex [array get oldvalarray $axisentry] end]
+        for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
+            set tmpval [lindex $oldvarvals $listnum]
+            set tmpcmd [lindex $varcommands $listnum]
+            set thisret [exec $HALCMD setp $tmpcmd $tmpval]
+            # update the display
+            set var axis$axisentry-[lindex $varnames $listnum]
+            global $var
+            set $var $tmpval
+        }
     }
     quit {
         # build a check for changed values here and ask
