@@ -498,7 +498,7 @@ int tpRunCycle(TP_STRUCT * tp)
     EmcPose primary_before, primary_after;
     EmcPose secondary_before, secondary_after;
     EmcPose primary_displacement, secondary_displacement;
-    static double oldrevs;
+    static double oldrevs, spindleoffset;
     static int waiting = 0;
 
     tc = tcqItem(&tp->queue, 0);
@@ -537,7 +537,14 @@ int tpRunCycle(TP_STRUCT * tp)
     }
 
     if (tc->target == tc->progress) {
-        if(tc->synchronized) emcmotStatus->spindleSync = 0;
+        // if we're synced, and this move is ending, save the
+        // spindle position so the next synced move can be in
+        // the right place.
+        if(tc->synchronized)
+            spindleoffset += tc->target/tc->uu_per_rev;
+        else
+            spindleoffset = 0.0;
+
         // done with this move
         tcqRemove(&tp->queue, 1);
 
@@ -562,6 +569,8 @@ int tpRunCycle(TP_STRUCT * tp)
         }
     }
 
+    if(!tc->synchronized) emcmotStatus->spindleSync = 0;
+
     // now we have the active tc.  get the upcoming one, if there is one.
     // it's not an error if there isn't another one - we just don't
     // do blending.  This happens in MDI for instance.
@@ -570,8 +579,9 @@ int tpRunCycle(TP_STRUCT * tp)
     else
         nexttc = NULL;
 
-    if(nexttc && nexttc->synchronized) {
-        // we'll have to stop at the end of tc.
+    if(!tc->synchronized && nexttc && nexttc->synchronized) {
+        // we'll have to wait for spindle sync; might as well
+        // stop at the right place (don't blend)
         tc->blend_with_next = 0;
         nexttc = NULL;
     }
@@ -586,10 +596,14 @@ int tpRunCycle(TP_STRUCT * tp)
         tc->blending = 0;
 
         if(tc->synchronized) {
-            waiting = 1;
-            oldrevs = emcmotStatus->spindleRevs;
-            // don't move: wait
-            return 0;
+            if(!emcmotStatus->spindleSync) {
+                // if we aren't already synced, wait
+                waiting = 1;
+                oldrevs = emcmotStatus->spindleRevs;
+                spindleoffset = 0.0;
+                // don't move: wait
+                return 0;
+            }
         }
         // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
         if(tc->maxvel > tp->vLimit) 
@@ -621,10 +635,15 @@ int tpRunCycle(TP_STRUCT * tp)
     }
 
     if(tc->synchronized) {
-        double pos_error = emcmotStatus->spindleRevs * tc->uu_per_rev - tc->progress;
+        double pos_error = (emcmotStatus->spindleRevs - spindleoffset) * tc->uu_per_rev - tc->progress;
 
         tc->reqvel = pos_error/tc->cycle_time;
         if(tc->reqvel < 0.0) tc->reqvel = 0.0;
+        if(nexttc) {
+            nexttc->reqvel = pos_error/nexttc->cycle_time;
+            if(nexttc->reqvel < 0.0) nexttc->reqvel = 0.0;
+        }
+
     }
 
     // calculate the approximate peak velocity the nexttc will hit.
