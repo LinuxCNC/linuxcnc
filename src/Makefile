@@ -8,6 +8,12 @@ export BASEPWD
 endif
 include $(BASEPWD)/Makefile.inc
 
+ifeq ($(DEPSTYLE),gcc3)
+DEP = "$(1)" -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
+else
+DEP = bash depend.sh "$(1)" "$(2)" "$(3)" $(4)
+endif
+
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
@@ -101,13 +107,12 @@ endif
 $(sort $(call TODEPS, $(filter %.cc,$(USERSRCS)))): depends/%.d: %.cc
 	@mkdir -p $(dir $@)
 	@echo Depending $<
-	@$(CXX) -MM -MG -MT "$@ $(patsubst depends/%.d,objects/%.o,$@)" \
-		$(CXXFLAGS) $(EXTRAFLAGS) $< -o $@.tmp && mv -f $@.tmp $@
+	@$(call DEP,$(CXX),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CXXFLAGS) $(EXTRAFLAGS) $<)
+
 $(sort $(call TODEPS, $(filter %.c,$(USERSRCS)))): depends/%.d: %.c 
 	@mkdir -p $(dir $@)
 	@echo Depending $<
-	@gcc -MM -MG -MT "$@ $(patsubst depends/%.d,objects/%.o,$@)" \
-		$(CFLAGS) $(EXTRAFLAGS) $< -o $@.tmp && mv -f $@.tmp $@
+	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CFLAGS) $(EXTRAFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
@@ -452,8 +457,7 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
 	@echo Depending $<
-	@gcc -MM -MG -MT "$@ $(patsubst depends/%.d,objects/%.o,$@)" \
-		$(EXTRA_CFLAGS) $< -o $@.tmp && mv -f $@.tmp $@
+	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CFLAGS) $(EXTRA_CFLAGS) $<)
 
 
 # Rules to make .o (object) files

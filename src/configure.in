@@ -431,10 +431,13 @@ fi
 
 if test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   WFLAGS="-Wno-strict-aliasing -fno-strict-aliasing"
+  DEPSTYLE=gcc3 
 else
   WFLAGS=""
+  DEPSTYLE=gcc2
 fi
 AC_SUBST([WFLAGS])
+AC_SUBST([DEPSTYLE])
 
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
@@ -1046,6 +1049,7 @@ AC_CONFIG_FILES([../docs/man/man1/emc.1])
 AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_OUTPUT(Makefile.inc)
+AC_OUTPUT(depend.sh)
 
 ##############################################################################
 # message to the user what to do next, after a succesfull ./configure        #

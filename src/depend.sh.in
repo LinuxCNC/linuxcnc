@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+CC="$1"; shift
+LHS="$1"; shift
+DEST="$1"; shift
+$CC -M "$@" | sed "1s|^.*:|$LHS:|" > $DEST.tmp && mv $DEST.tmp $DEST
+rm -f $TEST.tmp
+exit ${PIPESTATUS[0]}

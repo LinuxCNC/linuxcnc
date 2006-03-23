@@ -90,6 +90,7 @@ ULFLAGS = -Wall -g -I$(INC_DIR) -I@RTDIR@/include -I. -DULAPI -D_GNU_SOURCE -O2 
 MODULE_EXT = @MODEXT@
 BUILD_SYS = @BUILD_SYS@
 CC = @CC@
+DEPSTYLE = @DEPSTYLE@
 
 # local flags for GTK include
 GTK_VERSION = @GTK_VER@
