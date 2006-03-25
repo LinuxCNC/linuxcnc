@@ -1488,6 +1488,11 @@ static void check_hal_changes()
 // and modifies the appropiate HAL pins
 static void modify_hal_pins()
 {
+    if (emcStatus->task.state == EMC_TASK_STATE_ON) {
+	*(halui_data->machine_is_on)=1;
+    } else {
+	*(halui_data->machine_is_on)=0;
+    }
 
 }
 
@@ -1531,6 +1536,7 @@ int main(int argc, char *argv[])
 	
 	esleep(EMC_IO_CYCLE_TIME); //sleep for a while
 	
+	updateStatus();
     }
     thisQuit();
     return 0;
