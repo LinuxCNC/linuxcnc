@@ -1,9 +1,9 @@
 classicladder
-emc-config
 emc_module_helper
 emcsh
 emcsvr
 fifousr
+hal_joystick
 hal_parport
 hal_skeleton
 halcmd
