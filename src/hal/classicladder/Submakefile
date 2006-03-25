@@ -1,3 +1,4 @@
+ifneq ($(GTK_VERSION),)
 CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	arithm_eval.c \
 	arrays.c \
@@ -39,3 +40,4 @@ USERSRCS += $(CLASSICLADDERSRCS)
 	$(CC) $(CFLAGS) $(ULFLAGS) -lpthread -o $@ $^ $(GTK_LIBS)
 
 TARGETS += ../bin/classicladder
+endif

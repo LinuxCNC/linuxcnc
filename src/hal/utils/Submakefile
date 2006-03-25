@@ -8,10 +8,10 @@ $(call TOOBJSDEPS, hal/utils/halcmd.c): EXTRAFLAGS = -DEMC2_BIN_DIR="\"$(EMC2_BI
 $(call TOOBJS, hal/utils/halcmd.c): Makefile.inc
 
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemc.a ../lib/libnml.so
-	$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halcmd
 
-
+ifneq ($(GTK_VERSION),)
 HALMETERSRCS := \
     hal/utils/meter.c \
     hal/utils/miscgtk.c \
@@ -51,6 +51,7 @@ HALGTKSRCS := \
     hal/utils/meter.c \
     hal/utils/miscgtk.c
 $(call TOOBJSDEPS, $(HALGTKSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
+endif
 
 M5I20CFGSRCS := hal/utils/m5i20cfg.c
 USERSRCS += $(M5I20CFGSRCS)
