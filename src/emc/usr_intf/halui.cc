@@ -25,6 +25,8 @@
 #include <signal.h>
 #include <math.h>
 
+#include "hal.h"		/* access to HAL functions/definitions */
+#include "rtapi.h"		/* rtapi_print_msg */
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
 #include "emc.hh"		// EMC NML
@@ -49,98 +51,127 @@
   
   All pins will be named after the following scheme:
   
-  halui.<id>.section.<sec_id>.pin_name
+  halui.name.<number>.action
   
-  <id>       refers to the current HAL ui component, more than one could 
-             be running inside the same HAL
-  
-  section    refers to the type of pins used,
+  name    refers to the name of the component,
              currently one of:
-	     - general
-	     - io
-	     - axis
+	     - machine
+	     - estop
+	     - mode
+	     - mist
+	     - flood
+	     - lube
 	     - jog
 	     - program
 	     - probe
-	     
+	     ...
 
-  <sec_id>   if more than one section instatiation happens (currently it is
-             mostly 0)
+  <number>   if more than one component of the same type exists
 	     
-  pin_name   described in the next paragraph
-	     
+  action     usually on/off or is-on for the status
 
-  Exported pins:
+  Exported pins (list not complete, names up for debate):
 
-  bidirectional (you can set them, and also read the value)
+  both ways. a pin for setting (HAL->NML) one for feedback (NML->HAL)
   
-   halui.0.general.0.machine               bit  //pin for On/Off
-   halui.0.general.0.estop                 bit  //pin for Estop (emc internal) On/Off
+   halui.machine.on                    bit  //pin for setting machine On
+   halui.machine.off                   bit  //pin for setting machine Off
+   halui.machine.is-on                 bit  //pin for machine is On/Off
    
-   halui.0.general.0.emc_mode_manual       bit
-   halui.0.general.0.emc_mode_auto         bit
-   halui.0.general.0.emc_mode_mdi          bit
-
-   halui.0.io.0.mist                       bit
-   halui.0.io.0.flood                      bit
-   halui.0.io.0.lube                       bit
-
-   halui.0.io.0.spindle-start              bit
-   halui.0.io.0.spindle-stop               bit
-   halui.0.io.0.spindle-forward            bit
-   halui.0.io.0.spindle-reverse            bit
-   halui.0.io.0.spindle-increase           bit
-   halui.0.io.0.spindle-decrease           bit
-
-   halui.0.io.0.brake                      bit
-
-   halui.0.joint.0.home                    bit //works both ways
-   ..
-   halui.0.joint.7.home                    bit //works both ways
-
-   halui.0.joint.x.limit-min-soft          bit
-   halui.0.joint.x.limit-max-soft          bit
-   halui.0.joint.x.limit-min-hard          bit
-   halui.0.joint.x.limit-max-hard          bit
+   halui.estop.activate                bit  //pin for resetting Estop (emc internal) On/Off
+   halui.estop.reset                   bit  //pin for resetting Estop (emc internal) On/Off
+   halui.estop.is-reset                bit  //pin for resetting Estop (emc internal) On/Off
    
-   halui.0.joint.x.fault                   bit   
-   halui.0.joint.x.homed                   bit
+   halui.mode.manual                   bit  //pin for requesting manual mode
+   halui.mode.is_manual                bit  //pin for manual mode is on
+   halui.mode.auto                     bit  //pin for requesting auto mode
+   halui.mode.is_auto                  bit  //pin for auto mode is on
+   halui.mode.mdi                      bit  //pin for requesting mdi mode
+   halui.mode.is_mdi                   bit  //pin for mdi mode is on
 
-   halui.0.jog.0.speed                     float //set jog speed
+   halui.mist.on                       bit  //pin for starting mist
+   halui.mist.is-on                    bit  //pin for mist is on
+   halui.flood.on                      bit  //pin for starting flood
+   halui.flood.is-on                   bit  //pin for flood is on
+   halui.lube.on                       bit  //pin for starting lube
+   halui.lube.is-on                    bit  //pin for lube is on
 
-   halui.0.jog.0.jog-minus                 bit
-   halui.0.jog.0.jog-plus                  bit
+   halui.spindle.start                 bit
+   halui.spindle.stop                  bit
+   halui.spindle.forward               bit
+   halui.spindle.reverse               bit
+   halui.spindle.increase              bit
+   halui.spindle.decrease              bit
+
+   halui.spindle.brake-on              bit  //pin for activating spindle-brake
+   halui.spindle.brake-off             bit  //pin for deactivating spindle/brake
+   halui.spindle.brake-is-on           bit  //status pin that tells us if brake is on
+
+   halui.joint.0.home                  bit //works both ways
    ..
-   halui.0.jog.7.jog-minus                 bit
-   halui.0.jog.7.jog-plus                  bit
-
-   halui.0.general.feed_override           float
+   halui.joint.7.home                  bit //works both ways
 
 
- one way (NML -> HAL)
+   halui.jog.speed                     float //set jog speed
 
-   halui.0.io.1.lube-level                 bit  //0-low, 1-ok
-   halui.0.io.1.tool-number                u16  //current selected tool
-   halui.0.io.1.tool-length-offset         float //current applied tool-length-offset
+   halui.jog.0.minus                   bit
+   halui.jog.0.plus                    bit
+   ..
+   halui.jog.7.jog-minus               bit
+   halui.jog.7.jog-plus                bit
 
-   halui.0.program.0.idle                  bit
-   halui.0.program.0.running               bit
-   halui.0.program.0.paused                bit
+   halui.feed_override                 float
+
+ only one way (NML -> HAL) (status)
+
+   halui.joint.x.on-min-limit-soft     bit
+   halui.joint.x.on-max-limit-soft     bit
+   halui.joint.x.on-min-limit-hard     bit
+   halui.joint.x.on-max-limit-hard     bit
+   
+   halui.joint.x.fault                 bit   
+   halui.joint.x.homed                 bit
+
+   halui.tool.number                   u16  //current selected tool
+   halui.tool.length-offset            float //current applied tool-length-offset
+
+   halui.program.is-idle               bit
+   halui.program.is-running            bit
+   halui.program.is-paused             bit
 
 
  one way (HAL -> NML)
 
-   halui.0.program.0.run                   bit
-   halui.0.program.0.pause                 bit
-   halui.0.program.0.resume                bit
-   halui.0.program.0.step                  bit
+   halui.program.run                   bit
+   halui.program.pause                 bit
+   halui.program.resume                bit
+   halui.program.step                  bit
 
-   halui.0.probe.0.start                   bit
-   halui.0.probe.0.clear                   bit
-   halui.0.probe.0.tripped                 bit
-   halui.0.probe.0.value                   float
+   halui.probe.start                   bit
+   halui.probe.clear                   bit
+   halui.probe.is-tripped              bit
+   halui.probe.has-value               float
 
 */
+
+struct halui_str {
+    hal_bit_t *machine_on;       //pin for setting machine On
+    hal_bit_t *machine_off;      //pin for setting machine Off
+    hal_bit_t *machine_is_on;    // pin for machine is On/Off
+
+
+} * halui_data; 
+
+struct local_halui_str {
+    hal_bit_t machine_on;       //pin for setting machine On
+    hal_bit_t machine_off;      //pin for setting machine Off
+    hal_bit_t machine_is_on;    // pin for machine is On/Off
+
+
+} old_halui_data; //pointer to the HAL-struct
+
+static int comp_id;				/* component ID */
+
 
 // the NML channels to the EMC task
 static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
@@ -494,6 +525,117 @@ static double convertLinearUnits(double u)
 // polarities for axis jogging, from ini file
 static int jogPol[EMC_AXIS_MAX];
 
+
+/********************************************************************
+*
+* Description: halui_hal_init(void)
+*
+* Side Effects: Exports HAL pins.
+*
+* Called By: main
+********************************************************************/
+int halui_hal_init(void)
+{
+    char name[HAL_NAME_LEN + 2];	//name of the pin to be registered
+    int n = 0, retval;		//n - number of the hal component (only one for iocotrol)
+
+    /* STEP 1: initialise the hal component */
+    comp_id = hal_init("halui");
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HALUI: ERROR: hal_init() failed\n");
+	return -1;
+    }
+
+    /* STEP 2: allocate shared memory for halui data */
+    halui_data = (halui_str *) hal_malloc(sizeof(halui_str));
+    if (halui_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HALUI: ERROR: hal_malloc() failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    /* STEP 3a: export the out-pin(s) */
+
+    //halui.stat.machine-is-on         bit  //pin for machine is On/Off
+    rtapi_snprintf(name, HAL_NAME_LEN, "halui.machine.is-on", n);
+    retval =
+	hal_pin_bit_new(name, HAL_WR, &(halui_data->machine_is_on), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HALUI: ERROR: halui %d pin machine-is-on export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    /* STEP 3b: export the in-pin(s) */
+
+    //halui.control.machine-on            bit  //pin for setting machine On
+    rtapi_snprintf(name, HAL_NAME_LEN, "halui.machine.on");
+    retval =
+	hal_pin_bit_new(name, HAL_RD, &(halui_data->machine_on), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HALUI: ERROR: halui %d pin machine_on export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+    //halui.control.machine-off            bit  //pin for setting machine Off
+    rtapi_snprintf(name, HAL_NAME_LEN, "halui.machine.off");
+    retval =
+	hal_pin_bit_new(name, HAL_RD, &(halui_data->machine_off), comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"HALUI: ERROR: halui %d pin machine_off export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+
+
+    return 0;
+}
+
+static int sendMachineOn()
+{
+    EMC_TASK_SET_STATE state_msg;
+
+    state_msg.state = EMC_TASK_STATE_ON;
+    state_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(state_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendMachineOff()
+{
+    EMC_TASK_SET_STATE state_msg;
+
+    state_msg.state = EMC_TASK_STATE_OFF;
+    state_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(state_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+//currently commented out to reduce warnings
+/*
+//sendFoo messages
+//used for sending NML messages
 static int sendDebug(int level)
 {
     EMC_SET_DEBUG debug_msg;
@@ -542,37 +684,6 @@ static int sendEstopReset()
     return 0;
 }
 
-static int sendMachineOn()
-{
-    EMC_TASK_SET_STATE state_msg;
-
-    state_msg.state = EMC_TASK_STATE_ON;
-    state_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(state_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendMachineOff()
-{
-    EMC_TASK_SET_STATE state_msg;
-
-    state_msg.state = EMC_TASK_STATE_OFF;
-    state_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(state_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
 
 static int sendManual()
 {
@@ -1271,6 +1382,7 @@ static int sendProbe(double x, double y, double z)
 
     return 0;
 }
+//end of commenting out */
 
 static int iniLoad(const char *filename)
 {
@@ -1347,9 +1459,43 @@ static int iniLoad(const char *filename)
     return 0;
 }
 
-int main(int argc, char *argv[])
+static void hal_init_pins()
+{
+    old_halui_data.machine_on = *(halui_data->machine_on) = 0;
+    old_halui_data.machine_off = *(halui_data->machine_off) = 0;
+
+}
+
+// this function looks if any of the hal pins has changed
+// and sends appropiate messages if so
+static void check_hal_changes()
+{
+    if (*(halui_data->machine_on) != old_halui_data.machine_on) {
+	if (*(halui_data->machine_on) != 0)
+	    sendMachineOn();
+	old_halui_data.machine_on = *(halui_data->machine_on);
+    }
+
+    if (*(halui_data->machine_off) != old_halui_data.machine_off) {
+	if (*(halui_data->machine_off) != 0)
+	    sendMachineOff();
+	old_halui_data.machine_off = *(halui_data->machine_off);
+    }
+}
+
+
+// this function looks at the received NML status message
+// and modifies the appropiate HAL pins
+static void modify_hal_pins()
 {
 
+}
+
+
+int main(int argc, char *argv[])
+{
+    short done;
+    
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
 	rcs_print_error("error in argument list\n");
@@ -1364,13 +1510,28 @@ int main(int argc, char *argv[])
 	thisQuit();
 	exit(1);
     }
+    //init HAL and export pins
+    halui_hal_init();
+    //initialize safe values
+    hal_init_pins();
+    
     // get current serial number, and save it for restoring when we quit
     // so as not to interfere with real operator interface
     updateStatus();
     emcCommandSerialNumber = emcStatus->echo_serial_number;
     saveEmcCommandSerialNumber = emcStatus->echo_serial_number;
 
+    done = 0;
 
+    while (!done) {
+
+	check_hal_changes(); //if anything changed send NML messages
+
+	modify_hal_pins(); //if status changed modify HAL too
+	
+	esleep(EMC_IO_CYCLE_TIME); //sleep for a while
+	
+    }
     thisQuit();
     return 0;
 }
