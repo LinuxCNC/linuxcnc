@@ -341,15 +341,15 @@ $(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal
 endif # userspace
 
 # KERNELRELEASE is nonempty, therefore we are building modules using the
-# "kbuild" system.  $(PWD) is used here, instead of relative paths, because
+# "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
 # -I/usr/include seems fishy, but it's what the old system used
-EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I$(PWD) -I$(PWD)/libnml/linklist \
-	-I$(PWD)/libnml/cms -I$(PWD)/libnml/rcs -I$(PWD)/libnml/inifile \
-	-I$(PWD)/libnml/os_intf -I$(PWD)/libnml/nml -I$(PWD)/libnml/buffer \
-	-I$(PWD)/libnml/posemath -I$(PWD)/rtapi -I$(PWD)/hal \
-	-I$(PWD)/emc/nml_intf -I$(PWD)/emc/kinematics -I$(PWD)/emc/motion \
+EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
+	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
+	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
+	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
+	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion \
 	-I/usr/include
 
 ifdef SEQUENTIAL_SUPPORT
@@ -457,7 +457,7 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
 	@echo Depending $<
-	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CFLAGS) $(EXTRA_CFLAGS) $<)
+	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(EXTRA_CFLAGS) $<)
 
 
 # Rules to make .o (object) files
