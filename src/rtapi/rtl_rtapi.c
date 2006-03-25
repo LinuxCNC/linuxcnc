@@ -582,7 +582,7 @@ long long int rtapi_get_time(void)
     return gethrtime();
 }
 
-long long int rtapi_get_time(void)
+long long int rtapi_get_clocks(void)
 {
     long long int retval;
     
