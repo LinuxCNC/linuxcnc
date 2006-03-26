@@ -109,6 +109,7 @@ set worldlabellist ""
 set axiscoordmap ""
 set numaxes [emc_ini "AXES" "TRAJ"]
 set coordnames [ emc_ini "COORDINATES" "TRAJ"]
+set activeAxis 0
 
 # AJ: took over coords setup from tkemc
 # old style:
@@ -3740,7 +3741,6 @@ toggleEstop
 # ----------INITIAL VALUES FOR LOOP----------
 
 setKeyBindingsx
-set activeAxis 0
 set syncingFeedOverride 0
 
 # force explicit updates, so calls to emc_estop, for example, don't
