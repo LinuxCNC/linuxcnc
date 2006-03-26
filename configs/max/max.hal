@@ -3,8 +3,7 @@
 # first load all the HAL modules we're going to need
 #######################################################
 # main motion controller module
-# (right now the run script does this, uncomment when changed)
-# loadrt motmod
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY
 # using steppers....
 loadrt stepgen step_type=0,0,0
 # I/O thru the parport
@@ -17,13 +16,6 @@ loadrt sim_encoder num_chan=1
 loadrt blocks ddt=6 not=1
 # gotta see whats happening
 loadrt scope_rt
-
-#######################################################
-# now define the realtime threads
-# (right now the motion module does that, uncomment when changed)
-#######################################################
-# loadrt threads name1=base-thread period1=[EMCMOT]BASE_PERIOD name2=servo-thread period2=[EMCMOT]SERVO_PERIOD
-
 
 #######################################################
 # add realtime functions to the threads

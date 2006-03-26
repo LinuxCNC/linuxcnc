@@ -416,45 +416,6 @@ if ! $REALTIME start ; then
     exit -1
 fi
 
-# 4.3. Prepare to load real time motion module
-echo "Loading EMC Motion module: $EMCMOT" >>$PRINT_FILE
-if [ ! -f $EMC2_RTLIB_DIR/$EMCMOT ] ; then
-    echo "Can't find motion controller $EMC2_RTLIB_DIR/$EMCMOT"
-    Cleanup
-    exit -1
-fi
-# 4.3.1. get SHMEM_KEY for user/emcmot shared memory area
-GetFromIni SHMEM_KEY EMCMOT
-SHMEM_KEY=$retval
-
-# 4.3.2. get thread periods
-GetFromIni BASE_PERIOD EMCMOT
-BASE_PERIOD_SEC=$retval
-BASE_PERIOD_NSEC=`echo $BASE_PERIOD_SEC | env LANG=C $AWK -- '{printf "%d\n", $1*1000000000}'`
-
-GetFromIni SERVO_PERIOD EMCMOT
-SERVO_PERIOD_SEC=$retval
-SERVO_PERIOD_NSEC=`echo $SERVO_PERIOD_SEC | env LANG=C $AWK -- '{printf "%d\n", $1*1000000000}'`
-
-GetFromIni TRAJ_PERIOD EMCMOT
-TRAJ_PERIOD_SEC=$retval
-TRAJ_PERIOD_NSEC=`echo $TRAJ_PERIOD_SEC | env LANG=C $AWK -- '{printf "%d\n", $1*1000000000}'`
-
-# 4.3.3. load the motion module
-echo "$EMC2_RTLIB_DIR/$EMCMOT base_period=$BASE_PERIOD_NSEC servo_period=$SERVO_PERIOD_NSEC traj_period=$TRAJ_PERIOD_NSEC key=$SHMEM_KEY" >>$PRINT_FILE
-
-if ! $INSMOD $EMC2_RTLIB_DIR/$EMCMOT base_period_nsec=$BASE_PERIOD_NSEC \
-		    		    servo_period_nsec=$SERVO_PERIOD_NSEC \
-				    traj_period_nsec=$TRAJ_PERIOD_NSEC \
-				    key=$SHMEM_KEY ; then
-    echo "Motion module $EMCMOT did not load..."
-    echo "check system log for error messages"
-    Cleanup
-    exit -1
-fi
-
-sleep 5
-
 # 4.3.4. export the location of the HAL realtime modules so that
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
