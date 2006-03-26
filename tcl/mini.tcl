@@ -3534,7 +3534,7 @@ grid rowconfigure $manframe 3 -weight 1
 grid rowconfigure $manframe 4 -weight 1
 
 # Initialize with axis 0
-axisSelectx [ lindex $axiscoordmap 0 ]
+#axisSelectx [ lindex $axiscoordmap 0 ]
 
 update
 
