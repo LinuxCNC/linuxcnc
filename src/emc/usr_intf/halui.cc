@@ -42,9 +42,9 @@
 
   With -ini <inifile>, uses inifile instead of emc.ini. 
 
-  Once executed, it connects to NML buffers, exports various pins
-  and communicates changes to EMC. It also sets certain pins based on
-  status values.
+  Once executed, it connects to NML buffers, exports various HAL pins
+  and communicates changes to EMC. It also sets certain HAL pins based 
+  on status values.
 
   
   Naming:
@@ -68,20 +68,24 @@
 
   <number>   if more than one component of the same type exists
 	     
-  action     usually on/off or is-on for the status
+  action     usually on/off or is-on for the status (this uses the NIST way of
+	     control, each action is done by momentary pushbuttons, and thus
+	     more than one source of control is allowed: e.g. multiple UI's, 
+	     GUI's )
 
   Exported pins (list not complete, names up for debate):
 
-  both ways. a pin for setting (HAL->NML) one for feedback (NML->HAL)
-  
+- machine:
    halui.machine.on                    bit  //pin for setting machine On
    halui.machine.off                   bit  //pin for setting machine Off
    halui.machine.is-on                 bit  //pin for machine is On/Off
-   
+
+- estop:   
    halui.estop.activate                bit  //pin for resetting Estop (emc internal) On/Off
    halui.estop.reset                   bit  //pin for resetting Estop (emc internal) On/Off
    halui.estop.is-reset                bit  //pin for resetting Estop (emc internal) On/Off
    
+- mode:
    halui.mode.manual                   bit  //pin for requesting manual mode
    halui.mode.is_manual                bit  //pin for manual mode is on
    halui.mode.auto                     bit  //pin for requesting auto mode
@@ -89,6 +93,7 @@
    halui.mode.mdi                      bit  //pin for requesting mdi mode
    halui.mode.is_mdi                   bit  //pin for mdi mode is on
 
+- mist, flood, lube:
    halui.mist.on                       bit  //pin for starting mist
    halui.mist.is-on                    bit  //pin for mist is on
    halui.flood.on                      bit  //pin for starting flood
@@ -96,6 +101,7 @@
    halui.lube.on                       bit  //pin for starting lube
    halui.lube.is-on                    bit  //pin for lube is on
 
+- spindle:
    halui.spindle.start                 bit
    halui.spindle.stop                  bit
    halui.spindle.forward               bit
@@ -107,11 +113,20 @@
    halui.spindle.brake-off             bit  //pin for deactivating spindle/brake
    halui.spindle.brake-is-on           bit  //status pin that tells us if brake is on
 
+- joint:
    halui.joint.0.home                  bit //works both ways
    ..
    halui.joint.7.home                  bit //works both ways
 
+   halui.joint.x.on-min-limit-soft     bit
+   halui.joint.x.on-max-limit-soft     bit
+   halui.joint.x.on-min-limit-hard     bit
+   halui.joint.x.on-max-limit-hard     bit
+   
+   halui.joint.x.fault                 bit   
+   halui.joint.x.homed                 bit
 
+- jogging:
    halui.jog.speed                     float //set jog speed
 
    halui.jog.0.minus                   bit
@@ -122,31 +137,20 @@
 
    halui.feed_override                 float
 
- only one way (NML -> HAL) (status)
-
-   halui.joint.x.on-min-limit-soft     bit
-   halui.joint.x.on-max-limit-soft     bit
-   halui.joint.x.on-min-limit-hard     bit
-   halui.joint.x.on-max-limit-hard     bit
-   
-   halui.joint.x.fault                 bit   
-   halui.joint.x.homed                 bit
-
+- tool:
    halui.tool.number                   u16  //current selected tool
    halui.tool.length-offset            float //current applied tool-length-offset
 
+- program:
    halui.program.is-idle               bit
    halui.program.is-running            bit
    halui.program.is-paused             bit
-
-
- one way (HAL -> NML)
-
    halui.program.run                   bit
    halui.program.pause                 bit
    halui.program.resume                bit
    halui.program.step                  bit
 
+- probe:
    halui.probe.start                   bit
    halui.probe.clear                   bit
    halui.probe.is-tripped              bit
