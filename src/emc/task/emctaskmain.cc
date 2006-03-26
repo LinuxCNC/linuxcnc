@@ -2628,7 +2628,7 @@ static int iniLoad(const char *filename)
 {
     Inifile inifile;
     const char *inistring;
-    char version[LINELEN];
+    char version[LINELEN], machine[LINELEN];
     double saveDouble;
 
     // open it
@@ -2650,23 +2650,21 @@ static int iniLoad(const char *filename)
 	max_rcs_errors_to_print = -1;
     }
 
-    if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
+   if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
 	if (NULL != (inistring = inifile.find("VERSION", "EMC"))) {
-	    // print version
-	    if(sscanf(inistring, "$Revision: %s", version) == 1)
-		    rcs_print("Version:  %s\n", version);
+	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
+		strncpy(version, "unknown", LINELEN-1);
+	    }
 	} else {
-	    // not found, not fatal
-	    rcs_print("Version:  (not found)\n");
+	    strncpy(version, "unknown", LINELEN-1);
 	}
 
 	if (NULL != (inistring = inifile.find("MACHINE", "EMC"))) {
-	    // print machine
-	    rcs_print("Machine:  %s\n", inistring);
+	    strncpy(machine, inistring, LINELEN-1);
 	} else {
-	    // not found, not fatal
-	    rcs_print("Machine:  (not found)\n");
+	    strncpy(machine, "unknown", LINELEN-1);
 	}
+	rcs_print("task: machine: '%s'  version '%s'\n", machine, version);
     }
 
     if (NULL != (inistring = inifile.find("NML_FILE", "EMC"))) {

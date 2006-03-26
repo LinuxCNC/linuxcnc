@@ -193,7 +193,7 @@ static int iniLoad(const char *filename)
 {
     Inifile inifile;
     const char *inistring;
-    char version[LINELEN];
+    char version[LINELEN], machine[LINELEN];
 
     /* Open the ini file */
     if (inifile.open(filename) == false) {
@@ -212,13 +212,19 @@ static int iniLoad(const char *filename)
 
     if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
 	if (NULL != (inistring = inifile.find("VERSION", "EMC"))) {
-	    if(sscanf(inistring, "$Revision: %s", version) == 1)
-		    rtapi_print("Version:  %s\n", version);
+	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
+		strncpy(version, "unknown", LINELEN-1);
+	    }
+	} else {
+	    strncpy(version, "unknown", LINELEN-1);
 	}
 
 	if (NULL != (inistring = inifile.find("MACHINE", "EMC"))) {
-	    rtapi_print("Machine:  %s\n", inistring);
+	    strncpy(machine, inistring, LINELEN-1);
+	} else {
+	    strncpy(machine, "unknown", LINELEN-1);
 	}
+	rtapi_print("iocontrol: machine: '%s'  version '%s'\n", machine, version);
     }
 
     if (NULL != (inistring = inifile.find("NML_FILE", "EMC"))) {
