@@ -874,9 +874,6 @@ proc rightConfig {which} {
     }
 }
 
-# this is calib from tkemc
-source $emc2tcldir/bin/emccalib.tcl
-
 # use the top-level window as our top-level window, and name it
 wm title "." [emc_ini  MACHINE  EMC]
 set top [frame .top ]
