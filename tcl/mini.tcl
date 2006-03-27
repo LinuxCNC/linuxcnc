@@ -2507,7 +2507,7 @@ proc editLineIncrement {} {
 proc editSetLineNumber {what} {
     global  startnumbering number lineincrement textwin linenum
     toplevel .linenumber
-    wm title .linenumber [msgcat::mc "Set Line Numbering"}
+    wm title .linenumber [msgcat::mc "Set Line Numbering"]
     wm geometry .linenumber 275x180-60+100
     set linenum [frame .linenumber.frame]
     pack $linenum -side top -fill both -expand yes
@@ -2687,12 +2687,13 @@ proc setTextTitleAsNew {} {
     outccount
 }
 
+# msgcat doesn't work here
 # bring up open win
 proc showopenwin {} {
     global programDirectory
     set types {
-	{[msgcat::mc "NC files"] {*.ngc *.nc *.tap} }
-	{[msgcat::mc "All files"]		*}
+        {"NC files" {*.ngc *.nc *.tap} }
+	    {"All files" *}
     }
     set file [tk_getOpenFile -filetypes $types -parent . -initialdir $programDirectory]
 ###if [string compare $file ""]
@@ -2732,12 +2733,13 @@ proc filetosave {} {
     }
 }
 
+# msgcat doesn't work here
 #save a file as
 proc filesaveas {} {
     global editFilename
     set types {
-	{[msgcat::mc "NC files"] {*.ngc *.nc *.tap} }
-	{[msgcat::mc "All files"]		*}
+        {"NC files" {*.ngc *.nc *.tap} }
+        {"All files" *}
     }
     set myfile [tk_getSaveFile -filetypes $types -parent .  -initialdir "~/gcode" -initialfile $editFilename]
     if { [expr [string compare $myfile ""]] != 0} {
@@ -3665,20 +3667,21 @@ pack $programfiletext  -side left -fill y
 pack $programrestart -side left -fill both -expand yes
 pack $programframe $programfileframe -side top -anchor w -fill both -expand yes
 
+# msgcat doesn't work here.  Seems the tk_getOpenFile can't handle it.
 proc fileDialog {} {
     global programDirectory programnamestring
     set types {
-        {[msgcat::mc "All files"] *}
-        {[msgcat::mc "Text files"] {.txt}}
-        {[msgcat::mc "NC files"] {.nc .ngc}}
+        {"All files" *}
+        {"Text files" {.txt}}
+        {"NC files" {.nc .ngc}}
     }
     set f [tk_getOpenFile -filetypes $types -initialdir $programDirectory]
-    if { [string len $f] > 0} {
+    if {[string len $f] > 0} {
         set programDirectory [file dirname $f]
         set programnamestring $f
         loadProgramText
         loadProgram
-        catch {openoninit $f}
+        catch {openoninit $f }
         outccount
     }
 }
