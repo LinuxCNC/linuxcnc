@@ -178,11 +178,11 @@ set f1 [ frame $top.f1 ]
 
 set message [msgcat::mc "Welcome to EMC2.\n\nSelect a machine configuration from the list on the left.\nDetails about the selected configuration will appear in the display on the right.\nClick 'OK' to run the selected configuration"]
 
-set lbl [ label $f1.lbl -text $message -justify left -padx 20 -pady 10 -wraplength 600 ]
+set lbl [ label $f1.lbl -text $message -justify left -padx 15 -pady 10 -wraplength 600 ]
 pack $lbl -anchor w
 
 # a subframe for the tree/detail box 
-set f2 [ frame $f1.f2 -borderwidth 0 -relief flat]
+set f2 [ frame $f1.f2 -borderwidth 0 -relief flat -padx 15 ]
 
 # Let the tree scroll
 set s1 [ SW $f2.f3 -scrollbar vertical]
