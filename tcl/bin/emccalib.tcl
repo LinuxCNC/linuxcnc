@@ -50,8 +50,11 @@ if ([info exists env(LANG)]) {
     #FIXME need to add location for installed po files
 }
 
+package require BWidget
+
+
 proc popupCalibration {} {
-    global axisentry activeAxis top initext HALCMD
+    global axisentry activeAxis main top initext HALCMD sectionarray 
     global logo numaxes EMC_INIFILE namearray commandarray valarray
     set numaxes [emc_ini "AXES" "TRAJ"]
     for {set i 0} {$i<$numaxes} {incr i} {
@@ -72,8 +75,8 @@ proc popupCalibration {} {
     set wizard_image_search {
         /etc/emc2/emc2-wizard.gif \
         /usr/local/etc/emc2/emc2-wizard.gif \
-        emc2-wizard.gif}
-
+        emc2-wizard.gif
+    }
     set logo ""
     foreach wizard_image $wizard_image_search {
         if { [file exists $wizard_image] } {
@@ -88,18 +91,17 @@ proc popupCalibration {} {
 
     wm title . [msgcat::mc "EMC2 Axis Calibration"]
     set logo [label .logo -image $logo]
-    set top [frame .main ]
+    set main [frame .main ]
+    set top [NoteBook .main.top ]
     pack $logo -side left -anchor nw
-    pack $top -side left -expand yes -fill both \
+    pack $main -side left -expand yes -fill both \
         -padx 18 -pady 18 -anchor n
 
-    # use "top" as name of working frame
-    set axisframe [frame $top.axes ]
-    for {set i 0} {$i<$numaxes} {incr i} {
-        button $axisframe.b$i -text "Axis $i" -command "selectAxis $i"
-        pack  $axisframe.b$i -side left -fill both -expand yes
+    # make a NoteBook page to hold widgets for each axis
+    for {set j 0} {$j < $numaxes} {incr j} {
+        set af$j [$top insert $j page$j -text "Axis $j" -raisecmd "selectAxis $j"]
     }
-   
+ 
     # Make a text widget to hold the ini file and
     # put a copy of the inifile in this text widget
     set initext [text $top.initext]
@@ -140,11 +142,6 @@ proc popupCalibration {} {
 
     # make a second text widget for scratch writing
     set scratchtext [text $top.scratchtext]
-
-    # make a frame to hold widgets for each axis
-    for {set j 0} {$j < $numaxes} {incr j} {
-        set af$j [frame $top.ax$j]
-    }
 
     # New halconfig allows for ini reads from most any location
     # For axis tuning search each .hal file for AXIS
@@ -188,112 +185,142 @@ proc popupCalibration {} {
         }
     }
 
-    frame $top.buttons
-    button $top.buttons.ok -text "Save" -default active \
+    frame $main.buttons
+    button $main.buttons.ok -text "Save" -default active \
         -command {changeIt save } -state disabled
-    button $top.buttons.apply -text Apply \
+    button $main.buttons.apply -text Apply \
         -command {changeIt apply}
-    button $top.buttons.revert -text Revert \
+    button $main.buttons.revert -text Revert \
         -command {changeIt revert} -state disabled
-    button $top.buttons.cancel -text Quit \
+    button $main.buttons.cancel -text Quit \
         -command {changeIt quit}
-    pack $top.buttons.ok $top.buttons.apply $top.buttons.revert \
-        $top.buttons.cancel -side left -expand 1
+    pack $main.buttons.ok $main.buttons.apply $main.buttons.revert \
+        $main.buttons.cancel -side left -fill x -expand 1
+
+#  pack to test 
+#    pack $top -side top -fill both -expand yes
+#    pack $main.buttons -side top -fill x -expand yes
+
     # grid the top display to keep stuff in place
-    grid configure $axisframe -row 0 -sticky ew
-    grid rowconfigure $top 1 -weight 1
-    grid configure $top.buttons -row 2 -sticky ew
+    grid rowconfigure $main 1 -weight 1
+    grid configure $top -row 1 -sticky nsew 
+    grid configure $main.buttons -row 2 -sticky ew -ipadx 20
+
 }
 
 proc selectAxis {which} {
-    global numaxes axisentry top
+    global axisentry
     set axisentry $which
-    for {set i 0} {$i<$numaxes} {incr i} {
-        global af$i
-        $top.axes.b$i configure -relief raised
-        grid remove [set af$i]
-    }
-    $top.axes.b$which configure -relief sunken
-    grid configure [set af$which] -row 1 -sticky nsew
 }
 
 proc changeIt {how } {
     global axisentry sectionarray namearray commandarray valarray HALCMD
-    global numaxes top oldvalarray
+    global numaxes main oldvalarray initext
     switch -- $how {
-    save {
-        set tmp save
-        # need to lookup each hal param value
-        # compare with ini value from initext using array get sectionarray   
-        # for section line numbers
-        # change those that need to be changed.
-        # and open $EMC_INIFILE and save contents of initext widget
-    }
-    apply {
-        # $top.buttons.ok configure -state normal
-        $top.buttons.revert configure -state normal
-        set varnames [lindex [array get namearray $axisentry] end]
-        set varcommands [lindex [array get commandarray $axisentry] end]
-        set maxvarnum [llength $varnames]
-        for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-            set var "axis$axisentry-[lindex $varnames $listnum]"
-            global $var
-            set tmpval [set $var]
-            set tmpcmd [lindex $varcommands $listnum]
-            # get list of old values before changeIt apply changes them
-            set tmpold [expr [lindex [split \
-                [exec $HALCMD -s show param $tmpcmd] " "] 3]]
-            lappend oldvalarray($axisentry) $tmpold
-            set thisret [exec $HALCMD setp $tmpcmd $tmpval]
-        }
-        puts [array get oldvalarray]
-    }
-    revert {
-        set varnames [lindex [array get namearray $axisentry] end]
-        set varcommands [lindex [array get commandarray $axisentry] end]
-        set maxvarnum [llength $varnames]
-        set oldvarvals [lindex [array get oldvalarray $axisentry] end]
-        for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-            set tmpval [lindex $oldvarvals $listnum]
-            set tmpcmd [lindex $varcommands $listnum]
-            set thisret [exec $HALCMD setp $tmpcmd $tmpval]
-            # update the display
-            set var axis$axisentry-[lindex $varnames $listnum]
-            global $var
-            set $var $tmpval
-        }
-    }
-    quit {
-        # build a check for changed values here and ask
-        for {set j 0} {$j < $numaxes} {incr j} {
-            set oldvals [lindex [array get valarray $j] 1]
-            set cmds [lindex [array get commandarray $j] 1]
-            set k 0
-            foreach cmd $cmds {
-                set tmpval [expr [lindex [split \
-                    [exec $HALCMD -s show param $cmd] " "] 3]]
-                set oldval [lindex $oldvals $k]
-                if {$tmpval != $oldval} {
-                    set answer [tk_messageBox -message "The HAL parameter \n \
-                        $cmd \n has changed. \n Really quit?" \
-                        -type yesno -icon question] 
-                    switch -- $answer { \
-                            yes exit
-                            no {return}
-                    }
-                
+        save {
+            for {set i 0} {$i<$numaxes} {incr i} {
+                set varnames [lindex [array get namearray $i] end]
+                set upvarnames [string toupper $varnames]
+                set varcommands [lindex [array get commandarray $i] end]
+                set maxvarnum [llength $varnames]
+                set sectname "AXIS_$i"
+                if {$i == [expr $numaxes-1]} {
+                    set endsect EMCIO
+                } else {
+                    set endsect AXIS_[expr $i+1]
                 }
-                incr k
+                set sectnum "[set sectionarray($sectname)]"
+                set nextsectnum "[set sectionarray($endsect)]"
+                $initext configure -state normal
+                for {set ind $sectnum} {$ind < $nextsectnum} {incr ind} {
+                    switch -- [$initext get $ind.0] {
+                        "#" {}
+                        default {
+                            set tmpstr [$initext get $ind.0 $ind.end]
+                            $initext insert insert $ind.0
+                            set tmpvar [lindex $tmpstr 0]
+                            set tmpindx [lsearch $upvarnames $tmpvar]
+                            if {$tmpindx != -1} {
+                                set cmd [lindex $varcommands $tmpindx]
+                                set newval [expr [lindex [split \
+                                    [exec $HALCMD -s show param $cmd] " "] 3]]
+                                puts "$tmpstr <-- $newval  "
+    # works to here
+    # this is ng                 lset tmpstr 2  $newval
+    #                            puts $tmpstr
+    #                            $initext delete insert "insert lineend"
+    #                            $initext insert insert $tmpstr
+                            }
+                        }
+                    }
+                }
+                $initext configure -state disabled
             }
-        
+            # saveFile
         }
-
-        destroy .
-    }
-    default {}
+        apply {
+            $main.buttons.ok configure -state normal
+            $main.buttons.revert configure -state normal
+            set varnames [lindex [array get namearray $axisentry] end]
+            set varcommands [lindex [array get commandarray $axisentry] end]
+            set maxvarnum [llength $varnames]
+            for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
+                set var "axis$axisentry-[lindex $varnames $listnum]"
+                global $var
+                set tmpval [set $var]
+                set tmpcmd [lindex $varcommands $listnum]
+                # get list of old values before changeIt apply changes them
+                set tmpold [expr [lindex [split \
+                    [exec $HALCMD -s show param $tmpcmd] " "] 3]]
+                lappend oldvalarray($axisentry) $tmpold
+                set thisret [exec $HALCMD setp $tmpcmd $tmpval]
+            }
+        }
+        revert {
+            set varnames [lindex [array get namearray $axisentry] end]
+            set varcommands [lindex [array get commandarray $axisentry] end]
+            set maxvarnum [llength $varnames]
+            set oldvarvals [lindex [array get oldvalarray $axisentry] end]
+            for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
+                set tmpval [lindex $oldvarvals $listnum]
+                set tmpcmd [lindex $varcommands $listnum]
+                set thisret [exec $HALCMD setp $tmpcmd $tmpval]
+                # update the display
+                set var axis$axisentry-[lindex $varnames $listnum]
+                global $var
+                set $var $tmpval
+            }
+            $main.buttons.revert configure -state disabled
+        }
+        quit {
+            # build a check for changed values here and ask
+            for {set j 0} {$j < $numaxes} {incr j} {
+                set oldvals [lindex [array get valarray $j] 1]
+                set cmds [lindex [array get commandarray $j] 1]
+                set k 0
+                foreach cmd $cmds {
+                    set tmpval [expr [lindex [split \
+                        [exec $HALCMD -s show param $cmd] " "] 3]]
+                    set oldval [lindex $oldvals $k]
+                    if {$tmpval != $oldval} {
+                        set answer [tk_messageBox -message "The HAL parameter \n \
+                            $cmd \n has changed. \n Really quit?" \
+                            -type yesno -icon question] 
+                        switch -- $answer { \
+                                yes exit
+                                no {return}
+                        }
+                    
+                    }
+                    incr k
+                }
+            }
+            destroy .
+        }
+        default {}
     }
 }
 
-popupCalibration
-selectAxis 0
 
+popupCalibration
+$top raise page0
