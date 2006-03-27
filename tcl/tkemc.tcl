@@ -77,7 +77,7 @@ set tkemc 1
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload "../src/po"
+    msgcat::mcload $TCLDIR/../src/po
     #FIXME need to add location for installed po files
 }
 
@@ -228,7 +228,7 @@ proc popupRunMark {mark} {
     toplevel .runmark
     wm title .runmark [msgcat::mc "Set Run Mark"]
 
-    label .runmark.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text [msgcat::mc "Set run mark at line"]"$mark?"
+    label .runmark.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text [msgcat::mc "Set run mark at line %s?" $mark]
     pack .runmark.msg -side top
 
     frame .runmark.buttons
@@ -247,7 +247,7 @@ proc popupProgramEditor {} {
     if {[file isfile $programnamestring]} {
         geneditStart programEditor $programnamestring
     } else {
-        geneditStart programEditor "untitled.ngc"
+        geneditStart programEditor [msgcat::mc "untitled"]".ngc"
     }
 
     frame .programEditor.buttons
@@ -269,7 +269,7 @@ proc popupToolEditor {} {
     if {[file isfile $toolfilename]} {
         geneditStart toolEditor $toolfilename
     } else {
-        geneditStart toolEditor "untitled.tbl"
+        geneditStart toolEditor [msgcat::mc "untitled"]".tbl"
     }
 
     frame .toolEditor.buttons
@@ -292,7 +292,7 @@ proc popupParamEditor {} {
     if {[file isfile $paramfilename]} {
         geneditStart paramEditor $paramfilename
     } else {
-        geneditStart paramEditor "untitled.var"
+        geneditStart paramEditor [msgcat::mc "untitled"]".var"
     }
 
     # disable "Save As..." menu, since we don't support changing it
@@ -520,7 +520,7 @@ proc loadProgramText {} {
     catch {close $programin}
     # open the new program, if it's not "none"
     if {[catch {open $programnamestring} programin]} {
-        puts stdout [msgcat::mc "can't open"]"$programnamestring"
+        puts stdout [msgcat::mc "can't open %s" $programnamestring]
     } else {
         $programfiletext insert end [read $programin]
         $programfiletext config -state disabled
@@ -817,7 +817,7 @@ if { $windows == 0 } {
 
 # add halconfig, to help for HAL setup, it's under Scripts, but it's in the TCL_BIN_DIR
 $scriptsmenu add separator
-$scriptsmenu add command -label "HAL Config" -command "exec $TCLBIN/halconfig.tcl -- -ini $EMC_INIFILE &"
+$scriptsmenu add command -label [msgcat::mc "HAL Config"] -command "exec $TCLBIN/halconfig.tcl -- -ini $EMC_INIFILE &"
 
 # add the help menu
 set helpmenu [menu $menubar.help -tearoff 0]
@@ -1784,7 +1784,7 @@ proc popupError {err} {
     toplevel .error
     wm title .error [msgcat::mc "Error"]
 
-    label .error.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text [msgcat::mc "Error: "]"$err"
+    label .error.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text [msgcat::mc "Error"]": $err"
     pack .error.msg -side top
 
     frame .error.buttons
