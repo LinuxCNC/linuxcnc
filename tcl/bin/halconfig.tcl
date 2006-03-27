@@ -64,6 +64,16 @@ puts "HALCMD=$HALCMD"
 # clean up and remove cruft!!!!!
 
 
+#----------end of environment tests----------
+
+# provide for some initial i18n -- needs lots of text work
+package require msgcat
+if ([info exists env(LANG)]) {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload $TCLDIR/../src/po
+    #FIXME add location for installed lang files
+}
+
 
 #----------Testing of run environment----------
 proc initializeConfig {} {
@@ -81,7 +91,7 @@ proc initializeConfig {} {
     # to use it across a network
     switch $tcl_platform(platform) {
         windows {
-            tk_messageBox  -icon error -type ok -message "Nothing to do, 'cause you're not running a real-time operating system.  Halconfig works best when it is interacting with a real, running HAL.  When you get this running along with EMC2 then you've got something."
+            tk_messageBox  -icon error -type ok -message [msgcat::mc "Nothing to do, 'cause you're not running a real-time operating system.  Halconfig works best when it is interacting with a real, running HAL.  When you get this running along with EMC2 then you've got something."]
             exit
             destroy .
         }
@@ -98,7 +108,7 @@ proc initializeConfig {} {
     set isbwidget [glob -directory /usr/lib -nocomplain \
         -types d bwidget* ]
     if {$isbwidget == ""} {
-        tk_messageBox -icon error -type ok -message "Can't find the bwidget package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."
+        tk_messageBox -icon error -type ok -message [msgcat::mc "Can't find the bwidget package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."]
         exit
         destroy .
     } else {
@@ -110,7 +120,7 @@ proc initializeConfig {} {
 
     set haltest [exec $HALCMD]
     if {$haltest == ""} {
-         tk_messageBox -icon error -type ok -message "The configuration script needs to be run from the main EMC2 directory. Please add the emc2/bin dir to PATH before running this command"
+         tk_messageBox -icon error -type ok -message [msgcat::mc "The configuration script needs to be run from the main EMC2 directory. Please add the emc2/bin dir to PATH before running this command"]
          exit
          destroy .
     }
@@ -147,11 +157,11 @@ set demoisup no
 proc noHal {} {
     global demoisup REALTIME TCLBIN
     set demoisup no
-    set thisanswer [tk_messageBox -type yesnocancel -message "It looks like HAL is not loaded.  If you'd like to go to the configuration and startup script press yes.  If you'd like to start a HAL demo press no. To stop this script, press cancel."]
+    set thisanswer [tk_messageBox -type yesnocancel -message [msgcat::mc "It looks like HAL is not loaded.  If you'd like to go to the configuration and startup script press yes.  If you'd like to start a HAL demo press no. To stop this script, press cancel."]]
     switch -- $thisanswer {
         yes {
             wm withdraw .
-            [exec $TCLBIN/setupconfig.tcl]
+            [exec $TCLBIN/pickconfig.tcl]
         }
         no {
            # this works to start a hal but halconfig doesn't live
@@ -164,18 +174,6 @@ proc noHal {} {
         }
     }
 }
-
-#
-#----------end of environment tests----------
-
-# provide for some initial i18n -- needs lots of text work
-package require msgcat
-if ([info exists env(LANG)]) {
-    msgcat::mclocale $env(LANG)
-    msgcat::mcload "../../src/po"
-    #FIXME add location for installed lang files
-}
-
 
 #----------open channel to halcmd ----------
 #
@@ -233,7 +231,7 @@ openHALCMD
 #
 # including size and position
 
-wm title . "HAL Configuration"
+wm title . [msgcat::mc "HAL Configuration"]
 wm protocol . WM_DELETE_WINDOW tk_
 set masterwidth 700
 set masterheight 450
@@ -255,7 +253,7 @@ wm protocol . WM_DELETE_WINDOW askKill
 proc askKill {} {
     global configdir
     set tmp [tk_messageBox -icon question -type yesnocancel \
-        -message "Would you like to save your configuration before you exit?"]
+        -message [msgcat::mc "Would you like to save your configuration before you exit?"]]
     switch -- $tmp {
         yes {saveHAL $configdir ; killHalConfig}
         no {killHalConfig}
@@ -311,10 +309,10 @@ set tf [frame $top.maint]
 
 # Build right side display and control area
 # Each mode will have a unique set of widgets inside frame
-set showhal [labelframe $top.s -text Show ]
-set watchhal [labelframe $top.w -text Watch ]
-set modifyhal [labelframe $top.m -text Modify ]
-set tunehal [labelframe $top.t -text Tune ]
+set showhal [labelframe $top.s -text [msgcat::mc "Show"] ]
+set watchhal [labelframe $top.w -text [msgcat::mc "Watch"] ]
+set modifyhal [labelframe $top.m -text [msgcat::mc "Modify"] ]
+set tunehal [labelframe $top.t -text [msgcat::mc "Tune"] ]
 
 # use place manager for fixed locations of frames within top
 # place show for starting up
@@ -384,17 +382,17 @@ set helpmenu [menu $menubar.help -tearoff 0]
             -command {showHelp about} -underline 0
         $helpmenu add command -label [msgcat::mc "Main"] \
             -command {showHelp main} -underline 0
-        $helpmenu add command -label [msgcat::mc "Component"] \
+        $helpmenu add command -label "Component" \
             -command {showHelp component} -underline 0
-        $helpmenu add command -label [msgcat::mc "Pin"] \
+        $helpmenu add command -label "Pin" \
             -command {showHelp pin} -underline 0
-        $helpmenu add command -label [msgcat::mc "Parameter"] \
+        $helpmenu add command -label "Parameter" \
             -command {showHelp parameter} -underline 0
-        $helpmenu add command -label [msgcat::mc "Signal"] \
+        $helpmenu add command -label "Signal" \
             -command {showHelp signal} -underline 0
-        $helpmenu add command -label [msgcat::mc "Function"] \
+        $helpmenu add command -label "Function" \
             -command {showHelp function} -underline 0
-        $helpmenu add command -label [msgcat::mc "Thread"] \
+        $helpmenu add command -label "Thread" \
             -command {showHelp thread} -underline 0
 . configure -menu $menubar
 
@@ -749,10 +747,10 @@ proc makeShow {} {
         pack $disp -side right -fill both -expand yes
         set seps [frame $showhal.sep -bg black -borderwidth 2]
         set cfent [frame $showhal.command]
-        set lab [label $cfent.label -text "Enter HAL command :"]
+        set lab [label $cfent.label -text [msgcat::mc "Enter HAL command :"] ]
         set com [entry $cfent.entry -textvariable halcommand]
         bind $com <KeyPress-Return> {exHAL $halcommand ; refreshHAL}
-        set ex [button $cfent.execute -text Execute \
+        set ex [button $cfent.execute -text [msgcat::mc "Execute"] \
             -command {exHAL $halcommand ; refreshHAL} ]
         pack $lab -side left -padx 5 -pady 3
         pack $com -side left -fill x -expand yes -pady 3
@@ -801,7 +799,7 @@ proc makeModify {} {
         } else {
             set tmp [subst {$commandname \$${commandname}1 \$${commandname}2}]
         }
-        button $modifyhal.b$commandname -text "Execute" \
+        button $modifyhal.b$commandname -text [msgcat::mc "Execute"] \
             -command [subst {modHAL "$tmp"}]
         grid configure $modifyhal.b$commandname -row $j -column 3 -sticky nsew
         incr j
@@ -892,7 +890,7 @@ proc workMode {which} {
         }
         default {
             swapDisplay display showhal
-            displayThis "Mode went way wrong."
+            displayThis [msgcat::mc "Mode went way wrong."]
         }
     }
     set oldvar $which
@@ -905,7 +903,7 @@ proc showHAL {which} {
     global disp HALCMD
     if {![info exists disp]} {return}
     if {$which == "zzz"} {
-        displayThis "Select a node to show."
+        displayThis [msgcat::mc "Select a node to show."]
         return
     }
     set thisnode $which
@@ -923,7 +921,7 @@ proc watchHAL {which} {
     global watchlist watchstring watching cisp
     if {$which == "zzz"} {
         $cisp create text 40 [expr 1 * 20 + 12] -anchor w -tag firstmessage\
-            -text "<-- Select a Leaf.  Click on its name."
+            -text [msgcat::mc "<-- Select a Leaf.  Click on its name."]
         set watchlist ""
         set watchstring ""
         return
@@ -1037,38 +1035,38 @@ proc setModifyVar {which} {
         # inserts the varname above
         switch -- $haltype {
             pin {
-                set str "Click a highlighted entry where $which should go."
+                set str [msgcat::mc "Click a highlighted entry where %s should go." $which]
                 set tmp [lindex [array get modtypes pin] 1]
                 foreach widget $tmp {
                     $widget configure -bg lightgreen
                 }
             }
             param {
-                set str "Nothing to be done for parameters here. Try the tuning page"
+                set str [msgcat::mc "Nothing to be done for parameters here. Try the tuning page"]
             }
             sig {
-                set str "Click a highlighted entry where $which should go."
+                set str [msgcat::mc "Click a highlighted entry where %s should go." $which]
                 set tmp [lindex [array get modtypes sig] 1]
                 foreach widget $tmp {
                     $widget configure -bg lightgreen
                 }
             }
             comp {
-                set str "Click a highlighted entry where $which should go."
+                set str [msgcat::mc "Click a highlighted entry where %s should go." $which]
                 set tmp [lindex [array get modtypes comp] 1]
                 foreach widget $tmp {
                     $widget configure -bg lightgreen
                 }
             }
             funct {
-                set str "Click a highlighted entry where $which should go."
+                set str [msgcat::mc "Click a highlighted entry where %s should go." $which]
                 set tmp [lindex [array get modtypes funct] 1]
                 foreach widget $tmp {
                     $widget configure -bg lightgreen
                 }
             }
             thread {
-                set str "Click a highlighted entry where $which should go."
+                set str [msgcat::mc "Click a highlighted entry where %s should go." $which]
                 set tmp [lindex [array get modtypes thread] 1]
                 foreach widget $tmp {
                     $widget configure -bg lightgreen
@@ -1076,7 +1074,7 @@ proc setModifyVar {which} {
             }
         }            
     } else {
-        set str "$which is not a leaf, try again"
+        set str [msgcat::mc "%s is not a leaf, try again" $which]
     }
     $modtext delete 1.0 end
     $modtext insert end $str
