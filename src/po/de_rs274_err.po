@@ -135,9 +135,9 @@ msgstr  "Fehler: Programm-Code ist nicht m0, m1, m2, m30 oder m60"
 # Anmerkung:FJ: DIN66025 spricht bei g90/g91 von absoluter/inkrementaler Maﬂangabe
 #               Was ausser abs. oder inkr. gibt es dort noch, daﬂ diese Fehlermeldung
 #               benˆtigt wird :-)))
+#msgstr "Koordinaten Interpretationsmodus nicht g90 oder g91"
 #: rs274ngc_errors.cc:56
 msgid   "Bug distance mode not g90 or g91"
-#msgstr "Koordinaten Interpretationsmodus nicht g90 oder g91"
 msgstr  "Fehler: Maﬂangabe-Modus ist nicht g90 oder g91"
 
 #: rs274ngc_errors.cc:57
