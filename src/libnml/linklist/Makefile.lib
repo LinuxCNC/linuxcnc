@@ -1,1 +1,0 @@
-LIB_OBJS := $(LIB_OBJS) linklist.o

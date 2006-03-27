@@ -1,7 +1,0 @@
-LIB_OBJS := $(LIB_OBJS) \
-	_sem.o \
-	_shm.o \
-	_timer.o \
-	sem.o \
-	shm.o \
-	timer.o \

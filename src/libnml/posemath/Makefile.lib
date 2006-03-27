@@ -1,6 +1,0 @@
-LIB_OBJS := $(LIB_OBJS) \
-	_posemath.o \
-	posemath.o \
-	sincos.o
-
-

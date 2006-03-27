@@ -1,2 +1,0 @@
-LIB_OBJS := $(LIB_OBJS) \
-	inifile.o 

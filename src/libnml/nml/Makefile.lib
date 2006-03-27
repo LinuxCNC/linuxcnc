@@ -1,9 +1,0 @@
-LIB_OBJS :=	$(LIB_OBJS) \
-	cmd_msg.o \
-	nml_mod.o \
-	nml_oi.o \
-	nml_srv.o \
-	nml.o \
-	nmldiag.o \
-	nmlmsg.o \
-	stat_msg.o \
