@@ -88,7 +88,7 @@ Makefile: $(DEPS)
 endif
 
 # Each directory in $(INCLDUES) is passed as a -I directory when compiling.
-INCLUDE := -I$(RTDIR)/include $(patsubst %,-I%, $(INCLUDES))
+INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include 
 
 # Compilation options.  Perhaps some of these should come from Makefile.inc?
 OPT := -O
