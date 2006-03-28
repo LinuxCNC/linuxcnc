@@ -171,6 +171,23 @@ struct halui_str {
     hal_bit_t *estop_reset;        //pin for resetting ESTOP
     hal_bit_t *estop_is_activated; //pin for status ESTOP is activated
 
+    hal_bit_t *mode_manual;        //pin for requesting manual mode
+    hal_bit_t *mode_is_manual;     //pin for manual mode is on
+    hal_bit_t *mode_auto;          //pin for requesting auto mode
+    hal_bit_t *mode_is_auto;       //pin for auto mode is on
+    hal_bit_t *mode_mdi;           //pin for requesting mdi mode
+    hal_bit_t *mode_is_mdi;        //pin for mdi mode is on
+
+    hal_bit_t *mist_on;            //pin for starting mist
+    hal_bit_t *mist_off;           //pin for stoping mist
+    hal_bit_t *mist_is_on;         //pin for mist is on
+    hal_bit_t *flood_on;           //pin for starting flood
+    hal_bit_t *flood_off;          //pin for stoping flood
+    hal_bit_t *flood_is_on;        //pin for flood is on
+    hal_bit_t *lube_on;            //pin for starting lube
+    hal_bit_t *lube_off;           //pin for stoping lube
+    hal_bit_t *lube_is_on;         //pin for lube is on
+
 } * halui_data; 
 
 struct local_halui_str {
@@ -182,6 +199,23 @@ struct local_halui_str {
     hal_bit_t estop_reset;        //pin for resetting ESTOP
     hal_bit_t estop_is_reset;     //pin for status ESTOp is resetted
     hal_bit_t estop_is_activated; //pin for status ESTOP is activated
+
+    hal_bit_t mode_manual;        //pin for requesting manual mode
+    hal_bit_t mode_is_manual;     //pin for manual mode is on
+    hal_bit_t mode_auto;          //pin for requesting auto mode
+    hal_bit_t mode_is_auto;       //pin for auto mode is on
+    hal_bit_t mode_mdi;           //pin for requesting mdi mode
+    hal_bit_t mode_is_mdi;        //pin for mdi mode is on
+
+    hal_bit_t mist_on;            //pin for starting mist
+    hal_bit_t mist_off;           //pin for stoping mist
+    hal_bit_t mist_is_on;         //pin for mist is on
+    hal_bit_t flood_on;           //pin for starting flood
+    hal_bit_t flood_off;          //pin for stoping flood
+    hal_bit_t flood_is_on;        //pin for flood is on
+    hal_bit_t lube_on;            //pin for starting lube
+    hal_bit_t lube_off;           //pin for stoping lube
+    hal_bit_t lube_is_on;         //pin for lube is on
 
 } old_halui_data; //pointer to the HAL-struct
 
@@ -606,6 +640,25 @@ int halui_hal_init(void)
     //halui.estop.is-activated         //pin for machine is On/Off
     retval = halui_export_pin_WR_bit(&(halui_data->estop_is_activated), "halui.estop.is-activated"); 
     if (retval != HAL_SUCCESS) return -1;
+    //halui.mode.is-manual             //pin for mode in manual mode
+    retval = halui_export_pin_WR_bit(&(halui_data->mode_is_manual), "halui.mode.is-manual"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.mode.is-auto               //pin for mode in auto mode
+    retval = halui_export_pin_WR_bit(&(halui_data->mode_is_auto), "halui.mode.is-auto"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.mode.is-mdi                //pin for mode in MDI mode
+    retval = halui_export_pin_WR_bit(&(halui_data->mode_is_mdi), "halui.mode.is-mdi"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.mist.is-on                 //pin signifiying mist is turned on
+    retval = halui_export_pin_WR_bit(&(halui_data->mist_is_on), "halui.mist.is-on"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.flood.is-on                 //pin signifiying flood is turned on
+    retval = halui_export_pin_WR_bit(&(halui_data->flood_is_on), "halui.flood.is-on"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.lube.is-on                 //pin signifiying lube is turned on
+    retval = halui_export_pin_WR_bit(&(halui_data->lube_is_on), "halui.lube.is-on"); 
+    if (retval != HAL_SUCCESS) return -1;
+
 
     /* STEP 3b: export the in-pin(s) */
 
@@ -620,6 +673,33 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return -1;
     //halui.estop.reset          //pin for resetting ESTOP
     retval = halui_export_pin_RD_bit(&(halui_data->estop_reset), "halui.estop.reset"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.mode.manual          //pin for activating manual mode
+    retval = halui_export_pin_RD_bit(&(halui_data->mode_manual), "halui.mode.manual"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.mode.auto            //pin for activating auto mode
+    retval = halui_export_pin_RD_bit(&(halui_data->mode_auto), "halui.mode.auto"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.mode.mdi             //pin for activating mdi mode
+    retval = halui_export_pin_RD_bit(&(halui_data->mode_mdi), "halui.mode.mdi"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.mist.on              //pin for activating mist
+    retval = halui_export_pin_RD_bit(&(halui_data->mist_on), "halui.mist.on"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.mist.off             //pin for deactivating mist
+    retval = halui_export_pin_RD_bit(&(halui_data->mist_off), "halui.mist.off"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.flood.on             //pin for activating flood
+    retval = halui_export_pin_RD_bit(&(halui_data->flood_on), "halui.flood.on"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.flood.off            //pin for deactivating flood
+    retval = halui_export_pin_RD_bit(&(halui_data->flood_off), "halui.flood.off"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.lube.on              //pin for activating lube
+    retval = halui_export_pin_RD_bit(&(halui_data->lube_on), "halui.lube.on"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.lube.off             //pin for deactivating lube
+    retval = halui_export_pin_RD_bit(&(halui_data->lube_off), "halui.lube.off"); 
     if (retval != HAL_SUCCESS) return -1;
 
     return 0;
@@ -689,29 +769,6 @@ static int sendEstopReset()
     return 0;
 }
 
-
-//currently commented out to reduce warnings
-/*
-//sendFoo messages
-//used for sending NML messages
-static int sendDebug(int level)
-{
-    EMC_SET_DEBUG debug_msg;
-
-    debug_msg.debug = level;
-    debug_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(debug_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-
-
 static int sendManual()
 {
     EMC_TASK_SET_MODE mode_msg;
@@ -759,6 +816,120 @@ static int sendMdi()
 
     return 0;
 }
+
+static int sendMistOn()
+{
+    EMC_COOLANT_MIST_ON emc_coolant_mist_on_msg;
+
+    emc_coolant_mist_on_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_coolant_mist_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendMistOff()
+{
+    EMC_COOLANT_MIST_OFF emc_coolant_mist_off_msg;
+
+    emc_coolant_mist_off_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_coolant_mist_off_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendFloodOn()
+{
+    EMC_COOLANT_FLOOD_ON emc_coolant_flood_on_msg;
+
+    emc_coolant_flood_on_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_coolant_flood_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendFloodOff()
+{
+    EMC_COOLANT_FLOOD_OFF emc_coolant_flood_off_msg;
+
+    emc_coolant_flood_off_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_coolant_flood_off_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendLubeOn()
+{
+    EMC_LUBE_ON emc_lube_on_msg;
+
+    emc_lube_on_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_lube_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendLubeOff()
+{
+    EMC_LUBE_OFF emc_lube_off_msg;
+
+    emc_lube_off_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_lube_off_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+
+//currently commented out to reduce warnings
+/*
+//sendFoo messages
+//used for sending NML messages
+static int sendDebug(int level)
+{
+    EMC_SET_DEBUG debug_msg;
+
+    debug_msg.debug = level;
+    debug_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(debug_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+
+
 
 static int sendOverrideLimits(int axis)
 {
@@ -910,95 +1081,6 @@ static int sendJogIncr(int axis, double speed, double incr)
     return 0;
 }
 
-static int sendMistOn()
-{
-    EMC_COOLANT_MIST_ON emc_coolant_mist_on_msg;
-
-    emc_coolant_mist_on_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_coolant_mist_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendMistOff()
-{
-    EMC_COOLANT_MIST_OFF emc_coolant_mist_off_msg;
-
-    emc_coolant_mist_off_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_coolant_mist_off_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendFloodOn()
-{
-    EMC_COOLANT_FLOOD_ON emc_coolant_flood_on_msg;
-
-    emc_coolant_flood_on_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_coolant_flood_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendFloodOff()
-{
-    EMC_COOLANT_FLOOD_OFF emc_coolant_flood_off_msg;
-
-    emc_coolant_flood_off_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_coolant_flood_off_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendLubeOn()
-{
-    EMC_LUBE_ON emc_lube_on_msg;
-
-    emc_lube_on_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_lube_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendLubeOff()
-{
-    EMC_LUBE_OFF emc_lube_off_msg;
-
-    emc_lube_off_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_lube_off_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
 
 static int sendSpindleForward()
 {
@@ -1500,9 +1582,10 @@ static void hal_init_pins()
 // and sends appropiate messages if so
 static void check_hal_changes()
 {
+    //check if machine_on pin has changed (the rest work exactly the same)
     if (*(halui_data->machine_on) != old_halui_data.machine_on) {
-	if (*(halui_data->machine_on) != 0)
-	    sendMachineOn();
+	if (*(halui_data->machine_on) != 0) //if transition to 1
+	    sendMachineOn();                //send MachineOn NML command
 	old_halui_data.machine_on = *(halui_data->machine_on);
     }
 
@@ -1524,6 +1607,60 @@ static void check_hal_changes()
 	old_halui_data.estop_reset = *(halui_data->estop_reset);
     }
 
+    if (*(halui_data->mode_manual) != old_halui_data.mode_manual) {
+	if (*(halui_data->mode_manual) != 0)
+	    sendManual();
+	old_halui_data.mode_manual = *(halui_data->mode_manual);
+    }
+
+    if (*(halui_data->mode_auto) != old_halui_data.mode_auto) {
+	if (*(halui_data->mode_auto) != 0)
+	    sendAuto();
+	old_halui_data.mode_auto = *(halui_data->mode_auto);
+    }
+
+    if (*(halui_data->mode_mdi) != old_halui_data.mode_mdi) {
+	if (*(halui_data->mode_mdi) != 0)
+	    sendMdi();
+	old_halui_data.mode_mdi = *(halui_data->mode_mdi);
+    }
+
+    if (*(halui_data->mist_on) != old_halui_data.mist_on) {
+	if (*(halui_data->mist_on) != 0)
+	    sendMistOn();
+	old_halui_data.mist_on = *(halui_data->mist_on);
+    }
+
+    if (*(halui_data->mist_off) != old_halui_data.mist_off) {
+	if (*(halui_data->mist_off) != 0)
+	    sendMistOff();
+	old_halui_data.mist_off = *(halui_data->mist_off);
+    }
+
+    if (*(halui_data->flood_on) != old_halui_data.flood_on) {
+	if (*(halui_data->flood_on) != 0)
+	    sendFloodOn();
+	old_halui_data.flood_on = *(halui_data->flood_on);
+    }
+
+    if (*(halui_data->flood_off) != old_halui_data.flood_off) {
+	if (*(halui_data->flood_off) != 0)
+	    sendFloodOff();
+	old_halui_data.flood_off = *(halui_data->flood_off);
+    }
+
+    if (*(halui_data->lube_on) != old_halui_data.lube_on) {
+	if (*(halui_data->lube_on) != 0)
+	    sendLubeOn();
+	old_halui_data.lube_on = *(halui_data->lube_on);
+    }
+
+    if (*(halui_data->lube_off) != old_halui_data.lube_off) {
+	if (*(halui_data->lube_off) != 0)
+	    sendLubeOff();
+	old_halui_data.lube_off = *(halui_data->lube_off);
+    }
+
 }
 
 
@@ -1543,7 +1680,30 @@ static void modify_hal_pins()
 	*(halui_data->estop_is_activated)=0;
     }
 
+    if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {
+	*(halui_data->mode_is_manual)=1;
+    } else {
+	*(halui_data->mode_is_manual)=0;
+    }
+
+    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
+	*(halui_data->mode_is_auto)=1;
+    } else {
+	*(halui_data->mode_is_auto)=0;
+    }
+
+    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
+	*(halui_data->mode_is_mdi)=1;
+    } else {
+	*(halui_data->mode_is_mdi)=0;
+    }
+
+    *(halui_data->mist_is_on)=emcStatus->io.coolant.mist;
+    *(halui_data->flood_is_on)=emcStatus->io.coolant.flood;
+    *(halui_data->lube_is_on)=emcStatus->io.lube.on;
+
 }
+
 
 
 int main(int argc, char *argv[])
