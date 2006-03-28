@@ -95,10 +95,13 @@
 
 - mist, flood, lube:
    halui.mist.on                       bit  //pin for starting mist
+   halui.mist.off                      bit  //pin for stoping mist
    halui.mist.is-on                    bit  //pin for mist is on
    halui.flood.on                      bit  //pin for starting flood
+   halui.flood.off                     bit  //pin for stoping flood
    halui.flood.is-on                   bit  //pin for flood is on
    halui.lube.on                       bit  //pin for starting lube
+   halui.lube.off                      bit  //pin for stoping lube
    halui.lube.is-on                    bit  //pin for lube is on
 
 - spindle:
@@ -159,18 +162,26 @@
 */
 
 struct halui_str {
-    hal_bit_t *machine_on;       //pin for setting machine On
-    hal_bit_t *machine_off;      //pin for setting machine Off
-    hal_bit_t *machine_is_on;    // pin for machine is On/Off
+    hal_bit_t *machine_on;         //pin for setting machine On
+    hal_bit_t *machine_off;        //pin for setting machine Off
+    hal_bit_t *machine_is_on;      //pin for machine is On/Off
 
+                                   // (check iocontrol.cc for a proper description)
+    hal_bit_t *estop_activate;     //pin for activating EMC ESTOP 
+    hal_bit_t *estop_reset;        //pin for resetting ESTOP
+    hal_bit_t *estop_is_activated; //pin for status ESTOP is activated
 
 } * halui_data; 
 
 struct local_halui_str {
-    hal_bit_t machine_on;       //pin for setting machine On
-    hal_bit_t machine_off;      //pin for setting machine Off
-    hal_bit_t machine_is_on;    // pin for machine is On/Off
+    hal_bit_t machine_on;         //pin for setting machine On
+    hal_bit_t machine_off;        //pin for setting machine Off
+    hal_bit_t machine_is_on;      //pin for machine is On/Off
 
+    hal_bit_t estop_activate;     //pin for activating EMC ESTOP 
+    hal_bit_t estop_reset;        //pin for resetting ESTOP
+    hal_bit_t estop_is_reset;     //pin for status ESTOp is resetted
+    hal_bit_t estop_is_activated; //pin for status ESTOP is activated
 
 } old_halui_data; //pointer to the HAL-struct
 
@@ -198,10 +209,11 @@ static enum {
     EMC_WAIT_DONE
 } emcWaitType = EMC_WAIT_DONE;
 
+/* clean out for now, causes warnings
 static enum {
     EMC_UPDATE_NONE = 1,
     EMC_UPDATE_AUTO
-} emcUpdateType = EMC_UPDATE_AUTO;
+} emcUpdateType = EMC_UPDATE_AUTO; */
 
 static int emcTaskNmlGet()
 {
@@ -484,50 +496,77 @@ static enum {
   to convert linear units, values are converted to mm, then to desired
   units
 */
-static double convertLinearUnits(double u)
-{
-    double in_mm;
 
-    /* convert u to mm */
-    in_mm = u / emcStatus->motion.traj.linearUnits;
-
-    /* convert u to display units */
-    switch (linearUnitConversion) {
-    case LINEAR_UNITS_MM:
-	return in_mm;
-	break;
-    case LINEAR_UNITS_INCH:
-	return in_mm * INCH_PER_MM;
-	break;
-    case LINEAR_UNITS_CM:
-	return in_mm * CM_PER_MM;
-	break;
-    case LINEAR_UNITS_AUTO:
-	switch (emcStatus->task.programUnits) {
-	case CANON_UNITS_MM:
-	    return in_mm;
-	    break;
-	case CANON_UNITS_INCHES:
-	    return in_mm * INCH_PER_MM;
-	    break;
-	case CANON_UNITS_CM:
-	    return in_mm * CM_PER_MM;
-	    break;
-	}
-	break;
-
-    case LINEAR_UNITS_CUSTOM:
-	return u;
-	break;
-    }
-
-    // If it ever gets here we have an error.
-
-    return u;
-}
+// comment out for now, not used, causes a warning
+//static double convertLinearUnits(double u)
+//{
+//    double in_mm;
+//
+//    /* convert u to mm */
+//    in_mm = u / emcStatus->motion.traj.linearUnits;
+//
+//    /* convert u to display units */
+//    switch (linearUnitConversion) {
+//    case LINEAR_UNITS_MM:
+//	return in_mm;
+//	break;
+//    case LINEAR_UNITS_INCH:
+//	return in_mm * INCH_PER_MM;
+//	break;
+//    case LINEAR_UNITS_CM:
+//	return in_mm * CM_PER_MM;
+//	break;
+//    case LINEAR_UNITS_AUTO:
+//	switch (emcStatus->task.programUnits) {
+//	case CANON_UNITS_MM:
+//	    return in_mm;
+//	    break;
+//	case CANON_UNITS_INCHES:
+//	    return in_mm * INCH_PER_MM;
+//	    break;
+//	case CANON_UNITS_CM:
+//	    return in_mm * CM_PER_MM;
+//	    break;
+//	}
+//	break;
+//
+//    case LINEAR_UNITS_CUSTOM:
+//	return u;
+//	break;
+//    }
+//
+//    // If it ever gets here we have an error.
+//
+//    return u;
+//}
 
 // polarities for axis jogging, from ini file
 static int jogPol[EMC_AXIS_MAX];
+
+
+int halui_export_pin_RD_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2]) 
+{
+    int retval;
+    retval = hal_pin_bit_new(name, HAL_RD, pin, comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    return HAL_SUCCESS;
+}
+
+int halui_export_pin_WR_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2]) 
+{
+    int retval;
+    retval = hal_pin_bit_new(name, HAL_WR, pin, comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    return HAL_SUCCESS;
+}
 
 
 /********************************************************************
@@ -540,8 +579,7 @@ static int jogPol[EMC_AXIS_MAX];
 ********************************************************************/
 int halui_hal_init(void)
 {
-    char name[HAL_NAME_LEN + 2];	//name of the pin to be registered
-    int n = 0, retval;		//n - number of the hal component (only one for iocotrol)
+    int retval;
 
     /* STEP 1: initialise the hal component */
     comp_id = hal_init("halui");
@@ -562,44 +600,27 @@ int halui_hal_init(void)
 
     /* STEP 3a: export the out-pin(s) */
 
-    //halui.stat.machine-is-on         bit  //pin for machine is On/Off
-    rtapi_snprintf(name, HAL_NAME_LEN, "halui.machine.is-on", n);
-    retval =
-	hal_pin_bit_new(name, HAL_WR, &(halui_data->machine_is_on), comp_id);
-    if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"HALUI: ERROR: halui %d pin machine-is-on export failed with err=%i\n",
-			n, retval);
-	hal_exit(comp_id);
-	return -1;
-    }
+    //halui.machine.is-on              //pin for machine is On/Off
+    retval = halui_export_pin_WR_bit(&(halui_data->machine_is_on), "halui.machine.is-on"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.estop.is-activated         //pin for machine is On/Off
+    retval = halui_export_pin_WR_bit(&(halui_data->estop_is_activated), "halui.estop.is-activated"); 
+    if (retval != HAL_SUCCESS) return -1;
 
     /* STEP 3b: export the in-pin(s) */
 
-    //halui.control.machine-on            bit  //pin for setting machine On
-    rtapi_snprintf(name, HAL_NAME_LEN, "halui.machine.on");
-    retval =
-	hal_pin_bit_new(name, HAL_RD, &(halui_data->machine_on), comp_id);
-    if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"HALUI: ERROR: halui %d pin machine_on export failed with err=%i\n",
-			n, retval);
-	hal_exit(comp_id);
-	return -1;
-    }
-
-    //halui.control.machine-off            bit  //pin for setting machine Off
-    rtapi_snprintf(name, HAL_NAME_LEN, "halui.machine.off");
-    retval =
-	hal_pin_bit_new(name, HAL_RD, &(halui_data->machine_off), comp_id);
-    if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"HALUI: ERROR: halui %d pin machine_off export failed with err=%i\n",
-			n, retval);
-	hal_exit(comp_id);
-	return -1;
-    }
-
+    //halui.machine.on           //pin for setting machine On
+    retval = halui_export_pin_RD_bit(&(halui_data->machine_on), "halui.machine.on"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.machine.off          //pin for setting machine Off
+    retval = halui_export_pin_RD_bit(&(halui_data->machine_off), "halui.machine.off"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.estop.activate       //pin for activating ESTOP
+    retval = halui_export_pin_RD_bit(&(halui_data->estop_activate), "halui.estop.activate"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.estop.reset          //pin for resetting ESTOP
+    retval = halui_export_pin_RD_bit(&(halui_data->estop_reset), "halui.estop.reset"); 
+    if (retval != HAL_SUCCESS) return -1;
 
     return 0;
 }
@@ -627,26 +648,6 @@ static int sendMachineOff()
     state_msg.state = EMC_TASK_STATE_OFF;
     state_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(state_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-//currently commented out to reduce warnings
-/*
-//sendFoo messages
-//used for sending NML messages
-static int sendDebug(int level)
-{
-    EMC_SET_DEBUG debug_msg;
-
-    debug_msg.debug = level;
-    debug_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(debug_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived(emcCommandSerialNumber);
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -687,6 +688,28 @@ static int sendEstopReset()
 
     return 0;
 }
+
+
+//currently commented out to reduce warnings
+/*
+//sendFoo messages
+//used for sending NML messages
+static int sendDebug(int level)
+{
+    EMC_SET_DEBUG debug_msg;
+
+    debug_msg.debug = level;
+    debug_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(debug_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
 
 
 static int sendManual()
@@ -1468,6 +1491,9 @@ static void hal_init_pins()
     old_halui_data.machine_on = *(halui_data->machine_on) = 0;
     old_halui_data.machine_off = *(halui_data->machine_off) = 0;
 
+    old_halui_data.estop_activate = *(halui_data->estop_activate) = 0;
+    old_halui_data.estop_reset = *(halui_data->estop_reset) = 0;
+
 }
 
 // this function looks if any of the hal pins has changed
@@ -1485,6 +1511,19 @@ static void check_hal_changes()
 	    sendMachineOff();
 	old_halui_data.machine_off = *(halui_data->machine_off);
     }
+
+    if (*(halui_data->estop_activate) != old_halui_data.estop_activate) {
+	if (*(halui_data->estop_activate) != 0)
+	    sendEstop();
+	old_halui_data.estop_activate = *(halui_data->estop_activate);
+    }
+
+    if (*(halui_data->estop_reset) != old_halui_data.estop_reset) {
+	if (*(halui_data->estop_reset) != 0)
+	    sendEstopReset();
+	old_halui_data.estop_reset = *(halui_data->estop_reset);
+    }
+
 }
 
 
@@ -1496,6 +1535,12 @@ static void modify_hal_pins()
 	*(halui_data->machine_is_on)=1;
     } else {
 	*(halui_data->machine_is_on)=0;
+    }
+
+    if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
+	*(halui_data->estop_is_activated)=1;
+    } else {
+	*(halui_data->estop_is_activated)=0;
     }
 
 }
