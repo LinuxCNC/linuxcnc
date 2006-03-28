@@ -244,12 +244,9 @@ proc changeIt {how } {
                                 set cmd [lindex $varcommands $tmpindx]
                                 set newval [expr [lindex [split \
                                     [exec $HALCMD -s show param $cmd] " "] 3]]
-                                puts "$tmpstr <-- $newval  "
-    # works to here
-    # this is ng                 lset tmpstr 2  $newval
-    #                            puts $tmpstr
-    #                            $initext delete insert "insert lineend"
-    #                            $initext insert insert $tmpstr
+                                # keep everything leading up to the var value, replace the value, and keep everything after the value
+                                regsub {(^.*=[ \t]*)[^ \t]*(.*)} $tmpstr "\\1$newval\\2" newvar
+                                puts $newvar
                             }
                         }
                     }
