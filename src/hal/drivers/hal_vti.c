@@ -25,8 +25,8 @@
 	Installation of the driver only realtime:
 
 	insmod hal_vti num_chan=4 dio="IOiooi"
-						   BNF -> dio="*nI|O|ii|io|oi|oo"
-						   where n=number of enabled I/O ports
+					BNF -> dio="*nI|O|ii|io|oi|oo"
+					where n=number of enabled I/O ports
 		- autodetects the address
 	or
 
@@ -59,11 +59,11 @@
 
 	Encoders:
 	  Parameters:
-	float	vti.<channel>.enc-scale
+	float	vti.<channel>.position-scale
 
 	  Pins:
-	s32	vti.<channel>.enc-counts
-	float	vti.<channel>.enc-position
+	s32	vti.<channel>.counts
+	float	vti.<channel>.position
 
 /todo   bit	vti.<channel>.enc-index
 /todo  	bit	vti.<channel>.enc-idx-latch
@@ -238,6 +238,8 @@ volatile struct ip *ip = NULL;
 /* other globals */
 static int comp_id;		/* component ID */
 static int outpinnum = 0, inputpinnum = 0;
+static int diocount = 0;
+static hal_s32_t enc_counts[MAX_CHANS];
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -245,7 +247,7 @@ static int outpinnum = 0, inputpinnum = 0;
 /* helper functions, to export HAL pins & co. */
 static int export_counter(int num, vti_struct * addr);
 static int export_dac(int num, vti_struct * addr);
-static int export_adc(int num, vti_struct * addr);
+// static int export_adc(int num, vti_struct * addr);
 static int export_dio_pins(int io_points);
 static int export_pin(int num, int dir, vti_struct * addr);
 static int export_input_pin(int pinnum, io_pin * pin);
@@ -270,8 +272,8 @@ static int vti_dac_write(int ch, short value);
 
 /* adc related functions */
 static int vti_adc_init(int channels);
-static int vti_adc_start(void *arg, unsigned short wAxis);
-static short vti_adc_read(void *arg, int ch);
+// static int vti_adc_start(void *arg, unsigned short wAxis);
+// static short vti_adc_read(void *arg, int ch);
 
 /* dio related functions */
 static int vti_dio_init(int nibbles);
@@ -283,7 +285,6 @@ static void vti_dacs_write(void *arg, long period);	//writes dac's to the vti
 static void vti_counter_capture(void *arg, long period);	//captures encoder counters
 static void vti_di_read(void *arg, long period);	//reads digital inputs from the vti
 static void vti_do_write(void *arg, long period);	//writes digital outputs to the vti
-static void RawDacOut(int axis, double volts);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -294,7 +295,7 @@ static void RawDacOut(int axis, double volts);
 int rtapi_app_main(void)
 {
     int retval;
-
+    
     /* test for number of channels */
     if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -331,15 +332,15 @@ int rtapi_app_main(void)
 	return retval;
     }
 
-    retval = vti_parse_dio();
-    if (retval == -1) {
+    diocount = vti_parse_dio();
+    if (diocount == -1) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: bad config info for port.\n");
 	return -1;
     }
-    export_dio_pins(retval);
+    export_dio_pins(diocount);
 
-    vti_dio_init(retval);
+    vti_dio_init(diocount / 4);
 
     /* init counter chip */
     if (vti_counter_init(num_chan) == -1) {
@@ -430,6 +431,8 @@ static int vti_parse_dio(void)
 {
     int i = 0, nibble = 0;
 
+    if (strlen(dio) == 0)
+      return 0;
     while (i < strlen(dio)) {
 	switch (dio[i]) {
 	case 'I':
@@ -482,13 +485,19 @@ static void vti_counter_capture(void *arg, long period)
 {
     vti_struct *vti;
     int i;
-
+    
     vti = arg;
     for (i = 0; i < num_chan; i++) {
 	/* capture raw counts to latches */
 	*(vti->count[i]) = vti_counter_read(i);
 	/* scale count to make floating point position */
-	*(vti->pos[i]) = *(vti->count[i]) * vti->pos_scale[i];
+	if (vti->pos_scale[i] < 0.0) {
+	  if (vti->pos_scale[i] > -EPSILON)
+	    vti->pos_scale[i] = -1.0;}
+	else {
+	  if (vti->pos_scale[i] < EPSILON)
+	    vti->pos_scale[i] = 1.0; }
+	*(vti->pos[i]) = *(vti->count[i]) / vti->pos_scale[i];
     }
     /* done */
 }
@@ -499,7 +508,7 @@ static void vti_dacs_write(void *arg, long period)
 {
     vti_struct *vti;
     float volts;
-    short ncounts, i;
+    unsigned short ncounts, i;
 
     vti = arg;
     for (i = 0; i < num_chan; i++) {
@@ -507,57 +516,19 @@ static void vti_dacs_write(void *arg, long period)
 	volts =
 	    (*(vti->dac_value[i]) - vti->dac_offset[i]) * vti->dac_gain[i];
 	/* compute the value for the DAC, the extra - in there is vti specific */
-	ncounts = (short) ((-10.0 - volts) / 20.0 * 0x1FFF);
+        ncounts = ((volts / 10) * 0x7fff) + 0x8000;
+	
 	/* write it to the card */
 	vti_dac_write(i, ncounts);
     }
 }
 
-/* vti_adcs_read() - reads one adc at a time from the board to hal
-	- calls vti_adc_read() */
-
-/* long description :
-
-	Because the conversion takes a while (first mux to the right channel ~5usecs,
-	then start the conversion, and wait for it to finish ~16-20 usecs) for all the
-	8 channels, it would be too much to start the conversion, wait for the result
-	for all the 8 axes.
-	Instead a different approach is chosen:
-	- on the beginning of the function the conversion should already be done
-	- it gets read and sent to HAL
-	- the new channel gets mux'ed
-	- and at the end of the function the new conversion is started, so that the data
-	  will be available at the next run.
-	This way 8 periods are needed to read 8 ADC's. It is possible to set the board
-	to do faster conversions (AZ bit on INTC off), but that would make it less
-	reliable (autozero takes care of temp. errors).*/
-/*! \todo vti_ADC_Improvement (if any user requests it).
-	Another improvement might be to let the user chose what channels he would like
-	for ADC (having only 2 channels might speed things up considerably).
-*/
+/* The VTI board has no ADCs. Procedure is retained only as a stub, should it be called from
+   elsewhere in the application. */
+   
 static void vti_adcs_read(void *arg, long period)
 {
-    vti_struct *vti;
-    float volts;
-    short ncounts;
-    int i;
-
-    vti = arg;
-    i = vti->adc_current_chan;
-    if ((i >= 0) && (i < num_chan)) {
-	/* we should have the conversion done for adc_num_chan */
-	ncounts = vti_adc_read(vti, i);
-	volts = 10.0 - (ncounts * 20.0 / 0x1FFF);
-	*(vti->adc_value[i]) = volts * vti->adc_gain[i] - vti->adc_offset[i];
-    }
-    /* if adc_num_chan < 0, it's the first time this routine runs
-       thus we don't have any ready data, we simply start the next conversion */
-    if (vti->adc_current_chan++ >= num_chan)
-	vti->adc_current_chan = 0;	//increase the channel, and roll back to 0 after all chans are done
-
-    /* select the current channel with the mux, and start the conversion */
-    vti_adc_start(vti, vti->adc_current_chan);
-    /* the next time this function runs, the result should be available */
+    return;
 }
 
 // helper function to extract the data out of a char and place it into HAL data
@@ -615,34 +586,43 @@ static void vti_di_read(void *arg, long period)	//reads digital inputs from the 
 {
     vti_struct *vti;
     int i;
+    char latchedVal;
 
     vti = arg;
+    if (diocount == 0) return; // No DIO enabled
     /* Get ENCDAC onboard inputs */
+    latchedVal = encoder->DIO;
     if (vti->dir_bits[0] == 0)
-	split_input(encoder->DIO, &(vti->port[0][0]), 4);
+	split_input(latchedVal, &(vti->port[0][0]), 4);
     if (vti->dir_bits[1] == 0)
-	split_input(encoder->DIO, &(vti->port[0][4]), 4);
-
+	split_input(latchedVal, &(vti->port[0][4]), 4);
+		
     /* Get Extended I/O inputs */
-    for (i = 1; i < MAX_IO_PORTS; i++) {
+   if (diocount <= 8) return; // No extended I/O enabled
+   for (i = 1; i < (diocount / 8); i++) {
+   	latchedVal = dac->DIO[i - 1];
 	if (vti->dir_bits[i * 2] == 0)
-	    split_input(dac->DIO[i - 1], &(vti->port[i][0]), 4);
+	    split_input(latchedVal, &(vti->port[i][0]), 4);
 	if (vti->dir_bits[i * 2 + 1] == 0)
-	    split_input(dac->DIO[i - 1], &(vti->port[i][4]), 4);
-    }
+	    split_input(latchedVal, &(vti->port[i][4]), 4);
+      }
 }
 
 static void vti_do_write(void *arg, long period)	//writes digital outputs to the vti
 {
     vti_struct *vti;
     int i;
+    
     vti = arg;
     /* Write ENCDAC onboard outputs */
+    if (diocount == 0) return; // No DIO
     encoder->DIO = build_output(&(vti->port[0][0]), 8);
+    if (diocount <= 8) return; // No extended I/O
+    
     /* Write Extended I/O outputs */
-    for (i = 1; i < MAX_IO_PORTS; i++) {
-	dac->DIO[i - 1] = build_output(&(vti->port[i][0]), 8);
-    }
+     for (i = 1; i < diocount / 8; i++) {
+	dac->DIO[i - 1] = build_output(&(vti->port[i][0]), 8); 
+      } 
 
 }
 
@@ -682,17 +662,6 @@ static int vti_counter_init(int counters)
     return 0;
 }
 
-static int vtiDacwrite(int axis, double volts)
-{
-    if ((axis > MAX_CHANS) || (axis < 0)) {
-	return -1;
-    }
-    dac->mode;			// Set DACs to individual update mode
-    RawDacOut(axis, volts);
-    return 0;
-}
-
-
 /*
   vti_dac_init() - Initializes the dac channel
 
@@ -701,6 +670,8 @@ static int vtiDacwrite(int axis, double volts)
 static int vti_dac_init(int channels)
 {
     int retval, i;
+    
+    encoder->DAC = DAC_IND_MODE;  // Enable DACs for output indpendent of watchdog
     for (i = 0; i < channels; i++) {
 	retval = export_dac(i, vti_driver);
 	if (retval != 0) {
@@ -713,30 +684,16 @@ static int vti_dac_init(int channels)
 	*(vti_driver->dac_value[i]) = 0;
 	vti_driver->dac_offset[i] = 0.0;
 	vti_driver->dac_gain[i] = 1.0;
-	vtiDacwrite(i, 0.0);
+	vti_dac_write(i, DAC_ZERO_VOLTS);
     }
     return 0;
 }
 
-
 /*  vti_adc_init() - Initializes the adc channel */
+/*  VTI card has no ADCs.                        */
+
 static int vti_adc_init(int channels)
 {
-    int i, retval=0;
-    for (i = 0; i < channels; i++) {
-	retval = export_adc(i, vti_driver);
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"VTI: ERROR: adc %d var export failed\n", i + 1);
-	    hal_exit(comp_id);
-	    return -1;
-	}
-	/* init counter */
-	*(vti_driver->adc_value[i]) = 0;
-	vti_driver->adc_offset[i] = 0.0;
-	vti_driver->adc_gain[i] = 1.0;
-	vti_driver->adc_current_chan = -1;	/* notify that no conversion has been started yet */
-    }
     return 0;
 }
 
@@ -744,8 +701,10 @@ static int vti_dio_init(int nibbles)
 {
     unsigned int mask;
     int i;
+    
     /* we will select the directions of each port */
     /* First initialize the 8 on board I/O points */
+    if (diocount == 0) return 0; // No DIO
     encoder->DIO = 0;		// Turn all inputs / outputs off
     mask = encoder->Interrupt;
     mask &= 0xfffffcff;		// Mask off direction bits
@@ -755,19 +714,20 @@ static int vti_dio_init(int nibbles)
 	mask |= 0x00000200;	// Set mask for bits 4-7
     encoder->Interrupt = mask;
     /* Now initialize all extended I/O */
-    for (i = 0; i < 0x10; i++) {
+    if (diocount <= 8) return 0; // No extended I/O
+    for (i = 0; i < (diocount - 8) / 8; i++) {
 	dac->DIO[i] = 0;	// Turn all extended I/O off
     }
 
     mask = 0;
-    for (i = 0; i < 16; i++) {	// Set direction for extended I/O points 0..63
-	if (vti_driver->dir_bits[i + 2] == 1)
+    for (i = 0; i < 8; i++) {	// Set direction for extended I/O points 0..63
+	if (vti_driver->dir_bits[(i * 2) + 2] == 1)
 	    mask |= (1 << i);
     }
     dac->config0 = mask;
     mask = 0;
-    for (i = 0; i < 16; i++) {	// Set direction for extended I/O points 64..127
-	if (vti_driver->dir_bits[i + 18] == 1)
+    for (i = 0; i < 8; i++) {	// Set direction for extended I/O points 64..127
+	if (vti_driver->dir_bits[(i * 2) + 18] == 1)
 	    mask |= (1 << i);
     }
     dac->config1 = mask;
@@ -787,61 +747,69 @@ static int vti_dio_init(int nibbles)
 */
 static long vti_counter_read(int axis)
 {
-    int status3 = encoder->Status;
-    int status7 = 0;
-    char overflow;
-    char direction;
+    unsigned int status;
+    unsigned int count;
     Longword EncData;
+    static long int lastCount;
+//    static unsigned short lastdac;
+    
     if ((axis > MAX_CHANS) || (axis < 0)) {
 	return 0x80000000;	// Return encoder error value
-    }
-    overflow = (status7 << 4) | (status3 & 0x0f);
-    direction = (status7 & 0x0f) | ((status3 & 0x0f) >> 4);
-    EncData.Long = (long int)vti_driver->count[axis];
-    if (status3 != encoder->Status) {
-	if ((overflow >> axis) & 0x01) {
-	    if ((direction >> axis) & 0x01) {
-		EncData.Word[1] += 1;
-	    } else {
-		EncData.Word[1] -= 1;
-	    }
-	}
-    }
-    if (axis < 4)
-	EncData.Word[0] = encoder->Counter[axis];
-    else
-//	EncData.Word[0] = ip->Counter[axis-4]  - I don't understand the address space layout for the IP module
-	;
+      }
+    lastCount = enc_counts[axis];
+    status = encoder->Status;       // latch status from vti board
+    count = encoder->Counter[axis]; // latch count from vti board
+    
+    EncData.Long = (long int)enc_counts[axis];
+    if (status & (1 << axis)) {
+      if (status & (1 << (axis + 4))) {
+	EncData.Word[1] += 1;  
+        }
+      else {
+	EncData.Word[1] -= 1;  
+        }
+      }
+    
+    
+    EncData.Word[0] = count;
+//    Filter out spurious roll overs / roll unders    
+    if ((EncData.Long - lastCount) > 0x7fff) 
+      EncData.Word[1] -= 1;
+    else 
+      if ((lastCount - EncData.Long) > 0x7fff)
+        EncData.Word[1] += 1;
+    enc_counts[axis] = EncData.Long;
+	
     return EncData.Long;
 }
 
 /*
   vti_dac_write() - writes a dac channel
-
-  works the same for both cards (vti & STG2)
 */
 static int vti_dac_write(int axis, short value)
 {
+    short junk;
     /* write the DAC */
     if ((axis > MAX_CHANS) || (axis < 0)) {
 	return -1;
-    }
+      }
 
-    dac->mode;
-    dac->dac[axis] = value;
-    return 0;
+    junk = dac->mode;         // Read from mode to trigger update dac immediately
+    dac->dac[axis] = value;   // Write dac value
+    
+     return 0;
 }
 
-int vti_adc_start(void *arg, unsigned short wAxis)
+/* int vti_adc_start(void *arg, unsigned short wAxis)
 {
     return 0;			// VTI card has do ADCs
-}
+} */
 
-static short vti_adc_read(void *arg, int axis)
+/* static short vti_adc_read(void *arg, int axis)
 {
 
     return 0;			// VTI card has no ADCs
-}
+} */
 
 /***********************************************************************
 *                       BOARD INIT FUNCTIONS                           *
@@ -872,6 +840,12 @@ static int vti_init_card()
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Encoders mapped to : %x2\n",
 	(int) encoder);
+    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: DACs mapped to : %x2\n",
+	(int) dac);
+    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Timers mapped to : %x2\n",
+	(int) timer);
+    rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Industry pack mapped to : %x2\n",
+	(int) ip);
     encoder->Status = 0;
     encoder->Reset = 0;
     // all ok
@@ -964,39 +938,10 @@ static int export_dac(int num, vti_struct * addr)
     return 0;
 }
 
-static int export_adc(int num, vti_struct * addr)
+/* static int export_adc(int num, vti_struct * addr)
 {
-    int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
-    /* This function exports a lot of stuff, which results in a lot of
-       logging if msg_level is at INFO or ALL. So we save the current value
-       of msg_level and restore it later.  If you actually need to log this
-       function's actions, change the second line below */
-    msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
-    /* export pin for voltage received by the board() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.%d.adc-value", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &addr->adc_value[num], comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    /* export parameter for offset */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.%d.adc-offset", num);
-    retval =
-	hal_param_float_new(buf, HAL_WR, &addr->adc_offset[num], comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    /* export parameter for gain */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.%d.adc-gain", num);
-    retval = hal_param_float_new(buf, HAL_WR, &addr->adc_gain[num], comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    /* restore saved message level */
-    rtapi_set_msg_level(msg);
-    return 0;
-}
+    return 0;  // No ADCs to export
+} */
 
 static int export_dio_pins(int io_points)
 {
@@ -1005,6 +950,7 @@ static int export_dio_pins(int io_points)
        logging if msg_level is at INFO or ALL. So we save the current value
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
+    if (io_points == 0) return 0;
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     for (i = 0; i < io_points; i++) {
@@ -1061,18 +1007,4 @@ static int export_output_pin(int pinnum, io_pin * pin)
     *(pin->data) = 0;
     pin->io.invert = 0;
     return retval;
-}
-static void RawDacOut(int axis, double volts)
-{
-    unsigned short rawVolts;
-    /* convert volts to unsigned hex
-       -10V = 0x0000
-       0V = 0x0800
-       10V = 0x0fff */
-    if (volts > 10)
-	volts = 10;
-    if (volts < -10)
-	volts = -10;
-    rawVolts = ((volts / 10) * 0x07ff) + 0x800;	// convert to hex
-    dac->dac[axis] = rawVolts;
 }

@@ -57,6 +57,13 @@
 #define MAX_IO_PORTS 17
 #define PINS_PER_PORT 8
 
+#define DAC_DISABLE 0x00a5
+#define DAC_IND_MODE 0x005a
+#define DAC_WATCHDOG_MODE 0x000f
+#define DAC_ZERO_VOLTS 0x8000
+
+#define EPSILON 1e-20
+
 /* Structures used by the PCI card */
 struct encoder {
     u16 Counter[4];
@@ -78,14 +85,14 @@ struct timer {
     };
 
 struct dac {
-    u8 reserved[0x13f]; // dummy space
+    u8 reserved1[0x13f]; // dummy space
     u16 dac[4];
     u16 dac_adj[4];
     u16 mode;
     u16 update;
     u16 reset;
     u8 dummy[0x2a];	// dummy space
-    u16 DIO[0x10];	// Digital IO channels
+    u8 DIO[0x10];	// Digital IO channels
     u16 config0;	// Direction configs for channels 00-63
     u16 config1;	// Direction configs for channels 64-127
     u16 status;
