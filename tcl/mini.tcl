@@ -34,13 +34,29 @@ exec $EMC2_EMCSH "$0" "$@"
 
 set tkemc 1
 
-if ([info exists env(EMC2_TCL_DIR)]) {
-    set emc2tcldir $env(EMC2_TCL_DIR)
+#first define some default directories
+set TCLBIN tcl/bin
+set TCLSCRIPTS tcl/scripts
+set TCLDIR tcl
+set HELPDIR ../../docs/help
+
+if {[info exists env(EMC2_TCL_DIR)]} {
+    set TCLBIN $env(EMC2_TCL_DIR)
+    set TCLSCRIPTS $env(EMC2_TCL_DIR)
+    set TCLBIN $TCLBIN/bin
+    set TCLSCRIPTS $TCLSCRIPTS/scripts
+    set TCLDIR $env(EMC2_TCL_DIR)
 }
 
 if {[info exists env(EMC2_HELP_DIR)]} {
     set HELPDIR $env(EMC2_HELP_DIR)
 }
+
+
+if ([info exists env(EMC2_TCL_DIR)]) {
+    set emc2tcldir $env(EMC2_TCL_DIR)
+}
+
 
 package require msgcat
 if ([info exists env(LANG)]) {
@@ -989,8 +1005,11 @@ $settingsmenu add radiobutton -label [msgcat::mc "Machine Position"] \
 $settingsmenu add radiobutton -label [msgcat::mc "Relative Position"] \
     -variable  coords -value relative
 $settingsmenu add separator
-$settingsmenu add command -label [msgcat::mc "Set Backlash"] \
-    -command {popupCalibration}
+$settingsmenu add command -label [msgcat::mc "Calibration..."] \
+    -command "exec $TCLBIN/emccalib.tcl -- -ini $EMC_INIFILE &"
+$settingsmenu add command -label [msgcat::mc "HAL Config"] \
+    -command "exec $TCLBIN/halconfig.tcl -- -ini $EMC_INIFILE &"
+
 
 # info menu
 $infomenu add command -label [msgcat::mc "Program File"] \
@@ -1230,7 +1249,7 @@ proc toggleView {} {
 puts [msgcat::mc "toggleView's not doin nothin yet"]
 }
 
-# popin control rutines
+# popin control routines
 # This is the basic traverse keypress for changing popins.
 bind . <Alt-KeyPress-space> {popInToggle}
 bind . <ButtonPress-3> {popInToggle}
@@ -1272,371 +1291,6 @@ proc popIn {which} {
     }
 }
 
-
-# ----------RIGHT - TOOL SETUP----------
-
-proc popinTools {} {
-    global popinframe tool tooltext toolframe toolnum
-    set tool [frame $popinframe.tools ]
-    label $tool.l1 -justify center -text [msgcat::mc "TOOL SETUP \n Click or tab to edit.  \
-    Press enter to return to keyboard machine control."]
-    # put the tool file into an invisible widget
-    set tooltext [text $tool.vartext]
-    set toolframe [frame $tool.frame ]
-    # set selt [label $toolframe.selt -text "  SELECT  " ]
-    set poc [label $toolframe.poc -text [msgcat::mc "  TOOL NUMBER  "] ]
-    set len [label $toolframe.len -text [msgcat::mc "  LENGTH  "] ]
-    set diam [label $toolframe.diam -text [msgcat::mc "  DIAMETER  "] ]
-    set com [label $toolframe.com -text [msgcat::mc "  COMMENT  "] ]
-    grid $poc $len $diam $com -sticky ew
-    set toolnum 1
-    loadToolText
-    setToolDisplay
-    pack $tool  -fill both -expand yes
-}
-
-proc loadToolText {} {
-    global tooltext toolfilename
-    set toolfilename [emc_ini "TOOL_TABLE" "EMCIO"]
-    $tooltext config -state normal
-    $tooltext delete 1.0 end
-    if { [catch {open $toolfilename} programin] } {
-        return
-    } else {
-        $tooltext insert end [read $programin]
-        catch {close $programin}
-    }
-}
-
-proc setToolDisplay { } {
-    global tool tooltext toolframe toolfilename tarray
-    catch {unset tarray}
-    scan [$tooltext index end] %d nl
-    for {set i 2} {$i < $nl} {incr i} {
-        set thisline [$tooltext get $i.0 $i.end ]
-        set nel [ llength $thisline ]
-        if {$thisline != ""} {
-            set tarray(${i}0) [lindex $thisline 0 ]
-            set tarray(${i}2) [lindex $thisline 2 ]
-            set tarray(${i}3) [lindex $thisline 3 ]
-            set tarray(${i}4)  ""
-            for {set in 4} {$in < $nel} {incr in} {
-                lappend tarray(${i}4) [lindex $thisline $in]
-            }
-            if { [winfo exists $toolframe.l1$i ]  == 0 }  {
-                label $toolframe.l1$i -text [set tarray(${i}0) ]
-                entry $toolframe.l2$i -textvariable tarray(${i}2) -relief flat -bg white -width 10
-                bind $toolframe.l2$i <KeyPress-Return> {updateToolFile}
-                entry $toolframe.l3$i -textvariable tarray(${i}3) -relief flat -bg white -width 10
-                bind $toolframe.l3$i <KeyPress-Return> {updateToolFile}
-                entry $toolframe.l4$i -textvariable tarray(${i}4) -relief flat -bg white -width 10
-                bind $toolframe.l4$i <KeyPress-Return> {updateToolFile}
-                grid $toolframe.l1$i $toolframe.l2$i $toolframe.l3$i $toolframe.l4$i  -sticky ew
-            }
-        }
-    }
-    grid $tool.l1 -padx 12 -pady 12 -sticky ew
-    grid $toolframe -sticky ew
-    setToolButtons
-}
-
-proc setToolButtons { } {
-    global toolframe
-    set tadd [button $toolframe.add -text [msgcat::mc "Add Extra Tool"] -command {addTool} ]
-    set trem [button $toolframe.rem -text [msgcat::mc "Remove Last Tool"] -command {remTool} ]
-    grid configure $tadd $trem -columnspan 2 -sticky nsew -pady 5
-}
-
-proc addTool {} {
-    global toolframe tarray popinframe
-    set tempnum [array size tarray]
-    set templine [expr $tempnum / 4]
-    set toolnumber [expr $templine + 1]
-    set toolline [expr $templine + 2]
-    set tarray(${toolline}0) $toolnumber
-    set tarray(${toolline}2) 0.0
-    set tarray(${toolline}3) 0.0
-    set tarray(${toolline}4) empty
-    updateToolFile
-    destroy $popinframe.tools
-    popinTools
-}
-
-proc remTool {} {
-    global tarray tooltext popinframe toolfilename programstatusstring
-    set tempnum [array size tarray]
-    set templine [expr $tempnum  / 4 + 1 ]
-    $tooltext delete $templine.0 [expr $templine +1].0
-    saveFile $tooltext $toolfilename
-    if {$programstatusstring == "idle"} {
-        emc_load_tool_table $toolfilename
-    } else {
-        mText [msgcat::mc "Can't update the tool file while machine is in auto and %s." $programstatusstring]
-    }
-    destroy $popinframe.tools
-    focus -force "."
-    popinTools
-}
-
-proc examineVal {widgetname value} {
-    global $widgetname
-    set temp 0
-    catch [set temp [expr $value + 0.0 ] ]
-    if {$temp == 0} {
-        mText [msgcat::mc "This is not a good number."]
-#        focus -force $widgetname
-    }
-}
-
-proc updateToolFile {} {
-    global top tooltext toolfilename tarray programstatusstring
-    $tooltext config -state normal
-    $tooltext delete 2.0 end
-    set tempnum [array size tarray]
-    set templines [expr $tempnum  / 4 ]
-    set toollines [expr $templines + 1]
-    for {set i 2} {$i <= $toollines} {incr i} {
-        $tooltext mark set insert end
-        $tooltext insert insert "
-        " ; # this is a newline to insert in text.  Do not remove
-        set thistoolline [ join "$tarray(${i}0) $tarray(${i}0) $tarray(${i}2) $tarray(${i}3) $tarray(${i}4)" "   " ]
-        $tooltext mark set insert "$i.0 "
-        $tooltext insert insert $thistoolline
-    }
-    saveFile $tooltext $toolfilename
-    if {$programstatusstring == "idle"} {
-        emc_load_tool_table $toolfilename
-    } else {
-        mText [msgcat::mc "Can't update the tool file while machine is in auto and %s." $programstatusstring]
-    }
-    focus -force "."
-}
-
-# -----end of tool setup
-
-
-# ----------RIGHT - OFFSETS SYSTEM SETUP----------
-
-set paramfilename [emc_ini "PARAMETER_FILE" "RS274NGC"]
-if { [string length $paramfilename] == 0} {
-    set paramfilename "emc.var"
-}
-set numaxis [emc_ini "AXES" "TRAJ"]
-set nameaxis [emc_ini "COORDINATES" "TRAJ"]
-# put the parm file into an invisible widget
-set vartext [text $top.vartext]
-$vartext config -state normal
-$vartext delete 1.0 end
-if { [catch {open $paramfilename} programin] } {
-    return
-} else {
-    $vartext insert end [read $programin]
-    catch {close $programin}
-}
-
-# store touchoffradius in var 5218
-set touchoffradius 0.0000
-# store touchofflength in var 5219
-set touchofflength 0.0000
-set touchoffdirection "+"
-
-proc popinOffsets { } {
-    global coord popinframe numaxis paramfilename nameaxis vartext coordsys
-    global num0 num1 num2 num3 num4 num5 val0 val1 val2 val3 val4 val5
-    global oval0 oval1 oval2 oval3 oval4 oval5
-    global zerocoordnumber touchoffradius touchofflength touchoffdirection
-    set coord [frame $popinframe.offsets ]
-    label $coord.l1 -text [msgcat::mc "COORDINATE SYSTEM SETUP \n\n \
-        Click value to edit with keyboard.  Press enter to return to keyboard control of machine. \n "]
-    # Build the coordinates radio buttons.
-    set sel [frame $coord.selectors -borderwidth 2 -relief groove]
-    radiobutton $sel.r540 -text G54 -variable coordsys -value 5221 -anchor w \
-        -command {findVarNumbers} -takefocus 0
-    radiobutton $sel.r550 -text G55 -variable coordsys -value 5241 -anchor w \
-        -command {findVarNumbers} -takefocus 0
-    radiobutton $sel.r560 -text G56 -variable coordsys -value 5261 -anchor w \
-        -command {findVarNumbers} -takefocus 0
-    radiobutton $sel.r570 -text G57 -variable coordsys -value 5281 -anchor w \
-        -command {findVarNumbers} -takefocus 0
-    radiobutton $sel.r580 -text G58 -variable coordsys -value 5301 -anchor w \
-        -command {findVarNumbers} -takefocus 0
-    radiobutton $sel.r590 -text G59 -variable coordsys -value 5321 -anchor w \
-        -command {findVarNumbers} -takefocus 0
-    radiobutton $sel.r591 -text G59.1 -variable coordsys -value 5341 -anchor w \
-        -command {findVarNumbers} -takefocus 0
-    radiobutton $sel.r592 -text G59.2 -variable coordsys -value 5361 -anchor w \
-        -command {findVarNumbers} -takefocus 0
-    radiobutton $sel.r593 -text G59.3 -variable coordsys -value 5381 -anchor w \
-        -command {findVarNumbers} -takefocus 0
-    pack $sel.r540 $sel.r550 $sel.r560 $sel.r570 $sel.r580 \
-        $sel.r590 $sel.r591 $sel.r592 $sel.r593 -side top -fill x
-
-    # Build the variable numbers and value entry widgets.
-    set caxis [frame $coord.col]
-    label $caxis.name -text [msgcat::mc "Axis "]
-    label $caxis.varval -text [msgcat::mc "Value "]
-    grid $caxis.name $caxis.varval -sticky news
-    for {set i 0} {$i < $numaxis} {incr i} {
-        label  $caxis.l$i -text "[lindex $nameaxis $i ]   "  -anchor e
-        entry $caxis.e$i -textvariable val$i -fg darkred -bg white -relief flat -width 10 -takefocus 1
-        button $caxis.b$i -text [msgcat::mc "Teach"] -command "getLocation $i" -takefocus 0
-        grid $caxis.l$i $caxis.e$i $caxis.b$i -sticky news
-        bind $caxis.e$i <KeyPress-Return> {setVarValues ; loadVarFile }
-    }
-    # Build the control button widgets.
-    set cbuttons [frame $coord.buttons]
-    button $cbuttons.b0 -textvariable "zerocoordnumber" -width 16 \
-        -command {getZero} -takefocus 0
-    button $cbuttons.b4 -text [msgcat::mc "Write And Load File "] -width 16 \
-        -command {setVarValues ; loadVarFile} -takefocus 0
-    label $cbuttons.l0 -text [msgcat::mc "Offset By Radius"]
-    label $cbuttons.l1 -text [msgcat::mc "Offset By Length"]
-    entry $cbuttons.e0 -textvariable touchoffradius -relief flat -bg white
-    entry $cbuttons.e1 -textvariable touchofflength -relief flat -bg white
-    bind $cbuttons.e0 <KeyPress-Return> {setTouchOff ; focus -force ".top"}
-    bind $cbuttons.e1 <KeyPress-Return> {setTouchOff ; focus -force ".top"}
-    radiobutton $cbuttons.r0 -text Subtract -variable touchoffdirection -value "-" -anchor w \
-        -takefocus 0
-    radiobutton $cbuttons.r1 -text Add -variable touchoffdirection -value "+" -anchor w \
-        -takefocus 0
-    grid $cbuttons.l0 $cbuttons.e0  -sticky nsew
-    grid $cbuttons.l1 $cbuttons.e1  -sticky nsew
-    grid $cbuttons.l1 $cbuttons.e1  -sticky nsew
-    grid $cbuttons.r0 $cbuttons.r1  -sticky nsew
-    grid $cbuttons.b0 $cbuttons.b4  -sticky nsew
-
-    # grid the coord widgets
-    grid configure $coord.l1 -row 0 -column 0 -columnspan 2 -pady 6
-    grid configure $sel -row 2 -column 0 -padx 10 -pady 10 -rowspan 2
-    grid configure $caxis -row 2 -column 1
-    grid configure $cbuttons -row 3 -column 1 -sticky ew
-
-    pack $coord -side top -padx 2 -pady 2 -fill both -expand yes
-    findVarNumbers
-    isTouchOff
-}
-
-proc findVarSystem {} {
-    global coordsys zerocoordnumber
-    switch -- $coordsys {
-        5221 {set zerocoordnumber  [msgcat::mc "Zero All G54"] }
-        5241 {set  zerocoordnumber [msgcat::mc "Zero All G55"] }
-        5261 {set  zerocoordnumber [msgcat::mc "Zero All G56"] }
-        5281 {set  zerocoordnumber [msgcat::mc "Zero All G57"] }
-        5301 {set  zerocoordnumber [msgcat::mc "Zero All G58"] }
-        5321 {set  zerocoordnumber [msgcat::mc "Zero All G59"] }
-        5341 {set  zerocoordnumber [msgcat::mc "Zero All G59.1"] }
-        5361 {set  zerocoordnumber [msgcat::mc "Zero All G59.2"] }
-        5381 {set  zerocoordnumber [msgcat::mc "Zero All G59.3"] }
-        default {set  zerocoordnumber [msgcat::mc "Zero All ????"] }
-    }
-}
-
-set touchoffradiusvar 5218
-set touchofflengthvar 5219
-
-proc isTouchOff {} {
-    global vartext touchoffradiusvar touchofflengthvar paramfilename
-    global touchoffradius touchofflength
-    foreach var "touchoffradius  touchofflength" {
-        set locate [$vartext search [set ${var}var ] 1.0 ]
-        if {$locate != ""} {
-            set locate [expr int($locate)]
-            set valtemp [$vartext get $locate.4 "$locate.end"]
-            set $var [string trim $valtemp]
-        } else {
-            set varnumber 0
-            set indexer 1
-            while {$varnumber < [set ${var}var ] } {
-                set varnumber [$vartext get $indexer.0 $indexer.4]
-                incr indexer
-            }
-            $vartext mark set insert [expr $indexer -1].0
-            $vartext insert insert "[set ${var}var ] [set $var] \n"
-        }
-    }
-    saveFile $vartext $paramfilename
-}
-
-proc setTouchOff {} {
-    global vartext paramfilename touchoffradiusvar touchofflengthvar
-    global touchoffradius touchofflength
-    # set radius
-    set locate [$vartext search $touchoffradiusvar 1.0 ]
-    $vartext mark set insert $locate
-    set locate [expr int($locate)]
-    $vartext delete $locate.0 "$locate.end"
-    $vartext insert insert "$touchoffradiusvar     $touchoffradius"
-    #set length
-    set locate [$vartext search $touchofflengthvar 1.0 ]
-    $vartext mark set insert $locate
-    set locate [expr int($locate)]
-    $vartext delete $locate.0 "$locate.end"
-    $vartext insert insert "$touchofflengthvar     $touchofflength"
-    saveFile $vartext $paramfilename
-    loadVarFile
-}
-
-set coordsys 5241
-proc findVarNumbers {} {
-    global coordsys numaxis num0 num1 num2 num3 num4 num5
-    # set the initial coordinate system and find values.
-    set numaxis [emc_ini "AXES" "TRAJ"]
-    set nameaxis [emc_ini "COORDINATES" "TRAJ"]
-    for {set i 0} {$i < $numaxis} {incr i} {
-        set num$i [expr $coordsys +$i]
-        set val$i 0.000000
-    }
-    findVarValues
-    findVarSystem
-}
-
-proc findVarValues {}  {
-    global vartext
-    global numaxis val0 val1 val2 val3 val4 val5
-    global num0 num1 num2 num3 num4 num5
-    global numaxis oval0 oval1 oval2 oval3 oval4 oval5
-    for {set i 0} {$i < $numaxis} {incr i} {
-        set val$i 0.000000
-    }
-    set locate "1.0"
-    for {set i 0} {$i < $numaxis} {incr i}  {
-        set oval$i [set val$i]
-        set locate [$vartext search [set num$i] 1.0 ]
-        set locate [expr int($locate)]
-        set valtemp [$vartext get $locate.4 "$locate.end"]
-        set val$i [string trim $valtemp]
-    }
-}
-
-proc getZero {} {
-    global numaxis val0 val1 val2 val3 val4 val5
-    for {set i 0} {$i < $numaxis} {incr i} {
-        set val$i 0.000000
-    }
-}
-
-proc getLocation {axnum} {
-    global numaxis val0 val1 val2 val3 val4 val5
-    global zerocoordnumber touchoffradius touchofflength touchoffdirection
-    switch -- $axnum {
-        "0" -
-        "1" {
-            set val$axnum [expr [emc_abs_act_pos $axnum] $touchoffdirection $touchoffradius ]
-        }
-        "2" {
-            set val$axnum [expr [emc_abs_act_pos $axnum] $touchoffdirection $touchofflength ]
-        }
-        all {
-            for {set i 0} {$i < $numaxis} {incr i} {
-            set val$i [emc_abs_act_pos $i]
-            }
-        }
-        "default" {
-            set val$axnum [emc_abs_act_pos $axnum]
-        }
-    }
-}
 
 # Be a bit careful with this with steppers it homes all axi at the same time.
 # Will have to add the var file read here rather than in popin
@@ -1708,1640 +1362,6 @@ proc loadVarFile {} {
 }
 
 # -----end of coord -----
-
-# ----------RIGHT - BACKPLOT----------
-
-# These set the axis directions.  +1 one plots like graph
-# paper with positive up and to the right.
-# to reverse an axis change its value to -1 (don't put other numbers here)
-set xdir 1
-set ydir -1
-set zdir -1
-set adir 1
-set bdir 1
-set cdir 1
-
-# These set top left and bottom right of the canvas
-global topx topy bot x boty
-set topx -1000
-set botx  1000
-set topy -500
-set boty 500
-
-# This variable sets the default size of the plot and can be thought of as number of
-# pixels per inch of machine motion.  The default (40) will give about .55 screen
-# inch per inch moved.
-
-set size 40
-
-# Set the colours for different modes here
-set plotcolour {limegreen black red blue yellow3 white}
-
-# Evaluate the number of clock clicks per second
-# Value dependent on machine !!
-set t1 [clock clicks]
-after 10000
-set t2 [clock clicks]
-set ticks [expr ($t2-$t1)/10000]
-
-# procedure to show window .
-proc popinPlot {} {
-    global  plot popinframe plotSetup plotsetuptext
-    set plot [frame $popinframe.plot]
-    pack $plot -fill both -expand yes
-
-  # build widget $plot.view
-  frame $plot.view  \
-
-  # build widget $plot.view.3dview
-  canvas $plot.view.3dview \
-    -background linen \
-    -height {90} \
-    -highlightbackground {#ffffff} \
-    -highlightcolor {#000000} \
-    -relief {raised} \
-    -width {80}
-
-  # build widget $plot.view.redraw
-  button $plot.view.redraw \
-    -command redraw \
-    -padx {4} \
-    -pady {3} \
-    -text {Refresh}
-
-  # build widget $plot.view.reset
-  button $plot.view.reset \
-    -command erasePlot \
-    -padx {4} \
-    -pady {3} \
-    -text {Reset}
-
-  #build frame for x rotate
-  set frx [frame $plot.view.frx -relief raised -borderwidth 2]
-  label $frx.l0 -text "rot-x" -width 4 -anchor w
-  label $frx.l1 -textvariable x_rotate
-  scale $frx.scale_x -command 3Dview -variable {x_rotate}  \
-    -from {-180.0} -length {80} -orient {horizontal} -relief flat  \
-    -to {180.0} -sliderlength 10 -width 12 -showvalue 0
-  grid $frx.l0 $frx.l1 -sticky ew
-  grid configure $frx.scale_x -columnspan 2 -sticky ew
-
-  #build frame for y rotate
-  set fry [frame $plot.view.fry -relief raised -borderwidth 2]
-  label $fry.l0 -text "rot-y" -width 4  -anchor w
-  label $fry.l1 -textvariable y_rotate
-  scale $fry.scale_y -command 3Dview -variable {y_rotate}  \
-    -from {-180.0} -length {80} -orient {horizontal} -relief flat  \
-    -to {180.0} -sliderlength 10 -width 12 -showvalue 0
-  grid $fry.l0 $fry.l1 -sticky ew
-  grid configure $fry.scale_y -columnspan 2 -sticky ew
-
-  #build frame for z rotate
-  set frz [frame $plot.view.frz -relief raised -borderwidth 2]
-  label $frz.l0 -text "rot-z" -width 4  -anchor w
-  label $frz.l1 -textvariable z_rotate
-  scale $frz.scale_z -command 3Dview -variable {z_rotate}  \
-    -from {-180.0} -length {80} -orient {horizontal} -relief flat  \
-    -to {180.0} -sliderlength 10 -width 12 -showvalue 0
-  grid $frz.l0 $frz.l1 -sticky ew
-  grid configure $frz.scale_z -columnspan 2 -sticky ew
-
-  #build frame for zoom
-  set frzm [frame $plot.view.frzm -relief raised -borderwidth 2]
-  label $frzm.l0 -text zoom -width 4  -anchor w
-  label $frzm.l1 -textvariable zoom_level
-  scale $frzm.scale_zoom -command 3Dview -variable {zoom_level}  \
-    -from {-10.0} -length {80} -orient {horizontal} -relief flat  \
-    -to {10.0} -sliderlength 10 -width 12 -showvalue 0
-  grid $frzm.l0 $frzm.l1 -sticky ew
-  grid configure $frzm.scale_zoom -columnspan 2 -sticky ew
-
-  # build widget $plot.menu
-    frame $plot.menu
-
-  # build widget $plot.menu.viewxy - stock view
-  button $plot.menu.viewxy \
-    -command { \
-      set x_rotate -90 ; \
-      set y_rotate 0 ; \
-      set z_rotate 0 ; \
-      3Dview ; redraw } \
-    -padx {4} \
-    -width 10 \
-    -text {X - Y}
-
-  # build widget $plot.menu.viewxz - stock view
-  button $plot.menu.viewxz \
-    -command { \
-      set x_rotate 0 ; \
-      set y_rotate 0 ; \
-      set z_rotate 0 ; \
-      3Dview ; redraw } \
-    -padx {4} \
-    -width 10 \
-    -text {X - Z}
-
-  # build widget $plot.menu.viewyz - stock view
-  button $plot.menu.viewyz \
-    -command { \
-      set x_rotate 0 ; \
-      set y_rotate 0 ; \
-      set z_rotate 90 ; \
-      3Dview ; redraw } \
-    -padx {4} \
-    -width 10 \
-    -text {Y - Z}
-
-  # build widget $plot.menu.view3d - stock view
-  button $plot.menu.view3d \
-    -command { \
-      set x_rotate -27 ; \
-      set y_rotate 17 ; \
-      set z_rotate 30 ; \
-      3Dview ; redraw } \
-    -padx {4} \
-    -width 10 \
-    -text {3D}
-
-  # build widget $plot.menu.setup
-  set plotsetuptext [msgcat::mc "TEST"]
-  button $plot.menu.setup \
-    -command { togglePlotSetup} \
-    -padx {4} \
-    -width 10 \
-    -textvariable plotsetuptext
-
-  # build widget $plot.3dplot
-  frame $plot.3dplot \
-    -borderwidth {2} \
-    -relief {raised} \
-
-  # build widget $plot.3dplot.vscroll
-  scrollbar $plot.3dplot.vscroll \
-    -width 10 \
-   -command "$plot.3dplot.3dplot yview" \
-    -cursor {left_ptr} \
-    -relief {raised}
-
-  # build widget $plot.3dplot.hscroll
-  scrollbar $plot.3dplot.hscroll \
-    -width 10 \
-    -command "$plot.3dplot.3dplot xview" \
-    -cursor {left_ptr} \
-    -orient {horizontal} \
-    -relief {raised}
-
-  # build widget $plot.3dplot.3dplot
-  canvas $plot.3dplot.3dplot \
-    -background white \
-    -relief {raised} \
-    -width 180 \
-    -scrollregion {-1500 -750 1500 750} \
-    -xscrollcommand {$plot.3dplot.hscroll set} \
-    -yscrollcommand {$plot.3dplot.vscroll set}
-
-   # grid master $plot
-    set plotSetup 1
-    proc togglePlotSetup {} {
-        global plot plotSetup plotsetuptext
-        if {$plotSetup == 1} {
-            grid configure $plot.view -row 1 -column 1 \
-                -sticky nsew -padx 1 -pady 1
-            set plotSetup 0
-            set plotsetuptext {Hide Setup}
-        } else {
-            grid forget $plot.view
-            set plotSetup 1
-            set plotsetuptext {Show Setup}
-        }
-    }
-
-  grid configure $plot.menu -row 0 -column 0 -columnspan 2 -sticky nsew -padx 1
-  grid configure $plot.3dplot -row 1 -column 0 -sticky nsew -padx 1
-
-  grid columnconfigure $plot 0 -weight 1
-  grid rowconfigure $plot 1 -weight 1
-
-  # pack master $plot.view
-  pack configure $plot.view.3dview -anchor n -padx 2 -pady 2
-  pack configure $frx -fill x
-  pack configure $fry -fill x
-  pack configure $frz -fill x
-  pack configure $frzm -fill x
-  pack configure $plot.view.redraw -fill both -expand yes
-  pack configure $plot.view.reset -fill x
-
-  # pack master $plot.menu revised to view
-  pack configure $plot.menu.viewxy -side left -fill x -expand yes
-  pack configure $plot.menu.viewxz -side left -fill x -expand yes
-  pack configure $plot.menu.viewyz -side left -fill x -expand yes
-  pack configure $plot.menu.view3d -side left -fill x -expand yes
-  pack configure $plot.menu.setup -side left -fill x -expand yes
-
-  # pack master $plot.3dplot
-  pack configure $plot.3dplot.vscroll -fill y -side left
-  pack configure $plot.3dplot.hscroll -fill x -side bottom
-  pack configure $plot.3dplot.3dplot -side left -fill both -expand yes
-
-  # build canvas items $plot.view.3dview
-  # build canvas items $plot.3dplot.3dplot
-    global Xlast Ylast Zlast Alast Blast Clast
-    global X Y Z A B C 3d_plot
-            set 3d_plot {0 0 0 0}
-	set Xlast [format "%8.4f" $X ]
-	set Ylast [format "%8.4f" $Y ]
-	set Zlast [format "%8.4f" $Z ]
- 	set Alast [format "%8.4f" $A ]
-	set Blast [format "%8.4f" $B ]
-	set Clast [format "%8.4f" $C ]
-centerPlot
-setInitialPlotview
-togglePlotSetup
-}
-
-proc vector {} {
-    global plot
-    global X Y Z A B C
-    # 3D vector conversion
-    # X Y and Z point is converted into polar notation
-    # then rotated about the A B and C axis.
-    # Finally to be converted back into rectangular co-ords.
-    #
-    # As the three lines of the 3D Origin need to be resolved as well
-    # as the cutter position, I thought a proc would be more efficient.
-
-    # Rotate about A - X axis
-    set angle [expr $A * 0.01745329]
-     if { $Y != 0 || $Z != 0 } {
-    set angle [expr atan2($Y,$Z) + $angle]
-    }
-    set vector [expr hypot($Y,$Z)]
-    set Z [expr $vector * cos($angle)]
-    set Y [expr $vector * sin($angle)]
-
-    # Rotate about B - Y axis
-    set angle [expr $B * 0.01745329]
-    if { $X != 0 || $Z != 0 } {
-    set angle [expr atan2($Z,$X) + $angle]
-    }
-    set vector [expr hypot($X,$Z)]
-    set X [expr $vector * cos($angle)]
-    set Z [expr $vector * sin($angle)]
-
-    # Rotate about C - Z axis
-    set angle [expr $C * 0.01745329]
-    if { $X != 0 || $Y != 0 } {
-    set angle [expr atan2($Y,$X) + $angle]
-    }
-    set vector [expr hypot($X,$Y)]
-    set X [expr $vector * cos($angle)]
-    set Y [expr $vector * sin($angle)]
-}
-
-# initialize global variables
-global 3dview plot
-set 3dview "$rup.plot.view.3dview"
-global {3dplot}
-set 3dplot  "$rup.plot.3dplot.3dplot"
-global {X}
-set {X} {0}
-global {Y}
-set {Y} {0}
-global {Z}
-set {Z} {0}
-global {A}
-set {A} {0}
-global {B}
-set {B} {0}
-global {C}
-set {C} {0}
-global {x_rotate}
-set {x_rotate} {0}
-global {xlast}
-set {xlast} {0}
-global {xnext}
-set {xnext} {0}
-global {y_rotate}
-set {y_rotate} {0}
-global {ylast}
-set {ylast} {0}
-global {ynext}
-set {ynext} {0}
-global {z_rotate}
-set {z_rotate} {0}
-global {zoom}
-set {zoom} {0}
-global {zoom_level}
-set {zoom_level} {0}
-
-set lastline ??
-set Gmode 4
-set Glast 5
-set delta_Alast 0
-set delta_Blast 0
-set delta_Clast 0
-
-proc centerPlot {} {
-    global 3dplot topx topy botx boty plot
-    global X Z centerx centery
-    global 3d_plot
-    global Xlast Ylast Zlast Glast
-    # Get current canvas size
-    set plotx [$3dplot cget -width]
-    set ploty [$3dplot cget -height]
-    # Computes view (0,0) and attempts to center it
-    set totalx [expr {abs($topx) + abs($botx)}]
-    set lowerx [expr {abs($topx) - ($plotx / 2)}]
-    if {$lowerx <= 0} {
-        set centerx 0
-    } else {
-        set centerx [expr {double($lowerx) / double($totalx)*1.05}]
-    }
-    set totaly [expr {abs($topy) + abs($boty)}]
-    set lowery [expr {abs($topy) - ($ploty / 2)}]
-    if {$lowery <= 0} {
-        set centery 0
-    } else {
-        set centery [expr {double($lowery) / double($totaly)*1.05}]
-    }
-    $3dplot addtag all all
-    $3dplot delete all
-    $3dplot xview moveto $centerx
-    $3dplot yview moveto $centery
-    # Delete all plot data except the last one.
-    set 3d_plot [list $Xlast $Ylast $Zlast $Glast]
-    3Dview
-    redraw
-}
-
-proc erasePlot {} {
-    global 3dplot topx topy botx boty plot
-    global X Z centerx centery
-    global 3d_plot
-    global Xlast Ylast Zlast Glast
-    $3dplot addtag all all
-    $3dplot delete all
-    # Delete all plot data except the last one.
-    set 3d_plot [list $Xlast $Ylast $Zlast $Glast]
-    3Dview
-    redraw
-}
-
-# Procedure: 3Dview
-proc 3Dview {args} {
-    global x_rotate y_rotate z_rotate
-    global 3dview plotcolour
-    global X Y Z A B C
-    global 3d_plot a_plot b_plot c_plot
-
-    set 3d_object {25 25 25 3 25 -25 25 3 -25 -25 25 3 -25 25 25 3 25 25 25 3 \
-        0 0 -30 2 -25 -25 25 2 -25 25 25 3 0 0 -30 2 25 -25 25 4}
-
-    set atemp $A; set btemp $B; set ctemp $C
-    set A $x_rotate ; set B $y_rotate ; set C $z_rotate
-
-    # Delete the image and put in an origin point.
-    $3dview delete all
-    $3dview create oval 42 42 48 48 -fill green
-
-    # set the first set of coordinates from the list then call vector
-    set X [lindex $3d_object 0]
-    set Y [lindex $3d_object 1]
-    set Z [lindex $3d_object 2]
-    set colour [lindex $3d_object 3]
-
-    vector
-
-    # then use these to start the plot
-     set xlast $X ; set ylast $Z
-
-    foreach {X Y Z colour} $3d_object {
-        vector
-        set xnext $X ; set ynext $Z
-        $3dview create line [expr $xlast+45] [expr $ylast+45] [expr $xnext+45] [expr $ynext+45] \
-          -fill [lindex $plotcolour $colour]
-        set xlast $X ; set ylast $Z
-    }
-
-    set A $atemp; set B $btemp; set C $ctemp
-    # If 3d_plot has been reset - do a redraw first
-    #  to update the rotates and zoom
-    if { [llength $3d_plot] <=9} {
-        redraw
-     }
-}
-
-# Procedure: redraw
-proc redraw {args} {
-    global zoom_level zoom
-    global 3d_plot ticks
-    global xlast ylast
-    global x_rotate y_rotate z_rotate
-    global a_plot b_plot c_plot
-    global A B C X Y Z
-    global 3dplot plotcolour
-    global centerx centery
-
-    set atemp $A; set btemp $B; set ctemp $C
-    set a_plot $x_rotate
-    set b_plot $y_rotate
-    set c_plot $z_rotate
-    set zoom $zoom_level
-
-   if { $zoom <0 } {
-        set zoom  [ expr abs(1.0/($zoom-1)) ]
-   } else {
-       set zoom [ expr $zoom+1]
-   }
-
-    if { [emc_program_status] == "running" } {
-        set statusflag 1
-    # If emc is running, issue a pause command
-    # and wait until IDLE status is reached.
-        emc_pause
-    while { [emc_program_status] == "running" } {
-        # Just loop until paused
-    }
-    } else {
-        set statusflag 0
-    }
-    # time the redraw proc
-    set timer [clock clicks]
-
-    $3dplot delete all
-
-    # set the first set of coordinates from the list then call vector
-    set X [lindex $3d_plot 0]
-    set Y [lindex $3d_plot 1]
-    set Z [lindex $3d_plot 2]
-    set colour [lindex $3d_plot 3]
-    set A $x_rotate
-    set B $y_rotate
-    set C $z_rotate
-    vector
-
-    # then use these to start the plot
-    set x_last $X ; set y_last $Z
-    foreach {X Y Z colour} $3d_plot {
-        set A $x_rotate
-        set B $y_rotate
-        set C $z_rotate
-        vector
-        set x_next $X ; set y_next $Z
-        $3dplot create line [expr $x_last*$zoom+$centerx] [expr $y_last*$zoom+$centery] \
-            [expr $x_next*$zoom+$centerx] [expr $y_next*$zoom+$centery] \
-            -fill [lindex $plotcolour $colour]
-        set x_last $X ; set y_last $Z
-   }
-
-    set xlast $X ; set ylast $Z
-
-    $3dplot create line [expr $x_last*$zoom+$centerx] [expr $y_last*$zoom+$centery] \
-        [expr ($x_last*$zoom+$centerx)+5] [expr ($y_last*$zoom+$centery)-5] \
-        -fill red -arrow first -tags 3darrow
-    set A $atemp; set B $btemp; set C $ctemp
-
-    set timer [expr ([clock clicks] - $timer)/$ticks]
-    # If emc was forced to pause - restart.
-    if {$statusflag == 1} {
-        emc_resume
-    }
-}
-
-proc updatePlot {} {
-    global size 3dplot plot
-    global xdir ydir zdir zoom
-    global adir bdir cdir
-    global programfiletext posdigit0 posdigit1 posdigit2 activeLine plotcolour
-    global posdigit3 posdigit4 posdigit5
-    global Xlast Ylast Zlast Alast Blast Clast lastline
-    global xlast ylast xnext ynext centerx centery
-    global X Y Z A B C
-    global a_plot b_plot c_plot 3d_plot Gmode Glast
-    global delta_Alast delta_Blast delta_Clast
-    global unitsetting
-
-    # hack to divide scale for mm plotting
-    if {$unitsetting == "(mm)" } {
-        set scaler 25
-    } else {
-        set scaler 1
-    }
-
-    # Color plot line by setting active line to upcase currentline
-        set currentline [string toupper [$programfiletext get $activeLine.0 $activeLine.end]]
-    # Search currentline for g0-3 but make modal with no else
-    if { [string first G2 $currentline] != -1 || \
-        [string first G02 $currentline] != -1  } {
-            set Gmode 2
-    } elseif { [string first G3 $currentline] != -1 || \
-        [string first G03 $currentline] != -1 } {
-            set Gmode 3
-    } elseif { [string first G1 $currentline] != -1 || \
-        [string first G01 $currentline] != -1 } {
-            set Gmode 1
-    } elseif { [string first G0 $currentline] != -1 } {
-        set Gmode 0
-    }
-    set delta_A 0
-    set delta_B 0
-    set delta_C 0
-
-    set X [emc_abs_act_pos 0]
-    set Y [emc_abs_act_pos 1]
-    set Z [emc_abs_act_pos 2]
-    set A [emc_abs_act_pos 3]
-    set B [emc_abs_act_pos 4]
-    set C [emc_abs_act_pos 5]
-
-    set X [expr "$X * $size * $xdir" / $scaler]
-    set Y [expr "$Y * $size * $ydir" / $scaler]
-    set Z [expr "$Z * $size * $zdir" / $scaler]
-    set A [expr "$A * $adir" / $scaler]
-    set B [expr "$B * $bdir" / $scaler]
-    set C [expr "$C * $cdir" / $scaler]
-
-    vector
-    set X [format "%10.1f" $X]
-    set Y [format "%10.1f" $Y]
-    set Z [format "%10.1f" $Z]
-
-    if {$Alast != $A || $Blast != $B || $Clast != $C || $Gmode != $Gmode} {
-      lappend 3d_plot $X $Y $Z $Glast
-    } else {
-      if {$Xlast != $X || $Ylast != $Y || $Zlast != $Z} {
-        # Test to see if move is a straight line
-        set d_x [expr $X-$Xlast]
-        set d_y [expr $Y-$Ylast]
-        set d_z [expr $Z-$Zlast]
-    # Calculate the angles for the relative move
-         if { $d_z != 0 } {
-            set delta_A [expr atan2($d_y,$d_z)]
-        } else {
-            set delta_A 1.570796327
-        }
-     if { $d_x != 0 } {
-    set delta_B [expr atan2($d_z,$d_x)]
-    } else {
-    set delta_B 1.570796327
-    }
-     if { $d_x != 0 } {
-    set delta_C [expr atan2($d_y,$d_x)]
-    } else {
-    set delta_C 1.570796327
-    }
-
-# If the relative angles of the current move are the same
-#  as the last relative move - Then it *must* be a continuation
-# of a straight line move !
-    if { $delta_A != $delta_Alast || $delta_B != $delta_Blast \
-        || $delta_C != $delta_Clast } {
-# If not, save the vector.
-    lappend 3d_plot $Xlast $Ylast $Zlast $Glast
-    }
-    set delta_Alast $delta_A
-    set delta_Blast $delta_B
-    set delta_Clast $delta_C
-
-    }
-	}
-	set Xlast $X
-	set Ylast $Y
-	set Zlast $Z
-	set Alast $A
-	set Blast $B
-	set Clast $C
-	set Glast $Gmode
-
-# Plot 3D xy and move tool if X Y or Z has changed
-	set A $a_plot; set B $b_plot; set C $c_plot
-	vector
-	set xnext $X ; set ynext $Z
-	  if {$Gmode >= 5} {
-	        set plotcolor yellow4
-	     } else {
-	        set plotcolor [lindex $plotcolour $Gmode]
-	    }
-	$3dplot create line [expr $xlast*$zoom+$centerx] [expr $ylast*$zoom+$centery] \
-	   [expr $xnext*$zoom+$centerx] [expr $ynext*$zoom+$centery] \
-	    -fill [lindex $plotcolour $Gmode]
-	$3dplot move 3darrow [expr ($xnext - $xlast)*$zoom] [expr ($ynext - $ylast)*$zoom]
-	set xlast $X ; set ylast $Z
-}
-
-#set initial conditions for 3d plot
-proc setInitialPlotview {} {
-    global x_rotate y_rotate z_rotate
-    set x_rotate -27
-    set y_rotate 17
-    set z_rotate 30
-    3Dview
-    redraw
-}
-
-# -----end of backplot-----
-
-# ----editor widgets -----
-
-set saveTextMsg 0
-set editFilename ""
-set initialDir $programDirectory
-set MODIFIED [msgcat::mc "Modified..."]
-
-set winTitle "mini"
-set version "Version 0.7.9"
-
-proc popinEditor {} {
-    global editFilename textwin programnamestring
-    global editwidth editheight popinframe undo_id
-
-    set editTypes {{[msgcat::mc "All files"] *} {[msgcat::mc "Text files"]} {.txt}}
-
-    if { ![info exists editwidth] } {set editwidth 80}
-    if { ![info exists editheight] } {set editheight 40}
-    set editframe [frame $popinframe.editor ]
-    pack $editframe -side top -fill both -expand yes
-    set textframe [frame $editframe.textframe ]
-    set textwin [text  $textframe.textwin  -width $editwidth -height $editheight -padx 4 -wrap word \
-         -yscrollcommand "editScrolltext $textframe" -bg "white"]
-    set scrolly $textframe.scrolly
-    scrollbar $scrolly -orient vert -command "$textwin yview" -width 8
-    pack $scrolly -side right -fill y
-    pack $textwin -side top -fill both -expand true
-
-    set menubar [frame $editframe.menuframe -relief raised -bd 2]
-    pack $menubar -side top -fill x -expand yes
-    menubutton $menubar.file -text [msgcat::mc "File"] -menu $menubar.file.menu
-    menubutton $menubar.edit -text [msgcat::mc "Edit"] -menu $menubar.edit.menu
-    menubutton $menubar.settings -text [msgcat::mc "Settings"] -menu $menubar.settings.menu
-#    menubutton $menubar.scripts -text "scripts" -menu $menubar.scripts.menu
-    menubutton $menubar.help -text [msgcat::mc "Help"] -menu $menubar.help.menu
-    pack $menubar.file -side left
-    pack $menubar.edit -side left
-    pack $menubar.settings -side left
-#    pack $menubar.scripts -side left
-    pack $menubar.help -side right
-    set filemenu $menubar.file.menu
-    set editmenu $menubar.edit.menu
-    set settingsmenu $menubar.settings.menu
-#    set scriptsmenu $menubar.scripts.menu
-    set helpmenu $menubar.help.menu
-    menu $filemenu
-    menu $editmenu
-    menu $settingsmenu
-# Comment out scripts - These are causing problems ATM.
-#    menu $scriptsmenu
-    menu $helpmenu
-
-    $filemenu add command -label [msgcat::mc "New..."] -underline 0 -command "filesetasnew" -accelerator Ctrl+n
-    $filemenu add command -label [msgcat::mc "Open..."] -underline 0 -command "filetoopen" -accelerator Ctrl+o
-    $filemenu add command -label [msgcat::mc "Save"] -underline 0 -command "filetosave" -accelerator Ctrl+s
-    $filemenu add command -label [msgcat::mc "Save As..."] -underline 5 -command "filesaveas"
-    $filemenu add separator
-    $filemenu add command -label [msgcat::mc "Save and Load"] -command "filetosave ; changeProgram" -underline 1
-
-    $editmenu add command -label [msgcat::mc "Undo"] -underline 0 -command "undo_menu_proc" -accelerator Ctrl+z
-    $editmenu add command -label [msgcat::mc "Redo"] -underline 0 -command "redo_menu_proc" -accelerator Ctrl+y
-    $editmenu add separator
-    $editmenu add command -label [msgcat::mc "Cut"] -underline 2 -command "cuttext" -accelerator "Ctrl+X"
-    $editmenu add command -label [msgcat::mc "Copy"] -underline 0 -command "copytext" -accelerator "Ctrl+C"
-    $editmenu add command -label [msgcat::mc "Paste"] -underline 0 -command "pastetext" -accelerator "Ctrl+V"
-    $editmenu add command -label [msgcat::mc "Delete"] -underline 0 -command "deletetext" -accelerator Del
-    $editmenu add separator
-    $editmenu add command -label [msgcat::mc "Select All"] -underline 7 -command "$textwin tag add sel 1.0 end" -accelerator "Ctrl+A"
-    $editmenu add separator
-    $editmenu add command -label [msgcat::mc "Find"] -underline 0 -command "findtext find" -accelerator Ctrl+f
-#    $editmenu add command -label "Find Next" -underline 0 -command "findnext find" -accelerator F3
-    $editmenu add command -label [msgcat::mc "Replace"] -underline 0 -command "findtext replace" -accelerator Ctrl+r
-    $editmenu add command -label [msgcat::mc "Renumber File"] -underline 0 -command "editSetLineNumber 1"
-
-    $settingsmenu add command -label [msgcat::mc "No Numbering"] -underline 0 -command "set startnumbering 0"
-    $settingsmenu add separator
-    $settingsmenu add command -label [msgcat::mc "Line Numbering"] -underline 0 -command "editSetLineNumber 0"
-
-    $helpmenu add command -label [msgcat::mc "Help"] -underline 0 -command "helpme"
-    $helpmenu add command -label [msgcat::mc "About"] -underline 0 -command "aboutme"
-
-#    bind $textwin <Control-c> "editCopyIt $textwin; break"
-#    bind $textwin <Control-v> "editPasteIt $textwin; break"
-#    bind $textwin <Control-x> "editCutIt $textwin; break"
-#    bind $textwin <Control-a> "editSelectAll $textwin; break"
-
-#    bind $textwin <F3> {findnext find}
-    bind $textwin <Control-x> {cuttext}
-    bind $textwin <Control-c> {copytext}
-    bind $textwin <Control-s> {filetosave}
-    bind Text <Control-o> {}
-    bind Text <Control-f> {}
-    bind $textwin <Control-o> {filetoopen}
-    bind $textwin <Control-z> {undo_menu_proc}
-    bind $textwin <Control-y> {redo_menu_proc}
-    bind $textwin <Control-f> {findtext find}
-    bind $textwin <Control-r> {findtext replace}
-    event delete <<Cut>> <Control-x>
-    event delete <<Paste>> <Control-v>
-    event delete <<Paste>> <Control-Key-y>
-    # more bindings
-    bind Text <Control-v> {}
-    bind $textwin <Control-v> {pastetext}
-
-
-    pack $textframe -side top -fill both -expand yes
-    # insert contents of filename, if it exists
-    if { [file isfile $programnamestring] == 1} {
-        set editFilename $programnamestring
-    }
-    if {$editFilename == "" } {
-        set $editFilename new
-        loadEditorText
-    } else {
-        loadEditorText
-    }
-    set undo_id [new textUndoer $textwin]
-}
-
-proc editScrolltext {tf a b} {
-    $tf.scrolly set $a $b
-}
-
-proc loadEditorText { } {
-    global textwin editFilename
-    if {$editFilename == "new" } {
-        editOpenFile
-    } else {
-    set fname $editFilename
-    }
-    if { [file isfile $fname] == 0} {
-        return
-    }
-    if { [catch {open $fname} filein] } {
-        puts stdout "can't open $fname"
-    } else {
-        $textwin delete 1.0 end
-        $textwin insert end [read $filein]
-        catch {close $filein}
-    }
-}
-
-# Any positive integer can be used for lineincrement.
-# A 0 startnumbering value means lines will not be numbered when enter is pressed.
-set startnumbering 0
-
-# Space refers to the distance between n words and other text. Tab space is set
-# here but could be single or double space.  Change what's between the "".
-set space "     "
-
-# Number refers to the start up value of line numbering.
-set number 0
-set lineincrement 10
-
-proc editLineIncrement {} {
-    global startnumbering number lineincrement space textwin
-    if {$startnumbering != 0} {
-        $textwin insert insert "n$number$space"
-        incr number $lineincrement
-    }
-}
-
-# editSetLineNumber uses a hard coded popup location from top right.
-proc editSetLineNumber {what} {
-    global  startnumbering number lineincrement textwin linenum
-    toplevel .linenumber
-    wm title .linenumber [msgcat::mc "Set Line Numbering"]
-    wm geometry .linenumber 275x180-60+100
-    set linenum [frame .linenumber.frame]
-    pack $linenum -side top -fill both -expand yes
-    label $linenum.label1 -text [msgcat::mc "Increment"]
-    place $linenum.label1 -x 5 -y 5
-    radiobutton $linenum.incr1 -text One -variable lineincrement -value 1 -anchor w
-    place $linenum.incr1 -x 10 -y 25 -width 80 -height 20
-    radiobutton $linenum.incr2 -text Two -variable lineincrement -value 2 -anchor w
-    place $linenum.incr2 -x 10 -y 45 -width 80 -height 20
-    radiobutton $linenum.incr5 -text Five -variable lineincrement -value 5 -anchor w
-    place $linenum.incr5 -x 10 -y 65 -width 80 -height 20
-    radiobutton $linenum.incr10 -text Ten -variable lineincrement -value 10 -anchor w
-    place $linenum.incr10 -x 10 -y 85 -width 80 -height 20
-    label $linenum.label2 -text [msgcat::mc "Space"]
-    place $linenum.label2 -x 130 -y 5
-    radiobutton $linenum.space1 -text [msgcat::mc "Single Space"] -variable space -value { } -anchor w
-    place $linenum.space1 -x 140 -y 25
-    radiobutton $linenum.space2 -text [msgcat::mc "Double Space"] -variable space -value {  } -anchor w
-    place $linenum.space2 -x 140 -y 45
-    radiobutton $linenum.space3 -text [msgcat::mc "Tab Space"] -variable space -value {    } -anchor w
-    place $linenum.space3 -x 140 -y 65
-    button $linenum.ok -text OK -command {destroy .linenumber} -height 1 -width 9
-    place $linenum.ok -x 160 -y 127
-    label $linenum.label3 -text [msgcat::mc "Next Number : "] -anchor e
-    place $linenum.label3 -x 5 -y 130 -width 95
-    entry $linenum.entry -width 6 -textvariable number
-    place $linenum.entry -x 100 -y 130
-    button $linenum.renum -text Renumber -command editReNumber -height 1 -width 9 -state disabled
-    if {$what} {
-        $linenum.renum configure -state normal
-    }
-    place $linenum.renum -x 160 -y 96
-    set temp [expr $number - $lineincrement]
-    if {$temp > 0} {
-        set number $temp
-    } else {
-        set number 0
-    }
-    set startnumbering 1
-    focus -force ".linenumber"
-    bind ".linenumber" <FocusOut> {destroy ".linenumber"}
-}
-
-# String match with a while loop [0-9 tab space] 1 if true 0 if no match
-proc editReNumber {} {
-    global textwin number lineincrement space linenum
-    scan [$textwin index end] %d nl
-    for {set i 1} {$i < $nl} {incr i} {
-        if {$number > 99999} {set number 0}
-        set editline [$textwin get $i.0 $i.end ]
-        set editline [string trimleft $editline " "]
-        if { ! [ regexp ^% $editline ] } {
-            if { [ regexp -nocase {^[nN](\d*)(\s*)} $editline ] } {
-                regsub -nocase {^[nN](\d*)(\s*)} $editline "n$number$space" editline
-            } else {
-                set editline "n$number$space$editline"
-            }
-        }
-        $textwin delete $i.0 $i.end
-        $textwin insert $i.0 "$editline"
-
-        incr number $lineincrement
-    }
-    set startnumbering 0
-}
-
-
-###############################################################################
-# 
-# Tk NotePad is designed to be a single Tcl/Tk script, that is functional cross 
-# platform, but is intended mainly for Linux.
-# 
-# This script is freeware, however there is some 'borrowed code' now contained in 
-# this script. See the file license.txt to see what that means. Basically I 
-# modified their code and am now redistributing it, and giving them proper credit.
-# As I understand it that is they way it works. This script itself then becomes 
-# yours to modify, crop, cut, paste, or whatever. It is distributed under the 
-# Tcl/Tk liscense, the licesnse.txt file, and I guess that makes it LGPL? I'm not
-# a lawyer, so don't ask me!
-# 
-# NOTE: It works on Windows, but BETTER on Linux!
-# 
-# 	Joseph Acosta joeja@mindspring.com
-# 
-###############################################################################
-
-# this proc just sets the title to what it is passed
-proc settitle {WinTitleName} {
-    global winTitle editFilename
-    wm title . "$winTitle - $WinTitleName"
-    set editFilename $WinTitleName
-}
-
-# proc to open files or read a pipe
-proc openoninit {thefile} {
-    global textwin
-    $textwin delete 0.0 end
-    if [string match " " $thefile] {  
-        fconfigure stdin -blocking 0
-        set incoming [read stdin 1]
-        if [expr [string length $incoming] == 0] {
-            fconfigure stdin -blocking 1
-        } else {
-            fconfigure stdin -blocking 1
-            $textwin insert end $incoming
-            while {![eof stdin]} {
-                $textwin insert end [read -nonewline stdin]
-            }
-        }
-    } else {
-        if [ file exists $thefile ] {
-            set newnamefile [open $thefile r]
-        } else {
-            set newnamefile [open $thefile a+]
-        }
-        while {![eof $newnamefile]} {
-	       $textwin insert end [read -nonewline $newnamefile ] 
-        }
-        close $newnamefile
-        settitle $thefile
-    }
-}
-
-# help menu
-proc helpme {} {
-	tk_messageBox -title [msgcat::mc "Basic Help"] -type ok -message [msgcat::mc "This is a simple ASCII editor like many others.
-
-Ctrl+O  Open
-Ctrl+S  Save
-Ctrl+Z  Undo
-Ctrl+Y  Redo
-Ctrl+X  Cut
-Ctrl+C  Copy
-Ctrl+V  Paste
-Del     Delete
-Ctrl+A  Select All
-
-Ctrl+F  Find
-Ctrl+R  Replace "]
-
-}
-
-# about menu
-proc aboutme {} {
-        global winTitle version
-	tk_messageBox -title [msgcat::mc "About"] -type ok -message [msgcat::mc "tknotepad by Joseph Acosta. <joeja@mindspring.com>\n\n\
-        Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"]
-}
-
-# generic case switcher for message box
-proc switchcase {yesfn nofn} {
-    global saveTextMsg
-    if [ expr [string compare $saveTextMsg 1] ==0 ] { 
-	set answer [tk_messageBox -message [msgcat::mc "The contents of this file may have changed, do you wish to to save your changes?"] \
-	-title [msgcat::mc "New Confirm?"] -type yesnocancel -icon question]
-	case $answer {
-	     yes { if {[eval $yesfn] == 1} { $nofn } }
-             no {$nofn }
-	}
-    } else {
-   	$nofn
-    }
-}
-
-# new file
-proc filesetasnew {} {
-    global editFilename winTitle
-    switchcase filetosave setTextTitleAsNew
-}
-
-proc setTextTitleAsNew {} {
-    global textwin
-    $textwin delete 0.0 end
-    global winTitle editFilename
-    set editFilename " "
-    wm title . $winTitle
-    outccount
-}
-
-# msgcat doesn't work here
-# bring up open win
-proc showopenwin {} {
-    global programDirectory
-    set types {
-        {"NC files" {*.ngc *.nc *.tap} }
-	    {"All files" *}
-    }
-    set file [tk_getOpenFile -filetypes $types -parent . -initialdir $programDirectory]
-###if [string compare $file ""]
-    if { [string len $file] > 0} {
-        set programDirectory [file dirname $file]
-        setTextTitleAsNew
-        openoninit $file
-        outccount
-    }
-}
-
-
-
-#open an existing file
-proc filetoopen {} {
-  	switchcase filetosave showopenwin
-}
-
-# generic save function
-proc writesave {nametosave} {
-    global textwin
-    set FileNameToSave [open $nametosave w+]
-    puts -nonewline $FileNameToSave [$textwin get 0.0 end]
-    close $FileNameToSave
-    outccount
-}
-
-#save a file
-proc filetosave {} {
-    global editFilename
-    #check if file exists file
-    if [file exists $editFilename] {
-	writesave $editFilename
-        return 1
-    } else {
-	 return [eval filesaveas]
-    }
-}
-
-# msgcat doesn't work here
-#save a file as
-proc filesaveas {} {
-    global editFilename
-    set types {
-        {"NC files" {*.ngc *.nc *.tap} }
-        {"All files" *}
-    }
-    set myfile [tk_getSaveFile -filetypes $types -parent .  -initialdir "~/gcode" -initialfile $editFilename]
-    if { [expr [string compare $myfile ""]] != 0} {
-	writesave  $myfile 
-	settitle $myfile
-        return 1
-    }
-    return 0
-}
-
-# proc to set child window position
-proc setwingeom {wintoset} {
-    wm resizable $wintoset 0 0
-    set myx [expr (([winfo screenwidth .]/2) - ([winfo reqwidth $wintoset]))]
-    set myy [expr (([winfo screenheight .]/2) - ([winfo reqheight $wintoset]/2))]
-    wm geometry $wintoset +$myx+$myy
-    set topwin [ winfo parent $wintoset ]
-    if { [ winfo viewable [ winfo toplevel $topwin ] ] } {
-        wm transient $wintoset $topwin
-    }
-}
-
-# procedure to setup the printer
-proc printseupselection {} {
-	global printCommand
-	set print .print
-	catch {destroy $print}
-	toplevel $print
-	wm title $print [msgcat::mc "Print Setup"]
-	setwingeom $print
-	frame $print.top 
-	frame $print.bottom
-	label $print.top.label -text [msgcat::mc "Print Command: "]
-	entry $print.top.print -textvariable printsetupnew -width 40
-	$print.top.print delete 0 end
-	set printvar $printCommand 
-	$print.top.print insert 0 $printvar
-	button $print.bottom.ok -text [msgcat::mc "OK"] -command "addtoprint $print"
-	button $print.bottom.cancel -text [msgcat::mc "Cancel"] -command "destroy $print"
-
-	pack $print.top -side top -expand 0 
-	pack $print.bottom -side bottom -expand 0 
-	pack $print.top.label $print.top.print -in $print.top -side left -fill x -fill y
-	pack $print.bottom.ok $print.bottom.cancel -in $print.bottom -side left -fill x -fill y
-	bind $print <Return> "addtoprint $print"
-	bind $print <Escape> "destroy $print"
-
-    proc addtoprint {prnt} {
-         global printCommand
-         set printCommand [$prnt.top.print get]
-         destroy $prnt
-    }
-}
-
-# procedure to print
-proc selectprint {} {
-    global textwin
-    set TempPrintFile [open /tmp/tkpadtmpfile w]
-    puts -nonewline $TempPrintFile [$textwin get 0.0 end]
-    close $TempPrintFile
-    global printCommand
-    set prncmd $printCommand	
-    eval exec $prncmd /tmp/tkpadtmpfile
-    eval exec rm -f /tmp/tkpadtmpfile
-}
-
-#cut text procedure
-proc deletetext {} {
-    set cuttexts [selection own]
-    if {$cuttexts != "" } {
-        $cuttexts delete sel.first sel.last
-        selection clear
-    }
-    inccount
-}
-
-#cut text procedure
-proc cuttext {} {
-    global textwin
-    tk_textCut $textwin
-    inccount
-}
-
-#copy text procedure
-proc copytext {} {
-    global textwin
-    tk_textCopy $textwin
-    inccount
-}
-
-#paste text procedure
-proc pastetext {} {
-    global textwin
-    global tcl_platform
-    if {"$tcl_platform(platform)" == "unix"} {
-	catch {$textwin delete sel.first sel.last}
-    }
-    tk_textPaste $textwin
-    inccount
-}
-
-proc FindIt {w} {
-    global textwin
-    global SearchString SearchPos SearchDir findcase 
-    $textwin tag configure sel -background green
-    if {$SearchString!=""} {
-    	if {$findcase=="1"} {
-            set caset "-exact"
-	} else {
-	    set caset "-nocase"
-	}
-	if {$SearchDir == "forwards"} {
-	    set limit end
-	} else {
-	    set limit 1.0
-	}
-	set SearchPos [ $textwin search -count len $caset -$SearchDir $SearchString $SearchPos $limit]
-	set len [string length $SearchString]
-	if {$SearchPos != ""} {
-            $textwin see $SearchPos
-	    tk::TextSetCursor $textwin $SearchPos
-	    $textwin tag add sel $SearchPos  "$SearchPos + $len char"
-
-	    if {$SearchDir == "forwards"} {
-                set SearchPos "$SearchPos + $len char"
-	    }         
-        } else {
-	    set SearchPos "0.0"
-	}
-    }
-    focus $textwin
-}
-
-proc ReplaceIt {} {
-    global SearchString SearchDir ReplaceString SearchPos findcase
-    global textwin
-	if {$SearchString != ""} {
-	    if {$findcase=="1"} {
-		set caset "-exact"
-	    } else {
-		set caset "-nocase"
-	    }
-	    if {$SearchDir == "forwards"} {
-		set limit end
-	    } else {
-		set limit 1.0
-	    }
-	    set SearchPos [ $textwin search -count len $caset -$SearchDir $SearchString $SearchPos $limit]
-		set len [string length $SearchString]
-	    if {$SearchPos != ""} {
-        		$textwin see $SearchPos
-               		$textwin delete $SearchPos "$SearchPos+$len char"
-        		$textwin insert $SearchPos $ReplaceString
-		if {$SearchDir == "forwards"} {
-        			set SearchPos "$SearchPos+$len char"
-		}         
-	    } else {
-	       	set SearchPos "0.0"
-	    }
-	}
-	inccount
-}
-
-proc ReplaceAll {} {
-      global SearchPos SearchString
-       if {$SearchString != ""} {
-                ReplaceIt
-	while {$SearchPos!="0.0"} {
-		ReplaceIt
-	}
-       }
-}
-
-proc CancelFind {w} {
-    global textwin
-    $textwin tag delete tg1
-    destroy $w
-}
-
-proc ResetFind {} {
-    global SearchPos
-    set SearchPos insert
-}
-
-# procedure to find text
-proc findtext {typ} {
-	global SearchString SearchDir ReplaceString findcase c find
-	set find .find
-	catch {destroy $find}
-	toplevel $find
-	wm title $find "Find"
-	setwingeom $find
-	ResetFind
-	frame $find.l
-	frame $find.l.f1
-	label $find.l.f1.label -text [msgcat::mc "Find what:"] -width 11  
-	entry $find.l.f1.entry  -textvariable SearchString -width 30 
-	pack $find.l.f1.label $find.l.f1.entry -side left
-	$find.l.f1.entry selection range 0 end
-	if {$typ=="replace"} {
-		frame $find.l.f2
-		label $find.l.f2.label2 -text [msgcat::mc "Replace with:"] -width 11
-		entry $find.l.f2.entry2  -textvariable ReplaceString -width 30 
-		pack $find.l.f2.label2 $find.l.f2.entry2 -side left
-		pack $find.l.f1 $find.l.f2 -side top
-	} else {
-		pack $find.l.f1
-	}
-	frame $find.f2
-	button $find.f2.button1 -text [msgcat::mc "Find Next"] -command "FindIt $find" -width 10 -height 1 -underline 5 
-	button $find.f2.button2 -text [msgcat::mc "Cancel"] -command "CancelFind $find" -width 10 -underline 0
-	if {$typ=="replace"} {
-		button $find.f2.button3 -text [msgcat::mc "Replace"] -command ReplaceIt -width 10 -height 1 -underline 0
-		button $find.f2.button4 -text [msgcat::mc "Replace All"] -command ReplaceAll -width 10 -height 1 -underline 8		
-		pack $find.f2.button3 $find.f2.button4 $find.f2.button2  -pady 4
-	} else {
-		pack $find.f2.button1 $find.f2.button2  -pady 4
-	}
-	frame $find.l.f4
-	frame $find.l.f4.f3 -borderwidth 2 -relief groove
-	radiobutton $find.l.f4.f3.up -text [msgcat::mc "Up"] -underline 0 -variable SearchDir -value "backwards" 
-	radiobutton $find.l.f4.f3.down -text [msgcat::mc "Down"]  -underline 0 -variable SearchDir -value "forwards" 
-	$find.l.f4.f3.down invoke
-	pack $find.l.f4.f3.up $find.l.f4.f3.down -side left 
-	checkbutton $find.l.f4.cbox1 -text [msgcat::mc "Match case"] -variable findcase -underline 0 
-	pack $find.l.f4.cbox1 $find.l.f4.f3 -side left -padx 10
-	pack $find.l.f4 -pady 11
-	pack $find.l $find.f2 -side left -padx 1
-	bind $find <Escape> "destroy $find"
-
-     # each widget must be bound to the events of the other widgets
-     proc bindevnt {widgetnm types find} {
-	if {$types=="replace"} {
-		bind $widgetnm <Return> "ReplaceIt"
-		bind $widgetnm <Control-r> "ReplaceIt"
-		bind $widgetnm <Control-a> "ReplaceAll"
-	} else {
-		bind $widgetnm <Return> "FindIt $find"
-		bind $widgetnm <Control-n> "FindIt $find"
-	}
-	bind $widgetnm <Control-m> { $find.l.f4.cbox1 invoke }
-	bind $widgetnm <Control-u> { $find.l.f4.f3.up invoke }
-	bind $widgetnm <Control-d> { $find.l.f4.f3.down invoke }
-     }
-	if {$typ == "replace"} {
-   		bindevnt $find.f2.button3 $typ $find
-		bindevnt $find.f2.button4 $typ $find
-	} else {
-		bindevnt $find.f2.button1 $typ $find
-  	        bindevnt $find.f2.button2 $typ $find
-	}
-        bindevnt $find.l.f4.f3.up  $typ $find
-        bindevnt $find.l.f4.f3.down $typ $find
-        bindevnt $find.l.f4.cbox1 $typ $find
-	bindevnt $find.l.f1.entry $typ $find	
-	bind $find <Control-c> "destroy $find"
-	focus $find.l.f1.entry
-	grab $find
-}
-
-# proc for find next
-proc findnext {typof} {
-	global SearchString SearchDir ReplaceString findcase c find
-	if [catch {expr [string compare $SearchString "" ] }] {
-		findtext $typof
-	} else {
-	 	FindIt $find
-	}
-}
-
-#procedure to set the time change %R to %I:%M for 12 hour time display
-proc printtime {} {
-    global textwin
-    $textwin insert insert [clock format [clock seconds] -format "%R %p %D"]
-    inccount
-}
-
-# binding for wordwrap
-proc wraptext {} {
-    global wordWrap
-    if [expr [string compare $wordWrap word] == 0] {
-	set wordWrap none	
-    } else {
-	set wordWrap word
-    }
-    $textwin configure -wrap $wordWrap
-}
-
-## NOTE modifiedstatus is declared in the linenum.pth 
-## so if it it not included we dont want to throw the error
-## we just want to ignore, thus the catch...
-# this sets saveTextMsg to 1 for message boxes
-proc inccount {} {
-    global saveTextMsg MODIFIED
-    set saveTextMsg 1
-    catch {modifiedstatus $MODIFIED}
-}
-# this resets saveTextMsg to 0
-proc outccount {} {
-    global saveTextMsg 
-    set saveTextMsg 0
-    catch {modifiedstatus " "}
-}
-
-###################################################################
-#set zed_dir [file dirname [info script]] 
-# here is where the undo stuff begins
-if {![info exists classNewId]} {
-    # work around object creation between multiple include of this file problem
-    set classNewId 0
-}
-
-proc new {className args} {
-    # calls the constructor for the class with optional arguments
-    # and returns a unique object identifier independent of the class name
-
-    global classNewId
-    # use local variable for id for new can be called recursively
-    set id [incr classNewId]
-    if {[llength [info procs ${className}:$className]]>0} {
-        # avoid catch to track errors
-        eval ${className}:$className $id $args
-    }
-    return $id
-}
-
-proc delete {className id} {
-    # calls the destructor for the class and delete all the object data members
-
-    if {[llength [info procs ${className}:~$className]]>0} {
-        # avoid catch to track errors
-        ${className}:~$className $id
-    }
-    global $className
-    # and delete all this object array members if any (assume that they were stored as $className($id,memberName))
-    foreach name [array names $className "$id,*"] {
-        unset ${className}($name)
-    }
-}
-
-proc lifo:lifo {id {size 2147483647}} {
-    global lifo
-    set lifo($id,maximumSize) $size
-    lifo:empty $id
-}
-
-proc lifo:push {id data} {
-    global lifo 
-    inccount
-    lifo:tidyUp $id
-    if {$lifo($id,size)>=$lifo($id,maximumSize)} {
-        unset lifo($id,data,$lifo($id,first))
-        incr lifo($id,first)
-        incr lifo($id,size) -1
-    }
-    set lifo($id,data,[incr lifo($id,last)]) $data
-    incr lifo($id,size)
-}
-
-proc lifo:pop {id} {
-    global lifo 
-    inccount
-    lifo:tidyUp $id
-    if {$lifo($id,last)<$lifo($id,first)} {
-        error "lifo($id) pop error, empty"
-    }
-    # delay unsetting popped data to improve performance by avoiding a data copy
-    set lifo($id,unset) $lifo($id,last)
-    incr lifo($id,last) -1
-    incr lifo($id,size) -1
-    return $lifo($id,data,$lifo($id,unset))
-}
-
-proc lifo:tidyUp {id} {
-    global lifo
-    if {[info exists lifo($id,unset)]} {
-        unset lifo($id,data,$lifo($id,unset))
-        unset lifo($id,unset)
-    }
-}
-
-proc lifo:empty {id} {
-    global lifo
-    lifo:tidyUp $id
-    foreach name [array names lifo $id,data,*] {
-        unset lifo($name)
-    }
-    set lifo($id,size) 0
-    set lifo($id,first) 0
-    set lifo($id,last) -1
-}
-
-proc textUndoer:textUndoer {id widget {depth 2147483647}} {
-    global textUndoer
-
-    if {[string compare [winfo class $widget] Text]!=0} {
-        error "textUndoer error: widget $widget is not a text widget"
-    }
-    set textUndoer($id,widget) $widget
-    set textUndoer($id,originalBindingTags) [bindtags $widget]
-    bindtags $widget [concat $textUndoer($id,originalBindingTags) UndoBindings($id)]
-
-    bind UndoBindings($id) <Control-u> "textUndoer:undo $id"
-
-    # self destruct automatically when text widget is gone
-    bind UndoBindings($id) <Destroy> "delete textUndoer $id"
-    # rename widget command
-    rename $widget [set textUndoer($id,originalCommand) textUndoer:original$widget]
-    # and intercept modifying instructions before calling original command
-    proc $widget {args} "textUndoer:checkpoint $id \$args; 
-		global search_count;
-		eval $textUndoer($id,originalCommand) \$args"
-
-    set textUndoer($id,commandStack) [new lifo $depth]
-    set textUndoer($id,cursorStack) [new lifo $depth]
-    #lee 
-    textRedoer:textRedoer $id $widget $depth 
-}
-
-proc textUndoer:~textUndoer {id} {
-    global textUndoer
-
-    bindtags $textUndoer($id,widget) $textUndoer($id,originalBindingTags)
-    rename $textUndoer($id,widget) ""
-    catch { rename $textUndoer($id,originalCommand) $textUndoer($id,widget) }
-    delete lifo $textUndoer($id,commandStack)
-    delete lifo $textUndoer($id,cursorStack)
-    #lee
-    textRedoer:~textRedoer $id
-}
-
-proc textUndoer:checkpoint {id arguments} {
-    global textUndoer textRedoer
-
-    # do nothing if non modifying command
-    if {[string compare [lindex $arguments 0] insert]==0} {
-        textUndoer:processInsertion $id [lrange $arguments 1 end]
-        if {$textRedoer($id,redo) == 0} {
-           textRedoer:reset $id
-        }
-    }
-    if {[string compare [lindex $arguments 0] delete]==0} {
-        textUndoer:processDeletion $id [lrange $arguments 1 end]
-        if {$textRedoer($id,redo) == 0} {
-           textRedoer:reset $id
-        }
-    }
-}
-
-proc textUndoer:processInsertion {id arguments} {
-    global textUndoer
-
-    set number [llength $arguments]
-    set length 0
-    # calculate total insertion length while skipping tags in arguments
-    for {set index 1} {$index<$number} {incr index 2} {
-        incr length [string length [lindex $arguments $index]]
-    }
-    if {$length>0} {
-        set index [$textUndoer($id,originalCommand) index [lindex $arguments 0]]
-        lifo:push $textUndoer($id,commandStack) "delete $index $index+${length}c"
-        lifo:push $textUndoer($id,cursorStack) [$textUndoer($id,originalCommand) index insert]
-    }
-}
-
-proc textUndoer:processDeletion {id arguments} {
-    global textUndoer
-
-    set command $textUndoer($id,originalCommand)
-    lifo:push $textUndoer($id,cursorStack) [$command index insert]
-
-    set start [$command index [lindex $arguments 0]]
-    if {[llength $arguments]>1} {
-        lifo:push $textUndoer($id,commandStack) "insert $start [list [$command get $start [lindex $arguments 1]]]"
-    } else {
-        lifo:push $textUndoer($id,commandStack) "insert $start [list [$command get $start]]"
-    }
-}
-
-proc textUndoer:undo {id} {
-    global textUndoer
-
-puts "$textUndoer($id,commandStack)"
-
-    if {[catch {set cursor [lifo:pop $textUndoer($id,cursorStack)]}]} {
-        return
-    }
-    if {[catch {set popArgs [lifo:pop $textUndoer($id,commandStack)]}]} {
-        return
-    }
-    textRedoer:checkpoint $id $popArgs
-    
-    eval $textUndoer($id,originalCommand) $popArgs
-    # now restore cursor position
-    $textUndoer($id,originalCommand) mark set insert $cursor
-    # make sure insertion point can be seen
-    $textUndoer($id,originalCommand) see insert
-}
-
-
-proc textUndoer:reset {id} {
-    global textUndoer
-    lifo:empty $textUndoer($id,commandStack)
-    lifo:empty $textUndoer($id,cursorStack)
-}
-
-#########################################################################
-proc textRedoer:textRedoer {id widget {depth 2147483647}} {
-    global textRedoer
-    if {[string compare [winfo class $widget] Text]!=0} {
-        error "textRedoer error: widget $widget is not a text widget"
-    }
-    set textRedoer($id,commandStack) [new lifo $depth]
-    set textRedoer($id,cursorStack) [new lifo $depth]
-    set textRedoer($id,redo) 0
-}
-
-proc textRedoer:~textRedoer {id} {
-    global textRedoer
-    delete lifo $textRedoer($id,commandStack)
-    delete lifo $textRedoer($id,cursorStack)
-}
-
-
-proc textRedoer:checkpoint {id arguments} {
-    global textUndoer textRedoer
-    # do nothing if non modifying command
-    if {[string compare [lindex $arguments 0] insert]==0} {
-        textRedoer:processInsertion $id [lrange $arguments 1 end]
-    }
-    if {[string compare [lindex $arguments 0] delete]==0} {
-        textRedoer:processDeletion $id [lrange $arguments 1 end]
-    }
-}
-
-proc textRedoer:processInsertion {id arguments} {
-    global textUndoer textRedoer
-    set number [llength $arguments]
-    set length 0
-    # calculate total insertion length while skipping tags in arguments
-    for {set index 1} {$index<$number} {incr index 2} {
-        incr length [string length [lindex $arguments $index]]
-    }
-    if {$length>0} {
-        set index [$textUndoer($id,originalCommand) index [lindex $arguments 0]]
-        lifo:push $textRedoer($id,commandStack) "delete $index $index+${length}c"
-        lifo:push $textRedoer($id,cursorStack) [$textUndoer($id,originalCommand) index insert]
-    }
-}
-
-proc textRedoer:processDeletion {id arguments} {
-    global textUndoer textRedoer
-    set command $textUndoer($id,originalCommand)
-    lifo:push $textRedoer($id,cursorStack) [$command index insert]
-
-    set start [$command index [lindex $arguments 0]]
-    if {[llength $arguments]>1} {
-        lifo:push $textRedoer($id,commandStack) "insert $start [list [$command get $start [lindex $arguments 1]]]"
-    } else {
-        lifo:push $textRedoer($id,commandStack) "insert $start [list [$command get $start]]"
-    }
-}
-
-proc textRedoer:redo {id} {
-    global textUndoer textRedoer
-    if {[catch {set cursor [lifo:pop $textRedoer($id,cursorStack)]}]} {
-        return
-    }
-    set textRedoer($id,redo) 1
-    set popArgs [lifo:pop $textRedoer($id,commandStack)]     
-    textUndoer:checkpoint $id $popArgs
-    eval $textUndoer($id,originalCommand) $popArgs
-    set textRedoer($id,redo) 0
-    # now restore cursor position
-    $textUndoer($id,originalCommand) mark set insert $cursor
-    # make sure insertion point can be seen
-    $textUndoer($id,originalCommand) see insert
-}
-
-
-proc textRedoer:reset {id} {
-    global textRedoer
-    lifo:empty $textRedoer($id,commandStack)
-    lifo:empty $textRedoer($id,cursorStack)
-}
-
-# end of where you'd source in undo.tcl
-#set undo_id [new textUndoer $textwin]
-
-proc undo_menu_proc {} {
-	global undo_id
-	textUndoer:undo $undo_id
-	inccount
-}
-
-proc redo_menu_proc {} {
-	global undo_id
-	textRedoer:redo $undo_id
-	inccount
-}
-
-# -----end editor ------
 
 # -----RIGHT HELP-----
 
@@ -3765,7 +1785,6 @@ set modeInDisplay "manual"
 set oldmode "manual"
 set jogType incremental
 setJogType continuous
-# axisSelectx "A"
 
 set lastjointworld $jointworld
 set lastactcmd $actcmd
@@ -4054,12 +2073,2002 @@ proc updateMini {} {
     after $displayCycleTime updateMini
 }
 
-updateMini
-
-#setup the initial conditions of the display here
+# setup the initial conditions of the display here
 rightConfig split
+update
+updateMini
+# display should now run while adding in the following components.
+
+
+# ----------RIGHT - TOOL SETUP----------
+
+proc popinTools {} {
+    global popinframe tool tooltext toolframe toolnum
+    set tool [frame $popinframe.tools ]
+    label $tool.l1 -justify center -text [msgcat::mc "TOOL SETUP \n Click or tab to edit.  \
+    Press enter to return to keyboard machine control."]
+    # put the tool file into an invisible widget
+    set tooltext [text $tool.vartext]
+    set toolframe [frame $tool.frame ]
+    # set selt [label $toolframe.selt -text "  SELECT  " ]
+    set poc [label $toolframe.poc -text [msgcat::mc "  TOOL NUMBER  "] ]
+    set len [label $toolframe.len -text [msgcat::mc "  LENGTH  "] ]
+    set diam [label $toolframe.diam -text [msgcat::mc "  DIAMETER  "] ]
+    set com [label $toolframe.com -text [msgcat::mc "  COMMENT  "] ]
+    grid $poc $len $diam $com -sticky ew
+    set toolnum 1
+    loadToolText
+    setToolDisplay
+    pack $tool  -fill both -expand yes
+}
+
+proc loadToolText {} {
+    global tooltext toolfilename
+    set toolfilename [emc_ini "TOOL_TABLE" "EMCIO"]
+    $tooltext config -state normal
+    $tooltext delete 1.0 end
+    if { [catch {open $toolfilename} programin] } {
+        return
+    } else {
+        $tooltext insert end [read $programin]
+        catch {close $programin}
+    }
+}
+
+proc setToolDisplay { } {
+    global tool tooltext toolframe toolfilename tarray
+    catch {unset tarray}
+    scan [$tooltext index end] %d nl
+    for {set i 2} {$i < $nl} {incr i} {
+        set thisline [$tooltext get $i.0 $i.end ]
+        set nel [ llength $thisline ]
+        if {$thisline != ""} {
+            set tarray(${i}0) [lindex $thisline 0 ]
+            set tarray(${i}2) [lindex $thisline 2 ]
+            set tarray(${i}3) [lindex $thisline 3 ]
+            set tarray(${i}4)  ""
+            for {set in 4} {$in < $nel} {incr in} {
+                lappend tarray(${i}4) [lindex $thisline $in]
+            }
+            if { [winfo exists $toolframe.l1$i ]  == 0 }  {
+                label $toolframe.l1$i -text [set tarray(${i}0) ]
+                entry $toolframe.l2$i -textvariable tarray(${i}2) -relief flat -bg white -width 10
+                bind $toolframe.l2$i <KeyPress-Return> {updateToolFile}
+                entry $toolframe.l3$i -textvariable tarray(${i}3) -relief flat -bg white -width 10
+                bind $toolframe.l3$i <KeyPress-Return> {updateToolFile}
+                entry $toolframe.l4$i -textvariable tarray(${i}4) -relief flat -bg white -width 10
+                bind $toolframe.l4$i <KeyPress-Return> {updateToolFile}
+                grid $toolframe.l1$i $toolframe.l2$i $toolframe.l3$i $toolframe.l4$i  -sticky ew
+            }
+        }
+    }
+    grid $tool.l1 -padx 12 -pady 12 -sticky ew
+    grid $toolframe -sticky ew
+    setToolButtons
+}
+
+proc setToolButtons { } {
+    global toolframe
+    set tadd [button $toolframe.add -text [msgcat::mc "Add Extra Tool"] -command {addTool} ]
+    set trem [button $toolframe.rem -text [msgcat::mc "Remove Last Tool"] -command {remTool} ]
+    grid configure $tadd $trem -columnspan 2 -sticky nsew -pady 5
+}
+
+proc addTool {} {
+    global toolframe tarray popinframe
+    set tempnum [array size tarray]
+    set templine [expr $tempnum / 4]
+    set toolnumber [expr $templine + 1]
+    set toolline [expr $templine + 2]
+    set tarray(${toolline}0) $toolnumber
+    set tarray(${toolline}2) 0.0
+    set tarray(${toolline}3) 0.0
+    set tarray(${toolline}4) empty
+    updateToolFile
+    destroy $popinframe.tools
+    popinTools
+}
+
+proc remTool {} {
+    global tarray tooltext popinframe toolfilename programstatusstring
+    set tempnum [array size tarray]
+    set templine [expr $tempnum  / 4 + 1 ]
+    $tooltext delete $templine.0 [expr $templine +1].0
+    saveFile $tooltext $toolfilename
+    if {$programstatusstring == "idle"} {
+        emc_load_tool_table $toolfilename
+    } else {
+        mText [msgcat::mc "Can't update the tool file while machine is in auto and %s." $programstatusstring]
+    }
+    destroy $popinframe.tools
+    focus -force "."
+    popinTools
+}
+
+proc examineVal {widgetname value} {
+    global $widgetname
+    set temp 0
+    catch [set temp [expr $value + 0.0 ] ]
+    if {$temp == 0} {
+        mText [msgcat::mc "This is not a good number."]
+#        focus -force $widgetname
+    }
+}
+
+proc updateToolFile {} {
+    global top tooltext toolfilename tarray programstatusstring
+    $tooltext config -state normal
+    $tooltext delete 2.0 end
+    set tempnum [array size tarray]
+    set templines [expr $tempnum  / 4 ]
+    set toollines [expr $templines + 1]
+    for {set i 2} {$i <= $toollines} {incr i} {
+        $tooltext mark set insert end
+        $tooltext insert insert "
+        " ; # this is a newline to insert in text.  Do not remove
+        set thistoolline [ join "$tarray(${i}0) $tarray(${i}0) $tarray(${i}2) $tarray(${i}3) $tarray(${i}4)" "   " ]
+        $tooltext mark set insert "$i.0 "
+        $tooltext insert insert $thistoolline
+    }
+    saveFile $tooltext $toolfilename
+    if {$programstatusstring == "idle"} {
+        emc_load_tool_table $toolfilename
+    } else {
+        mText [msgcat::mc "Can't update the tool file while machine is in auto and %s." $programstatusstring]
+    }
+    focus -force "."
+}
+
+# ----------end of tool setup----------
+
+update
+
+# ----------RIGHT - OFFSETS SYSTEM SETUP----------
+
+set paramfilename [emc_ini "PARAMETER_FILE" "RS274NGC"]
+if { [string length $paramfilename] == 0} {
+    set paramfilename "emc.var"
+}
+set numaxis [emc_ini "AXES" "TRAJ"]
+set nameaxis [emc_ini "COORDINATES" "TRAJ"]
+# put the parm file into an invisible widget
+set vartext [text $top.vartext]
+$vartext config -state normal
+$vartext delete 1.0 end
+if { [catch {open $paramfilename} programin] } {
+    return
+} else {
+    $vartext insert end [read $programin]
+    catch {close $programin}
+}
+
+# store touchoffradius in var 5218
+set touchoffradius 0.0000
+# store touchofflength in var 5219
+set touchofflength 0.0000
+set touchoffdirection "+"
+
+proc popinOffsets { } {
+    global coord popinframe numaxis paramfilename nameaxis vartext coordsys
+    global num0 num1 num2 num3 num4 num5 val0 val1 val2 val3 val4 val5
+    global oval0 oval1 oval2 oval3 oval4 oval5
+    global zerocoordnumber touchoffradius touchofflength touchoffdirection
+    set coord [frame $popinframe.offsets ]
+    label $coord.l1 -text [msgcat::mc "COORDINATE SYSTEM SETUP \n\n \
+        Click value to edit with keyboard.  Press enter to return to keyboard control of machine. \n "]
+    # Build the coordinates radio buttons.
+    set sel [frame $coord.selectors -borderwidth 2 -relief groove]
+    radiobutton $sel.r540 -text G54 -variable coordsys -value 5221 -anchor w \
+        -command {findVarNumbers} -takefocus 0
+    radiobutton $sel.r550 -text G55 -variable coordsys -value 5241 -anchor w \
+        -command {findVarNumbers} -takefocus 0
+    radiobutton $sel.r560 -text G56 -variable coordsys -value 5261 -anchor w \
+        -command {findVarNumbers} -takefocus 0
+    radiobutton $sel.r570 -text G57 -variable coordsys -value 5281 -anchor w \
+        -command {findVarNumbers} -takefocus 0
+    radiobutton $sel.r580 -text G58 -variable coordsys -value 5301 -anchor w \
+        -command {findVarNumbers} -takefocus 0
+    radiobutton $sel.r590 -text G59 -variable coordsys -value 5321 -anchor w \
+        -command {findVarNumbers} -takefocus 0
+    radiobutton $sel.r591 -text G59.1 -variable coordsys -value 5341 -anchor w \
+        -command {findVarNumbers} -takefocus 0
+    radiobutton $sel.r592 -text G59.2 -variable coordsys -value 5361 -anchor w \
+        -command {findVarNumbers} -takefocus 0
+    radiobutton $sel.r593 -text G59.3 -variable coordsys -value 5381 -anchor w \
+        -command {findVarNumbers} -takefocus 0
+    pack $sel.r540 $sel.r550 $sel.r560 $sel.r570 $sel.r580 \
+        $sel.r590 $sel.r591 $sel.r592 $sel.r593 -side top -fill x
+
+    # Build the variable numbers and value entry widgets.
+    set caxis [frame $coord.col]
+    label $caxis.name -text [msgcat::mc "Axis "]
+    label $caxis.varval -text [msgcat::mc "Value "]
+    grid $caxis.name $caxis.varval -sticky news
+    for {set i 0} {$i < $numaxis} {incr i} {
+        label  $caxis.l$i -text "[lindex $nameaxis $i ]   "  -anchor e
+        entry $caxis.e$i -textvariable val$i -fg darkred -bg white -relief flat -width 10 -takefocus 1
+        button $caxis.b$i -text [msgcat::mc "Teach"] -command "getLocation $i" -takefocus 0
+        grid $caxis.l$i $caxis.e$i $caxis.b$i -sticky news
+        bind $caxis.e$i <KeyPress-Return> {setVarValues ; loadVarFile }
+    }
+    # Build the control button widgets.
+    set cbuttons [frame $coord.buttons]
+    button $cbuttons.b0 -textvariable "zerocoordnumber" -width 16 \
+        -command {getZero} -takefocus 0
+    button $cbuttons.b4 -text [msgcat::mc "Write And Load File "] -width 16 \
+        -command {setVarValues ; loadVarFile} -takefocus 0
+    label $cbuttons.l0 -text [msgcat::mc "Offset By Radius"]
+    label $cbuttons.l1 -text [msgcat::mc "Offset By Length"]
+    entry $cbuttons.e0 -textvariable touchoffradius -relief flat -bg white
+    entry $cbuttons.e1 -textvariable touchofflength -relief flat -bg white
+    bind $cbuttons.e0 <KeyPress-Return> {setTouchOff ; focus -force ".top"}
+    bind $cbuttons.e1 <KeyPress-Return> {setTouchOff ; focus -force ".top"}
+    radiobutton $cbuttons.r0 -text Subtract -variable touchoffdirection -value "-" -anchor w \
+        -takefocus 0
+    radiobutton $cbuttons.r1 -text Add -variable touchoffdirection -value "+" -anchor w \
+        -takefocus 0
+    grid $cbuttons.l0 $cbuttons.e0  -sticky nsew
+    grid $cbuttons.l1 $cbuttons.e1  -sticky nsew
+    grid $cbuttons.l1 $cbuttons.e1  -sticky nsew
+    grid $cbuttons.r0 $cbuttons.r1  -sticky nsew
+    grid $cbuttons.b0 $cbuttons.b4  -sticky nsew
+
+    # grid the coord widgets
+    grid configure $coord.l1 -row 0 -column 0 -columnspan 2 -pady 6
+    grid configure $sel -row 2 -column 0 -padx 10 -pady 10 -rowspan 2
+    grid configure $caxis -row 2 -column 1
+    grid configure $cbuttons -row 3 -column 1 -sticky ew
+
+    pack $coord -side top -padx 2 -pady 2 -fill both -expand yes
+    findVarNumbers
+    isTouchOff
+}
+
+proc findVarSystem {} {
+    global coordsys zerocoordnumber
+    switch -- $coordsys {
+        5221 {set zerocoordnumber  [msgcat::mc "Zero All G54"] }
+        5241 {set  zerocoordnumber [msgcat::mc "Zero All G55"] }
+        5261 {set  zerocoordnumber [msgcat::mc "Zero All G56"] }
+        5281 {set  zerocoordnumber [msgcat::mc "Zero All G57"] }
+        5301 {set  zerocoordnumber [msgcat::mc "Zero All G58"] }
+        5321 {set  zerocoordnumber [msgcat::mc "Zero All G59"] }
+        5341 {set  zerocoordnumber [msgcat::mc "Zero All G59.1"] }
+        5361 {set  zerocoordnumber [msgcat::mc "Zero All G59.2"] }
+        5381 {set  zerocoordnumber [msgcat::mc "Zero All G59.3"] }
+        default {set  zerocoordnumber [msgcat::mc "Zero All ????"] }
+    }
+}
+
+set touchoffradiusvar 5218
+set touchofflengthvar 5219
+
+proc isTouchOff {} {
+    global vartext touchoffradiusvar touchofflengthvar paramfilename
+    global touchoffradius touchofflength
+    foreach var "touchoffradius  touchofflength" {
+        set locate [$vartext search [set ${var}var ] 1.0 ]
+        if {$locate != ""} {
+            set locate [expr int($locate)]
+            set valtemp [$vartext get $locate.4 "$locate.end"]
+            set $var [string trim $valtemp]
+        } else {
+            set varnumber 0
+            set indexer 1
+            while {$varnumber < [set ${var}var ] } {
+                set varnumber [$vartext get $indexer.0 $indexer.4]
+                incr indexer
+            }
+            $vartext mark set insert [expr $indexer -1].0
+            $vartext insert insert "[set ${var}var ] [set $var] \n"
+        }
+    }
+    saveFile $vartext $paramfilename
+}
+
+proc setTouchOff {} {
+    global vartext paramfilename touchoffradiusvar touchofflengthvar
+    global touchoffradius touchofflength
+    # set radius
+    set locate [$vartext search $touchoffradiusvar 1.0 ]
+    $vartext mark set insert $locate
+    set locate [expr int($locate)]
+    $vartext delete $locate.0 "$locate.end"
+    $vartext insert insert "$touchoffradiusvar     $touchoffradius"
+    #set length
+    set locate [$vartext search $touchofflengthvar 1.0 ]
+    $vartext mark set insert $locate
+    set locate [expr int($locate)]
+    $vartext delete $locate.0 "$locate.end"
+    $vartext insert insert "$touchofflengthvar     $touchofflength"
+    saveFile $vartext $paramfilename
+    loadVarFile
+}
+
+set coordsys 5241
+proc findVarNumbers {} {
+    global coordsys numaxis num0 num1 num2 num3 num4 num5
+    # set the initial coordinate system and find values.
+    set numaxis [emc_ini "AXES" "TRAJ"]
+    set nameaxis [emc_ini "COORDINATES" "TRAJ"]
+    for {set i 0} {$i < $numaxis} {incr i} {
+        set num$i [expr $coordsys +$i]
+        set val$i 0.000000
+    }
+    findVarValues
+    findVarSystem
+}
+
+proc findVarValues {}  {
+    global vartext
+    global numaxis val0 val1 val2 val3 val4 val5
+    global num0 num1 num2 num3 num4 num5
+    global numaxis oval0 oval1 oval2 oval3 oval4 oval5
+    for {set i 0} {$i < $numaxis} {incr i} {
+        set val$i 0.000000
+    }
+    set locate "1.0"
+    for {set i 0} {$i < $numaxis} {incr i}  {
+        set oval$i [set val$i]
+        set locate [$vartext search [set num$i] 1.0 ]
+        set locate [expr int($locate)]
+        set valtemp [$vartext get $locate.4 "$locate.end"]
+        set val$i [string trim $valtemp]
+    }
+}
+
+proc getZero {} {
+    global numaxis val0 val1 val2 val3 val4 val5
+    for {set i 0} {$i < $numaxis} {incr i} {
+        set val$i 0.000000
+    }
+}
+
+proc getLocation {axnum} {
+    global numaxis val0 val1 val2 val3 val4 val5
+    global zerocoordnumber touchoffradius touchofflength touchoffdirection
+    switch -- $axnum {
+        "0" -
+        "1" {
+            set val$axnum [expr [emc_abs_act_pos $axnum] $touchoffdirection $touchoffradius ]
+        }
+        "2" {
+            set val$axnum [expr [emc_abs_act_pos $axnum] $touchoffdirection $touchofflength ]
+        }
+        all {
+            for {set i 0} {$i < $numaxis} {incr i} {
+            set val$i [emc_abs_act_pos $i]
+            }
+        }
+        "default" {
+            set val$axnum [emc_abs_act_pos $axnum]
+        }
+    }
+}
+
+# ----------end of OFFSETS SYSTEM SETUP----------
+
+update
+
+# ----editor widgets -----
+set saveTextMsg 0
+set editFilename ""
+set initialDir $programDirectory
+set MODIFIED [msgcat::mc "Modified..."]
+
+set winTitle "mini"
+set version "Version 0.7.9"
+
+proc popinEditor {} {
+    global editFilename textwin programnamestring
+    global editwidth editheight popinframe undo_id
+
+    set editTypes {{[msgcat::mc "All files"] *} {[msgcat::mc "Text files"]} {.txt}}
+
+    if { ![info exists editwidth] } {set editwidth 80}
+    if { ![info exists editheight] } {set editheight 40}
+    set editframe [frame $popinframe.editor ]
+    pack $editframe -side top -fill both -expand yes
+    set textframe [frame $editframe.textframe ]
+    set textwin [text  $textframe.textwin  -width $editwidth -height $editheight -padx 4 -wrap word \
+         -yscrollcommand "editScrolltext $textframe" -bg "white"]
+    set scrolly $textframe.scrolly
+    scrollbar $scrolly -orient vert -command "$textwin yview" -width 8
+    pack $scrolly -side right -fill y
+    pack $textwin -side top -fill both -expand true
+
+    set menubar [frame $editframe.menuframe -relief raised -bd 2]
+    pack $menubar -side top -fill x -expand yes
+    menubutton $menubar.file -text [msgcat::mc "File"] -menu $menubar.file.menu
+    menubutton $menubar.edit -text [msgcat::mc "Edit"] -menu $menubar.edit.menu
+    menubutton $menubar.settings -text [msgcat::mc "Settings"] -menu $menubar.settings.menu
+    menubutton $menubar.help -text [msgcat::mc "Help"] -menu $menubar.help.menu
+    pack $menubar.file -side left
+    pack $menubar.edit -side left
+    pack $menubar.settings -side left
+    pack $menubar.help -side right
+    set filemenu $menubar.file.menu
+    set editmenu $menubar.edit.menu
+    set settingsmenu $menubar.settings.menu
+    set helpmenu $menubar.help.menu
+    menu $filemenu
+    menu $editmenu
+    menu $settingsmenu
+    menu $helpmenu
+
+    $filemenu add command -label [msgcat::mc "New..."] -underline 0 -command "filesetasnew" -accelerator Ctrl+n
+    $filemenu add command -label [msgcat::mc "Open..."] -underline 0 -command "filetoopen" -accelerator Ctrl+o
+    $filemenu add command -label [msgcat::mc "Save"] -underline 0 -command "filetosave" -accelerator Ctrl+s
+    $filemenu add command -label [msgcat::mc "Save As..."] -underline 5 -command "filesaveas"
+    $filemenu add separator
+    $filemenu add command -label [msgcat::mc "Save and Load"] -command "filetosave ; changeProgram" -underline 1
+
+    $editmenu add command -label [msgcat::mc "Undo"] -underline 0 -command "undo_menu_proc" -accelerator Ctrl+z
+    $editmenu add command -label [msgcat::mc "Redo"] -underline 0 -command "redo_menu_proc" -accelerator Ctrl+y
+    $editmenu add separator
+    $editmenu add command -label [msgcat::mc "Cut"] -underline 2 -command "cuttext" -accelerator "Ctrl+X"
+    $editmenu add command -label [msgcat::mc "Copy"] -underline 0 -command "copytext" -accelerator "Ctrl+C"
+    $editmenu add command -label [msgcat::mc "Paste"] -underline 0 -command "pastetext" -accelerator "Ctrl+V"
+    $editmenu add command -label [msgcat::mc "Delete"] -underline 0 -command "deletetext" -accelerator Del
+    $editmenu add separator
+    $editmenu add command -label [msgcat::mc "Select All"] -underline 7 -command "$textwin tag add sel 1.0 end" -accelerator "Ctrl+A"
+    $editmenu add separator
+    $editmenu add command -label [msgcat::mc "Find"] -underline 0 -command "findtext find" -accelerator Ctrl+f
+    $editmenu add command -label [msgcat::mc "Replace"] -underline 0 -command "findtext replace" -accelerator Ctrl+r
+    $editmenu add command -label [msgcat::mc "Renumber File"] -underline 0 -command "editSetLineNumber 1"
+
+    $settingsmenu add command -label [msgcat::mc "No Numbering"] -underline 0 -command "set startnumbering 0"
+    $settingsmenu add separator
+    $settingsmenu add command -label [msgcat::mc "Line Numbering"] -underline 0 -command "editSetLineNumber 0"
+
+    $helpmenu add command -label [msgcat::mc "Help"] -underline 0 -command "helpme"
+    $helpmenu add command -label [msgcat::mc "About"] -underline 0 -command "aboutme"
+
+    bind $textwin <Control-x> {cuttext}
+    bind $textwin <Control-c> {copytext}
+    bind $textwin <Control-s> {filetosave}
+    bind Text <Control-o> {}
+    bind Text <Control-f> {}
+    bind $textwin <Control-o> {filetoopen}
+    bind $textwin <Control-z> {undo_menu_proc}
+    bind $textwin <Control-y> {redo_menu_proc}
+    bind $textwin <Control-f> {findtext find}
+    bind $textwin <Control-r> {findtext replace}
+    event delete <<Cut>> <Control-x>
+    event delete <<Paste>> <Control-v>
+    event delete <<Paste>> <Control-Key-y>
+    # more bindings
+    bind Text <Control-v> {}
+    bind $textwin <Control-v> {pastetext}
+
+
+    pack $textframe -side top -fill both -expand yes
+    # insert contents of filename, if it exists
+    if { [file isfile $programnamestring] == 1} {
+        set editFilename $programnamestring
+    }
+    if {$editFilename == "" } {
+        set $editFilename new
+        loadEditorText
+    } else {
+        loadEditorText
+    }
+    set undo_id [new textUndoer $textwin]
+}
+
+proc editScrolltext {tf a b} {
+    $tf.scrolly set $a $b
+}
+
+proc loadEditorText { } {
+    global textwin editFilename
+    if {$editFilename == "new" } {
+        editOpenFile
+    } else {
+    set fname $editFilename
+    }
+    if { [file isfile $fname] == 0} {
+        return
+    }
+    if { [catch {open $fname} filein] } {
+        puts stdout "can't open $fname"
+    } else {
+        $textwin delete 1.0 end
+        $textwin insert end [read $filein]
+        catch {close $filein}
+    }
+}
+
+# Any positive integer can be used for lineincrement.
+# A 0 startnumbering value means lines will not be numbered when enter is pressed.
+set startnumbering 0
+
+# Space refers to the distance between n words and other text. Tab space is set
+# here but could be single or double space.  Change what's between the "".
+set space "     "
+
+# Number refers to the start up value of line numbering.
+set number 0
+set lineincrement 10
+
+proc editLineIncrement {} {
+    global startnumbering number lineincrement space textwin
+    if {$startnumbering != 0} {
+        $textwin insert insert "n$number$space"
+        incr number $lineincrement
+    }
+}
+
+# editSetLineNumber uses a hard coded popup location from top right.
+proc editSetLineNumber {what} {
+    global  startnumbering number lineincrement textwin linenum
+    toplevel .linenumber
+    wm title .linenumber [msgcat::mc "Set Line Numbering"]
+    wm geometry .linenumber 275x180-60+100
+    set linenum [frame .linenumber.frame]
+    pack $linenum -side top -fill both -expand yes
+    label $linenum.label1 -text [msgcat::mc "Increment"]
+    place $linenum.label1 -x 5 -y 5
+    radiobutton $linenum.incr1 -text One -variable lineincrement -value 1 -anchor w
+    place $linenum.incr1 -x 10 -y 25 -width 80 -height 20
+    radiobutton $linenum.incr2 -text Two -variable lineincrement -value 2 -anchor w
+    place $linenum.incr2 -x 10 -y 45 -width 80 -height 20
+    radiobutton $linenum.incr5 -text Five -variable lineincrement -value 5 -anchor w
+    place $linenum.incr5 -x 10 -y 65 -width 80 -height 20
+    radiobutton $linenum.incr10 -text Ten -variable lineincrement -value 10 -anchor w
+    place $linenum.incr10 -x 10 -y 85 -width 80 -height 20
+    label $linenum.label2 -text [msgcat::mc "Space"]
+    place $linenum.label2 -x 130 -y 5
+    radiobutton $linenum.space1 -text [msgcat::mc "Single Space"] -variable space -value { } -anchor w
+    place $linenum.space1 -x 140 -y 25
+    radiobutton $linenum.space2 -text [msgcat::mc "Double Space"] -variable space -value {  } -anchor w
+    place $linenum.space2 -x 140 -y 45
+    radiobutton $linenum.space3 -text [msgcat::mc "Tab Space"] -variable space -value {    } -anchor w
+    place $linenum.space3 -x 140 -y 65
+    button $linenum.ok -text OK -command {destroy .linenumber} -height 1 -width 9
+    place $linenum.ok -x 160 -y 127
+    label $linenum.label3 -text [msgcat::mc "Next Number : "] -anchor e
+    place $linenum.label3 -x 5 -y 130 -width 95
+    entry $linenum.entry -width 6 -textvariable number
+    place $linenum.entry -x 100 -y 130
+    button $linenum.renum -text Renumber -command editReNumber -height 1 -width 9 -state disabled
+    if {$what} {
+        $linenum.renum configure -state normal
+    }
+    place $linenum.renum -x 160 -y 96
+    set temp [expr $number - $lineincrement]
+    if {$temp > 0} {
+        set number $temp
+    } else {
+        set number 0
+    }
+    set startnumbering 1
+    focus -force ".linenumber"
+    bind ".linenumber" <FocusOut> {destroy ".linenumber"}
+}
+
+# String match with a while loop [0-9 tab space] 1 if true 0 if no match
+proc editReNumber {} {
+    global textwin number lineincrement space linenum
+    scan [$textwin index end] %d nl
+    for {set i 1} {$i < $nl} {incr i} {
+        if {$number > 99999} {set number 0}
+        set editline [$textwin get $i.0 $i.end ]
+        set editline [string trimleft $editline " "]
+        if { ! [ regexp ^% $editline ] } {
+            if { [ regexp -nocase {^[nN](\d*)(\s*)} $editline ] } {
+                regsub -nocase {^[nN](\d*)(\s*)} $editline "n$number$space" editline
+            } else {
+                set editline "n$number$space$editline"
+            }
+        }
+        $textwin delete $i.0 $i.end
+        $textwin insert $i.0 "$editline"
+
+        incr number $lineincrement
+    }
+    set startnumbering 0
+}
+
+###############################################################################
+# 
+# Tk NotePad is designed to be a single Tcl/Tk script, that is functional cross 
+# platform, but is intended mainly for Linux.
+# 
+# This script is freeware, however there is some 'borrowed code' now contained in 
+# this script. See the file license.txt to see what that means. Basically I 
+# modified their code and am now redistributing it, and giving them proper credit.
+# As I understand it that is they way it works. This script itself then becomes 
+# yours to modify, crop, cut, paste, or whatever. It is distributed under the 
+# Tcl/Tk liscense, the licesnse.txt file, and I guess that makes it LGPL? I'm not
+# a lawyer, so don't ask me!
+# 
+# NOTE: It works on Windows, but BETTER on Linux!
+# 
+# 	Joseph Acosta joeja@mindspring.com
+# 
+###############################################################################
+
+# this proc just sets the title to what it is passed
+proc settitle {WinTitleName} {
+    global winTitle editFilename
+    wm title . "$winTitle - $WinTitleName"
+    set editFilename $WinTitleName
+}
+
+# proc to open files or read a pipe
+proc openoninit {thefile} {
+    global textwin
+    $textwin delete 0.0 end
+    if [string match " " $thefile] {  
+        fconfigure stdin -blocking 0
+        set incoming [read stdin 1]
+        if [expr [string length $incoming] == 0] {
+            fconfigure stdin -blocking 1
+        } else {
+            fconfigure stdin -blocking 1
+            $textwin insert end $incoming
+            while {![eof stdin]} {
+                $textwin insert end [read -nonewline stdin]
+            }
+        }
+    } else {
+        if [ file exists $thefile ] {
+            set newnamefile [open $thefile r]
+        } else {
+            set newnamefile [open $thefile a+]
+        }
+        while {![eof $newnamefile]} {
+	       $textwin insert end [read -nonewline $newnamefile ] 
+        }
+        close $newnamefile
+        settitle $thefile
+    }
+}
+
+# help menu
+proc helpme {} {
+	tk_messageBox -title [msgcat::mc "Basic Help"] -type ok -message [msgcat::mc "This is a simple ASCII editor like many others.
+
+Ctrl+O  Open
+Ctrl+S  Save
+Ctrl+Z  Undo
+Ctrl+Y  Redo
+Ctrl+X  Cut
+Ctrl+C  Copy
+Ctrl+V  Paste
+Del     Delete
+Ctrl+A  Select All
+
+Ctrl+F  Find
+Ctrl+R  Replace "]
+
+}
+
+# about menu
+proc aboutme {} {
+        global winTitle version
+	tk_messageBox -title [msgcat::mc "About"] -type ok -message [msgcat::mc "tknotepad by Joseph Acosta. <joeja@mindspring.com>\n\n\
+        Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"]
+}
+
+# generic case switcher for message box
+proc switchcase {yesfn nofn} {
+    global saveTextMsg
+    if [ expr [string compare $saveTextMsg 1] ==0 ] { 
+	set answer [tk_messageBox -message [msgcat::mc "The contents of this file may have changed, do you wish to to save your changes?"] \
+	-title [msgcat::mc "New Confirm?"] -type yesnocancel -icon question]
+	case $answer {
+	     yes { if {[eval $yesfn] == 1} { $nofn } }
+             no {$nofn }
+	}
+    } else {
+   	$nofn
+    }
+}
+
+# new file
+proc filesetasnew {} {
+    global editFilename winTitle
+    switchcase filetosave setTextTitleAsNew
+}
+
+proc setTextTitleAsNew {} {
+    global textwin
+    $textwin delete 0.0 end
+    global winTitle editFilename
+    set editFilename " "
+    wm title . $winTitle
+    outccount
+}
+
+# msgcat doesn't work here
+# bring up open win
+proc showopenwin {} {
+    global programDirectory
+    set types {
+        {"NC files" {*.ngc *.nc *.tap} }
+	    {"All files" *}
+    }
+    set file [tk_getOpenFile -filetypes $types -parent . -initialdir $programDirectory]
+###if [string compare $file ""]
+    if { [string len $file] > 0} {
+        set programDirectory [file dirname $file]
+        setTextTitleAsNew
+        openoninit $file
+        outccount
+    }
+}
+
+#open an existing file
+proc filetoopen {} {
+  	switchcase filetosave showopenwin
+}
+
+# generic save function
+proc writesave {nametosave} {
+    global textwin
+    set FileNameToSave [open $nametosave w+]
+    puts -nonewline $FileNameToSave [$textwin get 0.0 end]
+    close $FileNameToSave
+    outccount
+}
+
+#save a file
+proc filetosave {} {
+    global editFilename
+    #check if file exists file
+    if [file exists $editFilename] {
+	writesave $editFilename
+        return 1
+    } else {
+	 return [eval filesaveas]
+    }
+}
+
+# msgcat doesn't work here
+#save a file as
+proc filesaveas {} {
+    global editFilename
+    set types {
+        {"NC files" {*.ngc *.nc *.tap} }
+        {"All files" *}
+    }
+    set myfile [tk_getSaveFile -filetypes $types -parent .  -initialdir "~/gcode" -initialfile $editFilename]
+    if { [expr [string compare $myfile ""]] != 0} {
+	writesave  $myfile 
+	settitle $myfile
+        return 1
+    }
+    return 0
+}
+
+# proc to set child window position
+proc setwingeom {wintoset} {
+    wm resizable $wintoset 0 0
+    set myx [expr (([winfo screenwidth .]/2) - ([winfo reqwidth $wintoset]))]
+    set myy [expr (([winfo screenheight .]/2) - ([winfo reqheight $wintoset]/2))]
+    wm geometry $wintoset +$myx+$myy
+    set topwin [ winfo parent $wintoset ]
+    if { [ winfo viewable [ winfo toplevel $topwin ] ] } {
+        wm transient $wintoset $topwin
+    }
+}
+
+# procedure to setup the printer
+proc printseupselection {} {
+	global printCommand
+	set print .print
+	catch {destroy $print}
+	toplevel $print
+	wm title $print [msgcat::mc "Print Setup"]
+	setwingeom $print
+	frame $print.top 
+	frame $print.bottom
+	label $print.top.label -text [msgcat::mc "Print Command: "]
+	entry $print.top.print -textvariable printsetupnew -width 40
+	$print.top.print delete 0 end
+	set printvar $printCommand 
+	$print.top.print insert 0 $printvar
+	button $print.bottom.ok -text [msgcat::mc "OK"] -command "addtoprint $print"
+	button $print.bottom.cancel -text [msgcat::mc "Cancel"] -command "destroy $print"
+
+	pack $print.top -side top -expand 0 
+	pack $print.bottom -side bottom -expand 0 
+	pack $print.top.label $print.top.print -in $print.top -side left -fill x -fill y
+	pack $print.bottom.ok $print.bottom.cancel -in $print.bottom -side left -fill x -fill y
+	bind $print <Return> "addtoprint $print"
+	bind $print <Escape> "destroy $print"
+
+    proc addtoprint {prnt} {
+         global printCommand
+         set printCommand [$prnt.top.print get]
+         destroy $prnt
+    }
+}
+
+# procedure to print
+proc selectprint {} {
+    global textwin
+    set TempPrintFile [open /tmp/tkpadtmpfile w]
+    puts -nonewline $TempPrintFile [$textwin get 0.0 end]
+    close $TempPrintFile
+    global printCommand
+    set prncmd $printCommand	
+    eval exec $prncmd /tmp/tkpadtmpfile
+    eval exec rm -f /tmp/tkpadtmpfile
+}
+
+#cut text procedure
+proc deletetext {} {
+    set cuttexts [selection own]
+    if {$cuttexts != "" } {
+        $cuttexts delete sel.first sel.last
+        selection clear
+    }
+    inccount
+}
+
+#cut text procedure
+proc cuttext {} {
+    global textwin
+    tk_textCut $textwin
+    inccount
+}
+
+#copy text procedure
+proc copytext {} {
+    global textwin
+    tk_textCopy $textwin
+    inccount
+}
+
+#paste text procedure
+proc pastetext {} {
+    global textwin
+    global tcl_platform
+    if {"$tcl_platform(platform)" == "unix"} {
+	catch {$textwin delete sel.first sel.last}
+    }
+    tk_textPaste $textwin
+    inccount
+}
+
+proc FindIt {w} {
+    global textwin
+    global SearchString SearchPos SearchDir findcase 
+    $textwin tag configure sel -background green
+    if {$SearchString!=""} {
+    	if {$findcase=="1"} {
+            set caset "-exact"
+	} else {
+	    set caset "-nocase"
+	}
+	if {$SearchDir == "forwards"} {
+	    set limit end
+	} else {
+	    set limit 1.0
+	}
+	set SearchPos [ $textwin search -count len $caset -$SearchDir $SearchString $SearchPos $limit]
+	set len [string length $SearchString]
+	if {$SearchPos != ""} {
+            $textwin see $SearchPos
+	    tk::TextSetCursor $textwin $SearchPos
+	    $textwin tag add sel $SearchPos  "$SearchPos + $len char"
+
+	    if {$SearchDir == "forwards"} {
+                set SearchPos "$SearchPos + $len char"
+	    }         
+        } else {
+	    set SearchPos "0.0"
+	}
+    }
+    focus $textwin
+}
+
+proc ReplaceIt {} {
+    global SearchString SearchDir ReplaceString SearchPos findcase
+    global textwin
+	if {$SearchString != ""} {
+	    if {$findcase=="1"} {
+		set caset "-exact"
+	    } else {
+		set caset "-nocase"
+	    }
+	    if {$SearchDir == "forwards"} {
+		set limit end
+	    } else {
+		set limit 1.0
+	    }
+	    set SearchPos [ $textwin search -count len $caset -$SearchDir $SearchString $SearchPos $limit]
+		set len [string length $SearchString]
+	    if {$SearchPos != ""} {
+        		$textwin see $SearchPos
+               		$textwin delete $SearchPos "$SearchPos+$len char"
+        		$textwin insert $SearchPos $ReplaceString
+		if {$SearchDir == "forwards"} {
+        			set SearchPos "$SearchPos+$len char"
+		}         
+	    } else {
+	       	set SearchPos "0.0"
+	    }
+	}
+	inccount
+}
+
+proc ReplaceAll {} {
+      global SearchPos SearchString
+       if {$SearchString != ""} {
+                ReplaceIt
+	while {$SearchPos!="0.0"} {
+		ReplaceIt
+	}
+       }
+}
+
+proc CancelFind {w} {
+    global textwin
+    $textwin tag delete tg1
+    destroy $w
+}
+
+proc ResetFind {} {
+    global SearchPos
+    set SearchPos insert
+}
+
+# procedure to find text
+proc findtext {typ} {
+	global SearchString SearchDir ReplaceString findcase c find
+	set find .find
+	catch {destroy $find}
+	toplevel $find
+	wm title $find "Find"
+	setwingeom $find
+	ResetFind
+	frame $find.l
+	frame $find.l.f1
+	label $find.l.f1.label -text [msgcat::mc "Find what:"] -width 11  
+	entry $find.l.f1.entry  -textvariable SearchString -width 30 
+	pack $find.l.f1.label $find.l.f1.entry -side left
+	$find.l.f1.entry selection range 0 end
+	if {$typ=="replace"} {
+		frame $find.l.f2
+		label $find.l.f2.label2 -text [msgcat::mc "Replace with:"] -width 11
+		entry $find.l.f2.entry2  -textvariable ReplaceString -width 30 
+		pack $find.l.f2.label2 $find.l.f2.entry2 -side left
+		pack $find.l.f1 $find.l.f2 -side top
+	} else {
+		pack $find.l.f1
+	}
+	frame $find.f2
+	button $find.f2.button1 -text [msgcat::mc "Find Next"] -command "FindIt $find" -width 10 -height 1 -underline 5 
+	button $find.f2.button2 -text [msgcat::mc "Cancel"] -command "CancelFind $find" -width 10 -underline 0
+	if {$typ=="replace"} {
+		button $find.f2.button3 -text [msgcat::mc "Replace"] -command ReplaceIt -width 10 -height 1 -underline 0
+		button $find.f2.button4 -text [msgcat::mc "Replace All"] -command ReplaceAll -width 10 -height 1 -underline 8		
+		pack $find.f2.button3 $find.f2.button4 $find.f2.button2  -pady 4
+	} else {
+		pack $find.f2.button1 $find.f2.button2  -pady 4
+	}
+	frame $find.l.f4
+	frame $find.l.f4.f3 -borderwidth 2 -relief groove
+	radiobutton $find.l.f4.f3.up -text [msgcat::mc "Up"] -underline 0 -variable SearchDir -value "backwards" 
+	radiobutton $find.l.f4.f3.down -text [msgcat::mc "Down"]  -underline 0 -variable SearchDir -value "forwards" 
+	$find.l.f4.f3.down invoke
+	pack $find.l.f4.f3.up $find.l.f4.f3.down -side left 
+	checkbutton $find.l.f4.cbox1 -text [msgcat::mc "Match case"] -variable findcase -underline 0 
+	pack $find.l.f4.cbox1 $find.l.f4.f3 -side left -padx 10
+	pack $find.l.f4 -pady 11
+	pack $find.l $find.f2 -side left -padx 1
+	bind $find <Escape> "destroy $find"
+
+     # each widget must be bound to the events of the other widgets
+     proc bindevnt {widgetnm types find} {
+	if {$types=="replace"} {
+		bind $widgetnm <Return> "ReplaceIt"
+		bind $widgetnm <Control-r> "ReplaceIt"
+		bind $widgetnm <Control-a> "ReplaceAll"
+	} else {
+		bind $widgetnm <Return> "FindIt $find"
+		bind $widgetnm <Control-n> "FindIt $find"
+	}
+	bind $widgetnm <Control-m> { $find.l.f4.cbox1 invoke }
+	bind $widgetnm <Control-u> { $find.l.f4.f3.up invoke }
+	bind $widgetnm <Control-d> { $find.l.f4.f3.down invoke }
+     }
+	if {$typ == "replace"} {
+   		bindevnt $find.f2.button3 $typ $find
+		bindevnt $find.f2.button4 $typ $find
+	} else {
+		bindevnt $find.f2.button1 $typ $find
+  	        bindevnt $find.f2.button2 $typ $find
+	}
+        bindevnt $find.l.f4.f3.up  $typ $find
+        bindevnt $find.l.f4.f3.down $typ $find
+        bindevnt $find.l.f4.cbox1 $typ $find
+	bindevnt $find.l.f1.entry $typ $find	
+	bind $find <Control-c> "destroy $find"
+	focus $find.l.f1.entry
+	grab $find
+}
+
+# proc for find next
+proc findnext {typof} {
+	global SearchString SearchDir ReplaceString findcase c find
+	if [catch {expr [string compare $SearchString "" ] }] {
+		findtext $typof
+	} else {
+	 	FindIt $find
+	}
+}
+
+#procedure to set the time change %R to %I:%M for 12 hour time display
+proc printtime {} {
+    global textwin
+    $textwin insert insert [clock format [clock seconds] -format "%R %p %D"]
+    inccount
+}
+
+# binding for wordwrap
+proc wraptext {} {
+    global wordWrap
+    if [expr [string compare $wordWrap word] == 0] {
+	set wordWrap none	
+    } else {
+	set wordWrap word
+    }
+    $textwin configure -wrap $wordWrap
+}
+
+## NOTE modifiedstatus is declared in the linenum.pth 
+## so if it it not included we dont want to throw the error
+## we just want to ignore, thus the catch...
+# this sets saveTextMsg to 1 for message boxes
+proc inccount {} {
+    global saveTextMsg MODIFIED
+    set saveTextMsg 1
+    catch {modifiedstatus $MODIFIED}
+}
+# this resets saveTextMsg to 0
+proc outccount {} {
+    global saveTextMsg 
+    set saveTextMsg 0
+    catch {modifiedstatus " "}
+}
+
+#set zed_dir [file dirname [info script]] 
+# here is where the undo stuff begins
+if {![info exists classNewId]} {
+    # work around object creation between multiple include of this file problem
+    set classNewId 0
+}
+
+proc new {className args} {
+    # calls the constructor for the class with optional arguments
+    # and returns a unique object identifier independent of the class name
+
+    global classNewId
+    # use local variable for id for new can be called recursively
+    set id [incr classNewId]
+    if {[llength [info procs ${className}:$className]]>0} {
+        # avoid catch to track errors
+        eval ${className}:$className $id $args
+    }
+    return $id
+}
+
+proc delete {className id} {
+    # calls the destructor for the class and delete all the object data members
+
+    if {[llength [info procs ${className}:~$className]]>0} {
+        # avoid catch to track errors
+        ${className}:~$className $id
+    }
+    global $className
+    # and delete all this object array members if any (assume that they were stored as $className($id,memberName))
+    foreach name [array names $className "$id,*"] {
+        unset ${className}($name)
+    }
+}
+
+proc lifo:lifo {id {size 2147483647}} {
+    global lifo
+    set lifo($id,maximumSize) $size
+    lifo:empty $id
+}
+
+proc lifo:push {id data} {
+    global lifo 
+    inccount
+    lifo:tidyUp $id
+    if {$lifo($id,size)>=$lifo($id,maximumSize)} {
+        unset lifo($id,data,$lifo($id,first))
+        incr lifo($id,first)
+        incr lifo($id,size) -1
+    }
+    set lifo($id,data,[incr lifo($id,last)]) $data
+    incr lifo($id,size)
+}
+
+proc lifo:pop {id} {
+    global lifo 
+    inccount
+    lifo:tidyUp $id
+    if {$lifo($id,last)<$lifo($id,first)} {
+        error "lifo($id) pop error, empty"
+    }
+    # delay unsetting popped data to improve performance by avoiding a data copy
+    set lifo($id,unset) $lifo($id,last)
+    incr lifo($id,last) -1
+    incr lifo($id,size) -1
+    return $lifo($id,data,$lifo($id,unset))
+}
+
+proc lifo:tidyUp {id} {
+    global lifo
+    if {[info exists lifo($id,unset)]} {
+        unset lifo($id,data,$lifo($id,unset))
+        unset lifo($id,unset)
+    }
+}
+
+proc lifo:empty {id} {
+    global lifo
+    lifo:tidyUp $id
+    foreach name [array names lifo $id,data,*] {
+        unset lifo($name)
+    }
+    set lifo($id,size) 0
+    set lifo($id,first) 0
+    set lifo($id,last) -1
+}
+
+proc textUndoer:textUndoer {id widget {depth 2147483647}} {
+    global textUndoer
+
+    if {[string compare [winfo class $widget] Text]!=0} {
+        error "textUndoer error: widget $widget is not a text widget"
+    }
+    set textUndoer($id,widget) $widget
+    set textUndoer($id,originalBindingTags) [bindtags $widget]
+    bindtags $widget [concat $textUndoer($id,originalBindingTags) UndoBindings($id)]
+
+    bind UndoBindings($id) <Control-u> "textUndoer:undo $id"
+
+    # self destruct automatically when text widget is gone
+    bind UndoBindings($id) <Destroy> "delete textUndoer $id"
+    # rename widget command
+    rename $widget [set textUndoer($id,originalCommand) textUndoer:original$widget]
+    # and intercept modifying instructions before calling original command
+    proc $widget {args} "textUndoer:checkpoint $id \$args; 
+		global search_count;
+		eval $textUndoer($id,originalCommand) \$args"
+
+    set textUndoer($id,commandStack) [new lifo $depth]
+    set textUndoer($id,cursorStack) [new lifo $depth]
+    #lee 
+    textRedoer:textRedoer $id $widget $depth 
+}
+
+proc textUndoer:~textUndoer {id} {
+    global textUndoer
+
+    bindtags $textUndoer($id,widget) $textUndoer($id,originalBindingTags)
+    rename $textUndoer($id,widget) ""
+    catch { rename $textUndoer($id,originalCommand) $textUndoer($id,widget) }
+    delete lifo $textUndoer($id,commandStack)
+    delete lifo $textUndoer($id,cursorStack)
+    #lee
+    textRedoer:~textRedoer $id
+}
+
+proc textUndoer:checkpoint {id arguments} {
+    global textUndoer textRedoer
+
+    # do nothing if non modifying command
+    if {[string compare [lindex $arguments 0] insert]==0} {
+        textUndoer:processInsertion $id [lrange $arguments 1 end]
+        if {$textRedoer($id,redo) == 0} {
+           textRedoer:reset $id
+        }
+    }
+    if {[string compare [lindex $arguments 0] delete]==0} {
+        textUndoer:processDeletion $id [lrange $arguments 1 end]
+        if {$textRedoer($id,redo) == 0} {
+           textRedoer:reset $id
+        }
+    }
+}
+
+proc textUndoer:processInsertion {id arguments} {
+    global textUndoer
+
+    set number [llength $arguments]
+    set length 0
+    # calculate total insertion length while skipping tags in arguments
+    for {set index 1} {$index<$number} {incr index 2} {
+        incr length [string length [lindex $arguments $index]]
+    }
+    if {$length>0} {
+        set index [$textUndoer($id,originalCommand) index [lindex $arguments 0]]
+        lifo:push $textUndoer($id,commandStack) "delete $index $index+${length}c"
+        lifo:push $textUndoer($id,cursorStack) [$textUndoer($id,originalCommand) index insert]
+    }
+}
+
+proc textUndoer:processDeletion {id arguments} {
+    global textUndoer
+
+    set command $textUndoer($id,originalCommand)
+    lifo:push $textUndoer($id,cursorStack) [$command index insert]
+
+    set start [$command index [lindex $arguments 0]]
+    if {[llength $arguments]>1} {
+        lifo:push $textUndoer($id,commandStack) "insert $start [list [$command get $start [lindex $arguments 1]]]"
+    } else {
+        lifo:push $textUndoer($id,commandStack) "insert $start [list [$command get $start]]"
+    }
+}
+
+proc textUndoer:undo {id} {
+    global textUndoer
+
+puts "$textUndoer($id,commandStack)"
+
+    if {[catch {set cursor [lifo:pop $textUndoer($id,cursorStack)]}]} {
+        return
+    }
+    if {[catch {set popArgs [lifo:pop $textUndoer($id,commandStack)]}]} {
+        return
+    }
+    textRedoer:checkpoint $id $popArgs
+    
+    eval $textUndoer($id,originalCommand) $popArgs
+    # now restore cursor position
+    $textUndoer($id,originalCommand) mark set insert $cursor
+    # make sure insertion point can be seen
+    $textUndoer($id,originalCommand) see insert
+}
+
+proc textUndoer:reset {id} {
+    global textUndoer
+    lifo:empty $textUndoer($id,commandStack)
+    lifo:empty $textUndoer($id,cursorStack)
+}
+
+proc textRedoer:textRedoer {id widget {depth 2147483647}} {
+    global textRedoer
+    if {[string compare [winfo class $widget] Text]!=0} {
+        error "textRedoer error: widget $widget is not a text widget"
+    }
+    set textRedoer($id,commandStack) [new lifo $depth]
+    set textRedoer($id,cursorStack) [new lifo $depth]
+    set textRedoer($id,redo) 0
+}
+
+proc textRedoer:~textRedoer {id} {
+    global textRedoer
+    delete lifo $textRedoer($id,commandStack)
+    delete lifo $textRedoer($id,cursorStack)
+}
+
+proc textRedoer:checkpoint {id arguments} {
+    global textUndoer textRedoer
+    # do nothing if non modifying command
+    if {[string compare [lindex $arguments 0] insert]==0} {
+        textRedoer:processInsertion $id [lrange $arguments 1 end]
+    }
+    if {[string compare [lindex $arguments 0] delete]==0} {
+        textRedoer:processDeletion $id [lrange $arguments 1 end]
+    }
+}
+
+proc textRedoer:processInsertion {id arguments} {
+    global textUndoer textRedoer
+    set number [llength $arguments]
+    set length 0
+    # calculate total insertion length while skipping tags in arguments
+    for {set index 1} {$index<$number} {incr index 2} {
+        incr length [string length [lindex $arguments $index]]
+    }
+    if {$length>0} {
+        set index [$textUndoer($id,originalCommand) index [lindex $arguments 0]]
+        lifo:push $textRedoer($id,commandStack) "delete $index $index+${length}c"
+        lifo:push $textRedoer($id,cursorStack) [$textUndoer($id,originalCommand) index insert]
+    }
+}
+
+proc textRedoer:processDeletion {id arguments} {
+    global textUndoer textRedoer
+    set command $textUndoer($id,originalCommand)
+    lifo:push $textRedoer($id,cursorStack) [$command index insert]
+
+    set start [$command index [lindex $arguments 0]]
+    if {[llength $arguments]>1} {
+        lifo:push $textRedoer($id,commandStack) "insert $start [list [$command get $start [lindex $arguments 1]]]"
+    } else {
+        lifo:push $textRedoer($id,commandStack) "insert $start [list [$command get $start]]"
+    }
+}
+
+proc textRedoer:redo {id} {
+    global textUndoer textRedoer
+    if {[catch {set cursor [lifo:pop $textRedoer($id,cursorStack)]}]} {
+        return
+    }
+    set textRedoer($id,redo) 1
+    set popArgs [lifo:pop $textRedoer($id,commandStack)]     
+    textUndoer:checkpoint $id $popArgs
+    eval $textUndoer($id,originalCommand) $popArgs
+    set textRedoer($id,redo) 0
+    # now restore cursor position
+    $textUndoer($id,originalCommand) mark set insert $cursor
+    # make sure insertion point can be seen
+    $textUndoer($id,originalCommand) see insert
+}
+
+proc textRedoer:reset {id} {
+    global textRedoer
+    lifo:empty $textRedoer($id,commandStack)
+    lifo:empty $textRedoer($id,cursorStack)
+}
+
+# end of where you'd source in undo.tcl
+#set undo_id [new textUndoer $textwin]
+
+proc undo_menu_proc {} {
+	global undo_id
+	textUndoer:undo $undo_id
+	inccount
+}
+
+proc redo_menu_proc {} {
+	global undo_id
+	textRedoer:redo $undo_id
+	inccount
+}
+
+# -----end editor ------
+
+update
+
+# ----------RIGHT - BACKPLOT----------
+
+# These set the axis directions.  +1 one plots like graph
+# paper with positive up and to the right.
+# to reverse an axis change its value to -1 (don't put other numbers here)
+set xdir 1
+set ydir -1
+set zdir -1
+set adir 1
+set bdir 1
+set cdir 1
+
+# These set top left and bottom right of the canvas
+global topx topy bot x boty
+set topx -1000
+set botx  1000
+set topy -500
+set boty 500
+
+# This variable sets the default size of the plot and can be thought of as number of
+# pixels per inch of machine motion.  The default (40) will give about .55 screen
+# inch per inch moved.
+
+set size 40
+
+# Set the colours for different modes here
+set plotcolour {limegreen black red blue yellow3 white}
+
+# Evaluate the number of clock clicks per second
+# Value dependent on machine !!
+set t1 [clock clicks]
+after 1000
+set t2 [clock clicks]
+set ticks [expr ($t2-$t1)/1000]
+
+# procedure to show window .
+proc popinPlot {} {
+    global  plot popinframe plotSetup plotsetuptext
+    set plot [frame $popinframe.plot]
+    pack $plot -fill both -expand yes
+
+  # build widget $plot.view
+  frame $plot.view  
+
+  # build widget $plot.view.3dview
+  canvas $plot.view.3dview \
+    -background linen \
+    -height {90} \
+    -highlightbackground {#ffffff} \
+    -highlightcolor {#000000} \
+    -relief {raised} \
+    -width {80}
+
+  # build widget $plot.view.redraw
+  button $plot.view.redraw \
+    -command redraw \
+    -padx {4} \
+    -pady {3} \
+    -text {Refresh}
+
+  # build widget $plot.view.reset
+  button $plot.view.reset \
+    -command erasePlot \
+    -padx {4} \
+    -pady {3} \
+    -text {Reset}
+
+  #build frame for x rotate
+  set frx [frame $plot.view.frx -relief raised -borderwidth 2]
+  label $frx.l0 -text "rot-x" -width 4 -anchor w
+  label $frx.l1 -textvariable x_rotate
+  scale $frx.scale_x -command 3Dview -variable {x_rotate}  \
+    -from {-180.0} -length {80} -orient {horizontal} -relief flat  \
+    -to {180.0} -sliderlength 10 -width 12 -showvalue 0
+  grid $frx.l0 $frx.l1 -sticky ew
+  grid configure $frx.scale_x -columnspan 2 -sticky ew
+
+  #build frame for y rotate
+  set fry [frame $plot.view.fry -relief raised -borderwidth 2]
+  label $fry.l0 -text "rot-y" -width 4  -anchor w
+  label $fry.l1 -textvariable y_rotate
+  scale $fry.scale_y -command 3Dview -variable {y_rotate}  \
+    -from {-180.0} -length {80} -orient {horizontal} -relief flat  \
+    -to {180.0} -sliderlength 10 -width 12 -showvalue 0
+  grid $fry.l0 $fry.l1 -sticky ew
+  grid configure $fry.scale_y -columnspan 2 -sticky ew
+
+  #build frame for z rotate
+  set frz [frame $plot.view.frz -relief raised -borderwidth 2]
+  label $frz.l0 -text "rot-z" -width 4  -anchor w
+  label $frz.l1 -textvariable z_rotate
+  scale $frz.scale_z -command 3Dview -variable {z_rotate}  \
+    -from {-180.0} -length {80} -orient {horizontal} -relief flat  \
+    -to {180.0} -sliderlength 10 -width 12 -showvalue 0
+  grid $frz.l0 $frz.l1 -sticky ew
+  grid configure $frz.scale_z -columnspan 2 -sticky ew
+
+  #build frame for zoom
+  set frzm [frame $plot.view.frzm -relief raised -borderwidth 2]
+  label $frzm.l0 -text zoom -width 4  -anchor w
+  label $frzm.l1 -textvariable zoom_level
+  scale $frzm.scale_zoom -command 3Dview -variable {zoom_level}  \
+    -from {-10.0} -length {80} -orient {horizontal} -relief flat  \
+    -to {10.0} -sliderlength 10 -width 12 -showvalue 0
+  grid $frzm.l0 $frzm.l1 -sticky ew
+  grid configure $frzm.scale_zoom -columnspan 2 -sticky ew
+
+  # build widget $plot.menu
+    frame $plot.menu
+
+  # build widget $plot.menu.viewxy - stock view
+  button $plot.menu.viewxy \
+    -command { \
+      set x_rotate -90 ; \
+      set y_rotate 0 ; \
+      set z_rotate 0 ; \
+      3Dview ; redraw } \
+    -padx {4} \
+    -width 10 \
+    -text {X - Y}
+
+  # build widget $plot.menu.viewxz - stock view
+  button $plot.menu.viewxz \
+    -command { \
+      set x_rotate 0 ; \
+      set y_rotate 0 ; \
+      set z_rotate 0 ; \
+      3Dview ; redraw } \
+    -padx {4} \
+    -width 10 \
+    -text {X - Z}
+
+  # build widget $plot.menu.viewyz - stock view
+  button $plot.menu.viewyz \
+    -command { \
+      set x_rotate 0 ; \
+      set y_rotate 0 ; \
+      set z_rotate 90 ; \
+      3Dview ; redraw } \
+    -padx {4} \
+    -width 10 \
+    -text {Y - Z}
+
+  # build widget $plot.menu.view3d - stock view
+  button $plot.menu.view3d \
+    -command { \
+      set x_rotate -27 ; \
+      set y_rotate 17 ; \
+      set z_rotate 30 ; \
+      3Dview ; redraw } \
+    -padx {4} \
+    -width 10 \
+    -text {3D}
+
+  # build widget $plot.menu.setup
+  set plotsetuptext [msgcat::mc "TEST"]
+  button $plot.menu.setup \
+    -command { togglePlotSetup} \
+    -padx {4} \
+    -width 10 \
+    -textvariable plotsetuptext
+
+  # build widget $plot.3dplot
+  frame $plot.3dplot \
+    -borderwidth {2} \
+    -relief {raised} \
+
+  # build widget $plot.3dplot.vscroll
+  scrollbar $plot.3dplot.vscroll \
+    -width 10 \
+   -command "$plot.3dplot.3dplot yview" \
+    -cursor {left_ptr} \
+    -relief {raised}
+
+  # build widget $plot.3dplot.hscroll
+  scrollbar $plot.3dplot.hscroll \
+    -width 10 \
+    -command "$plot.3dplot.3dplot xview" \
+    -cursor {left_ptr} \
+    -orient {horizontal} \
+    -relief {raised}
+
+  # build widget $plot.3dplot.3dplot
+  canvas $plot.3dplot.3dplot \
+    -background white \
+    -relief {raised} \
+    -width 180 \
+    -scrollregion {-1500 -750 1500 750} \
+    -xscrollcommand {$plot.3dplot.hscroll set} \
+    -yscrollcommand {$plot.3dplot.vscroll set}
+
+   # grid master $plot
+    set plotSetup 1
+    proc togglePlotSetup {} {
+        global plot plotSetup plotsetuptext
+        if {$plotSetup == 1} {
+            grid configure $plot.view -row 1 -column 1 \
+                -sticky nsew -padx 1 -pady 1
+            set plotSetup 0
+            set plotsetuptext {Hide Setup}
+        } else {
+            grid forget $plot.view
+            set plotSetup 1
+            set plotsetuptext {Show Setup}
+        }
+    }
+
+  grid configure $plot.menu -row 0 -column 0 -columnspan 2 -sticky nsew -padx 1
+  grid configure $plot.3dplot -row 1 -column 0 -sticky nsew -padx 1
+
+  grid columnconfigure $plot 0 -weight 1
+  grid rowconfigure $plot 1 -weight 1
+
+  # pack master $plot.view
+  pack configure $plot.view.3dview -anchor n -padx 2 -pady 2
+  pack configure $frx -fill x
+  pack configure $fry -fill x
+  pack configure $frz -fill x
+  pack configure $frzm -fill x
+  pack configure $plot.view.redraw -fill both -expand yes
+  pack configure $plot.view.reset -fill x
+
+  # pack master $plot.menu revised to view
+  pack configure $plot.menu.viewxy -side left -fill x -expand yes
+  pack configure $plot.menu.viewxz -side left -fill x -expand yes
+  pack configure $plot.menu.viewyz -side left -fill x -expand yes
+  pack configure $plot.menu.view3d -side left -fill x -expand yes
+  pack configure $plot.menu.setup -side left -fill x -expand yes
+
+  # pack master $plot.3dplot
+  pack configure $plot.3dplot.vscroll -fill y -side left
+  pack configure $plot.3dplot.hscroll -fill x -side bottom
+  pack configure $plot.3dplot.3dplot -side left -fill both -expand yes
+
+  # build canvas items $plot.view.3dview
+  # build canvas items $plot.3dplot.3dplot
+    global Xlast Ylast Zlast Alast Blast Clast
+    global X Y Z A B C 3d_plot
+            set 3d_plot {0 0 0 0}
+	set Xlast [format "%8.4f" $X ]
+	set Ylast [format "%8.4f" $Y ]
+	set Zlast [format "%8.4f" $Z ]
+ 	set Alast [format "%8.4f" $A ]
+	set Blast [format "%8.4f" $B ]
+	set Clast [format "%8.4f" $C ]
+centerPlot
+update
+setInitialPlotview
+update
+togglePlotSetup
+update
+}
+
+proc vector {} {
+    global plot
+    global X Y Z A B C
+    # 3D vector conversion
+    # X Y and Z point is converted into polar notation
+    # then rotated about the A B and C axis.
+    # Finally to be converted back into rectangular co-ords.
+    #
+    # As the three lines of the 3D Origin need to be resolved as well
+    # as the cutter position, I thought a proc would be more efficient.
+
+    # Rotate about A - X axis
+    set angle [expr $A * 0.01745329]
+     if { $Y != 0 || $Z != 0 } {
+    set angle [expr atan2($Y,$Z) + $angle]
+    }
+    set vector [expr hypot($Y,$Z)]
+    set Z [expr $vector * cos($angle)]
+    set Y [expr $vector * sin($angle)]
+
+    # Rotate about B - Y axis
+    set angle [expr $B * 0.01745329]
+    if { $X != 0 || $Z != 0 } {
+    set angle [expr atan2($Z,$X) + $angle]
+    }
+    set vector [expr hypot($X,$Z)]
+    set X [expr $vector * cos($angle)]
+    set Z [expr $vector * sin($angle)]
+
+    # Rotate about C - Z axis
+    set angle [expr $C * 0.01745329]
+    if { $X != 0 || $Y != 0 } {
+    set angle [expr atan2($Y,$X) + $angle]
+    }
+    set vector [expr hypot($X,$Y)]
+    set X [expr $vector * cos($angle)]
+    set Y [expr $vector * sin($angle)]
+}
+
+# initialize global variables
+global 3dview plot
+set 3dview "$rup.plot.view.3dview"
+global {3dplot}
+set 3dplot  "$rup.plot.3dplot.3dplot"
+global {X}
+set {X} {0}
+global {Y}
+set {Y} {0}
+global {Z}
+set {Z} {0}
+global {A}
+set {A} {0}
+global {B}
+set {B} {0}
+global {C}
+set {C} {0}
+global {x_rotate}
+set {x_rotate} {0}
+global {xlast}
+set {xlast} {0}
+global {xnext}
+set {xnext} {0}
+global {y_rotate}
+set {y_rotate} {0}
+global {ylast}
+set {ylast} {0}
+global {ynext}
+set {ynext} {0}
+global {z_rotate}
+set {z_rotate} {0}
+global {zoom}
+set {zoom} {0}
+global {zoom_level}
+set {zoom_level} {0}
+
+set lastline ??
+set Gmode 4
+set Glast 5
+set delta_Alast 0
+set delta_Blast 0
+set delta_Clast 0
+
+proc centerPlot {} {
+    global 3dplot topx topy botx boty plot
+    global X Z centerx centery
+    global 3d_plot
+    global Xlast Ylast Zlast Glast
+    # Get current canvas size
+    set plotx [$3dplot cget -width]
+    set ploty [$3dplot cget -height]
+    # Computes view (0,0) and attempts to center it
+    set totalx [expr {abs($topx) + abs($botx)}]
+    set lowerx [expr {abs($topx) - ($plotx / 2)}]
+    if {$lowerx <= 0} {
+        set centerx 0
+    } else {
+        set centerx [expr {double($lowerx) / double($totalx)*1.05}]
+    }
+    set totaly [expr {abs($topy) + abs($boty)}]
+    set lowery [expr {abs($topy) - ($ploty / 2)}]
+    if {$lowery <= 0} {
+        set centery 0
+    } else {
+        set centery [expr {double($lowery) / double($totaly)*1.05}]
+    }
+    $3dplot addtag all all
+    $3dplot delete all
+    $3dplot xview moveto $centerx
+    $3dplot yview moveto $centery
+    # Delete all plot data except the last one.
+    set 3d_plot [list $Xlast $Ylast $Zlast $Glast]
+    3Dview
+    redraw
+}
+
+proc erasePlot {} {
+    global 3dplot topx topy botx boty plot
+    global X Z centerx centery
+    global 3d_plot
+    global Xlast Ylast Zlast Glast
+    $3dplot addtag all all
+    $3dplot delete all
+    # Delete all plot data except the last one.
+    set 3d_plot [list $Xlast $Ylast $Zlast $Glast]
+    3Dview
+    redraw
+}
+
+# Procedure: 3Dview
+proc 3Dview {args} {
+    global x_rotate y_rotate z_rotate
+    global 3dview plotcolour
+    global X Y Z A B C
+    global 3d_plot a_plot b_plot c_plot
+
+    set 3d_object {25 25 25 3 25 -25 25 3 -25 -25 25 3 -25 25 25 3 25 25 25 3 \
+        0 0 -30 2 -25 -25 25 2 -25 25 25 3 0 0 -30 2 25 -25 25 4}
+
+    set atemp $A; set btemp $B; set ctemp $C
+    set A $x_rotate ; set B $y_rotate ; set C $z_rotate
+
+    # Delete the image and put in an origin point.
+    $3dview delete all
+    $3dview create oval 42 42 48 48 -fill green
+
+    # set the first set of coordinates from the list then call vector
+    set X [lindex $3d_object 0]
+    set Y [lindex $3d_object 1]
+    set Z [lindex $3d_object 2]
+    set colour [lindex $3d_object 3]
+
+    vector
+
+    # then use these to start the plot
+     set xlast $X ; set ylast $Z
+
+    foreach {X Y Z colour} $3d_object {
+        vector
+        set xnext $X ; set ynext $Z
+        $3dview create line [expr $xlast+45] [expr $ylast+45] [expr $xnext+45] [expr $ynext+45] \
+          -fill [lindex $plotcolour $colour]
+        set xlast $X ; set ylast $Z
+    }
+
+    set A $atemp; set B $btemp; set C $ctemp
+    # If 3d_plot has been reset - do a redraw first
+    #  to update the rotates and zoom
+    if { [llength $3d_plot] <=9} {
+        redraw
+     }
+}
+
+# Procedure: redraw
+proc redraw {args} {
+    global zoom_level zoom
+    global 3d_plot ticks
+    global xlast ylast
+    global x_rotate y_rotate z_rotate
+    global a_plot b_plot c_plot
+    global A B C X Y Z
+    global 3dplot plotcolour
+    global centerx centery
+
+    set atemp $A; set btemp $B; set ctemp $C
+    set a_plot $x_rotate
+    set b_plot $y_rotate
+    set c_plot $z_rotate
+    set zoom $zoom_level
+
+   if { $zoom <0 } {
+        set zoom  [ expr abs(1.0/($zoom-1)) ]
+   } else {
+       set zoom [ expr $zoom+1]
+   }
+
+    if { [emc_program_status] == "running" } {
+        set statusflag 1
+    # If emc is running, issue a pause command
+    # and wait until IDLE status is reached.
+        emc_pause
+    while { [emc_program_status] == "running" } {
+        # Just loop until paused
+    }
+    } else {
+        set statusflag 0
+    }
+    # time the redraw proc
+    set timer [clock clicks]
+
+    $3dplot delete all
+
+    # set the first set of coordinates from the list then call vector
+    set X [lindex $3d_plot 0]
+    set Y [lindex $3d_plot 1]
+    set Z [lindex $3d_plot 2]
+    set colour [lindex $3d_plot 3]
+    set A $x_rotate
+    set B $y_rotate
+    set C $z_rotate
+    vector
+
+    # then use these to start the plot
+    set x_last $X ; set y_last $Z
+    foreach {X Y Z colour} $3d_plot {
+        set A $x_rotate
+        set B $y_rotate
+        set C $z_rotate
+        vector
+        set x_next $X ; set y_next $Z
+        $3dplot create line [expr $x_last*$zoom+$centerx] [expr $y_last*$zoom+$centery] \
+            [expr $x_next*$zoom+$centerx] [expr $y_next*$zoom+$centery] \
+            -fill [lindex $plotcolour $colour]
+        set x_last $X ; set y_last $Z
+   }
+
+    set xlast $X ; set ylast $Z
+
+    $3dplot create line [expr $x_last*$zoom+$centerx] [expr $y_last*$zoom+$centery] \
+        [expr ($x_last*$zoom+$centerx)+5] [expr ($y_last*$zoom+$centery)-5] \
+        -fill red -arrow first -tags 3darrow
+    set A $atemp; set B $btemp; set C $ctemp
+
+    set timer [expr ([clock clicks] - $timer)/$ticks]
+    # If emc was forced to pause - restart.
+    if {$statusflag == 1} {
+        emc_resume
+    }
+}
+
+proc updatePlot {} {
+    global size 3dplot plot
+    global xdir ydir zdir zoom
+    global adir bdir cdir
+    global programfiletext posdigit0 posdigit1 posdigit2 activeLine plotcolour
+    global posdigit3 posdigit4 posdigit5
+    global Xlast Ylast Zlast Alast Blast Clast lastline
+    global xlast ylast xnext ynext centerx centery
+    global X Y Z A B C
+    global a_plot b_plot c_plot 3d_plot Gmode Glast
+    global delta_Alast delta_Blast delta_Clast
+    global unitsetting
+
+    # hack to divide scale for mm plotting
+    if {$unitsetting == "(mm)" } {
+        set scaler 25
+    } else {
+        set scaler 1
+    }
+
+    # Color plot line by setting active line to upcase currentline
+        set currentline [string toupper [$programfiletext get $activeLine.0 $activeLine.end]]
+    # Search currentline for g0-3 but make modal with no else
+    if { [string first G2 $currentline] != -1 || \
+        [string first G02 $currentline] != -1  } {
+            set Gmode 2
+    } elseif { [string first G3 $currentline] != -1 || \
+        [string first G03 $currentline] != -1 } {
+            set Gmode 3
+    } elseif { [string first G1 $currentline] != -1 || \
+        [string first G01 $currentline] != -1 } {
+            set Gmode 1
+    } elseif { [string first G0 $currentline] != -1 } {
+        set Gmode 0
+    }
+    set delta_A 0
+    set delta_B 0
+    set delta_C 0
+
+    set X [emc_abs_act_pos 0]
+    set Y [emc_abs_act_pos 1]
+    set Z [emc_abs_act_pos 2]
+    set A [emc_abs_act_pos 3]
+    set B [emc_abs_act_pos 4]
+    set C [emc_abs_act_pos 5]
+
+    set X [expr "$X * $size * $xdir" / $scaler]
+    set Y [expr "$Y * $size * $ydir" / $scaler]
+    set Z [expr "$Z * $size * $zdir" / $scaler]
+    set A [expr "$A * $adir" / $scaler]
+    set B [expr "$B * $bdir" / $scaler]
+    set C [expr "$C * $cdir" / $scaler]
+
+    vector
+    set X [format "%10.1f" $X]
+    set Y [format "%10.1f" $Y]
+    set Z [format "%10.1f" $Z]
+
+    if {$Alast != $A || $Blast != $B || $Clast != $C || $Gmode != $Gmode} {
+      lappend 3d_plot $X $Y $Z $Glast
+    } else {
+      if {$Xlast != $X || $Ylast != $Y || $Zlast != $Z} {
+        # Test to see if move is a straight line
+        set d_x [expr $X-$Xlast]
+        set d_y [expr $Y-$Ylast]
+        set d_z [expr $Z-$Zlast]
+    # Calculate the angles for the relative move
+         if { $d_z != 0 } {
+            set delta_A [expr atan2($d_y,$d_z)]
+        } else {
+            set delta_A 1.570796327
+        }
+     if { $d_x != 0 } {
+    set delta_B [expr atan2($d_z,$d_x)]
+    } else {
+    set delta_B 1.570796327
+    }
+     if { $d_x != 0 } {
+    set delta_C [expr atan2($d_y,$d_x)]
+    } else {
+    set delta_C 1.570796327
+    }
+
+# If the relative angles of the current move are the same
+#  as the last relative move - Then it *must* be a continuation
+# of a straight line move !
+    if { $delta_A != $delta_Alast || $delta_B != $delta_Blast \
+        || $delta_C != $delta_Clast } {
+# If not, save the vector.
+    lappend 3d_plot $Xlast $Ylast $Zlast $Glast
+    }
+    set delta_Alast $delta_A
+    set delta_Blast $delta_B
+    set delta_Clast $delta_C
+
+    }
+	}
+	set Xlast $X
+	set Ylast $Y
+	set Zlast $Z
+	set Alast $A
+	set Blast $B
+	set Clast $C
+	set Glast $Gmode
+
+# Plot 3D xy and move tool if X Y or Z has changed
+	set A $a_plot; set B $b_plot; set C $c_plot
+	vector
+	set xnext $X ; set ynext $Z
+	  if {$Gmode >= 5} {
+	        set plotcolor yellow4
+	     } else {
+	        set plotcolor [lindex $plotcolour $Gmode]
+	    }
+	$3dplot create line [expr $xlast*$zoom+$centerx] [expr $ylast*$zoom+$centery] \
+	   [expr $xnext*$zoom+$centerx] [expr $ynext*$zoom+$centery] \
+	    -fill [lindex $plotcolour $Gmode]
+	$3dplot move 3darrow [expr ($xnext - $xlast)*$zoom] [expr ($ynext - $ylast)*$zoom]
+	set xlast $X ; set ylast $Z
+}
+
+#set initial conditions for 3d plot
+proc setInitialPlotview {} {
+    global x_rotate y_rotate z_rotate
+    set x_rotate -27
+    set y_rotate 17
+    set z_rotate 30
+    3Dview
+    redraw
+}
+
+# -----end of backplot-----
 
 proc checkIt {} {
     global activeAxis
-    mText [msgcat::mc "No checkIt set see line 4055 in mini.tcl "]
+    mText [msgcat::mc "No checkIt set see line 4088 in mini.tcl "]
 }
