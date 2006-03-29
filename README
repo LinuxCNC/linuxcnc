@@ -18,11 +18,11 @@ From the top level directory, switch to the source directory:
 
 In the source directory, build EMC2:
 
-  ./configure
+  ./configure --enable-run-in-place
   make clean
   make
+  sudo make setuid
 
 to run the software go back to the top level directory, and issue:
 
   scripts/emc
-    
