@@ -46,7 +46,7 @@ exec $EMC2_EMCSH "$0" "$@"
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload "../src/po"
+    msgcat::mcload ../../src/po
     #FIXME need to add location for installed po files
 }
 
@@ -99,7 +99,7 @@ proc popupCalibration {} {
 
     # make a NoteBook page to hold widgets for each axis
     for {set j 0} {$j < $numaxes} {incr j} {
-        set af$j [$top insert $j page$j -text "Axis $j" -raisecmd "selectAxis $j"]
+        set af$j [$top insert $j page$j -text [msgcat::mc "Axis %d" $j] -raisecmd "selectAxis $j"]
     }
  
     # Make a text widget to hold the ini file and
@@ -186,13 +186,13 @@ proc popupCalibration {} {
     }
 
     frame $main.buttons
-    button $main.buttons.ok -text "Save" -default active \
+    button $main.buttons.ok -text [msgcat::mc "Save"] -default active \
         -command {changeIt save } -state disabled
-    button $main.buttons.apply -text Apply \
+    button $main.buttons.apply -text [msgcat::mc "Apply"] \
         -command {changeIt apply}
-    button $main.buttons.revert -text Revert \
+    button $main.buttons.revert -text [msgcat::mc "Revert"] \
         -command {changeIt revert} -state disabled
-    button $main.buttons.cancel -text Quit \
+    button $main.buttons.cancel -text [msgcat::mc "Quit"] \
         -command {changeIt quit}
     pack $main.buttons.ok $main.buttons.apply $main.buttons.revert \
         $main.buttons.cancel -side left -fill x -expand 1
@@ -306,8 +306,8 @@ proc changeIt {how } {
                         [exec $HALCMD -s show param $cmd] " "] 3]]
                     set oldval [lindex $oldvals $k]
                     if {$tmpval != $oldval} {
-                        set answer [tk_messageBox -message "The HAL parameter \n \
-                            $cmd \n has changed. \n Really quit?" \
+                        set answer [tk_messageBox -message [msgcat::mc "The HAL parameter \n \
+                            %s \n has changed. \n Really quit?" $cmd] \
                             -type yesno -icon question] 
                         switch -- $answer { \
                                 yes exit
@@ -329,7 +329,7 @@ proc saveFile {} {
     set name $thisinifile
     catch {file copy -force $name $name.bak}
     if {[catch {open $name w} fileout]} {
-        puts stdout "can't save $name"
+        puts stdout [msgcat::mc "can't save %s" $name]
         return
     }
     puts $fileout [$initext get 1.0 end]
