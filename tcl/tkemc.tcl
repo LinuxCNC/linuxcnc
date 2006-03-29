@@ -1784,7 +1784,7 @@ proc popupError {err} {
     toplevel .error
     wm title .error [msgcat::mc "Error"]
 
-    label .error.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text [msgcat::mc "Error"]": $err"
+    label .error.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text " $err "
     pack .error.msg -side top
 
     frame .error.buttons
