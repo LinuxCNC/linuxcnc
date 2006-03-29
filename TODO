@@ -16,15 +16,15 @@ DONE     Finish cleaning up config directories
 DONE     Get the config picker/copier tool working
          (basics)
 
-ASSIGNED Get the config picker tool's backup function working (to allow people to send their confi
+OBSOLETE Get the config picker tool's backup function working (to allow people to send their confi
          when they need support)
          JMK
 
 resolve any possible GPL ambiguities
-NOT DONE * hal/classicladder - mark files that have been modified JMK/PeteV
+DONE     * hal/classicladder - mark files that have been modified JMK/PeteV (won't get better:)
 DONE     * hal/classicladder/README.txt - add notice "CL has been modified for EMC2,
          report bugs to EMC2 team, not original author" 
-NOT DONE * hal/drivers/m5i20_HM5-4E.h - add license notice.  PeteV?
+DONE     * hal/drivers/m5i20_HM5-4E.h - add license notice.  PeteV? (email that it can be released under GPL)
 DONE     * hal/drivers/hal_stg - does it use EMC1 code?  credit Fred/Will if so (Alex)
 DONE     * hal/drivers/hal_motenc - no EMC1 code used, nothing to do DONE
 DONE     * rtapi/vsnpintf.h - came from kernel source, add GPL notice  DONE
@@ -32,14 +32,14 @@ DONE     * emc/kinematics prflib.h & trajectory.h - delete, not used  DONE
 DONE     * emc/rs274ngc/units.h - add license header & attribution  DONE
          NOTE: units.h duplicates defines in emccanon.cc.  If possible, emccanon.cc
          should use this header instead of duplicating the defines
-NOT DONE * tcl/*.tcl - Add GPL notices to files that don't have them
+DONE     * tcl/*.tcl - Add GPL notices to files that don't have them (ray did this)
 
 DONE     COPYING - implies that everything is GPL, revise to mention that 
          interfaces are LGPL, also acknowlege EMC1 authors and explain that
          formerly Public Domain EMC1 code is covered under GPL now.  DONE
 
-PENDING  HAL driver for Vigalent card?
-         Need docs and a volunteer with a card
+DONE     HAL driver for Vigalent card?
+         Need docs and a volunteer with a card / Needs testing
 
 Generate sample configs that are functionally equivalent to the following 
 EMC1 configs:
@@ -50,12 +50,11 @@ DONE     generic    stepper     DONE, JMK to review accel headroom
 DONE     stg        stg         Alex (stg1&2)
 DONE     motenc     motenc      needs a README: PeteV
 DONE     univstep   univstep    DONE
-NOT DONE univpwm    univpwm     RayH, JonE
+DONE     univpwm    univpwm     RayH, JonE
 DONE     -----      step-cl     DONE
 DONE     -----      m5i20       petev
 
 NOT DONE Need to come up with a way to handle "bridgeport" style machines (more I/O than generic)
-
 
 
 Choose BASE_PERIOD carefully (larger) for non-stepper configs, especially for 
@@ -78,4 +77,4 @@ Improved classicladder GUI
 
 Change halcmd to use GNU getline in interactive mode (history, tab completion, etc)
 
-
+Finish HALUI
