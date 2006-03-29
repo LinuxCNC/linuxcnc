@@ -55,7 +55,7 @@ package require BWidget
 
 proc popupCalibration {} {
     global axisentry activeAxis main top initext HALCMD sectionarray 
-    global logo numaxes EMC_INIFILE namearray commandarray valarray
+    global logo numaxes EMC_INIFILE namearray commandarray valarray thisinifile
     set numaxes [emc_ini "AXES" "TRAJ"]
     for {set i 0} {$i<$numaxes} {incr i} {
         global af$i
@@ -108,7 +108,7 @@ proc popupCalibration {} {
     $initext config -state normal
     $initext delete 1.0 end
     if {[catch {open $thisinifile} programin]} {
-        return
+        return 
     } else {
         $initext insert end [read $programin]
         catch {close $programin}
@@ -237,23 +237,29 @@ proc changeIt {how } {
                         "#" {}
                         default {
                             set tmpstr [$initext get $ind.0 $ind.end]
-                            $initext insert insert $ind.0
                             set tmpvar [lindex $tmpstr 0]
                             set tmpindx [lsearch $upvarnames $tmpvar]
                             if {$tmpindx != -1} {
                                 set cmd [lindex $varcommands $tmpindx]
+                                $initext mark set insert $ind.0
                                 set newval [expr [lindex [split \
                                     [exec $HALCMD -s show param $cmd] " "] 3]]
-                                # keep everything leading up to the var value, replace the value, and keep everything after the value
+                                set tmptest [string first "e" $newval]
+                                if {[string first "e" $newval] > 1} {
+                                    set newval [format %f $newval]
+                                }
+                                # keep everything leading up to the var value, 
+                                # replace the value, and keep everything after the value
                                 regsub {(^.*=[ \t]*)[^ \t]*(.*)} $tmpstr "\\1$newval\\2" newvar
-                                puts $newvar
+                                $initext delete insert "insert lineend"
+                                $initext insert insert $newvar
                             }
                         }
                     }
                 }
                 $initext configure -state disabled
             }
-            # saveFile
+            saveFile
         }
         apply {
             $main.buttons.ok configure -state normal
@@ -316,6 +322,18 @@ proc changeIt {how } {
         }
         default {}
     }
+}
+
+proc saveFile {} {
+    global initext thisinifile
+    set name $thisinifile
+    catch {file copy -force $name $name.bak}
+    if {[catch {open $name w} fileout]} {
+        puts stdout "can't save $name"
+        return
+    }
+    puts $fileout [$initext get 1.0 end]
+    catch {close $fileout}
 }
 
 
