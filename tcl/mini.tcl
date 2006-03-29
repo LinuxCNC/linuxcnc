@@ -1023,12 +1023,10 @@ $infomenu add command -label [msgcat::mc "Tool File"] \
 $infomenu add separator
 $infomenu add command -label [msgcat::mc "Active G Codes"] -command \
     {mText [msgcat::mc "Active codes include; \n%s" $programcodestring]}
-$infomenu add command -label [msgcat::mc "Check It"] -command {checkIt}
 
 # help menu
 $helpmenu add checkbutton -label [msgcat::mc "Help..."] -variable popArray(Help) -command {popIn Help} -underline 0
 $helpmenu add command -label [msgcat::mc "About..."] -command {popupAboutx} -underline 0
-
 
 # ----------UP WIDGETS----------
 
@@ -4068,7 +4066,3 @@ proc setInitialPlotview {} {
 
 # -----end of backplot-----
 
-proc checkIt {} {
-    global activeAxis
-    mText [msgcat::mc "No checkIt set see line 4088 in mini.tcl "]
-}
