@@ -61,7 +61,7 @@ if ([info exists env(EMC2_TCL_DIR)]) {
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload $emc2tcldir/../src/po
+    msgcat::mcload $TCLDIR/../src/po
     #FIXME need to add location for installed po files
 }
 
@@ -507,9 +507,9 @@ proc axisSelectx {axis} {
     if {$modex == "manual"} {
         [set pos${temp}] config -relief groove
         set axisname [lindex $worldlabellist $temp]
-        set jogplustext "JOG $axisname +"
-        set jognegtext "JOG $axisname -"
-        set axishometext "$axisname\n\nZ\nE\nR\nO"
+        set jogplustext [msgcat::mc "JOG %s +" $axisname]
+        set jognegtext [msgcat::mc "JOG %s -" $axisname]
+        set axishometext [msgcat::mc "%s\n\nZ\nE\nR\nO" $axisname]
         set maxJogSpeed [set maxJogSpeedAxis($temp) ]
         $feedscale configure -to $maxJogSpeed
         # add the linear v rotary jog increment stuff here.
@@ -766,6 +766,7 @@ proc toggleBrake {} {
 
 
 # Initialize feedoverride and lastfeedoverride before first calling
+# This should be edited, so that the feedtext don't switch this. Before this can't be translatet.
 
 proc toggleFeedhold {} {
     global feedtext feedoverride lastfeedoverride
@@ -857,7 +858,7 @@ foreach f "TkEmc$optionfile /usr/X11R6/lib/X11/app-defaults/TkEmc$optionfile" {
 }
 
 proc popupAboutx {} {
-    tk_messageBox  -title [msgcat::mc "ABOUT"]  -default "ok" -message [msgcat::mc "TkMini \
+    tk_messageBox  -title [msgcat::mc "About"]  -default "ok" -message [msgcat::mc "TkMini \
         \n\nTcl/Tk GUI for Enhanced Machine Controller\n\nGPL Copyright 2003 \
         \nRay Henry <rehenry@up.net>\n\n\
         3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n\
@@ -932,10 +933,10 @@ place $left -x 0 -y $sizex2 -relwidth .3 -relheight 1 -height -$sizex2
 place $right -relx .3 -y $sizex2 -relwidth .7 -relheight 1 -height -$sizex2
 
 # build the top menu bar with menubuttons
-set filem [menubutton $menubar.file -text Program ]
-set viewm [menubutton $menubar.view -text View ]
-set settingsm [menubutton $menubar.settings -text Settings ]
-set infom [menubutton $menubar.info -text Info ]
+set filem [menubutton $menubar.file -text [msgcat::mc "Program"] ]
+set viewm [menubutton $menubar.view -text [msgcat::mc "View"] ]
+set settingsm [menubutton $menubar.settings -text [msgcat::mc "Settings"] ]
+set infom [menubutton $menubar.info -text [msgcat::mc "Info"] ]
 set helpm [menubutton $menubar.help -text [msgcat::mc "Help"] ]
 
 # Now add buttons for popins
@@ -1007,7 +1008,7 @@ $settingsmenu add radiobutton -label [msgcat::mc "Relative Position"] \
 $settingsmenu add separator
 $settingsmenu add command -label [msgcat::mc "Calibration..."] \
     -command "exec $TCLBIN/emccalib.tcl -- -ini $EMC_INIFILE &"
-$settingsmenu add command -label [msgcat::mc "HAL Config"] \
+$settingsmenu add command -label [msgcat::mc "HAL Config..."] \
     -command "exec $TCLBIN/halconfig.tcl -- -ini $EMC_INIFILE &"
 
 
@@ -2494,7 +2495,7 @@ proc popinEditor {} {
     menu $settingsmenu
     menu $helpmenu
 
-    $filemenu add command -label [msgcat::mc "New..."] -underline 0 -command "filesetasnew" -accelerator Ctrl+n
+    $filemenu add command -label [msgcat::mc "New"] -underline 0 -command "filesetasnew" -accelerator Ctrl+n
     $filemenu add command -label [msgcat::mc "Open..."] -underline 0 -command "filetoopen" -accelerator Ctrl+o
     $filemenu add command -label [msgcat::mc "Save"] -underline 0 -command "filetosave" -accelerator Ctrl+s
     $filemenu add command -label [msgcat::mc "Save As..."] -underline 5 -command "filesaveas"
@@ -2511,16 +2512,16 @@ proc popinEditor {} {
     $editmenu add separator
     $editmenu add command -label [msgcat::mc "Select All"] -underline 7 -command "$textwin tag add sel 1.0 end" -accelerator "Ctrl+A"
     $editmenu add separator
-    $editmenu add command -label [msgcat::mc "Find"] -underline 0 -command "findtext find" -accelerator Ctrl+f
-    $editmenu add command -label [msgcat::mc "Replace"] -underline 0 -command "findtext replace" -accelerator Ctrl+r
-    $editmenu add command -label [msgcat::mc "Renumber File"] -underline 0 -command "editSetLineNumber 1"
+    $editmenu add command -label [msgcat::mc "Find..."] -underline 0 -command "findtext find" -accelerator Ctrl+f
+    $editmenu add command -label [msgcat::mc "Replace..."] -underline 0 -command "findtext replace" -accelerator Ctrl+r
+    $editmenu add command -label [msgcat::mc "Renumber File..."] -underline 0 -command "editSetLineNumber 1"
 
     $settingsmenu add command -label [msgcat::mc "No Numbering"] -underline 0 -command "set startnumbering 0"
     $settingsmenu add separator
-    $settingsmenu add command -label [msgcat::mc "Line Numbering"] -underline 0 -command "editSetLineNumber 0"
+    $settingsmenu add command -label [msgcat::mc "Line Numbering..."] -underline 0 -command "editSetLineNumber 0"
 
-    $helpmenu add command -label [msgcat::mc "Help"] -underline 0 -command "helpme"
-    $helpmenu add command -label [msgcat::mc "About"] -underline 0 -command "aboutme"
+    $helpmenu add command -label [msgcat::mc "Help..."] -underline 0 -command "helpme"
+    $helpmenu add command -label [msgcat::mc "About..."] -underline 0 -command "aboutme"
 
     bind $textwin <Control-x> {cuttext}
     bind $textwin <Control-c> {copytext}
@@ -2607,13 +2608,13 @@ proc editSetLineNumber {what} {
     pack $linenum -side top -fill both -expand yes
     label $linenum.label1 -text [msgcat::mc "Increment"]
     place $linenum.label1 -x 5 -y 5
-    radiobutton $linenum.incr1 -text One -variable lineincrement -value 1 -anchor w
+    radiobutton $linenum.incr1 -text [msgcat::mc "One"] -variable lineincrement -value 1 -anchor w
     place $linenum.incr1 -x 10 -y 25 -width 80 -height 20
-    radiobutton $linenum.incr2 -text Two -variable lineincrement -value 2 -anchor w
+    radiobutton $linenum.incr2 -text [msgcat::mc "Two"] -variable lineincrement -value 2 -anchor w
     place $linenum.incr2 -x 10 -y 45 -width 80 -height 20
-    radiobutton $linenum.incr5 -text Five -variable lineincrement -value 5 -anchor w
+    radiobutton $linenum.incr5 -text [msgcat::mc "Five"] -variable lineincrement -value 5 -anchor w
     place $linenum.incr5 -x 10 -y 65 -width 80 -height 20
-    radiobutton $linenum.incr10 -text Ten -variable lineincrement -value 10 -anchor w
+    radiobutton $linenum.incr10 -text [msgcat::mc "Ten"] -variable lineincrement -value 10 -anchor w
     place $linenum.incr10 -x 10 -y 85 -width 80 -height 20
     label $linenum.label2 -text [msgcat::mc "Space"]
     place $linenum.label2 -x 130 -y 5
@@ -2625,11 +2626,11 @@ proc editSetLineNumber {what} {
     place $linenum.space3 -x 140 -y 65
     button $linenum.ok -text OK -command {destroy .linenumber} -height 1 -width 9
     place $linenum.ok -x 160 -y 127
-    label $linenum.label3 -text [msgcat::mc "Next Number : "] -anchor e
+    label $linenum.label3 -text [msgcat::mc "Next Number: "] -anchor e
     place $linenum.label3 -x 5 -y 130 -width 95
     entry $linenum.entry -width 6 -textvariable number
     place $linenum.entry -x 100 -y 130
-    button $linenum.renum -text Renumber -command editReNumber -height 1 -width 9 -state disabled
+    button $linenum.renum -text [msgcat::mc "Renumber"] -command editReNumber -height 1 -width 9 -state disabled
     if {$what} {
         $linenum.renum configure -state normal
     }
@@ -3489,18 +3490,18 @@ proc popinPlot {} {
     -command redraw \
     -padx {4} \
     -pady {3} \
-    -text {Refresh}
+    -text [msgcat::mc "Refresh"]
 
   # build widget $plot.view.reset
   button $plot.view.reset \
     -command erasePlot \
     -padx {4} \
     -pady {3} \
-    -text {Reset}
+    -text [msgcat::mc "Reset"]
 
   #build frame for x rotate
   set frx [frame $plot.view.frx -relief raised -borderwidth 2]
-  label $frx.l0 -text "rot-x" -width 4 -anchor w
+  label $frx.l0 -text [msgcat::mc "rot-x"] -width 4 -anchor w
   label $frx.l1 -textvariable x_rotate
   scale $frx.scale_x -command 3Dview -variable {x_rotate}  \
     -from {-180.0} -length {80} -orient {horizontal} -relief flat  \
@@ -3510,7 +3511,7 @@ proc popinPlot {} {
 
   #build frame for y rotate
   set fry [frame $plot.view.fry -relief raised -borderwidth 2]
-  label $fry.l0 -text "rot-y" -width 4  -anchor w
+  label $fry.l0 -text [msgcat::mc "rot-y"] -width 4  -anchor w
   label $fry.l1 -textvariable y_rotate
   scale $fry.scale_y -command 3Dview -variable {y_rotate}  \
     -from {-180.0} -length {80} -orient {horizontal} -relief flat  \
@@ -3520,7 +3521,7 @@ proc popinPlot {} {
 
   #build frame for z rotate
   set frz [frame $plot.view.frz -relief raised -borderwidth 2]
-  label $frz.l0 -text "rot-z" -width 4  -anchor w
+  label $frz.l0 -text [msgcat::mc "rot-z"] -width 4  -anchor w
   label $frz.l1 -textvariable z_rotate
   scale $frz.scale_z -command 3Dview -variable {z_rotate}  \
     -from {-180.0} -length {80} -orient {horizontal} -relief flat  \
@@ -3530,7 +3531,7 @@ proc popinPlot {} {
 
   #build frame for zoom
   set frzm [frame $plot.view.frzm -relief raised -borderwidth 2]
-  label $frzm.l0 -text zoom -width 4  -anchor w
+  label $frzm.l0 -text [msgcat::mc "zoom"] -width 4  -anchor w
   label $frzm.l1 -textvariable zoom_level
   scale $frzm.scale_zoom -command 3Dview -variable {zoom_level}  \
     -from {-10.0} -length {80} -orient {horizontal} -relief flat  \
@@ -3630,11 +3631,11 @@ proc popinPlot {} {
             grid configure $plot.view -row 1 -column 1 \
                 -sticky nsew -padx 1 -pady 1
             set plotSetup 0
-            set plotsetuptext {Hide Setup}
+            set plotsetuptext [msgcat::mc "Hide Setup"]
         } else {
             grid forget $plot.view
             set plotSetup 1
-            set plotsetuptext {Show Setup}
+            set plotsetuptext [msgcat::mc "Show Setup"]
         }
     }
 
