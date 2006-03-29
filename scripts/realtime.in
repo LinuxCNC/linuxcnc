@@ -1,4 +1,8 @@
 #! /bin/bash
+#
+# @configure_input@ 
+# on @DATE@
+#
 
 CheckConfig(){
     RUN_IN_PLACE=@RUN_IN_PLACE@
