@@ -1,10 +1,16 @@
 g20
 g64
 s100 m3
-g0x.2y0z0
-g0x.1
-g33x0z.1k[sqrt[2]*.0625]
-g33z.5k.0625
-g33x.1z.6k[sqrt[2]*.0625]
+#1=0.0 (start X offset)
+#2=0.0005 (X increment)
+o100 while [#1 LT .05]
+#3=[#1 * TAN [29]]
+g0x.2y0z#3
+g0x[.1 - #1]
+g33x[0 - #1]z[.1+#3]k[sqrt[2]*.0625]
+g33z[.4+#3]k.0625
+g33x[.1 - #1]z[.5+#3]k[sqrt[2]*.0625]
 g0x.2
+#1=[#1 + #2]
+o100 endwhile
 m2
