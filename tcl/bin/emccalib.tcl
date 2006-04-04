@@ -26,21 +26,8 @@ exec $EMC2_EMCSH "$0" "$@"
 # $Date$
 ###############################################################
 # EMC parameter setting application
-# Needs emcsh to run-- 
-#    1 find and load the ini file
-#    2 find the number of axes for the system.
-#    3 set up an array holding section names and line numbers 
-#        arrayname is sectionarray
-#    4 read the ini for .hal file names
-#        list is named halfilelist
-#    5 read the .hal files for ini references
-#        One list for each axis to $numaxes
-#        Lists named inilookup0 where number is axis number
-#    6 make a set of widgets with ini file names
-#    7 Build display widgets for each HAL element
-#        (wonder how to scale sliders if used)
-#    8 Issue halcmd as values change
-#    9 Write changes to ini when done.
+# Needs emcsh to run
+# Saves changes to ini file if requested
 ###############################################################
 
 package require msgcat
@@ -52,6 +39,8 @@ if ([info exists env(LANG)]) {
 
 package require BWidget
 
+# trap mouse click on window manager delete and run changeIt quit.
+wm protocol . WM_DELETE_WINDOW {changeIt quit}
 
 proc popupCalibration {} {
     global axisentry activeAxis main top initext HALCMD sectionarray 
