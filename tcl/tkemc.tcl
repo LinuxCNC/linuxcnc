@@ -223,18 +223,18 @@ if { $windows == 0 } {
 set runMark 0
 proc popupRunMark {mark} {
     global runMark
-
     catch {destroy .runmark}
     toplevel .runmark
     wm title .runmark [msgcat::mc "Set Run Mark"]
-
-    label .runmark.msg -font {Helvetica 12 bold} -wraplength 4i -justify left -text [msgcat::mc "Set run mark at line %s?" $mark]
+    label .runmark.msg -font {Helvetica 12 bold} -wraplength 4i -justify left \
+        -text [msgcat::mc "Set run mark at line %s?" $mark]
     pack .runmark.msg -side top
-
     frame .runmark.buttons
     pack .runmark.buttons -side bottom -fill x -pady 2m
-    button .runmark.buttons.ok -text [msgcat::mc "OK"] -default active -command "set runMark $mark; destroy .runmark"
-    button .runmark.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .runmark"
+    button .runmark.buttons.ok -text [msgcat::mc "OK"] -default active \
+        -command "set runMark $mark; destroy .runmark"
+    button .runmark.buttons.cancel -text [msgcat::mc "Cancel"] \
+        -command "destroy .runmark"
     pack .runmark.buttons.ok .runmark.buttons.cancel -side left -expand 1
     bind .runmark <Return> "set runMark $mark; destroy .runmark"
 }
@@ -247,12 +247,14 @@ proc popupProgramEditor {} {
     if {[file isfile $programnamestring]} {
         geneditStart programEditor $programnamestring
     } else {
-        geneditStart programEditor [msgcat::mc "untitled"]".ngc"
+        #msgcat doesn't work here translation taken care of in popupRunMark above.
+        geneditStart programEditor "untitled.ngc"
     }
 
     frame .programEditor.buttons
     pack .programEditor.buttons -side bottom -fill x -pady 2m
-    button .programEditor.buttons.mark -text [msgcat::mc "Set Run Mark"] -command {popupRunMark [int [.programEditor.textframe.textwin index insert]]}
+    button .programEditor.buttons.mark -text [msgcat::mc "Set Run Mark"] -command \
+        {popupRunMark [int [.programEditor.textframe.textwin index insert]]}
     pack .programEditor.buttons.mark -side left -expand 1
 }
 
@@ -439,7 +441,7 @@ proc popupAbout {} {
     }
     toplevel .about
     wm title .about [msgcat::mc "About TkEmc"]
-    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(EMC2 %s)" [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (emc2)\n\nPublic Domain (1999)"] $env(EMC2VERSION) ]
+    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(EMC2 %s)" [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (emc2)\n\nGPL Version 2(2006)"] $env(EMC2VERSION) ]
     frame .about.buttons
     button .about.buttons.ok -default active -text OK -command "destroy .about"
     pack .about.msg -side top
