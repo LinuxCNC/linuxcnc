@@ -56,7 +56,7 @@
 2005.xx.xx - classicladder now a HAL component, a software PLC
 	   
 2004.xx.xx - HAL (the Hardware Abstraction Layer) is used for 
-	     addressing hardware drivers, and allows fir simple configuration
+	     addressing hardware drivers, and allows for simple configuration
 
 
 #developers: this file should hold a history of improvements, bugfixes, etc
