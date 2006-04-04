@@ -70,6 +70,11 @@ linksp Xenable => m5i20.0.out-08
 linksp Yenable => m5i20.0.out-09
 linksp Zenable => m5i20.0.out-10
 
+# Connect amp enables to m5i20 dac enables
+linksp Xenable => m5i20.0.dac-00-enable
+linksp Yenable => m5i20.0.dac-01-enable
+linksp Zenable => m5i20.0.dac-02-enable
+
 # Connect watchdog reset to motion controller.
 #newsig WatchdogRst bit
 #linksp WatchdogRst <= m5i20.watchdog-reset
