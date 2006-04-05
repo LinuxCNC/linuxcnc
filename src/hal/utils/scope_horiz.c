@@ -448,7 +448,7 @@ static void dialog_realtime_not_loaded(void)
 
     if(first_time) {
         first_time = 0;
-        system("halcmd loadrt scope_rt");
+        system(HALCMD " loadrt scope_rt");
         sleep(1);
         return;
     }
