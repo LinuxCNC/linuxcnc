@@ -5,8 +5,8 @@ export HALCMD
 export EMC2_TCL_DIR
 # and some apps need the emc2_bin_dir, so export that too \
 export REALTIME
-# the next line restarts using wish \
-exec /usr/bin/wish "$0" "$@"
+# the next line restarts using emcsh \
+exec $EMC2_EMCSH "$0" "$@"
 
 ###############################################################
 # Description:  halconfig.tcl
@@ -22,6 +22,9 @@ exec /usr/bin/wish "$0" "$@"
 # $Revision$
 # $Author$
 # $Date$
+###############################################################
+# Script accesses HAL through two modes halcmd show xxx for show
+# and open halcmd -skf for building tree, watch, edit, and such 
 ###############################################################
 
 #first define some default directories
@@ -52,21 +55,6 @@ if {[info exists env(HALCMD)]} {
     set HALCMD $env(HALCMD)
 }
 
-puts "HALCMD=$HALCMD"
-
-# Script accesses HAL through two modes halcmd show xxx for show
-# and open halcmd -skf for building tree, watch, edit, and such 
-
-# TO-DO
-# add edit widget set
-# add tune widget set
-# flesh out the save and reload with modified .ini file.
-# clean up and remove cruft!!!!!
-
-
-#----------end of environment tests----------
-
-# provide for some initial i18n -- needs lots of text work
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
@@ -74,121 +62,9 @@ if ([info exists env(LANG)]) {
     #FIXME add location for installed lang files
 }
 
-
-#----------Testing of run environment----------
-proc initializeConfig {} {
-    global tcl_platform REALTIME HALCMD
-    # four ordinal tests are used as this script starts
-    # 1 -- ms, if yes quit - else
-    # 2 -- bwidget, if no quit - else
-    # 3 -- Is script running in place if no quit - else
-    # 4 -- running emc2 or hal if yes run this - else
-    # 5 -- question setupconfig.tcl? if yes -> go after setup
-    #      if no -> start scripts/demo
-    
-    # 1 -- since this script isn't worth a pinch of spit unless running
-    # alongside a emc2 I'll use this to kill it until we find a way
-    # to use it across a network
-    switch $tcl_platform(platform) {
-        windows {
-            tk_messageBox  -icon error -type ok -message [msgcat::mc "Nothing to do, 'cause you're not running a real-time operating system.  Halconfig works best when it is interacting with a real, running HAL.  When you get this running along with EMC2 then you've got something."]
-            exit
-            destroy .
-        }
-            default {
-            option add *ScrolledWindow.size 14
-        }
-    }
-    
-    # 2 -- BWidget package is used for the Tree widget
-    # with bdi, apt-get install bwidget will work
-    # If you don't find it with this package it is available in
-    # the Axis display package
-    set isbwidget ""
-    set isbwidget [glob -directory /usr/lib -nocomplain \
-        -types d bwidget* ]
-    if {$isbwidget == ""} {
-        tk_messageBox -icon error -type ok -message [msgcat::mc "Can't find the bwidget package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."]
-        exit
-        destroy .
-    } else {
-        package require BWidget
-    }
-    
-    # 3 -- Are we where we ought to be.
-    #we don't need to be anywhere, but we need to reach halcmd
-
-    set haltest [exec $HALCMD]
-    if {$haltest == ""} {
-         tk_messageBox -icon error -type ok -message [msgcat::mc "The configuration script needs to be run from the main EMC2 directory. Please add the emc2/bin dir to PATH before running this command"]
-         exit
-         destroy .
-    }
-    
-    #old test checking for emc2 topdir, doesn't work for installed systems
-    #set thisdir [file tail [pwd]]
-    #if { $thisdir != "emc2"} {
-    #     tk_messageBox -icon error -type ok -message "The configuration script needs to be run from the main EMC2 directory"
-    #     exit
-    #     destroy .
-    #}
-    
-    # 4 -- is a hal running?
-    # first level of test is to see if module is in there.
-    set temp ""
-    set tempmod ""
-    set temp [lsearch [exec /sbin/lsmod] hal_lib]
-    if {$temp == -1} {
-        noHal
-    } else {
-        # check status reply for "not" 
-        set tempmod [exec $REALTIME "status"]
-        set isnot [string match *not* $tempmod]
-        if {$tempmod == "-1"} {
-            if {$isnot != 1} {
-                noHal
-            }
-        }
-    }
-}
-
-# proc allows user to choose some startup stuff if env is okay.
-set demoisup no
-proc noHal {} {
-    global demoisup REALTIME TCLBIN
-    set demoisup no
-    set thisanswer [tk_messageBox -type yesnocancel -message [msgcat::mc "It looks like HAL is not loaded.  If you'd like to go to the configuration and startup script press yes.  If you'd like to start a HAL demo press no. To stop this script, press cancel."]]
-    switch -- $thisanswer {
-        yes {
-            wm withdraw .
-            [exec $TCLBIN/pickconfig.tcl]
-        }
-        no {
-           # this works to start a hal but halconfig doesn't live
-            set tmp [exec $REALTIME load & ]
-            set demoisup yes
-            after 1000 
-        }
-        cancel {
-            killHalConfig
-        }
-    }
-}
+package require BWidget
 
 #----------open channel to halcmd ----------
-#
-# These procs open a channel to halcmd, send commands and receive
-# replies including % return and empty lines. They work like this;
-# 1 -- openHALCMD creates the channel and sets var "fid" as its
-# ident. It registers fid with the event handler for "read" events.
-# 2 -- exHAL sets global var chanflag to rd, sends a proper command,
-# and sets "vwait chanflag" in the event handler.  So exHAL waits
-# when channel read is seen while getsHAL builds a global variable
-# named returnstring.
-# 3 -- At the end of read, halcmd sends % a couple times
-# so getsHAL watches and changes chanflag to wr which causes
-# exHAL to return the value of returnstring to whomever initiated
-# the command by issuing something like "set myret [exHAL argv]."
 
 proc openHALCMD {} {
     global fid HALCMD
@@ -209,7 +85,8 @@ proc exHAL {argv} {
     return $tmp
 }
 
-# getsHAL appends lines to returnstring until it receives a line with just a percent sign "%" on it
+# getsHAL appends lines to returnstring until it receives a line with just 
+# a percent sign "%" on it 
 # Once the % is received, the global var chanflag is set to "wr"
 set returnstring ""
 proc getsHAL {} {
@@ -221,15 +98,20 @@ proc getsHAL {} {
         set chanflag wr
     }
 }
-
 openHALCMD
 #
 #----------end of open halcmd----------
 
+# add a few default characteristics to the display
+foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
+    Message Radiobutton Scale } {
+    option add *$class.borderWidth 1  100
+}
+
+set numaxes [emc_ini "AXES" "TRAJ"]
 
 #----------start toplevel----------
 #
-# including size and position
 
 wm title . [msgcat::mc "HAL Configuration"]
 wm protocol . WM_DELETE_WINDOW tk_
@@ -241,12 +123,6 @@ set ymax [winfo screenheight .]
 set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
 wm geometry . "${masterwidth}x${masterheight}+$x+$y"
-
-# add a few default characteristics to the display
-foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
-    Message Radiobutton Scale } {
-    option add *$class.borderWidth 1  100
-}
 
 # trap mouse click on window manager delete and ask to save
 wm protocol . WM_DELETE_WINDOW askKill
@@ -261,13 +137,9 @@ proc askKill {} {
     }
 }
 
-# clean up a couple of possible problems during shutdown
+# clean up a possible problems during shutdown
 proc killHalConfig {} {
-    global demoisup fid REALTIME
-    if {$demoisup == "yes"} {
-        set demoisup no
-        set tmp [exec $REALTIME unload & ]
-    }
+    global fid
     if {[info exists fid] && $fid != ""} {
         catch flush $fid
         catch close $fid
@@ -276,55 +148,35 @@ proc killHalConfig {} {
     destroy .
 }
 
-# run the init test process
-initializeConfig
+set main [frame .main ]
+pack $main -fill both -expand yes
 
-set top [frame .main ]
-pack $top -padx 4 -pady 4 -fill both -expand yes
+# build frames from left side
+set tf [frame $main.maint]
+set top [NoteBook $main.note]
+
+# Each mode has a unique set of widgets inside tab
+set showhal [$top insert 0 ps -text [msgcat::mc "Show"] -raisecmd {showMode showhal} ]
+set watchhal [$top insert 1 pw -text [msgcat::mc "Watch"] -raisecmd {showMode watchhal}]
+set modifyhal [$top insert 2 pm -text [msgcat::mc "Modify"] -raisecmd {showMode modifyhal}]
+
+# Each axis has its own tab
+for {set j 0} {$j<$numaxes} {incr j} {
+set tunehal [$top insert [expr $j+3] pt$j \
+    -text "[msgcat::mc "Tune"] $j"  -raisecmd [puts "tuning $j"] ]
+}
 
 
-# workmodes are set from the menu
-# possible workmodes include showhal watchhal modifyhal tunehal 
-set workmode showhal
-
-##########
-# Use a monofont to display properly
-# Build the display areas to look like this
-
-#########################################
-#File  View  Settings             Help  #
-#########################################
-#  Tree         # Main                  #
-#  Navigation   # Text display          #
-#  (frame - $tf)# (frame - $ds)         #
-#  ($treew)     # (text - $disp)        #
-#               # (displayThis {str})   #
-#               #########################
-#               #  Command area         #
-#               #  ()                   #
-#########################################
-
-# build the tree frame left side
-set tf [frame $top.maint]
-
-# Build right side display and control area
-# Each mode will have a unique set of widgets inside frame
-set showhal [labelframe $top.s -text [msgcat::mc "Show"] ]
-set watchhal [labelframe $top.w -text [msgcat::mc "Watch"] ]
-set modifyhal [labelframe $top.m -text [msgcat::mc "Modify"] ]
-set tunehal [labelframe $top.t -text [msgcat::mc "Tune"] ]
-
-# use place manager for fixed locations of frames within top
-# place show for starting up
-place configure $tf -in $top -x 2 -y 2 -relheight .99 -relwidth .3
-place configure $showhal -in $top -relx .31 -y 2 -relheight .99 -relwidth .69
+# use place manager to fix locations of frames within top
+place configure $tf -in $main -x 0 -y 0 -relheight 1 -relwidth .3
+place configure $top -in $main -relx .3 -y 0 -relheight 1 -relwidth .7
 
 # slider process is used for several widgets
 proc sSlide {f a b} {
     $f.sc set $a $b
 }
 
-# Build the menu
+# Build menu
 # fixme clean up the underlines so they are unique under each set
 set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 0]
@@ -359,22 +211,13 @@ set viewmenu [menu $menubar.view -tearoff 0]
         $viewmenu add separator
         $viewmenu add command -label [msgcat::mc "Erase Watch"] \
             -command {watchReset all} -underline 1
-set settingsmenu [menu $menubar.settings -tearoff 0]
-    $menubar add cascade -label [msgcat::mc "Settings"] \
+# set settingsmenu [menu $menubar.settings -tearoff 0]
+#    $menubar add cascade -label [msgcat::mc "Settings"] \
             -menu $settingsmenu -underline 0
-        $settingsmenu add radiobutton -label [msgcat::mc "Show"] \
+#        $settingsmenu add radiobutton -label [msgcat::mc "Show"] \
             -variable workmode -value showhal -underline 0 \
             -command {showMode showhal }
-        $settingsmenu add radiobutton -label [msgcat::mc "Watch"] \
-            -variable workmode -value watchhal  -underline 0 \
-            -command {showMode watchhal }
-        $settingsmenu add radiobutton -label [msgcat::mc "Modify"] \
-            -variable workmode -value modifyhal  -underline 0 \
-            -command {showMode modifyhal }
-        $settingsmenu add radiobutton -label [msgcat::mc "Tune"] \
-            -variable workmode -value tunehal  -underline 0 \
-            -command {showMode tunehal }
-            
+           
 set helpmenu [menu $menubar.help -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Help"] \
             -menu $helpmenu -underline 0
@@ -382,18 +225,6 @@ set helpmenu [menu $menubar.help -tearoff 0]
             -command {showHelp about} -underline 0
         $helpmenu add command -label [msgcat::mc "Main"] \
             -command {showHelp main} -underline 0
-        $helpmenu add command -label "Component" \
-            -command {showHelp component} -underline 0
-        $helpmenu add command -label "Pin" \
-            -command {showHelp pin} -underline 0
-        $helpmenu add command -label "Parameter" \
-            -command {showHelp parameter} -underline 0
-        $helpmenu add command -label "Signal" \
-            -command {showHelp signal} -underline 0
-        $helpmenu add command -label "Function" \
-            -command {showHelp function} -underline 0
-        $helpmenu add command -label "Thread" \
-            -command {showHelp thread} -underline 0
 . configure -menu $menubar
 
 # build the tree widgets left side
@@ -404,36 +235,17 @@ pack $str -side right -fill y
 pack $treew -side right -fill both -expand yes
 $treew bindText <Button-1> {workMode   }
 
-
 #----------tree widget handlers----------
-#
-# the tree node name needs to be nearly
-# equivalent to the hal element name but since no two
-# nodes can be named the same, and pins and params often are
-# we append the hal type to the front of it.
-# so a param like pid.0.FF0
-# is broken down into "pid 0 FF0"
-# a node is made below param named param+pid
-# below it a node named param+pid.0
-# and below a leaf param+pid.0.FF0
-#
 # a global var -- treenodes -- holds the names of existing nodes
 # nodenames are the text applied to the toplevel tree nodes
-# they could be internationalized
+# they could be internationalized here but the international name
+# must contain no whitespace.  I'm not certain how to do that.
 set nodenames {Components Pins Parameters Signals Functions Threads}
+
 # searchnames is the real name to be used to reference
 set searchnames {comp pin param sig funct thread}
-# add a few names to test and make subnodes to the signal node
-# a linkpp signal is sorted by it's pin name so ignore here
 set signodes {X Y Z A "Spindle"}
 
-
-# refreshHAL is the starting point for building/rebuilding a tree.
-# First empty tmpnodes, the list of all nodes that are open
-# Look through tree for current list of open nodes
-# Clean out the entire tree
-# Call listHAL to read HAL for searchnames and build new tree
-# Open old nodes if they still exist
 set treenodes ""
 proc refreshHAL {} {
     global treew treenodes oldvar
@@ -562,11 +374,7 @@ proc makeNodeP {which pstring} {
 }
 
 # signal node assumes more about HAL than pins or params.
-# For this reason the variable signodes
-# supplies a set of sig -> subnodes to build around
-# then it finds dot separated sigs and builds a node with them
-# these are most often made by linkpp sorts of commands
-# finally it makes leaves under sig for remaining signals
+# For this reason the hard coded variable signodes
 proc makeNodeSig {sigstring} {
     global treew signodes
     # build sublists dotstring, each signode element, and remainder
@@ -679,56 +487,8 @@ proc showNode {which} {
     focus -force $treew
 }
 
-# Tree code above looks like crap but works fairly well
-# Startup needs [showMode "showhal"] before refreshHAL
 #
 #----------end of tree building processes----------
-
-# each element of controlarray is a complete node name
-array set controlarray {}
-
-# showmode handles the menu selection of mode
-# modelist is used to separate first time from repeats
-set modelist {0 0 0 0}
-proc showMode {mode} {
-    global top showhal watchhal modifyhal tunehal modelist
-    switch -- $mode {
-        showhal {
-            if {![lindex $modelist 0]} {
-                makeShow
-                lset modelist 0 1
-            } 
-        }
-        watchhal {
-            if {![lindex $modelist 1]} {
-                makeWatch
-                lset modelist 1 1
-            }
-        }
-        modifyhal {
-            if {![lindex $modelist 2]} {
-                makeModify
-                lset modelist 2 1
-            }
-        }
-        tunehal {
-            if {![lindex $modelist 3]} {
-                makeTune
-                lset modelist 3 1
-            }
-        }
-        default {
-        }
-    }
-    # handles swap of the display frames if needed
-    if {![winfo ismapped [set $mode]]} {
-        foreach eachdisplay {showhal watchhal modifyhal tunehal} {
-            place forget [set $eachdisplay]
-        }
-        place configure [set $mode] -in $top -relx .31 -y 2 \
-            -relheight .99 -relwidth .69
-    }
-}
 
 set axnum 0
 set numaxes 4
@@ -738,24 +498,24 @@ proc makeShow {} {
     global showhal disp
     set what full
     if {$what == "full"} {
-        set stf [frame $showhal.tf]
-        set disp [text $stf.tx -relief flat -width 40 -wrap word \
-            -height 28 -yscrollcommand "sSlide $stf"]
+        set stf [frame $showhal.t]
+        set disp [text $stf.tx  -wrap word -takefocus 0 -state disabled \
+            -relief flat -borderwidth 0 -height 28 -yscrollcommand "sSlide $stf"]
         set stt $stf.sc
         scrollbar $stt -orient vert -command "$disp yview"
-        pack $stt -side right -fill y
+        pack $stt -side right -fill both -expand yes
         pack $disp -side right -fill both -expand yes
         set seps [frame $showhal.sep -bg black -borderwidth 2]
-        set cfent [frame $showhal.command]
+        set cfent [frame $showhal.b]
         set lab [label $cfent.label -text [msgcat::mc "Enter HAL command :"] ]
         set com [entry $cfent.entry -textvariable halcommand]
         bind $com <KeyPress-Return> {exHAL $halcommand ; refreshHAL}
         set ex [button $cfent.execute -text [msgcat::mc "Execute"] \
             -command {exHAL $halcommand ; refreshHAL} ]
-        pack $lab -side left -padx 5 -pady 3
+        pack $lab -side left -padx 5 -pady 3 
         pack $com -side left -fill x -expand yes -pady 3
         pack $ex -side left -padx 5 -pady 3
-        pack $stf $seps $cfent -side top -fill x -expand yes
+        pack $stf $seps $cfent -side top -fill both -expand yes
     }
 }
 
@@ -806,17 +566,19 @@ proc makeModify {} {
     }
 }
 
+# FIXME set these for the new page displays.
 array set modtypes {
-    comp ".main.m.eloadrt1 .main.m.eunloadrt1"
-    funct ".main.m.eaddf1 .main.m.edelf1"
-    thread ".main.m.eaddf1"
-    pin ".main.m.elinkpp1 .main.m.elinkpp2 .main.m.elinkps1 \
-        .main.m.elinksp2" 
-    sig ".main.m.elinkps2 .main.m.elinksp1 .main.m.enewsig1 \
-        .main.m.edelsig1"
+    global modifyhal
+    comp "$modifyhal.eloadrt1 $modifyhal.eunloadrt1"
+    funct "$modifyhal.eaddf1 $modifyhal.edelf1"
+    thread "$modifyhal.eaddf1"
+    pin "$modifyhal.elinkpp1 $modifyhal.elinkpp2 $modifyhal.elinkps1 \
+        $modifyhal.elinksp2" 
+    sig "$modifyhal.elinkps2 $modifyhal.elinksp1 $modifyhal.enewsig1 \
+        $modifyhal.edelsig1"
 }
 
-set modlist ".main.m.eloadrt1 .main.m.eunloadrt1 .main.m.eaddf1 .main.m.edelf1 .main.m.elinkpp1 .main.m.elinkpp2 .main.m.elinkps1 .main.m.elinksp2 .main.m.elinkps2 .main.m.elinksp1 .main.m.enewsig1 .main.m.edelsig1"
+set modlist "$modifyhal.eloadrt1 $modifyhal.eunloadrt1 $modifyhal.eaddf1 $modifyhal.edelf1 $modifyhal.elinkpp1 $modifyhal.elinkpp2 $modifyhal.elinkps1 $modifyhal.elinksp2 $modifyhal.elinkps2 $modifyhal.elinksp1 $modifyhal.enewsig1 $modifyhal.edelsig1"
 
 # FIXME allow for more than one tunable system
 # FIXME get the number of axes from ini if available
@@ -826,7 +588,7 @@ proc makeTune {} {
     # tunelist holds the found tunable modules
     set tunelist ""
     set ret [exHAL "list comp"]
-    foreach sys { ppmc stg m5i20 evoreg stepgen freqgen  } {
+    foreach sys { ppmc stg m5i20 } {
         set tmp [lsearch -inline -regexp $ret $sys]
         if {$tmp != -1} {
             append tunelist $tmp
@@ -867,10 +629,17 @@ proc tuneAxis {which} {
     set lastaxistuned $which
 }
 
-# all clicks on tree node names go into workMode
-# action depends upon selected mode and node
-# oldvar keeps the last HAL variable for refresh
+# showmode handles the tab selection of mode
+proc showMode {mode} {
+    global workmode
+    set workmode $mode
+    if {$mode=="watchhal"} {
+        watchLoop
+    }
+}
 
+# all clicks on tree node names go into workMode
+# oldvar keeps the last HAL variable for refresh
 proc workMode {which} {
     global workmode oldvar thisvar newmodvar
     set thisvar $which
@@ -896,7 +665,6 @@ proc workMode {which} {
     set oldvar $which
 }
 
-
 # process uses it's own halcmd show so that displayed
 # info looks like what is in the Hal_Introduction.pdf
 proc showHAL {which} {
@@ -913,7 +681,6 @@ proc showHAL {which} {
     set thisret [exec $HALCMD show $searchbase $searchstring]
     displayThis $thisret
 }
-
 
 set watchlist ""
 set watchstring ""
@@ -1090,38 +857,24 @@ proc copyVar {var} {
     }
 }
 
-proc modMod {which} {
-
-
-}   
-proc halMOD {argv} {
-    
-}
-
-proc setTuneVar {which} {
-
-}
-
-proc tuneHAL {which} {
-    
-
-}
-
-
 
 # proc switches the insert and removal of upper right text
 # This also removes any modify array variables
 proc displayThis {str} {
-    global disp controlarray
+    global disp
+    $disp configure -state normal 
     $disp delete 1.0 end
     $disp insert end $str
+    $disp configure -state disabled
 }
 
 
 #----------start up the displays----------
-showMode showhal
+makeShow
+makeWatch
+makeModify
+# makeTune
 refreshHAL
-
 
 #----------save config----------
 #
@@ -1140,7 +893,6 @@ proc saveHAL {which} {
     }
 }
 
-
 #----------Help processes----------
 #
 proc showHelp {which} {
@@ -1148,13 +900,7 @@ proc showHelp {which} {
     global helpsignal helpfunction helpthread
     switch -- $which {
         about {displayThis  $helpabout}
-        main {displayThis  $helpmain}
-        component {displayThis  $helpcomponent}
-        pin {displayThis  $helppin}
-        parameter {displayThis  $helpparameter}
-        signal {displayThis  $helpsignal}
-        function {displayThis  $helpfunction}
-        thread {displayThis  $helpthread}
+        main {displayThis  "find help file"}
         default {I'm lost here in help land}
     }
 }
@@ -1170,41 +916,6 @@ set helpabout {
 
      This script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law.}
 
-set helpmain {
-    You can show any part of a running hal by clicking on the node names in the tree in the upper left side of the display.  You can expand a node if it has a + in front and then click on these names to show their attributes as well.  Attributes are displayed in the same box you are reading now.
 
-    The settings menu will provide the major way of moving from showing HAL attributes to modifying them or tuning them.  When working in modify mode, various control buttons are shown in the lower control frame.
-}
 
-set helpcomponent {
-    This is the component display
-}
-
-set helppin {
-    This is the pin help
-}
-
-set helpparameter {
-    This is the parameter help
-}
-
-set helpsignal {
-    This is the signal help
-}
-
-set helpfunction {
-    This is the function help
-}
-
-set helpthread {
-    This is the thread help
-}
-
-#
-#----------end of help processes----------
-
-# temp testing stuff
-# set inf globals
-# puts "Temp listing $inf "
-# puts [info $inf]
-
+$top raise ps
