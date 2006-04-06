@@ -277,6 +277,11 @@ int emcIoHalt()
 	emcIoCommandBuffer = 0;
     }
 
+    if (last_io_command) {
+        free(last_io_command);
+        last_io_command = 0;
+    }
+
     return 0;
 }
 
