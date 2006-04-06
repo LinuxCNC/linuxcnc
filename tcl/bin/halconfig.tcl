@@ -110,6 +110,11 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
 
 set numaxes [emc_ini "AXES" "TRAJ"]
 
+# Find the name of the ini file used for this run.
+set thisinifile "$EMC_INIFILE"
+set thisconfigdir [file dirname $thisinifile]
+
+
 #----------start toplevel----------
 #
 
@@ -160,12 +165,11 @@ set showhal [$top insert 0 ps -text [msgcat::mc "Show"] -raisecmd {showMode show
 set watchhal [$top insert 1 pw -text [msgcat::mc "Watch"] -raisecmd {showMode watchhal}]
 set modifyhal [$top insert 2 pm -text [msgcat::mc "Modify"] -raisecmd {showMode modifyhal}]
 
-# Each axis has its own tab
+# Each axis has its own tab 
 for {set j 0} {$j<$numaxes} {incr j} {
-set tunehal [$top insert [expr $j+3] pt$j \
-    -text "[msgcat::mc "Tune"] $j"  -raisecmd [puts "tuning $j"] ]
+    set af$j [$top insert [expr $j+3] page$j \
+        -text "[msgcat::mc "Tune"] $j"  -raisecmd [] ]
 }
-
 
 # use place manager to fix locations of frames within top
 place configure $tf -in $main -x 0 -y 0 -relheight 1 -relwidth .3
@@ -495,12 +499,12 @@ set numaxes 4
 set oldvar "zzz"
 # build show mode right side
 proc makeShow {} {
-    global showhal disp
+    global showhal disp showtext
     set what full
     if {$what == "full"} {
         set stf [frame $showhal.t]
         set disp [text $stf.tx  -wrap word -takefocus 0 -state disabled \
-            -relief flat -borderwidth 0 -height 28 -yscrollcommand "sSlide $stf"]
+            -relief flat -borderwidth 0 -height 26 -yscrollcommand "sSlide $stf"]
         set stt $stf.sc
         scrollbar $stt -orient vert -command "$disp yview"
         pack $stt -side right -fill both -expand yes
@@ -511,11 +515,12 @@ proc makeShow {} {
         set com [entry $cfent.entry -textvariable halcommand]
         bind $com <KeyPress-Return> {exHAL $halcommand ; refreshHAL}
         set ex [button $cfent.execute -text [msgcat::mc "Execute"] \
-            -command {exHAL $halcommand ; refreshHAL} ]
+            -command {showEx $halcommand} ]
+        set showtext [text $showhal.txt -height 2  -borderwidth 2 -relief groove ]
         pack $lab -side left -padx 5 -pady 3 
         pack $com -side left -fill x -expand yes -pady 3
         pack $ex -side left -padx 5 -pady 3
-        pack $stf $seps $cfent -side top -fill both -expand yes
+        pack $stf $seps $cfent $showtext -side top -fill both -expand yes
     }
 }
 
@@ -527,13 +532,12 @@ proc makeWatch {} {
 
 proc makeModify {} {
     global modifyhal modtext focusname mcsets
-    set mcsets { {loadrt 1} {unloadrt 1} {addf 1} {delf 1} \
-        {linkpp 2} {linkps 2} {linksp 2} {newsig 2} {delsig 1} }
+    set mcsets { {loadrt 1} {unloadrt 1} {addf 1} {delf 1} {newsig 2} {delsig 1} \
+        {linkpp 2} {linkps 2} {linksp 2} {unlinkp 1}  }
     set moddisplay [frame $modifyhal.textframe ]
     set modtext [text $moddisplay.text -width 40 -height 8 -wrap word \
         -takefocus 0 -relief groove]
-    pack $modtext -side top -fill both -expand yes
-    grid configure $moddisplay -row 0 -column 0 -columnspan 4 -sticky nsew
+    pack $modtext -side bottom -fill both -expand yes
     set j 1
     foreach cset $mcsets {
         set halmodcmd ""
@@ -564,70 +568,263 @@ proc makeModify {} {
         grid configure $modifyhal.b$commandname -row $j -column 3 -sticky nsew
         incr j
     }
+    grid configure $moddisplay -row $j -column 0 -columnspan 4 -sticky nsew
 }
 
 # FIXME set these for the new page displays.
 array set modtypes {
-    global modifyhal
     comp "$modifyhal.eloadrt1 $modifyhal.eunloadrt1"
     funct "$modifyhal.eaddf1 $modifyhal.edelf1"
     thread "$modifyhal.eaddf1"
     pin "$modifyhal.elinkpp1 $modifyhal.elinkpp2 $modifyhal.elinkps1 \
-        $modifyhal.elinksp2" 
+        $modifyhal.elinksp2 $modifyhal.eunlinkp1"
     sig "$modifyhal.elinkps2 $modifyhal.elinksp1 $modifyhal.enewsig1 \
         $modifyhal.edelsig1"
 }
 
-set modlist "$modifyhal.eloadrt1 $modifyhal.eunloadrt1 $modifyhal.eaddf1 $modifyhal.edelf1 $modifyhal.elinkpp1 $modifyhal.elinkpp2 $modifyhal.elinkps1 $modifyhal.elinksp2 $modifyhal.elinkps2 $modifyhal.elinksp1 $modifyhal.enewsig1 $modifyhal.edelsig1"
+set modlist "$modifyhal.eloadrt1 $modifyhal.eunloadrt1 $modifyhal.eaddf1 $modifyhal.edelf1 $modifyhal.elinkpp1 $modifyhal.elinkpp2 $modifyhal.elinkps1 $modifyhal.elinksp2 $modifyhal.elinkps2 $modifyhal.elinksp1 $modifyhal.enewsig1 $modifyhal.edelsig1 $modifyhal.eunlinkp1"
+
 
 # FIXME allow for more than one tunable system
 # FIXME get the number of axes from ini if available
-set numaxes 4
+
 proc makeTune {} {
-    global tunehal numaxes
-    # tunelist holds the found tunable modules
-    set tunelist ""
-    set ret [exHAL "list comp"]
-    foreach sys { ppmc stg m5i20 } {
-        set tmp [lsearch -inline -regexp $ret $sys]
-        if {$tmp != -1} {
-            append tunelist $tmp
+    global axisentry activeAxis main top initext HALCMD sectionarray thisconfigdir
+    global logo numaxes EMC_INIFILE namearray commandarray valarray thisinifile
+    for {set i 0} {$i<$numaxes} {incr i} {
+        global af$i
+    }
+ 
+    # Make a text widget to hold the ini file and
+    # put a copy of the inifile in this text widget
+    set initext [text $top.initext]
+    $initext config -state normal
+    $initext delete 1.0 end
+    if {[catch {open $thisinifile} programin]} {
+        return 
+    } else {
+        $initext insert end [read $programin]
+        catch {close $programin}
+    }
+
+    # setup array with section names and line numbers
+    # sections are without [] around
+    # line numbering starts from 1 as do unix line numbers
+    array set sectionarray {}
+    scan [$initext index end] %d nl
+    set inilastline $nl
+    for {set i 1} {$i < $nl} {incr i} {
+        if { [$initext get $i.0] == "\[" } {
+            set inisectionname [$initext get $i.1 $i.end]
+            set inisectionname [string trimright $inisectionname \] ]
+            array set sectionarray "$inisectionname $i"
         }
     }
-    # we start listing possible tuning variables
-    set pidlist {Pgain Igain Dgain FF0 FF1 bias deadband}
-    set hal_ppmc "$pidlist ppmc.0.encoder.00.scale"
-    set tb [frame $tunehal.buttonframe -bg red ]
-    for {set j 0 } {$j < $numaxes } {incr j} {
-        set tmpb [button $tb.b$j -text "Axis $j" -command "tuneAxis $j"]
-        pack $tmpb -side left -fill x -expand yes
+
+    # Find the HALFILE names between HAL and TRAJ
+    set startline $sectionarray(HAL)
+    set endline $sectionarray(TRAJ)
+    set halfilelist ""
+    for {set i $startline} {$i < $endline} {incr i} {
+        set thisstring [$initext get $i.0 $i.end]
+        if { [lindex $thisstring 0] == "HALFILE" } {
+            set thishalname [lindex $thisstring end]
+            lappend halfilelist $thisconfigdir/$thishalname
+        }
     }
-    grid configure $tb -columnspan 3 -sticky nsew
-    # create the top labels
-#    set axlabel [label $tunehal.label -text "Axis : " -anchor e]
-#    set axname [label $tunehal.lname -textvariable axnum]
-    set i 1
-#    grid configure $axlabel $axname -sticky nsew
-    # create the set of tuning widgets
-    foreach var [set $tunelist] {
-        set na [label $tunehal.l$i -text "$var : " -anchor e]
-        set ent [entry $tunehal.e$i -textvariable var$i]
-        set bt [button $tunehal.b$i -text set \
-            -command [setTuneVar "$i"]]
-        grid configure $na $ent $bt -sticky nsew
-        incr i
+
+    # make a second text widget for scratch writing
+    set scratchtext [text $top.scratchtext]
+
+    # New halconfig allows for ini reads from most any location
+    # For axis tuning search each .hal file for AXIS
+    foreach fname $halfilelist {
+        $scratchtext config -state normal
+        $scratchtext delete 1.0 end
+        if {[catch {open $fname} programin]} {
+            return
+        } else {
+            $scratchtext insert end [read $programin]
+            catch {close $programin}
+        }
+       
+        # find the ini references in this hal and build widgets        
+        scan [$scratchtext index end] %d nl
+        for {set i 1} {$i < $nl} {incr i} {
+            set tmpstring [$scratchtext get $i.0 $i.end]
+            if {[lsearch -regexp $tmpstring AXIS] > -1} { 
+                for {set j 0} {$j < $numaxes} {incr j} {
+                    if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
+                        # this is a hal file search ordered loop
+                        set thisininame [lindex [split $tmpstring "\]" ] end ]
+                        set lowername "[string tolower $thisininame]"
+                        set thishalcommand [lindex $tmpstring 1]
+                        set tmpval [expr [lindex [split \
+                            [exec $HALCMD -s show param $thishalcommand] " "] 3]]
+                        global axis$j-$lowername
+                        set axis$j-$lowername $tmpval
+                        set thislabel [label [set af$j].label-$j-$lowername \
+                            -text "$thisininame" -width 20 -anchor e]
+                        set thisentry [entry [set af$j].entry-$lowername \
+                        -width 12 -textvariable axis$j-$lowername]
+                        grid $thislabel $thisentry
+                        lappend namearray($j) $lowername
+                        lappend commandarray($j) $thishalcommand
+                        lappend valarray($j) $tmpval
+                        break
+                    }
+                }
+            }
+        }
     }
-    tuneAxis 0
-    tuneHAL 0
+
+    frame $main.buttons
+    button $main.buttons.ok -text [msgcat::mc "Save"] -default active \
+        -command {changeIt save } -state disabled
+    button $main.buttons.apply -text [msgcat::mc "Apply"] \
+        -command {changeIt apply}
+    button $main.buttons.revert -text [msgcat::mc "Revert"] \
+        -command {changeIt revert} -state disabled
+    button $main.buttons.cancel -text [msgcat::mc "Quit"] \
+        -command {changeIt quit}
+#    pack $main.buttons.ok $main.buttons.apply $main.buttons.revert \
+        $main.buttons.cancel -side left -fill x -expand 1
+    # grid the top display to keep stuff in place
+    grid rowconfigure $main 1 -weight 1
+#    remove the bottom tuning buttons for now.
+#    grid configure $main.buttons -row 2 -sticky ew -ipadx 20
+
 }
 
-set lastaxistuned 0
-proc tuneAxis {which} {
-    global tunehal numaxes lastaxistuned
-    $tunehal.buttonframe.b$lastaxistuned configure -bg gray98
-    $tunehal.buttonframe.b$which configure -bg yellow
-    set lastaxistuned $which
+proc selectAxis {which} {
+    global axisentry
+    set axisentry $which
 }
+
+proc changeIt {how } {
+    global axisentry sectionarray namearray commandarray valarray HALCMD
+    global numaxes main oldvalarray initext
+    switch -- $how {
+        save {
+            for {set i 0} {$i<$numaxes} {incr i} {
+                set varnames [lindex [array get namearray $i] end]
+                set upvarnames [string toupper $varnames]
+                set varcommands [lindex [array get commandarray $i] end]
+                set maxvarnum [llength $varnames]
+                set sectname "AXIS_$i"
+                if {$i == [expr $numaxes-1]} {
+                    set endsect EMCIO
+                } else {
+                    set endsect AXIS_[expr $i+1]
+                }
+                set sectnum "[set sectionarray($sectname)]"
+                set nextsectnum "[set sectionarray($endsect)]"
+                $initext configure -state normal
+                for {set ind $sectnum} {$ind < $nextsectnum} {incr ind} {
+                    switch -- [$initext get $ind.0] {
+                        "#" {}
+                        default {
+                            set tmpstr [$initext get $ind.0 $ind.end]
+                            set tmpvar [lindex $tmpstr 0]
+                            set tmpindx [lsearch $upvarnames $tmpvar]
+                            if {$tmpindx != -1} {
+                                set cmd [lindex $varcommands $tmpindx]
+                                $initext mark set insert $ind.0
+                                set newval [expr [lindex [split \
+                                    [exec $HALCMD -s show param $cmd] " "] 3]]
+                                set tmptest [string first "e" $newval]
+                                if {[string first "e" $newval] > 1} {
+                                    set newval [format %f $newval]
+                                }
+                                # keep everything leading up to the var value, 
+                                # replace the value, and keep everything after the value
+                                regsub {(^.*=[ \t]*)[^ \t]*(.*)} $tmpstr "\\1$newval\\2" newvar
+                                $initext delete insert "insert lineend"
+                                $initext insert insert $newvar
+                            }
+                        }
+                    }
+                }
+                $initext configure -state disabled
+            }
+            saveFile
+        }
+        apply {
+            $main.buttons.ok configure -state normal
+            $main.buttons.revert configure -state normal
+            set varnames [lindex [array get namearray $axisentry] end]
+            set varcommands [lindex [array get commandarray $axisentry] end]
+            set maxvarnum [llength $varnames]
+            for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
+                set var "axis$axisentry-[lindex $varnames $listnum]"
+                global $var
+                set tmpval [set $var]
+                set tmpcmd [lindex $varcommands $listnum]
+                # get list of old values before changeIt apply changes them
+                set tmpold [expr [lindex [split \
+                    [exec $HALCMD -s show param $tmpcmd] " "] 3]]
+                lappend oldvalarray($axisentry) $tmpold
+                set thisret [exec $HALCMD setp $tmpcmd $tmpval]
+            }
+        }
+        revert {
+            set varnames [lindex [array get namearray $axisentry] end]
+            set varcommands [lindex [array get commandarray $axisentry] end]
+            set maxvarnum [llength $varnames]
+            set oldvarvals [lindex [array get oldvalarray $axisentry] end]
+            for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
+                set tmpval [lindex $oldvarvals $listnum]
+                set tmpcmd [lindex $varcommands $listnum]
+                set thisret [exec $HALCMD setp $tmpcmd $tmpval]
+                # update the display
+                set var axis$axisentry-[lindex $varnames $listnum]
+                global $var
+                set $var $tmpval
+            }
+            $main.buttons.revert configure -state disabled
+        }
+        quit {
+            # build a check for changed values here and ask
+            for {set j 0} {$j < $numaxes} {incr j} {
+                set oldvals [lindex [array get valarray $j] 1]
+                set cmds [lindex [array get commandarray $j] 1]
+                set k 0
+                foreach cmd $cmds {
+                    set tmpval [expr [lindex [split \
+                        [exec $HALCMD -s show param $cmd] " "] 3]]
+                    set oldval [lindex $oldvals $k]
+                    if {$tmpval != $oldval} {
+                        set answer [tk_messageBox \
+                            -message [msgcat::mc "The HAL parameter \n \
+                            %s \n has changed. \n Really quit?" $cmd] \
+                            -type yesno -icon question] 
+                        switch -- $answer { \
+                                yes exit
+                                no {return}
+                        }
+                    
+                    }
+                    incr k
+                }
+            }
+            destroy .
+        }
+        default {}
+    }
+}
+
+proc saveFile {} {
+    global initext thisinifile
+    set name $thisinifile
+    catch {file copy -force $name $name.bak}
+    if {[catch {open $name w} fileout]} {
+        puts stdout [msgcat::mc "can't save %s" $name]
+        return
+    }
+    puts $fileout [$initext get 1.0 end]
+    catch {close $fileout}
+}
+
 
 # showmode handles the tab selection of mode
 proc showMode {mode} {
@@ -680,6 +877,14 @@ proc showHAL {which} {
     set searchstring [lindex $thislist 1]
     set thisret [exec $HALCMD show $searchbase $searchstring]
     displayThis $thisret
+}
+
+proc showEx {what} {
+    global showtext
+    set str [exHAL $what]
+    $showtext delete 1.0 end
+    $showtext insert end $str
+    refreshHAL
 }
 
 set watchlist ""
@@ -784,6 +989,8 @@ proc modHAL {command} {
     set str [exHAL "$command"]
     $modtext delete 1.0 end
     $modtext insert end $str
+    # this refresh takes a while on slow boxes.  Might think about 
+    # modifying the tree code rather than erase and rebuild.
     refreshHAL
 }
 
@@ -803,9 +1010,9 @@ proc setModifyVar {which} {
         switch -- $haltype {
             pin {
                 set str [msgcat::mc "Click a highlighted entry where %s should go." $which]
-                set tmp [lindex [array get modtypes pin] 1]
+                set tmp $modtypes(pin)
                 foreach widget $tmp {
-                    $widget configure -bg lightgreen
+                [subst $widget] configure -bg lightgreen
                 }
             }
             param {
@@ -815,28 +1022,28 @@ proc setModifyVar {which} {
                 set str [msgcat::mc "Click a highlighted entry where %s should go." $which]
                 set tmp [lindex [array get modtypes sig] 1]
                 foreach widget $tmp {
-                    $widget configure -bg lightgreen
+                    [subst $widget] configure -bg lightgreen
                 }
             }
             comp {
                 set str [msgcat::mc "Click a highlighted entry where %s should go." $which]
                 set tmp [lindex [array get modtypes comp] 1]
                 foreach widget $tmp {
-                    $widget configure -bg lightgreen
+                    [subst $widget] configure -bg lightgreen
                 }
             }
             funct {
                 set str [msgcat::mc "Click a highlighted entry where %s should go." $which]
                 set tmp [lindex [array get modtypes funct] 1]
                 foreach widget $tmp {
-                    $widget configure -bg lightgreen
+                    [subst $widget] configure -bg lightgreen
                 }
             }
             thread {
                 set str [msgcat::mc "Click a highlighted entry where %s should go." $which]
                 set tmp [lindex [array get modtypes thread] 1]
                 foreach widget $tmp {
-                    $widget configure -bg lightgreen
+                    [subst $widget] configure -bg lightgreen
                 }
             }
         }            
@@ -914,8 +1121,8 @@ set helpabout {
 
      Halconfig is an EMC2 configuration tool.  It should be started from the emc2 directory and will require that you have started an instance of emc2 or work up a new configuration starting with a demo rt script.
 
-     This script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law.}
+     This script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law.
+}
 
-
-
+makeTune
 $top raise ps
