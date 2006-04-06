@@ -513,7 +513,7 @@ proc makeShow {} {
         set cfent [frame $showhal.b]
         set lab [label $cfent.label -text [msgcat::mc "Enter HAL command :"] ]
         set com [entry $cfent.entry -textvariable halcommand]
-        bind $com <KeyPress-Return> {exHAL $halcommand ; refreshHAL}
+        bind $com <KeyPress-Return> {showEx $halcommand}
         set ex [button $cfent.execute -text [msgcat::mc "Execute"] \
             -command {showEx $halcommand} ]
         set showtext [text $showhal.txt -height 2  -borderwidth 2 -relief groove ]
