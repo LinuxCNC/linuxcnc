@@ -247,8 +247,7 @@ proc popupProgramEditor {} {
     if {[file isfile $programnamestring]} {
         geneditStart programEditor $programnamestring
     } else {
-        #msgcat doesn't work here translation taken care of in popupRunMark above.
-        geneditStart programEditor "untitled.ngc"
+        geneditStart programEditor [msgcat::mc "untitled"].ngc
     }
 
     frame .programEditor.buttons
@@ -271,7 +270,7 @@ proc popupToolEditor {} {
     if {[file isfile $toolfilename]} {
         geneditStart toolEditor $toolfilename
     } else {
-        geneditStart toolEditor [msgcat::mc "untitled"]".tbl"
+        geneditStart toolEditor [msgcat::mc "untitled"].tbl
     }
 
     frame .toolEditor.buttons
@@ -294,7 +293,7 @@ proc popupParamEditor {} {
     if {[file isfile $paramfilename]} {
         geneditStart paramEditor $paramfilename
     } else {
-        geneditStart paramEditor [msgcat::mc "untitled"]".var"
+        geneditStart paramEditor [msgcat::mc "untitled"].var
     }
 
     # disable "Save As..." menu, since we don't support changing it
@@ -441,7 +440,7 @@ proc popupAbout {} {
     }
     toplevel .about
     wm title .about [msgcat::mc "About TkEmc"]
-    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(EMC2 %s)" [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (emc2)\n\nGPL Version 2(2006)"] $env(EMC2VERSION) ]
+    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(EMC2 %s)" [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (EMC2)\n\nGPL Version 2 (2006)"] $env(EMC2VERSION) ]
     frame .about.buttons
     button .about.buttons.ok -default active -text OK -command "destroy .about"
     pack .about.msg -side top
@@ -481,8 +480,8 @@ proc popupToolOffset {} {
     entry .tooloffset.diameter.entry -textvariable tooldiameterentry -width 20
 
     frame .tooloffset.buttons
-    button .tooloffset.buttons.ok -text OK -default active -command {emc_set_tool_offset $toolentry $toollengthentry $tooldiameterentry; destroy .tooloffset}
-    button .tooloffset.buttons.cancel -text Cancel -command {destroy .tooloffset}
+    button .tooloffset.buttons.ok -text [msgcat::mc "OK"] -default active -command {emc_set_tool_offset $toolentry $toollengthentry $tooldiameterentry; destroy .tooloffset}
+    button .tooloffset.buttons.cancel -text [msgcat::mc "Cancel"] -command {destroy .tooloffset}
 
     pack .tooloffset.tool -side top
     pack .tooloffset.tool.label .tooloffset.tool.entry -side left
@@ -1260,8 +1259,8 @@ proc popupAxisOffset {axis} {
     label .axisoffset.input.label -text [msgcat::mc "Set axis value:"]
     entry .axisoffset.input.entry -textvariable axisoffsettext -width 20
     frame .axisoffset.buttons
-    button .axisoffset.buttons.ok -text OK -default active -command "setAxisOffset $axis \$axisoffsettext; destroy .axisoffset"
-    button .axisoffset.buttons.cancel -text Cancel -command "destroy .axisoffset"
+    button .axisoffset.buttons.ok -text [msgcat::mc "OK"] -default active -command "setAxisOffset $axis \$axisoffsettext; destroy .axisoffset"
+    button .axisoffset.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .axisoffset"
     pack .axisoffset.input.label .axisoffset.input.entry -side left
     pack .axisoffset.input -side top
     pack .axisoffset.buttons -side bottom -fill x -pady 2m
@@ -1308,8 +1307,8 @@ proc popupJogSpeed {} {
     label .jogspeedpopup.input.label -text [msgcat::mc "Set jog speed:"]
     entry .jogspeedpopup.input.entry -textvariable popupJogSpeedEntry -width 20
     frame .jogspeedpopup.buttons
-    button .jogspeedpopup.buttons.ok -text OK -default active -command {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
-    button .jogspeedpopup.buttons.cancel -text Cancel -command "destroy .jogspeedpopup"
+    button .jogspeedpopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
+    button .jogspeedpopup.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .jogspeedpopup"
     pack .jogspeedpopup.input.label .jogspeedpopup.input.entry -side left
     pack .jogspeedpopup.input -side top
     pack .jogspeedpopup.buttons -side bottom -fill x -pady 2m
@@ -1339,8 +1338,8 @@ proc popupOride {} {
     label .oridepopup.input.label -text [msgcat::mc "Set feed override:"]
     entry .oridepopup.input.entry -textvariable popupOrideEntry -width 20
     frame .oridepopup.buttons
-    button .oridepopup.buttons.ok -text OK -default active -command {set feedoverride $popupOrideEntry; emc_feed_override $feedoverride; destroy .oridepopup}
-    button .oridepopup.buttons.cancel -text Cancel -command "destroy .oridepopup"
+    button .oridepopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set feedoverride $popupOrideEntry; emc_feed_override $feedoverride; destroy .oridepopup}
+    button .oridepopup.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .oridepopup"
     pack .oridepopup.input.label .oridepopup.input.entry -side left
     pack .oridepopup.input -side top
     pack .oridepopup.buttons -side bottom -fill x -pady 2m
