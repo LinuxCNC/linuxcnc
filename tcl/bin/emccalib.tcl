@@ -205,7 +205,6 @@ proc changeIt {how } {
             for {set i 0} {$i<$numaxes} {incr i} {
                 set varnames [lindex [array get namearray $i] end]
                 set varnames [concat $varnames]
-puts "varnames is -- $varnames"
                 set upvarnames [string toupper $varnames]
                 set varcommands [lindex [array get commandarray $i] end]
                 set maxvarnum [llength $varnames]
@@ -239,7 +238,6 @@ puts "varnames is -- $varnames"
                                 regsub {(^.*=[ \t]*)[^ \t]*(.*)} $tmpstr "\\1$newval\\2" newvar
                                 $initext delete insert "insert lineend"
                                 $initext insert insert $newvar
-puts "Line is $ind -- $newvar"
                             }
                         }
                     }
@@ -252,14 +250,12 @@ puts "Line is $ind -- $newvar"
             $main.buttons.ok configure -state normal
             $main.buttons.revert configure -state normal
             set varnames [lindex [array get namearray $axisentry] end]
-puts $varnames
             set varcommands [lindex [array get commandarray $axisentry] end]
             set maxvarnum [llength $varnames]
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
                 set var "axis$axisentry-[lindex $varnames $listnum]"
                 global $var
                 set tmpval [set $var]
-puts "apply var -- $tmpval"
                 set tmpcmd [lindex $varcommands $listnum]
                 # get list of old values before changeIt apply changes them
                 set tmpold [expr [lindex [split \
