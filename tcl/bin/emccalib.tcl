@@ -152,7 +152,7 @@ proc popupCalibration {} {
                 for {set j 0} {$j < $numaxes} {incr j} {
                     if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
                         # this is a hal file search ordered loop
-                        set thisininame [lindex [split $tmpstring "\]" ] end ]
+                        set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ] ]
                         set lowername "[string tolower $thisininame]"
                         set thishalcommand [lindex $tmpstring 1]
                         set tmpval [expr [lindex [split \
@@ -186,15 +186,10 @@ proc popupCalibration {} {
     pack $main.buttons.ok $main.buttons.apply $main.buttons.revert \
         $main.buttons.cancel -side left -fill x -expand 1
 
-#  pack to test 
-#    pack $top -side top -fill both -expand yes
-#    pack $main.buttons -side top -fill x -expand yes
-
     # grid the top display to keep stuff in place
     grid rowconfigure $main 1 -weight 1
     grid configure $top -row 1 -sticky nsew 
     grid configure $main.buttons -row 2 -sticky ew -ipadx 20
-
 }
 
 proc selectAxis {which} {
@@ -209,6 +204,8 @@ proc changeIt {how } {
         save {
             for {set i 0} {$i<$numaxes} {incr i} {
                 set varnames [lindex [array get namearray $i] end]
+                set varnames [concat $varnames]
+puts "varnames is -- $varnames"
                 set upvarnames [string toupper $varnames]
                 set varcommands [lindex [array get commandarray $i] end]
                 set maxvarnum [llength $varnames]
@@ -242,6 +239,7 @@ proc changeIt {how } {
                                 regsub {(^.*=[ \t]*)[^ \t]*(.*)} $tmpstr "\\1$newval\\2" newvar
                                 $initext delete insert "insert lineend"
                                 $initext insert insert $newvar
+puts "Line is $ind -- $newvar"
                             }
                         }
                     }
@@ -254,12 +252,14 @@ proc changeIt {how } {
             $main.buttons.ok configure -state normal
             $main.buttons.revert configure -state normal
             set varnames [lindex [array get namearray $axisentry] end]
+puts $varnames
             set varcommands [lindex [array get commandarray $axisentry] end]
             set maxvarnum [llength $varnames]
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
                 set var "axis$axisentry-[lindex $varnames $listnum]"
                 global $var
                 set tmpval [set $var]
+puts "apply var -- $tmpval"
                 set tmpcmd [lindex $varcommands $listnum]
                 # get list of old values before changeIt apply changes them
                 set tmpold [expr [lindex [split \
