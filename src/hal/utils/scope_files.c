@@ -113,6 +113,11 @@ typedef struct {
 ************************************************************************/
 
 static int parse_command(char *in);
+/* the following functions implement halscope config items 
+   each is called with a pointer to a single argument (the parser
+   used here allows only one arg per command) and returns NULL if
+   the command succeeded, or an error message if it failed.
+*/
 static char *dummy_cmd(void * arg);
 static char *thread_cmd(void * arg);
 static char *maxchan_cmd(void * arg);
@@ -178,7 +183,7 @@ int read_config_file (char *filename)
     deferred_channel = 0;    
     fp = fopen(filename, "r");
     if ( fp == NULL ) {
-	fprintf(stderr, "ERROR: config file '%s' could not be opened\n", filename );
+	fprintf(stderr, "halscope: config file '%s' could not be opened\n", filename );
 	return -1;
     }
     retval = 0;
@@ -194,7 +199,7 @@ int read_config_file (char *filename)
     }
     fclose(fp);
     if ( retval < 0 ) {
-	fprintf(stderr, "ERROR: config file '%s' caused %d errors\n", filename, -retval );
+	fprintf(stderr, "halscope: config file '%s' caused %d warnings\n", filename, -retval );
 	return -1;
     }
     return 0;
@@ -207,7 +212,7 @@ void write_config_file (char *filename)
     
     fp = fopen(filename, "w");
     if ( fp == NULL ) {
-	fprintf(stderr, "ERROR: config file '%s' could not be created\n", filename );
+	fprintf(stderr, "halscope: config file '%s' could not be created\n", filename );
 	return;
     }
     write_horiz_config(fp);
@@ -379,7 +384,7 @@ static int parse_command(char *in)
 	/* zero length name, last entry, no match */
 	if ( *in != '#' ) {
 	    /* not a comment, must be a mistake */
-	    fprintf (stderr, "ERROR: unknown config command: '%s'\n", in );
+	    fprintf (stderr, "halscope: unknown config command: '%s'\n", in );
 	    return -1;
 	}
     }
@@ -394,6 +399,8 @@ static int parse_command(char *in)
 	    cp1++;
 	}
 	*cp1 = '\0';
+	/* call command handler, it returns NULL on success,
+	   or an error message on failure */
 	rv = cmd_lut[n].handler(arg_string);
 	break;
     case FLOAT:
@@ -405,12 +412,12 @@ static int parse_command(char *in)
 	rv = cmd_lut[n].handler(&arg_int);
 	break;
     default:
-	fprintf(stderr, "ERROR: unknown arg type for command %s\n", in );
 	return -1;
 	break;
     }
+    /* commands return NULL on success, an error msg on fail */
     if ( rv != NULL ) {
-	fprintf(stderr, "ERROR: %s: '%s'\n", rv, in );
+	fprintf(stderr, "halscope: %s: '%s'\n", rv, in );
 	return -1;
     }
     return 0;
