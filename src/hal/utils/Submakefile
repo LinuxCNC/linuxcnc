@@ -51,7 +51,7 @@ HALGTKSRCS := \
     hal/utils/meter.c \
     hal/utils/miscgtk.c
 $(call TOOBJSDEPS, $(HALGTKSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
-$(call TOOBJSDEPS, hal/utils/scope_horiz.c): EXTRAFLAGS += -DHALCMD="\"$(EMC2_BIN_DIR)/halcmd\""
+$(call TOOBJSDEPS, hal/utils/scope_horiz.c): EXTRAFLAGS = $(GTK_CFLAGS) -DHALCMD="\"$(EMC2_BIN_DIR)/halcmd\""
 $(call TOOBJS, hal/utils/scope_horiz.c): Makefile.inc
 endif
 
