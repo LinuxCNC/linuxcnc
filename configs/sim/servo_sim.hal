@@ -5,13 +5,15 @@
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY
 # PID module, for three PID loops
 loadrt pid num_chan=3
-# block module with 6 differentiators (for velocity and accel sigs)
-# and three lowpass filters (to simulate motor inertia)
-loadrt blocks ddt=6 lowpass=3 scale=3
+# block module with 6 differentiators (for velocity and accel sigs),
+# three scale blocks (to simulate motor and leadscrew scaling),
+# three lowpass filters (to simulate motor inertia), and nine
+# window comparators (to simulate limit and home switches)
+loadrt blocks ddt=6 lowpass=3 scale=3 wcomp=9
 # simulated encoders
 loadrt sim_encoder num_chan=3
-# software encoder counters
-loadrt encoder num_chan=3
+# software encoder counters, 3 for feedback, 3 for actual axis pos
+loadrt encoder num_chan=6
 
 # add encoder counter and simulator functions to high speed thread
 addf encoder.update-counters base-thread
@@ -19,6 +21,15 @@ addf sim-encoder.make-pulses base-thread
 
 # add all required functions to servo thread
 addf encoder.capture-position servo-thread
+addf wcomp.0 servo-thread
+addf wcomp.1 servo-thread
+addf wcomp.2 servo-thread
+addf wcomp.3 servo-thread
+addf wcomp.4 servo-thread
+addf wcomp.5 servo-thread
+addf wcomp.6 servo-thread
+addf wcomp.7 servo-thread
+addf wcomp.8 servo-thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 addf pid.0.do-pid-calcs servo-thread
@@ -269,6 +280,105 @@ newsig yflt bit
 linksp yflt axis.1.amp-fault-in
 newsig zflt bit
 linksp zflt axis.2.amp-fault-in
+
+# signals for "actual" axis position
+newsig Xaxis-pos float
+newsig Yaxis-pos float
+newsig Zaxis-pos float
+
+# a second set of encoder counters keeps track of position
+linksp XphA encoder.3.phase-A
+linksp XphB encoder.3.phase-B
+linksp YphA encoder.4.phase-A
+linksp YphB encoder.4.phase-B
+linksp ZphA encoder.5.phase-A
+linksp ZphB encoder.5.phase-B
+
+setp encoder.3.position-scale [AXIS_0]INPUT_SCALE
+setp encoder.4.position-scale [AXIS_1]INPUT_SCALE
+setp encoder.5.position-scale [AXIS_2]INPUT_SCALE
+
+linksp Xaxis-pos encoder.3.position 
+linksp Yaxis-pos encoder.4.position 
+linksp Zaxis-pos encoder.5.position 
+
+# connect "actual" position from encoders
+# to window comparators
+linksp Xaxis-pos => wcomp.0.in
+linksp Xaxis-pos => wcomp.1.in
+linksp Xaxis-pos => wcomp.2.in
+linksp Yaxis-pos => wcomp.3.in
+linksp Yaxis-pos => wcomp.4.in
+linksp Yaxis-pos => wcomp.5.in
+linksp Zaxis-pos => wcomp.6.in
+linksp Zaxis-pos => wcomp.7.in
+linksp Zaxis-pos => wcomp.8.in
+
+# connect simulated switch outputs to motion controller
+newsig Xminlim bit
+newsig Xmaxlim  bit
+newsig Xhome bit
+linksp Xminlim <= wcomp.0.out
+linksp Xminlim => axis.0.neg-lim-sw-in
+linksp Xmaxlim <= wcomp.1.out
+linksp Xmaxlim => axis.0.pos-lim-sw-in
+linksp Xhome <= wcomp.2.out
+linksp Xhome => axis.0.home-sw-in
+
+newsig Yminlim bit
+newsig Ymaxlim  bit
+newsig Yhome bit
+linksp Yminlim <= wcomp.3.out
+linksp Yminlim => axis.1.neg-lim-sw-in
+linksp Ymaxlim <= wcomp.4.out
+linksp Ymaxlim => axis.1.pos-lim-sw-in
+linksp Yhome <= wcomp.5.out
+linksp Yhome => axis.1.home-sw-in
+
+newsig Zminlim bit
+newsig Zmaxlim  bit
+newsig Zhome bit
+linksp Zminlim <= wcomp.6.out
+linksp Zminlim => axis.2.neg-lim-sw-in
+linksp Zmaxlim <= wcomp.7.out
+linksp Zmaxlim => axis.2.pos-lim-sw-in
+linksp Zhome <= wcomp.8.out
+linksp Zhome => axis.2.home-sw-in
+
+# configure the points at which the simulated switches trip
+# X axis first
+# min limit switch
+setp wcomp.0.max [AXIS_0]MIN_HARD_LIMIT
+setp wcomp.0.min [AXIS_0]MIN_HARD_LIMIT_RELEASE
+# max limit switch
+setp wcomp.1.min [AXIS_0]MAX_HARD_LIMIT
+setp wcomp.1.max [AXIS_0]MAX_HARD_LIMIT_RELEASE
+# home switch
+setp wcomp.2.min [AXIS_0]HOME_SW_MIN
+setp wcomp.2.max [AXIS_0]HOME_SW_MAX
+
+# Y axis
+# min limit switch
+setp wcomp.3.max [AXIS_1]MIN_HARD_LIMIT
+setp wcomp.3.min [AXIS_1]MIN_HARD_LIMIT_RELEASE
+# max limit switch
+setp wcomp.4.min [AXIS_1]MAX_HARD_LIMIT
+setp wcomp.4.max [AXIS_1]MAX_HARD_LIMIT_RELEASE
+# home switch
+setp wcomp.5.min [AXIS_1]HOME_SW_MIN
+setp wcomp.5.max [AXIS_1]HOME_SW_MAX
+
+# Z axis
+# min limit switch
+setp wcomp.6.max [AXIS_2]MIN_HARD_LIMIT
+setp wcomp.6.min [AXIS_2]MIN_HARD_LIMIT_RELEASE
+# max limit switch
+setp wcomp.7.min [AXIS_2]MAX_HARD_LIMIT
+setp wcomp.7.max [AXIS_2]MAX_HARD_LIMIT_RELEASE
+# home switch
+setp wcomp.8.min [AXIS_2]HOME_SW_MIN
+setp wcomp.8.max [AXIS_2]HOME_SW_MAX
+
 
 # load realtime portion of scope
 loadrt scope_rt
