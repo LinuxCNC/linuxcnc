@@ -86,13 +86,7 @@ MODULE_PARM_DESC(num_cham, "number of 'encoders'");
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
 
-/** These structures contains the runtime data for a singleencoder.
-    The 'st0_t' struct has data needed for stepping type 0 only, and
-    'st2_t' has data needed for stepping types 2 and higher only.  A
-    union is used so the two structs can share space in the main
-    'freqgen_t' structure.  This keeps the frequently accessed parts
-    of the main structure smaller, allowing them to occupy fewer cache
-    lines.  This improves speed as well as conserving shared memory.
+/** These structures contains the runtime data for a single encoder.
     Data is arranged in the structs in the order in which it will be
     accessed, so fetching one item will load the next item(s) into cache.
 */
@@ -106,7 +100,7 @@ typedef struct {
     hal_bit_t *phaseB;		/* pins for output signals */
     hal_bit_t *phaseZ;		/* pins for output signals */
     hal_u32_t ppr;		/* param: pulses per revolution */
-    hal_float_t *speed;		/* pin: speed in revs/minute */
+    hal_float_t *speed;		/* pin: speed in revs/second */
 } sim_enc_t;
 
 /* ptr to array of sim_enc_t structs in shared memory, 1 per channel */
@@ -313,8 +307,8 @@ static void update_speed(void *arg, long period)
     /* update the 'encoders' */
     sim_enc = arg;
     for (n = 0; n < num_chan; n++) {
-	/* convert speed command (revs per min) to counts/sec */
-	tmpf = *(sim_enc->speed) * sim_enc->ppr * 4.0 / 60.0;
+	/* convert speed command (revs per sec) to counts/sec */
+	tmpf = *(sim_enc->speed) * sim_enc->ppr * 4.0;
 	/* limit the commanded frequency */
 	if (tmpf > maxf) {
 	    tmpf = maxf;
