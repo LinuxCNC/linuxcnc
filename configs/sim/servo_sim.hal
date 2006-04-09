@@ -1,0 +1,276 @@
+# HAL config file for simulated servo machine
+
+# first load all the RT modules that will be needed
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY
+# PID module, for three PID loops
+loadrt pid num_chan=3
+# block module with 6 differentiators (for velocity and accel sigs)
+# and three lowpass filters (to simulate motor inertia)
+loadrt blocks ddt=6 lowpass=3 scale=3
+# simulated encoders
+loadrt sim_encoder num_chan=3
+# software encoder counters
+loadrt encoder num_chan=3
+
+# add encoder counter and simulator functions to high speed thread
+addf encoder.update-counters base-thread
+addf sim-encoder.make-pulses base-thread
+
+# add all required functions to servo thread
+addf encoder.capture-position servo-thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf pid.0.do-pid-calcs servo-thread
+addf pid.1.do-pid-calcs servo-thread
+addf pid.2.do-pid-calcs servo-thread
+addf scale.0 servo-thread
+addf scale.1 servo-thread
+addf scale.2 servo-thread
+addf lowpass.0 servo-thread
+addf lowpass.1 servo-thread
+addf lowpass.2 servo-thread
+addf sim-encoder.update-speed servo-thread
+
+# link the differentiator functions into the code
+addf ddt.0 servo-thread
+addf ddt.1 servo-thread
+addf ddt.2 servo-thread
+addf ddt.3 servo-thread
+addf ddt.4 servo-thread
+addf ddt.5 servo-thread
+
+# create three position feedback signals
+newsig Xpos-fb float
+newsig Ypos-fb float
+newsig Zpos-fb float
+
+# get position feedback from encoder module
+linksp Xpos-fb <= encoder.0.position
+linksp Ypos-fb <= encoder.1.position
+linksp Zpos-fb <= encoder.2.position
+
+# set position feedback scaling
+setp encoder.0.position-scale [AXIS_0]INPUT_SCALE
+setp encoder.1.position-scale [AXIS_1]INPUT_SCALE
+setp encoder.2.position-scale [AXIS_2]INPUT_SCALE
+
+# connect position feedback to PID loop
+linksp Xpos-fb => pid.0.feedback
+linksp Ypos-fb => pid.1.feedback
+linksp Zpos-fb => pid.2.feedback
+
+# connect position feedback to motion module
+linksp Xpos-fb => axis.0.motor-pos-fb
+linksp Ypos-fb => axis.1.motor-pos-fb
+linksp Zpos-fb => axis.2.motor-pos-fb
+
+# create three position command signals
+newsig Xpos-cmd float
+newsig Ypos-cmd float
+newsig Zpos-cmd float
+
+# connect position commands to motion controller
+linksp Xpos-cmd <= axis.0.motor-pos-cmd
+linksp Ypos-cmd <= axis.1.motor-pos-cmd
+linksp Zpos-cmd <= axis.2.motor-pos-cmd
+
+# connect position commands to PID input
+linksp Xpos-cmd => pid.0.command
+linksp Ypos-cmd => pid.1.command
+linksp Zpos-cmd => pid.2.command
+
+# create bit signals to enable/disable the PID loops
+newsig Xenable bit
+newsig Yenable bit
+newsig Zenable bit
+
+# connect the signals to the motion controller
+linksp Xenable <= axis.0.amp-enable-out
+linksp Yenable <= axis.1.amp-enable-out
+linksp Zenable <= axis.2.amp-enable-out
+
+# connect the signals to the PID blocks
+linksp Xenable => pid.0.enable
+linksp Yenable => pid.1.enable
+linksp Zenable => pid.2.enable
+
+# create PID to "motor" output signals
+newsig Xoutput float
+newsig Youtput float
+newsig Zoutput float
+
+# connect output signals to output of PID loops
+linksp Xoutput <= pid.0.output
+linksp Youtput <= pid.1.output
+linksp Zoutput <= pid.2.output
+
+# connect output signals (in inches per sec) to
+# scale blocks that translate to motor revs per sec
+linksp Xoutput => scale.0.in
+linksp Youtput => scale.1.in
+linksp Zoutput => scale.2.in
+
+# set scaling, number of motor revs needed to
+# travel one inch
+setp scale.0.gain [AXIS_0]DRIVE_RATIO
+setp scale.1.gain [AXIS_1]DRIVE_RATIO
+setp scale.2.gain [AXIS_2]DRIVE_RATIO
+
+# motor speed commands
+newsig Xmtr-cmd float
+newsig Ymtr-cmd float
+newsig Zmtr-cmd float
+
+# motor speed command sigs come from scale blocks
+linksp Xmtr-cmd <= scale.0.out
+linksp Ymtr-cmd <= scale.1.out
+linksp Zmtr-cmd <= scale.2.out
+
+# motor speed commands go thru lowpass filters
+# to simulate motor inertia
+linksp Xmtr-cmd => lowpass.0.in
+linksp Ymtr-cmd => lowpass.1.in
+linksp Zmtr-cmd => lowpass.2.in
+
+# set "inertia" here, probalby by trial and error
+setp lowpass.0.gain 0.1
+setp lowpass.1.gain 0.1
+setp lowpass.2.gain 0.1
+
+# "actual" motor speed signals
+newsig Xmtr-spd float
+newsig Ymtr-spd float
+newsig Zmtr-spd float
+
+# output of lowpass is simulated motor speed
+linksp Xmtr-spd <= lowpass.0.out
+linksp Ymtr-spd <= lowpass.1.out
+linksp Zmtr-spd <= lowpass.2.out
+
+# speed goes to simulated encoders
+linksp Xmtr-spd => sim-encoder.0.speed
+linksp Ymtr-spd => sim-encoder.1.speed
+linksp Zmtr-spd => sim-encoder.2.speed
+
+# set simulated encoder scaling
+setp sim-encoder.0.ppr [AXIS_0]MOTOR_PPR
+setp sim-encoder.1.ppr [AXIS_1]MOTOR_PPR
+setp sim-encoder.2.ppr [AXIS_2]MOTOR_PPR
+
+# simulated encoder output signals
+newsig XphA bit
+newsig XphB bit
+newsig XphZ bit
+newsig YphA bit
+newsig YphB bit
+newsig YphZ bit
+newsig ZphA bit
+newsig ZphB bit
+newsig ZphZ bit
+
+# connect them up
+linksp XphA <= sim-encoder.0.phase-A
+linksp XphA => encoder.0.phase-A
+linksp XphB <= sim-encoder.0.phase-B
+linksp XphB => encoder.0.phase-B
+linksp XphZ <= sim-encoder.0.phase-Z
+linksp XphZ => encoder.0.phase-Z
+linksp YphA <= sim-encoder.1.phase-A
+linksp YphA => encoder.1.phase-A
+linksp YphB <= sim-encoder.1.phase-B
+linksp YphB => encoder.1.phase-B
+linksp YphZ <= sim-encoder.1.phase-Z
+linksp YphZ => encoder.1.phase-Z
+linksp ZphA <= sim-encoder.2.phase-A
+linksp ZphA => encoder.2.phase-A
+linksp ZphB <= sim-encoder.2.phase-B
+linksp ZphB => encoder.2.phase-B
+linksp ZphZ <= sim-encoder.2.phase-Z
+linksp ZphZ => encoder.2.phase-Z
+
+# set PID loop output limits to max velocity
+setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
+setp pid.1.maxoutput [AXIS_1]MAX_VELOCITY
+setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
+
+# set PID loop gains
+# NOTE: eventually these will be non-zero values as
+# needed to tune the performance of each axis.  The
+# initial values shown here are extremely conservative
+# to prevent unexpected behavior.  After this file 
+# has been "executed" by halcmd, the gains can be
+# interactively adjusted using commands like
+# "halcmd setp pid.<channel>.Pgain <value>"
+# Once the axis has been tuned to your satisfaction, 
+# do "halcmd show param | grep pid" to get a listing 
+# of the tuning parameters, and enter those values here.
+
+# the values below come from the ini
+setp pid.0.Pgain [AXIS_0]PGAIN
+setp pid.0.Igain [AXIS_0]IGAIN
+setp pid.0.Dgain [AXIS_0]DGAIN
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+# deadband should be just over 1 count
+setp pid.0.deadband [AXIS_0]DEADBAND
+
+setp pid.1.Pgain [AXIS_1]PGAIN
+setp pid.1.Igain [AXIS_1]IGAIN
+setp pid.1.Dgain [AXIS_1]DGAIN
+setp pid.1.bias [AXIS_1]BIAS
+setp pid.1.FF0 [AXIS_1]FF0
+setp pid.1.FF1 [AXIS_1]FF1
+# deadband should be just over 1 count
+setp pid.1.deadband [AXIS_1]DEADBAND
+
+setp pid.2.Pgain [AXIS_2]PGAIN
+setp pid.2.Igain [AXIS_2]IGAIN
+setp pid.2.Dgain [AXIS_2]DGAIN
+setp pid.2.bias [AXIS_2]BIAS
+setp pid.2.FF0 [AXIS_2]FF0
+setp pid.2.FF1 [AXIS_2]FF1
+# deadband should be just over 1 count
+setp pid.2.deadband [AXIS_2]DEADBAND
+
+# send the position commands thru differentiators to
+# generate velocity and accel signals
+# define the signals, and hook them up
+newsig Xvel float
+newsig Xacc float
+linksp Xpos-cmd => ddt.0.in
+linkps ddt.0.out => Xvel
+linksp Xvel => ddt.1.in
+linkps ddt.1.out => Xacc
+newsig Yvel float
+newsig Yacc float
+linksp Ypos-cmd => ddt.2.in
+linkps ddt.2.out => Yvel
+linksp Yvel => ddt.3.in
+linkps ddt.3.out => Yacc
+newsig Zvel float
+newsig Zacc float
+linksp Zpos-cmd => ddt.4.in
+linkps ddt.4.out => Zvel
+linksp Zvel => ddt.5.in
+linkps ddt.5.out => Zacc
+
+# estop loopback
+linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
+
+newsig xflt bit
+linksp xflt axis.0.amp-fault-in
+newsig yflt bit
+linksp yflt axis.1.amp-fault-in
+newsig zflt bit
+linksp zflt axis.2.amp-fault-in
+
+# load realtime portion of scope
+loadrt scope_rt
+# start up scope user interface
+# loadusr halscope

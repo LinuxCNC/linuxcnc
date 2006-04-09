@@ -11,3 +11,8 @@ Select this if you have no functional machine
 but want to edit some basic configuration stuff
 or play with one of the EMC2 displays.
 
+There is also a more complex simulated machine
+called "servo_sim" that has full PID loops and
+simulated motors and encoders.  This "machine"
+can be used for more sophisticated testing 
+and tuning.
