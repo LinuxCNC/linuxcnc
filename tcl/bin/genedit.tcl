@@ -50,6 +50,14 @@ if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLSCRIPTS $TCLSCRIPTS/scripts
 }
 
+
+set LANGDIR $TCLDIR/../src/po
+if {[info exists env(EMC2_LANG_DIR)]} {
+    set LANGDIR $env(EMC2_LANG_DIR)
+}
+
+
+
 # Internationalisation (i18n)
 # in order to use i18n, all the strings will be called [msgcat::mc "string-foo"]
 # instead of "string-foo".
@@ -61,8 +69,7 @@ if {[info exists env(EMC2_TCL_DIR)]} {
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload $TCLBIN/../../src/po
-    #FIXME need to add location for installed po files
+    msgcat::mcload $LANGDIR
 }
 
 proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"Text files" {.txt} }}}} {

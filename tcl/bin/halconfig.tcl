@@ -55,11 +55,15 @@ if {[info exists env(HALCMD)]} {
     set HALCMD $env(HALCMD)
 }
 
+set LANGDIR $TCLDIR/../src/po
+if {[info exists env(EMC2_LANG_DIR)]} {
+    set LANGDIR $env(EMC2_LANG_DIR)
+}
+
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload $TCLDIR/../src/po
-    #FIXME add location for installed lang files
+    msgcat::mcload $LANGDIR
 }
 
 package require BWidget
