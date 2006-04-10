@@ -310,7 +310,8 @@ install:
 		$(DESTDIR)$(docsdir)/help $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts $(DESTDIR)$(mandir)/man1 \
-		$(DESTDIR)$(tcldir)/msgs
+		$(DESTDIR)$(tcldir)/msgs \
+		$(DESTDIR)$(localedir)/de/LC_MESSAGES
 	$(FILE) ../docs/man/man1/halcmd.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) ../docs/man/man1/halmeter.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) ../docs/man/man1/hal_joystick.1 $(DESTDIR)$(mandir)/man1
