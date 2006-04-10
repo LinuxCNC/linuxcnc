@@ -46,7 +46,9 @@ SUBDIRS := \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc \
     \
-    module_helper
+    module_helper \
+    \
+    po
 
 ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c 
 
@@ -208,6 +210,9 @@ HEADERS := \
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 
+# Add converting of %.po files
+TARGETS += $(patsubst %.po, %.mo, $(wildcard po/*.po))
+
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
 
@@ -304,11 +309,14 @@ install:
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir) \
 		$(DESTDIR)$(docsdir)/help $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
-		$(DESTDIR)$(tcldir)/scripts $(DESTDIR)$(mandir)/man1
+		$(DESTDIR)$(tcldir)/scripts $(DESTDIR)$(mandir)/man1 \
+		$(DESTDIR)$(tcldir)/msgs
 	$(FILE) ../docs/man/man1/halcmd.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) ../docs/man/man1/halmeter.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) ../docs/man/man1/hal_joystick.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) ../docs/man/man1/emc.1 $(DESTDIR)$(mandir)/man1
+	$(FILE) po/*.msg $(DESTDIR)$(tcldir)/msgs
+	$(FILE) po/de*.mo $(DESTDIR)$(localedir)/de/LC_MESSAGES
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)/emc2
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2

@@ -30,11 +30,15 @@ exec $EMC2_EMCSH "$0" "$@"
 # Saves changes to ini file if requested
 ###############################################################
 
+set LANGDIR $TCLDIR/../src/po
+if {[info exists env(EMC2_LANG_DIR)]} {
+    set LANGDIR $env(EMC2_LANG_DIR)
+}
+
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload ../../src/po
-    #FIXME need to add location for installed po files
+    msgcat::mcload $LANGDIR
 }
 
 package require BWidget

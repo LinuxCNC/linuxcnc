@@ -39,6 +39,7 @@ set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
 set TCLDIR tcl
 set HELPDIR ../../docs/help
+set LANGDIR $TCLDIR/../src/po
 
 if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLBIN $env(EMC2_TCL_DIR)
@@ -52,17 +53,19 @@ if {[info exists env(EMC2_HELP_DIR)]} {
     set HELPDIR $env(EMC2_HELP_DIR)
 }
 
-
 if ([info exists env(EMC2_TCL_DIR)]) {
     set emc2tcldir $env(EMC2_TCL_DIR)
+}
+
+if {[info exists env(EMC2_LANG_DIR)]} {
+    set LANGDIR $env(EMC2_LANG_DIR)
 }
 
 
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload $TCLDIR/../src/po
-    #FIXME need to add location for installed po files
+    msgcat::mcload $LANGDIR
 }
 
 # wheelEvent code curtesy of Tsahi Levent-Levi - on activestate web site.

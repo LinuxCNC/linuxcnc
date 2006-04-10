@@ -593,6 +593,7 @@ AC_SUBST([RUN_IN_PLACE])
 if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_BIN_DIR=$EMC2_HOME/bin
     EMC2_TCL_DIR=$EMC2_HOME/tcl
+    EMC2_LANG_DIR=$EMC2_HOME/tcl/src/po
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
     EMC2_CONFIG_PATH="~/emc2/configs:$EMC2_HOME/configs"
@@ -602,6 +603,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
 else
     EMC2_BIN_DIR=${bindir}
     EMC2_TCL_DIR=${prefix}/share/emc/tcl
+    EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
     EMC2_HELP_DIR=${prefix}/share/doc/emc2
     EMC2_RTLIB_DIR=$MODULE_DIR/emc2
     EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $sysconfdir)"/emc2/sample-configs"
@@ -614,6 +616,7 @@ AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_HELP_DIR])
 AC_SUBST([EMC2_RTLIB_DIR])
+AC_SUBST([EMC2_LANG_DIR])
 AC_SUBST([EMC2_CONFIG_PATH])
 AC_SUBST([EMC2_NCFILES_DIR])
 AC_SUBST([REALTIME])

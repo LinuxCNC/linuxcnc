@@ -47,6 +47,13 @@ option add *Tree*background white
 
 ################### PROCEDURE DEFINITIONS #####################
 
+#first define some default directories
+set TCLDIR tcl
+
+if {[info exists env(EMC2_TCL_DIR)]} {
+    set TCLDIR $env(EMC2_TCL_DIR)
+}
+
 # Internationalisation (i18n)
 # in order to use i18n, all the strings will be called [msgcat::mc "string-foo"]
 # instead of "string-foo".
@@ -58,10 +65,15 @@ option add *Tree*background white
 # That file should contain all the translations regarding tcl scripts 
 # (tkemc, mini, setupconfig.tcl, etc)
 
+set LANGDIR $TCLDIR/../src/po
+if {[info exists env(EMC2_LANG_DIR)]} {
+    set LANGDIR $env(EMC2_LANG_DIR)
+}
+
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload "src/po"
+    msgcat::mcload $LANGDIR
 }
 
 proc initialize_config {} {

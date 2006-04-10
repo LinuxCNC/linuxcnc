@@ -50,6 +50,28 @@ if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLSCRIPTS $TCLSCRIPTS/scripts
 }
 
+
+set LANGDIR $TCLDIR/../src/po
+if {[info exists env(EMC2_LANG_DIR)]} {
+    set LANGDIR $env(EMC2_LANG_DIR)
+}
+
+
+
+# Internationalisation (i18n)
+# in order to use i18n, all the strings will be called [msgcat::mc "string-foo"]
+# instead of "string-foo".
+# Thus msgcat searches for a translation of the string, and in case one isn't 
+# found, the original string is used.
+# In order to properly use locale's the env variable LANG is queried.
+# If LANG is defined, then the folder src/po is searched for files
+# called *.msg, (e.g. en_US.msg).
+package require msgcat
+if ([info exists env(LANG)]) {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload $LANGDIR
+}
+
 proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"Text files" {.txt} }}}} {
 
     global geneditFilename geneditTypes textwin TCLSCRIPTS
@@ -87,35 +109,35 @@ proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"T
 
     set filemenu $menubar.file
     menu $filemenu -tearoff 0
-    $menubar add cascade -label "File" -menu $filemenu -underline 0
-    $filemenu add command -label "New..." -underline 0 \
+    $menubar add cascade -label [msgcat::mc "File"] -menu $filemenu -underline 0
+    $filemenu add command -label [msgcat::mc "New"] -underline 0 \
             -command "geneditNewFile $name" -accelerator "Ctrl+N"
-    $filemenu add command -label "Open..." -underline 0 \
+    $filemenu add command -label [msgcat::mc "Open..."] -underline 0 \
             -command "geneditOpenFile $name" -accelerator "Ctrl+O"
-    $filemenu add command -label "Save" -underline 0 \
+    $filemenu add command -label [msgcat::mc "Save"] -underline 0 \
             -command "geneditSaveFile $name" -accelerator "Ctrl+S"
-    $filemenu add command -label "Save As..." -underline 5 \
+    $filemenu add command -label [msgcat::mc "Save As..."] -underline 5 \
             -command "geneditSaveFileAs $name"
     $filemenu add separator
-    $filemenu add command -label "Exit" -command "destroy $ed" -underline 1
+    $filemenu add command -label [msgcat::mc "Exit"] -command "destroy $ed" -underline 1
 
     set editmenu $menubar.edit
     menu $editmenu -tearoff 0
-    $menubar add cascade -label "Edit" -menu $editmenu -underline 0
-    $editmenu add command -label "Cut" -underline 2 \
+    $menubar add cascade -label [msgcat::mc "Edit"] -menu $editmenu -underline 0
+    $editmenu add command -label [msgcat::mc "Cut"] -underline 2 \
             -command "geneditCutIt $textwin" -accelerator "Ctrl+X"
-    $editmenu add command -label "Copy" -underline 0 \
+    $editmenu add command -label [msgcat::mc "Copy"] -underline 0 \
             -command "geneditCopyIt $textwin" -accelerator "Ctrl+C"
-    $editmenu add command -label "Paste" -underline 0 \
+    $editmenu add command -label [msgcat::mc "Paste"] -underline 0 \
             -command "geneditPasteIt $textwin" -accelerator "Ctrl+V"
     $editmenu add separator
-    $editmenu add command -label "Select All" -underline 7 \
+    $editmenu add command -label [msgcat::mc "Select All"] -underline 7 \
             -command "focus $textwin; geneditSelectAll $textwin" -accelerator "Ctrl+A"
 
     set helpmenu $menubar.help
     menu $helpmenu -tearoff 0
-    $menubar add cascade -label "Help" -menu $helpmenu -underline 0
-    $helpmenu add command -label "About..." -underline 0 \
+    $menubar add cascade -label [msgcat::mc "Help"] -menu $helpmenu -underline 0
+    $helpmenu add command -label [msgcat::mc "About..."] -underline 0 \
             -command "geneditShowAbout $name"
 
     $ed configure -menu $menubar
@@ -140,27 +162,27 @@ proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"T
     # Extra menu items for program editor
     if {$name == "programEditor"} {
         $filemenu add separator
-        $filemenu add command -label "Save and Reload" -command "geneditSaveFile $name; loadProgramText" -underline 1
+        $filemenu add command -label [msgcat::mc "Save and Reload"] -command "geneditSaveFile $name; loadProgramText" -underline 1
 
         $editmenu add separator
-        $editmenu add command -label "Find Text" -underline 0 \
+        $editmenu add command -label [msgcat::mc "Find..."] -underline 0 \
                 -command "geneditEnterText $textwin"
-        $editmenu add command -label "Renumber File" -underline 0 \
+        $editmenu add command -label [msgcat::mc "Renumber File..."] -underline 0 \
                 -command "geneditNumber"
 
         set settingsmenu $menubar.settings
         menu $settingsmenu -tearoff 0
-        $menubar add cascade -label "Settings" -menu $settingsmenu -underline 0
-        $settingsmenu add command -label "No Numbering" -underline 0 \
+        $menubar add cascade -label [msgcat::mc "Settings"] -menu $settingsmenu -underline 0
+        $settingsmenu add command -label [msgcat::mc "No Numbering"] -underline 0 \
                 -command "set startnumbering 0"
         $settingsmenu add separator
-        $settingsmenu add command -label "Line Numbering" -underline 0 \
+        $settingsmenu add command -label [msgcat::mc "Line Numbering..."] -underline 0 \
                 -command "geneditSetLineNumber"
 
         # adds a script menu that looks for *.ncw files and adds their filename to script menu
         set scriptmenu $menubar.script
         menu $scriptmenu
-        $menubar add cascade -label "Scripts" -menu $scriptmenu -underline 1
+        $menubar add cascade -label [msgcat::mc "Scripts"] -menu $scriptmenu -underline 1
         #replaced scriptdir
 	#set scriptdir tcl/scripts
         set files [exec /bin/ls $TCLSCRIPTS]
@@ -187,10 +209,10 @@ proc geneditShowAbout {name} {
         return
     }
     toplevel $ed.about
-    wm title $ed.about "About TkEditor"
+    wm title $ed.about [msgcat::mc "About TkEditor"]
     message $ed.about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} \
-            -text "TkEditor\n\nSimple Tcl/Tk Text Editor\n\nPublic Domain (1999)"
-    button $ed.about.ok -text OK -command "destroy $ed.about"
+            -text [msgcat::mc "TkEditor\n\nSimple Tcl/Tk Text Editor\n\nPublic Domain (1999)"]
+    button $ed.about.ok -text [msgcat::mc "OK"] -command "destroy $ed.about"
     pack $ed.about.msg $ed.about.ok -side top
     bind $ed.about <Return> "destroy $ed.about"
 }
@@ -207,7 +229,7 @@ proc geneditOpenFile {name} {
 
     $ed.textframe.textwin delete 1.0 end
     if {[catch {open $fname} filein]} {
-        puts stdout "can't open $fname"
+        puts stdout [msgcat::mc "can't open %s" $fname]
     } else {
         $ed.textframe.textwin insert end [read $filein]
         catch {close $filein}
@@ -221,7 +243,7 @@ proc geneditSaveFile {name} {
     set ed .$name
     catch {file copy -force $geneditFilename($name) $geneditFilename($name).bak}
     if {[catch {open $geneditFilename($name) w} fileout]} {
-        puts stdout "can't save $geneditFilename($name)"
+        puts stdout [msgcat::mc "can't save %s" $geneditFilename($name)]
         return
     }
     puts $fileout [$ed.textframe.textwin get 1.0 end]
@@ -277,41 +299,41 @@ proc geneditEnterText {ed} {
     global textwin
     toplevel $ed.find
     grab $ed.find
-    wm title $ed.find "Find"
-    wm geometry $ed.find 275x150-50+100
+    wm title $ed.find [msgcat::mc "Find"]
+    wm geometry $ed.find 325x150-50+100
 
-    label $ed.find.label1 -text "Find :" -anchor e
-    place $ed.find.label1 -x 5 -y 5 -width 60 -height 20
+    label $ed.find.label1 -text [msgcat::mc "Find:"] -anchor e
+    place $ed.find.label1 -x 5 -y 5 -width 80 -height 20
 
     entry $ed.find.entry1 -relief sunken -textvariable sword
-    place $ed.find.entry1 -x 70  -y 5 -width 110 -height 20
+    place $ed.find.entry1 -x 90  -y 5 -width 110 -height 20
 
-    label $ed.find.label2 -text "Replace :" -anchor e
-    place $ed.find.label2 -x 5 -y 30 -width 60 -height 20
+    label $ed.find.label2 -text [msgcat::mc "Replace:"] -anchor e
+    place $ed.find.label2 -x 5 -y 30 -width 80 -height 20
 
     entry $ed.find.entry2 -relief sunken -textvariable rword
-    place $ed.find.entry2 -x 70 -y 30 -width 110 -height 20
+    place $ed.find.entry2 -x 90 -y 30 -width 110 -height 20
 
-    button $ed.find.button1 -text "Find All" -command {geneditFindAll $sword}
-    place $ed.find.button1 -x 5 -y 70 -width 130 -height 30
+    button $ed.find.button1 -text [msgcat::mc "Find All"] -command {geneditFindAll $sword}
+    place $ed.find.button1 -x 5 -y 70 -width 150 -height 30
 
-    button $ed.find.button2 -text "Replace All" -command {geneditReplaceAll $sword $rword}
-    place $ed.find.button2 -x 5 -y 110 -width 130 -height 30
+    button $ed.find.button2 -text [msgcat::mc "Replace All"] -command {geneditReplaceAll $sword $rword}
+    place $ed.find.button2 -x 5 -y 110 -width 150 -height 30
 
-    button $ed.find.button3 -text "Skip This" -command {geneditSkipWord $sword}
-    place $ed.find.button3 -x 140 -y 70 -width 130 -height 30
+    button $ed.find.button3 -text [msgcat::mc "Skip This"] -command {geneditSkipWord $sword}
+    place $ed.find.button3 -x 170 -y 70 -width 150 -height 30
 
-    button $ed.find.button4 -text "Replace This" -command {geneditReplaceWord $sword $rword}
-    place $ed.find.button4 -x 140 -y 110 -width 130 -height 30
+    button $ed.find.button4 -text [msgcat::mc "Replace This"] -command {geneditReplaceWord $sword $rword}
+    place $ed.find.button4 -x 170 -y 110 -width 150 -height 30
 
-    button $ed.find.button5 -text Cancel -command "focus -force $textwin; destroy $ed.find"
-    place $ed.find.button5 -x 210 -y 5 -width 60 -height 30
+    button $ed.find.button5 -text [msgcat::mc "Cancel"] -command "focus -force $textwin; destroy $ed.find"
+    place $ed.find.button5 -x 220 -y 5 -width 100 -height 30
 
-    button $ed.find.button6 -text Clear -command {
+    button $ed.find.button6 -text [msgcat::mc "Clear"] -command {
         $textwin tag delete $sword
         $textwin tag delete q
     }
-    place $ed.find.button6 -x 210 -y 35 -width 60 -height 30
+    place $ed.find.button6 -x 220 -y 35 -width 100 -height 30
 
     # set focus to entry widget 1
     focus $ed.find.entry1
@@ -432,38 +454,38 @@ proc geneditLineIncrement {} {
 proc geneditSetLineNumber {} {
     global  startnumbering number lineincrement textwin
     toplevel $textwin.linenumber
-    wm title $textwin.linenumber "Set Line Numbering"
-    wm geometry $textwin.linenumber 260x160-50+100
-    label $textwin.linenumber.label1 -text "Increment"
+    wm title $textwin.linenumber [msgcat::mc "Set Line Numbering"]
+    wm geometry $textwin.linenumber 280x160-50+100
+    label $textwin.linenumber.label1 -text [msgcat::mc "Increment"]
     place $textwin.linenumber.label1 -x 5 -y 5
-    radiobutton $textwin.linenumber.incr1 -text One \
+    radiobutton $textwin.linenumber.incr1 -text [msgcat::mc "One"] \
             -variable lineincrement -value 1 -anchor w
     place $textwin.linenumber.incr1 -x 10 -y 25 -width 80 -height 20
-    radiobutton $textwin.linenumber.incr2 -text Two \
+    radiobutton $textwin.linenumber.incr2 -text [msgcat::mc "Two"] \
             -variable lineincrement -value 2 -anchor w
     place $textwin.linenumber.incr2 -x 10 -y 45 -width 80 -height 20
-    radiobutton $textwin.linenumber.incr5 -text Five \
+    radiobutton $textwin.linenumber.incr5 -text [msgcat::mc "Five"] \
             -variable lineincrement -value 5 -anchor w
     place $textwin.linenumber.incr5 -x 10 -y 65 -width 80 -height 20
-    radiobutton $textwin.linenumber.incr10 -text Ten \
+    radiobutton $textwin.linenumber.incr10 -text [msgcat::mc "Ten"] \
             -variable lineincrement -value 10 -anchor w
     place $textwin.linenumber.incr10 -x 10 -y 85 -width 80 -height 20
 
-    label $textwin.linenumber.label2 -text "Space"
+    label $textwin.linenumber.label2 -text [msgcat::mc "Space"]
     place $textwin.linenumber.label2 -x 130 -y 5
-    radiobutton $textwin.linenumber.space1 -text "Single Space" \
+    radiobutton $textwin.linenumber.space1 -text [msgcat::mc "Single Space"] \
             -variable space -value { } -anchor w
     place $textwin.linenumber.space1 -x 140 -y 25
-    radiobutton $textwin.linenumber.space2 -text "Double Space" \
+    radiobutton $textwin.linenumber.space2 -text [msgcat::mc "Double Space"] \
             -variable space -value {  } -anchor w
     place $textwin.linenumber.space2 -x 140 -y 45
-    radiobutton $textwin.linenumber.space3 -text "Tab Space" \
+    radiobutton $textwin.linenumber.space3 -text [msgcat::mc "Tab Space"] \
             -variable space -value {    } -anchor w
     place $textwin.linenumber.space3 -x 140 -y 65
-    button $textwin.linenumber.ok -text OK -command "destroy $textwin.linenumber" \
+    button $textwin.linenumber.ok -text [msgcat::mc "OK"] -command "destroy $textwin.linenumber" \
             -height 1 -width 9
-    place $textwin.linenumber.ok -x 160 -y 127
-    label $textwin.linenumber.label3 -text "Next Number : " -anchor e
+    place $textwin.linenumber.ok -x 180 -y 127
+    label $textwin.linenumber.label3 -text [msgcat::mc "Next Number:"] -anchor e
     place $textwin.linenumber.label3 -x 5 -y 130 -width 95
     entry $textwin.linenumber.entry -width 6 -textvariable number
     place $textwin.linenumber.entry -x 100 -y 130
@@ -484,7 +506,7 @@ proc geneditSetLineNumber {} {
 proc geneditNumber {} {
     global textwin
     geneditSetLineNumber
-    button $textwin.linenumber.renumber -text Renumber -command geneditReNumber \
+    button $textwin.linenumber.renumber -text [msgcat::mc "Renumber"] -command geneditReNumber \
             -height 1 -width 9
     place $textwin.linenumber.renumber -x 160 -y 96
 }
