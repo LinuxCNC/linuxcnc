@@ -1,6 +1,8 @@
 #!/bin/sh
 # we need to find the tcl dir, it was exported from emc \
 export EMC2_TCL_DIR
+# \
+export HALCMD
 # and some apps need the realtime script, so export that too \
 export REALTIME
 # and the emc2 version string \
@@ -30,7 +32,7 @@ exec $EMC2_EMCSH "$0" "$@"
 # Saves changes to ini file if requested
 ###############################################################
 
-set LANGDIR $TCLDIR/../src/po
+set LANGDIR $env(EMC2_TCL_DIR)/../src/po
 if {[info exists env(EMC2_LANG_DIR)]} {
     set LANGDIR $env(EMC2_LANG_DIR)
 }
@@ -47,7 +49,7 @@ package require BWidget
 wm protocol . WM_DELETE_WINDOW {changeIt quit}
 
 proc popupCalibration {} {
-    global axisentry activeAxis main top initext HALCMD sectionarray 
+    global axisentry activeAxis main top initext HALCMD sectionarray env
     global logo numaxes EMC_INIFILE namearray commandarray valarray thisinifile
     set numaxes [emc_ini "AXES" "TRAJ"]
     for {set i 0} {$i<$numaxes} {incr i} {
