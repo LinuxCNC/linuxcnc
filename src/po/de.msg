@@ -187,7 +187,7 @@
 
 # choose_run_config {}
 ::msgcat::mcset de "Cancel" " Abbrechen"
-::msgcat::mcset de "Please select an EMC2 configuration from the list below and click 'Run'." "Bitte wählen sie eine EMC" Konfiguration aus der Liste und drücken Sie 'Ausführen'"
+::msgcat::mcset de "Please select an EMC2 configuration from the list below and click 'Run'." "Bitte wählen sie eine EMC Konfiguration aus der Liste und drücken Sie 'Ausführen'"
 ::msgcat::mcset de "\nDetails about the selected configuration:" "\nDetails ber die gewählte Konfiguration:"
 ::msgcat::mcset de "No details available." "Keine Details verfügbar."
 ::msgcat::mcset de "You must choose a config if you want to run EMC2." "Sie mssen eine Konfig wählen um EMC2 zu starten."
