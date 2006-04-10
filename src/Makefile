@@ -158,8 +158,16 @@ HEADERS := \
     emc/nml_intf/interpl.hh \
     emc/rs274ngc/interp_internal.hh \
     emc/rs274ngc/rs274ngc.hh \
+    hal/hal.h \
+    libnml/buffer/locmem.hh \
+    libnml/buffer/memsem.hh \
+    libnml/buffer/phantom.hh \
     libnml/buffer/physmem.hh \
+    libnml/buffer/recvn.h \
     libnml/buffer/rem_msg.hh \
+    libnml/buffer/sendn.h \
+    libnml/buffer/shmem.hh \
+    libnml/buffer/tcpmem.hh \
     libnml/cms/cms.hh \
     libnml/cms/cms_aup.hh \
     libnml/cms/cms_cfg.hh \
@@ -181,15 +189,21 @@ HEADERS := \
     libnml/nml/nmldiag.hh \
     libnml/nml/nmlmsg.hh \
     libnml/nml/stat_msg.hh \
+    libnml/os_intf/_sem.h \
+    libnml/os_intf/sem.hh \
+    libnml/os_intf/_shm.h \
+    libnml/os_intf/shm.hh \
+    libnml/os_intf/_timer.h \
     libnml/os_intf/timer.hh \
     libnml/posemath/posemath.h \
+    libnml/posemath/sincos.h \
     libnml/rcs/rcs.hh \
     libnml/rcs/rcs_exit.hh \
     libnml/rcs/rcs_print.hh \
     libnml/rcs/rcsversion.h \
     rtapi/procfs_macros.h \
     rtapi/rtapi.h \
-    rtapi/rtapi_app.h
+    rtapi/rtapi_app.h \
 
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
