@@ -9,6 +9,7 @@ hal_skeleton
 halcmd
 halmeter
 halscope
+halui
 halvcp
 inivar
 io
