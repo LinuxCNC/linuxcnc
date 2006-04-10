@@ -88,7 +88,14 @@ CheckConfig(){
 	DoExit
 	exit 1
     fi
-
+    case "$MODULES" in
+    *rtai_shm*)
+        SHM_DEV=/dev/rtai_shm
+    ;;
+    *mbuff*)
+        SHM_DEV=/dev/mbuff
+    ;;
+    esac
 
 }
 
@@ -166,6 +173,18 @@ CheckLoaded(){
 	DoExit
 	exit 1
     fi
+    # this abomination is needed because udev sometimes doesn't
+    # have the device ready for us in time.
+    n=0
+    while [ $n -lt 10 ]; do
+        [ -w $SHM_DEV ] && return 0
+        echo "." 1>&2
+        sleep 1
+        n=$(($n+1))
+    done
+    echo "Can't write to $SHM_DEV - aborting" 1>&2
+    DoExit
+    exit 1
 }
 
 Unload(){
