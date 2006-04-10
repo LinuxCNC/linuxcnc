@@ -1151,7 +1151,6 @@ if {$userfont != ""} {
 # FIXME-- can get the actual font from the TkEmc X resource value, which is
 # a pain to parse into family-size-style. Here we'll just default the 
 # buttons to these typical settings
-    puts stdout "default font"
     set fontfamily {courier 10 pitch}
     set fontsize 48
     set fontstyle bold
