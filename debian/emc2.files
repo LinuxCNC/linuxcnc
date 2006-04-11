@@ -104,10 +104,12 @@ usr/bin/halmeter
 usr/bin/hal_parport
 usr/bin/halscope
 usr/bin/hal_skeleton
+usr/bin/halui
 usr/bin/halvcp
 usr/bin/inivar
 usr/bin/io
 usr/bin/iosh
+usr/bin/keystick
 usr/bin/m5i20cfg
 usr/bin/milltask
 usr/bin/milltaskcanon
