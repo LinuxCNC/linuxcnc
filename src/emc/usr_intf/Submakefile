@@ -11,9 +11,10 @@ USRMOTSRCS := \
 	emc/motion/emcmotutil.c \
 	$(ULAPISRCS)
 HALUISRCS := emc/usr_intf/halui.cc $(ULAPISRCS) hal/hal_lib.c
+KEYSTICKSRCS := emc/usr_intf/keystick.cc
 
 TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
-USERSRCS += $(EMCSHSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS)
+USERSRCS += $(EMCSHSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
 
 $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 
@@ -33,3 +34,6 @@ TARGETS += ../bin/usrmot
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ 
 TARGETS += ../bin/halui
 
+../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lncurses 
+TARGETS += ../bin/keystick
