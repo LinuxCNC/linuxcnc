@@ -34,6 +34,11 @@ TARGETS += ../bin/usrmot
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ 
 TARGETS += ../bin/halui
 
+# bdi2 gets an ICE with this code unless -O0 is given
+ifeq "$(shell gcc --version)" "egcs-2.91.66"
+$(call TOOBJSDEPS, $(KEYSTICKSRCS)) : EXTRAFLAGS = -O0
+endif
+
 ../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/libemc.a ../lib/libnml.so
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lncurses 
 TARGETS += ../bin/keystick
