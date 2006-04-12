@@ -1,12 +1,242 @@
-emc2 (2.0.0-alpha4.1) testing; urgency=low
+emc2 (TESTING-2006-04-09) testing; urgency=low
 
-  * 2006.02.10 - The build process has been replaced, no more recursive $(MAKE)
-  
-  * Tweak configure flags
+  * Modified the motion control module to behave more like
+    other HAL modules - it no longer adds its functions to threads
+    automatically.  All the sample configs have been changed to explicitly
+    add the functions. USERS WHO HAVE CUSTOM CONFIGS WILL NEED TO DO
+    THE SAME.
+  * change all PERIOD specifications from seconds to nanoseconds.  USERS WHO
+    HAVE CUSTOM CONFIGS WILL NEED TO DO THE SAME.
+  * Standardize on all drivers dividing counts by input scale. formerly,
+    some divided by the scale and some multiplied.  USERS MAY HAVE TO FIX
+    THIS SCALE IN ANY CUSTOM CONFIGURATIONS.
+  * A new pin "count" exists for freqgen.  It is the same as the internal
+    symbol "count" show in the hal introduction pdf.
+  * A bug in the univpwm ini's fourth axis is fixed
+  * There is a new sim_encoder hal object that takes as input a speed and
+    generates simulated quadrature and index pulse output.
+  * Fix misreporting of the current feed rate in the GUI: even though the
+    machine still moved at the correct rate, the reported number was sometimes
+    off by a factor of 25.4.
+  * Add the beginnings of halui, an extensible way to run EMC using a real
+    front panel (switches/knobs/encoders).
+  * Standardize on an encoder index pulse being called phase Z, not I
+  * Bugfix to make the STG dacs come up initially at 0v, not -10v, for the
+    first msec
+  * Support variable substitutions in the hal file from the ini.  the format
+    is [INI_SECTION]INI_VARIABLE
+  * Logging of data from halscope (unfinished)
+  * Some translation fixes for german
+  * Enhancements to the editor in the mini GUI
+  * emccalib, an online tuning editor
+  * Sample configuration for a servo-driven etch-a-sketch using a very simple
+    servo driver
+  * Some fixes to the m5i20 sample configuration
+  * Add new simulation configuration with simulated motors and encoders
+  * Fix tool load loopback in the stg sample configuration
+  * New hal joystick driver
+  * New manpages for hal_joystick and halmeter
+  * Very preliminary threading (spindle synchronized motion) support
+  * Minor look-and-feel fixes in halmeter, halscope
+  * Many internationalization fixes
+  * Some copyright messages updated
+  * New "max" sample configuration for experimenting with threading code
+  * install i18n support for lots of the tcl programs including tkemc/mini
 
- -- Jeff Epler <jepler@unpythonic.net>  Wed,  1 Feb 2006 10:51:00 -0600
+ -- Chris Radek <chris@timeguy.com>  Mon, 10 Apr 2006 21:08:37 -0500
+
+emc2 (TESTING-2006-03-12) testing; urgency=low
+
+  * make blend tolerance match the current program units (G20/G21)
+
+ -- Chris Radek <chris@timeguy.com>  Sun, 12 Mar 2006 14:16:24 -0600
+
+emc2 (TESTING-2006-03-11) testing; urgency=low
+
+  * an entirely new trajectory planner with many, many bugfixes
+  * new blend tolerance mode
+  * sample hexapod configuration/kinematics
+  * sample four axis stepper configuration
+  * sample vti configuration
+
+ -- Chris Radek <chris@timeguy.com>  Sat, 11 Mar 2006 21:56:24 -0600
+
+emc2 (TESTING-2006-03-02) testing; urgency=low
+
+  * the mini GUI has a fix in font handling (for the large XYZ readout)
+  * M6 now correctly causes an error if there is no prepped tool (Txx)
+  * the STG sample ini file had two mm axes and one inch; now they are all mm.
+  * the STG driver multipiled by INPUT_SCALE instead of dividing like the rest
+    of the HAL drivers; this is fixed.
+  * a bug that allowed G1 with no feed rate after a G0 is fixed
+  * support passing an initial program to load, for AXIS
+
+ -- Chris Radek <chris@timeguy.com>  Thu,  2 Mar 2006 20:04:28 -0600
+
+emc2 (TESTING-2006-02-26) testing; urgency=low
+
+  * new emc(1) manpage that shows the usage and the config search path
+  * the mini gui's startup is now much faster
+  * fixes for trajectory planning at high velocity - fix bogus reversals
+  * do not blend corners of 90 degrees or sharper
+  * fix build of the vti driver on 2.4 kernels
+  * fix make clean rule to not require generating dependencies
+
+ -- Chris Radek <chris@timeguy.com>  Sun, 26 Feb 2006 20:05:58 -0600
+
+emc2 (TESTING-2006-02-19) testing; urgency=low
+
+  * enable the Mxxx commands
+  * install M101 executable
+  * update and install halcmd man page
+  * fix minor build problem on BDI systems (related to sudo/PWD)
+  * add new VTI hal driver
+  * process rtapi.conf with configure, instead of generating it with make
+  * restrict allowable module extensions in emc_module_helper
+  * remove some interpreter debug output.
+  * build this deb with new version format that matches emc's version
+
+ -- Chris Radek <chris@timeguy.com>  Sun, 19 Feb 2006 16:29:26 -0600
+
+emc2 (2.0.0-alpha21) testing; urgency=low
+
+  * Security enhancement: halcmd now loads modules using 
+    emc_module_helper, so it no longer needs to be setuid root.
+  * many enhancements to pickconfig
+  * add version numbering support, for display on axis and tkemc's
+    help/about screens
+  * clean up some debug output
+
+ -- Chris Radek <chris@timeguy.com>  Tue, 14 Feb 2006 20:16:44 -0600
+
+emc2 (2.0.0-alpha20) testing; urgency=low
+
+  * /usr/lib/librs274.so in emc2, not emc2-dev
+
+ -- Chris Radek <chris@timeguy.com>  Mon, 13 Feb 2006 10:03:00 -0600
+
+emc2 (2.0.0-alpha19) testing; urgency=low
+
+  * fix a few bugs in the config picker and emc script
+  * speed up realtime tasks markedly (fix problem requiring large
+    BASE_PERIOD lately)
+
+ -- Chris Radek <chris@timeguy.com>  Sun, 12 Feb 2006 22:03:00 -0600
+
+emc2 (2.0.0-alpha18) testing; urgency=low
+
+  * new build system, new config picker
+
+ -- Chris Radek <chris@timeguy.com>  Sat, 11 Feb 2006 22:25:02 -0600
+
+emc2 (2.0.0-alpha17) testing; urgency=low
+
+  * alex's fixes to tkemc, univpwm setup changes
+
+ -- Chris Radek <chris@timeguy.com>  Tue,  7 Feb 2006 22:25:02 -0600
+
+emc2 (2.0.0-alpha16) testing; urgency=low
+
+  * rebuild for 2.6.12-magma_cjr10
+
+ -- Chris Radek <chris@timeguy.com>  Mon,  6 Feb 2006 21:00:00 -0600
+
+emc2 (2.0.0-alpha15) testing; urgency=low
+
+  * turn off debug output for sim-AXIS since the madly-scrolling
+    gnome-terminal is rough on the x-server.
+
+ -- Chris Radek <chris@timeguy.com>  Sun,  5 Feb 2006 13:47:24 -0600
+
+emc2 (2.0.0-alpha14) testing; urgency=low
+
+  * tkemc font fix (wasn't big enough)
+
+ -- Chris Radek <chris@timeguy.com>  Sat,  4 Feb 2006 17:34:00 -0600
+
+emc2 (2.0.0-alpha13) testing; urgency=low
+
+  * tkemc help files
+
+ -- Chris Radek <chris@timeguy.com>  Sat,  4 Feb 2006 14:41:00 -0600
+
+emc2 (2.0.0-alpha12) testing; urgency=low
+
+  * move doc files to the right location
+  * move TkEmc to the right location
+  * don't compress the pdf file!
+
+ -- Chris Radek <chris@timeguy.com>  Wed,  1 Feb 2006 14:11:36 -0600
+
+emc2 (2.0.0-alpha11) testing; urgency=low
+
+  * -dev package
+
+ -- Chris Radek <chris@timeguy.com>  Wed,  1 Feb 2006 14:11:36 -0600
+
+emc2 (2.0.0-alpha10) testing; urgency=low
+
+  * Fix Suggest due to renamed AXIS package
+  * Source package build stuff and build cleanup, thanks jepler
+
+ -- Chris Radek <chris@timeguy.com>  Wed,  1 Feb 2006 10:59:36 -0600
+
+emc2 (2.0.0-alpha9) testing; urgency=low
+
+  * AXIS sim configuration
+
+ -- Chris Radek <chris@timeguy.com>  Mon, 30 Jan 2006 23:00:59 -0600
+
+emc2 (2.0.0-alpha8) testing; urgency=low
+
+  * cosmetic changes
+  * fix tkemc resources (again?)
+
+ -- Chris Radek <chris@timeguy.com>  Mon, 30 Jan 2006 18:08:56 -0600
+
+emc2 (2.0.0-alpha7) testing; urgency=low
+
+  * fix dependencies
+
+ -- Chris Radek <chris@timeguy.com>  Mon, 30 Jan 2006 14:05:41 -0600
+
+emc2 (2.0.0-alpha6) testing; urgency=low
+
+  * fix tkemc resources, fix program path /usr/share/emc/ncfiles
+
+ -- Chris Radek <chris@timeguy.com>  Mon, 30 Jan 2006 14:05:41 -0600
+
+emc2 (2.0.0-alpha5) testing; urgency=low
+
+  * finish removing sudo dependencies
+
+ -- Chris Radek <chris@timeguy.com>  Sun, 29 Jan 2006 17:40:38 -0600
 
 emc2 (2.0.0-alpha4) testing; urgency=low
+
+  * fix sudo problems by using emc_module_helper
+
+ -- Chris Radek <chris@timeguy.com>  Sat, 28 Jan 2006 18:42:00 -0600
+
+emc2 (2.0.0-alpha3) testing; urgency=low
+
+  * fix for bug 1205237 (getting stuck in MANUAL mode), thanks alex_joni
+
+ -- Chris Radek <chris@timeguy.com>  Sat, 28 Jan 2006 12:14:00 -0600
+
+emc2 (2.0.0-alpha2) testing; urgency=low
+
+  * wizard image fix
+
+ -- Chris Radek <chris@timeguy.com>  Sat, 28 Jan 2006 12:14:00 -0600
+
+emc2 (2.0.0-alpha1) testing; urgency=low
+
+  * udev fix
+
+ -- Chris Radek <chris@timeguy.com>  Sat, 28 Jan 2006 10:52:57 -0600
+
+emc2 (2.0.0-alpha0) testing; urgency=low
 
   * Initial build.
 
@@ -29,11 +259,11 @@ emc2 (2.0.0-alpha4) testing; urgency=low
                work towards the first release of emc2
 
   * 2005.xx.xx - emc2 now supports tool-changing in complex scenarios
-	    
+    
   * 2005.xx.xx - classicladder now a HAL component, a software PLC
-	   
+   
   * 2004.xx.xx - HAL (the Hardware Abstraction Layer) is used for 
-	       adressing hardware drivers, and allows fir simple configuration
+               adressing hardware drivers, and allows fir simple configuration
 
  -- Alex Joni <alex_joni@users.sourceforge.net>  Thu, 21 Jan 2006 22:50:00 +0200
 

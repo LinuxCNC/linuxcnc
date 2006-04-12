@@ -1,2 +1,14 @@
 #!/bin/sh
+# mistakes in very early versions: clean up if these files are there
+#
+OLD_CONFDIRS="common demo_mazak demo_step_cl m5i20 motenc sim sim-AXIS stepper stg univstep sample-configs/sim-AXIS sample-configs/sim-mini"
+for i in $OLD_CONFDIRS; do 
+    [ -d /etc/emc2/$i ] && rm -r /etc/emc2/$i
+done
+[ -f /etc/emc2/.runinfo ] && rm -f /etc/emc2/.runinfo
+
+# sim configs have been reworked so there is one per gui
+[ -f /etc/emc2/sample-configs/sim/sim.ini ] && rm -f /etc/emc2/sample-configs/sim/sim.ini
+
+# tell udev to read our rules
 [ -x /etc/init.d/udev ] && /etc/init.d/udev restart

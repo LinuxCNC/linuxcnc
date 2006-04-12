@@ -74,7 +74,3 @@ usr/include/emc2/timer.hh
 usr/include/emc2/tp.h
 usr/include/emc2/usrmotintf.h
 usr/lib/libemc.a
-usr/lib/libnml.a
-usr/lib/libnmld.a
-usr/lib/libpm.a
-usr/lib/librs274.a

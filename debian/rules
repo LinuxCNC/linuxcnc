@@ -21,7 +21,7 @@ clean:
 
 	# Add here commands to clean up after the build process.
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc
-	cd src && $(MAKE) depclean -s
+	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 
 	dh_clean
