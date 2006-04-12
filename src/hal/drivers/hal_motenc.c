@@ -308,7 +308,7 @@ rtapi_app_main(void)
     driver.componentId = hal_init("hal_motenc");
     if (driver.componentId < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: ERROR: hal_init() failed\n");
-	return(-1);
+	return(-EINVAL);
     }
 
     for(i = 0; i < MAX_DEVICES; i++){
@@ -326,7 +326,7 @@ rtapi_app_main(void)
 	if (pDevice == 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: ERROR: hal_malloc() failed\n");
 	    hal_exit(driver.componentId);
-	    return(-1);
+	    return(-ENOMEM);
 	}
 
 	// Save pointer to device object.
@@ -343,7 +343,7 @@ rtapi_app_main(void)
         if ( pDevice->boardType == 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: ERROR, unknown card detected\n");
 	    hal_exit(driver.componentId);
-	    return(-1);
+	    return(-ENODEV);
 	}
 	
 
@@ -356,7 +356,7 @@ rtapi_app_main(void)
 	        if ( j >= MAX_DEVICES ) {
 		    rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: ERROR, duplicate ID, can't remap\n");
 		    hal_exit(driver.componentId);
-		    return(-1);
+		    return(-EINVAL);
 		}
 	    }
 	    pDevice->boardID = j;
@@ -367,7 +367,7 @@ rtapi_app_main(void)
 	// Export pins, parameters, and functions.
 	if(Device_ExportPinsParametersFunctions(pDevice, driver.componentId)){
 	    hal_exit(driver.componentId);
-	    return(-1);
+	    return(-EINVAL);
 	}
     }
 
@@ -375,7 +375,7 @@ rtapi_app_main(void)
 	// No card present.
 	rtapi_print_msg(RTAPI_MSG_WARN, "MOTENC: **** No MOTENC card detected ****\n");
 	hal_exit(driver.componentId);
-	return -1;
+	return -ENODEV;
     }
 
     // Was 'period' specified in the insmod command?
@@ -385,7 +385,7 @@ rtapi_app_main(void)
 	if (hal_create_thread("motenc.thread", period, 1) < 0){
 	    rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: ERROR: hal_create_thread() failed\n");
 	    hal_exit(driver.componentId);
-	    return(-1);
+	    return(-EINVAL);
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: created %d uS thread\n", period / 1000);
 	}
