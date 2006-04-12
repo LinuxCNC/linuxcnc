@@ -16,10 +16,6 @@ sudo make install
 
 Afterwards you need to issue 'emc' and you'll get emc2 running.
 
-Hint: There is also a utility called 'emc-config' that helps you chose 
-a configuration based on some default templates.
-
-
 Try-out
 -------
 
