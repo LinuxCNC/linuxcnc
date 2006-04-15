@@ -660,7 +660,7 @@ proc makeTune {} {
                 for {set j 0} {$j < $numaxes} {incr j} {
                     if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
                         # this is a hal file search ordered loop
-                        set thisininame [lindex [split $tmpstring "\]" ] end ]
+                        set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
                         set lowername "[string tolower $thisininame]"
                         set thishalcommand [lindex $tmpstring 1]
                         set tmpval [expr [lindex [split \
@@ -681,23 +681,15 @@ proc makeTune {} {
             }
         }
     }
-
-    frame $main.buttons
-    button $main.buttons.ok -text [msgcat::mc "Save"] -default active \
-        -command {changeIt save } -state disabled
-    button $main.buttons.apply -text [msgcat::mc "Apply"] \
-        -command {changeIt apply}
-    button $main.buttons.revert -text [msgcat::mc "Revert"] \
-        -command {changeIt revert} -state disabled
-    button $main.buttons.cancel -text [msgcat::mc "Quit"] \
-        -command {changeIt quit}
-#    pack $main.buttons.ok $main.buttons.apply $main.buttons.revert \
-        $main.buttons.cancel -side left -fill x -expand 1
-    # grid the top display to keep stuff in place
-    grid rowconfigure $main 1 -weight 1
-#    remove the bottom tuning buttons for now.
-#    grid configure $main.buttons -row 2 -sticky ew -ipadx 20
-
+    puts "Num axes 4 is $numaxes" 
+    # build the buttons to control axis variables.
+    for {set j 0} {$j<3 } {incr j} {
+        set tmpapply [button [set af$j].apply -text [msgcat::mc "Apply"] \
+            -command {changeIt apply} -state disabled ]
+        set tmprevert [button [set af$j].revert -text [msgcat::mc "Revert"] \
+            -command {changeIt revert} -state disabled ]
+        grid $tmpapply $tmprevert
+    }
 }
 
 proc selectAxis {which} {
@@ -740,8 +732,6 @@ proc changeIt {how } {
                                 if {[string first "e" $newval] > 1} {
                                     set newval [format %f $newval]
                                 }
-                                # keep everything leading up to the var value, 
-                                # replace the value, and keep everything after the value
                                 regsub {(^.*=[ \t]*)[^ \t]*(.*)} $tmpstr "\\1$newval\\2" newvar
                                 $initext delete insert "insert lineend"
                                 $initext insert insert $newvar
@@ -754,7 +744,6 @@ proc changeIt {how } {
             saveFile
         }
         apply {
-            $main.buttons.ok configure -state normal
             $main.buttons.revert configure -state normal
             set varnames [lindex [array get namearray $axisentry] end]
             set varcommands [lindex [array get commandarray $axisentry] end]
@@ -998,6 +987,7 @@ proc modHAL {command} {
     refreshHAL
 }
 
+set newmodvar ""
 proc setModifyVar {which} {
     global modtext treenodes modifyhal modlist modtypes
     # test to see if which is a leaf or node
