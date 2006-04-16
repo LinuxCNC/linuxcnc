@@ -312,7 +312,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE EMC2VERSION SIMULATOR RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE MAKEFLAGS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR BUILD_AXIS AXIS_DIR LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE EMC2VERSION SIMULATOR RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE MAKEFLAGS HAVE_XAW XAW_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR BUILD_AXIS AXIS_DIR LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -5765,6 +5765,148 @@ fi;
 
 
 
+for ac_header in X11/Xaw/XawInit.h
+do
+as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $ac_header" >&5
+echo $ECHO_N "checking for $ac_header... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Header+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <X11/Intrinsic.h>
+
+
+#include <$ac_header>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  eval "$as_ac_Header=yes"
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+eval "$as_ac_Header=no"
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_Header'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Header'}'`" >&6
+if test `eval echo '${'$as_ac_Header'}'` = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+ HAVE_XAW=yes
+else
+  HAVE_XAW=no
+fi
+
+done
+
+
+
+echo "$as_me:$LINENO: checking for main in -lXaw" >&5
+echo $ECHO_N "checking for main in -lXaw... $ECHO_C" >&6
+if test "${ac_cv_lib_Xaw_main+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lXaw  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+main ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_Xaw_main=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_Xaw_main=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_Xaw_main" >&5
+echo "${ECHO_T}$ac_cv_lib_Xaw_main" >&6
+if test $ac_cv_lib_Xaw_main = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBXAW 1
+_ACEOF
+
+  LIBS="-lXaw $LIBS"
+
+else
+  HAVE_XAW=no
+fi
+
+
+if test "x$HAVE_XAW" = "xno"; then
+    { echo "$as_me:$LINENO: WARNING: Xaw lib missing" >&5
+echo "$as_me: WARNING: Xaw lib missing" >&2;}
+else
+    XAW_LIBS="-lX11 -lXaw"
+fi
+
+
+
 ##############################################################################
 # Section 7 - Language support                                               #
 #                                                                            #
@@ -7016,6 +7158,8 @@ s,@TCL_LIBS@,$TCL_LIBS,;t t
 s,@TK_LIBS@,$TK_LIBS,;t t
 s,@DATE@,$DATE,;t t
 s,@MAKEFLAGS@,$MAKEFLAGS,;t t
+s,@HAVE_XAW@,$HAVE_XAW,;t t
+s,@XAW_LIBS@,$XAW_LIBS,;t t
 s,@USE_NLS@,$USE_NLS,;t t
 s,@HAVE_LOCALE_H@,$HAVE_LOCALE_H,;t t
 s,@LANGUAGES@,$LANGUAGES,;t t
@@ -8212,6 +8356,8 @@ s,@TCL_LIBS@,$TCL_LIBS,;t t
 s,@TK_LIBS@,$TK_LIBS,;t t
 s,@DATE@,$DATE,;t t
 s,@MAKEFLAGS@,$MAKEFLAGS,;t t
+s,@HAVE_XAW@,$HAVE_XAW,;t t
+s,@XAW_LIBS@,$XAW_LIBS,;t t
 s,@USE_NLS@,$USE_NLS,;t t
 s,@HAVE_LOCALE_H@,$HAVE_LOCALE_H,;t t
 s,@LANGUAGES@,$LANGUAGES,;t t

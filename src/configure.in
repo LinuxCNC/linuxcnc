@@ -975,6 +975,23 @@ AC_ARG_WITH(make-quiet,
 	    MAKEFLAGS=s, MAKEFLAGS=) 
 AC_SUBST([MAKEFLAGS])
 
+AC_CHECK_HEADERS(X11/Xaw/XawInit.h,
+	    [HAVE_XAW=yes],
+	    [HAVE_XAW=no],
+	    [[#include <X11/Intrinsic.h>
+	    ]])
+
+AC_CHECK_LIB(Xaw, main,
+	    [],
+	    [HAVE_XAW=no])
+
+if test "x$HAVE_XAW" = "xno"; then
+    AC_MSG_WARN(Xaw lib missing, you won't be ablet o build/run xemc. try installing it with 'apt-get install libxaw7-dev')
+else    
+    XAW_LIBS="-lX11 -lXaw"
+fi
+AC_SUBST([HAVE_XAW])
+AC_SUBST([XAW_LIBS])
 
 ##############################################################################
 # Section 7 - Language support                                               #

@@ -87,7 +87,8 @@ USE_STUBS = @USE_STUBS@
 MATHINC = @MATHINC@
 MATHLIB = @MATHLIB@
 ULFLAGS = -Wall -g -I. -I@RTDIR@/include -DULAPI -D_GNU_SOURCE -O2 -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
-XFLAGS =  -L/usr/X11/lib -L/usr/X11R6/lib -lXaw
+XLIBS =  @XAW_LIBS@
+HAVE_XAW = @HAVE_XAW@
 MODULE_EXT = @MODEXT@
 BUILD_SYS = @BUILD_SYS@
 CC = @CC@

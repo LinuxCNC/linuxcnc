@@ -597,7 +597,7 @@ static char *programFwString = NULL;
 static FILE_WINDOW programFw;
 
 // number of axes supported
-#define XEMC_NUM_AXES 6
+#define XEMC_NUM_AXES 3
 
 // string for ini file version num
 static char version_string[LINELEN] = "";

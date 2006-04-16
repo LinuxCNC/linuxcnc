@@ -12,11 +12,16 @@ USRMOTSRCS := \
 	$(ULAPISRCS)
 HALUISRCS := emc/usr_intf/halui.cc $(ULAPISRCS) hal/hal_lib.c
 KEYSTICKSRCS := emc/usr_intf/keystick.cc
+ifeq "$(HAVE_XAW)" "yes"
 XEMCSRCS := emc/usr_intf/xemc.cc
+endif
 
 TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
-USERSRCS += $(EMCSHSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS) \
-	$(XEMCSRCS)
+USERSRCS += $(EMCSHSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
+
+ifeq "$(HAVE_XAW)" "yes"
+USERSRCS += $(XEMCSRCS)
+endif
 
 $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 
@@ -45,6 +50,8 @@ endif
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lncurses 
 TARGETS += ../bin/keystick
 
+ifeq "$(HAVE_XAW)" "yes"
 ../bin/xemc: $(call TOOBJS, $(XEMCSRCS)) ../lib/libemc.a ../lib/libnml.so
-	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(XFLAGS)
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(XLIBS)
 TARGETS += ../bin/xemc
+endif
