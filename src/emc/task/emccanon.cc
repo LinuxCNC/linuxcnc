@@ -281,6 +281,8 @@ double getStraightAcceleration(double x, double y, double z,
     double tx, ty, tz, ta, tb, tc, tmax;
     double acc, dtot;
 
+    const double tiny = 1e-10;
+
     acc = 0.0; // if a move to nowhere
 
     // Compute absolute travel distance for each axis:
@@ -290,6 +292,13 @@ double getStraightAcceleration(double x, double y, double z,
     da = fabs(a - canonEndPoint.a);
     db = fabs(b - canonEndPoint.b);
     dc = fabs(c - canonEndPoint.c);
+
+    if(dx < tiny) dx = 0.0;
+    if(dy < tiny) dy = 0.0;
+    if(dz < tiny) dz = 0.0;
+    if(da < tiny) da = 0.0;
+    if(db < tiny) db = 0.0;
+    if(dc < tiny) dc = 0.0;
 
     // Figure out what kind of move we're making:
     if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0) {
@@ -364,6 +373,8 @@ double getStraightVelocity(double x, double y, double z,
     double tx, ty, tz, ta, tb, tc, tmax;
     double vel, dtot;
 
+    const double tiny = 1e-10;
+
 /* If we get a move to nowhere (!linear_move && !angular_move)
    we might as well go there at the currentLinearFeedRate...
 */
@@ -376,6 +387,13 @@ double getStraightVelocity(double x, double y, double z,
     da = fabs(a - canonEndPoint.a);
     db = fabs(b - canonEndPoint.b);
     dc = fabs(c - canonEndPoint.c);
+
+    if(dx < tiny) dx = 0.0;
+    if(dy < tiny) dy = 0.0;
+    if(dz < tiny) dz = 0.0;
+    if(da < tiny) da = 0.0;
+    if(db < tiny) db = 0.0;
+    if(dc < tiny) dc = 0.0;
 
     // Figure out what kind of move we're making:
     if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0) {
