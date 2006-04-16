@@ -64,6 +64,7 @@ AWK=@AWK@
 IPCS=@IPCS@
 KILL=@KILL@
 
+
 ################################################################################
 # 1.3. Directories                           values get replaced by configure  #
 ################################################################################
@@ -80,6 +81,8 @@ EMC2_LANG_DIR=@EMC2_LANG_DIR@
 REALTIME=@REALTIME@
 EMC2_IMAGEDIR=@EMC2_IMAGE_DIR@
 
+XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
+export XFILESEARCHPATH
 
 MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
 ################################################################################
