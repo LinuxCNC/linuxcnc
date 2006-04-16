@@ -975,6 +975,8 @@ AC_ARG_WITH(make-quiet,
 	    MAKEFLAGS=s, MAKEFLAGS=) 
 AC_SUBST([MAKEFLAGS])
 
+
+# check for Xaw, that is needed for emc2/src/emc/usr_intf/xemc.cc
 AC_CHECK_HEADERS(X11/Xaw/XawInit.h,
 	    [HAVE_XAW=yes],
 	    [HAVE_XAW=no],
@@ -992,6 +994,25 @@ else
 fi
 AC_SUBST([HAVE_XAW])
 AC_SUBST([XAW_LIBS])
+
+#check for ncurses.h needed for emc2/src/emc/usr_intf/keystick.cc
+
+AC_CHECK_HEADERS(ncurses.h,
+	    [HAVE_NCURSES=yes],
+	    [HAVE_NCURSES=no])
+
+AC_CHECK_LIB(ncurses, main,
+	    [],
+	    [HAVE_NCURSES=no])
+
+if test "x$HAVE_NCURSES" = "xno"; then
+    AC_MSG_WARN(ncurses lib missing, you won't be ablet o build/run keystick. try installing it with 'apt-get install libncurses-dev')
+else    
+    NCURSES_LIBS="-lncurses"
+fi
+AC_SUBST([HAVE_NCURSES])
+AC_SUBST([NCURSES_LIBS])
+
 
 ##############################################################################
 # Section 7 - Language support                                               #

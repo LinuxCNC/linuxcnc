@@ -11,13 +11,19 @@ USRMOTSRCS := \
 	emc/motion/emcmotutil.c \
 	$(ULAPISRCS)
 HALUISRCS := emc/usr_intf/halui.cc $(ULAPISRCS) hal/hal_lib.c
+ifeq "$(HAVE_NCURSES)" "yes"
 KEYSTICKSRCS := emc/usr_intf/keystick.cc
+endif
 ifeq "$(HAVE_XAW)" "yes"
 XEMCSRCS := emc/usr_intf/xemc.cc
 endif
 
 TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
 USERSRCS += $(EMCSHSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
+
+ifeq "$(HAVE_NCURSES)" "yes"
+USERSRCS += $(KEYSTICKSRCS)
+endif
 
 ifeq "$(HAVE_XAW)" "yes"
 USERSRCS += $(XEMCSRCS)
@@ -46,8 +52,9 @@ ifeq "$(shell gcc --version)" "egcs-2.91.66"
 $(call TOOBJSDEPS, $(KEYSTICKSRCS)) : EXTRAFLAGS = -O0
 endif
 
+ifeq "$(HAVE_NCURSES)" "yes"
 ../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/libemc.a ../lib/libnml.so
-	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lncurses 
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(KEYSTICKLIBS)
 TARGETS += ../bin/keystick
 
 ifeq "$(HAVE_XAW)" "yes"
