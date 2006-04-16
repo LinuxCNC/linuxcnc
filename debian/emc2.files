@@ -117,6 +117,7 @@ usr/bin/shmemusr
 usr/bin/simio
 usr/bin/usrmot
 usr/bin/emc
+usr/bin/xemc
 usr/lib/libnml.so
 usr/share/doc/emc2/AUTHORS
 usr/share/doc/emc2/Hal_Introduction.pdf
