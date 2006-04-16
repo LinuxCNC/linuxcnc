@@ -1,0 +1,894 @@
+*borderColor: blue
+*font: -adobe-helvetica-bold-r-normal--12-*-*-*-*-*-*-1
+
+*translations: #augment\
+<Message>WM_PROTOCOLS:topLevelProtocols()
+
+*topForm.background: blue
+*topForm.defaultDistance: 0
+! with no modifiers, e.g., Shift<KeyPress>a, means any occurrence
+! of key gets through. With modifier, only that modification does
+! see files in /usr/lib/X11/app-defaults/ for examples, and run
+! 'xev' and see the output for key names
+*topForm.translations: #augment\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction() \n\
+<KeyPress>Prior: keyAction() \n\
+<KeyRelease>Prior: keyAction() \n\
+<KeyPress>Next: keyAction() \n\
+<KeyRelease>Next: keyAction() \n\
+<KeyPress>Up: keyAction() \n\
+<KeyRelease>Up: keyAction() \n\
+<KeyPress>Down: keyAction() \n\
+<KeyRelease>Down: keyAction() \n\
+<KeyPress>Right: keyAction() \n\
+<KeyRelease>Right: keyAction() \n\
+<KeyPress>Left: keyAction() \n\
+<KeyRelease>Left: keyAction() \n\
+<Key>0: keyAction() \n\
+<Key>1: keyAction() \n\
+<Key>2: keyAction() \n\
+<Key>3: keyAction() \n\
+<Key>4: keyAction() \n\
+<Key>5: keyAction() \n\
+<Key>6: keyAction() \n\
+<Key>7: keyAction() \n\
+<Key>8: keyAction() \n\
+<Key>9: keyAction() \n\
+<Key>x: keyAction() \n\
+<Key>y: keyAction() \n\
+<Key>z: keyAction() \n\
+Alt<Key>t: keyAction() \n\
+Alt<Key>x: keyAction() \n\
+Alt<Key>y: keyAction() \n\
+Alt<Key>z: keyAction() \n\
+<Key>l: keyAction() \n\
+<Key>o: keyAction() \n\
+<Key>e: keyAction() \n\
+<Key>r: keyAction() \n\
+<Key>p: keyAction() \n\
+<Key>s: keyAction() \n\
+<Key>v: keyAction() \n\
+<Key>a: keyAction() \n\
+<Key>b: keyAction() \n\
+Shift<Key>B: keyAction() \n\
+<Key>i: keyAction() \n\
+<Key>c: keyAction() \n\
+<KeyPress>comma: keyAction() \n\
+<KeyRelease>comma: keyAction() \n\
+<KeyPress>period: keyAction() \n\
+<KeyRelease>period: keyAction() \n\
+<Key>Home: keyAction() \n\
+<Key>End: keyAction() \n\
+Alt<Key>s: keyAction() \n\
+Alt<Key>p: keyAction() \n\
+Ctrl<Key>p: keyAction() \n\
+Alt<Key>f: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+
+*barMenuForm.background: blue
+! *barMenuForm.borderColor: red
+*barMenuForm.defaultDistance: 0
+
+*menu*font: -adobe-helvetica-medium-r-normal--12-*-*-*-*-*-*-1
+
+*fileMenu.label: File
+*viewMenu.label: View
+*settingsMenu.label: Settings
+*helpMenu.label: Help
+
+*fileOpenShell*title: Open Program
+*fileOpenShell*translations:#override\
+<Message>WM_PROTOCOLS:fileOpenShellProtocols() \n\
+<Key>Return: fileOpenReturnAction() \n\
+<Key>Tab: fileOpenTabAction() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*fileOpenDialog*label:  Program Name:
+*fileOpenDialog*fileOpenDone*label:     Open It
+*fileOpenDialog*fileOpenCancel*label:   Don't Open It
+
+*fileEditShell.title: Edit Program
+*fileEditDialog.label:  Program Name:
+*fileEditDialog*fileEditDone*label:     Done
+*fileEditDialog*fileEditCancel*label:   Cancel
+*fileEditShell*translations:#override\
+<Message>WM_PROTOCOLS:fileEditShellProtocols() \n\
+<Key>Return: fileEditReturnAction() \n\
+<Key>Tab: fileEditTabAction() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+
+*fileQuitShell*title: Quit
+*fileQuitDialog*label:  Quit Xemc?
+*fileQuitShell*translations:#override\
+<Message>WM_PROTOCOLS:fileQuitShellProtocols() \n\
+<Key>Return: fileQuitReturnAction() \n\
+<Key>Tab: fileQuitTabAction() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*fileQuitDialog*fileQuitDone*label:     Quit
+*fileQuitDialog*fileQuitCancel*label:   Don't Quit
+
+*fileEditorShell*title: File Editor
+*fileEditorShell*translations:#override\
+<Message>WM_PROTOCOLS:fileEditorShellProtocols() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*fileEditorLabel*label: (none)
+*fileEditorLabel*borderWidth: 0
+*fileEditorText.height: 200
+*fileEditorText.width: 600
+*fileEditorText*font: -adobe-helvetica-medium-r-normal--12-*-*-*-*-*-*-1
+*fileEditorDone*label: Save
+*fileEditorCancel*label: Close
+*fileEditorMark*label: Set Run Mark
+
+*toolTableShell*title: Tool Table
+*toolTableShell*translations:#override\
+<Message>WM_PROTOCOLS:toolTableShellProtocols() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*toolTableLabel*label: (none)
+*toolTableLabel*borderWidth: 0
+*toolTableText.height: 200
+*toolTableText.width: 600
+*toolTableText*font: -adobe-helvetica-medium-r-normal--12-*-*-*-*-*-*-1
+*toolTableDone*label: Save and Load Them
+*toolTableCancel*label: Don't Save and Load Them
+
+*varFileShell*title: Variables
+*varFileShell*translations:#override\
+<Message>WM_PROTOCOLS:varFileShellProtocols() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*varFileLabel*label: (none)
+*varFileLabel*borderWidth: 0
+*varFileText.height: 200
+*varFileText.width: 600
+*varFileText*font: -adobe-helvetica-medium-r-normal--12-*-*-*-*-*-*-1
+*varFileDone*label: Save and Load Them
+*varFileCancel*label: Don't Save and Load Them
+
+*diagnosticsShell*title: Diagnostics
+*diagnosticsLabel*label: Axis ? Diagnostics
+*diagnosticsShell*translations:#override\
+<Message>WM_PROTOCOLS:diagnosticsShellProtocols() \n\
+<Key>Return: diagnosticsReturnAction() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*diagnosticsTaskHBLabel*label: Task Heartbeat:
+*diagnosticsTaskHBLabel*width: 150
+*diagnosticsTaskHBLabel*justify: left
+*diagnosticsTaskHB*width: 150
+*diagnosticsTaskHB*justify: left
+*diagnosticsIoHBLabel*label: IO Heartbeat:
+*diagnosticsIoHBLabel*width: 150
+*diagnosticsIoHBLabel*justify: left
+*diagnosticsIoHB*width: 150
+*diagnosticsIoHB*justify: left
+*diagnosticsMotionHBLabel*label: Motion Heartbeat:
+*diagnosticsMotionHBLabel*width: 150
+*diagnosticsMotionHBLabel*justify: left
+*diagnosticsMotionHB*width: 150
+*diagnosticsMotionHB*justify: left
+*diagnosticsFerrorLabel*label: Max Following Error:
+*diagnosticsFerrorLabel*width: 150
+*diagnosticsFerrorLabel*justify: left
+*diagnosticsFerror*width: 80
+*diagnosticsDone*label: Done
+
+*calibShell*title: Calibration
+*calibShell*translations:#override\
+<Message>WM_PROTOCOLS:calibShellProtocols() \n\
+<Key>Return: calibReturnAction() \n\
+<Key>Tab: calibTabAction() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*calibCycleTimeLabel*label: Cycle Time:
+*calibCycleTimeLabel*width: 120
+*calibCycleTimeLabel*justify: left
+*calibCycleTime*width: 80
+*calibPGainLabel*label: P Gain:
+*calibPGainLabel*width: 120
+*calibPGainLabel*justify: left
+*calibPGain*width: 80
+*calibIGainLabel*label: I Gain:
+*calibIGainLabel*width: 120
+*calibIGainLabel*justify: left
+*calibIGain*width: 80
+*calibDGainLabel*label: D Gain:
+*calibDGainLabel*width: 120
+*calibDGainLabel*justify: left
+*calibDGain*width: 80
+*calibFF0GainLabel*label: FF0 Gain:
+*calibFF0GainLabel*width: 120
+*calibFF0GainLabel*justify: left
+*calibFF0Gain*width: 80
+*calibFF1GainLabel*label: FF1 Gain:
+*calibFF1GainLabel*width: 120
+*calibFF1GainLabel*justify: left
+*calibFF1Gain*width: 80
+*calibFF2GainLabel*label: FF2 Gain:
+*calibFF2GainLabel*width: 120
+*calibFF2GainLabel*justify: left
+*calibFF2Gain*width: 80
+*calibBacklashLabel*label: Backlash:
+*calibBacklashLabel*width: 120
+*calibBacklashLabel*justify: left
+*calibBacklash*width: 80
+*calibBiasLabel*label: Bias:
+*calibBiasLabel*width: 120
+*calibBiasLabel*justify: left
+*calibBias*width: 80
+*calibMaxErrorLabel*label: Max Cum Error:
+*calibMaxErrorLabel*width: 120
+*calibMaxErrorLabel*justify: left
+*calibMaxError*width: 80
+*calibOutputScaleLabel*label: Output Scale:
+*calibOutputScaleLabel*width: 120
+*calibOutputScaleLabel*justify: left
+*calibOutputScale*width: 80
+*calibOutputOffsetLabel*label: Output Offset:
+*calibOutputOffsetLabel*width: 120
+*calibOutputOffsetLabel*justify: left
+*calibOutputOffset*width: 80
+*calibFerrorLabel*label: Following Error:
+*calibFerrorLabel*width: 120
+*calibFerrorLabel*justify: left
+*calibFerror*width: 80
+*calibDone*label: Done
+*calibCancel*label: Cancel
+
+*loggingShell*title: Logging
+*loggingShell*translations:#override\
+<Message>WM_PROTOCOLS:loggingShellProtocols() \n\
+<Key>Return: loggingReturnAction() \n\
+<Key>Tab: loggingTabAction() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*loggingLabel*label: Logging
+*loggingFileLabel*label: File:
+*loggingFileLabel.width: 50
+*loggingFile.width: 100
+*loggingFileLabel*justify: left
+*loggingTypeLabel*label: Type:
+*loggingTypeLabel.width: 50
+*loggingTypeMenu.width: 100
+*loggingTypeLabel*justify: left
+*loggingSizeLabel*label: Size:
+*loggingSizeLabel.width: 50
+*loggingSize.width: 100
+*loggingSizeLabel*justify: left
+*loggingSkipLabel*label: Skip:
+*loggingSkipLabel.width: 50
+*loggingSkip.width: 100
+*loggingSkipLabel*justify: left
+*loggingStart*label: Start
+*loggingStop*label: Stop
+*loggingSave*label: Save
+*loggingPlot*label: Plot
+*loggingDone*label: Done
+*loggingCancel*label: Cancel
+
+*helpXemcShell*title: Xemc Help
+*helpXemcShell*translations:#override\
+<Message>WM_PROTOCOLS:helpXemcProtocols() \n\
+<Key>Return: helpXemcReturnAction() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*helpXemcLabel*label: Xemc Help
+*helpXemcLabel*borderWidth: 0
+*helpXemcText.height: 200
+*helpXemcText.width: 600
+*helpXemcText*font: -adobe-helvetica-medium-r-normal--12-*-*-*-*-*-*-1
+*helpXemcDone*label: Done
+
+*helpAboutShell*title: About XEMC
+*helpAboutShell*translations:#override\
+<Message>WM_PROTOCOLS:helpAboutProtocols() \n\
+<Key>Return: helpAboutReturnAction() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*helpAboutDialog*label: XEMC\n\
+Public Domain (1999)\n\
+National Institute of\n\
+        Standards and Technology
+*helpAboutDialog*helpAboutDone*label: Done
+
+*errorShell*title: EMC
+*errorShell*translations:#override\
+<Message>WM_PROTOCOLS:errorShellProtocols() \n\
+<Key>Return: errorReturnAction() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+*errorDialog*errorDone*label: OK
+
+*commandMenuForm.background: blue
+! *commandMenuForm.borderColor: red
+*commandMenuForm.defaultDistance: 0
+
+! dynamically labeled labels need a width
+
+*stateMenu.width: 120
+! *modeMenu.width is made the same
+*mistMenu.width: 120
+! floodMenu.width is made the same
+*spindleDecLabel.label: <
+*spindleDecLabel.width: 20
+*spindleMenu.width: 120
+*spindleIncLabel.label: >
+*spindleIncLabel.width: 20
+! *brakeMenu.width is made the total
+
+*abortCommand.label: ABORT
+! *abortCommand.width is calculated
+! *abortCommand.height is calculated
+
+*limCommand.label: Limit Override
+
+*toolNumberForm.background: blue
+! *toolNumberForm.borderColor: red
+*toolNumberForm.defaultDistance: 0
+
+*toolNumberFormTitle.label: Tool:
+*toolNumberFormTitle.justify: left
+*toolNumberFormTitle.foreground: white
+*toolNumberFormTitle.background: blue
+*toolNumberFormTitle.width: 80
+*toolNumberFormName.label: (none)
+*toolNumberFormName.justify: left
+*toolNumberFormName.foreground: white
+*toolNumberFormName.background: blue
+*toolNumberFormName.width: 100
+! *toolNumberFormName.borderColor: white
+
+*toolOffsetForm.background: blue
+! *toolOffsetForm.borderColor: red
+*toolOffsetForm.defaultDistance: 0
+*toolOffsetForm.translations:#augment\
+<Btn3Up>: toolSetOffsetUpAction()
+
+*toolOffsetFormTitle.label: Offset:
+*toolOffsetFormTitle.justify: left
+*toolOffsetFormTitle.foreground: white
+*toolOffsetFormTitle.background: blue
+*toolOffsetFormTitle.width: 80
+*toolOffsetFormName.label: (none)
+*toolOffsetFormName.justify: left
+*toolOffsetFormName.foreground: white
+*toolOffsetFormName.background: blue
+*toolOffsetFormName.width: 100
+! *toolOffsetFormName.borderColor: white
+
+*toolSetOffsetShell*title: Set Tool Offset
+*toolSetOffsetToolLabel*label: Tool:
+*toolSetOffsetLengthLabel*label: Length:
+*toolSetOffsetDiameterLabel*label: Diameter:
+*toolSetOffsetDone*label: Done
+*toolSetOffsetCancel*label: Cancel
+*toolSetOffsetShell*translations:#override\
+<Message>WM_PROTOCOLS:toolSetOffsetShellProtocols() \n\
+<Key>Return: toolSetOffsetReturnAction() \n\
+<Key>Tab: toolSetOffsetTabAction() \n\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+
+*positionTypeForm.background: blue
+! *positionTypeForm.borderColor: red
+*positionTypeForm.defaultDistance: 0
+
+*positionTypeFormTitle.label: Position:
+*positionTypeFormTitle.justify: left
+*positionTypeFormTitle.foreground: white
+*positionTypeFormTitle.background: blue
+*positionTypeFormTitle.width: 130
+*positionTypeFormName.label: (none)
+*positionTypeFormName.justify: left
+*positionTypeFormName.foreground: white
+*positionTypeFormName.background: blue
+*positionTypeFormName.width: 280
+! *positionTypeFormName.borderColor: white
+
+*workOffsetForm.background: blue
+! *workOffsetForm.borderColor: red
+*workOffsetForm.defaultDistance: 0
+
+*workOffsetFormTitle.label: Work Offsets:
+*workOffsetFormTitle.justify: left
+*workOffsetFormTitle.foreground: white
+*workOffsetFormTitle.background: blue
+*workOffsetFormTitle.width: 130
+*workOffsetFormName.label: (none)
+*workOffsetFormName.justify: left
+*workOffsetFormName.foreground: white
+*workOffsetFormName.background: blue
+*workOffsetFormName.width: 270
+! *workOffsetFormName.borderColor: white
+
+*posLabel0.width: 600
+*posLabel0.font: -adobe-courier-bold-r-normal--64-*-*-*-*-*-*-1
+! *posLabel0.foreground: white
+*posLabel0.background: blue
+*posLabel0.borderColor: white
+
+! *posLabel1.width same as for X
+! *posLabel1.font same as for X
+! *posLabel1.foreground: white
+*posLabel1.background: blue
+*posLabel1.borderColor: white
+
+! *posLabel2.width same as for X
+! *posLabel2.font: same as for X
+! *posLabel2.foreground: white
+*posLabel2.background: blue
+*posLabel2.borderColor: white
+
+*posOffsetShell*title: Axis Offset
+*posOffsetShell*translations:#override\
+<Message>WM_PROTOCOLS:posOffsetShellProtocols() \n\
+<Key>Return: posOffsetReturnAction()
+*posOffsetDialog*label: Enter new axis value:
+
+*jogIncrementForm.background: blue
+*jogSpeedForm.background: blue
+! *jogSpeedForm.borderColor: red
+*jogSpeedForm.defaultDistance: 0
+
+*jogSpeedTitleLabel.label: Axis Speed
+*jogSpeedTitleLabel.foreground: white
+*jogSpeedTitleLabel.background: blue
+*jogSpeedDecLabel.label: <
+*jogSpeedLabel.width: 40
+*jogSpeedLabel.justify: center
+*jogSpeedIncLabel.label: >
+
+*jogSpeedShell*title: Jog Speed
+*jogSpeedShell*translations:#override\
+<Message>WM_PROTOCOLS:jogSpeedShellProtocols() \n\
+<Key>Return: jogSpeedReturnAction()
+*jogSpeedDialog*label: Enter jog speed:
+
+*jogIncrementForm.background: blue
+! *jogIncrementForm.borderColor: red
+*jogIncrementForm.defaultDistance: 0
+
+*jogIncrementTitleLabel.label: Increment
+*jogIncrementTitleLabel.foreground: white
+*jogIncrementTitleLabel.background: blue
+
+*jogIncrementMenu.width: 100
+
+*jogForm.background: blue
+! *jogForm.borderColor: red
+*jogForm.defaultDistance: 0
+
+*jogTitleLabel.label: Axis Motion
+*jogTitleLabel.foreground: white
+*jogTitleLabel.background: blue
+*jogMinusLabel.label: -
+*homeCommand.label: home
+*jogPlusLabel.label: +
+
+*feedOverrideForm.background: blue
+! *feedOverrideForm.borderColor: red
+*feedOverrideForm.defaultDistance: 0
+
+*feedOverrideTitleLabel.label: Feed Override
+*feedOverrideTitleLabel.foreground: white
+*feedOverrideTitleLabel.background: blue
+*feedOverrideLabel.width: 40
+*feedOverrideLabel.justify: center
+*feedOverrideDecLabel.label: <
+*feedOverrideIncLabel.label: >
+
+*feedOverrideShell*title: Feed Override
+*feedOverrideShell*translations:#override\
+<Message>WM_PROTOCOLS:feedOverrideShellProtocols() \n\
+<Key>Return: feedOverrideReturnAction()
+*feedOverrideDialog*label: Enter feed %:
+
+*loggingStatusForm.background: blue
+! *loggingStatusForm.borderColor: red
+*loggingStatusForm.defaultDistance: 0
+
+*loggingStatusTitleLabel.label: Logging
+*loggingStatusTitleLabel.foreground: white
+*loggingStatusTitleLabel.background: blue
+*loggingStatusOpenLabel.width: 60
+*loggingStatusOpenLabel.justify: center
+*loggingStatusStartedLabel.width: 80
+*loggingStatusStartedLabel.justify: center
+*loggingStatusPointsLabel.width: 40
+*loggingStatusPointsLabel.justify: center
+
+*spindleIncLabel.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction()
+
+*spindleDecLabel.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction()
+
+*posLabel0.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction() \n\
+<Btn3Up>: posOffsetUpAction() \n\
+
+*posLabel1.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction() \n\
+<Btn3Up>: posOffsetUpAction()
+
+*posLabel2.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction() \n\
+<Btn3Up>: posOffsetUpAction()
+
+*jogSpeedLabel.translations:#augment\
+<Btn1Down>: downAction()
+
+*jogSpeedIncLabel.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction()
+
+*jogSpeedDecLabel.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction()
+
+*jogMinusLabel.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction()
+
+*jogPlusLabel.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction()
+
+*feedOverrideLabel.translations:#augment\
+<Btn1Down>: downAction()
+
+*feedOverrideIncLabel.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction()
+
+*feedOverrideDecLabel.translations:#augment\
+<Btn1Down>: downAction() \n\
+<Btn1Up>: upAction()
+
+*mdiForm.background: blue
+! *mdiForm.borderColor: red
+*mdiForm.defaultDistance: 0
+
+*mdiFormTitle.label: MDI:
+! *mdiFormTitle.foreground: blue
+*mdiFormTitle.background: white
+
+! *mdiFormText*font: fixed
+*mdiFormText*borderColor: white
+*mdiFormText*foreground: white
+*mdiFormText*background: blue
+! *mdiFormText.height: 20
+*mdiFormText.width: 400
+*mdiFormText*translations:#override\
+<Key>Return: mdiReturnAction() select-all() delete-selection() \n\
+<Key>Escape: keyAction() \n\
+<Key>End: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction()
+
+*mdiCodesLabel*justify: left
+*mdiCodesLabel*foreground: white
+*mdiCodesLabel*background: blue
+*mdiCodesLabel.width: 600
+
+*programForm.background: blue
+! *programForm.borderColor: red
+*programForm.defaultDistance: 0
+
+*programFormTitle.label: Program:
+! *programFormTitle.foreground: blue
+*programFormTitle.background: white
+
+*programFormName.label: (none)
+*programFormName.justify: left
+*programFormName.foreground: white
+*programFormName.background: blue
+*programFormName.width: 300
+
+*programFormStateTitle.label: Status:
+! *programFormStateTitle.foreground: blue
+*programFormStateTitle.background: white
+
+*programFormState.label: (none)
+*programFormState.justify: left
+*programFormState.foreground: white
+*programFormState.background: blue
+*programFormState.width: 100
+
+*programOpenCommand.label: Open...
+*programRunCommand.label: Run
+*programPauseCommand.label: Pause
+*programResumeCommand.label: Resume
+*programStepCommand.label: Step
+*programVerifyCommand.label: Verify
+
+*programText*font: fixed
+*programText*borderColor: white
+*programText*foreground: white
+*programText*background: blue
+*programText.height: 100
+*programText.width: 600
+*programText*translations: #override\
+<Key>Escape: keyAction() \n\
+<Key>F1: keyAction() \n\
+<Key>F2: keyAction() \n\
+<Key>F3: keyAction() \n\
+<Key>F4: keyAction() \n\
+<Key>F5: keyAction() \n\
+<Key>F6: keyAction() \n\
+<Key>F7: keyAction() \n\
+<Key>F8: keyAction() \n\
+<Key>F9: keyAction() \n\
+<Key>F10: keyAction() \n\
+<KeyPress>F11: keyAction() \n\
+<KeyRelease>F11: keyAction() \n\
+<KeyPress>F12: keyAction() \n\
+<KeyRelease>F12: keyAction() \n\
+<KeyPress>Prior: keyAction() \n\
+<KeyRelease>Prior: keyAction() \n\
+<KeyPress>Next: keyAction() \n\
+<KeyRelease>Next: keyAction() \n\
+<KeyPress>Up: keyAction() \n\
+<KeyRelease>Up: keyAction() \n\
+<KeyPress>Down: keyAction() \n\
+<KeyRelease>Down: keyAction() \n\
+<KeyPress>Right: keyAction() \n\
+<KeyRelease>Right: keyAction() \n\
+<KeyPress>Left: keyAction() \n\
+<KeyRelease>Left: keyAction() \n\
+<Key>0: keyAction() \n\
+<Key>1: keyAction() \n\
+<Key>2: keyAction() \n\
+<Key>3: keyAction() \n\
+<Key>4: keyAction() \n\
+<Key>5: keyAction() \n\
+<Key>6: keyAction() \n\
+<Key>7: keyAction() \n\
+<Key>8: keyAction() \n\
+<Key>9: keyAction() \n\
+<Key>x: keyAction() \n\
+<Key>y: keyAction() \n\
+<Key>z: keyAction() \n\
+Alt<Key>t: keyAction() \n\
+Alt<Key>x: keyAction() \n\
+Alt<Key>y: keyAction() \n\
+Alt<Key>z: keyAction() \n\
+<Key>l: keyAction() \n\
+<Key>o: keyAction() \n\
+<Key>e: keyAction() \n\
+<Key>r: keyAction() \n\
+<Key>p: keyAction() \n\
+<Key>s: keyAction() \n\
+<Key>v: keyAction() \n\
+<Key>a: keyAction() \n\
+<Key>b: keyAction() \n\
+Shift<Key>B: keyAction() \n\
+<Key>i: keyAction() \n\
+<Key>c: keyAction() \n\
+<KeyPress>comma: keyAction() \n\
+<KeyRelease>comma: keyAction() \n\
+<KeyPress>period: keyAction() \n\
+<KeyRelease>period: keyAction() \n\
+<Key>Home: keyAction() \n\
+<Key>End: keyAction()
