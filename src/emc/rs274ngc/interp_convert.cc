@@ -241,7 +241,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
 
   if (block->r_flag) {
     CHP(arc_data_r(move, *current1, *current2, end1, end2,
-                   block->r_number, &center1, &center2, &turn));
+                   block->r_number, &center1, &center2, &turn, tolerance));
   } else {
     CHP(arc_data_ijk(move, *current1, *current2, end1, end2, offset1,
                      offset2, &center1, &center2, &turn, tolerance));
@@ -434,7 +434,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
   if (block->r_flag) {
     CHP(arc_data_r(move, start_x, start_y, end_x, end_y,
-                   block->r_number, &center_x, &center_y, &turn));
+                   block->r_number, &center_x, &center_y, &turn, tolerance));
   } else {
     CHP(arc_data_ijk(move, start_x, start_y, end_x, end_y,
                      block->i_number, block->j_number,
