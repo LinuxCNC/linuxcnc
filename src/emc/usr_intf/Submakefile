@@ -56,6 +56,7 @@ ifeq "$(HAVE_NCURSES)" "yes"
 ../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/libemc.a ../lib/libnml.so
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(KEYSTICKLIBS)
 TARGETS += ../bin/keystick
+endif
 
 ifeq "$(HAVE_XAW)" "yes"
 ../bin/xemc: $(call TOOBJS, $(XEMCSRCS)) ../lib/libemc.a ../lib/libnml.so
