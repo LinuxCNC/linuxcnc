@@ -305,7 +305,8 @@ int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
                       double radius,    //!< radius of arc
                       double *center_x, //!< pointer to first coordinate of center of arc
                       double *center_y, //!< pointer to second coordinate of center of arc
-                      int *turn)        //!< pointer to no. of full or partial circles CCW
+                      int *turn,        //!< pointer to number of full or partial circles CCW
+                      double tolerance) //!< tolerance of differing radii
 {
   static char name[] = "arc_data_r";
   double abs_radius;            /* absolute value of given radius */
@@ -322,7 +323,7 @@ int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
   mid_x = (end_x + current_x) / 2.0;
   mid_y = (end_y + current_y) / 2.0;
   half_length = hypot((mid_x - end_x), (mid_y - end_y));
-  CHK(((half_length / abs_radius) > (1 + TINY)),
+  CHK(((half_length - abs_radius) > tolerance),
       NCE_ARC_RADIUS_TOO_SMALL_TO_REACH_END_POINT);
   if ((half_length / abs_radius) > (1 - TINY))
     half_length = abs_radius;   /* allow a small error for semicircle */

@@ -146,7 +146,8 @@ private:
                         int *turn, double tolerance);
  int arc_data_r(int move, double current_x, double current_y,
                       double end_x, double end_y, double radius,
-                      double *center_x, double *center_y, int *turn);
+                      double *center_x, double *center_y, int *turn,
+		      double tolerance);
  int check_g_codes(block_pointer block, setup_pointer settings);
  int check_items(block_pointer block, setup_pointer settings);
  int check_m_codes(block_pointer block);
