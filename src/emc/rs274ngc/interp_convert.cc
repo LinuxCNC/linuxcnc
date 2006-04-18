@@ -1392,11 +1392,8 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   double end_y;
   double end_z;
   double AA_end;
-  double AA_end2;
   double BB_end;
-  double BB_end2;
   double CC_end;
-  double CC_end2;
   double *parameters;
 
   parameters = settings->parameters;
@@ -1411,12 +1408,12 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
     find_relative(parameters[5161], parameters[5162], parameters[5163],
                   parameters[5164], parameters[5165], parameters[5166],
                   &end_x, &end_y, &end_z,
-                  &AA_end2, &BB_end2, &CC_end2, settings);
+                  &AA_end, &BB_end, &CC_end, settings);
   } else if (move == G_30) {
     find_relative(parameters[5181], parameters[5182], parameters[5183],
                   parameters[5184], parameters[5185], parameters[5186],
                   &end_x, &end_y, &end_z,
-                  &AA_end2, &BB_end2, &CC_end2, settings);
+                  &AA_end, &BB_end, &CC_end, settings);
   } else
     ERM(NCE_BUG_CODE_NOT_G28_OR_G30);
   STRAIGHT_TRAVERSE(end_x, end_y, end_z,
@@ -1424,9 +1421,9 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   settings->current_x = end_x;
   settings->current_y = end_y;
   settings->current_z = end_z;
-  settings->AA_current = AA_end2;
-  settings->BB_current = BB_end2;
-  settings->CC_current = CC_end2;
+  settings->AA_current = AA_end;
+  settings->BB_current = BB_end;
+  settings->CC_current = CC_end;
   return INTERP_OK;
 }
 
