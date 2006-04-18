@@ -9,3 +9,5 @@ objects
 depends
 autom4te.cache
 depend.sh
+axis
+axis.*
