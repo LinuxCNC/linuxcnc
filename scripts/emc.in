@@ -544,6 +544,15 @@ case $EMCDISPLAY in
     echo "DUMMY DISPLAY MODULE, press <ENTER> to continue."
     read foo;
   ;;
+  keystick)
+    if [ ! -x $EMC2_BIN_DIR/keystick ] ; then
+	echo "Can't execute DISPLAY program $EMC2_BIN_DIR/$EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
+	Cleanup
+	exit 1
+    fi
+#    xterm -xrm 'XTerm*metaSendsEscape:false' -xrm 'XTerm*VT100.Translations: #override <Key>Home: string("\033[1~")\n <Key>End: string("\033[4~")' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
+    xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
+  ;;
   *)
     # all other displays are assumed to be in the bin directory
     if [ ! -x $EMC2_BIN_DIR/$EMCDISPLAY ] ; then

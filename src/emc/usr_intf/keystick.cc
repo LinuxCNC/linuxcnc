@@ -1475,7 +1475,7 @@ static int iniLoad(const char *filename)
       TRAJ_MAX_VELOCITY = DEFAULT_TRAJ_MAX_VELOCITY;
     }
 
-  if (NULL != (inistring = inifile.find("PROGRAM_PREFIX", "TASK")))
+  if (NULL != (inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY")))
     {
       if (1 != sscanf(inistring, "%s", programPrefix))
         {
