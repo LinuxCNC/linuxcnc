@@ -78,3 +78,7 @@ Improved classicladder GUI
 Change halcmd to use GNU getline in interactive mode (history, tab completion, etc)
 
 Finish HALUI
+
+Define canonical encoder interface, convert all hardware drivers to use it, convert homing
+to use it.
+
