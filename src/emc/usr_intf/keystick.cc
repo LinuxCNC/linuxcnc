@@ -1711,12 +1711,10 @@ int main(int argc, char *argv[])
   // set up handler for SIGALRM to handle periodic timer events
   signal(SIGALRM, alarmHandler);
 
-  // open error file for logging
-  if (NULL == (errorFp = fopen(ERROR_FILE, "w")))
-    {
-      // ignore; null errorFp will prevent attempts to log
-    }
-
+#ifdef LOG
+  errorFp = fopen(ERROR_FILE, "w");
+  // failure here just disables logging
+#endif
 
   // init NML
   if (! dump)
