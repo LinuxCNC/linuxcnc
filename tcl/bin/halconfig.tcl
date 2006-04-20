@@ -82,7 +82,6 @@ proc exHAL {argv} {
     global fid chanflag returnstring
     set chanflag rd
     puts $fid "${argv}"
-#    puts "Proc exHAL, fid = '$fid', argv = '$argv'"
     vwait chanflag
     set tmp $returnstring
     set returnstring ""
@@ -172,7 +171,7 @@ set modifyhal [$top insert 2 pm -text [msgcat::mc "Modify"] -raisecmd {showMode 
 # Each axis has its own tab 
 for {set j 0} {$j<$numaxes} {incr j} {
     set af$j [$top insert [expr $j+3] page$j \
-        -text "[msgcat::mc "Tune"] $j"  -raisecmd [] ]
+        -text "[msgcat::mc "Tune"] $j"  -raisecmd "selectAxis $j" ]
 }
 
 # use place manager to fix locations of frames within top
@@ -285,7 +284,6 @@ proc listHAL {} {
     foreach node $searchnames {
         writeNode "$i root $node [lindex $nodenames $i] 1"
         set ${node}str [exHAL "list $node" ]
-#        puts "this is $node --\n [set ${node}str]"
         switch -- $node {
             pin {-}
             param {
@@ -498,8 +496,6 @@ proc showNode {which} {
 #
 #----------end of tree building processes----------
 
-set axnum 0
-set numaxes 4
 set oldvar "zzz"
 # build show mode right side
 proc makeShow {} {
@@ -588,13 +584,11 @@ array set modtypes {
 
 set modlist "$modifyhal.eloadrt1 $modifyhal.eunloadrt1 $modifyhal.eaddf1 $modifyhal.edelf1 $modifyhal.elinkpp1 $modifyhal.elinkpp2 $modifyhal.elinkps1 $modifyhal.elinksp2 $modifyhal.elinkps2 $modifyhal.elinksp1 $modifyhal.enewsig1 $modifyhal.edelsig1 $modifyhal.eunlinkp1"
 
+# FIXME add two paths here depending upon whether .hal uses ini values or netlist values
 
-# FIXME allow for more than one tunable system
-# FIXME get the number of axes from ini if available
-
-proc makeTune {} {
-    global axisentry activeAxis main top initext HALCMD sectionarray thisconfigdir
-    global logo numaxes EMC_INIFILE namearray commandarray valarray thisinifile
+proc makeIniTune {} {
+    global axisentry top initext HALCMD sectionarray thisconfigdir
+    global numaxes ininamearray commandarray valarray thisinifile
     for {set i 0} {$i<$numaxes} {incr i} {
         global af$i
     }
@@ -642,6 +636,15 @@ proc makeTune {} {
 
     # New halconfig allows for ini reads from most any location
     # For axis tuning search each .hal file for AXIS
+    # label display columns       
+    for {set j 0} {$j < $numaxes} {incr j} {
+        set col0 [label [set af$j].collabel0 -text [msgcat::mc "Name"]]
+        set col1 [label [set af$j].collabel1 -text [msgcat::mc "HAL's Value"]]
+        set col2 [label [set af$j].space -text "   "]
+        set col3 [label [set af$j].collabel3 -text [msgcat::mc "Next Value"]]
+        grid $col0 $col1 $col2 $col3 -ipady 5
+    }
+
     foreach fname $halfilelist {
         $scratchtext config -state normal
         $scratchtext delete 1.0 end
@@ -651,7 +654,7 @@ proc makeTune {} {
             $scratchtext insert end [read $programin]
             catch {close $programin}
         }
-       
+
         # find the ini references in this hal and build widgets        
         scan [$scratchtext index end] %d nl
         for {set i 1} {$i < $nl} {incr i} {
@@ -665,30 +668,35 @@ proc makeTune {} {
                         set thishalcommand [lindex $tmpstring 1]
                         set tmpval [expr [lindex [split \
                             [exec $HALCMD -s show param $thishalcommand] " "] 3]]
-                        global axis$j-$lowername
+                        global axis$j-$lowername axis$j-$lowername-next
                         set axis$j-$lowername $tmpval
-                        set thislabel [label [set af$j].label-$j-$lowername \
-                            -text "$thisininame" -width 20 -anchor e]
-                        set thisentry [entry [set af$j].entry-$lowername \
-                        -width 12 -textvariable axis$j-$lowername]
-                        grid $thislabel $thisentry
-                        lappend namearray($j) $lowername
+                        set axis$j-$lowername-next $tmpval
+                        set thisname [label [set af$j].label-$j-$lowername \
+                            -text "$thisininame:  " -width 20 -anchor e]
+                        set thisval [label [set af$j].entry-$lowername -width 8 \
+                            -textvariable axis$j-$lowername -anchor e -foreg firebrick4 ]
+                        set thisentry [entry [set af$j].next-$lowername -width 8 \
+                        -width 12 -textvariable axis$j-$lowername-next ]
+                        grid $thisname $thisval x $thisentry
+                        lappend ininamearray($j) $lowername
                         lappend commandarray($j) $thishalcommand
-                        lappend valarray($j) $tmpval
                         break
                     }
                 }
             }
         }
     }
-    puts "Num axes 4 is $numaxes" 
     # build the buttons to control axis variables.
     for {set j 0} {$j<3 } {incr j} {
-        set tmpapply [button [set af$j].apply -text [msgcat::mc "Apply"] \
-            -command {changeIt apply} -state disabled ]
-        set tmprevert [button [set af$j].revert -text [msgcat::mc "Revert"] \
-            -command {changeIt revert} -state disabled ]
-        grid $tmpapply $tmprevert
+        set bframe [frame [set af$j].buttons]
+        grid configure $bframe -columnspan 4 -sticky nsew 
+        set tmptest [button $bframe.test -text [msgcat::mc "Test"] \
+            -command {axisTuneButtonpress test}]
+        set tmpok [button $bframe.ok -text [msgcat::mc "OK"] \
+            -command {axisTuneButtonpress ok} -state disabled  ]
+        set tmpcancel [button $bframe.cancel -text [msgcat::mc "Cancel"] \
+            -command {axisTuneButtonpress cancel} -state disabled ]
+        pack $tmpok $tmptest $tmpcancel -side left -fill both -expand yes -pady 5
     }
 }
 
@@ -697,13 +705,49 @@ proc selectAxis {which} {
     set axisentry $which
 }
 
+proc axisTuneButtonpress {which} {
+    global axisentry ininamearray
+    set labelname ".main.note.fpage$axisentry.next"
+    set basename ".main.note.fpage$axisentry.buttons"
+    # which can be (test, ok, cancel)
+    switch -- $which {
+        test {
+            $basename.test configure -state disabled
+            $basename.ok configure -state normal
+            $basename.cancel configure -state normal
+            set entrystate "disabled"
+        }
+        cancel {
+            $basename.test configure -state normal
+            $basename.ok configure -state disabled
+            $basename.cancel configure -state disabled
+            set entrystate "normal"
+        }
+        ok {
+            $basename.test configure -state normal
+            $basename.ok configure -state disabled
+            $basename.cancel configure -state disabled
+            set entrystate "normal"
+        }
+        default {
+        }
+    }
+    foreach name [set ininamearray($axisentry)] {
+        $labelname-$name configure -state $entrystate
+    }
+    changeIt $which
+}
+
 proc changeIt {how } {
-    global axisentry sectionarray namearray commandarray valarray HALCMD
-    global numaxes main oldvalarray initext
+    global axisentry sectionarray ininamearray commandarray HALCMD
+    global numaxes main initext
+    for {set i 0} {$i<$numaxes} {incr i} {
+        global af$i
+    }
     switch -- $how {
         save {
             for {set i 0} {$i<$numaxes} {incr i} {
-                set varnames [lindex [array get namearray $i] end]
+                set varnames [lindex [array get ininamearray $i] end]
                 set upvarnames [string toupper $varnames]
                 set varcommands [lindex [array get commandarray $i] end]
                 set maxvarnum [llength $varnames]
@@ -743,38 +787,41 @@ proc changeIt {how } {
             }
             saveFile
         }
-        apply {
-            $main.buttons.revert configure -state normal
-            set varnames [lindex [array get namearray $axisentry] end]
+        cancel {-}
+        test {
+            set varnames [lindex [array get ininamearray $axisentry] end]
             set varcommands [lindex [array get commandarray $axisentry] end]
             set maxvarnum [llength $varnames]
+            # handle each variable and values inside loop 
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
                 set var "axis$axisentry-[lindex $varnames $listnum]"
-                global $var
-                set tmpval [set $var]
+                global $var $var-next
+                # get the values
+                set oldval [set $var]
+                set newval [set $var-next]
+                # get the halcmd string
                 set tmpcmd [lindex $varcommands $listnum]
-                # get list of old values before changeIt apply changes them
-                set tmpold [expr [lindex [split \
-                    [exec $HALCMD -s show param $tmpcmd] " "] 3]]
-                lappend oldvalarray($axisentry) $tmpold
-                set thisret [exec $HALCMD setp $tmpcmd $tmpval]
-            }
+                # use halcmd to set new parameter value in hal
+                set thisret [exec $HALCMD setp $tmpcmd $newval]
+                # set the current value for display
+                set $var $newval
+                # set the tmp value as next in display
+                set $var-next $oldval
+            }        
         }
-        revert {
-            set varnames [lindex [array get namearray $axisentry] end]
+        ok {
+            set varnames [lindex [array get ininamearray $axisentry] end]
             set varcommands [lindex [array get commandarray $axisentry] end]
             set maxvarnum [llength $varnames]
-            set oldvarvals [lindex [array get oldvalarray $axisentry] end]
+            # handle each variable and values inside loop 
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
-                set tmpval [lindex $oldvarvals $listnum]
-                set tmpcmd [lindex $varcommands $listnum]
-                set thisret [exec $HALCMD setp $tmpcmd $tmpval]
-                # update the display
-                set var axis$axisentry-[lindex $varnames $listnum]
-                global $var
-                set $var $tmpval
-            }
-            $main.buttons.revert configure -state disabled
+                set var "axis$axisentry-[lindex $varnames $listnum]"
+                global $var $var-next
+                # get the values
+                set oldval [set $var]
+                # set the tmp value as next in display
+                set $var-next $oldval
+            }        
         }
         quit {
             # build a check for changed values here and ask
@@ -1051,7 +1098,6 @@ proc setModifyVar {which} {
 proc copyVar {var} {
     global thisvar newmodvar
     if {$newmodvar == 0 } {
-    #    puts $var
         set tmpvar [lindex [split $thisvar +] end]
         $var insert 0 $tmpvar
         set newmodvar 1
@@ -1074,7 +1120,7 @@ proc displayThis {str} {
 makeShow
 makeWatch
 makeModify
-# makeTune
+# makeIniTune
 refreshHAL
 
 #----------save config----------
@@ -1118,5 +1164,5 @@ set helpabout {
      This script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law.
 }
 
-makeTune
+makeIniTune
 $top raise ps
