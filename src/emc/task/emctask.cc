@@ -73,7 +73,7 @@ int emcTaskInit()
     // nc_files/M101, where the %%02d means 2 digits after the M code
     // and we need two % to get the literal %
     if (NULL != inistring) {
-	sprintf(user_defined_fmt, "%sM1%%02d", inistring);
+	sprintf(user_defined_fmt, "%s/M1%%02d", inistring);
     }
 
     /* check for programs named programs/M100 .. programs/M199 and add
