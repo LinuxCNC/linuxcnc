@@ -135,11 +135,11 @@ wm geometry . "${masterwidth}x${masterheight}+$x+$y"
 # trap mouse click on window manager delete and ask to save
 wm protocol . WM_DELETE_WINDOW askKill
 proc askKill {} {
-    global configdir
+    global thisconfigdir
     set tmp [tk_messageBox -icon question -type yesnocancel \
         -message [msgcat::mc "Would you like to save your configuration before you exit?"]]
     switch -- $tmp {
-        yes {saveHAL $configdir ; killHalConfig}
+        yes {saveHAL $thisconfigdir ; killHalConfig}
         no {killHalConfig}
         cancel {return}
     }
@@ -195,6 +195,8 @@ set filemenu [menu $menubar.file -tearoff 0]
             -command {refreshHAL} -underline 0
         $filemenu add command -label [msgcat::mc "Save"] \
             -command {saveHAL save} -underline 0 -state disabled
+        $filemenu add command -label [msgcat::mc "Save Tuning"] \
+            -command {changeIt save} -underline 0 
         $filemenu add command -label [msgcat::mc "Save As"] \
             -command {saveHAL saveas} -underline 0 -state disabled
         $filemenu add command -label [msgcat::mc "Save and Exit"] \
@@ -588,7 +590,7 @@ set modlist "$modifyhal.eloadrt1 $modifyhal.eunloadrt1 $modifyhal.eaddf1 $modify
 
 proc makeIniTune {} {
     global axisentry top initext HALCMD sectionarray thisconfigdir
-    global numaxes ininamearray commandarray valarray thisinifile
+    global numaxes ininamearray commandarray thisinifile
     for {set i 0} {$i<$numaxes} {incr i} {
         global af$i
     }
@@ -1135,6 +1137,8 @@ proc saveHAL {which} {
         }
         saveas {}
         saveandexit {
+            # add HAL save here
+            changeIt save 
             exit {destroy . }
         }
     }
