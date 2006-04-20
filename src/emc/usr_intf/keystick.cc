@@ -302,7 +302,7 @@ static void printError(const char * errstring)
   chtype saveattr;
 
   // log to error file
-  if (NULL != errorFp)
+  if (errorFp)
     {
       fprintf(errorFp, "%f\t%s\n", etime(), errstring);
     }
@@ -391,7 +391,7 @@ static void printStatus()
       mvwaddstr(window, 12, 54, "prompts for tool table");
       mvwaddstr(window, 13, 54, "turns lube off/on");
 
-      if (error_string[0] != 0)
+      if (error_string[0])
         {
           printError(error_string);
         }
@@ -477,7 +477,7 @@ static void printStatus()
       mvwaddstr(window, 18, 28, scratch_string);
 
       wattrset(window, 0);
-      if (error_string[0] != 0)
+      if (error_string[0])
         {
           printError(error_string);
         }
@@ -502,7 +502,7 @@ static void printStatus()
       line = 4;
       for (t = 0; t < CANON_TOOL_MAX; t++)
         {
-          if (emcStatus->io.tool.toolTable[t].id != 0)
+          if (emcStatus->io.tool.toolTable[t].id)
             {
               sprintf(scratch_string, "%4d%10d%10.4f%10.4f",
                       t,
@@ -514,7 +514,7 @@ static void printStatus()
         }
 
       wattrset(window, 0);
-      if (error_string[0] != 0)
+      if (error_string[0])
         {
           printError(error_string);
         }
@@ -553,7 +553,7 @@ static void printStatus()
               programActiveLine = emcStatus->task.currentLine;
             }
 
-          if (programFp != 0)
+          if (programFp)
             {
               if (programFpLine > programActiveLine)
                 {
@@ -594,7 +594,7 @@ static void printStatus()
                   wattrset(window, 0);
 
                   // get the next line
-                  if (NULL != fgets(programLineText, LINELEN, programFp))
+                  if (fgets(programLineText, LINELEN, programFp))
                     {
                       programFpLine++;
                     }
@@ -618,7 +618,7 @@ static void printStatus()
         }
 
       wattrset(window, 0);
-      if (error_string[0] != 0)
+      if (error_string[0])
         {
           printError(error_string);
         }
@@ -899,7 +899,7 @@ static void printStatus()
               programActiveLine = emcStatus->task.currentLine;
             }
           sprintf(line_string, "%d", programActiveLine);
-          if (programFp != 0)
+          if (programFp)
             {
               if (programFpLine > programActiveLine)
                 {
@@ -1060,7 +1060,7 @@ static void printStatus()
           mvwaddstr(window, 19, 21, active_m_codes_string);
         }
 
-      if (error_string[0] != 0)
+      if (error_string[0])
         {
           printError(error_string);
         }
@@ -1321,34 +1321,34 @@ static void quit(int sig)
 
   // clean up NML buffers
 
-  if (emcErrorBuffer != 0)
+  if (emcErrorBuffer)
     {
       delete emcErrorBuffer;
       emcErrorBuffer = 0;
     }
 
-  if (emcStatusBuffer != 0)
+  if (emcStatusBuffer)
     {
       delete emcStatusBuffer;
       emcStatusBuffer = 0;
       emcStatus = 0;
     }
 
-  if (emcCommandBuffer != 0)
+  if (emcCommandBuffer)
     {
       delete emcCommandBuffer;
       emcCommandBuffer = 0;
     }
 
   // close program file
-  if (programFp != 0)
+  if (programFp)
     {
       fclose(programFp);
       programFp = 0;
     }
 
   // close error log file
-  if (NULL != errorFp)
+  if (errorFp)
     {
       fclose(errorFp);
       errorFp = NULL;
@@ -1427,7 +1427,7 @@ static char *upcase(char *string)
 {
   char *ptr = string;
 
-  while (*ptr != 0)
+  while (*ptr)
     {
       *ptr = toupper(*ptr);
       ptr++;
@@ -1451,11 +1451,11 @@ static int iniLoad(const char *filename)
       return -1;
     }
 
-  if (NULL != (inistring = inifile.find("MACHINE", "EMC")))
+  if ((inistring = inifile.find("MACHINE", "EMC")))
     {
       strcpy(machine, inistring);
 
-      if (NULL != (inistring = inifile.find("VERSION", "EMC")))
+      if ((inistring = inifile.find("VERSION", "EMC")))
         {
           sscanf(inistring, "$Revision: %s", version);
 
@@ -1463,7 +1463,7 @@ static int iniLoad(const char *filename)
         }
     }
 
-  if (NULL != (inistring = inifile.find("MAX_VELOCITY", "TRAJ")))
+  if ((inistring = inifile.find("MAX_VELOCITY", "TRAJ")))
     {
       if (1 != sscanf(inistring, "%lf", &TRAJ_MAX_VELOCITY))
         {
@@ -1475,7 +1475,7 @@ static int iniLoad(const char *filename)
       TRAJ_MAX_VELOCITY = DEFAULT_TRAJ_MAX_VELOCITY;
     }
 
-  if (NULL != (inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY")))
+  if ((inistring = inifile.find("PROGRAM_PREFIX", "DISPLAY")))
     {
       if (1 != sscanf(inistring, "%s", programPrefix))
         {
@@ -1487,7 +1487,7 @@ static int iniLoad(const char *filename)
       programPrefix[0] = 0;
     }
 
-  if (NULL != (inistring = inifile.find("POSITION_OFFSET", "DISPLAY")))
+  if ((inistring = inifile.find("POSITION_OFFSET", "DISPLAY")))
     {
       if (1 == sscanf(inistring, "%s", displayString))
         {
@@ -1518,7 +1518,7 @@ static int iniLoad(const char *filename)
       // ignore
     }
 
-  if (NULL != (inistring = inifile.find("POSITION_FEEDBACK", "DISPLAY")))
+  if ((inistring = inifile.find("POSITION_FEEDBACK", "DISPLAY")))
     {
       if (1 == sscanf(inistring, "%s", displayString))
         {
@@ -1550,7 +1550,7 @@ static int iniLoad(const char *filename)
     }
 
   xJogPol = 1;                  // set to default
-  if (NULL != (inistring = inifile.find("JOGGING_POLARITY", "AXIS_0")) &&
+  if ((inistring = inifile.find("JOGGING_POLARITY", "AXIS_0")) &&
       1 == sscanf(inistring, "%d", &jogPol) &&
       jogPol == 0)
     {
@@ -1559,7 +1559,7 @@ static int iniLoad(const char *filename)
     }
 
   yJogPol = 1;                  // set to default
-  if (NULL != (inistring = inifile.find("JOGGING_POLARITY", "AXIS_1")) &&
+  if ((inistring = inifile.find("JOGGING_POLARITY", "AXIS_1")) &&
       1 == sscanf(inistring, "%d", &jogPol) &&
       jogPol == 0)
     {
@@ -1568,7 +1568,7 @@ static int iniLoad(const char *filename)
     }
 
   zJogPol = 1;                  // set to default
-  if (NULL != (inistring = inifile.find("JOGGING_POLARITY", "AXIS_2")) &&
+  if ((inistring = inifile.find("JOGGING_POLARITY", "AXIS_2")) &&
       1 == sscanf(inistring, "%d", &jogPol) &&
       jogPol == 0)
     {
@@ -1719,11 +1719,11 @@ int main(int argc, char *argv[])
   // init NML
   if (! dump)
     {
-      if (0 != emcTaskNmlGet())
+      if (emcTaskNmlGet())
         {
           exit(1);
         }
-      if (0 != emcErrorNmlGet())
+      if (emcErrorNmlGet())
         {
           exit(1);
         }
@@ -2335,7 +2335,7 @@ int main(int argc, char *argv[])
                   emcCommandWait(emcCommandSerialNumber);
                   strcpy(programFile, task_plan_open_msg.file);
                   programOpened = 1;
-                  if (programFp != 0)
+                  if (programFp)
                     {
                       fclose(programFp);
                     }
