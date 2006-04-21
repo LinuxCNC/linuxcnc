@@ -136,12 +136,17 @@ wm geometry . "${masterwidth}x${masterheight}+$x+$y"
 wm protocol . WM_DELETE_WINDOW askKill
 proc askKill {} {
     global thisconfigdir
-    set tmp [tk_messageBox -icon question -type yesnocancel \
+    set tmp [tk_dialog .quit Quit [msgcat::mc "Would you like to save your configuration before you exit?"] "warning" "Save All" "Save All" "Save Tune" "Save as Netlist" "Don't Save" "Cancel"] 
+    puts $tmp
+#tk_messageBox -icon question -type yesnocancel \
         -message [msgcat::mc "Would you like to save your configuration before you exit?"]]
+
     switch -- $tmp {
-        yes {saveHAL $thisconfigdir ; killHalConfig}
-        no {killHalConfig}
-        cancel {return}
+        0 {saveHAL save ; killHalConfig}
+        1 {saveHAL savetune ; killHalConfig}
+        2 {saveHAL savenetlist ; killHalConfig}
+        3 {killHalConfig}
+        4 {return}
     }
 }
 
@@ -152,8 +157,8 @@ proc killHalConfig {} {
         catch flush $fid
         catch close $fid
     }
-    exit
     destroy .
+    exit
 }
 
 set main [frame .main ]
@@ -189,37 +194,37 @@ set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 0]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu -underline 0
-        $filemenu add command -label [msgcat::mc "Run Hal"] \
-            -command {} -underline 0 -state disabled
         $filemenu add command -label [msgcat::mc "Refresh"] \
-            -command {refreshHAL} -underline 0
+            -command {refreshHAL}
         $filemenu add command -label [msgcat::mc "Save"] \
-            -command {saveHAL save} -underline 0 -state disabled
-        $filemenu add command -label [msgcat::mc "Save Tuning"] \
-            -command {changeIt save} -underline 0 
-        $filemenu add command -label [msgcat::mc "Save As"] \
-            -command {saveHAL saveas} -underline 0 -state disabled
+            -command {saveHAL save}
+        $filemenu add command -label [msgcat::mc "Save INI Tuning"] \
+            -command {saveHAL savetune}
+        $filemenu add command -label [msgcat::mc "Save HAL INI"] \
+            -command {saveHAL savenetini} -state disabled
+        $filemenu add command -label [msgcat::mc "Save HAL NET"] \
+            -command {saveHAL savenetlist}
         $filemenu add command -label [msgcat::mc "Save and Exit"] \
-            -command {saveHAL saveandexit} -underline 1 -state disabled
+            -command {saveHAL saveandexit}
         $filemenu add command -label [msgcat::mc "Exit"] \
-            -command {killHalConfig} -underline 0
+            -command {killHalConfig}
 set viewmenu [menu $menubar.view -tearoff 0]
     $menubar add cascade -label [msgcat::mc "View"] \
             -menu $viewmenu -underline 0
         $viewmenu add command -label [msgcat::mc "Expand Tree"] \
-            -command {showNode {open}} -underline 1
+            -command {showNode {open}}
         $viewmenu add command -label [msgcat::mc "Collapse Tree"] \
-            -command {showNode {close}} -underline 1
+            -command {showNode {close}}
         $viewmenu add separator
         $viewmenu add command -label [msgcat::mc "Expand Pins"] \
-            -command {showNode {pin}} -underline 1
+            -command {showNode {pin}}
         $viewmenu add command -label [msgcat::mc "Expand Parameters"] \
-            -command {showNode {param}} -underline 1
+            -command {showNode {param}}
         $viewmenu add command -label [msgcat::mc "Expand Signals"] \
-            -command {showNode {sig}} -underline 1
+            -command {showNode {sig}}
         $viewmenu add separator
         $viewmenu add command -label [msgcat::mc "Erase Watch"] \
-            -command {watchReset all} -underline 1
+            -command {watchReset all}
 # set settingsmenu [menu $menubar.settings -tearoff 0]
 #    $menubar add cascade -label [msgcat::mc "Settings"] \
             -menu $settingsmenu -underline 0
@@ -229,11 +234,11 @@ set viewmenu [menu $menubar.view -tearoff 0]
            
 set helpmenu [menu $menubar.help -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Help"] \
-            -menu $helpmenu -underline 0
+            -menu $helpmenu
         $helpmenu add command -label [msgcat::mc "About"] \
-            -command {showHelp about} -underline 0
+            -command {showHelp about}
         $helpmenu add command -label [msgcat::mc "Main"] \
-            -command {showHelp main} -underline 0
+            -command {showHelp main}
 . configure -menu $menubar
 
 # build the tree widgets left side
@@ -573,7 +578,7 @@ proc makeModify {} {
     grid configure $moddisplay -row $j -column 0 -columnspan 4 -sticky nsew
 }
 
-# FIXME set these for the new page displays.
+# modtypes handles highlighting mod entries
 array set modtypes {
     comp "$modifyhal.eloadrt1 $modifyhal.eunloadrt1"
     funct "$modifyhal.eaddf1 $modifyhal.edelf1"
@@ -587,6 +592,9 @@ array set modtypes {
 set modlist "$modifyhal.eloadrt1 $modifyhal.eunloadrt1 $modifyhal.eaddf1 $modifyhal.edelf1 $modifyhal.elinkpp1 $modifyhal.elinkpp2 $modifyhal.elinkps1 $modifyhal.elinksp2 $modifyhal.elinkps2 $modifyhal.elinksp1 $modifyhal.enewsig1 $modifyhal.edelsig1 $modifyhal.eunlinkp1"
 
 # FIXME add two paths here depending upon whether .hal uses ini values or netlist values
+proc whichTune {} {
+    makeIniTune
+}
 
 proc makeIniTune {} {
     global axisentry top initext HALCMD sectionarray thisconfigdir
@@ -747,48 +755,6 @@ proc changeIt {how } {
         global af$i
     }
     switch -- $how {
-        save {
-            for {set i 0} {$i<$numaxes} {incr i} {
-                set varnames [lindex [array get ininamearray $i] end]
-                set upvarnames [string toupper $varnames]
-                set varcommands [lindex [array get commandarray $i] end]
-                set maxvarnum [llength $varnames]
-                set sectname "AXIS_$i"
-                if {$i == [expr $numaxes-1]} {
-                    set endsect EMCIO
-                } else {
-                    set endsect AXIS_[expr $i+1]
-                }
-                set sectnum "[set sectionarray($sectname)]"
-                set nextsectnum "[set sectionarray($endsect)]"
-                $initext configure -state normal
-                for {set ind $sectnum} {$ind < $nextsectnum} {incr ind} {
-                    switch -- [$initext get $ind.0] {
-                        "#" {}
-                        default {
-                            set tmpstr [$initext get $ind.0 $ind.end]
-                            set tmpvar [lindex $tmpstr 0]
-                            set tmpindx [lsearch $upvarnames $tmpvar]
-                            if {$tmpindx != -1} {
-                                set cmd [lindex $varcommands $tmpindx]
-                                $initext mark set insert $ind.0
-                                set newval [expr [lindex [split \
-                                    [exec $HALCMD -s show param $cmd] " "] 3]]
-                                set tmptest [string first "e" $newval]
-                                if {[string first "e" $newval] > 1} {
-                                    set newval [format %f $newval]
-                                }
-                                regsub {(^.*=[ \t]*)[^ \t]*(.*)} $tmpstr "\\1$newval\\2" newvar
-                                $initext delete insert "insert lineend"
-                                $initext insert insert $newvar
-                            }
-                        }
-                    }
-                }
-                $initext configure -state disabled
-            }
-            saveFile
-        }
         cancel {-}
         test {
             set varnames [lindex [array get ininamearray $axisentry] end]
@@ -854,19 +820,6 @@ proc changeIt {how } {
         default {}
     }
 }
-
-proc saveFile {} {
-    global initext thisinifile
-    set name $thisinifile
-    catch {file copy -force $name $name.bak}
-    if {[catch {open $name w} fileout]} {
-        puts stdout [msgcat::mc "can't save %s" $name]
-        return
-    }
-    puts $fileout [$initext get 1.0 end]
-    catch {close $fileout}
-}
-
 
 # showmode handles the tab selection of mode
 proc showMode {mode} {
@@ -1127,22 +1080,111 @@ refreshHAL
 
 #----------save config----------
 #
-# save will assume that restarting is from a comp and netlist
-# we need to build these files and copy .ini for the new
+# saveHAL prepares files for saving a netlist or using ini to save tune,
+# FIXME add edit of ini for netlist and perhaps netini
+# Netini replaces parameter values in netlist with ini lookup.
+ 
 proc saveHAL {which} {
-    global HALCMD
+    global HALCMD thisconfigdir thisinifile
+    global sectionarray ininamearray commandarray HALCMD
+    global numaxes initext
+    
+    # options for which save, savetune, savenethal savenetini
+    if {![file writable $thisinifile]} {
+        tk_messageBox -type ok -message [msgcat::mc "Not permitted to save here.\n\n \
+            You need to copy a configuration to your home directory and work there."] 
+        killHalConfig 
+    }
     switch -- $which {
         save {
-            displayThis [exec $HALCMD save "comp"]
+            saveHAL savetune
+            saveHAL savenetlist
         }
-        saveas {}
+        savetune {
+            for {set i 0} {$i<$numaxes} {incr i} {
+                global af$i
+            }
+            for {set i 0} {$i<$numaxes} {incr i} {
+            set varnames [lindex [array get ininamearray $i] end]
+                set upvarnames [string toupper $varnames]
+                set varcommands [lindex [array get commandarray $i] end]
+                set maxvarnum [llength $varnames]
+                set sectname "AXIS_$i"
+                if {$i == [expr $numaxes-1]} {
+                    set endsect EMCIO
+                } else {
+                    set endsect AXIS_[expr $i+1]
+                }
+                set sectnum "[set sectionarray($sectname)]"
+                set nextsectnum "[set sectionarray($endsect)]"
+                $initext configure -state normal
+                for {set ind $sectnum} {$ind < $nextsectnum} {incr ind} {
+                    switch -- [$initext get $ind.0] {
+                        "#" {}
+                        default {
+                            set tmpstr [$initext get $ind.0 $ind.end]
+                            set tmpvar [lindex $tmpstr 0]
+                            set tmpindx [lsearch $upvarnames $tmpvar]
+                            if {$tmpindx != -1} {
+                                set cmd [lindex $varcommands $tmpindx]
+                                $initext mark set insert $ind.0
+                                set newval [expr [lindex [split \
+                                    [exec $HALCMD -s show param $cmd] " "] 3]]
+                                set tmptest [string first "e" $newval]
+                                if {[string first "e" $newval] > 1} {
+                                    set newval [format %f $newval]
+                                }
+                                regsub {(^.*=[ \t]*)[^ \t]*(.*)} $tmpstr "\\1$newval\\2" newvar
+                                $initext delete insert "insert lineend"
+                                $initext insert insert $newvar
+                            }
+                        }
+                    }
+                }
+                $initext configure -state disabled
+            }
+            saveFile $thisinifile $initext
+        }
+        savenetlist {
+            set netname [file join $thisconfigdir [file tail $thisconfigdir]_net.hal]
+            set tmphalnet [exec $HALCMD save]
+            saveFile $netname $tmphalnet
+        }
         saveandexit {
             # add HAL save here
-            changeIt save 
-            exit {destroy . }
+            saveHAL savetune
+            saveHAL savenetlist
+            killHalConfig
         }
     }
 }
+
+proc saveFile {filename contents} {
+    catch {file copy -force $filename $filename.bak}
+    if { [catch {open $filename w} fileout] } {
+        puts stdout [msgcat::mc "can't save %s" $halconfFilename($name)]
+        return
+    }
+    switch -- [string index $contents 0] {
+        "/" {
+        # a filename
+            puts "I got a filename"
+        }
+        "." {
+            # this is a widget name so get contents  
+            puts $fileout [$contents get 1.0 end]
+            catch {close $fileout}
+        }
+        default {
+            # assumes that contents is plain text so stuff it away
+            puts $fileout $contents
+            catch {close $fileout}
+        }
+    }    
+}    
+
+
+
 
 #----------Help processes----------
 #
@@ -1156,7 +1198,7 @@ proc showHelp {which} {
     }
 }
 
-# Help includes sections for each of these
+# Help should include files for each of these
 # Components Pins Parameters Signals Functions Threads
 
 set helpabout {
@@ -1168,5 +1210,5 @@ set helpabout {
      This script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law.
 }
 
-makeIniTune
+whichTune
 $top raise ps
