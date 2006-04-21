@@ -523,7 +523,9 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/hal_lib.o: $(addprefix objects/rt,$(hal_lib-objs))
 ../rtlib/motmod.o: $(addprefix objects/rt,$(motmod-objs))
 
+ifneq ($(MAKECMDGOALS),clean)
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))
 -include $(RTDEPS)
 Makefile: $(RTDEPS)
+endif
 endif
