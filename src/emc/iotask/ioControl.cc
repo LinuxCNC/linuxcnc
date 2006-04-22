@@ -940,7 +940,7 @@ int main(int argc, char *argv[])
 	case EMC_TOOL_ABORT_TYPE:
 	    // this gets sent on any Task Abort, so it might be safer to stop
 	    // the spindle  and coolant
-	    rtapi_print_msg(RTAPI_MSG_ERR, "EMC_TOOL_ABORT\n");
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_ABORT\n");
 
 	    emcioStatus.spindle.speed = 0.0;
 	    emcioStatus.spindle.direction = 0;
