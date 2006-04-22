@@ -1734,6 +1734,8 @@ static void get_pos_cmds(void)
 	    joint = &joints[joint_num];
 	    /* save old command */
 	    joint->pos_cmd = joint->pos_fb;
+	    /* set joint velocity to zero */
+	    joint->vel_cmd = 0.0;
 	}
 	
 	break;
