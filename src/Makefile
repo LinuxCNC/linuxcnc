@@ -2,6 +2,12 @@
 .SUFFIXES:
 .PHONY: default userspace modules clean modclean depclean install axis
 
+ifeq ($(find s, $(MAKEFLAGS)), "")
+ECHO=@echo
+else
+ECHO=@true
+endif
+
 ifeq ($(BASEPWD),)
 BASEPWD := $(shell pwd)
 export BASEPWD
@@ -19,7 +25,7 @@ ifeq ($(KERNELRELEASE),)
 # The "modules" target is the gateway to the kernel module build.
 default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
-	@echo "You now need to run 'sudo make setuid' in order to run in place."
+	$(ECHO) "You now need to run 'sudo make setuid' in order to run in place."
 endif
 
 ifeq ($(BUILD_AXIS),yes)
@@ -108,22 +114,22 @@ endif
 # Rules to make .d (dependency) files.
 $(sort $(call TODEPS, $(filter %.cc,$(USERSRCS)))): depends/%.d: %.cc
 	@mkdir -p $(dir $@)
-	@echo Depending $<
+	$(ECHO) Depending $<
 	@$(call DEP,$(CXX),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CXXFLAGS) $(EXTRAFLAGS) $<)
 
 $(sort $(call TODEPS, $(filter %.c,$(USERSRCS)))): depends/%.d: %.c 
 	@mkdir -p $(dir $@)
-	@echo Depending $<
+	$(ECHO) Depending $<
 	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CFLAGS) $(EXTRAFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
-	@echo Compiling $< $(EXTRAFLAGS)
+	$(ECHO) Compiling $< $(EXTRAFLAGS)
 	@mkdir -p $(dir $@)
 	@$(CC) -c $(CFLAGS) $(EXTRAFLAGS) $< -o $@
 
 $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
-	@echo Compiling $< $(EXTRAFLAGS)
+	$(ECHO) Compiling $< $(EXTRAFLAGS)
 	@mkdir -p $(dir $@)
 	@$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
 
@@ -302,7 +308,7 @@ TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
 install:
-	@echo "Installing in $(DESTDIR) with prefix $(prefix)"
+	$(ECHO) "Installing in $(DESTDIR) with prefix $(prefix)"
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(moduledir)/emc2 \
 		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
 		$(DESTDIR)/usr/local/etc/emc2/configs \
@@ -480,18 +486,18 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
-	@echo Depending $<
+	$(ECHO) Depending $<
 	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(EXTRA_CFLAGS) $<)
 
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
-	@echo Compiling realtime $<
+	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
 	$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KDIR)/include $(EXTRA_CFLAGS) $< -o $@
 
 ../rtlib/%.o:
-	@echo Linking $@
+	$(ECHO) Linking $@
 	@ld -r -static -S -O2 -o $@ $^ $(EXTRALINK)
 
 ../rtlib/classicladder_rt: $(addprefix objects/rt,$(classicladder_rt-objs))
