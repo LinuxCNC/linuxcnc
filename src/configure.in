@@ -969,13 +969,6 @@ AC_SUBST([TK_LIBS])
 DATE=$(date)
 AC_SUBST([DATE])
 
-# user option to force make to be quiet during make
-AC_ARG_WITH(make-quiet,
-	    [  --with-make-quiet                       make will run quietly],
-	    MAKEFLAGS=s, MAKEFLAGS=) 
-AC_SUBST([MAKEFLAGS])
-
-
 # check for Xaw, that is needed for emc2/src/emc/usr_intf/xemc.cc
 AC_CHECK_HEADERS(X11/Xaw/XawInit.h,
 	    [HAVE_XAW=yes],
@@ -988,7 +981,7 @@ AC_CHECK_LIB(Xaw, main,
 	    [HAVE_XAW=no])
 
 if test "x$HAVE_XAW" = "xno"; then
-    AC_MSG_WARN(Xaw lib missing, you won't be ablet o build/run xemc. try installing it with 'apt-get install libxaw7-dev')
+    AC_MSG_WARN(Xaw lib missing, you won't be able to build/run xemc. try installing it with 'apt-get install libxaw7-dev')
 else    
     XAW_LIBS="-lX11 -lXaw"
 fi
