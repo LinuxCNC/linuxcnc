@@ -26,6 +26,7 @@ exec $EMC2_EMCSH "$0" "$@"
 # Script accesses HAL through two modes halcmd show xxx for show
 # and open halcmd -skf for building tree, watch, edit, and such
 # FIXME -- empty mod entry widgets after execute
+# FIXME -- please
 ###############################################################
 
 #first define some default directories
@@ -708,11 +709,11 @@ proc makeIniTune {} {
         set bframe [frame [set af$j].buttons]
         grid configure $bframe -columnspan 4 -sticky nsew 
         set tmptest [button $bframe.test -text [msgcat::mc "Test"] \
-            -command {axisTuneButtonpress test}]
+            -command {iniTuneButtonpress test}]
         set tmpok [button $bframe.ok -text [msgcat::mc "OK"] \
-            -command {axisTuneButtonpress ok} -state disabled  ]
+            -command {iniTuneButtonpress ok} -state disabled  ]
         set tmpcancel [button $bframe.cancel -text [msgcat::mc "Cancel"] \
-            -command {axisTuneButtonpress cancel} -state disabled ]
+            -command {iniTuneButtonpress cancel} -state disabled ]
         pack $tmpok $tmptest $tmpcancel -side left -fill both -expand yes -pady 5
     }
 }
@@ -759,11 +760,11 @@ proc makeNetTune {} {
             grid $bitframe $sepframe $notbitframe -sticky nsew
             set bframe [frame [set af$j].buttons]
             set tmptest [button $bframe.test -text [msgcat::mc "Test"] \
-                -command {axisTuneButtonpress test}]
+                -command {iniTuneButtonpress test}]
             set tmpok [button $bframe.ok -text [msgcat::mc "OK"] \
-                -command {axisTuneButtonpress ok} -state disabled  ]
+                -command {iniTuneButtonpress ok} -state disabled  ]
             set tmpcancel [button $bframe.cancel -text [msgcat::mc "Cancel"] \
-                -command {axisTuneButtonpress cancel} -state disabled ]
+                -command {iniTuneButtonpress cancel} -state disabled ]
             pack $tmpok $tmptest $tmpcancel -side left -fill both -expand yes -pady 5
             grid configure $bframe -columnspan 3 -sticky nsew 
             incr j
@@ -786,15 +787,6 @@ proc makeNetTune {} {
             }
         }
     }
-#    display result of above setup
-#    foreach pname $pagelist {
-#        puts "\n---$pname---"
-#        puts "---bit---\n[set retbit$pname]"
-#        puts "---not---\n[set retnotbit$pname]"
-#    }
-# imhere -- above is good
-
-    # build the variable displays now
     # xx is the name of the page it's fully qualified widget name is
     # [set af[lsearch $pagelist $xx]] where .bit .notbit are frames
     foreach pname $pagelist {
@@ -817,6 +809,11 @@ proc makeNetTune {} {
                 -width 12 -textvariable $pname-$nvar-next ]
             grid $thisname $thisval x $thisentry
         }
+        
+        
+
+# imhere -- above works
+
     }
 }
 
@@ -826,7 +823,7 @@ proc selectAxis {which} {
     set axisentry $which
 }
 
-proc axisTuneButtonpress {which} {
+proc iniTuneButtonpress {which} {
     global axisentry ininamearray
     set labelname ".main.note.fpage$axisentry.next"
     set basename ".main.note.fpage$axisentry.buttons"
@@ -856,10 +853,10 @@ proc axisTuneButtonpress {which} {
     foreach name [set ininamearray($axisentry)] {
         $labelname-$name configure -state $entrystate
     }
-    changeIt $which
+    changeIni $which
 }
 
-proc changeIt {how } {
+proc changeIni {how } {
     global axisentry sectionarray ininamearray commandarray HALCMD
     global numaxes main initext
     for {set i 0} {$i<$numaxes} {incr i} {
