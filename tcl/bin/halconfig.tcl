@@ -24,7 +24,8 @@ exec $EMC2_EMCSH "$0" "$@"
 # $Date$
 ###############################################################
 # Script accesses HAL through two modes halcmd show xxx for show
-# and open halcmd -skf for building tree, watch, edit, and such 
+# and open halcmd -skf for building tree, watch, edit, and such
+# FIXME -- empty mod entry widgets after execute
 ###############################################################
 
 #first define some default directories
@@ -124,7 +125,7 @@ set thisconfigdir [file dirname $thisinifile]
 wm title . [msgcat::mc "HAL Configuration"]
 wm protocol . WM_DELETE_WINDOW tk_
 set masterwidth 700
-set masterheight 450
+set masterheight 475
 # set fixed size for configuration display and center
 set xmax [winfo screenwidth .]
 set ymax [winfo screenheight .]
@@ -137,10 +138,6 @@ wm protocol . WM_DELETE_WINDOW askKill
 proc askKill {} {
     global thisconfigdir
     set tmp [tk_dialog .quit Quit [msgcat::mc "Would you like to save your configuration before you exit?"] "warning" "Save All" "Save All" "Save Tune" "Save as Netlist" "Don't Save" "Cancel"] 
-    puts $tmp
-#tk_messageBox -icon question -type yesnocancel \
-        -message [msgcat::mc "Would you like to save your configuration before you exit?"]]
-
     switch -- $tmp {
         0 {saveHAL save ; killHalConfig}
         1 {saveHAL savetune ; killHalConfig}
@@ -172,12 +169,8 @@ set top [NoteBook $main.note]
 set showhal [$top insert 0 ps -text [msgcat::mc "Show"] -raisecmd {showMode showhal} ]
 set watchhal [$top insert 1 pw -text [msgcat::mc "Watch"] -raisecmd {showMode watchhal}]
 set modifyhal [$top insert 2 pm -text [msgcat::mc "Modify"] -raisecmd {showMode modifyhal}]
-
-# Each axis has its own tab 
-for {set j 0} {$j<$numaxes} {incr j} {
-    set af$j [$top insert [expr $j+3] page$j \
-        -text "[msgcat::mc "Tune"] $j"  -raisecmd "selectAxis $j" ]
-}
+# Each axis or HAL section has its own tab 
+# These are built in the tuning processes
 
 # use place manager to fix locations of frames within top
 place configure $tf -in $main -x 0 -y 0 -relheight 1 -relwidth .3
@@ -193,16 +186,16 @@ proc sSlide {f a b} {
 set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 0]
     $menubar add cascade -label [msgcat::mc "File"] \
-            -menu $filemenu -underline 0
+            -menu $filemenu
         $filemenu add command -label [msgcat::mc "Refresh"] \
             -command {refreshHAL}
         $filemenu add command -label [msgcat::mc "Save"] \
             -command {saveHAL save}
         $filemenu add command -label [msgcat::mc "Save INI Tuning"] \
-            -command {saveHAL savetune}
-        $filemenu add command -label [msgcat::mc "Save HAL INI"] \
+            -command {saveHAL savetune} -state disabled
+        $filemenu add command -label [msgcat::mc "Save HAL Ini"] \
             -command {saveHAL savenetini} -state disabled
-        $filemenu add command -label [msgcat::mc "Save HAL NET"] \
+        $filemenu add command -label [msgcat::mc "Save HAL Net"] \
             -command {saveHAL savenetlist}
         $filemenu add command -label [msgcat::mc "Save and Exit"] \
             -command {saveHAL saveandexit}
@@ -210,7 +203,7 @@ set filemenu [menu $menubar.file -tearoff 0]
             -command {killHalConfig}
 set viewmenu [menu $menubar.view -tearoff 0]
     $menubar add cascade -label [msgcat::mc "View"] \
-            -menu $viewmenu -underline 0
+            -menu $viewmenu
         $viewmenu add command -label [msgcat::mc "Expand Tree"] \
             -command {showNode {open}}
         $viewmenu add command -label [msgcat::mc "Collapse Tree"] \
@@ -306,7 +299,6 @@ proc listHAL {} {
             }
             default {}
         }
-    
     incr i
     }
 }
@@ -511,7 +503,7 @@ proc makeShow {} {
     if {$what == "full"} {
         set stf [frame $showhal.t]
         set disp [text $stf.tx  -wrap word -takefocus 0 -state disabled \
-            -relief flat -borderwidth 0 -height 26 -yscrollcommand "sSlide $stf"]
+            -relief flat -borderwidth 0 -height 28 -yscrollcommand "sSlide $stf"]
         set stt $stf.sc
         scrollbar $stt -orient vert -command "$disp yview"
         pack $stt -side right -fill both -expand yes
@@ -591,21 +583,13 @@ array set modtypes {
 
 set modlist "$modifyhal.eloadrt1 $modifyhal.eunloadrt1 $modifyhal.eaddf1 $modifyhal.edelf1 $modifyhal.elinkpp1 $modifyhal.elinkpp2 $modifyhal.elinkps1 $modifyhal.elinksp2 $modifyhal.elinkps2 $modifyhal.elinksp1 $modifyhal.enewsig1 $modifyhal.edelsig1 $modifyhal.eunlinkp1"
 
-# FIXME add two paths here depending upon whether .hal uses ini values or netlist values
+# Find whether this is ini tuned or hal netlist
 proc whichTune {} {
-    makeIniTune
-}
-
-proc makeIniTune {} {
-    global axisentry top initext HALCMD sectionarray thisconfigdir
-    global numaxes ininamearray commandarray thisinifile
-    for {set i 0} {$i<$numaxes} {incr i} {
-        global af$i
-    }
- 
-    # Make a text widget to hold the ini file and
-    # put a copy of the inifile in this text widget
+    global top initext haltext thisinifile sectionarray halfilelist \
+        thisconfigdir filemenu
+    # Make a text widget to hold the ini file
     set initext [text $top.initext]
+    set haltext [text $top.haltext]
     $initext config -state normal
     $initext delete 1.0 end
     if {[catch {open $thisinifile} programin]} {
@@ -614,10 +598,7 @@ proc makeIniTune {} {
         $initext insert end [read $programin]
         catch {close $programin}
     }
-
     # setup array with section names and line numbers
-    # sections are without [] around
-    # line numbering starts from 1 as do unix line numbers
     array set sectionarray {}
     scan [$initext index end] %d nl
     set inilastline $nl
@@ -641,14 +622,40 @@ proc makeIniTune {} {
         }
     }
 
-    # make a second text widget for scratch writing
-    set scratchtext [text $top.scratchtext]
+    set tmpret ""
 
-    # New halconfig allows for ini reads from most any location
-    # For axis tuning search each .hal file for AXIS
+    foreach fname $halfilelist {
+        $haltext config -state normal
+        $haltext delete 1.0 end
+        if {[catch {open $fname} programin]} {
+            return
+        } else {
+            $haltext insert end [read $programin]
+            catch {close $programin}
+        }
+        append tmpret [$haltext search "\]" 1.0 end]
+    }
+
+    if {$tmpret == "" } {
+        makeNetTune
+    } else {
+        $filemenu entryconfigure 2 -state normal
+        makeIniTune
+    }
+}
+
+proc makeIniTune {} {
+    global axisentry top initext HALCMD sectionarray thisconfigdir haltext
+    global numaxes ininamearray commandarray thisinifile halfilelist
+    for {set j 0} {$j<$numaxes} {incr j} {
+        global af$j
+        set af$j [$top insert [expr $j+3] page$j \
+        -text "[msgcat::mc "Tune"] $j"  -raisecmd "selectAxis $j" ]
+    }
+ 
     # label display columns       
     for {set j 0} {$j < $numaxes} {incr j} {
-        set col0 [label [set af$j].collabel0 -text [msgcat::mc "Name"]]
+        set col0 [label [set af$j].collabel0 -text [msgcat::mc "INI Name"]]
         set col1 [label [set af$j].collabel1 -text [msgcat::mc "HAL's Value"]]
         set col2 [label [set af$j].space -text "   "]
         set col3 [label [set af$j].collabel3 -text [msgcat::mc "Next Value"]]
@@ -656,19 +663,19 @@ proc makeIniTune {} {
     }
 
     foreach fname $halfilelist {
-        $scratchtext config -state normal
-        $scratchtext delete 1.0 end
+        $haltext config -state normal
+        $haltext delete 1.0 end
         if {[catch {open $fname} programin]} {
             return
         } else {
-            $scratchtext insert end [read $programin]
+            $haltext insert end [read $programin]
             catch {close $programin}
         }
 
         # find the ini references in this hal and build widgets        
-        scan [$scratchtext index end] %d nl
+        scan [$haltext index end] %d nl
         for {set i 1} {$i < $nl} {incr i} {
-            set tmpstring [$scratchtext get $i.0 $i.end]
+            set tmpstring [$haltext get $i.0 $i.end]
             if {[lsearch -regexp $tmpstring AXIS] > -1} { 
                 for {set j 0} {$j < $numaxes} {incr j} {
                     if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
@@ -697,7 +704,7 @@ proc makeIniTune {} {
         }
     }
     # build the buttons to control axis variables.
-    for {set j 0} {$j<3 } {incr j} {
+    for {set j 0} {$j<$numaxes } {incr j} {
         set bframe [frame [set af$j].buttons]
         grid configure $bframe -columnspan 4 -sticky nsew 
         set tmptest [button $bframe.test -text [msgcat::mc "Test"] \
@@ -709,6 +716,110 @@ proc makeIniTune {} {
         pack $tmpok $tmptest $tmpcancel -side left -fill both -expand yes -pady 5
     }
 }
+
+proc makeNetTune {} {
+    global axisentry top initext HALCMD sectionarray halfilelist
+    global ininamearray commandarray thisinifile
+
+    # get all parameters from halcmd.
+    set tmparam  [exHAL "list param"]
+    # qualify each param by write test
+    set pnamelist ""
+    set j 0
+    foreach pm $tmparam {
+        set ret [exHAL "show param $pm"]
+        set rwtype [lindex $ret 2]
+        if {[string match -W $rwtype]} {
+            set error ""
+            set val [lindex $ret 3]
+            set error [exHAL "setp $pm $val"]
+            if {$error == ""} {
+                # these are the variables we want to display
+                append plist "$pm "
+            }
+        }
+    }
+
+    # notebook tabs, frames for bit, notbit, and action buttons 
+    set j 0
+    set pagelist ""
+    foreach pm $plist {
+        scan [split $pm .] {%s %s %s} first second sname
+        set pname "$first.$second"
+        # make tab pages and a list of pages made
+        if { [lsearch $pagelist $pname] == -1} {
+            global af$j
+            set af$j [$top insert [expr $j+3] page$j -text $pname \
+                -raisecmd "selectAxis $j" ]                    
+            set bitframe [frame [set af$j].bit]
+            set sepframe [frame [set af$j].sep]
+            set sep [label $sepframe.l -text "   "]
+            pack $sep
+            set notbitframe [frame [set af$j].notbit ]
+            grid $bitframe $sepframe $notbitframe -sticky nsew
+            set bframe [frame [set af$j].buttons]
+            set tmptest [button $bframe.test -text [msgcat::mc "Test"] \
+                -command {axisTuneButtonpress test}]
+            set tmpok [button $bframe.ok -text [msgcat::mc "OK"] \
+                -command {axisTuneButtonpress ok} -state disabled  ]
+            set tmpcancel [button $bframe.cancel -text [msgcat::mc "Cancel"] \
+                -command {axisTuneButtonpress cancel} -state disabled ]
+            pack $tmpok $tmptest $tmpcancel -side left -fill both -expand yes -pady 5
+            grid configure $bframe -columnspan 3 -sticky nsew 
+            incr j
+            append pagelist "$pname "
+        }
+    append list$pname "$pm  "
+    }
+
+    # submit each good param name to halcmd save in bit notbit
+    foreach pname $pagelist {
+        set retbit$pname ""
+        set retnotbit$pname ""
+        foreach p [set list$pname] {
+            set tmp [exHAL "show param $p"]
+            set type [lindex $tmp 1]
+            if {$type == "bit"} {
+                append retbit$pname "$p "
+            } else {
+                append retnotbit$pname "$p "
+            }
+        }
+    }
+#    display result of above setup
+#    foreach pname $pagelist {
+#        puts "\n---$pname---"
+#        puts "---bit---\n[set retbit$pname]"
+#        puts "---not---\n[set retnotbit$pname]"
+#    }
+# imhere -- above is good
+
+    # build the variable displays now
+    # xx is the name of the page it's fully qualified widget name is
+    # [set af[lsearch $pagelist $xx]] where .bit .notbit are frames
+    foreach pname $pagelist {
+        set bitframe [set af[lsearch $pagelist $pname]].bit
+        set notbitframe [set af[lsearch $pagelist $pname]].notbit
+        # make checkbutton from each bit variable and grid
+        foreach bitvar [set retbit$pname] {
+            set bitvar [lindex [split $bitvar . ] end]
+            set thisname [checkbutton $bitframe.$bitvar -anchor w  -text $bitvar  \
+                -onvalue TRUE -offvalue FALSE -variable cb-$bitvar ]
+            grid $thisname -sticky nsew
+        }
+        # make labels and entry for other variables
+        foreach nvar [set retnotbit$pname] {
+            set nvar [lindex [split $nvar . ] end]
+            set thisname [label $notbitframe.l0$nvar -text "$nvar: " -width 20 -anchor e]
+            set thisval [label $notbitframe.l1$nvar   -width 8 \
+            -textvariable $pname-$nvar -anchor e -foreg firebrick4 ]
+            set thisentry [entry $notbitframe.next-$nvar -width 8 \
+                -width 12 -textvariable $pname-$nvar-next ]
+            grid $thisname $thisval x $thisentry
+        }
+    }
+}
+
 
 proc selectAxis {which} {
     global axisentry
@@ -1089,7 +1200,6 @@ proc saveHAL {which} {
     global sectionarray ininamearray commandarray HALCMD
     global numaxes initext
     
-    # options for which save, savetune, savenethal savenetini
     if {![file writable $thisinifile]} {
         tk_messageBox -type ok -message [msgcat::mc "Not permitted to save here.\n\n \
             You need to copy a configuration to your home directory and work there."] 
@@ -1146,7 +1256,8 @@ proc saveHAL {which} {
             saveFile $thisinifile $initext
         }
         savenetlist {
-            set netname [file join $thisconfigdir [file tail $thisconfigdir]_net.hal]
+            set netname [file join $thisconfigdir \
+                [lindex [split [file tail $thisinifile] "."] 0]_net.hal]
             set tmphalnet [exec $HALCMD save]
             saveFile $netname $tmphalnet
         }
