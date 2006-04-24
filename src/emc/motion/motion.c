@@ -966,30 +966,13 @@ static int init_threads(void)
 	    "MOTION: bad servo period %d nsec\n", servo_period_nsec);
 	return -1;
     }
-#if 0  /* we don't use the traj thread anyway right now, don't create it */
-    /* traj period must be at least 2x servo period */
-    if (traj_period_nsec < 2 * servo_period_nsec) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: bad traj period %d nsec\n", traj_period_nsec);
-	return -1;
-    }
-#endif
     /* convert desired periods to floating point */
     base_period_sec = base_period_nsec * 0.000000001;
     servo_period_sec = servo_period_nsec * 0.000000001;
-#if 0  /* we don't use the traj thread anyway right now, don't create it */
-    traj_period_sec = traj_period_nsec * 0.000000001;
-#endif
     /* calculate period ratios, round to nearest integer */
     servo_base_ratio = (servo_period_sec / base_period_sec) + 0.5;
-#if 0  /* we don't use the traj thread anyway right now, don't create it */
-    traj_servo_ratio = (traj_period_sec / servo_period_sec) + 0.5;
-#endif
     /* revise desired periods to be integer multiples of each other */
     servo_period_nsec = base_period_nsec * servo_base_ratio;
-#if 0  /* we don't use the traj thread anyway right now, don't create it */
-    traj_period_nsec = servo_period_nsec * traj_servo_ratio;
-#endif
     /* create HAL threads for each period */
     /* only create base thread if it is faster than servo thread */
     if (servo_base_ratio > 1) {
@@ -1008,15 +991,6 @@ static int init_threads(void)
 	    servo_period_nsec);
 	return -1;
     }
-#if 0  /* we don't use the traj thread anyway right now, don't create it */
-    retval = hal_create_thread("traj-thread", traj_period_nsec, 1);
-    if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: failed to create %d nsec traj thread\n",
-	    traj_period_nsec);
-	return -1;
-    }
-#endif
     /* export realtime functions that do the real work */
     retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg 
 	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
