@@ -244,7 +244,7 @@ static void make_pulses(void *arg, long period)
 		    /* decrement cycle, detect underflow */
 		    if (--(sim_enc->cycle) < 0) {
 			/* cycle underflow, roll over */
-			sim_enc->cycle = sim_enc->ppr;
+			sim_enc->cycle += sim_enc->ppr;
 		    }
 		}
 	    } else {
@@ -255,7 +255,7 @@ static void make_pulses(void *arg, long period)
 		    /* increment cycle, detect overflow */
 		    if (++(sim_enc->cycle) >= sim_enc->ppr) {
 			/* cycle overflow, roll over */
-			sim_enc->cycle = 0;
+			sim_enc->cycle -= sim_enc->ppr;
 		    }
 		}
 	    }
