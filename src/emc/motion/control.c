@@ -270,7 +270,7 @@ check_stuff ( "after update_status()" );
 
 static void process_inputs(void)
 {
-    int joint_num, tmp;
+    int joint_num;
     double abs_ferror;
     axis_hal_t *axis_data;
     emcmot_joint_t *joint;
@@ -291,12 +291,22 @@ static void process_inputs(void)
 	/* point to joint data */
 	joint = &joints[joint_num];
 	/* copy data from HAL to joint structure */
+	joint->index_enable = *(axis_data->index_enable);
 	joint->motor_pos_fb = *(axis_data->motor_pos_fb);
-
-	/* subtract backlash comp and motor offset */
-	joint->pos_fb =
-	    joint->motor_pos_fb - (joint->backlash_filt +
-	    joint->motor_offset);
+	/* calculate pos_fb */
+	if (( joint->home_state == HOME_INDEX_SEARCH_WAIT ) &&
+	    ( joint->index_enable == 0 )) {
+	    /* special case - we're homing the joint, and it just
+	       hit the index.  The encoder count might have made a
+	       step change.  The homing code will correct for it
+	       later, so we ignore motor_pos_fb and set pos_fb
+	       to match the commanded value instead. */
+	    joint->pos_fb = joint->pos_cmd;
+	} else {
+	    /* normal case: subtract backlash comp and motor offset */
+	    joint->pos_fb = joint->motor_pos_fb -
+		(joint->backlash_filt + joint->motor_offset);
+	}
 	/* calculate following error */
 	joint->ferror = joint->pos_cmd - joint->pos_fb;
 	abs_ferror = fabs(joint->ferror);
@@ -386,18 +396,6 @@ static void process_inputs(void)
 	} else {
 	    SET_JOINT_HOME_SWITCH_FLAG(joint, 0);
 	}
-
-	/* read index pulse from HAL */
-	tmp = *(axis_data->index_pulse);
-	/* detect rising edge of index pulse */
-	/*! \todo FIXME - should this be done in the homing function? that is the
-	   only place it is used... */
-	if (tmp && !joint->index_pulse) {
-	    joint->index_pulse_edge = 1;
-	} else {
-	    joint->index_pulse_edge = 0;
-	}
-	joint->index_pulse = tmp;
 	/* end of read and process axis inputs loop */
     }
 }
@@ -960,7 +958,7 @@ static void do_homing(void)
 		/* figure out exactly what homing sequence is needed */
 		if (joint->home_search_vel == 0.0) {
 		    /* vel == 0 means no switch, home at current position */
-		    joint->home_state = HOME_SET_FINAL_POSITION;
+		    joint->home_state = HOME_SET_SWITCH_POSITION;
 		    immediate_state = 1;
 		    break;
 		} else {
@@ -1172,14 +1170,14 @@ static void do_homing(void)
 		    /* yes, where do we go next? */
 		    if (joint->home_flags & HOME_USE_INDEX) {
 			/* look for index pulse */
-			joint->home_state = HOME_INDEX_SEARCH_WAIT;
+			joint->home_state = HOME_INDEX_SEARCH_START;
 			immediate_state = 1;
 			break;
 		    } else {
 			/* no index pulse, stop motion */
 			joint->free_tp_enable = 0;
 			/* go to next step */
-			joint->home_state = HOME_SET_FINAL_POSITION;
+			joint->home_state = HOME_SET_SWITCH_POSITION;
 			immediate_state = 1;
 			break;
 		    }
@@ -1221,14 +1219,14 @@ static void do_homing(void)
 		    /* yes, where do we go next? */
 		    if (joint->home_flags & HOME_USE_INDEX) {
 			/* look for index pulse */
-			joint->home_state = HOME_INDEX_SEARCH_WAIT;
+			joint->home_state = HOME_INDEX_SEARCH_START;
 			immediate_state = 1;
 			break;
 		    } else {
 			/* no index pulse, stop motion */
 			joint->free_tp_enable = 0;
 			/* go to next step */
-			joint->home_state = HOME_SET_FINAL_POSITION;
+			joint->home_state = HOME_SET_SWITCH_POSITION;
 			immediate_state = 1;
 			break;
 		    }
@@ -1236,31 +1234,11 @@ static void do_homing(void)
 		home_do_moving_checks(joint);
 		break;
 
-	    case HOME_INDEX_SEARCH_WAIT:
-		/* This state is called after the machine has made a low
-		   speed pass to determine the limit switch location. It
-		   continues at low speed until an index pulse is detected,
-		   at which point it latches the final home position.  If the
-		   move ends or hits a limit before an index pulse occurs, the 
-		   home is aborted. */
-		/* have we gotten an index pulse yet? */
-		if (joint->index_pulse_edge) {
-		    /* yes, stop motion */
-		    joint->free_tp_enable = 0;
-		    /* go to next step */
-		    joint->home_state = HOME_SET_FINAL_POSITION;
-		    immediate_state = 1;
-		    break;
-		}
-		home_do_moving_checks(joint);
-		break;
-
-	    case HOME_SET_FINAL_POSITION:
+	    case HOME_SET_SWITCH_POSITION:
 		/* This state is called when the machine has determined the
-		   home position as accurately as possible.  It sets the
+		   switch position as accurately as possible.  It sets the
 		   current joint position to 'home_offset', which is the
-		   location of the home switch (or index pulse) in joint
-		   coordinates. */
+		   location of the home switch in joint coordinates. */
 		/* set the current position to 'home_offset' */
 		offset = joint->home_offset - joint->pos_fb;
 		/* this moves the internal position but does not affect the
@@ -1269,6 +1247,56 @@ static void do_homing(void)
 		joint->pos_fb += offset;
 		joint->free_pos_cmd += offset;
 		joint->motor_offset -= offset;
+		/* next state */
+		joint->home_state = HOME_FINAL_MOVE_START;
+		immediate_state = 1;
+		break;
+
+	    case HOME_INDEX_SEARCH_START:
+		/* This state is called after the machine has made a low
+		   speed pass to determine the limit switch location. It
+		   sets index-enable, which tells the encoder driver to
+		   reset its counter to zero and clear the enable when the
+		   next index pulse arrives. */
+		/* set the index enable */
+		joint->index_enable = 1;
+		/* and move right into the waiting state */
+		joint->home_state = HOME_INDEX_SEARCH_WAIT;
+		immediate_state = 1;
+		home_do_moving_checks(joint);
+		break;
+
+	    case HOME_INDEX_SEARCH_WAIT:
+		/* This state is called after the machine has found the
+		   home switch and "armed" the encoder counter to reset on
+		   the next index pulse. It continues at low speed until
+		   an index pulse is detected, at which point it sets the
+		   final home position.  If the move ends or hits a limit
+		   before an index pulse occurs, the home is aborted. */
+		/* has an index pulse arrived yet? encoder driver clears
+		   enable when it does */
+		if ( joint->index_enable == 0 ) {
+		    /* yes, stop motion */
+		    joint->free_tp_enable = 0;
+		    /* go to next step */
+		    joint->home_state = HOME_SET_INDEX_POSITION;
+		    immediate_state = 1;
+		    break;
+		}
+		home_do_moving_checks(joint);
+		break;
+
+	    case HOME_SET_INDEX_POSITION:
+		/* This state is called when the encoder has been reset at
+		   the index pulse position.  It sets the current joint 
+		   position to 'home_offset', which is the location of the
+		   index pulse in joint coordinates. */
+		/* set the current position to 'home_offset' */
+		joint->motor_offset = -joint->home_offset;
+		joint->pos_fb = joint->motor_pos_fb -
+		    (joint->backlash_filt + joint->motor_offset);
+		joint->pos_cmd = joint->pos_fb;
+		joint->free_pos_cmd = joint->pos_fb;
 		/* next state */
 		joint->home_state = HOME_FINAL_MOVE_START;
 		immediate_state = 1;
@@ -1925,6 +1953,7 @@ static void output_to_hal(void)
 	/* write to HAL pins */
 	*(axis_data->motor_pos_cmd) = joint->motor_pos_cmd;
 	*(axis_data->amp_enable) = GET_JOINT_ENABLE_FLAG(joint);
+	*(axis_data->index_enable) = joint->index_enable;
 	/* output to parameters (for scoping, etc.) */
 	axis_data->coarse_pos_cmd = joint->coarse_pos;
 	axis_data->joint_pos_cmd = joint->pos_cmd;

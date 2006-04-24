@@ -6,7 +6,7 @@
 * License: GPL Version 2
 * System: Linux
 *
-* Copyright (c) 2004 All rights reserved.
+* Copyright (c) 2004 All rights reserved
 *
 * Last change:
 * $Revision$
@@ -360,7 +360,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 /* states for homing */
     typedef enum {
 	HOME_IDLE = 0,
-	HOME_START,		// 1
+	HOME_START,			// 1
 	HOME_INITIAL_BACKOFF_START,	// 2
 	HOME_INITIAL_BACKOFF_WAIT,	// 3
 	HOME_INITIAL_SEARCH_START,	// 4
@@ -368,16 +368,18 @@ Suggestion: Split this in to an Error and a Status flag register..
 	HOME_SET_COARSE_POSITION,	// 6
 	HOME_FINAL_BACKOFF_START,	// 7
 	HOME_FINAL_BACKOFF_WAIT,	// 8
-	HOME_RISE_SEARCH_START,	// 9
-	HOME_RISE_SEARCH_WAIT,	// 10
-	HOME_FALL_SEARCH_START,	// 11
-	HOME_FALL_SEARCH_WAIT,	// 12
-	HOME_INDEX_SEARCH_WAIT,	// 13
-	HOME_SET_FINAL_POSITION,	// 14
-	HOME_FINAL_MOVE_START,	// 15
-	HOME_FINAL_MOVE_WAIT,	// 16
-	HOME_FINISHED,		// 17
-	HOME_ABORT		// 18
+	HOME_RISE_SEARCH_START,		// 9
+	HOME_RISE_SEARCH_WAIT,		// 10
+	HOME_FALL_SEARCH_START,		// 11
+	HOME_FALL_SEARCH_WAIT,		// 12
+	HOME_SET_SWITCH_POSITION,	// 13
+	HOME_INDEX_SEARCH_START,	// 14
+	HOME_INDEX_SEARCH_WAIT,		// 15
+	HOME_SET_INDEX_POSITION,	// 16
+	HOME_FINAL_MOVE_START,		// 17
+	HOME_FINAL_MOVE_WAIT,		// 18
+	HOME_FINISHED,			// 19
+	HOME_ABORT			// 20
     } home_state_t;
 
 /* flags for homing */
@@ -447,8 +449,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double home_sw_pos;	/* latched position of home sw */
 	int home_pause_timer;	/* used to delay between homing states */
 	char home_sw_old;	/* previous value, for edge detection */
-	int index_pulse;	/* current state of index pulse input */
-	int index_pulse_edge;	/* non-zero if rising edge detected */
+	int index_enable;	/* current state of index enable pin */
 
 	home_state_t home_state;	/* state machine for homing */
 	double motor_offset;	/* diff between internal and motor pos, used

@@ -76,6 +76,17 @@ linksp Xpos-fb => axis.0.motor-pos-fb
 linksp Ypos-fb => axis.1.motor-pos-fb
 linksp Zpos-fb => axis.2.motor-pos-fb
 
+# connect encoder index-enables for homing on index
+newsig Xindex-enable bit
+newsig Yindex-enable bit
+newsig Zindex-enable bit
+linksp Xindex-enable encoder.0.index-enable
+linksp Xindex-enable axis.0.index-enable
+linksp Yindex-enable encoder.1.index-enable
+linksp Yindex-enable axis.1.index-enable
+linksp Zindex-enable encoder.2.index-enable
+linksp Zindex-enable axis.2.index-enable
+
 # create three position command signals
 newsig Xpos-cmd float
 newsig Ypos-cmd float
@@ -378,7 +389,6 @@ setp wcomp.7.max [AXIS_2]MAX_HARD_LIMIT_RELEASE
 # home switch
 setp wcomp.8.min [AXIS_2]HOME_SW_MIN
 setp wcomp.8.max [AXIS_2]HOME_SW_MAX
-
 
 # load realtime portion of scope
 loadrt scope_rt

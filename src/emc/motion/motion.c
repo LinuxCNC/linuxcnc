@@ -537,8 +537,8 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.index-pulse-in", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->index_pulse), mot_comp_id);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.index-enable", num);
+    retval = hal_pin_bit_new(buf, HAL_RD_WR, &(addr->index_enable), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
