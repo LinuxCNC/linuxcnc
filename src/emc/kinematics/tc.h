@@ -43,7 +43,7 @@ typedef struct {
 typedef struct {
     double cycle_time;
     double progress;        // where are we in the segment?  0..target
-    double target;          // segment's end position
+    double target;          // segment length
     double reqvel;          // vel requested by F word, calc'd by task
     double maxaccel;        // accel calc'd by task
     double feed_override;   // feed override requested by user

@@ -28,6 +28,9 @@
 
 #include "../motion/motion.h"
 
+/* how close to accel limit we should go */
+#define ACCEL_USAGE 0.95
+
 extern emcmot_status_t *emcmotStatus;
 
 int output_chan = 0;
@@ -322,9 +325,9 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     tc.target = line_xyz.tmag < 1e-6? line_abc.tmag: line_xyz.tmag;
     tc.progress = 0.0;
     tc.reqvel = tp->vMax;
-    tc.maxaccel = tp->aMax * 0.95;
+    tc.maxaccel = tp->aMax * ACCEL_USAGE;
     tc.feed_override = tp->vScale;
-    tc.maxvel = tp->ini_maxvel * 0.95;
+    tc.maxvel = tp->ini_maxvel * ACCEL_USAGE;
     tc.id = tp->nextId;
     tc.active = 0;
 
@@ -401,9 +404,9 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.target = helix_length;
     tc.progress = 0.0;
     tc.reqvel = tp->vMax;
-    tc.maxaccel = tp->aMax * 0.95;
+    tc.maxaccel = tp->aMax * ACCEL_USAGE;
     tc.feed_override = tp->vScale;
-    tc.maxvel = tp->ini_maxvel * 0.95;
+    tc.maxvel = tp->ini_maxvel * ACCEL_USAGE;
     tc.id = tp->nextId;
     tc.active = 0;
 
