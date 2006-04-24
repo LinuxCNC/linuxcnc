@@ -353,7 +353,7 @@ CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON), $(wildcard $(CONF)/*)))
 .PHONY: configs
 COPY_CONFIGS := \
 	$(patsubst %,../configs/%/emc.nml, demo_mazak hexapod-sim max univpwm univstep \
-		stepper-xyza demo_step_cl stepper motenc m5i20 stg sim vti) \
+		stepper-xyza demo_step_cl stepper motenc m5i20 stg sim vti nist-lathe) \
 	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, sim)
