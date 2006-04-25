@@ -2,7 +2,7 @@
 .SUFFIXES:
 .PHONY: default userspace modules clean modclean depclean install axis
 
-ifeq ($(find s, $(MAKEFLAGS)), "")
+ifeq "$(findstring s,$(MAKEFLAGS))" ""
 ECHO=@echo
 else
 ECHO=@true
