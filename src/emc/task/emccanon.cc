@@ -10,10 +10,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /*
 
@@ -140,17 +136,6 @@ static int preppedTool = 0;
 static double currentToolLengthOffset = 0.0;
 
 /*
-  EMC traj interface uses one speed. For storing and applying separate
-  feed and traverse rates, a flag for which was last applied is used.
-  Requests for motions check this flag and if the improper speed was
-  last set the proper one is set before the command goes out.
-  */
-
-static double lastVelSet = -1;
-static double last_ini_maxvel = -1;
-static double lastAccSet = -1;
-
-/*
   Feed rate is saved here; values are in mm/sec or deg/sec.
   It will be initially set in INIT_CANON() below.
 */
@@ -183,12 +168,8 @@ static int sendVelMsg(double vel, double ini_maxvel)
 	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
     }	
 
-    if (velMsg.velocity != lastVelSet ||
-            velMsg.ini_maxvel != last_ini_maxvel) {
-	lastVelSet = velMsg.velocity;
-        last_ini_maxvel = velMsg.ini_maxvel;
-	interp_list.append(velMsg);
-    }
+    interp_list.append(velMsg);
+
     return 0;
 }
 
@@ -204,10 +185,7 @@ static int sendAccMsg(double acc)
 	accMsg.acceleration = TO_EXT_LEN(acc);
     }
 
-    if (accMsg.acceleration != lastAccSet) {
-	lastAccSet = accMsg.acceleration;
-	interp_list.append(accMsg);
-    }
+    interp_list.append(accMsg);
     return 0;
 }
 
