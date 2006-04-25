@@ -7,7 +7,22 @@ a core_sim.hal.  This file provides that
 functionality in common with other
 configurations.
 
-Select this if you have no functional machine 
+In addition you can chose between various GUIs 
+(Graphical User Interfaces), so you can find the 
+one that you like.
+Right now the possible choices are:
+
+-- AXIS (a modern GL-based interface in python)
+
+-- keystick (a terminal, curses based non-X interface)
+
+-- mini (advanced tcl/tk interface)
+
+-- tkemc (another tcl/tk interface, lots of people like this one)
+
+-- xemc (native X interface, runs ok on older machines)
+
+Select one of these if you have no functional machine 
 but want to edit some basic configuration stuff
 or play with one of the EMC2 displays.
 
