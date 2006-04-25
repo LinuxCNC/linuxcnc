@@ -265,6 +265,7 @@ foreach dir $configs_dir_list {
 	} elseif { [ llength $inifile_list ] > 1 } {
 	    # multiples, use second level
 	    # add dir to tree if not already
+	    set inifile_list [ lsort $inifile_list ]
 	    if { $dir_in_tree == 0 } {
 		$tree insert end root $dir -text $dir/ -open 1
 		set dir_in_tree 1
