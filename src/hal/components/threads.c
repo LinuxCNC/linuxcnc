@@ -80,7 +80,7 @@ MODULE_PARM(name2, "s");
 MODULE_PARM_DESC(name2, "name of thread 2");
 static int fp2 = 1;		/* use floating point? default = yes */
 MODULE_PARM(fp2, "i");
-MODULE_PARM_DESC(fp1, "thread2 uses floating point");
+MODULE_PARM_DESC(fp2, "thread2 uses floating point");
 static long period2 = 0;	/* thread period - default = no thread */
 MODULE_PARM(period2, "l");
 MODULE_PARM_DESC(period2, "thread2 period (nsecs)");
