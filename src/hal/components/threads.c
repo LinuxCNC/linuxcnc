@@ -69,21 +69,30 @@ MODULE_LICENSE("GPL");
 static char *name1 = NULL;	/* name of thread */
 MODULE_PARM(name1, "s");
 MODULE_PARM_DESC(name1, "name of thread 1");
+static int fp1 = 1;		/* use floating point? default = yes */
+MODULE_PARM(fp1, "i");
+MODULE_PARM_DESC(fp1, "thread1 uses floating point");
 static long period1 = 0;	/* thread period - default = no thread */
 MODULE_PARM(period1, "l");
-MODULE_PARM_DESC(period1, "thread period (nsecs)");
+MODULE_PARM_DESC(period1, "thread1 period (nsecs)");
 static char *name2 = NULL;	/* name of thread */
 MODULE_PARM(name2, "s");
-MODULE_PARM_DESC(name2, "name of thread 1");
+MODULE_PARM_DESC(name2, "name of thread 2");
+static int fp2 = 1;		/* use floating point? default = yes */
+MODULE_PARM(fp2, "i");
+MODULE_PARM_DESC(fp1, "thread2 uses floating point");
 static long period2 = 0;	/* thread period - default = no thread */
 MODULE_PARM(period2, "l");
-MODULE_PARM_DESC(period2, "thread period (nsecs)");
+MODULE_PARM_DESC(period2, "thread2 period (nsecs)");
 static char *name3 = NULL;	/* name of thread */
 MODULE_PARM(name3, "s");
-MODULE_PARM_DESC(name3, "name of thread 1");
+MODULE_PARM_DESC(name3, "name of thread 3");
+static int fp3 = 1;		/* use floating point? default = yes */
+MODULE_PARM(fp3, "i");
+MODULE_PARM_DESC(fp3, "thread1 uses floating point");
 static long period3 = 0;	/* thread period - default = no thread */
 MODULE_PARM(period3, "l");
-MODULE_PARM_DESC(period3, "thread period (nsecs)");
+MODULE_PARM_DESC(period3, "thread3 period (nsecs)");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -116,7 +125,7 @@ int rtapi_app_main(void)
     /* was 'period' specified in the insmod command? */
     if ((period1 > 0) && (name1 != NULL) && (*name1 != '\0')) {
 	/* create a thread */
-	retval = hal_create_thread(name1, period1, 1);
+	retval = hal_create_thread(name1, period1, fp1);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name1);
@@ -128,7 +137,7 @@ int rtapi_app_main(void)
     }
     if ((period2 > 0) && (name2 != NULL) && (*name2 != '\0')) {
 	/* create a thread */
-	retval = hal_create_thread(name2, period2, 1);
+	retval = hal_create_thread(name2, period2, fp2);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name2);
@@ -140,7 +149,7 @@ int rtapi_app_main(void)
     }
     if ((period3 > 0) && (name3 != NULL) && (*name3 != '\0')) {
 	/* create a thread */
-	retval = hal_create_thread(name3, period3, 1);
+	retval = hal_create_thread(name3, period3, fp3);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name3);
