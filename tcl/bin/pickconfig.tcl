@@ -76,6 +76,8 @@ if ([info exists env(LANG)]) {
     msgcat::mcload $LANGDIR
 }
 
+# use initialize_config for bwidget and .emcrc
+
 proc initialize_config {} {
     # need bwidget
     set result [catch {package require BWidget 1.7}]
@@ -84,6 +86,38 @@ proc initialize_config {} {
         tk_messageBox -icon error -type ok -message [msgcat::mc "Can't find the bwidget 1.7 package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."]
         exit
         destroy .
+    } else {
+        if {[catch {open ~/.emcrc} programin]} {
+            return 
+        } else {
+            set rcstring [read $programin]
+            catch {close $programin}
+            set ret [getVal $rcstring PICKCONFIG LAST_CONFIG ]
+            return $ret
+        }
+    }
+}
+
+# FIXME add trap for comment on the first of a line.
+proc getVal {stringa sect var} {
+    set x [regexp -indices -- "$sect.*$var *= *" $stringa  indexes]
+    if {$x } {
+        set startindex [lindex $indexes 1]
+        set x [regexp -start $startindex -linestop -- ".*" \
+            $stringa varval ]
+        set varval [string trim $varval]
+    }
+    return $varval
+}
+
+proc setVal {stringb sect var newval} {
+    set x [regexp -indices -- "$sect.*$var *= *" $stringb  start ]
+    if {$x } {
+        set startindex [expr [lindex $start 1] +1]
+        set x [regexp -indices -start $startindex -linestop -- ".*" $stringb end ]
+        set endindex [lindex $end 1]
+        set newstring [string replace $stringb $startindex $endindex $newval]
+        return $newstring
     }
 }
 
@@ -106,7 +140,7 @@ proc node_clicked {} {
 
     set node [$tree selection get]
     if {$node == ""} return
-    
+
     $tree selection set $node
     if { [ regexp {.*\.ini$} $node ] == 1 } {
 	# an ini node, acceptable
@@ -177,7 +211,8 @@ pack $top -side left -expand yes -fill both
 wm geo . 780x480
 wm resiz . 0 0
 
-initialize_config
+set last_ini "none"
+set last_ini [initialize_config]
 
 proc SW { args } {
     set res [eval ScrolledWindow $args]
@@ -265,7 +300,6 @@ foreach dir $configs_dir_list {
 	} elseif { [ llength $inifile_list ] > 1 } {
 	    # multiples, use second level
 	    # add dir to tree if not already
-	    set inifile_list [ lsort $inifile_list ]
 	    if { $dir_in_tree == 0 } {
 		$tree insert end root $dir -text $dir/ -open 1
 		set dir_in_tree 1
@@ -293,6 +327,14 @@ bind . <Escape> {button_pushed Cancel}
 bind . <Return> ""
 wm protocol . WM_DELETE_WINDOW {button_pushed Cancel}
 
+# add the selection set if a last_ini has been found in ~/.emcrc
+
+if {$last_ini != -1 && [file exists $last_ini] } {
+    $tree selection set $last_ini
+    $tree see $last_ini
+    node_clicked
+}
+
 focus $tree
 vwait choice
 
@@ -300,6 +342,37 @@ if { $choice == "OK" } {
     puts $inifile
 }
 
+# test for ~/.emcrc file and modify if needed.
+# or make this file and add the var.
+
+if {[file exists ~/.emcrc]} {
+    if {$inifile == $last_ini} {
+        exit
+    } else {
+        if {[catch {open ~/.emcrc} programin]} {
+            return 
+        } else {
+            set rcstring [read $programin]
+            catch {close $programin}
+        }
+        set ret [setVal $rcstring PICKCONFIG LAST_CONFIG $inifile ]
+        catch {file copy -force $name $name.bak}
+        if {[catch {open ~/.emcrc w} fileout]} {
+            puts stdout [msgcat::mc "can't save %s" ~/.emcrc ]
+            exit
+        }
+        puts $fileout $ret
+        catch {close $fileout}
+        exit
+    }
+}
+set newfilestring "# .emcrc is a startup configuration file for EMC2. \n# format is INI like. \n# \[SECTION_NAME\] \n# VARNAME = varvalue \n# where section name is the name of the system writing to this file \n\n# written by pickconfig.tcl \n\[PICKCONFIG\]\nLAST_CONFIG = $inifile\n"
+        
+if {[catch {open ~/.emcrc w+} fileout]} {
+    puts stdout [msgcat::mc "can't save %s" ~/.emcrc ]
+    exit
+}
+puts $fileout $newfilestring
+catch {close $fileout}
+
 exit
-
-
