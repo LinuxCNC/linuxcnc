@@ -232,10 +232,10 @@ pack $lbl -anchor w
 set f2 [ frame $f1.f2 -borderwidth 0 -relief flat -padx 15 ]
 
 # Let the tree scroll
-set s1 [ SW $f2.f3 -scrollbar vertical]
+set s1 [ SW $f2.f3 -auto both]
 $s1 configure -relief sunken -borderwidth 2
 # the tree
-set tree [Tree $s1.tree -highlightthickness 0 -width 25 -relief flat -padx 4]
+set tree [Tree $s1.tree -highlightthickness 0 -width 25 -relief flat -padx 4 ]
 $s1 setwidget $tree
 pack $s1 -fill y -expand n -side left
 
@@ -331,7 +331,8 @@ wm protocol . WM_DELETE_WINDOW {button_pushed Cancel}
 
 if {$last_ini != -1 && [file exists $last_ini] } {
     $tree selection set $last_ini
-    $tree see $last_ini
+    $tree see $last_ini 
+    $tree xview moveto 0.0
     node_clicked
 }
 
