@@ -331,7 +331,7 @@ wm protocol . WM_DELETE_WINDOW {button_pushed Cancel}
 
 if {$last_ini != -1 && [file exists $last_ini] } {
     $tree selection set $last_ini
-    $tree see $last_ini 
+    $tree see $last_ini
     $tree xview moveto 0.0
     node_clicked
 }
@@ -341,39 +341,39 @@ vwait choice
 
 if { $choice == "OK" } {
     puts $inifile
-}
 
-# test for ~/.emcrc file and modify if needed.
-# or make this file and add the var.
+    # test for ~/.emcrc file and modify if needed.
+    # or make this file and add the var.
 
-if {[file exists ~/.emcrc]} {
-    if {$inifile == $last_ini} {
-        exit
-    } else {
-        if {[catch {open ~/.emcrc} programin]} {
-            return 
+    if {[file exists ~/.emcrc]} {
+        if {$inifile == $last_ini} {
+            exit
         } else {
-            set rcstring [read $programin]
-            catch {close $programin}
-        }
-        set ret [setVal $rcstring PICKCONFIG LAST_CONFIG $inifile ]
-        catch {file copy -force $name $name.bak}
-        if {[catch {open ~/.emcrc w} fileout]} {
-            puts stdout [msgcat::mc "can't save %s" ~/.emcrc ]
+            if {[catch {open ~/.emcrc} programin]} {
+                return 
+            } else {
+                set rcstring [read $programin]
+                catch {close $programin}
+            }
+            set ret [setVal $rcstring PICKCONFIG LAST_CONFIG $inifile ]
+            catch {file copy -force $name $name.bak}
+            if {[catch {open ~/.emcrc w} fileout]} {
+                puts stdout [msgcat::mc "can't save %s" ~/.emcrc ]
+                exit
+            }
+            puts $fileout $ret
+            catch {close $fileout}
             exit
         }
-        puts $fileout $ret
-        catch {close $fileout}
+    }
+    set newfilestring "# .emcrc is a startup configuration file for EMC2. \n# format is INI like. \n# \[SECTION_NAME\] \n# VARNAME = varvalue \n# where section name is the name of the system writing to this file \n\n# written by pickconfig.tcl \n\[PICKCONFIG\]\nLAST_CONFIG = $inifile\n"
+            
+    if {[catch {open ~/.emcrc w+} fileout]} {
+        puts stdout [msgcat::mc "can't save %s" ~/.emcrc ]
         exit
     }
+    puts $fileout $newfilestring
+    catch {close $fileout}
 }
-set newfilestring "# .emcrc is a startup configuration file for EMC2. \n# format is INI like. \n# \[SECTION_NAME\] \n# VARNAME = varvalue \n# where section name is the name of the system writing to this file \n\n# written by pickconfig.tcl \n\[PICKCONFIG\]\nLAST_CONFIG = $inifile\n"
-        
-if {[catch {open ~/.emcrc w+} fileout]} {
-    puts stdout [msgcat::mc "can't save %s" ~/.emcrc ]
-    exit
-}
-puts $fileout $newfilestring
-catch {close $fileout}
 
 exit
