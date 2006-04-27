@@ -298,7 +298,8 @@ foreach dir $configs_dir_list {
 	    $tree insert end $dir $inifile -text [lindex $parts end-1] -open 1
 	    incr config_count
 	} elseif { [ llength $inifile_list ] > 1 } {
-	    # multiples, use second level
+	    # multiples, use second level and sort
+  	    set inifile_list [ lsort $inifile_list ]
 	    # add dir to tree if not already
 	    if { $dir_in_tree == 0 } {
 		$tree insert end root $dir -text $dir/ -open 1
