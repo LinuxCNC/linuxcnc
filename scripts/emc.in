@@ -190,7 +190,11 @@ EMCTASK=$retval
 GetFromIni EMCSERVER EMCSERVER 
 EMCSERVER=$retval
 
-# 2.7. get emcstrip information
+# 2.7. get halui information
+GetFromIni HALUI HAL 
+HALUI=$retval
+
+# 2.8. get emcstrip information
 GetFromIni EMCSTRIP EMCSTRIP
 EMCSTRIP=$retval
 # if none found, it just won't run... but if found, check for options
@@ -199,12 +203,12 @@ if [ -n "$EMCSTRIP" ] ; then
 fi
 echo EMCSTRIP_OPTIONS=$EMCSTRIP_OPTIONS >>$PRINT_FILE
 
-# 2.8. get display information
+# 2.9. get display information
 GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=`(set -- $retval ; echo $1 )`
 EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 
-# 2.9. get NML config information
+# 2.10. get NML config information
 GetFromIni NML_FILE EMC
 NMLFILE=$retval
 
@@ -504,12 +508,24 @@ fi
 if [ -n "$EMCSTRIP" ] ; then
     echo "Starting EMC stripchart program: $EMCSTRIP" >>$PRINT_FILE
     if [ ! -x $EMC2_BIN_DIR/$EMCSTRIP ] ; then
-	echo "Can't execute server program $EMC2_BIN_DIR/$EMCSTRIP"
+	echo "Can't execute strip program $EMC2_BIN_DIR/$EMCSTRIP"
 	Cleanup
 	exit 1
     fi
     $EMC2_BIN_DIR/$EMCSTRIP $EMCSTRIP_OPTIONS -- -ini $INIFILE &
 fi
+
+# 4.3.12. Run halui in background, if necessary
+if [ -n "$HALUI" ] ; then
+    echo "Starting HAL User Interface program: $HALUI" >>$PRINT_FILE
+    if [ ! -x $EMC2_BIN_DIR/$HALUI ] ; then
+	echo "Can't execute halui program $EMC2_BIN_DIR/$HALUI"
+	Cleanup
+	exit 1
+    fi
+    $EMC2_BIN_DIR/$HALUI -ini $INIFILE &
+fi
+
 
 # Debugging information, remove later
 $PS -ael >>$DEBUG_FILE
