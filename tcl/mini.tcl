@@ -1796,7 +1796,8 @@ set offsetactive 3
 set oldoffsetactive 3
 set oldrestartline 0
 
-axisSelectx "X"
+# Initialize with axis 0
+axisSelectx [ lindex $axiscoordmap 0 ]
 
 
 # ----------LOOP TO SET VALUES ----------
@@ -1848,6 +1849,7 @@ proc updateMini {} {
     catch {set unitsetting [emc_display_linear_units] }
     if {$oldunitsetting != $unitsetting} {
         set oldunitsetting $unitsetting
+        axisSelectx $activeAxis
     }
 
     if { [emc_estop] == "on"} {
@@ -2305,9 +2307,9 @@ proc popinOffsets { } {
     entry $cbuttons.e1 -textvariable touchofflength -relief flat -bg white
     bind $cbuttons.e0 <KeyPress-Return> {setTouchOff ; focus -force ".top"}
     bind $cbuttons.e1 <KeyPress-Return> {setTouchOff ; focus -force ".top"}
-    radiobutton $cbuttons.r0 -text Subtract -variable touchoffdirection -value "-" -anchor w \
+    radiobutton $cbuttons.r0 -text [msgcat::mc "Subtract"] -variable touchoffdirection -value "-" -anchor w \
         -takefocus 0
-    radiobutton $cbuttons.r1 -text Add -variable touchoffdirection -value "+" -anchor w \
+    radiobutton $cbuttons.r1 -text [msgcat::mc "Add"] -variable touchoffdirection -value "+" -anchor w \
         -takefocus 0
     grid $cbuttons.l0 $cbuttons.e0  -sticky nsew
     grid $cbuttons.l1 $cbuttons.e1  -sticky nsew
@@ -3025,7 +3027,7 @@ proc findtext {typ} {
 	set find .find
 	catch {destroy $find}
 	toplevel $find
-	wm title $find "Find"
+	wm title $find [msgcat::mc "Find"]
 	setwingeom $find
 	ResetFind
 	frame $find.l
@@ -4070,3 +4072,5 @@ proc setInitialPlotview {} {
 
 # -----end of backplot-----
 
+# Initialize with axis 0
+axisSelectx [ lindex $axiscoordmap 0 ]
