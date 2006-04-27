@@ -251,6 +251,18 @@ proc changeIt {how } {
                 $initext configure -state disabled
             }
             saveFile
+            for {set j 0} {$j < $numaxes} {incr j} {
+                set cmds [set commandarray($j)]
+                set newvals ""
+                set k 0
+                foreach cmd $cmds {
+                    set val [expr [lindex [split \
+                        [exec $HALCMD -s show param $cmd] " "] 3]]                    
+                    append newvals "$val " 
+                    incr k
+                }
+                set valarray($j) $newvals
+            }
         }
         apply {
             $main.buttons.ok configure -state normal
