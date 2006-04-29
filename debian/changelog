@@ -1,3 +1,18 @@
+emc2 (TESTING-2006-04-29) testing; urgency=low
+
+  * improvement to the validation of arcs using the R format (which
+    fixes unnecessary errors about endpoint radii not matching)
+  * fix following errors when restarting after hitting a limit switch
+    during a jog
+  * fix g28/g30 to send all axes, not just XYZ, to the specified point
+  * fix spurious incorrect velocity and acceleration after an abort
+  * fix a rounding error that caused some ABC-only moves to not move
+  * a few missing translations in mini were fixed
+  * fix error in the simulated encoder that caused the counts to be
+    off by one in some cases
+
+ -- Chris Radek <chris@timeguy.com>  Sat, 29 Apr 2006 18:27:11 -0500
+
 emc2 (TESTING-2006-04-09) testing; urgency=low
 
   * Modified the motion control module to behave more like
