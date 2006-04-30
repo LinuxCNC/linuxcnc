@@ -12,6 +12,8 @@ loadrt hal_parport cfg="0x0378"
 loadrt encoder num_chan=1
 # misc blocks needed to do fun things
 loadrt blocks ddt=8 not=1
+# spindle speed pwm
+loadrt freqgen step_type=1
 # gotta see whats happening
 loadrt scope_rt
 
@@ -25,6 +27,8 @@ addf parport.0.read		base-thread
 addf encoder.update-counters    base-thread
 # generate step and dir signals
 addf stepgen.make-pulses	base-thread
+# generate spindle pwm
+addf freqgen.make-pulses        base-thread
 # write to outputs
 addf parport.0.write		base-thread
 
@@ -50,6 +54,7 @@ addf ddt.6			servo-thread
 addf ddt.7			servo-thread
 # other misc blocks
 addf not.0			servo-thread
+addf freqgen.update-freq        servo-thread
 # update output info, axis and spindle
 addf stepgen.update-freq	servo-thread
 
@@ -122,6 +127,17 @@ linkps stepgen.2.dir  => Zdir
 linkps stepgen.3.step => Astep
 linkps stepgen.3.dir  => Adir
 
+# spindle speed
+newsig spindle-speed-cmd float
+linkps iocontrol.0.spindle-speed-out => spindle-speed-cmd
+linksp spindle-speed-cmd => freqgen.0.velocity
+
+# determined emperically: changes if you change base period
+# top speed at this gearing of about 1600 rpm
+setp freqgen.0.velocity-scale 36.0
+# accel limiting disabled
+setp freqgen.0.maxaccel 0.0 
+
 # create a signal for the estop loopback
 linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
@@ -147,8 +163,10 @@ linksp Adir		=> parport.0.pin-08-out
 #setp parport.0.pin-01-out-invert 1
 
 # spindle enable
-linksp spindle_on	=> parport.0.pin-14-out
-#setp parport.0.pin-01-out-invert 1
+linksp spindle_on	=> parport.0.pin-01-out
+setp parport.0.pin-01-out-invert 1
+
+linkpp freqgen.0.up	=> parport.0.pin-14-out
 
 #######################################################
 # set scaling and other parameters of the basic machine
@@ -254,9 +272,4 @@ linksp Apos-cmd => ddt.6.in
 linkps ddt.6.out => Avel
 linksp Avel => ddt.7.in
 linkps ddt.7.out => Aacc
-
-
-#######################################################
-# want a scope to observe things
-loadusr halscope
 
