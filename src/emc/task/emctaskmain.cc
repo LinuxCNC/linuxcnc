@@ -1379,11 +1379,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     int retval = 0;
     int execRetval = 0;
 
-/*! \todo FIXME - debug */
-    if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
-    	printf("emcTaskIssueCommand()\n");
-    }
     if (0 == cmd) {
+        if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+            printf("emcTaskIssueCommand() null command\n");
+        }
 	return 0;
     }
     if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
@@ -2001,7 +2000,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	}
     }
 /*! \todo FIXME - debug */
-    if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+    if ((EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) && retval) {
     	printf("emcTaskIssueCommand() returning: %d\n", retval);
     }
     return retval;
