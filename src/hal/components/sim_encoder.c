@@ -100,7 +100,10 @@ typedef struct {
     hal_bit_t *phaseB;		/* pins for output signals */
     hal_bit_t *phaseZ;		/* pins for output signals */
     hal_u32_t ppr;		/* param: pulses per revolution */
+    hal_float_t scale;		/* param: pulses per revolution */
     hal_float_t *speed;		/* pin: speed in revs/second */
+    float old_scale;		/* internal, used to detect changes */
+    float scale_mult;		/* internal, reciprocal of scale */
 } sim_enc_t;
 
 /* ptr to array of sim_enc_t structs in shared memory, 1 per channel */
@@ -291,7 +294,7 @@ static void update_speed(void *arg, long period)
 {
     sim_enc_t *sim_enc;
     int n;
-    float tmpf;
+    float rev_sec, freq;
 
     /* this periodns stuff is a little convoluted because we need to
        calculate some constants here in this relatively slow thread but the
@@ -307,16 +310,30 @@ static void update_speed(void *arg, long period)
     /* update the 'encoders' */
     sim_enc = arg;
     for (n = 0; n < num_chan; n++) {
+	/* check for change in scale value */
+	if ( sim_enc->scale != sim_enc->old_scale ) {
+	    /* save new scale to detect future changes */
+	    sim_enc->old_scale = sim_enc->scale;
+	    /* scale value has changed, test and update it */
+	    if ((sim_enc->scale < 1e-20) && (sim_enc->scale > -1e-20)) {
+		/* value too small, divide by zero is a bad thing */
+		sim_enc->scale = 1.0;
+	    }
+	    /* we actually want the reciprocal */
+	    sim_enc->scale_mult = 1.0 / sim_enc->scale;
+	}
+	/* convert speed command (user units) to revs/sec */
+	rev_sec = *(sim_enc->speed) * sim_enc->scale_mult;
 	/* convert speed command (revs per sec) to counts/sec */
-	tmpf = *(sim_enc->speed) * sim_enc->ppr * 4.0;
+	freq = rev_sec * sim_enc->ppr * 4.0;
 	/* limit the commanded frequency */
-	if (tmpf > maxf) {
-	    tmpf = maxf;
-	} else if (tmpf < -maxf) {
-	    tmpf = -maxf;
+	if (freq > maxf) {
+	    freq = maxf;
+	} else if (freq < -maxf) {
+	    freq = -maxf;
 	}
 	/* calculate new addval */
-	sim_enc->addval = tmpf * freqscale;
+	sim_enc->addval = freq * freqscale;
 	sim_enc++;
     }
     /* done */
@@ -343,6 +360,12 @@ static int export_sim_enc(int num, sim_enc_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    /* export param variable for scaling */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.scale", num);
+    retval = hal_param_float_new(buf, HAL_WR, &(addr->scale), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     /* export pin for speed command */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.speed", num);
     retval = hal_pin_float_new(buf, HAL_RD, &(addr->speed), comp_id);
@@ -365,8 +388,12 @@ static int export_sim_enc(int num, sim_enc_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    /* init parameter */
+    /* init parameters */
     addr->ppr = 100;
+    addr->scale = 1.0;
+    /* init internal vars */
+    addr->old_scale = 0.0;
+    addr->scale_mult = 1.0;
     /* init the state variables */
     addr->accum = 0;
     addr->addval = 0;
