@@ -9,11 +9,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #ifdef ULAPI
@@ -27,6 +22,9 @@
 #include "tp.h"
 
 #include "../motion/motion.h"
+
+/* how close to accel limit we should go */
+#define ACCEL_USAGE 0.95
 
 extern emcmot_status_t *emcmotStatus;
 
@@ -85,6 +83,7 @@ int tpClear(TP_STRUCT * tp)
     tp->vScale = tp->vRestore;
     tp->synchronized = 0;
     tp->uu_per_rev = 0.0;
+    emcmotStatus->spindleSync = 0;
 
     return 0;
 }
@@ -322,9 +321,9 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     tc.target = line_xyz.tmag < 1e-6? line_abc.tmag: line_xyz.tmag;
     tc.progress = 0.0;
     tc.reqvel = tp->vMax;
-    tc.maxaccel = tp->aMax * 0.95;
+    tc.maxaccel = tp->aMax * ACCEL_USAGE;
     tc.feed_override = tp->vScale;
-    tc.maxvel = tp->ini_maxvel * 0.95;
+    tc.maxvel = tp->ini_maxvel * ACCEL_USAGE;
     tc.id = tp->nextId;
     tc.active = 0;
 
@@ -401,9 +400,9 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.target = helix_length;
     tc.progress = 0.0;
     tc.reqvel = tp->vMax;
-    tc.maxaccel = tp->aMax * 0.95;
+    tc.maxaccel = tp->aMax * ACCEL_USAGE;
     tc.feed_override = tp->vScale;
-    tc.maxvel = tp->ini_maxvel * 0.95;
+    tc.maxvel = tp->ini_maxvel * ACCEL_USAGE;
     tc.id = tp->nextId;
     tc.active = 0;
 
@@ -513,6 +512,7 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->aborting = 0;
         tp->execId = 0;
         tp->motionType = 0;
+        tp->synchronized = 0;
         emcmotStatus->spindleSync = 0;
         tpResume(tp);
         return 0;
@@ -528,6 +528,7 @@ int tpRunCycle(TP_STRUCT * tp)
             tp->aborting = 0;
             tp->execId = 0;
             tp->motionType = 0;
+            tp->synchronized = 0;
             emcmotStatus->spindleSync = 0;
             tpResume(tp);
             return 0;
@@ -555,6 +556,10 @@ int tpRunCycle(TP_STRUCT * tp)
 
     // report our line number to the guis
     tp->execId = tc->id;
+
+    // this is no longer the segment we were waiting for
+    if(waiting && waiting != tc->id) 
+        waiting = 0;
 
     if(waiting) {
         double r;
@@ -598,7 +603,7 @@ int tpRunCycle(TP_STRUCT * tp)
         if(tc->synchronized) {
             if(!emcmotStatus->spindleSync) {
                 // if we aren't already synced, wait
-                waiting = 1;
+                waiting = tc->id;
                 oldrevs = emcmotStatus->spindleRevs;
                 spindleoffset = 0.0;
                 // don't move: wait
@@ -643,7 +648,7 @@ int tpRunCycle(TP_STRUCT * tp)
         tc->reqvel = pos_error/tc->cycle_time/2.0;
         tc->feed_override = 1.0;
         if(tc->reqvel < 0.0) tc->reqvel = 0.0;
-        if(nexttc) {
+        if(nexttc && nexttc->synchronized) {
             nexttc->reqvel = pos_error/nexttc->cycle_time;
             nexttc->feed_override = 1.0;
             if(nexttc->reqvel < 0.0) nexttc->reqvel = 0.0;
@@ -746,7 +751,6 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->motionType = tc->canon_motion_type;
         tp->currentPos = primary_after;
     }
-
     return 0;
 }
 
