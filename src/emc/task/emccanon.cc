@@ -768,6 +768,7 @@ void ARC_FEED(double first_end, double second_end,
 
 	center.y = first_axis + programOrigin.y;
 	center.z = second_axis + programOrigin.z;
+	center.z += currentToolLengthOffset;
 	center.x = end.tran.x;
 	normal.y = 0.0;
 	normal.z = 0.0;
@@ -802,6 +803,7 @@ void ARC_FEED(double first_end, double second_end,
 	end.tran.z += currentToolLengthOffset;
 
 	center.z = first_axis + programOrigin.z;
+	center.z += currentToolLengthOffset;
 	center.x = second_axis + programOrigin.x;
 	center.y = end.tran.y;
 	normal.z = 0.0;
