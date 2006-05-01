@@ -732,15 +732,10 @@ extern "C" {			/* Need this when the header is included in a
 #ifndef KERNEL_VERSION
 #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
 
-#ifndef __MODULE_STRING
-#define __MODULE_STRING(x)    #x
-#endif
+#define RTAPI_STRINGIFY(x)    #x
 
 #define RTAPI_MP_INT(var,descr)    \
   MODULE_PARM(var,"i");            \
@@ -755,15 +750,15 @@ extern "C" {			/* Need this when the header is included in a
   MODULE_PARM_DESC(var,descr);
 
 #define RTAPI_MP_ARRAY_INT(var,num,descr)          \
-  MODULE_PARM(var,"1-" __MODULE_STRING(num) "i");  \
+  MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "i");  \
   MODULE_PARM_DESC(var,descr);
 
 #define RTAPI_MP_ARRAY_LONG(var,num,descr)         \
-  MODULE_PARM(var,"1-" __MODULE_STRING(num) "l");  \
+  MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "l");  \
   MODULE_PARM_DESC(var,descr);
 
 #define RTAPI_MP_ARRAY_STRING(var,num,descr)       \
-  MODULE_PARM(var,"1-" __MODULE_STRING(num) "s");  \
+  MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "s");  \
   MODULE_PARM_DESC(var,descr);
 
 #else /* version 2.6 */
