@@ -1,5 +1,5 @@
 /** This file, 'halscope_rt.c', is a HAL component that together with
-    'halscope.c' provides an oscilliscope to view HAL pins, signals,
+    'halscope.c' provides an oscilloscope to view HAL pins, signals,
     and parameters
 */
 
@@ -45,7 +45,7 @@
 #ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
-MODULE_DESCRIPTION("Oscilliscope for EMC HAL");
+MODULE_DESCRIPTION("Oscilloscope for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */

@@ -2,7 +2,7 @@
 #define HALSC_RT_H
 /** This file, 'halsc_rt.h', contains declarations used by
     'halscope_rt.c' to implement the real-time portion of
-    the HAL oscilliscope.  Declarations that are common to the
+    the HAL oscilloscope.  Declarations that are common to the
     realtime and user parts are in 'halsc_shm.h', and those used
     only by the user part are in 'halsc_usr.h'.
 */

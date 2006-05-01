@@ -1,5 +1,5 @@
 /** This file, 'scope.c', is a GUI program that together with
-    'scope_rt.c' serves as an oscilliscope to examine HAL pins,
+    'scope_rt.c' serves as an oscilloscope to examine HAL pins,
     signals, and parameters.  It is a user space component and
     uses GTK 1.2 or 2.0 for the GUI code.
 */
@@ -417,7 +417,7 @@ static void define_scope_windows(void)
     /* allow the user to expand it */
     gtk_window_set_policy(GTK_WINDOW(ctrl_usr->main_win), FALSE, TRUE, FALSE);
     /* set main window title */
-    gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), "HAL Oscilliscope");
+    gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), "HAL Oscilloscope");
 
     /* top level - one big hbox */
     hbox = gtk_hbox_new(FALSE, 0);
