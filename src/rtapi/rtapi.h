@@ -723,6 +723,7 @@ extern "C" {			/* Need this when the header is included in a
     'var' is the name of the variable used for the parameter, which
     should be initialized with the default value(s) when it is declared.
     'descr' is a short description of the parameter.
+    'num' is the number of elements in an array.
 */
 
 #ifndef LINUX_VERSION_CODE
@@ -737,11 +738,8 @@ extern "C" {			/* Need this when the header is included in a
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
 
-#ifndef __MODULE_STRING_1
-#define __MODULE_STRING_1(x)    #x
-#endif
 #ifndef __MODULE_STRING
-#define __MODULE_STRING(x)      __MODULE_STRING_1(x)
+#define __MODULE_STRING(x)    #x
 #endif
 
 #define RTAPI_MP_INT(var,descr)    \
@@ -756,16 +754,16 @@ extern "C" {			/* Need this when the header is included in a
   MODULE_PARM(var,"s");            \
   MODULE_PARM_DESC(var,descr);
 
-#define RTAPI_MP_ARRAY_INT(var,descr)          \
-  MODULE_PARM(var,"1-" __MODULE_STRING(ARRAY_SIZE(var)) "i");  \
+#define RTAPI_MP_ARRAY_INT(var,num,descr)          \
+  MODULE_PARM(var,"1-" __MODULE_STRING(num) "i");  \
   MODULE_PARM_DESC(var,descr);
 
-#define RTAPI_MP_ARRAY_LONG(var,descr)         \
-  MODULE_PARM(var,"1-" __MODULE_STRING(ARRAY_SIZE(var)) "l");  \
+#define RTAPI_MP_ARRAY_LONG(var,num,descr)         \
+  MODULE_PARM(var,"1-" __MODULE_STRING(num) "l");  \
   MODULE_PARM_DESC(var,descr);
 
-#define RTAPI_MP_ARRAY_STRING(var,descr)       \
-  MODULE_PARM(var,"1-" __MODULE_STRING(ARRAY_SIZE(var)) "s");  \
+#define RTAPI_MP_ARRAY_STRING(var,num,descr)       \
+  MODULE_PARM(var,"1-" __MODULE_STRING(num) "s");  \
   MODULE_PARM_DESC(var,descr);
 
 #else /* version 2.6 */
@@ -784,12 +782,12 @@ extern "C" {			/* Need this when the header is included in a
   module_param(var, charp, 0);     \
   MODULE_PARM_DESC(var,descr);
 
-#define RTAPI_MP_ARRAY_INT(var,descr)                    \
+#define RTAPI_MP_ARRAY_INT(var,num,descr)                \
   int __dummy_##var;                                     \
   module_param_array(var, int, &(__dummy_##var), 0);     \
   MODULE_PARM_DESC(var,descr);
 
-#define RTAPI_MP_ARRAY_LONG(var,descr)                   \
+#define RTAPI_MP_ARRAY_LONG(var,num,descr)               \
   int __dummy_##var;                                     \
   module_param_array(var, long, &(__dummy_##var), 0);    \
   MODULE_PARM_DESC(var,descr);

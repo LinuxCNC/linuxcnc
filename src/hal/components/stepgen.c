@@ -305,7 +305,7 @@ MODULE_DESCRIPTION("Step Pulse Generator for EMC HAL");
 MODULE_LICENSE("GPL");
 #endif				/* MODULE_LICENSE */
 int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-RTAPI_MP_ARRAY_INT(step_type,"stepping types for up to 8 channels");
+RTAPI_MP_ARRAY_INT(step_type,MAX_CHAN,"stepping types for up to 8 channels");
 static long period = 0;		/* non-FP thread period, default = none */
 RTAPI_MP_LONG(period, "non-FP thread period (nsecs)");
 static long fp_period = 0;	/* FP thread period, default = none */
