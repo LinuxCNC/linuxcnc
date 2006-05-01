@@ -26,7 +26,7 @@ exec $EMC2_EMCSH "$0" "$@"
 # Script accesses HAL through two modes halcmd show xxx for show
 # and open halcmd -skf for building tree, watch, edit, and such
 # FIXME -- empty mod entry widgets after execute
-# FIXME -- please
+# FIXME -- please hal param naming conventions aren't
 ###############################################################
 
 #first define some default directories
@@ -624,7 +624,6 @@ proc whichTune {} {
     }
 
     set tmpret ""
-
     foreach fname $halfilelist {
         $haltext config -state normal
         $haltext delete 1.0 end
@@ -643,6 +642,14 @@ proc whichTune {} {
         $filemenu entryconfigure 2 -state normal
         makeIniTune
     }
+}
+
+# arg where is frame to build the widgets in what is HAL name
+# returns sets with { 
+proc makeWidgetSet {where what} {
+    
+
+    return $commandset
 }
 
 proc makeIniTune {} {
@@ -677,7 +684,7 @@ proc makeIniTune {} {
         scan [$haltext index end] %d nl
         for {set i 1} {$i < $nl} {incr i} {
             set tmpstring [$haltext get $i.0 $i.end]
-            if {[lsearch -regexp $tmpstring AXIS] > -1} { 
+            if {[lsearch -regexp $tmpstring AXIS] > -1 && ![string match *#* $tmpstring]} { 
                 for {set j 0} {$j < $numaxes} {incr j} {
                     if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
                         # this is a hal file search ordered loop
