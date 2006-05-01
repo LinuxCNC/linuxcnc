@@ -737,6 +737,13 @@ extern "C" {			/* Need this when the header is included in a
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
 
+#ifndef __MODULE_STRING_1
+#define __MODULE_STRING_1(x)    #x
+#endif
+#ifndef __MODULE_STRING
+#define __MODULE_STRING(x)      __MODULE_STRING_1(x)
+#endif
+
 #define RTAPI_MP_INT(var,descr)    \
   MODULE_PARM(var,"i");            \
   MODULE_PARM_DESC(var,descr);
@@ -750,15 +757,15 @@ extern "C" {			/* Need this when the header is included in a
   MODULE_PARM_DESC(var,descr);
 
 #define RTAPI_MP_ARRAY_INT(var,descr)          \
-  MODULE_PARM(var,"1-" #ARRAY_SIZE(var) "i");  \
+  MODULE_PARM(var,"1-" __MODULE_STRING(ARRAY_SIZE(var)) "i");  \
   MODULE_PARM_DESC(var,descr);
 
 #define RTAPI_MP_ARRAY_LONG(var,descr)         \
-  MODULE_PARM(var,"1-" #ARRAY_SIZE(var) "l");  \
+  MODULE_PARM(var,"1-" __MODULE_STRING(ARRAY_SIZE(var)) "l");  \
   MODULE_PARM_DESC(var,descr);
 
 #define RTAPI_MP_ARRAY_STRING(var,descr)       \
-  MODULE_PARM(var,"1-" #ARRAY_SIZE(var) "s");  \
+  MODULE_PARM(var,"1-" __MODULE_STRING(ARRAY_SIZE(var)) "s");  \
   MODULE_PARM_DESC(var,descr);
 
 #else /* version 2.6 */
