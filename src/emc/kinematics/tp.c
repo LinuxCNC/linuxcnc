@@ -83,6 +83,7 @@ int tpClear(TP_STRUCT * tp)
     tp->vScale = tp->vRestore;
     tp->synchronized = 0;
     tp->uu_per_rev = 0.0;
+    emcmotStatus->spindleSync = 0;
 
     return 0;
 }
@@ -556,6 +557,10 @@ int tpRunCycle(TP_STRUCT * tp)
     // report our line number to the guis
     tp->execId = tc->id;
 
+    // this is no longer the segment we were waiting for
+    if(waiting && waiting != tc->id) 
+        waiting = 0;
+
     if(waiting) {
         double r;
         if((r = emcmotStatus->spindleRevs) >= oldrevs) {
@@ -598,7 +603,7 @@ int tpRunCycle(TP_STRUCT * tp)
         if(tc->synchronized) {
             if(!emcmotStatus->spindleSync) {
                 // if we aren't already synced, wait
-                waiting = 1;
+                waiting = tc->id;
                 oldrevs = emcmotStatus->spindleRevs;
                 spindleoffset = 0.0;
                 // don't move: wait
