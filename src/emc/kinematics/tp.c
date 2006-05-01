@@ -516,6 +516,7 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->aborting = 0;
         tp->execId = 0;
         tp->motionType = 0;
+        tp->synchronized = 0;
         emcmotStatus->spindleSync = 0;
         tpResume(tp);
         return 0;
@@ -531,6 +532,7 @@ int tpRunCycle(TP_STRUCT * tp)
             tp->aborting = 0;
             tp->execId = 0;
             tp->motionType = 0;
+            tp->synchronized = 0;
             emcmotStatus->spindleSync = 0;
             tpResume(tp);
             return 0;
@@ -646,7 +648,7 @@ int tpRunCycle(TP_STRUCT * tp)
         tc->reqvel = pos_error/tc->cycle_time/2.0;
         tc->feed_override = 1.0;
         if(tc->reqvel < 0.0) tc->reqvel = 0.0;
-        if(nexttc) {
+        if(nexttc && nexttc->synchronized) {
             nexttc->reqvel = pos_error/nexttc->cycle_time;
             nexttc->feed_override = 1.0;
             if(nexttc->reqvel < 0.0) nexttc->reqvel = 0.0;
@@ -749,6 +751,7 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->motionType = tc->canon_motion_type;
         tp->currentPos = primary_after;
     }
+    if(tc->synchronized) tp->motionType = 0;
 
     return 0;
 }
