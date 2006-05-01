@@ -746,8 +746,6 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->motionType = tc->canon_motion_type;
         tp->currentPos = primary_after;
     }
-    if(tc->synchronized) tp->motionType = 0;
-
     return 0;
 }
 
