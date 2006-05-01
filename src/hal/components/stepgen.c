@@ -305,14 +305,11 @@ MODULE_DESCRIPTION("Step Pulse Generator for EMC HAL");
 MODULE_LICENSE("GPL");
 #endif				/* MODULE_LICENSE */
 int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-MODULE_PARM(step_type, "1-8i");
-MODULE_PARM_DESC(step_type, "stepping types for up to 8 channels");
+RTAPI_MP_ARRAY_INT(step_type,"stepping types for up to 8 channels");
 static long period = 0;		/* non-FP thread period, default = none */
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "non-FP thread period (nsecs)");
+RTAPI_MP_LONG(period, "non-FP thread period (nsecs)");
 static long fp_period = 0;	/* FP thread period, default = none */
-MODULE_PARM(fp_period, "l");
-MODULE_PARM_DESC(fp_period, "floating point thread period (nsecs)");
+RTAPI_MP_LONG(fp_period, "floating point thread period (nsecs)");
 #endif				/* MODULE */
 
 /***********************************************************************

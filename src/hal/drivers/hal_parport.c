@@ -141,8 +141,7 @@ MODULE_DESCRIPTION("Parallel Port Driver for EMC HAL");
 MODULE_LICENSE("GPL");
 #endif /* MODULE_LICENSE */
 static char *cfg = "0x0278";	/* config string, default 1 output port at 278 */
-MODULE_PARM(cfg, "s");
-MODULE_PARM_DESC(cfg, "config string");
+RTAPI_MP_STRING(cfg, "config string");
 #endif /* MODULE */
 #endif /* RTAPI */
 
@@ -222,6 +221,7 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR, "PARPORT: ERROR: no config string\n");
 	return -1;
     }
+rtapi_print ( "config string '%s'\n", cfg );
     /* as a RT module, we don't get a nice argc/argv command line, we only
        get a single string... so we need to tokenize it ourselves */
     /* in addition, it seems that insmod under kernel 2.6 will truncate 

@@ -82,3 +82,5 @@ Finish HALUI
 Define canonical encoder interface, convert all hardware drivers to use it, convert homing
 to use it.
 
+Fixes in HAL modules:
+  canonical interfaces and naming conventions

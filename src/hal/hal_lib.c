@@ -100,7 +100,7 @@ MODULE_LICENSE("GPL");
 #include <linux/version.h>
 #endif
 #ifndef KERNEL_VERSION
-#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))*/
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
 
 char *hal_shmem_base = 0;

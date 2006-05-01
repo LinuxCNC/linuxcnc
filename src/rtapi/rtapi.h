@@ -701,6 +701,102 @@ extern "C" {			/* Need this when the header is included in a
 */
     extern unsigned char rtapi_inb(unsigned int port);
 
+
+/***********************************************************************
+*                      MODULE PARAMETER MACROS                         *
+************************************************************************/
+
+#ifdef RTAPI
+
+/* The API for module parameters has changed as the kernel evolved,
+   and will probably change again.  We define our own macro for
+   declaring parameters, so the code that uses RTAPI can ignore
+   the issue.
+*/
+
+/** RTAPI_MP_INT() declares a single integer module parameter.
+    RTAPI_MP_LONG() declares a single long module parameter.
+    RTAPI_MP_STRING() declares a single string module parameter.
+    RTAPI_MP_ARRAY_INT() declares an array of integer module parameters.
+    RTAPI_MP_ARRAY_LONG() declares an array of long module parameters.
+    RTAPI_MP_ARRAY_STRING() declares a single string module parameters.
+    'var' is the name of the variable used for the parameter, which
+    should be initialized with the default value(s) when it is declared.
+    'descr' is a short description of the parameter.
+*/
+
+#ifndef LINUX_VERSION_CODE
+#include <linux/version.h>
+#endif
+#ifndef KERNEL_VERSION
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+#endif
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
+
+#define RTAPI_MP_INT(var,descr)    \
+  MODULE_PARM(var,"i");            \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_LONG(var,descr)   \
+  MODULE_PARM(var,"l");            \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_STRING(var,descr) \
+  MODULE_PARM(var,"s");            \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_ARRAY_INT(var,descr)          \
+  MODULE_PARM(var,"1-" #ARRAY_SIZE(var) "i");  \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_ARRAY_LONG(var,descr)         \
+  MODULE_PARM(var,"1-" #ARRAY_SIZE(var) "l");  \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_ARRAY_STRING(var,descr)       \
+  MODULE_PARM(var,"1-" #ARRAY_SIZE(var) "s");  \
+  MODULE_PARM_DESC(var,descr);
+
+#else /* version 2.6 */
+
+#include <linux/param.h>
+
+#define RTAPI_MP_INT(var,descr)    \
+  module_param(var, int, 0);       \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_LONG(var,descr)   \
+  module_param(var, long, 0);      \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_STRING(var,descr) \
+  module_param(var, charp, 0);     \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_ARRAY_INT(var,descr)                    \
+  int __dummy_##var;                                     \
+  module_param_array(var, int, &(__dummy_##var), 0);     \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_ARRAY_LONG(var,descr)                   \
+  int __dummy_##var;                                     \
+  module_param_array(var, long, &(__dummy_##var), 0);    \
+  MODULE_PARM_DESC(var,descr);
+
+#define RTAPI_MP_ARRAY_STRING(var,num,descr)             \
+  int __dummy_##var;                                     \
+  module_param_array(var, string, &(__dummy_##var), 0);  \
+  MODULE_PARM_DESC(var,descr);
+
+#endif /* version < 2.6 */
+
+#endif /* RTAPI */
+
+
 #ifdef __cplusplus
 }
 #endif
