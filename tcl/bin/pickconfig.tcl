@@ -343,7 +343,11 @@ proc Tree::see { path node } {
     }
     set idn [$path.c find withtag n:$node]
     if { $idn != "" } {
-        Tree::_see $path [expr $idn -2]
+        if { $idn < 2 } {
+            Tree::_see $path $idn
+        } else {
+            Tree::_see $path [expr $idn -2]
+        }
     }
 }
 
