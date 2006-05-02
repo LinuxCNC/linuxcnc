@@ -154,7 +154,7 @@ proc popupCalibration {} {
         scan [$scratchtext index end] %d nl
         for {set i 1} {$i < $nl} {incr i} {
             set tmpstring [$scratchtext get $i.0 $i.end]
-            if {[lsearch -regexp $tmpstring AXIS] > -1} { 
+            if {[lsearch -regexp $tmpstring AXIS] > -1 && ![string match *#* $tmpstring ]} { 
                 for {set j 0} {$j < $numaxes} {incr j} {
                     if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
                         # this is a hal file search ordered loop
@@ -165,15 +165,19 @@ proc popupCalibration {} {
                             [exec $HALCMD -s show param $thishalcommand] " "] 3]]
                         global axis$j-$lowername
                         set axis$j-$lowername $tmpval
-                        set thislabel [label [set af$j].label-$j-$lowername \
-                            -text "$thisininame" -width 20 -anchor e]
-                        set thisentry [entry [set af$j].entry-$lowername \
-                        -width 12 -textvariable axis$j-$lowername]
-                        grid $thislabel $thisentry
-                        lappend namearray($j) $lowername
-                        lappend commandarray($j) $thishalcommand
-                        lappend valarray($j) $tmpval
-                        break
+                        if {[winfo exists [set af$j].label-$j-$lowername] } {
+                            continue
+                        } else {
+                            set thislabel [label [set af$j].label-$j-$lowername \
+                                -text "$thisininame" -width 20 -anchor e]
+                            set thisentry [entry [set af$j].entry-$lowername \
+                                -width 12 -textvariable axis$j-$lowername]
+                            grid $thislabel $thisentry
+                            lappend namearray($j) $lowername
+                            lappend commandarray($j) $thishalcommand
+                            lappend valarray($j) $tmpval
+                            break
+                        }
                     }
                 }
             }
@@ -251,6 +255,18 @@ proc changeIt {how } {
                 $initext configure -state disabled
             }
             saveFile
+            for {set j 0} {$j < $numaxes} {incr j} {
+                set cmds [set commandarray($j)]
+                set newvals ""
+                set k 0
+                foreach cmd $cmds {
+                    set val [expr [lindex [split \
+                        [exec $HALCMD -s show param $cmd] " "] 3]]                    
+                    append newvals "$val " 
+                    incr k
+                }
+                set valarray($j) $newvals
+            }
         }
         apply {
             $main.buttons.ok configure -state normal
