@@ -13,10 +13,6 @@ exec wish "$0" "$@"
 #
 #  Copyright (c) 2005 All rights reserved.
 #
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
 ###############################################################
 #
 # usage:
@@ -143,6 +139,7 @@ proc node_clicked {} {
     if {$node == ""} return
 
     $tree selection set $node
+    $tree see $node
     if { [ regexp {.*\.ini$} $node ] == 1 } {
 	# an ini node, acceptable
 	# enable changes to the details widget
