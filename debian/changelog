@@ -1,3 +1,17 @@
+emc2 (TESTING-2006-05-02) testing; urgency=low
+
+  * fix wrong center point position in XZ and YZ arcs while using tool
+    length offsets
+  * fix abort during spindle-synchronized operations and the subsequent run
+  * fix cfg="config string with spaces" loading hal modules (especially
+    important for hal_parport)
+  * minor bugfixes to emccalib
+  * the initial configuration picker defaults to the last-run configuration,
+    so you can just hit Enter or click OK to start.
+  * disable halconfig for now
+
+ -- Chris Radek <chris@timeguy.com>  Tue,  2 May 2006 13:11:46 -0500
+
 emc2 (TESTING-2006-04-29) testing; urgency=low
 
   * improvement to the validation of arcs using the R format (which
