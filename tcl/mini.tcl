@@ -1011,6 +1011,8 @@ $settingsmenu add radiobutton -label [msgcat::mc "Relative Position"] \
 $settingsmenu add separator
 $settingsmenu add command -label [msgcat::mc "Calibration..."] \
     -command "exec $TCLBIN/emccalib.tcl -- -ini $EMC_INIFILE &"
+$settingsmenu add command -label [msgcat::mc "HAL Show..."] \
+    -command "exec $TCLBIN/halshow.tcl -- -ini $EMC_INIFILE &"
 $settingsmenu add command -label [msgcat::mc "HAL Config..."] \
     -command "exec $TCLBIN/halconfig.tcl -- -ini $EMC_INIFILE &"
 
