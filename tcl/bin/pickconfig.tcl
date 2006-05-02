@@ -98,6 +98,7 @@ proc initialize_config {} {
     }
 }
 
+
 # FIXME add trap for comment on the first of a line.
 proc getVal {stringa sect var} {
     set x [regexp -indices -- "$sect.*$var *= *" $stringa  indexes]
@@ -327,6 +328,25 @@ if { $config_count == 0 } {
 bind . <Escape> {button_pushed Cancel}
 bind . <Return> ""
 wm protocol . WM_DELETE_WINDOW {button_pushed Cancel}
+
+# ----------------------------------------------------------------------------
+#  Command Tree::see modified from bwidget-1.7.0
+# ----------------------------------------------------------------------------
+proc Tree::see { path node } {
+    variable $path
+    upvar 0  $path data
+
+    set node [_node_name $path $node]
+    if { [Widget::getoption $path -redraw] && $data(upd,afterid) != "" } {
+        after cancel $data(upd,afterid)
+        _redraw_tree $path
+    }
+    set idn [$path.c find withtag n:$node]
+    if { $idn != "" } {
+        Tree::_see $path [expr $idn -2]
+    }
+}
+
 
 # add the selection set if a last_ini has been found in ~/.emcrc
 
