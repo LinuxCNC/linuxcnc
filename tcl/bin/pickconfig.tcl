@@ -329,34 +329,21 @@ bind . <Escape> {button_pushed Cancel}
 bind . <Return> ""
 wm protocol . WM_DELETE_WINDOW {button_pushed Cancel}
 
-# ----------------------------------------------------------------------------
-#  Command Tree::see modified from bwidget-1.7.0
-# ----------------------------------------------------------------------------
-proc Tree::see { path node } {
-    variable $path
-    upvar 0  $path data
-
-    set node [_node_name $path $node]
-    if { [Widget::getoption $path -redraw] && $data(upd,afterid) != "" } {
-        after cancel $data(upd,afterid)
-        _redraw_tree $path
-    }
-    set idn [$path.c find withtag n:$node]
-    if { $idn != "" } {
-        if { $idn < 4 } {
-            Tree::_see $path $idn
-        } else {
-            Tree::_see $path [expr $idn -2]
-        }
+proc wait_and_see {node {wait 10}} {
+    global tree
+    set yv [$tree yview]
+    if {![winfo viewable $tree] || [lindex $yv 0] == [lindex $yv 1]} {
+        after $wait wait_and_see $node [expr $wait*2]
+    } else {
+        $tree see $node
     }
 }
-
 
 # add the selection set if a last_ini has been found in ~/.emcrc
 
 if {$last_ini != -1 && [file exists $last_ini] } {
     $tree selection set $last_ini
-    $tree see $last_ini
+    wait_and_see $last_ini
     $tree xview moveto 0.0
     node_clicked
 }
