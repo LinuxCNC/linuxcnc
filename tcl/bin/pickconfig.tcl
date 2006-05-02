@@ -342,7 +342,6 @@ proc Tree::see { path node } {
         _redraw_tree $path
     }
     set idn [$path.c find withtag n:$node]
-    puts $idn
     if { $idn != "" } {
         if { $idn < 4 } {
             Tree::_see $path $idn
