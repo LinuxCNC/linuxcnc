@@ -333,16 +333,16 @@ proc wait_and_see {node {wait 10}} {
         after $wait wait_and_see $node [expr $wait*2]
     } else {
         $tree see $node
+        $tree xview moveto 0.0
+        node_clicked
     }
 }
 
 # add the selection set if a last_ini has been found in ~/.emcrc
 
-if {$last_ini != -1 && [file exists $last_ini] } {
+if {$last_ini != -1 && [file exists $last_ini] && ![catch {$tree index $last_ini}]} {
     $tree selection set $last_ini
     wait_and_see $last_ini
-    $tree xview moveto 0.0
-    node_clicked
 }
 
 focus $tree
