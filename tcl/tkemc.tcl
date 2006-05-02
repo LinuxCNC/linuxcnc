@@ -822,8 +822,8 @@ if { $windows == 0 } {
 }
 
 # add halconfig, to help for HAL setup, it's under Scripts, but it's in the TCL_BIN_DIR
-$scriptsmenu add separator
-$scriptsmenu add command -label [msgcat::mc "HAL Config"] -command "exec $TCLBIN/halconfig.tcl -- -ini $EMC_INIFILE &"
+# $scriptsmenu add separator
+# $scriptsmenu add command -label [msgcat::mc "HAL Config"] -command "exec $TCLBIN/halconfig.tcl -- -ini $EMC_INIFILE &"
 
 # add the help menu
 set helpmenu [menu $menubar.help -tearoff 0]
