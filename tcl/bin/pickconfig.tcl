@@ -143,6 +143,7 @@ proc node_clicked {} {
     if {$node == ""} return
 
     $tree selection set $node
+    $tree see $node
     if { [ regexp {.*\.ini$} $node ] == 1 } {
 	# an ini node, acceptable
 	# enable changes to the details widget
