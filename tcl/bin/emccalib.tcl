@@ -29,8 +29,13 @@ exec $EMC2_EMCSH "$0" "$@"
 # EMC parameter setting application
 # Needs emcsh to run
 # Saves changes to ini file if requested
-# FIXME allow multiple reads of ini var.
 ###############################################################
+
+
+# FIXME allow multiple reads of ini var.
+# this is a one way system. It finds ini referenced variable in hal files
+# and builds widgets to display and manipulate their values
+# it does not and will not sort on hal components.
 
 #first define some default directories
 set TCLBIN tcl/bin
@@ -191,11 +196,10 @@ for {set i $startline} {$i < $endline} {incr i} {
 
 proc makeIniTune {} {
     global axisentry top initext HALCMD sectionarray thisconfigdir haltext
-    global numaxes ininamearray commandarray thisinifile halfilelist
-
+    global numaxes ininamearray commandarray thisinifile halfilelist extraarray
     for {set j 0} {$j<$numaxes} {incr j} {
         global af$j
-        set af$j [$top insert [expr $j] page$j \
+        set af$j [$top insert [expr $j+3] page$j \
         -text "[msgcat::mc "Tune"] $j"  -raisecmd "selectAxis $j" ]
     }
  
@@ -220,42 +224,50 @@ proc makeIniTune {} {
 
         # find the ini references in this hal and build widgets        
         scan [$haltext index end] %d nl
-        for {set i 1} {$i < $nl} {incr i} {
+        for {set i 1} { $i < $nl } {incr i} {
             set tmpstring [$haltext get $i.0 $i.end]
-            if {[lsearch -regexp $tmpstring AXIS] > -1 } { 
+            if {[lsearch -regexp $tmpstring AXIS] > -1 && ![string match *#* $tmpstring]} { 
                 for {set j 0} {$j < $numaxes} {incr j} {
-                    if {[lsearch -regexp $tmpstring AXIS_$j] > -1 \
-                            && ![string match *#* $tmpstring ] } {
+                    if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
                         # this is a hal file search ordered loop
                         set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
                         set lowername "[string tolower $thisininame]"
-#       puts "name is $lowername"
                         set thishalcommand [lindex $tmpstring 1]
-                        set ret [exec $HALCMD -s show param $thishalcommand]
-                        set tmpval [expr [lindex [split $ret " "] 3]]
-#       puts "$tmpval -- $thishalcommand"
+                        set tmpval [expr [lindex [split \
+                            [exec $HALCMD -s show param $thishalcommand] " "] 3]]
                         global axis$j-$lowername axis$j-$lowername-next
                         set axis$j-$lowername $tmpval
                         set axis$j-$lowername-next $tmpval
-                        set thisname [label [set af$j].label-$j-$lowername \
-                            -text "$thisininame:  " -width 20 -anchor e]
-                        set thisval [label [set af$j].entry-$lowername -width 8 \
-                            -textvariable axis$j-$lowername -anchor e -foreg firebrick4 ]
-                        set thisentry [entry [set af$j].next-$lowername -width 8 \
-                        -width 12 -textvariable axis$j-$lowername-next ]
+                        if { [catch { set thisname [label [set af$j].label-$j-$lowername \
+                            -text "$thisininame:  " -width 20 -anchor e] } ] } {
+            			} else {
+                            set thisval [label [set af$j].entry-$lowername -width 8 \
+                              -textvariable axis$j-$lowername -anchor e -foreg firebrick4 ]
+                            set thisentry [entry [set af$j].next-$lowername -width 8 \
+                              -width 12 -textvariable axis$j-$lowername-next ]
                         grid $thisname $thisval x $thisentry
+                        }
                         lappend ininamearray($j) $lowername
                         lappend commandarray($j) $thishalcommand
+            			lappend extraarray($j,$lowername) $thishalcommand
                         break
                     }
                 }
             }
         }
     }
+    set indices [array names extraarray "0,*"]
+    foreach i $indices {
+        puts "$i: [set n [lindex [array get extraarray $i] 1]]"
+	regexp {([0-9]*),(.*)} $i all section var
+	set var [string toupper $var]
+	foreach p $n {
+	    puts "setp $p \[AXIS_$section\]$var"
+	}
+    }
     # build the buttons to control axis variables.
     for {set j 0} {$j<$numaxes } {incr j} {
         set bframe [frame [set af$j].buttons]
-        puts "[set af$j]"
         grid configure $bframe -columnspan 4 -sticky nsew 
         set tmptest [button $bframe.test -text [msgcat::mc "Test"] \
             -command {iniTuneButtonpress test}]
@@ -266,8 +278,6 @@ proc makeIniTune {} {
         pack $tmpok $tmptest $tmpcancel -side left -fill both -expand yes -pady 5
     }
 }
-
-
 
 proc selectAxis {which} {
     global axisentry
