@@ -256,14 +256,11 @@ proc makeIniTune {} {
             }
         }
     }
+    # use this sort of code to access ini variable names
     set indices [array names extraarray "0,*"]
     foreach i $indices {
-        puts "$i: [set n [lindex [array get extraarray $i] 1]]"
-	regexp {([0-9]*),(.*)} $i all section var
-	set var [string toupper $var]
-	foreach p $n {
-	    puts "setp $p \[AXIS_$section\]$var"
-	}
+    	regexp {([0-9]*),(.*)} $i all section var
+    	set var [string toupper $var]
     }
     # build the buttons to control axis variables.
     for {set j 0} {$j<$numaxes } {incr j} {
