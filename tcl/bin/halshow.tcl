@@ -191,6 +191,7 @@ set viewmenu [menu $menubar.view -tearoff 0]
         $viewmenu add separator
         $viewmenu add command -label [msgcat::mc "Erase Watch"] \
             -command {watchReset all}
+. configure -menu $menubar
 
 # build the tree widgets left side
 set treew [Tree $tf.t  -width 10 -yscrollcommand "sSlide $tf" ]
