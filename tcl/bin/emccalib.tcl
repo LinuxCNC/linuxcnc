@@ -170,8 +170,10 @@ if {[catch {open $thisinifile} programin]} {
     $initext insert end [read $programin]
     catch {close $programin}
 }
+
 # setup array with section names and line numbers
 array set sectionarray {}
+set sectionlist {}
 scan [$initext index end] %d nl
 set inilastline $nl
 for {set i 1} {$i < $nl} {incr i} {
@@ -179,8 +181,12 @@ for {set i 1} {$i < $nl} {incr i} {
         set inisectionname [$initext get $i.1 $i.end]
         set inisectionname [string trimright $inisectionname \] ]
         array set sectionarray "$inisectionname $i"
+        lappend sectionlist $inisectionname
     }
 }
+
+array set sectionarray "END_OF_INI_FILE [expr $nl-1]"
+lappend sectionlist "END_OF_INI_FILE"
 
 # Find the HALFILE names between HAL and TRAJ
 set startline $sectionarray(HAL)
@@ -400,7 +406,7 @@ proc changeIni {how } {
 proc saveIni {which} {
     global HALCMD thisconfigdir thisinifile
     global sectionarray ininamearray commandarray HALCMD
-    global numaxes initext
+    global numaxes initext sectionlist
     
     if {![file writable $thisinifile]} {
         tk_messageBox -type ok -message [msgcat::mc "Not permitted to save here.\n\n \
@@ -418,11 +424,8 @@ proc saveIni {which} {
                 set varcommands [lindex [array get commandarray $i] end]
                 set maxvarnum [llength $varnames]
                 set sectname "AXIS_$i"
-                if {$i == [expr $numaxes-1]} {
-                    set endsect EMCIO
-                } else {
-                    set endsect AXIS_[expr $i+1]
-                }
+                # get the name of the next ini section
+                set endsect [lindex $sectionlist [expr [lsearch -exact $sectionlist $sectname] + 1 ]]
                 set sectnum "[set sectionarray($sectname)]"
                 set nextsectnum "[set sectionarray($endsect)]"
                 $initext configure -state normal
