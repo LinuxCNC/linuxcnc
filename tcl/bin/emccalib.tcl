@@ -227,7 +227,14 @@ proc makeIniTune {} {
         scan [$haltext index end] %d nl
         for {set i 1} { $i < $nl } {incr i} {
             set tmpstring [$haltext get $i.0 $i.end]
-            if {[lsearch -regexp $tmpstring AXIS] > -1 && ![string match *#* $tmpstring]} { 
+            if {[lsearch -regexp $tmpstring AXIS] > -1 && ![string match *#* $tmpstring]} {
+	      set halcommand [split $tmpstring " "]
+	      if { [lindex $halcommand 0] == "setp" || [lindex $halcommand 1] == "\=" } {
+#  puts "tmpstring (before): '$tmpstring'"
+                        if { [lindex $halcommand 1] == "\=" } {
+                            set tmpstring "setp [lindex $halcommand 0] [lindex $halcommand 2]"
+                        }
+#  puts "tmpstring (after ): '$tmpstring'"
                 for {set j 0} {$j < $numaxes} {incr j} {
                     if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
                         # this is a hal file search ordered loop
@@ -253,6 +260,7 @@ proc makeIniTune {} {
                         break
                     }
                 }
+              }
             }
         }
     }
@@ -327,7 +335,7 @@ proc changeIni {how } {
                 set var "axis$axisentry-[lindex $varnames $listnum]"
                 global $var $var-next
                 # remove this item from the "to be swapped" list
-                set thisvar [lindex $swapvars 1]
+                set thisvar [lindex $swapvars 0]
                 set swapvars [lrange $swapvars 1 end]
                 # get the values
                 set oldval [set $var]
@@ -337,7 +345,7 @@ proc changeIni {how } {
                 # use halcmd to set new parameter value in hal
                 set thisret [exec $HALCMD setp $tmpcmd $newval]
                 # see if we need to swap the new and old control values
-                if {[lsearch $swapvars $thisvar] < 0} {
+                if {[lsearch -exact $swapvars $thisvar] < 0} {
                     # set the current value for display
                     set $var $newval
                     # set the tmp value as next in display
