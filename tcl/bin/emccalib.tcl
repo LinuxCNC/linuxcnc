@@ -237,11 +237,9 @@ proc makeIniTune {} {
             if {[lsearch -regexp $tmpstring AXIS] > -1 && ![string match *#* $tmpstring]} {
 	      set halcommand [split $tmpstring " "]
 	      if { [lindex $halcommand 0] == "setp" || [lindex $halcommand 1] == "\=" } {
-#  puts "tmpstring (before): '$tmpstring'"
                         if { [lindex $halcommand 1] == "\=" } {
                             set tmpstring "setp [lindex $halcommand 0] [lindex $halcommand 2]"
                         }
-#  puts "tmpstring (after ): '$tmpstring'"
                 for {set j 0} {$j < $numaxes} {incr j} {
                     if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
                         # this is a hal file search ordered loop
