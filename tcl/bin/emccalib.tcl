@@ -357,12 +357,6 @@ proc changeIni {how } {
                     set $var-next $oldval
                 }
             }        
-                # set the current value for display
-                set $var $newval
-                # set the tmp value as next in display
-                set $var-next $oldval
-            }        
-        }
         }
         ok {
             set varnames [lindex [array get ininamearray $axisentry] end]
