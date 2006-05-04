@@ -196,7 +196,8 @@ for {set i $startline} {$i < $endline} {incr i} {
 
 proc makeIniTune {} {
     global axisentry top initext HALCMD sectionarray thisconfigdir haltext
-    global numaxes ininamearray commandarray thisinifile halfilelist extraarray
+    global numaxes ininamearray commandarray thisinifile halfilelist
+
     for {set j 0} {$j<$numaxes} {incr j} {
         global af$j
         set af$j [$top insert [expr $j+3] page$j \
@@ -240,28 +241,22 @@ proc makeIniTune {} {
                         set axis$j-$lowername-next $tmpval
                         if { [catch { set thisname [label [set af$j].label-$j-$lowername \
                             -text "$thisininame:  " -width 20 -anchor e] } ] } {
-            			} else {
+                        } else {
                             set thisval [label [set af$j].entry-$lowername -width 8 \
                               -textvariable axis$j-$lowername -anchor e -foreg firebrick4 ]
                             set thisentry [entry [set af$j].next-$lowername -width 8 \
                               -width 12 -textvariable axis$j-$lowername-next ]
-                        grid $thisname $thisval x $thisentry
+                            grid $thisname $thisval x $thisentry
                         }
                         lappend ininamearray($j) $lowername
                         lappend commandarray($j) $thishalcommand
-            			lappend extraarray($j,$lowername) $thishalcommand
                         break
                     }
                 }
             }
         }
     }
-    # use this sort of code to access ini variable names
-    set indices [array names extraarray "0,*"]
-    foreach i $indices {
-    	regexp {([0-9]*),(.*)} $i all section var
-    	set var [string toupper $var]
-    }
+
     # build the buttons to control axis variables.
     for {set j 0} {$j<$numaxes } {incr j} {
         set bframe [frame [set af$j].buttons]
@@ -326,10 +321,14 @@ proc changeIni {how } {
             set varnames [lindex [array get ininamearray $axisentry] end]
             set varcommands [lindex [array get commandarray $axisentry] end]
             set maxvarnum [llength $varnames]
+            set swapvars $varnames
             # handle each variable and values inside loop 
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
                 set var "axis$axisentry-[lindex $varnames $listnum]"
                 global $var $var-next
+                # remove this item from the "to be swapped" list
+                set thisvar [lindex $swapvars 1]
+                set swapvars [lrange $swapvars 1 end]
                 # get the values
                 set oldval [set $var]
                 set newval [set $var-next]
@@ -337,10 +336,13 @@ proc changeIni {how } {
                 set tmpcmd [lindex $varcommands $listnum]
                 # use halcmd to set new parameter value in hal
                 set thisret [exec $HALCMD setp $tmpcmd $newval]
-                # set the current value for display
-                set $var $newval
-                # set the tmp value as next in display
-                set $var-next $oldval
+                # see if we need to swap the new and old control values
+                if {[lsearch $swapvars $thisvar] < 0} {
+                    # set the current value for display
+                    set $var $newval
+                    # set the tmp value as next in display
+                    set $var-next $oldval
+                }
             }        
         }
         ok {
