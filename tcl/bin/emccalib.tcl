@@ -170,8 +170,10 @@ if {[catch {open $thisinifile} programin]} {
     $initext insert end [read $programin]
     catch {close $programin}
 }
+
 # setup array with section names and line numbers
 array set sectionarray {}
+set sectionlist {}
 scan [$initext index end] %d nl
 set inilastline $nl
 for {set i 1} {$i < $nl} {incr i} {
@@ -179,12 +181,17 @@ for {set i 1} {$i < $nl} {incr i} {
         set inisectionname [$initext get $i.1 $i.end]
         set inisectionname [string trimright $inisectionname \] ]
         array set sectionarray "$inisectionname $i"
+        lappend sectionlist $inisectionname
     }
 }
 
-# Find the HALFILE names between HAL and TRAJ
+array set sectionarray "END_OF_INI_FILE [expr $nl-1]"
+lappend sectionlist "END_OF_INI_FILE"
+
+# Find the HALFILE names between HAL and the next section
 set startline $sectionarray(HAL)
-set endline $sectionarray(TRAJ)
+set endline $sectionarray([lindex $sectionlist [expr [lsearch -exact $sectionlist HAL] + 1 ]])
+
 set halfilelist ""
 for {set i $startline} {$i < $endline} {incr i} {
     set thisstring [$initext get $i.0 $i.end]
@@ -196,7 +203,8 @@ for {set i $startline} {$i < $endline} {incr i} {
 
 proc makeIniTune {} {
     global axisentry top initext HALCMD sectionarray thisconfigdir haltext
-    global numaxes ininamearray commandarray thisinifile halfilelist extraarray
+    global numaxes ininamearray commandarray thisinifile halfilelist
+
     for {set j 0} {$j<$numaxes} {incr j} {
         global af$j
         set af$j [$top insert [expr $j+3] page$j \
@@ -226,7 +234,12 @@ proc makeIniTune {} {
         scan [$haltext index end] %d nl
         for {set i 1} { $i < $nl } {incr i} {
             set tmpstring [$haltext get $i.0 $i.end]
-            if {[lsearch -regexp $tmpstring AXIS] > -1 && ![string match *#* $tmpstring]} { 
+            if {[lsearch -regexp $tmpstring AXIS] > -1 && ![string match *#* $tmpstring]} {
+	      set halcommand [split $tmpstring " "]
+	      if { [lindex $halcommand 0] == "setp" || [lindex $halcommand 1] == "\=" } {
+                        if { [lindex $halcommand 1] == "\=" } {
+                            set tmpstring "setp [lindex $halcommand 0] [lindex $halcommand 2]"
+                        }
                 for {set j 0} {$j < $numaxes} {incr j} {
                     if {[lsearch -regexp $tmpstring AXIS_$j] > -1} {
                         # this is a hal file search ordered loop
@@ -240,28 +253,23 @@ proc makeIniTune {} {
                         set axis$j-$lowername-next $tmpval
                         if { [catch { set thisname [label [set af$j].label-$j-$lowername \
                             -text "$thisininame:  " -width 20 -anchor e] } ] } {
-            			} else {
+                        } else {
                             set thisval [label [set af$j].entry-$lowername -width 8 \
                               -textvariable axis$j-$lowername -anchor e -foreg firebrick4 ]
                             set thisentry [entry [set af$j].next-$lowername -width 8 \
                               -width 12 -textvariable axis$j-$lowername-next ]
-                        grid $thisname $thisval x $thisentry
+                            grid $thisname $thisval x $thisentry
                         }
                         lappend ininamearray($j) $lowername
                         lappend commandarray($j) $thishalcommand
-            			lappend extraarray($j,$lowername) $thishalcommand
                         break
                     }
                 }
+              }
             }
         }
     }
-    # use this sort of code to access ini variable names
-    set indices [array names extraarray "0,*"]
-    foreach i $indices {
-    	regexp {([0-9]*),(.*)} $i all section var
-    	set var [string toupper $var]
-    }
+
     # build the buttons to control axis variables.
     for {set j 0} {$j<$numaxes } {incr j} {
         set bframe [frame [set af$j].buttons]
@@ -326,10 +334,14 @@ proc changeIni {how } {
             set varnames [lindex [array get ininamearray $axisentry] end]
             set varcommands [lindex [array get commandarray $axisentry] end]
             set maxvarnum [llength $varnames]
+            set swapvars $varnames
             # handle each variable and values inside loop 
             for {set listnum 0} {$listnum < $maxvarnum} {incr listnum} {
                 set var "axis$axisentry-[lindex $varnames $listnum]"
                 global $var $var-next
+                # remove this item from the "to be swapped" list
+                set thisvar [lindex $swapvars 0]
+                set swapvars [lrange $swapvars 1 end]
                 # get the values
                 set oldval [set $var]
                 set newval [set $var-next]
@@ -337,11 +349,20 @@ proc changeIni {how } {
                 set tmpcmd [lindex $varcommands $listnum]
                 # use halcmd to set new parameter value in hal
                 set thisret [exec $HALCMD setp $tmpcmd $newval]
+                # see if we need to swap the new and old control values
+                if {[lsearch -exact $swapvars $thisvar] < 0} {
+                    # set the current value for display
+                    set $var $newval
+                    # set the tmp value as next in display
+                    set $var-next $oldval
+                }
+            }        
                 # set the current value for display
                 set $var $newval
                 # set the tmp value as next in display
                 set $var-next $oldval
             }        
+        }
         }
         ok {
             set varnames [lindex [array get ininamearray $axisentry] end]
@@ -390,7 +411,7 @@ proc changeIni {how } {
 proc saveIni {which} {
     global HALCMD thisconfigdir thisinifile
     global sectionarray ininamearray commandarray HALCMD
-    global numaxes initext
+    global numaxes initext sectionlist
     
     if {![file writable $thisinifile]} {
         tk_messageBox -type ok -message [msgcat::mc "Not permitted to save here.\n\n \
@@ -408,11 +429,8 @@ proc saveIni {which} {
                 set varcommands [lindex [array get commandarray $i] end]
                 set maxvarnum [llength $varnames]
                 set sectname "AXIS_$i"
-                if {$i == [expr $numaxes-1]} {
-                    set endsect EMCIO
-                } else {
-                    set endsect AXIS_[expr $i+1]
-                }
+                # get the name of the next ini section
+                set endsect [lindex $sectionlist [expr [lsearch -exact $sectionlist $sectname] + 1 ]]
                 set sectnum "[set sectionarray($sectname)]"
                 set nextsectnum "[set sectionarray($endsect)]"
                 $initext configure -state normal
