@@ -188,9 +188,10 @@ for {set i 1} {$i < $nl} {incr i} {
 array set sectionarray "END_OF_INI_FILE [expr $nl-1]"
 lappend sectionlist "END_OF_INI_FILE"
 
-# Find the HALFILE names between HAL and TRAJ
+# Find the HALFILE names between HAL and the next section
 set startline $sectionarray(HAL)
-set endline $sectionarray(TRAJ)
+set endline $sectionarray([lindex $sectionlist [expr [lsearch -exact $sectionlist HAL] + 1 ]])
+
 set halfilelist ""
 for {set i $startline} {$i < $endline} {incr i} {
     set thisstring [$initext get $i.0 $i.end]
