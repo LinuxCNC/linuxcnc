@@ -10,20 +10,21 @@
 * Copyright (c) 2006 All rights reserved.
 *
 ********************************************************************/
-/** This file, 'counter.c', is a HAL component that provides software
-    based counting that is useful for spindle position sensing.
-    Instead of full encoders that output quadrature, some lathes
-    have sensors that generate a simple pulse stream as the spindle
-    turns and an index pulse once per revolution.  This component
-    simply counts up when a "count" pulse is received and if
-    reset is enabled, resets when the "index" pulse is received.
+/** This file, 'counter.c', is a HAL component that provides software-
+    based counting that is useful for spindle position sensing and
+    maybe other things.  Instead of using a real encoder that outputs
+    quadrature, some lathes have a sensor that generates a simple pulse
+    stream as the spindle turns and an index pulse once per revolution.
+    This component simply counts up when a "count" pulse (phase-A)
+    is received, and if reset is enabled, resets when the "index"
+    (phase-Z) pulse is received.
 
-    This is of course only useful for a unidirectional spindle,
-    as it is not possible to sense the direction of rotation.
+    This is of course only useful for a unidirectional spindle, as it
+    is not possible to sense the direction of rotation.
 
-    The maximum count rate will depend on the speed of the PC,
-    but is expected to exceed 2kHz for even the slowest computers,
-    and may reach 25kHz on fast ones.  It is a realtime component.
+    The maximum count rate will depend on the speed of the PC, but is
+    expected to exceed 2kHz for even the slowest computers, and may
+    well be over 25kHz on fast ones.  It is a realtime component.
 
     It supports up to eight counters, with optional index pulses.
     The number of counters is set by the module parameter 'num_chan'
@@ -32,17 +33,17 @@
     The driver can optionally create a realtime thread, which is
     useful if a free-running driver is desired.  The module parameter
     'period' is a long int, corresponding to the thread period in
-    nano-seconds.  If omitted, no thread will be created.
-    The driver exports variables for each counters inputs and output.
-    It also exports two functions.  "counter.update-counters" must be
-    called in a high speed thread, at least twice the maximum desired
-    count rate.  "counter.capture-position" can be called at a much
-    slower rate, and updates the output variables.
+    nanoseconds.  If omitted, no thread will be created.  The driver
+    exports variables for each counter's inputs and outputs.  It also
+    exports two functions:  "counter.update-counters" must be called in
+    a high speed thread, at least twice the maximum desired count rate.
+    "counter.capture-position" can be called at a much slower rate,
+    and updates the output variables.
 */
 
 /** Copyright (C) 2006 Chris Radek <chris@timeguy.com>
  *
- *  Based on the "encoder" hal module by John Kasunich
+ *  Based heavily on the "encoder" hal module by John Kasunich
  */
 
 /** This program is free software; you can redistribute it and/or
@@ -144,21 +145,21 @@ int rtapi_app_main(void)
     if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "COUNTER: ERROR: invalid num_chan: %d\n", num_chan);
-	return -1;
+	return -EINVAL;
     }
     /* have good config info, connect to the HAL */
     comp_id = hal_init("counter");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "COUNTER: ERROR: hal_init() failed\n");
-	return -1;
+	return -EINVAL;
     }
     /* allocate shared memory for counter data */
     counter_array = hal_malloc(num_chan * sizeof(counter_t));
-    if (counter_array == 0) {
+    if (!counter_array) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "COUNTER: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
-	return -1;
+	return -ENOMEM;
     }
     /* export all the variables for each counter */
     for (n = 0; n < num_chan; n++) {
@@ -168,7 +169,7 @@ int rtapi_app_main(void)
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"COUNTER: ERROR: counter %d var export failed\n", n);
 	    hal_exit(comp_id);
-	    return -1;
+	    return -EIO;
 	}
 	/* init counter */
 	counter_array[n].oldZ = 0;
@@ -188,7 +189,7 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "COUNTER: ERROR: count funct export failed\n");
 	hal_exit(comp_id);
-	return -1;
+	return -EIO;
     }
     retval = hal_export_funct("counter.capture-position", capture,
 	counter_array, 1, 0, comp_id);
@@ -196,7 +197,7 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "COUNTER: ERROR: capture funct export failed\n");
 	hal_exit(comp_id);
-	return -1;
+	return -EIO;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"COUNTER: installed %d counter counters\n", num_chan);
@@ -208,7 +209,7 @@ int rtapi_app_main(void)
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"COUNTER: ERROR: could not create thread\n");
 	    hal_exit(comp_id);
-	    return -1;
+	    return -EINVAL;
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_INFO, "COUNTER: created %d uS thread\n",
 		period / 1000);
