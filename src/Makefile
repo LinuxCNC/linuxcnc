@@ -405,6 +405,8 @@ obj-$(CONFIG_DEBOUNCE) += debounce.o
 debounce-objs := hal/components/debounce.o
 obj-$(CONFIG_ENCODER) += encoder.o
 encoder-objs := hal/components/encoder.o
+obj-$(CONFIG_COUNTER) += counter.o
+counter-objs := hal/components/counter.o
 obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio.o
 encoder_ratio-objs := hal/components/encoder_ratio.o
 obj-$(CONFIG_STEPGEN) += stepgen.o
@@ -505,6 +507,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/blocks.o: $(addprefix objects/rt,$(blocks-objs))
 ../rtlib/debounce.o: $(addprefix objects/rt,$(debounce-objs))
 ../rtlib/encoder.o: $(addprefix objects/rt,$(encoder-objs))
+../rtlib/counter.o: $(addprefix objects/rt,$(counter-objs))
 ../rtlib/encoder_ratio.o: $(addprefix objects/rt,$(encoder_ratio-objs))
 ../rtlib/stepgen.o: $(addprefix objects/rt,$(stepgen-objs))
 ../rtlib/freqgen.o: $(addprefix objects/rt,$(freqgen-objs))
