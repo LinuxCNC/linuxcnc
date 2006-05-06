@@ -25,6 +25,7 @@ exec $EMC2_EMCSH "$0" "$@"
 
 set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
+set LANGDIR src/po
 
 if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLBIN $env(EMC2_TCL_DIR)
@@ -33,10 +34,20 @@ if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLSCRIPTS $TCLSCRIPTS/scripts
 }
 
-wm title . "EMC Set Coordinate"
+if {[info exists env(EMC2_LANG_DIR)]} {
+    set LANGDIR $env(EMC2_LANG_DIR)
+}
+
+package require msgcat
+if ([info exists env(LANG)]) {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload $LANGDIR
+}
+
+wm title . [msgcat::mc "EMC Set Coordinate"]
 
 set top [frame .frame -borderwidth 2 -relief raised]
-label $top.l1 -text "Coordinate System Control Window"
+label $top.l1 -text [msgcat::mc "Coordinate System Control Window"]
 pack $top.l1 -side top
 
 set paramfilename [emc_ini "PARAMETER_FILE" "RS274NGC"]
@@ -88,17 +99,17 @@ pack $sel -side left -padx 10 -pady 10
 # Build the variable numbers and value entry widgets.
 set right [frame $top.col]
 set axis [frame $right.coord]
-label $axis.name -text "Axis "
-label $axis.varnum -text "Var # "
-label $axis.varval -text "Offset Value "
-label $axis.forceval -text "What to Teach"
+label $axis.name -text [msgcat::mc "Axis "]
+label $axis.varnum -text [msgcat::mc "Var # "]
+label $axis.varval -text [msgcat::mc "Offset Value "]
+label $axis.forceval -text [msgcat::mc "What to Teach"]
 grid $axis.name $axis.varnum $axis.varval $axis.forceval -sticky news
 for {set i 0} {$i < $numaxis} {incr i} {
     label  $axis.l$i -text [lindex $nameaxis $i ]  -anchor e
     label $axis.l1$i -textvariable "num$i"  -anchor e
     entry $axis.e$i -textvariable val$i -takefocus 1
     entry $axis.fv$i -textvariable forceval$i
-    button $axis.b$i -text "Teach" -command "getLocation $i"
+    button $axis.b$i -text [msgcat::mc "Teach"] -command "getLocation $i"
     grid $axis.l$i $axis.l1$i $axis.e$i $axis.fv$i $axis.b$i -sticky news
     bind $axis.e$i <Down>  {shiftFocus 1}
     bind $axis.e$i <Up> {shiftFocus -1}
@@ -107,10 +118,10 @@ focus $axis.e0
 
 # Build the control button widgets.
 set buttons [frame $right.buttons]
-button $buttons.b -text "Set Old" -width 8 -command {getLast}
-button $buttons.b0 -text "Set Zero" -width 8 -command {getZero}
-button $buttons.b2 -text "Close" -width 8 -command {closeWindow}
-button $buttons.b4 -text "Write" -width 8 -command {setVarValues ; loadVarFile}
+button $buttons.b -text [msgcat::mc "Set Old"] -width 12 -command {getLast}
+button $buttons.b0 -text [msgcat::mc "Set Zero"] -width 12 -command {getZero}
+button $buttons.b2 -text [msgcat::mc "Close"] -width 12 -command {closeWindow}
+button $buttons.b4 -text [msgcat::mc "Write"] -width 12 -command {setVarValues ; loadVarFile}
 grid $buttons.b0 $buttons.b4 -sticky nsew
 grid $buttons.b $buttons.b2 -sticky nsew
 pack $axis -side top -fill x -expand yes
@@ -211,7 +222,7 @@ proc saveFile {name} {
     global vartext
     catch {file copy -force $name $name.bak}
     if {[catch {open $name w} fileout]} {
-        puts stdout "can't save $name"
+        puts stdout [msgcat::mc "can't save %s" $name]
         return
     }
     puts $fileout [$vartext get 1.0 end]
@@ -234,7 +245,7 @@ proc saveFile {name} {
     global vartext
     catch {file copy -force $name $name.bak}
     if {[catch {open $name w} fileout]} {
-        puts stdout "can't save $name"
+        puts stdout [msgcat::mc "can't save %s" $name]
         return
     }
     puts $fileout [$vartext get 1.0 end]
