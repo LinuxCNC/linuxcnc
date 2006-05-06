@@ -3320,7 +3320,7 @@ fi
 if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_BIN_DIR=$EMC2_HOME/bin
     EMC2_TCL_DIR=$EMC2_HOME/tcl
-    EMC2_LANG_DIR=$EMC2_HOME/tcl/src/po
+    EMC2_LANG_DIR=$EMC2_HOME/src/po
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
     EMC2_CONFIG_PATH="~/emc2/configs:$EMC2_HOME/configs"
