@@ -67,6 +67,7 @@ usr/share/emc/tcl/bin/emctesting.tcl
 usr/share/emc/tcl/bin/emctuning.tcl
 usr/share/emc/tcl/bin/genedit.tcl
 usr/share/emc/tcl/bin/halconfig.tcl
+usr/share/emc/tcl/bin/halshow.tcl
 usr/share/emc/tcl/bin/popimage
 usr/share/emc/tcl/bin/pickconfig.tcl
 usr/share/emc/tcl/bin/tkbackplot.tcl
