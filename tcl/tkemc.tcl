@@ -34,7 +34,7 @@ set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
 set TCLDIR tcl
 set HELPDIR ../../docs/help
-set LANGDIR $TCLDIR/../src/po
+set LANGDIR src/po
 
 if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLBIN $env(EMC2_TCL_DIR)
@@ -472,15 +472,15 @@ proc popupToolOffset {} {
     set tooldiameterentry 0.0 ; # no value provided by controller
 
     frame .tooloffset.tool
-    label .tooloffset.tool.label -text [msgcat::mc "Tool:"] -anchor w
+    label .tooloffset.tool.label -text [msgcat::mc "Tool:"] -anchor w -width 15
     entry .tooloffset.tool.entry -textvariable toolentry -width 20
 
     frame .tooloffset.length
-    label .tooloffset.length.label -text [msgcat::mc "Length:"] -anchor w
+    label .tooloffset.length.label -text [msgcat::mc "Length:"] -anchor w -width 15
     entry .tooloffset.length.entry -textvariable toollengthentry -width 20
 
     frame .tooloffset.diameter
-    label .tooloffset.diameter.label -text [msgcat::mc "Diameter:"] -anchor w
+    label .tooloffset.diameter.label -text [msgcat::mc "Diameter:"] -anchor w -width 15
     entry .tooloffset.diameter.entry -textvariable tooldiameterentry -width 20
 
     frame .tooloffset.buttons
@@ -1184,15 +1184,16 @@ pack $radiocmd -side top -anchor w
 pack $radiojoint -side top -anchor w
 pack $radioworld -side top -anchor w
 
-set jogtypebutton [menubutton $jog.type -textvariable jogType -direction below -relief raised -width 16]
+set jogLabel [msgcat::mc "continuous"]
+set jogtypebutton [menubutton $jog.type -textvariable jogLabel -direction below -relief raised -width 16]
 set jogtypemenu [menu $jogtypebutton.menu -tearoff 0]
 $jogtypebutton configure -menu $jogtypemenu
-$jogtypemenu add command -label [msgcat::mc "continuous"] -command {set jogType continuous ; set jogIncrement 0.0000}
-$jogtypemenu add command -label "0.0001" -command {set jogType 0.0001 ; set jogIncrement 0.0001}
-$jogtypemenu add command -label "0.0010" -command {set jogType 0.0010 ; set jogIncrement 0.0010}
-$jogtypemenu add command -label "0.0100" -command {set jogType 0.0100 ; set jogIncrement 0.0100}
-$jogtypemenu add command -label "0.1000" -command {set jogType 0.1000 ; set jogIncrement 0.1000}
-$jogtypemenu add command -label "1.0000" -command {set jogType 1.0000 ; set jogIncrement 1.0000}
+$jogtypemenu add command -label [msgcat::mc "continuous"] -command {set jogType continuous ; set jogIncrement 0.0000 ; set jogLabel [msgcat::mc "continuous"]}
+$jogtypemenu add command -label "0.0001" -command {set jogType 0.0001 ; set jogIncrement 0.0001 ; set jogLabel 0.0001}
+$jogtypemenu add command -label "0.0010" -command {set jogType 0.0010 ; set jogIncrement 0.0010 ; set jogLabel 0.0010}
+$jogtypemenu add command -label "0.0100" -command {set jogType 0.0100 ; set jogIncrement 0.0100 ; set jogLabel 0.0100}
+$jogtypemenu add command -label "0.1000" -command {set jogType 0.1000 ; set jogIncrement 0.1000 ; set jogLabel 0.1000}
+$jogtypemenu add command -label "1.0000" -command {set jogType 1.0000 ; set jogIncrement 1.0000 ; set jogLabel 1.0000}
 
 pack $jogtypebutton -side top
 
@@ -1856,21 +1857,21 @@ proc popupFont {} {
     set y [frame $a.style]
     pack $f $z $y -side left -anchor n -expand 1
 
-    label $f.label -text Font
+    label $f.label -text [msgcat::mc "Font"]
     pack $f.label
     foreach i {Helvetica Courier {courier 10 pitch} Times} {
 	radiobutton $f.b$i -text $i -variable fontfamily -value $i
 	pack $f.b$i -side top -anchor w
     }
 
-    label $z.label -text Size
+    label $z.label -text [msgcat::mc "Size"]
     pack $z.label
     foreach i {24 30 36 48 56 64} {
 	radiobutton $z.b$i -text $i -variable fontsize -value $i
 	pack $z.b$i -side top -anchor w
     }
 
-    label $y.label -text Style
+    label $y.label -text [msgcat::mc "Style"]
     pack $y.label
     foreach i {roman bold italic} {
 	radiobutton $y.b$i -text $i -variable fontstyle -value $i
