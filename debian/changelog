@@ -1,3 +1,14 @@
+emc2 (1:2.0.0) unstable; urgency=low
+
+  * fix tkemc's help
+  * halshow, a way to view the state of the running hal
+  * emccalib now handles more than one hal command that refer to the
+    same ini variable
+  * many internationalization fixes
+  * update some readmes in the sample configurations
+
+ -- Chris Radek <chris@timeguy.com>  Sun,  7 May 2006 16:41:49 -0500
+
 emc2 (TESTING-2006-05-02) testing; urgency=low
 
   * fix wrong center point position in XZ and YZ arcs while using tool
