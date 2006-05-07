@@ -24,12 +24,23 @@ exec $EMC2_EMCSH "$0" "$@"
 
 set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
+set LANGDIR src/po
 
 if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLBIN $env(EMC2_TCL_DIR)
     set TCLSCRIPTS $env(EMC2_TCL_DIR)
     set TCLBIN $TCLBIN/bin
     set TCLSCRIPTS $TCLSCRIPTS/scripts
+}
+
+if {[info exists env(EMC2_LANG_DIR)]} {
+    set LANGDIR $env(EMC2_LANG_DIR)
+}
+
+package require msgcat
+if ([info exists env(LANG)]) {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload $LANGDIR
 }
 
 # These offset plot zero from canvas zero.
@@ -119,7 +130,7 @@ proc popupPlot {} {
         return
     }
     toplevel $d
-    wm title $d "TkEmc BackPlot"
+    wm title $d [msgcat::mc "TkEmc BackPlot"]
 
 # use "pw" as name of top level from now on
 set pw .plot
@@ -134,11 +145,11 @@ button $tab.yz -relief flat -font {Helvetica -10 bold} -anchor n -width 8 \
 button $tab.3d -relief flat -font {Helvetica -10 bold} -anchor n -width 8 \
     -text { 3D } -command {selectPlot 3d} -borderwidth 0
 button $tab.config  -relief raised -font {Helvetica -10 bold} -anchor n -width 8 \
-    -text {SETUP} -command {selectPlot config} -borderwidth 1
+    -text [msgcat::mc "SETUP"] -command {selectPlot config} -borderwidth 1
 button $tab.reset  -relief raised -font {Helvetica -10 bold} -anchor n -width 8 \
-    -text {RESET} -command {erasePlot} -borderwidth 1
+    -text [msgcat::mc "RESET"] -command {erasePlot} -borderwidth 1
 button $tab.can  -relief raised -font {Helvetica -10 bold} -anchor n -width 8 \
-    -text {CANCEL} -command {destroy .plot} -borderwidth 1
+    -text [msgcat::mc "CANCEL"] -command {destroy .plot} -borderwidth 1
 pack $tab.xy $tab.xz $tab.yz $tab.3d $tab.config $tab.reset $tab.can -side left \
      -fill both
 pack $tab -side top -fill x
@@ -251,10 +262,10 @@ grid $screen.3dplot.hscroll -row 1 -column 0 -sticky ew
 
 set cft [frame $screen.config ]
 
-label $cft.label1 -text "AXIS" -anchor e
-label $cft.label2 -text "OFFSET"
-label $cft.label3 -text "ANGLE"
-label $cft.label4 -text "DIRECTION"
+label $cft.label1 -text [msgcat::mc "AXIS"] -anchor e
+label $cft.label2 -text [msgcat::mc "OFFSET"]
+label $cft.label3 -text [msgcat::mc "ANGLE"]
+label $cft.label4 -text [msgcat::mc "DIRECTION"]
 
 label $cft.labelx -text "X :" -anchor e
 entry $cft.exo -relief sunken -textvariable xoffset -width 8
@@ -271,7 +282,7 @@ entry $cft.ezo -relief sunken -textvariable zoffset -width 8
 entry $cft.eza -relief sunken -textvariable zangle -width 8
 button $cft.bzd -textvariable zdir -command {changeDirection zdir} -width 10
 
-label $cft.elabel -text "SIZE :" -anchor e  -width 8
+label $cft.elabel -text [msgcat::mc "SIZE :"] -anchor e  -width 8
 entry $cft.esize -relief sunken -textvariable size -width 8
 
 grid $cft.label1 $cft.label2 $cft.label3 $cft.label4 $cft.elabel -padx 6
