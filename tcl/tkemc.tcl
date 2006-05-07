@@ -34,7 +34,7 @@ set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
 set TCLDIR tcl
 set HELPDIR ../../docs/help
-set LANGDIR $TCLDIR/../src/po
+set LANGDIR src/po
 
 if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLBIN $env(EMC2_TCL_DIR)
@@ -251,8 +251,7 @@ proc popupProgramEditor {} {
     if {[file isfile $programnamestring]} {
         geneditStart programEditor $programnamestring
     } else {
-        #msgcat doesn't work here translation taken care of in popupRunMark above.
-        geneditStart programEditor "untitled.ngc"
+        geneditStart programEditor [msgcat::mc "untitled"].ngc
     }
 
     frame .programEditor.buttons
@@ -275,7 +274,7 @@ proc popupToolEditor {} {
     if {[file isfile $toolfilename]} {
         geneditStart toolEditor $toolfilename
     } else {
-        geneditStart toolEditor [msgcat::mc "untitled"]".tbl"
+        geneditStart toolEditor [msgcat::mc "untitled"].tbl
     }
 
     frame .toolEditor.buttons
@@ -298,7 +297,7 @@ proc popupParamEditor {} {
     if {[file isfile $paramfilename]} {
         geneditStart paramEditor $paramfilename
     } else {
-        geneditStart paramEditor [msgcat::mc "untitled"]".var"
+        geneditStart paramEditor [msgcat::mc "untitled"].var
     }
 
     # disable "Save As..." menu, since we don't support changing it
@@ -445,7 +444,7 @@ proc popupAbout {} {
     }
     toplevel .about
     wm title .about [msgcat::mc "About TkEmc"]
-    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(EMC2 %s)" [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (emc2)\n\nGPL Version 2(2006)"] $env(EMC2VERSION) ]
+    message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(EMC2 %s)" [msgcat::mc "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (EMC2)\n\nGPL Version 2 (2006)"] $env(EMC2VERSION) ]
     frame .about.buttons
     button .about.buttons.ok -default active -text OK -command "destroy .about"
     pack .about.msg -side top
@@ -473,20 +472,20 @@ proc popupToolOffset {} {
     set tooldiameterentry 0.0 ; # no value provided by controller
 
     frame .tooloffset.tool
-    label .tooloffset.tool.label -text [msgcat::mc "Tool:"] -anchor w
+    label .tooloffset.tool.label -text [msgcat::mc "Tool:"] -anchor w -width 15
     entry .tooloffset.tool.entry -textvariable toolentry -width 20
 
     frame .tooloffset.length
-    label .tooloffset.length.label -text [msgcat::mc "Length:"] -anchor w
+    label .tooloffset.length.label -text [msgcat::mc "Length:"] -anchor w -width 15
     entry .tooloffset.length.entry -textvariable toollengthentry -width 20
 
     frame .tooloffset.diameter
-    label .tooloffset.diameter.label -text [msgcat::mc "Diameter:"] -anchor w
+    label .tooloffset.diameter.label -text [msgcat::mc "Diameter:"] -anchor w -width 15
     entry .tooloffset.diameter.entry -textvariable tooldiameterentry -width 20
 
     frame .tooloffset.buttons
-    button .tooloffset.buttons.ok -text OK -default active -command {emc_set_tool_offset $toolentry $toollengthentry $tooldiameterentry; destroy .tooloffset}
-    button .tooloffset.buttons.cancel -text Cancel -command {destroy .tooloffset}
+    button .tooloffset.buttons.ok -text [msgcat::mc "OK"] -default active -command {emc_set_tool_offset $toolentry $toollengthentry $tooldiameterentry; destroy .tooloffset}
+    button .tooloffset.buttons.cancel -text [msgcat::mc "Cancel"] -command {destroy .tooloffset}
 
     pack .tooloffset.tool -side top
     pack .tooloffset.tool.label .tooloffset.tool.entry -side left
@@ -1186,15 +1185,16 @@ pack $radiocmd -side top -anchor w
 pack $radiojoint -side top -anchor w
 pack $radioworld -side top -anchor w
 
-set jogtypebutton [menubutton $jog.type -textvariable jogType -direction below -relief raised -width 16]
+set jogLabel [msgcat::mc "continuous"]
+set jogtypebutton [menubutton $jog.type -textvariable jogLabel -direction below -relief raised -width 16]
 set jogtypemenu [menu $jogtypebutton.menu -tearoff 0]
 $jogtypebutton configure -menu $jogtypemenu
-$jogtypemenu add command -label [msgcat::mc "continuous"] -command {set jogType continuous ; set jogIncrement 0.0000}
-$jogtypemenu add command -label "0.0001" -command {set jogType 0.0001 ; set jogIncrement 0.0001}
-$jogtypemenu add command -label "0.0010" -command {set jogType 0.0010 ; set jogIncrement 0.0010}
-$jogtypemenu add command -label "0.0100" -command {set jogType 0.0100 ; set jogIncrement 0.0100}
-$jogtypemenu add command -label "0.1000" -command {set jogType 0.1000 ; set jogIncrement 0.1000}
-$jogtypemenu add command -label "1.0000" -command {set jogType 1.0000 ; set jogIncrement 1.0000}
+$jogtypemenu add command -label [msgcat::mc "continuous"] -command {set jogType continuous ; set jogIncrement 0.0000 ; set jogLabel [msgcat::mc "continuous"]}
+$jogtypemenu add command -label "0.0001" -command {set jogType 0.0001 ; set jogIncrement 0.0001 ; set jogLabel 0.0001}
+$jogtypemenu add command -label "0.0010" -command {set jogType 0.0010 ; set jogIncrement 0.0010 ; set jogLabel 0.0010}
+$jogtypemenu add command -label "0.0100" -command {set jogType 0.0100 ; set jogIncrement 0.0100 ; set jogLabel 0.0100}
+$jogtypemenu add command -label "0.1000" -command {set jogType 0.1000 ; set jogIncrement 0.1000 ; set jogLabel 0.1000}
+$jogtypemenu add command -label "1.0000" -command {set jogType 1.0000 ; set jogIncrement 1.0000 ; set jogLabel 1.0000}
 
 pack $jogtypebutton -side top
 
@@ -1265,8 +1265,8 @@ proc popupAxisOffset {axis} {
     label .axisoffset.input.label -text [msgcat::mc "Set axis value:"]
     entry .axisoffset.input.entry -textvariable axisoffsettext -width 20
     frame .axisoffset.buttons
-    button .axisoffset.buttons.ok -text OK -default active -command "setAxisOffset $axis \$axisoffsettext; destroy .axisoffset"
-    button .axisoffset.buttons.cancel -text Cancel -command "destroy .axisoffset"
+    button .axisoffset.buttons.ok -text [msgcat::mc "OK"] -default active -command "setAxisOffset $axis \$axisoffsettext; destroy .axisoffset"
+    button .axisoffset.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .axisoffset"
     pack .axisoffset.input.label .axisoffset.input.entry -side left
     pack .axisoffset.input -side top
     pack .axisoffset.buttons -side bottom -fill x -pady 2m
@@ -1313,8 +1313,8 @@ proc popupJogSpeed {} {
     label .jogspeedpopup.input.label -text [msgcat::mc "Set jog speed:"]
     entry .jogspeedpopup.input.entry -textvariable popupJogSpeedEntry -width 20
     frame .jogspeedpopup.buttons
-    button .jogspeedpopup.buttons.ok -text OK -default active -command {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
-    button .jogspeedpopup.buttons.cancel -text Cancel -command "destroy .jogspeedpopup"
+    button .jogspeedpopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set jogSpeed $popupJogSpeedEntry; destroy .jogspeedpopup}
+    button .jogspeedpopup.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .jogspeedpopup"
     pack .jogspeedpopup.input.label .jogspeedpopup.input.entry -side left
     pack .jogspeedpopup.input -side top
     pack .jogspeedpopup.buttons -side bottom -fill x -pady 2m
@@ -1344,8 +1344,8 @@ proc popupOride {} {
     label .oridepopup.input.label -text [msgcat::mc "Set feed override:"]
     entry .oridepopup.input.entry -textvariable popupOrideEntry -width 20
     frame .oridepopup.buttons
-    button .oridepopup.buttons.ok -text OK -default active -command {set feedoverride $popupOrideEntry; emc_feed_override $feedoverride; destroy .oridepopup}
-    button .oridepopup.buttons.cancel -text Cancel -command "destroy .oridepopup"
+    button .oridepopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set feedoverride $popupOrideEntry; emc_feed_override $feedoverride; destroy .oridepopup}
+    button .oridepopup.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .oridepopup"
     pack .oridepopup.input.label .oridepopup.input.entry -side left
     pack .oridepopup.input -side top
     pack .oridepopup.buttons -side bottom -fill x -pady 2m
@@ -1858,21 +1858,21 @@ proc popupFont {} {
     set y [frame $a.style]
     pack $f $z $y -side left -anchor n -expand 1
 
-    label $f.label -text Font
+    label $f.label -text [msgcat::mc "Font"]
     pack $f.label
     foreach i {Helvetica Courier {courier 10 pitch} Times} {
 	radiobutton $f.b$i -text $i -variable fontfamily -value $i
 	pack $f.b$i -side top -anchor w
     }
 
-    label $z.label -text Size
+    label $z.label -text [msgcat::mc "Size"]
     pack $z.label
     foreach i {24 30 36 48 56 64} {
 	radiobutton $z.b$i -text $i -variable fontsize -value $i
 	pack $z.b$i -side top -anchor w
     }
 
-    label $y.label -text Style
+    label $y.label -text [msgcat::mc "Style"]
     pack $y.label
     foreach i {roman bold italic} {
 	radiobutton $y.b$i -text $i -variable fontstyle -value $i
