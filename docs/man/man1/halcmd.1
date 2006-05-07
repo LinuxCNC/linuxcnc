@@ -49,7 +49,7 @@ and return failure if any command fails.
 display errors only (default)
 .TP
 \fB\-Q\fR
-display nothing, execute commands silently
+display nothing; execute commands silently
 .TP
 \fB\-s\fR
 Script-friendly mode.  In this mode, \fIshow\fR will not output titles for the items
@@ -64,7 +64,7 @@ No prompt will be printed if both \fB-s\fR and \fB-f\fR are specified.
 display results of each command
 .TP
 \fB\-V\fR
-display lots of debugging junk
+display lots of debugging output
 .TP
 \fB\-h\fR [\fIcommand\fR]
 display a help screen and exit, displays extended help on \fIcommand\fR if specified
@@ -77,8 +77,8 @@ Anything following '\fB#\fR' on a line is a comment.
 .TP
 \fBloadrt\fR \fImodname\fR
 (\fIload\fR \fIr\fReal\fIt\fRime module)  Loads a realtime HAL
-module called \fImodname\fR.  \fBhalcmd\fR looks in the directory
-specified by environment variable HAL_RTMOD_DIR for the module.
+module called \fImodname\fR.  \fBhalcmd\fR looks for the module 
+in the module directory specified at compile-time.
 \fBhalcmd\fR calls the \fBemc_module_helper\fR to load realtime
 modules.  \fBemc_module_helper\fR is a setuid program and 
 is compiled with a whitelist of modules it is allowed to load.
@@ -112,18 +112,19 @@ Fails if \fIsigname\fR does not exist.
 (\fIset\fR \fIs\fRignal)  Sets the value of signal \fIsigname\fR
 to \fIvalue\fR.  Fails if \fIsigname\fR does not exist, if it
 already has a writer, or if \fIvalue\fR is not a legal value.
-Legal values depend on the signals's type.
+Legal values depend on the signal's type.
 .TP
 \fBlinkps\fR \fIpinname\fR [\fIarrow\fR] \fIsigname\fR
-(\fIlink\fR \fIp\fRin to \fIs\fRignal)  Establishs a link
+(\fIlink\fR \fIp\fRin to \fIs\fRignal)  Establishes a link
 between a HAL component pin \fIpinname\fR and a HAL signal
 \fIsigname\fR.  Any previous link to \fIpinname\fR will be
 broken.  \fIarrow\fR can be "\fB=>\fR", "\fB<=\fR", "\fB<=>\fR",
 or omitted.  \fBhalcmd\fR ignores arrows, but they can be useful
 in command files to document the direction of data flow.  Arrows
-should not be used on the command line since the shell might try
-to interpret them.  Fails if either \fIpinname\fR or \fIsigname\fR
-does not exist, or if they are not the same type type.
+should not be used on the command line since the shell will try
+to interpret them if they are not quoted.  Fails if either 
+\fIpinname\fR or \fIsigname\fR does not exist, or if they are 
+not the same type type.
 .TP
 \fBlinksp\fR \fIsigname\fR [\fIarrow\fR] \fIpinname\fR
 (\fIlink\fR \fIs\fRignal to \fIp\fRin)  Works like \fBlinkps\fR
@@ -150,9 +151,7 @@ is not a legal value.  Legal values depend on the parameter's type.
 .TP
 \fIparamname\fR \fB=\fR \fIvalue\fR
 Identical to \fBsetp\fR.  This alternate form of the command may
-be more convenient and readable when used in a file.  Do not use
-from the command line, since the shell may try to interpret
-the '\fB=\fR' sign.
+be more convenient and/or readable.
 .TP
 \fBaddf\fR \fIfunctname\fR \fIthreadname\fR
 (\fIadd\fR \fIf\fRunction)  Adds function \fIfunctname\fR to realtime
@@ -177,11 +176,11 @@ Stops execution of realtime threads.  The threads will no longer call
 their functions.
 .TP
 \fBshow\fR [\fIitem\fR]
-Prints HAL items to \fIstdout\fR in human readable format.
+Prints HAL items to \fIstdout\fR in human-readable format.
 \fIitem\fR can be one of "\fBcomp\fR" (components), "\fBpin\fR",
 "\fBsig\fR" (signals), "\fBparam\fR" (parameters), "\fBfunct\fR"
 (functions), or "\fBthread\fR".  The type "\fBall\fR" can be used to show
-matching items of all the preceeding types.  If \fIitem\fR is omitted,
+matching items of all the preceding types.  If \fIitem\fR is omitted,
 \fBshow\fR will print everything.
 .TP
 \fBitem\fR
@@ -216,11 +215,6 @@ to change - perhaps \fBsave\fR without \fIitem\fR should do
 the equivalent of net,param,thread.  Perhaps \fBsave param\fR
 should use the "=" form of the \fBsetp\fR command.  Etc.
 .PP
-The \fBloadrt\fR command contains some really crufty code that
-looks for the realtime module directory if the environment
-variable HAL_RTMOD_DIR is not present.  That code should
-probably be removed, but I need to come up with a better
-method first.
 .SH AUTHOR
 Written by John Kasunich, as part of the Enhanced Machine
 Controller (EMC) project.
