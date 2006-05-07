@@ -1068,7 +1068,7 @@ static void write_pwmgens(slot_data_t *slot)
    by either read_all or write_all.  'min_addr' and 'max_addr' define
    the range of EPP addresses that the function needs.  All addresses
    needed by all functions associated with the slot woll be sequentially
-   be read into the rd_buf cache (or written from the wr_buf cache) 
+   read into the rd_buf cache (or written from the wr_buf cache) 
    by read_all or write_all respectively, to minimize the number of 
    slow inb and outb operations needed.
 */
@@ -1381,7 +1381,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
         ppmc.n.encoder.m.counts     s32
         ppmc.n.encoder.m.index      bit
     
-    the output value is position=counts * scale
+    the output value is position=counts / scale
 
     Additionally, the encoder registers are zeroed, and the mode is set to latch 
  */
