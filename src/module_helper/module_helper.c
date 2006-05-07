@@ -1,15 +1,25 @@
-/*
-This module_helper program will be installed setuid and allows
-the user to add and remove a whitelist of modules necessary to
-run EMC.  Without a scheme like this, we have to rely on sudo
-to start AND EXIT our program, and that may require the user to
-enter a password.  Prompting for a password to exit a program
-is bad.  If the user cancels at that phase of the run, it's also
-bad since we leave realtime modules inserted and he'll probably
-end up being forced to reboot.
-
-In summary, I don't like this any more than you do, but I can't
-think of a better way.
+/********************************************************************
+* Description: module_helper.c
+*   SETUID executable to help install modules as a user
+*
+*
+* Author: Chris Radek
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2004 All rights reserved.
+*
+* This module_helper program will be installed setuid and allows
+* the user to add and remove a whitelist of modules necessary to
+* run EMC.  Without a scheme like this, we have to rely on sudo
+* to start AND EXIT our program, and that may require the user to
+* enter a password.  Prompting for a password to exit a program
+* is bad.  If the user cancels at that phase of the run, it's also
+* bad since we leave realtime modules inserted and he'll probably
+* end up being forced to reboot.
+* 
+* In summary, I don't like this any more than you do, but I can't
+* think of a better way.
 */
 
 #include <stdlib.h>
