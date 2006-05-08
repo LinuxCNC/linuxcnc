@@ -1,14 +1,14 @@
 
 /********************************************************************
 * Description:  hal_speaker.c
-*               This file, 'hal_speaker.c', is a example that shows 
-*               how drivers for HAL components will work and serve as 
-*               a skeleton for new hardware drivers.
-*
-* Author: John Kasunich
+*               This file, 'hal_speaker.c', drives the PC speaker based
+*               on up to 8 bit outputs.  When the new outputs differ
+*               from the old outputs, a click is output on the speaker.
+*               
+* Author: John Kasunich and Jeff Epler
 * License: GPL Version 2
 *    
-* Copyright (c) 2003 All rights reserved.
+* Copyright (c) 2003, 2006 All rights reserved.
 *
 * Last change: 
 # $Revision$
@@ -16,45 +16,17 @@
 * $Date$
 ********************************************************************/
 
-/** This file, 'hal_speaker.c', is a example that shows how
- drivers for HAL components will work and serve as a skeleton
- for new hardware drivers.
- 
- Most of this code is taken from the hal_parport driver from John Kasunich,
+/* 
+ Most of this code is taken from hal_skeleton by John Kasunich,
  which is also a good starting point for new drivers.
 
- This driver supports only for demonstration how to write a byte (char)
- to a hardware adress, here we use the parallel port (0x378).
-
  This driver support no configuration strings so installing is easy:
- user: hal_speaker
- realtime: insmod hal_speaker
+     halcmd loadrt hal_speaker
 
- The driver creates a HAL pin and if it run in realtime a function
- as follows:
+ The driver creates a HAL pin and a function as follows:
 
  Pin: 'speaker.<portnum>.pin-<pinnum>-out'
  Function: 'speaker.<portnum>.write'
-
-    The user space version of the driver cannot export functions,
-    instead it exports a parameters with the same name.  The main()
-    function sits in a loop checking the parameters.  If it is
-    zero, it does nothing.  If the parameter is greater than zero,
-    the function runs once, then the parameter is reset to zero.
-    If the parameter is less than zero, the function runs on every
-    pass through the loop.
-    The driver will loop forever, until it receives either
-    SIGINT (ctrl-C) or SIGTERM, at which point it cleans up and
-    exits.
-
- You can see that you need at minimum four steps for installing the driver.
- The steps 1-3 are in realtime and userspace exactly the same, so it is highly
- recommended that you put this steps into a function.
- Here this is not done because so the code is easier to read.
- 
- This skeleton driver also doesn't use arguments you can pass to the driver
- at startup. Please look at the parport driver how to implement this if you need
- this for your driver.
 
 */
 
@@ -62,6 +34,8 @@
                        <jmkasunich AT users DOT sourceforge DOT net>
                        Martin Kuhnle
                        <mkuhnle AT users DOT sourceforge DOT net>
+                       Jeff Epler
+                       <jepler@unpythonic.net>
 */
 
 /** This program is free software; you can redistribute it and/or
@@ -89,22 +63,13 @@
     information, go to www.linuxcnc.org.
 */
 
-#if ( !defined RTAPI ) && ( !defined ULAPI )
-#error parport needs RTAPI/ULAPI, check makefile and flags
+#if !defined(RTAPI)
+#error parport needs RTAPI
 #endif
 
-#ifdef RTAPI			/* realtime */
 #include <linux/ctype.h>	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#else /* user space */
-#include <ctype.h>		/* isspace() */
-#include <signal.h>		/* signal() */
-#include <sched.h>		/* sched_yield() */
-#include <sys/io.h>		/* iopl() */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#endif
-
 #include "hal.h"		/* HAL public API decls */
 
 /* If FASTIO is defined, uses outb() and inb() from <asm.io>,
@@ -116,12 +81,9 @@
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
-#ifdef RTAPI			/* for ULAPI, sys/io.h defines these functs */
 #include <asm/io.h>
 #endif
-#endif
 
-#ifdef RTAPI			/* realtime */
 #ifdef MODULE
 /* module information */
 MODULE_AUTHOR("Jeff Epler");
@@ -134,7 +96,6 @@ MODULE_LICENSE("GPL");
 MODULE_PARM(cfg, "s");
 MODULE_PARM_DESC(cfg, "config string"); */
 #endif /* MODULE */
-#endif /* RTAPI */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -156,23 +117,37 @@ static speaker_t *port_data_array;
 static int comp_id;		/* component ID */
 static int num_ports;		/* number of ports configured */
 
-/***********************************************************************
-*                  LOCAL FUNCTION DECLARATIONS                         *
-************************************************************************/
-/* These is the functions that actually do the I/O
-   everything else is just init code
-*/
-static void write_port(void *arg, long period);
+/**************************************************************
+* REALTIME PORT WRITE FUNCTION                                *
+**************************************************************/
+
+static void write_port(void *arg, long period)
+{
+    uint8_t v = 0;
+    uint8_t oldval;
+    int i;
+    speaker_t *port;
+    port = arg;
+    
+    for(i=0; i<8; i++) {
+        if(*(port->signals[i])) v = v | (1<<i);
+    }
+
+    /* write it to the hardware */
+    oldval = rtapi_inb(0x61) & 0xfc;
+
+    if(v != port->last) {
+        rtapi_outb(oldval | 2, 0x61);
+    } else {
+        rtapi_outb(oldval, 0x61);
+    }
+
+    port->last = v;
+}
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
-
-#define MAX_PORTS 8
-
-#ifdef RTAPI			/* realtime part of skeleton driver */
-
-#define MAX_TOK ((MAX_PORTS*2)+3)
 
 int rtapi_app_main(void)
 {
@@ -236,34 +211,4 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
-#else
-#error Only realtime is supported
-#endif
 
-/**************************************************************
-* REALTIME PORT WRITE FUNCTION                                *
-**************************************************************/
-
-static void write_port(void *arg, long period)
-{
-    uint8_t v = 0;
-    uint8_t oldval;
-    int i;
-    speaker_t *port;
-    port = arg;
-    
-    for(i=0; i<8; i++) {
-        if(*(port->signals[i])) v = v | (1<<i);
-    }
-
-    /* write it to the hardware */
-    oldval = rtapi_inb(0x61) & 0xfc;
-
-    if(v != port->last) {
-        rtapi_outb(oldval | 2, 0x61);
-    } else {
-        rtapi_outb(oldval, 0x61);
-    }
-
-    port->last = v;
-}
