@@ -445,6 +445,8 @@ obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o
 hal_ax5214h-objs := hal/drivers/hal_ax5214h.o
 obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
 hal_ppmc-objs := hal/drivers/hal_ppmc.o
+obj-$(CONFIG_HAL_SKELETON) += hal_speaker.o
+hal_speaker-objs := hal/drivers/hal_speaker.o
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o
 
@@ -527,6 +529,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/hal_ax5214h.o: $(addprefix objects/rt,$(hal_ax5214h-objs))
 ../rtlib/hal_ppmc.o: $(addprefix objects/rt,$(hal_ppmc-objs))
 ../rtlib/hal_skeleton.o: $(addprefix objects/rt,$(hal_skeleton-objs))
+../rtlib/hal_speaker.o: $(addprefix objects/rt,$(hal_speaker-objs))
 ../rtlib/classicladder_rt.o: $(addprefix objects/rt,$(classicladder_rt-objs))
 ../rtlib/scope_rt.o: $(addprefix objects/rt,$(scope_rt-objs))
 ../rtlib/hal_lib.o: $(addprefix objects/rt,$(hal_lib-objs))

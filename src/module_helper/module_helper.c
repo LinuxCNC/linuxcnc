@@ -29,7 +29,7 @@ char *module_whitelist[] = {
     "hal_skeleton", "hal_stg", "hal_tiro", "master", "motmod", "pid",
     "rtapi", "scope_rt", "shmemtask", "siggen", "sim_encoder", "slave",
     "stepgen", "supply", "threads", "timedelay", "timertask", "hal_vti",
-    "counter",
+    "counter", "hal_speaker",
 
     NULL
 };
