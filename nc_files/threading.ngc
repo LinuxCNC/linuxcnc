@@ -1,17 +1,39 @@
 g20
 g64
-s100 m3
-f5
-#1=0.0 (start X offset)
+s400 m3 (=20ipm cutting at .05tpi)
+f20
+
+#1=0.0 (start X)
 #2=0.0005 (X increment)
-o100 while [#1 LT .05]
-#3=[#1 * TAN [29]]
-g0x.2z[.9 + #3]
+#3=0.05 (depth of cut)
+#4=0.05 (thread pitch)
+(end of arguments)
+
+o100 while [#1 LE #3]
+#5=[[#3 - #1] * TAN [29]]
+g0x.2z[.9 + #5]
 g0x[.1 - #1]
 g1x[0 - #1]
-g33z[.1+#3]k.05
-g33x[.1 - #1]z#3k[sqrt[2]*.05]
+g33z[.1 + #5]k#4
+(stay synchronized and exit at 45 degrees)
+g33x[.1 - #1]z#5k[sqrt[2]*[#4]]
 g0x.2
 #1=[#1 + #2]
 o100 endwhile
+
+(two spring passes)
+g0x.2z[.9 + #5]
+g0x[.1 - #1]
+g1x[0 - #1]
+g33z[.1 + #5]k#4
+g33x[.1 - #1]z#5k[sqrt[2]*[#4]]
+g0x.2
+
+g0x.2z[.9 + #5]
+g0x[.1 - #1]
+g1x[0 - #1]
+g33z[.1 + #5]k#4
+g33x[.1 - #1]z#5k[sqrt[2]*[#4]]
+g0x.2
+
 m2
