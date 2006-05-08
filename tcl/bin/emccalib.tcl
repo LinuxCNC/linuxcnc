@@ -42,6 +42,7 @@ set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
 set TCLDIR tcl
 set REALTIME scripts/realtime
+set LANGDIR src/po
 
 # default location for halcmd is in ./bin/
 # if this file is needed to run a different location of halcmd
@@ -65,7 +66,6 @@ if {[info exists env(HALCMD)]} {
     set HALCMD $env(HALCMD)
 }
 
-set LANGDIR $TCLDIR/../src/po
 if {[info exists env(EMC2_LANG_DIR)]} {
     set LANGDIR $env(EMC2_LANG_DIR)
 }
@@ -136,8 +136,8 @@ pack $main -side left -expand yes -fill both \
 pack $top -side top -fill both -expand yes
 set terminate [frame $main.bot]
 pack $terminate -side top -fill x
-button $terminate.save -text "Save To File" -command {saveIni tune}
-button $terminate.quit -text Quit -command {saveIni quit}
+button $terminate.save -text [msgcat::mc "Save To File"] -command {saveIni tune}
+button $terminate.quit -text [msgcat::mc "Quit"] -command {saveIni quit}
 pack $terminate.save  $terminate.quit \
     -pady 4 -side left -fill both -expand yes
 
@@ -208,7 +208,7 @@ proc makeIniTune {} {
     for {set j 0} {$j<$numaxes} {incr j} {
         global af$j
         set af$j [$top insert [expr $j+3] page$j \
-        -text "[msgcat::mc "Tune"] $j"  -raisecmd "selectAxis $j" ]
+        -text [msgcat::mc "Tune %d" $j]  -raisecmd "selectAxis $j" ]
     }
  
     # label display columns       
@@ -469,11 +469,11 @@ proc saveFile {filename contents} {
     }
     switch -- [string index $contents 0] {
         "/" {
-        # a filename
+            # a filename
             puts "I got a filename"
         }
         "." {
-            # this is a widget name so get contents  
+            # this is a widget name so get contents
             puts $fileout [$contents get 1.0 end]
             catch {close $fileout}
         }
