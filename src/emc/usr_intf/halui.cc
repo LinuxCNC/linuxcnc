@@ -188,6 +188,14 @@ struct halui_str {
     hal_bit_t *lube_off;           //pin for stoping lube
     hal_bit_t *lube_is_on;         //pin for lube is on
 
+    hal_bit_t *program_is_idle;    //pin for notifying user that program is idle
+    hal_bit_t *program_is_running; //pin for notifying user that program is running
+    hal_bit_t *program_is_paused;  //pin for notifying user that program is paused
+    hal_bit_t *program_run;        //pin for running program
+    hal_bit_t *program_pause;      //pin for pausing program
+    hal_bit_t *program_resume;     //pin for resuming program
+    hal_bit_t *program_step;       //pin for running one line of the program
+
 } * halui_data; 
 
 struct local_halui_str {
@@ -217,6 +225,15 @@ struct local_halui_str {
     hal_bit_t lube_off;           //pin for stoping lube
     hal_bit_t lube_is_on;         //pin for lube is on
 
+    hal_bit_t program_is_idle;    //pin for notifying user that program is idle
+    hal_bit_t program_is_running; //pin for notifying user that program is running
+    hal_bit_t program_is_paused;  //pin for notifying user that program is paused
+    hal_bit_t program_run;        //pin for running program
+    hal_bit_t program_pause;      //pin for pausing program
+    hal_bit_t program_resume;     //pin for resuming program
+    hal_bit_t program_step;       //pin for running one line of the program
+
+
 } old_halui_data; //pointer to the HAL-struct
 
 static int comp_id;				/* component ID */
@@ -241,7 +258,7 @@ static enum {
     EMC_WAIT_NONE = 1,
     EMC_WAIT_RECEIVED,
     EMC_WAIT_DONE
-} emcWaitType = EMC_WAIT_DONE;
+} emcWaitType = EMC_WAIT_RECEIVED;
 
 /* clean out for now, causes warnings
 static enum {
@@ -658,6 +675,15 @@ int halui_hal_init(void)
     //halui.lube.is-on                 //pin signifiying lube is turned on
     retval = halui_export_pin_WR_bit(&(halui_data->lube_is_on), "halui.lube.is-on"); 
     if (retval != HAL_SUCCESS) return -1;
+    //halui.program.is-idle            //pin for notifying user that program is idle
+    retval = halui_export_pin_WR_bit(&(halui_data->program_is_idle), "halui.program.is-idle"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.program.is-running         //pin for notifying user that program is running
+    retval = halui_export_pin_WR_bit(&(halui_data->program_is_running), "halui.program.is-running"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.program.is-paused          //pin for notifying user that program is paused
+    retval = halui_export_pin_WR_bit(&(halui_data->program_is_paused), "halui.program.is-paused"); 
+    if (retval != HAL_SUCCESS) return -1;
 
 
     /* STEP 3b: export the in-pin(s) */
@@ -700,6 +726,18 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return -1;
     //halui.lube.off             //pin for deactivating lube
     retval = halui_export_pin_RD_bit(&(halui_data->lube_off), "halui.lube.off"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.program.run          //pin for running program
+    retval = halui_export_pin_RD_bit(&(halui_data->program_run), "halui.program.run"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.program.pause        //pin for pausing program
+    retval = halui_export_pin_RD_bit(&(halui_data->program_pause), "halui.program.pause"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.program.resume       //pin for resuming program
+    retval = halui_export_pin_RD_bit(&(halui_data->program_resume), "halui.program.resume"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.program.step         //pin for running one line of the program
+    retval = halui_export_pin_RD_bit(&(halui_data->program_step), "halui.program.step"); 
     if (retval != HAL_SUCCESS) return -1;
 
     return 0;
@@ -898,6 +936,80 @@ static int sendLubeOff()
 
     emc_lube_off_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_lube_off_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+
+// programStartLine is the saved valued of the line that
+// sendProgramRun(int line) sent
+static int programStartLine = 0;
+
+static int sendProgramRun(int line)
+{
+    EMC_TASK_PLAN_RUN emc_task_plan_run_msg;
+
+    updateStatus();
+
+    if (0 == emcStatus->task.file[0]) {
+	return -1; // no program open
+    }
+    // save the start line, to compare against active line later
+    programStartLine = line;
+
+    emc_task_plan_run_msg.serial_number = ++emcCommandSerialNumber;
+    emc_task_plan_run_msg.line = line;
+    emcCommandBuffer->write(emc_task_plan_run_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendProgramPause()
+{
+    EMC_TASK_PLAN_PAUSE emc_task_plan_pause_msg;
+
+    emc_task_plan_pause_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_task_plan_pause_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendProgramResume()
+{
+    EMC_TASK_PLAN_RESUME emc_task_plan_resume_msg;
+
+    emc_task_plan_resume_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_task_plan_resume_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendProgramStep()
+{
+    EMC_TASK_PLAN_STEP emc_task_plan_step_msg;
+
+    emc_task_plan_step_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_task_plan_step_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived(emcCommandSerialNumber);
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -1277,80 +1389,6 @@ static int sendTaskPlanInit()
     return 0;
 }
 
-// programStartLine is the saved valued of the line that
-// sendProgramRun(int line) sent
-static int programStartLine = 0;
-
-static int sendProgramRun(int line)
-{
-    EMC_TASK_PLAN_RUN emc_task_plan_run_msg;
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    if (0 == emcStatus->task.file[0]) {
-	return -1; // no program open
-    }
-    // save the start line, to compare against active line later
-    programStartLine = line;
-
-    emc_task_plan_run_msg.serial_number = ++emcCommandSerialNumber;
-    emc_task_plan_run_msg.line = line;
-    emcCommandBuffer->write(emc_task_plan_run_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendProgramPause()
-{
-    EMC_TASK_PLAN_PAUSE emc_task_plan_pause_msg;
-
-    emc_task_plan_pause_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_task_plan_pause_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendProgramResume()
-{
-    EMC_TASK_PLAN_RESUME emc_task_plan_resume_msg;
-
-    emc_task_plan_resume_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_task_plan_resume_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendProgramStep()
-{
-    EMC_TASK_PLAN_STEP emc_task_plan_step_msg;
-
-    emc_task_plan_step_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_task_plan_step_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
 
 static int sendMdiCmd(char *mdi)
 {
@@ -1661,6 +1699,29 @@ static void check_hal_changes()
 	old_halui_data.lube_off = *(halui_data->lube_off);
     }
 
+    if (*(halui_data->program_run) != old_halui_data.program_run) {
+	if (*(halui_data->program_run) != 0)
+	    sendProgramRun(0);
+	old_halui_data.program_run = *(halui_data->program_run);
+    }
+
+    if (*(halui_data->program_pause) != old_halui_data.program_pause) {
+	if (*(halui_data->program_pause) != 0)
+	    sendProgramPause();
+	old_halui_data.program_pause = *(halui_data->program_pause);
+    }
+
+    if (*(halui_data->program_resume) != old_halui_data.program_resume) {
+	if (*(halui_data->program_resume) != 0)
+	    sendProgramResume();
+	old_halui_data.program_resume = *(halui_data->program_resume);
+    }
+
+    if (*(halui_data->program_step) != old_halui_data.program_step) {
+	if (*(halui_data->program_step) != 0)
+	    sendProgramStep();
+	old_halui_data.program_step = *(halui_data->program_step);
+    }
 }
 
 
