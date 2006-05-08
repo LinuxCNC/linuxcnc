@@ -1,0 +1,67 @@
+vcp {
+    main-window {
+	title = "Halui & halvcp Testing"
+	width = 400
+	height = 300
+	# this box will hold three side-by-side boxes, one for each axis
+	box {
+	    layout = horizontal
+	    # this box holds stuff for Machine on/off
+	    box {
+		layout = vertical
+		title = "Machine"
+		button {
+		    halpin = button.machine-on
+		    label { text = "On" }
+		}
+		button {
+		    halpin = button.machine-off
+		    label { text = "Off" }
+		}
+		label { text = "machine control" }
+	    }
+	    # this box holds stuff for Estop On/Reset
+	    box {
+		layout = vertical
+		title = "Estop"
+		button {
+		    halpin = button.estop-activate
+		    label { text = "Activate" }
+		}
+		button {
+		    halpin = button.estop-reset
+		    label { text = "Reset" }
+		}
+		label { text = "ESTOP" }
+	    }
+	    # this box holds stuff for program Run, pause, resume, step
+	    box {
+		layout = vertical
+		title = "Program"
+		button {
+		    halpin = button.program-run
+		    label { text = "run" }
+		}
+		button {
+		    halpin = button.program-pause
+		    label { text = "pause" }
+		}
+		button {
+		    halpin = button.program-resume
+		    label { text = "resume" }
+		}
+		button {
+		    halpin = button.program-step
+		    label { text = "step" }
+		}
+		label { text = "Program" }
+	    }
+	    # this box holds stuff for the spindle
+	    box {
+		layout = vertical
+		title = "spindle"
+	    }
+	}
+    } # main-window
+}
+   
