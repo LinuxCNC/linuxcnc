@@ -34,6 +34,7 @@ set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
 set TCLDIR tcl
 set REALTIME scripts/realtime
+set LANGDIR src/po
 
 # default location for halcmd is in ./bin/
 # if this file is needed to run a different location of halcmd
@@ -57,7 +58,6 @@ if {[info exists env(HALCMD)]} {
     set HALCMD $env(HALCMD)
 }
 
-set LANGDIR $TCLDIR/../src/po
 if {[info exists env(EMC2_LANG_DIR)]} {
     set LANGDIR $env(EMC2_LANG_DIR)
 }

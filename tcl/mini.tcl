@@ -39,7 +39,7 @@ set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
 set TCLDIR tcl
 set HELPDIR ../../docs/help
-set LANGDIR $TCLDIR/../src/po
+set LANGDIR src/po
 
 if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLBIN $env(EMC2_TCL_DIR)
@@ -60,7 +60,6 @@ if ([info exists env(EMC2_TCL_DIR)]) {
 if {[info exists env(EMC2_LANG_DIR)]} {
     set LANGDIR $env(EMC2_LANG_DIR)
 }
-
 
 package require msgcat
 if ([info exists env(LANG)]) {
@@ -769,18 +768,17 @@ proc toggleBrake {} {
 
 
 # Initialize feedoverride and lastfeedoverride before first calling
-# This should be edited, so that the feedtext don't switch this. Before this can't be translatet.
 
 proc toggleFeedhold {} {
-    global feedtext feedoverride lastfeedoverride
+    global feedvalue feedoverride lastfeedoverride
     set temp [emc_feed_override]
     if {$temp >= 2} {set lastfeedoverride $temp}
-    switch -- $feedtext {
-        FEEDHOLD {
+    switch -- $feedvalue {
+        feedhold {
             set feedoverride 0
             emc_feed_override $feedoverride
         }
-        CONTINUE {
+        continue {
             set feedoverride $lastfeedoverride
             emc_feed_override $feedoverride
         }
@@ -1053,12 +1051,13 @@ set abortbutton [button $up.abort -text [msgcat::mc "ABORT"] -width 8  -takefocu
 bind $abortbutton <ButtonPress-1> {emc_abort ; showRestart}
 
 # feedhold
-set feedholdbutton [button $up.feedhold -textvariable feedtext -width 8  -takefocus 0 \
+set feedholdbutton [button $up.feedhold -textvariable feedlabel -width 8  -takefocus 0 \
     -borderwidth 2 ]
 bind $feedholdbutton <ButtonPress-1> {toggleFeedhold}
 
 # initial feedhold conditions
-set feedtext [msgcat::mc "CONTINUE"]
+set feedvalue "continue"
+set feedlabel [msgcat::mc "CONTINUE"]
 set feedoverride [emc_feed_override]
 set lastfeedoverride 100
 toggleFeedhold
@@ -1829,7 +1828,7 @@ proc updateMini {} {
 #    global motionhb motioncmd motionnum motionstatus
     global oldstatusstring jogSpeed
     global axiscoordmap
-    global popinframe feedholdbutton stopbutton feedtext
+    global popinframe feedholdbutton stopbutton feedvalue feedlabel
     global isnew oldmode workoffsets defbg offsetactive oldoffsetactive
     global restartline oldrestartline
 
@@ -2014,10 +2013,12 @@ proc updateMini {} {
     set realfeedoverride [emc_feed_override]
     if {$realfeedoverride == 0} {
             $feedholdbutton configure -bg green -activebackground green  -fg black -activeforeground darkgray
-            set feedtext "CONTINUE"
+            set feedvalue "continue"
+            set feedlabel [msgcat::mc "CONTINUE"]
     } else {
             $feedholdbutton configure -bg red -activebackground red -fg black -activeforeground white
-             set feedtext "FEEDHOLD"
+             set feedvalue "feedhold"
+             set feedlabel [msgcat::mc "FEEDHOLD"]
     }
 
     # temporary fix for 0 jog speed problem

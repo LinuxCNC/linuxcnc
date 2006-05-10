@@ -29,6 +29,18 @@ exec $EMC2_EMCSH "$0" "$@"
 # or edit the exec line above with the path to emcsh.
 ###############################################################
 
+set LANGDIR src/po
+
+if {[info exists env(EMC2_LANG_DIR)]} {
+    set LANGDIR $env(EMC2_LANG_DIR)
+}
+
+package require msgcat
+if ([info exists env(LANG)]) {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload $LANGDIR
+}
+
 # check if any emc commands exist, and quit if not
 if {! [string length [info commands emc_plat]]} {
     error "emclog needs to run from \"emcsh\""
@@ -52,15 +64,15 @@ proc updateLog {} {
     global isopen islogging numpoints displayCycleTime
 
     if {[emc_log_isopen]} {
-        set isopen "Open"
+        set isopen [msgcat::mc "Open"]
     } else {
-        set isopen "Closed"
+        set isopen [msgcat::mc "Closed"]
     }
 
     if {[emc_log_islogging]} {
-        set islogging "Logging"
+        set islogging [msgcat::mc "Logging"]
     } else {
-        set islogging "Not Logging"
+        set islogging [msgcat::mc "Not Logging"]
     }
 
     set numpoints [emc_log_numpoints]
@@ -171,7 +183,7 @@ proc popupLog {{w .logwindow}} {
     # modified name "lw"
     if {$w == "."} {
         set lw ""
-        wm title $w "EMC Logging"
+        wm title $w [msgcat::mc "EMC Logging"]
     } else {
         set lw $w
         if {[winfo exists $w]} {
@@ -181,7 +193,7 @@ proc popupLog {{w .logwindow}} {
             return
         }
         toplevel $w
-        wm title $w "EMC Logging"
+        wm title $w [msgcat::mc "EMC Logging"]
     }
 
     # use "lw" as name of top level from now on
@@ -197,46 +209,46 @@ proc popupLog {{w .logwindow}} {
 
     set f [frame $lw.type]
     pack $f -side top -fill x
-    label $f.lbl -text "Type:" -anchor w
-    set typelabel "Axis Position"
+    label $f.lbl -text [msgcat::mc "Type:"] -anchor w
+    set typelabel [msgcat::mc "Axis Position"]
     menubutton $f.mb -textvariable typelabel -direction below -menu $f.mb.m -relief raised -width 20
     menu $f.mb.m -tearoff 0
-    $f.mb.m add command -label "Axis Position" -command {set typelabel "Axis Position" ; set typeentry "axis_pos"}
-    $f.mb.m add command -label "All Input Positions" -command {set typelabel "All Input Positions" ; set typeentry "axes_inpos"}
-    $f.mb.m add command -label "All Output Positions" -command {set typelabel "All Output Positions" ; set typeentry "axes_outpos"}
-    $f.mb.m add command -label "Axis Velocity" -command {set typelabel "Axis Velocity" ; set typeentry "axis_vel"}
-    $f.mb.m add command -label "All Following Errors" -command {set typelabel "All Following Errors" ; set typeentry "axes_ferror"}
-    $f.mb.m add command -label "Trajectory Points" -command {set typelabel "Trajectory Points" ; set typeentry "traj_pos"}
-    $f.mb.m add command -label "Trajectory Vels" -command {set typelabel "Trajectory Vels" ; set typeentry "traj_vel"}
-    $f.mb.m add command -label "Trajectory Accs" -command {set typelabel "Trajectory Accs" ; set typeentry "traj_acc"}
-    $f.mb.m add command -label "Pos and Voltage" -command {set typelabel "Pos and Voltage" ; set typeentry "pos_voltage"}
+    $f.mb.m add command -label [msgcat::mc "Axis Position"] -command {set typelabel [msgcat::mc "Axis Position"] ; set typeentry "axis_pos"}
+    $f.mb.m add command -label [msgcat::mc "All Input Positions"] -command {set typelabel [msgcat::mc "All Input Positions"] ; set typeentry "axes_inpos"}
+    $f.mb.m add command -label [msgcat::mc "All Output Positions"] -command {set typelabel [msgcat::mc "All Output Positions"] ; set typeentry "axes_outpos"}
+    $f.mb.m add command -label [msgcat::mc "Axis Velocity"] -command {set typelabel [msgcat::mc "Axis Velocity"] ; set typeentry "axis_vel"}
+    $f.mb.m add command -label [msgcat::mc "All Following Errors"] -command {set typelabel [msgcat::mc "All Following Errors"] ; set typeentry "axes_ferror"}
+    $f.mb.m add command -label [msgcat::mc "Trajectory Points"] -command {set typelabel [msgcat::mc "Trajectory Points"] ; set typeentry "traj_pos"}
+    $f.mb.m add command -label [msgcat::mc "Trajectory Vels"] -command {set typelabel [msgcat::mc "Trajectory Vels"] ; set typeentry "traj_vel"}
+    $f.mb.m add command -label [msgcat::mc "Trajectory Accs"] -command {set typelabel [msgcat::mc "Trajectory Accs"] ; set typeentry "traj_acc"}
+    $f.mb.m add command -label [msgcat::mc "Pos and Voltage"] -command {set typelabel [msgcat::mc "Pos and Voltage"] ; set typeentry "pos_voltage"}
     pack $f.lbl -side left
     pack $f.mb -side right
 
     set f [frame $lw.file]
     pack $f -side top -fill x
-    label $f.lbl -text "File:" -anchor w
+    label $f.lbl -text [msgcat::mc "File:"] -anchor w
     entry $f.ent -textvariable fileentry
     pack $f.lbl -side left
     pack $f.ent -side right
 
     set f [frame $lw.size]
     pack $f -side top -fill x
-    label $f.lbl -text "Size:" -anchor w
+    label $f.lbl -text [msgcat::mc "Size:"] -anchor w
     entry $f.ent -textvariable sizeentry
     pack $f.lbl -side left
     pack $f.ent -side right
 
     set f [frame $lw.skip]
     pack $f -side top -fill x
-    label $f.lbl -text "Skip:" -anchor w
+    label $f.lbl -text [msgcat::mc "Skip:"] -anchor w
     entry $f.ent -textvariable skipentry
     pack $f.lbl -side left
     pack $f.ent -side right
 
     set f [frame $lw.which]
     pack $f -side top -fill x
-    label $f.lbl -text "Which:" -anchor w
+    label $f.lbl -text [msgcat::mc "Which:"] -anchor w
     entry $f.ent -textvariable whichentry
     pack $f.lbl -side left
     pack $f.ent -side right
@@ -244,34 +256,34 @@ proc popupLog {{w .logwindow}} {
 
     set f [frame $lw.triggertype]
     pack $f -side top -fill x
-    label $f.lbl -text "Trigger Type:" -anchor w
-    set triggertypelabel "Manual"
+    label $f.lbl -text [msgcat::mc "Trigger Type:"] -anchor w
+    set triggertypelabel [msgcat::mc "Manual"]
     menubutton $f.mb -textvariable triggertypelabel -direction below -menu $f.mb.m -relief raised -width 20
     menu $f.mb.m -tearoff 0
-    $f.mb.m add command -label "Manual" -command {set triggertypelabel "Manual" ; set triggertype "manual"}
-    $f.mb.m add command -label "Delta" -command {set triggertypelabel "Delta" ; set triggertype "delta"}
-    $f.mb.m add command -label "Over" -command {set triggertypelabel "Over" ; set triggertype "over"}
-    $f.mb.m add command -label "Under" -command {set triggertypelabel "Under" ; set triggertype "under"}
+    $f.mb.m add command -label [msgcat::mc "Manual"] -command {set triggertypelabel [msgcat::mc "Manual"] ; set triggertype "manual"}
+    $f.mb.m add command -label [msgcat::mc "Delta"] -command {set triggertypelabel [msgcat::mc "Delta"] ; set triggertype "delta"}
+    $f.mb.m add command -label [msgcat::mc "Over"] -command {set triggertypelabel [msgcat::mc "Over"] ; set triggertype "over"}
+    $f.mb.m add command -label [msgcat::mc "Under"] -command {set triggertypelabel [msgcat::mc "Under"] ; set triggertype "under"}
     pack $f.lbl -side left
     pack $f.mb -side right
 
 
     set f [frame $lw.triggervar]
     pack $f -side top -fill x
-    label $f.lbl -text "Trigger Var:" -anchor w
-    set triggervarlabel "Position"
+    label $f.lbl -text [msgcat::mc "Trigger Var:"] -anchor w
+    set triggervarlabel [msgcat::mc "Position"]
     menubutton $f.mb -textvariable triggervarlabel -direction below -menu $f.mb.m -relief raised -width 20
     menu $f.mb.m -tearoff 0
-    $f.mb.m add command -label "Position" -command {set triggervarlabel "Position" ; set triggervar "pos"}
-    $f.mb.m add command -label "Volt" -command {set triggervarlabel "Volt" ; set triggervar "volt"}
-    $f.mb.m add command -label "Following Error" -command {set triggervarlabel "Following Error" ; set triggervar "ferror"}
-    $f.mb.m add command -label "Velocity" -command {set triggervarlabel "Velocity" ; set triggervar "vel"}
+    $f.mb.m add command -label [msgcat::mc "Position"] -command {set triggervarlabel [msgcat::mc "Position"] ; set triggervar "pos"}
+    $f.mb.m add command -label [msgcat::mc "Volt"] -command {set triggervarlabel [msgcat::mc "Volt"] ; set triggervar "volt"}
+    $f.mb.m add command -label [msgcat::mc "Following Error"] -command {set triggervarlabel [msgcat::mc "Following Error"] ; set triggervar "ferror"}
+    $f.mb.m add command -label [msgcat::mc "Velocity"] -command {set triggervarlabel [msgcat::mc "Velocity"] ; set triggervar "vel"}
     pack $f.lbl -side left
     pack $f.mb -side right
 
     set f [frame $lw.triggerthreshold]
     pack $f -side top -fill x
-    label $f.lbl -text "Trigger Threshold:" -anchor w
+    label $f.lbl -text [msgcat::mc "Trigger Threshold:"] -anchor w
     entry $f.ent -textvariable triggerthreshold
     pack $f.lbl -side left
     pack $f.ent -side right
@@ -285,10 +297,10 @@ proc popupLog {{w .logwindow}} {
 
     set f [frame $lw.cmdbuttons]
     pack $f -side top
-    button $f.start -text "Start" -command startLog
-    button $f.stop -text "Stop" -command stopLog
-    button $f.save -text "Save" -command saveLog
-    button $f.plot -text "Plot" -command plotLog
+    button $f.start -text [msgcat::mc "Start"] -command startLog
+    button $f.stop -text [msgcat::mc "Stop"] -command stopLog
+    button $f.save -text [msgcat::mc "Save"] -command saveLog
+    button $f.plot -text [msgcat::mc "Plot"] -command plotLog
     if {$noPlotting} {
 	$f.plot config -state disabled
     }
@@ -299,7 +311,7 @@ proc popupLog {{w .logwindow}} {
 
     set f [frame $lw.buttons]
     pack $f -side bottom -fill x -pady 2m
-    button $f.done -text "Done" -default active -command "popdownLog $w"
+    button $f.done -text [msgcat::mc "Done"] -default active -command "popdownLog $w"
     pack $f.done -side left -expand 1
     bind $w <Return> "popdownLog $w"
 

@@ -49,23 +49,12 @@ option add *Tree*background white
 
 #first define some default directories
 set TCLDIR tcl
+set LANGDIR src/po
 
 if {[info exists env(EMC2_TCL_DIR)]} {
     set TCLDIR $env(EMC2_TCL_DIR)
 }
 
-# Internationalisation (i18n)
-# in order to use i18n, all the strings will be called [msgcat::mc "string-foo"]
-# instead of "string-foo".
-# Thus msgcat searches for a translation of the string, and in case one isn't 
-# found, the original string is used.
-# In order to properly use locale's the env variable LANG is queried.
-# If LANG is defined, then the folder src/po is searched for files
-# called *.msg, (e.g. en_US.msg).
-# That file should contain all the translations regarding tcl scripts 
-# (tkemc, mini, setupconfig.tcl, etc)
-
-set LANGDIR $TCLDIR/../src/po
 if {[info exists env(EMC2_LANG_DIR)]} {
     set LANGDIR $env(EMC2_LANG_DIR)
 }

@@ -34,6 +34,7 @@ set TCLBIN tcl/bin
 set TCLSCRIPTS tcl/scripts
 set TCLDIR tcl
 set REALTIME scripts/realtime
+set LANGDIR src/po
 
 # default location for halcmd is in ./bin/
 # if this file is needed to run a different location of halcmd
@@ -57,7 +58,6 @@ if {[info exists env(HALCMD)]} {
     set HALCMD $env(HALCMD)
 }
 
-set LANGDIR $TCLDIR/../src/po
 if {[info exists env(EMC2_LANG_DIR)]} {
     set LANGDIR $env(EMC2_LANG_DIR)
 }
@@ -138,7 +138,7 @@ wm geometry . "${masterwidth}x${masterheight}+$x+$y"
 wm protocol . WM_DELETE_WINDOW askKill
 proc askKill {} {
     global thisconfigdir
-    set tmp [tk_dialog .quit Quit [msgcat::mc "Would you like to save your configuration before you exit?"] "warning" "Save All" "Save All" "Save Tune" "Save as Netlist" "Don't Save" "Cancel"] 
+    set tmp [tk_dialog .quit [msgcat::mc "Quit"] [msgcat::mc "Would you like to save your configuration before you exit?"] "warning" [msgcat::mc "Save All"] [msgcat::mc "Save All"] [msgcat::mc "Save Tune"] [msgcat::mc "Save as Netlist"] [msgcat::mc "Don't Save"] [msgcat::mc "Cancel"]] 
     switch -- $tmp {
         0 {saveHAL save ; killHalConfig}
         1 {saveHAL savetune ; killHalConfig}
@@ -658,7 +658,7 @@ proc makeIniTune {} {
     for {set j 0} {$j<$numaxes} {incr j} {
         global af$j
         set af$j [$top insert [expr $j+3] page$j \
-        -text "[msgcat::mc "Tune"] $j"  -raisecmd "selectAxis $j" ]
+        -text [msgcat::mc "Tune %d" $j]  -raisecmd "selectAxis $j" ]
     }
  
     # label display columns       
@@ -1316,14 +1316,7 @@ proc showHelp {which} {
 # Help should include files for each of these
 # Components Pins Parameters Signals Functions Threads
 
-set helpabout {
-     Copyright Raymond E Henry. 2006
-     License: GPL Version 2
-
-     Halconfig is an EMC2 configuration tool.  It should be started from the emc2 directory and will require that you have started an instance of emc2 or work up a new configuration starting with a demo rt script.
-
-     This script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law.
-}
+set helpabout [msgcat::mc "Copyright Raymond E Henry. 2006\nLicense: GPL Version 2\n\nHalconfig is an EMC2 configuration tool.  It should be started from the emc2 directory and will require that you have started an instance of emc2 or work up a new configuration starting with a demo rt script.\n\nThis script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law."]
 
 whichTune
 $top raise ps

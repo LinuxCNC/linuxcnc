@@ -27,6 +27,18 @@ exec $EMC2_EMCSH "$0" "$@"
 #
 ###############################################################
 
+set LANGDIR src/po
+
+if {[info exists env(EMC2_LANG_DIR)]} {
+    set LANGDIR $env(EMC2_LANG_DIR)
+}
+
+package require msgcat
+if ([info exists env(LANG)]) {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload $LANGDIR
+}
+
 # check if any emc commands exist, and quit if not
 if {! [string length [info commands emc_plat]]} {
     error "emcdebug needs to run from \"emcsh\""
@@ -167,7 +179,7 @@ proc popupDebug {{w .debugwindow}} {
     if {$w == "."} {
 	# we're running standalone
         set lw ""
-        wm title $w "EMC Debug"
+        wm title $w [msgcat::mc "EMC Debug"]
     } else {
 	# we were sourced into tkemc, and run as a popup
         set lw $w
@@ -178,7 +190,7 @@ proc popupDebug {{w .debugwindow}} {
             return
         }
         toplevel $w
-        wm title $w "EMC Debug"
+        wm title $w [msgcat::mc "EMC Debug"]
     }
 
     # use "lw" as name of top level from now on
@@ -186,18 +198,18 @@ proc popupDebug {{w .debugwindow}} {
     # set the debug variables so that they're initially checked properly
     distributeDebug
 
-    checkbutton $lw.b1 -text "Invalid INI file entries" -variable debug_invalid -relief flat
-    checkbutton $lw.b2 -text "Configuration information" -variable debug_config -relief flat
-    checkbutton $lw.b3 -text "Use of defaults" -variable debug_defaults -relief flat
-    checkbutton $lw.b4 -text "Version information" -variable debug_versions -relief flat
-    checkbutton $lw.b5 -text "Command issuing" -variable debug_task_issue -relief flat
-    checkbutton $lw.b6 -text "IO points" -variable debug_io_points -relief flat
-    checkbutton $lw.b7 -text "NML" -variable debug_nml -relief flat
-    checkbutton $lw.b8 -text "Motion time" -variable debug_motion_time -relief flat
-    checkbutton $lw.b9 -text "Interpreter" -variable debug_interp -relief flat
-    checkbutton $lw.b10 -text "RCS" -variable debug_rcs -relief flat
-    checkbutton $lw.b11 -text "Trajectory level" -variable debug_traj -relief flat
-    checkbutton $lw.b12 -text "Interpreter list" -variable debug_interp_list -relief flat
+    checkbutton $lw.b1 -text [msgcat::mc "Invalid INI file entries"] -variable debug_invalid -relief flat
+    checkbutton $lw.b2 -text [msgcat::mc "Configuration information"] -variable debug_config -relief flat
+    checkbutton $lw.b3 -text [msgcat::mc "Use of defaults"] -variable debug_defaults -relief flat
+    checkbutton $lw.b4 -text [msgcat::mc "Version information"] -variable debug_versions -relief flat
+    checkbutton $lw.b5 -text [msgcat::mc "Command issuing"] -variable debug_task_issue -relief flat
+    checkbutton $lw.b6 -text [msgcat::mc "IO points"] -variable debug_io_points -relief flat
+    checkbutton $lw.b7 -text [msgcat::mc "NML"] -variable debug_nml -relief flat
+    checkbutton $lw.b8 -text [msgcat::mc "Motion time"] -variable debug_motion_time -relief flat
+    checkbutton $lw.b9 -text [msgcat::mc "Interpreter"] -variable debug_interp -relief flat
+    checkbutton $lw.b10 -text [msgcat::mc "RCS"] -variable debug_rcs -relief flat
+    checkbutton $lw.b11 -text [msgcat::mc "Trajectory level"] -variable debug_traj -relief flat
+    checkbutton $lw.b12 -text [msgcat::mc "Interpreter list"] -variable debug_interp_list -relief flat
 
     pack $lw.b1 $lw.b2 $lw.b3 $lw.b4 $lw.b5 $lw.b6 $lw.b7 $lw.b8 $lw.b9 $lw.b10 $lw.b11 $lw.b12 -side top -pady 2 -anchor w
 
