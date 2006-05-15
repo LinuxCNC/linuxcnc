@@ -269,7 +269,7 @@ typedef struct {
 
 #define HAL_KEY   0x48414C21	/* key used to open HAL shared memory */
 #define HAL_MAGIC 0x84328212	/* magic number used to verify shmem */
-#define HAL_SIZE  65500		/* so it fits inside 64K */
+#define HAL_SIZE  131000
 
 /* These pointers are set by hal_init() to point to the shmem block
    and to the master data structure. All access should use these
