@@ -4,9 +4,9 @@ MODULE_HELPERSRCS := \
 USERSRCS += $(MODULE_HELPERSRCS)
 
 ifneq ($(rip_moduledir),)
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror -DMODULE_EXT=\"$(MODULE_EXT)\" -DRIP_MODULEDIR="\"$(rip_moduledir)\""
+    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror -DMODULE_EXT=\"$(MODULE_EXT)\" -DEMC2_MODULE_DIRECTORY="\"$(rip_moduledir)/\""
 else
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror -DMODULE_EXT=\"$(MODULE_EXT)\"
+    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror -DMODULE_EXT=\"$(MODULE_EXT)\" -DEMC2_MODULE_DIRECTORY="\"$(moduledir)/\""
 endif
 
 

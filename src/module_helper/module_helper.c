@@ -23,14 +23,6 @@ char *module_whitelist[] = {
     "rtai_math", "rtai_sem", "rtai_shm", "rtai_fifos", "rtai_up", 
     "rtai_hal", "adeos",
 
-    "blocks", "classicladder_rt", "debounce", "encoder", "encoder_ratio",
-    "extint", "fifotask", "freqgen", "hal_ax5214h", "hal_evoreg",
-    "hal_lib", "hal_m5i20", "hal_motenc", "hal_parport", "hal_ppmc",
-    "hal_skeleton", "hal_stg", "hal_tiro", "master", "motmod", "pid",
-    "rtapi", "scope_rt", "shmemtask", "siggen", "sim_encoder", "slave",
-    "stepgen", "supply", "threads", "timedelay", "timertask", "hal_vti",
-    "counter", "hal_speaker",
-
     NULL
 };
 
@@ -38,9 +30,7 @@ char *module_whitelist[] = {
 
 char *path_whitelist[] = {
     "/lib/modules", "/usr/realtime",
-#ifdef RIP_MODULEDIR
-    RIP_MODULEDIR ,
-#endif
+
     NULL
 };
 
@@ -74,8 +64,9 @@ void error(int argc, char **argv) {
     for(i=0; ext_whitelist[i]; i++) {
         fprintf(stderr, "\t%s\n", ext_whitelist[i]);
     }
-
-    fprintf(stderr, "OR\n\n%s remove module\n\nwhere module is one of"
+    fprintf(stderr, "\nor the module is in the directory %s\n",
+            EMC2_MODULE_DIRECTORY);
+    fprintf(stderr, "\nOR\n\n%s remove module\n\nwhere module is one of"
                     " the modules listed above.\n\n", prog);
     exit(1);
 }
@@ -99,10 +90,70 @@ char *check_whitelist(char *target, char *table[]) {
     return 0;
 }
 
+/* Check that the given module is in the whitelist.  It's in the whitelist
+ * if it's inside the EMC2_MODULE_DIRECTORY, or if it's in a directory
+ * whose prefix is path_whitelist and the module name is in the module_whitelist
+ *
+ * Paths without slashes and paths with ".." (even /a..b/) are never allowed.
+ *
+ * Paths must always start with a slash, but this is not explicitly tested.
+ * It's tested by strncmp() or check_whitelist() implicitly.
+ */
+void check_whitelist_module_path(char *mod, int argc, char **argv) {
+    char *ext, *end;
+    char *last_slash = strrchr(mod, '/');
+
+    if(!last_slash || strstr(mod, "..")) error(argc, argv);
+
+    if(strncmp(mod, EMC2_MODULE_DIRECTORY, strlen(EMC2_MODULE_DIRECTORY)) == 0)
+        return;
+
+    ext = check_whitelist(last_slash + 1, module_whitelist);
+    if(!ext) error(argc, argv);
+
+    end = check_whitelist(ext, ext_whitelist);
+    if(!end || *end) error(argc, argv);
+
+    if(!check_whitelist(mod, path_whitelist)) error(argc, argv);
+}
+
+#include <sys/types.h>
+#include <dirent.h>
+
+/* Check that a module (without path or extension) is in the whitelist.
+ * It's in the whitelist if it's in the module_whitelist, or if it exists
+ * in the EMC2_MODULE_DIRECTORY with the extension MODULE_EXT.
+ */
+void check_whitelist_module(char *mod, int argc, char **argv) {
+    char *end;
+    DIR *d = opendir(EMC2_MODULE_DIRECTORY);
+
+    if(d) {
+        char buf[NAME_MAX + 1];
+        snprintf(buf, NAME_MAX, "%s%s", mod, MODULE_EXT);
+
+        while(1) {
+            struct dirent *ent = readdir(d);
+            if(!ent) break;
+            fprintf(stderr, "%s\n", ent->d_name);
+            if(strcmp(ent->d_name, buf) == 0) {
+                closedir(d);
+                return;
+            }
+        }
+        closedir(d);
+    }
+
+    end = check_whitelist(mod, module_whitelist);
+
+    /* Check that end is not NULL (whitelist succeeded) and that it is the end of the string */
+    if(!end || *end) error(argc, argv);
+
+
+}
+
 int main(int argc, char **argv) {
     char *mod;
-    char *last_slash;
-    char *ext, *end;
     int i;
     int inserting = 0;
     char **exec_argv;
@@ -120,17 +171,7 @@ int main(int argc, char **argv) {
     mod = argv[2];
 
     if(inserting) {
-        last_slash = strrchr(mod, '/');
-
-        if(!last_slash || strstr(mod, "..")) error(argc, argv);
-
-        ext = check_whitelist(last_slash + 1, module_whitelist);
-        if(!ext) error(argc, argv);
-
-        end = check_whitelist(ext, ext_whitelist);
-        if(!end || *end) error(argc, argv);
-
-        if(!check_whitelist(mod, path_whitelist)) error(argc, argv);
+        check_whitelist_module_path(mod, argc, argv);
 
         exec_argv[0] = "/sbin/insmod";
         exec_argv[1] = mod;
@@ -140,11 +181,7 @@ int main(int argc, char **argv) {
         }
         exec_argv[argc-1] = NULL;
     } else {
-        end = check_whitelist(mod, module_whitelist);
-
-        /* Check that end is not NULL (whitelist succeeded) and that it is the end of the string */
-        if(!end || *end) error(argc, argv);
-
+        check_whitelist_module(mod, argc, argv);
         exec_argv[0] = "/sbin/rmmod";
         exec_argv[1] = mod;
         exec_argv[2] = NULL;
