@@ -1138,7 +1138,7 @@ if {$userfont != ""} {
     set fontfamiliy [font actual $userfont -family]
     set fontsize [font actual $userfont -size]
     set fontstyle [font actual $userfont -weight]
-} else if {[lsearch [font families] {courier 10 pitch} != -1]} {
+} elseif {[lsearch [font families] {courier 10 pitch}] != -1} {
     set fontfamily {courier 10 pitch}
     set fontsize 48
     set fontstyle bold
