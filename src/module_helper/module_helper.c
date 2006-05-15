@@ -135,7 +135,6 @@ void check_whitelist_module(char *mod, int argc, char **argv) {
         while(1) {
             struct dirent *ent = readdir(d);
             if(!ent) break;
-            fprintf(stderr, "%s\n", ent->d_name);
             if(strcmp(ent->d_name, buf) == 0) {
                 closedir(d);
                 return;
