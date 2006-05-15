@@ -1135,7 +1135,7 @@ proc setfont {} {
 
 set userfont [emc_ini "POSITION_FONT" "DISPLAY"]
 if {$userfont != ""} {
-    set fontfamiliy [font actual $userfont -family]
+    set fontfamily [font actual $userfont -family]
     set fontsize [font actual $userfont -size]
     set fontstyle [font actual $userfont -weight]
 } elseif {[lsearch [font families] {courier 10 pitch}] != -1} {
