@@ -315,6 +315,7 @@ rtapi_print ( "config string '%s'\n", cfg );
             rtapi_print_msg(RTAPI_MSG_ERR,
                  "(make sure the kernel module 'parport' is unloaded)\n");
             hal_exit(comp_id);
+	    return -1;
         }
     }
 #endif
