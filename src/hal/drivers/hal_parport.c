@@ -133,10 +133,6 @@
 #endif
 
 #ifdef RTAPI			/* realtime */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-#define USE_REQUEST_REGION
-#include <linux/ioport.h>
-#endif
 #ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -301,13 +297,12 @@ rtapi_print ( "config string '%s'\n", cfg );
 	hal_exit(comp_id);
 	return -1;
     }
-#ifdef USE_REQUEST_REGION
     for (n = 0; n < num_ports; n++) {
-        char *region = request_region(port_data_array[n].base_addr, 4, "hal_parport");
+        void *region = rtapi_request_region(port_data_array[n].base_addr, 4, "hal_parport");
         if(!region) {
             int m;
             for(m = 0; m < n; m++) {
-                release_region(port_data_array[m].base_addr, 4);
+                rtapi_release_region(port_data_array[m].base_addr, 4);
             }
             rtapi_print_msg(RTAPI_MSG_ERR,
                  "PARPORT: ERROR: request_region(%x) failed\n"
@@ -318,7 +313,6 @@ rtapi_print ( "config string '%s'\n", cfg );
 	    return -EBUSY;
         }
     }
-#endif
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"PARPORT: installed driver for %d ports\n", num_ports);
     return 0;
@@ -327,11 +321,9 @@ rtapi_print ( "config string '%s'\n", cfg );
 void rtapi_app_exit(void)
 {
     int n;
-#ifdef USE_REQUEST_REGION
     for (n = 0; n < num_ports; n++) {
-        release_region(port_data_array[n].base_addr, 4);
+        rtapi_release_region(port_data_array[n].base_addr, 4);
     }
-#endif
     hal_exit(comp_id);
 }
 
