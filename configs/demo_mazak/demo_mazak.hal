@@ -160,13 +160,13 @@ newsig estop-ok-out bit
 linksp estop-ok-out parport.0.pin-01-out
 linksp estop-ok-out estop.0.ok-out
 newsig emc-estop-out bit
-linksp emc-estop-out iocontrol.0.estop-out
+linksp emc-estop-out iocontrol.0.user-enable-out
 linksp emc-estop-out estop.0.fault-in
 newsig emc-estop-in bit
 linksp emc-estop-in estop.0.fault-out
-linksp emc-estop-in iocontrol.0.estop-in
+linksp emc-estop-in iocontrol.0.emc-enable-in
 newsig estop-reset bit
-linksp estop-reset iocontrol.0.estop-reset
+linksp estop-reset iocontrol.0.user-request-enable
 linksp estop-reset estop.0.reset
 newsig charge-pump bit
 linksp charge-pump estop.0.watchdog
@@ -412,7 +412,7 @@ newsig tool-unload-pbs bit
 linksp tool-unload-pbs  ax5214h.0.in-10
 
 # add front panel buttons here
-newsig
+
 
 # hydraulic pump
 newsig hydraulic-pump-run bit
