@@ -983,9 +983,10 @@ int emcTrajSetScale(double scale)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajSetAdaptiveFeed(int enable)
+int emcTrajSetAdaptiveFeed(unsigned char enable)
 {
     emcmotCommand.command = EMCMOT_ADAPTIVE_FEED;
+
     if ( enable ) {
 	emcmotCommand.flags = 1;
     } else {

@@ -1348,6 +1348,11 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC_DONE;
 	break;
 
+    case EMC_MOTION_ADAPTIVE_TYPE:
+	return EMC_TASK_EXEC_WAITING_FOR_MOTION;
+	break;
+
+
     default:
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
@@ -1693,6 +1698,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 				  ((EMC_MOTION_SET_DOUT *) cmd)->start,
 				  ((EMC_MOTION_SET_DOUT *) cmd)->end,
 				  ((EMC_MOTION_SET_DOUT *) cmd)->now);
+	break;
+
+    case EMC_MOTION_ADAPTIVE_TYPE:
+	retval = emcTrajSetAdaptiveFeed(((EMC_MOTION_ADAPTIVE *) cmd)->status);
 	break;
 
     case EMC_SET_DEBUG_TYPE:
@@ -2078,6 +2087,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
 
     case EMC_MOTION_SET_AOUT_TYPE:
     case EMC_MOTION_SET_DOUT_TYPE:
+    case EMC_MOTION_ADAPTIVE_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
 

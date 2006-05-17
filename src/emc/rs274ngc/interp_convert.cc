@@ -752,15 +752,14 @@ int Interp::convert_comment(char *comment)       //!< string with comment
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
    Otherwise, it returns INTERP_OK.
-   1. g_code isn't G_61, G_61_1, G_64, G_50, G_51 : NCE_BUG_CODE_NOT_G61_G61_1_OR_G64
+   1. g_code isn't G_61, G_61_1, G_64 : NCE_BUG_CODE_NOT_G61_G61_1_OR_G64
 
 Side effects: See below
 
 Called by: convert_g.
 
 The interpreter switches the machine settings to indicate the
-control mode (CANON_EXACT_STOP, CANON_EXACT_PATH or CANON_CONTINUOUS), or
-switches the machine settings for ADAPTIVE_FEED
+control mode (CANON_EXACT_STOP, CANON_EXACT_PATH or CANON_CONTINUOUS)
 
 A call is made to SET_MOTION_CONTROL_MODE(CANON_XXX), where CANON_XXX is
 CANON_EXACT_PATH if g_code is G_61, CANON_EXACT_STOP if g_code is G_61_1,

@@ -449,7 +449,7 @@ extern int emcTrajSetAcceleration(double acc);
 extern int emcTrajSetMaxVelocity(double vel);
 extern int emcTrajSetMaxAcceleration(double acc);
 extern int emcTrajSetScale(double scale);
-extern int emcTrajSetAdaptiveFeed(int enable);
+extern int emcTrajSetAdaptiveFeed(unsigned char enable);
 extern int emcTrajSetMotionId(int id);
 
 extern int emcTrajInit();
@@ -1835,7 +1835,7 @@ class EMC_MOTION_SET_DOUT:public EMC_MOTION_CMD_MSG {
 
 class EMC_MOTION_ADAPTIVE:public EMC_MOTION_CMD_MSG {
   public:
-    EMC_MOTION_ADAPTIVE():EMC_MOTION_CMD_MSG(EMC_MOTION_SET_DOUT_TYPE,
+    EMC_MOTION_ADAPTIVE():EMC_MOTION_CMD_MSG(EMC_MOTION_ADAPTIVE_TYPE,
 					     sizeof(EMC_MOTION_ADAPTIVE)) {
     };
 
