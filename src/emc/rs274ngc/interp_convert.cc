@@ -752,14 +752,15 @@ int Interp::convert_comment(char *comment)       //!< string with comment
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
    Otherwise, it returns INTERP_OK.
-   1. g_code isn't G_61, G_61_1 or G_64: NCE_BUG_CODE_NOT_G61_G61_1_OR_G64
+   1. g_code isn't G_61, G_61_1, G_64, G_50, G_51 : NCE_BUG_CODE_NOT_G61_G61_1_G64_G50_OR_G51
 
 Side effects: See below
 
 Called by: convert_g.
 
 The interpreter switches the machine settings to indicate the
-control mode (CANON_EXACT_STOP, CANON_EXACT_PATH or CANON_CONTINUOUS).
+control mode (CANON_EXACT_STOP, CANON_EXACT_PATH or CANON_CONTINUOUS), or
+switches the machine settings for ADAPTIVE_FEED
 
 A call is made to SET_MOTION_CONTROL_MODE(CANON_XXX), where CANON_XXX is
 CANON_EXACT_PATH if g_code is G_61, CANON_EXACT_STOP if g_code is G_61_1,
@@ -775,6 +776,12 @@ mode to CANON_EXACT_STOP.
 
 It is OK to call SET_MOTION_CONTROL_MODE(CANON_XXX) when CANON_XXX is
 already in force.
+
+For G50 & G51, the canon functions START_ADAPTIVE_FEED() and 
+STOP_ADAPTIVE_FEED() are called. These enable a second feed override
+control based on external feedback (this second override goes from 0 to 1
+and corresponds to 0..100%). It gets multiplied with the user feed override.
+This is usefull for EDM machines for example.
 
 */
 
@@ -796,8 +803,12 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
 	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
 	}
     settings->control_mode = CANON_CONTINUOUS;
-  } else
-    ERM(NCE_BUG_CODE_NOT_G61_G61_1_OR_G64);
+  } else if (g_code == G_50) {
+    START_ADAPTIVE_FEED();
+  } else if (g_code == G_51) {
+    STOP_ADAPTIVE_FEED();
+  } else 
+    ERM(NCE_BUG_CODE_NOT_G61_G61_1_G64_G50_OR_G51);
   return INTERP_OK;
 }
 
@@ -1296,7 +1307,7 @@ G codes are are executed in the following order.
 5.  mode 8, one of (G43, G49) - tool length offset
 6.  mode 12, one of (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3)
     - coordinate system selection.
-7.  mode 13, one of (G61, G61.1, G64) - control mode
+7.  mode 13, one of (G61, G61.1, G64, G50, G51) - control mode
 8.  mode 3, one of (G90, G91) - distance mode.
 9.  mode 10, one of (G98, G99) - retract mode.
 10. mode 0, one of (G10, G28, G30, G92, G92.1, G92.2, G92.3) -

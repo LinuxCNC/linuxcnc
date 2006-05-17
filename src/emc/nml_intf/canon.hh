@@ -318,8 +318,13 @@ extern void STOP_CUTTER_RADIUS_COMPENSATION();
 /* Do not apply cutter radius compensation when executing spindle
 translation commands. */
 
+/* used for threading */
 extern void START_SPEED_FEED_SYNCH(double spindlesync);
 extern void STOP_SPEED_FEED_SYNCH();
+
+/* used for EDM adaptive moves with motion internal feed override (0..1) */
+extern void START_ADAPTIVE_FEED();
+extern void STOP_ADAPTIVE_FEED();
 
 /* Machining Functions */
 

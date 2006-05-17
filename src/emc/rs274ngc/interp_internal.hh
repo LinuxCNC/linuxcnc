@@ -142,6 +142,8 @@
 #define G_42   420
 #define G_43   430
 #define G_49   490
+#define G_50   500
+#define G_51   510
 #define G_53   530
 #define G_54   540
 #define G_55   550

@@ -659,6 +659,19 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
     // nothing need be done here
 }
 
+void START_ADAPTIVE_FEED()
+{
+  // FIXME send NML message to start/stop adaptive feed to emctask
+  printf("start adaptive feed\n");
+}
+
+void STOP_ADAPTIVE_FEED()
+{
+  // FIXME send NML message to start/stop adaptive feed to emctask
+  printf("stop adaptive feed\n");
+}
+
+
 void START_SPEED_FEED_SYNCH(double sync)
 {
     EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
