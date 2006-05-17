@@ -67,6 +67,7 @@ group 11 - no such group
 group 12 - gez[8]  g54, g55, g56, g57, g58, g59, g59.1, g59.2, g59.3
                    - coordinate system
 group 13 - gez[11] g61, g61.1, g64 - control mode
+group 14 - gez[12] g50, g51 - adaptive feed mode
 
 */
 
@@ -97,6 +98,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
+  gez[12] = settings->adaptive_feed;
 
   return INTERP_OK;
 }

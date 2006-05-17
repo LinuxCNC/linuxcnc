@@ -49,7 +49,7 @@ char * _rs274ngc_errors[] = {
 /*  22 */ _("Bug code not g40 g41 or g42"), // convert_cutter_compensation
 /*  23 */ _("Bug code not g43 or g49"), // convert_tool_length_offset
 /*  24 */ _("Bug code not g4 g10 g28 g30 g53 or g92 series"), // convert_modal_0
-/*  25 */ _("Bug code not g61 g61 1 g64 g50 or g61"), // convert_control_mode
+/*  25 */ _("Bug code not g61 g61.1 or g64"), // convert_control_mode
 /*  26 */ _("Bug code not g90 or g91"), // convert_distance_mode
 /*  27 */ _("Bug code not g93 or g94"), // convert_feed_mode
 /*  28 */ _("Bug code not g98 or g99"), // convert_retract_mode
@@ -241,7 +241,8 @@ char * _rs274ngc_errors[] = {
 /* 213 */ _("Return outside of subroutine"), // convert control functions
 /* 214 */ _("File not open"), // control back to
 /* 215 */ _("Need tool prepared -Txx- for toolchange"), // if M6 is issued without Txx
+/* 216 */ _("Bug code not g50 or g51"), // convert_adaptive_mode
 
-/* 216 */ _("Unknown error"), // dummy
+/* 217 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*

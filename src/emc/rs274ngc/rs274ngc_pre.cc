@@ -387,6 +387,7 @@ int Interp::init()
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
   _setup.oword_labels = 0;
+  _setup.adaptive_feed = 0;
 
   // Synch rest of settings to external world
   synch();

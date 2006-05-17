@@ -218,7 +218,7 @@ typedef struct block_struct
   char comment[256];
   int d_number;
   double f_number;
-  int g_modes[14];
+  int g_modes[15];
   int h_number;
   ON_OFF i_flag;
   double i_number;
@@ -373,6 +373,7 @@ typedef struct setup_struct
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
   int oword_labels;
   offset oword_offset[INTERP_OWORD_LABELS];
+  int adaptive_feed;                // adaptive feed is enabled
 }
 setup;
 

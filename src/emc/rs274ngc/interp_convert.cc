@@ -752,7 +752,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
    Otherwise, it returns INTERP_OK.
-   1. g_code isn't G_61, G_61_1, G_64, G_50, G_51 : NCE_BUG_CODE_NOT_G61_G61_1_G64_G50_OR_G51
+   1. g_code isn't G_61, G_61_1, G_64, G_50, G_51 : NCE_BUG_CODE_NOT_G61_G61_1_OR_G64
 
 Side effects: See below
 
@@ -777,12 +777,6 @@ mode to CANON_EXACT_STOP.
 It is OK to call SET_MOTION_CONTROL_MODE(CANON_XXX) when CANON_XXX is
 already in force.
 
-For G50 & G51, the canon functions START_ADAPTIVE_FEED() and 
-STOP_ADAPTIVE_FEED() are called. These enable a second feed override
-control based on external feedback (this second override goes from 0 to 1
-and corresponds to 0..100%). It gets multiplied with the user feed override.
-This is usefull for EDM machines for example.
-
 */
 
 int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_61, G61_1, || G_64)
@@ -803,13 +797,35 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
 	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
 	}
     settings->control_mode = CANON_CONTINUOUS;
-  } else if (g_code == G_50) {
-    START_ADAPTIVE_FEED();
-  } else if (g_code == G_51) {
-    STOP_ADAPTIVE_FEED();
   } else 
-    ERM(NCE_BUG_CODE_NOT_G61_G61_1_G64_G50_OR_G51);
+    ERM(NCE_BUG_CODE_NOT_G61_G61_1_OR_G64);
   return INTERP_OK;
+}
+
+/* 
+
+Called by: convert_g.
+
+For G50 & G51, the canon functions START_ADAPTIVE_FEED() and
+STOP_ADAPTIVE_FEED() are called. These enable a second feed override
+control based on an external input (this second override goes from
+0 to 1 and corresponds to 0..100%). It gets multiplied with the
+user feed override.  This is useful for EDM machines for example.
+
+*/
+
+int Interp::convert_adaptive_mode(int g_code, setup_pointer settings)
+{
+    static char name[] = "convert_adaptive_mode";
+
+    if(g_code == G_50) {
+        START_ADAPTIVE_FEED();
+    } else if (g_code == G_51) {
+        STOP_ADAPTIVE_FEED();
+    } else
+        ERM(NCE_BUG_CODE_NOT_G50_OR_G51);
+
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -1348,6 +1364,9 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   }
   if (block->g_modes[13] != -1) {
     CHP(convert_control_mode(block->g_modes[13], block->p_number, settings));
+  }
+  if (block->g_modes[14] != -1) {
+    CHP(convert_adaptive_mode(block->g_modes[14], settings));
   }
   if (block->g_modes[3] != -1) {
     CHP(convert_distance_mode(block->g_modes[3], settings));
