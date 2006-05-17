@@ -132,6 +132,7 @@
 #define EMC_MOTION_ABORT_TYPE                        ((NMLTYPE) 303)
 #define EMC_MOTION_SET_AOUT_TYPE                     ((NMLTYPE) 304)
 #define EMC_MOTION_SET_DOUT_TYPE                     ((NMLTYPE) 305)
+#define EMC_MOTION_ADAPTIVE_TYPE                     ((NMLTYPE) 306)
 
 #define EMC_MOTION_STAT_TYPE                         ((NMLTYPE) 399)
 
@@ -1829,6 +1830,18 @@ class EMC_MOTION_SET_DOUT:public EMC_MOTION_CMD_MSG {
     unsigned char start;	// binary value at start
     unsigned char end;		// binary value at end
     unsigned char now;		// wether command is imediate or synched with motion
+};
+
+class EMC_MOTION_ADAPTIVE:public EMC_MOTION_CMD_MSG {
+  public:
+    EMC_MOTION_ADAPTIVE():EMC_MOTION_CMD_MSG(EMC_MOTION_SET_DOUT_TYPE,
+					     sizeof(EMC_MOTION_ADAPTIVE)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    unsigned char status;		// status=0 stop; status=1 start.
 };
 
 // EMC_MOTION status base class

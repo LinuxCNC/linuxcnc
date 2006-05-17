@@ -661,14 +661,16 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
 
 void START_ADAPTIVE_FEED()
 {
-  // FIXME send NML message to start/stop adaptive feed to emctask
-  printf("start adaptive feed\n");
+    EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
+    emcmotAdaptiveMsg.status = 1;
+    interp_list.append(emcmotAdaptiveMsg);
 }
 
 void STOP_ADAPTIVE_FEED()
 {
-  // FIXME send NML message to start/stop adaptive feed to emctask
-  printf("stop adaptive feed\n");
+    EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
+    emcmotAdaptiveMsg.status = 0;
+    interp_list.append(emcmotAdaptiveMsg);
 }
 
 
