@@ -38,8 +38,7 @@ typedef struct {
     double ini_maxvel;          /* max velocity allowed by machine 
                                    constraints (ini file) for
                                    subsequent moves */
-    double vScale, vRestore;    /* feed override value and a place
-                                   to save it when pausing */
+    double vScale;		/* feed override value */
     double aMax;
     double vLimit;		/* absolute upper limit on all vels */
     double wMax;		/* rotational velocity max */
@@ -68,7 +67,6 @@ extern int tpInit(TP_STRUCT * tp);
 extern int tpSetCycleTime(TP_STRUCT * tp, double secs);
 extern int tpSetVmax(TP_STRUCT * tp, double vmax, double ini_maxvel);
 extern int tpSetVlimit(TP_STRUCT * tp, double limit);
-extern int tpSetVscale(TP_STRUCT * tp, double scale);	/* 0.0 .. large */
 extern int tpSetAmax(TP_STRUCT * tp, double amax);
 extern int tpSetId(TP_STRUCT * tp, int id);
 extern int tpGetExecId(TP_STRUCT * tp);

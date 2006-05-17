@@ -271,7 +271,7 @@ check_stuff ( "after update_status()" );
 static void process_inputs(void)
 {
     int joint_num;
-    double abs_ferror;
+    double abs_ferror, tmp;
     axis_hal_t *axis_data;
     emcmot_joint_t *joint;
 
@@ -281,8 +281,22 @@ static void process_inputs(void)
     } else {
 	emcmotStatus->probeVal = 0;
     }
-
+    /* read spindle angle (for threading, etc) */
     emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
+    if ( emcmotStatus->adaptiveEnabled ) {
+	/* read and clamp (0.0 to 1.0) adaptive feed pin */
+	tmp = *emcmot_hal_data->adaptive_feed;
+	if ( tmp > 1.0 ) {
+	    tmp = 1.0;
+	} else if ( tmp < 0.0 ) {
+	    tmp = 0.0;
+	}
+	/* set overall scale to user command times hal value */
+	emcmotStatus->overallVscale = tmp * emcmotStatus->qVscale;
+    } else {
+	/* set overall scale based on user command only */
+	emcmotStatus->overallVscale = emcmotStatus->qVscale;
+    }
 
     /* read and process per-joint inputs */
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
@@ -1463,7 +1477,7 @@ static void get_pos_cmds(void)
 		}
 		/* velocity limit = planner limit * global scale factor */
 		/* the global factor is used for feedrate override */
-		vel_lim = joint->free_vel_lim * emcmotStatus->qVscale;
+		vel_lim = joint->free_vel_lim * emcmotStatus->overallVscale;
 		/* must not be greater than the joint physical limit */
 		if (vel_lim > joint->vel_limit) {
 		    vel_lim = joint->vel_limit;
@@ -1936,8 +1950,8 @@ static void output_to_hal(void)
        and copy elsewhere if you want to observe an automatic variable that
        isn't in scope here. */
     emcmot_hal_data->debug_bit_0 = joints[1].free_tp_active;
-    emcmot_hal_data->debug_bit_1 = emcmotStatus->carte_pos_fb_ok;
-    emcmot_hal_data->debug_float_0 = 0.0;
+    emcmot_hal_data->debug_bit_1 = emcmotStatus->adaptiveEnabled;
+    emcmot_hal_data->debug_float_0 = emcmotStatus->overallVscale;
     emcmot_hal_data->debug_float_1 = 0.0;
     *emcmot_hal_data->spindle_sync = emcmotStatus->spindleSync;
 

@@ -519,8 +519,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	cmd_status_t commandStatus;	/* result of most recent command */
 	/* these are config info, updated when a command changes them */
 	double qVscale;		/* velocity scale factor for all motion */
-	double adaptiveVscale;	/* adaptive factor 0.0 to 1.0 (from HAL) */
 	int adaptiveEnabled;	/* non-zero when adaptive feed is enabled */
+	double overallVscale;	/* net scale factor (includes adaptive) */
 	/* the rest are updated every cycle */
 	motion_state_t motion_state; /* operating state: FREE, COORD, etc. */
 	EMCMOT_MOTION_FLAG motionFlag;	/* see above for bit details */

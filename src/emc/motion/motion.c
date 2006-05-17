@@ -311,6 +311,15 @@ static int init_hal_io(void)
 	return retval;
     }
 
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.adaptive-feed");
+    retval =
+	hal_pin_float_new(buf, HAL_RD, &(emcmot_hal_data->adaptive_feed),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    *(emcmot_hal_data->adaptive_feed) = 1.0;
+
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.enable");
     retval =
 	hal_pin_bit_new(buf, HAL_RD, &(emcmot_hal_data->enable),
@@ -805,6 +814,8 @@ static int init_comm_buffers(void)
     emcmotConfig->limitVel = VELOCITY;
     emcmotStatus->acc = ACCELERATION;
     emcmotStatus->qVscale = 1.0;
+    emcmotStatus->overallVscale = 1.0;
+    emcmotStatus->adaptiveEnabled = 0;
     emcmotStatus->id = 0;
     emcmotStatus->depth = 0;
     emcmotStatus->activeDepth = 0;

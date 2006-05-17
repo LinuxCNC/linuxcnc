@@ -92,6 +92,7 @@ typedef struct {
     hal_bit_t *enable;		/* RPI: motion inhibit input */
     hal_bit_t *spindle_sync;
     hal_float_t *spindle_revs;
+    hal_float_t *adaptive_feed;	/* RPI: adaptive feedrate, 0.0 to 1.0 */
     hal_bit_t motion_enabled;	/* RPA: motion enable for all axis */
     hal_bit_t in_position;	/* RPA: all axis are in position */
     hal_bit_t coord_mode;	/* RPA: TRUE if coord, FALSE if free */

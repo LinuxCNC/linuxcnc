@@ -924,7 +924,18 @@ check_stuff ( "before command_handler()" );
 		emcmotCommand->scale = 0.0;	/* clamp it */
 	    }
 	    emcmotStatus->qVscale = emcmotCommand->scale;
-	    tpSetVscale(&emcmotDebug->queue, emcmotCommand->scale);
+	    break;
+
+	case EMCMOT_ADAPTIVE_FEED:
+	    /* enable/disable adaptive feedrate override from HAL pin */
+	    /* can happen at any time */
+	    if ( emcmotCommand->flags != 0 ) {
+		rtapi_print_msg(RTAPI_MSG_DBG, "ADAPTIVE FEED: ON");
+		emcmotStatus->adaptiveEnabled = 1;
+            } else {
+		rtapi_print_msg(RTAPI_MSG_DBG, "ADAPTIVE FEED: OFF");
+		emcmotStatus->adaptiveEnabled = 0;
+	    }
 	    break;
 
 	case EMCMOT_DISABLE:

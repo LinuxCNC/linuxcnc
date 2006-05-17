@@ -57,8 +57,6 @@ int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
   cleared, and the flags are set to an empty, ready queue. The currentPos
   is left alone, and goalPos is set to this position.
 
-  vScale is set to vRestore.
-
   This function is intended to put the motion queue in the state it would
   be if all queued motions finished at the current position.
  */
@@ -80,7 +78,7 @@ int tpClear(TP_STRUCT * tp)
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
     tp->pausing = 0;
-    tp->vScale = tp->vRestore;
+    tp->vScale = emcmotStatus->overallVscale;
     tp->synchronized = 0;
     tp->uu_per_rev = 0.0;
     emcmotStatus->spindleSync = 0;
@@ -92,7 +90,7 @@ int tpInit(TP_STRUCT * tp)
 {
     tp->cycleTime = 0.0;
     tp->vLimit = 0.0;
-    tp->vScale = tp->vRestore = 1.0;
+    tp->vScale = 1.0;
     tp->aMax = 0.0;
     tp->vMax = 0.0;
     tp->ini_maxvel = 0.0;
@@ -152,46 +150,6 @@ int tpSetVlimit(TP_STRUCT * tp, double vLimit)
     }
 
     tp->vLimit = vLimit;
-
-    return 0;
-}
-
-// feed override, 1.0 = 100%
-
-int tpSetVscale(TP_STRUCT * tp, double scale)
-{
-    TC_STRUCT *thisTc;
-    int t;
-    int depth;
-
-    if (0 == tp) {
-	return -1;
-    }
-
-    if (scale < 0.0) {
-	/* clamp it */
-	scale = 0.0;
-    }
-
-    /* record the scale factor */
-    if (tp->pausing) {
-	/* if we're pausing, our scale is 0 and needs to stay there so that
-	   it's applied to any added motions. We'll put the requested scale
-	   in the restore value so that when we resume the new scale is
-	   applied. Also, don't send this down to the queued motions--
-	   they're already paused */
-	tp->vRestore = scale;
-    } else {
-	/* we're not pausing, so it goes right in and is applied to the
-	   global value for subsequent moves, and also all queued moves */
-	tp->vScale = scale;
-
-	depth = tcqLen(&tp->queue);
-	for (t = 0; t < depth; t++) {
-	    thisTc = tcqItem(&tp->queue, t);
-            thisTc->feed_override = scale;
-	}
-    }
 
     return 0;
 }
@@ -322,7 +280,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     tc.progress = 0.0;
     tc.reqvel = tp->vMax;
     tc.maxaccel = tp->aMax * ACCEL_USAGE;
-    tc.feed_override = tp->vScale;
+    tc.feed_override = 0.0;
     tc.maxvel = tp->ini_maxvel * ACCEL_USAGE;
     tc.id = tp->nextId;
     tc.active = 0;
@@ -401,7 +359,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.progress = 0.0;
     tc.reqvel = tp->vMax;
     tc.maxaccel = tp->aMax * ACCEL_USAGE;
-    tc.feed_override = tp->vScale;
+    tc.feed_override = 0.0;
     tc.maxvel = tp->ini_maxvel * ACCEL_USAGE;
     tc.id = tp->nextId;
     tc.active = 0;
@@ -648,11 +606,25 @@ int tpRunCycle(TP_STRUCT * tp)
         tc->reqvel = pos_error/tc->cycle_time/2.0;
         tc->feed_override = 1.0;
         if(tc->reqvel < 0.0) tc->reqvel = 0.0;
-        if(nexttc && nexttc->synchronized) {
-            nexttc->reqvel = pos_error/nexttc->cycle_time;
-            nexttc->feed_override = 1.0;
-            if(nexttc->reqvel < 0.0) nexttc->reqvel = 0.0;
-        }
+        if(nexttc) {
+	    if (nexttc->synchronized) {
+		nexttc->reqvel = pos_error/nexttc->cycle_time;
+		nexttc->feed_override = 1.0;
+		if(nexttc->reqvel < 0.0) nexttc->reqvel = 0.0;
+	    } else {
+		nexttc->feed_override = emcmotStatus->overallVscale;
+	    }
+	}
+    } else {
+        tc->feed_override = emcmotStatus->overallVscale;
+    }
+
+    /* handle pausing */
+    if(tp->pausing) {
+        tc->feed_override = 0.0;
+        if(nexttc) {
+	    nexttc->feed_override = 0.0;
+	}
     }
 
     // calculate the approximate peak velocity the nexttc will hit.
@@ -769,21 +741,7 @@ int tpPause(TP_STRUCT * tp)
     if (0 == tp) {
 	return -1;
     }
-
-    if (!tp->pausing) {
-	/* save the restore value */
-	tp->vRestore = tp->vScale;
-
-	/* apply 0 scale to queued motions */
-	tpSetVscale(tp, 0);
-
-	/* mark us pausing-- do this after the call to toSetVscale since this
-	   looks at the pausing flag to decide whether to set vRestore (if
-	   pausing) or vScale (if not). We want vScale to be set in the call
-	   for this one */
-	tp->pausing = 1;
-    }
-
+    tp->pausing = 1;
     return 0;
 }
 
@@ -792,20 +750,7 @@ int tpResume(TP_STRUCT * tp)
     if (0 == tp) {
 	return -1;
     }
-
-    if (tp->pausing) {
-	/* mark us not pausing-- this must be done before the call to
-	   tpSetVscale since that function will only apply the restored scale
-	   value if we're not pausing */
-	tp->pausing = 0;
-
-	/* restore scale value */
-	tp->vScale = tp->vRestore;
-
-	/* apply the restored scale value to queued motions */
-	tpSetVscale(tp, tp->vScale);
-    }
-
+    tp->pausing = 0;
     return 0;
 }
 
@@ -848,34 +793,6 @@ int tpIsDone(TP_STRUCT * tp)
     }
 
     return tp->done;
-}
-
-/*
-  tpIsPaused() returns 1 only when all active queued motions are paused.
-  This is necessary so that abort clears the queue when motions have really
-  stopped. If there are no queued motions, it returns 1 if the pausing
-  flag is set. */
-int tpIsPaused(TP_STRUCT * tp)
-{
-    int t;
-
-    if (0 == tp) {
-	return 0;
-    }
-
-    if (0 == tp->depth) {
-	return tp->pausing;
-    }
-
-    for (t = 0; t < tp->activeDepth; t++) {
-        TC_STRUCT *tc;
-        tc = tcqItem(&tp->queue, t);
-        if (tc->feed_override != 0) {
-	    return 0;
-	}
-    }
-
-    return 1;
 }
 
 int tpQueueDepth(TP_STRUCT * tp)
