@@ -620,7 +620,7 @@ int tpRunCycle(TP_STRUCT * tp)
     }
 
     /* handle pausing */
-    if(tp->pausing) {
+    if(tp->pausing && !tc->synchronized) {
         tc->feed_override = 0.0;
         if(nexttc) {
 	    nexttc->feed_override = 0.0;
