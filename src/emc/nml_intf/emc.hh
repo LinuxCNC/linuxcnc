@@ -449,6 +449,7 @@ extern int emcTrajSetAcceleration(double acc);
 extern int emcTrajSetMaxVelocity(double vel);
 extern int emcTrajSetMaxAcceleration(double acc);
 extern int emcTrajSetScale(double scale);
+extern int emcTrajSetAdaptiveFeed(int enable);
 extern int emcTrajSetMotionId(int id);
 
 extern int emcTrajInit();

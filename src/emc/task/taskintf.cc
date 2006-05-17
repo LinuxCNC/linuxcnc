@@ -983,6 +983,17 @@ int emcTrajSetScale(double scale)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcTrajSetAdaptiveFeed(int enable)
+{
+    emcmotCommand.command = EMCMOT_ADAPTIVE_FEED;
+    if ( enable ) {
+	emcmotCommand.flags = 1;
+    } else {
+	emcmotCommand.flags = 0;
+    }
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 int emcTrajSetMotionId(int id)
 {
 
