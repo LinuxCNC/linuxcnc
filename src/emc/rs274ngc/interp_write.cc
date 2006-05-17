@@ -98,7 +98,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
-  gez[12] = settings->adaptive_feed;
+  gez[12] = (settings->adaptive_feed != 0) ? G_50 : G_51;
 
   return INTERP_OK;
 }

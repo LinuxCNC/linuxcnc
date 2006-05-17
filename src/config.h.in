@@ -28,7 +28,7 @@
 #define BUFFERLEN 80
 
 /* Assorted defines used through out the source code. */
-#define ACTIVE_G_CODES 12
+#define ACTIVE_G_CODES 13
 #define ACTIVE_M_CODES 7
 #define ACTIVE_SETTINGS 3
 

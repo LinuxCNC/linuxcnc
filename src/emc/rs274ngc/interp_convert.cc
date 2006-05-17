@@ -819,8 +819,10 @@ int Interp::convert_adaptive_mode(int g_code, setup_pointer settings)
 
     if(g_code == G_50) {
         START_ADAPTIVE_FEED();
+	settings->adaptive_feed=1;
     } else if (g_code == G_51) {
         STOP_ADAPTIVE_FEED();
+	settings->adaptive_feed=0;
     } else
         ERM(NCE_BUG_CODE_NOT_G50_OR_G51);
 
