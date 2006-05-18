@@ -437,7 +437,7 @@ int rtapi_app_main(void)
     int n, retval;
 
     for (n = 0; n < MAX_CHAN && step_type[n] != -1 ; n++) {
-	if (step_type[n] > MAX_STEP_TYPE) {
+	if ((step_type[n] > MAX_STEP_TYPE) || (step_type[n] < 0)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "STEPGEN: ERROR: bad stepping type '%i', axes %i\n",
 			    step_type[n], n);
