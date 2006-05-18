@@ -617,8 +617,10 @@ int tpRunCycle(TP_STRUCT * tp)
 	}
     } else {
         tc->feed_override = emcmotStatus->overallVscale;
+        if(nexttc) {
+	    nexttc->feed_override = emcmotStatus->overallVscale;
+	}
     }
-
     /* handle pausing */
     if(tp->pausing && !tc->synchronized) {
         tc->feed_override = 0.0;
