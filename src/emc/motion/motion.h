@@ -405,6 +405,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int type;		/* 0 = linear, 1 = rotary */
 	double max_pos_limit;	/* upper soft limit on joint pos */
 	double min_pos_limit;	/* lower soft limit on joint pos */
+	double max_jog_limit;	/* jogs stop just short of soft limits */
+	double min_jog_limit;
 	double vel_limit;	/* upper limit of joint speed */
 	double acc_limit;	/* upper limit of joint accel */
 	double min_ferror;	/* zero speed following error limit */

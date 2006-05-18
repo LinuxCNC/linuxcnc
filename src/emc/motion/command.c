@@ -187,6 +187,30 @@ static int checkJog(int joint_num, double vel)
     return 1;
 }
 
+/* Jogs are not allowed to go all the way to the soft limits, to
+   prevent soft limit errors.  The margin a small fraction of the
+   total axis range.  This is an attempt to make it independent
+   of units and machine size.  When the joint is not homed, the
+   limits are set to the current position +/- the full range of
+   the axis.
+*/
+static void refresh_jog_limits(emcmot_joint_t *joint)
+{
+    double range, margin;
+
+    range = joint->max_pos_limit - joint->min_pos_limit;
+    if (GET_JOINT_HOMED_FLAG(joint)) {
+	/* if homed, set jog limits just inside soft limits */
+	margin = range * 0.001;
+	joint->max_jog_limit = joint->max_pos_limit - margin;
+	joint->min_jog_limit = joint->min_pos_limit + margin;
+    } else {
+	/* not homed, set limits based on current position */
+	joint->max_jog_limit = joint->pos_fb + range;
+	joint->min_jog_limit = joint->pos_fb - range;
+    }
+}
+
 /* inRange() returns non-zero if the position lies within the joint
    limits, or 0 if not */
 static int inRange(EmcPose pos)
@@ -296,7 +320,6 @@ void emcmotAioWrite(int index, double value)
 void emcmotCommandHandler(void *arg, long period)
 {
     int joint_num;
-    double tmp;
     emcmot_joint_t *joint;
     
 check_stuff ( "before command_handler()" );
@@ -583,8 +606,8 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_JOG_CONT:
 	    /* do a continuous jog, implemented as an incremental jog to the
-	       software limit, or the full range of travel if software limits
-	       don't yet apply because we're not homed */
+	       limit.  When the user lets go of the button an abort will
+	       stop the jog. */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_CONT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    /* check axis range */
@@ -610,21 +633,11 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    /* set destination of jog */
-	    if (GET_JOINT_HOMED_FLAG(joint)) {
-		/* axis is homed, we can use soft limits */
-		if (emcmotCommand->vel > 0.0) {
-		    joint->free_pos_cmd = joint->max_pos_limit;
-		} else {
-		    joint->free_pos_cmd = joint->min_pos_limit;
-		}
+	    refresh_jog_limits(joint);
+	    if (emcmotCommand->vel > 0.0) {
+		joint->free_pos_cmd = joint->max_jog_limit;
 	    } else {
-		/* axis not homed, use current position + range */
-		tmp = joint->max_pos_limit - joint->min_pos_limit;
-		if (emcmotCommand->vel > 0.0) {
-		    joint->free_pos_cmd = joint->pos_cmd + tmp;
-		} else {
-		    joint->free_pos_cmd = joint->pos_cmd - tmp;
-		}
+		joint->free_pos_cmd = joint->min_jog_limit;
 	    }
 	    /* set velocity of jog */
 	    joint->free_vel_lim = fabs(emcmotCommand->vel);
@@ -672,14 +685,13 @@ check_stuff ( "before command_handler()" );
 	    } else {
 		joint->free_pos_cmd -= emcmotCommand->offset;
 	    }
-	    /* don't jog past soft limits, if homed */
-	    if (GET_JOINT_HOMED_FLAG(joint)) {
-		if (joint->free_pos_cmd > joint->max_pos_limit) {
-		    joint->free_pos_cmd = joint->max_pos_limit;
-		}
-		if (joint->free_pos_cmd < joint->min_pos_limit) {
-		    joint->free_pos_cmd = joint->min_pos_limit;
-		}
+	    /* don't jog past limits */
+	    refresh_jog_limits(joint);
+	    if (joint->free_pos_cmd > joint->max_jog_limit) {
+		joint->free_pos_cmd = joint->max_jog_limit;
+	    }
+	    if (joint->free_pos_cmd < joint->min_jog_limit) {
+		joint->free_pos_cmd = joint->min_jog_limit;
 	    }
 	    /* set velocity of jog */
 	    joint->free_vel_lim = fabs(emcmotCommand->vel);
@@ -721,14 +733,13 @@ check_stuff ( "before command_handler()" );
 	    }
 	    /*! \todo FIXME-- use 'goal' instead */
 	    joint->free_pos_cmd = emcmotCommand->offset;
-	    /* don't jog past soft limits, if homed */
-	    if (GET_JOINT_HOMED_FLAG(joint)) {
-		if (joint->free_pos_cmd > joint->max_pos_limit) {
-		    joint->free_pos_cmd = joint->max_pos_limit;
-		}
-		if (joint->free_pos_cmd < joint->min_pos_limit) {
-		    joint->free_pos_cmd = joint->min_pos_limit;
-		}
+	    /* don't jog past limits */
+	    refresh_jog_limits(joint);
+	    if (joint->free_pos_cmd > joint->max_jog_limit) {
+		joint->free_pos_cmd = joint->max_jog_limit;
+	    }
+	    if (joint->free_pos_cmd < joint->min_jog_limit) {
+		joint->free_pos_cmd = joint->min_jog_limit;
 	    }
 	    /* set velocity of jog */
 	    joint->free_vel_lim = fabs(emcmotCommand->vel);
