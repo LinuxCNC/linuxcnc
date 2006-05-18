@@ -32,6 +32,9 @@ ifeq ($(BUILD_AXIS),yes)
 default: axis
 axis: userspace
 	cd $(AXIS_DIR) && env EMCROOT=`cd ../.. && pwd` python setup.py -q install
+clean: axisclean
+axisclean:
+	rm -rf $(AXIS_DIR)/build
 endif
 
 # Create the variable with := so that subsequent += alterations keep it
