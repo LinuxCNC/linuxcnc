@@ -72,10 +72,9 @@ loadrt hal_parport cfg="0x0378_in"
 
 # Now we load some more HAL components:
 #
-# using the estop logic from "blocks", at least for now
 # the rest of these blocks implement spindle speed scaling
 # (for high/low shifting) and spindle orient
-loadrt blocks n_estop=1 mux2=1 mux4=1 wcomp=2 scale=2
+loadrt blocks mux2=1 mux4=1 wcomp=2 scale=2
 
 # Software encoder counter, for the jogwheel, and possibly a future
 # small manual encoder for a feedrate override knob.
@@ -107,7 +106,6 @@ setp debounce.0.delay 3
 addf motenc.3.encoder-read          servo-thread
 addf motenc.3.digital-in-read       servo-thread
 addf ax5214h.0.read                 servo-thread
-addf estop.0                        servo-thread
 addf encoder.capture-position       servo-thread
 addf motenc.3.adc-read              servo-thread
 
@@ -153,23 +151,16 @@ addf encoder.update-counters        base-thread
 
 # ---------------------------------------------------
 # ESTOP and related signals
-newsig estop-ok-in bit
-linksp estop-ok-in ax5214h.0.in-24
-linksp estop-ok-in estop.0.ok-in
-newsig estop-ok-out bit
-linksp estop-ok-out parport.0.pin-01-out
-linksp estop-ok-out estop.0.ok-out
-newsig emc-estop-out bit
-linksp emc-estop-out iocontrol.0.user-enable-out
-linksp emc-estop-out estop.0.fault-in
-newsig emc-estop-in bit
-linksp emc-estop-in estop.0.fault-out
-linksp emc-estop-in iocontrol.0.emc-enable-in
+newsig external-estop-ok bit
+linksp external-estop-ok ax5214h.0.in-24
+newsig gui-estop-ok bit
+linksp gui-estop-ok iocontrol.0.user-enable-out
+newsig main-estop-ok bit
+linksp main-estop-ok parport.0.pin-01-out
+linksp main-estop-ok iocontrol.0.emc-enable-in
 newsig estop-reset bit
 linksp estop-reset iocontrol.0.user-request-enable
-linksp estop-reset estop.0.reset
 newsig charge-pump bit
-linksp charge-pump estop.0.watchdog
 linksp charge-pump parport.0.pin-17-out
 
 # servo power supply control
@@ -643,8 +634,8 @@ setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 # will be the magic decoder ring
 
 # INPUTS to CL
-# I0 = estop-ok-out, used to power up the servo amps (multi-step process)
-linkps classicladder.0.in-00 estop-ok-out
+# I0 = the GUI estop "button" isn't pressed
+linkps classicladder.0.in-00 gui-estop-ok
 # I1 = servo-enable, used to mask amp faults when not enabled
 linkps classicladder.0.in-01 servo-enable
 # I2 thru I4, amp running signal (FALSE when faulted OR disabled)
@@ -668,9 +659,14 @@ linkps classicladder.0.in-17 tool-unclamp
 # High level input tool change inputs
 linkps classicladder.0.in-18 tool-prepare
 linkps classicladder.0.in-19 tool-change
+# I20 = means the external estop chain is OK
+linkps classicladder.0.in-20 external-estop-ok
+# I21 = estop-reset, pulsed to reset the estop relay
+linkps classicladder.0.in-21 estop-reset
+
 
 # OUTPUTS from CL
-# Q0 = AP1, first stage power up (applies power thru resitors)
+# Q0 = AP1, first stage power up (applies power thru resistors)
 linkps classicladder.0.out-00 AP1
 # Q1 = AP2, second stage (bypasses resistors)
 linkps classicladder.0.out-01 AP2
@@ -680,13 +676,12 @@ linkps classicladder.0.out-03 Y-amp-fault
 linkps classicladder.0.out-04 Z-amp-fault
 # Q5 is motion enable (after chain)
 linkps classicladder.0.out-05 motion-enable
-# Q6 is hdraulic pump start
-linkps classicladder.0.out-06 hydraulic-pump-run
-# Q7 and 8 are the gear shift outputs
-linkps classicladder.0.out-07 sp-engage-low-gear
-linkps classicladder.0.out-08 sp-engage-high-gear
+# Q6 and 7 are the gear shift outputs
+linkps classicladder.0.out-06 sp-engage-low-gear
+linkps classicladder.0.out-07 sp-engage-high-gear
 # Q8 indicates that a shift is in progress
-linkps classicladder.0.out-09 sp-shifting
+linkps classicladder.0.out-08 sp-shifting
+linkps classicladder.0.out-09 hydraulic-pump-run
 linkps classicladder.0.out-10 magazine-forward
 linkps classicladder.0.out-11 magazine-reverse
 linkps classicladder.0.out-12 tool-load
@@ -699,6 +694,9 @@ linkps classicladder.0.out-18 tool-unclamp
 linkps classicladder.0.out-19 head-unclamp
 linkps classicladder.0.out-20 tool-prepared
 linkps classicladder.0.out-21 tool-changed
+# Q22 indicates that the estop ladder rung (latch) is ok
+linkps classicladder.0.out-22 main-estop-ok
+linkps classicladder.0.out-23 charge-pump
 
 # CL internals (not HAL data, just here for documentation
 #
