@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 # Simple set of debian/rules that uses debhelper.
 # Based on an example by Joey Hess. 
+# extended by Paul Corner, Alex Joni, Chris Radek (in cronological order)
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
