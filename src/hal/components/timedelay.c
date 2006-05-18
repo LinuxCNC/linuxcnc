@@ -32,11 +32,6 @@
 *
 * Copyright (c) 2005 All rights reserved.
 *
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
-*
 ********************************************************************/
 
 #ifndef RTAPI
@@ -49,7 +44,7 @@
 
 #ifdef MODULE
 /* module information */
-MODULE_AUTHOR("Stepehn Wille Padnos");
+MODULE_AUTHOR("Stephen Wille Padnos");
 MODULE_DESCRIPTION("Time Delay for EMC HAL");
 #ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
