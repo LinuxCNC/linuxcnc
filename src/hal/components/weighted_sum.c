@@ -63,8 +63,9 @@ typedef struct {
 
 /* Base data for a weighted summer. */
 typedef struct {
-    hal_s32_t *sum;		/* pin: output */
+    hal_s32_t *sum;		/* output pin: the calculated sum */
     hal_s32_t offset;		/* parameter: offset for this summer */
+    hal_bit_t *hold;		/* input pin: hold value if 1, update if 0 */
     int num_bits;		/* internal: How many bits are in this summer */
     wsum_bit_t *bits;		/* internal: pointer to the input bits and weights */
 } wsum_t;
@@ -105,6 +106,12 @@ int rtapi_app_main(void)
 	    num_summers++;
 	    total_bits += wsum_sizes[n];
 	}
+    }
+
+    if (num_summers == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "WEIGHTED_SUM: ERROR: no summers specified\n");
+	return -1;
     }
 
     /* have good config info, connect to the HAL */
@@ -180,10 +187,13 @@ static void process_wsums(void *arg, long period)
 
     for (n=0 ; n<num_summers ; n++) {
 	thissum = &(wsums[n]);
-	running_total = thissum->offset;
-	for (b=0 ; b<thissum->num_bits ; b++) {
-	    if (*(thissum->bits[b].bit)) {
-		running_total += thissum->bits[b].weight;
+	if (*(thissum->hold)) continue;
+	else {
+	    running_total = thissum->offset;
+	    for (b=0 ; b<thissum->num_bits ; b++) {
+		if (*(thissum->bits[b].bit)) {
+		    running_total += thissum->bits[b].weight;
+		}
 	    }
 	}
 	*(thissum->sum) = running_total;
@@ -208,9 +218,19 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
 	    "WEIGHTED_SUM: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
+
     /* export pin for output sum */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.sum", base, num);
     retval = hal_pin_s32_new(buf, HAL_WR, &(addr->sum), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "WEIGHTED_SUM: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+
+    /* export pin for update hold */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.hold", base, num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->hold), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: '%s' pin export failed\n", buf);
