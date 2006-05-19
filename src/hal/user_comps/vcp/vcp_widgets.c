@@ -39,6 +39,9 @@
 
 /*************** Local Function Prototypes *********************/
 
+static gboolean alloc_color_rgb(GdkColor * color, GdkColormap * map,
+    unsigned char red, unsigned char green, unsigned char blue);
+static gboolean alloc_color(GdkColor * color, GdkColormap * map);
 static void add_to_parent ( vcp_widget_t *parent, GtkWidget *child,
 			    int expand, int padding );
 
@@ -49,7 +52,7 @@ static void add_to_parent ( vcp_widget_t *parent, GtkWidget *child,
     Every widget must declare a vcp_widget_def_t structure, and
     initialize it with the appropriate values.  Fields are as
     follows:
-    
+
     'name'             The name of the widget, as a string.
     'w_class'          The class of the widget.
     'w_class_mask'     A bitmask identifying legal child widgets.
@@ -123,7 +126,7 @@ vcp_attrib_def_t main_win_attribs[] = {
 vcp_widget_def_t main_window_def = {
     "main-window",
     CL_MAIN_WINDOW, 
-    CH_ONE | CL_CONTROL | CL_LAYOUT, 
+    CH_ONE | CL_CONTROL | CL_LAYOUT | CL_DISPLAY,
     main_win_attribs, 
     sizeof(main_win_data_t),
     init_main_window
@@ -141,7 +144,6 @@ static int init_main_window ( vcp_widget_t *wp )
     main_win_data_t *pd;
     GtkWidget *gwp;
 
-printf ( "init main window\n" );
     if ( have_one != 0 ) {
 	printf ( "line %d: can't have two main windows\n", wp->linenum );
 	return -1;
@@ -161,7 +163,6 @@ printf ( "init main window\n" );
     /* this makes the application exit when the window is closed */
     gtk_signal_connect(GTK_OBJECT(gwp), "destroy",
 	GTK_SIGNAL_FUNC(main_window_closed), NULL);
-printf ( "  done\n" );
     have_one = 1;
     return 0;
 }
@@ -201,7 +202,7 @@ vcp_attrib_def_t box_attribs[] = {
 vcp_widget_def_t box_def = {
     "box",
     CL_LAYOUT,
-    CH_MANY | CL_CONTROL | CL_LAYOUT | CL_LABEL,
+    CH_MANY | CL_CONTROL | CL_LAYOUT | CL_LABEL | CL_DISPLAY,
     box_attribs,
     sizeof(box_data_t),
     init_box
@@ -211,8 +212,7 @@ static int init_box ( vcp_widget_t *wp )
 {
     box_data_t *pd;
     GtkWidget *gwp, *gwp2;
-    
-printf ( "init box\n" );
+ 
     /* get pointer to private data */
     pd = (box_data_t *)(wp->priv_data);
     /* we only look a the first character of the layout param */
@@ -247,7 +247,6 @@ printf ( "init box\n" );
     /* add to the parent widget */
     add_to_parent(wp->parent, gwp, pd->expand, pd->padding);
     gtk_widget_show(gwp);
-printf ( "  done\n" );
     return 0;
 }
 
@@ -283,8 +282,7 @@ static int init_label ( vcp_widget_t *wp )
 {
     label_data_t *pd;
     GtkWidget *gwp;
-    
-printf ( "init label\n" );
+ 
     pd = (label_data_t *)(wp->priv_data);
     /* create a label */
     gwp = gtk_label_new(pd->text);
@@ -293,7 +291,6 @@ printf ( "init label\n" );
     /* add the label to the parent widget */
     add_to_parent(wp->parent, gwp, pd->expand, pd->padding);
     gtk_widget_show(gwp);
-printf ( "  done\n" );
     return 0;
 }
 
@@ -339,20 +336,20 @@ static void button_pressed(GtkWidget * widget, gpointer gdata)
     vcp_widget_t *wp;
     button_data_t *dp;
     button_hal_t *hp;
-    
+
     wp = (vcp_widget_t *)gdata;
     dp = (button_data_t *)wp->priv_data;
     hp = (button_hal_t *)wp->hal_data;
     dp->pin_state = 1;
     *(hp->pin) = dp->pin_state;
 }
-  
+
 static void button_released(GtkWidget * widget, gpointer gdata)
 {
     vcp_widget_t *wp;
     button_data_t *dp;
     button_hal_t *hp;
-    
+
     wp = (vcp_widget_t *)gdata;
     dp = (button_data_t *)wp->priv_data;
     hp = (button_hal_t *)wp->hal_data;
@@ -364,22 +361,21 @@ static void button_refresh (vcp_widget_t *wp)
 {
     button_data_t *dp;
     button_hal_t *hp;
-    
+
     dp = (button_data_t *)wp->priv_data;
     hp = (button_hal_t *)wp->hal_data;
     *(hp->pin) = dp->pin_state;
 }
-  
+
 static int init_button ( vcp_widget_t *wp )
 {
     button_data_t *pd;
     button_hal_t *hd;
     int retval;
     GtkWidget *gwp;
-    
-printf ( "init button\n" );
+
     pd = (button_data_t *)(wp->priv_data);
-    
+
     /* allocate HAL memory for pin */
     hd = hal_malloc(sizeof(button_hal_t));
     if (hd == NULL) {
@@ -414,7 +410,6 @@ printf ( "init button\n" );
        doesn't press the button */
     wp->poll_funct = button_refresh;
     gtk_widget_show(gwp);
-printf ( "  done\n" );
     return 0;
 }
 
@@ -427,7 +422,15 @@ static int init_led(vcp_widget_t *widget);
 typedef struct {
     int expand;
     int padding;
+    int diameter;
     char *halpin;
+    GtkWidget *drawing;		/* drawing area for LED image */
+    GdkColormap *map;		/* colormap for LED image */
+    GdkColor color_border;	/* the circle around the LED */
+    GdkColor color_off;		/* LED off color */
+    GdkColor color_on;		/* LED on color */
+    GdkDrawable *win;		/* the window */
+    GdkGC *context;		/* graphics context for drawing LED */
 } led_data_t;
 
 typedef struct {
@@ -437,6 +440,9 @@ typedef struct {
 vcp_attrib_def_t led_attribs[] = {
     { "expand", "0", ATTRIB_BOOL, offsetof(led_data_t, expand) },
     { "padding", "0", ATTRIB_INT, offsetof(led_data_t, padding) },
+    { "size", "20", ATTRIB_INT, offsetof(led_data_t, diameter) },
+    { "on-color", "#FF0000", ATTRIB_COLOR, offsetof(led_data_t, color_on) },
+    { "off-color", "#600000", ATTRIB_COLOR, offsetof(led_data_t, color_off) },
     { "halpin", NULL, ATTRIB_STRING, offsetof(led_data_t, halpin) },
     { NULL, NULL, 0, 0 }
 };
@@ -454,10 +460,48 @@ static void led_refresh (vcp_widget_t *wp)
 {
     led_data_t *dp;
     led_hal_t *hp;
-    
+    int width, height;
+    int border_dia, led_dia;
+    int xstart, ystart;
+
     dp = (led_data_t *)wp->priv_data;
     hp = (led_hal_t *)wp->hal_data;
-    /* refresh code goes here - get busy and write it!!!!! */
+    /* get window pointer */
+    dp->win = dp->drawing->window;
+    if (dp->win == NULL) {
+	/* window isn't visible yet, do nothing */
+	printf("led_refresh(): win = NULL, bailing!\n");
+	return;
+    }
+    /* create drawing context if needed */
+    if (dp->context == NULL) {
+	dp->context = gdk_gc_new(dp->win);
+    }
+    border_dia = dp->diameter;
+    /* get window dimensions */
+    gdk_window_get_geometry(dp->win, NULL, NULL, &width, &height, NULL);
+    if ( border_dia > (height-2) ) {
+	border_dia = height-2;
+    }
+    if ( border_dia > (width-2) ) {
+	border_dia = width-2;
+    }
+    led_dia = border_dia-2;
+    if ( led_dia < 0 ) {
+	led_dia = 0;
+    }
+    xstart = (width-border_dia)/2;
+    ystart = (height-border_dia)/2;
+    /* clear the display */
+    gdk_window_clear(dp->win);
+    gdk_gc_set_foreground(dp->context, &(dp->color_border));
+    gdk_draw_arc ( dp->win, dp->context, 0, xstart, ystart, border_dia, border_dia, 0, 64*360 );
+    if ( *(hp->pin) ) {
+        gdk_gc_set_foreground(dp->context, &(dp->color_on));
+    } else {
+        gdk_gc_set_foreground(dp->context, &(dp->color_off));
+    }
+    gdk_draw_arc ( dp->win, dp->context, 1, xstart+1, ystart+1, led_dia, led_dia, 0, 64*360 );
 }
   
 static int init_led ( vcp_widget_t *wp )
@@ -466,10 +510,9 @@ static int init_led ( vcp_widget_t *wp )
     led_hal_t *hd;
     int retval;
     GtkWidget *gwp;
-    
-printf ( "init led\n" );
+
     pd = (led_data_t *)(wp->priv_data);
-    
+
     /* allocate HAL memory for pin */
     hd = hal_malloc(sizeof(led_hal_t));
     if (hd == NULL) {
@@ -483,22 +526,28 @@ printf ( "init led\n" );
 	printf( "init_button(): unable to export HAL pin '%s'\n", pd->halpin );
 	return retval;
     }
-    /* create the GTK widget here, see scope_disp.c for ideas */
-    
-    /* eliminate warning until someone writes the correct
-     * thing here */
-    gwp = NULL;
-
-
-    
+    pd = wp->priv_data;
+    /* allocate a drawing area */
+    gwp = gtk_drawing_area_new();
+    /* set its size to fit the LED */
+    gtk_drawing_area_size(GTK_DRAWING_AREA(gwp), pd->diameter+2, pd->diameter+2);
+    pd->drawing = gwp;
     wp->gtk_widget = gwp;
     wp->gtk_type = NONE;
+    /* hook up a function to handle expose events */
+/*    gtk_signal_connect(GTK_OBJECT(gwp), "expose_event",
+	GTK_SIGNAL_FUNC(led_window_expose), wp);*/
+    /* get color map */
+    pd->map = gtk_widget_get_colormap(gwp);
+    /* allocate colors */
+    alloc_color_rgb(&(pd->color_border), pd->map, 0, 0, 0);
+    alloc_color(&(pd->color_off), pd->map);
+    alloc_color(&(pd->color_on), pd->map);
     /* put it in its parent */
     add_to_parent(wp->parent, gwp, pd->expand, pd->padding);
     /* use a poll function for periodic refresh */
     wp->poll_funct = led_refresh;
     gtk_widget_show(gwp);
-printf ( "  done\n" );
     return 0;
 }
 
@@ -515,6 +564,35 @@ vcp_widget_def_t *widget_defs[] = {
 };
     
 /*********************** Local Function Code ********************/
+
+static gboolean alloc_color_rgb(GdkColor * color, GdkColormap * map,
+    unsigned char red, unsigned char green, unsigned char blue)
+{
+    int retval;
+
+    color->red = ((unsigned long) red) << 8;
+    color->green = ((unsigned long) green) << 8;
+    color->blue = ((unsigned long) blue) << 8;
+    color->pixel =
+	((unsigned long) red) << 16 | ((unsigned long) green) << 8 |
+	((unsigned long) blue);
+    retval = gdk_colormap_alloc_color(map, color, FALSE, TRUE);
+    if (retval == 0) {
+	printf("alloc_color_rgb( %d, %d, %d ) failed\n", red, green, blue);
+    }
+    return retval;
+}
+
+static gboolean alloc_color(GdkColor * color, GdkColormap * map)
+{
+    int retval;
+
+    retval = gdk_colormap_alloc_color(map, color, FALSE, TRUE);
+    if (retval == 0) {
+	printf("alloc_color( %d, %d, %d ) failed\n", color->red, color->green, color->blue);
+    }
+    return retval;
+}
 
 static void add_to_parent ( vcp_widget_t *parent, GtkWidget *child,
 			    int expand, int padding )

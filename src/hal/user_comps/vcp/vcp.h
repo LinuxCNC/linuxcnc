@@ -41,6 +41,7 @@ typedef enum {
     ATTRIB_BOOL,
     ATTRIB_INT,
     ATTRIB_FLOAT,
+    ATTRIB_COLOR,
 } attrib_type_t;
 
 /* This struct defines a widget attribute.  An array of these
@@ -81,7 +82,7 @@ typedef struct vcp_widget_s {
     struct vcp_widget_s *child;		/* list of child widget(s) if any */
     int linenum;			/* line number in vcp file */
     GtkWidget *gtk_widget;		/* child gtk's nest into this */
-    enum { NONE, BOX, BIN } gtk_type;	/* establishes how things next */
+    enum { NONE, BOX, BIN } gtk_type;	/* establishes how things nest */
     void *priv_data;			/* attribs and widget specific data */
     void *hal_data;			/* HAL pins and/or parameters */
     void (*poll_funct)(struct vcp_widget_s *wp);  /* polling function */

@@ -56,7 +56,11 @@ vcp {
 		}
 		button {
 		    halpin = button.Z-home
-		    label { text = "home" }
+		    box {
+			layout = horizontal
+			LED { halpin = led.Z-home }
+			label { padding = 1 text = "home" }
+		    }
 		}
 		label { text = "Z switches" }
 	    }
@@ -64,6 +68,22 @@ vcp {
 	    box {
 		layout = vertical
 		title = "spindle"
+		LED {
+		    size = 25
+		    halpin = led.0
+		    on-color = "#F00"
+		    off-color = "#600"
+		}
+		LED {
+		    halpin = led.1
+		    on-color = "#FF0"
+		    off-color = "#660"
+		}
+		LED {
+		    halpin = led.2
+		    on-color = "#0F0"
+		    off-color = "#060"
+		}
 	    }
 	}
     } # main-window

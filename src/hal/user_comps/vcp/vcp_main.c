@@ -54,6 +54,7 @@
 #include "tokenizer.h"
 #include "vcp.h"
 
+// #define DEBUG
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
@@ -102,7 +103,7 @@ int main(int argc, gchar * argv[])
     
     printf ( "NOTICE:  VCP is still under construction\n" );
     printf ( "It may be broken at any time, and should not be used yet!\n" );
-    sleep(2);
+//    sleep(2);
 
     /* process halvcp command line args (if any) here */
     if ( argc != 2 ) {
@@ -225,7 +226,7 @@ static void quit(int sig)
 static int heartbeat(gpointer data)
 {
     run_poll_functs(root);
-    return 0;
+    return 1;
 }
 
 static void run_poll_functs(vcp_widget_t *wp)
@@ -290,7 +291,9 @@ static vcp_widget_t *get_child_widget(vcp_widget_t *parent, char *name, token_fi
     char *item_name, *delim, *cp;
     int n;
 
-printf ( "get_child('%s')\n", name );
+#ifdef DEBUG
+    printf ( "get_child('%s')\n", name );
+#endif
     n = 0;
     wdef = widget_defs[n];
     while ( wdef != NULL ) {
@@ -304,7 +307,9 @@ printf ( "get_child('%s')\n", name );
 	    tf->tokenline, name );
 	return NULL;
     }
-printf ( "  matched\n" );
+#ifdef DEBUG
+    printf ( "  matched\n" );
+#endif
     /* found a match for name, check if it is a legal child of parent */
     if ( parent != NULL ) {
 	if ( ( wdef->w_class & parent->type->w_class_mask ) == 0 ) {
@@ -313,14 +318,18 @@ printf ( "  matched\n" );
 	    return NULL;
 	}
     }
-printf ( "  legal\n" );
+#ifdef DEBUG
+    printf ( "  legal\n" );
+#endif
     /* allocate the widget structure */
     widget = malloc(sizeof(vcp_widget_t));
     if ( widget == NULL ) {
 	printf( "get_child_widget(): unable to allocate memory\n" );
 	return NULL;
     }
-printf ( "  allocated\n" );
+#ifdef DEBUG
+    printf ( "  allocated\n" );
+#endif
     /* zero the entire widget structure */
     cp = (char *)widget;
     for ( n = 0 ; n < sizeof(vcp_widget_t) ; n++ ) {
@@ -330,7 +339,9 @@ printf ( "  allocated\n" );
     widget->type = wdef;
     widget->parent = parent;
     widget->linenum = tf->tokenline;
-printf ( "  inited\n" );
+#ifdef DEBUG
+    printf ( "  inited\n" );
+#endif
     /* link the widget to its parent */
     if ( parent != NULL ) {
 	/* check if parent allows children */
@@ -366,7 +377,9 @@ printf ( "  inited\n" );
 	    wp->sibling = widget;
 	}
     }
-printf ( "  linked\n" );
+#ifdef DEBUG
+    printf ( "  linked\n" );
+#endif
     /* allocate the widget's private data */
     widget->priv_data = malloc(wdef->priv_data_size);
     if ( widget->priv_data == NULL ) {
@@ -374,13 +387,17 @@ printf ( "  linked\n" );
 	free_widget(widget);
 	return NULL;
     }
-printf ( "  pd allocated\n" );
+#ifdef DEBUG
+    printf ( "  pd allocated\n" );
+#endif
     /* clear private data */
     cp = widget->priv_data;
     for ( n = 0 ; n < wdef->priv_data_size ; n++ ) {
 	*cp++ = 0;
     }
-printf ( "  pd cleared\n" );
+#ifdef DEBUG
+    printf ( "  pd cleared\n" );
+#endif
     /* set default values for all attributes */
     adef = wdef->attribs;
     if ( adef != NULL ) {
@@ -393,7 +410,9 @@ printf ( "  pd cleared\n" );
 	    adef++;
 	}
     }
-printf ( "  defaulted\n" );
+#ifdef DEBUG
+    printf ( "  defaulted\n" );
+#endif
     /* parse remainder of widget */
     while (1) {
 	item_name = tf_get_token(tf);
@@ -497,6 +516,7 @@ static int convert_attrib(vcp_attrib_def_t *adef, char *value, void *base_addr)
     char *cp;
     double float_value;
     int int_value, bool_value;
+    GdkColor *color;
 
     switch ( adef->datatype ) {
     case ATTRIB_FLOAT:
@@ -565,6 +585,22 @@ static int convert_attrib(vcp_attrib_def_t *adef, char *value, void *base_addr)
 	}
 	/* store value */
 	*((char **)(base_addr + adef->offset)) = value;
+	break;
+    case ATTRIB_COLOR:
+	/* get pointer to attrib value location */
+	color = (GdkColor *)(base_addr + adef->offset);
+
+	int_value = strtol(value, &cp, 0);
+	if ( ! gdk_color_parse ( cp, color ) ) {
+	    snprintf ( errbuf, ERRBUFLEN,
+		"bad value for color attribute '%s': '%s'\n", adef->name, value );
+	    return -1;
+	}
+	/* is this the default value */
+	if ( value != adef->deflt ) {
+	    /* no, token from an input file, free it */
+	    free(value);
+	}
 	break;
     default:
 	snprintf ( errbuf, ERRBUFLEN,
