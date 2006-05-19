@@ -430,6 +430,8 @@ obj-$(CONFIG_SIM_ENCODER) += sim_encoder.o
 sim_encoder-objs := hal/components/sim_encoder.o
 obj-$(CONFIG_WEIGHTED_SUM) += weighted_sum.o
 weighted_sum-objs := hal/components/weighted_sum.o
+obj-$(CONFIG_MODMATH) += modmath.o
+modmath-objs := hal/components/modmath.o
 
 # Subdirectory: hal/drivers
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
@@ -525,6 +527,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/timedelay.o: $(addprefix objects/rt,$(timedelay-objs))
 ../rtlib/sim_encoder.o: $(addprefix objects/rt,$(sim_encoder-objs))
 ../rtlib/weighted_sum.o: $(addprefix objects/rt,$(weighted_sum-objs))
+../rtlib/modmath.o: $(addprefix objects/rt,$(modmath-objs))
 ../rtlib/hal_parport.o: $(addprefix objects/rt,$(hal_parport-objs))
 ../rtlib/hal_tiro.o: $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg.o: $(addprefix objects/rt,$(hal_stg-objs))
