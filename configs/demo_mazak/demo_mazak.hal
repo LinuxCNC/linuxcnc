@@ -470,7 +470,7 @@ linksp magazine-position-4 wsum.0.bit.4.in
 # set the bit weight for bit 4 to 13 instead of the default 16
 setp wsum.0.bit.4.weight 13
 # add a signal for magazine position
-newsig s32 magazine-position
+newsig magazine-position s32
 linksp magazine-position wsum.0.sum
 # add a temporary signal to rotate by one.
 newsig forward-one bit
