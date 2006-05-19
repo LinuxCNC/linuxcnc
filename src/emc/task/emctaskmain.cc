@@ -2936,6 +2936,13 @@ int main(int argc, char *argv[])
 	    }
 	    last_emc_status.motion.axis[i].maxSoftLimit =
 		emcStatus->motion.axis[i].maxSoftLimit;
+
+// these are already checked in motion, and passed on to the user
+// the sanest thing to do is not check them twice, 
+// motion seems to test them better, and in realtime, and it consideres homing 
+// on the hardware switches too.
+//FIXME -remove for good, if it doesn't cause any troubles
+#if 0
 	    if (last_emc_status.motion.axis[i].minHardLimit == 0
 		&& emcStatus->motion.axis[i].minHardLimit == 1) {
 		emcOperatorError(0,
@@ -2954,8 +2961,8 @@ int main(int argc, char *argv[])
 	    }
 	    last_emc_status.motion.axis[i].maxHardLimit =
 		emcStatus->motion.axis[i].maxHardLimit;
+#endif
 	}
-
 	// write it
 	// since emcStatus was passed to the WM init functions, it
 	// will be updated in the _update() functions above. There's
