@@ -451,6 +451,7 @@ linksp tool-unclamped ax5214h.0.in-32
 # tool magazine or carousel with 0-24 positions
 newsig magazine-in-position bit
 linksp magazine-in-position ax5214h.0.in-37
+linksp magazine-in-position wsum.0.hold
 newsig magazine-position-0 bit
 linksp magazine-position-0 ax5214h.0.in-00
 linksp magazine-position-0 wsum.0.bit.0.in
