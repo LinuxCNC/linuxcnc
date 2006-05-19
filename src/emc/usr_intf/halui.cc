@@ -786,6 +786,8 @@ int halui_hal_init(void)
     //halui.jog-wheel.counts
     retval = halui_export_pin_RD_s32(&(halui_data->jog_wheel_counts), "halui.jog-wheel.counts");
     if (retval != HAL_SUCCESS) return -1;
+    *halui_data->jog_wheel_counts = 0;
+
     //halui.jog-wheel.axis
     retval = halui_export_pin_RD_u8(&(halui_data->jog_wheel_axis), "halui.jog-wheel.axis");
     if (retval != HAL_SUCCESS) return -1;
@@ -1850,7 +1852,7 @@ int main(int argc, char *argv[])
 
 	modify_hal_pins(); //if status changed modify HAL too
 	
-	esleep(0.01); //sleep for a while
+	esleep(0.02); //sleep for a while
 	
 	updateStatus();
     }
