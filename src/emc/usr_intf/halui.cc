@@ -196,6 +196,11 @@ struct halui_str {
     hal_bit_t *program_resume;     //pin for resuming program
     hal_bit_t *program_step;       //pin for running one line of the program
 
+    hal_s32_t *jog_wheel_counts;
+    hal_u8_t *jog_wheel_axis;
+    hal_float_t *jog_wheel_scale;
+    hal_float_t *jog_wheel_speed;
+
 } * halui_data; 
 
 struct local_halui_str {
@@ -233,6 +238,10 @@ struct local_halui_str {
     hal_bit_t program_resume;     //pin for resuming program
     hal_bit_t program_step;       //pin for running one line of the program
 
+    hal_s32_t jog_wheel_counts;
+    hal_u8_t jog_wheel_axis;
+    hal_float_t jog_wheel_scale;
+    hal_float_t jog_wheel_speed;
 
 } old_halui_data; //pointer to the HAL-struct
 
@@ -591,9 +600,6 @@ static enum {
 //    return u;
 //}
 
-// polarities for axis jogging, from ini file
-static int jogPol[EMC_AXIS_MAX];
-
 
 int halui_export_pin_RD_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2]) 
 {
@@ -606,6 +612,43 @@ int halui_export_pin_RD_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2])
     }
     return HAL_SUCCESS;
 }
+
+int halui_export_pin_RD_s32(hal_s32_t **pin, char name[HAL_NAME_LEN+2]) 
+{
+    int retval;
+    retval = hal_pin_s32_new(name, HAL_RD, pin, comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    return HAL_SUCCESS;
+}
+
+int halui_export_pin_RD_u8(hal_u8_t **pin, char name[HAL_NAME_LEN+2]) 
+{
+    int retval;
+    retval = hal_pin_u8_new(name, HAL_RD, pin, comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    return HAL_SUCCESS;
+}
+
+int halui_export_pin_RD_float(hal_float_t **pin, char name[HAL_NAME_LEN+2]) 
+{
+    int retval;
+    retval = hal_pin_float_new(name, HAL_RD, pin, comp_id);
+    if (retval != HAL_SUCCESS) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    return HAL_SUCCESS;
+}
+
 
 int halui_export_pin_WR_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2]) 
 {
@@ -739,6 +782,20 @@ int halui_hal_init(void)
     //halui.program.step         //pin for running one line of the program
     retval = halui_export_pin_RD_bit(&(halui_data->program_step), "halui.program.step"); 
     if (retval != HAL_SUCCESS) return -1;
+
+    //halui.jog-wheel.counts
+    retval = halui_export_pin_RD_s32(&(halui_data->jog_wheel_counts), "halui.jog-wheel.counts");
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.jog-wheel.axis
+    retval = halui_export_pin_RD_u8(&(halui_data->jog_wheel_axis), "halui.jog-wheel.axis");
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.jog-wheel.scale
+    retval = halui_export_pin_RD_float(&(halui_data->jog_wheel_scale), "halui.jog-wheel.scale");
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.jog-wheel.speed
+    retval = halui_export_pin_RD_float(&(halui_data->jog_wheel_speed), "halui.jog-wheel.speed");
+    if (retval != HAL_SUCCESS) return -1;
+
 
     return 0;
 }
@@ -1019,6 +1076,28 @@ static int sendProgramStep()
     return 0;
 }
 
+static int sendJogIncr(int axis, double speed, double incr)
+{
+    EMC_AXIS_INCR_JOG emc_axis_incr_jog_msg;
+
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+	return -1;
+    }
+
+    emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
+    emc_axis_incr_jog_msg.axis = axis;
+    emc_axis_incr_jog_msg.vel = speed;
+    emc_axis_incr_jog_msg.incr = incr;
+    emcCommandBuffer->write(emc_axis_incr_jog_msg);
+
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+    return 0;
+}
+
 
 //currently commented out to reduce warnings
 /*
@@ -1164,35 +1243,6 @@ static int sendJogCont(int axis, double speed)
 
     return 0;
 }
-
-static int sendJogIncr(int axis, double speed, double incr)
-{
-    EMC_AXIS_INCR_JOG emc_axis_incr_jog_msg;
-
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
-	return -1;
-    }
-
-    if (0 == jogPol[axis]) {
-	speed = -speed;
-    }
-
-    emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
-    emc_axis_incr_jog_msg.axis = axis;
-    emc_axis_incr_jog_msg.vel = speed / 60.0;
-    emc_axis_incr_jog_msg.incr = incr;
-    emcCommandBuffer->write(emc_axis_incr_jog_msg);
-
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-    axisJogging = -1;
-
-    return 0;
-}
-
 
 static int sendSpindleForward()
 {
@@ -1535,9 +1585,6 @@ static int iniLoad(const char *filename)
 {
     Inifile inifile;
     const char *inistring;
-    char displayString[LINELEN] = "";
-    int t;
-    int i;
 
     // open it
     if (inifile.open(filename) == false) {
@@ -1559,17 +1606,6 @@ static int iniLoad(const char *filename)
 	strcpy(EMC_NMLFILE, inistring);
     } else {
 	// not found, use default
-    }
-
-    for (t = 0; t < EMC_AXIS_MAX; t++) {
-	jogPol[t] = 1;		// set to default
-	sprintf(displayString, "AXIS_%d", t);
-	if (NULL != (inistring =
-		     inifile.find("JOGGING_POLARITY", displayString)) &&
-	    1 == sscanf(inistring, "%d", &i) && i == 0) {
-	    // it read as 0, so override default
-	    jogPol[t] = 0;
-	}
     }
 
     if (NULL != (inistring = inifile.find("LINEAR_UNITS", "DISPLAY"))) {
@@ -1620,6 +1656,7 @@ static void hal_init_pins()
 // and sends appropiate messages if so
 static void check_hal_changes()
 {
+    hal_s32_t counts;
     //check if machine_on pin has changed (the rest work exactly the same)
     if (*(halui_data->machine_on) != old_halui_data.machine_on) {
 	if (*(halui_data->machine_on) != 0) //if transition to 1
@@ -1722,6 +1759,15 @@ static void check_hal_changes()
 	    sendProgramStep();
 	old_halui_data.program_step = *(halui_data->program_step);
     }
+
+    counts = *halui_data->jog_wheel_counts;
+    if(counts != old_halui_data.jog_wheel_counts) {
+        sendJogIncr(*halui_data->jog_wheel_axis, 
+                *halui_data->jog_wheel_speed,
+                (counts - old_halui_data.jog_wheel_counts) *
+                *halui_data->jog_wheel_scale);
+        old_halui_data.jog_wheel_counts = counts;
+    }
 }
 
 
@@ -1804,7 +1850,7 @@ int main(int argc, char *argv[])
 
 	modify_hal_pins(); //if status changed modify HAL too
 	
-	esleep(EMC_IO_CYCLE_TIME); //sleep for a while
+	esleep(0.01); //sleep for a while
 	
 	updateStatus();
     }
