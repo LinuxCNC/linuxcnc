@@ -294,7 +294,7 @@ newsig sp-at-speed bit
 linksp sp-enc-pos motenc.3.enc-03-position
 # scale spindle position to degrees
 # 1440 cnts/rev = 4 cnts/degree
-setp motenc.3.enc-03-scale 4.0
+setp motenc.3.enc-03-scale -4.0
 
 # set encoder latch enable TRUE so encoder count "wraps"
 linksp sp-index-enable motenc.3.enc-03-latch-index
@@ -302,7 +302,6 @@ sets sp-index-enable TRUE
 
 # get desired orient position from ini file
 sets sp-orient-pos-cmd [SPINDLE]ORIENT_POSITION
-# sets sp-orient-pos-cmd 180
 
 # connect commanded and feedback positions to PID loop
 linksp sp-orient-pos-cmd pid.3.command
