@@ -80,7 +80,7 @@ loadrt weighted_sum wsum_sizes=5
 #
 # the rest of these blocks implement spindle speed scaling
 # (for high/low shifting) and spindle orient
-loadrt blocks mux2=1 mux4=1 wcomp=2 scale=2
+loadrt blocks mux2=2 mux4=1 wcomp=2 scale=2
 
 # Software encoder counter, for the jogwheel, and possibly a future
 # small manual encoder for a feedrate override knob.
@@ -93,7 +93,7 @@ loadrt pid num_chan=4
 
 # classicladder for machine logic
 # (load the realtime portion)
-loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=10 numMonostables=10 numPhysInputs=30 numPhysOutputs=30 numArithmExpr=4 numSections=4
+loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=10 numMonostables=10 numPhysInputs=40 numPhysOutputs=40 numArithmExpr=4 numSections=4
 
 # invoke the user part of CL to silently load the program
 loadusr -w classicladder --nogui demo_mazak.clp
@@ -122,6 +122,8 @@ addf process_wsums                  servo-thread
 # ladder logic is executed once all the inputs are read
 addf classicladder.0.refresh        servo-thread
 
+# adaptive feedrate mux
+addf mux2.1			    servo-thread
 # now we run the motion controller
 addf motion-command-handler         servo-thread
 addf motion-controller              servo-thread
@@ -319,9 +321,9 @@ setp pid.3.maxoutput 100
 linksp sp-orient-pos-err pid.3.error
 linksp sp-orient-pos-err wcomp.0.in
 linksp sp-orient-pos-ok wcomp.0.out
-# set a +/- 1/2 degree window
-setp wcomp.0.min -0.5
-setp wcomp.0.max  0.5
+# set a +/- 1 degree window
+setp wcomp.0.min -1.0
+setp wcomp.0.max  1.0
 
 # output of loop is velocity for orientation
 linksp sp-orient-rpm-cmd pid.3.output
@@ -403,17 +405,22 @@ linksp tool-changed iocontrol.0.tool-changed
 
 # misc control
 # tool change location push button operators
-newsig magazine-index bit
-linksp magazine-index ax5214h.0.in-07
+newsig magazine-index-pbs bit
+linksp magazine-index-pbs ax5214h.0.in-07
 newsig worklight-pbs bit
 linksp worklight-pbs ax5214h.0.in-08
 newsig tool-load-pbs bit
 linksp tool-load-pbs ax5214h.0.in-09
 newsig tool-unload-pbs bit
-linksp tool-unload-pbs  ax5214h.0.in-10
+linksp tool-unload-pbs ax5214h.0.in-10
 
 # add front panel buttons here
-
+newsig tool-unclamp-pbs bit
+linksp tool-unclamp-pbs ax5214h.0.in-39
+newsig feed-hold-pbs bit
+linksp feed-hold-pbs ax5214h.0.in-14
+newsig cycle-start-pbs bit
+linksp cycle-start-pbs ax5214h.0.in-25
 
 # hydraulic pump
 newsig hydraulic-pump-run bit
@@ -523,6 +530,19 @@ newsig jogwheel-counts s32
 linksp jogwheel-counts encoder.0.counts
 # need to release the Z-axis brake when running
 linksp Z-amp-running motenc.3.out-15
+
+# feedhold, uses G50 adaptive feed input
+newsig zero float
+sets zero 0.0
+newsig one float
+sets one 1.0
+newsig adaptive-feed float
+linksp adaptive-feed mux2.1.out
+linksp adaptive-feed motion.adaptive-feed
+linksp zero mux2.1.in1
+linksp one mux2.1.in0
+newsig feed-hold bit
+linksp feed-hold mux2.1.sel
 
 
 # -----------------------------------------------------
@@ -670,13 +690,12 @@ linkps classicladder.0.in-08 sp-in-neutral
 linkps classicladder.0.in-09 sp-at-speed
 linkps classicladder.0.in-10 hydraulic-pump-running
 linkps classicladder.0.in-11 magazine-in-position
-linkps classicladder.0.in-12 magazine-index
+linkps classicladder.0.in-12 magazine-index-pbs
 linkps classicladder.0.in-13 tool-load-pbs
 linkps classicladder.0.in-14 tool-loaded
 linkps classicladder.0.in-15 tool-unload-pbs
 linkps classicladder.0.in-16 tool-unloaded
-linkps classicladder.0.in-17 tool-unclamp
-
+linkps classicladder.0.in-17 tool-unclamp-pbs
 # High level input tool change inputs
 linkps classicladder.0.in-18 tool-prepare
 linkps classicladder.0.in-19 tool-change
@@ -684,6 +703,10 @@ linkps classicladder.0.in-19 tool-change
 linkps classicladder.0.in-20 external-estop-ok
 # I21 = estop-reset, pulsed to reset the estop relay
 linkps classicladder.0.in-21 estop-reset
+linkps classicladder.0.in-22 feed-hold-pbs
+linkps classicladder.0.in-23 spindle-run
+linkps classicladder.0.in-24 sp-orient-pos-ok
+linkps classicladder.0.in-25 spindle-do-orient
 
 
 # OUTPUTS from CL
@@ -718,6 +741,9 @@ linkps classicladder.0.out-21 tool-changed
 # Q22 indicates that the estop ladder rung (latch) is ok
 linkps classicladder.0.out-22 main-estop-ok
 linkps classicladder.0.out-23 charge-pump
+linkps classicladder.0.out-24 spindle-at-speed
+linkps classicladder.0.out-25 spindle-oriented
+linkps classicladder.0.out-26 feed-hold
 
 # CL internals (not HAL data, just here for documentation
 #
@@ -728,6 +754,9 @@ linkps classicladder.0.out-23 charge-pump
 # T4 = delay before shifting out of gear
 # T5 = delay before shifting into gear
 # T6 = oneshot for tool magazine advance
+# T7 = hydraulic pump delay
+# T8 = at-speed delay
+# T9 = oriented delay
 
 # B0 = delayed servo-enable, for fault masking
 # B1 = five second initialization signal
@@ -743,6 +772,7 @@ linkps classicladder.0.out-23 charge-pump
 # B11 = arm arm-60cw virtual
 # B12 = arm arm 180ccw virtual
 # B13 = arm tool unclamp virtual
-# b14 = tool change preconditions ready
+# B14 = tool change preconditions ready
+
 
 

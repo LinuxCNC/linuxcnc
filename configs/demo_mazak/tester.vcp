@@ -144,7 +144,7 @@ vcp {
 		    box {
 			layout = horizontal
 			LED {
-			    halpin = led.x-ampon
+			    halpin = led.x-amp-on
 			    on-color = green
 			    off-color = "#060"
 			}
@@ -152,7 +152,7 @@ vcp {
 		    }
 		    box {
 			layout = horizontal
-			LED { halpin = led.x-ampflt }
+			LED { halpin = led.x-amp-flt }
 			label { text = " Faulted" }
 		    }
 		    box {
@@ -181,7 +181,7 @@ vcp {
 		    box {
 			layout = horizontal
 			LED {
-			    halpin = led.y-ampon
+			    halpin = led.y-amp-on
 			    on-color = green
 			    off-color = "#060"
 			}
@@ -189,7 +189,7 @@ vcp {
 		    }
 		    box {
 			layout = horizontal
-			LED { halpin = led.y-ampflt }
+			LED { halpin = led.y-amp-flt }
 			label { text = " Faulted" }
 		    }
 		    box {
@@ -218,7 +218,7 @@ vcp {
 		    box {
 			layout = horizontal
 			LED {
-			    halpin = led.z-ampon
+			    halpin = led.z-amp-on
 			    on-color = green
 			    off-color = "#060"
 			}
@@ -226,7 +226,7 @@ vcp {
 		    }
 		    box {
 			layout = horizontal
-			LED { halpin = led.z-ampflt }
+			LED { halpin = led.z-amp-flt }
 			label { text = " Faulted" }
 		    }
 		    box {
@@ -296,7 +296,7 @@ vcp {
 		    box {
 			layout = horizontal
 			LED {
-			    halpin = led.tool-index
+			    halpin = led.tool-index-pb
 			    on-color = yellow
 			    off-color = yellow4
 			}
@@ -336,7 +336,7 @@ vcp {
 		    box {
 			layout = horizontal
 			LED {
-			    halpin = led.mag-bit-0
+			    halpin = led.mag-pos-0
 			    on-color = yellow
 			    off-color = yellow4
 			}
@@ -345,7 +345,7 @@ vcp {
 		    box {
 			layout = horizontal
 			LED {
-			    halpin = led.mag-bit-1
+			    halpin = led.mag-pos-1
 			    on-color = yellow
 			    off-color = yellow4
 			}
@@ -354,7 +354,7 @@ vcp {
 		    box {
 			layout = horizontal
 			LED {
-			    halpin = led.mag-bit-2
+			    halpin = led.mag-pos-2
 			    on-color = yellow
 			    off-color = yellow4
 			}
@@ -363,7 +363,7 @@ vcp {
 		    box {
 			layout = horizontal
 			LED {
-			    halpin = led.mag-bit-3
+			    halpin = led.mag-pos-3
 			    on-color = yellow
 			    off-color = yellow4
 			}
@@ -372,7 +372,7 @@ vcp {
 		    box {
 			layout = horizontal
 			LED {
-			    halpin = led.mag-bit-4
+			    halpin = led.mag-pos-4
 			    on-color = yellow
 			    off-color = yellow4
 			}
