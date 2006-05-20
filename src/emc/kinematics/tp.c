@@ -388,6 +388,8 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 
 void tcRunCycle(TC_STRUCT *tc, double *v, int *on_final_decel) {
     double discr, maxnewvel, newvel, newaccel=0;
+    if(!tc->blending) tc->vel_at_blend_start = tc->currentvel;
+
     discr = 0.5 * tc->cycle_time * tc->currentvel - (tc->target - tc->progress);
     if(discr > 0.0) {
         // should never happen: means we've overshot the target
@@ -457,6 +459,7 @@ int tpRunCycle(TP_STRUCT * tp)
     EmcPose primary_displacement, secondary_displacement;
     static double oldrevs, spindleoffset;
     static int waiting = 0;
+    double save_vel;
 
     tc = tcqItem(&tp->queue, 0);
     if(!tc) {
@@ -639,11 +642,6 @@ int tpRunCycle(TP_STRUCT * tp)
             // segment has a cruise phase so let's blend over the 
             // whole accel period if possible
             tc->blend_vel = nexttc->reqvel * nexttc->feed_override;
-        } else {
-            // segment has a triangular vel profile - blend for somewhat 
-            // less than half of it so we're sure to at least touch 
-            // the segment's path somewhere
-            tc->blend_vel *= 0.8;
         }
         if(tc->maxaccel < nexttc->maxaccel)
             tc->blend_vel *= tc->maxaccel/nexttc->maxaccel;
@@ -706,7 +704,11 @@ int tpRunCycle(TP_STRUCT * tp)
             tp->motionType = nexttc->canon_motion_type;
 
         secondary_before = tcGetPos(nexttc);
+        save_vel = nexttc->reqvel;
+        nexttc->reqvel = tc->vel_at_blend_start - primary_vel;
         tcRunCycle(nexttc, NULL, NULL);
+        nexttc->reqvel = save_vel;
+
         secondary_after = tcGetPos(nexttc);
         pmCartCartSub(secondary_after.tran, secondary_before.tran, 
                 &secondary_displacement.tran);
