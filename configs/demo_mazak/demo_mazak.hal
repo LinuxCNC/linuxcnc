@@ -82,6 +82,8 @@ loadrt weighted_sum wsum_sizes=5
 # (for high/low shifting) and spindle orient
 loadrt blocks mux2=2 mux4=1 wcomp=2 scale=2
 
+loadrt modmath mod_dir=1
+
 # Software encoder counter, for the jogwheel, and possibly a future
 # small manual encoder for a feedrate override knob.
 #
@@ -93,7 +95,7 @@ loadrt pid num_chan=4
 
 # classicladder for machine logic
 # (load the realtime portion)
-loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=10 numMonostables=10 numPhysInputs=40 numPhysOutputs=40 numArithmExpr=4 numSections=4
+loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=20 numMonostables=10 numPhysInputs=50 numPhysOutputs=40 numArithmExpr=4 numSections=4
 
 # invoke the user part of CL to silently load the program
 loadusr -w classicladder --nogui demo_mazak.clp
@@ -118,6 +120,7 @@ addf motenc.3.adc-read              servo-thread
 # convert IO to internally useful representations
 # converter for tool magazine position
 addf process_wsums                  servo-thread
+addf mod-dir.0			    servo-thread
 
 # ladder logic is executed once all the inputs are read
 addf classicladder.0.refresh        servo-thread
@@ -361,7 +364,7 @@ sets sp-mtr-mesh-rpm-cmd 15
 # link the final motor command to the DAC
 linksp sp-mtr-rpm-cmd motenc.3.dac-03-value
 # set scaling - 10V = 4500RPM at the motor
-setp motenc.3.dac-03-gain 0.002222
+setp motenc.3.dac-03-gain -0.002222
 # correct for offset, it causes drift and hunting
 setp motenc.3.dac-03-offset -8
 
@@ -402,6 +405,8 @@ newsig tool-change bit
 linksp tool-change iocontrol.0.tool-change
 newsig tool-changed bit
 linksp tool-changed iocontrol.0.tool-changed
+newsig tool-requested-number s32
+linksp tool-requested-number iocontrol.0.tool-prep-number
 
 # misc control
 # tool change location push button operators
@@ -441,7 +446,14 @@ linksp arm-retracted ax5214h.0.in-29
 newsig arm-extended bit
 linksp arm-extended ax5214h.0.in-30
 newsig arm-at-0/180 bit
-linksp arm-at-0/180 ax5214h.0.in-26
+# FIXME!!  This sensor is broken, so we are using a delay
+# instead - 2 seconds after the cylinder is actuated, we
+# assume that we have reached the desired position and 
+# set the signal true.  The commented out line below is
+# the proper source for the signal.  But for now, it is
+# driven by classicladder output number 27 (see ladder
+# section near end of file).
+#linksp arm-at-0/180 ax5214h.0.in-26
 newsig arm-at-0/60 bit
 linksp arm-at-0/60 ax5214h.0.in-27
 newsig arm-at-60 bit
@@ -515,6 +527,23 @@ newsig mist-coolant bit
 linksp mist-coolant ax5214h.0.out-17
 newsig flood-coolant bit
 linksp flood-coolant ax5214h.0.out-16
+
+# magazine indexing
+linksp magazine-position mod-dir.0.actual
+linksp tool-requested-number mod-dir.0.desired
+
+newsig tool-prepped bit
+
+linksp tool-prepped iocontrol.0.tool-prepared
+linksp tool-prepped mod-dir.0.on-target
+
+setp mod-dir.0.max-num [EMCIO]TOOL_TURRET_MAX
+setp mod-dir.0.wrap [EMCIO]TOOL_TURRET_WRAP
+newsig magazine-fwd-req bit
+newsig magazine-rev-req bit
+linksp magazine-fwd-req mod-dir.0.up
+linksp magazine-rev-req mod-dir.0.down
+
 
 # jogwheel signals
 newsig jogwheel-phA bit
@@ -706,7 +735,21 @@ linkps classicladder.0.in-21 estop-reset
 linkps classicladder.0.in-22 feed-hold-pbs
 linkps classicladder.0.in-23 spindle-run
 linkps classicladder.0.in-24 sp-orient-pos-ok
-linkps classicladder.0.in-25 spindle-do-orient
+linkps classicladder.0.in-26 tool-prepare
+linkps classicladder.0.in-27 magazine-fwd-req
+linkps classicladder.0.in-28 magazine-rev-req
+# tool changer proxes
+linkps classicladder.0.in-29 arm-at-0/180
+linkps classicladder.0.in-30 arm-at-0/60
+linkps classicladder.0.in-31 arm-at-180
+linkps classicladder.0.in-32 arm-at-60
+linkps classicladder.0.in-33 arm-extended
+linkps classicladder.0.in-34 arm-retracted
+newsig start-change bit
+linkps classicladder.0.in-35 start-change
+linkps classicladder.0.in-36 tool-clamped
+linkps classicladder.0.in-37 tool-unclamped
+
 
 
 # OUTPUTS from CL
@@ -744,6 +787,9 @@ linkps classicladder.0.out-23 charge-pump
 linkps classicladder.0.out-24 spindle-at-speed
 linkps classicladder.0.out-25 spindle-oriented
 linkps classicladder.0.out-26 feed-hold
+# FIXME! this is a temporary replacement for a bad sensor
+linkps classicladder.0.out-27 arm-at-0/180
+linkps classicladder.0.out-28 spindle-do-orient
 
 # CL internals (not HAL data, just here for documentation
 #
@@ -757,6 +803,8 @@ linkps classicladder.0.out-26 feed-hold
 # T7 = hydraulic pump delay
 # T8 = at-speed delay
 # T9 = oriented delay
+# T10 = bad prox delay
+
 
 # B0 = delayed servo-enable, for fault masking
 # B1 = five second initialization signal
@@ -773,6 +821,10 @@ linkps classicladder.0.out-26 feed-hold
 # B12 = arm arm 180ccw virtual
 # B13 = arm tool unclamp virtual
 # B14 = tool change preconditions ready
+# B15 = cycle midpoint
+# B16 = tool cycle start
+
+ 
 
 
 

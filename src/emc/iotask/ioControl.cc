@@ -86,7 +86,7 @@ struct iocontrol_str {
     // the following pins are needed for toolchanging
     //tool-prepare
     hal_bit_t *tool_prepare;	/* output, pin that notifies HAL it needs to prepare a tool */
-    hal_u8_t  *tool_prep_number;/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
+    hal_s32_t  *tool_prep_number;/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     hal_bit_t *tool_prepared;	/* input, pin that notifies that the tool has been prepared */
     //tool-change
     hal_bit_t *tool_change;	/* output, notifies a tool-change should happen (emc should be in the tool-change position) */
@@ -527,7 +527,7 @@ int iocontrol_hal_init(void)
     // tool-number
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.tool-prep-number", n);
     retval =
-	hal_pin_u8_new(name, HAL_WR, &(iocontrol_data->tool_prep_number), comp_id);
+	hal_pin_s32_new(name, HAL_WR, &(iocontrol_data->tool_prep_number), comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin tool-prep-number export failed with err=%i\n",

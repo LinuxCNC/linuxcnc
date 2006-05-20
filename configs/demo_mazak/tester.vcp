@@ -128,10 +128,6 @@ vcp {
 			halpin = button.sp-low-gear
 			label { text = "LowGear" }
 		    }
-		    button {
-			halpin = button.sp-do-orient
-			label { text = "Orient" }
-		    }
 		}
 	    }
 	    # this box holds stuff for the axes

@@ -18,7 +18,6 @@ linksp spindle-at-speed led.sp-at-speed
 linksp spindle-use-low-gear led.sp-low-gear
 linksp spindle-use-low-gear button.sp-low-gear
 linksp spindle-do-orient led.sp-do-orient
-linksp spindle-do-orient button.sp-do-orient
 linksp spindle-oriented led.sp-oriented
 
 linksp X-amp-running led.x-amp-on
