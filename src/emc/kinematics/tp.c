@@ -705,7 +705,7 @@ int tpRunCycle(TP_STRUCT * tp)
 
         secondary_before = tcGetPos(nexttc);
         save_vel = nexttc->reqvel;
-        nexttc->reqvel = tc->vel_at_blend_start - primary_vel;
+        nexttc->reqvel = (tc->vel_at_blend_start - primary_vel) / nexttc->feed_override;
         tcRunCycle(nexttc, NULL, NULL);
         nexttc->reqvel = save_vel;
 
