@@ -142,7 +142,6 @@ HEADERS := \
     emc/ini/initraj.hh \
     emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
-    emc/kinematics/genhexkins.h \
     emc/kinematics/mmxavg.h \
     emc/kinematics/tc.h \
     emc/kinematics/tp.h \
