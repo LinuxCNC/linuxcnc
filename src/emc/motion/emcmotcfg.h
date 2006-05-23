@@ -67,8 +67,10 @@
 #define DEFAULT_MAX_OUTPUT 10.0
 #define DEFAULT_MIN_OUTPUT -10.0
 
-/* size of motion queue */
-#define DEFAULT_TC_QUEUE_SIZE 200
+/* size of motion queue
+ * a TC_STRUCT is about 512 bytes so this queue is
+ * about a megabyte.  */
+#define DEFAULT_TC_QUEUE_SIZE 2000
 
 /* size of window for averages */
 #define DEFAULT_MMXAVG_SIZE 100
