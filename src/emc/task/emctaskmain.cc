@@ -2484,7 +2484,7 @@ static int emctask_startup()
     }
     // get the timer
     if (!emcTaskNoDelay) {
-	timer = new RCS_TIMER(EMC_TASK_CYCLE_TIME);
+	timer = new RCS_TIMER(EMC_TASK_CYCLE_TIME, "", "");
     }
     // initialize the subsystems
 
