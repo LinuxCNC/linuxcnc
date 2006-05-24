@@ -859,6 +859,8 @@ static int emcTaskPlan(void)
 
 		// now handle interpreter call logic
 		if (interp_list.len() <= EMC_TASK_INTERP_MAX_LEN) {
+                    int count = 0;
+interpret_again:
 		    if (emcTaskPlanIsWait()) {
 			// delay reading of next line until all is done
 			if (interp_list.len() == 0 &&
@@ -973,6 +975,13 @@ static int emcTaskPlan(void)
 				// and clear it regardless
 				interp_list.clear();
 			    }
+
+                            if (count++ < 1000
+                                    && emcStatus->task.interpState == EMC_TASK_INTERP_READING
+                                    && interp_list.len() <= EMC_TASK_INTERP_MAX_LEN * 2/3) {
+                                goto interpret_again;
+                            }
+
 			}	// else read was OK, so execute
 		    }		// else not emcTaskPlanIsWait
 		}		// if interp len is less than max
