@@ -310,8 +310,10 @@ NC_FILES=$(call GLOB,../nc_files/*)
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
-install:
-	$(ECHO) "Installing in $(DESTDIR) with prefix $(prefix)"
+install: install-kernel-dep install-kernel-indep
+	$(ECHO) "Installed in $(DESTDIR) with prefix $(prefix)"
+
+install-kernel-indep:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(moduledir)/emc2 \
 		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
 		$(DESTDIR)/usr/local/etc/emc2/configs \
@@ -328,13 +330,10 @@ install:
 	$(FILE) po/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(FILE) po/de*.mo $(DESTDIR)$(localedir)/de/LC_MESSAGES
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
-	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)/emc2
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
-	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/emc2
 	$(INSTALL_CONFIGS)
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
-	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so,$(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)
@@ -348,6 +347,11 @@ install:
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
+
+install-kernel-dep:
+	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)/emc2
+	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
+	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/emc2
 endif # RUN_IN_PLACE
 
 CONF=../configs
