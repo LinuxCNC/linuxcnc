@@ -657,7 +657,8 @@ if test "x" = "x$GTK_VER"; then
   if type gtk-config 2>/dev/null >/dev/null ; then
     # found gtk-config, that means GTK 1.2 is installed
     GTK_VER="1.2"
-  elif type pkg-config 2>/dev/null >/dev/null ; then
+  fi
+  if type pkg-config 2>/dev/null >/dev/null ; then
     # found pkg-config, that means GTK 2.x _might_ be installed
     if pkg-config gtk+-2.0 --exists ; then
       # found the .pc file for gtk-2.0
