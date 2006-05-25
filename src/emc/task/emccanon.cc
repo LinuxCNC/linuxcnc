@@ -499,7 +499,6 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 
     linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
 
-    printf("TRAV: %f %f %f\n", linearMoveMsg.vel, linearMoveMsg.ini_maxvel, linearMoveMsg.acc);
     if(acc) 
         interp_list.append(linearMoveMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
@@ -562,7 +561,6 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
 
-    printf("FEED: %f %f %f\n", linearMoveMsg.vel, linearMoveMsg.ini_maxvel, linearMoveMsg.acc);
     if(acc)
         interp_list.append(linearMoveMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
