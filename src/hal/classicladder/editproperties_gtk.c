@@ -90,7 +90,9 @@ gint PropertiesWindowDeleteEvent(GtkWidget * widget, GdkEvent * event,
     gpointer data)
 {
     // we do not want that the window be destroyed.
-    return TRUE;
+    //return TRUE;
+	//actually i do
+	return FALSE;
 }
 
 void ShowPropertiesWindow(int Visible)

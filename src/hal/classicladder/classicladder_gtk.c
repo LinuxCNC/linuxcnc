@@ -66,6 +66,11 @@ GtkWidget *FileSelector;
 GtkWidget *ConfirmDialog;
 GtkWidget *RungWindow;
 
+GtkTooltips *tooltips;
+GtkWidget *button;
+
+
+
 /* Create a new backing pixmap of the appropriate size */
 static gint configure_event(GtkWidget * widget, GdkEventConfigure * event)
 {
@@ -525,9 +530,12 @@ void DoQuit(void)
 }
 void ConfirmQuit(void)
 {
-    ShowConfirmationBox("Sure?",
-	"Do you really want to quit ?\n  If not saved, all modifications will be lost  \n",
-	DoQuit);
+	//FIXME this needs to check if we've actually modified anything
+	//currently removed to reduce the annoyance levels
+    //ShowConfirmationBox("Sure?",
+	//"Do you really want to quit ?\n  If not saved, all modifications will be lost  \n",
+	//DoQuit);
+	DoQuit();
 }
 
 gint RungWindowDeleteEvent(GtkWidget * widget, GdkEvent * event,
@@ -535,7 +543,10 @@ gint RungWindowDeleteEvent(GtkWidget * widget, GdkEvent * event,
 {
     ConfirmQuit();
     // we do not want that the window be destroyed.
-    return TRUE;
+    //return TRUE;
+	//actually i do
+	return FALSE;
+
 }
 
 void RungWindowInitGtk()
@@ -548,6 +559,10 @@ void RungWindowInitGtk()
 
     RungWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title((GtkWindow *) RungWindow, "Section Display");
+
+
+	//tooltips = gtk_tooltips_new ();
+	//gtk_tooltips_set_tip (tooltips, RungWindow, "This is the RungWindow", NULL);
 
     vbox = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(RungWindow), vbox);
@@ -620,26 +635,31 @@ void RungWindowInitGtk()
 	/* expand */ FALSE, /* fill */ FALSE, /* pad */ 0, GTK_PACK_START);
 
     if(!readOnly){
+
 	ButtonNew = gtk_button_new_with_label("New");
 	gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonNew, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT(ButtonNew), "clicked",
 	    (GtkSignalFunc) ButtonNew_click, 0);
 	gtk_widget_show(ButtonNew);
+
 	ButtonLoad = gtk_button_new_with_label("Load");
 	gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonLoad, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT(ButtonLoad), "clicked",
 	    (GtkSignalFunc) ButtonLoad_click, 0);
 	gtk_widget_show(ButtonLoad);
+
 	ButtonSave = gtk_button_new_with_label("Save");
 	gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonSave, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT(ButtonSave), "clicked",
 	    (GtkSignalFunc) ButtonSave_click, 0);
 	gtk_widget_show(ButtonSave);
+
 	ButtonSaveAs = gtk_button_new_with_label("Save As");
 	gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonSaveAs, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT(ButtonSaveAs), "clicked",
 	    (GtkSignalFunc) ButtonSaveAs_click, 0);
 	gtk_widget_show(ButtonSaveAs);
+
 	ButtonRunStop =
 	    gtk_button_new_with_label((InfosGene->LadderState ==
 		STATE_RUN) ? "Stop" : "Run");
@@ -654,11 +674,13 @@ void RungWindowInitGtk()
     gtk_signal_connect(GTK_OBJECT(ButtonConfig), "clicked",
 	(GtkSignalFunc) ButtonConfig_click, 0);
     gtk_widget_show(ButtonConfig);
+
     ButtonAbout = gtk_button_new_with_label("About");
     gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonAbout, TRUE, TRUE, 0);
     gtk_signal_connect(GTK_OBJECT(ButtonAbout), "clicked",
 	(GtkSignalFunc) ButtonAbout_click, 0);
     gtk_widget_show(ButtonAbout);
+
     ButtonQuit = gtk_button_new_with_label("Quit");
     gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonQuit, TRUE, TRUE, 0);
 //    gtk_signal_connect_object (GTK_OBJECT (ButtonQuit), "clicked",
@@ -694,7 +716,9 @@ gint VarsWindowDeleteEvent(GtkWidget * widget, GdkEvent * event,
     gpointer data)
 {
     // we do not want that the window be destroyed.
-    return TRUE;
+    //return TRUE;
+	//actually i do
+	return FALSE;
 }
 
 void VarsWindowInitGtk()
@@ -711,9 +735,11 @@ void VarsWindowInitGtk()
     vboxmain = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(windowvars), vboxmain);
     gtk_widget_show(vboxmain);
+
     hboxvars = gtk_hbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(vboxmain), hboxvars);
     gtk_widget_show(hboxvars);
+
     hboxvars2 = gtk_hbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(vboxmain), hboxvars2);
     gtk_widget_show(hboxvars2);
@@ -727,9 +753,11 @@ void VarsWindowInitGtk()
     vboxvarsnames = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(hboxvars2), vboxvarsnames);
     gtk_widget_show(vboxvarsnames);
+
     vboxvarsvalues = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(hboxvars2), vboxvarsvalues);
     gtk_widget_show(vboxvarsvalues);
+
     vboxvarsformats = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(hboxvars2), vboxvarsformats);
     gtk_widget_show(vboxvarsformats);
@@ -741,11 +769,13 @@ void VarsWindowInitGtk()
     NumCheckWidget = 0;
     for (ColumnVar = 0; ColumnVar < NBR_TYPE_BOOLS_SPY; ColumnVar++) {
 	int OffVar;
+
 	offsetboolvar[ColumnVar] = gtk_entry_new();
 	gtk_widget_set_usize((GtkWidget *) offsetboolvar[ColumnVar], 40, 0);
 	gtk_box_pack_start(GTK_BOX(vboxboolvars[ColumnVar]),
 	    offsetboolvar[ColumnVar], FALSE, FALSE, 0);
 	gtk_widget_show(offsetboolvar[ColumnVar]);
+
 	gtk_entry_set_text((GtkEntry *) offsetboolvar[ColumnVar], "0");
 	gtk_signal_connect(GTK_OBJECT(offsetboolvar[ColumnVar]), "activate",
 	    (GtkSignalFunc) OffsetBoolVar_activate_event, (void *) ColumnVar);
@@ -753,9 +783,11 @@ void VarsWindowInitGtk()
 	for (OffVar = 0; OffVar < NBR_BOOLS_VAR_SPY; OffVar++) {
 	    chkvar[ColumnVar][OffVar] =
 		gtk_check_button_new_with_label("xxxx");
+
 	    gtk_box_pack_start(GTK_BOX(vboxboolvars[ColumnVar]),
 		chkvar[ColumnVar][OffVar], FALSE, FALSE, 0);
 	    gtk_widget_show(chkvar[ColumnVar][OffVar]);
+
 	    gtk_signal_connect(GTK_OBJECT(chkvar[ColumnVar][OffVar]),
 		"toggled", (GtkSignalFunc) chkvar_press_event,
 		(void *) NumCheckWidget);
@@ -774,11 +806,11 @@ void VarsWindowInitGtk()
 		EntryVarSpy[NumEntry], FALSE, FALSE, 0);
 	    gtk_widget_show(EntryVarSpy[NumEntry]);
 	    if (ColumnVar == 0) {
-		gtk_entry_set_text((GtkEntry *) EntryVarSpy[NumEntry],
-		    DisplayInfo(VarSpy[NumVarSpy][0], VarSpy[NumVarSpy][1]));
-		gtk_signal_connect(GTK_OBJECT(EntryVarSpy[NumEntry]),
-		    "activate", (GtkSignalFunc) EntryVarSpy_activate_event,
-		    &VarSpy[NumVarSpy][0]);
+			gtk_entry_set_text((GtkEntry *) EntryVarSpy[NumEntry],
+		        DisplayInfo(VarSpy[NumVarSpy][0], VarSpy[NumVarSpy][1]));
+			gtk_signal_connect(GTK_OBJECT(EntryVarSpy[NumEntry]),
+		  	    "activate", (GtkSignalFunc) EntryVarSpy_activate_event,
+		  	    &VarSpy[NumVarSpy][0]);
 	    }
 	}
 
