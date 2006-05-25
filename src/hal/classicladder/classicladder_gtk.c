@@ -556,13 +556,21 @@ void RungWindowInitGtk()
     GtkWidget *ButtonQuit;
     GtkWidget *ButtonNew, *ButtonLoad, *ButtonSave, *ButtonSaveAs,
 	*ButtonConfig, *ButtonAbout;
-
+	GtkWidget *event_box, *tooltips;
     RungWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title((GtkWindow *) RungWindow, "Section Display");
 
-
-	//tooltips = gtk_tooltips_new ();
-	//gtk_tooltips_set_tip (tooltips, RungWindow, "This is the RungWindow", NULL);
+	event_box = gtk_event_box_new ( );
+	printf( "meep1");
+	//uncomment this line to see a nice segfault happen
+	//gtk_box_pack_start_defaults ( vbox, event_box);
+	printf( "meep2");
+	//gtk_container_add (GTK_CONTAINER (vbox), event_box);
+	/*gtk_widget_set_usize( event_box, 50, 50);
+	//gtk_widget_set_uposition( event_box, 0,0);
+	tooltips = gtk_tooltips_new ();
+	gtk_tooltips_set_tip (tooltips, event_box, "This is the event box", NULL);
+	gtk_widget_show(event_box); */
 
     vbox = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(RungWindow), vbox);
