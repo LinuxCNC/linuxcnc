@@ -148,6 +148,20 @@ static double currentAngularFeedRate = 0.0;
 static int linear_move = 0;
 static int angular_move = 0;
 
+static double toExtVel(double vel) {
+    if (linear_move && !angular_move) {
+	return TO_EXT_LEN(vel);
+    } else if (!linear_move && angular_move) {
+	return TO_EXT_ANG(vel);
+    } else if (linear_move && angular_move) {
+	return TO_EXT_LEN(vel);
+    } else { //seems this case was forgotten, neither linear, neither angular move (we are only sending vel)
+	return TO_EXT_LEN(vel);
+    }	
+}
+
+static double toExtAcc(double acc) { return toExtVel(acc); }
+
 /* sends a request to set the vel, which is in internal units/sec */
 static int sendVelMsg(double vel, double ini_maxvel)
 {
@@ -478,13 +492,16 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     linearMoveMsg.end.c = TO_EXT_ANG(c);
 
     vel = getStraightVelocity(x, y, z, a, b, c);
-    sendVelMsg(vel, vel);
+    acc = getStraightAcceleration(x, y, z, a, b, c);
 
-    if((acc = getStraightAcceleration(x, y, z, a, b, c)))
-        sendAccMsg(acc);
+    linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
+    linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
-    interp_list.append(linearMoveMsg);
+
+    printf("TRAV: %f %f %f\n", linearMoveMsg.vel, linearMoveMsg.ini_maxvel, linearMoveMsg.acc);
+    if(acc) 
+        interp_list.append(linearMoveMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
 
@@ -537,13 +554,17 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
 	}
     }
 
-    sendVelMsg(vel, ini_maxvel);
+    acc = getStraightAcceleration(x, y, z, a, b, c);
 
-    if((acc = getStraightAcceleration(x, y, z, a, b, c)))
-        sendAccMsg(acc);
+    linearMoveMsg.vel = toExtVel(vel);
+    linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
+    linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
-    interp_list.append(linearMoveMsg);
+
+    printf("FEED: %f %f %f\n", linearMoveMsg.vel, linearMoveMsg.ini_maxvel, linearMoveMsg.acc);
+    if(acc)
+        interp_list.append(linearMoveMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
 
@@ -865,9 +886,6 @@ void ARC_FEED(double first_end, double second_end,
     // linear move is actually a move involving axes X Y Z, not the type of the movement
     linear_move = 1;
 
-    // set proper velocity
-    sendVelMsg(vel, ini_maxvel);
-
     thelix = (helical_length / acc);
     ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
     tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
@@ -877,8 +895,6 @@ void ARC_FEED(double first_end, double second_end,
     if (tmax > 0.0) {
         acc = helical_length / tmax;
     }
-
-    if(acc) sendAccMsg(acc);
 
     /* 
        mapping of rotation to turns:
@@ -898,7 +914,11 @@ void ARC_FEED(double first_end, double second_end,
 	linearMoveMsg.end.c = TO_EXT_ANG(c);
 
         linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
-	interp_list.append(linearMoveMsg);
+        linearMoveMsg.vel = toExtVel(vel);
+        linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
+        linearMoveMsg.acc = toExtAcc(acc);
+        if(acc)
+            interp_list.append(linearMoveMsg);
     } else if (rotation > 0) {
 	circularMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
 	circularMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
@@ -920,7 +940,11 @@ void ARC_FEED(double first_end, double second_end,
 	circularMoveMsg.end.c = TO_EXT_ANG(c);
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
-	interp_list.append(circularMoveMsg);
+        circularMoveMsg.vel = toExtVel(vel);
+        circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
+        circularMoveMsg.acc = toExtAcc(acc);
+        if(acc)
+            interp_list.append(circularMoveMsg);
     } else {
 	// reverse turn
 
@@ -944,7 +968,11 @@ void ARC_FEED(double first_end, double second_end,
 	circularMoveMsg.end.c = TO_EXT_ANG(c);
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
-	interp_list.append(circularMoveMsg);
+        circularMoveMsg.vel = toExtVel(vel);
+        circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
+        circularMoveMsg.acc = toExtAcc(acc);
+        if(acc)
+            interp_list.append(circularMoveMsg);
     }
 
     // update the end point

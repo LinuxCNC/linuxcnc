@@ -10,10 +10,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef TP_H
 #define TP_H
@@ -72,10 +68,11 @@ extern int tpSetId(TP_STRUCT * tp, int id);
 extern int tpGetExecId(TP_STRUCT * tp);
 extern int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance);
 extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
-extern int tpAddLine(TP_STRUCT * tp, EmcPose end, int type);
-extern int tpAddCircle(TP_STRUCT * tp, EmcPose end,
-		       PmCartesian center, PmCartesian normal, 
-                       int turn, int type);
+extern int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double
+        ini_maxvel, double acc);
+extern int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,
+        PmCartesian normal, int turn, int type, double vel, double ini_maxvel,
+        double acc);
 extern int tpRunCycle(TP_STRUCT * tp);
 extern int tpPause(TP_STRUCT * tp);
 extern int tpResume(TP_STRUCT * tp);

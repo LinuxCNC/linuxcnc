@@ -10,10 +10,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 /*
   Principles of operation:
@@ -1601,16 +1597,19 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
-	retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end, emcTrajLinearMoveMsg->type);
+        retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
+                emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
+                emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc);
 	break;
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
 	emcTrajCircularMoveMsg = (EMC_TRAJ_CIRCULAR_MOVE *) cmd;
-	retval = emcTrajCircularMove(emcTrajCircularMoveMsg->end,
-				     emcTrajCircularMoveMsg->center,
-				     emcTrajCircularMoveMsg->normal,
-				     emcTrajCircularMoveMsg->turn,
-                                     emcTrajCircularMoveMsg->type);
+        retval = emcTrajCircularMove(emcTrajCircularMoveMsg->end,
+                emcTrajCircularMoveMsg->center, emcTrajCircularMoveMsg->normal,
+                emcTrajCircularMoveMsg->turn, emcTrajCircularMoveMsg->type,
+                emcTrajCircularMoveMsg->vel,
+                emcTrajCircularMoveMsg->ini_maxvel,
+                emcTrajCircularMoveMsg->acc);
 	break;
 
     case EMC_TRAJ_PAUSE_TYPE:

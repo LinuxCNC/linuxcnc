@@ -791,7 +791,7 @@ check_stuff ( "before command_handler()" );
 	    /* append it to the emcmotDebug->queue */
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_LINE");
-	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type)) {
+	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc)) {
 		reportError("can't add linear move");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
@@ -836,7 +836,9 @@ check_stuff ( "before command_handler()" );
 	    if (-1 ==
 		tpAddCircle(&emcmotDebug->queue, emcmotCommand->pos,
 		    emcmotCommand->center, emcmotCommand->normal,
-		    emcmotCommand->turn, emcmotCommand->motion_type)) {
+		    emcmotCommand->turn, emcmotCommand->motion_type,
+                    emcmotCommand->vel, emcmotCommand->ini_maxvel,
+                    emcmotCommand->acc)) {
 		reportError("can't add circular move");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
@@ -1104,7 +1106,7 @@ check_stuff ( "before command_handler()" );
 
 	    /* append it to the emcmotDebug->queue */
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
-	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type)) {
+	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc)) {
 		reportError("can't add probe move");
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);

@@ -241,7 +241,7 @@ int tpSetPos(TP_STRUCT * tp, EmcPose pos)
 // of the previous move to the new end specified here at the
 // currently-active accel and vel settings from the tp struct.
 
-int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
+int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc)
 {
     TC_STRUCT tc;
     PmLine line_xyz, line_abc;
@@ -278,10 +278,10 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
     tc.cycle_time = tp->cycleTime;
     tc.target = line_xyz.tmag < 1e-6? line_abc.tmag: line_xyz.tmag;
     tc.progress = 0.0;
-    tc.reqvel = tp->vMax;
-    tc.maxaccel = tp->aMax * ACCEL_USAGE;
+    tc.reqvel = vel;
+    tc.maxaccel = acc * ACCEL_USAGE;
     tc.feed_override = 0.0;
-    tc.maxvel = tp->ini_maxvel * ACCEL_USAGE;
+    tc.maxvel = ini_maxvel * ACCEL_USAGE;
     tc.id = tp->nextId;
     tc.active = 0;
 
@@ -318,7 +318,8 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type)
 // always the circle/arc/helical length.
 
 int tpAddCircle(TP_STRUCT * tp, EmcPose end,
-		PmCartesian center, PmCartesian normal, int turn, int type)
+		PmCartesian center, PmCartesian normal, int turn, int type,
+                double vel, double ini_maxvel, double acc)
 {
     TC_STRUCT tc;
     PmCircle circle;
@@ -357,10 +358,10 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.cycle_time = tp->cycleTime;
     tc.target = helix_length;
     tc.progress = 0.0;
-    tc.reqvel = tp->vMax;
-    tc.maxaccel = tp->aMax * ACCEL_USAGE;
+    tc.reqvel = vel;
+    tc.maxaccel = acc * ACCEL_USAGE;
     tc.feed_override = 0.0;
-    tc.maxvel = tp->ini_maxvel * ACCEL_USAGE;
+    tc.maxvel = ini_maxvel * ACCEL_USAGE;
     tc.id = tp->nextId;
     tc.active = 0;
 

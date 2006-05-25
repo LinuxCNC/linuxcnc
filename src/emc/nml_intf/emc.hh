@@ -461,9 +461,10 @@ extern int emcTrajPause();
 extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
-extern int emcTrajLinearMove(EmcPose end, int type);
-extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
-			       PM_CARTESIAN normal, int turn, int type);
+extern int emcTrajLinearMove(EmcPose end, int type, double vel, double
+        ini_maxvel, double acc);
+extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center, PM_CARTESIAN
+        normal, int turn, int type, double vel, double ini_maxvel, double acc);
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(double spindlesync);
 extern int emcTrajSetOffset(EmcPose offset);
@@ -1551,6 +1552,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
 
     int type;
     EmcPose end;		// end point
+    double vel, ini_maxvel, acc;
 };
 
 class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
@@ -1568,6 +1570,7 @@ class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
     PM_CARTESIAN normal;
     int turn;
     int type;
+    double vel, ini_maxvel, acc;
 };
 
 class EMC_TRAJ_SET_TERM_COND:public EMC_TRAJ_CMD_MSG {

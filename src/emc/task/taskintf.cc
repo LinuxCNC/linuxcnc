@@ -10,10 +10,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 #include <math.h>		// isnan()
@@ -1108,7 +1104,7 @@ int emcTrajSetTermCond(int cond, double tolerance)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajLinearMove(EmcPose end, int type)
+int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, double acc)
 {
 
     emcmotCommand.command = EMCMOT_SET_LINE;
@@ -1117,7 +1113,9 @@ int emcTrajLinearMove(EmcPose end, int type)
 
     emcmotCommand.id = localEmcTrajMotionId;
     emcmotCommand.motion_type = type;
-
+    emcmotCommand.vel = vel;
+    emcmotCommand.ini_maxvel = ini_maxvel;
+    emcmotCommand.acc = acc;
 #ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.pos.tran.x) ||
 	isnan(emcmotCommand.pos.tran.y)
@@ -1131,7 +1129,7 @@ int emcTrajLinearMove(EmcPose end, int type)
 }
 
 int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
-			PM_CARTESIAN normal, int turn, int type)
+			PM_CARTESIAN normal, int turn, int type, double vel, double ini_maxvel, double acc)
 {
     emcmotCommand.command = EMCMOT_SET_CIRCLE;
 
@@ -1148,6 +1146,10 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
 
     emcmotCommand.turn = turn;
     emcmotCommand.id = localEmcTrajMotionId;
+
+    emcmotCommand.vel = vel;
+    emcmotCommand.ini_maxvel = ini_maxvel;
+    emcmotCommand.acc = acc;
 
 #ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.pos.tran.x) ||
