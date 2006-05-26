@@ -1,8 +1,6 @@
 (Circle Diamond Square Program)
 (Tom Kramer)
 (26-Sep-1994)
-g54 g1 f10 x0 y0 z0
-g55 x0 y0 z0
 (Assumes 4"x4"x2" finished stock)
 (Top of stock at Z=2")
 (X:  0.000 to 4.0)
@@ -11,9 +9,9 @@ g55 x0 y0 z0
 (Cutter does not descend more than 0.94" below top)
 n0080 G90 M9
 n0090 G43 H1 g20
-n0110 G0 X+0.0 Y+0.0 Z+3.0
 n0140 F16.0 S3500 M3
 n0150 (MILLING AN ENCLOSED POCKET)
+n0155 G0 Z+2.1
 n0160 G0 X+0.0 Y+3.915
 n0170 G0 Z+2.1
 n0180 G1 Z+1.6875 (start left circle zigzag)
@@ -280,7 +278,6 @@ n3460 g1 x+3.625
 n3470 g1 y+0.5
 n3480 g1 y+4.0 z+1.37
 n3490 g0 z+3.0 (end right and front ramps)
-n3491 g54 x0 y0 z0
 n3500 M5
 n3510 M2
 
