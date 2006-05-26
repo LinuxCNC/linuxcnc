@@ -19,10 +19,6 @@ exec $EMC2_EMCSH "$0" "$@"
 #
 #  Copyright (c) 2006 All rights reserved.
 #
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
 ###############################################################
 # Uses the emcsh library of tcl/tk functions.
 # Provides default display or operators for each NML message
@@ -1136,32 +1132,19 @@ proc setfont {} {
 
 set userfont [emc_ini "POSITION_FONT" "DISPLAY"]
 if {$userfont != ""} {
-    set fontfamily [lindex $userfont 0]
-    set fontsize [lindex $userfont 1]
-    set fontstyle [lindex $userfont 2]
-    # now override the X resource value with the ini file font
-    set nf $userfont
-    $pos0l config -font $nf
-    $pos0d config -font $nf
-    $pos1l config -font $nf
-    $pos1d config -font $nf
-    $pos2l config -font $nf
-    $pos2d config -font $nf
-    $pos3l config -font $nf
-    $pos3d config -font $nf
-    $pos4l config -font $nf
-    $pos4d config -font $nf
-    $pos5l config -font $nf
-    $pos5d config -font $nf
-} else {
-# FIXME-- can get the actual font from the TkEmc X resource value, which is
-# a pain to parse into family-size-style. Here we'll just default the 
-# buttons to these typical settings
+    set fontfamily [font actual $userfont -family]
+    set fontsize [font actual $userfont -size]
+    set fontstyle [font actual $userfont -weight]
+} elseif {[lsearch [font families] {courier 10 pitch}] != -1} {
     set fontfamily {courier 10 pitch}
     set fontsize 48
     set fontstyle bold
-    setfont
+} else {
+    set fontfamily courier
+    set fontsize 48
+    set fontstyle bold
 }
+setfont
 
 set limoridebutton [button $limoride.button -text [msgcat::mc "override limits"] -command {toggleLimitOverride} -takefocus 0]
 pack $limoridebutton -side top
