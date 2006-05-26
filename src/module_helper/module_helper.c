@@ -116,6 +116,10 @@ int main(int argc, char **argv) {
     int inserting = 0;
     char **exec_argv;
 
+    if(geteuid() != 0) {
+        fprintf(stderr, "module_helper is not setuid root\n");
+        return 1;
+    }
     /* drop root privs temporarily */
     seteuid(getuid());
 
