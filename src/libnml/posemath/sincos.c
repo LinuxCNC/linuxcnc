@@ -24,6 +24,7 @@
 
 #ifndef HAVE_SINCOS
 
+#include "rtapi_math.h"
 #include "sincos.h"
 
 #ifndef HAVE___SINCOS

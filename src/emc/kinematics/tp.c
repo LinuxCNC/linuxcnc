@@ -20,7 +20,7 @@
 #include "posemath.h"
 #include "tc.h"
 #include "tp.h"
-
+#include "rtapi_math.h"
 #include "../motion/motion.h"
 
 /* how close to accel limit we should go */

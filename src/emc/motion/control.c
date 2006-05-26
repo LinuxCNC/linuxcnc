@@ -25,6 +25,7 @@
 #include "emcmotglb.h"
 #include "motion.h"
 #include "mot_priv.h"
+#include "rtapi_math.h"
 
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *

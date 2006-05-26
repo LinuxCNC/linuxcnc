@@ -68,7 +68,7 @@
 #include "motion.h"
 #include "emcmotglb.h"
 #include "mot_priv.h"
-
+#include "rtapi_math.h"
 
 /* debugging functions */
 extern void print_pose ( EmcPose *pos );

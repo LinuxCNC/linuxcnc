@@ -32,6 +32,9 @@
 #endif
 #include "posemath.h"
 
+#include "rtapi_math.h"
+#include <float.h>
+
 #include "sincos.h"
 
 /* global error number */
