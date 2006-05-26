@@ -741,10 +741,11 @@ char SaveSectionsParams(char *FileName)
 char InitTempDir(void)
 {
     // get a temp directory
-    char *TmpEnv = getenv("TMP");
-    sprintf(TmpDirectory, "%s/classicladder_tmp",
+    char *TmpEnv = getenv("TMP") ?: "/tmp";
+    TmpEnv = 
+    sprintf(TmpDirectory, "%s/classicladder_XXXXXX",
 	TmpEnv != NULL ? TmpEnv : "/tmp");
-    mkdir(TmpDirectory, S_IRWXU);
+    if(mkdtemp(TmpDirectory) == 0) return FALSE;;
     return TRUE;
 }
 
@@ -757,10 +758,10 @@ char LoadProjectFiles(char *FileProject)
 	// split files of the project in the temp directory
 	printf ("Loading a new style project (single file)\n");
 	InitTempDir();
-	CleanTmpDirectory(TmpDirectory, FALSE);
 	SplitFiles(FileProject, TmpDirectory);
 	printf("Load datas in tmp dir=%s\n", TmpDirectory);
 	LoadAllLadderDatas(TmpDirectory);
+	CleanTmpDirectory(TmpDirectory, TRUE);
 	return TRUE;
     }
     if ( ProjectType == 2 ) {
@@ -775,14 +776,16 @@ char LoadProjectFiles(char *FileProject)
 
 char SaveProjectFiles(char *FileProject)
 {
+    char result;
     InitTempDir();
-    CleanTmpDirectory(TmpDirectory, FALSE);
     printf("Save datas in tmp dir=%s\n", TmpDirectory);
     SaveAllLadderDatas(TmpDirectory);
     if (strcmp(&FileProject[strlen(FileProject) - 4], ".clp") != 0)
 	strcat(FileProject, ".clp");
     // join files for the project in one file
-    return JoinFiles(FileProject, TmpDirectory);
+    result = JoinFiles(FileProject, TmpDirectory);
+    CleanTmpDirectory(TmpDirectory, TRUE);
+    return result;
 }
 
 /* clean the tmp directory of the parameters files */
@@ -797,15 +800,19 @@ void CleanTmpDirectory(char *Directory, char DestroyDir)
 	if (pDir) {
 	    while ((pEnt = readdir(pDir)) != NULL) {
 		if (strcmp(pEnt->d_name, ".") && strcmp(pEnt->d_name, "..")) {
+                    int result;
 		    sprintf(Buff, "%s/%s", Directory, pEnt->d_name);
-		    remove(Buff);
+		    result = remove(Buff);
+                    if(result != 0) perror("remove");
 		}
 	    }
 	}
 	closedir(pDir);
 	/* delete the temp directory if wanted */
-	if (DestroyDir)
-	    rmdir(Directory);	// _rmdir() for Win32 ?
+	if (DestroyDir) {
+	    int result = rmdir(Directory);	// _rmdir() for Win32 ?
+            if(result != 0) perror("rmdir");
+        }
     }
 }
 
