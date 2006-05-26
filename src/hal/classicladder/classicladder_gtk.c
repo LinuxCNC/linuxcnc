@@ -98,7 +98,7 @@ static gint expose_event(GtkWidget * widget, GdkEventExpose * event)
 }
 
 void UpdateVScrollBar()
-{
+{ 
     int iCurrentLanguage = SectionArray[InfosGene->CurrentSection].Language;
     if (iCurrentLanguage == SECTION_IN_LADDER) {
 	int NbrRungs = 1;
@@ -112,7 +112,7 @@ void UpdateVScrollBar()
 	while (ScanRung != InfosGene->CurrentRung) {
 	    NumCurrentRung++;
 	    ScanRung = RungArray[ScanRung].NextRung;
-	}
+	} 
 	AdjustVScrollBar->lower = 0;
 	AdjustVScrollBar->upper =
 	    NbrRungs * InfosGene->BlockHeight * RUNG_HEIGHT;
@@ -134,6 +134,7 @@ void UpdateVScrollBar()
 //        gtk_widget_show( entrylabel );
 //        gtk_widget_show( entrycomment );
     }
+
 #ifdef SEQUENTIAL_SUPPORT
     if (iCurrentLanguage == SECTION_IN_SEQUENTIAL) {
 	gtk_widget_show(HScrollBar);
@@ -157,7 +158,7 @@ void UpdateVScrollBar()
 	gtk_adjustment_changed(AdjustHScrollBar);
 	gtk_adjustment_value_changed(AdjustHScrollBar);
     }
-#endif
+#endif  
 }
 
 static gint VScrollBar_value_changed_event(GtkAdjustment * ScrollBar,
@@ -191,8 +192,8 @@ static gint VScrollBar_value_changed_event(GtkAdjustment * ScrollBar,
 		    (InfosGene->BlockHeight * RUNG_HEIGHT) -
 		    InfosGene->OffsetHiddenTopRungDisplayed;
 	    } else {
-		/* The current rung is not displayed entierely (at least the
-		   top of it...) */
+		// The current rung is not displayed entierely (at least the
+		//  top of it...) 
 		InfosGene->OffsetCurrentRungDisplayed =
 		    -InfosGene->OffsetHiddenTopRungDisplayed;
 	    }
@@ -556,24 +557,26 @@ void RungWindowInitGtk()
     GtkWidget *ButtonQuit;
     GtkWidget *ButtonNew, *ButtonLoad, *ButtonSave, *ButtonSaveAs,
 	*ButtonConfig, *ButtonAbout;
-	GtkWidget *event_box, *tooltips;
+	GtkWidget *event_box;
+	GtkTooltips *tooltips;
     RungWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title((GtkWindow *) RungWindow, "Section Display");
 
+    vbox = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(RungWindow), vbox);
 	event_box = gtk_event_box_new ( );
-	printf( "meep1");
+
+	g_print( "InfosGene->SizesInfos.nbr_sections= %d\n", InfosGene->SizesInfos.nbr_sections);
 	//uncomment this line to see a nice segfault happen
-	//gtk_box_pack_start_defaults ( vbox, event_box);
-	printf( "meep2");
+	gtk_box_pack_start_defaults ( GTK_BOX(vbox), event_box);
+	g_print( "meep2");
 	//gtk_container_add (GTK_CONTAINER (vbox), event_box);
-	/*gtk_widget_set_usize( event_box, 50, 50);
+	//gtk_widget_set_usize( event_box, 50, 50);
 	//gtk_widget_set_uposition( event_box, 0,0);
 	tooltips = gtk_tooltips_new ();
 	gtk_tooltips_set_tip (tooltips, event_box, "This is the event box", NULL);
-	gtk_widget_show(event_box); */
+	gtk_widget_show(event_box); 
 
-    vbox = gtk_vbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(RungWindow), vbox);
     gtk_widget_show(vbox);
 
     gtk_signal_connect(GTK_OBJECT(RungWindow), "destroy",
