@@ -76,7 +76,7 @@ class CMS_SERVER_REMOTE_TCP_PORT:public CMS_SERVER_REMOTE_PORT {
     void remove_subscription_client(CLIENT_TCP_PORT * clnt,
 	int buffer_number);
     void recalculate_polling_interval();
-    void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
+    void switch_function(CLIENT_TCP_PORT *
 	_client_tcp_port,
 	CMS_SERVER * server, long request_type, long buffer_number, long
 	received_serial_number);

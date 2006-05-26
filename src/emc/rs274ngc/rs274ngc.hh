@@ -373,25 +373,25 @@ private:
  int write_settings(setup_pointer settings);
 
   // O_word stuff
-int Interp::control_save_offset( /* ARGUMENTS                   */
- int line,                   /* (o-word) line number        */
- block_pointer block,        /* pointer to a block of RS274/NGC instructions */
- setup_pointer settings);     /* pointer to machine settings */
+ int control_save_offset(    /* ARGUMENTS                   */
+  int line,                  /* (o-word) line number        */
+  block_pointer block,       /* pointer to a block of RS274/NGC instructions */
+  setup_pointer settings);   /* pointer to machine settings */
 
-int Interp::control_find_oword( /* ARGUMENTS                       */
-  int line,                 /* (o-word) line number             */
-  setup_pointer settings,   /* pointer to machine settings      */
+ int control_find_oword(     /* ARGUMENTS                   */
+  int line,                  /* (o-word) line number        */
+  setup_pointer settings,    /* pointer to machine settings */
   int *o_index);             /* the index of o-word (returned) */
 
-int Interp::control_back_to( /* ARGUMENTS                       */
- int line,                 /* (o-word) line number             */
- setup_pointer settings);   /* pointer to machine settings      */
+ int control_back_to(        /* ARGUMENTS                   */
+  int line,                  /* (o-word) line number        */
+  setup_pointer settings);   /* pointer to machine settings */
 
-int Interp::convert_control_functions( /* ARGUMENTS           */
- block_pointer block,      /* pointer to a block of RS274/NGC instructions */
- setup_pointer settings);   /* pointer to machine settings                  */
+ int convert_control_functions( /* ARGUMENTS           */
+  block_pointer block,       /* pointer to a block of RS274/NGC instructions */
+  setup_pointer settings);   /* pointer to machine settings */
 
-void Interp::doLog(char *fmt, ...);
+ void doLog(char *fmt, ...);
 
  FILE *log_file;
 
