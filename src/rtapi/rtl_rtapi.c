@@ -84,11 +84,7 @@
 #endif
 
 /* get inb(), outb(), ioperm() */
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,17)
 #include <asm/io.h>
-#else
-#include <sys/io.h>
-#endif
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,0)
 /* Kernel is 2.4 or higher, use it's vsnprintf() implementation */
