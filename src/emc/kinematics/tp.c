@@ -521,25 +521,6 @@ int tpRunCycle(TP_STRUCT * tp)
         return 0;
     }
 
-    if(tp->aborting) {
-        // an abort message has come
-        if(tc->currentvel == 0.0) {
-            tcqInit(&tp->queue);
-            tp->goalPos = tp->currentPos;
-            tp->done = 1;
-            tp->depth = tp->activeDepth = 0;
-            tp->aborting = 0;
-            tp->execId = 0;
-            tp->motionType = 0;
-            tp->synchronized = 0;
-            emcmotStatus->spindleSync = 0;
-            tpResume(tp);
-            return 0;
-        } else {
-            tc->reqvel = 0.0;
-        }
-    }
-
     if (tc->target == tc->progress) {
         // if we're synced, and this move is ending, save the
         // spindle position so the next synced move can be in
@@ -641,6 +622,28 @@ int tpRunCycle(TP_STRUCT * tp)
         if(tc->blend_with_next || nexttc->blend_with_next) 
             nexttc->maxaccel /= 2.0;
     }
+
+    if(tp->aborting) {
+        // an abort message has come
+        if( (tc->currentvel == 0.0 && !nexttc) || 
+            (tc->currentvel == 0.0 && nexttc && nexttc->currentvel == 0.0) ) {
+            tcqInit(&tp->queue);
+            tp->goalPos = tp->currentPos;
+            tp->done = 1;
+            tp->depth = tp->activeDepth = 0;
+            tp->aborting = 0;
+            tp->execId = 0;
+            tp->motionType = 0;
+            tp->synchronized = 0;
+            emcmotStatus->spindleSync = 0;
+            tpResume(tp);
+            return 0;
+        } else {
+            tc->reqvel = 0.0;
+            if(nexttc) nexttc->reqvel = 0.0;
+        }
+    }
+
 
     if(tc->synchronized) {
         double pos_error;
