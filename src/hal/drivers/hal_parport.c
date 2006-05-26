@@ -8,10 +8,6 @@
 *    
 * Copyright (c) 2003 All rights reserved.
 *
-* Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** This file, 'hal_parport.c', is a HAL component that provides a
@@ -297,6 +293,22 @@ rtapi_print ( "config string '%s'\n", cfg );
 	hal_exit(comp_id);
 	return -1;
     }
+    for (n = 0; n < num_ports; n++) {
+        void *region = rtapi_request_region(port_data_array[n].base_addr, 4, "hal_parport");
+        if(!region) {
+            int m;
+            for(m = 0; m < n; m++) {
+                rtapi_release_region(port_data_array[m].base_addr, 4);
+            }
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                 "PARPORT: ERROR: request_region(%x) failed\n"
+                 , port_data_array[n].base_addr);
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                 "(make sure the kernel module 'parport' is unloaded)\n");
+            hal_exit(comp_id);
+	    return -EBUSY;
+        }
+    }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"PARPORT: installed driver for %d ports\n", num_ports);
     return 0;
@@ -304,6 +316,10 @@ rtapi_print ( "config string '%s'\n", cfg );
 
 void rtapi_app_exit(void)
 {
+    int n;
+    for (n = 0; n < num_ports; n++) {
+        rtapi_release_region(port_data_array[n].base_addr, 4);
+    }
     hal_exit(comp_id);
 }
 

@@ -14,10 +14,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
-# $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 
 /** This file, 'rtapi.h', defines the RTAPI for both realtime and
@@ -701,6 +697,39 @@ extern "C" {			/* Need this when the header is included in a
 */
     extern unsigned char rtapi_inb(unsigned int port);
 
+#ifdef RTAPI
+/** 'rtapi_request_region() reserves I/O memory starting at 'base',
+    going for 'n' bytes, for component 'name'.
+
+    Note that on kernels before 2.4.0, this function always succeeds.
+
+    If the allocation fails, this function returns NULL.  Otherwise, it returns
+    a non-NULL value.
+*/
+#include <linux/version.h>
+#include <linux/ioport.h>
+
+    static __inline__ void *rtapi_request_region(unsigned long size,
+            unsigned long n, const char *name) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+        return (void*)request_region(size, n, name);
+#else
+        return (void*)-1;
+#endif
+    }
+
+/** 'rtapi_release_region() releases I/O memory reserved by 
+    'rtapi_request_region', starting at 'base' and going for 'n' bytes.
+    'base' and 'n' must exactly match an earlier successful call to
+    rtapi_request_region or the result is undefined.
+*/
+    static __inline__ void rtapi_release_region(unsigned long size,
+            unsigned long int n) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+        release_region(size, n);
+#endif
+    }
+#endif
 
 /***********************************************************************
 *                      MODULE PARAMETER MACROS                         *
