@@ -10,10 +10,6 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
 ********************************************************************/
 #ifndef TC_H
 #define TC_H
@@ -69,6 +65,7 @@ typedef struct {
                             // stay within this distance from the path.
     int synchronized;       // spindle sync required for this move
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
+    double vel_at_blend_start;
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
