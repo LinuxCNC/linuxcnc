@@ -78,10 +78,10 @@ static gint configure_event(GtkWidget * widget, GdkEventConfigure * event)
 	gdk_pixmap_unref(pixmap);
 
     pixmap = gdk_pixmap_new(widget->window,
-	widget->allocation.width, widget->allocation.height, -1);
+		widget->allocation.width, widget->allocation.height, -1);
     gdk_draw_rectangle(pixmap,
-	widget->style->white_gc,
-	TRUE, 0, 0, widget->allocation.width, widget->allocation.height);
+		widget->style->white_gc, TRUE, 0, 0, widget->allocation.width,
+		widget->allocation.height);
     return TRUE;
 }
 
@@ -89,10 +89,10 @@ static gint configure_event(GtkWidget * widget, GdkEventConfigure * event)
 static gint expose_event(GtkWidget * widget, GdkEventExpose * event)
 {
     gdk_draw_pixmap(widget->window,
-	widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-	pixmap,
-	event->area.x, event->area.y,
-	event->area.x, event->area.y, event->area.width, event->area.height);
+		widget->style->fg_gc[GTK_WIDGET_STATE(widget)], pixmap,
+		event->area.x, event->area.y,
+		event->area.x, event->area.y, 
+		event->area.width, event->area.height);
 
     return FALSE;
 }
@@ -100,39 +100,39 @@ static gint expose_event(GtkWidget * widget, GdkEventExpose * event)
 void UpdateVScrollBar()
 { 
     int iCurrentLanguage = SectionArray[InfosGene->CurrentSection].Language;
-    if (iCurrentLanguage == SECTION_IN_LADDER) {
-	int NbrRungs = 1;
-	int ScanRung = InfosGene->FirstRung;
-	int NumCurrentRung = 0;
-	while (ScanRung != InfosGene->LastRung) {
-	    NbrRungs++;
-	    ScanRung = RungArray[ScanRung].NextRung;
-	}
-	ScanRung = InfosGene->FirstRung;
-	while (ScanRung != InfosGene->CurrentRung) {
-	    NumCurrentRung++;
-	    ScanRung = RungArray[ScanRung].NextRung;
-	} 
-	AdjustVScrollBar->lower = 0;
-	AdjustVScrollBar->upper =
-	    NbrRungs * InfosGene->BlockHeight * RUNG_HEIGHT;
-	AdjustVScrollBar->value =
-	    NumCurrentRung * InfosGene->BlockHeight * RUNG_HEIGHT;
-	while (AdjustVScrollBar->value + InfosGene->PageHeight >
-	    AdjustVScrollBar->upper) {
-	    AdjustVScrollBar->value =
-		AdjustVScrollBar->value -
-		InfosGene->BlockHeight * RUNG_HEIGHT;
-	}
-	AdjustVScrollBar->step_increment = InfosGene->BlockHeight;
-	AdjustVScrollBar->page_increment =
-	    InfosGene->BlockHeight * RUNG_HEIGHT;
-	AdjustVScrollBar->page_size = InfosGene->PageHeight;
-	gtk_adjustment_changed(AdjustVScrollBar);
-	gtk_adjustment_value_changed(AdjustVScrollBar);
-	gtk_widget_hide(HScrollBar);
-//        gtk_widget_show( entrylabel );
-//        gtk_widget_show( entrycomment );
+	if (iCurrentLanguage == SECTION_IN_LADDER) {
+		int NbrRungs = 1;
+		int ScanRung = InfosGene->FirstRung;
+		int NumCurrentRung = 0;
+		while (ScanRung != InfosGene->LastRung) {
+			NbrRungs++;
+			ScanRung = RungArray[ScanRung].NextRung;
+		}
+		ScanRung = InfosGene->FirstRung;
+		while (ScanRung != InfosGene->CurrentRung) {
+			NumCurrentRung++;
+			ScanRung = RungArray[ScanRung].NextRung;
+		} 
+		AdjustVScrollBar->lower = 0;
+		AdjustVScrollBar->upper =
+			NbrRungs * InfosGene->BlockHeight * RUNG_HEIGHT;
+		AdjustVScrollBar->value =
+			NumCurrentRung * InfosGene->BlockHeight * RUNG_HEIGHT;
+		while (AdjustVScrollBar->value + InfosGene->PageHeight >
+			AdjustVScrollBar->upper) {
+			AdjustVScrollBar->value =
+			AdjustVScrollBar->value -
+			InfosGene->BlockHeight * RUNG_HEIGHT;
+		}
+		AdjustVScrollBar->step_increment = InfosGene->BlockHeight;
+		AdjustVScrollBar->page_increment =
+			InfosGene->BlockHeight * RUNG_HEIGHT;
+		AdjustVScrollBar->page_size = InfosGene->PageHeight;
+		gtk_adjustment_changed(AdjustVScrollBar);
+		gtk_adjustment_value_changed(AdjustVScrollBar);
+		gtk_widget_hide(HScrollBar);
+	//        gtk_widget_show( entrylabel );
+	//        gtk_widget_show( entrycomment );
     }
 
 #ifdef SEQUENTIAL_SUPPORT
@@ -165,41 +165,41 @@ static gint VScrollBar_value_changed_event(GtkAdjustment * ScrollBar,
     void *not_used)
 {
     int iCurrentLanguage = SectionArray[InfosGene->CurrentSection].Language;
-    if (iCurrentLanguage == SECTION_IN_LADDER) {
-	int NumRung =
-	    ((int) ScrollBar->value) / (InfosGene->BlockHeight * RUNG_HEIGHT);
-	int ScanRung = 0;
-	InfosGene->TopRungDisplayed = InfosGene->FirstRung;
-	while (ScanRung != NumRung) {
-	    InfosGene->TopRungDisplayed =
-		RungArray[InfosGene->TopRungDisplayed].NextRung;
-	    ScanRung++;
-	}
-	InfosGene->OffsetHiddenTopRungDisplayed =
-	    ((int) ScrollBar->value) % (InfosGene->BlockHeight * RUNG_HEIGHT);
-
-//printf("OffsetHiddenTopRungDisplayed=%d\n",InfosGene->OffsetHiddenTopRungDisplayed);
-	InfosGene->CurrentRung = InfosGene->TopRungDisplayed;
-	InfosGene->OffsetCurrentRungDisplayed = 0;
-	if (InfosGene->OffsetHiddenTopRungDisplayed > 0) {
-	    if (InfosGene->CurrentRung != InfosGene->LastRung
-		&& InfosGene->PageHeight +
-		InfosGene->OffsetHiddenTopRungDisplayed >=
-		InfosGene->BlockHeight * RUNG_HEIGHT) {
-		InfosGene->CurrentRung =
-		    RungArray[InfosGene->CurrentRung].NextRung;
-		InfosGene->OffsetCurrentRungDisplayed =
-		    (InfosGene->BlockHeight * RUNG_HEIGHT) -
-		    InfosGene->OffsetHiddenTopRungDisplayed;
-	    } else {
-		// The current rung is not displayed entierely (at least the
-		//  top of it...) 
-		InfosGene->OffsetCurrentRungDisplayed =
-		    -InfosGene->OffsetHiddenTopRungDisplayed;
-	    }
-	}
-//printf("CurrentRung=%d , OffsetCurrentRungDisplayed=%d\n", InfosGene->CurrentRung, InfosGene->OffsetCurrentRungDisplayed);
-	refresh_label_comment();
+	if (iCurrentLanguage == SECTION_IN_LADDER) {
+		int NumRung =
+			((int) ScrollBar->value) / (InfosGene->BlockHeight * RUNG_HEIGHT);
+		int ScanRung = 0;
+		InfosGene->TopRungDisplayed = InfosGene->FirstRung;
+		while (ScanRung != NumRung) {
+			InfosGene->TopRungDisplayed =
+			RungArray[InfosGene->TopRungDisplayed].NextRung;
+			ScanRung++;
+		}
+		InfosGene->OffsetHiddenTopRungDisplayed =
+			((int) ScrollBar->value) % (InfosGene->BlockHeight * RUNG_HEIGHT);
+	
+	//printf("OffsetHiddenTopRungDisplayed=%d\n",InfosGene->OffsetHiddenTopRungDisplayed);
+		InfosGene->CurrentRung = InfosGene->TopRungDisplayed;
+		InfosGene->OffsetCurrentRungDisplayed = 0;
+		if (InfosGene->OffsetHiddenTopRungDisplayed > 0) {
+			if (InfosGene->CurrentRung != InfosGene->LastRung
+			&& InfosGene->PageHeight +
+			InfosGene->OffsetHiddenTopRungDisplayed >=
+			InfosGene->BlockHeight * RUNG_HEIGHT) {
+				InfosGene->CurrentRung =
+					RungArray[InfosGene->CurrentRung].NextRung;
+				InfosGene->OffsetCurrentRungDisplayed =
+					(InfosGene->BlockHeight * RUNG_HEIGHT) -
+					InfosGene->OffsetHiddenTopRungDisplayed;
+			} else {
+			// The current rung is not displayed entierely (at least the
+			//  top of it...) 
+			InfosGene->OffsetCurrentRungDisplayed =
+				-InfosGene->OffsetHiddenTopRungDisplayed;
+			}
+		}
+	//printf("CurrentRung=%d , OffsetCurrentRungDisplayed=%d\n", InfosGene->CurrentRung, InfosGene->OffsetCurrentRungDisplayed);
+		refresh_label_comment();
     }
     InfosGene->VScrollValue = (int) ScrollBar->value;
     return TRUE;
@@ -233,9 +233,9 @@ static gint HScrollBar_value_changed_event(GtkAdjustment * ScrollBar,
 static gint button_press_event(GtkWidget * widget, GdkEventButton * event)
 {
     if (EditDatas.ModeEdit) {
-	if (event->button == 1 && pixmap != NULL) {
-	    EditElementInThePage(event->x, event->y);
-	}
+		if (event->button == 1 && pixmap != NULL) {
+			EditElementInThePage(event->x, event->y);
+		}
     }
     return TRUE;
 }
@@ -248,15 +248,15 @@ static gint chkvar_press_event(GtkWidget * widget, void *numcheck)
     int NumCheck = NumCheckWidget;
     if (NumCheckWidget >= NBR_BOOLS_VAR_SPY
 	&& NumCheckWidget < 2 * NBR_BOOLS_VAR_SPY) {
-	Type = VAR_PHYS_INPUT;
-	Offset = ValOffsetBoolVar[1];
-	NumCheck -= NBR_BOOLS_VAR_SPY;
+		Type = VAR_PHYS_INPUT;
+		Offset = ValOffsetBoolVar[1];
+		NumCheck -= NBR_BOOLS_VAR_SPY;
     }
     if (NumCheckWidget >= 2 * NBR_BOOLS_VAR_SPY
 	&& NumCheckWidget < 3 * NBR_BOOLS_VAR_SPY) {
-	Type = VAR_PHYS_OUTPUT;
-	Offset = ValOffsetBoolVar[2];
-	NumCheck -= 2 * NBR_BOOLS_VAR_SPY;
+		Type = VAR_PHYS_OUTPUT;
+		Offset = ValOffsetBoolVar[2];
+		NumCheck -= 2 * NBR_BOOLS_VAR_SPY;
     }
     if (gtk_toggle_button_get_active((GtkToggleButton *) widget))
 	WriteVar(Type, Offset + NumCheck, 1);
@@ -271,15 +271,15 @@ static gint EntryVarSpy_activate_event(GtkWidget * widget, int *NumVarSpy)
     char BufferVar[30];
     strcpy(BufferVar, gtk_entry_get_text((GtkEntry *) widget));
     if (TextParserForAVar(BufferVar, &NewVarType, &NewVarOffset)) {
-	*NumVarSpy++ = NewVarType;
-	*NumVarSpy = NewVarOffset;
+		*NumVarSpy++ = NewVarType;
+		*NumVarSpy = NewVarOffset;
     } else {
-	int OldType, OldOffset;
-	OldType = *NumVarSpy++;
-	OldOffset = *NumVarSpy;
-	/* put back old correct var */
-	gtk_entry_set_text((GtkEntry *) widget, DisplayInfo(OldType,
-		OldOffset));
+		int OldType, OldOffset;
+		OldType = *NumVarSpy++;
+		OldOffset = *NumVarSpy;
+		/* put back old correct var */
+		gtk_entry_set_text((GtkEntry *) widget, DisplayInfo(OldType,
+			OldOffset));
     }
     return TRUE;
 }
@@ -290,15 +290,15 @@ static gint OffsetBoolVar_activate_event(GtkWidget * widget, void *NumVarSpy)
     int NumType = (int) NumVarSpy;
     int ValOffset = atoi(gtk_entry_get_text((GtkEntry *) widget));
     switch (NumType) {
-    case 0:
-	Maxi = NBR_BITS;
-	break;
-    case 1:
-	Maxi = NBR_PHYS_INPUTS;
-	break;
-    case 2:
-	Maxi = NBR_PHYS_OUTPUTS;
-	break;
+		case 0:
+		Maxi = NBR_BITS;
+		break;
+		case 1:
+		Maxi = NBR_PHYS_INPUTS;
+		break;
+		case 2:
+		Maxi = NBR_PHYS_OUTPUTS;
+		break;
     }
     if (ValOffset + NBR_BOOLS_VAR_SPY > Maxi || ValOffset < 0)
 	ValOffset = 0;
@@ -312,12 +312,12 @@ void refresh_label_comment(void)
 {
     StrRung *RfhRung;
     if (SectionArray[InfosGene->CurrentSection].Language == SECTION_IN_LADDER) {
-	RfhRung = &RungArray[InfosGene->CurrentRung];
-	gtk_entry_set_text((GtkEntry *) entrylabel, RfhRung->Label);
-	gtk_entry_set_text((GtkEntry *) entrycomment, RfhRung->Comment);
+		RfhRung = &RungArray[InfosGene->CurrentRung];
+		gtk_entry_set_text((GtkEntry *) entrylabel, RfhRung->Label);
+		gtk_entry_set_text((GtkEntry *) entrycomment, RfhRung->Comment);
     } else {
-	gtk_entry_set_text((GtkEntry *) entrylabel, "");
-	gtk_entry_set_text((GtkEntry *) entrycomment, "");
+		gtk_entry_set_text((GtkEntry *) entrylabel, "");
+		gtk_entry_set_text((GtkEntry *) entrycomment, "");
     }
 }
 void clear_label_comment()
@@ -329,31 +329,30 @@ void clear_label_comment()
 void save_label_comment_edited()
 {
     strcpy(EditDatas.Rung.Label, gtk_entry_get_text((GtkEntry *) entrylabel));
-    strcpy(EditDatas.Rung.Comment,
-	gtk_entry_get_text((GtkEntry *) entrycomment));
+    strcpy(EditDatas.Rung.Comment, gtk_entry_get_text((GtkEntry *) entrycomment));
 }
 
 void autorize_prevnext_buttons(int Yes)
 {
     if (Yes) {
-	gtk_widget_set_sensitive(VScrollBar, TRUE);
-	gtk_widget_set_sensitive(entrylabel, FALSE);
-	gtk_widget_set_sensitive(entrycomment, FALSE);
+		gtk_widget_set_sensitive(VScrollBar, TRUE);
+		gtk_widget_set_sensitive(entrylabel, FALSE);
+		gtk_widget_set_sensitive(entrycomment, FALSE);
     } else {
-	gtk_widget_set_sensitive(VScrollBar, FALSE);
-	gtk_widget_set_sensitive(entrylabel, TRUE);
-	gtk_widget_set_sensitive(entrycomment, TRUE);
+		gtk_widget_set_sensitive(VScrollBar, FALSE);
+		gtk_widget_set_sensitive(entrylabel, TRUE);
+		gtk_widget_set_sensitive(entrycomment, TRUE);
     }
 }
 
 void ButtonRunStop_click()
 {
     if (InfosGene->LadderState == STATE_RUN) {
-	InfosGene->LadderState = STATE_STOP;
-	gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child), "Run");
+		InfosGene->LadderState = STATE_STOP;
+		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child), "Run");
     } else {
-	InfosGene->LadderState = STATE_RUN;
-	gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child), "Stop");
+		InfosGene->LadderState = STATE_RUN;
+		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child), "Stop");
     }
 }
 
@@ -362,7 +361,7 @@ void StoreDirectorySelected(GtkFileSelection * selector,
 {
     char *TempDir;
     TempDir = (char *)
-	gtk_file_selection_get_filename(GTK_FILE_SELECTION(FileSelector));
+		gtk_file_selection_get_filename(GTK_FILE_SELECTION(FileSelector));
     if (cForLoadingProject)
 	VerifyDirectorySelected(LadderDirectory, TempDir);
     else
@@ -373,8 +372,7 @@ void LoadNewLadder()
 {
     StoreDirectorySelected(GTK_FILE_SELECTION(FileSelector), TRUE	/* cForLoadingProject 
 									 */ );
-    if (InfosGene->LadderState == STATE_RUN)
-	ButtonRunStop_click();
+    if (InfosGene->LadderState == STATE_RUN) ButtonRunStop_click();
     InfosGene->LadderState = STATE_LOADING;
     LoadProjectFiles(LadderDirectory);
 
@@ -416,7 +414,7 @@ void CreateFileSelection(char *Prompt, int Save)
 void ButtonNew_click()
 {
     ShowConfirmationBox("New", "Do you really want to clear all datas ?",
-	InitAllLadderDatas);
+		InitAllLadderDatas);
 }
 
 void ButtonLoad_click()
@@ -432,10 +430,10 @@ void ButtonSaveAs_click()
 void ButtonSave_click()
 {
     if ( LadderDirectory[0] == '\0' ) {
-	/* no filename yet, treat like SaveAs */
-	ButtonSaveAs_click();
+		/* no filename yet, treat like SaveAs */
+		ButtonSaveAs_click();
     } else {
-	SaveProjectFiles(LadderDirectory);
+		SaveProjectFiles(LadderDirectory);
     }
 }
 
@@ -460,9 +458,9 @@ void ButtonAbout_click()
     okay_button = gtk_button_new_with_label("Okay");
     /* Ensure that the dialog box is destroyed when the user clicks ok. */
     gtk_signal_connect_object(GTK_OBJECT(okay_button), "clicked",
-	GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT(dialog));
+		GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT(dialog));
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->action_area),
-	okay_button);
+		okay_button);
     gtk_widget_grab_focus(okay_button);
     /* Add the label, and show everything we've added to the dialog. */
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), label);
@@ -481,9 +479,9 @@ void ShowMessageBox(char *title, char *text, char *button)
     okay_button = gtk_button_new_with_label(button);
     /* Ensure that the dialog box is destroyed when the user clicks ok. */
     gtk_signal_connect_object(GTK_OBJECT(okay_button), "clicked",
-	GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT(dialog));
+		GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT(dialog));
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->action_area),
-	okay_button);
+		okay_button);
     gtk_widget_grab_focus(okay_button);
     /* Add the label, and show everything we've added to the dialog. */
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), label);
@@ -509,13 +507,13 @@ void ShowConfirmationBox(char *title, char *text, void *function_if_yes)
     no_button = gtk_button_new_with_label("No");
     /* Ensure that the dialog box is destroyed when the user clicks ok. */
     gtk_signal_connect_object(GTK_OBJECT(no_button), "clicked",
-	GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT(ConfirmDialog));
+		GTK_SIGNAL_FUNC(gtk_widget_destroy), GTK_OBJECT(ConfirmDialog));
     gtk_signal_connect_object(GTK_OBJECT(yes_button), "clicked",
-	GTK_SIGNAL_FUNC(DoFunctionOfConfirmationBox), function_if_yes);
+		GTK_SIGNAL_FUNC(DoFunctionOfConfirmationBox), function_if_yes);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(ConfirmDialog)->action_area),
-	yes_button);
+		yes_button);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(ConfirmDialog)->action_area),
-	no_button);
+		no_button);
     gtk_widget_grab_focus(no_button);
     /* Add the label, and show everything we've added to the dialog. */
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(ConfirmDialog)->vbox), label);
@@ -566,11 +564,13 @@ void RungWindowInitGtk()
     gtk_container_add(GTK_CONTAINER(RungWindow), vbox);
 	event_box = gtk_event_box_new ( );
 
-	g_print( "InfosGene->SizesInfos.nbr_sections= %d\n", InfosGene->SizesInfos.nbr_sections);
-	//uncomment this line to see a nice segfault happen
+	g_print( "InfosGene->SizesInfos.nbr_sections= %d\n",
+		InfosGene->SizesInfos.nbr_sections);
+
+	//for now we put the event box in the main window box,
+	//later it will go wherever the individual element is drawn
 	gtk_box_pack_start_defaults ( GTK_BOX(vbox), event_box);
-	g_print( "meep2");
-	//gtk_container_add (GTK_CONTAINER (vbox), event_box);
+
 	//gtk_widget_set_usize( event_box, 50, 50);
 	//gtk_widget_set_uposition( event_box, 0,0);
 	tooltips = gtk_tooltips_new ();
@@ -635,9 +635,9 @@ void RungWindowInitGtk()
     UpdateVScrollBar();
 
     gtk_signal_connect(GTK_OBJECT(AdjustVScrollBar), "value-changed",
-	(GtkSignalFunc) VScrollBar_value_changed_event, 0);
+		(GtkSignalFunc) VScrollBar_value_changed_event, 0);
     gtk_signal_connect(GTK_OBJECT(AdjustHScrollBar), "value-changed",
-	(GtkSignalFunc) HScrollBar_value_changed_event, 0);
+		(GtkSignalFunc) HScrollBar_value_changed_event, 0);
 
     hboxbottom = gtk_hbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(vbox), hboxbottom);
@@ -683,13 +683,13 @@ void RungWindowInitGtk()
     ButtonConfig = gtk_button_new_with_label("Config");
     gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonConfig, TRUE, TRUE, 0);
     gtk_signal_connect(GTK_OBJECT(ButtonConfig), "clicked",
-	(GtkSignalFunc) ButtonConfig_click, 0);
+		(GtkSignalFunc) ButtonConfig_click, 0);
     gtk_widget_show(ButtonConfig);
 
     ButtonAbout = gtk_button_new_with_label("About");
     gtk_box_pack_start(GTK_BOX(hboxbottom), ButtonAbout, TRUE, TRUE, 0);
     gtk_signal_connect(GTK_OBJECT(ButtonAbout), "clicked",
-	(GtkSignalFunc) ButtonAbout_click, 0);
+		(GtkSignalFunc) ButtonAbout_click, 0);
     gtk_widget_show(ButtonAbout);
 
     ButtonQuit = gtk_button_new_with_label("Quit");
@@ -698,26 +698,27 @@ void RungWindowInitGtk()
 //                                GTK_SIGNAL_FUNC (gtk_widget_destroy),
 //                                GTK_OBJECT (RungWindow));
     gtk_signal_connect_object(GTK_OBJECT(ButtonQuit), "clicked",
-	ConfirmQuit, NULL);
+		ConfirmQuit, NULL);
     gtk_widget_show(ButtonQuit);
 
     /* Signals used to handle backing pixmap */
     gtk_signal_connect(GTK_OBJECT(drawing_area), "expose_event",
-	(GtkSignalFunc) expose_event, NULL);
+		(GtkSignalFunc) expose_event, NULL);
     gtk_signal_connect(GTK_OBJECT(drawing_area), "configure_event",
-	(GtkSignalFunc) configure_event, NULL);
+		(GtkSignalFunc) configure_event, NULL);
 
     /* Event signals */
     gtk_signal_connect(GTK_OBJECT(drawing_area), "button_press_event",
-	(GtkSignalFunc) button_press_event, NULL);
+		(GtkSignalFunc) button_press_event, NULL);
 
     gtk_widget_set_events(drawing_area, GDK_EXPOSURE_MASK
-	| GDK_LEAVE_NOTIFY_MASK
-	| GDK_BUTTON_PRESS_MASK
-	| GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);
+		| GDK_LEAVE_NOTIFY_MASK
+		| GDK_BUTTON_PRESS_MASK
+		| GDK_POINTER_MOTION_MASK 
+		| GDK_POINTER_MOTION_HINT_MASK);
 
     gtk_signal_connect(GTK_OBJECT(RungWindow), "delete_event",
-	(GtkSignalFunc) RungWindowDeleteEvent, 0);
+		(GtkSignalFunc) RungWindowDeleteEvent, 0);
     gtk_widget_show(RungWindow);
 
     GetTheSizesForRung();
@@ -726,17 +727,18 @@ void RungWindowInitGtk()
 gint VarsWindowDeleteEvent(GtkWidget * widget, GdkEvent * event,
     gpointer data)
 {
+
+	//if this window closes, the chkvars widget array disappears and we get a segfault?
     // we do not want that the window be destroyed.
-    //return TRUE;
-	//actually i do
-	return FALSE;
+	return TRUE;
+
 }
 
 void VarsWindowInitGtk()
 {
     GtkWidget *windowvars;
     GtkWidget *vboxboolvars[NBR_TYPE_BOOLS_SPY], *vboxmain, *hboxvars,
-	*hboxvars2;
+		*hboxvars2;
     GtkWidget *vboxvarsnames, *vboxvarsvalues, *vboxvarsformats;
     int NumCheckWidget, ColumnVar, NumVarSpy, NumEntry;
     GList *DisplayFormatItems = NULL;
@@ -756,9 +758,9 @@ void VarsWindowInitGtk()
     gtk_widget_show(hboxvars2);
 
     for (ColumnVar = 0; ColumnVar < NBR_TYPE_BOOLS_SPY; ColumnVar++) {
-	vboxboolvars[ColumnVar] = gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(hboxvars), vboxboolvars[ColumnVar]);
-	gtk_widget_show(vboxboolvars[ColumnVar]);
+		vboxboolvars[ColumnVar] = gtk_vbox_new(FALSE, 0);
+		gtk_container_add(GTK_CONTAINER(hboxvars), vboxboolvars[ColumnVar]);
+		gtk_widget_show(vboxboolvars[ColumnVar]);
     }
 
     vboxvarsnames = gtk_vbox_new(FALSE, 0);
@@ -778,67 +780,67 @@ void VarsWindowInitGtk()
     DisplayFormatItems = g_list_append(DisplayFormatItems, "Bin");
 
     NumCheckWidget = 0;
-    for (ColumnVar = 0; ColumnVar < NBR_TYPE_BOOLS_SPY; ColumnVar++) {
-	int OffVar;
-
-	offsetboolvar[ColumnVar] = gtk_entry_new();
-	gtk_widget_set_usize((GtkWidget *) offsetboolvar[ColumnVar], 40, 0);
-	gtk_box_pack_start(GTK_BOX(vboxboolvars[ColumnVar]),
-	    offsetboolvar[ColumnVar], FALSE, FALSE, 0);
-	gtk_widget_show(offsetboolvar[ColumnVar]);
-
-	gtk_entry_set_text((GtkEntry *) offsetboolvar[ColumnVar], "0");
-	gtk_signal_connect(GTK_OBJECT(offsetboolvar[ColumnVar]), "activate",
-	    (GtkSignalFunc) OffsetBoolVar_activate_event, (void *) ColumnVar);
-
-	for (OffVar = 0; OffVar < NBR_BOOLS_VAR_SPY; OffVar++) {
-	    chkvar[ColumnVar][OffVar] =
-		gtk_check_button_new_with_label("xxxx");
-
-	    gtk_box_pack_start(GTK_BOX(vboxboolvars[ColumnVar]),
-		chkvar[ColumnVar][OffVar], FALSE, FALSE, 0);
-	    gtk_widget_show(chkvar[ColumnVar][OffVar]);
-
-	    gtk_signal_connect(GTK_OBJECT(chkvar[ColumnVar][OffVar]),
-		"toggled", (GtkSignalFunc) chkvar_press_event,
-		(void *) NumCheckWidget);
-	    NumCheckWidget++;
-	}
+	for (ColumnVar = 0; ColumnVar < NBR_TYPE_BOOLS_SPY; ColumnVar++) {
+		int OffVar;
+	
+		offsetboolvar[ColumnVar] = gtk_entry_new();
+		gtk_widget_set_usize((GtkWidget *) offsetboolvar[ColumnVar], 40, 0);
+		gtk_box_pack_start(GTK_BOX(vboxboolvars[ColumnVar]),
+			offsetboolvar[ColumnVar], FALSE, FALSE, 0);
+		gtk_widget_show(offsetboolvar[ColumnVar]);
+	
+		gtk_entry_set_text((GtkEntry *) offsetboolvar[ColumnVar], "0");
+		gtk_signal_connect(GTK_OBJECT(offsetboolvar[ColumnVar]), "activate",
+			(GtkSignalFunc) OffsetBoolVar_activate_event, (void *) ColumnVar);
+	
+		for (OffVar = 0; OffVar < NBR_BOOLS_VAR_SPY; OffVar++) {
+			chkvar[ColumnVar][OffVar] =
+			gtk_check_button_new_with_label("xxxx");
+	
+			gtk_box_pack_start(GTK_BOX(vboxboolvars[ColumnVar]),
+			chkvar[ColumnVar][OffVar], FALSE, FALSE, 0);
+			gtk_widget_show(chkvar[ColumnVar][OffVar]);
+	
+			gtk_signal_connect(GTK_OBJECT(chkvar[ColumnVar][OffVar]),
+			"toggled", (GtkSignalFunc) chkvar_press_event,
+			(void *) NumCheckWidget);
+			NumCheckWidget++;
+		}
     }
     UpdateAllLabelsBoolsVars();
 
-    for (NumVarSpy = 0; NumVarSpy < NBR_FREE_VAR_SPY; NumVarSpy++) {
-	for (ColumnVar = 0; ColumnVar < 2; ColumnVar++) {
-	    NumEntry = NumVarSpy + ColumnVar * NBR_FREE_VAR_SPY;
-	    EntryVarSpy[NumEntry] = gtk_entry_new();
-	    gtk_widget_set_usize((GtkWidget *) EntryVarSpy[NumEntry], 30, 0);
-	    gtk_box_pack_start((ColumnVar ==
-		    0) ? GTK_BOX(vboxvarsnames) : GTK_BOX(vboxvarsvalues),
-		EntryVarSpy[NumEntry], FALSE, FALSE, 0);
-	    gtk_widget_show(EntryVarSpy[NumEntry]);
-	    if (ColumnVar == 0) {
-			gtk_entry_set_text((GtkEntry *) EntryVarSpy[NumEntry],
-		        DisplayInfo(VarSpy[NumVarSpy][0], VarSpy[NumVarSpy][1]));
-			gtk_signal_connect(GTK_OBJECT(EntryVarSpy[NumEntry]),
-		  	    "activate", (GtkSignalFunc) EntryVarSpy_activate_event,
-		  	    &VarSpy[NumVarSpy][0]);
-	    }
-	}
-
-	DisplayFormatVarSpy[NumVarSpy] = gtk_combo_new();
-	gtk_combo_set_value_in_list(GTK_COMBO(DisplayFormatVarSpy[NumVarSpy]), TRUE	/* val 
-	     */ , FALSE /* ok_if_empty */ );
-	gtk_combo_set_popdown_strings(GTK_COMBO(DisplayFormatVarSpy
-		[NumVarSpy]), DisplayFormatItems);
-	gtk_widget_set_usize((GtkWidget *) DisplayFormatVarSpy[NumVarSpy], 40,
-	    0);
-	gtk_box_pack_start(GTK_BOX(vboxvarsformats),
-	    DisplayFormatVarSpy[NumVarSpy], FALSE, FALSE, 0);
-	gtk_widget_show(DisplayFormatVarSpy[NumVarSpy]);
+	for (NumVarSpy = 0; NumVarSpy < NBR_FREE_VAR_SPY; NumVarSpy++) {
+		for (ColumnVar = 0; ColumnVar < 2; ColumnVar++) {
+			NumEntry = NumVarSpy + ColumnVar * NBR_FREE_VAR_SPY;
+			EntryVarSpy[NumEntry] = gtk_entry_new();
+			gtk_widget_set_usize((GtkWidget *) EntryVarSpy[NumEntry], 30, 0);
+			gtk_box_pack_start((ColumnVar ==
+				0) ? GTK_BOX(vboxvarsnames) : GTK_BOX(vboxvarsvalues),
+			EntryVarSpy[NumEntry], FALSE, FALSE, 0);
+			gtk_widget_show(EntryVarSpy[NumEntry]);
+			if (ColumnVar == 0) {
+				gtk_entry_set_text((GtkEntry *) EntryVarSpy[NumEntry],
+					DisplayInfo(VarSpy[NumVarSpy][0], VarSpy[NumVarSpy][1]));
+				gtk_signal_connect(GTK_OBJECT(EntryVarSpy[NumEntry]),
+					"activate", (GtkSignalFunc) EntryVarSpy_activate_event,
+					&VarSpy[NumVarSpy][0]);
+			}
+		}
+	
+		DisplayFormatVarSpy[NumVarSpy] = gtk_combo_new();
+		gtk_combo_set_value_in_list(GTK_COMBO(DisplayFormatVarSpy[NumVarSpy]), TRUE	/* val 
+			*/ , FALSE /* ok_if_empty */ );
+		gtk_combo_set_popdown_strings(GTK_COMBO(DisplayFormatVarSpy
+			[NumVarSpy]), DisplayFormatItems);
+		gtk_widget_set_usize((GtkWidget *) DisplayFormatVarSpy[NumVarSpy], 40,
+			0);
+		gtk_box_pack_start(GTK_BOX(vboxvarsformats),
+			DisplayFormatVarSpy[NumVarSpy], FALSE, FALSE, 0);
+		gtk_widget_show(DisplayFormatVarSpy[NumVarSpy]);
     }
 
     gtk_signal_connect(GTK_OBJECT(windowvars), "delete_event",
-	(GtkSignalFunc) VarsWindowDeleteEvent, 0);
+		(GtkSignalFunc) VarsWindowDeleteEvent, 0);
     gtk_widget_show(windowvars);
 }
 
@@ -875,7 +877,7 @@ void DisplayFreeVarSpy()
 	Value = ReadVar(VarSpy[NumVarSpy][0], VarSpy[NumVarSpy][1]);
 	strcpy(DisplayFormat,
 	    (char *) gtk_entry_get_text((GtkEntry *) ((GtkCombo *)
-		    DisplayFormatVarSpy[NumVarSpy])->entry));
+		DisplayFormatVarSpy[NumVarSpy])->entry));
 	strcpy(BufferValue, "");
 	if (strcmp(DisplayFormat, "Dec") == 0)
 	    sprintf(BufferValue, "%d", Value);
@@ -892,12 +894,12 @@ void RefreshOneBoolVar(int Type, int Num, int Val)
 {
     int Col = 0;
     switch (Type) {
-    case VAR_PHYS_INPUT:
-	Col = 1;
-	break;
-    case VAR_PHYS_OUTPUT:
-	Col = 2;
-	break;
+		case VAR_PHYS_INPUT:
+		Col = 1;
+		break;
+		case VAR_PHYS_OUTPUT:
+		Col = 2;
+		break;
     }
     if (Num >= ValOffsetBoolVar[Col]
 	&& Num < ValOffsetBoolVar[Col] + NBR_BOOLS_VAR_SPY)
@@ -929,15 +931,15 @@ void UpdateAllLabelsBoolsVars()
 	    char BufNumVar[20];
 	    switch (ColumnVar) {
 	    case 0:
-		sprintf(BufNumVar, "%cB%d", '%',
+		sprintf(BufNumVar, "B%d",
 		    OffVar + ValOffsetBoolVar[ColumnVar]);
 		break;
 	    case 1:
-		sprintf(BufNumVar, "%cI%d", '%',
+		sprintf(BufNumVar, "I%d",
 		    OffVar + ValOffsetBoolVar[ColumnVar]);
 		break;
 	    case 2:
-		sprintf(BufNumVar, "%cQ%d", '%',
+		sprintf(BufNumVar, "Q%d",
 		    OffVar + ValOffsetBoolVar[ColumnVar]);
 		break;
 	    }
@@ -980,10 +982,10 @@ void InitGtkWindows(int argc, char *argv[])
     RungWindowInitGtk();
 
     if(!readOnly){
-	VarsWindowInitGtk();
-	EditorInitGtk();
-	PropertiesInitGtk();
-	ManagerInitGtk();
+		VarsWindowInitGtk();
+		EditorInitGtk();
+		PropertiesInitGtk();
+		ManagerInitGtk();
     }
 }
 
@@ -995,10 +997,10 @@ void UpdateGtkAfterLoading(char cCreateTimer)
     UpdateVScrollBar();
 
     if (cCreateTimer) {
-	gtk_timeout_add(TIME_REFRESH_RUNG_MS, cyclic_refresh, NULL);
+		gtk_timeout_add(TIME_REFRESH_RUNG_MS, cyclic_refresh, NULL);
     }
 
     if(!readOnly){
-	ManagerDisplaySections();
+		ManagerDisplaySections();
     }
 }
