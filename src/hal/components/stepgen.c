@@ -783,11 +783,6 @@ static void update_freq(void *arg, long period)
 
     /* loop thru generators */
     for (n = 0; n < num_chan; n++) {
-	/* bail out if current stepgen not enabled */
-	if (*stepgen->enable == 0) {
-	    stepgen++;
-	    break;
-	}
 	/* check for scale change */
 	if (stepgen->pos_scale != stepgen->old_scale) {
 	    /* get ready to detect future scale changes */
@@ -800,6 +795,18 @@ static void update_freq(void *arg, long period)
 	    }
 	    /* we will need the reciprocal */
 	    stepgen->scale_recip = 1.0 / stepgen->pos_scale;
+	}
+	/* test for disabled stepgen */
+	if (*stepgen->enable == 0) {
+	    /* disabled: keep updating old_pos_cmd */
+	    stepgen->old_pos_cmd = *stepgen->pos_cmd * stepgen->pos_scale;
+	    /* set velocity to zero */
+	    stepgen->freq = 0;
+	    stepgen->addval = 0;
+	    stepgen->newaddval = 0;
+	    /* and skip to next one */
+	    stepgen++;
+	    break;
 	}
 	/* calculate frequency limit */
 	if (stepgen->wd.st0.step_type == 0) {
@@ -926,13 +933,6 @@ static void update_pos(void *arg, long period)
     stepgen = arg;
 
     for (n = 0; n < num_chan; n++) {
-
-	/* bail out if current stepgen not enabled */
-	if (*stepgen->enable == 0) {
-	    stepgen++;
-	    break;
-	}
-
 	/* capture raw counts to latches */
 	*(stepgen->count) = stepgen->rawcount;
 	/* check for change in scale value */
