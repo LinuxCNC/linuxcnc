@@ -267,6 +267,7 @@ function KillTaskWithTimeout() {
 	    echo "Could not kill task $KILL_TASK, PID=$KILL_PID"
 	fi
 	KILL_PIDS=
+	KILL_TASK=
     done
 }
 
@@ -298,8 +299,9 @@ function Cleanup() {
     done
 
     # check for halconfig, and bring it down if it's around
-    if [ -n "`ps auxw | grep halconfig.tcl | awk {'print $2'}`" ] ; then
-	KILL_PIDS=`ps auxw | grep halconfig.tcl | awk {'print $2'}`
+    if [ -n "`ps auxw | grep halshow.tcl | awk {'print $2'}`" ] ; then
+	KILL_TASK=halshow
+	KILL_PIDS=`ps auxw | grep halshow.tcl | awk {'print $2'}`
 	KillTaskWithTimeout
     fi
 
