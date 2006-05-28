@@ -32,6 +32,7 @@
 char *module_whitelist[] = {
     "rtai_math", "rtai_sem", "rtai_shm", "rtai_fifos", "rtai_up", 
     "rtai_hal", "rtai_sched", "adeos",
+    "rtl_fifo", "rtl_posixio", "rtl_sched", "rtl_time", "rtl", "mbuff",
 
     "blocks", "classicladder_rt", "debounce", "encoder", "encoder_ratio",
     "extint", "fifotask", "freqgen", "hal_ax5214h", "hal_evoreg",
