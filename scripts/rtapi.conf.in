@@ -17,7 +17,7 @@ DEBUG='3'
 MODPATH=@MODULE_DIR@
 
 # List of realtime kernel modules to be loaded
-if [ @RTAI@ = 3 ] ; then \
+if [ "@RTAI@" = "3" ] ; then \
     MODULES="adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math"
     RTAI=@RTAI@
     RTAI_LOAD=@RTDIR@/bin/rtai-load
