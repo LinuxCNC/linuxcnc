@@ -381,6 +381,30 @@ extern int hal_pin_u32_new(char *name, hal_dir_t dir,
 extern int hal_pin_s32_new(char *name, hal_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id);
 
+/** The hal_pin_XXX_newf family of functions are similar to
+    hal_pin_XXX_new except that they also do printf-style formatting to compute
+    the pin name
+    If successful, the hal_pin_xxx_newf() functions return HAL_SUCCESS.
+    On failure they return a negative error code.
+*/
+extern int hal_pin_bit_newf(hal_dir_t dir,
+    hal_bit_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+extern int hal_pin_float_newf(hal_dir_t dir,
+    hal_float_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+extern int hal_pin_u8_newf(hal_dir_t dir,
+    hal_u8_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+extern int hal_pin_s8_newf(hal_dir_t dir,
+    hal_s8_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+extern int hal_pin_u16_newf(hal_dir_t dir,
+    hal_u16_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+extern int hal_pin_s16_newf(hal_dir_t dir,
+    hal_s16_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+extern int hal_pin_u32_newf(hal_dir_t dir,
+    hal_u32_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+extern int hal_pin_s32_newf(hal_dir_t dir,
+    hal_s32_t ** data_ptr_addr, int comp_id, char *fmt, ...);
+
+
 /** 'hal_pin_new()' creates a new 'pin' object.  It is a generic
     version of the eight functions above.  It is provided ONLY for
     those special cases where a generic function is needed.  It is
@@ -503,6 +527,25 @@ extern int hal_param_u32_new(char *name, hal_dir_t dir, hal_u32_t * data_addr,
     int comp_id);
 extern int hal_param_s32_new(char *name, hal_dir_t dir, hal_s32_t * data_addr,
     int comp_id);
+
+/** printf-style versions of hal_param_XXX_new */
+extern int hal_param_bit_newf(hal_dir_t dir, hal_bit_t * data_addr,
+    int comp_id, char *fmt, ...);
+extern int hal_param_float_newf(hal_dir_t dir,
+    hal_float_t * data_addr, int comp_id, char *fmt, ...);
+extern int hal_param_u8_newf(hal_dir_t dir, hal_u8_t * data_addr,
+    int comp_id, char *fmt, ...);
+extern int hal_param_s8_newf(hal_dir_t dir, hal_s8_t * data_addr,
+    int comp_id, char *fmt, ...);
+extern int hal_param_u16_newf(hal_dir_t dir, hal_u16_t * data_addr,
+    int comp_id, char *fmt, ...);
+extern int hal_param_s16_newf(hal_dir_t dir, hal_s16_t * data_addr,
+    int comp_id, char *fmt, ...);
+extern int hal_param_u32_newf(hal_dir_t dir, hal_u32_t * data_addr,
+    int comp_id, char *fmt, ...);
+extern int hal_param_s32_newf(hal_dir_t dir, hal_s32_t * data_addr,
+    int comp_id, char *fmt, ...);
+
 
 /** 'hal_param_new()' creates a new 'parameter' object.  It is a generic
     version of the eight functions above.  It is provided ONLY for those
