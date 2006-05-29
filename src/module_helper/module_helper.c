@@ -21,7 +21,7 @@ think of a better way.
 
 char *module_whitelist[] = {
     "rtai_math", "rtai_sem", "rtai_shm", "rtai_fifos", "rtai_up", 
-    "rtai_hal", "rtai_sched", "adeos",
+    "rtai_hal", "rtai_sched", "rtai", "rt_mem_mgr", "adeos",
     "rtl_time", "rtl_sched", "rtl_posixio", "rtl_fifo", "rtl", "mbuff",
 
     NULL
