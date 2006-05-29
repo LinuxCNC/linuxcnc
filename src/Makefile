@@ -388,7 +388,7 @@ EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist
 	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion
 
 ifeq "$(USE_STUBS)" "1"
-MATHSTUB := rtapi/matstubs.o
+MATHSTUB := rtapi/mathstubs.o
 endif
 
 ifdef SEQUENTIAL_SUPPORT
