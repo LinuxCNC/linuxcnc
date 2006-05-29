@@ -366,12 +366,10 @@ int main(int argc, char *argv[])
     write_funct_flags = read_funct_flags + (num_ports + 1);
     /* export function run/stop parameters for each port */
     for (n = 0; n < num_ports; n++) {
-	/* make read function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.read", n);
 	/* export read function parameter */
 	retval =
-	    hal_param_s8_new(name, HAL_RD_WR, &read_funct_flags[n + 1],
-	    comp_id);
+	    hal_param_s8_newf(HAL_RD_WR, &read_funct_flags[n + 1],
+                    comp_id, "parport.%d.read", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d read funct param failed\n", n);
@@ -379,11 +377,10 @@ int main(int argc, char *argv[])
 	    return -1;
 	}
 	/* make write function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n);
 	/* export read function parameter */
 	retval =
-	    hal_param_s8_new(name, HAL_RD_WR, &write_funct_flags[n + 1],
-	    comp_id);
+	    hal_param_s8_newf(name, HAL_RD_WR, &write_funct_flags[n + 1],
+                    comp_id, "parport.%d.write", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: port %d write funct param failed\n", n);
@@ -753,19 +750,17 @@ static int export_port(int portnum, parport_t * port)
 
 static int export_input_pin(int portnum, int pin, hal_bit_t ** base, int n)
 {
-    char buf[HAL_NAME_LEN + 2];
     int retval;
 
     /* export write only HAL pin for the input bit */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "parport.%d.pin-%02d-in", portnum, pin);
-    retval = hal_pin_bit_new(buf, HAL_WR, base + (2 * n), comp_id);
+    retval = hal_pin_bit_newf(HAL_WR, base + (2 * n), comp_id,
+            "parport.%d.pin-%02d-in", portnum, pin);
     if (retval != 0) {
 	return retval;
     }
     /* export another write only HAL pin for the same bit inverted */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "parport.%d.pin-%02d-in-not", portnum,
-	pin);
-    retval = hal_pin_bit_new(buf, HAL_WR, base + (2 * n) + 1, comp_id);
+    retval = hal_pin_bit_newf(HAL_WR, base + (2 * n) + 1, comp_id,
+            "parport.%d.pin-%02d-in-not", portnum, pin);
     return retval;
 }
 
@@ -776,15 +771,13 @@ static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
     int retval;
 
     /* export read only HAL pin for output data */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "parport.%d.pin-%02d-out", portnum,
-	pin);
-    retval = hal_pin_bit_new(buf, HAL_RD, dbase + n, comp_id);
+    retval = hal_pin_bit_newf(HAL_RD, dbase + n, comp_id,
+            "parport.%d.pin-%02d-out", portnum, pin);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for polarity */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "parport.%d.pin-%02d-out-invert",
-	portnum, pin);
-    retval = hal_param_bit_new(buf, HAL_WR, pbase + n, comp_id);
+    retval = hal_param_bit_newf(HAL_WR, pbase + n, comp_id,
+            "parport.%d.pin-%02d-out-invert", portnum, pin);
     return retval;
 }
