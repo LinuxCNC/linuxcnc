@@ -432,6 +432,10 @@ static int module_delete(int module_id)
     return RTAPI_SUCCESS;
 }
 
+int rtapi_vsnprintf(char *buf, unsigned long int size, const char *fmt, va_list ap) {
+    return vsn_printf(buf, size, fmt, ap);
+}
+
 int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
 {
     va_list args;

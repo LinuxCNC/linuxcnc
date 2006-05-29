@@ -228,6 +228,10 @@ int rtapi_exit(int module_id)
     return RTAPI_SUCCESS;
 }
 
+int rtapi_vsnprintf(char *buf, unsigned long int size, const char *fmt, va_list ap) {
+    return vsnprintf(buf, size, fmt, args);
+}
+
 int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
 {
     va_list args;
