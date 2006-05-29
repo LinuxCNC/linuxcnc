@@ -387,6 +387,9 @@ EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist
 	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
 	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion
 
+ifeq "$(USE_STUBS)" "1"
+MATHSTUB := rtapi/matstubs.o
+endif
 
 ifdef SEQUENTIAL_SUPPORT
 EXTRA_CFLAGS += -DSEQUENTIAL_SUPPORT
@@ -406,62 +409,62 @@ rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
 
 # Subdirectory: hal/components
 obj-$(CONFIG_BLOCKS) += blocks.o
-blocks-objs := hal/components/blocks.o
+blocks-objs := hal/components/blocks.o $(MATHSTUB)
 obj-$(CONFIG_DEBOUNCE) += debounce.o
-debounce-objs := hal/components/debounce.o
+debounce-objs := hal/components/debounce.o $(MATHSTUB)
 obj-$(CONFIG_ENCODER) += encoder.o
-encoder-objs := hal/components/encoder.o
-obj-$(CONFIG_COUNTER) += counter.o
+encoder-objs := hal/components/encoder.o $(MATHSTUB)
+obj-$(CONFIG_COUNTER) += counter.o $(MATHSTUB)
 counter-objs := hal/components/counter.o
-obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio.o
+obj-$(CONFIG_ENCODER_RATIO) += encoder_ratio.o $(MATHSTUB)
 encoder_ratio-objs := hal/components/encoder_ratio.o
-obj-$(CONFIG_STEPGEN) += stepgen.o
+obj-$(CONFIG_STEPGEN) += stepgen.o $(MATHSTUB)
 stepgen-objs := hal/components/stepgen.o
-obj-$(CONFIG_FREQGEN) += freqgen.o
+obj-$(CONFIG_FREQGEN) += freqgen.o $(MATHSTUB)
 freqgen-objs := hal/components/freqgen.o
-obj-$(CONFIG_SIGGEN) += siggen.o
+obj-$(CONFIG_SIGGEN) += siggen.o $(MATHSTUB)
 siggen-objs := hal/components/siggen.o
-obj-$(CONFIG_PID) += pid.o
+obj-$(CONFIG_PID) += pid.o $(MATHSTUB)
 pid-objs := hal/components/pid.o
-obj-$(CONFIG_PID) += threads.o
+obj-$(CONFIG_PID) += threads.o $(MATHSTUB)
 threads-objs := hal/components/threads.o
-obj-$(CONFIG_SUPPLY) += supply.o
+obj-$(CONFIG_SUPPLY) += supply.o $(MATHSTUB)
 supply-objs := hal/components/supply.o
-obj-$(CONFIG_TIMEDELAY) += timedelay.o
+obj-$(CONFIG_TIMEDELAY) += timedelay.o $(MATHSTUB)
 timedelay-objs := hal/components/timedelay.o
-obj-$(CONFIG_SIM_ENCODER) += sim_encoder.o
+obj-$(CONFIG_SIM_ENCODER) += sim_encoder.o $(MATHSTUB)
 sim_encoder-objs := hal/components/sim_encoder.o
-obj-$(CONFIG_WEIGHTED_SUM) += weighted_sum.o
+obj-$(CONFIG_WEIGHTED_SUM) += weighted_sum.o $(MATHSTUB)
 weighted_sum-objs := hal/components/weighted_sum.o
-obj-$(CONFIG_MODMATH) += modmath.o
+obj-$(CONFIG_MODMATH) += modmath.o $(MATHSTUB)
 modmath-objs := hal/components/modmath.o
 
 # Subdirectory: hal/drivers
-obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
+obj-$(CONFIG_HAL_PARPORT) += hal_parport.o $(MATHSTUB)
 hal_parport-objs := hal/drivers/hal_parport.o
-obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
+obj-$(CONFIG_HAL_TIRO) += hal_tiro.o $(MATHSTUB)
 hal_tiro-objs := hal/drivers/hal_tiro.o
-obj-$(CONFIG_HAL_STG) += hal_stg.o
+obj-$(CONFIG_HAL_STG) += hal_stg.o $(MATHSTUB)
 hal_stg-objs := hal/drivers/hal_stg.o
-obj-$(CONFIG_HAL_VTI) += hal_vti.o
+obj-$(CONFIG_HAL_VTI) += hal_vti.o $(MATHSTUB)
 hal_vti-objs := hal/drivers/hal_vti.o
-obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
+obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o $(MATHSTUB)
 hal_evoreg-objs := hal/drivers/hal_evoreg.o
-obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
+obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o $(MATHSTUB)
 hal_motenc-objs := hal/drivers/hal_motenc.o
-obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o
+obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o $(MATHSTUB)
 hal_m5i20-objs := hal/drivers/hal_m5i20.o
-obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o
+obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o $(MATHSTUB)
 hal_ax5214h-objs := hal/drivers/hal_ax5214h.o
-obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
+obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o $(MATHSTUB)
 hal_ppmc-objs := hal/drivers/hal_ppmc.o
-obj-$(CONFIG_HAL_SKELETON) += hal_speaker.o
+obj-$(CONFIG_HAL_SKELETON) += hal_speaker.o $(MATHSTUB)
 hal_speaker-objs := hal/drivers/hal_speaker.o
-obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
+obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o $(MATHSTUB)
 hal_skeleton-objs := hal/drivers/hal_skeleton.o
 
 obj-$(CONFIG_CLASSICLADDER_RT) += classicladder_rt.o
-classicladder_rt-objs := hal/classicladder/module_rt.o
+classicladder_rt-objs := hal/classicladder/module_rt.o $(MATHSTUB)
 classicladder_rt-objs += hal/classicladder/calc_rt.o
 classicladder_rt-objs += hal/classicladder/vars_access.o
 classicladder_rt-objs += hal/classicladder/arithm_eval.o
@@ -473,10 +476,10 @@ classicladder_rt-objs += hal/classicladder/calc_sequential_rt.o
 endif
 
 obj-m += scope_rt.o
-scope_rt-objs := hal/utils/scope_rt.o
+scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 
 obj-m += hal_lib.o
-hal_lib-objs := hal/hal_lib.o
+hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o 
@@ -490,7 +493,7 @@ motmod-objs += emc/motion/control.o
 motmod-objs += emc/motion/emcmotglb.o 
 motmod-objs += emc/motion/emcmotutil.o 
 motmod-objs += libnml/posemath/_posemath.o
-motmod-objs += libnml/posemath/sincos.o
+motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 ifeq ($(BUILD_SYS),normal)
@@ -512,7 +515,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 
 ../rtlib/%.o:
 	$(ECHO) Linking $@
-	@ld -r -static -S -O2 -o $@ $^ $(EXTRALINK)
+	@ld -r -static -S -O2 -o $@ $^ $(EXTRALINK) $(MATHLIB)
 
 ../rtlib/classicladder_rt: $(addprefix objects/rt,$(classicladder_rt-objs))
 ../rtlib/rtapi.o: $(addprefix objects/rt,$(rtapi-objs))

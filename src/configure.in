@@ -818,7 +818,7 @@ else
 			please file a bug report.])
             USE_LIBM=1
 	    USE_STUBS=1
-            MATHLIB="\$(RTTMP_DIR)/mathstubs.o -L/usr/lib -lm"
+            MATHLIB="-L/usr/lib -lm"
         fi
     fi
     rm -f tests/mathtest.o tests/mathtest 2>/dev/null
