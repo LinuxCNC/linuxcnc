@@ -73,6 +73,7 @@
 	  2) <sys/types.h> is no longer included.
 */
 /*---------------------------------------------------------------------------*/
+#define _GNU_SOURCE /* getline() */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
