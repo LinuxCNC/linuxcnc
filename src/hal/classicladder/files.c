@@ -742,7 +742,6 @@ char InitTempDir(void)
 {
     // get a temp directory
     char *TmpEnv = getenv("TMP") ?: "/tmp";
-    TmpEnv = 
     sprintf(TmpDirectory, "%s/classicladder_XXXXXX",
 	TmpEnv != NULL ? TmpEnv : "/tmp");
     if(mkdtemp(TmpDirectory) == 0) return FALSE;;
