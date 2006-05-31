@@ -19,6 +19,12 @@ vcp {
 		    label { text = "Off" }
 		}
 		label { text = "machine control" }
+		LED {
+		    size = 25
+		    halpin = led.machine.on
+		    on-color = "#00F"
+		    off-color = "#006"
+		}
 	    }
 	    # this box holds stuff for Estop On/Reset
 	    box {
@@ -33,7 +39,56 @@ vcp {
 		    label { text = "Reset" }
 		}
 		label { text = "ESTOP" }
+		LED {
+		    halpin = led.estop.is-activated
+		    on-color = "#F00"
+		    off-color = "#0F0"
+		}
 	    }
+	    box {
+		layout = vertical
+		title = "Mode"
+		box {
+		    layout = horizontal
+		    title = "Manual"
+		    button {
+			halpin = button.mode.manual
+			label { text = "Manual mode" }
+		    }
+		    LED {
+			halpin = led.mode.is-manual
+			on-color = "#00F"
+			off-color = "#006"
+		    }
+		}
+		box {
+		    layout = horizontal
+		    title = "Auto"
+		    button {
+			halpin = button.mode.auto
+			label { text = "Auto mode" }
+		    }
+		    LED {
+			halpin = led.mode.is-auto
+			on-color = "#00F"
+			off-color = "#006"
+		    }
+		}
+		box {
+		    layout = horizontal
+		    title = "MDI"
+		    button {
+			halpin = button.mode.mdi
+			label { text = "MDI mode" }
+		    }
+		    LED {
+			halpin = led.mode.is-mdi
+			on-color = "#00F"
+			off-color = "#006"
+		    }
+		}
+	    }
+
 	    # this box holds stuff for program Run, pause, resume, step
 	    box {
 		layout = vertical
