@@ -162,47 +162,6 @@ static double toExtVel(double vel) {
 
 static double toExtAcc(double acc) { return toExtVel(acc); }
 
-/* sends a request to set the vel, which is in internal units/sec */
-static int sendVelMsg(double vel, double ini_maxvel)
-{
-    EMC_TRAJ_SET_VELOCITY velMsg;
-
-    if (linear_move && !angular_move) {
-	velMsg.velocity = TO_EXT_LEN(vel);
-	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
-    } else if (!linear_move && angular_move) {
-	velMsg.velocity = TO_EXT_ANG(vel);
-	velMsg.ini_maxvel = TO_EXT_ANG(ini_maxvel);
-    } else if (linear_move && angular_move) {
-	velMsg.velocity = TO_EXT_LEN(vel);
-	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
-    } else { //seems this case was forgotten, neither linear, neither angular move (we are only sending vel)
-	velMsg.velocity = TO_EXT_LEN(vel);
-	velMsg.ini_maxvel = TO_EXT_LEN(ini_maxvel);
-    }	
-
-    interp_list.append(velMsg);
-
-    return 0;
-}
-
-static int sendAccMsg(double acc)
-{
-    EMC_TRAJ_SET_ACCELERATION accMsg;
-
-    if (linear_move && !angular_move) {
-	accMsg.acceleration = TO_EXT_LEN(acc);
-    } else if (!linear_move && angular_move) {
-	accMsg.acceleration = TO_EXT_ANG(acc);
-    } else if (linear_move && angular_move) {
-	accMsg.acceleration = TO_EXT_LEN(acc);
-    }
-
-    interp_list.append(accMsg);
-    return 0;
-}
-
-
 /* Representation */
 void SET_ORIGIN_OFFSETS(double x, double y, double z,
 			double a, double b, double c)
