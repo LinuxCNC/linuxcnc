@@ -282,6 +282,37 @@ static void process_inputs(void)
     } else {
 	emcmotStatus->probeVal = 0;
     }
+    /* check if the probe has been tripped */
+    if (emcmotStatus->probing && emcmotStatus->probeTripped ) {
+	tpClear(&emcmotDebug->queue);
+	emcmotStatus->probing=0;
+    /* check if the probe hasn't tripped, but the move finished */
+    } else if (emcmotStatus->probing && GET_MOTION_INPOS_FLAG() && 
+	    ( tpQueueDepth(&emcmotDebug->queue) == 0 ) ) {
+	emcmotStatus->probing=0;
+    /* check if the probe trips */
+    } else if (emcmotStatus->probing) {
+	/* if the probe tripped (val == 1 ) */
+	if (emcmotStatus->probeVal) {
+	    emcmotStatus->probeTripped = 1; //we have tripped the probe
+	    emcmotStatus->probedPos = emcmotStatus->carte_pos_fb; //remember the current position
+	    if (GET_MOTION_COORD_FLAG()) {
+		tpAbort(&emcmotDebug->queue); //if we are in coordinated move, abort
+		SET_MOTION_ERROR_FLAG(0);     //and clear any error flag which might have been set by the abort
+	    } else { //free mode, abort any joint
+		for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+		    /* point to joint struct */
+		    joint = &joints[joint_num];
+		    /* tell joint planner to stop */
+		    joint->free_tp_enable = 0;
+		    /* stop homing if in progress */
+		    if ( joint->home_state != HOME_IDLE ) {
+			joint->home_state = HOME_ABORT;
+		    }
+		}
+	    }
+	}
+    }
     /* read spindle angle (for threading, etc) */
     emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
     if ( emcmotStatus->adaptiveEnabled ) {
