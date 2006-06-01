@@ -1677,7 +1677,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_PROBE_TYPE:
-	retval = emcTrajProbe(((EMC_TRAJ_PROBE *) cmd)->pos);
+	retval = emcTrajProbe(
+	    ((EMC_TRAJ_PROBE *) cmd)->pos, 
+	    ((EMC_TRAJ_PROBE *) cmd)->type,
+	    ((EMC_TRAJ_PROBE *) cmd)->vel,
+            ((EMC_TRAJ_PROBE *) cmd)->ini_maxvel,  
+	    ((EMC_TRAJ_PROBE *) cmd)->acc);
 	break;
 
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:

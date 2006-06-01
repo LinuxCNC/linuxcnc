@@ -1197,13 +1197,17 @@ int emcTrajClearProbeTrippedFlag()
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajProbe(EmcPose pos)
+int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double acc)
 {
     emcmotCommand.command = EMCMOT_PROBE;
     emcmotCommand.pos.tran.x = pos.tran.x;
     emcmotCommand.pos.tran.y = pos.tran.y;
     emcmotCommand.pos.tran.z = pos.tran.z;
     emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.motion_type = type;
+    emcmotCommand.vel = vel;
+    emcmotCommand.ini_maxvel = ini_maxvel;
+    emcmotCommand.acc = acc;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }

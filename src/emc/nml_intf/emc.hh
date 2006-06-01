@@ -350,6 +350,7 @@ enum EMC_TRAJ_MODE_ENUM {
 #define EMC_MOTION_TYPE_FEED 2
 #define EMC_MOTION_TYPE_ARC 3
 #define EMC_MOTION_TYPE_TOOLCHANGE 4
+#define EMC_MOTION_TYPE_PROBING 5
 
 // --------------
 // EMC VOCABULARY
@@ -473,7 +474,8 @@ extern int emcTrajSetHome(EmcPose home);
 extern int emcTrajSetProbeIndex(int index);
 extern int emcTrajSetProbePolarity(int polarity);
 extern int emcTrajClearProbeTrippedFlag();
-extern int emcTrajProbe(EmcPose pos);
+extern int emcTrajProbe(EmcPose pos, int type, double vel, 
+	double ini_maxvel, double acc);
 
 class EMC_TRAJ_STAT;		// forward decl
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
@@ -1706,6 +1708,8 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     EmcPose pos;
+    int type;
+    double vel, ini_maxvel, acc;
 };
 
 // EMC_TRAJ status base class

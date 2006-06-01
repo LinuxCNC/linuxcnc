@@ -3040,6 +3040,10 @@ void EMC_TRAJ_PROBE::update(CMS * cms)
 
     EMC_TRAJ_CMD_MSG::update(cms);
     EmcPose_update(cms, &pos);
+    cms->update(type);
+    cms->update(vel);
+    cms->update(ini_maxvel);
+    cms->update(acc);
 
 }
 

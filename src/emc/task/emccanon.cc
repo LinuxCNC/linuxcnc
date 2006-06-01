@@ -566,6 +566,11 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
 
+/*
+  STRAIGHT_PROBE is exactly the same as STRAIGHT_FEED, except that it
+  uses a probe message instead of a linear move message.
+*/
+
 void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
 		    double c)
 {
@@ -614,11 +619,13 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
 	}
     }
 
-    sendVelMsg(vel, ini_maxvel);
+    acc = getStraightAcceleration(x, y, z, a, b, c);
 
-    if((acc = getStraightAcceleration(x, y, z, a, b, c)))
-        sendAccMsg(acc);
+    probeMsg.vel = toExtVel(vel);
+    probeMsg.ini_maxvel = toExtVel(ini_maxvel);
+    probeMsg.acc = toExtAcc(acc);
 
+    probeMsg.type = EMC_MOTION_TYPE_PROBING;
     interp_list.append(probeMsg);
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
@@ -977,10 +984,6 @@ void ARC_FEED(double first_end, double second_end,
     canonUpdateEndPoint(end.tran.x, end.tran.y, end.tran.z, a, b, c);
 }
 
-/*
-  STRAIGHT_PROBE is exactly the same as STRAIGHT_FEED, except that it
-  uses a probe message instead of a linear move message.
-*/
 
 void DWELL(double seconds)
 {
