@@ -422,6 +422,8 @@ obj-$(CONFIG_STEPGEN) += stepgen.o
 stepgen-objs := hal/components/stepgen.o $(MATHSTUB)
 obj-$(CONFIG_FREQGEN) += freqgen.o
 freqgen-objs := hal/components/freqgen.o $(MATHSTUB)
+obj-$(CONFIG_PWMGEN) += pwmgen.o
+pwmgen-objs := hal/components/pwmgen.o $(MATHSTUB)
 obj-$(CONFIG_SIGGEN) += siggen.o
 siggen-objs := hal/components/siggen.o $(MATHSTUB)
 obj-$(CONFIG_PID) += pid.o
@@ -526,6 +528,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/encoder_ratio.o: $(addprefix objects/rt,$(encoder_ratio-objs))
 ../rtlib/stepgen.o: $(addprefix objects/rt,$(stepgen-objs))
 ../rtlib/freqgen.o: $(addprefix objects/rt,$(freqgen-objs))
+../rtlib/pwmgen.o: $(addprefix objects/rt,$(pwmgen-objs))
 ../rtlib/siggen.o: $(addprefix objects/rt,$(siggen-objs))
 ../rtlib/pid.o: $(addprefix objects/rt,$(pid-objs))
 ../rtlib/threads.o: $(addprefix objects/rt,$(threads-objs))
