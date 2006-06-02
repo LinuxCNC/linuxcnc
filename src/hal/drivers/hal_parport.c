@@ -767,7 +767,6 @@ static int export_input_pin(int portnum, int pin, hal_bit_t ** base, int n)
 static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
     hal_bit_t * pbase, int n)
 {
-    char buf[HAL_NAME_LEN + 2];
     int retval;
 
     /* export read only HAL pin for output data */
