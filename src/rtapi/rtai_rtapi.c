@@ -1663,6 +1663,7 @@ unsigned char rtapi_inb(unsigned int port)
 EXPORT_SYMBOL(rtapi_init);
 EXPORT_SYMBOL(rtapi_exit);
 EXPORT_SYMBOL(rtapi_snprintf);
+EXPORT_SYMBOL(rtapi_vsnprintf);
 EXPORT_SYMBOL(rtapi_print);
 EXPORT_SYMBOL(rtapi_print_msg);
 EXPORT_SYMBOL(rtapi_set_msg_level);
