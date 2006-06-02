@@ -66,7 +66,7 @@
  */
 
 #include "motion.h"             /* these decls */
-#include <math.h>
+#include "rtapi_math.h"
 
 /* ident tag */
 #ifndef __GNUC__
@@ -237,7 +237,7 @@ int kinematicsHome(EmcPose * world,
 
 KINEMATICS_TYPE kinematicsType()
 {
-  return KINEMATICS_IDENTITY;
+  return KINEMATICS_BOTH;
 }
 
 int jacobianInverse(const EmcPose * pos,
