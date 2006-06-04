@@ -18,7 +18,9 @@ think of a better way.
 #include <unistd.h>
 
 /* module name, between last / and ., must be one of these */
-
+/* if one module name is a prefix of the other (e.g., "rtai" is a prefix to
+ * "rtai_math") then put the shorter name last.
+ */
 char *module_whitelist[] = {
     "rtai_math", "rtai_sem", "rtai_shm", "rtai_fifos", "rtai_up", 
     "rtai_hal", "rtai_sched", "rtai", "rt_mem_mgr", "adeos",
