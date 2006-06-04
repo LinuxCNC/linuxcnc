@@ -62,12 +62,19 @@
 static void init_display_window(void);
 static void clear_display_window(void);
 static void draw_grid(void);
+static void draw_baseline(int chan_num, int highlight);
 static void draw_waveform(int chan_num, int highlight);
 static void handle_window_expose(GtkWidget * widget, gpointer data);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
 ************************************************************************/
+
+#ifdef GTK_CHECK_VERSION
+#if GTK_CHECK_VERSION(2,0,0)
+#define DOUBLE_BUFFER
+#endif
+#endif
 
 void init_display(void)
 {
@@ -160,10 +167,30 @@ void refresh_display(void)
 	disp->end_sample = ctrl_shm->rec_len - 1;
     }
 
+#ifdef DOUBLE_BUFFER
+    {
+        GdkRectangle rect = {0, 0, disp->width, disp->height};
+        GdkRegion *region = gdk_region_rectangle(&rect);
+        gdk_window_begin_paint_region(disp->drawing->window, region);
+        gdk_region_destroy(region);
+    }
+#endif
     clear_display_window();
     draw_grid();
 
-    /* draw non-highlighted waveforms first */
+    /* draw baselines first */
+    for (n = 0; n < 16; n++) {
+	if ((vert->chan_enabled[n]) && (vert->data_offset[n] >= 0)
+	    && (n + 1 != vert->selected)) {
+	    draw_baseline(n + 1, FALSE);
+	}
+    }
+    if ((vert->chan_enabled[vert->selected - 1])
+            && (vert->data_offset[vert->selected - 1] >= 0)) {
+        draw_baseline(vert->selected, TRUE);
+    }
+
+    /* draw non-highlighted waveforms next */
     for (n = 0; n < 16; n++) {
 	if ((vert->chan_enabled[n]) && (vert->data_offset[n] >= 0)
 	    && (n + 1 != vert->selected)) {
@@ -175,6 +202,9 @@ void refresh_display(void)
 	&& (vert->data_offset[vert->selected - 1] >= 0)) {
 	draw_waveform(vert->selected, TRUE);
     }
+#ifdef DOUBLE_BUFFER
+    gdk_window_end_paint(disp->drawing->window);
+#endif
 }
 
 /***********************************************************************
@@ -206,9 +236,48 @@ static void free_color(GdkColor * color, GdkColormap * map)
 }
 #endif
 
+static int selected_colors[16][3] = {
+    {255, 0, 0},
+    {0, 255, 255},
+    {127, 255, 0},
+    {127, 0, 255},
+    {255, 191, 0},
+    {0, 255, 63},
+    {0, 63, 255},
+    {255, 0, 191},
+    {255, 95, 0},
+    {223, 255, 0},
+    {31, 255, 0},
+    {0, 255, 159},
+    {0, 159, 255},
+    {31, 0, 255},
+    {223, 0, 255},
+    {255, 0, 95},
+};
+
+static int normal_colors[16][3] = {
+    {191, 47, 47},
+    {47, 191, 191},
+    {119, 191, 47},
+    {119, 47, 191},
+    {191, 155, 47},
+    {47, 191, 83},
+    {47, 83, 191},
+    {191, 47, 155},
+    {191, 101, 47},
+    {173, 191, 47},
+    {65, 191, 47},
+    {47, 191, 137},
+    {47, 137, 191},
+    {65, 47, 191},
+    {173, 47, 191},
+    {191, 47, 101},
+};
+
 static void init_display_window(void)
 {
     scope_disp_t *disp;
+    int i;
 
     disp = &(ctrl_usr->disp);
 
@@ -226,8 +295,11 @@ static void init_display_window(void)
     /* allocate colors */
     alloc_color(&(disp->color_bg), disp->map, 0, 0, 0);
     alloc_color(&(disp->color_grid), disp->map, 255, 255, 255);
-    alloc_color(&(disp->color_normal), disp->map, 255, 0, 0);
-    alloc_color(&(disp->color_selected), disp->map, 0, 255, 0);
+    alloc_color(&disp->color_baseline, disp->map, 128, 128, 128);
+    for(i = 0; i<16; i++) {
+        alloc_color(&(disp->color_normal[i]), disp->map, normal_colors[i][0], normal_colors[i][1], normal_colors[i][2]);
+        alloc_color(&(disp->color_selected[i]), disp->map, selected_colors[i][0], selected_colors[i][1], selected_colors[i][2]);
+    }
 }
 
 static void handle_window_expose(GtkWidget * widget, gpointer data)
@@ -311,6 +383,21 @@ void draw_grid(void)
     }
 }
 
+void draw_baseline(int chan_num, int highlight) {
+    scope_disp_t *disp = &(ctrl_usr->disp);
+    scope_chan_t *chan = &(ctrl_usr->chan[chan_num - 1]);
+    double yfoffset = chan->vert_offset;
+    double ypoffset = chan->position * disp->height;
+    double yscale = disp->height / (-10.0 * chan->scale);
+    int y1 = -yfoffset * yscale + ypoffset;;
+    if(highlight) {
+        gdk_gc_set_foreground(disp->context, &(disp->color_grid));
+    } else {
+        gdk_gc_set_foreground(disp->context, &(disp->color_baseline));
+    }
+    gdk_draw_line(disp->win, disp->context, 0, y1, disp->width, y1);
+}
+
 /* waveform styles: if neither is defined, an intermediate style is used */
 // #define DRAW_STEPPED
 // #define DRAW_SMOOTH
@@ -328,12 +415,6 @@ void draw_waveform(int chan_num, int highlight)
 
     disp = &(ctrl_usr->disp);
     chan = &(ctrl_usr->chan[chan_num - 1]);
-    /* set color to draw */
-    if (highlight) {
-	gdk_gc_set_foreground(disp->context, &(disp->color_selected));
-    } else {
-	gdk_gc_set_foreground(disp->context, &(disp->color_normal));
-    }
     /* calculate a bunch of local vars */
     sample_len = ctrl_shm->sample_len;
     xscale = disp->pixels_per_sample;
@@ -351,6 +432,15 @@ void draw_waveform(int chan_num, int highlight)
     end = disp->end_sample;
     n = start;
     dptr += n * sample_len;
+
+
+    /* set color to draw */
+    if (highlight) {
+	gdk_gc_set_foreground(disp->context, &(disp->color_selected[chan_num-1]));
+    } else {
+	gdk_gc_set_foreground(disp->context, &(disp->color_normal[chan_num-1]));
+    }
+
     x1 = y1 = 0;
     while (n <= end) {
 	/* calc x coordinate of this point */

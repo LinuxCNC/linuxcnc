@@ -171,8 +171,9 @@ typedef struct {
     GdkColormap *map;		/* the colormap for the window */
     GdkColor color_bg;		/* background color */
     GdkColor color_grid;	/* the grid color */
-    GdkColor color_normal;	/* the color for normal waveforms */
-    GdkColor color_selected;	/* the color for selected waveforms */
+    GdkColor color_normal[16];	/* the color for normal waveforms */
+    GdkColor color_selected[16];	/* the color for selected waveforms */
+    GdkColor color_baseline;    /* The baseline color */
 
     GdkGC *context;		/* graphics context for drawing */
 } scope_disp_t;
