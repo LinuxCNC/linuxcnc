@@ -434,7 +434,6 @@ static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer dat
 static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data) {
     scope_vert_t *vert = &(ctrl_usr->vert);
     int z = select_trace(event->x, event->y);
-    printf("handle_click(%d %d) -> %d\n", (int)event->x, (int)event->y, z);
     if(z != -1 && z != vert->selected) {
         vert->selected = z;
         channel_changed();
@@ -531,8 +530,6 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
         gtk_tooltips_set_tip(disp->tip, disp->drawing, tip, tip);
         gtk_tooltips_enable(disp->tip);
         gtk_tooltips_force_window(disp->tip);
-//     } else {
-//        gtk_tooltips_disable(disp->tip);
     }
     return 1;
 }
