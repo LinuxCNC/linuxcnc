@@ -34,6 +34,7 @@
 #error This is a user mode component only!
 #endif
 
+#include <math.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -65,6 +66,7 @@ static void draw_grid(void);
 static void draw_baseline(int chan_num, int highlight);
 static void draw_waveform(int chan_num, int highlight);
 static void handle_window_expose(GtkWidget * widget, gpointer data);
+static void handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -75,6 +77,8 @@ static void handle_window_expose(GtkWidget * widget, gpointer data);
 #define DOUBLE_BUFFER
 #endif
 #endif
+
+static int DRAWING = 0;
 
 void init_display(void)
 {
@@ -175,6 +179,7 @@ void refresh_display(void)
         gdk_region_destroy(region);
     }
 #endif
+    DRAWING = 1;
     clear_display_window();
     draw_grid();
 
@@ -289,6 +294,10 @@ static void init_display_window(void)
     /* hook up a function to handle expose events */
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "expose_event",
 	GTK_SIGNAL_FUNC(handle_window_expose), NULL);
+    gtk_signal_connect(GTK_OBJECT(disp->drawing), "button_press_event",
+        GTK_SIGNAL_FUNC(handle_click), NULL);
+    gtk_widget_add_events(GTK_WIDGET(disp->drawing),
+            GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
     gtk_widget_show(disp->drawing);
     /* get color map */
     disp->map = gtk_widget_get_colormap(disp->drawing);
@@ -383,6 +392,76 @@ void draw_grid(void)
     }
 }
 
+static int select_x, select_y, target;
+static double min_dist;
+static int select_trace(int x, int y) {
+    int n;
+    scope_disp_t *disp = &(ctrl_usr->disp);
+
+    min_dist = hypot(disp->width, disp->height) / 100.;
+    if(min_dist < 5) min_dist = 5;
+    target = -1;
+
+    DRAWING = 0;
+    select_x = x;
+    select_y = y;
+    for(n=0; n<16; n++) {
+        scope_vert_t *vert = &(ctrl_usr->vert);
+        if((vert->chan_enabled[n]) && (vert->data_offset[n] >= 0)) {
+            draw_baseline(n+1, FALSE);
+            draw_waveform(n+1, FALSE);
+        }
+    }
+    return target;
+}
+
+static void handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data) {
+    scope_vert_t *vert = &(ctrl_usr->vert);
+    int z = select_trace(event->x, event->y);
+    printf("handle_click(%d %d) -> %d\n", (int)event->x, (int)event->y, z);
+    if(z != -1) {
+        vert->selected = z;
+        refresh_display();
+        return 1;
+    }
+    return 0;
+}
+
+struct pt { double x, y; };
+static double dot(struct pt *a, struct pt *b) {
+    return a->x * b->x + a->y * b->y;
+}
+
+static double mag(struct pt *p) {
+    return hypot(p->x, p->y);
+}
+
+static double distance_point_line(x, y, x1, y1, x2, y2) {
+    struct pt M = {x2-x1, x2-y1},
+           Q = {x-x1, y-y1},
+           R;
+
+    double t0 = dot(&M, &Q) / dot(&M, &M);
+    if(t0 < 0) t0 = 0;
+    if(t0 > 1) t0 = 1;
+    R.x = x - x1 + t0 * M.x;
+    R.y = y - y1 + t0 * M.y;
+    return mag(&R);
+}
+
+void line(int chan_num, int x1, int y1, int x2, int y2) {
+    scope_disp_t *disp = &(ctrl_usr->disp);
+    if(DRAWING) {
+        gdk_draw_line(disp->win, disp->context, x1, y1, x2, y2);
+    } else {
+        double dist = distance_point_line(select_x, select_y, x1, y1, x2, y2);
+        if(dist < min_dist) {
+            min_dist = dist;
+            target = chan_num;
+        }
+    }
+}
+
 void draw_baseline(int chan_num, int highlight) {
     scope_disp_t *disp = &(ctrl_usr->disp);
     scope_chan_t *chan = &(ctrl_usr->chan[chan_num - 1]);
@@ -395,7 +474,7 @@ void draw_baseline(int chan_num, int highlight) {
     } else {
         gdk_gc_set_foreground(disp->context, &(disp->color_baseline));
     }
-    gdk_draw_line(disp->win, disp->context, 0, y1, disp->width, y1);
+    line(chan_num, 0, y1, disp->width, y1);
 }
 
 /* waveform styles: if neither is defined, an intermediate style is used */
@@ -489,17 +568,17 @@ void draw_waveform(int chan_num, int highlight)
 	if (n > start) {
 #ifdef DRAW_SMOOTH
 	    /* this is a smoothed line display */
-	    gdk_draw_line(disp->win, disp->context, x1, y1, x2, y2);
+            line(chan_num, x1, y1, x2, y2);
 #else
 #ifdef DRAW_STEPPED
 	    /* this is a stepped one */
-	    gdk_draw_line(disp->win, disp->context, x1, y1, x1, y2);
-	    gdk_draw_line(disp->win, disp->context, x1, y2, x2, y2);
+            line(chan_num, x1, y1, x1, y2);
+            line(chan_num, x1, y2, x2, y2)
 #else
 	    /* this is halfway between the two extremes */
 	    midx = (x1 + x2) / 2;
-	    gdk_draw_line(disp->win, disp->context, x1, y1, midx, y2);
-	    gdk_draw_line(disp->win, disp->context, midx, y2, x2, y2);
+	    line(chan_num, x1, y1, midx, y2);
+	    line(chan_num, midx, y2, x2, y2);
 #endif
 #endif
 	}
