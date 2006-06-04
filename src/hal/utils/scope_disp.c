@@ -514,7 +514,7 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
     GdkModifierType mod;
     char tip[512];
 
-    gdk_window_get_pointer(GDK_WINDOW(widget->window), &x, &y, &mod);
+    gdk_window_get_pointer(widget->window, &x, &y, &mod);
     z = select_trace(x, y);
     if(z != -1) {
         scope_chan_t *chan = &(ctrl_usr->chan[z-1]);
