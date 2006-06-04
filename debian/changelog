@@ -1,3 +1,26 @@
+emc2 (1:2.0.1) unstable; urgency=low
+
+  * several fixes for blending of very short segments
+  * fix for occasional following error while decelerating after abort
+  * stop jogs a bit short of the soft limits to make sure they are never
+    reached
+  * fix to honor [TASK]CYCLE_TIME which was being ignored
+  * fix to remove spurious limit-exceeded warning when homing on a limit
+    switch
+  * double the size of the hal shared memory block for very complex hal
+    configurations like on the Mazak at CNC workshop
+  * fix some tmp file handling in classicladder
+  * now stepper systems recover correctly after following errors 
+    (previously turning the machine back on often caused another following
+    error)
+  * EMC now verifies that it has exclusive access to the parallel port.
+    This solves many possible problems including overnight cron jobs 
+    that interfere with the parallel port.  If it can't get exclusive
+    access, it will now correctly abort with an error.
+  * fix a tkemc blocky font that appeared on some X servers
+
+ -- Chris Radek <chris@timeguy.com>  Sun,  4 Jun 2006 14:46:38 -0500
+
 emc2 (1:2.0.0) unstable; urgency=low
 
   * fix tkemc's help
