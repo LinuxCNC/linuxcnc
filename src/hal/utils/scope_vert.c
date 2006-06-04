@@ -78,7 +78,6 @@ static void change_source_button(GtkWidget * widget, gpointer gdata);
 static void channel_off_button(GtkWidget * widget, gpointer gdata);
 static void offset_button(GtkWidget * widget, gpointer gdata);
 static gboolean dialog_set_offset(int chan_num);
-static void channel_changed(void);
 static void scale_changed(GtkAdjustment * adj, gpointer gdata);
 static void offset_changed(GtkEditable * editable, gchar * buf);
 static void offset_activated(GtkEditable * editable, gchar * button);
@@ -1123,7 +1122,7 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
     return;
 }    
     
-static void channel_changed(void)
+void channel_changed(void)
 {
     scope_vert_t *vert;
     scope_chan_t *chan;

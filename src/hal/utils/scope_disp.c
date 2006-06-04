@@ -66,7 +66,9 @@ static void draw_grid(void);
 static void draw_baseline(int chan_num, int highlight);
 static void draw_waveform(int chan_num, int highlight);
 static void handle_window_expose(GtkWidget * widget, gpointer data);
-static void handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data);
+static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data);
+static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer data);
+static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -294,10 +296,16 @@ static void init_display_window(void)
     /* hook up a function to handle expose events */
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "expose_event",
 	GTK_SIGNAL_FUNC(handle_window_expose), NULL);
+    gtk_signal_connect(GTK_OBJECT(disp->drawing), "button_release_event",
+        GTK_SIGNAL_FUNC(handle_release), NULL);
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "button_press_event",
         GTK_SIGNAL_FUNC(handle_click), NULL);
+    gtk_signal_connect(GTK_OBJECT(disp->drawing), "motion_notify_event",
+        GTK_SIGNAL_FUNC(handle_motion), NULL);
     gtk_widget_add_events(GTK_WIDGET(disp->drawing),
-            GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
+            GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
+            | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK
+            | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK );
     gtk_widget_show(disp->drawing);
     /* get color map */
     disp->map = gtk_widget_get_colormap(disp->drawing);
@@ -309,6 +317,10 @@ static void init_display_window(void)
         alloc_color(&(disp->color_normal[i]), disp->map, normal_colors[i][0], normal_colors[i][1], normal_colors[i][2]);
         alloc_color(&(disp->color_selected[i]), disp->map, selected_colors[i][0], selected_colors[i][1], selected_colors[i][2]);
     }
+
+    // Tips
+    disp->tip = gtk_tooltips_new();
+    gtk_tooltips_set_tip(disp->tip, disp->drawing, "Nothign to see here", "move aloong");
 }
 
 static void handle_window_expose(GtkWidget * widget, gpointer data)
@@ -415,16 +427,114 @@ static int select_trace(int x, int y) {
     return target;
 }
 
-static void handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data) {
+static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer data) {
+    return 1;
+}
+
+static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data) {
     scope_vert_t *vert = &(ctrl_usr->vert);
     int z = select_trace(event->x, event->y);
     printf("handle_click(%d %d) -> %d\n", (int)event->x, (int)event->y, z);
-    if(z != -1) {
+    if(z != -1 && z != vert->selected) {
         vert->selected = z;
-        refresh_display();
-        return 1;
+        channel_changed();
     }
-    return 0;
+    return 1;
+}
+
+static int get_sample_info(int chan_num, int x, double *t, double *v) {
+    scope_horiz_t *horiz = &(ctrl_usr->horiz);
+    scope_data_t *dptr;
+    int start, end, n, sample_len;
+    scope_disp_t *disp;
+    scope_chan_t *chan;
+    double xscale, xoffset;
+    double fy;
+    hal_type_t type;
+
+    disp = &(ctrl_usr->disp);
+    chan = &(ctrl_usr->chan[chan_num - 1]);
+    /* calculate a bunch of local vars */
+    sample_len = ctrl_shm->sample_len;
+    xscale = disp->pixels_per_sample;
+    xoffset = disp->horiz_offset;
+    type = chan->data_type;
+    /* point to first sample in the record for this channel */
+    dptr = ctrl_usr->disp_buf + ctrl_usr->vert.data_offset[chan_num - 1];
+    /* point to first one that gets displayed */
+    start = disp->start_sample;
+    end = disp->end_sample;
+
+    n = (x + xoffset + xscale/2) / xscale;
+    *t = (n - ctrl_shm->pre_trig) / horiz->sample_period;
+    if(n < 0 || n > ctrl_shm->rec_len) return 0;
+    dptr += n * sample_len;
+
+    switch (type) {
+    case HAL_BIT:
+        if (dptr->d_u8) {
+            fy = 1.0;
+        } else {
+            fy = 0.0;
+        };
+        break;
+    case HAL_FLOAT:
+        fy = dptr->d_float;
+        break;
+    case HAL_S8:
+        fy = dptr->d_s8;
+        break;
+    case HAL_U8:
+        fy = dptr->d_u8;
+        break;
+    case HAL_S16:
+        fy = dptr->d_s16;
+        break;
+    case HAL_U16:
+        fy = dptr->d_u16;
+        break;
+    case HAL_S32:
+        fy = dptr->d_s32;
+        break;
+    case HAL_U32:
+        fy = dptr->d_u32;
+        break;
+    default:
+        fy = 0.0;
+        break;
+    }
+    *v = fy;
+    return 1;
+
+}
+
+static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data) {
+    scope_disp_t *disp = &(ctrl_usr->disp);
+    int x, y, z;
+    GdkModifierType mod;
+    char tip[512];
+
+    gdk_window_get_pointer(GDK_WINDOW(widget->window), &x, &y, &mod);
+    z = select_trace(x, y);
+    if(z != -1) {
+        scope_chan_t *chan = &(ctrl_usr->chan[z-1]);
+        double t, v;
+        int result = get_sample_info(z, x, &t, &v);
+        t = t * 1e-6;
+        if(result) { 
+            snprintf(tip, sizeof(tip),
+                    "Signal %-20s\nt=%-8.5f v=%-8.3f", chan->name, t, v);
+        } else { 
+            snprintf(tip, sizeof(tip),
+                    "Signal %-20s\nt=%-8.5f v=(no data)", chan->name, t);
+        }
+        gtk_tooltips_set_tip(disp->tip, disp->drawing, tip, tip);
+        gtk_tooltips_enable(disp->tip);
+        gtk_tooltips_force_window(disp->tip);
+//     } else {
+//        gtk_tooltips_disable(disp->tip);
+    }
+    return 1;
 }
 
 struct pt { double x, y; };

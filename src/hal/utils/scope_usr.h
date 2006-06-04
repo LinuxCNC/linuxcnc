@@ -166,6 +166,7 @@ typedef struct {
     int end_sample;		/* last displayable sample */
     /* widgets */
     GtkWidget *drawing;		/* drawing area for display */
+    GtkTooltips *tip;		/* drawing area for display */
     /* drawing objects (GDK) */
     GdkDrawable *win;		/* the window */
     GdkColormap *map;		/* the colormap for the window */
@@ -254,6 +255,8 @@ void refresh_display(void);
 void refresh_trigger(void);
 void invalidate_channel(int chan);
 void invalidate_all_channels(void);
+void channel_changed(void);
+
 
 void format_signal_value(char *buf, int buflen, float value);
 
