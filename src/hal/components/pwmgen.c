@@ -281,9 +281,9 @@ static void make_pulses(void *arg, long period)
 	case PWM_DITHER:
 	    if ( pwmgen->curr_output ) {
 		/* current state is high, update cumlative high time */
-		pwmgen->high_timer += periodns;
+		pwmgen->high_timer -= periodns;
 		/* have we been high long enough? */
-		if ( pwmgen->high_timer >= pwmgen->high_time ) {
+		if ( pwmgen->high_timer <= 0 ) {
 		    /* yes, terminate the high time */
 		    pwmgen->curr_output = 0;
 		}
@@ -295,9 +295,9 @@ static void make_pulses(void *arg, long period)
 		/* update both timers, retain remainder from last period */
 		/* this allows dithering for finer resolution */
 		pwmgen->period_timer -= pwmgen->period;
-		pwmgen->high_timer -= pwmgen->high_time;
+		pwmgen->high_timer += pwmgen->high_time;
 		/* start the next period */
-		if ( pwmgen->high_timer < pwmgen->high_time ) {
+		if ( pwmgen->high_timer > 0 ) {
 		    pwmgen->curr_output = 1;
 		}
 	    }
