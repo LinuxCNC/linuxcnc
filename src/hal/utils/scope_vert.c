@@ -83,7 +83,6 @@ static void offset_changed(GtkEditable * editable, gchar * buf);
 static void offset_activated(GtkEditable * editable, gchar * button);
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
 static void chan_sel_button(GtkWidget * widget, gpointer gdata);
-static void log_prefs_button_clicked(GtkWidget * widget, gpointer gdata);
 
 /* helper functions */
 static void format_scale_value(char *buf, int buflen, float value);
@@ -538,7 +537,6 @@ static void init_chan_sel_window(void)
     scope_vert_t *vert;
     GtkWidget *button;
     GtkWidget *label;
-    GtkStyle *style;
     GdkColor c;
     gint n;
     gchar buf[5];
@@ -550,22 +548,27 @@ static void init_chan_sel_window(void)
 	button = gtk_toggle_button_new_with_label(buf);
 	label = gtk_bin_get_child(GTK_BIN(button));
 
-
+#ifdef GTK_CHECK_VERSION
+#if GTK_CHECK_VERSION(2,0,0)
+	/* set up colors of the label */
 	set_color(&c, normal_colors[n][0],
 			normal_colors[n][1], normal_colors[n][2]);
 	gtk_widget_modify_bg(button, GTK_STATE_ACTIVE, &c);
 	gtk_widget_modify_bg(button, GTK_STATE_SELECTED, &c);
 	gtk_widget_modify_bg(button, GTK_STATE_NORMAL, &c);
-	style->bg[GTK_STATE_ACTIVE] = style->bg[GTK_STATE_NORMAL];
-	style->bg[GTK_STATE_SELECTED] = style->bg[GTK_STATE_NORMAL];
+
 	set_color(&c, selected_colors[n][0],
 			selected_colors[n][1], selected_colors[n][2]);
 	gtk_widget_modify_bg(button, GTK_STATE_PRELIGHT, &c);
+
 	set_color(&c, 0, 0, 0);
 	gtk_widget_modify_fg(button, GTK_STATE_ACTIVE, &c);
 	gtk_widget_modify_fg(button, GTK_STATE_SELECTED, &c);
 	gtk_widget_modify_fg(button, GTK_STATE_NORMAL, &c);
 	gtk_widget_modify_fg(button, GTK_STATE_PRELIGHT, &c);
+#endif
+#endif
+
 	/* put it in the window */
 	gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,
 	    TRUE, 0);
@@ -581,7 +584,6 @@ static void init_chan_sel_window(void)
 static void init_chan_info_window(void)
 {
     scope_vert_t *vert;
-    scope_log_t *log;
 
     vert = &(ctrl_usr->vert);
 
@@ -606,24 +608,6 @@ static void init_chan_info_window(void)
     gtk_widget_show(vert->source_name_button);
 
 
-	log=&(ctrl_usr->log);
-
-	/* a button to save logs  */
-	//doesnt really belong here but no room otherwise
-    log->log_prefs_button = gtk_button_new_with_label("Logging");
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_info_win),
-	log->log_prefs_button, FALSE, FALSE, 3);
-
-    log->log_prefs_label = (GTK_BIN(log->log_prefs_button))->child;
-    gtk_label_set_justify(GTK_LABEL(log->log_prefs_label),
-	GTK_JUSTIFY_RIGHT);
-    gtk_label_size_to_fit(GTK_LABEL(log->log_prefs_label),
-	"Logging");
-    /* activate the source selection dialog if button is clicked */
-    gtk_signal_connect(GTK_OBJECT(log->log_prefs_button), "clicked",
-	GTK_SIGNAL_FUNC(log_prefs_button_clicked), NULL);
-    gtk_widget_show(log->log_prefs_button);
-	
     vert->readout_label = gtk_label_new_in_box("",
 		    ctrl_usr->chan_info_win, TRUE, TRUE, 0);
     gtk_label_set_justify(GTK_LABEL(vert->readout_label), GTK_JUSTIFY_LEFT);
@@ -827,12 +811,6 @@ static void offset_activated(GtkEditable * editable, gchar * button)
     gtk_button_clicked(GTK_BUTTON(button));
 }
 
-
-static void log_prefs_button_clicked(GtkWidget * widget, gpointer gdata)
-{
-    printf("Sorry, logging is not finished yet\n");
-   
-}
 
 static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 {
