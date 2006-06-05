@@ -120,6 +120,7 @@ typedef struct {
     GtkObject *pos_adj;
     GtkWidget *offset_button;
     GtkWidget *offset_label;
+    GtkWidget *readout_label;
     /* widgets for offset dialog */
     GtkWidget *offset_entry;
     /* widgets for source selection dialog */

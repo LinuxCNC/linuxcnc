@@ -77,6 +77,7 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
 #ifdef GTK_CHECK_VERSION
 #if GTK_CHECK_VERSION(2,0,0)
 #define DOUBLE_BUFFER
+#define MARKUP
 #endif
 #endif
 
@@ -218,7 +219,7 @@ void refresh_display(void)
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
 
-static gboolean alloc_color(GdkColor * color, GdkColormap * map,
+gboolean alloc_color(GdkColor * color, GdkColormap * map,
     unsigned char red, unsigned char green, unsigned char blue)
 {
     int retval;
@@ -243,43 +244,65 @@ static void free_color(GdkColor * color, GdkColormap * map)
 }
 #endif
 
-static int selected_colors[16][3] = {
-    {255, 0, 0},
-    {0, 255, 255},
-    {127, 255, 0},
-    {127, 0, 255},
-    {255, 191, 0},
-    {0, 255, 63},
-    {0, 63, 255},
-    {255, 0, 191},
-    {255, 95, 0},
-    {223, 255, 0},
-    {31, 255, 0},
-    {0, 255, 159},
-    {0, 159, 255},
-    {31, 0, 255},
-    {223, 0, 255},
-    {255, 0, 95},
+int selected_colors[16][3] = {
+	{255, 204, 204},
+	{204, 255, 255},
+	{229, 255, 204},
+	{229, 204, 255},
+	{255, 242, 204},
+	{204, 255, 216},
+	{204, 216, 255},
+	{255, 204, 242},
+	{255, 223, 204},
+	{248, 255, 204},
+	{210, 255, 204},
+	{204, 255, 235},
+	{204, 235, 255},
+	{210, 204, 255},
+	{248, 204, 255},
+	{255, 204, 223},
+};
+#endif
+
+int normal_colors[16][3] = {
+	{204,   0,   0},
+	{  0, 204, 204},
+	{102, 204,   0},
+	{102,   0, 204},
+	{204, 153,   0},
+	{  0, 204,  51},
+	{  0,  51, 204},
+	{204,   0, 153},
+	{153,  95,  61},
+	{141, 153,  61},
+	{ 72, 153,  61},
+	{ 61, 153, 118},
+	{ 61, 118, 153},
+	{ 72,  61, 153},
+	{141,  61, 153},
+	{153,  61,  95},
 };
 
-static int normal_colors[16][3] = {
-    {191, 47, 47},
-    {47, 191, 191},
-    {119, 191, 47},
-    {119, 47, 191},
-    {191, 155, 47},
-    {47, 191, 83},
-    {47, 83, 191},
-    {191, 47, 155},
-    {191, 101, 47},
-    {173, 191, 47},
-    {65, 191, 47},
-    {47, 191, 137},
-    {47, 137, 191},
-    {65, 47, 191},
-    {173, 47, 191},
-    {191, 47, 101},
+int selected_colors[16][3] = {
+	{255, 204, 204},
+	{204, 255, 255},
+	{229, 255, 204},
+	{229, 204, 255},
+	{255, 242, 204},
+	{204, 255, 216},
+	{204, 216, 255},
+	{255, 204, 242},
+	{229, 186, 160},
+	{220, 229, 160},
+	{169, 229, 160},
+	{160, 229, 203},
+	{160, 203, 229},
+	{169, 160, 229},
+	{220, 160, 229},
+	{229, 160, 186},
 };
+
+
 
 static void init_display_window(void)
 {
@@ -318,9 +341,6 @@ static void init_display_window(void)
         alloc_color(&(disp->color_selected[i]), disp->map, selected_colors[i][0], selected_colors[i][1], selected_colors[i][2]);
     }
 
-    // Tips
-    disp->tip = gtk_tooltips_new();
-    gtk_tooltips_set_tip(disp->tip, disp->drawing, "Nothign to see here", "move aloong");
 }
 
 static void handle_window_expose(GtkWidget * widget, gpointer data)
@@ -443,6 +463,7 @@ static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data)
 
 static int get_sample_info(int chan_num, int x, double *t, double *v) {
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
+    scope_vert_t *vert = &(ctrl_usr->vert);
     scope_data_t *dptr;
     int start, end, n, sample_len;
     scope_disp_t *disp;
@@ -466,6 +487,11 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
 
     n = (x + xoffset + xscale/2) / xscale;
     *t = (n - ctrl_shm->pre_trig) / horiz->sample_period;
+
+    if(!vert->chan_enabled[chan_num - 1]
+		    || vert->data_offset[chan_num - 1] < 0) {
+	    return -1;
+    }
     if(n < 0 || n > ctrl_shm->rec_len) return 0;
     dptr += n * sample_len;
 
@@ -508,29 +534,36 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
 }
 
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data) {
-    scope_disp_t *disp = &(ctrl_usr->disp);
+    scope_vert_t *vert = &(ctrl_usr->vert);
     int x, y, z;
     GdkModifierType mod;
     char tip[512];
+#ifdef MARKUP
+    char tip2[sizeof(tip) + 10];
+#endif
 
     gdk_window_get_pointer(widget->window, &x, &y, &mod);
-    z = select_trace(x, y);
+    z = vert->selected;
     if(z != -1) {
-        scope_chan_t *chan = &(ctrl_usr->chan[z-1]);
         double t, v;
         int result = get_sample_info(z, x, &t, &v);
         t = t * 1e-6;
         if(result) { 
             snprintf(tip, sizeof(tip),
-                    "Signal %-20s\nt=%-8.5f v=%-8.3f", chan->name, t, v);
+                    "f(% 8.5f) = % 8.3f", t, v);
         } else { 
-            snprintf(tip, sizeof(tip),
-                    "Signal %-20s\nt=%-8.5f v=(no data)", chan->name, t);
+	    strcpy(tip, "");
         }
-        gtk_tooltips_set_tip(disp->tip, disp->drawing, tip, tip);
-        gtk_tooltips_enable(disp->tip);
-        gtk_tooltips_force_window(disp->tip);
+
+    } else {
+    strcpy(tip, "");
     }
+#ifdef MARKUP
+    snprintf(tip2, sizeof(tip2), "<tt>%s</tt>", tip);
+    gtk_label_set_markup(GTK_LABEL(vert->readout_label), tip2);
+#else
+    gtk_label_set_text(vert->readout_label, tip);
+#endif
     return 1;
 }
 

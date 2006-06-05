@@ -522,10 +522,24 @@ void write_vert_config(FILE *fp)
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
 
+void set_color(GdkColor *color, unsigned char red,
+		unsigned char green, unsigned char blue) {
+    color->red = ((unsigned long) red) << 8;
+    color->green = ((unsigned long) green) << 8;
+    color->blue = ((unsigned long) blue) << 8;
+    color->pixel =
+	((unsigned long) red) << 16 | ((unsigned long) green) << 8 |
+	((unsigned long) blue);
+}
+
+extern int normal_colors[16][3], selected_colors[16][3];
 static void init_chan_sel_window(void)
 {
     scope_vert_t *vert;
     GtkWidget *button;
+    GtkWidget *label;
+    GtkStyle *style;
+    GdkColor c;
     gint n;
     gchar buf[5];
 
@@ -534,6 +548,24 @@ static void init_chan_sel_window(void)
 	snprintf(buf, 4, "%d", n + 1);
 	/* define the button */
 	button = gtk_toggle_button_new_with_label(buf);
+	label = gtk_bin_get_child(GTK_BIN(button));
+
+
+	set_color(&c, normal_colors[n][0],
+			normal_colors[n][1], normal_colors[n][2]);
+	gtk_widget_modify_bg(button, GTK_STATE_ACTIVE, &c);
+	gtk_widget_modify_bg(button, GTK_STATE_SELECTED, &c);
+	gtk_widget_modify_bg(button, GTK_STATE_NORMAL, &c);
+	style->bg[GTK_STATE_ACTIVE] = style->bg[GTK_STATE_NORMAL];
+	style->bg[GTK_STATE_SELECTED] = style->bg[GTK_STATE_NORMAL];
+	set_color(&c, selected_colors[n][0],
+			selected_colors[n][1], selected_colors[n][2]);
+	gtk_widget_modify_bg(button, GTK_STATE_PRELIGHT, &c);
+	set_color(&c, 0, 0, 0);
+	gtk_widget_modify_fg(button, GTK_STATE_ACTIVE, &c);
+	gtk_widget_modify_fg(button, GTK_STATE_SELECTED, &c);
+	gtk_widget_modify_fg(button, GTK_STATE_NORMAL, &c);
+	gtk_widget_modify_fg(button, GTK_STATE_PRELIGHT, &c);
 	/* put it in the window */
 	gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,
 	    TRUE, 0);
@@ -592,6 +624,11 @@ static void init_chan_info_window(void)
 	GTK_SIGNAL_FUNC(log_prefs_button_clicked), NULL);
     gtk_widget_show(log->log_prefs_button);
 	
+    vert->readout_label = gtk_label_new_in_box("",
+		    ctrl_usr->chan_info_win, TRUE, TRUE, 0);
+    gtk_label_set_justify(GTK_LABEL(vert->readout_label), GTK_JUSTIFY_LEFT);
+    gtk_label_size_to_fit(GTK_LABEL(vert->readout_label),
+		    "f(99999.9999) = 99999.9999");
 }
 
 static void init_vert_info_window(void)
