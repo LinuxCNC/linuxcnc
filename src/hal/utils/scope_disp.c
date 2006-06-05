@@ -121,7 +121,7 @@ void request_display_refresh(int delay)
     if (delay < 1) {
 	delay = 1;
     }
-    /* request a refresh after 0.2 seconds of idleness */
+    /* request a refresh after approximately delay/10 seconds of idleness */
     ctrl_usr->display_refresh_timer = delay;
 }
 
@@ -521,21 +521,26 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data) {
     scope_vert_t *vert = &(ctrl_usr->vert);
     scope_disp_t *disp = &(ctrl_usr->disp);
-    int x, y, z;
     GdkModifierType mod;
     char tip[512];
+    GdkRectangle r = {vert->readout_label->allocation.x,
+            vert->readout_label->allocation.y,
+            vert->readout_label->allocation.width,
+            vert->readout_label->allocation.height};
 #ifdef MARKUP
     char tip2[sizeof(tip) + 10];
 #endif
 
-    if(event)
-	    gdk_window_get_pointer(disp->drawing->window, &x, &y, &mod);
-    else
-	    motion_x = x;
-    z = vert->selected;
-    if(z != -1) {
+    if(event) {
+            int y;
+	    gdk_window_get_pointer(disp->drawing->window, &motion_x, &y, &mod);
+            refresh_display();
+            return;
+    }
+
+    if(vert->selected != -1) {
         double t, v;
-        int result = get_sample_info(z, x, &t, &v);
+        int result = get_sample_info(vert->selected, motion_x, &t, &v);
         t = t * 1e-6;
         if(result) { 
             snprintf(tip, sizeof(tip),
@@ -545,8 +550,9 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
         }
 
     } else {
-    strcpy(tip, "");
+            strcpy(tip, "");
     }
+
 #ifdef MARKUP
     snprintf(tip2, sizeof(tip2), "<tt>%s</tt>", tip);
     gtk_label_set_markup(GTK_LABEL(vert->readout_label), tip2);
@@ -554,9 +560,7 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
     gtk_label_set_text(vert->readout_label, tip);
 #endif
 
-    motion_x = x;
-
-    if(event) refresh_display();
+    gtk_widget_draw(vert->readout_label, &r);
 
     return 1;
 }
@@ -716,7 +720,7 @@ void draw_waveform(int chan_num, int highlight)
 	    line(chan_num, midx, y2, x2, y2);
 #endif
 #endif
-	    if(first && highlight && DRAWING && x2 == motion_x) {
+	    if(first && highlight && DRAWING && x2 >= motion_x) {
 		    first = 0;
 		    gdk_draw_arc(disp->win, disp->context, TRUE,
 				x2-3, y2-3, 7, 7, 0, 360*64);
@@ -730,3 +734,5 @@ void draw_waveform(int chan_num, int highlight)
 	n++;
     }
 }
+
+// vim:sts=4:sw=4:et
