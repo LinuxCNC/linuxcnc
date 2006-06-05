@@ -125,6 +125,8 @@ void request_display_refresh(int delay)
     ctrl_usr->display_refresh_timer = delay;
 }
 
+static int motion_x = -1;
+
 void refresh_display(void)
 {
     int n;
@@ -210,6 +212,9 @@ void refresh_display(void)
 	&& (vert->data_offset[vert->selected - 1] >= 0)) {
 	draw_waveform(vert->selected, TRUE);
     }
+
+    handle_motion(NULL, NULL, 0);
+
 #ifdef DOUBLE_BUFFER
     gdk_window_end_paint(disp->drawing->window);
 #endif
@@ -515,6 +520,7 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
 
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data) {
     scope_vert_t *vert = &(ctrl_usr->vert);
+    scope_disp_t *disp = &(ctrl_usr->disp);
     int x, y, z;
     GdkModifierType mod;
     char tip[512];
@@ -522,7 +528,10 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
     char tip2[sizeof(tip) + 10];
 #endif
 
-    gdk_window_get_pointer(widget->window, &x, &y, &mod);
+    if(event)
+	    gdk_window_get_pointer(disp->drawing->window, &x, &y, &mod);
+    else
+	    motion_x = x;
     z = vert->selected;
     if(z != -1) {
         double t, v;
@@ -544,6 +553,11 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
 #else
     gtk_label_set_text(vert->readout_label, tip);
 #endif
+
+    motion_x = x;
+
+    if(event) refresh_display();
+
     return 1;
 }
 
@@ -611,6 +625,7 @@ void draw_waveform(int chan_num, int highlight)
     double yscale, yfoffset, ypoffset, fy;
     hal_type_t type;
     int x1, y1, x2, y2, miny, maxy, midx;
+    int first=1;
 
     disp = &(ctrl_usr->disp);
     chan = &(ctrl_usr->chan[chan_num - 1]);
@@ -701,6 +716,11 @@ void draw_waveform(int chan_num, int highlight)
 	    line(chan_num, midx, y2, x2, y2);
 #endif
 #endif
+	    if(first && highlight && DRAWING && x2 == motion_x) {
+		    first = 0;
+		    gdk_draw_arc(disp->win, disp->context, TRUE,
+				x2-3, y2-3, 7, 7, 0, 360*64);
+	    }
 	}
 	/* end of this segment is start of next one */
 	x1 = x2;
