@@ -546,10 +546,10 @@ static void init_chan_sel_window(void)
 	snprintf(buf, 4, "%d", n + 1);
 	/* define the button */
 	button = gtk_toggle_button_new_with_label(buf);
-	label = gtk_bin_get_child(GTK_BIN(button));
 
 #ifdef GTK_CHECK_VERSION
 #if GTK_CHECK_VERSION(2,0,0)
+	label = gtk_bin_get_child(GTK_BIN(button));
 	/* set up colors of the label */
 	set_color(&c, normal_colors[n][0],
 			normal_colors[n][1], normal_colors[n][2]);
