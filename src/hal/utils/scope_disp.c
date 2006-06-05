@@ -62,6 +62,7 @@
 
 static void init_display_window(void);
 static void clear_display_window(void);
+static void update_readout(void);
 static void draw_grid(void);
 static void draw_baseline(int chan_num, int highlight);
 static void draw_waveform(int chan_num, int highlight);
@@ -69,6 +70,7 @@ static void handle_window_expose(GtkWidget * widget, gpointer data);
 static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data);
+static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -213,7 +215,7 @@ void refresh_display(void)
 	draw_waveform(vert->selected, TRUE);
     }
 
-    handle_motion(NULL, NULL, 0);
+    update_readout();
 
 #ifdef DOUBLE_BUFFER
     gdk_window_end_paint(disp->drawing->window);
@@ -310,10 +312,13 @@ static void init_display_window(void)
         GTK_SIGNAL_FUNC(handle_click), NULL);
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "motion_notify_event",
         GTK_SIGNAL_FUNC(handle_motion), NULL);
+    gtk_signal_connect(GTK_OBJECT(disp->drawing), "scroll_event",
+                GTK_SIGNAL_FUNC(handle_scroll), NULL);
     gtk_widget_add_events(GTK_WIDGET(disp->drawing),
             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
             | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK
-            | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK );
+            | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
+            | GDK_SCROLL_MASK | GDK_BUTTON2_MOTION_MASK);
     gtk_widget_show(disp->drawing);
     /* get color map */
     disp->map = gtk_widget_get_colormap(disp->drawing);
@@ -518,10 +523,44 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
 
 }
 
+static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data) {
+    scope_horiz_t *horiz = &(ctrl_usr->horiz);
+    printf("scroll: %d\n", event->direction);
+    set_horiz_zoom(horiz->zoom_setting + (event->direction ? 1 : -1));
+    return TRUE;
+}
+
+static void drag(int dx) {
+    scope_disp_t *disp = &(ctrl_usr->disp);
+    scope_horiz_t *horiz = &(ctrl_usr->horiz);
+    float dt = (dx / disp->pixels_per_sample) / ctrl_shm->rec_len;
+    printf("D: %d %f\n", dx, dt);
+    printf("\t%f\n", horiz->pos_setting);
+    set_horiz_pos(horiz->pos_setting + 5 * dt);
+    refresh_display();
+}
+
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data) {
-    scope_vert_t *vert = &(ctrl_usr->vert);
     scope_disp_t *disp = &(ctrl_usr->disp);
     GdkModifierType mod;
+
+    if(event) {
+            int x, y;
+	    gdk_window_get_pointer(disp->drawing->window, &x, &y, &mod);
+            if(mod & GDK_BUTTON2_MASK) {
+                drag(motion_x - x);
+                motion_x = x;
+                return TRUE;
+            }
+            motion_x = x;
+            refresh_display();
+            return TRUE;
+    }
+    return TRUE;
+}
+
+static void update_readout(void) {
+    scope_vert_t *vert = &(ctrl_usr->vert);
     char tip[512];
     GdkRectangle r = {vert->readout_label->allocation.x,
             vert->readout_label->allocation.y,
@@ -530,14 +569,6 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
 #ifdef MARKUP
     char tip2[sizeof(tip) + 10];
 #endif
-
-    if(event) {
-            int y;
-	    gdk_window_get_pointer(disp->drawing->window, &motion_x, &y, &mod);
-            refresh_display();
-            return;
-    }
-
     if(vert->selected != -1) {
         double t, v;
         int result = get_sample_info(vert->selected, motion_x, &t, &v);
@@ -562,7 +593,6 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
 
     gtk_widget_draw(vert->readout_label, &r);
 
-    return 1;
 }
 
 struct pt { double x, y; };
