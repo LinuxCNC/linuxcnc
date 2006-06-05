@@ -12,3 +12,6 @@ done
 
 # tell udev to read our rules
 [ -x /etc/init.d/udev ] && /etc/init.d/udev restart
+
+# release the parallel port
+rmmod -s lp parport_pc || true

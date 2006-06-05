@@ -80,6 +80,7 @@ etc/X11/app-defaults/TkEmc
 usr/share/applications/emc2.desktop
 usr/share/pixmaps/emc2icon.png
 etc/udev/rules.d/emc2.rules
+etc/modprobe.d/emc2
 usr/local/etc/emc2/configs
 usr/lib/librs274.so
 usr/share/man/man1/halcmd.1
