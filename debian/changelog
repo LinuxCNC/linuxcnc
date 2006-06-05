@@ -10,16 +10,18 @@ emc2 (1:2.0.1) unstable; urgency=low
   * double the size of the hal shared memory block for very complex hal
     configurations like on the Mazak at CNC workshop
   * fix some tmp file handling in classicladder
-  * now stepper systems recover correctly after following errors 
+  * now stepper systems recover correctly after following errors
     (previously turning the machine back on often caused another following
     error)
-  * EMC now verifies that it has exclusive access to the parallel port.
-    This solves many possible problems including overnight cron jobs 
-    that interfere with the parallel port.  If it can't get exclusive
-    access, it will now correctly abort with an error.
   * fix a tkemc blocky font that appeared on some X servers
+  * EMC now verifies that it has exclusive access to the parallel port.
+    This solves many possible problems including overnight cron jobs
+    that interfere with the parallel port.  If EMC can't get exclusive
+    access, it will now correctly abort with an error.  THE 2.0.1 PACKAGE
+    ALSO DISABLES THE parport_pc KERNEL MODULE, BY ADDING A FILE
+    IN /etc/modprobe.d/.  THIS WILL DISABLE PARALLEL PORT PRINTERS.
 
- -- Chris Radek <chris@timeguy.com>  Sun,  4 Jun 2006 14:46:38 -0500
+ -- Chris Radek <chris@timeguy.com>  Sun,  4 Jun 2006 19:37:05 -0500
 
 emc2 (1:2.0.0) unstable; urgency=low
 
