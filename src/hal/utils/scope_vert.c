@@ -555,7 +555,6 @@ static void init_chan_sel_window(void)
 			normal_colors[n][1], normal_colors[n][2]);
 	gtk_widget_modify_bg(button, GTK_STATE_ACTIVE, &c);
 	gtk_widget_modify_bg(button, GTK_STATE_SELECTED, &c);
-	gtk_widget_modify_bg(button, GTK_STATE_NORMAL, &c);
 
 	set_color(&c, selected_colors[n][0],
 			selected_colors[n][1], selected_colors[n][2]);
@@ -564,7 +563,6 @@ static void init_chan_sel_window(void)
 	set_color(&c, 0, 0, 0);
 	gtk_widget_modify_fg(button, GTK_STATE_ACTIVE, &c);
 	gtk_widget_modify_fg(button, GTK_STATE_SELECTED, &c);
-	gtk_widget_modify_fg(button, GTK_STATE_NORMAL, &c);
 	gtk_widget_modify_fg(button, GTK_STATE_PRELIGHT, &c);
 #endif
 #endif
@@ -609,7 +607,8 @@ static void init_chan_info_window(void)
 
 
     vert->readout_label = gtk_label_new_in_box("",
-		    ctrl_usr->chan_info_win, TRUE, TRUE, 0);
+		    ctrl_usr->chan_info_win, FALSE, FALSE, 0);
+    gtk_misc_set_alignment(GTK_MISC(vert->readout_label), 0, 0);
     gtk_label_set_justify(GTK_LABEL(vert->readout_label), GTK_JUSTIFY_LEFT);
     gtk_label_size_to_fit(GTK_LABEL(vert->readout_label),
 		    "f(99999.9999) = 99999.9999");
