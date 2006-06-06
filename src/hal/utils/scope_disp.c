@@ -526,7 +526,7 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
 static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data) {
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
     printf("scroll: %d\n", event->direction);
-    set_horiz_zoom(horiz->zoom_setting + (event->direction ? 1 : -1));
+    set_horiz_zoom(horiz->zoom_setting + (event->direction ? -1 : 1));
     return TRUE;
 }
 
