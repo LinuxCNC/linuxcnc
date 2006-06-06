@@ -449,10 +449,17 @@ static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer dat
 
 static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data) {
     scope_vert_t *vert = &(ctrl_usr->vert);
-    int z = select_trace(event->x, event->y);
-    if(z != -1 && z != vert->selected) {
-        vert->selected = z;
-        channel_changed();
+    scope_horiz_t *horiz = &(ctrl_usr->horiz);
+    if(event->button == 4) { // zoom in
+        set_horiz_zoom(horiz->zoom_setting + 1);
+    } else if(event->button == 5) { // zoom out
+        set_horiz_zoom(horiz->zoom_setting - 1);
+    } else {
+        int z = select_trace(event->x, event->y);
+        if(z != -1 && z != vert->selected) {
+            vert->selected = z;
+            channel_changed();
+        }
     }
     return 1;
 }
