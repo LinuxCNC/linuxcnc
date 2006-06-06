@@ -52,6 +52,14 @@
 
 #define BUFLEN 80		/* length for sprintf buffers */
 
+#ifdef GTK_CHECK_VERSION
+#if GTK_CHECK_VERSION(2,0,0)
+#define DOUBLE_BUFFER
+#define MARKUP
+#define SCROLL
+#endif
+#endif
+
 /***********************************************************************
 *                  GLOBAL VARIABLES DECLARATIONS                       *
 ************************************************************************/
@@ -70,18 +78,13 @@ static void handle_window_expose(GtkWidget * widget, gpointer data);
 static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data);
+#ifdef SCROLL
 static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data);
+#endif
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
 ************************************************************************/
-
-#ifdef GTK_CHECK_VERSION
-#if GTK_CHECK_VERSION(2,0,0)
-#define DOUBLE_BUFFER
-#define MARKUP
-#endif
-#endif
 
 static int DRAWING = 0;
 
@@ -312,13 +315,16 @@ static void init_display_window(void)
         GTK_SIGNAL_FUNC(handle_click), NULL);
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "motion_notify_event",
         GTK_SIGNAL_FUNC(handle_motion), NULL);
+#ifdef SCROLL
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "scroll_event",
                 GTK_SIGNAL_FUNC(handle_scroll), NULL);
+    gtk_widget_add_events(GTK_WIDGET(disp->drawing), GDK_SCROLL_MASK);
+#endif
     gtk_widget_add_events(GTK_WIDGET(disp->drawing),
             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
             | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK
             | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
-            | GDK_SCROLL_MASK | GDK_BUTTON2_MOTION_MASK);
+            | GDK_BUTTON2_MOTION_MASK);
     gtk_widget_show(disp->drawing);
     /* get color map */
     disp->map = gtk_widget_get_colormap(disp->drawing);
@@ -523,19 +529,18 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
 
 }
 
+#ifdef SCROLL
 static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data) {
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
-    printf("scroll: %d\n", event->direction);
     set_horiz_zoom(horiz->zoom_setting + (event->direction ? -1 : 1));
     return TRUE;
 }
+#endif
 
 static void drag(int dx) {
     scope_disp_t *disp = &(ctrl_usr->disp);
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
     float dt = (dx / disp->pixels_per_sample) / ctrl_shm->rec_len;
-    printf("D: %d %f\n", dx, dt);
-    printf("\t%f\n", horiz->pos_setting);
     set_horiz_pos(horiz->pos_setting + 5 * dt);
     refresh_display();
 }
