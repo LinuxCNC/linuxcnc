@@ -66,6 +66,9 @@ void gtk_widget_modify_bg( GtkWidget *widget, GtkStateType state, const GdkColor
     gtk_widget_set_style(widget, gtk_style_copy(widget->style));
     widget->style->bg[state] = *color;
 }
+
+void gtk_window_set_urgency_hint( GtkWindow *window, gboolean state ) { }
+gboolean gtk_window_is_active( GtkWindow *window ) { return FALSE; }
 #endif
 
 
