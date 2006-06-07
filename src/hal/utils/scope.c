@@ -81,6 +81,7 @@ static void init_run_mode_window(void);
 /* callback functions */
 static void exit_from_hal(void);
 static void main_window_closed(GtkWidget * widget, gpointer * gdata);
+static void set_focus(GtkWindow * window, GtkWidget *widget, gpointer * gdata);
 static void quit(int sig);
 static int heartbeat(gpointer data);
 static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata);
@@ -137,6 +138,8 @@ int main(int argc, gchar * argv[])
     /* this makes the application exit when the window is closed */
     gtk_signal_connect(GTK_OBJECT(ctrl_usr->main_win), "destroy",
 	GTK_SIGNAL_FUNC(main_window_closed), NULL);
+    gtk_signal_connect(GTK_OBJECT(ctrl_usr->main_win), "focus-in-event",
+	GTK_SIGNAL_FUNC(set_focus), NULL);
     /* define menu windows */
     /* do next level of init */
     init_horiz();
@@ -186,6 +189,8 @@ static int heartbeat(gpointer data)
 	}
     }
     if (ctrl_shm->state == DONE) {
+        if(!gtk_window_is_active(ctrl_usr->main_win))
+            gtk_window_set_urgency_hint(ctrl_usr->main_win, TRUE);
 	capture_complete();
     }
     return 1;
@@ -531,6 +536,10 @@ static void exit_from_hal(void)
 static void main_window_closed(GtkWidget * widget, gpointer * gdata)
 {
     quit(0);
+}
+
+static void set_focus(GtkWindow *window, GtkWidget *widget, gpointer *data) {
+    gtk_window_set_urgency_hint(window, FALSE);
 }
 
 static void quit(int sig)
