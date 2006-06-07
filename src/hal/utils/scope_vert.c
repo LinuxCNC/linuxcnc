@@ -536,10 +536,14 @@ static void init_chan_sel_window(void)
 {
     scope_vert_t *vert;
     GtkWidget *button;
-    GtkWidget *label;
-    GdkColor c;
     gint n;
     gchar buf[5];
+#ifdef GTK_CHECK_VERSION
+#if GTK_CHECK_VERSION(2,0,0)
+    GtkWidget *label;
+    GdkColor c;
+#endif
+#endif
 
     vert = &(ctrl_usr->vert);
     for (n = 0; n < 16; n++) {
