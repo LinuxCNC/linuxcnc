@@ -538,12 +538,7 @@ static void init_chan_sel_window(void)
     GtkWidget *button;
     gint n;
     gchar buf[5];
-#ifdef GTK_CHECK_VERSION
-#if GTK_CHECK_VERSION(2,0,0)
-    GtkWidget *label;
     GdkColor c;
-#endif
-#endif
 
     vert = &(ctrl_usr->vert);
     for (n = 0; n < 16; n++) {
@@ -551,9 +546,6 @@ static void init_chan_sel_window(void)
 	/* define the button */
 	button = gtk_toggle_button_new_with_label(buf);
 
-#ifdef GTK_CHECK_VERSION
-#if GTK_CHECK_VERSION(2,0,0)
-	label = gtk_bin_get_child(GTK_BIN(button));
 	/* set up colors of the label */
 	set_color(&c, normal_colors[n][0],
 			normal_colors[n][1], normal_colors[n][2]);
@@ -568,8 +560,6 @@ static void init_chan_sel_window(void)
 	gtk_widget_modify_fg(button, GTK_STATE_ACTIVE, &c);
 	gtk_widget_modify_fg(button, GTK_STATE_SELECTED, &c);
 	gtk_widget_modify_fg(button, GTK_STATE_PRELIGHT, &c);
-#endif
-#endif
 
 	/* put it in the window */
 	gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,

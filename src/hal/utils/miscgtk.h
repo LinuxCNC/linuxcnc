@@ -39,6 +39,13 @@
 *                      FUNCTIONS PROVIDED BY MISCGTK.C                 *
 ************************************************************************/
 
+/** these provide similar functionality to the corresponding gtk2.0+ functions
+*/
+#if !GTK_CHECK_VERSION(2,0,0)
+void gtk_widget_modify_fg( GtkWidget *widget, GtkStateType state, const GdkColor *color);
+void gtk_widget_modify_bg( GtkWidget *widget, GtkStateType state, const GdkColor *color);
+#endif
+
 /** gtk_label_new_in_box() is used to create a label and pack it into
     a box.  It simply calls other GTK functions that do the real work.
     Normally it would take 4-5 lines of code to do the same thing.

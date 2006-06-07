@@ -54,6 +54,21 @@
 *                    PUBLIC FUNCTION DEFINITIONS                       *
 ************************************************************************/
 
+#if !GTK_CHECK_VERSION(2,0,0)
+void gtk_widget_modify_fg( GtkWidget *widget, GtkStateType state, const GdkColor *color) {
+    gtk_widget_ensure_style(widget);
+    gtk_widget_set_style(widget, gtk_style_copy(widget->style));
+    widget->style->fg[state] = *color;
+}
+
+void gtk_widget_modify_bg( GtkWidget *widget, GtkStateType state, const GdkColor *color) {
+    gtk_widget_ensure_style(widget);
+    gtk_widget_set_style(widget, gtk_style_copy(widget->style));
+    widget->style->bg[state] = *color;
+}
+#endif
+
+
 GtkWidget *gtk_label_new_in_box(gchar * text, GtkWidget * box,
     gboolean expand, gboolean fill, guint padding)
 {

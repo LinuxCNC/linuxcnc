@@ -52,12 +52,10 @@
 
 #define BUFLEN 80		/* length for sprintf buffers */
 
-#ifdef GTK_CHECK_VERSION
 #if GTK_CHECK_VERSION(2,0,0)
 #define DOUBLE_BUFFER
 #define MARKUP
 #define SCROLL
-#endif
 #endif
 
 /***********************************************************************
