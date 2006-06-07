@@ -52,7 +52,7 @@ HALGTKSRCS := \
     hal/utils/miscgtk.c
 $(call TOOBJSDEPS, $(HALGTKSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
 $(call TOOBJSDEPS, hal/utils/scope_horiz.c): EXTRAFLAGS = $(GTK_CFLAGS) -DHALCMD="\"$(EMC2_BIN_DIR)/halcmd\""
-$(call TOOBJS, hal/utils/scope_horiz.c): Makefile.inc
+$(call TOOBJS, $(HALGTKSRCS)): Makefile.inc
 endif
 
 M5I20CFGSRCS := hal/utils/m5i20cfg.c
