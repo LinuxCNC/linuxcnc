@@ -313,7 +313,7 @@ static void init_display_window(void)
         GTK_SIGNAL_FUNC(handle_click), NULL);
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "motion_notify_event",
         GTK_SIGNAL_FUNC(handle_motion), NULL);
-#ifdef SCROLL
+#if defined(SCROLL)
     gtk_signal_connect(GTK_OBJECT(disp->drawing), "scroll_event",
                 GTK_SIGNAL_FUNC(handle_scroll), NULL);
     gtk_widget_add_events(GTK_WIDGET(disp->drawing), GDK_SCROLL_MASK);
@@ -445,13 +445,40 @@ static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer dat
     return 1;
 }
 
+static void change_zoom(int dir, int x) {
+    scope_horiz_t *horiz = &(ctrl_usr->horiz);
+    scope_disp_t *disp = &(ctrl_usr->disp);
+
+    double old_pixels_per_sample, pixels_per_div,
+           pixels_per_sec, new_pixels_per_sample, old_fraction, new_fraction,
+           overall_record_length;
+
+    old_pixels_per_sample = disp->pixels_per_sample;
+    overall_record_length = horiz->sample_period * ctrl_shm->rec_len;
+
+    set_horiz_zoom(horiz->zoom_setting + dir);
+
+    /* calculate horizontal params that depend on width */
+    pixels_per_div = disp->width * 0.1;
+    pixels_per_sec = pixels_per_div / horiz->disp_scale;
+    disp->pixels_per_sample = new_pixels_per_sample = 
+        pixels_per_sec * horiz->sample_period;
+
+    // how many samples away from the center of the window is this
+    // pixel?
+    old_fraction = (x - disp->width / 2) / old_pixels_per_sample / ctrl_shm->rec_len;
+    new_fraction = (x - disp->width / 2) / new_pixels_per_sample / ctrl_shm->rec_len;
+    // how many samples per pixel 
+    printf("zoom: %f %f  %f\n", old_fraction, horiz->pos_setting, new_fraction);
+    set_horiz_pos( horiz->pos_setting - new_fraction + old_fraction );
+}
+
 static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data) {
     scope_vert_t *vert = &(ctrl_usr->vert);
-    scope_horiz_t *horiz = &(ctrl_usr->horiz);
     if(event->button == 4) { // zoom in
-        set_horiz_zoom(horiz->zoom_setting + 1);
+        change_zoom(1, event->x);
     } else if(event->button == 5) { // zoom out
-        set_horiz_zoom(horiz->zoom_setting - 1);
+        change_zoom(-1, event->x);
     } else {
         int z = select_trace(event->x, event->y);
         if(z != -1 && z != vert->selected) {
@@ -536,8 +563,7 @@ static int get_sample_info(int chan_num, int x, double *t, double *v) {
 
 #ifdef SCROLL
 static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data) {
-    scope_horiz_t *horiz = &(ctrl_usr->horiz);
-    set_horiz_zoom(horiz->zoom_setting + (event->direction ? -1 : 1));
+    change_zoom(event->direction ? -1 : 1, event->x);
     return TRUE;
 }
 #endif
