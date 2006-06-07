@@ -600,7 +600,7 @@ static void update_readout(void) {
     snprintf(tip2, sizeof(tip2), "<tt>%s</tt>", tip);
     gtk_label_set_markup(GTK_LABEL(vert->readout_label), tip2);
 #else
-    gtk_label_set_text(vert->readout_label, tip);
+    gtk_label_set_text(GTK_LABEL(vert->readout_label), tip);
 #endif
 
     gtk_widget_draw(vert->readout_label, &r);
