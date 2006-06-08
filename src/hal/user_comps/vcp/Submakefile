@@ -8,6 +8,7 @@ HALVCPSRCS := \
 	hal/hal_lib.c
 
 $(call TOOBJSDEPS, $(HALVCPSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
+$(call TOOBJS, $(HALVCPSRCS)): Makefile.inc
 
 USERSRCS += $(HALVCPSRCS)
 
