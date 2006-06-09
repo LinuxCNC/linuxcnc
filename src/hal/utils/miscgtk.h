@@ -4,6 +4,12 @@
 /** This file, 'miscgtk.h', contains declarations for generic
     code used by GTK based programs.  This includes new widgets
     and other items of a general nature.
+
+    It is also used for "compatibility code" needed to support
+    different versions of GTK.  Currently, GTK-1.2 is the oldest
+    version supported.  As GTK progresses and more version 1.2 APIs
+    are deprecated, support for pre-2.0 versions may eventually be
+    dropped.
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -44,6 +50,10 @@
 #if !GTK_CHECK_VERSION(2,0,0)
 void gtk_widget_modify_fg( GtkWidget *widget, GtkStateType state, const GdkColor *color);
 void gtk_widget_modify_bg( GtkWidget *widget, GtkStateType state, const GdkColor *color);
+#endif
+#if !GTK_CHECK_VERSION(2,8,0)
+void gtk_window_set_urgency_hint( GtkWindow *window, gboolean state );
+gboolean gtk_window_is_active( GtkWindow *window );
 #endif
 
 /** gtk_label_new_in_box() is used to create a label and pack it into

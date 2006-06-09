@@ -1,6 +1,12 @@
 /** This file, 'miscgtk.c', contains code for some generic GTK
     functions as declared in 'miscgtk.h'.  This includes new
     widgets and other items of a general nature.
+
+    It is also used for "compatibility code" needed to support
+    different versions of GTK.  Currently, GTK-1.2 is the oldest
+    version supported.  As GTK progresses and more version 1.2 APIs
+    are deprecated, support for pre-2.0 versions may eventually be
+    dropped.
 */
 
 /** Copyright (C) 2003 John Kasunich
