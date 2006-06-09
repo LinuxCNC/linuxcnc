@@ -491,19 +491,6 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-#if 1
-    /* export debugging params */
-    retval = hal_param_s32_newf(HAL_WR, &(addr->high_timer), comp_id,
-	    "pwmgen.%d.high_timer", num);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_param_s32_newf(HAL_WR, &(addr->period_timer), comp_id,
-	    "pwmgen.%d.period_timer", num);
-    if (retval != 0) {
-	return retval;
-    }
-#endif
     /* export paramameters */
     retval = hal_param_float_newf(HAL_WR, &(addr->scale), comp_id,
 	    "pwmgen.%d.scale", num);
