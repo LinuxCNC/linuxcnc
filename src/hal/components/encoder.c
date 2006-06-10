@@ -108,6 +108,7 @@ typedef struct {
     hal_float_t pos_scale;	/* parameter: scaling factor for pos */
     float old_scale;		/* stored scale value */
     double scale;		/* reciprocal value used for scaling */
+    hal_bit_t x4_mode;		/* enables x4 counting (default) */
 } counter_t;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
@@ -128,9 +129,16 @@ static counter_t *counter_array;
    and preferrable around half the sample rate.  It counts every
    edge of the quadrature waveform, 4 counts per complete cycle.
 */
-static const unsigned char lut[16] = {
+static const unsigned char lut_x4[16] = {
     0x00, 0x44, 0x88, 0x0C, 0x80, 0x04, 0x08, 0x4C,
     0x40, 0x04, 0x08, 0x8C, 0x00, 0x84, 0x48, 0x0C
+};
+
+/* same thing, but counts only once per complete cycle */
+
+static const unsigned char lut_x1[16] = {
+    0x00, 0x44, 0x08, 0x0C, 0x80, 0x04, 0x08, 0x0C,
+    0x00, 0x04, 0x08, 0x0C, 0x00, 0x04, 0x08, 0x0C
 };
 
 /* other globals */
@@ -194,6 +202,7 @@ int rtapi_app_main(void)
 	counter_array[n].pos_scale = 1.0;
 	counter_array[n].old_scale = 1.0;
 	counter_array[n].scale = 1.0;
+	counter_array[n].x4_mode = 1;
     }
     /* export functions */
     retval = hal_export_funct("encoder.update-counters", update,
@@ -258,7 +267,11 @@ static void update(void *arg, long period)
 	    state |= SM_PHASE_B_MASK;
 	}
 	/* look up new state */
-	state = lut[state & SM_LOOKUP_MASK];
+	if ( cntr->x4_mode ) {
+	    state = lut_x4[state & SM_LOOKUP_MASK];
+	} else {
+	    state = lut_x1[state & SM_LOOKUP_MASK];
+	}
 	/* should we count? */
 	if (state & SM_CNT_UP_MASK) {
 	    cntr->raw_count++;
@@ -393,6 +406,12 @@ static int export_counter(int num, counter_t * addr)
     /* export parameter for scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.position-scale", num);
     retval = hal_param_float_new(buf, HAL_WR, &(addr->pos_scale), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export parameter for x4 mode */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.x4-mode", num);
+    retval = hal_param_bit_new(buf, HAL_WR, &(addr->x4_mode), comp_id);
     if (retval != 0) {
 	return retval;
     }
