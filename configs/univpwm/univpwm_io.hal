@@ -47,15 +47,17 @@ linksp Ahome => axis.3.home-sw-in
 
 # connect index pulses to motion controller
 # do these when index pulsing is figured out
-newsig Xindex bit
-newsig Yindex  bit
-newsig Zindex bit
-linksp Xindex <= ppmc.0.encoder.00.index
-linksp Xindex => axis.0.index-pulse-in
-linksp Yindex <= ppmc.0.encoder.01.index
-linksp Yindex => axis.1.index-pulse-in
-linksp Zindex <= ppmc.0.encoder.02.index
-linksp Zindex => axis.2.index-pulse-in
+# This has been commented out pending changes to the
+# driver to work with the canonical encoder interface
+#newsig Xindex bit
+#newsig Yindex  bit
+#newsig Zindex bit
+#linksp Xindex <= ppmc.0.encoder.00.index
+#linksp Xindex => axis.0.index-pulse-in
+#linksp Yindex <= ppmc.0.encoder.01.index
+#linksp Yindex => axis.1.index-pulse-in
+#linksp Zindex <= ppmc.0.encoder.02.index
+#linksp Zindex => axis.2.index-pulse-in
 
 #
 # Connect I/O controller I/Os
