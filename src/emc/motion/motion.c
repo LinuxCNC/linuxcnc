@@ -691,36 +691,6 @@ static int export_axis(int num, axis_hal_t * addr)
 	return retval;
     }
 
-/*! \todo FIXME - these have been temporarily? deleted */
-/*! \todo Another #if 0 */
-#if 0
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.mode", num);
-    retval = hal_pin_u32_new(buf, HAL_WR, &(addr->mode), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.model", num);
-    retval = hal_pin_u32_new(buf, HAL_RD, &(addr->model), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.reset", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->reset), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.latch", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->latch), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.index", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->index), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-#endif
-
     /* restore saved message level */
     rtapi_set_msg_level(msg);
 
