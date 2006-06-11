@@ -32,6 +32,9 @@
 #include "drawing_sequential.h"
 #endif
 #include "drawing.h"
+#include <math.h>
+
+void setgray(FILE *file, double val) { fprintf(file, "%f setgray\n", val); }
 
 char *DisplayInfo(int Type, int Offset)
 {
@@ -111,6 +114,347 @@ char *DisplayArithmExpr(char *Expr, int NumCarMax)
 	}
     }
     return Buffer;
+}
+
+void draw_file_rectangle(FILE *file, int fill, int x, int y, int w, int h) {
+    fprintf(file, "%d %d moveto %d %d lineto %d %d lineto %d %d lineto closepath %s\n",
+            x,y, x+w,y, x+w,y+h, x,y+h, fill ? "fill" : "stroke");
+}
+
+void draw_file_line(FILE *file, int x0, int y0, int x1, int y1) {
+    fprintf(file, "%d %d moveto %d %d lineto stroke\n",
+            x0, y0, x1, y1);
+}
+
+void draw_file_arc(FILE *file, int fill, int x, int y, int w, int h, int l1, int l2) {
+    double cx = x + w/2., cy = y + h/2.;
+    double r = w/2.;
+    double x0 = cos(l1 / 64. * M_PI / 180) * r;
+    double y0 = sin(l2 / 64. * M_PI / 180) * r;
+    fprintf(file, "gsave %f %f translate 1 %f scale ", cx, cy, w * 1. / h);
+    fprintf(file, "%f %f moveto %f %f %f %f %f", x0, y0, 0., 0., r, l1/64. , l2/64.);
+    fprintf(file, " %s %s grestore\n",
+            (l2 - l1 > 0) ? "arc" : "arcn",
+            fill ? "fill" : "stroke");
+}
+
+void draw_file_text(FILE *file, int x, int y, char *text, int length) {
+    int i;
+    fprintf(file, "gsave %d %d translate 1 -1 scale 0 0 moveto (", x, y);
+    for(i=0; i<length; i++) {
+        switch(text[i]) {
+            case '(': fprintf(file, "\\("); break;
+            case ')': fprintf(file, "\\)"); break;
+            case '\t': fprintf(file, "\\t"); break;
+            case '\n': fprintf(file, "\\n"); break;
+            default: fprintf(file, "%c", text[i]);
+        }
+    }
+    fprintf(file, ") show grestore\n");
+}
+
+void DrawElementFile(FILE *File, int x, int y, int Width, int Height,
+        StrElement Element) {
+    char BufTxt[50];
+    StrTimer *Timer;
+    StrMonostable *Monostable;
+    int WidDiv2 = Width / 2;
+    int WidDiv3 = Width / 3;
+    int WidDiv4 = Width / 4;
+    int HeiDiv2 = Height / 2;
+    int HeiDiv3 = Height / 3;
+    int HeiDiv4 = Height / 4;
+
+    /* Drawing - - */
+    switch (Element.Type) {
+    case ELE_INPUT:
+    case ELE_INPUT_NOT:
+    case ELE_RISING_INPUT:
+    case ELE_FALLING_INPUT:
+    case ELE_OUTPUT:
+    case ELE_OUTPUT_NOT:
+    case ELE_OUTPUT_SET:
+    case ELE_OUTPUT_RESET:
+    case ELE_OUTPUT_JUMP:
+    case ELE_OUTPUT_CALL:
+	draw_file_line(File,
+	    x, y + HeiDiv2, x + WidDiv3, y + HeiDiv2);
+	draw_file_line(File,
+	    x + WidDiv3 * 2, y + HeiDiv2, x + Width, y + HeiDiv2);
+    }
+    /* Drawing || or () or --- */
+    switch (Element.Type) {
+    case ELE_INPUT:
+    case ELE_INPUT_NOT:
+    case ELE_RISING_INPUT:
+    case ELE_FALLING_INPUT:
+	draw_file_line(File,
+	    x + WidDiv3, y + HeiDiv4, x + WidDiv3, y + Height - HeiDiv4);
+	draw_file_line(File,
+	    x + WidDiv3 * 2, y + HeiDiv4, x + WidDiv3 * 2,
+	    y + Height - HeiDiv4);
+	break;
+    case ELE_CONNECTION:
+	draw_file_line(File,
+	    x, y + HeiDiv2, x + Width, y + HeiDiv2);
+
+/*                           gdk_draw_rectangle (DrawPixmap,
+                                              
+                                               TRUE,
+                                               x, y,
+                                               Width,
+                                               Height);*/
+	break;
+    case ELE_OUTPUT:
+    case ELE_OUTPUT_NOT:
+    case ELE_OUTPUT_SET:
+    case ELE_OUTPUT_RESET:
+    case ELE_OUTPUT_JUMP:
+    case ELE_OUTPUT_CALL:
+	/* hide the too much of lines - - before drawing arcs */
+        setgray(File, 1.0);
+	draw_file_rectangle(File, TRUE,
+	    x + WidDiv4, y + HeiDiv2 - 1, WidDiv2, 3);
+        setgray(File, 0.0);
+	/* draw the 2 arcs of the outputs */
+	draw_file_arc(File, FALSE,
+	    x + WidDiv4, y + WidDiv4, WidDiv2, HeiDiv2, (90 + 20) * 64,
+	    150 * 64);
+	draw_file_arc(File, FALSE, x + WidDiv4, y + WidDiv4,
+	    WidDiv2, HeiDiv2, (270 + 20) * 64, 150 * 64);
+	break;
+    }
+    /* Drawing / */
+    switch (Element.Type) {
+    case ELE_INPUT_NOT:
+    case ELE_OUTPUT_NOT:
+	draw_file_line(File,
+	    x + WidDiv3, y + Height - HeiDiv4, x + WidDiv3 * 2, y + HeiDiv4);
+    }
+    /* Drawing ^ or \/ */
+    switch (Element.Type) {
+    case ELE_RISING_INPUT:
+	draw_file_line(File,
+	    x + WidDiv3, y + HeiDiv3 * 2, x + WidDiv4 * 2, y + HeiDiv3);
+	draw_file_line(File,
+	    x + WidDiv4 * 2, y + HeiDiv3, x + WidDiv3 * 2, y + HeiDiv3 * 2);
+	break;
+    case ELE_FALLING_INPUT:
+	draw_file_line(File,
+	    x + WidDiv3, y + HeiDiv3, x + WidDiv4 * 2, y + HeiDiv3 * 2);
+	draw_file_line(File,
+	    x + WidDiv4 * 2, y + HeiDiv3 * 2, x + WidDiv3 * 2, y + HeiDiv3);
+	break;
+    }
+    /* Drawing 'S'et or 'R'eset or 'J'ump or 'C'all for outputs */
+    switch (Element.Type) {
+    case ELE_OUTPUT_SET:
+	draw_file_text(File,
+	    x + WidDiv3 + 2, y + HeiDiv3 * 2, "S", 1);
+	break;
+    case ELE_OUTPUT_RESET:
+	draw_file_text(File,
+	    x + WidDiv3 + 2, y + HeiDiv3 * 2, "R", 1);
+	break;
+    case ELE_OUTPUT_JUMP:
+	draw_file_text(File,
+	    x + WidDiv3 + 2, y + HeiDiv3 * 2, "J", 1);
+	break;
+    case ELE_OUTPUT_CALL:
+	draw_file_text(File,
+	    x + WidDiv3 + 2, y + HeiDiv3 * 2, "C", 1);
+	break;
+    }
+    /* Drawing complex ones : Timer, Monostable, Compar, Operate */
+    switch (Element.Type) {
+    case ELE_TIMER:
+	Timer = &TimerArray[Element.VarNum];
+	/* the box */
+        setgray(File, 1.0);
+	draw_file_rectangle(File, TRUE,
+	    x + WidDiv3 - Width, y + HeiDiv3,
+	    Width + 1 * WidDiv3, Height + 1 * HeiDiv3);
+        setgray(File, 0.0);
+	draw_file_rectangle(File, FALSE,
+	    x + WidDiv3 - Width, y + HeiDiv3,
+	    Width + 1 * WidDiv3, Height + 1 * HeiDiv3);
+	/* input : enable */
+	draw_file_line(File,
+	    x - Width, y + HeiDiv2, x - Width + WidDiv3, y + HeiDiv2);
+	draw_file_text(File,
+	    x - Width, y + HeiDiv2 - 1, "I",
+	    1);
+	/* output : done */
+	draw_file_line(File,
+	    x + WidDiv3 * 2, y + HeiDiv2, x + Width, y + HeiDiv2);
+	draw_file_text(File,
+	    x + Width - WidDiv4,
+	    y + HeiDiv2 - 1, "D", 1);
+	/* output : running */
+	draw_file_line(File, x + WidDiv3 * 2,
+	    y + HeiDiv2 + Height, x + Width, y + HeiDiv2 + Height);
+	draw_file_text(File,
+	    x + Width - WidDiv4,
+	    y + HeiDiv2 - 1 + Height, "R", 1);
+	/* Timer Number */
+	sprintf(BufTxt, "T%d", Element.VarNum);
+	draw_file_text(File,
+	    x + WidDiv2 - Width,
+	    y + HeiDiv4 - 2, BufTxt, strlen(BufTxt));
+	/* Current Value */
+        sprintf(BufTxt, Timer->DisplayFormat,
+            (float) Timer->Value / (float) Timer->Base);
+        draw_file_text(File,
+            x + WidDiv2 - 2 - Width,
+            y + Height, BufTxt, strlen(BufTxt));
+	break;
+    case ELE_MONOSTABLE:
+	Monostable = &MonostableArray[Element.VarNum];
+	/* the box */
+        setgray(File, 0.0);
+	draw_file_rectangle(File, TRUE,
+	    x + WidDiv3 - Width, y + HeiDiv3,
+	    Width + 1 * WidDiv3, Height + 1 * HeiDiv3);
+        setgray(File, 0.0);
+	draw_file_rectangle(File, FALSE,
+	    x + WidDiv3 - Width, y + HeiDiv3,
+	    Width + 1 * WidDiv3, Height + 1 * HeiDiv3);
+	/* input */
+	draw_file_line(File,
+	    x - Width, y + HeiDiv2, x - Width + WidDiv3, y + HeiDiv2);
+	draw_file_text(File,
+	    x - Width, y + HeiDiv2 - 1, "I^",
+	    2);
+	/* output : running */
+	draw_file_line(File,
+	    x + WidDiv3 * 2, y + HeiDiv2, x + Width, y + HeiDiv2);
+	draw_file_text(File,
+	    x + Width - WidDiv4,
+	    y + HeiDiv2 - 1, "R", 1);
+	/* Monostable Number */
+	sprintf(BufTxt, "M%d", Element.VarNum);
+	draw_file_text(File,
+	    x + WidDiv2 - Width,
+	    y + HeiDiv4 - 2, BufTxt, strlen(BufTxt));
+	/* Current Value */
+	if (!EditDatas.ModeEdit) {
+	    sprintf(BufTxt, Monostable->DisplayFormat,
+		(float) Monostable->Value / (float) Monostable->Base);
+	    draw_file_text(File,
+		x + WidDiv2 - 2 - Width,
+		y + Height, BufTxt, strlen(BufTxt));
+	}
+	break;
+    case ELE_COMPAR:
+	/* the box */
+        setgray(File, 0.0);
+	draw_file_rectangle(File, TRUE,
+	    x + WidDiv3 - (Width * 2), y + HeiDiv4,
+	    Width * 2 + 1 * WidDiv3, 2 * HeiDiv4);
+        setgray(File, 0.0);
+	draw_file_rectangle(File, FALSE,
+	    x + WidDiv3 - (Width * 2), y + HeiDiv4,
+	    Width * 2 + 1 * WidDiv3, 2 * HeiDiv4);
+	/* input */
+	draw_file_line(File,
+	    x - Width * 2, y + HeiDiv2, x - Width * 2 + WidDiv3, y + HeiDiv2);
+	/* output */
+	draw_file_line(File,
+	    x + WidDiv3 * 2, y + HeiDiv2, x + Width, y + HeiDiv2);
+	draw_file_text(File,
+	    x + WidDiv4 - (Width * 2) + 3,
+	    y + HeiDiv4 - 1, "COMPARE", strlen("COMPARE"));
+	/* arithmetic expression */
+	if (!EditDatas.ModeEdit)
+	    strcpy(BufTxt, DisplayArithmExpr(ArithmExpr[Element.VarNum].Expr,
+		    (Width * 2 + 1 * WidDiv3) / 8));
+	else
+	    strcpy(BufTxt,
+		DisplayArithmExpr(EditArithmExpr[Element.VarNum].Expr,
+		    (Width * 2 + 1 * WidDiv3) / 8));
+	draw_file_text(File,
+	    x + WidDiv3 - (Width * 2) + 2,
+	    y + HeiDiv2 + 4, BufTxt, strlen(BufTxt));
+	break;
+    case ELE_OUTPUT_OPERATE:
+	/* the box */
+        setgray(File, 0.0);
+	draw_file_rectangle(File, TRUE,
+	    x + WidDiv3 - (Width * 2), y + HeiDiv4,
+	    Width * 2 + 1 * WidDiv3, 2 * HeiDiv4);
+        setgray(File, 0.0);
+	draw_file_rectangle(File, FALSE,
+	    x + WidDiv3 - (Width * 2), y + HeiDiv4,
+	    Width * 2 + 1 * WidDiv3, 2 * HeiDiv4);
+	/* input */
+	draw_file_line(File,
+	    x - Width * 2, y + HeiDiv2, x - Width * 2 + WidDiv3, y + HeiDiv2);
+	/* output */
+	draw_file_line(File,
+	    x + WidDiv3 * 2, y + HeiDiv2, x + Width, y + HeiDiv2);
+	draw_file_text(File,
+	    x + WidDiv4 - (Width * 2) + 3,
+	    y + HeiDiv4 - 1, "OPERATE", strlen("OPERATE"));
+	/* arithmetic expression */
+	if (!EditDatas.ModeEdit)
+	    strcpy(BufTxt, DisplayArithmExpr(ArithmExpr[Element.VarNum].Expr,
+		    (Width * 2 + 1 * WidDiv3) / 8));
+	else
+	    strcpy(BufTxt,
+		DisplayArithmExpr(EditArithmExpr[Element.VarNum].Expr,
+		    (Width * 2 + 1 * WidDiv3) / 8));
+	draw_file_text(File,
+	    x + WidDiv3 - (Width * 2) + 2,
+	    y + HeiDiv2 + 4, BufTxt, strlen(BufTxt));
+	break;
+    }
+    /* Drawing Var */
+    switch (Element.Type) {
+    case ELE_INPUT:
+    case ELE_INPUT_NOT:
+    case ELE_RISING_INPUT:
+    case ELE_FALLING_INPUT:
+    case ELE_OUTPUT:
+    case ELE_OUTPUT_NOT:
+    case ELE_OUTPUT_SET:
+    case ELE_OUTPUT_RESET:
+        strcpy(BufTxt, DisplayInfo(Element.VarType, Element.VarNum));
+        draw_file_text(File,
+            x + WidDiv4, y + HeiDiv4 - 2,
+            BufTxt, strlen(BufTxt));
+        break;
+    case ELE_OUTPUT_JUMP:
+        draw_file_text(File,
+            x + 1, y + HeiDiv4 - 2,
+            RungArray[Element.VarNum].Label,
+            strlen(RungArray[Element.VarNum].Label));
+        break;
+    case ELE_OUTPUT_CALL:
+        sprintf(BufTxt, "SR%d", Element.VarNum);
+        draw_file_text(File,
+            x + 1, y + HeiDiv4 - 2, BufTxt,
+            strlen(BufTxt));
+        break;
+    }
+    /* Drawing cnx with top */
+    if (Element.ConnectedWithTop) {
+	if (Element.DynamicInput)
+	    draw_file_line(File,
+		x, y + HeiDiv2 + 1, x, y - HeiDiv2);
+	else
+	    draw_file_line(File,
+		x, y + HeiDiv2, x, y - HeiDiv2);
+    }
+
+}
+
+void DrawBarsFile(FILE *file, int PosiY, int IsTheCurrentRung)
+{
+    draw_file_rectangle(file, TRUE,
+	1, 1 + PosiY, 3, InfosGene->BlockHeight * RUNG_HEIGHT);
+    draw_file_rectangle(file, TRUE,
+	InfosGene->BlockWidth * RUNG_WIDTH + OFFSET_X, 1 + PosiY,
+	3, InfosGene->BlockHeight * RUNG_HEIGHT);
 }
 
 void DrawElement(GdkPixmap * DrawPixmap, int x, int y, int Width, int Height,
@@ -549,6 +893,14 @@ void DrawGrid(int PosiY)
     gdk_gc_unref(DynaGcOn);
 }
 
+void DrawRungPartitionFile(FILE *file, int PosiY)
+{
+    draw_file_line(file,
+	OFFSET_X, OFFSET_Y + PosiY,
+	RUNG_WIDTH * InfosGene->BlockWidth + OFFSET_X, OFFSET_Y + PosiY);
+}
+
+
 void DrawRungPartition(int PosiY)
 {
     GdkColor DynaGdkColor;
@@ -587,6 +939,23 @@ void GetTheSizesForRung()
     BlockHeightBak = InfosGene->BlockHeight;
 }
 
+void DrawRungFile(FILE *file, StrRung * Rung, int PosiY)
+{
+    int x, y;
+
+    for (y = 0; y < RUNG_HEIGHT; y++) {
+	for (x = 0; x < RUNG_WIDTH; x++) {
+	    DrawElementFile(file, x * InfosGene->BlockWidth + OFFSET_X,
+		y * InfosGene->BlockHeight + OFFSET_Y + PosiY,
+		InfosGene->BlockWidth, InfosGene->BlockHeight,
+		Rung->Element[x][y]);
+            fprintf(file, "\n");
+	}
+        fprintf(file, "\n");
+    }
+}
+
+
 void DrawRung(StrRung * Rung, int PosiY)
 {
     int x, y;
@@ -600,6 +969,33 @@ void DrawRung(StrRung * Rung, int PosiY)
 	}
     }
 }
+
+void DrawRungsFile(FILE *file)
+{
+    int ScanRung = InfosGene->TopRungDisplayed;
+    int ScanY = InfosGene->OffsetHiddenTopRungDisplayed;
+    StrRung *PtrRung;
+    int TheEnd = FALSE;
+
+    for (ScanY = -InfosGene->OffsetHiddenTopRungDisplayed;
+	(ScanY < InfosGene->PageHeight) && !TheEnd;
+	ScanY += (InfosGene->BlockHeight * RUNG_HEIGHT)) {
+	PtrRung = &RungArray[ScanRung];
+
+	DrawBarsFile(file, ScanY, ScanRung == InfosGene->CurrentRung);
+	DrawRungFile(file, PtrRung, ScanY);
+	DrawRungPartitionFile(file, ScanY + InfosGene->BlockHeight * RUNG_HEIGHT - 5);
+
+	if (ScanRung != InfosGene->LastRung)
+	    ScanRung = RungArray[ScanRung].NextRung;
+	else
+	    TheEnd = TRUE;
+        fprintf(file, "\n");
+    }
+    fprintf(file, "\n");
+    fprintf(file, "showpage\n");
+}
+
 
 void DrawRungs()
 {
@@ -634,6 +1030,19 @@ void DrawRungs()
 	else
 	    TheEnd = TRUE;
     }
+#if 0
+    {
+        FILE *file = fopen("rungs.ps", "w");
+        fprintf(file, "%%!PS-Adobe\n");
+        fprintf(file, "/Helvetica findfont 12 scalefont setfont\n");
+        fprintf(file, "0 %d translate 1 -1 scale\n", 72*11);
+        if(file) {
+            DrawRungsFile(file);
+            fclose(file);
+        }
+        rename("rungs.ps", "rungs-full.ps");
+    }
+#endif
 }
 
 void DrawCurrentSection(void)
