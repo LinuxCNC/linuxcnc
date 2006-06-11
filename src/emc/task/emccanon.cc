@@ -60,6 +60,8 @@
 
 static PM_QUATERNION quat(1, 0, 0, 0);
 
+static void flush_segments(void);
+
 /*
   These decls were from the old 3-axis canon.hh, and refer functions
   defined here that are used for convenience but no longer have decls
@@ -214,9 +216,17 @@ void SET_FEED_RATE(double rate)
     /* convert from /min to /sec */
     rate /= 60.0;
 
+
     /* convert to traj units (mm & deg) if needed */
-    currentLinearFeedRate = FROM_PROG_LEN(rate);
-    currentAngularFeedRate = FROM_PROG_ANG(rate);
+    double newLinearFeedRate = FROM_PROG_LEN(rate),
+           newAngularFeedRate = FROM_PROG_ANG(rate);
+
+    if(newLinearFeedRate != currentLinearFeedRate
+            || newAngularFeedRate != currentAngularFeedRate)
+        flush_segments();
+
+    currentLinearFeedRate = newLinearFeedRate;
+    currentAngularFeedRate = newAngularFeedRate;
 }
 
 void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
@@ -417,6 +427,109 @@ double getStraightVelocity(double x, double y, double z,
     return vel;
 }
 
+#include <vector>
+struct pt { double x, y, z, a, b, c; };
+
+static std::vector<struct pt>& chained_points(void) {
+    static std::vector<struct pt> points;
+    return points;
+}
+
+static void flush_segments(void) {
+    if(chained_points().empty()) return;
+
+    struct pt &pos = chained_points().back();
+
+    double x = pos.x, y = pos.y, z = pos.z, a = pos.a, b = pos.b, c = pos.c;
+
+#ifdef SHOW_JOINED_SEGMENTS
+    for(unsigned int i=0; i != chained_points().size(); i++) { printf("."); }
+    printf("\n");
+#endif
+
+    double ini_maxvel = getStraightVelocity(x, y, z, a, b, c),
+           vel = ini_maxvel;
+
+    if (linear_move && !angular_move) {
+	if (vel > currentLinearFeedRate) {
+	    vel = currentLinearFeedRate;
+	}
+    } else if (!linear_move && angular_move) {
+	if (vel > currentAngularFeedRate) {
+	    vel = currentAngularFeedRate;
+	}
+    } else if (linear_move && angular_move) {
+	if (vel > currentLinearFeedRate) {
+	    vel = currentLinearFeedRate;
+	}
+    }
+
+
+    EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+
+    // now x, y, z, and b are in absolute mm or degree units
+    linearMoveMsg.end.tran.x = x;
+    linearMoveMsg.end.tran.y = y;
+    linearMoveMsg.end.tran.z = z;
+
+    // fill in the orientation
+    linearMoveMsg.end.a = a;
+    linearMoveMsg.end.b = b;
+    linearMoveMsg.end.c = c;
+
+    linearMoveMsg.vel = toExtVel(vel);
+    linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
+    double acc = getStraightAcceleration(x, y, z, a, b, c);
+    linearMoveMsg.acc = toExtAcc(acc);
+
+    linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
+    interp_list.append(linearMoveMsg);
+    canonUpdateEndPoint(x, y, z, a, b, c);
+
+    chained_points().clear();
+}
+
+
+static bool
+linkable(double x, double y, double z, double a, double b, double c) {
+    struct pt &pos = chained_points().back();
+    if(canonMotionMode != CANON_CONTINUOUS || canonMotionTolerance == 0)
+        return false;
+
+    if(chained_points().size() > 100) return false;
+
+    if(a != pos.a) return false;
+    if(b != pos.b) return false;
+    if(c != pos.c) return false;
+
+    for(std::vector<struct pt>::iterator it = chained_points().begin();
+            it != chained_points().end(); it++) {
+        PM_CARTESIAN M(x-canonEndPoint.x, y-canonEndPoint.y, z-canonEndPoint.z),
+                     B(canonEndPoint.x, canonEndPoint.y, canonEndPoint.z),
+                     P(it->x, it->y, it->z);
+        double t0 = dot(M, P-B) / dot(M, M);
+        if(t0 < 0) t0 = 0;
+        if(t0 > 1) t0 = 1;
+
+        double D = mag(P - (B + t0 * M));
+        if(D > canonMotionTolerance) return false;
+    }
+    return true;
+}
+
+static void
+see_segment(double x, double y, double z, double a, double b, double c) {
+    if(!chained_points().empty() && !linkable(x, y, z, a, b, c)) {
+        flush_segments();
+    }
+    pt pos = {x, y, z, a, b, c};
+    chained_points().push_back(pos);
+}
+
+void FINISH() {
+    flush_segments();
+}
+
 void STRAIGHT_TRAVERSE(double x, double y, double z,
 		       double a, double b, double c)
 {
@@ -440,6 +553,7 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 
     z += currentToolLengthOffset;
 
+
     // now x, y, z, and b are in absolute mm or degree units
     linearMoveMsg.end.tran.x = TO_EXT_LEN(x);
     linearMoveMsg.end.tran.y = TO_EXT_LEN(y);
@@ -449,6 +563,10 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     linearMoveMsg.end.a = TO_EXT_ANG(a);
     linearMoveMsg.end.b = TO_EXT_ANG(b);
     linearMoveMsg.end.c = TO_EXT_ANG(c);
+
+    linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
+
+    flush_segments();
 
     vel = getStraightVelocity(x, y, z, a, b, c);
     acc = getStraightAcceleration(x, y, z, a, b, c);
@@ -460,13 +578,13 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
 
     if(acc) 
         interp_list.append(linearMoveMsg);
+
     canonUpdateEndPoint(x, y, z, a, b, c);
 }
 
 void STRAIGHT_FEED(double x, double y, double z, double a, double b,
 		   double c)
 {
-    double ini_maxvel, vel, acc;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
     // convert to mm units
@@ -487,42 +605,16 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
     z += currentToolLengthOffset;
 
     // now x, y, z, and b are in absolute mm or degree units
-    linearMoveMsg.end.tran.x = TO_EXT_LEN(x);
-    linearMoveMsg.end.tran.y = TO_EXT_LEN(y);
-    linearMoveMsg.end.tran.z = TO_EXT_LEN(z);
+    x = TO_EXT_LEN(x);
+    y = TO_EXT_LEN(y);
+    z = TO_EXT_LEN(z);
 
     // fill in the orientation
-    linearMoveMsg.end.a = TO_EXT_ANG(a);
-    linearMoveMsg.end.b = TO_EXT_ANG(b);
-    linearMoveMsg.end.c = TO_EXT_ANG(c);
+    a = TO_EXT_ANG(a);
+    b = TO_EXT_ANG(b);
+    c = TO_EXT_ANG(c);
 
-    ini_maxvel = vel = getStraightVelocity(x, y, z, a, b, c);
-
-    if (linear_move && !angular_move) {
-	if (vel > currentLinearFeedRate) {
-	    vel = currentLinearFeedRate;
-	}
-    } else if (!linear_move && angular_move) {
-	if (vel > currentAngularFeedRate) {
-	    vel = currentAngularFeedRate;
-	}
-    } else if (linear_move && angular_move) {
-	if (vel > currentLinearFeedRate) {
-	    vel = currentLinearFeedRate;
-	}
-    }
-
-    acc = getStraightAcceleration(x, y, z, a, b, c);
-
-    linearMoveMsg.vel = toExtVel(vel);
-    linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
-    linearMoveMsg.acc = toExtAcc(acc);
-
-    linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
-
-    if(acc)
-        interp_list.append(linearMoveMsg);
-    canonUpdateEndPoint(x, y, z, a, b, c);
+    see_segment(x, y, z, a, b, c);
 }
 
 /*
@@ -562,6 +654,8 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
     probeMsg.pos.b = TO_EXT_ANG(b);
     probeMsg.pos.c = TO_EXT_ANG(c);
 
+    flush_segments();
+
     ini_maxvel = vel = getStraightVelocity(x, y, z, a, b, c);
 
     if (linear_move && !angular_move) {
@@ -594,6 +688,8 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 {
     EMC_TRAJ_SET_TERM_COND setTermCondMsg;
+
+    flush_segments();
 
     if ((mode != canonMotionMode) || (TO_EXT_LEN(FROM_PROG_LEN(tolerance)) != canonMotionTolerance)) {
 	canonMotionMode = mode;
@@ -646,6 +742,7 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
 
 void START_ADAPTIVE_FEED()
 {
+    flush_segments();
     EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
     emcmotAdaptiveMsg.status = 1;
     interp_list.append(emcmotAdaptiveMsg);
@@ -653,6 +750,7 @@ void START_ADAPTIVE_FEED()
 
 void STOP_ADAPTIVE_FEED()
 {
+    flush_segments();
     EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
     emcmotAdaptiveMsg.status = 0;
     interp_list.append(emcmotAdaptiveMsg);
@@ -661,6 +759,7 @@ void STOP_ADAPTIVE_FEED()
 
 void START_SPEED_FEED_SYNCH(double sync)
 {
+    flush_segments();
     EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
     spindlesyncMsg.spindlesync = sync;
     interp_list.append(spindlesyncMsg);
@@ -668,6 +767,7 @@ void START_SPEED_FEED_SYNCH(double sync)
 
 void STOP_SPEED_FEED_SYNCH()
 {
+    flush_segments();
     EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
     spindlesyncMsg.spindlesync = 0.0;
     interp_list.append(spindlesyncMsg);
@@ -692,6 +792,7 @@ void ARC_FEED(double first_end, double second_end,
     double radius, angle, theta1, theta2, helical_length, axis_len;
     double tmax, thelix, ta, tb, tc, da, db, dc;
 
+    flush_segments();
     /* In response to  Bugs item #1274108 - rotary axis moves when coordinate
        offsets used with A. Original code failed to include programOrigin on
        rotary moves. */
@@ -948,6 +1049,8 @@ void DWELL(double seconds)
 {
     EMC_TRAJ_DELAY delayMsg;
 
+    flush_segments();
+
     delayMsg.delay = seconds;
 
     interp_list.append(delayMsg);
@@ -966,6 +1069,8 @@ void START_SPINDLE_CLOCKWISE()
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
 
+    flush_segments();
+
     if (spindleSpeed == 0)
 	CANON_ERROR("Spindle speed needs to be non-zero in order to enable.\nIf speed is 0 we have no way of telling that you really wanted clockwise.");
 
@@ -979,6 +1084,8 @@ void START_SPINDLE_CLOCKWISE()
 void START_SPINDLE_COUNTERCLOCKWISE()
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
+
+    flush_segments();
 
     if (spindleSpeed == 0)
 	CANON_ERROR("Spindle speed needs to be non-zero in order to enable.\nIf speed is 0 we have no way of telling that you really wanted counterclockwise.");
@@ -1006,6 +1113,8 @@ void SET_SPINDLE_SPEED(double r)
 void STOP_SPINDLE_TURNING()
 {
     EMC_SPINDLE_OFF emc_spindle_off_msg;
+
+    flush_segments();
 
     interp_list.append(emc_spindle_off_msg);
 
@@ -1047,6 +1156,8 @@ void USE_TOOL_LENGTH_OFFSET(double length)
 {
     EMC_TRAJ_SET_OFFSET set_offset_msg;
 
+    flush_segments();
+
     /* convert to mm units for internal canonical use */
     currentToolLengthOffset = FROM_PROG_LEN(length);
 
@@ -1067,6 +1178,8 @@ void CHANGE_TOOL(int slot)
 {
     EMC_TRAJ_LINEAR_MOVE linear_move_msg;
     EMC_TOOL_LOAD load_tool_msg;
+
+    flush_segments();
 
     /* optional first move to tool change position */
     if (HAVE_TOOL_CHANGE_POSITION) {
@@ -1247,6 +1360,8 @@ void FLOOD_OFF()
 {
     EMC_COOLANT_FLOOD_OFF flood_off_msg;
 
+    flush_segments();
+
     interp_list.append(flood_off_msg);
 }
 
@@ -1254,12 +1369,16 @@ void FLOOD_ON()
 {
     EMC_COOLANT_FLOOD_ON flood_on_msg;
 
+    flush_segments();
+
     interp_list.append(flood_on_msg);
 }
 
 void MESSAGE(char *s)
 {
     EMC_OPERATOR_DISPLAY operator_display_msg;
+
+    flush_segments();
 
     operator_display_msg.id = 0;
     strncpy(operator_display_msg.display, s, LINELEN);
@@ -1272,12 +1391,16 @@ void MIST_OFF()
 {
     EMC_COOLANT_MIST_OFF mist_off_msg;
 
+    flush_segments();
+
     interp_list.append(mist_off_msg);
 }
 
 void MIST_ON()
 {
     EMC_COOLANT_MIST_ON mist_on_msg;
+
+    flush_segments();
 
     interp_list.append(mist_on_msg);
 }
@@ -1308,6 +1431,7 @@ void UNCLAMP_AXIS(CANON_AXIS axis)
 
 void STOP(void)
 {
+    flush_segments();
 }
 
 void PROGRAM_STOP()
@@ -1316,17 +1440,23 @@ void PROGRAM_STOP()
        implement this as a pause. A resume will cause motion to proceed. */
     EMC_TASK_PLAN_PAUSE pauseMsg;
 
+    flush_segments();
+
     interp_list.append(pauseMsg);
 }
 
 void OPTIONAL_PROGRAM_STOP()
 {
+    flush_segments();
+
     /*! \todo FIXME-- implemented as PROGRAM_STOP, that is, no option */
     PROGRAM_STOP();
 }
 
 void PROGRAM_END()
 {
+    flush_segments();
+
     EMC_TASK_PLAN_END endMsg;
 
     interp_list.append(endMsg);
@@ -1368,6 +1498,8 @@ double GET_TOOL_LENGTH_OFFSET()
 void INIT_CANON()
 {
     double units;
+
+    chained_points().clear();
 
     // initialize locals to original values
     programOrigin.x = 0.0;
@@ -1415,6 +1547,8 @@ void CANON_ERROR(const char *fmt, ...)
     va_list ap;
     EMC_OPERATOR_ERROR operator_error_msg;
 
+    flush_segments();
+
     operator_error_msg.id = 0;
     if (fmt != NULL) {
 	va_start(ap, fmt);
@@ -1461,6 +1595,8 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     CANON_POSITION position;
     EmcPose pos;
 
+    chained_points().clear();
+
     pos = emcStatus->motion.traj.position;
 
     // first update internal record of last position
@@ -1491,6 +1627,8 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     CANON_POSITION position;
     EmcPose pos;
     static CANON_POSITION last_probed_position;
+
+    flush_segments();
 
     pos = emcStatus->motion.traj.probedPosition;
 
@@ -1536,6 +1674,8 @@ double GET_EXTERNAL_PROBE_VALUE()
 
 int IS_EXTERNAL_QUEUE_EMPTY()
 {
+    flush_segments();
+
     return emcStatus->motion.traj.queue == 0 ? 1 : 0;
 }
 
@@ -1762,6 +1902,8 @@ CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE()
 
 int GET_EXTERNAL_QUEUE_EMPTY(void)
 {
+    flush_segments();
+
     return emcStatus->motion.traj.queue == 0 ? 1 : 0;
 }
 
@@ -1811,6 +1953,8 @@ void SET_MOTION_OUTPUT_BIT(int index)
 {
   EMC_MOTION_SET_DOUT dout_msg;
 
+  flush_segments();
+
   dout_msg.index = index;
   dout_msg.start = 1;		// startvalue = 1
   dout_msg.end = 1;		// endvalue = 1, means it doesn't get reset after current motion
@@ -1836,6 +1980,8 @@ void SET_MOTION_OUTPUT_BIT(int index)
 void CLEAR_MOTION_OUTPUT_BIT(int index)
 {
   EMC_MOTION_SET_DOUT dout_msg;
+
+  flush_segments();
 
   dout_msg.index = index;
   dout_msg.start = 0;           // startvalue = 1
@@ -1868,6 +2014,8 @@ void SET_AUX_OUTPUT_BIT(int index)
 
   EMC_MOTION_SET_DOUT dout_msg;
 
+  flush_segments();
+
   dout_msg.index = index;
   dout_msg.start = 1;		// startvalue = 1
   dout_msg.end = 1;		// endvalue = 1, means it doesn't get reset after current motion
@@ -1898,6 +2046,8 @@ void CLEAR_AUX_OUTPUT_BIT(int index)
   interp_list.append(dio_msg);*/
   EMC_MOTION_SET_DOUT dout_msg;
 
+  flush_segments();
+
   dout_msg.index = index;
   dout_msg.start = 0;           // startvalue = 1
   dout_msg.end = 0;		// endvalue = 0, means it stays 0 after current motion
@@ -1917,6 +2067,8 @@ void SET_MOTION_OUTPUT_VALUE(int index, double value)
 {
   EMC_MOTION_SET_AOUT aout_msg;
 
+  flush_segments();
+
   aout_msg.index = index;	// which output
   aout_msg.start = value;	// start value
   aout_msg.end = value;		// end value
@@ -1935,6 +2087,8 @@ void SET_MOTION_OUTPUT_VALUE(int index, double value)
 void SET_AUX_OUTPUT_VALUE(int index, double value)
 {
   EMC_AUX_AIO_WRITE aio_msg;
+
+  flush_segments();
 
   aio_msg.index = index;
   aio_msg.value = value;

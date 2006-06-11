@@ -18,6 +18,7 @@ MILLTASKSRCS := \
 	$(ULAPISRCS)
 USERSRCS += $(MILLTASKSRCS)
 
+$(call TOOBJSDEPS, $(MILLTASKSRCS)) : EXTRAFLAGS = -fno-inline
 ../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so ../lib/libemc.a ../lib/libnml.so
 	$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/milltask

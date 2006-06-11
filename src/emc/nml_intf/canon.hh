@@ -729,4 +729,8 @@ extern void CLEAR_AUX_OUTPUT_BIT(int index);
 extern void SET_MOTION_OUTPUT_VALUE(int index, double value);
 extern void SET_AUX_OUTPUT_VALUE(int index, double value);
 
+/* to be called by emcTaskPlanExecute when done interpreting.  This causes the
+ * last segment to be output, if it has been held to do segment merging */
+extern void FINISH(void);
+
 #endif				/* ifndef CANON_HH */

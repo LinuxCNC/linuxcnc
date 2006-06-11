@@ -383,6 +383,9 @@ int emcTaskPlanExecute(const char *command)
     if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     }
+    if(command != 0) {
+	FINISH();
+    }
     return retval;
 }
 
