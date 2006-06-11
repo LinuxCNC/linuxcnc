@@ -65,7 +65,6 @@ typedef struct {
     hal_bit_t *pos_lim_sw;	/* RPI: positive limit switch input */
     hal_bit_t *neg_lim_sw;	/* RPI: negative limit switch input */
     hal_bit_t *home_sw;		/* RPI: home switch input */
-    hal_bit_t *index_pulse;	/* RPI: index pulse input */
     hal_bit_t *index_enable;	/* RPIO: motmod sets: request reset on index
 				         encoder clears: index arrived */
     hal_bit_t *amp_fault;	/* RPI: amp fault input */
