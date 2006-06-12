@@ -71,6 +71,10 @@ typedef struct {
     hal_bit_t *amp_enable;	/* WPI: amp enable output */
     hal_s8_t home_state;	/* RPA: homing state machine state */
 
+    hal_s32_t *jog_counts;	/* RPI: jogwheel position input */
+    hal_bit_t *jog_enable;	/* RPI: enable jogwheel */
+    hal_float_t *jog_scale;	/* RPI: distance to jog on each count */
+
 } axis_hal_t;
 
 /* machine data */
@@ -122,6 +126,11 @@ extern emcmot_hal_data_t *emcmot_hal_data;
 */
 extern emcmot_joint_t *joints;
 
+/* flag used to indicate that this is the very first pass thru the
+   code.  Various places in the code use this to set initial conditions
+   and avoid startup glitches.
+*/
+extern int first_pass;
 
 /* Variable defs */
 extern int kinType;
@@ -154,7 +163,10 @@ extern void emcmotAioWrite(int index, double value);
 
 /* loops through the active joints and checks if any are not homed */
 extern int checkAllHomed(void);
-
+/* recalculates jog limits */
+extern void refresh_jog_limits(emcmot_joint_t *joint);
+/* handles 'homed' flags, see command.c for details */
+extern void clearHomes(int joint_num);
 
 extern void emcmot_config_change(void);
 extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */

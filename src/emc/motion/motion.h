@@ -457,6 +457,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	home_state_t home_state;	/* state machine for homing */
 	double motor_offset;	/* diff between internal and motor pos, used
 				   to set position to zero during homing */
+	int old_jog_counts;	/* prior value, used for deltas */
 
 	/* stuff moved from the other structs that might be needed (or might
 	   not!) */

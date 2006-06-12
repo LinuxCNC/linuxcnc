@@ -153,6 +153,12 @@ static void check_for_faults(void);
 */
 static void set_operating_mode(void);
 
+/* 'handle_jogwheels()' reads jogwheels, decides if they should be
+   enabled, and if so, changes the free mode planner's target position
+   when the jogwheel(s) turn.
+*/
+static void handle_jogwheels(void);
+
 /* 'do_homing()' looks at the home_state field of each joint struct
     to decide what, if anything, needs to be done related to homing
     the joint.  Homing is implemented as a state machine, the exact
@@ -242,6 +248,8 @@ check_stuff ( "after check_soft_limits()" );
 check_stuff ( "after check_for_faults()" );
     set_operating_mode();
 check_stuff ( "after set_operating_mode()" );
+    handle_jogwheels();
+check_stuff ( "after handle_jogwheels()" );
     do_homing();
 check_stuff ( "after do_homing()" );
     get_pos_cmds();
@@ -256,6 +264,8 @@ check_stuff ( "after update_status()" );
     emcmotStatus->heartbeat++;
     /* set tail to head, to indicate work complete */
     emcmotStatus->tail = emcmotStatus->head;
+    /* clear init flag */
+    first_pass = 0;
 
 /* end of controller function */
 }
@@ -869,6 +879,81 @@ static void set_operating_mode(void)
 	emcmotStatus->motion_state = EMCMOT_MOTION_COORD;
     } else {
 	emcmotStatus->motion_state = EMCMOT_MOTION_FREE;
+    }
+}
+
+static void handle_jogwheels(void)
+{
+    int joint_num;
+    emcmot_joint_t *joint;
+    axis_hal_t *axis_data;
+    int new_jog_counts, delta;
+    double distance;
+
+    for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
+	/* point to joint data */
+	axis_data = &(emcmot_hal_data->axis[joint_num]);
+	joint = &joints[joint_num];
+	/* get counts from jogwheel */
+	new_jog_counts = *(axis_data->jog_counts);
+	delta = new_jog_counts - joint->old_jog_counts;
+	/* save value for next time */
+	joint->old_jog_counts = new_jog_counts;
+	/* did the wheel move? */
+	if ( delta == 0 ) {
+	    /* no, nothing to do */
+	    continue;
+	}
+	/* must be in free mode and enabled */
+	if (GET_MOTION_COORD_FLAG()) {
+	    continue;
+	}
+	if (!GET_MOTION_ENABLE_FLAG()) {
+	    continue;
+	}
+	if ( first_pass ) {
+	    continue;
+	}
+	/* the jogwheel input for this axis must be enabled */
+	if ( *(axis_data->jog_enable) == 0 ) {
+	    continue;
+	}
+	/* calculate distance to jog */
+	distance = delta * *(axis_data->jog_scale);
+	/* check for joint already on soft limit */
+	if (distance > 0.0 && GET_JOINT_PSL_FLAG(joint)) {
+	    continue;
+	}
+	if (distance < 0.0 && GET_JOINT_NSL_FLAG(joint)) {
+	    continue;
+	}
+	/* check for joint already on hard limit */
+	if (distance > 0.0 && GET_JOINT_PHL_FLAG(joint)) {
+	    continue;
+	}
+	if (distance < 0.0 && GET_JOINT_NHL_FLAG(joint)) {
+	    continue;
+	}
+	/* set target position for jog */
+	joint->free_pos_cmd += distance;
+	/* don't jog past limits */
+	refresh_jog_limits(joint);
+	if (joint->free_pos_cmd > joint->max_jog_limit) {
+	    joint->free_pos_cmd = joint->max_jog_limit;
+	}
+	if (joint->free_pos_cmd < joint->min_jog_limit) {
+	    joint->free_pos_cmd = joint->min_jog_limit;
+	}
+	/* set velocity of jog */
+	joint->free_vel_lim = joint->vel_limit;
+	/* and let it go */
+	joint->free_tp_enable = 1;
+	SET_JOINT_ERROR_FLAG(joint, 0);
+	/* clear axis homed flag(s) if we don't have forward kins.
+	   Otherwise, a transition into coordinated mode will incorrectly
+	   assume the homed position. Do all if they've all been moved
+	   since homing, otherwise just do this one */
+	clearHomes(joint_num);
     }
 }
 

@@ -194,7 +194,7 @@ static int checkJog(int joint_num, double vel)
    limits are set to the current position +/- the full range of
    the axis.
 */
-static void refresh_jog_limits(emcmot_joint_t *joint)
+void refresh_jog_limits(emcmot_joint_t *joint)
 {
     double range, margin;
 
@@ -252,7 +252,7 @@ static int inRange(EmcPose pos)
    result in all joints moving. The flag is consulted whenever a joint
    is jogged in joint mode, so that either its flag can be cleared if
    no other joints have moved, or all have to be cleared. */
-static void clearHomes(int joint_num)
+void clearHomes(int joint_num)
 {
     int n;
     emcmot_joint_t *joint;

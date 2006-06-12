@@ -85,7 +85,8 @@ emcmot_joint_t *joints = 0;
 emcmot_joint_t joint_array[EMCMOT_MAX_AXIS];
 #endif
 
-int mot_comp_id;		/* component ID for motion module */
+int mot_comp_id;	/* component ID for motion module */
+int first_pass = 1;	/* used to set initial conditions */
 
 int kinType = 0;
 
@@ -185,6 +186,8 @@ int init_module(void)
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_module() starting...\n");
 
+    /* set flag */
+    first_pass = 1;
     /* connect to the HAL and RTAPI */
     mot_comp_id = hal_init("motmod");
     if (mot_comp_id < 0) {
@@ -542,7 +545,21 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.jog-counts", num);
+    retval = hal_pin_s32_new(buf, HAL_RD, &(addr->jog_counts), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.jog-enable", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->jog_enable), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.jog-scale", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(addr->jog_scale), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     /* export axis parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.coarse-pos-cmd", num);
     retval =
