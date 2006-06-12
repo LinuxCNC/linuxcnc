@@ -4,7 +4,7 @@
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD key=[EMCMOT]SHMEM_KEY
 # block module with 6 differentiators (for velocity and accel sigs)
-loadrt blocks ddt=6
+loadrt blocks ddt=6 hypot=2
 
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread
@@ -16,6 +16,8 @@ addf ddt.2 servo-thread
 addf ddt.3 servo-thread
 addf ddt.4 servo-thread
 addf ddt.5 servo-thread
+addf hypot.0 servo-thread
+addf hypot.1 servo-thread
 
 # create HAL signals for position commands from motion module
 newsig Xpos float
@@ -51,6 +53,15 @@ linksp Zpos => ddt.4.in
 linkps ddt.4.out => Zvel
 linksp Zvel => ddt.5.in
 linkps ddt.5.out => Zacc
+
+newsig XYvel float
+linksp Xvel => hypot.0.in0
+linksp Yvel => hypot.0.in1
+linksp XYvel <= hypot.0.out
+newsig XYZvel float
+linksp Zvel => hypot.1.in0
+linksp XYvel => hypot.1.in1
+linksp XYZvel <= hypot.1.out
 
 # estop loopback
 linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in

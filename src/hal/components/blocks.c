@@ -30,6 +30,7 @@
 *     scale = gain/offset block - out = in * gain + offset
 *     lowpass = lowpass filter - out = last_out * (1 - gain) + in * gain
 *     match8 = 8 bit binary match detector (with input for cascading)
+*     hypot = like libm hypot(): out = sqrt(in1*in1 + in2*in2)
 *
 *********************************************************************
 *
@@ -78,6 +79,9 @@ MODULE_PARM_DESC(comp, "2-input comparators");
 static int sum2 = 0;		/* number of 2-input summers */
 MODULE_PARM(sum2, "i");
 MODULE_PARM_DESC(sum2, "2-input summers");
+static int hypot = 0;		/* number of hypot calculators */
+MODULE_PARM(hypot, "i");
+MODULE_PARM_DESC(hypot, "hypot calculators");
 static int mux2 = 0;		/* number of 2-input muxes */
 MODULE_PARM(mux2, "i");
 MODULE_PARM_DESC(mux2, "2-input multiplexors");
@@ -147,6 +151,12 @@ typedef struct {
     hal_bit_t *out;		/* pin: output */
     hal_float_t hyst;		/* parameter: hysteresis */
 } comp_t;
+
+typedef struct {
+    hal_float_t *in0;		/* pin: input used when sel = 0 */
+    hal_float_t *in1;		/* pin: input used when sel != 0 */
+    hal_float_t *out;		/* pin: output */
+} hypot_t;
 
 typedef struct {
     hal_float_t *in0;		/* pin: input used when sel = 0 */
@@ -272,6 +282,7 @@ static int export_constant(int num);
 static int export_wcomp(int num);
 static int export_comp(int num);
 static int export_mux2(int num);
+static int export_hypot(int num);
 static int export_mux4(int num);
 static int export_sum2(int num);
 static int export_integ(int num);
@@ -291,6 +302,7 @@ static void constant_funct(void *arg, long period);
 static void wcomp_funct(void *arg, long period);
 static void comp_funct(void *arg, long period);
 static void mux2_funct(void *arg, long period);
+static void hypot_funct(void *arg, long period);
 static void mux4_funct(void *arg, long period);
 static void sum2_funct(void *arg, long period);
 static void integ_funct(void *arg, long period);
@@ -372,6 +384,19 @@ int rtapi_app_main(void)
 	}
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d 2-input muxes\n", mux2);
+    }
+    /* allocate and export hypot() calculators */
+    if (hypot > 0) {
+	for (n = 0; n < hypot; n++) {
+	    if (export_hypot(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_hypot(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d 2-input muxes\n", hypot);
     }
     /* allocate and export 4 input multiplexors */
     if (mux4 > 0) {
@@ -610,6 +635,23 @@ static void comp_funct(void *arg, long period)
 	if (tmp > comp->hyst) {
 	    *(comp->out) = 1;
 	}
+    }
+}
+
+static void hypot_funct(void *arg, long period)
+{
+    hypot_t *h = (hypot_t *) arg;
+
+    double a = fabs(*(h->in0)), b = fabs(*(h->in1));
+
+    /* calculate output */
+    if(a == 0) *(h->out) = b;
+    else if(a > b) {
+	b = b / a;
+	*(h->out) = a * sqrt(1+b*b);
+    } else {
+	a = a / b;
+	*(h->out) = b * sqrt(1+a*a);
     }
 }
 
@@ -1113,6 +1155,62 @@ static int export_comp(int num)
     }
     /* set default parameter values */
     comp->hyst = 0.0;
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_hypot(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    hypot_t *h;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for 2 input multiplexor */
+    h = hal_malloc(sizeof(hypot_t));
+    if (h == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pins for inputs */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "hypot.%d.in0", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(h->in0), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "hypot.%d.in1", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(h->in1), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "hypot.%d.out", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(h->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "hypot.%d", num);
+    retval = hal_export_funct(buf, hypot_funct, h, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
