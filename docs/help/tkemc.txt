@@ -1,33 +1,6 @@
-Using This Help
----------------
-This is a searchable text help file. To search for a keyword, type
-Control-S or Control-R for a dialog box. Scroll bars work this way:
-in a vertical scroll bar, right-click moves down, left click moves up,
-and middle-click (or both, for two-button mice) grabs the scroll
-point. In a horizontal scroll bar, right-click moves left (for some
-reason known only to the X Windows folks), left-click moves right, and
-middle-click grabs the scroll point.
 
-Units
+Menus
 -----
-The units for display of length values is determined by the INI
-file. It is not affected by the units as selected in a program, and
-you can't select other units. For example, if the INI file (usually
-emc.ini) contains this entry in the TRAJ section:
-
-     [TRAJ]
-     LINEAR_UNITS =             0.03937007874016
-
-the units are inches. The value for LINEAR_UNITS is in machine units
-per millimeter.
-
-(!) Note: we will probably add a menu item to select display
-units, from either English, Metric, or Program. If Program units are
-selected, the numbers will be displayed according to the G20/G21 modal
-code in the program.
-
-Top-Row Menus
--------------
 File->Run... : prompts for an NC program to run. You need to be
 in Auto mode, or you'll get an error.
 
@@ -254,10 +227,6 @@ s/S     resume a paused program
 a/A     step one line in a paused program
 b       take spindle brake off
 Alt-b   put spindle brake on
-Alt-s   start logging
-Alt-p   pause logging
-Alt-f   save log file
-Ctrl-p  print log file (if /usr/X11R6/bin/xgraph is installed)
 
 Note that MDI mode disables most of the keys, since they are valid
 symbols that can be typed in. F1-F5 work in MDI, as do the spindle
@@ -332,52 +301,8 @@ M49  disable spindle speed override
 
 Frequently Asked Questions (FAQ)
 --------------------------------
-Q. I get following errors on my stepper motor system. How can this be?
-A. Because the commanded speed for an axis can be greater that the
-fastest it can run, given the maximum pulse rate (something like 5
-kilohertz). This means the axis can't keep up, so error builds up, and
-you trip a following error. Change the INI file parameter for [TRAJ]
-MAX_VELOCITY to be lower.
-
 Q. The axes don't move when I try to jog them.
-A. Make sure you're out of estop, in manual mode. If you still can't
-jog then maybe the hard limit switches are seen as tripped. This often
-happens when running the EMC without actual hardware, in which case
-the bits float high. To correct this change the polarity of the limit
-switches in your ini file (emc.ini, or whatever you are using), as in
-
-[AXIS_0]
-MIN_LIMIT_SWITCH_POLARITY =     1
-MAX_LIMIT_SWITCH_POLARITY =     1
-
-Change them and see if this clears the problem up.
-
-Q. My script gives syntax errors when I run it, like this:
-
-   'nknown option: `-
-   Usage: csh [ -bcdefilmnqstvVxX ] [ argument ... ].
-
-A. Make sure the name of the command interpreter is the first
-characters of the first line of the script, e.g.,
-
------top of file---
-#!/bin/csh -f
-
-Also, the file might be in DOS format. The 'vi' editor will show this
-in the status line, e.g., when you type "vi emc.run", you'll get a
-screen editor with this at the bottom:
-
-"emc.run" [dos format] 3 lines, 25 characters
-
-(Exit vi with :q). If it's DOS format, it needs to be converted back
-to Unix format, which means the CR characters (decimal 13) need to be
-LF characters (decimal 10). This can be easily done at the Unix prompt
-using the 'tr' text replace program, e.g.,
-
-      tr -d \\r < emc.run > new.run
-
-which deletes all return characters, leaving the newlines alone, and
-puts the result into new.run.
+A. Make sure you're out of estop, in manual mode.
 
 Q. Software limits don't work. I can jog past a soft limit.
 A. Software limits only work when an axis has been homed, since
@@ -387,19 +312,11 @@ Q. Why doesn't the mouse or return key work?
 A. Sometimes the cursor needs to be in the part of the window with the
 text in it. Move the cursor to a different region and try it.
 
-Q. Why don't are the modal G and M codes not correct in Auto mode?
+Q. Why are the modal G and M codes not correct in Auto mode?
 A. The modes that will be active when you enter MDI mode are
 shown. These are read ahead of actual program execution.
 
-Q. Is there a Windows version of the EMC?
-A. There is a version that runs in simulation. We are working on one
-that uses some of the Windows NT real-time extensions.
-
-Q. How can I change the fonts/colors/sizes in the Xemc display?
-A. The "xemc" file in the emc/ directory contains the X resources used
+Q. How can I change the fonts/colors/sizes in the Tkemc display?
+A. The "Tkemc" file in the emc/ directory contains the X resources used
 by the program. Almost nothing is hard coded in the program
 itself. You can change any of these values and see the effects.
-
-Q. Why does the text sometimes not appear in the MDI window?
-A. If you zoom to full size and the resume to original size, the MDI
-window stops showing text. We're looking in to this.
