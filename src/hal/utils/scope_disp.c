@@ -467,9 +467,9 @@ static void change_zoom(int dir, int x) {
     // how many samples away from the center of the window is this
     // pixel?
     old_fraction = (x - disp->width / 2) / old_pixels_per_sample / ctrl_shm->rec_len;
+    // and new?
     new_fraction = (x - disp->width / 2) / new_pixels_per_sample / ctrl_shm->rec_len;
-    // how many samples per pixel 
-    printf("zoom: %f %f  %f\n", old_fraction, horiz->pos_setting, new_fraction);
+    // displace by the difference
     set_horiz_pos( horiz->pos_setting - new_fraction + old_fraction );
 }
 
