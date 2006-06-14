@@ -311,7 +311,7 @@ foreach dir $configs_dir_list {
 unset seen
 
 if { $config_count == 0 } {
-    puts stderr [ format [ msgcat::mc "ERROR: no configurations found in path '%s'" ] $configs_path ]
+    puts stderr [msgcat::mc "ERROR: no configurations found in path '%s'" $configs_path]
     exit 1
 }
 
@@ -332,16 +332,9 @@ proc wait_and_see {node {wait 10}} {
 }
 
 proc prompt_copy configname {
-    set res [tk_dialog .d "Copy Configuration?" [subst [msgcat::mc {The\
-configuration you selected, $configname, is in a directory you cannot\
-write to.
 
-This will cause certain features not to function properly, and you will be\
-unable to modify the .ini and .hal files.
+    set res [tk_dialog .d [msgcat::mc "Copy Configuration?"] [msgcat::mc "The configuration you selected, %s, is in a directory you cannot write to.\n\nThis will cause certain features not to function properly, and you will be unable to modify the .ini and .hal files.\n\nIt is recommended that you make a copy of this configuration to your home directory.  Do you wish to copy the configuration?" $configname] warning 0 [msgcat::mc "Yes"] [msgcat::mc "No"] [msgcat::mc "Cancel"]]
 
-It is recommended that you make a copy of this configuration to your home\
-directory.  Do you wish to copy the configuration?}]] \
-    warning 0 {Yes} {No} {Cancel}]
     if {$res == -1 || $res == 2} { return "" }
     if {$res == 1} { return $configname }
     set configdir [file dirname $configname]
@@ -360,9 +353,7 @@ directory.  Do you wish to copy the configuration?}]] \
         break
     }
 
-    tk_dialog .d "Configuration Copied" [subst [msgcat::mc {\
-The configuration file has been copied to $copydir.  Next time, choose this\
-location when starting emc.}]] info 0 OK
+    tk_dialog .d [msgcat::mc "Configuration Copied"] [msgcat::mc "The configuration file has been copied to %s. Next time, choose this location when starting EMC2." $copydir] info 0 [msgcat::mc "OK"]
 
     return $copydir/[file tail $configname]
 }
