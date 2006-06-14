@@ -332,16 +332,15 @@ proc wait_and_see {node {wait 10}} {
 }
 
 proc prompt_copy configname {
-    set res [tk_dialog .d "Copy Configuration?" [subst {\
-The configuration you selected, $configname, is in a directory you cannot \
+    set res [tk_dialog .d "Copy Configuration?" [subst [msgcat::mc {The\
+configuration you selected, $configname, is in a directory you cannot\
 write to.
 
-This will cause certain features not to function properly, and you will be
+This will cause certain features not to function properly, and you will be\
 unable to modify the .ini and .hal files.
 
-It is \
-recommended that you make a copy of this configuration to your home \
-directory.  Do you wish to copy the configuration?}] \
+It is recommended that you make a copy of this configuration to your home\
+directory.  Do you wish to copy the configuration?}]] \
     warning 0 {Yes} {No} {Cancel}]
     if {$res == -1 || $res == 2} { return "" }
     if {$res == 1} { return $configname }
@@ -361,9 +360,9 @@ directory.  Do you wish to copy the configuration?}] \
         break
     }
 
-    tk_dialog .d "Configuration Copied" [subst {\
-The configuration file has been copied to $copydir.  Next time, choose this
-location when starting emc.}] info 0 OK
+    tk_dialog .d "Configuration Copied" [subst [msgcat::mc {\
+The configuration file has been copied to $copydir.  Next time, choose this\
+location when starting emc.}]] info 0 OK
 
     return $copydir/[file tail $configname]
 }
