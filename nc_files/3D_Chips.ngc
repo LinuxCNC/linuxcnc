@@ -4,12 +4,13 @@ N15 ( The part is cut from a 100x100x50mm block with the zero point at the )
 N20 ( center top of the block. Cutter is a 10mm ball nose. )
 N30 G21
 N40G90
+G64P.1
 N50T1M6
 N60M8
 N70S1600M3
+N90G0Z10.
 N80G0X53.Y-56.128
-N90Z10.
-N100Z-25.372
+N100G1Z-25.372F100
 N110G1Z-27.372F225
 N120Y-56.12Z-27.725
 N130Y-56.105Z-27.894
