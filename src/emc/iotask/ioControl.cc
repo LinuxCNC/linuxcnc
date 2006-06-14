@@ -1115,7 +1115,7 @@ int main(int argc, char *argv[])
 			    emcioStatus.spindle.speed);
 	    emcioStatus.spindle.increasing = 1;
 	    emcioStatus.spindle.brake = 0;
-	    if ( *(iocontrol_data->spindle_speed_out) > 0 )
+	    if (emcioStatus.spindle.direction > 0) 
 		*(iocontrol_data->spindle_speed_out) += 1.0;
 	    else
 		*(iocontrol_data->spindle_speed_out) -= 1.0;
@@ -1128,10 +1128,15 @@ int main(int argc, char *argv[])
 			    emcioStatus.spindle.speed);
 	    emcioStatus.spindle.increasing = -1;
 	    emcioStatus.spindle.brake = 0;
-	    if ( *(iocontrol_data->spindle_speed_out) > 0 )
+	    if (emcioStatus.spindle.direction > 0) {
 		*(iocontrol_data->spindle_speed_out) -= 1.0;
-	    else
+		if (*(iocontrol_data->spindle_speed_out) < 0)
+		    *(iocontrol_data->spindle_speed_out) = 0.0;
+	    } else {
 		*(iocontrol_data->spindle_speed_out) += 1.0;
+		if (*(iocontrol_data->spindle_speed_out) > 0)
+		    *(iocontrol_data->spindle_speed_out) = 0.0;
+	    }
 	    *(iocontrol_data->spindle_decr_speed) = 1;
 	    break;
 
