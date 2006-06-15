@@ -725,7 +725,7 @@ void draw_triggerline(int chan_num, int highlight) {
     static gint8 dashes[2] = {2,4};
     scope_disp_t *disp = &(ctrl_usr->disp);
     scope_chan_t *chan = &(ctrl_usr->chan[chan_num - 1]);
-    scope_trig_t *trig = &(ctrl_usr->trig);;
+    scope_trig_t *trig = &(ctrl_usr->trig);
     double yfoffset = chan->vert_offset;
     double ypoffset = chan->position * disp->height;
     double yscale = disp->height / (-10.0 * chan->scale);
