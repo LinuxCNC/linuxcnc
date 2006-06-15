@@ -585,14 +585,14 @@ static void middle_drag(int dx) {
     refresh_display();
 }
 
-static void left_drag(int dy, int y) {
+static void left_drag(int dy, int y, GdkModifierType state) {
     scope_disp_t *disp = &(ctrl_usr->disp);
     scope_vert_t *vert = &(ctrl_usr->vert);
     scope_chan_t *chan = &(ctrl_usr->chan[vert->selected - 1]);
 
     if(vert->selected == -1) return;
 
-    if(disp->selected_part == 1) {
+    if(disp->selected_part == 1 || (state & GDK_SHIFT_MASK)) {
         // dragging on baseline
         double new_position = y * 1.0 / disp->height;
         double mod = fmod(new_position, 0.1);
@@ -616,21 +616,18 @@ static void left_drag(int dy, int y) {
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data) {
     scope_disp_t *disp = &(ctrl_usr->disp);
     GdkModifierType mod;
+    int x, y;
 
-    if(event) {
-            int x, y;
-	    gdk_window_get_pointer(disp->drawing->window, &x, &y, &mod);
-            if(mod & GDK_BUTTON1_MASK) {
-                left_drag(y-motion_y, y);
-                return TRUE;
-            }
-            if(mod & GDK_BUTTON2_MASK) {
-                middle_drag(motion_x - x);
-            }
-            motion_x = x;
-            refresh_display();
-            return TRUE;
+    gdk_window_get_pointer(disp->drawing->window, &x, &y, &mod);
+    if(mod & GDK_BUTTON1_MASK) {
+        left_drag(y-motion_y, y, event->state);
+        return TRUE;
     }
+    if(mod & GDK_BUTTON2_MASK) {
+        middle_drag(motion_x - x);
+    }
+    motion_x = x;
+    refresh_display();
     return TRUE;
 }
 
