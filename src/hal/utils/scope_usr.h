@@ -178,6 +178,7 @@ typedef struct {
     GdkColor color_baseline;    /* The baseline color */
 
     GdkGC *context;		/* graphics context for drawing */
+    int selected_part;
 } scope_disp_t;
 
 /* this struct holds data relating to logging */ 

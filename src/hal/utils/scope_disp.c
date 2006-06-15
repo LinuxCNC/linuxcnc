@@ -128,7 +128,7 @@ void request_display_refresh(int delay)
     ctrl_usr->display_refresh_timer = delay;
 }
 
-static int motion_x = -1;
+static int motion_x = -1, motion_y = -1;
 
 void refresh_display(void)
 {
@@ -322,7 +322,7 @@ static void init_display_window(void)
             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
             | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK
             | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
-            | GDK_BUTTON2_MOTION_MASK);
+            | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON1_MOTION_MASK );
     gtk_widget_show(disp->drawing);
     /* get color map */
     disp->map = gtk_widget_get_colormap(disp->drawing);
@@ -475,13 +475,21 @@ static void change_zoom(int dir, int x) {
 
 static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data) {
     scope_vert_t *vert = &(ctrl_usr->vert);
+    scope_disp_t *disp = &(ctrl_usr->disp);
+    motion_y = event->y;
+    motion_x = event->x;
     if(event->button == 4) { // zoom in
         change_zoom(1, event->x);
     } else if(event->button == 5) { // zoom out
         change_zoom(-1, event->x);
     } else {
         int z = select_trace(event->x, event->y);
-        if(z != -1 && z != vert->selected) {
+        int new_channel = z & 0xff;
+        int channel_part = z >> 8; 
+
+        disp->selected_part = channel_part;
+
+        if(new_channel != vert->selected) {
             vert->selected = z;
             channel_changed();
         }
@@ -568,12 +576,38 @@ static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data
 }
 #endif
 
-static void drag(int dx) {
+static void middle_drag(int dx) {
     scope_disp_t *disp = &(ctrl_usr->disp);
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
     float dt = (dx / disp->pixels_per_sample) / ctrl_shm->rec_len;
     set_horiz_pos(horiz->pos_setting + 5 * dt);
     refresh_display();
+}
+
+static void left_drag(int dy, int y) {
+    scope_disp_t *disp = &(ctrl_usr->disp);
+    scope_vert_t *vert = &(ctrl_usr->vert);
+    scope_chan_t *chan = &(ctrl_usr->chan[vert->selected - 1]);
+
+    if(disp->selected_part == 1) {
+        // dragging on baseline
+        double new_position = y * 1.0 / disp->height;
+        double mod = fmod(new_position, 0.1);
+        if(mod > .095) new_position = new_position + (.1-mod);
+        if(mod < .005) new_position = new_position - mod;
+        set_vert_pos(new_position);
+        // chan->position = new_position;
+        refresh_display();
+        motion_y = y;
+    } else {
+        if(dy > 5) {
+            set_vert_scale(chan->scale_index + 1);
+            motion_y = y;
+        } else if(dy < -5) {
+            set_vert_scale(chan->scale_index - 1);
+            motion_y = y;
+        }
+    }
 }
 
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data) {
@@ -583,10 +617,12 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
     if(event) {
             int x, y;
 	    gdk_window_get_pointer(disp->drawing->window, &x, &y, &mod);
-            if(mod & GDK_BUTTON2_MASK) {
-                drag(motion_x - x);
-                motion_x = x;
+            if(mod & GDK_BUTTON1_MASK) {
+                left_drag(y-motion_y, y);
                 return TRUE;
+            }
+            if(mod & GDK_BUTTON2_MASK) {
+                middle_drag(motion_x - x);
             }
             motion_x = x;
             refresh_display();
@@ -640,16 +676,16 @@ static double mag(struct pt *p) {
     return hypot(p->x, p->y);
 }
 
-static double distance_point_line(x, y, x1, y1, x2, y2) {
-    struct pt M = {x2-x1, x2-y1},
+static double distance_point_line(int x, int y, int x1, int y1, int x2, int y2) {
+    struct pt M = {x2-x1, y2-y1},
            Q = {x-x1, y-y1},
            R;
 
     double t0 = dot(&M, &Q) / dot(&M, &M);
     if(t0 < 0) t0 = 0;
     if(t0 > 1) t0 = 1;
-    R.x = x - x1 + t0 * M.x;
-    R.y = y - y1 + t0 * M.y;
+    R.x = x - (x1 + t0 * M.x);
+    R.y = y - (y1 + t0 * M.y);
     return mag(&R);
 }
 
@@ -659,6 +695,7 @@ void line(int chan_num, int x1, int y1, int x2, int y2) {
         gdk_draw_line(disp->win, disp->context, x1, y1, x2, y2);
     } else {
         double dist = distance_point_line(select_x, select_y, x1, y1, x2, y2);
+        if(x1 == 0)
         if(dist < min_dist) {
             min_dist = dist;
             target = chan_num;
@@ -678,7 +715,7 @@ void draw_baseline(int chan_num, int highlight) {
     } else {
         gdk_gc_set_foreground(disp->context, &(disp->color_baseline));
     }
-    line(chan_num, 0, y1, disp->width, y1);
+    line(chan_num | 0x100, 0, y1, disp->width, y1);
 }
 
 /* waveform styles: if neither is defined, an intermediate style is used */
