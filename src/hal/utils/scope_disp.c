@@ -501,7 +501,6 @@ static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data)
             channel_changed();
         }
         if(channel_part == 3) {
-            scope_trig_t *trig = &(ctrl_usr->trig);;
             set_trigger_polarity(!ctrl_shm->trig_edge);
         }
     }
@@ -606,7 +605,6 @@ static double snap(int y) {
 
 static void left_drag(int dy, int y, GdkModifierType state) {
     scope_disp_t *disp = &(ctrl_usr->disp);
-    scope_trig_t *trig = &(ctrl_usr->trig);
     scope_vert_t *vert = &(ctrl_usr->vert);
     scope_chan_t *chan = &(ctrl_usr->chan[vert->selected - 1]);
 
