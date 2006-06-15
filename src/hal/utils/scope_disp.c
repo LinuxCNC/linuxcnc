@@ -490,7 +490,8 @@ static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data)
         disp->selected_part = channel_part;
 
         if(new_channel != vert->selected) {
-            vert->selected = z;
+            if(z == -1) vert->selected = -1;
+            else vert->selected = new_channel;
             channel_changed();
         }
     }
@@ -589,6 +590,8 @@ static void left_drag(int dy, int y) {
     scope_vert_t *vert = &(ctrl_usr->vert);
     scope_chan_t *chan = &(ctrl_usr->chan[vert->selected - 1]);
 
+    if(vert->selected == -1) return;
+
     if(disp->selected_part == 1) {
         // dragging on baseline
         double new_position = y * 1.0 / disp->height;
@@ -600,11 +603,11 @@ static void left_drag(int dy, int y) {
         refresh_display();
         motion_y = y;
     } else {
-        if(dy > 5) {
-            set_vert_scale(chan->scale_index + 1);
-            motion_y = y;
-        } else if(dy < -5) {
-            set_vert_scale(chan->scale_index - 1);
+        if(abs(dy) > 5) {
+            int direction = dy > 0 ? 1 : -1;
+            int baseline_y = chan->position * disp-> height;
+            int side = select_y > baseline_y ? -1 : 1;
+            set_vert_scale(chan->scale_index + direction * side);
             motion_y = y;
         }
     }
@@ -695,7 +698,6 @@ void line(int chan_num, int x1, int y1, int x2, int y2) {
         gdk_draw_line(disp->win, disp->context, x1, y1, x2, y2);
     } else {
         double dist = distance_point_line(select_x, select_y, x1, y1, x2, y2);
-        if(x1 == 0)
         if(dist < min_dist) {
             min_dist = dist;
             target = chan_num;
