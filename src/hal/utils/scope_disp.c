@@ -72,6 +72,7 @@ static void update_readout(void);
 static void draw_grid(void);
 static void draw_baseline(int chan_num, int highlight);
 static void draw_waveform(int chan_num, int highlight);
+static void draw_triggerline(int chan_num, int highlight);
 static void handle_window_expose(GtkWidget * widget, gpointer data);
 static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer data);
@@ -202,7 +203,11 @@ void refresh_display(void)
             && (vert->data_offset[vert->selected - 1] >= 0)) {
         draw_baseline(vert->selected, TRUE);
     }
-
+    if ((vert->chan_enabled[ctrl_shm->trig_chan - 1])
+            &&  (vert->data_offset[ctrl_shm->trig_chan - 1] >= 0)) {
+        draw_triggerline(ctrl_shm->trig_chan,
+                ctrl_shm->trig_chan == vert->selected);
+    }
     /* draw non-highlighted waveforms next */
     for (n = 0; n < 16; n++) {
 	if ((vert->chan_enabled[n]) && (vert->data_offset[n] >= 0)
@@ -434,6 +439,7 @@ static int select_trace(int x, int y) {
     for(n=0; n<16; n++) {
         scope_vert_t *vert = &(ctrl_usr->vert);
         if((vert->chan_enabled[n]) && (vert->data_offset[n] >= 0)) {
+            draw_triggerline(n+1, FALSE);
             draw_baseline(n+1, FALSE);
             draw_waveform(n+1, FALSE);
         }
@@ -493,6 +499,10 @@ static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data)
             if(z == -1) vert->selected = -1;
             else vert->selected = new_channel;
             channel_changed();
+        }
+        if(channel_part == 3) {
+            scope_trig_t *trig = &(ctrl_usr->trig);;
+            set_trigger_polarity(!ctrl_shm->trig_edge);
         }
     }
     return 1;
@@ -585,19 +595,28 @@ static void middle_drag(int dx) {
     refresh_display();
 }
 
+static double snap(int y) {
+    scope_disp_t *disp = &(ctrl_usr->disp);
+    double new_position = y * 1.0 / disp->height;
+    double mod = fmod(new_position, 0.1);
+    if(mod > .095) new_position = new_position + (.1-mod);
+    if(mod < .005) new_position = new_position - mod;
+    return new_position;
+}
+
 static void left_drag(int dy, int y, GdkModifierType state) {
     scope_disp_t *disp = &(ctrl_usr->disp);
+    scope_trig_t *trig = &(ctrl_usr->trig);
     scope_vert_t *vert = &(ctrl_usr->vert);
     scope_chan_t *chan = &(ctrl_usr->chan[vert->selected - 1]);
 
     if(vert->selected == -1) return;
 
-    if(disp->selected_part == 1 || (state & GDK_SHIFT_MASK)) {
-        // dragging on baseline
-        double new_position = y * 1.0 / disp->height;
-        double mod = fmod(new_position, 0.1);
-        if(mod > .095) new_position = new_position + (.1-mod);
-        if(mod < .005) new_position = new_position - mod;
+    if(disp->selected_part == 2 || (state & GDK_CONTROL_MASK)) {
+        double new_position = snap(y);
+        set_trigger_level(new_position);
+    } else if(disp->selected_part == 1 || (state & GDK_SHIFT_MASK)) {
+        double new_position = snap(y);
         set_vert_pos(new_position);
         // chan->position = new_position;
         refresh_display();
@@ -701,6 +720,45 @@ void line(int chan_num, int x1, int y1, int x2, int y2) {
         }
     }
 }
+
+
+static
+void draw_triggerline(int chan_num, int highlight) {
+    static gint8 dashes[2] = {2,4};
+    scope_disp_t *disp = &(ctrl_usr->disp);
+    scope_chan_t *chan = &(ctrl_usr->chan[chan_num - 1]);
+    scope_trig_t *trig = &(ctrl_usr->trig);;
+    double yfoffset = chan->vert_offset;
+    double ypoffset = chan->position * disp->height;
+    double yscale = disp->height / (-10.0 * chan->scale);
+    double fp_level =
+        chan->scale * ((chan->position - trig->level) * 10) -
+	chan->vert_offset;
+    printf("trigger level %f\n", fp_level);
+    int y1 = (fp_level-yfoffset) * yscale + ypoffset;
+    double dx = hypot(disp->width, disp->height) * .01;
+    double dy = dx * 1.3;
+    if(ctrl_shm->trig_edge) dy = -dy;
+
+    if(highlight) {
+	gdk_gc_set_foreground(disp->context, &(disp->color_selected[chan_num-1]));
+    } else {
+	gdk_gc_set_foreground(disp->context, &(disp->color_normal[chan_num-1]));
+    }
+    gdk_gc_set_dashes(disp->context, 0, dashes, 2);
+    gdk_gc_set_line_attributes(disp->context, 0, GDK_LINE_ON_OFF_DASH, GDK_CAP_BUTT, GDK_JOIN_MITER);
+    line(chan_num | 0x200, 0, y1, disp->width, y1);
+    gdk_gc_set_line_attributes(disp->context, 0, GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
+    if(highlight) {
+        gdk_gc_set_foreground(disp->context, &(disp->color_grid));
+    } else {
+        gdk_gc_set_foreground(disp->context, &(disp->color_baseline));
+    }
+    line(chan_num | 0x300, 2*dx, y1, 2*dx, y1 + 2*dy);
+    line(chan_num | 0x300, dx, y1+dy, 2*dx, y1 + 2*dy);
+    line(chan_num | 0x300, 3*dx, y1+dy, 2*dx, y1 + 2*dy);
+}
+
 
 void draw_baseline(int chan_num, int highlight) {
     scope_disp_t *disp = &(ctrl_usr->disp);

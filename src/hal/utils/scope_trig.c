@@ -198,6 +198,7 @@ void refresh_trigger(void)
 	format_signal_value(buf, BUFLEN, fp_level);
     }
     gtk_label_set_text_if(trig->level_label, buf);
+    refresh_display();
 }
 
 void write_trig_config(FILE *fp)
