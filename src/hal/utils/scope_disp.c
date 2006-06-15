@@ -598,8 +598,8 @@ static void middle_drag(int dx) {
 static double snap(int y) {
     scope_disp_t *disp = &(ctrl_usr->disp);
     double new_position = y * 1.0 / disp->height;
-    double mod = fmod(new_position, 0.1);
-    if(mod > .095) new_position = new_position + (.1-mod);
+    double mod = fmod(new_position, 0.05);
+    if(mod > .045) new_position = new_position + (.05-mod);
     if(mod < .005) new_position = new_position - mod;
     return new_position;
 }
@@ -734,10 +734,13 @@ void draw_triggerline(int chan_num, int highlight) {
     double fp_level =
         chan->scale * ((chan->position - trig->level) * 10) -
 	chan->vert_offset;
-    printf("trigger level %f\n", fp_level);
+
     int y1 = (fp_level-yfoffset) * yscale + ypoffset;
     double dx = hypot(disp->width, disp->height) * .01;
     double dy = dx * 1.3;
+    if(dx < 5) dx = 5;
+    if(dy < dx + 1) dy = dx + 1;
+
     if(ctrl_shm->trig_edge) dy = -dy;
 
     if(highlight) {
