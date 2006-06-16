@@ -363,6 +363,8 @@ CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON), $(wildcard $(CONF)/*)))
 COPY_CONFIGS := \
 	$(patsubst %,../configs/%/emc.nml, demo_mazak halui_halvcp hexapod-sim max univpwm univstep \
 		stepper-xyza demo_step_cl stepper motenc m5i20 stg sim vti nist-lathe) \
+	$(patsubst %,../configs/%/core_axis.hal, demo_mazak halui_halvcp hexapod-sim max univpwm univstep \
+		stepper-xyza demo_step_cl stepper motenc m5i20 stg sim vti nist-lathe) \
 	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_halvcp sim)
@@ -375,6 +377,8 @@ $(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_st
 $(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal
 	-cp $< $@
 $(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal
+	-cp $< $@
+$(call CONFILES,core_axis.hal): %/core_axis.hal: ../configs/common/core_axis.hal
 	-cp $< $@
  
 endif # userspace
