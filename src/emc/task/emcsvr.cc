@@ -67,6 +67,10 @@ static RCS_STAT_CHANNEL *emcStatusChannel = NULL;
 static NML *emcErrorChannel = NULL;
 static RCS_CMD_CHANNEL *toolCommandChannel = NULL;
 static RCS_STAT_CHANNEL *toolStatusChannel = NULL;
+
+// TODO: FIXME remove for good if it works without these
+// the next few have been merged into one single IO controller
+#if 0
 static RCS_CMD_CHANNEL *auxCommandChannel = NULL;
 static RCS_STAT_CHANNEL *auxStatusChannel = NULL;
 static RCS_CMD_CHANNEL *lubeCommandChannel = NULL;
@@ -75,6 +79,7 @@ static RCS_CMD_CHANNEL *spindleCommandChannel = NULL;
 static RCS_STAT_CHANNEL *spindleStatusChannel = NULL;
 static RCS_CMD_CHANNEL *coolantCommandChannel = NULL;
 static RCS_STAT_CHANNEL *coolantStatusChannel = NULL;
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -121,6 +126,10 @@ int main(int argc, char *argv[])
 		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
 				     EMC_NMLFILE);
 	}
+
+// TODO: FIXME remove for good if it works without these
+// the next few have been merged into one single IO controller
+#if 0
 	if (NULL == spindleCommandChannel) {
 	    spindleCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "spindleCmd", "emcsvr",
@@ -161,6 +170,7 @@ int main(int argc, char *argv[])
 		new RCS_STAT_CHANNEL(emcFormat, "lubeSts", "emcsvr",
 				     EMC_NMLFILE);
 	}
+#endif
 
 	if (!emcCommandChannel->valid()) {
 	    delete emcCommandChannel;
@@ -182,6 +192,10 @@ int main(int argc, char *argv[])
 	    delete toolStatusChannel;
 	    toolStatusChannel = NULL;
 	}
+
+// TODO: FIXME remove for good if it works without these
+// the next few have been merged into one single IO controller
+#if 0
 	if (!auxCommandChannel->valid()) {
 	    delete auxCommandChannel;
 	    auxCommandChannel = NULL;
@@ -214,6 +228,7 @@ int main(int argc, char *argv[])
 	    delete spindleStatusChannel;
 	    spindleStatusChannel = NULL;
 	}
+#endif
 	esleep(0.200);
     }
 
@@ -244,6 +259,7 @@ int main(int argc, char *argv[])
 				 EMC_NMLFILE);
     }
 
+#if 0
     if (NULL == spindleCommandChannel) {
 	spindleCommandChannel =
 	    new RCS_CMD_CHANNEL(emcFormat, "spindleCmd", "emcsvr",
@@ -284,6 +300,7 @@ int main(int argc, char *argv[])
 	    new RCS_STAT_CHANNEL(emcFormat, "lubeSts", "emcsvr",
 				 EMC_NMLFILE);
     }
+#endif
 
     run_nml_servers();
 
