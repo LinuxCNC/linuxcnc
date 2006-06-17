@@ -447,7 +447,20 @@ $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 
 $WAITPIN iocontrol.0.emc-enable-in
 
-# 4.3.5. execute HALCMD config files (if any)
+# 4.3.5. Run halui in background, if necessary
+if [ -n "$HALUI" ] ; then
+    echo "Starting HAL User Interface program: $HALUI" >>$PRINT_FILE
+    if [ ! -x $EMC2_BIN_DIR/$HALUI ] ; then
+	echo "Can't execute halui program $EMC2_BIN_DIR/$HALUI"
+	Cleanup
+	exit 1
+    fi
+    $EMC2_BIN_DIR/$HALUI -ini $INIFILE &
+
+    $WAITPIN halui.program.step
+fi
+
+# 4.3.6. execute HALCMD config files (if any)
 # get first config file name from ini file
 NUM=1
 CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
@@ -470,7 +483,7 @@ while [ -n "$CFGFILE" ] ; do
     CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
 done
 
-# 4.3.6. execute discrete HAL commands from ini file (if any)
+# 4.3.7. execute discrete HAL commands from ini file (if any)
 # get first command from ini file
 NUM=1
 HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2>>$DEBUG_FILE`
@@ -488,10 +501,10 @@ while [ -n "$HALCOMMAND" ] ; do
     HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2>>$DEBUG_FILE`
 done
 
-# 4.3.7. start the realtime stuff ticking
+# 4.3.8. start the realtime stuff ticking
 $HALCMD start
 
-# 4.3.8. Run emctask in background
+# 4.3.9. Run emctask in background
 echo "Starting EMC TASK program: $EMCTASK" >>$PRINT_FILE
 if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
     echo "Can't execute TASK program $EMC2_BIN_DIR/$EMCTASK"
@@ -499,21 +512,6 @@ if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
     exit 1
 fi
 $EMC2_BIN_DIR/$EMCTASK -ini $INIFILE &
-
-
-# 4.3.9. Run halui in background, if necessary
-if [ -n "$HALUI" ] ; then
-    echo "Starting HAL User Interface program: $HALUI" >>$PRINT_FILE
-    if [ ! -x $EMC2_BIN_DIR/$HALUI ] ; then
-	echo "Can't execute halui program $EMC2_BIN_DIR/$HALUI"
-	Cleanup
-	exit 1
-    fi
-    $EMC2_BIN_DIR/$HALUI -ini $INIFILE &
-
-    $WAITPIN halui.program.step
-fi
-
 
 # Debugging information, remove later
 $PS -ael >>$DEBUG_FILE
