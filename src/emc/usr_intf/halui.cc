@@ -517,6 +517,9 @@ static void thisQuit()
 	emcCommandBuffer = 0;
     }
 
+    //don't forget the big HAL sin ;)
+    hal_exit(comp_id);
+    
     exit(0);
 }
 
