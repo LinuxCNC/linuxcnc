@@ -107,6 +107,7 @@ EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
 # common from here..
 INIVAR=$EMC2_BIN_DIR/inivar
 HALCMD=$EMC2_BIN_DIR/halcmd
+WAITPIN=$EMC2_BIN_DIR/wait-for-pin
 PICKCONFIG=$EMC2_TCL_DIR/bin/pickconfig.tcl
 EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
 EMC2_IOSH=$EMC2_BIN_DIR/iosh
@@ -440,7 +441,7 @@ if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
 fi
 $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 
-sleep 1
+$WAITPIN iocontrol.0.emc-enable-in
 
 # 4.3.6. execute HALCMD config files (if any)
 # get first config file name from ini file
@@ -526,6 +527,8 @@ if [ -n "$HALUI" ] ; then
 	exit 1
     fi
     $EMC2_BIN_DIR/$HALUI -ini $INIFILE &
+
+    $WAITPIN halui.program.step
 fi
 
 
@@ -533,8 +536,6 @@ fi
 $PS -ael >>$DEBUG_FILE
 $IPCS >>$DEBUG_FILE
 $LSMOD >>$DEBUG_FILE
-
-sleep 1
 
 #export some common directories, used by some of the GUI's
 export EMC2_TCL_DIR=$EMC2_TCL_DIR
