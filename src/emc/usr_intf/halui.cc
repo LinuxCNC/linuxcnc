@@ -315,8 +315,7 @@ static int emcTaskNmlGet()
 	emcStatusBuffer =
 	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc",
 				 EMC_NMLFILE);
-	if (!emcStatusBuffer->valid()
-	    || EMC_STAT_TYPE != emcStatusBuffer->peek()) {
+	if (!emcStatusBuffer->valid()) {
 	    delete emcStatusBuffer;
 	    emcStatusBuffer = 0;
 	    emcStatus = 0;
@@ -1842,6 +1841,16 @@ int main(int argc, char *argv[])
 	rcs_print_error("error in argument list\n");
 	exit(1);
     }
+
+    //init HAL and export pins
+    if (0 != halui_hal_init()) {
+	rcs_print_error("hal_init error\n");
+	exit(1);
+    }
+    //initialize safe values
+    hal_init_pins();
+
+
     // get configuration information
     iniLoad(EMC_INIFILE);
 
@@ -1851,10 +1860,6 @@ int main(int argc, char *argv[])
 	thisQuit();
 	exit(1);
     }
-    //init HAL and export pins
-    halui_hal_init();
-    //initialize safe values
-    hal_init_pins();
     
     // get current serial number, and save it for restoring when we quit
     // so as not to interfere with real operator interface
