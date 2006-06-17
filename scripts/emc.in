@@ -187,9 +187,10 @@ EMCIO=$retval
 GetFromIni TASK TASK 
 EMCTASK=$retval
 
-# 2.6. get emcserver information
-GetFromIni EMCSERVER EMCSERVER 
-EMCSERVER=$retval
+# 2.6. we know the emc server name, change if needed
+# emcsvr now holds/creates all the NML channels,
+# so it needs to start by default, as the first process
+EMCSERVER=emcsvr
 
 # 2.7. get halui information
 GetFromIni HALUI HAL 
@@ -412,6 +413,18 @@ fi
 ################################################################################
 # 4.2. Now we can finally start loading EMC
 ################################################################################
+
+# 4.3.1. Run emcserver in background, always (it owns/createas the NML buffers)
+echo "Starting EMC server program: $EMCSERVER" >>$PRINT_FILE
+if [ ! -x $EMC2_BIN_DIR/$EMCSERVER ] ; then
+    echo "Can't execute server program $EMC2_BIN_DIR/$EMCSERVER"
+    Cleanup
+    exit 1
+fi
+$EMC2_BIN_DIR/$EMCSERVER -ini $INIFILE &
+
+
+# 4.3.2. Start REALTIME
 echo "Loading Real Time OS, RTAPI, and HAL_LIB modules" >>$PRINT_FILE
 if ! $REALTIME start ; then
     echo "Realtime system did not load"
@@ -419,11 +432,11 @@ if ! $REALTIME start ; then
     exit -1
 fi
 
-# 4.3.4. export the location of the HAL realtime modules so that
+# 4.3.3. export the location of the HAL realtime modules so that
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
 
-# 4.3.5. Run emcio in background
+# 4.3.4. Run emcio in background
 echo "Starting EMC IO program: $EMCIO" >>$PRINT_FILE
 if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
     echo "Can't execute IO program $EMC2_BIN_DIR/$EMCIO"
@@ -434,7 +447,7 @@ $EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
 
 $WAITPIN iocontrol.0.emc-enable-in
 
-# 4.3.6. execute HALCMD config files (if any)
+# 4.3.5. execute HALCMD config files (if any)
 # get first config file name from ini file
 NUM=1
 CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
@@ -457,7 +470,7 @@ while [ -n "$CFGFILE" ] ; do
     CFGFILE=`$INIVAR -ini $INIFILE -var HALFILE -sec HAL -num $NUM 2>>$DEBUG_FILE`
 done
 
-# 4.3.7. execute discrete HAL commands from ini file (if any)
+# 4.3.6. execute discrete HAL commands from ini file (if any)
 # get first command from ini file
 NUM=1
 HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2>>$DEBUG_FILE`
@@ -475,10 +488,10 @@ while [ -n "$HALCOMMAND" ] ; do
     HALCOMMAND=`$INIVAR -ini $INIFILE -var HALCMD -sec HAL -num $NUM 2>>$DEBUG_FILE`
 done
 
-# 4.3.8. start the realtime stuff ticking
+# 4.3.7. start the realtime stuff ticking
 $HALCMD start
 
-# 4.3.9. Run emctask in background
+# 4.3.8. Run emctask in background
 echo "Starting EMC TASK program: $EMCTASK" >>$PRINT_FILE
 if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
     echo "Can't execute TASK program $EMC2_BIN_DIR/$EMCTASK"
@@ -487,18 +500,8 @@ if [ ! -x $EMC2_BIN_DIR/$EMCTASK ] ; then
 fi
 $EMC2_BIN_DIR/$EMCTASK -ini $INIFILE &
 
-# 4.3.10. Run emcserver in background, if necessary
-if [ -n "$EMCSERVER" ] ; then
-    echo "Starting EMC server program: $EMCSERVER" >>$PRINT_FILE
-    if [ ! -x $EMC2_BIN_DIR/$EMCSERVER ] ; then
-	echo "Can't execute server program $EMC2_BIN_DIR/$EMCSERVER"
-	Cleanup
-	exit 1
-    fi
-    $EMC2_BIN_DIR/$EMCSERVER -ini $INIFILE &
-fi
 
-# 4.3.12. Run halui in background, if necessary
+# 4.3.9. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
     echo "Starting HAL User Interface program: $HALUI" >>$PRINT_FILE
     if [ ! -x $EMC2_BIN_DIR/$HALUI ] ; then
@@ -526,7 +529,7 @@ export EMC2_LANG_DIR=$EMC2_LANG_DIR
 export REALTIME=$REALTIME
 export HALCMD=$HALCMD
 
-# 4.3.12. Run display in foreground
+# 4.3.10. Run display in foreground
 echo "Starting EMC DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
 case $EMCDISPLAY in
   tkemc|mini)
