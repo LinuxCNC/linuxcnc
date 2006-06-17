@@ -2823,33 +2823,7 @@ int main(int argc, char *argv[])
 
 	emcIoUpdate(&emcStatus->io);
 	emcMotionUpdate(&emcStatus->motion);
-	// synchronize subordinate states
-/*! \todo FIXME FIXME FIXME - temporarily ignore estop
-   make sure to re-enable this code! */
-/*! \todo Another #if 0 (deactivated !) */
-//#if 0
-	if (emcStatus->io.aux.estop) {
-	    if (emcStatus->motion.traj.enabled) {
-		if (EMC_DEBUG & EMC_DEBUG_IO_POINTS) {
-		    rcs_print("emcStatus->io.aux.estop=%d\n",
-			      emcStatus->io.aux.estop);
-		}
-		emcTrajDisable();
-	    }
-	    if (emcStatus->io.coolant.mist) {
-		emcCoolantMistOff();
-	    }
-	    if (emcStatus->io.coolant.flood) {
-		emcCoolantFloodOff();
-	    }
-	    if (emcStatus->io.lube.on) {
-		emcLubeOff();
-	    }
-	    if (emcStatus->io.spindle.enabled) {
-		emcSpindleOff();
-	    }
-	}
-//#endif
+
 	// check for subordinate errors, and halt task if so
 	if (emcStatus->motion.status == RCS_ERROR ||
 	    emcStatus->io.status == RCS_ERROR) {
@@ -2950,31 +2924,6 @@ int main(int argc, char *argv[])
 	    last_emc_status.motion.axis[i].maxSoftLimit =
 		emcStatus->motion.axis[i].maxSoftLimit;
 
-// these are already checked in motion, and passed on to the user
-// the sanest thing to do is not check them twice, 
-// motion seems to test them better, and in realtime, and it consideres homing 
-// on the hardware switches too.
-//FIXME -remove for good, if it doesn't cause any troubles
-#if 0
-	    if (last_emc_status.motion.axis[i].minHardLimit == 0
-		&& emcStatus->motion.axis[i].minHardLimit == 1) {
-		emcOperatorError(0,
-				 _
-				 ("Minimum Hardware Limit on axis %d exceeded."),
-				 i);
-	    }
-	    last_emc_status.motion.axis[i].minHardLimit =
-		emcStatus->motion.axis[i].minHardLimit;
-	    if (last_emc_status.motion.axis[i].maxHardLimit == 0
-		&& emcStatus->motion.axis[i].maxHardLimit == 1) {
-		emcOperatorError(0,
-				 _
-				 ("Maximum Hardware Limit on axis %d exceeded."),
-				 i);
-	    }
-	    last_emc_status.motion.axis[i].maxHardLimit =
-		emcStatus->motion.axis[i].maxHardLimit;
-#endif
 	}
 	// write it
 	// since emcStatus was passed to the WM init functions, it
