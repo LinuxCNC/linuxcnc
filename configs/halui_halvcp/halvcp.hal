@@ -1,3 +1,7 @@
+loadusr halvcp halui.vcp
+
+loadusr -w sleep 10
+
 linkpp button.estop-activate  halui.estop.activate
 linkpp button.estop-reset     halui.estop.reset
 linkpp button.machine-off     halui.machine.off
