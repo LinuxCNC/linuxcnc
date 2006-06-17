@@ -195,15 +195,6 @@ EMCSERVER=$retval
 GetFromIni HALUI HAL 
 HALUI=$retval
 
-# 2.8. get emcstrip information
-GetFromIni EMCSTRIP EMCSTRIP
-EMCSTRIP=$retval
-# if none found, it just won't run... but if found, check for options
-if [ -n "$EMCSTRIP" ] ; then
-    EMCSTRIP_OPTIONS=`$INIVAR -ini $INIFILE -var OPTIONS -sec EMCSTRIP 2>>$DEBUG_FILE`
-fi
-echo EMCSTRIP_OPTIONS=$EMCSTRIP_OPTIONS >>$PRINT_FILE
-
 # 2.9. get display information
 GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=`(set -- $retval ; echo $1 )`
@@ -293,7 +284,7 @@ function Cleanup() {
     sleep 1
 
     # now kill all the other user space components of emc
-    for KILL_TASK in emcsvr emcstripchart bridgeporttask milltask minimilltask bridgeportio minimillio simio io classicladder; do
+    for KILL_TASK in emcsvr bridgeporttask milltask minimilltask bridgeportio minimillio simio io classicladder; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
@@ -505,17 +496,6 @@ if [ -n "$EMCSERVER" ] ; then
 	exit 1
     fi
     $EMC2_BIN_DIR/$EMCSERVER -ini $INIFILE &
-fi
-
-# 4.3.11. Run emcstrip in background, if necessary
-if [ -n "$EMCSTRIP" ] ; then
-    echo "Starting EMC stripchart program: $EMCSTRIP" >>$PRINT_FILE
-    if [ ! -x $EMC2_BIN_DIR/$EMCSTRIP ] ; then
-	echo "Can't execute strip program $EMC2_BIN_DIR/$EMCSTRIP"
-	Cleanup
-	exit 1
-    fi
-    $EMC2_BIN_DIR/$EMCSTRIP $EMCSTRIP_OPTIONS -- -ini $INIFILE &
 fi
 
 # 4.3.12. Run halui in background, if necessary
