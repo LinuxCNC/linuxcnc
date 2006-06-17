@@ -499,6 +499,7 @@ int rtapi_get_msg_level(void)
 
 long int rtapi_clock_set_period(long int nsecs)
 {
+    RTIME counts;
 
     if (nsecs == 0) {
 	/* it's a query, not a command */
@@ -516,8 +517,9 @@ long int rtapi_clock_set_period(long int nsecs)
 	return RTAPI_INVAL;
     }
     rt_set_periodic_mode();
-    rtapi_data->timer_period =
-	count2nano(start_rt_timer(nano2count((RTIME) nsecs)));
+    counts = nano2count((RTIME) nsecs);
+    if(count2nano(counts) > nsecs) counts--;
+    rtapi_data->timer_period = count2nano(start_rt_timer(counts));
 
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"RTAPI: clock_set_period requested: %ld  actual: %ld\n",
