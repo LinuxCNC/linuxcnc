@@ -30,9 +30,9 @@ P emcsvr        toolCmd         LOCAL   localhost       W       1       1.0     
 P emcsvr        toolSts         LOCAL   localhost       R       1       1.0     1       2
 P emcsvr        default         LOCAL   localhost       RW      1       1.0     1       2
 
-P tool          emcError        LOCAL   localhost       W       0       1.0     1       3
-P tool          toolCmd         LOCAL   localhost       RW      0       1.0     1       3
-P tool          toolSts         LOCAL   localhost       W       0       1.0     1       3
+P tool          emcError        LOCAL   localhost       W       0       1.0     0       3
+P tool          toolCmd         LOCAL   localhost       RW      0       1.0     0       3
+P tool          toolSts         LOCAL   localhost       W       0       1.0     0       3
 
 P xemc          emcCommand      LOCAL   localhost       W       0       10.0    0       10
 P xemc          emcStatus       LOCAL   localhost       R       0       10.0    0       10
