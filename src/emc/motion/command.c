@@ -321,6 +321,7 @@ void emcmotCommandHandler(void *arg, long period)
 {
     int joint_num;
     emcmot_joint_t *joint;
+    double tmp1;
     
 check_stuff ( "before command_handler()" );
 
@@ -681,18 +682,20 @@ check_stuff ( "before command_handler()" );
 	    }
 	    /* set target position for jog */
 	    if (emcmotCommand->vel > 0.0) {
-		joint->free_pos_cmd += emcmotCommand->offset;
+		tmp1 = joint->free_pos_cmd + emcmotCommand->offset;
 	    } else {
-		joint->free_pos_cmd -= emcmotCommand->offset;
+		tmp1 = joint->free_pos_cmd - emcmotCommand->offset;
 	    }
 	    /* don't jog past limits */
 	    refresh_jog_limits(joint);
-	    if (joint->free_pos_cmd > joint->max_jog_limit) {
-		joint->free_pos_cmd = joint->max_jog_limit;
+	    if (tmp1 > joint->max_jog_limit) {
+		break;
 	    }
-	    if (joint->free_pos_cmd < joint->min_jog_limit) {
-		joint->free_pos_cmd = joint->min_jog_limit;
+	    if (tmp1 < joint->min_jog_limit) {
+		break;
 	    }
+	    /* set target position */
+	    joint->free_pos_cmd = tmp1;
 	    /* set velocity of jog */
 	    joint->free_vel_lim = fabs(emcmotCommand->vel);
 	    /* and let it go */
