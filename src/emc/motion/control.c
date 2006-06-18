@@ -888,7 +888,7 @@ static void handle_jogwheels(void)
     emcmot_joint_t *joint;
     axis_hal_t *axis_data;
     int new_jog_counts, delta;
-    double distance;
+    double distance, pos;
 
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
 	/* point to joint data */
@@ -934,16 +934,18 @@ static void handle_jogwheels(void)
 	if (distance < 0.0 && GET_JOINT_NHL_FLAG(joint)) {
 	    continue;
 	}
-	/* set target position for jog */
-	joint->free_pos_cmd += distance;
+	/* calc target position for jog */
+	pos = joint->free_pos_cmd + distance;
 	/* don't jog past limits */
 	refresh_jog_limits(joint);
-	if (joint->free_pos_cmd > joint->max_jog_limit) {
-	    joint->free_pos_cmd = joint->max_jog_limit;
+	if (pos > joint->max_jog_limit) {
+	    continue;
 	}
-	if (joint->free_pos_cmd < joint->min_jog_limit) {
-	    joint->free_pos_cmd = joint->min_jog_limit;
+	if (pos < joint->min_jog_limit) {
+	    continue;
 	}
+	/* set target position */
+	joint->free_pos_cmd = pos;
 	/* set velocity of jog */
 	joint->free_vel_lim = joint->vel_limit;
 	/* and let it go */
