@@ -2352,7 +2352,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   } else
     if (move == G_33) {
     START_SPEED_FEED_SYNCH(block->k_number);
-    STRAIGHT_FEED(end_x, end_y, end_z, 0.0, 0.0, 0.0);
+    STRAIGHT_FEED(end_x, end_y, end_z, AA_end, BB_end, CC_end);
     STOP_SPEED_FEED_SYNCH();
     settings->current_x = end_x;
     settings->current_y = end_y;
