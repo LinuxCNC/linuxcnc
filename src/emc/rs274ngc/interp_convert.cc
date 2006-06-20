@@ -1126,8 +1126,8 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
   double radius;
   int index;
 
-  CHK((settings->plane != CANON_PLANE_XY),
-      NCE_CANNOT_TURN_CUTTER_RADIUS_COMP_ON_OUT_OF_XY_PLANE);
+  CHK((settings->plane != CANON_PLANE_XY && settings->plane != CANON_PLANE_XZ),
+      NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
   CHK((settings->cutter_comp_side != OFF),
       NCE_CANNOT_TURN_CUTTER_RADIUS_COMP_ON_WHEN_ON);
   index = (block->d_number != -1) ? block->d_number : settings->current_slot;
@@ -2003,9 +2003,8 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
 Returned Value: int
    If any of the following errors occur, this returns the error code shown.
    Otherwise, it returns INTERP_OK.
-   1. G_18 or G_19 is called when cutter radius compensation is on:
-      NCE_CANNOT_USE_XZ_PLANE_WITH_CUTTER_RADIUS_COMP
-      NCE_CANNOT_USE_YZ_PLANE_WITH_CUTTER_RADIUS_COMP
+   1. The user tries to change to a different plane while comp is on:
+      NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
    2. The g_code is not G_17, G_18, or G_19:
       NCE_BUG_CODE_NOT_G17_G18_OR_G19
 
@@ -2020,17 +2019,23 @@ int Interp::convert_set_plane(int g_code,        //!< must be G_17, G_18, or G_1
                              setup_pointer settings)    //!< pointer to machine settings 
 {
   static char name[] = "convert_set_plane";
+  CHK((settings->cutter_comp_side != OFF && g_code == G_17 && settings->plane != CANON_PLANE_XY),
+        NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
+  CHK((settings->cutter_comp_side != OFF && g_code == G_18 && settings->plane != CANON_PLANE_XZ),
+        NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
+  CHK((settings->cutter_comp_side != OFF && g_code == G_19 && settings->plane != CANON_PLANE_YZ),
+        NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
+
+  CHK((settings->cutter_comp_side != OFF && g_code == G_19), 
+          NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
+
   if (g_code == G_17) {
     SELECT_PLANE(CANON_PLANE_XY);
     settings->plane = CANON_PLANE_XY;
   } else if (g_code == G_18) {
-    CHK((settings->cutter_comp_side != OFF),
-        NCE_CANNOT_USE_XZ_PLANE_WITH_CUTTER_RADIUS_COMP);
     SELECT_PLANE(CANON_PLANE_XZ);
     settings->plane = CANON_PLANE_XZ;
   } else if (g_code == G_19) {
-    CHK((settings->cutter_comp_side != OFF),
-        NCE_CANNOT_USE_YZ_PLANE_WITH_CUTTER_RADIUS_COMP);
     SELECT_PLANE(CANON_PLANE_YZ);
     settings->plane = CANON_PLANE_YZ;
   } else
@@ -2340,6 +2345,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                       AA_end, BB_end, CC_end);
     settings->current_x = end_x;
     settings->current_y = end_y;
+    settings->current_z = end_z;
   } else if (move == G_1) {
     if (settings->feed_mode == INVERSE_TIME)
       inverse_time_rate_straight(end_x, end_y, end_z,
@@ -2349,17 +2355,17 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                   AA_end, BB_end, CC_end);
     settings->current_x = end_x;
     settings->current_y = end_y;
-  } else
-    if (move == G_33) {
+    settings->current_z = end_z;
+  } else if (move == G_33) {
     START_SPEED_FEED_SYNCH(block->k_number);
     STRAIGHT_FEED(end_x, end_y, end_z, AA_end, BB_end, CC_end);
     STOP_SPEED_FEED_SYNCH();
     settings->current_x = end_x;
     settings->current_y = end_y;
+    settings->current_z = end_z;
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
 
-  settings->current_z = end_z;
   settings->AA_current = AA_end;
   settings->BB_current = BB_end;
   settings->CC_current = CC_end;
@@ -2407,52 +2413,88 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                   setup_pointer settings,       //!< pointer to machine settings              
                                   double px,    //!< X coordinate of end point                
                                   double py,    //!< Y coordinate of end point                
-                                  double end_z, //!< Z coordinate of end point                
+                                  double pz,    //!< Z coordinate of end point                
                                   double AA_end,        //!< A coordinate of end point          
                                   double BB_end,        //!< B coordinate of end point          
                                   double CC_end)        //!< C coordinate of end point          
 {
   static char name[] = "convert_straight_comp1";
   double alpha;
-  double cx;                    /* first current point x then end point x */
-  double cy;                    /* first current point y then end point y */
   double distance;
   double radius;
   int side;
   double theta;
+  double p[3], c[2];
+
+  if(settings->plane == CANON_PLANE_XZ) {
+      p[0] = px;
+      p[1] = pz;
+      p[2] = py;
+      c[0] = settings->current_x;
+      c[1] = settings->current_z;
+  } else if (settings->plane == CANON_PLANE_XY) {
+      p[0] = px;
+      p[1] = py;
+      p[2] = pz;
+      c[0] = settings->current_x;
+      c[1] = settings->current_y;
+  } else ERM(NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
 
   side = settings->cutter_comp_side;
-  cx = settings->current_x;
-  cy = settings->current_y;
 
   radius = settings->cutter_comp_radius;        /* always will be positive */
-  distance = hypot((px - cx), (py - cy));
+  distance = hypot((p[0] - c[0]), (p[1] - c[1]));
 
   CHK(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
   CHK((distance <= radius), NCE_CUTTER_GOUGING_WITH_CUTTER_RADIUS_COMP);
 
   theta = acos(radius / distance);
-  alpha = (side == LEFT) ? (atan2((cy - py), (cx - px)) - theta) :
-    (atan2((cy - py), (cx - px)) + theta);
-  cx = (px + (radius * cos(alpha)));    /* reset to end location */
-  cy = (py + (radius * sin(alpha)));
-  if (move == G_0)
-    STRAIGHT_TRAVERSE(cx, cy, end_z,
-                      AA_end, BB_end, CC_end);
+  alpha = (side == LEFT) ? (atan2((c[1] - p[1]), (c[0] - p[0])) - theta) :
+                           (atan2((c[1] - p[1]), (c[0] - p[0])) + theta);
+  c[0] = (p[0] + (radius * cos(alpha)));    /* reset to end location */
+  c[1] = (p[1] + (radius * sin(alpha)));
+
+  if (move == G_0) {
+     if(settings->plane == CANON_PLANE_XZ) {
+         STRAIGHT_TRAVERSE(c[0], p[2], c[1],
+                           AA_end, BB_end, CC_end);
+     } else if(settings->plane == CANON_PLANE_XY) {
+         STRAIGHT_TRAVERSE(c[0], c[1], p[2],
+                           AA_end, BB_end, CC_end);
+     }
+  }
   else if (move == G_1) {
-    if (settings->feed_mode == INVERSE_TIME)
-      inverse_time_rate_straight(cx, cy, end_z,
-                                 AA_end, BB_end, CC_end,
-                                 block, settings);
-    STRAIGHT_FEED(cx, cy, end_z,
-                  AA_end, BB_end, CC_end);
+    if(settings->plane == CANON_PLANE_XZ) {
+       if (settings->feed_mode == INVERSE_TIME)
+         inverse_time_rate_straight(c[0], p[2], c[1],
+                                    AA_end, BB_end, CC_end,
+                                    block, settings);
+       STRAIGHT_FEED(c[0], p[2], c[1],
+                     AA_end, BB_end, CC_end);
+    } else if(settings->plane == CANON_PLANE_XY) {
+       if (settings->feed_mode == INVERSE_TIME)
+         inverse_time_rate_straight(c[0], c[1], p[2],
+                                    AA_end, BB_end, CC_end,
+                                    block, settings);
+       STRAIGHT_FEED(c[0], c[1], p[2],
+                     AA_end, BB_end, CC_end);
+    }
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
 
-  settings->current_x = cx;
-  settings->current_y = cy;
-  settings->program_x = px;
-  settings->program_y = py;
+  if(settings->plane == CANON_PLANE_XZ) {
+      settings->current_x = c[0];
+      settings->current_z = c[1];
+      settings->program_x = p[0];
+      settings->program_y = p[2];
+      settings->program_z = p[1];
+  } else if(settings->plane == CANON_PLANE_XY) {
+      settings->current_x = c[0];
+      settings->current_y = c[1];
+      settings->program_x = p[0];
+      settings->program_y = p[1];
+      settings->program_z = p[2];
+  }
   return INTERP_OK;
 }
 
@@ -2533,7 +2575,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                   setup_pointer settings,       //!< pointer to machine settings              
                                   double px,    //!< X coordinate of programmed end point     
                                   double py,    //!< Y coordinate of programmed end point     
-                                  double end_z, //!< Z coordinate of end point                
+                                  double pz,    //!< Z coordinate of end point                
                                   double AA_end,        //!< A coordinate of end point
                                   double BB_end,        //!< B coordinate of end point
                                   double CC_end)        //!< C coordinate of end point
@@ -2541,40 +2583,73 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
   static char name[] = "convert_straight_comp2";
   double alpha;
   double beta;
-  double end_x;                 /* x-coordinate of actual end point */
-  double end_y;                 /* y-coordinate of actual end point */
+  double end[2];                 /* x-coordinate of actual end point */
   double gamma;
-  double mid_x;                 /* x-coordinate of end of added arc, if needed */
-  double mid_y;                 /* y-coordinate of end of added arc, if needed */
+  double mid[2];                 /* x-coordinate of end of added arc, if needed */
   double radius;
   int side;
   double small = TOLERANCE_CONCAVE_CORNER;      /* radians, testing corners */
-  double start_x, start_y;      /* programmed beginning point */
+  double start[2];      /* programmed beginning point */
   double theta;
+  double p[3];  /* programmed endpoint */
+  double c[2];  /* current */
 
-  start_x = settings->program_x;
-  start_y = settings->program_y;
-  if ((py == start_y) && (px == start_x)) {     /* no XY motion */
-    end_x = settings->current_x;
-    end_y = settings->current_y;
-    if (move == G_0)
-      STRAIGHT_TRAVERSE(end_x, end_y, end_z,
+  if(settings->plane == CANON_PLANE_XZ) {
+      p[0] = px;
+      p[1] = pz;
+      p[2] = py;
+      c[0] = settings->current_x;
+      c[1] = settings->current_z;
+      start[0] = settings->program_x;
+      start[1] = settings->program_z;
+      end[0] = settings->current_x;
+      end[1] = settings->current_z;
+  } else if (settings->plane == CANON_PLANE_XY) {
+      p[0] = px;
+      p[1] = py;
+      p[2] = pz;
+      c[0] = settings->current_x;
+      c[1] = settings->current_y;
+      start[0] = settings->program_x;
+      start[1] = settings->program_y;
+      end[0] = settings->current_x;
+      end[1] = settings->current_y;
+  } else ERM(NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
+
+
+  if ((p[1] == start[1]) && (p[0] == start[0])) {     /* no XY motion */
+    if (move == G_0) {
+      if(settings->plane == CANON_PLANE_XZ) {
+          STRAIGHT_TRAVERSE(end[1], py, end[0],
+                            AA_end, BB_end, CC_end);
+      } else if(settings->plane == CANON_PLANE_XY) {
+          STRAIGHT_TRAVERSE(end[0], end[1], pz,
+                            AA_end, BB_end, CC_end);
+      }
+    } else if (move == G_1) {
+      if(settings->plane == CANON_PLANE_XZ) {
+          if (settings->feed_mode == INVERSE_TIME)
+            inverse_time_rate_straight(end[1], py, end[0],
+                                       AA_end, BB_end, CC_end,
+                                       block, settings);
+          STRAIGHT_FEED(end[1], py, end[0],
                         AA_end, BB_end, CC_end);
-    else if (move == G_1) {
-      if (settings->feed_mode == INVERSE_TIME)
-        inverse_time_rate_straight(end_x, end_y, end_z,
-                                   AA_end, BB_end, CC_end,
-                                   block, settings);
-      STRAIGHT_FEED(end_x, end_y, end_z,
-                    AA_end, BB_end, CC_end);
+      } else if(settings->plane == CANON_PLANE_XY) {
+          if (settings->feed_mode == INVERSE_TIME)
+            inverse_time_rate_straight(end[0], end[1], pz,
+                                       AA_end, BB_end, CC_end,
+                                       block, settings);
+          STRAIGHT_FEED(end[0], end[1], pz,
+                        AA_end, BB_end, CC_end);
+      }
     } else
       ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
   } else {
     side = settings->cutter_comp_side;
     radius = settings->cutter_comp_radius;      /* will always be positive */
-    theta = atan2(settings->current_y - start_y,
-                  settings->current_x - start_x);
-    alpha = atan2(py - start_y, px - start_x);
+    theta = atan2(end[1] - start[1],
+                  end[0] - start[0]);
+    alpha = atan2(p[1] - start[1], p[0] - start[0]);
 
     if (side == LEFT) {
       if (theta < alpha)
@@ -2588,45 +2663,83 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
       gamma = -M_PI_2l;
     } else
       ERM(NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
-    end_x = (px + (radius * cos(alpha + gamma)));
-    end_y = (py + (radius * sin(alpha + gamma)));
-    mid_x = (start_x + (radius * cos(alpha + gamma)));
-    mid_y = (start_y + (radius * sin(alpha + gamma)));
+    end[0] = (p[0] + (radius * cos(alpha + gamma)));
+    end[1] = (p[1] + (radius * sin(alpha + gamma)));
+    mid[0] = (start[0] + (radius * cos(alpha + gamma)));
+    mid[1] = (start[1] + (radius * sin(alpha + gamma)));
 
     CHK(((beta < -small) || (beta > (M_PIl + small))),
         NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP);
-    if (move == G_0)
-      STRAIGHT_TRAVERSE(end_x, end_y, end_z,
-                        AA_end, BB_end, CC_end);
+    if (move == G_0) {
+      if(settings->plane == CANON_PLANE_XZ) {
+          STRAIGHT_TRAVERSE(end[1], py, end[0],
+                            AA_end, BB_end, CC_end);
+      }
+      else if(settings->plane == CANON_PLANE_XY) {
+          STRAIGHT_TRAVERSE(end[0], end[1], pz,
+                            AA_end, BB_end, CC_end);
+      }
+    }
     else if (move == G_1) {
       if (beta > small) {       /* ARC NEEDED */
-        if (settings->feed_mode == INVERSE_TIME)
-          inverse_time_rate_as(start_x, start_y,
-                               (side == LEFT) ? -1 : 1, mid_x,
-                               mid_y, end_x, end_y, end_z,
-                               AA_end, BB_end, CC_end,
-                               block, settings);
-        ARC_FEED(mid_x, mid_y, start_x, start_y,
-                 ((side == LEFT) ? -1 : 1), settings->current_z,
-                 AA_end, BB_end, CC_end);
-        STRAIGHT_FEED(end_x, end_y, end_z,
-                      AA_end, BB_end, CC_end);
+        if(settings->plane == CANON_PLANE_XZ) {
+            if (settings->feed_mode == INVERSE_TIME)
+              inverse_time_rate_as(start[0], start[1],
+                                   (side == LEFT) ? -1 : 1, mid[0],
+                                   mid[1], end[0], p[2], end[1],
+                                   AA_end, BB_end, CC_end,
+                                   block, settings);
+            ARC_FEED(mid[1], mid[0], start[1], start[0],
+                     ((side == LEFT) ? 1 : -1), settings->current_y,
+                     AA_end, BB_end, CC_end);
+            STRAIGHT_FEED(end[0], p[2], end[1],
+                          AA_end, BB_end, CC_end);
+        }
+        else if(settings->plane == CANON_PLANE_XY) {
+            if (settings->feed_mode == INVERSE_TIME)
+              inverse_time_rate_as(start[0], start[1],
+                                   (side == LEFT) ? -1 : 1, mid[0],
+                                   mid[1], end[0], end[1], p[2],
+                                   AA_end, BB_end, CC_end,
+                                   block, settings);
+            ARC_FEED(mid[0], mid[1], start[0], start[1],
+                     ((side == LEFT) ? -1 : 1), settings->current_z,
+                     AA_end, BB_end, CC_end);
+            STRAIGHT_FEED(end[0], end[1], p[2],
+                          AA_end, BB_end, CC_end);
+        }
       } else {
-        if (settings->feed_mode == INVERSE_TIME)
-          inverse_time_rate_straight(end_x, end_y, end_z,
-                                     AA_end, BB_end, CC_end,
-                                     block, settings);
-        STRAIGHT_FEED(end_x, end_y, end_z,
-                      AA_end, BB_end, CC_end);
+         if(settings->plane == CANON_PLANE_XZ) {
+            if (settings->feed_mode == INVERSE_TIME)
+              inverse_time_rate_straight(end[0], p[2], end[1],
+                                         AA_end, BB_end, CC_end,
+                                         block, settings);
+            STRAIGHT_FEED(end[1], p[2], end[0],
+                          AA_end, BB_end, CC_end);
+         } else if(settings->plane == CANON_PLANE_XY) {
+            if (settings->feed_mode == INVERSE_TIME)
+              inverse_time_rate_straight(end[0], end[1], p[2],
+                                         AA_end, BB_end, CC_end,
+                                         block, settings);
+            STRAIGHT_FEED(end[0], end[1], p[2],
+                          AA_end, BB_end, CC_end);
+         }
       }
     } else
       ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
   }
 
-  settings->current_x = end_x;
-  settings->current_y = end_y;
-  settings->program_x = px;
-  settings->program_y = py;
+  if(settings->plane == CANON_PLANE_XZ) {
+      settings->current_x = end[0];
+      settings->current_z = end[1];
+      settings->program_x = p[0];
+      settings->program_z = p[1];
+  } else if(settings->plane == CANON_PLANE_XY) {
+      settings->current_x = end[0];
+      settings->current_y = end[1];
+      settings->program_x = p[0];
+      settings->program_y = p[1];
+  }
   return INTERP_OK;
 }
 

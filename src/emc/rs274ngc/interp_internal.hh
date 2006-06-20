@@ -347,6 +347,7 @@ typedef struct setup_struct
   ON_OFF probe_flag;            // flag indicating probing done
   double program_x;             // program x, used when cutter comp on
   double program_y;             // program y, used when cutter comp on
+  double program_z;             // program y, used when cutter comp on
   RETRACT_MODE retract_mode;    // for cycles, old_z or r_plane
   int selected_tool_slot;       // tool slot selected but not active
   int sequence_number;          // sequence number of line last read

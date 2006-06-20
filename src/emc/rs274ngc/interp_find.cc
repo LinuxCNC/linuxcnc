@@ -182,7 +182,9 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
     *py = (block->y_flag == ON) ? block->y_number :
       (comp && middle) ? settings->program_y : settings->current_y;
 
-    *pz = (block->z_flag == ON) ? block->z_number : settings->current_z;
+    *pz = (block->z_flag == ON) ? block->z_number :
+      (comp && middle) ? settings->program_z : settings->current_z;
+
     *AA_p = (block->a_flag == ON) ? block->a_number : settings->AA_current;
     *BB_p = (block->b_flag == ON) ? block->b_number : settings->BB_current;
     *CC_p = (block->c_flag == ON) ? block->c_number : settings->CC_current;
@@ -202,8 +204,12 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
                                                 settings->current_y))
       : ((comp && middle) ? settings->program_y : settings->current_y);
 
-    *pz = (block->z_flag == ON) ?
-      (settings->current_z + block->z_number) : settings->current_z;
+    *pz = (block->z_flag == ON)
+      ? ((comp
+          && middle) ? (block->z_number +
+                        settings->program_z) : (block->z_number +
+                                                settings->current_z))
+      : ((comp && middle) ? settings->program_z : settings->current_z);
     *AA_p = (block->a_flag == ON) ?
       (settings->AA_current + block->a_number) : settings->AA_current;
     *BB_p =
