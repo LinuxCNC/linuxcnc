@@ -26,15 +26,21 @@ g0x-.2z-.2y0
 g40
 g1x0z0
 g1z1
+g2r.25x-.25z1.25
+g1x-.5
 g0x-.2z-.2y0
 g42 d1
 g1x0z0
 g1z1
+g2r.25x-.25z1.25
+g1x-.5
 g40
 g0x.2z-.2y0
 g41 d1
 g1x0z0
 g1z1
+g2r.25x-.25z1.25
+g1x-.5
 g40
 g0x.2z-.2y0
 
