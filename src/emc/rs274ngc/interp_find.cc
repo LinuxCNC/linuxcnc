@@ -180,10 +180,10 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
       (comp && middle) ? settings->program_x : settings->current_x;
 
     *py = (block->y_flag == ON) ? block->y_number :
-      (comp && middle) ? settings->program_y : settings->current_y;
+      (comp && middle && settings->plane == CANON_PLANE_XY ) ? settings->program_y : settings->current_y;
 
     *pz = (block->z_flag == ON) ? block->z_number :
-      (comp && middle) ? settings->program_z : settings->current_z;
+      (comp && middle && settings->plane == CANON_PLANE_XZ ) ? settings->program_z : settings->current_z;
 
     *AA_p = (block->a_flag == ON) ? block->a_number : settings->AA_current;
     *BB_p = (block->b_flag == ON) ? block->b_number : settings->BB_current;
@@ -199,14 +199,14 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
     *py = (block->y_flag == ON)
       ? ((comp
-          && middle) ? (block->y_number +
+          && middle && settings->plane == CANON_PLANE_XY ) ? (block->y_number +
                         settings->program_y) : (block->y_number +
                                                 settings->current_y))
       : ((comp && middle) ? settings->program_y : settings->current_y);
 
     *pz = (block->z_flag == ON)
       ? ((comp
-          && middle) ? (block->z_number +
+          && middle && settings->plane == CANON_PLANE_XZ ) ? (block->z_number +
                         settings->program_z) : (block->z_number +
                                                 settings->current_z))
       : ((comp && middle) ? settings->program_z : settings->current_z);
