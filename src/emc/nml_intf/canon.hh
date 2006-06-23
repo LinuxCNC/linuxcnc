@@ -140,13 +140,17 @@ struct CANON_POSITION {
 };
 
 /* Tools are numbered 1..CANON_TOOL_MAX, with tool 0 meaning no tool. */
-#define CANON_TOOL_MAX 128	// max size of carousel handled
+#define CANON_TOOL_MAX 56	// max size of carousel handled
 #define CANON_TOOL_ENTRY_LEN 256	// how long each file line can be
 
 struct CANON_TOOL_TABLE {
     int id;
     double length;
     double diameter;
+    double frontangle;
+    double backangle;
+    double xoffset;
+    int orientation;
 };
 
 /* Initialization */

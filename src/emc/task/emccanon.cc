@@ -1578,13 +1578,19 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
     if (pocket < 0 || pocket >= CANON_TOOL_MAX) {
 	retval.id = 0;
 	retval.length = 0.0;
+        retval.xoffset = 0.0;
+        retval.frontangle = 0.0;
+        retval.backangle = 0.0;
 	retval.diameter = 0.0;
+        retval.orientation = 0;
     } else {
 	retval = emcStatus->io.tool.toolTable[pocket];
 
 	// convert from user to program units
 	retval.length = TO_PROG_LEN(FROM_EXT_LEN(retval.length));
+        retval.xoffset = TO_PROG_LEN(FROM_EXT_LEN(retval.xoffset));
 	retval.diameter = TO_PROG_LEN(FROM_EXT_LEN(retval.diameter));
+        // leave the angles alone
     }
 
     return retval;

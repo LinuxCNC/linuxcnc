@@ -1919,6 +1919,9 @@ void CANON_TOOL_TABLE_update(CMS * cms, CANON_TOOL_TABLE * x)
     cms->update(x->id);
     cms->update(x->length);
     cms->update(x->diameter);
+    cms->update(x->xoffset);
+    cms->update(x->frontangle);
+    cms->update(x->backangle);
 
 }
 
