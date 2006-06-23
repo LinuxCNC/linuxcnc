@@ -138,6 +138,16 @@ $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 	@mkdir -p $(dir $@)
 	@$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
 
+config.h: config.h.in config.status
+	@./config.status --header=$@
+
+%: %.in config.status
+	@./config.status --file=$@
+
+TARGETS := \
+	 ../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
+	../scripts/rtapi.conf ../src/Makefile.inc ../src/depend.sh
+
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
 # files in the source tree are the ones used when building emc2.  The copy
