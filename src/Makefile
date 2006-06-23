@@ -139,12 +139,12 @@ $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 	@$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
 
 config.h: config.h.in config.status
-	@./config.status --header=$@
+	@./config.status -q --header=$@
 
 %: %.in config.status
 	@./config.status --file=$@
 
-TARGETS := \
+default: \
 	 ../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
 	../scripts/rtapi.conf ../src/Makefile.inc ../src/depend.sh
 
