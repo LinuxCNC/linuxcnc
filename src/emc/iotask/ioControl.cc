@@ -300,7 +300,7 @@ static int loadToolTable(const char *filename,
     for (t = 0; t <= CANON_TOOL_MAX; t++) {
 	// unused tools are 0, 0.0, 0.0
 	toolTable[t].id = 0;
-	toolTable[t].length = 0.0;
+	toolTable[t].zoffset = 0.0;
 	toolTable[t].diameter = 0.0;
         toolTable[t].xoffset = 0.0;
         toolTable[t].frontangle = 0.0;
@@ -329,7 +329,7 @@ static int loadToolTable(const char *filename,
     while (!feof(fp)) {
 	int pocket;
 	int id;
-	double length;
+	double zoffset;  // AKA length
         double xoffset;
 	double diameter;
         double frontangle, backangle;
@@ -340,7 +340,7 @@ static int loadToolTable(const char *filename,
 	    break;
 	}
         if (sscanf(buffer, "%d %d %lf %lf %lf %lf %lf %d",
-                   &pocket, &id, &length, &xoffset, &diameter,
+                   &pocket, &id, &zoffset, &xoffset, &diameter,
                    &frontangle, &backangle, &orientation) == 8) {
             if (pocket < 0 || pocket > CANON_TOOL_MAX) {
                 printf("skipping invalid line in tool table\n");
@@ -349,7 +349,7 @@ static int loadToolTable(const char *filename,
                 printf("lathe tool found\n");
 
                 toolTable[pocket].id = id;
-                toolTable[pocket].length = length;
+                toolTable[pocket].zoffset = zoffset;
                 toolTable[pocket].xoffset = xoffset;
                 toolTable[pocket].diameter = diameter;
 
@@ -358,7 +358,7 @@ static int loadToolTable(const char *filename,
                 toolTable[pocket].orientation = orientation;
             }
         } else if (sscanf(buffer, "%d %d %lf %lf",
-                   &pocket, &id, &length, &diameter) == 4) {
+                   &pocket, &id, &zoffset, &diameter) == 4) {
             if (pocket < 0 || pocket > CANON_TOOL_MAX) {
                 printf("skipping invalid line in tool table\n");
                 continue;
@@ -366,9 +366,10 @@ static int loadToolTable(const char *filename,
                 printf("mill tool found\n");
 
                 toolTable[pocket].id = id;
-                toolTable[pocket].length = length;
+                toolTable[pocket].zoffset = zoffset;
                 toolTable[pocket].diameter = diameter;
 
+                // these aren't used on a mill
                 toolTable[pocket].frontangle = toolTable[pocket].backangle = 0.0;
                 toolTable[pocket].xoffset = 0.0;
                 toolTable[pocket].orientation = 0;
@@ -406,6 +407,9 @@ static int saveToolTable(const char *filename,
     FILE *fp;
     const char *name;
 
+    fprintf(stderr,"I thought saveToolTable wasn't used.  Please report.\n");
+    return 0;
+
     // check filename
     if (filename[0] == 0) {
 	name = TOOL_TABLE_FILE;
@@ -426,7 +430,7 @@ static int saveToolTable(const char *filename,
 	fprintf(fp, "%d\t%d\t%f\t%f\n",
 		pocket,
 		toolTable[pocket].id,
-		toolTable[pocket].length, toolTable[pocket].diameter);
+		toolTable[pocket].zoffset, toolTable[pocket].diameter);
     }
 
     // close the file
@@ -1029,7 +1033,7 @@ int main(int argc, char *argv[])
 			    ((EMC_TOOL_SET_OFFSET *) emcioCommand)->diameter);
 	    emcioStatus.tool.
 		toolTable[((EMC_TOOL_SET_OFFSET *) emcioCommand)->tool].
-		length = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->length;
+		zoffset = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->length;
 	    emcioStatus.tool.
 		toolTable[((EMC_TOOL_SET_OFFSET *) emcioCommand)->tool].
 		diameter = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->diameter;

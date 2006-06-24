@@ -147,7 +147,8 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
     COMMENT("interpreter: offsets temporarily suspended");
 #endif
     *px = (block->x_flag == ON) ? (block->x_number -
-                                   (settings->origin_offset_x +
+                                   (settings->tool_xoffset + 
+                                    settings->origin_offset_x +
                                     settings->
                                     axis_offset_x)) : settings->current_x;
     *py =
@@ -157,7 +158,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
                                  axis_offset_y)) : settings->current_y;
     *pz =
       (block->z_flag ==
-       ON) ? (block->z_number - (settings->tool_length_offset +
+       ON) ? (block->z_number - (settings->tool_zoffset +
                                  settings->origin_offset_z +
                                  settings->
                                  axis_offset_z)) : settings->current_z;
@@ -258,11 +259,11 @@ int Interp::find_relative(double x1,     //!< absolute x position
                          double *CC_2,  //!< pointer to relative c       
                          setup_pointer settings)        //!< pointer to machine settings
 {
-  *x2 = (x1 - (settings->origin_offset_x + settings->axis_offset_x));
+  *x2 = (x1 - (settings->tool_xoffset + settings->origin_offset_x + settings->axis_offset_x));
   *y2 = (y1 - (settings->origin_offset_y + settings->axis_offset_y));
   *z2 =
     (z1 -
-     (settings->tool_length_offset + settings->origin_offset_z +
+     (settings->tool_zoffset + settings->origin_offset_z +
       settings->axis_offset_z));
   *AA_2 = (AA_1 - (settings->AA_origin_offset + settings->AA_axis_offset));
   *BB_2 = (BB_1 - (settings->BB_origin_offset + settings->BB_axis_offset));

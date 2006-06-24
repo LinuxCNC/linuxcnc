@@ -145,11 +145,11 @@ struct CANON_POSITION {
 
 struct CANON_TOOL_TABLE {
     int id;
-    double length;
+    double xoffset;
+    double zoffset;
     double diameter;
     double frontangle;
     double backangle;
-    double xoffset;
     int orientation;
 };
 
@@ -448,7 +448,7 @@ extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
-extern void USE_TOOL_LENGTH_OFFSET(double length);
+extern void USE_TOOL_LENGTH_OFFSET(double xoffset, double yoffset);
 
 extern void CHANGE_TOOL(int slot);	/* slot is slot number */
 

@@ -2942,23 +2942,30 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 {
   static char name[] = "convert_tool_length_offset";
   int index;
-  double offset;
+  double xoffset, zoffset;
 
   if (g_code == G_49) {
-    USE_TOOL_LENGTH_OFFSET(0.0);
+    USE_TOOL_LENGTH_OFFSET(0.0,0.0);
+    settings->current_x = (settings->current_x +
+                           settings->tool_xoffset);
     settings->current_z = (settings->current_z +
-                           settings->tool_length_offset);
-    settings->tool_length_offset = 0.0;
-    settings->length_offset_index = 0;
+                           settings->tool_zoffset);
+    settings->tool_xoffset = 0.0;
+    settings->tool_zoffset = 0.0;
+    settings->tool_offset_index = 0;
   } else if (g_code == G_43) {
     index = block->h_number;
     CHK((index == -1), NCE_OFFSET_INDEX_MISSING);
-    offset = settings->tool_table[index].length;
-    USE_TOOL_LENGTH_OFFSET(offset);
+    xoffset = settings->tool_table[index].xoffset;
+    zoffset = settings->tool_table[index].zoffset;
+    USE_TOOL_LENGTH_OFFSET(xoffset, zoffset);
+    settings->current_x =
+      (settings->current_x + settings->tool_xoffset - xoffset);
     settings->current_z =
-      (settings->current_z + settings->tool_length_offset - offset);
-    settings->tool_length_offset = offset;
-    settings->length_offset_index = index;
+      (settings->current_z + settings->tool_zoffset - zoffset);
+    settings->tool_xoffset = xoffset;
+    settings->tool_zoffset = zoffset;
+    settings->tool_offset_index = index;
   } else
     ERM(NCE_BUG_CODE_NOT_G43_OR_G49);
   return INTERP_OK;
