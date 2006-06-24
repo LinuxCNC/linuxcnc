@@ -439,11 +439,11 @@ static int select_trace(int x, int y) {
     for(n=0; n<16; n++) {
         scope_vert_t *vert = &(ctrl_usr->vert);
         if((vert->chan_enabled[n]) && (vert->data_offset[n] >= 0)) {
-            draw_triggerline(n+1, FALSE);
             draw_baseline(n+1, FALSE);
             draw_waveform(n+1, FALSE);
         }
     }
+    draw_triggerline(ctrl_shm->trig_chan, FALSE);
     return target;
 }
 
