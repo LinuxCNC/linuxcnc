@@ -31,6 +31,31 @@
 
 #include "units.h"
 
+// lathe tools have strange origin points that are not at
+// the center of the radius.  This means that the point that
+// radius compensation controls (center of radius) is not at
+// the tool's origin.  These functions do the necessary
+// translation.  Notice tool orientations 0 (mill) and 9, and 
+// those with radius 0 (a point) do not need any translation.
+
+static double xtrans(setup_pointer settings, double x) {
+    int o = settings->tool_table[settings->tool_offset_index].orientation;
+    double r = settings->tool_table[settings->tool_offset_index].diameter / 2.0;
+
+    if(o==2 || o==6 || o==1) x -= r;
+    if(o==3 || o==8 || o==4) x += r;
+    return x;
+}
+
+static double ztrans(setup_pointer settings, double z) {
+    int o = settings->tool_table[settings->tool_offset_index].orientation;
+    double r = settings->tool_table[settings->tool_offset_index].diameter / 2.0;
+
+    if(o==2 || o==7 || o==3) z -= r;
+    if(o==1 || o==5 || o==4) z += r;
+    return z;
+}
+
 /****************************************************************************/
 
 /*! convert_arc
@@ -376,11 +401,18 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
   if(settings->plane == CANON_PLANE_XZ) {
       if (settings->feed_mode == INVERSE_TIME)
+        inverse_time_rate_straight(xtrans(settings, current[0]), current[2], ztrans(settings, current[1]),
+                                   AA_end, BB_end, CC_end, block, settings);
+      STRAIGHT_FEED(xtrans(settings, current[0]), current[2], ztrans(settings, current[1]),
+                    AA_end, BB_end, CC_end);
+
+      if (settings->feed_mode == INVERSE_TIME)
         inverse_time_rate_arc(current[0], current[1],
                               current[2], center[0], center[1], turn,
                               end[0], end[1], end[2], block, settings);
-      ARC_FEED(end[1], end[0], center[0], center[1], turn, end[2],
-               AA_end, BB_end, CC_end);
+      ARC_FEED(xtrans(settings, end[1]), ztrans(settings, end[0]), 
+               xtrans(settings, center[0]), ztrans(settings, center[1]), 
+               turn, end[2], AA_end, BB_end, CC_end);
       settings->current_x = end[0];
       settings->current_z = end[1];
       settings->current_y = end[2];
@@ -552,11 +584,11 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                              mid[0], mid[1], center[0], center[1], turn,
                              end[0], end[1], end[2], block, settings);
     if(settings->plane == CANON_PLANE_XZ) {
-      ARC_FEED(mid[1], mid[0], start[1], start[0], ((side == LEFT) ? 1 : -1),
-               current[2],
-               AA_end, BB_end, CC_end);
-      ARC_FEED(end[1], end[0], center[1], center[0], -turn, end[2],
-               AA_end, BB_end, CC_end);
+      ARC_FEED(ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
+               ((side == LEFT) ? 1 : -1),
+               current[2], AA_end, BB_end, CC_end);
+      ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
+               -turn, end[2], AA_end, BB_end, CC_end);
     } else if (settings->plane == CANON_PLANE_XY) {
       ARC_FEED(mid[0], mid[1], start[0], start[1], ((side == LEFT) ? -1 : 1),
                current[2],
@@ -570,8 +602,8 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                             current[2], center[0], center[1], turn,
                             end[0], end[1], end[2], block, settings);
     if(settings->plane == CANON_PLANE_XZ) {
-      ARC_FEED(end[1], end[0], center[1], center[0], -turn, end[2],
-               AA_end, BB_end, CC_end);
+      ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
+               -turn, end[2], AA_end, BB_end, CC_end);
     } else if (settings->plane == CANON_PLANE_XY) {
       ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end);
@@ -2547,7 +2579,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
 
   if (move == G_0) {
      if(settings->plane == CANON_PLANE_XZ) {
-         STRAIGHT_TRAVERSE(c[0], p[2], c[1],
+         STRAIGHT_TRAVERSE(xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
                            AA_end, BB_end, CC_end);
      } else if(settings->plane == CANON_PLANE_XY) {
          STRAIGHT_TRAVERSE(c[0], c[1], p[2],
@@ -2560,7 +2592,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
          inverse_time_rate_straight(c[0], p[2], c[1],
                                     AA_end, BB_end, CC_end,
                                     block, settings);
-       STRAIGHT_FEED(c[0], p[2], c[1],
+       STRAIGHT_FEED(xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
                      AA_end, BB_end, CC_end);
     } else if(settings->plane == CANON_PLANE_XY) {
        if (settings->feed_mode == INVERSE_TIME)
@@ -2709,7 +2741,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
   if ((p[1] == start[1]) && (p[0] == start[0])) {     /* no XY motion */
     if (move == G_0) {
       if(settings->plane == CANON_PLANE_XZ) {
-          STRAIGHT_TRAVERSE(end[1], py, end[0],
+          STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end);
       } else if(settings->plane == CANON_PLANE_XY) {
           STRAIGHT_TRAVERSE(end[0], end[1], pz,
@@ -2718,10 +2750,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     } else if (move == G_1) {
       if(settings->plane == CANON_PLANE_XZ) {
           if (settings->feed_mode == INVERSE_TIME)
-            inverse_time_rate_straight(end[1], py, end[0],
+            inverse_time_rate_straight(end[0], py, end[1],
                                        AA_end, BB_end, CC_end,
                                        block, settings);
-          STRAIGHT_FEED(end[1], py, end[0],
+          STRAIGHT_FEED(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                         AA_end, BB_end, CC_end);
       } else if(settings->plane == CANON_PLANE_XY) {
           if (settings->feed_mode == INVERSE_TIME)
@@ -2761,7 +2793,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP);
     if (move == G_0) {
       if(settings->plane == CANON_PLANE_XZ) {
-          STRAIGHT_TRAVERSE(end[1], py, end[0],
+          STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end);
       }
       else if(settings->plane == CANON_PLANE_XY) {
@@ -2778,10 +2810,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    mid[1], end[0], p[2], end[1],
                                    AA_end, BB_end, CC_end,
                                    block, settings);
-            ARC_FEED(mid[1], mid[0], start[1], start[0],
+            ARC_FEED(ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
                      ((side == LEFT) ? 1 : -1), c[2],
                      AA_end, BB_end, CC_end);
-            STRAIGHT_FEED(end[0], p[2], end[1],
+            STRAIGHT_FEED(xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end);
         }
         else if(settings->plane == CANON_PLANE_XY) {
@@ -2803,7 +2835,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
               inverse_time_rate_straight(end[0], p[2], end[1],
                                          AA_end, BB_end, CC_end,
                                          block, settings);
-            STRAIGHT_FEED(end[0], p[2], end[1],
+            STRAIGHT_FEED(xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end);
          } else if(settings->plane == CANON_PLANE_XY) {
             if (settings->feed_mode == INVERSE_TIME)
@@ -2946,10 +2978,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 
   if (g_code == G_49) {
     USE_TOOL_LENGTH_OFFSET(0.0,0.0);
-    settings->current_x = (settings->current_x +
-                           settings->tool_xoffset);
-    settings->current_z = (settings->current_z +
-                           settings->tool_zoffset);
+    settings->current_x += settings->tool_xoffset;
+    settings->current_z += settings->tool_zoffset;
     settings->tool_xoffset = 0.0;
     settings->tool_zoffset = 0.0;
     settings->tool_offset_index = 0;
@@ -2959,10 +2989,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     xoffset = settings->tool_table[index].xoffset;
     zoffset = settings->tool_table[index].zoffset;
     USE_TOOL_LENGTH_OFFSET(xoffset, zoffset);
-    settings->current_x =
-      (settings->current_x + settings->tool_xoffset - xoffset);
-    settings->current_z =
-      (settings->current_z + settings->tool_zoffset - zoffset);
+    settings->current_x += settings->tool_xoffset - xoffset;
+    settings->current_z += settings->tool_zoffset - zoffset;
     settings->tool_xoffset = xoffset;
     settings->tool_zoffset = zoffset;
     settings->tool_offset_index = index;
