@@ -344,7 +344,7 @@ int Interp::init()
   _setup.filename[0] = 0;
   _setup.file_pointer = NULL;
 //_setup.flood set in Interp::synch
-  _setup.length_offset_index = 1;
+  _setup.tool_offset_index = 1;
 //_setup.length_units set in Interp::synch
   _setup.line_length = 0;
   _setup.linetext[0] = 0;
@@ -363,6 +363,7 @@ int Interp::init()
   _setup.probe_flag = OFF;
   _setup.program_x = UNKNOWN;   /* for cutter comp */
   _setup.program_y = UNKNOWN;   /* for cutter comp */
+  _setup.program_z = UNKNOWN;   /* for cutter comp */
 //_setup.retract_mode does not need initialization
 //_setup.selected_tool_slot set in Interp::synch
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */
@@ -372,7 +373,8 @@ int Interp::init()
 //_setup.spindle_turning set in Interp::synch
 //_setup.stack does not need initialization
 //_setup.stack_index does not need initialization
-  _setup.tool_length_offset = 0.0;
+  _setup.tool_xoffset = 0.0;
+  _setup.tool_zoffset = 0.0;
 //_setup.tool_max set in Interp::synch
 //_setup.tool_table set in Interp::synch
   _setup.tool_table_index = 1;
@@ -430,8 +432,12 @@ int Interp::load_tool_table()
   }
   for (; n <= CANON_TOOL_MAX; n++) {
     _setup.tool_table[n].id = 0;
-    _setup.tool_table[n].length = 0;
+    _setup.tool_table[n].xoffset = 0;
+    _setup.tool_table[n].zoffset = 0;
     _setup.tool_table[n].diameter = 0;
+    _setup.tool_table[n].orientation = 0;
+    _setup.tool_table[n].frontangle = 0;
+    _setup.tool_table[n].backangle = 0;
   }
 
   return INTERP_OK;

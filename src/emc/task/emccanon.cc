@@ -134,7 +134,8 @@ static double spindleSpeed = 0.0;
 static int preppedTool = 0;
 
 /* Tool length offset is saved here */
-static double currentToolLengthOffset = 0.0;
+static double currentXToolOffset = 0.0;
+static double currentZToolOffset = 0.0;
 
 /*
   Feed rate is saved here; values are in mm/sec or deg/sec.
@@ -551,7 +552,8 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     b += programOrigin.b;
     c += programOrigin.c;
 
-    z += currentToolLengthOffset;
+    x += currentXToolOffset;
+    z += currentZToolOffset;
 
 
     // now x, y, z, and b are in absolute mm or degree units
@@ -602,7 +604,8 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
     b += programOrigin.b;
     c += programOrigin.c;
 
-    z += currentToolLengthOffset;
+    x += currentXToolOffset;
+    z += currentZToolOffset;
 
     // now x, y, z, and b are in absolute mm or degree units
     x = TO_EXT_LEN(x);
@@ -642,7 +645,9 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b,
     a += programOrigin.a;
     b += programOrigin.b;
     c += programOrigin.c;
-    z += currentToolLengthOffset;
+
+    x += currentXToolOffset;
+    z += currentZToolOffset;
 
     // now x, y, z, and b are in absolute mm or degree units
     probeMsg.pos.tran.x = TO_EXT_LEN(x);
@@ -827,8 +832,10 @@ void ARC_FEED(double first_end, double second_end,
 	end.tran.x = first_end + programOrigin.x;
 	end.tran.y = second_end + programOrigin.y;
 	end.tran.z = axis_end_point + programOrigin.z;
-	end.tran.z += currentToolLengthOffset;
+	end.tran.x += currentXToolOffset;
+	end.tran.z += currentZToolOffset;
 	center.x = first_axis + programOrigin.x;
+        center.x += currentXToolOffset;
 	center.y = second_axis + programOrigin.y;
 	center.z = end.tran.z;
 	normal.x = 0.0;
@@ -860,11 +867,12 @@ void ARC_FEED(double first_end, double second_end,
 	end.tran.y = first_end + programOrigin.y;
 	end.tran.z = second_end + programOrigin.z;
 	end.tran.x = axis_end_point + programOrigin.x;
-	end.tran.z += currentToolLengthOffset;
+	end.tran.x += currentXToolOffset;
+	end.tran.z += currentZToolOffset;
 
 	center.y = first_axis + programOrigin.y;
 	center.z = second_axis + programOrigin.z;
-	center.z += currentToolLengthOffset;
+	center.z += currentZToolOffset;
 	center.x = end.tran.x;
 	normal.y = 0.0;
 	normal.z = 0.0;
@@ -896,11 +904,13 @@ void ARC_FEED(double first_end, double second_end,
 	end.tran.z = first_end + programOrigin.z;
 	end.tran.x = second_end + programOrigin.x;
 	end.tran.y = axis_end_point + programOrigin.y;
-	end.tran.z += currentToolLengthOffset;
+	end.tran.x += currentXToolOffset;
+	end.tran.z += currentZToolOffset;
 
 	center.z = first_axis + programOrigin.z;
-	center.z += currentToolLengthOffset;
+	center.z += currentZToolOffset;
 	center.x = second_axis + programOrigin.x;
+	center.x += currentXToolOffset;
 	center.y = end.tran.y;
 	normal.z = 0.0;
 	normal.x = 0.0;
@@ -1152,20 +1162,21 @@ void USE_NO_SPINDLE_FORCE(void)
   EMC has no tool length offset. To implement it, we save it here,
   and apply it when necessary
   */
-void USE_TOOL_LENGTH_OFFSET(double length)
+void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset)
 {
     EMC_TRAJ_SET_OFFSET set_offset_msg;
 
     flush_segments();
 
     /* convert to mm units for internal canonical use */
-    currentToolLengthOffset = FROM_PROG_LEN(length);
+    currentXToolOffset = FROM_PROG_LEN(xoffset);
+    currentZToolOffset = FROM_PROG_LEN(zoffset);
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
-    set_offset_msg.offset.tran.x = 0.0;
+    set_offset_msg.offset.tran.x = TO_EXT_LEN(currentXToolOffset);
     set_offset_msg.offset.tran.y = 0.0;
-    set_offset_msg.offset.tran.z = TO_EXT_LEN(currentToolLengthOffset);
+    set_offset_msg.offset.tran.z = TO_EXT_LEN(currentZToolOffset);
     set_offset_msg.offset.a = 0.0;
     set_offset_msg.offset.b = 0.0;
     set_offset_msg.offset.c = 0.0;
@@ -1488,7 +1499,7 @@ CANON_PLANE GET_PLANE()
 
 double GET_TOOL_LENGTH_OFFSET()
 {
-    return TO_EXT_LEN(currentToolLengthOffset);
+    return TO_EXT_LEN(currentZToolOffset);
 }
 
 /*
@@ -1522,7 +1533,8 @@ void INIT_CANON()
     angular_move = 0;
     currentLinearFeedRate = 0.0;
     currentAngularFeedRate = 0.0;
-    currentToolLengthOffset = 0.0;
+    currentXToolOffset = 0.0;
+    currentZToolOffset = 0.0;
     /* 
        to set the units, note that GET_EXTERNAL_LENGTH_UNITS() returns
        traj->linearUnits, which is already set from the .ini file in
@@ -1577,14 +1589,20 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
 
     if (pocket < 0 || pocket >= CANON_TOOL_MAX) {
 	retval.id = 0;
-	retval.length = 0.0;
+        retval.xoffset = 0.0;
+	retval.zoffset = 0.0;
+        retval.frontangle = 0.0;
+        retval.backangle = 0.0;
 	retval.diameter = 0.0;
+        retval.orientation = 0;
     } else {
 	retval = emcStatus->io.tool.toolTable[pocket];
 
 	// convert from user to program units
-	retval.length = TO_PROG_LEN(FROM_EXT_LEN(retval.length));
+        retval.xoffset = TO_PROG_LEN(FROM_EXT_LEN(retval.xoffset));
+	retval.zoffset = TO_PROG_LEN(FROM_EXT_LEN(retval.zoffset));
 	retval.diameter = TO_PROG_LEN(FROM_EXT_LEN(retval.diameter));
+        // leave the angles alone
     }
 
     return retval;
@@ -1609,11 +1627,11 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     canonEndPoint.c = FROM_EXT_ANG(pos.c);
 
     // now calculate position in program units, for interpreter
-    position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x);
+    position.x = TO_PROG_LEN(canonEndPoint.x - programOrigin.x - currentXToolOffset);
     position.y = TO_PROG_LEN(canonEndPoint.y - programOrigin.y);
     position.z =
 	TO_PROG_LEN(canonEndPoint.z - programOrigin.z -
-		    currentToolLengthOffset);
+		    currentZToolOffset);
 
     position.a = TO_PROG_ANG(canonEndPoint.a - programOrigin.a);
     position.b = TO_PROG_ANG(canonEndPoint.b - programOrigin.b);
@@ -1636,7 +1654,8 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     canonEndPoint.x = FROM_EXT_LEN(pos.tran.x) - programOrigin.x;
     canonEndPoint.y = FROM_EXT_LEN(pos.tran.y) - programOrigin.y;
     canonEndPoint.z = FROM_EXT_LEN(pos.tran.z) - programOrigin.z;
-    canonEndPoint.z -= currentToolLengthOffset;
+    canonEndPoint.x -= currentXToolOffset;
+    canonEndPoint.z -= currentZToolOffset;
 
     canonEndPoint.a = FROM_EXT_ANG(pos.a) - programOrigin.a;
     canonEndPoint.b = FROM_EXT_ANG(pos.b) - programOrigin.b;
@@ -1646,7 +1665,8 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     position.x = TO_PROG_LEN(canonEndPoint.x);
     position.y = TO_PROG_LEN(canonEndPoint.y);
     position.z = TO_PROG_LEN(canonEndPoint.z);
-    position.z -= TO_PROG_LEN(currentToolLengthOffset);
+    position.x -= TO_PROG_LEN(currentXToolOffset);
+    position.z -= TO_PROG_LEN(currentZToolOffset);
 
     position.a = TO_PROG_ANG(canonEndPoint.a);
     position.b = TO_PROG_ANG(canonEndPoint.b);

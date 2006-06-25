@@ -150,8 +150,12 @@ EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
 
     for (t = 0; t <= CANON_TOOL_MAX; t++) {
 	toolTable[t].id = 0;
-	toolTable[t].length = 0.0;
+	toolTable[t].xoffset = 0.0;
+	toolTable[t].zoffset = 0.0;
 	toolTable[t].diameter = 0.0;
+	toolTable[t].orientation = 0;
+	toolTable[t].frontangle = 0.0;
+	toolTable[t].backangle = 0.0;
     }
 }
 
@@ -214,8 +218,12 @@ EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
 
     for (t = 0; t <= CANON_TOOL_MAX; t++) {
 	toolTable[t].id = s.toolTable[t].id;
-	toolTable[t].length = s.toolTable[t].length;
+	toolTable[t].xoffset = s.toolTable[t].xoffset;
+	toolTable[t].zoffset = s.toolTable[t].zoffset;
 	toolTable[t].diameter = s.toolTable[t].diameter;
+	toolTable[t].frontangle = s.toolTable[t].frontangle;
+	toolTable[t].backangle = s.toolTable[t].backangle;
+	toolTable[t].orientation = s.toolTable[t].orientation;
     }
 
     return s;

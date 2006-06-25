@@ -407,8 +407,12 @@ static int loadToolTable(const char *filename,
     for (t = 0; t <= CANON_TOOL_MAX; t++) {
 	// unused tools are 0, 0.0, 0.0
 	toolTable[t].id = 0;
-	toolTable[t].length = 0.0;
+	toolTable[t].xoffset = 0.0;
+	toolTable[t].zoffset = 0.0;
 	toolTable[t].diameter = 0.0;
+        toolTable[t].frontangle = 0.0;
+        toolTable[t].backangle = 0.0;
+        toolTable[t].orientation = 0;
     }
 
     /*
@@ -432,26 +436,54 @@ static int loadToolTable(const char *filename,
     while (!feof(fp)) {
 	int pocket;
 	int id;
-	double length;
+	double zoffset;
+        double xoffset;
 	double diameter;
+        double frontangle, backangle;
+        int orientation;
 
 	// just read pocket, ID, and length offset
 	if (NULL == fgets(buffer, CANON_TOOL_ENTRY_LEN, fp)) {
 	    break;
 	}
 
-	if (4 != sscanf(buffer, "%d %d %lf %lf",
-			&pocket, &id, &length, &diameter)) {
-	    // bad entry-- skip
-	    continue;
-	} else {
+        if (sscanf(buffer, "%d %d %lf %lf %lf %lf %lf %d", 
+                   &pocket, &id, &zoffset, &xoffset, &diameter, 
+                   &frontangle, &backangle, &orientation) == 8) {
 	    if (pocket < 0 || pocket > CANON_TOOL_MAX) {
+                printf("skipping invalid line in tool table\n");
 		continue;
 	    } else {
+                printf("lathe tool found\n");
+
 		toolTable[pocket].id = id;
-		toolTable[pocket].length = length;
+                toolTable[pocket].xoffset = xoffset;
+		toolTable[pocket].zoffset = zoffset;
 		toolTable[pocket].diameter = diameter;
+
+                toolTable[pocket].frontangle = frontangle;
+                toolTable[pocket].backangle = backangle;
+                toolTable[pocket].orientation = orientation;
 	    }
+	} else if (sscanf(buffer, "%d %d %lf %lf", 
+                   &pocket, &id, &zoffset, &diameter) == 4) {
+	    if (pocket < 0 || pocket > CANON_TOOL_MAX) {
+                printf("skipping invalid line in tool table\n");
+		continue;
+	    } else {
+                printf("mill tool found\n");
+
+		toolTable[pocket].id = id;
+		toolTable[pocket].zoffset = zoffset;
+		toolTable[pocket].diameter = diameter;
+
+                toolTable[pocket].frontangle = toolTable[pocket].backangle = 0.0;
+                toolTable[pocket].xoffset = 0.0;
+                toolTable[pocket].orientation = 0;
+	    }
+	} else {
+            printf("skipping invalid line in tool table\n");
+	    continue;
 	}
     }
 

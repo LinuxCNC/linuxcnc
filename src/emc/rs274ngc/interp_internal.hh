@@ -328,7 +328,7 @@ typedef struct setup_struct
   char filename[LINELEN];    // name of currently open NC code file
   FILE *file_pointer;           // file pointer for open NC code file
   ON_OFF flood;                 // whether flood coolant is on
-  int length_offset_index;      // for use with tool length offsets
+  int tool_offset_index;        // for use with tool length offsets
   CANON_UNITS length_units;     // millimeters or inches
   int line_length;              // length of line last read
   char linetext[LINELEN];    // text of most recent line read
@@ -347,6 +347,7 @@ typedef struct setup_struct
   ON_OFF probe_flag;            // flag indicating probing done
   double program_x;             // program x, used when cutter comp on
   double program_y;             // program y, used when cutter comp on
+  double program_z;             // program y, used when cutter comp on
   RETRACT_MODE retract_mode;    // for cycles, old_z or r_plane
   int selected_tool_slot;       // tool slot selected but not active
   int sequence_number;          // sequence number of line last read
@@ -356,7 +357,8 @@ typedef struct setup_struct
   CANON_DIRECTION spindle_turning;      // direction spindle is turning
   char stack[50][80];           // stack of calls for error reporting
   int stack_index;              // index into the stack
-  double tool_length_offset;    // current tool length offset
+  double tool_zoffset;          // current tool Z offset (AKA tool length offset)
+  double tool_xoffset;          // current tool X offset
   int tool_max;                 // highest number tool slot in carousel
   CANON_TOOL_TABLE tool_table[CANON_TOOL_MAX + 1];      // index is slot number
   int tool_table_index;         // tool index used with cutter comp

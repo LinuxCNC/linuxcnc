@@ -242,7 +242,9 @@ char * _rs274ngc_errors[] = {
 /* 214 */ _("File not open"), // control back to
 /* 215 */ _("Need tool prepared -Txx- for toolchange"), // if M6 is issued without Txx
 /* 216 */ _("Bug code not g50 or g51"), // convert_adaptive_mode
+/* 217 */ _("Cannot change planes with cutter radius compensation on"),
+/* 218 */ _("Cutter radius compensation allowed only in XY, XZ planes"),
 
-/* 217 */ _("Unknown error"), // dummy
+/* 219 */ _("Unknown error"), // dummy
 _("The End")};
 // *INDENT-ON*

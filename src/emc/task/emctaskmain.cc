@@ -1650,6 +1650,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// update tool offset
 	emcStatus->task.toolOffset.tran.z =
 	    ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.z;
+	emcStatus->task.toolOffset.tran.x =
+	    ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.x;
 	retval = 0;
 	break;
 
