@@ -7,7 +7,7 @@ USERSRCS += $(HALCMDSRCS)
 $(call TOOBJSDEPS, hal/utils/halcmd.c): EXTRAFLAGS = -DEMC2_BIN_DIR="\"$(EMC2_BIN_DIR)\"" -DHAL_RTMOD_DIR="\"$(EMC2_RTLIB_DIR)\""
 $(call TOOBJS, hal/utils/halcmd.c): Makefile.inc
 
-../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemc.a ../lib/libnml.so $(LIBREADLINE)
+../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemc.a ../lib/libnml.so $(READLINE_LIBS)
 	$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halcmd
 

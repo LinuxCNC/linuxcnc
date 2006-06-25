@@ -989,13 +989,25 @@ fi
 AC_SUBST([HAVE_XAW])
 AC_SUBST([XAW_LIBS])
 
+# check for readline.h and friends, optional for halcmd
+AC_CHECK_HEADERS(readline/readline.h, [HAVE_READLINE=yes], [HAVE_READLINE=no])
+AC_CHECK_HEADERS(readline/history.h, [], [HAVE_READLINE=no])
+AC_CHECK_LIB(readline, readline, [], [HAVE_READLINE=no])
+
+if test "x$HAVE_READLINE" = "xyes"; then
+    READLINE_LIBS="-lreadline"
+    AC_DEFINE([HAVE_READLINE])
+fi
+AC_SUBST([HAVE_READLINE])
+AC_SUBST([READLINE_LIBS])
+
 #check for ncurses.h needed for emc2/src/emc/usr_intf/keystick.cc
 
 AC_CHECK_HEADERS(ncurses.h,
 	    [HAVE_NCURSES=yes],
 	    [HAVE_NCURSES=no])
 
-AC_CHECK_LIB(ncurses, main,
+AC_CHECK_LIB(ncurses, initscr,
 	    [],
 	    [HAVE_NCURSES=no])
 
