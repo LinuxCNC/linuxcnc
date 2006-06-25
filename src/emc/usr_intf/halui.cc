@@ -1829,6 +1829,11 @@ static void modify_hal_pins()
 	*(halui_data->mode_is_mdi)=0;
     }
 
+    *(halui_data->program_is_paused) = emcStatus->task.interpState == EMC_TASK_INTERP_PAUSED;
+    *(halui_data->program_is_running) = emcStatus->task.interpState == EMC_TASK_INTERP_READING || 
+                                        emcStatus->task.interpState == EMC_TASK_INTERP_WAITING;
+    *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP_IDLE;
+
     *(halui_data->mist_is_on)=emcStatus->io.coolant.mist;
     *(halui_data->flood_is_on)=emcStatus->io.coolant.flood;
     *(halui_data->lube_is_on)=emcStatus->io.lube.on;
