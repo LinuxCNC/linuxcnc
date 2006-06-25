@@ -1650,6 +1650,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// update tool offset
 	emcStatus->task.toolOffset.tran.z =
 	    ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.z;
+	emcStatus->task.toolOffset.tran.x =
+	    ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.x;
 	retval = 0;
 	break;
 
@@ -2823,6 +2825,28 @@ int main(int argc, char *argv[])
 
 	emcIoUpdate(&emcStatus->io);
 	emcMotionUpdate(&emcStatus->motion);
+	// synchronize subordinate states
+	if (emcStatus->io.aux.estop) {
+	    if (emcStatus->motion.traj.enabled) {
+		if (EMC_DEBUG & EMC_DEBUG_IO_POINTS) {
+		    rcs_print("emcStatus->io.aux.estop=%d\n",
+			      emcStatus->io.aux.estop);
+		}
+		emcTrajDisable();
+	    }
+	    if (emcStatus->io.coolant.mist) {
+		emcCoolantMistOff();
+	    }
+	    if (emcStatus->io.coolant.flood) {
+		emcCoolantFloodOff();
+	    }
+	    if (emcStatus->io.lube.on) {
+		emcLubeOff();
+	    }
+	    if (emcStatus->io.spindle.enabled) {
+		emcSpindleOff();
+	    }
+	}
 
 	// check for subordinate errors, and halt task if so
 	if (emcStatus->motion.status == RCS_ERROR ||
@@ -2923,7 +2947,6 @@ int main(int argc, char *argv[])
 	    }
 	    last_emc_status.motion.axis[i].maxSoftLimit =
 		emcStatus->motion.axis[i].maxSoftLimit;
-
 	}
 	// write it
 	// since emcStatus was passed to the WM init functions, it
