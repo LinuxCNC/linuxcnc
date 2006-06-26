@@ -2973,31 +2973,49 @@ static char *command_table[] = {
     NULL,
 };
 
-static int match_type = -1;
-static hal_type_t check_match_type_pin(const char *name) {
+static hal_type_t match_type = -1;
+static int match_writers = -1;
+static hal_dir_t match_direction = -1;
+
+static int direction_match(hal_dir_t dir1, hal_dir_t dir2) {
+    if(dir1 == -1 || dir2 == -1) return 1;
+    return dir1 | dir2 == HAL_RD_WR;
+}
+
+static int writer_match(hal_dir_t dir, int writers) {
+    if(writers == -1 || dir == -1) return 1;
+    if(dir & HAL_RD || writers == 0) return 1;
+    return 0;
+}
+
+static void check_match_type_pin(const char *name) {
     int next = hal_data->pin_list_ptr;
     int sz = strcspn(name, " \t");
 
     while(next) {
         hal_pin_t *pin = SHMPTR(next);
         next = pin->next_ptr;
-	if ( sz == strlen(pin->name) && strncmp(name, pin->name, sz) == 0 )
-            return pin->type;
+	if ( sz == strlen(pin->name) && strncmp(name, pin->name, sz) == 0 ) {
+            match_type = pin->type;
+            match_direction = pin->dir;
+            return;
+        }
     }
-    return -1;
 }
 
-static hal_type_t check_match_type_signal(const char *name) {
+static void check_match_type_signal(const char *name) {
     int next = hal_data->sig_list_ptr;
     int sz = strcspn(name, " \t");
 
     while(next) {
         hal_sig_t *sig = SHMPTR(next);
         next = sig->next_ptr;
-	if ( sz == strlen(sig->name) && strncmp(name, sig->name, sz) == 0 )
-            return sig->type;
+	if ( sz == strlen(sig->name) && strncmp(name, sig->name, sz) == 0 ) {
+            match_type = sig->type;
+            match_writers = sig->writers;
+            return;
+        }
     }
-    return -1;
 }
 
 
@@ -3171,6 +3189,7 @@ static char *signal_generator(const char *text, int state) {
         hal_sig_t *sig = SHMPTR(next);
         next = sig->next_ptr;
         if ( match_type != -1 && match_type != sig->type ) continue; 
+        if ( !writer_match( match_direction, sig->writers ) ) continue;
 	if ( strncmp(text, sig->name, len) == 0 )
             return strdup(sig->name);
     }
@@ -3205,6 +3224,8 @@ static char *pin_generator(const char *text, int state) {
     while(next) {
         hal_pin_t *pin = SHMPTR(next);
         next = pin->next_ptr;
+        if ( !writer_match( pin->dir, match_writers ) ) continue;
+        if ( !direction_match( pin->dir, match_direction ) ) continue;
         if ( match_type != -1 && match_type != pin->type ) continue; 
 	if ( strncmp(text, pin->name, len) == 0 )
             return strdup(pin->name);
@@ -3238,6 +3259,9 @@ char **completer(const char *text, int start, int end) {
     }
 
     match_type = -1;
+    match_writers = -1;
+    match_direction = -1;
+
     rtapi_mutex_get(&(hal_data->mutex));
 
     if(startswith(rl_line_buffer, "delsig ") && argno == 1) {
@@ -3245,17 +3269,17 @@ char **completer(const char *text, int start, int end) {
     } else if(startswith(rl_line_buffer, "linkps ") && argno == 1) {
         result = rl_completion_matches(text, pin_generator);
     } else if(startswith(rl_line_buffer, "linkps ") && argno == 2) {
-        match_type = check_match_type_pin(rl_line_buffer + 7);
+        check_match_type_pin(rl_line_buffer + 7);
         result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "linksp ") && argno == 1) {
         result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "linksp ") && argno == 2) {
-        match_type = check_match_type_signal(rl_line_buffer + 7);
+        check_match_type_signal(rl_line_buffer + 7);
         result = rl_completion_matches(text, pin_generator);
     } else if(startswith(rl_line_buffer, "linkpp ") && argno == 1) {
         result = rl_completion_matches(text, pin_generator);
     } else if(startswith(rl_line_buffer, "linkpp ") && argno == 2) {
-        match_type = check_match_type_pin(rl_line_buffer + 7);
+        check_match_type_pin(rl_line_buffer + 7);
         result = rl_completion_matches(text, pin_generator);
     } else if(startswith(rl_line_buffer, "unlinkp ") && argno == 1) {
         result = rl_completion_matches(text, pin_generator);
