@@ -2551,12 +2551,14 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   double radius;
   int side;
   double theta;
-  double p[3], c[2];
+  double p[3], c[2], tp[2];
 
   if(settings->plane == CANON_PLANE_XZ) {
       p[0] = px;
       p[1] = pz;
       p[2] = py;
+      tp[0] = xtrans(settings, px);
+      tp[1] = ztrans(settings, pz);
       c[0] = settings->current_x;
       c[1] = settings->current_z;
   } else if (settings->plane == CANON_PLANE_XY) {
@@ -2570,19 +2572,14 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   side = settings->cutter_comp_side;
 
   radius = settings->cutter_comp_radius;        /* always will be positive */
-  distance = hypot((p[0] - c[0]), (p[1] - c[1]));
+  distance = hypot((tp[0] - c[0]), (tp[1] - c[1]));
 
   CHK(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
   CHK((distance <= radius), NCE_CUTTER_GOUGING_WITH_CUTTER_RADIUS_COMP);
 
-  if(settings->plane == CANON_PLANE_XZ) {
-      // slightly less-graceful, but always correct entry move for lathes
-      alpha = atan2(c[1] - p[1], c[0] - p[0]) + side == RIGHT? M_PI_2l: -M_PI_2l;
-  } else {
-      theta = acos(radius / distance);
-      alpha = (side == LEFT) ? (atan2((c[1] - p[1]), (c[0] - p[0])) - theta) :
-                               (atan2((c[1] - p[1]), (c[0] - p[0])) + theta);
-  }
+  theta = acos(radius / distance);
+  alpha = (side == LEFT) ? (atan2((c[1] - tp[1]), (c[0] - tp[0])) - theta) :
+                           (atan2((c[1] - tp[1]), (c[0] - tp[0])) + theta);
   c[0] = (p[0] + (radius * cos(alpha)));    /* reset to end location */
   c[1] = (p[1] + (radius * sin(alpha)));
 
