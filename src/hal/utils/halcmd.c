@@ -2969,9 +2969,57 @@ static char *command_table[] = {
     "linkps", "linksp", "linkpp", "unlinkp",
     "newsig", "delsig", "getp", "gets", "setp", "sets",
     "addf", "delf", "show", "list", "status", "save",
-    "start", "stop", "quit", "exit",
+    "start", "stop", "quit", "exit", "help", 
     NULL,
 };
+
+static char *show_table[] = {
+    "all", "comp", "pin", "sig", "param", "funct", "thread",
+    NULL,
+};
+
+static char *list_table[] = {
+    "comp", "pin", "sig", "param", "funct", "thread",
+    NULL
+};
+
+static char *status_table[] = {
+    "lock", "mem", "all",
+    NULL
+};
+
+static char *pintype_table[] = {
+    "bit", "float", "u8", "s8", "u16", "s16", "u32", "s32", 
+    NULL
+};
+
+static char *lock_table[] = { "none", "tune", "all", NULL };
+static char *unlock_table[] = { "tune", "all", NULL };
+
+static char **string_table = NULL;
+
+static char *table_generator(const char *text, int state) {
+    static int len;
+    static int list_index = 0;
+    char *name;
+
+    if(state == 0) {
+        list_index = 0;
+        len = strlen(text);
+    }
+
+    while((name = string_table[list_index]) != NULL) {
+        printf("table_generator %s %s %d\n", name, text, len);
+        list_index ++;
+        if(strncmp (name, text, len) == 0) return strdup(name);
+    }
+    return NULL;
+}
+
+static char **completion_matches_table(const char *text, char **table) {
+    string_table = table;
+    return rl_completion_matches(text, table_generator);
+}
 
 static hal_type_t match_type = -1;
 static int match_writers = -1;
@@ -2979,7 +3027,7 @@ static hal_dir_t match_direction = -1;
 
 static int direction_match(hal_dir_t dir1, hal_dir_t dir2) {
     if(dir1 == -1 || dir2 == -1) return 1;
-    return dir1 | dir2 == HAL_RD_WR;
+    return (dir1 | dir2) == HAL_RD_WR;
 }
 
 static int writer_match(hal_dir_t dir, int writers) {
@@ -3018,24 +3066,6 @@ static void check_match_type_signal(const char *name) {
     }
 }
 
-
-static char *command_generator(const char *text, int state) {
-    static int list_index, len;
-    const char *name;
-
-    if(!state) {
-        list_index = 0;
-        len = strlen(text);
-    }
-
-    while((name = command_table[list_index]) != NULL) {
-        list_index ++;
-        if(strncmp (name, text, len) == 0) return strdup(name);
-    }
-    rl_attempted_completion_over = 1;
-    return NULL;
-}
-
 static char *thread_generator(const char *text, int state) { 
     static int len;
     static int next;
@@ -3050,28 +3080,6 @@ static char *thread_generator(const char *text, int state) {
 	if ( strncmp(text, thread->name, len) == 0 )
             return strdup(thread->name);
     }
-    return NULL;
-}
-
-static char *show_table[] = {
-    "all", "pin", "sig", "param", "funct", "thread",
-    NULL,
-};
-
-static char *showtypes_generator(const char *text, int state) {
-    static int list_index, len;
-    const char *name;
-
-    if(!state) {
-        list_index = 0;
-        len = strlen(text);
-    }
-
-    while((name = show_table[list_index]) != NULL) {
-        list_index ++;
-        if(strncmp (name, text, len) == 0) return strdup(name);
-    }
-    rl_attempted_completion_over = 1;
     return NULL;
 }
 
@@ -3106,110 +3114,6 @@ static char *funct_generator(const char *text, int state) {
 	if ( strncmp(text, funct->name, len) == 0 )
             return strdup(funct->name);
     }
-    return NULL;
-}
-
-static char *list_table[] = {
-    "comp", "pin", "sig", "param", "funct", "thread",
-    NULL
-};
-
-static char *listtypes_generator(const char *text, int state) {
-    static int list_index, len;
-    const char *name;
-
-    if(!state) {
-        list_index = 0;
-        len = strlen(text);
-    }
-
-    while((name = list_table[list_index]) != NULL) {
-        list_index ++;
-        if(strncmp (name, text, len) == 0) return strdup(name);
-    }
-    rl_attempted_completion_over = 1;
-    return NULL;
-}
-
-static char *status_table[] = {
-    "lock", "mem", "all",
-    NULL
-};
-
-static char *status_generator(const char *text, int state) {
-    static int list_index, len;
-    const char *name;
-
-    if(!state) {
-        list_index = 0;
-        len = strlen(text);
-    }
-
-    while((name = status_table[list_index]) != NULL) {
-        list_index ++;
-        if(strncmp (name, text, len) == 0) return strdup(name);
-    }
-    rl_attempted_completion_over = 1;
-    return NULL;
-}
-
-
-static char *pintype_table[] = {
-    "bit", "float", "u8", "s8", "u16", "s16", "u32", "s32", 
-    NULL
-};
-
-static char *pintype_generator(const char *text, int state) {
-    static int list_index, len;
-    const char *name;
-
-    if(!state) {
-        list_index = 0;
-        len = strlen(text);
-    }
-
-    while((name = pintype_table[list_index]) != NULL) {
-        list_index ++;
-        if(strncmp (name, text, len) == 0) return strdup(name);
-    }
-    rl_attempted_completion_over = 1;
-    return NULL;
-}
-
-static char *lock_table[] = { "none", "tune", "all", NULL };
-
-static char *lock_generator(const char *text, int state) {
-    static int list_index, len;
-    const char *name;
-
-    if(!state) {
-        list_index = 0;
-        len = strlen(text);
-    }
-
-    while((name = lock_table[list_index]) != NULL) {
-        list_index ++;
-        if(strncmp (name, text, len) == 0) return strdup(name);
-    }
-    rl_attempted_completion_over = 1;
-    return NULL;
-}
-
-
-static char *unlock_generator(const char *text, int state) {
-    static int list_index, len;
-    const char *name;
-
-    if(!state) {
-        list_index = 1;
-        len = strlen(text);
-    }
-
-    while((name = lock_table[list_index]) != NULL) {
-        list_index ++;
-        if(strncmp (name, text, len) == 0) return strdup(name);
-    }
-    rl_attempted_completion_over = 1;
     return NULL;
 }
 
@@ -3285,7 +3189,7 @@ char **completer(const char *text, int start, int end) {
     char **result = NULL;
 
     if(start == 0)
-        return rl_completion_matches(text, command_generator);
+        return completion_matches_table(text, command_table);
 
     for(i=0, argno=0; i<start; i++) {
         if(isskip(rl_line_buffer[i])) {
@@ -3328,7 +3232,7 @@ char **completer(const char *text, int start, int end) {
     } else if(startswith(rl_line_buffer, "gets ") && argno == 1) {
         result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "show ") && argno == 1) {
-        result = rl_completion_matches(text, showtypes_generator);
+        result = completion_matches_table(text, show_table);
     } else if(startswith(rl_line_buffer, "list pin") && argno == 2) {
         result = rl_completion_matches(text, pin_generator);
     } else if(startswith(rl_line_buffer, "list sig") && argno == 2) {
@@ -3350,15 +3254,15 @@ char **completer(const char *text, int start, int end) {
     } else if(startswith(rl_line_buffer, "show thread") && argno == 2) {
         result = rl_completion_matches(text, thread_generator);
     } else if(startswith(rl_line_buffer, "list ") && argno == 1) {
-        result = rl_completion_matches(text, listtypes_generator);
+        result = completion_matches_table(text, list_table);
     } else if(startswith(rl_line_buffer, "status ") && argno == 1) {
-        result = rl_completion_matches(text, status_generator);
+        result = completion_matches_table(text, status_table);
     } else if(startswith(rl_line_buffer, "newsig ") && argno == 2) {
-        result = rl_completion_matches(text, pintype_generator);
+        result = completion_matches_table(text, pintype_table);
     } else if(startswith(rl_line_buffer, "lock ") && argno == 1) {
-        result = rl_completion_matches(text, lock_generator);
+        result = completion_matches_table(text, lock_table);
     } else if(startswith(rl_line_buffer, "unlock ") && argno == 1) {
-        result = rl_completion_matches(text, unlock_generator);
+        result = completion_matches_table(text, unlock_table);
     } else if(startswith(rl_line_buffer, "addf ") && argno == 1) {
         result = rl_completion_matches(text, funct_generator);
     } else if(startswith(rl_line_buffer, "addf ") && argno == 2) {
@@ -3368,7 +3272,7 @@ char **completer(const char *text, int start, int end) {
     } else if(startswith(rl_line_buffer, "delf ") && argno == 2) {
         result = rl_completion_matches(text, thread_generator);
     } else if(startswith(rl_line_buffer, "help ") && argno == 1) {
-        result = rl_completion_matches(text, command_generator);
+        result = completion_matches_table(text, command_table);
     }
 
 
