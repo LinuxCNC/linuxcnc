@@ -3176,6 +3176,42 @@ static char *pintype_generator(const char *text, int state) {
     return NULL;
 }
 
+static char *lock_table[] = { "none", "tune", "all", NULL };
+
+static char *lock_generator(const char *text, int state) {
+    static int list_index, len;
+    const char *name;
+
+    if(!state) {
+        list_index = 0;
+        len = strlen(text);
+    }
+
+    while((name = lock_table[list_index]) != NULL) {
+        list_index ++;
+        if(strncmp (name, text, len) == 0) return strdup(name);
+    }
+    rl_attempted_completion_over = 1;
+    return NULL;
+}
+
+
+static char *unlock_generator(const char *text, int state) {
+    static int list_index, len;
+    const char *name;
+
+    if(!state) {
+        list_index = 1;
+        len = strlen(text);
+    }
+
+    while((name = lock_table[list_index]) != NULL) {
+        list_index ++;
+        if(strncmp (name, text, len) == 0) return strdup(name);
+    }
+    rl_attempted_completion_over = 1;
+    return NULL;
+}
 
 static char *signal_generator(const char *text, int state) {
     static int len;
@@ -3293,6 +3329,16 @@ char **completer(const char *text, int start, int end) {
         result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "show ") && argno == 1) {
         result = rl_completion_matches(text, showtypes_generator);
+    } else if(startswith(rl_line_buffer, "list pin") && argno == 2) {
+        result = rl_completion_matches(text, pin_generator);
+    } else if(startswith(rl_line_buffer, "list sig") && argno == 2) {
+        result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "list param") && argno == 2) {
+        result = rl_completion_matches(text, parameter_generator);
+    } else if(startswith(rl_line_buffer, "list funct") && argno == 2) {
+        result = rl_completion_matches(text, funct_generator);
+    } else if(startswith(rl_line_buffer, "list thread") && argno == 2) {
+        result = rl_completion_matches(text, thread_generator);
     } else if(startswith(rl_line_buffer, "show pin") && argno == 2) {
         result = rl_completion_matches(text, pin_generator);
     } else if(startswith(rl_line_buffer, "show sig") && argno == 2) {
@@ -3309,12 +3355,26 @@ char **completer(const char *text, int start, int end) {
         result = rl_completion_matches(text, status_generator);
     } else if(startswith(rl_line_buffer, "newsig ") && argno == 2) {
         result = rl_completion_matches(text, pintype_generator);
+    } else if(startswith(rl_line_buffer, "lock ") && argno == 1) {
+        result = rl_completion_matches(text, lock_generator);
+    } else if(startswith(rl_line_buffer, "unlock ") && argno == 1) {
+        result = rl_completion_matches(text, unlock_generator);
+    } else if(startswith(rl_line_buffer, "addf ") && argno == 1) {
+        result = rl_completion_matches(text, funct_generator);
+    } else if(startswith(rl_line_buffer, "addf ") && argno == 2) {
+        result = rl_completion_matches(text, thread_generator);
+    } else if(startswith(rl_line_buffer, "delf ") && argno == 1) {
+        result = rl_completion_matches(text, funct_generator);
+    } else if(startswith(rl_line_buffer, "delf ") && argno == 2) {
+        result = rl_completion_matches(text, thread_generator);
+    } else if(startswith(rl_line_buffer, "help ") && argno == 1) {
+        result = rl_completion_matches(text, command_generator);
     }
+
 
     rtapi_mutex_give(&(hal_data->mutex));
 
-    // XXX only showing appropriate second arg for linkXX
-    // XXX completions for: loadrt loadusr unloadrt lock unlock newsig delf ...
+    // XXX completions for: loadrt loadusr unloadrt ...
 
     rl_attempted_completion_over = 1;
     return result;
