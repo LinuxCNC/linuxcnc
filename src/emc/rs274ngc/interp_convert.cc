@@ -2575,9 +2575,14 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   CHK(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
   CHK((distance <= radius), NCE_CUTTER_GOUGING_WITH_CUTTER_RADIUS_COMP);
 
-  theta = acos(radius / distance);
-  alpha = (side == LEFT) ? (atan2((c[1] - p[1]), (c[0] - p[0])) - theta) :
-                           (atan2((c[1] - p[1]), (c[0] - p[0])) + theta);
+  if(settings->plane == CANON_PLANE_XZ) {
+      // slightly less-graceful, but always correct entry move for lathes
+      alpha = atan2(c[1] - p[1], c[0] - p[0]) + side == RIGHT? M_PI_2l: -M_PI_2l;
+  } else {
+      theta = acos(radius / distance);
+      alpha = (side == LEFT) ? (atan2((c[1] - p[1]), (c[0] - p[0])) - theta) :
+                               (atan2((c[1] - p[1]), (c[0] - p[0])) + theta);
+  }
   c[0] = (p[0] + (radius * cos(alpha)));    /* reset to end location */
   c[1] = (p[1] + (radius * sin(alpha)));
 
