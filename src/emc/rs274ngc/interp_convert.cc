@@ -39,8 +39,8 @@
 // those with radius 0 (a point) do not need any translation.
 
 static double xtrans(setup_pointer settings, double x) {
-    int o = settings->tool_table[settings->tool_offset_index].orientation;
-    double r = settings->tool_table[settings->tool_offset_index].diameter / 2.0;
+    int o = settings->tool_table[settings->tool_table_index].orientation;
+    double r = settings->tool_table[settings->tool_table_index].diameter / 2.0;
 
     if(o==2 || o==6 || o==1) x -= r;
     if(o==3 || o==8 || o==4) x += r;
@@ -48,8 +48,8 @@ static double xtrans(setup_pointer settings, double x) {
 }
 
 static double ztrans(setup_pointer settings, double z) {
-    int o = settings->tool_table[settings->tool_offset_index].orientation;
-    double r = settings->tool_table[settings->tool_offset_index].diameter / 2.0;
+    int o = settings->tool_table[settings->tool_table_index].orientation;
+    double r = settings->tool_table[settings->tool_table_index].diameter / 2.0;
 
     if(o==2 || o==7 || o==3) z -= r;
     if(o==1 || o==5 || o==4) z += r;
@@ -2562,8 +2562,8 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
       c[0] = settings->current_x;
       c[1] = settings->current_z;
   } else if (settings->plane == CANON_PLANE_XY) {
-      p[0] = px;
-      p[1] = py;
+      tp[0] = p[0] = px;
+      tp[1] = p[1] = py;
       p[2] = pz;
       c[0] = settings->current_x;
       c[1] = settings->current_y;
