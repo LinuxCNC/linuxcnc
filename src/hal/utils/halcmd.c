@@ -2963,7 +2963,8 @@ static void print_help_commands(void)
 }
 
 #ifdef HAVE_READLINE
-char *command_table[] = {
+
+static char *command_table[] = {
     "loadrt", "unloadrt", "loadusr", "lock", "unlock",
     "linkps", "linksp", "linkpp", "unlinkp",
     "newsig", "delsig", "getp", "gets", "setp", "sets",
@@ -2972,7 +2973,35 @@ char *command_table[] = {
     NULL,
 };
 
-char *command_generator(const char *text, int state) {
+static int match_type = -1;
+static hal_type_t check_match_type_pin(const char *name) {
+    int next = hal_data->pin_list_ptr;
+    int sz = strcspn(name, " \t");
+
+    while(next) {
+        hal_pin_t *pin = SHMPTR(next);
+        next = pin->next_ptr;
+	if ( sz == strlen(pin->name) && strncmp(name, pin->name, sz) == 0 )
+            return pin->type;
+    }
+    return -1;
+}
+
+static hal_type_t check_match_type_signal(const char *name) {
+    int next = hal_data->sig_list_ptr;
+    int sz = strcspn(name, " \t");
+
+    while(next) {
+        hal_sig_t *sig = SHMPTR(next);
+        next = sig->next_ptr;
+	if ( sz == strlen(sig->name) && strncmp(name, sig->name, sz) == 0 )
+            return sig->type;
+    }
+    return -1;
+}
+
+
+static char *command_generator(const char *text, int state) {
     static int list_index, len;
     const char *name;
 
@@ -2989,11 +3018,10 @@ char *command_generator(const char *text, int state) {
     return NULL;
 }
 
-char *thread_generator(const char *text, int state) { 
+static char *thread_generator(const char *text, int state) { 
     static int len;
     static int next;
     if(!state) {
-        rtapi_mutex_get(&(hal_data->mutex));
         next = hal_data->thread_list_ptr;
         len = strlen(text);
     }
@@ -3004,17 +3032,15 @@ char *thread_generator(const char *text, int state) {
 	if ( strncmp(text, thread->name, len) == 0 )
             return strdup(thread->name);
     }
-    rtapi_mutex_give(&(hal_data->mutex));
-    rl_attempted_completion_over = 1;
     return NULL;
 }
 
-char *show_table[] = {
+static char *show_table[] = {
     "all", "pin", "sig", "param", "funct", "thread",
     NULL,
 };
 
-char *showtypes_generator(const char *text, int state) {
+static char *showtypes_generator(const char *text, int state) {
     static int list_index, len;
     const char *name;
 
@@ -3031,11 +3057,10 @@ char *showtypes_generator(const char *text, int state) {
     return NULL;
 }
 
-char *parameter_generator(const char *text, int state) { 
+static char *parameter_generator(const char *text, int state) { 
     static int len;
     static int next;
     if(!state) {
-        rtapi_mutex_get(&(hal_data->mutex));
         next = hal_data->param_list_ptr;
         len = strlen(text);
     }
@@ -3046,16 +3071,13 @@ char *parameter_generator(const char *text, int state) {
 	if ( strncmp(text, param->name, len) == 0 )
             return strdup(param->name);
     }
-    rtapi_mutex_give(&(hal_data->mutex));
-    rl_attempted_completion_over = 1;
     return NULL;
 }
 
-char *funct_generator(const char *text, int state) { 
+static char *funct_generator(const char *text, int state) { 
     static int len;
     static int next;
     if(!state) {
-        rtapi_mutex_get(&(hal_data->mutex));
         next = hal_data->funct_list_ptr;
         len = strlen(text);
     }
@@ -3066,17 +3088,15 @@ char *funct_generator(const char *text, int state) {
 	if ( strncmp(text, funct->name, len) == 0 )
             return strdup(funct->name);
     }
-    rtapi_mutex_give(&(hal_data->mutex));
-    rl_attempted_completion_over = 1;
     return NULL;
 }
 
-char *list_table[] = {
+static char *list_table[] = {
     "comp", "pin", "sig", "param", "funct", "thread",
     NULL
 };
 
-char *listtypes_generator(const char *text, int state) {
+static char *listtypes_generator(const char *text, int state) {
     static int list_index, len;
     const char *name;
 
@@ -3093,12 +3113,12 @@ char *listtypes_generator(const char *text, int state) {
     return NULL;
 }
 
-char *status_table[] = {
+static char *status_table[] = {
     "lock", "mem", "all",
     NULL
 };
 
-char *status_generator(const char *text, int state) {
+static char *status_generator(const char *text, int state) {
     static int list_index, len;
     const char *name;
 
@@ -3116,11 +3136,33 @@ char *status_generator(const char *text, int state) {
 }
 
 
-char *signal_generator(const char *text, int state) {
+static char *pintype_table[] = {
+    "bit", "float", "u8", "s8", "u16", "s16", "u32", "s32", 
+    NULL
+};
+
+static char *pintype_generator(const char *text, int state) {
+    static int list_index, len;
+    const char *name;
+
+    if(!state) {
+        list_index = 0;
+        len = strlen(text);
+    }
+
+    while((name = pintype_table[list_index]) != NULL) {
+        list_index ++;
+        if(strncmp (name, text, len) == 0) return strdup(name);
+    }
+    rl_attempted_completion_over = 1;
+    return NULL;
+}
+
+
+static char *signal_generator(const char *text, int state) {
     static int len;
     static int next;
     if(!state) {
-        rtapi_mutex_get(&(hal_data->mutex));
         next = hal_data->sig_list_ptr;
         len = strlen(text);
     }
@@ -3128,19 +3170,17 @@ char *signal_generator(const char *text, int state) {
     while(next) {
         hal_sig_t *sig = SHMPTR(next);
         next = sig->next_ptr;
+        if ( match_type != -1 && match_type != sig->type ) continue; 
 	if ( strncmp(text, sig->name, len) == 0 )
             return strdup(sig->name);
     }
-    rtapi_mutex_give(&(hal_data->mutex));
-    rl_attempted_completion_over = 1;
     return NULL;
 }
 
-char *param_generator(const char *text, int state) {
+static char *param_generator(const char *text, int state) {
     static int len;
     static int next;
     if(!state) {
-        rtapi_mutex_get(&(hal_data->mutex));
         next = hal_data->param_list_ptr;
         len = strlen(text);
     }
@@ -3151,16 +3191,13 @@ char *param_generator(const char *text, int state) {
 	if ( strncmp(text, param->name, len) == 0 )
             return strdup(param->name);
     }
-    rtapi_mutex_give(&(hal_data->mutex));
-    rl_attempted_completion_over = 1;
     return NULL;
 }
 
-char *pin_generator(const char *text, int state) {
+static char *pin_generator(const char *text, int state) {
     static int len;
     static int next;
     if(!state) {
-        rtapi_mutex_get(&(hal_data->mutex));
         next = hal_data->pin_list_ptr;
         len = strlen(text);
     }
@@ -3168,80 +3205,95 @@ char *pin_generator(const char *text, int state) {
     while(next) {
         hal_pin_t *pin = SHMPTR(next);
         next = pin->next_ptr;
+        if ( match_type != -1 && match_type != pin->type ) continue; 
 	if ( strncmp(text, pin->name, len) == 0 )
             return strdup(pin->name);
     }
-    rtapi_mutex_give(&(hal_data->mutex));
     rl_attempted_completion_over = 1;
     return NULL;
 }
 
-int startswith(const char *string, const char *stem) {
+static int startswith(const char *string, const char *stem) {
     return strncmp(string, stem, strlen(stem)) == 0;
 }
 
+static inline int isskip(int ch) {
+    return isspace(ch) || ch == '=' || ch == '<' || ch == '>';
+}
+
 static int argno;
+
 char **completer(const char *text, int start, int end) {
     int i;
+    char **result = NULL;
+
     if(start == 0)
         return rl_completion_matches(text, command_generator);
 
     for(i=0, argno=0; i<start; i++) {
-        if(isspace(rl_line_buffer[i])) {
+        if(isskip(rl_line_buffer[i])) {
             argno++;
-            while(i<start && isspace(rl_line_buffer[i])) i++;
+            while(i<start && isskip(rl_line_buffer[i])) i++;
         }
     }
 
-    if(startswith(rl_line_buffer, "delsig ") && argno == 1)
-        return rl_completion_matches(text, signal_generator);
+    match_type = -1;
+    rtapi_mutex_get(&(hal_data->mutex));
 
-    if(startswith(rl_line_buffer, "linkps ") && argno == 1)
-        return rl_completion_matches(text, pin_generator);
-    if(startswith(rl_line_buffer, "linkps ") && argno == 2)
-        return rl_completion_matches(text, signal_generator);
-    if(startswith(rl_line_buffer, "linksp ") && argno == 1)
-        return rl_completion_matches(text, signal_generator);
-    if(startswith(rl_line_buffer, "linksp ") && argno == 2)
-        return rl_completion_matches(text, pin_generator);
-    if(startswith(rl_line_buffer, "linkpp ") && argno == 1)
-        return rl_completion_matches(text, pin_generator);
-    if(startswith(rl_line_buffer, "linkpp ") && argno == 2)
-        return rl_completion_matches(text, pin_generator);
+    if(startswith(rl_line_buffer, "delsig ") && argno == 1) {
+        result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "linkps ") && argno == 1) {
+        result = rl_completion_matches(text, pin_generator);
+    } else if(startswith(rl_line_buffer, "linkps ") && argno == 2) {
+        match_type = check_match_type_pin(rl_line_buffer + 7);
+        result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "linksp ") && argno == 1) {
+        result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "linksp ") && argno == 2) {
+        match_type = check_match_type_signal(rl_line_buffer + 7);
+        result = rl_completion_matches(text, pin_generator);
+    } else if(startswith(rl_line_buffer, "linkpp ") && argno == 1) {
+        result = rl_completion_matches(text, pin_generator);
+    } else if(startswith(rl_line_buffer, "linkpp ") && argno == 2) {
+        match_type = check_match_type_pin(rl_line_buffer + 7);
+        result = rl_completion_matches(text, pin_generator);
+    } else if(startswith(rl_line_buffer, "unlinkp ") && argno == 1) {
+        result = rl_completion_matches(text, pin_generator);
+    } else if(startswith(rl_line_buffer, "setp ") && argno == 1) {
+        result = rl_completion_matches(text, param_generator);
+    } else if(startswith(rl_line_buffer, "sets ") && argno == 1) {
+        result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "getp ") && argno == 1) {
+        result = rl_completion_matches(text, param_generator);
+    } else if(startswith(rl_line_buffer, "gets ") && argno == 1) {
+        result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "show ") && argno == 1) {
+        result = rl_completion_matches(text, showtypes_generator);
+    } else if(startswith(rl_line_buffer, "show pin") && argno == 2) {
+        result = rl_completion_matches(text, pin_generator);
+    } else if(startswith(rl_line_buffer, "show sig") && argno == 2) {
+        result = rl_completion_matches(text, signal_generator);
+    } else if(startswith(rl_line_buffer, "show param") && argno == 2) {
+        result = rl_completion_matches(text, parameter_generator);
+    } else if(startswith(rl_line_buffer, "show funct") && argno == 2) {
+        result = rl_completion_matches(text, funct_generator);
+    } else if(startswith(rl_line_buffer, "show thread") && argno == 2) {
+        result = rl_completion_matches(text, thread_generator);
+    } else if(startswith(rl_line_buffer, "list ") && argno == 1) {
+        result = rl_completion_matches(text, listtypes_generator);
+    } else if(startswith(rl_line_buffer, "status ") && argno == 1) {
+        result = rl_completion_matches(text, status_generator);
+    } else if(startswith(rl_line_buffer, "newsig ") && argno == 2) {
+        result = rl_completion_matches(text, pintype_generator);
+    }
 
-    if(startswith(rl_line_buffer, "unlinkp ") && argno == 1)
-        return rl_completion_matches(text, pin_generator);
-    if(startswith(rl_line_buffer, "setp ") && argno == 1)
-        return rl_completion_matches(text, param_generator);
-    if(startswith(rl_line_buffer, "sets ") && argno == 1)
-        return rl_completion_matches(text, signal_generator);
-    if(startswith(rl_line_buffer, "getp ") && argno == 1)
-        return rl_completion_matches(text, param_generator);
-    if(startswith(rl_line_buffer, "gets ") && argno == 1)
-        return rl_completion_matches(text, signal_generator);
-    if(startswith(rl_line_buffer, "show ") && argno == 1)
-        return rl_completion_matches(text, showtypes_generator);
-    if(startswith(rl_line_buffer, "show pin") && argno == 2)
-        return rl_completion_matches(text, pin_generator);
-    if(startswith(rl_line_buffer, "show sig") && argno == 2)
-        return rl_completion_matches(text, signal_generator);
-    if(startswith(rl_line_buffer, "show param") && argno == 2)
-        return rl_completion_matches(text, parameter_generator);
-    if(startswith(rl_line_buffer, "show funct") && argno == 2)
-        return rl_completion_matches(text, funct_generator);
-    if(startswith(rl_line_buffer, "show thread") && argno == 2)
-        return rl_completion_matches(text, thread_generator);
-    if(startswith(rl_line_buffer, "list ") && argno == 1)
-        return rl_completion_matches(text, listtypes_generator);
-    if(startswith(rl_line_buffer, "status ") && argno == 1)
-        return rl_completion_matches(text, status_generator);
-    
-    // XXX handling <= and => in linkXX commands
+    rtapi_mutex_give(&(hal_data->mutex));
+
     // XXX only showing appropriate second arg for linkXX
     // XXX completions for: loadrt loadusr unloadrt lock unlock newsig delf ...
 
     rl_attempted_completion_over = 1;
-    return NULL;
+    return result;
 }
 
 static void halcmd_init_readline() {
