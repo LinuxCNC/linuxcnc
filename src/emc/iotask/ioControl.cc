@@ -343,11 +343,10 @@ static int loadToolTable(const char *filename,
                    &pocket, &id, &zoffset, &xoffset, &diameter,
                    &frontangle, &backangle, &orientation) == 8) {
             if (pocket < 0 || pocket > CANON_TOOL_MAX) {
-                printf("skipping invalid line in tool table\n");
+                printf("skipping tool: bad pocket number %d\n", pocket);
                 continue;
             } else {
-                printf("lathe tool found\n");
-
+                /* lathe tool */
                 toolTable[pocket].id = id;
                 toolTable[pocket].zoffset = zoffset;
                 toolTable[pocket].xoffset = xoffset;
@@ -360,11 +359,10 @@ static int loadToolTable(const char *filename,
         } else if (sscanf(buffer, "%d %d %lf %lf",
                    &pocket, &id, &zoffset, &diameter) == 4) {
             if (pocket < 0 || pocket > CANON_TOOL_MAX) {
-                printf("skipping invalid line in tool table\n");
+                printf("skipping tool: bad pocket number %d\n", pocket);
                 continue;
             } else {
-                printf("mill tool found\n");
-
+                /* mill tool */
                 toolTable[pocket].id = id;
                 toolTable[pocket].zoffset = zoffset;
                 toolTable[pocket].diameter = diameter;
@@ -375,7 +373,7 @@ static int loadToolTable(const char *filename,
                 toolTable[pocket].orientation = 0;
             }
         } else {
-            printf("skipping invalid line in tool table\n");
+            /* invalid line. skip it silently */
             continue;
         }
     }
