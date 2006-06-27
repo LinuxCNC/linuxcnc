@@ -3194,6 +3194,29 @@ static int startswith(const char *string, const char *stem) {
     return strncmp(string, stem, strlen(stem)) == 0;
 }
 
+static char *loadusr_generator(const char *text, int state) {
+    static int len;
+    static DIR *d;
+    struct dirent *ent;
+
+    if(!state) {
+        len = strlen(text);
+        d = opendir(EMC2_BIN_DIR);
+    }
+
+    while(d && (ent = readdir(d))) {
+        char *result;
+        if(!startswith(ent->d_name, "hal")) continue;
+        if(startswith(ent->d_name, "halcmd")) continue;
+        if(strncmp(text, ent->d_name, len) != 0) continue;
+        result = strdup(ent->d_name);
+        return result;
+    }
+    closedir(d);
+    return NULL;
+}
+
+
 static char *loadrt_generator(const char *text, int state) {
     static int len;
     static DIR *d;
@@ -3312,18 +3335,17 @@ char **completer(const char *text, int start, int end) {
         result = rl_completion_matches(text, thread_generator);
     } else if(startswith(rl_line_buffer, "help ") && argno == 1) {
         result = completion_matches_table(text, command_table);
-    } else if(startswith(rl_line_buffer, "loadrt ") && argno == 1) {
-        rtapi_mutex_give(&(hal_data->mutex));
-        return rl_completion_matches(text, loadrt_generator);
     } else if(startswith(rl_line_buffer, "unloadrt ") && argno == 1) {
+        result = rl_completion_matches(text, comp_generator);
+    } else if(startswith(rl_line_buffer, "loadusr ") && argno == 1) {
         rtapi_mutex_give(&(hal_data->mutex));
-        return rl_completion_matches(text, comp_generator);
+        // leaves rl_attempted_completion_over = 0 to complete from filesystem
+        return rl_completion_matches(text, loadusr_generator);
+    } else if(startswith(rl_line_buffer, "loadrt ") && argno == 1) {
+        result = rl_completion_matches(text, loadrt_generator);
     }
 
-
     rtapi_mutex_give(&(hal_data->mutex));
-
-    // XXX completions for: loadrt loadusr unloadrt ...
 
     rl_attempted_completion_over = 1;
     return result;
