@@ -128,13 +128,13 @@ static char *data_arrow1(int dir);
 static char *data_arrow2(int dir);
 static char *data_value(int type, void *valptr);
 static char *data_value2(int type, void *valptr);
-static int do_save_cmd(char *type);
-static void save_comps(void);
-static void save_signals(void);
-static void save_links(int arrows);
-static void save_nets(int arrows);
-static void save_params(void);
-static void save_threads(void);
+static int do_save_cmd(char *type, char *filename);
+static void save_comps(FILE *dst);
+static void save_signals(FILE *dst);
+static void save_links(FILE *dst, int arrows);
+static void save_nets(FILE *dst, int arrows);
+static void save_params(FILE *dst);
+static void save_threads(FILE *dst);
 static void print_help_general(int showR);
 static void print_help_commands(void);
 static int get_input(FILE *srcfile, char *buf, size_t bufsize);
@@ -451,8 +451,6 @@ int main(int argc, char **argv)
 		"HAL:%d: bad variable replacement\n", linenumber);
 	} else {
 	    retval = tokenize(cmd_buf, tokens);
-	    /* tokens[] contains MAX_TOK+1 elements so there is always
-	       at least one empty one at the end... make it empty now */
 	    if (retval != 0) {
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL:%d: Bad state in token parser\n", linenumber);
@@ -771,7 +769,7 @@ static int parse_cmd(char *tokens[])
     } else if (strcmp(tokens[0], "loadusr") == 0) {
 	retval = do_loadusr_cmd(&tokens[1]);
     } else if (strcmp(tokens[0], "save") == 0) {
-	retval = do_save_cmd(tokens[1]);
+	retval = do_save_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "addf") == 0) {
 	/* did the user specify a position? */
 	if (tokens[3][0] == '\0') {
@@ -2589,49 +2587,65 @@ static char *data_value2(int type, void *valptr)
     return value_str;
 }
 
-static int do_save_cmd(char *type)
+static int do_save_cmd(char *type, char *filename)
 {
+    FILE *dst;
 
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
 	/* must be -Q, don't print anything */
 	return 0;
     }
+    if (*filename == '\0' ) {
+	dst = stdout;
+    } else {
+	dst = fopen(filename, "w" );
+	if ( dst == NULL ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Can't open 'save' destination '%s'\n", linenumber, filename);
+	return -1;
+	}
+    }
     if (*type == '\0') {
+	type = "all";
+    }
+    if (strcmp(type, "all" ) == 0) {
 	/* save everything */
-	save_comps();
-	save_signals();
-	save_links(0);
-	save_params();
-	save_threads();
+	save_comps(dst);
+	save_signals(dst);
+	save_links(dst, 0);
+	save_params(dst);
+	save_threads(dst);
     } else if (strcmp(type, "comp") == 0) {
-	save_comps();
+	save_comps(dst);
     } else if (strcmp(type, "sig") == 0) {
-	save_signals();
+	save_signals(dst);
     } else if (strcmp(type, "link") == 0) {
-	save_links(0);
+	save_links(dst, 0);
     } else if (strcmp(type, "linka") == 0) {
-	save_links(1);
+	save_links(dst, 1);
     } else if (strcmp(type, "net") == 0) {
-	save_nets(0);
+	save_nets(dst, 0);
     } else if (strcmp(type, "neta") == 0) {
-	save_nets(1);
+	save_nets(dst, 1);
     } else if (strcmp(type, "param") == 0) {
-	save_params();
+	save_params(dst);
     } else if (strcmp(type, "thread") == 0) {
-	save_threads();
+	save_threads(dst);
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown 'save' type '%s'\n", linenumber, type);
 	return -1;
     }
+    if (*filename != '\0' ) {
+	fclose(dst);
+    }
     return 0;
 }
 
-static void save_comps(void)
+static void save_comps(FILE *dst)
 {
     int next;
     hal_comp_t *comp;
 
-    rtapi_print("# components\n");
+    fprintf(dst, "# components\n");
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
     while (next != 0) {
@@ -2639,9 +2653,10 @@ static void save_comps(void)
 	if ( comp->type == 1 ) {
 	    /* only print realtime components */
 	    if ( comp->insmod_args == 0 ) {
-		rtapi_print("#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
+		fprintf(dst, "#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
 	    } else {
-		rtapi_print("loadrt %s %s\n", comp->name, SHMPTR(comp->insmod_args));
+		fprintf(dst, "loadrt %s %s\n", comp->name,
+		    (char *)SHMPTR(comp->insmod_args));
 	    }
 	}
 	next = comp->next_ptr;
@@ -2649,30 +2664,30 @@ static void save_comps(void)
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
-static void save_signals(void)
+static void save_signals(FILE *dst)
 {
     int next;
     hal_sig_t *sig;
 
-    rtapi_print("# signals\n");
+    fprintf(dst, "# signals\n");
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->sig_list_ptr;
     while (next != 0) {
 	sig = SHMPTR(next);
-	rtapi_print("newsig %s %s\n", sig->name, data_type((int) sig->type));
+	fprintf(dst, "newsig %s %s\n", sig->name, data_type((int) sig->type));
 	next = sig->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
-static void save_links(int arrow)
+static void save_links(FILE *dst, int arrow)
 {
     int next;
     hal_pin_t *pin;
     hal_sig_t *sig;
     char *arrow_str;
 
-    rtapi_print("# links\n");
+    fprintf(dst, "# links\n");
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
     while (next != 0) {
@@ -2684,26 +2699,26 @@ static void save_links(int arrow)
 	    } else {
 		arrow_str = "\0";
 	    }
-	    rtapi_print("linkps %s %s %s\n", pin->name, arrow_str, sig->name);
+	    fprintf(dst, "linkps %s %s %s\n", pin->name, arrow_str, sig->name);
 	}
 	next = pin->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
-static void save_nets(int arrow)
+static void save_nets(FILE *dst, int arrow)
 {
     int next;
     hal_pin_t *pin;
     hal_sig_t *sig;
     char *arrow_str;
 
-    rtapi_print("# nets\n");
+    fprintf(dst, "# nets\n");
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->sig_list_ptr;
     while (next != 0) {
 	sig = SHMPTR(next);
-	rtapi_print("newsig %s %s\n", sig->name, data_type((int) sig->type));
+	fprintf(dst, "newsig %s %s\n", sig->name, data_type((int) sig->type));
 	pin = halpr_find_pin_by_sig(sig, 0);
 	while (pin != 0) {
 	    if (arrow != 0) {
@@ -2711,7 +2726,7 @@ static void save_nets(int arrow)
 	    } else {
 		arrow_str = "\0";
 	    }
-	    rtapi_print("linksp %s %s %s\n", sig->name, arrow_str, pin->name);
+	    fprintf(dst, "linksp %s %s %s\n", sig->name, arrow_str, pin->name);
 	    pin = halpr_find_pin_by_sig(sig, pin);
 	}
 	next = sig->next_ptr;
@@ -2719,19 +2734,19 @@ static void save_nets(int arrow)
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
-static void save_params(void)
+static void save_params(FILE *dst)
 {
     int next;
     hal_param_t *param;
 
-    rtapi_print("# parameter values\n");
+    fprintf(dst, "# parameter values\n");
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
 	if (param->dir != HAL_RD) {
 	    /* param is writable, save it's value */
-	    rtapi_print("setp %s %s\n", param->name,
+	    fprintf(dst, "setp %s %s\n", param->name,
 		data_value((int) param->type, SHMPTR(param->data_ptr)));
 	}
 	next = param->next_ptr;
@@ -2739,7 +2754,7 @@ static void save_params(void)
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
-static void save_threads(void)
+static void save_threads(FILE *dst)
 {
     int next_thread;
     hal_thread_t *tptr;
@@ -2747,7 +2762,7 @@ static void save_threads(void)
     hal_funct_entry_t *fentry;
     hal_funct_t *funct;
 
-    rtapi_print("# realtime thread/function links\n");
+    fprintf(dst, "# realtime thread/function links\n");
     rtapi_mutex_get(&(hal_data->mutex));
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
@@ -2758,7 +2773,7 @@ static void save_threads(void)
 	    /* print the function info */
 	    fentry = (hal_funct_entry_t *) list_entry;
 	    funct = SHMPTR(fentry->funct_ptr);
-	    rtapi_print("addf %s %s\n", funct->name, tptr->name);
+	    fprintf(dst, "addf %s %s\n", funct->name, tptr->name);
 	    list_entry = list_next(list_entry);
 	}
 	next_thread = tptr->next_ptr;
@@ -2878,13 +2893,14 @@ static int do_help_cmd(char *command)
 	printf("  If 'type' is omitted, it assumes\n");
 	printf("  'all'.\n");
     } else if (strcmp(command, "save") == 0) {
-	printf("save [type]\n");
-	printf("  Prints HAL items as commands that can be redirected to\n");
-	printf("  a file and later restored using \"halcmd -f filename\".\n");
+	printf("save [type] [filename]\n");
+	printf("  Prints HAL state to 'filename' (or stdout), as a series\n");
+	printf("  of HAL commands.  State can later be restored by using\n");
+	printf("  \"halcmd -f filename\".\n");
 	printf("  Type can be 'comp', 'sig', 'link[a]', 'net[a]', 'param',\n");
 	printf("  or 'thread'.  ('linka' and 'neta' show arrows for pin\n");
-	printf("  direction.)  If 'type' is omitted, does the equivalent\n");
-	printf("  of 'comp', 'sig', 'link', 'param', and 'thread'.\n");
+	printf("  direction.)  If 'type' is omitted or 'all', does the\n");
+	printf("  equivalent of 'comp', 'sig', 'link', 'param', and 'thread'.\n");
     } else if (strcmp(command, "start") == 0) {
 	printf("start\n");
 	printf("  Starts all realtime threads.\n");
@@ -2970,6 +2986,11 @@ static char *command_table[] = {
 
 static char *show_table[] = {
     "all", "comp", "pin", "sig", "param", "funct", "thread",
+    NULL,
+};
+
+static char *save_table[] = {
+    "all", "comp", "sig", "link", "linka", "net", "neta", "param", "thread",
     NULL,
 };
 
@@ -3316,6 +3337,8 @@ char **completer(const char *text, int start, int end) {
         result = rl_completion_matches(text, funct_generator);
     } else if(startswith(rl_line_buffer, "show thread") && argno == 2) {
         result = rl_completion_matches(text, thread_generator);
+    } else if(startswith(rl_line_buffer, "save ") && argno == 1) {
+        result = completion_matches_table(text, save_table);
     } else if(startswith(rl_line_buffer, "list ") && argno == 1) {
         result = completion_matches_table(text, list_table);
     } else if(startswith(rl_line_buffer, "status ") && argno == 1) {
@@ -3360,12 +3383,14 @@ static void halcmd_init_readline() {
 
 static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
 #ifdef HAVE_READLINE
+    static int first_time = 1;
+    char *rlbuf;
+
     if(srcfile == stdin) {
-        static int first_time = 1;
         if(first_time) {
             halcmd_init_readline();
         }
-        char *rlbuf = readline(scriptmode ? NULL : "halcmd: ");
+        rlbuf = readline(scriptmode ? NULL : "halcmd: ");
         if(!rlbuf) return 0;
         strncpy(buf, rlbuf, bufsize);
         buf[bufsize-1] = 0;
