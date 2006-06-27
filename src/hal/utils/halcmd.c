@@ -1409,7 +1409,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     static char path_buf[MAX_CMD_LEN+1];
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
-    char *cp1, *cp2;
+    char *cp1;
     char *argv[MAX_TOK+1];
     char arg_string[MAX_CMD_LEN+1];
     int n, m, retval, status;
@@ -1430,18 +1430,13 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     strcpy (mod_path, rtmod_dir);
     strcat (mod_path, "/");
     strcat (mod_path, mod_name);
-    strcat (mod_path, ".o");
+    strcat (mod_path, MODULE_EXT);
     /* is there a file with that name? */
     if ( stat(mod_path, &stat_buf) != 0 ) {
-	/* nope, try .ko (for kernel 2.6 */
-	cp2 = strrchr(mod_path, '.' );
-	strcpy(cp2, ".ko" );
-	if ( stat(mod_path, &stat_buf) != 0 ) {
-	    /* can't find it */
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: Can't find module '%s' in %s\n", linenumber, mod_name, path_buf);
-	    return -1;
-	}
+        /* can't find it */
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL:%d: ERROR: Can't find module '%s' in %s\n", linenumber, mod_name, path_buf);
+        return -1;
     }
     /* now we need to fork, and then exec insmod.... */
     /* disconnect from the HAL shmem area before forking */
@@ -3009,7 +3004,6 @@ static char *table_generator(const char *text, int state) {
     }
 
     while((name = string_table[list_index]) != NULL) {
-        printf("table_generator %s %s %d\n", name, text, len);
         list_index ++;
         if(strncmp (name, text, len) == 0) return strdup(name);
     }
@@ -3174,6 +3168,31 @@ static char *pin_generator(const char *text, int state) {
     return NULL;
 }
 
+#include <dirent.h>
+
+static char *loadrt_generator(const char *text, int state) {
+    static int len;
+    static DIR *d;
+    struct dirent *ent;
+
+    if(!state) {
+        len = strlen(text);
+        d = opendir(HAL_RTMOD_DIR);
+    }
+
+    while(d && (ent = readdir(d))) {
+        char *result;
+        if(!strstr(ent->d_name, MODULE_EXT)) continue;
+        if(startswith(ent->d_name, "rtapi.")) continue;
+        if(strncmp(text, ent->d_name, len) != 0) continue;
+        result = strdup(ent->d_name);
+        result[strlen(result) - strlen(MODULE_EXT)] = 0;
+        return result;
+    }
+    closedir(d);
+    return NULL;
+}
+
 static int startswith(const char *string, const char *stem) {
     return strncmp(string, stem, strlen(stem)) == 0;
 }
@@ -3273,6 +3292,9 @@ char **completer(const char *text, int start, int end) {
         result = rl_completion_matches(text, thread_generator);
     } else if(startswith(rl_line_buffer, "help ") && argno == 1) {
         result = completion_matches_table(text, command_table);
+    } else if(startswith(rl_line_buffer, "loadrt ") && argno == 1) {
+        rtapi_mutex_give(&(hal_data->mutex));
+        return rl_completion_matches(text, loadrt_generator);
     }
 
 
