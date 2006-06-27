@@ -806,14 +806,8 @@ static int parse_cmd(char *tokens[])
 	    rtapi_print_msg(RTAPI_MSG_INFO, "Realtime threads stopped\n");
 	}
     } else {
-	if ((tokens[1][0] == '\0') && (tokens[2][0] == '\0')) {
-	/* try to match params, signals, pins, and return the value of the named item(s) */
-	    retval = do_show_cmd("all", tokens[0]);
-	}
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown command '%s'\n", linenumber, tokens[0]);
-	    retval = -1;
-	}
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL:%d: Unknown command '%s'\n", linenumber, tokens[0]);
+	retval = -1;
     }
     /* tell the signal handler that we no longer can have the mutex */
     hal_flag = 0;
