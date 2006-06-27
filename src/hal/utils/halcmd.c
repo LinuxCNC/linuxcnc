@@ -3147,6 +3147,26 @@ static char *param_generator(const char *text, int state) {
     return NULL;
 }
 
+static char *comp_generator(const char *text, int state) {
+    static int len;
+    static int next;
+    if(!state) {
+        next = hal_data->comp_list_ptr;
+        len = strlen(text);
+    }
+
+    while(next) {
+        hal_comp_t *comp = SHMPTR(next);
+        next = comp->next_ptr;
+        if(!comp->type) continue;
+	if ( strncmp(text, comp->name, len) == 0 )
+            return strdup(comp->name);
+    }
+    rl_attempted_completion_over = 1;
+    return NULL;
+}
+
+
 static char *pin_generator(const char *text, int state) {
     static int len;
     static int next;
@@ -3170,6 +3190,10 @@ static char *pin_generator(const char *text, int state) {
 
 #include <dirent.h>
 
+static int startswith(const char *string, const char *stem) {
+    return strncmp(string, stem, strlen(stem)) == 0;
+}
+
 static char *loadrt_generator(const char *text, int state) {
     static int len;
     static DIR *d;
@@ -3191,10 +3215,6 @@ static char *loadrt_generator(const char *text, int state) {
     }
     closedir(d);
     return NULL;
-}
-
-static int startswith(const char *string, const char *stem) {
-    return strncmp(string, stem, strlen(stem)) == 0;
 }
 
 static inline int isskip(int ch) {
@@ -3295,6 +3315,9 @@ char **completer(const char *text, int start, int end) {
     } else if(startswith(rl_line_buffer, "loadrt ") && argno == 1) {
         rtapi_mutex_give(&(hal_data->mutex));
         return rl_completion_matches(text, loadrt_generator);
+    } else if(startswith(rl_line_buffer, "unloadrt ") && argno == 1) {
+        rtapi_mutex_give(&(hal_data->mutex));
+        return rl_completion_matches(text, comp_generator);
     }
 
 
