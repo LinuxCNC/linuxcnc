@@ -2961,4 +2961,14 @@ extern EMC_IO_STAT *emcIoStatus;
 // EMC MOTION status
 extern EMC_MOTION_STAT *emcMotionStatus;
 
+#define EMC_VERSION_MAJOR 2
+#define EMC_VERSION_MINOR 1
+#define EMC_VERSION_MICRO 0
+
+#define EMC_VERSION_CHECK(major,minor,micro) \
+    (EMC_VERSION_MAJOR > (major) || \
+     (EMC_VERSION_MAJOR == (major) && EMC_VERSION_MINOR > (minor)) || \
+     (EMC_VERSION_MAJOR == (major) && EMC_VERSION_MINOR == (minor) && \
+      EMC_VERSION_MICRO >= (micro)))
+
 #endif				// #ifndef EMC_HH
