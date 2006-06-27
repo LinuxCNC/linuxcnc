@@ -22,6 +22,9 @@ else
 DEP = bash depend.sh "$(1)" "$(2)" "$(3)" $(4)
 endif
 
+cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
@@ -106,7 +109,7 @@ INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
 # Compilation options.  Perhaps some of these should come from Makefile.inc?
 OPT := -O
 DEBUG := -g -Wall
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 
 ifeq ($(RUN_IN_PLACE),yes)
