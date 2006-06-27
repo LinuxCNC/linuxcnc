@@ -3153,6 +3153,7 @@ static char *comp_generator(const char *text, int state) {
     if(!state) {
         next = hal_data->comp_list_ptr;
         len = strlen(text);
+        return strdup("all");
     }
 
     while(next) {
