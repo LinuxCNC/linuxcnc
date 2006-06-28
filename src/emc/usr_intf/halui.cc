@@ -201,6 +201,13 @@ struct halui_str {
     hal_float_t *jog_wheel_scale;
     hal_float_t *jog_wheel_speed;
 
+    hal_bit_t *spindle_start;      //pin for starting the spindle
+    hal_bit_t *spindle_stop;       //pin for stoping the spindle
+    hal_bit_t *spindle_forward;    //pin for making the spindle go forward
+    hal_bit_t *spindle_reverse;    //pin for making the spindle go reverse
+    hal_bit_t *spindle_increase;   //pin for making the spindle go faster
+    hal_bit_t *spindle_decrease;   //pin for making the spindle go slower
+
 } * halui_data; 
 
 struct local_halui_str {
@@ -242,6 +249,13 @@ struct local_halui_str {
     hal_u8_t jog_wheel_axis;
     hal_float_t jog_wheel_scale;
     hal_float_t jog_wheel_speed;
+
+    hal_bit_t spindle_start;      //pin for starting the spindle
+    hal_bit_t spindle_stop;       //pin for stoping the spindle
+    hal_bit_t spindle_forward;    //pin for making the spindle go forward
+    hal_bit_t spindle_reverse;    //pin for making the spindle go reverse
+    hal_bit_t spindle_increase;   //pin for making the spindle go faster
+    hal_bit_t spindle_decrease;   //pin for making the spindle go slower
 
 } old_halui_data; //pointer to the HAL-struct
 
@@ -820,6 +834,24 @@ int halui_hal_init(void)
     retval = halui_export_pin_RD_float(&(halui_data->jog_wheel_speed), "halui.jog-wheel.speed");
     if (retval != HAL_SUCCESS) return -1;
 
+    //halui.spindle.start
+    retval = halui_export_pin_RD_bit(&(halui_data->spindle_start), "halui.spindle.start");
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.spindle.stop
+    retval = halui_export_pin_RD_bit(&(halui_data->spindle_stop), "halui.spindle.stop");
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.spindle.forward
+    retval = halui_export_pin_RD_bit(&(halui_data->spindle_forward), "halui.spindle.forward");
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.spindle.reverse
+    retval = halui_export_pin_RD_bit(&(halui_data->spindle_reverse), "halui.spindle.reverse");
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.spindle.increase
+    retval = halui_export_pin_RD_bit(&(halui_data->spindle_increase), "halui.spindle.increase");
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.spindle.decrease
+    retval = halui_export_pin_RD_bit(&(halui_data->spindle_decrease), "halui.spindle.decrease");
+    if (retval != HAL_SUCCESS) return -1;
 
     return 0;
 }
@@ -1123,6 +1155,136 @@ static int sendJogIncr(int axis, double speed, double incr)
 }
 
 
+static int sendSpindleForward()
+{
+    EMC_SPINDLE_ON emc_spindle_on_msg;
+    if (emcStatus->task.activeSettings[2] != 0) {
+	emc_spindle_on_msg.speed = fabs(emcStatus->task.activeSettings[2]);
+    } else {
+	emc_spindle_on_msg.speed = +500;
+    }
+    emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleReverse()
+{
+    EMC_SPINDLE_ON emc_spindle_on_msg;
+    if (emcStatus->task.activeSettings[2] != 0) {
+	emc_spindle_on_msg.speed =
+	    -1 * fabs(emcStatus->task.activeSettings[2]);
+    } else {
+	emc_spindle_on_msg.speed = -500;
+    }
+    emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_on_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleOff()
+{
+    EMC_SPINDLE_OFF emc_spindle_off_msg;
+
+    emc_spindle_off_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_off_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleIncrease()
+{
+    EMC_SPINDLE_INCREASE emc_spindle_increase_msg;
+
+    emc_spindle_increase_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_increase_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleDecrease()
+{
+    EMC_SPINDLE_DECREASE emc_spindle_decrease_msg;
+
+    emc_spindle_decrease_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_decrease_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleConstant()
+{
+    EMC_SPINDLE_CONSTANT emc_spindle_constant_msg;
+
+    emc_spindle_constant_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_constant_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendBrakeEngage()
+{
+    EMC_SPINDLE_BRAKE_ENGAGE emc_spindle_brake_engage_msg;
+
+    emc_spindle_brake_engage_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_brake_engage_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendBrakeRelease()
+{
+    EMC_SPINDLE_BRAKE_RELEASE emc_spindle_brake_release_msg;
+
+    emc_spindle_brake_release_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_spindle_brake_release_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+
 //currently commented out to reduce warnings
 /*
 //sendFoo messages
@@ -1268,134 +1430,6 @@ static int sendJogCont(int axis, double speed)
     return 0;
 }
 
-static int sendSpindleForward()
-{
-    EMC_SPINDLE_ON emc_spindle_on_msg;
-    if (emcStatus->task.activeSettings[2] != 0) {
-	emc_spindle_on_msg.speed = fabs(emcStatus->task.activeSettings[2]);
-    } else {
-	emc_spindle_on_msg.speed = +500;
-    }
-    emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_spindle_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendSpindleReverse()
-{
-    EMC_SPINDLE_ON emc_spindle_on_msg;
-    if (emcStatus->task.activeSettings[2] != 0) {
-	emc_spindle_on_msg.speed =
-	    -1 * fabs(emcStatus->task.activeSettings[2]);
-    } else {
-	emc_spindle_on_msg.speed = -500;
-    }
-    emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_spindle_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendSpindleOff()
-{
-    EMC_SPINDLE_OFF emc_spindle_off_msg;
-
-    emc_spindle_off_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_spindle_off_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendSpindleIncrease()
-{
-    EMC_SPINDLE_INCREASE emc_spindle_increase_msg;
-
-    emc_spindle_increase_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_spindle_increase_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendSpindleDecrease()
-{
-    EMC_SPINDLE_DECREASE emc_spindle_decrease_msg;
-
-    emc_spindle_decrease_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_spindle_decrease_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendSpindleConstant()
-{
-    EMC_SPINDLE_CONSTANT emc_spindle_constant_msg;
-
-    emc_spindle_constant_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_spindle_constant_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendBrakeEngage()
-{
-    EMC_SPINDLE_BRAKE_ENGAGE emc_spindle_brake_engage_msg;
-
-    emc_spindle_brake_engage_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_spindle_brake_engage_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-static int sendBrakeRelease()
-{
-    EMC_SPINDLE_BRAKE_RELEASE emc_spindle_brake_release_msg;
-
-    emc_spindle_brake_release_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_spindle_brake_release_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
 
 static int sendAbort()
 {
@@ -1792,8 +1826,48 @@ static void check_hal_changes()
                 *halui_data->jog_wheel_scale);
         old_halui_data.jog_wheel_counts = counts;
     }
-}
 
+//spindle stuff
+    if (*(halui_data->spindle_start) != old_halui_data.spindle_start) {
+	if (*(halui_data->spindle_start) != 0)
+	    sendSpindleForward();
+	old_halui_data.spindle_start = *(halui_data->spindle_start);
+    }
+
+    if (*(halui_data->spindle_stop) != old_halui_data.spindle_stop) {
+	if (*(halui_data->spindle_stop) != 0)
+	    sendSpindleOff();
+	old_halui_data.spindle_stop = *(halui_data->spindle_stop);
+    }
+
+    if (*(halui_data->spindle_forward) != old_halui_data.spindle_forward) {
+	if (*(halui_data->spindle_forward) != 0)
+	    sendSpindleForward();
+	old_halui_data.spindle_forward = *(halui_data->spindle_forward);
+    }
+
+    if (*(halui_data->spindle_reverse) != old_halui_data.spindle_reverse) {
+	if (*(halui_data->spindle_reverse) != 0)
+	    sendSpindleReverse();
+	old_halui_data.spindle_reverse = *(halui_data->spindle_reverse);
+    }
+
+    if (*(halui_data->spindle_increase) != old_halui_data.spindle_increase) {
+	if (*(halui_data->spindle_increase) != 0)
+	    sendSpindleIncrease();
+	if (*(halui_data->spindle_increase) == 0)
+	    sendSpindleConstant();
+	old_halui_data.spindle_increase = *(halui_data->spindle_increase);
+    }
+
+    if (*(halui_data->spindle_decrease) != old_halui_data.spindle_decrease) {
+	if (*(halui_data->spindle_decrease) != 0)
+	    sendSpindleDecrease();
+	if (*(halui_data->spindle_decrease) == 0)
+	    sendSpindleConstant();
+	old_halui_data.spindle_decrease = *(halui_data->spindle_decrease);
+    }
+}
 
 // this function looks at the received NML status message
 // and modifies the appropiate HAL pins
