@@ -1,7 +1,7 @@
 vcp {
     main-window {
 	title = "Halui & halvcp Testing"
-	width = 400
+	width = 450
 	height = 300
 	# this box will hold three side-by-side boxes, one for each axis
 	box {
@@ -115,6 +115,31 @@ vcp {
 	    box {
 		layout = vertical
 		title = "spindle"
+		button {
+		    halpin = button.spindle-start
+		    label { text = "start" }
+		}
+		button {
+		    halpin = button.spindle-stop
+		    label { text = "stop" }
+		}
+		button {
+		    halpin = button.spindle-forward
+		    label { text = "forward" }
+		}
+		button {
+		    halpin = button.spindle-reverse
+		    label { text = "reverse" }
+		}
+		button {
+		    halpin = button.spindle-increase
+		    label { text = "increase" }
+		}
+		button {
+		    halpin = button.spindle-decrease
+		    label { text = "decrease" }
+		}
+		label { text = "Spindle" }
 	    }
 	}
     } # main-window

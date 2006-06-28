@@ -2,24 +2,29 @@ loadusr halvcp halui.vcp
 
 loadusr -w sleep 1
 
-linkpp button.estop-activate  halui.estop.activate
-linkpp button.estop-reset     halui.estop.reset
-linkpp button.machine-off     halui.machine.off
-linkpp button.machine-on      halui.machine.on
-linkpp button.program-run     halui.program.run
-linkpp button.program-pause   halui.program.pause
-linkpp button.program-resume  halui.program.resume
-linkpp button.program-step    halui.program.step
+linkpp button.estop-activate    halui.estop.activate
+linkpp button.estop-reset       halui.estop.reset
+linkpp button.machine-off       halui.machine.off
+linkpp button.machine-on        halui.machine.on
+linkpp button.program-run       halui.program.run
+linkpp button.program-pause     halui.program.pause
+linkpp button.program-resume    halui.program.resume
+linkpp button.program-step      halui.program.step
 
-linkpp button.mode.manual     halui.mode.manual
-linkpp button.mode.auto       halui.mode.auto  
-linkpp button.mode.mdi        halui.mode.mdi   
+linkpp button.mode.manual       halui.mode.manual
+linkpp button.mode.auto         halui.mode.auto  
+linkpp button.mode.mdi          halui.mode.mdi   
 
-linkpp led.machine.on         halui.machine.is-on
-linkpp led.estop.is-activated halui.estop.is-activated
+linkpp button.spindle-start     halui.spindle.start
+linkpp button.spindle-stop      halui.spindle.stop
+linkpp button.spindle-forward   halui.spindle.forward
+linkpp button.spindle-reverse   halui.spindle.reverse
+linkpp button.spindle-increase  halui.spindle.increase
+linkpp button.spindle-decrease  halui.spindle.decrease
 
-linkpp led.mode.is-manual     halui.mode.is-manual
-linkpp led.mode.is-auto       halui.mode.is-auto  
-linkpp led.mode.is-mdi        halui.mode.is-mdi   
+linkpp led.machine.on           halui.machine.is-on
+linkpp led.estop.is-activated   halui.estop.is-activated
 
-	
+linkpp led.mode.is-manual       halui.mode.is-manual
+linkpp led.mode.is-auto         halui.mode.is-auto  
+linkpp led.mode.is-mdi          halui.mode.is-mdi   
