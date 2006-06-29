@@ -607,7 +607,9 @@ int emcIoUpdate(EMC_IO_STAT * stat)
     if (stat->echo_serial_number != emcIoCommandSerialNumber) {
 	stat->status = RCS_EXEC;
     }
-    stat->spindle.speed = spindleSpeed;
+    //commented out because it keeps resetting the spindle speed to some odd value
+    //the speed gets set by the IO controller, no need to override it here (io takes care of increase/decrease speed too)
+    // stat->spindle.speed = spindleSpeed;
 
     return 0;
 }
