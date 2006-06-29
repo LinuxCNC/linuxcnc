@@ -165,7 +165,7 @@ struct halui_str {
     hal_bit_t *machine_on;         //pin for setting machine On
     hal_bit_t *machine_off;        //pin for setting machine Off
     hal_bit_t *machine_is_on;      //pin for machine is On/Off
-
+    
                                    // (check iocontrol.cc for a proper description)
     hal_bit_t *estop_activate;     //pin for activating EMC ESTOP 
     hal_bit_t *estop_reset;        //pin for resetting ESTOP
@@ -203,43 +203,38 @@ struct halui_str {
 
     hal_bit_t *spindle_start;      //pin for starting the spindle
     hal_bit_t *spindle_stop;       //pin for stoping the spindle
+    hal_bit_t *spindle_is_on;      //status pin for spindle is on
     hal_bit_t *spindle_forward;    //pin for making the spindle go forward
+    hal_bit_t *spindle_runs_forward; //status pin for spindle running forward
     hal_bit_t *spindle_reverse;    //pin for making the spindle go reverse
+    hal_bit_t *spindle_runs_backward; //status pin for spindle running backward
     hal_bit_t *spindle_increase;   //pin for making the spindle go faster
     hal_bit_t *spindle_decrease;   //pin for making the spindle go slower
+
+    hal_bit_t *spindle_brake_on;   //pin for activating spindle-brake
+    hal_bit_t *spindle_brake_off;  //pin for deactivating spindle/brake
+    hal_bit_t *spindle_brake_is_on;//status pin that tells us if brake is on
 
 } * halui_data; 
 
 struct local_halui_str {
     hal_bit_t machine_on;         //pin for setting machine On
     hal_bit_t machine_off;        //pin for setting machine Off
-    hal_bit_t machine_is_on;      //pin for machine is On/Off
 
     hal_bit_t estop_activate;     //pin for activating EMC ESTOP 
     hal_bit_t estop_reset;        //pin for resetting ESTOP
-    hal_bit_t estop_is_reset;     //pin for status ESTOp is resetted
-    hal_bit_t estop_is_activated; //pin for status ESTOP is activated
 
     hal_bit_t mode_manual;        //pin for requesting manual mode
-    hal_bit_t mode_is_manual;     //pin for manual mode is on
     hal_bit_t mode_auto;          //pin for requesting auto mode
-    hal_bit_t mode_is_auto;       //pin for auto mode is on
     hal_bit_t mode_mdi;           //pin for requesting mdi mode
-    hal_bit_t mode_is_mdi;        //pin for mdi mode is on
 
     hal_bit_t mist_on;            //pin for starting mist
     hal_bit_t mist_off;           //pin for stoping mist
-    hal_bit_t mist_is_on;         //pin for mist is on
     hal_bit_t flood_on;           //pin for starting flood
     hal_bit_t flood_off;          //pin for stoping flood
-    hal_bit_t flood_is_on;        //pin for flood is on
     hal_bit_t lube_on;            //pin for starting lube
     hal_bit_t lube_off;           //pin for stoping lube
-    hal_bit_t lube_is_on;         //pin for lube is on
 
-    hal_bit_t program_is_idle;    //pin for notifying user that program is idle
-    hal_bit_t program_is_running; //pin for notifying user that program is running
-    hal_bit_t program_is_paused;  //pin for notifying user that program is paused
     hal_bit_t program_run;        //pin for running program
     hal_bit_t program_pause;      //pin for pausing program
     hal_bit_t program_resume;     //pin for resuming program
@@ -257,6 +252,9 @@ struct local_halui_str {
     hal_bit_t spindle_increase;   //pin for making the spindle go faster
     hal_bit_t spindle_decrease;   //pin for making the spindle go slower
 
+    hal_bit_t spindle_brake_on;   //pin for activating spindle-brake
+    hal_bit_t spindle_brake_off;  //pin for deactivating spindle/brake
+    
 } old_halui_data; //pointer to the HAL-struct
 
 static int comp_id, done;				/* component ID, main while loop */
@@ -763,7 +761,18 @@ int halui_hal_init(void)
     //halui.program.is-paused          //pin for notifying user that program is paused
     retval = halui_export_pin_WR_bit(&(halui_data->program_is_paused), "halui.program.is-paused"); 
     if (retval != HAL_SUCCESS) return -1;
-
+    //halui.spindle.is-on
+    retval = halui_export_pin_WR_bit(&(halui_data->spindle_is_on), "halui.spindle.is-on"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.spindle.runs-forward
+    retval = halui_export_pin_WR_bit(&(halui_data->spindle_runs_forward), "halui.spindle.runs-forward"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.spindle.runs-backward
+    retval = halui_export_pin_WR_bit(&(halui_data->spindle_runs_backward), "halui.spindle.runs-backward"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.spindle.brake-is-on
+    retval = halui_export_pin_WR_bit(&(halui_data->spindle_brake_is_on), "halui.spindle.brake-is-on"); 
+    if (retval != HAL_SUCCESS) return -1;
 
     /* STEP 3b: export the in-pin(s) */
 
@@ -852,6 +861,13 @@ int halui_hal_init(void)
     //halui.spindle.decrease
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_decrease), "halui.spindle.decrease");
     if (retval != HAL_SUCCESS) return -1;
+    //halui.spindle.brake-on
+    retval = halui_export_pin_RD_bit(&(halui_data->spindle_brake_on), "halui.spindle.brake-on"); 
+    if (retval != HAL_SUCCESS) return -1;
+    //halui.spindle.brake-off
+    retval = halui_export_pin_RD_bit(&(halui_data->spindle_brake_off), "halui.spindle.brake-off"); 
+    if (retval != HAL_SUCCESS) return -1;
+
 
     return 0;
 }
@@ -1867,6 +1883,18 @@ static void check_hal_changes()
 	    sendSpindleConstant();
 	old_halui_data.spindle_decrease = *(halui_data->spindle_decrease);
     }
+
+    if (*(halui_data->spindle_brake_on) != old_halui_data.spindle_brake_on) {
+	if (*(halui_data->spindle_brake_on) != 0)
+	    sendBrakeEngage();
+	old_halui_data.spindle_brake_on = *(halui_data->spindle_brake_on);
+    }
+
+    if (*(halui_data->spindle_brake_off) != old_halui_data.spindle_brake_off) {
+	if (*(halui_data->spindle_brake_off) != 0)
+	    sendBrakeRelease();
+	old_halui_data.spindle_brake_off = *(halui_data->spindle_brake_off);
+    }
 }
 
 // this function looks at the received NML status message
@@ -1912,6 +1940,10 @@ static void modify_hal_pins()
     *(halui_data->flood_is_on)=emcStatus->io.coolant.flood;
     *(halui_data->lube_is_on)=emcStatus->io.lube.on;
 
+    *(halui_data->spindle_is_on) = (emcStatus->io.spindle.speed != 0);
+    *(halui_data->spindle_runs_forward) = (emcStatus->io.spindle.direction == 1);
+    *(halui_data->spindle_runs_backward) = (emcStatus->io.spindle.direction == -1);
+    *(halui_data->spindle_brake_is_on) = emcStatus->io.spindle.brake;
 }
 
 
