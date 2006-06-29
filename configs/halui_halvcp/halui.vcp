@@ -115,21 +115,48 @@ vcp {
 	    box {
 		layout = vertical
 		title = "spindle"
-		button {
-		    halpin = button.spindle-start
-		    label { text = "start" }
+		box {
+		    layout = horizontal
+		    box {
+			layout = vertical
+			button {
+			    halpin = button.spindle-start
+			    label { text = "start" }
+			}
+			button {
+			    halpin = button.spindle-stop
+			    label { text = "stop" }
+			}
+		    }
+		    LED {
+			halpin = led.spindle-is-on
+			on-color = "#00F"
+			off-color = "#006"
+		    }
+		}    
+		box {
+		    layout = horizontal
+		    button {
+			halpin = button.spindle-forward
+			label { text = "forward" }
+		    }
+		    LED {
+			halpin = led.spindle-runs-forward
+			on-color = "#0F0"
+			off-color = "#020"
+		    }
 		}
-		button {
-		    halpin = button.spindle-stop
-		    label { text = "stop" }
-		}
-		button {
-		    halpin = button.spindle-forward
-		    label { text = "forward" }
-		}
-		button {
-		    halpin = button.spindle-reverse
-		    label { text = "reverse" }
+		box {
+		    layout = horizontal
+		    button {
+			halpin = button.spindle-reverse
+			label { text = "reverse" }
+		    }
+		    LED {
+			halpin = led.spindle-runs-backward
+			on-color = "#0F0"
+			off-color = "#020"
+		    }
 		}
 		button {
 		    halpin = button.spindle-increase

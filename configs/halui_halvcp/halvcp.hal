@@ -28,3 +28,7 @@ linkpp led.estop.is-activated   halui.estop.is-activated
 linkpp led.mode.is-manual       halui.mode.is-manual
 linkpp led.mode.is-auto         halui.mode.is-auto  
 linkpp led.mode.is-mdi          halui.mode.is-mdi   
+
+linkpp led.spindle-is-on        halui.spindle.is-on
+linkpp led.spindle-runs-forward halui.spindle.runs-forward
+linkpp led.spindle-runs-backward halui.spindle.runs-backward
