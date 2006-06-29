@@ -2,16 +2,8 @@
 MAX_WAIT=${2-20}
 
 N=0
-while sleep .1; do
-    count=$(halcmd -q show pin $1 | wc -l)
-    case $count in
-    3) ;;
-    4)
-        break ;;
-    *)
-        echo "Unexpected number of output lines from halcmd: $count"
-        exit 2
-    esac
+while [ -z "$(halcmd -qs show pin $1)" ]; do
+    sleep .1
     if [ $N -gt $MAX_WAIT ]; then
         exit 1
     fi
