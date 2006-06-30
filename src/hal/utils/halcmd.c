@@ -2969,6 +2969,8 @@ static void print_help_commands(void)
 
 #ifdef HAVE_READLINE
 
+static int argno;
+
 static char *command_table[] = {
     "loadrt", "unloadrt", "loadusr", "lock", "unlock",
     "linkps", "linksp", "linkpp", "unlinkp",
@@ -3210,14 +3212,25 @@ static int startswith(const char *string, const char *stem) {
     return strncmp(string, stem, strlen(stem)) == 0;
 }
 
+char *loadusr_table[] = {"-w", "-iw", NULL};
+
 static char *loadusr_generator(const char *text, int state) {
     static int len;
     static DIR *d;
     struct dirent *ent;
+    static int doing_table;
 
     if(!state) {
+	if(argno == 1) doing_table = 1;
+        string_table = loadusr_table;
         len = strlen(text);
         d = opendir(EMC2_BIN_DIR);
+    }
+
+    if(doing_table) {
+    	char *result = table_generator(text, state);
+        if(result) return result;
+        doing_table = 0;
     }
 
     while(d && (ent = readdir(d))) {
@@ -3259,8 +3272,6 @@ static char *loadrt_generator(const char *text, int state) {
 static inline int isskip(int ch) {
     return isspace(ch) || ch == '=' || ch == '<' || ch == '>';
 }
-
-static int argno;
 
 char **completer(const char *text, int start, int end) {
     int i;
@@ -3355,7 +3366,7 @@ char **completer(const char *text, int start, int end) {
         result = completion_matches_table(text, command_table);
     } else if(startswith(rl_line_buffer, "unloadrt ") && argno == 1) {
         result = rl_completion_matches(text, comp_generator);
-    } else if(startswith(rl_line_buffer, "loadusr ") && argno == 1) {
+    } else if(startswith(rl_line_buffer, "loadusr ") && argno < 3) {
         rtapi_mutex_give(&(hal_data->mutex));
         // leaves rl_attempted_completion_over = 0 to complete from filesystem
         return rl_completion_matches(text, loadusr_generator);
@@ -3400,3 +3411,6 @@ static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
     }
     return fgets(buf, bufsize, srcfile) != NULL;
 }
+
+/* vim:sts=4:sw=4:et
+ */
