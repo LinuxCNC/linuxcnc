@@ -174,6 +174,7 @@ typedef struct {
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
     int type;			/* 1 if realtime, 0 if not */
+    int pid;			/* PID of component (user components only) */
     void *shmem_base;		/* base of shmem for this component */
     char name[HAL_NAME_LEN + 1];	/* component name */
     int insmod_args;		/* args passed to insmod when loaded */

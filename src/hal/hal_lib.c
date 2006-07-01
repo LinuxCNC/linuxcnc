@@ -90,6 +90,8 @@ MODULE_LICENSE("GPL");
 
 #ifdef ULAPI
 #include <string.h>		/* strcmp */
+#include <sys/types.h>		/* pid_t */
+#include <unistd.h>		/* getpid() */
 #endif
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
@@ -262,8 +264,10 @@ int hal_init(char *name)
     comp->mem_id = mem_id;
 #ifdef RTAPI
     comp->type = 1;
+    comp->pid = 0;
 #else /* ULAPI */
     comp->type = 0;
+    comp->pid = getpid();
 #endif
     comp->shmem_base = hal_shmem_base;
     comp->insmod_args = 0;
