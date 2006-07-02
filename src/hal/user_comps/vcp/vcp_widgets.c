@@ -424,6 +424,7 @@ typedef struct {
     int padding;
     int diameter;
     char *halpin;
+    int last;
     GtkWidget *drawing;		/* drawing area for LED image */
     GdkColormap *map;		/* colormap for LED image */
     GdkColor color_border;	/* the circle around the LED */
@@ -456,7 +457,7 @@ vcp_widget_def_t led_def = {
     init_led
 };
 
-static void led_refresh (vcp_widget_t *wp)
+static int led_refresh (GtkWidget *widget, GdkEventExpose *event, vcp_widget_t *wp)
 {
     led_data_t *dp;
     led_hal_t *hp;
@@ -471,7 +472,7 @@ static void led_refresh (vcp_widget_t *wp)
     if (dp->win == NULL) {
 	/* window isn't visible yet, do nothing */
 	printf("led_refresh(): win = NULL, bailing!\n");
-	return;
+	return FALSE;
     }
     /* create drawing context if needed */
     if (dp->context == NULL) {
@@ -502,8 +503,23 @@ static void led_refresh (vcp_widget_t *wp)
         gdk_gc_set_foreground(dp->context, &(dp->color_off));
     }
     gdk_draw_arc ( dp->win, dp->context, 1, xstart+1, ystart+1, led_dia, led_dia, 0, 64*360 );
+
+    return FALSE;
 }
   
+static void led_refresh_check(vcp_widget_t *wp) {
+    led_data_t *dp;
+    led_hal_t *hp;
+
+    dp = (led_data_t *)wp->priv_data;
+    hp = (led_hal_t *)wp->hal_data;
+
+    if( *(hp->pin) != dp->last ) {
+        dp->last = *(hp->pin);
+        gtk_widget_queue_draw(dp->drawing);
+    }
+}
+
 static int init_led ( vcp_widget_t *wp )
 {
     led_data_t *pd;
@@ -532,11 +548,13 @@ static int init_led ( vcp_widget_t *wp )
     /* set its size to fit the LED */
     gtk_drawing_area_size(GTK_DRAWING_AREA(gwp), pd->diameter+2, pd->diameter+2);
     pd->drawing = gwp;
+    pd->last = -1;
     wp->gtk_widget = gwp;
     wp->gtk_type = NONE;
     /* hook up a function to handle expose events */
-/*    gtk_signal_connect(GTK_OBJECT(gwp), "expose_event",
-	GTK_SIGNAL_FUNC(led_window_expose), wp);*/
+    gtk_signal_connect(GTK_OBJECT(gwp), "expose_event",
+	GTK_SIGNAL_FUNC(led_refresh), wp);
+    gtk_widget_set_double_buffered(GTK_WIDGET(gwp), TRUE);
     /* get color map */
     pd->map = gtk_widget_get_colormap(gwp);
     /* allocate colors */
@@ -546,7 +564,7 @@ static int init_led ( vcp_widget_t *wp )
     /* put it in its parent */
     add_to_parent(wp->parent, gwp, pd->expand, pd->padding);
     /* use a poll function for periodic refresh */
-    wp->poll_funct = led_refresh;
+    wp->poll_funct = led_refresh_check;
     gtk_widget_show(gwp);
     return 0;
 }
