@@ -72,9 +72,6 @@ GtkWidget *button;
 
 void set_name(StrElement element)
 {
-	strcpy(element.Name, "hal signal");
-	//g_print("%d %d %s\n", element.VarType, element.VarNum, element.Name);
-
 }
 
 /* Create a new backing pixmap of the appropriate size */
@@ -934,7 +931,7 @@ void UpdateAllLabelsBoolsVars()
     int ColumnVar, OffVar;
     for (ColumnVar = 0; ColumnVar < NBR_TYPE_BOOLS_SPY; ColumnVar++) {
 	for (OffVar = 0; OffVar < NBR_BOOLS_VAR_SPY; OffVar++) {
-	    char BufNumVar[LGT_NAME], LabelText[2*LGT_NAME+1];
+	    char BufNumVar[64], LabelText[2*64+1];
 		char ;
 	    switch (ColumnVar) {
 	    case 0:
