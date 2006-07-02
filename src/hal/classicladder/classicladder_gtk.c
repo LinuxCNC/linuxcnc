@@ -70,6 +70,12 @@ GtkTooltips *tooltips;
 GtkWidget *button;
 
 
+void set_name(StrElement element)
+{
+	strcpy(element.Name, "hal signal");
+	//g_print("%d %d %s\n", element.VarType, element.VarNum, element.Name);
+
+}
 
 /* Create a new backing pixmap of the appropriate size */
 static gint configure_event(GtkWidget * widget, GdkEventConfigure * event)
@@ -555,27 +561,27 @@ void RungWindowInitGtk()
     GtkWidget *ButtonQuit;
     GtkWidget *ButtonNew, *ButtonLoad, *ButtonSave, *ButtonSaveAs,
 	*ButtonConfig, *ButtonAbout;
-	GtkWidget *event_box;
+	//GtkWidget *event_box;
 	GtkTooltips *tooltips;
     RungWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title((GtkWindow *) RungWindow, "Section Display");
 
     vbox = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(RungWindow), vbox);
-	event_box = gtk_event_box_new ( );
+	//event_box = gtk_event_box_new ( );
 
 	g_print( "InfosGene->SizesInfos.nbr_sections= %d\n",
 		InfosGene->SizesInfos.nbr_sections);
 
 	//for now we put the event box in the main window box,
 	//later it will go wherever the individual element is drawn
-	gtk_box_pack_start_defaults ( GTK_BOX(vbox), event_box);
+	//gtk_box_pack_start_defaults ( GTK_BOX(vbox), event_box);
 
 	//gtk_widget_set_usize( event_box, 50, 50);
 	//gtk_widget_set_uposition( event_box, 0,0);
-	tooltips = gtk_tooltips_new ();
-	gtk_tooltips_set_tip (tooltips, event_box, "This is the event box", NULL);
-	gtk_widget_show(event_box); 
+	//tooltips = gtk_tooltips_new ();
+	//gtk_tooltips_set_tip (tooltips, event_box, "This is the event box", NULL);
+	//gtk_widget_show(event_box); 
 
     gtk_widget_show(vbox);
 
@@ -928,13 +934,15 @@ void UpdateAllLabelsBoolsVars()
     int ColumnVar, OffVar;
     for (ColumnVar = 0; ColumnVar < NBR_TYPE_BOOLS_SPY; ColumnVar++) {
 	for (OffVar = 0; OffVar < NBR_BOOLS_VAR_SPY; OffVar++) {
-	    char BufNumVar[20];
+	    char BufNumVar[LGT_NAME], LabelText[2*LGT_NAME+1];
+		char ;
 	    switch (ColumnVar) {
 	    case 0:
 		sprintf(BufNumVar, "B%d",
 		    OffVar + ValOffsetBoolVar[ColumnVar]);
 		break;
 	    case 1:
+
 		sprintf(BufNumVar, "I%d",
 		    OffVar + ValOffsetBoolVar[ColumnVar]);
 		break;
@@ -943,8 +951,13 @@ void UpdateAllLabelsBoolsVars()
 		    OffVar + ValOffsetBoolVar[ColumnVar]);
 		break;
 	    }
-	    gtk_label_set_text(GTK_LABEL(GTK_BIN(chkvar[ColumnVar][OffVar])->
-		    child), BufNumVar);
+		//grr how do i access the Element struct from here?
+		//sprintf(LabelText, "%s %s", BufNumVar, get_hal_signal_name(BufNumVar));
+	    sprintf(LabelText, "%s", BufNumVar);
+		gtk_label_set_text(GTK_LABEL(GTK_BIN(chkvar[ColumnVar][OffVar])->
+		    child), LabelText);
+		//gtk_label_set_text(GTK_LABEL(GTK_BIN(chkvar[ColumnVar][OffVar])->
+		//    child), get_hal_signal_name(BufNumVar));
 	}
     }
 }
