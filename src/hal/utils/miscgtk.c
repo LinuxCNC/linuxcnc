@@ -61,6 +61,10 @@
 ************************************************************************/
 
 #if !GTK_CHECK_VERSION(2,0,0)
+void gtk_widget_set_double_buffered( GtkWidget *widget, gboolean double_buffered) {
+    // does nothing
+}
+
 void gtk_widget_modify_fg( GtkWidget *widget, GtkStateType state, const GdkColor *color) {
     gtk_widget_ensure_style(widget);
     gtk_widget_set_style(widget, gtk_style_copy(widget->style));
