@@ -36,6 +36,7 @@
 #include <ctype.h>
 #include <hal.h>
 #include "vcp.h"
+#include "hal/utils/miscgtk.h"
 
 /*************** Local Function Prototypes *********************/
 

@@ -4,6 +4,7 @@ HALVCPSRCS := \
 	hal/user_comps/vcp/tokenizer.c \
 	hal/user_comps/vcp/vcp_main.c \
 	hal/user_comps/vcp/vcp_widgets.c \
+	hal/utils/miscgtk.c \
 	$(ULAPISRCS) \
 	hal/hal_lib.c
 
