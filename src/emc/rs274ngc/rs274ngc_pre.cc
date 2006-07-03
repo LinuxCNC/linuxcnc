@@ -91,10 +91,11 @@ include an option for suppressing superfluous commands.
 
 extern char * _rs274ngc_errors[];
 
-#define LOG_FILE "/dev/null"
+#undef LOG_FILE
 
 void Interp::doLog(char *fmt, ...)
 {
+#ifdef LOG_FILE
     struct timeval tv;
     struct tm *tm;
     va_list ap;
@@ -124,6 +125,7 @@ void Interp::doLog(char *fmt, ...)
     fflush(log_file);
 
     va_end(ap);
+#endif
 }
 
 /****************************************************************************/
