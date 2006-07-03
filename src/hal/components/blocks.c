@@ -16,7 +16,7 @@
 *     wcomp = window comparator - out is true if min < in < max
 *     comp = 2 input comparator - out is true if in1 > in0
 *     sum2 = 2 input summer - out = in1 * gain1 + in2 * gain2
-*     mult2 = 2 input multiplirt: out = in0 * in1
+*     mult2 = 2 input multiplier: out = in0 * in1
 *     mux2 = two input analog mux - out = in1 if sel is true, else in0
 *     mux4 = four input analog mux - out = in<n> based on sel1,sel0
 *     integ = integrator, out = integral of in
