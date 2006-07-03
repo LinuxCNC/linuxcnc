@@ -31,7 +31,7 @@
 *     scale = gain/offset block - out = in * gain + offset
 *     lowpass = lowpass filter - out = last_out * (1 - gain) + in * gain
 *     match8 = 8 bit binary match detector (with input for cascading)
-*     hypot = like libm hypot(): out = sqrt(in1*in1 + in2*in2)
+*     hypot = like libm hypot(): out = sqrt(in0*in0 + in1*in1 + in2*in2)
 *     minmax = min/max block: min and max outputs are peak values of in
 *
 *********************************************************************
@@ -161,8 +161,9 @@ typedef struct {
 } comp_t;
 
 typedef struct {
-    hal_float_t *in0;		/* pin: input used when sel = 0 */
-    hal_float_t *in1;		/* pin: input used when sel != 0 */
+    hal_float_t *in0;		/* pin: input for X axis */
+    hal_float_t *in1;		/* pin: input for Y axis */
+    hal_float_t *in2;		/* pin: input for Z axis */
     hal_float_t *out;		/* pin: output */
 } hypot_t;
 
@@ -421,7 +422,7 @@ int rtapi_app_main(void)
 	    }
 	}
 	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "BLOCKS: installed %d 2-input muxes\n", hypot);
+	    "BLOCKS: installed %d hypotenuse calculators\n", hypot);
     }
     /* allocate and export 4 input multiplexors */
     if (mux4 > 0) {
@@ -691,19 +692,19 @@ static void comp_funct(void *arg, long period)
 
 static void hypot_funct(void *arg, long period)
 {
-    hypot_t *h = (hypot_t *) arg;
+    double a, b, c;
+    hypot_t *hypot;
 
-    double a = fabs(*(h->in0)), b = fabs(*(h->in1));
+    /* point to block data */
+    hypot = (hypot_t *) arg;
+
+    /* grab inputs to locals */
+    a = *(hypot->in0);
+    b = *(hypot->in1);
+    c = *(hypot->in2);
 
     /* calculate output */
-    if(a == 0) *(h->out) = b;
-    else if(a > b) {
-	b = b / a;
-	*(h->out) = a * sqrt(1+b*b);
-    } else {
-	a = a / b;
-	*(h->out) = b * sqrt(1+a*a);
-    }
+    *(hypot->out) = sqrt(a*a + b*b + c*c);
 }
 
 static void mux2_funct(void *arg, long period)
@@ -1256,7 +1257,7 @@ static int export_hypot(int num)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-    /* allocate shared memory for 2 input multiplexor */
+    /* allocate shared memory for hypotenuse calculator */
     h = hal_malloc(sizeof(hypot_t));
     if (h == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1273,6 +1274,13 @@ static int export_hypot(int num)
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "hypot.%d.in1", num);
     retval = hal_pin_float_new(buf, HAL_RD, &(h->in1), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "hypot.%d.in2", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(h->in2), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
