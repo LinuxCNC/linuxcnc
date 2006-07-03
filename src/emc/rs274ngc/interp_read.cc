@@ -2136,47 +2136,23 @@ int Interp::read_real_number(char *line, //!< string: line of RS274/NGC code bei
                             double *double_ptr) //!< pointer to double to be read                  
 {
   static char name[] = "read_real_number";
-  char c;                       /* for character being processed    */
-  int flag_digit;               /* set to ON if digit found         */
-  int flag_point;               /* set to ON if decimal point found */
-  int n;                        /* for indexing line                */
+  char *start, *end, save;
+  size_t after;
 
-  n = *counter;
-  flag_point = OFF;
-  flag_digit = OFF;
+  start = line + *counter;
 
-/* check first character */
-  c = line[n];
-  if (c == '+') {
-    *counter = (*counter + 1);  /* skip plus sign */
-    n++;
-  } else if (c == '-') {
-    n++;
-  } else if ((c != '.') && ((c < 48) || (c > 57)))
+  after = strspn(start, "0123456789+-.");
+  save = start[after];
+  start[after] = 0;
+
+  *double_ptr = strtod(start, &end);
+  start[after] = save;
+
+  if(end == start) {
     ERM(NCE_BAD_NUMBER_FORMAT);
-
-/* check out rest of characters (must be digit or decimal point) */
-  for (; (c = line[n]) != (char) NULL; n++) {
-    if ((47 < c) && (c < 58)) {
-      flag_digit = ON;
-    } else if (c == '.') {
-      if (flag_point == OFF) {
-        flag_point = ON;
-      } else
-        break;                  /* two decimal points, error appears on reading next item */
-    } else
-      break;
   }
 
-  CHK((flag_digit == OFF), NCE_NO_DIGITS_FOUND_WHERE_REAL_NUMBER_SHOULD_BE);
-  line[n] = (char) NULL;        /* temporary string termination for sscanf */
-  if (sscanf(line + *counter, "%lf", double_ptr) == 0) {
-    line[n] = c;
-    ERM(NCE_SSCANF_FAILED);
-  } else {
-    line[n] = c;
-    *counter = n;
-  }
+  *counter = end - line;
   return INTERP_OK;
 }
 
