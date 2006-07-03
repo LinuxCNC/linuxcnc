@@ -230,7 +230,7 @@ typedef struct block_struct
   int line_number;
   int motion_to_be;
   int m_count;
-  int m_modes[200];
+  int m_modes[11];
   int user_m;
   double p_number;
   double q_number;

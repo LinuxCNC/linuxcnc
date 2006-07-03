@@ -1775,15 +1775,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     settings->speed_override = OFF;
   }
   /* user-defined M codes */
-  for (int index = 100; index < 200; index++) {
-    if (block->m_modes[index] == index) {
-      if (USER_DEFINED_FUNCTION[index - 100] != 0) {
-        (*(USER_DEFINED_FUNCTION[index - 100])) (index - 100,
-                                                 block->p_number,
-                                                 block->q_number);
-      } else {
-        CHK(1, NCE_UNKNOWN_M_CODE_USED);
-      }
+  if (block->m_modes[10] != -1) {
+    int index = block->m_modes[10];
+    if (USER_DEFINED_FUNCTION[index - 100] != 0) {
+      (*(USER_DEFINED_FUNCTION[index - 100])) (index - 100,
+                                               block->p_number,
+                                               block->q_number);
+    } else {
+      CHK(1, NCE_UNKNOWN_M_CODE_USED);
     }
   }
   return INTERP_OK;
