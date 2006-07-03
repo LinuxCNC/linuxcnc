@@ -32,6 +32,7 @@
 *     lowpass = lowpass filter - out = last_out * (1 - gain) + in * gain
 *     match8 = 8 bit binary match detector (with input for cascading)
 *     hypot = like libm hypot(): out = sqrt(in1*in1 + in2*in2)
+*     minmax = min/max block: min and max outputs are peak values of in
 *
 *********************************************************************
 *
@@ -128,6 +129,9 @@ MODULE_PARM_DESC(lowpass, "lowpass-filters");
 static int match8 = 0;            /* number of match detectors */
 MODULE_PARM(match8, "i");
 MODULE_PARM_DESC(match8, "match detectors");
+static int minmax = 0;            /* number of min/max blocks */
+MODULE_PARM(minmax, "i");
+MODULE_PARM_DESC(minmax, "minmax blocks");
 
 #endif /* MODULE */
 
@@ -280,6 +284,13 @@ typedef struct {
     hal_bit_t *out;		/* pin: output, TRUE if A matches B */
 } match8_t;
 
+typedef struct {
+    hal_float_t *in;		/* pin: input */
+    hal_float_t *min;		/* pin: minimum value */
+    hal_float_t *max;		/* pin: maximum value */
+    hal_bit_t *reset;		/* pin: reset input */
+} minmax_t;
+
 
 /* other globals */
 static int comp_id;		/* component ID */
@@ -308,6 +319,7 @@ static int export_or2(int num);
 static int export_scale(int num);
 static int export_lowpass(int num);
 static int export_match8(int num);
+static int export_minmax(int num);
 
 static void constant_funct(void *arg, long period);
 static void wcomp_funct(void *arg, long period);
@@ -329,6 +341,7 @@ static void or2_funct(void *arg, long period);
 static void scale_funct(void *arg, long period);
 static void lowpass_funct(void *arg, long period);
 static void match8_funct(void *arg, long period);
+static void minmax_funct(void *arg, long period);
 
 
 /***********************************************************************
@@ -604,6 +617,19 @@ int rtapi_app_main(void)
 	}
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d match detectors\n", match8);
+    }
+    /* allocate and export min/max blocks */
+    if (minmax > 0) {
+	for (n = 0; n < minmax; n++) {
+	    if (export_minmax(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_minmax(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d min/max blocks\n", minmax);
     }
     return 0;
 }
@@ -1006,7 +1032,29 @@ static void match8_funct(void *arg, long period)
     *(match8->out) = tmp;
 }
 
-    
+static void minmax_funct(void *arg, long period)
+{
+    minmax_t *minmax;
+    float in;
+
+    /* point to block data */
+    minmax = (minmax_t *) arg;
+    /* get input to local */
+    in = *(minmax->in);
+    if ( *(minmax->reset) ) {
+	/* when reset, min and max both track input */
+	*(minmax->min) = in;
+	*(minmax->max) = in;
+    } else {
+	if ( in < *(minmax->min) ) {
+	    *(minmax->min) = in;
+	}
+	if ( in > *(minmax->max) ) {
+	    *(minmax->max) = in;
+	}
+    }
+}
+
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
@@ -2276,6 +2324,70 @@ static int export_match8(int num)
     /* export function */
     rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d", num);
     retval = hal_export_funct(buf, match8_funct, match8, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_minmax(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    minmax_t *minmax;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for min/max block */
+    minmax = hal_malloc(sizeof(minmax_t));
+    if (minmax == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pin for input */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "minmax.%d.in", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(minmax->in), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pins for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "minmax.%d.min", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(minmax->min), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "minmax.%d.max", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(minmax->max), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for reset */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "minmax.%d.reset", num);
+    retval = hal_pin_bit_new(buf, HAL_RD, &(minmax->reset), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "minmax.%d", num);
+    retval = hal_export_funct(buf, minmax_funct, minmax, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
