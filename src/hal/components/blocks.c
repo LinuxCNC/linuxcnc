@@ -16,6 +16,7 @@
 *     wcomp = window comparator - out is true if min < in < max
 *     comp = 2 input comparator - out is true if in1 > in0
 *     sum2 = 2 input summer - out = in1 * gain1 + in2 * gain2
+*     mult2 = 2 input multiplirt: out = in0 * in1
 *     mux2 = two input analog mux - out = in1 if sel is true, else in0
 *     mux4 = four input analog mux - out = in<n> based on sel1,sel0
 *     integ = integrator, out = integral of in
@@ -79,6 +80,9 @@ MODULE_PARM_DESC(comp, "2-input comparators");
 static int sum2 = 0;		/* number of 2-input summers */
 MODULE_PARM(sum2, "i");
 MODULE_PARM_DESC(sum2, "2-input summers");
+static int mult2 = 0;		/* number of 2-input multipliers */
+MODULE_PARM(mult2, "i");
+MODULE_PARM_DESC(mult2, "2-input multiplier");
 static int hypot = 0;		/* number of hypot calculators */
 MODULE_PARM(hypot, "i");
 MODULE_PARM_DESC(hypot, "hypot calculators");
@@ -184,6 +188,12 @@ typedef struct {
 } sum2_t;
 
 typedef struct {
+    hal_float_t *in0;		/* pin: input 0 */
+    hal_float_t *in1;		/* pin: input 1 */
+    hal_float_t *out;		/* pin: output */
+} mult2_t;
+
+typedef struct {
     hal_float_t *in;		/* pin: input */
     hal_float_t *out;		/* pin: output */
 } integ_t;
@@ -285,6 +295,7 @@ static int export_mux2(int num);
 static int export_hypot(int num);
 static int export_mux4(int num);
 static int export_sum2(int num);
+static int export_mult2(int num);
 static int export_integ(int num);
 static int export_ddt(int num);
 static int export_limit1(int num);
@@ -305,6 +316,7 @@ static void mux2_funct(void *arg, long period);
 static void hypot_funct(void *arg, long period);
 static void mux4_funct(void *arg, long period);
 static void sum2_funct(void *arg, long period);
+static void mult2_funct(void *arg, long period);
 static void integ_funct(void *arg, long period);
 static void ddt_funct(void *arg, long period);
 static void limit1_funct(void *arg, long period);
@@ -423,6 +435,19 @@ int rtapi_app_main(void)
 	}
 	rtapi_print_msg(RTAPI_MSG_INFO,
 	    "BLOCKS: installed %d 2-input summers\n", sum2);
+    }
+    /* allocate and export 2 input multipliers */
+    if (mult2 > 0) {
+	for (n = 0; n < mult2; n++) {
+	    if (export_mult2(n) != 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "BLOCKS: ERROR: export_mult2(%d) failed\n", n);
+		hal_exit(comp_id);
+		return -1;
+	    }
+	}
+	rtapi_print_msg(RTAPI_MSG_INFO,
+	    "BLOCKS: installed %d 2-input multipliers\n", mult2);
     }
     /* allocate and export integrators */
     if (integ > 0) {
@@ -699,6 +724,16 @@ static void sum2_funct(void *arg, long period)
     sum2 = (sum2_t *) arg;
     /* calculate output */
     *(sum2->out) = *(sum2->in0) * sum2->gain0 + *(sum2->in1) * sum2->gain1;
+}
+
+static void mult2_funct(void *arg, long period)
+{
+    mult2_t *mult2;
+
+    /* point to block data */
+    mult2 = (mult2_t *) arg;
+    /* calculate output */
+    *(mult2->out) = *(mult2->in0) * *(mult2->in1);
 }
 
 static void integ_funct(void *arg, long period)
@@ -1434,6 +1469,62 @@ static int export_sum2(int num)
     /* set default parameter values */
     sum2->gain0 = 1.0;
     sum2->gain1 = 1.0;
+    /* restore saved message level */
+    rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int export_mult2(int num)
+{
+    int retval, msg;
+    char buf[HAL_NAME_LEN + 2];
+    mult2_t *mult2;
+
+    /* This function exports a lot of stuff, which results in a lot of
+       logging if msg_level is at INFO or ALL. So we save the current value
+       of msg_level and restore it later.  If you actually need to log this
+       function's actions, change the second line below */
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
+
+    /* allocate shared memory for 2-input multiplier */
+    mult2 = hal_malloc(sizeof(mult2_t));
+    if (mult2 == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export pins for inputs */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mult2.%d.in0", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(mult2->in0), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mult2.%d.in1", num);
+    retval = hal_pin_float_new(buf, HAL_RD, &(mult2->in1), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export pin for output */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mult2.%d.out", num);
+    retval = hal_pin_float_new(buf, HAL_WR, &(mult2->out), comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
+	return retval;
+    }
+    /* export function */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "mult2.%d", num);
+    retval = hal_export_funct(buf, mult2_funct, mult2, 1, 0, comp_id);
+    if (retval != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "BLOCKS: ERROR: '%s' funct export failed\n", buf);
+	return -1;
+    }
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
