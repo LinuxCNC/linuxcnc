@@ -1,0 +1,136 @@
+vcp {
+	main-window {
+		title = "Dallur THC Signals"
+		width = 100
+		height = 768
+		box {
+			layout = vertical
+			box {
+				# A Box for the "Sensors", shows plasma related pins and signals
+				layout = vertical
+				title = "Sensors"
+				label { text = "SenseUP" }
+				LED {
+					halpin = led.senseZUP
+					on-color = "#0F0"
+					off-color = "#CFF"
+				}
+				label { text = "SenseDown" }
+				LED {
+					halpin = led.senseZDown
+					on-color = "#00F"
+					off-color = "#CFF"
+				}
+				label { text = "FloatSwitch" }
+				LED {
+					halpin = led.senseZFloatSwitch
+					on-color = "#096"
+					off-color = "#CFF"
+				}
+				label { text = "@PierceHeight" }
+				LED {
+					halpin = led.TorchIsAtPierceHeight
+					on-color = "#390"
+					off-color = "#FC9"
+				}
+				label { text = "ArcOK" }
+				LED {
+					halpin = led.senseArcOK
+					on-color = "#390"
+					off-color = "#FF9"
+				}
+			}
+			box {
+				# A box for the "Signals" these are estop and limit
+				layout = vertical
+				title = "Signals"
+				label { text = "Ext. ESTOP" }
+				LED {
+					halpin = led.ext-estop
+					on-color = "#F00"
+					off-color = "#FCC"
+				}
+				label { text = "THC ESTOP" }
+				LED {
+					halpin = led.limit-estop
+					on-color = "#F00"
+					off-color = "#FCC"
+				}
+				label { text = "Limit X" }
+				LED {
+					halpin = led.limit-reached-x
+					on-color = "#F00"
+					off-color = "#FCC"
+				}
+				label { text = "Limit Y-1" }
+				LED {
+					halpin = led.limit-reached-y
+					on-color = "#F00"
+					off-color = "#FCC"
+				}
+				label { text = "Limit Y-2" }
+				LED {
+					halpin = led.limit-reached-a
+					on-color = "#F00"
+					off-color = "#FCC"
+				}
+				label { text = "Limit Z" }
+				LED {
+					halpin = led.limit-reached-z
+					on-color = "#F00"
+					off-color = "#FCC"
+				}
+			}
+			box {
+				# A box for the Manual Verification Option and Pause Status
+				layout = vertical
+				title = Feed&Pause
+				label { text = "Exec. Paused" }
+				LED {
+					halpin = led.ProgramIsPaused
+					on-color = "#F0F"
+					off-color = "#FCF"
+				}
+				button {
+					halpin = button.ManualVerifyBeforePierce
+					label { text = "Man Verify" }
+				}
+				LED {
+					halpin = led.ManualVerifyBeforePierceEnabled
+					on-color = "#C0F"
+					off-color = "#C9F"
+				}
+			}
+
+
+
+			box {
+				button {
+					halpin = button.EnableCornerHeightLock
+					label { text = "CornerHeightLock" }
+				}
+
+				LED {
+					halpin = led.EnableCornerHeightLock
+					on-color = "#C0F"
+					off-color = "#C9F"
+				}
+
+				# A box for the Manual Verification Option and Pause Status
+				layout = vertical
+				title = Delay&Lock
+				button {
+					halpin = button.EnablePierceDelay
+					label { text = "PierceDelay" }
+				}
+				LED {
+					halpin = led.EnablePierceDelay
+					on-color = "#C0F"
+					off-color = "#C9F"
+				}
+
+			}
+		}
+	} # main-window
+}
+   

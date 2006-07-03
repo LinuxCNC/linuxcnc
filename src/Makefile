@@ -374,8 +374,9 @@ COMMON=$(CONF)/common
 CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON), $(wildcard $(CONF)/*)))
 .PHONY: configs
 COPY_CONFIGS := \
-	$(patsubst %,../configs/%/emc.nml, demo_mazak halui_halvcp hexapod-sim max univpwm univstep \
-		stepper-xyza demo_step_cl stepper motenc m5i20 stg sim vti nist-lathe) \
+	$(patsubst %,../configs/%/emc.nml, demo_mazak halui_halvcp hexapod-sim max \
+		univpwm univstep stepper-xyza demo_step_cl stepper motenc m5i20 stg \
+		sim vti nist-lathe dallur-thc) \
 	$(patsubst %,../configs/%/core_axis.hal, demo_mazak halui_halvcp hexapod-sim max univpwm univstep \
 		stepper-xyza demo_step_cl stepper motenc m5i20 stg sim vti nist-lathe) \
 	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper) \

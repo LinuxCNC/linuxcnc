@@ -1,0 +1,28 @@
+loadusr halvcp dallur-advanced.vcp
+
+loadusr -w sleep 1
+
+#linkpp button.spindle-increase  halui.spindle.increase
+#linkpp button.spindle-decrease  halui.spindle.decrease
+
+linksp senseZUp led.senseZUP 
+linksp senseZDown led.senseZDown
+linksp senseZFloatSwitch led.senseZFloatSwitch
+linksp senseZFloatSwitch led.TorchIsAtPierceHeight
+linksp senseArcOK led.senseArcOK
+
+linksp ext-estop led.ext-estop
+linksp limit-reached-x led.limit-reached-x
+linksp limit-reached-y led.limit-reached-y			
+linksp limit-reached-a led.limit-reached-a
+linksp limit-reached-z led.limit-reached-z
+linksp limit-estop led.limit-estop
+
+linksp ManualVerifyBeforePierce button.ManualVerifyBeforePierce
+linksp ManualVerifyBeforePierce led.ManualVerifyBeforePierceEnabled
+linksp ProgramIsPaused led.ProgramIsPaused
+
+linksp EnablePierceDelay button.EnablePierceDelay
+linksp EnableCornerHeightLock button.EnableCornerHeightLock
+linksp EnablePierceDelay led.EnablePierceDelay 
+linksp EnableCornerHeightLock led.EnableCornerHeightLock
