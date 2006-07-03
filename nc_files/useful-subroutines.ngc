@@ -1,0 +1,50 @@
+(This file is Copyright 2006 Chris Radek and released under the GPL v2.)
+
+(This is meant as a place to collect useful subroutines.  Please add any)
+(other general-purpose routines that you think are useful.  Put instructions)
+(for calling the subroutine at its beginning, and add it to the table of)
+(contents.  Use a different O number for each subroutine.  If you like, add)
+(a usage example at the end of this file.)
+
+(Table of contents:)
+(O100: "hole drilling" with an end mill)
+
+
+
+o100 sub
+  (helical hole milling, load tool and set feed first, then use like so:)
+  (o100 call [x pos] [y pos] [safety height] [hole depth] [hole dia] [tool dia])
+  (tool dia doesn't have to be specified exactly.)
+#7=[#6/2] (#7 is depth per circle = half of tool diameter)
+#8=#7     (#8 is current depth step)
+g0 z#3
+(start above and right so we make a convex corner for entry to the ccw arcs)
+g0 x[#1 + [#7 * 2]] y[#2 + [#5 / 2]]
+g41 g0 x#1 y[#2 + [#5 / 2]]
+o101 while [#8 LT #4]
+(down toward the specified depth a bit at a time)
+g3 x#1 y[#2 + [#5 / 2]] i0 j[0 - [#5 / 2]] z[0 - #8]
+#8=[#8 + #7]
+o101 endwhile
+(down to the actual depth)
+g3 x#1 y[#2 + [#5 / 2]] i0 j[0 - [#5 / 2]] z[0 - #4]
+(full circle at the actual depth)
+g3 x#1 y[#2 + [#5 / 2]] i0 j[0 - [#5 / 2]]
+g0 z#3
+g40
+o100 endsub
+
+
+
+g20 g64 g17 g90
+
+(here is the actual usage of o100: T1 is a 1/16th end mill)
+t1 m6
+s1000 m3
+f5
+o100 call [0] [0] [.01] [.125] [.125] [.0625]
+o100 call [.25] [0] [.01] [.0625] [.5] [.0625]
+m5
+t0 m6
+
+m2
