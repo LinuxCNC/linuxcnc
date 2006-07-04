@@ -485,7 +485,7 @@ static void flush_segments(void) {
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
     interp_list.append(linearMoveMsg);
-    canonUpdateEndPoint(x, y, z, a, b, c);
+    canonUpdateEndPoint(FROM_EXT_LEN(x), FROM_EXT_LEN(y), FROM_EXT_LEN(z), FROM_EXT_ANG(a), FROM_EXT_ANG(b), FROM_EXT_ANG(c));
 
     chained_points().clear();
 }
