@@ -2829,7 +2829,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    AA_end, BB_end, CC_end,
                                    block, settings);
             ARC_FEED(mid[0], mid[1], start[0], start[1],
-                     ((side == LEFT) ? -1 : 1), c[2],
+                     ((side == LEFT) ? -1 : 1), p[2],
                      AA_end, BB_end, CC_end);
             STRAIGHT_FEED(end[0], end[1], p[2],
                           AA_end, BB_end, CC_end);
