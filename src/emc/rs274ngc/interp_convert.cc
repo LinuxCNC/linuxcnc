@@ -2816,7 +2816,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    AA_end, BB_end, CC_end,
                                    block, settings);
             ARC_FEED(ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
-                     ((side == LEFT) ? 1 : -1), c[2],
+                     ((side == LEFT) ? 1 : -1), settings->current_y,
                      AA_end, BB_end, CC_end);
             STRAIGHT_FEED(xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end);
@@ -2829,7 +2829,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    AA_end, BB_end, CC_end,
                                    block, settings);
             ARC_FEED(mid[0], mid[1], start[0], start[1],
-                     ((side == LEFT) ? -1 : 1), p[2],
+                     ((side == LEFT) ? -1 : 1), settings->current_z,
                      AA_end, BB_end, CC_end);
             STRAIGHT_FEED(end[0], end[1], p[2],
                           AA_end, BB_end, CC_end);
