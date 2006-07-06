@@ -141,7 +141,7 @@ typedef struct {
    structure for all data in the HAL.
 */
 typedef struct {
-    int magic;			/* magic number to tag the struct */
+    int version;		/* version code for structs, etc */
     unsigned long mutex;	/* protection for linked lists, etc. */
     hal_s32_t shmem_avail;	/* amount of shmem left free */
     int shmem_bot;		/* bottom of free shmem (first free byte) */
@@ -268,8 +268,30 @@ typedef struct {
     char name[HAL_NAME_LEN + 1];	/* thread name */
 } hal_thread_t;
 
-#define HAL_KEY   0x48414C21	/* key used to open HAL shared memory */
-#define HAL_MAGIC 0x84328212	/* magic number used to verify shmem */
+/* IMPORTANT:  If any of the structures in this file are changed, the
+   version code (HAL_VER) must be incremented, to ensure that 
+   incompatible utilities, etc, aren't used to manipulate data in
+   shared memory.
+*/
+
+/* Historical note: in versions 2.0.0 and 2.0.1 of EMC, the key was
+   0x48414C21, and instead of the structure starting with a version
+   number, it started with a fixed magic number.  Mixing binaries or
+   kernel modules from those releases with newer versions will result
+   in two shmem regions being open, and really strange results (but 
+   should _not_ result in segfaults or other crash type problems).
+   This is unfortunate, but I can't retroactively make the old code
+   detect version mismatches.  The alternative is worse: if the new
+   code used the same shmem key, the result would be segfaults or
+   kernel oopses.
+
+   The use of version codes  means that any subsequent changes to
+   the structs will be fully protected, with a clean shutdown and
+   meaningfull error messages in case of a mismatch.
+*/
+
+#define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
+#define HAL_VER   0x00000002	/* version code */
 #define HAL_SIZE  131000
 
 /* These pointers are set by hal_init() to point to the shmem block

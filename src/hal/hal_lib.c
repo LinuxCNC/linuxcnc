@@ -123,7 +123,7 @@ static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
     if the structure has not already been initialized.  (The init
     is done by the first HAL component to be loaded.
 */
-static void init_hal_data(void);
+static int init_hal_data(void);
 
 /** The 'shmalloc_xx()' functions allocate blocks of shared memory.
     Each function allocates a block that is 'size' bytes long.
@@ -237,7 +237,13 @@ int hal_init(char *name)
     hal_shmem_base = (char *) mem;
     hal_data = (hal_data_t *) mem;
     /* perform a global init if needed */
-    init_hal_data();
+    retval = init_hal_data();
+    if ( retval ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: could not init shared memory\n");
+	rtapi_exit(comp_id);
+	return HAL_FAIL;
+    }
     /* get mutex before manipulating the shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* make sure name is unique in the system */
@@ -2220,7 +2226,7 @@ int rtapi_app_main(void)
     retval = rtapi_shmem_getptr(lib_mem_id, &mem);
     if (retval != RTAPI_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: could not access shared memory\n");
+	    "HAL_LIB: ERROR: could not access shared memory\n");
 	rtapi_exit(lib_module_id);
 	return HAL_FAIL;
     }
@@ -2228,7 +2234,13 @@ int rtapi_app_main(void)
     hal_shmem_base = (char *) mem;
     hal_data = (hal_data_t *) mem;
     /* perform a global init if needed */
-    init_hal_data();
+    retval = init_hal_data();
+    if ( retval ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL_LIB: ERROR: could not init shared memory\n");
+	rtapi_exit(lib_module_id);
+	return HAL_FAIL;
+    }
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL_LIB: kernel lib installed successfully\n");
@@ -2316,17 +2328,23 @@ static void thread_task(void *arg)
    a description of what they do.
 */
 
-static void init_hal_data(void)
+static int init_hal_data(void)
 {
     /* has the block already been initialized? */
-    if (hal_data->magic == HAL_MAGIC) {
-	/* yes, nothing to do */
-	return;
+    if (hal_data->version != 0) {
+	/* yes, verify version code */
+	if (hal_data->version == HAL_VER) {
+	    return 0;
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: version code mismatch\n");
+	    return -1;
+	}
     }
     /* no, we need to init it, grab the mutex unconditionally */
     rtapi_mutex_try(&(hal_data->mutex));
-    /* set magic number so nobody else init's the block */
-    hal_data->magic = HAL_MAGIC;
+    /* set version code so nobody else init's the block */
+    hal_data->version = HAL_VER;
     /* initialize everything */
     hal_data->comp_list_ptr = 0;
     hal_data->pin_list_ptr = 0;
@@ -2349,7 +2367,7 @@ static void init_hal_data(void)
     hal_data->lock = HAL_LOCK_NONE;
     /* done, release mutex */
     rtapi_mutex_give(&(hal_data->mutex));
-    return;
+    return 0;
 }
 
 static void *shmalloc_up(long int size)
