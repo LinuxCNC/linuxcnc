@@ -469,14 +469,14 @@ static void flush_segments(void) {
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
     // now x, y, z, and b are in absolute mm or degree units
-    linearMoveMsg.end.tran.x = x;
-    linearMoveMsg.end.tran.y = y;
-    linearMoveMsg.end.tran.z = z;
+    linearMoveMsg.end.tran.x = TO_EXT_LEN(x);
+    linearMoveMsg.end.tran.y = TO_EXT_LEN(y);
+    linearMoveMsg.end.tran.z = TO_EXT_LEN(z);
 
     // fill in the orientation
-    linearMoveMsg.end.a = a;
-    linearMoveMsg.end.b = b;
-    linearMoveMsg.end.c = c;
+    linearMoveMsg.end.a = TO_EXT_ANG(a);
+    linearMoveMsg.end.b = TO_EXT_ANG(b);
+    linearMoveMsg.end.c = TO_EXT_ANG(c);
 
     linearMoveMsg.vel = toExtVel(vel);
     linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
@@ -485,7 +485,7 @@ static void flush_segments(void) {
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
     interp_list.append(linearMoveMsg);
-    canonUpdateEndPoint(FROM_EXT_LEN(x), FROM_EXT_LEN(y), FROM_EXT_LEN(z), FROM_EXT_ANG(a), FROM_EXT_ANG(b), FROM_EXT_ANG(c));
+    canonUpdateEndPoint(x, y, z, a, b, c);
 
     chained_points().clear();
 }
@@ -606,16 +606,6 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b,
 
     x += currentXToolOffset;
     z += currentZToolOffset;
-
-    // now x, y, z, and b are in absolute mm or degree units
-    x = TO_EXT_LEN(x);
-    y = TO_EXT_LEN(y);
-    z = TO_EXT_LEN(z);
-
-    // fill in the orientation
-    a = TO_EXT_ANG(a);
-    b = TO_EXT_ANG(b);
-    c = TO_EXT_ANG(c);
 
     see_segment(x, y, z, a, b, c);
 }
