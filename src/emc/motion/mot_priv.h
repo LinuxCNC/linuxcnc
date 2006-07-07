@@ -87,6 +87,7 @@ typedef struct {
     hal_float_t *adaptive_feed;	/* RPI: adaptive feedrate, 0.0 to 1.0 */
     hal_bit_t motion_enabled;	/* RPA: motion enable for all axis */
     hal_bit_t in_position;	/* RPA: all axis are in position */
+    hal_bit_t *inpos_output;	/* WPI: all axes are in position (used to power down steppers for example) */
     hal_bit_t coord_mode;	/* RPA: TRUE if coord, FALSE if free */
     hal_bit_t teleop_mode;	/* RPA: TRUE if teleop mode */
     hal_bit_t coord_error;	/* RPA: TRUE if coord mode error */

@@ -292,6 +292,14 @@ static int init_hal_io(void)
 	return retval;
     }
 
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-inpos");
+    retval =
+	hal_pin_bit_new(buf, HAL_WR, &(emcmot_hal_data->inpos_output),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.spindle-revs");
     retval =
 	hal_pin_float_new(buf, HAL_RD, &(emcmot_hal_data->spindle_revs),
@@ -455,6 +463,7 @@ static int init_hal_io(void)
        with data from the emcmotStatus struct */
     emcmot_hal_data->motion_enabled = 0;
     emcmot_hal_data->in_position = 0;
+    *(emcmot_hal_data->inpos_output) = 0;
     emcmot_hal_data->coord_mode = 0;
     emcmot_hal_data->teleop_mode = 0;
     emcmot_hal_data->coord_error = 0;
