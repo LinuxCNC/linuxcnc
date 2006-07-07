@@ -1,6 +1,6 @@
-IOSRCS := emc/iotask/ioControl.cc $(ULAPISRCS) hal/hal_lib.c
+IOSRCS := emc/iotask/ioControl.cc
 USERSRCS += $(IOSRCS)
 
-../bin/io: $(call TOOBJS, $(IOSRCS)) ../lib/libemc.a ../lib/libnml.so
+../bin/io: $(call TOOBJS, $(IOSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
 	$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/io

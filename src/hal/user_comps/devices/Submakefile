@@ -1,12 +1,9 @@
 
-HALJSSRCS := \
-	hal/user_comps/devices/hal_joystick.c \
-	$(ULAPISRCS) \
-	hal/hal_lib.c
+HALJSSRCS := hal/user_comps/devices/hal_joystick.c
 
 USERSRCS += $(HALJSSRCS)
 
-../bin/hal_joystick: $(call TOOBJS, $(HALJSSRCS))
+../bin/hal_joystick: $(call TOOBJS, $(HALJSSRCS)) ../lib/libemchal.so
 	$(CXX) $(LDFLAGS) -o $@ $^
 
 TARGETS += ../bin/hal_joystick

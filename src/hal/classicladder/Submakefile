@@ -37,7 +37,7 @@ $(call TOOBJS, $(CLASSICLADDERSRCS)): Makefile.inc
 
 USERSRCS += $(CLASSICLADDERSRCS)
 
-../bin/classicladder: $(call TOOBJS, $(CLASSICLADDERSRCS) hal/hal_lib.c $(ULAPISRCS))
+../bin/classicladder: $(call TOOBJS, $(CLASSICLADDERSRCS)) ../libemchal.so
 	$(CC) $(CFLAGS) $(ULFLAGS) -lpthread -o $@ $^ $(GTK_LIBS)
 
 TARGETS += ../bin/classicladder

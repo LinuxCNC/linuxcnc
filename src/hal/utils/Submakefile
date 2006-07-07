@@ -1,26 +1,21 @@
-HALCMDSRCS := \
-	hal/utils/halcmd.c \
-	$(ULAPISRCS) \
-	hal/hal_lib.c
+HALCMDSRCS := hal/utils/halcmd.c
 USERSRCS += $(HALCMDSRCS)
 
 $(call TOOBJSDEPS, hal/utils/halcmd.c): EXTRAFLAGS = -DEMC2_BIN_DIR="\"$(EMC2_BIN_DIR)\"" -DHAL_RTMOD_DIR="\"$(EMC2_RTLIB_DIR)\"" -DMODULE_EXT="\"$(MODULE_EXT)\""
 $(call TOOBJS, hal/utils/halcmd.c): Makefile.inc
 
-../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemc.a ../lib/libnml.so $(READLINE_LIBS)
+../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so $(READLINE_LIBS)
 	$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halcmd
 
 ifneq ($(GTK_VERSION),)
 HALMETERSRCS := \
     hal/utils/meter.c \
-    hal/utils/miscgtk.c \
-    $(ULAPISRCS) \
-    hal/hal_lib.c
+    hal/utils/miscgtk.c
 
 USERSRCS += $(HALMETERSRCS)
 
-../bin/halmeter: $(call TOOBJS, $(HALMETERSRCS)) ../lib/libemc.a ../lib/libnml.so
+../bin/halmeter: $(call TOOBJS, $(HALMETERSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
 	$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
 TARGETS += ../bin/halmeter
 
@@ -31,13 +26,11 @@ HALSCOPESRCS := \
     hal/utils/scope_trig.c \
     hal/utils/scope_disp.c \
     hal/utils/scope_files.c \
-    hal/utils/miscgtk.c \
-    $(ULAPISRCS) \
-    hal/hal_lib.c
+    hal/utils/miscgtk.c
 
 USERSRCS += $(HALSCOPESRCS)
 
-../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libemc.a ../lib/libnml.so
+../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libemc.a ../lib/libnml.so ../libemchal.so
 	$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
 TARGETS += ../bin/halscope
 
