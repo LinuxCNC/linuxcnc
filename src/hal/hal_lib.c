@@ -194,6 +194,8 @@ static void thread_task(void *arg);
 *                  PUBLIC (API) FUNCTION CODE                          *
 ************************************************************************/
 
+static int ref_cnt;
+
 int hal_init(char *name)
 {
     int comp_id, mem_id, retval;
@@ -201,6 +203,13 @@ int hal_init(char *name)
     char rtapi_name[RTAPI_NAME_LEN + 1];
     char hal_name[HAL_NAME_LEN + 1];
     hal_comp_t *comp;
+
+#ifdef ULAPI
+    if (ref_cnt) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: Only one component per process\n");
+	return HAL_LIMIT;
+    }
+#endif
 
     if (name == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no component name\n");
@@ -286,6 +295,7 @@ int hal_init(char *name)
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: component '%s' initialized, ID = %02d\n", hal_name, comp_id);
+    ref_cnt ++;
     return comp_id;
 }
 
@@ -359,6 +369,9 @@ int hal_exit(int comp_id)
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: component %02d removed, name = '%s'\n", comp_id, name);
+
+    ref_cnt --;
+
     return HAL_SUCCESS;
 }
 
