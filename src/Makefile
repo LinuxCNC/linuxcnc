@@ -141,6 +141,17 @@ $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 	@mkdir -p $(dir $@)
 	@$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
 
+configure: configure.in
+	@if type -path autoconf >/dev/null 2>&1; then \
+		autoconf; \
+	else \
+		echo "configure.in is newer than configure, but autoconf is not available.  Touching 'configure'"; \
+		touch configure; \
+	fi
+
+config.status: configure
+	@if [ -f config.status ]; then ./config.status --recheck; else ./configure; fi
+
 config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
