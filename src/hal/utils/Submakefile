@@ -30,7 +30,7 @@ HALSCOPESRCS := \
 
 USERSRCS += $(HALSCOPESRCS)
 
-../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libemc.a ../lib/libnml.so ../libemchal.so
+../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
 	$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
 TARGETS += ../bin/halscope
 

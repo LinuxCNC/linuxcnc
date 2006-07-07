@@ -12,4 +12,4 @@ $(HALLIB): $(call TOOBJS, $(HALLIBSRCS))
 	@mkdir -p ../lib
 	@rm -f $@
 	$(CXX) -shared -Wl,-soname,libemchal.so -o $@ $^
-TARGETS := $(HALLIB)
+TARGETS += $(HALLIB)
