@@ -34,6 +34,7 @@
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
 #include "inifile.hh"		// INIFILE
+#include "emcmotcfg.h"          // EMCMOT_MAX_AXIS
 
 /*
   Using halui:
@@ -75,17 +76,17 @@
 
   Exported pins (list not complete, names up for debate):
 
-- machine:
+DONE: - machine:
    halui.machine.on                    bit  //pin for setting machine On
    halui.machine.off                   bit  //pin for setting machine Off
    halui.machine.is-on                 bit  //pin for machine is On/Off
 
-- estop:   
-   halui.estop.activate                bit  //pin for resetting Estop (emc internal) On/Off
-   halui.estop.reset                   bit  //pin for resetting Estop (emc internal) On/Off
-   halui.estop.is-reset                bit  //pin for resetting Estop (emc internal) On/Off
+DONE: - estop:   
+   halui.estop.activate                bit  //pin for setting Estop (emc internal) On
+   halui.estop.reset                   bit  //pin for resetting Estop (emc internal) Off
+   halui.estop.is-reset                bit  //pin for displaying Estop state (emc internal) On/Off
    
-- mode:
+DONE: - mode:
    halui.mode.manual                   bit  //pin for requesting manual mode
    halui.mode.is_manual                bit  //pin for manual mode is on
    halui.mode.auto                     bit  //pin for requesting auto mode
@@ -93,7 +94,7 @@
    halui.mode.mdi                      bit  //pin for requesting mdi mode
    halui.mode.is_mdi                   bit  //pin for mdi mode is on
 
-- mist, flood, lube:
+DONE: - mist, flood, lube:
    halui.mist.on                       bit  //pin for starting mist
    halui.mist.off                      bit  //pin for stoping mist
    halui.mist.is-on                    bit  //pin for mist is on
@@ -104,7 +105,7 @@
    halui.lube.off                      bit  //pin for stoping lube
    halui.lube.is-on                    bit  //pin for lube is on
 
-- spindle:
+DONE: - spindle:
    halui.spindle.start                 bit
    halui.spindle.stop                  bit
    halui.spindle.forward               bit
@@ -116,18 +117,29 @@
    halui.spindle.brake-off             bit  //pin for deactivating spindle/brake
    halui.spindle.brake-is-on           bit  //status pin that tells us if brake is on
 
-- joint:
-   halui.joint.0.home                  bit //works both ways
+DONE: - joint:
+   halui.joint.0.home                  bit  // pin for homing the specific joint
+   halui.joint.0.is-homed              bit  // status pin telling that the joint is homed
    ..
-   halui.joint.7.home                  bit //works both ways
+   halui.joint.7.home                  bit 
+   halui.joint.7.is-homed              bit 
 
-   halui.joint.x.on-min-limit-soft     bit
-   halui.joint.x.on-max-limit-soft     bit
-   halui.joint.x.on-min-limit-hard     bit
-   halui.joint.x.on-max-limit-hard     bit
+   halui.joint.selected.home           bit  // pin for homing the selected joint
+   halui.joint.selected.is-homed       bit  // status pin telling that the selected joint is homed
+
+   halui.joint.x.on-soft-min-limit     bit
+   halui.joint.x.on-soft-max-limit     bit
+   halui.joint.x.on-hard-min-limit     bit
+   halui.joint.x.on-hard-max-limit     bit
+     (x = 0..7, selected)
    
-   halui.joint.x.fault                 bit   
-   halui.joint.x.homed                 bit
+   halui.joint.x.has_fault             bit   
+     (x = 0..7, selected)
+
+   halui.joint.select                  u8   // select joint (0..7)           - internal halui
+   halui.joint.selected                u8   // selected joint (0..7)         - internal halui
+   halui.joint.x.select                bit  // pins for selecting a joint    - internal halui
+   halui.joint.x.is-selected           bit  // status pin                    - internal halui
 
 - jogging:
    halui.jog.speed                     float //set jog speed
@@ -144,7 +156,7 @@
    halui.tool.number                   u16  //current selected tool
    halui.tool.length-offset            float //current applied tool-length-offset
 
-- program:
+DONE: - program:
    halui.program.is-idle               bit
    halui.program.is-running            bit
    halui.program.is-paused             bit
@@ -158,6 +170,9 @@
    halui.probe.clear                   bit
    halui.probe.is-tripped              bit
    halui.probe.has-value               float
+   
+- general:
+   halui.abort                         bit // pin to send an abort message (clears out most errors)
 
 */
 
@@ -215,6 +230,18 @@ struct halui_str {
     hal_bit_t *spindle_brake_off;  //pin for deactivating spindle/brake
     hal_bit_t *spindle_brake_is_on;//status pin that tells us if brake is on
 
+    hal_bit_t *joint_home[EMCMOT_MAX_AXIS+1];   //pin for homing one joint
+    hal_bit_t *joint_is_homed[EMCMOT_MAX_AXIS+1];   //status pin that the joint is homed
+    hal_bit_t *joint_on_soft_min_limit[EMCMOT_MAX_AXIS+1];   //status pin that the joint is on the software min limit
+    hal_bit_t *joint_on_soft_max_limit[EMCMOT_MAX_AXIS+1];   //status pin that the joint is on the software max limit
+    hal_bit_t *joint_on_hard_min_limit[EMCMOT_MAX_AXIS+1];   //status pin that the joint is on the hardware min limit
+    hal_bit_t *joint_on_hard_max_limit[EMCMOT_MAX_AXIS+1];   //status pin that the joint is on the hardware max limit
+    hal_bit_t *joint_has_fault[EMCMOT_MAX_AXIS+1];   //status pin that the joint has a fault
+    hal_u8_t  *joint_select;                                 // pin for selecting a joint
+    hal_u8_t  *joint_selected;                               // status pin for the joint selected
+    hal_bit_t *joint_nr_select[EMCMOT_MAX_AXIS];             // nr. of pins to select a joint
+    hal_bit_t *joint_is_selected[EMCMOT_MAX_AXIS];           // nr. of status pins for joint selected
+
 } * halui_data; 
 
 struct local_halui_str {
@@ -254,7 +281,13 @@ struct local_halui_str {
 
     hal_bit_t spindle_brake_on;   //pin for activating spindle-brake
     hal_bit_t spindle_brake_off;  //pin for deactivating spindle/brake
-    
+
+    hal_bit_t joint_home[EMCMOT_MAX_AXIS+1];   //pin for homing one joint
+    hal_u8_t joint_select;
+    hal_u8_t joint_selected;
+    hal_bit_t joint_nr_select[EMCMOT_MAX_AXIS];
+    hal_bit_t joint_is_selected[EMCMOT_MAX_AXIS];
+        
 } old_halui_data; //pointer to the HAL-struct
 
 static int comp_id, done;				/* component ID, main while loop */
@@ -499,36 +532,6 @@ static int emcCommandWaitDone(int serial_number)
 
 static void thisQuit()
 {
-    EMC_NULL emc_null_msg;
-
-    if (0 != emcStatusBuffer) {
-	// wait until current message has been received
-	emcCommandWaitReceived(emcCommandSerialNumber);
-    }
-
-    if (0 != emcCommandBuffer) {
-	// send null message to reset serial number to original
-	emc_null_msg.serial_number = saveEmcCommandSerialNumber;
-	emcCommandBuffer->write(emc_null_msg);
-    }
-    // clean up NML buffers
-
-    if (emcErrorBuffer != 0) {
-	delete emcErrorBuffer;
-	emcErrorBuffer = 0;
-    }
-
-    if (emcStatusBuffer != 0) {
-	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
-    }
-
-    if (emcCommandBuffer != 0) {
-	delete emcCommandBuffer;
-	emcCommandBuffer = 0;
-    }
-
     //don't forget the big HAL sin ;)
     hal_exit(comp_id);
     
@@ -708,6 +711,7 @@ int halui_export_pin_WR_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2])
 int halui_hal_init(void)
 {
     int retval;
+    int joint;
 
     /* STEP 1: initialise the hal component */
     comp_id = hal_init("halui");
@@ -773,6 +777,19 @@ int halui_hal_init(void)
     //halui.spindle.brake-is-on
     retval = halui_export_pin_WR_bit(&(halui_data->spindle_brake_is_on), "halui.spindle.brake-is-on"); 
     if (retval != HAL_SUCCESS) return -1;
+
+    retval = hal_pin_u8_newf(HAL_WR, &(halui_data->joint_select), comp_id, "halui.joint.select"); 
+    if (retval != HAL_SUCCESS) return -1;
+
+    for (joint=0; joint < EMCMOT_MAX_AXIS ; joint++) {
+	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_home[joint]), comp_id, "halui.joint.%d.home", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_nr_select[joint]), comp_id, "halui.joint.%d.select", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+    }
+
+    retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_home[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.home"); 
+    if (retval != HAL_SUCCESS) return retval;
 
     /* STEP 3b: export the in-pin(s) */
 
@@ -868,6 +885,41 @@ int halui_hal_init(void)
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_brake_off), "halui.spindle.brake-off"); 
     if (retval != HAL_SUCCESS) return -1;
 
+
+    retval = hal_pin_u8_newf(HAL_RD, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
+    if (retval != HAL_SUCCESS) return -1;
+
+    for (joint=0; joint < EMCMOT_MAX_AXIS ; joint++) {
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_is_homed[joint]), comp_id, "halui.joint.%d.is-homed", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_is_selected[joint]), comp_id, "halui.joint.%d.is-selected", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_soft_min_limit[joint]), comp_id, "halui.joint.%d.on-soft-min-limit", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_soft_max_limit[joint]), comp_id, "halui.joint.%d.on-soft-limit", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_hard_min_limit[joint]), comp_id, "halui.joint.%d.on-hard-min-limit", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_hard_max_limit[joint]), comp_id, "halui.joint.%d.on-hard-max-limit", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_has_fault[joint]), comp_id, "halui.joint.%d.has_fault", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+    }
+
+    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_soft_min_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-soft-min-limit"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_soft_max_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-soft-limit"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_hard_min_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-hard-min-limit"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_hard_max_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-hard-max-limit"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_has_fault[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.has_fault"); 
+    if (retval != HAL_SUCCESS) return retval;
+    
+    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_is_homed[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.is_homed"); 
+    if (retval != HAL_SUCCESS) return retval;
 
     return 0;
 }
@@ -1300,6 +1352,21 @@ static int sendBrakeRelease()
     return 0;
 }
 
+static int sendHome(int axis)
+{
+    EMC_AXIS_HOME emc_axis_home_msg;
+
+    emc_axis_home_msg.serial_number = ++emcCommandSerialNumber;
+    emc_axis_home_msg.axis = axis;
+    emcCommandBuffer->write(emc_axis_home_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
 
 //currently commented out to reduce warnings
 /*
@@ -1462,21 +1529,6 @@ static int sendAbort()
     return 0;
 }
 
-static int sendHome(int axis)
-{
-    EMC_AXIS_HOME emc_axis_home_msg;
-
-    emc_axis_home_msg.serial_number = ++emcCommandSerialNumber;
-    emc_axis_home_msg.axis = axis;
-    emcCommandBuffer->write(emc_axis_home_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
 
 static int sendFeedOverride(double override)
 {
@@ -1718,12 +1770,21 @@ static int iniLoad(const char *filename)
 
 static void hal_init_pins()
 {
+    int joint;
+
     old_halui_data.machine_on = *(halui_data->machine_on) = 0;
     old_halui_data.machine_off = *(halui_data->machine_off) = 0;
 
     old_halui_data.estop_activate = *(halui_data->estop_activate) = 0;
     old_halui_data.estop_reset = *(halui_data->estop_reset) = 0;
 
+    
+    for (joint=0; joint < EMCMOT_MAX_AXIS + 1; joint++) {
+	*(halui_data->joint_home[joint]) = old_halui_data.joint_home[joint] = 0;
+	*(halui_data->joint_nr_select[joint]) = old_halui_data.joint_nr_select[joint] = 0;
+    }
+    old_halui_data.joint_select = *(halui_data->joint_select) = 0;
+    *(halui_data->joint_selected) = 0; // select joint 0 by default
 }
 
 // this function looks if any of the hal pins has changed
@@ -1731,6 +1792,8 @@ static void hal_init_pins()
 static void check_hal_changes()
 {
     hal_s32_t counts;
+    int select_changed, joint;
+    
     //check if machine_on pin has changed (the rest work exactly the same)
     if (*(halui_data->machine_on) != old_halui_data.machine_on) {
 	if (*(halui_data->machine_on) != 0) //if transition to 1
@@ -1895,12 +1958,52 @@ static void check_hal_changes()
 	    sendBrakeRelease();
 	old_halui_data.spindle_brake_off = *(halui_data->spindle_brake_off);
     }
+    
+    
+// joint stuff (selection, homing..)
+    select_changed = 0; // flag to see if the selected joint changed
+    
+    for (joint=0; joint < EMCMOT_MAX_AXIS; joint++) {
+	if (*(halui_data->joint_home[joint]) != old_halui_data.joint_home[joint]) {
+	    if (*(halui_data->joint_home[joint]) != 0)
+		sendHome(joint);
+	    old_halui_data.joint_home[joint] = *(halui_data->joint_home[joint]);
+	}
+	
+	// check to see if another joint has been selected
+	if (*(halui_data->joint_nr_select[joint]) != old_halui_data.joint_nr_select[joint]) {
+	    if (*(halui_data->joint_nr_select[joint]) != 0) {
+		*(halui_data->joint_selected) = joint;
+		select_changed = 1; // flag that we changed the selected joint
+	    } 
+	    old_halui_data.joint_home[joint] = *(halui_data->joint_home[joint]);
+	}
+    }
+    
+    if (select_changed) {
+	for (joint = 0; joint < EMCMOT_MAX_AXIS; joint++) {
+	    if (joint != *(halui_data->joint_selected)) {
+		*(halui_data->joint_is_selected[joint]) = 0;
+    	    } else {
+		*(halui_data->joint_is_selected[joint]) = 1;
+	    }
+	}
+    }
+
+    if (*(halui_data->joint_home[EMCMOT_MAX_AXIS]) != old_halui_data.joint_home[EMCMOT_MAX_AXIS]) {
+	if (*(halui_data->joint_home[EMCMOT_MAX_AXIS]) != 0)
+	    sendHome(*(halui_data->joint_selected));
+	old_halui_data.joint_home[EMCMOT_MAX_AXIS] = *(halui_data->joint_home[EMCMOT_MAX_AXIS]);
+    }
+    
 }
 
 // this function looks at the received NML status message
 // and modifies the appropiate HAL pins
 static void modify_hal_pins()
 {
+    int joint;
+    
     if (emcStatus->task.state == EMC_TASK_STATE_ON) {
 	*(halui_data->machine_is_on)=1;
     } else {
@@ -1944,6 +2047,23 @@ static void modify_hal_pins()
     *(halui_data->spindle_runs_forward) = (emcStatus->io.spindle.direction == 1);
     *(halui_data->spindle_runs_backward) = (emcStatus->io.spindle.direction == -1);
     *(halui_data->spindle_brake_is_on) = emcStatus->io.spindle.brake;
+    
+    for (joint=0; joint < EMCMOT_MAX_AXIS; joint++) {
+	*(halui_data->joint_is_homed[joint]) = emcStatus->motion.axis[joint].homed;
+	*(halui_data->joint_on_soft_min_limit[joint]) = emcStatus->motion.axis[joint].minSoftLimit;
+	*(halui_data->joint_on_soft_max_limit[joint]) = emcStatus->motion.axis[joint].maxSoftLimit; 
+	*(halui_data->joint_on_hard_min_limit[joint]) = emcStatus->motion.axis[joint].minHardLimit; 
+	*(halui_data->joint_on_hard_max_limit[joint]) = emcStatus->motion.axis[joint].maxHardLimit; 
+	*(halui_data->joint_has_fault[joint]) = emcStatus->motion.axis[joint].fault;
+    }
+    
+    *(halui_data->joint_is_homed[EMCMOT_MAX_AXIS]) = emcStatus->motion.axis[*(halui_data->joint_selected)].homed;
+    *(halui_data->joint_on_soft_min_limit[EMCMOT_MAX_AXIS]) = emcStatus->motion.axis[*(halui_data->joint_selected)].minSoftLimit;
+    *(halui_data->joint_on_soft_max_limit[EMCMOT_MAX_AXIS]) = emcStatus->motion.axis[*(halui_data->joint_selected)].maxSoftLimit; 
+    *(halui_data->joint_on_hard_min_limit[EMCMOT_MAX_AXIS]) = emcStatus->motion.axis[*(halui_data->joint_selected)].minHardLimit; 
+    *(halui_data->joint_on_hard_max_limit[EMCMOT_MAX_AXIS]) = emcStatus->motion.axis[*(halui_data->joint_selected)].maxHardLimit; 
+    *(halui_data->joint_has_fault[EMCMOT_MAX_AXIS]) = emcStatus->motion.axis[*(halui_data->joint_selected)].fault;
+
 }
 
 
