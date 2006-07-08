@@ -133,7 +133,7 @@ DONE: - joint:
    halui.joint.x.on-hard-max-limit     bit
      (x = 0..7, selected)
    
-   halui.joint.x.has_fault             bit   
+   halui.joint.x.has-fault             bit   
      (x = 0..7, selected)
 
    halui.joint.select                  u8   // select joint (0..7)           - internal halui
@@ -171,7 +171,7 @@ DONE: - program:
    halui.probe.is-tripped              bit
    halui.probe.has-value               float
    
-- general:
+DONE: - general:
    halui.abort                         bit // pin to send an abort message (clears out most errors)
 
 */
@@ -242,6 +242,7 @@ struct halui_str {
     hal_bit_t *joint_nr_select[EMCMOT_MAX_AXIS];             // nr. of pins to select a joint
     hal_bit_t *joint_is_selected[EMCMOT_MAX_AXIS];           // nr. of status pins for joint selected
 
+    hal_bit_t *abort;            //pin for aborting
 } * halui_data; 
 
 struct local_halui_str {
@@ -288,6 +289,7 @@ struct local_halui_str {
     hal_bit_t joint_nr_select[EMCMOT_MAX_AXIS];
     hal_bit_t joint_is_selected[EMCMOT_MAX_AXIS];
         
+    hal_bit_t abort;            //pin for aborting
 } old_halui_data; //pointer to the HAL-struct
 
 static int comp_id, done;				/* component ID, main while loop */
@@ -778,18 +780,41 @@ int halui_hal_init(void)
     retval = halui_export_pin_WR_bit(&(halui_data->spindle_brake_is_on), "halui.spindle.brake-is-on"); 
     if (retval != HAL_SUCCESS) return -1;
 
-    retval = hal_pin_u8_newf(HAL_WR, &(halui_data->joint_select), comp_id, "halui.joint.select"); 
-    if (retval != HAL_SUCCESS) return -1;
-
     for (joint=0; joint < EMCMOT_MAX_AXIS ; joint++) {
-	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_home[joint]), comp_id, "halui.joint.%d.home", joint); 
+	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_is_homed[joint]), comp_id, "halui.joint.%d.is-homed", joint); 
 	if (retval != HAL_SUCCESS) return retval;
-	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_nr_select[joint]), comp_id, "halui.joint.%d.select", joint); 
+	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_is_selected[joint]), comp_id, "halui.joint.%d.is-selected", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+
+	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_on_soft_min_limit[joint]), comp_id, "halui.joint.%d.on-soft-min-limit", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_on_soft_max_limit[joint]), comp_id, "halui.joint.%d.on-soft-max-limit", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_on_hard_min_limit[joint]), comp_id, "halui.joint.%d.on-hard-min-limit", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_on_hard_max_limit[joint]), comp_id, "halui.joint.%d.on-hard-max-limit", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_has_fault[joint]), comp_id, "halui.joint.%d.has-fault", joint); 
 	if (retval != HAL_SUCCESS) return retval;
     }
 
-    retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_home[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.home"); 
+    retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_on_soft_min_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-soft-min-limit"); 
     if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_on_soft_max_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-soft-limit"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_on_hard_min_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-hard-min-limit"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_on_hard_max_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-hard-max-limit"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_has_fault[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.has-fault"); 
+    if (retval != HAL_SUCCESS) return retval;
+    
+    retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_is_homed[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.is_homed"); 
+    if (retval != HAL_SUCCESS) return retval;
+
+    //halui.joint.selected
+    retval = hal_pin_u8_newf(HAL_WR, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
+    if (retval != HAL_SUCCESS) return -1;
 
     /* STEP 3b: export the in-pin(s) */
 
@@ -886,39 +911,21 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return -1;
 
 
-    retval = hal_pin_u8_newf(HAL_RD, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
+    //halui.abort
+    retval = halui_export_pin_RD_bit(&(halui_data->abort), "halui.abort"); 
+    if (retval != HAL_SUCCESS) return -1;
+
+    retval = hal_pin_u8_newf(HAL_RD, &(halui_data->joint_select), comp_id, "halui.joint.select"); 
     if (retval != HAL_SUCCESS) return -1;
 
     for (joint=0; joint < EMCMOT_MAX_AXIS ; joint++) {
-	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_is_homed[joint]), comp_id, "halui.joint.%d.is-homed", joint); 
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_home[joint]), comp_id, "halui.joint.%d.home", joint); 
 	if (retval != HAL_SUCCESS) return retval;
-	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_is_selected[joint]), comp_id, "halui.joint.%d.is-selected", joint); 
-	if (retval != HAL_SUCCESS) return retval;
-
-	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_soft_min_limit[joint]), comp_id, "halui.joint.%d.on-soft-min-limit", joint); 
-	if (retval != HAL_SUCCESS) return retval;
-	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_soft_max_limit[joint]), comp_id, "halui.joint.%d.on-soft-limit", joint); 
-	if (retval != HAL_SUCCESS) return retval;
-	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_hard_min_limit[joint]), comp_id, "halui.joint.%d.on-hard-min-limit", joint); 
-	if (retval != HAL_SUCCESS) return retval;
-	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_hard_max_limit[joint]), comp_id, "halui.joint.%d.on-hard-max-limit", joint); 
-	if (retval != HAL_SUCCESS) return retval;
-	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_has_fault[joint]), comp_id, "halui.joint.%d.has_fault", joint); 
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_nr_select[joint]), comp_id, "halui.joint.%d.select", joint); 
 	if (retval != HAL_SUCCESS) return retval;
     }
 
-    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_soft_min_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-soft-min-limit"); 
-    if (retval != HAL_SUCCESS) return retval;
-    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_soft_max_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-soft-limit"); 
-    if (retval != HAL_SUCCESS) return retval;
-    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_hard_min_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-hard-min-limit"); 
-    if (retval != HAL_SUCCESS) return retval;
-    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_on_hard_max_limit[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.on-hard-max-limit"); 
-    if (retval != HAL_SUCCESS) return retval;
-    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_has_fault[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.has_fault"); 
-    if (retval != HAL_SUCCESS) return retval;
-    
-    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_is_homed[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.is_homed"); 
+    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_home[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.home"); 
     if (retval != HAL_SUCCESS) return retval;
 
     return 0;
@@ -1368,6 +1375,21 @@ static int sendHome(int axis)
     return 0;
 }
 
+static int sendAbort()
+{
+    EMC_TASK_ABORT task_abort_msg;
+
+    task_abort_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(task_abort_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
 //currently commented out to reduce warnings
 /*
 //sendFoo messages
@@ -1504,22 +1526,6 @@ static int sendJogCont(int axis, double speed)
     }
 
     axisJogging = axis;
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-
-static int sendAbort()
-{
-    EMC_TASK_ABORT task_abort_msg;
-
-    task_abort_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(task_abort_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived(emcCommandSerialNumber);
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -1959,6 +1965,11 @@ static void check_hal_changes()
 	old_halui_data.spindle_brake_off = *(halui_data->spindle_brake_off);
     }
     
+    if (*(halui_data->abort) != old_halui_data.abort) {
+	if (*(halui_data->abort) != 0)
+	    sendAbort();
+	old_halui_data.abort = *(halui_data->abort);
+    }
     
 // joint stuff (selection, homing..)
     select_changed = 0; // flag to see if the selected joint changed
