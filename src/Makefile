@@ -36,7 +36,9 @@ endif
 ifeq ($(BUILD_AXIS),yes)
 default: axis
 axis: userspace
-	cd $(AXIS_DIR) && env EMCROOT=`cd ../.. && pwd` python setup.py -q install
+	$(ECHO) 'make: Entering directory `$(AXIS_DIR)'\'
+	@cd $(AXIS_DIR) && env EMCROOT=`cd ../.. && pwd` python setup.py -q install
+	$(ECHO) 'make: Leaving directory `$(AXIS_DIR)'\'
 clean: axisclean
 axisclean:
 	rm -rf $(AXIS_DIR)/build
