@@ -1,174 +1,443 @@
 vcp {
     main-window {
-	title = "Halui & halvcp Testing"
-	width = 450
-	height = 300
-	# this box will hold three side-by-side boxes, one for each axis
+	title = "Halui & halvcp Testing" 
+	width = 450 
+	height = 350 
 	box {
-	    layout = horizontal
-	    # this box holds stuff for Machine on/off
+	    layout = vertical 
 	    box {
-		layout = vertical
-		title = "Machine"
-		button {
-		    halpin = button.machine-on
-		    label { text = "On" }
-		}
-		button {
-		    halpin = button.machine-off
-		    label { text = "Off" }
-		}
-		label { text = "machine control" }
-		LED {
-		    size = 25
-		    halpin = led.machine.on
-		    on-color = "#00F"
-		    off-color = "#006"
-		}
-	    }
-	    # this box holds stuff for Estop On/Reset
-	    box {
-		layout = vertical
-		title = "Estop"
-		button {
-		    halpin = button.estop-activate
-		    label { text = "Activate" }
-		}
-		button {
-		    halpin = button.estop-reset
-		    label { text = "Reset" }
-		}
-		label { text = "ESTOP" }
-		LED {
-		    halpin = led.estop.is-activated
-		    on-color = "#F00"
-		    off-color = "#0F0"
-		}
-	    }
-	    box {
-		layout = vertical
-		title = "Mode"
+		layout = horizontal 
 		box {
-		    layout = horizontal
-		    title = "Manual"
-		    button {
-			halpin = button.mode.manual
-			label { text = "Manual mode" }
-		    }
-		    LED {
-			halpin = led.mode.is-manual
-			on-color = "#00F"
-			off-color = "#006"
+		    layout = vertical 
+		    box {
+			layout = horizontal 
+			box {
+	    		    layout = vertical 
+	    		    title = "machine" 
+			    box {
+				layout = horizontal
+				box {
+				    layout = vertical
+	    			    button {
+					halpin = button.machine-on 
+					label {text = "On"}
+	    			    }
+	    			    button {
+					halpin = button.machine-off 
+					label {text = "Off"}
+	    			    }
+				}
+				LED {
+	    			    size = 15
+				    halpin = led.machine.on
+				    on-color = "#00F" 
+				    off-color = "#006"
+				}
+			    }
+			}
+
+			label { text = "  "}
+
+			box {
+	    		    layout = vertical 
+			    title = "Estop" 
+			    box {
+				layout = horizontal
+				box {
+				    layout = vertical
+				    button {
+					halpin = button.estop-activate 
+					label {text = "Act"}
+	    			    }
+	    			    button {
+					halpin = button.estop-reset 
+					label {text = "Reset"}
+	    			    }
+				}
+				LED {
+				    size = 15
+				    halpin = led.estop.is-activated
+				    on-color = "#F00" 
+				    off-color = "#0F0"
+				}
+			    }
+			}
+			
+			label { text = "  "}
+			
 		    }
 		}
+
+		# mode switching
 		box {
-		    layout = horizontal
-		    title = "Auto"
-		    button {
-			halpin = button.mode.auto
-			label { text = "Auto mode" }
+		    layout = horizontal 
+		    title = "Mode" 
+		    box {
+			layout = vertical 
+			button {
+			    halpin = button.mode.manual 
+			    label {text = "Man"}
+			}
+			LED {
+			    size = 15
+			    halpin = led.mode.is-manual
+			    on-color = "#00F" 
+			    off-color = "#006"
+			}
 		    }
-		    LED {
-			halpin = led.mode.is-auto
-			on-color = "#00F"
-			off-color = "#006"
+		    box {
+			layout = vertical 
+			button {
+	    		    halpin = button.mode.auto 
+			    label {text = "Auto"}
+			}
+			LED {
+			    size = 15
+			    halpin = led.mode.is-auto
+			    on-color = "#00F" 
+			    off-color = "#006"
+			}
 		    }
-		}
-		box {
-		    layout = horizontal
-		    title = "MDI"
-		    button {
-			halpin = button.mode.mdi
-			label { text = "MDI mode" }
+		    box {
+			layout = vertical 
+			button {
+	    		    halpin = button.mode.mdi 
+			    label {text = "MDI"}
+			}
+			LED {
+			    size = 15
+			    halpin = led.mode.is-mdi
+			    on-color = "#00F" 
+			    off-color = "#006"
+			}
 		    }
-		    LED {
-			halpin = led.mode.is-mdi
-			on-color = "#00F"
-			off-color = "#006"
-		    }
+		}#end of mode box
+			
+		label { text = "  "}
+		
+		button {
+	    	    halpin = button.abort 
+		    label {text = "    Abort    "}
 		}
 	    }
 
-	    # this box holds stuff for program Run, pause, resume, step
 	    box {
-		layout = vertical
-		title = "Program"
-		button {
-		    halpin = button.program-run
-		    label { text = "run" }
-		}
-		button {
-		    halpin = button.program-pause
-		    label { text = "pause" }
-		}
-		button {
-		    halpin = button.program-resume
-		    label { text = "resume" }
-		}
-		button {
-		    halpin = button.program-step
-		    label { text = "step" }
-		}
-		label { text = "Program" }
-	    }
-	    # this box holds stuff for the spindle
-	    box {
-		layout = vertical
-		title = "spindle"
-		box {
-		    layout = horizontal
+		layout = horizontal
+        	box {
+            	    layout = vertical
+            	    title = "Program"
+            	    button {
+                	halpin = button.program-run
+                	label { text = "run" }
+            	    }
+            	    button {
+                	halpin = button.program-pause
+                	label { text = "pause" }
+            	    }
+            	    button {
+                	halpin = button.program-resume
+                	label { text = "resume" }
+            	    }
+            	    button {
+                	halpin = button.program-step
+                	label { text = "step" }
+            	    }
+        	}
+	    
+		label { text = "  "}
+	    
+        	# this box holds stuff for the spindle
+        	box {
+            	    layout = vertical
+            	    title = "IO"
 		    box {
 			layout = vertical
-			button {
-			    halpin = button.spindle-start
-			    label { text = "start" }
-			}
-			button {
-			    halpin = button.spindle-stop
-			    label { text = "stop" }
-			}
-		    }
-		    LED {
-			halpin = led.spindle-is-on
-			on-color = "#00F"
-			off-color = "#006"
-		    }
-		}    
-		box {
-		    layout = horizontal
-		    button {
-			halpin = button.spindle-forward
-			label { text = "forward" }
-		    }
-		    LED {
-			halpin = led.spindle-runs-forward
-			on-color = "#0F0"
-			off-color = "#020"
-		    }
+			
+            		box {
+                	    layout = horizontal
+			    title = "spindle"
+                	    box {
+                    		layout = vertical
+                    		button {
+                        	    halpin = button.spindle-start
+                        	    label { text = "start" }
+                    		}
+                    		button {
+                        	    halpin = button.spindle-stop
+                        	    label { text = "stop" }
+                    		}
+			    }
+                	    LED {
+                    		halpin = led.spindle-is-on
+                    		on-color = "#00F"
+                    		off-color = "#006"
+                	    }
+			    
+    			    label { text = "  "}
+			    
+			    box {
+                	    layout = vertical
+                		button {
+                    		    halpin = button.spindle-forward
+                    		    label { text = "forward" }
+                		}
+                		LED {
+                    		    halpin = led.spindle-runs-forward
+                    		    on-color = "#0F0"
+                    		    off-color = "#020"
+                		}
+			    }
+
+    			    label { text = "  "}
+
+            		    box {
+                		layout = vertical
+                		button {
+                		    halpin = button.spindle-reverse
+                    		    label { text = "reverse" }
+                		}
+                		LED {
+                    		    halpin = led.spindle-runs-backward
+                    		    on-color = "#0F0"
+                    		    off-color = "#020"
+                		}
+			    }            	    
+
+    			    label { text = "  "}
+
+			    button {
+                		halpin = button.spindle-increase
+                		label { text = "spd +" }
+            		    }
+
+    			    label { text = "  "}
+
+            		    button {
+                		halpin = button.spindle-decrease
+                		label { text = "spd -" }
+            		    }
+			} # spindle box
+			
+			box {
+                	    layout = horizontal
+			    
+			    box {
+                		layout = horizontal
+				title = "mist"
+				box {
+				    layout = "vertical"
+				    button {
+                			halpin = button.mist-on
+                			label { text = "On" }
+				    }
+				    button {
+                			halpin = button.mist-off
+                			label { text = "Off" }
+				    }
+				}
+                		LED {
+				    size = 10
+                    		    halpin = led.mist-is-on
+                    		    on-color = "#0F0"
+                    		    off-color = "#020"
+                		}
+			    }#mist box
+			    
+    			    label { text = "  "}
+
+			    box {
+                		layout = horizontal
+				title = "lube"
+				box {
+				    layout = "vertical"
+				    button {
+                			halpin = button.lube-on
+                			label { text = "On" }
+				    }
+				    button {
+                			halpin = button.lube-off
+                			label { text = "Off" }
+				    }
+				}
+                		LED {
+				    size = 10
+                    		    halpin = led.lube-is-on
+                    		    on-color = "#0F0"
+                    		    off-color = "#020"
+                		}
+			    }#lube box
+
+    			    label { text = "  "}
+
+			    box {
+                		layout = horizontal
+				title = "flood"
+				box {
+				    layout = "vertical"
+				    button {
+                			halpin = button.flood-on
+                			label { text = "On" }
+				    }
+				    button {
+                			halpin = button.flood-off
+                			label { text = "Off" }
+				    }
+				}
+                		LED {
+				    size = 10
+                    		    halpin = led.flood-is-on
+                    		    on-color = "#0F0"
+                    		    off-color = "#020"
+                		}
+			    }#flood box
+
+			}#misc io (mist, lube, flood)
+        	    }# io box
 		}
-		box {
-		    layout = horizontal
-		    button {
-			halpin = button.spindle-reverse
-			label { text = "reverse" }
-		    }
-		    LED {
-			halpin = led.spindle-runs-backward
-			on-color = "#0F0"
-			off-color = "#020"
-		    }
-		}
-		button {
-		    halpin = button.spindle-increase
-		    label { text = "increase" }
-		}
-		button {
-		    halpin = button.spindle-decrease
-		    label { text = "decrease" }
-		}
-		label { text = "Spindle" }
-	    }
-	}
+	    }        
+        box {
+            layout = horizontal
+            # box for axes
+            box {
+                layout = vertical
+                title = "joint 0"
+                button {
+                    halpin = button.joint.0.home
+                    label { text = "home" }
+                }
+                LED {
+                    halpin = led.joint.0.is-homed
+                    on-color = "#0F0"
+                    off-color = "#002"
+                }
+                box {
+                    layout = horizontal
+                    LED {
+                        size = 10
+                        halpin = led.joint.0.min-hard
+                        on-color = "#F00"
+                        off-color = "#0F0"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.0.min-soft
+                        on-color = "#FF0"
+                        off-color = "#0F0"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.0.has-fault
+                        on-color = "#F00"
+                        off-color = "#100"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.0.max-soft
+                        on-color = "#FF0"
+                        off-color = "#0F0"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.0.max-hard
+                        on-color = "#F00"
+                        off-color = "#0F0"
+                    }
+                }
+            }
+                    
+            box {
+                layout = vertical
+                title = "joint 1"
+                button {
+                    halpin = button.joint.1.home
+                    label { text = "home" }
+                }
+                LED {
+                    halpin = led.joint.1.is-homed
+                    on-color = "#0F0"
+                    off-color = "#002"
+                }
+                box {
+                    layout = horizontal
+                    LED {
+                        size = 10
+                        halpin = led.joint.1.min-hard
+                        on-color = "#F00"
+                        off-color = "#0F0"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.1.min-soft
+                        on-color = "#FF0"
+                        off-color = "#0F0"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.1.has-fault
+                        on-color = "#F00"
+                        off-color = "#100"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.1.max-soft
+                        on-color = "#FF0"
+                        off-color = "#0F0"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.1.max-hard
+                        on-color = "#F00"
+                        off-color = "#0F0"
+                    }
+                }
+            }
+            box {
+                layout = vertical
+                title = "joint 2"
+                button {
+                    halpin = button.joint.2.home
+                    label { text = "home" }
+                }
+                LED {
+                    halpin = led.joint.2.is-homed
+                    on-color = "#0F0"
+                    off-color = "#002"
+                }
+                box {
+                    layout = horizontal
+                    LED {
+                        size = 10
+                        halpin = led.joint.2.min-hard
+                        on-color = "#F00"
+                        off-color = "#0F0"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.2.min-soft
+                        on-color = "#FF0"
+                        off-color = "#0F0"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.2.has-fault
+                        on-color = "#F00"
+                        off-color = "#100"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.2.max-soft
+                        on-color = "#FF0"
+                        off-color = "#0F0"
+                    }
+                    LED {
+                        size = 10
+                        halpin = led.joint.2.max-hard
+                        on-color = "#F00"
+                        off-color = "#0F0"
+                    }
+                }
+            }
+        }
+    }
     } # main-window
 }
-   

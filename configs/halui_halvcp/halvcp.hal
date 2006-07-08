@@ -6,10 +6,22 @@ linkpp button.estop-activate    halui.estop.activate
 linkpp button.estop-reset       halui.estop.reset
 linkpp button.machine-off       halui.machine.off
 linkpp button.machine-on        halui.machine.on
+linkpp button.abort             halui.abort
 linkpp button.program-run       halui.program.run
 linkpp button.program-pause     halui.program.pause
 linkpp button.program-resume    halui.program.resume
 linkpp button.program-step      halui.program.step
+
+linkpp button.mist-on           halui.mist.on
+linkpp button.mist-off          halui.mist.off
+linkpp button.lube-on           halui.lube.on
+linkpp button.lube-off          halui.lube.off
+linkpp button.flood-on          halui.flood.on
+linkpp button.flood-off         halui.flood.off
+
+linkpp led.mist-is-on           halui.mist.is-on
+linkpp led.flood-is-on          halui.flood.is-on
+linkpp led.lube-is-on           halui.lube.is-on
 
 linkpp button.mode.manual       halui.mode.manual
 linkpp button.mode.auto         halui.mode.auto  
@@ -32,3 +44,28 @@ linkpp led.mode.is-mdi          halui.mode.is-mdi
 linkpp led.spindle-is-on        halui.spindle.is-on
 linkpp led.spindle-runs-forward halui.spindle.runs-forward
 linkpp led.spindle-runs-backward halui.spindle.runs-backward
+
+linkpp button.joint.0.home	halui.joint.0.home
+linkpp led.joint.0.is-homed	halui.joint.0.is-homed
+linkpp led.joint.0.min-hard	halui.joint.0.on-hard-min-limit
+linkpp led.joint.0.min-soft	halui.joint.0.on-soft-min-limit
+linkpp led.joint.0.max-soft	halui.joint.0.on-soft-max-limit
+linkpp led.joint.0.max-hard	halui.joint.0.on-hard-max-limit
+linkpp led.joint.0.has-fault	halui.joint.0.has-fault
+
+linkpp button.joint.1.home	halui.joint.1.home
+linkpp led.joint.1.is-homed	halui.joint.1.is-homed
+linkpp led.joint.1.min-hard	halui.joint.1.on-hard-min-limit
+linkpp led.joint.1.min-soft	halui.joint.1.on-soft-min-limit
+linkpp led.joint.1.max-soft	halui.joint.1.on-soft-max-limit
+linkpp led.joint.1.max-hard	halui.joint.1.on-hard-max-limit
+linkpp led.joint.1.has-fault	halui.joint.1.has-fault
+
+linkpp button.joint.2.home	halui.joint.2.home
+linkpp led.joint.2.is-homed	halui.joint.2.is-homed
+linkpp led.joint.2.min-hard	halui.joint.2.on-hard-min-limit
+linkpp led.joint.2.min-soft	halui.joint.2.on-soft-min-limit
+linkpp led.joint.2.max-soft	halui.joint.2.on-soft-max-limit
+linkpp led.joint.2.max-hard	halui.joint.2.on-hard-max-limit
+linkpp led.joint.2.has-fault	halui.joint.2.has-fault
+
