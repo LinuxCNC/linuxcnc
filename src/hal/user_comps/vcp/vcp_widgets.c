@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <ctype.h>
+#include <string.h>
 #include <hal.h>
 #include "vcp.h"
 #include "hal/utils/miscgtk.h"
@@ -189,7 +190,7 @@ typedef struct {
 } box_data_t;
 
 vcp_attrib_def_t box_attribs[] = {
-    { "layout", "V", ATTRIB_STRING, offsetof(box_data_t, layout) },
+    { "layout", "vert", ATTRIB_STRING, offsetof(box_data_t, layout) },
     { "expand", "0", ATTRIB_BOOL, offsetof(box_data_t, expand) },
     { "padding", "0", ATTRIB_INT, offsetof(box_data_t, padding) },
     { "uniform", "0", ATTRIB_BOOL, offsetof(box_data_t, uniform) },
@@ -216,18 +217,15 @@ static int init_box ( vcp_widget_t *wp )
  
     /* get pointer to private data */
     pd = (box_data_t *)(wp->priv_data);
-    /* we only look a the first character of the layout param */
-    pd->layout[0] = toupper(pd->layout[0]);
-    if (( pd->layout[0] != 'V' ) && ( pd->layout[0] != 'H' )) {
+    /* create the box */
+    if ( strncasecmp(pd->layout, "hor", 3) == 0 ) {
+	gwp = gtk_hbox_new(pd->uniform, pd->space);
+    } else if ( strncasecmp(pd->layout, "ver", 3) == 0 ) {
+	gwp = gtk_vbox_new(pd->uniform, pd->space);
+    } else {
 	printf ( "line %d:box layout must be either horizontal or vertical\n",
 	    wp->linenum );
 	return -1;
-    }
-    /* create the box */
-    if ( pd->layout[0] == 'H' ) {
-	gwp = gtk_hbox_new(pd->uniform, pd->space);
-    } else {
-	gwp = gtk_vbox_new(pd->uniform, pd->space);
     }
     wp->gtk_widget = gwp;
     wp->gtk_type = BOX;

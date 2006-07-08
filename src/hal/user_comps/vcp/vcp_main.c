@@ -151,9 +151,17 @@ int main(int argc, gchar * argv[])
 	return -1;
     }
     /* init all widgets inside (and including) main window */
+
+#ifdef DEBUG
+    printf ( "initing main window\n" );
+#endif
     if ( init_widget(main_win) != 0 ) {
 	return -1;
-    }    
+    }
+#ifdef DEBUG
+    printf ( "main window inited\n" );
+#endif
+
     /* register signal handlers for ctrl-C and SIGTERM */
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
@@ -174,6 +182,10 @@ int main(int argc, gchar * argv[])
 
 static int init_widget ( vcp_widget_t *wp )
 {
+
+#ifdef DEBUG
+    printf ( "initing widget '%s'\n", wp->type->name );
+#endif
     if ( wp->type->init_funct != NULL ) {
 	/* call the init function */
 	if ( wp->type->init_funct(wp) != 0 ) {
@@ -183,12 +195,18 @@ static int init_widget ( vcp_widget_t *wp )
 	    return -1;
 	}
     }
+#ifdef DEBUG
+    printf ( "initing children of '%s'\n", wp->type->name );
+#endif
     /* init children and siblings */
     if ( wp->child != NULL ) {
 	if ( init_widget(wp->child) != 0 ) {
 	    return -1;
 	}
     }
+#ifdef DEBUG
+    printf ( "initing siblings of '%s'\n", wp->type->name );
+#endif
     if ( wp->sibling != NULL ) {
 	if ( init_widget(wp->sibling) != 0 ) {
 	    return -1;
