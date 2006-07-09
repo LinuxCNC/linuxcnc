@@ -486,7 +486,7 @@ static int led_refresh (GtkWidget *widget, GdkEventExpose *event, vcp_widget_t *
     if ( border_dia > (width-2) ) {
 	border_dia = width-2;
     }
-    led_dia = border_dia-2;
+    led_dia = border_dia;
     if ( led_dia < 0 ) {
 	led_dia = 0;
     }
@@ -494,14 +494,17 @@ static int led_refresh (GtkWidget *widget, GdkEventExpose *event, vcp_widget_t *
     ystart = (height-border_dia)/2;
     /* clear the display */
     gdk_window_clear(dp->win);
-    gdk_gc_set_foreground(dp->context, &(dp->color_border));
-    gdk_draw_arc ( dp->win, dp->context, 0, xstart, ystart, border_dia, border_dia, 0, 64*360 );
+    /* draw the LED */
     if ( *(hp->pin) ) {
         gdk_gc_set_foreground(dp->context, &(dp->color_on));
     } else {
         gdk_gc_set_foreground(dp->context, &(dp->color_off));
     }
-    gdk_draw_arc ( dp->win, dp->context, 1, xstart+1, ystart+1, led_dia, led_dia, 0, 64*360 );
+    gdk_draw_arc ( dp->win, dp->context, 1, xstart, ystart, led_dia, led_dia, 0, 64*360 );
+    /* draw the LED border */
+    gdk_gc_set_foreground(dp->context, &(dp->color_border));
+    gdk_draw_arc ( dp->win, dp->context, 0, xstart, ystart, border_dia, border_dia, 0, 64*360 );
+
 
     return FALSE;
 }
