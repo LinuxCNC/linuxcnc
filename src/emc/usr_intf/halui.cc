@@ -910,6 +910,7 @@ int halui_hal_init(void)
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_brake_off), "halui.spindle.brake-off"); 
     if (retval != HAL_SUCCESS) return -1;
 
+    hal_ready(comp_id);
 
     //halui.abort
     retval = halui_export_pin_RD_bit(&(halui_data->abort), "halui.abort"); 

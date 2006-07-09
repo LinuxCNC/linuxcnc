@@ -222,6 +222,12 @@ extern int hal_exit(int comp_id);
 */
 extern void *hal_malloc(long int size);
 
+/** hal_ready() indicates that this component is ready.  This allows
+    halcmd 'loadusr -W hal_example' to wait until the userspace
+    component 'hal_example' is ready before continuing.
+*/
+extern int hal_ready(int comp_id);
+
 /** The HAL maintains lists of variables, functions, and so on in
     a central database, located in shared memory so all components
     can access it.  To prevent contention, functions that may

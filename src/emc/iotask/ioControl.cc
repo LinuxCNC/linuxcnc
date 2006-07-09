@@ -720,6 +720,8 @@ int iocontrol_hal_init(void)
 	return -1;
     }
 
+    hal_ready(comp_id);
+
     return 0;
 }
 

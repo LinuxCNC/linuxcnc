@@ -279,9 +279,11 @@ int hal_init(char *name)
     comp->mem_id = mem_id;
 #ifdef RTAPI
     comp->type = 1;
+    comp->ready = 1;
     comp->pid = 0;
 #else /* ULAPI */
     comp->type = 0;
+    comp->ready = 0;
     comp->pid = getpid();
 #endif
     comp->shmem_base = hal_shmem_base;
@@ -396,6 +398,46 @@ void *hal_malloc(long int size)
 	    "HAL: hal_malloc() can't allocate %ld bytes\n", size);
     }
     return retval;
+}
+
+int hal_ready(int comp_id) {
+    int next;
+    hal_comp_t *comp;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+
+    /* search component list for 'comp_id' */
+    next = hal_data->comp_list_ptr;
+    if (next == 0) {
+	/* list is empty - should never happen, but... */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: component %d not found\n", comp_id);
+	return HAL_INVAL;
+    }
+
+    comp = SHMPTR(next);
+    while (comp->comp_id != comp_id) {
+	/* not a match, try the next one */
+	next = comp->next_ptr;
+	if (next == 0) {
+	    /* reached end of list without finding component */
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: component %d not found\n", comp_id);
+	    return HAL_INVAL;
+	}
+	comp = SHMPTR(next);
+    }
+    if(comp->ready > 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL: ERROR: Component '%s' already ready\n", comp->name);
+        rtapi_mutex_give(&(hal_data->mutex));
+        return HAL_INVAL;
+    }
+    comp->ready = 1;
+    rtapi_mutex_give(&(hal_data->mutex));
+    return HAL_SUCCESS;
 }
 
 /***********************************************************************

@@ -174,6 +174,7 @@ typedef struct {
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
     int type;			/* 1 if realtime, 0 if not */
+    int ready;                  /* nonzero if ready, 0 if not */
     int pid;			/* PID of component (user components only) */
     void *shmem_base;		/* base of shmem for this component */
     char name[HAL_NAME_LEN + 1];	/* component name */
@@ -291,7 +292,7 @@ typedef struct {
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000002	/* version code */
+#define HAL_VER   0x00000003	/* version code */
 #define HAL_SIZE  131000
 
 /* These pointers are set by hal_init() to point to the shmem block

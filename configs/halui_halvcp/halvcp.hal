@@ -1,6 +1,4 @@
-loadusr halvcp halui.vcp
-
-loadusr -w sleep 1
+loadusr -W halvcp halui.vcp
 
 linkpp button.estop-activate    halui.estop.activate
 linkpp button.estop-reset       halui.estop.reset

@@ -107,7 +107,6 @@ EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
 # common from here..
 INIVAR=$EMC2_BIN_DIR/inivar
 HALCMD=$EMC2_BIN_DIR/halcmd
-WAITPIN=$EMC2_BIN_DIR/wait-for-pin
 PICKCONFIG=$EMC2_TCL_DIR/bin/pickconfig.tcl
 EMC2_EMCSH=$EMC2_BIN_DIR/emcsh
 EMC2_IOSH=$EMC2_BIN_DIR/iosh
@@ -284,6 +283,8 @@ function Cleanup() {
     done
     sleep 1
 
+    $HALCMD unloadusr all
+
     # now kill all the other user space components of emc
     for KILL_TASK in emcsvr bridgeporttask milltask minimilltask bridgeportio minimillio simio io classicladder; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
@@ -443,9 +444,7 @@ if [ ! -x $EMC2_BIN_DIR/$EMCIO ] ; then
     Cleanup
     exit 1
 fi
-$EMC2_BIN_DIR/$EMCIO -ini $INIFILE &
-
-$WAITPIN iocontrol.0.emc-enable-in
+$HALCMD loadusr -Wn iocontrol $EMC2_BIN_DIR/$EMCIO -ini $INIFILE
 
 # 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
@@ -455,9 +454,7 @@ if [ -n "$HALUI" ] ; then
 	Cleanup
 	exit 1
     fi
-    $EMC2_BIN_DIR/$HALUI -ini $INIFILE &
-
-    $WAITPIN halui.program.step
+    $HALCMD loadusr -Wn halui $EMC2_BIN_DIR/$HALUI -ini $INIFILE
 fi
 
 # 4.3.6. execute HALCMD config files (if any)

@@ -59,6 +59,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <errno.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
@@ -104,6 +105,7 @@ static int do_status_cmd(char *type);
 static int do_delsig_cmd(char *mod_name);
 static int do_loadrt_cmd(char *mod_name, char *args[]);
 static int do_unloadrt_cmd(char *mod_name);
+static int do_unloadusr_cmd(char *mod_name);
 static int do_loadusr_cmd(char *args[]);
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char *pattern);
@@ -424,6 +426,7 @@ int main(int argc, char **argv)
     hal_flag = 1;
     /* connect to the HAL */
     comp_id = hal_init(comp_name);
+    hal_ready(comp_id);
     /* done with mutex */
     hal_flag = 0;
     /* check result */
@@ -768,6 +771,8 @@ static int parse_cmd(char *tokens[])
 	retval = do_unloadrt_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "loadusr") == 0) {
 	retval = do_loadusr_cmd(&tokens[1]);
+    } else if (strcmp(tokens[0], "unloadusr") == 0) {
+	retval = do_unloadusr_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "save") == 0) {
 	retval = do_save_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "addf") == 0) {
@@ -1597,6 +1602,36 @@ static int do_delsig_cmd(char *mod_name)
     return retval1;
 }
 
+static int do_unloadusr_cmd(char *mod_name)
+{
+    int next, all;
+    hal_comp_t *comp;
+    pid_t ourpid = getpid();
+
+    /* check for "all" */
+    if ( strcmp(mod_name, "all" ) == 0 ) {
+	all = 1;
+    } else {
+	all = 0;
+    }
+    /* build a list of component(s) to unload */
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->comp_list_ptr;
+    while (next != 0) {
+	comp = SHMPTR(next);
+	if ( comp->type == 0 && comp->pid != ourpid) {
+	    /* found a userspace component besides us */
+	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
+		/* we want to unload this component, send it SIGTERM */
+                kill(abs(comp->pid), SIGTERM);
+	    }
+	}
+	next = comp->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+}
+
+
 static int do_unloadrt_cmd(char *mod_name)
 {
     int next, retval, retval1, n, all;
@@ -1728,8 +1763,8 @@ static int unloadrt_comp(char *mod_name)
 
 static int do_loadusr_cmd(char *args[])
 {
-    int wait_flag, ignore_flag;
-    char *prog_name;
+    int wait_flag, wait_comp_flag, name_flag, ignore_flag;
+    char *prog_name, *new_comp_name;
     char prog_path[MAX_CMD_LEN+1];
     char *cp1, *cp2, *envpath;
     struct stat stat_buf;
@@ -1744,6 +1779,8 @@ static int do_loadusr_cmd(char *args[])
     }
     /* check for options (-w, -i, and/or -r) */
     wait_flag = 0;
+    wait_comp_flag = 0;
+    name_flag = 0;
     ignore_flag = 0;
     prog_name = NULL;
     while ( **args == '-' ) {
@@ -1753,8 +1790,12 @@ static int do_loadusr_cmd(char *args[])
 	while ( *cp1 != '\0' ) {
 	    if ( *cp1 == 'w' ) {
 		wait_flag = 1;
+            } else if ( *cp1 == 'W' ) {
+                wait_comp_flag = 1;
 	    } else if ( *cp1 == 'i' ) {
 		ignore_flag = 1;
+	    } else if ( *cp1 == 'n' ) {
+		name_flag = 1;
 	    } else {
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL:%d: ERROR: unknown loadusr option '-%c'\n", linenumber, *cp1);
@@ -1765,8 +1806,13 @@ static int do_loadusr_cmd(char *args[])
 	/* move to next arg */
 	args++;
     }
-    /* get program name */
+    /* get program and component name */
+    if(name_flag) {
+        new_comp_name = *args++;
     prog_name = *args++;
+    } else {
+        new_comp_name = prog_name = *args++;
+    }
     /* need to find path to a program matching "prog_name" */
     prog_path[0] = '\0';
     if ( prog_path[0] == '\0' ) {
@@ -1847,6 +1893,7 @@ static int do_loadusr_cmd(char *args[])
 	    "HAL:%d: ERROR: Can't find program '%s'\n", linenumber, prog_name);
 	return -1;
     }
+
     /* now we need to fork, and then exec the program.... */
     /* disconnect from the HAL shmem area before forking */
     hal_exit(comp_id);
@@ -1866,7 +1913,7 @@ static int do_loadusr_cmd(char *args[])
     }
     if ( pid == 0 ) {
 	/* this is the child process - prepare to exec() the program */
-	argv[0] = prog_path;
+	argv[0] = prog_name;
 	/* loop thru remaining arguments */
 	n = 0;
 	m = 1;
@@ -1886,7 +1933,8 @@ static int do_loadusr_cmd(char *args[])
 	execv(prog_path, argv);
 	/* should never get here */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: execv(%s) failed\n", linenumber, prog_path );
+	    "HAL:%d: ERROR: execv(%s) failed: %s\n", linenumber, prog_name,
+            strerror(errno));
 	exit(1);
     }
     /* this is the parent process, reconnect to the HAL shmem area */
@@ -1895,10 +1943,45 @@ static int do_loadusr_cmd(char *args[])
 	fprintf(stderr, "halcmd: hal_init() failed after loadusr\n" );
 	exit(-1);
     }
+    if ( wait_comp_flag ) {
+        int ready = 0, count=0;
+        int next;
+        while(!ready) {
+            struct timespec ts = {0, 10 * 1000 * 1000}; // 10ms
+            nanosleep(&ts, NULL);
+            retval = waitpid( pid, &status, WNOHANG );
+            if(retval != 0) goto wait_common;
+
+            rtapi_mutex_get(&(hal_data->mutex));
+            next = hal_data->comp_list_ptr;
+            while(next) {
+                hal_comp_t *comp = SHMPTR(next);
+                next = comp->next_ptr;
+                if(strcmp(comp->name, new_comp_name) == 0 && comp->ready) {
+                    ready = 1;
+                    break;
+                }
+            }
+            rtapi_mutex_give(&(hal_data->mutex));
+
+            count++;
+            if(count == 100) {
+                fprintf(stderr, "Waiting for component '%s' to become ready.",
+                        new_comp_name);
+                fflush(stderr);
+            } else if(count > 100 && count % 10 == 0) {
+                fprintf(stderr, ".");
+                fflush(stderr);
+            }
+        }
+        if(count >= 100) printf(stderr, "\n");
+	rtapi_print_msg(RTAPI_MSG_INFO, "Component '%s' ready\n", new_comp_name);
+    }
     if ( wait_flag ) {
 	/* wait for child process to complete */
 	retval = waitpid ( pid, &status, 0 );
 	/* check result of waitpid() */
+wait_common:
 	if ( retval < 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL:%d: ERROR: waitpid(%d) failed\n", linenumber, pid);
@@ -1933,7 +2016,7 @@ static void print_comp_info(char *pattern)
 
     if (scriptmode == 0) {
 	rtapi_print("Loaded HAL Components:\n");
-	rtapi_print("ID  Type  Name\n");
+	rtapi_print("ID  Type  %-*s   PID  Ready?\n", HAL_NAME_LEN, "Name");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     len = strlen(pattern);
@@ -1941,9 +2024,15 @@ static void print_comp_info(char *pattern)
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( strncmp(pattern, comp->name, len) == 0 ) {
-	    rtapi_print("%02d  %s  %s\n",
-		comp->comp_id, (comp->type ? "RT  " : "User"), comp->name);
+	    rtapi_print("%02d  %s  %-*s",
+		comp->comp_id, (comp->type ? "RT  " : "User"),
+                HAL_NAME_LEN, comp->name);
 	}
+        if(comp->type == 0) {
+                rtapi_print(" %d %s", comp->pid, comp->ready > 0 ?
+                        "ready" : "initializing");
+	}
+        rtapi_print("\n");
 	next = comp->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
@@ -3164,7 +3253,29 @@ static char *param_generator(const char *text, int state) {
     return NULL;
 }
 
-static char *comp_generator(const char *text, int state) {
+static char *usrcomp_generator(const char *text, int state) {
+    static int len;
+    static int next;
+    if(!state) {
+        next = hal_data->comp_list_ptr;
+        len = strlen(text);
+        return strdup("all");
+    }
+
+    while(next) {
+        hal_comp_t *comp = SHMPTR(next);
+        next = comp->next_ptr;
+        if(comp->type) continue;
+	if(strncmp(text, comp->name, len) == 0)
+            return strdup(comp->name);
+    }
+    rl_attempted_completion_over = 1;
+    return NULL;
+}
+
+
+
+static char *rtcomp_generator(const char *text, int state) {
     static int len;
     static int next;
     if(!state) {
@@ -3212,7 +3323,7 @@ static int startswith(const char *string, const char *stem) {
     return strncmp(string, stem, strlen(stem)) == 0;
 }
 
-char *loadusr_table[] = {"-w", "-iw", NULL};
+char *loadusr_table[] = {"-W", "-Wn", "-w", "-iw", NULL};
 
 static char *loadusr_generator(const char *text, int state) {
     static int len;
@@ -3364,8 +3475,10 @@ char **completer(const char *text, int start, int end) {
         result = rl_completion_matches(text, thread_generator);
     } else if(startswith(rl_line_buffer, "help ") && argno == 1) {
         result = completion_matches_table(text, command_table);
+    } else if(startswith(rl_line_buffer, "unloadusr ") && argno == 1) {
+        result = rl_completion_matches(text, usrcomp_generator);
     } else if(startswith(rl_line_buffer, "unloadrt ") && argno == 1) {
-        result = rl_completion_matches(text, comp_generator);
+        result = rl_completion_matches(text, rtcomp_generator);
     } else if(startswith(rl_line_buffer, "loadusr ") && argno < 3) {
         rtapi_mutex_give(&(hal_data->mutex));
         // leaves rl_attempted_completion_over = 0 to complete from filesystem

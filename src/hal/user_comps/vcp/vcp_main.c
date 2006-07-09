@@ -157,7 +157,10 @@ int main(int argc, gchar * argv[])
 #endif
     if ( init_widget(main_win) != 0 ) {
 	return -1;
-    }
+    }    
+
+    hal_ready(comp_id);
+
 #ifdef DEBUG
     printf ( "main window inited\n" );
 #endif
