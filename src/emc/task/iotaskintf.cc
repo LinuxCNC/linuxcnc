@@ -26,7 +26,6 @@
 #include "emc.hh"		// EMC NML
 #include "emcglb.h"		// EMC_INIFILE
 
-#include "inispin.hh"
 #include "initool.hh"
 
 /*! \todo FIXME - defining LASER to test motion/IO synch
@@ -239,11 +238,6 @@ int emcIoInit()
 	return -1;
     }
 
-    if (0 != iniSpindle(EMC_INIFILE)) {
-	rcs_print_error("iniSpindle failed.\n");
-	return -1;
-    }
-
     if (0 != iniTool(EMC_INIFILE)) {
 	return -1;
     }
@@ -327,26 +321,14 @@ int emcSpindleAbort()
 
 int emcSpindleOn(double speed)
 {
-//    double dacout = 0;
+
+    EMC_SPINDLE_ON spindleOnMsg;
 
     spindleSpeed = speed;
-    // do digital IO stuff to enable spindle
-    spindleSpeed = speed;
-    EMC_SPINDLE_ON spindleOnMsg;
+
     spindleOnMsg.speed = speed;
     sendCommand(&spindleOnMsg);
-/*! \todo FIXME - this needs to be changed to use the HAL */
-/* probably want a spindleSpdMsg */
-/*! \todo Another #if 0 */
-#if 0
-/* Convert speed to an analogue voltage */
-    dacout = (speed > 0.0 ? (fabs(speed) * MAX_VOLTS_PER_RPM) :
-	      speed < 0.0 ? (fabs(speed) * MIN_VOLTS_PER_RPM) : 0);
-/* Use an existing function to set the DAC output */
-    emcAxisSetOutput(SPINDLE_ON_INDEX, dacout);
-/* and enable the DAC */
-    emcAxisEnable(SPINDLE_ON_INDEX);
-#endif
+
     return 0;
 }
 
@@ -356,13 +338,6 @@ int emcSpindleOff()
 
     sendCommand(&spindleOffMsg);
 
-/*! \todo Another #if 0 */
-#if 0
-/* Disable the DAC and set the output to zero
-   (just in case it is enabled else where !) */
-    emcAxisDisable(SPINDLE_ON_INDEX);
-    emcAxisSetOutput(SPINDLE_ON_INDEX, 0);
-#endif
     return 0;
 }
 

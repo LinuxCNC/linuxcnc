@@ -161,9 +161,6 @@ HEADERS := \
     config.h \
     emc/ini/iniaux.hh \
     emc/ini/iniaxis.hh \
-    emc/ini/inicool.hh \
-    emc/ini/inilube.hh \
-    emc/ini/inispin.hh \
     emc/ini/initool.hh \
     emc/ini/initraj.hh \
     emc/kinematics/cubic.h \
