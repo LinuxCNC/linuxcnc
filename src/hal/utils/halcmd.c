@@ -1629,6 +1629,7 @@ static int do_unloadusr_cmd(char *mod_name)
 	next = comp->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
+    return 0;
 }
 
 
@@ -1974,7 +1975,9 @@ static int do_loadusr_cmd(char *args[])
                 fflush(stderr);
             }
         }
-        if(count >= 100) printf(stderr, "\n");
+        if (count >= 100) {
+	    fprintf(stderr, "\n");
+	}
 	rtapi_print_msg(RTAPI_MSG_INFO, "Component '%s' ready\n", new_comp_name);
     }
     if ( wait_flag ) {
