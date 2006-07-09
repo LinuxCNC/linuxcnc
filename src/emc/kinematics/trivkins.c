@@ -18,6 +18,7 @@
 
 #include "motion.h"		/* these decls */
 
+
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
@@ -64,3 +65,23 @@ KINEMATICS_TYPE kinematicsType()
 {
     return KINEMATICS_IDENTITY;
 }
+
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "hal.h"
+
+EXPORT_SYMBOL(kinematicsType);
+EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsInverse);
+
+MODULE_LICENSE("GPL");
+
+
+int comp_id;
+int rtapi_app_main(void) {
+    comp_id = hal_init("trivkins");
+    if(comp_id > 0) return 0;
+    return comp_id;
+}
+
+void rtapi_app_exit(void) { hal_exit(comp_id); }

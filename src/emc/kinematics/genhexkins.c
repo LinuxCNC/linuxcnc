@@ -52,7 +52,7 @@
   out of the multiple possible solutions.
   -----------------------------------------------------------------------------*/
 
-#include <math.h>
+#include "rtapi_math.h"
 #include "posemath.h"
 #include "genhexkins.h"
 #include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
@@ -888,3 +888,24 @@ int main(int argc, char *argv[])
 
 #endif /* MAIN */
 
+#ifdef RTAPI
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "hal.h"
+
+EXPORT_SYMBOL(kinematicsType);
+EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsInverse);
+
+MODULE_LICENSE("GPL");
+
+
+int comp_id;
+int rtapi_app_main(void) {
+    comp_id = hal_init("genhexkins");
+    if(comp_id > 0) return 0;
+    return comp_id;
+}
+
+void rtapi_app_exit(void) { hal_exit(comp_id); }
+#endif

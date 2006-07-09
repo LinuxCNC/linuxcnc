@@ -75,23 +75,16 @@
 #endif
 #endif
 
-/* define the position of B and C here */
-static double Bx = 1.0;
-static double Cx = 1.0;
-static double Cy = 1.0;
+#ifdef RTAPI
+#include "hal.h"
+struct {
+    hal_float_t bx, cx, cy;
+} *haldata = 0;
 
-/*
-  kinematicsSetParameters takes an array of doubles, whose meaning is
-  agreed upon between the caller and these kinematics. For these
-  kinematics, p[0] = Bx, p[1] = Cx, and p[2] = Cy. */
-int kinematicsSetParameters(const double *p)
-{
-  Bx = p[0];
-  Cx = p[1];
-  Cy = p[2];
-
-  return 0;
-}
+#define Bx (haldata->bx)
+#define Cx (haldata->cx)
+#define Cy (haldata->cy)
+#endif
 
 #define sq(x) ((x)*(x))
 
@@ -514,3 +507,39 @@ int main(int argc, char *argv[])
 }
 
 #endif /* MAIN */
+
+#ifdef RTAPI
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "hal.h"
+
+EXPORT_SYMBOL(kinematicsType);
+EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsInverse);
+
+MODULE_LICENSE("GPL");
+
+
+int comp_id;
+int rtapi_app_main(void) {
+    int res = 0;
+
+    comp_id = hal_init("tripodkins");
+    if(comp_id < 0) return comp_id;
+
+    haldata = hal_malloc(sizeof(*haldata));
+    if(!haldata) goto error;
+    Bx = Cx = Cy = 1.0;
+
+    if((res = hal_param_float_new("tripodkins.Bx", HAL_WR, &haldata->bx, comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_param_float_new("tripodkins.Cx", HAL_WR, &haldata->cx, comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_param_float_new("tripodkins.Cy", HAL_WR, &haldata->cy, comp_id)) != HAL_SUCCESS) goto error;
+    return 0;
+
+error:
+    hal_exit(comp_id);
+    return res;
+}
+
+void rtapi_app_exit(void) { hal_exit(comp_id); }
+#endif

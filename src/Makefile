@@ -501,12 +501,20 @@ scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 obj-m += hal_lib.o
 hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 
+obj-m += trivkins.o
+trivkins-objs := emc/kinematics/trivkins.o
+
+obj-m += tripodkins.o
+tripodkins-objs := emc/kinematics/tripodkins.o
+
+obj-m += genhexkins.o
+genhexkins-objs := emc/kinematics/genhexkins.o
+
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o 
 motmod-objs += emc/kinematics/mmxavg.o 
 motmod-objs += emc/kinematics/tc.o 
 motmod-objs += emc/kinematics/tp.o 
-motmod-objs += emc/kinematics/$(KINEMATICS).o
 motmod-objs += emc/motion/motion.o 
 motmod-objs += emc/motion/command.o 
 motmod-objs += emc/motion/control.o 

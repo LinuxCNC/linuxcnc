@@ -3,17 +3,6 @@
 # on @DATE@
 #
 
-# User definable build-options
-# use the next few lines to define the kind of kinematics you want linked
-# into the motion module
-#trivial kinematics (J[0]=X, J[1]=Y, J[2]=Z, J[3]=A, J[4]=B, J[5]=C)
-KINEMATICS=trivkins
-#kinematics for various Stewart platforms, check the source file for information
-#KINEMATICS=genhexkins
-#kins for a tripod (3-axes hexapod)
-#KINEMATICS=tripodkins
-
-
 
 # Directories
 #############
