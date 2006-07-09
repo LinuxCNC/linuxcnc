@@ -1,6 +1,6 @@
 /********************************************************************
-* Description: trivkins.c
-*   Trivial kinematics for 3 axis Cartesian machine
+* Description: genhexkins.c
+*   Kinematics for a generalised hexapod machine
 *
 *   Derived from a work by R. Brian Register
 *

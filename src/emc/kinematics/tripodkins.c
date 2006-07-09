@@ -1,5 +1,5 @@
 /********************************************************************
-* Description: trivkins.c
+* Description: tripodkins.c
 *   Kinematics for 3 axis Tripod machine
 *
 *   Derived from a work by Fred Proctor
