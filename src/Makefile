@@ -159,7 +159,6 @@ default: \
 # in ../include is used when building external components of emc2.
 HEADERS := \
     config.h \
-    emc/ini/iniaux.hh \
     emc/ini/iniaxis.hh \
     emc/ini/initool.hh \
     emc/ini/initraj.hh \

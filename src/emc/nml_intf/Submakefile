@@ -5,7 +5,6 @@ LIBEMCSRCS := \
     emc/nml_intf/emc.cc \
     emc/nml_intf/emcargs.cc \
     emc/nml_intf/emcops.cc \
-    emc/ini/iniaux.cc \
     emc/ini/iniaxis.cc \
     emc/ini/initool.cc \
     emc/ini/initraj.cc \
