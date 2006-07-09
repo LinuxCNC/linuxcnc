@@ -578,6 +578,9 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/scope_rt.o: $(addprefix objects/rt,$(scope_rt-objs))
 ../rtlib/hal_lib.o: $(addprefix objects/rt,$(hal_lib-objs))
 ../rtlib/motmod.o: $(addprefix objects/rt,$(motmod-objs))
+../rtlib/trivkins.o: $(addprefix objects/rt,$(trivkins-objs))
+../rtlib/tripodkins.o: $(addprefix objects/rt,$(tripodkins-objs))
+../rtlib/genhexkins.o: $(addprefix objects/rt,$(genhexkins-objs))
 
 ifneq ($(MAKECMDGOALS),clean)
 RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))
