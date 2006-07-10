@@ -107,22 +107,22 @@ addf vti.do-write servo-thread -1
 #newsig SpindleFwd bit
 #newsig SpindleRev bit
 #linksp SpindleFwd <= vti.out-06
-#linksp SpindleFwd => iocontrol.0.spindle-forward
+#linksp SpindleFwd => motion.spindle-forward
 #linksp SpindleRev <= vti.out-05
-#linksp SpindleRev => iocontrol.0.spindle-reverse
+#linksp SpindleRev => motion.spindle-reverse
 
 # connect spindle speed up/down to I/O controller
 #newsig SpindleUp bit
 #newsig SpindleDown bit
 #linksp SpindleUp <= vti.out-08
-#linksp SpindleUp => iocontrol.0.spindle-incr-speed
+#linksp SpindleUp => motion.spindle-incr-speed
 #linksp SpindleDown <= vti.out-09
-#linksp SpindleDown => iocontrol.0.spindle-decr-speed
+#linksp SpindleDown => motion.spindle-decr-speed
 
 # connect spindle brake to I/O controller
 #newsig SpindleBrakeOn bit
 #linksp SpindleBrakeOn <= vti.out-10
-#linksp SpindleBrakeOn => iocontrol.0.spindle-brake
+#linksp SpindleBrakeOn => motion.spindle-brake
 
 # connect mist/flood coolant to I/O controller
 #newsig MistOn bit

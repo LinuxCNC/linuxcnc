@@ -28,7 +28,7 @@ newsig spindle_on bit
 
 # commented out till we resolve this issue
 # connect it to the iocontroller
-linksp spindle_on iocontrol.0.spindle-on
+linksp spindle_on motion.spindle-on
 # connect it to a physical pin
 linksp spindle_on speaker.0.pin-01-out
 

@@ -387,8 +387,8 @@ linksp sp-in-low-gear ax5214h.0.in-36
 # rayh begins to screw it up with help from his friends
 # connect iocontrol signals for spindle run and speed
 # these work as long as a spindle command is being output.
-linksp spindle-run iocontrol.0.spindle-on
-linksp spindle-rpm-cmd iocontrol.0.spindle-speed-out
+linksp spindle-run motion.spindle-on
+linksp spindle-rpm-cmd motion.spindle-speed-out
 
 # end of spindle control
 

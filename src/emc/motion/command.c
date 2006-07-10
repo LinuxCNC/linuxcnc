@@ -1186,6 +1186,59 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
+	case EMCMOT_SET_SPINDLE_VEL:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_SPINDLE_VEL");
+	    emcmotStatus->spindle.speed = emcmotCommand->vel;
+	    break;
+	    
+	case EMCMOT_SPINDLE_ON:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON");
+	    emcmotStatus->spindle.speed = emcmotCommand->vel;
+	    if (emcmotCommand->vel >= 0) {
+		emcmotStatus->spindle.direction = 1;
+	    } else {
+		emcmotStatus->spindle.direction = -1;
+	    }
+	    emcmotStatus->spindle.brake = 0; //disengage brake
+	    break;
+
+	case EMCMOT_SPINDLE_OFF:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_OFF");
+	    emcmotStatus->spindle.speed = 0;
+	    emcmotStatus->spindle.direction = 0;
+	    emcmotStatus->spindle.brake = 1; // engage brake
+	    break;
+
+	case EMCMOT_SPINDLE_INCREASE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_INCREASE");
+	    if (emcmotStatus->spindle.speed > 0) {
+		emcmotStatus->spindle.speed += 1; //FIXME - make the step a HAL parameter
+	    } else if (emcmotStatus->spindle.speed < 0) {
+		emcmotStatus->spindle.speed -= 1;
+	    }
+	    break;
+
+	case EMCMOT_SPINDLE_DECREASE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_DECREASE");
+	    if (emcmotStatus->spindle.speed > 0) {
+		emcmotStatus->spindle.speed -= 1; //FIXME - make the step a HAL parameter
+	    } else if (emcmotStatus->spindle.speed < 0) {
+		emcmotStatus->spindle.speed += 1;
+	    }
+	    break;
+
+	case EMCMOT_SPINDLE_BRAKE_ENGAGE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_BRAKE_ENGAGE");
+	    emcmotStatus->spindle.speed = 0;
+	    emcmotStatus->spindle.direction = 0;
+	    emcmotStatus->spindle.brake = 1;
+	    break;
+
+	case EMCMOT_SPINDLE_BRAKE_RELEASE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_BRAKE_RELEASE");
+	    emcmotStatus->spindle.brake = 0;
+	    break;
+
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
 	    reportError("unrecognized command %d", emcmotCommand->command);

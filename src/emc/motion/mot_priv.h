@@ -98,6 +98,29 @@ typedef struct {
     hal_float_t debug_float_1;	/* RPA: generic param, for debugging */
     
     hal_bit_t *synch_do[EMCMOT_MAX_DIO]; /* WPI array: output pins for motion synched IO */
+
+
+    // creating a lot of pins for spindle control to be very flexible
+    // the user needs only a subset of these
+
+    // simplest way of spindle control (output start/stop)
+    hal_bit_t *spindle_on;	/* spindle spin output */
+
+    // same thing for 2 directions
+    hal_bit_t *spindle_forward;	/* spindle spin-forward output */
+    hal_bit_t *spindle_reverse;	/* spindle spin-reverse output */
+
+    // simple velocity control (as long as the output is active the spindle
+    //                          should accelerate/decelerate
+    hal_bit_t *spindle_incr_speed;	/* spindle spin-increase output */
+    hal_bit_t *spindle_decr_speed;	/* spindle spin-decrease output */
+
+    // simple output for brake
+    hal_bit_t *spindle_brake;	/* spindle brake output */
+
+    // output of a prescribed speed (to hook-up to a velocity controller)
+    hal_float_t *spindle_speed_out;	/* spindle speed output */
+    hal_float_t *spindle_speed_in;	/* spindle speed measured */
     
     // FIXME - debug only, remove later
     hal_float_t traj_pos_out;	/* RPA: traj internals, for debugging */

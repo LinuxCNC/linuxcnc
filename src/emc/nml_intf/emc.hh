@@ -643,6 +643,7 @@ extern int emcIoSetCycleTime(double cycleTime);
 extern int emcIoSetDebug(int debug);
 
 class EMC_IO_STAT;		// forward decl
+class EMC_STAT;			// forward decl
 extern int emcIoUpdate(EMC_IO_STAT * stat);
 
 // implementation functions for EMC aggregate types
@@ -651,7 +652,6 @@ extern int emcInit();
 extern int emcHalt();
 extern int emcAbort();
 
-class EMC_STAT;			// forward decl
 extern int emcUpdate(EMC_STAT * stat);
 
 // ------------------
@@ -1865,6 +1865,32 @@ class EMC_MOTION_STAT_MSG:public RCS_STAT_MSG {
     unsigned long int heartbeat;
 };
 
+
+// EMC_SPINDLE status base class
+class EMC_SPINDLE_STAT_MSG:public RCS_STAT_MSG {
+  public:
+    EMC_SPINDLE_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+};
+
+class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
+  public:
+    EMC_SPINDLE_STAT();
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    double speed;		// spindle speed in RPMs
+    int direction;		// 0 stopped, 1 forward, -1 reverse
+    int brake;			// 0 released, 1 engaged
+    int increasing;		// 1 increasing, -1 decreasing, 0 neither
+    int enabled;		// non-zero means enabled
+};
+
+
 // number of axes in EMC_MOTION_STAT class
 #define EMC_AXIS_MAX 8
 
@@ -1880,8 +1906,10 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     // aggregate of motion-related status classes
     EMC_TRAJ_STAT traj;
     EMC_AXIS_STAT axis[EMC_AXIS_MAX];
+    EMC_SPINDLE_STAT spindle;
 
     int debug;			// copy of EMC_DEBUG global
+    
 };
 
 // declarations for EMC_TASK classes
@@ -2541,29 +2569,6 @@ class EMC_SPINDLE_DISABLE:public EMC_SPINDLE_CMD_MSG {
     void update(CMS * cms);
 };
 
-// EMC_SPINDLE status base class
-class EMC_SPINDLE_STAT_MSG:public RCS_STAT_MSG {
-  public:
-    EMC_SPINDLE_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
-  public:
-    EMC_SPINDLE_STAT();
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    double speed;		// spindle speed in RPMs
-    int direction;		// 0 stopped, 1 forward, -1 reverse
-    int brake;			// 0 released, 1 engaged
-    int increasing;		// 1 increasing, -1 decreasing, 0 neither
-    int enabled;		// non-zero means enabled
-};
 
 // EMC_COOLANT type declarations
 
@@ -2873,7 +2878,6 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
 
     // aggregate of IO-related status classes
     EMC_TOOL_STAT tool;
-    EMC_SPINDLE_STAT spindle;
     EMC_COOLANT_STAT coolant;
     EMC_AUX_STAT aux;
     EMC_LUBE_STAT lube;

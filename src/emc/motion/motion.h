@@ -152,6 +152,14 @@ extern "C" {
 	EMCMOT_SET_DOUT,        /* sets or unsets a DIO, this can be imediate or synched with motion */
 	EMCMOT_SET_AOUT,	/* sets or unsets a AIO, this can be imediate or synched with motion */
         EMCMOT_SET_SPINDLESYNC, /* syncronize motion to spindle encoder */
+	
+	EMCMOT_SET_SPINDLE_VEL,	/* set the spindle vel (>0 means forward, <0 means backward) */
+	EMCMOT_SPINDLE_ON,	/* start the spindle */
+	EMCMOT_SPINDLE_OFF,	/* stop the spindle */
+	EMCMOT_SPINDLE_INCREASE,	/* spindle faster */
+	EMCMOT_SPINDLE_DECREASE,	/* spindle slower */
+	EMCMOT_SPINDLE_BRAKE_ENGAGE,	/* engage the spindle brake */
+	EMCMOT_SPINDLE_BRAKE_RELEASE,	/* release the spindle brake */
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -497,6 +505,14 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double home_offset;	/* dir/dist from switch to home point */
     } emcmot_joint_status_t;
 
+
+    typedef struct {
+	double speed;		// spindle speed in RPMs
+	int direction;		// 0 stopped, 1 forward, -1 reverse
+	int brake;		// 0 released, 1 engaged
+    } spindle_status;
+    
+
 /*********************************
         STATUS STRUCTURE
 *********************************/
@@ -538,6 +554,17 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	int probeVal;		/* debounced value of probe input */
 
+	int probeTripped;	/* Has the probe signal changed since start
+				   of probe command? */
+	int probing;		/* Currently looking for a probe signal? */
+	EmcPose probedPos;	/* Axis positions stored as soon as possible
+				   after last probeTripped */
+        int spindleSync;        /* request synchronization: 
+                                   tell spindle encoder to not reset at index */
+        double spindleRevs;     /* position of spindle in revolutions */
+
+	spindle_status spindle;	/* data types for spindle status */
+
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 
 	/* dynamic status-- changes every cycle */
@@ -560,18 +587,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
 
-	int probeTripped;	/* Has the probe signal changed since start
-				   of probe command? */
-	int probing;		/* Currently looking for a probe signal? */
-	EmcPose probedPos;	/* Axis positions stored as soon as possible
-				   after last probeTripped */
 	int level;
 	unsigned char tail;	/* flag count for mutex detect */
         int motionType;
         
-        int spindleSync;        /* request synchronization: 
-                                   tell spindle encoder to not reset at index */
-        double spindleRevs;     /* position of spindle in revolutions */
     } emcmot_status_t;
 
 /*********************************

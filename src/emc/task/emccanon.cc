@@ -1769,16 +1769,16 @@ int GET_EXTERNAL_POCKET()
 double GET_EXTERNAL_SPEED()
 {
     // speed is in RPMs everywhere
-    return emcStatus->io.spindle.speed;
+    return emcStatus->motion.spindle.speed;
 }
 
 CANON_DIRECTION GET_EXTERNAL_SPINDLE()
 {
-    if (emcStatus->io.spindle.speed == 0) {
+    if (emcStatus->motion.spindle.speed == 0) {
 	return CANON_STOPPED;
     }
 
-    if (emcStatus->io.spindle.speed >= 0.0) {
+    if (emcStatus->motion.spindle.speed >= 0.0) {
 	return CANON_CLOCKWISE;
     }
 

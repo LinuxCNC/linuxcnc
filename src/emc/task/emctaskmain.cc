@@ -2843,7 +2843,7 @@ int main(int argc, char *argv[])
 	    if (emcStatus->io.lube.on) {
 		emcLubeOff();
 	    }
-	    if (emcStatus->io.spindle.enabled) {
+	    if (emcStatus->motion.spindle.enabled) {
 		emcSpindleOff();
 	    }
 	}

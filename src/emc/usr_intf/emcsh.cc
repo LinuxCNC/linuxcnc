@@ -2258,13 +2258,13 @@ static int emc_spindle(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->io.spindle.increasing > 0) {
+	if (emcStatus->motion.spindle.increasing > 0) {
 	    Tcl_SetResult(interp, "increase", TCL_VOLATILE);
-	} else if (emcStatus->io.spindle.increasing < 0) {
+	} else if (emcStatus->motion.spindle.increasing < 0) {
 	    Tcl_SetResult(interp, "decrease", TCL_VOLATILE);
-	} else if (emcStatus->io.spindle.direction > 0) {
+	} else if (emcStatus->motion.spindle.direction > 0) {
 	    Tcl_SetResult(interp, "forward", TCL_VOLATILE);
-	} else if (emcStatus->io.spindle.direction < 0) {
+	} else if (emcStatus->motion.spindle.direction < 0) {
 	    Tcl_SetResult(interp, "reverse", TCL_VOLATILE);
 	} else {
 	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
@@ -2315,7 +2315,7 @@ static int emc_brake(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->io.spindle.brake == 1) {
+	if (emcStatus->motion.spindle.brake == 1) {
 	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
 	} else {
 	    Tcl_SetResult(interp, "off", TCL_VOLATILE);

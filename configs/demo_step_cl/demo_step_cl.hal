@@ -78,8 +78,8 @@ linkpp  iocontrol.0.coolant-mist  parport.0.pin-09-out
 # spindle signals
 # spindle status has not been resolved
 # a simple loop through is set here
-linkpp iocontrol.0.spindle-forward  parport.0.pin-16-out 
-linkpp iocontrol.0.spindle-reverse  parport.0.pin-17-out 
+linkpp motion.spindle-forward  parport.0.pin-16-out 
+linkpp motion.spindle-reverse  parport.0.pin-17-out 
 
 # we will let loopbacks handle tool prepare and change commands 
 # though we could  index an external changer

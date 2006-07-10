@@ -76,22 +76,22 @@ linksp EstopWrite => iocontrol.0.user-enable-out
 newsig SpindleFwd bit
 newsig SpindleRev bit
 linksp SpindleFwd <= ppmc.0.dout.00.out
-linksp SpindleFwd => iocontrol.0.spindle-forward
+linksp SpindleFwd => motion.spindle-forward
 linksp SpindleRev <= ppmc.0.dout.01.out
-linksp SpindleRev => iocontrol.0.spindle-reverse
+linksp SpindleRev => motion.spindle-reverse
 
 # connect spindle speed up/down to I/O controller
 newsig SpindleUp bit
 newsig SpindleDown bit
-linksp SpindleUp <= ppmc.0.dout.06.out
-linksp SpindleUp => iocontrol.0.spindle-incr-speed
-linksp SpindleDown <= ppmc.0.dout.05.out
-linksp SpindleDown => iocontrol.0.spindle-decr-speed
+#linksp SpindleUp <= ppmc.0.dout.06.out
+#linksp SpindleUp => motion.spindle-incr-speed
+#linksp SpindleDown <= ppmc.0.dout.05.out
+#linksp SpindleDown => motion.spindle-decr-speed
 
 # connect spindle brake to I/O controller
 newsig SpindleBrakeOn bit
 linksp SpindleBrakeOn <= ppmc.0.dout.02.out
-linksp SpindleBrakeOn => iocontrol.0.spindle-brake
+linksp SpindleBrakeOn => motion.spindle-brake
 
 # connect mist/flood coolant to I/O controller
 newsig MistOn bit

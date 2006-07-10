@@ -1431,6 +1431,56 @@ int emcMotionSetDout(unsigned char index, unsigned char start,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcSpindleAbort()
+{
+    return emcSpindleOff();
+}
+
+int emcSpindleOn(double speed)
+{
+
+    emcmotCommand.command = EMCMOT_SPINDLE_ON;
+    emcmotCommand.vel = speed;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcSpindleOff()
+{
+    emcmotCommand.command = EMCMOT_SPINDLE_OFF;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcSpindleBrakeRelease()
+{
+    emcmotCommand.command = EMCMOT_SPINDLE_BRAKE_RELEASE;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcSpindleBrakeEngage()
+{
+    emcmotCommand.command = EMCMOT_SPINDLE_BRAKE_ENGAGE;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcSpindleIncrease()
+{
+    emcmotCommand.command = EMCMOT_SPINDLE_INCREASE;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcSpindleDecrease()
+{
+    emcmotCommand.command = EMCMOT_SPINDLE_DECREASE;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcSpindleConstant()
+{
+    return 0; // nothing to do
+}
+
+
+
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {
     int r1;
@@ -1477,6 +1527,10 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
     stat->debug = emcmotConfig.debug;
+    
+    stat->spindle.speed = emcmotStatus.spindle.speed;
+    stat->spindle.brake = emcmotStatus.spindle.brake;
+    stat->spindle.direction = emcmotStatus.spindle.direction;
 
     // set the status flag
     error = 0;

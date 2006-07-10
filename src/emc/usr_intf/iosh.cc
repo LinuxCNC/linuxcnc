@@ -95,13 +95,17 @@
   emc_io_status_flood on | off
   emc_io_status_lube on | off
   emc_io_status_lube_level ok | low
+  emc_io_status_tool_prepped <number>
+  emc_io_status_tool_in_spindle <number>
+
+//FIXME: The following have been commented out, if there is need they will be made to work again,
+    or all the io will go through the motion controller, in which case all the NML needs to get rerouted
   emc_io_status_spindle_speed <speed>
   emc_io_status_spindle_enabled on | off
   emc_io_status_spindle_direction <pos> <neg> 0
   emc_io_status_spindle_increasing <pos> <neg> 0
   emc_io_status_spindle_brake on | off
-  emc_io_status_tool_prepped <number>
-  emc_io_status_tool_in_spindle <number>
+
   IO commands:
 
   inb <address>
@@ -607,7 +611,7 @@ static int emc_io_get_command(ClientData clientdata,
     case EMC_TOOL_UNLOAD_TYPE:
 	Tcl_SetResult(interp, "emc_tool_unload", TCL_VOLATILE);
 	break;
-
+/* FIXME: uncomment for now, bring back later
     case EMC_SPINDLE_INIT_TYPE:
 	Tcl_SetResult(interp, "emc_spindle_init", TCL_VOLATILE);
 	break;
@@ -661,7 +665,7 @@ static int emc_io_get_command(ClientData clientdata,
     case EMC_SPINDLE_BRAKE_ENGAGE_TYPE:
 	Tcl_SetResult(interp, "emc_spindle_brake_engage", TCL_VOLATILE);
 	break;
-
+*/
     case EMC_COOLANT_INIT_TYPE:
 	Tcl_SetResult(interp, "emc_coolant_init", TCL_VOLATILE);
 	break;
@@ -1059,6 +1063,7 @@ static int emc_io_status_lube_level(ClientData clientdata,
     return TCL_ERROR;
 }
 
+/* FIXME: uncomment for now, bring back later
 static int emc_io_status_spindle_speed(ClientData clientdata,
 				       Tcl_Interp * interp, int objc,
 				       Tcl_Obj * CONST objv[])
@@ -1072,15 +1077,16 @@ static int emc_io_status_spindle_speed(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetDoubleFromObj(0, objv[1], &speed)) {
-	emcioStatus.spindle.speed = speed;
+	emcmotionStatus.spindle.speed = speed;
 	return TCL_OK;
     }
 
     Tcl_SetResult(interp, "emc_io_status_spindle_speed: need speed",
 		  TCL_VOLATILE);
     return TCL_ERROR;
-}
+}*/
 
+/* FIXME: uncomment for now, bring back later
 static int emc_io_status_spindle_enabled(ClientData clientdata,
 					 Tcl_Interp * interp, int objc,
 					 Tcl_Obj * CONST objv[])
@@ -1096,10 +1102,10 @@ static int emc_io_status_spindle_enabled(ClientData clientdata,
 
     objstr = Tcl_GetStringFromObj(objv[1], 0);
     if (!strcmp(objstr, "on")) {
-	emcioStatus.spindle.enabled = 1;
+	emcmotionStatus.spindle.enabled = 1;
 	return TCL_OK;
     } else if (!strcmp(objstr, "off")) {
-	emcioStatus.spindle.enabled = 0;
+	emcmotionStatus.spindle.enabled = 0;
 	return TCL_OK;
     }
 
@@ -1122,7 +1128,7 @@ static int emc_io_status_spindle_direction(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &direction)) {
-	emcioStatus.spindle.direction = direction;
+	emcmotionStatus.spindle.direction = direction;
 	return TCL_OK;
     }
 
@@ -1146,7 +1152,7 @@ static int emc_io_status_spindle_increasing(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &increasing)) {
-	emcioStatus.spindle.increasing = increasing;
+	emcmotionStatus.spindle.increasing = increasing;
 	return TCL_OK;
     }
 
@@ -1170,10 +1176,10 @@ static int emc_io_status_spindle_brake(ClientData clientdata,
 
     objstr = Tcl_GetStringFromObj(objv[1], 0);
     if (!strcmp(objstr, "on")) {
-	emcioStatus.spindle.brake = 1;
+	emcmotionStatus.spindle.brake = 1;
 	return TCL_OK;
     } else if (!strcmp(objstr, "off")) {
-	emcioStatus.spindle.brake = 0;
+	emcmotionStatus.spindle.brake = 0;
 	return TCL_OK;
     }
 
@@ -1181,6 +1187,7 @@ static int emc_io_status_spindle_brake(ClientData clientdata,
 		  TCL_VOLATILE);
     return TCL_ERROR;
 }
+*/
 
 static int emc_io_status_tool_prepped(ClientData clientdata,
 				      Tcl_Interp * interp, int objc,
@@ -1570,6 +1577,7 @@ int Tcl_AppInit(Tcl_Interp * interp)
 			 emc_io_status_lube_level, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
+/* FIXME: uncomment for now, bring back later
     Tcl_CreateObjCommand(interp, "emc_io_status_spindle_speed",
 			 emc_io_status_spindle_speed, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
@@ -1589,7 +1597,7 @@ int Tcl_AppInit(Tcl_Interp * interp)
     Tcl_CreateObjCommand(interp, "emc_io_status_spindle_brake",
 			 emc_io_status_spindle_brake, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
-
+*/
     Tcl_CreateObjCommand(interp, "emc_io_status_tool_prepped",
 			 emc_io_status_tool_prepped, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);

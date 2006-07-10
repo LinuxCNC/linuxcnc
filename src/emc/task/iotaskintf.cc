@@ -312,80 +312,6 @@ int emcAuxEstopOff()
     return forceCommand(&estopOffMsg); //force the EstopOff message
 }
 
-static double spindleSpeed = 0;
-
-int emcSpindleAbort()
-{
-    return emcSpindleOff();
-}
-
-int emcSpindleOn(double speed)
-{
-
-    EMC_SPINDLE_ON spindleOnMsg;
-
-    spindleSpeed = speed;
-
-    spindleOnMsg.speed = speed;
-    sendCommand(&spindleOnMsg);
-
-    return 0;
-}
-
-int emcSpindleOff()
-{
-    EMC_SPINDLE_OFF spindleOffMsg;
-
-    sendCommand(&spindleOffMsg);
-
-    return 0;
-}
-
-int emcSpindleBrakeRelease()
-{
-    EMC_SPINDLE_BRAKE_RELEASE spindleBrakeReleaseMsg;
-
-    sendCommand(&spindleBrakeReleaseMsg);
-
-    return 0;
-}
-
-int emcSpindleBrakeEngage()
-{
-    EMC_SPINDLE_BRAKE_ENGAGE spindleBrakeEngageMsg;
-
-    sendCommand(&spindleBrakeEngageMsg);
-
-    return 0;
-}
-
-int emcSpindleIncrease()
-{
-    EMC_SPINDLE_INCREASE spindleIncreaseMsg;
-
-    sendCommand(&spindleIncreaseMsg);
-
-    return 0;
-}
-
-int emcSpindleDecrease()
-{
-    EMC_SPINDLE_DECREASE spindleDecreaseMsg;
-
-    sendCommand(&spindleDecreaseMsg);
-
-    return 0;
-}
-
-int emcSpindleConstant()
-{
-    EMC_SPINDLE_CONSTANT spindleConstantMsg;
-
-    sendCommand(&spindleConstantMsg);
-
-    return 0;
-}
-
 #ifdef LASER
 
 int emcCoolantMistOn()
@@ -549,6 +475,7 @@ int emcToolSetOffset(int tool, double length, double diameter)
 
 int emcIoUpdate(EMC_IO_STAT * stat)
 {
+    
     if (0 == emcIoStatusBuffer || !emcIoStatusBuffer->valid()) {
 	return -1;
     }

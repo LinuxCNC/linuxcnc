@@ -276,64 +276,25 @@ static int init_hal_io(void)
     }
 
     /* export machine wide hal pins */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.probe-input");
-    retval =
-	hal_pin_bit_new(buf, HAL_RD, &(emcmot_hal_data->probe_input),
-	mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    if ((retval = hal_pin_bit_newf(HAL_RD, &(emcmot_hal_data->probe_input), mot_comp_id, "motion.probe-input")) != HAL_SUCCESS) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_WR, &(emcmot_hal_data->spindle_sync), mot_comp_id, "motion.spindle-sync")) != HAL_SUCCESS) goto error;
 
-    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.spindle-sync");
-    retval =
-	hal_pin_bit_new(buf, HAL_WR, &(emcmot_hal_data->spindle_sync),
-	mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    if ((retval = hal_pin_bit_newf(HAL_WR, &(emcmot_hal_data->spindle_on), mot_comp_id, "motion.spindle-on")) != HAL_SUCCESS) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_WR, &(emcmot_hal_data->spindle_forward), mot_comp_id, "motion.spindle-forward")) != HAL_SUCCESS) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_WR, &(emcmot_hal_data->spindle_reverse), mot_comp_id, "motion.spindle-reverse")) != HAL_SUCCESS) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_WR, &(emcmot_hal_data->spindle_brake), mot_comp_id, "motion.spindle-brake")) != HAL_SUCCESS) goto error;
+    if ((retval = hal_pin_float_newf(HAL_WR, &(emcmot_hal_data->spindle_speed_out), mot_comp_id, "motion.spindle-speed-out")) != HAL_SUCCESS) goto error;
 
-    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-inpos");
-    retval =
-	hal_pin_bit_new(buf, HAL_WR, &(emcmot_hal_data->inpos_output),
-	mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-
-    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.spindle-revs");
-    retval =
-	hal_pin_float_new(buf, HAL_RD, &(emcmot_hal_data->spindle_revs),
-	mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-
-    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.adaptive-feed");
-    retval =
-	hal_pin_float_new(buf, HAL_RD, &(emcmot_hal_data->adaptive_feed),
-	mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    if ((retval = hal_pin_bit_newf(HAL_WR, &(emcmot_hal_data->inpos_output), mot_comp_id, "motion.motion-inpos")) != HAL_SUCCESS) goto error;
+    if ((retval = hal_pin_float_newf(HAL_RD, &(emcmot_hal_data->spindle_revs), mot_comp_id, "motion.spindle-revs")) != HAL_SUCCESS) goto error;
+    if ((retval = hal_pin_float_newf(HAL_RD, &(emcmot_hal_data->adaptive_feed), mot_comp_id, "motion.adaptive-feed")) != HAL_SUCCESS) goto error;
     *(emcmot_hal_data->adaptive_feed) = 1.0;
 
-    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.enable");
-    retval =
-	hal_pin_bit_new(buf, HAL_RD, &(emcmot_hal_data->enable),
-	mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
+    if ((retval = hal_pin_bit_newf(HAL_RD, &(emcmot_hal_data->enable), mot_comp_id, "motion.enable")) != HAL_SUCCESS) goto error;
 
     /* export motion-synched digital output pins */
     for (n = 0; n < EMCMOT_MAX_DIO; n++) {
-	rtapi_snprintf(buf, HAL_NAME_LEN, "motion.digital-out-%02d",n);
-	retval =
-	    hal_pin_bit_new(buf, HAL_WR, &(emcmot_hal_data->synch_do[n]),
-	    mot_comp_id);
-	if (retval != 0) {
-	    return retval;
-	}
+	if ((retval = hal_pin_bit_newf(HAL_WR, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.digital-out-%02d", n)) != HAL_SUCCESS) goto error;
     }
 
     /* export machine wide hal parameters */
@@ -497,6 +458,10 @@ static int init_hal_io(void)
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"MOTION: init_hal_io() complete, %d axes.\n", EMCMOT_MAX_AXIS);
     return 0;
+
+    error:
+	return retval;
+
 }
 
 static int export_axis(int num, axis_hal_t * addr)
@@ -798,6 +763,7 @@ static int init_comm_buffers(void)
     emcmotStatus->activeDepth = 0;
     emcmotStatus->paused = 0;
     emcmotStatus->overrideLimits = 0;
+    emcmotStatus->spindle.speed = 0.0;
     SET_MOTION_INPOS_FLAG(1);
     SET_MOTION_ENABLE_FLAG(0);
     emcmotConfig->kinematics_type = kinType;

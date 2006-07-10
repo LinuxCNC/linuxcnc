@@ -108,22 +108,22 @@ linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 newsig SpindleFwd bit
 newsig SpindleRev bit
 linksp SpindleFwd => m5i20.0.out-00
-linksp SpindleFwd <= iocontrol.0.spindle-forward
+linksp SpindleFwd <= motion.spindle-forward
 linksp SpindleRev => m5i20.0.out-01
-linksp SpindleRev <= iocontrol.0.spindle-reverse
+linksp SpindleRev <= motion.spindle-reverse
 
 # Connect spindle brake to I/O controller.
 newsig SpindleBrakeOn bit
 linksp SpindleBrakeOn => m5i20.0.out-02
-linksp SpindleBrakeOn <= iocontrol.0.spindle-brake
+linksp SpindleBrakeOn <= motion.spindle-brake
 
 # Connect spindle speed up/down to I/O controller.
 newsig SpindleUp bit
 newsig SpindleDown bit
 linksp SpindleUp => m5i20.0.out-03
-linksp SpindleUp <= iocontrol.0.spindle-incr-speed
+linksp SpindleUp <= motion.spindle-incr-speed
 linksp SpindleDown => m5i20.0.out-04
-linksp SpindleDown <= iocontrol.0.spindle-decr-speed
+linksp SpindleDown <= motion.spindle-decr-speed
 
 # Connect mist/flood coolant to I/O controller.
 newsig MistOn bit

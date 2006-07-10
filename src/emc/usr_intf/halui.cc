@@ -2055,10 +2055,10 @@ static void modify_hal_pins()
     *(halui_data->flood_is_on)=emcStatus->io.coolant.flood;
     *(halui_data->lube_is_on)=emcStatus->io.lube.on;
 
-    *(halui_data->spindle_is_on) = (emcStatus->io.spindle.speed != 0);
-    *(halui_data->spindle_runs_forward) = (emcStatus->io.spindle.direction == 1);
-    *(halui_data->spindle_runs_backward) = (emcStatus->io.spindle.direction == -1);
-    *(halui_data->spindle_brake_is_on) = emcStatus->io.spindle.brake;
+    *(halui_data->spindle_is_on) = (emcStatus->motion.spindle.speed != 0);
+    *(halui_data->spindle_runs_forward) = (emcStatus->motion.spindle.direction == 1);
+    *(halui_data->spindle_runs_backward) = (emcStatus->motion.spindle.direction == -1);
+    *(halui_data->spindle_brake_is_on) = emcStatus->motion.spindle.brake;
     
     for (joint=0; joint < EMCMOT_MAX_AXIS; joint++) {
 	*(halui_data->joint_is_homed[joint]) = emcStatus->motion.axis[joint].homed;

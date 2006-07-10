@@ -767,18 +767,18 @@ static void printStatus()
           break;
         }
 
-      if (emcStatus->io.spindle.increasing > 0)
+      if (emcStatus->motion.spindle.increasing > 0)
         sprintf(spindle_string, " SPINDLE INCREASE ");
-      else if (emcStatus->io.spindle.increasing < 0)
+      else if (emcStatus->motion.spindle.increasing < 0)
         sprintf(spindle_string, " SPINDLE DECREASE ");
-      else if (emcStatus->io.spindle.direction > 0)
+      else if (emcStatus->motion.spindle.direction > 0)
         sprintf(spindle_string, " SPINDLE FORWARD  ");
-      else if (emcStatus->io.spindle.direction < 0)
+      else if (emcStatus->motion.spindle.direction < 0)
         sprintf(spindle_string, " SPINDLE REVERSE  ");
       else
         sprintf(spindle_string, " SPINDLE STOPPED  ");
 
-      if (emcStatus->io.spindle.brake)
+      if (emcStatus->motion.spindle.brake)
         sprintf(brake_string,   "    BRAKE ON      ");
       else
         sprintf(brake_string,   "    BRAKE OFF     ");
@@ -2006,7 +2006,7 @@ int main(int argc, char *argv[])
         case KEY_F(9):          // toggle spindle forward/off
           if (oldch != ch)
             {
-              if (emcStatus->io.spindle.direction == 0)
+              if (emcStatus->motion.spindle.direction == 0)
                 {
                   // it's off, so turn forward
                   emc_spindle_on_msg.speed = 1;
@@ -2027,7 +2027,7 @@ int main(int argc, char *argv[])
         case KEY_F(10):         // toggle spindle reverse/off
           if (oldch != ch)
             {
-              if (emcStatus->io.spindle.direction == 0)
+              if (emcStatus->motion.spindle.direction == 0)
                 {
                   // it's off, so turn reverse
                   emc_spindle_on_msg.speed = -1;
@@ -2049,7 +2049,7 @@ int main(int argc, char *argv[])
           if (oldch != ch)
             {
               // check for running first
-              if (emcStatus->io.spindle.direction == 0)
+              if (emcStatus->motion.spindle.direction == 0)
                 break;
 
               emc_spindle_decrease_msg.serial_number = ++emcCommandSerialNumber;
@@ -2063,7 +2063,7 @@ int main(int argc, char *argv[])
           if (oldch != ch)
             {
               // check for running first
-              if (emcStatus->io.spindle.direction == 0)
+              if (emcStatus->motion.spindle.direction == 0)
                 break;
 
               emc_spindle_increase_msg.serial_number = ++emcCommandSerialNumber;

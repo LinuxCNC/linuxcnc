@@ -75,7 +75,7 @@ linkpp iocontrol.0.emc-enable-in classicladder.0.out-00
 # Spindle reverse is not used (might be used for a Running Start later)
 newsig turn_torch_on bit
 linksp turn_torch_on parport.1.pin-01-out
-#linkpp iocontrol.0.spindle-reverse  parport.0.pin-17-out 
+#linkpp motion.spindle-reverse  parport.0.pin-17-out 
 
 #Create a limit switch signal for each axis
 newsig limit-reached-x bit
@@ -288,7 +288,7 @@ linksp senseZFloatSwitch => classicladder.0.in-03
 linksp moveZtoFloat classicladder.0.out-03
 linksp moveZtoSafe classicladder.0.out-04
 linksp senseArcOK classicladder.0.in-04
-linkpp classicladder.0.in-05 <= iocontrol.0.spindle-forward 
+linkpp classicladder.0.in-05 <= motion.spindle-forward 
 linksp feed-hold classicladder.0.out-06
 linksp turn_torch_on classicladder.0.out-05
 linksp ui_mode_is_auto halui.mode.is-auto 
