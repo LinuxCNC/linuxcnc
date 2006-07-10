@@ -2710,7 +2710,7 @@ static void keyPressAction(unsigned int state, unsigned int keycode)
 
   case KEY_F9:
     // spindle fwd/off
-    if (emcStatus->io.spindle.direction == 0) {
+    if (emcStatus->motion.spindle.direction == 0) {
       // it's off, so turn forward
       sendSpindleForward();
     }
@@ -2723,7 +2723,7 @@ static void keyPressAction(unsigned int state, unsigned int keycode)
 
   case KEY_F10:
     // spindle rev/off
-    if (emcStatus->io.spindle.direction == 0) {
+    if (emcStatus->motion.spindle.direction == 0) {
       // it's off, so turn reverse
       sendSpindleReverse();
     }
@@ -2736,14 +2736,14 @@ static void keyPressAction(unsigned int state, unsigned int keycode)
 
   case KEY_F11:
     // spindle decrease
-    if (emcStatus->io.spindle.direction != 0) {
+    if (emcStatus->motion.spindle.direction != 0) {
       sendSpindleDecrease();
     }
     break;
 
   case KEY_F12:
     // spindle increase
-    if (emcStatus->io.spindle.direction != 0) {
+    if (emcStatus->motion.spindle.direction != 0) {
       sendSpindleIncrease();
     }
     break;
@@ -4062,11 +4062,11 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
     oldFlood = emcStatus->io.coolant.flood;
   }
 
-  if (emcStatus->io.spindle.increasing != oldSpindleIncreasing) {
-    if (emcStatus->io.spindle.increasing > 0) {
+  if (emcStatus->motion.spindle.increasing != oldSpindleIncreasing) {
+    if (emcStatus->motion.spindle.increasing > 0) {
       sprintf(string, "SPINDLE INC");
     }
-    else if (emcStatus->io.spindle.increasing < 0) {
+    else if (emcStatus->motion.spindle.increasing < 0) {
       sprintf(string, "SPINDLE DEC");
     }
     else {
@@ -4078,16 +4078,16 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
     setLabel(spindleMenu, string);
     redraw = 1;
 
-    oldSpindleIncreasing = emcStatus->io.spindle.increasing;
+    oldSpindleIncreasing = emcStatus->motion.spindle.increasing;
   }
 
-  if (emcStatus->io.spindle.direction != oldSpindleDirection) {
-    if (emcStatus->io.spindle.direction > 0) {
+  if (emcStatus->motion.spindle.direction != oldSpindleDirection) {
+    if (emcStatus->motion.spindle.direction > 0) {
       sprintf(string, "SPINDLE FWD");
       XtSetSensitive(spindleDecLabel, True);
       XtSetSensitive(spindleIncLabel, True);
     }
-    else if (emcStatus->io.spindle.direction < 0) {
+    else if (emcStatus->motion.spindle.direction < 0) {
       sprintf(string, "SPINDLE REV");
       XtSetSensitive(spindleDecLabel, True);
       XtSetSensitive(spindleIncLabel, True);
@@ -4101,11 +4101,11 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
     setLabel(spindleMenu, string);
     redraw = 1;
 
-    oldSpindleDirection = emcStatus->io.spindle.direction;
+    oldSpindleDirection = emcStatus->motion.spindle.direction;
   }
 
-  if (emcStatus->io.spindle.brake != oldBrake) {
-    if (emcStatus->io.spindle.brake) {
+  if (emcStatus->motion.spindle.brake != oldBrake) {
+    if (emcStatus->motion.spindle.brake) {
       sprintf(string, "BRAKE ON");
     }
     else {
@@ -4115,7 +4115,7 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
     setLabel(brakeMenu, string);
     redraw = 1;
 
-    oldBrake = emcStatus->io.spindle.brake;
+    oldBrake = emcStatus->motion.spindle.brake;
   }
 
   if (emcStatus->io.tool.toolInSpindle != oldTool) {
