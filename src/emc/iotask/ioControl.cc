@@ -707,6 +707,10 @@ int read_tool_inputs(void)
     return retval;
 }
 
+static void do_hal_exit(void) {
+    hal_exit(comp_id);
+}
+
 /********************************************************************
 *
 * Description: main(int argc, char * argv[])
@@ -741,6 +745,18 @@ int main(int argc, char *argv[])
 	/* do other args similarly here */
     }
 
+    /* Register the routine that catches the SIGINT signal */
+    signal(SIGINT, quit);
+    /* catch SIGTERM too - the run script uses it to shut things down */
+    signal(SIGTERM, quit);
+
+    if (iocontrol_hal_init() != 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "can't initialize the HAL\n");
+	return -1;
+    }
+
+    atexit(do_hal_exit);
+
     if (0 != iniLoad(EMC_INIFILE)) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "can't open ini file %s\n",
 			EMC_INIFILE);
@@ -764,15 +780,6 @@ int main(int argc, char *argv[])
     }
 
     done = 0;
-    /* Register the routine that catches the SIGINT signal */
-    signal(SIGINT, quit);
-    /* catch SIGTERM too - the run script uses it to shut things down */
-    signal(SIGTERM, quit);
-
-    if (iocontrol_hal_init() != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "can't initialize the HAL\n");
-	return -1;
-    }
 
     /* set status values to 'normal' */
     emcioStatus.aux.estop = 1; //estop=1 means to emc that ESTOP condition is met
@@ -1052,9 +1059,6 @@ int main(int argc, char *argv[])
 	*(iocontrol_data->user_request_enable) = 0;
 	
     }	// end of "while (! done)" loop
-
-    // disconnect from the HAL
-    hal_exit(comp_id);
 
     if (emcErrorBuffer != 0) {
 	delete emcErrorBuffer;
