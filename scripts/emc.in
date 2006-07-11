@@ -210,7 +210,7 @@ NMLFILE=$retval
 ################################################################################
 
 KILL_TASK=
-KILL_TIMEOUT=10
+KILL_TIMEOUT=100
 
 ################################################################################
 # 3.1. Kills a list of tasks with timeout
@@ -234,7 +234,7 @@ function KillTaskWithTimeout() {
 	    # see if it's still alive
 	    if $PS $KILL_PID >>$DEBUG_FILE ; then
 		WAIT=$(($WAIT-1))
-		sleep 1
+		sleep .1
 	    else
 		WAIT=0
 	    fi
@@ -249,7 +249,7 @@ function KillTaskWithTimeout() {
 		# see if it's still alive
 		if $PS $KILL_PID >>$DEBUG_FILE ; then
 		    WAIT=$(($WAIT-1))
-		    sleep 1
+		    sleep .1
 		else
 		    WAIT=0
 		fi
@@ -281,7 +281,6 @@ function Cleanup() {
 	    KillTaskWithTimeout
 	fi
     done
-    sleep 1
 
     $HALCMD unloadusr all
 
