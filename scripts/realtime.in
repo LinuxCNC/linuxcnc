@@ -4,6 +4,14 @@
 # on @DATE@
 #
 
+export LANG=C
+
+if ! type -path readlink > /dev/null 2>& 1; then
+    function readlink () {
+        perl -le 'print readlink(shift)' -- $1
+    }
+fi
+
 CheckConfig(){
     RUN_IN_PLACE=@RUN_IN_PLACE@
     prefix=@prefix@
@@ -34,9 +42,6 @@ CheckConfig(){
     INSMOD="@INSMOD@"
     RMMOD="@RMMOD@"
 
-    # Save the system variable MODPATH so that it can be
-    # re-exported on exit.
-    old_path=$MODPATH
     # Import the config
     source $RTAPICONF
     if [ ! -e $RTLIB_DIR/.runinfo -a -e $RTLIB_DIR/emc2/.runinfo ]; then
@@ -52,24 +57,9 @@ CheckConfig(){
     MODULES_LOAD=
     MODULES_UNLOAD=
     for  MOD in $MODULES ; do
-	# find module
-	TMP=`find $MODPATH -name $MOD$MODULE_EXT`
-	if test -n "$TMP" ; then
-	    # it exists, is it a symlink?
-            if test -L "$TMP" ; then
-		# it is a symlink, must extract real module name
-		# get long directory entry
-		TMP=`ls -l $TMP`
-		# remove everything except the last token, which
-		# should be the destination of the symbolic link
-		TMP="${TMP##* }"
-		TMP="${TMP##*/}"
-		# remove the .o  (or .ko) from the end
-		MOD="${TMP%$MODULE_EXT}"
-	    fi
-            MOD=${MODPATH}/${MOD}${MODULE_EXT}
-        else
-            MOD=`find /lib/modules/$(uname -r) -name $MOD$MODULE_EXT`
+        eval MOD=\${MODPATH_$MOD}
+        if [ -L $MOD ]; then
+            MOD=${MOD%/*}/$(readlink $MOD)
         fi
 	MODULES_LOAD="$MODULES_LOAD $MOD"
         MOD="${MOD##*/}"
@@ -85,7 +75,6 @@ CheckConfig(){
 	FUSER=/sbin/fuser
     else
 	echo "ERROR: can't find \"fuser\", used to verify that it is safe to shutdown realtime"
-	DoExit
 	exit 1
     fi
     case "$MODULES" in
@@ -125,7 +114,6 @@ CheckMem(){
 	    # at least one process is using it
 	    echo "ERROR:  Can't remove RTLinux modules, kill the following process(es) first"
 	    $FUSER -v /dev/mbuff
-	    DoExit
 	    exit 1
 	fi
     elif [ -e /dev/rtai_shm ] ; then
@@ -134,7 +122,6 @@ CheckMem(){
 	    # at least one process is using it
 	    echo "ERROR:  Can't remove RTAI modules, kill the following process(es) first"
 	    $FUSER -v /dev/rtai_shm
-	    DoExit
 	    exit 1
 	fi
     fi
@@ -142,15 +129,7 @@ CheckMem(){
 
 Load(){
     for MOD in $MODULES_LOAD ; do
-	# check to see if the module is already installed
-	if ! /sbin/lsmod | awk '{print $1}' | grep -x $MOD >/dev/null ; then
-	    # install the module - use insmod
-	    if [ "$VERBOSE" = "1" ] ; then
-	        $INSMOD $MOD
-	    else
-	        $INSMOD $MOD 1>/dev/null
-	    fi
-        fi
+        $INSMOD $MOD
     done
     if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
         echo "$DEBUG" > /proc/rtapi/debug
@@ -170,28 +149,24 @@ CheckLoaded(){
 	fi
     done
     if [ -n "$STATUS" ] ; then
-	DoExit
 	exit 1
     fi
     # this abomination is needed because udev sometimes doesn't
     # have the device ready for us in time.
     n=0
-    while [ $n -lt 10 ]; do
+    while [ $n -lt 100 ]; do
         [ -w $SHM_DEV ] && return 0
         echo "." 1>&2
-        sleep 1
+        sleep .1
         n=$(($n+1))
     done
     echo "Can't write to $SHM_DEV - aborting" 1>&2
-    DoExit
     exit 1
 }
 
 Unload(){
     for module in $MODULES_UNLOAD ; do
-        if /sbin/lsmod | awk '{print $1}' | grep -x $module >/dev/null ; then
-	    $RMMOD $module
-	fi
+        $RMMOD $module
     done
 }
 
@@ -206,30 +181,16 @@ CheckUnloaded(){
 	fi
     done
     if [ -n "$STATUS" ] ; then
-	DoExit
 	exit 1
     fi
 }
 
-DoExit(){
-    # Export the original MODPATH
-    export MODPATH=$old_path
-}
-
-if [ "$1" = "-v" ] ; then
-  CMD=$2
-  VERBOSE=1
-else
-  CMD=$1
-  VERBOSE=0
-fi
+CMD=$1
 
 case "$CMD" in
   start|load)
 	CheckConfig
 	Load
-	CheckLoaded
-	DoExit
 	;;
   restart|reload)
 	CheckConfig
@@ -238,19 +199,15 @@ case "$CMD" in
 	CheckUnloaded
 	Load
 	CheckLoaded
-	DoExit
 	;;
   stop|unload)
 	CheckConfig
 	CheckMem
 	Unload
-	CheckUnloaded
-	DoExit
 	;;
   status)
 	CheckConfig
 	CheckStatus
-	DoExit
 	;;
   *)
 	echo "Usage: $0 {start|load|stop|unload|restart|reload|status}" >&2

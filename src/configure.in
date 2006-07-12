@@ -835,6 +835,40 @@ AC_SUBST([RTAI3_MOD])
 AC_SUBST([RTAI_MOD])
 AC_SUBST([RTL_MOD])
 
+uname_r=$(uname -r)
+
+for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
+        rtai rt_mem_mgr rtai_sched rtai_libm \
+        rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo; do
+    AC_MSG_CHECKING([for $m])
+    TMP=$(find $MODULE_DIR -name $m$MODEXT)
+    if test -z "$TMP"; then
+        TMP=$(find /lib/modules/$uname_r -name $m$MODEXT)
+    fi
+    eval MODPATH_$m=${TMP/$uname_r/\\\$\\\(uname\\\ -r\\\)}
+    AC_MSG_RESULT([${TMP:-not found}])
+done
+
+AC_SUBST(MODPATH_adeos)
+AC_SUBST(MODPATH_rtai_hal)
+AC_SUBST(MODPATH_rtai_ksched)
+AC_SUBST(MODPATH_rtai_fifos)
+AC_SUBST(MODPATH_rtai_shm)
+AC_SUBST(MODPATH_rtai_sem)
+AC_SUBST(MODPATH_rtai_math)
+AC_SUBST(MODPATH_adeos)
+AC_SUBST(MODPATH_rtai)
+AC_SUBST(MODPATH_rt_mem_mgr)
+AC_SUBST(MODPATH_rtai_sched)
+AC_SUBST(MODPATH_rtai_shm)
+AC_SUBST(MODPATH_rtai_libm)
+AC_SUBST(MODPATH_rtl)
+AC_SUBST(MODPATH_mbuff)
+AC_SUBST(MODPATH_rtl_time)
+AC_SUBST(MODPATH_rtl_sched)
+AC_SUBST(MODPATH_rtl_posixio)
+AC_SUBST(MODPATH_rtl_fifo)
+
 # Checks for header files.
 
 ##############################################################################
