@@ -143,9 +143,7 @@
 // Module information.
 MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("Driver for Mesa Electronics 5i20 for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif // MODULE_LICENSE
 static unsigned long			period = 0;	// Thread period (0 = no thread).
 MODULE_PARM(period, "l");
 MODULE_PARM_DESC(period, "thread period (nsecs)");

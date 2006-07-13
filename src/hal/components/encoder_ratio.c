@@ -108,9 +108,7 @@
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Encoder Ratio Module for HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 static int num_chan = 1;	/* number of channels - default = 1 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");

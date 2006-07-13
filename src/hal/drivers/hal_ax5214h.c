@@ -115,9 +115,7 @@
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Axiom AX5214H Driver for HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 static char *cfg = "";	/* config string, default no boards */
 RTAPI_MP_STRING(cfg, "config string");
 #endif /* MODULE */

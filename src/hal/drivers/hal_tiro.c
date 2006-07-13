@@ -87,9 +87,7 @@
 /* module information */
 MODULE_AUTHOR("Alex Joni");
 MODULE_DESCRIPTION("Driver for Tiro-PC104 board for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 static int base = 0x300;	/* board base address */
 MODULE_PARM(base, "i");
 MODULE_PARM_DESC(base, "board base address");

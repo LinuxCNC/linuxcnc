@@ -159,9 +159,7 @@
 /* module information */
 MODULE_AUTHOR("Alex Joni");
 MODULE_DESCRIPTION("Driver for Servo-to-Go Model I  & II for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 static int base = 0x00;		/* board base address, 0 means autodetect */
 MODULE_PARM(base, "i");
 MODULE_PARM_DESC(base, "board base address, don't use for autodetect");

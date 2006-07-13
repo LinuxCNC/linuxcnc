@@ -99,9 +99,7 @@
 /* module information */
 MODULE_AUTHOR("Martin Kuhnle");
 MODULE_DESCRIPTION("Test Driver for ISA-LED Board for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 /* static char *cfg = 0; */
 /* config string
 MODULE_PARM(cfg, "s");

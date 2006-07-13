@@ -68,9 +68,7 @@
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("HAL driver for Universal PWM Controller");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 int port_addr[MAX_BUS] = { 0x0378, 0, 0 };  /* default, 1 bus at 0x0378 */
 MODULE_PARM(port_addr, "1-3i");
 MODULE_PARM_DESC(port_addr, "port address(es) for EPP bus(es)");

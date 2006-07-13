@@ -88,9 +88,7 @@
 /* module information */
 MODULE_AUTHOR("Jeff Epler");
 MODULE_DESCRIPTION("PC Speaker Driver");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 /* static char *cfg = 0; */
 /* config string
 MODULE_PARM(cfg, "s");

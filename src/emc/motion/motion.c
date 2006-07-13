@@ -36,9 +36,7 @@
    (p.42-44 in 2nd edition) */
 MODULE_AUTHOR("Matt Shaver/John Kasunich");
 MODULE_DESCRIPTION("Motion Controller for EMC");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 
 /*! \todo FIXME - find a better way to do this */
 int DEBUG_MOTION = 0;

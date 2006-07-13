@@ -130,9 +130,7 @@ MODULE_PARM_DESC(msg_level, "debug message level (default=3)");
 /* other module information */
 MODULE_AUTHOR("John Kasunich, Fred Proctor, & Paul Corner");
 MODULE_DESCRIPTION("Portable Real Time API for RTLinux");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif
 
 #include "rtapi_proc.h"		/* proc filesystem decls & code */
 

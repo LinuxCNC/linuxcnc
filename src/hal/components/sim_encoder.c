@@ -74,9 +74,7 @@
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Simulated Encoder for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 int num_chan = 1;
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_cham, "number of 'encoders'");

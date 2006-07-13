@@ -46,9 +46,7 @@
 /* module information */
 MODULE_AUTHOR("Stephen Wille Padnos");
 MODULE_DESCRIPTION("Time Delay for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 static int num_delays = 1;		/* number of delays to create, default = 1 */
 MODULE_PARM(num_delays, "i");
 MODULE_PARM_DESC(num_delays, "Number of delays");

@@ -66,9 +66,7 @@
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Functional blocks for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 static int constant = 0;	/* number of constants */
 MODULE_PARM(constant, "i");
 MODULE_PARM_DESC(constant, "constants");

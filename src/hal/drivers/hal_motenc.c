@@ -151,9 +151,7 @@
 // Module information.
 MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("Driver for Vital Systems MOTENC-100 for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif // MODULE_LICENSE
 static long				period = 0;// Thread period (0 = no thread).
 MODULE_PARM(period, "l");
 MODULE_PARM_DESC(period, "thread period (nsecs)");

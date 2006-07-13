@@ -137,9 +137,7 @@
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Parallel Port Driver for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 static char *cfg = "0x0278";	/* config string, default 1 output port at 278 */
 RTAPI_MP_STRING(cfg, "config string");
 #endif /* MODULE */

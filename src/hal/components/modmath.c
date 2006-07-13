@@ -47,9 +47,7 @@
 /* module information */
 MODULE_AUTHOR("Stephen Wille Padnos");
 MODULE_DESCRIPTION("Modulo math blocks for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 static int mod_dir = 0;	/* number of mod_dirs */
 MODULE_PARM(mod_dir, "i");
 MODULE_PARM_DESC(mod_dir, "Modulo direction blocks");

@@ -175,9 +175,7 @@
 MODULE_AUTHOR("Eric Johnson");
 MODULE_DESCRIPTION
     ("Driver for Vigilant Technologies ENCDAC 4 channel controller");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 static int num_chan = MAX_CHANS;	/* number of channels - default = 8 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");

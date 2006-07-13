@@ -63,9 +63,7 @@
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Thread Module for HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 static char *name1 = NULL;	/* name of thread */
 MODULE_PARM(name1, "s");
 MODULE_PARM_DESC(name1, "name of thread 1");

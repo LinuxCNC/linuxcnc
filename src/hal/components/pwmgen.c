@@ -83,9 +83,7 @@
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("PWM/PDM Generator for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 #define MAX_OUTPUT_TYPE 2
 int output_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 MODULE_PARM(output_type, "1-8i");

@@ -82,10 +82,8 @@ static int strcmp(const char *cs, const char *ct)
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Hardware Abstraction Layer for EMC");
-#endif /* MODULE */
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
+#endif /* MODULE */
 #endif /* RTAPI */
 
 #ifdef ULAPI

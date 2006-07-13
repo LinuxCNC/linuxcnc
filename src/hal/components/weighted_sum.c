@@ -44,9 +44,7 @@
 /* module information */
 MODULE_AUTHOR("Stephen Wille Padnos");
 MODULE_DESCRIPTION("Weighted Summer for EMC HAL");
-#ifdef MODULE_LICENSE
 MODULE_LICENSE("GPL");
-#endif /* MODULE_LICENSE */
 int wsum_sizes[MAX_SUMMERS] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 RTAPI_MP_ARRAY_INT(wsum_sizes, MAX_CHAN, "Sizes of up to 8 weighted summers");
 #endif /* MODULE */
