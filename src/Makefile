@@ -504,6 +504,9 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
 
+obj-m += rotatekins.o
+rotatekins-objs := emc/kinematics/rotatekins.o
+
 obj-m += tripodkins.o
 tripodkins-objs := emc/kinematics/tripodkins.o
 
@@ -579,6 +582,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/hal_lib.o: $(addprefix objects/rt,$(hal_lib-objs))
 ../rtlib/motmod.o: $(addprefix objects/rt,$(motmod-objs))
 ../rtlib/trivkins.o: $(addprefix objects/rt,$(trivkins-objs))
+../rtlib/rotatekins.o: $(addprefix objects/rt,$(rotatekins-objs))
 ../rtlib/tripodkins.o: $(addprefix objects/rt,$(tripodkins-objs))
 ../rtlib/genhexkins.o: $(addprefix objects/rt,$(genhexkins-objs))
 
