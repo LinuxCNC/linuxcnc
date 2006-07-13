@@ -1748,19 +1748,19 @@ static void get_pos_cmds(void)
     case EMCMOT_MOTION_TELEOP:
 
 	/* first the desired Accell's are computed based on
-	    desired Velocity, current velocity and trajCycleTime */
+	    desired Velocity, current velocity and period */
 	emcmotDebug->teleop_data.desiredAccell.tran.x =
 	    (emcmotDebug->teleop_data.desiredVel.tran.x -
 	    emcmotDebug->teleop_data.currentVel.tran.x) /
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 	emcmotDebug->teleop_data.desiredAccell.tran.y =
 	    (emcmotDebug->teleop_data.desiredVel.tran.y -
 	    emcmotDebug->teleop_data.currentVel.tran.y) /
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 	emcmotDebug->teleop_data.desiredAccell.tran.z =
 	    (emcmotDebug->teleop_data.desiredVel.tran.z -
 	    emcmotDebug->teleop_data.currentVel.tran.z) /
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 
 	/* a Carthesian Accell is computed */
 	pmCartMag(emcmotDebug->teleop_data.desiredAccell.tran,
@@ -1770,15 +1770,15 @@ static void get_pos_cmds(void)
 	emcmotDebug->teleop_data.desiredAccell.a =
 	    (emcmotDebug->teleop_data.desiredVel.a -
 	    emcmotDebug->teleop_data.currentVel.a) /
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 	emcmotDebug->teleop_data.desiredAccell.b =
 	    (emcmotDebug->teleop_data.desiredVel.b -
 	    emcmotDebug->teleop_data.currentVel.b) /
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 	emcmotDebug->teleop_data.desiredAccell.c =
 	    (emcmotDebug->teleop_data.desiredVel.c -
 	    emcmotDebug->teleop_data.currentVel.c) /
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 	if (emcmotDebug->teleop_data.desiredAccell.a > accell_mag) {
 	    accell_mag = emcmotDebug->teleop_data.desiredAccell.a;
 	}
@@ -1807,22 +1807,22 @@ static void get_pos_cmds(void)
 		emcmotStatus->acc / accell_mag;
 	    emcmotDebug->teleop_data.currentVel.tran.x +=
 		emcmotDebug->teleop_data.currentAccell.tran.x *
-		emcmotConfig->trajCycleTime;
+		servo_period;
 	    emcmotDebug->teleop_data.currentVel.tran.y +=
 		emcmotDebug->teleop_data.currentAccell.tran.y *
-		emcmotConfig->trajCycleTime;
+		servo_period;
 	    emcmotDebug->teleop_data.currentVel.tran.z +=
 		emcmotDebug->teleop_data.currentAccell.tran.z *
-		emcmotConfig->trajCycleTime;
+		servo_period;
 	    emcmotDebug->teleop_data.currentVel.a +=
 		emcmotDebug->teleop_data.currentAccell.a *
-		emcmotConfig->trajCycleTime;
+		servo_period;
 	    emcmotDebug->teleop_data.currentVel.b +=
 		emcmotDebug->teleop_data.currentAccell.b *
-		emcmotConfig->trajCycleTime;
+		servo_period;
 	    emcmotDebug->teleop_data.currentVel.c +=
 		emcmotDebug->teleop_data.currentAccell.c *
-		emcmotConfig->trajCycleTime;
+		servo_period;
 	} else {
 	    /* if accell_mag is not greater, the computed accell's stay as is */
 	    emcmotDebug->teleop_data.currentAccell =
@@ -1832,26 +1832,26 @@ static void get_pos_cmds(void)
 	}
 
 
-	/* based on curent position, current vel and trajCycleTime, 
+	/* based on curent position, current vel and period, 
 	   the next position is computed */
 	emcmotStatus->carte_pos_cmd.tran.x +=
 	    emcmotDebug->teleop_data.currentVel.tran.x *
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 	emcmotStatus->carte_pos_cmd.tran.y +=
 	    emcmotDebug->teleop_data.currentVel.tran.y *
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 	emcmotStatus->carte_pos_cmd.tran.z +=
 	    emcmotDebug->teleop_data.currentVel.tran.z *
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 	emcmotStatus->carte_pos_cmd.a +=
 	    emcmotDebug->teleop_data.currentVel.a *
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 	emcmotStatus->carte_pos_cmd.b +=
 	    emcmotDebug->teleop_data.currentVel.b *
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 	emcmotStatus->carte_pos_cmd.c +=
 	    emcmotDebug->teleop_data.currentVel.c *
-	    emcmotConfig->trajCycleTime;
+	    servo_period;
 
 	/* the next position then gets run through the inverse kins,
 	    to compute the next positions of the joints */
