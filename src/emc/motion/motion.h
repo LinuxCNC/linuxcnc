@@ -588,8 +588,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double acc;		/* scalar max accel */
 
 	int level;
-	unsigned char tail;	/* flag count for mutex detect */
         int motionType;
+	unsigned char tail;	/* flag count for mutex detect */
         
     } emcmot_status_t;
 
