@@ -56,6 +56,10 @@
 
 */
 
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "hal.h"		/* HAL public API decls */
+#include "hal_priv.h"		/* HAL private decls */
+
 #ifdef RTAPI
 /* includes for realtime config */
 /* Suspect only very early kernels are missing the basic string functions.
@@ -91,10 +95,6 @@ MODULE_LICENSE("GPL");
 #include <sys/types.h>		/* pid_t */
 #include <unistd.h>		/* getpid() */
 #endif
-
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"		/* HAL private decls */
 
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
