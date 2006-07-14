@@ -411,6 +411,7 @@ int main(int argc, char **argv)
        we need to call hal_exit() to free the shared memory */
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
+    signal(SIGPIPE, SIG_IGN);
     /* at this point all options are parsed, connect to HAL */
     /* create a unique module name, to allow for multiple halcmd's */
     snprintf(comp_name, HAL_NAME_LEN-1, "halcmd%d", getpid());
