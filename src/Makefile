@@ -379,9 +379,12 @@ COPY_CONFIGS := \
 		stepper-xyza demo_step_cl stepper motenc m5i20 stg sim vti nist-lathe) \
 	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
-	$(patsubst %,../configs/%/core_sim.hal, halui_halvcp sim)
+	$(patsubst %,../configs/%/core_sim.hal, halui_halvcp sim) \
+	../configs/sim/axis_manualtoolchange.hal
 configs: $(COPY_CONFIGS)
 	
+$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal
+	-cp $< $@
 $(call CONFILES,emc.nml): %/emc.nml: ../configs/common/emc.nml
 	-cp $< $@
 $(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal
