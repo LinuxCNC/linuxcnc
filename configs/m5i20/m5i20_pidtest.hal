@@ -14,8 +14,10 @@
 #    bin/halcmd -f m5i20_pidtest.hal
 #
 
-# first load the m5i20 driver, and create a 1mS thread
-loadrt hal_m5i20 period=1000000
+# first load the m5i20 driver
+loadrt hal_m5i20
+# and create a 1mS thread
+loadrt threads name1=m5i20.thread period1=1000000
 
 # then load the PID module, for three PID loops
 loadrt pid num_chan=3
