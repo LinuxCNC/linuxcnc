@@ -26,9 +26,6 @@
 if [ ! $1 ] ; then
     echo "Usage:  scripts/hal_demo <demo_name>"
     echo "Run from the emc2 directory only"
-    echo "Many demos require root privileges to load and/or"
-    echo "unload kernel modules - log in as root, or use:"
-    echo "  su -c \"scripts/hal_demo <demo_name>\""
     # print the list of demos
     scripts/hal_demo list
     exit 0
@@ -66,6 +63,8 @@ fi
 # here is the "unload" command
 #
 if [ $1 = unload ] ; then
+    # unload any left-over modules
+    bin/halcmd unloadrt all
     # unload the rtos and rtapi
     if ! scripts/realtime stop ; then
         exit -1
@@ -89,25 +88,22 @@ fi
 # this one is a step by step, tutorial/intro to HAL concepts
 #
 if [ $1 = parport1 ] ; then
-   echo "Sorry, the parport demo is currently not working due"
-   echo "to some ongoing changes in the driver..."
-   echo "The driver can no longer create threads.  Until the"
-   echo "new thread creation mechanism is complete, this demo"
-   echo "won't work.  (It could be re-written to use the driver"
-   echo "in user space, and maybe I'll do that, but not today.)"
-   exit -1
     echo "(Comments that are part of the demo are in parenthesis.)"
     echo "(This demo echos its commands to the screen so you can"
     echo " see what each step does.  Echoed commands start with '$')"
-    echo "Hit enter to install the parport module with a 1mS thread"
+    echo "Hit enter to install the parport module"
     read
     # change the 0278 if your port is at a different address
-    echo "$ bin/halcmd loadrt hal_parport period=1000000 cfg=\"0278\""
-    bin/halcmd loadrt hal_parport period=1000000 cfg="0278"
+    echo "$ bin/halcmd loadrt hal_parport cfg=\"0278\""
+    bin/halcmd loadrt hal_parport cfg="0278"
     echo "Hit enter see the component list"
     read
     echo "$ bin/halcmd show comp"
     bin/halcmd show comp
+    echo "Hit enter to create a 1mS thread"
+    read
+    echo "$ bin/halcmd loadrt threads name1=parport.thread period1=1000000"
+    bin/halcmd loadrt threads name1=parport.thread period1=1000000
     echo "Hit enter see the threads and functions"
     read
     echo "$ bin/halcmd show thread"
@@ -206,9 +202,9 @@ if [ $1 = parport1 ] ; then
     bin/halcmd delsig jumper1
     echo "$ bin/halcmd delsig jumper2"
     bin/halcmd delsig jumper2
-    echo "(unloading the parport module)"
-    echo "$ bin/halcmd unloadrt hal_parport"
-    bin/halcmd unloadrt hal_parport
+    echo "(unloading realtime modules)"
+    echo "$ bin/halcmd unloadrt all"
+    bin/halcmd unloadrt all
     exit 0
 fi
 #
@@ -220,14 +216,18 @@ if [ $1 = siggen ] ; then
     echo "(Comments that are part of the demo are in parenthesis.)"
     echo "(This demo echos its commands to the screen so you can"
     echo " see what each step does.  Echoed commands start with '$')"
-    echo "Hit enter to install the siggen module with a 1mS thread"
+    echo "Hit enter to install the siggen module"
     read
-    echo "$ bin/halcmd loadrt siggen fp_period=1000000"
-    bin/halcmd loadrt siggen fp_period=1000000
+    echo "$ bin/halcmd loadrt siggen"
+    bin/halcmd loadrt siggen
     echo "Hit enter see the component list"
     read
     echo "$ bin/halcmd show comp"
     bin/halcmd show comp
+    echo "Hit enter to create a 1mS thread"
+    read
+    echo "$ bin/halcmd loadrt threads name1=siggen.thread period1=1000000"
+    bin/halcmd loadrt threads name1=siggen.thread period1=1000000
     echo "Hit enter see the threads and functions"
     read
     echo "$ bin/halcmd show thread"
@@ -271,21 +271,22 @@ if [ $1 = siggen ] ; then
     read
     echo "(running halmeter, a GUI application - it should"
     echo " appear in another window.)"
-    echo "(click on the select button, then select a pin, signal,"
-    echo " or parameter to observe.  You can change what you are"
+    echo "(it will initially display the sine signal, click"
+    echo " on the select button, then select a pin, signal, or"
+    echo " parameter to observe.  You can change what you are"
     echo " observing at any time.)"
     echo "(the meter updates approx. every 0.1 seconds - if you"
     echo " select one of the output pins, you should see it go"
     echo " through a complete cycle every 10 seconds, since we"
     echo " set the frequency to 0.1Hz.)"
     echo "(Click exit to shut down halmeter.)"
-    echo "$ bin/halmeter"
-    bin/halmeter
+    echo "$ bin/halmeter pin siggen.0.sine"
+    bin/halmeter pin siggen.0.sine
     echo "Hit enter to finish the demo"
     read
-    echo "(unloading the siggen module)"
-    echo "$ bin/halcmd unloadrt siggen"
-    bin/halcmd unloadrt siggen
+    echo "(unloading realtime modules)"
+    echo "$ bin/halcmd unloadrt all"
+    bin/halcmd unloadrt all
     exit 0
 fi
 #
@@ -303,7 +304,7 @@ if [ $1 = circle ] ; then
     bin/halcmd loadrt hal_parport cfg="0278"
     # install two frequency type step pulse generators, stepping type 0,
     # and also create two threads, one 50uS and one 1mS
-    bin/halcmd -V loadrt freqgen step_type=0,0 period=50000 fp_period=1000000
+    bin/halcmd loadrt freqgen step_type=0,0
     # install the siggen module
     bin/halcmd loadrt siggen
     # install two PID loops
@@ -312,7 +313,8 @@ if [ $1 = circle ] ; then
     bin/halcmd show comp
     echo "Hit enter set up the threads"
     read
-    #
+    # create two threads, one 50uS and one 1mS
+    bin/halcmd loadrt threads name1=freqgen.thread name2=freqgen.threadFP period1=50000 period2=1000000
     # set up the high speed thread
     # first read the parport inputs
     bin/halcmd addf parport.0.read freqgen.thread
@@ -438,7 +440,8 @@ if [ $1 = scope ] ; then
     echo "demo.  Hit enter to get started"
     read
     echo "First we load the siggen demo (not echoed)"
-    bin/halcmd loadrt siggen fp_period=1000000
+    bin/halcmd loadrt siggen
+    bin/halcmd loadrt threads name1=siggen.thread period1=1000000
     bin/halcmd addf siggen.0.update siggen.thread
     bin/halcmd start
     bin/halcmd setp siggen.0.frequency 10
@@ -473,7 +476,7 @@ if [ $1 = scope ] ; then
     echo "to this window and hit enter for the next step"
     read
     echo "Now you have a couple channels.  To start sampling, click"
-    echo "on NORMAL in the "Run Mode" window in the upper right."
+    echo "on NORMAL in the 'Run Mode' window in the upper right."
     echo "The state display at the top right of the display will"
     echo "change from IDLE to PRE-TRIG as the scope acquires"
     echo "pre-trigger data.  The status display will show a bar"
