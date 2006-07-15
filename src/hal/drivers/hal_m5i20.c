@@ -144,9 +144,6 @@
 MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("Driver for Mesa Electronics 5i20 for EMC HAL");
 MODULE_LICENSE("GPL");
-static unsigned long			period = 0;	// Thread period (0 = no thread).
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "thread period (nsecs)");
 static unsigned long			loadFpga = 1;
 MODULE_PARM(loadFpga, "l");
 MODULE_PARM_DESC(loadFpga, "Set to have FPGA configuration loaded");
@@ -355,19 +352,6 @@ rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_WARN, "M5I20: **** No M5I20 card detected ****\n");
 	hal_exit(driver.componentId);
 	return(-1);
-    }
-
-    // Was 'period' specified in the insmod command?
-    if (period > 0) {
-
-	// Create a thread.
-	if (hal_create_thread("m5i20.thread", period, 1) < 0){
-	    rtapi_print_msg(RTAPI_MSG_ERR, "M5I20: ERROR: hal_create_thread() failed\n");
-	    hal_exit(driver.componentId);
-	    return(-1);
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "M5I20: created %d uS thread\n", period / 1000);
-	}
     }
 
     return(0);

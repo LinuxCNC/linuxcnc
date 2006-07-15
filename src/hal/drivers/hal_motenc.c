@@ -152,9 +152,6 @@
 MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("Driver for Vital Systems MOTENC-100 for EMC HAL");
 MODULE_LICENSE("GPL");
-static long				period = 0;// Thread period (0 = no thread).
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "thread period (nsecs)");
 #endif // MODULE
 
 
@@ -374,19 +371,6 @@ rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_WARN, "MOTENC: **** No MOTENC card detected ****\n");
 	hal_exit(driver.componentId);
 	return -ENODEV;
-    }
-
-    // Was 'period' specified in the insmod command?
-    if (period > 0) {
-
-	// Create a thread.
-	if (hal_create_thread("motenc.thread", period, 1) < 0){
-	    rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: ERROR: hal_create_thread() failed\n");
-	    hal_exit(driver.componentId);
-	    return(-EINVAL);
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: created %d uS thread\n", period / 1000);
-	}
     }
 
     return(0);

@@ -94,9 +94,6 @@ MODULE_PARM_DESC(base, "board base address");
 static int num_chan = 4;	/* number of channels - default = 4 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
-static long period = 0;		/* thread period - default = no thread */
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "thread period (nsecs)");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -188,20 +185,6 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"TIRO: installed %d encoder counters\n", num_chan);
-    /* was 'period' specified in the insmod command? */
-    if (period > 0) {
-	/* create a thread */
-	retval = hal_create_thread("tiro.thread", period, 0);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"TIRO: ERROR: could not create thread\n");
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "TIRO: created %d uS thread\n",
-		period / 1000);
-	}
-    }
     return 0;
 }
 

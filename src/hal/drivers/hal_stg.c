@@ -169,9 +169,6 @@ MODULE_PARM_DESC(model, "board model, use with caution. it overrides the detecte
 static int num_chan = MAX_CHANS;	/* number of channels - default = 8 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
-static long period = 0;			/* thread period - default = no thread */
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "thread period (nsecs)");
 static char *dio = "IIOO";		/* dio config - default = port A&B inputs, port C&D outputs */
 MODULE_PARM(dio, "s");
 MODULE_PARM_DESC(dio, "dio config string - expects something like IIOO");
@@ -457,20 +454,6 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"STG: installed %d digital outputs\n", outpinnum);
 
-    /* was 'period' specified in the insmod command? */
-    if (period > 0) {
-	/* create a thread */
-	retval = hal_create_thread("stg.thread", period, 0);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"STG: ERROR: could not create thread\n");
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "STG: created %d uS thread\n",
-		period / 1000);
-	}
-    }
     return 0;
 }
 

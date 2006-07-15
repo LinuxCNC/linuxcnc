@@ -686,7 +686,7 @@ extern int hal_create_thread(char *name, unsigned long period_nsec,
 
 /** hal_thread_delete() deletes a realtime thread.
     'name' is the name of the thread, which must have been created
-    by 'hal_thread_new()'.
+    by 'hal_create_thread()'.
     On success, hal_thread_delete() returns HAL_SUCCESS, on
     failure it returns a negative error code.
     Call only from realtime init code, not from user
