@@ -24,10 +24,7 @@
 
     This module supports up to eight axis pairs.  The number of pairs
     is set by the module parameter 'num_chan' when the component is
-    insmod'ed.  The module can optionally create a realtime thread,
-    which is useful if a free-running module is desired.  The module
-    parameter 'period' is a long int, corresponding to the thread
-    period in nano-seconds.  If omitted, no thread will be created.
+    insmod'ed.
 
     The module exports pins and parameters for each axis pair as follows:
 
@@ -112,9 +109,6 @@ MODULE_LICENSE("GPL");
 static int num_chan = 1;	/* number of channels - default = 1 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
-static long period = 0;		/* thread period - default = no thread */
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "thread period (nsecs)");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -244,20 +238,6 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"ENCODER_RATIO: installed %d encoder_ratio blocks\n", num_chan);
-    /* was 'period' specified in the insmod command? */
-    if (period > 0) {
-	/* create a thread */
-	retval = hal_create_thread("encoder-ratio.thread", period, 0);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"ENCODER_RATIO: ERROR: could not create thread\n");
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "ENCODER_RATIO: created %d uS thread\n",
-		period / 1000);
-	}
-    }
     return 0;
 }
 

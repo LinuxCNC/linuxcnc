@@ -63,9 +63,6 @@ MODULE_LICENSE("GPL");
 static int num_chan = 1;	/* number of channels - default = 1 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
-static long period = 0;		/* thread period, default = none */
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "thread period (nsecs)");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -138,19 +135,6 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "SUPPLY:installed %d supplies\n",
 	num_chan);
-    if (period > 0) {
-	/* create thread */
-	retval = hal_create_thread("supply.thread", period, 1);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SUPPLY: ERROR: could not create thread\n");
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO,
-		"SUPPLY: created %d uS thread\n", period / 1000);
-	}
-    }
     return 0;
 }
 

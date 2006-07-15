@@ -42,13 +42,6 @@
     values of the position feedback counters.  Both 'update-freq' and
     'capture-position' use floating point, 'make-pulses' does not.
 
-    The component can optionally create two threads, one that
-    supports floating point and one that does not.  The 'period'
-    parameter (at insmod time) determines the period of the non-FP
-    thread, which is called 'stepgen.thread'.  The 'fp_period'
-    parameter sets the period of the floating point thread, which
-    is called 'stepgen.threadFP'
-
     Polarity:
 
     All signals from this module have fixed polarity (active high
@@ -295,10 +288,6 @@ MODULE_DESCRIPTION("Step Pulse Generator for EMC HAL");
 MODULE_LICENSE("GPL");
 int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 RTAPI_MP_ARRAY_INT(step_type,MAX_CHAN,"stepping types for up to 8 channels");
-static long period = 0;		/* non-FP thread period, default = none */
-RTAPI_MP_LONG(period, "non-FP thread period (nsecs)");
-static long fp_period = 0;	/* FP thread period, default = none */
-RTAPI_MP_LONG(fp_period, "floating point thread period (nsecs)");
 #endif				/* MODULE */
 
 /***********************************************************************
@@ -440,24 +429,6 @@ int rtapi_app_main(void)
 			"STEPGEN: ERROR: no channels configured\n");
 	return -1;
     }
-    /* test for 'period' */
-    if (period != 0) {
-	if ((period < 1000) || (period > 500000)) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "STEPGEN: ERROR: invalid period: %d\n",
-			    period);
-	    return -1;
-	}
-    }
-    /* test for 'fp_period' */
-    if (fp_period != 0) {
-	if ((fp_period < (2 * period)) || (period > 50000000)) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "STEPGEN: ERROR: invalid fp_period: %d\n",
-			    period);
-	    return -1;
-	}
-    }
     /* periodns will be set to the proper value when 'make_pulses()' runs for 
        the first time.  We load a default value here to avoid glitches at
        startup, but all these 'constants' are recomputed inside
@@ -526,34 +497,6 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO,
 		    "STEPGEN: installed %d step pulse generators\n",
 		    num_chan);
-    if (period > 0) {
-	/* create a thread */
-	retval = hal_create_thread("stepgen.thread", period, 0);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "STEPGEN: ERROR: could not create non-FP thread\n");
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO,
-			    "STEPGEN: created %d uS non-FP thread\n",
-			    period / 1000);
-	}
-    }
-    if (fp_period > 0) {
-	/* create a floating point thread */
-	retval = hal_create_thread("stepgen.threadFP", fp_period, 1);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "STEPGEN: ERROR: could not create FP thread\n");
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO,
-			    "STEPGEN: created %d uS FP thread\n",
-			    fp_period / 1000);
-	}
-    }
     return 0;
 }
 

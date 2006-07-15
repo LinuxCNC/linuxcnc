@@ -23,10 +23,7 @@
     It supports up to eight counters, with optional index pulses.
     The number of counters is set by the module parameter 'num_chan'
     when the component is insmod'ed.
-    The driver can optionally create a realtime thread, which is
-    useful if a free-running driver is desired.  The module parameter
-    'period' is a long int, corresponding to the thread period in
-    nano-seconds.  If omitted, no thread will be created.
+
     The driver exports variables for each counters inputs and output.
     It also exports two functions.  "encoder.update-counters" must be
     called in a high speed thread, at least twice the maximum desired
@@ -79,9 +76,6 @@ MODULE_LICENSE("GPL");
 static int num_chan = 3;	/* number of channels - default = 3 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
-static long period = 0;		/* thread period - default = no thread */
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "thread period (nsecs)");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -221,20 +215,6 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"ENCODER: installed %d encoder counters\n", num_chan);
-    /* was 'period' specified in the insmod command? */
-    if (period > 0) {
-	/* create a thread */
-	retval = hal_create_thread("encoder.thread", period, 0);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"ENCODER: ERROR: could not create thread\n");
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "ENCODER: created %d uS thread\n",
-		period / 1000);
-	}
-    }
     return 0;
 }
 

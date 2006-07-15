@@ -39,10 +39,6 @@
     This component exports one function per signal generator,
     called 'siggen.x.update'.  It is a floating point function.
 
-    If the insmod parameter 'fp_period' is specified, the component
-    will create a floating point thread called 'siggen.thread'
-    with the specified period.
-
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -92,9 +88,6 @@ MODULE_LICENSE("GPL");
 static int num_chan = 1;	/* number of channels - default = 1 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
-static long fp_period = 0;	/* float pt thread period, default = none */
-MODULE_PARM(fp_period, "l");
-MODULE_PARM_DESC(fp_period, "floating point thread period (nsecs)");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -249,19 +242,6 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"SIGGEN: installed %d signal generators\n", num_chan);
-    if (fp_period > 0) {
-	/* create a floating point thread */
-	retval = hal_create_thread("siggen.thread", fp_period, 1);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SIGGEN: ERROR: could not create FP thread\n");
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO,
-		"SIGGEN: created %d uS FP thread\n", fp_period / 1000);
-	}
-    }
     return 0;
 }
 

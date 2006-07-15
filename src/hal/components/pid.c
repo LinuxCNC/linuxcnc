@@ -139,9 +139,6 @@ MODULE_PARM_DESC(num_chan, "number of channels");
 static int debug = 0;		/* flag to export optional params */
 MODULE_PARM(debug, "i");
 MODULE_PARM_DESC(debug, "enables optional params");
-static long fp_period = 0;	/* float pt thread period, default = none */
-MODULE_PARM(fp_period, "l");
-MODULE_PARM_DESC(fp_period, "floating point thread period (nsecs)");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -237,19 +234,6 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "PID: installed %d PID loops\n",
 	num_chan);
-    if (fp_period > 0) {
-	/* create a floating point thread */
-	retval = hal_create_thread("pid.threadFP", fp_period, 1);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"PID: ERROR: could not create FP thread\n");
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "PID: created %d uS FP thread\n",
-		fp_period / 1000);
-	}
-    }
     return 0;
 }
 

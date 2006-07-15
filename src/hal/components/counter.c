@@ -30,15 +30,11 @@
     The number of counters is set by the module parameter 'num_chan'
     when the component is insmod'ed.
 
-    The driver can optionally create a realtime thread, which is
-    useful if a free-running driver is desired.  The module parameter
-    'period' is a long int, corresponding to the thread period in
-    nanoseconds.  If omitted, no thread will be created.  The driver
-    exports variables for each counter's inputs and outputs.  It also
-    exports two functions:  "counter.update-counters" must be called in
-    a high speed thread, at least twice the maximum desired count rate.
-    "counter.capture-position" can be called at a much slower rate,
-    and updates the output variables.
+    The driver exports variables for each counter's inputs and outputs.
+    It also exports two functions:  "counter.update-counters" must be
+    called in a high speed thread, at least twice the maximum desired
+    count rate.  "counter.capture-position" can be called at a much 
+    slower rate, and updates the output variables.
 */
 
 /** Copyright (C) 2006 Chris Radek <chris@timeguy.com>
@@ -87,9 +83,6 @@ MODULE_LICENSE("GPL");
 static int num_chan = 1;        /* number of channels - default = 1 */
 MODULE_PARM(num_chan, "i");
 MODULE_PARM_DESC(num_chan, "number of channels");
-static long period = 0;         /* thread period - default = no thread */
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "thread period (nsecs)");
 #endif /* MODULE */
 
 /***********************************************************************
@@ -199,20 +192,6 @@ int rtapi_app_main(void)
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"COUNTER: installed %d counter counters\n", num_chan);
-    /* was 'period' specified in the insmod command? */
-    if (period > 0) {
-	/* create a thread */
-	retval = hal_create_thread("counter.thread", period, 0);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"COUNTER: ERROR: could not create thread\n");
-	    hal_exit(comp_id);
-	    return -EINVAL;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "COUNTER: created %d uS thread\n",
-		period / 1000);
-	}
-    }
     return 0;
 }
 
