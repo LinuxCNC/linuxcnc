@@ -756,7 +756,7 @@ void START_SPEED_FEED_SYNCH(double sync)
 {
     flush_segments();
     EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
-    spindlesyncMsg.spindlesync = sync;
+    spindlesyncMsg.spindlesync = TO_EXT_LEN(FROM_PROG_LEN(sync));
     interp_list.append(spindlesyncMsg);
 }
 
