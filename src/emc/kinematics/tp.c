@@ -736,10 +736,13 @@ int tpRunCycle(TP_STRUCT * tp)
         // hack to show blends in axis
         // tp->motionType = 0;
 
-        if(tc->currentvel > nexttc->currentvel)
+        if(tc->currentvel > nexttc->currentvel) {
             tp->motionType = tc->canon_motion_type;
-        else
+	    emcmotStatus->distance_to_go = tc->target - tc->progress;
+        } else {
             tp->motionType = nexttc->canon_motion_type;
+	    emcmotStatus->distance_to_go = nexttc->target - nexttc->progress;
+        }
 
         secondary_before = tcGetPos(nexttc);
         save_vel = nexttc->reqvel;
@@ -763,6 +766,7 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->currentPos.c += primary_displacement.c + secondary_displacement.c;
     } else {
         tp->motionType = tc->canon_motion_type;
+	emcmotStatus->distance_to_go = tc->target - tc->progress;
         tp->currentPos = primary_after;
     }
     return 0;
