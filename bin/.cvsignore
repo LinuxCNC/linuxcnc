@@ -7,6 +7,7 @@ hal_joystick
 hal_parport
 hal_skeleton
 halcmd
+hal_manualtoolchange
 halmeter
 halscope
 halui
