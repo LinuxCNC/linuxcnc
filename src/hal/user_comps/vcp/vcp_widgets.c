@@ -526,54 +526,56 @@ static int init_button ( vcp_widget_t *wp )
     return 0;
 }
 
-/** TOGGLE BUTTON: The button widget sets a bit HAL pin TRUE or
-    FALSE depending on it's state.  The button is not labeled, 
-    but it can accept any child widget (or widgets, if
-    they are in a box).  Normally, a label widget would be
-    specified as a child and it is a good idear to also put a 
-    led in to better show the toggle nature of the button.
+/** TOGGLE: The toggle widget sets a bit HAL pin TRUE or FALSE
+    depending on it's state.  The widget is not labeled, but it
+    can accept any child widget (or widgets, if they are in a 
+    box).  Normally, a label widget would be specified as a 
+    child.  The appearance (style) of the widget can be either
+    "button" or "checkbox", they work exactly the same.
 */
 
-static int init_toggle_button(vcp_widget_t *widget);
+static int init_toggle(vcp_widget_t *widget);
 
 typedef struct {
     int expand;
     int padding;
     char *halpin;
+    char *style;
     char state;
     hal_bit_t pin_state;
-} toggle_button_data_t;
+} toggle_data_t;
 
 typedef struct {
     hal_bit_t *pin;
-} toggle_button_hal_t;
+} toggle_hal_t;
 
-vcp_attrib_def_t toggle_button_attribs[] = {
-    { "expand", "0", ATTRIB_BOOL, offsetof(toggle_button_data_t, expand) },
-    { "padding", "0", ATTRIB_INT, offsetof(toggle_button_data_t, padding) },
-    { "halpin", NULL, ATTRIB_STRING, offsetof(toggle_button_data_t, halpin) },
-    { "state", "0", ATTRIB_BOOL, offsetof(toggle_button_data_t, state) },
+vcp_attrib_def_t toggle_attribs[] = {
+    { "expand", "0", ATTRIB_BOOL, offsetof(toggle_data_t, expand) },
+    { "padding", "0", ATTRIB_INT, offsetof(toggle_data_t, padding) },
+    { "halpin", NULL, ATTRIB_STRING, offsetof(toggle_data_t, halpin) },
+    { "state", "0", ATTRIB_BOOL, offsetof(toggle_data_t, state) },
+    { "style", "button", ATTRIB_STRING, offsetof(toggle_data_t, style) },
     { NULL, NULL, 0, 0 }
 };
 
-vcp_widget_def_t toggle_button_def = {
-    "toggle_button",
+vcp_widget_def_t toggle_def = {
+    "toggle",
     CL_CONTROL,
     CH_ONE | CL_LAYOUT | CL_LABEL,
-    toggle_button_attribs,
-    sizeof(toggle_button_data_t),
-    init_toggle_button
+    toggle_attribs,
+    sizeof(toggle_data_t),
+    init_toggle
 };
 
-static void toggle_button_toggled(GtkWidget * widget, gpointer gdata)
+static void toggle_toggled(GtkWidget * widget, gpointer gdata)
 {
     vcp_widget_t *wp;
-    toggle_button_data_t *dp;
-    toggle_button_hal_t *hp;
+    toggle_data_t *dp;
+    toggle_hal_t *hp;
 
     wp = (vcp_widget_t *)gdata;
-    dp = (toggle_button_data_t *)wp->priv_data;
-    hp = (toggle_button_hal_t *)wp->hal_data;
+    dp = (toggle_data_t *)wp->priv_data;
+    hp = (toggle_hal_t *)wp->hal_data;
     
     if (GTK_TOGGLE_BUTTON (widget) ->active)
     {	
@@ -585,46 +587,61 @@ static void toggle_button_toggled(GtkWidget * widget, gpointer gdata)
     }
 }
 
-
-static void toggle_button_refresh (vcp_widget_t *wp)
+static void toggle_refresh (vcp_widget_t *wp)
 {
-    toggle_button_data_t *dp;
-    toggle_button_hal_t *hp;
+    toggle_data_t *dp;
+    toggle_hal_t *hp;
 
-    dp = (toggle_button_data_t *)wp->priv_data;
-    hp = (toggle_button_hal_t *)wp->hal_data;
+    dp = (toggle_data_t *)wp->priv_data;
+    hp = (toggle_hal_t *)wp->hal_data;
     *(hp->pin) = dp->pin_state;
 }
 
-static int init_toggle_button ( vcp_widget_t *wp )
+static int init_toggle ( vcp_widget_t *wp )
 {
-    toggle_button_data_t *pd;
-    toggle_button_hal_t *hd;
+    toggle_data_t *pd;
+    toggle_hal_t *hd;
     int retval;
     GtkWidget *gwp;
 
-    pd = (toggle_button_data_t *)(wp->priv_data);
+    pd = (toggle_data_t *)(wp->priv_data);
 
     /* allocate HAL memory for pin */
-    hd = hal_malloc(sizeof(toggle_button_hal_t));
+    hd = hal_malloc(sizeof(toggle_hal_t));
     if (hd == NULL) {
-	printf( "init_toggle_button(): unable to allocate HAL memory\n" );
+	printf( "init_toggle(): unable to allocate HAL memory\n" );
 	return -1;
     }
     wp->hal_data = hd;
     /* export pin */
     retval = hal_pin_bit_new(pd->halpin, HAL_WR, &(hd->pin), comp_id);
     if (retval != 0) {
-	printf( "init_toggle_button(): unable to export HAL pin '%s'\n", pd->halpin );
+	printf( "init_toggle(): unable to export HAL pin '%s'\n", pd->halpin );
 	return retval;
     }
-    /* does the toggle button have a child? */
-    if ( wp->child != NULL ) {
-	/* create a plain toggle button so the child can go inside */
-	gwp = gtk_toggle_button_new();
+    /* create the GTK widget */
+    if ( strncasecmp(pd->style, "button", 6) == 0 ) {
+	/* does it have a child? */
+	if ( wp->child != NULL ) {
+	    /* create a plain GTK toggle button so the child can go inside */
+	    gwp = gtk_toggle_button_new();
+	} else {
+	    /* create a GTK toggle button with a blank label inside */
+	    gwp = gtk_toggle_button_new_with_label(NULL);
+	}
+    } else if ( strncasecmp(pd->style, "check", 5) == 0 ) {
+	/* does it have a child? */
+	if ( wp->child != NULL ) {
+	    /* create a plain GTK check button so the child can go inside */
+	    gwp = gtk_check_button_new();
+	} else {
+	    /* create a GTK check button with a blank label inside */
+	    gwp = gtk_check_button_new_with_label(NULL);
+	}
     } else {
-	/* create a toggle button with a blank label inside */
-	gwp = gtk_toggle_button_new_with_label(NULL);
+	printf ( "line %d:toggle style must be either button or checkbox\n",
+	    wp->linenum );
+	return -1;
     }
     wp->gtk_widget = gwp;
     wp->gtk_type = BIN;
@@ -632,132 +649,16 @@ static int init_toggle_button ( vcp_widget_t *wp )
     add_to_parent(wp->parent, gwp, pd->expand, pd->padding);
     /* connect handler functions */
     gtk_signal_connect(GTK_OBJECT(gwp), "toggled",
-	GTK_SIGNAL_FUNC(toggle_button_toggled), wp);
-    /* set the initial toggle state of the button to TRUE/FALSE (state) */
+	GTK_SIGNAL_FUNC(toggle_toggled), wp);
+    /* set the initial toggle state to TRUE/FALSE (state) */
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwp),pd->state);
 
     /* use a poll function for periodic refresh, even if the user 
        doesn't press the toggle button */
-    wp->poll_funct = toggle_button_refresh;
+    wp->poll_funct = toggle_refresh;
     gtk_widget_show(gwp);
     return 0;
 }
-
-/** CHECK BUTTON: The button widget sets a bit HAL pin TRUE or
-    FALSE depending on it's state. The check button can not have
-    any child widgets except label.  Normally, a label widget would be
-    specified in front, on top or as a child.
-*/
-
-static int init_check_button(vcp_widget_t *widget);
-
-typedef struct {
-    int expand;
-    int padding;
-    char *halpin;
-    char state;
-    hal_bit_t pin_state;
-} check_button_data_t;
-
-typedef struct {
-    hal_bit_t *pin;
-} check_button_hal_t;
-
-vcp_attrib_def_t check_button_attribs[] = {
-    { "expand", "0", ATTRIB_BOOL, offsetof(check_button_data_t, expand) },
-    { "padding", "0", ATTRIB_INT, offsetof(check_button_data_t, padding) },
-    { "halpin", NULL, ATTRIB_STRING, offsetof(check_button_data_t, halpin) },
-    { "state", "0", ATTRIB_BOOL, offsetof(check_button_data_t, state) },
-    { NULL, NULL, 0, 0 }
-};
-
-vcp_widget_def_t check_button_def = {
-    "check_button",
-    CL_CONTROL,
-    CL_LABEL,
-    check_button_attribs,
-    sizeof(check_button_data_t),
-    init_check_button
-};
-
-static void check_button_checked(GtkWidget * widget, gpointer gdata)
-{
-    vcp_widget_t *wp;
-    check_button_data_t *dp;
-    check_button_hal_t *hp;
-
-    wp = (vcp_widget_t *)gdata;
-    dp = (check_button_data_t *)wp->priv_data;
-    hp = (check_button_hal_t *)wp->hal_data;
-    
-    if (GTK_TOGGLE_BUTTON (widget) ->active)
-    {	
-	dp->pin_state = 1;
-	*(hp->pin) = dp->pin_state;
-    } else {
-	dp->pin_state = 0;
-	*(hp->pin) = dp->pin_state;
-    }
-}
-
-
-static void check_button_refresh (vcp_widget_t *wp)
-{
-    check_button_data_t *dp;
-    check_button_hal_t *hp;
-
-    dp = (check_button_data_t *)wp->priv_data;
-    hp = (check_button_hal_t *)wp->hal_data;
-    *(hp->pin) = dp->pin_state;
-}
-
-static int init_check_button ( vcp_widget_t *wp )
-{
-    check_button_data_t *pd;
-    check_button_hal_t *hd;
-    int retval;
-    GtkWidget *gwp;
-
-    pd = (check_button_data_t *)(wp->priv_data);
-
-    /* allocate HAL memory for pin */
-    hd = hal_malloc(sizeof(check_button_hal_t));
-    if (hd == NULL) {
-	printf( "init_check_button(): unable to allocate HAL memory\n" );
-	return -1;
-    }
-    wp->hal_data = hd;
-    /* export pin */
-    retval = hal_pin_bit_new(pd->halpin, HAL_WR, &(hd->pin), comp_id);
-    if (retval != 0) {
-	printf( "init_check_button(): unable to export HAL pin '%s'\n", pd->halpin );
-	return retval;
-    }
-    /* does the check button have a child? */
-    if ( wp->child != NULL ) {
-	/* create a plain toggle button so the child can go inside */
-	gwp = gtk_check_button_new();
-    } else {
-	/* create a check button with a blank label inside */
-	gwp = gtk_check_button_new_with_label(NULL);
-    }
-    wp->gtk_widget = gwp;
-    wp->gtk_type = BIN;
-    /* put it in its parent */
-    add_to_parent(wp->parent, gwp, pd->expand, pd->padding);
-    /* connect handler functions */
-    gtk_signal_connect(GTK_OBJECT(gwp), "toggled",
-	GTK_SIGNAL_FUNC(check_button_checked), wp);
-    /* set the initial check/toggle state of the button to TRUE/FALSE (state) */
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwp),pd->state);
-
-    /* use a poll function for periodic refresh, even if the user 
-       doesn't press the toggle button */
-    wp->poll_funct = check_button_refresh;
-    gtk_widget_show(gwp);
-    return 0;
-}
-
 
 /** LED: The LED widget monitors a bit HAL pin and changes color
     to indicate the state of the pin.
@@ -926,8 +827,7 @@ vcp_widget_def_t *widget_defs[] = {
     &box_def,
     &label_def,
     &spin_button_def,
-    &toggle_button_def,
-    &check_button_def,
+    &toggle_def,
     &button_def,
     &led_def,
     NULL
