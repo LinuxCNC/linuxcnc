@@ -343,7 +343,7 @@ static void spin_button_changed(GtkWidget * widget, gpointer gdata)
     wp = (vcp_widget_t *)gdata;
     dp = (spin_button_data_t *)wp->priv_data;
     hp = (spin_button_hal_t *)wp->hal_data;
-    dp->pin_state = gtk_spin_button_get_value_as_float (widget);
+    dp->pin_state = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(widget));
     *(hp->pin) = dp->pin_state;
 }
 
@@ -401,7 +401,7 @@ static int init_spin_button ( vcp_widget_t *wp )
     /* if the hal pin is below the lower limit or above the upper limit, set to the value displayed (closer limit)*/
 
     if ( *(hd->pin) < pd->lower || *(hd->pin) > pd->upper ) {
-        pd->pin_state = gtk_spin_button_get_value_as_float (gwp);
+        pd->pin_state = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(gwp));
         *(hd->pin) = pd->pin_state;
         }
 
@@ -634,7 +634,7 @@ static int init_toggle_button ( vcp_widget_t *wp )
     gtk_signal_connect(GTK_OBJECT(gwp), "toggled",
 	GTK_SIGNAL_FUNC(toggle_button_toggled), wp);
     /* set the initial toggle state of the button to TRUE/FALSE (state) */
-    gtk_toggle_button_set_active(gwp,pd->state);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwp),pd->state);
 
     /* use a poll function for periodic refresh, even if the user 
        doesn't press the toggle button */
@@ -749,7 +749,7 @@ static int init_check_button ( vcp_widget_t *wp )
     gtk_signal_connect(GTK_OBJECT(gwp), "toggled",
 	GTK_SIGNAL_FUNC(check_button_checked), wp);
     /* set the initial check/toggle state of the button to TRUE/FALSE (state) */
-    gtk_toggle_button_set_active(gwp,pd->state);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwp),pd->state);
 
     /* use a poll function for periodic refresh, even if the user 
        doesn't press the toggle button */
