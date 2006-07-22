@@ -465,6 +465,8 @@ modmath-objs := hal/components/modmath.o $(MATHSTUB)
 # Subdirectory: hal/drivers
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
+obj-$(CONFIG_HAL_PARPORT) += probe_parport.o
+probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
 obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
 hal_tiro-objs := hal/drivers/hal_tiro.o $(MATHSTUB)
 obj-$(CONFIG_HAL_STG) += hal_stg.o
