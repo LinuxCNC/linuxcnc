@@ -175,10 +175,7 @@ setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
 # end of basic machine
 
 #######################################################
-# Beginning of threading related stuff
-#
-# TOTALLY EXPERIMENTAL AND PROBABLY BUSTED!
-# 
+# Beginning of threading-related stuff
 #######################################################
 
 # spindle encoder
@@ -205,18 +202,18 @@ linkps axis.2.home-sw-in <= homeswitches
 setp encoder.0.position-scale 4096
 
 # encoder reset control
-# this signal will eventually be driven by the motion
+# this signal is driven by the motion
 # controller, TRUE for synced motion, FALSE the rest of
 # the time.
+#
+# hook up motion controller's sync output
 newsig spindle-sync bit
-# needs inverted to connect to index enable
+linkps motion.spindle-sync => spindle-sync
+# needs to be inverted to connect to index enable
 newsig spindle-index-en bit
 linksp spindle-sync	=> not.0.in
 linkps not.0.out	=> spindle-index-en
 linksp spindle-index-en	=> encoder.0.index-enable
-
-# hook up motion controller's sync output
-linkps motion.spindle-sync => spindle-sync
 
 # report our revolution count to the motion controller
 newsig spindle-pos float
