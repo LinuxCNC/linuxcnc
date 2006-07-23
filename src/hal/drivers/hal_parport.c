@@ -153,13 +153,15 @@ RTAPI_MP_STRING(cfg, "config string");
 
 typedef struct {
     unsigned short base_addr;	/* base I/O address (0x378, etc.) */
-    unsigned short data_dir;	/* non-zero if pins 2-9 are input */
+    unsigned char data_dir;	/* non-zero if pins 2-9 are input */
+    unsigned char use_control_in; /* non-zero if pins 1, 4, 16, 17 are input */ 
     hal_bit_t *status_in[10];	/* ptrs for in pins 15, 13, 12, 10, 11 */
     hal_bit_t *data_in[16];	/* ptrs for input pins 2 - 9 */
     hal_bit_t *data_out[8];	/* ptrs for output pins 2 - 9 */
     hal_bit_t data_inv[8];	/* polarity params for output pins 2 - 9 */
+    hal_bit_t *control_in[8];	/* ptrs for in pins 1, 14, 16, 17 */
     hal_bit_t *control_out[4];	/* ptrs for out pins 1, 14, 16, 17 */
-    hal_bit_t control_inv[4];	/* pol. params for pins 1, 14, 16, 17 */
+    hal_bit_t control_inv[4];	/* pol. params for output pins 1, 14, 16, 17 */
 } parport_t;
 
 /* pointer to array of parport_t structs in shared memory, 1 per port */
@@ -501,6 +503,16 @@ static void read_port(void *arg, long period)
 	    mask <<= 1;
 	}
     }
+    if(port->use_control_in) {
+        mask = 0x01;
+        /* correct for hardware inverters on pins 1, 14, & 17 */
+        indata = rtapi_inb(port->base_addr + 2) ^ 0x0B;
+        for (b = 0; b < 8; b += 2) {
+            *(port->control_in[b]) = indata & mask;
+            *(port->control_in[b + 1]) = !(indata & mask);
+	    mask <<= 1;
+        }
+    }
 }
 
 static void write_port(void *arg, long period)
@@ -580,12 +592,14 @@ static int pins_and_params(char *argv[])
 {
     unsigned short port_addr[MAX_PORTS];
     int data_dir[MAX_PORTS];
+    int use_control_in[MAX_PORTS];
     int n, retval;
 
     /* clear port_addr and data_dir arrays */
     for (n = 0; n < MAX_PORTS; n++) {
 	port_addr[n] = 0;
 	data_dir[n] = 0;
+	use_control_in[n] = 0;
     }
     /* parse config string, results in port_addr[] and data_dir[] arrays */
     num_ports = 0;
@@ -604,12 +618,21 @@ static int pins_and_params(char *argv[])
 		/* we aren't picky, anything starting with 'i' means 'in' ;-) 
 		 */
 		data_dir[num_ports] = 1;
+                use_control_in[num_ports] = 0;
 		n++;
 	    } else if ((argv[n][0] == 'o') || (argv[n][0] == 'O')) {
 		/* anything starting with 'o' means 'out' */
 		data_dir[num_ports] = 0;
+                use_control_in[num_ports] = 0;
 		n++;
-	    }
+	    } else if ((argv[n][0] == 'x') || (argv[n][0] == 'X')) {
+                /* experimental: some parports support a bidirectional
+                 * control port.  Enable this with pins 2-9 in output mode, 
+                 * which gives a very nice 8 outs and 9 ins. */
+                data_dir[num_ports] = 0;
+                use_control_in[num_ports] = 1;
+		n++;
+            }
 	}
 	num_ports++;
     }
@@ -638,6 +661,8 @@ static int pins_and_params(char *argv[])
 	/* config addr and direction */
 	port_data_array[n].base_addr = port_addr[n];
 	port_data_array[n].data_dir = data_dir[n];
+	port_data_array[n].use_control_in = use_control_in[n];
+
 	/* export all vars */
 	retval = export_port(n, &(port_data_array[n]));
 	if (retval != 0) {
@@ -741,6 +766,13 @@ static int export_port(int portnum, parport_t * port)
 	port->control_out, port->control_inv, 2);
     retval += export_output_pin(portnum, 17,
 	port->control_out, port->control_inv, 3);
+    if(port->use_control_in) {
+        retval += export_input_pin(portnum, 1, port->control_in, 0);
+        retval += export_input_pin(portnum, 14, port->control_in, 1);
+        retval += export_input_pin(portnum, 16, port->control_in, 2);
+        retval += export_input_pin(portnum, 17, port->control_in, 3);
+    }
+
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return retval;
