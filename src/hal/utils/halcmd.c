@@ -3508,11 +3508,11 @@ static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
     static int first_time = 1;
     char *rlbuf;
 
-    if(srcfile == stdin && isatty(0)) {
+    if(!scriptmode && srcfile == stdin && isatty(0)) {
         if(first_time) {
             halcmd_init_readline();
         }
-        rlbuf = readline(scriptmode ? NULL : "halcmd: ");
+        rlbuf = readline("halcmd: ");
         if(!rlbuf) return 0;
         strncpy(buf, rlbuf, bufsize);
         buf[bufsize-1] = 0;
@@ -3523,8 +3523,8 @@ static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
         return 1;
     }
 #endif
-    if(prompt_mode && !scriptmode) {
-	    fprintf(stdout, "halcmd: "); fflush(stdout);
+    if(prompt_mode) {
+	    fprintf(stdout, scriptmode ? "%\n" : "halcmd: "); fflush(stdout);
     }
     return fgets(buf, bufsize, srcfile) != NULL;
 }
