@@ -216,7 +216,7 @@ char * _rs274ngc_errors[] = {
 /* 189 */ _("X and y words missing for arc in xy plane"), // convert_arc
 /* 190 */ _("X and z words missing for arc in xz plane"), // convert_arc
 /* 191 */ _("X value unspecified in yz plane canned cycle"), // convert_cycle_yz
-/* 192 */ _("X y and z words all missing with g38 2"), // convert_probe
+/* 192 */ _("X, y, z, a, b and c words all missing with g38.2"), // convert_probe
 /* 193 */ _("Y and z words missing for arc in yz plane"), // convert_arc
 /* 194 */ _("Y value unspecified in xz plane canned cycle"), // convert_cycle_zx
 /* 195 */ _("Z value unspecified in xy plane canned cycle"), // convert_cycle_xy

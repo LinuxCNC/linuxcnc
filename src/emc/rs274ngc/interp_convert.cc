@@ -1896,10 +1896,7 @@ Returned Value: int
    2. feed mode is inverse time: NCE_CANNOT_PROBE_IN_INVERSE_TIME_FEED_MODE
    3. cutter radius comp is on: NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON
    4. Feed rate is zero: NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE
-   5. Rotary axis motion is programmed:
-      NCE_CANNOT_MOVE_ROTARY_AXES_DURING_PROBING
-   6. The starting point for the probe move is within 0.01 inch or 0.254
-      millimeters of the point to be probed:
+   5. The move is degenerate (already at the specified point)
       NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT
 
 Side effects:
@@ -1925,7 +1922,6 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
                          setup_pointer settings)        //!< pointer to machine settings             
 {
   static char name[] = "convert_probe";
-  double distance;
   double end_x;
   double end_y;
   double end_z;
@@ -1933,8 +1929,10 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   double BB_end;
   double CC_end;
 
-  CHK((((block->x_flag == OFF) && (block->y_flag == OFF)) &&
-       (block->z_flag == OFF)), NCE_X_Y_AND_Z_WORDS_ALL_MISSING_WITH_G38_2);
+  CHK((block->x_flag == OFF && block->y_flag == OFF &&
+       block->z_flag == OFF && block->a_flag == OFF &&
+       block->b_flag == OFF && block->c_flag == OFF), 
+       NCE_X_Y_Z_A_B_AND_C_WORDS_ALL_MISSING_WITH_G38_2);
   CHK((settings->feed_mode == INVERSE_TIME),
       NCE_CANNOT_PROBE_IN_INVERSE_TIME_FEED_MODE);
   CHK((settings->cutter_comp_side != OFF),
@@ -1942,15 +1940,11 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   CHK((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
   find_ends(block, settings, &end_x, &end_y, &end_z,
             &AA_end, &BB_end, &CC_end);
-  if ( (AA_end != settings->AA_current) || (BB_end != settings->BB_current) 
-    || (CC_end != settings->CC_current))
-    ERM(NCE_CANNOT_MOVE_ROTARY_AXES_DURING_PROBING);
-  distance = sqrt(pow((settings->current_x - end_x), 2) +
-                  pow((settings->current_y - end_y), 2) +
-                  pow((settings->current_z - end_z), 2));
-  CHK((distance <
-       ((settings->length_units == CANON_UNITS_MM) ? 0.254 : 0.01)),
-      NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT);
+  CHK((settings->current_x == end_x && settings->current_y == end_y &&
+       settings->current_z == end_z && settings->AA_current == AA_end &&
+       settings->BB_current == BB_end && settings->CC_current == CC_end),
+       NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT);
+       
   TURN_PROBE_ON();
   STRAIGHT_PROBE(end_x, end_y, end_z,
                  AA_end, BB_end, CC_end);
