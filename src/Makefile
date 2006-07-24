@@ -134,12 +134,12 @@ $(sort $(call TODEPS, $(filter %.c,$(USERSRCS)))): depends/%.d: %.c
 
 # Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
-	$(ECHO) Compiling $< $(EXTRAFLAGS)
+	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@$(CC) -c $(CFLAGS) $(EXTRAFLAGS) $< -o $@
 
 $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
-	$(ECHO) Compiling $< $(EXTRAFLAGS)
+	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
 
