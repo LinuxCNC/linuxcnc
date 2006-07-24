@@ -84,6 +84,8 @@ struct {
 #define Bx (haldata->bx)
 #define Cx (haldata->cx)
 #define Cy (haldata->cy)
+#else
+double Bx, Cx, Cy;
 #endif
 
 #define sq(x) ((x)*(x))
@@ -215,110 +217,9 @@ int kinematicsInverse(const EmcPose * pos,
 #undef Dz
 }
 
-/* homing will be done strut-by-strut, so the forward kins will be called
-   based on strut lengths provided. */
-int kinematicsHome(EmcPose * world,
-                   double * joints,
-                   KINEMATICS_FORWARD_FLAGS * fflags,
-                   KINEMATICS_INVERSE_FLAGS * iflags)
-{
-  *fflags = 0;
-  *iflags = 0;
-
-  return kinematicsForward(joints, world, fflags, iflags);
-}
-
 KINEMATICS_TYPE kinematicsType()
 {
   return KINEMATICS_BOTH;
-}
-
-int jacobianInverse(const EmcPose * pos,
-		    const EmcPose * vel,
-		    const double * joints,
-		    double * jointvels)
-{
-#define Dx (pos->tran.x)
-#define Dy (pos->tran.y)
-#define Dz (pos->tran.z)
-#define Vx (vel->tran.x)
-#define Vy (vel->tran.y)
-#define Vz (vel->tran.z)
-#define VAD (jointvels[0])
-#define VBD (jointvels[1])
-#define VCD (jointvels[2])
-  double  d;
-
-  d = sqrt(sq(Dx) + sq(Dy) + sq(Dz));
-  if (d == 0.0) {
-    return -1;
-  }
-  VAD = (Dx * Vx + Dy * Vy + Dz * Vz) / d;
-
-  d = sqrt(sq(Dx - Bx) + sq(Dy) + sq(Dz));
-  if (d == 0.0) {
-    return -1;
-  }
-  VBD = ((Dx - Bx) * Vx + Dy * Vy + Dz * Vz) / d;
-
-  d = sqrt(sq(Dx - Cx) + sq(Dy - Cy) + sq(Dz));
-  if (d == 0.0) {
-    return -1;
-  }
-  VCD = ((Dx - Cx) * Vx + (Dy - Cy) * Vy + Dz * Vz) / d;
-
-  return 0;
-
-#undef Dx
-#undef Dy
-#undef Dz
-#undef Vx
-#undef Vy
-#undef Vz
-#undef VAD
-#undef VBD
-#undef VCD
-}
-
-int jacobianForward(const double * joints,
-		    const double * jointvels,
-		    const EmcPose * pos,
-		    EmcPose * vel)
-{
-#define Dx (pos->tran.x)
-#define Dy (pos->tran.y)
-#define Dz (pos->tran.z)
-#define Vx (vel->tran.x)
-#define Vy (vel->tran.y)
-#define Vz (vel->tran.z)
-#define AD (joints[0])
-#define BD (joints[1])
-#define CD (joints[2])
-#define VAD (jointvels[0])
-#define VBD (jointvels[1])
-#define VCD (jointvels[2])
-
-  Vx = (AD*VAD - BD*VBD)/Bx;
-  Vy = (BD*VBD - CD*VCD + (Bx - Cx)*Vx)/Cy;
-  Vz = (AD*VAD - Dx*Vx - Dy*Vy)/sqrt(sq(AD) - sq(Dx) - sq(Dy));
-  if (Dz < 0.0) {
-    Vz = -Vz;
-  }
-
-  return 0;
-
-#undef Dx
-#undef Dy
-#undef Dz
-#undef Vx
-#undef Vy
-#undef Vz
-#undef AD
-#undef BD
-#undef CD
-#undef VAD
-#undef VBD
-#undef VCD
 }
 
 #ifdef MAIN
@@ -333,18 +234,18 @@ int jacobianForward(const double * joints,
 */
 int main(int argc, char *argv[])
 {
+#ifndef BUFFERLEN
 #define BUFFERLEN 256
+#endif
   char buffer[BUFFERLEN];
   char cmd[BUFFERLEN];
   EmcPose pos, vel;
   double joints[3], jointvels[3];
   char inverse;
-  char jacobian;
   char flags;
   KINEMATICS_FORWARD_FLAGS fflags;
 
   inverse = 0;			/* forwards, by default */
-  jacobian = 0;			/* don't do Jacobian, by default */
   flags = 0;			/* didn't provide flags */
   fflags = 0;			/* above xy plane, by default */
   if (argc != 4 ||
@@ -357,20 +258,10 @@ int main(int argc, char *argv[])
 
   while (! feof(stdin)) {
     if (inverse) {
-      if (jacobian) {
-	printf("jinv> ");
-      }
-      else {
 	printf("inv> ");
-      }
     }
     else {
-      if (jacobian) {
-	printf("jfwd> ");
-      }
-      else {
 	printf("fwd> ");
-      }
     }
     fflush(stdout);
 
@@ -398,106 +289,58 @@ int main(int argc, char *argv[])
       }
       continue;
     }
-    if (! strcmp(cmd, "j")) {
-      jacobian = ! jacobian;
-      continue;
-    }
 
-    if (jacobian) {
-      if (inverse) {
-	if (9 != sscanf(buffer, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
-			&pos.tran.x, &pos.tran.y, &pos.tran.z,
-			&vel.tran.x, &vel.tran.y, &vel.tran.z,
-			&joints[0], &joints[1], &joints[2])) {
-	  continue;
-	}
-	if (0 != jacobianInverse(&pos, &vel, joints, jointvels)) {
-	  printf("inverse jacobian error\n");
-	}
-	else {
-	  printf("%f\t%f\t%f\n", jointvels[0], jointvels[1], jointvels[2]);
-	  if (0 != jacobianForward(joints, jointvels, &pos, &vel)) {
-	    printf("forward jacobian error\n");
-	  }
-	  else {
-	    printf("%f\t%f\t%f\n", vel.tran.x, vel.tran.y, vel.tran.z);
-	  }
-	}
+    if (inverse) {		/* inverse kins */
+      if (3 != sscanf(buffer, "%lf %lf %lf", 
+		      &pos.tran.x,
+		      &pos.tran.y,
+		      &pos.tran.z)) {
+	printf("need X Y Z\n");
+	continue;
+      }
+      if (0 != kinematicsInverse(&pos, joints, NULL, &fflags)) {
+	printf("inverse kin error\n");
       }
       else {
-	if (9 != sscanf(buffer, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
-			&joints[0], &joints[1], &joints[2],
-			&jointvels[0], &jointvels[1], &jointvels[2],
-			&pos.tran.x, &pos.tran.y, &pos.tran.z)) {
-	  continue;
-	}
-	if (0 != jacobianForward(joints, jointvels, &pos, &vel)) {
-	  printf("forward jacobian error\n");
-	}
-	else {
-	  printf("%f\t%f\t%f\n", vel.tran.x, vel.tran.y, vel.tran.z);
-	  if (0 != jacobianInverse(&pos, &vel, joints, jointvels)) {
-	    printf("inverse jacobian error\n");
-	  }
-	  else {
-	    printf("%f\t%f\t%f\n", jointvels[0], jointvels[1], jointvels[2]);
-	  }
-	}
-      }
-    }
-    else {
-      if (inverse) {		/* inverse kins */
-	if (3 != sscanf(buffer, "%lf %lf %lf", 
-			&pos.tran.x,
-			&pos.tran.y,
-			&pos.tran.z)) {
-	  printf("need X Y Z\n");
-	  continue;
-	}
-	if (0 != kinematicsInverse(&pos, joints, NULL, &fflags)) {
-	  printf("inverse kin error\n");
-	}
-	else {
-	  printf("%f\t%f\t%f\n", joints[0], joints[1], joints[2]);
-	  if (0 != kinematicsForward(joints, &pos, &fflags, NULL)) {
-	    printf("forward kin error\n");
-	  }
-	  else {
-	    printf("%f\t%f\t%f\n", pos.tran.x, pos.tran.y, pos.tran.z);
-	  }
-	}
-      }
-      else {			/* forward kins */
-	if (flags) {
-	  if (4 != sscanf(buffer, "%lf %lf %lf %d", 
-			  &joints[0],
-			  &joints[1],
-			  &joints[2],
-			  &fflags)) {
-	    printf("need 3 strut values and flag\n");
-	    continue;
-	  }
-	}
-	else {
-	  if (3 != sscanf(buffer, "%lf %lf %lf", 
-			  &joints[0],
-			  &joints[1],
-			  &joints[2])) {
-	    printf("need 3 strut values\n");
-	    continue;
-	  }
-	}
+	printf("%f\t%f\t%f\n", joints[0], joints[1], joints[2]);
 	if (0 != kinematicsForward(joints, &pos, &fflags, NULL)) {
 	  printf("forward kin error\n");
 	}
 	else {
 	  printf("%f\t%f\t%f\n", pos.tran.x, pos.tran.y, pos.tran.z);
-	  if (0 != kinematicsInverse(&pos, joints, NULL, &fflags)) {
-	    printf("inverse kin error\n");
-	  }
-	  else {
-	    printf("%f\t%f\t%f\n", joints[0], joints[1], joints[2]);
-	  }
+	}
+      }
+    }
+    else {			/* forward kins */
+      if (flags) {
+	if (4 != sscanf(buffer, "%lf %lf %lf %d", 
+			&joints[0],
+			&joints[1],
+			&joints[2],
+			&fflags)) {
+	  printf("need 3 strut values and flag\n");
+	  continue;
+	}
+      }
+      else {
+	if (3 != sscanf(buffer, "%lf %lf %lf", 
+			&joints[0],
+			&joints[1],
+			&joints[2])) {
+	  printf("need 3 strut values\n");
+	  continue;
+	}
+      }
+      if (0 != kinematicsForward(joints, &pos, &fflags, NULL)) {
+	printf("forward kin error\n");
+      }
+      else {
+	printf("%f\t%f\t%f\n", pos.tran.x, pos.tran.y, pos.tran.z);
+	if (0 != kinematicsInverse(&pos, joints, NULL, &fflags)) {
+	  printf("inverse kin error\n");
+	}
+	else {
+	  printf("%f\t%f\t%f\n", joints[0], joints[1], joints[2]);
 	}
       }
     }
