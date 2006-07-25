@@ -22,8 +22,8 @@
 # $Date$
 ################################################################################
 
-DEBUG_FILE=/dev/null
-PRINT_FILE=/dev/null
+DEBUG_FILE=$(mktemp /tmp/emc.debug.XXXXXX)
+PRINT_FILE=$(mktemp /tmp/emc.print.XXXXXX)
 
 ################################################################################
 # 1.1. strip and process command line options
@@ -46,6 +46,11 @@ while ARG=$1 ; ! [ "$ARG" = "${ARG#-}" ] ; do
     # discard option, check next argument
     shift
 done
+
+if ! tty -s; then
+    exec 2>> $DEBUG_FILE
+    exec >> $PRINT_FILE
+fi
 
 ################################################################################
 # 1.2. check for some programs that we need, values get replaced by configure  #
@@ -85,6 +90,30 @@ XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
 export XFILESEARCHPATH
 
 MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
+
+function ErrorCheck () {
+    result=$?
+    echo "catch {send -async popimage destroy .}; destroy ." | wish
+    if [ $result -ne 0 ]; then
+        if tty -s; then
+            cp $DEBUG_FILE $HOME/emc_debug.txt
+            cp $PRINT_FILE $HOME/emc_print.txt
+            echo "\
+EMC terminated with an error.  You can find more information in the log files
+    $HOME/emc_debug.txt
+and
+    $HOME/emc_print.txt
+as well as in the output of the shell command 'dmesg'"
+        else
+            wish $EMC2_TCL_DIR/show_errors.tcl $DEBUG_FILE $PRINT_FILE
+        fi
+    fi
+    rm -f $DEBUG_FILE $PRINT_FILE 2>/dev/null
+    exit $result
+}
+
+trap ErrorCheck EXIT
+
 ################################################################################
 # 1.3. INIFILE                           find inifile to use                   #
 ################################################################################
@@ -525,6 +554,7 @@ export HALCMD=$HALCMD
 
 # 4.3.10. Run display in foreground
 echo "Starting EMC DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
+result=0
 case $EMCDISPLAY in
   tkemc|mini)
     # tkemc and mini are in the tcl directory, not the bin directory
@@ -534,6 +564,7 @@ case $EMCDISPLAY in
 	exit 1
     fi
     $EMC2_TCL_DIR/$EMCDISPLAY.tcl -ini $INIFILE $EMCDISPLAYARGS
+    result=$?
   ;;
   dummy)
     # dummy display just waits for <ENTER>
@@ -548,6 +579,7 @@ case $EMCDISPLAY in
     fi
 #    xterm -xrm 'XTerm*metaSendsEscape:false' -xrm 'XTerm*VT100.Translations: #override <Key>Home: string("\033[1~")\n <Key>End: string("\033[4~")' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
     xterm -xrm 'XTerm*metaSendsEscape:false' -ls -e $EMC2_BIN_DIR/keystick -ini $INIFILE
+    result=$?
   ;;
   *)
     # all other displays are assumed to be in the bin directory
@@ -557,6 +589,7 @@ case $EMCDISPLAY in
 	exit 1
     fi
     $EMC2_BIN_DIR/$EMCDISPLAY -ini $INIFILE $EMCDISPLAYARGS $EXTRA_ARGS
+    result=$?
   ;;
 esac
 
@@ -564,4 +597,4 @@ esac
 # so when you get here it's time to clean up
 Cleanup
 
-exit 0
+exit $result
