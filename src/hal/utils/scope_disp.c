@@ -719,6 +719,25 @@ void line(int chan_num, int x1, int y1, int x2, int y2) {
     }
 }
 
+void lines(int chan_num, GdkPoint points[], gint npoints) {
+    scope_disp_t *disp = &(ctrl_usr->disp);
+    if(DRAWING) {
+        gdk_draw_lines(disp->win, disp->context, points, npoints);
+    } else {
+        int x1 = points[0].x, y1 = points[0].y, x2, y2, i;
+        for(i=1; i<npoints; i++) {
+            x2 = points[i].x; y2 = points[i].y;
+            double dist = distance_point_line(select_x, select_y, x1, y1, x2, y2);
+            if(dist < min_dist) {
+                min_dist = dist;
+                target = chan_num;
+            }
+            x1 = x2; y1 = y2;
+        }
+    }
+}
+
+
 
 static
 void draw_triggerline(int chan_num, int highlight) {
@@ -789,7 +808,8 @@ void draw_waveform(int chan_num, int highlight)
     double xscale, xoffset;
     double yscale, yfoffset, ypoffset, fy;
     hal_type_t type;
-    int x1, y1, x2, y2, miny, maxy, midx;
+    int x1, y1, x2, y2, miny, maxy, midx, ct, pn;
+    GdkPoint *points;
     int first=1;
 
     disp = &(ctrl_usr->disp);
@@ -809,6 +829,9 @@ void draw_waveform(int chan_num, int highlight)
     /* point to first one that gets displayed */
     start = disp->start_sample;
     end = disp->end_sample;
+    ct = end - start + 1;
+    points = alloca(2 * ct * sizeof(GdkPoint));
+    pn = 0;
     n = start;
     dptr += n * sample_len;
 
@@ -866,21 +889,29 @@ void draw_waveform(int chan_num, int highlight)
 	}
 	/* don't draw segment ending at first point */
 	if (n > start) {
-#ifdef DRAW_SMOOTH
-	    /* this is a smoothed line display */
-            line(chan_num, x1, y1, x2, y2);
+            if(pn == 0) {
+                points[pn].x = x1; points[pn].y = y1; pn++;
+            }
+            if(xscale < 1) {
+                if(points[pn-1].x != x2 || points[pn-1].y != y2) {
+                    points[pn].x = x2; points[pn].y = y2; pn++;
+                }
+            } else {
+#if defined(DRAW_SMOOTH)
+                /* this is a smoothed line display */
+                points[pn].x = x2; points[pn].y = y2; pn++;
+#elif defined(DRAW_STEPPED)
+                /* this is a stepped one */
+                points[pn].x = x1; points[pn].y = y2; pn++;
+                points[pn].x = x2; points[pn].y = y2; pn++;
 #else
-#ifdef DRAW_STEPPED
-	    /* this is a stepped one */
-            line(chan_num, x1, y1, x1, y2);
-            line(chan_num, x1, y2, x2, y2)
-#else
-	    /* this is halfway between the two extremes */
-	    midx = (x1 + x2) / 2;
-	    line(chan_num, x1, y1, midx, y2);
-	    line(chan_num, midx, y2, x2, y2);
+                /* this is halfway between the two extremes */
+                midx = (x1 + x2) / 2;
+                if(midx != x2)
+                    points[pn].x = midx; points[pn].y = y2; pn++;
+                points[pn].x = x2; points[pn].y = y2; pn++;
 #endif
-#endif
+            }
 	    if(first && highlight && DRAWING && x2 >= motion_x) {
 		    first = 0;
 		    gdk_draw_arc(disp->win, disp->context, TRUE,
@@ -890,10 +921,13 @@ void draw_waveform(int chan_num, int highlight)
 	/* end of this segment is start of next one */
 	x1 = x2;
 	y1 = y2;
+
 	/* point to next sample */
 	dptr += sample_len;
 	n++;
     }
+    if(pn) lines(chan_num, points, pn);
+    fprintf(stderr, "pn=%d\n", pn);
 }
 
 // vim:sts=4:sw=4:et
