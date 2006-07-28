@@ -58,6 +58,7 @@ CheckConfig(){
     MODULES_UNLOAD=
     for  MOD in $MODULES ; do
         eval MOD=\${MODPATH_$MOD}
+	if [ -z "$MOD" ]; then continue; fi
         if [ -L $MOD ]; then
             MOD=${MOD%/*}/$(readlink $MOD)
         fi
