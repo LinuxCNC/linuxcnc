@@ -1933,8 +1933,6 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
        block->z_flag == OFF && block->a_flag == OFF &&
        block->b_flag == OFF && block->c_flag == OFF), 
        NCE_X_Y_Z_A_B_AND_C_WORDS_ALL_MISSING_WITH_G38_2);
-  CHK((settings->feed_mode == INVERSE_TIME),
-      NCE_CANNOT_PROBE_IN_INVERSE_TIME_FEED_MODE);
   CHK((settings->cutter_comp_side != OFF),
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);
   CHK((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
