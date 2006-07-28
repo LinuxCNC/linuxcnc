@@ -129,7 +129,7 @@ CheckMem(){
 
 Load(){
     for MOD in $MODULES_LOAD ; do
-        $INSMOD $MOD
+        $INSMOD $MOD || return $?
     done
     if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
         echo "$DEBUG" > /proc/rtapi/debug
@@ -190,20 +190,20 @@ CMD=$1
 case "$CMD" in
   start|load)
 	CheckConfig
-	Load
+	Load || exit $?
 	;;
   restart|reload)
 	CheckConfig
 	CheckMem
 	Unload
 	CheckUnloaded
-	Load
+	Load || exit $?
 	CheckLoaded
 	;;
   stop|unload)
 	CheckConfig
 	CheckMem
-	Unload
+	Unload || exit $?
 	;;
   status)
 	CheckConfig
