@@ -164,7 +164,7 @@ fi
 
 if [ ! -n "$INIFILE" ] ; then
     # still nothing specified, exit
-    exit -1
+    exit 0
 fi
 # delete directories from path, save name only
 INI_NAME=`echo $INIFILE | sed s#^.*/##`
