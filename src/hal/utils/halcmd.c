@@ -3524,7 +3524,7 @@ static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
     }
 #endif
     if(prompt_mode) {
-	    fprintf(stdout, scriptmode ? "%\n" : "halcmd: "); fflush(stdout);
+	    fprintf(stdout, scriptmode ? "%%\n" : "halcmd: "); fflush(stdout);
     }
     return fgets(buf, bufsize, srcfile) != NULL;
 }
