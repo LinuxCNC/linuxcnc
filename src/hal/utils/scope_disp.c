@@ -720,6 +720,8 @@ void line(int chan_num, int x1, int y1, int x2, int y2) {
 }
 
 void lines(int chan_num, GdkPoint points[], gint npoints) {
+    double dist;
+
     scope_disp_t *disp = &(ctrl_usr->disp);
     if(DRAWING) {
         gdk_draw_lines(disp->win, disp->context, points, npoints);
@@ -727,7 +729,7 @@ void lines(int chan_num, GdkPoint points[], gint npoints) {
         int x1 = points[0].x, y1 = points[0].y, x2, y2, i;
         for(i=1; i<npoints; i++) {
             x2 = points[i].x; y2 = points[i].y;
-            double dist = distance_point_line(select_x, select_y, x1, y1, x2, y2);
+            dist = distance_point_line(select_x, select_y, x1, y1, x2, y2);
             if(dist < min_dist) {
                 min_dist = dist;
                 target = chan_num;
