@@ -1,0 +1,18 @@
+namespace eval emc {
+    variable HOME @EMC2_HOME@
+    variable BIN_DIR @EMC2_BIN_DIR@
+    variable TCL_DIR @EMC2_TCL_DIR@
+    variable TCL_BIN_DIR @EMC2_TCL_DIR@/bin
+    variable TCL_SCRIPT_DIR @EMC2_TCL_DIR@/scripts
+    variable HELP_DIR @EMC2_HELP_DIR@
+    variable RTLIB_DIR @EMC2_RTLIB_DIR@
+    variable CONFIG_PATH {@EMC2_CONFIG_PATH@}
+    variable NCFILES_DIR @EMC2_NCFILES_DIR@
+    variable LANG_DIR @EMC2_LANG_DIR@
+    variable IMAGEDIR @EMC2_IMAGE_DIR@
+    variable REALTIME @REALTIME@
+}
+
+if {[string first $::emc::BIN_DIR: $env(PATH)] != 0} {
+    set env(PATH) $::emc::BIN_DIR:$env(PATH)
+}

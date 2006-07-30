@@ -150,8 +150,9 @@ config.h: config.h.in config.status
 	@./config.status --file=$@
 
 default: \
-	 ../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
-	../scripts/rtapi.conf ../src/Makefile.inc ../src/depend.sh
+	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
+	../scripts/rtapi.conf ../src/Makefile.inc ../src/depend.sh \
+	../tcl/emc.tcl
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include

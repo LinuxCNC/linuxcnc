@@ -986,6 +986,13 @@ else
    TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 fi
 
+AC_MSG_CHECKING([for BWidget])
+if changequote(<,>) (unset DISPLAY; echo "catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]" | tclsh) changequote([,]); then
+    AC_MSG_RESULT([found])
+else
+    AC_MSG_ERROR([not found])
+fi
+
 AC_SUBST([TCL_DBGX])
 AC_SUBST([TK_DBGX])
 AC_SUBST([TCL_CFLAGS])
@@ -1131,6 +1138,7 @@ AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_OUTPUT(Makefile.inc)
 AC_OUTPUT(depend.sh)
+AC_OUTPUT(../tcl/emc.tcl)
 
 ##############################################################################
 # message to the user what to do next, after a succesfull ./configure        #
