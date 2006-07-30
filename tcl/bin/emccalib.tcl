@@ -1,12 +1,4 @@
 #!/bin/sh
-# we need to find the tcl dir, it was exported from emc \
-export EMC2_TCL_DIR
-# \
-export HALCMD
-# and some apps need the realtime script, so export that too \
-export REALTIME
-# and the emc2 version string \
-export EMC2VERSION
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
@@ -37,44 +29,7 @@ exec $EMC2_EMCSH "$0" "$@"
 # and builds widgets to display and manipulate their values
 # it does not and will not sort on hal components.
 
-#first define some default directories
-set TCLBIN tcl/bin
-set TCLSCRIPTS tcl/scripts
-set TCLDIR tcl
-set REALTIME scripts/realtime
-set LANGDIR src/po
-
-# default location for halcmd is in ./bin/
-# if this file is needed to run a different location of halcmd
-# the env(HALCMD) will hold the absolute path to it
-set HALCMD bin/halcmd
-
-if {[info exists env(EMC2_TCL_DIR)]} {
-    set TCLBIN $env(EMC2_TCL_DIR)
-    set TCLSCRIPTS $env(EMC2_TCL_DIR)
-    set TCLBIN $TCLBIN/bin
-    set TCLSCRIPTS $TCLSCRIPTS/scripts
-    set TCLDIR $env(EMC2_TCL_DIR)
-}
-
-if {[info exists env(REALTIME)]} {
-    set REALTIME $env(REALTIME)
-}
-
-# get the absolute path to HALCMD if it exists
-if {[info exists env(HALCMD)]} {
-    set HALCMD $env(HALCMD)
-}
-
-if {[info exists env(EMC2_LANG_DIR)]} {
-    set LANGDIR $env(EMC2_LANG_DIR)
-}
-
-package require msgcat
-if ([info exists env(LANG)]) {
-    msgcat::mclocale $env(LANG)
-    msgcat::mcload $LANGDIR
-}
+source [file join [file dirname [info script]] .. emc.tcl]
 
 package require BWidget
 
@@ -202,7 +157,7 @@ for {set i $startline} {$i < $endline} {incr i} {
 }
 
 proc makeIniTune {} {
-    global axisentry top initext HALCMD sectionarray thisconfigdir haltext
+    global axisentry top initext sectionarray thisconfigdir haltext
     global numaxes ininamearray commandarray thisinifile halfilelist
 
     for {set j 0} {$j<$numaxes} {incr j} {
@@ -247,7 +202,7 @@ proc makeIniTune {} {
                         set lowername "[string tolower $thisininame]"
                         set thishalcommand [lindex $tmpstring 1]
                         set tmpval [expr [lindex [split \
-                            [exec $HALCMD -s show param $thishalcommand] " "] 3]]
+                            [exec halcmd -s show param $thishalcommand] " "] 3]]
                         global axis$j-$lowername axis$j-$lowername-next
                         set axis$j-$lowername $tmpval
                         set axis$j-$lowername-next $tmpval

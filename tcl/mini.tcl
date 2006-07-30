@@ -1,7 +1,5 @@
 #!/bin/sh
 # the next line restarts using emcsh \
-export EMC2_TCL_DIR
-# the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
 ###############################################################
@@ -32,40 +30,11 @@ exec $EMC2_EMCSH "$0" "$@"
 # than 1000 wide and TkEmcS for smaller screens.
 ###############################################################
 
+
+# Load the emc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] emc.tcl]
+
 set tkemc 1
-
-#first define some default directories
-set TCLBIN tcl/bin
-set TCLSCRIPTS tcl/scripts
-set TCLDIR tcl
-set HELPDIR ../../docs/help
-set LANGDIR src/po
-
-if {[info exists env(EMC2_TCL_DIR)]} {
-    set TCLBIN $env(EMC2_TCL_DIR)
-    set TCLSCRIPTS $env(EMC2_TCL_DIR)
-    set TCLBIN $TCLBIN/bin
-    set TCLSCRIPTS $TCLSCRIPTS/scripts
-    set TCLDIR $env(EMC2_TCL_DIR)
-}
-
-if {[info exists env(EMC2_HELP_DIR)]} {
-    set HELPDIR $env(EMC2_HELP_DIR)
-}
-
-if ([info exists env(EMC2_TCL_DIR)]) {
-    set emc2tcldir $env(EMC2_TCL_DIR)
-}
-
-if {[info exists env(EMC2_LANG_DIR)]} {
-    set LANGDIR $env(EMC2_LANG_DIR)
-}
-
-package require msgcat
-if ([info exists env(LANG)]) {
-    msgcat::mclocale $env(LANG)
-    msgcat::mcload $LANGDIR
-}
 
 # wheelEvent code curtesy of Tsahi Levent-Levi - on activestate web site.
 # this only works properly on TNG's RedHat 7.2 or newer os's.
@@ -1008,11 +977,11 @@ $settingsmenu add radiobutton -label [msgcat::mc "Relative Position"] \
     -variable  coords -value relative
 $settingsmenu add separator
 $settingsmenu add command -label [msgcat::mc "Calibration..."] \
-    -command "exec $TCLBIN/emccalib.tcl -- -ini $EMC_INIFILE &"
+    -command "exec $emc::TCL_BIN_DIR/emccalib.tcl -- -ini $EMC_INIFILE &"
 $settingsmenu add command -label [msgcat::mc "HAL Show..."] \
-    -command "exec $TCLBIN/halshow.tcl -- -ini $EMC_INIFILE &"
+    -command "exec $emc::TCL_BIN_DIR/halshow.tcl -- -ini $EMC_INIFILE &"
 $settingsmenu add command -label [msgcat::mc "HAL Config..."] \
-    -command "exec $TCLBIN/halconfig.tcl -- -ini $EMC_INIFILE &"
+    -command "exec $emc::TCL_BIN_DIR/halconfig.tcl -- -ini $EMC_INIFILE &"
 
 
 # info menu
@@ -1368,9 +1337,9 @@ proc loadVarFile {} {
 
 # -----RIGHT HELP-----
 
-set HELPDIR [emc_ini HELP_FILE DISPLAY ]
 proc popinHelp {} {
-    global popinframe HELPDIR HELPDIR
+    set HELPFILE [emc_ini HELP_FILE DISPLAY ]
+    global popinframe
     set helpwidth 80
     set helpheight 30
     set helpframe [frame $popinframe.help ]
@@ -1384,9 +1353,7 @@ proc popinHelp {} {
     pack $helptextwin -side top -fill both -expand true
     pack $helptextframe -side top -fill both -expand yes
     # insert contents of filename, if it exists
-    if { [file isfile $HELPDIR/$HELPDIR ] == 1} {
-        set fname $HELPDIR/$HELPDIR
-    }
+    set fname $emc::HELP_DIR/$HELPFILE
     if { [catch {open $fname} filein] } {
         mText [msgcat::mc "can't open %s" $fname]
     } else {

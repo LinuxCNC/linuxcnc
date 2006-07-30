@@ -1,15 +1,9 @@
 #!/bin/sh
-# we need to find the tcl dir, it was exported from emc \
-export EMC2_TCL_DIR
-# and some apps need the realtime script, so export that too \
-export REALTIME
-# and the emc2 version string \
-export EMC2VERSION
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
 ###############################################################
-# Description:  popimage
+# Description:  tkemc
 #               A Tcl/Tk GUI script that defines default  
 #               emc interface functionality. 
 #
@@ -28,29 +22,8 @@ exec $EMC2_EMCSH "$0" "$@"
 # Provides default display or operators for each NML message
 ###############################################################
 
-
-#first define some default directories
-set TCLBIN tcl/bin
-set TCLSCRIPTS tcl/scripts
-set TCLDIR tcl
-set HELPDIR ../../docs/help
-set LANGDIR src/po
-
-if {[info exists env(EMC2_TCL_DIR)]} {
-    set TCLBIN $env(EMC2_TCL_DIR)
-    set TCLSCRIPTS $env(EMC2_TCL_DIR)
-    set TCLBIN $TCLBIN/bin
-    set TCLSCRIPTS $TCLSCRIPTS/scripts
-    set TCLDIR $env(EMC2_TCL_DIR)
-}
-
-if {[info exists env(EMC2_HELP_DIR)]} {
-    set HELPDIR $env(EMC2_HELP_DIR)
-}
-
-if {[info exists env(EMC2_LANG_DIR)]} {
-    set LANGDIR $env(EMC2_LANG_DIR)
-}
+# Load the emc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] emc.tcl]
 
 # Tk GUI for the Enhanced Machine Controller
 
@@ -82,11 +55,11 @@ set tkemc 1
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload $LANGDIR
+    msgcat::mcload $emc::LANG_DIR
 }
 
 # read the application defaults
-set TKEMCCONF $TCLDIR/TkEmc
+set TKEMCCONF $emc::TCL_DIR/TkEmc
 if {[file exists $TKEMCCONF]} {
     option readfile $TKEMCCONF startupFile
 }
@@ -197,26 +170,26 @@ set debounceTime 150
 
 if { $windows == 0 } {
     # load the generic editor "startEditor <name>"
-    source $TCLBIN/genedit.tcl
+    source $emc::TCL_BIN_DIR/genedit.tcl
 
     # load the EMC calibrator
-#    source $TCLBIN/emccalib.tcl
+#    source $emc::TCL_BIN_DIR/emccalib.tcl
 
     # load the EMC data logger
-    source $TCLBIN/emclog.tcl
+    source $emc::TCL_BIN_DIR/emclog.tcl
 
     # load the EMC performance tester
-    source $TCLBIN/emctesting.tcl
+    source $emc::TCL_BIN_DIR/emctesting.tcl
 
     # load the EMC debug level setter
-    source $TCLBIN/emcdebug.tcl
+    source $emc::TCL_BIN_DIR/emcdebug.tcl
 
     # load the backplotter
-    source $TCLBIN/tkbackplot.tcl
+    source $emc::TCL_BIN_DIR/tkbackplot.tcl
 
     # load balloon help
-    source $TCLSCRIPTS/balloon.tcl
-    source $TCLSCRIPTS/emchelp.tcl
+    source $emc::TCL_SCRIPT_DIR/balloon.tcl
+    source $emc::TCL_SCRIPT_DIR/emchelp.tcl
     set do_balloons [emc_ini "BALLOON_HELP" "DISPLAY"]
     if {$do_balloons == ""} {
         set do_balloons 0
@@ -321,10 +294,10 @@ proc popupHelp {} {
     global HELPDIR
 
     # create an editor as top-level ".help"
-    if {[file isfile $HELPDIR/$helpfilename]} {
-        geneditStart help $HELPDIR/$helpfilename
+    if {[file isfile $emc::HELP_DIR/$helpfilename]} {
+        geneditStart help $emc::HELP_DIR/$helpfilename
     } else {
-        geneditStart help $HELPDIR/tkemc.txt
+        geneditStart help $emc::HELP_DIR/tkemc.txt
     }
 
     # disable menu entries that don't apply to read-only text
@@ -789,7 +762,7 @@ $viewmenu add command -label [msgcat::mc "Backplot..."] -command {popupPlot} -un
 # add the Settings menu
 set settingsmenu [menu $menubar.settings -tearoff 0]
 $menubar add cascade -label [msgcat::mc "Settings"] -menu $settingsmenu -underline 0
-$settingsmenu add command -label [msgcat::mc "Calibration..."] -command "exec $TCLBIN/emccalib.tcl -- -ini $EMC_INIFILE &"
+$settingsmenu add command -label [msgcat::mc "Calibration..."] -command "exec $emc::TCL_BIN_DIR/emccalib.tcl -- -ini $EMC_INIFILE &"
 $settingsmenu add command -label [msgcat::mc "Logging..."] -command {popupLog} -underline 0
 $settingsmenu add command -label [msgcat::mc "Testing..."] -command {popupTesting} -underline 0 -state disabled
 $settingsmenu add command -label [msgcat::mc "Debug..."] -command {popupDebug} -underline 0
@@ -808,13 +781,13 @@ set scriptsmenu [menu $menubar.scripts -tearoff 1]
 $menubar add cascade -label [msgcat::mc "Scripts"] -menu $scriptsmenu -underline 1
 
 if { $windows == 0 } {
-    set files [exec /bin/ls $TCLSCRIPTS]
+    set files [exec /bin/ls $emc::TCL_SCRIPT_DIR]
     foreach file $files {
 	if {[string match *.tcl $file]} {
 	    set fname [file rootname $file]
 	    # if it's executable, arrange for direct execution
-	    if {[file executable $TCLSCRIPTS/$file]} {
-		$scriptsmenu add command -label $fname -command "exec $TCLSCRIPTS/$file -- -ini $EMC_INIFILE &"
+	    if {[file executable $emc::TCL_SCRIPT_DIR/$file]} {
+		$scriptsmenu add command -label $fname -command "exec $emc::TCL_SCRIPT_DIR/$file -- -ini $EMC_INIFILE &"
 	    }
 	}
     }
@@ -822,8 +795,8 @@ if { $windows == 0 } {
 
 # add halconfig, to help for HAL setup, it's under Scripts, but it's in the TCL_BIN_DIR
 $scriptsmenu add separator
-$scriptsmenu add command -label [msgcat::mc "HAL Show"] -command "exec $TCLBIN/halshow.tcl -- -ini $EMC_INIFILE &"
-$scriptsmenu add command -label [msgcat::mc "HAL Config"] -command "exec $TCLBIN/halconfig.tcl -- -ini $EMC_INIFILE &"
+$scriptsmenu add command -label [msgcat::mc "HAL Show"] -command "exec $emc::TCL_BIN_DIR/halshow.tcl -- -ini $EMC_INIFILE &"
+$scriptsmenu add command -label [msgcat::mc "HAL Config"] -command "exec $emc::TCL_BIN_DIR/halconfig.tcl -- -ini $EMC_INIFILE &"
 
 # add the help menu
 set helpmenu [menu $menubar.help -tearoff 0]

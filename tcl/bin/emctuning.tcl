@@ -1,18 +1,10 @@
 #!/bin/sh
-# we need to find the tcl dir, it was exported from emc.run \
-export EMC2_TCL_DIR
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
-set TCLBIN tcl/bin
-set TCLSCRIPTS tcl/scripts
 
-if {[info exists env(EMC2_TCL_DIR)]} {
-    set TCLBIN $env(EMC2_TCL_DIR)
-    set TCLSCRIPTS $env(EMC2_TCL_DIR)
-    set TCLBIN $TCLBIN/bin
-    set TCLSCRIPTS $TCLSCRIPTS/scripts
-}
+# Load the emc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. emc.tcl]
 
 # emctuning.tcl
 # EMC system identification and autotuning program
@@ -22,7 +14,7 @@ if {[info exists env(EMC2_TCL_DIR)]} {
 
 # check if any emc commands exist, and quit if not
 if {! [string length [info commands emc_plat]]} {
-    error "emclog needs to run from \"emcsh\""
+    error "emctuning needs to run from \"emcsh\""
 }
 
 # set cycle time for updating, using tkemc's displayCycleTime if

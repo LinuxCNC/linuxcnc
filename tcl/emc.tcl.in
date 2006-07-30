@@ -11,8 +11,38 @@ namespace eval emc {
     variable LANG_DIR @EMC2_LANG_DIR@
     variable IMAGEDIR @EMC2_IMAGE_DIR@
     variable REALTIME @REALTIME@
+
+    variable _langinit 1
 }
 
 if {[string first $::emc::BIN_DIR: $env(PATH)] != 0} {
     set env(PATH) $::emc::BIN_DIR:$env(PATH)
+}
+
+proc emc::image_search i {
+    set paths "$emc::HOME $emc::HOME/etc/emc2 /etc/emc2 ."
+    foreach f $paths {
+        if [file exists $f/$i] {
+            return [image create photo -file $i]
+        }
+        if [file exists $f/$i.gif] {
+            return [image create photo -file $i.gif]
+        }
+    }
+    error "image $i is not available"
+}
+
+# Internationalisation (i18n)
+# in order to use i18n, all the strings will be called [msgcat::mc "string-foo"]
+# instead of "string-foo".
+# Thus msgcat searches for a translation of the string, and in case one isn't 
+# found, the original string is used.
+# In order to properly use locale's the env variable LANG is queried.
+# If LANG is defined, then the folder src/po is searched for files
+# called *.msg, (e.g. en_US.msg).
+package require msgcat
+if {$emc::_langinit && [info exists env(LANG)]} {
+    msgcat::mclocale $env(LANG)
+    msgcat::mcload $emc::LANG_DIR
+    set emc::_langinit 0
 }

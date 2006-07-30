@@ -1,6 +1,4 @@
 #!/bin/sh
-# we need to find the tcl dir, it was exported from emc.run \
-export EMC2_TCL_DIR
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
@@ -29,17 +27,7 @@ exec $EMC2_EMCSH "$0" "$@"
 # or edit the exec line above with the path to emcsh.
 ###############################################################
 
-set LANGDIR src/po
-
-if {[info exists env(EMC2_LANG_DIR)]} {
-    set LANGDIR $env(EMC2_LANG_DIR)
-}
-
-package require msgcat
-if ([info exists env(LANG)]) {
-    msgcat::mclocale $env(LANG)
-    msgcat::mcload $LANGDIR
-}
+source [file join [file dirname [info script]] .. emc.tcl]
 
 # check if any emc commands exist, and quit if not
 if {! [string length [info commands emc_plat]]} {

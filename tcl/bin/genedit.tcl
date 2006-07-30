@@ -37,40 +37,11 @@ exec wish "$0" "$@"
 # by name to extract things like the insertion point, selected text, etc.
 # Mods to fix copy, paste, delete add find and line number by rh 12/1999
 # Mods to add line numbering and find and replace by rh 12/1999.
-# Mod for a script menu that looks for *.ncw files in $TCLSCRIPTS directory.
+# Mod for a script menu that looks for *.ncw files in $emc::TCL_SCRIPT_DIR directory.
 ###############################################################
 
-set TCLBIN tcl/bin
-set TCLSCRIPTS tcl/scripts
-
-if {[info exists env(EMC2_TCL_DIR)]} {
-    set TCLBIN $env(EMC2_TCL_DIR)
-    set TCLSCRIPTS $env(EMC2_TCL_DIR)
-    set TCLBIN $TCLBIN/bin
-    set TCLSCRIPTS $TCLSCRIPTS/scripts
-}
-
-
-set LANGDIR $TCLDIR/../src/po
-if {[info exists env(EMC2_LANG_DIR)]} {
-    set LANGDIR $env(EMC2_LANG_DIR)
-}
-
-
-
-# Internationalisation (i18n)
-# in order to use i18n, all the strings will be called [msgcat::mc "string-foo"]
-# instead of "string-foo".
-# Thus msgcat searches for a translation of the string, and in case one isn't 
-# found, the original string is used.
-# In order to properly use locale's the env variable LANG is queried.
-# If LANG is defined, then the folder src/po is searched for files
-# called *.msg, (e.g. en_US.msg).
-package require msgcat
-if ([info exists env(LANG)]) {
-    msgcat::mclocale $env(LANG)
-    msgcat::mcload $LANGDIR
-}
+# Load the emc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. emc.tcl]
 
 proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"Text files" {.txt} }}}} {
 
@@ -185,11 +156,11 @@ proc geneditStart {name {ifilename "untitled.txt"} {itypes { {"All files" *} {"T
         $menubar add cascade -label [msgcat::mc "Scripts"] -menu $scriptmenu -underline 1
         #replaced scriptdir
 	#set scriptdir tcl/scripts
-        set files [exec /bin/ls $TCLSCRIPTS]
+        set files [exec /bin/ls $emc::TCL_SCRIPT_DIR]
 	foreach file $files {
     	    if {[string match *.ncw $file]} {
         	set geneditfname [file rootname $file]
-            	$scriptmenu add command -label $geneditfname -command "source $TCLSCRIPTS/$file"
+            	$scriptmenu add command -label $geneditfname -command "source $emc::TCL_SCRIPT_DIR/$file"
     	    }
     	}
     }

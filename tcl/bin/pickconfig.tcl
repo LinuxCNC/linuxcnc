@@ -30,15 +30,11 @@ exec wish "$0" "$@"
 #
 ###############################################################
 
-# This logo is used on all the pages
-set wizard_image_search "/etc/emc2/emc2-wizard.gif /usr/local/etc/emc2/emc2-wizard.gif emc2-wizard.gif"
 
-foreach wizard_image $wizard_image_search {
-    if { [file exists $wizard_image] } {
-        set logo [image create photo -file $wizard_image]
-        break
-    }
-}
+# Load the emc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. emc.tcl]
+
+set logo [emc::image_search emc2-wizard]
 
 option add *font {Helvetica -12}
 option add *Entry*background white
@@ -47,22 +43,10 @@ option add *Tree*background white
 
 ################### PROCEDURE DEFINITIONS #####################
 
-#first define some default directories
-set TCLDIR tcl
-set LANGDIR src/po
-
-if {[info exists env(EMC2_TCL_DIR)]} {
-    set TCLDIR $env(EMC2_TCL_DIR)
-}
-
-if {[info exists env(EMC2_LANG_DIR)]} {
-    set LANGDIR $env(EMC2_LANG_DIR)
-}
-
 package require msgcat
 if ([info exists env(LANG)]) {
     msgcat::mclocale $env(LANG)
-    msgcat::mcload $LANGDIR
+    msgcat::mcload $emc::LANG_DIR
 }
 
 # use initialize_config for bwidget and .emcrc

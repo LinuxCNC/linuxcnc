@@ -1,10 +1,4 @@
 #!/bin/sh
-# export HALCMD \
-export HALCMD 
-# we need to find the tcl dir, it was exported from emc \
-export EMC2_TCL_DIR
-# and some apps need the emc2_bin_dir, so export that too \
-export REALTIME
 # the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
@@ -29,52 +23,16 @@ exec $EMC2_EMCSH "$0" "$@"
 # FIXME -- please hal param naming conventions aren't
 ###############################################################
 
-#first define some default directories
-set TCLBIN tcl/bin
-set TCLSCRIPTS tcl/scripts
-set TCLDIR tcl
-set REALTIME scripts/realtime
-set LANGDIR src/po
-
-# default location for halcmd is in ./bin/
-# if this file is needed to run a different location of halcmd
-# the env(HALCMD) will hold the absolute path to it
-set HALCMD bin/halcmd
-
-if {[info exists env(EMC2_TCL_DIR)]} {
-    set TCLBIN $env(EMC2_TCL_DIR)
-    set TCLSCRIPTS $env(EMC2_TCL_DIR)
-    set TCLBIN $TCLBIN/bin
-    set TCLSCRIPTS $TCLSCRIPTS/scripts
-    set TCLDIR $env(EMC2_TCL_DIR)
-}
-
-if {[info exists env(REALTIME)]} {
-    set REALTIME $env(REALTIME)
-}
-
-# get the absolute path to HALCMD if it exists
-if {[info exists env(HALCMD)]} {
-    set HALCMD $env(HALCMD)
-}
-
-if {[info exists env(EMC2_LANG_DIR)]} {
-    set LANGDIR $env(EMC2_LANG_DIR)
-}
-
-package require msgcat
-if ([info exists env(LANG)]) {
-    msgcat::mclocale $env(LANG)
-    msgcat::mcload $LANGDIR
-}
+# Load the emc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. emc.tcl]
 
 package require BWidget
 
 #----------open channel to halcmd ----------
 
 proc openHALCMD {} {
-    global fid HALCMD
-    set fid [open "|$HALCMD -skf" "r+"]
+    global fid
+    set fid [open "|halcmd -skf" "r+"]
     fconfigure $fid -buffering line -blocking on
     gets $fid
     fileevent $fid readable {getsHAL}
@@ -653,7 +611,7 @@ proc makeWidgetSet {where what} {
 }
 
 proc makeIniTune {} {
-    global axisentry top initext HALCMD sectionarray thisconfigdir haltext
+    global axisentry top initext sectionarray thisconfigdir haltext
     global numaxes ininamearray commandarray thisinifile halfilelist
     for {set j 0} {$j<$numaxes} {incr j} {
         global af$j
@@ -692,7 +650,7 @@ proc makeIniTune {} {
                         set lowername "[string tolower $thisininame]"
                         set thishalcommand [lindex $tmpstring 1]
                         set tmpval [expr [lindex [split \
-                            [exec $HALCMD -s show param $thishalcommand] " "] 3]]
+                            [exec halcmd -s show param $thishalcommand] " "] 3]]
                         global axis$j-$lowername axis$j-$lowername-next
                         set axis$j-$lowername $tmpval
                         set axis$j-$lowername-next $tmpval
@@ -726,7 +684,7 @@ proc makeIniTune {} {
 }
 
 proc makeNetTune {} {
-    global axisentry top initext HALCMD sectionarray halfilelist
+    global axisentry top initext sectionarray halfilelist
     global ininamearray commandarray thisinifile
 
     # get all parameters from halcmd.
@@ -864,7 +822,7 @@ proc iniTuneButtonpress {which} {
 }
 
 proc changeIni {how } {
-    global axisentry sectionarray ininamearray commandarray HALCMD
+    global axisentry sectionarray ininamearray commandarray
     global numaxes main initext
     for {set i 0} {$i<$numaxes} {incr i} {
         global af$i
@@ -885,7 +843,7 @@ proc changeIni {how } {
                 # get the halcmd string
                 set tmpcmd [lindex $varcommands $listnum]
                 # use halcmd to set new parameter value in hal
-                set thisret [exec $HALCMD setp $tmpcmd $newval]
+                set thisret [exec halcmd setp $tmpcmd $newval]
                 # set the current value for display
                 set $var $newval
                 # set the tmp value as next in display
@@ -914,7 +872,7 @@ proc changeIni {how } {
                 set k 0
                 foreach cmd $cmds {
                     set tmpval [expr [lindex [split \
-                        [exec $HALCMD -s show param $cmd] " "] 3]]
+                        [exec halcmd -s show param $cmd] " "] 3]]
                     set oldval [lindex $oldvals $k]
                     if {$tmpval != $oldval} {
                         set answer [tk_messageBox \
@@ -975,7 +933,7 @@ proc workMode {which} {
 # process uses it's own halcmd show so that displayed
 # info looks like what is in the Hal_Introduction.pdf
 proc showHAL {which} {
-    global disp HALCMD
+    global disp
     if {![info exists disp]} {return}
     if {$which == "zzz"} {
         displayThis [msgcat::mc "Select a node to show."]
@@ -985,7 +943,7 @@ proc showHAL {which} {
     set thislist [split $which "+"]
     set searchbase [lindex $thislist 0]
     set searchstring [lindex $thislist 1]
-    set thisret [exec $HALCMD show $searchbase $searchstring]
+    set thisret [exec halcmd show $searchbase $searchstring]
     displayThis $thisret
 }
 
@@ -1200,8 +1158,8 @@ refreshHAL
 # Netini replaces parameter values in netlist with ini lookup.
  
 proc saveHAL {which} {
-    global HALCMD thisconfigdir thisinifile
-    global sectionarray ininamearray commandarray HALCMD
+    global thisconfigdir thisinifile
+    global sectionarray ininamearray commandarray
     global numaxes initext
     
     if {![file writable $thisinifile]} {
@@ -1243,7 +1201,7 @@ proc saveHAL {which} {
                                 set cmd [lindex $varcommands $tmpindx]
                                 $initext mark set insert $ind.0
                                 set newval [expr [lindex [split \
-                                    [exec $HALCMD -s show param $cmd] " "] 3]]
+                                    [exec halcmd -s show param $cmd] " "] 3]]
                                 set tmptest [string first "e" $newval]
                                 if {[string first "e" $newval] > 1} {
                                     set newval [format %f $newval]
@@ -1262,7 +1220,7 @@ proc saveHAL {which} {
         savenetlist {
             set netname [file join $thisconfigdir \
                 [lindex [split [file tail $thisinifile] "."] 0]_net.hal]
-            set tmphalnet [exec $HALCMD save]
+            set tmphalnet [exec halcmd save]
             saveFile $netname $tmphalnet
         }
         saveandexit {

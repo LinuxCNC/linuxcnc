@@ -1,6 +1,4 @@
 #!/bin/sh
-# we need to find the tcl dir, it was exported from emc.run \
-export EMC2_TCL_DIR
 # the next line restarts using iosh \
 exec $EMC2_IOSH "$0" "$@"
 
@@ -26,15 +24,9 @@ exec $EMC2_IOSH "$0" "$@"
 # Provides loopback between IO commands and status
 ###############################################################
 
-set TCLBIN tcl/bin
-set TCLSCRIPTS tcl/scripts
 
-if {[info exists env(EMC2_TCL_DIR)]} {
-    set TCLBIN $env(EMC2_TCL_DIR)
-    set TCLSCRIPTS $env(EMC2_TCL_DIR)
-    set TCLBIN $TCLBIN/bin
-    set TCLSCRIPTS $TCLSCRIPTS/scripts
-}
+# Load the emc.tcl file, which defines variables for various useful paths
+source [file join [file dirname [info script]] .. emc.tcl]
 
 # FIXME
 # Change EMC_TOOL_ABORT in bridgeport,minimill,tkio to EMC_IO_ABORT
