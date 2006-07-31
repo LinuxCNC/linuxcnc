@@ -2521,11 +2521,11 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     depth = start_depth;
     while (depth < end_depth) {
         STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z, AABBCC);
-        //START_SPEED_FEED_SYNCH(block->k_number);
+        START_SPEED_FEED_SYNCH(pitch);
         //maybe entry STRAIGHT_FEED
         STRAIGHT_FEED(safe_x - depth, start_y, end_z, AABBCC);
         //maybe exit STRAIGHT_FEED
-        //STOP_SPEED_FEED_SYNCH();
+        STOP_SPEED_FEED_SYNCH();
         STRAIGHT_TRAVERSE(safe_x, start_y, end_z, AABBCC);
         STRAIGHT_TRAVERSE(safe_x, start_y, start_z, AABBCC);
         depth = start_depth + cut_increment * pow(++pass, 1.0/degression);
@@ -2533,11 +2533,11 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     depth = end_depth;
     for(int i = 0; i<spring_cuts+1; i++) {
         STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z, AABBCC);
-        //START_SPEED_FEED_SYNCH(block->k_number);
+        START_SPEED_FEED_SYNCH(pitch);
         //maybe entry STRAIGHT_FEED
         STRAIGHT_FEED(safe_x - depth, start_y, end_z, AABBCC);
         //maybe exit STRAIGHT_FEED
-        //STOP_SPEED_FEED_SYNCH();
+        STOP_SPEED_FEED_SYNCH();
         STRAIGHT_TRAVERSE(safe_x, start_y, end_z, AABBCC);
         STRAIGHT_TRAVERSE(safe_x, start_y, start_z, AABBCC);
     }
