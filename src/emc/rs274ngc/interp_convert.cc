@@ -1457,7 +1457,7 @@ G codes are are executed in the following order.
 10. mode 0, one of (G10, G28, G30, G92, G92.1, G92.2, G92.3) -
     setting coordinate system locations, return to reference point 1,
     return to reference point 2, setting or cancelling axis offsets.
-11. mode 1, one of (G0, G1, G2, G3, G38.2, G80, G81 to G89) - motion or cancel.
+11. mode 1, one of (G0, G1, G2, G3, G38.2, G80, G81 to G89, G33, G76) - motion or cancel.
     G53 from mode 0 is also handled here, if present.
 
 Some mode 0 and most mode 1 G codes must be executed after the length units
@@ -1863,7 +1863,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   static char name[] = "convert_motion";
   int status;
 
-  if ((motion == G_0) || (motion == G_1) || (motion == G_33)) {
+  if ((motion == G_0) || (motion == G_1) || (motion == G_33) || (motion == G_76)) {
     CHP(convert_straight(motion, block, settings));
   } else if ((motion == G_3) || (motion == G_2)) {
     CHP(convert_arc(motion, block, settings));
@@ -1876,8 +1876,6 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     settings->motion_mode = G_80;
   } else if ((motion > G_80) && (motion < G_90)) {
     CHP(convert_cycle(motion, block, settings));
-//  } else if (motion == G_33) {
-//    COMMENT("convert_motion: G33 code");
   } else
     ERM(NCE_BUG_UNKNOWN_MOTION_CODE);
 
@@ -2416,6 +2414,9 @@ calculated as zero otherwise.
 
 */
 
+int convert_threading_cycle(block_pointer block, setup_pointer settings,
+        double end_x, double end_y, double end_z);
+
 int Interp::convert_straight(int move,   //!< either G_0 or G_1                       
                             block_pointer block,        //!< pointer to a block of RS274 instructions
                             setup_pointer settings)     //!< pointer to machine settings             
@@ -2481,6 +2482,11 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_x = end_x;
     settings->current_y = end_y;
     settings->current_z = end_z;
+  } else if (move == G_76) {
+    CHK((settings->AA_current != AA_end || 
+         settings->BB_current != BB_end || 
+         settings->CC_current != CC_end), NCE_CANNOT_MOVE_ROTARY_AXES_WITH_G76);
+    convert_threading_cycle(block, settings, end_x, end_y, end_z);
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
 
@@ -2489,6 +2495,56 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   settings->CC_current = CC_end;
   return INTERP_OK;
 }
+
+int convert_threading_cycle(block_pointer block, setup_pointer settings,
+        double end_x, double end_y, double end_z) {
+    double start_x = settings->current_x;
+    double start_y = settings->current_y;
+    double start_z = settings->current_z;
+
+    double safe_x = start_x;
+    double start_depth = block->i_number;
+    double cut_increment = block->j_number;
+    double end_depth = block->k_number + block->i_number;
+
+    double pitch = block->p_number;
+    double spring_cuts = block->h_number;
+    if(spring_cuts == -1) spring_cuts = 0;
+
+    double degression = block->r_number;
+    if(degression < 1.0) degression = 1.0;
+
+    double depth;
+    int pass = 0;
+
+#define AABBCC settings->AA_current, settings->BB_current, settings->CC_current
+    depth = start_depth;
+    while (depth < end_depth) {
+        STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z, AABBCC);
+        //START_SPEED_FEED_SYNCH(block->k_number);
+        //maybe entry STRAIGHT_FEED
+        STRAIGHT_FEED(safe_x - depth, start_y, end_z, AABBCC);
+        //maybe exit STRAIGHT_FEED
+        //STOP_SPEED_FEED_SYNCH();
+        STRAIGHT_TRAVERSE(safe_x, start_y, end_z, AABBCC);
+        STRAIGHT_TRAVERSE(safe_x, start_y, start_z, AABBCC);
+        depth = start_depth + cut_increment * pow(++pass, 1.0/degression);
+    } 
+    depth = end_depth;
+    for(int i = 0; i<spring_cuts+1; i++) {
+        STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z, AABBCC);
+        //START_SPEED_FEED_SYNCH(block->k_number);
+        //maybe entry STRAIGHT_FEED
+        STRAIGHT_FEED(safe_x - depth, start_y, end_z, AABBCC);
+        //maybe exit STRAIGHT_FEED
+        //STOP_SPEED_FEED_SYNCH();
+        STRAIGHT_TRAVERSE(safe_x, start_y, end_z, AABBCC);
+        STRAIGHT_TRAVERSE(safe_x, start_y, start_z, AABBCC);
+    }
+#undef AABBC
+    return INTERP_OK;
+}
+
 
 /****************************************************************************/
 

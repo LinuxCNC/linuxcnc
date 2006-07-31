@@ -254,27 +254,35 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
         NCE_D_WORD_WITH_NO_G41_OR_G42);
   }
   if (block->h_number != -1) {
-    CHK((block->g_modes[8] != G_43), NCE_H_WORD_WITH_NO_G43);
+    CHK((block->g_modes[8] != G_43 && motion != G_76), NCE_H_WORD_WITH_NO_G43);
   }
 
   if (block->i_flag == ON) {    /* could still be useless if yz_plane arc */
-    CHK(((motion != G_2) && (motion != G_3) && (motion != G_87)),
-        NCE_I_WORD_WITH_NO_G2_OR_G3_OR_G87_TO_USE_IT);
+    CHK(((motion != G_2) && (motion != G_3) && (motion != G_76) && (motion != G_87)),
+        NCE_I_WORD_WITH_NO_G2_OR_G3_G76_OR_G87_TO_USE_IT);
   }
 
   if (block->j_flag == ON) {    /* could still be useless if xz_plane arc */
-    CHK(((motion != G_2) && (motion != G_3) && (motion != G_87)),
-        NCE_J_WORD_WITH_NO_G2_OR_G3_OR_G87_TO_USE_IT);
+    CHK(((motion != G_2) && (motion != G_3) && (motion != G_76) && (motion != G_87)),
+        NCE_J_WORD_WITH_NO_G2_OR_G3_G76_OR_G87_TO_USE_IT);
   }
 
   if (block->k_flag == ON) {    /* could still be useless if xy_plane arc */
-    CHK(((motion != G_2) && (motion != G_3) && (motion != G_33) && (motion != G_87)),
-        NCE_K_WORD_WITH_NO_G2_OR_G3_OR_G87_TO_USE_IT);
+    CHK(((motion != G_2) && (motion != G_3) && (motion != G_33) && (motion != G_76) && (motion != G_87)),
+        NCE_K_WORD_WITH_NO_G2_OR_G3_G76_OR_G87_TO_USE_IT);
   }
 
   if (motion == G_33) {
     CHK((block->k_flag == OFF),	NCE_K_WORD_MISSING_WITH_G33);
     CHK((block->f_number != -1), NCE_F_WORD_USED_WITH_G33);
+  }
+
+  if (motion == G_76) {
+    // pitch
+    CHK((block->p_number == -1), NCE_P_WORD_MISSING_WITH_G76);
+
+    CHK((block->i_flag == OFF || block->j_flag == OFF || block->k_flag == OFF),
+            NCE_I_J_OR_K_WORDS_MISSING_WITH_G76);
   }
 
   if (block->l_number != -1) {
@@ -293,8 +301,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          (block->m_modes[5] != 65) &&
          (block->user_m != 1) &&
          (motion != G_82) && (motion != G_86) &&
-         (motion != G_88) && (motion != G_89)),
-        NCE_P_WORD_WITH_NO_G4_G10_G64_G82_G86_G88_G89);
+         (motion != G_88) && (motion != G_89) && (motion != G_76)),
+        NCE_P_WORD_WITH_NO_G4_G10_G64_G76_G82_G86_G88_G89);
   }
 
   if (block->q_number != -1.0) {
@@ -302,7 +310,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->r_flag == ON) {
-    CHK((((motion != G_2) && (motion != G_3)) &&
+    CHK(((motion != G_2) && (motion != G_3) && (motion != G_76) &&
          ((motion < G_81) || (motion > G_89))),
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);
   }
