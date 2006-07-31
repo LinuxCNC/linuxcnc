@@ -138,20 +138,6 @@ Load(){
 }
 
 CheckLoaded(){
-# checks to see if rtapi and hal_lib modules were loaded
-# (would like to check all modules, but some may not actually
-#  be required or present on all systems)
-    STATUS=
-    for module in rtapi hal_lib ; do
-	# check to see if the module is installed
-	if ! /sbin/lsmod | awk '{print $1}' | grep -x $module >/dev/null ; then
-	    echo "ERROR: Could not load '$module'"
-	    STATUS=error
-	fi
-    done
-    if [ -n "$STATUS" ] ; then
-	exit 1
-    fi
     # this abomination is needed because udev sometimes doesn't
     # have the device ready for us in time.
     n=0
@@ -192,6 +178,7 @@ case "$CMD" in
   start|load)
 	CheckConfig
 	Load || exit $?
+	CheckLoaded
 	;;
   restart|reload)
 	CheckConfig
