@@ -427,15 +427,15 @@ int main(int argc, char **argv)
     hal_flag = 1;
     /* connect to the HAL */
     comp_id = hal_init(comp_name);
-    hal_ready(comp_id);
     /* done with mutex */
     hal_flag = 0;
     /* check result */
     if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed\n" );
+	fprintf(stderr, "halcmd: hal_init() failed: %d\n", comp_id );
 	fprintf(stderr, "NOTE: 'rtapi' kernel module must be loaded\n" );
 	return 1;
     }
+    hal_ready(comp_id);
     retval = 0;
     errorcount = 0;
     /* HAL init is OK, let's process the command(s) */
@@ -1448,9 +1448,11 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
-	    fprintf(stderr, "halcmd: hal_init() failed after fork\n" );
+	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
+                    comp_id );
 	    exit(-1);
 	}
+        hal_ready(comp_id);
 	return -1;
     }
     if ( pid == 0 ) {
@@ -1485,9 +1487,10 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* reconnect to the HAL shmem area */
     comp_id = hal_init(comp_name);
     if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed after loadrt\n" );
+	fprintf(stderr, "halcmd: hal_init() failed after loadrt: %d\n", comp_id );
 	exit(-1);
     }
+    hal_ready(comp_id);
     /* check result of waitpid() */
     if ( retval < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1710,9 +1713,11 @@ static int unloadrt_comp(char *mod_name)
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
-	    fprintf(stderr, "halcmd: hal_init() failed after fork\n" );
+	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
+                    comp_id);
 	    exit(-1);
 	}
+        hal_ready(comp_id);
 	return -1;
     }
     if ( pid == 0 ) {
@@ -1736,9 +1741,11 @@ static int unloadrt_comp(char *mod_name)
     /* reconnect to the HAL shmem area */
     comp_id = hal_init(comp_name);
     if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed after unloadrt\n" );
+	fprintf(stderr, "halcmd: hal_init() failed after unloadrt: %d\n",
+                comp_id );
 	exit(-1);
     }
+    hal_ready(comp_id);
     /* check result of waitpid() */
     if ( retval < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1908,9 +1915,11 @@ static int do_loadusr_cmd(char *args[])
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
-	    fprintf(stderr, "halcmd: hal_init() failed after fork\n" );
+	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
+                    comp_id);
 	    exit(-1);
 	}
+        hal_ready(comp_id);
 	return -1;
     }
     if ( pid == 0 ) {
@@ -1942,9 +1951,11 @@ static int do_loadusr_cmd(char *args[])
     /* this is the parent process, reconnect to the HAL shmem area */
     comp_id = hal_init(comp_name);
     if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed after loadusr\n" );
+	fprintf(stderr, "halcmd: hal_init() failed after loadusr: %d\n",
+                comp_id);
 	exit(-1);
     }
+    hal_ready(comp_id);
     if ( wait_comp_flag ) {
         int ready = 0, count=0;
         int next;
