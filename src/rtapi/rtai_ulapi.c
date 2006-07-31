@@ -108,10 +108,11 @@ int rtapi_init(char *modname)
     /* setup revision string and code, and print opening message */
     setup_revision_info();
     /* get shared memory block from OS and save its address */
+    errno = 0;
     rtapi_data = rtai_malloc(RTAPI_KEY, sizeof(rtapi_data_t));
     if (rtapi_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERROR: could not open shared memory\n");
+	    "RTAPI: ERROR: could not open shared memory (errno=%d)\n", errno);
 	return RTAPI_NOMEM;
     }
     /* perform a global init if needed */
