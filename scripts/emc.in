@@ -305,11 +305,15 @@ function Cleanup() {
     echo "Shutting down and cleaning up EMC..."
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of emc
-    for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh axis ; do
+    for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh ; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
     done
+
+    if [ "$EMCDISPLAY" = "axis" ]; then
+	axis-remote --ping && axis-remote --quit
+    fi
 
     $HALCMD unloadusr all
 
