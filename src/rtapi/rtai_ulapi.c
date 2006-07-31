@@ -73,6 +73,7 @@
 #include <rtai_shm.h>		/* rtai_malloc,free() */
 #include <malloc.h>		/* malloc(), free() */
 #include <sys/io.h>		/* inb(), outb() */
+#include <errno.h>		/* errno */
 
 #include "rtapi.h"		/* public RTAPI decls */
 #include "rtapi_common.h"	/* shared realtime/nonrealtime stuff */
