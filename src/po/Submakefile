@@ -1,3 +1,15 @@
 %.mo: %.po
 	msgfmt -o $@ $<
 
+../share/locale/%/LC_MESSAGES/rs274_err.mo: po/%_rs274_err.mo
+	$(ECHO) copying $* message catalog
+	@mkdir -p $(dir $@)
+	@cp $< $@
+
+$(warning PO files: $(wildcard po/*_rs274_err.po))
+$(warning MO files: $(patsubst po/%_rs274_err.po, \
+	../share/locale/%/LC_MESSAGES/rs274_err.mo, \
+	$(wildcard po/*_rs274_err.po)))
+TARGETS += $(patsubst po/%_rs274_err.po, \
+	../share/locale/%/LC_MESSAGES/rs274_err.mo, \
+	$(wildcard po/*_rs274_err.po))
