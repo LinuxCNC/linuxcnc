@@ -6,10 +6,16 @@
 	@mkdir -p $(dir $@)
 	@cp $< $@
 
-$(warning PO files: $(wildcard po/*_rs274_err.po))
-$(warning MO files: $(patsubst po/%_rs274_err.po, \
-	../share/locale/%/LC_MESSAGES/rs274_err.mo, \
-	$(wildcard po/*_rs274_err.po)))
+MO_FILES := $(patsubst po/%_rs274_err.po, %/LC_MESSAGES/rs274_err.mo, \
+	$(wildcard po/*_rs274_err.po))
+
+$(DESTDIR)$(localedir)/%/LC_MESSAGES/rs274_err.mo: ../share/locale/%/LC_MESSAGES/rs274_err.mo
+	$(FILE) $< $@
+
+.PHONY: install-locale
+install-locale: $(addprefix $(DESTDIR)$(localedir)/, $(MO_FILES))
+install-kernel-indep: install-locale
+
 TARGETS += $(patsubst po/%_rs274_err.po, \
 	../share/locale/%/LC_MESSAGES/rs274_err.mo, \
 	$(wildcard po/*_rs274_err.po))
