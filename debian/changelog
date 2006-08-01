@@ -1,3 +1,15 @@
+emc2 (1:2.0.2) unstable; urgency=low
+
+  * add probe_parport module for machines with plug-and-play parports that
+    require initialization before working
+  * fix velocity and acceleration in teleop mode (non-trivial kinematics
+    machines only)
+  * fix G33's K word to use programmed G20/G21 units as appropriate
+  * fix possible error when halcmd's output is piped to a program
+  * move the Gnome menu entry for EMC from "Other" to a "CNC" group
+
+ -- Chris Radek <chris@timeguy.com>  Mon, 31 Jul 2006 19:32:54 -0500
+
 emc2 (1:2.0.1) unstable; urgency=low
 
   * several fixes for blending of very short segments

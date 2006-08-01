@@ -438,6 +438,11 @@ hal_ppmc-objs := hal/drivers/hal_ppmc.o
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o
 
+ifneq "$(filter 2.6.%, $(kernelvers))" ""
+obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
+probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
+endif
+
 obj-$(CONFIG_CLASSICLADDER_RT) += classicladder_rt.o
 classicladder_rt-objs := hal/classicladder/module_rt.o
 classicladder_rt-objs += hal/classicladder/calc_rt.o
