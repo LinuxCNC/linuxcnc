@@ -1,0 +1,229 @@
+.\" Copyright (c) 2006 Alex Joni
+.\"                (alex_joni AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH HALUI "1"  "2006-07-22" "EMC Documentation" "HAL User Interface"
+.SH NAME
+halui \- observe HAL pins and command EMC through NML
+.SH SYNOPSIS
+.B halui
+[\fB-ini <path-to-ini>\fR]
+.SH DESCRIPTION
+\fBhalui\fR is used to build a User Interface using hardware knobs
+and switches. It experts a big number of pins, and acts accordingly 
+when these change.
+.SH OPTIONS
+.TP
+\fB-ini name\fR
+use the \fIname\fR as the configuration file. Note: halui must find the 
+nml file specified in the ini, usually that file is in the same 
+folder as the ini, so it makes sense to run halui from that folder.
+.SH USAGE
+When run, \fBhalui\fR will export a large number of pins. A user can connect
+those to his physical knobs & switches & leds, and when a change is noticed
+halui triggers an appropriate event.
+.TP
+\fBhalui\fR expects the signals to be debounced, so if needed (bad knob contact) connect the physical button to a HAL debounce filter first.
+
+.SH EXPORTED PINS
+
+\fBmachine\fR
+.TP 
+\fIhalui.machine.on\fR
+pin for setting machine On
+.TP 
+\fIhalui.machine.off\fR
+pin for setting machine Off
+.TP 
+\fIhalui.machine.is-on\fR
+pin for machine is On/Off
+.TP
+\fBestop\fR
+.TP
+\fIhalui.estop.activate\fR
+pin for setting Estop (emc internal) On
+.TP
+\fIhalui.estop.reset\fR
+pin for resetting Estop (emc internal) Off
+.TP
+\fIhalui.estop.is-reset\fR
+pin for displaying Estop state (emc internal) On/Off
+.TP
+\fBmode\fR
+.TP
+\fIhalui.mode.manual\fR
+pin for requesting manual mode
+.TP
+\fIhalui.mode.is_manual\fR
+pin for manual mode is on
+.TP
+\fIhalui.mode.auto\fR
+pin for requesting auto mode
+.TP
+\fIhalui.mode.is_auto\fR
+pin for auto mode is on
+.TP
+\fIhalui.mode.mdi\fR
+pin for requesting mdi mode
+.TP
+\fIhalui.mode.is_mdi\fR
+pin for mdi mode is on
+.TP
+\fBmist, flood, lube\fR
+.TP
+\fIhalui.mist.on\fR
+pin for starting mist
+.TP
+\fIhalui.mist.off\fR
+pin for stoping mist
+.TP
+\fIhalui.mist.is-on\fR
+pin for mist is on
+.TP
+\fIhalui.flood.on\fR
+pin for starting flood
+.TP
+\fIhalui.flood.off\fR
+pin for stoping flood
+.TP
+\fIhalui.flood.is-on\fR
+pin for flood is on
+.TP
+\fIhalui.lube.on\fR
+pin for starting lube
+.TP
+\fIhalui.lube.off\fR
+pin for stoping lube
+.TP
+\fIhalui.lube.is-on\fR
+pin for lube is on
+.TP
+\fBspindle\fR
+.TP
+\fIhalui.spindle.start\fR
+pin for starting the spindle
+.TP
+\fIhalui.spindle.stop\fR
+pin for stopping the spindle
+.TP
+\fIhalui.spindle.forward\fR
+pin for making the spindle go forward
+.TP
+\fIhalui.spindle.reverse\fR
+pin for making the spindle go reverse
+.TP
+\fIhalui.spindle.brake-on\fR
+pin for activating the spindle brake
+.TP
+\fIhalui.spindle.brake-off\fR
+pin for deactivating the spindle brake
+.TP
+\fIhalui.spindle.brake-is-on\fR
+status pin that tells us if brake is on
+.TP
+\fBjoint\fR
+.TP
+\fIhalui.joint.x.home\fR
+pin for homing the specific joint (x = 0..7)
+.TP
+\fIhalui.joint.x.is-homed\fR
+status pin telling that the joint is homed (x = 0..7)
+.TP
+\fIhalui.joint.selected.home\fR
+pin for homing the selected joint 
+.TP
+\fIhalui.joint.selected.is-homed\fR
+status pin telling that the selected joint is homed
+.TP
+\fIhalui.joint.x.on-soft-min-limit\fR
+status pin telling that the joint is on the negative software limit (x=0..7, selected)
+.TP
+\fIhalui.joint.x.on-soft-max-limit\fR
+status pin telling that the joint is on the positive software limit (x=0..7, selected)
+.TP
+\fIhalui.joint.x.on-hard-min-limit\fR
+status pin telling that the joint is on the negative hardware limit (x=0..7, selected)
+.TP
+\fIhalui.joint.x.on-hard-max-limit\fR
+status pin telling that the joint is on the positive hardware limit (x=0..7, selected)
+.TP
+\fIhalui.joint.x.has-fault\fR
+status pin telling that the joint has a fault (x = 0..7, selected)
+.TP
+\fIhalui.joint.select\fR
+select joint (value = 0..7)
+.TP
+\fIhalui.joint.selected\fR
+selected joint (value = 0..7)
+.TP
+\fIhalui.joint.x.select\fR
+pins for selecting a joint (x = 0..7)
+.TP
+\fIhalui.joint.x.is-selected\fR
+status pin that a joint is selected (x = 0..7)
+.TP
+\fBprogram\fR
+.TP
+\fIhalui.program.is-idle\fR
+status pin telling that no program is running
+.TP
+\fIhalui.program.is-running\fR
+status pin telling that a program is running
+.TP
+\fIhalui.program.is-paused\fR
+status pin telling that a program is paused
+.TP
+\fIhalui.program.run\fR
+pin for running a program
+.TP
+\fIhalui.program.pause\fR
+pin for pausing a program
+.TP
+\fIhalui.program.resume\fR
+pin for resuming a program
+.TP
+\fIhalui.program.step\fR
+pin for stepping in a program
+.TP
+\fBgeneral\fR
+.TP
+\fIhalui.abort\fR
+pin to send an abort message (clears out most errors)
+
+.SH "SEE ALSO"
+
+.SH HISTORY
+
+.SH BUGS
+none known at this time.
+.SH AUTHOR
+Written by Alex Joni, as part of the Enhanced Machine
+Controller (EMC2) project.
+.SH REPORTING BUGS
+Report bugs to alex_joni AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2006 Alex Joni.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
