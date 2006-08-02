@@ -1,0 +1,56 @@
+# Makefile.modinc includes rules for building HAL realtime modules outside
+# the emc2 source tree.  It has three useful targets:
+#
+# modules
+#   Actually build the modules
+#
+# clean
+#   Cleans up files made by 'modules'
+#
+# install
+#   Installs the modules
+
+# An example Makefile using Makefile.modinc to build one kernel module from a
+# single source file would read:
+# 
+# include .../Makefile.modinc
+# obj-m += example.o
+
+# An example Makefile using Makefile.modinc to build one kernel module from
+# several source files would read:
+# 
+# include .../Makefile.modinc
+# obj-m += complex.o
+# complex-objs := complex1.o complex2.o complex_main.o
+
+# Currently this Makefile is onlt suitable for 'kbuild' systems, but there is
+# no technical reason it cannot be extended to pre-kbuild systems.
+
+BUILDSYS = @BUILD_SYS@
+
+ifneq ($(BUILDSYS),kbuild)
+$(error Makefile.modinc is only suitable for 'kbuild' kernels)
+endif
+
+KERNELDIR := @KERNELDIR@
+CC := @CC@
+RTFLAGS := -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0
+USE_RTLIBM = @USE_RTLIBM@
+EMC2_HOME=@EMC2_HOME@
+RUN_IN_PLACE=@RUN_IN_PLACE@
+ifeq ($(RUN_IN_PLACE),yes)
+EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(EMC2_HOME)/include
+RTLIBDIR := @EMC2_HOME@/rtlib
+else
+EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@
+RTLIBDIR := $(moduledir)/emc2
+endif
+
+modules:
+	$(MAKE) -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 -o $(KDIR)/Module.symvers modules
+
+clean:
+	rm *.ko *.mod.c *.o
+
+install:
+	cp $(patsubst %.o,%.ko,$(obj-m)) $(DESTDIR)$(RTLIBDIR)/

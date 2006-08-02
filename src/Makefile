@@ -151,8 +151,8 @@ config.h: config.h.in config.status
 
 default: \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
-	../scripts/rtapi.conf ../src/Makefile.inc ../src/depend.sh \
-	../tcl/emc.tcl
+	../scripts/rtapi.conf Makefile.inc depend.sh Makefile.modinc \
+	../tcl/emc.tcl 
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
@@ -357,6 +357,7 @@ install-kernel-indep:
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
+	$(FILE) Makefile.modinc $(DESTDIR)/etc/emc2
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts

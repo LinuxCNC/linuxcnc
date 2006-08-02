@@ -1137,6 +1137,7 @@ AC_CONFIG_FILES([../docs/man/man1/emc.1])
 AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_OUTPUT(Makefile.inc)
+AC_OUTPUT(Makefile.modinc)
 AC_OUTPUT(depend.sh)
 AC_OUTPUT(../tcl/emc.tcl)
 

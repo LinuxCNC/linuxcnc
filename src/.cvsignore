@@ -2,6 +2,7 @@
 *.ko *.mod.[co] *.cmd
 .tmp
 Makefile.inc
+Makefile.modinc
 config.h
 config.log
 config.status

@@ -78,3 +78,4 @@ usr/lib/libnml.a
 usr/lib/libnmld.a
 usr/lib/libpm.a
 usr/lib/librs274.a
+etc/emc2/Makefile.modinc
