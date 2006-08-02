@@ -55,6 +55,8 @@ usr/include/emc2/rcsversion.h
 usr/include/emc2/recvn.h
 usr/include/emc2/rem_msg.hh
 usr/include/emc2/rs274ngc.hh
+usr/include/emc2/rtapi_math_i386.h
+usr/include/emc2/rtapi_math.h
 usr/include/emc2/rtapi_app.h
 usr/include/emc2/rtapi.h
 usr/include/emc2/_sem.h

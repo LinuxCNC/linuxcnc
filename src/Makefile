@@ -229,6 +229,8 @@ HEADERS := \
     rtapi/procfs_macros.h \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
+    rtapi/rtapi_math.h \
+    rtapi/rtapi_math_i386.h \
 
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
