@@ -23,10 +23,10 @@ proc emc::image_search i {
     set paths "$emc::HOME $emc::HOME/etc/emc2 /etc/emc2 ."
     foreach f $paths {
         if [file exists $f/$i] {
-            return [image create photo -file $i]
+            return [image create photo -file $f/$i]
         }
         if [file exists $f/$i.gif] {
-            return [image create photo -file $i.gif]
+            return [image create photo -file $f/$i.gif]
         }
     }
     error "image $i is not available"
