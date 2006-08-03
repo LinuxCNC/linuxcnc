@@ -50,6 +50,8 @@ linkpp led.joint.0.min-soft	halui.joint.0.on-soft-min-limit
 linkpp led.joint.0.max-soft	halui.joint.0.on-soft-max-limit
 linkpp led.joint.0.max-hard	halui.joint.0.on-hard-max-limit
 linkpp led.joint.0.has-fault	halui.joint.0.has-fault
+linkpp button.joint.0.minus	halui.jog.0.minus
+linkpp button.joint.0.plus	halui.jog.0.plus
 
 linkpp button.joint.1.home	halui.joint.1.home
 linkpp led.joint.1.is-homed	halui.joint.1.is-homed
@@ -58,6 +60,8 @@ linkpp led.joint.1.min-soft	halui.joint.1.on-soft-min-limit
 linkpp led.joint.1.max-soft	halui.joint.1.on-soft-max-limit
 linkpp led.joint.1.max-hard	halui.joint.1.on-hard-max-limit
 linkpp led.joint.1.has-fault	halui.joint.1.has-fault
+linkpp button.joint.1.minus	halui.jog.1.minus
+linkpp button.joint.1.plus	halui.jog.1.plus
 
 linkpp button.joint.2.home	halui.joint.2.home
 linkpp led.joint.2.is-homed	halui.joint.2.is-homed
@@ -66,4 +70,10 @@ linkpp led.joint.2.min-soft	halui.joint.2.on-soft-min-limit
 linkpp led.joint.2.max-soft	halui.joint.2.on-soft-max-limit
 linkpp led.joint.2.max-hard	halui.joint.2.on-hard-max-limit
 linkpp led.joint.2.has-fault	halui.joint.2.has-fault
+linkpp button.joint.2.minus	halui.jog.2.minus
+linkpp button.joint.2.plus	halui.jog.2.plus
 
+#use a sets to set jog speed, until there is a halvcp slider
+newsig jogspeed float
+linksp jogspeed halui.jog-speed
+sets jogspeed 1.5

@@ -1,8 +1,6 @@
 vcp {
     main-window {
 	title = "Halui & halvcp Testing" 
-	width = 450 
-	height = 350 
 	box {
 	    layout = vertical 
 	    box {
@@ -343,6 +341,18 @@ vcp {
                         off-color = "#0F0"
                     }
                 }
+		box {
+            	    layout = horizontal
+            	    button {
+                	halpin = button.joint.0.plus
+                	label { text = "+" }
+            	    }
+                    label { text = "   " }
+            	    button {
+                	halpin = button.joint.0.minus
+                	label { text = "-" }
+            	    }
+		}
             }
                     
             box {
@@ -390,6 +400,18 @@ vcp {
                         off-color = "#0F0"
                     }
                 }
+		box {
+            	    layout = horizontal
+            	    button {
+                	halpin = button.joint.1.plus
+                	label { text = "+" }
+            	    }
+                    label { text = "   " }
+            	    button {
+                	halpin = button.joint.1.minus
+                	label { text = "-" }
+            	    }
+		}
             }
             box {
                 layout = vertical
@@ -436,6 +458,18 @@ vcp {
                         off-color = "#0F0"
                     }
                 }
+		box {
+            	    layout = horizontal
+            	    button {
+                	halpin = button.joint.2.plus
+                	label { text = "+" }
+            	    }
+                    label { text = "   " }
+            	    button {
+                	halpin = button.joint.2.minus
+                	label { text = "-" }
+            	    }
+		}
             }
         }
     }
