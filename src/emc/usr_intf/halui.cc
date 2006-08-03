@@ -141,16 +141,17 @@ DONE: - joint:
    halui.joint.x.select                bit  // pins for selecting a joint    - internal halui
    halui.joint.x.is-selected           bit  // status pin                    - internal halui
 
-- jogging:
+DONE - jogging:
    halui.jog.speed                     float //set jog speed
 
    halui.jog.0.minus                   bit
    halui.jog.0.plus                    bit
    ..
-   halui.jog.7.jog-minus               bit
-   halui.jog.7.jog-plus                bit
+   halui.jog.7.minus                   bit
+   halui.jog.7.plus                    bit
+   halui.jog.selected.minus            bit
+   halui.jog.selected.plus             bit
 
-   halui.feed_override                 float
 
 - tool:
    halui.tool.number                   u16  //current selected tool
@@ -161,7 +162,6 @@ DONE: - program:
    halui.program.is-running            bit
    halui.program.is-paused             bit
    halui.program.run                   bit
-   halui.program.pause                 bit
    halui.program.resume                bit
    halui.program.step                  bit
 
@@ -173,6 +173,8 @@ DONE: - program:
    
 DONE: - general:
    halui.abort                         bit // pin to send an abort message (clears out most errors)
+
+   halui.feed_override                 float
 
 */
 
@@ -242,6 +244,11 @@ struct halui_str {
     hal_bit_t *joint_nr_select[EMCMOT_MAX_AXIS];             // nr. of pins to select a joint
     hal_bit_t *joint_is_selected[EMCMOT_MAX_AXIS];           // nr. of status pins for joint selected
 
+    hal_float_t *jog_speed;	//pin for setting the jog speed (halui internal)
+    hal_bit_t *jog_minus[EMCMOT_MAX_AXIS+1];	//pin to jog in positive direction
+    hal_bit_t *jog_plus[EMCMOT_MAX_AXIS+1];	//pin to jog in negative direction
+
+
     hal_bit_t *abort;            //pin for aborting
 } * halui_data; 
 
@@ -288,6 +295,9 @@ struct local_halui_str {
     hal_u8_t joint_selected;
     hal_bit_t joint_nr_select[EMCMOT_MAX_AXIS];
     hal_bit_t joint_is_selected[EMCMOT_MAX_AXIS];
+
+    hal_bit_t jog_minus[EMCMOT_MAX_AXIS+1];	//pin to jog in positive direction
+    hal_bit_t jog_plus[EMCMOT_MAX_AXIS+1];	//pin to jog in negative direction
         
     hal_bit_t abort;            //pin for aborting
 } old_halui_data; //pointer to the HAL-struct
@@ -736,49 +746,49 @@ int halui_hal_init(void)
 
     //halui.machine.is-on              //pin for machine is On/Off
     retval = halui_export_pin_WR_bit(&(halui_data->machine_is_on), "halui.machine.is-on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.estop.is-activated         //pin for machine is On/Off
     retval = halui_export_pin_WR_bit(&(halui_data->estop_is_activated), "halui.estop.is-activated"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.mode.is-manual             //pin for mode in manual mode
     retval = halui_export_pin_WR_bit(&(halui_data->mode_is_manual), "halui.mode.is-manual"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.mode.is-auto               //pin for mode in auto mode
     retval = halui_export_pin_WR_bit(&(halui_data->mode_is_auto), "halui.mode.is-auto"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.mode.is-mdi                //pin for mode in MDI mode
     retval = halui_export_pin_WR_bit(&(halui_data->mode_is_mdi), "halui.mode.is-mdi"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.mist.is-on                 //pin signifiying mist is turned on
     retval = halui_export_pin_WR_bit(&(halui_data->mist_is_on), "halui.mist.is-on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.flood.is-on                 //pin signifiying flood is turned on
     retval = halui_export_pin_WR_bit(&(halui_data->flood_is_on), "halui.flood.is-on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.lube.is-on                 //pin signifiying lube is turned on
     retval = halui_export_pin_WR_bit(&(halui_data->lube_is_on), "halui.lube.is-on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.program.is-idle            //pin for notifying user that program is idle
     retval = halui_export_pin_WR_bit(&(halui_data->program_is_idle), "halui.program.is-idle"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.program.is-running         //pin for notifying user that program is running
     retval = halui_export_pin_WR_bit(&(halui_data->program_is_running), "halui.program.is-running"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.program.is-paused          //pin for notifying user that program is paused
     retval = halui_export_pin_WR_bit(&(halui_data->program_is_paused), "halui.program.is-paused"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.is-on
     retval = halui_export_pin_WR_bit(&(halui_data->spindle_is_on), "halui.spindle.is-on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.runs-forward
     retval = halui_export_pin_WR_bit(&(halui_data->spindle_runs_forward), "halui.spindle.runs-forward"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.runs-backward
     retval = halui_export_pin_WR_bit(&(halui_data->spindle_runs_backward), "halui.spindle.runs-backward"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.brake-is-on
     retval = halui_export_pin_WR_bit(&(halui_data->spindle_brake_is_on), "halui.spindle.brake-is-on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
 
     for (joint=0; joint < EMCMOT_MAX_AXIS ; joint++) {
 	retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_is_homed[joint]), comp_id, "halui.joint.%d.is-homed", joint); 
@@ -814,119 +824,131 @@ int halui_hal_init(void)
 
     //halui.joint.selected
     retval = hal_pin_u8_newf(HAL_WR, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
 
     /* STEP 3b: export the in-pin(s) */
 
     //halui.machine.on           //pin for setting machine On
     retval = halui_export_pin_RD_bit(&(halui_data->machine_on), "halui.machine.on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.machine.off          //pin for setting machine Off
     retval = halui_export_pin_RD_bit(&(halui_data->machine_off), "halui.machine.off"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.estop.activate       //pin for activating ESTOP
     retval = halui_export_pin_RD_bit(&(halui_data->estop_activate), "halui.estop.activate"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.estop.reset          //pin for resetting ESTOP
     retval = halui_export_pin_RD_bit(&(halui_data->estop_reset), "halui.estop.reset"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.mode.manual          //pin for activating manual mode
     retval = halui_export_pin_RD_bit(&(halui_data->mode_manual), "halui.mode.manual"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.mode.auto            //pin for activating auto mode
     retval = halui_export_pin_RD_bit(&(halui_data->mode_auto), "halui.mode.auto"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.mode.mdi             //pin for activating mdi mode
     retval = halui_export_pin_RD_bit(&(halui_data->mode_mdi), "halui.mode.mdi"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.mist.on              //pin for activating mist
     retval = halui_export_pin_RD_bit(&(halui_data->mist_on), "halui.mist.on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.mist.off             //pin for deactivating mist
     retval = halui_export_pin_RD_bit(&(halui_data->mist_off), "halui.mist.off"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.flood.on             //pin for activating flood
     retval = halui_export_pin_RD_bit(&(halui_data->flood_on), "halui.flood.on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.flood.off            //pin for deactivating flood
     retval = halui_export_pin_RD_bit(&(halui_data->flood_off), "halui.flood.off"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.lube.on              //pin for activating lube
     retval = halui_export_pin_RD_bit(&(halui_data->lube_on), "halui.lube.on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.lube.off             //pin for deactivating lube
     retval = halui_export_pin_RD_bit(&(halui_data->lube_off), "halui.lube.off"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.program.run          //pin for running program
     retval = halui_export_pin_RD_bit(&(halui_data->program_run), "halui.program.run"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.program.pause        //pin for pausing program
     retval = halui_export_pin_RD_bit(&(halui_data->program_pause), "halui.program.pause"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.program.resume       //pin for resuming program
     retval = halui_export_pin_RD_bit(&(halui_data->program_resume), "halui.program.resume"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.program.step         //pin for running one line of the program
     retval = halui_export_pin_RD_bit(&(halui_data->program_step), "halui.program.step"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
 
     //halui.jog-wheel.counts
     retval = halui_export_pin_RD_s32(&(halui_data->jog_wheel_counts), "halui.jog-wheel.counts");
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     *halui_data->jog_wheel_counts = 0;
 
     //halui.jog-wheel.axis
     retval = halui_export_pin_RD_u8(&(halui_data->jog_wheel_axis), "halui.jog-wheel.axis");
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.jog-wheel.scale
     retval = halui_export_pin_RD_float(&(halui_data->jog_wheel_scale), "halui.jog-wheel.scale");
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.jog-wheel.speed
     retval = halui_export_pin_RD_float(&(halui_data->jog_wheel_speed), "halui.jog-wheel.speed");
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
 
     //halui.spindle.start
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_start), "halui.spindle.start");
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.stop
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_stop), "halui.spindle.stop");
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.forward
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_forward), "halui.spindle.forward");
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.reverse
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_reverse), "halui.spindle.reverse");
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.increase
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_increase), "halui.spindle.increase");
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.decrease
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_decrease), "halui.spindle.decrease");
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.brake-on
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_brake_on), "halui.spindle.brake-on"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.brake-off
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_brake_off), "halui.spindle.brake-off"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
 
     hal_ready(comp_id);
 
     //halui.abort
     retval = halui_export_pin_RD_bit(&(halui_data->abort), "halui.abort"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
 
     retval = hal_pin_u8_newf(HAL_RD, &(halui_data->joint_select), comp_id, "halui.joint.select"); 
-    if (retval != HAL_SUCCESS) return -1;
+    if (retval != HAL_SUCCESS) return retval;
 
     for (joint=0; joint < EMCMOT_MAX_AXIS ; joint++) {
 	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_home[joint]), comp_id, "halui.joint.%d.home", joint); 
 	if (retval != HAL_SUCCESS) return retval;
 	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_nr_select[joint]), comp_id, "halui.joint.%d.select", joint); 
 	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->jog_plus[joint]), comp_id, "halui.jog.%d.plus", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+	retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->jog_minus[joint]), comp_id, "halui.jog.%d.minus", joint); 
+	if (retval != HAL_SUCCESS) return retval;
+
     }
 
     retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->joint_home[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.home"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->jog_plus[EMCMOT_MAX_AXIS]), comp_id, "halui.jog.selected.plus"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_bit_newf(HAL_RD, &(halui_data->jog_minus[EMCMOT_MAX_AXIS]), comp_id, "halui.jog.selected.minus"); 
+    if (retval != HAL_SUCCESS) return retval;
+    //halui.jog-speed
+    retval = halui_export_pin_RD_float(&(halui_data->jog_speed), "halui.jog-speed");
     if (retval != HAL_SUCCESS) return retval;
 
     return 0;
@@ -1391,6 +1413,100 @@ static int sendAbort()
     return 0;
 }
 
+
+static int sendJogStop(int axis)
+{
+    EMC_AXIS_ABORT emc_axis_abort_msg;
+    
+    // in case of TELEOP mode we really need to send an TELEOP_VECTOR message
+    // not a simple AXIS_ABORT, as more than one axis would be moving
+    // (hint TELEOP mode is for nontrivial kinematics)
+    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
+
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+	return -1;
+    }
+
+    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
+	emc_axis_abort_msg.serial_number = ++emcCommandSerialNumber;
+	emc_axis_abort_msg.axis = axis;
+	emcCommandBuffer->write(emc_axis_abort_msg);
+
+	if (emcWaitType == EMC_WAIT_RECEIVED) {
+	    return emcCommandWaitReceived(emcCommandSerialNumber);
+	} else if (emcWaitType == EMC_WAIT_DONE) {
+	    return emcCommandWaitDone(emcCommandSerialNumber);
+	}
+
+    }
+    else {
+	emc_set_teleop_vector.serial_number = ++emcCommandSerialNumber;
+	emc_set_teleop_vector.vector.tran.x = 0;
+	emc_set_teleop_vector.vector.tran.y = 0;
+	emc_set_teleop_vector.vector.tran.z = 0;
+	emc_set_teleop_vector.vector.a = 0;
+	emc_set_teleop_vector.vector.b = 0;
+	emc_set_teleop_vector.vector.c = 0;
+	emcCommandBuffer->write(emc_set_teleop_vector);
+
+	if (emcWaitType == EMC_WAIT_RECEIVED) {
+	    return emcCommandWaitReceived(emcCommandSerialNumber);
+	} else if (emcWaitType == EMC_WAIT_DONE) {
+	    return emcCommandWaitDone(emcCommandSerialNumber);
+	}
+	
+    }
+    return 0;
+}
+
+static int sendJogCont(int axis, double speed)
+{
+    EMC_AXIS_JOG emc_axis_jog_msg;
+    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
+
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+	return -1;
+    }
+
+    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
+	emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
+	emc_axis_jog_msg.axis = axis;
+	emc_axis_jog_msg.vel = speed / 60.0;
+	emcCommandBuffer->write(emc_axis_jog_msg);
+    } else {
+	emc_set_teleop_vector.serial_number = ++emcCommandSerialNumber;
+	emc_set_teleop_vector.vector.tran.x = 0.0;
+	emc_set_teleop_vector.vector.tran.y = 0.0;
+	emc_set_teleop_vector.vector.tran.z = 0.0;
+
+	switch (axis) {
+	case 0:
+	    emc_set_teleop_vector.vector.tran.x = speed / 60.0;
+	    break;
+	case 1:
+	    emc_set_teleop_vector.vector.tran.y = speed / 60.0;
+	    break;
+	case 2:
+	    emc_set_teleop_vector.vector.tran.z = speed / 60.0;
+	    break;
+	case 3:
+	    emc_set_teleop_vector.vector.a = speed / 60.0;
+	    break;
+	case 4:
+	    emc_set_teleop_vector.vector.b = speed / 60.0;
+	    break;
+	case 5:
+	    emc_set_teleop_vector.vector.c = speed / 60.0;
+	    break;
+	}
+	emcCommandBuffer->write(emc_set_teleop_vector);
+    }
+
+    return emcCommandWaitReceived(emcCommandSerialNumber);
+}
+
+
+
 //currently commented out to reduce warnings
 /*
 //sendFoo messages
@@ -1430,111 +1546,6 @@ static int sendOverrideLimits(int axis)
     return 0;
 }
 static int axisJogging = -1;
-
-static int sendJogStop(int axis)
-{
-    EMC_AXIS_ABORT emc_axis_abort_msg;
-    
-    // in case of TELEOP mode we really need to send an TELEOP_VECTOR message
-    // not a simple AXIS_ABORT, as more than one axis would be moving
-    // (hint TELEOP mode is for nontrivial kinematics)
-    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
-
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
-	return -1;
-    }
-
-    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
-	emc_axis_abort_msg.serial_number = ++emcCommandSerialNumber;
-	emc_axis_abort_msg.axis = axis;
-	emcCommandBuffer->write(emc_axis_abort_msg);
-
-	if (emcWaitType == EMC_WAIT_RECEIVED) {
-	    return emcCommandWaitReceived(emcCommandSerialNumber);
-	} else if (emcWaitType == EMC_WAIT_DONE) {
-	    return emcCommandWaitDone(emcCommandSerialNumber);
-	}
-
-	axisJogging = -1;
-    }
-    else {
-	emc_set_teleop_vector.serial_number = ++emcCommandSerialNumber;
-	emc_set_teleop_vector.vector.tran.x = 0;
-	emc_set_teleop_vector.vector.tran.y = 0;
-	emc_set_teleop_vector.vector.tran.z = 0;
-	emc_set_teleop_vector.vector.a = 0;
-	emc_set_teleop_vector.vector.b = 0;
-	emc_set_teleop_vector.vector.c = 0;
-	emcCommandBuffer->write(emc_set_teleop_vector);
-
-	if (emcWaitType == EMC_WAIT_RECEIVED) {
-	    return emcCommandWaitReceived(emcCommandSerialNumber);
-	} else if (emcWaitType == EMC_WAIT_DONE) {
-	    return emcCommandWaitDone(emcCommandSerialNumber);
-	}
-	// \todo FIXME - should remember a list of jogging axes, and remove the last one
-	axisJogging = -1;
-	
-    }
-    return 0;
-}
-
-static int sendJogCont(int axis, double speed)
-{
-    EMC_AXIS_JOG emc_axis_jog_msg;
-    EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
-
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
-	return -1;
-    }
-
-    if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
-	if (0 == jogPol[axis]) {
-	    speed = -speed;
-	}
-
-	emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
-	emc_axis_jog_msg.axis = axis;
-	emc_axis_jog_msg.vel = speed / 60.0;
-	emcCommandBuffer->write(emc_axis_jog_msg);
-    } else {
-	emc_set_teleop_vector.serial_number = ++emcCommandSerialNumber;
-	emc_set_teleop_vector.vector.tran.x = 0.0;
-	emc_set_teleop_vector.vector.tran.y = 0.0;
-	emc_set_teleop_vector.vector.tran.z = 0.0;
-
-	switch (axis) {
-	case 0:
-	    emc_set_teleop_vector.vector.tran.x = speed / 60.0;
-	    break;
-	case 1:
-	    emc_set_teleop_vector.vector.tran.y = speed / 60.0;
-	    break;
-	case 2:
-	    emc_set_teleop_vector.vector.tran.z = speed / 60.0;
-	    break;
-	case 3:
-	    emc_set_teleop_vector.vector.a = speed / 60.0;
-	    break;
-	case 4:
-	    emc_set_teleop_vector.vector.b = speed / 60.0;
-	    break;
-	case 5:
-	    emc_set_teleop_vector.vector.c = speed / 60.0;
-	    break;
-	}
-	emcCommandBuffer->write(emc_set_teleop_vector);
-    }
-
-    axisJogging = axis;
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
 
 
 static int sendFeedOverride(double override)
@@ -1789,6 +1800,8 @@ static void hal_init_pins()
     for (joint=0; joint < EMCMOT_MAX_AXIS + 1; joint++) {
 	*(halui_data->joint_home[joint]) = old_halui_data.joint_home[joint] = 0;
 	*(halui_data->joint_nr_select[joint]) = old_halui_data.joint_nr_select[joint] = 0;
+	*(halui_data->jog_minus[joint]) = old_halui_data.jog_minus[joint] = 0;
+	*(halui_data->jog_plus[joint]) = old_halui_data.jog_plus[joint] = 0;
     }
     old_halui_data.joint_select = *(halui_data->joint_select) = 0;
     *(halui_data->joint_selected) = 0; // select joint 0 by default
@@ -1981,6 +1994,22 @@ static void check_hal_changes()
 		sendHome(joint);
 	    old_halui_data.joint_home[joint] = *(halui_data->joint_home[joint]);
 	}
+
+	if (*(halui_data->jog_minus[joint]) != old_halui_data.jog_minus[joint]) {
+	    if (*(halui_data->jog_minus[joint]) != 0)
+		sendJogCont(joint,-*(halui_data->jog_speed));
+	    else
+		sendJogStop(joint);
+	    old_halui_data.jog_minus[joint] = *(halui_data->jog_minus[joint]);
+	}
+
+	if (*(halui_data->jog_plus[joint]) != old_halui_data.jog_plus[joint]) {
+	    if (*(halui_data->jog_plus[joint]) != 0)
+		sendJogCont(joint,*(halui_data->jog_speed));
+	    else
+		sendJogStop(joint);
+	    old_halui_data.jog_plus[joint] = *(halui_data->jog_plus[joint]);
+	}
 	
 	// check to see if another joint has been selected
 	if (*(halui_data->joint_nr_select[joint]) != old_halui_data.joint_nr_select[joint]) {
@@ -2007,6 +2036,23 @@ static void check_hal_changes()
 	    sendHome(*(halui_data->joint_selected));
 	old_halui_data.joint_home[EMCMOT_MAX_AXIS] = *(halui_data->joint_home[EMCMOT_MAX_AXIS]);
     }
+
+    if (*(halui_data->jog_minus[EMCMOT_MAX_AXIS]) != old_halui_data.jog_minus[EMCMOT_MAX_AXIS]) {
+        if (*(halui_data->jog_minus[EMCMOT_MAX_AXIS]) != 0)
+	    sendJogCont(*(halui_data->joint_selected),-*(halui_data->jog_speed));
+	else
+	    sendJogStop(*(halui_data->joint_selected));
+	old_halui_data.jog_minus[EMCMOT_MAX_AXIS] = *(halui_data->jog_minus[EMCMOT_MAX_AXIS]);
+    }
+
+    if (*(halui_data->jog_plus[EMCMOT_MAX_AXIS]) != old_halui_data.jog_plus[EMCMOT_MAX_AXIS]) {
+        if (*(halui_data->jog_plus[EMCMOT_MAX_AXIS]) != 0)
+    	    sendJogCont(*(halui_data->joint_selected),*(halui_data->jog_speed));
+	else
+	    sendJogStop(*(halui_data->joint_selected));
+	old_halui_data.jog_plus[EMCMOT_MAX_AXIS] = *(halui_data->jog_plus[EMCMOT_MAX_AXIS]);
+    }
+
     
 }
 
