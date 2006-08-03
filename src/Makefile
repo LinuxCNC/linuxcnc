@@ -293,7 +293,7 @@ $(FILE) $(call GLOB,../configs/$(1)/*) $(DESTDIR)$(sysconfdir)/emc2/sample-confi
 endef
 INSTALL_CONFIGS=$(foreach config,$(CONFIGS), $(call INSTALL_CONFIG,$(config)))
 
-DOCS=AUTHORS Hal_Introduction.pdf INSTALL NEWS README
+DOCS=AUTHORS EMC2_User_Manual.pdf INSTALL NEWS README
 
 DOCS_HELP=$(call GLOB,../docs/help/*)
 NC_FILES=$(call GLOB,../nc_files/*)
