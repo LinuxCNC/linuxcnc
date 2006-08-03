@@ -2508,38 +2508,48 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     double end_depth = block->k_number + block->i_number;
 
     double pitch = block->p_number;
+    double angle = block->q_number;
+    if(angle == -1) angle = 0;
+    angle *= M_PIl/180.0;
+    if(end_z > start_z) angle = -angle;
+
     double spring_cuts = block->h_number;
     if(spring_cuts == -1) spring_cuts = 0;
 
     double degression = block->r_number;
     if(degression < 1.0) degression = 1.0;
 
-    double depth;
+    double depth, zoff;
     int pass = 0;
+
+    end_z += block->k_number * tan(angle);
 
 #define AABBCC settings->AA_current, settings->BB_current, settings->CC_current
     depth = start_depth;
     while (depth < end_depth) {
-        STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z, AABBCC);
+        zoff = (depth - start_depth) * tan(angle);
+        STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC);
         START_SPEED_FEED_SYNCH(pitch);
         //maybe entry STRAIGHT_FEED
-        STRAIGHT_FEED(safe_x - depth, start_y, end_z, AABBCC);
+        STRAIGHT_FEED(safe_x - depth, start_y, end_z - zoff, AABBCC);
         //maybe exit STRAIGHT_FEED
         STOP_SPEED_FEED_SYNCH();
-        STRAIGHT_TRAVERSE(safe_x, start_y, end_z, AABBCC);
-        STRAIGHT_TRAVERSE(safe_x, start_y, start_z, AABBCC);
+        STRAIGHT_TRAVERSE(safe_x, start_y, end_z - zoff, AABBCC);
         depth = start_depth + cut_increment * pow(++pass, 1.0/degression);
+        zoff = (depth - start_depth) * tan(angle);
+        STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC);
     } 
     depth = end_depth;
     for(int i = 0; i<spring_cuts+1; i++) {
-        STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z, AABBCC);
+        double zoff = (depth - start_depth) * tan(angle);
+        STRAIGHT_TRAVERSE(safe_x - depth, start_y, start_z - zoff, AABBCC);
         START_SPEED_FEED_SYNCH(pitch);
         //maybe entry STRAIGHT_FEED
-        STRAIGHT_FEED(safe_x - depth, start_y, end_z, AABBCC);
+        STRAIGHT_FEED(safe_x - depth, start_y, end_z - zoff, AABBCC);
         //maybe exit STRAIGHT_FEED
         STOP_SPEED_FEED_SYNCH();
-        STRAIGHT_TRAVERSE(safe_x, start_y, end_z, AABBCC);
-        STRAIGHT_TRAVERSE(safe_x, start_y, start_z, AABBCC);
+        STRAIGHT_TRAVERSE(safe_x, start_y, end_z - zoff, AABBCC);
+        STRAIGHT_TRAVERSE(safe_x, start_y, start_z - zoff, AABBCC);
     }
 #undef AABBC
     return INTERP_OK;

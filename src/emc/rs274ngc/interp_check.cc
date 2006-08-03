@@ -306,7 +306,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->q_number != -1.0) {
-    CHK((motion != G_83) && (block->user_m != 1), NCE_Q_WORD_WITH_NO_G83);
+    CHK((motion != G_83) && (block->user_m != 1) && motion != G_76, 
+            NCE_Q_WORD_WITH_NO_G83);
   }
 
   if (block->r_flag == ON) {
