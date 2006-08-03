@@ -1,3 +1,9 @@
+emc2 (1:2.0.3) unstable; urgency=low
+
+  * stupid bugfix - I forgot to enable the loading of probe_parport.
+
+ -- Chris Radek <chris@timeguy.com>  Wed,  2 Aug 2006 21:51:29 -0500
+
 emc2 (1:2.0.2) unstable; urgency=low
 
   * add probe_parport module for machines with plug-and-play parports that
