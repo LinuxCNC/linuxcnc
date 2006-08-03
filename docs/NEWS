@@ -1,6 +1,43 @@
 # some of EMC2 History & News
 #############################
 
+2006.08.02 - Several sample configuration files were changed to increase
+             the number of segments per second.
+
+             The "hal_parport" module now requires exclusive access to the
+             parallel-port I/O addresses.  This may mean that the "parport_pc"
+             Linux kernel module must not be loaded.  The new "probe_parport"
+             module probes for one class of PNP parallel port, and may need
+             to be loaded (halcmd loadrt probe_parport) on some systems if
+             hal_parport is no longer able to communicate with the port.
+
+             "halconfig" has been renamed to "halshow" to reflect the fact
+             that the editing portion is not yet complete.
+
+             "genhexkins" has been temporarily removed.
+
+             Some bugfixes have been made in the segment blending code.
+
+             Jogs should now always stop short of the machine's soft limits
+             when an axis is homed.
+
+             [TASK]CYCLE_TIME is now honored.
+
+             A bogus warning when homing on limit switches is no longer
+             displayed
+
+             Classicladder now cleans up its temporary files when loading
+             or saving
+
+             "stepgen" will no longer give additional following errors when
+             when attempting to turn the machine back on.
+
+             "halcmd | false" will no longer prevent execution of other
+             halcmds.
+
+             tkemc will now appropriately choose between "Courier 10 point" and
+             "courier" fonts, depending on which is available on this system.
+
 2006.03.18 - A new pin "count" exists for freqgen.  It is the same as the 
              internal symbol "count" shown in the hal introduction.pdf,
              or the result of up OR down if there was an "OR" component.
