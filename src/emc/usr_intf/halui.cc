@@ -174,7 +174,10 @@ DONE: - program:
 DONE: - general:
    halui.abort                         bit // pin to send an abort message (clears out most errors)
 
-   halui.feed_override                 float
+DONE: - feed-override
+   halui.feed-override.value           float //current FO value
+   halui.feed-override.scale           float // pin for setting the scale on changing the FO
+   halui.feed-override.counts          s43   //counts from an encoder for example to change FO
 
 */
 
@@ -248,6 +251,9 @@ struct halui_str {
     hal_bit_t *jog_minus[EMCMOT_MAX_AXIS+1];	//pin to jog in positive direction
     hal_bit_t *jog_plus[EMCMOT_MAX_AXIS+1];	//pin to jog in negative direction
 
+    hal_s32_t *fo_counts;	//pin for the Feed Override counting
+    hal_float_t *fo_scale;	//scale for the Feed Override counting
+    hal_float_t *fo_value;	//current Feed Override value
 
     hal_bit_t *abort;            //pin for aborting
 } * halui_data; 
@@ -299,11 +305,15 @@ struct local_halui_str {
     hal_bit_t jog_minus[EMCMOT_MAX_AXIS+1];	//pin to jog in positive direction
     hal_bit_t jog_plus[EMCMOT_MAX_AXIS+1];	//pin to jog in negative direction
         
+    hal_s32_t fo_counts;	//pin for the Feed Override counting
+    hal_float_t fo_scale;	//scale for the Feed Override counting
+
     hal_bit_t abort;            //pin for aborting
 } old_halui_data; //pointer to the HAL-struct
 
 static int comp_id, done;				/* component ID, main while loop */
 
+static double maxFeedOverride=1;
 
 // the NML channels to the EMC task
 static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
@@ -822,6 +832,9 @@ int halui_hal_init(void)
     retval =  hal_pin_bit_newf(HAL_WR, &(halui_data->joint_is_homed[EMCMOT_MAX_AXIS]), comp_id, "halui.joint.selected.is_homed"); 
     if (retval != HAL_SUCCESS) return retval;
 
+    retval =  hal_pin_float_newf(HAL_WR, &(halui_data->fo_value), comp_id, "halui.feed-override.value"); 
+    if (retval != HAL_SUCCESS) return retval;
+
     //halui.joint.selected
     retval = hal_pin_u8_newf(HAL_WR, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
     if (retval != HAL_SUCCESS) return retval;
@@ -918,6 +931,16 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return retval;
     //halui.spindle.brake-off
     retval = halui_export_pin_RD_bit(&(halui_data->spindle_brake_off), "halui.spindle.brake-off"); 
+    if (retval != HAL_SUCCESS) return retval;
+
+
+    //halui.feed-override.counts
+    retval = halui_export_pin_RD_s32(&(halui_data->fo_counts), "halui.feed-override.counts");
+    if (retval != HAL_SUCCESS) return retval;
+    *halui_data->fo_counts = 0;
+
+    //halui.feed-override.scale
+    retval = halui_export_pin_RD_float(&(halui_data->fo_scale), "halui.feed-override.scale");
     if (retval != HAL_SUCCESS) return retval;
 
     hal_ready(comp_id);
@@ -1506,6 +1529,31 @@ static int sendJogCont(int axis, double speed)
 }
 
 
+static int sendFeedOverride(double override)
+{
+    EMC_TRAJ_SET_SCALE emc_traj_set_scale_msg;
+
+    if (override < 0.0) {
+	override = 0.0;
+    }
+
+    if (override > maxFeedOverride) {
+	override = maxFeedOverride;
+    }
+    
+    emc_traj_set_scale_msg.serial_number = ++emcCommandSerialNumber;
+    emc_traj_set_scale_msg.scale = override;
+    emcCommandBuffer->write(emc_traj_set_scale_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+
 
 //currently commented out to reduce warnings
 /*
@@ -1548,25 +1596,6 @@ static int sendOverrideLimits(int axis)
 static int axisJogging = -1;
 
 
-static int sendFeedOverride(double override)
-{
-    EMC_TRAJ_SET_SCALE emc_traj_set_scale_msg;
-
-    if (override < 0.0) {
-	override = 0.0;
-    }
-
-    emc_traj_set_scale_msg.serial_number = ++emcCommandSerialNumber;
-    emc_traj_set_scale_msg.scale = override;
-    emcCommandBuffer->write(emc_traj_set_scale_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
 
 static int sendTaskPlanInit()
 {
@@ -1729,6 +1758,7 @@ static int iniLoad(const char *filename)
 {
     Inifile inifile;
     const char *inistring;
+    double d;
 
     // open it
     if (inifile.open(filename) == false) {
@@ -1751,6 +1781,21 @@ static int iniLoad(const char *filename)
     } else {
 	// not found, use default
     }
+
+    if (NULL != (inistring = inifile.find("MAX_FEED_OVERRIDE", "DISPLAY"))) {
+	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
+	    maxFeedOverride =  d;
+	}
+	else {
+    	    // error-- no value provided, use 100% as max
+	    maxFeedOverride =  1.0;
+	}
+    }
+    else {
+	// no line at all
+        maxFeedOverride =  1.0;
+    }
+
 
     if (NULL != (inistring = inifile.find("LINEAR_UNITS", "DISPLAY"))) {
 	if (!strcmp(inistring, "AUTO")) {
@@ -1926,6 +1971,15 @@ static void check_hal_changes()
         old_halui_data.jog_wheel_counts = counts;
     }
 
+    //feed-override stuff
+    counts = *halui_data->fo_counts;
+    if(counts != old_halui_data.fo_counts) {
+        sendFeedOverride( *halui_data->fo_value + (counts - old_halui_data.fo_counts) *
+                *halui_data->fo_scale);
+        old_halui_data.fo_counts = counts;
+    }
+
+
 //spindle stuff
     if (*(halui_data->spindle_start) != old_halui_data.spindle_start) {
 	if (*(halui_data->spindle_start) != 0)
@@ -2096,6 +2150,8 @@ static void modify_hal_pins()
     *(halui_data->program_is_running) = emcStatus->task.interpState == EMC_TASK_INTERP_READING || 
                                         emcStatus->task.interpState == EMC_TASK_INTERP_WAITING;
     *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP_IDLE;
+
+    *(halui_data->fo_value)=emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
 
     *(halui_data->mist_is_on)=emcStatus->io.coolant.mist;
     *(halui_data->flood_is_on)=emcStatus->io.coolant.flood;
