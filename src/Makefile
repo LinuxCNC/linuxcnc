@@ -605,3 +605,9 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d,$(RTOBJS)))
 Makefile: $(RTDEPS)
 endif
 endif
+
+# Phony so that it is always rebuilt when requested, not because it
+# shouldn't exist as a file
+.PHONY: tags
+tags:
+	ctags-exuberant -R . ../tcl ../scripts
