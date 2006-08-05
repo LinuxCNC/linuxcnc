@@ -39,12 +39,18 @@ Overview of the emc2 directory:
     |      |    (API and source notes should be in each src dir.)
     |      |
     |      |--- handbooks/  (PDF versions of handbooks)
-    |      |                (LyX source is in the documents tree)
+    |      |                (LyX source is in the src/ tree)
     |      |
-    |      \--- man/ (man pages)
+    |      |--- man/ (man pages)
+    |      |      |
+    |      |      |--- man1/  (user man pages)
+    |      |      \--- man3/  (API man pages)
+    |      |
+    |      \--- src/   (source for the handbooks) (top level .lyx files)
     |             |
-    |             |--- man1/  (user man pages)
-    |             \--- man3/  (API man pages)
+    |             |--- gcode/ (.lyx files, images, etc. for G-Code documentation)
+    |             |--- gui/   (.lyx files, images, etc. for GUI documentation)
+    |             \--- hal/   (.lyx files, images, etc. for HAL documentation)
     |
     |--- include/ (headers installed here - originals in src/xxx/)
     |
@@ -76,7 +82,8 @@ Overview of the emc2 directory:
     |      |      |
     |      |      |--- utils/         (halcmd, halscope, halmeter, etc) (used as debugging and helper programs)
     |      |      |--- drivers/       (parport, stg, PPMC, USC, etc.)   (actual hardware drivers)
-    |      |      |--- components/    (encoder, stepgen, PID, etc.)     (software HAL components)
+    |      |      |--- components/    (encoder, stepgen, PID, etc.)     (realtime software HAL components)
+    |      |      |--- user_comps/    (vcp, joystick driver, etc)       (user space HAL components)
     |      |      \--- classicladder  (cl component, a software PLC)    (software Programable Logic Controller)
     |      |
     |      |--- libnml/ (a clean implementation of RCSLIB)
@@ -104,7 +111,6 @@ Overview of the emc2 directory:
     |                    |--- timer_example/ (*.c & *.h)
     |                    |--- shmem_example/ (*.c & *.h)
     |                    \--- etc.
-    |
     |
     \--- tcl/  (tkemc.tcl, mini.tcl - the tcl GUI's)
            |
