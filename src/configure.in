@@ -1159,10 +1159,11 @@ AC_CONFIG_FILES([../scripts/rtapi.conf])
 AC_CONFIG_FILES([../docs/man/man1/emc.1])
 AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
-AC_OUTPUT(Makefile.inc)
-AC_OUTPUT(Makefile.modinc)
-AC_OUTPUT(depend.sh)
-AC_OUTPUT(../tcl/emc.tcl)
+AC_CONFIG_FILES(Makefile.inc)
+AC_CONFIG_FILES(Makefile.modinc)
+AC_CONFIG_FILES(depend.sh)
+AC_CONFIG_FILES(../tcl/emc.tcl)
+AC_OUTPUT()
 
 ##############################################################################
 # message to the user what to do next, after a succesfull ./configure        #
