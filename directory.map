@@ -48,6 +48,7 @@ Overview of the emc2 directory:
     |      |
     |      \--- src/   (source for the handbooks) (top level .lyx files)
     |             |
+    |             |--- common/ (shared .lyx files and images, such as glossary, GPLD license)
     |             |--- gcode/ (.lyx files, images, etc. for G-Code documentation)
     |             |--- gui/   (.lyx files, images, etc. for GUI documentation)
     |             \--- hal/   (.lyx files, images, etc. for HAL documentation)
