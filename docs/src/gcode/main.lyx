@@ -1,0 +1,6474 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\title{The EMC2 RS274NGC Interpreter}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !!h
+\paperfontsize 10
+\spacing single 
+\papersize Custom
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\paperwidth 8.5in
+\paperheight 11in
+\leftmargin 1.2in
+\topmargin 1in
+\rightmargin 0.6in
+\bottommargin 0.6in
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Chapter
+
+Machining Center Overview
+\layout Standard
+
+This section gives a brief description of how a machining center is viewed
+ from the input and output ends of the Interpreter.
+ It is assumed the reader is already familiar with machining centers.
+\layout Standard
+
+Both the RS274/NGC input language and the output canonical machining functions
+ have a view of (1) mechanical components of a machining center being controlled
+ and (2) what activities of the machining center may be controlled, and
+ what data is used in control.
+ 
+\layout Standard
+
+The view here includes some items that a given machining center may not
+ have, such as a pallet shuttle.
+ The RS274/NGC language and canonical machining functions may be used with
+ such a machine provided that no NC program used with the controller includes
+ commands intended to activate physical capabilities the machine does not
+ have.
+ For such a machine, it would be useful to modify the Interpreter so it
+ will reject input commands and will not produce output canonical function
+ calls addressed to non-existent equipment.
+ 
+\layout Section
+
+Mechanical Components
+\layout Standard
+
+A machining center has many mechanical components that may be controlled
+ or may affect the way in which control is exercised.
+ This section describes the subset of those components that interact with
+ the Interpreter.
+ Mechanical components that do not interact directly with the Interpreter,
+ such as the jog buttons, are not described here, even if they affect control.
+ 
+\layout Subsection
+
+Linear Axes
+\layout Standard
+
+A machining center has independent mechanisms
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+If the motion of mechanical components is not independent, as with hexapod
+ machines, the RS274/NGC language and the canonical machining functions
+ will still be usable, as long as the lower levels of control know how to
+ control the actual mechanisms to produce the same relative motion of tool
+ and workpiece as would be produced by independent axes.
+\end_inset 
+
+ for producing relative linear motion of the tool and workpiece in three
+ mutually orthogonal directions.
+ These are the X, Y and Z axes.
+\layout Subsection
+
+Rotational axes
+\layout Standard
+
+Three additional independent mechanisms produce relative rotation of the
+ workpiece and the tool around an axis.
+ These mechanisms (often a rotary table on which the workpiece is mounted
+ or a drum on which the spindle is mounted) are called rotational axes and
+ labelled A, B, and C.
+ The A-axis is parallel to the X-axis.
+ B is parallel to the Y-axis, and C parallel to the Z-axis
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The requirement of parallelism is not used by either language, so both languages
+ are usable if any rotational axis is not parallel to any linear axis.
+ Rotational axis commands flow through both languages to lower levels of
+ control without significant change in nature.
+\end_inset 
+
+.
+ Each rotational mechanism may or may not have a mechanical limit on how
+ far it can rotate.
+ 
+\layout Subsection
+
+Spindle
+\layout Standard
+
+A machining center has a spindle which holds one cutting tool, probe, or
+ other item.
+ The spindle can rotate in either direction, and it can be made to rotate
+ at a constant rate, which may be changed.
+ Except on machines where the spindle may be moved by moving a rotational
+ axis, the axis of the spindle is kept parallel to the Z-axis and is coincident
+ with the Z-axis when X and Y are zero.
+ The spindle can be stopped in a fixed orientation or stopped without specifying
+ orientation.
+ 
+\layout Subsection
+
+Coolant
+\layout Standard
+
+A machining center has components to provide mist coolant and/or flood coolant.
+\layout Subsection
+
+Pallet Shuttle
+\layout Standard
+
+A machining center has a pallet shuttle system.
+ The system has two movable pallets on which workpieces can be fixtured.
+ Only one pallet at a time is in position for machining.
+ 
+\layout Subsection
+
+Tool Carousel
+\layout Standard
+
+A machining center has a tool carousel with slots for tools fixed in tool
+ holders.
+ 
+\layout Subsection
+
+Tool Changer
+\layout Standard
+
+A machining center has a mechanism for changing tools (fixed in tool holders)
+ between the spindle and the tool carousel.
+ 
+\layout Subsection
+
+Message Display
+\layout Standard
+
+A machining center has a device that can display messages.
+ 
+\layout Subsection
+
+Feed and Speed Override Switches
+\begin_inset LatexCommand \label{sub:Feed-and-Speed}
+
+\end_inset 
+
+
+\layout Standard
+
+A machining center has separate feed and speed override switches, which
+ let the operator specify that the actual feed rate or spindle speed used
+ in machining should be some percentage of the programmed rate.
+ See Section 
+\begin_inset LatexCommand \ref{sub:Feed-Interaction}
+
+\end_inset 
+
+.
+ 
+\layout Subsection
+
+Block Delete Switch
+\begin_inset LatexCommand \label{sub:Block-Delete-Switch}
+
+\end_inset 
+
+
+\layout Standard
+
+A machining center has a block delete switch.
+ See Section 
+\begin_inset LatexCommand \ref{sub:Block-Delete-Switch-Interaction}
+
+\end_inset 
+
+.
+\layout Subsection
+
+Optional Program Stop Switch
+\begin_inset LatexCommand \label{sub:Optional-Program-Stop}
+
+\end_inset 
+
+
+\layout Standard
+
+A machining center has an optional program stop switch.
+ See Section 
+\begin_inset LatexCommand \ref{sub:Optional-Program-Stop-Interaction}
+
+\end_inset 
+
+.
+ 
+\layout Section
+
+Control and Data Components
+\layout Subsection
+
+Linear Axes
+\layout Standard
+
+The X, Y, and Z axes form a standard right-handed coordinate system of orthogona
+l linear axes.
+ Positions of the three linear motion mechanisms are expressed using coordinates
+ on these axes.
+\layout Subsection
+
+Rotational Axes
+\layout Standard
+
+The rotational axes are measured in degrees as wrapped linear axes in which
+ the direction of positive rotation is counterclockwise when viewed from
+ the positive end of the corresponding X, Y, or Z-axis.
+ By 
+\begin_inset Quotes eld
+\end_inset 
+
+wrapped linear axis,
+\begin_inset Quotes erd
+\end_inset 
+
+ we mean one on which the angular position increases without limit (goes
+ towards plus infinity) as the axis turns counterclockwise and deceases
+ without limit (goes towards minus infinity) as the axis turns clockwise.
+ Wrapped linear axes are used regardless of whether or not there is a mechanical
+ limit on rotation.
+\layout Standard
+
+Clockwise or counterclockwise is from the point of view of the workpiece.
+ If the workpiece is fastened to a turntable which turns on a rotational
+ axis, a counterclockwise turn from the point of view of the workpiece is
+ accomplished by turning the turntable in a direction that (for most common
+ machine configurations) looks clockwise from the point of view of someone
+ standing next to the machine
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+If the parallelism requirement is violated, the system builder will have
+ to say how to distinguish clockwise from counterclockwise.
+\end_inset 
+
+
+\layout Subsection
+
+Controlled Point
+\begin_inset LatexCommand \label{sub:Controlled-Point}
+
+\end_inset 
+
+
+\layout Standard
+
+The controlled point is the point whose position and rate of motion are
+ controlled.
+ When the tool length offset is zero (the default value), this is a point
+ on the spindle axis (often called the gauge point) that is some fixed distance
+ beyond the end of the spindle, usually near the end of a tool holder that
+ fits into the spindle.
+ The location of the controlled point can be moved out along the spindle
+ axis by specifying some positive amount for the tool length offset.
+ This amount is normally the length of the cutting tool in use, so that
+ the controlled point is at the end of the cutting tool.
+ 
+\layout Subsection
+
+Coordinate Linear Motion
+\begin_inset LatexCommand \label{sub:Coordinate-Linear-Motion}
+
+\end_inset 
+
+
+\layout Standard
+
+To drive a tool along a specified path, a machining center must often coordinate
+ the motion of several axes.
+ We use the term 
+\begin_inset Quotes eld
+\end_inset 
+
+coordinated linear motion
+\begin_inset Quotes erd
+\end_inset 
+
+ to describe the situation in which, nominally, each axis moves at constant
+ speed and all axes move from their starting positions to their end positions
+ at the same time.
+ If only the X, Y, and Z axes (or any one or two of them) move, this produces
+ motion in a straight line, hence the word 
+\begin_inset Quotes eld
+\end_inset 
+
+linear
+\begin_inset Quotes erd
+\end_inset 
+
+ in the term.
+ In actual motions, it is often not possible to maintain constant speed
+ because acceleration or deceleration is required at the beginning and/or
+ end of the motion.
+ It is feasible, however, to control the axes so that, at all times, each
+ axis has completed the same fraction of its required motion as the other
+ axes.
+ This moves the tool along same path, and we also call this kind of motion
+ coordinated linear motion.
+\layout Standard
+
+Coordinated linear motion can be performed either at the prevailing feed
+ rate, or at traverse rate.
+ If physical limits on axis speed make the desired rate unobtainable, all
+ axes are slowed to maintain the desired path.
+ 
+\layout Subsection
+
+Feed Rate
+\begin_inset LatexCommand \label{sub:Feed-Rate}
+
+\end_inset 
+
+
+\layout Standard
+
+The rate at which the controlled point or the axes move is nominally a steady
+ rate which may be set by the user.
+ In the Interpreter, the interpretation of the feed rate is as follows unless
+ inverse time feed rate mode is being used in the RS274/NGC view (see Section
+ 
+\begin_inset LatexCommand \ref{sub:G93,-G94:-Set}
+
+\end_inset 
+
+).
+\layout Enumerate
+
+For motion involving one or more of the X, Y, and Z axes (with or without
+ simultaneous rotational axis motion), the feed rate means length units
+ per minute along the programmed XYZ path, as if the rotational axes were
+ not moving.
+ 
+\layout Enumerate
+
+For motion of one rotational axis with X, Y, and Z axes not moving, the
+ feed rate means degrees per minute rotation of the rotational axis.
+ 
+\layout Enumerate
+
+For motion of two or three rotational axes with X, Y, and Z axes not moving,
+ the rate is applied as follows.
+ Let dA, dB, and dC be the angles in degrees through which the A, B, and
+ C axes, respectively, must move.
+ Let 
+\begin_inset Formula $D=\sqrt{(dA)^{2}+(dB)^{2}+(dC)^{2}}$
+\end_inset 
+
+ .
+ Conceptually, D is a measure of total angular motion, using the usual Euclidean
+ metric.
+ Let T be the amount of time required to move through D degrees at the current
+ feed rate in degrees per minute.
+ The rotational axes should be moved in coordinated linear motion so that
+ the elapsed time from the start to the end of the motion is T plus any
+ time required for acceleration or deceleration.
+ 
+\layout Subsection
+
+Coolant
+\layout Standard
+
+Flood coolant and mist coolant may each be turned on independently.
+ The RS274/NGC language turns them off together (see Section 
+\begin_inset LatexCommand \ref{sub:M7,-M8,-M9:}
+
+\end_inset 
+
+).
+\layout Subsection
+
+Dwell
+\layout Standard
+
+A machining center may be commanded to dwell (i.e., keep all axes unmoving)
+ for a specific amount of time.
+ The most common use of dwell is to break and clear chips, so the spindle
+ is usually turning during a dwell.
+ Regardless of the Path Control Mode (see Section 
+\begin_inset LatexCommand \ref{sub:Path-Control-Mode}
+
+\end_inset 
+
+) the machine will stop exactly at the end of the previous programmed move,
+ as though it was in exact path mode.
+\layout Subsection
+
+Units
+\layout Standard
+
+Units used for distances along the X, Y, and Z axes may be measured in millimete
+rs or inches.
+ Units for all other quantities involved in machine control cannot be changed.
+ Different quantities use different specific units.
+ Spindle speed is measured in revolutions per minute.
+ The positions of rotational axes are measured in degrees.
+ Feed rates are expressed in current length units per minute or in degrees
+ per minute, as described in Section 
+\begin_inset LatexCommand \ref{sub:Feed-Rate}
+
+\end_inset 
+
+.
+\layout Subsection
+
+Current Position
+\layout Standard
+
+The controlled point is always at some location called the 
+\begin_inset Quotes eld
+\end_inset 
+
+current position,
+\begin_inset Quotes erd
+\end_inset 
+
+ and the controller always knows where that is.
+ The numbers representing the current position must be adjusted in the absence
+ of any axis motion if any of several events take place:
+\layout Enumerate
+
+Length units are changed.
+\layout Enumerate
+
+Tool length offset is changed.
+\layout Enumerate
+
+Coordinate system offsets are changed.
+ 
+\layout Subsection
+
+Selected Plane
+\begin_inset LatexCommand \label{sub:Selected-Plane}
+
+\end_inset 
+
+
+\layout Standard
+
+There is always a 
+\begin_inset Quotes eld
+\end_inset 
+
+selected plane
+\begin_inset Quotes erd
+\end_inset 
+
+, which must be the XY-plane, the YZ-plane, or the XZ-plane of the machining
+ center.
+ The Z-axis is, of course, perpendicular to the XY-plane, the X-axis to
+ the YZ-plane, and the Y-axis to the XZ-plane.
+ 
+\layout Subsection
+
+Tool Carousel
+\layout Standard
+
+Zero or one tool is assigned to each slot in the tool carousel.
+\layout Subsection
+
+Tool Change
+\layout Standard
+
+A machining center may be commanded to change tools.
+\layout Subsection
+
+Pallet Shuttle
+\layout Standard
+
+The two pallets may be exchanged by command.
+\layout Subsection
+
+Feed and Speed Override Switches
+\layout Standard
+
+The feed and speed override switches may be enabled (so they work as expected)
+ or disabled (so they have no effect on the feed rate or spindle speed).
+ The RS274/NGC language has one command that enables both switches and one
+ command that disables both (see Section 
+\begin_inset LatexCommand \ref{sub:M7,-M8,-M9:}
+
+\end_inset 
+
+).
+ See Section 
+\begin_inset LatexCommand \ref{sub:Feed-Interaction}
+
+\end_inset 
+
+ for further details.
+ 
+\layout Subsection
+
+Path Control Mode
+\begin_inset LatexCommand \label{sub:Path-Control-Mode}
+
+\end_inset 
+
+
+\layout Standard
+
+The machining center may be put into any one of three path control modes:
+ (1) exact stop mode, (2) exact path mode, or (3) continuous mode with optional
+ tolerance.
+ In exact stop mode, the machine stops briefly at the end of each programmed
+ move.
+ In exact path mode, the machine follows the programmed path as exactly
+ as possible, slowing or stopping if necessary at sharp corners of the path.
+ In continuous mode, sharp corners of the path may be rounded slightly so
+ that the feed rate may be kept up (but by no more than the tolerance, if
+ specified).
+ See Section 
+\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:}
+
+\end_inset 
+
+.
+\layout Section
+
+Interpreter Interaction with Switches
+\layout Standard
+
+The Interpreter interacts with three switches.
+ This section describes the interactions in more detail.
+ In no case does the Interpreter know what the setting of any of these switches
+ is.
+ 
+\layout Subsection
+
+Feed and Speed Override Switches
+\begin_inset LatexCommand \label{sub:Feed-Interaction}
+
+\end_inset 
+
+
+\layout Standard
+
+The Interpreter will interpret RS274/NGC commands which enable (
+\family typewriter 
+M48
+\family default 
+) or disable (
+\family typewriter 
+M49
+\family default 
+) the feed and speed override switches.
+ It is useful to be able to override these switches for some machining operation
+s.
+ The idea is that optimal settings have been included in the program, and
+ the operator should not change them.
+\layout Standard
+
+EMC2 reacts to the setting of the speed or feed override switches on the
+ control panel, when these switches are enabled.
+\layout Subsection
+
+Block Delete Switch
+\begin_inset LatexCommand \label{sub:Block-Delete-Switch-Interaction}
+
+\end_inset 
+
+
+\layout Standard
+
+If the block delete switch is on, lines of RS274/NGC code which start with
+ a slash (the block delete character) are not interpreted.
+ If the switch is off, such lines are interpreted.
+\layout Standard
+
+The Interpreter runs in two stages (read and execute).
+ The driver tells the Interpreter when to perform each stage.
+ When the Interpreter reads a line starting with a slash, it informs the
+ driver, 
+\begin_inset Quotes eld
+\end_inset 
+
+I just read a line starting with a slash.
+\begin_inset Quotes erd
+\end_inset 
+
+ The driver checks the setting of the block delete switch.
+ If the switch is off, it tells the Interpreter, 
+\begin_inset Quotes eld
+\end_inset 
+
+Execute that line.
+\begin_inset Quotes erd
+\end_inset 
+
+ If the switch is on, the driver does not tell the Interpreter to execute
+ the line.
+ Instead, it tells the Interpreter to read another line, with the result
+ that the line starting with the slash is not executed.
+\layout Subsection
+
+Optional Program Stop Switch
+\begin_inset LatexCommand \label{sub:Optional-Program-Stop-Interaction}
+
+\end_inset 
+
+
+\layout Standard
+
+The optional program stop switch works as follows.
+ If this switch is on and an input RS274/NGC code line contains an M1 code,
+ program execution is supposed to stop until the cycle start button is pushed.
+\layout Standard
+
+EMC2 checks the optional stop switch when the OPTIONAL_PROGRAM_STOP canonical
+ function call is executed and either stops (if the switch is on) or not
+ (if the switch is off).
+\layout Section
+
+Tool File
+\begin_inset LatexCommand \label{sub:Tool-File}
+
+\end_inset 
+
+
+\layout Standard
+
+A tool file is required to use the Interpreter.
+ The file tells which tools are in which carousel slots and what the length
+ and diameter of each tool are.
+\layout Standard
+
+The format of a tool file is exemplified in Table 
+\begin_inset LatexCommand \ref{cap:Sample-Tool-File}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Sample Tool File
+\begin_inset LatexCommand \label{cap:Sample-Tool-File}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="9" columns="5">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Pocket
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+FMS
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+TLO
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Diameter
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Comment
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+2.0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1.0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1.0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1.5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.25
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+endmill
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+10
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+10
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+2.4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+-0.3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+for testing
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+21
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+21
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+173.740
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1/2
+\begin_inset Quotes erd
+\end_inset 
+
+ spot drill
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+32
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+32
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+247.615
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+8.5mm drill
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+41
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+41
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+228.360
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+10mm tap
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+60
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+60
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+large chuck
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The file consists of any number of header lines, followed by one blank line,
+ followed by any number of lines of data.
+ The header lines are ignored.
+ It is important that there be exactly one blank line (with no spaces or
+ tabs, even) before the data.
+ The header line shown in Table 
+\begin_inset LatexCommand \ref{cap:Sample-Tool-File}
+
+\end_inset 
+
+ describes the data columns, so it is suggested (but not required) that
+ such a line always be included in the header.
+\layout Standard
+
+Each data line of the file contains the data for one tool.
+ Each line has five entries.
+ The first four entries are required.
+ The last entry (a comment) is optional.
+ It makes reading easier if the entries are arranged in columns, as shown
+ in the table, but the only format requirement is that there be at least
+ one space or tab after each of the first three entries on a line and a
+ space, tab, or newline at the end of the fourth entry.
+ The meanings of the columns and the type of data to be put in each are
+ as follows.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+Pocket
+\begin_inset Quotes erd
+\end_inset 
+
+ column contains an unsigned integer which represents the pocket number
+ (slot number) of the tool carousel slot in which the tool is placed.
+ The entries in this column must all be different.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+FMS
+\begin_inset Quotes erd
+\end_inset 
+
+ column contains an unsigned integer which represents a code number for
+ the tool.
+ The user may use any code for any tool, as long as the codes are unsigned
+ integers.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+TLO
+\begin_inset Quotes erd
+\end_inset 
+
+ column contains a real number which represents the tool length offset.
+ This number will be used if tool length offsets are being used and this
+ pocket is selected.
+ This is normally a positive real number, but it may be zero or any other
+ number if it is never to be used.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+Diameter
+\begin_inset Quotes erd
+\end_inset 
+
+ column contains a real number.
+ This number is used only if tool radius compensation is turned on using
+ this pocket.
+ If the programmed path during compensation is the edge of the material
+ being cut, this should be a positive real number representing the measured
+ diameter of the tool.
+ If the programmed path during compensation is the path of a tool whose
+ diameter is nominal, this should be a small number (positive, negative,
+ or zero) representing the difference between the measured diameter of the
+ tool and the nominal diameter.
+ If cutter radius compensation is not used with a tool, it does not matter
+ what number is in this column.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+Comment
+\begin_inset Quotes erd
+\end_inset 
+
+ column may optionally be used to describe the tool.
+ Any type of description is OK.
+ This column is for the benefit of human readers only.
+\layout Standard
+
+The units used for the length and diameter of the tool may be in either
+ millimeters or inches, but if the data is used by an NC program, the user
+ must be sure the units used for a tool in the file are the same as the
+ units in effect when NC code that uses the tool data is interpreted.
+ The table shows a mixture of types of units.
+\layout Standard
+
+The lines do not have to be in any particular order.
+ Switching the order of lines has no effect unless the same slot number
+ is used on two or more lines, which should not normally be done, in which
+ case the data for only the last such line will be used.
+ 
+\layout Section
+
+Parameters
+\begin_inset LatexCommand \label{sub:Parameters}
+
+\end_inset 
+
+
+\layout Standard
+
+In the RS274/NGC language view, a machining center maintains an array of
+ 5400 numerical parameters.
+ Many of them have specific uses.
+ The parameter array persists over time, even if the machining center is
+ powered down.
+ EMC2 uses a parameter file to ensure persistence and gives the Interpreter
+ the responsibility for maintaining the file.
+ The Interpreter reads the file when it starts up, and writes the file when
+ it exits.
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Parameters Used by the RS274NGC Interpreter
+\begin_inset LatexCommand \label{cap:Parameters-Used-by}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="14" columns="2">
+<features>
+<column alignment="left" valignment="top" leftline="true" width="0">
+<column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Parameter Number(s)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Meaning
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5161-5166
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+G28
+\begin_inset Quotes erd
+\end_inset 
+
+ Home
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5181-5186
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+G30
+\begin_inset Quotes erd
+\end_inset 
+
+ Home
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5211-5216
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+G92
+\begin_inset Quotes erd
+\end_inset 
+
+ offset
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5220
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System Number
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5221-5226
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System 1
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5241-5246
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System 2
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5261-5266
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System 3
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5281-5286
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System 4
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5301-5306
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System 5
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5321-5326
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System 6
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5341-5346
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System 7
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5361-5366
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System 8
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5381-5386
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System 9
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The format of a parameter file is shown in Table 
+\begin_inset LatexCommand \ref{cap:Parameter-File-Format}
+
+\end_inset 
+
+.
+ The file consists of any number of header lines, followed by one blank
+ line, followed by any number of lines of data.
+ The Interpreter skips over the header lines.
+ It is important that there be exactly one blank line (with no spaces or
+ tabs, even) before the data.
+ The header line shown in Table 
+\begin_inset LatexCommand \ref{cap:Parameter-File-Format}
+
+\end_inset 
+
+ describes the data columns, so it is suggested (but not required) that
+ that line always be included in the header.
+\layout Standard
+
+The Interpreter reads only the first two columns of the table.
+ The third column, 
+\begin_inset Quotes eld
+\end_inset 
+
+Comment,
+\begin_inset Quotes erd
+\end_inset 
+
+ is not read by the Interpreter.
+\layout Standard
+
+Each line of the file contains the index number of a parameter in the first
+ column and the value to which that parameter should be set in the second
+ column.
+ The value is represented as a double-precision floating point number inside
+ the Interpreter, but a decimal point is not required in the file.
+ All of the parameters shown in Table 
+\begin_inset LatexCommand \ref{cap:Parameter-File-Format}
+
+\end_inset 
+
+ are required parameters and must be included in any parameter file, except
+ that any parameter representing a rotational axis value for an unused axis
+ may be omitted.
+ An error will be signalled if any required parameter is missing.
+ A parameter file may include any other parameter, as long as its number
+ is in the range 1 to 5400.
+ The parameter numbers must be arranged in ascending order.
+ An error will be signalled if not.
+ Any parameter included in the file read by the Interpreter will be included
+ in the file it writes as it exits.
+ The original file is saved as a backup file when the new file is written.
+ Comments are not preserved when the file is written.
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Parameter File Format
+\begin_inset LatexCommand \label{cap:Parameter-File-Format}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="3" columns="3">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Parameter Number
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Parameter Value
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Comment
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5161
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G28 Home X
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5162
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+0.0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G28 Home Y
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Section
+
+Coordinate Systems
+\begin_inset LatexCommand \label{sub:Coordinate-Systems}
+
+\end_inset 
+
+
+\layout Standard
+
+In the RS274/NGC language view, a machining center has an absolute coordinate
+ system and nine program coordinate systems.
+\layout Standard
+
+You can set the offsets of the nine program coordinate systems using 
+\family typewriter 
+G10 L2 Pn
+\family default 
+ (n is the number of the coordinate system) with values for the axes in
+ terms of the absolute coordinate system.
+ See Section 
+\begin_inset LatexCommand \ref{sub:G10:-Set-Coordinate}
+
+\end_inset 
+
+.
+\layout Standard
+
+You can select one of the nine systems by using 
+\family typewriter 
+G54
+\family default 
+, 
+\family typewriter 
+G55
+\family default 
+, 
+\family typewriter 
+G56
+\family default 
+, 
+\family typewriter 
+G57
+\family default 
+, 
+\family typewriter 
+G58
+\family default 
+, 
+\family typewriter 
+G59
+\family default 
+, 
+\family typewriter 
+G59.1
+\family default 
+, 
+\family typewriter 
+G59.2
+\family default 
+, or 
+\family typewriter 
+G59.3
+\family default 
+ (see Section 
+\begin_inset LatexCommand \ref{sub:G54-to-G59.3:}
+
+\end_inset 
+
+).
+ It is not possible to select the absolute coordinate system directly.
+\layout Standard
+
+You can offset the current coordinate system using 
+\family typewriter 
+G92
+\family default 
+ or 
+\family typewriter 
+G92.3
+\family default 
+.
+ This offset will then apply to all nine program coordinate systems.
+ This offset may be cancelled with 
+\family typewriter 
+G92.1
+\family default 
+ or 
+\family typewriter 
+G92.2
+\family default 
+.
+ See Section 
+\begin_inset LatexCommand \ref{sub:G92,-G92.1,-G92.2,}
+
+\end_inset 
+
+.
+\layout Standard
+
+You can make straight moves in the absolute machine coordinate system by
+ using 
+\family typewriter 
+G53
+\family default 
+ with either 
+\family typewriter 
+G0
+\family default 
+ or 
+\family typewriter 
+G1
+\family default 
+.
+ See Section 
+\begin_inset LatexCommand \ref{sub:G53:-Move-in}
+
+\end_inset 
+
+.
+\layout Standard
+
+Data for coordinate systems is stored in parameters.
+\layout Standard
+
+During initialization, the coordinate system is selected that is specified
+ by parameter 5220.
+ A value of 1 means the first coordinate system (the one 
+\family typewriter 
+G54
+\family default 
+ activates), a value of 2 means the second coordinate system (the one 
+\family typewriter 
+G55
+\family default 
+ activates), and so on.
+ It is an error for the value of parameter 5220 to be anything but a whole
+ number between one and nine.
+ 
+\layout Chapter
+
+Language Overview
+\layout Standard
+
+The RS274/NGC language is based on lines of code.
+ Each line (also called a 
+\begin_inset Quotes eld
+\end_inset 
+
+block
+\begin_inset Quotes erd
+\end_inset 
+
+) may include commands to a machining center to do several different things.
+ Lines of code may be collected in a file to make a program.
+\layout Standard
+
+A typical line of code consists of an optional line number at the beginning
+ followed by one or more 
+\begin_inset Quotes eld
+\end_inset 
+
+words.
+\begin_inset Quotes erd
+\end_inset 
+
+ A word consists of a letter followed by a number (or something that evaluates
+ to a number).
+ A word may either give a command or provide an argument to a command.
+ For example, 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+G1 X3
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ is a valid line of code with two words.
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+G1
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ is a command meaning 
+\begin_inset Quotes eld
+\end_inset 
+
+move in a straight line at the programmed feed rate
+\begin_inset Quotes erd
+\end_inset 
+
+, and 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+X3
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ provides an argument value (the value of X should be 3 at the end of the
+ move).
+ Most RS274/NGC commands start with either G or M (for General and Miscellaneous
+).
+ The words for these commands are called 
+\begin_inset Quotes eld
+\end_inset 
+
+G codes
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+M codes.
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+The RS274/NGC language has no indicator for the start of a program.
+ The Interpreter, however, deals with files.
+ A single program may be in a single file, or a program may be spread across
+ several files.
+ A file may demarcated with percents in the following way.
+ The first non-blank line of a file may contain nothing but a percent sign,
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+%
+\begin_inset Quotes erd
+\end_inset 
+
+, possibly surrounded by white space, and later in the file (normally at
+ the end of the file) there may be a similar line.
+ Demarcating a file with percents is optional if the file has an 
+\family typewriter 
+M2
+\family default 
+ or 
+\family typewriter 
+M30
+\family default 
+ in it, but is required if not.
+ An error will be signalled if a file has a percent line at the beginning
+ but not at the end.
+ The useful contents of a file demarcated by percents stop after the second
+ percent line.
+ Anything after that is ignored.
+\layout Standard
+
+The RS274/NGC language has two commands (
+\family typewriter 
+M2
+\family default 
+ or 
+\family typewriter 
+M30
+\family default 
+), either of which ends a program.
+ A program may end before the end of a file.
+ Lines of a file that occur after the end of a program are not to be executed.
+ The interpreter does not even read them.
+\layout Section
+
+Format of a line
+\layout Standard
+
+A permissible line of input RS274/NGC code consists of the following, in
+ order, with the restriction that there is a maximum (currently 256) to
+ the number of characters allowed on a line.
+\layout Enumerate
+
+an optional block delete character, which is a slash 
+\begin_inset Quotes eld
+\end_inset 
+
+/
+\begin_inset Quotes erd
+\end_inset 
+
+ .
+ 
+\layout Enumerate
+
+an optional line number.
+\layout Enumerate
+
+any number of words, parameter settings, and comments.
+\layout Enumerate
+
+an end of line marker (carriage return or line feed or both).
+ 
+\layout Standard
+
+Any input not explicitly allowed is illegal and will cause the Interpreter
+ to signal an error.
+\layout Standard
+
+Spaces and tabs are allowed anywhere on a line of code and do not change
+ the meaning of the line, except inside comments.
+ This makes some strange-looking input legal.
+ The line 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+g0x +0.
+ 12 34y 7
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ is equivalent to 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+g0 x+0.1234 y7
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+, for example.
+\layout Standard
+
+Blank lines are allowed in the input.
+ They are to be ignored.
+\layout Standard
+
+Input is case insensitive, except in comments, i.e., any letter outside a
+ comment may be in upper or lower case without changing the meaning of a
+ line.
+ 
+\layout Section
+
+Line Number
+\layout Standard
+
+A line number is the letter N followed by an integer (with no sign) between
+ 0 and 99999 written with no more than five digits (000009 is not OK, for
+ example).
+ Line numbers may be repeated or used out of order, although normal practice
+ is to avoid such usage.
+ Line numbers may also be skipped, and that is normal practice.
+ A line number is not required to be used, but must be in the proper place
+ if used.
+\layout Section
+
+Word
+\layout Standard
+
+A word is a letter other than N followed by a real value.
+\layout Standard
+
+Words may begin with any of the letters shown in Table 
+\begin_inset LatexCommand \ref{cap:Words-and-their}
+
+\end_inset 
+
+.
+ The table includes N for completeness, even though, as defined above, line
+ numbers are not words.
+ Several letters (I, J, K, L, P, R) may have different meanings in different
+ contexts.
+ 
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Words and their meanings
+\begin_inset LatexCommand \label{cap:Words-and-their}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="21" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Letter
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Meaning
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+A
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+A axis of machine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+B
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+B axis of machine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C axis of machine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+D
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Tool radius compensation number
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+F
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Feedrate
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+General function (See table 5)
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+H
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Tool length offset index
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+I
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+X offset for arcs and G87 canned cycles
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+J
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Y offset for arcs and G87 canned cycles
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+K
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Minipage
+position 1
+inner_position 0
+height "0pt"
+width "100col%"
+collapsed false
+
+\layout Standard
+
+Z offset for arcs and G87 canned cycles.
+\layout Standard
+
+Spindle-Motion Ratio for G33 synchronized movements.
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Miscellaneous function (See table 7)
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+N
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Line number
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset Minipage
+position 1
+inner_position 0
+height "0pt"
+width "100col%"
+collapsed true
+
+\layout Standard
+
+Dwell time in canned cycles and with G4.
+ 
+\layout Standard
+
+Key used with G10
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Q
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Feed increment in G83 canned cycle
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+R
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Arc radius or canned cycle plane
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+S
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Spindle speed
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+T
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Tool selection
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+X
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+X axis of machine
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Y
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Y axis of machine
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Z
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Z axis of machine
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+Number
+\layout Standard
+
+The following rules are used for (explicit) numbers.
+ In these rules a digit is a single character between 0 and 9.
+\layout Itemize
+
+A number consists of (1) an optional plus or minus sign, followed by (2)
+ zero to many digits, followed, possibly, by (3) one decimal point, followed
+ by (4) zero to many digits - provided that there is at least one digit
+ somewhere in the number.
+\layout Itemize
+
+There are two kinds of numbers: integers and decimals.
+ An integer does not have a decimal point in it; a decimal does.
+\layout Itemize
+
+Numbers may have any number of digits, subject to the limitation on line
+ length.
+ Only about seventeen significant figures will be retained, however (enough
+ for all known applications).
+\layout Itemize
+
+A non-zero number with no sign as the first character is assumed to be positive.
+\layout Standard
+
+Notice that initial (before the decimal point and the first non-zero digit)
+ and trailing (after the decimal point and the last non-zero digit) zeros
+ are allowed but not required.
+ A number written with initial or trailing zeros will have the same value
+ when it is read as if the extra zeros were not there.
+\layout Standard
+
+Numbers used for specific purposes in RS274/NGC are often restricted to
+ some finite set of values or some to some range of values.
+ In many uses, decimal numbers must be close to integers; this includes
+ the values of indexes (for parameters and carousel slot numbers, for example),
+ M codes, and G codes multiplied by ten.
+ A decimal number which is supposed be close to an integer is considered
+ close enough if it is within 0.0001 of an integer.
+ 
+\layout Subsection
+
+Parameter Value
+\layout Standard
+
+A parameter value is the pound character 
+\family typewriter 
+#
+\family default 
+ followed by a real value.
+ The real value must evaluate to an integer between 1 and 5399.
+ The integer is a parameter number, and the value of the parameter value
+ is whatever number is stored in the numbered parameter.
+\layout Standard
+
+The 
+\family typewriter 
+#
+\family default 
+ character takes precedence over other operations, so that, for example,
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+#1+2
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ means the number found by adding 2 to the value of parameter 1, not the
+ value found in parameter 3.
+ Of course, 
+\family typewriter 
+#[1+2]
+\family default 
+ does mean the value found in parameter 3.
+ The 
+\family typewriter 
+#
+\family default 
+ character may be repeated; for example 
+\family typewriter 
+##2
+\family default 
+ means the value of the parameter whose index is the (integer) value of
+ parameter 2.
+ 
+\layout Subsection
+
+Expressions and Binary Operations
+\layout Standard
+
+An expression is a set of characters starting with a left bracket 
+\family typewriter 
+[
+\family default 
+ and ending with a balancing right bracket 
+\family typewriter 
+]
+\family default 
+.
+ In between the brackets are numbers, parameter values, mathematical operations,
+ and other expressions.
+ An expression may be evaluated to produce a number.
+ The expressions on a line are evaluated when the line is read, before anything
+ on the line is executed.
+ An example of an expression is 
+\family typewriter 
+[ 1 + acos[0] - [#3 ** [4.0/2]]]
+\family default 
+.
+\layout Standard
+
+Binary operations appear only inside expressions.
+ Nine binary operations are defined.
+ There are four basic mathematical operations: addition (
+\family typewriter 
++
+\family default 
+), subtraction (
+\family typewriter 
+-
+\family default 
+), multiplication (
+\family typewriter 
+*
+\family default 
+), and division (
+\family typewriter 
+/
+\family default 
+).
+ There are three logical operations: non-exclusive or (
+\family typewriter 
+OR
+\family default 
+), exclusive or (
+\family typewriter 
+XOR
+\family default 
+), and logical and (
+\family typewriter 
+AND
+\family default 
+).
+ The eighth operation is the modulus operation (
+\family typewriter 
+MOD
+\family default 
+).
+ The ninth operation is the 
+\begin_inset Quotes eld
+\end_inset 
+
+power
+\begin_inset Quotes erd
+\end_inset 
+
+ operation (
+\family typewriter 
+**
+\family default 
+) of raising the number on the left of the operation to the power on the
+ right.
+\layout Standard
+
+The binary operations are divided into three groups.
+ The first group is: power.
+ The second group is: multiplication, division, and modulus.
+ The third group is: addition, subtraction, logical non-exclusive or, logical
+ exclusive or, and logical and.
+ If operations are strung together (for example in the expression 
+\family typewriter 
+[2.0 / 3 * 1.5 - 5.5 / 11.0]
+\family default 
+), operations in the first group are to be performed before operations in
+ the second group and operations in the second group before operations in
+ the third group.
+ If an expression contains more than one operation from the same group (such
+ as the first 
+\family typewriter 
+/
+\family default 
+ and 
+\family typewriter 
+*
+\family default 
+ in the example), the operation on the left is performed first.
+ Thus, the example is equivalent to: 
+\family typewriter 
+[((2.0 / 3) * 1.5) - (5.5 / 11.0)]
+\family default 
+ , which simplifies to 
+\family typewriter 
+[1.0 - 0.5]
+\family default 
+ , which is 
+\family typewriter 
+0.5
+\family default 
+.
+\layout Standard
+
+The logical operations and modulus are to be performed on any real numbers,
+ not just on integers.
+ The number zero is equivalent to logical false, and any non-zero number
+ is equivalent to logical true.
+ 
+\layout Subsection
+
+Unary Operation Value
+\layout Standard
+
+A unary operation value is either 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+ATAN
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ followed by one expression divided by another expression (for example 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+ATAN[2]/[1+3]
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+) or any other unary operation name followed by an expression (for example
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+SIN[90]
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+).
+ The unary operations are: 
+\family typewriter 
+ABS
+\family default 
+ (absolute value), 
+\family typewriter 
+ACOS
+\family default 
+ (arc cosine), 
+\family typewriter 
+ASIN
+\family default 
+ (arc sine), 
+\family typewriter 
+ATAN
+\family default 
+ (arc tangent), 
+\family typewriter 
+COS
+\family default 
+ (cosine), 
+\family typewriter 
+EXP
+\family default 
+ (e raised to the given power), 
+\family typewriter 
+FIX
+\family default 
+ (round down), 
+\family typewriter 
+FUP
+\family default 
+ (round up), 
+\family typewriter 
+LN
+\family default 
+ (natural logarithm), 
+\family typewriter 
+ROUND
+\family default 
+ (round to the nearest whole number), 
+\family typewriter 
+SIN
+\family default 
+ (sine), 
+\family typewriter 
+SQRT
+\family default 
+ (square root), and 
+\family typewriter 
+TAN
+\family default 
+ (tangent).
+ Arguments to unary operations which take angle measures (
+\family typewriter 
+COS
+\family default 
+, 
+\family typewriter 
+SIN
+\family default 
+, and 
+\family typewriter 
+TAN
+\family default 
+) are in degrees.
+ Values returned by unary operations which return angle measures (
+\family typewriter 
+ACOS
+\family default 
+, 
+\family typewriter 
+ASIN
+\family default 
+, and 
+\family typewriter 
+ATAN
+\family default 
+) are also in degrees.
+\layout Standard
+
+The 
+\family typewriter 
+FIX
+\family default 
+ operation rounds towards the left (less positive or more negative) on a
+ number line, so that 
+\family typewriter 
+FIX[2.8] =2
+\family default 
+ and 
+\family typewriter 
+FIX[-2.8] = -3
+\family default 
+, for example.
+ The 
+\family typewriter 
+FUP
+\family default 
+ operation rounds towards the right (more positive or less negative) on
+ a number line; 
+\family typewriter 
+FUP[2.8] = 3
+\family default 
+ and 
+\family typewriter 
+FUP[-2.8] = -2
+\family default 
+, for example.
+ 
+\layout Section
+
+Parameter Setting
+\layout Standard
+
+A parameter setting is the following four items one after the other: (1)
+ a pound character # , (2) a real value which evaluates to an integer between
+ 1 and 5399, (3) an equal sign = , and (4) a real value.
+ For example 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+#3 = 15
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ is a parameter setting meaning 
+\begin_inset Quotes eld
+\end_inset 
+
+set parameter 3 to 15.
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+A parameter setting does not take effect until after all parameter values
+ on the same line have been found.
+ For example, if parameter 3 has been previously set to 15 and the line
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+#3=6 G1 x#3
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ is interpreted, a straight move to a point where x equals 15 will occur
+ and the value of parameter 3 will be 6.
+ 
+\layout Section
+
+Comments and Messages
+\layout Standard
+
+Printable characters and white space inside parentheses is a comment.
+ A left parenthesis always starts a comment.
+ The comment ends at the first right parenthesis found thereafter.
+ Once a left parenthesis is placed on a line, a matching right parenthesis
+ must appear before the end of the line.
+ Comments may not be nested; it is an error if a left parenthesis is found
+ after the start of a comment and before the end of the comment.
+ Here is an example of a line containing a comment: 
+\family typewriter 
+
+\begin_inset Quotes eld
+\end_inset 
+
+G80 M5 (stop motion)
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Comments do not cause a machining center to do anything.
+\layout Standard
+
+A comment contains a message if 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+MSG,
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ appears after the left parenthesis and before any other printing characters.
+ Variants of 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+MSG,
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ which include white space and lower case characters are allowed.
+ The rest of the characters before the right parenthesis are considered
+ to be a message.
+ Messages should be displayed on the message display device.
+ Comments not containing messages need not be displayed there.
+ 
+\layout Section
+
+Repeated Items
+\layout Standard
+
+A line may have any number of G words, but two G words from the same modal
+ group (see Section 
+\begin_inset LatexCommand \ref{sec:Modal-Groups}
+
+\end_inset 
+
+) may not appear on the same line.
+\layout Standard
+
+A line may have zero to four M words.
+ Two M words from the same modal group may not appear on the same line.
+\layout Standard
+
+For all other legal letters, a line may have only one word beginning with
+ that letter.
+\layout Standard
+
+If a parameter setting of the same parameter is repeated on a line, 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+#3=15 #3=6
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+, for example, only the last setting will take effect.
+ It is silly, but not illegal, to set the same parameter twice on the same
+ line.
+\layout Standard
+
+If more than one comment appears on a line, only the last one will be used;
+ each of the other comments will be read and its format will be checked,
+ but it will be ignored thereafter.
+ It is expected that putting more than one comment on a line will be very
+ rare.
+ 
+\layout Section
+
+Item order
+\layout Standard
+
+The three types of item whose order may vary on a line (as given at the
+ beginning of this section) are word, parameter setting, and comment.
+ Imagine that these three types of item are divided into three groups by
+ type.
+\layout Standard
+
+The first group (the words) may be reordered in any way without changing
+ the meaning of the line.
+\layout Standard
+
+If the second group (the parameter settings) is reordered, there will be
+ no change in the meaning of the line unless the same parameter is set more
+ than once.
+ In this case, only the last setting of the parameter will take effect.
+ For example, after the line 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+#3=15 #3=6
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ has been interpreted, the value of parameter 3 will be 6.
+ If the order is reversed to 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+#3=6 #3=15
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ and the line is interpreted, the value of parameter 3 will be 15.
+\layout Standard
+
+If the third group (the comments) contains more than one comment and is
+ reordered, only the last comment will be used.
+\layout Standard
+
+If each group is kept in order or reordered without changing the meaning
+ of the line, then the three groups may be interleaved in any way without
+ changing the meaning of the line.
+ For example, the line 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+g40 g1 #3=15 (foo) #4=-7.0
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ has five items and means exactly the same thing in any of the 120 possible
+ orders (such as 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+#4=-7.0 g1 #3=15 g40 (foo)
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+) for the five items.
+ 
+\layout Section
+
+Commands and Machine Modes
+\layout Standard
+
+In RS274/NGC, many commands cause a machining center to change from one
+ mode to another, and the mode stays active until some other command changes
+ it implicitly or explicitly.
+ Such commands are called 
+\begin_inset Quotes eld
+\end_inset 
+
+modal
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ For example, if coolant is turned on, it stays on until it is explicitly
+ turned off.
+ The G codes for motion are also modal.
+ If a G1 (straight move) command is given on one line, for example, it will
+ be executed again on the next line if one or more axis words is available
+ on the line, unless an explicit command is given on that next line using
+ the axis words or cancelling motion.
+\layout Standard
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+Non-modal
+\begin_inset Quotes erd
+\end_inset 
+
+ codes have effect only on the lines on which they occur.
+ For example, G4 (dwell) is non-modal.
+ 
+\layout Section
+
+Modal Groups
+\begin_inset LatexCommand \label{sec:Modal-Groups}
+
+\end_inset 
+
+
+\layout Standard
+
+Modal commands are arranged in sets called 
+\begin_inset Quotes eld
+\end_inset 
+
+modal groups
+\begin_inset Quotes erd
+\end_inset 
+
+, and only one member of a modal group may be in force at any given time.
+ In general, a modal group contains commands for which it is logically impossibl
+e for two members to be in effect at the same time - like measure in inches
+ vs.
+ measure in millimeters.
+ A machining center may be in many modes at the same time, with one mode
+ from each modal group being in effect.
+ The modal groups are shown in Table 
+\begin_inset LatexCommand \ref{cap:Modal-Groups}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Modal Groups
+\begin_inset LatexCommand \label{cap:Modal-Groups}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="22" columns="2">
+<features>
+<column alignment="left" valignment="top" leftline="true" width="0">
+<column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Modal Group Meaning
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Member Words
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Motion (
+\begin_inset Quotes eld
+\end_inset 
+
+Group 1
+\begin_inset Quotes erd
+\end_inset 
+
+)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G0 G1 G2 G3 G33 G38.2 G80 G81 G82
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G83 G84 G85 G86 G87 G88 G89
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Plane selection
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G17 G18 G19
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Distance Mode
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G90 G91
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Feed Rate Mode
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G93, G94
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Units
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G20, G21
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Cutter Radius Compensation
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G40, G41, G42
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Tool Length Offset
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G43, G49
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Return Mode in Canned Cycles
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G98, G99
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coordinate System Selection
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G54, G55, G56, G57, G58,
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G59, G59.1, G59.2, G59.3
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Stopping
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M0, M1, M2, M30, M60
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Tool Change
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M6
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Spindle Turning
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M3, M4, M5
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Coolant
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M7, M8, M9.
+ Special case:
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M7 and M8 may be active at the same time
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Override Switches
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M48, M49
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Flow Control
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+O-
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Non-modal codes (
+\begin_inset Quotes eld
+\end_inset 
+
+Group 0
+\begin_inset Quotes erd
+\end_inset 
+
+)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G4, G10, G28, G30, G53
+\end_inset 
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G92, G92.1, G92.2, G92.3
+\end_inset 
+</cell>
+</row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M100 to M199
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+For several modal groups, when a machining center is ready to accept commands,
+ one member of the group must be in effect.
+ There are default settings for these modal groups.
+ When the machining center is turned on or otherwise re-initialized, the
+ default values are automatically in effect.
+\layout Standard
+
+Group 1, the first group on the table, is a group of G codes for motion.
+ One of these is always in effect.
+ That one is called the current motion mode.
+\layout Standard
+
+It is an error to put a G-code from group 1 and a G-code from group 0 on
+ the same line if both of them use axis words.
+ If an axis word-using G-code from group 1 is implicitly in effect on a
+ line (by having been activated on an earlier line), and a group 0 G-code
+ that uses axis words appears on the line, the activity of the group 1 G-code
+ is suspended for that line.
+ The axis word-using G-codes from group 0 are G10, G28, G30, and G92.
+ 
+\layout Standard
+
+It is an error to include any unrelated words on a line with 
+\family typewriter 
+O-
+\family default 
+ flow control.
+\layout Chapter
+
+G Codes
+\layout Standard
+
+G codes of the RS274/NGC language are shown in Table 5 and described following
+ that.
+\layout Standard
+
+In the command prototypes, the hypen (
+\family typewriter 
+-
+\family default 
+) stands for a real value.
+ As described earlier, a real value may be (1) an explicit number, 
+\family typewriter 
+4
+\family default 
+, for example, (2) an expression, 
+\family typewriter 
+[2+2]
+\family default 
+, for example, (3) a parameter value, 
+\family typewriter 
+#88
+\family default 
+, for example, or (4) a unary function value, 
+\family typewriter 
+acos[0]
+\family default 
+, for example.
+\layout Standard
+
+In most cases, if axis words (any or all of 
+\family typewriter 
+X-
+\family default 
+, 
+\family typewriter 
+Y-
+\family default 
+, 
+\family typewriter 
+Z-
+\family default 
+, 
+\family typewriter 
+A-
+\family default 
+, 
+\family typewriter 
+B-
+\family default 
+, 
+\family typewriter 
+C-
+\family default 
+) are given, they specify a destination point.
+ Axis numbers are in the currently active coordinate system, unless explicitly
+ described as being in the absolute coordinate system.
+ Where axis words are optional, any omitted axes will have their current
+ value.
+ Any items in the command prototypes not explicitly described as optional
+ are required.
+ It is an error if a required item is omitted.
+\layout Standard
+
+In the prototypes, the values following letters are often given as explicit
+ numbers.
+ Unless stated otherwise, the explicit numbers can be real values.
+ For example, 
+\family typewriter 
+G10 L2
+\family default 
+ could equally well be written 
+\family typewriter 
+G[2*5] L[1+1]
+\family default 
+.
+ If the value of parameter 100 were 2, 
+\family typewriter 
+G10 L#100
+\family default 
+ would also mean the same.
+ Using real values which are not explicit numbers as just shown in the examples
+ is rarely useful.
+\layout Standard
+
+If 
+\family typewriter 
+L-
+\family default 
+ is written in a prototype the 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+-
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ will often be referred to as the 
+\begin_inset Quotes eld
+\end_inset 
+
+L number
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Similarly the 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+-
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ in 
+\family typewriter 
+H-
+\family default 
+ may be called the 
+\begin_inset Quotes eld
+\end_inset 
+
+H number
+\begin_inset Quotes erd
+\end_inset 
+
+, and so on for any other letter.
+ 
+\layout Section
+
+G0: Rapid Linear Motion
+\layout Standard
+
+For rapid linear motion, program 
+\family typewriter 
+G0 X- Y- Z- A- B- C-
+\family default 
+, where all the axis words are optional, except that at least one must be
+ used.
+ The 
+\family typewriter 
+G0
+\family default 
+ is optional if the current motion mode is 
+\family typewriter 
+G0
+\family default 
+.
+ This will produce coordinated linear motion to the destination point at
+ the current traverse rate (or slower if the machine will not go that fast).
+ It is expected that cutting will not take place when a 
+\family typewriter 
+G0
+\family default 
+ command is executing.
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+all axis words are omitted.
+\layout Standard
+
+If cutter radius compensation is active, the motion will differ from the
+ above; see Chapter 
+\begin_inset LatexCommand \ref{cha:Cutter-Radius-Compensation}
+
+\end_inset 
+
+.
+ If 
+\family typewriter 
+G53
+\family default 
+ is programmed on the same line, the motion will also differ; see Section
+ 
+\begin_inset LatexCommand \ref{sub:G53:-Move-in}
+
+\end_inset 
+
+.
+ 
+\layout Section
+
+G1: Linear Motion at Feed Rate
+\layout Standard
+
+For linear motion at feed rate (for cutting or not), program 
+\family typewriter 
+G1 X- Y- Z- A- B- C-
+\family default 
+, where all the axis words are optional, except that at least one must be
+ used.
+ The 
+\family typewriter 
+G1
+\family default 
+ is optional if the current motion mode is 
+\family typewriter 
+G1
+\family default 
+.
+ This will produce coordinated linear motion to the destination point at
+ the current feed rate (or slower if the machine will not go that fast).
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+all axis words are omitted.
+\layout Standard
+
+If cutter radius compensation is active, the motion will differ from the
+ above; see Chapter 
+\begin_inset LatexCommand \ref{cha:Cutter-Radius-Compensation}
+
+\end_inset 
+
+.
+ If 
+\family typewriter 
+G53
+\family default 
+ is programmed on the same line, the motion will also differ; see Section
+ 
+\begin_inset LatexCommand \ref{sub:G53:-Move-in}
+
+\end_inset 
+
+.
+\layout Section
+
+G2, G3: Arc at Feed Rate
+\begin_inset LatexCommand \label{sub:G2,-G3:-Arc}
+
+\end_inset 
+
+
+\layout Standard
+
+A circular or helical arc is specified using either 
+\family typewriter 
+G2
+\family default 
+ (clockwise arc) or 
+\family typewriter 
+G3
+\family default 
+ (counterclockwise arc).
+ The axis of the circle or helix must be parallel to the X, Y, or Z-axis
+ of the machine coordinate system.
+ The axis (or, equivalently, the plane perpendicular to the axis) is selected
+ with 
+\family typewriter 
+G17
+\family default 
+ (Z-axis, XY-plane), 
+\family typewriter 
+G18
+\family default 
+ (Y-axis, XZ-plane), or 
+\family typewriter 
+G19
+\family default 
+ (X-axis, YZ-plane).
+ If the arc is circular, it lies in a plane parallel to the selected plane.
+\layout Standard
+
+If a line of RS274/NGC code makes an arc and includes rotational axis motion,
+ the rotational axes turn at a constant rate so that the rotational motion
+ starts and finishes when the XYZ motion starts and finishes.
+ Lines of this sort are hardly ever programmed.
+\layout Standard
+
+If cutter radius compensation is active, the motion will differ from what
+ is described here.
+ See Chapter 
+\begin_inset LatexCommand \ref{cha:Cutter-Radius-Compensation}
+
+\end_inset 
+
+.
+\layout Standard
+
+Two formats are allowed for specifying an arc.
+ We will call these the center format and the radius format.
+ In both formats the 
+\family typewriter 
+G2
+\family default 
+ or 
+\family typewriter 
+G3
+\family default 
+ is optional if it is the current motion mode.
+ 
+\layout Subsection
+
+Radius format arcs
+\layout Standard
+
+In the radius format, the coordinates of the end point of the arc in the
+ selected plane are specified along with the radius of the arc.
+ Program 
+\family typewriter 
+G2 X- Y- Z- A- B- C- R-
+\family default 
+ (or use 
+\family typewriter 
+G3
+\family default 
+ instead of 
+\family typewriter 
+G2
+\family default 
+).
+ R is the radius.
+ The axis words are all optional except that at least one of the two words
+ for the axes in the selected plane must be used.
+ The R number is the radius.
+ A positive radius indicates that the arc turns through 180 degrees or less,
+ while a negative radius indicates a turn of 180 degrees to 359.999 degrees.
+ If the arc is helical, the value of the end point of the arc on the coordinate
+ axis parallel to the axis of the helix is also specified.
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+both of the axis words for the axes of the selected plane are omitted
+\layout Itemize
+
+the end point of the arc is the same as the current point.
+\layout Standard
+
+It is not good practice to program radius format arcs that are nearly full
+ circles or are semicircles (or nearly semicircles) because a small change
+ in the location of the end point will produce a much larger change in the
+ location of the center of the circle (and, hence, the middle of the arc).
+ The magnification effect is large enough that rounding error in a number
+ can produce out-of-tolerance cuts.
+ Nearly full circles are outrageously bad, semicircles (and nearly so) are
+ only very bad.
+ Other size arcs (in the range tiny to 165 degrees or 195 to 345 degrees)
+ are OK.
+\layout Standard
+
+Here is an example of a radius format command to mill an arc:
+\family typewriter 
+ G17 G2 x 10 y 15 r 20 z 5.
+\layout Standard
+
+That means to make a clockwise (as viewed from the positive Z-axis) circular
+ or helical arc whose axis is parallel to the Z-axis, ending where X=10,
+ Y=15, and Z=5, with a radius of 20.
+ If the starting value of Z is 5, this is an arc of a circle parallel to
+ the XY-plane; otherwise it is a helical arc.
+\layout Subsection
+
+Center format arcs
+\layout Standard
+
+In the center format, the coordinates of the end point of the arc in the
+ selected plane are specified along with the offsets of the center of the
+ arc from the current location.
+ In this format, it is OK if the end point of the arc is the same as the
+ current point.
+ It is an error if: · when the arc is projected on the selected plane,
+ the distance from the current point to the center differs from the distance
+ from the end point to the center by more than 0.0002 inch (if inches are
+ being used) or 0.002 millimeter (if millimeters are being used).
+\layout Standard
+
+When the XY-plane is selected, program 
+\family typewriter 
+G2 X- Y- Z- A- B- C- I- J-
+\family default 
+ (or use 
+\family typewriter 
+G3
+\family default 
+ instead of 
+\family typewriter 
+G2
+\family default 
+).
+ The axis words are all optional except that at least one of X and Y must
+ be used.
+ I and J are the offsets from the current location (in the X and Y directions,
+ respectively) of the center of the circle.
+ I and J are optional except that at least one of the two must be used.
+ It is an error if: 
+\layout Itemize
+
+X and Y are both omitted
+\layout Itemize
+
+or I and J are both omitted.
+\layout Standard
+
+When the XZ-plane is selected, program 
+\family typewriter 
+G2 X- Y- Z- A- B- C- I- K-
+\family default 
+ (or use 
+\family typewriter 
+G3
+\family default 
+ instead of 
+\family typewriter 
+G2
+\family default 
+).
+ The axis words are all optional except that at least one of X and Z must
+ be used.
+ I and K are the offsets from the current location (in the X and Z directions,
+ respectively) of the center of the circle.
+ I and K are optional except that at least one of the two must be used.
+ It is an error if: 
+\layout Itemize
+
+X and Z are both omitted, 
+\layout Itemize
+
+or I and K are both omitted.
+\layout Standard
+
+When the YZ-plane is selected, program 
+\family typewriter 
+G2 X- Y- Z- A- B- C- J- K-
+\family default 
+ (or use 
+\family typewriter 
+G3
+\family default 
+ instead of 
+\family typewriter 
+G2
+\family default 
+).
+ The axis words are all optional except that at least one of Y and Z must
+ be used.
+ J and K are the offsets from the current location (in the Y and Z directions,
+ respectively) of the center of the circle.
+ J and K are optional except that at least one of the two must be used.
+ It is an error if: 
+\layout Itemize
+
+Y and Z are both omitted
+\layout Itemize
+
+or J and K are both omitted.
+\layout Standard
+
+Here is an example of a center format command to mill an arc: 
+\family typewriter 
+G17 G2 x10 y16 i3 j4 z9
+\family default 
+.
+\layout Standard
+
+That means to make a clockwise (as viewed from the positive z-axis) circular
+ or helical arc whose axis is parallel to the Z-axis, ending where X=10,
+ Y=16, and Z=9, with its center offset in the X direction by 3 units from
+ the current X location and offset in the Y direction by 4 units from the
+ current Y location.
+ If the current location has X=7, Y=7 at the outset, the center will be
+ at X=10, Y=11.
+ If the starting value of Z is 9, this is a circular arc; otherwise it is
+ a helical arc.
+ The radius of this arc would be 5.
+\layout Standard
+
+In the center format, the radius of the arc is not specified, but it may
+ be found easily as the distance from the center of the circle to either
+ the current point or the end point of the arc.
+ 
+\layout Section
+
+G33: Spindle-Synchronized Motion
+\layout Standard
+
+For spindle-synchronized motion, code 
+\family typewriter 
+G33 X- Y- Z- K- 
+\family default 
+where K gives the distance moved in XYZ for each revolution of the spindle.
+ This syntax is subject to change (In particular, to use 
+\family typewriter 
+F-
+\family default 
+ instead of 
+\family typewriter 
+K-
+\family default 
+).
+ For instance, 
+\family typewriter 
+G33 Z1 K.0625
+\family default 
+ produces a 1 inch motion in Z over 16 revolutions of the spindle.
+ This command might be part of a program to produce a 16TPI thread.
+\layout Standard
+
+All the axis words are optional, except that at least one must be used.
+ This will produce coordinated linear motion to the destination point at
+ a rate dependant on the speed of the spindle.
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+all axis words are omitted.
+\layout Itemize
+
+the spindle is not turning when this command is executed
+\layout Itemize
+
+the requested linear motion exceeds machine velocity limits due to the spindle
+ speed
+\layout Section
+
+G4: Dwell
+\layout Standard
+
+For a dwell, program G4 P- .
+ This will keep the axes unmoving for the period of time in seconds specified
+ by the P number.
+ It is an error if: 
+\layout Itemize
+
+the P number is negative.
+\layout Section
+
+G10: Set Coordinate System Data
+\begin_inset LatexCommand \label{sub:G10:-Set-Coordinate}
+
+\end_inset 
+
+
+\layout Standard
+
+The RS274/NGC language view of coordinate systems is described in Section
+\begin_inset LatexCommand \ref{sub:Coordinate-Systems}
+
+\end_inset 
+
+.
+\layout Standard
+
+To set the coordinate values for the origin of a coordinate system, program
+ 
+\family typewriter 
+G10 L2 P - X- Y- Z- A- B- C-
+\family default 
+, where the P number must evaluate to an integer in the range 1 to 9 (correspond
+ing to 
+\family typewriter 
+G54
+\family default 
+ to 
+\family typewriter 
+G59.3
+\family default 
+) and all axis words are optional.
+ The coordinates of the origin of the coordinate system specified by the
+ P number are reset to the coordinate values given (in terms of the absolute
+ coordinate system).
+ Only those coordinates for which an axis word is included on the line will
+ be reset.
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+the P number does not evaluate to an integer in the range 1 to 9.
+\layout Standard
+
+If origin offsets (made by 
+\family typewriter 
+G92
+\family default 
+ or 
+\family typewriter 
+G92.3
+\family default 
+) were in effect before 
+\family typewriter 
+G10
+\family default 
+ is used, they will continue to be in effect afterwards.
+\layout Standard
+
+The coordinate system whose origin is set by a G10 command may be active
+ or inactive at the time the 
+\family typewriter 
+G10
+\family default 
+ is executed.
+\layout Standard
+
+Example: 
+\family typewriter 
+G10 L2 P1 x 3.5 y 17.2
+\family default 
+ sets the origin of the first coordinate system (the one selected by G54)
+ to a point where X is 3.5 and Y is 17.2 (in absolute coordinates).
+ The Z coordinate of the origin (and the coordinates for any rotational
+ axes) are whatever those coordinates of the origin were before the line
+ was executed.
+ 
+\layout Section
+
+G17, G18, G19: Plane Selection
+\begin_inset LatexCommand \label{sub:G17,-G18,-G19:}
+
+\end_inset 
+
+
+\layout Standard
+
+Program G17 to select the XY-plane, G18 to select the XZ-plane, or G19 to
+ select the YZ-plane.
+ The effects of having a plane selected are discussed in Section 
+\begin_inset LatexCommand \ref{sub:G2,-G3:-Arc}
+
+\end_inset 
+
+ and Section 
+\begin_inset LatexCommand \ref{sub:G81-to-G89:}
+
+\end_inset 
+
+
+\layout Section
+
+G20, G21: Length Units
+\layout Standard
+
+Program G20 to use inches for length units.
+ Program G21 to use millimeters.
+\layout Standard
+
+It is usually a good idea to program either G20 or G21 near the beginning
+ of a program before any motion occurs, and not to use either one anywhere
+ else in the program.
+ It is the responsibility of the user to be sure all numbers are appropriate
+ for use with the current length units.
+ 
+\layout Section
+
+G28, G30: Return to Home
+\begin_inset LatexCommand \label{sub:G28,-G30:-Return}
+
+\end_inset 
+
+
+\layout Standard
+
+Two home positions are defined (by parameters 5161-5166 for 
+\family typewriter 
+G28
+\family default 
+ and parameters 5181-5186 for 
+\family typewriter 
+G30
+\family default 
+).
+ The parameter values are in terms of the absolute coordinate system, but
+ are in unspecified length units.
+\layout Standard
+
+To return to home position by way of the programmed position, program 
+\family typewriter 
+G28 X- Y- Z- A- B- C-
+\family default 
+ (or use 
+\family typewriter 
+G30
+\family default 
+).
+ All axis words are optional.
+ The path is made by a traverse move from the current position to the programmed
+ position, followed by a traverse move to the home position.
+ If no axis words are programmed, the intermediate point is the current
+ point, so only one move is made.
+ 
+\layout Section
+
+G38.2: Straight Probe
+\begin_inset LatexCommand \label{sub:G38.2:-Straight-Probe}
+
+\end_inset 
+
+
+\layout Standard
+
+This code is currently unimplemented in EMC2.
+ It is accepted, but the behavior is undefined.
+\layout Section
+
+G40, G41, G42: Cutter Radius Compensation.
+\begin_inset LatexCommand \label{sub:G40,-G41,-G42:}
+
+\end_inset 
+
+
+\layout Standard
+
+To turn cutter radius compensation off, program 
+\family typewriter 
+G40
+\family default 
+.
+ It is OK to turn compensation off when it is already off.
+\layout Standard
+
+Cutter radius compensation may be performed only if the XY-plane is active.
+\layout Standard
+
+To turn cutter radius compensation on left (i.e., the cutter stays to the
+ left of the programmed path when the tool radius is positive), program
+ 
+\family typewriter 
+G41 D-
+\family default 
+ .
+ To turn cutter radius compensation on right (i.e., the cutter stays to the
+ right of the programmed path when the tool radius is positive), program
+ 
+\family typewriter 
+G42 D-
+\family default 
+ .
+ The D word is optional; if there is no D word, the radius of the tool currently
+ in the spindle will be used.
+ If used, the D number should normally be the slot number of the tool in
+ the spindle, although this is not required.
+ It is OK for the D number to be zero; a radius value of zero will be used.
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+the D number is not an integer, is negative or is larger than the number
+ of carousel slots, 
+\layout Itemize
+
+the XY-plane is not active, 
+\layout Itemize
+
+or cutter radius compensation is commanded to turn on when it is already
+ on.
+\layout Standard
+
+The behavior of the machining center when cutter radius compensation is
+ on is described in Chapter 
+\begin_inset LatexCommand \ref{cha:Cutter-Radius-Compensation}
+
+\end_inset 
+
+
+\layout Section
+
+G43, G49: Tool Length Offsets
+\begin_inset LatexCommand \label{sub:G43,-G49:-Tool}
+
+\end_inset 
+
+
+\layout Standard
+
+To use a tool length offset, program 
+\family typewriter 
+G43 H-
+\family default 
+, where the H number is the desired index in the tool table.
+ It is expected that all entries in this table will be positive.
+ The H number should be, but does not have to be, the same as the slot number
+ of the tool currently in the spindle.
+ It is OK for the H number to be zero; an offset value of zero will be used.
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+the H number is not an integer, is negative, or is larger than the number
+ of carousel slots.
+\layout Standard
+
+To use no tool length offset, program G49.
+\layout Standard
+
+It is OK to program using the same offset already in use.
+ It is also OK to program using no tool length offset if none is currently
+ being used.
+ 
+\layout Section
+
+G53: Move in absolute coordinates
+\begin_inset LatexCommand \label{sub:G53:-Move-in}
+
+\end_inset 
+
+
+\layout Standard
+
+For linear motion to a point expressed in absolute coordinates, program
+ 
+\family typewriter 
+G1 G53 X- Y- Z- A- B- C-
+\family default 
+ (or use 
+\family typewriter 
+G0
+\family default 
+ instead of 
+\family typewriter 
+G1
+\family default 
+), where all the axis words are optional, except that at least one must
+ be used.
+ The 
+\family typewriter 
+G0
+\family default 
+ or 
+\family typewriter 
+G1
+\family default 
+ is optional if it is the current motion mode.
+ 
+\family typewriter 
+G53
+\family default 
+ is not modal and must be programmed on each line on which it is intended
+ to be active.
+ This will produce coordinated linear motion to the programmed point.
+ If 
+\family typewriter 
+G1
+\family default 
+ is active, the speed of motion is the current feed rate (or slower if the
+ machine will not go that fast).
+ If 
+\family typewriter 
+G0
+\family default 
+ is active, the speed of motion is the current traverse rate (or slower
+ if the machine will not go that fast).
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+G53 is used without G0 or G1 being active, 
+\layout Itemize
+
+or G53 is used while cutter radius compensation is on.
+\layout Standard
+
+See Section 
+\begin_inset LatexCommand \ref{sub:Coordinate-Systems}
+
+\end_inset 
+
+ for an overview of coordinate systems.
+ 
+\layout Section
+
+G54 to G59.3: Select Coordinate System
+\begin_inset LatexCommand \label{sub:G54-to-G59.3:}
+
+\end_inset 
+
+
+\layout Standard
+
+To select coordinate system 1, program G54, and similarly for other coordinate
+ systems.
+ The system-number-G-code pairs are: (1-
+\family typewriter 
+G54
+\family default 
+), (2-
+\family typewriter 
+G55
+\family default 
+), (3-
+\family typewriter 
+G56
+\family default 
+), (4-
+\family typewriter 
+G57
+\family default 
+), (5-
+\family typewriter 
+G58
+\family default 
+), (6-
+\family typewriter 
+G59
+\family default 
+), (7-
+\family typewriter 
+G59.1
+\family default 
+), (8-
+\family typewriter 
+G59.2
+\family default 
+), and (9-
+\family typewriter 
+G59.3
+\family default 
+).
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+one of these G-codes is used while cutter radius compensation is on.
+\layout Standard
+
+See Section 
+\begin_inset LatexCommand \ref{sub:Coordinate-Systems}
+
+\end_inset 
+
+ for an overview of coordinate systems.
+ 
+\layout Section
+
+G61, G61.1, G64: Set Path Control Mode
+\begin_inset LatexCommand \label{sub:G61,-G61.1,-G64:}
+
+\end_inset 
+
+
+\layout Standard
+
+Program 
+\family typewriter 
+G61
+\family default 
+ to put the machining center into exact path mode, 
+\family typewriter 
+G61.1
+\family default 
+ for exact stop mode, or 
+\family typewriter 
+G64 P-
+\family default 
+ for continuous mode with optional tolerance.
+ It is OK to program for the mode that is already active.
+ See Section 
+\begin_inset LatexCommand \ref{sub:Path-Control-Mode}
+
+\end_inset 
+
+ for a discussion of these modes.
+ 
+\layout Section
+
+G80: Cancel Modal Motion
+\layout Standard
+
+Program 
+\family typewriter 
+G80
+\family default 
+ to ensure no axis motion will occur.
+ It is an error if: 
+\layout Itemize
+
+Axis words are programmed when G80 is active, unless a modal group 0 G code
+ is programmed which uses axis words.
+\layout Section
+
+G81 to G89: Canned Cycles
+\begin_inset LatexCommand \label{sub:G81-to-G89:}
+
+\end_inset 
+
+
+\layout Standard
+
+The canned cycles 
+\family typewriter 
+G81
+\family default 
+ through 
+\family typewriter 
+G89
+\family default 
+ have been implemented as described in this section.
+ Two examples are given with the description of 
+\family typewriter 
+G81
+\family default 
+ below.
+\layout Standard
+
+All canned cycles are performed with respect to the currently selected plane.
+ Any of the three planes (XY, YZ, ZX) may be selected.
+ Throughout this section, most of the descriptions assume the XY-plane has
+ been selected.
+ The behavior is always analogous if the YZ or XZ-plane is selected.
+\layout Standard
+
+Rotational axis words are allowed in canned cycles, but it is better to
+ omit them.
+ If rotational axis words are used, the numbers must be the same as the
+ current position numbers so that the rotational axes do not move.
+\layout Standard
+
+All canned cycles use X, Y, R, and Z numbers in the NC code.
+ These numbers are used to determine X, Y, R, and Z positions.
+ The R (usually meaning retract) position is along the axis perpendicular
+ to the currently selected plane (Z-axis for XY-plane, X-axis for YZ-plane,
+ Y-axis for XZ-plane).
+ Some canned cycles use additional arguments.
+\layout Standard
+
+For canned cycles, we will call a number 
+\begin_inset Quotes eld
+\end_inset 
+
+sticky
+\begin_inset Quotes erd
+\end_inset 
+
+ if, when the same cycle is used on several lines of code in a row, the
+ number must be used the first time, but is optional on the rest of the
+ lines.
+ Sticky numbers keep their value on the rest of the lines if they are not
+ explicitly programmed to be different.
+ The R number is always sticky.
+\layout Standard
+
+In incremental distance mode: when the XY-plane is selected, X, Y, and R
+ numbers are treated as increments to the current position and Z as an increment
+ from the Z-axis position before the move involving Z takes place; when
+ the YZ or XZ-plane is selected, treatment of the axis words is analogous.
+ In absolute distance mode, the X, Y, R, and Z numbers are absolute positions
+ in the current coordinate system.
+\layout Standard
+
+The L number is optional and represents the number of repeats.
+ 
+\begin_inset Formula $L=0$
+\end_inset 
+
+ is not allowed.
+ If the repeat feature is used, it is normally used in incremental distance
+ mode, so that the same sequence of motions is repeated in several equally
+ spaced places along a straight line.
+ In absolute distance mode, 
+\begin_inset Formula $L>1$
+\end_inset 
+
+ means 
+\begin_inset Quotes eld
+\end_inset 
+
+do the same cycle in the same place several times,
+\begin_inset Quotes erd
+\end_inset 
+
+ Omitting the L word is equivalent to specifying 
+\begin_inset Formula $L=1$
+\end_inset 
+
+.
+ The L number is not sticky.
+\layout Standard
+
+When 
+\begin_inset Formula $L>1$
+\end_inset 
+
+ in incremental mode with the XY-plane selected, the X and Y positions are
+ determined by adding the given X and Y numbers either to the current X
+ and Y positions (on the first go-around) or to the X and Y positions at
+ the end of the previous go-around (on the repetitions).
+ The R and Z positions do not change during the repeats.
+\layout Standard
+
+The height of the retract move at the end of each repeat (called 
+\begin_inset Quotes eld
+\end_inset 
+
+clear Z
+\begin_inset Quotes erd
+\end_inset 
+
+ in the descriptions below) is determined by the setting of the retract
+ mode: either to the original Z position (if that is above the R position
+ and the retract mode is 
+\family typewriter 
+G98
+\family default 
+, OLD_Z), or otherwise to the R position.
+ See Section 
+\begin_inset LatexCommand \ref{sub:G98,-G99:-Set}
+
+\end_inset 
+
+
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+X, Y, and Z words are all missing during a canned cycle, 
+\layout Itemize
+
+a P number is required and a negative P number is used, 
+\layout Itemize
+
+an L number is used that does not evaluate to a positive integer, 
+\layout Itemize
+
+rotational axis motion is used during a canned cycle, 
+\layout Itemize
+
+inverse time feed rate is active during a canned cycle, 
+\layout Itemize
+
+or cutter radius compensation is active during a canned cycle.
+\layout Standard
+
+When the XY plane is active, the Z number is sticky, and it is an error
+ if: 
+\layout Itemize
+
+the Z number is missing and the same canned cycle was not already active,
+ 
+\layout Itemize
+
+or the R number is less than the Z number.
+\layout Standard
+
+When the XZ plane is active, the Y number is sticky, and it is an error
+ if: 
+\layout Itemize
+
+the Y number is missing and the same canned cycle was not already active,
+ 
+\layout Itemize
+
+or the R number is less than the Y number.
+\layout Standard
+
+When the YZ plane is active, the X number is sticky, and it is an error
+ if: 
+\layout Itemize
+
+the X number is missing and the same canned cycle was not already active,
+ 
+\layout Itemize
+
+or the R number is less than the X number.
+\layout Subsection
+
+Preliminary and In-Between Motion
+\layout Standard
+
+At the very beginning of the execution of any of the canned cycles, with
+ the XY-plane selected, if the current Z position is below the R position,
+ the Z-axis is traversed to the R position.
+ This happens only once, regardless of the value of L.
+\layout Standard
+
+In addition, at the beginning of the first cycle and each repeat, the following
+ one or two moves are made
+\layout Enumerate
+
+a straight traverse parallel to the XY-plane to the given XY-position, 
+\layout Enumerate
+
+a straight traverse of the Z-axis only to the R position, if it is not already
+ at the R position.
+ 
+\layout Standard
+
+If the XZ or YZ plane is active, the preliminary and in-between motions
+ are analogous.
+ 
+\layout Subsection
+
+G81: Drilling Cycle
+\layout Standard
+
+The 
+\family typewriter 
+G81
+\family default 
+ cycle is intended for drilling.
+ Program 
+\family typewriter 
+G81 X- Y- Z- A- B- C- R- L-
+\layout Enumerate
+
+Preliminary motion, as described above.
+ 
+\layout Enumerate
+
+Move the Z-axis only at the current feed rate to the Z position.
+\layout Enumerate
+
+Retract the Z-axis at traverse rate to clear Z.
+ 
+\layout Standard
+
+
+\series bold 
+Example 1.
+
+\series default 
+ Suppose the current position is (1, 2, 3) and the XY-plane has been selected,
+ and the following line of NC code is interpreted.
+\layout LyX-Code
+
+G90 G81 G98 X4 Y5 Z1.5 R2.8
+\layout Standard
+
+This calls for absolute distance mode (
+\family typewriter 
+G90
+\family default 
+) and OLD_Z retract mode (
+\family typewriter 
+G98
+\family default 
+) and calls for the 
+\family typewriter 
+G81
+\family default 
+ drilling cycle to be performed once.
+ The X number and X position are 4.
+ The Y number and Y position are 5.
+ The Z number and Z position are 1.5.
+ The R number and clear Z are 2.8.
+ Old Z is 3.
+ The following moves take place.
+\layout Enumerate
+
+a traverse parallel to the XY-plane to (4,5,3) 
+\layout Enumerate
+
+a traverse parallel to the Z-axis to (4,5,2.8) 
+\layout Enumerate
+
+a feed parallel to the Z-axis to (4,5,1.5) 
+\layout Enumerate
+
+a traverse parallel to the Z-axis to (4,5,3) 
+\layout Standard
+
+
+\series bold 
+Example 2.
+
+\series default 
+ Suppose the current position is (1, 2, 3) and the XY-plane has been selected,
+ and the following line of NC code is interpreted.
+\layout LyX-Code
+
+G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
+\layout Standard
+
+This calls for incremental distance mode (
+\family typewriter 
+G91
+\family default 
+) and OLD_Z retract mode (
+\family typewriter 
+G98
+\family default 
+) and calls for the 
+\family typewriter 
+G81
+\family default 
+ drilling cycle to be repeated three times.
+ The X number is 4, the Y number is 5, the Z number is -0.6 and the R number
+ is 1.8.
+ The initial X position is 5 (=1+4), the initial Y position is 7 (=2+5),
+ the clear Z position is 4.8 (=1.8+3), and the Z position is 4.2 (=4.8-0.6).
+ Old Z is 3.
+\layout Standard
+
+The first move is a traverse along the Z-axis to (1,2,4.8), since old Z <
+ clear Z.
+\layout Standard
+
+The first repeat consists of 3 moves.
+\layout Enumerate
+
+a traverse parallel to the XY-plane to (5,7,4.8)
+\layout Enumerate
+
+a feed parallel to the Z-axis to (5,7, 4.2)
+\layout Enumerate
+
+a traverse parallel to the Z-axis to (5,7,4.8) 
+\layout Standard
+
+The second repeat consists of 3 moves.
+ The X position is reset to 9 (=5+4) and the Y position to 12 (=7+5).
+\layout Enumerate
+
+a traverse parallel to the XY-plane to (9,12,4.8)
+\layout Enumerate
+
+a feed parallel to the Z-axis to (9,12, 4.2)
+\layout Enumerate
+
+a traverse parallel to the Z-axis to (9,12,4.8) 
+\layout Standard
+
+The third repeat consists of 3 moves.
+ The X position is reset to 13 (=9+4) and the Y position to 17 (=12+5).
+\layout Enumerate
+
+a traverse parallel to the XY-plane to (13,17,4.8) 
+\layout Enumerate
+
+a feed parallel to the Z-axis to (13,17, 4.2) 
+\layout Enumerate
+
+a traverse parallel to the Z-axis to (13,17,4.8) 
+\layout Subsection
+
+G82: Drilling Cycle with Dwell
+\layout Standard
+
+The 
+\family typewriter 
+G82
+\family default 
+ cycle is intended for drilling.
+ Program 
+\family typewriter 
+G82 X- Y- Z- A- B- C- R- L- P-
+\layout Enumerate
+
+Preliminary motion, as described above.
+\layout Enumerate
+
+Move the Z-axis only at the current feed rate to the Z position.
+ 
+\layout Enumerate
+
+Dwell for the P number of seconds.
+\layout Enumerate
+
+Retract the Z-axis at traverse rate to clear Z.
+ 
+\layout Subsection
+
+G83: Peck Drilling
+\layout Standard
+
+The 
+\family typewriter 
+G83
+\family default 
+ cycle (often called peck drilling) is intended for deep drilling or milling
+ with chip breaking.
+ The retracts in this cycle clear the hole of chips and cut off any long
+ stringers (which are common when drilling in aluminum).
+ This cycle takes a Q number which represents a 
+\begin_inset Quotes eld
+\end_inset 
+
+delta
+\begin_inset Quotes erd
+\end_inset 
+
+ increment along the Z-axis.
+ Program 
+\family typewriter 
+G83 X- Y- Z- A- B- C- R- L- Q-
+\layout Enumerate
+
+Preliminary motion, as described above.
+ 
+\layout Enumerate
+
+Move the Z-axis only at the current feed rate downward by delta or to the
+ Z position, whichever is less deep.
+ 
+\layout Enumerate
+
+Rapid back out to the clear_z.
+ 
+\layout Enumerate
+
+Rapid back down to the current hole bottom, backed off a bit.
+\layout Enumerate
+
+Repeat steps 1, 2, and 3 until the Z position is reached at step 1.
+\layout Enumerate
+
+Retract the Z-axis at traverse rate to clear Z.
+ 
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+the Q number is negative or zero.
+\layout Subsection
+
+G84: Right-Hand Tapping
+\begin_inset LatexCommand \label{sub:G84:-Right-Hand-Tapping}
+
+\end_inset 
+
+
+\layout Standard
+
+This code is currently unimplemented in EMC2.
+ It is accepted, but the behavior is undefined.
+\layout Subsection
+
+G85: Boring, No Dwell, Feed Out
+\layout Standard
+
+The 
+\family typewriter 
+G85
+\family default 
+ cycle is intended for boring or reaming, but could be used for drilling
+ or milling.
+ Program 
+\family typewriter 
+G85 X- Y- Z- A- B- C- R- L-
+\layout Enumerate
+
+Preliminary motion, as described above.
+ 
+\layout Enumerate
+
+Move the Z-axis only at the current feed rate to the Z position.
+\layout Enumerate
+
+Retract the Z-axis at the current feed rate to clear Z.
+ 
+\layout Subsection
+
+G86: Boring, Spindle Stop, Rapid Out
+\layout Standard
+
+The 
+\family typewriter 
+G86
+\family default 
+ cycle is intended for boring.
+ This cycle uses a P number for the number of seconds to dwell.
+ Program 
+\family typewriter 
+G86 X- Y- Z- A- B- C- R- L- P-
+\layout Enumerate
+
+Preliminary motion, as described above.
+ 
+\layout Enumerate
+
+Move the Z-axis only at the current feed rate to the Z position.
+\layout Enumerate
+
+Dwell for the P number of seconds.
+\layout Enumerate
+
+Stop the spindle turning.
+\layout Enumerate
+
+Retract the Z-axis at traverse rate to clear Z.
+\layout Enumerate
+
+Restart the spindle in the direction it was going.
+ 
+\layout Standard
+
+The spindle must be turning before this cycle is used.
+ It is an error if:
+\layout Itemize
+
+the spindle is not turning before this cycle is executed.
+\layout Subsection
+
+G87: Back Boring
+\begin_inset LatexCommand \label{sub:G87:-Back-Boring}
+
+\end_inset 
+
+
+\layout Standard
+
+This code is currently unimplemented in EMC2.
+ It is accepted, but the behavior is undefined.
+\layout Subsection
+
+G88: Boring, Spindle Stop, Manual Out
+\layout Standard
+
+This code is currently unimplemented in EMC2.
+ It is accepted, but the behavior is undefined.
+\layout Subsection
+
+G89: Boring, Dwell, Feed Out
+\begin_inset LatexCommand \label{sub:G89:-Boring,-Dwell,}
+
+\end_inset 
+
+
+\layout Standard
+
+The 
+\family typewriter 
+G89
+\family default 
+ cycle is intended for boring.
+ This cycle uses a P number, where P specifies the number of seconds to
+ dwell.
+ program 
+\family typewriter 
+G89 X- Y- Z- A- B- C- R- L- P-
+\layout Enumerate
+
+Preliminary motion, as described above.
+\layout Enumerate
+
+Move the Z-axis only at the current feed rate to the Z position.
+ 
+\layout Enumerate
+
+Dwell for the P number of seconds.
+ 
+\layout Enumerate
+
+Retract the Z-axis at the current feed rate to clear Z.
+ 
+\layout Subsection
+
+G90, G99: Set Distance Mode
+\begin_inset LatexCommand \label{sub:G90,-G99:-Set}
+
+\end_inset 
+
+
+\layout Standard
+
+Interpretation of RS274/NGC code can be in one of two distance modes: absolute
+ or incremental.
+\layout Standard
+
+To go into absolute distance mode, program 
+\family typewriter 
+G90
+\family default 
+.
+ In absolute distance mode, axis numbers (X, Y, Z, A, B, C) usually represent
+ positions in terms of the currently active coordinate system.
+ Any exceptions to that rule are described explicitly in this Section 
+\begin_inset LatexCommand \ref{sub:G81-to-G89:}
+
+\end_inset 
+
+.
+\layout Standard
+
+To go into incremental distance mode, program 
+\family typewriter 
+G91
+\family default 
+.
+ In incremental distance mode, axis numbers (X, Y, Z, A, B, C) usually represent
+ increments from the current values of the numbers.
+\layout Standard
+
+I and J numbers always represent increments, regardless of the distance
+ mode setting.
+ K numbers represent increments in all but one usage (see Section 
+\begin_inset LatexCommand \ref{sub:G87:-Back-Boring}
+
+\end_inset 
+
+), where the meaning changes with distance mode.
+ 
+\layout Section
+
+G92, G92.1, G92.2, G92.3: Coordinate System Offsets
+\begin_inset LatexCommand \label{sub:G92,-G92.1,-G92.2,}
+
+\end_inset 
+
+
+\layout Standard
+
+See Section 
+\begin_inset LatexCommand \ref{sub:Coordinate-Systems}
+
+\end_inset 
+
+ for an overview of coordinate systems.
+\layout Standard
+
+To make the current point have the coordinates you want (without motion),
+ program 
+\family typewriter 
+G92 X- Y- Z- A- B- C- 
+\family default 
+, where the axis words contain the axis numbers you want.
+ All axis words are optional, except that at least one must be used.
+ If an axis word is not used for a given axis, the coordinate on that axis
+ of the current point is not changed.
+ It is an error if: 
+\layout Enumerate
+
+all axis words are omitted.
+\layout Standard
+
+When 
+\family typewriter 
+G92
+\family default 
+ is executed, the origin of the currently active coordinate system moves.
+ To do this, origin offsets are calculated so that the coordinates of the
+ current point with respect to the moved origin are as specified on the
+ line containing the G92.
+ In addition, parameters 5211 to 5216 are set to the X, Y, Z, A, B, and
+ C-axis offsets.
+ The offset for an axis is the amount the origin must be moved so that the
+ coordinate of the controlled point on the axis has the specified value.
+\layout Standard
+
+Here is an example.
+ Suppose the current point is at X=4 in the currently specified coordinate
+ system and the current X-axis offset is zero, then 
+\family typewriter 
+G92 x7
+\family default 
+ sets the X-axis offset to -3, sets parameter 5211 to -3, and causes the
+ X-coordinate of the current point to be 7.
+\layout Standard
+
+The axis offsets are always used when motion is specified in absolute distance
+ mode using any of the nine coordinate systems (those designated by 
+\family typewriter 
+G54
+\family default 
+ - 
+\family typewriter 
+G59.3
+\family default 
+).
+ Thus all nine coordinate systems are affected by 
+\family typewriter 
+G92
+\family default 
+.
+\layout Standard
+
+Being in incremental distance mode has no effect on the action of 
+\family typewriter 
+G92
+\family default 
+.
+\layout Standard
+
+Non-zero offsets may be already be in effect when the 
+\family typewriter 
+G92
+\family default 
+ is called.
+ If this is the case, the new value of each offset is A+B, where A is what
+ the offset would be if the old offset were zero, and B is the old offset.
+ For example, after the previous example, the X-value of the current point
+ is 7.
+ If 
+\family typewriter 
+G92 x9
+\family default 
+ is then programmed, the new X-axis offset is -5, which is calculated by
+ 
+\family typewriter 
+[[7-9] + -3]
+\family default 
+.
+\layout Standard
+
+To reset axis offsets to zero, program 
+\family typewriter 
+G92.1
+\family default 
+ or 
+\family typewriter 
+G92.2
+\family default 
+.
+ 
+\family typewriter 
+G92.1
+\family default 
+ sets parameters 5211 to 5216 to zero, whereas 
+\family typewriter 
+G92.2
+\family default 
+ leaves their current values alone.
+\layout Standard
+
+To set the axis offset values to the values given in parameters 5211 to
+ 5216, program 
+\family typewriter 
+G92.3
+\family default 
+.
+\layout Standard
+
+You can set axis offsets in one program and use the same offsets in another
+ program.
+ Program 
+\family typewriter 
+G92
+\family default 
+ in the first program.
+ This will set parameters 5211 to 5216.
+ Do not use 
+\family typewriter 
+G92.1
+\family default 
+ in the remainder of the first program.
+ The parameter values will be saved when the first program exits and restored
+ when the second one starts up.
+ Use 
+\family typewriter 
+G92.3
+\family default 
+ near the beginning of the second program.
+ That will restore the offsets saved in the first program.
+ If other programs are to run between the the program that sets the offsets
+ and the one that restores them, make a copy of the parameter file written
+ by the first program and use it as the parameter file for the second program.
+ 
+\layout Section
+
+G93, G94: Set Feed Rate Mode
+\begin_inset LatexCommand \label{sub:G93,-G94:-Set}
+
+\end_inset 
+
+
+\layout Standard
+
+Two feed rate modes are recognized: units per minute and inverse time.
+ Program G94 to start the units per minute mode.
+ Program G93 to start the inverse time mode.
+\layout Standard
+
+In units per minute feed rate mode, an F word is interpreted to mean the
+ controlled point should move at a certain number of inches per minute,
+ millimeters per minute, or degrees per minute, depending upon what length
+ units are being used and which axis or axes are moving.
+\layout Standard
+
+In inverse time feed rate mode, an F word means the move should be completed
+ in [one divided by the F number] minutes.
+ For example, if the F number is 2.0, the move should be completed in half
+ a minute.
+\layout Standard
+
+When the inverse time feed rate mode is active, an F word must appear on
+ every line which has a G1, G2, or G3 motion, and an F word on a line that
+ does not have G1, G2, or G3 is ignored.
+ Being in inverse time feed rate mode does not affect G0 (rapid traverse)
+ motions.
+ It is an error if: 
+\layout Itemize
+
+inverse time feed rate mode is active and a line with G1, G2, or G3 (explicitly
+ or implicitly) does not have an F word.
+\layout Section
+
+G98, G99: Set Canned Cycle Return Level
+\begin_inset LatexCommand \label{sub:G98,-G99:-Set}
+
+\end_inset 
+
+
+\layout Standard
+
+When the spindle retracts during canned cycles, there is a choice of how
+ far it retracts: (1) retract perpendicular to the selected plane to the
+ position indicated by the R word, or (2) retract perpendicular to the selected
+ plane to the position that axis was in just before the canned cycle started
+ (unless that position is lower than the position indicated by the R word,
+ in which case use the R word position).
+\layout Standard
+
+To use option (1), program 
+\family typewriter 
+G99
+\family default 
+.
+ To use option (2), program 
+\family typewriter 
+G98
+\family default 
+.
+ Remember that the R word has different meanings in absolute distance mode
+ and incremental distance mode.
+ 
+\layout Chapter
+
+M Codes
+\layout Section
+
+M0, M1, M2, M30, M60: Program Stopping and Ending
+\begin_inset LatexCommand \label{sub:M0,-M1,-M2,}
+
+\end_inset 
+
+
+\layout Standard
+
+To stop a running program temporarily (regardless of the setting of the
+ optional stop switch), program M0.
+\layout Standard
+
+To stop a running program temporarily (but only if the optional stop switch
+ is on), program M1.
+\layout Standard
+
+It is OK to program 
+\family typewriter 
+M0
+\family default 
+ and 
+\family typewriter 
+M1
+\family default 
+ in MDI mode, but the effect will probably not be noticeable, because normal
+ behavior in MDI mode is to stop after each line of input, anyway.
+\layout Standard
+
+To exchange pallet shuttles and then stop a running program temporarily
+ (regardless of the setting of the optional stop switch), program 
+\family typewriter 
+M60
+\family default 
+.
+\layout Standard
+
+If a program is stopped by an 
+\family typewriter 
+M0
+\family default 
+, 
+\family typewriter 
+M1
+\family default 
+, or 
+\family typewriter 
+M60
+\family default 
+, pressing the cycle start button will restart the program at the following
+ line.
+\layout Standard
+
+To end a program, program 
+\family typewriter 
+M2
+\family default 
+.
+ To exchange pallet shuttles and then end a program, program 
+\family typewriter 
+M30
+\family default 
+.
+ Both of these commands have the following effects.
+\layout Enumerate
+
+Axis offsets are set to zero (like 
+\family typewriter 
+G92.2
+\family default 
+) and origin offsets are set to the default (like 
+\family typewriter 
+G54
+\family default 
+).
+\layout Enumerate
+
+Selected plane is set to CANON_PLANE_XY (like 
+\family typewriter 
+G17
+\family default 
+).
+ 
+\layout Enumerate
+
+Distance mode is set to MODE_ABSOLUTE (like 
+\family typewriter 
+G90
+\family default 
+).
+ 
+\layout Enumerate
+
+Feed rate mode is set to UNITS_PER_MINUTE (like 
+\family typewriter 
+G94
+\family default 
+).
+\layout Enumerate
+
+Feed and speed overrides are set to ON (like 
+\family typewriter 
+M48
+\family default 
+).
+ 
+\layout Enumerate
+
+Cutter compensation is turned off (like 
+\family typewriter 
+G40
+\family default 
+).
+ 
+\layout Enumerate
+
+The spindle is stopped (like 
+\family typewriter 
+M5
+\family default 
+).
+ 
+\layout Enumerate
+
+The current motion mode is set to G_1 (like 
+\family typewriter 
+G1
+\family default 
+).
+ 
+\layout Enumerate
+
+Coolant is turned off (like 
+\family typewriter 
+M9
+\family default 
+).
+ 
+\layout Standard
+
+No more lines of code in an RS274/NGC file will be executed after the M2
+ or M30 command is executed.
+ Pressing cycle start will start the program back at the beginning of the
+ file.
+ 
+\layout Section
+
+M3, M4, M5: Spindle Control
+\begin_inset LatexCommand \label{sub:M3,-M4,-M5:}
+
+\end_inset 
+
+
+\layout Standard
+
+To start the spindle turning clockwise at the currently programmed speed,
+ program 
+\family typewriter 
+M3
+\family default 
+.
+\layout Standard
+
+To start the spindle turning counterclockwise at the currently programmed
+ speed, program 
+\family typewriter 
+M4
+\family default 
+.
+\layout Standard
+
+To stop the spindle from turning, program 
+\family typewriter 
+M5
+\family default 
+.
+\layout Standard
+
+It is OK to use 
+\family typewriter 
+M3
+\family default 
+ or 
+\family typewriter 
+M4
+\family default 
+ if the spindle speed is set to zero.
+ If this is done (or if the speed override switch is enabled and set to
+ zero), the spindle will not start turning.
+ If, later, the spindle speed is set above zero (or the override switch
+ is turned up), the spindle will start turning.
+ It is OK to use 
+\family typewriter 
+M3
+\family default 
+ or 
+\family typewriter 
+M4
+\family default 
+ when the spindle is already turning or to use 
+\family typewriter 
+M5
+\family default 
+ when the spindle is already stopped.
+ 
+\layout Section
+
+M6: Tool Change
+\begin_inset LatexCommand \label{sub:M6:-Tool-Change}
+
+\end_inset 
+
+
+\layout Standard
+
+To change a tool in the spindle from the tool currently in the spindle to
+ the tool most recently selected (using a T word - see Section 
+\begin_inset LatexCommand \ref{sub:T:-Select-Tool}
+
+\end_inset 
+
+), program 
+\family typewriter 
+M6
+\family default 
+.
+ When the tool change is complete: 
+\layout Itemize
+
+The spindle will be stopped.
+ 
+\layout Itemize
+
+The tool that was selected (by a T word on the same line or on any line
+ after the previous tool change) will be in the spindle.
+ The T number is an integer giving the changer slot of the tool (not its
+ id).
+\layout Itemize
+
+If the selected tool was not in the spindle before the tool change, the
+ tool that was in the spindle (if there was one) will be in its changer
+ slot.
+ 
+\layout Itemize
+
+The coordinate axes will be stopped in the same absolute position they were
+ in before the tool change (but the spindle may be re-oriented).
+\layout Itemize
+
+No other changes will be made.
+ For example, coolant will continue to flow during the tool change unless
+ it has been turned off by an 
+\family typewriter 
+M9
+\family default 
+.
+\layout Standard
+
+The tool change may include axis motion while it is in progress.
+ It is OK (but not useful) to program a change to the tool already in the
+ spindle.
+ It is OK if there is no tool in the selected slot; in that case, the spindle
+ will be empty after the tool change.
+ If slot zero was last selected, there will definitely be no tool in the
+ spindle after a tool change.
+ 
+\layout Section
+
+M7, M8, M9: Coolant Control
+\begin_inset LatexCommand \label{sub:M7,-M8,-M9:}
+
+\end_inset 
+
+
+\layout Standard
+
+To turn mist coolant on, program 
+\family typewriter 
+M7
+\family default 
+.
+\layout Standard
+
+To turn flood coolant on, program 
+\family typewriter 
+M8
+\family default 
+.
+\layout Standard
+
+To turn all coolant off, program 
+\family typewriter 
+M9
+\family default 
+.
+\layout Standard
+
+It is always OK to use any of these commands, regardless of what coolant
+ is on or off.
+ 
+\layout Section
+
+M48, M49: Override Control
+\begin_inset LatexCommand \label{sub:M48,-M49:-Override}
+
+\end_inset 
+
+
+\layout Standard
+
+To enable the speed and feed override switches, program 
+\family typewriter 
+M48
+\family default 
+.
+ To disable both switches, program 
+\family typewriter 
+M49
+\family default 
+.
+ See Section 
+\begin_inset LatexCommand \ref{sub:Feed-Interaction}
+
+\end_inset 
+
+ for more details.
+ It is OK to enable or disable the switches when they are already enabled
+ or disabled.
+ 
+\layout Section
+
+M100 to M199: User Defined Commands
+\layout Standard
+
+To invoke a user-defined command, program 
+\family typewriter 
+M- P- Q-
+\family default 
+ where 
+\family typewriter 
+P-
+\family default 
+ and 
+\family typewriter 
+Q-
+\family default 
+ are both optional.
+ The external program 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+Mnnn
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ in the directory 
+\family typewriter 
+[DISPLAY]PROGRAM_PREFIX
+\family default 
+ is executed with the 
+\family typewriter 
+P
+\family default 
+ and 
+\family typewriter 
+Q
+\family default 
+ values as its two arguments.
+ Execution of the RS274NGC file pauses until the invoked program exits.
+\layout Standard
+
+It is an error if
+\layout Itemize
+
+The specified User Defined Command does not exist
+\layout Chapter
+
+O Codes
+\layout Standard
+
+O-codes provide for flow control in NC programs.
+ Each block has an associated number, which is the number used after O.
+ Care must be taken to properly match the O-numbers.
+\layout Section
+
+Subroutines: 
+\begin_inset Quotes eld
+\end_inset 
+
+sub
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+endsub
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+return
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+call
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+Subroutines extend from a 
+\family typewriter 
+O- sub
+\family default 
+ to an 
+\family typewriter 
+O- endsub
+\family default 
+.
+ The lines inside the subroutine (the 
+\begin_inset Quotes eld
+\end_inset 
+
+body
+\begin_inset Quotes erd
+\end_inset 
+
+) are not executed in order; instead, they are executed each time the subroutine
+ is called with 
+\family typewriter 
+O- call.
+\layout LyX-Code
+
+O100 sub (subroutine to move to machine home)
+\newline 
+G0 X0 Y0 Z0
+\newline 
+O100 endsub
+\newline 
+(many intervening lines)
+\newline 
+O100 call
+\layout Standard
+
+Inside a subroutine, 
+\family typewriter 
+O- return
+\family default 
+ can be executed.
+ This immediately returns to the calling code, just as though 
+\family typewriter 
+O- endsub
+\family default 
+ was encountered.
+\layout Standard
+
+
+\family typewriter 
+O- call
+\family default 
+ takes optional arguments, which are passed to the subroutine as 
+\family typewriter 
+#1
+\family default 
+, 
+\family typewriter 
+#2
+\family default 
+, etc up to 
+\family typewriter 
+#30
+\family default 
+.
+ On return from the subroutine the original values of those parameters will
+ be restored.
+\layout Standard
+
+Subroutine calls may not be nested.
+ They may only be called after they are defined.
+ They may be called from other functions, and may call themselves recursively
+ if it makes sense to do so.
+ The maximum subroutine nesting level is 10.
+\layout Section
+
+Looping: 
+\begin_inset Quotes eld
+\end_inset 
+
+do
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+while
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+endwhile
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+break
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+continue
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+while loop
+\begin_inset Quotes erd
+\end_inset 
+
+ has two structures: while/endwhile, and do/while.
+ In each case, the loop is exited when the 
+\begin_inset Quotes eld
+\end_inset 
+
+while
+\begin_inset Quotes erd
+\end_inset 
+
+ condition is false.
+\layout LyX-Code
+
+(draw a sawtooth shape)
+\newline 
+F100
+\newline 
+#1 = 0
+\newline 
+O101 while [#1 lt 10]
+\newline 
+G1 X0
+\newline 
+G1 Y[#1/10] X1
+\newline 
+#1 = [#1+1]
+\newline 
+O101 endwhile
+\layout Address
+
+Inside a while loop, 
+\family typewriter 
+O- break
+\family default 
+ immediately exits the loop, and 
+\family typewriter 
+O- continue
+\family default 
+ immediately skips to the next evaluation of the 
+\family typewriter 
+while
+\family default 
+ condition.
+ If it is still true, the loop begins again at the top.
+ If it is false, it exits the loop.
+\layout Section
+
+Conditional: 
+\begin_inset Quotes eld
+\end_inset 
+
+if
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+else
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+endif
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+if
+\begin_inset Quotes erd
+\end_inset 
+
+ conditional executes one group of statements if a condition is true and
+ another if it is false.
+\layout LyX-Code
+
+(Set feed rate depending on a variable)
+\newline 
+O102 if [#2 > 5]
+\newline 
+F100
+\newline 
+O102 else
+\newline 
+F200
+\newline 
+O102 endif
+\layout Chapter
+
+Other Codes
+\layout Section
+
+F: Set Feed Rate
+\begin_inset LatexCommand \label{sub:F:-Set-Feed}
+
+\end_inset 
+
+
+\layout Standard
+
+To set the feed rate, program 
+\family typewriter 
+F-
+\family default 
+ .
+ The application of the feed rate is as described in Section 
+\begin_inset LatexCommand \ref{sub:Feed-Rate}
+
+\end_inset 
+
+, unless inverse time feed rate mode is in effect, in which case the feed
+ rate is as described in Section 
+\begin_inset LatexCommand \ref{sub:G93,-G94:-Set}
+
+\end_inset 
+
+.
+ 
+\layout Section
+
+S: Set Spindle Speed
+\begin_inset LatexCommand \label{sub:S:-Set-Spindle}
+
+\end_inset 
+
+
+\layout Standard
+
+To set the speed in revolutions per minute (rpm) of the spindle, program
+ 
+\family typewriter 
+S-
+\family default 
+ .
+ The spindle will turn at that speed when it has been programmed to start
+ turning.
+ It is OK to program an S word whether the spindle is turning or not.
+ If the speed override switch is enabled and not set at 100%, the speed
+ will be different from what is programmed.
+ It is OK to program S0; the spindle will not turn if that is done.
+ It is an error if: 
+\layout Itemize
+
+the S number is negative.
+\layout Standard
+
+As described in Section 
+\begin_inset LatexCommand \ref{sub:G84:-Right-Hand-Tapping}
+
+\end_inset 
+
+, if a 
+\family typewriter 
+G84
+\family default 
+ (tapping) canned cycle is active and the feed and speed override switches
+ are enabled, the one set at the lower setting will take effect.
+ The speed and feed rates will still be synchronized.
+ In this case, the speed may differ from what is programmed, even if the
+ speed override switch is set at 100%.
+ 
+\layout Section
+
+T: Select Tool
+\begin_inset LatexCommand \label{sub:T:-Select-Tool}
+
+\end_inset 
+
+
+\layout Standard
+
+To select a tool, program 
+\family typewriter 
+T-
+\family default 
+, where the T number is the carousel slot for the tool.
+ The tool is not changed until an 
+\family typewriter 
+M6
+\family default 
+ is programmed (see Section 
+\begin_inset LatexCommand \ref{sub:M6:-Tool-Change}
+
+\end_inset 
+
+).
+ The T word may appear on the same line as the 
+\family typewriter 
+M6
+\family default 
+ or on a previous line.
+ It is OK, but not normally useful, if T words appear on two or more lines
+ with no tool change.
+ The carousel may move a lot, but only the most recent T word will take
+ effect at the next tool change.
+ It is OK to program 
+\family typewriter 
+T0
+\family default 
+; no tool will be selected.
+ This is useful if you want the spindle to be empty after a tool change.
+ It is an error if:
+\layout Itemize
+
+a negative T number is used, 
+\layout Itemize
+
+or a T number larger than the number of slots in the carousel is used.
+\layout Standard
+
+On some machines, the carousel will move when a T word is programmed, at
+ the same time machining is occurring.
+ On such machines, programming the T word several lines before a tool change
+ will save time.
+ A common programming practice for such machines is to put the T word for
+ the next tool to be used on the line after a tool change.
+ This maximizes the time available for the carousel to move.
+ 
+\layout Chapter
+
+Order of Execution
+\begin_inset LatexCommand \label{sec:Order-of-Execution}
+
+\end_inset 
+
+
+\layout Standard
+
+The order of execution of items on a line is critical to safe and effective
+ machine operation.
+ Items are executed in the order shown below if they occur on the same line.
+\layout Enumerate
+
+Comment (including message)
+\layout Enumerate
+
+set feed rate mode (G93, G94).
+ 
+\layout Enumerate
+
+set feed rate (F).
+ 
+\layout Enumerate
+
+set spindle speed (S).
+ 
+\layout Enumerate
+
+select tool (T).
+ 
+\layout Enumerate
+
+change tool (M6).
+\layout Enumerate
+
+spindle on or off (M3, M4, M5).
+\layout Enumerate
+
+coolant on or off (M7, M8, M9).
+\layout Enumerate
+
+.
+ enable or disable overrides (M48, M49).
+ 
+\layout Enumerate
+
+dwell (G4).
+ 
+\layout Enumerate
+
+set active plane (G17, G18, G19).
+ 
+\layout Enumerate
+
+set length units (G20, G21).
+\layout Enumerate
+
+cutter radius compensation on or off (G40, G41, G42) 
+\layout Enumerate
+
+cutter length compensation on or off (G43, G49) 
+\layout Enumerate
+
+coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3).
+ 
+\layout Enumerate
+
+set path control mode (G61, G61.1, G64)
+\layout Enumerate
+
+set distance mode (G90, G91).
+ 
+\layout Enumerate
+
+set retract mode (G98, G99).
+\layout Enumerate
+
+home (G28, G30) or change coordinate system data (G10) or set axis offsets
+ (G92, G92.1, G92.2, G94).
+ 
+\layout Enumerate
+
+perform motion (G0 to G3, G33, G80 to G89), as modified (possibly) by G53.
+ 
+\layout Enumerate
+
+stop (M0, M1, M2, M30, M60).
+\layout Chapter
+
+G-Code Best Practices
+\layout Section
+
+Use an appropriate decimal precision
+\layout Standard
+
+Use 3 digits after the decimal when milling in millimeters, and 4 digits
+ after the decimal when milling in inches.
+ In particular, arc tolerance checks are made to .001 and .0001 depending
+ on the active units.
+\layout Section
+
+Use consistent white space
+\layout Standard
+
+G-code is most legible when at least one space appears before words.
+ While it is permitted to insert whitespace in the middle of numbers, there
+ is no reason to do so.
+\layout Section
+
+Prefer 
+\begin_inset Quotes eld
+\end_inset 
+
+Center-format
+\begin_inset Quotes erd
+\end_inset 
+
+ arcs
+\layout Standard
+
+Center-format arcs (which use 
+\family typewriter 
+I- J- K-
+\family default 
+ instead of 
+\family typewriter 
+R-
+\family default 
+) behave more consistently than R-format arcs, particularly for included
+ angles near 180 degrees.
+\layout Section
+
+Put important modal settings at the top of the file
+\layout Standard
+
+When correct execution of your program depends on modal settings, be sure
+ to set them at the beginning of the part program.
+ Modes can carry over from 
+\layout Standard
+
+previous programs and from the MDI command line.
+\layout Standard
+
+As a good preventative measure, put the following line at the top of all
+ your programs:
+\layout LyX-Code
+
+G17 G20 G40 G49 G54 G80 G90 G94 
+\layout Standard
+
+(XY plane select, inch mode, cancel diameter comp, cancel length offset,
+ coordinate system 1, cancel motion, non-incremental motion, feed/minute
+ mode)
+\layout Standard
+
+Perhaps the most critical modal setting is the distance value--If you do
+ not include G20 or G21, (inch or mm,) then different machines will mill
+ the program at different scales.
+ Other settings, such as the return mode in canned cycles may also be important.
+\layout Section
+
+Don't put too many things on one line
+\layout Standard
+
+Ignore everything in Section 
+\begin_inset LatexCommand \ref{sec:Order-of-Execution}
+
+\end_inset 
+
+, and instead write no line of code that is the slightest bit ambiguous.
+ Similarly, don't use and set a parameter on the same line, even though
+ the semantics are well defined.
+ (Exception: Updating a variable to a new value, such as 
+\family typewriter 
+#1=#1+#2
+\family default 
+)
+\layout Section
+
+Don't use line numbers
+\layout Standard
+
+Line numbers offer no benefits.
+ When line numbers are reported in error messages, the numbers refer to
+ the line number in the file, not the N-word value.
+\layout Standard
+
+\layout Standard
+
+
+\begin_inset Include \input{tool_compensation.lyx}
+preview false
+
+\end_inset 
+
+
+\the_end

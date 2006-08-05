@@ -1,0 +1,790 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !!h
+\paperfontsize 10
+\spacing single 
+\papersize Default
+\paperpackage a4wide
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Chapter
+
+Coordinate System and G92 Offsets
+\layout Section
+
+Introduction
+\layout Standard
+
+You have seen how handy a tool length offset can be.
+ Having this allows the programmer to ignore the actual tool length when
+ writing a part program.
+ In the same way, it is really nice to be able to find a prominent part
+ of a casting or block of material and work a program from that point rather
+ than having to take account of the location at which the casting or block
+ will be held during the machining.
+\layout Standard
+
+This chapter introduces you to offsets as they are used by the EMC.
+ These include;
+\layout Itemize
+
+machine coordinates (G53) 
+\layout Itemize
+
+nine offsets (G54-G59.3) 
+\layout Itemize
+
+a set of global offsets (G92).
+\layout Section
+
+The Machine Position Command (G53)
+\layout Standard
+
+Regardless of any offsets that may be in effect, putting a G53
+\begin_inset LatexCommand \index{G53}
+
+\end_inset 
+
+ in a block of code tells the interpreter to go to the real or absolute
+ axis positions commanded in the block.
+ For example
+\layout Standard
+
+g53 g0 x0 y0 z0 
+\layout Standard
+
+will get you to the actual position where these three axes are zero.
+ You might use a command like this if you have a favorite position for tool
+ changes or if your machine has an auto tool changer.
+ You might also use this command to get the tool out of the way so that
+ you can rotate or change a part in a vice.
+ 
+\layout Standard
+
+G53 is not a modal command.
+ It must be used on each line where motion based upon absolute machine position
+ is desired.
+ 
+\layout Section
+
+Fixture Offsets (G54-G59.3)
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename offsets.png
+	display color
+	width 80text%
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:offsets}
+
+\end_inset 
+
+Work Offsets
+\end_inset 
+
+
+\layout Standard
+
+Work or fixture offset are used to make a part home that is different from
+ the absolute, machine coordinate system.
+ This allows the part programmer to set up home positions for multiple parts.
+ A typical operation that uses fixture offsets would be to mill multiple
+ copies of parts on "islands" in a piece, similar to figure 
+\begin_inset LatexCommand \ref{fig:offsets}
+
+\end_inset 
+
+
+\layout Standard
+
+The values for offsets are stored in the VAR file that is requested by the
+ INI file during the startup of an EMC.
+ In our example below we'll use 
+\begin_inset LatexCommand \index{G55}
+
+\end_inset 
+
+G55.
+ The values for each axis for G55 are stored as variable numbers.
+ 
+\layout Quote
+
+5241\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5242\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5243\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5244\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5245\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5246\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Standard
+
+In the VAR file scheme, the first variable number stores the X offset, the
+ second the Y offset and so on for all six axes.
+ There are numbered sets like this for each of the fixture offsets.
+ 
+\layout Standard
+
+Each of the graphical interfaces has a way to set values for these offsets.
+ You can also set these values by editing the VAR file itself and then issuing
+ a [reset] so that the EMC reads the new values.
+ For our example let's directly edit the file so that G55 takes on the following
+ values.
+\layout Quote
+
+5241\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 2.000000
+\layout Quote
+
+5242\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 1.000000
+\layout Quote
+
+5243\SpecialChar ~
+\SpecialChar ~
+ -2.000000
+\layout Quote
+
+5244\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5245\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5246\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Standard
+
+You should read this as moving the zero positions of G55 to X = 2 units,
+ Y= 1 unit, and Z = -2 units away from the absolute zero position.
+\layout Standard
+
+Once there are values assigned, a call to G55 in a program block would shift
+ the zero reference by the values stored.
+ The following line would then move each axis to the new zero position.
+ Unlike G53, G54 through G59.3 are modal commands.
+ They will act on all blocks of code after one of them has been set.
+ The program that might be run using figure 
+\begin_inset LatexCommand \ref{fig:offsets}
+
+\end_inset 
+
+ would require only a single coordinate reference for each of the locations
+ and all of the work to be done there.
+ The following code is offered as an example of making a square using the
+ G55 offsets that we set above.
+\layout Quote
+
+G55 G0 x0 y0 z0
+\layout Quote
+
+g1 f2 z-0.2000
+\layout Quote
+
+x1
+\layout Quote
+
+y1
+\layout Quote
+
+x0
+\layout Quote
+
+y0
+\layout Quote
+
+g0 z0
+\layout Quote
+
+g54 x0 y0 z0
+\layout Quote
+
+m2
+\layout Standard
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+But,
+\begin_inset Quotes erd
+\end_inset 
+
+ you say, 
+\begin_inset Quotes eld
+\end_inset 
+
+why is there a G54 in there near the end.
+\begin_inset Quotes erd
+\end_inset 
+
+ Many programmers leave the G54 coordinate system with all zero values so
+ that there is a modal code for the absolute machine based axis positions.
+ This program assumes that we have done that and use the ending command
+ as a command to machine zero.
+ It would have been possible to use g53 and arrive at the same place but
+ that command would not have been modal and any commands issued after it
+ would have returned to using the G55 offsets because that coordinate system
+ would still be in effect.
+\layout Quote
+
+
+\begin_inset LatexCommand \index{G54}
+
+\end_inset 
+
+G54\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+use preset work coordinate system 1
+\layout Quote
+
+
+\begin_inset LatexCommand \index{G55}
+
+\end_inset 
+
+G55\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+use preset work coordinate system 2
+\layout Quote
+
+
+\begin_inset LatexCommand \index{G56}
+
+\end_inset 
+
+G56\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+use preset work coordinate system 3
+\layout Quote
+
+
+\begin_inset LatexCommand \index{G57}
+
+\end_inset 
+
+G57\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+use preset work coordinate system 4
+\layout Quote
+
+
+\begin_inset LatexCommand \index{G58}
+
+\end_inset 
+
+G58\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+use preset work coordinate system 5
+\layout Quote
+
+
+\begin_inset LatexCommand \index{G59}
+
+\end_inset 
+
+G59\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+use preset work coordinate system 6
+\layout Quote
+
+G59.1\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+use preset work coordinate system 7
+\layout Quote
+
+G59.2\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+use preset work coordinate system 8
+\layout Quote
+
+G59.3\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+use preset work coordinate system 9
+\layout Subsection
+
+Default coordinate system
+\layout Standard
+
+One other variable in the VAR file becomes important when we think about
+ offset systems.
+ This variable is named 5220.
+ In the default files it's value is set to 1.00000.
+ This means that when the EMC starts up it should use the first coordinate
+ system as its default.
+ If you set this to 9.00000 it would use the nineth offset system as its
+ default for startup and reset.
+ Any value other than an interger (decimal really) between 1 and 9 will
+ cause the EMC to fault on startup.
+ 
+\layout Subsection
+
+Setting coordinate system values within G-code.
+\layout Standard
+
+In the general programming chapter we listed a G10 command word.
+ This command can be used to change the values of the offsets in a coordinate
+ system.
+ (add here)
+\layout Section
+
+G92 Offsets
+\layout Standard
+
+G92 is the most misunderstood and maligned part of EMC programming.
+ The way that it works has changed just a bit from the early days to the
+ current releases.
+ This change has confused many users.
+ It should be thought of as a temporary offset that is applied to all other
+ offsets.
+ 
+\layout Standard
+
+In response to criticism of it, Ray Henry studied it by comparing the way
+ the interpreter authors expected it to work and the way that it worked
+ on his Grizzly minimill.
+ The following quoted paragraphs are extracted from his paper which is available
+ in several text formats in the dropbox at 
+\begin_inset LatexCommand \url{http://www.linuxcnc.org}
+
+\end_inset 
+
+.
+\layout Subsection
+
+The G92 commands
+\layout Standard
+
+This set of commands include;
+\layout Description
+
+G92 This command, when used with axis names, sets values to offset variables.
+\layout Description
+
+G92.1 This command sets zero values to the g92 variables.
+\layout Description
+
+G92.2 This command suspends but does not zero out the g92 variables.
+\layout Description
+
+G92.3 This command applies offset values that have been suspended.
+\layout Standard
+
+When the commands are used as described above, they will work pretty much
+ as you would expect.
+\layout Quote
+
+A user must understand the correct ways that the g92 values work.
+ They are set based upon the location of each axis when the g92 command
+ is invoked.
+ The NIST document is clear that, 
+\begin_inset Quotes eld
+\end_inset 
+
+To make the
+\noun on 
+ 
+\noun default 
+current point have the coordinates
+\begin_inset Quotes erd
+\end_inset 
+
+ x0, y0, and z0 you would use g92 x0 y0 z0.
+ G92 
+\emph on 
+does not work from absolute machine coordinates
+\emph default 
+.
+ It works from 
+\emph on 
+current location
+\emph default 
+.
+ 
+\layout Quote
+
+G92 also works from current location as modified by any other offsets that
+ are in effect when the g92 command is invoked.
+ While testing for differences between work offsets and actual offsets it
+ was found that a g54 offset could cancel out a g92 and thus give the appearance
+ that no offsets were in effect.
+ However, the g92 was still in effect for all coordinates and did produce
+ expected work offsets for the other coordinate systems.
+ 
+\layout Quote
+
+It is likely that the absence of home switches and proper home procedures
+ will result in very large errors in the application of g92 values if they
+ exist in the var file.
+ Many EMC users do not have home switches in place on their machines.
+ For them home should be found by moving each axis to a location and issuing
+ the home command.
+ When each axis is in a known location, the home command will recalculate
+ how the g92 values are applied and will produce consistent results.
+ Without a home sequence, the values are applied to the position of the
+ machine when the EMC begins to run.
+\layout Subsection
+
+Setting G92 values
+\layout Standard
+
+There are at least two ways to set G92 values.
+\layout Itemize
+
+right mouse click on position displays of tkemc will popup a window into
+ which you can type a value.
+ 
+\layout Itemize
+
+the g92 command
+\layout Standard
+
+Both of these work from the current location of the axis to which the offset
+ is to be applied.
+ 
+\layout Quote
+
+Issuing g92 x y z a b c does in fact set values to the g92 variables such
+ that each axis takes on the value associated with it's name.
+ These values are assigned to the current position of the machine axis.
+ These results satisfy paragraphs one and two of the NIST document.
+\layout Quote
+
+G92 commands work from current axis location and add and subtract correctly
+ to give the current axis position the value assigned by the g92 command.
+ The effects work even though previous offsets are in.
+\layout Standard
+
+So if the X axis is currently showing 2.0000 as its position a G92 x0 will
+ set an offset of -2.0000 so that the current location of X becomes zero.
+ A G92 X2 will set an offset of 0.0000 and the displayed position will not
+ change.
+ A G92 X5.0000 will set an offset of 3.0000 so that the current displayed
+ position becomes 5.0000.
+ 
+\layout Subsection
+
+G92 Cautions
+\layout Standard
+
+Sometimes the values of a G92 offset get stuck in the VAR file.
+ When this happens reset or a startup will cause them to become active again.
+ The variables are named 
+\layout Quote
+
+5211\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5212\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5213\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5214\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5215\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Quote
+
+5216\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+ 0.000000
+\layout Standard
+
+where 5211 is the X axis offset and so on.
+ If you are seeing unexpected positions as the result of a commanded move,
+ or even unexpected numbers in the position displays when you start up,
+ look at these variables in the VAR file and see if they contain values.
+ If they do, set them to zeros and the problems should go away.
+\layout Quote
+
+With these tests we can see that reset returns g92 to the condition that
+ it had when the interpreter started up.
+ The reader should note that we have established ...
+ that no write of these values occurs during a normal run so if no g92 was
+ set at the startup, none will be read in during a reset.
+\layout Quote
+
+It may be that this is the heart of the problem that some have experienced
+ with differences between the old and the new interpreter.
+ It may well be, but I leave it to others to test, that the old interpreter
+ and task programs immediately wrote values to the var file and then found
+ those values during a reset.
+ 
+\layout Standard
+
+On the other hand, if G92 values existed in the VAR file when the EMC started
+ up
+\layout Quote
+
+...
+ starting the EMC with g92 values in the var file is that it will apply
+ the values to current location of each axis.
+ If this is home position and home position is set as machine zero everything
+ will be correct.
+ Once home has been established using real machine switches or moving each
+ axis to a known home position and issuing an axis home command, g92 commands
+ and values work as advertised.
+\layout Quote
+
+These tests did not study the effect of re-reading the var file while they
+ contain numbers.
+ This could cause problems if g92 offsets had been removed with g92.1 but
+ the var file still contained the previous numbers.
+ 
+\layout Standard
+
+It is this complexity that causes us to say that G92 values must be treated
+ as temporary.
+ They should be used to set global short term offsets.
+ The G54-59.3 coordinate systems should be used whenever long lasting and
+ predictable offsets are needed.
+\layout Section
+
+Sample Program Using Offsets
+\layout Standard
+
+This sample engraving project mills a set of four .1 radius circles in roughly
+ a star shape around a center circle.
+ We can setup the individual circle pattern like this.
+\layout Quote
+\noindent 
+G10 L2 P1 x0 y0 z0 (ensure that g54 is set to machine zero) 
+\layout Quote
+\noindent 
+g0 x-.1 y0 z0
+\layout Quote
+\noindent 
+g1 f1 z-.25
+\layout Quote
+\noindent 
+g3 x-.1 y0 i.1 j0
+\layout Quote
+\noindent 
+g0 z0
+\layout Quote
+
+m2
+\layout Standard
+
+We can issue a set of commands to create offsets for the four other circles
+ like this.
+\layout Quote
+
+G10 L2 P2 x0.5 (offsets g55 x value by 0.5 inch) 
+\layout Quote
+
+G10 L2 P3 x-0.5 (offsets g56 x value by -0.5 inch) 
+\layout Quote
+
+G10 L2 P4 y0.5 (offsets g57 y value by 0.5 inch) 
+\layout Quote
+
+G10 L2 P5 y-0.5 (offsets g58 y value by -0.5 inch) 
+\layout Standard
+
+We put these together in the following program.
+\layout Quote
+
+(a program for milling five small circles in a diamond shape)
+\layout Quote
+
+G10 L2 P1 x0 y0 z0 (ensure that g54 is machine zero)
+\layout Quote
+
+G10 L2 P2 x0.5 (offsets g55 x value by 0.5 inch) 
+\layout Quote
+
+G10 L2 P3 x-0.5 (offsets g56 x value by -0.5 inch) 
+\layout Quote
+
+G10 L2 P4 y0.5 (offsets g57 y value by 0.5 inch) 
+\layout Quote
+
+G10 L2 P5 y-0.5 (offsets g58 y value by -0.5 inch)
+\layout Quote
+
+g54 g0 x-.1 y0 z0 (center circle)
+\layout Quote
+
+g1 f1 z-.25
+\layout Quote
+
+g3 x-.1 y0 i.1 j0
+\layout Quote
+
+g0 z0
+\layout Quote
+
+g55 g0 x-.1 y0 z0 (first offset circle)
+\layout Quote
+
+g1 f1 z-.25
+\layout Quote
+
+g3 x-.1 y0 i.1 j0
+\layout Quote
+
+g0 z0
+\layout Quote
+
+g56 g0 x-.1 y0 z0 (second offset circle)
+\layout Quote
+
+g1 f1 z-.25
+\layout Quote
+
+g3 x-.1 y0 i.1 j0
+\layout Quote
+
+g0 z0
+\layout Quote
+
+g57 g0 x-.1 y0 z0 (third offset circle)
+\layout Quote
+
+g1 f1 z-.25
+\layout Quote
+
+g3 x-.1 y0 i.1 j0
+\layout Quote
+
+g0 z0
+\layout Quote
+
+g58 g0 x-.1 y0 z0 (fourth offset circle)
+\layout Quote
+
+g1 f1 z-.25
+\layout Quote
+
+g3 x-.1 y0 i.1 j0
+\layout Quote
+
+g54 g0 x0 y0 z0
+\layout Quote
+
+m2
+\layout Standard
+
+Now comes the time when we might apply a set of G92 offsets to this program.
+ You'll see that it is running in each case at z0.
+ If the mill were at the zero position, a g92 z1.0000 issued at the head
+ of the program would shift everything down an inch.
+ You might also shift the whole pattern around in the XY plane by adding
+ some x and y offsets with g92.
+ If you do this you should add a G92.1 command just before the m2 that ends
+ the program.
+ If you do not, other programs that you might run after this one will also
+ use that g92 offset.
+ Furthermore it would save the g92 values when you shut down the EMC and
+ they will be recalled when you start up again.
+\the_end
