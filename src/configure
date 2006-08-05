@@ -7124,9 +7124,14 @@ for candidate in axis*
 do
     if test -f $candidate/setup.py
     then
+        if ! test -z "$AXIS_DIR"
+        then
+            { { echo "$as_me:$LINENO: error: More than one axis directory: $AXIS_DIR $candidate" >&5
+echo "$as_me: error: More than one axis directory: $AXIS_DIR $candidate" >&2;}
+   { (exit 1); exit 1; }; }
+        fi
         AXIS_DIR=$candidate
         BUILD_AXIS=yes
-        break
     fi
 done
 case $BUILD_AXIS in
