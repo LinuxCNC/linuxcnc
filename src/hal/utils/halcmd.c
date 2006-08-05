@@ -3274,7 +3274,8 @@ static char *usrcomp_generator(const char *text, int state) {
     if(!state) {
         next = hal_data->comp_list_ptr;
         len = strlen(text);
-        return strdup("all");
+        if(strncmp(text, "all", len) == 0)
+            return strdup("all");
     }
 
     while(next) {
@@ -3296,7 +3297,8 @@ static char *rtcomp_generator(const char *text, int state) {
     if(!state) {
         next = hal_data->comp_list_ptr;
         len = strlen(text);
-        return strdup("all");
+        if(strncmp(text, "all", len) == 0)
+            return strdup("all");
     }
 
     while(next) {
