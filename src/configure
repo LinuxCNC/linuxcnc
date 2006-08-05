@@ -1500,18 +1500,38 @@ fi
 if test $SIMULATOR = yes; then
   RTS=sim
 elif test -z "$RTDIR"; then
-  RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" -o -name "realtime-config" 2>/dev/null)
-  if (test "$RTS" = "" ) ; then
-    { { echo "$as_me:$LINENO: error: RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&5
+ if test -e "/usr/realtime-`uname -r`/bin/rtai-config" ; then
+  RTS=/usr/realtime-`uname -r`/bin/rtai-config
+ fi
+ if test -z "$RTS" -a -e /usr/realtime-`uname -r`/bin/rtl-config ; then
+  RTS=/usr/realtime-`uname -r`/bin/rtai-config
+ fi
+ if test -z "$RTS" -a -e /usr/realtime-`uname -r`/bin/rtl-config ; then
+  RTS=/usr/realtime-`uname -r`/bin/realtime-config
+ fi
+ if test -z "$RTS" -a -e /usr/realtime/bin/rtai-config ; then
+  RTS=/usr/realtime/bin/rtai-config
+ fi
+ if test -z "$RTS" -a -e /usr/realtime/bin/rtl-config ; then
+  RTS=/usr/realtime/bin/rtai-config
+ fi
+ if test -z "$RTS" -a -e /usr/realtime/bin/realtime-config ; then
+  RTS=/usr/realtime/bin/rtai-config
+ fi
+ if test -z "$RTS"; then
+    RTS=$(find /usr/* -maxdepth 3 -name "rtl-config" -o -name "rtai-config" -o -name "realtime-config" 2>/dev/null)
+    if (test "$RTS" = "" ) ; then
+      { { echo "$as_me:$LINENO: error: RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&5
 echo "$as_me: error: RT not found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&2;}
    { (exit 1); exit 1; }; }
-  elif (test `echo "$RTS" | wc -l` != 1 ) ; then
-    { echo "$as_me:$LINENO: WARNING: Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&5
+    elif (test `echo "$RTS" | wc -l` != 1 ) ; then
+      { echo "$as_me:$LINENO: WARNING: Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&5
 echo "$as_me: WARNING: Multiple RT signatures found, try to specify one by --with-rtai=<path>, --with-rtlinux=<path>, --with-rtlinuxpro=<path>" >&2;}
-    { echo "$as_me:$LINENO: The following RT Signatures were found: $RTS" >&5
+      { echo "$as_me:$LINENO: The following RT Signatures were found: $RTS" >&5
 echo "$as_me: The following RT Signatures were found: $RTS" >&6;}
-    # It might be a case we have symlinks to the same file..
-    RTS=`echo "$RTS" | head -n 1`
+      # It might be a case we have symlinks to the same file..
+      RTS=`echo "$RTS" | head -n 1`
+    fi
   fi
 else
   # we have RTDIR from the user... let's check for rtai-config, realtime-config, and rtl-config
