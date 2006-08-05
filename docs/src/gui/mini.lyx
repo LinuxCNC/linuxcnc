@@ -1,0 +1,1130 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement h
+\paperfontsize 10
+\spacing single 
+\papersize Custom
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\paperwidth 8.5in
+\paperheight 11in
+\leftmargin 1.2in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 1in
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Using The MINI Graphical Interface
+\layout Section
+
+Introduction
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Much of this chapter quotes from a chapater of the Sherline CNC operators
+ manual.
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename mini01.png
+	display color
+	width 80text%
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:startmini}
+
+\end_inset 
+
+The Mini Graphical Interface
+\end_inset 
+
+
+\layout Standard
+
+Mini was designed to be a full screen graphical interface.
+ It was first written for the Sherline CNC but is available for anyone to
+ use, copy, and distribute under the terms of the GPL copyright.
+\layout Standard
+
+Rather than popup new windows for each thing that an operator might want
+ to do, Mini allows you to display these within the regular screen.
+ Mini was written largely for the Sherline CNC mill.
+ Parts of this chapter are copied from the instructions that were written
+ for that mill by Joe Martin and Ray Henry.
+\layout Section
+
+Screen layout
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename mini02.png
+	display color
+	width 80text%
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:runmini}
+
+\end_inset 
+
+Mini Display for a Running EMC
+\end_inset 
+
+The Mini screen is laid out in several sections.
+ (See Figure
+\begin_inset LatexCommand \ref{fig:startmini}
+
+\end_inset 
+
+ ) These include a menu across the top, a set of main control buttons just
+ below the menu and two rather large columns of information that show the
+ state of your machine and allow you to enter commands or programs.
+\layout Standard
+
+When you compare figure
+\begin_inset LatexCommand \ref{fig:startmini}
+
+\end_inset 
+
+ with figure 
+\begin_inset LatexCommand \ref{fig:runmini}
+
+\end_inset 
+
+ you will see many differences.
+ In the second figure
+\layout Itemize
+
+each axis has been homed -- the display numbers are dark green
+\layout Itemize
+
+the EMC mode is auto -- the auto button has a light green background
+\layout Itemize
+
+the backplotter has been turned on -- backplot is visible in the pop-in
+ window
+\layout Itemize
+
+the tool path from the program is showing in the display.
+ 
+\layout Standard
+
+Once you start working with Mini you will quickly discover how easily it
+ shows the conditions of the EMC and allows you to make changes to it.
+\layout Section
+
+Menu Bar
+\layout Standard
+
+The first row is the menu bar across the top.
+ Here you can configure the screen to display additional information.
+ Some of the items in this menu are very different from what you may be
+ acustomed to with other programs.
+ You should take a few minutes and look under each menu item in order to
+ familiarize yourself with the features that are there.
+ 
+\layout Standard
+
+The menu includes each of the following sections and subsections.
+ 
+\layout Description
+
+Program This menu includes both reset and exit functions.
+ Reset will return the EMC to the condition that it was in when it started.
+ Some startup configuration items like the normal program units can be specified
+ in the ini file.
+ 
+\layout Description
+
+View This menu includes several screen elements that can be added so that
+ you can see additional information during a run.
+ These include
+\begin_deeper 
+\layout Description
+
+Position_Type This menu item adds a line above the main position displays
+ that shows whether the displays are in inches or metric and whether they
+ are Machine or Relative location and if they are Actual positions or Commanded
+ positions.
+ These can be changed using the Settings menu described below.
+\layout Description
+
+Tool_Info This adds a line immediately below the main position displays
+ that shows which tool has been selected and the length of offset applied.
+\layout Description
+
+Offset_Info adds a line immediately below the tool info that shows what
+ offsets have been applied.
+ This is a total distance for each axis from machine zero.
+\layout Description
+
+Show_Restart adds a block of buttons to the right of the program display
+ in auto mode.
+ These allow the operator to restart a program after an abort or estop.
+ These will pop in whenever estop or abort is pressed but can be shows by
+ the operator anytime auto mode is active by selecting this menu item.
+\layout Description
+
+Hide_Restart removes the block of buttons that control the restart of a
+ program that has been aborted or estopped.
+\layout Description
+
+Show_Split_Right changes the nature of the right hand column so that it
+ shows both mode and pop-in information.
+\layout Description
+
+Show_Mode_Full changes the right hand column so that the mode buttons or
+ displays fill the entire right side of the screen.
+ In manual mode, running with mode full you will see spindle and lube control
+ buttons as well as the motion buttons.
+\layout Description
+
+Show_Popin_Full changes the right hand column so that the popin fills the
+ entire right side of the screen.
+\end_deeper 
+\layout Description
+
+Settings These menu items allow the operator to control certain parameters
+ during a run.
+\begin_deeper 
+\layout Description
+
+Actual_Position sets the main position displays to actual(machine based)
+ values.
+\layout Description
+
+Commanded_Position sets the main position displays to the values that they
+ were commanded to.
+\layout Description
+
+Machine_Position sets the main position displays to the absolute distance
+ from where the machine was homed.
+\layout Description
+
+Relative_Position sets the main position displays to show the current position
+ including any offsets like part zeros that are active.
+ For more information on offsets see the chapter on coordinate systems.
+\end_deeper 
+\layout Description
+
+Info lets you see a number of active things by writing their values into
+ the MESSAGE pad.
+\begin_deeper 
+\layout Description
+
+Program_File will write the currently active program file name.
+\layout Description
+
+Editor_File will write the currently active file if the editor pop in is
+ active and a file has been selected for editing.
+\layout Description
+
+Parameter_File will write the name of the file being used for program parameters.
+ You can find more on this in the chapters on offsets and using variables
+ for programming.
+\layout Description
+
+Tool_File will write the name of the tool file that is being used during
+ this run.
+\layout Description
+
+Active_G-Codes will write a list of all of the modal program codes that
+ are active whenever this item is selected.
+ For more information about modal codes see the introductory part programming
+ chapter.
+\end_deeper 
+\layout Description
+
+Help opens a text window pop in that displays the contents of the help file.
+\layout Standard
+
+You will notice between the info menu and the help menu there are a set
+ of four buttons.
+ These are called check buttons because they have a small box that shows
+ red if they have been selected.
+ These four buttons, Editor, Backplot, Tools, and Offsets pop in each of
+ these screens.
+ If more than one pop-in is active (button shown as red) you can toggle
+ between these pop-ins by right clicking your mouse.
+ 
+\layout Section
+
+Control Button Bar
+\layout Standard
+
+Below the menu line is a horizontal line of control buttons.
+ These are the primary control buttons for the interface.
+ Using these buttons you can change mode from [MANUAL] to [AUTO] to [MDI]
+ (Manual Data Input).
+ These buttons show a light green background whenever that mode is active.
+ 
+\layout Standard
+
+You can also use the [FEEDHOLD], [ABORT], and [ESTOP] buttons to control
+ a programmed move.
+ 
+\layout Subsection
+
+MANUAL
+\layout Standard
+
+This button or pressing <F3> sets the EMC to Manual mode and displays an
+ abreviated set of buttons the operator can use to issue manual motion commands.
+ The labels of the jog buttons change to match the active axis.
+ Whenever Show_Mode_Full is active in in manual mode, you will see spindle
+ and lube control buttons as well as the motion buttons.
+ A keyboard <i> or <I> will switch from continuous jog to incremental jog.
+ Pressing that key again will toggle the increment size through the available
+ sizes.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename miniman.png
+	display color
+	width 80text%
+
+\end_inset 
+
+
+\layout Caption
+
+Manual Mode Buttons
+\end_inset 
+
+
+\layout Quotation
+
+A button has been added to designate the present position as the home position.
+ We felt that a machine of this type (Sherline 5400) would be simpler to
+ operate if it didn't use a machine home position.
+ This button will zero out any offsets and will home all axes right where
+ they are.
+\layout Quotation
+
+Axis focus is important here.
+ Notice (in figure 
+\begin_inset LatexCommand \ref{fig:startmini}
+
+\end_inset 
+
+) that in manual mode you see a line or 
+\emph on 
+groove
+\emph default 
+ around the X axis to highlight its position display.
+ This groove says that X is the active axis.
+ It will be the target for jog moves made with the
+\emph on 
+ plus
+\emph default 
+ and 
+\emph on 
+minus
+\emph default 
+ jog buttons.
+ You can change axis focus by clicking on any other axis display.
+ You can also change axis focus in manual mode if you press its name key
+ on your keyboard.
+ Case is not important here.
+ [Y] or [y] will shift the focus to the Y axis.
+ [A] or [a] will shift the focus to the A axis.
+ To help you remember which axis will jog when you press the jog buttons,
+ the active axis name is displayed on them.
+ 
+\layout Quotation
+
+The EMC can jog (move a particular axis) as long as you hold the button
+ down when it is set for 
+\emph on 
+continuous
+\emph default 
+, or it can jog for a preset distance when it is set for 
+\emph on 
+incremental
+\emph default 
+.
+ You can also jog the active axis by pressing the plus [+] or minus [-]
+ keys on the keyboard.
+ Again, case is not important for keyboard jogs.
+ The two small buttons between the large jog buttons let you set which kind
+ of jog you want.
+ When you are in incremental mode, the distance buttons come alive.
+ You can set a distance by pressing it with the mouse.
+ You can toggle between distances by pressing [i] or [I] on the keyboard.
+ Incremental jog has an interesting and often unexpected effect.
+ If you press the jog button while a jog is in progress, it will add the
+ distance to the position it was at when the second jog command was issued.
+ Two one-inch jog presses in close succession will not get you two inches
+ of movement.
+ You have to wait until the first one is complete before jogging again.
+ 
+\layout Quotation
+
+Jog speed is displayed above the slider.
+ It can be set using the slider by clicking in the slider's open slot on
+ the side you want it to move toward, or by clicking on the [Default] or
+ [Rapid] buttons.
+ This setting only affects the jog move while in manual mode.
+ Once a jog move is initiated, jog speed has no effect on the jog.
+ As an example of this, say you set jog mode to 
+\emph on 
+incremental
+\emph default 
+ and the increment to 1 inch.
+ Once you press the [Jog] button it will travel that inch at the rate at
+ which it started.
+ 
+\layout Subsection
+
+AUTO
+\layout Standard
+
+When the Auto button is pressed, or <F4> on the keyboard, the EMC is changed
+ into that mode, a set of the traditional auto operation buttons is displayed,
+ and a small text window opens to show a part program.
+ During run the active line will be displayed as white lettering on a red
+ background.
+ 
+\layout Standard
+
+In the auto mode, many of the keyboard keys are bound to controls.
+ For example the numbers above the querty keys are bound to feedrate override.
+ The 0 sets 100%, 9 sets 90% and such.
+ Other keys work much the same as they do with the tkemc graphical interface.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename miniauto.png
+	display color
+	width 80text%
+
+\end_inset 
+
+
+\layout Caption
+
+Auto Mode
+\end_inset 
+
+
+\layout Standard
+
+Auto mode does not normally display the active or modal codes.
+ If the operator wishes to check these, use menu Info -> Active_G-Codes.
+ This will write all modal codes onto the message scratch pad.
+ 
+\layout Standard
+
+If abort or estop is pressed during a run a set of buttons displays to the
+ right of the text that allows the operator to shift the restart line forward
+ or backwards.
+ If the restart line is not the last active line, it will be highlighted
+ as white letters on a blue background.
+ Caution, a very slow feedrate, and a finger poised over the pause button
+ is advised during any program restart.
+\layout Quotation
+
+The real heart of CNC machine tool work is the auto mode.
+ Sherline's auto mode displays the typical functions that people have come
+ to expect from the EMC.
+ Along the top are a set of buttons which control what is happening in auto
+ mode.
+ Below them is the window that shows the part of the program currently being
+ executed.
+ As the program runs, the active line shows in white letters on a red background.
+ The first three buttons, [Open], [Run], and [Pause] do about what you'd
+ expect.
+ [Pause] will stop the run right where it is.
+ The next button, [Resume], will restart motion.
+ They are like feedhold if used this way.
+ Once [Pause] is pressed and motion has stopped, [Step] will resume motion
+ and continue it to the end of the current block.
+ Press [Step] again to get the motion of the next block.
+ Press [Resume] and the interpreter goes back to reading ahead and running
+ the program.
+ The combination of [Pause] and [Step] work a lot like single block mode
+ on many controllers.
+ The difference is that [Pause] does not let motion continue to the end
+ of the current block.
+ Feedrate Override ...
+ can be very handy as you approach a first cut.
+ Move in quickly at 100 percent, throttle back to 10% and toggle between
+ [Feedhold] and 10% using the pause button.
+ When you are satisfied that you've got it right, hit the zero to the right
+ of nine and go.
+ 
+\layout Quotation
+
+The [Verify] button runs the interpreter through the code without initiating
+ any motion.
+ If Verify finds a problem it will stop the read near the problem block
+ and put up some sort of message.
+ Most of the time you will be able to figure out the problem with your program
+ by reading the message and looking in the program window at the highlighted
+ line.
+ Some of the messages are not very helpful.
+ Sometimes you will need to read a line or two ahead of the highlight to
+ see the problem.
+ Occasionally the message will refer to something well ahead of the highlight
+ line.
+ This often happens if you forget to end your program with an acceptable
+ code like %, m2, m30, or m60.
+ 
+\layout Subsection
+
+MDI
+\layout Standard
+
+The MDI button or <F5> sets the Manual Data Input mode.
+ This mode displays a single line of text for block entry and shows the
+ currently active modal codes for the interpreter.
+\layout Quotation
+
+MDI mode allows you to enter single blocks and have the interpreter execute
+ them as if they were part of a program (kind of like a one-line program).
+ You can execute circles, arcs, lines and such.
+ You can even test sets of program lines by entering one block, waiting
+ for that motion to end, and then enter the next block.
+ Below the entry window, there is a listing of all of the current modal
+ codes.
+ This listing can be very handy.
+ I often forget to enter a g00 before I command a motion.
+ If nothing happens I look down there to see if g80 is in effect.
+ G80 stops any motion.
+ If it's there I remember to issue a block like g00 x0 y0 z0.
+ In MDI you are entering text from the keyboard so none of the main keys
+ work for commands to the running machine.
+ [F1] will Estop the control.
+ 
+\layout Standard
+
+Since many of the keyboard keys are needed for entry, most of the bindings
+ that were available in auto mode are not available here.
+\layout Subsection
+
+[FEEDHOLD] -- [CONTINUE]
+\layout Standard
+
+Feedhold is a toggle.
+ When the EMC is ready to handle or is handling a motion command this button
+ shows the feedhold label on a red backgrouund.
+ If feedhold has been pressed then it will show the continue label.
+ Using it to pause motion has the advantage of being able to restart the
+ program from where you stopped it.
+ Feedhold will toggle between zero speed and whatever feedrate override
+ was active before it was pressed.
+ This button and the function that it activates is also bound to the pause
+ button on most keyboards.
+\layout Subsection
+
+[ABORT]
+\layout Standard
+
+The abort button stops any motion when it is pressed.
+ It also removes the motion command from the EMC.
+ No further motions are cued up after this button is pressed.
+ If you are in auto mode, this button removes the rest of the program from
+ the motion cue.
+ It also records the number of the line that was executing when it was pressed.
+ You can use this line number to restart the program after you have cleared
+ up the reasons for pressing it.
+\layout Subsection
+
+[ESTOP]
+\layout Standard
+
+The estop button is also a toggle but it works in three possible settings.
+ 
+\layout Itemize
+
+When Mini starts up it will show a raised button with red background with
+ black letters that say 
+\begin_inset Quotes eld
+\end_inset 
+
+ESTOP PUSH.
+\begin_inset Quotes erd
+\end_inset 
+
+ This is the correct state of the machine when you want to run a program
+ or jog an axis.
+ Estop is ready to work for you when it looks like this.
+\layout Itemize
+
+If you push the estop button while a motion is being executed, you will
+ see a recessed gray button that says 
+\begin_inset Quotes eld
+\end_inset 
+
+ESTOPPED.
+\begin_inset Quotes erd
+\end_inset 
+
+ You will not be able to move an axis or do any work from the Mini gui when
+ the estop button displays this way.
+ Pressing it with your mouse will return Mini to normal ready condition.
+\layout Itemize
+
+A third view is possible here.
+ A recessed green button means that estop has been take off but the machine
+ has not been turned on.
+ Normally this only happens when <F1> estop has been pressed but <F2> has
+ not been pressed.
+\layout Standard
+
+Joe Martin says, 
+\begin_inset Quotes eld
+\end_inset 
+
+When all else fails press a software [ESTOP].
+\begin_inset Quotes erd
+\end_inset 
+
+ This does everything that abort does but adds in a reset so that the EMC
+ returns to the standard settings that it wakes up on.
+ If you have an external estop circuit that watches the relevant parallel
+ port or DIO pin, a software estop can turn off power to the motors.
+\layout Quotation
+
+Most of the time, when we abort or EStop it's because something went wrong.
+ Perhaps we broke a tool and want to change it.
+ We switch to manual mode and raise the spindle, change tools, and assuming
+ that we got the length the same, get ready to go on.
+ If we return the tool to the same place where the abort was issued, the
+ EMC will work perfectly.
+ It is possible to move the restart line back or ahead of where the abort
+ happened.
+ If you press the [Back] or [Ahead] buttons you will see a blue highlight
+ that shows the relationship between the abort line and the one on which
+ the EMC will start up again.
+ By thinking through what is happening at the time of the restart you can
+ place the tool tip where it will resume work in an acceptable manner.
+ You will need to think through things like tool offsets barriers to motion
+ along a diagonal line and such before you press the [Restart] button.
+ 
+\layout Section
+
+Left Column
+\layout Standard
+
+There are two columns below the control line.
+ The left side of the screen displays information of interest to the operator.
+ There are very few buttons to press here.
+\layout Subsection
+
+Axis Position Displays
+\layout Standard
+
+The axis position displays work exactly like they do with tkemc.
+ The color of the letters is important.
+\layout Itemize
+
+Red indicates that the machine is sitting on a limit switch or the polarity
+ of a min or max limit is set wrong in the ini file.
+\layout Itemize
+
+Yellow indicates that the machine is ready to be homed.
+\layout Itemize
+
+Green indicates that the machine has been homed.
+\layout Standard
+
+The position can be changed to display any one of several values by using
+ the menu settings.
+ The startup or default settings can be changed in the ini file so these
+ displays wake up just the way that you want them.
+\layout Subsection
+
+Feedrate Override
+\layout Standard
+
+Immediately below the axis position displays is the feedrate override slider.
+ You can operate feed rate override and feedhold in any mode of operation.
+ Override will change the speed of jogs or feed rate in manual or MDI modes.
+ You can adjust feed rate override by grabbing the slider with your mouse
+ and dragging it along the groove.
+ You can also change feed rate a percent at a time by clicking in the slider's
+ groove.
+ In auto mode you can also set feed override in 10% increments by pressing
+ the top row of numbers.
+ This slider is a handy visual reference to how much override is being applied
+ to programmed feedrate.
+\layout Subsection
+
+Messages 
+\layout Standard
+
+The message display located under the axis positions is a sort of scratch
+ pad for the EMC.
+ If there are problems it will report them there.
+ If you try to home or move an axis when the [ESTOP] button is pressed,
+ you'll get a message that says something about commanding motion when the
+ EMC is not ready.
+ If an axis faults out for something like falling behind, the message pad
+ will show what happened.
+ If you want to remind an operator to change a tool, for example, you can
+ add a line of code to your program that will display in the message box.
+ An example might be (msg, change to tool #3 and press resume).
+ This line of code, included in a program, will display 
+\begin_inset Quotes eld
+\end_inset 
+
+change to tool #3 and press resume
+\begin_inset Quotes erd
+\end_inset 
+
+ in the message box.
+ The word msg, (with comma included) is the command to make this happen;
+ without 
+\emph on 
+msg,
+\emph default 
+ the message wouldn't be displayed.
+ It will still show in the auto modes' display of the program file.
+ 
+\layout Standard
+
+To erase messages simply click the message button at the top of the pad
+ or on the keyboard hold down the [Alt] key and press the [m] key.
+ 
+\layout Section
+
+Right Column
+\layout Standard
+
+The right column is a general purpose place to display and work.
+ Here you can see the modal buttons and text entry or displays.
+ Here you can view a plot of the tool path that will be commanded by your
+ program.
+ You can also write programs and control tools and offsets here.
+ The modal screens have been described above.
+ Each of the popin displays are described in detail below.
+\layout Subsection
+
+Program Editor
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename miniedit.png
+	display color
+	width 35text%
+
+\end_inset 
+
+
+\layout Caption
+
+Mini Text Editor
+\end_inset 
+
+
+\layout Standard
+
+The editor is rather limited compared to many modern text editors.
+ It does not have 
+\emph on 
+undo
+\emph default 
+ nor 
+\emph on 
+paste
+\emph default 
+ between windows with the clipboard.These were eliminated because of interaction
+ with a running program.
+ Future releases will replace these functions so that it will work the way
+ you've come to expect from a text editor.
+ It is included because it has the rather nice feature of being able to
+ number and renumber lines in the way that the interpreter expects of a
+ file.
+ It will also allow you to cut and paste from one part of a file to another.
+ In addition, it will allow you to save your changes and submit them to
+ the EMC interpreter with the same menu click.
+ You can work on a file in here for a while and then save and load if the
+ EMC is in Auto mode.
+ If you have been running a file and find that you need to edit it, that
+ file will be placed in the editor when you click on the editor button on
+ the top menu.
+ 
+\layout Subsection
+
+Backplot Display
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename minibkplot.png
+	display color
+	width 50text%
+
+\end_inset 
+
+
+\layout Caption
+
+Mini's Backplotter
+\end_inset 
+
+Backplot [Backplot] will show the tool path that can be viewed from a chosen
+ direction.
+ '3-D' is the default.
+ Other choices and controls are displayed along the top and right side of
+ the pop-in.
+ If you are in the middle of a cut when you press one of these control buttons
+ the machine will pause long enough to re-compute the view.
+\layout Standard
+
+Along the right side of the pop-in there is a small pyramid shaped graphic
+ that tries to show the angle you are viewing the tool path from.
+ Below it are a series of sliders that allow you to change the angle of
+ view and the size of the plot.
+ You can rotate the little position angle display with these.
+ They take effect when you press the [Refresh] button.
+ The [Reset] button removes all of the paths from the display and readies
+ it for a new run of the program but retains your settings for that session.
+ 
+\layout Standard
+
+If backplot is started before a program is started, it will try to use some
+ color lines to indicate the kind of motion that was used to make it.
+ A green line is a rapid move.
+ A black line is a feedrate move.
+ Blue and red indicate arcs in counterclockwise and clockwise directions.
+\layout Standard
+
+The backplotter with Mini allows you to zoom and rotate views after you
+ have run your program but it is not intended to store a tool path for a
+ long period of time.
+ 
+\layout Subsection
+
+Tool Page
+\layout Standard
+
+The tool page is pretty much like the others.
+ You can set length and diameter values here and they become effective when
+ you press the [Enter] key.
+ You will need to set up your tool information before you begin to run a
+ program.
+ You can't change tool offsets while the program is running or when the
+ program is paused.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename minitool.png
+	display color
+	width 40text%
+
+\end_inset 
+
+
+\layout Caption
+
+Mini Tool Display
+\end_inset 
+
+
+\layout Standard
+
+The [Add Tools] and [Remove Tools] buttons work on the bottom of the tool
+ list so you will want to fill in tool information in decending order.
+ Once a new tool has been added, you can use it in a program with the usual
+ G-code commands.
+ There is a 32 tool limit in the current EMC configuration files but you
+ will run out of display space in Mini long before you get there.
+ (Hint You can use menu -> view -> show popin full to see more tools if
+ you need.) 
+\layout Subsection
+
+Offset Page
+\layout Standard
+
+The offset page can be used to display and setup work offsets.
+ The coordinate system is selected along the left hand side of the window.
+ Once you have selected a coordinate system you can enter values or move
+ an axis to a teach position.
+ 
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename minioffsets.png
+	display color
+	width 40text%
+
+\end_inset 
+
+
+\layout Caption
+
+Mini Offset Display
+\end_inset 
+
+You can also teach using an edgefinder by adding the radius and length to
+ the offset_by widgets.
+ When you do this you may need to add or subtract the radius depending upon
+ which surface you choose to touch from.
+ This is selected with the add or subtract radiobuttons below the offset
+ windows.
+\layout Standard
+
+The zero all for the active coordinate system button will remove any offsets
+ that you have showing but they are not set to zero in the variable file
+ until you press the write and load file button as well.
+ This write and load file button is the one to use when you have set all
+ of the axis values that you want for a coordinate system.
+\layout Section
+
+Keyboard Bindings
+\layout Standard
+
+A number of the bindings used with tkemc have been preserved with mini.
+ A few of the bindings have been changed to extend that set or to ease the
+ operation of a machine using this interface.
+ Some keys operate the same regradless of the mode.
+ Others change with the mode that EMC is operating in.
+ 
+\layout Subsection
+
+Common Keys
+\layout Description
+
+Pause Toggle feedhold
+\layout Description
+
+Escape abort motion 
+\layout Description
+
+F1 toggle estop/estop reset state 
+\layout Description
+
+F2 toggle machine off/machine on state 
+\layout Description
+
+F3 manual mode 
+\layout Description
+
+F4 auto mode 
+\layout Description
+
+F5 MDI mode 
+\layout Description
+
+F6 reset interpreter
+\layout Standard
+
+The following only work for machines using auxiliary I/O
+\layout Description
+
+F7 toggle mist on/mist off
+\layout Description
+
+F8 toggle flood on/flood off
+\layout Description
+
+F9 toggle spindle forward/off
+\layout Description
+
+F10 toggle spindle reverse/off
+\layout Description
+
+F11 decrease spindle speed
+\layout Description
+
+F12 increase spindle speed
+\layout Subsection
+
+Manual Mode
+\layout Description
+
+1-9\SpecialChar ~
+0 set feed override to 10%-90%, 0 is 100%
+\layout Description
+
+~ set feed override to 0 or feedhold
+\layout Description
+
+x select X axis
+\layout Description
+
+y select Y axis
+\layout Description
+
+z select Z axis
+\layout Description
+
+a select A axis
+\layout Description
+
+b select B axis
+\layout Description
+
+c select C axis
+\layout Description
+
+Left\SpecialChar ~
+Right\SpecialChar ~
+Arrow jog X axis
+\layout Description
+
+Up\SpecialChar ~
+Down\SpecialChar ~
+Arrow jog Y axis
+\layout Description
+
+Page\SpecialChar ~
+Up\SpecialChar ~
+Down jog Z axis 
+\layout Description
+
+-\SpecialChar ~
+_ jog the active axis in the minus direction 
+\layout Description
+
++\SpecialChar ~
+= jog the active axis in the plus direction.
+\layout Description
+
+Home home selected axis
+\layout Description
+
+i\SpecialChar ~
+I toggle through jog increments 
+\layout Standard
+
+The following only work with a machine using auxiliary I/O
+\layout Description
+
+b take spindle brake off
+\layout Description
+
+Alt-b put spindle brake on
+\layout Subsection
+
+Auto Mode 
+\layout Description
+
+1-9,0 set feed override to 10%-90%, 0 is 100%
+\layout Description
+
+~ set feed override to 0 or feedhold
+\layout Description
+
+o/O open a program
+\layout Description
+
+r/R run an opened program
+\layout Description
+
+p/P pause an executing program
+\layout Description
+
+s/S resume a paused program
+\layout Description
+
+a/A step one line in a paused program
+\layout Section
+
+Misc
+\layout Standard
+
+One of the features of Mini is that it displays any axis above number 2
+ as a rotary and will display degree units for it.
+ It also converts to degree units for incremental jogs when a rotary axis
+ has the focus.
+ 
+\the_end

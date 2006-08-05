@@ -1,0 +1,1729 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !!h
+\paperfontsize 10
+\spacing single 
+\papersize Custom
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\paperwidth 8.5in
+\paperheight 11in
+\leftmargin 1.2in
+\topmargin 1in
+\rightmargin 0.6in
+\bottommargin 0.6in
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Chapter
+
+Using the AXIS Graphical Interface
+\layout Section
+
+Introduction
+\layout Standard
+
+AXIS is a graphical front-end for emc2 which features a live preview and
+ backplot.
+ It is written in Python and uses Tk and OpenGL to display its user interface.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+AXIS Window
+\begin_inset LatexCommand \label{cap:AXIS-Window}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename ../common/axis.png
+	lyxscale 50
+	width 80page%
+	keepAspectRatio
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Section
+
+Getting Started
+\layout Standard
+
+To select AXIS as the front-end for emc2, edit the .ini file.
+ In the section 
+\family typewriter 
+[DISPLAY]
+\family default 
+ change the 
+\family typewriter 
+DISPLAY
+\family default 
+ line to read
+\layout LyX-Code
+
+DISPLAY = axis
+\layout Standard
+
+Then, start emc2 and select that ini file.
+ The sample configuration 
+\family typewriter 
+sim/axis.ini
+\family default 
+ is already configured to use AXIS as its front-end.
+\layout Standard
+
+When you start AXIS, a window like the one in Figure 
+\begin_inset LatexCommand \ref{cap:AXIS-Window}
+
+\end_inset 
+
+ is shown.
+\layout Subsection
+
+A typical session with AXIS
+\layout Enumerate
+
+Start emc and select a configuration file.
+\layout Enumerate
+
+Clear the 
+\begin_inset Quotes eld
+\end_inset 
+
+ESTOP
+\begin_inset Quotes erd
+\end_inset 
+
+ condition and turn the machine on.
+\layout Enumerate
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+Home
+\begin_inset Quotes erd
+\end_inset 
+
+ each axis.
+\layout Enumerate
+
+Load the file to be milled.
+\layout Enumerate
+
+Use the preview plot to verify that the program is correct.
+\layout Enumerate
+
+Put the stock to be milled on the table.
+\layout Enumerate
+
+Set the proper offsets for each axis by jogging and using the 
+\begin_inset Quotes eld
+\end_inset 
+
+Offset
+\begin_inset Quotes erd
+\end_inset 
+
+ button.
+\layout Enumerate
+
+Run the program.
+\layout Enumerate
+
+To mill the same file again, return to step 6.
+ To mill a different file, return to step 4.
+ When you're done, exit AXIS.
+\layout Section
+
+Elements of the AXIS window
+\layout Standard
+
+The AXIS window contains the following elements:
+\layout Itemize
+
+A display area that shows a preview of the loaded file (in this case, 
+\begin_inset Quotes eld
+\end_inset 
+
+3D_Chips
+\begin_inset Quotes erd
+\end_inset 
+
+), as well as the current location of the CNC machine's 
+\begin_inset Quotes eld
+\end_inset 
+
+controlled point
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Later, this area will display the path the CNC machine has moved through,
+ called the 
+\begin_inset Quotes eld
+\end_inset 
+
+backplot
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Itemize
+
+A menubar and toolbar that allow you to perform various actions
+\layout Itemize
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+Manual Control
+\begin_inset Quotes erd
+\end_inset 
+
+, which allows you to make the machine move, turn the spindle on or off,
+ and turn the coolant on or off
+\layout Itemize
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+Code Entry
+\begin_inset Quotes erd
+\end_inset 
+
+ (also called MDI), where G-code programs can be entered manually, one line
+ at a time.
+\layout Itemize
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+Feed Override
+\begin_inset Quotes erd
+\end_inset 
+
+, which allows you to increase or decrease the speed at which EMC executes
+ the selected program.
+\layout Itemize
+
+A text display area that shows the G-code source of the loaded file.
+\layout Itemize
+
+A status bar which shows the state of the machine.
+ In this screenshot, the machine is turned on, does not have a tool inserted,
+ and the displayed position is 
+\begin_inset Quotes eld
+\end_inset 
+
+Relative
+\begin_inset Quotes erd
+\end_inset 
+
+ to the machine offset (as opposed to 
+\begin_inset Quotes eld
+\end_inset 
+
+Absolute
+\begin_inset Quotes erd
+\end_inset 
+
+), and the 
+\begin_inset Quotes eld
+\end_inset 
+
+Actual
+\begin_inset Quotes erd
+\end_inset 
+
+ (as opposed to 
+\begin_inset Quotes eld
+\end_inset 
+
+Commanded
+\begin_inset Quotes erd
+\end_inset 
+
+ position)
+\layout Subsection
+
+Toolbar buttons
+\layout Standard
+
+From left to right, the toolbar buttons are:
+\layout Enumerate
+
+Toggle 
+\begin_inset Quotes eld
+\end_inset 
+
+Emergency Stop
+\begin_inset Quotes erd
+\end_inset 
+
+ (also called E-Stop)
+\layout Enumerate
+
+Toggle machine power
+\layout Enumerate
+
+Open a file
+\layout Enumerate
+
+Reload the opened file
+\layout Enumerate
+
+Run the program
+\layout Enumerate
+
+Run the next line of the program
+\layout Enumerate
+
+Pause the program
+\layout Enumerate
+
+Stop the program
+\layout Enumerate
+
+Zoom In
+\layout Enumerate
+
+Zoom Out
+\layout Enumerate
+
+Preset view 
+\begin_inset Quotes eld
+\end_inset 
+
+Z
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Enumerate
+
+Preset view 
+\begin_inset Quotes eld
+\end_inset 
+
+Rotated Z
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Enumerate
+
+Preset view 
+\begin_inset Quotes eld
+\end_inset 
+
+X
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Enumerate
+
+Preset view 
+\begin_inset Quotes eld
+\end_inset 
+
+Y
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Enumerate
+
+Preset view 
+\begin_inset Quotes eld
+\end_inset 
+
+P
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Enumerate
+
+Clear backplot
+\layout Subsection
+
+Graphical Program Display Area
+\layout Subsubsection
+
+Coordinate Display
+\layout Standard
+
+In the upper-left corner of the program display is the coordinate display.
+ It shows the position of the machine.
+ To the left of the axis name, an origin symbol (
+\begin_inset Graphics
+	filename axis-homed.png
+	width 1.5ex
+
+\end_inset 
+
+) is shown if the axis has been properly homed.
+\layout Standard
+
+To properly interpret these numbers, refer to the 
+\begin_inset Quotes eld
+\end_inset 
+
+Position:
+\begin_inset Quotes erd
+\end_inset 
+
+ indicator in the status bar.
+ If the position is 
+\begin_inset Quotes eld
+\end_inset 
+
+Absolute
+\begin_inset Quotes erd
+\end_inset 
+
+, then the displayed number is in the machine coordinate system.
+ If it is 
+\begin_inset Quotes eld
+\end_inset 
+
+Relative
+\begin_inset Quotes erd
+\end_inset 
+
+, then the displayed number is in the offset coordinate system.
+ When the coordinates displayed are relative, the display will include a
+ cyan 
+\begin_inset Quotes eld
+\end_inset 
+
+machine origin
+\begin_inset Quotes erd
+\end_inset 
+
+ marker (
+\begin_inset Graphics
+	filename axis-machineorigin.png
+	width 2ex
+
+\end_inset 
+
+).
+ If the position is 
+\begin_inset Quotes eld
+\end_inset 
+
+Commanded
+\begin_inset Quotes erd
+\end_inset 
+
+, then it is the ideal position--for instance, the exact coordinate given
+ in a 
+\family typewriter 
+G0
+\family default 
+ command.
+ If it is 
+\begin_inset Quotes eld
+\end_inset 
+
+Actual
+\begin_inset Quotes erd
+\end_inset 
+
+, then it is the position the machine has actually been moved to.
+ These values can differ for several reasons: Following error, deadband,
+ encoder resolution, or step size.
+ For instance, if you command a movement to X 0.0033 on your mill, but one
+ step of your stepper motor is 0.00125, then the 
+\begin_inset Quotes eld
+\end_inset 
+
+Commanded
+\begin_inset Quotes erd
+\end_inset 
+
+ position will be 0.0033 but the 
+\begin_inset Quotes eld
+\end_inset 
+
+Actual
+\begin_inset Quotes erd
+\end_inset 
+
+ position will be 0.0025 (2 steps) or 0.00375 (3 steps).
+\layout Subsubsection
+
+Preview Plot
+\layout Standard
+
+When a file is loaded, a preview of it is shown in the display area.
+ Fast moves (such as those produced by the 
+\family typewriter 
+G0
+\family default 
+ command) are shown as dotted green lines.
+ Moves at a feed rate (such as those produced by the 
+\family typewriter 
+G1
+\family default 
+ command) are shown as solid white lines.
+ Dwells (such as those produced by the 
+\family typewriter 
+G4
+\family default 
+ command) are shown as small 
+\begin_inset Quotes eld
+\end_inset 
+
+X
+\begin_inset Quotes erd
+\end_inset 
+
+ marks.
+\layout Subsubsection
+
+Program Extents
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+extents
+\begin_inset Quotes erd
+\end_inset 
+
+ of the program in each axis are shown.
+ At each end, the least or greatest coordinate value is indicated.
+ In the middle, the difference between the coordinates is shown.
+ In Figure 
+\begin_inset LatexCommand \ref{cap:AXIS-Window}
+
+\end_inset 
+
+, the X extent of the file is from -2.05 to 2.09 inches, a total of 4.13 inches.
+\layout Standard
+
+When some coordinates exceed the 
+\begin_inset Quotes eld
+\end_inset 
+
+soft limits
+\begin_inset Quotes erd
+\end_inset 
+
+ in the .ini file, the relevant dimension is shown in a different color.
+ Here, the maximum limit is exceeded on the X axis:
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename axis-outofrange.png
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Tool Cone
+\layout Standard
+
+The location of the tip of the tool is indicated by the 
+\begin_inset Quotes eld
+\end_inset 
+
+tool cone
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ The cone does not indicate anything about the shape, length, or radius
+ of the tool.
+\layout Subsubsection
+
+Backplot
+\layout Standard
+
+When the machine moves, it leaves a trail called the backplot.
+ The color of the line indicates the type of motion: Yellow for jogs, faint
+ green for rapid movements, red for straight moves at a feed rate, and magenta
+ for circular moves at a feed rate.
+\layout Subsubsection
+
+Interacting with the display
+\layout Standard
+
+By left-clicking on a portion of the preview plot, the line will be highlighted
+ in both the graphical and text displays.
+ By left-clicking on an empty area, the highlighting will be removed.
+\layout Standard
+
+By dragging with the left mouse button pressed, the preview plot will be
+ shifted (panned).
+\layout Standard
+
+By dragging with shift and the left mouse button pressed, or by dragging
+ with the mouse wheel pressed, the preview plot will be rotated.
+ When a line is highlighted, the center of rotation is the center of the
+ line.
+ Otherwise, the center of rotation is the center of the file as a whole.
+\layout Standard
+
+By rotating the mouse wheel, or by dragging with the right mouse button
+ pressed, the preview plot will be zoomed in or out.
+\layout Standard
+
+By clicking one of the 
+\begin_inset Quotes eld
+\end_inset 
+
+Preset View
+\begin_inset Quotes erd
+\end_inset 
+
+ icons, or by pressing 
+\begin_inset Quotes eld
+\end_inset 
+
+V
+\begin_inset Quotes erd
+\end_inset 
+
+, several preset views may be selected.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Current and Selected Lines
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename axis-currentandselected.png
+	lyxscale 50
+	width 80page%
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+Text Program Display Area
+\layout Standard
+
+By left-clicking a line of the program, the line will be highlighted in
+ both the graphical and text displays.
+\layout Standard
+
+When the program is running, the line currently being executed is highlighted
+ in red.
+ If no line has been selected by the user, the text display will automatically
+ scroll to show the current line.
+\layout Subsection
+
+Manual Control
+\layout Standard
+
+Not all the items shown in this tab are useful on all machines.
+ For instance, many machines have a spindle that can only turn in one direction.
+ However, AXIS will still show both the 
+\begin_inset Quotes eld
+\end_inset 
+
+Rotate spindle clockwise
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+Rotate spindle counterclockwise
+\begin_inset Quotes erd
+\end_inset 
+
+ buttons.
+ When the machine is not turned on, or when a program is running, the manual
+ controls are unavailable.
+\layout Subsubsection
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+Axis
+\begin_inset Quotes erd
+\end_inset 
+
+ group
+\layout Standard
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+Axis
+\begin_inset Quotes erd
+\end_inset 
+
+ allows you to manually move the machine.
+ This action is known as 
+\begin_inset Quotes eld
+\end_inset 
+
+jogging
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ First, select the axis to be moved by clicking it.
+ Then, click and hold the 
+\begin_inset Quotes eld
+\end_inset 
+
++
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+-
+\begin_inset Quotes erd
+\end_inset 
+
+ button depending on the desired direction of motion.
+ 
+\layout Standard
+
+If 
+\begin_inset Quotes eld
+\end_inset 
+
+Continuous
+\begin_inset Quotes erd
+\end_inset 
+
+ is selected, the motion will continue as long as the button is pressed.
+ If another value is selected, the machine will move exactly the displayed
+ distance each time the button is clicked.
+ By default, the available values are:
+\layout Quotation
+
+0.1000 0.0100 0.0010 0.0001
+\layout Standard
+
+The .ini file setting 
+\family typewriter 
+[DISPLAY]INCREMENTS
+\family default 
+ can be used to override the default.
+ Its value can contain decimal numbers (e.g., 0.1000) or fractional numbers
+ (e.g., 1/16).
+ For machines configured as metric, a good setting might be
+\layout LyX-Code
+
+INCREMENTS = 1 0.1 0.01 0.001
+\layout Standard
+
+For a machine configured as imperial (inches), a good setting might be
+\layout LyX-Code
+
+INCREMENTS = 1/8 .1 1/16 1/32 .01 0.001 0.0001
+\layout Standard
+
+By pressing 
+\begin_inset Quotes eld
+\end_inset 
+
+Home
+\begin_inset Quotes erd
+\end_inset 
+
+, the selected axis will be homed.
+ Depending on your configuration, this may just set the current axis value
+ to be the absolute position 0.0, or it may make the machine move to a specific
+ home location through use of 
+\begin_inset Quotes eld
+\end_inset 
+
+home switches
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Standard
+
+By pressing 
+\begin_inset Quotes eld
+\end_inset 
+
+Offset
+\begin_inset Quotes erd
+\end_inset 
+
+, the 
+\begin_inset Quotes eld
+\end_inset 
+
+G54 offset
+\begin_inset Quotes erd
+\end_inset 
+
+ for the current axis is changed so that the current axis value will be
+ the relative position 0.0.
+ 
+\layout Standard
+
+By pressing 
+\begin_inset Quotes eld
+\end_inset 
+
+Override Limits
+\begin_inset Quotes erd
+\end_inset 
+
+, the machine will temporarily be permitted to jog outside the limits defined
+ in the .ini file.
+\layout Subsubsection
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+Spindle
+\begin_inset Quotes erd
+\end_inset 
+
+ group
+\layout Standard
+
+The buttons on the first row select the direction for the spindle to rotate:
+ Counterclockwise, Stopped, Clockwise.
+ The buttons on the next row increase or decrease the rotation speed.
+ The checkbox on the third row allows the spindle brake to be engaged or
+ released
+\layout Subsubsection
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+Coolant
+\begin_inset Quotes erd
+\end_inset 
+
+ group
+\layout Standard
+
+The two buttons allow the 
+\begin_inset Quotes eld
+\end_inset 
+
+Mist
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+Flood
+\begin_inset Quotes erd
+\end_inset 
+
+ coolants to be turned on and off.
+\layout Subsection
+
+Code Entry
+\layout Standard
+
+Code Entry
+\begin_inset Quotes erd
+\end_inset 
+
+ (also called MDI), allows G-code programs can be entered manually, one
+ line at a time.
+ When the machine is not turned on, or when a program is running, the code
+ entry controls are unavailable.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+The Code Entry tab
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename axis-codeentry.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsubsection
+
+History
+\layout Standard
+
+This shows MDI commands that have been typed earlier in this session.
+\layout Subsubsection
+
+MDI Command
+\layout Standard
+
+This allows you to enter a g-code command to be executed.
+ Execute the command by pressing Enter or by clicking 
+\begin_inset Quotes eld
+\end_inset 
+
+Go
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Subsubsection
+
+Active G-Codes
+\layout Standard
+
+This shows the 
+\begin_inset Quotes eld
+\end_inset 
+
+modal codes
+\begin_inset Quotes erd
+\end_inset 
+
+ that are active in the interpreter.
+ For instance, 
+\begin_inset Quotes eld
+\end_inset 
+
+G54
+\begin_inset Quotes erd
+\end_inset 
+
+ indicates that the 
+\begin_inset Quotes eld
+\end_inset 
+
+G54 offset
+\begin_inset Quotes erd
+\end_inset 
+
+ is applied to all coordinates that are entered.
+\layout Subsection
+
+Feed Override
+\layout Standard
+
+By moving this slider, the programmed feed rate can be modified.
+ For instance, if a program requests 
+\family typewriter 
+F60
+\family default 
+ and the slider is set to 120%, then the resulting feed rate will be 72.
+\layout Section
+
+Keyboard Controls
+\layout Standard
+
+Almost all actions in AXIS can be accomplished with the keyboard.
+ A full list of keyboard shortcuts can be found in the AXIS Quick Reference,
+ which can be displayed by choosing 
+\noun on 
+Help > Quick Reference
+\noun default 
+.
+ Many of the shortcuts are unavailable when in Code Entry mode.
+\layout Standard
+
+The most frequently used keyboard shortcuts are shown in Table 
+\begin_inset LatexCommand \ref{cap:Most-Common-Keyboard}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float table
+wide false
+collapsed false
+
+\layout Caption
+
+Most Common Keyboard Shortcuts
+\begin_inset LatexCommand \label{cap:Most-Common-Keyboard}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="23" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Keystroke
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Action Taken
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+F1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Toggle Emergency Stop
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+F2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Turn machine on/off
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+X, `
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Activate first axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Y, 1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Activate second axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Z, 2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Activate third axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+A, 3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Activate fourth axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+I
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Select jog increment
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+C
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Continuous jog
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Home
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Send active axis Home
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Shift-Home
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Set G54 offset for active axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Left, Right
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Jog first axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Up, Down
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Jog second axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Pg Up, Pg Dn
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Jog third axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+[, ]
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Jog fourth axis
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+O
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Open File
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Control-R
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Reload File
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+R
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Run file
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Pause execution
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+S
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Resume Execution
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+ESC
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Stop execution
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Control-K
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Clear backplot
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+V
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Cycle among preset views
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Section
+
+emctop: Show EMC Status
+\layout Standard
+
+AXIS includes a program called 
+\begin_inset Quotes eld
+\end_inset 
+
+emctop
+\begin_inset Quotes erd
+\end_inset 
+
+ which shows some of the details of emc's state.
+ You can run this program by invoking 
+\noun on 
+Machine > Show EMC Status
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+EMC Status Window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename axis-emctop.png
+	width 80page%
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The name of each item is shown in the left column.
+ The current value is shown in the right column.
+ If the value has recently changed, it is shown on a red background.
+\layout Section
+
+mdi: Text-mode MDI interface
+\layout Standard
+
+AXIS includes a program called 
+\begin_inset Quotes eld
+\end_inset 
+
+mdi
+\begin_inset Quotes erd
+\end_inset 
+
+ which allows text-mode entry of MDI commands to a running emc session.
+ You can run this program by opening a terminal and typing
+\layout LyX-Code
+
+mdi /path/to/emc.nml
+\layout Standard
+
+Once it is running, it displays the prompt 
+\family typewriter 
+MDI>
+\family default 
+.
+ When a blank line is entered, the machine's current position is shown.
+ When a command is entered, it is sent to emc to be executed.
+ A sample session of mdi is shown in Figure 
+\begin_inset LatexCommand \ref{cap:MDI-Session}
+
+\end_inset 
+
+.
+\layout LyX-Code
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+MDI Session
+\begin_inset LatexCommand \label{cap:MDI-Session}
+
+\end_inset 
+
+
+\layout LyX-Code
+
+$ mdi ~/emc2/configs/sim/emc.nml 
+\newline 
+MDI> 
+\newline 
+(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+\newline 
+MDI> G1 F5 X1
+\newline 
+MDI> 
+\newline 
+(0.5928500000000374, 0.0, 0.0, 0.0, 0.0, 0.0)
+\newline 
+MDI> 
+\newline 
+(1.0000000000000639, 0.0, 0.0, 0.0, 0.0, 0.0)
+\end_inset 
+
+
+\layout Section
+
+Python modules 
+\layout Standard
+
+AXIS includes several Python modules which may be useful to others.
+ For more information on one of these modules, use 
+\begin_inset Quotes eld
+\end_inset 
+
+pydoc <module name>
+\begin_inset Quotes erd
+\end_inset 
+
+ or read the source code.
+\layout Itemize
+
+
+\family typewriter 
+emc
+\family default 
+ provides access to the emc command, status, and error channels.
+\layout Itemize
+
+
+\family typewriter 
+gcode
+\family default 
+ provides access to the rs274ngc interpreter
+\layout Itemize
+
+
+\family typewriter 
+_togl
+\family default 
+ provides an OpenGL widget that can be used in Tkinter applications
+\layout Itemize
+
+
+\family typewriter 
+minigl
+\family default 
+ provides access to the subset of OpenGL used by AXIS
+\layout Section
+
+Advanced configuration of AXIS
+\layout Subsection
+
+Program Filters
+\layout Standard
+
+AXIS has the ability to send loaded files through a 
+\begin_inset Quotes eld
+\end_inset 
+
+filter program
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ This filter can do any desired task: Something as simple as making sure
+ the file ends with an 
+\family typewriter 
+M2
+\family default 
+ command, or something as complicated as detecting whether the input is
+ a depth image, and generating g-code to mill the shape it defines.
+\layout Standard
+
+The filter program is specified in the .ini file as 
+\family typewriter 
+[EMC]PROGRAM_FILTER
+\family default 
+ and must take the input as the first argument, or from standard input if
+ no argument is given.
+\layout Standard
+
+The filter program must write rs274ngc code to standard output.
+ This output is what will be displayed in the text area, previewed in the
+ display area, and executed by emc when 
+\begin_inset Quotes eld
+\end_inset 
+
+Run
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Standard
+
+The list of permitted file extensions can be extended by adding one or more
+ 
+\family typewriter 
+[EMC]PROGRAM_EXTENSION
+\family default 
+ lines.
+ For instance, if the filter 'myfilter' can convert png depth images into
+ g-code, then it would be appropriate to write
+\layout LyX-Code
+
+[EMC]
+\newline 
+PROGRAM_FILTER = myfilter
+\newline 
+PROGRAM_EXTENSION = *.png Depth Image
+\layout Standard
+
+When 'myfilter' is given rs274ngc on its input, it should simply copy it
+ to the output.
+\layout Standard
+
+In a future version, AXIS will come with a standard filter which can recognize
+ files based on extension or magic numbers and invoke the filter appropriate
+ to that type of file.
+\layout Subsection
+
+The X Resource Database
+\layout Standard
+
+The colors of most elements of the AXIS user interface can be customized
+ through the X Resource Database.
+ The sample file 
+\family typewriter 
+axis_light_background
+\family default 
+ changes the colors of the backplot window to a 
+\begin_inset Quotes eld
+\end_inset 
+
+dark lines on white background
+\begin_inset Quotes erd
+\end_inset 
+
+ scheme, and also serve as a reference for the configurable items in the
+ display area.
+\layout Standard
+
+For information about the other items which can be configured in Tk applications
+, see the Tk manpages.
+\layout Standard
+
+Because modern desktop environments automatically make some settings in
+ the X Resource Database that adversely affect AXIS, by default these settings
+ are ignored.
+ To make the X Resource Database items override AXIS defaults, include the
+ following line in your X Resources:
+\layout LyX-Code
+
+*Axis*optionLevel: widgetDefault
+\layout Standard
+
+this causes the built-in options to be created at the option level 
+\begin_inset Quotes eld
+\end_inset 
+
+widgetDefault
+\begin_inset Quotes erd
+\end_inset 
+
+, so that X Resources (which are level 
+\begin_inset Quotes eld
+\end_inset 
+
+userDefault
+\begin_inset Quotes erd
+\end_inset 
+
+) can override them.
+\layout LyX-Code
+
+\the_end
