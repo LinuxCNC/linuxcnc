@@ -312,7 +312,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE EMC2VERSION SIMULATOR RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS LYX PDFLATEX BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR BUILD_AXIS AXIS_DIR LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE EMC2VERSION SIMULATOR RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS LYX PDFLATEX ESPTOPDF BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR BUILD_AXIS AXIS_DIR LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -4543,8 +4543,8 @@ fi
 
     if ( test "none" = "$LYX" ) ; then
 	BUILD_DOCS=no
-	{ echo "$as_me:$LINENO: WARNING: no LyX, documentation (pdfs) will not be built" >&5
-echo "$as_me: WARNING: no LyX, documentation (pdfs) will not be built" >&2;}
+	{ echo "$as_me:$LINENO: WARNING: no LyX, documentation (pdf) will not be built" >&5
+echo "$as_me: WARNING: no LyX, documentation (pdf) will not be built" >&2;}
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then
@@ -4556,8 +4556,8 @@ echo "${ECHO_T}$LYX_VER" >&6
     LYX_MAJORVER=${LYX_VER:0:3}
     if ( ! test "1.3" = "$LYX_MAJORVER" ) ; then
 	BUILD_DOCS=no
-	{ echo "$as_me:$LINENO: WARNING: LyX version != 1.3.x, docs (pdfs) will not be built" >&5
-echo "$as_me: WARNING: LyX version != 1.3.x, docs (pdfs) will not be built" >&2;}
+	{ echo "$as_me:$LINENO: WARNING: LyX version != 1.3.x, docs (pdf) will not be built" >&5
+echo "$as_me: WARNING: LyX version != 1.3.x, docs (pdf) will not be built" >&2;}
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then
@@ -4604,8 +4604,56 @@ fi
 
     if ( test "none" = "$PDFLATEX" ) ; then
 	BUILD_DOCS=no
-	{ echo "$as_me:$LINENO: WARNING: no pdflatex, documentation (pdfs) will not be built" >&5
-echo "$as_me: WARNING: no pdflatex, documentation (pdfs) will not be built" >&2;}
+	{ echo "$as_me:$LINENO: WARNING: no pdflatex, documentation (pdf) will not be built" >&5
+echo "$as_me: WARNING: no pdflatex, documentation (pdf) will not be built" >&2;}
+    fi
+fi
+if ( test "$BUILD_DOCS" = "yes" ) ; then
+    # Extract the first word of "epstopdf", so it can be a program name with args.
+set dummy epstopdf; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_ESPTOPDF+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $ESPTOPDF in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ESPTOPDF="$ESPTOPDF" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_ESPTOPDF="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_ESPTOPDF" && ac_cv_path_ESPTOPDF=""none""
+  ;;
+esac
+fi
+ESPTOPDF=$ac_cv_path_ESPTOPDF
+
+if test -n "$ESPTOPDF"; then
+  echo "$as_me:$LINENO: result: $ESPTOPDF" >&5
+echo "${ECHO_T}$ESPTOPDF" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+    if ( test "none" = "$EPSTOPDF" ) ; then
+	BUILD_DOCS=no
+	{ echo "$as_me:$LINENO: WARNING: no epstopdf, documentation (pdf) will not be built" >&5
+echo "$as_me: WARNING: no epstopdf, documentation (pdf) will not be built" >&2;}
     fi
 fi
 
@@ -7964,6 +8012,7 @@ s,@PIDOF@,$PIDOF,;t t
 s,@IPCS@,$IPCS,;t t
 s,@LYX@,$LYX,;t t
 s,@PDFLATEX@,$PDFLATEX,;t t
+s,@ESPTOPDF@,$ESPTOPDF,;t t
 s,@BUILD_DOCS@,$BUILD_DOCS,;t t
 s,@USE_LIBM@,$USE_LIBM,;t t
 s,@USE_STUBS@,$USE_STUBS,;t t

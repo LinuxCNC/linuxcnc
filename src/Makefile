@@ -64,7 +64,9 @@ SUBDIRS := \
     \
     module_helper \
     \
-    po
+    po \
+    \
+    ../docs/src
 
 ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c 
 
