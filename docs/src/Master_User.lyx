@@ -102,7 +102,7 @@ Introduction & installing EMC2
 \layout Standard
 
 
-\begin_inset Include \include{common/introduction.lyx}
+\begin_inset Include \include{common/emc2_introduction.lyx}
 preview false
 
 \end_inset 
@@ -111,7 +111,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{install/installing.lyx}
+\begin_inset Include \include{install/installing_emc2.lyx}
 preview false
 
 \end_inset 
