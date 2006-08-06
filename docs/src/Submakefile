@@ -6,14 +6,14 @@ DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
 ifeq ($(BUILD_DOCS),yes)
-doc:
+docs:
 	$(LYX) --export pdf2 $(DOC_SRCDIR)/Master_HAL.lyx
 	mv $(DOC_SRCDIR)/Master_HAL.pdf $(DOC_DIR)/HAL_User_Manual.pdf
 	$(LYX) --export pdf2 $(DOC_SRCDIR)/Master_User.lyx
 	mv $(DOC_SRCDIR)/Master_User.pdf $(DOC_DIR)/EMC2_User_Manual.pdf
 
 else
-doc:
+docs:
 	@echo "Can't build documents, missing LyX (or some other required program)"
 	@false
 
