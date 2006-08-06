@@ -73,6 +73,9 @@ linkpp led.joint.2.has-fault	halui.joint.2.has-fault
 linkpp button.joint.2.minus	halui.jog.2.minus
 linkpp button.joint.2.plus	halui.jog.2.plus
 
+linkpp button.fo.increase	halui.feed-override.increase
+linkpp button.fo.decrease	halui.feed-override.decrease
+
 #use a sets to set jog speed, until there is a halvcp slider
 newsig jogspeed float
 linksp jogspeed halui.jog-speed

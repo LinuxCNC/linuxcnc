@@ -471,6 +471,19 @@ vcp {
             	    }
 		}
             }
+	    
+	    box {
+                layout = vertical
+                title = "feed override"
+                button {
+                    halpin = button.fo.increase
+                    label { text = "+" }
+                }
+                button {
+                    halpin = button.fo.decrease
+                    label { text = "-" }
+                }
+	    }
         }
     }
     } # main-window
