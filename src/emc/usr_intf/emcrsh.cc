@@ -3818,27 +3818,27 @@ static cmdResponseType getAbsCmdPos(char *s)
     sprintf(buf, " %d", axis);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 0)) {
+  if ((axis == -1) || (axis == 0)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.tran.x);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 1)) {
+  if ((axis == -1) || (axis == 1)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.tran.y);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 2)) {
+  if ((axis == -1) || (axis == 2)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.tran.z);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 3)) {
+  if ((axis == -1) || (axis == 3)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.a);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 4)) {
+  if ((axis == -1) || (axis == 4)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.b);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 5)) {
+  if ((axis == -1) || (axis == 5)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.c);
     strcat(outBuf, buf);
     }
@@ -3858,27 +3858,27 @@ static cmdResponseType getAbsActPos(char *s)
     sprintf(buf, " %d", axis);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 0)) {
+  if ((axis == -1) || (axis == 0)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.x);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 1)) {
+  if ((axis == -1) || (axis == 1)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.y);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 2)) {
+  if ((axis == -1) || (axis == 2)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.z);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 3)) {
+  if ((axis == -1) || (axis == 3)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.a);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 4)) {
+  if ((axis == -1) || (axis == 4)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.b);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 5)) {
+  if ((axis == -1) || (axis == 5)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.c);
     strcat(outBuf, buf);
     }
@@ -3898,32 +3898,32 @@ static cmdResponseType getRelCmdPos(char *s)
     sprintf(buf, " %d", axis);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 0)) {
+  if ((axis == -1) || (axis == 0)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.tran.x - 
       emcStatus->task.origin.tran.x);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 1)) {
+  if ((axis == -1) || (axis == 1)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.tran.y - 
       emcStatus->task.origin.tran.y);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 2)) {
+  if ((axis == -1) || (axis == 2)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.tran.z - 
       emcStatus->task.origin.tran.z);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 3)) {
+  if ((axis == -1) || (axis == 3)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.a - 
       emcStatus->task.origin.a); // No rotational offsets
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 4)) {
+  if ((axis == -1) || (axis == 4)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.a - 
       emcStatus->task.origin.b); // No rotational offsets
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 5)) {
+  if ((axis == -1) || (axis == 5)) {
     sprintf(buf, " %f", emcStatus->motion.traj.position.a - 
       emcStatus->task.origin.c); // No rotational offsets
     strcat(outBuf, buf);
@@ -3944,32 +3944,32 @@ static cmdResponseType getRelActPos(char *s)
     sprintf(buf, " %d", axis);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 0)) {
+  if ((axis == -1) || (axis == 0)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.x -
       emcStatus->task.origin.tran.x);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 1)) {
+  if ((axis == -1) || (axis == 1)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.y -
       emcStatus->task.origin.tran.y);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 2)) {
+  if ((axis == -1) || (axis == 2)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.z -
       emcStatus->task.origin.tran.z);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 3)) {
+  if ((axis == -1) || (axis == 3)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.a -
       emcStatus->task.origin.a);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 4)) {
+  if ((axis == -1) || (axis == 4)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.b -
       emcStatus->task.origin.b);
     strcat(outBuf, buf);
     }
-  if ((axis == -1) or (axis == 5)) {
+  if ((axis == -1) || (axis == 5)) {
     sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.c -
       emcStatus->task.origin.c);
     strcat(outBuf, buf);
