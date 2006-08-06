@@ -2187,8 +2187,6 @@ int main(int argc, char *argv[])
     // get current serial number, and save it for restoring when we quit
     // so as not to interfere with real operator interface
     updateStatus();
-    emcCommandSerialNumber = emcStatus->echo_serial_number;
-    saveEmcCommandSerialNumber = emcStatus->echo_serial_number;
 
     done = 0;
     /* Register the routine that catches the SIGINT signal */
@@ -2205,6 +2203,8 @@ int main(int argc, char *argv[])
 	esleep(0.02); //sleep for a while
 	
 	updateStatus();
+	emcCommandSerialNumber = emcStatus->echo_serial_number;
+	saveEmcCommandSerialNumber = emcStatus->echo_serial_number;
     }
     thisQuit();
     return 0;
