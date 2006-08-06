@@ -1,4 +1,5 @@
 EMCSHSRCS := emc/usr_intf/emcsh.cc
+EMCRSHSRCS := emc/usr_intf/emcrsh.cc
 IOSHSRCS := emc/usr_intf/iosh.cc \
 	emc/motion/usrmotintf.cc \
 	emc/motion/emcmotglb.c \
@@ -19,7 +20,7 @@ XEMCSRCS := emc/usr_intf/xemc.cc
 endif
 
 TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
-USERSRCS += $(EMCSHSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
+USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
 
 ifeq "$(HAVE_NCURSES)" "yes"
 USERSRCS += $(KEYSTICKSRCS)
@@ -34,6 +35,10 @@ $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 ../bin/emcsh: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libnml.so
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
 TARGETS += ../bin/emcsh
+
+../bin/emcrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/libemc.a ../lib/libnml.so
+	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
+TARGETS += ../bin/emcrsh
 
 ../bin/iosh: $(call TOOBJS, $(IOSHSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
