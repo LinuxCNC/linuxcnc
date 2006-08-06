@@ -1,0 +1,434 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Basic configurations for a stepper based system
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Introduction}
+
+\end_inset 
+
+Introduction
+\layout Standard
+
+This chapter tries to describe some of the more common settings that users
+ want to change when setting up EMC2.
+ Because of the various possibilities of configuring EMC2, it is very hard
+ to document them all, and keep this document relatively short.
+ 
+\layout Standard
+
+The most common EMC2 usage (as reported by our users) is for stepper based
+ systems.
+ These systems are using stepper motors with drives that accept step & direction
+ signals.
+ 
+\layout Standard
+
+It is one of the simpler setups, because the motors run open-loop (no feedback
+ comes back from the motors), yet the system needs to be configured properly
+ so the motors don't stall or lose steps.
+\layout Standard
+
+Most of this chapter is based on the sample config released along with EMC2.
+ The config is called stepper, and usually it is found in /etc/emc2/sample-confi
+gs/stepper
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Pinout}
+
+\end_inset 
+
+Pinout
+\layout Standard
+
+One of the majour flaws in EMC was that you couldn't specify the pinout
+ without recompiling the source code.
+ EMC2 is far more flexible, and now (thanks to the Hardware Abstraction
+ Layer) you can easily specify which signal goes where.
+ (read the 
+\begin_inset LatexCommand \ref{sec:What-is-HAL?}
+
+\end_inset 
+
+ section for more information about the HAL
+\begin_inset LatexCommand \index{HAL}
+
+\end_inset 
+
+).
+\layout Standard
+
+As it is described in the HAL Introduction and tutorial, we have signals,
+ pins and parameters inside the HAL.
+ 
+\layout Standard
+
+The ones relevant for our pinout are
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Note: we are only presenting one axis to keep it short, all others are similar.
+\end_inset 
+
+:
+\layout LyX-Code
+
+signals: Xstep, Xdir & Xen
+\layout LyX-Code
+
+pins: parport.0.pin-XX-out & parport.0.pin-XX-in 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Refer to section 
+\begin_inset LatexCommand \ref{sec:Parport}
+
+\end_inset 
+
+ for additional information
+\end_inset 
+
+
+\layout Standard
+
+Depending on what you have chosen in your ini file you are using either
+ standard_pinout.hal or xylotex_pinout.hal.
+ These are two files that instruct the HAL how to link the various signals
+ & pins.
+ Furtheron we'll investigate the standard_pinout.hal.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:standard_pinout.hal}
+
+\end_inset 
+
+standard_pinout.hal 
+\layout Standard
+
+This file contains several HAL commands, and usually looks like this:
+\layout LyX-Code
+
+# standard pinout config file for 3-axis steppers 
+\layout LyX-Code
+
+# using a parport for I/O 
+\layout LyX-Code
+
+#
+\layout LyX-Code
+
+# first load the parport driver 
+\layout LyX-Code
+
+loadrt hal_parport cfg="0x0378" 
+\layout LyX-Code
+
+# 
+\layout LyX-Code
+
+# next connect the parport functions to threads 
+\layout LyX-Code
+
+# read inputs first 
+\layout LyX-Code
+
+addf parport.0.read base-thread 1 
+\layout LyX-Code
+
+# write outputs last 
+\layout LyX-Code
+
+addf parport.0.write base-thread -1 
+\layout LyX-Code
+
+# 
+\layout LyX-Code
+
+# finally connect physical pins to the signals 
+\layout LyX-Code
+
+linksp Xstep parport.0.pin-03-out 
+\layout LyX-Code
+
+linksp Xdir  parport.0.pin-02-out 
+\layout LyX-Code
+
+linksp Ystep parport.0.pin-05-out 
+\layout LyX-Code
+
+linksp Ydir  parport.0.pin-04-out 
+\layout LyX-Code
+
+linksp Zstep parport.0.pin-07-out 
+\layout LyX-Code
+
+linksp Zdir  parport.0.pin-06-out
+\layout LyX-Code
+
+# create a signal for the estop loopback 
+\layout LyX-Code
+
+linkpp iocontrol.0.user-enable-out 
+\backslash 
+
+\layout LyX-Code
+
+       iocontrol.0.emc-enable-in
+\layout LyX-Code
+
+# create signals for tool loading loopback 
+\layout LyX-Code
+
+linkpp iocontrol.0.tool-prepare 
+\backslash 
+
+\layout LyX-Code
+
+       iocontrol.0.tool-prepared 
+\layout LyX-Code
+
+linkpp iocontrol.0.tool-change 
+\backslash 
+
+\layout LyX-Code
+
+       iocontrol.0.tool-changed
+\layout LyX-Code
+
+# create a signal for "spindle on" 
+\layout LyX-Code
+
+newsig spindle_on bit
+\layout LyX-Code
+
+# connect it to the spindle controller (in RT)
+\layout LyX-Code
+
+linksp spindle_on motion.spindle-on 
+\layout LyX-Code
+
+# connect it to a physical pin 
+\layout LyX-Code
+
+linksp spindle_on parport.0.pin-09-out 
+\layout Standard
+
+The files starting with '#' are comments, and their only purpose is to guide
+ the reader through the file.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Overview-standard_pinout.hal}
+
+\end_inset 
+
+Overview of the standard_pinout.hal
+\layout Standard
+
+There are a couple of operations that get executed when the standard_pinout.hal
+ gets executed / interpreted:
+\layout Enumerate
+
+The Parport driver gets loaded (see 
+\begin_inset LatexCommand \ref{sec:Parport}
+
+\end_inset 
+
+ for details)
+\layout Enumerate
+
+The read & write functions of the parport driver get assigned to the Base
+ thread 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+the fastest thread in the EMC2 setup, usually the code gets executed every
+ few microseconds
+\end_inset 
+
+
+\layout Enumerate
+
+The step & direction signals for axes X,Y,Z get linked to pins on the parport
+\layout Enumerate
+
+Further IO signals get connected (estop loopback, toolchanger loopback)
+\layout Enumerate
+
+A spindle On signal gets defined and linked to a parport pin
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Changing-standard_pinout.hal}
+
+\end_inset 
+
+Changing the standard_pinout.hal
+\layout Standard
+
+If you want to change the standard_pinout.hal file, all you need is a text
+ editor.
+ Open the file and locate the parts you want to change.
+ 
+\layout Standard
+
+If you want for example to change the pin for the X-axis Step & Directions
+ signals, all you need to do is to change the number in the 'parport.0.pin-XX-out'
+ name:
+\layout LyX-Code
+
+linksp Xstep parport.0.pin-03-out 
+\layout LyX-Code
+
+linksp Xdir  parport.0.pin-02-out
+\layout Standard
+
+can be changed to:
+\layout LyX-Code
+
+linksp Xstep parport.0.pin-02-out 
+\layout LyX-Code
+
+linksp Xdir  parport.0.pin-03-out
+\layout Standard
+
+or basicly any other numbers you like.
+ 
+\layout Standard
+
+Hint: make sure you don't have more than one signal connected to the same
+ pin.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Adding-enable-signal}
+
+\end_inset 
+
+Adding an enable signal
+\layout Standard
+
+Some amplifiers (drives) require an enable signal before they accept and
+ command movement of the motors.
+ For this reason there are already defined signals called 'Xen', 'Yen',
+ 'Zen'.
+\layout Standard
+
+To connect them use the following example:
+\layout LyX-Code
+
+linksp Xen parport.0.pin-08-out
+\layout Standard
+
+You can either have one single pin that enables all drives, or several,
+ depending on the setup you have.
+ Note however that usually when one axis faults, all the other ones will
+ be disabled aswell, so having only one signal / pin is perfectly safe.
+\layout Subsection
+
+Adding an external ESTOP
+\begin_inset LatexCommand \index{ESTOP}
+
+\end_inset 
+
+ button
+\layout Standard
+
+As you can see in 
+\begin_inset LatexCommand \ref{sub:standard_pinout.hal}
+
+\end_inset 
+
+ by default the stepper configuration assumes no external ESTOP button.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+An extensive explanation of hooking up ESTOP circuitry is explained in the
+ wiki.linuxcnc.org and in the Integrator Manual
+\end_inset 
+
+
+\layout Standard
+
+To add a simple external button you need to replace the line:
+\layout LyX-Code
+
+linkpp iocontrol.0.user-enable-out 
+\backslash 
+
+\layout LyX-Code
+
+       iocontrol.0.emc-enable-in
+\layout Standard
+
+with
+\layout LyX-Code
+
+linkpp parport.0.pin-01-in iocontrol.0.emc-enable-in
+\layout Standard
+
+This assumes an ESTOP switch connected to pin 01 on the parport.
+ As long as the switch will stay pushed
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+make sure you use a maintained switch for ESTOP.
+\end_inset 
+
+, EMC2 will be in the ESTOP state.
+ When the external button gets released EMC2 will imediately switch to the
+ ESTOP-RESET state, and all you need to do is switch to Machine On
+\begin_inset LatexCommand \index{MachineOn}
+
+\end_inset 
+
+ and you'll be able to continue your work with EMC2.
+\the_end
