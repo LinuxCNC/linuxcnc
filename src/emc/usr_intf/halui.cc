@@ -1846,115 +1846,77 @@ static void hal_init_pins()
     *(halui_data->joint_selected) = 0; // select joint 0 by default
 }
 
+static int check_bit_changed(hal_bit_t *halpin, hal_bit_t *oldpin) {
+    hal_bit_t bit;
+    
+    bit = *(halpin);
+    if (bit != *(oldpin)) {
+	*(oldpin) = bit;
+	if (bit != 0) //if transition to 1
+	    return 1;
+    }
+    return 0;
+}
+
 // this function looks if any of the hal pins has changed
 // and sends appropiate messages if so
 static void check_hal_changes()
 {
     hal_s32_t counts;
     int select_changed, joint;
+    hal_bit_t bit, js;
     
     //check if machine_on pin has changed (the rest work exactly the same)
-    if (*(halui_data->machine_on) != old_halui_data.machine_on) {
-	if (*(halui_data->machine_on) != 0) //if transition to 1
-	    sendMachineOn();                //send MachineOn NML command
-	old_halui_data.machine_on = *(halui_data->machine_on);
-    }
+    if (check_bit_changed(halui_data->machine_on, &(old_halui_data.machine_on)) != 0)
+	sendMachineOn();                //send MachineOn NML command
+    
+    if (check_bit_changed(halui_data->machine_off, &(old_halui_data.machine_off)) != 0)
+	sendMachineOff();
 
-    if (*(halui_data->machine_off) != old_halui_data.machine_off) {
-	if (*(halui_data->machine_off) != 0)
-	    sendMachineOff();
-	old_halui_data.machine_off = *(halui_data->machine_off);
-    }
+    if (check_bit_changed(halui_data->estop_activate, &(old_halui_data.estop_activate)) != 0)
+	sendEstop();
 
-    if (*(halui_data->estop_activate) != old_halui_data.estop_activate) {
-	if (*(halui_data->estop_activate) != 0)
-	    sendEstop();
-	old_halui_data.estop_activate = *(halui_data->estop_activate);
-    }
+    if (check_bit_changed(halui_data->estop_reset, &(old_halui_data.estop_reset)) != 0)
+	sendEstopReset();
 
-    if (*(halui_data->estop_reset) != old_halui_data.estop_reset) {
-	if (*(halui_data->estop_reset) != 0)
-	    sendEstopReset();
-	old_halui_data.estop_reset = *(halui_data->estop_reset);
-    }
+    if (check_bit_changed(halui_data->mode_manual, &(old_halui_data.mode_manual)) != 0)
+	sendManual();
 
-    if (*(halui_data->mode_manual) != old_halui_data.mode_manual) {
-	if (*(halui_data->mode_manual) != 0)
-	    sendManual();
-	old_halui_data.mode_manual = *(halui_data->mode_manual);
-    }
+    if (check_bit_changed(halui_data->mode_auto, &(old_halui_data.mode_auto)) != 0)
+	sendAuto();
 
-    if (*(halui_data->mode_auto) != old_halui_data.mode_auto) {
-	if (*(halui_data->mode_auto) != 0)
-	    sendAuto();
-	old_halui_data.mode_auto = *(halui_data->mode_auto);
-    }
+    if (check_bit_changed(halui_data->mode_mdi, &(old_halui_data.mode_mdi)) != 0)
+	sendMdi();
 
-    if (*(halui_data->mode_mdi) != old_halui_data.mode_mdi) {
-	if (*(halui_data->mode_mdi) != 0)
-	    sendMdi();
-	old_halui_data.mode_mdi = *(halui_data->mode_mdi);
-    }
+    if (check_bit_changed(halui_data->mist_on, &(old_halui_data.mist_on)) != 0)
+	sendMistOn();
 
-    if (*(halui_data->mist_on) != old_halui_data.mist_on) {
-	if (*(halui_data->mist_on) != 0)
-	    sendMistOn();
-	old_halui_data.mist_on = *(halui_data->mist_on);
-    }
+    if (check_bit_changed(halui_data->mist_off, &(old_halui_data.mist_off)) != 0)
+	sendMistOff();
 
-    if (*(halui_data->mist_off) != old_halui_data.mist_off) {
-	if (*(halui_data->mist_off) != 0)
-	    sendMistOff();
-	old_halui_data.mist_off = *(halui_data->mist_off);
-    }
+    if (check_bit_changed(halui_data->flood_on, &(old_halui_data.flood_on)) != 0)
+	sendFloodOn();
 
-    if (*(halui_data->flood_on) != old_halui_data.flood_on) {
-	if (*(halui_data->flood_on) != 0)
-	    sendFloodOn();
-	old_halui_data.flood_on = *(halui_data->flood_on);
-    }
+    if (check_bit_changed(halui_data->flood_off, &(old_halui_data.flood_off)) != 0)
+	sendFloodOff();
 
-    if (*(halui_data->flood_off) != old_halui_data.flood_off) {
-	if (*(halui_data->flood_off) != 0)
-	    sendFloodOff();
-	old_halui_data.flood_off = *(halui_data->flood_off);
-    }
+    if (check_bit_changed(halui_data->lube_on, &(old_halui_data.lube_on)) != 0)
+	sendLubeOn();
 
-    if (*(halui_data->lube_on) != old_halui_data.lube_on) {
-	if (*(halui_data->lube_on) != 0)
-	    sendLubeOn();
-	old_halui_data.lube_on = *(halui_data->lube_on);
-    }
+    if (check_bit_changed(halui_data->lube_off, &(old_halui_data.lube_off)) != 0)
+	sendLubeOff();
 
-    if (*(halui_data->lube_off) != old_halui_data.lube_off) {
-	if (*(halui_data->lube_off) != 0)
-	    sendLubeOff();
-	old_halui_data.lube_off = *(halui_data->lube_off);
-    }
+    if (check_bit_changed(halui_data->program_run, &(old_halui_data.program_run)) != 0)
+	sendProgramRun(0);
 
-    if (*(halui_data->program_run) != old_halui_data.program_run) {
-	if (*(halui_data->program_run) != 0)
-	    sendProgramRun(0);
-	old_halui_data.program_run = *(halui_data->program_run);
-    }
+    if (check_bit_changed(halui_data->program_pause, &(old_halui_data.program_pause)) != 0)
+	sendProgramPause();
 
-    if (*(halui_data->program_pause) != old_halui_data.program_pause) {
-	if (*(halui_data->program_pause) != 0)
-	    sendProgramPause();
-	old_halui_data.program_pause = *(halui_data->program_pause);
-    }
+    if (check_bit_changed(halui_data->program_resume, &(old_halui_data.program_resume)) != 0)
+	sendProgramResume();
 
-    if (*(halui_data->program_resume) != old_halui_data.program_resume) {
-	if (*(halui_data->program_resume) != 0)
-	    sendProgramResume();
-	old_halui_data.program_resume = *(halui_data->program_resume);
-    }
-
-    if (*(halui_data->program_step) != old_halui_data.program_step) {
-	if (*(halui_data->program_step) != 0)
-	    sendProgramStep();
-	old_halui_data.program_step = *(halui_data->program_step);
-    }
+    if (check_bit_changed(halui_data->program_step, &(old_halui_data.program_step)) != 0)
+	sendProgramStep();
 
     counts = *halui_data->jog_wheel_counts;
     if(counts != old_halui_data.jog_wheel_counts) {
@@ -1975,103 +1937,84 @@ static void check_hal_changes()
 
 
 //spindle stuff
-    if (*(halui_data->spindle_start) != old_halui_data.spindle_start) {
-	if (*(halui_data->spindle_start) != 0)
-	    sendSpindleForward();
-	old_halui_data.spindle_start = *(halui_data->spindle_start);
-    }
+    if (check_bit_changed(halui_data->spindle_start, &(old_halui_data.spindle_start)) != 0)
+	sendSpindleForward();
 
-    if (*(halui_data->spindle_stop) != old_halui_data.spindle_stop) {
-	if (*(halui_data->spindle_stop) != 0)
-	    sendSpindleOff();
-	old_halui_data.spindle_stop = *(halui_data->spindle_stop);
-    }
+    if (check_bit_changed(halui_data->spindle_stop, &(old_halui_data.spindle_stop)) != 0)
+	sendSpindleOff();
 
-    if (*(halui_data->spindle_forward) != old_halui_data.spindle_forward) {
-	if (*(halui_data->spindle_forward) != 0)
-	    sendSpindleForward();
-	old_halui_data.spindle_forward = *(halui_data->spindle_forward);
-    }
+    if (check_bit_changed(halui_data->spindle_forward, &(old_halui_data.spindle_forward)) != 0)
+	sendSpindleForward();
 
-    if (*(halui_data->spindle_reverse) != old_halui_data.spindle_reverse) {
-	if (*(halui_data->spindle_reverse) != 0)
-	    sendSpindleReverse();
-	old_halui_data.spindle_reverse = *(halui_data->spindle_reverse);
-    }
+    if (check_bit_changed(halui_data->spindle_reverse, &(old_halui_data.spindle_reverse)) != 0)
+	sendSpindleReverse();
 
-    if (*(halui_data->spindle_increase) != old_halui_data.spindle_increase) {
-	if (*(halui_data->spindle_increase) != 0)
+    bit = *(halui_data->spindle_increase);
+    if (bit != old_halui_data.spindle_increase) {
+	if (bit != 0)
 	    sendSpindleIncrease();
-	if (*(halui_data->spindle_increase) == 0)
+	if (bit == 0)
 	    sendSpindleConstant();
-	old_halui_data.spindle_increase = *(halui_data->spindle_increase);
+	old_halui_data.spindle_increase = bit;
     }
 
-    if (*(halui_data->spindle_decrease) != old_halui_data.spindle_decrease) {
-	if (*(halui_data->spindle_decrease) != 0)
+    bit = *(halui_data->spindle_decrease);
+    if (bit != old_halui_data.spindle_decrease) {
+	if (bit != 0)
 	    sendSpindleDecrease();
-	if (*(halui_data->spindle_decrease) == 0)
+	if (bit == 0)
 	    sendSpindleConstant();
-	old_halui_data.spindle_decrease = *(halui_data->spindle_decrease);
+	old_halui_data.spindle_decrease = bit;
     }
 
-    if (*(halui_data->spindle_brake_on) != old_halui_data.spindle_brake_on) {
-	if (*(halui_data->spindle_brake_on) != 0)
-	    sendBrakeEngage();
-	old_halui_data.spindle_brake_on = *(halui_data->spindle_brake_on);
-    }
+    if (check_bit_changed(halui_data->spindle_brake_on, &(old_halui_data.spindle_brake_on)) != 0)
+	sendBrakeEngage();
 
-    if (*(halui_data->spindle_brake_off) != old_halui_data.spindle_brake_off) {
-	if (*(halui_data->spindle_brake_off) != 0)
-	    sendBrakeRelease();
-	old_halui_data.spindle_brake_off = *(halui_data->spindle_brake_off);
-    }
+    if (check_bit_changed(halui_data->spindle_brake_off, &(old_halui_data.spindle_brake_off)) != 0)
+	sendBrakeRelease();
     
-    if (*(halui_data->abort) != old_halui_data.abort) {
-	if (*(halui_data->abort) != 0)
-	    sendAbort();
-	old_halui_data.abort = *(halui_data->abort);
-    }
+    if (check_bit_changed(halui_data->abort, &(old_halui_data.abort)) != 0)
+	sendAbort();
     
 // joint stuff (selection, homing..)
-    select_changed = 0; // flag to see if the selected joint changed
+    select_changed = -1; // flag to see if the selected joint changed
     
     for (joint=0; joint < num_axes; joint++) {
-	if (*(halui_data->joint_home[joint]) != old_halui_data.joint_home[joint]) {
-	    if (*(halui_data->joint_home[joint]) != 0)
-		sendHome(joint);
-	    old_halui_data.joint_home[joint] = *(halui_data->joint_home[joint]);
-	}
+	if (check_bit_changed(halui_data->joint_home[joint], &(old_halui_data.joint_home[joint])) != 0)
+	    sendHome(joint);
 
-	if (*(halui_data->jog_minus[joint]) != old_halui_data.jog_minus[joint]) {
-	    if (*(halui_data->jog_minus[joint]) != 0)
+	bit = *(halui_data->jog_minus[joint]);
+	if (bit != old_halui_data.jog_minus[joint]) {
+	    if (bit != 0)
 		sendJogCont(joint,-*(halui_data->jog_speed));
 	    else
 		sendJogStop(joint);
-	    old_halui_data.jog_minus[joint] = *(halui_data->jog_minus[joint]);
+	    old_halui_data.jog_minus[joint] = bit;
 	}
 
-	if (*(halui_data->jog_plus[joint]) != old_halui_data.jog_plus[joint]) {
-	    if (*(halui_data->jog_plus[joint]) != 0)
+	bit = *(halui_data->jog_plus[joint]);
+	if (bit != old_halui_data.jog_plus[joint]) {
+	    if (bit != 0)
 		sendJogCont(joint,*(halui_data->jog_speed));
 	    else
 		sendJogStop(joint);
-	    old_halui_data.jog_plus[joint] = *(halui_data->jog_plus[joint]);
+	    old_halui_data.jog_plus[joint] = bit;
 	}
 	
 	// check to see if another joint has been selected
-	if (*(halui_data->joint_nr_select[joint]) != old_halui_data.joint_nr_select[joint]) {
-	    if (*(halui_data->joint_nr_select[joint]) != 0) {
+	bit = *(halui_data->joint_nr_select[joint]);
+	if (bit != old_halui_data.joint_nr_select[joint]) {
+	    if (bit != 0) {
 		*(halui_data->joint_selected) = joint;
-		select_changed = 1; // flag that we changed the selected joint
+		select_changed = joint; // flag that we changed the selected joint
 	    } 
-	    old_halui_data.joint_home[joint] = *(halui_data->joint_home[joint]);
+	    old_halui_data.joint_home[joint] = bit;
 	}
     }
     
-    if (select_changed) {
+    if (select_changed >= 0) {
 	for (joint = 0; joint < num_axes; joint++) {
-	    if (joint != *(halui_data->joint_selected)) {
+	    if (joint != select_changed) {
 		*(halui_data->joint_is_selected[joint]) = 0;
     	    } else {
 		*(halui_data->joint_is_selected[joint]) = 1;
@@ -2079,26 +2022,27 @@ static void check_hal_changes()
 	}
     }
 
-    if (*(halui_data->joint_home[num_axes]) != old_halui_data.joint_home[num_axes]) {
-	if (*(halui_data->joint_home[num_axes]) != 0)
-	    sendHome(*(halui_data->joint_selected));
-	old_halui_data.joint_home[num_axes] = *(halui_data->joint_home[num_axes]);
+    if (check_bit_changed(halui_data->joint_home[num_axes], &(old_halui_data.joint_home[num_axes])) != 0)
+	sendHome(*(halui_data->joint_selected));
+
+    bit = *(halui_data->jog_minus[num_axes]);
+    js = *(halui_data->joint_selected);
+    if (bit != old_halui_data.jog_minus[num_axes]) {
+        if (bit != 0)
+	    sendJogCont(js, -*(halui_data->jog_speed));
+	else
+	    sendJogStop(js);
+	old_halui_data.jog_minus[num_axes] = bit;
     }
 
-    if (*(halui_data->jog_minus[num_axes]) != old_halui_data.jog_minus[num_axes]) {
-        if (*(halui_data->jog_minus[num_axes]) != 0)
-	    sendJogCont(*(halui_data->joint_selected),-*(halui_data->jog_speed));
+    bit = *(halui_data->jog_plus[num_axes]);
+    js = *(halui_data->joint_selected);
+    if (bit != old_halui_data.jog_plus[num_axes]) {
+        if (bit != 0)
+    	    sendJogCont(js,*(halui_data->jog_speed));
 	else
-	    sendJogStop(*(halui_data->joint_selected));
-	old_halui_data.jog_minus[num_axes] = *(halui_data->jog_minus[num_axes]);
-    }
-
-    if (*(halui_data->jog_plus[num_axes]) != old_halui_data.jog_plus[num_axes]) {
-        if (*(halui_data->jog_plus[num_axes]) != 0)
-    	    sendJogCont(*(halui_data->joint_selected),*(halui_data->jog_speed));
-	else
-	    sendJogStop(*(halui_data->joint_selected));
-	old_halui_data.jog_plus[num_axes] = *(halui_data->jog_plus[num_axes]);
+	    sendJogStop(js);
+	old_halui_data.jog_plus[num_axes] = bit;
     }
 
     
