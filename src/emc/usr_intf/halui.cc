@@ -152,8 +152,7 @@ DONE - jogging:
    halui.jog.selected.minus            bit
    halui.jog.selected.plus             bit
 
-
-- tool:
+DONE - tool:
    halui.tool.number                   u16  //current selected tool
    halui.tool.length-offset            float //current applied tool-length-offset
 
@@ -221,15 +220,19 @@ struct halui_str {
     hal_float_t *jog_wheel_scale;
     hal_float_t *jog_wheel_speed;
 
-    hal_bit_t *spindle_start;      //pin for starting the spindle
-    hal_bit_t *spindle_stop;       //pin for stoping the spindle
-    hal_bit_t *spindle_is_on;      //status pin for spindle is on
-    hal_bit_t *spindle_forward;    //pin for making the spindle go forward
-    hal_bit_t *spindle_runs_forward; //status pin for spindle running forward
-    hal_bit_t *spindle_reverse;    //pin for making the spindle go reverse
-    hal_bit_t *spindle_runs_backward; //status pin for spindle running backward
-    hal_bit_t *spindle_increase;   //pin for making the spindle go faster
-    hal_bit_t *spindle_decrease;   //pin for making the spindle go slower
+    hal_u16_t *tool_number;		//pin for current selected tool
+    hal_float_t *tool_length_offset;	//current applied tool-length-offset
+
+
+    hal_bit_t *spindle_start;		//pin for starting the spindle
+    hal_bit_t *spindle_stop;		//pin for stoping the spindle
+    hal_bit_t *spindle_is_on;		//status pin for spindle is on
+    hal_bit_t *spindle_forward;		//pin for making the spindle go forward
+    hal_bit_t *spindle_runs_forward;	//status pin for spindle running forward
+    hal_bit_t *spindle_reverse;		//pin for making the spindle go reverse
+    hal_bit_t *spindle_runs_backward;	//status pin for spindle running backward
+    hal_bit_t *spindle_increase;	//pin for making the spindle go faster
+    hal_bit_t *spindle_decrease;	//pin for making the spindle go slower
 
     hal_bit_t *spindle_brake_on;   //pin for activating spindle-brake
     hal_bit_t *spindle_brake_off;  //pin for deactivating spindle/brake
@@ -837,6 +840,12 @@ int halui_hal_init(void)
 
     //halui.joint.selected
     retval = hal_pin_u8_newf(HAL_WR, &(halui_data->joint_selected), comp_id, "halui.joint.selected"); 
+    if (retval != HAL_SUCCESS) return retval;
+
+    //halui.tool.
+    retval = hal_pin_u16_newf(HAL_WR, &(halui_data->tool_number), comp_id, "halui.tool.number"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_float_newf(HAL_WR, &(halui_data->tool_length_offset), comp_id, "halui.tool.length_offset"); 
     if (retval != HAL_SUCCESS) return retval;
 
     /* STEP 3b: export the in-pin(s) */
@@ -1559,25 +1568,6 @@ static int sendFeedOverride(double override)
 /*
 //sendFoo messages
 //used for sending NML messages
-static int sendDebug(int level)
-{
-    EMC_SET_DEBUG debug_msg;
-
-    debug_msg.debug = level;
-    debug_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(debug_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
-
-
-
-
 static int sendOverrideLimits(int axis)
 {
     EMC_AXIS_OVERRIDE_LIMITS lim_msg;
@@ -1593,8 +1583,6 @@ static int sendOverrideLimits(int axis)
 
     return 0;
 }
-static int axisJogging = -1;
-
 
 
 static int sendTaskPlanInit()
@@ -1612,22 +1600,6 @@ static int sendTaskPlanInit()
     return 0;
 }
 
-
-static int sendMdiCmd(char *mdi)
-{
-    EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
-
-    strcpy(emc_task_plan_execute_msg.command, mdi);
-    emc_task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_task_plan_execute_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
-    return 0;
-}
 
 static int sendToolSetOffset(int tool, double length, double diameter)
 {
@@ -2151,11 +2123,14 @@ static void modify_hal_pins()
                                         emcStatus->task.interpState == EMC_TASK_INTERP_WAITING;
     *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP_IDLE;
 
-    *(halui_data->fo_value)=emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
+    *(halui_data->fo_value) = emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
 
-    *(halui_data->mist_is_on)=emcStatus->io.coolant.mist;
-    *(halui_data->flood_is_on)=emcStatus->io.coolant.flood;
-    *(halui_data->lube_is_on)=emcStatus->io.lube.on;
+    *(halui_data->mist_is_on) = emcStatus->io.coolant.mist;
+    *(halui_data->flood_is_on) = emcStatus->io.coolant.flood;
+    *(halui_data->lube_is_on) = emcStatus->io.lube.on;
+
+    *(halui_data->tool_number) = emcStatus->io.tool.toolInSpindle;
+    *(halui_data->tool_length_offset) = emcStatus->task.toolOffset.tran.z;
 
     *(halui_data->spindle_is_on) = (emcStatus->motion.spindle.speed != 0);
     *(halui_data->spindle_runs_forward) = (emcStatus->motion.spindle.direction == 1);
