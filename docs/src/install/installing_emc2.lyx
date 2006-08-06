@@ -1,0 +1,288 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement h
+\paperfontsize 10
+\spacing single 
+\papersize Default
+\paperpackage a4wide
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Chapter
+
+Installing the EMC2 software
+\layout Section
+
+Introduction
+\layout Standard
+
+One of the problems users often complained about EMC was installing the
+ software itself.
+ They were forced to get sources, and compile themselves, and try to set
+ up a RT-patched Linux, etc.
+ The developers of EMC2 chose to go with a standard distribution called
+ Ubuntu
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+Ubuntu
+\begin_inset Quotes erd
+\end_inset 
+
+ is an ancient African word, meaning 
+\begin_inset Quotes eld
+\end_inset 
+
+humanity to others
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Ubuntu also means 
+\begin_inset Quotes eld
+\end_inset 
+
+I am what I am because of who we all are
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ The Ubuntu Linux distribution brings the spirit of Ubuntu to the software
+ world.
+ You can read more about it at 
+\begin_inset LatexCommand \url{http://www.ubuntu.com}
+
+\end_inset 
+
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+Ubuntu has been chosen, because it fits perfectly into the Open Source views
+ of EMC2:
+\layout Itemize
+
+Ubuntu will always be free of charge, and there is no extra fee for the
+ "enterprise edition", we make our very best work available to everyone
+ on the same Free terms.
+\layout Itemize
+
+Ubuntu comes with full professional support on commercial terms from hundreds
+ of companies around the world, if you need those services.
+ Each new version of Ubuntu receives free security updates for 18 months
+ after release, some versions are supported for even longer.
+\layout Itemize
+
+Ubuntu uses the very best in translations and accessibility infrastructure
+ that the Free Software community has to offer, to make Ubuntu usable for
+ as many people as possible.
+\layout Itemize
+
+Ubuntu is released regularly and predictably; a new release is made every
+ six months.
+ You can use the current stable release or help improve the current development
+ release.
+\layout Itemize
+
+The Ubuntu community is entirely committed to the principles of free software
+ development; we encourage people to use open source software, improve it
+ and pass it on.
+\layout Section
+
+EMC Download Page
+\layout Standard
+
+You will find the most recent releases of EMC2 announced on www.linuxcnc.org.
+ The releases of EMC2 will be done in two ways (sources and binary package).
+ The sources (described in the Developers Handbook) consist of a tarball
+ (emc2-version.tar.gz), which you should download and unpack into your home
+ directory.
+\layout Standard
+
+This document (oriented towards the end-user) will only try to explain how
+ to install the binary package on the Ubuntu distribution
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+For information regarding other Linux variants, check the Developers Handbook
+ or ask for help on the emc-developers 
+\begin_inset LatexCommand \htmlurl[mailing list]{http://sourceforge.net/mail/?group_id=6744}
+
+\end_inset 
+
+.
+\end_inset 
+
+.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:EMC2-install-script}
+
+\end_inset 
+
+EMC2 install script - the easy way to install
+\layout Standard
+
+Chris Radek put together a simple script to install emc2 on Ubuntu.
+ It  runs the commands explained in 
+\begin_inset LatexCommand \ref{sec:Manual-installing-using}
+
+\end_inset 
+
+.
+\layout Standard
+
+To use it you need to :
+\layout Itemize
+
+Download the script from 
+\begin_inset LatexCommand \url{http://www.linuxcnc.org/emc2-install.sh}
+
+\end_inset 
+
+
+\layout Itemize
+
+Save it on your Desktop.
+ Right-click the icon, select Properties.
+ Go to the Permissions tab and check the box for Owner: Execute.
+ Close the Properties window.
+\layout Itemize
+
+Now double-click the emc2-install.sh icon, and select "Run in Terminal".
+ A terminal will appear and you will be asked for your password.
+\layout Itemize
+
+When the installation asks if you are sure you want to install the EMC2
+ packages, hit Enter to accept.
+ Now just allow the install to finish.
+\layout Itemize
+
+When it is done, you must reboot (System > Log Out > Restart the Computer),
+ and when you log in again you can run EMC2 by selecting it on the Applications
+ > Other menu.
+\layout Itemize
+
+If you aren't ready to set up a machine configuration, try the sim-AXIS
+ configuration; it runs a "simulated machine" that requires no attached
+ hardware.
+\layout Itemize
+
+Now that the initial installation is done, Ubuntu will prompt you when updates
+ of EMC2 or its supporting files are available.
+ When they are, you can update them easily and automatically with the Update
+ Manager.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Manual-installing-using}
+
+\end_inset 
+
+Manual installing using apt commands.
+\layout Standard
+
+The following few section will describe how to install EMC2 using a console
+ and apt-commands.
+ If you know a bit about Linux and Debian-flavored distributions this might
+ be trivial.
+ If not, you might consider reading 
+\begin_inset LatexCommand \ref{sec:EMC2-install-script}
+
+\end_inset 
+
+.
+\layout Standard
+
+First add the repository to /etc/apt/sources.list:
+\layout LyX-Code
+
+
+\size scriptsize 
+$ sudo sh -c 'echo "deb http://dsplabs.cs.upt.ro/emc2/ breezy emc2" >>/etc/apt/sour
+ces.list;'
+\layout LyX-Code
+
+
+\size scriptsize 
+$ sudo sh -c 'echo "deb-src http://dsplabs.cs.upt.ro/emc2/ breezy emc2" >>/etc/apt/
+sources.list'
+\layout Standard
+
+Then update & get emc2-axis.
+\layout LyX-Code
+
+
+\size scriptsize 
+$ sudo apt-get update
+\newline 
+$ sudo apt-get install emc2-axis
+\layout Standard
+
+This command will install the emc2-axis
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+The emc2-axis package is the AXIS gui packaged for emc2.
+\end_inset 
+
+ package along with all dependencies
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+The dependencies are one of the nicest thing in Debian based distributions.
+ They assure you have everything installed that you need.
+ In the case of emc2 it's even a RT-patched kernel, and all needed libraries.
+\end_inset 
+
+.
+ 
+\layout Standard
+
+You might get warnings that the packages are from an untrusted source (this
+ means your computer doesn't recognize the GPG signature on the packages).
+ To correct that issue the following commands:
+\layout LyX-Code
+
+
+\size scriptsize 
+$ gpg --keyserver pgpkeys.mit.edu --recv-key BC92B87F
+\newline 
+$ gpg -a --export BC92B87F | sudo apt-key add -
+\the_end
