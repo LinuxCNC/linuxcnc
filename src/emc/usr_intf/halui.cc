@@ -164,12 +164,6 @@ DONE: - program:
    halui.program.resume                bit
    halui.program.step                  bit
 
-- probe:
-   halui.probe.start                   bit
-   halui.probe.clear                   bit
-   halui.probe.is-tripped              bit
-   halui.probe.has-value               float
-   
 DONE: - general:
    halui.abort                         bit // pin to send an abort message (clears out most errors)
 
@@ -177,6 +171,8 @@ DONE: - feed-override
    halui.feed-override.value           float //current FO value
    halui.feed-override.scale           float // pin for setting the scale on changing the FO
    halui.feed-override.counts          s43   //counts from an encoder for example to change FO
+   halui.feed-override.increase        bit   // pin for increasing the FO (+=scale)
+   halui.feed-override.decrease        bit   // pin for decreasing the FO (-=scale)
 
 */
 
@@ -257,6 +253,8 @@ struct halui_str {
     hal_s32_t *fo_counts;	//pin for the Feed Override counting
     hal_float_t *fo_scale;	//scale for the Feed Override counting
     hal_float_t *fo_value;	//current Feed Override value
+    hal_bit_t  *fo_increase;	// pin for increasing the FO (+=scale)
+    hal_bit_t  *fo_decrease;	// pin for decreasing the FO (-=scale)
 
     hal_bit_t *abort;            //pin for aborting
 } * halui_data; 
@@ -310,6 +308,8 @@ struct local_halui_str {
         
     hal_s32_t fo_counts;	//pin for the Feed Override counting
     hal_float_t fo_scale;	//scale for the Feed Override counting
+    hal_bit_t  fo_increase;	// pin for increasing the FO (+=scale)
+    hal_bit_t  fo_decrease;	// pin for decreasing the FO (-=scale)
 
     hal_bit_t abort;            //pin for aborting
 } old_halui_data; //pointer to the HAL-struct
@@ -616,55 +616,6 @@ static enum {
 #define GRAD_PER_DEG (100.0/90.0)
 #define RAD_PER_DEG TO_RAD	// from posemath.h
 
-/*
-  to convert linear units, values are converted to mm, then to desired
-  units
-*/
-
-// comment out for now, not used, causes a warning
-//static double convertLinearUnits(double u)
-//{
-//    double in_mm;
-//
-//    /* convert u to mm */
-//    in_mm = u / emcStatus->motion.traj.linearUnits;
-//
-//    /* convert u to display units */
-//    switch (linearUnitConversion) {
-//    case LINEAR_UNITS_MM:
-//	return in_mm;
-//	break;
-//    case LINEAR_UNITS_INCH:
-//	return in_mm * INCH_PER_MM;
-//	break;
-//    case LINEAR_UNITS_CM:
-//	return in_mm * CM_PER_MM;
-//	break;
-//    case LINEAR_UNITS_AUTO:
-//	switch (emcStatus->task.programUnits) {
-//	case CANON_UNITS_MM:
-//	    return in_mm;
-//	    break;
-//	case CANON_UNITS_INCHES:
-//	    return in_mm * INCH_PER_MM;
-//	    break;
-//	case CANON_UNITS_CM:
-//	    return in_mm * CM_PER_MM;
-//	    break;
-//	}
-//	break;
-//
-//    case LINEAR_UNITS_CUSTOM:
-//	return u;
-//	break;
-//    }
-//
-//    // If it ever gets here we have an error.
-//
-//    return u;
-//}
-
-
 int halui_export_pin_RD_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2]) 
 {
     int retval;
@@ -908,7 +859,6 @@ int halui_hal_init(void)
     retval = halui_export_pin_RD_s32(&(halui_data->jog_wheel_counts), "halui.jog-wheel.counts");
     if (retval != HAL_SUCCESS) return retval;
     *halui_data->jog_wheel_counts = 0;
-
     //halui.jog-wheel.axis
     retval = halui_export_pin_RD_u8(&(halui_data->jog_wheel_axis), "halui.jog-wheel.axis");
     if (retval != HAL_SUCCESS) return retval;
@@ -949,12 +899,15 @@ int halui_hal_init(void)
     retval = halui_export_pin_RD_s32(&(halui_data->fo_counts), "halui.feed-override.counts");
     if (retval != HAL_SUCCESS) return retval;
     *halui_data->fo_counts = 0;
-
     //halui.feed-override.scale
     retval = halui_export_pin_RD_float(&(halui_data->fo_scale), "halui.feed-override.scale");
     if (retval != HAL_SUCCESS) return retval;
-
-    hal_ready(comp_id);
+    //halui.feed-override.increase
+    retval = halui_export_pin_RD_bit(&(halui_data->fo_increase), "halui.feed-override.increase");
+    if (retval != HAL_SUCCESS) return retval;
+    //halui.feed-override.decrease
+    retval = halui_export_pin_RD_bit(&(halui_data->fo_decrease), "halui.feed-override.decrease");
+    if (retval != HAL_SUCCESS) return retval;
 
     //halui.abort
     retval = halui_export_pin_RD_bit(&(halui_data->abort), "halui.abort"); 
@@ -984,6 +937,8 @@ int halui_hal_init(void)
     //halui.jog-speed
     retval = halui_export_pin_RD_float(&(halui_data->jog_speed), "halui.jog-speed");
     if (retval != HAL_SUCCESS) return retval;
+
+    hal_ready(comp_id);
 
     return 0;
 }
@@ -1844,6 +1799,8 @@ static void hal_init_pins()
 
     old_halui_data.joint_select = *(halui_data->joint_select) = 0;
     *(halui_data->joint_selected) = 0; // select joint 0 by default
+    
+    *(halui_data->fo_scale) = old_halui_data.fo_scale = 0.1; //sane default
 }
 
 static int check_bit_changed(hal_bit_t *halpin, hal_bit_t *oldpin) {
@@ -1935,6 +1892,10 @@ static void check_hal_changes()
         old_halui_data.fo_counts = counts;
     }
 
+    if (check_bit_changed(halui_data->fo_increase, &(old_halui_data.fo_increase)) != 0)
+        sendFeedOverride(*halui_data->fo_value + *halui_data->fo_scale);
+    if (check_bit_changed(halui_data->fo_decrease, &(old_halui_data.fo_decrease)) != 0)
+        sendFeedOverride(*halui_data->fo_value - *halui_data->fo_scale);
 
 //spindle stuff
     if (check_bit_changed(halui_data->spindle_start, &(old_halui_data.spindle_start)) != 0)
