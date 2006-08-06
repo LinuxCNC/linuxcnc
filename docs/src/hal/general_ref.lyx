@@ -1,0 +1,1391 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+General Reference Information
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:GR-Notation}
+
+\end_inset 
+
+Notation
+\layout Subsection
+
+Typographical Conventions
+\layout Standard
+
+Command line examples are presented in 
+\family typewriter 
+\series bold 
+bold typewriter
+\family default 
+\series default 
+ font.
+ Responses from the computer will be in 
+\family typewriter 
+typewriter
+\family default 
+ font.
+ As of early 2006, there are no longer commands that require root privileges,
+ so all examples will be preceded by the normal user prompt,
+\family typewriter 
+ $
+\family default 
+.
+ Text inside square brackets 
+\family typewriter 
+[like-this]
+\family default 
+ is optional.
+ Text inside angle brackets 
+\family typewriter 
+<like-this>
+\family default 
+ represents a field that can take on different values, and the adjacent
+ paragraph will explain the appropriate values.
+ Text items separated by a vertical bar means that one or the other, but
+ not both, should be present.
+ All command line examples assume that you are in the 
+\family typewriter 
+emc2/
+\family default 
+ directory, and you configured/compiled emc2 for the run-in-place scenario.
+ Paths will be shown accordingly when needed.
+\layout Subsection
+
+Names
+\layout Standard
+
+All HAL entities are accessed and manipulated by their names, so documenting
+ the names of pins, signals, parameters, etc, is very important.
+ HAL names are a maximum of 41 characters long (as defined by HAL_NAME_LEN
+ in hal.h).
+ Many names will be presented in a general form, with text inside angle
+ brackets 
+\family typewriter 
+<like-this>
+\family default 
+ representing fields that can take on different values.
+\layout Standard
+
+When pins, signals, or parameters are described for the first time, their
+ names will be preceeded by their type in 
+\shape smallcaps 
+(small caps)
+\shape default 
+ and followed by a brief description.
+ A typical pin definition will look something like these examples:
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+parport.<portnum>.pin-<pinnum>-in
+\family default 
+ -- The HAL pin associated with the physical input pin 
+\family typewriter 
+<pinnum>
+\family default 
+ on the 25 pin D-shell connector.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.output
+\family default 
+ -- The output of the PID loop.
+\layout Standard
+
+At times, a shortened version of a name may be used - for example the second
+ pin above might be referred to simply as 
+\family typewriter 
+.output
+\family default 
+ when it can be done without causing confusion.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:GR-Naming-Conventions}
+
+\end_inset 
+
+General Naming Conventions
+\layout Standard
+
+Consistent naming conventions would make HAL much easier to use.
+ For example, if every encoder driver provided the same set of pins and
+ named them the same way it would be easy to change from one type of encoder
+ driver to another.
+ Unfortunately, like many open-source projects, HAL is a combination of
+ things that were designed, and things that simply evolved.
+ As a result, there are many inconsistencies.
+ This section attempts to address that problem by defining some conventions,
+ but it will probably be a while before all the modules are converted to
+ follow them.
+\layout Standard
+
+Halcmd and other low-level HAL utilities treat HAL names as single entities,
+ with no internal structure.
+ However, most modules do have some implicit structure.
+ For example, a board provides several functional blocks, each block might
+ have several channels, and each channel has one or more pins.
+ This results in a structure that resembles a directory tree.
+ Even though halcmd doesn't recognize the tree structure, proper choice
+ of naming conventions will let it group related items together (since it
+ sorts the names).
+ In addition, higher level tools can be designed to recognize such structure,
+ if the names provide the neccessary information.
+ To do that, all HAL modules should follow these rules:
+\layout Itemize
+
+Dots (
+\begin_inset Quotes eld
+\end_inset 
+
+.
+\begin_inset Quotes erd
+\end_inset 
+
+) separate levels of the heirarchy.
+ This is analogous to the slash (
+\begin_inset Quotes eld
+\end_inset 
+
+/
+\begin_inset Quotes erd
+\end_inset 
+
+) in a filename.
+\layout Itemize
+
+Hypens (
+\begin_inset Quotes eld
+\end_inset 
+
+-
+\begin_inset Quotes erd
+\end_inset 
+
+) separate words or fields in the same level of the heirarchy.
+\layout Itemize
+
+HAL modules should not use underscores or 
+\begin_inset Quotes eld
+\end_inset 
+
+MixedCase
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Underscores have all been removed, but there are still a few instances of
+ mixed case, for example 
+\begin_inset Quotes eld
+\end_inset 
+
+pid.0.Pgain
+\begin_inset Quotes erd
+\end_inset 
+
+ instead of 
+\begin_inset Quotes eld
+\end_inset 
+
+pid.0.p-gain
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ 
+\end_inset 
+
+
+\layout Itemize
+
+Use only lowercase letters and numbers in names.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:GR-Driver-Naming}
+
+\end_inset 
+
+Hardware Driver Naming Conventions
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Most drivers do not follow these conventions as of version 2.0.
+ This chapter is really a guide for future development.
+\end_inset 
+
+
+\layout Subsection
+
+Pin/Parameter names
+\layout Standard
+
+Hardware drivers should use five fields (on three levels) to make up a pin
+ or parameter name, as follows:
+\layout LyX-Code
+
+
+\series bold 
+<device-name>.<device-num>.<io-type>.<chan-num>.<specific-name>
+\layout Standard
+
+The individual fields are:
+\layout Description
+
+
+\family typewriter 
+<device-name>
+\family default 
+ The device that the driver is intended to work with.
+ This is most often an interface board of some type, but there are other
+ possibilities.
+ 
+\layout Description
+
+
+\family typewriter 
+<device-num>
+\family default 
+ It is possible to install more than one servo board, parallel port, or
+ other hardware device in a computer.
+ The device number identifies a specific device.
+ Device numbers start at 0 and increment.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Some devices use jumpers or other hardware to attach a specific ID to each
+ board.
+ Ideally, the driver provides a way for the user to specifically say 
+\begin_inset Quotes eld
+\end_inset 
+
+device-num 0 is the board with ID XXX
+\begin_inset Quotes erd
+\end_inset 
+
+, and the device numbers always start at 0.
+ However at present some drivers use the board ID directly as the device
+ number.
+ That means it is possible to have a device number 2, without a device 0.
+ This is a bug and will be fixed in version 2.1.
+\end_inset 
+
+
+\layout Description
+
+
+\family typewriter 
+<io-type>
+\family default 
+ Most devices provide more than one type of I/O.
+ Even the simple parallel port has both digital inputs and digital outputs.
+ More complex boards can have digital inputs and outputs, encoder counters,
+ pwm or step pulse generators, analog-to-digital converters, digital-to-analog
+ converters, or other unique capabilities.
+ The I/O type is used to identify the kind of I/O that a pin or parameter
+ is associated with.
+ Ideally, drivers that implement the same I/O type, even if for very different
+ devices, should provide a consistent set of pins and parameters and identical
+ behavior.
+ For example, all digital inputs should behave the same when seen from inside
+ the HAL, regardless of the device.
+\layout Description
+
+
+\family typewriter 
+<chan-num>
+\family default 
+ Virtually every I/O device has multiple channels, and the channel number
+ identifies one of them.
+ Like device numbers, channel numbers start at zero and increment.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+One glaring exception to the 
+\begin_inset Quotes eld
+\end_inset 
+
+channel numbers start at zero
+\begin_inset Quotes erd
+\end_inset 
+
+ rule is the parallel port.
+ Its HAL pins are numbered with the corresponding pin number on the DB-25
+ connector.
+ This is convenient for wiring, but inconsistent with other drivers.
+ There is some debate over whether this is a bug or a feature.
+\end_inset 
+
+ If more than one device is installed, the channel numbers on additional
+ devices start over at zero.
+ If it is possible to have a channel number greater than 9, then channel
+ numbers should be two digits, with a leading zero on numbers less than
+ 10 to preserve sort ordering.
+ Some modules have pins and/or parameters that affect more than one channel.
+ For example a PWM generator might have four channels with four independent
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+duty-cycle
+\begin_inset Quotes erd
+\end_inset 
+
+ inputs, but one 
+\begin_inset Quotes eld
+\end_inset 
+
+frequency
+\begin_inset Quotes erd
+\end_inset 
+
+ parameter that controls all four channels (due to hardware limitations).
+ The frequency parameter should use 
+\begin_inset Quotes eld
+\end_inset 
+
+0-3
+\begin_inset Quotes erd
+\end_inset 
+
+ as the channel number.
+ 
+\layout Description
+
+
+\family typewriter 
+<specific-name>
+\family default 
+ An individual I/O channel might have just a single HAL pin associated with
+ it, but most have more than one.
+ For example, a digital input has two pins, one is the state of the physical
+ pin, the other is the same thing inverted.
+ That allows the configurator to choose between active high and active low
+ inputs.
+ For most io-types, there is a standard set of pins and parameters, (referred
+ to as the 
+\begin_inset Quotes eld
+\end_inset 
+
+canonical interface
+\begin_inset Quotes erd
+\end_inset 
+
+) that the driver should implement.
+ The canonical interfaces are described in chapter 
+\begin_inset LatexCommand \ref{cha:Canonical-Device-Interfaces}
+
+\end_inset 
+
+.
+\layout Subsubsection
+
+Examples
+\layout Description
+
+
+\family typewriter 
+motenc.0.encoder.2.position
+\family default 
+ -- the position output of the third encoder channel on the first Motenc
+ board.
+\layout Description
+
+
+\family typewriter 
+stg.0.din.03.in
+\family default 
+ -- the state of the fourth digital input on the first Servo-to-Go board.
+\layout Description
+
+
+\family typewriter 
+ppmc.0.pwm.00-03.frequency
+\family default 
+ -- the carrier frequency used for PWM channels 0 through 3.
+\layout Subsection
+
+Function Names
+\layout Standard
+
+Hardware drivers usually only have two kinds of HAL functions, ones that
+ read the hardware and update HAL pins, and ones that write to the hardware
+ using data from HAL pins.
+ They should be named as follows:
+\layout LyX-Code
+
+
+\series bold 
+<device-name>-<device-num>[.<io-type>[-<chan-num-range>]].read|write
+\layout Description
+
+
+\family typewriter 
+<device-name>
+\family default 
+ The same as used for pins and parameters.
+\layout Description
+
+
+\family typewriter 
+<device-num>
+\family default 
+ The specific device that the function will access.
+\layout Description
+
+
+\family typewriter 
+<io-type>
+\family default 
+ Optional.
+ A function may access all of the I/O on a board, or it may access only
+ a certain type.
+ For example, there may be independent functions for reading encoder counters
+ and reading digital I/O.
+ If such independent functions exist, the <io-type> field identifies the
+ type of I/O they access.
+ If a single function reads all I/O provided by the board, <io-type> is
+ not used.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Note to driver programmers: do NOT implement separate functions for different
+ I/O types unless they are interruptable and can work in independent threads.
+ If interrupting an encoder read, reading digital inputs, and then resuming
+ the encoder read will cause problems, then implement a single function
+ that does everything.
+\end_inset 
+
+ 
+\layout Description
+
+
+\family typewriter 
+<chan-num-range>
+\family default 
+ Optional.
+ Used only if the <io-type> I/O is broken into groups and accessed by different
+ functions.
+\layout Description
+
+
+\family typewriter 
+read|write
+\family default 
+ Indicates whether the function reads the hardware or writes to it.
+\layout Subsubsection
+
+Examples
+\layout Description
+
+
+\family typewriter 
+motenc.0.encoder.read
+\family default 
+ -- reads all encoders on the first motenc board
+\layout Description
+
+
+\family typewriter 
+generic8255.0.din.09-15.read
+\family default 
+ -- reads the second 8 bit port on the first generic 8255 based digital
+ I/O board
+\layout Description
+
+
+\family typewriter 
+ppmc.0.write
+\family default 
+ -- writes all outputs (step generators, pwm, DACs, and digital) on the
+ first ppmc board
+\layout Chapter
+
+
+\begin_inset LatexCommand \label{cha:Canonical-Device-Interfaces}
+
+\end_inset 
+
+Canonical Device Interfaces
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+As of version 2.0, most of the HAL drivers don't quite match up to the canonical
+ interfaces defined here.
+ In version 2.1, the drivers will be changed to match these specs.
+\end_inset 
+
+ 
+\layout Standard
+
+The following sections show the pins, parameters, and functions that are
+ supplied by 
+\begin_inset Quotes eld
+\end_inset 
+
+canonical devices
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ All HAL device drivers should supply the same pins and parameters, and
+ implement the same behavior.
+\layout Standard
+
+Note that the only the 
+\family typewriter 
+<io-type>
+\family default 
+ and 
+\family typewriter 
+<specific-name>
+\family default 
+ fields are defined for a canonical device.
+ The 
+\family typewriter 
+<device-name>
+\family default 
+, 
+\family typewriter 
+<device-num>
+\family default 
+, and 
+\family typewriter 
+<chan-num>
+\family default 
+ fields are set based on the characteristics of the real device.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:CanonDigIn}
+
+\end_inset 
+
+Digital Input
+\layout Standard
+
+The canonical digital input (I/O type field: 
+\family typewriter 
+\series bold 
+digin
+\family default 
+\series default 
+) is quite simple.
+\layout Subsection
+
+Pins
+\layout Itemize
+
+
+\shape smallcaps 
+(bit)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+in
+\family default 
+\series default 
+ -- State of the hardware input.
+\layout Itemize
+
+
+\shape smallcaps 
+(bit)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+in-not
+\family default 
+\series default 
+ -- Inverted state of the input.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+None
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\shape smallcaps 
+(funct)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+read
+\family default 
+\series default 
+ -- Read hardware and set 
+\family typewriter 
+\series bold 
+in
+\family default 
+\series default 
+ and 
+\family typewriter 
+\series bold 
+in-not
+\family default 
+\series default 
+ HAL pins.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:CanonDigOut}
+
+\end_inset 
+
+Digital Output
+\layout Standard
+
+The canonical digital output (I/O type field: 
+\family typewriter 
+\series bold 
+digout
+\family default 
+\series default 
+) is also very simple.
+\layout Subsection
+
+Pins
+\layout Itemize
+
+
+\shape smallcaps 
+(bit)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+out
+\family default 
+\series default 
+ -- Value to be written (possibly inverted) to the hardware output.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\shape smallcaps 
+(bit)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+invert
+\family default 
+\series default 
+ -- If TRUE, 
+\family typewriter 
+\series bold 
+out
+\family default 
+\series default 
+ is inverted before writing to the hardware.
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\shape smallcaps 
+(funct)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+write
+\family default 
+\series default 
+ -- Read 
+\family typewriter 
+\series bold 
+out
+\family default 
+\series default 
+ and 
+\family typewriter 
+\series bold 
+invert
+\family default 
+\series default 
+, and set hardware output accordingly.
+\layout Section
+
+Analog Input
+\layout Standard
+
+The canonical analog input (I/O type: 
+\family typewriter 
+\series bold 
+adcin
+\family default 
+\series default 
+).
+ This is expected to be used for analog to digital converters, which convert
+ e.g.
+ voltage to a continuous range of values.
+\layout Subsection
+
+Pins
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+value
+\series default 
+ -- The hardware reading, scaled according to the 
+\series bold 
+scale
+\series default 
+ and 
+\series bold 
+offset
+\series default 
+ parameters.
+ 
+\series bold 
+Value
+\series default 
+ = ((input reading, in hardware-dependent units) * 
+\series bold 
+scale
+\series default 
+) - 
+\series bold 
+offset
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+scale
+\series default 
+ -- The input voltage (or current) will be multiplied by 
+\series bold 
+scale
+\series default 
+ before being output to 
+\series bold 
+value
+\series default 
+.
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+offset
+\series default 
+ -- This will be subtracted from the hardware input voltage (or current)
+ after the scale multiplier has been applied.
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+bit_weight
+\series default 
+ -- The value of one least significant bit (LSB).
+ This is effectively the granularity of the input reading.
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+hw_offset
+\series default 
+ -- The value present on the input when 0 volts is applied to the input
+ pin(s).
+\layout Subsection
+
+Functions
+\layout Itemize
+
+(
+\shape smallcaps 
+funct
+\shape default 
+) 
+\series bold 
+read
+\series default 
+ -- Read the values of this analog input channel.
+ This may be used for individual channel reads, or it may cause all channels
+ to be read
+\layout Section
+
+Analog Output
+\layout Standard
+
+The canonical analog output (I/O Type: 
+\family typewriter 
+\series bold 
+adcout
+\family default 
+\series default 
+).
+ This is intended for any kind of hardware that can output a more-or-less
+ continuous range of values.
+ Examples are digital to analog converters or PWM generators.
+\layout Subsection*
+
+Pins
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+value
+\series default 
+ -- The value to be written.
+ The actual value output to the hardware will depend on the scale and offset
+ parameters.
+\layout Itemize
+
+(
+\shape smallcaps 
+bit
+\shape default 
+) 
+\series bold 
+enable
+\series default 
+ -- If false, then output 0 to the hardware, regardless of the 
+\series bold 
+value
+\series default 
+ pin.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+offset
+\series default 
+ -- This will be added to the 
+\series bold 
+value
+\series default 
+ before the hardware is updated
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+scale
+\series default 
+ -- This should be set so that an input of 1 on the 
+\series bold 
+value
+\series default 
+ pin will cause 1V 
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+high_limit
+\series default 
+ (optional) -- When calculating the value to output to the hardware, if
+ 
+\series bold 
+value
+\series default 
+ + 
+\series bold 
+offset
+\series default 
+ is greater than 
+\series bold 
+high_limit
+\series default 
+, then 
+\series bold 
+high_limit
+\series default 
+ will be used instead.
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+low_limit
+\series default 
+ (optional) -- When calculating the value to output to the hardware, if
+ 
+\series bold 
+value
+\series default 
+ + 
+\series bold 
+offset
+\series default 
+ is less than 
+\series bold 
+low_limit
+\series default 
+, then 
+\series bold 
+low_limit
+\series default 
+ will be used instead.
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+bit_weight
+\series default 
+ (optional) -- The value of one least significant bit (LSB), in volts (or
+ mA, for current outputs)
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+hw_offset
+\series default 
+ (optional) -- The actual voltage (or current) that will be output if 0
+ is written to the hardware.
+\layout Subsection
+
+Functions
+\layout Standard
+
+(
+\shape smallcaps 
+funct
+\shape default 
+) 
+\series bold 
+write
+\series default 
+ -- This causes the calculated value to be output to the hardware.
+ If enable is false, then the output will be 0, regardles of 
+\series bold 
+value
+\series default 
+, 
+\series bold 
+scale
+\series default 
+, and 
+\series bold 
+offset
+\series default 
+.
+ The meaning of 
+\begin_inset Quotes eld
+\end_inset 
+
+0
+\begin_inset Quotes erd
+\end_inset 
+
+ is dependent on the hardware.
+ For example, a bipolar 12-bit A/D may need to write 0x1FF (mid scale) to
+ the D/A get 0 volts from the hardware pin.
+ If enable is true, read scale, offset and value and output to the adc (
+\series bold 
+scale
+\series default 
+ * 
+\series bold 
+value
+\series default 
+) + 
+\series bold 
+offset
+\series default 
+.
+ If enable is false, then output 0.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:CanonEncoder}
+
+\end_inset 
+
+Encoder
+\layout Standard
+
+The canonical encoder interface (I/O type field:
+\family typewriter 
+\series bold 
+ encoder
+\family default 
+\series default 
+ ) provides the functionality needed for homing to an index pulse and doing
+ spindle synchronization, as well as basic position and/or velocity control.
+ This interface should be implementable regardless of the actual underlying
+ hardware, although some hardware will provide 
+\begin_inset Quotes eld
+\end_inset 
+
+better
+\begin_inset Quotes erd
+\end_inset 
+
+ results.
+ (For example, capture the index position to +/- 1 count while moving faster,
+ or have less jitter on the velocity pin.)
+\layout Subsection
+
+Pins
+\layout Itemize
+
+
+\shape smallcaps 
+(s32)
+\family typewriter 
+\series bold 
+\shape default 
+ count
+\family default 
+\series default 
+ -- Encoder value in counts.
+\layout Itemize
+
+
+\shape smallcaps 
+(float)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+position
+\family default 
+\series default 
+ -- Encoder value in position units (see parameter 
+\begin_inset Quotes eld
+\end_inset 
+
+scale
+\begin_inset Quotes erd
+\end_inset 
+
+).
+ 
+\layout Itemize
+
+
+\shape smallcaps 
+(float)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+velocity
+\family default 
+\series default 
+ -- Velocity in position units per second.
+\layout Itemize
+
+
+\shape smallcaps 
+(bit)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+reset
+\family default 
+\series default 
+ -- When True, force counter to zero.
+\layout Itemize
+
+
+\shape smallcaps 
+(bit)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+index-enable
+\family default 
+\series default 
+ -- (bidirectional) When True, reset to zero on next index pulse, and set
+ pin False.
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+index-enable
+\begin_inset Quotes erd
+\end_inset 
+
+ pin is bi-directional, and might require a little more explanation.
+ If 
+\begin_inset Quotes eld
+\end_inset 
+
+index-enable
+\begin_inset Quotes erd
+\end_inset 
+
+ is False, the index channel of the encoder will be ignored, and the counter
+ will count normally.
+ The encoder driver will never set 
+\begin_inset Quotes eld
+\end_inset 
+
+index-enable
+\begin_inset Quotes erd
+\end_inset 
+
+ True.
+ However, some other component may do so.
+ If 
+\begin_inset Quotes eld
+\end_inset 
+
+index-enable
+\begin_inset Quotes erd
+\end_inset 
+
+ is True, then when the next index pulse arrives, the encoder counter will
+ be reset to zero, and the driver will set 
+\begin_inset Quotes eld
+\end_inset 
+
+index-enable
+\begin_inset Quotes erd
+\end_inset 
+
+ False.
+ That will let the other component know that an index pulse arrived.
+ This is a form of handshaking - the other component sets 
+\begin_inset Quotes eld
+\end_inset 
+
+index-enable
+\begin_inset Quotes erd
+\end_inset 
+
+ True to request a index pulse reset, and the driver sets it False when
+ the request has been satisfied.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\shape smallcaps 
+(float)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+scale
+\family default 
+\series default 
+ -- The scale factor used to convert counts to position units.
+ It is in 
+\begin_inset Quotes eld
+\end_inset 
+
+counts per position unit
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ For example, if you have a 512 count per turn encoder on a 5 turn per inch
+ screw, the scale should be 512*5 = 2560 counts per inch, which will result
+ in 
+\begin_inset Quotes eld
+\end_inset 
+
+position
+\begin_inset Quotes erd
+\end_inset 
+
+ in inches and 
+\begin_inset Quotes eld
+\end_inset 
+
+velocity
+\begin_inset Quotes erd
+\end_inset 
+
+ in inches per second.
+\layout Itemize
+
+
+\shape smallcaps 
+(float)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+max-index-vel
+\family default 
+\series default 
+ -- (optional) The maximum velocity (in position units per second) at which
+ the encoder can reset on an index pulse with +/- 1 count accuracy.
+ This is an output from the encoder driver, and is intended to tell the
+ user something about the hardware capabilities.
+ Some hardware can reset the counter at the exact moment the index pulse
+ arrives.
+ Other hardware can only tell that an index pulse arrived sometime since
+ the last time the read function was called.
+ For the latter, +/- 1 count accuracy can only be achieved if the encoder
+ advances by 1 count or less between calls to the read function.
+\layout Itemize
+
+
+\shape smallcaps 
+(float)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+velocity-resolution
+\family default 
+\series default 
+ -- (optional) The resolution of the velocity output, in position units
+ per second.
+ This is an output from the encoder driver, and is intended to tell the
+ user something about the hardware capabilities.
+ The simplest implementation of the velocity output is the change in postion
+ from one call of the read function to the next, divided by the time between
+ calls.
+ This yields a rather coarse velocity signal that jitters back and forth
+ between widely spaced possible values (quantization error).
+ However, some hardware captures both the counts and the exact time when
+ a count occurres (possibly with a very high resolution clock).
+ That data allows the driver to calculate velocity with finer resolution
+ and less jitter.
+ 
+\layout Subsection
+
+Functions
+\layout Standard
+
+There is only one function, to read the encoder(s).
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ 
+\series bold 
+read
+\family default 
+\series default 
+ -- Capture counts, update position and velocity.
+\the_end

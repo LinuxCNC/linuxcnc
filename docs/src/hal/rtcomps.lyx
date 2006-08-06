@@ -1,0 +1,3234 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+
+\begin_inset LatexCommand \label{cha:Internal-Components}
+
+\end_inset 
+
+Internal Components
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Stepgen}
+
+\end_inset 
+
+Stepgen
+\layout Standard
+
+This component provides software based generation of step pulses in response
+ to position commands.
+ It has a built in pre-tuned position loop, so PID tuning is not required.
+ This component is strongly recommended for stepper based EMC machines,
+ since it eliminates the need to use (and tune) a separate PID loop.
+ It is a realtime component only, and depending on CPU speed, etc, is capable
+ of maximum step rates of 10kHz to perhaps 50kHz.
+ Figure 
+\begin_inset LatexCommand \ref{fig:Stepgen-Block-Diag}
+
+\end_inset 
+
+ shows three block diagrams, each is a single step pulse generator.
+ The first diagram is for step type '0', (step and direction).
+ The second is for step type '1' (up/down, or pseudo-PWM), and the third
+ is for step types 2 through 14 (various stepping patterns).
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename stepgen-block-diag.eps
+	width 7.5in
+	height 8.5in
+	keepAspectRatio
+	clip
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Stepgen-Block-Diag}
+
+\end_inset 
+
+Step Pulse Generator Block Diagram
+\end_inset 
+
+
+\layout Subsection
+
+Installing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt stepgen step_type=
+\begin_inset Quotes erd
+\end_inset 
+
+<config-array>
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+
+\family typewriter 
+<config-array>
+\family default 
+ is a series of comma separated decimal integers.
+ Each number causes a single step pulse generator to be loaded, the value
+ of the number determines the stepping type.
+ For example:
+\layout LyX-Code
+
+emc2# 
+\series bold 
+/sbin/insmod rtlib/stepgen.o step_type=
+\begin_inset Quotes erd
+\end_inset 
+
+0,0,2
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+will install three step generators, two with step type '0' (step and direction)
+ and one with step type '2' (quadrature).
+ The default value for 
+\family typewriter 
+<config-array>
+\family default 
+ is 
+\family typewriter 
+
+\begin_inset Quotes eld
+\end_inset 
+
+0,0,0
+\begin_inset Quotes erd
+\end_inset 
+
+
+\family default 
+ which will install three type '0' (step/dir) generators.
+ The maximum number of step generators is 8 (as defined by MAX_CHAN in stepgen.c).
+ Each generator is independent, but all are updated by the same function(s)
+ at the same time.
+ In the following descriptions, 
+\family typewriter 
+<chan>
+\family default 
+ is the number of a specific generator.
+ The first generator is number 0.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt stepgen
+\layout Subsection
+
+Pins
+\layout Standard
+
+Each step pulse generator will have only some of these pins, depending on
+ the step type selected.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.position-cmd
+\family default 
+ -- Desired motor position, in position units (inches, mm, etc).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32) 
+\noun default 
+stepgen.<chan>.count
+\family default 
+ -- Feedback position in counts, updated by 
+\family typewriter 
+capture_position()
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+stepgen.<chan>.position-fb
+\family default 
+ -- Feedback position in position units, updated by 
+\family typewriter 
+capture_position()
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ stepgen.<chan>.step
+\family default 
+ -- Step pulse output (step type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ stepgen.<chan>.dir
+\family default 
+ -- Direction output (step type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+stepgen.<chan>.up
+\family default 
+ -- UP pseudo-PWM output (step type 1 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+stepgen.<chan>.down
+\family default 
+ -- DOWN pseudo-PWM output (step type 1 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+stepgen.<chan>.phase-A
+\family default 
+ -- Phase A output (step types 2-14 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+stepgen.<chan>.phase-B
+\family default 
+ -- Phase B output (step types 2-14 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+stepgen.<chan>.phase-C
+\family default 
+ -- Phase C output (step types 3-14 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+stepgen.<chan>.phase-D
+\family default 
+ -- Phase D output (step types 5-14 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+stepgen.<chan>.phase-E
+\family default 
+ -- Phase E output (step types 11-14 only).
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.position-scale
+\family default 
+ -- Steps per position unit.
+ This parameter is used for both output and feedback.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.maxfreq
+\family default 
+ -- Maximum step rate, in steps per second.
+ If 0.0, has no effect.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.maxaccel
+\family default 
+ -- Maximum accel/decel rate, in steps per second squared.
+ If 0.0, has no effect.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.pos-err
+\family default 
+ -- The position error - difference between commanded and actual position,
+ in steps.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.vel-err
+\family default 
+ -- The velocity error - in steps per second.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.frequency
+\family default 
+ -- The current step rate, in steps per second.
+ This is the output of the position loop.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.steplen
+\family default 
+ -- Length of a step pulse (step type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.stepspace
+\family default 
+ -- Minimum spacing between two step pulses (step type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.dirsetup
+\family default 
+ -- Minimum time from a direction change to the beginning of the next step
+ pulse (step type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ stepgen.<chan>.dirhold
+\family default 
+ -- Minmum time from the end of a step pulse to a direction change (step
+ type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32)
+\noun default 
+ stepgen.<chan>.rawcounts
+\family default 
+ -- The raw feedback count, updated by 
+\family typewriter 
+make_pulses()
+\family default 
+.
+ 
+\layout Standard
+
+The values of maxfreq and maxaccel are used by the internal position loop
+ to avoid generating step pulse trains that the motor cannot follow.
+ When set to values that are appropriate for the motor, even a large instantaneo
+us change in commanded position will result in a smooth trapezoidal move
+ to the new location.
+ The algorithm works by measuring both position error and velocity error,
+ and calculating an acceleration that attempts to reduce both to zero at
+ the same time.
+ For more details, including the contents of the 
+\begin_inset Quotes eld
+\end_inset 
+
+control equation
+\begin_inset Quotes erd
+\end_inset 
+
+ box, consult the code.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:Stepgen-Step-Types}
+
+\end_inset 
+
+Step Types
+\layout Standard
+
+The step generator supports 15 different 
+\begin_inset Quotes eld
+\end_inset 
+
+step types
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Step type 0 is the most familiar, standard step and direction.
+ When configured for step type 0, there are four extra parameters that determine
+ the exact timing of the step and direction signals.
+ See figure 
+\begin_inset LatexCommand \ref{fig:StepDir-timing}
+
+\end_inset 
+
+ for the meaning of these parameters.
+ The parameters are integers, and represent a number of calls to 
+\family typewriter 
+make_pulses()
+\family default 
+.
+ For example, if 
+\family typewriter 
+make_pulses()
+\family default 
+ is called every 16uS, and steplen is 2, then the step pulses will be 2
+ x 16 = 32uS long.
+ The default value for all four of the parameters is 1.
+ Since one step requires 
+\family typewriter 
+steplen
+\family default 
+ periods high and 
+\family typewriter 
+stepspace
+\family default 
+ periods low, the maximum frequency is the thread frequency divided by 
+\family typewriter 
+(steplen+stepspace)
+\family default 
+.
+ If 
+\family typewriter 
+maxfreq
+\family default 
+ is set higher than that limit, it will be lowered automatically.
+ If maxfreq is zero, it will remain zero, but the output frequency will
+ still be limited.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename stepgen-type0.eps
+	width 7in
+	height 4in
+	keepAspectRatio
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:StepDir-timing}
+
+\end_inset 
+
+Step and Direction Timing
+\end_inset 
+
+
+\layout Standard
+
+Step type 1 has two outputs, up and down.
+ Pulses appear on one or the other, depending on the direction of travel.
+ Each pulse is one thread period long, and the pulses are separated by at
+ least one thread period.
+ As a result, the maximum step frequency is half of the thread rate.
+ If 
+\family typewriter 
+maxfreq
+\family default 
+ is set higher than the limit it will be lowered.
+ If 
+\family typewriter 
+maxfreq
+\family default 
+ is zero, it will remain zero but the output frequency will still be limited.
+ 
+\layout Standard
+
+Step types 2 through 14 are state based, and have from two to five outputs.
+ On each step, a state counter is incremented or decremented.
+ Figures 
+\begin_inset LatexCommand \ref{fig:Quad-Three-Phase}
+
+\end_inset 
+
+, 
+\begin_inset LatexCommand \ref{fig:Four-Phase}
+
+\end_inset 
+
+, and 
+\begin_inset LatexCommand \ref{fig:Five-Phase}
+
+\end_inset 
+
+ show the output patterns as a function of the state counter.
+ The maximum frequency is the same as the thread rate, and as in the other
+ modes, 
+\family typewriter 
+maxfreq
+\family default 
+ will be lowered if it is above the limit.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename stepgen-type2-4.eps
+	width 6in
+	height 4in
+	keepAspectRatio
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Quad-Three-Phase}
+
+\end_inset 
+
+Quadrature and Three Phase Step Types
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename stepgen-type5-10.eps
+	width 7.5in
+	height 8.5in
+	keepAspectRatio
+	rotateAngle 90
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Four-Phase}
+
+\end_inset 
+
+Four-Phase Step Types
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename stepgen-type11-14.eps
+	width 7.5in
+	height 8.5in
+	keepAspectRatio
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Five-Phase}
+
+\end_inset 
+
+Five-Phase Step Types
+\end_inset 
+
+
+\layout Subsection
+
+Functions
+\layout Standard
+
+The component exports three functions.
+ Each function acts on all of the step pulse generators - running different
+ generators in different threads is not supported.
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ stepgen.make-pulses
+\family default 
+ -- High speed function to generate and count pulses (no floating point).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ stepgen.update-freq
+\family default 
+ -- Low speed function does position to velocity conversion, scaling and
+ limiting.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ stepgen.capture-position
+\family default 
+ -- Low speed function for feedback, updates latches and scales position.
+\layout Standard
+
+The high speed function 
+\family typewriter 
+stepgen.make-pulses
+\family default 
+ should be run in a very fast thread, from 10 to 50uS depending on the capabilit
+ies of the computer.
+ That thread's period determines the maximum step frequency, and is also
+ the time unit used by the length, space, setup, and hold parameters (step
+ type 0).
+ The other two functions can be called at a much lower rate.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Freqgen}
+
+\end_inset 
+
+Freqgen
+\layout Standard
+
+This component provides software based generation of step pulses from a
+ frequency or velocity command.
+ EMC normally uses position commands, not velocity commands, and stepgen
+ (described in section 
+\begin_inset LatexCommand \ref{sec:Stepgen}
+
+\end_inset 
+
+ is more appropriate.
+ However, there may be applications where velocity based pulses are needed.
+ One such application is using step type 1 as a pseudo-PWM output.
+ Combined with a PID loop.
+ the software encoder counter module, and a simple H-bridge, this has been
+ used to run small DC servomotors.
+ Freqgen uses the same pulse generator core as stepgen, however it has no
+ position loop.
+ It is a realtime component only, and depending on CPU speed, etc, is capable
+ of maximum step rates of 10kHz to perhaps 50kHz.
+ Figure 
+\begin_inset LatexCommand \ref{fig:Freqgen-Block-Diag}
+
+\end_inset 
+
+ shows three block diagrams, each is a single step pulse generator.
+ The first diagram is for step type '0', (step and direction).
+ The second is for step type '1' (up/down, or pseudo-PWM), and the third
+ is for step types 2 through 14 (various stepping patterns).
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename freqgen-block-diag.eps
+	width 7.5in
+	height 8.5in
+	keepAspectRatio
+	clip
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Freqgen-Block-Diag}
+
+\end_inset 
+
+Step Pulse Generator Block Diagram
+\end_inset 
+
+
+\layout Subsection
+
+Installing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt freqgen step_type=
+\begin_inset Quotes erd
+\end_inset 
+
+<config-array>
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+
+\family typewriter 
+<config-array>
+\family default 
+ is a series of comma separated decimal integers.
+ Each number causes a single frequency generator to be loaded, the value
+ of the number determines the stepping type.
+ For example:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt freqgen step_type=
+\begin_inset Quotes erd
+\end_inset 
+
+0,0,2
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+will install three frequency generators, two with step type '0' (step and
+ direction) and one with step type '2' (quadrature).
+ The default value for 
+\family typewriter 
+<config-array>
+\family default 
+ is 
+\family typewriter 
+
+\begin_inset Quotes eld
+\end_inset 
+
+0,0,0
+\begin_inset Quotes erd
+\end_inset 
+
+
+\family default 
+ which will install three type '0' (step/dir) generators.
+ The maximum number of frequency generators is 8 (as defined by MAX_CHAN
+ in freqgen.c).
+ Each generator is independent, but all are updated by the same function(s)
+ at the same time.
+ In the following descriptions, 
+\family typewriter 
+<chan>
+\family default 
+ is the number of a specific generator.
+ The first generator is number 0.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt freqgen
+\layout Subsection
+
+Pins
+\layout Standard
+
+Each frequency generator will have only some of these pins, depending on
+ the step type selected.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ freqgen.<chan>.velocity
+\family default 
+ -- Desired velocity, in arbitrary units.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ freqgen.<chan>.step
+\family default 
+ -- Step pulse output (step type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ freqgen.<chan>.dir
+\family default 
+ -- Direction output (step type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+freqgen.<chan>.up
+\family default 
+ -- UP pseudo-PWM output (step type 1 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+freqgen.<chan>.down
+\family default 
+ -- DOWN pseudo-PWM output (step type 1 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+freqgen.<chan>.phase-A
+\family default 
+ -- Phase A output (step types 2-14 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+freqgen.<chan>.phase-B
+\family default 
+ -- Phase B output (step types 2-14 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+freqgen.<chan>.phase-C
+\family default 
+ -- Phase C output (step types 3-14 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+freqgen.<chan>.phase-D
+\family default 
+ -- Phase D output (step types 5-14 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+freqgen.<chan>.phase-E
+\family default 
+ -- Phase E output (step types 11-14 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32) 
+\noun default 
+freqgen.<chan>.count
+\family default 
+ -- Feedback position in counts, updated by 
+\family typewriter 
+capture_position()
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+freqgen.<chan>.position-fb
+\family default 
+ -- Position feedback in arbitrary units updated by 
+\family typewriter 
+capture_position()
+\family default 
+.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ freqgen.<chan>.velocity-scale
+\family default 
+ -- Scaling factor to convert from velocity units to pulses per second (Hz).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ freqgen.<chan>.maxfreq
+\family default 
+ -- Maximum frequency, in Hz.
+ If 0.0, has no effect.
+ If set higher than internal limits, next call of 
+\family typewriter 
+update_freq()
+\family default 
+ will set it to the internal limit.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ freqgen.<chan>.frequency
+\family default 
+ -- The current frequency, in Hz.
+ This is the value after scaling and limiting.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ freqgen.<chan>.maxaccel
+\family default 
+ -- Maximum accel/decel rate, in Hz per second.
+ If 0.0, has no effect.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ freqgen.<chan>.steplen
+\family default 
+ -- Length of a step pulse (step type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ freqgen.<chan>.stepspace
+\family default 
+ -- Minimum spacing between two step pulses (step type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ freqgen.<chan>.dirsetup
+\family default 
+ -- Minimum time from a direction change to the beginning of the next step
+ pulse (step type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ freqgen.<chan>.dirhold
+\family default 
+ -- Minmum time from the end of a step pulse to a direction change (step
+ type 0 only).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32)
+\noun default 
+ freqgen.<chan>.rawcounts
+\family default 
+ -- The raw feedback count, updated by 
+\family typewriter 
+make_pulses()
+\family default 
+.
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ freqgen.<chan>.position-scale
+\family default 
+ -- The scale factor used to convert from feedback counts to position units.
+ 
+\layout Subsection
+
+Step Types
+\layout Standard
+
+The frequency generator supports 15 different 
+\begin_inset Quotes eld
+\end_inset 
+
+step types
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Except for stepping type 1, they are identical to those generated by the
+ stepgen component.
+ Refer to section 
+\begin_inset LatexCommand \ref{sub:Stepgen-Step-Types}
+
+\end_inset 
+
+ for more information.
+\layout Standard
+
+There is one difference between stepgen and freqgen.
+ Step type 1 has two outputs, up and down.
+ Pulses appear on one or the other, depending on the direction of travel.
+ Each pulse is one thread period long.
+ Stepgen assumes that you need a distinct pulse for each step, so it limits
+ the frequency to half of the thread rate, to allow for one low period between
+ pulses.
+ However, freqgen allows higher frequencies, up to the thread rate.
+ This allows step type 1 to be used as a pseudo-PWM source, or filtered
+ to use as a D-to-A converter.
+ At the maximum frequency (equal to the thread rate), the up or down output
+ will remain on constantly.
+\layout Subsection
+
+Functions
+\layout Standard
+
+The component exports three functions.
+ Each function acts on all of the step pulse generators - running different
+ generators in different threads is not supported.
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ freqgen.make-pulses
+\family default 
+ -- High speed function to generate and count pulses (no floating point).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ freqgen.update-freq
+\family default 
+ -- Low speed function to scale and limit velocity command.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ freqgen.capture-position
+\family default 
+ -- Low speed function for feedback, updates latches and scales position.
+\layout Standard
+
+The high speed function 
+\family typewriter 
+freqgen.make-pulses
+\family default 
+ should be run in a very fast thread, from 10 to 50uS depending on the capabilit
+ies of the computer.
+ That thread's period determines the maximum step frequency, and is also
+ the time unit used by the length, space, setup, and hold parameters (step
+ type 0).
+ The other two functions can be called at a much lower rate.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Encoder}
+
+\end_inset 
+
+Encoder
+\layout Standard
+
+This component provides software based counting of signals from quadrature
+ encoders.
+ It is a realtime component only, and depending on CPU speed, etc, is capable
+ of maximum count rates of 10kHz to perhaps 50kHz.
+ Figure 
+\begin_inset LatexCommand \ref{fig:Encoder-Block-Diag}
+
+\end_inset 
+
+ is a block diagram of one channel of encoder counter.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename encoder-block-diag.eps
+	width 7in
+	height 6in
+	keepAspectRatio
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Encoder-Block-Diag}
+
+\end_inset 
+
+Encoder Counter Block Diagram
+\end_inset 
+
+
+\layout Subsection
+
+Installing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt encoder [num_chan=<counters>]
+\layout Standard
+
+
+\family typewriter 
+<counters>
+\family default 
+ is the number of encoder counters that you want to install.
+ If 
+\family typewriter 
+numchan
+\family default 
+ is not specified, three counters will be installed.
+ The maximum number of counters is 8 (as defined by MAX_CHAN in encoder.c).
+ Each counter is independent, but all are updated by the same function(s)
+ at the same time.
+ In the following descriptions, 
+\family typewriter 
+<chan>
+\family default 
+ is the number of a specific counter.
+ The first counter is number 0.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt encoder
+\layout Subsection
+
+Pins
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ encoder.<chan>.phase-A
+\family default 
+ -- Phase A of the quadrature encoder signal.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ encoder.<chan>.phase-B
+\family default 
+ -- Phase B of the quadrature encoder signal.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit)
+\noun default 
+ encoder.<chan>.phase-Z
+\family default 
+ -- Phase Z (index pulse) of the quadrature encoder signal.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+encoder.<chan>.reset
+\family default 
+ -- See canonical encoder interface, section 
+\begin_inset LatexCommand \ref{sec:CanonEncoder}
+
+\end_inset 
+
+.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The component doesn't currently implement the 
+\family typewriter 
+velocity
+\family default 
+ pin, so it is not a complete implementation of the canonical interface.
+\end_inset 
+
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+encoder.<chan>.index-enable
+\family default 
+ -- See canonical encoder interface.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32) 
+\noun default 
+encoder.<chan>.count
+\family default 
+ -- See canonical encoder interface.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+encoder.<chan>.position
+\family default 
+ -- See canonical encoder interface.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32)
+\noun default 
+ encoder.<chan>.raw-count
+\family default 
+ -- The raw count value, updated by 
+\family typewriter 
+update-counters()
+\family default 
+.
+ 
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+bit
+\noun default 
+) encoder.<chan>.x4-mode
+\family default 
+ -- Sets encoder to 4x or 1x mode.
+ The 1x mode is usefull for some jogwheels.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ encoder.<chan>.position-scale
+\family default 
+ -- See canonical encoder interface, section 
+\begin_inset LatexCommand \ref{sec:CanonEncoder}
+
+\end_inset 
+
+.
+ 
+\layout Subsection
+
+Functions
+\layout Standard
+
+The component exports two functions.
+ Each function acts on all of the encoder counters - running different counters
+ in different threads is not supported.
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ encoder.update-counters
+\family default 
+ -- High speed function to count pulses (no floating point).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ encoder.capture-position
+\family default 
+ -- Low speed function to update latches and scale position.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:PID}
+
+\end_inset 
+
+PID
+\layout Standard
+
+This component provides Proportional/Integeral/Derivative control loops.
+ It is a realtime component only.
+ For simplicity, this discussion assumes that we are talking about position
+ loops, however this component can be used to implement other feedback loops
+ such as speed, torch height, temperature, etc.
+ Figure 
+\begin_inset LatexCommand \ref{fig:PID-block-diag}
+
+\end_inset 
+
+ is a block diagram of a single PID loop.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename pid-block-diag.eps
+	width 8in
+	height 10in
+	keepAspectRatio
+	rotateAngle 90
+	rotateOrigin center
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:PID-block-diag}
+
+\end_inset 
+
+PID Loop Block Diagram
+\end_inset 
+
+
+\layout Subsection
+
+Installing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt pid [num_chan=<loops>] [debug=1] [fp_period=<nsec>]
+\layout Standard
+
+
+\family typewriter 
+<loops>
+\family default 
+ is the number of PID loops that you want to install.
+ If 
+\family typewriter 
+numchan
+\family default 
+ is not specified, one loop will be installed.
+ The maximum number of loops is 16 (as defined by MAX_CHAN in pid.c).
+ Each loop is completely independent.
+ In the following descriptions, 
+\family typewriter 
+<loopnum>
+\family default 
+ is the loop number of a specific loop.
+ The first loop is number 0.
+\layout Standard
+
+If 
+\family typewriter 
+debug=1
+\family default 
+ is specified, the component will export a few extra parameters that may
+ be useful during debugging and tuning.
+ By default, the extra parameters are not exported, to save shared memory
+ space and avoid cluttering the parameter list.
+\layout Standard
+
+If 
+\family typewriter 
+fp_period
+\family default 
+ is specified, the component will create a realtime thread, capable of running
+ floating point functions.
+ The period of the thread will be 
+\family typewriter 
+<nsec>
+\family default 
+ nano-seconds.
+ By default, no thread is created.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt pid
+\layout Subsection
+
+Pins
+\layout Standard
+
+The three most important pins are 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+pid.<loopnum>.command
+\family default 
+ -- The desired position, as commanded by another system component.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+pid.<loopnum>.feedback
+\family default 
+ -- The present position, as measured by a feedback device such as an encoder.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+pid.<loopnum>.output
+\family default 
+ -- A velocity command that attempts to move from the present position to
+ the desired position.
+ 
+\layout Standard
+
+For a position loop, 'command' and 'feedback' are in position units.
+ For a linear axis, this could be inches, mm, meters, or whatever is relevant.
+ Likewise, for an angular axis, it could be degrees, radians, etc.
+ The units of the 'output' pin represent the change needed to make the feedback
+ match the command.
+ As such, for a position loop 'Output' is a velocity, in inches/sec, mm/sec,
+ degrees/sec, etc.
+ Time units are always seconds, and the velocity units match the position
+ units.
+ If command and feedback are in meters, then output is in meters per second.
+ 
+\layout Standard
+
+Each loop has two other pins which are used to monitor or control the general
+ operation of the component.
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+pid.<loopnum>.error
+\family default 
+ -- Equals 
+\family typewriter 
+.command
+\family default 
+ minus 
+\family typewriter 
+.feedback
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+pid.<loopnum>.enable
+\family default 
+ -- A bit that enables the loop.
+ If 
+\family typewriter 
+.enable
+\family default 
+ is false, all integrators are reset, and the output is forced to zero.
+ If 
+\family typewriter 
+.enable
+\family default 
+ is true, the loop operates normally.
+\layout Subsection
+
+Parameters
+\layout Standard
+
+The PID gains, limits, and other 'tunable' features of the loop are implemented
+ as parameters.
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.Pgain
+\family default 
+ -- Proportional gain 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.Igain
+\family default 
+ -- Integral gain 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.Dgain
+\family default 
+ -- Derivative gain 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.bias
+\family default 
+ -- Constant offset on output 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.FF0
+\family default 
+ -- Zeroth order feedforward - output proportional to command (position).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.FF1
+\family default 
+ -- First order feedforward - output proportional to derivative of command
+ (velocity).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.FF2
+\family default 
+ -- Second order feedforward - output proportional to 2nd derivative of
+ command (acceleration)
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+FF2 is not currently implemented, but it will be added.
+ Consider this note a 
+\begin_inset Quotes eld
+\end_inset 
+
+FIXME
+\begin_inset Quotes erd
+\end_inset 
+
+ for the code
+\end_inset 
+
+.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.deadband
+\family default 
+ -- Amount of error that will be ignored 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.maxerror
+\family default 
+ -- Limit on error 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.maxerrorI
+\family default 
+ -- Limit on error integrator 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.maxerrorD
+\family default 
+ -- Limit on error derivative 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.maxcmdD
+\family default 
+ -- Limit on command derivative 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.maxcmdDD
+\family default 
+ -- Limit on command 2nd derivative 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.maxoutput
+\family default 
+ -- Limit on output value
+\layout Standard
+
+All of the 
+\family typewriter 
+max???
+\family default 
+ limits are implemented such that if the parameter value is zero, there
+ is no limit.
+\layout Standard
+
+If 
+\family typewriter 
+debug=1
+\family default 
+ was specified when the component was installed, four additional parameters
+ will be exported:
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.errorI
+\family default 
+ -- Integral of error.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.errorD
+\family default 
+ -- Derivative of error.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.commandD
+\family default 
+ -- Derivative of the command.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float)
+\noun default 
+ pid.<loopnum>.commandDD
+\family default 
+ -- 2nd derivative of the command.
+ 
+\layout Subsection
+
+Functions
+\layout Standard
+
+The component exports one function for each PID loop.
+ This function performs all the calculations needed for the loop.
+ Since each loop has it's own function, individual loops can be included
+ in different threads and execute at different rates.
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ pid.<loopnum>.do_pid_calcs
+\family default 
+ -- Performs all calculations for a single PID loop.
+\layout Standard
+
+If you want to understand the exact algorithm used to compute the output
+ of the PID loop, refer to figure 
+\begin_inset LatexCommand \ref{fig:PID-block-diag}
+
+\end_inset 
+
+, the comments at the beginning of
+\family typewriter 
+ emc2/src/hal/components/pid.c
+\family default 
+, and of course to the code itself.
+ The loop calculations are in the C function
+\family typewriter 
+ calc_pid()
+\family default 
+.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Simulated-Encoder}
+
+\end_inset 
+
+Simulated Encoder
+\layout Standard
+
+The simulated encoder is exactly that.
+ It produces quadrature pulses with an index pulse, at a speed controlled
+ by a HAL pin.
+ Mostly useful for testing.
+\layout Subsection
+
+Installing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt sim-encoder num_chan=<number>
+\layout Standard
+
+
+\family typewriter 
+<number>
+\family default 
+ is the number of encoders that you want to simulate.
+ If not specified, one encoder will be installed.
+ The maximum number is 8 (as defined by MAX_CHAN in sim_encoder.c).
+ 
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt sim-encoder
+\layout Subsection
+
+Pins
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+sim-encoder.<chan-num>.speed
+\family default 
+ -- The speed command for the simulated shaft.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+sim-encoder.<chan-num>.phase-A
+\family default 
+ -- Quadrature output.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+sim-encoder.<chan-num>.phase-B
+\family default 
+ -- Quadrature output.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+sim-encoder.<chan-num>.phase-Z
+\family default 
+ -- Index pulse output.
+ 
+\layout Standard
+
+When 
+\family typewriter 
+.speed
+\family default 
+ is positive, 
+\family typewriter 
+.phase-A
+\family default 
+ leads 
+\family typewriter 
+.phase-B
+\family default 
+.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\shape smallcaps 
+\noun on 
+(u32)
+\family typewriter 
+\shape default 
+\noun default 
+ sim-encoder.<chan-num>.ppr
+\family default 
+ -- Pulses Per Revolution.
+\layout Itemize
+
+
+\shape smallcaps 
+\noun on 
+(float)
+\family typewriter 
+\shape default 
+\noun default 
+ sim-encoder.<chan-num>.scale
+\family default 
+ -- Scale Factor for 
+\family typewriter 
+\series bold 
+speed
+\family default 
+\series default 
+.
+ The default is 1.0, which means that 
+\family typewriter 
+\series bold 
+speed
+\family default 
+\series default 
+ is in revolutions per second.
+ Change to 60 for RPM, to 360 for degrees per second, 6.283185 for radians
+ per seconed, etc.
+\layout Standard
+
+Note that pulses per revolution is not the same as counts per revolution.
+ A pulse is a complete quadrature cycle.
+ Most encoder counters will count four times during one complete cycle.
+\layout Subsection
+
+Functions
+\layout Standard
+
+The component exports two functions.
+ Each function affects all simulated encoders.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ sim-encoder.make-pulses
+\family default 
+ -- High speed function to generate quadrature pulses (no floating point).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ sim-encoder.update-speed
+\family default 
+ -- Low speed function to read 
+\family typewriter 
+\series bold 
+speed
+\family default 
+\series default 
+, do scaling, and set up 
+\family typewriter 
+\series bold 
+make-pulses
+\family default 
+\series default 
+.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Debounce}
+
+\end_inset 
+
+Debounce
+\layout Standard
+
+Debounce is a realtime component that can filter the glitches created by
+ mechanical switch contacts.
+ It may also be useful in other applications where short pulses are to be
+ rejected.
+\layout Subsection
+
+Installing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt debounce cfg=
+\begin_inset Quotes erd
+\end_inset 
+
+<config-string>
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+
+\family typewriter 
+<config-string>
+\family default 
+ is a series of space separated decimal integers.
+ Each number installs a group of identical debounce filters, the number
+ determines how many filters are in the group.
+ For example:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt debounce cfg=
+\begin_inset Quotes erd
+\end_inset 
+
+1 4 2
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+will install three groups of filters.
+ Group 0 contains one filter, group 1 contains four, and group 2 contains
+ two filters.
+ The default value for 
+\family typewriter 
+<config-string>
+\family default 
+ is 
+\family typewriter 
+
+\begin_inset Quotes eld
+\end_inset 
+
+1
+\begin_inset Quotes erd
+\end_inset 
+
+
+\family default 
+ which will install a single group containing a single filter.
+ The maximum number of groups 8 (as defined by MAX_GROUPS in debounce.c).
+ The maximum number of filters in a group is limited only by shared memory
+ space.
+ Each group is completely independent.
+ All filters in a single group are identical, and they are all updated by
+ the same function at the same time.
+ In the following descriptions, 
+\family typewriter 
+<G>
+\family default 
+ is the group number and 
+\family typewriter 
+<F>
+\family default 
+ is the filter number within the group.
+ The first filter is group 0, filter 0.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt debounce
+\layout Subsection
+
+Pins
+\layout Standard
+
+Each individual filter has two pins.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+debounce.<G>.<F>.in
+\family default 
+ -- Input of filter 
+\family typewriter 
+<F>
+\family default 
+ in group 
+\family typewriter 
+<G>
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+debounce.<G>.<F>.out
+\family default 
+ -- Output of filter 
+\family typewriter 
+<F>
+\family default 
+ in group 
+\family typewriter 
+<G>
+\family default 
+.
+\layout Subsection
+
+Parameters
+\layout Standard
+
+Each group of filters has one parameter
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Each individual filter also has an internal state variable.
+ There is a compile time switch that can export that variable as a parameter.
+ This is intended for testing, and simply wastes shared memory under normal
+ circumstances.
+\end_inset 
+
+.
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32) 
+\noun default 
+debounce.<G>.delay
+\family default 
+ -- Filter delay for all filters in group 
+\family typewriter 
+<G>
+\family default 
+.
+\layout Standard
+
+The filter delay is in units of thread periods.
+ The minimum delay is zero.
+ The output of a zero delay filter exactly follows it's input - it doesn't
+ filter anything.
+ As 
+\family typewriter 
+delay
+\family default 
+ increases, longer and longer glitches are rejected.
+ If 
+\family typewriter 
+delay
+\family default 
+ is 4, all glitches less than or equal to four thread periods will be rejected.
+\layout Subsection
+
+Functions
+\layout Standard
+
+Each group of filters has one function, which updates all the filters in
+ that group 
+\begin_inset Quotes eld
+\end_inset 
+
+simultaneously
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Different groups of filters can be updated from different threads at different
+ periods.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ debounce.<G>
+\family default 
+ -- Updates all filters in group 
+\family typewriter 
+<G>
+\family default 
+.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Blocks}
+
+\end_inset 
+
+Blocks
+\layout Standard
+
+Blocks is a realtime HAL component containing a number of simple functional
+ blocks.
+ They are primarily intended for testing and other offhand uses, but may
+ prove useful for some EMC configurations as well.
+\layout Subsection
+
+Available Blocks
+\layout Standard
+
+The complete list of available blocks is as follows:
+\layout Itemize
+
+constant -- makes a parameter value available on a pin
+\layout Itemize
+
+comp -- standard 2-input comparator with adjustable hysteresis
+\layout Itemize
+
+wcomp -- window comparator, output true when input is between adjustable
+ upper and lower limits
+\layout Itemize
+
+sum2 -- 2-input summer, output = in0 * gain0 + in1 * gain1
+\layout Itemize
+
+mux2 -- 2-input multiplexor, output = in0 if sel is false, output = in1
+ if sel is true
+\layout Itemize
+
+mux4 -- 4-input multiplexor, output = in<n> based on sel0, sel1
+\layout Itemize
+
+integ -- integrator, input of +1.0 produces an output ramp of +1.0 per second
+\layout Itemize
+
+ddt -- differentiator, input ramp of +1.0 per second produces output of +1.0
+\layout Itemize
+
+limit1 -- first order limiter (limits output)
+\layout Itemize
+
+limit2 -- second order limiter (limits output and 1st derivative)
+\layout Itemize
+
+limit3 -- third order limiter (limits ouput, 1st & 2nd derivative)
+\layout Itemize
+
+estop -- latch for estops or other faults, with reset
+\layout Itemize
+
+not -- logical inverter
+\layout Itemize
+
+and2 -- 2 input logical and
+\layout Itemize
+
+or2 -- 2 input logical or
+\layout Itemize
+
+scale -- gain/offset block (out = in * gain + offset)
+\layout Itemize
+
+lowpass -- lowpass filter (out = last_out * (1 - gain) + in * gain
+\layout Itemize
+
+match8 -- 8 bit binary match detector (with input for cascading)
+\layout Subsection
+
+Installing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt blocks <blockname>=<number>
+\layout LyX-Code
+
+\layout Standard
+
+
+\family typewriter 
+<blockname>
+\family default 
+ is the name of one of the functional blocks that the component can provide,
+ and 
+\family typewriter 
+<number>
+\family default 
+ is the desired quantity of that block.
+ Multiple name/number pairs may be specified on the command line to install
+ a variety of different blocks.
+ For example:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt blocks wcomp=2 sum2=1 comp=3
+\layout Standard
+
+installs two window comparators (wcomp), one two-input summer (sum2), and
+ three standard comparators (comp).
+ 
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt blocks
+\layout Subsection
+
+Pins
+\layout Standard
+
+The various blocks each have their own input and output pins.
+ Each pin begins with the block name, then the block number, and finally
+ the pin function.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+\noun on 
+(float)
+\shape default 
+ 
+\noun default 
+constant.<num>.out
+\family default 
+ -- Output of constant block, tracks the parameter 
+\family typewriter 
+value
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ comp.<num>.in0
+\family default 
+ -- Inverting input of 2-input comparator.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ comp.<num>.in1
+\family default 
+ -- Non-inverting input of 2-input comparator.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(bit)
+\shape default 
+ comp.<num>.out
+\family default 
+ -- Output, true if 
+\family typewriter 
+in1
+\family default 
+ > 
+\family typewriter 
+in0
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ wcomp.<num>.in
+\family default 
+ --Input of window comparator.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(bit)
+\shape default 
+ wcomp.<num>.out
+\family default 
+ -- Output, TRUE if 
+\family typewriter 
+min
+\family default 
+ < 
+\family typewriter 
+input
+\family default 
+ < 
+\family typewriter 
+max
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ sum2.<num>.in0
+\family default 
+ -- First input of 2-input summer.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ sum2.<num>.in1
+\family default 
+ -- Second input of 2-input summer.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ sum2.<num>.out
+\family default 
+ -- Output, equals 
+\family typewriter 
+in0
+\family default 
+ * 
+\family typewriter 
+gain0
+\family default 
+ + 
+\family typewriter 
+in1
+\family default 
+ * 
+\family typewriter 
+gain1
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ mux2.<num>.in0
+\family default 
+ -- First input of 2-input multiplexor.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ mux2.<num>.in1
+\family default 
+ --Second input of 2-input multiplexor.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(bit)
+\shape default 
+ mux2.<num>.sel
+\family default 
+ -- Control input of 2-input multiplexor.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ mux2.<num>.out
+\family default 
+ -- Output, equals 
+\family typewriter 
+in0
+\family default 
+ if 
+\family typewriter 
+sel
+\family default 
+ is FALSE, 
+\family typewriter 
+in1
+\family default 
+ if 
+\family typewriter 
+sel
+\family default 
+ is TRUE.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ integ.<num>.in
+\family default 
+ -- Input of integrator.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ integ.<num>.out
+\family default 
+ -- Output of integrator.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ ddt.<num>.in
+\family default 
+ -- Input of differentiator.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ ddt.<num>.out
+\family default 
+ -- Output of differentiator.
+\layout Itemize
+
+...
+ and so on (too many pins to list them all here, but you can easily see
+ them with halcmd show pin )
+\layout Subsection
+
+Parameters
+\layout Standard
+
+Some of the blocks have parameters that control and adjust the details of
+ their operation.
+ Like the pin names, they begin with the block name and the block number,
+ then the parameter name.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ constant.<num>.value
+\family default 
+ -- The value to be written to the 
+\family typewriter 
+out
+\family default 
+ pin, default value is 1.0.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ comp.<num>.hyst
+\family default 
+ -- Hystersis for 2-input comparator, default is 0.0.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ wcomp.<num>.min
+\family default 
+ -- Minimum threshold for window comparator, default is -1.0.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ wcomp.<num>.max
+\family default 
+ -- Maximum threshold for window comparator, default is +1.0.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ sum2.<num>.gain0
+\family default 
+ -- Value by which 
+\family typewriter 
+in0
+\family default 
+ is multiplied, default is 1.0.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(float)
+\shape default 
+ sum2.<num>.gain1
+\family default 
+ -- Value by which 
+\family typewriter 
+in1
+\family default 
+ is multiplied, default is 1.0.
+\layout Subsection
+
+Functions
+\layout Standard
+
+Each individual block has it's own function.
+ This allows complete control over when each block executes.
+ In general, blocks should execute in the order of signal flow.
+ If the outputs of blocks A and B are connected to inputs of block C, then
+ the functions for A and B should be executed before the function for C.
+ Note that unless these functions are connected to a realtime thread so
+ that they execute, the blocks do nothing at all.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(funct)
+\shape default 
+ constant.<num>
+\family default 
+ -- Writes parameter 
+\family typewriter 
+value
+\family default 
+ to pin 
+\family typewriter 
+out
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(funct)
+\shape default 
+ comp.<num>
+\family default 
+ -- Compares 
+\family typewriter 
+in0
+\family default 
+ and 
+\family typewriter 
+in1
+\family default 
+ (with hysteresis), writes result to 
+\family typewriter 
+out
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(funct)
+\shape default 
+ wcomp.<num>
+\family default 
+ -- Compares 
+\family typewriter 
+in
+\family default 
+ to 
+\family typewriter 
+min
+\family default 
+ and 
+\family typewriter 
+max
+\family default 
+, writes result to 
+\family typewriter 
+out
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(funct)
+\shape default 
+ sum2.<num>
+\family default 
+ -- Computes 
+\family typewriter 
+out = in0 * gain0 + in1 * gain1
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(funct)
+\shape default 
+ mux2.<num>
+\family default 
+ -- If 
+\family typewriter 
+sel
+\family default 
+ is TRUE, writes 
+\family typewriter 
+in1
+\family default 
+ to 
+\family typewriter 
+out
+\family default 
+, else writes 
+\family typewriter 
+in0
+\family default 
+ to 
+\family typewriter 
+out
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(funct)
+\shape default 
+ integ.<num>
+\family default 
+ -- Calculates integral of 
+\family typewriter 
+in
+\family default 
+, writes result to 
+\family typewriter 
+out
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\shape smallcaps 
+(funct)
+\shape default 
+ constant.<num>
+\family default 
+ -- Calculates derivative of 
+\family typewriter 
+in
+\family default 
+, writes result to 
+\family typewriter 
+out
+\family default 
+.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Siggen}
+
+\end_inset 
+
+Siggen
+\layout Standard
+
+Siggen is a realtime component that generates square, triangle, and sine
+ waves.
+ It is primarily used for testing.
+ 
+\layout Subsection
+
+Installing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt siggen [num_chan=<chans>] [fp_period=<nsec>]
+\layout LyX-Code
+
+\layout Standard
+
+
+\family typewriter 
+<chans>
+\family default 
+ is the number of signal generators that you want to install.
+ If 
+\family typewriter 
+numchan
+\family default 
+ is not specified, one signal generator will be installed.
+ The maximum number of generators is 16 (as defined by MAX_CHAN in siggen.c).
+ Each generator is completely independent.
+ In the following descriptions, 
+\family typewriter 
+<chan>
+\family default 
+ is the number of a specific signal generator (the numbers start at 0).
+\layout Standard
+
+If 
+\family typewriter 
+fp_period
+\family default 
+ is specified, the component will create a realtime thread, capable of running
+ floating point functions.
+ The period of the thread will be 
+\family typewriter 
+<nsec>
+\family default 
+ nano-seconds.
+ By default, no thread is created.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt siggen
+\layout Subsection
+
+Pins
+\layout Standard
+
+Each generator has four output pins.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+siggen.<chan>.sine
+\family default 
+ -- Sine wave output.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+siggen.<chan>.cosine
+\family default 
+ -- Cosine output.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+siggen.<chan>.sawtooth
+\family default 
+ -- Sawtooth output.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+siggen.<chan>.triangle
+\family default 
+ -- Triangle wave output.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+siggen.<chan>.square
+\family default 
+ -- Square wave output.
+\layout Standard
+
+All five outputs have the same frequency, amplitude, and offset.
+\layout Subsection
+
+Parameters
+\layout Standard
+
+Each generator is controlled by three parameters.
+ 
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+siggen.<chan>.frequency
+\family default 
+ -- Sets the frequency in Hertz, default value is 1 Hz.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+siggen.<chan>.amplitude
+\family default 
+ -- Sets the peak amplitude of the output waveforms, default is 1.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+siggen.<chan>.offset
+\family default 
+ -- Sets DC offset of the output waveforms, default is 0.
+\layout Standard
+
+For example, if 
+\family typewriter 
+siggen.0.amplitude
+\family default 
+ is 1.0 and 
+\family typewriter 
+siggen.0.offset
+\family default 
+ is 0.0, the outputs will swing from -1.0 to +1.0.
+ If 
+\family typewriter 
+siggen.0.amplitude
+\family default 
+ is 2.5 and 
+\family typewriter 
+siggen.0.offset
+\family default 
+ is 10.0, then the outputs will swing from 7.5 to 12.5.
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ siggen.<chan>.update
+\family default 
+ -- Calculates new values for all five outputs.
+\the_end

@@ -1,0 +1,549 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Section
+
+Halshow
+\layout Standard
+
+The script halshow can help you find your away around a running HAL.
+ This is a very specialized system and it must connect to a working HAL.
+ It can not run stand alone because it relies on the ability of HAL to report
+ what it knows of itself through the halcmd interface library.
+ It is discovery based.
+ Each time halshow runs with a different EMC configuration it will be different.
+\layout Standard
+
+As we will soon see, this ability of HAL to document itself is one key to
+ making an effective CNC system.
+ 
+\layout Subsection
+
+Hal Tree Area
+\layout Standard
+
+At the left of it's display as shown in figure\SpecialChar ~
+
+\begin_inset LatexCommand \ref{cap:Halshow-Layout}
+
+\end_inset 
+
+ is a tree view, somewhat like you might see with some file browsers.
+ At the right is a tabbed notebook with tabs for show and watch.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Halshow-Layout}
+
+\end_inset 
+
+Halshow Layout
+\layout Standard
+
+
+\begin_inset Graphics
+	filename halshow-1.png
+	width 100col%
+	keepAspectRatio
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The tree shows all of the major parts of a HAL.
+ In front of each is a small plus (+) or minus (-) sign in a box.
+ Clicking the plus will expand that tree node to display what is under it.
+ If that box shows a minus sign clicking it will close that section of the
+ tree.
+ 
+\layout Standard
+
+You can also expand or collapse the tree display using the Tree View menu
+ at the upper left edge of the display.
+ This menu is shown in figure xx
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Show-Menu}
+
+\end_inset 
+
+Show Menu
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halshow-3.png
+	width 50col%
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+Hal Show Area
+\layout Standard
+
+Clicking on the node name rather than it's plus or minus sign, the word
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+Components
+\begin_inset Quotes erd
+\end_inset 
+
+ for example, will show you all that hal knows about the contents of it.
+ Figure\SpecialChar ~
+
+\begin_inset LatexCommand \ref{cap:Halshow-Layout}
+
+\end_inset 
+
+ shows a list exactly like you will see if you click the 
+\begin_inset Quotes eld
+\end_inset 
+
+Components
+\begin_inset Quotes erd
+\end_inset 
+
+ name while you are running a standard m5i20 servo card.
+ The information display is exactly like those shown in traditional text
+ based HAL analysis tools.
+ The advantage here is that we have mouse click access.
+ Access that can be as broad or as focused as you need.
+\layout Standard
+
+If we take a closer look at the tree display we can see that the six major
+ parts of a HAL can all be expanded at least one level.
+ As these levels are expanded you can get more focused with the reply when
+ you click on the rightmost tree node.
+ You will find that there are some hal pins and parameters that show more
+ than one reply.
+ This is do to the nature of the search routines in halcmd itself.
+ If you search one pin you may get two like this.
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner Type Dir Value Name
+\layout LyX-Code
+
+06 bit -W TRUE parport.0.pin-10-in
+\layout LyX-Code
+
+06 bit -W FALSE parport.0.pin-10-in-not
+\layout Standard
+
+The second pins name contains the complete name of the first.
+ 
+\layout Standard
+
+Below the show area on the right is a set of widgets that will allow you
+ to play with the running HAL.
+ The commands you enter here and the effect that they have on the running
+ HAL are not saved.
+ They will persist as long as the emc remains up but are gone as soon as
+ it is.
+\layout Standard
+
+The entry box labeled Test Hal Command : will accept any of the commands
+ listed for halcmd.
+ These include;
+\layout Itemize
+
+loadrt, unloadrt
+\layout Itemize
+
+addf, delf
+\layout Itemize
+
+newsig, delsig
+\layout Itemize
+
+linkpp, linksp, linkps, unlinkp
+\layout Itemize
+
+setp, sets
+\layout Standard
+
+This little editor will enter a command any time you press <enter> or push
+ the execute button.
+ An error message from halcmd will show below this entry widget when these
+ commands are not properly formed.
+ If you are not certain how to set up a proper command you'll need to read
+ again the documentation on halcmd and the specific modules that you are
+ working with.
+ 
+\layout Standard
+
+Let's use this editor to add a differential module to a hal and connect
+ it to axis position so that we could see the rate of change in position,
+ ie acceleration.
+ We first need to load a hal module named blocks, add it to the servo thread,
+ then connect it to the position pin of an axis.
+ Once that is done we can find the output of the differentiator in halscope.
+ So let's go.
+ (yes I looked this one up.)
+\layout LyX-Code
+
+loadrt blocks ddt=1
+\layout Standard
+
+Now look at the components node and you should see blocks in there someplace.
+ 
+\layout LyX-Code
+
+Loaded HAL Components:
+\layout LyX-Code
+
+ID Type Name
+\layout LyX-Code
+
+10 User halcmd29800
+\layout LyX-Code
+
+09 User halcmd29374
+\layout LyX-Code
+
+08 RT blocks
+\layout LyX-Code
+
+06 RT hal_parport
+\layout LyX-Code
+
+05 RT scope_rt
+\layout LyX-Code
+
+04 RT stepgen
+\layout LyX-Code
+
+03 RT motmod
+\layout LyX-Code
+
+02 User iocontrol
+\layout Standard
+
+Sure enough there it is.
+ Notice that it's id is 08.
+ Next we need to find out what functions are available with it so we look
+ at functions.
+\layout LyX-Code
+
+Exported Functions:
+\layout LyX-Code
+
+Owner CodeAddr Arg FP Users Name
+\layout LyX-Code
+
+08 E0B97630 E0DC7674 YES 0 ddt.0
+\layout LyX-Code
+
+03 E0DEF83C 00000000 YES 1 motion-command-handler
+\layout LyX-Code
+
+03 E0DF0BF3 00000000 YES 1 motion-controller
+\layout LyX-Code
+
+06 E0B541FE E0DC75B8 NO 1 parport.0.read
+\layout LyX-Code
+
+06 E0B54270 E0DC75B8 NO 1 parport.0.write
+\layout LyX-Code
+
+06 E0B54309 E0DC75B8 NO 0 parport.read-all
+\layout LyX-Code
+
+06 E0B5433A E0DC75B8 NO 0 parport.write-all
+\layout LyX-Code
+
+05 E0AD712D 00000000 NO 0 scope.sample
+\layout LyX-Code
+
+04 E0B618C1 E0DC7448 YES 1 stepgen.capture-position
+\layout LyX-Code
+
+04 E0B612F5 E0DC7448 NO 1 stepgen.make-pulses
+\layout LyX-Code
+
+04 E0B614AD E0DC7448 YES 1 stepgen.update-freq
+\layout Standard
+
+Here we look for owner #08 and see that blocks has exported a function named
+ ddt.0.
+ We should be able to add ddt.0 to the servo thread and it will do it's math
+ each time the servo thread is updated.
+ Once again I look up the addf command and find that it uses three arguments
+ like this.
+ 
+\layout Quote
+
+addf <functname> <threadname> [<position>]
+\layout Standard
+
+We already know the functname=ddt.0 so let's get the thread name right by
+ expanding the thread node in the tree.
+ Here we see two threads servo-thread and base-thread.
+ The position of ddt.0 in the thread is not critical.
+ 
+\layout LyX-Code
+
+addf ddt.0 servo-thread 
+\layout Standard
+
+This is just for viewing so we leave position blank and get the last position
+ in the thread.
+ Figure\SpecialChar ~
+
+\begin_inset LatexCommand \ref{cap:Addf-Command}
+
+\end_inset 
+
+ shows the state of halshow after this command has been issued.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Addf-Command}
+
+\end_inset 
+
+Addf Command
+\layout Standard
+
+
+\begin_inset Graphics
+	filename halshow-2.png
+	width 100col%
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Next we need to connect this block to something.
+ But how do we know what pins are available.
+ The answer is look under pins.
+ There we find ddt and see this.
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner Type Dir Value Name
+\layout LyX-Code
+
+08 float R- 0.00000e+00 ddt.0.in
+\layout LyX-Code
+
+08 float -W 0.00000e+00 ddt.0.out
+\layout Standard
+
+That looks easy enough to understand but what signal or pin do we want to
+ connect to it.
+ It could be an axis pin, a stepgen pin, or a signal.
+ I see this when I look at axis.0.
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner Type Dir Value Name
+\layout LyX-Code
+
+03 float -W 0.00000e+00 axis.0.motor-pos-cmd ==> Xpos-cmd
+\layout Standard
+
+So it looks like Xpos-cmd should be a good signal to use.
+ Back to the editor where I enter the following command.
+\layout LyX-Code
+
+linksp Xpos-cmd ddt.0.in
+\layout Standard
+
+Now if I look at the Xpos-cmd signal using the tree node I'll see what I've
+ done.
+\layout LyX-Code
+
+Signals:
+\layout LyX-Code
+
+Type Value Name
+\layout LyX-Code
+
+float 0.00000e+00 Xpos-cmd
+\layout LyX-Code
+
+<== axis.0.motor-pos-cmd
+\layout LyX-Code
+
+==> ddt.0.in
+\layout LyX-Code
+
+==> stepgen.0.position-cmd
+\layout Standard
+
+We see that this signal comes from axis.o.motor-pos-cmd and goes to both ddt.0.in
+ and stepgen.0.position-cmd.
+ By connecting our block to the signal we have avoided any complications
+ with the normal flow of this motion command.
+\layout Standard
+
+The Hal Show Area uses halcmd to discover what is happening in a running
+ HAL.
+ It gives you complete information about what it has discovered.
+ It also updates as you issue commands from the little editor panel to modify
+ that HAL.
+ There are times when you want a different set of things displayed without
+ all of the information available in this area.
+ That is where the Hal Watch Area is of value.
+\layout Subsection
+
+Hal Watch Area
+\layout Standard
+
+Clicking the watch tab produces a blank canvas.
+ You can add signals and pins to this canvas and watch their values.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The refresh rate of the watch display is much lower than Halmeter or Halscope.
+ If you need good resolution of the timing of signals these tools are much
+ more effective.
+\end_inset 
+
+ You can add signals or pins when the watch tab is displayed by clicking
+ on the name of it.
+ Figure 
+\begin_inset LatexCommand \ref{cap:Watch-Display}
+
+\end_inset 
+
+ shows this canvas with several 
+\begin_inset Quotes eld
+\end_inset 
+
+bit
+\begin_inset Quotes erd
+\end_inset 
+
+ type signals.
+ These signals include enable-out for the first three axes and two of the
+ three iocontrol 
+\begin_inset Quotes eld
+\end_inset 
+
+estop
+\begin_inset Quotes erd
+\end_inset 
+
+ signals.
+ Notice that the axes are not enabled even though the estop signals say
+ that the EMC is not in estop.
+ A quick look at themc shows that the condition of the EMC is ESTOP RESET.
+ The amp enables do not turn true until the machine has been turned on.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{cap:Watch-Display}
+
+\end_inset 
+
+Watch Display
+\layout Standard
+
+
+\begin_inset Graphics
+	filename halshow-4.png
+	width 100col%
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The two colors of circles, aka leds, always show dark brown when a bit signal
+ or pin is false.
+ They show the light yellow whenever that signal is true.
+ If you select a pin or signal that is not a bit typed signal, watch will
+ show the numerical value.
+\layout Standard
+
+Watch will quickly allow you to test switches or see the effect of changes
+ that you make to EMC while using the graphical interface.
+ Watch's refresh rate is a bit slow to see stepper pulses but you can use
+ it for these if you move an axis very slowly or in very small increments
+ of distance.
+ If you've used IO_Show in EMC, the watch page in halshow can be setup to
+ watch a parport much as it did.
+ 
+\the_end

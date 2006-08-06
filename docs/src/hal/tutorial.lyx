@@ -1,0 +1,3218 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+
+\begin_inset LatexCommand \label{cha:HAL-Tutorial}
+
+\end_inset 
+
+HAL Tutorial
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Tutorial - Intro}
+
+\end_inset 
+
+Before we start
+\layout Standard
+
+Configuration moves from theory to device -- HAL device that is.
+ For those who have had just a bit of computer programming, this section
+ is the 
+\begin_inset Quotes eld
+\end_inset 
+
+Hello World
+\begin_inset Quotes erd
+\end_inset 
+
+ of the HAL.
+ As noted above halcmd can be used to create a working system.
+ It is a command line or text file tool for configuration and tuning.
+ The following examples illustrate its setup and operation.
+ 
+\layout Subsection
+
+Notation
+\layout Standard
+
+Command line examples are presented in 
+\family typewriter 
+\series bold 
+bold typewriter
+\family default 
+\series default 
+ font.
+ Responses from the computer will be in 
+\family typewriter 
+typewriter
+\family default 
+ font.
+ Text inside square brackets 
+\family typewriter 
+[like-this]
+\family default 
+ is optional.
+ Text inside angle brackets 
+\family typewriter 
+<like-this>
+\family default 
+ represents a field that can take on different values, and the adjacent
+ paragraph will explain the appropriate values.
+ Text items separated by a vertical bar means that one or the other, but
+ not both, should be present.
+ All command line examples assume that you are in the 
+\family typewriter 
+emc2/
+\family default 
+ directory, and paths will be shown accordingly when needed.
+ 
+\layout Subsection
+
+Root Privilges
+\layout Standard
+
+In the beginning days of HAL there was quite often the need to run things
+ with root privileges.
+ Most of those things were related to the fact that HAL uses kernel modules
+ to do much of it's work, and because it also can access hardware directly.
+ Knowing that it is usually safer to avoid doing day-to-day work as root,
+ most of those things were reworked so that very limited root privileges
+ are required.
+ If you are running a version of EMC2 and HAL more recent than early 2006,
+ you can pretty much ignore this section.
+\layout Standard
+
+To get around the need for root, emc2 uses a small program called emc_module_hel
+per, which during the build process gets setuid status (thus has root privileges
+).
+ This small software module takes care of the insmod/rmmod commands that
+ are needed to insert/delete modules from the HAL.
+ You can use this program directly, but it's lots easier to use the 
+\series bold 
+halcmd loadrt & unloadrt
+\series default 
+ commands 
+\begin_inset LatexCommand \ref{sec:Halcmd}
+
+\end_inset 
+
+
+\layout Standard
+
+Here is an example of what happens when you don't have root privileges:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/hal_parport 0278
+\layout LyX-Code
+
+PARPORT: ERROR: could not get I/O permission
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+As an alternative to logging in as root, you can use the 
+\family typewriter 
+sudo
+\family default 
+ command or the 
+\family typewriter 
+su -c
+\family default 
+ command.
+ The 
+\family typewriter 
+sudo
+\family default 
+ command is very convenient to use, and does not require you to know the
+ root password.
+ However, it needs to be configured by someone who does know the root password.
+ The configuration determines who may use 
+\family typewriter 
+sudo
+\family default 
+, and what commands they can use it for.
+ We will not discuss 
+\family typewriter 
+sudo
+\family default 
+ configuration here, try 
+\family typewriter 
+man sudo
+\family default 
+ and/or talk to your system administrator.
+ If sudo is properly configured, here is what happens:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+sudo bin/hal_parport 0278
+\layout LyX-Code
+
+Password: 
+\series bold 
+<enter your password>
+\layout LyX-Code
+
+PARPORT: installed driver for 1 ports
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+As an added convenience, 
+\family typewriter 
+sudo
+\family default 
+ remembers your password for a short time, so if you enter another 
+\family typewriter 
+sudo
+\family default 
+ command within the time limit (usually 5 minutes) you don't have to type
+ your password again.
+\layout Standard
+
+The 
+\family typewriter 
+su -c
+\family default 
+ command does not require configuration, but does require you to know the
+ root password, and to type it in for every command.
+ You also must put quotes around the command you are trying to run:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+su -c "bin/hal_parport 0278"
+\layout LyX-Code
+
+Password: 
+\series bold 
+<enter root password>
+\layout LyX-Code
+
+PARPORT: installed driver for 1 ports
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+To avoid cluttering up the examples, we will not show 
+\family typewriter 
+sudo
+\family default 
+ or 
+\family typewriter 
+su -c
+\family default 
+.
+ Instead, commands that require root privileges will be preceded by 
+\family typewriter 
+#
+\family default 
+, and other commands will be preceded by by 
+\family typewriter 
+$
+\family default 
+.
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+ls bin
+\layout LyX-Code
+
+emc2# 
+\series bold 
+bin/hal_parport 0278
+\layout Standard
+
+Remember, if you are using a version of EMC later than spring 2006 (including
+ 
+\series bold 
+any
+\series default 
+ released version), you don't need to worry about root access at all.
+\layout Subsection
+
+The RTAPI environment
+\layout Standard
+
+RTAPI stands for Real Time Application Programming Interface.
+ Many HAL components work in realtime, and all HAL components store data
+ in shared memory so realtime components can access it.
+ Normal Linux does not support realtime programming or the type of shared
+ memory that HAL needs.
+ Fortunately there are realtime operating systems (RTOS's) that provide
+ the neccessary extensions to Linux.
+ Unfortunately, each RTOS does things a little differently.
+\layout Standard
+
+To address these differences, the EMC team came up with RTAPI, which provides
+ a consistent way for programs to talk to the RTOS.
+ If you are a programmer who wants to work on the internals of EMC, you
+ may want to study 
+\family typewriter 
+emc2/src/rtapi/rtapi.h
+\family default 
+ to understand the API.
+ But if you are a normal person all you need to know about RTAPI is that
+ it (and the RTOS) needs to be loaded into the memory of your computer before
+ you do anything with HAL.
+\layout Standard
+
+For this tutorial, we are going to assume that you have successfully compiled
+ the emc2/ source tree.
+ In that case, all you need to do is load the required RTOS and RTAPI modules
+ into memory.
+ Just run the following command (needs root privileges):
+\layout LyX-Code
+
+emc2# 
+\series bold 
+scripts/realtime start
+\layout LyX-Code
+
+\layout Standard
+
+With the realtime OS and RTAPI loaded, we can move into the first example.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Tutorial - Simple Example}
+
+\end_inset 
+
+A Simple Example
+\layout Subsection
+
+Loading a realtime component
+\layout Standard
+
+For the first example, we will use a HAL component called 
+\family typewriter 
+siggen
+\family default 
+, which is a simple signal generator.
+ A complete description of the 
+\family typewriter 
+siggen
+\family default 
+ component can be found in section 
+\begin_inset LatexCommand \ref{sec:Siggen}
+
+\end_inset 
+
+ of this document.
+ It is a realtime component, implemented as a Linux kernel module and located
+ in the directory 
+\family typewriter 
+emc2/rtlib/
+\family default 
+.
+ To load 
+\family typewriter 
+siggen
+\family default 
+ use the 
+\family typewriter 
+halcmd loadrt
+\family default 
+ command:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt siggen
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Subsection
+
+Examining the HAL
+\layout Standard
+
+Now that the module is loaded, it is time to introduce 
+\family typewriter 
+halcmd
+\family default 
+, the command line tool used to configure the HAL.
+ This tutorial will introduce some halcmd features, for a more complete
+ description try 
+\family typewriter 
+man halcmd
+\family default 
+, or see the 
+\family typewriter 
+halcmd
+\family default 
+ reference in section 
+\begin_inset LatexCommand \ref{sec:Halcmd}
+
+\end_inset 
+
+ of this document.
+ The first halcmd feature is the show command.
+ This command displays information about the current state of the HAL.
+ To show all installed components:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show comp
+\layout LyX-Code
+
+Loaded HAL Components:
+\layout LyX-Code
+
+ID  Type  Name
+\layout LyX-Code
+
+02  User  halcmd21345
+\layout LyX-Code
+
+01  RT    siggen
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+Since 
+\family typewriter 
+halcmd
+\family default 
+ itself is a HAL component, it will always show up in the list
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The number after halcmd in the component list is the process ID.
+ It is possible to run more than one copy of halcmd at the same time (in
+ different windows for example), so the PID is added to the end of the name
+ to make it unique.
+\end_inset 
+
+.
+ The list also shows the 
+\family typewriter 
+siggen
+\family default 
+ component that we installed in the previous step.
+ The 
+\begin_inset Quotes eld
+\end_inset 
+
+RT
+\begin_inset Quotes erd
+\end_inset 
+
+ under 
+\begin_inset Quotes eld
+\end_inset 
+
+Type
+\begin_inset Quotes erd
+\end_inset 
+
+ indicates that 
+\family typewriter 
+siggen
+\family default 
+ is a realtime component.
+\layout Standard
+
+Next, let's see what pins 
+\family typewriter 
+siggen
+\family default 
+ makes available:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show pin
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner  Type  Dir    Value      Name
+\layout LyX-Code
+
+ 02    float -W   0.00000e+00  siggen.0.cosine
+\layout LyX-Code
+
+ 02    float -W   0.00000e+00  siggen.0.sawtooth
+\layout LyX-Code
+
+ 02    float -W   0.00000e+00  siggen.0.sine
+\layout LyX-Code
+
+ 02    float -W   0.00000e+00  siggen.0.square
+\layout LyX-Code
+
+ 02    float -W   0.00000e+00  siggen.0.triangle
+\layout LyX-Code
+
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+This command displays all of the pins in the HAL - a complex system could
+ have dozens or hundreds of pins.
+ But right now there are only five pins.
+ All five of these pins are floating point, and all five carry data out
+ of the 
+\family typewriter 
+siggen
+\family default 
+ component.
+ Since we have not yet executed the code contained within the component,
+ all the pins have a value of zero.
+\layout Standard
+
+The next step is to look at parameters:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show param
+\layout LyX-Code
+
+Parameters:
+\layout LyX-Code
+
+Owner  Type  Dir    Value      Name
+\layout LyX-Code
+
+ 02    float  -W   1.00000e+00  siggen.0.amplitude
+\layout LyX-Code
+
+ 02    float  -W   1.00000e+00  siggen.0.frequency
+\layout LyX-Code
+
+ 02    float  -W   0.00000e+00  siggen.0.offset
+\layout LyX-Code
+
+ 02    s32    R-            0   siggen.0.update.time
+\layout LyX-Code
+
+ 02    s32    RW            0   siggen.0.update.tmax 
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+The show param command shows all the parameters in the HAL.
+ Right now each parameter has the default value it was given when the component
+ was loaded.
+ Note the column labeled 
+\family typewriter 
+Dir
+\family default 
+.
+ The parameters labeled 
+\family typewriter 
+-W
+\family default 
+ are writeable ones that are never changed by the component itself, instead
+ they are meant to be changed by the user to control the component.
+ We will see how to do this later.
+ Parameters labeled 
+\family typewriter 
+R-
+\family default 
+ are read only parameters.
+ They can be changed only by the component.
+ Finally, parameter labeled 
+\family typewriter 
+RW
+\family default 
+ are read-write parameters.
+ That means that thay are changed by the component, but can also be changed
+ by the user.
+ Note: the parameters 
+\family typewriter 
+siggen.0.update.time
+\family default 
+ and 
+\family typewriter 
+siggen.0.update.tmax
+\family default 
+ are for debugging purposes, and won't be covered in this section.
+ 
+\begin_inset Note
+collapsed true
+
+\layout Standard
+
+The thread.time and thread.tmax parameters are associated with the thread
+ that was created when the component was insmod'ed.
+ Once the rewrite is complete, the thread would not have been created at
+ this point, so those parameters would not be present.
+\layout Standard
+
+SWP: There are no threads created yet, but there are still siggen.0.update.{time,tm
+ax} parameters.
+\end_inset 
+
+
+\begin_inset Note
+collapsed true
+
+\layout Standard
+
+The thread parameters are owned by component 02, the siggen module.
+ This is incorrect, they should be owned by the hal_lib module, because
+ the thread itself is no longer owned by siggen, and in fact, if siggen
+ is removed, the parameters should stay.
+\end_inset 
+
+
+\begin_inset Note
+collapsed true
+
+\layout Standard
+
+Well actually 
+\begin_inset Quotes eld
+\end_inset 
+
+fixing
+\begin_inset Quotes erd
+\end_inset 
+
+ the thread parameters is gonna take longer than I thought.
+ So I eliminated them, at least for now.
+ When the HAL rewrite is done, I'll put them back.
+\end_inset 
+
+
+\layout Standard
+
+Most realtime components export one or more functions to actually run the
+ realtime code they contain.
+ Let's see what function(s) 
+\family typewriter 
+siggen
+\family default 
+ exported:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show funct
+\layout LyX-Code
+
+Exported Functions:
+\layout LyX-Code
+
+Owner CodeAddr   Arg    FP  Users  Name
+\layout LyX-Code
+
+ 02   C48E31C4 C48D2054 YES    0   siggen.0.update
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+The siggen component exported a single function.
+ It requires floating point.
+ It is not currently linked to any threads, so 
+\begin_inset Quotes eld
+\end_inset 
+
+users
+\begin_inset Quotes erd
+\end_inset 
+
+ is zero
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The codeaddr and arg fields were used in development, and should probably
+ be removed from the halcmd listing.
+\end_inset 
+
+.
+ 
+\layout Subsection
+
+Making realtime code run
+\layout Standard
+
+To actually run the code contained in the function 
+\family typewriter 
+siggen.0.update
+\family default 
+, we need a realtime thread.
+ Eventually 
+\family typewriter 
+halcmd
+\family default 
+ will have a 
+\family typewriter 
+newthread
+\family default 
+ command that can be used to create a thread, but that requires some significant
+ internal changes.
+ For now, we have a component called 
+\family typewriter 
+threads
+\family default 
+ that is used to create a new thread.
+ Lets create a thread called 
+\family typewriter 
+test-thread
+\family default 
+ with a period of 1mS (1000000nS):
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt threads name1=test-thread period1=1000000
+\layout Standard
+
+Let's see if that worked:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show thread
+\layout LyX-Code
+
+Realtime Threads:
+\layout LyX-Code
+
+   Period   FP   Name    (Time, Max-Time)
+\layout LyX-Code
+
+     999849 YES  test-thread    ( 0, 0 )
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+It did.
+ The period is not exactly 1000000nS because of hardware limitations, but
+ we have a thread that runs at approximately the correct rate, and which
+ can handle floating point functions.
+ The next step is to connect the function to the thread:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd addf siggen.0.update test-thread
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+Up till now, we've been using 
+\family typewriter 
+halcmd
+\family default 
+ only to look at the HAL.
+ However, this time we used the 
+\family typewriter 
+addf
+\family default 
+ (add function) command to actually change something in the HAL.
+ We told 
+\family typewriter 
+halcmd
+\family default 
+ to add the function 
+\family typewriter 
+siggen.0.update
+\family default 
+ to the thread 
+\family typewriter 
+test-thread
+\family default 
+, and if we look at the thread list again, we see that it succeeded:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show thread
+\layout LyX-Code
+
+Realtime Threads:
+\layout LyX-Code
+
+   Period   FP   Name    (Time, Max-Time)
+\layout LyX-Code
+
+     999849 YES  test-thread    ( 0, 0 )
+\layout LyX-Code
+
+                  1 siggen.0.update
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+There is one more step needed before the 
+\family typewriter 
+siggen
+\family default 
+ component starts generating signals.
+ When the HAL is first started, the thread(s) are not actually running.
+ This is to allow you to completely configure the system before the realtime
+ code starts.
+ Once you are happy with the configuration, you can start the realtime code
+ like this:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd start
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+Now the signal generator is running.
+ Let's look at it's output pins:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show pin
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner  Type  Dir    Value      Name
+\layout LyX-Code
+
+ 02    float -W   5.61498e-01  siggen.0.cosine
+\layout LyX-Code
+
+ 02    float -W  -6.89775e-01  siggen.0.sawtooth
+\layout LyX-Code
+
+ 02    float -W   8.27478e-01  siggen.0.sine
+\layout LyX-Code
+
+ 02    float -W  -1.00000e+00  siggen.0.square
+\layout LyX-Code
+
+ 02    float -W   3.79549e-01  siggen.0.triangle
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show pin
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner  Type  Dir    Value      Name
+\layout LyX-Code
+
+ 02    float -W   9.23063e-01  siggen.0.cosine
+\layout LyX-Code
+
+ 02    float -W  -8.74322e-01  siggen.0.sawtooth
+\layout LyX-Code
+
+ 02    float -W   3.84649e-01  siggen.0.sine
+\layout LyX-Code
+
+ 02    float -W  -1.00000e+00  siggen.0.square
+\layout LyX-Code
+
+ 02    float -W   7.48645e-01  siggen.0.triangle
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+We did two 
+\family typewriter 
+show pin
+\family default 
+ commands in quick succession, and you can see that the outputs are no longer
+ zero.
+ The sine, cosine, sawtooth, and triangle outputs are changing constantly.
+ The square output is also working, however it simply switches from +1.0
+ to -1.0 every cycle, and it happened to be at -1.0 for both commands.
+\layout Subsection
+
+Changing parameters
+\layout Standard
+
+The real power of HAL is that you can change things.
+ For example, we can use the 
+\family typewriter 
+setp
+\family default 
+ command to set the value of a parameter.
+ Let's change the amplitude of the signal generator from 1.0 to 5.0:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd setp siggen.0.amplitude 5
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+Check the parameters and pins again:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show param
+\layout LyX-Code
+
+Parameters:
+\layout LyX-Code
+
+Owner  Type  Dir    Value      Name
+\layout LyX-Code
+
+ 02    float  -W   5.00000e+00  siggen.0.amplitude
+\layout LyX-Code
+
+ 02    float  -W   1.00000e+00  siggen.0.frequency
+\layout LyX-Code
+
+ 02    float  -W   0.00000e+00  siggen.0.offset
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show pin
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner  Type  Dir    Value      Name
+\layout LyX-Code
+
+ 02    float -W  -1.66602e+00  siggen.0.cosine
+\layout LyX-Code
+
+ 02    float -W   1.95935e+00  siggen.0.sawtooth
+\layout LyX-Code
+
+ 02    float -W  -4.71428e+00  siggen.0.sine
+\layout LyX-Code
+
+ 02    float -W   5.00000e+00  siggen.0.square
+\layout LyX-Code
+
+ 02    float -W  -1.08130e+00  siggen.0.triangle
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show pin
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner  Type  Dir    Value      Name
+\layout LyX-Code
+
+ 02    float -W  -3.82623e+00  siggen.0.cosine
+\layout LyX-Code
+
+ 02    float -W  -1.11309e+00  siggen.0.sawtooth
+\layout LyX-Code
+
+ 02    float -W   3.21869e+00  siggen.0.sine
+\layout LyX-Code
+
+ 02    float -W  -5.00000e+00  siggen.0.square
+\layout LyX-Code
+
+ 02    float -W  -2.77382e+00  siggen.0.triangle
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+Note that the value of parameter
+\family typewriter 
+ siggen.0.amplitude
+\family default 
+ has changed to 5.000, and that the pins now have larger values.
+ The square wave output now switches from +5.0 to -5.0, and we happened to
+ catch it switching this time.
+\layout Subsection
+
+Saving the HAL configuration
+\layout Standard
+
+Most of what we have done with 
+\family typewriter 
+halcmd
+\family default 
+ so far has simply been viewing things with the 
+\family typewriter 
+show
+\family default 
+ command.
+ However two of the commands actually changed things.
+ As we design more complex systems with HAL, we will use many commands to
+ configure things just the way we want them.
+ HAL has the memory of an elephant, and will retain that configuration until
+ we shut it down.
+ But what about next time? We don't want to manually enter a bunch of commands
+ every time we want to use the system.
+ We can save the configuration of the entire HAL with a single command:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd save
+\layout LyX-Code
+
+# components
+\layout LyX-Code
+
+loadrt threads name1=test-thread period1=1000000
+\layout LyX-Code
+
+loadrt siggen
+\layout LyX-Code
+
+# signals
+\layout LyX-Code
+
+# links
+\layout LyX-Code
+
+# parameter values
+\layout LyX-Code
+
+setp siggen.0.amplitude  5.00000e+00
+\layout LyX-Code
+
+setp siggen.0.frequency  1.00000e+00
+\layout LyX-Code
+
+setp siggen.0.offset  0.00000e+00
+\layout LyX-Code
+
+# realtime thread/function links
+\layout LyX-Code
+
+addf siggen.0.update test-thread
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+The output of the 
+\family typewriter 
+save
+\family default 
+ command is a sequence of HAL commands.
+ If you start with an 
+\begin_inset Quotes eld
+\end_inset 
+
+empty
+\begin_inset Quotes erd
+\end_inset 
+
+ HAL and run all these commands, you will get the configuration that existed
+ when the 
+\family typewriter 
+save
+\family default 
+ command was issued.
+ To save these commands for later use, we simply redirect the output to
+ a file:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd save >saved.hal
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Subsection
+
+Restoring the HAL configuration
+\layout Standard
+
+To restore the HAL configuration stored in 
+\family typewriter 
+saved.hal
+\family default 
+, we need to execute all of those HAL commands.
+ To do that, we use 
+\family typewriter 
+halcmd -f <filename>
+\family default 
+ which reads commands from a file:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd -f saved.hal
+\layout LyX-Code
+
+emc2$
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Tutorial - Halmeter}
+
+\end_inset 
+
+Looking at the HAL with halmeter
+\layout Standard
+
+You can build very complex HAL systems without ever using a graphical interface.
+ However there is something satisfying about seeing the result of your work.
+ The first and simplest GUI tool for the HAL is halmeter.
+ It is a very simple program that is the HAL equivalent of the handy Fluke
+ multimeter (or Simpson analog meter for the old timers).
+\layout Standard
+
+We will use the siggen component again to check out halmeter.
+ If you just finished the previous example, then siggen is already loaded.
+ If not, we can load it just like we did before:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+scripts/realtime start
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+loadrt siggen
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+loadrt threads name1=test-thread period1=1000000
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd addf siggen.0.update test-thread
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd start
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd setp siggen.0.amplitude 5
+\layout LyX-Code
+
+emc2$
+\layout Subsection
+
+Starting halmeter
+\layout Standard
+
+At this point we have the siggen component loaded and running.
+ It's time to start halmeter.
+ Since halmeter is a GUI app, X must be running.
+ We can start halmeter in the background by following it's name with a '
+\family typewriter 
+&
+\family default 
+':
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halmeter &
+\layout LyX-Code
+
+[1] 22093
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+Since we started halmeter in the background, Linux prints its process id
+ 
+\family typewriter 
+[1] 22093
+\family default 
+ and immediately returns to the shell prompt.
+ At the same time, a halcmd window opens on your screen, looking something
+ like figure 
+\begin_inset LatexCommand \ref{fig:Halmeter-demo-1}
+
+\end_inset 
+
+.
+ Note that you don't have to run halmeter in the background.
+ If you omit '
+\family typewriter 
+&
+\family default 
+', it will start and behave exactly the same, but you won't get your shell
+ prompt back until you exit from halmeter.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halmeter-demo-1.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halmeter-demo-1}
+
+\end_inset 
+
+Halmeter at startup, nothing selected
+\end_inset 
+
+
+\layout Subsection
+
+Using halmeter
+\layout Standard
+
+The meter in figure 
+\begin_inset LatexCommand \ref{fig:Halmeter-demo-1}
+
+\end_inset 
+
+ isn't very useful, because it isn't displaying anything.
+ To change that, click on the 'Select' button, which will open the probe
+ selection dialog (figure 
+\begin_inset LatexCommand \ref{fig:Halmeter-demo-2}
+
+\end_inset 
+
+).
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halmeter-demo-2.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halmeter-demo-2}
+
+\end_inset 
+
+Halmeter source selection dialog
+\end_inset 
+
+
+\layout Standard
+
+This dialog has three tabs.
+ The first tab displays all of the HAL pins in the system.
+ The second one displays all the signals, and the third displays all the
+ parameters.
+ We would like to look at the pin 
+\family typewriter 
+siggen.0.triangle
+\family default 
+ first, so click on it then click the 'OK' button.
+ The probe selection dialog will close, and the meter looks something like
+ figure 
+\begin_inset LatexCommand \ref{fig:Halmeter-demo-3}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halmeter-demo-3.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halmeter-demo-3}
+
+\end_inset 
+
+Halmeter displaying the value of a pin
+\end_inset 
+
+
+\layout Standard
+
+You should see the value changing as siggen generates its triangle wave.
+ Halmeter refreshes its display about 5 times per second.
+ 
+\layout Standard
+
+If you want to quickly look at a number of pins, you can use the 'Accept'
+ button in the source selection dialog.
+ Click on 'Select' to open the dialog again.
+ This time, click on another pin, like siggen.0.cosine, and then click 'Accept'.
+ When you click 'Accept', the meter immediately begins to display the newly
+ selected item, but the dialog does not close.
+ Try displaying a parameter instead of a pin.
+ Click on the 'Parameters' tab, then select a parameter and click 'Accept'
+ again.
+ You can very quickly move the 
+\begin_inset Quotes eld
+\end_inset 
+
+meter probes
+\begin_inset Quotes erd
+\end_inset 
+
+ from one item to the next with a couple of clicks.
+\layout Standard
+
+To shut down halmeter, just click the exit button.
+\layout Standard
+
+If you want to look at more than one pin, signal, or parameter at a time,
+ you can just start more halmeters.
+ The halmeter window was intentionally made very small so you could have
+ a lot of them on the screen at once.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Halmeter is due for a rewrite.
+ The rewrite will do a number of things to make it nicer.
+ Scientific notation will go away - it is a pain to read.
+ Some form of ranging (including autoranging) will be added to allow it
+ to display a wide range of numbers without using scientific notation.
+ An 
+\begin_inset Quotes eld
+\end_inset 
+
+analog bar graph
+\begin_inset Quotes erd
+\end_inset 
+
+ display will also be added to give a quick indication of trends.
+ When the rewrite is done, these screenshots and the accompanying text will
+ be revised to match the new version.
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Tutorial - More Complex}
+
+\end_inset 
+
+A slightly more complex example.
+\layout Standard
+
+Up till now we have only loaded one HAL component.
+ But the whole idea behind the HAL is to allow you to load and connect a
+ number of simple components to make up a complex system.
+ The next example will use two components.
+\layout Standard
+
+Before we can begin building this new example, we want to start with a clean
+ slate.
+ If you just finished one of the previous examples, we need to remove the
+ all components and reload the RTAPI and HAL libraries:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt all
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+scripts/realtime restart
+\layout LyX-Code
+
+emc2$
+\layout Subsection
+
+Installing the components
+\layout Standard
+
+Now we are going to load the step pulse generator component.
+ For a detailed description of this component refer to section 
+\begin_inset LatexCommand \ref{sec:Freqgen}
+
+\end_inset 
+
+.
+ For now, we can skip the details, and just run the following commands:
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\backslash 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ at the end of a long line indicates line wrapping (needed for formatting
+ this document).
+ When entering the commands at the command line, simply skip the 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\backslash 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ (do not hit enter) and keep typing from the following line.
+\end_inset 
+
+
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt freqgen step_type=0,0
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt siggen
+\layout LyX-Code
+
+emc2$
+\series bold 
+ bin/halcmd loadrt threads name1=fast fp1=0 period1=50000 
+\backslash 
+
+\layout LyX-Code
+
+
+\series bold 
+name2=slow period2=1000000
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+The first command loads two step generators, both configured to generate
+ stepping type 0.
+ The second command loads our old friend siggen, and the third one creates
+ two threads, a fast one with a period of 50 micro-seconds and a slow one
+ with a period of 1mS.
+ The fast thread doesn't support floating point functions.
+\layout Standard
+
+As before, we can use 
+\family typewriter 
+halcmd show
+\family default 
+ to take a look at the HAL.
+ This time we have a lot more pins and parameters than before:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show pin
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner  Type  Dir    Value      Name
+\layout LyX-Code
+
+ 03    float -W   0.00000e+00  siggen.0.cosine
+\layout LyX-Code
+
+ 03    float -W   0.00000e+00  siggen.0.sawtooth
+\layout LyX-Code
+
+ 03    float -W   0.00000e+00  siggen.0.sine
+\layout LyX-Code
+
+ 03    float -W   0.00000e+00  siggen.0.square
+\layout LyX-Code
+
+ 03    float -W   0.00000e+00  siggen.0.triangle
+\layout LyX-Code
+
+ 02    s32   -W            0   freqgen.0.counts
+\layout LyX-Code
+
+ 02    bit   -W     FALSE      freqgen.0.dir
+\layout LyX-Code
+
+ 02    float -W   0.00000e+00  freqgen.0.position
+\layout LyX-Code
+
+ 02    bit   -W     FALSE      freqgen.0.step
+\layout LyX-Code
+
+ 02    float R-   0.00000e+00  freqgen.0.velocity
+\layout LyX-Code
+
+ 02    s32   -W            0   freqgen.1.counts
+\layout LyX-Code
+
+ 02    bit   -W     FALSE      freqgen.1.dir
+\layout LyX-Code
+
+ 02    float -W   0.00000e+00  freqgen.1.position
+\layout LyX-Code
+
+ 02    bit   -W     FALSE      freqgen.1.step
+\layout LyX-Code
+
+ 02    float R-   0.00000e+00  freqgen.1.velocity
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show param
+\layout LyX-Code
+
+Parameters:
+\layout LyX-Code
+
+Owner  Type  Dir    Value      Name
+\layout LyX-Code
+
+ 03    float  -W   1.00000e+00  siggen.0.amplitude
+\layout LyX-Code
+
+ 03    float  -W   1.00000e+00  siggen.0.frequency
+\layout LyX-Code
+
+ 03    float  -W   0.00000e+00  siggen.0.offset
+\layout LyX-Code
+
+ 02    u8     -W      1  (01)   freqgen.0.dirhold
+\layout LyX-Code
+
+ 02    u8     -W      1  (01)   freqgen.0.dirsetup
+\layout LyX-Code
+
+ 02    float  R-   0.00000e+00  freqgen.0.frequency
+\layout LyX-Code
+
+ 02    float  -W   0.00000e+00  freqgen.0.maxaccel
+\layout LyX-Code
+
+ 02    float  -W   1.00000e+15  freqgen.0.maxfreq
+\layout LyX-Code
+
+ 02    float  -W   1.00000e+00  freqgen.0.position-scale
+\layout LyX-Code
+
+ 02    s32    R-            0   freqgen.0.rawcounts
+\layout LyX-Code
+
+ 02    u8     -W      1  (01)   freqgen.0.steplen
+\layout LyX-Code
+
+ 02    u8     -W      1  (01)   freqgen.0.stepspace
+\layout LyX-Code
+
+ 02    float  -W   1.00000e+00  freqgen.0.velocity-scale
+\layout LyX-Code
+
+ 02    u8     -W      1  (01)   freqgen.1.dirhold
+\layout LyX-Code
+
+ 02    u8     -W      1  (01)   freqgen.1.dirsetup
+\layout LyX-Code
+
+ 02    float  R-   0.00000e+00  freqgen.1.frequency
+\layout LyX-Code
+
+ 02    float  -W   0.00000e+00  freqgen.1.maxaccel
+\layout LyX-Code
+
+ 02    float  -W   1.00000e+15  freqgen.1.maxfreq
+\layout LyX-Code
+
+ 02    float  -W   1.00000e+00  freqgen.1.position-scale
+\layout LyX-Code
+
+ 02    s32    R-            0   freqgen.1.rawcounts
+\layout LyX-Code
+
+ 02    u8     -W      1  (01)   freqgen.1.steplen
+\layout LyX-Code
+
+ 02    u8     -W      1  (01)   freqgen.1.stepspace
+\layout LyX-Code
+
+ 02    float  -W   1.00000e+00  freqgen.1.velocity-scale
+\layout LyX-Code
+
+emc2$ 
+\layout LyX-Code
+
+\layout Subsection
+
+Connecting pins with signals
+\layout Standard
+
+What we have is two step pulse generators, and a signal generator.
+ Now it is time to create some HAL signals to connect the two components.
+ We are going to pretend that the two step pulse generators are driving
+ the X and Y axis of a machine.
+ We want to move the table in circles.
+ To do this, we will send a cosine signal to the X axis, and a sine signal
+ to the Y axis.
+ The siggen module creates the sine and cosine, but we need 
+\begin_inset Quotes eld
+\end_inset 
+
+wires
+\begin_inset Quotes erd
+\end_inset 
+
+ to connect the modules together.
+ In the HAL, 
+\begin_inset Quotes eld
+\end_inset 
+
+wires
+\begin_inset Quotes erd
+\end_inset 
+
+ are called signals.
+ We need to create two of them.
+ We can call them anything we want, for this example they will be 
+\family typewriter 
+X_vel
+\family default 
+ and 
+\family typewriter 
+Y_vel
+\family default 
+.
+ To create them we use the the 
+\family typewriter 
+newsi
+\family default 
+g command.
+ We also need to specify the type of data that will flow through these 
+\begin_inset Quotes eld
+\end_inset 
+
+wires
+\begin_inset Quotes erd
+\end_inset 
+
+, in this case it is floating point:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd newsig X_vel float
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd newsig Y_vel float
+\layout LyX-Code
+
+emc2$ 
+\layout Standard
+
+To make sure that worked, we can look at all the signals:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show sig
+\layout LyX-Code
+
+Signals:
+\layout LyX-Code
+
+Type      Value      Name
+\layout LyX-Code
+
+float   0.00000e+00  X_vel
+\layout LyX-Code
+
+float   0.00000e+00  Y_vel
+\layout LyX-Code
+
+emc2$ 
+\layout Standard
+
+The next step is to connect the signals to component pins.
+ The signal 
+\family typewriter 
+X_vel
+\family default 
+ is intended to run from the cosine output of the signal generator to the
+ velocity input of the first step pulse generator.
+ The first step is to connect the signal to the signal generator output.
+ To connect a signal to a pin we use the 
+\family typewriter 
+linksp
+\family default 
+ command.
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd linksp X_vel siggen.0.cosine
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+To see the effect of the 
+\family typewriter 
+linksp
+\family default 
+ command, we show the signals again:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show sig
+\layout LyX-Code
+
+Signals:
+\layout LyX-Code
+
+Type      Value      Name
+\layout LyX-Code
+
+float   0.00000e+00  X_vel
+\layout LyX-Code
+
+                         <== siggen.0.cosine
+\layout LyX-Code
+
+float   0.00000e+00  Y_vel
+\layout LyX-Code
+
+emc2$
+\layout LyX-Code
+
+\layout Standard
+
+When a signal is connected to one or more pins, the show command lists the
+ pins immediately following the signal name.
+ The 
+\begin_inset Quotes eld
+\end_inset 
+
+arrow
+\begin_inset Quotes erd
+\end_inset 
+
+ shows the direction of data flow - in this case, data flows from pin 
+\family typewriter 
+siggen.0.cosine
+\family default 
+ to signal 
+\family typewriter 
+X_vel
+\family default 
+.
+ Now let's connect the 
+\family typewriter 
+X_vel
+\family default 
+ to the velocity input of a step pulse generator:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd linksp X_vel freqgen.0.velocity
+\layout LyX-Code
+
+emc2$ 
+\layout Standard
+
+We can also connect up the Y axis signal 
+\family typewriter 
+Y_vel
+\family default 
+.
+ It is intended to run from the sine output of the signal generator to the
+ input of the second step pulse generator:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd linksp Y_vel siggen.0.sine
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd linksp Y_vel freqgen.1.velocity
+\layout LyX-Code
+
+emc2$ 
+\layout Standard
+
+Now let's take a final look at the signals and the pins connected to them:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show sig
+\layout LyX-Code
+
+Signals:
+\layout LyX-Code
+
+Type      Value      Name
+\layout LyX-Code
+
+float   0.00000e+00  X_vel
+\layout LyX-Code
+
+                         <== siggen.0.cosine
+\layout LyX-Code
+
+                         ==> freqgen.0.velocity
+\layout LyX-Code
+
+float   0.00000e+00  Y_vel
+\layout LyX-Code
+
+                         <== siggen.0.sine
+\layout LyX-Code
+
+                         ==> freqgen.1.velocity
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+The 
+\family typewriter 
+show sig
+\family default 
+ command makes it clear exactly how data flows through the HAL.
+ For example, the
+\family typewriter 
+ X_vel
+\family default 
+ signal comes from pin 
+\family typewriter 
+siggen.0.cosine
+\family default 
+, and goes to pin 
+\family typewriter 
+freqgen.0.velocity
+\family default 
+.
+\layout Subsection
+
+Setting up realtime execution - threads and functions
+\layout Standard
+
+Thinking about data flowing through 
+\begin_inset Quotes eld
+\end_inset 
+
+wires
+\begin_inset Quotes erd
+\end_inset 
+
+ makes pins and signals fairly easy to understand.
+ Threads and functions are a little more difficult.
+ Functions contain the computer instructions that actually get things done.
+ Thread are the method used to make those instructions run when they are
+ needed.
+ First let's look at the functions available to us:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show funct
+\layout LyX-Code
+
+Exported Functions:
+\layout LyX-Code
+
+Owner CodeAddr   Arg    FP  Users  Name
+\layout LyX-Code
+
+ 03   D89051C4 D88F10FC YES    0   siggen.0.update
+\layout LyX-Code
+
+ 02   D8902868 D88F1054 YES    0   freqgen.capture_position
+\layout LyX-Code
+
+ 02   D8902498 D88F1054 NO     0   freqgen.make_pulses
+\layout LyX-Code
+
+ 02   D89026F0 D88F1054 YES    0   freqgen.update_freq
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+In general, you will have to refer to the documentation for each component
+ to see what its functions do.
+ In this case, the function 
+\family typewriter 
+siggen.0.update
+\family default 
+ is used to update the outputs of the signal generator.
+ Every time it is executed, it calculates the values of the sine, cosine,
+ triangle, and square outputs.
+ To make smooth signals, it needs to run at specific intervals.
+ 
+\layout Standard
+
+The other three functions are related to the step pulse generators:
+\layout Standard
+
+The first one, 
+\family typewriter 
+freqgen.capture_position
+\family default 
+, is used for position feedback.
+ It captures the value of an internal counter that counts the step pulses
+ as they are generated.
+ Assuming no missed steps, this counter indicates the position of the motor.
+\layout Standard
+
+The main function for the step pulse generator is 
+\family typewriter 
+freqgen.make_pulses
+\family default 
+.
+ Every time 
+\family typewriter 
+make_pulses
+\family default 
+ runs it decides if it is time to take a step, and if so sets the outputs
+ accordingly.
+ For smooth step pulses, it should run as frequently as possible.
+ Because it needs to run so fast, 
+\family typewriter 
+make_pulses
+\family default 
+ is highly optimized and performs only a few calculations.
+ Unlike the others, it does not need floating point math.
+ 
+\layout Standard
+
+The last function, 
+\family typewriter 
+freqgen.update_freq
+\family default 
+, is responsible for doing scaling and some other calculations that need
+ to be performed only when the frequency command changes.
+\layout Standard
+
+What this means for our example is that we want to run 
+\family typewriter 
+siggen.0.update
+\family default 
+ at a moderate rate to calculate the sine and cosine values.
+ Immediately after we run 
+\family typewriter 
+siggen.0.update
+\family default 
+, we want to run 
+\family typewriter 
+freqgen.update_freq
+\family default 
+ to load the new values into the step pulse generator.
+ Finally we need to run 
+\family typewriter 
+freqgen.make_pulses
+\family default 
+ as fast as possible for smooth pulses.
+ Because we don't use position feedback, we don't need to run 
+\family typewriter 
+freqgen.capture_position
+\family default 
+ at all.
+\layout Standard
+
+We run functions by adding them to threads.
+ Each thread runs at a specific rate.
+ Let's see what threads we have available:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show thread
+\layout LyX-Code
+
+Realtime Threads:
+\layout LyX-Code
+
+   Period   FP   Name
+\layout LyX-Code
+
+    1005720 YES  slow    ( 0, 0 )
+\layout LyX-Code
+
+      50286 NO   fast    ( 0, 0 )
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+The two threads were created when we loaded 
+\family typewriter 
+threads
+\family default 
+.
+ The first one, 
+\family typewriter 
+slow
+\family default 
+, runs every millisecond, and is capable of running floating point functions.
+ We will use it for s
+\family typewriter 
+iggen.0.update
+\family default 
+ and 
+\family typewriter 
+freqgen.update_freq
+\family default 
+.
+ The second thread is 
+\family typewriter 
+fast
+\family default 
+, which runs every 50 microseconds, and does not support floating point.
+ We will use it for 
+\family typewriter 
+freqgen.make_pulses
+\family default 
+.
+ To connect the functions to the proper thread, we use the 
+\family typewriter 
+addf
+\family default 
+ command.
+ We specify the function first, followed by the thread:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd addf siggen.0.update slow
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd addf freqgen.update_freq slow
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd addf freqgen.make_pulses fast
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+After we give these commands, we can run the 
+\family typewriter 
+show thread
+\family default 
+ command again to see what happened:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd show thread
+\layout LyX-Code
+
+Realtime Threads:
+\layout LyX-Code
+
+   Period   FP   Name    (Time, Max-Time)
+\layout LyX-Code
+
+    1005720 YES  slow    ( 0, 0 )
+\layout LyX-Code
+
+                  1 siggen.0.update
+\layout LyX-Code
+
+                  2 freqgen.update-freq
+\layout LyX-Code
+
+      50286 NO   fast    ( 0, 0 )
+\layout LyX-Code
+
+                  1 freqgen.make-pulses
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+Now each thread is followed by the names of the functions, in the order
+ in which the functions will run.
+\layout Subsection
+
+Setting parameters
+\layout Standard
+
+We are almost ready to start our HAL system.
+ However we still need to adjust a few parameters.
+ By default, the siggen component generates signals that swing from +1 to
+ -1.
+ For our example that is fine, we want the table speed to vary from +1 to
+ -1 inches per second.
+ However the scaling of the step pulse generator isn't quite right.
+ By default, it generates an output frequency of 1 step per second with
+ an input of 1.000.
+ It is unlikely that one step per second will give us one inch per second
+ of table movement.
+ Let's assume instead that we have a 5 turn per inch leadscrew, connected
+ to a 200 step per rev stepper with 10x microstepping.
+ So it takes 2000 steps for one revolution of the screw, and 5 revolutions
+ to travel one inch.
+ that means the overall scaling is 10000 steps per inch.
+ We need to multiply the velocity input to the step pulse generator by 10000
+ to get the proper output.
+ That is exactly what the parameter 
+\family typewriter 
+freqgen.n.velocity-scale
+\family default 
+ is for.
+ In this case, both the X and Y axis have the same scaling, so we set the
+ scaling parameters for both to 10000:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd setp freqgen.0.velocity-scale 10000
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd setp freqgen.1.velocity-scale 10000
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+This velocity scaling means that when the pin 
+\family typewriter 
+freqgen.0.velocity
+\family default 
+ is 1.000, the step generator will generate 10000 pulses per second (10KHz).
+ With the motor and leadscrew described above, that will result in the axis
+ moving at exactly 1.000 inches per second.
+ This illustrates a key HAL concept - things like scaling are done at the
+ lowest possible level, in this case in the step pulse generator.
+ The internal signal 
+\family typewriter 
+X_vel
+\family default 
+ is the velocity of the table in inches per second, and other components
+ such as 
+\family typewriter 
+siggen
+\family default 
+ don't know (or care) about the scaling at all.
+ If we changed the leadscrew, or motor, we would change only the scaling
+ parameter of the step pulse generator.
+\layout Subsection
+
+Run it!
+\layout Standard
+
+We now have everything configured and are ready to start it up.
+ Just like in the first example, we use the 
+\family typewriter 
+start
+\family default 
+ command:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd start
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+Although nothing appears to happen, inside the computer the step pulse generator
+ is cranking out step pulses, varying from 10KHz forward to 10KHz reverse
+ and back again every second.
+ Later in this tutorial we'll see how to bring those internal signals out
+ to run motors in the real world, but first we want to look at them and
+ see what is happening.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Tutorial - Halscope}
+
+\end_inset 
+
+Taking a closer look with halscope.
+\layout Standard
+
+The previous example generates some very interesting signals.
+ But much of what happens is far too fast to see with halmeter.
+ To take a closer look at what is going on inside the HAL, we want an oscillosco
+pe.
+ Fortunately HAL has one, called halscope.
+\layout Subsection
+
+Starting Halscope
+\layout Standard
+
+Halscope has two parts - a realtime part that is loaded as a kernel module,
+ and a user part that supplies the GUI and display.
+ Before starting the GUI you must load the realtime part:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt scope_rt
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+Once the realtime part is loaded, we can start the GUI.
+ Like halmeter, you can follow it with & so it runs in the background and
+ you get your shell prompt back immediately:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halscope &
+\layout LyX-Code
+
+[2] 3678
+\layout LyX-Code
+
+emc2$
+\layout Standard
+
+The scope GUI window will open, immediately followed by a 
+\begin_inset Quotes eld
+\end_inset 
+
+Realtime function not linked
+\begin_inset Quotes erd
+\end_inset 
+
+ dialog that looks like figure 
+\begin_inset LatexCommand \ref{fig:Halscope-demo-1}
+
+\end_inset 
+
+
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Several of these screen captures refer to threads named 
+\begin_inset Quotes eld
+\end_inset 
+
+siggen.thread
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+stepgen.thread
+\begin_inset Quotes erd
+\end_inset 
+
+ instead of 
+\begin_inset Quotes eld
+\end_inset 
+
+slow
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+fast
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ When the screenshots were captured, the 
+\begin_inset Quotes eld
+\end_inset 
+
+threads
+\begin_inset Quotes erd
+\end_inset 
+
+ component didn't exist, and a different method was used to create threads,
+ giving them different names.
+ Also, the screenshots show pins, etc, as 
+\begin_inset Quotes eld
+\end_inset 
+
+stepgen.xxx
+\begin_inset Quotes erd
+\end_inset 
+
+ rather than 
+\begin_inset Quotes eld
+\end_inset 
+
+freqgen.xxx
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ The original name of the freqgen module was stepgen, and I haven't gotten
+ around to re-doing all the screen shots since it was renamed.
+ The name 
+\begin_inset Quotes eld
+\end_inset 
+
+stepgen
+\begin_inset Quotes erd
+\end_inset 
+
+ now refers to a different step pulse generator, one that accepts position
+ instead of velocity commands.
+ Both are described in detail later in this document.
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halscope-demo-1.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halscope-demo-1}
+
+\end_inset 
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+Realtime function not linked
+\begin_inset Quotes erd
+\end_inset 
+
+ dialog
+\end_inset 
+
+
+\layout Standard
+
+This dialog is where you set the sampling rate for the oscilloscope.
+ For now we want to sample once per millisecond, so click on the 1.03mS thread
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+slow
+\begin_inset Quotes erd
+\end_inset 
+
+ (formerly 
+\begin_inset Quotes eld
+\end_inset 
+
+siggen.thread
+\begin_inset Quotes erd
+\end_inset 
+
+, see footnote), and leave the multiplier at 1.
+ We will also leave the record length at 4047 samples, so that we can use
+ up to four channels at one time.
+ When you select a thread and then click 
+\begin_inset Quotes eld
+\end_inset 
+
+OK
+\begin_inset Quotes erd
+\end_inset 
+
+, the dialog disappears, and the scope window looks something like figure
+ 
+\begin_inset LatexCommand \ref{fig:Halscope-demo-2}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halscope-demo-2.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halscope-demo-2}
+
+\end_inset 
+
+Initial scope window
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Subsection
+
+Hooking up the 
+\begin_inset Quotes eld
+\end_inset 
+
+scope probes
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+At this point, Halscope is ready to use.
+ We have already selected a sample rate and record length, so the next step
+ is to decide what to look at.
+ This is equivalent to hooking 
+\begin_inset Quotes eld
+\end_inset 
+
+virtual scope probes
+\begin_inset Quotes erd
+\end_inset 
+
+ to the HAL.
+ Halscope has 16 channels, but the number you can use at any one time depends
+ on the record length - more channels means shorter records, since the memory
+ available for the record is fixed at approximately 16,000 samples.
+\layout Standard
+
+The channel buttons run across the bottom of the halscope screen.
+ Click button 
+\begin_inset Quotes eld
+\end_inset 
+
+1
+\begin_inset Quotes erd
+\end_inset 
+
+, and you will see the 
+\begin_inset Quotes eld
+\end_inset 
+
+Select Channel Source
+\begin_inset Quotes erd
+\end_inset 
+
+ dialog, figure 
+\begin_inset LatexCommand \ref{fig:Halscope-demo-3}
+
+\end_inset 
+
+.
+ This dialog is very similar to the one used by Halmeter.
+ We would like to look at the signals we defined earlier, so we click on
+ the 
+\begin_inset Quotes eld
+\end_inset 
+
+Signals
+\begin_inset Quotes erd
+\end_inset 
+
+ tab, and the dialog displays all of the signals in the HAL (only two for
+ this example).
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halscope-demo-3.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halscope-demo-3}
+
+\end_inset 
+
+Select Channel Source dialog
+\end_inset 
+
+
+\layout Standard
+
+To choose a signal, just click on it.
+ In this case, we want to use channel 1 to display the signal 
+\begin_inset Quotes eld
+\end_inset 
+
+X_vel
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ When we click on 
+\begin_inset Quotes eld
+\end_inset 
+
+X_vel
+\begin_inset Quotes erd
+\end_inset 
+
+, the dialog closes and the channel is now selected.
+ The channel 1 button is pressed in, and channel number 1 and the name 
+\begin_inset Quotes eld
+\end_inset 
+
+X_vel
+\begin_inset Quotes erd
+\end_inset 
+
+ appear below the row of buttons.
+ That display always indicates the selected channel - you can have many
+ channels on the screen, but the selected one is highlighted, and the various
+ controls like vertical position and scale always work on the selected one.
+ To add a signal to channel 2, click the 
+\begin_inset Quotes eld
+\end_inset 
+
+2
+\begin_inset Quotes erd
+\end_inset 
+
+ button.
+ When the dialog pops up, click the 
+\begin_inset Quotes eld
+\end_inset 
+
+Signals
+\begin_inset Quotes erd
+\end_inset 
+
+ tab, then click on 
+\begin_inset Quotes eld
+\end_inset 
+
+Y_vel
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ 
+\layout Standard
+
+We also want to look at the square and triangle wave outputs.
+ There are no signals connected to those pins, so we use the 
+\begin_inset Quotes eld
+\end_inset 
+
+Pins
+\begin_inset Quotes erd
+\end_inset 
+
+ tab instead.
+ For channel 3, select 
+\begin_inset Quotes eld
+\end_inset 
+
+siggen.0.triangle
+\begin_inset Quotes erd
+\end_inset 
+
+ and for channel 4, select 
+\begin_inset Quotes eld
+\end_inset 
+
+siggen.0.square
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\begin_inset Note
+collapsed true
+
+\layout Standard
+
+The siggen component now uses 0 as the starting number, so these screenshots
+ need to be updated.
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Subsection
+
+Capturing our first waveforms
+\layout Standard
+
+Now that we have several probes hooked to the HAL, it's time to capture
+ some waveforms.
+ To start the scope, click the 
+\begin_inset Quotes eld
+\end_inset 
+
+Normal
+\begin_inset Quotes erd
+\end_inset 
+
+ button in the 
+\begin_inset Quotes eld
+\end_inset 
+
+Run Mode
+\begin_inset Quotes erd
+\end_inset 
+
+ section of the screen (upper right).
+ Since we have a 4000 sample record length, and are acquiring 1000 samples
+ per second, it will take halscope about 2 seconds to fill half of its buffer.
+ During that time a progress bar just above the main screen will show the
+ buffer filling.
+ Once the buffer is half full, the scope waits for a trigger.
+ Since we haven't configured one yet, it will wait forever.
+ To manually trigger it, click the 
+\begin_inset Quotes eld
+\end_inset 
+
+Force
+\begin_inset Quotes erd
+\end_inset 
+
+ button in the 
+\begin_inset Quotes eld
+\end_inset 
+
+Trigger
+\begin_inset Quotes erd
+\end_inset 
+
+ section at the top right.
+ You should see the remainder of the buffer fill, then the screen will display
+ the captured waveforms.
+ The result will look something like figure 
+\begin_inset LatexCommand \ref{fig:Halscope-demo-4}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halscope-demo-4.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halscope-demo-4}
+
+\end_inset 
+
+Captured Waveforms
+\end_inset 
+
+
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+Selected Channel
+\begin_inset Quotes erd
+\end_inset 
+
+ box at the bottom tells you that the green trace is the currently selected
+ one, channel 4, which is displaying the value of the pin 
+\begin_inset Quotes eld
+\end_inset 
+
+siggen.1.square
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Try clicking channel buttons 1 through 3 to highlight the other three traces.
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Subsection
+
+Vertical Adjustments
+\layout Standard
+
+The traces are rather hard to distinguish since all four are on top of each
+ other.
+ To fix this, we use the 
+\begin_inset Quotes eld
+\end_inset 
+
+Vertical
+\begin_inset Quotes erd
+\end_inset 
+
+ controls in the box to the right of the screen.
+ These controls act on the currently selected channel.
+ When adjusting the gain, notice that it covers a huge range - unlike a
+ real scope, this one can display signals ranging from very tiny (pico-units)
+ to very large (Tera-units).
+ The position control moves the displayed trace up and down over the height
+ of the screen only.
+ For larger adjustments the offset button should be used (see the halscope
+ reference in section 
+\begin_inset LatexCommand \ref{sec:Halscope}
+
+\end_inset 
+
+ for details).
+\layout Subsection
+
+Triggering
+\layout Standard
+
+Using the 
+\begin_inset Quotes eld
+\end_inset 
+
+Force
+\begin_inset Quotes erd
+\end_inset 
+
+ button is a rather unsatisfying way to trigger the scope.
+ To set up real triggering, click on the 
+\begin_inset Quotes eld
+\end_inset 
+
+Source
+\begin_inset Quotes erd
+\end_inset 
+
+ button at the bottom right.
+ It will pop up the 
+\begin_inset Quotes eld
+\end_inset 
+
+Trigger Source
+\begin_inset Quotes erd
+\end_inset 
+
+ dialog, which is simply a list of all the probes that are currently connected
+ (Figure 
+\begin_inset LatexCommand \ref{fig:Halscope-demo-5}
+
+\end_inset 
+
+ ).
+ Select a probe to use for triggering by clicking on it.
+ For this example we will use channel 3, the triangle wave.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halscope-demo-5.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halscope-demo-5}
+
+\end_inset 
+
+Trigger Source Dialog
+\end_inset 
+
+
+\layout Standard
+
+After setting the trigger source, you can adjust the trigger level and trigger
+ position using the sliders in the 
+\begin_inset Quotes eld
+\end_inset 
+
+Trigger
+\begin_inset Quotes erd
+\end_inset 
+
+ box along the right edge.
+ The level can be adjusted from the top to the bottom of the screen, and
+ is displayed below the sliders.
+ The position is the location of the trigger point within the overall record.
+ With the slider all the way down, the trigger point is at the end of the
+ record, and halscope displays what happened before the trigger point.
+ When the slider is all the way up, the trigger point is at the beginning
+ of the record, displaying what happened after it was triggered.
+ The trigger point is visible as a vertical line in the progress box above
+ the screen.
+ The trigger polarity can be changed by clicking the button just below the
+ trigger level display.
+ Note that changing the trigger position stops the scope, once the position
+ is adjusted you restart the scope by clicking the 
+\begin_inset Quotes eld
+\end_inset 
+
+Normal
+\begin_inset Quotes erd
+\end_inset 
+
+ button in the 
+\begin_inset Quotes eld
+\end_inset 
+
+Run Mode
+\begin_inset Quotes erd
+\end_inset 
+
+ box.
+\layout Standard
+
+Now that we have adjusted the vertical controls and triggering, the scope
+ display looks something like figure 
+\begin_inset LatexCommand \ref{fig:Halscope-demo-6}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halscope-demo-6.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halscope-demo-6}
+
+\end_inset 
+
+Waveforms with Triggering
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Subsection
+
+Horizontal Adjustments
+\layout Standard
+
+To look closely at part of a waveform, you can use the zoom slider at the
+ top of the screen to expand the waveforms horizontally, and the position
+ slider to determine which part of the zoomed waveform is visible.
+ However, sometimes simply expanding the waveforms isn't enough and you
+ need to increase the sampling rate.
+ For example, we would like to look at the actual step pulses that are being
+ generated in our example.
+ Since the step pulses may be only 50uS long, sampling at 1KHz isn't fast
+ enough.
+ To change the sample rate, click on the button that displays the record
+ length and sample rate to bring up the 
+\begin_inset Quotes eld
+\end_inset 
+
+Select Sample Rate
+\begin_inset Quotes erd
+\end_inset 
+
+ dialog, figure .
+ For this example, we will click on the 50uS thread, 
+\begin_inset Quotes eld
+\end_inset 
+
+fast
+\begin_inset Quotes erd
+\end_inset 
+
+, which gives us a sample rate of about 20KHz.
+ Now instead of displaying about 4 seconds worth of data, one record is
+ 4000 samples at 20KHz, or about 0.20 seconds.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halscope-demo-7.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halscope-demo-7}
+
+\end_inset 
+
+Sample Rate Dialog
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Collapsed
+
+\layout Standard
+
+\backslash 
+clearpage
+\end_inset 
+
+
+\layout Subsection
+
+More Channels
+\layout Standard
+
+Now let's look at the step pulses.
+ Halscope has 16 channels, but for this example we are using only 4 at a
+ time.
+ Before we select any more channels, we need to turn off a couple.
+ Click on the channel 2 button, then click the 
+\begin_inset Quotes eld
+\end_inset 
+
+Off
+\begin_inset Quotes erd
+\end_inset 
+
+ button at the bottom of the 
+\begin_inset Quotes eld
+\end_inset 
+
+Vertical
+\begin_inset Quotes erd
+\end_inset 
+
+ box.
+ Then click on channel 3, turn if off, and do the same for channel 4.
+ Even though the channels are turned off, they still remember what they
+ are connected to, and in fact we will continue to use channel 3 as the
+ trigger source.
+ To add new channels, select channel 5, and choose pin 
+\begin_inset Quotes eld
+\end_inset 
+
+stepgen.1.dir
+\begin_inset Quotes erd
+\end_inset 
+
+, then channel 6, and select 
+\begin_inset Quotes eld
+\end_inset 
+
+stepgen.1.step
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Then click run mode 
+\begin_inset Quotes eld
+\end_inset 
+
+Normal
+\begin_inset Quotes erd
+\end_inset 
+
+ to start the scope, and adjust the horizontal zoom to 5mS per division.
+ You should see the step pulses slow down as the velocity command (channel
+ 1) approaches zero, then the direction pin changes state and the step pulses
+ speed up again.
+ You might want to increase the gain on channel 1 to about 20m per division
+ to better see the change in the velocity command.
+ The result should look like figure 
+\begin_inset LatexCommand \ref{fig:Halscope-demo-8}
+
+\end_inset 
+
+.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename halscope-demo-8.png
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Halscope-demo-8}
+
+\end_inset 
+
+Looking at Step Pulses
+\end_inset 
+
+
+\the_end

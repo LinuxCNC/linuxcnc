@@ -1,0 +1,1267 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Tools and Utilities
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Halcmd}
+
+\end_inset 
+
+Halcmd
+\layout Standard
+
+Halcmd is a command line tool for manipulating the HAL.
+ There is a rather complete man page for halcmd, which will be installed
+ if you have installed EMC2 from either source or a package.
+ If you have compiled EMC2 for 
+\begin_inset Quotes eld
+\end_inset 
+
+run-in-place
+\begin_inset Quotes erd
+\end_inset 
+
+, the man page is not installed, but it is accessible.
+ From the main EMC2 directory, do:
+\layout LyX-Code
+
+$ 
+\series bold 
+man -M docs/man halcmd
+\layout Standard
+
+Chapter 
+\begin_inset LatexCommand \ref{cha:HAL-Tutorial}
+
+\end_inset 
+
+ has a number of examples of halcmd usage, and is a good tutorial for halcmd,
+ while this section is a detailed reference listing all of the available
+ commands.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:HalcmdUsage}
+
+\end_inset 
+
+Usage
+\layout LyX-Code
+
+halcmd [<options>] [<command>[<args>]]
+\layout LyX-Code
+
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:HalcmdOptions}
+
+\end_inset 
+
+Options
+\layout LyX-Code
+
+-f [<filename>]
+\layout Standard
+
+File mode: Ignores commands on command line, takes input from
+\shape italic 
+ 
+\family typewriter 
+<
+\shape default 
+filename>
+\family default 
+ instead.
+ If 
+\family typewriter 
+<filename>
+\family default 
+ is not specified, takes input from 
+\family typewriter 
+stdin
+\family default 
+.
+\layout LyX-Code
+
+-k
+\layout Standard
+
+Keep going after failed command(s).
+ The default is to stop and return failure if any command fails.
+\layout LyX-Code
+
+-q
+\layout Standard
+
+Quiet: Prints messages only when errors occur.
+ This is the default.
+ 
+\layout LyX-Code
+
+-Q
+\layout Standard
+
+Extra quiet: Prints nothing, executes commands silently.
+ Note that some commands like 
+\family typewriter 
+show
+\family default 
+ and 
+\family typewriter 
+save
+\family default 
+ do nothing except print some information.
+ Giving the 
+\family typewriter 
+-Q
+\family default 
+ option to one of those commands prevents the information from being printed,
+ making the command pointless.
+\layout LyX-Code
+
+-s
+\layout Standard
+
+Script mode: Modified how 
+\family typewriter 
+show
+\family default 
+ outputs information.
+ Supresses headers, and prints most lists (e.g.
+ thread functions, signal pins) on a single line.
+ Suppresses the 
+\family typewriter 
+halcmd:
+\family default 
+ prompt if 
+\family typewriter 
+-f
+\family default 
+ is also specified (for use by other programs that issue commands via a
+ pipe).
+\layout LyX-Code
+
+-v
+\layout Standard
+
+Verbose: Prints messages showing the results of each command.
+\layout LyX-Code
+
+-V
+\layout Standard
+
+Extra Verbose: Prints lots of debugging messages.
+ Very messy, not normally used.
+\layout LyX-Code
+
+-h
+\layout Standard
+
+Help: Prints a help screen and exits.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:HalcmdCommands}
+
+\end_inset 
+
+Commands
+\layout Standard
+
+Commands tell 
+\series bold 
+halcmd
+\series default 
+ what to do.
+ If invoked without the -f option, 
+\series bold 
+halcmd
+\series default 
+ reads the remainder of the command line and treats it as a single command.
+ If invoked with the
+\series bold 
+ 
+\family typewriter 
+\series default 
+-f
+\family default 
+ option, halcmd reads the specified file and treats each line as a command.
+ The -f option allows you to very quickly execute a whole series of commands,
+ and is the most common way to configure the HAL.
+\layout LyX-Code
+
+#
+\layout Standard
+
+Commands starting with '
+\family typewriter 
+#
+\family default 
+' are considered to be comments, and are ignored by halcmd.
+\layout Subsubsection
+
+
+\begin_inset LatexCommand \label{sub:HalcmdLoad/unload}
+
+\end_inset 
+
+Loading/unloading modules
+\layout LyX-Code
+
+loadrt <compname> [<arg1>] [<arg2>]
+\layout Standard
+
+Load realtime component: Loads the realtime HAL component 
+\family typewriter 
+<compname>
+\family default 
+, passing it configuration arguments 
+\family typewriter 
+<arg1>
+\family default 
+, 
+\family typewriter 
+<arg2>
+\family default 
+, etc.
+ Halcmd uses the external program emc_module_helper to load the module.
+ If 
+\family typewriter 
+<compname>
+\family default 
+ is not found in the directory that emc_module_helper expects to contain
+ the components, the command will fail.
+\layout LyX-Code
+
+unloadrt <compname>
+\layout Standard
+
+Unload realtime component: Unloads the realtime HAL component 
+\family typewriter 
+<compname>
+\family default 
+.
+ Halcmd uses the external program emc_module_helper to unload the module.
+ If 
+\family typewriter 
+<compname>
+\family default 
+ is not loaded, the command will fail.
+\layout Subsubsection
+
+
+\begin_inset LatexCommand \label{sub:CreatingSignals}
+
+\end_inset 
+
+Creating Signals
+\layout LyX-Code
+
+newsig <signame> <type>
+\layout Standard
+
+New signal: Creates a new HAL signal called 
+\family typewriter 
+<signame>
+\family default 
+ that may later be used to connect two or more HAL pins.
+ 
+\family typewriter 
+<type>
+\family default 
+ is the data type of the new signal, and must be one of
+\series bold 
+ 
+\family typewriter 
+\series default 
+bit
+\family default 
+\series bold 
+, 
+\family typewriter 
+\series default 
+s8
+\family default 
+\series bold 
+, 
+\family typewriter 
+\series default 
+u8
+\family default 
+\series bold 
+, 
+\family typewriter 
+\series default 
+s16
+\family default 
+\series bold 
+, 
+\family typewriter 
+\series default 
+u16
+\family default 
+\series bold 
+, 
+\family typewriter 
+\series default 
+s32
+\family default 
+\series bold 
+, 
+\family typewriter 
+\series default 
+u32
+\family default 
+\series bold 
+, or 
+\family typewriter 
+\series default 
+float
+\family default 
+.
+ If a signal of the same name already exists, the command will fail.
+ 
+\layout LyX-Code
+
+delsig <signame>
+\layout Standard
+
+Delete signal: Deletes a HAL signal called 
+\family typewriter 
+<signame>
+\family default 
+.
+ Any pins currently linked to the signal will be unlinked.
+ If a signal called 
+\family typewriter 
+<signame>
+\family default 
+ does not exist, the command will fail.
+\layout Subsubsection
+
+
+\begin_inset LatexCommand \label{sub:Linking}
+
+\end_inset 
+
+Linking things together
+\layout LyX-Code
+
+linkps <pinname> <signame>
+\layout LyX-Code
+
+linkps <pinname> => <signame>
+\layout LyX-Code
+
+linkps <pinname> <= <signame>
+\layout LyX-Code
+
+linkps <pinname> <=> <signame>
+\layout LyX-Code
+
+linksp <signame> <pinname>
+\layout LyX-Code
+
+linksp <signame> => <pinname>
+\layout LyX-Code
+
+linksp <signame> <= <pinname>
+\layout LyX-Code
+
+linksp <signame> <=> <pinname>
+\layout Standard
+
+Link pin to signal; Link signal to pin: Establishes a link between a HAL
+ component pin 
+\family typewriter 
+<pinname>
+\family default 
+ and a HAL signal 
+\family typewriter 
+<signame>
+\family default 
+.
+ Any previous link to 
+\family typewriter 
+<pinname>
+\family default 
+ will be broken.
+ The 
+\begin_inset Quotes eld
+\end_inset 
+
+arrows
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\family typewriter 
+=>
+\family default 
+, 
+\family typewriter 
+<=
+\family default 
+, or 
+\family typewriter 
+<=>
+\family default 
+, are optional, and are ignored by halcmd.
+ They should not be used on the command line, as the shell is likely to
+ misinterpret them.
+ However, when writing commands in a file, the arrows can be used to indicate
+ which direction data flows through the link.
+ The future confusion they prevent may be your own! The two forms 
+\family typewriter 
+linksp
+\family default 
+ and 
+\family typewriter 
+linkps
+\family default 
+ are provided for the same reason.
+ Using the appropriate one for the situation can make a file easier to understan
+d, however they both have the exact same effect.
+ If either 
+\family typewriter 
+<pinname>
+\family default 
+ or 
+\family typewriter 
+<signame>
+\family default 
+ does not exist, or if their types don't match, the command will fail.
+\layout LyX-Code
+
+linkpp <pinname1> <pinname2>
+\layout LyX-Code
+
+linkpp <pinname1> => <pinname2>
+\layout LyX-Code
+
+linkpp <pinname1> <= <pinname2>
+\layout LyX-Code
+
+linkpp <pinname1> <=> <pinname2>
+\layout Standard
+
+Link pin to pin: Establishes a link between two HAL component pins 
+\family typewriter 
+<pinname1>
+\family default 
+ and 
+\family typewriter 
+<pinname2>
+\family default 
+.
+ A signal is created with the same name and type as 
+\family typewriter 
+pinname1
+\family default 
+, and both the named pins are connected to the newly created signal.
+ This is the equivalent of issuing the following three commands:
+\layout LyX-Code
+
+newsig pinname1_type pinname1
+\layout LyX-Code
+
+linksp pinname1 pinname1
+\layout LyX-Code
+
+linksp pinname1 pinname2
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+arrows
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\family typewriter 
+=>
+\family default 
+, 
+\family typewriter 
+<=
+\family default 
+, or 
+\family typewriter 
+<=>
+\family default 
+, are optional, and are ignored by halcmd.
+ If either 
+\family typewriter 
+<pinname1>
+\family default 
+ or 
+\family typewriter 
+<pinname2>
+\family default 
+ does not exist, or if their types don't match, the command will fail.
+\layout LyX-Code
+
+\layout LyX-Code
+
+unlinkp <pinname>
+\layout Standard
+
+Unlink pin: Breaks any previous link to 
+\family typewriter 
+<pinname>
+\family default 
+.
+ If 
+\family typewriter 
+<pinname>
+\family default 
+ does not exist, or does not have a signal linked to it, the command will
+ fail.
+\layout Subsubsection
+
+
+\begin_inset LatexCommand \label{sub:SettingValues}
+
+\end_inset 
+
+Setting Values
+\layout LyX-Code
+
+setp <paramname> <value>
+\layout LyX-Code
+
+<paramname> = <value>
+\layout Standard
+
+Set parameter: Sets the value of parameter 
+\family typewriter 
+<paramname>
+\family default 
+ to 
+\family typewriter 
+<value>
+\family default 
+.
+ The second form of the command has exactly the same effect, but is provided
+ for use in files where it may make the file more readable.
+ The second form is not recommended on the command line, since the shell
+ may misinterpret the equal sign.
+ If 
+\family typewriter 
+<paramname>
+\family default 
+ does not exist, or if it is not writable, the command will fail.
+ It will also fail if 
+\family typewriter 
+<value>
+\family default 
+ is not a legal value for 
+\family typewriter 
+<paramname>
+\family default 
+'s data type.
+ For example, 
+\family typewriter 
+300
+\family default 
+ is not a legal 
+\family typewriter 
+u8
+\family default 
+ value, and 
+\family typewriter 
+TRUE
+\family default 
+ is legal only for type 
+\family typewriter 
+bit
+\family default 
+.
+ (Type 
+\family typewriter 
+bit
+\family default 
+ will accept 
+\family typewriter 
+0
+\family default 
+ and 
+\family typewriter 
+1
+\family default 
+ as well as 
+\family typewriter 
+TRUE
+\family default 
+ and 
+\family typewriter 
+FALSE
+\family default 
+).
+\layout LyX-Code
+
+sets <signame> <value>
+\layout Standard
+
+Set signal: Sets the value of signal 
+\family typewriter 
+<signame>
+\family default 
+ to 
+\family typewriter 
+<value>
+\family default 
+.
+ If 
+\family typewriter 
+<signame>
+\family default 
+ does not exist, or if the signal is connected to a HAL pin that can write
+ to it, the command will fail.
+ It will also fail if 
+\family typewriter 
+<value>
+\family default 
+ is not a legal value for 
+\family typewriter 
+<signame>
+\family default 
+'s data type.
+ For example, 
+\family typewriter 
+300
+\family default 
+ is not a legal 
+\family typewriter 
+u8
+\family default 
+ value, and 
+\family typewriter 
+TRUE
+\family default 
+ is legal only for type 
+\family typewriter 
+bit
+\family default 
+.
+ (Type 
+\family typewriter 
+bit
+\family default 
+ will accept 
+\family typewriter 
+0
+\family default 
+ and 
+\family typewriter 
+1
+\family default 
+ as well as 
+\family typewriter 
+TRUE
+\family default 
+ and 
+\family typewriter 
+FALSE
+\family default 
+).
+\layout Subsubsection
+
+
+\begin_inset LatexCommand \label{sub:FunctionsThreads}
+
+\end_inset 
+
+Configuring Functions and Threads
+\layout LyX-Code
+
+addf <functname> <threadname> [<position>]
+\layout Standard
+
+Add function: Adds function 
+\family typewriter 
+<functname>
+\family default 
+ to realtime thread 
+\family typewriter 
+<threadname>
+\family default 
+.
+ 
+\family typewriter 
+<position>
+\family default 
+ determines where in the thread the function is added, and thus in what
+ order the thread's functions will execute.
+ If 
+\family typewriter 
+<position>
+\family default 
+ is positive, the function will be inserted in the corresponding location
+ relative to the beginning of the thread.
+ Thus if 
+\family typewriter 
+<position>
+\family default 
+ is 1, the function will be inserted at the beginning of the thread, and
+ if it is 3 it will be inserted as the third function in the thread.
+ If 
+\family typewriter 
+<position>
+\family default 
+ is negative, the function will be inserted relative to the end of the thread.
+ So -1 means the last function, and -2 is next to last, etc.
+ Zero is illegal.
+ If no position is specified, -1 is assumed, and the function is inserted
+ at the end of the thread.
+ If either 
+\family typewriter 
+<functname>
+\family default 
+ or 
+\family typewriter 
+<threadname>
+\family default 
+ does not exist, the command will fail.
+ It will also fail if the function requires floating point and the thread
+ does not support it, or if the function is non-reentrant and is already
+ in a thread.
+ It also fails if 
+\family typewriter 
+<position>
+\family default 
+ specifies something impossible, for example asking for position 3 when
+ the thread only has one function in it.
+\layout LyX-Code
+
+delf <functname> <threadname>
+\layout Standard
+
+Delete function: Removes function 
+\family typewriter 
+<functname>
+\family default 
+ from realtime thread 
+\family typewriter 
+<threadname>
+\family default 
+.
+ The command will fail if either
+\family typewriter 
+ <functname>
+\family default 
+ or 
+\family typewriter 
+<threadname>
+\family default 
+ does not exist, or if 
+\family typewriter 
+<functname>
+\family default 
+ is not currently part of 
+\family typewriter 
+<threadname>
+\family default 
+.
+ If the function appears in the thread more than once, only the first instance
+ is deleted.
+\layout LyX-Code
+
+newthread <threadname> <period>
+\layout Standard
+
+New thread: Creates a new realtime thread that can be used to execute HAL
+ functions at specific intervals.
+ The thread is called 
+\family typewriter 
+<threadname>
+\family default 
+, and it executes every 
+\family typewriter 
+<period>
+\family default 
+ nano-seconds.
+ If a thread of the same name already exists, the command will fail.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+This command is NOT currently implemented.
+ It requires some complex user/kernel calling procedures, and may not be
+ working in time for the NAMES show and demonstration.
+ At the present time, threads can only be created by kernel modules, not
+ by a user space process like halcmd.
+ A number of the existing kernel module HAL components have provisions for
+ creating threads when they are insmod'ed.
+\end_inset 
+
+ 
+\layout LyX-Code
+
+delthread <threadname>
+\layout Standard
+
+Delete thread: Deletes a realtime thread called 
+\family typewriter 
+<threadname>
+\family default 
+.
+ Any functions currently linked to the thread will be unlinked.
+ If a thread called 
+\family typewriter 
+<threadname>
+\family default 
+ does not exist, the command will fail.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+This command is NOT currently implemented.
+ See note above.
+\end_inset 
+
+
+\layout Subsubsection
+
+
+\begin_inset LatexCommand \label{sub:StartStop}
+
+\end_inset 
+
+Controlling Realtime Execution
+\layout LyX-Code
+
+start
+\layout Standard
+
+Start: Begins execution of realtime threads.
+ When started, each thread runs at it's specified period.
+ Each time the thread runs, it calls all of the functions that were added
+ to it with the 
+\family typewriter 
+addf
+\family default 
+ command.
+ The functions are called in the order that was specified by the 
+\family typewriter 
+<position>
+\family default 
+ argument of the 
+\family typewriter 
+addf
+\family default 
+ command.
+ 
+\layout LyX-Code
+
+stop
+\layout Standard
+
+Stop: Ends execution of realtime threads.
+ The threads will no longer call their functions.
+ 
+\layout Subsubsection
+
+
+\begin_inset LatexCommand \label{sub:Viewing}
+
+\end_inset 
+
+Viewing the HAL Configuration
+\layout LyX-Code
+
+show [<item>]
+\layout Standard
+
+Show info: Prints information about HAL items to 
+\family typewriter 
+stdout
+\family default 
+ in human readable format.
+ 
+\family typewriter 
+<item>
+\family default 
+ can be
+\series bold 
+ 
+\family typewriter 
+\series default 
+comp
+\family default 
+ (components), 
+\family typewriter 
+pin
+\family default 
+, 
+\family typewriter 
+sig
+\family default 
+ (signals), 
+\family typewriter 
+param
+\family default 
+ (parameters),
+\series bold 
+ 
+\family typewriter 
+\series default 
+funct
+\family default 
+ (functions), or 
+\family typewriter 
+thread
+\family default 
+, or omitted.
+ If 
+\family typewriter 
+<item>
+\family default 
+ is omitted, 
+\family typewriter 
+show
+\family default 
+ will print everything.
+\layout Subsubsection
+
+
+\begin_inset LatexCommand \label{sub:Saving}
+
+\end_inset 
+
+Saving the HAL configuration
+\layout LyX-Code
+
+save [<item>]
+\layout Standard
+
+Save info: Prints HAL items to 
+\family typewriter 
+stdout
+\family default 
+ in the form of HAL commands.
+ These commands can be redirected to a file and later executed using 
+\family typewriter 
+halcmd -f
+\family default 
+ to restore the saved configuration.
+ 
+\family typewriter 
+<item>
+\family default 
+ can be one of the following: 
+\family typewriter 
+sig
+\family default 
+ generates a 
+\family typewriter 
+newsig
+\family default 
+ command for each signal, 
+\family typewriter 
+link
+\family default 
+ and 
+\family typewriter 
+linka
+\family default 
+ both generate 
+\family typewriter 
+linkps
+\family default 
+ commands for each link.
+ (
+\family typewriter 
+linka
+\family default 
+ includes arrows, while 
+\family typewriter 
+link
+\family default 
+ does not.) 
+\family typewriter 
+net
+\family default 
+ and 
+\family typewriter 
+neta
+\family default 
+ both generate one 
+\family typewriter 
+newsig
+\family default 
+ command for each signal, followed by 
+\family typewriter 
+linksp
+\family default 
+ commands for each pin linked to that signal.
+ (
+\family typewriter 
+neta
+\family default 
+ includes arrows.) 
+\family typewriter 
+param
+\family default 
+ generates one 
+\family typewriter 
+setp
+\family default 
+ command for each parameter.
+ 
+\family typewriter 
+thread
+\family default 
+ generates one 
+\family typewriter 
+addf
+\family default 
+ command for each function in each realtime thread.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Once 
+\family typewriter 
+newthread
+\family default 
+ is working, 
+\family typewriter 
+thread
+\family default 
+ will be modified to generate a 
+\family typewriter 
+newthread
+\family default 
+ command for each thread before generating the 
+\family typewriter 
+addf
+\family default 
+ commands.
+\end_inset 
+
+ If 
+\family typewriter 
+<item>
+\family default 
+ is omitted, 
+\series bold 
+save
+\series default 
+ does the equivalent of 
+\family typewriter 
+sig
+\family default 
+, 
+\family typewriter 
+link
+\family default 
+, 
+\family typewriter 
+param
+\family default 
+, and 
+\family typewriter 
+thread
+\family default 
+.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Halmeter}
+
+\end_inset 
+
+Halmeter
+\layout Standard
+
+Halmeter is a 
+\begin_inset Quotes eld
+\end_inset 
+
+voltmeter
+\begin_inset Quotes erd
+\end_inset 
+
+ for the HAL.
+ It lets you look at a pin, signal, or parameter, and displays the current
+ value of that item.
+ It is pretty simple to use.
+ Start it by typing 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+halmeter
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ in a X windows shell.
+ Halmeter is a GUI application.
+ It will pop up a small window, with two buttons labeled 
+\begin_inset Quotes eld
+\end_inset 
+
+Select
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+Exit
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Exit is easy - it shuts down the program.
+ Select pops up a larger window, with three tabs.
+ One tab lists all the pins currently defined in the HAL.
+ The next lists all the signals, and the last tab lists all the parameters.
+ Click on a tab, then click on a pin/signal/parameter.
+ Then click on 
+\begin_inset Quotes eld
+\end_inset 
+
+OK
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ The lists will disappear, and the small window will display the name and
+ value of the selected item.
+ The display is updated approximately 10 times per second.
+ If you click 
+\begin_inset Quotes eld
+\end_inset 
+
+Accept
+\begin_inset Quotes erd
+\end_inset 
+
+ instead of 
+\begin_inset Quotes eld
+\end_inset 
+
+OK
+\begin_inset Quotes erd
+\end_inset 
+
+, the small window will display the name and value of the selected item,
+ but the large window will remain on the screen.
+ This is convenient if you want to look at a number of different items quickly.
+ You can have many halmeters running at the same time, if you want to monitor
+ several items.
+ If you want to launch a halmeter without tying up a shell window, type
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+halmeter &
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ to run it in the background.
+ You can also make halmeter start displaying a specific item immediately,
+ by adding 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+pin|sig|par[am] <name>
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ to the command line.
+ It will display the pin, signal, or parameter <name> as soon as it starts.
+ (If there is no such item, it will simply start normally.)
+\layout Standard
+
+Halmeter is due for a rewrite - the new version will have a nicer display,
+ with autoranging, range hold, and an analog bar graph to supplement the
+ digital display.
+ However it's purpose will remain the same - a handy software equivalent
+ to DMM for basic testing and troubleshooting.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Halscope}
+
+\end_inset 
+
+Halscope
+\layout Standard
+
+Halscope is an 
+\begin_inset Quotes eld
+\end_inset 
+
+oscilloscope
+\begin_inset Quotes erd
+\end_inset 
+
+ for the HAL.
+ It lets you capture the value of pins, signals, and parameters as a function
+ of time.
+ Complete operating instructions should be located here eventually.
+ For now, refer to section 
+\begin_inset LatexCommand \ref{sec:Tutorial - Halscope}
+
+\end_inset 
+
+ in the tutorial chapter, which explains the basics.
+\the_end

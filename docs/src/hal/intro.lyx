@@ -1,0 +1,1003 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+
+\begin_inset LatexCommand \label{cha:Introduction}
+
+\end_inset 
+
+Introduction
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:What-is-HAL?}
+
+\end_inset 
+
+What is HAL?
+\layout Standard
+
+HAL stands for Hardware Abstraction Layer.
+ At the highest level, it is simply a way to allow a number of 
+\begin_inset Quotes eld
+\end_inset 
+
+building blocks
+\begin_inset Quotes erd
+\end_inset 
+
+ to be loaded and interconnected to assemble a complicated system.
+ The 
+\begin_inset Quotes eld
+\end_inset 
+
+Hardware
+\begin_inset Quotes erd
+\end_inset 
+
+ part is because HAL was originally designed to make it easier to configure
+ EMC for a wide variety of hardware devices.
+ Many of the building blocks are drivers for hardware devices.
+ However, HAL can do more than just configure hardware drivers.
+\layout Subsection
+
+HAL is based on traditional system design techniques
+\layout Standard
+
+HAL is based on the same principles that are used to design hardware circuits
+ and systems, so it is useful to examine those principles first.
+\layout Standard
+
+Any system (including a CNC machine), consists of interconnected components.
+ For the CNC machine, those components might be the main controller, servo
+ amps or stepper drives, motors, encoders, limit switches, pushbutton pendants,
+ perhaps a VFD for the spindle drive, a PLC to run a toolchanger, etc.
+ The machine builder must select, mount and wire these pieces together to
+ make a complete system.
+\layout Subsubsection
+
+Part Selection
+\layout Standard
+
+The machine builder does not need to worry how each individual part works.
+ He treats them as black boxes.
+ During the design stage, he decides which parts he is going to use - steppers
+ or servos, which brand of servo amp, what kind of limit switches and how
+ many, etc.
+ The integrator's decisions about which specific components to use is based
+ on what that component does and the specifications supplied by the manufacturer
+ of the device.
+ The size of a motor and the load it must drive will affect the choice of
+ amplifier needed to run it.
+ The choice of amplifier may affect the kinds of feedback needed by the
+ amp and the velocity or position signals that must be sent to the amp from
+ a control.
+ 
+\layout Standard
+
+In the HAL world, the integrator must decide what HAL components are needed.
+ Usually every interface card will require a driver.
+ Additional components may be needed for software generation of step pulses,
+ PLC functionality, and a wide variety of other tasks.
+\layout Subsubsection
+
+Interconnection Design
+\layout Standard
+
+The designer of a hardware system not only selects the parts, he also decides
+ how those parts will be interconnected.
+ Each black box has terminals, perhaps only two for a simple switch, or
+ dozens for a servo drive or PLC.
+ They need to be wired together.
+ The motors get connected to the servo amps.
+ The limit switches connect to the controller, and so on.
+ As the machine builder works on the design, he creates a large wiring diagram
+ that shows how all the parts should be interconnected.
+\layout Standard
+
+When using HAL, components are interconnected by signals.
+ The designer must decide which signals are needed, and what they should
+ connect.
+\layout Subsubsection
+
+Implementation
+\layout Standard
+
+Once the wiring diagram is complete it is time to build the machine.
+ The pieces need to be acquired and mounted, and then they are interconnected
+ according to the wiring diagram.
+ In a physical system, each interconnection is a piece of wire, that needs
+ to be cut and connected to the appropriate terminals.
+\layout Standard
+
+HAL provides a number of tools to help 
+\begin_inset Quotes eld
+\end_inset 
+
+build
+\begin_inset Quotes erd
+\end_inset 
+
+ a HAL system.
+ Some of the tools allow you to 
+\begin_inset Quotes eld
+\end_inset 
+
+connect
+\begin_inset Quotes erd
+\end_inset 
+
+ (or disconnect) a single 
+\begin_inset Quotes eld
+\end_inset 
+
+wire
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Other tools allow you to save a complete list of all the parts, wires,
+ and other information about the system, so that it can be 
+\begin_inset Quotes eld
+\end_inset 
+
+rebuilt
+\begin_inset Quotes erd
+\end_inset 
+
+ with a single command.
+\layout Subsubsection
+
+Testing
+\layout Standard
+
+Very few machines work right the first time.
+ While testing the builder may use a meter to see if a limit switch is working,
+ or to measure the DC voltage going to a servo motor.
+ He may hook up an oscilloscope to check the tuning of a drive, or to look
+ for electrical noise.
+ He may find a problem that requires the wiring diagram to be changed -
+ perhaps a part needs to be connected differently or replaced with something
+ completely different.
+\layout Standard
+
+HAL provides the software equivalent of a voltmeter, oscilloscope, signal
+ generator, and other tools for testing and tuning a system.
+ The same commands used to build the system can be used to make changes
+ as needed.
+\layout Subsection
+
+Summary
+\layout Standard
+
+This document is aimed at people who already know how to do this kind of
+ hardware system integration, but who do not know how to connect the hardware
+ to EMC.
+\layout Standard
+
+The traditional hardware design as described above ends at the edge of the
+ main control.
+ Outside the control are a bunch of relatively simple boxes, connected together
+ to do whatever is needed.
+ Inside, the control is a big mystery -- one huge black box that we hope
+ works.
+\layout Standard
+
+HAL extends this traditional hardware design method to the inside of the
+ big black box.
+ It makes device drivers and even some internal parts of the controller
+ into smaller black boxes, that can be interconnected and even replaced
+ just like the external hardware.
+ It allows the "system wiring diagram" to show part of the internal controller,
+ rather than just a big black box.
+ And most importantly it allows the integrator to test and modify the controller
+ using the same methods he would use on the rest of the hardware.
+\layout Standard
+
+Terms like motors, amps, and encoders are familiar to most machine integrators.
+ When we talk about using extra flexible eight conductor shielded cable
+ to connect an encoder to the servo input board in the computer, the reader
+ immediately understands what it is and is led to the question, 
+\begin_inset Quotes eld
+\end_inset 
+
+what kinds of connectors will I need to make up each end.
+\begin_inset Quotes erd
+\end_inset 
+
+ The same sort of thinking is essential for the HAL but the specific train
+ of thought may take a bit to get on track.
+ Using HAL words may seem a bit strange at first, but the concept of working
+ from one connection to the next is the same.
+\layout Standard
+
+This idea of extending the wiring diagram to the inside of the controller
+ is what HAL is all about.
+ If you are comfortable with the idea of interconnecting hardware black
+ boxes, you will probably have little trouble using HAL to interconnect
+ software black boxes.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:HAL-Concepts}
+
+\end_inset 
+
+HAL Concepts
+\layout Standard
+
+This section is a glossary that defines key HAL terms but it is a bit different
+ than a traditional glossary because these terms are not arranged in alphabetica
+l order.
+ They are arranged by their relationship or flow in the HAL way of things.
+ 
+\layout Description
+
+Component: When we talked about hardware design, we referred to the individual
+ pieces as "parts", "building blocks", "black boxes", etc.
+ The HAL equivalent is a "component" or "HAL component".
+ (This document uses "HAL component" when there is likely to be confusion
+ with other kinds of components, but normally just uses "component".) A HAL
+ component is a piece of software with well defined inputs, outputs, and
+ behaviour, that can be installed and interconnected as needed.
+ 
+\layout Description
+
+Parameter: Many hardware components have adjustments that are not connected
+ to any other components but still need to be accessed.
+ For example, servo amps often have trim pots to allow for tuning adjustments,
+ and test points where a meter or scope can be attached to view the tuning
+ results.
+ HAL components also can have such items, which are referred to as "parameters".
+ There are two types of parameters.
+ Input parameters are equivalent to trim pots - they are values that can
+ be adjusted by the user, and remain fixed once they are set.
+ Output parameters cannot be adjusted by the user - they are equivalent
+ to test points that allow internal signals to be monitored.
+\layout Description
+
+Pin: Hardware components have terminals which are used to interconnect them.
+ The HAL equivalent is a "pin" or "HAL pin".
+ ("HAL pin" is used when needed to avoid confusion.) All HAL pins are named,
+ and the pin names are used when interconnecting them.
+ HAL pins are software entities that exist only inside the computer.
+ 
+\layout Description
+
+Physical_Pin: Many I/O devices have real physical pins or terminals that
+ connect to external hardware, for example the pins of a parallel port connector.
+ To avoid confusion, these are referred to as "physical pins".
+ These are the things that 
+\begin_inset Quotes eld
+\end_inset 
+
+stick out
+\begin_inset Quotes erd
+\end_inset 
+
+ into the real world.
+\begin_inset Note
+collapsed true
+
+\layout Standard
+
+Might need some explanation how HAL_pins and Physical pin relates to something
+ like an encoder chip or an stg card.
+ We are dealing in data type interface and data type translation/conversion
+ here.
+ 
+\end_inset 
+
+
+\layout Description
+
+Signal: In a physical machine, the terminals of real hardware components
+ are interconnected by wires.
+ The HAL equivalent of a wire is a "signal" or "HAL signal".
+ HAL signals connect HAL pins together as required by the machine builder.
+ HAL signals can be disconnected and reconnected at will (even while the
+ machine is running).
+\layout Description
+
+Type: When using real hardware, you would not connect a 24 volt relay output
+ to the +/-10V analog input of a servo amp.
+ HAL pins have the same restrictions, which are based upon their type.
+ Both pins and signals have types, and signals can only be connected to
+ pins of the same type.
+ Currently there are 8 types
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+There has been some discussion about whether we really need all the integer
+ types.
+ Maybe they will be reduced or eliminated later.
+ Most signals and pins will be either floats or bits.
+\end_inset 
+
+, as follows:
+\layout Itemize
+
+
+\noun on 
+bit
+\noun default 
+ - a single TRUE/FALSE or ON/OFF value
+\layout Itemize
+
+
+\noun on 
+float
+\noun default 
+ - a 32 bit floating point value, with approximately 24 bits of resolution
+ and over 200 bits of dynamic range.
+\layout Itemize
+
+
+\noun on 
+u8
+\noun default 
+ - an 8 bit unsigned integer, legal values are 0 to +255
+\layout Itemize
+
+
+\noun on 
+s8
+\noun default 
+ - an 8 bit signed integer, legal values are -128 to +127
+\layout Itemize
+
+
+\noun on 
+u16 
+\noun default 
+- a 16 bit unsigned integer, legal values are 0 to +65535
+\layout Itemize
+
+
+\noun on 
+s16
+\noun default 
+ - a 16 bit signed integer, legal values are -32768 to +32767
+\layout Itemize
+
+
+\noun on 
+u32
+\noun default 
+ - a 32 bit unsigned integer, legal values are 0 to +4294967295
+\layout Itemize
+
+
+\noun on 
+s32
+\noun default 
+ - a 32 bit signed integer, legal values are -2147483648 to +2147483647
+\layout Description
+
+
+\begin_inset LatexCommand \label{des:Function}
+
+\end_inset 
+
+Function: Real hardware components tend to act immediately on their inputs.
+ For example, if the input voltage to a servo amp changes, the output also
+ changes automatically.
+ However software components cannot act "automatically".
+ Each component has specific code that must be executed to do whatever that
+ component is supposed to do.
+ In some cases, that code simply runs as part of the component.
+ However in most cases, especially in realtime components, the code must
+ run in a specific sequence and at specific intervals.
+ For example, inputs should be read before calculations are performed on
+ the input data, and outputs should not be written until the calculations
+ are done.
+ In these cases, the code is made available to the system in the form of
+ one or more "functions".
+ Each function is a block of code that performs a specific action.
+ The system integrator can use "threads" to schedule a series of functions
+ to be executed in a particular order and at specific time intervals.
+\layout Description
+
+
+\begin_inset LatexCommand \label{des:Thread}
+
+\end_inset 
+
+Thread: A "thread" is a list of functions that runs at specific intervals
+ as part of a realtime task.
+ When a thread is first created, it has a specific time interval (period),
+ but no functions.
+ Functions can be added to the thread, and will be executed in order every
+ time the thread runs.
+\layout Standard
+
+For now a quick example will help get the concept across.
+ We have a parport component named hal_parport.
+ That component defines one or more HAL pins for each physical pin.
+ The pins are described in that component's doc section - their names, how
+ each pin relates to the physical pin, are they inverted, can you change
+ polarity, etc.
+ But that alone doesn't get the data from the HAL pins to the physical pins.
+ It takes code to do that, and that is where functions come into the picture.
+ The parport component needs at least two functions.
+ One to read the physical input pins and update the HAL pins, the other
+ to take data from the HAL pins and write it to the physical output pins.
+ Both of these functions are part of the parport driver.
+ 
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Intro-HAL-components}
+
+\end_inset 
+
+HAL components
+\layout Standard
+
+Each HAL component is a piece of software with well defined inputs, outputs,
+ and behaviour, that can be installed and interconnected as needed.
+ This section lists available components and a brief description of what
+ they do.
+ Complete details for each component are available later in this document.
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:ExternalPrograms}
+
+\end_inset 
+
+External Programs with HAL hooks
+\layout Description
+
+motion A realtime module that accepts NML motion commands and interacts
+ with HAL 
+\layout Description
+
+iocontrol A user space module that accepts NML I/O commands and interacts
+ with HAL 
+\layout Description
+
+classicladder A PLC using HAL for all I/O
+\layout Description
+
+halui A user space program that interacts with HAL and sends NML commands
+ (note: right now experimental), it is intended to work as a full User Interface
+ using external knobs & switches 
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:InternalComponents}
+
+\end_inset 
+
+Internal Components
+\layout Description
+
+stepgen Software step pulse generator with position loop.
+ See section 
+\begin_inset LatexCommand \ref{sec:Stepgen}
+
+\end_inset 
+
+
+\layout Description
+
+freqgen Software step pulse generator.
+ See section 
+\begin_inset LatexCommand \ref{sec:Freqgen}
+
+\end_inset 
+
+
+\layout Description
+
+encoder Software based encoder counter.
+ See section 
+\begin_inset LatexCommand \ref{sec:Encoder}
+
+\end_inset 
+
+
+\layout Description
+
+pid Proportional/Integral/Derivative control loops.
+ See section 
+\begin_inset LatexCommand \ref{sec:PID}
+
+\end_inset 
+
+
+\layout Description
+
+siggen A sine/cosine/triangle/square wave generator for testing.
+ See section 
+\begin_inset LatexCommand \ref{sec:Siggen}
+
+\end_inset 
+
+
+\layout Description
+
+supply a simple source for testing
+\layout Description
+
+blocks assorted useful components (mux, demux, or, and, integ, ddt, limit,
+ wcomp, etc.)
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:HardwareDrivers}
+
+\end_inset 
+
+Hardware Drivers
+\layout Description
+
+hal_ax5214h A driver for the Axiom Measurement & Control AX5241H digital
+ I/O board
+\layout Description
+
+hal_m5i20 Mesa Electronics 5i20 board
+\layout Description
+
+hal_motenc Vital Systems MOTENC-100 board
+\layout Description
+
+hal_parport PC parallel port.
+ See section 
+\begin_inset LatexCommand \ref{sec:Parport}
+
+\end_inset 
+
+
+\layout Description
+
+hal_ppmc Pico Systems family of controllers (PPMC, USC and UPC)
+\layout Description
+
+hal_stg Servo To Go card (version 1 & 2)
+\layout Description
+
+hal_vti Vigilant Technologies PCI ENCDAC-4 controller
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:ToolsUtilities}
+
+\end_inset 
+
+Tools and Utilities
+\layout Description
+
+halcmd Command line tool for configuration and tuning.
+ See section 
+\begin_inset LatexCommand \ref{sec:Halcmd}
+
+\end_inset 
+
+ 
+\layout Description
+
+halgui GUI tool for configuration and tuning (not implemented yet).
+\layout Description
+
+halmeter A handy multimeter for HAL signals.
+ See section 
+\begin_inset LatexCommand \ref{sec:Halmeter}
+
+\end_inset 
+
+
+\layout Description
+
+halscope A full featured digital storage oscilloscope for HAL signals.
+ See section 
+\begin_inset LatexCommand \ref{sec:Halscope}
+
+\end_inset 
+
+
+\layout Standard
+
+Each of these building blocks is described in detail in later chapters.
+ 
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Tinkertoys}
+
+\end_inset 
+
+Tinkertoys, Erector Sets, Legos and the HAL
+\layout Standard
+
+A first introduction to HAL concepts can be mind boggling.
+ Building anything with blocks can be a challenge but some of the toys that
+ we played with as kids can be an aid to building things with the HAL.
+\layout Subsection
+
+Tower
+\layout Quote
+
+I'm watching as my son and his six year old daughter build a tower from
+ a box full of random sized blocks, rods, jar lids and such.
+ The aim is to see how tall they can make the tower.
+ The narrower the base the more blocks left to stack on top.
+ But the narrower the base, the less stable the tower.
+ I see them studying both the next block and the shelf where they want to
+ place it to see how it will balance out with the rest of the tower.
+ 
+\layout Standard
+
+The notion of stacking cards to see how tall you can make a tower is a very
+ old and honored way of spending spare time.
+ At first read, the integrator may have gotten the impression that building
+ a HAL was a bit like that.
+ It can be but with proper planning an integrator can build a stable system
+ as complex as the machine at hand requires.
+ 
+\layout Subsection
+
+Erector Sets
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+The Erector Set was an invention of AC Gilbert
+\end_inset 
+
+
+\layout Standard
+
+What was great about the sets was the building blocks, metal struts and
+ angles and plates, all with regularly spaced holes.
+ You could design things and hold them together with the little screws and
+ nuts.
+ 
+\layout Quote
+
+I got my first erector set for my fourth birthday.
+ I know the box suggested a much older age than I was.
+ Perhaps my father was really giving himself a present.
+ I had a hard time with the little screws and nuts.
+ I really needed four arms, one each for the screwdriver, screw, parts to
+ be bolted together, and nut.
+ Perseverence, along with father's eventual boredom, got me to where I had
+ built every project in the booklet.
+ Soon I was lusting after the bigger sets that were also printed on that
+ paper.
+ Working with those regular sized pieces opened up a world of construction
+ for me and soon I moved well beyond the illustrated projects.
+ 
+\layout Standard
+
+Hal components are not all the same size and shape but they allow for grouping
+ into larger units that will do useful work.In this sense they are like the
+ parts of an Erector set.
+ Some components are long and thin.
+ They essentially connect high level commands to specific physical pins.
+ Other components are more like the rectangular platforms upon which whole
+ machines could be built.
+ An integrator will quickly get beyond the brief examples and begin to bolt
+ together components in ways that are unique to them.
+\layout Subsection
+
+Tinkertoys
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+Tinkertoy is now a registered trademark of the Hasbro company.
+\end_inset 
+
+
+\layout Quote
+
+Wooden Tinker toys had a more humane feel that the cold steel of Erector
+ Sets.
+ The heart of construction with Tinker Toys was a round connector with eight
+ holes equally spaced around the circumference.
+ It also had a hole in the center that was perpendicular to all the holes
+ around the hub.
+\layout Quote
+
+Hubs were connected with rods of several different lengths.
+ Builders would make large wheels by using these rods as spokes sticking
+ out from the center hub.
+ 
+\layout Quote
+
+My favorite project was a rotating space station.
+ Short spokes radiated from all the holes in the center hub and connected
+ with hubs on the ends of each spoke.
+ These outer hubs were connected to each other with longer spokes.
+ I'd spend hours dreaming of living in such a device, walking from hub to
+ hub around the outside as it slowly rotated producing near gravity in weightles
+s space.
+ Supplies traveled through the spokes in elevators that transfered them
+ to an from rockets docked at the center hub while they transfered their
+ precious cargos.
+\layout Standard
+
+The idea of one pin or component being the hub for many connections is also
+ an easy concept within the HAL.
+ Examples two and four (see section 
+\begin_inset LatexCommand \ref{cha:HAL-Tutorial}
+
+\end_inset 
+
+) connect the meter and scope to signals that are intended to go elsewhere.
+ Less easy is the notion of a hub for several incoming signals but that
+ is also possible with proper use of functions within that hub component
+ that handle those signals as they arrive from other components.
+\layout Standard
+
+Another thought that comes forward from this toy is a mechanical representation
+ of HAL threads.
+ A thread might look a bit like a centipede, caterpillar, or earwig.
+ A backbone of hubs, HAL components, strung together with rods, HAL signals.
+ Each component takes in it own parameters and input pins and passes on
+ output pins and parameters to the next component.
+ Signals travel along the backbone from end to end and are added to or modified
+ by each component in turn.
+ 
+\layout Standard
+
+Threads are all about timing and doing a set of tasks from end to end.
+ A mechanical representation is available with Tinkertoys also when we think
+ of the length of the toy as a measure of the time taken to get from one
+ end to the other.
+ A very different thread or backbone is created by connecting the same set
+ of hubs with different length rods.
+ The total length of the backbone can be changed by the length of rods used
+ to connect the hubs.
+ The order of operations is the same but the time to get from beginning
+ to end is very diferent.
+ 
+\layout Subsection
+
+
+\begin_inset LatexCommand \label{sub:A-Lego-Example}
+
+\end_inset 
+
+A Lego Example
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The Lego name is a trademark of the Lego company.
+ 
+\end_inset 
+
+
+\layout Standard
+
+When Lego blocks first arrived in our stores they were pretty much all the
+ same size and shape.
+ Sure there were half sized one and a few quarter sized as well but that
+ rectangular one did most of the work.
+ Lego blocks interconnected by snapping the holes in the underside of one
+ onto the pins that stuck up on another.
+ By overlapping layers, the joints between could be made very strong, even
+ around corners or tees.
+ 
+\layout Quote
+
+I watched my children and grandchildren build with legos -- the same legos.
+ There are a few thousand of them in an old ratty but heavy duty cardboard
+ box that sits in a corner of the recreation room.
+ It stays there in the open because it was too much trouble to put the box
+ away and then get it back out for every visit and it is always used during
+ a visit.
+ There must be Lego parts in there from a couple dozen different sets.
+ The little booklets that came with them are long gone but the magic of
+ building with interlocking pieces all the same size is something to watch.
+ 
+\layout Standard
+
+Notice the following description of building a set of motion components
+ in the HAL and how much like a wall of lego blocks it is.
+\layout Quote
+
+The motion module exports a pin for each axis in cartesean space, and another
+ pin for each axis in joint space.
+ When it is loaded, it automatically creates a "jumper" signal for each
+ axis, and automatically connects those signals from the joint pin to the
+ cartesean pin.
+ So you automatically have "trivkins" as soon as you load the motion module.
+ (trivkins -- trivial kinematics is the case where each motor moves a single
+ axis at 90 degrees to the others)
+\layout Standard
+
+The motion module is like a pair of legos in a line end to end.
+ Trivkins is just like a single block overlapping the two.
+ The in and out motion pins are plugged into each other by the block resting
+ above.
+ But the parallel goes on.
+\layout Quote
+
+If you need some other kinematics, you then load a specific kins component.
+ This component "knows" the names of the pins that the motion module uses
+ for each axis, both joint and cartesean.
+ When the module loads, it again automatically creates signals and connects
+ its own pins to the motion module's pins (which will disconnect the "jumpers").
+ It could also know the thread names used by the motion module, and could
+ automatically add it's own functions to those threads.
+\layout Standard
+
+Trivkins is removed so that the motion blocks can be spread apart and by
+ using other blocks, a different bridge is built between input and output
+ pins.
+ In Lego terms, trivkins might be a gray block and xxkins might be a yellow
+ block.
+ 
+\layout Quote
+
+So the net result is that 24 HAL signals and two HAL functions are configured,
+ with no action needed by the integrator other than loading the module.
+ (24 signals are from 6 axis * 2 because we have joint and cartesean * 2
+ because we have forward and inverse kinematics.
+ Two functions because we have forward and inverse.) Because these HAL signals
+ exist, they can be metered or scoped or whatever for testing.
+ But because both modules know their names and know how to automatically
+ connect them, the integrator doesn't have to know or care.
+\layout Standard
+
+This kind of automatic HAL configuration is possible because all kinematics
+ modules "plug in" the same way.
+ 
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Timing-Issues}
+
+\end_inset 
+
+Timing Issues In HAL
+\layout Standard
+
+Threads is going to take a major intellectual push because unlike the physical
+ wiring models between black boxes that we have said that HAL is based upon,
+ simply connecting two pins with a hal-signal falls far short of the action
+ of the physical case.
+ 
+\layout Standard
+
+True relay logic consists of relays connected together, and when a contact
+ opens or closes, current flows (or stops) immediately.
+ Other coils may change state, etc, and it all just "happens".
+ But in PLC style ladder logic, it doesn't work that way.
+ Usually in a single pass through the ladder, each rung is evaluated in
+ the order in which it appears, and only once per pass.
+ A perfect example is a single rung ladder, with a NC contact in series
+ with a coil.
+ The contact and coil belong to the same relay.
+ 
+\layout Standard
+
+If this were a conventional relay, as soon as the coil is energized, the
+ contacts begin to open and de-energize it.
+ That means the contacts close again, etc, etc.
+ The relay becomes a buzzer.
+\layout Standard
+
+With a PLC, if the coil is OFF and the contact is closed when the PLC begins
+ to evaluate the rung, then when it finishes that pass, the coil is ON.
+ The fact that turning on the coil opens the contact feeding it is ignored
+ until the next pass.
+ On the next pass, the PLC sees that the contact is open, and de-energizes
+ the coil.
+ So the relay still switches rapidly between on and off, but at a rate determine
+d by how often the PLC evaluates the rung.
+ 
+\layout Standard
+
+In HAL, the function is the code that evaluates the rung(s).
+ In fact a HAL-aware realtime version of ClassicLadder would export a function
+ to do exactly that.
+ Meanwhile, a thread is the thing that runs the function at specific time
+ intervals.
+ Just like you can choose to have a PLC evaluate all its rungs every 10mS,
+ or every second, you can define HAL threads with different periods.
+\layout Standard
+
+What distinguishes one thread from another is _not_ what the thread does
+ - that is determined by which functions are connected to it.
+ The real distinction is simply how often a thread runs.
+\layout Standard
+
+In EMC we might have a 15uS thread, a 1mS thread, and a 10mS thread.
+ These would be created based on "Period", "ServoPeriod", and "TrajPeriod"
+ respectively - the actual times would depend on the ini.
+ That is one part of the config process, and although it could be done manually,
+ it would normally be automatic.
+\layout Standard
+
+The next step is to decide what each thread needs to do.
+ Some of those decisions would also be automatic - the motion module would
+ automatically connect its "PlanTrajectory" function to the TrajPeriod thread,
+ and its "ControlMotion" function to the ServoPeriod thread.
+ 
+\layout Standard
+
+Other connections would be made by the integrator (at least the first time).
+ These might include hooking the STG driver's encoder read and DAC write
+ functions to the servo thread, or hooking stepgen's function to the fast
+ thread, along with the parport function(s) to write the steps to the port.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Dynamic-Linking}
+
+\end_inset 
+
+Dynamic Linking and Configuration
+\layout Standard
+
+It is indeed possible to configure HAL with a form of dynamic linking.
+ But it is different than DLLs as used by Microsoft(tm) or shared libraries
+ as used in Linux.
+ Both DLLs and shared libraries essentially say "Here I am, I have this
+ code you might want to use", where "you" is other modules.
+ Then when those other modules or programs are loaded, they say "I need
+ a function called 'X', is there one?" and if the answer is YES, they link
+ to it.
+\layout Standard
+
+With HAL, a component still says "Here I am, I have this code you might
+ want to use", but "you" is the system integrator.
+ The integrator gets to decide what functions are used and doesn't have
+ to worry about another module needing "function X" and not finding it.
+\layout Standard
+
+HAL can follow the normal DLL model as well.
+ Although most components will simply export pins, functions, and parameters,
+ and then wait for the integrator (or a saved file) to interconnect them,
+ we can write modules that (attempt to) make connections when they are installed.
+ One specific place where this would work well is kinematics as illustrated
+ in the Lego section 
+\begin_inset LatexCommand \ref{sub:A-Lego-Example}
+
+\end_inset 
+
+ .
+\the_end

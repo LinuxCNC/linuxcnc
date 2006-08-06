@@ -1,0 +1,4613 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 1
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Hardware Drivers
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Parport}
+
+\end_inset 
+
+Parport
+\layout Standard
+
+Parport is a driver for the traditional PC parallel port.
+ The port has a total of 17 physical pins.
+ The original parallel port divided those pins into three groups: data,
+ control, and status.
+ The data group consists of 8 output pins, the control group consists of
+ 4 output pins, and the status group is 5 input pins.
+ In the early 1990's, the bidirectional parallel port was introduced, which
+ allows the data group to be used for output or input.
+ The HAL driver supports the bidirectional port, and allows the user to
+ set the data group as either input or output.
+ If configured as output, a port provides a total of 12 outputs and 5 inputs.
+ If configured as input, it provides 4 outputs and 13 inputs.
+ No other combinations are supported, and a port cannot be changed from
+ input to output once the driver is installed.
+ Figure 
+\begin_inset LatexCommand \ref{fig:Parport-block-diag}
+
+\end_inset 
+
+ shows two block diagrams, one showing the driver when the data group is
+ configured for output, and one showing it configured for input.
+\layout Standard
+
+There are actually two versions of the parport driver.
+ One is a kernel module, and provides realtime control of the parallel port.
+ The other is a user space process, and is not realtime.
+ The non-realtime version is intended mainly for testing, and is not recommended
+ for most applications.
+ Using both the realtime and non-realtime versions at the same time is a
+ bad idea.
+\layout Standard
+
+The parport driver can control up to 8 ports (defined by MAX_PORTS in hal_parpor
+t.c).
+ The ports are numbered starting at zero.
+\layout Subsection
+
+Installing
+\layout Standard
+
+Realtime version, from command line:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt hal_parport 'cfg=
+\begin_inset Quotes erd
+\end_inset 
+
+<config-string>
+\begin_inset Quotes erd
+\end_inset 
+
+'
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The single quotes around the entire 
+\family typewriter 
+\series bold 
+cfg=
+\family default 
+\series default 
+ argument are needed to prevent the shell from misinterpreting the double
+ quotes around the string, and any spaces or special characters in the string.
+ Single quotes should not be used in a file or from the halcmd prompt.
+ 
+\end_inset 
+
+
+\layout Standard
+
+Realtime version, from a file:
+\layout LyX-Code
+
+
+\series bold 
+loadrt hal_parport cfg=
+\begin_inset Quotes erd
+\end_inset 
+
+<config-string>
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+Non-realtime version:
+\layout LyX-Code
+
+emc2# 
+\series bold 
+bin/hal_parport <config-string> &
+\layout Standard
+
+The config string consists of a hex port address, followed by an optional
+ direction, repeated for each port.
+ The direction is either 
+\begin_inset Quotes eld
+\end_inset 
+
+in
+\begin_inset Quotes erd
+\end_inset 
+
+ or 
+\begin_inset Quotes eld
+\end_inset 
+
+out
+\begin_inset Quotes erd
+\end_inset 
+
+ and determines the direction of the physical pins 2 through 9.
+ If the direction is not specified, the data group defaults to output.
+ For example:
+\layout LyX-Code
+
+emc2# 
+\series bold 
+bin/hal_parport 278 378 in 20A0 out
+\layout Standard
+
+This example installs drivers for one port at 0x0278, with pins 2-9 as outputs
+ (by default, since neither 
+\begin_inset Quotes eld
+\end_inset 
+
+in
+\begin_inset Quotes erd
+\end_inset 
+
+ nor 
+\begin_inset Quotes eld
+\end_inset 
+
+out
+\begin_inset Quotes erd
+\end_inset 
+
+ was specified), one at 0x0378, with pins 2-9 as inputs, and one at 0x20A0,
+ with pins 2-9 explicitly specified as outputs.
+ Note that you must know the base address of the parallel port to properly
+ configure the driver.
+ For ISA bus ports, this is usually not a problem, since the port is almost
+ always at a 
+\begin_inset Quotes eld
+\end_inset 
+
+well known
+\begin_inset Quotes erd
+\end_inset 
+
+ address, like 0278 or 0378.
+ However PCI ports may at nearly any address, and finding the address can
+ be tricky
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Perhaps a future version of this driver will attempt to auto-identify PCI
+ port addresses - however, it is very important that the user (or system
+ integrator) makes sure the ports are configured correctly.
+ Sending step and direction pulses to a LaserJet by accident simply wastes
+ paper, but spooling a print job to stepper or servo motors could cause
+ unexpected machine movement and possibly serious or fatal injuries.
+\end_inset 
+
+.
+ There is no default address - if 
+\family typewriter 
+<config-string>
+\family default 
+ does not contain at least one address, it is an error.
+\layout Subsection
+
+Removing
+\layout Standard
+
+Realtime version:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt hal_parport
+\layout Standard
+
+Non-realtime version:
+\layout Quote
+
+Remove the non-realtime version by sending SIGINT or SIGTERM.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename parport-block-diag.eps
+	width 8in
+	height 10in
+	keepAspectRatio
+	rotateAngle 90
+	rotateOrigin center
+
+\end_inset 
+
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Parport-block-diag}
+
+\end_inset 
+
+Parport Block Diagram
+\end_inset 
+
+
+\layout Subsection
+
+Pins
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+parport.<portnum>.pin-<pinnum>-out
+\family default 
+ -- Drives a physical output pin.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+parport.<portnum>.pin-<pinnum>-in
+\family default 
+ -- Tracks a physical input pin.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+parport.<portnum>.pin-<pinnum>-in-not
+\family default 
+ -- Tracks a physical input pin, but inverted.
+\layout Standard
+
+For each pin, 
+\family typewriter 
+<portnum>
+\family default 
+ is the port number, and 
+\family typewriter 
+<pinnum>
+\family default 
+ is the physical pin number in the 25 pin D-shell connector.
+\layout Standard
+
+For each physical output pin, the driver creates a single HAL pin, for example
+ 
+\family typewriter 
+parport.0.pin-14-out
+\family default 
+.
+ Pins 1, 14, 16, and 17 are always outputs.
+ Pins 2 through 9 are part of the data group and are output pins if the
+ port is defined as an output port.
+ (Output is the default.) These HAL pins control the state of the corresponding
+ physical pins.
+\layout Standard
+
+For each physical input pin, the driver creates two HAL pins, for example
+ 
+\family typewriter 
+parport.0.pin-12-in
+\family default 
+ and 
+\family typewriter 
+parport.0.pin-12-in-not
+\family default 
+.
+ Pins 10, 11, 12, 13, and 15 are always input pins.
+ Pins 2 through 9 are input pins only if the port is defined as an input
+ port.
+ The 
+\family typewriter 
+-in
+\family default 
+ HAL pin is TRUE if the physical pin is high, and FALSE if the physical
+ pin is low.
+ The 
+\family typewriter 
+-in-not
+\family default 
+ HAL pin is inverted -- it is FALSE if the physical pin is high.
+ By connecting a signal to one or the other, the user can determine the
+ state of the input.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+parport.<portnum>.pin-<pinnum>-out-invert
+\family default 
+ -- Inverts an output pin.
+\layout Standard
+
+The 
+\family typewriter 
+-invert
+\family default 
+ parameter determines whether an output pin is active high or active low.
+ If 
+\family typewriter 
+-invert
+\family default 
+ is FALSE, setting the HAL 
+\family typewriter 
+-out
+\family default 
+ pin TRUE drives the physical pin high, and FALSE drives it low.
+ If 
+\family typewriter 
+-invert
+\family default 
+ is TRUE, then setting the HAL 
+\family typewriter 
+-out
+\family default 
+ pin TRUE will drive the physical pin low.
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+parport.<portnum>.read
+\family default 
+-- Reads physical input pins of port 
+\family typewriter 
+<portnum>
+\family default 
+ and updates HAL 
+\family typewriter 
+-in
+\family default 
+ and 
+\family typewriter 
+-in-not
+\family default 
+ pins.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+parport.read-all
+\family default 
+ -- Reads physical input pins of all ports and updates HAL 
+\family typewriter 
+-in
+\family default 
+ and 
+\family typewriter 
+-in-not
+\family default 
+ pins.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+parport.<portnum>.write
+\family default 
+ -- Reads HAL 
+\family typewriter 
+-out
+\family default 
+ pins of port 
+\family typewriter 
+<portnum>
+\family default 
+ and updates that port's physical output pins.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+parport.write-all
+\family default 
+ -- Reads HAL 
+\family typewriter 
+-out
+\family default 
+ pins of all ports and updates all physical output pins.
+\layout Standard
+
+The individual functions are provided for situations where one port needs
+ to be updated in a very fast thread, but other ports can be updated in
+ a slower thread to save CPU time.
+ It is probably not a good idea to use both an 
+\family typewriter 
+-all
+\family default 
+ function and an individual function at the same time.
+\layout Standard
+
+The user space version of the driver cannot export functions, instead it
+ exports parameters with the same names.
+ Then the driver sits in a loop checking the parameters.
+ If they are zero, it does nothing.
+ If any parameter is greater than zero, the corresponding function runs
+ once, then the parameter is reset to zero.
+ If any parameter is less than zero, the corresponding function runs on
+ every pass through the loop.
+ The driver will loop forever, until it receives either SIGINT (ctrl-C)
+ or SIGTERM, at which point it cleans up and exits.
+ 
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:AX5214}
+
+\end_inset 
+
+AX5214H
+\layout Standard
+
+The Axiom Measurement & Control AX5214H is a 48 channel digital I/O board.
+ It plugs into a PCI bus, and resembles a pair of 8255 chips.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+In fact it may be a pair of 8255 chips, but I'm not sure.
+ If/when someone starts a driver for an 8255 they should look at the ax5214
+ code, much of the work is already done.
+\end_inset 
+
+ 
+\layout Subsection
+
+Installing
+\layout Standard
+
+From command line:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt hal_ax5214h 'cfg=
+\begin_inset Quotes erd
+\end_inset 
+
+<config-string>
+\begin_inset Quotes erd
+\end_inset 
+
+'
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The single quotes around the entire 
+\family typewriter 
+\series bold 
+cfg=
+\family default 
+\series default 
+ argument are needed to prevent the shell from misinterpreting the double
+ quotes around the string, and any spaces or special characters in the string.
+ Single quotes should not be used in a file or from the halcmd prompt.
+ 
+\end_inset 
+
+
+\layout Standard
+
+From a file:
+\layout LyX-Code
+
+
+\series bold 
+loadrt hal_ax5214h cfg=
+\begin_inset Quotes erd
+\end_inset 
+
+<config-string>
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+The config string consists of a hex port address, followed by an 8 character
+ string of 
+\begin_inset Quotes eld
+\end_inset 
+
+I
+\begin_inset Quotes erd
+\end_inset 
+
+ and 
+\begin_inset Quotes eld
+\end_inset 
+
+O
+\begin_inset Quotes erd
+\end_inset 
+
+ which sets groups of pins as inputs and outputs.
+ The first two character set the direction of the first two 8 bit blocks
+ of pins (0-7 and 8-15).
+ The next two set blocks of 4 pins (16-19 and 20-23).
+ The pattern then repeats, two more blocks of 8 bits (24-31 and 32-39) and
+ two blocks of 4 bits (40-43 and 44-47).
+ If more than one board is installed, the data for the second board follows
+ the first.
+ As an example, the string 
+\family typewriter 
+\series bold 
+
+\begin_inset Quotes eld
+\end_inset 
+
+0x220 IIIOIIOO 0x300 OIOOIOIO
+\begin_inset Quotes erd
+\end_inset 
+
+
+\family default 
+\series default 
+ installs drivers for two boards.
+ The first board is at address 0x220, and has 36 inputs (0-19 and 24-39)
+ and 12 outputs (20-23 and 40-47).
+ The second board is at address 0x300, and has 20 inputs (8-15, 24-31, and
+ 40-43) and 28 outputs (0-7.
+ 16-23, 32-39, and 44-47).
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt hal_ax5214
+\layout Subsection
+
+Pins
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit
+\noun default 
+) ax5214.<boardnum>.out-<pinnum> 
+\family default 
+-- Drives a physical output pin.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+bit
+\noun default 
+) ax5214.<boardnum>.in-<pinnum>
+\family default 
+ -- Tracks a physical input pin.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+bit
+\noun default 
+) ax5214.<boardnum>.in-<pinnum>-not
+\family default 
+ -- Tracks a physical input pin, inverted.
+\layout Standard
+
+For each pin, 
+\family typewriter 
+<boardnum>
+\family default 
+ is the board number (starts at zero), and 
+\family typewriter 
+<pinnum>
+\family default 
+ is the I/O channel number (0 to 47).
+\layout Standard
+
+Note that the driver assumes active LOW signals.
+ This is so that modules such as OPTO-22 will work correctly (TRUE means
+ output ON, or input energized).
+ If the signals are being used directly without buffering or isolation the
+ inversion needs to be accounted for.
+ The 
+\family typewriter 
+in-
+\family default 
+ HAL pin is TRUE if the physical pin is low (OPTO-22 module energized),
+ and FALSE if the physical pin is high (OPTO-22 module off).
+ The 
+\family typewriter 
+in-<pinnum>-not
+\family default 
+ HAL pin is inverted -- it is FALSE if the physical pin is low (OPTO-22
+ module energized).
+ By connecting a signal to one or the other, the user can determine the
+ state of the input.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+bit
+\noun default 
+) ax5214.<boardnum>.out-<pinnum>-invert
+\family default 
+ -- Inverts an output pin.
+\layout Standard
+
+The 
+\family typewriter 
+-invert
+\family default 
+ parameter determines whether an output pin is active high or active low.
+ If 
+\family typewriter 
+-invert
+\family default 
+ is FALSE, setting the HAL 
+\family typewriter 
+out-
+\family default 
+ pin TRUE drives the physical pin low, turning ON an attached OPTO-22 module,
+ and FALSE drives it high, turning OFF the OPTO-22 module.
+ If 
+\family typewriter 
+-invert
+\family default 
+ is TRUE, then setting the HAL 
+\family typewriter 
+out-
+\family default 
+ pin TRUE will drive the physical pin high and turn the module OFF.
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+ax5214.<boardnum>.read
+\family default 
+ -- Reads all digital inputs on one board.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+ax5214.<boardnum>.write 
+\family default 
+-- Writes all digital outputs on one board.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Servo-To-Go}
+
+\end_inset 
+
+Servo-To-Go
+\layout Standard
+
+The Servo-To-Go is one of the first PC motion control cards
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+a motion control card usually is a board containing devices to control one
+ or more axes (the control devices are usually DAC's to set an analog voltage,
+ encoder counting chips for feedback, etc.)
+\end_inset 
+
+ supported by EMC.
+ It is an ISA card and it exists in different flavours (all supported by
+ this driver).
+ The board includes up to 8 channels of quadrature encoder input, 8 channels
+ of analog input and output, 32 bits digital I/O, an interval timer with
+ interrupt and a watchdog.
+\layout Subsection
+
+Installing:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt hal_stg [base=<address>] [num_chan=<nr>] 
+\backslash 
+
+\layout LyX-Code
+
+
+\series bold 
+[dio=
+\begin_inset Quotes erd
+\end_inset 
+
+<dio-string>
+\begin_inset Quotes erd
+\end_inset 
+
+] [model=<model>]
+\layout Standard
+
+The base address field is optional, in case it's not provided the driver
+ attempts to autodetect the board.
+ The num_chan field is used to specify the number of channels available
+ on the card, if not used the 8 axis version is assumed.
+ The digital inputs/outputs configuration is determined by a config string
+ passed to insmod when loading the module.
+ The format consists of a four character string that sets the direction
+ of each group of pins.
+ Each character of the direction string is either "I" or "O".
+ The first character sets the direction of port A (Port A - DIO.0-7), the
+ next sets port B (Port B - DIO.8-15), the next sets port C (Port C - DIO.16-23),
+ and the fourth sets port D (Port D - DIO.24-31).
+ The model field can be used in case the driver doesn't autodetect the right
+ card version
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+hint: after starting up the driver, 'dmesg' can be consulted for messages
+ relevant to the driver (e.g.
+ autodetected version number and base address)
+\end_inset 
+
+.
+ For example:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt hal_stg base=0x300 num_chan=4 dio=''IOIO''
+\layout Standard
+
+This example installs the stg driver for a card found at the base address
+ of 0x300, 4 channels of encoder feedback, DAC's and ADC's, along with 32
+ bits of I/O configured like this: the first 8 (Port A) configured as Input,
+ the next 8 (Port B) configured as Output, the next 8 (Port C) configured
+ as Input, and the last 8 (Port D) configured as Output
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt hal_stg
+\layout Standard
+
+This example installs the driver and attempts to autodetect the board address
+ and board model, it installs 8 axes by default along with a standard I/O
+ setup: Port A & B configured as Input, Port C & D configured as Output.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt hal_stg
+\layout Subsection
+
+Pins
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32
+\noun default 
+) stg.<channel>.counts 
+\family default 
+-- Tracks the counted encoder ticks.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) stg.<channel>.position
+\family default 
+ -- Outputs a converted position.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) stg.<channel>.dac-value 
+\family default 
+-- Drives the voltage for the corresponding DAC.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) stg.<channel>.adc-value
+\family default 
+ -- Tracks the measured voltage from the corresponding ADC.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+stg.in-<pinnum>
+\family default 
+ -- Tracks a physical input pin.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+stg.in-<pinnum>-not
+\family default 
+ -- Tracks a physical input pin, but inverted.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+stg.out-<pinnum>
+\family default 
+ -- Drives a physical output pin
+\layout Standard
+
+For each pin, 
+\family typewriter 
+<channel>
+\family default 
+ is the axis number, and 
+\family typewriter 
+<pinnum>
+\family default 
+ is the logic pin number of the STG
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+if IIOO is defined, there are 16 input pins (in-00 ..
+ in-15) and 16 output pins (out-00 ..
+ out-15), and they correspond to PORTs ABCD (in-00 is PORTA.0, out-15 is
+ PORTD.7)
+\end_inset 
+
+.
+\layout Standard
+
+The 
+\family typewriter 
+in-
+\family default 
+ HAL pin is TRUE if the physical pin is high, and FALSE if the physical
+ pin is low.
+ The 
+\family typewriter 
+in-<pinnum>-not
+\family default 
+ HAL pin is inverted -- it is FALSE if the physical pin is high.
+ By connecting a signal to one or the other, the user can determine the
+ state of the input.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+stg.<channel>.position-scale
+\family default 
+ -- The number of counts / user unit (to convert from counts to units).
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) stg.<channel>.dac-offset 
+\family default 
+-- Sets the offset for the corresponding DAC.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) stg.<channel>.dac-gain
+\family default 
+ -- Sets the gain of the corresponding DAC.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) stg.<channel>.adc-offset
+\family default 
+ -- Sets the offset of the corresponding ADC.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) stg.<channel>.adc-gain
+\family default 
+ -- Sets the gain of the corresponding ADC.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+bit
+\noun default 
+) stg.out-<pinnum>-invert
+\family default 
+ -- Inverts an output pin.
+\layout Standard
+
+The 
+\family typewriter 
+-invert
+\family default 
+ parameter determines whether an output pin is active high or active low.
+ If 
+\family typewriter 
+-invert
+\family default 
+ is FALSE, setting the HAL 
+\family typewriter 
+out-
+\family default 
+ pin TRUE drives the physical pin high, and FALSE drives it low.
+ If 
+\family typewriter 
+-invert
+\family default 
+ is TRUE, then setting the HAL 
+\family typewriter 
+out-
+\family default 
+ pin TRUE will drive the physical pin low.
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+stg.capture-position
+\family default 
+ -- Reads the encoder counters from the axis 
+\family typewriter 
+<channel>
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+stg.write-dacs 
+\family default 
+-- Writes the voltages to the DACs.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+stg.read-adcs
+\family default 
+ -- Reads the voltages from the ADCs.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+stg.di-read
+\family default 
+ -- Reads physical 
+\family typewriter 
+in-
+\family default 
+ pins of all ports and updates all HAL 
+\family typewriter 
+in-
+\family default 
+ and 
+\family typewriter 
+in-<pinnum>-not
+\family default 
+ pins.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+stg.do-write
+\family default 
+ -- Reads all HAL 
+\family typewriter 
+out-
+\family default 
+ pins and updates all physical output pins.
+\layout Section
+
+Mesa Electronics m5i20 
+\begin_inset Quotes eld
+\end_inset 
+
+Anything I/O Card
+\begin_inset Quotes erd
+\end_inset 
+
+
+\layout Standard
+
+The Mesa Electronics m5i20 card consists of an FPGA that can be loaded with
+ a wide variety of configurations, and has 72 pins that leave the PC.
+ The assignment of the pins depends on the FPGA configuration.
+ Currently there is a HAL driver for the 
+\begin_inset Quotes eld
+\end_inset 
+
+4 axis host based motion control
+\begin_inset Quotes erd
+\end_inset 
+
+ configuration, and this FPGA configurations is also provided with EMC2.
+ It provides 8 encoder counters, 4 PWM outputs (normally used as DACs) and
+ up to 48 digital I/O channels, 32 inputs and 16 outputs.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Ideally the encoders, 
+\begin_inset Quotes eld
+\end_inset 
+
+DACs
+\begin_inset Quotes erd
+\end_inset 
+
+, and digital I/O would comply with the canonical interfaces defined earlier,
+ but they don't.
+ Fixing that is on the things-to-do list.
+\end_inset 
+
+
+\layout Standard
+
+Installing:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt hal_m5i20 [loadFpga=1|0] [dacRate=<rate>]
+\layout Standard
+
+If 
+\family typewriter 
+\series bold 
+loadFpga
+\family default 
+\series default 
+ is 1 (the default) the driver will load the FPGA configuration on startup.
+ If it is 0, the driver assumes the configuration is already loaded.
+ 
+\family typewriter 
+\series bold 
+dacRate
+\family default 
+\series default 
+ sets the carrier frequency for the PWM outputs, in Hz.
+ The default is 32000, for 32KHz PWM.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+I don't know what the maximum (and minimum, if any) PWM frequency is, it
+ should be documented here.
+ Also, this is the kind of thing that ideally is controlled by a HAL parameter,
+ rather than being set when the driver is initially loaded.
+ I don't know if that is possible, it depends on the hardware and I don't
+ have the neccessary information.
+\end_inset 
+
+ The driver prints some usefull debugging message to the kernel log, which
+ can be viewed with 
+\family typewriter 
+\series bold 
+dmesg
+\family default 
+\series default 
+.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt hal_m5i20
+\layout Subsection
+
+Pins
+\layout Standard
+
+In the following pins, parameters, and functions, <board> is the board ID.
+ According to the naming conventions the first board should always have
+ an ID of zero, however this driver uses the PCI board ID, so it may be
+ non-zero even if there is only one board.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32
+\noun default 
+) m5i20.<board>.enc-<channel>-count 
+\family default 
+-- Encoder position, in counts.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+s32
+\noun default 
+) m5i20.<board>.enc-<channel>-cnt-latch
+\family default 
+ -- Position in counts when index pulse arrived.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) m5i20.<board>.enc-<channel>-position 
+\family default 
+-- Encoder position, in user units.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) m5i20.<board>.enc-<channel>-pos-latch
+\family default 
+ -- Position in user units when index pulse arrived.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.enc-<channel>-index
+\family default 
+ -- Current status of index pulse input?
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.enc-<channel>-idx-latch
+\family default 
+ -- Goes true when an index pulse arrives?
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.enc-<channel>-latch-index
+\family default 
+ -- Bidirectional - used to control/report index latching?
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.enc-<channel>-reset-count
+\family default 
+ -- Bidirectional (why?) - used to reset counter?
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.dac-<channel>-enable
+\family default 
+ -- Enables DAC if true.
+ DAC outputs zero volts if false?
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+m5i20.<board>.dac-<channel>-value
+\family default 
+ -- Analog output value for PWM 
+\begin_inset Quotes eld
+\end_inset 
+
+DAC
+\begin_inset Quotes erd
+\end_inset 
+
+ (in user units, see 
+\family typewriter 
+-scale
+\family default 
+ and 
+\family typewriter 
+-offset
+\family default 
+)
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.in-<channel>
+\family default 
+ -- State of digital input pin, see canonical digital input.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.in-<channel>-not
+\family default 
+ -- Inverted state of digital input pin, see canonical digital input.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.out-<channel>
+\family default 
+ -- Value to be written to digital output, see canonical digital output.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.estop-in
+\family default 
+ -- Dedicated estop input, more details needed.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.estop-in-not
+\family default 
+ -- Inverted state of dedicated estop input.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+m5i20.<board>.watchdog-reset
+\family default 
+ -- Bidirectional, - Set TRUE to reset watchdog once, is automatically cleared.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+m5i20.<board>.enc-<channel>-scale
+\family default 
+ -- The number of counts / user unit (to convert from counts to units).
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) m5i20.<board>.dac-<channel>-offset 
+\family default 
+-- Sets the DAC offset.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) m5i20.<board>.dac-<channel>-gain 
+\family default 
+-- Sets the DAC gain (scaling).
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+bit
+\noun default 
+) m5i20.<board>.dac-<channel>-interlaced 
+\family default 
+-- Sets the DAC to interlaced mode.
+ Use this mode if you are filtering the PWM to generate an anaolg voltage.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+With normal 10 bit PWM, 50% duty cycle would be 512 cycles on and 512 cycles
+ off = ca 30 kHz with 33 MHz reference counter.
+ With fully interleaved PWM this would be 1 cycle on, 1 cycle off for 1024
+ cycles (16.66 MHz if the PWM reference counter runs at 33 MHz) = much easier
+ to filter.
+ The 5I20 configuration interlace is somewhat between non and fully interlaced
+ (to make it easy to filter but not have as many transistions as fully interleav
+ed).
+\end_inset 
+
+
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+bit
+\noun default 
+) m5i20.<board>.out-<channel>-invert 
+\family default 
+-- Inverts a digital output, see canonical digital output.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+u16
+\noun default 
+) m5i20.<board>.watchdog-control
+\family default 
+ -- Configures the watchdog.
+ (0x0001 = watchdog enable, 0x0002 = watchdog auto-reset ?)
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+u16
+\noun default 
+) m5i20.<board>.watchdog-timeout
+\family default 
+ -- Sets watchdog timeout period (in microseconds)
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+u16
+\noun default 
+) m5i20.<board>.led-view
+\family default 
+ -- Maps some of the I/O to onboard LEDs.
+ See table below.
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+m5i20.<board>.encoder-read
+\family default 
+ -- Reads all encoder counters.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ m5i20.<board>.digital-in-read 
+\family default 
+-- Reads digital inputs.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+m5i20.<board>.dac-write 
+\family default 
+-- Writes the voltages (PWM duty cycles) to the 
+\begin_inset Quotes eld
+\end_inset 
+
+DACs
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ m5i20.<board>.digital-out-write 
+\family default 
+-- Writes digital outputs.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+m5i20.<board>.misc-update
+\family default 
+ -- Writes watchdog timer configuration to hardware.
+ Resets watchdog timer.
+ Updates E-stop pin (more info needed).
+ Updates onboard LEDs.
+ 
+\layout Subsection
+
+Connector pinout
+\layout Standard
+
+The Hostmot-4 FPGA configuration has the following pinout.
+ There are three 50-pin ribbon cable connectors on the card: P2, P3, and
+ P4.
+ There are also 8 status LEDs.
+\layout Subsubsection
+
+Connecor P2
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="27" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+m5i20 card connector P2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Function/HAL-pin
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-01 A input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-01 B input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-00 A input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+7
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-00 B input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+9
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-01 index input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+11
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-00 index input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+13
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-01 output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+15
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-00 output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+17
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+DIR output for dac-01
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+19
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+DIR output for dac-00
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+21
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-01-enable output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+23
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-00-enable output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+25
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-03 B input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+27
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-03 A input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+29
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-02 B input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+31
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-02 A input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+33
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-03 index input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+35
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-02 index input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+37
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-03 output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+39
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-02 output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+41
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+DIR output for dac-03
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+43
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+DIR output for dac-02
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+45
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-03-enable output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+47
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-02-enable output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+49
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Power +5 V (or +3.3V ?)
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+all even pins
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Ground
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Connector P3
+\layout Standard
+
+Encoder counters 4 - 7 work simultaneously with in-00 to in-11.
+ 
+\layout Standard
+
+If you are using in-00 to in-11 as general purpose IO then reading enc-<4-7>
+ will produce some random junk number.
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="27" columns="3">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+m5i20 card connector P3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Function/HAL-pin
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Secondary Function/HAL-pin
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-00
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-04 A input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-01
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-04 B input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-02
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-04 index input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+7
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-03
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-05 A input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+9
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-04
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-05 B input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+11
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-05
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-05 index input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+13
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-06
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-06 A input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+15
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-07
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-06 B input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+17
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-08
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-06 index input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+19
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-09
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-07 A input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+21
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-10
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-07 B input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+23
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-11
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-07 index input
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+25
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-12
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+27
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-13
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+29
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-14
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+31
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-15
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+33
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-00
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+35
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-01
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+37
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-02
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+39
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-03
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+41
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-04
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+43
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-05
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+45
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-06
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+47
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-07
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+49
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Power +5 V (or +3.3V ?)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+all even pins
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Ground
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Standard
+
+
+\emph on 
+Note!
+\emph default 
+: This is the intended pinout of P3.
+ Unfortunately, in the current FPGA configuration distributed with EMC2
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+emc2/src/hal/drivers/m5i20_HM5-4E.h dated 2005/06/07 
+\end_inset 
+
+, the secondary encoders, enc-04, enc-05, enc-06, and enc-07 are wrongly
+ configured.
+ The input pins for enc-04 and enc-05 partly overlap, as do the pins for
+ enc-06 and enc-07.
+ Thus it is possible to use enc-04 and enc-06 simultaneously, but using
+ enc-04 and enc-05 is not possible since counts on enc-04 will make the
+ count on enc-05 jump by +/- 1.
+ If you are using pins in-00 to in-11 as general purpose inputs you are
+ not affected by this bug.
+\layout Subsubsection
+
+Connector P4
+\layout Standard
+
+The index mask masks the index input of the encoder so that the encoder
+ index can be combined with a mechanical switch or opto detector to clear
+ or latch the encoder counter only when the mask input bit is in proper
+ state (selected by mask polarity bit) and encoder index occurs.
+ This is useful for homing.
+ The behaviour of these pins is controlled by the Counter Control Register
+ (CCR), however there is currently no function in the driver to change the
+ CCR.
+ See REGMAP4
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+emc2/src/hal/drivers/m5i20/REGMAP4E 
+\end_inset 
+
+ for a description of the CCR.
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="27" columns="3">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+m5i20 card connector P4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Function/HAL-pin
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Secondary Function/HAL-pin
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-16
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-00 index mask
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-17
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-01 index mask
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-18
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-02 index mask
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+7
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-19
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-03 index mask
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+9
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-20
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+11
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-21
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+13
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-22
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+15
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-23
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+17
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-24
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-04 index mask
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+19
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-25
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-05 index mask
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+21
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-26
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-06 index mask
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+23
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-27
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-07 index mask
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+25
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-28
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+27
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-29
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+29
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-30
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+31
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+in-31
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+33
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-08
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+35
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-09
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+37
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-10
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+39
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-11
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+41
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-12
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+43
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-13
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+45
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-14
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+47
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+out-15
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+49
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Power +5 V (or +3.3V ?)
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+all even pins
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Ground
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Subsubsection
+
+LEDs
+\layout Standard
+
+The status LEDs will monitor one motion channel set by the
+\family typewriter 
+ m5i20.<board>.led-view 
+\family default 
+parameter.
+ A call to 
+\family typewriter 
+m5i20.<board>.misc-update
+\family default 
+ is required to update the LEDs.
+\layout Standard
+
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="9" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LED name
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Output
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LED0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+IRQLatch ?
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LED1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-<channel> A
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LED2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-<channel> B
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LED3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+enc-<channel> index
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LED4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-<channel> DIR
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LED5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-<channel>
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LED6
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+dac-<channel>-enable
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+LED7
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+watchdog timeout ?
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\layout Section
+
+Vital Systems Motenc-100 and Motenc-LITE
+\layout Standard
+
+The Vital Systems Motenc-100 and Motenc-LITE are 8- and 4-channel servo
+ control boards.
+ The Motenc-100 provides 8 quadrature encoder counters, 8 analog inputs,
+ 8 analog outputs, 64 (68?) digital inputs, and 32 digital outputs.
+ The Motenc-LITE has only 4 encoder counters, 32 digital inputs and 16 digital
+ outputs, but it still has 8 analog inputs and 8 analog outputs.
+ The driver automatically identifies the installed board and exports the
+ appropriate HAL objects.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Ideally the encoders, DACs, ADCs, and digital I/O would comply with the
+ canonical interfaces defined earlier, but they don't.
+ Fixing that is on the things-to-do list.
+\end_inset 
+
+
+\layout Standard
+
+Installing:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt hal_motenc
+\layout Standard
+
+During loading (or attempted loading) the driver prints some usefull debugging
+ message to the kernel log, which can be viewed with 
+\family typewriter 
+\series bold 
+dmesg
+\family default 
+\series default 
+.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt hal_motenc
+\layout Subsection
+
+Pins
+\layout Standard
+
+In the following pins, parameters, and functions, <board> is the board ID.
+ According to the naming conventions the first board should always have
+ an ID of zero.
+ However this driver sets the ID based on a pair of jumpers on the baord,
+ so it may be non-zero even if there is only one board.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32
+\noun default 
+) motenc.<board>.enc-<channel>-count 
+\family default 
+-- Encoder position, in counts.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) motenc.<board>.enc-<channel>-position 
+\family default 
+-- Encoder position, in user units.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+motenc.<board>.enc-<channel>-index
+\family default 
+ -- Current status of index pulse input.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+motenc.<board>.enc-<channel>-idx-latch
+\family default 
+ -- Driver sets this pin true when it latches an index pulse (enabled by
+ 
+\family typewriter 
+latch-index
+\family default 
+).
+ Cleared by clearing
+\family typewriter 
+ latch-index
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+motenc.<board>.enc-<channel>-latch-index
+\family default 
+ -- If this pin is true, the driver will reset the counter on the next index
+ pulse.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+motenc.<board>.enc-<channel>-reset-count
+\family default 
+ -- If this pin is true, the counter will immediately be reset to zero,
+ and the pin will be cleared.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+motenc.<board>.dac-<channel>-value
+\family default 
+ -- Analog output value for DAC (in user units, see 
+\family typewriter 
+-gain
+\family default 
+ and 
+\family typewriter 
+-offset
+\family default 
+)
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+motenc.<board>.adc-<channel>-value
+\family default 
+ -- Analog input value read by ADC (in user units, see 
+\family typewriter 
+-gain
+\family default 
+ and 
+\family typewriter 
+-offset
+\family default 
+)
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+motenc.<board>.in-<channel>
+\family default 
+ -- State of digital input pin, see canonical digital input.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+motenc.<board>.in-<channel>-not
+\family default 
+ -- Inverted state of digital input pin, see canonical digital input.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+motenc.<board>.out-<channel>
+\family default 
+ -- Value to be written to digital output, seen canonical digital output.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+motenc.<board>.estop-in
+\family default 
+ -- Dedicated estop input, more details needed.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+motenc.<board>.estop-in-not
+\family default 
+ -- Inverted state of dedicated estop input.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+motenc.<board>.watchdog-reset
+\family default 
+ -- Bidirectional, - Set TRUE to reset watchdog once, is automatically cleared.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+motenc.<board>.enc-<channel>-scale
+\family default 
+ -- The number of counts / user unit (to convert from counts to units).
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) motenc.<board>.dac-<channel>-offset 
+\family default 
+-- Sets the DAC offset.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) motenc.<board>.dac-<channel>-gain 
+\family default 
+-- Sets the DAC gain (scaling).
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) motenc.<board>.adc-<channel>-offset 
+\family default 
+-- Sets the ADC offset.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) motenc.<board>.adc-<channel>-gain 
+\family default 
+-- Sets the ADC gain (scaling).
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+bit
+\noun default 
+) motenc.<board>.out-<channel>-invert 
+\family default 
+-- Inverts a digital output, see canonical digital output.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+u16
+\noun default 
+) motenc.<board>.watchdog-control
+\family default 
+ -- Configures the watchdog?
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+u16
+\noun default 
+) motenc.<board>.led-view
+\family default 
+ -- Maps some of the I/O to onboard LEDs?
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+motenc.<board>.encoder-read
+\family default 
+ -- Reads all encoder counters.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+motenc.<board>.adc-read 
+\family default 
+-- Reads the analog-to-digital converters.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ motenc.<board>.digital-in-read 
+\family default 
+-- Reads digital inputs.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+motenc.<board>.dac-write 
+\family default 
+-- Writes the voltages to the DACs.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct)
+\noun default 
+ motenc.<board>.digital-out-write 
+\family default 
+-- Writes digital outputs.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+motenc.<board>.misc-update
+\family default 
+ -- Updates misc stuff.
+\layout Section
+
+Pico Systems PPMC (Parallel Port Motion Control)
+\layout Standard
+
+Pico Systems has a family of boards for doing servo, stepper, and pwm control.
+ The boards connect to the PC through a parallel port working in EPP mode.
+ Although most users connect one board to a parallel port, in theory any
+ mix of up to 8 or 16 boards can be used on a single parport.
+ One driver serves all types of boards.
+ The final mix of I/O depends on the connected board(s).
+ The driver doesn't distinguish between boards, it simply numbers I/O channels
+ (encoders, etc) starting from 0 on the first card.
+\layout Standard
+
+Installing:
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd loadrt hal_ppmc port_addr=<addr1>[,<addr2>[,<addr3>]]
+\layout Standard
+
+The 
+\family typewriter 
+\series bold 
+port_addr
+\family default 
+\series default 
+ parameter tells the driver what parallel port(s) to check.
+ By default, 
+\family typewriter 
+\series bold 
+<addr1>
+\family default 
+\series default 
+ is 0x0378, and 
+\family typewriter 
+\series bold 
+<addr2>
+\family default 
+\series default 
+ and 
+\family typewriter 
+\series bold 
+<addr3>
+\family default 
+\series default 
+ are not used.The driver searches the entire address space of the enhanced
+ parallel port(s) at 
+\family typewriter 
+\series bold 
+port_addr
+\family default 
+\series default 
+, looking for any board(s) in the PPMC family.
+ It then exports HAL pins for whatever it finds.
+ During loading (or attempted loading) the driver prints some usefull debugging
+ message to the kernel log, which can be viewed with 
+\family typewriter 
+\series bold 
+dmesg
+\family default 
+\series default 
+.
+\layout Subsection
+
+Removing
+\layout LyX-Code
+
+emc2$ 
+\series bold 
+bin/halcmd unloadrt hal_ppmc
+\layout Subsection
+
+Pins
+\layout Standard
+
+In the following pins, parameters, and functions, <board> is the board ID.
+ According to the naming conventions the first board should always have
+ an ID of zero.
+ However this driver sets the ID based on a pair of jumpers on the baord,
+ so it may be non-zero even if there is only one board.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32
+\noun default 
+) ppmc.<port>.encoder.<channel>.count 
+\family default 
+-- Encoder position, in counts.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(s32
+\noun default 
+) ppmc.<port>.encoder.<channel>.delta 
+\family default 
+-- Change in counts since last read.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) ppmc.<port>.encoder.<channel>.position 
+\family default 
+-- Encoder position, in user units.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+ppmc.<port>.encoder.<channel>.index
+\family default 
+ -- Something to do with index pulse.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Index handling does _not_ comply with the canonical encoder interface, and
+ should be changed.
+\end_inset 
+
+
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+ppmc.<port>.pwm.<channel>.enable
+\family default 
+ -- Enables a PWM generator.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+ppmc.<port>.pwm.<channel>.value
+\family default 
+ -- Value which determines the duty cycle of the PWM waveforms.
+ The value is divided by 
+\family typewriter 
+pwm.<channel>.scale
+\family default 
+, and if the result is 0.6 the duty cycle will be 60%, and so on.
+ Negative values result in the duty cycle being based on the absolute value,
+ and the direction pin is set to indicate negative.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+ppmc.<port>.stepgen.<channel>.enable
+\family default 
+ -- Enables a step pulse generator.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+ppmc.<port>.stepgen.<channel>.velocity
+\family default 
+ -- Value which determines the step frequency.
+ The value is multiplied by 
+\family typewriter 
+stepgen.<channel>.scale
+\family default 
+, and the result is the frequency in steps per second.
+ Negative values result in the frequency being based on the absolute value,
+ and the direction pin is set to indicate negative.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+ppmc.<port>.in-<channel>
+\family default 
+ -- State of digital input pin, see canonical digital input.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+ppmc.<port>.in.<channel>.not
+\family default 
+ -- Inverted state of digital input pin, see canonical digital input.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(bit) 
+\noun default 
+ppmc.<port>.out-<channel>
+\family default 
+ -- Value to be written to digital output, seen canonical digital output.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+ppmc.<port>.enc.<channel>.scale
+\family default 
+ -- The number of counts / user unit (to convert from counts to units).
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(float) 
+\noun default 
+ppmc.<port>.pwm.<channel-range>.freq
+\family default 
+ -- The PWM carrier frequency, in Hz.
+ Applies to a group of four consecutive PWM generators, as indicated by
+ 
+\family typewriter 
+<channel-range>
+\family default 
+.
+ Minimum is 153Hz, maximum is 500KHz.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) ppmc.<port>.pwm.<channel>.scale 
+\family default 
+-- Scaling for PWM generator.
+ If 
+\family typewriter 
+scale
+\family default 
+ is X, then the duty cycle will be 100% when the 
+\family typewriter 
+value
+\family default 
+ pin is X (or -X).
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) ppmc.<port>.pwm.<channel>.max-dc 
+\family default 
+-- Maximum duty cycle, from 0.0 to 1.0.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) ppmc.<port>.pwm.<channel>.min-dc 
+\family default 
+-- Minimum duty cycle, from 0.0 to 1.0.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) ppmc.<port>.pwm.<channel>.duty-cycle 
+\family default 
+-- Actual duty cycle (used mostly for troubleshooting.)
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+bit
+\noun default 
+) ppmc.<port>.pwm.<channel>.bootstrap 
+\family default 
+-- If true, the PWM generator will generate a short sequence of pulses of
+ both polarities when it is enabled, to charge the bootstrap capacators
+ used on some MOSFET gate drivers.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+u8
+\noun default 
+) ppmc.<port>.stepgen.<channel-range>.setup-time 
+\family default 
+-- Sets minimum time between direction change and step pulse, in units of
+ 100nS.
+ Applies to a group fof four consecutive PWM generators, as indicated by
+ 
+\family typewriter 
+<channel-range>
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+u8
+\noun default 
+) ppmc.<port>.stepgen.<channel-range>.pulse-width 
+\family default 
+-- Sets width of step pulses, in units of 100nS.
+ Applies to a group fof four consecutive PWM generators, as indicated by
+ 
+\family typewriter 
+<channel-range>
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+u8
+\noun default 
+) ppmc.<port>.stepgen.<channel-range>.pulse-space-min 
+\family default 
+-- Sets minimum time between pulses, in units of 100nS.
+ The maximum step rate is 1/( 100nS * (
+\family typewriter 
+ pulse-width
+\family default 
+ +
+\family typewriter 
+ pulse-space-min
+\family default 
+ )).
+ Applies to a group fof four consecutive PWM generators, as indicated by
+ 
+\family typewriter 
+<channel-range>
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) ppmc.<port>.stepgen.<channel>.scale 
+\family default 
+-- Scaling for step pulse generator.
+ The step frequency in Hz is the absolute value of 
+\family typewriter 
+velocity
+\family default 
+ * 
+\family typewriter 
+scale
+\family default 
+.
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) ppmc.<port>.stepgen.<channel>.max-vel 
+\family default 
+-- The maximum value for 
+\family typewriter 
+velocity
+\family default 
+.
+ Commands greater than 
+\family typewriter 
+max-vel
+\family default 
+ will be clamped.
+ Also applies to negative values.
+ (The absolute value is clamped.)
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+float
+\noun default 
+) ppmc.<port>.stepgen.<channel>.frequency 
+\family default 
+-- Actual step pulse frequency in Hz (used mostly for troubleshooting.)
+\layout Itemize
+
+
+\family typewriter 
+(
+\noun on 
+bit
+\noun default 
+) ppmc.<port>.out.<channel>.invert 
+\family default 
+-- Inverts a digital output, see canonical digital output.
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+ppmc.<port>.read
+\family default 
+ -- Reads all inputs (digital inputs and encoder counters) on one port.
+\layout Itemize
+
+
+\family typewriter 
+\noun on 
+(funct) 
+\noun default 
+ppmc.<port>.write 
+\family default 
+-- Writes all outputs (digital outputs, stepgens, PWMs) on one port.
+\the_end
