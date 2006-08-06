@@ -1,0 +1,686 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement h
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4wide
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Chapter
+
+Glossary of Common Terms Used in the EMC Documents 
+\layout Standard
+\align center 
+GPLD Copyright 2003, LinuxCNC.org 
+\layout Standard
+
+A listing of terms and what they mean.
+ Some terms have a general meaning and several additional meanings for users,
+ installers, and developers.
+ 
+\begin_inset Note
+collapsed true
+
+\layout Standard
+
+This pattern uses the Description paragraph style
+\layout Standard
+
+rather than the standard style.
+\layout Standard
+
+It also uses each term as a Label so that one term can
+\layout Standard
+
+easily refer to another using a cross reference.
+\layout Standard
+
+Cross references need a space ahead and after
+\layout Standard
+
+so that they look good in the published documents.
+\end_inset 
+
+
+\layout Description
+
+Acme\SpecialChar ~
+Screw
+\begin_inset LatexCommand \label{AcmeScrew}
+
+\end_inset 
+
+ A type of lead-screw 
+\begin_inset LatexCommand \ref{Leadscrew}
+
+\end_inset 
+
+ that uses an acme thread form.
+ Acme threads have somewhat lower friction and wear than simple triangular
+ threads, but ball-screws 
+\begin_inset LatexCommand \ref{Ballscrew}
+
+\end_inset 
+
+ are lower yet.
+ Most manual machine tools use acme lead-screws.
+\layout Description
+
+Axis
+\begin_inset LatexCommand \label{Axis}
+
+\end_inset 
+
+ One of the computer control movable parts of the machine.
+ For a typical vertical mill, the table is the X axis, the saddle is the
+ Y axis, and the quill or knee is the Z axis.
+ Additional linear axes parallel to X, Y, and Z are called U, V, and W respectiv
+ely.
+ Angular axes like rotary tables are referred to as A, B, and C.
+\layout Description
+
+Backlash
+\begin_inset LatexCommand \label{Backlash}
+
+\end_inset 
+
+ The amount of "play" or lost motion that occurs when direction is reversed
+ in a lead screw 
+\begin_inset LatexCommand \ref{Leadscrew}
+
+\end_inset 
+
+.
+ or other mechanical motion driving system.
+ It can result from nuts that are loose on leadscrews, slippage in belts,
+ cable slack, "wind-up" in rotary couplings, and other places where the
+ mechanical system is not "tight".
+ Backlash will result in inaccurate motion, or in the case of motion caused
+ by external forces (think cutting tool pulling on the work piece) the result
+ can be broken cutting tools.
+ This can happen because of the sudden increase in chip load on the cutter
+ as the work piece is pulled across the backlash distance by the cutting
+ tool.
+ 
+\layout Description
+
+Backlash\SpecialChar ~
+Compensation - Any technique that attempts to reduce the effect
+ of backlash without actually removing it from the mechanical system.
+ This is typically done in software in the controller.
+ This can correct the final resting place of the part in motion but fails
+ to solve problems related to direction changes while in motion (think circular
+ interpolation) and motion that is caused when external forces (think cutting
+ tool pulling on the work piece) are the source of the motion.
+\layout Description
+
+Ball\SpecialChar ~
+Screw
+\begin_inset LatexCommand \label{Ballscrew}
+
+\end_inset 
+
+ A type of lead-screw that uses small hardened steel balls between the nut
+ 
+\begin_inset LatexCommand \ref{Ballnut}
+
+\end_inset 
+
+ and screw to reduce friction.
+ Ball-screws have very low friction and backlash 
+\begin_inset LatexCommand \ref{Backlash}
+
+\end_inset 
+
+, but are usually quite expensive.
+\layout Description
+
+Ball\SpecialChar ~
+Nut
+\begin_inset LatexCommand \label{Ballnut}
+
+\end_inset 
+
+ A special nut designed for use with a ball-screw.
+ It contains an internal passage to re-circulate the balls from one end
+ of the screw to the other.
+\layout Description
+
+bridgeportio
+\begin_inset LatexCommand \label{bridgeportio}
+
+\end_inset 
+
+ An I/O task 
+\begin_inset LatexCommand \ref{EMCIO}
+
+\end_inset 
+
+ designed to work with a Bridgeport milling machine, having a variable speed
+ spindle 
+\begin_inset LatexCommand \ref{Spindle}
+
+\end_inset 
+
+, coolant, and lube pumps, and some other stuff.
+\layout Description
+
+CNC
+\begin_inset LatexCommand \label{CNC}
+
+\end_inset 
+
+ Computer Numerical Control.
+ The general term used to refer to computer control of machinery.
+ Instead of a human operator turning cranks to move a cutting tool, CNC
+ uses a computer and motors to move the tool, based on a part program 
+\begin_inset LatexCommand \ref{PartProgram}
+
+\end_inset 
+
+.
+\layout Description
+
+Coordinate\SpecialChar ~
+Measuring\SpecialChar ~
+Machine A Coordinate Measuring Machine is used to make
+ many accurate measurements on parts.
+ These machines can be used to create CAD data for parts where no drawings
+ can be found, when a hand-made prototype needs to be digitized for moldmaking,
+ or to check the accuracy of machined or molded parts.
+ 
+\layout Description
+
+DRO A Digital Read Out is a device attached to the slides of a machine tool
+ or other device which has parts that move in a precise manner to indicate
+ the current location of the tool with respect to some reference position.
+ Nearly all DRO's use linear quadrature encoders to pick up position information
+ from the machine.
+ 
+\layout Description
+
+EDM EDM is a method of removing metal in hard or difficult to machine or
+ tough metals, or where rotating tools would not be able to produce the
+ desired shape in a cost-effective manner.
+ An excellent example is rectangular punch dies, where sharp internal corners
+ are desired.
+ Milling operations can not give sharp internal corners with finite diameter
+ tools.
+ A wire EDM machine can make internal corners with a radius only slightly
+ larger than the wire's radius.
+ A 'sinker' EDM cam make corners with a radius only slightly larger than
+ the radius on the corner of the convex EDM electrode.
+ 
+\layout Description
+
+EMC
+\begin_inset LatexCommand \label{EMC}
+
+\end_inset 
+
+ The Enhanced Machine Controller.
+ Initially a NIST 
+\begin_inset LatexCommand \ref{NIST}
+
+\end_inset 
+
+ project.
+ EMC is able to run a wide range of motion devices.
+\layout Description
+
+EMCIO
+\begin_inset LatexCommand \label{EMCIO}
+
+\end_inset 
+
+ The module within EMC
+\begin_inset LatexCommand \ref{EMC}
+
+\end_inset 
+
+ that handles general purpose I/O, unrelated to the actual motion of the
+ axes.
+ A couple examples are bridgeportio 
+\begin_inset LatexCommand \ref{bridgeportio}
+
+\end_inset 
+
+ and minimillio 
+\begin_inset LatexCommand \ref{minimillio}
+
+\end_inset 
+
+.
+\layout Description
+
+EMCMOT
+\begin_inset LatexCommand \label{EMCMOT}
+
+\end_inset 
+
+ The module within EMC 
+\begin_inset LatexCommand \ref{EMC}
+
+\end_inset 
+
+ that handles the actual motion of the cutting tool.
+ It runs as a real-time program and directly controls the motors.
+\layout Description
+
+Encoder
+\begin_inset LatexCommand \label{Encoder}
+
+\end_inset 
+
+
+\layout Description
+
+Feed
+\begin_inset LatexCommand \label{Feed}
+
+\end_inset 
+
+ Relatively slow, controlled motion of the tool used when making a cut.
+\layout Description
+
+Feedrate The speed at which a motion occurs.
+ In manual mode, jog speed can be set from the graphical interface.
+ In auto or mdi mode feedrate is commanded using a (f) word.
+ F10 would mean ten units per minute.
+\layout Description
+
+Feedback
+\begin_inset LatexCommand \label{Feedback}
+
+\end_inset 
+
+ 
+\layout Description
+
+Feedrate\SpecialChar ~
+Override
+\begin_inset LatexCommand \label{FeedrateOveride}
+
+\end_inset 
+
+ A manual, operator controlled change in the rate at which the tool moves
+ while cutting.
+ Often used to allow the operator to adjust for tools that are a little
+ dull, or anything else that requires the feed rate to be 
+\begin_inset Quotes eld
+\end_inset 
+
+tweaked
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Description
+
+G-Code
+\begin_inset LatexCommand \label{G-Code}
+
+\end_inset 
+
+ The generic term used to refer to the most common part programming language.
+ There are several dialects of G-code, EMC uses RS274/NGC 
+\begin_inset LatexCommand \ref{RS274NGC}
+
+\end_inset 
+
+.
+\layout Description
+
+GUI
+\begin_inset LatexCommand \label{GUI}
+
+\end_inset 
+
+ Graphical User Interface.
+ 
+\begin_deeper 
+\layout Description
+
+General A type of interface that allows communications between a computer
+ and human (in most cases) via the manipulation of icons and other elements
+ (widgets) on a computer screen.
+\layout Description
+
+EMC An application that presents a graphical screen to the machine operator
+ allowing manipulation of machine and the corresponding controlling program.
+\end_deeper 
+\layout Description
+
+Home
+\begin_inset LatexCommand \label{Home}
+
+\end_inset 
+
+ A specific location in the machine's work envelope that is used to make
+ sure the computer and the actual machine both agree on the tool position.
+\layout Description
+
+ini\SpecialChar ~
+file
+\begin_inset LatexCommand \label{inifile}
+
+\end_inset 
+
+ A text file that contains most of the information that configures EMC 
+\begin_inset LatexCommand \ref{EMC}
+
+\end_inset 
+
+ for a particular machine
+\layout Description
+
+Joint_Coordinates:
+\begin_inset LatexCommand \label{Joint_Coordinates}
+
+\end_inset 
+
+ These specify the angles between the individual joints of the machine.\SpecialChar ~
+Kinematics
+\layout Description
+
+Jog Manually moving an axis of a machine.
+ Jogging either moves the axis a fixed amount for each key-press, or moves
+ the axis at a constant speed as long as you hold down the key.
+\layout Description
+
+kernel-space
+\begin_inset LatexCommand \label{kernel-space}
+
+\end_inset 
+
+ 
+\layout Description
+
+Kinematics
+\begin_inset LatexCommand \label{Kinematics}
+
+\end_inset 
+
+ The position relationship between world coordinates 
+\begin_inset LatexCommand \ref{World_Coordinates}
+
+\end_inset 
+
+ and joint coordinates 
+\begin_inset LatexCommand \ref{Joint_Coordinates}
+
+\end_inset 
+
+ of a machine.
+ There are two types of kinematics.
+ Forward kinematics is used to calculate world coordinates from joint coordinate
+s.
+ Inverse kinematics is used for exactly opposite purpose.Note that kinematics
+ does not take into account, the forces, moments etc.
+ on the machine.
+ It is for positioning only.
+\layout Description
+
+Lead-screw
+\begin_inset LatexCommand \label{Leadscrew}
+
+\end_inset 
+
+ An screw that is rotated by a motor to move a table or other part of a
+ machine.
+ Lead-screws are usually either ball-screws 
+\begin_inset LatexCommand \ref{Ballscrew}
+
+\end_inset 
+
+ or acme screws 
+\begin_inset LatexCommand \ref{AcmeScrew}
+
+\end_inset 
+
+, although conventional triangular threaded screws may be used where accuracy
+ and long life are not as important as low cost.
+\layout Description
+
+MDI
+\begin_inset LatexCommand \label{MDI}
+
+\end_inset 
+
+ Manual Data Input.
+ This is a mode of operation where the controller executes single lines
+ of G-code 
+\begin_inset LatexCommand \ref{G-Code}
+
+\end_inset 
+
+ as they are typed by the operator.
+\layout Description
+
+minimillio
+\begin_inset LatexCommand \label{minimillio}
+
+\end_inset 
+
+ An I/O task 
+\begin_inset LatexCommand \ref{EMCIO}
+
+\end_inset 
+
+ designed to work with small table-top mills.
+\layout Description
+
+NIST
+\begin_inset LatexCommand \label{NIST}
+
+\end_inset 
+
+ National Institute of Standards and Technology.
+ An agency of the Department of Commerce in the United States.
+\layout Description
+
+Offsets
+\begin_inset LatexCommand \label{Offsets}
+
+\end_inset 
+
+
+\layout Description
+
+Part\SpecialChar ~
+Program
+\begin_inset LatexCommand \label{PartProgram}
+
+\end_inset 
+
+ A description of a part, in a language that the controller can understand.
+ For EMC, that language is RS-274/NGC, commonly known as G-code 
+\begin_inset LatexCommand \ref{G-Code}
+
+\end_inset 
+
+.
+\layout Description
+
+Rapid
+\begin_inset LatexCommand \label{Rapid}
+
+\end_inset 
+
+ Fast, possibly less precise motion of the tool, commonly used to move between
+ cuts.
+ If the tool meets the material during a rapid, it is probably a bad thing!
+\layout Description
+
+Real-time 
+\begin_inset LatexCommand \label{real-time}
+
+\end_inset 
+
+ Software that is intended to meet very strict timing deadlines.
+ Under Linux, in order to meet these requirements it is necessary to install
+ RTAI 
+\begin_inset LatexCommand \ref{RTAI}
+
+\end_inset 
+
+ or RTLINUX 
+\begin_inset LatexCommand \ref{RTLINUX}
+
+\end_inset 
+
+ and build the software to run in those special environments.
+ For this reason real-time software runs in kernel-space.
+\layout Description
+
+RTAI
+\begin_inset LatexCommand \label{RTAI}
+
+\end_inset 
+
+ Real Time Application Interface, see 
+\begin_inset LatexCommand \url[http://www.aero.polimi.it/~rtai/]{http://www.aero.polimi.it/~rtai/}
+
+\end_inset 
+
+, one of two real-time extensions for Linux that EMC can use to achieve
+ real-time 
+\begin_inset LatexCommand \ref{real-time}
+
+\end_inset 
+
+ performance.
+\layout Description
+
+RTLINUX
+\begin_inset LatexCommand \label{RTLINUX}
+
+\end_inset 
+
+ See 
+\begin_inset LatexCommand \url[http://www.rtlinux.org]{http://www.rtlinux.org}
+
+\end_inset 
+
+, one of two real-time extensions for Linux that EMC can use to achieve
+ real-time 
+\begin_inset LatexCommand \ref{real-time}
+
+\end_inset 
+
+ performance.
+\layout Description
+
+RS-274/NGC
+\begin_inset LatexCommand \label{RS274NGC}
+
+\end_inset 
+
+ The formal name for the language used by EMC 
+\begin_inset LatexCommand \ref{EMC}
+
+\end_inset 
+
+ part programs 
+\begin_inset LatexCommand \ref{PartProgram}
+
+\end_inset 
+
+.
+\layout Description
+
+Servo\SpecialChar ~
+Motor
+\begin_inset LatexCommand \label{ServoMotor}
+
+\end_inset 
+
+ 
+\layout Description
+
+Servo\SpecialChar ~
+Loop
+\begin_inset LatexCommand \label{ServoLoop}
+
+\end_inset 
+
+
+\layout Description
+
+Spindle
+\begin_inset LatexCommand \label{Spindle}
+
+\end_inset 
+
+ On a mill or drill, the spindle holds the cutting tool.
+ On a lathe, the spindle holds the workpiece.
+\layout Description
+
+Stepper\SpecialChar ~
+Motor
+\begin_inset LatexCommand \label{StepperMotor}
+
+\end_inset 
+
+ A type of motor that turns in fixed steps.
+ By counting steps, it is possible to determine how far the motor has turned.
+ If the load exceeds the torque capability of the motor, it will skip one
+ or more steps, causing position errors.
+\layout Description
+
+TASK
+\begin_inset LatexCommand \label{TASK}
+
+\end_inset 
+
+ The module within EMC 
+\begin_inset LatexCommand \ref{EMC}
+
+\end_inset 
+
+ that coordinates the overall execution and interprets the part program.
+\layout Description
+
+Tcl/Tk
+\begin_inset LatexCommand \label{Tcl/Tk}
+
+\end_inset 
+
+ A scripting language and graphical widget toolkit with which EMC's most
+ popular GUI's 
+\begin_inset LatexCommand \ref{GUI}
+
+\end_inset 
+
+ were written.
+\layout Description
+
+World\SpecialChar ~
+Coordinates:
+\begin_inset LatexCommand \label{World_Coordinates}
+
+\end_inset 
+
+ This is the absolute frame of reference.
+ It gives coordinates in terms of a fixed reference frame that is attached
+ to some point (generally the base) of the machine tool.
+\the_end
