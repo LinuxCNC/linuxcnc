@@ -1,7 +1,12 @@
 # some of EMC2 History & News
 #############################
 
-2006.06.08 - Documentation can be built from source with the 'make docs' target
+2006.08.07 - Added a spindle-speed override. This allows to override the spindle
+	     speed during a program run. The MIN_SPINDLE_OVERRIDE and 
+	     MAX_SPINDLE_OVERRIDE in the ini assure that speed doesn't get 
+	     reduced or increased too much. Both values are in %.
+
+2006.08.06 - Documentation can be built from source with the 'make docs' target
 
 2006.03.18 - A new pin "count" exists for freqgen.  It is the same as the
              internal symbol "count" shown in the hal introduction.pdf,
