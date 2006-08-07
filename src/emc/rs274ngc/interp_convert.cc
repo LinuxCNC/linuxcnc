@@ -2513,7 +2513,7 @@ int convert_threading_cycle(block_pointer block, setup_pointer settings,
     angle *= M_PIl/180.0;
     if(end_z > start_z) angle = -angle;
 
-    double spring_cuts = block->h_number;
+    int spring_cuts = block->h_number;
     if(spring_cuts == -1) spring_cuts = 0;
 
     double degression = block->r_number;
