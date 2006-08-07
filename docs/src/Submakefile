@@ -1,24 +1,39 @@
-
-
 .PHONY: docs docsclean
 
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
 ifeq ($(BUILD_DOCS),yes)
-docs:
-	$(LYX) --export pdf2 $(DOC_SRCDIR)/Master_HAL.lyx
-	mv $(DOC_SRCDIR)/Master_HAL.pdf $(DOC_DIR)/HAL_User_Manual.pdf
-	$(LYX) --export pdf2 $(DOC_SRCDIR)/Master_User.lyx
-	mv $(DOC_SRCDIR)/Master_User.pdf $(DOC_DIR)/EMC2_User_Manual.pdf
+DOC_SRCS := Master_HAL.lyx Master_User.lyx
+DOC_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf)
+
+
+ifneq ($(MAKECMDGOALS),clean)
+-include $(patsubst %.lyx, $(DOC_SRCDIR)/%.d, $(DOC_SRCS))
+Makefile: $(patsubst %.lyx, $(DOC_SRCDIR)/%.d, $(DOC_SRCS))
+endif
+
+docs: $(DOC_TARGETS)
+
+$(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
+	ln -f $< $@
+$(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
+	ln -f $< $@
+
+$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx $(DOC_SRCDIR)/%.d
+	$(LYX) --export pdf2 $<
+
+$(DOC_SRCDIR)/%.d: $(DOC_SRCDIR)/%.lyx
+	$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< > $@
 
 else
 docs:
-	@echo "Can't build documents, missing LyX (or some other required program)"
-	@false
+	$(error Cannot build documents, missing LyX or some other required program)
 
 endif
 
 docclean:
 	-rm -f $(DOC_DIR)/HAL_User_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
+	-rm -f $(DOC_SRCDIR)/*.d
+	-rm -f $(DOC_SRCDIR)/*.pdf

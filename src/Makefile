@@ -85,10 +85,8 @@ TOOBJS = $(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1)))
 TODEPS = $(patsubst %.cc,depends/%.d,$(patsubst %.c,depends/%.d,$(1)))
 TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS,$(1))
 
-ifneq ($(MAKECMDGOALS),clean)
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 -include $(SUBMAKEFILES)
-endif
 
 # This checks that all the things listed in USERSRCS are either C files
 # or C++ files

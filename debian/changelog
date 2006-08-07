@@ -1,3 +1,9 @@
+emc2 (2.1.0pre) testing; urgency=low
+
+  * build-depends: programs for building documentation
+
+ -- jepler <jepler@localhost.localdomain>  Sun,  6 Aug 2006 21:23:29 -0500
+
 emc2 (2.0.0-alpha4.1) testing; urgency=low
 
   * 2006.02.10 - The build process has been replaced, no more recursive $(MAKE)
@@ -29,11 +35,11 @@ emc2 (2.0.0-alpha4) testing; urgency=low
                work towards the first release of emc2
 
   * 2005.xx.xx - emc2 now supports tool-changing in complex scenarios
-	    
+
   * 2005.xx.xx - classicladder now a HAL component, a software PLC
-	   
+
   * 2004.xx.xx - HAL (the Hardware Abstraction Layer) is used for 
-	       adressing hardware drivers, and allows fir simple configuration
+               adressing hardware drivers, and allows fir simple configuration
 
  -- Alex Joni <alex_joni@users.sourceforge.net>  Thu, 21 Jan 2006 22:50:00 +0200
 

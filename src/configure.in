@@ -807,6 +807,13 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
 	AC_MSG_WARN([no epstopdf, documentation (pdf) will not be built])
     fi
 fi
+if ( test "$BUILD_DOCS" = "yes" ) ; then
+    AC_PATH_PROG(PYTHON,python,"none", /bin:/usr/bin:/usr/local/bin)
+    if ( test "none" = "$PYTHON" ) ; then
+	BUILD_DOCS=no
+	AC_MSG_WARN([no python, documentation (pdf) will not be built])
+    fi
+fi
 AC_SUBST(BUILD_DOCS)
 
 #############################################################################

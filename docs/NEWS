@@ -1,7 +1,9 @@
 # some of EMC2 History & News
 #############################
 
-2006.03.18 - A new pin "count" exists for freqgen.  It is the same as the 
+2006.06.08 - Documentation can be built from source with the 'make docs' target
+
+2006.03.18 - A new pin "count" exists for freqgen.  It is the same as the
              internal symbol "count" shown in the hal introduction.pdf,
              or the result of up OR down if there was an "OR" component.
 
@@ -17,7 +19,7 @@
 
 2006.03.10 - minor bugfix in tkemc for jogging
 
-2006.03.10 - added genhexkins, with a minitetra sample config. 
+2006.03.10 - added genhexkins, with a minitetra sample config.
              This proves EMC2 works just as good with hexapods as EMC1 did.
 
 2006.03.10 - added VTI support & sample configs
@@ -37,7 +39,7 @@
 
 2006.01.08 - M62/M63 digital outputs synchronous to motion
              M64/M65 digital outputs that get set right away
-	     
+
 2006.01.06 - work on halconfig.tcl, it is used to display/configure HAL data
              requires the BWidget package, realtime, and HAL to run.
 
@@ -45,17 +47,17 @@
 
 2006.01.01 - the config picker has i18n support, a German translation exists
 
-2005.12.20 - a new config picker has been written, if you start just the 
+2005.12.20 - a new config picker has been written, if you start just the
              runscript this one helps you choose a config to run
 
 2005.12.13 - new runscript, and config organization
              work towards the first release of EMC2
 
 2005.xx.xx - EMC2 now supports tool-changing in complex scenarios
-	    
+
 2005.xx.xx - classicladder now a HAL component, a software PLC
-	   
-2004.xx.xx - HAL (the Hardware Abstraction Layer) is used for 
+
+2004.xx.xx - HAL (the Hardware Abstraction Layer) is used for
 	     addressing hardware drivers, and allows for simple configuration
 
 
