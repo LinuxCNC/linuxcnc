@@ -1,6 +1,7 @@
 classicladder
 emc_module_helper
 emcsh
+emcrsh
 emcsvr
 fifousr
 hal_joystick
@@ -22,6 +23,7 @@ shmemusr
 simio
 usrmot
 axis
+axis-remote
 emctop
 keystick
 mdi
