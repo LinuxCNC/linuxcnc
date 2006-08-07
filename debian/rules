@@ -1,7 +1,17 @@
 #!/usr/bin/make -f
 # Simple set of debian/rules that uses debhelper.
 # Based on an example by Joey Hess. 
-# extended by Paul Corner, Alex Joni, Chris Radek (in cronological order)
+# extended by Paul Corner, Alex Joni, Chris Radek, Jeff Epler (in cronological order)
+
+# Copyright (C) 2006 Jeff Epler
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# When used to produce a debian package, this file is a script "used to
+# control compilation and installation of the executable"
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
@@ -12,7 +22,7 @@ build-stamp:
 
 	# Add here commands to compile the package.
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man
-	(cd src; $(MAKE))
+	(cd src; $(MAKE) && $(MAKE) docs)
 	touch build-stamp
 
 clean:
