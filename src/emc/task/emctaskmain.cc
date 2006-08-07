@@ -318,6 +318,7 @@ static EMC_AXIS_ALTER *axis_alter_msg;
 //static EMC_AXIS_SET_STEP_PARAMS *set_step_params_msg;
 
 static EMC_TRAJ_SET_SCALE *emcTrajSetScaleMsg;
+static EMC_TRAJ_SET_SPINDLE_SCALE *emcTrajSetSpindleScaleMsg;
 static EMC_TRAJ_SET_VELOCITY *emcTrajSetVelocityMsg;
 static EMC_TRAJ_SET_ACCELERATION *emcTrajSetAccelerationMsg;
 static EMC_TRAJ_LINEAR_MOVE *emcTrajLinearMoveMsg;
@@ -531,6 +532,7 @@ static int emcTaskPlan(void)
 	    case EMC_AXIS_ALTER_TYPE:
 	    case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
+	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	    case EMC_TRAJ_SET_VELOCITY_TYPE:
 	    case EMC_TRAJ_SET_ACCELERATION_TYPE:
 	    case EMC_TASK_INIT_TYPE:
@@ -636,6 +638,7 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_RESUME_TYPE:
 	    case EMC_TRAJ_ABORT_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
+	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	    case EMC_SPINDLE_ON_TYPE:
 	    case EMC_SPINDLE_OFF_TYPE:
 	    case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -726,6 +729,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
+		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_SPINDLE_ON_TYPE:
 		case EMC_SPINDLE_OFF_TYPE:
 		case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -819,6 +823,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
+		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_SPINDLE_INCREASE_TYPE:
 		case EMC_SPINDLE_DECREASE_TYPE:
 		case EMC_SPINDLE_CONSTANT_TYPE:
@@ -1007,6 +1012,7 @@ interpret_again:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
+		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_SPINDLE_ON_TYPE:
 		case EMC_SPINDLE_OFF_TYPE:
 		case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -1091,6 +1097,7 @@ interpret_again:
 		case EMC_TRAJ_RESUME_TYPE:
 		case EMC_TRAJ_ABORT_TYPE:
 		case EMC_TRAJ_SET_SCALE_TYPE:
+		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_SPINDLE_INCREASE_TYPE:
 		case EMC_SPINDLE_DECREASE_TYPE:
 		case EMC_SPINDLE_CONSTANT_TYPE:
@@ -1184,6 +1191,7 @@ interpret_again:
 	    case EMC_AXIS_ALTER_TYPE:
 	    case EMC_AXIS_SET_STEP_PARAMS_TYPE:
 	    case EMC_TRAJ_SET_SCALE_TYPE:
+	    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	    case EMC_SPINDLE_ON_TYPE:
 	    case EMC_SPINDLE_OFF_TYPE:
 	    case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -1582,6 +1590,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TRAJ_SET_SCALE_TYPE:
 	emcTrajSetScaleMsg = (EMC_TRAJ_SET_SCALE *) cmd;
 	retval = emcTrajSetScale(emcTrajSetScaleMsg->scale);
+	break;
+
+    case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
+	emcTrajSetSpindleScaleMsg = (EMC_TRAJ_SET_SPINDLE_SCALE *) cmd;
+	retval = emcTrajSetSpindleScale(emcTrajSetSpindleScaleMsg->scale);
 	break;
 
     case EMC_TRAJ_SET_VELOCITY_TYPE:

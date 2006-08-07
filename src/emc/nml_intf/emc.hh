@@ -122,6 +122,7 @@
 #define EMC_TRAJ_SET_TELEOP_ENABLE_TYPE              ((NMLTYPE) 230)
 #define EMC_TRAJ_SET_TELEOP_VECTOR_TYPE              ((NMLTYPE) 231)
 #define EMC_TRAJ_SET_SPINDLESYNC_TYPE                ((NMLTYPE) 232)
+#define EMC_TRAJ_SET_SPINDLE_SCALE_TYPE              ((NMLTYPE) 233)
 
 #define EMC_TRAJ_STAT_TYPE                           ((NMLTYPE) 299)
 
@@ -450,6 +451,7 @@ extern int emcTrajSetAcceleration(double acc);
 extern int emcTrajSetMaxVelocity(double vel);
 extern int emcTrajSetMaxAcceleration(double acc);
 extern int emcTrajSetScale(double scale);
+extern int emcTrajSetSpindleScale(double scale);
 extern int emcTrajSetAdaptiveFeed(unsigned char enable);
 extern int emcTrajSetMotionId(int id);
 
@@ -1438,6 +1440,18 @@ class EMC_TRAJ_SET_SCALE:public EMC_TRAJ_CMD_MSG {
     double scale;
 };
 
+class EMC_TRAJ_SET_SPINDLE_SCALE:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SET_SPINDLE_SCALE():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_SPINDLE_SCALE_TYPE,
+					  sizeof(EMC_TRAJ_SET_SPINDLE_SCALE)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    double scale;
+};
+
 class EMC_TRAJ_SET_MOTION_ID:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_MOTION_ID():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_MOTION_ID_TYPE,
@@ -1745,6 +1759,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     int id;			// id of the currently executing motion
     int paused;			// non-zero means motion paused
     double scale;		// velocity scale factor
+    double spindle_scale;	// spindle velocity scale factor
 
     EmcPose position;		// current commanded position
     EmcPose actualPosition;	// current actual position, from forward kins

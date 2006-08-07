@@ -1325,6 +1325,20 @@ if {[string length $temp] == 0} {
 }
 set maxFeedOverride [expr {int($temp * 100 + 0.5)}]
 
+# read the min spindle override from the ini file
+set temp [emc_ini "MIN_SPINDLE_OVERRIDE" "DISPLAY"]
+if {[string length $temp] == 0} {
+    set temp 1
+}
+set minSpindleOverride [expr {int($temp * 100 + 0.5)}]
+
+# read the max spindle override from the ini file
+set temp [emc_ini "MAX_SPINDLE_OVERRIDE" "DISPLAY"]
+if {[string length $temp] == 0} {
+    set temp 1
+}
+set maxSpindleOverride [expr {int($temp * 100 + 0.5)}]
+
 set controls [frame $top.controls]
 pack $controls -side top -anchor w
 

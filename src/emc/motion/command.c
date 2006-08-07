@@ -942,6 +942,16 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->qVscale = emcmotCommand->scale;
 	    break;
 
+	case EMCMOT_SPINDLE_SCALE:
+	    /* override spindle speed */
+	    /* can happen at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_SCALE");
+	    if (emcmotCommand->scale < 0.0) {
+		emcmotCommand->scale = 0.0;	/* clamp it */
+	    }
+	    emcmotStatus->spindle_scale = emcmotCommand->scale;
+	    break;
+
 	case EMCMOT_ADAPTIVE_FEED:
 	    /* enable/disable adaptive feedrate override from HAL pin */
 	    /* can happen at any time */

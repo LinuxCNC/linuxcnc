@@ -118,6 +118,7 @@ extern "C" {
 	EMCMOT_TELEOP,		/* set mode to teleop */
 
 	EMCMOT_SCALE,		/* scale the speed */
+	EMCMOT_SPINDLE_SCALE,	/* scale the spindle speed */
 	EMCMOT_ADAPTIVE_FEED,	/* enable/disable adaptive feedrate */
 	EMCMOT_OVERRIDE_LIMITS,	/* temporarily ignore limits until jog done */
 
@@ -204,7 +205,7 @@ extern "C" {
 	int termCond;		/* termination condition */
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
 	int axis;		/* which index to use for below */
-	double scale;		/* velocity scale arg */
+	double scale;		/* velocity scale or spindle_speed scale arg */
 	double offset;		/* input, output, or home offset arg */
 	double home;		/* joint home position */
 	double search_vel;	/* home search velocity */
@@ -538,6 +539,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	cmd_status_t commandStatus;	/* result of most recent command */
 	/* these are config info, updated when a command changes them */
 	double qVscale;		/* velocity scale factor for all motion */
+	double spindle_scale;	/* velocity scale factor for spindle speed */
 	int adaptiveEnabled;	/* non-zero when adaptive feed is enabled */
 	double overallVscale;	/* net scale factor (includes adaptive) */
 	/* the rest are updated every cycle */

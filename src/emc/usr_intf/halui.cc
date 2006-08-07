@@ -174,6 +174,13 @@ DONE: - feed-override
    halui.feed-override.increase        bit   // pin for increasing the FO (+=scale)
    halui.feed-override.decrease        bit   // pin for decreasing the FO (-=scale)
 
+DONE: - spindle-override
+   halui.spindle-override.value           float //current FO value
+   halui.spindle-override.scale           float // pin for setting the scale on changing the SO
+   halui.spindle-override.counts          s43   //counts from an encoder for example to change SO
+   halui.spindle-override.increase        bit   // pin for increasing the SO (+=scale)
+   halui.spindle-override.decrease        bit   // pin for decreasing the SO (-=scale)
+
 */
 
 struct halui_str {
@@ -255,6 +262,12 @@ struct halui_str {
     hal_bit_t  *fo_increase;	// pin for increasing the FO (+=scale)
     hal_bit_t  *fo_decrease;	// pin for decreasing the FO (-=scale)
 
+    hal_s32_t *so_counts;	//pin for the Spindle Speed Override counting
+    hal_float_t *so_scale;	//scale for the Spindle Speed Override counting
+    hal_float_t *so_value;	//current Spindle speed Override value
+    hal_bit_t  *so_increase;	// pin for increasing the SO (+=scale)
+    hal_bit_t  *so_decrease;	// pin for decreasing the SO (-=scale)
+
     hal_bit_t *abort;            //pin for aborting
 } * halui_data; 
 
@@ -310,6 +323,11 @@ struct local_halui_str {
     hal_bit_t  fo_increase;	// pin for increasing the FO (+=scale)
     hal_bit_t  fo_decrease;	// pin for decreasing the FO (-=scale)
 
+    hal_s32_t so_counts;	//pin for the Spindle Speed Override counting
+    hal_float_t so_scale;	//scale for the Spindle Speed Override counting
+    hal_bit_t  so_increase;	// pin for increasing the SO (+=scale)
+    hal_bit_t  so_decrease;	// pin for decreasing the SO (-=scale)
+
     hal_bit_t abort;            //pin for aborting
 } old_halui_data; //pointer to the HAL-struct
 
@@ -318,6 +336,8 @@ static int comp_id, done;				/* component ID, main while loop */
 static int num_axes = 3; //number of axes, taken from the ini [TRAJ] section
 
 static double maxFeedOverride=1;
+static double minSpindleOverride=1.0;// no variation allowed by default (old behaviour)
+static double maxSpindleOverride=1.0;// the real values come from the ini
 
 // the NML channels to the EMC task
 static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
@@ -729,6 +749,8 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return retval;
     retval =  hal_pin_float_newf(HAL_WR, &(halui_data->tool_length_offset), comp_id, "halui.tool.length_offset"); 
     if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_float_newf(HAL_WR, &(halui_data->so_value), comp_id, "halui.spindle-override.value"); 
+    if (retval != HAL_SUCCESS) return retval;
 
     /* STEP 3b: export the in-pin(s) */
 
@@ -802,6 +824,16 @@ int halui_hal_init(void)
     retval = halui_export_pin_RD_bit(&(halui_data->fo_increase), "halui.feed-override.increase");
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_RD_bit(&(halui_data->fo_decrease), "halui.feed-override.decrease");
+    if (retval != HAL_SUCCESS) return retval;
+
+    retval = halui_export_pin_RD_s32(&(halui_data->so_counts), "halui.spindle-override.counts");
+    if (retval != HAL_SUCCESS) return retval;
+    *halui_data->so_counts = 0;
+    retval = halui_export_pin_RD_float(&(halui_data->so_scale), "halui.spindle-override.scale");
+    if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_RD_bit(&(halui_data->so_increase), "halui.spindle-override.increase");
+    if (retval != HAL_SUCCESS) return retval;
+    retval = halui_export_pin_RD_bit(&(halui_data->so_decrease), "halui.spindle-override.decrease");
     if (retval != HAL_SUCCESS) return retval;
 
     retval = halui_export_pin_RD_bit(&(halui_data->abort), "halui.abort"); 
@@ -1410,6 +1442,29 @@ static int sendFeedOverride(double override)
     return 0;
 }
 
+static int sendSpindleOverride(double override)
+{
+    EMC_TRAJ_SET_SPINDLE_SCALE emc_traj_set_spindle_scale_msg;
+
+    if (override < minSpindleOverride) {
+	override = minSpindleOverride;
+    }
+
+    if (override > maxSpindleOverride) {
+	override = maxSpindleOverride;
+    }
+    
+    emc_traj_set_spindle_scale_msg.serial_number = ++emcCommandSerialNumber;
+    emc_traj_set_spindle_scale_msg.scale = override;
+    emcCommandBuffer->write(emc_traj_set_spindle_scale_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
 
 
 //currently commented out to reduce warnings
@@ -1559,6 +1614,34 @@ static int iniLoad(const char *filename)
         maxFeedOverride =  1.0;
     }
 
+    if (NULL != (inistring = inifile.find("MIN_SPINDLE_OVERRIDE", "DISPLAY"))) {
+	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
+	    minSpindleOverride =  d;
+	}
+	else {
+    	    // error-- no value provided, use 100% as max
+	    minSpindleOverride =  1.0;
+	}
+    }
+    else {
+	// no line at all
+        minSpindleOverride =  1.0;
+    }
+    
+    if (NULL != (inistring = inifile.find("MAX_SPINDLE_OVERRIDE", "DISPLAY"))) {
+	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
+	    maxSpindleOverride =  d;
+	}
+	else {
+    	    // error-- no value provided, use 100% as max
+	    maxSpindleOverride =  1.0;
+	}
+    }
+    else {
+	// no line at all
+        maxSpindleOverride =  1.0;
+    }
+    
     if (NULL != (inistring = inifile.find("AXES", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%d", &i) && i > 0) {
 	    num_axes =  i;
@@ -1634,6 +1717,7 @@ static void hal_init_pins()
     *(halui_data->joint_selected) = 0; // select joint 0 by default
     
     *(halui_data->fo_scale) = old_halui_data.fo_scale = 0.1; //sane default
+    *(halui_data->so_scale) = old_halui_data.so_scale = 0.1; //sane default
 }
 
 static int check_bit_changed(hal_bit_t *halpin, hal_bit_t *oldpin) {
@@ -1725,10 +1809,23 @@ static void check_hal_changes()
         old_halui_data.fo_counts = counts;
     }
 
+    //spindle-override stuff
+    counts = *halui_data->so_counts;
+    if(counts != old_halui_data.so_counts) {
+        sendSpindleOverride( *halui_data->so_value + (counts - old_halui_data.so_counts) *
+                *halui_data->so_scale);
+        old_halui_data.so_counts = counts;
+    }
+    
     if (check_bit_changed(halui_data->fo_increase, &(old_halui_data.fo_increase)) != 0)
         sendFeedOverride(*halui_data->fo_value + *halui_data->fo_scale);
     if (check_bit_changed(halui_data->fo_decrease, &(old_halui_data.fo_decrease)) != 0)
         sendFeedOverride(*halui_data->fo_value - *halui_data->fo_scale);
+
+    if (check_bit_changed(halui_data->so_increase, &(old_halui_data.so_increase)) != 0)
+        sendSpindleOverride(*halui_data->so_value + *halui_data->so_scale);
+    if (check_bit_changed(halui_data->so_decrease, &(old_halui_data.so_decrease)) != 0)
+        sendSpindleOverride(*halui_data->so_value - *halui_data->so_scale);
 
 //spindle stuff
     if (check_bit_changed(halui_data->spindle_start, &(old_halui_data.spindle_start)) != 0)
@@ -1884,6 +1981,7 @@ static void modify_hal_pins()
     *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP_IDLE;
 
     *(halui_data->fo_value) = emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
+    *(halui_data->so_value) = emcStatus->motion.traj.spindle_scale; //spindle-speed-override from 0 to 1 for 100%
 
     *(halui_data->mist_is_on) = emcStatus->io.coolant.mist;
     *(halui_data->flood_is_on) = emcStatus->io.coolant.flood;

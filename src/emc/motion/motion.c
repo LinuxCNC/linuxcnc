@@ -754,6 +754,7 @@ static int init_comm_buffers(void)
     emcmotConfig->limitVel = VELOCITY;
     emcmotStatus->acc = ACCELERATION;
     emcmotStatus->qVscale = 1.0;
+    emcmotStatus->spindle_scale = 1.0;
     emcmotStatus->overallVscale = 1.0;
     emcmotStatus->adaptiveEnabled = 0;
     emcmotStatus->id = 0;

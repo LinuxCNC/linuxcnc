@@ -484,6 +484,19 @@ vcp {
                     label { text = "-" }
                 }
 	    }
+
+	    box {
+                layout = vertical
+                title = "spindle override"
+                button {
+                    halpin = button.so.increase
+                    label { text = "+" }
+                }
+                button {
+                    halpin = button.so.decrease
+                    label { text = "-" }
+                }
+	    }
         }
     }
     } # main-window

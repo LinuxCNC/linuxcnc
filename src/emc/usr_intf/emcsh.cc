@@ -173,6 +173,10 @@
   With no args, returns the current feed override, as a percent. With
   argument, set the feed override to be the percent value
 
+  emc_spindle_override {<percent>}
+  With no args, returns the current spindle override, as a percent. With
+  argument, set the spindle override to be the percent value
+
   emc_abs_cmd_pos 0 | 1 | ...
   Returns double obj containing the XYZ-SXYZ commanded pos in abs coords,
   at given index, 0 = X, etc.
@@ -1324,6 +1328,26 @@ static int sendFeedOverride(double override)
     emc_traj_set_scale_msg.serial_number = ++emcCommandSerialNumber;
     emc_traj_set_scale_msg.scale = override;
     emcCommandBuffer->write(emc_traj_set_scale_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSpindleOverride(double override)
+{
+    EMC_TRAJ_SET_SPINDLE_SCALE emc_traj_set_spindle_scale_msg;
+
+    if (override < 0.0) {
+	override = 0.0;
+    }
+
+    emc_traj_set_spindle_scale_msg.serial_number = ++emcCommandSerialNumber;
+    emc_traj_set_spindle_scale_msg.scale = override;
+    emcCommandBuffer->write(emc_traj_set_spindle_scale_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived(emcCommandSerialNumber);
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -3145,6 +3169,40 @@ static int emc_feed_override(ClientData clientdata,
     }
 
     Tcl_SetResult(interp, "emc_feed_override: need percent", TCL_VOLATILE);
+    return TCL_ERROR;
+}
+
+static int emc_spindle_override(ClientData clientdata,
+			     Tcl_Interp * interp, int objc,
+			     Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *feedobj;
+    int percent;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	feedobj =
+	    Tcl_NewIntObj((int)
+			  (emcStatus->motion.traj.spindle_scale * 100.0 + 0.5));
+	Tcl_SetObjResult(interp, feedobj);
+	return TCL_OK;
+    }
+
+    if (objc != 2) {
+	Tcl_SetResult(interp, "emc_spindle_override: need percent",
+		      TCL_VOLATILE);
+	return TCL_ERROR;
+    }
+
+    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &percent)) {
+	sendSpindleOverride(((double) percent) / 100.0);
+	return TCL_OK;
+    }
+
+    Tcl_SetResult(interp, "emc_spindle_override: need percent", TCL_VOLATILE);
     return TCL_ERROR;
 }
 
@@ -5078,6 +5136,9 @@ int Tcl_AppInit(Tcl_Interp * interp)
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_feed_override", emc_feed_override,
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_spindle_override", emc_spindle_override,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_task_plan_init", emc_task_plan_init,
