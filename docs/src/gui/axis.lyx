@@ -37,6 +37,20 @@
 \layout Chapter
 
 Using the AXIS Graphical Interface
+\layout Standard
+\align center 
+
+\shape smallcaps 
+Note: this document describes the CVS version of AXIS, which is currently
+ known as 
+\begin_inset Quotes eld
+\end_inset 
+
+1.4a0
+\begin_inset Quotes erd
+\end_inset 
+
+.
 \layout Section
 
 Introduction
@@ -152,7 +166,7 @@ Set the proper offsets for each axis by jogging and using the
 \begin_inset Quotes eld
 \end_inset 
 
-Offset
+Touch Off
 \begin_inset Quotes erd
 \end_inset 
 
@@ -576,6 +590,14 @@ tool cone
 .
  The cone does not indicate anything about the shape, length, or radius
  of the tool.
+\layout Standard
+
+When a tool is loaded (for instance, with the MDI command 
+\family typewriter 
+T1M6
+\family default 
+), the cone changes to a cylinder which shows the diameter of the tool given
+ in the tool table file.
 \layout Subsubsection
 
 Backplot
@@ -739,7 +761,8 @@ jogging
 \end_inset 
 
  button depending on the desired direction of motion.
- 
+ The first four axes can also be moved by the arrow keys (X and Y), PAGE
+ UP and PAGE DOWN keys (Z) and the [ and ] keys (A).
 \layout Standard
 
 If 
@@ -750,9 +773,9 @@ Continuous
 \begin_inset Quotes erd
 \end_inset 
 
- is selected, the motion will continue as long as the button is pressed.
+ is selected, the motion will continue as long as the button or key is pressed.
  If another value is selected, the machine will move exactly the displayed
- distance each time the button is clicked.
+ distance each time the button is clicked or the key is pressed.
  By default, the available values are:
 \layout Quotation
 
@@ -786,7 +809,7 @@ Home
 \begin_inset Quotes erd
 \end_inset 
 
-, the selected axis will be homed.
+ or the HOME key, the selected axis will be homed.
  Depending on your configuration, this may just set the current axis value
  to be the absolute position 0.0, or it may make the machine move to a specific
  home location through use of 
@@ -798,17 +821,23 @@ home switches
 \end_inset 
 
 .
+ See section 
+\begin_inset LatexCommand \ref{sec:Homing}
+
+\end_inset 
+
+ for more information on homing)
 \layout Standard
 
 By pressing 
 \begin_inset Quotes eld
 \end_inset 
 
-Offset
+Touch Off
 \begin_inset Quotes erd
 \end_inset 
 
-, the 
+ or the END key, the 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -817,8 +846,37 @@ G54 offset
 \end_inset 
 
  for the current axis is changed so that the current axis value will be
- the relative position 0.0.
- 
+ the specified value.
+ Expressions may be entered using the rules for rs274ngc programs, except
+ that variables may not be referred to.
+ The resulting value is shown as a number.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Touch Off
+\begin_inset LatexCommand \label{cap:Touch-Off}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename touchoff.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Standard
 
 By pressing 
@@ -1017,7 +1075,7 @@ Most Common Keyboard Shortcuts
 \align center 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="23" columns="2">
+<lyxtabular version="3" rows="24" columns="2">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
@@ -1072,6 +1130,25 @@ F2
 \layout Standard
 
 Turn machine on/off
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+`, 1 ..
+ 9, 0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Set feed override from 0% to 100%
 \end_inset 
 </cell>
 </row>
@@ -1207,7 +1284,7 @@ Send active axis Home
 
 \layout Standard
 
-Shift-Home
+End
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -1215,7 +1292,7 @@ Shift-Home
 
 \layout Standard
 
-Set G54 offset for active axis
+Touch off: Set G54 offset for active axis
 \end_inset 
 </cell>
 </row>
@@ -1431,7 +1508,7 @@ V
 
 \layout Standard
 
-Cycle among preset views
+5Cycle among preset views
 \end_inset 
 </cell>
 </row>
@@ -1558,6 +1635,98 @@ MDI>
 
 \layout Section
 
+axis-remote: Send remote commands to the AXIS GUI
+\layout Standard
+
+AXIS includes a program called 
+\begin_inset Quotes eld
+\end_inset 
+
+axis-remote
+\begin_inset Quotes erd
+\end_inset 
+
+ which can send certain commands to a running AXIS.
+ The available commands are shown by running 
+\family typewriter 
+axis-remote --help
+\family default 
+ and include checking whether AXIS is running (
+\family typewriter 
+--ping
+\family default 
+), loading a file by name, reloading the currently loaded file (
+\family typewriter 
+--reload
+\family default 
+), and making AXIS exit (
+\family typewriter 
+--quit
+\family default 
+).
+\layout Section
+
+hal_manualtoolchange: Prompt the user to exchange tools
+\layout Standard
+
+AXIS includes a userspace hal component called 
+\begin_inset Quotes eld
+\end_inset 
+
+hal_manualtoolchange
+\begin_inset Quotes erd
+\end_inset 
+
+, which shows a window (Figure 
+\begin_inset LatexCommand \ref{cap:The-Manual-Toolchange}
+
+\end_inset 
+
+) when a 
+\family typewriter 
+M6
+\family default 
+ command is issued.
+ After the OK button is pressed, execution of the program will continue.
+\layout Standard
+
+The HAL configuration file 
+\family typewriter 
+configs/sim/axis_manualtoolchange.hal
+\family default 
+ shows the HAL commands necessary to use this component.
+\layout Standard
+
+hal_manualtoolchange can be used even when AXIS is not used as the GUI.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+The Manual Toolchange Window
+\begin_inset LatexCommand \label{cap:The-Manual-Toolchange}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename manualtoolchange.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Section
+
 Python modules 
 \layout Standard
 
@@ -1566,8 +1735,33 @@ AXIS includes several Python modules which may be useful to others.
 \begin_inset Quotes eld
 \end_inset 
 
+
+\family typewriter 
 pydoc <module name>
+\family default 
+
 \begin_inset Quotes erd
+\end_inset 
+
+
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+For run-in-place systems, use: 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+PYTHONPATH=lib/python pydoc <module name>
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ from the emc2 top directory
 \end_inset 
 
  or read the source code.
@@ -1577,7 +1771,7 @@ pydoc <module name>
 \family typewriter 
 emc
 \family default 
- provides access to the emc command, status, and error channels.
+ provides access to the emc command, status, and error channels
 \layout Itemize
 
 
@@ -1585,6 +1779,13 @@ emc
 gcode
 \family default 
  provides access to the rs274ngc interpreter
+\layout Itemize
+
+
+\family typewriter 
+hal
+\family default 
+ allows the creation of userspace HAL components written in Python
 \layout Itemize
 
 
@@ -1599,6 +1800,69 @@ _togl
 minigl
 \family default 
  provides access to the subset of OpenGL used by AXIS
+\layout Section
+
+Using AXIS to control a CNC Lathe
+\layout Standard
+
+By including the line 
+\layout LyX-Code
+
+[DISPLAY]
+\layout LyX-Code
+
+LATHE = 1
+\layout Standard
+
+in the ini file, AXIS selects lathe mode.
+ The 
+\begin_inset Quotes eld
+\end_inset 
+
+Y
+\begin_inset Quotes erd
+\end_inset 
+
+ axis is not shown in coordinate readouts, the view is changed to show the
+ Z axis extending to the right and the X axis extending towards the bottom
+ of the screen, and several controls (such as those for preset views) are
+ removed.
+\layout Standard
+
+Pressing 
+\begin_inset Quotes eld
+\end_inset 
+
+V
+\begin_inset Quotes erd
+\end_inset 
+
+ zooms out to show the entire file, if one is loaded.
+\layout Standard
+
+When in lathe mode, the shape of the loaded tool (if any) is shown.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Lathe Mode showing the lathe tool shape
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename axis-lathe-tool.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Section
 
 Advanced configuration of AXIS
@@ -1625,15 +1889,19 @@ M2
  a depth image, and generating g-code to mill the shape it defines.
 \layout Standard
 
-The filter program is specified in the .ini file as 
+The 
 \family typewriter 
-[EMC]PROGRAM_FILTER
+[FILTER]
 \family default 
- and must take the input as the first argument, or from standard input if
- no argument is given.
-\layout Standard
-
-The filter program must write rs274ngc code to standard output.
+ section of the ini file controls how filters work.
+ First, for each type of file, write a 
+\family typewriter 
+PROGRAM_EXTENSION
+\family default 
+ line.
+ Then, specify the program to execute for each type of file.
+ This program is given the name of the input file as its first argument,
+ and must write rs274ngc code to standard output.
  This output is what will be displayed in the text area, previewed in the
  display area, and executed by emc when 
 \begin_inset Quotes eld
@@ -1644,32 +1912,18 @@ Run
 \end_inset 
 
 .
-\layout Standard
-
-The list of permitted file extensions can be extended by adding one or more
- 
-\family typewriter 
-[EMC]PROGRAM_EXTENSION
-\family default 
- lines.
- For instance, if the filter 'myfilter' can convert png depth images into
- g-code, then it would be appropriate to write
 \layout LyX-Code
 
-[EMC]
-\newline 
-PROGRAM_FILTER = myfilter
-\newline 
-PROGRAM_EXTENSION = *.png Depth Image
-\layout Standard
+[FILTER]
+\layout LyX-Code
 
-When 'myfilter' is given rs274ngc on its input, it should simply copy it
- to the output.
-\layout Standard
+PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
+\layout LyX-Code
 
-In a future version, AXIS will come with a standard filter which can recognize
- files based on extension or magic numbers and invoke the filter appropriate
- to that type of file.
+png = image-to-gcode.py
+\layout LyX-Code
+
+gif = image-to-gcode.py
 \layout Subsection
 
 The X Resource Database
