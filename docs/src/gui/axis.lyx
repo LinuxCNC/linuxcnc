@@ -1034,6 +1034,17 @@ By moving this slider, the programmed feed rate can be modified.
 F60
 \family default 
  and the slider is set to 120%, then the resulting feed rate will be 72.
+\layout Subsection
+
+Jog Speed 
+\layout Standard
+
+By moving this slider, the speed of jogs can be modified.
+ For instance, if the slider is set to 1 in/min, then a .01 inch jog will
+ complete in about .6 seconds, or 1/100 of a minute.
+ Near the left side (slow jogs) the values are spaced closely together,
+ whie near the right side (fast jogs) they are spaced much further apart,
+ allowing a wide range of jog speeds with fine control when it is most important.
 \layout Section
 
 Keyboard Controls
