@@ -1808,8 +1808,7 @@ By including the line
 \layout LyX-Code
 
 [DISPLAY]
-\layout LyX-Code
-
+\newline 
 LATHE = 1
 \layout Standard
 
@@ -1914,14 +1913,11 @@ Run
 \layout LyX-Code
 
 [FILTER]
-\layout LyX-Code
-
+\newline 
 PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
-\layout LyX-Code
-
+\newline 
 png = image-to-gcode.py
-\layout LyX-Code
-
+\newline 
 gif = image-to-gcode.py
 \layout Subsection
 
