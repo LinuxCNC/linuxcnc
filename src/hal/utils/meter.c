@@ -518,7 +518,7 @@ static char *data_value(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_U8:
-	snprintf(buf, 24, "%3u  (%02X)",
+	snprintf(buf, 24, "%3u  (0x%02X)",
 	    *((unsigned char *) valptr), *((unsigned char *) valptr));
 	value_str = buf;
 	break;
@@ -527,7 +527,7 @@ static char *data_value(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_U16:
-	snprintf(buf, 24, "%5u (%04X)",
+	snprintf(buf, 24, "%5u (0x%04X)",
 	    *((unsigned short *) valptr), *((unsigned short *) valptr));
 	value_str = buf;
 	break;
@@ -536,7 +536,7 @@ static char *data_value(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 24, "%10lu (%08lX)", *((unsigned long *) valptr),
+	snprintf(buf, 24, "%10lu (0x%08lX)", *((unsigned long *) valptr),
 	    *((unsigned long *) valptr));
 	value_str = buf;
 	break;
