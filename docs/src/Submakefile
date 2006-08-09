@@ -21,7 +21,9 @@ $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 	ln -f $< $@
 
 $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx $(DOC_SRCDIR)/%.d
+	rm -f $@
 	$(LYX) --export pdf2 $<
+	test -f $@
 
 $(DOC_SRCDIR)/%.d: $(DOC_SRCDIR)/%.lyx
 	$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< > $@
