@@ -86,6 +86,9 @@ The config chooser is currently set to search the path:
 .SH "SEE ALSO"
 \fBhalcmd(1)\fR
 
+Much more information about EMC2 and HAL is available in the EMC2
+and HAL User Manuals, found at /usr/share/docs/emc2/.
+
 .SH HISTORY
 
 .SH BUGS

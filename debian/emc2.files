@@ -120,7 +120,8 @@ usr/bin/emc
 usr/bin/xemc
 usr/lib/libnml.so
 usr/share/doc/emc2/AUTHORS
-usr/share/doc/emc2/Hal_Introduction.pdf
+usr/share/doc/emc2/HAL_User_Manual.pdf
+usr/share/doc/emc2/EMC2_User_Manual.pdf
 usr/share/doc/emc2/INSTALL
 usr/share/doc/emc2/NEWS
 usr/share/doc/emc2/README
