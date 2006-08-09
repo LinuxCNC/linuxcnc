@@ -555,6 +555,7 @@ export EMC2_HELP_DIR=$EMC2_HELP_DIR
 export EMC2_LANG_DIR=$EMC2_LANG_DIR
 export REALTIME=$REALTIME
 export HALCMD=$HALCMD
+export NMLFILE=$NMLFILE
 
 # 4.3.10. Run display in foreground
 echo "Starting EMC DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
