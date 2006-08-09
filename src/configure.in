@@ -775,7 +775,24 @@ AC_ARG_WITH(insmod,
 # (Optional, if not present, just don't build the docs.)                     #
 ##############################################################################
 
-BUILD_DOCS=yes
+AC_MSG_CHECKING([whether to build documentation])
+AC_ARG_ENABLE(build-documentation,
+    [  --disable-build-documentation   Do not build documentation automatcally],
+    [
+        case "$enableval" in
+        Y*|y*)
+            BUILD_DOCS=yes
+        ;;
+        *)
+            BUILD_DOCS=no
+        ;;
+    esac
+    ],
+    [
+        BUILD_DOCS=yes
+    ])
+
+AC_MSG_RESULT([$BUILD_DOCS])
 if ( test "$BUILD_DOCS" = "yes" ) ; then
     AC_PATH_PROG(LYX,lyx-qt,"none", /bin:/usr/bin:/usr/local/bin)
     if ( test "none" = "$LYX" ) ; then

@@ -855,6 +855,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-simulator      Run without a realtime kernel (unfinished)
   --enable-run-in-place   Configure EMC to run without make install
+  --disable-build-documentation   Do not build documentation automatcally
   --disable-nls           don't use NLS
 
 Optional Packages:
@@ -4498,7 +4499,29 @@ fi;
 # (Optional, if not present, just don't build the docs.)                     #
 ##############################################################################
 
-BUILD_DOCS=yes
+echo "$as_me:$LINENO: checking whether to build documentation" >&5
+echo $ECHO_N "checking whether to build documentation... $ECHO_C" >&6
+# Check whether --enable-build-documentation or --disable-build-documentation was given.
+if test "${enable_build_documentation+set}" = set; then
+  enableval="$enable_build_documentation"
+
+        case "$enableval" in
+        Y*|y*)
+            BUILD_DOCS=yes
+        ;;
+        *)
+            BUILD_DOCS=no
+        ;;
+    esac
+
+else
+
+        BUILD_DOCS=yes
+
+fi;
+
+echo "$as_me:$LINENO: result: $BUILD_DOCS" >&5
+echo "${ECHO_T}$BUILD_DOCS" >&6
 if ( test "$BUILD_DOCS" = "yes" ) ; then
     # Extract the first word of "lyx-qt", so it can be a program name with args.
 set dummy lyx-qt; ac_word=$2

@@ -26,9 +26,10 @@ $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx $(DOC_SRCDIR)/%.d
 $(DOC_SRCDIR)/%.d: $(DOC_SRCDIR)/%.lyx
 	$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< > $@
 
+default: docs
 else
 docs:
-	$(error Cannot build documents, missing LyX or some other required program)
+	$(error Cannot build documents, missing LyX or some other required program, or explicitly disabled in configure)
 
 endif
 
