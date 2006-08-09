@@ -1,6 +1,11 @@
 %.mo: %.po
 	msgfmt -o $@ $<
 
+../share/locale/%/LC_MESSAGES/axis.mo: po/%_axis.mo
+	$(ECHO) copying $* message catalog
+	@mkdir -p $(dir $@)
+	@cp $< $@
+
 ../share/locale/%/LC_MESSAGES/rs274_err.mo: po/%_rs274_err.mo
 	$(ECHO) copying $* message catalog
 	@mkdir -p $(dir $@)
@@ -12,10 +17,18 @@ MO_FILES := $(patsubst po/%_rs274_err.po, %/LC_MESSAGES/rs274_err.mo, \
 $(DESTDIR)$(localedir)/%/LC_MESSAGES/rs274_err.mo: ../share/locale/%/LC_MESSAGES/rs274_err.mo
 	$(FILE) $< $@
 
-.PHONY: install-locale
-install-locale: $(addprefix $(DESTDIR)$(localedir)/, $(MO_FILES))
-install-kernel-indep: install-locale
-
 TARGETS += $(patsubst po/%_rs274_err.po, \
 	../share/locale/%/LC_MESSAGES/rs274_err.mo, \
 	$(wildcard po/*_rs274_err.po))
+
+ifeq ($(BUILD_PYTHON),yes)
+MO_FILES += $(patsubst po/%_axis.po, %/LC_MESSAGES/axis.mo, \
+	$(wildcard po/*_axis.po))
+TARGETS += $(patsubst po/%_axis.po, \
+	../share/locale/%/LC_MESSAGES/axis.mo, \
+	$(wildcard po/*_axis.po))
+endif
+
+.PHONY: install-locale
+install-locale: $(addprefix $(DESTDIR)$(localedir)/, $(MO_FILES))
+install-kernel-indep: install-locale

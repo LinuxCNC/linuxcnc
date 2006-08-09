@@ -1,0 +1,5 @@
+/* Created with The GIMP */
+#define downarrow_width 9
+#define downarrow_height 5
+static unsigned char downarrow_bits[] = {
+   0xff, 0x01, 0xfe, 0x00, 0x7c, 0x00, 0x38, 0x00, 0x10, 0x00 };

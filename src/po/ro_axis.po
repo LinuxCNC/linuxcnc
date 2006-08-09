@@ -1,0 +1,711 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Alex Joni <alex_joni@users.sourceforge.net>, 2006.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-03-11 10:03-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Alex Joni <alex_joni@users.sourceforge.net>\n"
+"Language-Team: Romanian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-2\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../scripts/axis.py:92
+msgid "Emergency stop"
+msgstr "Stop de avarie"
+
+#: ../scripts/axis.py:93
+msgid "Turn machine on"
+msgstr "Porneste masina"
+
+#: ../scripts/axis.py:95
+msgid "Activate first axis"
+msgstr "Activeaza prima axa"
+
+#: ../scripts/axis.py:96
+msgid "Activate second axis"
+msgstr "Activeaza a doua axa"
+
+#: ../scripts/axis.py:97
+msgid "Activate third axis"
+msgstr "Activeaza a treia axa"
+
+#: ../scripts/axis.py:98
+msgid "Activate fourth axis"
+msgstr "Activeaza a patra axa"
+
+#: ../scripts/axis.py:99
+msgid "Activate fifth axis"
+msgstr "Activeaza a cincea axa"
+
+#: ../scripts/axis.py:100
+msgid "Activate sixth axis"
+msgstr "Activeaza a sasea axa"
+
+#: ../scripts/axis.py:101
+msgid "Select jog increment"
+msgstr "Selecteaza increment"
+
+#: ../scripts/axis.py:102
+msgid "Continuous jog"
+msgstr "Miscare continua"
+
+#: ../scripts/axis.py:103
+msgid "Send active axis home"
+msgstr "Trimita axa curenta la pozitia 0"
+
+#: ../scripts/axis.py:104
+msgid "Set G54 offset for active axis"
+msgstr "Alege ofset G54 pentru axa activa"
+
+#: ../scripts/axis.py:105
+msgid "Jog first axis"
+msgstr "Misca prima axa"
+
+#: ../scripts/axis.py:106
+msgid "Jog second axis"
+msgstr "Misca a doua axa"
+
+#: ../scripts/axis.py:107
+msgid "Jog third axis"
+msgstr "Misca a treia axa"
+
+#: ../scripts/axis.py:108
+msgid "Jog fourth axis"
+msgstr "Misca a patra axa"
+
+#: ../scripts/axis.py:110
+msgid "Left Button"
+msgstr "Buton stanga"
+
+#: ../scripts/axis.py:110
+msgid "Pan view or select line"
+msgstr "Muta vedere sau selecteaza linie"
+
+#: ../scripts/axis.py:111
+msgid "Shift+Left Button"
+msgstr "Shift+Buton stanga"
+
+#: ../scripts/axis.py:111 ../scripts/axis.py:113
+msgid "Rotate view"
+msgstr "Roteste vedere"
+
+#: ../scripts/axis.py:112
+msgid "Right Button"
+msgstr "Buton dreapta"
+
+#: ../scripts/axis.py:112 ../scripts/axis.py:114
+msgid "Zoom view"
+msgstr "Mareste vedere"
+
+#: ../scripts/axis.py:113
+msgid "Wheel Button"
+msgstr "Rotita mouse"
+
+#: ../scripts/axis.py:114
+msgid "Rotate Wheel"
+msgstr "Roteste rotita mouse"
+
+#: ../scripts/axis.py:117
+msgid "Manual control"
+msgstr "Control manual"
+
+#: ../scripts/axis.py:118
+msgid "Code entry (MDI)"
+msgstr "Comenzi manuale (MDI)"
+
+#: ../scripts/axis.py:119 ../tcl/axis.tcl:794
+msgid "Override Limits"
+msgstr "Depaseste limite"
+
+#: ../scripts/axis.py:121
+msgid "Open program"
+msgstr "Deschide program"
+
+#: ../scripts/axis.py:122
+msgid "Run program"
+msgstr "Executa program"
+
+#: ../scripts/axis.py:123
+msgid "Step program"
+msgstr "Executa un pas"
+
+#: ../scripts/axis.py:124
+msgid "Pause program"
+msgstr "Intrerupe executie"
+
+#: ../scripts/axis.py:125
+msgid "Resume program"
+msgstr "Rezuma executie"
+
+#: ../scripts/axis.py:126
+msgid "Stop program"
+msgstr "Opreste executie"
+
+#: ../scripts/axis.py:128
+msgid "Toggle mist"
+msgstr "Vapori On/Off"
+
+#: ../scripts/axis.py:129
+msgid "Toggle flood"
+msgstr "Lichid On/Off"
+
+#: ../scripts/axis.py:131
+msgid "Spindle brake off"
+msgstr "Frana freza dezactivata"
+
+#: ../scripts/axis.py:132
+msgid "Spindle brake on"
+msgstr "Frana freza activata"
+
+#: ../scripts/axis.py:133
+msgid "Turn spindle clockwise"
+msgstr "Fraza sens orar"
+
+#: ../scripts/axis.py:134
+msgid "Turn spindle counterclockwise"
+msgstr "Freza sens antiorar"
+
+#: ../scripts/axis.py:135
+msgid "Turn spindle more slowly"
+msgstr "Incetineste freza"
+
+#: ../scripts/axis.py:136
+msgid "Turn spindle more quickly"
+msgstr "Accelereaza freza"
+
+#: ../scripts/axis.py:138
+msgid "Clear live plot"
+msgstr "Sterge vedere curenta"
+
+#: ../scripts/axis.py:139
+msgid "Cycle among preset views"
+msgstr "Comuta intre vederi presetate"
+
+#: ../scripts/axis.py:660 ../scripts/axis.py:668
+msgid "AXIS error"
+msgstr "Eroare AXIS"
+
+#: ../scripts/axis.py:660 ../scripts/axis.py:668 ../scripts/axis.py:981
+#: ../scripts/axis.py:1025 ../tcl/axis.tcl:1295 ../tcl/axis.tcl:1332
+msgid "OK"
+msgstr "OK"
+
+#: ../scripts/axis.py:741
+msgid "No tool"
+msgstr "Fara scula"
+
+#: ../scripts/axis.py:743
+#, python-format
+msgid "Unknown tool %d"
+msgstr "Scula %d necunoscuta"
+
+#: ../scripts/axis.py:746
+#, python-format
+msgid "Tool %d, offset %g, diameter %g"
+msgstr "Scula %d, ofset %g, diametru %g"
+
+#: ../scripts/axis.py:979
+#, python-format
+msgid "Program_filter %r failed"
+msgstr "Filtru program %r esuat"
+
+#: ../scripts/axis.py:980
+#, python-format
+msgid "Exit code %d"
+msgstr "Cod iesire %d"
+
+#: ../scripts/axis.py:1023
+#, python-format
+msgid "G-Code error in %s"
+msgstr "Eroare G-cod in %s"
+
+#: ../scripts/axis.py:1024
+#, python-format
+msgid ""
+"Near line %d of %s:\n"
+"%s"
+msgstr ""
+"In apropierea liniei %d din %s:\n"
+"$s"
+
+#: ../scripts/axis.py:1140 ../scripts/axis.py:1145 ../scripts/axis.py:1619
+#: ../tcl/axis.tcl:773 ../tcl/axis.tcl:775 ../tcl/axis.tcl:1577
+msgid "Continuous"
+msgstr "Continuu"
+
+#: ../scripts/axis.py:1338
+msgid "{{rs274ngc files} {.ngc}} {{All files} *}"
+msgstr "{{fisiere rs274ngc} {.ngc}} {{Toate fisierele} *}"
+
+#: ../scripts/axis.py:1376
+#, python-format
+msgid "Program exceeds machine minimum on axis %s"
+msgstr "Program depaseste limita inferioara pe axa %s"
+
+#: ../scripts/axis.py:1378
+#, python-format
+msgid "Program exceeds machine maximum on axis %s"
+msgstr "Program depaseste limita superioara pe axa %s"
+
+#: ../scripts/axis.py:1382
+msgid "Program exceeds machine limits"
+msgstr "Program depaseste limite masina"
+
+#: ../scripts/axis.py:1385
+msgid "Run Anyway"
+msgstr "Totusi executa"
+
+#: ../scripts/axis.py:1385
+msgid "Cancel"
+msgstr "Anulare"
+
+#: ../scripts/axis.py:1715
+msgid "Show EMC Status"
+msgstr "Arata stare EMC"
+
+#: ../tcl/axis.tcl:34
+msgid "_Open"
+msgstr "_Deschide"
+
+#: ../tcl/axis.tcl:42
+msgid "_Reload"
+msgstr "_Reincarca"
+
+#: ../tcl/axis.tcl:53
+msgid "Toggle _Emergency Stop"
+msgstr "_Stop avarie On/Off"
+
+#: ../tcl/axis.tcl:61
+msgid "Toggle _Machine Power"
+msgstr "_Masina On/Off"
+
+#: ../tcl/axis.tcl:71
+msgid "_Quit"
+msgstr "_Iesire"
+
+#: ../tcl/axis.tcl:88
+msgid "_Copy"
+msgstr "_Copiere"
+
+#: ../tcl/axis.tcl:99
+msgid "_Top view"
+msgstr "Vedere de _sus"
+
+#: ../tcl/axis.tcl:107
+msgid "_Rotated Top view"
+msgstr "Vedere _rotita"
+
+#: ../tcl/axis.tcl:115
+msgid "_Side view"
+msgstr "Vedere de _lateral"
+
+#: ../tcl/axis.tcl:123
+msgid "_Front view"
+msgstr "Vedere din _fata"
+
+#: ../tcl/axis.tcl:131
+msgid "_Perspective view"
+msgstr "Vedere din _perspectiva"
+
+#: ../tcl/axis.tcl:143
+msgid "Display _Inches"
+msgstr "Afisaj in _inchi"
+
+#: ../tcl/axis.tcl:152
+msgid "Display _MM"
+msgstr "Afisaj in _mm"
+
+#: ../tcl/axis.tcl:163
+msgid "S_how program"
+msgstr "_Arata program"
+
+#: ../tcl/axis.tcl:171
+msgid "Sho_w live plot"
+msgstr "Ara_ta plot in timp real"
+
+#: ../tcl/axis.tcl:179
+msgid "Show too_l"
+msgstr "Arata _scula"
+
+#: ../tcl/axis.tcl:187
+msgid "Show e_xtents"
+msgstr "Arata _limite"
+
+#: ../tcl/axis.tcl:195
+msgid "C_lear live plot"
+msgstr "_Sterge afisaj"
+
+#: ../tcl/axis.tcl:200
+msgid "Hal Confi_guration"
+msgstr ""
+
+#: ../tcl/axis.tcl:216
+msgid "Set _next line"
+msgstr "Alege linie _urmatoare"
+
+#: ../tcl/axis.tcl:224
+msgid "_Run program"
+msgstr "_Executa program"
+
+#: ../tcl/axis.tcl:232
+msgid "_Step"
+msgstr "P_as"
+
+#: ../tcl/axis.tcl:240
+msgid "_Pause"
+msgstr "_Pauza"
+
+#: ../tcl/axis.tcl:248
+msgid "Re_sume"
+msgstr "Re_zuma"
+
+#: ../tcl/axis.tcl:256
+msgid "S_top"
+msgstr "S_top"
+
+#: ../tcl/axis.tcl:277
+msgid "_About AXIS"
+msgstr "_Despre AXIS"
+
+#: ../tcl/axis.tcl:284
+msgid "Quick _Reference"
+msgstr "Ajutor _rapid"
+
+#: ../tcl/axis.tcl:302
+msgid "Show commanded position"
+msgstr "Arata pozitie comandata"
+
+#: ../tcl/axis.tcl:311
+msgid "Show actual position"
+msgstr "Arata pozitie actuala"
+
+#: ../tcl/axis.tcl:323
+msgid "Show machine position"
+msgstr "Arata pozitie masina"
+
+#: ../tcl/axis.tcl:332
+msgid "Show relative position"
+msgstr "Arata pozitie relativa"
+
+#: ../tcl/axis.tcl:339
+msgid "Show _EMC Status"
+msgstr "Arata stare _EMC"
+
+#: ../tcl/axis.tcl:352
+msgid "_File"
+msgstr "_Fisier"
+
+#: ../tcl/axis.tcl:359
+msgid "_Edit"
+msgstr "_Editeaza"
+
+#: ../tcl/axis.tcl:366
+msgid "_Program"
+msgstr "_Program"
+
+#: ../tcl/axis.tcl:373
+msgid "_View"
+msgstr "_Vedere"
+
+#: ../tcl/axis.tcl:380
+msgid "_Help"
+msgstr "_Ajutor"
+
+#: ../tcl/axis.tcl:395
+msgid "Toggle Emergency Stop [F1]"
+msgstr "Stop urgenta On/Off [F1]"
+
+#: ../tcl/axis.tcl:404
+msgid "Toggle machine power [F2]"
+msgstr "Masina On/Off [F2]"
+
+#: ../tcl/axis.tcl:415
+msgid "Open G-Code file [O]"
+msgstr "Deschide fisier G-cod [O]"
+
+#: ../tcl/axis.tcl:423
+msgid "Reopen current file [Control-R]"
+msgstr "Redeschide fisier curent [Control-R]"
+
+#: ../tcl/axis.tcl:433
+msgid "Begin executing current file [R]"
+msgstr "Executa fisier curent [R]"
+
+#: ../tcl/axis.tcl:441
+msgid "Execute next line [T]"
+msgstr "Executa linia urmatoare [T]"
+
+#: ../tcl/axis.tcl:449
+msgid "Pause [P] / resume [S] execution"
+msgstr "Pauza [P] / rezuma [s] executie"
+
+#: ../tcl/axis.tcl:457
+msgid "Stop program execution [ESC]"
+msgstr "Opreste executie program [ESC]"
+
+#: ../tcl/axis.tcl:467
+msgid "Zoom in [+]"
+msgstr "Mareste imagine [+]"
+
+#: ../tcl/axis.tcl:475
+msgid "Zoom out [-]"
+msgstr "Micsoreaza imagine [-]"
+
+#: ../tcl/axis.tcl:483
+msgid "Top view"
+msgstr "Vedere de sus"
+
+#: ../tcl/axis.tcl:491
+msgid "Rotated top view"
+msgstr "Vedere de sus, rotita"
+
+#: ../tcl/axis.tcl:499
+msgid "Side view"
+msgstr "Vedere de lateral"
+
+#: ../tcl/axis.tcl:507
+msgid "Front view"
+msgstr "Vedere din fata"
+
+#: ../tcl/axis.tcl:515
+msgid "Perspective view"
+msgstr "Vedere din perspectiva"
+
+#: ../tcl/axis.tcl:525
+msgid "Clear live plot [Ctrl-K]"
+msgstr "Sterge afisaj [Ctrl-K]"
+
+#: ../tcl/axis.tcl:637
+msgid "Manual Control [F3]"
+msgstr "Control manual [F3]"
+
+#: ../tcl/axis.tcl:638
+msgid "Code Entry [F5]"
+msgstr "Cod manual [F5]"
+
+#: ../tcl/axis.tcl:647
+msgid "Axis:"
+msgstr "Axa:"
+
+#: ../tcl/axis.tcl:755 ../tcl/axis.tcl:902
+msgid "-"
+msgstr ""
+
+#: ../tcl/axis.tcl:768 ../tcl/axis.tcl:916
+msgid "+"
+msgstr ""
+
+#: ../tcl/axis.tcl:783
+msgid "Home"
+msgstr "Pozitie 0"
+
+#: ../tcl/axis.tcl:789
+msgid "Offset"
+msgstr "Ofset"
+
+#: ../tcl/axis.tcl:857
+msgid "Spindle:"
+msgstr "Freza:"
+
+#: ../tcl/axis.tcl:878
+msgid "Stop"
+msgstr "Stop"
+
+#: ../tcl/axis.tcl:921
+msgid "Brake"
+msgstr "Frana"
+
+#: ../tcl/axis.tcl:968
+msgid "Coolant:"
+msgstr "Racire:"
+
+#: ../tcl/axis.tcl:973
+msgid "Mist"
+msgstr "Vapori"
+
+#: ../tcl/axis.tcl:978
+msgid "Flood"
+msgstr "Lichid"
+
+#: ../tcl/axis.tcl:1050
+msgid "History:"
+msgstr "Istoric"
+
+#: ../tcl/axis.tcl:1064
+msgid "MDI Command:"
+msgstr "Comanda MDI"
+
+#: ../tcl/axis.tcl:1074
+msgid "Go"
+msgstr "Executa"
+
+#: ../tcl/axis.tcl:1080
+msgid "Active G-Codes:"
+msgstr "Coduri G active:"
+
+#: ../tcl/axis.tcl:1235
+msgid "0"
+msgstr ""
+
+#: ../tcl/axis.tcl:1247
+msgid "Feed Override (%):"
+msgstr "Modificare viteza (%):"
+
+#: ../tcl/axis.tcl:1286
+msgid ""
+"AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006 Jeff Epler and Chris Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with AXIS.\n"
+"\n"
+"Visit the AXIS web site: "
+msgstr ""
+
+#: ../tcl/axis.tcl:1314
+msgid "About AXIS"
+msgstr "Despre AXIS"
+
+#: ../tcl/axis.tcl:1343
+msgid "AXIS Quick Reference"
+msgstr "Referinta rapida AXIS"
+
+#: ../tcl/axis.tcl:1459
+msgid "AXIS (No file)"
+msgstr "AXIS (fara fisier)"
+
+#: ../tcl/axis.tcl:1470
+msgid "ESTOP"
+msgstr "ESTOP URGENTA"
+
+#: ../tcl/axis.tcl:1471
+msgid "ESTOP RESET"
+msgstr "ESTOP RESETAT"
+
+#: ../tcl/axis.tcl:1472
+msgid "ON"
+msgstr ""
+
+#: ../tcl/axis.tcl:1512
+msgid "Machine"
+msgstr "Masina"
+
+#: ../tcl/axis.tcl:1512
+msgid "Relative"
+msgstr "Relativ"
+
+#: ../tcl/axis.tcl:1513
+msgid "Actual"
+msgstr "Actual"
+
+#: ../tcl/axis.tcl:1513
+msgid "Commanded"
+msgstr "Comandat"
+
+#: ../tcl/axis.tcl:1514
+msgid "Position:"
+msgstr "Pozitie:"
+
+#: ../tcl/axis.tcl:1622
+msgid "Turn spindle counterclockwise [F10]"
+msgstr "Fraza actionata in sens antiorar [F10]"
+
+#: ../tcl/axis.tcl:1623
+msgid "Turn spindle clockwise [F9]"
+msgstr "Fraza actionata in sens orar [F9]"
+
+#: ../tcl/axis.tcl:1624
+msgid "Stop spindle [F9/F10]"
+msgstr "Opreste freza [F9/F10]"
+
+#: ../tcl/axis.tcl:1625
+msgid "Turn spindle Faster [F12]"
+msgstr "Accelereaza freza [F12]"
+
+#: ../tcl/axis.tcl:1626
+msgid "Turn spindle Slower [F11]"
+msgstr "Incetineste freza [F11]"
+
+#: ../tcl/axis.tcl:1627
+msgid "Turn spindle brake on [Shift-B] or off [B]"
+msgstr "Porneste [Shift-B] sau opreste [B] frana freza"
+
+#: ../tcl/axis.tcl:1628
+msgid "Turn flood on or off [F8]"
+msgstr "Lichid racire On/Off [F8]"
+
+#: ../tcl/axis.tcl:1629
+msgid "Turn mist on or off [F7]"
+msgstr "Vapori racire On/Off [F7]"
+
+#: ../tcl/axis.tcl:1630
+msgid "Send active axis home [Home]"
+msgstr "Trimite axa curenta acasa [Home]"
+
+#: ../tcl/axis.tcl:1631
+msgid "Set G54 offset for active axis [Shift-Home]"
+msgstr "Stabileste ofset G54 pentru axa curente [Shift-Home]"
+
+#: ../tcl/axis.tcl:1632
+msgid "Activate axis [X]"
+msgstr "Activeaza axa [X]"
+
+#: ../tcl/axis.tcl:1633
+msgid "Activate axis [Y]"
+msgstr "Activeaza axa [Y]"
+
+#: ../tcl/axis.tcl:1634
+msgid "Activate axis [Z]"
+msgstr "Activeaza axa [Z]"
+
+#: ../tcl/axis.tcl:1635
+msgid "Activate axis [A]"
+msgstr "Activeaza axa [A]"
+
+#: ../tcl/axis.tcl:1636
+msgid "Activate axis [4]"
+msgstr "Activeaza axa [4]"
+
+#: ../tcl/axis.tcl:1637
+msgid "Activate axis [5]"
+msgstr "Activeaza axa [5]"
+
+#: ../tcl/axis.tcl:1638 ../tcl/axis.tcl:1639
+msgid "Jog selected axis"
+msgstr "Misca axa selectata"
+
+#: ../tcl/axis.tcl:1640
+msgid "Select jog ingrement"
+msgstr "Selecteaza increment miscare"
+
+#: ../tcl/axis.tcl:1641
+msgid "Temporarily allow jogging outside machine limits [L]"
+msgstr "Permite temporar miscarea in afara limitelor [L]"
+
+#~ msgid "Unknown error %s"
+#~ msgstr "Eroare necunoscuta %s"
+
+#~ msgid "_X"
+#~ msgstr "_X"
+
+#~ msgid "_Y"
+#~ msgstr "_Y"
+
+#~ msgid "_Z"
+#~ msgstr "_Z"
+
+#~ msgid "_A"
+#~ msgstr "_A"
+
+#~ msgid "_B"
+#~ msgstr "_B"
+
+#~ msgid "_C"
+#~ msgstr "_C"

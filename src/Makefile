@@ -1,6 +1,6 @@
 # Delete the default suffix rules
 .SUFFIXES:
-.PHONY: default userspace modules clean modclean depclean install axis
+.PHONY: default userspace modules clean modclean depclean install axis python pythonclean
 
 ifeq "$(findstring s,$(MAKEFLAGS))" ""
 ECHO=@echo
@@ -33,20 +33,10 @@ ifeq ($(RUN_IN_PLACE),yes)
 	@if ! [ `stat -c %u ../bin/emc_module_helper` -eq 0 -a -u ../bin/emc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi
 endif
 
-ifeq ($(BUILD_AXIS),yes)
-default: axis
-axis: userspace
-	$(ECHO) 'make: Entering directory `$(AXIS_DIR)'\'
-	@cd $(AXIS_DIR) && env EMCROOT=$(EMC2_HOME) python setup.py -q install
-	$(ECHO) 'make: Leaving directory `$(AXIS_DIR)'\'
-clean: axisclean
-axisclean:
-	rm -rf $(AXIS_DIR)/build
-endif
-
-# Create the variable with := so that subsequent += alterations keep it
+# Create the variables with := so that subsequent += alterations keep it
 # as a "substitute at assignment time" variable
 TARGETS :=
+PYTARGETS := 
 
 # Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \
@@ -59,6 +49,7 @@ SUBDIRS := \
     hal/components hal/drivers hal/user_comps/vcp hal/user_comps/devices \
     hal/user_comps hal/classicladder hal/utils hal \
     \
+    emc/usr_intf/axis \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc \
     \
@@ -94,6 +85,10 @@ ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
 $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
 $(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
 
+ifeq ($(BUILD_PYTHON),yes)
+USERSRCS += $(PYSRCS)
+endif
+
 # Find the list of object files for each type of source file
 CUSEROBJS := $(call TOOBJS,$(filter %.c,$(USERSRCS)))
 CXXUSEROBJS += $(call TOOBJS,$(filter %.cc,$(USERSRCS)))
@@ -106,7 +101,10 @@ Makefile: $(DEPS)
 endif
 
 # Each directory in $(INCLDUES) is passed as a -I directory when compiling.
-INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include 
+INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
+ifeq ($(BUILD_PYTHON),yes)
+INCLUDE += -I$(INCLUDEPY)
+endif
 
 # Compilation options.  Perhaps some of these should come from Makefile.inc?
 OPT := -O
@@ -115,10 +113,9 @@ CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-aft
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 
 ifeq ($(RUN_IN_PLACE),yes)
-# Used when linking for rip only so that the .so files are found.
-# important not to use this for installed version, since we want
-# those libs to come from the system path.
 LDFLAGS := -Wl,-rpath,$(LIB_DIR)
+else
+LDFLAGS := -Wl,-rpath,$(libdir)
 endif
 
 # Rules to make .d (dependency) files.
@@ -241,6 +238,14 @@ TARGETS += $(patsubst %.po, %.mo, $(wildcard po/*.po))
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
 
+ifeq ($(BUILD_PYTHON),yes)
+pythonclean:
+	rm -f $(PYTARGETS)
+python: $(PYTARGETS)
+userspace: python
+clean: pythonclean
+endif
+
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
 # for building kernel modules.  Other kernel module build styles need to be
 # accomodated here.
@@ -345,7 +350,6 @@ install-kernel-indep:
 	$(FILE) ../docs/man/man1/hal_joystick.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) ../docs/man/man1/emc.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) po/*.msg $(DESTDIR)$(tcldir)/msgs
-	$(FILE) po/de*.mo $(DESTDIR)$(localedir)/de/LC_MESSAGES
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
 	$(INSTALL_CONFIGS)

@@ -1,0 +1,36 @@
+
+EMCMODULESRCS := emc/usr_intf/axis/extensions/emcmodule.cc
+MINIGLMODULESRCS := emc/usr_intf/axis/extensions/minigl.c
+SETICONMODULESRCS := emc/usr_intf/axis/extensions/seticon.c
+TOGLMODULESRCS := emc/usr_intf/axis/extensions/_toglmodule.c
+PYSRCS += $(EMCMODULESRCS) $(MINIGLMODULESRCS) $(SETICONMODULESRCS) $(TOGLMODULESRCS)
+
+EMCMODULE := ../lib/python/emc.so
+MINIGLMODULE := ../lib/python/minigl.so
+SETICONMODULE := ../lib/python/_tk_seticon.so
+TOGLMODULE := ../lib/python/_togl.so
+
+$(call TOOBJSDEPS, $(TOGLMODULESRCS) $(SETICONMODULESRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
+
+$(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS))
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lemc -lnml -lm -lGL
+
+
+$(MINIGLMODULE): $(call TOOBJS, $(MINIGLMODULESRCS))
+	$(CC) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lGLU -lGL
+
+$(SETICONMODULE): $(call TOOBJS, $(SETICONMODULESRCS))
+	$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
+
+$(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
+	$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
+
+PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
+
+PYSCRIPTS := axis.py axis-remote.py emctop.py hal_manualtoolchange.py \
+	mdi.py
+
+PYTARGETS += $(patsubst %.py,../bin/%,$(PYSCRIPTS))
+
+../bin/%: emc/usr_intf/axis/scripts/%.py
+	(echo '#!$(PYTHON)'; sed '1 { /^#!/d }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@

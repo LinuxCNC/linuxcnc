@@ -1,0 +1,5 @@
+/* Created with The GIMP */
+#define leftarrow_width 5
+#define leftarrow_height 9
+static unsigned char leftarrow_bits[] = {
+   0x10, 0x18, 0x1c, 0x1e, 0x1f, 0x1e, 0x1c, 0x18, 0x10 };

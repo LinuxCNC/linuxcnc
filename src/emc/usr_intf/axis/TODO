@@ -1,0 +1,38 @@
+Items to be completed before 1.3a1 release
+* control + left drag = zoom, which is the final thing needed for 
+  left-button-only navigation (SWP's touchscreen).
+* Call for translation updates
+
+Items to be completed before 1.3rc release
+* Release notes
+* Update installation documentation
+* Translation updates
+* Screenshot updates
+
+------------------------------------------------------------------------
+Notes on support for machines with nontrivial kinematics:
+$: toggle joint/world (also in menu -- machine or view?)
+    cannot toggle from joint->world when all joints are not homed
+
+joint numbers are displayed instead of axis names when in joint mode
+
+machine/relative, actual/commanded, "touch off": disabled when in "joint" mode
+ 
+start up in joint mode if kinematics is nontrivial / disable joint mode if
+kinematics is trivial
+------------------------------------------------------------------------
+Wishlist items
+* Larger Buttons for "+" and "-"
+* Display spindle speed in RPM
+* Better "About AXIS" window.  (Example: in KWrite, there are tabs for
+  "About", "Licence", "Translators" and other things)
+* pick better Z-buffer extents using machine limits from inifile
+* messages when paused (or about to pause) should offer the opportunity to
+  unpause in the dialog
+* make step button work from program beginning (if possible?)
+* Way to show diameter of drills, width of cuts (poor-man's CSG preview)
+* Way to turn off lines already plotted in live preview
+* context menu on code area, options "copy", "start at this line"
+* make the view follow the cone around
+* more built-in help
+* Perhaps cone size could be related to tool size

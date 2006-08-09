@@ -775,6 +775,8 @@ AC_ARG_WITH(insmod,
 # (Optional, if not present, just don't build the docs.)                     #
 ##############################################################################
 
+AC_PATH_PROG(PYTHON,python,"none", /bin:/usr/bin:/usr/local/bin)
+
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     [  --disable-build-documentation   Do not build documentation automatcally],
@@ -825,7 +827,6 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then
-    AC_PATH_PROG(PYTHON,python,"none", /bin:/usr/bin:/usr/local/bin)
     if ( test "none" = "$PYTHON" ) ; then
 	BUILD_DOCS=no
 	AC_MSG_WARN([no python, documentation (pdf) will not be built])
@@ -1193,27 +1194,57 @@ if test "$USE_NLS" = "yes"; then
   AC_SUBST(LOCALEDIR)
 fi
 
-AC_MSG_CHECKING(for AXIS source)
-BUILD_AXIS=no
-AXIS_DIR=
-for candidate in axis*
-do
-    if test -f $candidate/setup.py
-    then 
-        if ! test -z "$AXIS_DIR"
+AC_MSG_CHECKING(--enable-python)
+AC_ARG_ENABLE(python,
+    [  --enable-python         Enable the parts of emc2 that depend on Python],
+    [
+	case "$enableval" in
+	Y*|y*)
+	    BUILD_PYTHON=yes ;;
+	*)
+	    BUILD_PYTHON=no ;;
+	esac
+    ],
+    [BUILD_PYTHON=yes])
+
+AC_MSG_RESULT($BUILD_PYTHON)
+
+if test "$BUILD_PYTHON" = "yes"; then
+    if test "$PYTHON" = "none"; then
+        BUILD_PYTHON=no
+    else
+        AC_MSG_CHECKING([python version])
+        if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2040000'
         then
-            AC_MSG_ERROR([More than one axis directory: $AXIS_DIR $candidate])
+            AC_MSG_RESULT(Python version too old (2.4 or newer required))
+            BUILD_PYTHON=no
         fi
-        AXIS_DIR=$candidate
-        BUILD_AXIS=yes
     fi
-done
+fi
+
+AC_MSG_RESULT($BUILD_PYTHON)
+BUILD_AXIS=$BUILD_PYTHON
+
+if test "$BUILD_PYTHON" = "yes"; then
+    AC_MSG_CHECKING(for location of Python header files)
+    INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
+    AC_MSG_RESULT($INCLUDEPY)
+
+    AC_CHECK_HEADER($INCLUDEPY/Python.h,[],BUILD_PYTHON=no)
+fi
+
+BUILD_AXIS=$BUILD_PYTHON
+if test "$BUILD_AXIS" = "yes"; then
+    AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],BUILD_AXIS=no)
+fi
+
 case $BUILD_AXIS in 
-    no) AC_MSG_RESULT([Not found]) ;;
-    yes) AC_MSG_RESULT([will build axis from $AXIS_DIR]) ;;
+    yes) AC_MSG_RESULT([Will build AXIS]) ;;
 esac
+
 AC_SUBST([BUILD_AXIS])
-AC_SUBST([AXIS_DIR])
+AC_SUBST([BUILD_PYTHON])
+AC_SUBST([INCLUDEPY])
 
 
 ##############################################################################

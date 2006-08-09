@@ -12,4 +12,13 @@ $(HALLIB): $(call TOOBJS, $(HALLIBSRCS))
 	@mkdir -p ../lib
 	@rm -f $@
 	$(CXX) -shared -Wl,-soname,libemchal.so -o $@ $^
+
+HALMODULESRCS := hal/halmodule.cc
+PYSRCS += $(HALMODULESRCS)
+
+HALMODULE := ../lib/python/hal.so
+$(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^
+
 TARGETS += $(HALLIB)
+PYTARGETS += $(HALMODULE)

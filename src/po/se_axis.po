@@ -1,0 +1,698 @@
+# translation of PACKAGE.
+# Copyright (C) 2006 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# <>, 2006.
+# , fuzzy
+# <>, 2006.
+# 
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-03-11 09:59-0600\n"
+"PO-Revision-Date: 2006-04-12 21:33+0200\n"
+"Last-Translator: Jonathan Lock <lerneaen.hydra@gmail.com>\n"
+"Language-Team: Swedish <sv@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8bit"
+
+#: ../scripts/axis.py:86
+msgid "Emergency stop"
+msgstr "Nödstopp"
+
+#: ../scripts/axis.py:87
+msgid "Turn machine on"
+msgstr "Starta maskin"
+
+#: ../scripts/axis.py:89
+msgid "Activate first axis"
+msgstr "Aktivera första axeln"
+
+#: ../scripts/axis.py:90
+msgid "Activate second axis"
+msgstr "Aktivera andra axeln"
+
+#: ../scripts/axis.py:91
+msgid "Activate third axis"
+msgstr "Aktivera tredje axeln"
+
+#: ../scripts/axis.py:92
+msgid "Activate fourth axis"
+msgstr "Aktivera fjärde axeln"
+
+#: ../scripts/axis.py:93
+msgid "Activate fifth axis"
+msgstr "Aktivera femte axeln"
+
+#: ../scripts/axis.py:94
+msgid "Activate sixth axis"
+msgstr "Aktivera sjätte axeln"
+
+#: ../scripts/axis.py:95
+msgid "Select jog increment"
+msgstr ""
+
+#: ../scripts/axis.py:96
+msgid "Continuous jog"
+msgstr ""
+
+#: ../scripts/axis.py:97
+msgid "Send active axis home"
+msgstr "Flytta vald axel till hemmaläge"
+
+#: ../scripts/axis.py:98
+msgid "Set G54 offset for active axis"
+msgstr "Använd nuvarande läge som G54 förskutning för vald axel"
+
+#: ../scripts/axis.py:99
+msgid "Jog first axis"
+msgstr ""
+
+#: ../scripts/axis.py:100
+msgid "Jog second axis"
+msgstr ""
+
+#: ../scripts/axis.py:101
+msgid "Jog third axis"
+msgstr ""
+
+#: ../scripts/axis.py:102
+msgid "Jog fourth axis"
+msgstr ""
+
+#***: ../scripts/axis.py:104
+msgid "Left Button"
+msgstr ""
+
+#***: ../scripts/axis.py:104
+msgid "Pan view or select line"
+msgstr ""
+
+#***: ../scripts/axis.py:105
+msgid "Shift+Left Button"
+msgstr ""
+
+#: ../scripts/axis.py:105 ../scripts/axis.py:107
+msgid "Rotate view"
+msgstr "Rotera vy"
+
+#***: ../scripts/axis.py:106
+msgid "Right Button"
+msgstr ""
+
+#: ../scripts/axis.py:106 ../scripts/axis.py:108
+msgid "Zoom view"
+msgstr "Zooma vy"
+
+#***: ../scripts/axis.py:107
+msgid "Wheel Button"
+msgstr "Scrollhjulsknapp"
+
+#***: ../scripts/axis.py:108
+msgid "Rotate Wheel"
+msgstr ""
+
+#: ../scripts/axis.py:111
+msgid "Manual control"
+msgstr "Manuell kontroll"
+
+#: ../scripts/axis.py:112
+msgid "Code entry (MDI)"
+msgstr "Kod inmatning (MDI)"
+
+#: ../scripts/axis.py:113 ../tcl/axis.tcl:794
+msgid "Override Limits"
+msgstr "Ignorera Ändlägen"
+
+#: ../scripts/axis.py:115
+msgid "Open program"
+msgstr "Öppna program"
+
+#: ../scripts/axis.py:116
+msgid "Run program"
+msgstr "Kör program"
+
+#: ../scripts/axis.py:117
+msgid "Step program"
+msgstr "Blockvis körning av program"
+
+#: ../scripts/axis.py:118
+msgid "Pause program"
+msgstr "Pausa program"
+
+#: ../scripts/axis.py:119
+msgid "Resume program"
+msgstr "Fortsätt program"
+
+#: ../scripts/axis.py:120
+msgid "Stop program"
+msgstr "Avbryt program"
+
+#: ../scripts/axis.py:122
+msgid "Toggle mist"
+msgstr ""
+
+#: ../scripts/axis.py:123
+msgid "Toggle flood"
+msgstr ""
+
+#: ../scripts/axis.py:125
+msgid "Spindle brake off"
+msgstr "Spindelbroms av"
+
+#: ../scripts/axis.py:126
+msgid "Spindle brake on"
+msgstr "Spindelbroms på"
+
+#: ../scripts/axis.py:127
+msgid "Turn spindle clockwise"
+msgstr "Spindel på medurs"
+
+#: ../scripts/axis.py:128
+msgid "Turn spindle counterclockwise"
+msgstr "Spindel på moturs"
+
+#: ../scripts/axis.py:129
+msgid "Turn spindle more slowly"
+msgstr "Spindel på lågt varvtal"
+
+#***: ../scripts/axis.py:130
+msgid "Turn spindle more quickly"
+msgstr ""
+
+#***: ../scripts/axis.py:132
+msgid "Clear live plot"
+msgstr ""
+
+#***: ../scripts/axis.py:133
+msgid "Cycle among preset views"
+msgstr ""
+
+#***: ../scripts/axis.py:624 ../scripts/axis.py:632
+msgid "AXIS error"
+msgstr "AXIS fel"
+
+#***: ../scripts/axis.py:624 ../scripts/axis.py:632 ../scripts/axis.py:931
+#: ../scripts/axis.py:969 ../tcl/axis.tcl:1295 ../tcl/axis.tcl:1332
+msgid "OK"
+msgstr ""
+
+#: ../scripts/axis.py:693
+msgid "No tool"
+msgstr "Inget verktyg"
+
+#: ../scripts/axis.py:695
+#, python-format
+msgid "Unknown tool %d"
+msgstr "Okänt verktyg %d"
+
+#: ../scripts/axis.py:698
+#, python-format
+msgid "Tool %d, offset %g, diameter %g"
+msgstr "Verktyg %d, förskutning %g, diameter %g"
+
+#: ../scripts/axis.py:929
+#, python-format
+msgid "Program_filter %r failed"
+msgstr "Program_filer %r misslyckades"
+
+#***: ../scripts/axis.py:930
+#, python-format
+msgid "Exit code %d"
+msgstr ""
+
+#: ../scripts/axis.py:965
+#, python-format
+msgid "Unknown error %s"
+msgstr "Okänt fel %s"
+
+#: ../scripts/axis.py:967
+#, python-format
+msgid "G-Code error in %s"
+msgstr "G-Kod fel i %s"
+
+#***: ../scripts/axis.py:968
+#, python-format
+msgid ""
+"Near line %d of %s:\n"
+"%s"
+msgstr ""
+""
+
+#***: ../scripts/axis.py:1083 ../scripts/axis.py:1088 ../scripts/axis.py:1562
+#: ../tcl/axis.tcl:773 ../tcl/axis.tcl:775 ../tcl/axis.tcl:1577
+msgid "Continuous"
+msgstr ""
+
+#: ../scripts/axis.py:1281
+msgid "{{rs274ngc files} {.ngc}} {{All files} *}"
+msgstr ""
+
+#: ../scripts/axis.py:1319
+#, python-format
+msgid "Program exceeds machine minimum on axis %s"
+msgstr "Program överskrider maskinens undre gräns på axeln %s"
+
+#: ../scripts/axis.py:1321
+#, python-format
+msgid "Program exceeds machine maximum on axis %s"
+msgstr "Program överskrider maskinens övre gräns på axeln %s"
+
+#: ../scripts/axis.py:1325
+msgid "Program exceeds machine limits"
+msgstr "Program överskrider maskinens begränsningar"
+
+#: ../scripts/axis.py:1328
+msgid "Run Anyway"
+msgstr "Kör ändå"
+
+#: ../scripts/axis.py:1328
+msgid "Cancel"
+msgstr "Avbryt"
+
+#: ../scripts/axis.py:1649
+msgid "Show EMC Status"
+msgstr "Visa EMC Status"
+
+#: ../tcl/axis.tcl:34
+msgid "_Open"
+msgstr "_Öppna"
+
+#: ../tcl/axis.tcl:42
+msgid "_Reload"
+msgstr "_Ladda om"
+
+#: ../tcl/axis.tcl:53
+msgid "Toggle _Emergency Stop"
+msgstr "Nödstopp på/av"
+
+#: ../tcl/axis.tcl:61
+msgid "Toggle _Machine Power"
+msgstr "Maskin kraft på/av"
+
+#: ../tcl/axis.tcl:71
+msgid "_Quit"
+msgstr "_Avsluta"
+
+#: ../tcl/axis.tcl:88
+msgid "_Copy"
+msgstr "_Kopiera"
+
+#: ../tcl/axis.tcl:99
+msgid "_Top view"
+msgstr "Vy_ovanifrån"
+
+#: ../tcl/axis.tcl:107
+msgid "_Rotated Top view"
+msgstr "_Roterad vy ovanifrån"
+
+#: ../tcl/axis.tcl:115
+msgid "_Side view"
+msgstr "Vy ifrån _sidan"
+
+#: ../tcl/axis.tcl:123
+msgid "_Front view"
+msgstr "Vy _framifrån"
+
+#***: ../tcl/axis.tcl:131
+msgid "_Perspective view"
+msgstr ""
+
+#: ../tcl/axis.tcl:143
+msgid "Display _Inches"
+msgstr "Använd _tum"
+
+#: ../tcl/axis.tcl:152
+msgid "Display _MM"
+msgstr "Använd _MM"
+
+#: ../tcl/axis.tcl:163
+msgid "S_how program"
+msgstr "Visa _program"
+
+#***: ../tcl/axis.tcl:171
+msgid "Sho_w live plot"
+msgstr ""
+
+#: ../tcl/axis.tcl:179
+msgid "Show too_l"
+msgstr "Visa v_erktyg"
+
+#***: ../tcl/axis.tcl:187
+msgid "Show e_xtents"
+msgstr ""
+
+#***: ../tcl/axis.tcl:195
+msgid "C_lear live plot"
+msgstr ""
+
+#: ../tcl/axis.tcl:200
+msgid "Hal Confi_guration"
+msgstr "Hal _configuration"
+
+#***: ../tcl/axis.tcl:216
+msgid "Set _next line"
+msgstr ""
+
+#: ../tcl/axis.tcl:224
+msgid "_Run program"
+msgstr "_Kör program"
+
+#***: ../tcl/axis.tcl:232
+msgid "_Step"
+msgstr ""
+
+#: ../tcl/axis.tcl:240
+msgid "_Pause"
+msgstr "_Pausa"
+
+#: ../tcl/axis.tcl:248
+msgid "Re_sume"
+msgstr "_Förtsätt"
+
+#: ../tcl/axis.tcl:256
+msgid "S_top"
+msgstr "Av_bryt"
+
+#: ../tcl/axis.tcl:277
+msgid "_About AXIS"
+msgstr "_Om AXIS"
+
+#: ../tcl/axis.tcl:284
+msgid "Quick _Reference"
+msgstr "_Snabbguide"
+
+#***: ../tcl/axis.tcl:302
+msgid "Show commanded position"
+msgstr ""
+
+#***: ../tcl/axis.tcl:311
+msgid "Show actual position"
+msgstr ""
+
+#***: ../tcl/axis.tcl:323
+msgid "Show machine position"
+msgstr ""
+
+#***: ../tcl/axis.tcl:332
+msgid "Show relative position"
+msgstr ""
+
+#: ../tcl/axis.tcl:339
+msgid "Show _EMC Status"
+msgstr "Visa EM_C Status"
+
+#: ../tcl/axis.tcl:352
+msgid "_File"
+msgstr "_Fil"
+
+#: ../tcl/axis.tcl:359
+msgid "_Edit"
+msgstr "_Redigera"
+
+#: ../tcl/axis.tcl:366
+msgid "_Program"
+msgstr "Pro_gram"
+
+#: ../tcl/axis.tcl:373
+msgid "_View"
+msgstr "V_y"
+
+#: ../tcl/axis.tcl:380
+msgid "_Help"
+msgstr "_Hjälp"
+
+#: ../tcl/axis.tcl:395
+msgid "Toggle Emergency Stop [F1]"
+msgstr "Nödstopp på/av [F1]"
+
+#: ../tcl/axis.tcl:404
+msgid "Toggle machine power [F2]"
+msgstr "Maskin kraft på/av [F2]"
+
+#: ../tcl/axis.tcl:415
+msgid "Open G-Code file [O]"
+msgstr "Öppna G-Kod fil [O]"
+
+#: ../tcl/axis.tcl:423
+msgid "Reopen current file [Control-R]"
+msgstr "Öppna om nuvarande fil [Control-R]"
+
+#: ../tcl/axis.tcl:433
+msgid "Begin executing current file [R]"
+msgstr "Kör nuvarande fil [R] #only sort of ok"
+
+#***: ../tcl/axis.tcl:441
+msgid "Execute next line [T]"
+msgstr ""
+
+#***: ../tcl/axis.tcl:449
+msgid "Pause [P] / resume [S] execution"
+msgstr ""
+
+#***: ../tcl/axis.tcl:457
+msgid "Stop program execution [ESC]"
+msgstr ""
+
+#: ../tcl/axis.tcl:467
+msgid "Zoom in [+]"
+msgstr "Zooma in [+]"
+
+#: ../tcl/axis.tcl:475
+msgid "Zoom out [-]"
+msgstr "Zooma ut [-]"
+
+#: ../tcl/axis.tcl:483
+msgid "Top view"
+msgstr "Vy ovanifrån"
+
+#***: ../tcl/axis.tcl:491
+msgid "Rotated top view"
+msgstr ""
+
+#: ../tcl/axis.tcl:499
+msgid "Side view"
+msgstr "Vy ifrån sidan"
+
+#: ../tcl/axis.tcl:507
+msgid "Front view"
+msgstr "Vy framifrån"
+
+#***: ../tcl/axis.tcl:515
+msgid "Perspective view"
+msgstr ""
+
+#***: ../tcl/axis.tcl:525
+msgid "Clear live plot [Ctrl-K]"
+msgstr ""
+
+#: ../tcl/axis.tcl:637
+msgid "Manual Control [F3]"
+msgstr "Manuell Kontroll [F3]"
+
+#: ../tcl/axis.tcl:638
+msgid "Code Entry [F5]"
+msgstr "Kod inmatning [F5] #guessing here"
+
+#: ../tcl/axis.tcl:647
+msgid "Axis:"
+msgstr "Axel:"
+
+#***: ../tcl/axis.tcl:755 ../tcl/axis.tcl:902
+msgid "-"
+msgstr ""
+
+#***: ../tcl/axis.tcl:768 ../tcl/axis.tcl:916
+msgid "+"
+msgstr ""
+
+#: ../tcl/axis.tcl:783
+msgid "Home"
+msgstr "Hemmaläge"
+
+#: ../tcl/axis.tcl:789
+msgid "Offset"
+msgstr "Försjutning"
+
+#: ../tcl/axis.tcl:857
+msgid "Spindle:"
+msgstr "Spindel:"
+
+#: ../tcl/axis.tcl:878
+msgid "Stop"
+msgstr "Stanna #Guessing again"
+
+#: ../tcl/axis.tcl:921
+msgid "Brake"
+msgstr "Broms"
+
+#: ../tcl/axis.tcl:968
+msgid "Coolant:"
+msgstr "Kylvätska:"
+
+#: ../tcl/axis.tcl:973
+msgid "Mist"
+msgstr ""
+
+#: ../tcl/axis.tcl:978
+msgid "Flood"
+msgstr ""
+
+#***: ../tcl/axis.tcl:1050
+msgid "History:"
+msgstr "Historia"
+
+#: ../tcl/axis.tcl:1064
+msgid "MDI Command:"
+msgstr "MDI-Kommando:"
+
+#***: ../tcl/axis.tcl:1074
+msgid "Go"
+msgstr ""
+
+#: ../tcl/axis.tcl:1080
+msgid "Active G-Codes:"
+msgstr "Aktiva G-Koder"
+
+#***: ../tcl/axis.tcl:1235
+msgid "0"
+msgstr ""
+
+#: ../tcl/axis.tcl:1247
+msgid "Feed Override (%):"
+msgstr "Matnings överjusterning (%): #guessing again"
+
+#***: ../tcl/axis.tcl:1286
+msgid ""
+"AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006 Jeff Epler and Chris Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions.  See the file COPYING, included with AXIS.\n"
+"\n"
+"Visit the AXIS web site: "
+msgstr ""
+
+#: ../tcl/axis.tcl:1314
+msgid "About AXIS"
+msgstr "Om AXIS"
+
+#: ../tcl/axis.tcl:1343
+msgid "AXIS Quick Reference"
+msgstr "AXIS Snabbguide"
+
+#: ../tcl/axis.tcl:1459
+msgid "AXIS (No file)"
+msgstr "AXIS (Ingen fil)"
+
+#***: ../tcl/axis.tcl:1470
+msgid "ESTOP"
+msgstr "#Nödstopp?"
+
+#***: ../tcl/axis.tcl:1471
+msgid "ESTOP RESET"
+msgstr "#Återställ Nödstopp"
+
+#***: ../tcl/axis.tcl:1472
+msgid "ON"
+msgstr ""
+
+#***: ../tcl/axis.tcl:1512
+msgid "Machine"
+msgstr "Maskin"
+
+#***: ../tcl/axis.tcl:1512
+msgid "Relative"
+msgstr ""
+
+#***: ../tcl/axis.tcl:1513
+msgid "Actual"
+msgstr ""
+
+#***: ../tcl/axis.tcl:1513
+msgid "Commanded"
+msgstr ""
+
+#***: ../tcl/axis.tcl:1514
+msgid "Position:"
+msgstr "Position:"
+
+#: ../tcl/axis.tcl:1622
+msgid "Turn spindle counterclockwise [F10]"
+msgstr "Kör spindel moturs [F10]"
+
+#: ../tcl/axis.tcl:1623
+msgid "Turn spindle clockwise [F9]"
+msgstr "Kör spindel medurs [F9]"
+
+#: ../tcl/axis.tcl:1624
+msgid "Stop spindle [F9/F10]"
+msgstr "Stanna spindel [F9/F10]"
+
+#***: ../tcl/axis.tcl:1625
+msgid "Turn spindle Faster [F12]"
+msgstr ""
+
+#***: ../tcl/axis.tcl:1626
+msgid "Turn spindle Slower [F11]"
+msgstr ""
+
+#***: ../tcl/axis.tcl:1627
+msgid "Turn spindle brake on [Shift-B] or off [B]"
+msgstr ""
+
+#: ../tcl/axis.tcl:1628
+msgid "Turn flood on or off [F8]"
+msgstr ""
+
+#: ../tcl/axis.tcl:1629
+msgid "Turn mist on or off [F7]"
+msgstr ""
+
+#***: ../tcl/axis.tcl:1630
+msgid "Send active axis home [Home]"
+msgstr ""
+
+#***: ../tcl/axis.tcl:1631
+msgid "Set G54 offset for active axis [Shift-Home]"
+msgstr ""
+
+#: ../tcl/axis.tcl:1632
+msgid "Activate axis [X]"
+msgstr "Aktivera axel [X]"
+
+#: ../tcl/axis.tcl:1633
+msgid "Activate axis [Y]"
+msgstr "Aktivera axel [Y]"
+
+#: ../tcl/axis.tcl:1634
+msgid "Activate axis [Z]"
+msgstr "Aktivera axel [Z]"
+
+#: ../tcl/axis.tcl:1635
+msgid "Activate axis [A]"
+msgstr "Aktivera axel [A]"
+
+#: ../tcl/axis.tcl:1636
+msgid "Activate axis [4]"
+msgstr "Aktivera axel [4]"
+
+#: ../tcl/axis.tcl:1637
+msgid "Activate axis [5]"
+msgstr "Aktivera axel [5]"
+
+#: ../tcl/axis.tcl:1638 ../tcl/axis.tcl:1639
+msgid "Jog selected axis"
+msgstr ""
+
+#: ../tcl/axis.tcl:1640
+msgid "Select jog ingrement"
+msgstr ""
+
+#: ../tcl/axis.tcl:1641
+msgid "Temporarily allow jogging outside machine limits [L]"
+msgstr ""
+
