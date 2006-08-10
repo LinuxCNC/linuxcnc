@@ -559,7 +559,6 @@ void RungWindowInitGtk()
     GtkWidget *ButtonNew, *ButtonLoad, *ButtonSave, *ButtonSaveAs,
 	*ButtonConfig, *ButtonAbout;
 	//GtkWidget *event_box;
-	GtkTooltips *tooltips;
     RungWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title((GtkWindow *) RungWindow, "Section Display");
 
@@ -932,7 +931,6 @@ void UpdateAllLabelsBoolsVars()
     for (ColumnVar = 0; ColumnVar < NBR_TYPE_BOOLS_SPY; ColumnVar++) {
 	for (OffVar = 0; OffVar < NBR_BOOLS_VAR_SPY; OffVar++) {
 	    char BufNumVar[64], LabelText[2*64+1];
-		char ;
 	    switch (ColumnVar) {
 	    case 0:
 		sprintf(BufNumVar, "B%d",
