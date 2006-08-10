@@ -54,8 +54,8 @@ This book is intended for people who want to use the Enhanced Machine Controller
  kind of computer application.
  In order to get right into the essential task of operating it we have limited
  the amount of information about installation and setup.
- We assume that the user will install from one of the standard ways of install
- (covered in Chapter 2).
+ We assume that the user will install one of the standard ways (covered
+ in Chapter 2).
  Machine wiring and setup is limited to what we refer to as a mini or benchtop
  mill that is powered by stepper motors and amps that use a single parallel
  port.
@@ -63,7 +63,7 @@ This book is intended for people who want to use the Enhanced Machine Controller
 \layout Standard
 
 If the user is interested in developing their own install using some other
- distribution of Linux or an other operating system, or applying the EMC2
+ distribution of Linux or another operating system, or applying the EMC2
  to a more complex machine, they should study the Integrators Handbook where
  these topics are covered in greater detail.
  
@@ -73,7 +73,7 @@ The Big CNC Picture
 \layout Standard
 
 The term CNC has taken on a lot of different meanings over the years.
- In the early days it replaced the hands of a skilled machinist with motors
+ In the early days CNC replaced the hands of a skilled machinist with motors
  that followed commands in much the same way that the machinist turned the
  handwheels.
  From these early machines, a language of machine tool control has grown.
@@ -118,7 +118,7 @@ One machine tool manufacturer, Hurco, claims to have a right to the use
  or features of that geometry.
 \layout Standard
 
-The use of Computer Aided Drafting has also had its affect upon the CNC
+The use of Computer Aided Drafting has also had an effect on the CNC
  programming languages.
  Because CAD drawings are saved as a list or database of geometries and
  variables associated with each, they are available to be interpreted into
@@ -143,10 +143,9 @@ Why did I want to know this?
 \begin_inset Quotes erd
 \end_inset 
 
- The answer is that the EMC2 as is currently exists does not directly take
+ The answer is that the EMC2 as it currently exists does not directly take
  in CAD or any image and run a machine using it.
- It.
- The EMC2 uses a variant of the earlier CNC language named RS 274NGC.
+ The EMC2 uses a variant of the earlier CNC language named RS274NGC.
  (Next Generation Controller).
  All of the commands given to the EMC2 must be in a form that is recognized
  and have meaning to the RS274NGC interpreter.
@@ -182,12 +181,12 @@ The EMC2 code can be compiled on almost any GNU-Linux Distribution (assuming
  The latest packages have been created around the Ubuntu GNU-Linux Distribution.
  Ubuntu is one of the distributions that is aimed at novice Linux users,
  and has been found to be very easy to use.
- Along with that, there are lots of places around the world, that offer
- support for it.
- Installing emc2 on it is trivial, as you can see from Chapter 2.
+ Along with that, there are lots of places around the world that offer support
+ for it.
+ Installing EMC2 on it is trivial, as you will see in Chapter 2.
 \layout Standard
 
-The EMC2 will not run under a normal Microsoft (TM) operating system.
+The EMC2 will not run under a Microsoft (TM) operating system.
  The reason for this is that the EMC2 requires a real-time environment for
  the proper operation of its motion planning and stepper pulse outputs.
  Along with that, it also benefits from the much-needed stability and performanc
@@ -265,7 +264,7 @@ After these early tests, Jon Elson found the Shaver Engineering notes and
  replaced a refrigerator sized Allen Bradley 7300 control on his Bridgeport
  with the EMC running on a Red Hat 5.2 distribution of Linux.
  He was so pleased with the result that he advertised the software on several
- news groups.
+ newsgroups.
  He continues to use that installation and has produced several boards that
  are supported by the software.
  
@@ -284,7 +283,7 @@ From these early applications news of the software spread around the world.
 \layout Standard
 
 The source code files that make up the controller are kept in a repository
- on cvs.linuxcnc.org They are available for anyone to download and use as
+ on cvs.linuxcnc.org - they are available for anyone to download and use as
  they see fit.
  All EMC2 files (with some exceptions
 \begin_inset Foot
@@ -296,11 +295,11 @@ some parts of emc2 are released under LGPL, to allow proprietary software
  to be linked together with emc2 (GUIs, hardware drivers, etc.)
 \end_inset 
 
-) carry a GPL or GPLD copyright.
- These files require that you make your source of them available to your
+) carry a GPL or GPLD license.
+ This license requires that you make your source of them available to your
  users.
- GPL copyright also requires that if you modify the code in that file and
- make a public release of your revisions, you must return your modifications
+ The GPL license also requires that if you modify the code in that file
+ and make a public release of your revisions, you must return your modifications
  to the developers.
  
 \layout Section
@@ -352,13 +351,13 @@ Figure
  shows a simple block diagram showing what a typical 3-axis EMC2 system
  might look like.
  This diagram shows a stepper motor system.
- The PC, running Linux as it's operating system, is actually controlling
+ The PC, running Linux as its operating system, is actually controlling
  the stepper motor drives by sending signals through the printer port.
  These signals (pulses) make the stepper drives move the stepper motors.
  The EMC2 can also run servo motors via servo interface cards or by using
  an extended parallel port to connect with external control boards.
- As we examine each of the components that make up an EMC2 we will remind
- the reader of this typical machine.
+ As we examine each of the components that make up an EMC2 system we will
+ remind the reader of this typical machine.
 \layout Standard
 
 There are four main components to the EMC2 software: a motion controller
@@ -415,23 +414,8 @@ two Tcl/Tk-based GUIs named tkemc
  
 \layout Itemize
 
-a modern GL-based GUI written in python called AXIS 
+an OpenGL-based GUI, with an interactive G-Code previewer, called AXIS 
 \begin_inset LatexCommand \ref{fig:The AXIS Graphical Interface}
-
-\end_inset 
-
-
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-AXIS has been developed outside the EMC2 project, you can find information
- about it at 
-\begin_inset LatexCommand \url{http://axis.unpy.net}
-
-\end_inset 
-
 
 \end_inset 
 
@@ -573,15 +557,14 @@ The XEMC Graphical Interface
  
 \layout Standard
 
-Tkemc and Mini are most commonly used operator interfaces.
- They will run on Linux, Mac, and Microsoft Windows if the Tcl/Tk programming
- language has been installed.
+Tkemc and Mini will run on Linux, Mac, and Microsoft Windows if the Tcl/Tk
+ programming language has been installed.
  The Mac and Microsoft Windows version can connect to a real-time EMC2 running
  on a Linux machine via a network connection, allowing the monitoring of
  the machine from a remote location.
  Instructions for installing and configuring the connection between a Mac
- or Microsoft Machine and a PC running the EMC2 can be found in the integrators
- handbook.
+ or Microsoft Machine and a PC running the EMC2 can be found in the Integrators
+ Handbook.
 \layout Subsection
 
 Motion Controller EMCMOT 
@@ -593,8 +576,8 @@ Motion control includes sampling the position of the axes to be controlled,
  For servo systems, the output is based on a PID compensation algorithm.
  For stepper systems, the calculations run open-loop, and pulses are sent
  to the steppers based on whether their accumulated position is more than
- a pulse away from where their commanded position should be.
- The motion controller includes programmable software limits, interfaces
+ a pulse away from their commanded position.
+ The motion controller includes programmable software limits, and interfaces
  to hardware limit and home switches.
 \layout Standard
 
@@ -605,15 +588,8 @@ The motion controller is written to be fairly generic.
  and axis units (e.g., millimeters), servo gains, servo and trajectory planning
  cycle times, and other system parameters.
  Complex kinematics for robots can be coded in C according to a prescribed
- function interface and linked in to replace the default 3-axis Cartesian
- machine kinematics routines.
+ interface to replace the default 3-axis Cartesian machine kinematics routines.
  
-\layout Standard
-
-The motion controllers that you will be using with your stepper motors will
- most likely be stepgen.
- The ability and requirements of each of these will be described when we
- get to hardware and how to configure the EMC2 for your specific hardware.
 \layout Subsection
 
 Discrete I/O Controller EMCIO 
@@ -622,20 +598,19 @@ Discrete I/O Controller EMCIO
 Discrete I/O controllers are highly machine-specific, and are not customizable
  in general using the INI file technique used to configure the more generic
  motion controller.
- However, since EMC2 uses the HAL, reconfiguration of the IO subsystem has
- become very powerful and flexible.
- EMC2 contains even a Programmable Logic Controller module (behaves just
- like a hardware PLC), which can be used for very complex scenarios (tool
- changers, etc.).
+ However, since EMC2 uses the HAL, reconfiguration of the I/O subsystem
+ has become very powerful and flexible.
+ EMC2 contains a Programmable Logic Controller module (behaves just like
+ a hardware PLC) that can be used for very complex scenarios (tool changers,
+ etc.).
  
 \layout Standard
 
 In EMC2 there is only one big I/O controller, which provides support for
  all kinds of actions and hardware control.
- All it's outputs and inputs are HAL logic items (more on this later on),
- so you can use only the subset which interests you (or the one that fits
- on your hardware output: e.g.
- if you have only one parallel port, and no additional I/O cards).
+ All its outputs and inputs are HAL pins (more on this later on), so you
+ can use only the subset that fits your hardware and is necessary for your
+ application.
 \layout Subsection
 
 Task Executor EMCTASK 
@@ -685,11 +660,12 @@ G1 F3 X1.000
 \layout Standard
 
 G1 means that the machine is supposed to run at a programmed feedrate rather
- than at the fastest speed that it can.
- (G0) The F3 means that it should travel at 3 inches a minute or 3 millimeters
+ than at the fastest speed that it can (G0 is the way to command a rapid
+ move like you would make above the work when not cutting).
+ The F3 means that it should travel at 3 inches a minute or 3 millimeters
  a minute if it is working in metric mode.
- The X1.000 assumes that the machine started at zero and is supposed to go
- one inch in the positive direction.
+ The X1.000 (assuming that the X axis started at zero) means the machine
+ should move one inch in the positive X direction.
  You will read quite a bit more about G-code in the programming chapters.
 \layout Standard
 
@@ -821,10 +797,10 @@ feedrate override
 Information Display 
 \layout Standard
 
-While an EMC2 is running, each of the modules keeps up a dialog with each
- other and with the graphical display.
+While an EMC2 is running, each of the modules keeps up a conversation with
+ the others and with the graphical display.
  It is up to the display to select from that stream of information what
- the operator needs to see and to arrange it on the screen in a way that
+ the operator needs to see, and to arrange it on the screen in a way that
  makes it easy for the operator to understand.
  Perhaps the most important display is the mode the EMC2 is running in.
  You will want to keep your eye on the mode display.
@@ -858,18 +834,17 @@ Commanded This is where the axis is commanded to be.
 These may all be exactly the same if no offsets have been applied and there
  is no deadband set in the INI file.
  Deadband is a small distance which is assumed to be close enough -- perhaps
- one stepper pulse or one encoder pulse.
+ one stepper pulse or one encoder count.
  
 \layout Standard
 
 It is also important to see any messages or error codes sent by the EMC2.
- These are used by operators if they need to be reminded to change a tool,
- to clear up problems in G-code programs, or to find out why the machine
- stopped running.
+ These are used to request the operator change a tool, to describe problems
+ in G-code programs, or to tell why the machine stopped running.
 \layout Standard
 
-As you work your way through this text, you will be learning, bit by bit
- how to setup and run a machine with your copy of the EMC2 software.
+As you work your way through this text, you will be learning, bit by bit,
+ how to set up and run a machine with your copy of the EMC2 software.
  While you are learning about setting up and running a minimill here, you
  will be thinking of other applications and other capabilities.
  These are the topics of the other linuxcnc.org handbooks.
@@ -881,9 +856,9 @@ Thinking Like An Integrator
 The biggest task of a machine integrator is figuring out how to connect
  a PC running the EMC2 to a machine and configuring the software so that
  it runs the machine correctly.
- Most of this is not the topic of this book but there are a few things that
- you will have to understand in order to make our little minimill work for
- us like we expect it to work.
+ Most of this is not the topic of this book, but there are a few things
+ that you will have to understand in order to make our little minimill work
+ for us like we expect it to work.
  
 \layout Subsection
 
@@ -891,7 +866,7 @@ Units
 \layout Standard
 
 Units can be confusing.
- A newbie recently asked, 
+ You might ask, 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -904,8 +879,8 @@ Does it work in inches, feet, centimeters, millimeters, or what?
  
 \layout Standard
 
-At a machine level, we set each axis' units to some value using an INI variable
- that looks like this.
+At a machine level, we set each axis's units to some value using an INI
+ variable that looks like this.
 \layout LyX-Code
 
 UNITS = 1
@@ -919,8 +894,8 @@ UNITS =  0.03937007874016
 
 \layout Standard
 
-Math folk will get a clue from these numbers because the long decimal number
- is the distance represented by one millimeter if we convert it into inches.
+The long number above is the distance represented by one millimeter if we
+ convert it into inches.
  
 \begin_inset Quotes eld
 \end_inset 
@@ -941,7 +916,8 @@ the EMC2 uses millimeters internally.
  If we use UNITS = 0.03937007874016 then we have defined our user units as
  inches.
  Using similar arithmetic we could set our units to most any value we wanted.
- (Some of the EMC2 people who run vehicles with the EMC2 set units to kilometers
+ (You will want to use inches or millimeters for your minimill, but some
+ who run vehicles with the EMC2 have been known to set units to kilometers
  or miles.)
 \layout Standard
 
@@ -985,8 +961,7 @@ There are five kinds of configuration files: INI, NML, TBL, VAR and HAL
  These are reflected in lower case file extensions to a file name.
  They may be named EMC2.tbl or generic.tbl but they do the same thing when
  they are read by the EMC2 as it starts up.
- Many users copy these and name them for the specific machine that they
- are editing them for.
+ Many users copy these and name them for the specific machine.
  A set of these files named Sherlinemill.ini, Sherlinemill.var, Sherlinemill.tbl
  and Sherlinemill.nml are certainly more descriptive than a bunch of files
  named generic.
@@ -996,7 +971,7 @@ There are five kinds of configuration files: INI, NML, TBL, VAR and HAL
 These files each contain specific information for your CNC.
 \layout Itemize
 
-stepper.ini, contains all the machine parameters such as servo gains, scale
+stepper.ini contains all the machine parameters such as servo gains, scale
  factors, cycle times, units, etc.
  and will certainly need to be edited.
  
@@ -1030,10 +1005,9 @@ In addition to these four files, there is a standard startup file.
  Each of these tasks had to be supplied a bunch of information in the form
  of arguments in order to be certain that the task started the way that
  we expected it to.
- All of this was a tedious thing.
- All of this has been replaced with the run script file.
+ All of this was tedious and has been replaced by one script.
  It is named simply 'emc'.
  This executable script file controls the startup of all of the modules
  needed to run a standard version of the EMC2.
- When run, it lets the user chose a certain config to run EMC2 from.
+ When run, it lets the user choose a certain configuration.
 \the_end
