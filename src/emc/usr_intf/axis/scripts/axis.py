@@ -25,12 +25,10 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 import gettext;
 gettext.install("axis", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 r_ = gettext.translation("rs274_err", localedir=os.path.join(BASE, "share", "locale"), fallback=True).ugettext
-version="1.4a0"
 
 import array, time, atexit, tempfile, shutil, errno, thread
 
-if os.environ.has_key('EMC2VERSION'):
-    version = version + " / emc2 " + os.environ['EMC2VERSION']
+version = os.environ['EMC2VERSION']
 
 # Print Tk errors to stdout. python.org/sf/639266
 import Tkinter 
