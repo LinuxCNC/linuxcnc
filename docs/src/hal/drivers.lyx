@@ -806,7 +806,7 @@ bin/halcmd loadrt hal_stg [base=<address>] [num_chan=<nr>]
 ] [model=<model>]
 \layout Standard
 
-The base address field is optional, in case it's not provided the driver
+The base address field is optional; if it's not provided the driver
  attempts to autodetect the board.
  The num_chan field is used to specify the number of channels available
  on the card, if not used the 8 axis version is assumed.

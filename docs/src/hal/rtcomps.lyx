@@ -1948,7 +1948,7 @@ Functions
 
 The component exports one function for each PID loop.
  This function performs all the calculations needed for the loop.
- Since each loop has it's own function, individual loops can be included
+ Since each loop has its own function, individual loops can be included
  in different threads and execute at different rates.
  
 \layout Itemize
@@ -2368,7 +2368,7 @@ debounce.<G>.delay
 
 The filter delay is in units of thread periods.
  The minimum delay is zero.
- The output of a zero delay filter exactly follows it's input - it doesn't
+ The output of a zero delay filter exactly follows its input - it doesn't
  filter anything.
  As 
 \family typewriter 
@@ -2871,7 +2871,7 @@ in1
 Functions
 \layout Standard
 
-Each individual block has it's own function.
+Each individual block has its own function.
  This allows complete control over when each block executes.
  In general, blocks should execute in the order of signal flow.
  If the outputs of blocks A and B are connected to inputs of block C, then

@@ -45,7 +45,7 @@ As we will soon see, this ability of HAL to document itself is one key to
 Hal Tree Area
 \layout Standard
 
-At the left of it's display as shown in figure\SpecialChar ~
+At the left of its display as shown in figure\SpecialChar ~
 
 \begin_inset LatexCommand \ref{cap:Halshow-Layout}
 
@@ -129,7 +129,7 @@ Show Menu
 Hal Show Area
 \layout Standard
 
-Clicking on the node name rather than it's plus or minus sign, the word
+Clicking on the node name rather than its plus or minus sign, the word
  
 \begin_inset Quotes eld
 \end_inset 
@@ -272,7 +272,7 @@ ID Type Name
 \layout Standard
 
 Sure enough there it is.
- Notice that it's id is 08.
+ Notice that its id is 08.
  Next we need to find out what functions are available with it so we look
  at functions.
 \layout LyX-Code
@@ -318,7 +318,7 @@ Owner CodeAddr Arg FP Users Name
 
 Here we look for owner #08 and see that blocks has exported a function named
  ddt.0.
- We should be able to add ddt.0 to the servo thread and it will do it's math
+ We should be able to add ddt.0 to the servo thread and it will do its math
  each time the servo thread is updated.
  Once again I look up the addf command and find that it uses three arguments
  like this.

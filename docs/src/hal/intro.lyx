@@ -59,7 +59,7 @@ building blocks
 \begin_inset Quotes erd
 \end_inset 
 
- to be loaded and interconnected to assemble a complicated system.
+ to be loaded and interconnected to assemble a complex system.
  The 
 \begin_inset Quotes eld
 \end_inset 
@@ -92,7 +92,7 @@ Any system (including a CNC machine), consists of interconnected components.
 Part Selection
 \layout Standard
 
-The machine builder does not need to worry how each individual part works.
+The machine builder does not need to worry about how each individual part works.
  He treats them as black boxes.
  During the design stage, he decides which parts he is going to use - steppers
  or servos, which brand of servo amp, what kind of limit switches and how
@@ -122,8 +122,8 @@ The designer of a hardware system not only selects the parts, he also decides
  Each black box has terminals, perhaps only two for a simple switch, or
  dozens for a servo drive or PLC.
  They need to be wired together.
- The motors get connected to the servo amps.
- The limit switches connect to the controller, and so on.
+ The motors connect to the servo amps,
+ the limit switches connect to the controller, and so on.
  As the machine builder works on the design, he creates a large wiring diagram
  that shows how all the parts should be interconnected.
 \layout Standard
@@ -139,7 +139,7 @@ Implementation
 Once the wiring diagram is complete it is time to build the machine.
  The pieces need to be acquired and mounted, and then they are interconnected
  according to the wiring diagram.
- In a physical system, each interconnection is a piece of wire, that needs
+ In a physical system, each interconnection is a piece of wire that needs
  to be cut and connected to the appropriate terminals.
 \layout Standard
 
@@ -185,17 +185,17 @@ Testing
 \layout Standard
 
 Very few machines work right the first time.
- While testing the builder may use a meter to see if a limit switch is working,
+ While testing, the builder may use a meter to see whether a limit switch is working
  or to measure the DC voltage going to a servo motor.
  He may hook up an oscilloscope to check the tuning of a drive, or to look
  for electrical noise.
- He may find a problem that requires the wiring diagram to be changed -
+ He may find a problem that requires the wiring diagram to be changed;
  perhaps a part needs to be connected differently or replaced with something
  completely different.
 \layout Standard
 
-HAL provides the software equivalent of a voltmeter, oscilloscope, signal
- generator, and other tools for testing and tuning a system.
+HAL provides the software equivalents of a voltmeter, oscilloscope, signal
+ generator, and other tools needed for testing and tuning a system.
  The same commands used to build the system can be used to make changes
  as needed.
 \layout Subsection
@@ -219,9 +219,17 @@ The traditional hardware design as described above ends at the edge of the
 HAL extends this traditional hardware design method to the inside of the
  big black box.
  It makes device drivers and even some internal parts of the controller
- into smaller black boxes, that can be interconnected and even replaced
+ into smaller black boxes that can be interconnected and even replaced
  just like the external hardware.
- It allows the "system wiring diagram" to show part of the internal controller,
+ It allows the 
+\begin_inset Quotes eld
+\end_inset
+
+system wiring diagram
+\begin_inset Quotes erd
+\end_inset
+
+to show part of the internal controller,
  rather than just a big black box.
  And most importantly it allows the integrator to test and modify the controller
  using the same methods he would use on the rest of the hardware.
@@ -271,8 +279,8 @@ Component: When we talked about hardware design, we referred to the individual
  The HAL equivalent is a "component" or "HAL component".
  (This document uses "HAL component" when there is likely to be confusion
  with other kinds of components, but normally just uses "component".) A HAL
- component is a piece of software with well defined inputs, outputs, and
- behaviour, that can be installed and interconnected as needed.
+ component is a piece of software with well-defined inputs, outputs, and
+ behavior, that can be installed and interconnected as needed.
  
 \layout Description
 
@@ -282,7 +290,7 @@ Parameter: Many hardware components have adjustments that are not connected
  and test points where a meter or scope can be attached to view the tuning
  results.
  HAL components also can have such items, which are referred to as "parameters".
- There are two types of parameters.
+ There are two types of parameters:
  Input parameters are equivalent to trim pots - they are values that can
  be adjusted by the user, and remain fixed once they are set.
  Output parameters cannot be adjusted by the user - they are equivalent
@@ -446,16 +454,16 @@ Thread: A "thread" is a list of functions that runs at specific intervals
  time the thread runs.
 \layout Standard
 
-For now a quick example will help get the concept across.
- We have a parport component named hal_parport.
+As an example, suppose
+ we have a parport component named hal_parport.
  That component defines one or more HAL pins for each physical pin.
- The pins are described in that component's doc section - their names, how
+ The pins are described in that component's doc section: their names, how
  each pin relates to the physical pin, are they inverted, can you change
  polarity, etc.
  But that alone doesn't get the data from the HAL pins to the physical pins.
  It takes code to do that, and that is where functions come into the picture.
- The parport component needs at least two functions.
- One to read the physical input pins and update the HAL pins, the other
+ The parport component needs at least two functions:
+ one to read the physical input pins and update the HAL pins, the other
  to take data from the HAL pins and write it to the physical output pins.
  Both of these functions are part of the parport driver.
  
@@ -469,10 +477,10 @@ For now a quick example will help get the concept across.
 HAL components
 \layout Standard
 
-Each HAL component is a piece of software with well defined inputs, outputs,
- and behaviour, that can be installed and interconnected as needed.
+Each HAL component is a piece of software with well-defined inputs, outputs,
+ and behavior, that can be installed and interconnected as needed.
  This section lists available components and a brief description of what
- they do.
+ each does.
  Complete details for each component are available later in this document.
 \layout Subsection
 
@@ -861,7 +869,7 @@ If you need some other kinematics, you then load a specific kins component.
  When the module loads, it again automatically creates signals and connects
  its own pins to the motion module's pins (which will disconnect the "jumpers").
  It could also know the thread names used by the motion module, and could
- automatically add it's own functions to those threads.
+ automatically add its own functions to those threads.
 \layout Standard
 
 Trivkins is removed so that the motion blocks can be spread apart and by

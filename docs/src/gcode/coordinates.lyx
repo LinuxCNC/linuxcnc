@@ -400,7 +400,7 @@ Default coordinate system
 One other variable in the VAR file becomes important when we think about
  offset systems.
  This variable is named 5220.
- In the default files it's value is set to 1.00000.
+ In the default files its value is set to 1.00000.
  This means that when the EMC starts up it should use the first coordinate
  system as its default.
  If you set this to 9.00000 it would use the nineth offset system as its
@@ -536,7 +536,7 @@ Both of these work from the current location of the axis to which the offset
 \layout Quote
 
 Issuing g92 x y z a b c does in fact set values to the g92 variables such
- that each axis takes on the value associated with it's name.
+ that each axis takes on the value associated with its name.
  These values are assigned to the current position of the machine axis.
  These results satisfy paragraphs one and two of the NIST document.
 \layout Quote

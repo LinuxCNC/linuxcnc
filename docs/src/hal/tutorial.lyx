@@ -103,13 +103,13 @@ emc2/
  
 \layout Subsection
 
-Root Privilges
+Root Privileges
 \layout Standard
 
 In the beginning days of HAL there was quite often the need to run things
  with root privileges.
  Most of those things were related to the fact that HAL uses kernel modules
- to do much of it's work, and because it also can access hardware directly.
+ to do much of its work, and because it also can access hardware directly.
  Knowing that it is usually safer to avoid doing day-to-day work as root,
  most of those things were reworked so that very limited root privileges
  are required.
@@ -839,7 +839,7 @@ emc2$
 \layout Standard
 
 Now the signal generator is running.
- Let's look at it's output pins:
+ Let's look at its output pins:
 \layout LyX-Code
 
 emc2$ 
@@ -1201,7 +1201,7 @@ Starting halmeter
 At this point we have the siggen component loaded and running.
  It's time to start halmeter.
  Since halmeter is a GUI app, X must be running.
- We can start halmeter in the background by following it's name with a '
+ We can start halmeter in the background by following its name with a '
 \family typewriter 
 &
 \family default 

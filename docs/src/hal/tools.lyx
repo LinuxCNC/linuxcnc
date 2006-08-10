@@ -877,7 +877,7 @@ start
 \layout Standard
 
 Start: Begins execution of realtime threads.
- When started, each thread runs at it's specified period.
+ When started, each thread runs at its specified period.
  Each time the thread runs, it calls all of the functions that were added
  to it with the 
 \family typewriter 
@@ -1234,7 +1234,7 @@ pin|sig|par[am] <name>
 Halmeter is due for a rewrite - the new version will have a nicer display,
  with autoranging, range hold, and an analog bar graph to supplement the
  digital display.
- However it's purpose will remain the same - a handy software equivalent
+ However its purpose will remain the same - a handy software equivalent
  to DMM for basic testing and troubleshooting.
 \layout Section
 
