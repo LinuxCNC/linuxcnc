@@ -37,20 +37,6 @@
 \layout Chapter
 
 Using the AXIS Graphical Interface
-\layout Standard
-\align center 
-
-\shape smallcaps 
-Note: this document describes the CVS version of AXIS, which is currently
- known as 
-\begin_inset Quotes eld
-\end_inset 
-
-1.4a0
-\begin_inset Quotes erd
-\end_inset 
-
-.
 \layout Section
 
 Introduction
