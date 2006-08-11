@@ -30,6 +30,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.dwells = []; self.dwells_append = self.dwells.append
         self.choice = None
         self.lo = (0,0,0)
+        self.first_move = True
         self.offset_x = self.offset_y = self.offset_z = 0
         self.text = text
         self.min_extents = [9e99,9e99,9e99]
@@ -73,7 +74,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def straight_traverse(self, x,y,z, a,b,c):
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
-        self.traverse_append((self.lineno, self.lo, l))
+        if not self.first_move:
+                self.traverse_append((self.lineno, self.lo, l))
+        self.first_move = False
         self.lo = l
 
     def arc_feed(self, *args):
@@ -84,12 +87,13 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.in_arc = False
 
     def straight_feed(self, x,y,z, a,b,c, is_arc=0):
+        self.first_move = False
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z)
         if self.in_arc:
             self.arcfeed_append((self.lineno, self.lo, l))
         else:
             self.feed_append((self.lineno, self.lo, l))
-        self.lo = l
+            self.lo = l
 
     def user_defined_function(self, i, p, q):
         color = self.colors['m1xx']
