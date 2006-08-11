@@ -118,8 +118,8 @@ One machine tool manufacturer, Hurco, claims to have a right to the use
  or features of that geometry.
 \layout Standard
 
-The use of Computer Aided Drafting has also had an effect on the CNC
- programming languages.
+The use of Computer Aided Drafting has also had an effect on the CNC programming
+ languages.
  Because CAD drawings are saved as a list or database of geometries and
  variables associated with each, they are available to be interpreted into
  G-Code.
@@ -283,25 +283,43 @@ From these early applications news of the software spread around the world.
 \layout Standard
 
 The source code files that make up the controller are kept in a repository
- on cvs.linuxcnc.org - they are available for anyone to download and use as
- they see fit.
- All EMC2 files (with some exceptions
+ on 
+\begin_inset LatexCommand \url{http://cvs.linuxcnc.org}
+
+\end_inset 
+
+.
+ They are available for anyone to inspect or download.
+ The EMC2 source code (with a few exceptions
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
-some parts of emc2 are released under LGPL, to allow proprietary software
- to be linked together with emc2 (GUIs, hardware drivers, etc.)
+some parts of EMC2 are released under the 
+\begin_inset Quotes eld
 \end_inset 
 
-) carry a GPL or GPLD license.
- This license requires that you make your source of them available to your
- users.
- The GPL license also requires that if you modify the code in that file
- and make a public release of your revisions, you must return your modifications
- to the developers.
- 
+Lesser
+\begin_inset Quotes erd
+\end_inset 
+
+ GPL (LPGL), which allows them to be used with proprietary software as long
+ as certain restrictions are observed.
+\end_inset 
+
+) is released under the GNU General Public License (GPL).
+ The GPL controls the terms under which EMC2 can be changed and distributed.
+ This is done in order to protect the rights of people like you to use,
+ study, adapt, improve, and redistribute it freely, now and in the future.
+ To read about your rights as a user of EMC2, and the terms under which
+ you are allowed to distribute any modifications you may make, see the full
+ GPL at 
+\begin_inset LatexCommand \url{http://www.gnu.org/copyleft/gpl.html}
+
+\end_inset 
+
+.
 \layout Section
 
 How the EMC2 Works
@@ -310,8 +328,8 @@ How the EMC2 Works
 The Enhanced Machine Controller (EMC2) is a lot more than just another CNC
  mill program.
  It can control machine tools, robots, or other automated devices.
- It can control servo motors, stepper motors, relays,and other devices related
- to machine tools.
+ It can control servo motors, stepper motors, relays, and other devices
+ related to machine tools.
  In this handbook we focus on only a small part of that awesome capability,
  the minimill.
 \layout Standard
