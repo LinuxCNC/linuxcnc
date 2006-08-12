@@ -1,0 +1,612 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 1
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+
+\begin_inset LatexCommand \label{cha:Halui}
+
+\end_inset 
+
+Halui
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:HaluiIntroduction}
+
+\end_inset 
+
+Introduction
+\layout Standard
+
+Halui is a HAL based user interface for EMC, it connects HAL pins to NML
+ commands.
+ Most of the functionality (buttons, indicators etc.) that is provided by
+ a traditional GUI (mini, Axis, etc.), is provided by HAL pins in Halui.
+\layout Standard
+
+The easiest way to use halui is to modify your ini file to include
+\layout Standard
+
+HALUI = halui
+\layout Standard
+
+in the [HAL] section.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:Halui-pin-reference}
+
+\end_inset 
+
+Halui pin reference
+\layout Subsection
+
+Machine
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.machine.on - pin for requestiong machine on
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.machine.off - pin for requesting machine off
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.machine.is-on - indicates machine on
+\layout Subsection
+
+E-Stop
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.estop.activate - pin for requesting E-Stop
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.estop.reset - pin for requesting E-Stop reset
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.estop.is-reset - indicates E-stop reset
+\layout Subsection
+
+Mode
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.manual - pin for requesting manual mode
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.is_manual - indicates manual mode is on
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.auto - pin for requesting auto mode
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.is_auto - indicates auto mode is on
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.mdi - pin for requesting mdi mode
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.is_mdi - indicates mdi mode is on
+\layout Subsection
+
+Mist, Flood, Lube 
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mist.on - pin for requesting mist on
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mist.is-on - indicates mist is on
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.flood.on - pin for requesting flood on
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.flood.is-on - indicates flood is on
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.lube.on - pin for requesting lube on
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.lube.is-on - indicates lube is on
+\layout Subsection
+
+Spindle
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.start
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.stop
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.forward
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.reverse
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.increase
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.decrease
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.brake-on - pin for activating spindle-brake
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.brake-off - pin for deactivating spindle/brake
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.brake-is-on - indicates brake is on
+\layout Subsection
+
+Joints 
+\layout Standard
+
+<channel> is a number between 0 and 7.
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<channel>.home - works both ways ?
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<channel>.on-min-limit-soft
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<channel>.on-max-limit-soft
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<channel>.on-min-limit-hard
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<channel>.on-max-limit-hard
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<channel>.fault
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<channel>.homed
+\layout Subsection
+
+Jogging
+\layout Standard
+
+<channel> is a number between 0 and 7.
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.jog.speed - set jog speed
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.jog.<channel>.minus
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.jog.<channel>.plus
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+float
+\family default 
+\noun default 
+) halui.feed_override
+\layout Subsection
+
+Jog-wheel
+\layout Standard
+
+(this obsoletes 
+\begin_inset Quotes eld
+\end_inset 
+
+Jogging
+\begin_inset Quotes erd
+\end_inset 
+
+ above ?)
+\layout Itemize
+
+(
+\noun on 
+s32
+\noun default 
+) halui.jog-wheel.counts - jog-wheel encoder count input
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.jog-wheel.scale - sets the jogwheel scale in user units/count (usually
+ mm/count or inch/coun)
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.jog-wheel.speed - sets the jogging speed
+\layout Itemize
+
+(
+\noun on 
+u8
+\noun default 
+) halui.jog-wheel.axis - sets the axis to be jogged
+\layout Subsection
+
+Tool
+\layout Itemize
+
+(
+\noun on 
+u16
+\noun default 
+) halui.tool.number - indicates current selected tool
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.tool.length-offset - indicates current applied tool-length-offset
+\layout Subsection
+
+Program
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.is-idle
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.is-running
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.is-paused
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.run
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.pause
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.resume
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.step
+\layout Subsection
+
+Probe
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.probe.start
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.probe.clear
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.probe.is-tripped
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+float
+\family default 
+\noun default 
+) halui.probe.has-value
+\layout Section
+
+Case - Studies
+\layout Standard
+
+User descriptions of working halui and hardware EMC control panels here.
+\the_end
