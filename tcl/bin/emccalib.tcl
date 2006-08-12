@@ -278,7 +278,7 @@ proc iniTuneButtonpress {which} {
 }
 
 proc changeIni {how } {
-    global axisentry sectionarray ininamearray commandarray HALCMD
+    global axisentry sectionarray ininamearray commandarray
     global numaxes main initext
     for {set i 0} {$i<$numaxes} {incr i} {
         global af$i
@@ -303,7 +303,7 @@ proc changeIni {how } {
                 # get the halcmd string
                 set tmpcmd [lindex $varcommands $listnum]
                 # use halcmd to set new parameter value in hal
-                set thisret [exec $HALCMD setp $tmpcmd $newval]
+                set thisret [exec halcmd setp $tmpcmd $newval]
                 # see if we need to swap the new and old control values
                 if {[lsearch -exact $swapvars $thisvar] < 0} {
                     # set the current value for display
@@ -335,7 +335,7 @@ proc changeIni {how } {
                 set k 0
                 foreach cmd $cmds {
                     set tmpval [expr [lindex [split \
-                        [exec $HALCMD -s show param $cmd] " "] 3]]
+                        [exec halcmd -s show param $cmd] " "] 3]]
                     set oldval [lindex $oldvals $k]
                     if {$tmpval != $oldval} {
                         set answer [tk_messageBox \
@@ -394,7 +394,7 @@ proc saveIni {which} {
                                 set cmd [lindex $varcommands $tmpindx]
                                 $initext mark set insert $ind.0
                                 set newval [expr [lindex [split \
-                                    [exec $HALCMD -s show param $cmd] " "] 3]]
+                                    [exec halcmd -s show param $cmd] " "] 3]]
                                 set tmptest [string first "e" $newval]
                                 if {[string first "e" $newval] > 1} {
                                     set newval [format %f $newval]
