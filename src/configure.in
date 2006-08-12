@@ -1231,6 +1231,10 @@ if test "$BUILD_PYTHON" = "yes"; then
     AC_MSG_RESULT($INCLUDEPY)
 
     AC_CHECK_HEADER($INCLUDEPY/Python.h,[],BUILD_PYTHON=no)
+
+    AC_MSG_CHECKING(for location to install Python modules)
+    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib()'`
+    AC_MSG_RESULT($SITEPY)
 fi
 
 BUILD_AXIS=$BUILD_PYTHON
@@ -1245,6 +1249,7 @@ esac
 AC_SUBST([BUILD_AXIS])
 AC_SUBST([BUILD_PYTHON])
 AC_SUBST([INCLUDEPY])
+AC_SUBST([SITEPY])
 
 
 ##############################################################################
