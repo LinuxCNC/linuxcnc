@@ -113,9 +113,9 @@ CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-aft
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 
 ifeq ($(RUN_IN_PLACE),yes)
-LDFLAGS := -Wl,-rpath,$(LIB_DIR)
+LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
 else
-LDFLAGS := -Wl,-rpath,$(libdir)
+LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(libdir)
 endif
 
 # Rules to make .d (dependency) files.
