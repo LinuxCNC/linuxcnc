@@ -16,6 +16,15 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+#get kernel version from the debian/Changelog (once it's there)
+#kernel_version     = $(shell dpkg-parsechangelog | grep ^Source | sed 's/.*-//')
+kernel_version = 2.6.12-magma
+
+debian/control:
+	echo '# THIS FILE IS AUTO-GENERATED FROM control.in' > debian/control
+	sed -e 's/@@KVERSION@@/$(kernel_version)/g' \
+	    debian/control.in >> debian/control
+
 build: build-stamp
 build-stamp:
 	dh_testdir
@@ -25,7 +34,7 @@ build-stamp:
 	(cd src; $(MAKE) && $(MAKE) docs)
 	touch build-stamp
 
-clean:
+clean: debian/control
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
