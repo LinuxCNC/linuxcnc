@@ -4,8 +4,8 @@ DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
 ifeq ($(BUILD_DOCS),yes)
-DOC_SRCS := Master_HAL.lyx Master_User.lyx Master_developer.lyx
-DOC_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf)
+DOC_SRCS := Master_HAL.lyx Master_User.lyx Master_developer.lyx Master_Integrator.lyx
+DOC_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)
 
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -20,6 +20,8 @@ $(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
 $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 	ln -f $< $@
 $(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
+	ln -f $< $@
+$(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	ln -f $< $@
 
 
@@ -42,5 +44,6 @@ docclean:
 	-rm -f $(DOC_DIR)/HAL_User_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
