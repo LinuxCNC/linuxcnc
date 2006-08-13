@@ -4,7 +4,7 @@ DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
 ifeq ($(BUILD_DOCS),yes)
-DOC_SRCS := Master_HAL.lyx Master_User.lyx Master_developer.lyx Master_Integrator.lyx
+DOC_SRCS := Master_HAL.lyx Master_User.lyx Master_Developer.lyx Master_Integrator.lyx
 DOC_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)
 
 
