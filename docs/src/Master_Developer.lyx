@@ -111,6 +111,15 @@ preview false
 \layout Standard
 \start_of_appendix 
 
+\begin_inset Include \input{code/Style_Guide.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \input{common/Glossary.lyx}
 preview false
 
