@@ -336,7 +336,11 @@ install-kernel-indep:
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts $(DESTDIR)$(mandir)/man1 \
 		$(DESTDIR)$(tcldir)/msgs \
-		$(DESTDIR)$(localedir)/de/LC_MESSAGES
+		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
+		$(DESTDIR)$(SITEPY) \
+		$(DESTDIR)$(SITEPY)/rs274 \
+		$(DESTDIR)$(datadir)/axis/images \
+		$(DESTDIR)$(datadir)/axis/tcl		
 	$(FILE) ../docs/man/man1/halcmd.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) ../docs/man/man1/halui.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) ../docs/man/man1/halmeter.1 $(DESTDIR)$(mandir)/man1
@@ -349,6 +353,13 @@ install-kernel-indep:
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so,$(TARGETS)) $(DESTDIR)$(libdir)
+	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
+	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
+	$(EXE) ../bin/axis ../bin/axis-remote ../bin/emctop ../bin/mdi $(DESTDIR)$(bindir)
+	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
+	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
+	$(FILE) ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
+	$(FILE) ../share/axis/tcl/*.tcl $(DESTDIR)$(datadir)/axis/tcl
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
@@ -364,6 +375,9 @@ install-kernel-indep:
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 
 install-kernel-dep:
+	$(DIR)  $(DESTDIR)$(moduledir)/emc2 \
+		$(DESTDIR)$(bindir) \
+		$(DESTDIR)$(sysconfdir)/emc2
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(moduledir)/emc2
 	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
 	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/emc2

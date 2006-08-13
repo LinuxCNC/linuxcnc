@@ -15,6 +15,11 @@ MO_FILES := $(patsubst po/%_rs274_err.po, %/LC_MESSAGES/rs274_err.mo, \
 	$(wildcard po/*_rs274_err.po))
 
 $(DESTDIR)$(localedir)/%/LC_MESSAGES/rs274_err.mo: ../share/locale/%/LC_MESSAGES/rs274_err.mo
+	$(DIR) $(DESTDIR)$(localedir)/$*/LC_MESSAGES
+	$(FILE) $< $@
+
+$(DESTDIR)$(localedir)/%/LC_MESSAGES/axis.mo: ../share/locale/%/LC_MESSAGES/axis.mo
+	$(DIR) $(DESTDIR)$(localedir)/$*/LC_MESSAGES
 	$(FILE) $< $@
 
 TARGETS += $(patsubst po/%_rs274_err.po, \
