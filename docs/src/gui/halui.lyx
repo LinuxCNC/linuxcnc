@@ -334,7 +334,7 @@ bit
 Joints 
 \layout Standard
 
-<channel> is a number between 0 and 7.
+<channel> is a number between 0 and 7 and 'selected'.
 \layout Itemize
 
 (
@@ -343,7 +343,7 @@ Joints
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.home - works both ways ?
+) halui.joint.<channel>.home - pin for homing the specific joint 
 \layout Itemize
 
 (
@@ -352,7 +352,8 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.on-min-limit-soft
+) halui.joint.<channel>.on-min-limit-soft - status pin telling joint is at
+ the negative software limit
 \layout Itemize
 
 (
@@ -361,7 +362,8 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.on-max-limit-soft
+) halui.joint.<channel>.on-max-limit-soft - status pin telling joint is at
+ the positive software limit
 \layout Itemize
 
 (
@@ -370,7 +372,8 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.on-min-limit-hard
+) halui.joint.<channel>.on-min-limit-hard - status pin telling joint is on
+ the negative hardware limit switch
 \layout Itemize
 
 (
@@ -379,7 +382,8 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.on-max-limit-hard
+) halui.joint.<channel>.on-max-limit-hard - status pin telling joint is on
+ the positive hardware limit switch
 \layout Itemize
 
 (
@@ -388,7 +392,7 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.fault
+) halui.joint.<channel>.fault - status pin telling the joint has a fault
 \layout Itemize
 
 (
@@ -397,13 +401,13 @@ bit
 bit
 \family default 
 \noun default 
-) halui.joint.<channel>.homed
+) halui.joint.<channel>.homed - status pin telling that the joint is homed
 \layout Subsection
 
 Jogging
 \layout Standard
 
-<channel> is a number between 0 and 7.
+<channel> is a number between 0 and 7 and 'selected'.
 \layout Itemize
 
 (
@@ -419,7 +423,7 @@ float
 bit
 \family default 
 \noun default 
-) halui.jog.<channel>.minus
+) halui.jog.<channel>.minus - jog in negative direction
 \layout Itemize
 
 (
@@ -428,30 +432,121 @@ bit
 bit
 \family default 
 \noun default 
-) halui.jog.<channel>.plus
+) halui.jog.<channel>.plus - jog in positive direction
+\layout Subsection
+
+Selecting a joint
 \layout Itemize
 
 (
-\family typewriter 
+\noun on 
+u8
+\noun default 
+) halui.joint.select u8 - select joint (0..7) - internal halui
+\layout Itemize
+
+(
+\noun on 
+u8
+\noun default 
+) halui.joint.selected u8 - selected joint (0..7) - internal halui
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.joint.x.select bit - pins for selecting a joint - internal halui
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.joint.x.is-selected bit - status pin a joint is selected - internal
+ halui
+\layout Subsection
+
+Feed override
+\layout Itemize
+
+(
 \noun on 
 float
-\family default 
 \noun default 
-) halui.feed_override
+) halui.feed-override.value - current FO value
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.feed-override.scale - pin for setting the scale on changing the FO
+\layout Itemize
+
+(
+\noun on 
+s32
+\noun default 
+) halui.feed-override.counts - counts from an encoder for example to change
+ FO
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.feed-override.increase - pin for increasing the FO (+=scale)
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.feed-override.decrease - pin for decreasing the FO (-=scale)
+\layout Subsection
+
+Spindle override
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.spindle-override.value - current SO value
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.spindle-override.scale - pin for setting the scale on changing the
+ SO
+\layout Itemize
+
+(
+\noun on 
+s32
+\noun default 
+) halui.spindle-override.counts - counts from an encoder for example to change
+ SO
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.spindle-override.increase - pin for increasing the SO (+=scale)
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.spindle-override.decrease - pin for decreasing the SO (-=scale)
 \layout Subsection
 
 Jog-wheel
-\layout Standard
-
-(this obsoletes 
-\begin_inset Quotes eld
-\end_inset 
-
-Jogging
-\begin_inset Quotes erd
-\end_inset 
-
- above ?)
 \layout Itemize
 
 (
@@ -566,43 +661,14 @@ bit
 ) halui.program.step
 \layout Subsection
 
-Probe
+General
 \layout Itemize
 
 (
-\family typewriter 
 \noun on 
 bit
-\family default 
 \noun default 
-) halui.probe.start
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.probe.clear
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.probe.is-tripped
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-float
-\family default 
-\noun default 
-) halui.probe.has-value
+) halui.abort - pin to send an abort message (clears out most errors)
 \layout Section
 
 Case - Studies
