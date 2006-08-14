@@ -143,6 +143,7 @@ def install_help(app):
         (_("Right Button"), _("Zoom view")),
         (_("Wheel Button"), _("Rotate view")),
         (_("Rotate Wheel"), _("Zoom view")),
+        (_("Control+Left Button"), _("Zoom view")),
     ]
     help2 = [
         ("F3", _("Manual control")),
