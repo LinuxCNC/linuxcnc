@@ -34,12 +34,16 @@ menu .menu.help \
 .menu.file add command \
 	-accelerator O \
 	-command open_file
-setup_menu_accel .menu.file end [_ "_Open"]
+setup_menu_accel .menu.file end [_ "_Open..."]
 
 .menu.file add command \
 	-accelerator [_ "Ctrl-R"] \
 	-command reload_file
 setup_menu_accel .menu.file end [_ "_Reload"]
+
+.menu.file add command \
+        -command gcode_properties
+setup_menu_accel .menu.file end [_ "_Properties..."]
 
 .menu.file add command \
 	-command {destroy .}
@@ -1398,7 +1402,7 @@ proc update_state {args} {
 
     state  {$interp_state == $INTERP_IDLE} .toolbar.file_open {.menu.file 0}
     state  {$interp_state == $INTERP_IDLE && $taskfile != ""} \
-                .toolbar.reload {.menu.file 1}
+                .toolbar.reload {.menu.file 1} {.menu.file 2}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE \
             && $taskfile != ""} \

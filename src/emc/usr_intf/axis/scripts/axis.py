@@ -49,11 +49,13 @@ from minigl import *
 from rs274.OpenGLTk import *
 from rs274.glcanon import GLCanon
 from hershey import Hershey
+from propertywindow import properties
 import rs274.options
 root_window = Tkinter.Tk(className="Axis")
 rs274.options.install(root_window)
 import nf; nf.start(root_window); nf.makecommand(root_window, "_", _)
 import gcode
+import locale
 
 root_window.tk.call("set", "version", version)
 
@@ -1894,7 +1896,64 @@ def prompt_float(title, text, default):
     t = _prompt_float(title, text, default)
     return t.run()
 
+property_names = [
+    ('name', _("Name:")), ('size', _("Size:")),
+    ('tools', _("Tool order:")), ('g0', _("Rapid distance:")),
+    ('g1', _("Feed distance:")), ('g', _("Total distance:")),
+    ('run', _("Run time:")), ('x', _("X bounds:")),
+    ('y', _("Y bounds:")), ('z', _("Z bounds:")),
+    ('a', _("A bounds:")), ('b', _("B bounds:")),
+    ('c', _("C bounds:"))
+]
+
+def dist((x,y,z),(p,q,r)):
+    return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
+
 class TclCommands(nf.TclCommands):
+    def gcode_properties(event=None):
+        props = {}
+        if not loaded_file:
+            props['name'] = "No file loaded"
+        else:
+            ext = os.path.splitext(loaded_file)[1]
+            program_filter = None
+            if ext:
+                program_filter = inifile.find("FILTER", ext[1:])
+            name = os.path.basename(loaded_file)
+            if program_filter:
+                props['name'] = "generated from %s" % name
+            else:
+                props['name'] = name
+
+            size = os.stat(loaded_file).st_size
+            lines = int(widgets.text.index("end").split(".")[0])-2
+            props['size'] = "%s bytes\n%s gcode lines" % (size, lines)
+
+            if vars.metric.get():
+                conv = 1
+                units = "mm"
+                fmt = "%.2f"
+            else:
+                conv = 1/25.4
+                units = "in"
+                fmt = "%.4f"
+
+            print o.g.traverse[0]
+            g0 = sum(dist(l[1], l[2]) for l in o.g.traverse)
+            g1 = (sum(dist(l[1], l[2]) for l in o.g.feed) +
+                sum(dist(l[1], l[2]) for l in o.g.arcfeed))
+            props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
+            props['g1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
+
+            min_extents = from_internal_units(o.g.min_extents, conv)
+            max_extents = from_internal_units(o.g.max_extents, conv)
+            for (i, c) in enumerate("xyz"):
+                a = min_extents[i]
+                b = max_extents[i]
+                if a != b:
+                    props[c] = "%f .. %f = %f %s".replace("%f", fmt) % (a, b, b-a, units)
+        properties(root_window, "G-Code Properties", property_names, props)
+
     def launch_website(event=None):
         import webbrowser
         webbrowser.open("http://axis.unpy.net")
