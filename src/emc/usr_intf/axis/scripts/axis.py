@@ -248,6 +248,8 @@ class MyOpengl(Opengl):
         self.bind('<Button-1>', self.select_prime, add=True)
         self.bind('<ButtonRelease-1>', self.select_fire, add=True)
         self.bind('<Button1-Motion>', self.select_cancel, add=True)
+        self.bind("<Control-Button-1>", self.start_zoom)
+        self.bind("<Control-B1-Motion>", self.continue_zoom)
         self.bind("<Shift-Button-1>", self.StartRotate)
         self.bind("<Shift-B1-Motion>", self.tkRotate)
         self.highlight_line = None
@@ -261,6 +263,15 @@ class MyOpengl(Opengl):
         self.g = None
         self.set_eyepoint(5.)
         self.get_resources()
+
+    def start_zoom(self, event):
+        self.y0 = event.y
+        self.original_zoom = self.distance
+
+    def continue_zoom(self, event):
+        dy = event.y - self.y0
+        self.distance = self.original_zoom * pow(1.25, dy / 16.)
+        self.tkRedraw()
 
     def get_resources(self):
         self.colors = {}
@@ -1951,7 +1962,7 @@ class TclCommands(nf.TclCommands):
                 a = min_extents[i]
                 b = max_extents[i]
                 if a != b:
-                    props[c] = "%f .. %f = %f %s".replace("%f", fmt) % (a, b, b-a, units)
+                    props[c] = _("%f to %f = %f %s").replace("%f", fmt) % (a, b, b-a, units)
         properties(root_window, "G-Code Properties", property_names, props)
 
     def launch_website(event=None):
