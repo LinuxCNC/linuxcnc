@@ -2313,7 +2313,6 @@ class TclCommands(nf.TclCommands):
             p0 *= 25.4
 
         offset_command = "G10 L2 P1 %c[%.12f-[%f*[%s]]]\n" % (vars.current_axis.get(), p0, scale, new_axis_value)
-        print offset_command
         c.mdi(offset_command)
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
