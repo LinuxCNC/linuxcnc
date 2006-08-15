@@ -11,7 +11,7 @@ def properties(app, title, names, props):
 	if k not in props: continue
         l = Tkinter.Label(t, text = n)
         l.grid(row=i, column=0, sticky="nw")
-        l = Tkinter.Label(t, text = str(props[k]), wraplength=200, justify="l")
+        l = Tkinter.Label(t, text = props[k], wraplength=200, justify="l")
         l.grid(row=i, column=1, sticky="nw")
     
     b = Tkinter.Button(t, text=_("OK"), command=t.destroy, default="active",
