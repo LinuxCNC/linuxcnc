@@ -1,8 +1,0 @@
-# signals manipulated by the AXIS gui
-newsig axisui.jog.x bit
-newsig axisui.jog.y bit
-newsig axisui.jog.z bit
-newsig axisui.jog.a bit
-newsig axisui.jog.b bit
-newsig axisui.jog.c bit
-
