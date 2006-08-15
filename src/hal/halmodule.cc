@@ -428,6 +428,10 @@ static int pyhal_setattro(halobject *self, PyObject *attro, PyObject *v) {
     return pyhal_write_common(find_item(self, PyString_AsString(attro)), v);
 }
 
+static int pyhal_len(halobject *self) {
+    return self->items->size();
+}
+
 static PyMethodDef hal_methods[] = {
     {"newparam", (PyCFunction)pyhal_new_param, METH_VARARGS,
         "Create a new parameter"},
@@ -438,6 +442,12 @@ static PyMethodDef hal_methods[] = {
     {"ready", (PyCFunction)pyhal_ready, METH_NOARGS,
         "Call hal_ready"},
     {NULL},
+};
+
+static PyMappingMethods halobject_map = {
+    (inquiry)pyhal_len,
+    (binaryfunc)pyhal_getattro,
+    (objobjargproc)pyhal_setattro
 };
 
 static 
@@ -455,7 +465,7 @@ PyTypeObject halobject_type = {
     (reprfunc) pyhal_repr,     /*tp_repr*/
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
+    &halobject_map,            /*tp_as_mapping*/
     0,                         /*tp_hash */
     0,                         /*tp_call*/
     0,                         /*tp_str*/
