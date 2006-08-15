@@ -1,6 +1,6 @@
 # Delete the default suffix rules
 .SUFFIXES:
-.PHONY: default userspace modules clean modclean depclean install axis python pythonclean
+.PHONY: default userspace modules clean modclean depclean install python pythonclean
 
 ifeq "$(findstring s,$(MAKEFLAGS))" ""
 ECHO=@echo
