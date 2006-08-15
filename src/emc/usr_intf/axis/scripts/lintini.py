@@ -60,6 +60,21 @@ for i in range(naxes):
                 "Max Velocity %g and scale %g require BASE_PERIOD below %d",
                 vel, scale, int(required_period))
 
+        vel = get_float(axis, "MAX_VELOCITY")
+        headroom_vel = get_float(axis, "STEPGEN_MAXVEL")
+        if headroom_vel < vel * 1.01:
+            report_problem(
+                "Less than 1%% velocity headroom from %g to %g",
+                vel, headroom_vel)
+
+        acc = get_float(axis, "MAX_ACCELERATION")
+        headroom_acc = get_float(axis, "STEPGEN_MAXACCEL")
+        if headroom_acc < acc * 1.01:
+            report_problem(
+                "Less than 1%% acceleration headroom from %g to %g",
+                acc, headroom_acc)
+
+
 if nproblems == 0:
     print "No problems found"
 elif nproblems == 1:
