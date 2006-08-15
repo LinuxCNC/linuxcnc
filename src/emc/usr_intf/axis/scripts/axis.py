@@ -172,6 +172,8 @@ color_names = [
     'backplottoolchange', 'backplotprobing',
     'selected',
 
+    'tool_ambient', 'tool_diffuse', 'lathetool',
+
     'overlay_foreground', ('overlay_background', 'Background'),
 
     'label_ok', 'label_limit',
@@ -244,6 +246,18 @@ class MyOpengl(Opengl):
         self.set_eyepoint(5.)
         self.get_resources()
 
+    def basic_lighting(self):
+        self.activate()
+        glLightfv(GL_LIGHT0, GL_POSITION, (1, -1, 1, 0))
+        glLightfv(GL_LIGHT0, GL_AMBIENT, self.colors['tool_ambient'] + (0,))
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, self.colors['tool_diffuse'] + (0,))
+        glEnable(GL_LIGHTING)
+        glEnable(GL_LIGHT0)
+        glDepthFunc(GL_LESS)
+        glEnable(GL_DEPTH_TEST)
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
     def start_zoom(self, event):
         self.y0 = event.y
         self.original_zoom = self.distance
@@ -275,6 +289,15 @@ class MyOpengl(Opengl):
             float(self.option_get("backplotprobing_alpha", "Float"))
         self.colors['overlay_alpha'] = \
             float(self.option_get("overlay_alpha", "Float"))
+        x = float(self.option_get("tool_light_x", "Float"))
+        y = float(self.option_get("tool_light_y", "Float"))
+        z = float(self.option_get("tool_light_z", "Float"))
+        dist = (x**2 + y**2 + z**2) ** .5
+        self.light_position = (x/dist, y/dist, z/dist, 0)
+        self.colors['tool_alpha'] = \
+            float(self.option_get("tool_alpha", "Float"))
+        self.colors['lathetool_alpha'] = \
+            float(self.option_get("lathetool_alpha", "Float"))
 
     def select_prime(self, event):
         self.select_primed = event
@@ -780,10 +803,10 @@ class MyOpengl(Opengl):
                 glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA);
 
                 if lathe and current_tool and current_tool.orientation != 0:
-                    glBlendColor(0,0,0,.1)
+                    glBlendColor(0,0,0,o.colors['lathetool_alpha'])
                     lathetool()
                 else:
-                    glBlendColor(0,0,0,.2)
+                    glBlendColor(0,0,0,o.colors['tool_alpha'])
                     if lathe:
                         glRotatef(90, 0, 1, 0)
                     if current_tool and current_tool.diameter != 0:
@@ -1083,7 +1106,7 @@ def lathetool():
     w = 3/8. 
 
     radius = diameter/2.0
-    glColor3f(*o.colors['cone'])
+    glColor3f(*o.colors['lathetool'])
     glBegin(GL_LINES)
     glVertex3f(-radius/2.0,0.0,0.0)
     glVertex3f(radius/2.0,0.0,0.0)

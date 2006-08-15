@@ -139,7 +139,15 @@ option add *Togl.axis_x #33ff33 startupFile
 option add *Togl.axis_y #ff3333 startupFile
 option add *Togl.axis_z #3333ff startupFile
 
-option add *Togl.cone #cccccc startupFile
+option add *Togl.tool_diffuse #ffffff startupFile
+option add *Togl.tool_ambient #ffffff startupFile
+option add *Togl.tool_light_x 1 startupFile
+option add *Togl.tool_light_y -1 startupFile
+option add *Togl.tool_light_z 1 startupFile
+option add *Togl.tool_alpha .2 startupFile
+
+option add *Togl.lathetool #cccccc startupFile
+option add *Togl.lathetool_alpha .1 startupFile
 '''
 
 def install(root = None):
