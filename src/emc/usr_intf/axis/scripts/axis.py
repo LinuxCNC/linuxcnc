@@ -2288,6 +2288,7 @@ class TclCommands(nf.TclCommands):
         if not manual_ok(): return
         ensure_mode(emc.MODE_MANUAL)
         c.home("xyzabc".index(vars.current_axis.get()))
+
     def touch_off(event=None, new_axis_value = None):
         if not manual_ok(): return
         if s.motion_mode == emc.TRAJ_MODE_FREE and s.kinematics_type != emc.KINEMATICS_IDENTITY: return
@@ -2311,7 +2312,8 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
             p0 *= 25.4
 
-        offset_command = "G10 L2 P1 %c[%s-[%s*[%s]]]\n" % (vars.current_axis.get(), p0, scale, new_axis_value)
+        offset_command = "G10 L2 P1 %c[%.12f-[%f*[%s]]]\n" % (vars.current_axis.get(), p0, scale, new_axis_value)
+        print offset_command
         c.mdi(offset_command)
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
