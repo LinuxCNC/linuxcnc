@@ -73,6 +73,7 @@ feedrate_blackout = 0
 from math import hypot, atan2, sin, cos, pi, sqrt
 from rs274 import ArcsToSegmentsMixin
 import emc
+import hal
 
 homeicon = array.array('B', 
         [0x2, 0x00,   0x02, 0x00,   0x02, 0x00,   0x0f, 0x80,
@@ -91,28 +92,6 @@ if sys.version_info <= (2,3):
         for item in sequence:
             yield index, item
             index += 1
-
-try:
-    import subprocess
-except ImportError:  # python-1.3 and older
-    def halcmd_sets(signal, value): pass
-else:
-    dev_null = open("/dev/null", "w")
-    try:
-        halcmd = subprocess.Popen(["halcmd", "-sf"],
-            stdin=subprocess.PIPE, stdout=dev_null)
-    except os.error:
-        halcmd = None
-    dev_null.close()
-
-    def halcmd_sets(signal, value):
-        global halcmd
-        if halcmd is None: return
-        if halcmd.poll() is not None:
-            halcmd = None
-            return
-        halcmd.stdin.write("sets %s %s\n" % (signal, value))
-        halcmd.stdin.flush()
 
 def install_help(app):
     help1 = [
@@ -2422,12 +2401,12 @@ class TclCommands(nf.TclCommands):
             commands.set_view_z()
 
     def axis_activated(*args):
-        halcmd_sets("axisui.jog.x", vars.current_axis.get() == "x")
-        halcmd_sets("axisui.jog.y", vars.current_axis.get() == "y")
-        halcmd_sets("axisui.jog.z", vars.current_axis.get() == "z")
-        halcmd_sets("axisui.jog.a", vars.current_axis.get() == "a")
-        halcmd_sets("axisui.jog.b", vars.current_axis.get() == "b")
-        halcmd_sets("axisui.jog.c", vars.current_axis.get() == "c")
+        comp['jog.x'] = vars.current_axis.get() == "x"
+        comp['jog.y'] = vars.current_axis.get() == "y"
+        comp['jog.z'] = vars.current_axis.get() == "z"
+        comp['jog.a'] = vars.current_axis.get() == "a"
+        comp['jog.b'] = vars.current_axis.get() == "b"
+        comp['jog.c'] = vars.current_axis.get() == "c"
 
     def set_joint_mode(*args):
         c.teleop_enable(vars.joint_mode.get())
@@ -2580,6 +2559,7 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
     extensions = [e.split(None, 1) for e in extensions]
     extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])
+    postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
     max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE"))
     max_feed_override = int(max_feed_override * 100 + 0.5)
     vars.jog_speed.set(float(inifile.find("TRAJ", "DEFAULT_VELOCITY")))
@@ -2670,6 +2650,16 @@ t.bind("<B1-Leave>", lambda e: "break")
 t.bind("<Button-4>", scroll_up)
 t.bind("<Button-5>", scroll_down)
 t.configure(state="disabled")
+
+comp = hal.component("axisui")
+comp.newpin("jog.x", hal.HAL_BIT, hal.HAL_WR)
+comp.newpin("jog.y", hal.HAL_BIT, hal.HAL_WR)
+comp.newpin("jog.z", hal.HAL_BIT, hal.HAL_WR)
+comp.newpin("jog.a", hal.HAL_BIT, hal.HAL_WR)
+comp.newpin("jog.b", hal.HAL_BIT, hal.HAL_WR)
+comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_WR)
+comp.ready()
+
 activate_axis(0, True)
 
 make_cone()
@@ -2709,6 +2699,10 @@ def remove_tempdir(t):
     shutil.rmtree(t)
 tempdir = mkdtemp()
 atexit.register(remove_tempdir, tempdir)
+
+if postgui_halfile:
+    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", postgui_halfile])
+    if res: raise SystemExit, res
 
 code = []
 if args:
