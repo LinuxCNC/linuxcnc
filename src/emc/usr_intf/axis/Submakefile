@@ -28,7 +28,7 @@ $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
 PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
 
 PYSCRIPTS := axis.py axis-remote.py emctop.py hal_manualtoolchange.py \
-	mdi.py
+	mdi.py lintini.py
 
 PYTARGETS += $(patsubst %.py,../bin/%,$(PYSCRIPTS))
 
