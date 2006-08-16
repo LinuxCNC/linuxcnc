@@ -259,6 +259,18 @@ static PyObject *pyglLightfv(PyObject *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *pyglMaterialfv(PyObject *s, PyObject *o) {
+    int face, pname;
+    float param[4];
+    if(!PyArg_ParseTuple(o, "ii(ffff)", &face, &pname, param, param+1, param+2, param+3))
+        return NULL;
+    glMaterialfv(face, pname, param);
+
+    CHECK_ERROR;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *pyglMultMatrixd(PyObject *s, PyObject *o) {
     double matrix[16];
     if(!PyArg_ParseTuple(o, "(dddddddddddddddd)",
@@ -683,6 +695,7 @@ METH(glInterleavedArrays, ""),
 METH(glLightfv, ""),
 METH(glLightModelfv, ""),
 METH(glLightModeli, ""),
+METH(glMaterialfv, ""),
 METH(glMultMatrixd, ""),
 METH(glPixelStorei, ""),
 
@@ -722,6 +735,7 @@ void initminigl(void) {
     CONST(GL_DEPTH_TEST);
     CONST(GL_FALSE);
     CONST(GL_FRONT);
+    CONST(GL_FRONT_AND_BACK);
     CONST(GL_LESS);
     CONST(GL_LIGHTING);
     CONST(GL_LIGHTING);
@@ -753,6 +767,7 @@ void initminigl(void) {
     CONST(GL_LIGHT0);
     CONST(GL_POSITION);
     CONST(GL_AMBIENT);
+    CONST(GL_AMBIENT_AND_DIFFUSE);
     CONST(GL_DIFFUSE);
     CONST(GL_CCW);
     CONST(GL_DITHER);
