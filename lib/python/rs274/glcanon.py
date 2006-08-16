@@ -93,7 +93,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.arcfeed_append((self.lineno, self.lo, l))
         else:
             self.feed_append((self.lineno, self.lo, l))
-            self.lo = l
+        self.lo = l
 
     def user_defined_function(self, i, p, q):
         color = self.colors['m1xx']
