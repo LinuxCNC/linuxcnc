@@ -25,7 +25,7 @@ static PyObject *glerror;
 
 #define GLCALL0V(name) \
 static PyObject *py##name(PyObject *s, PyObject *o) { \
-    if(!PyArg_ParseTuple(o, "")) return NULL; \
+    if(!PyArg_ParseTuple(o, ":" #name)) return NULL; \
     name(); \
     CHECK_ERROR; \
     Py_INCREF(Py_None); return Py_None; \
@@ -33,7 +33,7 @@ static PyObject *py##name(PyObject *s, PyObject *o) { \
 #define GLCALL1V(name, fmt, t1) \
 static PyObject *py##name(PyObject *s, PyObject *o) { \
     t1 p1; \
-    if(!PyArg_ParseTuple(o, fmt, &p1)) return NULL; \
+    if(!PyArg_ParseTuple(o, fmt ":" #name, &p1)) return NULL; \
     name(p1); \
     CHECK_ERROR; \
     Py_INCREF(Py_None); return Py_None; \
@@ -41,7 +41,7 @@ static PyObject *py##name(PyObject *s, PyObject *o) { \
 #define GLCALL2V(name, fmt, t1, t2) \
 static PyObject *py##name(PyObject *s, PyObject *o) { \
     t1 p1; t2 p2; \
-    if(!PyArg_ParseTuple(o, fmt, &p1, &p2)) return NULL; \
+    if(!PyArg_ParseTuple(o, fmt ":" #name, &p1, &p2)) return NULL; \
     name(p1, p2); \
     CHECK_ERROR; \
     Py_INCREF(Py_None); return Py_None; \
@@ -49,7 +49,7 @@ static PyObject *py##name(PyObject *s, PyObject *o) { \
 #define GLCALL3V(name, fmt, t1, t2, t3) \
 static PyObject *py##name(PyObject *s, PyObject *o) { \
     t1 p1; t2 p2; t3 p3; \
-    if(!PyArg_ParseTuple(o, fmt, &p1, &p2, &p3)) return NULL; \
+    if(!PyArg_ParseTuple(o, fmt ":" #name, &p1, &p2, &p3)) return NULL; \
     name(p1, p2, p3); \
     CHECK_ERROR; \
     Py_INCREF(Py_None); return Py_None; \
@@ -58,7 +58,7 @@ static PyObject *py##name(PyObject *s, PyObject *o) { \
 #define GLCALL4V(name, fmt, t1, t2, t3, t4) \
 static PyObject *py##name(PyObject *s, PyObject *o) { \
     t1 p1; t2 p2; t3 p3; t4 p4; \
-    if(!PyArg_ParseTuple(o, fmt, &p1, &p2, &p3, &p4)) return NULL; \
+    if(!PyArg_ParseTuple(o, fmt ":" #name, &p1, &p2, &p3, &p4)) return NULL; \
     name(p1, p2, p3, p4); \
     CHECK_ERROR; \
     Py_INCREF(Py_None); return Py_None; \
@@ -67,7 +67,8 @@ static PyObject *py##name(PyObject *s, PyObject *o) { \
 #define GLCALL6V(name, fmt, t1, t2, t3, t4, t5, t6) \
 static PyObject *py##name(PyObject *s, PyObject *o) { \
     t1 p1; t2 p2; t3 p3; t4 p4; t5 p5; t6 p6; \
-    if(!PyArg_ParseTuple(o, fmt, &p1, &p2, &p3, &p4, &p5, &p6)) return NULL; \
+    if(!PyArg_ParseTuple(o, fmt ":" #name, &p1, &p2, &p3, &p4, &p5, &p6)) \
+	return NULL; \
     name(p1, p2, p3, p4, p5, p6); \
     CHECK_ERROR; \
     Py_INCREF(Py_None); return Py_None; \
@@ -136,7 +137,7 @@ static PyObject *pyglBitmap(PyObject *s, PyObject *o) {
     int width, height, nbitmap;
     float xorg, yorg, xmove, ymove;
     char *bitmap;
-    if(!PyArg_ParseTuple(o, "iiffffs#", &width, &height,
+    if(!PyArg_ParseTuple(o, "iiffffs#:glBitmap", &width, &height,
                 &xorg, &yorg, &xmove, &ymove, &bitmap, &nbitmap)) {
         return NULL;
     }
@@ -148,13 +149,13 @@ static PyObject *pyglBitmap(PyObject *s, PyObject *o) {
 
 static PyObject *pyglGenLists(PyObject *s, PyObject *o) {
     int range;
-    if(!PyArg_ParseTuple(o, "i", &range)) return NULL;
+    if(!PyArg_ParseTuple(o, "i:glGenLists", &range)) return NULL;
     return PyInt_FromLong(glGenLists(range));
 }
 
 static PyObject *pyglGetDoublev(PyObject *s, PyObject *o) {
     int what;
-    if(!PyArg_ParseTuple(o, "i", &what)) return NULL;
+    if(!PyArg_ParseTuple(o, "i:glGetDoublev", &what)) return NULL;
     switch(what) {
         case GL_MODELVIEW_MATRIX:
         case GL_PROJECTION_MATRIX: {
@@ -168,14 +169,15 @@ static PyObject *pyglGetDoublev(PyObject *s, PyObject *o) {
             return r;
         }
         default:
-            PyErr_Format(PyExc_ValueError, "glGetDoublev does not support getting %d", what);
+            PyErr_Format(PyExc_ValueError,
+			    "glGetDoublev does not support getting %d", what);
             return NULL;
     }
 }
 
 static PyObject *pyglGetIntegerv(PyObject *s, PyObject *o) {
     int what;
-    if(!PyArg_ParseTuple(o, "i", &what)) return NULL;
+    if(!PyArg_ParseTuple(o, "i:glGetIntegerv", &what)) return NULL;
     switch(what) {
         case GL_LIST_INDEX: {
             int r;
@@ -193,7 +195,8 @@ static PyObject *pyglGetIntegerv(PyObject *s, PyObject *o) {
             return r;
         }
         default:
-            PyErr_Format(PyExc_ValueError, "glGetIntegerv does not support getting %d", what);
+            PyErr_Format(PyExc_ValueError,
+			    "glGetIntegerv does not support getting %d", what);
             return NULL;
     }
 }
@@ -203,7 +206,8 @@ static PyObject *pyglInterleavedArrays(PyObject *s, PyObject *o) {
     PyObject *str;
     int format, stride, size;
 
-    if(!PyArg_ParseTuple(o, "iiO", &format, &stride, &str)) {
+    if(!PyArg_ParseTuple(o, "iiO:glInterleavedArrays", &format, &stride, &str))
+    {
         return NULL;
     }
 
@@ -226,7 +230,7 @@ static PyObject *pyglInterleavedArrays(PyObject *s, PyObject *o) {
 
 static PyObject *pyglLightModeli(PyObject *s, PyObject *o) {
     int pname, param;
-    if(!PyArg_ParseTuple(o, "ii", &pname, &param))
+    if(!PyArg_ParseTuple(o, "ii:glLightModeli", &pname, &param))
         return NULL;
     glLightModeli(pname, param);
 
@@ -238,7 +242,8 @@ static PyObject *pyglLightModeli(PyObject *s, PyObject *o) {
 static PyObject *pyglLightModelfv(PyObject *s, PyObject *o) {
     int pname;
     float param[4];
-    if(!PyArg_ParseTuple(o, "i(ffff)", &pname, param, param+1, param+2, param+3))
+    if(!PyArg_ParseTuple(o, "i(ffff):glLightModelfv",
+			    &pname, param, param+1, param+2, param+3))
         return NULL;
     glLightModelfv(pname, param);
 
@@ -250,7 +255,8 @@ static PyObject *pyglLightModelfv(PyObject *s, PyObject *o) {
 static PyObject *pyglLightfv(PyObject *s, PyObject *o) {
     int light, pname;
     float param[4];
-    if(!PyArg_ParseTuple(o, "ii(ffff)", &light, &pname, param, param+1, param+2, param+3))
+    if(!PyArg_ParseTuple(o, "ii(ffff):glLightfv",
+			    &light, &pname, param, param+1, param+2, param+3))
         return NULL;
     glLightfv(light, pname, param);
 
@@ -262,7 +268,8 @@ static PyObject *pyglLightfv(PyObject *s, PyObject *o) {
 static PyObject *pyglMaterialfv(PyObject *s, PyObject *o) {
     int face, pname;
     float param[4];
-    if(!PyArg_ParseTuple(o, "ii(ffff)", &face, &pname, param, param+1, param+2, param+3))
+    if(!PyArg_ParseTuple(o, "ii(ffff):glMaterialfv",
+			    &face, &pname, param, param+1, param+2, param+3))
         return NULL;
     glMaterialfv(face, pname, param);
 
@@ -273,7 +280,7 @@ static PyObject *pyglMaterialfv(PyObject *s, PyObject *o) {
 
 static PyObject *pyglMultMatrixd(PyObject *s, PyObject *o) {
     double matrix[16];
-    if(!PyArg_ParseTuple(o, "(dddddddddddddddd)",
+    if(!PyArg_ParseTuple(o, "(dddddddddddddddd):glMultMatrixd",
             matrix, matrix+1, matrix+2, matrix+3,
             matrix+4, matrix+5, matrix+6, matrix+7,
             matrix+8, matrix+9, matrix+10, matrix+11,
@@ -289,7 +296,7 @@ static PyObject *pyglMultMatrixd(PyObject *s, PyObject *o) {
 static PyObject *pyglPolygonStipple(PyObject *s, PyObject *o) {
     char *buf;
     int sz;
-    if(!PyArg_ParseTuple(o, "s#", &buf, &sz)) return NULL;
+    if(!PyArg_ParseTuple(o, "s#:glPolygonStipple", &buf, &sz)) return NULL;
     if(sz != 128) {
         PyErr_SetString(PyExc_ValueError, "Buffer must be 128 bytes long");
         return NULL;
@@ -365,7 +372,8 @@ static Quadric *pygluNewQuadric(PyObject *s, PyObject *o) {
 
 static PyObject *pygluDeleteQuadric(PyObject *s, PyObject *o) {
     Quadric *q;
-    if(!PyArg_ParseTuple(o, "O!", &Quadric_Type, &q)) return NULL;
+    if(!PyArg_ParseTuple(o, "O!:gluDeleteQuadric", &Quadric_Type, &q))
+	    return NULL;
     if(q->q) { gluDeleteQuadric(q->q); q->q = NULL; }
     Py_INCREF(Py_None);
     return Py_None;
@@ -376,8 +384,9 @@ static PyObject *pygluCylinder(PyObject *s, PyObject *o) {
     double base, top, height;
     int slices, stacks;
 
-    if(!PyArg_ParseTuple(o, "O!dddii", &Quadric_Type, &q, &base, &top,
-                &height, &slices, &stacks))
+    if(!PyArg_ParseTuple(o, "O!dddii:gluCylinder",
+			    &Quadric_Type, &q, &base, &top,
+			    &height, &slices, &stacks))
         return NULL;
 
     if(!q->q) {
@@ -398,8 +407,9 @@ static PyObject *pygluDisk(PyObject *s, PyObject *o) {
     double inner, outer;
     int slices, loops;
 
-    if(!PyArg_ParseTuple(o, "O!ddii", &Quadric_Type, &q, &inner, &outer,
-                &slices, &loops))
+    if(!PyArg_ParseTuple(o, "O!ddii:gluDisk",
+			    &Quadric_Type, &q, &inner, &outer,
+			    &slices, &loops))
         return NULL;
 
     if(!q->q) {
@@ -418,7 +428,8 @@ static PyObject *pygluDisk(PyObject *s, PyObject *o) {
 static PyObject *pygluQuadricOrientation(PyObject *s, PyObject *o) {
     Quadric *q;
     int orient;
-    if(!PyArg_ParseTuple(o, "O!i", &Quadric_Type, &q, &orient)) return NULL;
+    if(!PyArg_ParseTuple(o, "O!i:gluQuadricOrientation",
+			    &Quadric_Type, &q, &orient)) return NULL;
     if(!q->q) {
         PyErr_SetString(PyExc_TypeError, "Operation on deleted quadric");
         return NULL;
@@ -433,7 +444,7 @@ static PyObject *pygluQuadricOrientation(PyObject *s, PyObject *o) {
 
 static PyObject *pygluLookAt(PyObject *s, PyObject *o) {
     double eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz;
-    if(!PyArg_ParseTuple(o, "ddddddddd", &eyex, &eyey, &eyez,
+    if(!PyArg_ParseTuple(o, "ddddddddd:gluLookAt", &eyex, &eyey, &eyez,
                 &centerx, &centery, &centerz, &upx, &upy, &upz))
         return NULL;
     gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
@@ -447,7 +458,7 @@ static PyObject *pygluLookAt(PyObject *s, PyObject *o) {
 static PyObject *pygluPickMatrix(PyObject *s, PyObject *o) {
     double x, y, delx, dely;
     int viewport[4];
-    if(!PyArg_ParseTuple(o, "dddd(iiii)", &x, &y, &delx, &dely,
+    if(!PyArg_ParseTuple(o, "dddd(iiii):gluPickMatrix", &x, &y, &delx, &dely,
                 viewport, viewport+1, viewport+2, viewport+3))
         return NULL;
     gluPickMatrix(x, y, delx, dely, viewport);
@@ -462,7 +473,7 @@ static PyObject *pygluProject(PyObject *s, PyObject *o) {
     double x, y, z, wx, wy, wz, model[16], proj[16];
     int viewport[4];
 
-    if(!PyArg_ParseTuple(o, "ddd", &x, &y, &z))
+    if(!PyArg_ParseTuple(o, "ddd:gluProject", &x, &y, &z))
         return NULL;
                 
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -480,7 +491,7 @@ static PyObject *pygluUnProject(PyObject *s, PyObject *o) {
     double x, y, z, wx, wy, wz, model[16], proj[16];
     int viewport[4];
 
-    if(!PyArg_ParseTuple(o, "ddd", &x, &y, &z))
+    if(!PyArg_ParseTuple(o, "ddd:gluUnProject", &x, &y, &z))
         return NULL;
                 
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -500,7 +511,8 @@ static PyObject *pygluProject(PyObject *s, PyObject *o) {
     double x, y, z, model[16], proj[16], wx, wy, wz;
     int viewport[4];
 
-    if(!PyArg_ParseTuple(o, "ddd(dddddddddddddddd)(dddddddddddddddd)(iiii)",
+    if(!PyArg_ParseTuple(o,
+		"ddd(dddddddddddddddd)(dddddddddddddddd)(iiii):gluProject",
                 &x, &y, &z,
                 model, model+1, model+2, model+3,
                 model+4, model+5, model+6, model+7,
@@ -524,7 +536,8 @@ static PyObject *pygluUnProject(PyObject *s, PyObject *o) {
     double x, y, z, model[16], proj[16], ox, oy, oz;
     int viewport[4];
 
-    if(!PyArg_ParseTuple(o, "ddd(dddddddddddddddd)(dddddddddddddddd)(iiii)",
+    if(!PyArg_ParseTuple(o,
+		"ddd(dddddddddddddddd)(dddddddddddddddd)(iiii):gluUnProject",
                 &x, &y, &z,
                 model, model+1, model+2, model+3,
                 model+4, model+5, model+6, model+7,
@@ -546,7 +559,7 @@ static PyObject *pygluUnProject(PyObject *s, PyObject *o) {
 static GLuint *select_buffer = NULL;
 static PyObject *pyglSelectBuffer( PyObject *s, PyObject *o) {
     int sz;
-    if(!PyArg_ParseTuple(o, "i", &sz))
+    if(!PyArg_ParseTuple(o, "i:glSelectBuffer", &sz))
         return NULL;
     if(select_buffer) select_buffer = realloc( select_buffer, sizeof(int) * sz);
     else select_buffer = malloc(sizeof(int) * sz);
@@ -562,7 +575,7 @@ static PyObject *pyglSelectBuffer( PyObject *s, PyObject *o) {
 
 static PyObject *pyglRenderMode( PyObject *s, PyObject *o) {
     int mode, lastmode, count;
-    if(!PyArg_ParseTuple(o, "i", &mode))
+    if(!PyArg_ParseTuple(o, "i:glRenderMode", &mode))
         return NULL;
 
     glGetIntegerv(GL_RENDER_MODE, &lastmode);
@@ -604,7 +617,8 @@ static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
     double lx=0, ly=0, lz=0;
     double p1[3], p2[3];
 
-    if(!PyArg_ParseTuple(o, "O!|i", &PyList_Type, &li, &for_selection))
+    if(!PyArg_ParseTuple(o, "O!|i:draw_lines",
+			    &PyList_Type, &li, &for_selection))
         return NULL;
 
     for(i=0; i<PyList_GET_SIZE(li); i++) {
@@ -642,75 +656,79 @@ glSelectBuffer
 
 static PyMethodDef methods[] = {
 #define METH(name, doc) { #name, (PyCFunction) py##name, METH_VARARGS, doc }
-METH(glBegin, ""),
-METH(glColor3f, ""),
-METH(glColor4f, ""),
-METH(glBlendColor, ""),
-METH(glDeleteLists, ""),
-METH(glBlendFunc, ""),
-METH(glCallList, ""),
-METH(glClear, ""),
-METH(glClearColor, ""),
-METH(glDepthFunc, ""),
-METH(glDepthMask, ""),
-METH(glDisable, ""),
-METH(glEnable, ""),
-METH(glEnd, ""),
-METH(glEndList, ""),
-METH(glFlush, ""),
-METH(glFrontFace, ""),
-METH(glInitNames, ""),
-METH(glLightf, ""),
-METH(glLineStipple, ""),
-METH(glLineWidth, ""),
-METH(glLoadIdentity, ""),
-METH(glLoadName, ""),
-METH(glMatrixMode, ""),
-METH(glNewList, ""),
-METH(glNormal3f, ""),
-METH(glPolygonOffset, ""),
-METH(glPolygonStipple, ""),
-METH(glPopMatrix, ""),
-METH(glPushMatrix, ""),
-METH(glPushName, ""),
-METH(glRenderMode, ""),
-METH(glRasterPos2i, ""),
-METH(glRectf, ""),
-METH(glRotatef, ""),
-METH(glScalef, ""),
-METH(glFlush, ""),
-METH(glDrawBuffer, ""),
-METH(glDrawArrays, ""),
-METH(glMatrixMode, ""),
-METH(glOrtho, ""),
-METH(glTranslatef, ""),
-METH(glVertex3f, ""),
-METH(glViewport, ""),
-METH(gluPerspective, ""),
+METH(glBegin,
+    "delimit the vertices of a primitive or a group of like primitives"),
+METH(glColor3f, "set the current color"),
+METH(glColor4f, "set the current color"),
+METH(glBlendColor, "set the blend color"),
+METH(glDeleteLists, "delete a contiguous group of display lists"),
+METH(glBlendFunc, "specify pixel arithmetic"),
+METH(glCallList, "execute a display list"),
+METH(glClear, "clear buffers to preset values"),
+METH(glClearColor, "specify clear values for the color buffers"),
+METH(glDepthFunc, "specify the value used for depth buffer comparisons"),
+METH(glDepthMask, "enable or disable writing into the depth buffer"),
+METH(glDisable, "enable or disable server-side GL capabilities"),
+METH(glEnable, "enable or disable server-side GL capabilities"),
+METH(glEnd,
+    "delimit the vertices of a primitive or a group of like primitives"),
+METH(glEndList, "create or replace a display list"),
+METH(glFlush, "force execution of GL commands in finite time"),
+METH(glFrontFace, "define front- and back-facing polygons"),
+METH(glInitNames, "initialize the name stack"),
+METH(glLightf, "set light source parameters"),
+METH(glLineStipple, "specify the line stipple pattern"),
+METH(glLineWidth, "specify the width of rasterized lines"),
+METH(glLoadIdentity, "replace the current matrix with the identity matrix"),
+METH(glLoadName, "load a name onto the name stack"),
+METH(glMatrixMode, "specify which matrix is the current matrix"),
+METH(glNewList, "create or replace a display list"),
+METH(glNormal3f, "set the current normal vector"),
+METH(glPolygonOffset, "set the scale and units used to calculate depth values"),
+METH(glPolygonStipple, "set the polygon stippling pattern"),
+METH(glPopMatrix, "push and pop the current matrix stack"),
+METH(glPushMatrix, "push and pop the current matrix stack"),
+METH(glPushName, "push and pop the name stack"),
+METH(glRenderMode, "set rasterization mode"),
+METH(glRasterPos2i, "specify the raster position for pixel operations"),
+METH(glRectf, "draw a rectangle"),
+METH(glRotatef, "multiply the current matrix by a rotation matrix"),
+METH(glScalef, "multiply the current matrix by a general scaling matrix"),
+METH(glFlush, "force execution of GL commands in finite time"),
+METH(glDrawBuffer, "specify which color buffers are to be drawn into"),
+METH(glDrawArrays, "render primitives from array data"),
+METH(glMatrixMode, "specify which matrix is the current matrix"),
+METH(glOrtho, "multiply the current matrix with an orthographic matrix"),
+METH(glTranslatef, "multiply the current matrix by a translation matrix"),
+METH(glVertex3f, "specify a vertex"),
+METH(glViewport, "set the viewport"),
+METH(gluPerspective, "set up a perspective projection matrix"),
 
-METH(glGenLists, ""),
-METH(glGetDoublev, ""),
-METH(glGetIntegerv, ""),
-METH(glInterleavedArrays, ""),
-METH(glLightfv, ""),
-METH(glLightModelfv, ""),
-METH(glLightModeli, ""),
-METH(glMaterialfv, ""),
-METH(glMultMatrixd, ""),
-METH(glPixelStorei, ""),
+METH(glGenLists, "generate a contiguous set of empty display lists"),
+METH(glGetDoublev, "return the value or values of a selected parameter"),
+METH(glGetIntegerv, "return the value or values of a selected parameter"),
+METH(glInterleavedArrays,
+    "simultaneously specify and enable several interleaved arrays"),
+METH(glLightfv, "set light source parameters"),
+METH(glLightModelfv, "set the lighting model parameters"),
+METH(glLightModeli, "set the lighting model parameters"),
+METH(glMaterialfv, "specify material parameters for the lighting model"),
+METH(glMultMatrixd, "multiply the current matrix with the specified matrix"),
 
-METH(glSelectBuffer, ""),
+METH(glPixelStorei, "set pixel storage modes"),
+
+METH(glSelectBuffer, "establish a buffer for selection mode values"),
 // METH(glVertex3fv, ""),
-METH(gluCylinder, ""),
-METH(gluDeleteQuadric, ""),
-METH(gluDisk, ""),
-METH(gluLookAt, ""),
-METH(gluNewQuadric, ""),
-METH(gluPickMatrix, ""),
-METH(gluProject, ""),
-METH(gluQuadricOrientation, ""),
-METH(gluUnProject, ""),
-METH(glBitmap, ""),
+METH(gluCylinder, "draw a cylinder"),
+METH(gluDeleteQuadric, "destroy a quadrics object"),
+METH(gluDisk, "draw a disk"),
+METH(gluLookAt, "define a viewing transformation"),
+METH(gluNewQuadric, "create a quadrics object"),
+METH(gluPickMatrix, "define a picking region"),
+METH(gluProject, "map object coordinates to window coordinates"),
+METH(gluQuadricOrientation, "specify inside/outside orientation for quadrics"),
+METH(gluUnProject, "map window coordinates to object coordinates"),
+METH(glBitmap, "draw a bitmap"),
 
 METH(draw_lines, "Draw a bunch of lines in the 'rs274.glcanon' format"),
 
