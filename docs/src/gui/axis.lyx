@@ -177,7 +177,7 @@ A display area that shows a preview of the loaded file (in this case,
 \begin_inset Quotes eld
 \end_inset 
 
-3D_Chips
+axis.ngc
 \begin_inset Quotes erd
 \end_inset 
 
@@ -615,7 +615,8 @@ By dragging with shift and the left mouse button pressed, or by dragging
 \layout Standard
 
 By rotating the mouse wheel, or by dragging with the right mouse button
- pressed, the preview plot will be zoomed in or out.
+ pressed, or by dragging with control and the left mouse button pressed,
+ the preview plot will be zoomed in or out.
 \layout Standard
 
 By clicking one of the 
@@ -1739,28 +1740,8 @@ pydoc <module name>
 \begin_inset Quotes erd
 \end_inset 
 
-
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-For run-in-place systems, use: 
-\begin_inset Quotes eld
-\end_inset 
-
-
-\family typewriter 
-PYTHONPATH=lib/python pydoc <module name>
-\family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- from the emc2 top directory
-\end_inset 
-
  or read the source code.
+ These modules include:
 \layout Itemize
 
 
@@ -1775,6 +1756,13 @@ emc
 gcode
 \family default 
  provides access to the rs274ngc interpreter
+\layout Itemize
+
+
+\family typewriter 
+rs274
+\family default 
+ provides additional tools for working with rs274ngc files
 \layout Itemize
 
 
@@ -1796,6 +1784,47 @@ _togl
 minigl
 \family default 
  provides access to the subset of OpenGL used by AXIS
+\layout Standard
+
+To use these modules in your own scripts, you must ensure that the directory
+ where they reside is on Python's module path.
+ When running an installed version of emc2, this should happen automatically.
+ When running 
+\begin_inset Quotes eld
+\end_inset 
+
+in-place
+\begin_inset Quotes erd
+\end_inset 
+
+, place 
+\family typewriter 
+$(EMC2_HOME)/lib/python
+\family default 
+ in the environment variable 
+\family typewriter 
+PYTHONPATH
+\family default 
+ or put the script in the 
+\family typewriter 
+$(EMC2_HOME)/bin
+\family default 
+ directory and include the following boilerplate lines at the top:
+\layout LyX-Code
+
+import sys, os
+\newline 
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+\newline 
+sys.path.insert(0, os.path.join(BASE, "lib", "python"))
+\layout Standard
+
+Refer to the 
+\begin_inset LatexCommand \url[Python documentation]{http://docs.python.org/tut/node8.html#SECTION008110000000000000000}
+
+\end_inset 
+
+ for more information on the module search path.
 \layout Section
 
 Using AXIS to control a CNC Lathe
@@ -1876,12 +1905,12 @@ filter program
 
 .
  This filter can do any desired task: Something as simple as making sure
- the file ends with an 
+ the file ends with '
 \family typewriter 
 M2
 \family default 
- command, or something as complicated as detecting whether the input is
- a depth image, and generating g-code to mill the shape it defines.
+', or something as complicated as detecting whether the input is a depth
+ image, and generating g-code to mill the shape it defines.
 \layout Standard
 
 The 
@@ -1935,7 +1964,7 @@ dark lines on white background
 \begin_inset Quotes erd
 \end_inset 
 
- scheme, and also serve as a reference for the configurable items in the
+ scheme, and also serves as a reference for the configurable items in the
  display area.
 \layout Standard
 
@@ -1970,6 +1999,38 @@ userDefault
 \end_inset 
 
 ) can override them.
-\layout LyX-Code
+\layout Subsection
 
+Physical jog wheels
+\layout Standard
+
+To improve the interaction of AXIS with physical jog wheels, the axis currently
+ selected in the GUI is also reported on a pin with a name like 
+\family typewriter 
+axisui.jog.x
+\family default 
+.
+ Except for a short time when the active axis has just been changed, exactly
+ one of these pins is 
+\family typewriter 
+TRUE
+\family default 
+ at one time, and the rest are 
+\family typewriter 
+FALSE
+\family default 
+.
+\layout Standard
+
+After AXIS has created these HAL pins, it executes the halfile named in
+ 
+\family typewriter 
+[HAL]POSTGUI_HALFILE
+\family default 
+.
+ Unlike 
+\family typewriter 
+[HAL]HALFILE
+\family default 
+, only one such file may be used.
 \the_end
