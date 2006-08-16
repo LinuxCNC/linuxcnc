@@ -50,15 +50,105 @@ Parport is a driver for the traditional PC parallel port.
  The original parallel port divided those pins into three groups: data,
  control, and status.
  The data group consists of 8 output pins, the control group consists of
- 4 output pins, and the status group is 5 input pins.
- In the early 1990's, the bidirectional parallel port was introduced, which
+ 4 pins, and the status group consists of 5 input pins.
+\layout Standard
+
+In the early 1990's, the bidirectional parallel port was introduced, which
  allows the data group to be used for output or input.
  The HAL driver supports the bidirectional port, and allows the user to
  set the data group as either input or output.
  If configured as output, a port provides a total of 12 outputs and 5 inputs.
  If configured as input, it provides 4 outputs and 13 inputs.
- No other combinations are supported, and a port cannot be changed from
- input to output once the driver is installed.
+ 
+\layout Standard
+
+In some parallel ports, the control group pins are open collectors, which
+ may also be driven low by an external gate.
+ On a board with open collector control pins, the 
+\begin_inset Quotes eld
+\end_inset 
+
+x
+\begin_inset Quotes erd
+\end_inset 
+
+ mode allows a more flexible mode with 8 dedicated outputs, 5 dedicated
+ inputs, and 4 open collector pins.
+ In other parallel ports, the control group has push-pull drivers and cannot
+ be used as an input.
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+To determine whether your port has 
+\begin_inset Quotes eld
+\end_inset 
+
+open collector
+\begin_inset Quotes erd
+\end_inset 
+
+ pins, load hal_parport in 
+\begin_inset Quotes eld
+\end_inset 
+
+x
+\begin_inset Quotes erd
+\end_inset 
+
+ mode, output a HIGH value on the pin.
+ HAL should read the pin as TRUE.
+ Next, insert a 
+\begin_inset Formula $220\Omega$
+\end_inset 
+
+ resistor from one of the control pins to GND.
+ If the resulting voltage on the control pin is close to 0V, and HAL now
+ reads the pin as FALSE, then you have an OC port.
+ If the resulting voltage is far from 0V, or HAL does not read the pin as
+ FALSE, then your port cannot be used in 
+\begin_inset Quotes eld
+\end_inset 
+
+x
+\begin_inset Quotes erd
+\end_inset 
+
+ mode.
+\layout Standard
+
+The external hardware that drives the control pins should also use open
+ collector gates (e.g., 74LS05).
+ Generally, the -out HAL pins should be set to TRUE when the physical pin
+ is being used as an input.
+\layout Standard
+
+On some machines, BIOS settings may affect whether 
+\begin_inset Quotes eld
+\end_inset 
+
+x
+\begin_inset Quotes erd
+\end_inset 
+
+ mode can be used.
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+SPP
+\begin_inset Quotes erd
+\end_inset 
+
+ mode is most most likely to work.
+\end_inset 
+
+
+\layout Standard
+
+No other combinations are supported, and a port cannot be changed from input
+ to output once the driver is installed.
  Figure 
 \begin_inset LatexCommand \ref{fig:Parport-block-diag}
 
@@ -66,15 +156,6 @@ Parport is a driver for the traditional PC parallel port.
 
  shows two block diagrams, one showing the driver when the data group is
  configured for output, and one showing it configured for input.
-\layout Standard
-
-There are actually two versions of the parport driver.
- One is a kernel module, and provides realtime control of the parallel port.
- The other is a user space process, and is not realtime.
- The non-realtime version is intended mainly for testing, and is not recommended
- for most applications.
- Using both the realtime and non-realtime versions at the same time is a
- bad idea.
 \layout Standard
 
 The parport driver can control up to 8 ports (defined by MAX_PORTS in hal_parpor
@@ -135,17 +216,9 @@ loadrt hal_parport cfg=
 
 \layout Standard
 
-Non-realtime version:
-\layout LyX-Code
-
-emc2# 
-\series bold 
-bin/hal_parport <config-string> &
-\layout Standard
-
 The config string consists of a hex port address, followed by an optional
  direction, repeated for each port.
- The direction is either 
+ The direction is 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -153,7 +226,7 @@ in
 \begin_inset Quotes erd
 \end_inset 
 
- or 
+, 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -161,14 +234,23 @@ out
 \begin_inset Quotes erd
 \end_inset 
 
- and determines the direction of the physical pins 2 through 9.
+, or 
+\begin_inset Quotes eld
+\end_inset 
+
+x
+\begin_inset Quotes erd
+\end_inset 
+
+ and determines the direction of the physical pins 2 through 9, and whether
+ to create input HAL pins for the physical control pins.
  If the direction is not specified, the data group defaults to output.
  For example:
 \layout LyX-Code
 
-emc2# 
+
 \series bold 
-bin/hal_parport 278 378 in 20A0 out
+loadrt hal_parport 278 378 in 20A0 out
 \layout Standard
 
 This example installs drivers for one port at 0x0278, with pins 2-9 as outputs
@@ -234,12 +316,6 @@ Realtime version:
 emc2$ 
 \series bold 
 bin/halcmd unloadrt hal_parport
-\layout Standard
-
-Non-realtime version:
-\layout Quote
-
-Remove the non-realtime version by sending SIGINT or SIGTERM.
 \layout Standard
 
 
@@ -480,19 +556,76 @@ The individual functions are provided for situations where one port needs
 -all
 \family default 
  function and an individual function at the same time.
+\layout Subsection
+
+Common problems
 \layout Standard
 
-The user space version of the driver cannot export functions, instead it
- exports parameters with the same names.
- Then the driver sits in a loop checking the parameters.
- If they are zero, it does nothing.
- If any parameter is greater than zero, the corresponding function runs
- once, then the parameter is reset to zero.
- If any parameter is less than zero, the corresponding function runs on
- every pass through the loop.
- The driver will loop forever, until it receives either SIGINT (ctrl-C)
- or SIGTERM, at which point it cleans up and exits.
- 
+If loading the module reports
+\layout LyX-Code
+
+insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': -1 Device
+ or resource busy 
+\layout Standard
+
+then ensure that the standard kernel module 
+\family typewriter 
+parport_pc
+\family default 
+ is not loaded and that no other device in the system has claimed the I/O
+ ports.
+\layout Standard
+
+If the module loads but does not appear to function, then the port address
+ is incorrect or the 
+\family typewriter 
+probe_parport
+\family default 
+ module is required.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:probe_parport}
+
+\end_inset 
+
+probe_parport
+\layout Standard
+
+In modern PCs, the parallel port may require plug and play (PNP) configuration
+ before it can be used.
+ The 
+\family typewriter 
+probe_parport
+\family default 
+ module performs configuration of any PNP ports present, and should be loaded
+ before 
+\family typewriter 
+hal_parport
+\family default 
+.
+ On machines without PNP ports, it cannot be loaded.
+\layout Subsection
+
+Installing
+\layout LyX-Code
+
+loadrt probe_parport
+\newline 
+loadrt hal_parport ...
+\layout Standard
+
+If the Linux kernel prints a message similar to
+\layout LyX-Code
+
+parport: PnPBIOS parport detected.
+\layout Standard
+
+when the parport_pc module is loaded (
+\family typewriter 
+sudo modprobe -a parport_pc) 
+\family default 
+then use of this module is probably required
 \layout Section
 
 
@@ -806,8 +939,8 @@ bin/halcmd loadrt hal_stg [base=<address>] [num_chan=<nr>]
 ] [model=<model>]
 \layout Standard
 
-The base address field is optional; if it's not provided the driver
- attempts to autodetect the board.
+The base address field is optional; if it's not provided the driver attempts
+ to autodetect the board.
  The num_chan field is used to specify the number of channels available
  on the card, if not used the 8 axis version is assumed.
  The digital inputs/outputs configuration is determined by a config string
