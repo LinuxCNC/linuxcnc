@@ -60,6 +60,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <errno.h>
+#include <time.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
@@ -1404,7 +1405,6 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     /* note: these are static so that the various searches can
        be skipped for subsequent commands */
     static char *rtmod_dir = HAL_RTMOD_DIR;
-    static char path_buf[MAX_CMD_LEN+1];
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
     char *cp1;
@@ -1433,7 +1433,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
     if ( stat(mod_path, &stat_buf) != 0 ) {
         /* can't find it */
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL:%d: ERROR: Can't find module '%s' in %s\n", linenumber, mod_name, path_buf);
+            "HAL:%d: ERROR: Can't find module '%s' in %s\n", linenumber, mod_name, rtmod_dir);
         return -1;
     }
     /* now we need to fork, and then exec insmod.... */
