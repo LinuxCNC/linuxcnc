@@ -1197,7 +1197,10 @@ OK
 , the small window will display the name and value of the selected item,
  but the large window will remain on the screen.
  This is convenient if you want to look at a number of different items quickly.
- You can have many halmeters running at the same time, if you want to monitor
+ 
+\layout Standard
+
+You can have many halmeters running at the same time, if you want to monitor
  several items.
  If you want to launch a halmeter without tying up a shell window, type
  
@@ -1228,14 +1231,19 @@ pin|sig|par[am] <name>
 
  to the command line.
  It will display the pin, signal, or parameter <name> as soon as it starts.
- (If there is no such item, it will simply start normally.)
-\layout Standard
+ (If there is no such item, it will simply start normally.) And finally,
+ if you specify an item to display, you can add 
+\begin_inset Quotes eld
+\end_inset 
 
-Halmeter is due for a rewrite - the new version will have a nicer display,
- with autoranging, range hold, and an analog bar graph to supplement the
- digital display.
- However its purpose will remain the same - a handy software equivalent
- to DMM for basic testing and troubleshooting.
+-s
+\begin_inset Quotes erd
+\end_inset 
+
+ before the pin|sig|param to tell halmeter to use a small window.
+ The item name will be displayed in the title bar instead of under the value,
+ and there will be no buttons.
+ Usefull when you want a lot of meters in a small amount of screen space.
 \layout Section
 
 
