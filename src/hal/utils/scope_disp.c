@@ -929,7 +929,6 @@ void draw_waveform(int chan_num, int highlight)
 	n++;
     }
     if(pn) lines(chan_num, points, pn);
-    fprintf(stderr, "pn=%d\n", pn);
 }
 
 // vim:sts=4:sw=4:et
