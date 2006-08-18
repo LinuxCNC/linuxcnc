@@ -20,17 +20,21 @@ endif
 $(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
 
 $(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS))
-	$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lemc -lnml -lm -lGL
+	$(ECHO) Linking python module $(notdir $@)
+	@$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lemc -lnml -lm -lGL
 
 
 $(MINIGLMODULE): $(call TOOBJS, $(MINIGLMODULESRCS))
-	$(CC) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lGLU -lGL
+	$(ECHO) Linking python module $(notdir $@)
+	@$(CC) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lGLU -lGL
 
 $(SETICONMODULE): $(call TOOBJS, $(SETICONMODULESRCS))
-	$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
+	$(ECHO) Linking python module $(notdir $@)
+	@$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
 
 $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
-	$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
+	$(ECHO) Linking python module $(notdir $@)
+	@$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
 
 PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
 
@@ -40,4 +44,5 @@ PYSCRIPTS := axis.py axis-remote.py emctop.py hal_manualtoolchange.py \
 PYTARGETS += $(patsubst %.py,../bin/%,$(PYSCRIPTS))
 
 ../bin/%: emc/usr_intf/axis/scripts/%.py
-	(echo '#!$(PYTHON)'; sed '1 { /^#!/d }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+	$(ECHO) Copying python script $(notdir $@)
+	@(echo '#!$(PYTHON)'; sed '1 { /^#!/d }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@

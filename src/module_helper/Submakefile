@@ -13,6 +13,7 @@ endif
 $(call TOOBJS, $(MODULE_HELPERSRCS)): Makefile.inc
 
 ../bin/emc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS))
-	$(CXX) -o $@ $^ 
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) -o $@ $^ 
 
 TARGETS += ../bin/emc_module_helper

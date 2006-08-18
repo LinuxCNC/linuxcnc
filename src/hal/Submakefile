@@ -9,16 +9,18 @@ USERSRCS += $(HALLIBSRCS)
 HALLIB := ../lib/libemchal.so
 
 $(HALLIB): $(call TOOBJS, $(HALLIBSRCS))
+	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(CXX) -shared -Wl,-soname,libemchal.so -o $@ $^
+	@$(CXX) -shared -Wl,-soname,libemchal.so -o $@ $^
 
 HALMODULESRCS := hal/halmodule.cc
 PYSRCS += $(HALMODULESRCS)
 
 HALMODULE := ../lib/python/hal.so
 $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
-	$(CXX) $(LDFLAGS) -shared -o $@ $^
+	$(ECHO) Linking python module $(notdir $@)
+	@$(CXX) $(LDFLAGS) -shared -o $@ $^
 
 TARGETS += $(HALLIB)
 PYTARGETS += $(HALMODULE)

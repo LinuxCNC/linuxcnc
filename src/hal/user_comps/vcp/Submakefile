@@ -12,7 +12,8 @@ $(call TOOBJS, $(HALVCPSRCS)): Makefile.inc
 USERSRCS += $(HALVCPSRCS)
 
 ../bin/halvcp: $(call TOOBJS, $(HALVCPSRCS)) ../lib/libemchal.so
-	$(CXX) $(LDFLAGS) -o $@ $^ $(GTK_LIBS)
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^ $(GTK_LIBS)
 
 TARGETS += ../bin/halvcp
 

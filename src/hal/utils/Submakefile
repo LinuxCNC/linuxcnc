@@ -5,7 +5,8 @@ $(call TOOBJSDEPS, hal/utils/halcmd.c): EXTRAFLAGS = -DEMC2_BIN_DIR="\"$(EMC2_BI
 $(call TOOBJS, hal/utils/halcmd.c): Makefile.inc
 
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so $(READLINE_LIBS)
-	$(CXX) $(LDFLAGS) -o $@ $^
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halcmd
 
 ifneq ($(GTK_VERSION),)
@@ -16,7 +17,8 @@ HALMETERSRCS := \
 USERSRCS += $(HALMETERSRCS)
 
 ../bin/halmeter: $(call TOOBJS, $(HALMETERSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
-	$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
 TARGETS += ../bin/halmeter
 
 HALSCOPESRCS := \
@@ -31,7 +33,8 @@ HALSCOPESRCS := \
 USERSRCS += $(HALSCOPESRCS)
 
 ../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
-	$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
 TARGETS += ../bin/halscope
 
 HALGTKSRCS := \
@@ -51,5 +54,6 @@ endif
 M5I20CFGSRCS := hal/utils/m5i20cfg.c
 USERSRCS += $(M5I20CFGSRCS)
 ../bin/m5i20cfg: $(call TOOBJS, $(M5I20CFGSRCS))
-	$(CXX) $(LDFLAGS) -o $@ $^
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/m5i20cfg

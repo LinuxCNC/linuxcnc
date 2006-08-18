@@ -12,5 +12,6 @@ INIFILESRCS := \
 USERSRCS += $(INIFILESRCS)
 
 ../bin/inivar: $(call TOOBJS, $(INIFILESRCS))
-	$(CXX) -o $@ $^ 
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) -o $@ $^ 
 TARGETS += ../bin/inivar
