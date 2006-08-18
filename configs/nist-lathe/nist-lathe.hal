@@ -174,6 +174,11 @@ setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
 
 # end of basic machine
 
+newsig homeswitches bit
+linkps parport.0.pin-10-in => homeswitches
+linkps axis.0.home-sw-in <= homeswitches
+linkps axis.2.home-sw-in <= homeswitches
+
 #######################################################
 # Beginning of threading-related stuff
 #######################################################
@@ -190,11 +195,6 @@ linksp spindle-phase-Z => encoder.0.phase-Z
 linkps parport.0.pin-11-in => spindle-phase-A
 linkps parport.0.pin-12-in => spindle-phase-B
 linkps parport.0.pin-13-in => spindle-phase-Z
-
-newsig homeswitches bit
-linkps parport.0.pin-10-in => homeswitches
-linkps axis.0.home-sw-in <= homeswitches
-linkps axis.2.home-sw-in <= homeswitches
 
 # (that way thread pitches can be straightforward,
 #  a 20 tpi thread would multiply the encoder output
