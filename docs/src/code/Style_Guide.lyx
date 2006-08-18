@@ -88,33 +88,70 @@ The other issue that always comes up in C styling is the placement of braces.
  strategy over the other, but the preferred way, as shown to us by the prophets
  Kernighan and Ritchie, is to put the opening brace last on the line, and
  put the closing brace first, thusly:
-\layout Standard
+\layout LyX-Code
 
-if (x is true) { we do y }
+if (x is true) {
+\layout LyX-Code
+
+    we do y
+\layout LyX-Code
+
+}
 \layout Standard
 
 However, there is one special case, namely functions: they have the opening
  brace at the beginning of the next line, thus:
-\layout Standard
+\layout LyX-Code
 
-int function(int x) { body of function }
+int function(int x)
+\layout LyX-Code
+
+{
+\layout LyX-Code
+
+    body of function
+\layout LyX-Code
+
+}
 \layout Standard
 
 Note that the closing brace is empty on a line of its own, _except_ in the
  cases where it is followed by a continuation of the same statement, i.e.
  a "while" in a do-statement or an "else" in an if-statement, like this:
-\layout Standard
+\layout LyX-Code
 
-do { body of do-loop } while (condition);
+do {
+\layout LyX-Code
+
+    body of do-loop 
+\layout LyX-Code
+
+} while (condition);
 \layout Standard
 
 and
-\layout Standard
+\layout LyX-Code
 
-if (x == y) { ..
- } else if (x > y) { ...
- } else { ....
- }
+if (x == y) {
+\layout LyX-Code
+
+    ..
+ 
+\layout LyX-Code
+
+} else if (x > y) {
+\layout LyX-Code
+
+    ...
+\layout LyX-Code
+
+} else {
+\layout LyX-Code
+
+    ....
+\layout LyX-Code
+
+}
 \layout Standard
 
 Also, note that this brace-placement also minimizes the number of empty
@@ -128,7 +165,7 @@ Also, note that this brace-placement also minimizes the number of empty
 A rule has been defined in the top level Make.rules (which should be included
  in all sub-makes) to assist in indenting and bracing.
  Invoke it by:
-\layout Standard
+\layout LyX-Code
 
 make indent foo.c bar.h
 \layout Standard
