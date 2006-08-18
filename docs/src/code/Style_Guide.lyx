@@ -90,12 +90,10 @@ The other issue that always comes up in C styling is the placement of braces.
  put the closing brace first, thusly:
 \layout LyX-Code
 
-if (x is true) {
-\layout LyX-Code
-
-    we do y
-\layout LyX-Code
-
+if (x is true) { 
+\newline 
+   we do y
+\newline 
 }
 \layout Standard
 
@@ -104,14 +102,11 @@ However, there is one special case, namely functions: they have the opening
 \layout LyX-Code
 
 int function(int x)
-\layout LyX-Code
-
-{
-\layout LyX-Code
-
-    body of function
-\layout LyX-Code
-
+\newline 
+{ 
+\newline 
+   body of function
+\newline 
 }
 \layout Standard
 
@@ -120,37 +115,29 @@ Note that the closing brace is empty on a line of its own, _except_ in the
  a "while" in a do-statement or an "else" in an if-statement, like this:
 \layout LyX-Code
 
-do {
-\layout LyX-Code
-
-    body of do-loop 
-\layout LyX-Code
-
+do { 
+\newline 
+   body of do-loop 
+\newline 
 } while (condition);
 \layout Standard
 
 and
 \layout LyX-Code
 
-if (x == y) {
-\layout LyX-Code
-
-    ..
+if (x == y) { 
+\newline 
+   ..
  
-\layout LyX-Code
-
-} else if (x > y) {
-\layout LyX-Code
-
-    ...
-\layout LyX-Code
-
-} else {
-\layout LyX-Code
-
-    ....
-\layout LyX-Code
-
+\newline 
+} else if (x > y) { 
+\newline 
+   ...
+\newline 
+} else { 
+\newline 
+   ....
+\newline 
 }
 \layout Standard
 
@@ -160,19 +147,6 @@ Also, note that this brace-placement also minimizes the number of empty
  (think 25-line terminal screens here), you have more empty lines to put
  comments on.
  
-\layout Standard
-
-A rule has been defined in the top level Make.rules (which should be included
- in all sub-makes) to assist in indenting and bracing.
- Invoke it by:
-\layout LyX-Code
-
-make indent foo.c bar.h
-\layout Standard
-
-The rule will also format C++ sources and headers in the same manner.
- By default, blank lines will be removed except for one separating functions
- and those within comment blocks.
 \layout Section
 
 Naming
