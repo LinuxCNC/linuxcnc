@@ -251,9 +251,16 @@ endif
 # accomodated here.
 ifeq ($(BUILD_SYS),kbuild)
 
-# '-o $(KERNELDIR)/Module.symvers' silences warnings about that file being missing
+ifndef KDIR
+ifeq ($(wildcard /lib/modules/$(shell uname -r)/build/Makefile),)
+$(error KDIR is not set and /lib/modules/$(shell uname -r)/build is not a valid kernel build location.)
+endif
+KDIR := $(shell cd /lib/modules/$(shell uname -r)/build && /bin/pwd)
+endif
+
+# '-o $(KDIR)/Module.symvers' silences warnings about that file being missing
 modules:
-	$(MAKE) -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 -o $(KERNELDIR)/Module.symvers modules 
+	$(MAKE) -C $(KDIR) SUBDIRS=`pwd` CC=$(CC) V=0 -o $(KDIR)/Module.symvers modules 
 	-cp *$(MODULE_EXT) ../rtlib/
 endif
 
@@ -562,7 +569,7 @@ $(sort $(RTDEPS)): depends/rt%.d: %.c
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KERNELDIR)/include $(EXTRA_CFLAGS) $< -o $@
+	$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KDIR)/include $(EXTRA_CFLAGS) $< -o $@
 
 ../rtlib/%.o:
 	$(ECHO) Linking $@
