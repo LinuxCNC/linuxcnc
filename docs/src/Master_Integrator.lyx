@@ -132,6 +132,15 @@ preview false
 \layout Part
 
 Configuration
+\layout Standard
+
+
+\begin_inset Include \include{config/ini_config.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 Tuning
