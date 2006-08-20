@@ -89,8 +89,18 @@ NML The nml file configures the communication channels used by the EMC.
  but can be modified to communicate between several computers.
 \layout Description
 
-.emcsh This file saves user specific information and is created to save the
+.emcrc This file saves user specific information and is created to save the
  name of the directory when the user first selects an EMC configuration.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Usually this file is in the users home directory (e.g.
+ /home/user/ )
+\end_inset 
+
+
 \layout Standard
 
 This chapter describes the EMC2's INI file in just enough detail so that
