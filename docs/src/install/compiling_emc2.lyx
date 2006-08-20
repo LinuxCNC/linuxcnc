@@ -1,0 +1,327 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement h
+\paperfontsize 10
+\spacing single 
+\papersize Default
+\paperpackage a4wide
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Chapter
+
+Compiling EMC2 from source
+\layout Section
+
+Introduction
+\layout Standard
+
+The third hurdle that you face when you begin to set up the EMC2 is getting
+ and installing the EMC2 software itself.
+ All of EMC2 has been placed on cvs.linuxcnc.org in a concurrent versioning
+ repository.
+ EMC2 is also available as a precompiled package (for various platforms)
+ for download from that site.
+ 
+\layout Standard
+
+Installation can be a daunting task to people new to Linux.
+ The hardest part is getting the Real Time Linux patch up and running.
+ After that, installing EMC is pretty easy.
+ With that said, we recently provided a completely new experience for users,
+ they only need to install Ubuntu (a very friendly linux distribution),
+ then run a single install script, and they already should have the Real
+ Time part and EMC2 working.
+ Information how to access this can be found on the www.linuxcnc.org page
+ under Download.
+\layout Section
+
+EMC Download Page
+\layout Standard
+
+You will find the most recent releases of EMC2 announced on www.linuxcnc.org.
+ The releases of EMC2 will be done in two ways (sources and binary package).
+ The sources (described furtheron) consist of a tarball (emc2-version.tar.gz),
+ which you should download and unpack into your home directory.
+\layout Section
+
+EMC2 Release Description
+\layout Standard
+
+EMC2 will be using a release model similar to (but simpler than) the one
+ used by Debian.
+ At any one time there will be three versions of EMC2.
+ Debian uses "stable", "testing", and "unstable".
+ We will be using "Released", "Testing", and "Head".
+ For the latest information, click on the version you are interested in.
+\layout Standard
+
+
+\series bold 
+Released
+\series default 
+ is exactly that, a released version of EMC2 with a version number.
+ It is tested by both developers and beta users before being released, and
+ is suitable for the average user.
+ Most developers and IRC/mailing list regulars are able to help support
+ people running a released version.
+ 
+\series bold 
+"Released"
+\series default 
+ is available in several forms, including .debs for ubuntu and possibly BDI-4.xx,
+ and source tarballs for local compilation.
+ There will be a debian repository which will always have the latest released
+ version (and thus allows for easy upgrades from one stable release to the
+ next).
+ 
+\layout Standard
+
+
+\series bold 
+"Testing"
+\series default 
+ is a version of EMC2 that is ready for "beta testing" but not for general
+ release.
+ Before a version is labeled 
+\series bold 
+"testing"
+\series default 
+ it will be known to compile and run on several different platforms, but
+ there will probably be various limitations and known problems.
+ The 
+\series bold 
+"Testing"
+\series default 
+ wiki page will attempt to list known problems and workarounds, but there
+ will probably also be undiscovered bugs.
+ Since 
+\series bold 
+"Testing"
+\series default 
+ is "beta" software, it should not be used for anything critical.
+ Users of 
+\series bold 
+"Testing"
+\series default 
+ need to understand that it is beta software, and must be willing to give
+ detailed bug reports if things go wrong.
+ 
+\series bold 
+"Testing"
+\series default 
+ is available primarily as a tag in CVS, although for convenience of testers,
+ a "testing" debian repository and/or tarballs may also be available.
+ The EMC Board of Directors will decide when "Testing" is worthy of becoming
+ "Released".
+ This is a formal decision, made by motion and voting on the board mailing
+ list or board IRC channel.
+ 
+\layout Standard
+
+
+\series bold 
+Head
+\series default 
+ is the HEAD of the CVS version control system.
+ It is where all the primary development takes place.
+ "Head" can be broken at any time.
+ When "Head" reaches a state that is deemed worthy of testing by a larger
+ number of people, the "Testing" tag will be moved.
+ This is an informal decision, made by concensus of lead developers, usually
+ on IRC.
+ Development will immediately continue, and 
+\series bold 
+"Head"
+\series default 
+ will once again diverge from "Testing".
+ 
+\series bold 
+"Head"
+\series default 
+ has no "version number", and on a busy weekend it can literally change
+ every 10 minutes.
+ 
+\layout Section
+
+Download and source preparation.
+\layout Standard
+
+The following few section will describe how to get EMC2, and compile it.
+\layout Standard
+
+To download, simply go to www.linuxcnc.org to the Download page, and get the
+ latest release tarball.
+\layout Standard
+
+Once you have it, extract it to your home folder:
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ cd ~/
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ tar -xvzf emc2-version.tar.gz
+\layout Standard
+
+Now move into the emc2 directory.
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ cd ~/emc2
+\layout Standard
+
+Next you'll need to decide what kind of install you want.
+ There are two ways to try EMC2 out : run-in-place or installed.
+ 
+\layout Standard
+
+The run-in-place is the version where all EMC2 lives in your home directory,
+ doesn't get installed properly.
+ This way is usefull for trying out EMC2, maybe along another already installed
+ EMC/EMC2 version.
+\layout Standard
+
+The installed way is the standard way to use EMC2.
+ Just like any other linux software EMC2 will get installed in the right
+ places, so any user can run EMC2.
+\layout Section
+
+Installed
+\layout Standard
+
+EMC2 followes the standard way of compiling linux software.
+ To compile it simply go to the sources folder:
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ cd ~/emc2/src
+\layout Standard
+
+and issue these commands:
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ ./configure
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ make
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ sudo make install
+\layout Standard
+
+This should be enough to get EMC2 installed.
+ To run it simply type 'emc'.
+\layout Section
+
+Try-out (Run-in-place)
+\layout Standard
+
+If you want only to test the software before installing it, or if you're
+ worried about overwriting an existing installation, there is a Run-In-Place
+ (RIP) mode which you can try out.
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ cd ~/emc2/src
+\layout Standard
+
+and issue these commands:
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ ./configure --enable-run-in-place
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ make
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ sudo make setuid
+\layout Standard
+
+After that you can run EMC2 by issuing:
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ cd ~/emc2
+\layout Standard
+
+
+\family typewriter 
+\size scriptsize 
+$ scripts/emc
+\layout Section
+
+Editing and Recompiling
+\layout Standard
+
+You may need to recompile the EMC2 code for a number of reasons.
+ You may have modified the source code, or you may have downloaded just
+ a few new files.
+ To recompile, do the following:
+\layout Standard
+
+
+\family typewriter 
+\size small 
+$ 
+\shape italic 
+\size footnotesize 
+cd ~/emc2/src 
+\shape default 
+\size small 
+
+\newline 
+$ make
+\layout Standard
+
+The build process is smart enough to only build things that are relevant
+ to your changes.
+\the_end
