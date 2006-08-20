@@ -100,6 +100,42 @@ Permission is granted to copy, distribute and/or modify this document under
 
 Introduction
 \layout Standard
+
+
+\begin_inset Include \include{common/emc2_introduction.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+Installing
+\layout Standard
+
+
+\begin_inset Include \include{install/installing_emc2.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{install/compiling_emc2.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+Configuration
+\layout Part
+
+Tuning
+\layout Standard
 \start_of_appendix 
 
 \begin_inset Include \input{common/Glossary.lyx}
