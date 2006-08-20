@@ -305,7 +305,7 @@ function Cleanup() {
     echo "Shutting down and cleaning up EMC..."
     # Kill displays first - that should cause an orderly
     #   shutdown of the rest of emc
-    for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh ; do
+    for KILL_TASK in xemc yemc emcpanel keystick iosh emcsh emcrsh ; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
