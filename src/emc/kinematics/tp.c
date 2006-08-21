@@ -642,7 +642,8 @@ int tpRunCycle(TP_STRUCT * tp)
         double pos_error;
         double revs = emcmotStatus->spindleRevs;
 
-        pos_error = (revs - spindleoffset) * tc->uu_per_rev - (tc->progress + nexttc->progress);
+        pos_error = (revs - spindleoffset) * tc->uu_per_rev - tc->progress;
+        if(nexttc) pos_error -= nexttc->progress;
 
         tc->reqvel = pos_error/tc->cycle_time/2.0;
         tc->feed_override = 1.0;
