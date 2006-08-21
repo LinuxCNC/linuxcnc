@@ -506,8 +506,6 @@ int tpRunCycle(TP_STRUCT * tp)
         tp->aborting = 0;
         tp->execId = 0;
         tp->motionType = 0;
-        tp->synchronized = 0;
-        emcmotStatus->spindleSync = 0;
         tpResume(tp);
         return 0;
     }
