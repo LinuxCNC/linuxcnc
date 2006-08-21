@@ -131,7 +131,7 @@ preview false
 
 \layout Part
 
-Configuration
+EMC Configuration
 \layout Standard
 
 
@@ -141,6 +141,105 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{config/ini_homing.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+HAL Specifics
+\layout Standard
+
+
+\begin_inset Include \include{hal/intro.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/tutorial.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/general_ref.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/tools.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/halshow.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+EMC related HAL
+\layout Standard
+
+
+\begin_inset Include \include{config/stepper.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/rtcomps.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/drivers.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{gui/halui.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+Advanced topics
 \layout Part
 
 Tuning
