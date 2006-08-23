@@ -4,16 +4,53 @@ DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
 ifeq ($(BUILD_DOCS),yes)
-DOC_SRCS := Master_HAL.lyx Master_User.lyx Master_Developer.lyx Master_Integrator.lyx
-DOC_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)
+DOC_SRCS := \
+	code/Code_Notes.lyx \
+	code/Style_Guide.lyx \
+	gui/axis.lyx \
+	gui/halui.lyx \
+	gui/mini.lyx \
+	gui/tkemc.lyx \
+	Master_Developer.lyx \
+	Master_Integrator.lyx \
+	Master_User.lyx \
+	common/GPLD_Copyright.lyx \
+	common/Glossary.lyx \
+	common/emc2_introduction.lyx \
+	config/ini_config.lyx \
+	config/ini_homing.lyx \
+	config/stepper.lyx \
+	gcode/coordinates.lyx \
+	gcode/main.lyx \
+	gcode/mill_canned.lyx \
+	gcode/tool_compensation.lyx \
+	hal/drivers.lyx \
+	hal/general_ref.lyx \
+	hal/halshow.lyx \
+	hal/intro.lyx \
+	hal/rtcomps.lyx \
+	hal/tools.lyx \
+	hal/tutorial.lyx \
+	install/compiling_emc2.lyx \
+	install/installing_emc2.lyx \
+	Master_HAL.lyx
 
+PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)
+HTML_TARGETS := $(patsubst %.lyx,$(DOC_DIR)/html/%/index.html, $(filter-out Master_%, $(DOC_SRCS)))
+
+L2HFLAGS := -init_file $(DOC_SRCDIR)/.latex2html-init -local_icons \
+	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
 
 ifneq ($(MAKECMDGOALS),clean)
--include $(patsubst %.lyx, $(DOC_SRCDIR)/%.d, $(DOC_SRCS))
-Makefile: $(patsubst %.lyx, $(DOC_SRCDIR)/%.d, $(DOC_SRCS))
+ifneq ($(MAKECMDGOALS),docclean)
+-include $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
+Makefile: $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
+ifneq ($(MAKECMDGOALS),docclean)
 endif
 
-docs: $(DOC_TARGETS)
+docs: htmldocs pdfdocs
+pdfdocs: $(PDF_TARGETS)
+htmldocs: $(HTML_TARGETS)
 
 $(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
 	ln -f $< $@
@@ -25,13 +62,28 @@ $(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	ln -f $< $@
 
 
-$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx $(DOC_SRCDIR)/%.d
+$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx
 	rm -f $@
 	$(LYX) --export pdf2 $<
 	test -f $@
 
-$(DOC_SRCDIR)/%.d: $(DOC_SRCDIR)/%.lyx
-	$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< > $@
+depends/%.d: $(DOC_SRCDIR)/%.lyx $(DOC_SRCDIR)/lyxdep.py
+	mkdir -p $(dir $@)
+	$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< $@ $(DOC_DIR)/html/$*/index.html > $@
+
+%.tex: %.lyx
+	rm -f $(<:.lyx=.tex)
+	$(LYX) --export latex $<
+	test -f $(<:.lyx=.tex)
+	sed -f $(DOC_SRCDIR)/l2hprep.sed -i $(<:.lyx=.tex)
+
+$(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/%.tex
+	rm -rf $(<:.tex=)
+	mkdir -p $(<:.tex=)
+	if [ ! -z "$(filter %.eps, $^)" ]; then cp $(filter %.eps, $^) $(<:.tex=); fi
+	latex2html $(L2HFLAGS) $(EXTRAL2HFLAGS) $(<:.lyx=.tex)
+	rm -rf $(dir $@)
+	mv $(<:.tex=) $(dir $@)
 
 default: docs
 else
@@ -47,3 +99,5 @@ docclean:
 	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
+	-rm -f $(patsubst %,$(DOC_SRCDIR)/%, $(DOC_SRCS:.lyx=.tex))
+	-rm -rf $(patsubst %.lyx,$(DOC_DIR)/html/%, $(DOC_SRCS))
