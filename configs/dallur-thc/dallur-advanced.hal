@@ -31,10 +31,6 @@ loadusr -w classicladder --nogui dallur-advanced.clp
 # load the GUI aswell
 loadusr classicladder
 
-
-# Wait for halui to load before starting
-loadusr wait-for-pin halui.program.pause
-
 #Reverse Direction for A(Auxilary) Axis so both motors drive in same direction
 setp parport.0.pin-09-out-invert 1
 
