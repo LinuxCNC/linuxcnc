@@ -45,7 +45,7 @@ ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(MAKECMDGOALS),docclean)
 -include $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
 Makefile: $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
-ifneq ($(MAKECMDGOALS),docclean)
+endif
 endif
 
 docs: htmldocs pdfdocs
