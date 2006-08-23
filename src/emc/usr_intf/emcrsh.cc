@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: emcsh.cc
-*   Extended-Tcl-based EMC automatic test interface
+*   Extended telnet based EMC interface
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
 *   Further derived from work by jmkasunich
@@ -37,29 +37,21 @@
 #include "inifile.hh"		// INIFILE
 
 /*
-  Using emcsh:
+  Using emcrsh:
 
-  emcsh {<filename>} {-- -ini <ini file>}
+  emcsh {<Port No>} {-- -name <server name> -ini<inifile>}
 
-  With filename, it opens NML buffers to the EMC, runs the script, closes
-  the buffers, and quits.
-
+  Without Port No, it waits for socket connections (Telnet) on socket 2007, with port
+  number, waits for socket connection on the specified port.
+  
+  With -- -name <server name> Sets the server name to specified name for Hello.
   With -- -ini <inifile>, uses inifile instead of emc.ini. 
 
-  Without filename, it waits for socket connections (Telnet).
-
-  The files (or manual input) are EMC-specific commands similar to those
-  of emcsh. Unlike emcsh these commands do not use the "emc_" prefix.
-
-  Some commands take 0 or more arguments. 0 arguments means they return
-  the associated value; the argument would be to set the value.
-
-  Commands are sent to the EMC, and control resumes immediately. You can
-  call a timed wait until the command got there, or a timed wait until the
-  command completed, or not wait at all.
+  There are six commands supported, Where the commands set and get contain EMC
+  specific sub-commands based on the commands supported by emcsh, but where the "emc_"
+  is omitted. Commands and most parameters are not case sensitive. The exceptions are 
+  passwords, file paths and text strings.
   
-  There are four commands supported. Commands and most parameters are not
-  case sensitive. The exceptions are passwords, file paths and text strings.
   The supported commands are as follows:
   
   ==> HELLO <==
@@ -88,6 +80,21 @@
   ==> Quit <==
   
   The quit command disconnects the associated socket connection.
+  
+  ==> Shutdown <==
+  
+  The shutdown command tells EMC to shutdown before quitting the connection. This
+  command may only be issued if the Hello has been successfully negotiated and the
+  connection has control of the CNC (see enable sub-command below). This command
+  has no parameters.
+  
+  ==> Help <==
+  
+  The help command will return help information in text format over the telnet
+  connection. If no parameters are specified, it will itemize the available commands.
+  If a command is specified, it will provide usage information for the specified
+  command. Help will respond regardless of whether a "Hello" has been
+  successsfully negotiated.
   
   
   EMC sub-commands:
@@ -151,160 +158,160 @@
   Force a wait for the previous command to be received, or done. This lets
   you wait in the event that "emc_set_wait none" is in effect.
 
-  emc_set_timeout <timeout>
+  set_timeout <timeout>
   Set the timeout for commands to return to <timeout>, in seconds. Timeout
   is a real number. If it's <= 0.0, it means wait forever. Default is 0.0,
   wait forever.
 
-  emc_update (none) | none | auto
+  update (none) | none | auto
   With no arg, forces an update of the EMC status. With "none", doesn't
   cause an automatic update of status with other emc_ words. With "auto",
   makes emc_ words automatically update status before they return values.
 
-  emc_error
+  error
   Returns the current EMC error string, or "ok" if no error.
 
-  emc_operator_display
+  operator_display
   Returns the current EMC operator display string, or "ok" if none.
 
-  emc_operator_text
+  operator_text
   Returns the current EMC operator text string, or "ok" if none.
 
-  emc_time
+  time
   Returns the time, in seconds, from the start of the epoch. This starting
   time depends on the platform.
 
-  emc_estop (none) | on | off
+  estop (none) | on | off
   With no arg, returns the estop setting as "on" or "off". Otherwise,
   sends an estop on or off command.
 
-  emc_machine (none) | on | off
+  machine (none) | on | off
   With no arg, returns the machine setting as "on" or "off". Otherwise,
   sends a machine on or off command.
 
-  emc_mode (none) | manual | auto | mdi
+  mode (none) | manual | auto | mdi
   With no arg, returns the mode setting as "manual", "auto", or "mdi".
   Otherwise, sends a mode manual, auto, or mdi command.
 
-  emc_mist (none) | on | off
+  mist (none) | on | off
   With no arg, returns the mist setting as "on" or "off". Otherwise,
   sends a mist on or off command.
 
-  emc_flood (none) | on | off
+  flood (none) | on | off
   With no arg, returns the flood setting as "on" or "off". Otherwise,
   sends a flood on or off command.
 
-  emc_lube (none) | on | off
+  lube (none) | on | off
   With no arg, returns the lubricant pump setting as "on" or "off".
   Otherwise, sends a lube on or off command.
 
-  emc_lube_level
+  lube_level
   Returns the lubricant level sensor reading as "ok" or "low".
 
-  emc_spindle (none) | forward | reverse | increase | decrease | constant | off
+  spindle (none) | forward | reverse | increase | decrease | constant | off
   With no arg, returns the value of the spindle state as "forward",
   "reverse", "increase", "decrease", or "off". With arg, sends the spindle
   command. Note that "increase" and "decrease" will cause a speed change in
   the corresponding direction until a "constant" command is sent.
 
-  emc_brake (none) | on | off
+  brake (none) | on | off
   With no arg, returns the brake setting. Otherwise sets the brake.
 
-  emc_tool
+  tool
   Returns the id of the currently loaded tool
 
-  emc_tool_offset
+  tool_offset
   Returns the currently applied tool length offset
 
-  emc_load_tool_table <file>
+  load_tool_table <file>
   Loads the tool table specified by <file>
 
-  emc_home 0 | 1 | 2 | ...
+  home 0 | 1 | 2 | ...
   Homes the indicated axis.
 
-  emc_jog_stop 0 | 1 | 2 | ...
+  jog_stop 0 | 1 | 2 | ...
   Stop the axis jog
 
-  emc_jog 0 | 1 | 2 | ... <speed>
+  jog 0 | 1 | 2 | ... <speed>
   Jog the indicated axis at <speed>; sign of speed is direction
 
-  emc_jog_incr 0 | 1 | 2 | ... <speed> <incr>
+  jog_incr 0 | 1 | 2 | ... <speed> <incr>
   Jog the indicated axis by increment <incr> at the <speed>; sign of
   speed is direction
 
-  emc_feed_override {<percent>}
+  feed_override {<percent>}
   With no args, returns the current feed override, as a percent. With
   argument, set the feed override to be the percent value
 
-  emc_abs_cmd_pos 0 | 1 | ...
+  abs_cmd_pos 0 | 1 | ...
   Returns double obj containing the XYZ-SXYZ commanded pos in abs coords,
   at given index, 0 = X, etc.
 
-  emc_abs_act_pos
+  abs_act_pos
   Returns double objs containing the XYZ-SXYZ actual pos in abs coords
 
-  emc_rel_cmd_pos 0 | 1 | ...
+  rel_cmd_pos 0 | 1 | ...
   Returns double obj containing the XYZ-SXYZ commanded pos in rel coords,
   at given index, 0 = X, etc., including tool length offset
 
-  emc_rel_act_pos
+  rel_act_pos
   Returns double objs containing the XYZ-SXYZ actual pos in rel coords,
   including tool length offset
 
-  emc_joint_pos
+  joint_pos
   Returns double objs containing the actual pos in absolute coords of individual
   joint/slider positions, excludes tool length offset
 
-  emc_pos_offset X | Y | Z | R | P | W
+  pos_offset X | Y | Z | R | P | W
   Returns the position offset associated with the world coordinate provided
 
-  emc_joint_limit 0 | 1 | ...
+  joint_limit 0 | 1 | ...
   Returns "ok", "minsoft", "minhard", "maxsoft", "maxhard"
 
-  emc_joint_fault 0 | 1 | ...
+  joint_fault 0 | 1 | ...
   Returns "ok" or "fault"
 
-  emc_joint_homed 0 | 1 | ...
+  joint_homed 0 | 1 | ...
   Returns "homed", "not"
 
-  emc_mdi <string>
+  mdi <string>
   Sends the <string> as an MDI command
 
-  emc_task_plan_init
+  task_plan_init
   Initializes the program interpreter
 
-  emc_open <filename>
+  open <filename>
   Opens the named file
 
-  emc_run {<start line>}
+  run {<start line>}
   Without start line, runs the opened program from the beginning. With
   start line, runs from that line. A start line of -1 runs in verify mode.
 
-  emc_pause
+  pause
   Pause program execution
 
-  emc_resume
+  resume
   Resume program execution
 
-  emc_step
+  step
   Step the program one line
 
-  emc_program
+  program
   Returns the name of the currently opened program, or "none"
 
-  emc_program_line
+  program_line
   Returns the currently executing line of the program
 
-  emc_program_status
+  program_status
   Returns "idle", "running", or "paused"
 
-  emc_program_codes
+  program_codes
   Returns the string for the currently active program codes
 
-  emc_joint_type <joint>
+  joint_type <joint>
   Returns "linear", "angular", or "custom" for the type of the specified joint
 
-  emc_joint_units <joint>
+  joint_units <joint>
   Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
   for the corresponding native units of the specified axis. The type
   of the axis (linear or angular) is used to resolve which type of units
@@ -315,16 +322,16 @@
   For angular joints, something close to 1.000 is deemed "deg",
   PI/180 is "rad", 100/90 is "grad", otherwise it's "custom".
  
-  emc_program_units
-  emc_program_linear_units
+  program_units
+  program_linear_units
   Returns "inch", "mm", "cm", or "none", for the corresponding linear 
   units that are active in the program interpreter.
 
-  emc_program_angular_units
+  program_angular_units
   Returns "deg", "rad", "grad", or "none" for the corresponding angular
   units that are active in the program interpreter.
 
-  emc_user_linear_units
+  user_linear_units
   Returns "inch", "mm", "cm", or "custom", for the
   corresponding native user linear units of the EMC trajectory
   level. This is obtained heuristically, based on the
@@ -332,55 +339,69 @@
   Something close to 0.03937 is deemed "inch", 1.000 is "mm", 0.1 is
   "cm", otherwise it's "custom".
 
-  emc_user_angular_units
+  user_angular_units
   Returns "deg", "rad", "grad", or "custom" for the corresponding native
   user angular units of the EMC trajectory level. Like with linear units,
   this is obtained heuristically.
 
-  emc_display_linear_units
-  emc_display_angular_units
+  display_linear_units
+  display_angular_units
   Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
   for the linear or angular units that are active in the display. 
   This is effectively the value of linearUnitConversion or
   angularUnitConversion, resp.
 
-  emc_linear_unit_conversion {inch | mm | cm | auto}
+  linear_unit_conversion {inch | mm | cm | auto}
   With no args, returns the unit conversion active. With arg, sets the
   units to be displayed. If it's "auto", the units to be displayed match
   the program units.
  
-  emc_angular_unit_conversion {deg | rad | grad | auto}
+  angular_unit_conversion {deg | rad | grad | auto}
   With no args, returns the unit conversion active. With arg, sets the
   units to be displayed. If it's "auto", the units to be displayed match
   the program units.
 
-  emc_probe_index
+  probe_index
   Which wire is the probe on or which bit of digital IO to use? (No args
   gets it, one arg sets it.)
 
-  emc_probe_polarity
+  probe_polarity
   Value to look for for probe tripped? (0 args gets it, one arg sets it.)
 
-  emc_probe_clear
+  probe_clear
   Clear the probe tripped flag.
 
-  emc_probe_tripped
+  probe_tripped
   Has the probe been tripped since the last clear.
 
-  emc_probe_value
+  probe_value
   Value of current probe signal. (read-only)
 
-  emc_probe
+  probe
   Move toward a certain location. If the probe is tripped on the way stop
   motion, record the position and raise the probe tripped flag.
 
-  emc_teleop_enable
+  teleop_enable
   Should motion run in teleop mode? (No args
   gets it, one arg sets it.)
 
-  emc_kinematics_type
+  kinematics_type
   returns the type of kinematics functions used identity=1, serial=2,
   parallel=3, custom=4
+  
+  override_limits on | off
+  If parameter is on, disables end of travel hardware limits to allow
+  jogging off of a limt. If parameters is off, then hardware limits
+  are enabled.
+  
+  <------------------------------------------------>
+  
+  To Do:
+  
+  1> Load / save connect and enable passwords to file.
+  2> Implement commands to set / get passwords
+  3> Get enable to tell peer connections which connection has control.
+  4> Get shutdown to notify EMC to actually shutdown.
 */
 
 // the NML channels to the EMC task
@@ -413,7 +434,7 @@ static enum {
 } emcUpdateType = EMC_UPDATE_AUTO;
 
 typedef enum {
-  cmdHello, cmdSet, cmdGet, cmdQuit, cmdUnknown} commandTokenType;
+  cmdHello, cmdSet, cmdGet, cmdQuit, cmdShutdown, cmdHelp, cmdUnknown} commandTokenType;
   
 typedef enum {
   scEcho, scVerbose, scEnable, scConfig, scCommMode, scCommProt, scIniFile,
@@ -446,7 +467,7 @@ bool connId;
 int commMode;
 int commProt;
 char inBuf[256];
-char outBuf[1600];
+char outBuf[16384];
 char progName[256];
 
 int server_sockfd, client_sockfd;
@@ -455,7 +476,6 @@ struct sockaddr_in server_address;
 struct sockaddr_in client_address;
 bool useSockets = true;
 int tokenIdx;
-// char buffer[1600];
 char *delims = " \n\r\0";
 int connCount = -1;
 int enabledConn = -1;
@@ -473,7 +493,7 @@ char *setCommands[] = {
   "USER_LINEAR_UNITS", "USER_ANGULAR_UNITS", "DISPLAY_LINEAR_UNITS", "DISPLAY_ANGULAR_UNITS", 
   "LINEAR_UNIT_CONVERSION", "ANGULAR_UNIT_CONVERSION", "PROBE_INDEX", "PROBE_POLARITY", "PROBE_CLEAR",
   "PROBE_TRIPPED", "PROBE_VALUE", "PROBE", "TELEOP_ENABLE", "KINEMATICS_TYPE", "OVERRIDE_LIMITS", ""};
-char *commands[5] = {"HELLO", "SET", "GET", "QUIT", ""};
+char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
 
 /* static char *skipWhite(char *s)
 {
@@ -483,7 +503,7 @@ char *commands[5] = {"HELLO", "SET", "GET", "QUIT", ""};
     return s;
 } */
 
-void strupr(char *s)
+static void strupr(char *s)
 {  
   int i;
   
@@ -774,12 +794,12 @@ static void thisQuit()
 {
     EMC_NULL emc_null_msg;
 
-    if (0 != emcStatusBuffer) {
+    if (emcStatusBuffer != 0) {
 	// wait until current message has been received
 	emcCommandWaitReceived(emcCommandSerialNumber);
     }
 
-    if (0 != emcCommandBuffer) {
+    if (emcCommandBuffer != 0) {
 	// send null message to reset serial number to original
 	emc_null_msg.serial_number = saveEmcCommandSerialNumber;
 	emcCommandBuffer->write(emc_null_msg);
@@ -3261,14 +3281,14 @@ static cmdResponseType setJogIncr(char *s)
   
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
-  if (sscanf(s, "%d", &axis) <= 0) return rtStandardError;
+  if (sscanf(pch, "%d", &axis) <= 0) return rtStandardError;
   if ((axis < 0) || (axis > 5)) return rtStandardError;
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
-  if (sscanf(s, "%f", &speed) <= 0) return rtStandardError; 
+  if (sscanf(pch, "%f", &speed) <= 0) return rtStandardError; 
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
-  if (sscanf(s, "%f", &incr) <= 0) return rtStandardError; 
+  if (sscanf(pch, "%f", &incr) <= 0) return rtStandardError; 
   if (sendJogIncr(axis, speed, incr) != 0) return rtStandardError;
   return rtNoError;
 }
@@ -4523,7 +4543,7 @@ int commandGet()
     case scBrake: ret = getBrake(pch); break;
     case scTool: ret = getTool(pch); break;
     case scToolOffset: ret = getToolOffset(pch); break;
-    case scLoadToolTable: break;
+    case scLoadToolTable: ret = rtStandardError; break;
     case scHome: ret = rtStandardError; break;
     case scJogStop: ret = rtStandardError; break;
     case scJog: ret = rtStandardError; break;
@@ -4596,6 +4616,213 @@ int commandQuit()
   return -1;
 }
 
+int commandShutdown()
+{
+  if (connId == enabledConn) {
+    printf("Shutting down\n");
+    thisQuit();
+    exit(0);
+    return -1;
+    }
+  else
+    return 0;
+}
+
+static int helpGeneral()
+{
+  sprintf(outBuf, "Available commands:\n\r");
+  strcat(outBuf, "  Hello <password> <client name> <protocol version>\n\r");
+  strcat(outBuf, "  Get <emc command>\n\r");
+  strcat(outBuf, "  Set <emc command>\n\r");
+  strcat(outBuf, "  Shutdown\n\r");
+  strcat(outBuf, "  Help <command>\n\r");
+  sockWrite();
+  return 0;
+}
+
+static int helpHello()
+{
+  sprintf(outBuf, "Usage:\n\r");
+  strcat(outBuf, "  Hello <Password> <Client Name> <Protocol Version>\n\rWhere:\n\r");
+  strcat(outBuf, "  Password is the connection password to allow communications with the CNC server.\n\r");
+  strcat(outBuf, "  Client Name is the name of client trying to connect, typically the network name of the client.\n\r");
+  strcat(outBuf, "  Protocol Version is the version of the protocol with which the client wishes to use.\n\r\n\r");
+  strcat(outBuf, "  With valid password, server responds with:\n\r");
+  strcat(outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
+  strcat(outBuf, "  Ack is acknowledging the connection has been made.\n\r");
+  strcat(outBuf, "  Server Name is the name of the EMC Server to which the client has connected.\n\r");
+  strcat(outBuf, "  Protocol Version is the cleint requested version or latest version support by server if");
+  strcat(outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
+  strcat(outBuf, "  With invalid password, the server responds with:\n\r");
+  strcat(outBuf, "  Hello Nak\n\r");
+  sockWrite();
+  return 0;
+}
+
+static int helpGet()
+{
+  sprintf(outBuf, "Usage:\n\rGet <emc command>\n\r");
+  strcat(outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
+  strcat(outBuf, "  Emc command may be one of:\n\r");
+  strcat(outBuf, "    Abs_act_pos\n\r");
+  strcat(outBuf, "    Abs_cmd_pos\n\r");
+  strcat(outBuf, "    Angular_unit_conversion\n\r");
+  strcat(outBuf, "    Brake\n\r");
+  strcat(outBuf, "    Comm_mode\n\r");
+  strcat(outBuf, "    Comm_prot\n\r");
+  strcat(outBuf, "    Debug\n\r");
+  strcat(outBuf, "    Display_angular_units\n\r"); 
+  strcat(outBuf, "    Display_linear_units\n\r");
+  strcat(outBuf, "    Echo\n\r");
+  strcat(outBuf, "    Enable\n\r");
+  strcat(outBuf, "    Error\n\r");
+  strcat(outBuf, "    EStop\n\r");
+  strcat(outBuf, "    Feed_override\n\r");
+  strcat(outBuf, "    Flood\n\r");
+  strcat(outBuf, "    Joint_fault\n\r");
+  strcat(outBuf, "    Joint_homed\n\r");
+  strcat(outBuf, "    Joint_limit\n\r");
+  strcat(outBuf, "    Joint_pos\n\r");
+  strcat(outBuf, "    Joint_type\n\r");
+  strcat(outBuf, "    Joint_units\n\r");
+  strcat(outBuf, "    Kinematics_type\n\r");
+  strcat(outBuf, "    Linear_unit_conversion\n\r");
+  strcat(outBuf, "    Lube\n\r");
+  strcat(outBuf, "    Lube_level\n\r");
+  strcat(outBuf, "    Machine\n\r");
+  strcat(outBuf, "    Mist\n\r");
+  strcat(outBuf, "    Mode\n\r");
+  strcat(outBuf, "    Operator_display\n\r");
+  strcat(outBuf, "    Operator_text\n\r");
+  strcat(outBuf, "    Override_limits\n\r");
+  strcat(outBuf, "    Plat\n\r");
+  strcat(outBuf, "    Pos_offset\n\r");
+  strcat(outBuf, "    Probe_index\n\r");
+  strcat(outBuf, "    Probe_polarity\n\r");
+  strcat(outBuf, "    Probe_tripped\n\r");
+  strcat(outBuf, "    Probe_value\n\r");
+  strcat(outBuf, "    Program\n\r");
+  strcat(outBuf, "    Program_angular_units\n\r"); 
+  strcat(outBuf, "    Program_codes\n\r");
+  strcat(outBuf, "    Program_line\n\r");
+  strcat(outBuf, "    Program_linear_units\n\r");
+  strcat(outBuf, "    Program_status\n\r");
+  strcat(outBuf, "    Program_units\n\r");
+  strcat(outBuf, "    Rel_act_pos\n\r");
+  strcat(outBuf, "    Rel_cmd_pos\n\r");
+  strcat(outBuf, "    Set_wait\n\r");
+  strcat(outBuf, "    Spindle\n\r");
+  strcat(outBuf, "    Teleop_enable\n\r");
+  strcat(outBuf, "    Time\n\r");
+  strcat(outBuf, "    Timeout\n\r");
+  strcat(outBuf, "    Tool\n\r");
+  strcat(outBuf, "    Tool_offset\n\r");
+  strcat(outBuf, "    User_angular_units\n\r");
+  strcat(outBuf, "    User_linear_units\n\r");
+  strcat(outBuf, "    Verbose\n\r");
+//  strcat(outBuf, "CONFIG\n\r");
+  sockWrite();
+  return 0;
+}
+
+static int helpSet()
+{
+  sprintf(outBuf, "Usage:\n\r  Set <emc command>\n\r");
+  strcat(outBuf, "  Set commands require that a hello has been successfully negotiated,\n\r");
+  strcat(outBuf, "  in most instances requires that control be enabled by the connection.\n\r");
+  strcat(outBuf, "  The set commands not requiring control enabled are:\n\r");
+  strcat(outBuf, "    Comm_mode <mode>\n\r");
+  strcat(outBuf, "    Comm_prot <protocol>\n\r");
+  strcat(outBuf, "    Echo <On | Off>\n\r");
+  strcat(outBuf, "    Enable <Pwd | Off>\n\r");
+  strcat(outBuf, "    Verbose <On | Off>\n\r\n\r");
+  strcat(outBuf, "  The set commands requiring control enabled are:\n\r");
+  strcat(outBuf, "    Abort\n\r");
+  strcat(outBuf, "    Angular_unit_conversion <Deg | Rad | Grad | Auto | Custom>\n\r");
+  strcat(outBuf, "    Brake <On | Off>\n\r");
+  strcat(outBuf, "    Debug <Debug level>\n\r");
+  strcat(outBuf, "    EStop <On | Off>\n\r");
+  strcat(outBuf, "    Feed_override <Percent>\n\r");
+  strcat(outBuf, "    Flood <On | Off>\n\r");
+  strcat(outBuf, "    Home <Axis No>\n\r");
+  strcat(outBuf, "    Jog <Axis No, Speed>\n\r");
+  strcat(outBuf, "    Jog_incr <Axis No, Speed, Distance>\n\r");
+  strcat(outBuf, "    Jog_stop\n\r");
+  strcat(outBuf, "    Linear_unit_conversion <Inch | CM | MM | Auto | Custom>\n\r");
+  strcat(outBuf, "    Load_tool_table <Table name>\n\r");
+  strcat(outBuf, "    Lube <On | Off>\n\r");
+  strcat(outBuf, "    Machine <On | Off>\n\r");
+  strcat(outBuf, "    MDI <MDI String>\n\r");
+  strcat(outBuf, "    Mist <On | Off>\n\r");
+  strcat(outBuf, "    Mode <Manual | Auto | MDI>\n\r");
+  strcat(outBuf, "    Open <File path / name>\n\r");
+  strcat(outBuf, "    Override_limits <On | Off>\n\r");
+  strcat(outBuf, "    Pause\n\r");
+  strcat(outBuf, "    Probe\n\r");
+  strcat(outBuf, "    Probe_clear\n\r");
+  strcat(outBuf, "    Probe_index <Index No>\n\r");
+  strcat(outBuf, "    Probe_polarity <0 | 1>\n\r");
+  strcat(outBuf, "    Resume\n\r");
+  strcat(outBuf, "    Run <Line No>\n\r");
+  strcat(outBuf, "    SetWait <Time>\n\r");
+  strcat(outBuf, "    Spindle <Increase | Decrease | Forward | Reverse | Constant | Off>\n\r");
+  strcat(outBuf, "    Step\n\r");
+  strcat(outBuf, "    Task_plan_init\n\r");
+  strcat(outBuf, "    Teleop_enable\n\r");
+  strcat(outBuf, "    Timeout <Time>\n\r");
+  strcat(outBuf, "    Tool_offset <Offset>\n\r");
+  strcat(outBuf, "    Update <On | Off>\n\r");
+  strcat(outBuf, "    Wait <Time>\n\r");
+  
+  sockWrite();
+  return 0;
+}
+
+static int helpQuit()
+{
+  sprintf(outBuf, "Usage:\n\r");
+  strcat(outBuf, "  The quit command has the server initiate a disconnect from the client,\n\r");
+  strcat(outBuf, "  the command has no parameters and no requirements to have negotiated\n\r");
+  strcat(outBuf, "  a hello, or be in control.");
+  sockWrite();
+  return 0;
+}
+
+static int helpShutdown()
+{
+  sprintf(outBuf, "Usage:\n\r");
+  strcat(outBuf, "  The shutdown command terminates the connection with all clients,\n\r");
+  strcat(outBuf, "  and initiates a shutdown of EMC. The command has no parameters, and\n\r");
+  strcat(outBuf, "  can only be issued by the connection having control.\n\r");
+  sockWrite();
+  return 0;
+}
+
+static int helpHelp()
+{
+  sprintf(outBuf, "If you need help on help, it is time to look into another line of work.\n\r");
+  sockWrite();
+  return 0;
+}
+
+int commandHelp()
+{
+  char *pch;
+  
+  pch = strtok(NULL, delims);
+  if (pch == NULL) return (helpGeneral());
+  strupr(pch);
+  if (strcmp(pch, "HELLO") == 0) return (helpHello());
+  if (strcmp(pch, "GET") == 0) return (helpGet());
+  if (strcmp(pch, "SET") == 0) return (helpSet());
+  if (strcmp(pch, "QUIT") == 0) return (helpQuit());
+  if (strcmp(pch, "SHUTDOWN") == 0) return (helpShutdown());
+  if (strcmp(pch, "HELP") == 0) return (helpHelp());
+  sprintf(outBuf, "%s is not a valid command.", pch);
+  sockWrite();
+  return 0;
+}
+
 commandTokenType lookupToken(char *s)
 {
   commandTokenType i = cmdHello;
@@ -4639,6 +4866,12 @@ int parseCommand()
       case cmdQuit: 
         ret = commandQuit();
         break;
+      case cmdShutdown:
+        ret = commandShutdown();
+	break;
+      case cmdHelp:
+        ret = commandHelp();
+	break;
       case cmdUnknown: ret = -2;
       }
     }
@@ -4724,7 +4957,7 @@ int main(int argc, char *argv[])
 {
 
     // process command line args
-    if (0 != emcGetArgs(argc, argv)) {
+    if (emcGetArgs(argc, argv) != 0) {
 	rcs_print_error("error in argument list\n");
 	exit(1);
     }
@@ -4732,7 +4965,7 @@ int main(int argc, char *argv[])
     iniLoad(EMC_INIFILE);
     initSockets();
     // init NML
-    if (0 != tryNml()) {
+    if (tryNml() != 0) {
 	rcs_print_error("can't connect to emc\n");
 	thisQuit();
 	exit(1);
