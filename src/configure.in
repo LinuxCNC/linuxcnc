@@ -799,7 +799,7 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     AC_PATH_PROG(LYX,lyx-qt,"none", /bin:/usr/bin:/usr/local/bin)
     if ( test "none" = "$LYX" ) ; then
 	BUILD_DOCS=no
-	AC_MSG_WARN([no LyX, documentation (pdf) will not be built])
+	AC_MSG_WARN([no LyX, documentation will not be built])
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then
@@ -809,27 +809,34 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     LYX_MAJORVER=${LYX_VER:0:3}
     if ( ! test "1.3" = "$LYX_MAJORVER" ) ; then
 	BUILD_DOCS=no
-	AC_MSG_WARN([LyX version != 1.3.x, docs (pdf) will not be built])
+	AC_MSG_WARN([LyX version != 1.3.x, documentation will not be built])
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then
     AC_PATH_PROG(PDFLATEX,pdflatex,"none", /bin:/usr/bin:/usr/local/bin)
     if ( test "none" = "$PDFLATEX" ) ; then
 	BUILD_DOCS=no
-	AC_MSG_WARN([no pdflatex, documentation (pdf) will not be built])
+	AC_MSG_WARN([no pdflatex, documentation will not be built])
+    fi
+fi
+if ( test "$BUILD_DOCS" = "yes" ) ; then
+    AC_PATH_PROG(LATEX2HTML,latex2html,"none", /bin:/usr/bin:/usr/local/bin)
+    if ( test "none" = "$LATEX2HTML" ) ; then
+	BUILD_DOCS=no
+	AC_MSG_WARN([no latex2html, documentation will not be built])
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then
     AC_PATH_PROG(ESPTOPDF,epstopdf,"none", /bin:/usr/bin:/usr/local/bin)
     if ( test "none" = "$EPSTOPDF" ) ; then
 	BUILD_DOCS=no
-	AC_MSG_WARN([no epstopdf, documentation (pdf) will not be built])
+	AC_MSG_WARN([no epstopdf, documentation will not be built])
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then
     if ( test "none" = "$PYTHON" ) ; then
 	BUILD_DOCS=no
-	AC_MSG_WARN([no python, documentation (pdf) will not be built])
+	AC_MSG_WARN([no python, documentation will not be built])
     fi
 fi
 AC_SUBST(BUILD_DOCS)
