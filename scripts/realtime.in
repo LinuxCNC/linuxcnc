@@ -74,6 +74,8 @@ CheckConfig(){
 	FUSER=/bin/fuser
     elif test -x /sbin/fuser ; then
 	FUSER=/sbin/fuser
+    elif test -x /usr/bin/fuser ; then
+	FUSER=/usr/bin/fuser
     else
 	echo "ERROR: can't find \"fuser\", used to verify that it is safe to shutdown realtime"
 	exit 1
