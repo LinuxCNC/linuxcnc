@@ -83,8 +83,8 @@ $(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/%.tex
 	if [ ! -z "$(filter %.eps, $^)" ]; then cp $(filter %.eps, $^) $(<:.tex=); fi
 	latex2html $(L2HFLAGS) $(EXTRAL2HFLAGS) $(<:.lyx=.tex)
 	rm -rf $(dir $@)
-	mkdir -p $(dir $(dir $@))
-	mv $(<:.tex=) $(dir $@)
+	mkdir -p $(dir $@)
+	mv $(<:.tex=)/* $(dir $@)
 
 default: docs
 else
