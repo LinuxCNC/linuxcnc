@@ -22,3 +22,6 @@ Depends: ${shlibs:Depends},g++,gcc-3.4,linux-headers-2.6.12-magma
 Section: libs
 Description: PC based motion controller for real-time Linux.
  Includes files needed to build alternate front-ends for emc2
+
+#Package: emc2-axis
+#Depends: ... python2.4-numarray python2.4-imaging python2.4-imaging-tk ...
