@@ -136,7 +136,7 @@ def install_help(app):
         ("P", _("Pause program")),
         ("S", _("Resume program")),
         ("ESC", _("Stop running program, or")),
-        ("", "stop loading program preview"),
+        ("", _("stop loading program preview")),
         ("", ""),
         ("F7", _("Toggle mist")),
         ("F8", _("Toggle flood")),
