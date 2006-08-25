@@ -39,7 +39,7 @@ $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
 PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
 
 PYSCRIPTS := axis.py axis-remote.py emctop.py hal_manualtoolchange.py \
-	mdi.py lintini.py
+	mdi.py image-to-gcode.py lintini.py
 
 PYTARGETS += $(patsubst %.py,../bin/%,$(PYSCRIPTS))
 
