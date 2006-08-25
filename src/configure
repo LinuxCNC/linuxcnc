@@ -865,6 +865,7 @@ Optional Packages:
   --with-rtai=<path to RTAI>              path where RTAI is installed
   --with-rtlinux=<path to RTLINUX>        path where RTLinux is installed
   --with-rtlinuxpro=<path to RTLINUXPRO>  path where RTLinuxPro is installed
+  --with-kernel-headers=<directory>       Location for kernel headers
   --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not
   --with-module-dir=<module-dir>          Installation directory for kernel modules
   --with-gtk_ver=<GTK-version>            GTK version
@@ -1722,6 +1723,24 @@ elif (test $RTS = sim); then
     RTDIR=$(pwd -P)
     RTFLAGS=-DSIMULATOR
 fi
+
+echo "$as_me:$LINENO: checking for location of kernel headers" >&5
+echo $ECHO_N "checking for location of kernel headers... $ECHO_C" >&6
+
+# Check whether --with-kernel-headers or --without-kernel-headers was given.
+if test "${with_kernel_headers+set}" = set; then
+  withval="$with_kernel_headers"
+
+        KERNELDIR="$withval"
+        echo "$as_me:$LINENO: result: using specified value: $KERNELDIR" >&5
+echo "${ECHO_T}using specified value: $KERNELDIR" >&6
+
+else
+
+        echo "$as_me:$LINENO: result: using value from $RTS: $KERNELDIR" >&5
+echo "${ECHO_T}using value from $RTS: $KERNELDIR" >&6
+
+fi;
 
 
 

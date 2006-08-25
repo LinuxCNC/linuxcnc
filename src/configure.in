@@ -368,6 +368,16 @@ elif (test $RTS = sim); then
     RTFLAGS=-DSIMULATOR
 fi
 
+AC_MSG_CHECKING([for location of kernel headers])
+AC_ARG_WITH(kernel-headers,
+    [  --with-kernel-headers=<directory>       Location for kernel headers],
+    [
+        KERNELDIR="$withval"
+        AC_MSG_RESULT(using specified value: $KERNELDIR)
+    ],[
+        AC_MSG_RESULT(using value from $RTS: $KERNELDIR)
+    ])
+
 AC_SUBST([RTNAME])
 AC_SUBST([RTAI])
 AC_SUBST([RTLINUX])
