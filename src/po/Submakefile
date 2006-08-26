@@ -52,6 +52,10 @@ po/tcl.pot: $(TCLSRCS)
 	xgettext -o $@ $^
 TARGETS += po/tcl.pot
 
+po/rs274_err.pot: emc/task/emctaskmain.cc emc/rs274ngc/rs274ngc_errors.cc
+	xgettext -o $@ $^
+TARGETS += po/rs274_err.pot
+
 ifeq ($(BUILD_PYTHON),yes)
 MO_FILES += $(patsubst po/%_axis.po, %/LC_MESSAGES/axis.mo, \
 	$(wildcard po/*_axis.po))
