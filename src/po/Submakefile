@@ -49,11 +49,11 @@ TCLSRCS := \
 	../tcl/scripts/emchelp.tcl
 
 po/tcl.pot: $(TCLSRCS)
-	xgettext -o $@ $^
+	xgettext -o $@ $^ && touch $@
 TARGETS += po/tcl.pot
 
 po/rs274_err.pot: emc/task/emctaskmain.cc emc/rs274ngc/rs274ngc_errors.cc
-	xgettext -o $@ $^
+	xgettext -o $@ $^ && touch $@
 TARGETS += po/rs274_err.pot
 
 ifeq ($(BUILD_PYTHON),yes)
