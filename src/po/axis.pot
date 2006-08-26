@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-26 07:42-0500\n"
+"POT-Creation-Date: 2006-08-26 12:48-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -226,8 +226,10 @@ msgstr ""
 #: emc/usr_intf/axis/scripts/axis.py:1269
 #: emc/usr_intf/axis/scripts/axis.py:1596
 #: emc/usr_intf/axis/scripts/axis.py:1645
-#: emc/usr_intf/axis/scripts/axis.py:1835 ../lib/python/propertywindow.py:17
-#: ../share/axis/tcl/axis.tcl:1215 ../share/axis/tcl/axis.tcl:1252
+#: emc/usr_intf/axis/scripts/axis.py:1835
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:258
+#: ../lib/python/propertywindow.py:17 ../share/axis/tcl/axis.tcl:1215
+#: ../share/axis/tcl/axis.tcl:1252
 msgid "OK"
 msgstr ""
 
@@ -282,6 +284,7 @@ msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:1836
 #: emc/usr_intf/axis/scripts/axis.py:2216
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:260
 msgid "Cancel"
 msgstr ""
 
@@ -351,6 +354,7 @@ msgid "rs274ngc files"
 msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:2152
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:293
 msgid "All files"
 msgstr ""
 
@@ -406,6 +410,87 @@ msgstr ""
 msgid ""
 "This window is part of the AXIS manual toolchanger.  It is safe to close or "
 "iconify this window, or it will close automatically after a few seconds."
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:47
+msgid "Ball"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:48
+msgid "Flat"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:49
+msgid "45 degree"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:50
+msgid "60 degree"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:117
+#, python-format
+msgid "%s: Image to gcode"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:118
+msgid "Image to gcode"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:128
+#, python-format
+msgid ""
+"Image size: %d x %d pixels\n"
+"Minimum pixel value: %d\n"
+"Maximum pixel value: %d"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:231
+msgid "Invert Image"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:232
+msgid "Normalize Image"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:233
+msgid "Pixel Size"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:234
+msgid "Depth"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:235
+msgid "Tolerance"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:236
+msgid "Y step"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:237
+msgid "Tool Diameter"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:238
+msgid "Tool Type"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:239
+msgid "Feed Rate"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:240
+msgid "Units"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:241
+msgid "Safety Height"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:292
+msgid "Depth images"
 msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:37

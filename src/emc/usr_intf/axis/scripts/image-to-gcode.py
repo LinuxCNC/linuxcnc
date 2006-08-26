@@ -20,10 +20,14 @@ import sys, os
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
+import gettext;
+gettext.install("axis", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+
 import Image, numarray
 import numarray.ieeespecial as ieee
 
 from rs274.author import Gcode
+import rs274.options
 
 from math import *
 
@@ -40,10 +44,10 @@ def vee_common(angle):
     return f
     
 tool_makers = {
-    "Ball": ball_tool,
-    "Flat": endmill,
-    "45 degree": vee_common(45),
-    "60 degree": vee_common(60),
+    _("Ball"): ball_tool,
+    _("Flat"): endmill,
+    _("45 degree"): vee_common(45),
+    _("60 degree"): vee_common(60),
 }
 
 def make_tool_shape(f, dia):
@@ -107,19 +111,11 @@ def ui(im, nim, im_name):
     import pickle
 
     app = Tkinter.Tk()
-
-    app.option_add("*Entry.font", ("Helvetica", -12))
-    app.option_add("*Menu.font", ("Helvetica", -12))
-    app.option_add("*Menubutton.font", ("Helvetica", -12))
-    app.option_add("*Label.font", ("Helvetica", -12))
-    app.option_add("*Button.font", ("Helvetica", -12))
-    app.option_add("*Radiobutton.font", ("Helvetica", -12))
-    app.option_add("*Checkbutton.font", ("Helvetica", -12))
-    app.option_add("*Scale.font", ("Helvetica", -12))
+    rs274.options.install(app)
 
     name = os.path.basename(im_name)
-    app.wm_title("%s: Image to gcode" % name)
-    app.wm_iconname("Image to gcode")
+    app.wm_title(_("%s: Image to gcode") % name)
+    app.wm_iconname(_("Image to gcode"))
     w, h = im.size
     r1 = w / 300.
     r2 = h / 300.
@@ -129,8 +125,8 @@ def ui(im, nim, im_name):
     ui_image = im.resize((nw,nh), Image.ANTIALIAS)
     ui_image = ImageTk.PhotoImage(ui_image, master = app)
     i = Tkinter.Label(app, image=ui_image, compound="top",
-        text="Image size: %d x %d pixels\n"
-                "Minimum pixel value: %d\nMaximum pixel value: %d"
+        text=_("Image size: %d x %d pixels\n"
+                "Minimum pixel value: %d\nMaximum pixel value: %d")
             % (im.size + (nim.min(), nim.max())),
         justify="left")
     f = Tkinter.Frame(app)
@@ -232,17 +228,17 @@ def ui(im, nim, im_name):
     )
 
     texts = dict(
-        invert="Invert Image",
-        normalize="Normalize Image",
-        pixel_size="Pixel Size",
-        depth="Depth",
-        tolerance="Tolerance",
-        y_step="Y step",
-        tool_diameter="Tool Diameter",
-        tool_type="Tool Type",
-        feed_rate="Feed Rate",
-        units="Units",
-        safety_height="Safety Height",
+        invert=_("Invert Image"),
+        normalize=_("Normalize Image"),
+        pixel_size=_("Pixel Size"),
+        depth=_("Depth"),
+        tolerance=_("Tolerance"),
+        y_step=_("Y step"),
+        tool_diameter=_("Tool Diameter"),
+        tool_type=_("Tool Type"),
+        feed_rate=_("Feed Rate"),
+        units=_("Units"),
+        safety_height=_("Safety Height"),
     )
 
     try:
@@ -259,9 +255,9 @@ def ui(im, nim, im_name):
         widget.grid(row=j, column=1, sticky="ew")
 
     status = Tkinter.IntVar()
-    bb = Tkinter.Button(b, text="OK", command=lambda:status.set(1), width=8, default="active")
+    bb = Tkinter.Button(b, text=_("OK"), command=lambda:status.set(1), width=8, default="active")
     bb.pack(side="left", padx=4, pady=4)
-    bb = Tkinter.Button(b, text="Cancel", command=lambda:status.set(-1), width=8, default="normal")
+    bb = Tkinter.Button(b, text=_("Cancel"), command=lambda:status.set(-1), width=8, default="normal")
     bb.pack(side="left", padx=4, pady=4)
     
     app.bind("<Escape>", lambda evt: status.set(-1))
@@ -290,11 +286,14 @@ def main():
     if len(sys.argv) > 1:
         im_name = sys.argv[1]
     else:
+        import tkFileDialog, Tkinter
         im_name = tkFileDialog.askopenfilename(defaultextension=".png",
             filetypes = (
-                ("Depth Images", ".gif .png .jpg"),
-                ("All File", "*")))
-        if not im: raise SystemExit
+                (_("Depth images"), ".gif .png .jpg"),
+                (_("All files"), "*")))
+        if not im_name: raise SystemExit
+        Tkinter._default_root.destroy()
+        Tkinter._default_root = None
     im = Image.open(im_name)
     size = im.size
     im = im.convert("L") #grayscale
