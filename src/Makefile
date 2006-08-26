@@ -234,7 +234,9 @@ TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 
 # Add converting of %.po files
 TARGETS += $(patsubst %.po, %.mo, $(wildcard po/*_axis.po po/*_rs274_err.po))
+ifeq "$(MSGFMT_TCL_WORKS)" "yes"
 TARGETS += $(patsubst %.po, %.msg, $(wildcard po/??.po po/??_??.po))
+endif
 
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
