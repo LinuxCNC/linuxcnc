@@ -41,6 +41,7 @@ CheckConfig(){
     fi
     INSMOD="@INSMOD@"
     RMMOD="@RMMOD@"
+    FUSER="@FUSER@"
 
     # Import the config
     source $RTAPICONF
@@ -69,17 +70,6 @@ CheckConfig(){
     done
     MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
     MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
-    # find "fuser" - it might be in /bin or /sbin
-    if test -x /bin/fuser ; then
-	FUSER=/bin/fuser
-    elif test -x /sbin/fuser ; then
-	FUSER=/sbin/fuser
-    elif test -x /usr/bin/fuser ; then
-	FUSER=/usr/bin/fuser
-    else
-	echo "ERROR: can't find \"fuser\", used to verify that it is safe to shutdown realtime"
-	exit 1
-    fi
     case "$MODULES" in
     *rtai_shm*)
         SHM_DEV=/dev/rtai_shm
