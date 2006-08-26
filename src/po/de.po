@@ -1,0 +1,1050 @@
+msgid ""
+msgstr "Project-Id-Version: EMC2\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2006-06-15 02:22+0200\nPO-Revision-Date: 2006-06-15 02:21+0100\nLast-Translator: Florian Hahn <flo-h@users.sourceforge.net>\nLanguage-Team: EMC LOCALIZATION TEAM <emc-developers@lists.sourceforge.net>\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\n"
+
+msgid "Set Run Mark"
+msgstr "Setze Startpunkt"
+
+msgid "Set run mark at line %s?"
+msgstr "Setze Startpunkt in Zeile %s?"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "untitled"
+msgstr "unbenannt"
+
+msgid "Load Tool Table"
+msgstr "Speichern"
+
+msgid "Load Parameter File"
+msgstr "Speichern"
+
+msgid "EMC Diagnostics"
+msgstr "EMC2 Diagnose"
+
+msgid "Task"
+msgstr "Prozess"
+
+msgid "Heartbeat:"
+msgstr "Takt:"
+
+msgid "Command:"
+msgstr "Befehlskennung:"
+
+msgid "Command #:"
+msgstr "Befehlsanzahl:"
+
+msgid "Status:"
+msgstr "Status:"
+
+msgid "Io"
+msgstr "Ein-/Ausgänge"
+
+msgid "Motion"
+msgstr "Achssteuerung"
+
+msgid "About TkEmc"
+msgstr "Über TkEmc"
+
+msgid "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller version 2 (EMC2)\n\nGPL Version 2 (2006)"
+msgstr "TkEmc\n\nGrafische Oberfläche in Tcl/Tk für den Enhanced Machine Controller, Version 2 (EMC2)\n\n\nGPL Version 2 (2006)"
+
+msgid "Set Tool Offset"
+msgstr "Werkzeugoffset"
+
+msgid "Tool:"
+msgstr "Werkzeug:"
+
+msgid "Length:"
+msgstr "Länge:"
+
+msgid "Diameter:"
+msgstr "Durchmesser:"
+
+msgid "can't open %s"
+msgstr "Die Datei %s konnte nicht geöffnet werden"
+
+msgid "All files"
+msgstr "Alle Dateien"
+
+msgid "Text files"
+msgstr "Textdateien"
+
+msgid "NC files"
+msgstr "NC Dateien"
+
+msgid "File"
+msgstr "Datei"
+
+msgid "Open..."
+msgstr "Öffnen..."
+
+msgid "Edit..."
+msgstr "Bearbeiten..."
+
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+msgid "Exit"
+msgstr "Beenden"
+
+msgid "View"
+msgstr "Ansicht"
+
+msgid "Tools..."
+msgstr "Werkzeugtabelle..."
+
+msgid "Offsets and Variables..."
+msgstr "Parameterdatei..."
+
+msgid "Diagnostics..."
+msgstr "Diagnose..."
+
+msgid "Backplot..."
+msgstr "Backplot..."
+
+msgid "Settings"
+msgstr "Einstellungen"
+
+msgid "Calibration..."
+msgstr "Achsabstimmung..."
+
+msgid "Logging..."
+msgstr "Protokollierung..."
+
+msgid "Testing..."
+msgstr "Testen..."
+
+msgid "Debug..."
+msgstr "Debug..."
+
+msgid "Font..."
+msgstr "Schrift..."
+
+msgid "Units"
+msgstr "Maßeinheit"
+
+msgid "auto"
+msgstr "auto"
+
+msgid "inches"
+msgstr "inch"
+
+msgid "mm"
+msgstr "mm"
+
+msgid "cm"
+msgstr "cm"
+
+msgid "Scripts"
+msgstr "Extras"
+
+msgid "HAL Show"
+msgstr "HAL Anzeigen..."
+
+msgid "HAL Config"
+msgstr "HAL Konfiguration..."
+
+msgid "Help"
+msgstr "Hilfe"
+
+msgid "Help..."
+msgstr "Hilfe..."
+
+msgid "Balloon help"
+msgstr "Balloon Hilfe"
+
+msgid "About..."
+msgstr "Über..."
+
+msgid "Estop on"
+msgstr "Notaus gesetzt"
+
+msgid "Estop off"
+msgstr "Notaus zurückgesetzt"
+
+msgid "Machine on"
+msgstr "Maschine an"
+
+msgid "Machine off"
+msgstr "Maschine aus"
+
+msgid "Manual"
+msgstr "Manuell"
+
+msgid "Auto"
+msgstr "Auto"
+
+msgid "MDI"
+msgstr "MDI"
+
+msgid "Mist on"
+msgstr "Nebel an"
+
+msgid "Mist off"
+msgstr "Nebel aus"
+
+msgid "Flood on"
+msgstr "Kühlmittel an"
+
+msgid "Flood off"
+msgstr "Kühlmittel aus"
+
+msgid "Lube on"
+msgstr "Schmieröl an"
+
+msgid "Lube off"
+msgstr "Schmieröl aus"
+
+msgid "Spindle forward"
+msgstr "Spindel vor"
+
+msgid "Spindle reverse"
+msgstr "Spindel zurück"
+
+msgid "Spindle off"
+msgstr "Spindel aus"
+
+msgid "Brake on"
+msgstr "Bremse an"
+
+msgid "Brake off"
+msgstr "Bremse aus"
+
+msgid "ABORT"
+msgstr "ABBRECHEN"
+
+msgid "Offset:"
+msgstr "Werkzeugoffset:"
+
+msgid "Work Offsets:"
+msgstr "Arbeitsoffset:"
+
+msgid "override limits"
+msgstr "Grenzw. aufheben"
+
+msgid "relative"
+msgstr "Relativ"
+
+msgid "machine"
+msgstr "Maschine"
+
+msgid "actual"
+msgstr "- Aktuell"
+
+msgid "commanded"
+msgstr "- Erwartet"
+
+msgid "joint"
+msgstr "Achse"
+
+msgid "world"
+msgstr "Global"
+
+msgid "continuous"
+msgstr "durchgehend"
+
+msgid "Axis Offset"
+msgstr "Achsoffset"
+
+msgid "Set axis value:"
+msgstr "Achsenoffset:"
+
+msgid "Set Jog Speed"
+msgstr "Achsgeschwindigkeit"
+
+msgid "Set jog speed:"
+msgstr "Achsgeschwindigkeit:"
+
+msgid "Set Feed Override"
+msgstr "Geschwindigkeitsübersteuerung"
+
+msgid "Set feed override:"
+msgstr "Geschwindigkeitsübersteuerung:"
+
+msgid "Axis Speed:"
+msgstr "Achsgeschwindigkeit:"
+
+msgid "Feed Override:"
+msgstr "Geschwindigkeitsübersteuerung:"
+
+msgid "MDI:"
+msgstr "MDI:"
+
+msgid "Program: "
+msgstr "Programm: "
+
+msgid "  -  Status: "
+msgstr " - Status: "
+
+msgid "Run"
+msgstr "Ausführen"
+
+msgid "Pause"
+msgstr "Pause"
+
+msgid "Resume"
+msgstr "Fortsetzen"
+
+msgid "Step"
+msgstr "Schritt"
+
+msgid "Verify"
+msgstr "Überprüfen"
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Set Font"
+msgstr "Schrift auswählen"
+
+msgid "Font"
+msgstr "Schriftart"
+
+msgid "Size"
+msgstr "Größe"
+
+msgid "Style"
+msgstr "Stil"
+
+msgid "MANUAL"
+msgstr "MANUELL"
+
+msgid "ESTOP"
+msgstr "NOTAUS"
+
+msgid "ON"
+msgstr "AN"
+
+msgid "ESTOP RESET"
+msgstr "NOTAUS RESET"
+
+msgid "AUTO"
+msgstr "AUTO"
+
+msgid "MIST ON"
+msgstr "NEBEL AN"
+
+msgid "MIST OFF"
+msgstr "NEBEL AUS"
+
+msgid "MIST ?"
+msgstr "NEBEL ?"
+
+msgid "FLOOD ON"
+msgstr "KÜHLM. AN"
+
+msgid "FLOOD OFF"
+msgstr "KÜHLM. AUS"
+
+msgid "FLOOD ?"
+msgstr "KÜHLM. ?"
+
+msgid "LUBE ON"
+msgstr "SCHMIERM. AN"
+
+msgid "LUBE OFF"
+msgstr "SCHMIERM. AUS"
+
+msgid "LUBE ?"
+msgstr "SCHMIERM. AN"
+
+msgid "SPINDLE FORWARD"
+msgstr "SPINDEL VORWÄRTS"
+
+msgid "SPINDLE REVERSE"
+msgstr "SPINDEL RÜCKWÄRTS"
+
+msgid "SPINDLE OFF"
+msgstr "SPINDEL HALT"
+
+msgid "SPINDLE INCREASE"
+msgstr "SPINDEL ERHÖHEND"
+
+msgid "SPINDLE DECREASE"
+msgstr "SPINDEL ABNEHMEND"
+
+msgid "SPINDLE ?"
+msgstr "SPINDEL ?"
+
+msgid "BRAKE ON"
+msgstr "BREMSE AN"
+
+msgid "BRAKE OFF"
+msgstr "BREMSE AUS"
+
+msgid "BRAKE ?"
+msgstr "BREMSE ?"
+
+msgid "JOG %s +"
+msgstr "%s +"
+
+msgid "JOG %s -"
+msgstr "%s -"
+
+msgid "%s\n\nZ\nE\nR\nO"
+msgstr "%s\n\nN\nU\nL\nL\nE\nN"
+
+msgid "About"
+msgstr "Über"
+
+msgid "TkMini  \n\nTcl/Tk GUI for Enhanced Machine Controller\n\nGPL Copyright 2003  \nRay Henry <rehenry@up.net>\n\n 3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n \nThis software comes with ABSOLUTELY NO GUARANTEE!   \nFor details see the copyright.html file in this directory."
+msgstr "TkMini  \n\nGraphische Tcl/Tk Oberfläche für EMC2\n\nGPL Copyright 2003  \nRay Henry <rehenry@up.net>\n\n 3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n \nThis software comes with ABSOLUTELY NO GUARANTEE!   \nFor details see the copyright.html file in this directory."
+
+msgid "Program"
+msgstr "Programm"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Backplot"
+msgstr "Backplot"
+
+msgid "Editor"
+msgstr "Editor"
+
+msgid "Offsets"
+msgstr "Offsets"
+
+msgid "Tools"
+msgstr "Werkzeuge"
+
+msgid "Position Type"
+msgstr "Positionierungs-Info"
+
+msgid "Tool Info"
+msgstr "Werkzeug-Info"
+
+msgid "Offset Info"
+msgstr "Offset-Info"
+
+msgid "Show Restart"
+msgstr "Neustart anzeigen"
+
+msgid "Hide Restart"
+msgstr "Neustart verbergen"
+
+msgid "Show Split Right"
+msgstr "Fenster teilen"
+
+msgid "Show Mode Full"
+msgstr "Nur Menü anzeigen"
+
+msgid "Show Popin Full"
+msgstr "Nur Auswahl anzeigen"
+
+msgid "Actual Position"
+msgstr "Aktuelle Position"
+
+msgid "Commanded Position"
+msgstr "Erwartete Position"
+
+msgid "Machine Position"
+msgstr "Maschinenposition"
+
+msgid "Relative Position"
+msgstr "Relative Position"
+
+msgid "HAL Show..."
+msgstr "HAL Anzeigen..."
+
+msgid "HAL Config..."
+msgstr "HAL Konfiguration..."
+
+msgid "Program File"
+msgstr "Programmdatei "
+
+msgid "Program file is %s"
+msgstr "Programmdatei  ist %s"
+
+msgid "Editor File"
+msgstr "Editordatei"
+
+msgid "Editor file is %s"
+msgstr "Editordatei ist %s"
+
+msgid "Parameter File"
+msgstr "Parameterdatei"
+
+msgid "Parameter file is %s"
+msgstr "Parameterdatei ist %s"
+
+msgid "Tool File"
+msgstr "Werkzeugdatei"
+
+msgid "Tool file is %s"
+msgstr "Werkzeugdatei ist %s"
+
+msgid "Active G Codes"
+msgstr "Aktive G-Codes"
+
+msgid "Active codes include; \n%s"
+msgstr "Aktive G-Codes sind:\n%s"
+
+msgid "CONTINUE"
+msgstr "FORTSETZEN"
+
+msgid "Tool #:"
+msgstr "Werkzeug #:"
+
+msgid "Length :"
+msgstr "Länge:"
+
+msgid "Work Offsets: "
+msgstr "Arbeitsoffset:"
+
+msgid "-- MESSAGES --"
+msgstr "-- MITTEILUNGEN --"
+
+msgid "DEFAULT"
+msgstr "STANDART"
+
+msgid "Speed:"
+msgstr "Geschw.:"
+
+msgid "RAPID"
+msgstr "MAXIMAL"
+
+msgid "JOG X +"
+msgstr "X +"
+
+msgid "JOG X -"
+msgstr "X -"
+
+msgid "increment"
+msgstr "inkrementell"
+
+msgid "A\nL\nL\n\nZ\nE\nR\nO"
+msgstr "A\nL\nL\nE\n\nN\nU\nL\nL\nE\nN"
+
+msgid "Spindle Forward"
+msgstr "Spindel vorwärts"
+
+msgid "Spindle Reverse"
+msgstr "Spindel rückwärts"
+
+msgid "Spindle Slower"
+msgstr "Spindel langsamer"
+
+msgid "Spindle Faster"
+msgstr "Spindel schneller"
+
+msgid "Back"
+msgstr "Vorherige Zeile"
+
+msgid "Ahead"
+msgstr "Gleiche Zeile"
+
+msgid "Restart"
+msgstr "Neu starten"
+
+msgid "The interpreter is running. \n Pressing OK will abort and load the new program"
+msgstr "Der Interpreter arbeitet gerade. \nBestätigen Sie mit 'OK', um abzubrechen und die neue Datei zu laden."
+
+msgid "ESTOPPED"
+msgstr "NOTAUS ZURÜCKSETZEN"
+
+msgid "ESTOP PUSH"
+msgstr "NOTAUS"
+
+msgid "FEEDHOLD"
+msgstr "ANHALTEN"
+
+msgid "TOOL SETUP \n Click or tab to edit.   Press enter to return to keyboard machine control."
+msgstr "WERKZEUG SETUP \nWählen Sie mit der Maus oder der Tabulator-Taste den gewünschten Wert aus.\nMit der Enter-Taste wird der Wert übernommen."
+
+msgid "  TOOL NUMBER  "
+msgstr "  WERKZEUG  "
+
+msgid "  LENGTH  "
+msgstr "  LÄNGE  "
+
+msgid "  DIAMETER  "
+msgstr "  DURCHMESSER  "
+
+msgid "  COMMENT  "
+msgstr "  BEMERKUNG  "
+
+msgid "Add Extra Tool"
+msgstr "Werkzeug hinzufügen"
+
+msgid "Remove Last Tool"
+msgstr "Letztes Werkzeug löschen"
+
+msgid "This is not a good number."
+msgstr "Es wurde kein gültiger Wert angegeben."
+
+msgid "COORDINATE SYSTEM SETUP \n\n  Click value to edit with keyboard.  Press enter to return to keyboard control of machine. \n "
+msgstr "KOORDINATENSYSTEM SETUP \n\nWählen Sie mit der Maus oder der Tabulator-Taste den gewünschten Wert aus.\nMit der Enter-Taste wird der Wert übernommen. "
+
+msgid "Axis "
+msgstr "Achse"
+
+msgid "Value "
+msgstr "Wert"
+
+msgid "Teach"
+msgstr "Anwenden"
+
+msgid "Write And Load File "
+msgstr "Speichern und Neu Laden"
+
+msgid "Offset By Radius"
+msgstr "Offset über Radius"
+
+msgid "Offset By Length"
+msgstr "Offset über Länge"
+
+msgid "Subtract"
+msgstr "Abziehen"
+
+msgid "Add"
+msgstr "Dazuzählen"
+
+msgid "Zero All G54"
+msgstr "G54 auf Null setzen"
+
+msgid "Zero All G55"
+msgstr "G55 auf Null setzen"
+
+msgid "Zero All G56"
+msgstr "G56 auf Null setzen"
+
+msgid "Zero All G57"
+msgstr "G57 auf Null setzen"
+
+msgid "Zero All G58"
+msgstr "G58 auf Null setzen"
+
+msgid "Zero All G59"
+msgstr "G59 auf Null setzen"
+
+msgid "Zero All G59.1"
+msgstr "G59.1 auf Null setzen"
+
+msgid "Zero All G59.2"
+msgstr "G59.2 suf Null setzen"
+
+msgid "Zero All G59.3"
+msgstr "G59.3 auf Null setzen"
+
+msgid "Zero All ????"
+msgstr "Alle auf Null setzen ????"
+
+msgid "Edit"
+msgstr "Bearbeiten"
+
+msgid "New"
+msgstr "Neu"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Save As..."
+msgstr "Speichern unter..."
+
+msgid "Save and Load"
+msgstr "Speichern und Beenden"
+
+msgid "Undo"
+msgstr "Rückgängig"
+
+msgid "Redo"
+msgstr "Wiederherstellen"
+
+msgid "Cut"
+msgstr "Ausschneiden"
+
+msgid "Copy"
+msgstr "Kopieren"
+
+msgid "Paste"
+msgstr "Einfügen"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "Select All"
+msgstr "Alles makieren"
+
+msgid "Find..."
+msgstr "Suchen..."
+
+msgid "Replace..."
+msgstr "Ersetzen..."
+
+msgid "Renumber File..."
+msgstr "Zeilennummerierung aktualisieren..."
+
+msgid "No Numbering"
+msgstr "Zeilennummerierung deaktivieren"
+
+msgid "Line Numbering..."
+msgstr "Zeilennummerierung aktivieren..."
+
+msgid "Set Line Numbering"
+msgstr "Zeilennummerierung"
+
+msgid "Increment"
+msgstr "Intervall"
+
+msgid "One"
+msgstr "Eins"
+
+msgid "Two"
+msgstr "Zwei"
+
+msgid "Five"
+msgstr "Fünf"
+
+msgid "Ten"
+msgstr "Zehn"
+
+msgid "Space"
+msgstr "Abstand"
+
+msgid "Single Space"
+msgstr "ein Leerzeichen"
+
+msgid "Double Space"
+msgstr "zwei Leerzeichen"
+
+msgid "Tab Space"
+msgstr "Tabulator"
+
+msgid "Next Number: "
+msgstr "Startnummer:"
+
+msgid "Renumber"
+msgstr "Anwenden"
+
+msgid "Basic Help"
+msgstr "Hilfe"
+
+msgid "This is a simple ASCII editor like many others.\n\nCtrl+O  Open\nCtrl+S  Save\nCtrl+Z  Undo\nCtrl+Y  Redo\nCtrl+X  Cut\nCtrl+C  Copy\nCtrl+V  Paste\nDel     Delete\nCtrl+A  Select All\n\nCtrl+F  Find\nCtrl+R  Replace "
+msgstr "Dies ist ein simpler Texteditor.\n\nCtrl+O  Öffnen\nCtrl+S  Speichern\nCtrl+Z  Rückgängig\nCtrl+Y  Wiederherstellen\nCtrl+X  Ausschneiden\nCtrl+C  Kopieren\nCtrl+V  Einfügen\nDel     Löschen\nCtrl+A  Alles makieren\n\nCtrl+F  Suchen\nCtrl+R  Ersetzen "
+
+msgid "tknotepad by Joseph Acosta. <joeja@mindspring.com>\n\n Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"
+msgstr "tknotepad by Joseph Acosta <joeja@mindspring.com>\n\nModifiziert für EMC von: Paul Corner <paul_c@users.sourceforge.net>"
+
+msgid "New Confirm?"
+msgstr "Änderungen bestätigen"
+
+msgid "Print Command: "
+msgstr "Drucker-Befehl:"
+
+msgid "Find"
+msgstr "Suchen"
+
+msgid "Find what:"
+msgstr "Suchen:"
+
+msgid "Replace with:"
+msgstr "Ersetzen mit:"
+
+msgid "Find Next"
+msgstr "Weitersuchen"
+
+msgid "Replace"
+msgstr "Ersetzen"
+
+msgid "Replace All"
+msgstr "Alle ersetzen"
+
+msgid "Up"
+msgstr "Aufwärts"
+
+msgid "Down"
+msgstr "Abwärts"
+
+msgid "Match case"
+msgstr "Groß-/Kleinschreibung beachten"
+
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+msgid "rot-x"
+msgstr "Rot-X"
+
+msgid "rot-y"
+msgstr "Rot-Y"
+
+msgid "rot-z"
+msgstr "Rot-Z"
+
+msgid "zoom"
+msgstr "Zoom"
+
+msgid "Hide Setup"
+msgstr "Optionen ausbl."
+
+msgid "Show Setup"
+msgstr "Optionen anz."
+
+msgid "EMC2 Axis Calibration"
+msgstr "EMC2 Achsabstimmung"
+
+msgid "Save To File"
+msgstr "Speichern"
+
+msgid "Quit"
+msgstr "Beenden"
+
+msgid "Tune %d"
+msgstr "Achse %d"
+
+msgid "INI Name"
+msgstr "INI-Name"
+
+msgid "HAL's Value"
+msgstr "HAL-Wert"
+
+msgid "Next Value"
+msgstr "Nächster Wert"
+
+msgid "Test"
+msgstr "Ausprobieren"
+
+msgid "The HAL parameter \n  %s \n has changed. \n Really quit?"
+msgstr "Das HAL Parameter \n%s \nwurde geändert. \nWirklich beenden?"
+
+msgid "Not permitted to save here.\n\n  You need to copy a configuration to your home directory and work there."
+msgstr "Sie sind nicht berechtigt hier zu speichern.\n\nKopieren Sie eine Konfiguration in Ihr home-Verzeichnis, um damit zu arbeiten."
+
+msgid "can't save %s"
+msgstr "Die Datei %s konnte nicht gespeichert werden"
+
+msgid "EMC Debug"
+msgstr "EMC2 Debug"
+
+msgid "Invalid INI file entries"
+msgstr "Ungültige Einträge in der INI-Datei"
+
+msgid "Configuration information"
+msgstr "Konfigurations-Informationen"
+
+msgid "EMC Logging"
+msgstr "EMC2 Protokollierung"
+
+msgid "All Input Positions"
+msgstr "All Input Positions"
+
+msgid "File:"
+msgstr "Datei:"
+
+msgid "Size:"
+msgstr "Größe:"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Stop"
+msgstr "Stopp"
+
+msgid "Plot"
+msgstr "P"
+
+msgid "Save and Reload"
+msgstr "Speichern und Aktualisieren"
+
+msgid "About TkEditor"
+msgstr "Über TkEditor"
+
+msgid "TkEditor\n\nSimple Tcl/Tk Text Editor\n\nPublic Domain (1999)"
+msgstr "TkEditor\n\nEinfacher Tcl/Tk Text Editor\n\nPublic Domain (1999)"
+
+msgid "Find:"
+msgstr "Suchen:"
+
+msgid "Replace:"
+msgstr "Ersetzen:"
+
+msgid "Find All"
+msgstr "Alle finden"
+
+msgid "Skip This"
+msgstr "Überspringen"
+
+msgid "Replace This"
+msgstr "Ersetzen"
+
+msgid "Clear"
+msgstr "Zurücksetzen"
+
+msgid "Next Number:"
+msgstr "Startnummer:"
+
+msgid "Can't find the bwidget 1.7 package.  There is a debian bwidget package; install \nit with sudo apt-get install bwidget."
+msgstr "Das Paket 'bwidget 1.7' konnte nicht gefunden werden.\nEs existiert ein 'bwidget' Paket für Debian.\nDieses kann mit 'sudo apt-get install bwidget' installiert werden."
+
+msgid "No details available."
+msgstr "Es sind keine Details verfügbar."
+
+msgid "ERROR: must specify a path to search for configurations"
+msgstr "FEHLER: Es muss ein Pfad zu den Konfigurationen angegeben sein."
+
+msgid "EMC2 Configuration Selector"
+msgstr "EMC2 Konfigurationsassistent"
+
+msgid "Welcome to EMC2.\n\nSelect a machine configuration from the list on the left.\nDetails about the selected configuration will appear in the display on the right.\nClick 'OK' to run the selected configuration"
+msgstr "Willkommen zu EMC2.\n\nWählen Sie eine Maschinenkonfiguration aus der linken Liste.\nDetails über de gewählte Konfiguration werden auf der rechten Seite angezeigt.\nBestätigen Sie mit 'OK', um die gewählte Konfiguration zu laden."
+
+msgid "ERROR: no configurations found in path '%s'"
+msgstr "FEHLER: Es wurde keine Konfiguration im Verzeichnis '%s' gefunden."
+
+msgid "Copy Configuration?"
+msgstr "Konfiguration kopieren?"
+
+msgid "The configuration you selected, %s, is in a directory you cannot write to.\n\nThis will cause certain features not to function properly, and you will be unable to modify the .ini and .hal files.\n\nIt is recommended that you make a copy of this configuration to your home directory.  Do you wish to copy the configuration?"
+msgstr "Die gewählte Konfiguration '%s' befindet sich in einem Verzeichnis, für dass Sie keine Schreibrechte besitzen.\n\nDies kann dazu führen, dass verschiedene Funktionen nicht richtig funktioneren. Weiterhin können Sie die '.ini' und '.hal' Dateien nicht ändern.\n\nEs wird empfohlen, die Konfiguration in Ihr 'home' Verzeichis zu kopieren. Wollen Sie die Konfiguration kopieren?"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nein"
+
+msgid "Configuration Copied"
+msgstr "Konfiguration kopiert"
+
+msgid "The configuration file has been copied to %s. Next time, choose this location when starting EMC2."
+msgstr "Die Konfiguration wurde in das Verzeichnis '%s' kopiert. Wählen Sie diese beim nachsten Start von EMC2 aus."
+
+msgid "TkEmc BackPlot"
+msgstr "TkEMC Backplot"
+
+msgid "SETUP"
+msgstr "SETUP"
+
+msgid "RESET"
+msgstr "RESET"
+
+msgid "CANCEL"
+msgstr "ABBRECHEN"
+
+msgid "AXIS"
+msgstr "ACHSE"
+
+msgid "OFFSET"
+msgstr "OFFSET"
+
+msgid "ANGLE"
+msgstr "WINKEL"
+
+msgid "DIRECTION"
+msgstr "RICHTUNG"
+
+msgid "SIZE :"
+msgstr "MASSSTAB"
+
+msgid "HAL Configuration"
+msgstr "HAL Konfiguration"
+
+msgid "Would you like to save your configuration before you exit?"
+msgstr "Möchten Sie Ihre Änderungen vor dem Beenden speichern? "
+
+msgid "Save All"
+msgstr "Alles Speichern"
+
+msgid "Save Tune"
+msgstr "Abstimmungen Speichern"
+
+msgid "Save as Netlist"
+msgstr "Speichere als Netzliste"
+
+msgid "Don't Save"
+msgstr "Nicht Speichern"
+
+msgid "Show"
+msgstr "Anzeigen"
+
+msgid "Watch"
+msgstr "Beobachten"
+
+msgid "Modify"
+msgstr "Ändern"
+
+msgid "Save HAL Ini"
+msgstr "Speichere HAL-INI"
+
+msgid "Save HAL Net"
+msgstr "Speichere HAL-NET"
+
+msgid "Save and Exit"
+msgstr "Speichern und Beenden"
+
+msgid "Expand Tree"
+msgstr "Menübaum aufklappen"
+
+msgid "Collapse Tree"
+msgstr "Menübaum zuklappen"
+
+msgid "Expand Pins"
+msgstr "Pins aufklappen"
+
+msgid "Expand Parameters"
+msgstr "Parameters aufklappen"
+
+msgid "Expand Signals"
+msgstr "Signals aufklappen"
+
+msgid "Erase Watch"
+msgstr "Ansicht löschen"
+
+msgid "Main"
+msgstr "Allgemein"
+
+msgid "Enter HAL command :"
+msgstr "HAL Befehl:"
+
+msgid "Execute"
+msgstr "Anwenden"
+
+msgid "<-- Select a Leaf.  Click on its name."
+msgstr "<-- Wählen Sie eine Variable aus, indem Sie auf den Namen klicken."
+
+msgid "EMC Set Coordinate"
+msgstr "EMC2 Koordinaten-Setup"
+
+msgid "Coordinate System Control Window"
+msgstr "Koordinatensystem Kontroll-Fenster"
+
+msgid "Var # "
+msgstr "Variable"
+
+msgid "Offset Value "
+msgstr "Aktueller Wert"
+
+msgid "What to Teach"
+msgstr "Neuen Wert eingeben:"
+
+msgid "Set Old"
+msgstr "Alten Wert"
+
+msgid "Set Zero"
+msgstr "Null setzen"
+
+msgid "Close"
+msgstr "Beenden"
+
+msgid "Write"
+msgstr "Speichern"
+
+msgid " SHOW "
+msgstr "ANZEIGEN"
+
+msgid " WATCH "
+msgstr "BEOBACHTEN"
+
+msgid "Tree View"
+msgstr "Baumansicht"
+
+msgid "Test HAL command :"
+msgstr "HAL Befehl ausprobieren:"
+
+msgid "Commands may be tested here but they will NOT be saved"
+msgstr "Die Befehle können hier getestet werden, werden aber NICHT gespeichert."
+

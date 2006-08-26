@@ -233,7 +233,8 @@ HEADERS := \
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 
 # Add converting of %.po files
-TARGETS += $(patsubst %.po, %.mo, $(wildcard po/*.po))
+TARGETS += $(patsubst %.po, %.mo, $(wildcard po/*_axis.po po/*_rs274_err.po))
+TARGETS += $(patsubst %.po, %.msg, $(wildcard po/??.po po/??_??.po))
 
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)

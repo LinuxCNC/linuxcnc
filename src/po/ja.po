@@ -1,0 +1,377 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Set Run Mark"
+msgstr "動く点を決める"
+
+msgid "Set run mark at line"
+msgstr "線に動く点を決める"
+
+msgid "Load Tool Table"
+msgstr "ツール表を読む"
+
+msgid "Load Parameter File"
+msgstr "パラムのファイルを読む"
+
+msgid "Cancel"
+msgstr "中止"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "EMC Diagnostics"
+msgstr "EMCの診断"
+
+msgid "Task"
+msgstr "Task"
+
+msgid "Heartbeat:"
+msgstr "心臓の鼓動:"
+
+msgid "Command:"
+msgstr "命令:"
+
+msgid "Command #:"
+msgstr "命令番:"
+
+msgid "Status:"
+msgstr "状態:"
+
+msgid "Io"
+msgstr "IO"
+
+msgid "Motion"
+msgstr "動き"
+
+msgid "About TkEmc"
+msgstr "TkEmcについて"
+
+msgid "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller\n\nPublic Domain (1999)"
+msgstr "Enhanced Machine Controller(EMC)の\n\nTkEmc\n\n\nTcl/Tkで書いたGUI\n\n パブリックドメイン(1999)"
+
+msgid "Set Tool Offset"
+msgstr "道具が平行移動"
+
+msgid "Tool:"
+msgstr "道具:"
+
+msgid "Length:"
+msgstr "長さ:"
+
+msgid "Diameter"
+msgstr "直径:"
+
+msgid "can't open"
+msgstr "開けません"
+
+msgid "All files"
+msgstr "全部のファイル"
+
+msgid "Text files"
+msgstr "テキストファイル"
+
+msgid "NC files"
+msgstr "NCファイル"
+
+msgid "File"
+msgstr "ファイル"
+
+msgid "Open..."
+msgstr "開く..."
+
+msgid "Edit..."
+msgstr "エディット..."
+
+msgid "Reset"
+msgstr "リーセット"
+
+msgid "Exit"
+msgstr "出る"
+
+msgid "View"
+msgstr "見方"
+
+msgid "Tools..."
+msgstr "道具..."
+
+msgid "Offsets and Variables..."
+msgstr "平行移動と価..."
+
+msgid "Diagnostics..."
+msgstr "診断"
+
+msgid "Backplot..."
+msgstr "描"
+
+msgid "Settings"
+msgstr "撰"
+
+msgid "Calibration..."
+msgstr "較正..."
+
+msgid "Logging..."
+msgstr "ローグ..."
+
+msgid "Testing..."
+msgstr "テスト..."
+
+msgid "Debug..."
+msgstr "ディバッグ..."
+
+msgid "Font..."
+msgstr "フォント..."
+
+msgid "Units"
+msgstr "ユーニット（刻）"
+
+msgid "auto"
+msgstr "自動"
+
+msgid "inches"
+msgstr "インチ"
+
+msgid "mm"
+msgstr "mm"
+
+msgid "cm"
+msgstr "cm"
+
+msgid "Scripts"
+msgstr "スクリプト"
+
+msgid "Help"
+msgstr "助け"
+
+msgid "Help..."
+msgstr "助け..."
+
+msgid "Balloon help"
+msgstr "バルーン助け"
+
+msgid "Info..."
+msgstr "インフォ..."
+
+msgid "About..."
+msgstr "これについて..."
+
+msgid "Estop on"
+msgstr "終止符点いた"
+
+msgid "Estop off"
+msgstr "終止符消した"
+
+msgid "Machine on"
+msgstr "出来るように"
+
+msgid "Machine off"
+msgstr "出来ないように"
+
+msgid "Manual"
+msgstr "手動"
+
+msgid "Auto"
+msgstr "自動"
+
+msgid "Mist on"
+msgstr "雰点いた"
+
+msgid "Mist off"
+msgstr "雰消した"
+
+msgid "Flood on"
+msgstr "水洗点いた"
+
+msgid "Flood off"
+msgstr "水洗消した"
+
+msgid "Lube on"
+msgstr "油点いた"
+
+msgid "Lube off"
+msgstr "油消した"
+
+msgid "Spindle forward"
+msgstr "スピンドル前進"
+
+msgid "Spindle reverse"
+msgstr "スピンドル逆"
+
+msgid "Spindle off"
+msgstr "スピンドル消した"
+
+msgid "Break on"
+msgstr "ブレーキ点いた"
+
+msgid "Break off"
+msgstr "ブレーキ消した"
+
+msgid "Brake on"
+msgstr "ブレーキ点いた"
+
+msgid "Brake off"
+msgstr "ブレーキ消した"
+
+msgid "ABORT"
+msgstr "中断"
+
+msgid "Offset:"
+msgstr "平行移動:"
+
+msgid "Work Offsets:"
+msgstr "工作物平行移動:"
+
+msgid "override limits"
+msgstr "方図を聞き捨てる"
+
+msgid "relative"
+msgstr "相対"
+
+msgid "machine"
+msgstr "マッシン"
+
+msgid "actual"
+msgstr "本当"
+
+msgid "commanded"
+msgstr "命令な"
+
+msgid "joint"
+msgstr "関節"
+
+msgid "world"
+msgstr "世界"
+
+msgid "continuous"
+msgstr "連綿"
+
+msgid "home"
+msgstr "原点"
+
+msgid "Axis Offset"
+msgstr "軸の平行移動"
+
+msgid "Set axis value:"
+msgstr "軸の数値:"
+
+msgid "Set Jog Speed"
+msgstr "ジョグ時速"
+
+msgid "Set jog speed:"
+msgstr "ジョグ時速:"
+
+msgid "Set Feed Override"
+msgstr "フィード手直して"
+
+msgid "Set feed override:"
+msgstr "フィード手直して:"
+
+msgid "Axis Speed:"
+msgstr "軸の時速:"
+
+msgid "Feed Override:"
+msgstr "フィード手直し:"
+
+msgid "MDI:"
+msgstr "一線(MDI):"
+
+msgid "MDI"
+msgstr "一線(MDI)"
+
+msgid "AUTO"
+msgstr "自動"
+
+msgid "MANUAL"
+msgstr "手動"
+
+msgid "Program: "
+msgstr "プローグラム: "
+
+msgid " - Status: "
+msgstr " - 状態: "
+
+msgid "Run"
+msgstr "動く"
+
+msgid "Pause"
+msgstr "間断"
+
+msgid "Resume"
+msgstr "つづく"
+
+msgid "Step"
+msgstr "徐徐に"
+
+msgid "Verify"
+msgstr "質す"
+
+msgid "Error: "
+msgstr "越度: "
+
+msgid "Error"
+msgstr "越度"
+
+msgid "Set Font"
+msgstr "フォントを撰ぶ"
+
+msgid "ESTOP"
+msgstr "終止符"
+
+msgid "ON"
+msgstr "点いた"
+
+msgid "ESTOP RESET"
+msgstr "リーセット"
+
+msgid "MIST ON"
+msgstr "雰点け"
+
+msgid "MIST OFF"
+msgstr "雰消した"
+
+msgid "MIST ?"
+msgstr "雰は?"
+
+msgid "FLOOD ON"
+msgstr "水洗点いた"
+
+msgid "FLOOD OFF"
+msgstr "水洗消した"
+
+msgid "FLOOD ?"
+msgstr "水洗は?"
+
+msgid "LUBE ON"
+msgstr "油点いた"
+
+msgid "LUBE OFF"
+msgstr "油消した"
+
+msgid "SPINDLE FORWARD"
+msgstr "スピンドル前進"
+
+msgid "SPINDLE REVERSE"
+msgstr "スピンドル逆"
+
+msgid "SPINDLE OFF"
+msgstr "スピンドル消した"
+
+msgid "SPINDLE INCREASE"
+msgstr "スピンドル加速"
+
+msgid "SPINDLE DECREASE"
+msgstr "スピンドル減速"
+
+msgid "SPINDLE ?"
+msgstr "スピンドルは?"
+
+msgid "BRAKE ON"
+msgstr "ブレーキ点いた"
+
+msgid "BRAKE OFF"
+msgstr "ブレーキ消した"
+
+msgid "BRAKE ?"
+msgstr "ブレーキは?"
+

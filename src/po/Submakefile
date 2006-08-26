@@ -1,6 +1,9 @@
 %.mo: %.po
 	msgfmt -o $@ $<
 
+po/%.msg: po/%.po
+	msgfmt --tcl -l $* -d po $<
+
 ../share/locale/%/LC_MESSAGES/axis.mo: po/%_axis.mo
 	$(ECHO) copying $* message catalog
 	@mkdir -p $(dir $@)
@@ -25,6 +28,29 @@ $(DESTDIR)$(localedir)/%/LC_MESSAGES/axis.mo: ../share/locale/%/LC_MESSAGES/axis
 TARGETS += $(patsubst po/%_rs274_err.po, \
 	../share/locale/%/LC_MESSAGES/rs274_err.mo, \
 	$(wildcard po/*_rs274_err.po))
+
+TCLSRCS := \
+	../tcl/bin/emccalib.tcl \
+	../tcl/bin/emcdebug.tcl \
+	../tcl/bin/emclog.tcl \
+	../tcl/bin/emctesting.tcl \
+	../tcl/bin/emctuning.tcl \
+	../tcl/bin/genedit.tcl \
+	../tcl/bin/halconfig.tcl \
+	../tcl/bin/halshow.tcl \
+	../tcl/bin/pickconfig.tcl \
+	../tcl/bin/tkbackplot.tcl \
+	../tcl/bin/tkio.tcl \
+	../tcl/mini.tcl \
+	../tcl/show_errors.tcl \
+	../tcl/tkemc.tcl \
+	../tcl/scripts/Set_Coordinates.tcl \
+	../tcl/scripts/balloon.tcl \
+	../tcl/scripts/emchelp.tcl
+
+po/tcl.pot: $(TCLSRCS)
+	xgettext -o $@ $^
+TARGETS += po/tcl.pot
 
 ifeq ($(BUILD_PYTHON),yes)
 MO_FILES += $(patsubst po/%_axis.po, %/LC_MESSAGES/axis.mo, \
