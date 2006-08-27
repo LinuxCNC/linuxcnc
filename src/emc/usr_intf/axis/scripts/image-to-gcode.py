@@ -73,7 +73,6 @@ unitcodes = ['G20', 'G21']
 direction_makers = [ direction_increasing, direction_decreasing, direction_alternating ]
 
 def convert(image, units, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction, rows_flag, cols_flag, cols_first_flag):
-    image = numarray.transpose(image)
     w, h = image.shape
     tw, th = tool_shape.shape
     h1 = h - th
@@ -107,26 +106,18 @@ def mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, toleranc
     if w1-1 not in jrange: jrange.append(w1-1)
     jrange.reverse()
     for j, flag in zip(jrange, direction()):
-        y = (h1-j) * pixelsize
+        y = (w1-j) * pixelsize
         if flag:
-            if j == jrange[0] or direction is not direction_alternating:
-                g.rapid(0, y)
-            for i in irange:
-                x = i * pixelsize
-                m1 = image[i:i+tw, j:j+tw]
-                d = (m1 - tool_shape).max()
-                g.cut(x, y, d)
+            r = irange
         else:
-            print "(flag=%d j=%d direction=%s)" % (flag, j, direction)
-            print "(%s %s)" % (j == jrange[0], direction is not direction_alternating)
-            if j == jrange[0] or direction is not direction_alternating:
-                print "(rapid)"
-                g.rapid(irangerev[0] * pixelsize, y)
-            for i in irangerev:
-                x = i * pixelsize
-                m1 = image[i:i+tw, j:j+tw]
-                d = (m1 - tool_shape).max()
-                g.cut(x, y, d)
+            r = irangerev
+        if j == jrange[0] or direction is not direction_alternating:
+            g.rapid(r[0]*pixelsize, y)
+        for i in r:
+            x = i * pixelsize
+            m1 = image[j:j+tw, i:i+tw]
+            d = (m1 - tool_shape).max()
+            g.cut(x, y, d)
         if direction is direction_alternating:
             g.flush()
             g.cut(y=y)
@@ -145,23 +136,18 @@ def mill_rows(g, image, tool_shape, pixelsize, pixelstep, safetyheight, toleranc
     if h1-1 not in jrange: jrange.append(h1-1)
     jrange.reverse()
     for j, flag in zip(jrange, direction()):
-        x = (w1-j) * pixelsize
+        x = j * pixelsize
         if flag:
-            if j == jrange[0] or direction is not direction_alternating:
-                g.rapid(x, 0)
-            for i in irange:
-                y = i * pixelsize
-                m1 = image[j:j+tw, i:i+tw]
-                d = (m1 - tool_shape).max()
-                g.cut(x, y, d)
+            r = irange
         else:
-            if j == jrange[0] or direction is not direction_alternating:
-                g.rapid(x, irangerev[0] * pixelsize)
-            for i in irangerev:
-                y = i * pixelsize
-                m1 = image[j:j+tw, i:i+tw]
-                d = (m1 - tool_shape).max()
-                g.cut(x, y, d)
+            r = irangerev
+        if j == jrange[0] or direction is not direction_alternating:
+            g.rapid(x, (w1-r[0])*pixelsize)
+        for i in r:
+            y = (w1-i) * pixelsize
+            m1 = image[i:i+tw, j:j+tw]
+            d = (m1 - tool_shape).max()
+            g.cut(x, y, d)
         if direction is direction_alternating:
             g.flush()
             g.cut(y=y)
@@ -397,12 +383,10 @@ def main():
     if options['normalize']:
         a = nim.min()
         b = nim.max()
-        print "(%f %f %f)" % (a, b, b-a)
         if a != b:
             nim = (nim - a) / (b-a)
 
     nim = nim * depth
-    print "(%f %f)" % (nim.min(), nim.max())
 
     if options['invert']:
         nim = -nim
