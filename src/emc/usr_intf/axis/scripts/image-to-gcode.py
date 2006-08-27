@@ -174,6 +174,7 @@ def ui(im, nim, im_name):
     import Tkinter
     import ImageTk
     import pickle
+    import nf
 
     app = Tkinter.Tk()
     rs274.options.install(app)
@@ -223,26 +224,19 @@ def ui(im, nim, im_name):
     def floatentry(f, v):
         var = Tkinter.DoubleVar(f)
         var.set(v)
-        #w = Tkinter.Entry(f, textvariable=var)
         w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_float, validate="key", width=10)
-        #w.bind("<Key>", filter_nonfloat)
         return w, var
 
     def intentry(f, v):
         var = Tkinter.IntVar(f)
         var.set(v)
         w = Tkinter.Entry(f, textvariable=var, validatecommand=validate_int, validate="key", width=10)
-        #w.bind("<Key>", filter_nonint)
         return w, var
 
     def checkbutton(k, v):
         var = Tkinter.BooleanVar(f)
         var.set(v)
         g = Tkinter.Frame(f)
-        #b1 = Tkinter.Radiobutton(g, text="Yes", variable=var, value=True)
-        #b2 = Tkinter.Radiobutton(g, text="No", variable=var, value=False)
-        #b1.pack(side="left")
-        #b2.pack(side="left")
         w = Tkinter.Checkbutton(g, variable=var, text="Yes")
         w.pack(side="left")
         return g, var 
@@ -276,8 +270,12 @@ def ui(im, nim, im_name):
         svar = Tkinter.StringVar(f)
         svar.set(options[v])
         svar.trace("w", trace)
-        w = Tkinter.OptionMenu(f, svar, *options)
-        w.configure(takefocus=1, width=max(len(opt) for opt in options)+3)
+        wp = f._w.rstrip(".") + ".c" + svar._name
+        f.tk.call("combobox::combobox", wp, "-editable", 0, "-width",
+                max(len(opt) for opt in options)+3, "-textvariable", svar._name,
+                "-background", "white")
+        f.tk.call(wp, "list", "insert", "end", *options)
+        w = nf.makewidget(f, Tkinter.Widget, wp)
         return w, var
 
     rc = os.path.expanduser("~/.image2gcoderc")
