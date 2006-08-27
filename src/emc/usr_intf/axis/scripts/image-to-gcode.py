@@ -43,12 +43,7 @@ def vee_common(angle):
         return r * slope
     return f
     
-tool_makers = {
-    _("Ball"): ball_tool,
-    _("Flat"): endmill,
-    _("45 degree"): vee_common(45),
-    _("60 degree"): vee_common(60),
-}
+tool_makers = [ ball_tool, endmill, vee_common(45), vee_common(60)]
 
 def make_tool_shape(f, dia):
     dia = int(dia+.5)
@@ -61,49 +56,119 @@ def make_tool_shape(f, dia):
                 n[x,y] = f(r)
     return n
 
-def convert(image, units, tool_shape, pixelsize, y_step, safetyheight, tolerance, feed):
+def direction_alternating():
+    while 1:
+        yield True
+        yield False
+
+def direction_increasing():
+    while 1:
+        yield True
+
+def direction_decreasing():
+    while 1:
+        yield False
+
+unitcodes = ['G20', 'G21']
+direction_makers = [ direction_increasing, direction_decreasing, direction_alternating ]
+
+def convert(image, units, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction, rows_flag, cols_flag, cols_first_flag):
     image = numarray.transpose(image)
     w, h = image.shape
     tw, th = tool_shape.shape
     h1 = h - th
     w1 = w - tw
     tool_shape = tool_shape * pixelsize * tw / 2. 
-    #import sys
-    #print >>sys.stderr, tool_shape
     
     g = Gcode(safetyheight=safetyheight, tolerance=tolerance)
     g.begin()
     g.continuous()
     g.write(units)
     g.safety()
-    g.rapid(0,0)
     g.set_feed(feed)
-    jrange = range(0, h1, y_step)
-    irange = range(w1)
-    irangerev = range(w1-1, -1, -1)
-    if h1-1 not in jrange: jrange.append(h1-1)
+    if cols_flag and cols_first_flag:
+        mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction)
+        if rows_flag: g.safety()
+    if rows_flag:
+        mill_rows(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction)
+    if cols_flag and not cols_first_flag:
+        if rows_flag: g.safety()
+        mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction)
+    g.end()
+
+def mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction):
+    w, h = image.shape
+    tw, th = tool_shape.shape
+    h1 = h - th
+    w1 = w - tw
+    jrange = range(0, w1, pixelstep)
+    irange = range(h1)
+    irangerev = range(h1-1, -1, -1)
+    if w1-1 not in jrange: jrange.append(w1-1)
     jrange.reverse()
-    k = 0
-    for j in jrange:
-        k = k + 1
+    for j, flag in zip(jrange, direction()):
         y = (h1-j) * pixelsize
-        if k%2==1:
+        if flag:
+            if j == jrange[0] or direction is not direction_alternating:
+                g.rapid(0, y)
             for i in irange:
                 x = i * pixelsize
                 m1 = image[i:i+tw, j:j+tw]
                 d = (m1 - tool_shape).max()
                 g.cut(x, y, d)
         else:
+            print "(flag=%d j=%d direction=%s)" % (flag, j, direction)
+            print "(%s %s)" % (j == jrange[0], direction is not direction_alternating)
+            if j == jrange[0] or direction is not direction_alternating:
+                print "(rapid)"
+                g.rapid(irangerev[0] * pixelsize, y)
             for i in irangerev:
                 x = i * pixelsize
                 m1 = image[i:i+tw, j:j+tw]
                 d = (m1 - tool_shape).max()
                 g.cut(x, y, d)
-        g.flush()
-        g.cut(y=y)
-        g.flush()
+        if direction is direction_alternating:
+            g.flush()
+            g.cut(y=y)
+            g.flush()
+        else:
+            g.safety()
 
-    g.end()
+def mill_rows(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction):
+    w, h = image.shape
+    tw, th = tool_shape.shape
+    h1 = h - th
+    w1 = w - tw
+    jrange = range(0, h1, pixelstep)
+    irange = range(w1)
+    irangerev = range(w1-1, -1, -1)
+    if h1-1 not in jrange: jrange.append(h1-1)
+    jrange.reverse()
+    for j, flag in zip(jrange, direction()):
+        x = (w1-j) * pixelsize
+        if flag:
+            if j == jrange[0] or direction is not direction_alternating:
+                g.rapid(x, 0)
+            for i in irange:
+                y = i * pixelsize
+                m1 = image[j:j+tw, i:i+tw]
+                d = (m1 - tool_shape).max()
+                g.cut(x, y, d)
+        else:
+            if j == jrange[0] or direction is not direction_alternating:
+                g.rapid(x, irangerev[0] * pixelsize)
+            for i in irangerev:
+                y = i * pixelsize
+                m1 = image[j:j+tw, i:i+tw]
+                d = (m1 - tool_shape).max()
+                g.cut(x, y, d)
+        if direction is direction_alternating:
+            g.flush()
+            g.cut(y=y)
+            g.flush()
+        else:
+            g.safety()
+
 
 def ui(im, nim, im_name):
     import Tkinter
@@ -112,6 +177,7 @@ def ui(im, nim, im_name):
 
     app = Tkinter.Tk()
     rs274.options.install(app)
+    app.tk.call("source", os.path.join(BASE, "share", "axis", "tcl", "combobox.tcl"))
 
     name = os.path.basename(im_name)
     app.wm_title(_("%s: Image to gcode") % name)
@@ -192,25 +258,43 @@ def ui(im, nim, im_name):
         return g, var
 
     def optionmenu(k, v, *options):
-        var = Tkinter.StringVar(f)
+        options = list(options)
+        def trace(*args):
+            try:
+                var.set(options.index(svar.get()))
+            except ValueError:
+                pass
+
+        try:
+            opt = options[v]
+        except (TypeError, IndexError):
+            v = 0
+            opt = options[0]
+
+        var = Tkinter.IntVar(f)    
         var.set(v)
-        w = Tkinter.OptionMenu(f, var, *options)
-        w.configure(takefocus=1)
+        svar = Tkinter.StringVar(f)
+        svar.set(options[v])
+        svar.trace("w", trace)
+        w = Tkinter.OptionMenu(f, svar, *options)
+        w.configure(takefocus=1, width=max(len(opt) for opt in options)+3)
         return w, var
 
     rc = os.path.expanduser("~/.image2gcoderc")
     constructors = [
-        ("units", lambda f, v: optionmenu(f, v, "G20 (in)", "G21 (mm)")),
+        ("units", lambda f, v: optionmenu(f, v, _("G20 (in)"), _("G21 (mm)"))),
         ("invert", checkbutton),
         ("normalize", checkbutton),
         ("tolerance", floatentry),
         ("pixel_size", floatentry),
         ("feed_rate", floatentry),
+        ("pattern", lambda f, v: optionmenu(f, v, _("Rows"), _("Columns"), _("Rows then Columns"), _("Columns then Rows"))),
+        ("direction", lambda f, v: optionmenu(f, v, _("Positive"), _("Negative"), _("Alternating"))),
         ("depth", floatentry),
-        ("y_step", intscale),
+        ("pixelstep", intscale),
         ("tool_diameter", floatentry),
         ("safety_height", floatentry),
-        ("tool_type", lambda f, v: optionmenu(f, v, *tool_makers.keys())),
+        ("tool_type", lambda f, v: optionmenu(f, v, _("Ball End"), _("Flat End"), _("45 Degree"), _("60 Degree")))
     ]
 
     defaults = dict(
@@ -218,27 +302,31 @@ def ui(im, nim, im_name):
         normalize = False,
         pixel_size = .006,
         depth = 0.25,
-        y_step = 8,
+        pixelstep = 8,
         tool_diameter = 1/16.,
         safety_height = .012,
-        tool_type = "Ball",
+        tool_type = 0,
         tolerance = .001,
         feed_rate = 12,
-        units = "G20 (in)"
+        units = 0,
+        pattern = 0,
+        direction = 0,
     )
 
     texts = dict(
         invert=_("Invert Image"),
         normalize=_("Normalize Image"),
         pixel_size=_("Pixel Size"),
-        depth=_("Depth"),
-        tolerance=_("Tolerance"),
-        y_step=_("Y step"),
-        tool_diameter=_("Tool Diameter"),
+        depth=_("Depth (units)"),
+        tolerance=_("Tolerance (units)"),
+        pixelstep=_("Y step (pixels)"),
+        tool_diameter=_("Tool Diameter (units)"),
         tool_type=_("Tool Type"),
-        feed_rate=_("Feed Rate"),
+        feed_rate=_("Feed Rate (units per minute)"),
         units=_("Units"),
-        safety_height=_("Safety Height"),
+        safety_height=_("Safety Height (units)"),
+        pattern=_("Scan pattern"),
+        direction=("Scan direction"),
     )
 
     try:
@@ -302,7 +390,7 @@ def main():
     nim = numarray.fromstring(im.tostring(), 'UInt8', (h, w))
     options = ui(im, nim, im_name)
 
-    step = options['y_step']
+    step = options['pixelstep']
     depth = options['depth']
 
     
@@ -327,8 +415,14 @@ def main():
     tool_diameter = options['tool_diameter']
     pixel_size = options['pixel_size']
     tool = make_tool_shape(maker, tool_diameter / pixel_size)
-    convert(nim, options['units'], tool, pixel_size, options['y_step'],
-        options['safety_height'], options['tolerance'], options['feed_rate'])
+
+    rows = options['pattern'] != 1
+    columns = options['pattern'] != 0
+    columns_first = options['pattern'] == 3
+    direction = direction_makers[options['direction']]
+    units = unitcodes[options['units']]
+    convert(nim, units, tool, pixel_size, step,
+        options['safety_height'], options['tolerance'], options['feed_rate'], direction, rows, columns, columns_first)
 
 if __name__ == '__main__':
     main()
