@@ -87,7 +87,8 @@ class Convert_Scan_Alternating:
     def __call__(self, primary, items):
         st = self.st = self.st + 1
         if st % 2: items.reverse()
-        yield False, items
+        if st == 1: yield True, items
+        else: yield False, items
 
 class Convert_Scan_Increasing:
     def __call__(self, primary, items):
@@ -134,6 +135,13 @@ class Reduce_Scan_Lace:
             idx = 2
             test = operator.ge
 
+        def bos(j):
+            return j - j % keep
+
+        def eos(j):
+            if j % keep == 0: return j
+            return j + keep - j%keep
+
         for i, (flag, span) in enumerate(self.converter(primary, items)):
             subspan = []
             a = None
@@ -147,7 +155,7 @@ class Reduce_Scan_Lace:
                         b = i
                     else:
                         if i - b < keep: continue
-                        yield True, span[a:b+1]
+                        yield True, span[bos(a):eos(b+1)]
                         a = None
             if a is not None:
                 yield True, span[a:]
@@ -184,19 +192,19 @@ def get_z(image, tool, x, y):
         return cache[x,y]
     except KeyError:
         tt = tool.shape[0]
-        m1 = image[x:x+tt, y:y+tt]
+        m1 = image[y:y+tt, x:x+tt]
         cache[x,y] = d = (m1 - tool).max()
         return d
         
 def get_dz_dy(image, tool, x, y, pixelsize):
     y1 = max(0, y-1)
-    y2 = min(image.shape[1]-1, y+1)
+    y2 = min(image.shape[0]-1, y+1)
     dy = pixelsize * (y2-y1)
     return (get_z(image, tool, x, y2) - get_z(image, tool, x, y1)) / dy
         
 def get_dz_dx(image, tool, x, y, pixelsize):
     x1 = max(0, x-1)
-    x2 = min(image.shape[0]-1, x+1)
+    x2 = min(image.shape[1]-1, x+1)
     dx = pixelsize * (x2-x1)
     return (get_z(image, tool, x2, y) - get_z(image, tool, x1, y)) / dx
 
@@ -524,14 +532,14 @@ def main():
     if options['bounded'] and rows and columns:
         slope = tan(options['contact_angle'] * pi / 180)
         if columns_first:
-            convert_rows = Reduce_Scan_Lace(convert_rows, slope, 3)            
+            convert_rows = Reduce_Scan_Lace(convert_rows, slope, step+1)
         else:
-            convert_cols = Reduce_Scan_Lace(convert_cols, slope, 3)            
+            convert_cols = Reduce_Scan_Lace(convert_cols, slope, step+1)
         if options['bounded'] > 1:
             if columns_first:
-                convert_cols = Reduce_Scan_Lace(convert_cols, slope, 3)            
+                convert_cols = Reduce_Scan_Lace(convert_cols, slope, step+1)
             else:
-                convert_rows = Reduce_Scan_Lace(convert_rows, slope, 3)            
+                convert_rows = Reduce_Scan_Lace(convert_rows, slope, step+1)
 
     units = unitcodes[options['units']]
     convert(nim, units, tool, pixel_size, step,
