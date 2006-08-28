@@ -1561,7 +1561,7 @@ def filter_program(program_filter, infilename, outfilename):
     import subprocess
     outfile = open(outfilename, "w")
     p = subprocess.Popen([program_filter, infilename], stdin=subprocess.PIPE,
-                        stdout=outfile, stderr=sys.stderr)
+                        stdout=outfile)
     p.stdin.close()  # No input for you
 
     progress = Progress(1, 1)
