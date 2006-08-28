@@ -30,6 +30,7 @@ from rs274.author import Gcode
 import rs274.options
 
 from math import *
+import operator
 
 def ball_tool(r):
     return 1-sqrt(1-r**2)
@@ -45,9 +46,32 @@ def vee_common(angle):
     
 tool_makers = [ ball_tool, endmill, vee_common(45), vee_common(60)]
 
+def amax(seq):
+    res = 0
+    for i in seq:
+        if abs(i) > abs(res): res = i
+    return res
+
+def group_by_sign(seq, slop=sin(pi/18), key=lambda x:x):
+    sign = None
+    subseq = []
+    for i in seq:
+        ki = key(i)
+        if sign is None:
+            subseq.append(i)
+            if ki != 0:
+                sign = ki / abs(ki)
+        else:
+            subseq.append(i)
+            if sign * ki < -slop:
+                sign = ki / abs(ki)
+                yield subseq
+                subseq = [i]
+    if subseq: yield subseq
+
 def make_tool_shape(f, dia):
     dia = int(dia+.5)
-    n = numarray.array([[ieee.plus_inf] * dia] * dia, type="Float64")
+    n = numarray.array([[ieee.plus_inf] * dia] * dia, type="Float32")
     hdia = dia / 2.
     for x in range(dia):
         for y in range(dia):
@@ -56,23 +80,80 @@ def make_tool_shape(f, dia):
                 n[x,y] = f(r)
     return n
 
-def direction_alternating():
-    while 1:
-        yield True
-        yield False
+class Convert_Scan_Alternating:
+    def __init__(self):
+        self.st = 0
 
-def direction_increasing():
-    while 1:
-        yield True
+    def __call__(self, primary, items):
+        self.st = self.st + 1
+        if st % 2: items.reverse()
+        return False, items
 
-def direction_decreasing():
-    while 1:
-        yield False
+class Convert_Scan_Increasing:
+    def __call__(self, primary, items):
+        return True, items
+
+class Convert_Scan_Decreasing:
+    def __call__(self, primary, items):
+        items.reverse()
+        return True, items
+
+class Convert_Scan_Upmill:
+    def __init__(self, slop = sin(pi / 18)):
+        self.slop = slop
+
+    def __call__(self, primary, items):
+        for span in group_by_sign(items, self.slop, operator.itemgetter(2)):
+            if amax([it[2] for it in span]) < 0:
+                span.reverse()
+            yield True, span
+
+class Convert_Scan_Downmill:
+    def __init__(self, slop = sin(pi / 18)):
+        self.slop = slop
+
+    def __call__(self, primary, items):
+        for span in group_by_sign(items, self.slop, operator.itemgetter(2)):
+            if amax([it[2] for it in span]) > 0:
+                span.reverse()
+            print >>sys.stderr, [si[2] for si in span]
+            yield True, span
+
+class Reduce_Scan_Lace:
+    def __init__(self, converter, slope, keep):
+        self.converter = converter
+        self.slope = slope
+        self.keep = keep
+
+    def __call__(self, primary, items):
+        slope = self.slope
+        keep = self.keep
+        if primary:
+            idx = 3
+        else:
+            idx = 2
+
+        for i, (flag, span) in enumerate(self.converter(primary, items)):
+            subspan = []
+            a = None
+            for i, si in enumerate(span):
+                ki = si[idx]
+                if a is None:
+                    if abs(ki) >= slope:
+                        a = b = i
+                else:
+                    if abs(ki) >= slope:
+                        b = i
+                    else:
+                        if i - b < keep: continue
+                        yield True, span[a:b+1]
+            if a is not None:
+                yield True, span[a:]
 
 unitcodes = ['G20', 'G21']
-direction_makers = [ direction_increasing, direction_decreasing, direction_alternating ]
+convert_makers = [ Convert_Scan_Increasing, Convert_Scan_Decreasing, Convert_Scan_Alternating, Convert_Scan_Upmill, Convert_Scan_Downmill ]
 
-def convert(image, units, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction, rows_flag, cols_flag, cols_first_flag):
+def convert(image, units, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_rows, convert_cols, cols_first_flag):
     w, h = image.shape
     tw, th = tool_shape.shape
     h1 = h - th
@@ -85,49 +166,64 @@ def convert(image, units, tool_shape, pixelsize, pixelstep, safetyheight, tolera
     g.write(units)
     g.safety()
     g.set_feed(feed)
-    if cols_flag and cols_first_flag:
-        mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction)
-        if rows_flag: g.safety()
-    if rows_flag:
-        mill_rows(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction)
-    if cols_flag and not cols_first_flag:
-        if rows_flag: g.safety()
-        mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction)
+    if convert_cols and cols_first_flag:
+        mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_cols, True)
+        if convert_rows: g.safety()
+    if convert_rows:
+        mill_rows(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_rows, not cols_first_flag)
+    if convert_cols and not cols_first_flag:
+        if convert_rows: g.safety()
+        mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_cols, False)
     g.end()
 
-def mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction):
+cache = {}
+def get_z(image, tool, x, y):
+    try:
+        return cache[x,y]
+    except KeyError:
+        tt = tool.shape[0]
+        m1 = image[x:x+tt, y:y+tt]
+        cache[x,y] = d = (m1 - tool).max()
+        return d
+        
+def get_dz_dy(image, tool, x, y, pixelsize):
+    y1 = max(0, y-1)
+    y2 = min(image.shape[1]-1, y+1)
+    dy = pixelsize * (y2-y1)
+    return (get_z(image, tool, x, y2) - get_z(image, tool, x, y1)) / dy
+        
+def get_dz_dx(image, tool, x, y, pixelsize):
+    x1 = max(0, x-1)
+    x2 = min(image.shape[0]-1, x+1)
+    dx = pixelsize * (x2-x1)
+    return (get_z(image, tool, x2, y) - get_z(image, tool, x1, y)) / dx
+
+def mill_cols(g, image, tool, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_scan, primary):
     w, h = image.shape
-    tw, th = tool_shape.shape
+    tw, th = tool.shape
     h1 = h - th
     w1 = w - tw
     jrange = range(0, w1, pixelstep)
-    irange = range(h1)
-    irangerev = range(h1-1, -1, -1)
     if w1-1 not in jrange: jrange.append(w1-1)
-    jrange.reverse()
-    for j, flag in zip(jrange, direction()):
-        y = (w1-j) * pixelsize
-        if flag:
-            r = irange
-        else:
-            r = irangerev
-        if j == jrange[0] or direction is not direction_alternating:
-            g.rapid(r[0]*pixelsize, y)
-        for i in r:
-            x = i * pixelsize
-            m1 = image[j:j+tw, i:i+tw]
-            d = (m1 - tool_shape).max()
-            g.cut(x, y, d)
-        if direction is direction_alternating:
-            g.flush()
-            g.cut(y=y)
-            g.flush()
-        else:
-            g.safety()
+    irange = range(h1)
 
-def mill_rows(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, direction):
+    for j in jrange:
+        y = (w1-j) * pixelsize
+        scan = []
+        for i in irange:
+            x = i * pixelsize
+            milldata = i, (x, y, get_z(image, tool, i, j)), get_dz_dx(image, tool, i, j, pixelsize), get_dz_dy(image, tool, i, j, pixelsize)
+            scan.append(milldata)
+        for flag, points in convert_scan(primary, scan):
+            if flag:
+                g.safety()
+                g.rapid(points[0][1][0], points[0][1][1])
+            for p in points:
+                g.cut(*p[1])
+
+def mill_rows(g, image, tool, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_scan, primary):
     w, h = image.shape
-    tw, th = tool_shape.shape
+    tw, th = tool.shape
     h1 = h - th
     w1 = w - tw
     jrange = range(0, h1, pixelstep)
@@ -135,26 +231,19 @@ def mill_rows(g, image, tool_shape, pixelsize, pixelstep, safetyheight, toleranc
     irangerev = range(w1-1, -1, -1)
     if h1-1 not in jrange: jrange.append(h1-1)
     jrange.reverse()
-    for j, flag in zip(jrange, direction()):
+    for j in jrange:
         x = j * pixelsize
-        if flag:
-            r = irange
-        else:
-            r = irangerev
-        if j == jrange[0] or direction is not direction_alternating:
-            g.rapid(x, (w1-r[0])*pixelsize)
-        for i in r:
+        scan = []
+        for i in irange:
             y = (w1-i) * pixelsize
-            m1 = image[i:i+tw, j:j+tw]
-            d = (m1 - tool_shape).max()
-            g.cut(x, y, d)
-        if direction is direction_alternating:
-            g.flush()
-            g.cut(y=y)
-            g.flush()
-        else:
-            g.safety()
-
+            milldata = i, (x, y, get_z(image, tool, j, i)), get_dz_dy(image, tool, j, i, pixelsize), get_dz_dx(image, tool, j, i, pixelsize)
+            scan.append(milldata)
+        for flag, points in convert_scan(primary, scan):
+            if flag:
+                g.safety()
+                g.rapid(points[0][1][0], points[0][1][1])
+            for p in points:
+                g.cut(*p[1])
 
 def ui(im, nim, im_name):
     import Tkinter
@@ -273,12 +362,14 @@ def ui(im, nim, im_name):
         ("pixel_size", floatentry),
         ("feed_rate", floatentry),
         ("pattern", lambda f, v: optionmenu(f, v, _("Rows"), _("Columns"), _("Rows then Columns"), _("Columns then Rows"))),
-        ("direction", lambda f, v: optionmenu(f, v, _("Positive"), _("Negative"), _("Alternating"))),
+        ("converter", lambda f, v: optionmenu(f, v, _("Positive"), _("Negative"), _("Alternating"), _("Up Milling"), _("Down Milling"))),
         ("depth", floatentry),
         ("pixelstep", intscale),
         ("tool_diameter", floatentry),
         ("safety_height", floatentry),
-        ("tool_type", lambda f, v: optionmenu(f, v, _("Ball End"), _("Flat End"), _("45 Degree"), _("60 Degree")))
+        ("tool_type", lambda f, v: optionmenu(f, v, _("Ball End"), _("Flat End"), _("45 Degree"), _("60 Degree"))),
+        ("bounded", lambda f, v: optionmenu(f, v, _("None"), _("Secondary"), _("Full"))),
+        ("contact_angle", floatentry),
     ]
 
     defaults = dict(
@@ -294,7 +385,9 @@ def ui(im, nim, im_name):
         feed_rate = 12,
         units = 0,
         pattern = 0,
-        direction = 0,
+        converter = 0,
+        bounded = 0,
+        contact_angle = 45,
     )
 
     texts = dict(
@@ -310,7 +403,8 @@ def ui(im, nim, im_name):
         units=_("Units"),
         safety_height=_("Safety Height (units)"),
         pattern=_("Scan pattern"),
-        direction=("Scan direction"),
+        converter=("Scan direction"),
+        bounded=("Lace bounding"),
     )
 
     try:
@@ -318,13 +412,33 @@ def ui(im, nim, im_name):
     except (IOError, pickle.PickleError): pass
 
     vars = {}
+    widgets = {}
     for j, (k, con) in enumerate(constructors):
         v = defaults[k]
         text = texts.get(k, k.replace("_", " "))
         lab = Tkinter.Label(f, text=text)
-        widget, vars[k] = con(f, v)
+        widgets[k], vars[k] = con(f, v)
         lab.grid(row=j, column=0, sticky="w")
-        widget.grid(row=j, column=1, sticky="ew")
+        widgets[k].grid(row=j, column=1, sticky="ew")
+
+    def trace_pattern(*args):
+        if vars['pattern'].get() > 1:
+            widgets['bounded'].configure(state="normal")
+            trace_bounded()
+        else:
+            widgets['bounded'].configure(state="disabled")
+            widgets['contact_angle'].configure(state="disabled")
+
+    def trace_bounded(*args):
+        if vars['bounded'].get() != 0:
+            widgets['contact_angle'].configure(state="normal")
+        else:
+            widgets['contact_angle'].configure(state="disabled")
+    vars['pattern'].trace('w', trace_pattern)
+    vars['bounded'].trace('w', trace_bounded)
+
+    trace_pattern()
+    trace_bounded()
 
     status = Tkinter.IntVar()
     bb = Tkinter.Button(b, text=_("OK"), command=lambda:status.set(1), width=8, default="active")
@@ -371,20 +485,19 @@ def main():
     im = im.convert("L") #grayscale
     w, h = im.size
 
-    nim = numarray.fromstring(im.tostring(), 'UInt8', (h, w))
+    nim = numarray.fromstring(im.tostring(), 'UInt8', (h, w)).astype('Float32')
     options = ui(im, nim, im_name)
 
     step = options['pixelstep']
     depth = options['depth']
-
-    
-    nim = nim / 255.0
 
     if options['normalize']:
         a = nim.min()
         b = nim.max()
         if a != b:
             nim = (nim - a) / (b-a)
+    else:
+        nim = nim / 255.0
 
     nim = nim * depth
 
@@ -401,10 +514,26 @@ def main():
     rows = options['pattern'] != 1
     columns = options['pattern'] != 0
     columns_first = options['pattern'] == 3
-    direction = direction_makers[options['direction']]
+    if rows: convert_rows = convert_makers[options['converter']]()
+    else: convert_rows = None
+    if columns: convert_cols = convert_makers[options['converter']]()
+    else: convert_cols = None
+
+    if options['bounded'] and rows and columns:
+        slope = tan(options['contact_angle'] * pi / 180)
+        if columns_first:
+            convert_rows = Reduce_Scan_Lace(convert_rows, slope, 3)            
+        else:
+            convert_cols = Reduce_Scan_Lace(convert_cols, slope, 3)            
+        if options['bounded'] > 1:
+            if columns_first:
+                convert_cols = Reduce_Scan_Lace(convert_cols, slope, 3)            
+            else:
+                convert_rows = Reduce_Scan_Lace(convert_rows, slope, 3)            
+
     units = unitcodes[options['units']]
     convert(nim, units, tool, pixel_size, step,
-        options['safety_height'], options['tolerance'], options['feed_rate'], direction, rows, columns, columns_first)
+        options['safety_height'], options['tolerance'], options['feed_rate'], convert_rows, convert_cols, columns_first)
 
 if __name__ == '__main__':
     main()
