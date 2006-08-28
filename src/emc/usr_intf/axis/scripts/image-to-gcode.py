@@ -85,18 +85,18 @@ class Convert_Scan_Alternating:
         self.st = 0
 
     def __call__(self, primary, items):
-        self.st = self.st + 1
+        st = self.st = self.st + 1
         if st % 2: items.reverse()
-        return False, items
+        yield False, items
 
 class Convert_Scan_Increasing:
     def __call__(self, primary, items):
-        return True, items
+        yield True, items
 
 class Convert_Scan_Decreasing:
     def __call__(self, primary, items):
         items.reverse()
-        return True, items
+        yield True, items
 
 class Convert_Scan_Upmill:
     def __init__(self, slop = sin(pi / 18)):
@@ -116,7 +116,6 @@ class Convert_Scan_Downmill:
         for span in group_by_sign(items, self.slop, operator.itemgetter(2)):
             if amax([it[2] for it in span]) > 0:
                 span.reverse()
-            print >>sys.stderr, [si[2] for si in span]
             yield True, span
 
 class Reduce_Scan_Lace:
@@ -130,8 +129,10 @@ class Reduce_Scan_Lace:
         keep = self.keep
         if primary:
             idx = 3
+            test = operator.le
         else:
             idx = 2
+            test = operator.ge
 
         for i, (flag, span) in enumerate(self.converter(primary, items)):
             subspan = []
@@ -139,14 +140,15 @@ class Reduce_Scan_Lace:
             for i, si in enumerate(span):
                 ki = si[idx]
                 if a is None:
-                    if abs(ki) >= slope:
+                    if test(abs(ki), slope):
                         a = b = i
                 else:
-                    if abs(ki) >= slope:
+                    if test(abs(ki), slope):
                         b = i
                     else:
                         if i - b < keep: continue
                         yield True, span[a:b+1]
+                        a = None
             if a is not None:
                 yield True, span[a:]
 
