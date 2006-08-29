@@ -140,16 +140,20 @@ $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 	@mkdir -p $(dir $@)
 	@$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
 
+config.status: configure
+	if [ -f config.status ]; then ./config.status --recheck; else ./configure --enable-run-in-place; fi
+
 config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
-%: %.in config.status
-	@./config.status --file=$@
-
-default: \
+INFILES = \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
 	../scripts/rtapi.conf Makefile.inc depend.sh Makefile.modinc \
 	../tcl/emc.tcl 
+$(INFILES): %: %.in config.status
+	@./config.status --file=$@
+
+default: $(INFILES)
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
