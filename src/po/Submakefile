@@ -48,12 +48,14 @@ TCLSRCS := \
 	../tcl/scripts/balloon.tcl \
 	../tcl/scripts/emchelp.tcl
 
+ifeq "$(XGETTEXT_TCL_WORKS)" "yes"
 po/tcl.pot: $(TCLSRCS)
-	xgettext -o $@ $^ && touch $@
+	$(XGETTEXT) -o $@ $^ && touch $@
 TARGETS += po/tcl.pot
+endif
 
 po/rs274_err.pot: emc/task/emctaskmain.cc emc/rs274ngc/rs274ngc_errors.cc
-	xgettext -o $@ $^ && touch $@
+	$(XGETTEXT) -o $@ $^ && touch $@
 TARGETS += po/rs274_err.pot
 
 ifeq ($(BUILD_PYTHON),yes)
