@@ -163,97 +163,118 @@ class Reduce_Scan_Lace:
 unitcodes = ['G20', 'G21']
 convert_makers = [ Convert_Scan_Increasing, Convert_Scan_Decreasing, Convert_Scan_Alternating, Convert_Scan_Upmill, Convert_Scan_Downmill ]
 
-def convert(image, units, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_rows, convert_cols, cols_first_flag):
-    w, h = image.shape
-    tw, th = tool_shape.shape
-    h1 = h - th
-    w1 = w - tw
-    tool_shape = tool_shape * pixelsize * tw / 2. 
+class Converter:
+    def __init__(self,
+            image, units, tool_shape, pixelsize, pixelstep, safetyheight, \
+            tolerance, feed, convert_rows, convert_cols, cols_first_flag):
+        self.image = image
+        self.units = units
+        self.tool = tool_shape
+        self.pixelsize = pixelsize
+        self.pixelstep = pixelstep
+        self.safetyheight = safetyheight
+        self.tolerance = tolerance
+        self.feed = feed
+        self.convert_rows = convert_rows
+        self.convert_cols = convert_cols
+        self.cols_first_flag = cols_first_flag
+
+        self.cache = {}
+
+        w, h = self.w, self.h = image.shape
+        ts = self.ts = tool_shape.shape[0]
+
+        self.h1 = h - ts
+        self.w1 = w - ts
+
+        self.tool_shape = tool_shape * self.pixelsize * ts / 2;
     
-    g = Gcode(safetyheight=safetyheight, tolerance=tolerance)
-    g.begin()
-    g.continuous()
-    g.write(units)
-    g.safety()
-    g.set_feed(feed)
-    if convert_cols and cols_first_flag:
-        mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_cols, True)
-        if convert_rows: g.safety()
-    if convert_rows:
-        mill_rows(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_rows, not cols_first_flag)
-    if convert_cols and not cols_first_flag:
-        if convert_rows: g.safety()
-        mill_cols(g, image, tool_shape, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_cols, False)
-    g.end()
+    def convert(self):
+        self.g = g = Gcode(safetyheight=self.safetyheight,
+                           tolerance=self.tolerance)
+        g.begin()
+        g.continuous()
+        g.write(self.units)
+        g.safety()
+        g.set_feed(self.feed)
 
-cache = {}
-def get_z(image, tool, x, y):
-    try:
-        return cache[x,y]
-    except KeyError:
-        tt = tool.shape[0]
-        m1 = image[y:y+tt, x:x+tt]
-        cache[x,y] = d = (m1 - tool).max()
-        return d
+        if self.convert_cols and self.cols_first_flag:
+            self.mill_cols(self.convert_cols, True)
+            if self.convert_rows: g.safety()
+        if self.convert_rows:
+            self.mill_rows(self.convert_rows, not self.cols_first_flag)
+        if self.convert_cols and not self.cols_first_flag:
+            if self.convert_rows: g.safety()
+            self.mill_cols(self.convert_cols, not self.convert_rows)
+        g.end()
+
+    def get_z(self, x, y):
+        try:
+            return self.cache[x,y]
+        except KeyError:
+            m1 = self.image[y:y+self.ts, x:x+self.ts]
+            self.cache[x,y] = d = (m1 - self.tool).max()
+            return d
         
-def get_dz_dy(image, tool, x, y, pixelsize):
-    y1 = max(0, y-1)
-    y2 = min(image.shape[0]-1, y+1)
-    dy = pixelsize * (y2-y1)
-    return (get_z(image, tool, x, y2) - get_z(image, tool, x, y1)) / dy
+    def get_dz_dy(self, x, y):
+        y1 = max(0, y-1)
+        y2 = min(self.image.shape[0]-1, y+1)
+        dy = self.pixelsize * (y2-y1)
+        return (self.get_z(x, y2) - self.get_z(x, y1)) / dy
         
-def get_dz_dx(image, tool, x, y, pixelsize):
-    x1 = max(0, x-1)
-    x2 = min(image.shape[1]-1, x+1)
-    dx = pixelsize * (x2-x1)
-    return (get_z(image, tool, x2, y) - get_z(image, tool, x1, y)) / dx
+    def get_dz_dx(self, x, y):
+        x1 = max(0, x-1)
+        x2 = min(self.image.shape[1]-1, x+1)
+        dx = self.pixelsize * (x2-x1)
+        return (self.get_z(x2, y) - self.get_z(x1, y)) / dx
 
-def mill_cols(g, image, tool, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_scan, primary):
-    w, h = image.shape
-    tw, th = tool.shape
-    h1 = h - th
-    w1 = w - tw
-    jrange = range(0, w1, pixelstep)
-    if w1-1 not in jrange: jrange.append(w1-1)
-    irange = range(h1)
+    def mill_rows(self, convert_scan, primary):
+        w1 = self.w1; h1 = self.h1;
+        pixelsize = self.pixelsize; pixelstep = self.pixelstep
+        jrange = range(0, w1, pixelstep)
+        if w1-1 not in jrange: jrange.append(w1-1)
+        irange = range(h1)
 
-    for j in jrange:
-        y = (w1-j) * pixelsize
-        scan = []
-        for i in irange:
-            x = i * pixelsize
-            milldata = i, (x, y, get_z(image, tool, i, j)), get_dz_dx(image, tool, i, j, pixelsize), get_dz_dy(image, tool, i, j, pixelsize)
-            scan.append(milldata)
-        for flag, points in convert_scan(primary, scan):
-            if flag:
-                g.safety()
-                g.rapid(points[0][1][0], points[0][1][1])
-            for p in points:
-                g.cut(*p[1])
+        for j in jrange:
+            y = (w1-j) * pixelsize
+            scan = []
+            for i in irange:
+                x = i * pixelsize
+                milldata = (i, (x, y, self.get_z(i, j)),
+                    self.get_dz_dx(i, j), self.get_dz_dy(i, j))
+                scan.append(milldata)
+            for flag, points in convert_scan(primary, scan):
+                if flag:
+                    self.g.safety()
+                    self.g.rapid(points[0][1][0], points[0][1][1])
+                for p in points:
+                    self.g.cut(*p[1])
 
-def mill_rows(g, image, tool, pixelsize, pixelstep, safetyheight, tolerance, feed, convert_scan, primary):
-    w, h = image.shape
-    tw, th = tool.shape
-    h1 = h - th
-    w1 = w - tw
-    jrange = range(0, h1, pixelstep)
-    irange = range(w1)
-    irangerev = range(w1-1, -1, -1)
-    if h1-1 not in jrange: jrange.append(h1-1)
-    jrange.reverse()
-    for j in jrange:
-        x = j * pixelsize
-        scan = []
-        for i in irange:
-            y = (w1-i) * pixelsize
-            milldata = i, (x, y, get_z(image, tool, j, i)), get_dz_dy(image, tool, j, i, pixelsize), get_dz_dx(image, tool, j, i, pixelsize)
-            scan.append(milldata)
-        for flag, points in convert_scan(primary, scan):
-            if flag:
-                g.safety()
-                g.rapid(points[0][1][0], points[0][1][1])
-            for p in points:
-                g.cut(*p[1])
+    def mill_cols(self, convert_scan, primary):
+        w1 = self.w1; h1 = self.h1;
+        pixelsize = self.pixelsize; pixelstep = self.pixelstep
+        jrange = range(0, h1, pixelstep)
+        irange = range(w1)
+        if h1-1 not in jrange: jrange.append(h1-1)
+        jrange.reverse()
+
+        for j in jrange:
+            x = j * pixelsize
+            scan = []
+            for i in irange:
+                y = (w1-i) * pixelsize
+                milldata = (i, (x, y, self.get_z(j, i)),
+                    self.get_dz_dy(j, i), self.get_dz_dx(j, i))
+                scan.append(milldata)
+            for flag, points in convert_scan(primary, scan):
+                if flag:
+                    self.g.safety()
+                    self.g.rapid(points[0][1][0], points[0][1][1])
+                for p in points:
+                    self.g.cut(*p[1])
+
+def convert(*args, **kw):
+    return Converter(*args, **kw).convert()
 
 def ui(im, nim, im_name):
     import Tkinter
@@ -543,7 +564,8 @@ def main():
 
     units = unitcodes[options['units']]
     convert(nim, units, tool, pixel_size, step,
-        options['safety_height'], options['tolerance'], options['feed_rate'], convert_rows, convert_cols, columns_first)
+        options['safety_height'], options['tolerance'], options['feed_rate'],
+        convert_rows, convert_cols, columns_first)
 
 if __name__ == '__main__':
     main()
