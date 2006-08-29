@@ -4935,8 +4935,6 @@ fi
 
 
 
-uname_r=$(uname -r)
-
 for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
         rtai rt_mem_mgr rtai_sched rtai_libm \
         rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo; do
@@ -4944,9 +4942,9 @@ for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
 echo $ECHO_N "checking for $m... $ECHO_C" >&6
     TMP=$(find $MODULE_DIR -name $m$MODEXT)
     if test -z "$TMP"; then
-        TMP=$(find /lib/modules/$uname_r -name $m$MODEXT)
+        TMP=$(find /lib/modules/$KERNEL_VERS -name $m$MODEXT)
     fi
-    eval MODPATH_$m=${TMP/$uname_r/\\\$\\\(uname\\\ -r\\\)}
+    eval MODPATH_$m=${TMP/$KERNEL_VERS/\\\$\\\(uname\\\ -r\\\)}
     echo "$as_me:$LINENO: result: ${TMP:-not found}" >&5
 echo "${ECHO_T}${TMP:-not found}" >&6
 done
