@@ -250,6 +250,7 @@ class Converter:
                     self.entry_cut(self, points[0][0], j, points)
                 for p in points:
                     self.g.cut(*p[1])
+            self.g.flush()
 
     def mill_cols(self, convert_scan, primary):
         w1 = self.w1; h1 = self.h1;
@@ -272,6 +273,7 @@ class Converter:
                     self.entry_cut(self, j, points[0][0], points)
                 for p in points:
                     self.g.cut(*p[1])
+            self.g.flush()
 
 def convert(*args, **kw):
     return Converter(*args, **kw).convert()
@@ -292,13 +294,11 @@ class SimpleEntryCut:
 def circ(r,b): 
     """\
 Calculate the portion of the arc to do so that none is above the
-safety height (that's just silly)
-XXX something is wrong with this math"""
+safety height (that's just silly)"""
 
-    z = (2 * r * b + b)
+    z = r**2 - (r-b)**2
     if z < 0: z = 0
-    print >>sys.stderr, "circ", r, b, z
-    return r/2 - z ** .5
+    return z**.5
 
 class ArcEntryCut:
     def __init__(self, feed, max_radius):
@@ -337,39 +337,29 @@ class ArcEntryCut:
         radius = self.max_radius
 
         if cx != 0:
-            conv.g.write("(%s %s)" % (lim, r))
             h1 = conv.h1
             for di in r:
                 dx = di * pixelsize
-                i = i0 - cx * di
+                i = i0 + cx * di
                 if i < 0 or i >= h1: break
-                conv.g.write("(%s)" % ["get_z", i, j0])
                 z1 = conv.get_z(i, j0)
                 dz = (z1 - z0)
-                conv.g.write("(%s)" % [conv.h1, conv.w1, i, j0, z1, dx, dz, radius])
                 if dz <= 0: continue
                 if dz > dx:
                     conv.g.write("(case 1)")
                     radius = dx
                     break
                 rad1 = (dx * dx / dz + dz) / 2
-                conv.g.write("(%s)" % rad1)
                 if rad1 < radius:
-                    conv.g.write("(case 3a: %d: %f)" % (di, rad1))
                     radius = rad1
                 if dx > radius:
-                    conv.g.write("(case 2)")
                     break
-            else:
-                conv.g.write("(case 3)")
 
-            #z1 = min(p1[2] + radius, conv.safetyheight)
-            #x1 = p1[0] + cy * circ(radius, p1[2] - z1)
-            #conv.g.rapid(x1, p1[1])
-            #conv.g.cut(z=z1)
+            z1 = min(p1[2] + radius, conv.safetyheight)
+            x1 = p1[0] + cx * circ(radius, z1 - p1[2])
+            conv.g.rapid(x1, p1[1])
+            conv.g.cut(z=z1)
 
-            conv.g.rapid(p1[0] + cx * radius, p1[1])
-            conv.g.cut(z=p1[2] + radius)
             conv.g.flush(); conv.g.lastgcode = None
             if cx > 0:
                 conv.g.write("G18 G3 X%f Z%f R%f" % (p1[0], p1[2], radius))
@@ -393,13 +383,12 @@ class ArcEntryCut:
                 rad1 = (dy * dy / dz + dz) / 2
                 if rad1 < radius: radius = rad1
                 if dy > radius: break
-            #z1 = min(p1[2] + radius, conv.safetyheight)
-            #y1 = p1[1] + cy * circ(radius, p1[2] - z1)
-            #conv.g.rapid(p1[0], y1)
-            #conv.g.cut(z=z1)
 
-            conv.g.rapid(p1[0], p1[1] + cy * radius)
-            conv.g.cut(z=p1[2] + radius)
+            z1 = min(p1[2] + radius, conv.safetyheight)
+            y1 = p1[1] + cy * circ(radius, z1 - p1[2])
+            conv.g.rapid(p1[0], y1)
+            conv.g.cut(z=z1)
+
             conv.g.flush(); conv.g.lastgcode = None
             if cy > 0:
                 conv.g.write("G19 G2 Y%f Z%f R%f" % (p1[1], p1[2], radius))
