@@ -146,6 +146,7 @@ the simplification algorithm may still skip over specified points."""
 
     def set_feed(self, feed):
 	"Set the feed rate to the given value"
+        self.flush()
         self.write("F%.4f" % feed)
 
     def cut(self, x=None, y=None, z=None):
