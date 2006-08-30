@@ -166,7 +166,8 @@ convert_makers = [ Convert_Scan_Increasing, Convert_Scan_Decreasing, Convert_Sca
 class Converter:
     def __init__(self,
             image, units, tool_shape, pixelsize, pixelstep, safetyheight, \
-            tolerance, feed, convert_rows, convert_cols, cols_first_flag):
+            tolerance, feed, convert_rows, convert_cols, cols_first_flag,
+            entry_cut):
         self.image = image
         self.units = units
         self.tool = tool_shape
@@ -178,6 +179,7 @@ class Converter:
         self.convert_rows = convert_rows
         self.convert_cols = convert_cols
         self.cols_first_flag = cols_first_flag
+        self.entry_cut = entry_cut
 
         self.cache = {}
 
@@ -245,8 +247,7 @@ class Converter:
                 scan.append(milldata)
             for flag, points in convert_scan(primary, scan):
                 if flag:
-                    self.g.safety()
-                    self.g.rapid(points[0][1][0], points[0][1][1])
+                    self.entry_cut(self, points[0][0], j, points)
                 for p in points:
                     self.g.cut(*p[1])
 
@@ -268,13 +269,147 @@ class Converter:
                 scan.append(milldata)
             for flag, points in convert_scan(primary, scan):
                 if flag:
-                    self.g.safety()
-                    self.g.rapid(points[0][1][0], points[0][1][1])
+                    self.entry_cut(self, j, points[0][0], points)
                 for p in points:
                     self.g.cut(*p[1])
 
 def convert(*args, **kw):
     return Converter(*args, **kw).convert()
+
+class SimpleEntryCut:
+    def __init__(self, feed):
+        self.feed = feed
+
+    def __call__(self, conv, i0, j0, points):
+        p = points[0][1]
+        if self.feed:
+            conv.g.set_feed(self.feed)
+        conv.g.safety()
+        conv.g.rapid(p[0], p[1])
+        if self.feed:
+            conv.g.set_feed(conv.feed)
+
+def circ(r,b): 
+    """\
+Calculate the portion of the arc to do so that none is above the
+safety height (that's just silly)
+XXX something is wrong with this math"""
+
+    z = (2 * r * b + b)
+    if z < 0: z = 0
+    print >>sys.stderr, "circ", r, b, z
+    return r/2 - z ** .5
+
+class ArcEntryCut:
+    def __init__(self, feed, max_radius):
+        self.feed = feed
+        self.max_radius = max_radius
+
+    def __call__(self, conv, i0, j0, points):
+        if len(points) < 2:
+            p = points[0][1]
+            if self.feed:
+                conv.g.set_feed(self.feed)
+            conv.g.safety()
+            conv.g.rapid(p[0], p[1])
+            if self.feed:
+                conv.g.set_feed(conv.feed)
+            return
+
+        p1 = points[0][1]
+        p2 = points[1][1]
+        z0 = p1[2]
+
+        lim = int(ceil(self.max_radius / conv.pixelsize))
+        r = range(1, lim)
+
+        if self.feed:
+            conv.g.set_feed(self.feed)
+        conv.g.safety()
+
+        x, y, z = p1
+
+        pixelsize = conv.pixelsize
+        
+        cx = cmp(p1[0], p2[0])
+        cy = cmp(p1[1], p2[1])
+
+        radius = self.max_radius
+
+        if cx != 0:
+            conv.g.write("(%s %s)" % (lim, r))
+            h1 = conv.h1
+            for di in r:
+                dx = di * pixelsize
+                i = i0 - cx * di
+                if i < 0 or i >= h1: break
+                conv.g.write("(%s)" % ["get_z", i, j0])
+                z1 = conv.get_z(i, j0)
+                dz = (z1 - z0)
+                conv.g.write("(%s)" % [conv.h1, conv.w1, i, j0, z1, dx, dz, radius])
+                if dz <= 0: continue
+                if dz > dx:
+                    conv.g.write("(case 1)")
+                    radius = dx
+                    break
+                rad1 = (dx * dx / dz + dz) / 2
+                conv.g.write("(%s)" % rad1)
+                if rad1 < radius:
+                    conv.g.write("(case 3a: %d: %f)" % (di, rad1))
+                    radius = rad1
+                if dx > radius:
+                    conv.g.write("(case 2)")
+                    break
+            else:
+                conv.g.write("(case 3)")
+
+            #z1 = min(p1[2] + radius, conv.safetyheight)
+            #x1 = p1[0] + cy * circ(radius, p1[2] - z1)
+            #conv.g.rapid(x1, p1[1])
+            #conv.g.cut(z=z1)
+
+            conv.g.rapid(p1[0] + cx * radius, p1[1])
+            conv.g.cut(z=p1[2] + radius)
+            conv.g.flush(); conv.g.lastgcode = None
+            if cx > 0:
+                conv.g.write("G18 G3 X%f Z%f R%f" % (p1[0], p1[2], radius))
+            else:
+                conv.g.write("G18 G2 X%f Z%f R%f" % (p1[0], p1[2], radius))
+            conv.g.lastx = p1[0]
+            conv.g.lasty = p1[1]
+            conv.g.lastz = p1[2]
+        else:
+            w1 = conv.w1
+            for dj in r:
+                dy = dj * pixelsize
+                j = j0 - cy * dj
+                if j < 0 or j >= w1: break
+                z1 = conv.get_z(i0, j)
+                dz = (z1 - z0)
+                if dz <= 0: continue
+                if dz > dy:
+                    radius = dy
+                    break
+                rad1 = (dy * dy / dz + dz) / 2
+                if rad1 < radius: radius = rad1
+                if dy > radius: break
+            #z1 = min(p1[2] + radius, conv.safetyheight)
+            #y1 = p1[1] + cy * circ(radius, p1[2] - z1)
+            #conv.g.rapid(p1[0], y1)
+            #conv.g.cut(z=z1)
+
+            conv.g.rapid(p1[0], p1[1] + cy * radius)
+            conv.g.cut(z=p1[2] + radius)
+            conv.g.flush(); conv.g.lastgcode = None
+            if cy > 0:
+                conv.g.write("G19 G2 Y%f Z%f R%f" % (p1[1], p1[2], radius))
+            else:
+                conv.g.write("G19 G3 Y%f Z%f R%f" % (p1[1], p1[2], radius))
+            conv.g.lastx = p1[0]
+            conv.g.lasty = p1[1]
+            conv.g.lastz = p1[2]
+        if self.feed:
+            conv.g.set_feed(conv.feed)
 
 def ui(im, nim, im_name):
     import Tkinter
@@ -565,7 +700,7 @@ def main():
     units = unitcodes[options['units']]
     convert(nim, units, tool, pixel_size, step,
         options['safety_height'], options['tolerance'], options['feed_rate'],
-        convert_rows, convert_cols, columns_first)
+        convert_rows, convert_cols, columns_first, ArcEntryCut(6, .125))
 
 if __name__ == '__main__':
     main()
