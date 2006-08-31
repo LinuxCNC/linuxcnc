@@ -232,6 +232,8 @@ class MyOpengl(Opengl):
         self.bind('<Button1-Motion>', self.select_cancel, add=True)
         self.bind("<Control-Button-1>", self.start_zoom)
         self.bind("<Control-B1-Motion>", self.continue_zoom)
+        self.bind("<Button-3>", self.start_zoom)
+        self.bind("<B3-Motion>", self.continue_zoom)
         self.bind("<Shift-Button-1>", self.StartRotate)
         self.bind("<Shift-B1-Motion>", self.tkRotate)
         self.highlight_line = None
