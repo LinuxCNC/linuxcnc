@@ -255,27 +255,27 @@ void emcmotController(void *arg, long period)
         for(i=0; i<CYCLE_HISTORY; i++) {
             if (this_run > 1.2 * cycles[i]) {
                 emcmot_hal_data->overruns++;
+		// print message on first overrun only
+	        if(emcmot_hal_data->overruns == 1) {
+	            reportError("Unexpected realtime delay; check dmesg for details.");
+	            rtapi_print_msg(RTAPI_MSG_ERR, 
+	                "\nIn recent history there were\n"); 
+	            rtapi_print_msg(RTAPI_MSG_ERR, "%ld, %ld, %ld, %ld, and %ld\n",
+	                cycles[0], cycles[1], cycles[2], cycles[3], cycles[4]);
+	            rtapi_print_msg(RTAPI_MSG_ERR, 
+	                "elapsed clocks between calls to the motion controller.\n");
+	            rtapi_print_msg(RTAPI_MSG_ERR, 
+	                "This time, there were %ld which is so anomolously\n",
+	                this_run);
+	            rtapi_print_msg(RTAPI_MSG_ERR, 
+	                "large that it probably signifies a problem with your\n");
+	            rtapi_print_msg(RTAPI_MSG_ERR, 
+	                "realtime configuration.  For the rest of this run of\n");
+	            rtapi_print_msg(RTAPI_MSG_ERR,
+	                "EMC, this message will be suppressed.\n\n");
+		}
 		break;
 	    }
-	}
-	// print message on first overrun only
-        if(emcmot_hal_data->overruns == 1) {
-            reportError("Unexpected realtime delay; check dmesg for details.");
-            rtapi_print_msg(RTAPI_MSG_ERR, 
-                "\nIn recent history there were\n"); 
-            rtapi_print_msg(RTAPI_MSG_ERR, "%ld, %ld, %ld, %ld, and %ld\n",
-                cycles[0], cycles[1], cycles[2], cycles[3], cycles[4]);
-            rtapi_print_msg(RTAPI_MSG_ERR, 
-                "elapsed clocks between calls to the motion controller.\n");
-            rtapi_print_msg(RTAPI_MSG_ERR, 
-                "This time, there were %ld which is so anomolously\n",
-                this_run);
-            rtapi_print_msg(RTAPI_MSG_ERR, 
-                "large that it probably signifies a problem with your\n");
-            rtapi_print_msg(RTAPI_MSG_ERR, 
-                "realtime configuration.  For the rest of this run of\n");
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "EMC, this message will be suppressed.\n\n");
         }
     }
     if(last) {
