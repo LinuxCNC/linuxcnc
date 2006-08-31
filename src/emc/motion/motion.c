@@ -407,6 +407,20 @@ static int init_hal_io(void)
     }
     // end of exporting trajectory planner internals
 
+    // export timing related HAL parameters so they can be scoped
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.servo.last-period");
+    retval =
+	hal_param_u32_new(buf, HAL_RD, &(emcmot_hal_data->last_period), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.servo.overruns");
+    retval =
+	hal_param_u32_new(buf, HAL_RD_WR, &(emcmot_hal_data->overruns), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+
     /* initialize machine wide pins and parameters */
     *(emcmot_hal_data->probe_input) = 0;
     /* default value of enable is TRUE, so simple machines
@@ -432,6 +446,9 @@ static int init_hal_io(void)
     emcmot_hal_data->debug_bit_1 = 0;
     emcmot_hal_data->debug_float_0 = 0.0;
     emcmot_hal_data->debug_float_1 = 0.0;
+
+    emcmot_hal_data->overruns = 0;
+    emcmot_hal_data->last_period = 0;
 
     /* export axis pins and parameters */
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {

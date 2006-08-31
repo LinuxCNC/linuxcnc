@@ -236,48 +236,46 @@ void emcmotController(void *arg, long period)
     // causes the rtai latency test to show overruns.
 
     // check below if you set this under 5
-#define CYCLE_HISTORY 10
+#define CYCLE_HISTORY 5
 
     static long int cycles[CYCLE_HISTORY];
     static long long int last = 0;
 
-    static int index = 0, priming = 1, report_delay = 1;
+    static int index = 0, priming = 1;
 
     long long int now = rtapi_get_clocks();
     long int this_run = (long int)(now - last);
+    emcmot_hal_data->last_period = this_run;
 
     if(!priming) {
         // we have CYCLE_HISTORY samples, so check for this call being 
         // anomolously late
-        if(report_delay) {
-            int i;
-            int error = 0;
+        int i;
 
-            for(i=0; i<CYCLE_HISTORY; i++)
-                if(this_run > 1.2 * cycles[i])
-                    error = 1;
-
-            if(error) {
-                // we'll only say this once
-                report_delay = 0;
-                reportError("Unexpected realtime delay; "
-                    "check dmesg for details.");
-                rtapi_print_msg(RTAPI_MSG_ERR, 
-                    "\nIn recent history there were\n"); 
-                rtapi_print_msg(RTAPI_MSG_ERR, "%ld, %ld, %ld, %ld, and %ld\n",
-                    cycles[0], cycles[1], cycles[2], cycles[3], cycles[4]);
-                rtapi_print_msg(RTAPI_MSG_ERR, 
-                    "elapsed clocks between calls to the motion controller.\n");
-                rtapi_print_msg(RTAPI_MSG_ERR, 
-                    "This time, there were %ld which is so anomolously\n",
-                    this_run);
-                rtapi_print_msg(RTAPI_MSG_ERR, 
-                    "large that it probably signifies a problem with your\n");
-                rtapi_print_msg(RTAPI_MSG_ERR, 
-                    "realtime configuration.  For the rest of this run of\n");
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "EMC, this message will be suppressed.\n\n");
-            }
+        for(i=0; i<CYCLE_HISTORY; i++) {
+            if (this_run > 1.2 * cycles[i]) {
+                emcmot_hal_data->overruns++;
+		break;
+	    }
+	}
+	// print message on first overrun only
+        if(emcmot_hal_data->overruns == 1) {
+            reportError("Unexpected realtime delay; check dmesg for details.");
+            rtapi_print_msg(RTAPI_MSG_ERR, 
+                "\nIn recent history there were\n"); 
+            rtapi_print_msg(RTAPI_MSG_ERR, "%ld, %ld, %ld, %ld, and %ld\n",
+                cycles[0], cycles[1], cycles[2], cycles[3], cycles[4]);
+            rtapi_print_msg(RTAPI_MSG_ERR, 
+                "elapsed clocks between calls to the motion controller.\n");
+            rtapi_print_msg(RTAPI_MSG_ERR, 
+                "This time, there were %ld which is so anomolously\n",
+                this_run);
+            rtapi_print_msg(RTAPI_MSG_ERR, 
+                "large that it probably signifies a problem with your\n");
+            rtapi_print_msg(RTAPI_MSG_ERR, 
+                "realtime configuration.  For the rest of this run of\n");
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "EMC, this message will be suppressed.\n\n");
         }
     }
     if(last) {

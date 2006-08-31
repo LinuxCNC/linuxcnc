@@ -130,6 +130,10 @@ typedef struct {
     hal_float_t tc_vel[4];	/* RPA: traj internals, for debugging */
     hal_float_t tc_acc[4];	/* RPA: traj internals, for debugging */
 
+    // realtime overrun detection
+    hal_u32_t last_period;	/* param: last period in clocks */
+    hal_u32_t overruns;		/* param: count of RT overruns */
+
     axis_hal_t axis[EMCMOT_MAX_AXIS];	/* data for each axis */
 
 } emcmot_hal_data_t;
