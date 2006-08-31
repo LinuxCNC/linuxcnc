@@ -227,6 +227,72 @@ static void update_status(void);
 
 void emcmotController(void *arg, long period)
 {
+    // - overrun detection -
+    // maintain some records of how long it's been between calls.  The
+    // first time we see a delay that's much longer than the records show
+    // is normal, report an error.  This might detect bogus realtime 
+    // performance caused by ACPI, onboard video, etc.  It can be reliably
+    // triggered by maximizing glxgears on my nvidia system, which also
+    // causes the rtai latency test to show overruns.
+
+    // check below if you set this under 5
+#define CYCLE_HISTORY 10
+
+    static long int cycles[CYCLE_HISTORY];
+    static long long int last = 0;
+
+    static int index = 0, priming = 1, report_delay = 1;
+
+    long long int now = rtapi_get_clocks();
+    long int this_run = (long int)(now - last);
+
+    if(!priming) {
+        // we have CYCLE_HISTORY samples, so check for this call being 
+        // anomolously late
+        if(report_delay) {
+            int i;
+            int error = 0;
+
+            for(i=0; i<CYCLE_HISTORY; i++)
+                if(this_run > 1.2 * cycles[i])
+                    error = 1;
+
+            if(error) {
+                // we'll only say this once
+                report_delay = 0;
+                reportError("Unexpected realtime delay; "
+                    "check dmesg for details.");
+                rtapi_print_msg(RTAPI_MSG_ERR, 
+                    "\nIn recent history there were\n"); 
+                rtapi_print_msg(RTAPI_MSG_ERR, "%ld, %ld, %ld, %ld, and %ld\n",
+                    cycles[0], cycles[1], cycles[2], cycles[3], cycles[4]);
+                rtapi_print_msg(RTAPI_MSG_ERR, 
+                    "elapsed clocks between calls to the motion controller.\n");
+                rtapi_print_msg(RTAPI_MSG_ERR, 
+                    "This time, there were %ld which is so anomolously\n",
+                    this_run);
+                rtapi_print_msg(RTAPI_MSG_ERR, 
+                    "large that it probably signifies a problem with your\n");
+                rtapi_print_msg(RTAPI_MSG_ERR, 
+                    "realtime configuration.  For the rest of this run of\n");
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "EMC, this message will be suppressed.\n\n");
+            }
+        }
+    }
+    if(last) {
+        cycles[index++] = this_run;
+    }
+    if(index == CYCLE_HISTORY) {
+        // wrap around to the start of the array
+        index = 0;
+        // we now have CYCLE_HISTORY good samples, so start checking times
+        priming = 0;
+    }
+    // we need this for next time
+    last = now;
+
+    // end of overrun detection
 
     /* calculate servo period as a double - period is in integer nsec */
     servo_period = period * 0.000000001;
