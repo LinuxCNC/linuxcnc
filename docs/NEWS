@@ -1,12 +1,12 @@
 # some of EMC2 History & News
 #############################
 
+2006.08.09 - AXIS is now a part of EMC2, not a separate source download.
+
 2006.08.07 - Added a spindle-speed override. This allows to override the spindle
 	     speed during a program run. The MIN_SPINDLE_OVERRIDE and 
 	     MAX_SPINDLE_OVERRIDE in the ini assure that speed doesn't get 
 	     reduced or increased too much. Both values are in %.
-
-2006.08.09 - AXIS is now a part of EMC2, not a separate source download.
 
 2006.08.06 - Documentation can be built from source with the 'make docs' target
 
