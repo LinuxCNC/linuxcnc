@@ -94,6 +94,10 @@ static RCS_TIMER *timer = 0;
 // the EMC_TASK_CYCLE_TIME global will be set to the measured cycle
 // time each cycle, in case other code references this.
 static int emcTaskNoDelay = 0;
+// flag signifying that on the next loop, there should be no delay.
+// this is set when transferring trajectory data from userspace to kernel
+// space, annd reset otherwise.
+static int emcTaskEager = 0;
 static double EMC_TASK_CYCLE_TIME_ORIG = 0.0;
 
 // delay counter
@@ -2216,6 +2220,7 @@ static int emcTaskExecute(void)
 		// interp_list now has line number associated with this-- get
 		// it
 		if (0 != emcTaskCommand) {
+		    emcTaskEager = 1;
 		    emcStatus->task.currentLine =
 			interp_list.get_line_number();
 		    // and set it for all subsystems which use queued ids
@@ -2237,6 +2242,7 @@ static int emcTaskExecute(void)
 		} else {
 		    emcStatus->task.execState = (enum EMC_TASK_EXEC_ENUM)
 			emcTaskCheckPostconditions(emcTaskCommand);
+		    emcTaskEager = 1;
 		}
 		emcTaskCommand = 0;	// reset it
 	    }
@@ -2249,8 +2255,10 @@ static int emcTaskExecute(void)
 	    if (0 != emcTaskCommand) {
 		emcStatus->task.execState = (enum EMC_TASK_EXEC_ENUM)
 		    emcTaskCheckPreconditions(emcTaskCommand);
+		emcTaskEager = 1;
 	    } else {
 		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		emcTaskEager = 1;
 	    }
 	}
 	break;
@@ -2265,9 +2273,11 @@ static int emcTaskExecute(void)
 		} else {
 		    emcStatus->task.execState = (enum EMC_TASK_EXEC_ENUM)
 			emcTaskCheckPreconditions(emcTaskCommand);
+		    emcTaskEager = 1;
 		}
 	    } else {
 		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		emcTaskEager = 1;
 	    }
 	}
 	break;
@@ -2279,6 +2289,7 @@ static int emcTaskExecute(void)
 	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
 	} else if (emcStatus->motion.status == RCS_DONE) {
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcTaskEager = 1;
 	}
 	break;
 
@@ -2289,6 +2300,7 @@ static int emcTaskExecute(void)
 	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
 	} else if (emcStatus->io.status == RCS_DONE) {
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcTaskEager = 1;
 	}
 	break;
 
@@ -2303,6 +2315,7 @@ static int emcTaskExecute(void)
 	} else if (emcStatus->motion.status == RCS_DONE &&
 		   emcStatus->io.status == RCS_DONE) {
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcTaskEager = 1;
 	}
 	break;
 
@@ -2311,12 +2324,14 @@ static int emcTaskExecute(void)
 #if defined(LINUX_KERNEL_2_2)
 	if (taskExecDelayTimeout <= 0.0) {
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcTaskEager = 1;
 	} else {
 	    taskExecDelayTimeout -= EMC_TASK_CYCLE_TIME;
 	}
 #else
 	if (etime() >= taskExecDelayTimeout) {
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcTaskEager = 1;
 	}
 #endif
 	break;
@@ -2365,6 +2380,7 @@ static int emcTaskExecute(void)
 		// child exited normally
 		emcSystemCmdPid = 0;
 		emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		emcTaskEager = 1;
 	    } else {
 		// child exited with non-zero status
 		if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
@@ -2760,7 +2776,7 @@ int main(int argc, char *argv[])
     int taskPlanError = 0;
     int taskExecuteError = 0;
 #ifndef LINUX_KERNEL_2_2
-    double startTime, endTime;
+    double startTime;
 #endif
 
     double minTime, maxTime;
@@ -2970,23 +2986,11 @@ int main(int argc, char *argv[])
 	// wait on timer cycle, if specified, or calculate actual
 	// interval if ini file says to run full out via
 	// [TASK] CYCLE_TIME <= 0.0
-	if ((emcTaskNoDelay)
+	// emcTaskEager = 0;
+	if ((emcTaskNoDelay) || (emcTaskEager)
 	    || (emcStatus->task.readLine < programStartLine)
             || (programStartLine < 0)) {
-#if defined(LINUX_KERNEL_2_2)
-	    // work around bug in gettimeofday() by running off nominal time
-	    EMC_TASK_CYCLE_TIME = EMC_TASK_CYCLE_TIME_ORIG;
-	    minTime = maxTime = EMC_TASK_CYCLE_TIME_ORIG;
-#else
-	    endTime = etime();
-	    EMC_TASK_CYCLE_TIME = endTime - startTime;
-	    if (EMC_TASK_CYCLE_TIME < minTime && !done) {
-		minTime = EMC_TASK_CYCLE_TIME;
-	    } else if (EMC_TASK_CYCLE_TIME > maxTime && !done) {
-		maxTime = EMC_TASK_CYCLE_TIME;
-	    }
-	    startTime = endTime;
-#endif
+		    emcTaskEager = 0;
 	} else {
 #if defined(LINUX_KERNEL_2_2)
 	    // work around bug in gettimeofday() by running off nominal time
