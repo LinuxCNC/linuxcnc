@@ -598,6 +598,7 @@ static void dialog_realtime_not_linked(void)
 	n++;
 	next = thread->next_ptr;
     }
+    
     rtapi_mutex_give(&(hal_data->mutex));
     /* set column widths */
     colwidth =
@@ -695,9 +696,10 @@ static void dialog_realtime_not_linked(void)
 	/* yes, preselect appropriate line */
 	gtk_clist_select_row(GTK_CLIST(horiz->thread_list), sel_row, 1);
     } else {
-	/* no */
-	horiz->thread_name = NULL;
-	ctrl_shm->mult = 1;
+	// select first row as default, it is already selected .. 
+	// the user can change it lateron if it's not right
+	sel_row = 0;
+	acquire_selection_made(GTK_WIDGET(horiz->thread_list), sel_row, 1, NULL, NULL);
     }
     /* set up a callback function when the window is destroyed */
     gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
