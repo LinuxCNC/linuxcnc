@@ -355,7 +355,7 @@ function Cleanup() {
 	    # remove them
 	    for HAL_COMP_PID in $HAL_USR_COMPS_PIDS ; do
 		echo "Removing user space HAL component with pid=$HAL_COMP_PID" >>$PRINT_FILE
-		KILL_PID=$HAL_COMP_PID
+		KILL_PIDS=$HAL_COMP_PID
 		KillTaskWithTimeout
 	    done
 	    # check for realtime HAL components (including motion module)
