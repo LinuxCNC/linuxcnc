@@ -350,12 +350,12 @@ function Cleanup() {
 		KILL_TASK=halcmd
 		KillTaskWithTimeout
 	    fi
-	    # check for user space HAL components
-	    HAL_USR_COMPS=`$HALCMD show comp | $GREP -v halcmd | $AWK -- '$2 ~ /^User$/ { print $3 }'`
+	    # check for user space HAL components' pids
+	    HAL_USR_COMPS_PIDS=`$HALCMD show comp | $GREP -v halcmd | $AWK -- '$2 ~ /^User$/ { print $4 }'`
 	    # remove them
-	    for HAL_COMP in $HAL_USR_COMPS ; do
-		echo "Removing user space HAL component $HAL_COMP" >>$PRINT_FILE
-		KILL_TASK=$HAL_COMP
+	    for HAL_COMP_PID in $HAL_USR_COMPS_PIDS ; do
+		echo "Removing user space HAL component with pid=$HAL_COMP_PID" >>$PRINT_FILE
+		KILL_PID=$HAL_COMP_PID
 		KillTaskWithTimeout
 	    done
 	    # check for realtime HAL components (including motion module)
