@@ -786,7 +786,14 @@ AC_ARG_WITH(insmod,
 # (Optional, if not present, just don't build the docs.)                     #
 ##############################################################################
 
-AC_PATH_PROG(PYTHON,python,"none", /bin:/usr/bin:/usr/local/bin)
+AC_ARG_WITH(python,
+    [  --with-python=<path>                    Specify the Python interpreter],
+    [
+        PYTHON=$withval
+    ],[
+        PYTHON=python
+    ])
+AC_PATH_PROG(PYTHON,$PYTHON,"none", /bin:/usr/bin:/usr/local/bin)
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
