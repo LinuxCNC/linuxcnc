@@ -106,6 +106,10 @@ setup_menu_accel .menu.machine end [_ "_Calibration"]
 setup_menu_accel .menu.machine end [_ "Show _Hal Configuration"]
 
 .menu.machine add command \
+        -command {exec halmeter &}
+setup_menu_accel .menu.machine end [_ "H_al Meter"]
+
+.menu.machine add command \
         -command {exec halscope -- -ini $emcini &}
 setup_menu_accel .menu.machine end [_ "Ha_l Scope"]
 
