@@ -32,14 +32,14 @@ endif
 
 $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 
-../bin/emcsh: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libnml.so
+../bin/emcsh: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libnml.so 
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
 TARGETS += ../bin/emcsh
 
 ../bin/emcrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/libemc.a ../lib/libnml.so
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
+	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lpthread
 TARGETS += ../bin/emcrsh
 
 ../bin/iosh: $(call TOOBJS, $(IOSHSRCS)) ../lib/libemc.a ../lib/libnml.so ../lib/libemchal.so
