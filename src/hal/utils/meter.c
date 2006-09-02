@@ -341,7 +341,7 @@ probe_t *probe_new(char *probe_name)
 void popup_probe_window(GtkWidget * widget, gpointer data)
 {
     probe_t *probe;
-    int next, row;
+    int next, row, match;
     hal_pin_t *pin;
     hal_sig_t *sig;
     hal_param_t *param;
@@ -355,16 +355,12 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	create_probe_window(probe);
     }
 
-    /* this selects the page holding the current selected probe */
-    if (probe->listnum >= 0) {
-	gtk_notebook_set_page((GtkNotebook *)probe->notebook, probe->listnum);
-    }
     gtk_clist_clear(GTK_CLIST(probe->lists[0]));
     gtk_clist_clear(GTK_CLIST(probe->lists[1]));
     gtk_clist_clear(GTK_CLIST(probe->lists[2]));
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
-    row = 0;
+    row = 0; match = 0;
     while (next != 0) {
 	pin = SHMPTR(next);
 	name = pin->name;
@@ -377,13 +373,19 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	    /* Get the text from the list */
 	    gtk_clist_get_text(GTK_CLIST(probe->lists[0]), row, 0,
 		&(probe->pickname));
+	    match = 1;
 	}
 	
 	next = pin->next_ptr;
 	row++;
     }
+    // if no match, unselect the first row, otherwise it will stay selected
+    // and confuse the user
+    if (!match)
+    	gtk_clist_unselect_row(GTK_CLIST(probe->lists[0]), 0, 0);
+    
     next = hal_data->sig_list_ptr;
-    row = 0;
+    row = 0; match = 0;
     while (next != 0) {
 	sig = SHMPTR(next);
 	name = sig->name;
@@ -396,13 +398,19 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	    /* Get the text from the list */
 	    gtk_clist_get_text(GTK_CLIST(probe->lists[1]), row, 0,
 		&(probe->pickname));
+	    match = 1;
 	}
 
 	next = sig->next_ptr;
 	row++;
     }
+    // if no match, unselect the first row, otherwise it will stay selected
+    // and confuse the user
+    if (!match)
+    	gtk_clist_unselect_row(GTK_CLIST(probe->lists[1]), 0, 0);
+
     next = hal_data->param_list_ptr;
-    row = 0;
+    row = 0; match = 0;
     while (next != 0) {
 	param = SHMPTR(next);
 	name = param->name;
@@ -415,11 +423,23 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	    /* Get the text from the list */
 	    gtk_clist_get_text(GTK_CLIST(probe->lists[2]), row, 0,
 		&(probe->pickname));
+	    match = 1;
 	}
 	
 	next = param->next_ptr;
 	row++;
     }
+    // if no match, unselect the first row, otherwise it will stay selected
+    // and confuse the user
+    if (!match)
+    	gtk_clist_unselect_row(GTK_CLIST(probe->lists[2]), 0, 0);
+
+    if (probe->listnum >= 0) {
+	gtk_notebook_set_page(GTK_NOTEBOOK(probe->notebook), probe->listnum);
+    } else { //nothing selected, select the first (pin page)
+	gtk_notebook_set_page(GTK_NOTEBOOK(probe->notebook), 0);
+    }
+
     rtapi_mutex_give(&(hal_data->mutex));
     gtk_widget_show_all(probe->window);
 }
@@ -614,6 +634,7 @@ static void create_probe_window(probe_t * probe)
 	gtk_notebook_set_tab_label_packing(GTK_NOTEBOOK(notebk), hbox,
 	    TRUE, TRUE, GTK_PACK_START);
     }
+    /* this selects the page holding the current selected probe */
     gtk_widget_show(notebk);
 
     /* an hbox to hold the OK, apply, and cancel buttons */
@@ -692,8 +713,11 @@ static void close_selection(GtkWidget * widget, gpointer data)
 
     /* get a pointer to the probe data structure */
     probe = (probe_t *) data;
-    /* hide the window */
-    gtk_widget_hide_all(probe->window);
+    /* destroy the window, hiding it causes problems when showing again */
+    // it wouldn't always switch to the same tab, which causes confusion
+    // we need to rebuild the lists anyways, 
+    // so rebuilding it doesn't take that longer
+    gtk_widget_destroy(probe->window);
 }
 
 /* If we come here, then the user has selected a row in the list. */
