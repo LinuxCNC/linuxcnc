@@ -153,6 +153,7 @@ int interp_error;
 int last_sequence_number;
 int plane;
 bool metric;
+double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c;
 
 Interp interp_new;
 
@@ -179,6 +180,7 @@ void maybe_new_line() {
 void ARC_FEED(double first_end, double second_end, double first_axis,
         double second_axis, int rotation, double axis_end_point,
         double a_position, double b_position, double c_position) {
+    // XXX: set _pos_*
     if(metric) {
         first_end /= 25.4;
         second_end /= 25.4;
@@ -197,6 +199,7 @@ void ARC_FEED(double first_end, double second_end, double first_axis,
 }
 
 void STRAIGHT_FEED(double x, double y, double z, double a, double b, double c) {
+    _pos_x=x; _pos_y=y; _pos_z=z; _pos_a=a; _pos_b=b; _pos_c=c;
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
@@ -208,6 +211,7 @@ void STRAIGHT_FEED(double x, double y, double z, double a, double b, double c) {
 }
 
 void STRAIGHT_TRAVERSE(double x, double y, double z, double a, double b, double c) {
+    _pos_x=x; _pos_y=y; _pos_z=z; _pos_a=a; _pos_b=b; _pos_c=c;
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
@@ -346,6 +350,7 @@ void SET_MOTION_OUTPUT_VALUE(int index, double value) {}
 void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
 void STRAIGHT_PROBE(double x, double y, double z, double a, double b, double c) {
+    _pos_x=x; _pos_y=y; _pos_z=z; _pos_a=a; _pos_b=b; _pos_c=c;
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
@@ -357,19 +362,19 @@ void STRAIGHT_PROBE(double x, double y, double z, double a, double b, double c) 
 
 }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
-double GET_EXTERNAL_PROBE_POSITION_X() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_Y() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_Z() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_A() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_B() { return 0.0; }
-double GET_EXTERNAL_PROBE_POSITION_C() { return 0.0; }
+double GET_EXTERNAL_PROBE_POSITION_X() { return _pos_x; }
+double GET_EXTERNAL_PROBE_POSITION_Y() { return _pos_y; }
+double GET_EXTERNAL_PROBE_POSITION_Z() { return _pos_z; }
+double GET_EXTERNAL_PROBE_POSITION_A() { return _pos_a; }
+double GET_EXTERNAL_PROBE_POSITION_B() { return _pos_b; }
+double GET_EXTERNAL_PROBE_POSITION_C() { return _pos_c; }
 double GET_EXTERNAL_PROBE_VALUE() { return 0.0; }
-double GET_EXTERNAL_POSITION_X() { return 0.0; }
-double GET_EXTERNAL_POSITION_Y() { return 0.0; }
-double GET_EXTERNAL_POSITION_Z() { return 0.0; }
-double GET_EXTERNAL_POSITION_A() { return 0.0; }
-double GET_EXTERNAL_POSITION_B() { return 0.0; }
-double GET_EXTERNAL_POSITION_C() { return 0.0; }
+double GET_EXTERNAL_POSITION_X() { return _pos_x; }
+double GET_EXTERNAL_POSITION_Y() { return _pos_y; }
+double GET_EXTERNAL_POSITION_Z() { return _pos_z; }
+double GET_EXTERNAL_POSITION_A() { return _pos_a; }
+double GET_EXTERNAL_POSITION_B() { return _pos_b; }
+double GET_EXTERNAL_POSITION_C() { return _pos_c; }
 void INIT_CANON() {}
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
     PyObject *result = PyObject_GetAttrString(callback, "parameter_file");
@@ -494,6 +499,8 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
     metric=false;
     interp_error = 0;
     last_sequence_number = -1;
+
+    _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
 
     interp_init();
     interp_open(f);
