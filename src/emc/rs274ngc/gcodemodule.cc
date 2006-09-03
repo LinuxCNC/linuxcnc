@@ -477,6 +477,7 @@ void SET_MOTION_CONTROL_MODE(double tolerance) { }
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode) { motion_mode = mode; }
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
 
+#define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
 PyObject *parse_file(PyObject *self, PyObject *args) {
     char *f;
     char *unitcode=0, *initcode=0;
@@ -499,22 +500,22 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
     int result = INTERP_OK;
     if(unitcode) {
         result = interp_read(unitcode);
-        if(result != INTERP_OK) goto out_error;
+        if(!RESULT_OK) goto out_error;
         result = interp_execute();
     }
-    if(initcode && result == INTERP_OK) {
+    if(initcode && RESULT_OK) {
         result = interp_read(initcode);
-        if(result != INTERP_OK) goto out_error;
+        if(!RESULT_OK) goto out_error;
         result = interp_execute();
     }
-    while(!interp_error && result == INTERP_OK) {
+    while(!interp_error && RESULT_OK) {
         result = interp_read();
         gettimeofday(&t1, NULL);
         if(t1.tv_sec > t0.tv_sec + wait) {
             if(check_abort()) return NULL;
             t0 = t1;
         }
-        if(result != INTERP_OK) break;
+        if(!RESULT_OK) break;
         result = interp_execute();
     }
 out_error:
