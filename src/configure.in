@@ -845,7 +845,7 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then
-    AC_PATH_PROG(ESPTOPDF,epstopdf,"none", /bin:/usr/bin:/usr/local/bin)
+    AC_PATH_PROG(EPSTOPDF,epstopdf,"none", /bin:/usr/bin:/usr/local/bin)
     if ( test "none" = "$EPSTOPDF" ) ; then
 	BUILD_DOCS=no
 	AC_MSG_WARN([no epstopdf, documentation will not be built])
