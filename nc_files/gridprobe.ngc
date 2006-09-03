@@ -40,4 +40,6 @@ O1 while [#9 lt #6]
 O1 endwhile
 
 (PROBECLOSE)
+G0Z#7
+G0X#1Y#4
 M2
