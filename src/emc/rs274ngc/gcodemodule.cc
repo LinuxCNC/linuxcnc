@@ -345,7 +345,17 @@ void SET_MOTION_OUTPUT_BIT(int bit) {}
 void SET_MOTION_OUTPUT_VALUE(int index, double value) {}
 void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
-void STRAIGHT_PROBE(double x, double y, double z, double a, double b, double c) {}
+void STRAIGHT_PROBE(double x, double y, double z, double a, double b, double c) {
+    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
+    maybe_new_line();
+    if(interp_error) return;
+    PyObject *result =
+        PyObject_CallMethod(callback, "straight_probe", "ffffff",
+            x, y, z, a, b, c);
+    if(result == NULL) interp_error ++;
+    Py_XDECREF(result);
+
+}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
 double GET_EXTERNAL_PROBE_POSITION_X() { return 0.0; }
 double GET_EXTERNAL_PROBE_POSITION_Y() { return 0.0; }

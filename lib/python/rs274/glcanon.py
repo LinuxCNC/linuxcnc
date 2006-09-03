@@ -49,6 +49,18 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         x = [f[1][0] for f in self.arcfeed] + [f[1][0] for f in self.feed] + [f[1][0] for f in self.traverse]
         y = [f[1][1] for f in self.arcfeed] + [f[1][1] for f in self.feed] + [f[1][1] for f in self.traverse]
         z = [f[1][2] for f in self.arcfeed] + [f[1][2] for f in self.feed] + [f[1][2] for f in self.traverse]
+        if self.arcfeed:
+            x.append(self.arcfeed[-1][2][0])
+            y.append(self.arcfeed[-1][2][1])
+            z.append(self.arcfeed[-1][2][2])
+        if self.feed:
+            x.append(self.feed[-1][2][0])
+            y.append(self.feed[-1][2][1])
+            z.append(self.feed[-1][2][2])
+        if self.traverse:
+            x.append(self.traverse[-1][2][0])
+            y.append(self.traverse[-1][2][1])
+            z.append(self.traverse[-1][2][2])
         if x:
             self.min_extents = [min(x), min(y), min(z)]
             self.max_extents = [max(x), max(y), max(z)]
@@ -94,6 +106,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         else:
             self.feed_append((self.lineno, self.lo, l))
         self.lo = l
+    straight_probe = straight_feed
 
     def user_defined_function(self, i, p, q):
         color = self.colors['m1xx']
