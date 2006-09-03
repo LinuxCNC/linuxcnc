@@ -41,11 +41,14 @@ or iconify this window, or it will close automatically after a few seconds."))
 lab.pack()
 app.after(10 * 1000, app.wm_withdraw)
 
-while 1:
-    change = h.change
-    if change and not h.changed:
-        do_change(h.number)
-    elif not change:
-        h.changed = False
-    app.after(100)
-    app.update()
+try:
+    while 1:
+        change = h.change
+        if change and not h.changed:
+            do_change(h.number)
+        elif not change:
+            h.changed = False
+        app.after(100)
+        app.update()
+except KeyboardInterrupt:
+    pass
