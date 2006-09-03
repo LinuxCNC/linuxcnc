@@ -3076,7 +3076,7 @@ static void print_help_commands(void)
 static int argno;
 
 static char *command_table[] = {
-    "loadrt", "unloadrt", "loadusr", "lock", "unlock",
+    "loadrt", "unloadrt", "loadusr", "unloadusr", "lock", "unlock",
     "linkps", "linksp", "linkpp", "unlinkp",
     "newsig", "delsig", "getp", "gets", "setp", "sets",
     "addf", "delf", "show", "list", "status", "save",
