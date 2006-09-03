@@ -5,7 +5,7 @@
 ( as the .ini file                                                      )
 
 (Configuration section)
-G21   (Inches)
+G20   (Inches)
 F4    (probe speed)
 
 #1=0  (X start)
