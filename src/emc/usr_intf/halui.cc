@@ -352,13 +352,16 @@ static int emcCommandSerialNumber = 0;
 static int saveEmcCommandSerialNumber = 0;
 
 // default value for timeout, 0 means wait forever
-static double emcTimeout = 0.0;
+// use same timeout value as in tkemc & mini
+static double emcTimeout = 1.0;
 
 static enum {
     EMC_WAIT_NONE = 1,
     EMC_WAIT_RECEIVED,
     EMC_WAIT_DONE
-} emcWaitType = EMC_WAIT_RECEIVED;
+} emcWaitType = EMC_WAIT_RECEIVED; 
+//even if a command overlaps with another GUI 
+// (probable on heavy use of both GUIS), we allow the waiting to timeout
 
 static void quit(int sig)
 {
