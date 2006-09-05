@@ -1,0 +1,52 @@
+/********************************************************************
+* Description:  streamer.h
+*               Typedefs and such for the "streamer" and "sampler"
+*               HAL components.
+*
+* Author: John Kasunich <jmkasunich at sourceforge dot net>
+* License: GPL Version 2
+*    
+* Copyright (c) 2006 All rights reserved.
+*
+********************************************************************/
+
+#define MAX_STREAMERS		8
+#define MAX_PINS 		20
+#define MAX_SHMEM 		64000
+#define STREAMER_SHMEM_KEY 	0x48535430
+#define SAMPLER_SHMEM_KEY	0x48534130
+#define FIFO_MAGIC_NUM		0x4649464F
+
+/* These structs live in the shared memory that connects the user
+   space and RT parts.  They are _not_ in HAL shared memory.
+*/
+
+typedef struct {
+    unsigned int magic;
+    volatile unsigned int in;
+    volatile unsigned int out;
+    int depth;
+    int num_pins;
+    hal_type_t type[MAX_PINS];
+} fifo_t;
+
+typedef union {
+    float f;
+    char  b;
+    long  s;
+    unsigned long u;
+} shmem_data_t;
+
+/* this struct lives in HAL shared memory */
+
+typedef union {
+    hal_bit_t *hbit;
+    hal_float_t *hfloat;
+    hal_u8_t *hu8;
+    hal_u16_t *hu16;
+    hal_u32_t *hu32;
+    hal_s8_t *hs8;
+    hal_s16_t *hs16;
+    hal_s32_t *hs32;
+} pin_data_t;
+

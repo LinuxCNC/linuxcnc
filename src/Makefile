@@ -480,6 +480,8 @@ obj-$(CONFIG_WEIGHTED_SUM) += weighted_sum.o
 weighted_sum-objs := hal/components/weighted_sum.o $(MATHSTUB)
 obj-$(CONFIG_MODMATH) += modmath.o
 modmath-objs := hal/components/modmath.o $(MATHSTUB)
+obj-$(CONFIG_STREAMER) += streamer.o
+streamer-objs := hal/components/streamer.o $(MATHSTUB)
 
 # Subdirectory: hal/drivers
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
@@ -593,6 +595,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 ../rtlib/sim_encoder.o: $(addprefix objects/rt,$(sim_encoder-objs))
 ../rtlib/weighted_sum.o: $(addprefix objects/rt,$(weighted_sum-objs))
 ../rtlib/modmath.o: $(addprefix objects/rt,$(modmath-objs))
+../rtlib/streamer.o: $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/hal_parport.o: $(addprefix objects/rt,$(hal_parport-objs))
 ../rtlib/hal_tiro.o: $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg.o: $(addprefix objects/rt,$(hal_stg-objs))
