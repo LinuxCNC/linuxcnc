@@ -250,7 +250,7 @@ pythonclean:
 	rm -f $(PYTARGETS)
 python: $(PYTARGETS)
 userspace: python
-clean: pythonclean
+clean: docclean pythonclean
 endif
 
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
