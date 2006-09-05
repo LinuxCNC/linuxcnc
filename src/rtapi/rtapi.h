@@ -837,7 +837,7 @@ extern "C" {			/* Need this when the header is included in a
 
 #define RTAPI_MP_ARRAY_STRING(var,num,descr)             \
   int __dummy_##var;                                     \
-  module_param_array(var, string, &(__dummy_##var), 0);  \
+  module_param_array(var, charp, &(__dummy_##var), 0);  \
   MODULE_PARM_DESC(var,descr);
 
 #endif /* version < 2.6 */
