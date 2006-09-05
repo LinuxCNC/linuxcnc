@@ -573,6 +573,23 @@ static PyObject *pyglSelectBuffer( PyObject *s, PyObject *o) {
 
 }
 
+static GLfloat *feedback_buffer = NULL;
+static PyObject *pyglFeedbackBuffer( PyObject *s, PyObject *o) {
+    int sz, ty;
+    if(!PyArg_ParseTuple(o, "ii:glFeedbackBuffer", &sz, &ty))
+        return NULL;
+    if(feedback_buffer)
+	    feedback_buffer = realloc( feedback_buffer, sizeof(int) * sz);
+    else feedback_buffer = malloc(sizeof(int) * sz);
+
+    glFeedbackBuffer(sz, ty, feedback_buffer);
+
+    CHECK_ERROR;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *pyglRenderMode( PyObject *s, PyObject *o) {
     int mode, lastmode, count;
     if(!PyArg_ParseTuple(o, "i:glRenderMode", &mode))
@@ -602,6 +619,15 @@ static PyObject *pyglRenderMode( PyObject *s, PyObject *o) {
             Py_DECREF(record);
         }
         return r;
+    }
+    else if(lastmode == GL_FEEDBACK ) {
+	PyObject *r = PyList_New(count);
+	int i;
+	for(i=0; i < count; i++) {
+		PyList_SET_ITEM(r, i, PyFloat_FromDouble(feedback_buffer[i]));
+	}
+	return r;
+
     }
 
     Py_INCREF(Py_None);
@@ -718,6 +744,7 @@ METH(glMultMatrixd, "multiply the current matrix with the specified matrix"),
 METH(glPixelStorei, "set pixel storage modes"),
 
 METH(glSelectBuffer, "establish a buffer for selection mode values"),
+METH(glFeedbackBuffer, "establish a buffer for feedback mode values"),
 // METH(glVertex3fv, ""),
 METH(gluCylinder, "draw a cylinder"),
 METH(gluDeleteQuadric, "destroy a quadrics object"),
@@ -774,6 +801,7 @@ void initminigl(void) {
     CONST(GL_QUADS);
     CONST(GL_RENDER);
     CONST(GL_SELECT);
+    CONST(GL_FEEDBACK);
     CONST(GL_SRC_ALPHA);
     CONST(GL_STACK_OVERFLOW);
     CONST(GL_TRUE);
@@ -800,4 +828,11 @@ void initminigl(void) {
     CONST(GL_TRIANGLE_FAN);
     CONST(GLU_INSIDE);
     CONST(GLU_OUTSIDE);
+    CONST(GL_TEXTURE_2D);
+    CONST(GL_2D);
+    CONST(GL_3D);
+    CONST(GL_3D_COLOR);
+    CONST(GL_3D_COLOR_TEXTURE);
+    CONST(GL_4D_COLOR_TEXTURE);
+    CONST(GL_COMPILE_AND_EXECUTE);
 }
