@@ -824,10 +824,14 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     AC_MSG_CHECKING([for LyX version])
     set -- `$LYX --version 2>&1 | grep ^LyX` ; LYX_VER=$2
     AC_MSG_RESULT([$LYX_VER])
-    LYX_MAJORVER=${LYX_VER:0:3}
-    if ( ! test "1.3" = "$LYX_MAJORVER" ) ; then
+    set -- `echo $LYX_VER | sed 's/\./ /g'`
+    if test $1 -lt 1 -o \( $1 -eq 1 -a $2 -lt 3 \) -o \( $1 -eq 1 -a $2 -eq 3 -a $3 -lt 6 \); then
 	BUILD_DOCS=no
-	AC_MSG_WARN([LyX version != 1.3.x, documentation will not be built])
+	AC_MSG_WARN([LyX version less than 1.3.6, documentation will not be built])
+    else
+	if test $1 -gt 1 -o \( $1 -eq 1 -a $2 -gt 3 \); then
+	    AC_MSG_WARN([LyX documentation should only be edited with LyX version 1.3.x])
+	fi
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then

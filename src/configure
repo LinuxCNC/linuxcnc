@@ -4692,11 +4692,16 @@ echo $ECHO_N "checking for LyX version... $ECHO_C" >&6
     set -- `$LYX --version 2>&1 | grep ^LyX` ; LYX_VER=$2
     echo "$as_me:$LINENO: result: $LYX_VER" >&5
 echo "${ECHO_T}$LYX_VER" >&6
-    LYX_MAJORVER=${LYX_VER:0:3}
-    if ( ! test "1.3" = "$LYX_MAJORVER" ) ; then
+    set -- `echo $LYX_VER | sed 's/\./ /g'`
+    if test $1 -lt 1 -o \( $1 -eq 1 -a $2 -lt 3 \) -o \( $1 -eq 1 -a $2 -eq 3 -a $3 -lt 6 \); then
 	BUILD_DOCS=no
-	{ echo "$as_me:$LINENO: WARNING: LyX version != 1.3.x, documentation will not be built" >&5
-echo "$as_me: WARNING: LyX version != 1.3.x, documentation will not be built" >&2;}
+	{ echo "$as_me:$LINENO: WARNING: LyX version less than 1.3.6, documentation will not be built" >&5
+echo "$as_me: WARNING: LyX version less than 1.3.6, documentation will not be built" >&2;}
+    else
+	if test $1 -gt 1 -o \( $1 -eq 1 -a $2 -gt 3 \); then
+	    { echo "$as_me:$LINENO: WARNING: LyX documentation should only be edited with LyX version 1.3.x" >&5
+echo "$as_me: WARNING: LyX documentation should only be edited with LyX version 1.3.x" >&2;}
+	fi
     fi
 fi
 if ( test "$BUILD_DOCS" = "yes" ) ; then
