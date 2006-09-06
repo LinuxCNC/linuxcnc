@@ -22,9 +22,9 @@ def do_change(n):
     app.update()
 
 h = hal.component("hal_manualtoolchange")
-h.newpin("number", hal.HAL_S32, hal.HAL_RD)
-h.newpin("change", hal.HAL_BIT, hal.HAL_RD)
-h.newpin("changed", hal.HAL_BIT, hal.HAL_WR)
+h.newpin("number", hal.HAL_S32, hal.HAL_IN)
+h.newpin("change", hal.HAL_BIT, hal.HAL_IN)
+h.newpin("changed", hal.HAL_BIT, hal.HAL_OUT)
 h.ready()
 
 import Tkinter, nf, rs274.options
