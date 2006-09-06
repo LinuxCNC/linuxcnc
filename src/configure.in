@@ -795,6 +795,17 @@ AC_ARG_WITH(python,
     ])
 AC_PATH_PROG(PYTHON,$PYTHON,"none", /bin:/usr/bin:/usr/local/bin)
 
+if test $PYTHON = "none"
+then
+    AC_MSG_ERROR([python not found])
+fi
+
+AC_PATH_PROG(YAPPS,yapps,"none", /bin:/usr/bin:/usr/local/bin)
+if test $YAPPS = "none"
+then
+    AC_MSG_ERROR([yapps not found -- install the 'yapps2' package])
+fi
+
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     [  --disable-build-documentation   Do not build documentation automatcally],
@@ -853,12 +864,6 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     if ( test "none" = "$EPSTOPDF" ) ; then
 	BUILD_DOCS=no
 	AC_MSG_WARN([no epstopdf, documentation will not be built])
-    fi
-fi
-if ( test "$BUILD_DOCS" = "yes" ) ; then
-    if ( test "none" = "$PYTHON" ) ; then
-	BUILD_DOCS=no
-	AC_MSG_WARN([no python, documentation will not be built])
     fi
 fi
 AC_SUBST(BUILD_DOCS)

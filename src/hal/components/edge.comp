@@ -1,0 +1,32 @@
+component edge;
+
+pin in bit in;
+pin out bit out;
+pin out_invert bit out;
+
+param in_edge bit w;
+param out_width float w;
+
+param time_left float r;
+param last_in bit r;
+
+function update;
+;;
+
+FUNCTION(update){ 
+    float fperiod = period * 1e-9;
+    int new_in = in;
+    if(in_edge) new_in = ! new_in;
+    if(new_in && new_in != last_in) {
+        time_left = out_width;
+        out = 1; out_invert = 0;
+    } else if(time_left > 0) {
+        time_left -= fperiod;
+        out = 1; out_invert = 0;
+    } else {
+        time_left = 0;
+        out = 0; out_invert = 1;
+    }
+    last_in = new_in;
+}
+

@@ -3,12 +3,12 @@ Source: emc2
 Section: misc
 Priority: extra
 Maintainer: Chris Radek <chris@timeguy.com>
-Build-Depends: debhelper (>> 4.0.0),linux-headers-2.6.12-magma,g++,gcc-3.4,make,libc6-dev,tcl8.4-dev,tk8.4-dev,libgtk2.0-dev,pciutils-dev,libncurses-dev,gettext,libxaw7-dev,rtai-modules-2.6.12-magma,libreadline5-dev,lyx,lyx-qt,python,tetex-bin,latex2html
+Build-Depends: debhelper (>> 4.0.0),linux-headers-2.6.12-magma,g++,gcc-3.4,make,libc6-dev,tcl8.4-dev,tk8.4-dev,libgtk2.0-dev,pciutils-dev,libncurses-dev,gettext,libxaw7-dev,rtai-modules-2.6.12-magma,libreadline5-dev,lyx,lyx-qt,python,tetex-bin,latex2html,yapps2
 Standards-Version: 2.0.0-rc0
 
 Package: emc2
 Architecture: any
-Depends: ${shlibs:Depends},linux-image-2.6.12-magma,rtai-modules-2.6.12-magma,libgtk2.0,tcl8.4,tk8.4,bwidget,libncurses,libreadline5
+Depends: ${shlibs:Depends},linux-image-2.6.12-magma,rtai-modules-2.6.12-magma,libgtk2.0,tcl8.4,tk8.4,bwidget,libncurses,libreadline5,yapps2-runtime
 Provides: emc2
 Suggests: emc2-axis
 Description: PC based motion controller for real-time Linux.

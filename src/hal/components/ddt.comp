@@ -1,0 +1,18 @@
+component ddt;
+
+pin in float in;
+pin out float out;
+
+option data ddt_data;
+
+function update;
+;;
+
+typedef struct { float old; } ddt_data;
+
+FUNCTION(update) {
+    float tmp = in;
+    out = (tmp - data.old) / (period * 1e-9);
+    data.old = tmp;
+}
+

@@ -1,0 +1,17 @@
+component offset;
+
+function update_output;
+function update_feedback;
+
+pin offset float in;
+
+pin in float in;
+pin out float out;
+
+pin fb_in float in;
+pin fb_out float out;
+
+;;
+
+FUNCTION(update_feedback) { fb_out = fb_in - offset; }
+FUNCTION(update_output)   { out = in + offset; }

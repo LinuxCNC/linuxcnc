@@ -39,7 +39,7 @@ $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
 PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
 
 PYSCRIPTS := axis.py axis-remote.py emctop.py hal_manualtoolchange.py \
-	mdi.py image-to-gcode.py lintini.py
+	mdi.py image-to-gcode.py lintini.py comp.py
 
 PYTARGETS += $(patsubst %.py,../bin/%,$(PYSCRIPTS))
 
@@ -52,6 +52,9 @@ PYTARGETS += $(patsubst %.py,../bin/%,$(PYSCRIPTS))
 PYI18NSRCS := $(addprefix emc/usr_intf/axis/scripts/, $(PYSCRIPTS))  \
 	../lib/python/propertywindow.py \
 	../share/axis/tcl/axis.tcl
+
+%.py: %.g
+	$(YAPPS) $< $@
 
 po/axis.pot: $(PYI18NSRCS)
 	$(XGETTEXT) -k_ -o $@ $^

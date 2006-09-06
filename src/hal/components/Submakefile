@@ -1,0 +1,25 @@
+ifneq ($(KERNELRELEASE),)
+COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp))
+include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
+else
+P=
+COMPS := $(wildcard hal/components/*.comp)
+-include $(patsubst %.comp, objects/%.mak, $(COMPS))
+Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS))
+endif
+
+obj-m += $(patsubst hal/components/%.comp, %.o, $(COMPS))
+
+objects/%.mak: %.comp
+	$(ECHO) "Creating $(notdir $@)"
+	@mkdir -p $(dir $@)
+	@echo $(notdir $*)-objs := objects/$*.o > $@.tmp
+	@echo ../rtlib/$(notdir $*).o: objects/$*.o >> $@.tmp
+	@mv -f $@.tmp $@
+
+objects/%.c: %.comp ../bin/comp
+	$(ECHO) "Preprocessing $(notdir $<)"
+	@mkdir -p $(dir $@)
+	@../bin/comp $< $@
+
+modules: $(patsubst %.comp, objects/%.c, $(COMPS))

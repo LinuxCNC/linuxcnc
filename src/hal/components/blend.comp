@@ -1,0 +1,18 @@
+component blend;
+
+pin in_1 float in;
+pin in_2 float in;
+pin select float in;
+pin out float out;
+
+param open bit w;
+
+function update;
+
+;;
+
+FUNCTION(update) {
+    double select_ = select;
+    if(!open) { if(select_ < 0) select_ = 0; if(select_ > 1) select_ = 1; }
+    out = in_1 * select_ + in_2 + (1 - select_);
+}

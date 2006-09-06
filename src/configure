@@ -312,7 +312,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE EMC2VERSION SIMULATOR RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS FUSER PYTHON LYX PDFLATEX LATEX2HTML EPSTOPDF BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR XGETTEXT XGETTEXT_TCL_WORKS MSGFMT MSGFMT_TCL_WORKS BUILD_AXIS BUILD_PYTHON INCLUDEPY SITEPY LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PACKAGE EMC2VERSION SIMULATOR RTNAME RTAI RTLINUX RTLINUXPRO RTPREFIX KERNELDIR RTFLAGS RTDIR EMC2_HOME AUTODIRS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP WFLAGS DEPSTYLE EGREP KERNEL_VERS MODEXT BUILD_SYS EXT_RTFLAGS MODULE_DIR RIP_MODULE_DIR RUN_IN_PLACE EMC2_BIN_DIR EMC2_TCL_DIR EMC2_HELP_DIR EMC2_RTLIB_DIR EMC2_LANG_DIR EMC2_CONFIG_PATH EMC2_NCFILES_DIR REALTIME EMC2_IMAGE_DIR GTK_VER GTK_LIBS GTK_CFLAGS CXX CXXFLAGS ac_ct_CXX SET_MAKE RANLIB ac_ct_RANLIB AR GREP INSTALL SED PS KILL WHOAMI AWK INSMOD RMMOD LSMOD PIDOF IPCS FUSER PYTHON YAPPS LYX PDFLATEX LATEX2HTML EPSTOPDF BUILD_DOCS USE_LIBM USE_STUBS USE_RTLIBM MATHINC MATHLIB RTAI3_MOD RTAI_MOD RTL_MOD MODPATH_adeos MODPATH_rtai_hal MODPATH_rtai_ksched MODPATH_rtai_fifos MODPATH_rtai_shm MODPATH_rtai_sem MODPATH_rtai_math MODPATH_rtai MODPATH_rt_mem_mgr MODPATH_rtai_sched MODPATH_rtai_libm MODPATH_rtl MODPATH_mbuff MODPATH_rtl_time MODPATH_rtl_sched MODPATH_rtl_posixio MODPATH_rtl_fifo TCL_DBGX TK_DBGX TCL_CFLAGS TK_CFLAGS TCL_LIBS TK_LIBS DATE HAVE_XAW XAW_LIBS HAVE_READLINE READLINE_LIBS HAVE_NCURSES NCURSES_LIBS USE_NLS HAVE_LOCALE_H LANGUAGES HAVE_LIBINTL_H HAVE_LIBINTL LOCALEDIR XGETTEXT XGETTEXT_TCL_WORKS MSGFMT MSGFMT_TCL_WORKS BUILD_AXIS BUILD_PYTHON INCLUDEPY SITEPY LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -4615,6 +4615,61 @@ echo "${ECHO_T}no" >&6
 fi
 
 
+if test $PYTHON = "none"
+then
+    { { echo "$as_me:$LINENO: error: python not found" >&5
+echo "$as_me: error: python not found" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+# Extract the first word of "yapps", so it can be a program name with args.
+set dummy yapps; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_YAPPS+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $YAPPS in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_YAPPS="$YAPPS" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+as_dummy="/bin:/usr/bin:/usr/local/bin"
+for as_dir in $as_dummy
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_YAPPS="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  test -z "$ac_cv_path_YAPPS" && ac_cv_path_YAPPS=""none""
+  ;;
+esac
+fi
+YAPPS=$ac_cv_path_YAPPS
+
+if test -n "$YAPPS"; then
+  echo "$as_me:$LINENO: result: $YAPPS" >&5
+echo "${ECHO_T}$YAPPS" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+if test $YAPPS = "none"
+then
+    { { echo "$as_me:$LINENO: error: yapps not found -- install the 'yapps2' package" >&5
+echo "$as_me: error: yapps not found -- install the 'yapps2' package" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
 echo "$as_me:$LINENO: checking whether to build documentation" >&5
 echo $ECHO_N "checking whether to build documentation... $ECHO_C" >&6
 # Check whether --enable-build-documentation or --disable-build-documentation was given.
@@ -4846,13 +4901,6 @@ fi
 	BUILD_DOCS=no
 	{ echo "$as_me:$LINENO: WARNING: no epstopdf, documentation will not be built" >&5
 echo "$as_me: WARNING: no epstopdf, documentation will not be built" >&2;}
-    fi
-fi
-if ( test "$BUILD_DOCS" = "yes" ) ; then
-    if ( test "none" = "$PYTHON" ) ; then
-	BUILD_DOCS=no
-	{ echo "$as_me:$LINENO: WARNING: no python, documentation will not be built" >&5
-echo "$as_me: WARNING: no python, documentation will not be built" >&2;}
     fi
 fi
 
@@ -8660,6 +8708,7 @@ s,@PIDOF@,$PIDOF,;t t
 s,@IPCS@,$IPCS,;t t
 s,@FUSER@,$FUSER,;t t
 s,@PYTHON@,$PYTHON,;t t
+s,@YAPPS@,$YAPPS,;t t
 s,@LYX@,$LYX,;t t
 s,@PDFLATEX@,$PDFLATEX,;t t
 s,@LATEX2HTML@,$LATEX2HTML,;t t
