@@ -39,10 +39,15 @@ union halunion {
     union paramunion param;
 };
 
+union haldirunion {
+    hal_pin_dir_t pindir;
+    hal_param_dir_t paramdir;
+};
+
 struct halitem {
     bool is_pin;
     hal_type_t type;
-    hal_dir_t dir;
+    union haldirunion dir;
     union halunion *u; 
 };
 
@@ -308,7 +313,7 @@ static halitem *find_item(halobject *self, char *name) {
     return &(i->second);
 }
 
-static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t type, hal_dir_t dir) {
+static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t type, hal_param_dir_t dir) {
     char param_name[HAL_NAME_LEN];
     int res;
     halitem param;
@@ -320,7 +325,7 @@ static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t typ
     }
     
     param.type = type;
-    param.dir = dir;
+    param.dir.paramdir = dir;
     param.u = (halunion*)hal_malloc(sizeof(halunion));
     if(!param.u) {
         PyErr_SetString(PyExc_MemoryError, "hal_malloc failed");
@@ -337,7 +342,7 @@ static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t typ
 }
 
 
-static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type, hal_dir_t dir) {
+static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type, hal_pin_dir_t dir) {
     char pin_name[HAL_NAME_LEN];
     int res;
     halitem pin;
@@ -349,7 +354,7 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
     }
 
     pin.type = type;
-    pin.dir = dir;
+    pin.dir.pindir = dir;
     pin.u = (halunion*)hal_malloc(sizeof(halunion));
     if(!pin.u) {
         PyErr_SetString(PyExc_MemoryError, "hal_malloc failed");
@@ -376,7 +381,7 @@ static PyObject *pyhal_new_param(halobject *self, PyObject *o) {
         PyErr_Format(PyExc_ValueError, "Duplicate item name '%s'", name);
         return NULL;
     } else { PyErr_Clear(); }
-    return pyhal_create_param(self, name, (hal_type_t)type, (hal_dir_t)dir);
+    return pyhal_create_param(self, name, (hal_type_t)type, (hal_param_dir_t)dir);
 }
 
 
@@ -391,7 +396,7 @@ static PyObject *pyhal_new_pin(halobject *self, PyObject *o) {
         PyErr_Format(PyExc_ValueError, "Duplicate item name '%s'", name);
         return NULL;
     } else { PyErr_Clear(); }
-    return pyhal_create_pin(self, name, (hal_type_t)type, (hal_dir_t)dir);
+    return pyhal_create_pin(self, name, (hal_type_t)type, (hal_pin_dir_t)dir);
 }
 
 static PyObject *pyhal_ready(halobject *self, PyObject *o) {
@@ -520,6 +525,13 @@ void inithal(void) {
     PyModule_AddIntConstant(m, "HAL_S32", HAL_S32);
     PyModule_AddIntConstant(m, "HAL_U32", HAL_U32);
 
+    PyModule_AddIntConstant(m, "HAL_RO", HAL_RO);
+    PyModule_AddIntConstant(m, "HAL_RW", HAL_RW);
+    PyModule_AddIntConstant(m, "HAL_IN", HAL_IN);
+    PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
+    PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
+
+/* these three are obsolete, but are retained just in case */
     PyModule_AddIntConstant(m, "HAL_RD", HAL_RD);
     PyModule_AddIntConstant(m, "HAL_WR", HAL_WR);
     PyModule_AddIntConstant(m, "HAL_RD_WR", HAL_RD_WR);

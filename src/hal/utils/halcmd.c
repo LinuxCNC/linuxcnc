@@ -126,7 +126,8 @@ static void print_lock_status();
 static int count_list(int list_root);
 static void print_mem_status();
 static char *data_type(int type);
-static char *data_dir(int dir);
+static char *pin_data_dir(int dir);
+static char *param_data_dir(int dir);
 static char *data_arrow1(int dir);
 static char *data_arrow2(int dir);
 static char *data_value(int type, void *valptr);
@@ -1000,8 +1001,8 @@ static int do_setp_cmd(char *name, char *value)
     }
     /* found it */
     type = param->type;
-    /* is it writable? */
-    if (param->dir == HAL_RD) {
+    /* is it read only? */
+    if (param->dir == HAL_RO) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: param '%s' is not writable\n", linenumber, name);
@@ -2064,7 +2065,7 @@ static void print_pin_info(char *pattern)
 
     if (scriptmode == 0) {
 	rtapi_print("Component Pins:\n");
-	rtapi_print("Owner  Type  Dir    Value      Name\n");
+	rtapi_print("Owner  Type  Dir     Value      Name\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     len = strlen(pattern);
@@ -2084,14 +2085,14 @@ static void print_pin_info(char *pattern)
 		rtapi_print(" %02d    %s %s  %s  %s",
 		    comp->comp_id,
 		    data_type((int) pin->type),
-		    data_dir((int) pin->dir),
+		    pin_data_dir((int) pin->dir),
 		    data_value((int) pin->type, dptr),
 		    pin->name);
 	    } else {
 		rtapi_print("%s %s %s %s %s",
 		    comp->name,
 		    data_type((int) pin->type),
-		    data_dir((int) pin->dir),
+		    pin_data_dir((int) pin->dir),
 		    data_value2((int) pin->type, dptr),
 		    pin->name);
 	    } 
@@ -2197,13 +2198,13 @@ static void print_param_info(char *pattern)
 	    if (scriptmode == 0) {
 		rtapi_print(" %02d    %s  %s  %s  %s\n",
 		    comp->comp_id, data_type((int) param->type),
-		    data_dir((int) param->dir),
+		    param_data_dir((int) param->dir),
 		    data_value((int) param->type, SHMPTR(param->data_ptr)),
 		    param->name);
 	    } else {
 		rtapi_print("%s %s %s %s %s\n",
 		    comp->name, data_type((int) param->type),
-		    data_dir((int) param->dir),
+		    param_data_dir((int) param->dir),
 		    data_value2((int) param->type, SHMPTR(param->data_ptr)),
 		    param->name);
 	    } 
@@ -2520,25 +2521,48 @@ static char *data_type(int type)
 }
 
 /* Switch function for pin direction for the print_*_list functions  */
-static char *data_dir(int dir)
+static char *pin_data_dir(int dir)
 {
     char *pin_dir;
 
     switch (dir) {
-    case HAL_RD:
-	pin_dir = "R-";
+    case HAL_IN:
+	pin_dir = "IN ";
 	break;
-    case HAL_WR:
-	pin_dir = "-W";
+    case HAL_OUT:
+	pin_dir = "OUT";
 	break;
-    case HAL_RD_WR:
-	pin_dir = "RW";
+    case HAL_IO:
+	pin_dir = "I/O";
 	break;
     default:
 	/* Shouldn't get here, but just in case... */
-	pin_dir = "??";
+	pin_dir = "???";
     }
     return pin_dir;
+}
+
+/* Switch function for param direction for the print_*_list functions  */
+static char *param_data_dir(int dir)
+{
+    char *param_dir;
+
+    switch (dir) {
+    case HAL_RO:
+	param_dir = "RO";
+	break;
+    case HAL_RW:
+	param_dir = "RW";
+	break;
+/* TODO there should be no "write only" params, the user can always read */
+    case HAL_WR:
+	param_dir = "WO";
+	break;
+    default:
+	/* Shouldn't get here, but just in case... */
+	param_dir = "??";
+    }
+    return param_dir;
 }
 
 /* Switch function for arrow direction for the print_*_list functions  */
@@ -2547,13 +2571,13 @@ static char *data_arrow1(int dir)
     char *arrow;
 
     switch (dir) {
-    case HAL_RD:
+    case HAL_IN:
 	arrow = "<==";
 	break;
-    case HAL_WR:
+    case HAL_OUT:
 	arrow = "==>";
 	break;
-    case HAL_RD_WR:
+    case HAL_IO:
 	arrow = "<=>";
 	break;
     default:
@@ -2569,13 +2593,13 @@ static char *data_arrow2(int dir)
     char *arrow;
 
     switch (dir) {
-    case HAL_RD:
+    case HAL_IN:
 	arrow = "==>";
 	break;
-    case HAL_WR:
+    case HAL_OUT:
 	arrow = "<==";
 	break;
-    case HAL_RD_WR:
+    case HAL_IO:
 	arrow = "<=>";
 	break;
     default:
@@ -2842,7 +2866,7 @@ static void save_params(FILE *dst)
     next = hal_data->param_list_ptr;
     while (next != 0) {
 	param = SHMPTR(next);
-	if (param->dir != HAL_RD) {
+	if (param->dir != HAL_RO) {
 	    /* param is writable, save it's value */
 	    fprintf(dst, "setp %s %s\n", param->name,
 		data_value((int) param->type, SHMPTR(param->data_ptr)));
@@ -3138,16 +3162,16 @@ static char **completion_matches_table(const char *text, char **table) {
 
 static hal_type_t match_type = -1;
 static int match_writers = -1;
-static hal_dir_t match_direction = -1;
+static hal_pin_dir_t match_direction = -1;
 
-static int direction_match(hal_dir_t dir1, hal_dir_t dir2) {
+static int direction_match(hal_pin_dir_t dir1, hal_pin_dir_t dir2) {
     if(dir1 == -1 || dir2 == -1) return 1;
-    return (dir1 | dir2) == HAL_RD_WR;
+    return (dir1 | dir2) == HAL_IO;
 }
 
-static int writer_match(hal_dir_t dir, int writers) {
+static int writer_match(hal_pin_dir_t dir, int writers) {
     if(writers == -1 || dir == -1) return 1;
-    if(dir & HAL_RD || writers == 0) return 1;
+    if(dir & HAL_IN || writers == 0) return 1;
     return 0;
 }
 

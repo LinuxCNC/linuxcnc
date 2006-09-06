@@ -266,34 +266,51 @@ typedef enum {
     HAL_U32 = 8
 } hal_type_t;
 
-/** HAL pins also have a direction attribute.  Any number of HAL_RD
-    or HAL_RD_WR pins may be connected to the same signal, but only
-    one HAL_WR pin is permitted.  This is equivalent to connecting
-    two output pins together in an electronic circuit.  (HAL_RD_WR
-    pins can be thought of as tri-state outputs.)
-    
-    HAL_RD vs HAL_WR are inconsistent between pins and parameters.
-    Someday I hope to fix this, but for now this comment will at
-    least explain it:
-    
-    For pins, a WR pin is an _output_ from the module, and a RD
-    pin is an input to the module.  IOW, the type explains what
-    the module does to the attached signal.
-    
-    For parameters, a WR pin is an input to the module, and RD
-    pin is an output from the module.  IOW, the type explains
-    what the _user_ can do with the parameter.
-    
-    I know, it's messed up, sorry.  :-/
+/** HAL pins have a direction attribute.  A pin may be an input to 
+    the HAL component, an output, or it may be bidirectional.
+    Any number of HAL_IN or HAL_IO pins may be connected to the same
+    signal, but only one HAL_OUT pin is permitted.  This is equivalent
+    to connecting two output pins together in an electronic circuit.
+    (HAL_IO pins can be thought of as tri-state outputs.)
 */
-typedef enum {
-    HAL_RD = 16,
-    HAL_WR = 32,
-    HAL_RD_WR = (HAL_RD | HAL_WR),
-} hal_dir_t;
 
-/*! \todo An #if 1 - FIX ME if this works */
-#if 1
+typedef enum {
+    HAL_IN = 16,
+    HAL_OUT = 32,
+    HAL_IO = (HAL_IN | HAL_OUT),
+} hal_pin_dir_t;
+
+/** HAL parameters also have a direction attribute.  For parameters,
+    the attribute determines whether the user can write the value
+    of the parameter, or simply read it.  HAL_RO parameters are
+    read-only, and HAL_RW ones are writable with 'halcmd setp'.
+*/
+
+typedef enum {
+    HAL_RO = 16,
+    HAL_RW = 48,
+} hal_param_dir_t;
+
+/** Earlier versions of HAL used the same direction flags for both
+    pins and parameters.  The flags were HAL_RD, HAL_WR, and HAL_RD_WR.
+    Those names were confusing, because for pins they described what
+    the component could do to the pin, but for params they described
+    what the users could to do the parameter.  They have been
+    replaced by the ones above, but the old symbols are still
+    defined here for compatibility.  These will go away some day
+    and should _not_ be used in new code.
+*/
+
+/* TODO:  delete these definitions, and replace the dozens or
+   hundreds of places they are invoked in the existing HAL
+   components with the proper names from above
+*/
+
+#define HAL_RD 16
+#define HAL_WR 32
+#define HAL_RD_WR 48
+
+#if 1  /* right now we assume x86 */
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
 typedef volatile unsigned char hal_bit_t;
@@ -370,21 +387,21 @@ extern unsigned char hal_get_lock(void);
     If successful, the hal_pin_xxx_new() functions return HAL_SUCCESS.
     On failure they return a negative error code.
 */
-extern int hal_pin_bit_new(char *name, hal_dir_t dir,
+extern int hal_pin_bit_new(char *name, hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_float_new(char *name, hal_dir_t dir,
+extern int hal_pin_float_new(char *name, hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_u8_new(char *name, hal_dir_t dir,
+extern int hal_pin_u8_new(char *name, hal_pin_dir_t dir,
     hal_u8_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_s8_new(char *name, hal_dir_t dir,
+extern int hal_pin_s8_new(char *name, hal_pin_dir_t dir,
     hal_s8_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_u16_new(char *name, hal_dir_t dir,
+extern int hal_pin_u16_new(char *name, hal_pin_dir_t dir,
     hal_u16_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_s16_new(char *name, hal_dir_t dir,
+extern int hal_pin_s16_new(char *name, hal_pin_dir_t dir,
     hal_s16_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_u32_new(char *name, hal_dir_t dir,
+extern int hal_pin_u32_new(char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_s32_new(char *name, hal_dir_t dir,
+extern int hal_pin_s32_new(char *name, hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id);
 
 /** The hal_pin_XXX_newf family of functions are similar to
@@ -393,21 +410,21 @@ extern int hal_pin_s32_new(char *name, hal_dir_t dir,
     If successful, the hal_pin_xxx_newf() functions return HAL_SUCCESS.
     On failure they return a negative error code.
 */
-extern int hal_pin_bit_newf(hal_dir_t dir,
+extern int hal_pin_bit_newf(hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_float_newf(hal_dir_t dir,
+extern int hal_pin_float_newf(hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_u8_newf(hal_dir_t dir,
+extern int hal_pin_u8_newf(hal_pin_dir_t dir,
     hal_u8_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_s8_newf(hal_dir_t dir,
+extern int hal_pin_s8_newf(hal_pin_dir_t dir,
     hal_s8_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_u16_newf(hal_dir_t dir,
+extern int hal_pin_u16_newf(hal_pin_dir_t dir,
     hal_u16_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_s16_newf(hal_dir_t dir,
+extern int hal_pin_s16_newf(hal_pin_dir_t dir,
     hal_s16_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_u32_newf(hal_dir_t dir,
+extern int hal_pin_u32_newf(hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id, char *fmt, ...);
-extern int hal_pin_s32_newf(hal_dir_t dir,
+extern int hal_pin_s32_newf(hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id, char *fmt, ...);
 
 
@@ -426,7 +443,7 @@ extern int hal_pin_s32_newf(hal_dir_t dir,
     If successful, hal_pin_new() returns HAL_SUCCESS.  On failure
     it returns a negative error code.
 */
-extern int hal_pin_new(char *name, hal_type_t type, hal_dir_t dir,
+extern int hal_pin_new(char *name, hal_type_t type, hal_pin_dir_t dir,
     void **data_ptr_addr, int comp_id);
 
 /** There is no 'hal_pin_delete()' function.  Once a component has
@@ -517,39 +534,39 @@ extern int hal_link(char *pin_name, char *sig_name);
     If successful, the hal_param_xxx_new() functions return HAL_SUCCESS.
     On failure they return a negative error code.
 */
-extern int hal_param_bit_new(char *name, hal_dir_t dir, hal_bit_t * data_addr,
+extern int hal_param_bit_new(char *name, hal_param_dir_t dir, hal_bit_t * data_addr,
     int comp_id);
-extern int hal_param_float_new(char *name, hal_dir_t dir,
+extern int hal_param_float_new(char *name, hal_param_dir_t dir,
     hal_float_t * data_addr, int comp_id);
-extern int hal_param_u8_new(char *name, hal_dir_t dir, hal_u8_t * data_addr,
+extern int hal_param_u8_new(char *name, hal_param_dir_t dir, hal_u8_t * data_addr,
     int comp_id);
-extern int hal_param_s8_new(char *name, hal_dir_t dir, hal_s8_t * data_addr,
+extern int hal_param_s8_new(char *name, hal_param_dir_t dir, hal_s8_t * data_addr,
     int comp_id);
-extern int hal_param_u16_new(char *name, hal_dir_t dir, hal_u16_t * data_addr,
+extern int hal_param_u16_new(char *name, hal_param_dir_t dir, hal_u16_t * data_addr,
     int comp_id);
-extern int hal_param_s16_new(char *name, hal_dir_t dir, hal_s16_t * data_addr,
+extern int hal_param_s16_new(char *name, hal_param_dir_t dir, hal_s16_t * data_addr,
     int comp_id);
-extern int hal_param_u32_new(char *name, hal_dir_t dir, hal_u32_t * data_addr,
+extern int hal_param_u32_new(char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
     int comp_id);
-extern int hal_param_s32_new(char *name, hal_dir_t dir, hal_s32_t * data_addr,
+extern int hal_param_s32_new(char *name, hal_param_dir_t dir, hal_s32_t * data_addr,
     int comp_id);
 
 /** printf-style versions of hal_param_XXX_new */
-extern int hal_param_bit_newf(hal_dir_t dir, hal_bit_t * data_addr,
+extern int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
     int comp_id, char *fmt, ...);
-extern int hal_param_float_newf(hal_dir_t dir,
+extern int hal_param_float_newf(hal_param_dir_t dir,
     hal_float_t * data_addr, int comp_id, char *fmt, ...);
-extern int hal_param_u8_newf(hal_dir_t dir, hal_u8_t * data_addr,
+extern int hal_param_u8_newf(hal_param_dir_t dir, hal_u8_t * data_addr,
     int comp_id, char *fmt, ...);
-extern int hal_param_s8_newf(hal_dir_t dir, hal_s8_t * data_addr,
+extern int hal_param_s8_newf(hal_param_dir_t dir, hal_s8_t * data_addr,
     int comp_id, char *fmt, ...);
-extern int hal_param_u16_newf(hal_dir_t dir, hal_u16_t * data_addr,
+extern int hal_param_u16_newf(hal_param_dir_t dir, hal_u16_t * data_addr,
     int comp_id, char *fmt, ...);
-extern int hal_param_s16_newf(hal_dir_t dir, hal_s16_t * data_addr,
+extern int hal_param_s16_newf(hal_param_dir_t dir, hal_s16_t * data_addr,
     int comp_id, char *fmt, ...);
-extern int hal_param_u32_newf(hal_dir_t dir, hal_u32_t * data_addr,
+extern int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
     int comp_id, char *fmt, ...);
-extern int hal_param_s32_newf(hal_dir_t dir, hal_s32_t * data_addr,
+extern int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
     int comp_id, char *fmt, ...);
 
 
@@ -575,7 +592,7 @@ extern int hal_param_s32_newf(hal_dir_t dir, hal_s32_t * data_addr,
     If successful, hal_param_new() returns HAL_SUCCESS.  On failure
     it returns a negative error code.
 */
-extern int hal_param_new(char *name, hal_type_t type, hal_dir_t dir,
+extern int hal_param_new(char *name, hal_type_t type, hal_param_dir_t dir,
     void *data_addr, int comp_id);
 
 /** There is no 'hal_param_delete()' function.  Once a component has

@@ -191,7 +191,7 @@ typedef struct {
     int signal;			/* signal to which pin is linked */
     long dummysig;		/* if unlinked, data_ptr points here */
     hal_type_t type;		/* data type */
-    hal_dir_t dir;		/* pin direction */
+    hal_pin_dir_t dir;		/* pin direction */
     char name[HAL_NAME_LEN + 1];	/* pin name */
 } hal_pin_t;
 
@@ -215,7 +215,7 @@ typedef struct {
     int data_ptr;		/* offset of parameter value */
     int owner_ptr;		/* component that owns this signal */
     hal_type_t type;		/* data type */
-    hal_dir_t dir;		/* data direction */
+    hal_param_dir_t dir;	/* data direction */
     char name[HAL_NAME_LEN + 1];	/* parameter name */
 } hal_param_t;
 
@@ -292,7 +292,7 @@ typedef struct {
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000003	/* version code */
+#define HAL_VER   0x00000004	/* version code */
 #define HAL_SIZE  131000
 
 /* These pointers are set by hal_init() to point to the shmem block

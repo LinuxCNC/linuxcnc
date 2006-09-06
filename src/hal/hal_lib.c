@@ -474,56 +474,56 @@ unsigned char hal_get_lock() {
 
 /* wrapper functs for typed pins - these call the generic funct below */
 
-int hal_pin_bit_new(char *name, hal_dir_t dir,
+int hal_pin_bit_new(char *name, hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_BIT, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_float_new(char *name, hal_dir_t dir,
+int hal_pin_float_new(char *name, hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_FLOAT, dir, (void **) data_ptr_addr,
 	comp_id);
 }
 
-int hal_pin_u8_new(char *name, hal_dir_t dir,
+int hal_pin_u8_new(char *name, hal_pin_dir_t dir,
     hal_u8_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_U8, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_s8_new(char *name, hal_dir_t dir,
+int hal_pin_s8_new(char *name, hal_pin_dir_t dir,
     hal_s8_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_S8, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_u16_new(char *name, hal_dir_t dir,
+int hal_pin_u16_new(char *name, hal_pin_dir_t dir,
     hal_u16_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_U16, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_s16_new(char *name, hal_dir_t dir,
+int hal_pin_s16_new(char *name, hal_pin_dir_t dir,
     hal_s16_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_S16, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_u32_new(char *name, hal_dir_t dir,
+int hal_pin_u32_new(char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_U32, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_s32_new(char *name, hal_dir_t dir,
+int hal_pin_s32_new(char *name, hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_bit_newf(hal_dir_t dir,
+int hal_pin_bit_newf(hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -536,7 +536,7 @@ int hal_pin_bit_newf(hal_dir_t dir,
     return hal_pin_new(name, HAL_BIT, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_float_newf(hal_dir_t dir,
+int hal_pin_float_newf(hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -550,7 +550,7 @@ int hal_pin_float_newf(hal_dir_t dir,
 	comp_id);
 }
 
-int hal_pin_u8_newf(hal_dir_t dir,
+int hal_pin_u8_newf(hal_pin_dir_t dir,
     hal_u8_t ** data_ptr_addr, int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -563,7 +563,7 @@ int hal_pin_u8_newf(hal_dir_t dir,
     return hal_pin_new(name, HAL_U8, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_s8_newf(hal_dir_t dir,
+int hal_pin_s8_newf(hal_pin_dir_t dir,
     hal_s8_t ** data_ptr_addr, int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -576,7 +576,7 @@ int hal_pin_s8_newf(hal_dir_t dir,
     return hal_pin_new(name, HAL_S8, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_u16_newf(hal_dir_t dir,
+int hal_pin_u16_newf(hal_pin_dir_t dir,
     hal_u16_t ** data_ptr_addr, int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -589,7 +589,7 @@ int hal_pin_u16_newf(hal_dir_t dir,
     return hal_pin_new(name, HAL_U16, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_s16_newf(hal_dir_t dir,
+int hal_pin_s16_newf(hal_pin_dir_t dir,
     hal_s16_t ** data_ptr_addr, int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -602,7 +602,7 @@ int hal_pin_s16_newf(hal_dir_t dir,
     return hal_pin_new(name, HAL_S16, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_u32_newf(hal_dir_t dir,
+int hal_pin_u32_newf(hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -615,7 +615,7 @@ int hal_pin_u32_newf(hal_dir_t dir,
     return hal_pin_new(name, HAL_U32, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_s32_newf(hal_dir_t dir,
+int hal_pin_s32_newf(hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -631,7 +631,7 @@ int hal_pin_s32_newf(hal_dir_t dir,
 
 /* this is a generic function that does the majority of the work. */
 
-int hal_pin_new(char *name, hal_type_t type, hal_dir_t dir,
+int hal_pin_new(char *name, hal_type_t type, hal_pin_dir_t dir,
     void **data_ptr_addr, int comp_id)
 {
     int *prev, next, cmp;
@@ -948,8 +948,8 @@ int hal_link(char *pin_name, char *sig_name)
 	    "HAL: ERROR: type mismatch '%s' <- '%s'\n", pin_name, sig_name);
 	return HAL_INVAL;
     }
-    /* are we linking write_only pin to sig that already has writer? */
-    if ((pin->dir == HAL_WR) && (sig->writers > 0)) {
+    /* are we linking output pin to sig that already has writer? */
+    if ((pin->dir == HAL_OUT) && (sig->writers > 0)) {
 	/* yes, can't do that */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -964,10 +964,10 @@ int hal_link(char *pin_name, char *sig_name)
     data_addr = comp->shmem_base + sig->data_ptr;
     *data_ptr_addr = data_addr;
     /* update the signal's reader/writer counts */
-    if ((pin->dir & HAL_RD) != 0) {
+    if ((pin->dir & HAL_IN) != 0) {
 	sig->readers++;
     }
-    if ((pin->dir & HAL_WR) != 0) {
+    if ((pin->dir & HAL_OUT) != 0) {
 	sig->writers++;
     }
     /* and update the pin */
@@ -983,55 +983,55 @@ int hal_link(char *pin_name, char *sig_name)
 
 /* wrapper functs for typed params - these call the generic funct below */
 
-int hal_param_bit_new(char *name, hal_dir_t dir, hal_bit_t * data_addr,
+int hal_param_bit_new(char *name, hal_param_dir_t dir, hal_bit_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_BIT, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_float_new(char *name, hal_dir_t dir, hal_float_t * data_addr,
+int hal_param_float_new(char *name, hal_param_dir_t dir, hal_float_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u8_new(char *name, hal_dir_t dir, hal_u8_t * data_addr,
+int hal_param_u8_new(char *name, hal_param_dir_t dir, hal_u8_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_U8, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_s8_new(char *name, hal_dir_t dir, hal_s8_t * data_addr,
+int hal_param_s8_new(char *name, hal_param_dir_t dir, hal_s8_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_S8, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u16_new(char *name, hal_dir_t dir, hal_u16_t * data_addr,
+int hal_param_u16_new(char *name, hal_param_dir_t dir, hal_u16_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_U16, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_s16_new(char *name, hal_dir_t dir, hal_s16_t * data_addr,
+int hal_param_s16_new(char *name, hal_param_dir_t dir, hal_s16_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_S16, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u32_new(char *name, hal_dir_t dir, hal_u32_t * data_addr,
+int hal_param_u32_new(char *name, hal_param_dir_t dir, hal_u32_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_U32, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_s32_new(char *name, hal_dir_t dir, hal_s32_t * data_addr,
+int hal_param_s32_new(char *name, hal_param_dir_t dir, hal_s32_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_bit_newf(hal_dir_t dir, hal_bit_t * data_addr,
+int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
     int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -1044,7 +1044,7 @@ int hal_param_bit_newf(hal_dir_t dir, hal_bit_t * data_addr,
     return hal_param_new(name, HAL_BIT, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_float_newf(hal_dir_t dir, hal_float_t * data_addr,
+int hal_param_float_newf(hal_param_dir_t dir, hal_float_t * data_addr,
     int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -1057,7 +1057,7 @@ int hal_param_float_newf(hal_dir_t dir, hal_float_t * data_addr,
     return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u8_newf(hal_dir_t dir, hal_u8_t * data_addr,
+int hal_param_u8_newf(hal_param_dir_t dir, hal_u8_t * data_addr,
     int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -1070,7 +1070,7 @@ int hal_param_u8_newf(hal_dir_t dir, hal_u8_t * data_addr,
     return hal_param_new(name, HAL_U8, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_s8_newf(hal_dir_t dir, hal_s8_t * data_addr,
+int hal_param_s8_newf(hal_param_dir_t dir, hal_s8_t * data_addr,
     int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -1083,7 +1083,7 @@ int hal_param_s8_newf(hal_dir_t dir, hal_s8_t * data_addr,
     return hal_param_new(name, HAL_S8, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u16_newf(hal_dir_t dir, hal_u16_t * data_addr,
+int hal_param_u16_newf(hal_param_dir_t dir, hal_u16_t * data_addr,
     int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -1096,7 +1096,7 @@ int hal_param_u16_newf(hal_dir_t dir, hal_u16_t * data_addr,
     return hal_param_new(name, HAL_U16, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_s16_newf(hal_dir_t dir, hal_s16_t * data_addr,
+int hal_param_s16_newf(hal_param_dir_t dir, hal_s16_t * data_addr,
     int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -1109,7 +1109,7 @@ int hal_param_s16_newf(hal_dir_t dir, hal_s16_t * data_addr,
     return hal_param_new(name, HAL_S16, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u32_newf(hal_dir_t dir, hal_u32_t * data_addr,
+int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
     int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -1122,7 +1122,7 @@ int hal_param_u32_newf(hal_dir_t dir, hal_u32_t * data_addr,
     return hal_param_new(name, HAL_U32, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_s32_newf(hal_dir_t dir, hal_s32_t * data_addr,
+int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
     int comp_id, char *fmt, ...)
 {
     char name[HAL_NAME_LEN];
@@ -1138,7 +1138,7 @@ int hal_param_s32_newf(hal_dir_t dir, hal_s32_t * data_addr,
 
 /* this is a generic function that does the majority of the work. */
 
-int hal_param_new(char *name, hal_type_t type, hal_dir_t dir, void *data_addr,
+int hal_param_new(char *name, hal_type_t type, hal_param_dir_t dir, void *data_addr,
     int comp_id)
 {
     int *prev, next, cmp;
@@ -1307,8 +1307,8 @@ int hal_param_set(char *name, hal_type_t type, void *value_addr)
 	    "HAL: ERROR: type mismatch setting param '%s'\n", name);
 	return HAL_INVAL;
     }
-    /* is it writable? */
-    if (param->dir == HAL_RD) {
+    /* is it read only? */
+    if (param->dir == HAL_RO) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param '%s' is not writable\n", name);
@@ -1460,10 +1460,10 @@ int hal_export_funct(char *name, void (*funct) (void *, long),
        for debugging and testing use only */
     /* create a parameter with the function's runtime in it */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.time", name);
-    hal_param_s32_new(buf, HAL_RD, &(new->runtime), comp_id);
+    hal_param_s32_new(buf, HAL_RO, &(new->runtime), comp_id);
     /* create a parameter with the function's maximum runtime in it */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
-    hal_param_s32_new(buf, HAL_RD_WR, &(new->maxtime), comp_id);
+    hal_param_s32_new(buf, HAL_RW, &(new->maxtime), comp_id);
     return HAL_SUCCESS;
 }
 
@@ -1597,10 +1597,10 @@ int hal_create_thread(char *name, unsigned long period_nsec, int uses_fp)
 */
     /* create a parameter with the thread's runtime in it */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.time", name);
-    hal_param_s32_new(buf, HAL_RD, &(new->runtime), lib_module_id);
+    hal_param_s32_new(buf, HAL_RO, &(new->runtime), lib_module_id);
     /* create a parameter with the thread's maximum runtime in it */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
-    hal_param_s32_new(buf, HAL_RD_WR, &(new->maxtime), lib_module_id);
+    hal_param_s32_new(buf, HAL_RW, &(new->maxtime), lib_module_id);
 #endif
     rtapi_print_msg(RTAPI_MSG_INFO, "HAL: thread created\n");
     return HAL_SUCCESS;
@@ -2762,10 +2762,10 @@ static void unlink_pin(hal_pin_t * pin)
 	dummy_addr = comp->shmem_base + SHMOFF(&(pin->dummysig));
 	*data_ptr_addr = dummy_addr;
 	/* update the signal's reader/writer counts */
-	if ((pin->dir & HAL_RD) != 0) {
+	if ((pin->dir & HAL_IN) != 0) {
 	    sig->readers--;
 	}
-	if ((pin->dir & HAL_WR) != 0) {
+	if ((pin->dir & HAL_OUT) != 0) {
 	    sig->writers--;
 	}
 	/* mark pin as unlinked */
