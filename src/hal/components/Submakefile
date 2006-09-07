@@ -1,3 +1,4 @@
+ifneq ($(YAPPS),none)
 ifneq ($(KERNELRELEASE),)
 COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp))
 include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
@@ -23,3 +24,4 @@ objects/%.c: %.comp ../bin/comp
 	@../bin/comp $< $@
 
 modules: $(patsubst %.comp, objects/%.c, $(COMPS))
+endif

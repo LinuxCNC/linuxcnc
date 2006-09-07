@@ -4663,13 +4663,12 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
+
 if test $YAPPS = "none"
 then
-    { { echo "$as_me:$LINENO: error: yapps not found -- install the 'yapps2' package" >&5
-echo "$as_me: error: yapps not found -- install the 'yapps2' package" >&2;}
-   { (exit 1); exit 1; }; }
+    { echo "$as_me:$LINENO: WARNING: yapps not found, .comp files will not be built -- install the 'yapps2' package" >&5
+echo "$as_me: WARNING: yapps not found, .comp files will not be built -- install the 'yapps2' package" >&2;}
 fi
-
 echo "$as_me:$LINENO: checking whether to build documentation" >&5
 echo $ECHO_N "checking whether to build documentation... $ECHO_C" >&6
 # Check whether --enable-build-documentation or --disable-build-documentation was given.
