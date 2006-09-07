@@ -1,3 +1,4 @@
+
 #
 # @configure_input@ 
 # on @DATE@
@@ -86,8 +87,8 @@ CC = @CC@
 DEPSTYLE = @DEPSTYLE@
 
 # deps for xemc
-CFLAGS_X = @CFLAGS_X@
-XLIBS = @LDFLAGS_X@ @XAW_LIBS@
+CFLAGS_X = @X_CFLAGS@
+XLIBS = @XAW_LIBS@
 HAVE_XAW = @HAVE_XAW@
 
 # ncurses support for keystick
