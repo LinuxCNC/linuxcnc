@@ -35,8 +35,7 @@ parser Hal:
     rule Declaration:
         "component" NAME ";" {{ comp(NAME); }}
       | "pin" NAME TYPE PINDIRECTION ";"  {{ pin(NAME, TYPE, PINDIRECTION) }}
-      | "param" NAME TYPE PARAMDIRECTION ";" {{
-					 param(NAME, TYPE, PARAMDIRECTION) }}
+      | "param" NAME TYPE PARAMDIRECTION ";" {{ param(NAME, TYPE, PARAMDIRECTION) }}
       | "function" NAME OptFP ";"       {{ function(NAME, OptFP) }}
       | "option" NAME Value ";"   {{ option(NAME, Value) }}
 
