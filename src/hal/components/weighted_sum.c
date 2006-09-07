@@ -219,7 +219,7 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
 
     /* export pin for output sum */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.sum", base, num);
-    retval = hal_pin_s32_new(buf, HAL_WR, &(addr->sum), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->sum), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: '%s' pin export failed\n", buf);
@@ -228,7 +228,7 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
 
     /* export pin for update hold */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.hold", base, num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->hold), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->hold), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: '%s' pin export failed\n", buf);
@@ -241,7 +241,7 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
     w = 1;
     for (i=0;i<num_bits;i++) {
 	rtapi_snprintf(buf, HAL_NAME_LEN, "%s.bit.%d.in", base, i);
-	retval = hal_pin_bit_new(buf, HAL_RD, &(addr->bits[i].bit), comp_id);
+	retval = hal_pin_bit_new(buf, HAL_IN, &(addr->bits[i].bit), comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: '%s' pin export failed\n", buf);

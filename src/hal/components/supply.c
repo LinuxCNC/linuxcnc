@@ -172,22 +172,22 @@ static int export_supply(int num, hal_supply_t * addr)
 
     /* export pins */
     rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.q", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->q), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->q), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d._q", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->_q), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->_q), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.variable", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->variable), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->variable), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d._variable", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->_variable), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->_variable), comp_id);
     if (retval != 0) {
 	return retval;
     }

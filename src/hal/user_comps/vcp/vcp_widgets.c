@@ -376,7 +376,7 @@ static int init_spin_button ( vcp_widget_t *wp )
     }
     wp->hal_data = hd;
     /* export pin */
-    retval = hal_pin_float_new(pd->halpin, HAL_WR, &(hd->pin), comp_id);
+    retval = hal_pin_float_new(pd->halpin, HAL_OUT, &(hd->pin), comp_id);
     if (retval != 0) {
         printf( "init_spin_button(): unable to export HAL pin '%s'\n", pd->halpin );
         return -1;
@@ -497,7 +497,7 @@ static int init_button ( vcp_widget_t *wp )
     }
     wp->hal_data = hd;
     /* export pin */
-    retval = hal_pin_bit_new(pd->halpin, HAL_WR, &(hd->pin), comp_id);
+    retval = hal_pin_bit_new(pd->halpin, HAL_OUT, &(hd->pin), comp_id);
     if (retval != 0) {
 	printf( "init_button(): unable to export HAL pin '%s'\n", pd->halpin );
 	return retval;
@@ -614,7 +614,7 @@ static int init_toggle ( vcp_widget_t *wp )
     }
     wp->hal_data = hd;
     /* export pin */
-    retval = hal_pin_bit_new(pd->halpin, HAL_WR, &(hd->pin), comp_id);
+    retval = hal_pin_bit_new(pd->halpin, HAL_OUT, &(hd->pin), comp_id);
     if (retval != 0) {
 	printf( "init_toggle(): unable to export HAL pin '%s'\n", pd->halpin );
 	return retval;
@@ -787,7 +787,7 @@ static int init_led ( vcp_widget_t *wp )
     }
     wp->hal_data = hd;
     /* export pin */
-    retval = hal_pin_bit_new(pd->halpin, HAL_RD, &(hd->pin), comp_id);
+    retval = hal_pin_bit_new(pd->halpin, HAL_IN, &(hd->pin), comp_id);
     if (retval != 0) {
 	printf( "init_button(): unable to export HAL pin '%s'\n", pd->halpin );
 	return retval;

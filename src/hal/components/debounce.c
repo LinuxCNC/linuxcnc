@@ -355,7 +355,7 @@ static int export_filter(int num, debounce_t * addr, int group_num)
 
     /* export pin for input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d.%d.in", group_num, num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->in), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "DEBOUNCE: ERROR: '%s' pin export failed\n", buf);
@@ -363,7 +363,7 @@ static int export_filter(int num, debounce_t * addr, int group_num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d.%d.out", group_num, num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->out), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "DEBOUNCE: ERROR: '%s' pin export failed\n", buf);

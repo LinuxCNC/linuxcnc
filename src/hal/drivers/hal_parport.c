@@ -783,13 +783,13 @@ static int export_input_pin(int portnum, int pin, hal_bit_t ** base, int n)
     int retval;
 
     /* export write only HAL pin for the input bit */
-    retval = hal_pin_bit_newf(HAL_WR, base + (2 * n), comp_id,
+    retval = hal_pin_bit_newf(HAL_OUT, base + (2 * n), comp_id,
             "parport.%d.pin-%02d-in", portnum, pin);
     if (retval != 0) {
 	return retval;
     }
     /* export another write only HAL pin for the same bit inverted */
-    retval = hal_pin_bit_newf(HAL_WR, base + (2 * n) + 1, comp_id,
+    retval = hal_pin_bit_newf(HAL_OUT, base + (2 * n) + 1, comp_id,
             "parport.%d.pin-%02d-in-not", portnum, pin);
     return retval;
 }
@@ -800,7 +800,7 @@ static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
     int retval;
 
     /* export read only HAL pin for output data */
-    retval = hal_pin_bit_newf(HAL_RD, dbase + n, comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, dbase + n, comp_id,
             "parport.%d.pin-%02d-out", portnum, pin);
     if (retval != 0) {
 	return retval;

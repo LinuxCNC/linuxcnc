@@ -1078,13 +1078,13 @@ static int export_counter(int num, stg_struct *addr)
 
     /* export pin for counts captured by update() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_WR, &addr->count[num], comp_id);
+    retval = hal_pin_s32_new(buf, HAL_OUT, &addr->count[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &addr->pos[num], comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &addr->pos[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1113,7 +1113,7 @@ static int export_dac(int num, stg_struct *addr)
 
     /* export pin for voltage received by the board() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-value", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &addr->dac_value[num], comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &addr->dac_value[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1149,7 +1149,7 @@ static int export_adc(int num, stg_struct *addr)
 
     /* export pin for voltage received by the board() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.adc-value", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &addr->adc_value[num], comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &addr->adc_value[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1204,13 +1204,13 @@ static int export_input_pin(int pinnum, io_pin * pin)
 
     /* export read only HAL pin for input data */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.in-%02d", pinnum);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(pin->data), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(pin->data), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export additional pin for inverted input data */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.in-%02d-not", pinnum);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(pin->io.not), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(pin->io.not), comp_id);
     /* initialize HAL pins */
     *(pin->data) = 0;
     *(pin->io.not) = 1;
@@ -1224,7 +1224,7 @@ static int export_output_pin(int pinnum, io_pin * pin)
 
     /* export read only HAL pin for output data */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.out-%02d", pinnum);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(pin->data), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(pin->data), comp_id);
     if (retval != 0) {
 	return retval;
     }

@@ -274,25 +274,25 @@ static int export_counter(int num, counter_t * addr)
 
     /* export pins for the quadrature inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.phase-A", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->phaseA), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->phaseA), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the index input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.phase-Z", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->phaseZ), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->phaseZ), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the index enable input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.index-enable", num);
-    retval = hal_pin_bit_new(buf, HAL_RD_WR, &(addr->index_ena), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IO, &(addr->index_ena), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the reset input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.reset", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->reset), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->reset), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -304,13 +304,13 @@ static int export_counter(int num, counter_t * addr)
     }
     /* export pin for counts captured by capture() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_WR, &(addr->count), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->count), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by capture() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->pos), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos), comp_id);
     if (retval != 0) {
 	return retval;
     }

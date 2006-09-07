@@ -170,7 +170,7 @@ int rtapi_app_main(void)
     /* STEP 3: export the pin(s) */
     rtapi_snprintf(name, HAL_NAME_LEN, "skeleton.%d.pin-%02d-out", n, 1);
     retval =
-	hal_pin_u8_new(name, HAL_RD, &(port_data_array->data_out), comp_id);
+	hal_pin_u8_new(name, HAL_IN, &(port_data_array->data_out), comp_id);
     if (retval != HAL_SUCCESS) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SKELETON: ERROR: port %d var export failed with err=%i\n", n,

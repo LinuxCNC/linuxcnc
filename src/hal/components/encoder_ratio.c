@@ -347,34 +347,34 @@ static int export_encoder_pair(int num, encoder_pair_t * addr)
 
     /* export pins for the quadrature inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-A", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->master_A), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->master_A), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-B", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->master_B), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->master_B), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-A", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->slave_A), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->slave_A), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-B", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->slave_B), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->slave_B), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the enable input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.enable", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->enable), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->enable), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.error", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->error), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->error), comp_id);
     if (retval != 0) {
 	return retval;
     }

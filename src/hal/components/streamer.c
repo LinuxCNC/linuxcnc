@@ -356,14 +356,14 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 	return -ENOMEM;
     }
     /* export "standard" pins and params */
-    retval = hal_pin_bit_newf(HAL_WR, &(str->empty), comp_id,
+    retval = hal_pin_bit_newf(HAL_OUT, &(str->empty), comp_id,
 	"streamer.%d.empty", num);
     if (retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "STREAMER: ERROR: 'empty' pin export failed\n");
 	return -EIO;
     }
-    retval = hal_pin_s32_newf(HAL_WR, &(str->curr_depth), comp_id,
+    retval = hal_pin_s32_newf(HAL_OUT, &(str->curr_depth), comp_id,
 	"streamer.%d.curr_depth", num);
     if (retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -387,7 +387,7 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
     /* export user specified pins (the ones that stream data) */
     for ( n = 0 ; n < tmp_fifo->num_pins ; n++ ) {
 	rtapi_snprintf(buf, HAL_NAME_LEN, "streamer.%d.pin.%d", num, n);
-	retval = hal_pin_new(buf, tmp_fifo->type[n], HAL_WR, (void **)pptr, comp_id );
+	retval = hal_pin_new(buf, tmp_fifo->type[n], HAL_OUT, (void **)pptr, comp_id );
 	if (retval != 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"STREAMER: ERROR: pin '%s' export failed\n", buf);

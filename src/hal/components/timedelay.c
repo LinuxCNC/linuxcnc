@@ -200,7 +200,7 @@ static int export_delay(int num, bit_delay_t * addr)
 
     /* export pin for input bit */
     rtapi_snprintf(buf, HAL_NAME_LEN, "delay.%d.in", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->in), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "TIMEDELAY: ERROR: '%s' pin export failed\n", buf);
@@ -208,7 +208,7 @@ static int export_delay(int num, bit_delay_t * addr)
     }
     /* export pin for output bit */
     rtapi_snprintf(buf, HAL_NAME_LEN, "delay.%d.out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->out), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "TIMEDELAY: ERROR: '%s' pin export failed\n", buf);

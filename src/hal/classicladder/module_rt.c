@@ -329,7 +329,7 @@ Plc_ExportPinsParametersFunctions(Plc *this, int componentId, int plcId)
 
     // Export pins and parameters.
     rtapi_snprintf(name, HAL_NAME_LEN, "classicladder.%d.status", plcId);
-    if((error = hal_pin_u8_new(name, HAL_WR, &(this->pStatus), componentId)) == 0){
+    if((error = hal_pin_u8_new(name, HAL_OUT, &(this->pStatus), componentId)) == 0){
 
 	// Init pin.
 	*(this->pStatus) = InfosGene->LadderState;
@@ -338,7 +338,7 @@ Plc_ExportPinsParametersFunctions(Plc *this, int componentId, int plcId)
     for(channel = 0; channel < numPhysInputs && !error; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "classicladder.%d.in-%02d", plcId, channel);
-	if((error = hal_pin_bit_new(name, HAL_RD, &(this->pInPins[channel].pValue), componentId)) != 0)
+	if((error = hal_pin_bit_new(name, HAL_IN, &(this->pInPins[channel].pValue), componentId)) != 0)
 	    break;
 
 	// Init pin.
@@ -348,7 +348,7 @@ Plc_ExportPinsParametersFunctions(Plc *this, int componentId, int plcId)
     for(channel = 0; channel < numPhysOutputs && !error; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "classicladder.%d.out-%02d", plcId, channel);
-	if((error = hal_pin_bit_new(name, HAL_WR, &(this->pOutPins[channel].pValue), componentId)) != 0)
+	if((error = hal_pin_bit_new(name, HAL_OUT, &(this->pOutPins[channel].pValue), componentId)) != 0)
 	    break;
 
 	// Init pin.

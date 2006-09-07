@@ -273,13 +273,13 @@ static int export_counter(int num, counter_t * addr)
 
     /* export pin for counts captured by update() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "tiro.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_WR, &(addr->count), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->count), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "tiro.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->pos), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos), comp_id);
     if (retval != 0) {
 	return retval;
     }

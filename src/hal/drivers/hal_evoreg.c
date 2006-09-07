@@ -210,7 +210,7 @@ int rtapi_app_main(void)
     for ( num_dac=1; num_dac<=MAX_DAC; num_dac++) {
       rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.dac-%02d-out", 1, num_dac);
       retval =
-	  hal_pin_float_new(name, HAL_RD, &(port_data_array->dac_out[num_dac-1]), comp_id);
+	  hal_pin_float_new(name, HAL_IN, &(port_data_array->dac_out[num_dac-1]), comp_id);
       if (retval != HAL_SUCCESS) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	    "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
@@ -224,7 +224,7 @@ int rtapi_app_main(void)
     for ( num_enc=1; num_enc<=MAX_ENC; num_enc++) {
   	  rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.position-%02d-in", 1, num_enc);
       retval =
-	  hal_pin_float_new(name, HAL_WR, &(port_data_array->position[num_enc - 1]), comp_id);
+	  hal_pin_float_new(name, HAL_OUT, &(port_data_array->position[num_enc - 1]), comp_id);
       if (retval != HAL_SUCCESS) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
@@ -239,11 +239,11 @@ int rtapi_app_main(void)
     /* export write only HAL pin's for the input bit */
     for ( i=0; i<=45;i++) {
       rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.pin-%02d-in", 1, i);
-      retval += hal_pin_bit_new(name, HAL_WR, &(port_data_array->digital_in[i]), comp_id);
+      retval += hal_pin_bit_new(name, HAL_OUT, &(port_data_array->digital_in[i]), comp_id);
 
       /* export another write only HAL pin for the same bit inverted */
     /*rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.pin-%02d-in-not", 1, i);
-      retval += hal_pin_bit_new(name, HAL_WR, &(port_data_array->digital_in[(2*i)+1]), comp_id); */
+      retval += hal_pin_bit_new(name, HAL_OUT, &(port_data_array->digital_in[(2*i)+1]), comp_id); */
       if (retval != HAL_SUCCESS) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
@@ -256,11 +256,11 @@ int rtapi_app_main(void)
     /* export read only HAL pin's for the output bit */
     for ( i=0; i<=23;i++) {
       rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.pin-%02d-out", 1, i);
-      retval += hal_pin_bit_new(name, HAL_RD, &(port_data_array->digital_out[i]), comp_id);
+      retval += hal_pin_bit_new(name, HAL_IN, &(port_data_array->digital_out[i]), comp_id);
 
       /* export another read only HAL pin for the same bit inverted */
     /*rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.pin-%02d-out-not", 1, i);
-      retval += hal_pin_bit_new(name, HAL_RD, &(port_data_array->digital_out[(2*i)+1]), comp_id);  */
+      retval += hal_pin_bit_new(name, HAL_IN, &(port_data_array->digital_out[(2*i)+1]), comp_id);  */
       if (retval != HAL_SUCCESS) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,

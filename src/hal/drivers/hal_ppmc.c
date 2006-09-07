@@ -1127,14 +1127,14 @@ static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus)
 	/* export pins for input data */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.%02d.in",
 	    bus->busnum, bus->last_digin);
-	retval = hal_pin_bit_new(buf, HAL_WR, 
+	retval = hal_pin_bit_new(buf, HAL_OUT, 
 	    &(slot->digin[n].data), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.%02d.in-not",
 	    bus->busnum, bus->last_digin);
-	retval = hal_pin_bit_new(buf, HAL_WR, 
+	retval = hal_pin_bit_new(buf, HAL_OUT, 
 	    &(slot->digin[n].data_not), comp_id);
 	if (retval != 0) {
 	    return retval;
@@ -1168,7 +1168,7 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
 	/* export pin for output data */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.%02d.out",
 	    bus->busnum, bus->last_digout);
-	retval = hal_pin_bit_new(buf, HAL_RD, &(slot->digout[n].data), comp_id);
+	retval = hal_pin_bit_new(buf, HAL_IN, &(slot->digout[n].data), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1236,14 +1236,14 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	/* enable pin */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.enable",
 	    bus->busnum, bus->last_stepgen);
-	retval = hal_pin_bit_new(buf, HAL_RD, &(sg->enable), comp_id);
+	retval = hal_pin_bit_new(buf, HAL_IN, &(sg->enable), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* velocity command pin */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.velocity",
 	    bus->busnum, bus->last_stepgen);
-	retval = hal_pin_float_new(buf, HAL_RD, &(sg->vel), comp_id);
+	retval = hal_pin_float_new(buf, HAL_IN, &(sg->vel), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1311,14 +1311,14 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	/* enable pin */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.enable",
 	    bus->busnum, bus->last_pwmgen);
-	retval = hal_pin_bit_new(buf, HAL_RD, &(pg->enable), comp_id);
+	retval = hal_pin_bit_new(buf, HAL_IN, &(pg->enable), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* value command pin */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.value",
 	    bus->busnum, bus->last_pwmgen);
-	retval = hal_pin_float_new(buf, HAL_RD, &(pg->value), comp_id);
+	retval = hal_pin_float_new(buf, HAL_IN, &(pg->value), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1440,28 +1440,28 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
         /* scaled encoder position */
         rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.position",
                        bus->busnum, bus->last_encoder);
-        retval = hal_pin_float_new(buf, HAL_WR, &(slot->encoder[n].position), comp_id);
+        retval = hal_pin_float_new(buf, HAL_OUT, &(slot->encoder[n].position), comp_id);
         if (retval != 0) {
             return retval;
         }
 	/* raw encoder position */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.count",
 		       bus->busnum, bus->last_encoder);
-	retval = hal_pin_s32_new(buf, HAL_WR, &(slot->encoder[n].count), comp_id);
+	retval = hal_pin_s32_new(buf, HAL_OUT, &(slot->encoder[n].count), comp_id);
 	if (retval != 0) {
 		return retval;
 	}
 	/* raw encoder delta */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.delta",
 		       bus->busnum, bus->last_encoder);
-	retval = hal_pin_s32_new(buf, HAL_WR, &(slot->encoder[n].delta), comp_id);
+	retval = hal_pin_s32_new(buf, HAL_OUT, &(slot->encoder[n].delta), comp_id);
 	if (retval != 0) {
 		return retval;
 	}
 	/* encoder index bit */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.index",
 		       bus->busnum, bus->last_encoder);
-	retval = hal_pin_bit_new(buf, HAL_WR, &(slot->encoder[n].index), comp_id);
+	retval = hal_pin_bit_new(buf, HAL_OUT, &(slot->encoder[n].index), comp_id);
 	if (retval != 0) {
 		return retval;
 	}

@@ -660,13 +660,13 @@ static int export_input_pin(int boardnum, int pinnum, io_pin_t *pin)
 
     /* export read only HAL pin for input data */
     rtapi_snprintf(buf, HAL_NAME_LEN, "ax5214h.%d.in-%02d", boardnum, pinnum);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(pin->data), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(pin->data), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export additional pin for inverted input data */
     rtapi_snprintf(buf, HAL_NAME_LEN, "ax5214h.%d.in-%02d-not", boardnum, pinnum);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(pin->io.not), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(pin->io.not), comp_id);
     /* initialize HAL pins */
     *(pin->data) = 0;
     *(pin->io.not) = 1;
@@ -680,7 +680,7 @@ static int export_output_pin(int boardnum, int pinnum, io_pin_t *pin)
 
     /* export read only HAL pin for output data */
     rtapi_snprintf(buf, HAL_NAME_LEN, "ax5214h.%d.out-%02d", boardnum, pinnum);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(pin->data), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(pin->data), comp_id);
     if (retval != 0) {
 	return retval;
     }

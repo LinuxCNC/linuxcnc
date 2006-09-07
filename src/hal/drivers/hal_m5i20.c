@@ -580,35 +580,35 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
     for(channel = 0; channel < M5I20_NUM_ENCODER_CHANNELS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-count", boardId, channel);
-	if((halError = hal_pin_s32_new(name, HAL_WR, &(this->encoder[channel].pCount), componentId)) != 0)
+	if((halError = hal_pin_s32_new(name, HAL_OUT, &(this->encoder[channel].pCount), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-cnt-latch", boardId, channel);
-	if((halError = hal_pin_s32_new(name, HAL_WR, &(this->encoder[channel].pCountLatch), componentId)) != 0)
+	if((halError = hal_pin_s32_new(name, HAL_OUT, &(this->encoder[channel].pCountLatch), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-position", boardId, channel);
-	if((halError = hal_pin_float_new(name, HAL_WR, &(this->encoder[channel].pPosition), componentId)) != 0)
+	if((halError = hal_pin_float_new(name, HAL_OUT, &(this->encoder[channel].pPosition), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-pos-latch", boardId, channel);
-	if((halError = hal_pin_float_new(name, HAL_WR, &(this->encoder[channel].pPositionLatch), componentId)) != 0)
+	if((halError = hal_pin_float_new(name, HAL_OUT, &(this->encoder[channel].pPositionLatch), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-index", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_WR, &(this->encoder[channel].pIndex), componentId)) != 0)
+	if((halError = hal_pin_bit_new(name, HAL_OUT, &(this->encoder[channel].pIndex), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-idx-latch", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_WR, &(this->encoder[channel].pIndexLatch), componentId)) != 0)
+	if((halError = hal_pin_bit_new(name, HAL_OUT, &(this->encoder[channel].pIndexLatch), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-latch-index", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_RD_WR, &(this->encoder[channel].pLatchIndex), componentId)) != 0)
+	if((halError = hal_pin_bit_new(name, HAL_IO, &(this->encoder[channel].pLatchIndex), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-reset-count", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_RD_WR, &(this->encoder[channel].pResetCount), componentId)) != 0)
+	if((halError = hal_pin_bit_new(name, HAL_IO, &(this->encoder[channel].pResetCount), componentId)) != 0)
 	    break;
 
 	// Parameters.
@@ -653,11 +653,11 @@ Device_ExportDacPinsParametersFunctions(Device *this, int componentId, int board
     for(channel = 0; channel < M5I20_NUM_PWM_CHANNELS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.dac-%02d-enable", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_RD, &(this->dac[channel].pEnable), componentId)) != 0)
+	if((halError = hal_pin_bit_new(name, HAL_IN, &(this->dac[channel].pEnable), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.dac-%02d-value", boardId, channel);
-	if((halError = hal_pin_float_new(name, HAL_RD, &(this->dac[channel].pValue), componentId)) != 0)
+	if((halError = hal_pin_float_new(name, HAL_IN, &(this->dac[channel].pValue), componentId)) != 0)
 	    break;
 
 	// Parameters.
@@ -706,11 +706,11 @@ Device_ExportDigitalInPinsParametersFunctions(Device *this, int componentId, int
     for(channel = 0; channel < M5I20_NUM_DIGITAL_INPUTS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.in-%02d", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_WR, &(this->in[channel].pValue), componentId)) != 0)
+	if((halError = hal_pin_bit_new(name, HAL_OUT, &(this->in[channel].pValue), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.in-%02d-not", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_WR, &(this->in[channel].pValueNot), componentId)) != 0)
+	if((halError = hal_pin_bit_new(name, HAL_OUT, &(this->in[channel].pValueNot), componentId)) != 0)
 	    break;
 
 	// Init pin.
@@ -743,7 +743,7 @@ Device_ExportDigitalOutPinsParametersFunctions(Device *this, int componentId, in
     for(channel = 0; channel < M5I20_NUM_DIGITAL_OUTPUTS; channel++){
 	// Pins.
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.out-%02d", boardId, channel);
-	if((halError = hal_pin_bit_new(name, HAL_RD, &(this->out[channel].pValue), componentId)) != 0)
+	if((halError = hal_pin_bit_new(name, HAL_IN, &(this->out[channel].pValue), componentId)) != 0)
 	    break;
 
 	// Parameters.
@@ -779,16 +779,16 @@ Device_ExportMiscPinsParametersFunctions(Device *this, int componentId, int boar
 
     // Export Pins.
     rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.estop-in", boardId);
-    halError = hal_pin_bit_new(name, HAL_WR, &(this->misc.pEstopIn), componentId);
+    halError = hal_pin_bit_new(name, HAL_OUT, &(this->misc.pEstopIn), componentId);
 
     if(!halError){
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.estop-in-not", boardId);
-	halError = hal_pin_bit_new(name, HAL_WR, &(this->misc.pEstopInNot), componentId);
+	halError = hal_pin_bit_new(name, HAL_OUT, &(this->misc.pEstopInNot), componentId);
     }
 
     if(!halError){
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.watchdog-reset", boardId);
-	halError = hal_pin_bit_new(name, HAL_RD_WR, &(this->misc.pWatchdogReset), componentId);
+	halError = hal_pin_bit_new(name, HAL_IO, &(this->misc.pWatchdogReset), componentId);
     }
 
     // Export Parameters.

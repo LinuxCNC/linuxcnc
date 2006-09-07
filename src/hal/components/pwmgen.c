@@ -521,13 +521,13 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
 	return retval;
     }
     /* export pins */
-    retval = hal_pin_bit_newf(HAL_RD, &(addr->enable), comp_id,
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
 	    "pwmgen.%d.enable", num);
     if (retval != 0) {
 	return retval;
     }
     *(addr->enable) = 0;
-    retval = hal_pin_float_newf(HAL_RD, &(addr->value), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->value), comp_id,
 	    "pwmgen.%d.value", num);
     if (retval != 0) {
 	return retval;
@@ -535,14 +535,14 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     *(addr->value) = 0.0;
     if (output_type == 2) {
 	/* export UP/DOWN pins */
-	retval = hal_pin_bit_newf(HAL_WR, &(addr->out[UP_PIN]), comp_id,
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[UP_PIN]), comp_id,
 		"pwmgen.%d.up", num);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* init the pin */
 	*(addr->out[UP_PIN]) = 0;
-	retval = hal_pin_bit_newf(HAL_WR, &(addr->out[DOWN_PIN]), comp_id,
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[DOWN_PIN]), comp_id,
 		"pwmgen.%d.down", num);
 	if (retval != 0) {
 	    return retval;
@@ -551,7 +551,7 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
 	*(addr->out[DOWN_PIN]) = 0;
     } else {
 	/* export PWM pin */
-	retval = hal_pin_bit_newf(HAL_WR, &(addr->out[PWM_PIN]), comp_id,
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[PWM_PIN]), comp_id,
 		"pwmgen.%d.pwm", num);
 	if (retval != 0) {
 	    return retval;
@@ -560,7 +560,7 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
 	*(addr->out[PWM_PIN]) = 0;
 	if ( output_type == 1 ) {
 	    /* export DIR pin */
-	    retval = hal_pin_bit_newf(HAL_WR, &(addr->out[DIR_PIN]), comp_id,
+	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->out[DIR_PIN]), comp_id,
 		    "pwmgen.%d.dir", num);
 	    if (retval != 0) {
 		return retval;

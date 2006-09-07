@@ -366,23 +366,23 @@ static int export_sim_enc(int num, sim_enc_t * addr)
     }
     /* export pin for speed command */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.speed", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(addr->speed), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(addr->speed), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pins for output phases */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.phase-A", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->phaseA), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->phaseA), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.phase-B", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->phaseB), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->phaseB), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.phase-Z", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(addr->phaseZ), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->phaseZ), comp_id);
     if (retval != 0) {
 	return retval;
     }

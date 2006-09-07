@@ -913,7 +913,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     }
     /* export pin for counts captured by update() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_WR, &(addr->count), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->count), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -925,19 +925,19 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
     }
     /* export pin for position command command */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position-cmd", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(addr->pos_cmd), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(addr->pos_cmd), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for enable command */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.enable", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(addr->enable), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->enable), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.position-fb", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(addr->pos_fb), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos_fb), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1020,7 +1020,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	/* export pins for step and direction */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.step", num);
 	retval =
-	    hal_pin_bit_new(buf, HAL_WR, &(addr->phase[STEP_PIN]),
+	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[STEP_PIN]),
 			    comp_id);
 	if (retval != 0) {
 	    return retval;
@@ -1028,7 +1028,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	*(addr->phase[STEP_PIN]) = 0;
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.dir", num);
 	retval =
-	    hal_pin_bit_new(buf, HAL_WR, &(addr->phase[DIR_PIN]), comp_id);
+	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[DIR_PIN]), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1038,14 +1038,14 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	/* export pins for up and down */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.up", num);
 	retval =
-	    hal_pin_bit_new(buf, HAL_WR, &(addr->phase[UP_PIN]), comp_id);
+	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[UP_PIN]), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	*(addr->phase[UP_PIN]) = 0;
 	rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.down", num);
 	retval =
-	    hal_pin_bit_new(buf, HAL_WR, &(addr->phase[DOWN_PIN]),
+	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[DOWN_PIN]),
 			    comp_id);
 	if (retval != 0) {
 	    return retval;
@@ -1062,7 +1062,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type)
 	    rtapi_snprintf(buf, HAL_NAME_LEN, "stepgen.%d.phase-%c",
 			   num, n + 'A');
 	    retval =
-		hal_pin_bit_new(buf, HAL_WR, &(addr->phase[n]), comp_id);
+		hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[n]), comp_id);
 	    if (retval != 0) {
 		return retval;
 	    }

@@ -183,21 +183,21 @@ static int export_mod_dir(int num)
     }
     /* export output pins */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.up", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(moddir->up), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(moddir->up), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.down", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(moddir->down), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(moddir->down), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.on-target", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(moddir->on_target), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(moddir->on_target), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
@@ -206,14 +206,14 @@ static int export_mod_dir(int num)
 
     /* export input pins */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.actual", num);
-    retval = hal_pin_s32_new(buf, HAL_RD, &(moddir->actual), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_IN, &(moddir->actual), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.desired", num);
-    retval = hal_pin_s32_new(buf, HAL_RD, &(moddir->desired), comp_id);
+    retval = hal_pin_s32_new(buf, HAL_IN, &(moddir->desired), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' pin export failed\n", buf);

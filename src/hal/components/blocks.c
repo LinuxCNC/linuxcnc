@@ -1080,7 +1080,7 @@ static int export_constant(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "constant.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(constant->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(constant->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1131,7 +1131,7 @@ static int export_wcomp(int num)
     }
     /* export pin for input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "wcomp.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(wcomp->in), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(wcomp->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1139,7 +1139,7 @@ static int export_wcomp(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "wcomp.%d.out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(wcomp->out), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(wcomp->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1198,14 +1198,14 @@ static int export_comp(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "comp.%d.in0", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(comp->in0), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(comp->in0), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "comp.%d.in1", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(comp->in1), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(comp->in1), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1213,7 +1213,7 @@ static int export_comp(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "comp.%d.out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(comp->out), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(comp->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1264,21 +1264,21 @@ static int export_hypot(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "hypot.%d.in0", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(h->in0), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(h->in0), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "hypot.%d.in1", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(h->in1), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(h->in1), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "hypot.%d.in2", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(h->in2), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(h->in2), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1286,7 +1286,7 @@ static int export_hypot(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "hypot.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(h->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(h->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1327,14 +1327,14 @@ static int export_mux2(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux2.%d.in0", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(mux2->in0), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(mux2->in0), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux2.%d.in1", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(mux2->in1), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(mux2->in1), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1342,7 +1342,7 @@ static int export_mux2(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux2.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(mux2->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(mux2->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1350,7 +1350,7 @@ static int export_mux2(int num)
     }
     /* export pin for select input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux2.%d.sel", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(mux2->sel), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(mux2->sel), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1391,28 +1391,28 @@ static int export_mux4(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.in0", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(mux4->in0), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(mux4->in0), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.in1", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(mux4->in1), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(mux4->in1), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.in2", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(mux4->in2), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(mux4->in2), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.in3", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(mux4->in3), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(mux4->in3), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1420,7 +1420,7 @@ static int export_mux4(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(mux4->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(mux4->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1428,14 +1428,14 @@ static int export_mux4(int num)
     }
     /* export pins for select input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.sel0", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(mux4->sel0), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(mux4->sel0), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mux4.%d.sel1", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(mux4->sel1), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(mux4->sel1), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1476,14 +1476,14 @@ static int export_sum2(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d.in0", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(sum2->in0), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(sum2->in0), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d.in1", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(sum2->in1), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(sum2->in1), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1491,7 +1491,7 @@ static int export_sum2(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(sum2->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(sum2->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1550,14 +1550,14 @@ static int export_mult2(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mult2.%d.in0", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(mult2->in0), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(mult2->in0), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mult2.%d.in1", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(mult2->in1), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(mult2->in1), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1565,7 +1565,7 @@ static int export_mult2(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mult2.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(mult2->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(mult2->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1606,7 +1606,7 @@ static int export_integ(int num)
     }
     /* export pins for input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "integ.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(integ->in), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(integ->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1614,7 +1614,7 @@ static int export_integ(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "integ.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(integ->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(integ->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1655,7 +1655,7 @@ static int export_ddt(int num)
     }
     /* export pins for input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "ddt.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(ddt->in), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(ddt->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1663,7 +1663,7 @@ static int export_ddt(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "ddt.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(ddt->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(ddt->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1704,7 +1704,7 @@ static int export_limit1(int num)
     }
     /* export pin for input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit1.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(limit1->in), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(limit1->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1712,7 +1712,7 @@ static int export_limit1(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit1.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(limit1->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(limit1->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1771,7 +1771,7 @@ static int export_limit2(int num)
     }
     /* export pin for input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(limit2->in), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(limit2->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1779,7 +1779,7 @@ static int export_limit2(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(limit2->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(limit2->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1846,7 +1846,7 @@ static int export_limit3(int num)
     }
     /* export pin for input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(limit3->in), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(limit3->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1854,7 +1854,7 @@ static int export_limit3(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(limit3->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(limit3->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1929,21 +1929,21 @@ static int export_estop(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.ok-in", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(estop->ok_in), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(estop->ok_in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.fault-in", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(estop->fault_in), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(estop->fault_in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.reset", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(estop->reset), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(estop->reset), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -1951,21 +1951,21 @@ static int export_estop(int num)
     }
     /* export pins for outputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.ok-out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(estop->ok_out), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(estop->ok_out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.fault-out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(estop->fault_out), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(estop->fault_out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "estop.%d.watchdog", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(estop->wd), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(estop->wd), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2008,7 +2008,7 @@ static int export_not(int num)
     }
     /* export pin for input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "not.%d.in", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(not->in), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(not->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2016,7 +2016,7 @@ static int export_not(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "not.%d.out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(not->out), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(not->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2057,14 +2057,14 @@ static int export_and2(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "and2.%d.in0", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(and2->in0), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(and2->in0), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "and2.%d.in1", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(and2->in1), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(and2->in1), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2072,7 +2072,7 @@ static int export_and2(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "and2.%d.out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(and2->out), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(and2->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2113,14 +2113,14 @@ static int export_or2(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "or2.%d.in0", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(or2->in0), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(or2->in0), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "or2.%d.in1", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(or2->in1), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(or2->in1), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2128,7 +2128,7 @@ static int export_or2(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "or2.%d.out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(or2->out), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(or2->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2169,7 +2169,7 @@ static int export_scale(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "scale.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(scale->in), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(scale->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2177,7 +2177,7 @@ static int export_scale(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "scale.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(scale->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(scale->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2237,7 +2237,7 @@ static int export_lowpass(int num)
     }
     /* export pins for inputs */
     rtapi_snprintf(buf, HAL_NAME_LEN, "lowpass.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(lowpass->in), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(lowpass->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2245,7 +2245,7 @@ static int export_lowpass(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "lowpass.%d.out", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(lowpass->out), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(lowpass->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2296,7 +2296,7 @@ static int export_match8(int num)
     }
     /* export pin for cascade/enable input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d.in", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(match8->in), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(match8->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2305,14 +2305,14 @@ static int export_match8(int num)
     /* export pins for A and B inputs */
     for ( n = 0 ; n < 8 ; n++ ) {
 	rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d.a%1d", num, n);
-	retval = hal_pin_bit_new(buf, HAL_RD, &(match8->a[n]), comp_id);
+	retval = hal_pin_bit_new(buf, HAL_IN, &(match8->a[n]), comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d.b%1d", num, n);
-	retval = hal_pin_bit_new(buf, HAL_RD, &(match8->b[n]), comp_id);
+	retval = hal_pin_bit_new(buf, HAL_IN, &(match8->b[n]), comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2321,7 +2321,7 @@ static int export_match8(int num)
     }
     /* export pin for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "match8.%d.out", num);
-    retval = hal_pin_bit_new(buf, HAL_WR, &(match8->out), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_OUT, &(match8->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2362,7 +2362,7 @@ static int export_minmax(int num)
     }
     /* export pin for input */
     rtapi_snprintf(buf, HAL_NAME_LEN, "minmax.%d.in", num);
-    retval = hal_pin_float_new(buf, HAL_RD, &(minmax->in), comp_id);
+    retval = hal_pin_float_new(buf, HAL_IN, &(minmax->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2370,14 +2370,14 @@ static int export_minmax(int num)
     }
     /* export pins for output */
     rtapi_snprintf(buf, HAL_NAME_LEN, "minmax.%d.min", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(minmax->min), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(minmax->min), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "minmax.%d.max", num);
-    retval = hal_pin_float_new(buf, HAL_WR, &(minmax->max), comp_id);
+    retval = hal_pin_float_new(buf, HAL_OUT, &(minmax->max), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
@@ -2385,7 +2385,7 @@ static int export_minmax(int num)
     }
     /* export pin for reset */
     rtapi_snprintf(buf, HAL_NAME_LEN, "minmax.%d.reset", num);
-    retval = hal_pin_bit_new(buf, HAL_RD, &(minmax->reset), comp_id);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(minmax->reset), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' pin export failed\n", buf);
