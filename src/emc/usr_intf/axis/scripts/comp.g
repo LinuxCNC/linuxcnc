@@ -25,7 +25,7 @@ parser Hal:
     ignore: "[ \t\r\n]+"
 
     token END: ";;"
-    token DIRECTION: "r|w|rw"
+    token PARAMDIRECTION: "rw|r"
     token PINDIRECTION: "in|out|io"
     token TYPE: "float|bit|u32|s32|u16|s16|u8|s8"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
@@ -35,7 +35,8 @@ parser Hal:
     rule Declaration:
         "component" NAME ";" {{ comp(NAME); }}
       | "pin" NAME TYPE PINDIRECTION ";"  {{ pin(NAME, TYPE, PINDIRECTION) }}
-      | "param" NAME TYPE DIRECTION ";"{{ param(NAME, TYPE, DIRECTION) }}
+      | "param" NAME TYPE PARAMDIRECTION ";" {{
+					 param(NAME, TYPE, PARAMDIRECTION) }}
       | "function" NAME OptFP ";"       {{ function(NAME, OptFP) }}
       | "option" NAME Value ";"   {{ option(NAME, Value) }}
 
@@ -46,7 +47,11 @@ parser Hal:
 
 %%
 
-dirmap = {'r': 'HAL_RD_WR', 'w': 'HAL_WR', 'rw': 'HAL_RD_WR', 'in': 'HAL_RD', 'out': 'HAL_WR', 'io': 'HAL_RD_WR' }
+def parse(rule, text, filename=None):
+    P = Hal(HalScanner(text, filename=filename))
+    return runtime.wrap_error_reporter(P, rule)
+
+dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
 
 functions = []; params = []; pins = []; options = {}
 comp_name = None
@@ -194,14 +199,15 @@ def epilogue(f):
 import sys
 if len(sys.argv) > 1:
     f = open(sys.argv[1])
+    fn = sys.argv[1]
 else:
     f = sys.stdin
-
+    fn = "<stdin>"
 f = f.read()
 a, b = f.split("\n;;\n", 1)
 
-p = parse('File', a)
-if not p: raise SyntaxError
+p = parse('File', a, fn)
+if not p: raise SystemExit, 1
 
 if len(sys.argv) > 2:
     f = open(sys.argv[2], "w")

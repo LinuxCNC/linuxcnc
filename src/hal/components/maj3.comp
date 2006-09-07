@@ -22,7 +22,7 @@ pin in2 bit in;
 pin in3 bit in;
 pin out bit out;
 
-param invert bit w;
+param invert bit rw;
 
 function update nofp;
 

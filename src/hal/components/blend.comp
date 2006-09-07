@@ -5,7 +5,7 @@ pin in_2 float in;
 pin select float in;
 pin out float out;
 
-param open bit w;
+param open bit rw;
 
 function update;
 

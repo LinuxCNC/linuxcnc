@@ -4,8 +4,8 @@ pin in bit in;
 pin out bit out;
 pin out_invert bit out;
 
-param in_edge bit w;
-param out_width float w;
+param in_edge bit rw;
+param out_width float rw;
 
 param time_left float r;
 param last_in bit r;

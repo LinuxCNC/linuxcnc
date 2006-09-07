@@ -3,7 +3,7 @@ component ddt;
 pin in float in;
 pin out float out;
 
-option data ddt_data;
+option data float;
 
 function update;
 ;;
@@ -12,7 +12,6 @@ typedef struct { float old; } ddt_data;
 
 FUNCTION(update) {
     float tmp = in;
-    out = (tmp - data.old) / (period * 1e-9);
-    data.old = tmp;
+    out = (tmp - data) / (period * 1e-9);
+    data = tmp;
 }
-
