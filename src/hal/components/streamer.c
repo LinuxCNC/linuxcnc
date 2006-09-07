@@ -370,7 +370,7 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 	    "STREAMER: ERROR: 'curr_depth' pin export failed\n");
 	return -EIO;
     }
-    retval = hal_param_s32_newf(HAL_RD_WR, &(str->underruns), comp_id,
+    retval = hal_param_s32_newf(HAL_RW, &(str->underruns), comp_id,
 	"streamer.%d.underruns", num);
     if (retval != 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

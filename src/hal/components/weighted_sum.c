@@ -210,7 +210,7 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
     rtapi_snprintf(base, HAL_NAME_LEN, "wsum.%d", num);
     /* export pin for offset (input) */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.offset", base);
-    retval = hal_param_s32_new(buf, HAL_WR, &(addr->offset), comp_id);
+    retval = hal_param_s32_new(buf, HAL_RW, &(addr->offset), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: '%s' param export failed\n", buf);
@@ -248,7 +248,7 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "%s.bit.%d.weight", base, i);
-	retval = hal_param_s32_new(buf, HAL_WR, &(addr->bits[i].weight), comp_id);
+	retval = hal_param_s32_new(buf, HAL_RW, &(addr->bits[i].weight), comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: '%s' param export failed\n", buf);

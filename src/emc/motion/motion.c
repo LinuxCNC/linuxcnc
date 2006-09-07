@@ -298,35 +298,35 @@ static int init_hal_io(void)
     /* export machine wide hal parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.motion-enabled");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->motion_enabled),
+	hal_param_bit_new(buf, HAL_RO, &(emcmot_hal_data->motion_enabled),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.in-position");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->in_position),
+	hal_param_bit_new(buf, HAL_RO, &(emcmot_hal_data->in_position),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.coord-mode");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->coord_mode),
+	hal_param_bit_new(buf, HAL_RO, &(emcmot_hal_data->coord_mode),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.teleop-mode");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->teleop_mode),
+	hal_param_bit_new(buf, HAL_RO, &(emcmot_hal_data->teleop_mode),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.coord-error");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->coord_error),
+	hal_param_bit_new(buf, HAL_RO, &(emcmot_hal_data->coord_error),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
@@ -336,14 +336,14 @@ static int init_hal_io(void)
        in control.c:output_to_hal() and recompile */
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-bit-0");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->debug_bit_0),
+	hal_param_bit_new(buf, HAL_RO, &(emcmot_hal_data->debug_bit_0),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-bit-1");
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(emcmot_hal_data->debug_bit_1),
+	hal_param_bit_new(buf, HAL_RO, &(emcmot_hal_data->debug_bit_1),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
@@ -351,14 +351,14 @@ static int init_hal_io(void)
 
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-float-0");
     retval =
-	hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->debug_float_0),
+	hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->debug_float_0),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.debug-float-1");
     retval =
-	hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->debug_float_1),
+	hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->debug_float_1),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
@@ -369,38 +369,38 @@ static int init_hal_io(void)
     // so they can be scoped
     rtapi_snprintf(buf, HAL_NAME_LEN, "traj.pos_out");
     retval =
-	hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->traj_pos_out),
+	hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->traj_pos_out),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "traj.vel_out");
     retval =
-	hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->traj_vel_out),
+	hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->traj_vel_out),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "traj.active_tc");
     retval =
-	hal_param_u8_new(buf, HAL_RD, &(emcmot_hal_data->traj_active_tc),
+	hal_param_u8_new(buf, HAL_RO, &(emcmot_hal_data->traj_active_tc),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     for ( n = 0 ; n < 4 ; n++ ) {
 	rtapi_snprintf(buf, HAL_NAME_LEN, "tc.%d.pos", n);
-	retval = hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->tc_pos[n]), mot_comp_id);
+	retval = hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->tc_pos[n]), mot_comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "tc.%d.vel", n);
-	retval = hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->tc_vel[n]), mot_comp_id);
+	retval = hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->tc_vel[n]), mot_comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "tc.%d.acc", n);
-	retval = hal_param_float_new(buf, HAL_RD, &(emcmot_hal_data->tc_acc[n]), mot_comp_id);
+	retval = hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->tc_acc[n]), mot_comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -410,13 +410,13 @@ static int init_hal_io(void)
     // export timing related HAL parameters so they can be scoped
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.servo.last-period");
     retval =
-	hal_param_u32_new(buf, HAL_RD, &(emcmot_hal_data->last_period), mot_comp_id);
+	hal_param_u32_new(buf, HAL_RO, &(emcmot_hal_data->last_period), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.servo.overruns");
     retval =
-	hal_param_u32_new(buf, HAL_RD_WR, &(emcmot_hal_data->overruns), mot_comp_id);
+	hal_param_u32_new(buf, HAL_RW, &(emcmot_hal_data->overruns), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -552,128 +552,128 @@ static int export_axis(int num, axis_hal_t * addr)
     /* export axis parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.coarse-pos-cmd", num);
     retval =
-	hal_param_float_new(buf, HAL_RD, &(addr->coarse_pos_cmd),
+	hal_param_float_new(buf, HAL_RO, &(addr->coarse_pos_cmd),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-cmd", num);
     retval =
-	hal_param_float_new(buf, HAL_RD, &(addr->joint_pos_cmd), mot_comp_id);
+	hal_param_float_new(buf, HAL_RO, &(addr->joint_pos_cmd), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-vel-cmd", num);
     retval =
-	hal_param_float_new(buf, HAL_RD, &(addr->joint_vel_cmd), mot_comp_id);
+	hal_param_float_new(buf, HAL_RO, &(addr->joint_vel_cmd), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-corr", num);
     retval =
-	hal_param_float_new(buf, HAL_RD, &(addr->backlash_corr), mot_comp_id);
+	hal_param_float_new(buf, HAL_RO, &(addr->backlash_corr), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-filt", num);
     retval =
-	hal_param_float_new(buf, HAL_RD, &(addr->backlash_filt), mot_comp_id);
+	hal_param_float_new(buf, HAL_RO, &(addr->backlash_filt), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-fb", num);
     retval =
-	hal_param_float_new(buf, HAL_RD, &(addr->joint_pos_fb), mot_comp_id);
+	hal_param_float_new(buf, HAL_RO, &(addr->joint_pos_fb), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.f-error", num);
-    retval = hal_param_float_new(buf, HAL_RD, &(addr->f_error), mot_comp_id);
+    retval = hal_param_float_new(buf, HAL_RO, &(addr->f_error), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.f-error-lim", num);
     retval =
-	hal_param_float_new(buf, HAL_RD, &(addr->f_error_lim), mot_comp_id);
+	hal_param_float_new(buf, HAL_RO, &(addr->f_error_lim), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-pos-cmd", num);
     retval =
-	hal_param_float_new(buf, HAL_RD, &(addr->free_pos_cmd), mot_comp_id);
+	hal_param_float_new(buf, HAL_RO, &(addr->free_pos_cmd), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-vel-lim", num);
     retval =
-	hal_param_float_new(buf, HAL_RD, &(addr->free_vel_lim), mot_comp_id);
+	hal_param_float_new(buf, HAL_RO, &(addr->free_vel_lim), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-tp-enable", num);
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(addr->free_tp_enable), mot_comp_id);
+	hal_param_bit_new(buf, HAL_RO, &(addr->free_tp_enable), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.active", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->active), mot_comp_id);
+    retval = hal_param_bit_new(buf, HAL_RO, &(addr->active), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.in-position", num);
     retval =
-	hal_param_bit_new(buf, HAL_RD, &(addr->in_position), mot_comp_id);
+	hal_param_bit_new(buf, HAL_RO, &(addr->in_position), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.error", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->error), mot_comp_id);
+    retval = hal_param_bit_new(buf, HAL_RO, &(addr->error), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.pos-soft-limit", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->psl), mot_comp_id);
+    retval = hal_param_bit_new(buf, HAL_RO, &(addr->psl), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.neg-soft-limit", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->nsl), mot_comp_id);
+    retval = hal_param_bit_new(buf, HAL_RO, &(addr->nsl), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.pos-hard-limit", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->phl), mot_comp_id);
+    retval = hal_param_bit_new(buf, HAL_RO, &(addr->phl), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.neg-hard-limit", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->nhl), mot_comp_id);
+    retval = hal_param_bit_new(buf, HAL_RO, &(addr->nhl), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.homing", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->homing), mot_comp_id);
+    retval = hal_param_bit_new(buf, HAL_RO, &(addr->homing), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.homed", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->homed), mot_comp_id);
+    retval = hal_param_bit_new(buf, HAL_RO, &(addr->homed), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.f-errored", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->f_errored), mot_comp_id);
+    retval = hal_param_bit_new(buf, HAL_RO, &(addr->f_errored), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.faulted", num);
-    retval = hal_param_bit_new(buf, HAL_RD, &(addr->faulted), mot_comp_id);
+    retval = hal_param_bit_new(buf, HAL_RO, &(addr->faulted), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home-state", num);
-    retval = hal_param_s8_new(buf, HAL_RD, &(addr->home_state), mot_comp_id);
+    retval = hal_param_s8_new(buf, HAL_RO, &(addr->home_state), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }

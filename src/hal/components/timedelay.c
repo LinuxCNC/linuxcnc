@@ -217,7 +217,7 @@ static int export_delay(int num, bit_delay_t * addr)
     
     /* export off delay parameter */
     rtapi_snprintf(buf, HAL_NAME_LEN, "delay.%d.off_delay", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->off_delay), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->off_delay), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "TIMEDELAY: ERROR: '%s' parameter export failed\n", buf);
@@ -225,7 +225,7 @@ static int export_delay(int num, bit_delay_t * addr)
     }
     /* export on delay parameter */
     rtapi_snprintf(buf, HAL_NAME_LEN, "delay.%d.on_delay", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->on_delay), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->on_delay), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "TIMEDELAY: ERROR: '%s' parameter export failed\n", buf);

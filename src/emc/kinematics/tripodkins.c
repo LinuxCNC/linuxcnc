@@ -375,9 +375,9 @@ int rtapi_app_main(void) {
     if(!haldata) goto error;
     Bx = Cx = Cy = 1.0;
 
-    if((res = hal_param_float_new("tripodkins.Bx", HAL_WR, &haldata->bx, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("tripodkins.Cx", HAL_WR, &haldata->cx, comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_param_float_new("tripodkins.Cy", HAL_WR, &haldata->cy, comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_param_float_new("tripodkins.Bx", HAL_RW, &haldata->bx, comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_param_float_new("tripodkins.Cx", HAL_RW, &haldata->cx, comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_param_float_new("tripodkins.Cy", HAL_RW, &haldata->cy, comp_id)) != HAL_SUCCESS) goto error;
     return 0;
 
 error:

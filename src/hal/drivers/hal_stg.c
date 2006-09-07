@@ -1090,7 +1090,7 @@ static int export_counter(int num, stg_struct *addr)
     }
     /* export parameter for scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_WR, &addr->pos_scale[num], comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &addr->pos_scale[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1119,13 +1119,13 @@ static int export_dac(int num, stg_struct *addr)
     }
     /* export parameter for offset */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-offset", num);
-    retval = hal_param_float_new(buf, HAL_WR, &addr->dac_offset[num], comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &addr->dac_offset[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-gain", num);
-    retval = hal_param_float_new(buf, HAL_WR, &addr->dac_gain[num], comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &addr->dac_gain[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1155,13 +1155,13 @@ static int export_adc(int num, stg_struct *addr)
     }
     /* export parameter for offset */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.adc-offset", num);
-    retval = hal_param_float_new(buf, HAL_WR, &addr->adc_offset[num], comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &addr->adc_offset[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.adc-gain", num);
-    retval = hal_param_float_new(buf, HAL_WR, &addr->adc_gain[num], comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &addr->adc_gain[num], comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1230,7 +1230,7 @@ static int export_output_pin(int pinnum, io_pin * pin)
     }
     /* export parameter for polarity */
     rtapi_snprintf(buf, HAL_NAME_LEN, "stg.out-%02d-invert", pinnum);
-    retval = hal_param_bit_new(buf, HAL_WR, &(pin->io.invert), comp_id);
+    retval = hal_param_bit_new(buf, HAL_RW, &(pin->io.invert), comp_id);
     /* initialize HAL pin and param */
     *(pin->data) = 0;
     pin->io.invert = 0;

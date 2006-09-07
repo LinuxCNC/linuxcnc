@@ -490,27 +490,27 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export paramameters */
-    retval = hal_param_float_newf(HAL_WR, &(addr->scale), comp_id,
+    retval = hal_param_float_newf(HAL_RW, &(addr->scale), comp_id,
 	    "pwmgen.%d.scale", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_bit_newf(HAL_WR, &(addr->dither_pwm), comp_id,
+    retval = hal_param_bit_newf(HAL_RW, &(addr->dither_pwm), comp_id,
 	    "pwmgen.%d.dither-pwm", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_float_newf(HAL_WR, &(addr->pwm_freq), comp_id,
+    retval = hal_param_float_newf(HAL_RW, &(addr->pwm_freq), comp_id,
 	    "pwmgen.%d.pwm-freq", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_float_newf(HAL_WR, &(addr->min_dc), comp_id,
+    retval = hal_param_float_newf(HAL_RW, &(addr->min_dc), comp_id,
 	    "pwmgen.%d.min-dc", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_float_newf(HAL_WR, &(addr->max_dc), comp_id,
+    retval = hal_param_float_newf(HAL_RW, &(addr->max_dc), comp_id,
 	    "pwmgen.%d.max-dc", num);
     if (retval != 0) {
 	return retval;

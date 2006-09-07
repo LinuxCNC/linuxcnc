@@ -613,7 +613,7 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 
 	// Parameters.
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.enc-%02d-scale", boardId, channel);
-	if((halError = hal_param_float_new(name, HAL_WR, &(this->encoder[channel].scale), componentId)) != 0)
+	if((halError = hal_param_float_new(name, HAL_RW, &(this->encoder[channel].scale), componentId)) != 0)
 	    break;
 
 	// Init encoder.
@@ -662,15 +662,15 @@ Device_ExportDacPinsParametersFunctions(Device *this, int componentId, int board
 
 	// Parameters.
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.dac-%02d-offset", boardId, channel);
-	if((halError = hal_param_float_new(name, HAL_WR, &(this->dac[channel].offset), componentId)) != 0)
+	if((halError = hal_param_float_new(name, HAL_RW, &(this->dac[channel].offset), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.dac-%02d-gain", boardId, channel);
-	if((halError = hal_param_float_new(name, HAL_WR, &(this->dac[channel].gain), componentId)) != 0)
+	if((halError = hal_param_float_new(name, HAL_RW, &(this->dac[channel].gain), componentId)) != 0)
 	    break;
 
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.dac-%02d-interlaced", boardId, channel);
-	if((halError = hal_param_bit_new(name, HAL_WR, &(this->dac[channel].interlaced), componentId)) != 0)
+	if((halError = hal_param_bit_new(name, HAL_RW, &(this->dac[channel].interlaced), componentId)) != 0)
 	    break;
 
 	// Init DAC.
@@ -748,7 +748,7 @@ Device_ExportDigitalOutPinsParametersFunctions(Device *this, int componentId, in
 
 	// Parameters.
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.out-%02d-invert", boardId, channel);
-	if((halError = hal_param_bit_new(name, HAL_WR, &(this->out[channel].invert), componentId)) != 0)
+	if((halError = hal_param_bit_new(name, HAL_RW, &(this->out[channel].invert), componentId)) != 0)
 	    break;
 
 	// Init pin.
@@ -794,17 +794,17 @@ Device_ExportMiscPinsParametersFunctions(Device *this, int componentId, int boar
     // Export Parameters.
     if(!halError){
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.watchdog-control", boardId);
-	halError = hal_param_u16_new(name, HAL_WR, &(this->misc.watchdogControl), componentId);
+	halError = hal_param_u16_new(name, HAL_RW, &(this->misc.watchdogControl), componentId);
     }
 
     if(!halError){
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.watchdog-timeout", boardId);
-	halError = hal_param_u16_new(name, HAL_WR, &(this->misc.watchdogTimeout), componentId);
+	halError = hal_param_u16_new(name, HAL_RW, &(this->misc.watchdogTimeout), componentId);
     }
 
     if(!halError){
 	rtapi_snprintf(name, HAL_NAME_LEN, "m5i20.%d.led-view", boardId);
-	halError = hal_param_u16_new(name, HAL_WR, &(this->misc.ledView), componentId);
+	halError = hal_param_u16_new(name, HAL_RW, &(this->misc.ledView), componentId);
     }
 
     // Init pins.

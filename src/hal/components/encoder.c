@@ -365,7 +365,7 @@ static int export_counter(int num, counter_t * addr)
     }
     /* export parameter for raw counts */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.rawcounts", num);
-    retval = hal_param_s32_new(buf, HAL_RD, &(addr->raw_count), comp_id);
+    retval = hal_param_s32_new(buf, HAL_RO, &(addr->raw_count), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -383,13 +383,13 @@ static int export_counter(int num, counter_t * addr)
     }
     /* export parameter for scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->pos_scale), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->pos_scale), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for x4 mode */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.x4-mode", num);
-    retval = hal_param_bit_new(buf, HAL_WR, &(addr->x4_mode), comp_id);
+    retval = hal_param_bit_new(buf, HAL_RW, &(addr->x4_mode), comp_id);
     if (retval != 0) {
 	return retval;
     }

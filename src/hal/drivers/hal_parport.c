@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
     for (n = 0; n < num_ports; n++) {
 	/* export read function parameter */
 	retval =
-	    hal_param_s8_newf(HAL_RD_WR, &read_funct_flags[n + 1],
+	    hal_param_s8_newf(HAL_RW, &read_funct_flags[n + 1],
                     comp_id, "parport.%d.read", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -379,7 +379,7 @@ int main(int argc, char *argv[])
 	/* make write function name */
 	/* export read function parameter */
 	retval =
-	    hal_param_s8_newf(name, HAL_RD_WR, &write_funct_flags[n + 1],
+	    hal_param_s8_newf(name, HAL_RW, &write_funct_flags[n + 1],
                     comp_id, "parport.%d.write", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -390,7 +390,7 @@ int main(int argc, char *argv[])
     }
     /* export parameters for read/write all port functuons */
     retval =
-	hal_param_s8_new("parport.read_all", HAL_RD_WR, &read_funct_flags[0],
+	hal_param_s8_new("parport.read_all", HAL_RW, &read_funct_flags[0],
 	comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
 	return -1;
     }
     retval =
-	hal_param_s8_new("parport.write_all", HAL_RD_WR,
+	hal_param_s8_new("parport.write_all", HAL_RW,
 	&write_funct_flags[0], comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -806,7 +806,7 @@ static int export_output_pin(int portnum, int pin, hal_bit_t ** dbase,
 	return retval;
     }
     /* export parameter for polarity */
-    retval = hal_param_bit_newf(HAL_WR, pbase + n, comp_id,
+    retval = hal_param_bit_newf(HAL_RW, pbase + n, comp_id,
             "parport.%d.pin-%02d-out-invert", portnum, pin);
     return retval;
 }

@@ -222,21 +222,21 @@ static int export_mod_dir(int num)
 
     /* export params for max and min values */
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.min-num", num);
-    retval = hal_param_s32_new(buf, HAL_WR, &(moddir->min_num), comp_id);
+    retval = hal_param_s32_new(buf, HAL_RW, &(moddir->min_num), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.max-num", num);
-    retval = hal_param_s32_new(buf, HAL_WR, &(moddir->max_num), comp_id);
+    retval = hal_param_s32_new(buf, HAL_RW, &(moddir->max_num), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.wrap", num);
-    retval = hal_param_bit_new(buf, HAL_WR, &(moddir->wrap), comp_id);
+    retval = hal_param_bit_new(buf, HAL_RW, &(moddir->wrap), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' param export failed\n", buf);

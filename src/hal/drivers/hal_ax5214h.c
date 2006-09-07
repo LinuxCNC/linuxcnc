@@ -686,7 +686,7 @@ static int export_output_pin(int boardnum, int pinnum, io_pin_t *pin)
     }
     /* export parameter for polarity */
     rtapi_snprintf(buf, HAL_NAME_LEN, "ax5214h.%d.out-%02d-invert", boardnum, pinnum);
-    retval = hal_param_bit_new(buf, HAL_WR, &(pin->io.invert), comp_id);
+    retval = hal_param_bit_new(buf, HAL_RW, &(pin->io.invert), comp_id);
     /* initialize HAL pin and param */
     *(pin->data) = 0;
     pin->io.invert = 0;

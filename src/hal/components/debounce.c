@@ -316,7 +316,7 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
     }
     /* export param variable for delay */
     rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d.delay", num);
-    retval = hal_param_s32_new(buf, HAL_WR, &(addr->delay), comp_id);
+    retval = hal_param_s32_new(buf, HAL_RW, &(addr->delay), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "DEBOUNCE: ERROR: '%s' param export failed\n", buf);
@@ -372,7 +372,7 @@ static int export_filter(int num, debounce_t * addr, int group_num)
 #ifdef EXPORT_STATE
     /* export parameter containing internal state */
     rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d.%d.state", group_num, num);
-    retval = hal_param_s32_new(buf, HAL_RD, &(addr->state), comp_id);
+    retval = hal_param_s32_new(buf, HAL_RO, &(addr->state), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "DEBOUNCE: ERROR: '%s' param export failed\n", buf);

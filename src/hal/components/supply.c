@@ -193,12 +193,12 @@ static int export_supply(int num, hal_supply_t * addr)
     }
     /* export parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.d", num);
-    retval = hal_param_bit_new(buf, HAL_WR, &(addr->d), comp_id);
+    retval = hal_param_bit_new(buf, HAL_RW, &(addr->d), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.value", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->value), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->value), comp_id);
     if (retval != 0) {
 	return retval;
     }

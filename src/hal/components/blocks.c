@@ -1088,7 +1088,7 @@ static int export_constant(int num)
     }
     /* export param for value */
     rtapi_snprintf(buf, HAL_NAME_LEN, "constant.%d.value", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(constant->value), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(constant->value), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
@@ -1147,14 +1147,14 @@ static int export_wcomp(int num)
     }
     /* export params for min and max */
     rtapi_snprintf(buf, HAL_NAME_LEN, "wcomp.%d.min", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(wcomp->min), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(wcomp->min), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "wcomp.%d.max", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(wcomp->max), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(wcomp->max), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
@@ -1221,7 +1221,7 @@ static int export_comp(int num)
     }
     /* export params for hystersis */
     rtapi_snprintf(buf, HAL_NAME_LEN, "comp.%d.hyst", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(comp->hyst), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(comp->hyst), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
@@ -1499,14 +1499,14 @@ static int export_sum2(int num)
     }
     /* export params for gains */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d.gain0", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(sum2->gain0), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(sum2->gain0), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "sum2.%d.gain1", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(sum2->gain1), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(sum2->gain1), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
@@ -1720,14 +1720,14 @@ static int export_limit1(int num)
     }
     /* export params */
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit1.%d.min", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(limit1->min), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(limit1->min), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit1.%d.max", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(limit1->max), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(limit1->max), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
@@ -1787,21 +1787,21 @@ static int export_limit2(int num)
     }
     /* export params */
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d.min", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(limit2->min), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(limit2->min), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d.max", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(limit2->max), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(limit2->max), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit2.%d.maxv", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(limit2->maxv), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(limit2->maxv), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
@@ -1862,28 +1862,28 @@ static int export_limit3(int num)
     }
     /* export params */
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.min", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(limit3->min), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(limit3->min), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.max", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(limit3->max), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(limit3->max), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.maxv", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(limit3->maxv), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(limit3->maxv), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "limit3.%d.maxa", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(limit3->maxa), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(limit3->maxa), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
@@ -2185,14 +2185,14 @@ static int export_scale(int num)
     }
     /* export params for gains */
     rtapi_snprintf(buf, HAL_NAME_LEN, "scale.%d.gain", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(scale->gain), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(scale->gain), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "scale.%d.offset", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(scale->offset), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(scale->offset), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);
@@ -2253,7 +2253,7 @@ static int export_lowpass(int num)
     }
     /* export params for gains */
     rtapi_snprintf(buf, HAL_NAME_LEN, "lowpass.%d.gain", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(lowpass->gain), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(lowpass->gain), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "BLOCKS: ERROR: '%s' param export failed\n", buf);

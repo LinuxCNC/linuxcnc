@@ -1175,7 +1175,7 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
 	/* export parameter for inversion */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.%02d.invert",
 	    bus->busnum, bus->last_digout);
-	retval = hal_param_bit_new(buf, HAL_WR, &(slot->digout[n].invert), comp_id);
+	retval = hal_param_bit_new(buf, HAL_RW, &(slot->digout[n].invert), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1207,7 +1207,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     /* export params that apply to all four stepgens */
     rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.setup-time",
 	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
-    retval = hal_param_u8_new(buf, HAL_WR, &(slot->stepgen->setup_time), comp_id);
+    retval = hal_param_u8_new(buf, HAL_RW, &(slot->stepgen->setup_time), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1215,7 +1215,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     slot->stepgen->setup_time = 100;
     rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-width",
 	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
-    retval = hal_param_u8_new(buf, HAL_WR, &(slot->stepgen->pulse_width), comp_id);
+    retval = hal_param_u8_new(buf, HAL_RW, &(slot->stepgen->pulse_width), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1223,7 +1223,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     slot->stepgen->pulse_width = 40;
     rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d-%02d.pulse-space-min",
 	bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
-    retval = hal_param_u8_new(buf, HAL_WR, &(slot->stepgen->pulse_space), comp_id);
+    retval = hal_param_u8_new(buf, HAL_RW, &(slot->stepgen->pulse_space), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1250,7 +1250,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	/* velocity scaling parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.scale",
 	    bus->busnum, bus->last_stepgen);
-	retval = hal_param_float_new(buf, HAL_WR, &(sg->scale), comp_id);
+	retval = hal_param_float_new(buf, HAL_RW, &(sg->scale), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1258,7 +1258,7 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	/* maximum velocity parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.stepgen.%02d.max-vel",
 	    bus->busnum, bus->last_stepgen);
-	retval = hal_param_float_new(buf, HAL_WR, &(sg->max_vel), comp_id);
+	retval = hal_param_float_new(buf, HAL_RW, &(sg->max_vel), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1298,7 +1298,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
     /* export params that apply to all four pwmgens */
     rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d-%02d.freq",
 	bus->busnum, bus->last_pwmgen, bus->last_pwmgen+3);
-    retval = hal_param_float_new(buf, HAL_WR, &(slot->pwmgen->freq), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(slot->pwmgen->freq), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -1325,7 +1325,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	/* output scaling parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.scale",
 	    bus->busnum, bus->last_pwmgen);
-	retval = hal_param_float_new(buf, HAL_WR, &(pg->scale), comp_id);
+	retval = hal_param_float_new(buf, HAL_RW, &(pg->scale), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1333,7 +1333,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	/* maximum duty cycle parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.max-dc",
 	    bus->busnum, bus->last_pwmgen);
-	retval = hal_param_float_new(buf, HAL_WR, &(pg->max_dc), comp_id);
+	retval = hal_param_float_new(buf, HAL_RW, &(pg->max_dc), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1341,7 +1341,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	/* minimum duty cycle parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.min-dc",
 	    bus->busnum, bus->last_pwmgen);
-	retval = hal_param_float_new(buf, HAL_WR, &(pg->min_dc), comp_id);
+	retval = hal_param_float_new(buf, HAL_RW, &(pg->min_dc), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1356,7 +1356,7 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	/* bootstrap mode parameter */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.pwm.%02d.bootstrap",
 	    bus->busnum, bus->last_pwmgen);
-	retval = hal_param_bit_new(buf, HAL_WR, &(pg->bootstrap), comp_id);
+	retval = hal_param_bit_new(buf, HAL_RW, &(pg->bootstrap), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -1433,7 +1433,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
         /* scale input parameter */
         rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.scale",
                        bus->busnum, bus->last_encoder);
-        retval = hal_param_float_new(buf, HAL_WR, &(slot->encoder[n].scale), comp_id);
+        retval = hal_param_float_new(buf, HAL_RW, &(slot->encoder[n].scale), comp_id);
         if (retval != 0) {
             return retval;
         }

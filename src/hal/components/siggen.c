@@ -351,17 +351,17 @@ static int export_siggen(int num, hal_siggen_t * addr)
     }
     /* export parameters */
     rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.frequency", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->frequency), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->frequency), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.amplitude", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->amplitude), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->amplitude), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.offset", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->offset), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->offset), comp_id);
     if (retval != 0) {
 	return retval;
     }

@@ -272,7 +272,7 @@ int rtapi_app_main(void)
 
     /* export parameter for scaling */
     rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.position-scale", 1);
-    retval = hal_param_float_new(name, HAL_WR, &(port_data_array->pos_scale), comp_id);
+    retval = hal_param_float_new(name, HAL_RW, &(port_data_array->pos_scale), comp_id);
     if (retval != 0) {
 	return retval;
     }

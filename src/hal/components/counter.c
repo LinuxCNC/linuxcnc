@@ -316,7 +316,7 @@ static int export_counter(int num, counter_t * addr)
     }
     /* export parameter for scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "counter.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->pos_scale), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->pos_scale), comp_id);
     if (retval != 0) {
 	return retval;
     }

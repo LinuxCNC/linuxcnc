@@ -380,22 +380,22 @@ static int export_encoder_pair(int num, encoder_pair_t * addr)
     }
     /* export parameters for config info() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-ppr", num);
-    retval = hal_param_u32_new(buf, HAL_WR, &(addr->master_ppr), comp_id);
+    retval = hal_param_u32_new(buf, HAL_RW, &(addr->master_ppr), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-ppr", num);
-    retval = hal_param_u32_new(buf, HAL_WR, &(addr->slave_ppr), comp_id);
+    retval = hal_param_u32_new(buf, HAL_RW, &(addr->slave_ppr), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-teeth", num);
-    retval = hal_param_u32_new(buf, HAL_WR, &(addr->master_teeth), comp_id);
+    retval = hal_param_u32_new(buf, HAL_RW, &(addr->master_teeth), comp_id);
     if (retval != 0) {
 	return retval;
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-teeth", num);
-    retval = hal_param_u32_new(buf, HAL_WR, &(addr->slave_teeth), comp_id);
+    retval = hal_param_u32_new(buf, HAL_RW, &(addr->slave_teeth), comp_id);
     if (retval != 0) {
 	return retval;
     }

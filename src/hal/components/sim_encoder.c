@@ -354,13 +354,13 @@ static int export_sim_enc(int num, sim_enc_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export param variable for pulses per rev */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.ppr", num);
-    retval = hal_param_u32_new(buf, HAL_WR, &(addr->ppr), comp_id);
+    retval = hal_param_u32_new(buf, HAL_RW, &(addr->ppr), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* export param variable for scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.scale", num);
-    retval = hal_param_float_new(buf, HAL_WR, &(addr->scale), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->scale), comp_id);
     if (retval != 0) {
 	return retval;
     }
