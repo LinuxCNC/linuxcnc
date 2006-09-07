@@ -1643,13 +1643,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_DELAY_TYPE:
 	emcTrajDelayMsg = (EMC_TRAJ_DELAY *) cmd;
-#if defined(LINUX_KERNEL_2_2)
-	// load the timeout delta clock
-	taskExecDelayTimeout = emcTrajDelayMsg->delay;
-#else
 	// set the timeout clock to expire at 'now' + delay time
 	taskExecDelayTimeout = etime() + emcTrajDelayMsg->delay;
-#endif
 	retval = 0;
 	break;
 
@@ -2321,19 +2316,10 @@ static int emcTaskExecute(void)
 
     case EMC_TASK_EXEC_WAITING_FOR_DELAY:
 	STEPPING_CHECK();
-#if defined(LINUX_KERNEL_2_2)
-	if (taskExecDelayTimeout <= 0.0) {
-	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
-	    emcTaskEager = 1;
-	} else {
-	    taskExecDelayTimeout -= EMC_TASK_CYCLE_TIME;
-	}
-#else
 	if (etime() >= taskExecDelayTimeout) {
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
 	    emcTaskEager = 1;
 	}
-#endif
 	break;
 
     case EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD:
@@ -2775,9 +2761,7 @@ int main(int argc, char *argv[])
     int taskAborted = 0;	// flag to prevent flurry of task aborts
     int taskPlanError = 0;
     int taskExecuteError = 0;
-#ifndef LINUX_KERNEL_2_2
     double startTime;
-#endif
 
     double minTime, maxTime;
 
@@ -2830,12 +2814,10 @@ int main(int argc, char *argv[])
     // reflect the initial value of EMC_DEBUG in emcStatus->debug
     emcStatus->debug = EMC_DEBUG;
 
-#if ! defined(LINUX_KERNEL_2_2)
     startTime = etime();	// set start time before entering loop;
     // it will be set at end of loop from now on
     minTime = DBL_MAX;		// set to value that can never be exceeded
     maxTime = 0.0;		// set to value that can never be underset
-#endif
     while (!done) {
 	// read command
 	if (0 != emcCommandBuffer->peek()) {
@@ -2992,12 +2974,7 @@ int main(int argc, char *argv[])
             || (programStartLine < 0)) {
 		    emcTaskEager = 0;
 	} else {
-#if defined(LINUX_KERNEL_2_2)
-	    // work around bug in gettimeofday() by running off nominal time
-	    esleep(EMC_TASK_CYCLE_TIME);
-#else
 	    timer->wait();
-#endif
 	}
     }				// end of while (! done)
 
