@@ -4615,13 +4615,6 @@ echo "${ECHO_T}no" >&6
 fi
 
 
-if test $PYTHON = "none"
-then
-    { { echo "$as_me:$LINENO: error: python not found" >&5
-echo "$as_me: error: python not found" >&2;}
-   { (exit 1); exit 1; }; }
-fi
-
 # Extract the first word of "yapps", so it can be a program name with args.
 set dummy yapps; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -4900,6 +4893,13 @@ fi
 	BUILD_DOCS=no
 	{ echo "$as_me:$LINENO: WARNING: no epstopdf, documentation will not be built" >&5
 echo "$as_me: WARNING: no epstopdf, documentation will not be built" >&2;}
+    fi
+fi
+if ( test "$BUILD_DOCS" = "yes" ) ; then
+    if ( test "none" = "$PYTHON" ) ; then
+        BUILD_DOCS=no
+        { echo "$as_me:$LINENO: WARNING: no python, documentation will not be built" >&5
+echo "$as_me: WARNING: no python, documentation will not be built" >&2;}
     fi
 fi
 

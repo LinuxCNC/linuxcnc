@@ -795,11 +795,6 @@ AC_ARG_WITH(python,
     ])
 AC_PATH_PROG(PYTHON,$PYTHON,"none", /bin:/usr/bin:/usr/local/bin)
 
-if test $PYTHON = "none"
-then
-    AC_MSG_ERROR([python not found])
-fi
-
 AC_PATH_PROG(YAPPS,yapps,"none", /bin:/usr/bin:/usr/local/bin)
 AC_SUBST([YAPPS])
 if test $YAPPS = "none"
@@ -864,6 +859,12 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     if ( test "none" = "$EPSTOPDF" ) ; then
 	BUILD_DOCS=no
 	AC_MSG_WARN([no epstopdf, documentation will not be built])
+    fi
+fi
+if ( test "$BUILD_DOCS" = "yes" ) ; then
+    if ( test "none" = "$PYTHON" ) ; then
+        BUILD_DOCS=no
+        AC_MSG_WARN([no python, documentation will not be built])
     fi
 fi
 AC_SUBST(BUILD_DOCS)
