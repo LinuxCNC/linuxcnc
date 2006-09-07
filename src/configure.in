@@ -1129,17 +1129,44 @@ AC_SUBST([TK_LIBS])
 # provides DATE in order to output it to the generated files
 DATE=$(date)
 AC_SUBST([DATE])
+AC_PATH_X
+if test "$x_includes" != ""; then
+CFLAGS_X=-I$x_includes
+else
+CFLAGS_X=
+fi
+
+if test "$x_libraries" != ""; then
+LDFLAGS_X=-L$x_libraries
+else
+LDFLAGS_X=
+fi
+AC_SUBST([LDFLAGS_X])
+AC_SUBST([CFLAGS_X])
+CFLAGS=$CFLAGS_HOLD
+LDFLAGS=$LDFLAGS_HOLD
 
 # check for Xaw, that is needed for emc2/src/emc/usr_intf/xemc.cc
+
+echo "have_x: $have_x"
+if test "$have_x" = "yes"; then
+CFLAGS_hold=$CFLAGS
+LDFLAGS_hold=$LDFLAGS
+CFLAGS="$CFLAGS $CFLAGS_X"
+LDFLAGS="$LDFLAGS $LDFLAGS_X"
+
 AC_CHECK_HEADERS(X11/Xaw/XawInit.h,
 	    [HAVE_XAW=yes],
 	    [HAVE_XAW=no],
 	    [[#include <X11/Intrinsic.h>
 	    ]])
 
-AC_CHECK_LIB(Xaw, main,
+AC_CHECK_LIB(Xaw, XawDialogGetValueString,
 	    [],
 	    [HAVE_XAW=no])
+CFLAGS=$CFLAGS_hold
+LDFLAGS=$LDFLAGS_hold
+fi
 
 if test "x$HAVE_XAW" = "xno"; then
     AC_MSG_WARN(Xaw lib missing, you won't be able to build/run xemc. try installing it with 'apt-get install libxaw7-dev')

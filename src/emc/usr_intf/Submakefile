@@ -70,6 +70,7 @@ TARGETS += ../bin/keystick
 endif
 
 ifeq "$(HAVE_XAW)" "yes"
+$(call TOOBJSDEPS,$(XEMCSRCS)): EXTRAFLAGS = $(CFLAGS_X)
 ../bin/xemc: $(call TOOBJS, $(XEMCSRCS)) ../lib/libemc.a ../lib/libnml.so
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(XLIBS)
