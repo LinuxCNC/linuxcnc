@@ -54,7 +54,7 @@ PYI18NSRCS := $(addprefix emc/usr_intf/axis/scripts/, $(PYSCRIPTS))  \
 	../share/axis/tcl/axis.tcl
 
 %.py: %.g
-	$(YAPPS) $< $@
+	yapps $< $@
 
 po/axis.pot: $(PYI18NSRCS)
 	$(XGETTEXT) -k_ -o $@ $^
