@@ -21,7 +21,7 @@ objects/%.mak: %.comp
 objects/%.c: %.comp ../bin/comp
 	$(ECHO) "Preprocessing $(notdir $<)"
 	@mkdir -p $(dir $@)
-	@../bin/comp $< $@
+	@../bin/comp -o $@ $<
 
 modules: $(patsubst %.comp, objects/%.c, $(COMPS))
 endif
