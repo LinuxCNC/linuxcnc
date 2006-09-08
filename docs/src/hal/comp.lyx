@@ -1,0 +1,452 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\begin_preamble
+\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\end_preamble
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !htbp
+\paperfontsize default
+\spacing single 
+\papersize letterpaper
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 1
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 0.8in
+\bottommargin 0.8in
+\secnumdepth 1
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+comp
+\begin_inset Quotes erd
+\end_inset 
+
+: a tool for writing HAL boilerplate
+\layout Section
+
+Introduction
+\layout Standard
+
+Writing a HAL component can be a tedious process.
+ For instance, the 
+\begin_inset Quotes eld
+\end_inset 
+
+ddt
+\begin_inset Quotes erd
+\end_inset 
+
+ portion of 
+\family typewriter 
+blocks
+\family default 
+ is around 80 lines of code, most of it in calls to 
+\family typewriter 
+rtapi_
+\family default 
+ and 
+\family typewriter 
+hal_
+\family default 
+ functions and associated error checking.
+ The equivalent component is very short when written using the 
+\emph on 
+comp
+\emph default 
+ preprocessor:
+\layout LyX-Code
+
+component ddt;
+\newline 
+pin in float in;
+\newline 
+pin out float out;
+\newline 
+option data float;
+\newline 
+function update;
+\newline 
+;;
+\newline 
+FUNCTION(update) { 
+\newline 
+    float tmp = in; 
+\newline 
+    out = (tmp - data) / (period * 1e-9); 
+\newline 
+    data = tmp;
+\newline 
+}
+\layout Section
+
+Syntax
+\layout Standard
+
+A 
+\begin_inset Quotes eld
+\end_inset 
+
+.comp
+\begin_inset Quotes erd
+\end_inset 
+
+ file consists of a number of declarations, followed by 
+\begin_inset Quotes eld
+\end_inset 
+
+;;
+\begin_inset Quotes erd
+\end_inset 
+
+ on a line of its own, followed by C code implementing the module's realtime
+ functions.
+\layout Standard
+
+Declarations include:
+\layout LyX-Code
+
+component NAME;
+\newline 
+pin NAME TYPE PINDIRECTION;
+\newline 
+param NAME TYPE PARAMDIRECTION;
+\newline 
+function NAME [fp | nofp];
+\newline 
+option NAME VALUE;
+\layout Standard
+
+NAME is a C identifier.
+ When used to create a HAL identifier, any underscores are replaced with
+ dashes, so that 
+\begin_inset Quotes eld
+\end_inset 
+
+this_name
+\begin_inset Quotes erd
+\end_inset 
+
+ will be turned into 
+\begin_inset Quotes eld
+\end_inset 
+
+this-name
+\begin_inset Quotes erd
+\end_inset 
+
+.
+\layout Standard
+
+TYPE is one of the HAL types: bit, s8, u8, s16, u16, s32, u32, or float.
+\layout Standard
+
+PINDIRECTION is one of the following: 
+\begin_inset Quotes eld
+\end_inset 
+
+in
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+out
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+io
+\begin_inset Quotes erd
+\end_inset 
+
+, corresponding to HAL_IN, HAL_OUT and HAL_IO.
+\layout Standard
+
+PARAMDIRECTION is one of the following: 
+\begin_inset Quotes eld
+\end_inset 
+
+r
+\begin_inset Quotes erd
+\end_inset 
+
+, 
+\begin_inset Quotes eld
+\end_inset 
+
+rw
+\begin_inset Quotes erd
+\end_inset 
+
+, corresponding to HAL_RO and HAL_RW.
+\layout Standard
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+fp
+\begin_inset Quotes erd
+\end_inset 
+
+ indicates that the function performs floating-point calculations.
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+nofp
+\begin_inset Quotes erd
+\end_inset 
+
+ indicates that it only performs integer calculations.
+ If neither is specified, 
+\begin_inset Quotes eld
+\end_inset 
+
+fp
+\begin_inset Quotes erd
+\end_inset 
+
+ is assumed.
+\layout Standard
+
+The currently defined options are:
+\layout Description
+
+singleton (default: no)
+\newline 
+Do not create a 'count' module parameter, and always create a single object.
+ With 'singleton', items are named 'component-name.item-name' and without
+ 'singleton', items are named 'component-name.num.item-name', where 'num'
+ goes from 0 to the module parameter 'count'.
+\layout Description
+
+default_count (default: 1)
+\newline 
+Normally, the module parameter 'count' defaults to 1.
+ If specified, the count will default to this value instead.
+\layout Description
+
+count_function (default: no)
+\newline 
+Normally, the number of instances to create is specified in the module parameter
+ 'count'; if 'count_function' is specified, the value returned by the function
+ 'int get_count(void)' is used instead, and the 'count' module parameter
+ is not defined.
+\layout Description
+
+rtapi_app (default: yes)
+\newline 
+Normally, the functions 'rtapi_app_main' and 'rtapi_app_exit' are automatically
+ defined.
+ With 'option rtapi_app no', they are not, and must be provided in the C
+ code.
+\newline 
+When implementing your own 'rtapi_app_main', call the function 'int export(char
+ *prefix, long extra_arg)' to register the pins, parameters, and functions
+ for 'prefix'.
+\layout Description
+
+data (default: none)
+\newline 
+If specified, each instance of the component will have an associated data
+ block of the named C type (which can be a simple type like 'float' or the
+ name of a type created with 'typedef').
+\layout Description
+
+extra_setup (default: no)
+\newline 
+If specified, call the function 'int extra_setup(struct state *inst, long
+ extra_arg)' for each instance.
+ If using the automatically defined 'rtapi_app_main', 'extra_arg' is the
+ number of this instance.
+ Return a nonzero value to indicate failure.
+\layout Description
+
+extra_cleanup (default: no)
+\newline 
+If specified, call the function 'void extra_cleanup(void)' from the automaticall
+y defined 'rtapi_app_exit', or if an error is detected in the automatically
+ defined 'rtapi_app_main'.
+\layout Standard
+
+The result of using any other option is undefined.
+\layout Standard
+
+C++-style one-line comments (
+\begin_inset Quotes eld
+\end_inset 
+
+// ...
+\begin_inset Quotes erd
+\end_inset 
+
+) and C-style multiline comments (
+\begin_inset Quotes eld
+\end_inset 
+
+/* ...
+ */
+\begin_inset Quotes erd
+\end_inset 
+
+) are both supported in the declaration section.
+\layout Section
+
+Other restrictions
+\layout Standard
+
+Though HAL permits a pin, a parameter, and a function to have the same name,
+ comp does not.
+\layout Standard
+
+There is no provision for setting the initial value of parameters or instance
+ data.
+\layout Section
+
+Convenience Macros
+\layout Standard
+
+In the 
+\begin_inset Quotes eld
+\end_inset 
+
+C
+\begin_inset Quotes erd
+\end_inset 
+
+ code, some convenience macros are available.
+\layout Description
+
+#define\SpecialChar ~
+FUNCTION(name)\SpecialChar ~
+...
+ Properly defines the function 'name' including its return type and argument
+ types and names.
+ The argument 'inst' is a pointer to the instance data, and the argument
+ 'period' is the number of nanoseconds between calls to the function.
+\layout Description
+
+#define\SpecialChar ~
+pi\SpecialChar ~
+...
+\layout Description
+
+#define\SpecialChar ~
+pa\SpecialChar ~
+...
+ Defined for each pin 'pi' or param 'pa' there is a macro which allows the
+ name to be used on its own (no dots, points-at or stars required) to refer
+ to the pin or parameter.
+ These macros assume that 'inst' is a pointer to the instance data.
+\layout Description
+
+#define\SpecialChar ~
+data\SpecialChar ~
+...
+ If 'option data' is specified, this macro allows access to the instance
+ data.
+ This macro assumes that 'inst' is a pointer to the instance data.
+\layout Standard
+
+Any of these macros may be undefined with '#undef' if desired.
+\layout Section
+
+Compiling 
+\begin_inset Quotes eld
+\end_inset 
+
+.comp
+\begin_inset Quotes erd
+\end_inset 
+
+ files in the source tree
+\layout Standard
+
+Place the 
+\begin_inset Quotes eld
+\end_inset 
+
+.comp
+\begin_inset Quotes erd
+\end_inset 
+
+ file in the source directory emc2/src/hal/components and re-run 'make'.
+ Comp files are automatically detected by the build system.
+\layout Section
+
+Compiling 
+\begin_inset Quotes eld
+\end_inset 
+
+.comp
+\begin_inset Quotes erd
+\end_inset 
+
+ files outside the source tree
+\layout Standard
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+comp
+\begin_inset Quotes erd
+\end_inset 
+
+ can process, compile, and install a component in a single step, placing
+ 
+\family typewriter 
+example.ko
+\family default 
+ in the emc2 realtime module directory:
+\layout LyX-Code
+
+comp --install example.comp
+\layout Standard
+
+Or, it can process and compile in one step, leaving 
+\family typewriter 
+example.ko
+\family default 
+ in the current directory:
+\layout LyX-Code
+
+comp --compile example.comp
+\layout Standard
+
+Or it can simly process, leaving 
+\family typewriter 
+example.c
+\family default 
+ in the current directory:
+\layout LyX-Code
+
+comp example.comp
+\the_end

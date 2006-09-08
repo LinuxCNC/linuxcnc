@@ -24,6 +24,7 @@ DOC_SRCS := \
 	gcode/main.lyx \
 	gcode/mill_canned.lyx \
 	gcode/tool_compensation.lyx \
+	hal/comp.lyx \
 	hal/drivers.lyx \
 	hal/general_ref.lyx \
 	hal/halshow.lyx \
@@ -53,38 +54,42 @@ pdfdocs: $(PDF_TARGETS)
 htmldocs: $(HTML_TARGETS)
 
 $(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
-	ln -f $< $@
+	@ln -f $< $@
 $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
-	ln -f $< $@
+	@ln -f $< $@
 $(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
-	ln -f $< $@
+	@ln -f $< $@
 $(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
-	ln -f $< $@
+	@ln -f $< $@
 
 
 $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx
-	rm -f $@
-	$(LYX) --export pdf2 $<
-	test -f $@
+	$(ECHO) Building $@
+	@rm -f $@
+	@$(LYX) --export pdf2 $<
+	@test -f $@
 
 depends/%.d: $(DOC_SRCDIR)/%.lyx $(DOC_SRCDIR)/lyxdep.py
-	mkdir -p $(dir $@)
-	$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< $@ $(DOC_DIR)/html/$*/index.html > $@
+	$(ECHO) Depending $<
+	@mkdir -p $(dir $@)
+	@$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< $@ $(DOC_DIR)/html/$*/index.html > $@
 
 %.tex: %.lyx
-	rm -f $(<:.lyx=.tex)
-	$(LYX) --export latex $<
-	test -f $(<:.lyx=.tex)
-	sed -f $(DOC_SRCDIR)/l2hprep.sed -i $(<:.lyx=.tex)
+	$(ECHO) Converting $< to latex
+	@rm -f $(<:.lyx=.tex)
+	@$(LYX) --export latex $<
+	@test -f $(<:.lyx=.tex)
+	@sed -f $(DOC_SRCDIR)/l2hprep.sed -i $(<:.lyx=.tex)
 
 $(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/%.tex
-	rm -rf $(<:.tex=)
-	mkdir -p $(<:.tex=)
-	if [ ! -z "$(filter %.eps, $^)" ]; then cp $(filter %.eps, $^) $(<:.tex=); fi
-	latex2html $(L2HFLAGS) $(EXTRAL2HFLAGS) $(<:.lyx=.tex)
-	rm -rf $(dir $@)
-	mkdir -p $(dir $@)
-	mv $(<:.tex=)/* $(dir $@)
+	$(ECHO) Converting $< to HTML
+	@rm -rf $(<:.tex=)
+	@mkdir -p $(<:.tex=)
+	@if [ ! -z "$(filter %.eps, $^)" ]; then cp $(filter %.eps, $^) $(<:.tex=); fi
+	@latex2html $(L2HFLAGS) $(EXTRAL2HFLAGS) $(<:.lyx=.tex)
+	@rm -rf $(dir $@)
+	@mkdir -p $(dir $@)
+	@mv $(<:.tex=)/* $(dir $@)
 
 default: docs
 else

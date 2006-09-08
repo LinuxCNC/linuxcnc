@@ -135,6 +135,15 @@ HAL Programming
 \layout Standard
 
 
+\begin_inset Include \include{hal/comp.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \input{common/GPLD_Copyright.lyx}
 preview false
 
