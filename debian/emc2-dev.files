@@ -1,3 +1,4 @@
+usr/bin/comp
 usr/include/emc2/
 usr/include/emc2/canon.hh
 usr/include/emc2/cmd_msg.hh
