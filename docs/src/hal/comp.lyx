@@ -165,11 +165,11 @@ option NAME VALUE;
 
 NAME A C identifier.
  When used to create a HAL identifier, any underscores are replaced with
- dashes, so that 
+ dashes, and any trailing dash is removed, so that 
 \begin_inset Quotes eld
 \end_inset 
 
-this_name
+this_name_
 \begin_inset Quotes erd
 \end_inset 
 
@@ -182,6 +182,7 @@ this-name
 \end_inset 
 
 .
+ 
 \layout Description
 
 TYPE One of the HAL types: bit, s8, u8, s16, u16, s32, u32, or float.
@@ -317,8 +318,11 @@ option\SpecialChar ~
 extra_setup\SpecialChar ~
 yes (default: no)
 \newline 
-If specified, call the function 'int extra_setup(struct state *inst, long
- extra_arg)' for each instance.
+If specified, call the function '
+\family typewriter 
+int extra_setup(struct state *inst, long extra_arg)
+\family default 
+' for each instance.
  If using the automatically defined 'rtapi_app_main', 'extra_arg' is the
  number of this instance.
  Return a nonzero value to indicate failure.
@@ -328,9 +332,12 @@ option\SpecialChar ~
 extra_cleanup\SpecialChar ~
 yes (default: no)
 \newline 
-If specified, call the function 'void extra_cleanup(void)' from the automaticall
-y defined 'rtapi_app_exit', or if an error is detected in the automatically
- defined 'rtapi_app_main'.
+If specified, call the function '
+\family typewriter 
+void extra_cleanup(void)
+\family default 
+' from the automatically defined 'rtapi_app_exit', or if an error is detected
+ in the automatically defined 'rtapi_app_main'.
 \layout Standard
 
 The result of using any other option is undefined.
@@ -361,85 +368,54 @@ Other restrictions on comp files
 
 Though HAL permits a pin, a parameter, and a function to have the same name,
  comp does not.
-\layout Standard
-
-There is no provision for setting the initial value of parameters or instance
- data.
 \layout Section
 
 Convenience Macros
 \layout Standard
 
-Once you have a number of pins, parameters and functions, comp will generate
- the 
-\begin_inset Quotes eld
-\end_inset 
-
-C
-\begin_inset Quotes erd
-\end_inset 
-
- program using a preprocessor.
- During this process, a proper data structure will be generated, which will
- hold all pins and parameters.
- All the pins and parameters names you defined above will be part of a structure
-, referenced by 'inst' (instance data).
- However, you don not need to adress them using formats like *(inst->name),
- but you can easily address them as 'name'.
- This is possible because in the generated 
-\begin_inset Quotes eld
-\end_inset 
-
-C
-\begin_inset Quotes erd
-\end_inset 
-
- code, there are some convenience macros automatically generated.
+Based on the items in the declaration section, 
+\emph on 
+comp
+\emph default 
+ creates a C structure called 
+\family typewriter 
+struct state
+\family default 
+.
+ However, instead of referring to the members of this structure (e.g., 
+\family typewriter 
+*(inst->name)
+\family default 
+), they will generally be referred to using the macros below.
+ The details of 
+\family typewriter 
+struct state
+\family default 
+ and these macros may change from one version of 
+\emph on 
+comp
+\emph default 
+ to the next.
 \layout Description
 
-#define\SpecialChar ~
-FUNCTION(name)\SpecialChar ~
-...
- One Macro definition per defined function.
- It properly defines the function 'name' including its return type and argument
- types and names.
- The argument 'inst' is a pointer to the instance data, and the argument
- 'period' is the number of nanoseconds between calls to the function.
+FUNCTION(name) Use this macro to begin the definition of a realtime function
+ which was previously declared with '
+\family typewriter 
+function NAME
+\family default 
+'.
 \layout Description
 
-#define\SpecialChar ~
-pi\SpecialChar ~
-...
+pin_name
 \layout Description
 
-#define\SpecialChar ~
-pa\SpecialChar ~
-...
- Defined for each pin 'pi' or param 'pa' there is a macro which allows the
- name to be used on its own (no dots, points-at or stars required) to refer
- to the pin or parameter.
- These macros assume that 'inst' is a pointer to the instance data.
- 
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-Instead of having *(inst->pin_name) just use pin_name.
-\end_inset 
-
-
+parameter_name Defined for each pin 'pin_name' or param 'parameter_name'
+ there is a macro which allows the name to be used on its own to refer to
+ the pin or parameter.
 \layout Description
 
-#define\SpecialChar ~
-data\SpecialChar ~
-...
- If 'option data' is specified, this macro allows access to the instance
+data If 'option data' is specified, this macro allows access to the instance
  data.
- This macro assumes that 'inst' is a pointer to the instance data.
-\layout Standard
-
-Any of these macros may be undefined with '#undef' if desired.
 \layout Section
 
 Compiling 
@@ -527,4 +503,87 @@ C
 \layout LyX-Code
 
 comp --install example2.c
+\layout Section
+
+Examples
+\layout Subsection
+
+constant
+\layout Standard
+
+This component functions like the one in 'blocks', including the default
+ value of 1.0.
+ It illustrates the use of extra_setup, without which the default would
+ be 0.
+\layout LyX-Code
+
+component constant;
+\newline 
+pin out float out;
+\newline 
+param value float r;
+\newline 
+function update;
+\newline 
+option extra_setup yes;
+\newline 
+;;
+\newline 
+FUNCTION(update) { out = value; }
+\newline 
+
+\newline 
+int extra_setup(struct state *inst, long arg) {
+\newline 
+    value = 1.0f;
+\newline 
+    return 0;
+\newline 
+}
+\layout Subsection
+
+sincos
+\layout Standard
+
+This component computes the sine and cosine of an input angle in radians.
+ It has different capabilies than the 'sine' and 'cosine' outputs of siggen,
+ because the input is an angle, rather than running freely based on a 'frequency
+' parameter.
+\layout Standard
+
+The pins are declared with the names 
+\family typewriter 
+sin_
+\family default 
+ and 
+\family typewriter 
+cos_
+\family default 
+ in the source code so that they do not interfere with the functions 
+\family typewriter 
+sin()
+\family default 
+ and 
+\family typewriter 
+cos()
+\family default 
+.
+ The HAL pins are still called 'sincos.N.sin'.
+\layout LyX-Code
+
+component sincos;
+\newline 
+pin sin_ float out;
+\newline 
+pin cos_ float out;
+\newline 
+pin theta float in;
+\newline 
+function update;
+\newline 
+;;
+\newline 
+#include <rtapi_math.h>
+\newline 
+FUNCTION(update) { sin_ = sin(theta); cos_ = cos(theta); }
 \the_end
