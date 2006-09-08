@@ -35,21 +35,40 @@
 \layout Chapter
 
 
-\begin_inset Quotes eld
-\end_inset 
-
+\emph on 
 comp
-\begin_inset Quotes erd
-\end_inset 
-
-: a tool for writing HAL boilerplate
+\emph default 
+: a tool for creating HAL modules
 \layout Section
 
 Introduction
 \layout Standard
 
-Writing a HAL component can be a tedious process.
- For instance, the 
+Writing a HAL component can be a tedious process, most of it in setup calls
+ to 
+\family typewriter 
+rtapi_
+\family default 
+ and 
+\family typewriter 
+hal_
+\family default 
+ functions and associated error checking.
+ 
+\emph on 
+comp
+\emph default 
+ will write all this code for you, automatically.
+\layout Standard
+
+Compiling a realtime HAL component is also much easier when using 
+\emph on 
+comp
+\emph default 
+, whether the component is part of the emc2 source tree, or outside it.
+\layout Standard
+
+For instance, the 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -61,15 +80,7 @@ ddt
 \family typewriter 
 blocks
 \family default 
- is around 80 lines of code, most of it in calls to 
-\family typewriter 
-rtapi_
-\family default 
- and 
-\family typewriter 
-hal_
-\family default 
- functions and associated error checking.
+ is around 80 lines of code.
  The equivalent component is very short when written using the 
 \emph on 
 comp
@@ -98,19 +109,34 @@ FUNCTION(update) {
     data = tmp;
 \newline 
 }
+\layout Standard
+
+and it can be compiled and installed very easily: by simply placing 
+\family typewriter 
+ddt.comp
+\family default 
+ in 
+\family typewriter 
+src/hal/components
+\family default 
+ and running '
+\family typewriter 
+make
+\family default 
+', or by placing it anywhere on the system and running '
+\family typewriter 
+comp --install ddt.comp
+\family default 
+'
 \layout Section
 
 Syntax
 \layout Standard
 
 A 
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 .comp
-\begin_inset Quotes erd
-\end_inset 
-
+\family default 
  file consists of a number of declarations, followed by 
 \begin_inset Quotes eld
 \end_inset 
@@ -135,9 +161,9 @@ param NAME TYPE PARAMDIRECTION;
 function NAME [fp | nofp];
 \newline 
 option NAME VALUE;
-\layout Standard
+\layout Description
 
-NAME is a C identifier.
+NAME A C identifier.
  When used to create a HAL identifier, any underscores are replaced with
  dashes, so that 
 \begin_inset Quotes eld
@@ -156,12 +182,12 @@ this-name
 \end_inset 
 
 .
-\layout Standard
+\layout Description
 
-TYPE is one of the HAL types: bit, s8, u8, s16, u16, s32, u32, or float.
-\layout Standard
+TYPE One of the HAL types: bit, s8, u8, s16, u16, s32, u32, or float.
+\layout Description
 
-PINDIRECTION is one of the following: 
+PINDIRECTION One of the following: 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -186,9 +212,11 @@ io
 \end_inset 
 
 , corresponding to HAL_IN, HAL_OUT and HAL_IO.
-\layout Standard
+ A component sets a value for a HAL_OUT pin, it reads a value from a HAL_IN
+ pin, and it may read or set the value of a HAL_IO pin.
+\layout Description
 
-PARAMDIRECTION is one of the following: 
+PARAMDIRECTION One of the following: 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -205,26 +233,14 @@ rw
 \end_inset 
 
 , corresponding to HAL_RO and HAL_RW.
-\layout Standard
+ A component sets a value for a HAL_RO parameter, and it may read or set
+ the value of a HAL_RW parameter.
+\layout Description
 
+fp Indicates that the function performs floating-point calculations.
+\layout Description
 
-\begin_inset Quotes eld
-\end_inset 
-
-fp
-\begin_inset Quotes erd
-\end_inset 
-
- indicates that the function performs floating-point calculations.
- 
-\begin_inset Quotes eld
-\end_inset 
-
-nofp
-\begin_inset Quotes erd
-\end_inset 
-
- indicates that it only performs integer calculations.
+nofp Indicates that it only performs integer calculations.
  If neither is specified, 
 \begin_inset Quotes eld
 \end_inset 
@@ -239,7 +255,9 @@ fp
 The currently defined options are:
 \layout Description
 
-singleton (default: no)
+option\SpecialChar ~
+singleton\SpecialChar ~
+yes (default: no)
 \newline 
 Do not create a 'count' module parameter, and always create a single object.
  With 'singleton', items are named 'component-name.item-name' and without
@@ -247,13 +265,16 @@ Do not create a 'count' module parameter, and always create a single object.
  goes from 0 to the module parameter 'count'.
 \layout Description
 
+option\SpecialChar ~
 default_count (default: 1)
 \newline 
 Normally, the module parameter 'count' defaults to 1.
  If specified, the count will default to this value instead.
 \layout Description
 
-count_function (default: no)
+option\SpecialChar ~
+count_function\SpecialChar ~
+yes (default: no)
 \newline 
 Normally, the number of instances to create is specified in the module parameter
  'count'; if 'count_function' is specified, the value returned by the function
@@ -261,7 +282,9 @@ Normally, the number of instances to create is specified in the module parameter
  is not defined.
 \layout Description
 
-rtapi_app (default: yes)
+option\SpecialChar ~
+rtapi_app\SpecialChar ~
+no (default: yes)
 \newline 
 Normally, the functions 'rtapi_app_main' and 'rtapi_app_exit' are automatically
  defined.
@@ -273,14 +296,26 @@ When implementing your own 'rtapi_app_main', call the function 'int export(char
  for 'prefix'.
 \layout Description
 
-data (default: none)
+option\SpecialChar ~
+data\SpecialChar ~
+
+\emph on 
+type
+\emph default 
+ (default: none)
 \newline 
 If specified, each instance of the component will have an associated data
- block of the named C type (which can be a simple type like 'float' or the
- name of a type created with 'typedef').
+ block of 
+\emph on 
+type
+\emph default 
+ (which can be a simple type like 'float' or the name of a type created
+ with 'typedef').
 \layout Description
 
-extra_setup (default: no)
+option\SpecialChar ~
+extra_setup\SpecialChar ~
+yes (default: no)
 \newline 
 If specified, call the function 'int extra_setup(struct state *inst, long
  extra_arg)' for each instance.
@@ -289,7 +324,9 @@ If specified, call the function 'int extra_setup(struct state *inst, long
  Return a nonzero value to indicate failure.
 \layout Description
 
-extra_cleanup (default: no)
+option\SpecialChar ~
+extra_cleanup\SpecialChar ~
+yes (default: no)
 \newline 
 If specified, call the function 'void extra_cleanup(void)' from the automaticall
 y defined 'rtapi_app_exit', or if an error is detected in the automatically
@@ -319,7 +356,7 @@ C++-style one-line comments (
 ) are both supported in the declaration section.
 \layout Section
 
-Other restrictions
+Other restrictions on comp files
 \layout Standard
 
 Though HAL permits a pin, a parameter, and a function to have the same name,
@@ -401,15 +438,7 @@ Place the
  Comp files are automatically detected by the build system.
 \layout Section
 
-Compiling 
-\begin_inset Quotes eld
-\end_inset 
-
-.comp
-\begin_inset Quotes erd
-\end_inset 
-
- files outside the source tree
+Compiling components outside the source tree
 \layout Standard
 
 
@@ -449,4 +478,26 @@ example.c
 \layout LyX-Code
 
 comp example.comp
+\layout Standard
+
+
+\begin_inset Quotes eld
+\end_inset 
+
+comp
+\begin_inset Quotes erd
+\end_inset 
+
+ can also compile and install a component written in 
+\begin_inset Quotes eld
+\end_inset 
+
+C
+\begin_inset Quotes erd
+\end_inset 
+
+, using the --install and --compile options shown above:
+\layout LyX-Code
+
+comp --install example2.c
 \the_end
