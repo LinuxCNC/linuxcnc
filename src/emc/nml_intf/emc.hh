@@ -155,6 +155,7 @@
 #define EMC_TASK_PLAN_CLOSE_TYPE                     ((NMLTYPE) 514)
 #define EMC_TASK_PLAN_INIT_TYPE                      ((NMLTYPE) 515)
 #define EMC_TASK_PLAN_SYNCH_TYPE                     ((NMLTYPE) 516)
+#define EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE         ((NMLTYPE) 517)
 
 #define EMC_TASK_STAT_TYPE                           ((NMLTYPE) 599)
 
@@ -508,6 +509,7 @@ extern int emcTaskPlanSetWait();
 extern int emcTaskPlanIsWait();
 extern int emcTaskPlanClearWait();
 extern int emcTaskPlanSynch();
+extern int emcTaskPlanSetOptionalStop(char state);
 extern int emcTaskPlanExit();
 extern int emcTaskPlanOpen(const char *file);
 extern int emcTaskPlanRead();
@@ -2112,6 +2114,19 @@ class EMC_TASK_PLAN_SYNCH:public EMC_TASK_CMD_MSG {
     void update(CMS * cms);
 };
 
+class EMC_TASK_PLAN_SET_OPTIONAL_STOP:public EMC_TASK_CMD_MSG {
+  public:
+    EMC_TASK_PLAN_SET_OPTIONAL_STOP():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE,
+					   sizeof(EMC_TASK_PLAN_SET_OPTIONAL_STOP)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    
+    char state; //state != 0, optional stop is on (e.g. we stop on any stops)
+};
+
+
 // EMC_TASK status base class
 class EMC_TASK_STAT_MSG:public RCS_STAT_MSG {
   public:
@@ -2140,6 +2155,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int motionLine;		// line motion is executing-- may lag
     int currentLine;		// line currently executing
     int readLine;		// line interpreter has read to
+    char optional_stop_state;	// state of optional stop (!= 0 means we stop on M1)
     char file[LINELEN];
     char command[LINELEN];
     EmcPose origin;		// origin, in user units, currently active

@@ -133,6 +133,10 @@ static double spindleSpeed = 0.0;
 /* Prepped tool is saved here */
 static int preppedTool = 0;
 
+/* optional program stop */
+static int optional_program_stop = 1; //set enabled by default (previous EMC behaviour)
+
+
 /* Tool length offset is saved here */
 static double currentXToolOffset = 0.0;
 static double currentZToolOffset = 0.0;
@@ -1445,12 +1449,24 @@ void PROGRAM_STOP()
     interp_list.append(pauseMsg);
 }
 
+void SET_OPTIONAL_PROGRAM_STOP(char state)
+{
+
+    optional_program_stop = state; //state != 0, means we stop
+}
+
+char GET_OPTIONAL_PROGRAM_STOP()
+{
+
+    return optional_program_stop; //state != 0, means we stop
+}
+
 void OPTIONAL_PROGRAM_STOP()
 {
-    flush_segments();
-
-    /*! \todo FIXME-- implemented as PROGRAM_STOP, that is, no option */
-    PROGRAM_STOP();
+    if (optional_program_stop) {
+	flush_segments();
+        PROGRAM_STOP();
+    }
 }
 
 void PROGRAM_END()

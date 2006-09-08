@@ -345,6 +345,7 @@ static EMC_TASK_SET_STATE *state_msg;
 static EMC_TASK_PLAN_RUN *run_msg;
 static EMC_TASK_PLAN_EXECUTE *execute_msg;
 static EMC_TASK_PLAN_OPEN *open_msg;
+static EMC_TASK_PLAN_SET_OPTIONAL_STOP *os_msg;
 
 // commands we compose here
 static EMC_TASK_PLAN_RUN taskPlanRunCmd;	// 16-Aug-1999 FMP
@@ -544,6 +545,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_SET_STATE_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
+	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
 	    case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 	    case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
@@ -663,6 +665,7 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_SYNCH_TYPE:
+	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 	    case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -756,6 +759,7 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
+		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 		case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -833,6 +837,7 @@ static int emcTaskPlan(void)
 		case EMC_SPINDLE_CONSTANT_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
+		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
@@ -1036,6 +1041,7 @@ interpret_again:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
+		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
 		case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
 		case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -1108,6 +1114,7 @@ interpret_again:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
+		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_SET_MODE_TYPE:
 		case EMC_TASK_SET_STATE_TYPE:
 		case EMC_TASK_ABORT_TYPE:
@@ -1215,6 +1222,7 @@ interpret_again:
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_EXECUTE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
+	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_ABORT_TYPE:
 	    case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
@@ -1580,15 +1588,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	axis_alter_msg = (EMC_AXIS_ALTER *) cmd;
 	retval = emcAxisAlter(axis_alter_msg->axis, axis_alter_msg->alter);
 	break;
-/*! \todo Another #if 0 */
-#if 0
-    case EMC_AXIS_SET_STEP_PARAMS_TYPE:
-	set_step_params_msg = (EMC_AXIS_SET_STEP_PARAMS *) cmd;
-	retval = emcAxisSetStepParams(set_step_params_msg->axis,
-				      set_step_params_msg->setup_time,
-				      set_step_params_msg->hold_time);
-	break;
-#endif
+
 	// traj commands
 
     case EMC_TRAJ_SET_SCALE_TYPE:
@@ -1672,20 +1672,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcStatus->task.origin = ((EMC_TRAJ_SET_ORIGIN *) cmd)->origin;
 	retval = 0;
 	break;
-/*! \todo Another #if 0 */
-#if 0
-    case EMC_TRAJ_SET_PROBE_INDEX_TYPE:
-	retval =
-	    emcTrajSetProbeIndex(((EMC_TRAJ_SET_PROBE_INDEX *) cmd)->
-				 index);
-	break;
-
-    case EMC_TRAJ_SET_PROBE_POLARITY_TYPE:
-	retval =
-	    emcTrajSetProbePolarity(((EMC_TRAJ_SET_PROBE_POLARITY *) cmd)->
-				    polarity);
-	break;
-#endif
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	retval = emcTrajClearProbeTrippedFlag();
 	break;
@@ -2017,6 +2003,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (retval > INTERP_MIN_ERROR) {
 	    retval = -1;
 	}
+	break;
+
+    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
+	os_msg = (EMC_TASK_PLAN_SET_OPTIONAL_STOP *) cmd;
+	emcTaskPlanSetOptionalStop(os_msg->state);
+	retval = 0;
 	break;
 
      default:

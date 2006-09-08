@@ -1183,25 +1183,6 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-/*! \todo Another #if 0 */
-#if 0
-int emcTrajSetProbeIndex(int index)
-{
-    emcmotCommand.command = EMCMOT_SET_PROBE_INDEX;
-    emcmotCommand.probeIndex = index;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcTrajSetProbePolarity(int polarity)
-{
-    emcmotCommand.command = EMCMOT_SET_PROBE_POLARITY;
-    emcmotCommand.level = polarity;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-#endif				/* #if 0 */
-
 int emcTrajClearProbeTrippedFlag()
 {
     emcmotCommand.command = EMCMOT_CLEAR_PROBE_FLAGS;

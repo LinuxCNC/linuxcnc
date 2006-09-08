@@ -262,6 +262,11 @@ int emcTaskPlanSynch(void)
     return 0;
 }
 
+int emcTaskPlanSetOptionalStop(char state)
+{
+    return 0;
+}
+
 int emcTaskPlanExit(void)
 {
     return 0;

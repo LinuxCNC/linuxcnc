@@ -289,6 +289,20 @@ vcp {
                 		}
 			    }#flood box
 
+    			    label { text = "  "}
+
+			    box {
+                		layout = horizontal
+				title = "probe"
+				box {
+				    layout = "vertical"
+				    button {
+                			halpin = button.probe
+                			label { text = "touched" }
+				    }
+				}
+			    }#probe button
+
 			}#misc io (mist, lube, flood)
         	    }# io box
 		}
@@ -496,6 +510,29 @@ vcp {
                     halpin = button.so.decrease
                     label { text = "-" }
                 }
+	    }
+
+	    box {
+                layout = vertical
+                title = "optional stop"
+		box {
+		    layout = horizontal
+            	    button {
+                	halpin = button.os.on
+                	label { text = "on" }
+            	    }
+            	    button {
+                	halpin = button.os.off
+                	label { text = "off" }
+            	    }
+		}
+                LED {
+                    size = 6
+                    halpin = led.os.is-on
+                    on-color = "#0F0"
+                    off-color = "#020"
+                }
+		
 	    }
         }
     }

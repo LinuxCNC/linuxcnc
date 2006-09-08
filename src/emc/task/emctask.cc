@@ -324,6 +324,13 @@ int emcTaskPlanClearWait()
     return 0;
 }
 
+int emcTaskPlanSetOptionalStop(char state)
+{
+    SET_OPTIONAL_PROGRAM_STOP(state);
+    return 0;
+}
+
+
 int emcTaskPlanSynch()
 {
     return interp.synch();
@@ -435,6 +442,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     interp.active_m_codes(&stat->activeMCodes[0]);
     interp.active_settings(&stat->activeSettings[0]);
 
+    //update state of optional stop
+    stat->optional_stop_state = GET_OPTIONAL_PROGRAM_STOP();
+    
     stat->heartbeat++;
 
     return 0;

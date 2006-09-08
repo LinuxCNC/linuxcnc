@@ -79,6 +79,12 @@ linkpp button.fo.decrease	halui.feed-override.decrease
 linkpp button.so.increase	halui.spindle-override.increase
 linkpp button.so.decrease	halui.spindle-override.decrease
 
+linkpp button.os.on		halui.program.optional-stop.on
+linkpp button.os.off		halui.program.optional-stop.off
+linkpp led.os.is-on		halui.program.optional-stop.is-on
+
+linkpp button.probe		motion.probe-input
+
 #use a sets to set jog speed, until there is a halvcp slider
 newsig jogspeed float
 linksp jogspeed halui.jog-speed

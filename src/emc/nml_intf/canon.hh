@@ -547,7 +547,6 @@ extern void NURB_FEED(double sStart, double sEnd);
 
 /* Program Functions */
 extern void OPTIONAL_PROGRAM_STOP();
-
 /* If the machining center has an optional stop switch, and it is on
 when this command is read from a program, stop executing the program
 at this point, but be prepared to resume with the next line of the
@@ -555,6 +554,15 @@ program. If the machining center does not have an optional stop
 switch, or commands are being executed with a stop after each one
 already (such as when the interpreter is being used with keyboard
 input), this command has no effect. */
+
+extern void SET_OPTIONAL_PROGRAM_STOP(char state);
+/* Command to set the internal reference of optional program stop.
+Any non-zero value for state will cause the execution to stop on
+optional stops. */
+
+extern char GET_OPTIONAL_PROGRAM_STOP();
+/* Command to get the internal reference of optional program stop. */
+
 
 extern void PROGRAM_END();
 /* If a program is being read, stop executing the program and be prepared
