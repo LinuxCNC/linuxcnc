@@ -239,7 +239,7 @@ modinc = None
 def find_modinc():
     global modinc
     if modinc: return modinc
-    d = os.path.dirname(os.path.dirname(sys.argv[0]))
+    d = os.path.abspath(os.path.dirname(os.path.dirname(sys.argv[0])))
     for e in ['src', 'etc/emc2', '/etc/emc2']:
         e = os.path.join(d, e, 'Makefile.modinc')
         if os.path.exists(e):
@@ -261,7 +261,6 @@ def build(tempdir, filename, mode):
         target = "modules"
     result = os.system("cd %s; make -S %s" % (tempdir, target))
     if result != 0:
-        os.system("cd %s; sh" % tempdir)
         raise SystemExit, result
     if mode == COMPILE:
         shutil.copy(kobjname, os.path.basename(kobjname))
@@ -318,8 +317,17 @@ def main():
         raise SystemExit, "Can only specify -o when preprocessing"
 
     for f in args:
-        process(f, mode, outfile)
-
+        if f.endswith(".comp"):
+            process(f, mode, outfile)
+        elif f.endswith(".c") and mode != PREPROCESS:
+            tempdir = tempfile.mkdtemp()
+            try:
+                shutil.copy(f, tempdir)
+                build(tempdir, os.path.join(tempdir, os.path.basename(f)), mode)
+            finally:
+                shutil.rmtree(tempdir) 
+        else:
+            raise SystemExit, "Unrecognized file type: %s" % f
 
 if __name__ == '__main__':
     main()
