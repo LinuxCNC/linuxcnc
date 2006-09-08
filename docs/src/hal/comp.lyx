@@ -370,7 +370,8 @@ There is no provision for setting the initial value of parameters or instance
 Convenience Macros
 \layout Standard
 
-In the 
+Once you have a number of pins, parameters and functions, comp will generate
+ the 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -378,13 +379,29 @@ C
 \begin_inset Quotes erd
 \end_inset 
 
- code, some convenience macros are available.
+ program using a preprocessor.
+ During this process, a proper data structure will be generated, which will
+ hold all pins and parameters.
+ All the pins and parameters names you defined above will be part of a structure
+, referenced by 'inst' (instance data).
+ However, you don not need to adress them using formats like *(inst->name),
+ but you can easily address them as 'name'.
+ This is possible because in the generated 
+\begin_inset Quotes eld
+\end_inset 
+
+C
+\begin_inset Quotes erd
+\end_inset 
+
+ code, there are some convenience macros automatically generated.
 \layout Description
 
 #define\SpecialChar ~
 FUNCTION(name)\SpecialChar ~
 ...
- Properly defines the function 'name' including its return type and argument
+ One Macro definition per defined function.
+ It properly defines the function 'name' including its return type and argument
  types and names.
  The argument 'inst' is a pointer to the instance data, and the argument
  'period' is the number of nanoseconds between calls to the function.
@@ -402,6 +419,16 @@ pa\SpecialChar ~
  name to be used on its own (no dots, points-at or stars required) to refer
  to the pin or parameter.
  These macros assume that 'inst' is a pointer to the instance data.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Instead of having *(inst->pin_name) just use pin_name.
+\end_inset 
+
+
 \layout Description
 
 #define\SpecialChar ~
