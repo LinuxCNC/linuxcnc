@@ -1166,6 +1166,10 @@ fi
 AC_SUBST([HAVE_XAW])
 AC_SUBST([XAW_LIBS])
 
+#clean out LIBS, or else all future tests will check with -lXaw (which fails on odd systems)
+temp_LIBS=$LIBS
+LIBS=
+
 # check for readline.h and friends, optional for halcmd
 AC_CHECK_HEADERS(readline/readline.h, [HAVE_READLINE=yes], [HAVE_READLINE=no])
 AC_CHECK_HEADERS(readline/history.h, [], [HAVE_READLINE=no])
@@ -1177,6 +1181,7 @@ if test "x$HAVE_READLINE" = "xyes"; then
 fi
 AC_SUBST([HAVE_READLINE])
 AC_SUBST([READLINE_LIBS])
+
 
 #check for ncurses.h needed for emc2/src/emc/usr_intf/keystick.cc
 
@@ -1205,6 +1210,7 @@ AC_SUBST([NCURSES_LIBS])
 ##############################################################################
 
 # if you don't have nls tools, allow a way out!
+
 AC_ARG_ENABLE(nls,
               [  --disable-nls           don't use NLS],
               USE_NLS=no, USE_NLS=yes)
@@ -1243,6 +1249,9 @@ if test "$USE_NLS" = "yes"; then
   ])
   AC_SUBST(LOCALEDIR)
 fi
+
+#restore LIBS
+LIBS="$X_LIBS $temp_LIBS"
 
 AC_PATH_PROG(XGETTEXT,xgettext,none,/bin:/usr/bin:/usr/local/bin)
 XGETTEXT_TCL_WORKS=no

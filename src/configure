@@ -7782,6 +7782,10 @@ fi
 
 
 
+#clean out LIBS, or else all future tests will check with -lXaw (which fails on odd systems)
+temp_LIBS=$LIBS
+LIBS=
+
 # check for readline.h and friends, optional for halcmd
 
 for ac_header in readline/readline.h
@@ -8171,6 +8175,7 @@ fi
 
 
 
+
 #check for ncurses.h needed for emc2/src/emc/usr_intf/keystick.cc
 
 
@@ -8419,6 +8424,7 @@ fi
 ##############################################################################
 
 # if you don't have nls tools, allow a way out!
+
 # Check whether --enable-nls or --disable-nls was given.
 if test "${enable_nls+set}" = set; then
   enableval="$enable_nls"
@@ -8933,6 +8939,9 @@ echo "$as_me: WARNING: Usage is: --with-locale-dir=basedir" >&2;}
 fi;
 
 fi
+
+#restore LIBS
+LIBS="$X_LIBS $temp_LIBS"
 
 # Extract the first word of "xgettext", so it can be a program name with args.
 set dummy xgettext; ac_word=$2
