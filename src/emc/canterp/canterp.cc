@@ -264,6 +264,7 @@ int emcTaskPlanSynch(void)
 
 int emcTaskPlanSetOptionalStop(char state)
 {
+    SET_OPTIONAL_PROGRAM_STOP(state);
     return 0;
 }
 
