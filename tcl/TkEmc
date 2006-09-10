@@ -25,3 +25,6 @@
 ! feed override
 *top*controls*feed*top*value*background: gray
 *top*controls*feed*top*value*foreground: black
+! spindle override
+*top*controls*soride*top*value*background: gray
+*top*controls*soride*top*value*foreground: black

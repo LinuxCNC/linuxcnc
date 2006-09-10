@@ -1315,8 +1315,42 @@ proc popupOride {} {
     .oridepopup.input.entry select range 0 end
 }
 
+proc popupSoride {} {
+    global spindleoverride realspindleoverride popupSorideEntry
+
+    if {[winfo exists .soridepopup]} {
+        wm deiconify .soridepopup
+        raise .soridepopup
+        focus .soridepopup
+        return
+    }
+    toplevel .soridepopup
+    wm title .soridepopup [msgcat::mc "Set Spindle Override"]
+
+    # initialize value to current feed override
+    set popupSorideEntry $realspindleoverride
+
+    frame .soridepopup.input
+    label .soridepopup.input.label -text [msgcat::mc "Set spindle speed override:"]
+    entry .soridepopup.input.entry -textvariable popupSorideEntry -width 20
+    frame .soridepopup.buttons
+    button .soridepopup.buttons.ok -text [msgcat::mc "OK"] -default active -command {set spindleoverride $popupSorideEntry; emc_spindle_override $spindleoverride; destroy .oridepopup}
+    button .soridepopup.buttons.cancel -text [msgcat::mc "Cancel"] -command "destroy .soridepopup"
+    pack .soridepopup.input.label .soridepopup.input.entry -side left
+    pack .soridepopup.input -side top
+    pack .soridepopup.buttons -side bottom -fill x -pady 2m
+    pack .soridepopup.buttons.ok .soridepopup.buttons.cancel -side left -expand 1
+    bind .soridepopup <Return> {set speedoverride $popupSorideEntry; emc_spindle_override $spindleoverride; destroy .soridepopup}
+
+    focus .soridepopup.input.entry
+    .soridepopup.input.entry select range 0 end
+}
+
 set realfeedoverride [emc_feed_override]
 set feedoverride $realfeedoverride
+
+set realspindleoverride [emc_spindle_override]
+set spindleoverride $realspindleoverride
 
 # read the max feed override from the ini file
 set temp [emc_ini "MAX_FEED_OVERRIDE" "DISPLAY"]
@@ -1347,7 +1381,7 @@ set feedtop [frame $feed.top]
 set feedbottom [frame $feed.bottom]
 set feedlabel [label $feedtop.label -text [msgcat::mc "Axis Speed:"] -width 18]
 set feedvalue [label $feedtop.value -textvariable jogSpeed -width 6]
-set feedscale [scale $feedbottom.scale -length 270 -from 0 -to $maxJogSpeed -variable jogSpeed -orient horizontal -showvalue 0 -takefocus 0]
+set feedscale [scale $feedbottom.scale -length 200 -from 0 -to $maxJogSpeed -variable jogSpeed -orient horizontal -showvalue 0 -takefocus 0]
 
 pack $feed -side left
 pack $feedtop -side top
@@ -1364,11 +1398,11 @@ bind $feedvalue <ButtonPress-3> {popupJogSpeed}
 set oride [frame $controls.oride]
 set oridetop [frame $oride.top]
 set oridebottom [frame $oride.bottom]
-set oridelabel [label $oridetop.label -text [msgcat::mc "Feed Override:"] -width 27]
+set oridelabel [label $oridetop.label -text [msgcat::mc "Feed Override:"] -width 20]
 set oridevalue [label $oridetop.value -textvariable realfeedoverride -width 6]
-set oridescale [scale $oridebottom.scale -length 270 -from 1 -to $maxFeedOverride -variable feedoverride -orient horizontal -showvalue 0 -command {emc_feed_override} -takefocus 0]
+set oridescale [scale $oridebottom.scale -length 200 -from 1 -to $maxFeedOverride -variable feedoverride -orient horizontal -showvalue 0 -command {emc_feed_override} -takefocus 0]
 
-pack $oride
+pack $oride -side left
 pack $oridetop -side top
 pack $oridebottom -side top
 pack $oridelabel -side left
@@ -1379,6 +1413,26 @@ bind $oridelabel <ButtonPress-1> {popupOride}
 bind $oridelabel <ButtonPress-3> {popupOride}
 bind $oridevalue <ButtonPress-1> {popupOride}
 bind $oridevalue <ButtonPress-3> {popupOride}
+
+set soride [frame $controls.soride]
+set soridetop [frame $soride.top]
+set soridebottom [frame $soride.bottom]
+set soridelabel [label $soridetop.label -text [msgcat::mc "Spindle speed Override:"] -width 20]
+set soridevalue [label $soridetop.value -textvariable realspindleoverride -width 6]
+set soridescale [scale $soridebottom.scale -length 200 -from $minSpindleOverride -to $maxSpindleOverride -variable spindleoverride -orient horizontal -showvalue 0 -command {emc_spindle_override} -takefocus 0]
+
+pack $soride -side left
+pack $soridetop -side top
+pack $soridebottom -side top
+pack $soridelabel -side left
+pack $soridevalue -side left -padx 2m ; # don't bump against label
+pack $soridescale -side top
+
+bind $soridelabel <ButtonPress-1> {popupSoride}
+bind $soridelabel <ButtonPress-3> {popupSoride}
+bind $soridevalue <ButtonPress-1> {popupSoride}
+bind $soridevalue <ButtonPress-3> {popupSoride}
+
 
 proc sendMdi {mdi} {
     emc_mdi $mdi
@@ -1868,6 +1922,15 @@ proc syncFeedOverride {} {
     set syncingFeedOverride 0
 }
 
+set syncingSpindleOverride 0
+proc syncSpindleOverride {} {
+    global spindleoverride realspindleoverride syncingSpindleOverride
+
+    set spindleoverride $realspindleoverride
+    set syncingSpindleOverride 0
+}
+
+
 proc setManualBindings {} {
     bindtags . {ManualBindings . all}
 }
@@ -1929,6 +1992,7 @@ proc updateStatus {} {
     global radiorel radiocmd radioact radioabs
     global limoridebutton limoridebuttonbg limoridebuttonabg
     global realfeedoverride feedoverride syncingFeedOverride
+    global realspindleoverride spindleoverride syncingSpindleOverride
     global mdientry
     global programcodestring
     global programnamestring programin activeLine programstatusstring
@@ -2245,6 +2309,15 @@ proc updateStatus {} {
         set syncingFeedOverride 1
         after $displayCycleTime syncFeedOverride
     }
+
+    # set the spindle override
+    set realspindleoverride [emc_spindle_override]
+    # do me
+    if {$realspindleoverride != $spindleoverride && $syncingSpindleOverride == 0} {
+        set syncingSpindleOverride 1
+        after $displayCycleTime syncSpindleOverride
+    }
+
 
     # temporary fix for 0 jog speed problem
     if {$jogSpeed <= 0} {set jogSpeed .000001}
