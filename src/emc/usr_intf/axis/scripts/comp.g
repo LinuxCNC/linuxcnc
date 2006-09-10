@@ -29,21 +29,27 @@ parser Hal:
     token PINDIRECTION: "in|out|io"
     token TYPE: "float|bit|u32|s32|u16|s16|u8|s8"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
+    token FPNUMBER: "([0-9]*\.[0-9]+|[0-9]+\.)([Ee][+-]?[0-9]+)?f?"
     token NUMBER: "[0-9]+|0x[0-9a-fA-F]+"
 
     rule File: Declaration* "$" {{ return True }}
     rule Declaration:
         "component" NAME ";" {{ comp(NAME); }}
       | "pin" NAME TYPE PINDIRECTION ";"  {{ pin(NAME, TYPE, PINDIRECTION) }}
-      | "param" NAME TYPE PARAMDIRECTION ";" {{ param(NAME, TYPE, PARAMDIRECTION) }}
+      | "param" NAME TYPE PARAMDIRECTION OptAssign ";" {{ param(NAME, TYPE, PARAMDIRECTION, OptAssign) }}
       | "function" NAME OptFP ";"       {{ function(NAME, OptFP) }}
-      | "option" NAME Value ";"   {{ option(NAME, Value) }}
+      | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
 
+    rule OptAssign: "=" Value {{ return Value; }}
+                | {{ return None }}
     rule OptFP: "fp" {{ return 1 }} | "nofp" {{ return 0 }} | {{ return 1 }}
     rule Value: "yes" {{ return 1 }} | "no" {{ return 0 }}  
+                | "true" {{ return 1 }} | "false" {{ return 0 }}  
                 | NAME {{ return NAME }}
+                | FPNUMBER {{ return float(FPNUMBER.rstrip("f")) }}
                 | NUMBER {{ return int(NUMBER,0) }}
-
+    rule OptValue: Value {{ return Value }}
+                | {{ return 1 }}
 %%
 
 def parse(rule, text, filename=None):
@@ -71,11 +77,11 @@ def pin(name, type, dir):
         raise runtime.SyntaxError, "Duplicate item name %s" % name
     names[name] = None
     pins.append((name, type, dir))
-def param(name, type, dir):
+def param(name, type, dir, value):
     if name in names:
         raise runtime.SyntaxError, "Duplicate item name %s" % name
     names[name] = None
-    params.append((name, type, dir))
+    params.append((name, type, dir, value))
 def function(name, fp):
     if name in names:
         raise runtime.SyntaxError, "Duplicate item name %s" % name
@@ -112,7 +118,7 @@ static int comp_id;
         print >>f, "    hal_%s_t *%s;" % (type, name)
         names[name] = 1
 
-    for name, type, dir in params:
+    for name, type, dir, value in params:
         if names.has_key(name):
             raise RuntimeError, "Duplicate item name: %s" % name
         print >>f, "    hal_%s_t %s;" % (type, name)
@@ -134,7 +140,7 @@ static int comp_id;
     if options.get("extra_setup"):
         print >>f, "static int extra_setup(struct state *inst, long extra_arg);"
     if options.get("extra_cleanup"):
-        print >>f, "static int extra_cleanup(void);"
+        print >>f, "static void extra_cleanup(void);"
 
     print >>f
     print >>f, "static int export(char *prefix, long extra_arg) {"
@@ -153,10 +159,12 @@ static int comp_id;
         print >>f, "        \"%%s.%s\", prefix);" % to_hal(name)
         print >>f, "    if(r != 0) return r;"
 
-    for name, type, dir in params:
+    for name, type, dir, value in params:
         print >>f, "    r = hal_param_%s_newf(%s, &(inst->%s), comp_id," % (
             type, dirmap[dir], name)
         print >>f, "        \"%%s.%s\", prefix);" % to_hal(name)
+        if value is not None:
+            print >>f, "    inst->%s = %s;" % (name, value)
         print >>f, "    if(r != 0) return r;"
 
     for name, fp in functions:
@@ -217,13 +225,18 @@ static int comp_id;
     print >>f
     if not options.get("no_convenience_defines"):
         print >>f, "#define FUNCTION(name) static void name(struct state *inst, long period)"
+        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct state *inst, long extra_arg)"
+        print >>f, "#define EXTRA_CLEANUP() static void extra_cleanup(void)"
         for name, type, dir in pins:
             if dir == 'in':
                 print >>f, "#define %s (0+*inst->%s)" % (name, name)
             else:
                 print >>f, "#define %s (*inst->%s)" % (name, name)
-        for name, type, dir in params:
-            print >>f, "#define %s (inst->%s)" % (name, name)
+        for name, type, dir, value in params:
+            if dir == 'r':
+                print >>f, "#define %s (0+inst->%s)" % (name, name)
+            else:
+                print >>f, "#define %s (inst->%s)" % (name, name)
         
         if has_data:
             print >>f, "#define data (*(%s*)&(inst->_data))" % options['data']
