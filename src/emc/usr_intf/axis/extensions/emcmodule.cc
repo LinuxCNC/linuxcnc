@@ -750,6 +750,19 @@ static void Command_dealloc(PyObject *self) {
     PyObject_Del(self);
 }
 
+
+static PyObject *optional_stop(pyCommandChannel *s, PyObject *o) {
+    EMC_TASK_PLAN_SET_OPTIONAL_STOP m;
+
+    if(!PyArg_ParseTuple(o, "i", &m.state)) return NULL;
+            
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *mode(pyCommandChannel *s, PyObject *o) {
     EMC_TASK_SET_MODE m;
     if(!PyArg_ParseTuple(o, "i", &m.mode)) return NULL;
@@ -1179,6 +1192,7 @@ static PyMethodDef Command_methods[] = {
     {"reset_interpreter", (PyCFunction)reset_interpreter, METH_NOARGS},
     {"program_open", (PyCFunction)program_open, METH_VARARGS},
     {"auto", (PyCFunction)emcauto, METH_VARARGS},
+    {"set_optional_stop", (PyCFunction)optional_stop, METH_VARARGS},
     {NULL}
 };
 
