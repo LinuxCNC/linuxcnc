@@ -99,8 +99,6 @@ def prologue(f):
 #include "hal.h"
 
 static int comp_id;
-
-#define FUNCTION(name) static void name(struct state *inst, long period)
 """
     names = {}
 
@@ -218,13 +216,17 @@ static int comp_id;
 
     print >>f
     if not options.get("no_convenience_defines"):
+        print >>f, "#define FUNCTION(name) static void name(struct state *inst, long period)"
         for name, type, dir in pins:
-            print >>f, "#define %s (*inst->%s)" % (name, name)
+            if dir == 'in':
+                print >>f, "#define %s (0+*inst->%s)" % (name, name)
+            else:
+                print >>f, "#define %s (*inst->%s)" % (name, name)
         for name, type, dir in params:
             print >>f, "#define %s (inst->%s)" % (name, name)
         
-    if has_data:
-        print >>f, "#define data (*(%s*)&(inst->_data))" % options['data']
+        if has_data:
+            print >>f, "#define data (*(%s*)&(inst->_data))" % options['data']
     print >>f
     print >>f
 
@@ -289,6 +291,8 @@ def process(filename, mode, outfilename):
         f = open(outfilename, "w")
 
         prologue(f)
+        lineno = a.count("\n") + 3
+        f.write("#line %d \"%s\"\n" % (lineno, filename))
         f.write(b)
         epilogue(f)
         f.close()
