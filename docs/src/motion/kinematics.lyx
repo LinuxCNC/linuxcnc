@@ -42,11 +42,11 @@ CNC machines, we usually think about machines that are commanded to move
  to certain locations and perform various tasks.
  In order to have an unified view of the machine space, and to make it fit
  the human point of view over 3D space, most of the machines (if not all)
- use a common coordinate system called the Carthesian Coordinate System.
+ use a common coordinate system called the Cartesian Coordinate System.
 \layout Standard
 
-The Carthesian Coordinate system is composed of 3 axes (X, Y, Z) each perpendicu
-lar to the other 2.
+The Cartesian Coordinate system is composed of 3 axes (X, Y, Z) each perpendicul
+ar to the other 2.
  
 \begin_inset Foot
 collapsed false
@@ -70,7 +70,7 @@ axes
 
 When we talk about a G-code program (RS274NGC) we talk about a number of
  commands (G0, G1, etc.) which have positions as parameters (Xxx Yyyy Zzzz).
- These positions refer exactly to carthesian positions.
+ These positions refer exactly to Cartesian positions.
  Part of the EMC2 motion controller is responsable for translating those
  positions into positions which correspond to the machine 
 \begin_inset LatexCommand \index{kinematics}
@@ -83,7 +83,7 @@ collapsed true
 
 \layout Standard
 
-Kinematics: a two way function to transform from carthesian space to joint
+Kinematics: a two way function to transform from Cartesian space to joint
  space
 \end_inset 
 
@@ -109,7 +109,7 @@ There are certain machines where the joints are layed out to match kinematics
 
 \end_inset 
 
-Carthesian machines (or machines with 
+Cartesian machines (or machines with 
 \begin_inset LatexCommand \index{Trivial Kinematics}
 
 \end_inset 
@@ -124,8 +124,8 @@ Trivial Kinematics
 \layout Standard
 
 As we said there is a group of machines in which each joint is placed along
- one of the carthesian axes.
- On these machines the mapping from carthesian space (the G-code program)
+ one of the Cartesian axes.
+ On these machines the mapping from Cartesian space (the G-code program)
  to the joint space (the actual actuators of the machine) is trivial.
  It is a simple 1:1 mapping:
 \layout LyX-Code
@@ -176,7 +176,7 @@ joints[5] = pos->c;
 \layout Standard
 
 As one can see, it's pretty straightforward to do the transformation for
- a trivial kins (or carthesian) machine.
+ a trivial kins (or Cartesian) machine.
  It gets a bit more complicated if the machine is missing one of the axes.
 \begin_inset Foot
 collapsed true
@@ -211,7 +211,7 @@ Non-trivial kinematics
 There can be quite a few types of machine setups (robots: puma, scara; hexapods
  etc.).
  Each of them is set up using linear and rotary joints.
- These joints don't usually match with the carthesian coordinates, therefor
+ These joints don't usually match with the Cartesian coordinates, therefor
  there needs to be a kinematics function which does the conversion (actually
  2 functions: forward and inverse kinematics function).
 \layout Standard
@@ -263,22 +263,22 @@ The Bipod we are talking about is a device that consists of 2 motors placed
 The position of the motors is fixed by convention.
  Motor A is in (0,0), which means that its X coordinate is 0, and its Y
  coordinate is also 0.
- Motor B is placed in (Bx, 0), which means that his X coordinate is Bx.
+ Motor B is placed in (Bx, 0), which means that its X coordinate is Bx.
 \layout Standard
 
 Our tooltip will be in point D which gets defined by the distances AD and
- BD, and by the carthesian coordinates Dx, DY.
+ BD, and by the Cartesian coordinates Dx, DY.
 \layout Standard
 
 The job of the kinematics is to transform from joint lengths (AD, BD) to
- carthesian coordinates (Dx, Dy) and vice-versa.
+ Cartesian coordinates (Dx, Dy) and vice-versa.
 \layout Subsubsection
 
 Forward transformation
 \layout Standard
 
-To transform from joint space into carthesian space we will use some trigonometr
-y rules (basicly the rectangular triangles determined by the points (0,0),
+To transform from joint space into Cartesian space we will use some trigonometry
+ rules (basicly the rectangular triangles determined by the points (0,0),
  (Dx,0), (Dx,Dy) and the triangle (Dx,0), (Bx,0) and (Dx,Dy).
 \layout Standard
 
@@ -338,7 +338,5 @@ The inverse kinematics is lots easier in our example, as we can write it
 \begin_inset Formula $BD=\sqrt{(Bx-x)^{2}+y^{2}}$
 \end_inset 
 
-
-\layout Standard
 
 \the_end
