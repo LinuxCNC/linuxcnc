@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import re, sys, os
 
-include_re = re.compile("\\\\(input|include){(?P<filename>[^}]*)}")
+include_re = re.compile("\\\\(input|include|verbatiminput){(?P<filename>[^}]*)}")
 begin_re = re.compile("\\\\begin_inset Graphics")
 end_re = re.compile("\\\\end_inset")
 filename_re = re.compile("filename (?P<filename>.*)$")
