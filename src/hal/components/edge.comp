@@ -4,11 +4,11 @@ pin in bit in;
 pin out bit out;
 pin out_invert bit out;
 
-param in_edge bit rw;
-param out_width float rw;
+param in_edge bit r;
+param out_width float r;
 
-param time_left float r;
-param last_in bit r;
+param time_left float rw;
+param last_in bit rw;
 
 function update;
 ;;
