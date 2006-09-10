@@ -339,4 +339,19 @@ The inverse kinematics is lots easier in our example, as we can write it
 \end_inset 
 
 
+\layout Standard
+
+or translated to actual code:
+\layout LyX-Code
+
+double x2 = pos->tran.x * pos->tran.x;
+\layout LyX-Code
+
+double y2 = pos->tran.y * pos->tran.y;
+\layout LyX-Code
+
+joints[0] = sqrt(x2 + y2)
+\layout LyX-Code
+
+joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2)
 \the_end
