@@ -1,0 +1,344 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement h
+\paperfontsize 10
+\spacing single 
+\papersize Default
+\paperpackage a4wide
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Chapter
+
+Kinematics in EMC2
+\layout Section
+
+Introduction
+\layout Standard
+
+When we talk about 
+\begin_inset LatexCommand \index{CNC machines}
+
+\end_inset 
+
+CNC machines, we usually think about machines that are commanded to move
+ to certain locations and perform various tasks.
+ In order to have an unified view of the machine space, and to make it fit
+ the human point of view over 3D space, most of the machines (if not all)
+ use a common coordinate system called the Carthesian Coordinate System.
+\layout Standard
+
+The Carthesian Coordinate system is composed of 3 axes (X, Y, Z) each perpendicu
+lar to the other 2.
+ 
+\begin_inset Foot
+collapsed false
+
+\layout Standard
+
+The word 
+\begin_inset Quotes eld
+\end_inset 
+
+axes
+\begin_inset Quotes erd
+\end_inset 
+
+ is also commenly (and wrongly) used when talking about CNC machines, and
+ referring to the moving directions of the machine.
+\end_inset 
+
+
+\layout Standard
+
+When we talk about a G-code program (RS274NGC) we talk about a number of
+ commands (G0, G1, etc.) which have positions as parameters (Xxx Yyyy Zzzz).
+ These positions refer exactly to carthesian positions.
+ Part of the EMC2 motion controller is responsable for translating those
+ positions into positions which correspond to the machine 
+\begin_inset LatexCommand \index{kinematics}
+
+\end_inset 
+
+kinematics
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+Kinematics: a two way function to transform from carthesian space to joint
+ space
+\end_inset 
+
+.
+\layout Subsection
+
+Joints vs.
+ Axes
+\layout Standard
+
+A joint of a CNC machine is a one of the physical degrees of freedom of
+ the machine.
+ This might be linear (leadscrews) or rotary (rotary tables, robot arm joints).
+ There can be any number of joints on a certain machine.
+ For example a typical robot has 6 joints, and a typical simple milling
+ machine has only 3.
+\layout Standard
+
+There are certain machines where the joints are layed out to match kinematics
+ axes (joint 0 along axis X, joint 1 along axis Y, joint 2 along axis Z),
+ and these machines are called 
+\begin_inset LatexCommand \index{Carthesian machines}
+
+\end_inset 
+
+Carthesian machines (or machines with 
+\begin_inset LatexCommand \index{Trivial Kinematics}
+
+\end_inset 
+
+Trivial Kinematics).
+ These are the most common machines used in milling, but are not very common
+ in other domains of machine control (e.g.
+ welding: puma-typed robots).
+\layout Subsection
+
+Trivial Kinematics
+\layout Standard
+
+As we said there is a group of machines in which each joint is placed along
+ one of the carthesian axes.
+ On these machines the mapping from carthesian space (the G-code program)
+ to the joint space (the actual actuators of the machine) is trivial.
+ It is a simple 1:1 mapping:
+\layout LyX-Code
+
+pos->tran.x = joints[0];
+\layout LyX-Code
+
+pos->tran.y = joints[1];
+\layout LyX-Code
+
+pos->tran.z = joints[2];
+\layout LyX-Code
+
+pos->a = joints[3];
+\layout LyX-Code
+
+pos->b = joints[4];
+\layout LyX-Code
+
+pos->c = joints[5];
+\layout LyX-Code
+
+\layout Standard
+
+In the above code snippet one can see how the mapping is done: the X position
+ is identical with the joint 0, Y with joint 1 etc.
+ The above refers to the direct kinematics (one way of the transformation)
+ whereas the next code part refers to the inverse kinematics (or the inverse
+ way of the transformation):
+\layout LyX-Code
+
+joints[0] = pos->tran.x;
+\layout LyX-Code
+
+joints[1] = pos->tran.y;
+\layout LyX-Code
+
+joints[2] = pos->tran.z;
+\layout LyX-Code
+
+joints[3] = pos->a;
+\layout LyX-Code
+
+joints[4] = pos->b;
+\layout LyX-Code
+
+joints[5] = pos->c;
+\layout Standard
+
+As one can see, it's pretty straightforward to do the transformation for
+ a trivial kins (or carthesian) machine.
+ It gets a bit more complicated if the machine is missing one of the axes.
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+If a machine (e.g.
+ a lathe) is set up with only the axes X,Z & A, and the EMC2 inifile holds
+ only these 3 joints defined, then the above matching will be faulty.
+ That is because we actually have (joint0=x, joint1=Z, joint2=A) whereas
+ the above assumes joint1=Y.
+ To make it easily work in EMC2 one needs to define all axes (XYZA), then
+ use a simple loopback in HAL for the unused Y axis.
+\end_inset 
+
+
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+One other way of making it work, is by changing the matching code and recompilin
+g the software.
+\end_inset 
+
+
+\layout Subsection
+
+Non-trivial kinematics
+\layout Standard
+
+There can be quite a few types of machine setups (robots: puma, scara; hexapods
+ etc.).
+ Each of them is set up using linear and rotary joints.
+ These joints don't usually match with the carthesian coordinates, therefor
+ there needs to be a kinematics function which does the conversion (actually
+ 2 functions: forward and inverse kinematics function).
+\layout Standard
+
+To illustrate the above, we will analyse a simple kinematics called bipod
+ (a simplified version of the tripod, which is a simplified version of the
+ hexapod).
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Bipod setup
+\begin_inset LatexCommand \label{cap:Bipod-setup}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Graphics
+	filename bipod.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The Bipod we are talking about is a device that consists of 2 motors placed
+ on a wall, from which a device is hanged using some wire.
+ The joints in this case are the distances from the motors to the device
+ (named AD and BD in figure 
+\begin_inset LatexCommand \ref{cap:Bipod-setup}
+
+\end_inset 
+
+).
+\layout Standard
+
+The position of the motors is fixed by convention.
+ Motor A is in (0,0), which means that its X coordinate is 0, and its Y
+ coordinate is also 0.
+ Motor B is placed in (Bx, 0), which means that his X coordinate is Bx.
+\layout Standard
+
+Our tooltip will be in point D which gets defined by the distances AD and
+ BD, and by the carthesian coordinates Dx, DY.
+\layout Standard
+
+The job of the kinematics is to transform from joint lengths (AD, BD) to
+ carthesian coordinates (Dx, Dy) and vice-versa.
+\layout Subsubsection
+
+Forward transformation
+\layout Standard
+
+To transform from joint space into carthesian space we will use some trigonometr
+y rules (basicly the rectangular triangles determined by the points (0,0),
+ (Dx,0), (Dx,Dy) and the triangle (Dx,0), (Bx,0) and (Dx,Dy).
+\layout Standard
+
+we can easily see that 
+\begin_inset Formula $AD^{2}=x^{2}+y^{2}$
+\end_inset 
+
+, likewise 
+\begin_inset Formula $BD^{2}=(Bx-x)^{2}+y^{2}$
+\end_inset 
+
+.
+\layout Standard
+
+If we substract one from the other we will get:
+\layout Standard
+
+
+\begin_inset Formula $AD^{2}-BD^{2}=x^{2}+y^{2}-x^{2}+2*x*Bx-Bx^{2}-y^{2}$
+\end_inset 
+
+, and therefor:
+\layout Standard
+
+
+\begin_inset Formula $x=\frac{AD^{2}-BD^{2}+Bx^{2}}{2*Bx}$
+\end_inset 
+
+
+\layout Standard
+
+From there we calculate:
+\layout Standard
+
+
+\begin_inset Formula $y=\sqrt{AD^{2}-x^{2}}$
+\end_inset 
+
+
+\layout Subsubsection
+
+Inverse transformation
+\layout Standard
+
+The inverse kinematics is lots easier in our example, as we can write it
+ directly:
+\layout Standard
+
+
+\begin_inset Formula $AD=\sqrt{x^{2}+y^{2}}$
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Formula $BD=\sqrt{(Bx-x)^{2}+y^{2}}$
+\end_inset 
+
+
+\layout Standard
+
+\the_end
