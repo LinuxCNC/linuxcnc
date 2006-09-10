@@ -34,6 +34,7 @@ DOC_SRCS := \
 	hal/tutorial.lyx \
 	install/compiling_emc2.lyx \
 	install/installing_emc2.lyx \
+	motion/kinematics.lyx \
 	Master_HAL.lyx
 
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)
