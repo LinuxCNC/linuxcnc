@@ -240,6 +240,15 @@ preview false
 \layout Part
 
 Advanced topics
+\layout Standard
+
+
+\begin_inset Include \include{motion/kinematics.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 Tuning
