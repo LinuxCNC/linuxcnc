@@ -156,11 +156,11 @@ component NAME;
 \newline 
 pin NAME TYPE PINDIRECTION;
 \newline 
-param NAME TYPE PARAMDIRECTION;
+param NAME TYPE PARAMDIRECTION [ = STARTVALUE];
 \newline 
 function NAME [fp | nofp];
 \newline 
-option NAME VALUE;
+option NAME [VALUE];
 \layout Description
 
 NAME A C identifier.
@@ -236,6 +236,10 @@ rw
 , corresponding to HAL_RO and HAL_RW.
  A component sets a value for a HAL_RO parameter, and it may read or set
  the value of a HAL_RW parameter.
+\layout Description
+
+STARTVALUE Specifies the initial value of a parameter.
+ If it is not specified, then the default is 0.
 \layout Description
 
 fp Indicates that the function performs floating-point calculations.
@@ -340,7 +344,19 @@ void extra_cleanup(void)
  in the automatically defined 'rtapi_app_main'.
 \layout Standard
 
-The result of using any other option is undefined.
+If an option's VALUE is not specified, then it is equivalent to specifying
+ 
+\begin_inset Quotes eld
+\end_inset 
+
+option ...
+ yes
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ The result of assigning an inappropriate value to an option is undefined.
+ The result of using any other option is undefined.
 \layout Standard
 
 C++-style one-line comments (
@@ -406,12 +422,20 @@ function NAME
 '.
 \layout Description
 
+EXTRA_SETUP() Use this macro to begin the definition of the function called
+ to perform extra setup of this instance.
+\layout Description
+
+EXTRA_CLEANUP() Use this macro to begin the definition of the function called
+ to perform extra cleanup of the component.
+\layout Description
+
 pin_name
 \layout Description
 
-parameter_name Defined for each pin 'pin_name' or param 'parameter_name'
- there is a macro which allows the name to be used on its own to refer to
- the pin or parameter.
+parameter_name For each pin 'pin_name' or param 'parameter_name' there is
+ a macro which allows the name to be used on its own to refer to the pin
+ or parameter.
 \layout Description
 
 data If 'option data' is specified, this macro allows access to the instance
@@ -521,7 +545,7 @@ component constant;
 \newline 
 pin out float out;
 \newline 
-param value float r;
+param value float r = 1.0;
 \newline 
 function update;
 \newline 
@@ -530,16 +554,6 @@ option extra_setup yes;
 ;;
 \newline 
 FUNCTION(update) { out = value; }
-\newline 
-
-\newline 
-int extra_setup(struct state *inst, long arg) {
-\newline 
-    value = 1.0f;
-\newline 
-    return 0;
-\newline 
-}
 \layout Subsection
 
 sincos
@@ -586,4 +600,53 @@ function update;
 #include <rtapi_math.h>
 \newline 
 FUNCTION(update) { sin_ = sin(theta); cos_ = cos(theta); }
+\layout Subsection
+
+out8
+\layout Standard
+
+This component is a driver for a 
+\emph on 
+fictional
+\emph default 
+ card called 
+\begin_inset Quotes eld
+\end_inset 
+
+out8
+\begin_inset Quotes erd
+\end_inset 
+
+, which has 8 pins of digital output which are treated as a single 8-bit
+ value.
+ There can be a varying number of such cards in the system, and they can
+ be at various addresses.
+ The pin is called 
+\begin_inset Quotes eld
+\end_inset 
+
+out_
+\begin_inset Quotes erd
+\end_inset 
+
+ because 
+\begin_inset Quotes eld
+\end_inset 
+
+out
+\begin_inset Quotes erd
+\end_inset 
+
+ is an identifier used in <asm/io.h>.
+ It illustrates the use of EXTRA_SETUP and EXTRA_CLEANUP to request an I/O
+ region and then free it in case of error or when the module is unloaded.
+\layout LyX-Code
+
+
+\begin_inset Include \verbatiminput{out8.comp}
+preview false
+
+\end_inset 
+
+
 \the_end

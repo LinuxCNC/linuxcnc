@@ -1,0 +1,41 @@
+component out8;
+pin out_ u8 in;
+param ioaddr u32 rw;
+
+function update;
+
+option count_function;
+option extra_setup;
+option extra_cleanup;
+
+;;
+#include <asm/io.h>
+
+#define MAX 8
+int io[MAX] = {0,};
+RTAPI_MP_ARRAY_INT(io, MAX, "I/O addresses of out8 boards");
+
+int get_count(void) {
+    int i = 0;
+    for(i=0; i<MAX && io[i]; i++) { /* Nothing */ }
+    return i;
+}
+
+EXTRA_SETUP() {
+    if(!rtapi_request_region(io[extra_arg], 4, "out8")) {
+        io[extra_arg] = 0;
+        extra_cleanup();
+        return -EBUSY;
+    }
+    ioaddr = io[extra_arg];
+    return 0;
+}
+
+EXTRA_CLEANUP() {
+    int i;
+    for(i=0; i < MAX && io[i]; i++) {
+        rtapi_release_region(i, 1);
+    }
+}
+
+FUNCTION(update) { outb(out_, ioaddr); }
