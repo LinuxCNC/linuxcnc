@@ -40,7 +40,7 @@ DOC_SRCS := \
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)
 HTML_TARGETS := $(patsubst %.lyx,$(DOC_DIR)/html/%/index.html, $(filter-out Master_%, $(DOC_SRCS)))
 
-L2HFLAGS := -init_file $(DOC_SRCDIR)/.latex2html-init -local_icons \
+L2HFLAGS := -init_file src/.latex2html-init -local_icons \
 	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -87,7 +87,7 @@ $(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/%.tex
 	@rm -rf $(<:.tex=)
 	@mkdir -p $(<:.tex=)
 	@if [ ! -z "$(filter %.eps, $^)" ]; then cp $(filter %.eps, $^) $(<:.tex=); fi
-	@latex2html $(L2HFLAGS) $(EXTRAL2HFLAGS) $(<:.lyx=.tex)
+	@(cd ../docs; latex2html $(L2HFLAGS) $(EXTRAL2HFLAGS) $(patsubst ../docs/%, %, $<))
 	@rm -rf $(dir $@)
 	@mkdir -p $(dir $@)
 	@mv $(<:.tex=)/* $(dir $@)
