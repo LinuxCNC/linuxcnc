@@ -399,24 +399,6 @@ int emcAxisSetHomingParams(int axis, double home, double offset,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-/*! \todo Another #if 0 */
-#if 0
-/*! \todo FIXME - to be deleted eventually, these are configured thru HAL */
-int emcAxisSetStepParams(int axis, double setup_time, double hold_time)
-{
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
-	return 0;
-    }
-
-    emcmotCommand.command = EMCMOT_SET_STEP_PARAMS;
-    emcmotCommand.axis = axis;
-    emcmotCommand.setup_time = setup_time;
-    emcmotCommand.hold_time = hold_time;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-#endif
-
 int emcAxisSetMaxVelocity(int axis, double vel)
 {
     if (axis < 0 || axis >= EMC_AXIS_MAX) {
@@ -882,15 +864,6 @@ int emcTrajSetVelocity(double vel, double ini_maxvel)
     } else if (vel > TRAJ_MAX_VELOCITY) {
 	    ini_maxvel = TRAJ_MAX_VELOCITY;
     }
-
-/*! \todo Another #if 0 */
-#if 0
-    /*! \todo FIXME-- this fixes rapid rate reset problem */
-    if (vel == lastVel) {
-	// suppress it
-	return 0;
-    }
-#endif
 
     emcmotCommand.command = EMCMOT_SET_VEL;
     emcmotCommand.vel = vel;
