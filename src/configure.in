@@ -1180,14 +1180,14 @@ temp_LIBS=$LIBS
 LIBS=
 
 # check for readline.h and friends, optional for halcmd
-AC_DEFINE([HAVE_READLINE], [], [Define to 1 if you have the `readline' library (-lreadline) and required headers])
 AC_CHECK_HEADERS(readline/readline.h, [HAVE_READLINE=yes], [HAVE_READLINE=no])
 AC_CHECK_HEADERS(readline/history.h, [], [HAVE_READLINE=no])
 AC_CHECK_LIB(readline, readline, [], [HAVE_READLINE=no])
 
+echo "HAVE_READLINE: $HAVE_READLINE"
 if test "x$HAVE_READLINE" = "xyes"; then
     READLINE_LIBS="-lreadline"
-    AC_DEFINE([HAVE_READLINE])
+    AC_DEFINE([HAVE_READLINE], [], [Define to 1 if you have the `readline' library (-lreadline) and required headers])
 fi
 AC_SUBST([HAVE_READLINE])
 AC_SUBST([READLINE_LIBS])
