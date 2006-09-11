@@ -46,9 +46,7 @@
 #error This is a user mode component only!
 #endif
 
-#ifndef EMC2_BIN_DIR
-#error Need to define EMC2_BIN_DIR so I know where to find emc_module_helper!
-#endif
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1405,7 +1403,7 @@ static int do_loadrt_cmd(char *mod_name, char *args[])
 {
     /* note: these are static so that the various searches can
        be skipped for subsequent commands */
-    static char *rtmod_dir = HAL_RTMOD_DIR;
+    static char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
     char *cp1;
@@ -3405,7 +3403,7 @@ static char *loadrt_generator(const char *text, int state) {
 
     if(!state) {
         len = strlen(text);
-        d = opendir(HAL_RTMOD_DIR);
+        d = opendir(EMC2_RTLIB_DIR);
     }
 
     while(d && (ent = readdir(d))) {
