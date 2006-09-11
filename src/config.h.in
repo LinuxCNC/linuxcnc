@@ -39,6 +39,36 @@
 #define ANGULAR_TOLERANCE 0.0001
 
 
+/* Directory for binaries */
+#undef EMC2_BIN_DIR
+
+/* Directory for configuration files */
+#undef EMC2_CONFIG_DIR
+
+/* Directory for help files */
+#undef EMC2_HELP_DIR
+
+/* Directory for images */
+#undef EMC2_IMAGE_DIR
+
+/* Directory for translation files */
+#undef EMC2_LANG_DIR
+
+/* Directory for nc files */
+#undef EMC2_NCFILES_DIR
+
+/* Directory of realtime system */
+#undef EMC2_RTLIB_DIR
+
+/* Directory for tcl scripts */
+#undef EMC2_TCL_DIR
+
+/* Define to 1 if you have the <GL/glu.h> header file. */
+#undef HAVE_GL_GLU_H
+
+/* Define to 1 if you have the <GL/gl.h> header file. */
+#undef HAVE_GL_GL_H
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -48,11 +78,33 @@
 /* Define to 1 if you have the <libintl.h> header file. */
 #undef HAVE_LIBINTL_H
 
+/* Define to 1 if you have the `ncurses' library (-lncurses). */
+#undef HAVE_LIBNCURSES
+
+/* Define to 1 if you have the `readline' library (-lreadline). */
+#undef HAVE_LIBREADLINE
+
+/* Define to 1 if you have the `Xaw' library (-lXaw). */
+#undef HAVE_LIBXAW
+
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <ncurses.h> header file. */
+#undef HAVE_NCURSES_H
+
+/* Define to 1 if you have the `readline' library (-lreadline) and required
+   headers */
+#undef HAVE_READLINE
+
+/* Define to 1 if you have the <readline/history.h> header file. */
+#undef HAVE_READLINE_HISTORY_H
+
+/* Define to 1 if you have the <readline/readline.h> header file. */
+#undef HAVE_READLINE_READLINE_H
 
 /* Define to 1 if you have the `semtimedop' function. */
 #undef HAVE_SEMTIMEDOP
@@ -93,8 +145,14 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to 1 if you have the <X11/Xaw/XawInit.h> header file. */
+#undef HAVE_X11_XAW_XAWINIT_H
+
 /* Define to 1 if you have the `__sincos' function. */
 #undef HAVE___SINCOS
+
+/* Extension for realtime modules */
+#undef MODULE_EXT
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
@@ -113,9 +171,6 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
-
-/* Define to 1 if you have the GNU Readline library */
-#undef HAVE_READLINE
 
 /* Enable GNU extensions on systems that have them.  */
 #ifndef _GNU_SOURCE

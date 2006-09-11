@@ -505,6 +505,7 @@ if test "x" = "x$MODEXT"; then
 fi
 AC_MSG_RESULT([$MODEXT])
 AC_SUBST([MODEXT])
+AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
 
 # This check should see if kbuild is or isn't used
 AC_MSG_CHECKING([kernel build system])
@@ -642,6 +643,14 @@ else
     EMC2_IMAGE_DIR=${sysconfdir}/emc2/
 fi
 
+AC_DEFINE_UNQUOTED([EMC2_BIN_DIR], "$EMC2_BIN_DIR", [Directory for binaries])
+AC_DEFINE_UNQUOTED([EMC2_TCL_DIR], "$EMC2_TCL_DIR", [Directory for tcl scripts])
+AC_DEFINE_UNQUOTED([EMC2_HELP_DIR], "$EMC2_HELP_DIR", [Directory for help files])
+AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory of realtime system])
+AC_DEFINE_UNQUOTED([EMC2_LANG_DIR], "$EMC2_LANG_DIR", [Directory for translation files])
+AC_DEFINE_UNQUOTED([EMC2_CONFIG_DIR], "$EMC2_CONFIG_DIR", [Directory for configuration files])
+AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
+AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_HELP_DIR])
@@ -1171,6 +1180,7 @@ temp_LIBS=$LIBS
 LIBS=
 
 # check for readline.h and friends, optional for halcmd
+AC_DEFINE([HAVE_READLINE], [], [Define to 1 if you have the `readline' library (-lreadline) and required headers])
 AC_CHECK_HEADERS(readline/readline.h, [HAVE_READLINE=yes], [HAVE_READLINE=no])
 AC_CHECK_HEADERS(readline/history.h, [], [HAVE_READLINE=no])
 AC_CHECK_LIB(readline, readline, [], [HAVE_READLINE=no])

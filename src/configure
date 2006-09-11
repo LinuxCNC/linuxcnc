@@ -3233,6 +3233,11 @@ echo "$as_me:$LINENO: result: $MODEXT" >&5
 echo "${ECHO_T}$MODEXT" >&6
 
 
+cat >>confdefs.h <<_ACEOF
+#define MODULE_EXT "$MODEXT"
+_ACEOF
+
+
 # This check should see if kbuild is or isn't used
 echo "$as_me:$LINENO: checking kernel build system" >&5
 echo $ECHO_N "checking kernel build system... $ECHO_C" >&6
@@ -3384,6 +3389,46 @@ else
     REALTIME=/etc/init.d/realtime
     EMC2_IMAGE_DIR=${sysconfdir}/emc2/
 fi
+
+
+cat >>confdefs.h <<_ACEOF
+#define EMC2_BIN_DIR "$EMC2_BIN_DIR"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define EMC2_TCL_DIR "$EMC2_TCL_DIR"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define EMC2_HELP_DIR "$EMC2_HELP_DIR"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define EMC2_RTLIB_DIR "$EMC2_RTLIB_DIR"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define EMC2_LANG_DIR "$EMC2_LANG_DIR"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define EMC2_CONFIG_DIR "$EMC2_CONFIG_DIR"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define EMC2_NCFILES_DIR "$EMC2_NCFILES_DIR"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define EMC2_IMAGE_DIR "$EMC2_IMAGE_DIR"
+_ACEOF
 
 
 
@@ -7787,6 +7832,11 @@ temp_LIBS=$LIBS
 LIBS=
 
 # check for readline.h and friends, optional for halcmd
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_READLINE
+_ACEOF
+
 
 for ac_header in readline/readline.h
 do
