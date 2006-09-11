@@ -28,11 +28,6 @@
 
 #include "initool.hh"
 
-/*! \todo FIXME - defining LASER to test motion/IO synch
-   Laser currently uses M07 for ON and M09 for OFF - This is incorrect, we
-   should be using M03/M05 or a dedicated M code. */
-// #define LASER
-
 // IO INTERFACE
 
 // the NML channels to the EMCIO controller
@@ -312,30 +307,6 @@ int emcAuxEstopOff()
     return forceCommand(&estopOffMsg); //force the EstopOff message
 }
 
-#ifdef LASER
-
-int emcCoolantMistOn()
-{
-    return emcMotionSetDout(0, 1, 1);
-}
-
-int emcCoolantMistOff()
-{
-    return emcMotionSetDout(0, 1, 0);
-}
-
-int emcCoolantFloodOn()
-{
-    return 0;
-}
-
-int emcCoolantFloodOff()
-{
-    return 0;
-}
-
-#else
-
 int emcCoolantMistOn()
 {
     EMC_COOLANT_MIST_ON mistOnMsg;
@@ -371,8 +342,6 @@ int emcCoolantFloodOff()
 
     return 0;
 }
-
-#endif				// LASER
 
 int emcLubeInit()
 {
