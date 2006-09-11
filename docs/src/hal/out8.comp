@@ -2,7 +2,7 @@ component out8;
 pin out_ u8 in;
 param ioaddr u32 rw;
 
-function update;
+function _;
 
 option count_function;
 option extra_setup;
@@ -38,4 +38,4 @@ EXTRA_CLEANUP() {
     }
 }
 
-FUNCTION(update) { outb(out_, ioaddr); }
+FUNCTION(_) { outb(out_, ioaddr); }

@@ -24,7 +24,7 @@ pin out bit out;
 
 param invert bit rw;
 
-function update nofp;
+function _ nofp;
 
 ;;
 
@@ -32,7 +32,7 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jeff Epler");
 MODULE_DESCRIPTION("'Majority of 3' block for EMC HAL");
 
-FUNCTION(update) {
+FUNCTION(_) {
     if(invert)
         out = (in1 + in2 + in3) < 2;
     else
