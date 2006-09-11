@@ -66,8 +66,6 @@ static int loadTraj()
     int axes;
     double linearUnits;
     double angularUnits;
-/*! \todo FIXME - variables no longer needed */
-//  double cycleTime;
     double vel;
     double acc;
     unsigned char coordinateMark[6] = { 1, 1, 1, 0, 0, 0 };
@@ -151,35 +149,6 @@ static int loadTraj()
 	}
 	return -1;
     }
-/*! \todo FIXME - cycle time now set by run script */
-/*! \todo Another #if 0 */
-#if 0
-    if (NULL != (inistring = trajInifile->find("CYCLE_TIME", "TRAJ"))) {
-	if (1 == sscanf(inistring, "%lf", &cycleTime)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print
-		    ("invalid inifile value for [TRAJ] CYCLE_TIME: %s\n",
-		     inistring);
-	    }
-	    cycleTime = 1.0;	// default
-	}
-    } else {
-	// not found at all
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print("can't find [TRAJ] CYCLE_TIME, using default\n");
-	}
-	cycleTime = 1.0;	// default
-    }
-    if (0 != emcTrajSetCycleTime(cycleTime)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print("bad return value from emcTrajSetCycleTime\n");
-	}
-	return -1;
-    }
-#endif
 
     if (NULL !=
 	(inistring = trajInifile->find("DEFAULT_VELOCITY", "TRAJ"))) {
@@ -388,62 +357,6 @@ static int loadTraj()
 	}
 	return -1;
     }
-
-/*! \todo FIXME - polarities and probe pin selection now handled by HAL */
-/*! \todo Another #if 0 */
-#if 0
-    if (NULL != (inistring = trajInifile->find("PROBE_POLARITY", "TRAJ"))) {
-	if (1 == sscanf(inistring, "%d", &polarity)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print
-		    ("invalid inifile value for [TRAJ] PROBE_POLARITY: %s\n",
-		     inistring);
-	    }
-	    polarity = 1;	// default for polarities
-	}
-    } else {
-	// not found at all
-	polarity = 1;		// default for polarities
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print("can't find [TRAJ] PROBE_POLARITY, using default\n");
-	}
-    }
-    if (0 != emcTrajSetProbePolarity(polarity)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print("bad return from emcTrajSetPolarity\n");
-	}
-	return -1;
-    }
-
-    if (NULL != (inistring = trajInifile->find("PROBE_INDEX", "TRAJ"))) {
-	if (1 == sscanf(inistring, "%d", &index)) {
-	    // found, and valid
-	} else {
-	    // found, but invalid
-	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
-		rcs_print
-		    ("invalid inifile value for [TRAJ] PROBE_INDEX: %s\n",
-		     inistring);
-	    }
-	    index = 0;		// default for indexes
-	}
-    } else {
-	// not found at all
-	index = 1;		// default for polarities
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print("can't find [TRAJ] PROBE_INDEX, using default\n");
-	}
-    }
-    if (0 != emcTrajSetProbeIndex(index)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print("bad return from emcTrajSetIndex\n");
-	}
-	return -1;
-    }
-#endif
 
     return 0;
 }
