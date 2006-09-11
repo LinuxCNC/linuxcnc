@@ -4,13 +4,10 @@ MODULE_HELPERSRCS := \
 USERSRCS += $(MODULE_HELPERSRCS)
 
 ifneq ($(rip_moduledir),)
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror -DMODULE_EXT=\"$(MODULE_EXT)\" -DEMC2_MODULE_DIRECTORY="\"$(rip_moduledir)/\""
+    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
 else
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror -DMODULE_EXT=\"$(MODULE_EXT)\" -DEMC2_MODULE_DIRECTORY="\"$(moduledir)/\""
+    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
 endif
-
-
-$(call TOOBJS, $(MODULE_HELPERSRCS)): Makefile.inc
 
 ../bin/emc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS))
 	$(ECHO) Linking $(notdir $@)

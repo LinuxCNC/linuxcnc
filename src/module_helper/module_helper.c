@@ -17,6 +17,8 @@ think of a better way.
 #include <string.h>
 #include <unistd.h>
 
+#include "config.h"
+
 /* module name, between last / and ., must be one of these */
 /* if one module name is a prefix of the other (e.g., "rtai" is a prefix to
  * "rtai_math") then put the shorter name last.
@@ -68,7 +70,7 @@ void error(int argc, char **argv) {
         fprintf(stderr, "\t%s\n", ext_whitelist[i]);
     }
     fprintf(stderr, "\nor the module is in the directory %s\n",
-            EMC2_MODULE_DIRECTORY);
+            EMC2_RTLIB_DIR);
     fprintf(stderr, "\nOR\n\n%s remove module\n\nwhere module is one of"
                     " the modules listed above.\n\n", prog);
     exit(1);
@@ -94,7 +96,7 @@ char *check_whitelist(char *target, char *table[]) {
 }
 
 /* Check that the given module is in the whitelist.  It's in the whitelist
- * if it's inside the EMC2_MODULE_DIRECTORY, or if it's in a directory
+ * if it's inside the EMC2_RTLIB_DIR, or if it's in a directory
  * whose prefix is path_whitelist and the module name is in the module_whitelist
  *
  * Paths without slashes and paths with ".." (even /a..b/) are never allowed.
@@ -108,7 +110,7 @@ void check_whitelist_module_path(char *mod, int argc, char **argv) {
 
     if(!last_slash || strstr(mod, "..")) error(argc, argv);
 
-    if(strncmp(mod, EMC2_MODULE_DIRECTORY, strlen(EMC2_MODULE_DIRECTORY)) == 0)
+    if(strncmp(mod, EMC2_RTLIB_DIR, strlen(EMC2_RTLIB_DIR)) == 0)
         return;
 
     ext = check_whitelist(last_slash + 1, module_whitelist);
@@ -125,11 +127,11 @@ void check_whitelist_module_path(char *mod, int argc, char **argv) {
 
 /* Check that a module (without path or extension) is in the whitelist.
  * It's in the whitelist if it's in the module_whitelist, or if it exists
- * in the EMC2_MODULE_DIRECTORY with the extension MODULE_EXT.
+ * in the EMC2_RTLIB_DIR with the extension MODULE_EXT.
  */
 void check_whitelist_module(char *mod, int argc, char **argv) {
     char *end;
-    DIR *d = opendir(EMC2_MODULE_DIRECTORY);
+    DIR *d = opendir(EMC2_RTLIB_DIR);
 
     if(d) {
         char buf[NAME_MAX + 1];
