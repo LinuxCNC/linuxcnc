@@ -885,7 +885,6 @@ int main(int argc, char *argv[])
 	case EMC_TOOL_UNLOAD_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_UNLOAD\n");
 	    emcioStatus.tool.toolInSpindle = 0;
-	/*! \todo FIXME  - not sure about this NML message, does it get sent? when and why? */
 	    break;
 
 	case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
@@ -1035,7 +1034,6 @@ int main(int argc, char *argv[])
 	    *(iocontrol_data->lube) = 0;
 	    break;
 
-	    /* FIXME - look if it's used, DEBUG level for the iocontroller */
 	case EMC_SET_DEBUG_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SET_DEBUG\n");
 	    EMC_DEBUG = ((EMC_SET_DEBUG *) emcioCommand)->debug;
