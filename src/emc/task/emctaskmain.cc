@@ -2027,7 +2027,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 			    emc_symbol_lookup(cmd->type));
 	}
     }
-/*! \todo FIXME - debug */
+/* debug */
     if ((EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) && retval) {
     	printf("emcTaskIssueCommand() returning: %d\n", retval);
     }
@@ -2972,10 +2972,12 @@ int main(int argc, char *argv[])
 
     // clean up everything
     emctask_shutdown();
-    /*! \todo FIXME-- debugging */
+    /* debugging */
     if (emcTaskNoDelay) {
-	printf("cycle times (seconds): %f min, %f max\n", minTime,
+	if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+	    printf("cycle times (seconds): %f min, %f max\n", minTime,
 	       maxTime);
+	}
     }
     // and leave
     exit(0);
