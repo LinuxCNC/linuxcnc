@@ -231,14 +231,18 @@ First add the repository to /etc/apt/sources.list:
 
 
 \size scriptsize 
-$ sudo sh -c 'echo "deb http://dsplabs.cs.upt.ro/emc2/ breezy emc2" >>/etc/apt/sour
+$ sudo sh -c 'echo "deb http://www.linuxcnc.org/emc2/ dapper emc2" >>/etc/apt/sour
 ces.list;'
 \layout LyX-Code
 
 
 \size scriptsize 
-$ sudo sh -c 'echo "deb-src http://dsplabs.cs.upt.ro/emc2/ breezy emc2" >>/etc/apt/
+$ sudo sh -c 'echo "deb-src http://www.linuxcnc.org/emc2/ dapper emc2" >>/etc/apt/
 sources.list'
+\layout Standard
+
+Or replace 'dapper' above with 'breezy' if you still use Ubuntu 5.10 Breezy
+ Badger.
 \layout Standard
 
 Then update & get emc2-axis.
