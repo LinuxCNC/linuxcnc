@@ -42,6 +42,8 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "config.h"
+
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
@@ -448,7 +450,7 @@ static void dialog_realtime_not_loaded(void)
 
     if(first_time) {
         first_time = 0;
-        system(HALCMD " loadrt scope_rt");
+        system(EMC2_BIN_DIR "/halcmd loadrt scope_rt");
         sleep(1);
         return;
     }
