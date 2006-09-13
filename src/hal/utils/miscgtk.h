@@ -51,6 +51,7 @@
 void gtk_widget_set_double_buffered( GtkWidget *widget, gboolean double_buffered);
 void gtk_widget_modify_fg( GtkWidget *widget, GtkStateType state, const GdkColor *color);
 void gtk_widget_modify_bg( GtkWidget *widget, GtkStateType state, const GdkColor *color);
+GdkFont* gtk_style_get_font(GtkStyle *style);
 #endif
 #if !GTK_CHECK_VERSION(2,8,0)
 void gtk_window_set_urgency_hint( GtkWindow *window, gboolean state );

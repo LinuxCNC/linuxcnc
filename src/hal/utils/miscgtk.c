@@ -76,6 +76,10 @@ void gtk_widget_modify_bg( GtkWidget *widget, GtkStateType state, const GdkColor
     gtk_widget_set_style(widget, gtk_style_copy(widget->style));
     widget->style->bg[state] = *color;
 }
+
+GdkFont* gtk_style_get_font(GtkStyle *style) {
+    return (style)->font;
+}
 #endif
 
 #if !GTK_CHECK_VERSION(2,8,0)

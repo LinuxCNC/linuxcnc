@@ -28,6 +28,7 @@
 #include "arithm_eval.h"
 #include "classicladder_gtk.h"
 #include "edit.h"
+#include "hal/utils/miscgtk.h"
 #ifdef SEQUENTIAL_SUPPORT
 #include "drawing_sequential.h"
 #endif

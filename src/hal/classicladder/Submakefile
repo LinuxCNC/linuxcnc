@@ -15,7 +15,8 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	edit.c \
 	edit_gtk.c \
 	editproperties_gtk.c \
-	manager_gtk.c)
+	manager_gtk.c) \
+	hal/utils/miscgtk.c
 ifdef SEQUENTIAL_SUPPORT
 CLASSICLADDERSRCS += $(addprefix hal/classicladder/, \
 	calc_sequential.cc \
