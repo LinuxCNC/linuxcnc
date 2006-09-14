@@ -1,0 +1,17 @@
+component comp;
+pin in0 float in;
+pin in1 float in;
+pin out bit out;
+param hyst float rw;
+function _ fp;
+;;
+FUNCTION(_) {
+    float tmp = in1 - in0;
+
+    if(out) {
+	if(tmp < -hyst) out = 0;
+    } else {
+	if(tmp > hyst) out = 1;
+    }
+}
+
