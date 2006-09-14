@@ -818,6 +818,7 @@ static int init_comm_buffers(void)
 	joint->home_offset = 0.0;
 	joint->home = 0.0;
 	joint->home_flags = 0;
+	joint->home_sequence = -1;
 	joint->backlash = 0.0;
 	/* init compensation struct - leave out the avgint, nominal, forward,
 	   and reverse, since these can't be zero and the total flag prevents

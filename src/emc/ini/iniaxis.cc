@@ -130,6 +130,8 @@ static int loadAxis(int axis)
     double latch_vel;
     int use_index;
     int ignore_limits;
+    int is_shared;
+    int sequence;
     double maxVelocity;
     double maxAcceleration;
     double maxFerror;
@@ -433,6 +435,30 @@ static int loadAxis(int axis)
     }
 
     if (NULL !=
+	(inistring = axisInifile->find("HOME_IS_SHARED", axisString))) {
+	if (1 == strbool(inistring, &is_shared)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] HOME_IS_SHARED: %s\n",
+		     axisString, inistring);
+	    }
+	    is_shared = 0;	// default
+	}
+    } else {
+	// not found at all
+	is_shared = 0;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error
+		("can't find [%s] HOME_IS_SHARED, using default\n",
+		 axisString);
+	}
+    }
+
+
+    if (NULL !=
 	(inistring = axisInifile->find("HOME_USE_INDEX", axisString))) {
 	if (1 == strbool(inistring, &use_index)) {
 	    // found, and valid
@@ -478,9 +504,34 @@ static int loadAxis(int axis)
 		 axisString);
 	}
     }
+
+    if (NULL !=
+	(inistring = axisInifile->find("HOME_SEQUENCE", axisString))) {
+	if (1 == sscanf(inistring, "%d", &sequence)) {
+	    // found, and valid
+	} else {
+	    // found, but invalid
+	    if (EMC_DEBUG & EMC_DEBUG_INVALID) {
+		rcs_print_error
+		    ("invalid inifile value for [%s] HOME_SEQUENCE: %s\n",
+		     axisString, inistring);
+	    }
+	    sequence = -1;	// default
+	}
+    } else {
+	// not found at all
+	sequence = -1;
+	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+	    rcs_print_error
+		("can't find [%s] HOME_SEQUENCE, using default\n",
+		 axisString);
+	}
+    }
+
     // issue NML message to set all params
     if (0 != emcAxisSetHomingParams(axis, home, offset, search_vel,
-				    latch_vel, use_index, ignore_limits)) {
+				    latch_vel, use_index, ignore_limits,
+				    is_shared, sequence)) {
 	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
 	    rcs_print_error("bad return from emcAxisSetHomingParams\n");
 	}

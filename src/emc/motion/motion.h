@@ -211,6 +211,7 @@ extern "C" {
 	double search_vel;	/* home search velocity */
 	double latch_vel;	/* home latch velocity */
 	int flags;		/* homing config flags, other boolean args */
+	int home_sequence;      /* order in homing sequence */
 	double minFerror;	/* min following error */
 	double maxFerror;	/* max following error */
 	int wdWait;		/* cycle to wait before toggling wd */
@@ -392,9 +393,17 @@ Suggestion: Split this in to an Error and a Status flag register..
 	HOME_ABORT			// 20
     } home_state_t;
 
+    typedef enum {
+	HOME_SEQUENCE_IDLE = 0,
+	HOME_SEQUENCE_START,
+	HOME_SEQUENCE_START_JOINTS,
+	HOME_SEQUENCE_WAIT_JOINTS,
+    } home_sequence_state_t;
+
 /* flags for homing */
 #define HOME_IGNORE_LIMITS	1
 #define HOME_USE_INDEX		2
+#define HOME_IS_SHARED		4
 
 /* flags for switch config */
 #define SWITCHES_LATCH_LIMITS	16
@@ -427,6 +436,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double home;		/* joint coordinate of home point */
 	int home_flags;		/* flags for various homing options */
 	double backlash;	/* amount of backlash */
+	int home_sequence;      /* Order in homing sequence */
 	emcmot_comp_t comp;	/* leadscrew correction data */
 
 	/* status info - changes regularly */
@@ -592,6 +602,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int level;
         int motionType;
         double distance_to_go;  /* in this move */
+
+	home_sequence_state_t homingSequenceState;
+		
 	unsigned char tail;	/* flag count for mutex detect */
         
     } emcmot_status_t;

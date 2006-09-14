@@ -159,6 +159,13 @@ static void set_operating_mode(void);
 */
 static void handle_jogwheels(void);
 
+/* 'do_homing_sequence()' looks at emcmotStatus->homingSequenceState 
+   to decide what, if anything, needs to be done related to multi-joint
+   homing.
+*/
+
+static void do_homing_sequence(void);
+
 /* 'do_homing()' looks at the home_state field of each joint struct
     to decide what, if anything, needs to be done related to homing
     the joint.  Homing is implemented as a state machine, the exact
@@ -314,6 +321,8 @@ check_stuff ( "after check_for_faults()" );
 check_stuff ( "after set_operating_mode()" );
     handle_jogwheels();
 check_stuff ( "after handle_jogwheels()" );
+    do_homing_sequence();
+check_stuff ( "after do_homing_sequence()" );
     do_homing();
 check_stuff ( "after do_homing()" );
     get_pos_cmds();
@@ -1087,6 +1096,71 @@ static void home_do_moving_checks(emcmot_joint_t * joint)
     }
 }
 
+static void do_homing_sequence(void) {
+    static int home_sequence = -1;
+    int i;
+    int seen = 0;
+    if(home_sequence == -1) {
+        emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
+	home_sequence = 0;
+    }
+    switch(emcmotStatus->homingSequenceState) {
+    case HOME_SEQUENCE_IDLE:
+	/* nothing to do */
+	break;
+
+    case HOME_SEQUENCE_START:
+	for(i=0; i < EMCMOT_MAX_AXIS; i++) {
+	    emcmot_joint_t *joint = &joints[i];
+	    if(joint->home_state != HOME_IDLE) {
+		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE; return;
+	    }
+	    home_sequence = 0;
+	}
+    
+    case HOME_SEQUENCE_START_JOINTS:
+	for(i=0; i < EMCMOT_MAX_AXIS; i++) {
+	    emcmot_joint_t *joint = &joints[i];
+	    int j = joint->home_sequence;
+	    if(j == home_sequence) {
+	        joint->free_tp_enable = 0;
+		joint->home_state = HOME_START;
+		seen++;
+	    }
+	}
+	if(seen) 
+	    emcmotStatus->homingSequenceState = HOME_SEQUENCE_WAIT_JOINTS;
+	else
+	    emcmotStatus->homingSequenceState = HOME_IDLE;
+	break;
+
+    case HOME_SEQUENCE_WAIT_JOINTS:
+	for(i=0; i < EMCMOT_MAX_AXIS; i++) {
+	    emcmot_joint_t *joint = &joints[i];
+	    int j = joint->home_sequence;
+	    if(j != home_sequence) continue;
+	    if(joint->home_state != HOME_IDLE) {
+		seen = 1;
+		continue;
+	    }
+	    if(!GET_JOINT_AT_HOME_FLAG(joint)) {
+		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE; return;
+	    }
+	}
+	if(!seen) {
+	    home_sequence ++;
+	    emcmotStatus->homingSequenceState = HOME_SEQUENCE_START_JOINTS;
+	}
+	break;
+    default:
+	/* should never get here */
+	reportError("unknown state '%d' during homing sequence",
+	    emcmotStatus->homingSequenceState);
+	emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
+	break;
+    }
+}
+
 static void do_homing(void)
 {
 /* this is still very much under construction */
@@ -1144,6 +1218,10 @@ static void do_homing(void)
 		/* This state is responsible for getting the homing process
 		   started.  It doesn't actually do anything, it simply
 		   determines what state is next */
+		if (joint->home_flags & HOME_IS_SHARED && home_sw_new) {
+		    joint->home_state = HOME_IDLE;
+		    break;
+		}
 		/* set flags that communicate with the rest of EMC */
 		SET_JOINT_HOMING_FLAG(joint, 1);
 		SET_JOINT_HOMED_FLAG(joint, 0);

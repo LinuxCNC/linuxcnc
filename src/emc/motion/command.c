@@ -527,6 +527,7 @@ check_stuff ( "before command_handler()" );
 	    joint->home_search_vel = emcmotCommand->search_vel;
 	    joint->home_latch_vel = emcmotCommand->latch_vel;
 	    joint->home_flags = emcmotCommand->flags;
+	    joint->home_sequence = emcmotCommand->home_sequence;
 	    break;
 
 	case EMCMOT_OVERRIDE_LIMITS:
@@ -1054,12 +1055,20 @@ check_stuff ( "before command_handler()" );
 	       control.c does the rest */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "HOME");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    if (joint == 0) {
-		break;
-	    }
+
 	    if (GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		break;
 	    }
+
+	    if(joint_num == -1) {
+		emcmotStatus->homingSequenceState = HOME_SEQUENCE_START;
+		break;
+	    }
+
+	    if (joint == NULL) {
+		break;
+	    }
+
 	    /* abort any movememt (jog, etc) that is in progress */
 	    joint->free_tp_enable = 0;
 	    /* prime the homing state machine */

@@ -367,7 +367,8 @@ int emcAxisSetMinFerror(int axis, double ferror)
 
 int emcAxisSetHomingParams(int axis, double home, double offset,
 			   double search_vel, double latch_vel,
-			   int use_index, int ignore_limits)
+			   int use_index, int ignore_limits, int is_shared,
+			   int sequence)
 {
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
@@ -380,11 +381,15 @@ int emcAxisSetHomingParams(int axis, double home, double offset,
     emcmotCommand.search_vel = search_vel;
     emcmotCommand.latch_vel = latch_vel;
     emcmotCommand.flags = 0;
+    emcmotCommand.home_sequence = sequence;
     if (use_index) {
 	emcmotCommand.flags |= HOME_USE_INDEX;
     }
     if (ignore_limits) {
 	emcmotCommand.flags |= HOME_IGNORE_LIMITS;
+    }
+    if (is_shared) {
+	emcmotCommand.flags |= HOME_IS_SHARED;
     }
 #ifdef ISNAN_TRAP
     if (isnan(emcmotCommand.home) ||
@@ -585,7 +590,7 @@ int emcAxisDisable(int axis)
 
 int emcAxisHome(int axis)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+    if (axis < -1 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
 

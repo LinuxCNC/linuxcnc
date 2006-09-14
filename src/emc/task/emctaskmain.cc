@@ -1511,8 +1511,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->search_vel,
 					set_homing_params_msg->latch_vel,
 					set_homing_params_msg->use_index,
-					set_homing_params_msg->
-					ignore_limits);
+					set_homing_params_msg->ignore_limits,
+					set_homing_params_msg->is_shared,
+					set_homing_params_msg->home_sequence);
 	break;
 
 /*! \todo Another #if 0 */
