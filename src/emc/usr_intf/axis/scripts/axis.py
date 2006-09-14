@@ -2289,6 +2289,11 @@ class TclCommands(nf.TclCommands):
     def jog_stop(event=None):
         jog_off(vars.current_axis.get())
 
+    def home_all_axes(event=None):
+        if not manual_ok(): return
+        ensure_mode(emc.MODE_MANUAL)
+        c.home(-1)
+
     def home_axis(event=None):
         if not manual_ok(): return
         ensure_mode(emc.MODE_MANUAL)
@@ -2491,6 +2496,7 @@ root_window.bind("#", commands.toggle_coord_type)
 root_window.bind("$", commands.toggle_joint_mode)
 
 root_window.bind("<Home>", commands.home_axis)
+root_window.bind("<Control-Home>", commands.home_all_axes)
 root_window.bind("<Shift-Home>", commands.set_axis_offset)
 root_window.bind("<End>", commands.touch_off)
 widgets.mdi_history.bind("<Configure>", "%W see {end - 1 lines}")
