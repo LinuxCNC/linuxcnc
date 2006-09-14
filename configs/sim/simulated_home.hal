@@ -1,0 +1,31 @@
+loadrt comp count=3
+newsig Xhomeswpos float
+newsig Yhomeswpos float
+newsig Zhomeswpos float
+sets Xhomeswpos 1
+sets Yhomeswpos .5
+sets Zhomeswpos 2
+linksp Xhomeswpos comp.0.in0 
+linksp Yhomeswpos comp.1.in0 
+linksp Zhomeswpos comp.2.in0 
+linksp Xpos comp.0.in1
+linksp Ypos comp.1.in1
+linksp Zpos comp.2.in1
+setp comp.0.hyst .01
+setp comp.1.hyst .01
+setp comp.2.hyst .01
+
+newsig Xhomesw bit
+newsig Yhomesw bit
+newsig Zhomesw bit
+
+linksp Xhomesw comp.0.out
+linksp Yhomesw comp.1.out
+linksp Zhomesw comp.2.out
+linksp Xhomesw axis.0.home-sw-in
+linksp Yhomesw axis.1.home-sw-in
+linksp Zhomesw axis.2.home-sw-in
+
+addf comp.0 servo-thread
+addf comp.1 servo-thread
+addf comp.2 servo-thread
