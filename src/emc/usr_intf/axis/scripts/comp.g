@@ -93,6 +93,10 @@ def option(name, value):
         raise runtime.SyntaxError, "Duplicate option name %s" % name
     options[name] = value
 
+def removeprefix(s,p):
+    if s.startswith(p): return s[len(p):]
+    return s
+
 def to_hal(name):
     return name.replace("_", "-").rstrip("-").rstrip(".")
 
@@ -197,13 +201,13 @@ static int comp_id;
 
         if options.get("singleton"):
             print >>f, "    r = export(\"%s\", 0);" % \
-                    to_hal(comp_name)
+                    to_hal(removeprefix(comp_name, "hal_"))
         else:
             print >>f, "    for(i=0; i<count; i++) {"
             print >>f, "        char buf[HAL_NAME_LEN + 2];"
             print >>f, "        rtapi_snprintf(buf, HAL_NAME_LEN, " \
                                         "\"%s.%%d\", i);" % \
-                                    to_hal(comp_name)
+                    to_hal(removeprefix(comp_name, "hal_"))
             print >>f, "        r = export(buf, i);"
             print >>f, "        if(r != 0) break;"
             print >>f, "    }"

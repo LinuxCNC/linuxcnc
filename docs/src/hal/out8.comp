@@ -22,9 +22,10 @@ int get_count(void) {
 }
 
 EXTRA_SETUP() {
-    if(!rtapi_request_region(io[extra_arg], 4, "out8")) {
-        io[extra_arg] = 0;
-        extra_cleanup();
+    if(!rtapi_request_region(io[extra_arg], 1, "out8")) {
+	// set this I/O port to 0 so that EXTRA_CLEANUP does not release the IO
+	// ports that were never requested.
+        io[extra_arg] = 0; 
         return -EBUSY;
     }
     ioaddr = io[extra_arg];

@@ -102,11 +102,11 @@ function _;
 \newline 
 MODULE_LICENSE("GPL");
 \newline 
-FUNCTION(_) { 
+FUNCTION(_) {
 \newline 
-    float tmp = in; 
+    float tmp = in;
 \newline 
-    out = (tmp - data) / fperiod; 
+    out = (tmp - data) / fperiod;
 \newline 
     data = tmp;
 \newline 
@@ -125,11 +125,9 @@ src/hal/components
 \family typewriter 
 make
 \family default 
-', or by placing it anywhere on the system and running '
+', or by placing it anywhere on the system and running 
 \family typewriter 
 comp --install ddt.comp
-\family default 
-'
 \layout Section
 
 Definitions
@@ -137,28 +135,33 @@ Definitions
 
 component A component is a single real-time module, which is loaded with
  
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 halcmd loadrt
-\begin_inset Quotes erd
-\end_inset 
-
+\family default 
 .
- One .comp file specifies one component.
+ One 
+\family typewriter 
+.comp
+\family default 
+ file specifies one component.
 \layout Description
 
 instance A component can have one or more instances.
  Each instance of a component is created equal (they all have the same pins,
- parameters, functions, and data).
+ parameters, functions, and data) but behave independently when their pins,
+ parameters, and data have different values.
 \layout Description
 
 singleton It is possible for a component to be a 'singleton', in which case
  exactly one instance is created.
- It seldom makes sense to write a 'singleton' component, unless there can
- literally only be a single object of that kind in the system (for instance,
- a component whose purpose is to provide a pin with the current UNIX time,
- or a hardware driver for the internal PC speaker)
+ It seldom makes sense to write a 
+\family typewriter 
+singleton
+\family default 
+ component, unless there can literally only be a single object of that kind
+ in the system (for instance, a component whose purpose is to provide a
+ pin with the current UNIX time, or a hardware driver for the internal PC
+ speaker)
 \layout Section
 
 Syntax
@@ -169,17 +172,9 @@ A
 .comp
 \family default 
  file consists of a number of declarations, followed by 
-\begin_inset Quotes eld
-\end_inset 
-
-
 \family typewriter 
 ;;
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
  on a line of its own, followed by C code implementing the module's realtime
  functions.
 \layout Standard
@@ -199,7 +194,9 @@ option NAME [VALUE];
 \layout Description
 
 NAME A C identifier.
- When used to create a HAL identifier, any underscores are replaced with
+ 
+\newline 
+When used to create a HAL identifier, any underscores are replaced with
  dashes, and any trailing dash is removed, so that 
 \begin_inset Quotes eld
 \end_inset 
@@ -229,7 +226,7 @@ _
 \begin_inset Quotes erd
 \end_inset 
 
-, then the trailing dash is removed as well, so that 
+, then a trailing period is removed as well, so that 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -242,22 +239,21 @@ function _
 \end_inset 
 
  gives a HAL function name like 
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 component.<num>
-\begin_inset Quotes erd
-\end_inset 
-
+\family default 
  instead of 
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 component.<num>.
-\begin_inset Quotes erd
-\end_inset 
+\family default 
 
-
+\newline 
+If present, the prefix 
+\family typewriter 
+hal_
+\family default 
+ is removed from the beginning of the component name when creating pins,
+ parameters and functions.
 \layout Description
 
 TYPE One of the HAL types: bit, 
@@ -292,109 +288,49 @@ float
 \layout Description
 
 PINDIRECTION One of the following: 
-\begin_inset Quotes eld
-\end_inset 
-
-
 \family typewriter 
 in
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
 , 
-\begin_inset Quotes eld
-\end_inset 
-
-
 \family typewriter 
 out
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
-, 
-\begin_inset Quotes eld
-\end_inset 
-
-
+, or 
 \family typewriter 
 io
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
-, corresponding to 
-\family typewriter 
-HAL_IN
-\family default 
-, 
-\family typewriter 
-HAL_OUT
-\family default 
- and 
-\family typewriter 
-HAL_IO
-\family default 
 .
- A component sets a value for a 
+ A component sets a value for an 
 \family typewriter 
-HAL_OUT
+out
 \family default 
- pin, it reads a value from a 
+ pin, it reads a value from an 
 \family typewriter 
-HAL_IN
+in
 \family default 
- pin, and it may read or set the value of a 
+ pin, and it may read or set the value of an 
 \family typewriter 
-HAL_IO
+io
 \family default 
  pin.
 \layout Description
 
 PARAMDIRECTION One of the following: 
-\begin_inset Quotes eld
-\end_inset 
-
-
 \family typewriter 
 r
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
-, or 
-\begin_inset Quotes eld
-\end_inset 
-
-
-\family typewriter 
-rw
-\family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
-, corresponding to 
-\family typewriter 
-HAL_RO
-\family default 
  or 
 \family typewriter 
-HAL_RW
+rw
 \family default 
 .
  A component sets a value for a 
 \family typewriter 
-HAL_RO
+r
 \family default 
  parameter, and it may read or set the value of a 
 \family typewriter 
-HAL_RW
+rw
 \family default 
  parameter.
 \layout Description
@@ -404,7 +340,11 @@ STARTVALUE Specifies the initial value of a parameter.
 \family typewriter 
 0
 \family default 
-.
+ or 
+\family typewriter 
+FALSE
+\family default 
+, depending on the type of the parameter.
 \layout Description
 
 fp Indicates that the function performs floating-point calculations.
@@ -412,24 +352,16 @@ fp Indicates that the function performs floating-point calculations.
 
 nofp Indicates that it only performs integer calculations.
  If neither is specified, 
-\begin_inset Quotes eld
-\end_inset 
-
-
 \family typewriter 
 fp
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
  is assumed.
  Neither comp nor gcc can detect the use of floating-point calculations
- in functions that are tagged '
+ in functions that are tagged 
 \family typewriter 
 nofp
 \family default 
-'.
+.
 \layout Standard
 
 The currently defined options are:
@@ -439,39 +371,45 @@ option\SpecialChar ~
 singleton\SpecialChar ~
 yes (default: no)
 \newline 
-Do not create a '
+Do not create a 
 \family typewriter 
 count
 \family default 
-' module parameter, and always create a single object.
- With 'singleton', items are named '
+ module parameter, and always create a single instance.
+ With 
+\family typewriter 
+singleton
+\family default 
+, items are named 
 \family typewriter 
 component-name.item-name
 \family default 
-' and without 'singleton', items are named '
+ and without 
 \family typewriter 
-component-name.<num>.item-name
+singleton
 \family default 
-', where '
+, items are named 
 \family typewriter 
-<num>
-\family default 
-' goes from 0 to the module parameter 'count'.
+component-name.<num>.item-name.
 \layout Description
 
 option\SpecialChar ~
 default_count (default: 1)
 \newline 
-Normally, the module parameter '
+Normally, the module parameter 
 \family typewriter 
 count
 \family default 
-' defaults to 
+ defaults to 
 \family typewriter 
 1
 \family default 
 .
- If specified, the count will default to this value instead.
+ If specified, the 
+\family typewriter 
+count
+\family default 
+ will default to this value instead.
 \layout Description
 
 option\SpecialChar ~
@@ -479,33 +417,57 @@ count_function\SpecialChar ~
 yes (default: no)
 \newline 
 Normally, the number of instances to create is specified in the module parameter
- '
+ 
 \family typewriter 
 count
 \family default 
-'; if '
+; if 
 \family typewriter 
 count_function
 \family default 
-' is specified, the value returned by the function '
+ is specified, the value returned by the function 
 \family typewriter 
 int get_count(void)
 \family default 
-' is used instead, and the 'count' module parameter is not defined.
+ is used instead, and the 
+\family typewriter 
+count
+\family default 
+ module parameter is not defined.
 \layout Description
 
 option\SpecialChar ~
 rtapi_app\SpecialChar ~
 no (default: yes)
 \newline 
-Normally, the functions 'rtapi_app_main' and 'rtapi_app_exit' are automatically
- defined.
- With 'option rtapi_app no', they are not, and must be provided in the C
- code.
+Normally, the functions 
+\family typewriter 
+rtapi_app_main
+\family default 
+ and 
+\family typewriter 
+rtapi_app_exit
+\family default 
+ are automatically defined.
+ With 
+\family typewriter 
+option rtapi_app no
+\family default 
+, they are not, and must be provided in the C code.
 \newline 
-When implementing your own 'rtapi_app_main', call the function 'int export(char
- *prefix, long extra_arg)' to register the pins, parameters, and functions
- for 'prefix'.
+When implementing your own 
+\family typewriter 
+rtapi_app_main
+\family default 
+, call the function 
+\family typewriter 
+int export(char *prefix, long extra_arg)
+\family default 
+ to register the pins, parameters, and functions for 
+\family typewriter 
+prefix
+\family default 
+.
 \layout Description
 
 option\SpecialChar ~
@@ -521,88 +483,78 @@ If specified, each instance of the component will have an associated data
 \emph on 
 type
 \emph default 
- (which can be a simple type like 'float' or the name of a type created
- with 'typedef').
+ (which can be a simple type like 
+\family typewriter 
+float
+\family default 
+ or the name of a type created with 
+\family typewriter 
+typedef
+\family default 
+).
 \layout Description
 
 option\SpecialChar ~
 extra_setup\SpecialChar ~
 yes (default: no)
 \newline 
-If specified, call the function '
+If specified, call the function defined by 
 \family typewriter 
-int extra_setup(struct state *inst, long extra_arg)
+EXTRA_SETUP
 \family default 
-' for each instance.
- If using the automatically defined 'rtapi_app_main', 'extra_arg' is the
- number of this instance.
- Return a nonzero value to indicate failure.
+ for each instance.
+ If using the automatically defined 
+\family typewriter 
+rtapi_app_main
+\family default 
+, 
+\family typewriter 
+extra_arg
+\family default 
+ is the number of this instance.
+ 
 \layout Description
 
 option\SpecialChar ~
 extra_cleanup\SpecialChar ~
 yes (default: no)
 \newline 
-If specified, call the function '
+If specified, call the function defined by 
 \family typewriter 
-void extra_cleanup(void)
+EXTRA_CLEANUP
 \family default 
-' from the automatically defined '
+ from the automatically defined 
 \family typewriter 
 rtapi_app_exit
 \family default 
-', or if an error is detected in the automatically defined '
+, or if an error is detected in the automatically defined 
 \family typewriter 
 rtapi_app_main
 \family default 
-'.
+.
 \layout Standard
 
 If an option's VALUE is not specified, then it is equivalent to specifying
  
-\begin_inset Quotes eld
-\end_inset 
-
-
 \family typewriter 
 option \SpecialChar \ldots{}
  yes
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
 .
  The result of assigning an inappropriate value to an option is undefined.
  The result of using any other option is undefined.
 \layout Standard
 
 C++-style one-line comments (
-\begin_inset Quotes eld
-\end_inset 
-
-
 \family typewriter 
 // \SpecialChar \ldots{}
 
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
-) and C-style multiline comments (
-\begin_inset Quotes eld
-\end_inset 
-
-
+) and C-style multi-line comments (
 \family typewriter 
 /* \SpecialChar \ldots{}
  */
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
 ) are both supported in the declaration section.
 \layout Section
 
@@ -647,20 +599,19 @@ FUNCTION(name) Use this macro to begin the definition of a realtime function
 function NAME
 \family default 
 '.
- The function includes a parameter 'period' which is the integer number
- of nanoseconds between calls to the function.
+ The function includes a parameter '
+\family typewriter 
+period
+\family default 
+' which is the integer number of nanoseconds between calls to the function.
 \layout Description
 
 EXTRA_SETUP() Use this macro to begin the definition of the function called
  to perform extra setup of this instance.
  Return a negative Unix 
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 errno
-\begin_inset Quotes erd
-\end_inset 
-
+\family default 
  value to indicate failure (e.g., 
 \family typewriter 
 return -EBUSY
@@ -678,52 +629,59 @@ EXTRA_CLEANUP() Use this macro to begin the definition of the function called
 pin_name
 \layout Description
 
-parameter_name For each pin 'pin_name' or param 'parameter_name' there is
- a macro which allows the name to be used on its own to refer to the pin
- or parameter.
+parameter_name For each pin 
+\family typewriter 
+pin_name
+\family default 
+ or param 
+\family typewriter 
+parameter_name
+\family default 
+ there is a macro which allows the name to be used on its own to refer to
+ the pin or parameter.
 \layout Description
 
 data If 'option data' is specified, this macro allows access to the instance
  data.
 \layout Description
 
-fperiod The period as a floating point number in seconds.
+fperiod The floating-point number of seconds between calls to this function.
 \layout Section
 
 Compiling 
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 .comp
-\begin_inset Quotes erd
-\end_inset 
-
+\family default 
  files in the source tree
 \layout Standard
 
 Place the 
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 .comp
-\begin_inset Quotes erd
-\end_inset 
-
- file in the source directory emc2/src/hal/components and re-run 'make'.
- Comp files are automatically detected by the build system.
+\family default 
+ file in the source directory 
+\family typewriter 
+emc2/src/hal/components
+\family default 
+ and re-run 
+\family typewriter 
+make
+\family default 
+.
+ 
+\family typewriter 
+Comp
+\family default 
+ files are automatically detected by the build system.
 \layout Section
 
 Compiling components outside the source tree
 \layout Standard
 
 
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 comp
-\begin_inset Quotes erd
-\end_inset 
-
+\family default 
  can process, compile, and install a component in a single step, placing
  
 \family typewriter 
@@ -745,7 +703,7 @@ example.ko
 comp --compile example.comp
 \layout Standard
 
-Or it can simly process, leaving 
+Or it can simply process, leaving 
 \family typewriter 
 example.c
 \family default 
@@ -756,22 +714,18 @@ comp example.comp
 \layout Standard
 
 
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 comp
-\begin_inset Quotes erd
-\end_inset 
-
- can also compile and install a component written in 
-\begin_inset Quotes eld
-\end_inset 
-
-C
-\begin_inset Quotes erd
-\end_inset 
-
-, using the --install and --compile options shown above:
+\family default 
+ can also compile and install a component written in C, using the 
+\family typewriter 
+--install
+\family default 
+ and 
+\family typewriter 
+--compile
+\family default 
+ options shown above:
 \layout LyX-Code
 
 comp --install example2.c
@@ -815,7 +769,7 @@ sincos
 \layout Standard
 
 This component computes the sine and cosine of an input angle in radians.
- It has different capabilies than the 'sine' and 'cosine' outputs of siggen,
+ It has different capabilities than the 'sine' and 'cosine' outputs of siggen,
  because the input is an angle, rather than running freely based on a 'frequency
 ' parameter.
 \layout Standard
@@ -837,7 +791,11 @@ sin()
 cos()
 \family default 
 .
- The HAL pins are still called 'sincos.N.sin'.
+ The HAL pins are still called 
+\family typewriter 
+sincos.<num>.sin
+\family default 
+.
 \layout LyX-Code
 
 component sincos;
@@ -877,24 +835,28 @@ out8
  There can be a varying number of such cards in the system, and they can
  be at various addresses.
  The pin is called 
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 out_
-\begin_inset Quotes erd
-\end_inset 
-
+\family default 
  because 
-\begin_inset Quotes eld
-\end_inset 
-
+\family typewriter 
 out
-\begin_inset Quotes erd
-\end_inset 
-
- is an identifier used in <asm/io.h>.
- It illustrates the use of EXTRA_SETUP and EXTRA_CLEANUP to request an I/O
- region and then free it in case of error or when the module is unloaded.
+\family default 
+ is an identifier used in 
+\family typewriter 
+<asm/io.h>
+\family default 
+.
+ It illustrates the use of 
+\family typewriter 
+EXTRA_SETUP
+\family default 
+ and 
+\family typewriter 
+EXTRA_CLEANUP
+\family default 
+ to request an I/O region and then free it in case of error or when the
+ module is unloaded.
 \layout LyX-Code
 
 
@@ -903,5 +865,62 @@ preview false
 
 \end_inset 
 
+
+\layout Subsection
+
+hal_loop
+\layout LyX-Code
+
+component hal_loop;
+\layout LyX-Code
+
+pin example float out;
+\layout LyX-Code
+
+\layout Standard
+
+This fragment of a component illustrates the use of the 
+\family typewriter 
+hal_
+\family default 
+ prefix in a component name.
+ 
+\family typewriter 
+loop
+\family default 
+ is the name of a standard Linux kernel module, so a 
+\family typewriter 
+loop
+\family default 
+ component might not successfully load if the Linux 
+\family typewriter 
+loop
+\family default 
+ module was also present on the system.
+\layout Standard
+
+When loaded, 
+\family typewriter 
+halcmd show comp
+\family default 
+ will show a component called 
+\family typewriter 
+hal_loop
+\family default 
+.
+ However, the pin shown by 
+\family typewriter 
+halcmd show pin
+\family default 
+ will be 
+\family typewriter 
+loop.0.example
+\family default 
+, not 
+\family typewriter 
+hal-loop.0.example
+\family default 
+.
+\layout LyX-Code
 
 \the_end
