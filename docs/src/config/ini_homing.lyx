@@ -265,6 +265,38 @@ The distinction between 'home' and 'home_offset' is not as clear as I would
 \end_inset 
 
 
+\layout Subsubsection
+
+HOME_IS_SHARED
+\layout Standard
+
+'HOME_IS_SHARED' is a value setable from the ini in the AXIS_* section.
+ If there is not a separate home switch input for this axis, but a number
+ of momentary switches wired to the same pin, set this value to 1 to prevent
+ homing from starting if one of the shared switches is already closed.
+ Set this value to 0 to permit homing even if the switch is already closed.
+\layout Subsubsection
+
+HOME_SEQUENCE
+\layout Standard
+
+'HOME_SEQUENCE' is a value setable from the ini in the AXIS_* section.
+ This value is used to perform a multi-axis homing sequence (
+\begin_inset Quotes eld
+\end_inset 
+
+HOME ALL
+\begin_inset Quotes erd
+\end_inset 
+
+) and enforce homing order (e.g., Z may not be homed if X is not yet homed).
+ An axis may be homed after all axes with a lower HOME_SEQUENCE have already
+ been homed and are at the HOME_OFFSET.
+ If two axes have the same HOME_SEQUENCE, they may be homed at the same
+ time.
+ If HOME_SEQUENCE is -1 or not specified then this joint will not be homed
+ by the HOME ALL sequence.
+ HOME_SEQUENCE numbers start with 0 and there may be no unused numbers.
 \layout Standard
 
 
