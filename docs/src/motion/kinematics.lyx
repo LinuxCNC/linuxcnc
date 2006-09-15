@@ -61,7 +61,7 @@ axes
 \begin_inset Quotes erd
 \end_inset 
 
- is also commenly (and wrongly) used when talking about CNC machines, and
+ is also commonly (and wrongly) used when talking about CNC machines, and
  referring to the moving directions of the machine.
 \end_inset 
 
@@ -69,9 +69,9 @@ axes
 \layout Standard
 
 When we talk about a G-code program (RS274NGC) we talk about a number of
- commands (G0, G1, etc.) which have positions as parameters (Xxx Yyyy Zzzz).
+ commands (G0, G1, etc.) which have positions as parameters (X- Y- Z-).
  These positions refer exactly to Cartesian positions.
- Part of the EMC2 motion controller is responsable for translating those
+ Part of the EMC2 motion controller is responsible for translating those
  positions into positions which correspond to the machine 
 \begin_inset LatexCommand \index{kinematics}
 
@@ -79,7 +79,7 @@ When we talk about a G-code program (RS274NGC) we talk about a number of
 
 kinematics
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -131,20 +131,15 @@ As we said there is a group of machines in which each joint is placed along
 \layout LyX-Code
 
 pos->tran.x = joints[0];
-\layout LyX-Code
-
+\newline 
 pos->tran.y = joints[1];
-\layout LyX-Code
-
+\newline 
 pos->tran.z = joints[2];
-\layout LyX-Code
-
+\newline 
 pos->a = joints[3];
-\layout LyX-Code
-
+\newline 
 pos->b = joints[4];
-\layout LyX-Code
-
+\newline 
 pos->c = joints[5];
 \layout LyX-Code
 
@@ -158,20 +153,15 @@ In the above code snippet one can see how the mapping is done: the X position
 \layout LyX-Code
 
 joints[0] = pos->tran.x;
-\layout LyX-Code
-
+\newline 
 joints[1] = pos->tran.y;
-\layout LyX-Code
-
+\newline 
 joints[2] = pos->tran.z;
-\layout LyX-Code
-
+\newline 
 joints[3] = pos->a;
-\layout LyX-Code
-
+\newline 
 joints[4] = pos->b;
-\layout LyX-Code
-
+\newline 
 joints[5] = pos->c;
 \layout Standard
 
@@ -179,7 +169,7 @@ As one can see, it's pretty straightforward to do the transformation for
  a trivial kins (or Cartesian) machine.
  It gets a bit more complicated if the machine is missing one of the axes.
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -194,7 +184,7 @@ If a machine (e.g.
 
 
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -216,7 +206,7 @@ There can be quite a few types of machine setups (robots: puma, scara; hexapods
  2 functions: forward and inverse kinematics function).
 \layout Standard
 
-To illustrate the above, we will analyse a simple kinematics called bipod
+To illustrate the above, we will analyze a simple kinematics called bipod
  (a simplified version of the tripod, which is a simplified version of the
  hexapod).
  
@@ -268,7 +258,7 @@ The position of the motors is fixed by convention.
 \layout Standard
 
 Our tooltip will be in point D which gets defined by the distances AD and
- BD, and by the Cartesian coordinates Dx, DY.
+ BD, and by the Cartesian coordinates Dx, Dy.
 \layout Standard
 
 The job of the kinematics is to transform from joint lengths (AD, BD) to
@@ -279,8 +269,8 @@ Forward transformation
 \layout Standard
 
 To transform from joint space into Cartesian space we will use some trigonometry
- rules (basicly the rectangular triangles determined by the points (0,0),
- (Dx,0), (Dx,Dy) and the triangle (Dx,0), (Bx,0) and (Dx,Dy).
+ rules (the right triangles determined by the points (0,0), (Dx,0), (Dx,Dy)
+ and the triangle (Dx,0), (Bx,0) and (Dx,Dy).
 \layout Standard
 
 we can easily see that 
@@ -294,18 +284,25 @@ we can easily see that
 .
 \layout Standard
 
-If we substract one from the other we will get:
+If we subtract one from the other we will get:
 \layout Standard
 
 
-\begin_inset Formula $AD^{2}-BD^{2}=x^{2}+y^{2}-x^{2}+2*x*Bx-Bx^{2}-y^{2}$
+\begin_inset Formula \[
+AD^{2}-BD^{2}=x^{2}+y^{2}-x^{2}+2*x*Bx-Bx^{2}-y^{2}\]
+
 \end_inset 
 
-, and therefor:
+
+\layout Standard
+
+and therefore:
 \layout Standard
 
 
-\begin_inset Formula $x=\frac{AD^{2}-BD^{2}+Bx^{2}}{2*Bx}$
+\begin_inset Formula \[
+x=\frac{AD^{2}-BD^{2}+Bx^{2}}{2*Bx}\]
+
 \end_inset 
 
 
@@ -315,7 +312,9 @@ From there we calculate:
 \layout Standard
 
 
-\begin_inset Formula $y=\sqrt{AD^{2}-x^{2}}$
+\begin_inset Formula \[
+y=\sqrt{AD^{2}-x^{2}}\]
+
 \end_inset 
 
 
@@ -329,14 +328,18 @@ The inverse kinematics is lots easier in our example, as we can write it
 \layout Standard
 
 
-\begin_inset Formula $AD=\sqrt{x^{2}+y^{2}}$
+\begin_inset Formula \[
+AD=\sqrt{x^{2}+y^{2}}\]
+
 \end_inset 
 
 
 \layout Standard
 
 
-\begin_inset Formula $BD=\sqrt{(Bx-x)^{2}+y^{2}}$
+\begin_inset Formula \[
+BD=\sqrt{(Bx-x)^{2}+y^{2}}\]
+
 \end_inset 
 
 
@@ -346,13 +349,10 @@ or translated to actual code:
 \layout LyX-Code
 
 double x2 = pos->tran.x * pos->tran.x;
-\layout LyX-Code
-
+\newline 
 double y2 = pos->tran.y * pos->tran.y;
-\layout LyX-Code
-
-joints[0] = sqrt(x2 + y2)
-\layout LyX-Code
-
-joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2)
+\newline 
+joints[0] = sqrt(x2 + y2);
+\newline 
+joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2);
 \the_end
