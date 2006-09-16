@@ -132,6 +132,7 @@ typedef struct {
 
     // realtime overrun detection
     hal_u32_t last_period;	/* param: last period in clocks */
+    hal_float_t last_period_ns;	/* param: last period in clocks */
     hal_u32_t overruns;		/* param: count of RT overruns */
 
     axis_hal_t axis[EMCMOT_MAX_AXIS];	/* data for each axis */
@@ -288,4 +289,7 @@ extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
 
 #define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_AXIS_FAULT_BIT; else (joint)->flag &= ~EMCMOT_AXIS_FAULT_BIT;
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
+#define HAVE_CPU_KHZ
+#endif
 #endif /* MOT_PRIV_H */

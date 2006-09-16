@@ -414,6 +414,14 @@ static int init_hal_io(void)
     if (retval != 0) {
 	return retval;
     }
+#ifdef HAVE_CPU_KHZ
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.servo.last-period-ns");
+    retval =
+	hal_param_float_new(buf, HAL_RO, &(emcmot_hal_data->last_period_ns), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+#endif
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.servo.overruns");
     retval =
 	hal_param_u32_new(buf, HAL_RW, &(emcmot_hal_data->overruns), mot_comp_id);
