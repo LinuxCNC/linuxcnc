@@ -1501,6 +1501,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->echo_serial_number = localMotionEchoSerialNumber;
     stat->debug = emcmotConfig.debug;
     
+    stat->spindle.enabled = emcmotStatus.spindle.speed != 0;
     stat->spindle.speed = emcmotStatus.spindle.speed;
     stat->spindle.brake = emcmotStatus.spindle.brake;
     stat->spindle.direction = emcmotStatus.spindle.direction;
