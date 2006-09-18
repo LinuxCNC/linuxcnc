@@ -24,11 +24,14 @@
 #include <stdio.h>
 #include <getopt.h>
 #include <string.h>
+#include <signal.h>
+
 #ifdef GTK_INTERFACE
 #include <gtk/gtk.h>
 #endif
 
 #include "rtapi.h"
+#include "hal.h"
 #include "classicladder.h"
 #include "global.h"
 #include "arrays.h"
@@ -133,17 +136,26 @@ int process_options(int argc, char *argv[])
     return error;
 }
 
+int modId;
+
+void handle_sigterm(void) {
+    ClassicLadderFreeAll(modId);
+    hal_exit(modId);
+    exit(0);
+}
+
 int main(int argc, char *argv[])
 {
-    int modId;
 
     if ( process_options(argc, argv) != 0 ) {
 	display_help();
 	return -1;
     }
 
-    if ((modId = rtapi_init("classicladder")) < 0) {
-	printf("rtapi_init() failed\n");
+    signal(SIGTERM, handle_sigterm);
+
+    if ((modId = hal_init("classicladder")) < 0) {
+	printf("hal_init() failed\n");
 	exit(-1);
     }
 
@@ -168,6 +180,8 @@ int main(int argc, char *argv[])
 	    InfosGene->LadderState = STATE_RUN;
 	}
 
+	hal_ready(modId);
+
 #ifdef GTK_INTERFACE
 	if (!noGui) {
 	    UpdateGtkAfterLoading(TRUE /* cCreateTimer */ );
@@ -175,11 +189,10 @@ int main(int argc, char *argv[])
 	    CloseSocketServer();
 	}
 #endif
-
     }
 
     ClassicLadderFreeAll(modId);
-    rtapi_exit(modId);
+    hal_exit(modId);
 
     return 0;
 }
