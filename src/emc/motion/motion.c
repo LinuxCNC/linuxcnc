@@ -589,6 +589,12 @@ static int export_axis(int num, axis_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-vel", num);
+    retval =
+	hal_param_float_new(buf, HAL_RD, &(addr->backlash_vel), mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-fb", num);
     retval =
 	hal_param_float_new(buf, HAL_RO, &(addr->joint_pos_fb), mot_comp_id);
@@ -841,6 +847,7 @@ static int init_comm_buffers(void)
 	joint->vel_cmd = 0.0;
 	joint->backlash_corr = 0.0;
 	joint->backlash_filt = 0.0;
+	joint->backlash_vel = 0.0;
 	joint->motor_pos_cmd = 0.0;
 	joint->motor_pos_fb = 0.0;
 	joint->pos_fb = 0.0;

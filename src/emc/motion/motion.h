@@ -449,6 +449,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double vel_cmd;		/* comanded joint velocity */
 	double backlash_corr;	/* correction for backlash */
 	double backlash_filt;	/* filtered backlash correction */
+	double backlash_vel;	/* backlash velocity variable */
 	double motor_pos_cmd;	/* commanded position, with comp */
 	double motor_pos_fb;	/* position feedback, with comp */
 	double pos_fb;		/* position feedback, comp removed */

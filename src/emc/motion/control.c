@@ -2149,43 +2149,145 @@ static void compute_backlash(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
-    double max_delta_pos, dist_to_go;
+    double a_max, v_max, v, s_to_go, ds_stop, ds_vel, ds_acc, dv_acc;
+
+    /*
+     * 07/09/2005 - S-curve implementation by Bas Laarhoven
+     *
+     * Implementation:
+     *   Generate a ramped velocity profile for the backlash compensation.
+     *   The velocity is ramped up to the maximum speed setting (if possible),
+     *   using the maximum acceleration setting.
+     *   At the end, the speed is ramped dowm using the same acceleration.
+     *   The algorithm keeps looking ahead. Depending on the distance to go,
+     *   the speed is increased, kept constant or decreased.
+     *   
+     * Limitations:
+     *   Since the compensation adds up to the normal movement, total
+     *   accelleration and total velocity may exceed maximum settings!
+     *   Currently this is limited to 150% by implementation.
+     *   To fix this, the calculations in get_pos_cmd should include
+     *   information from the backlash corection. This makes things
+     *   rather complicated and it might be better to implement the
+     *   backlash compensation at another place to prevent this kind
+     *   of interaction.
+     *   More testing under different circumstances will show if this
+     *   needs a more complicate solution.
+     *   For now this implementation seems to generate smoother
+     *   movements and less following errors than the original code.
+     */
 
     for (joint_num = 0; joint_num < EMCMOT_MAX_AXIS; joint_num++) {
-	/* point to joint struct */
-	joint = &joints[joint_num];
-	/* determine which way the compensation should be applied */
-	if (joint->vel_cmd > 0.0) {
-	    /* moving "up". apply positive backlash comp */
-	    /*! \todo FIXME - the more sophisticated axisComp should be applied
-	       here, if available */
-	    joint->backlash_corr = 0.5 * joint->backlash;
-	} else if (joint->vel_cmd < 0.0) {
-	    /* moving "down". apply negative backlash comp */
-	    /*! \todo FIXME - the more sophisticated axisComp should be applied
-	       here, if available */
-	    joint->backlash_corr = -0.5 * joint->backlash;
-	} else {
-	    /* not moving, use whatever was there before */
-	}
-
-	/* filter backlash_corr to avoid position steps */
-	/*! \todo FIXME - this is a linear ramp - an S-ramp would be better because
-	   it would limit acceleration */
-	max_delta_pos = joint->vel_limit * servo_period;
-	dist_to_go = joint->backlash_corr - joint->backlash_filt;
-	if (dist_to_go > max_delta_pos) {
-	    /* need to go up, can't get there in one jump, take a step */
-	    joint->backlash_filt += max_delta_pos;
-	} else if (dist_to_go < -max_delta_pos) {
-	    /* need to go down, can't get there in one jump, take a step */
-	    joint->backlash_filt -= max_delta_pos;
-	} else {
-	    /* within one step of final value, go there now */
-	    joint->backlash_filt = joint->backlash_corr;
-	}
-	/* backlash (and motor offset) will be applied to output later */
-	/* end of axis loop */
+        /* point to joint struct */
+        joint = &joints[joint_num];
+        /* determine which way the compensation should be applied */
+        if (joint->vel_cmd > 0.0) {
+            /* moving "up". apply positive backlash comp */
+            if (joint->backlash_corr <= 0.0) {
+                joint->backlash_corr = 0.5 * joint->backlash;
+            }
+        } else if (joint->vel_cmd < 0.0) {
+            /* moving "down". apply negative backlash comp */
+            if (joint->backlash_corr >= 0.0) {
+               joint->backlash_corr = -0.5 * joint->backlash;
+            }
+        } else {
+            /* not moving, use whatever was there before */
+        }
+	/* Limit maximum accelleration and velocity 'overshoot'
+	 * to 150% of the maximum settings.
+	 * The TP and backlash shouldn't use more than 100%
+	 * (together) but this requires some interaction that
+	 * isn't implemented yet.
+	 */ 
+        v_max = 0.5 * joint->vel_limit * emcmotStatus->overallVscale;
+        a_max = 0.5 * joint->acc_limit;
+        v = joint->backlash_vel;
+        if (joint->backlash_corr >= 0.0) {
+            s_to_go = joint->backlash_corr - joint->backlash_filt; /* abs val */
+            if (s_to_go > 0) {
+                // off target, need to move
+                ds_vel  = v * servo_period;           /* abs val */
+                dv_acc  = a_max * servo_period;       /* abs val */
+                ds_stop = 0.5 * (v + dv_acc) *
+		                (v + dv_acc) / a_max; /* abs val */
+                if (s_to_go <= ds_stop + ds_vel) {
+                    // ramp down
+                    if (v > dv_acc) {
+                        // decellerate one period
+                        ds_acc = 0.5 * dv_acc * servo_period; /* abs val */
+                        joint->backlash_vel  -= dv_acc;
+                        joint->backlash_filt += ds_vel - ds_acc;
+                    } else {
+                        // last step to target
+                        joint->backlash_vel  = 0.0;
+                        joint->backlash_filt = joint->backlash_corr;
+                    }
+                } else {
+                    if (v + dv_acc > v_max) {
+                        dv_acc = v_max - v;                /* abs val */
+                    }
+                    ds_acc  = 0.5 * dv_acc * servo_period; /* abs val */
+                    ds_stop = 0.5 * (v + dv_acc) *
+                                    (v + dv_acc) / a_max;  /* abs val */
+                    if (s_to_go > ds_stop + ds_vel + ds_acc) {
+                        // ramp up
+                       joint->backlash_vel  += dv_acc;
+                       joint->backlash_filt += ds_vel + ds_acc;
+                    } else {
+                       // constant velocity
+                       joint->backlash_filt += ds_vel;
+                    }
+                }
+            } else if (s_to_go < 0) {
+                // safely handle overshoot (should not occur)
+               joint->backlash_vel = 0.0;
+               joint->backlash_filt = joint->backlash_corr;
+            }
+        } else {  /* joint->backlash_corr < 0.0 */
+            s_to_go = joint->backlash_filt - joint->backlash_corr; /* abs val */
+            if (s_to_go > 0) {
+                // off target, need to move
+                ds_vel  = -v * servo_period;          /* abs val */
+                dv_acc  = a_max * servo_period;       /* abs val */
+                ds_stop = 0.5 * (v - dv_acc) *
+			        (v - dv_acc) / a_max; /* abs val */
+                if (s_to_go <= ds_stop + ds_vel) {
+                    // ramp down
+                    if (-v > dv_acc) {
+                        // decellerate one period
+                        ds_acc = 0.5 * dv_acc * servo_period; /* abs val */
+                        joint->backlash_vel  += dv_acc;   /* decrease */
+                        joint->backlash_filt -= ds_vel - ds_acc;
+                    } else {
+                        // last step to target
+                        joint->backlash_vel = 0.0;
+                        joint->backlash_filt = joint->backlash_corr;
+                    }
+                } else {
+                    if (-v + dv_acc > v_max) {
+                        dv_acc = v_max + v;               /* abs val */
+                    }
+                    ds_acc = 0.5 * dv_acc * servo_period; /* abs val */
+                    ds_stop = 0.5 * (v - dv_acc) *
+                                    (v - dv_acc) / a_max; /* abs val */
+                    if (s_to_go > ds_stop + ds_vel + ds_acc) {
+                        // ramp up
+                        joint->backlash_vel  -= dv_acc;   /* increase */
+                        joint->backlash_filt -= ds_vel + ds_acc;
+                    } else {
+                        // constant velocity
+                        joint->backlash_filt -= ds_vel;
+                    }
+                }
+            } else if (s_to_go < 0) {
+                // safely handle overshoot (should not occur)
+                joint->backlash_vel = 0.0;
+                joint->backlash_filt = joint->backlash_corr;
+            }
+        }
+        /* backlash (and motor offset) will be applied to output later */
+        /* end of axis loop */
     }
 }
 
@@ -2246,6 +2348,7 @@ static void output_to_hal(void)
 	axis_data->joint_vel_cmd = joint->vel_cmd;
 	axis_data->backlash_corr = joint->backlash_corr;
 	axis_data->backlash_filt = joint->backlash_filt;
+	axis_data->backlash_vel = joint->backlash_vel;
 	axis_data->joint_pos_fb = joint->pos_fb;
 	axis_data->f_error = joint->ferror;
 	axis_data->f_error_lim = joint->ferror_limit;
