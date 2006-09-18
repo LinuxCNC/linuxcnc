@@ -398,12 +398,14 @@ static int init_spin_button ( vcp_widget_t *wp )
     wp->poll_funct = spin_button_refresh;
     gtk_widget_show(gwp);
 
-    /* if the hal pin is below the lower limit or above the upper limit, set to the value displayed (closer limit)*/
+    /* If the hal pin is below the lower limit or above the upper limit, set to the value displayed (closer limit)*/
+    /* or if the hal pin is set to 0 it means that it is not updated from any other source and should be set to the initial */
+    /* value of the spin button */
 
-    if ( *(hd->pin) < pd->lower || *(hd->pin) > pd->upper ) {
+     if ( *(hd->pin) < pd->lower || *(hd->pin) > pd->upper  || *(hd->pin) == 0 ) {
         pd->pin_state = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(gwp));
         *(hd->pin) = pd->pin_state;
-        }
+        } 
 
     return 0;	
 }
