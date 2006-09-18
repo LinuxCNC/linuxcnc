@@ -1,9 +1,7 @@
 # this file contains a Virtual Control Panel for testing on Roland's Mazak
 #
 
-loadusr halvcp tester.vcp
-loadusr -w sleep 1
-
+loadusr -W halvcp tester.vcp
 
 linksp external-estop-ok led.ext-estop
 linksp gui-estop-ok led.gui-estop
