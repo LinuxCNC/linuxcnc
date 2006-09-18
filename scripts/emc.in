@@ -314,65 +314,24 @@ function Cleanup() {
 	fi
     done
 
-    if [ "$EMCDISPLAY" = "axis" ]; then
+    if [ -x EMC2_BIN_DIR/axis-remote ]; then
 	axis-remote --ping && axis-remote --quit
     fi
 
-    $HALCMD unloadusr all
+    echo "Stopping realtime threads" >> $DEBUG_FILE
+    $HALCMD stop
+    echo "Unloading hal components" >> $DEBUG_FILE
+    $HALCMD unload all
 
     # now kill all the other user space components of emc
-    for KILL_TASK in emcsvr bridgeporttask milltask minimilltask bridgeportio minimillio simio io classicladder; do
+    for KILL_TASK in emcsvr milltask ; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
     done
 
-    # check for halconfig, and bring it down if it's around
-    if [ -n "`ps auxw | grep halshow.tcl | awk {'print $2'}`" ] ; then
-	KILL_TASK=halshow
-	KILL_PIDS=`ps auxw | grep halshow.tcl | awk {'print $2'}`
-	KillTaskWithTimeout
-    fi
-
-    # now the realtime stuff
-    # check for rtapi
-    if [ -n "` $LSMOD | $AWK -- '$1 ~ /^rtapi$/ { print $1 }'`" ] ; then
-	# rtapi loaded, check for hal_lib
-	if [ -n "` $LSMOD | $AWK -- '$1 ~ /^hal_lib$/ { print $1 }'`" ] ; then
-	    # hal_lib loaded, stop realtime threads
-	    $HALCMD stop
-	    # check for any hal_meters
-	    if $PIDOF halmeter >>$DEBUG_FILE ; then
-		# get rid of them
-		KILL_TASK=halmeter
-		KillTaskWithTimeout
-	    fi
-	    # check for any halcmds
-	    if $PIDOF halcmd >>$DEBUG_FILE ; then
-		# get rid of them
-		KILL_TASK=halcmd
-		KillTaskWithTimeout
-	    fi
-	    # check for user space HAL components' pids
-	    HAL_USR_COMPS_PIDS=`$HALCMD show comp | $GREP -v halcmd | $AWK -- '$2 ~ /^User$/ { print $4 }'`
-	    # remove them
-	    for HAL_COMP_PID in $HAL_USR_COMPS_PIDS ; do
-		echo "Removing user space HAL component with pid=$HAL_COMP_PID" >>$PRINT_FILE
-		KILL_PIDS=$HAL_COMP_PID
-		KillTaskWithTimeout
-	    done
-	    # check for realtime HAL components (including motion module)
-	    HAL_RT_COMPS=`$HALCMD show comp | $AWK -- '$2 ~ /^RT$/ { print $3 }'`
-	    # remove them
-	    for HAL_COMP in $HAL_RT_COMPS ; do
-		echo "Removing realtime HAL component $HAL_COMP" >>$PRINT_FILE
-		$RMMOD $HAL_COMP
-	    done
-	fi
-	# remove rtapi and RTOS modules
-	echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
-	$REALTIME stop
-    fi
+    echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
+    $REALTIME stop
 
     # remove lock file
     if [ -f $LOCKFILE ] ; then
