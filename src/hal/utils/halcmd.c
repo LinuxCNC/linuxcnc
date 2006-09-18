@@ -103,6 +103,7 @@ static int do_list_cmd(char *type, char *pattern);
 static int do_status_cmd(char *type);
 static int do_delsig_cmd(char *mod_name);
 static int do_loadrt_cmd(char *mod_name, char *args[]);
+static int do_unload_cmd(char *mod_name);
 static int do_unloadrt_cmd(char *mod_name);
 static int do_unloadusr_cmd(char *mod_name);
 static int do_loadusr_cmd(char *args[]);
@@ -774,6 +775,8 @@ static int parse_cmd(char *tokens[])
 	retval = do_loadusr_cmd(&tokens[1]);
     } else if (strcmp(tokens[0], "unloadusr") == 0) {
 	retval = do_unloadusr_cmd(tokens[1]);
+    } else if (strcmp(tokens[0], "unload") == 0) {
+	retval = do_unload_cmd(tokens[1]);
     } else if (strcmp(tokens[0], "save") == 0) {
 	retval = do_save_cmd(tokens[1], tokens[2]);
     } else if (strcmp(tokens[0], "addf") == 0) {
@@ -1768,6 +1771,30 @@ static int unloadrt_comp(char *mod_name)
     return 0;
 }
 
+static int do_unload_cmd(char *mod_name) {
+    if(strcmp(mod_name, "all") == 0) {
+        int res = do_unloadusr_cmd(mod_name);
+        if(res) return res;
+        return do_unloadrt_cmd(mod_name);
+    } else {
+        hal_comp_t *comp;
+        int next;
+        int type = -1;
+        rtapi_mutex_get(&(hal_data->mutex));
+        next = hal_data->comp_list_ptr;
+        while (next != 0) {
+            comp = SHMPTR(next);
+            if ( strcmp(mod_name, comp->name) == 0 ) {
+                type = comp->type;
+                break;
+            }
+            next = comp->next_ptr;
+        }
+        rtapi_mutex_give(&(hal_data->mutex));
+        if(type) return do_unloadrt_cmd(mod_name);
+        else return do_unloadusr_cmd(mod_name);
+    }
+}
 
 static int do_loadusr_cmd(char *args[])
 {
@@ -2910,6 +2937,14 @@ static int do_help_cmd(char *command)
 	printf("loadrt modname [modarg(s)]\n");
 	printf("  Loads realtime HAL module 'modname', passing 'modargs'\n");
 	printf("  to the module.\n");
+    } else if (strcmp(command, "unload") == 0) {
+	printf("unload compname\n");
+	printf("  Unloads HAL module 'compname', whether user space or realtime.\n");
+        printf("  If 'compname' is 'all', unloads all components.\n");
+    } else if (strcmp(command, "unloadusr") == 0) {
+	printf("unloadusr compname\n");
+	printf("  Unloads user space HAL module 'compname'.  If 'compname'\n");
+	printf("  is 'all', unloads all userspace components.\n");
     } else if (strcmp(command, "unloadrt") == 0) {
 	printf("unloadrt modname\n");
 	printf("  Unloads realtime HAL module 'modname'.  If 'modname'\n");
@@ -3074,8 +3109,9 @@ static void print_help_commands(void)
 {
     printf("Use 'help <command>' for more details about each command\n");
     printf("Available commands:\n");
-    printf("  loadrt, unloadrt    Load/unload realtime module(s)\n");
+    printf("  loadrt              Load realtime module(s)\n");
     printf("  loadusr             Start user space program\n");
+    printf("  unload              Unload realtime module or terminate userspace component\n");
     printf("  lock, unlock        Lock/unlock HAL behaviour\n");
     printf("  linkps              Link pin to signal\n");
     printf("  linksp              Link signal to pin\n");
@@ -3098,7 +3134,7 @@ static void print_help_commands(void)
 static int argno;
 
 static char *command_table[] = {
-    "loadrt", "unloadrt", "loadusr", "unloadusr", "lock", "unlock",
+    "loadrt", "loadusr", "unload", "lock", "unlock",
     "linkps", "linksp", "linkpp", "unlinkp",
     "newsig", "delsig", "getp", "gets", "setp", "sets",
     "addf", "delf", "show", "list", "status", "save",
@@ -3313,6 +3349,27 @@ static char *usrcomp_generator(const char *text, int state) {
 
 
 
+static char *comp_generator(const char *text, int state) {
+    static int len;
+    static int next;
+    if(!state) {
+        next = hal_data->comp_list_ptr;
+        len = strlen(text);
+        if(strncmp(text, "all", len) == 0)
+            return strdup("all");
+    }
+
+    while(next) {
+        hal_comp_t *comp = SHMPTR(next);
+        next = comp->next_ptr;
+	if ( strncmp(text, comp->name, len) == 0 )
+            return strdup(comp->name);
+    }
+    rl_attempted_completion_over = 1;
+    return NULL;
+}
+
+
 static char *rtcomp_generator(const char *text, int state) {
     static int len;
     static int next;
@@ -3518,6 +3575,8 @@ char **completer(const char *text, int start, int end) {
         result = rl_completion_matches(text, usrcomp_generator);
     } else if(startswith(rl_line_buffer, "unloadrt ") && argno == 1) {
         result = rl_completion_matches(text, rtcomp_generator);
+    } else if(startswith(rl_line_buffer, "unload ") && argno == 1) {
+        result = rl_completion_matches(text, comp_generator);
     } else if(startswith(rl_line_buffer, "loadusr ") && argno < 3) {
         rtapi_mutex_give(&(hal_data->mutex));
         // leaves rl_attempted_completion_over = 0 to complete from filesystem
