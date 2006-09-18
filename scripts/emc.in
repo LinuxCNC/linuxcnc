@@ -86,6 +86,9 @@ EMC2_LANG_DIR=@EMC2_LANG_DIR@
 REALTIME=@REALTIME@
 EMC2_IMAGEDIR=@EMC2_IMAGE_DIR@
 
+#put the EMC2_BIN_DIR in PATH
+PATH=$EMC2_BIN_DIR:$PATH
+
 XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
 export XFILESEARCHPATH
 
@@ -417,9 +420,6 @@ echo Starting emc...
 
 # trap ^C so that it's called if user interrupts script
 trap 'Cleanup ; exit 0' SIGINT SIGTERM
-
-#put the EMC2_BIN_DIR in PATH
-PATH=$EMC2_BIN_DIR:$PATH
 
 # go to the dir where the ini file is
 # either configs/<specific-config> when run-in-place, or
