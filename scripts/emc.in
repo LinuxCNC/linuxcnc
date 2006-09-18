@@ -318,6 +318,20 @@ function Cleanup() {
 	axis-remote --ping && axis-remote --quit
     fi
 
+    if [ "$1" = "other" ]; then
+        echo -n "Waiting for other session to finish exiting..."
+	WAIT=$KILL_TIMEOUT
+	while [ $WAIT -gt 1 ]; do
+            if ! [ -f $LOCKFILE ]; then
+                echo " Ok"
+                return 0
+            fi
+            WAIT=$(($WAIT-1))
+            sleep .1
+        done
+        echo "lockfile still not removed"
+    fi
+
     echo "Stopping realtime threads" >> $DEBUG_FILE
     $HALCMD stop
     echo "Unloading hal components" >> $DEBUG_FILE
@@ -367,7 +381,7 @@ EOF
   case $input in
     y|Y|yes)
       echo Cleaning up old emc...
-      Cleanup
+      Cleanup other
     ;;
     *)
       echo Not starting new emc
