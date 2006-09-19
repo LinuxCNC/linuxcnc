@@ -1222,6 +1222,8 @@ static void do_homing(void)
 		   started.  It doesn't actually do anything, it simply
 		   determines what state is next */
 		if (joint->home_flags & HOME_IS_SHARED && home_sw_new) {
+		    reportError(
+			"Cannot home while shared home switch is closed");
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
