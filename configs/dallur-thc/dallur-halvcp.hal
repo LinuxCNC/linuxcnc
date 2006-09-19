@@ -1,6 +1,4 @@
-loadusr halvcp dallur-advanced.vcp
-
-loadusr -w sleep 1
+loadusr -W halvcp dallur-advanced.vcp
 
 #linkpp button.spindle-increase  halui.spindle.increase
 #linkpp button.spindle-decrease  halui.spindle.decrease
