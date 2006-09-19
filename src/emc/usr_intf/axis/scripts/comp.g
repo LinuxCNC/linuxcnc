@@ -443,8 +443,8 @@ def main():
             if len(args) != 1:
                 raise SystemExit, "Cannot specify -o with multiple input files"
             outfile = v 
-    if outfile and mode != PREPROCESS:
-        raise SystemExit, "Can only specify -o when preprocessing"
+    if outfile and mode != PREPROCESS and mode != DOCUMENT:
+        raise SystemExit, "Can only specify -o when preprocessing or documenting"
 
     for f in args:
         if f.endswith(".comp") and mode == DOCUMENT:

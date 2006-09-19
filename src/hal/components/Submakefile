@@ -3,15 +3,20 @@ ifneq ($(KERNELRELEASE),)
 COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp))
 include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
 else
-P=
 COMPS := $(wildcard hal/components/*.comp)
+COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS))
+TARGETS += $(COMP_MANPAGES)
 -include $(patsubst %.comp, objects/%.mak, $(COMPS))
 Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS))
 endif
 
 obj-m += $(patsubst hal/components/%.comp, %.o, $(COMPS))
 
-objects/%.mak: %.comp
+../docs/man/man9/%.9: hal/components/%.comp
+	@mkdir -p $(dir $@)
+	../bin/comp --document -o $@ $<
+
+objects/%.mak: %.comp ../bin/comp
 	$(ECHO) "Creating $(notdir $@)"
 	@mkdir -p $(dir $@)
 	@echo $(notdir $*)-objs := objects/$*.o > $@.tmp
