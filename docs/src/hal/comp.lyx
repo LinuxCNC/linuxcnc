@@ -88,7 +88,15 @@ comp
  preprocessor:
 \layout LyX-Code
 
-component ddt;
+component ddt 
+\begin_inset Quotes eld
+\end_inset 
+
+Compute the derivative of the input function
+\begin_inset Quotes erd
+\end_inset 
+
+;
 \newline 
 pin in float in;
 \newline 
@@ -182,13 +190,13 @@ A
 Declarations include:
 \layout LyX-Code
 
-component NAME;
+component NAME [DOC];
 \newline 
-pin NAME TYPE PINDIRECTION;
+pin NAME TYPE PINDIRECTION [DOC];
 \newline 
-param NAME TYPE PARAMDIRECTION [ = STARTVALUE];
+param NAME TYPE PARAMDIRECTION [DOC] [ = STARTVALUE];
 \newline 
-function NAME [fp | nofp];
+function NAME [fp | nofp] [DOC];
 \newline 
 option NAME [VALUE];
 \layout Description
@@ -345,6 +353,9 @@ STARTVALUE Specifies the initial value of a parameter.
 FALSE
 \family default 
 , depending on the type of the parameter.
+\layout Description
+
+DOC A C-syntax string that documents the item.
 \layout Description
 
 fp Indicates that the function performs floating-point calculations.
@@ -729,6 +740,26 @@ comp
 \layout LyX-Code
 
 comp --install example2.c
+\layout Standard
+
+man-format documentation can also be created from the information in the
+ declaration section:
+\layout LyX-Code
+
+comp --document example.comp
+\layout Standard
+
+The resulting manpage, 
+\family typewriter 
+example.9
+\family default 
+ can be viewed with
+\layout LyX-Code
+
+man ./example.9
+\layout Standard
+
+or copied to a standard location for manual pages.
 \layout Section
 
 Examples

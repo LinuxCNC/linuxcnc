@@ -1,9 +1,9 @@
-component comp;
-pin in0 float in;
-pin in1 float in;
-pin out bit out;
-param hyst float rw;
-function _ fp;
+component comp "Two input comparator";
+pin in0 float in "Inverting input to the comparator";
+pin in1 float in "Non-inverting input to the comparator";
+pin out bit out "Output of the comparator";
+param hyst float rw "Hysteresis of the comparator";
+function _ fp "Update the comparator";
 ;;
 FUNCTION(_) {
     float tmp = in1 - in0;

@@ -14,19 +14,19 @@
 //   You should have received a copy of the GNU General Public License
 //   along with this program; if not, write to the Free Software
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-component edge;
+component edge "Edge detector";
 
 pin in bit in;
-pin out bit out;
-pin out_invert bit out;
+pin out bit out "Goes high when the desired edge is seen on 'in'";
+pin out_invert bit out "Goes low when the desired edge is seen on 'in'";
 
-param in_edge bit rw;
-param out_width float rw;
+param in_edge bit rw "Selects the desired edge: TRUE means falling, FALSE means rising";
+param out_width float rw "Time in seconds of the output pulse";
 
-param time_left float r;
-param last_in bit r;
+param time_left float r "Time left in this output pulse";
+param last_in bit r "Previous input value";
 
-function _;
+function _ "Produce output pulses from input edges";
 ;;
 MODULE_LICENSE("GPL");
 

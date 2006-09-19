@@ -31,15 +31,17 @@ parser Hal:
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token FPNUMBER: "([0-9]*\.[0-9]+|[0-9]+\.)([Ee][+-]?[0-9]+)?f?"
     token NUMBER: "[0-9]+|0x[0-9a-fA-F]+"
+    token STRING: '"(\\.|[^"])*"'
 
     rule File: Declaration* "$" {{ return True }}
     rule Declaration:
-        "component" NAME ";" {{ comp(NAME); }}
-      | "pin" NAME TYPE PINDIRECTION ";"  {{ pin(NAME, TYPE, PINDIRECTION) }}
-      | "param" NAME TYPE PARAMDIRECTION OptAssign ";" {{ param(NAME, TYPE, PARAMDIRECTION, OptAssign) }}
-      | "function" NAME OptFP ";"       {{ function(NAME, OptFP) }}
+        "component" NAME OptString";" {{ comp(NAME, OptString); }}
+      | "pin" NAME TYPE PINDIRECTION OptString ";"  {{ pin(NAME, TYPE, PINDIRECTION, OptString) }}
+      | "param" NAME TYPE PARAMDIRECTION OptString OptAssign ";" {{ param(NAME, TYPE, PARAMDIRECTION, OptString, OptAssign) }}
+      | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
 
+    rule OptString: STRING {{ return eval(STRING) }} | {{ return '' }}
     rule OptAssign: "=" Value {{ return Value; }}
                 | {{ return None }}
     rule OptFP: "fp" {{ return 1 }} | "nofp" {{ return 0 }} | {{ return 1 }}
@@ -59,32 +61,39 @@ def parse(rule, text, filename=None):
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
 
 def initialize():
-    global functions, params, pins, options, comp_name, names
+    global functions, params, pins, options, comp_name, names, docs
 
     functions = []; params = []; pins = []; options = {}
+    docs = []
     comp_name = None
 
     names = {}
 
-def comp(name):
+def comp(name, doc):
+    docs.append(('component', name, doc))
     global comp_name
     if comp_name:
         raise runtime.SyntaxError, "Duplicate specification of component name"
     comp_name = name;
 
-def pin(name, type, dir):
+def pin(name, type, dir, doc):
     if name in names:
         raise runtime.SyntaxError, "Duplicate item name %s" % name
+    docs.append(('pin', name, type, dir, doc))
     names[name] = None
     pins.append((name, type, dir))
-def param(name, type, dir, value):
+
+def param(name, type, dir, doc, value):
     if name in names:
         raise runtime.SyntaxError, "Duplicate item name %s" % name
+    docs.append(('param', name, type, dir, doc, value))
     names[name] = None
     params.append((name, type, dir, value))
-def function(name, fp):
+
+def function(name, fp, doc):
     if name in names:
         raise runtime.SyntaxError, "Duplicate item name %s" % name
+    docs.append(('funct', name, fp, doc))
     names[name] = None
     functions.append((name, fp))
 
@@ -111,6 +120,22 @@ def prologue(f):
 static int comp_id;
 """
     names = {}
+
+    def q(s):
+        s = s.replace("\\", "\\\\")
+        s = s.replace("\r", "\\r")
+        s = s.replace("\n", "\\n")
+        s = s.replace("\t", "\\t")
+        s = s.replace("\v", "\\v")
+        return '"%s"' % s
+
+    print >>f, "#ifdef MODULE_INFO"
+    for v in docs:
+        if not v: continue
+        v = ":".join(map(str, v))
+        print >>f, "MODULE_INFO(emc2, %s);" % q(v)
+    print >>f, "#endif // __MODULE_INFO"
+    print >>f
 
     has_data = options.get("data")
 
@@ -253,7 +278,7 @@ def epilogue(f):
     else:
         print >>f, "static int get_data_size(void) { return 0; }"
 
-INSTALL, COMPILE, PREPROCESS = range(3)
+INSTALL, COMPILE, PREPROCESS, DOCUMENT = range(4)
 
 modinc = None
 def find_modinc():
@@ -284,6 +309,86 @@ def build(tempdir, filename, mode):
         raise SystemExit, result
     if mode == COMPILE:
         shutil.copy(kobjname, os.path.basename(kobjname))
+
+def finddoc(section=None, name=None):
+    for item in docs:
+        if ((section == None or section == item[0]) and
+                (name == None or name == item[1])): return item
+    return None
+
+def finddocs(section=None, name=None):
+    for item in docs:
+        if ((section == None or section == item[0]) and
+                (name == None or name == item[1])):
+                    yield item
+
+def to_hal_man(s):
+    if options.get("singleton"):
+        s = "%s.%s" % (comp_name, s)
+    else:
+        s = "%s.\\fIN\\fB.%s" % (comp_name, s)
+    s = s.replace("_", "-")
+    s = s.rstrip("-")
+    s = s.rstrip(".")
+    s = s.replace("-", "\\-")
+    return s
+
+def document(filename, outfilename):
+    if outfilename is None:
+        outfilename = os.path.splitext(filename)[0] + ".9"
+
+    initialize()
+    f = open(filename).read()
+    a, b = f.split("\n;;\n", 1)
+
+    p = parse('File', a, filename)
+    if not p: raise SystemExit, 1
+
+    f = open(outfilename, "w")
+
+    print >>f, ".TH %s \"9\" \"%s\" \"EMC Documentation\" \"HAL Component\"" % (
+        comp_name.upper(), time.strftime("%F"))
+
+    print >>f, ".SH NAME\n"
+    doc = finddoc('component')    
+    if doc and doc[2]:
+        print >>f, "%s \\- %s" % (doc[1], doc[2])
+    else:
+        print >>f, "%s" % doc[1]
+
+
+    print >>f, ".SH SYNOPSIS"
+    if options.get("singleton"):
+        print >>f, ".B loadrt %s ..." % comp_name
+    else:
+        print >>f, ".B loadrt %s [count=\\fIN\\fB] ..." % comp_name
+
+    print >>f, ".SH FUNCTIONS"
+    for _, name, fp, doc in finddocs('funct'):
+        print >>f, ".TP"
+        print >>f, "\\fB%s\\fR" % to_hal_man(name),
+        if fp:
+            print >>f, "(uses floating-point)"
+        else:
+            print >>f
+        print >>f, doc
+
+    print >>f, ".SH PINS"
+    for _, name, type, dir, doc in finddocs('pin'):
+        print >>f, ".TP"
+        print >>f, "\\fB%s\\fR" % to_hal_man(name),
+        print >>f, type, dir
+        print >>f, doc
+    print >>f, ".SH PARAMETERS"
+    for _, name, type, dir, doc, value in finddocs('param'):
+        print >>f, ".TP"
+        print >>f, "\\fB%s" % to_hal_man(name),
+        print >>f, type, dir,
+        if value:
+            print >>f, "\\fR(default: \\fI%s\\fF)" % value
+        else:
+            print >>f, "\\fR"
+        print >>f, doc
 
 def process(filename, mode, outfilename):
     tempdir = tempfile.mkdtemp()
@@ -321,8 +426,9 @@ def process(filename, mode, outfilename):
 def main():
     mode = PREPROCESS
     outfile = None
-    opts, args = getopt.getopt(sys.argv[1:], "icpo:",
-                       ['install', 'compile', 'preprocess', 'outfile='])
+    opts, args = getopt.getopt(sys.argv[1:], "icpdo:",
+                       ['install', 'compile', 'preprocess', 'outfile=',
+                        'document'])
 
     for k, v in opts:
         if k in ("-i", "--install"):
@@ -331,6 +437,8 @@ def main():
             mode = COMPILE
         if k in ("-p", "--preprocess"):
             mode = PREPROCESS
+        if k in ("-d", "--document"):
+            mode = DOCUMENT
         if k in ("-o", "--outfile"):
             if len(args) != 1:
                 raise SystemExit, "Cannot specify -o with multiple input files"
@@ -339,7 +447,9 @@ def main():
         raise SystemExit, "Can only specify -o when preprocessing"
 
     for f in args:
-        if f.endswith(".comp"):
+        if f.endswith(".comp") and mode == DOCUMENT:
+            document(f, outfile)            
+        elif f.endswith(".comp"):
             process(f, mode, outfile)
         elif f.endswith(".c") and mode != PREPROCESS:
             tempdir = tempfile.mkdtemp()

@@ -15,14 +15,14 @@
 //   along with this program; if not, write to the Free Software
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-component blend;
+component blend "Perform linear interpolation between two values";
 
-pin in_1 float in;
-pin in_2 float in;
-pin select float in;
-pin out float out;
+pin in1 float in "First input.  If select is equal to 0.0, the output is equal to in1";
+pin in2 float in "Second input.  If select is equal to 1.0, the output is equal to in2";
+pin select float in "Select input.  For values between 0.0 and 1.0, the output changes linearly from in1 to in2";
+pin out float out "Output value.";
 
-param open bit rw;
+param open bit rw "If true, select values outside the range 0.0 to 1.0 give values outside the range in1 to in2.  If false, outputs are clamped to the the range in1 to in2";
 
 function _;
 
@@ -32,5 +32,5 @@ MODULE_LICENSE("GPL");
 FUNCTION(_) {
     double select_ = select;
     if(!open) { if(select_ < 0) select_ = 0; if(select_ > 1) select_ = 1; }
-    out = in_1 * select_ + in_2 + (1 - select_);
+    out = in1 * select_ + in2 + (1 - select_);
 }

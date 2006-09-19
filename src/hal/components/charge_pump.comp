@@ -15,10 +15,10 @@
 //   along with this program; if not, write to the Free Software
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-component charge_pump;
+component charge_pump "Create a square-wave for the 'charge pump' input of some controller boards";
 option singleton yes;
 pin out bit out;
-function _ nofp;
+function _ nofp "Toggle the output bit";
 ;;
 MODULE_LICENSE("GPL");
 FUNCTION(_) { out = !out; }
