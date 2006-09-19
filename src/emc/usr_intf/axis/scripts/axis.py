@@ -813,7 +813,10 @@ class MyOpengl(Opengl):
                     if lathe:
                         glRotatef(90, 0, 1, 0)
                     if current_tool and current_tool.diameter != 0:
-                        r = current_tool.diameter / 2.
+                        if vars.metric.get():
+                            r = current_tool.diameter / (2. * 25.4)
+                        else:
+                            r = current_tool.diameter / 2.
                         q = gluNewQuadric()
                         glEnable(GL_LIGHTING)
                         glColor3f(*o.colors['cone'])
