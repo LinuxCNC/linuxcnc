@@ -1,1 +1,4 @@
 $PAPERSIZE= 'a0';
+$VERBOSITY=0;
+
+1;
