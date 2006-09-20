@@ -632,3 +632,11 @@ endif
 .PHONY: tags
 tags:
 	ctags-exuberant -R . ../tcl ../scripts
+        
+# When you depend on objects/var-ZZZ you are depending on the contents of the
+# variable ZZZ, which is assumed to depend on a Makefile, a Submakefile, or
+# Makefile.inc
+objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
+	@mkdir -p $(dir $@)
+	@echo $($*) > $@.tmp
+	@sh move-if-change $@.tmp $@

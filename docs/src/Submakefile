@@ -37,8 +37,15 @@ DOC_SRCS := \
 	motion/kinematics.lyx \
 	Master_HAL.lyx
 
+MAN_SRCS := $(COMP_MANPAGES) \
+	$(DOC_DIR)/man/man1/emc.1 \
+	$(DOC_DIR)/man/man1/halcmd.1 \
+	$(DOC_DIR)/man/man1/hal_joystick.1 \
+	$(DOC_DIR)/man/man1/halmeter.1 \
+	$(DOC_DIR)/man/man1/halui.1
+MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf EMC2_Integrator_Manual.pdf)
-HTML_TARGETS := $(patsubst %.lyx,$(DOC_DIR)/html/%/index.html, $(filter-out Master_%, $(DOC_SRCS)))
+HTML_TARGETS := $(patsubst %.lyx,$(DOC_DIR)/html/%/index.html, $(filter-out Master_%, $(DOC_SRCS))) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
 	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
@@ -63,7 +70,15 @@ $(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 $(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
 
+$(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
+	@mkdir -p $(dir $@)
+	groff -Thtml -man $< > $@
 
+objects/index.incl: objects/var-MAN_HTML_TARGETS
+	for i in $(MAN_HTML_TARGETS); do j=$$(basename $$i .html); echo "<LI><A HREF=$${i#$(DOC_DIR)/html/}>$$j</A>"; done > $@
+
+$(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot
+	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot)  > $@	
 $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx
 	$(ECHO) Building $@
 	@rm -f $@

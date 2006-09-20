@@ -5,7 +5,8 @@ include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
 else
 COMPS := $(wildcard hal/components/*.comp)
 COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS))
-TARGETS += $(COMP_MANPAGES)
+manpages: $(COMP_MANPAGES)
+TARGETS += manpages
 -include $(patsubst %.comp, objects/%.mak, $(COMPS))
 Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS))
 endif
