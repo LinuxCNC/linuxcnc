@@ -96,6 +96,8 @@ MODULE_PARM_DESC(port_addr, "port address(es) for EPP bus(es)");
 #define ENCCTRL     0x03	/* EPP address of encoder control register */
 #define ENCRATE     0x04	/* interrupt rate register, only on master encoder */
 #define ENCISR      0x0C	/* index sense register */
+#define ENCINDX     0x0D	/* index reset register (write only) */
+                                /* only available with rev 2 and above FPGA config */
 #define ENCLOAD     0x00	/* EPP address to write into first byte of preset */
 				/* register for channels 0 - 3 */
 
@@ -115,9 +117,6 @@ MODULE_PARM_DESC(port_addr, "port address(es) for EPP bus(es)");
 #define PWM_GEN_1       0x12
 #define PWM_GEN_2       0x14
 #define PWM_GEN_3       0x16
-/* FIXME - I don't know if this is the right address... the map shows it as
-   0x1C, but the text on the webpage says it follows right after the data
-   registers, which would be 0x18...  yet another ambiguous document */
 #define PWM_CTRL_0      0x1C
 #define PWM_FREQ_LO     0x1D
 #define PWM_FREQ_HI     0x1E
@@ -145,15 +144,22 @@ MODULE_PARM_DESC(port_addr, "port address(es) for EPP bus(es)");
    unless the physical "estop" input is also on.  All physical outputs
    will not come on unless the physical "estop" output is on. */
    
-/* These strange interactions between inputs and outputs are just a little
-   crazy in my humble opinion */
+/* The ESTOP function is completely implementd in FPGA hardware.  To get
+out of ESTOP, the safety chain must be a closed circuit (Green LED lit on
+board), you then must satisfy the watchdog (if watchdog jumper is in ON
+position) by writing to two adjacent velocity output channels (step, PWM or
+DAC) and finally by writing a 1 to the ESTOP command bit.  If all these
+safetys are satisfied, the board will come out of ESTOP, and the velocity
+and digital outputs will be enabled.  If any of these safety inputs indicates
+an unsafe condition, then the board will immediately return to the ESTOP state.
+*/
 
 #define DIO_DINA        0x00	/* EPP address of digital inputs on DIO */
 #define DIO_DINB        0x01
 #define DIO_ESTOP_IN    0x02
 
 #define DIO_DOUTA       0x00	/* EPP address of digital outputs */
-#define DIO_ESTOP_OUT   0x01
+#define DIO_ESTOP_OUT   0x02
 
 /***********************************************************************
 *                       STRUCTURE DEFINITIONS                          *
@@ -214,6 +220,18 @@ typedef struct {
     double period_recip;	/* reciprocal of period */
 } pwmgens_t;
 
+/* this structure contains the runtime data for a 16-bit DAC */
+typedef struct {
+    hal_float_t *value;		/* value command pin */
+    hal_float_t DAC_value;	/* Binary DAC value pin */
+    hal_float_t scale;		/* parameter: scaling */
+} DAC_t;
+
+/* runtime data for a 4-channel 16-bit DAC */
+typedef struct {
+    DAC_t pg[4];		/* per DAC data */
+} DACs_t;
+
 /* runtime data for a single encoder */
 typedef struct {
     hal_float_t *position;      /* output: scaled position pointer */
@@ -221,6 +239,8 @@ typedef struct {
     hal_s32_t *delta;		/* output: delta counts since last read */
     hal_float_t scale;          /* parameter: scale factor */
     hal_bit_t *index;           /* output: index flag */
+    hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
+    hal_bit_t *ind_enb_copy;    /* copy of index pulse to reset encoder count */
     signed long oldreading;     /* used to detect overflow / underflow of the counter */
 } encoder_t;
 
@@ -259,6 +279,7 @@ typedef struct slot_data_s {
     stepgens_t *stepgen;	/* ptr to shmem data for step generators */
     pwmgens_t *pwmgen;		/* ptr to shmem data for PWM generators */
     encoder_t *encoder;         /* ptr to shmem data for encoders */
+    DACs_t *DAC;                /* ptr to shmem data for DACs */
 } slot_data_t;
 
 /* this structure contains the runtime data for a complete EPP bus */
@@ -272,6 +293,7 @@ typedef struct {
     unsigned int last_stepgen;	/* used for numbering step generators */
     unsigned int last_pwmgen;	/* used for numbering PWM generators */
     unsigned int last_encoder;	/* used for numbering encoders */
+    unsigned int last_DAC;	/* used for numbering DACs */
     char slot_valid[NUM_SLOTS];	/* tags for slots that are used */
     slot_data_t slot_data[NUM_SLOTS];  /* data for slots on EPP bus */
 } bus_data_t;
@@ -296,6 +318,7 @@ static void write_digouts(slot_data_t *slot);
 static void write_stepgens(slot_data_t *slot);
 static void write_pwmgens(slot_data_t *slot);
 static void read_encoders(slot_data_t *slot);
+static void write_DACs(slot_data_t *slot);
 
 /***********************************************************************
 *                  REALTIME I/O FUNCTION DECLARATIONS                  *
@@ -318,8 +341,11 @@ static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, int min_addr, in
 
 static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus);
 static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus);
+static int export_PPMC_digin(slot_data_t *slot, bus_data_t *bus);
+static int export_PPMC_digout(slot_data_t *slot, bus_data_t *bus);
 static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus);
 static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus);
+static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus);
 static int export_encoders(slot_data_t *slot, bus_data_t *bus);
 
 /***********************************************************************
@@ -411,6 +437,7 @@ int rtapi_app_main(void)
 	bus->last_digin = 0;
 	bus->last_stepgen = 0;
 	bus->last_pwmgen = 0;
+	bus->last_DAC = 0;
 	bus->last_encoder = 0;
 	/* clear the slot data structures (part of the bus struct) */
 	for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum ++ ) {
@@ -444,6 +471,7 @@ int rtapi_app_main(void)
             slot->digin = NULL;
             slot->stepgen = NULL;
             slot->pwmgen = NULL;
+            slot->DAC = NULL;
             slot->encoder = NULL;
 	}    
 	/* scan the bus */
@@ -480,10 +508,13 @@ int rtapi_app_main(void)
 	    case 0x20:
 		boards++;
 		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC DAC card\n");
+		rv1 += export_PPMC_DAC(slot, bus);
 		break;
 	    case 0x30:
 		boards++;
 		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC Digital I/O card\n");
+		rv1 += export_PPMC_digin(slot, bus);
+		rv1 += export_PPMC_digout(slot, bus);
 		break;
 	    case 0x40:
 		boards++;
@@ -753,6 +784,76 @@ static void write_digouts(slot_data_t *slot)
     slot->wr_buf[UxC_DOUTA] = outdata;
 }
 
+static void read_PPMC_digins(slot_data_t *slot)
+{
+    int b;
+    unsigned char indata, mask;
+
+    //    rtapi_print_msg(RTAPI_MSG_INFO, "enter read_digins()\n");
+    /* read the first 8 inputs */
+    indata = slot->rd_buf[DIO_DINA];
+    /* split the bits into 16 variables (8 regular, 8 inverted) */
+    b = 0;
+    mask = 0x01;
+    while ( b < 8 ) {
+	*(slot->digin[b].data) = indata & mask;
+	*(slot->digin[b].data_not) = !(indata & mask);
+	mask <<= 1;
+	b++;
+    }
+    /* read the next 8 inputs */
+    indata = slot->rd_buf[DIO_DINB];
+    /* and split them too */
+    mask = 0x01;
+    while ( b < 16 ) {
+	*(slot->digin[b].data) = indata & mask;
+	*(slot->digin[b].data_not) = !(indata & mask);
+	mask <<= 1;
+	b++;
+    }
+    /* read the 2 Estop-related inputs */
+    indata = slot->rd_buf[DIO_ESTOP_IN];
+    /* and split them too */
+    mask = 0x01;
+    while ( b < 18 ) {
+	*(slot->digin[b].data) = indata & mask;
+	*(slot->digin[b].data_not) = !(indata & mask);
+	mask <<= 1;
+	b++;
+    }
+}
+
+static void write_PPMC_digouts(slot_data_t *slot)
+{
+    int b;
+    unsigned char outdata, mask;
+
+    //    rtapi_print_msg(RTAPI_MSG_INFO, "enter write_PPMC_digouts()\n");
+    outdata = 0x00;
+    mask = 0x01;
+    /* assemble output byte from 8 source variables */
+    for (b = 0; b < 8; b++) {
+	/* get the data, add to output byte */
+	if ((*(slot->digout[b].data)) && (!slot->digout[b].invert)) {
+	    outdata |= mask;
+	}
+	if ((!*(slot->digout[b].data)) && (slot->digout[b].invert)) {
+	    outdata |= mask;
+	}
+	mask <<= 1;
+    }
+    /* write it to the hardware (cache) */
+    slot->wr_buf[DIO_DOUTA] = outdata;
+    outdata = 0;  // now process estop bit
+    if ((*(slot->digout[8].data)) && (!slot->digout[8].invert)) {
+      outdata =1;
+    }
+    if ((!*(slot->digout[8].data)) && (slot->digout[8].invert)) {
+	    outdata |= 1;
+    }
+    slot->wr_buf[DIO_ESTOP_OUT] = outdata;
+}
+
 static void read_encoders(slot_data_t *slot)
 {
     int i, byteindex;
@@ -793,8 +894,46 @@ static void read_encoders(slot_data_t *slot)
 		slot->encoder[i].scale = 1.0;
 	}
 	*(slot->encoder[i].position) = pos.l / slot->encoder[i].scale;
-	*(slot->encoder[i].index) = (((indextemp & mask) == mask) ? 1 : 0);
+	//	*(slot->encoder[i].index) = (((indextemp & mask) == mask) ? 1 : 0);
+	*(slot->encoder[i].index) = (((indextemp & mask) == mask) ? 0 : 1);
 	mask <<= 1;
+
+ 	/* check for index-enable on the 4 encoders of this board */
+	/* note it only makes sense for one channel to have this
+	   function active at a time, so the code takes a shortcut
+	   and the highest numbered channel takes precedence. */
+	if (slot->ver >= 2) {
+	  /*	  rtapi_print_msg(RTAPI_MSG_INFO, "index_enable is  %d\n",
+	   *(slot->encoder[i].index_enable));	*/
+	  if (*(slot->encoder[i].index_enable) != 0) {
+	    /* clear encoder count load register, this will be loaded on the index pulse */
+	    SelWrt(0x00, slot->slot_base+ENCLOAD, slot->port_addr);
+	    WrtMore(0x00, slot->port_addr);
+	    WrtMore(0x00, slot->port_addr);
+	    /*		j = (1<<i); */
+	    SelWrt(8,slot->slot_base + ENCINDX, slot->port_addr);
+	    *(slot->encoder[i].ind_enb_copy) = 1;
+	  }
+	  else {
+	    SelWrt(0,slot->slot_base + ENCINDX, slot->port_addr);
+	    *(slot->encoder[i].ind_enb_copy) = 0;
+	  }
+	  
+	  /*	  rtapi_print_msg(RTAPI_MSG_INFO, "encoder %d = %d %d %d %d\n",i,pos.byte.b3,
+	    pos.byte.b2,pos.byte.b1,pos.byte.b0);  */
+	
+	/* if in index_enable mode and we have seen the index pulse
+	   on that axis, then turn off index-enable */
+	  if (*(slot->encoder[i].index_enable) && i ==3) {
+	    if ((indextemp & (1<<i)) != 0) {
+	  *(slot->encoder[i].index_enable) = 0;
+	  /* major shortcut here - assumes never can have more than
+	     one ENCINDX bit set at a time */
+	  SelWrt(0x00,slot->slot_base + ENCINDX, slot->port_addr);
+	  *(slot->encoder[i].ind_enb_copy) = 0;
+	    }
+	  }  
+	}
     }
 }
 
@@ -1058,6 +1197,49 @@ static void write_pwmgens(slot_data_t *slot)
     slot->wr_buf[PWM_CTRL_0] = control_byte;
 }
 
+static void write_DACs(slot_data_t *slot)
+{
+    int n;
+    DAC_t *pg;
+    long dc;
+
+    //    rtapi_print_msg(RTAPI_MSG_INFO, "enter write_DACs()\n");
+    /* now do the four individual DACs */
+    for ( n = 0 ; n < 4 ; n++ ) {
+      /* point to the specific DAC */
+      pg = &(slot->DAC->pg[n]);
+      /* validate the scale value */
+      if ( pg->scale < 0.0 ) {
+	if ( pg->scale > -EPSILON ) {
+	  /* too small, divide by zero is bad */
+	  pg->scale = -1.0;
+	}
+      } else {
+	if ( pg->scale < EPSILON ) {
+	  pg->scale = 1.0;
+	}
+      }
+      /* calculate desired duty cycle */
+      dc = *(pg->value) / pg->scale;  
+      /* output to DAC word works like:
+	 0xFFFF -> +10 V
+	 0x8000 ->   0 V
+	 0x0000 -> -10 V   */
+      dc = (long) (((*(pg->value) / pg->scale) * 0x7FFF)+0x8000);
+      if (dc > 0xffff)
+	{
+	  dc = 0xffff;
+	}
+      if (dc < 0 )
+	{
+	  dc = 0;
+	}
+      slot->wr_buf[DAC_0+(n*2)] = dc & 0xff;  // put low byte in cache
+      dc >>= 8;
+      slot->wr_buf[DAC_0+(n*2)+1] = dc & 0xff;  // put high byte in cache
+    }
+}
+
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
@@ -1184,6 +1366,131 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
 	bus->last_digout++;
     }
     add_wr_funct(write_digouts, slot, UxC_DOUTA, UxC_DOUTA);
+    return 0;
+}
+
+static int export_PPMC_digin(slot_data_t *slot, bus_data_t *bus)
+{
+    int retval, n;
+    char buf[HAL_NAME_LEN + 2];
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting PPMC digital inputs\n");
+
+    /* do hardware init */
+
+    /* allocate shared memory for the digital input data */
+    slot->digin = hal_malloc(18 * sizeof(din_t));  // 18 inputs per unit
+    if (slot->digin == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PPMC: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    for ( n = 0 ; n < 16 ; n++ ) {
+	/* export pins for input data */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.%02d.in",
+	    bus->busnum, bus->last_digin);
+	retval = hal_pin_bit_new(buf, HAL_OUT, 
+	    &(slot->digin[n].data), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.%02d.in-not",
+	    bus->busnum, bus->last_digin);
+	retval = hal_pin_bit_new(buf, HAL_OUT, 
+	    &(slot->digin[n].data_not), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* increment number to prepare for next output */
+	bus->last_digin++;
+    }
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.estop.in",
+	    bus->busnum, bus->last_digin);
+	retval = hal_pin_bit_new(buf, HAL_OUT, 
+	    &(slot->digin[16].data), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.estop.in-not",
+	    bus->busnum, bus->last_digin);
+	retval = hal_pin_bit_new(buf, HAL_OUT, 
+	    &(slot->digin[16].data_not), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.fault.in",
+	    bus->busnum, bus->last_digin);
+	retval = hal_pin_bit_new(buf, HAL_OUT, 
+	    &(slot->digin[17].data), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.din.fault.in-not",
+	    bus->busnum, bus->last_digin);
+	retval = hal_pin_bit_new(buf, HAL_OUT, 
+	    &(slot->digin[17].data_not), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+
+    add_rd_funct(read_PPMC_digins, slot, DIO_DINA, DIO_ESTOP_IN);
+    return 0;
+}
+
+static int export_PPMC_digout(slot_data_t *slot, bus_data_t *bus)
+{
+    int retval, n;
+    char buf[HAL_NAME_LEN + 2];
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting PPMC digital outputs\n");
+
+    /* do hardware init */
+    /* turn off all outputs */
+    SelWrt(0, slot->slot_base+DIO_DOUTA, slot->port_addr);
+
+    /* allocate shared memory for the digital output data */
+    slot->digout = hal_malloc(9 * sizeof(dout_t));              // 8 outputs per board + estop
+    if (slot->digout == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PPMC: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    for ( n = 0 ; n < 8 ; n++ ) {
+	/* export pin for output data */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.%02d.out",
+	    bus->busnum, bus->last_digout);
+	retval = hal_pin_bit_new(buf, HAL_IN, &(slot->digout[n].data), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* export parameter for inversion */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.%02d.invert",
+	    bus->busnum, bus->last_digout);
+	retval = hal_param_bit_new(buf, HAL_RW, &(slot->digout[n].invert), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	slot->digout[n].invert = 0;
+	/* increment number to prepare for next output */
+	bus->last_digout++;
+    }
+	/* export pin for E-Stop control */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.Estop.out",
+	    bus->busnum, bus->last_digout);
+	retval = hal_pin_bit_new(buf, HAL_IN, &(slot->digout[8].data), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* export parameter for inversion */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.dout.Estop.invert",
+	    bus->busnum, bus->last_digout);
+	retval = hal_param_bit_new(buf, HAL_RW, &(slot->digout[8].invert), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	slot->digout[8].invert = 0;
+	bus->last_digout++;
+    add_wr_funct(write_PPMC_digouts, slot, DIO_DOUTA, DIO_ESTOP_OUT);
     return 0;
 }
 
@@ -1369,6 +1676,56 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
     add_wr_funct(write_pwmgens, slot, PWM_GEN_0, PWM_GEN_3+1);
     return 0;
 }
+static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
+{
+    int retval, n;
+    char buf[HAL_NAME_LEN + 2];
+    DAC_t *pg;
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting PPMC DAC\n");
+
+    /* do hardware init */
+
+    /* allocate shared memory for the DAC */
+    slot->DAC = hal_malloc(sizeof(DACs_t));
+    if (slot->DAC == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PPMC: ERROR: hal_malloc() failed\n");
+	return -1;
+    }
+    /* export per-DAC pins and params, and set initial values */
+    for ( n = 0 ; n < 4 ; n++ ) {
+	/* pointer to the DAC struct */
+	pg = &(slot->DAC->pg[n]);
+	/* value command pin */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.DAC.%02d.value",
+	    bus->busnum, bus->last_DAC);
+	retval = hal_pin_float_new(buf, HAL_IN, &(pg->value), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* output scaling parameter */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.DAC.%02d.scale",
+	    bus->busnum, bus->last_DAC);
+	retval = hal_param_float_new(buf, HAL_RW, &(pg->scale), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	pg->scale = 1.0;
+	/* actual DAC digital number */
+	rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.DAC.%02d.DAC_value",
+	    bus->busnum, bus->last_DAC);
+	retval = hal_param_float_new(buf, HAL_RW, &(pg->DAC_value), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	/* increment number to prepare for next output */
+	bus->last_DAC++;
+    }
+    add_wr_funct(write_DACs, slot, DAC_0, DAC_3+1);
+    return 0;
+}
+
 
 
 /* Each of the encoders has the following:
@@ -1420,6 +1777,8 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
     ClrTimeout(slot->port_addr);
     /* clear encoder control register */
     SelWrt(0x00, slot->slot_base+ENCCTRL, slot->port_addr);
+    /* turn off encoder clear count on index pulse for all axes */
+    SelWrt(0x00,slot->slot_base+ENCINDX, slot->port_addr);
 
     /* allocate shared memory for the encoder data */
     slot->encoder = hal_malloc(4 * sizeof(encoder_t));
@@ -1464,6 +1823,23 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	retval = hal_pin_bit_new(buf, HAL_OUT, &(slot->encoder[n].index), comp_id);
 	if (retval != 0) {
 		return retval;
+	}
+	if (slot->ver >= 2) {
+	  /* encoder index enable bit */
+	  /* if the ver of the board firmware is >= 2 then the board supports
+	     this function, so export the pin */
+	  rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.index-enable",
+			 bus->busnum, bus->last_encoder);
+	  retval = hal_pin_bit_new(buf, HAL_RD, &(slot->encoder[n].index_enable), comp_id);
+	  if (retval != 0) {
+	    return retval;
+	  }
+	  rtapi_snprintf(buf, HAL_NAME_LEN, "ppmc.%d.encoder.%02d.ind-enb-copy",
+			 bus->busnum, bus->last_encoder);
+	  retval = hal_pin_bit_new(buf, HAL_OUT, &(slot->encoder[n].ind_enb_copy), comp_id);
+	  if (retval != 0) {
+	    return retval;
+	  }
 	}
 	/* increment number to prepare for next output */
 	bus->last_encoder++;
