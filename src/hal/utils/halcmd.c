@@ -1011,7 +1011,7 @@ static int do_setp_cmd(char *name, char *value)
                     "HAL:%d: ERROR: pin '%s' is not writable\n", linenumber, name);
                 return HAL_INVAL;
             }
-            if(pin->signal != NULL) {
+            if(pin->signal != 0) {
                 rtapi_mutex_give(&(hal_data->mutex));
                 rtapi_print_msg(RTAPI_MSG_ERR,
                     "HAL:%d: ERROR: pin '%s' is connected to a signal\n", linenumber, name);
@@ -3335,6 +3335,38 @@ static char *signal_generator(const char *text, int state) {
     return NULL;
 }
 
+static char *setp_generator(const char *text, int state) {
+    static int len;
+    static int next;
+    static int what;
+    if(!state) {
+        what = 0;
+        next = hal_data->param_list_ptr;
+        len = strlen(text);
+    }
+
+    if(what == 0) {
+        while(next) {
+            hal_param_t *param = SHMPTR(next);
+            next = param->next_ptr;
+            if ( param->dir != HAL_RO && strncmp(text, param->name, len) == 0 )
+                return strdup(param->name);
+        }
+        what = 1;
+        next = hal_data->pin_list_ptr;
+    }
+    while(next) {
+        hal_pin_t *pin = SHMPTR(next);
+        next = pin->next_ptr;
+        if ( pin->dir != HAL_OUT && pin->signal == 0 && 
+                 strncmp(text, pin->name, len) == 0 )
+            return strdup(pin->name);
+    }
+
+    return NULL;
+}
+
+
 static char *param_generator(const char *text, int state) {
     static int len;
     static int next;
@@ -3546,7 +3578,7 @@ char **completer(const char *text, int start, int end) {
     } else if(startswith(rl_line_buffer, "unlinkp ") && argno == 1) {
         result = rl_completion_matches(text, pin_generator);
     } else if(startswith(rl_line_buffer, "setp ") && argno == 1) {
-        result = rl_completion_matches(text, param_generator);
+        result = rl_completion_matches(text, setp_generator);
     } else if(startswith(rl_line_buffer, "sets ") && argno == 1) {
         result = rl_completion_matches(text, signal_generator);
     } else if(startswith(rl_line_buffer, "getp ") && argno == 1) {
