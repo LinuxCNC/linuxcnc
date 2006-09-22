@@ -981,6 +981,7 @@ static int do_setp_cmd(char *name, char *value)
 {
     int retval;
     hal_param_t *param;
+    hal_pin_t *pin;
     hal_type_t type;
     void *d_ptr;
     char *cp;
@@ -995,21 +996,42 @@ static int do_setp_cmd(char *name, char *value)
     /* search param list for name */
     param = halpr_find_param_by_name(name);
     if (param == 0) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: parameter '%s' not found\n", linenumber, name);
-	return HAL_INVAL;
+        pin = halpr_find_pin_by_name(name);
+        if(pin == 0) {
+            rtapi_mutex_give(&(hal_data->mutex));
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL:%d: ERROR: parameter or pin '%s' not found\n", linenumber, name);
+            return HAL_INVAL;
+        } else {
+            /* found it */
+            type = pin->type;
+            if(pin->dir == HAL_OUT) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "HAL:%d: ERROR: pin '%s' is not writable\n", linenumber, name);
+                return HAL_INVAL;
+            }
+            if(pin->signal != NULL) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "HAL:%d: ERROR: pin '%s' is connected to a signal\n", linenumber, name);
+                return HAL_INVAL;
+            }
+            // d_ptr = (void*)SHMPTR(pin->dummysig);
+            d_ptr = (void*)&pin->dummysig;
+        }
+    } else {
+        /* found it */
+        type = param->type;
+        /* is it read only? */
+        if (param->dir == HAL_RO) {
+            rtapi_mutex_give(&(hal_data->mutex));
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL:%d: ERROR: param '%s' is not writable\n", linenumber, name);
+            return HAL_INVAL;
+        }
+        d_ptr = SHMPTR(param->data_ptr);
     }
-    /* found it */
-    type = param->type;
-    /* is it read only? */
-    if (param->dir == HAL_RO) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: param '%s' is not writable\n", linenumber, name);
-	return HAL_INVAL;
-    }
-    d_ptr = SHMPTR(param->data_ptr);
     retval = 0;
     switch (type) {
     case HAL_BIT:
@@ -1020,7 +1042,7 @@ static int do_setp_cmd(char *name, char *value)
 	    *(hal_bit_t *) (d_ptr) = 0;
 	} else {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for bit parameter\n", linenumber, value);
+		"HAL:%d: ERROR: value '%s' invalid for bit\n", linenumber, value);
 	    retval = HAL_INVAL;
 	}
 	break;
@@ -1029,7 +1051,7 @@ static int do_setp_cmd(char *name, char *value)
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid character(s) in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for float parameter\n", linenumber, value);
+		"HAL:%d: ERROR: value '%s' invalid for float\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_float_t *) (d_ptr)) = fval;
@@ -1040,7 +1062,7 @@ static int do_setp_cmd(char *name, char *value)
 	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 127) || (lval < -128)) {
 	    /* invalid chars in string, or outside limits of S8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for S8 parameter\n", linenumber, value);
+		"HAL:%d: ERROR: value '%s' invalid for S8\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_s8_t *) (d_ptr)) = lval;
@@ -1051,7 +1073,7 @@ static int do_setp_cmd(char *name, char *value)
 	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 255)) {
 	    /* invalid chars in string, or outside limits of U8 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for U8 parameter\n", linenumber, value);
+		"HAL:%d: ERROR: value '%s' invalid for U8\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_u8_t *) (d_ptr)) = ulval;
@@ -1062,7 +1084,7 @@ static int do_setp_cmd(char *name, char *value)
 	if (((*cp != '\0') && (!isspace(*cp))) || (lval > 32767) || (lval < -32768)) {
 	    /* invalid chars in string, or outside limits of S16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for S16 parameter\n", linenumber, value);
+		"HAL:%d: ERROR: value '%s' invalid for S16\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_s16_t *) (d_ptr)) = lval;
@@ -1073,7 +1095,7 @@ static int do_setp_cmd(char *name, char *value)
 	if (((*cp != '\0') && (!isspace(*cp))) || (ulval > 65535)) {
 	    /* invalid chars in string, or outside limits of U16 */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for U16 parameter\n", linenumber, value);
+		"HAL:%d: ERROR: value '%s' invalid for U16\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_u16_t *) (d_ptr)) = ulval;
@@ -1084,7 +1106,7 @@ static int do_setp_cmd(char *name, char *value)
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for S32 parameter\n", linenumber, value);
+		"HAL:%d: ERROR: value '%s' invalid for S32\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_s32_t *) (d_ptr)) = lval;
@@ -1095,7 +1117,7 @@ static int do_setp_cmd(char *name, char *value)
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL:%d: ERROR: value '%s' invalid for U32 parameter\n", linenumber, value);
+		"HAL:%d: ERROR: value '%s' invalid for U32\n", linenumber, value);
 	    retval = HAL_INVAL;
 	} else {
 	    *((hal_u32_t *) (d_ptr)) = ulval;
@@ -1104,14 +1126,18 @@ static int do_setp_cmd(char *name, char *value)
     default:
 	/* Shouldn't get here, but just in case... */
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL:%d: ERROR: bad type %d setting param '%s'\n", linenumber, type, name);
+	    "HAL:%d: ERROR: bad type %d setting '%s'\n", linenumber, type, name);
 	retval = HAL_INVAL;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     if (retval == 0) {
 	/* print success message */
-	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "Parameter '%s' set to %s\n", name, value);
+        if(param)
+            rtapi_print_msg(RTAPI_MSG_INFO,
+                "Parameter '%s' set to %s\n", name, value);
+        else
+            rtapi_print_msg(RTAPI_MSG_INFO,
+                "Pin '%s' set to %s\n", name, value);
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR,"HAL:%d: setp failed\n", linenumber);
     }
