@@ -17,12 +17,12 @@
 
 component blend "Perform linear interpolation between two values";
 
-pin in1 float in "First input.  If select is equal to 0.0, the output is equal to in1";
-pin in2 float in "Second input.  If select is equal to 1.0, the output is equal to in2";
-pin select float in "Select input.  For values between 0.0 and 1.0, the output changes linearly from in1 to in2";
+pin in float in1 "First input.  If select is equal to 0.0, the output is equal to in1";
+pin in float in2 "Second input.  If select is equal to 1.0, the output is equal to in2";
+pin in float select "Select input.  For values between 0.0 and 1.0, the output changes linearly from in1 to in2";
 pin out float out "Output value.";
 
-param open bit rw "If true, select values outside the range 0.0 to 1.0 give values outside the range in1 to in2.  If false, outputs are clamped to the the range in1 to in2";
+param rw bit open "If true, select values outside the range 0.0 to 1.0 give values outside the range in1 to in2.  If false, outputs are clamped to the the range in1 to in2";
 
 function _;
 

@@ -1,6 +1,6 @@
 component out8;
-pin out_ u8 in;
-param ioaddr u32 rw;
+pin out u8 out_;
+param r u32 ioaddr;
 
 function _;
 

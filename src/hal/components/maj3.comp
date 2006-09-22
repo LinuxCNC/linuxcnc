@@ -17,12 +17,12 @@
 
 component maj3 "Compute the majority of 3 inputs";
 
-pin in1 bit in;
-pin in2 bit in;
-pin in3 bit in;
+pin in bit in1;
+pin in bit in2;
+pin in bit in3;
 pin out bit out;
 
-param invert bit rw;
+param rw bit invert;
 
 function _ nofp;
 

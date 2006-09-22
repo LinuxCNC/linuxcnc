@@ -190,15 +190,84 @@ A
 Declarations include:
 \layout LyX-Code
 
-component NAME [DOC];
+component 
+\emph on 
+NAME
+\emph default 
+ [
+\emph on 
+DOC
+\emph default 
+];
 \newline 
-pin NAME TYPE PINDIRECTION [DOC];
+pin 
+\emph on 
+PINDIRECTION
+\emph default 
+ 
+\emph on 
+TYPE
+\emph default 
+ 
+\emph on 
+NAME
+\emph default 
+ [
+\emph on 
+DOC
+\emph default 
+];
 \newline 
-param NAME TYPE PARAMDIRECTION [DOC] [ = STARTVALUE];
+param 
+\emph on 
+PARAMDIRECTION
+\emph default 
+ 
+\emph on 
+TYPE
+\emph default 
+ 
+\emph on 
+NAME
+\emph default 
+ [= 
+\emph on 
+STARTVALUE
+\emph default 
+] [
+\emph on 
+DOC
+\emph default 
+] ;
 \newline 
-function NAME [fp | nofp] [DOC];
+function 
+\emph on 
+NAME
+\emph default 
+ [fp | nofp] [
+\emph on 
+DOC
+\emph default 
+];
 \newline 
-option NAME [VALUE];
+option 
+\emph on 
+NAME
+\emph default 
+ [
+\emph on 
+VALUE
+\emph default 
+];
+\layout Standard
+
+Brackets indicate optional items.
+ A vertical bar indicates alternatives.
+ Words in 
+\emph on 
+CAPITALS
+\emph default 
+ indicate variable text, as follows:
 \layout Description
 
 NAME A C identifier.
@@ -262,6 +331,46 @@ hal_
 \family default 
  is removed from the beginning of the component name when creating pins,
  parameters and functions.
+\layout Description
+
+DOC A string that documents the item.
+ String can be a C-style 
+\begin_inset Quotes eld
+\end_inset 
+
+double quoted
+\begin_inset Quotes erd
+\end_inset 
+
+ string, like 
+\family typewriter 
+"Selects the desired edge: TRUE means falling, FALSE means rising"
+\family default 
+ or a Python-style 
+\begin_inset Quotes eld
+\end_inset 
+
+triple quoted
+\begin_inset Quotes erd
+\end_inset 
+
+ string, which may include embedded newlines and quote characters, such
+ as:
+\begin_deeper 
+\layout LyX-Code
+
+param rw bit zot=TRUE
+\newline 
+"""The effect of this parameter, also known as "the orb of zot",
+\newline 
+will require at least two paragraphs to explain.
+\newline 
+
+\newline 
+Hopefully these paragraphs have allowed you to understand "zot" 
+\newline 
+better.""";
+\end_deeper 
 \layout Description
 
 TYPE One of the HAL types: bit, 
@@ -355,9 +464,6 @@ FALSE
 , depending on the type of the parameter.
 \layout Description
 
-DOC A C-syntax string that documents the item.
-\layout Description
-
 fp Indicates that the function performs floating-point calculations.
 \layout Description
 
@@ -373,9 +479,11 @@ fp
 nofp
 \family default 
 .
-\layout Standard
+\layout Description
 
-The currently defined options are:
+VALUE Depending on the option name, the valid VALUEs vary.
+ The currently defined options are:
+\begin_deeper 
 \layout Description
 
 option\SpecialChar ~
@@ -554,6 +662,7 @@ option \SpecialChar \ldots{}
 .
  The result of assigning an inappropriate value to an option is undefined.
  The result of using any other option is undefined.
+\end_deeper 
 \layout Standard
 
 C++-style one-line comments (
@@ -785,7 +894,7 @@ component constant;
 \newline 
 pin out float out;
 \newline 
-param value float r = 1.0;
+param r float value = 1.0;
 \newline 
 function _;
 \newline 
@@ -831,11 +940,11 @@ sincos.<num>.sin
 
 component sincos;
 \newline 
-pin sin_ float out;
+pin out float sin_ out;
 \newline 
-pin cos_ float out;
+pin out float cos_ out;
 \newline 
-pin theta float in;
+pin in float theta in;
 \newline 
 function _;
 \newline 
@@ -905,7 +1014,7 @@ hal_loop
 component hal_loop;
 \layout LyX-Code
 
-pin example float out;
+pin out float example;
 \layout LyX-Code
 
 \layout Standard

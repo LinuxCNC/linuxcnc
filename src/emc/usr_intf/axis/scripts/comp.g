@@ -29,24 +29,28 @@ parser Hal:
     token PINDIRECTION: "in|out|io"
     token TYPE: "float|bit|u32|s32|u16|s16|u8|s8"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
-    token FPNUMBER: "([0-9]*\.[0-9]+|[0-9]+\.)([Ee][+-]?[0-9]+)?f?"
-    token NUMBER: "[0-9]+|0x[0-9a-fA-F]+"
-    token STRING: '"(\\.|[^"])*"'
+    token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.)([Ee][+-]?[0-9]+)?f?"
+    token NUMBER: "-?[0-9]+|0x[0-9a-fA-F]+"
+    token STRING: '"(\\.|[^\\"])*"'
+    token TSTRING: '"""(\\.|\\\n|[^\\"]|"(?!"")|\n)*"""'
 
     rule File: Declaration* "$" {{ return True }}
     rule Declaration:
         "component" NAME OptString";" {{ comp(NAME, OptString); }}
-      | "pin" NAME TYPE PINDIRECTION OptString ";"  {{ pin(NAME, TYPE, PINDIRECTION, OptString) }}
-      | "param" NAME TYPE PARAMDIRECTION OptString OptAssign ";" {{ param(NAME, TYPE, PARAMDIRECTION, OptString, OptAssign) }}
+      | "pin" PINDIRECTION TYPE NAME OptString ";"  {{ pin(NAME, TYPE, PINDIRECTION, OptString) }}
+      | "param" PARAMDIRECTION TYPE NAME OptAssign OptString ";" {{ param(NAME, TYPE, PARAMDIRECTION, OptString, OptAssign) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
 
-    rule OptString: STRING {{ return eval(STRING) }} | {{ return '' }}
+    rule OptString: TSTRING {{ return eval(TSTRING) }} 
+            | STRING {{ return eval(STRING) }}
+            | {{ return '' }}
     rule OptAssign: "=" Value {{ return Value; }}
                 | {{ return None }}
     rule OptFP: "fp" {{ return 1 }} | "nofp" {{ return 0 }} | {{ return 1 }}
     rule Value: "yes" {{ return 1 }} | "no" {{ return 0 }}  
                 | "true" {{ return 1 }} | "false" {{ return 0 }}  
+                | "TRUE" {{ return 1 }} | "FALSE" {{ return 0 }}  
                 | NAME {{ return NAME }}
                 | FPNUMBER {{ return float(FPNUMBER.rstrip("f")) }}
                 | NUMBER {{ return int(NUMBER,0) }}
@@ -123,6 +127,7 @@ static int comp_id;
 
     def q(s):
         s = s.replace("\\", "\\\\")
+        s = s.replace("\"", "\\\"")
         s = s.replace("\r", "\\r")
         s = s.replace("\n", "\\n")
         s = s.replace("\t", "\\t")
@@ -385,7 +390,7 @@ def document(filename, outfilename):
         print >>f, "\\fB%s" % to_hal_man(name),
         print >>f, type, dir,
         if value:
-            print >>f, "\\fR(default: \\fI%s\\fF)" % value
+            print >>f, "\\fR(default: \\fI%s\\fR)" % value
         else:
             print >>f, "\\fR"
         print >>f, doc

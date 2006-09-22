@@ -1,8 +1,11 @@
 component comp "Two input comparator";
-pin in0 float in "Inverting input to the comparator";
-pin in1 float in "Non-inverting input to the comparator";
-pin out bit out "Output of the comparator";
-param hyst float rw "Hysteresis of the comparator";
+pin in float in0 "Inverting input to the comparator";
+pin in float in1 "Non-inverting input to the comparator";
+pin out bit out """Output of the comparator.
+
+The output changes when the magnitude of the difference exceeds the hysteresis.
+As long as the hysteresis is unchanged, the output is unchanged.""";
+param rw float hyst=0.0 "Hysteresis of the comparator";
 function _ fp "Update the comparator";
 ;;
 FUNCTION(_) {
