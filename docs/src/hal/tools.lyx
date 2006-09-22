@@ -565,15 +565,15 @@ Unlink pin: Breaks any previous link to
 Setting Values
 \layout LyX-Code
 
-setp <paramname> <value>
+setp <name> <value>
 \layout LyX-Code
 
-<paramname> = <value>
+<name> = <value>
 \layout Standard
 
-Set parameter: Sets the value of parameter 
+Set parameter or pin: Sets the value of 
 \family typewriter 
-<paramname>
+<name>
 \family default 
  to 
 \family typewriter 
@@ -582,20 +582,24 @@ Set parameter: Sets the value of parameter
 .
  The second form of the command has exactly the same effect, but is provided
  for use in files where it may make the file more readable.
- The second form is not recommended on the command line, since the shell
- may misinterpret the equal sign.
  If 
 \family typewriter 
-<paramname>
+<name>
 \family default 
- does not exist, or if it is not writable, the command will fail.
+ does not exist as a pin or parameter, if it is a parameter that is not
+ writable, if it is a pin that is an output, if it is a pin that is already
+ attached to a signal, or if 
+\family typewriter 
+<value>
+\family default 
+ is not a legal value, the command will fail.
  It will also fail if 
 \family typewriter 
 <value>
 \family default 
  is not a legal value for 
 \family typewriter 
-<paramname>
+<name>
 \family default 
 's data type.
  For example, 
@@ -636,6 +640,8 @@ TRUE
 FALSE
 \family default 
 ).
+ If a pin and a parameter both exist with the given name, the parameter
+ is acted on.
 \layout LyX-Code
 
 sets <signame> <value>
