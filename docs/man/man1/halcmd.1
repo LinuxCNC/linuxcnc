@@ -153,16 +153,18 @@ it were:
 (\fIunlink\fR \fIp\fRin)  Breaks any previous link to \fIpinname\fR.
 Fails if \fIpinname\fR does not exist.
 .TP
-\fBsetp\fR \fIparamname\fR \fIvalue\fR
-(\fIset\fR \fIp\fRarameter)  Sets the value of parameter \fIparamname\fR
-to \fIvalue\fR.  Fails if \fIparamname\fR does not exist or if \fIvalue\fR
-is not a legal value.  Legal values depend on the parameter's type.
+\fBsetp\fR \fIname\fR \fIvalue\fR
+(\fIset\fR \fIp\fRarameter or \fIp\fRin)  Sets the value of parameter or pin
+\fIname\fR to \fIvalue\fR.  Fails if \fIname\fR does not exist as a pin or
+parameter, if it is a parameter that is not writable, if it is a pin that is an
+output, if it is a pin that is already attached to a signal, or if \fIvalue\fR
+is not a legal value.  Legal values depend on the type of the pin or parameter.
+If a pin and a parameter both exist with the given name, the parameter is acted
+on.
 .TP
 \fIparamname\fR \fB=\fR \fIvalue\fR
 Identical to \fBsetp\fR.  This alternate form of the command may
-be more convenient and readable when used in a file.  Do not use
-from the command line, since the shell may try to interpret
-the '\fB=\fR' sign.
+be more convenient and readable when used in a file.
 .TP
 \fBaddf\fR \fIfunctname\fR \fIthreadname\fR
 (\fIadd\fR \fIf\fRunction)  Adds function \fIfunctname\fR to realtime
