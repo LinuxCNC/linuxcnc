@@ -606,7 +606,7 @@ static void make_pulses(void *arg, long period)
 	/* bail out if not enabled */
 	if (*stepgen->enable == 0) {
 	    stepgen++;
-	    break;
+	    continue;
 	}
 
 	if (stepgen->deltalim != 0) {
@@ -806,7 +806,7 @@ static void update_freq(void *arg, long period)
 	    stepgen->newaddval = 0;
 	    /* and skip to next one */
 	    stepgen++;
-	    break;
+	    continue;
 	}
 	/* calculate frequency limit */
 	if (stepgen->wd.st0.step_type == 0) {
