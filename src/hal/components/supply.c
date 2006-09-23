@@ -61,8 +61,7 @@ MODULE_AUTHOR("Matt Shaver");
 MODULE_DESCRIPTION("Supply Component for EMC HAL");
 MODULE_LICENSE("GPL");
 static int num_chan = 1;	/* number of channels - default = 1 */
-MODULE_PARM(num_chan, "i");
-MODULE_PARM_DESC(num_chan, "number of channels");
+RTAPI_MP_INT(num_chan, "number of channels");
 #endif /* MODULE */
 
 /***********************************************************************

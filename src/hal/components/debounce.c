@@ -58,8 +58,7 @@ MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Debounce filter for EMC HAL");
 MODULE_LICENSE("GPL");
 static char *cfg = "1";		/* config string, default = 1 filter */
-MODULE_PARM(cfg, "s");
-MODULE_PARM_DESC(cfg, "config string");
+RTAPI_MP_STRING(cfg, "config string");
 #endif /* MODULE */
 
 /***********************************************************************

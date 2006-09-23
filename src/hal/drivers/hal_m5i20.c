@@ -145,11 +145,9 @@ MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("Driver for Mesa Electronics 5i20 for EMC HAL");
 MODULE_LICENSE("GPL");
 static unsigned long			loadFpga = 1;
-MODULE_PARM(loadFpga, "l");
-MODULE_PARM_DESC(loadFpga, "Set to have FPGA configuration loaded");
+RTAPI_MP_LONG(loadFpga, "Set to have FPGA configuration loaded");
 static unsigned long			dacRate = 32000;// PWM rate in Hz. 1 Hz to 32 KHz.
-MODULE_PARM(dacRate, "l");
-MODULE_PARM_DESC(dacRate, "DAC PWM rate");
+RTAPI_MP_LONG(dacRate, "DAC PWM rate");
 #endif // MODULE
 
 

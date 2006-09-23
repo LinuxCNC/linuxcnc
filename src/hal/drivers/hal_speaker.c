@@ -91,8 +91,7 @@ MODULE_DESCRIPTION("PC Speaker Driver");
 MODULE_LICENSE("GPL");
 /* static char *cfg = 0; */
 /* config string
-MODULE_PARM(cfg, "s");
-MODULE_PARM_DESC(cfg, "config string"); */
+RTAPI_MP_STRING(cfg, "config string"); */
 #endif /* MODULE */
 
 /***********************************************************************

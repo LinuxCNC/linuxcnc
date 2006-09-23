@@ -68,68 +68,47 @@ MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Functional blocks for EMC HAL");
 MODULE_LICENSE("GPL");
 static int constant = 0;	/* number of constants */
-MODULE_PARM(constant, "i");
-MODULE_PARM_DESC(constant, "constants");
+RTAPI_MP_INT(constant, "constants");
 static int wcomp = 0;		/* number of window comps */
-MODULE_PARM(wcomp, "i");
-MODULE_PARM_DESC(wcomp, "window comparators");
+RTAPI_MP_INT(wcomp, "window comparators");
 static int comp = 0;		/* number of 2-input comps */
-MODULE_PARM(comp, "i");
-MODULE_PARM_DESC(comp, "2-input comparators");
+RTAPI_MP_INT(comp, "2-input comparators");
 static int sum2 = 0;		/* number of 2-input summers */
-MODULE_PARM(sum2, "i");
-MODULE_PARM_DESC(sum2, "2-input summers");
+RTAPI_MP_INT(sum2, "2-input summers");
 static int mult2 = 0;		/* number of 2-input multipliers */
-MODULE_PARM(mult2, "i");
-MODULE_PARM_DESC(mult2, "2-input multiplier");
+RTAPI_MP_INT(mult2, "2-input multiplier");
 static int hypot = 0;		/* number of hypot calculators */
-MODULE_PARM(hypot, "i");
-MODULE_PARM_DESC(hypot, "hypot calculators");
+RTAPI_MP_INT(hypot, "hypot calculators");
 static int mux2 = 0;		/* number of 2-input muxes */
-MODULE_PARM(mux2, "i");
-MODULE_PARM_DESC(mux2, "2-input multiplexors");
+RTAPI_MP_INT(mux2, "2-input multiplexors");
 static int mux4 = 0;		/* number of 4-input muxes */
-MODULE_PARM(mux4, "i");
-MODULE_PARM_DESC(mux4, "4-input multiplexors");
+RTAPI_MP_INT(mux4, "4-input multiplexors");
 static int integ = 0;		/* number of integerators */
-MODULE_PARM(integ, "i");
-MODULE_PARM_DESC(integ, "integrators");
+RTAPI_MP_INT(integ, "integrators");
 static int ddt = 0;		/* number of differentiators */
-MODULE_PARM(ddt, "i");
-MODULE_PARM_DESC(ddt, "differentiators");
+RTAPI_MP_INT(ddt, "differentiators");
 static int limit1 = 0;		/* number of limiters */
-MODULE_PARM(limit1, "i");
-MODULE_PARM_DESC(limit1, "first order limiters");
+RTAPI_MP_INT(limit1, "first order limiters");
 static int limit2 = 0;		/* number of limiters */
-MODULE_PARM(limit2, "i");
-MODULE_PARM_DESC(limit2, "second order limiters");
+RTAPI_MP_INT(limit2, "second order limiters");
 static int limit3 = 0;		/* number of limiters */
-MODULE_PARM(limit3, "i");
-MODULE_PARM_DESC(limit3, "third order limiters");
+RTAPI_MP_INT(limit3, "third order limiters");
 static int n_estop = 0;		/* number of estop blocks */
-MODULE_PARM(n_estop, "i");
-MODULE_PARM_DESC(n_estop, "estop latch blocks");
+RTAPI_MP_INT(n_estop, "estop latch blocks");
 static int not = 0;            /* number of logical nots */
-MODULE_PARM(not, "i");
-MODULE_PARM_DESC(not, "logical inverters");
+RTAPI_MP_INT(not, "logical inverters");
 static int and2 = 0;            /* number of 2-input logical ands */
-MODULE_PARM(and2, "i");
-MODULE_PARM_DESC(and2, "2-input logical ands");
+RTAPI_MP_INT(and2, "2-input logical ands");
 static int or2 = 0;            /* number of 2-input logical ors */
-MODULE_PARM(or2, "i");
-MODULE_PARM_DESC(or2, "2-input logical ors");
+RTAPI_MP_INT(or2, "2-input logical ors");
 static int scale = 0;            /* number of scales */
-MODULE_PARM(scale, "i");
-MODULE_PARM_DESC(scale, "scales");
+RTAPI_MP_INT(scale, "scales");
 static int lowpass = 0;            /* number of lowpass-filters */
-MODULE_PARM(lowpass, "i");
-MODULE_PARM_DESC(lowpass, "lowpass-filters");
+RTAPI_MP_INT(lowpass, "lowpass-filters");
 static int match8 = 0;            /* number of match detectors */
-MODULE_PARM(match8, "i");
-MODULE_PARM_DESC(match8, "match detectors");
+RTAPI_MP_INT(match8, "match detectors");
 static int minmax = 0;            /* number of min/max blocks */
-MODULE_PARM(minmax, "i");
-MODULE_PARM_DESC(minmax, "minmax blocks");
+RTAPI_MP_INT(minmax, "minmax blocks");
 
 #endif /* MODULE */
 

@@ -65,32 +65,23 @@ MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Thread Module for HAL");
 MODULE_LICENSE("GPL");
 static char *name1 = NULL;	/* name of thread */
-MODULE_PARM(name1, "s");
-MODULE_PARM_DESC(name1, "name of thread 1");
+RTAPI_MP_STRING(name1, "name of thread 1");
 static int fp1 = 1;		/* use floating point? default = yes */
-MODULE_PARM(fp1, "i");
-MODULE_PARM_DESC(fp1, "thread1 uses floating point");
+RTAPI_MP_INT(fp1, "thread1 uses floating point");
 static long period1 = 0;	/* thread period - default = no thread */
-MODULE_PARM(period1, "l");
-MODULE_PARM_DESC(period1, "thread1 period (nsecs)");
+RTAPI_MP_LONG(period1,  "thread1 period (nsecs)");
 static char *name2 = NULL;	/* name of thread */
-MODULE_PARM(name2, "s");
-MODULE_PARM_DESC(name2, "name of thread 2");
+RTAPI_MP_STRING(name2, "name of thread 2");
 static int fp2 = 1;		/* use floating point? default = yes */
-MODULE_PARM(fp2, "i");
-MODULE_PARM_DESC(fp2, "thread2 uses floating point");
+RTAPI_MP_INT(fp2, "thread2 uses floating point");
 static long period2 = 0;	/* thread period - default = no thread */
-MODULE_PARM(period2, "l");
-MODULE_PARM_DESC(period2, "thread2 period (nsecs)");
+RTAPI_MP_LONG(period2, "thread2 period (nsecs)");
 static char *name3 = NULL;	/* name of thread */
-MODULE_PARM(name3, "s");
-MODULE_PARM_DESC(name3, "name of thread 3");
+RTAPI_MP_STRING(name3, "name of thread 3");
 static int fp3 = 1;		/* use floating point? default = yes */
-MODULE_PARM(fp3, "i");
-MODULE_PARM_DESC(fp3, "thread1 uses floating point");
+RTAPI_MP_INT(fp3, "thread1 uses floating point");
 static long period3 = 0;	/* thread period - default = no thread */
-MODULE_PARM(period3, "l");
-MODULE_PARM_DESC(period3, "thread3 period (nsecs)");
+RTAPI_MP_LONG(period3, "thread3 period (nsecs)");
 #endif /* MODULE */
 
 /***********************************************************************

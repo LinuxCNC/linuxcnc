@@ -217,8 +217,7 @@ static int comp_id;
         if not options.get("singleton") and not options.get("count_function") :
             print >>f, "static int count = %s;" \
                 % options.get("default_count", 1)
-            print >>f, "MODULE_PARM(count, \"i\");"
-            print >>f, "MODULE_PARM_DESC(count, \"number of %s\");" % comp_name
+            print >>f, "RTAPI_MP_INT(count, \"number of %s\");" % comp_name
 
         print >>f, "int rtapi_app_main(void) {"
         print >>f, "    int r = 0;"

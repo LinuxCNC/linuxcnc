@@ -161,17 +161,13 @@ MODULE_AUTHOR("Alex Joni");
 MODULE_DESCRIPTION("Driver for Servo-to-Go Model I  & II for EMC HAL");
 MODULE_LICENSE("GPL");
 static int base = 0x00;		/* board base address, 0 means autodetect */
-MODULE_PARM(base, "i");
-MODULE_PARM_DESC(base, "board base address, don't use for autodetect");
+RTAPI_MP_INT(base, "board base address, don't use for autodetect");
 static int model = 0;		/* board model, leave empty and autodetect */
-MODULE_PARM(model, "i");
-MODULE_PARM_DESC(model, "board model, use with caution. it overrides the detected model");
+RTAPI_MP_INT(model, "board model, use with caution. it overrides the detected model");
 static int num_chan = MAX_CHANS;	/* number of channels - default = 8 */
-MODULE_PARM(num_chan, "i");
-MODULE_PARM_DESC(num_chan, "number of channels");
+RTAPI_MP_INT(num_chan, "number of channels");
 static char *dio = "IIOO";		/* dio config - default = port A&B inputs, port C&D outputs */
-MODULE_PARM(dio, "s");
-MODULE_PARM_DESC(dio, "dio config string - expects something like IIOO");
+RTAPI_MP_STRING(dio, "dio config string - expects something like IIOO");
 #endif /* MODULE */
 
 #define	EPSILON		1e-20

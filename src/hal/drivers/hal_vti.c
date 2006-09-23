@@ -177,11 +177,9 @@ MODULE_DESCRIPTION
     ("Driver for Vigilant Technologies ENCDAC 4 channel controller");
 MODULE_LICENSE("GPL");
 static int num_chan = MAX_CHANS;	/* number of channels - default = 8 */
-MODULE_PARM(num_chan, "i");
-MODULE_PARM_DESC(num_chan, "number of channels");
+RTAPI_MP_INT(num_chan, "number of channels");
 static char *dio = "ii";	/* dio config - default = port A&B inputs, port C&D outputs */
-MODULE_PARM(dio, "s");
-MODULE_PARM_DESC(dio, "dio config string - expects something like IOiooi");
+RTAPI_MP_STRING(dio, "dio config string - expects something like IOiooi");
 #endif /* MODULE */
 
 /***********************************************************************

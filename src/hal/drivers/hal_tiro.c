@@ -89,11 +89,9 @@ MODULE_AUTHOR("Alex Joni");
 MODULE_DESCRIPTION("Driver for Tiro-PC104 board for EMC HAL");
 MODULE_LICENSE("GPL");
 static int base = 0x300;	/* board base address */
-MODULE_PARM(base, "i");
-MODULE_PARM_DESC(base, "board base address");
+RTAPI_MP_INT(base, "board base address");
 static int num_chan = 4;	/* number of channels - default = 4 */
-MODULE_PARM(num_chan, "i");
-MODULE_PARM_DESC(num_chan, "number of channels");
+RTAPI_MP_INT(num_chan, "number of channels");
 #endif /* MODULE */
 
 /***********************************************************************

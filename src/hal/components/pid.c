@@ -134,11 +134,9 @@ MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("PID Loop Component for EMC HAL");
 MODULE_LICENSE("GPL");
 static int num_chan = 3;	/* number of channels - default = 3 */
-MODULE_PARM(num_chan, "i");
-MODULE_PARM_DESC(num_chan, "number of channels");
+RTAPI_MP_INT(num_chan, "number of channels");
 static int debug = 0;		/* flag to export optional params */
-MODULE_PARM(debug, "i");
-MODULE_PARM_DESC(debug, "enables optional params");
+RTAPI_MP_INT(debug, "enables optional params");
 #endif /* MODULE */
 
 /***********************************************************************

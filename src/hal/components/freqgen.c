@@ -295,8 +295,7 @@ MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Frequency Generator for EMC HAL");
 MODULE_LICENSE("GPL");
 int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-MODULE_PARM(step_type, "1-8i");
-MODULE_PARM_DESC(step_type, "stepping types for up to 8 channels");
+RTAPI_MP_ARRAY_INT(step_type, 8, "stepping types for up to 8 channels");
 #endif /* MODULE */
 
 /***********************************************************************

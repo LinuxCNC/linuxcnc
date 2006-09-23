@@ -86,35 +86,25 @@ MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("PLC component for EMC HAL");
 MODULE_LICENSE("GPL");
 static long				period = 0;	// Thread period (0 = no thread).
-MODULE_PARM(period, "l");
-MODULE_PARM_DESC(period, "thread period (nsecs)");
+RTAPI_MP_LONG(period, "thread period (nsecs)");
 static int numRungs = 10;
-MODULE_PARM(numRungs, "i");
-MODULE_PARM_DESC(numRungs, "Number of rungs to allocate");
+RTAPI_MP_INT(numRungs, "Number of rungs to allocate");
 static int numBits = 500;
-MODULE_PARM(numBits, "i");
-MODULE_PARM_DESC(numBits, "Number of bits to allocate");
+RTAPI_MP_INT(numBits, "Number of bits to allocate");
 static int numWords = 50;
-MODULE_PARM(numWords, "i");
-MODULE_PARM_DESC(numWords, "Number of words to allocate");
+RTAPI_MP_INT(numWords, "Number of words to allocate");
 static int numTimers = 8;
-MODULE_PARM(numTimers, "i");
-MODULE_PARM_DESC(numTimers, "Number of timers to allocate");
+RTAPI_MP_INT(numTimers, "Number of timers to allocate");
 static int numMonostables = 8;
-MODULE_PARM(numMonostables, "i");
-MODULE_PARM_DESC(numMonostables, "Number of monostables to allocate");
+RTAPI_MP_INT(numMonostables, "Number of monostables to allocate");
 static int numPhysInputs = 10;
-MODULE_PARM(numPhysInputs, "i");
-MODULE_PARM_DESC(numPhysInputs, "Number of inputs to allocate");
+RTAPI_MP_INT(numPhysInputs, "Number of inputs to allocate");
 static int numPhysOutputs = 50;
-MODULE_PARM(numPhysOutputs, "i");
-MODULE_PARM_DESC(numPhysOutputs, "Number of outputs to allocate");
+RTAPI_MP_INT(numPhysOutputs, "Number of outputs to allocate");
 static int numArithmExpr = 100;
-MODULE_PARM(numArithmExpr, "i");
-MODULE_PARM_DESC(numArithmExpr, "Number of arithmetic expressions to allocate");
+RTAPI_MP_INT(numArithmExpr, "Number of arithmetic expressions to allocate");
 static int numSections = 10;
-MODULE_PARM(numSections, "i");
-MODULE_PARM_DESC(numSections, "Number of sections to allocate");
+RTAPI_MP_INT(numSections, "Number of sections to allocate");
 #endif // MODULE
 
 

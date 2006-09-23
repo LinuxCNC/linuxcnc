@@ -40,31 +40,26 @@ MODULE_LICENSE("GPL");
 
 /*! \todo FIXME - find a better way to do this */
 int DEBUG_MOTION = 0;
-MODULE_PARM(DEBUG_MOTION, "i");
+RTAPI_MP_INT(DEBUG_MOTION, "debug motion");
 
 /* RTAPI shmem key - for comms with higher level user space stuff */
 static int key = 100;		/* the shared memory key, default value */
-MODULE_PARM(key, "i");
-MODULE_PARM_DESC(key, "shared memory key");
+RTAPI_MP_INT(key, "shared memory key");
 
 #if 0
 /*! \todo FIXME - currently HAL has a fixed stacksize of 16384...
    the upcoming HAL rewrite may make it a paramater of the
    create_thread call, in which case this will be restored */
 static int EMCMOT_TASK_STACKSIZE = 8192;	/* default stacksize */
-MODULE_PARM(EMCMOT_TASK_STACKSIZE, "i");
-MODULE_PARM_DESC(EMCMOT_TASK_STACKSIZE, "motion stack size");
+RTAPI_MP_INT(EMCMOT_TASK_STACKSIZE, "motion stack size");
 #endif
 
 static long base_period_nsec = 0;	/* fastest thread period */
-MODULE_PARM(base_period_nsec, "l");
-MODULE_PARM_DESC(base_period_nsec, "fastest thread period (nsecs)");
+RTAPI_MP_LONG(base_period_nsec, "fastest thread period (nsecs)");
 static long servo_period_nsec = 0;	/* servo thread period */
-MODULE_PARM(servo_period_nsec, "l");
-MODULE_PARM_DESC(servo_period_nsec, "servo thread period (nsecs)");
+RTAPI_MP_LONG(servo_period_nsec, "servo thread period (nsecs)");
 static long traj_period_nsec = 0;	/* trajectory planner period */
-MODULE_PARM(traj_period_nsec, "l");
-MODULE_PARM_DESC(traj_period_nsec, "trajectory planner period (nsecs)");
+RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
 
 #endif /* MODULE */
 
