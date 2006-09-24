@@ -1066,43 +1066,39 @@ void CHANGE_TOOL(int slot)
     EMC_TRAJ_LINEAR_MOVE linear_move_msg;
     EMC_TOOL_LOAD load_tool_msg;
 
-    /* optional first move to tool change position */
+    /* optional move to tool change position.  This
+     * is a mess because we really want a configurable chain
+     * of events to happen when a tool change is called for.
+     * Since they'll probably involve motion, we can't just
+     * do it in HAL.  This is basic support for making one
+     * move to a particular coordinate before the tool change
+     * is called.  */
+    
     if (HAVE_TOOL_CHANGE_POSITION) {
-	linear_move_msg.end.tran = TOOL_CHANGE_POSITION.tran;	// struct
-	// copy
-	linear_move_msg.end.a = 0.0;
-	linear_move_msg.end.b = 0.0;
-	linear_move_msg.end.c = 0.0;
-        linear_move_msg.type = EMC_MOTION_TYPE_TOOLCHANGE;
-	interp_list.append(linear_move_msg);
-	/*! \todo FIXME-- orient spindle command goes here. We don't yet have an NML 
-	   message for this. */
-	/* first EMC_TOOL_LOAD message tells emcio to take tool out */
-	interp_list.append(load_tool_msg);
-    }
+        double vel, acc, x, y, z, a, b, c;
 
-    /* optional move to clear Z */
-    if (HAVE_TOOL_HOLDER_CLEAR) {
-	linear_move_msg.end.tran = TOOL_HOLDER_CLEAR.tran;	// struct
-	// copy
-	linear_move_msg.end.a = 0.0;
-	linear_move_msg.end.b = 0.0;
-	linear_move_msg.end.c = 0.0;
-        linear_move_msg.type = EMC_MOTION_TYPE_TOOLCHANGE;
-	interp_list.append(linear_move_msg);
-	/* second EMC_TOOL_LOAD message tells emcio rotate carousel */
-	interp_list.append(load_tool_msg);
-    }
+        x = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.x);
+        y = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.y);
+        z = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.z);
+        a = FROM_EXT_ANG(0.0);
+        b = FROM_EXT_ANG(0.0);
+        c = FROM_EXT_ANG(0.0);
 
-    /* optional move back to tool change position */
-    if (HAVE_TOOL_CHANGE_POSITION) {
-	linear_move_msg.end.tran = TOOL_CHANGE_POSITION.tran;	// struct
-	// copy
-	linear_move_msg.end.a = 0.0;
-	linear_move_msg.end.b = 0.0;
-	linear_move_msg.end.c = 0.0;
+	linear_move_msg.end.tran.x = TO_EXT_LEN(x);
+	linear_move_msg.end.tran.y = TO_EXT_LEN(y);
+	linear_move_msg.end.tran.z = TO_EXT_LEN(z);
+	linear_move_msg.end.a = TO_EXT_ANG(a);
+	linear_move_msg.end.b = TO_EXT_ANG(b);
+	linear_move_msg.end.c = TO_EXT_ANG(c);
         linear_move_msg.type = EMC_MOTION_TYPE_TOOLCHANGE;
-	interp_list.append(linear_move_msg);
+
+        vel = getStraightVelocity(x, y, z, a, b, c);
+        sendVelMsg(vel, vel);
+        if((acc = getStraightAcceleration(x, y, z, a, b, c)))
+            sendAccMsg(acc);
+
+        interp_list.append(linear_move_msg);
+        canonUpdateEndPoint(x, y, z, a, b, c);
     }
 
     /* regardless of optional moves above, we'll always send a load tool
