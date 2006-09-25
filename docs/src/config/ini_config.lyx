@@ -401,6 +401,25 @@ Folk with fast computers have found that reducing this value by half will
  give them smother motion blending during contour cutting .
 \layout Subsection
 
+[TASK]
+\layout Standard
+
+The [TASK] section contains general parameters for EMCTASK, which includes
+ primarily the NC language interpreter and the sequencing logic for sending
+ commands to EMCMOT and EMCIO.
+\layout Standard
+
+
+\series bold 
+CYCLE_TIME = 0.100
+\layout Standard
+
+The period, in seconds, at which EMCTASK will run.
+ You can make this as small as you want to increase the throughput.
+ Making it 0.0 or a negative number will tell EMCTASK not to sleep at all.
+ Ultimately the system loading will limit the effective throughput.
+\layout Subsection
+
 [HAL]
 \layout Standard
 
@@ -619,12 +638,7 @@ UNITS = 0.03937007874016
 \color black
 Units per millimeter for a LINEAR axis, as defined in the [AXIS_#] TYPE
  section, or units per degree for an ANGULAR axis as defined in the same
- section.\SpecialChar ~
- The following parameters P, I, D, FF0, FF1, FF2 are used by the
- servo compensation algorithm to optimize performance while tracking trajectory
- set-points.
- See Tuning Servos for information on setting up a servomotor system.
- 
+ section.
 \layout Standard
 
 
@@ -637,46 +651,10 @@ Per axis maximum velocity while coordinated motion is in effect.
 
 
 \series bold 
-STEPGEN_MAXVEL = 1.4
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-NOTE: the step generator module applies its own limits to acceleration and
- velocity.
- We have discovered that it needs to have a little "headroom" over the accel
- by the trajectory planner, otherwise it can fall slightly behind during
- accel and later overshoot as it catches up.
- In the long term we hope to come up with a clean fix for this problem.
- In the meantime, please set STEPGEN_MAXVEL to a few percent higher than
- MAX_VELOCITY, the regular velocity limit and STEPGEN_MAXACCEL slightly
- larger that of MAX_ACCELERATION.
-\end_inset 
-
-
-\layout Standard
-
-A value applied to the stepper pulse generator to provide some overhead
- for following error catch up.
- 
-\layout Standard
-
-
-\series bold 
 MAX_ACCELERATION = 20.0
 \layout Standard
 
 Per axis maximum acceleration while coordinated motion is in effect.
-\layout Standard
-
-
-\series bold 
-STEPGEN_MAXACCEL = 21.0
-\layout Standard
-
-Overhead for the stepper pulse generator when it needs to catch up.
- 
 \layout Standard
 
 
@@ -767,6 +745,224 @@ Note that the units of the offset are in sensor units, e.g., counts, and they
  The value for this offset is obtained by finding the value of counts for
  which you want your user units to read 0.0.
  This is normally accomplished automatically during a homing procedure.
+ 
+\layout Standard
+
+
+\series bold 
+\color black
+MIN_LIMIT = -1000 
+\layout Standard
+
+
+\color black
+The minimum limit (soft limit) for axis motion, in user units.
+ When this limit is exceeded, the controller aborts axis motion.
+ 
+\layout Standard
+
+
+\series bold 
+\color black
+MAX_LIMIT = 1000 
+\layout Standard
+
+
+\color black
+The maximum limit (soft limit) for axis motion, in user units.
+ When this limit is exceeded, the controller aborts axis motion.
+ 
+\layout Standard
+
+
+\series bold 
+\color black
+FERROR = 1.0 
+\layout Standard
+
+
+\color black
+FERROR is the maximum allowable following error, in user units.
+ If the difference between commanded and sensed position exceeds this amount,
+ the controller disables servo calculations, sets all the outputs to 0.0,
+ and disables the amplifiers.
+ If MIN_FERROR is present in the .ini file, velocity-proportional following
+ errors are used.
+ Here, the maximum allowable following error is proportional to the speed,
+ with FERROR applying to the rapid rate set by [TRAJ] MAX_VELOCITY, and
+ proportionally smaller following errors for slower speeds.
+ The maximum allowable following error will always be greater than MIN_FERROR.
+ This prevents small following errors for stationary axes from inadvertently
+ aborting motion.
+ Small following errors will always be present due to vibration, etc.\SpecialChar ~
+ The
+ following polarity values determine how inputs are interpreted and how
+ outputs are applied.
+ They can usually be set via trial-and-error since there are only two possibilit
+ies.
+ The EMCMOT utility program USRMOT can be used to set these interactively
+ and verify their results so that the proper values can be put in the INI
+ file with a minimum of trouble.
+ 
+\layout Subsubsection
+
+Homing-related items
+\layout Standard
+
+The next few parameters are Homing related, for a better explanation read
+ Section 
+\begin_inset LatexCommand \ref{sec:Homing}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\series bold 
+MIN_FERROR = 0.010
+\layout Standard
+
+This is the value by which the axis is permitted to deviate from commanded
+ position at very low speeds.
+ If MIN_FERROR is smaller than FERROR, the two produce a ramp of error trip
+ points.
+ You could think of this as a graph where one dimension is speed and the
+ other is permitted following error.
+ As speed increases the amount of following error also increases toward
+ the FERROR value.
+ 
+\layout Standard
+
+
+\series bold 
+HOME_OFFSET = 0.0
+\layout Standard
+
+A distance to move once the home position has been found.
+ The axis position is set to zero or the [TRAJ] HOME value for that axis
+ after the HOME_OFFSET distance has been moved.
+\layout Standard
+
+
+\series bold 
+HOME_SEARCH_VEL = 0.0
+\layout Standard
+
+A value of zero means assume that the current location is the home position
+ for the machine.
+ If your machine has no home switches you will want to leave this value
+ alone.
+\layout Standard
+
+
+\series bold 
+HOME_LATCH_VEL = 0.0
+\layout Standard
+
+This is the final velocity to be used during a home sequence.
+\layout Standard
+
+
+\series bold 
+HOME_USE_INDEX = NO
+\layout Standard
+
+If the encoder used for this axis has an index pulse, and the motion card
+ has provision for this signal you may set it to yes.
+ When it is yes, it will affect the kind of home pattern used.
+\layout Standard
+
+
+\series bold 
+HOME_IGNORE_LIMITS = NO
+\layout Standard
+
+Some machines use a limit switch as a home switch.
+ This variable should be set to yes if you machine does this.
+\layout Subsubsection
+
+Servo-related items
+\layout Standard
+
+The following items are for servo-based systems and servo-like systems including
+ the univstep board from PICO.
+\layout Standard
+
+
+\series bold 
+\color black
+P = 50
+\layout Standard
+
+
+\color black
+The proportional gain for the axis servo.
+ This value multiplies the error between commanded and actual position in
+ user units, resulting in a contribution to the computed voltage for the
+ motor amplifier.
+ The units on the P gain are volts per user unit.
+ 
+\layout Standard
+
+
+\series bold 
+\color black
+I = 0
+\layout Standard
+
+
+\color black
+The integral gain for the axis servo.
+ The value multiplies the cumulative error between commanded and actual
+ position in user units, resulting in a contribution to the computed voltage
+ for the motor amplifier.
+ The units on the I gain are volts per user unit-seconds.
+ 
+\layout Standard
+
+
+\series bold 
+\color black
+D = 0
+\layout Standard
+
+
+\color black
+The derivative gain for the axis servo.
+ The value multiplies the difference between the current and previous errors,
+ resulting in a contribution to the computed voltage for the motor amplifier.
+ The units on the D gain are volts per user unit per second.
+ 
+\layout Standard
+
+
+\series bold 
+\color black
+FF0 = 0
+\layout Standard
+
+
+\color black
+The 0-th order feedforward gain.
+ This number is multiplied by the commanded position, resulting in a contributio
+n to the computed voltage for the motor amplifier.
+ The units on the FF0 gain are volts per user unit.
+ 
+\layout Standard
+
+
+\series bold 
+\color black
+FF1 = 0
+\layout Standard
+
+
+\color black
+The 1st order feedforward gain.
+ This number is multiplied by the change in commanded position per second,
+ resulting in a contribution to the computed voltage for the motor amplifier.
+ The units on the FF1 gain are volts per user unit per second.
  
 \layout Standard
 
@@ -1177,32 +1373,6 @@ As a result, the a and b coefficients from the linear fit can be used as
 
 \series bold 
 \color black
-MIN_LIMIT = -1000 
-\layout Standard
-
-
-\color black
-The minimum limit (soft limit) for axis motion, in user units.
- When this limit is exceeded, the controller aborts axis motion.
- 
-\layout Standard
-
-
-\series bold 
-\color black
-MAX_LIMIT = 1000 
-\layout Standard
-
-
-\color black
-The maximum limit (soft limit) for axis motion, in user units.
- When this limit is exceeded, the controller aborts axis motion.
- 
-\layout Standard
-
-
-\series bold 
-\color black
 MAX_OUTPUT = 10 
 \layout Standard
 
@@ -1218,186 +1388,137 @@ The maximum value for the output of the PID compensation that is written
 
 \series bold 
 \color black
-FERROR = 1.0 
+MIN_OUTPUT = 10 
 \layout Standard
 
 
 \color black
-FERROR is the maximum allowable following error, in user units.
- If the difference between commanded and sensed position exceeds this amount,
- the controller disables servo calculations, sets all the outputs to 0.0,
- and disables the amplifiers.
- If MIN_FERROR is present in the .ini file, velocity-proportional following
- errors are used.
- Here, the maximum allowable following error is proportional to the speed,
- with FERROR applying to the rapid rate set by [TRAJ] MAX_VELOCITY, and
- proportionally smaller following errors for slower speeds.
- The maximum allowable following error will always be greater than MIN_FERROR.
- This prevents small following errors for stationary axes from inadvertently
- aborting motion.
- Small following errors will always be present due to vibration, etc.\SpecialChar ~
- The
- following polarity values determine how inputs are interpreted and how
- outputs are applied.
- They can usually be set via trial-and-error since there are only two possibilit
-ies.
- The EMCMOT utility program USRMOT can be used to set these interactively
- and verify their results so that the proper values can be put in the INI
- file with a minimum of trouble.
+The minumum value for the output of the PID compensation that is written
+ to the motor amplifier, in volts.
+ The computed output value is clamped to this limit.
+ The limit is applied before scaling to raw output units.
  
 \layout Subsubsection
 
-Homing related params
+Stepper-related items
 \layout Standard
 
-The next few parameters are Homing related, for a better explanation read
- Section 
-\begin_inset LatexCommand \ref{sec:Homing}
+The following items are used by 
+\family typewriter 
+core_stepper.hal
+\family default 
+ to set limits on the step waveforms that will be generated.
+ They typically include a headroom of 5% to 10% compared to the MAX_VELOCITY
+ and MAX_ACCEL items in the same AXIS.
+\layout Standard
 
+
+\series bold 
+STEPGEN_MAXVEL = 1.4
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+The step generator module, stepgen, applies its own limits to acceleration
+ and velocity.
+ We have discovered that it needs to have a little "headroom" over the accel
+ by the trajectory planner, otherwise it can fall slightly behind during
+ accel and later overshoot as it catches up.
+ In the long term we hope to come up with a clean fix for this problem.
+ In the meantime, please set STEPGEN_MAXVEL to a few percent higher than
+ MAX_VELOCITY, the regular velocity limit and STEPGEN_MAXACCEL slightly
+ larger that of MAX_ACCELERATION.
 \end_inset 
 
 
 \layout Standard
 
-
-\series bold 
-MIN_FERROR = 0.010
-\layout Standard
-
-This is the value by which the axis is permitted to deviate from commanded
- position at very low speeds.
- If MIN_FERROR is smaller than FERROR, the two produce a ramp of error trip
- points.
- You could think of this as a graph where one dimension is speed and the
- other is permitted following error.
- As speed increases the amount of following error also increases toward
- the FERROR value.
+A value applied to the stepper pulse generator to provide some overhead
+ for following error catch up.
  
 \layout Standard
 
 
 \series bold 
-HOME_OFFSET = 0.0
+STEPGEN_MAXACCEL = 21.0
 \layout Standard
 
-A distance to move once the home position has been found.
- The axis position is set to zero or the [TRAJ] HOME value for that axis
- after the HOME_OFFSET distance has been moved.
+Overhead for the stepper pulse generator when it needs to catch up.
+ 
+\layout Subsection
+
+[EMCIO] Section inside *.ini
 \layout Standard
 
-
-\series bold 
-HOME_SEARCH_VEL = 0.0
-\layout Standard
-
-A value of zero means assume that the current location is the home position
- for the machine.
- If your machine has no home switches you will want to leave this value
- alone.
+The [EMCIO] section contains control values and setup parameters for the
+ digital and analog I/O points in EMCIO.
+ I/O controller
 \layout Standard
 
 
 \series bold 
-HOME_LATCH_VEL = 0.0
+CYCLE_TIME = 0.100
 \layout Standard
 
-This is the final velocity to be used during a home sequence.
-\layout Standard
-
-
-\series bold 
-HOME_USE_INDEX = NO
-\layout Standard
-
-If the encoder used for this axis has an index pulse, and the motion card
- has provision for this signal you may set it to yes.
- When it is yes, it will affect the kind of home pattern used.
-\layout Standard
-
-
-\series bold 
-HOME_IGNORE_LIMITS = NO
-\layout Standard
-
-Some machines use a limit switch as a home switch.
- This variable should be set to yes if you machine does this.
-\layout Standard
-
-
-\series bold 
-\color black
-P = 50
-\layout Standard
-
-
-\color black
-Only used for servo systems and hardware that emulates servo systems.
- The univstep board from PICO is an example of such a system.
- The proportional gain for the axis servo.
- This value multiplies the error between commanded and actual position in
- user units, resulting in a contribution to the computed voltage for the
- motor amplifier.
- The units on the P gain are volts per user unit.
+The period, in seconds, at which EMCIO will run.
+ You can make this as small as you want to increase the throughput.
+ Making it 0.0 or a negative number will tell EMCIO not to sleep at all.
+ Ultimately the system loading will limit the effective throughput.
  
 \layout Standard
 
 
 \series bold 
-\color black
-I = 0
+TOOL_TABLE = tool.tbl
 \layout Standard
 
+The file which contains tool information.
+ The format of the file is
+\layout LyX-Code
 
-\color black
-The integral gain for the axis servo.
- The value multiplies the cumulative error between commanded and actual
- position in user units, resulting in a contribution to the computed voltage
- for the motor amplifier.
- The units on the I gain are volts per user unit-seconds.
+POC FMS LEN DIAM COMMENT 
+\newline 
+1 1 0 0 
+\newline 
+2 2 0 0
+\layout Standard
+
+where the first line is a comment (in this case the name of the columns),
+ and the subsequent lines contain the pocket number in which the tool is
+ located, the tool ID of the tool itself, the length, the diameter, and
+ an optional comment.
+ The length and diameter are in user units.
+\layout Standard
+
+The following entries set parameters for spindle control.
  
 \layout Standard
 
 
 \series bold 
-\color black
-D = 0
+SPINDLE_OFF_WAIT = 1.0
 \layout Standard
 
-
-\color black
-The derivative gain for the axis servo.
- The value multiplies the difference between the current and previous errors,
- resulting in a contribution to the computed voltage for the motor amplifier.
- The units on the D gain are volts per user unit per second.
+How long, in seconds, to wait after the spindle has been turned off before
+ applying the brake.
  
 \layout Standard
 
 
 \series bold 
-\color black
-FF0 = 0
+SPINDLE_ON_WAIT = 1.5
 \layout Standard
 
-
-\color black
-The 0-th order feedforward gain.
- This number is multiplied by the commanded position, resulting in a contributio
-n to the computed voltage for the motor amplifier.
- The units on the FF0 gain are volts per user unit.
+How long, in seconds, to wait after the spindle brake has been released
+ before turning the spindle on.
  
 \layout Standard
 
 
 \series bold 
-\color black
-FF1 = 0
+TOOL_CHANGE_POSITION = 0 0 2
 \layout Standard
 
-
-\color black
-The 1st order feedforward gain.
- This number is multiplied by the change in commanded position per second,
- resulting in a contribution to the computed voltage for the motor amplifier.
- The units on the FF1 gain are volts per user unit per second.
- 
+Specifies the XYZ location to move to when performing a tool change.
 \the_end
