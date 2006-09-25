@@ -575,14 +575,16 @@ LINEAR_UNITS\SpecialChar ~
 =
 \series default 
 \SpecialChar ~
-
+<units>
 \series bold 
-0.03937007874016 
+ 
 \series default 
-The number of linear units per millimeter.
- For systems executing in native English (inch) units, this value is as
- shown above.
- For systems executing in native millimeter units, this value is 1.
+The name of units to be used.
+ Possible choices are (in, inch, imperial, metric, mm).
+ For systems executing in native English (inch) units, this value shall
+ be any one of 'in', 'inch' or 'imperial'.
+ For systems executing in native millimeter units, this value shall be 'mm'
+ or 'metric'.
  This does not affect the ability to program in English or metric units
  in NC code.
  It is used to determine how to interpret the numbers reported in the controller
@@ -598,14 +600,12 @@ ANGULAR_UNITS\SpecialChar ~
 =
 \series default 
 \SpecialChar ~
-
-\series bold 
-1.0
-\series default 
- The number of angular units per degree.
- For systems executing in native degree units, this value is as shown above.
- For systems executing in radians, this value is 0.01745329252167, or PI/180.
- 
+<units> The name of units to be used.
+ For systems executing in native degree units, this value should be 'deg'
+ or 'degree'.
+ For systems executing in radians, this value is 'rad' or 'radian'.
+ Another possible value is 'grad' or 'gon' for units operating in gradians
+ (400 gradians in a full circle).
 \layout Description
 
 
@@ -677,6 +677,15 @@ The [AXIS_0], [AXIS_1], etc.
  axis control module.
  The axis section names begin numbering at 0, and run through the number
  of axes specified in the [TRAJ] AXES entry minus 1.
+\layout Standard
+
+
+\color black
+Values for the various parameters of LINEAR axes are in the units specified
+ in the [TRAJ] LINEAR_UNITS entry.
+ Values for the position of ANGULAR axes are in the units specified in the
+ [TRAJ] ANGULAR_UNITS entry.
+ 
 \layout Description
 
 
@@ -684,29 +693,8 @@ The [AXIS_0], [AXIS_1], etc.
 TYPE\SpecialChar ~
 =\SpecialChar ~
 LINEAR The type of axes, either LINEAR or ANGULAR.
- Values for the position of LINEAR axes are in the units (per millimeter)
- specified in the [AXIS_#] UNITS entry.
- Values for the position of ANGULAR axes are in the units (per degree) specified
- in the same entry.
  
-\layout Description
-
-
-\color black
-UNITS\SpecialChar ~
-
-\series bold 
-=
-\series default 
-\SpecialChar ~
-
-\series bold 
-0.03937007874016
-\series default 
- Units per millimeter for a LINEAR axis, as defined in the [AXIS_#] TYPE
- section, or units per degree for an ANGULAR axis as defined in the same
- section.
-\layout Description
+\layout Standard
 
 MAX_VELOCITY\SpecialChar ~
 
@@ -795,14 +783,14 @@ Specifically, when reading inputs, the EMC first reads the raw sensor values.
  to the quasi-SI units used in the EMC.
  Hence a scaling is done immediately upon sampling: 
 \begin_inset Formula \[
-input = (raw - offset) / scale\]
+input=(raw-offset)/scale\]
 
 \end_inset 
 
  The value for scale can be obtained by doing a unit analysis, i.e., units
  are
 \begin_inset Formula \[
-[sensor units]/[desired input SI units]\]
+[sensorunits]/[desiredinputSIunits]\]
 
 \end_inset 
 
@@ -814,14 +802,14 @@ input = (raw - offset) / scale\]
 
 , and 10 revs/inch gearing, and desired units of mm, we have
 \begin_inset Formula \begin{eqnarray*}
-[scale units]  & = &  2000 [counts/rev] * 10 [rev/inch] * 1/25.4 [inch/mm] \\
- &  & = 787.4 counts/mm\end{eqnarray*}
+[scaleunits] & = & 2000[counts/rev]*10[rev/inch]*1/25.4[inch/mm]\\
+ &  & =787.4counts/mm\end{eqnarray*}
 
 \end_inset 
 
  and, as a result, 
 \begin_inset Formula \[
-input [mm] = (encoder [counts] - offset [counts]) / 787.4 [counts/mm]\]
+input[mm]=(encoder[counts]-offset[counts])/787.4[counts/mm]\]
 
 \end_inset 
 
@@ -1114,7 +1102,7 @@ Specifically, when writing outputs, the EMC first converts the desired output
  in quasi-SI units to raw actuator values, e.g., volts for an amplifier DAC.
  This scaling looks like: 
 \begin_inset Formula \[
-raw = (output - offset) / scale\]
+raw=(output-offset)/scale\]
 
 \end_inset 
 
@@ -1123,13 +1111,13 @@ raw = (output - offset) / scale\]
  For example, on a machine with a velocity mode amplifier such that 1 volt
  results in 250 mm/sec velocity, we have: 
 \begin_inset Formula \[
-[scale units] = 250 [mm/sec] / 1 [volts] = 250 mm/sec/volt\]
+[scaleunits]=250[mm/sec]/1[volts]=250mm/sec/volt\]
 
 \end_inset 
 
  and, as a result, 
 \begin_inset Formula \[
-amplifier [volts] = (output [mm/sec] - offset [mm/sec]) / 250 [mm/sec/volt]\]
+amplifier[volts]=(output[mm/sec]-offset[mm/sec])/250[mm/sec/volt]\]
 
 \end_inset 
 
@@ -1181,7 +1169,7 @@ Note that we want raw output such that our measured result is identical
 
 
 \begin_inset Formula \[
-cmd = a * raw + b\]
+cmd=a*raw+b\]
 
 \end_inset 
 
@@ -1190,7 +1178,7 @@ cmd = a * raw + b\]
 
 
 \begin_inset Formula \[
-raw = (cmd - b) / a\]
+raw=(cmd-b)/a\]
 
 \end_inset 
 
