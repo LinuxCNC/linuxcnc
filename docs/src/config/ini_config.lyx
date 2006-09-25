@@ -265,48 +265,80 @@ We'll list these variables under section names in much the same way a real
 
 \color black
 [EMC] Section
-\layout Standard
+\layout Description
 
+
+\color black
+VERSION\SpecialChar ~
 
 \series bold 
-\color black
-VERSION = $Revision$
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
+\series bold 
+$Revision:
+\series default 
+\SpecialChar ~
 
-\color black
-The version number for the INI file.
+\series bold 
+1.3
+\series default 
+\SpecialChar ~
+
+\series bold 
+$
+\series default 
+ The version number for the INI file.
  The value shown here looks odd because it is automatically updated when
  using the Revision Control System.
  It's a good idea to change this number each time you revise your file.
  If you want to edit this manually just change the number and leave the
  other tags alone.
  
-\layout Standard
+\layout Description
 
+
+\color black
+MACHINE\SpecialChar ~
 
 \series bold 
-\color black
-MACHINE = My Controller
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
+\series bold 
+My
+\series default 
+\SpecialChar ~
 
-\color black
-This is the name of the controller, which is printed out at the top of most
- graphical interfaces.
+\series bold 
+Controller
+\series default 
+ This is the name of the controller, which is printed out at the top of
+ most graphical interfaces.
  You can put whatever you want here as long as you make it a single line
  long.
-\layout Standard
+\layout Description
 
+
+\color black
+RS274NGC_STARTUP_CODE\SpecialChar ~
 
 \series bold 
-\color black
-RS274NGC_STARTUP_CODE = G21 G90
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
+\series bold 
+G21
+\series default 
+\SpecialChar ~
 
-\color black
-A string of NC codes that the interpreter is initalised with.
+\series bold 
+G90
+\series default 
+ A string of NC codes that the interpreter is initalised with.
  These are the codes that an interpreter will be reset to.
 \layout Subsection
 
@@ -318,13 +350,12 @@ A string of NC codes that the interpreter is initalised with.
 
 \series bold 
 \color black
-DISLAY = tkemc
-\layout Standard
-
-
-\color black
-The name of the user interface to use.
- Valid options are :
+DISLAY\SpecialChar ~
+=\SpecialChar ~
+tkemc
+\series default 
+ The name of the user interface to use.
+ Valid options may include:
 \layout Itemize
 
 axis
@@ -351,52 +382,45 @@ xemc
 
 \color black
 [EMCMOT] Section
-\layout Standard
+\layout Description
 
-
-\series bold 
-BASE_PERIOD = 50000 
-\layout Standard
-
-Base task period, in nanosecs - this is the fastest thread in the machine.
+BASE_PERIOD\SpecialChar ~
+=\SpecialChar ~
+50000 Base task period, in nanosecs - this is the fastest thread
+ in the machine.
  It's units are nanoseconds.
  This is a fairly conservative value but if you are installing on a very
  old, slow processor you may have to make this a larger number or the machine
  may lock up or reboot.
  
-\layout Standard
-
+\newline 
 You might want to make this value smaller if you have a fast computer because
  this value sets the maximum number of stepper pulses you can get from your
  machine.
- It has little affect on servo systems so leave it large.
-\layout Standard
+ It has little effect on servo systems so leave it large.
+\layout Description
 
-
-\series bold 
-SERVO_PERIOD = 1000000
-\layout Standard
-
-Servo task period is also in nanoseconds.
+SERVO_PERIOD\SpecialChar ~
+=\SpecialChar ~
+1000000 Servo task period is also in nanoseconds.
  This value will be rounded to an interger multiple of BASE_PERIOD.
  
-\layout Standard
-
+\newline 
 Most systems will not need to change this value.
  It is the update rate of the low level motion planner.
  You'll need it even if you only have steppers.
  
-\layout Standard
+\layout Description
 
+TRAJ_PERIOD\SpecialChar ~
+=\SpecialChar ~
 
 \series bold 
-TRAJ_PERIOD = 10000000 
-\layout Standard
-
+10000000 
+\series default 
 Trajectory Planner task period in nanoseconds This value will be rounded
  to an integer multiple of SERVO_PERIOD.
-\layout Standard
-
+\newline 
 Folk with fast computers have found that reducing this value by half will
  give them smother motion blending during contour cutting .
 \layout Subsection
@@ -407,17 +431,24 @@ Folk with fast computers have found that reducing this value by half will
 The [TASK] section contains general parameters for EMCTASK, which includes
  primarily the NC language interpreter and the sequencing logic for sending
  commands to EMCMOT and EMCIO.
-\layout Standard
+\layout Description
 
+CYCLE_TIME\SpecialChar ~
 
 \series bold 
-CYCLE_TIME = 0.100
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-The period, in seconds, at which EMCTASK will run.
- You can make this as small as you want to increase the throughput.
+\series bold 
+0.100
+\series default 
+ The period, in seconds, at which EMCTASK will run.
+ This parameter mostly affects the polling interval when waiting for motion
+ to complete, or when executing a pause instruction.
+ It no longer affects the throughput when transferring segments to the real-time
+ layer.
  Making it 0.0 or a negative number will tell EMCTASK not to sleep at all.
- Ultimately the system loading will limit the effective throughput.
 \layout Subsection
 
 [HAL]
@@ -470,56 +501,84 @@ The [TRAJ] section contains general parameters for the trajectory planning
  If you are in an area using metric hardware components you might be working
  with the stepper_mm.ini where these numbers are already setup for that system
  of units.
-\layout Standard
+\layout Description
 
 
-\series bold 
 \noun on 
 \color black
-AXES = 3
-\layout Standard
-
-
-\color black
-The number of controlled axes in the system.
+AXES\SpecialChar ~
+=\SpecialChar ~
+3
+\noun default 
+ The number of controlled axes in the system.
  If you have a four axis system put that number here and edit the next two
  variables as well
-\layout Standard
+\layout Description
 
+
+\color black
+COORDINATES\SpecialChar ~
 
 \series bold 
-\color black
-COORDINATES = X Y Z
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-
-\color black
-The names of the axes being controlled.
+\series bold 
+X
+\series default 
+\SpecialChar ~
+Y
+\series bold 
+\SpecialChar ~
+Z
+\series default 
+ The names of the axes being controlled.
  X, Y, Z, A, B, and C are all valid.
  It is also possible to have X Y Y Z and control ganged slides.
- For a fourth axis mounted on X you would use X Y Z A
-\layout Standard
+ For a fourth axis mounted on X you would use X Y Z A.
+ This has no effect on the mapping from G-code axis names (X- Y- Z-) to
+ joint numbers--kinematics does this--but is largely for documentation.
+\layout Description
 
+
+\color black
+HOME\SpecialChar ~
 
 \series bold 
-\color black
-HOME = 0 0 0 
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
+\series bold 
+0
+\series default 
+\SpecialChar ~
 
-\color black
+\series bold 
+0
+\series default 
+\SpecialChar ~
+
+\series bold 
+0 
+\series default 
 Coordinates of the homed position of each axis.
  Again for a fourth axis you will need 0 0 0 0.
-\layout Standard
+\layout Description
 
+
+\color black
+LINEAR_UNITS\SpecialChar ~
 
 \series bold 
-\color black
-LINEAR_UNITS = 0.03937007874016 
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-
-\color black
+\series bold 
+0.03937007874016 
+\series default 
 The number of linear units per millimeter.
  For systems executing in native English (inch) units, this value is as
  shown above.
@@ -529,72 +588,80 @@ The number of linear units per millimeter.
  It is used to determine how to interpret the numbers reported in the controller
  status by external programs.
  
-\layout Standard
+\layout Description
 
+
+\color black
+ANGULAR_UNITS\SpecialChar ~
 
 \series bold 
-\color black
-ANGULAR_UNITS = 1.0
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-
-\color black
-The number of angular units per degree.
+\series bold 
+1.0
+\series default 
+ The number of angular units per degree.
  For systems executing in native degree units, this value is as shown above.
  For systems executing in radians, this value is 0.01745329252167, or PI/180.
  
-\layout Standard
+\layout Description
 
+
+\color black
+DEFAULT_VELOCITY\SpecialChar ~
 
 \series bold 
-\color black
-DEFAULT_VELOCITY = 0.0167
-\layout Standard
-
-
-\color black
-The initial velocity used for axis or coordinated axis motion, in user units
- per second.
+=\SpecialChar ~
+0.0167
+\series default 
+ The initial velocity used for axis or coordinated axis motion, in user
+ units per second.
  The value shown is one inch per minute.
-\layout Standard
+\layout Description
 
+
+\color black
+DEFAULT_ACCELERATION\SpecialChar ~
 
 \series bold 
-\color black
-DEFAULT_ACCELERATION = 2.0
-\layout Standard
-
-
-\color black
-The initial acceleration used for axis or coordinated axis motion, in user
+=\SpecialChar ~
+2.0
+\series default 
+ The initial acceleration used for axis or coordinated axis motion, in user
  units per second per second.
  
-\layout Standard
+\layout Description
 
+
+\color black
+MAX_VELOCITY\SpecialChar ~
 
 \series bold 
-\color black
-MAX_VELOCITY = 5.0
-\layout Standard
-
-
-\color black
-The maximum velocity for any axis or coordinated move, in user units per
+=\SpecialChar ~
+5.0
+\series default 
+ The maximum velocity for any axis or coordinated move, in user units per
  second.
  Think for a moment what this value really means in hardware terms.
  The formula is MAX_VELOCITY * 60.
  In this case this is 300 inches per minute.
-\layout Standard
+\layout Description
 
+
+\color black
+MAX_ACCELERATION\SpecialChar ~
 
 \series bold 
-\color black
-MAX_ACCELERATION = 20.0
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-
-\color black
-The maximum acceleration for any axis or coordinated axis move, in user
+\series bold 
+20.0
+\series default 
+ The maximum acceleration for any axis or coordinated axis move, in user
  units per second per second.
 \layout Subsection
 
@@ -610,79 +677,101 @@ The [AXIS_0], [AXIS_1], etc.
  axis control module.
  The axis section names begin numbering at 0, and run through the number
  of axes specified in the [TRAJ] AXES entry minus 1.
-\layout Standard
-
-
-\series bold 
-\color black
-TYPE = LINEAR
-\layout Standard
+\layout Description
 
 
 \color black
-The type of axes, either LINEAR or ANGULAR.
+TYPE\SpecialChar ~
+=\SpecialChar ~
+LINEAR The type of axes, either LINEAR or ANGULAR.
  Values for the position of LINEAR axes are in the units (per millimeter)
  specified in the [AXIS_#] UNITS entry.
  Values for the position of ANGULAR axes are in the units (per degree) specified
  in the same entry.
  
-\layout Standard
+\layout Description
 
+
+\color black
+UNITS\SpecialChar ~
 
 \series bold 
-\color black
-UNITS = 0.03937007874016
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-
-\color black
-Units per millimeter for a LINEAR axis, as defined in the [AXIS_#] TYPE
+\series bold 
+0.03937007874016
+\series default 
+ Units per millimeter for a LINEAR axis, as defined in the [AXIS_#] TYPE
  section, or units per degree for an ANGULAR axis as defined in the same
  section.
-\layout Standard
+\layout Description
 
-
-\series bold 
-MAX_VELOCITY = 1.2
-\layout Standard
-
-Per axis maximum velocity while coordinated motion is in effect.
-\layout Standard
-
+MAX_VELOCITY\SpecialChar ~
 
 \series bold 
-MAX_ACCELERATION = 20.0
-\layout Standard
-
-Per axis maximum acceleration while coordinated motion is in effect.
-\layout Standard
-
+=
+\series default 
+\SpecialChar ~
 
 \series bold 
-BACKLASH = 0.000
-\layout Standard
+1.2
+\series default 
+ Per axis maximum velocity while coordinated motion is in effect.
+\layout Description
 
-Backlash compensation value can be used to make up for small deficiencies
+MAX_ACCELERATION\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+20.0
+\series default 
+ Per axis maximum acceleration while coordinated motion is in effect.
+\layout Description
+
+BACKLASH\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+0.000
+\series default 
+ Backlash compensation value can be used to make up for small deficiencies
  in the hardware used to drive an axis.
  Don't expect this to compensate for poor mechanical elements.
  The value set here is in UNITS.
-\layout Standard
+\layout Description
 
+
+\color black
+INPUT_SCALE\SpecialChar ~
 
 \series bold 
-\color black
-INPUT_SCALE = 40000\SpecialChar ~
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+40000\SpecialChar ~
 \SpecialChar ~
 \SpecialChar ~
 0
-\layout Standard
-
-This variable has slightly different meaning for stepper and for servo systems.
+\series default 
+\color default
+ This variable has slightly different meaning for stepper and for servo
+ systems.
  For steppers, the first number it is the number of pulses required to move
  the axis one UNIT.
  
-\layout Standard
-
+\newline 
 For servos
 \color black
  these two values are the scale and offset factors for the axis input from
@@ -698,99 +787,101 @@ For servos
  (e.g., inch).
  The units on the offset value are in raw units (e.g., counts).
  
-\layout Standard
-
-
-\color black
+\newline 
 Specifically, when reading inputs, the EMC first reads the raw sensor values.
  The units on these values are the sensor units, typically A/D counts, or
  encoder ticks.
  These units, and the location of their 0 value, will not in general correspond
  to the quasi-SI units used in the EMC.
  Hence a scaling is done immediately upon sampling: 
-\layout Standard
+\begin_inset Formula \[
+input = (raw - offset) / scale\]
 
+\end_inset 
 
-\color black
-input = (raw - offset) / scale
-\layout Standard
+ The value for scale can be obtained by doing a unit analysis, i.e., units
+ are
+\begin_inset Formula \[
+[sensor units]/[desired input SI units]\]
 
+\end_inset 
 
-\color black
-The value for scale can be obtained by doing a unit analysis, i.e., units
- are [sensor units]/[desired input SI units].
+.
  For example, on a 2000 counts per rev encoder
 \begin_inset LatexCommand \index{encoder}
 
 \end_inset 
 
-, and 10 revs/inch gearing, and desired units of mm, we have 
-\layout Standard
+, and 10 revs/inch gearing, and desired units of mm, we have
+\begin_inset Formula \begin{eqnarray*}
+[scale units]  & = &  2000 [counts/rev] * 10 [rev/inch] * 1/25.4 [inch/mm] \\
+ &  & = 787.4 counts/mm\end{eqnarray*}
 
+\end_inset 
 
-\color black
-[scale units] = 2000 [counts/rev] * 10 [rev/inch] * 1/25.4 [inch/mm] = 787.4
- counts/mm and, as a result, 
-\layout Standard
+ and, as a result, 
+\begin_inset Formula \[
+input [mm] = (encoder [counts] - offset [counts]) / 787.4 [counts/mm]\]
 
+\end_inset 
 
-\color black
-input [mm] = (encoder [counts] - offset [counts]) / 787.4 [counts/mm]
-\layout Standard
-
-
-\color black
-Note that the units of the offset are in sensor units, e.g., counts, and they
- are pre-subtracted from the sensor readings.
+ Note that the units of the offset are in sensor units, e.g., counts, and
+ they are pre-subtracted from the sensor readings.
  The value for this offset is obtained by finding the value of counts for
  which you want your user units to read 0.0.
  This is normally accomplished automatically during a homing procedure.
  
-\layout Standard
+\layout Description
 
+
+\color black
+MIN_LIMIT\SpecialChar ~
+=\SpecialChar ~
 
 \series bold 
-\color black
-MIN_LIMIT = -1000 
-\layout Standard
-
-
-\color black
+-1000 
+\series default 
 The minimum limit (soft limit) for axis motion, in user units.
  When this limit is exceeded, the controller aborts axis motion.
  
-\layout Standard
+\layout Description
 
+
+\color black
+MAX_LIMIT\SpecialChar ~
 
 \series bold 
-\color black
-MAX_LIMIT = 1000 
-\layout Standard
-
-
-\color black
-The maximum limit (soft limit) for axis motion, in user units.
+=\SpecialChar ~
+1000
+\series default 
+ The maximum limit (soft limit) for axis motion, in user units.
  When this limit is exceeded, the controller aborts axis motion.
  
-\layout Standard
+\layout Description
 
+
+\color black
+FERROR\SpecialChar ~
 
 \series bold 
-\color black
-FERROR = 1.0 
-\layout Standard
+=\SpecialChar ~
+1.0 
+\layout Description
 
 
 \color black
-FERROR is the maximum allowable following error, in user units.
+MIN_FERROR\SpecialChar ~
+=\SpecialChar ~
+0.010 FERROR is the maximum allowable following error, in user
+ units.
  If the difference between commanded and sensed position exceeds this amount,
  the controller disables servo calculations, sets all the outputs to 0.0,
  and disables the amplifiers.
  If MIN_FERROR is present in the .ini file, velocity-proportional following
  errors are used.
  Here, the maximum allowable following error is proportional to the speed,
- with FERROR applying to the rapid rate set by [TRAJ] MAX_VELOCITY, and
- proportionally smaller following errors for slower speeds.
+ with FERROR applying to the rapid rate set by [TRAJ]MAX_VELOCITY, and proportio
+nally smaller following errors for slower speeds.
  The maximum allowable following error will always be greater than MIN_FERROR.
  This prevents small following errors for stationary axes from inadvertently
  aborting motion.
@@ -816,14 +907,19 @@ The next few parameters are Homing related, for a better explanation read
 \end_inset 
 
 
-\layout Standard
+\layout Description
 
+MIN_FERROR\SpecialChar ~
 
 \series bold 
-MIN_FERROR = 0.010
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-This is the value by which the axis is permitted to deviate from commanded
+\series bold 
+0.010
+\series default 
+ This is the value by which the axis is permitted to deviate from commanded
  position at very low speeds.
  If MIN_FERROR is smaller than FERROR, the two produce a ramp of error trip
  points.
@@ -832,53 +928,70 @@ This is the value by which the axis is permitted to deviate from commanded
  As speed increases the amount of following error also increases toward
  the FERROR value.
  
-\layout Standard
+\layout Description
 
+HOME_OFFSET\SpecialChar ~
 
 \series bold 
-HOME_OFFSET = 0.0
-\layout Standard
-
-A distance to move once the home position has been found.
+=\SpecialChar ~
+0.0
+\series default 
+ A distance to move once the home position has been found.
  The axis position is set to zero or the [TRAJ] HOME value for that axis
  after the HOME_OFFSET distance has been moved.
-\layout Standard
+\layout Description
 
+HOME_SEARCH_VEL\SpecialChar ~
 
 \series bold 
-HOME_SEARCH_VEL = 0.0
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-A value of zero means assume that the current location is the home position
+\series bold 
+0.0
+\series default 
+ A value of zero means assume that the current location is the home position
  for the machine.
  If your machine has no home switches you will want to leave this value
  alone.
-\layout Standard
+\layout Description
 
-
-\series bold 
-HOME_LATCH_VEL = 0.0
-\layout Standard
-
-This is the final velocity to be used during a home sequence.
-\layout Standard
-
+HOME_LATCH_VEL\SpecialChar ~
 
 \series bold 
-HOME_USE_INDEX = NO
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-If the encoder used for this axis has an index pulse, and the motion card
+\series bold 
+0.0
+\series default 
+ This is the final velocity to be used during a home sequence.
+\layout Description
+
+HOME_USE_INDEX\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+NO
+\series default 
+ If the encoder used for this axis has an index pulse, and the motion card
  has provision for this signal you may set it to yes.
  When it is yes, it will affect the kind of home pattern used.
-\layout Standard
+\layout Description
 
+HOME_IGNORE_LIMITS\SpecialChar ~
 
 \series bold 
-HOME_IGNORE_LIMITS = NO
-\layout Standard
-
-Some machines use a limit switch as a home switch.
+=\SpecialChar ~
+NO
+\series default 
+ Some machines use a limit switch as a home switch.
  This variable should be set to yes if you machine does this.
 \layout Subsubsection
 
@@ -887,13 +1000,14 @@ Servo-related items
 
 The following items are for servo-based systems and servo-like systems including
  the univstep board from PICO.
-\layout Standard
+\layout Description
 
 
-\series bold 
 \color black
-P = 50
-\layout Standard
+P 
+\series bold 
+= 50
+\layout Description
 
 
 \color black
@@ -903,13 +1017,14 @@ The proportional gain for the axis servo.
  motor amplifier.
  The units on the P gain are volts per user unit.
  
-\layout Standard
+\layout Description
 
 
-\series bold 
 \color black
-I = 0
-\layout Standard
+I 
+\series bold 
+= 0
+\layout Description
 
 
 \color black
@@ -919,13 +1034,14 @@ The integral gain for the axis servo.
  for the motor amplifier.
  The units on the I gain are volts per user unit-seconds.
  
-\layout Standard
+\layout Description
 
 
-\series bold 
 \color black
-D = 0
-\layout Standard
+D 
+\series bold 
+= 0
+\layout Description
 
 
 \color black
@@ -934,13 +1050,14 @@ The derivative gain for the axis servo.
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the D gain are volts per user unit per second.
  
-\layout Standard
+\layout Description
 
 
-\series bold 
 \color black
-FF0 = 0
-\layout Standard
+FF0 
+\series bold 
+= 0
+\layout Description
 
 
 \color black
@@ -949,13 +1066,14 @@ The 0-th order feedforward gain.
 n to the computed voltage for the motor amplifier.
  The units on the FF0 gain are volts per user unit.
  
-\layout Standard
+\layout Description
 
 
-\series bold 
 \color black
-FF1 = 0
-\layout Standard
+FF1 
+\series bold 
+= 0
+\layout Description
 
 
 \color black
@@ -964,16 +1082,25 @@ The 1st order feedforward gain.
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the FF1 gain are volts per user unit per second.
  
-\layout Standard
+\layout Description
 
+OUTPUT_SCALE\SpecialChar ~
 
 \series bold 
-OUTPUT_SCALE = 1.000 0.000
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
+\series bold 
+1.000
+\series default 
+\SpecialChar ~
 
+\series bold 
+0.000
+\series default 
 \color black
-These two values are the scale and offset factors for the axis output to
+ These two values are the scale and offset factors for the axis output to
  the motor amplifiers.
  The second value (offset) is subtracted from the computed output (in volts),
  and divided by the first value (scale factor), before being written to
@@ -982,65 +1109,47 @@ These two values are the scale and offset factors for the axis output to
  The units on the offset value are in volts.
  These can be used to linearize a DAC.
  
-\layout Standard
-
-
-\color black
+\newline 
 Specifically, when writing outputs, the EMC first converts the desired output
  in quasi-SI units to raw actuator values, e.g., volts for an amplifier DAC.
  This scaling looks like: 
-\layout Standard
+\begin_inset Formula \[
+raw = (output - offset) / scale\]
 
+\end_inset 
 
-\color black
-raw = (output - offset) / scale
-\layout Standard
-
-
-\color black
-The value for scale can be obtained analytically by doing a unit analysis,
+ The value for scale can be obtained analytically by doing a unit analysis,
  i.e., units are [output SI units]/[actuator units].
  For example, on a machine with a velocity mode amplifier such that 1 volt
  results in 250 mm/sec velocity, we have: 
-\layout Standard
+\begin_inset Formula \[
+[scale units] = 250 [mm/sec] / 1 [volts] = 250 mm/sec/volt\]
 
+\end_inset 
 
-\color black
-[scale units] = 250 [mm/sec] / 1 [volts] = 250 mm/sec/volt
-\layout Standard
+ and, as a result, 
+\begin_inset Formula \[
+amplifier [volts] = (output [mm/sec] - offset [mm/sec]) / 250 [mm/sec/volt]\]
 
+\end_inset 
 
-\color black
-and, as a result, 
-\layout Standard
-
-
-\color black
-amplifier [volts] = (output [mm/sec] - offset [mm/sec]) / 250 [mm/sec/volt]
-\layout Standard
-
-
-\color black
-Note that the units of the offset are in user units, e.g., mm/sec, and they
+ Note that the units of the offset are in user units, e.g., mm/sec, and they
  are pre-subtracted from the sensor readings.
  The value for this offset is obtained by finding the value of your output
  which yields 0.0 for the actuator output.
  If the DAC is linearized, this offset is normally 0.0.
  
-\layout Standard
-
-
-\color black
+\newline 
 The scale and offset can be used to linearize the DACs as well, resulting
  in values that reflect the combined effects of amplifier gain, DAC non-linearit
 y, DAC units, etc.
  To do this, follow this procedure: 
-\layout Standard
+\begin_deeper 
+\layout Enumerate
 
 
 \color black
-a.
- Build a calibration table for the output, driving the DACs with a desired
+Build a calibration table for the output, driving the DACs with a desired
  voltage and measuring the result.
  See table\SpecialChar ~
 
@@ -1049,6 +1158,78 @@ a.
 \end_inset 
 
  for an example of voltage measurements.
+\layout Enumerate
+
+
+\color black
+Do a least-squares linear fit to get coefficients a, b such that
+\begin_inset Formula \[
+meas=a*raw+b\]
+
+\end_inset 
+
+
+\layout Enumerate
+
+
+\color black
+Note that we want raw output such that our measured result is identical
+ to the commanded output.
+ This means 
+\begin_deeper 
+\layout Enumerate
+
+
+\begin_inset Formula \[
+cmd = a * raw + b\]
+
+\end_inset 
+
+
+\layout Enumerate
+
+
+\begin_inset Formula \[
+raw = (cmd - b) / a\]
+
+\end_inset 
+
+
+\end_deeper 
+\layout Enumerate
+
+
+\color black
+As a result, the a and b coefficients from the linear fit can be used as
+ the scale and offset for the controller directly.
+ 
+\end_deeper 
+\layout Description
+
+
+\color black
+MAX_OUTPUT\SpecialChar ~
+
+\series bold 
+=\SpecialChar ~
+10 
+\series default 
+The maximum value for the output of the PID compensation that is written
+ to the motor amplifier, in volts.
+ The computed output value is clamped to this limit.
+ The limit is applied before scaling to raw output units.
+ 
+\layout Description
+
+
+\color black
+MIN_OUTPUT\SpecialChar ~
+=\SpecialChar ~
+10 The minumum value for the output of the PID compensation that
+ is written to the motor amplifier, in volts.
+ The computed output value is clamped to this limit.
+ The limit is applied before scaling to raw output units.
+ 
 \layout Standard
 
 
@@ -1056,7 +1237,7 @@ a.
 wide false
 collapsed false
 
-\layout Caption
+\layout Standard
 
 
 \begin_inset LatexCommand \label{cap:Output-Voltage-Measurements}
@@ -1332,72 +1513,6 @@ Measured
 \end_inset 
 
 
-\layout Standard
-
-
-\color black
-b.
- Do a least-squares linear fit to get coefficients a, b such that 
-\layout Standard
-
-
-\color black
-meas = a * raw + b
-\layout Standard
-
-
-\color black
-c.
- Note that we want raw output such that our measured result is identical
- to the commanded output.
- This means 
-\layout Standard
-
-
-\color black
-cmd = a * raw + b
-\layout Standard
-
-
-\color black
-raw = (cmd - b) / a
-\layout Standard
-
-
-\color black
-As a result, the a and b coefficients from the linear fit can be used as
- the scale and offset for the controller directly.
- 
-\layout Standard
-
-
-\series bold 
-\color black
-MAX_OUTPUT = 10 
-\layout Standard
-
-
-\color black
-The maximum value for the output of the PID compensation that is written
- to the motor amplifier, in volts.
- The computed output value is clamped to this limit.
- The limit is applied before scaling to raw output units.
- 
-\layout Standard
-
-
-\series bold 
-\color black
-MIN_OUTPUT = 10 
-\layout Standard
-
-
-\color black
-The minumum value for the output of the PID compensation that is written
- to the motor amplifier, in volts.
- The computed output value is clamped to this limit.
- The limit is applied before scaling to raw output units.
- 
 \layout Subsubsection
 
 Stepper-related items
@@ -1410,11 +1525,17 @@ core_stepper.hal
  to set limits on the step waveforms that will be generated.
  They typically include a headroom of 5% to 10% compared to the MAX_VELOCITY
  and MAX_ACCEL items in the same AXIS.
-\layout Standard
+\layout Description
 
+STEPGEN_MAXVEL\SpecialChar ~
 
 \series bold 
-STEPGEN_MAXVEL = 1.4
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+1.4
 \begin_inset Foot
 collapsed true
 
@@ -1432,93 +1553,93 @@ The step generator module, stepgen, applies its own limits to acceleration
 \end_inset 
 
 
-\layout Standard
-
-A value applied to the stepper pulse generator to provide some overhead
+\series default 
+ A value applied to the stepper pulse generator to provide some overhead
  for following error catch up.
  
-\layout Standard
+\layout Description
 
+STEPGEN_MAXACCEL\SpecialChar ~
 
 \series bold 
-STEPGEN_MAXACCEL = 21.0
-\layout Standard
-
-Overhead for the stepper pulse generator when it needs to catch up.
+=\SpecialChar ~
+21.0
+\series default 
+ Overhead for the stepper pulse generator when it needs to catch up.
  
 \layout Subsection
 
 [EMCIO] Section inside *.ini
-\layout Standard
+\layout Description
 
-The [EMCIO] section contains control values and setup parameters for the
- digital and analog I/O points in EMCIO.
- I/O controller
-\layout Standard
-
+CYCLE_TIME\SpecialChar ~
 
 \series bold 
-CYCLE_TIME = 0.100
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-The period, in seconds, at which EMCIO will run.
+\series bold 
+0.100
+\series default 
+ The period, in seconds, at which EMCIO will run.
  You can make this as small as you want to increase the throughput.
  Making it 0.0 or a negative number will tell EMCIO not to sleep at all.
  Ultimately the system loading will limit the effective throughput.
  
-\layout Standard
+\layout Description
 
-
-\series bold 
-TOOL_TABLE = tool.tbl
-\layout Standard
-
-The file which contains tool information.
- The format of the file is
-\layout LyX-Code
-
-POC FMS LEN DIAM COMMENT 
-\newline 
-1 1 0 0 
-\newline 
-2 2 0 0
-\layout Standard
-
-where the first line is a comment (in this case the name of the columns),
- and the subsequent lines contain the pocket number in which the tool is
- located, the tool ID of the tool itself, the length, the diameter, and
- an optional comment.
- The length and diameter are in user units.
-\layout Standard
-
-The following entries set parameters for spindle control.
- 
-\layout Standard
-
+TOOL_TABLE\SpecialChar ~
 
 \series bold 
-SPINDLE_OFF_WAIT = 1.0
-\layout Standard
+=
+\series default 
+\SpecialChar ~
 
-How long, in seconds, to wait after the spindle has been turned off before
+\series bold 
+tool.tbl
+\series default 
+ The file which contains tool information, described in 
+\begin_inset LatexCommand \ref{sub:Tool-File}
+
+\end_inset 
+
+
+\layout Description
+
+SPINDLE_OFF_WAIT\SpecialChar ~
+
+\series bold 
+=
+\series default 
+\SpecialChar ~
+
+\series bold 
+1.0
+\series default 
+ How long, in seconds, to wait after the spindle has been turned off before
  applying the brake.
  
-\layout Standard
+\layout Description
 
+SPINDLE_ON_WAIT\SpecialChar ~
 
 \series bold 
-SPINDLE_ON_WAIT = 1.5
-\layout Standard
-
-How long, in seconds, to wait after the spindle brake has been released
+=\SpecialChar ~
+1.5
+\series default 
+ How long, in seconds, to wait after the spindle brake has been released
  before turning the spindle on.
  
-\layout Standard
+\layout Description
 
+TOOL_CHANGE_POSITION\SpecialChar ~
 
 \series bold 
-TOOL_CHANGE_POSITION = 0 0 2
-\layout Standard
-
-Specifies the XYZ location to move to when performing a tool change.
+=\SpecialChar ~
+0\SpecialChar ~
+0\SpecialChar ~
+2
+\series default 
+ Specifies the XYZ location to move to when performing a tool change.
 \the_end
