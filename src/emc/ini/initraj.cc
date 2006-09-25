@@ -125,7 +125,7 @@ static int loadTraj()
 			("invalid inifile value for [TRAJ] LINEAR_UNITS: %s\n",
 			 inistring);
 		    }
-		    linearUnits = 1;	// default	    
+		    linearUnits = 1;	// default
 	    }
 	}
     }
@@ -134,10 +134,10 @@ static int loadTraj()
 	    // found, and valid
 	} else { //didn't find a number, check for a string
 	    if (1 == sscanf(inistring, "%s", angularUnitsName)) {
-		//got a string check in the linear_nv_pairs
-		for (i=0; i < MAX_CIR_NV_PAIRS ; i++) {
-		    if (strcmp(angularUnitsName, circular_nv_pairs[i].name) == 0) {
-			angularUnits = circular_nv_pairs[i].value;
+		//got a string check in the angular_nv_pairs
+		for (i=0; i < MAX_ANG_NV_PAIRS ; i++) {
+		    if (strcmp(angularUnitsName, angular_nv_pairs[i].name) == 0) {
+			angularUnits = angular_nv_pairs[i].value;
 			if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
 			    rcs_print("got ANGULAR_UNITS '%s' : %lf\n", angularUnitsName, angularUnits);
 			}

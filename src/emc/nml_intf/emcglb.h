@@ -43,6 +43,10 @@ struct nameval {
     double value;
 };
 
+
+/* The next const struct holds pairs for linear units which are 
+   valid under the [TRAJ] section. These are of the form {"name", value}.
+   If the name "name" is encountered in the ini, the value will be used */
 #define MAX_LIN_NV_PAIRS 5
 const struct nameval linear_nv_pairs[MAX_LIN_NV_PAIRS] = {
 	{ "mm", 	1.0 },
@@ -51,9 +55,12 @@ const struct nameval linear_nv_pairs[MAX_LIN_NV_PAIRS] = {
 	{ "inch", 	1/25.4 },
 	{ "imperial", 	1/25.4 },
     };
-
-#define MAX_CIR_NV_PAIRS 6
-const struct nameval circular_nv_pairs[MAX_CIR_NV_PAIRS] = {
+    
+/* The next const struct holds pairs for angular units which are 
+   valid under the [TRAJ] section. These are of the form {"name", value}.
+   If the name "name" is encountered in the ini, the value will be used */
+#define MAX_ANG_NV_PAIRS 6
+const struct nameval angular_nv_pairs[MAX_ANG_NV_PAIRS] = {
 	{ "deg", 	1.0 },
 	{ "degree", 	1.0 },
 	{ "grad", 	0.9 },
