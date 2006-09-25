@@ -183,14 +183,41 @@ static int loadAxis(int axis)
 		    ("invalid inifile value for [%s] UNITS: %s\n",
 		     axisString, inistring);
 	    }
-	    units = 1.0;	// default
+	    if (axisType == EMC_AXIS_LINEAR) {
+		units = emcTrajGetLinearUnits(); // get the default UNITS read in the TRAJ section
+		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		    rcs_print("using LINEAR_UNITS from TRAJ %d\n", units);
+		}
+	    } else if (axisType == EMC_AXIS_ANGULAR) {
+		units = emcTrajGetAngularUnits();
+		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		    rcs_print("using ANGULAR_UNITS from TRAJ %d\n", units);
+		}
+	    } else {
+		units = 1.0;	// default
+		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		    rcs_print_error("bad axisType=%d , no known UNITS from TRAJ, using 1.0\n", axisType);
+		}
+	    }
 	}
     } else {
 	// not found at all
-	units = 1.0;		// default
-	if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
-	    rcs_print_error("can't find [%s] UNITS, using default\n",
-			    axisString);
+	if (axisType == EMC_AXIS_LINEAR) {
+	    units = emcTrajGetLinearUnits(); // get the default UNITS read in the TRAJ section
+	    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	        rcs_print_error("can't find [%s] UNITS, using LINEAR_UNITS from TRAJ %lf\n", axisString, units);
+	    }
+	} else if (axisType == EMC_AXIS_ANGULAR) {
+	    units = emcTrajGetAngularUnits();
+	    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	        rcs_print_error("can't find [%s] UNITS, using ANGULAR_UNITS from TRAJ %lf\n", axisString, units);
+	    }
+	} else {
+	    units = 1.0;		// default
+	    if (EMC_DEBUG & EMC_DEBUG_DEFAULTS) {
+		rcs_print_error("can't find [%s] UNITS, don't know the axisType (%d) using default %lf\n",
+			    axisString, axisType, units);
+	    }
 	}
     }
     if (0 != emcAxisSetUnits(axis, units)) {

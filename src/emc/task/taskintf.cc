@@ -1074,6 +1074,16 @@ int emcTrajDelay(double delay)
     return 0;
 }
 
+double emcTrajGetLinearUnits()
+{
+    return localEmcTrajLinearUnits;
+}
+
+double emcTrajGetAngularUnits()
+{
+    return localEmcTrajAngularUnits;
+}
+
 int emcTrajSetSpindleSync(double sync) 
 {
     emcmotCommand.command = EMCMOT_SET_SPINDLESYNC;
@@ -1295,13 +1305,14 @@ int emcMotionInit()
     int r2;
     int axis;
 
+    r2 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
+
     r1 = -1;
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
 	if (0 == emcAxisInit(axis)) {
 	    r1 = 0;		// at least one is okay
 	}
     }
-    r2 = emcTrajInit();
 
     if (r1 == 0 && r2 == 0) {
 	emcmotion_initialized = 1;

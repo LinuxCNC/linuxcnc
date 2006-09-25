@@ -23,6 +23,7 @@ extern "C" {
 #endif
 
 #include "emcpos.h"		/* EmcPose */
+#include "math.h"		/* M_PI */
 
 #define EMC_AXIS_MAX 8
 
@@ -35,6 +36,31 @@ extern "C" {
 #define DEFAULT_RS274NGC_STARTUP_CODE ""
 #define RS274NGC_STARTUP_CODE_MAX 256
     extern char RS274NGC_STARTUP_CODE[RS274NGC_STARTUP_CODE_MAX];
+
+
+struct nameval {
+    char *name;
+    double value;
+};
+
+#define MAX_LIN_NV_PAIRS 5
+const struct nameval linear_nv_pairs[MAX_LIN_NV_PAIRS] = {
+	{ "mm", 	1.0 },
+	{ "metric", 	1.0 },
+	{ "in", 	1/25.4 },
+	{ "inch", 	1/25.4 },
+	{ "imperial", 	1/25.4 },
+    };
+
+#define MAX_CIR_NV_PAIRS 6
+const struct nameval circular_nv_pairs[MAX_CIR_NV_PAIRS] = {
+	{ "deg", 	1.0 },
+	{ "degree", 	1.0 },
+	{ "grad", 	0.9 },
+	{ "gon", 	0.9 },
+	{ "rad", 	M_PI / 180 },
+	{ "radian", 	M_PI / 180 },
+    };
 
 /* debug bitflags */
 /* Note: these may be hard-code referenced by the GUI (e.g., emcdebug.tcl).

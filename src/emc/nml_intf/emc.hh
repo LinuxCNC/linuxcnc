@@ -456,6 +456,8 @@ extern int emcTrajSetScale(double scale);
 extern int emcTrajSetSpindleScale(double scale);
 extern int emcTrajSetAdaptiveFeed(unsigned char enable);
 extern int emcTrajSetMotionId(int id);
+extern double emcTrajGetLinearUnits();
+extern double emcTrajGetAngularUnits();
 
 extern int emcTrajInit();
 extern int emcTrajHalt();
