@@ -632,6 +632,7 @@ endif
 .PHONY: tags
 tags:
 	ctags-exuberant \
+		--extra=+fq \
 		--exclude=depends --exclude=objects --exclude=.mod.c \
 		'--langmap=make:+(Submakefile),make:+(Makefile.inc),c:+.comp' \
 		-R . ../tcl ../scripts
