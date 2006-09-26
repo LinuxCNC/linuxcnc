@@ -632,6 +632,10 @@ endif
 .PHONY: tags
 tags:
 	ctags-exuberant -R . ../tcl ../scripts
+.PHONY: swish
+swish:
+	swish-e -c .swish_config -v 0 -i $(BASEPWD) \
+		$(dir $(BASEPWD)){tcl,scripts,configs,docs/src,docs/man/man1}
         
 # When you depend on objects/var-ZZZ you are depending on the contents of the
 # variable ZZZ, which is assumed to depend on a Makefile, a Submakefile, or

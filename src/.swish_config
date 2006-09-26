@@ -1,0 +1,10 @@
+FileRules filename contains .o$
+FileRules filename contains .ko$
+FileRules filename contains .mod.c$
+FileRules filename contains .pdf$
+FileRules filename contains .tex$
+FileRules filename contains .aux$
+FileRules pathname contains /objects/
+FileRules pathname contains /depends/
+FileRules pathname contains /CVS/
+IndexFile .swishindex
