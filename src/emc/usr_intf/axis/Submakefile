@@ -52,12 +52,6 @@ PYI18NSRCS := $(addprefix emc/usr_intf/axis/scripts/, $(PYSCRIPTS))  \
 	../lib/python/propertywindow.py \
 	../share/axis/tcl/axis.tcl
 
-ifneq ($(YAPPS),none)
-PYSCRIPTS += comp.py
-%.py: %.g
-	$(YAPPS) $< $@
-endif
-
 PYTARGETS += $(patsubst %.py,../bin/%,$(PYSCRIPTS))
 
 po/axis.pot: $(PYI18NSRCS)

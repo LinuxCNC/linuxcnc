@@ -53,3 +53,17 @@ USERSRCS += $(M5I20CFGSRCS)
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/m5i20cfg
+
+ifneq ($(YAPPS),none)
+../bin/%: hal/utils/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	@$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	@(echo '#!$(PYTHON)'; sed '1 { /^#!/d }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+TARGETS += ../bin/comp
+%.py: %.g
+	$(YAPPS) $< $@
+endif
+
+
