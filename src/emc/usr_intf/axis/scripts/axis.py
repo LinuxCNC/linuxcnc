@@ -2583,6 +2583,13 @@ machine_limit_max = [-10] * 6
 
 open_directory = "programs"
 
+unit_values = {'inch': 1/25.4, 'mm': 1}
+def units(s, d=1.0):
+    try:
+        return float(s)
+    except ValueError:
+        return unit_values.get(s, d)
+
 if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     import ConfigParser
     inifile = emc.ini(sys.argv[2])
@@ -2606,7 +2613,7 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
     coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
     lathe = bool(inifile.find("DISPLAY", "LATHE"))
-    lu = float(inifile.find("TRAJ", "LINEAR_UNITS"))
+    lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
     if coordinate_display:
         if coordinate_display.lower() in ("mm", "metric"): vars.metric.set(1)
         else: vars.metric.set(0)
@@ -2621,7 +2628,8 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     step_size = 1
     for a in range(axiscount):
         section = "AXIS_%d" % a
-        unit = float(inifile.find(section, "UNITS")) * 25.4
+        unit = inifile.find(section, "UNITS") or lu
+        unit = units(unit) * 25.4
         machine_limit_min[a] = float(inifile.find(section, "MIN_LIMIT")) / unit
         machine_limit_max[a] = float(inifile.find(section, "MAX_LIMIT")) / unit
         try:
