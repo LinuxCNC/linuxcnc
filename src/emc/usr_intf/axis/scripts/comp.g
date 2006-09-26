@@ -383,16 +383,18 @@ def document(filename, outfilename):
         print >>f, "\\fB%s\\fR" % to_hal_man(name),
         print >>f, type, dir
         print >>f, doc
-    print >>f, ".SH PARAMETERS"
-    for _, name, type, dir, doc, value in finddocs('param'):
-        print >>f, ".TP"
-        print >>f, "\\fB%s" % to_hal_man(name),
-        print >>f, type, dir,
-        if value:
-            print >>f, "\\fR(default: \\fI%s\\fR)" % value
-        else:
-            print >>f, "\\fR"
-        print >>f, doc
+
+    if params:
+        print >>f, ".SH PARAMETERS"
+        for _, name, type, dir, doc, value in finddocs('param'):
+            print >>f, ".TP"
+            print >>f, "\\fB%s" % to_hal_man(name),
+            print >>f, type, dir,
+            if value:
+                print >>f, "\\fR(default: \\fI%s\\fR)" % value
+            else:
+                print >>f, "\\fR"
+            print >>f, doc
 
 def process(filename, mode, outfilename):
     tempdir = tempfile.mkdtemp()
@@ -414,6 +416,10 @@ def process(filename, mode, outfilename):
 
         f = open(outfilename, "w")
 
+        if not functions:
+            raise SystemExit, "Component must have at least one function"
+        if not pins:
+            raise SystemExit, "Component must have at least one pin"
         prologue(f)
         lineno = a.count("\n") + 3
         f.write("#line %d \"%s\"\n" % (lineno, filename))
