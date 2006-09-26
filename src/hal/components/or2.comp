@@ -2,7 +2,7 @@ component not "Two-input OR gate";
 pin in bit in0;
 pin in bit in1;
 pin out bit out;
-function _;
+function _ nofp;
 ;;
 MODULE_LICENSE("GPL");
 FUNCTION(_) { out = in0 || in1; }

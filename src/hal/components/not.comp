@@ -1,7 +1,7 @@
 component not "Inverter";
 pin in bit in;
 pin out bit out;
-function _;
+function _ nofp;
 ;;
 MODULE_LICENSE("GPL");
 FUNCTION(_) { out = ! in; }
