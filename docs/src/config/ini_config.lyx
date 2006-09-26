@@ -150,8 +150,7 @@ A comment line is started with a ; or a # mark.
 \layout LyX-Code
 
 ; This is my little mill configuration file.
-\layout LyX-Code
-
+\newline 
 ; I set it up on January 12, 2006
 \layout Standard
 
@@ -160,14 +159,11 @@ Comments can also be used to select between several values of a single variable.
 \layout LyX-Code
 
 # DISPLAY = tkemc
-\layout LyX-Code
-
+\newline 
 DISPLAY = axis
-\layout LyX-Code
-
+\newline 
 # DISPLAY = mini
-\layout LyX-Code
-
+\newline 
 # DISPLAY = keystick
 \layout Standard
 
@@ -187,35 +183,73 @@ Sections in an INI file work like file folders in a drawer.
  Common INI files have several sections including;
 \layout Itemize
 
-[EMC] general information
+[EMC] general information (
+\begin_inset LatexCommand \ref{sub:[EMC]-Section}
+
+\end_inset 
+
+)
 \layout Itemize
 
-[DISPLAY] selects and sets up some display characteristics
+[DISPLAY] selects and sets up some display characteristics (
+\begin_inset LatexCommand \ref{sub:[DISPLAY]-Section}
+
+\end_inset 
+
+
 \layout Itemize
 
-[TASK] sets up the task planner
+[TASK] sets up the task planner (
+\begin_inset LatexCommand \ref{sub:[TASK]-Section}
+
+\end_inset 
+
+)
 \layout Itemize
 
 [RS274NGC] location of interpreter specific file
 \layout Itemize
 
-[EMCMOT] motion module and default characteristics
+[EMCMOT] motion module and default characteristics (
+\begin_inset LatexCommand \ref{sub:[EMCMOT]-Section}
+
+\end_inset 
+
+)
 \layout Itemize
 
-[HAL] hardware configuration files and commands
+[HAL] hardware configuration files and commands (
+\begin_inset LatexCommand \ref{sub:[HAL]-section}
+
+\end_inset 
+
+)
 \layout Itemize
 
-[TRAJ] information for the motion planner
+[TRAJ] information for the motion planner (
+\begin_inset LatexCommand \ref{sub:[TRAJ]-Section}
+
+\end_inset 
+
+)
 \layout Itemize
 
 [AXIS_0] ...
- [AXIS_n] individual axis variables
+ [AXIS_n] individual axis variables (
+\begin_inset LatexCommand \ref{sub:[AXIS]-Section}
+
+\end_inset 
+
+)
 \layout Itemize
 
 [EMCIO] emc's input and output variables.
-\layout Itemize
+ (
+\begin_inset LatexCommand \ref{sub:[EMCIO]-Section}
 
-[EMCSERVER] local v remote system setup
+\end_inset 
+
+)
 \layout Standard
 
 Each of these section names are on a line by themselves so you can quickly
@@ -265,6 +299,11 @@ We'll list these variables under section names in much the same way a real
 
 \color black
 [EMC] Section
+\begin_inset LatexCommand \label{sub:[EMC]-Section}
+
+\end_inset 
+
+
 \layout Description
 
 
@@ -345,6 +384,11 @@ G90
 
 \color black
 [DISPLAY] Section
+\begin_inset LatexCommand \label{sub:[DISPLAY]-Section}
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -382,6 +426,11 @@ xemc
 
 \color black
 [EMCMOT] Section
+\begin_inset LatexCommand \label{sub:[EMCMOT]-Section}
+
+\end_inset 
+
+
 \layout Description
 
 BASE_PERIOD\SpecialChar ~
@@ -398,6 +447,15 @@ You might want to make this value smaller if you have a fast computer because
  this value sets the maximum number of stepper pulses you can get from your
  machine.
  It has little effect on servo systems so leave it large.
+ In the absense of long setup or hold times, the absolute maximum step rate
+ for a step+direction motor is one step per two BASE_PERIOD, so
+\begin_inset Formula \begin{eqnarray*}
+max\_ step\_ rate & [\frac{steps}{second}]= & \frac{10^{9}}{2*base\_ period}\end{eqnarray*}
+
+\end_inset 
+
+Thus, the BASE_PERIOD shown above gives an absolute maximum step rate of
+ 10000 steps per second.
 \layout Description
 
 SERVO_PERIOD\SpecialChar ~
@@ -425,7 +483,12 @@ Folk with fast computers have found that reducing this value by half will
  give them smother motion blending during contour cutting .
 \layout Subsection
 
-[TASK]
+[TASK] Section
+\begin_inset LatexCommand \label{sub:[TASK]-Section}
+
+\end_inset 
+
+
 \layout Standard
 
 The [TASK] section contains general parameters for EMCTASK, which includes
@@ -451,7 +514,12 @@ CYCLE_TIME\SpecialChar ~
  Making it 0.0 or a negative number will tell EMCTASK not to sleep at all.
 \layout Subsection
 
-[HAL]
+[HAL] section
+\begin_inset LatexCommand \label{sub:[HAL]-section}
+
+\end_inset 
+
+
 \layout Standard
 
 The [HAL] section lists files and commands to setup the Hardware Abstraction
@@ -460,17 +528,29 @@ The [HAL] section lists files and commands to setup the Hardware Abstraction
  The exact set would depend upon the configuration of signals at the parallel
  port.
  At a minimum you would see the following.
- Standard_pinout matches the traditional EMC way of things while xylotex_pinout
+ Sherline mlls use the 
+\begin_inset Quotes eld
+\end_inset 
+
+standard_pinout
+\begin_inset Quotes erd
+\end_inset 
+
+, and 
+\begin_inset Quotes eld
+\end_inset 
+
+xylotex_pinout
+\begin_inset Quotes erd
+\end_inset 
+
  matches the setup for those brand of cards.
- 
-\layout Standard
+\layout LyX-Code
 
 HALFILE = core_stepper.hal
-\layout Standard
-
+\newline 
 HALFILE = standard_pinout.hal
-\layout Standard
-
+\newline 
 # HALFILE = xylotex_pinout.hal
 \layout Standard
 
@@ -488,8 +568,12 @@ See the Integrator Handbook for details.
 
 
 \color black
-[TRAJ] Section.
- 
+[TRAJ] Section
+\begin_inset LatexCommand \label{sub:[TRAJ]-Section}
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -667,7 +751,12 @@ MAX_ACCELERATION\SpecialChar ~
 
 
 \color black
-[AXIS_#] Section
+[AXIS_<num>] Section
+\begin_inset LatexCommand \label{sub:[AXIS]-Section}
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -783,14 +872,14 @@ Specifically, when reading inputs, the EMC first reads the raw sensor values.
  to the quasi-SI units used in the EMC.
  Hence a scaling is done immediately upon sampling: 
 \begin_inset Formula \[
-input=(raw-offset)/scale\]
+input=\frac{{raw-offset}}{scale}\]
 
 \end_inset 
 
  The value for scale can be obtained by doing a unit analysis, i.e., units
  are
 \begin_inset Formula \[
-[sensorunits]/[desiredinputSIunits]\]
+\frac{sensor\, units}{desired\, input\, SI\, units}\]
 
 \end_inset 
 
@@ -802,14 +891,14 @@ input=(raw-offset)/scale\]
 
 , and 10 revs/inch gearing, and desired units of mm, we have
 \begin_inset Formula \begin{eqnarray*}
-[scaleunits] & = & 2000[counts/rev]*10[rev/inch]*1/25.4[inch/mm]\\
- &  & =787.4counts/mm\end{eqnarray*}
+[scaleunits] & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}*1/25.4\frac{inch}{mm}\\
+ & = & 787.4\frac{{counts}}{mm}\end{eqnarray*}
 
 \end_inset 
 
- and, as a result, 
+and, as a result, 
 \begin_inset Formula \[
-input[mm]=(encoder[counts]-offset[counts])/787.4[counts/mm]\]
+input[mm]=(encoder[counts]-offset[counts])/787.4\]
 
 \end_inset 
 
@@ -886,6 +975,11 @@ ies.
 \layout Subsubsection
 
 Homing-related items
+\begin_inset LatexCommand \label{sub:Homing-related-items}
+
+\end_inset 
+
+
 \layout Standard
 
 The next few parameters are Homing related, for a better explanation read
@@ -984,6 +1078,11 @@ NO
 \layout Subsubsection
 
 Servo-related items
+\begin_inset LatexCommand \label{sub:Servo-related-items}
+
+\end_inset 
+
+
 \layout Standard
 
 The following items are for servo-based systems and servo-like systems including
@@ -992,14 +1091,17 @@ The following items are for servo-based systems and servo-like systems including
 
 
 \color black
-P 
+P\SpecialChar ~
+
 \series bold 
-= 50
-\layout Description
+=
+\series default 
+\SpecialChar ~
 
-
-\color black
-The proportional gain for the axis servo.
+\series bold 
+50
+\series default 
+ The proportional gain for the axis servo.
  This value multiplies the error between commanded and actual position in
  user units, resulting in a contribution to the computed voltage for the
  motor amplifier.
@@ -1009,14 +1111,13 @@ The proportional gain for the axis servo.
 
 
 \color black
-I 
+I\SpecialChar ~
+
 \series bold 
-= 0
-\layout Description
-
-
-\color black
-The integral gain for the axis servo.
+=\SpecialChar ~
+0
+\series default 
+ The integral gain for the axis servo.
  The value multiplies the cumulative error between commanded and actual
  position in user units, resulting in a contribution to the computed voltage
  for the motor amplifier.
@@ -1026,14 +1127,13 @@ The integral gain for the axis servo.
 
 
 \color black
-D 
+D\SpecialChar ~
+
 \series bold 
-= 0
-\layout Description
-
-
-\color black
-The derivative gain for the axis servo.
+=\SpecialChar ~
+0
+\series default 
+ The derivative gain for the axis servo.
  The value multiplies the difference between the current and previous errors,
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the D gain are volts per user unit per second.
@@ -1042,14 +1142,13 @@ The derivative gain for the axis servo.
 
 
 \color black
-FF0 
+FF0\SpecialChar ~
+
 \series bold 
-= 0
-\layout Description
-
-
-\color black
-The 0-th order feedforward gain.
+=\SpecialChar ~
+0
+\series default 
+ The 0-th order feedforward gain.
  This number is multiplied by the commanded position, resulting in a contributio
 n to the computed voltage for the motor amplifier.
  The units on the FF0 gain are volts per user unit.
@@ -1058,14 +1157,13 @@ n to the computed voltage for the motor amplifier.
 
 
 \color black
-FF1 
+FF1\SpecialChar ~
+
 \series bold 
-= 0
-\layout Description
-
-
-\color black
-The 1st order feedforward gain.
+=\SpecialChar ~
+0
+\series default 
+ The 1st order feedforward gain.
  This number is multiplied by the change in commanded position per second,
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the FF1 gain are volts per user unit per second.
@@ -1102,22 +1200,16 @@ Specifically, when writing outputs, the EMC first converts the desired output
  in quasi-SI units to raw actuator values, e.g., volts for an amplifier DAC.
  This scaling looks like: 
 \begin_inset Formula \[
-raw=(output-offset)/scale\]
+raw=\frac{{output-offset}}{scale}\]
 
 \end_inset 
 
  The value for scale can be obtained analytically by doing a unit analysis,
  i.e., units are [output SI units]/[actuator units].
  For example, on a machine with a velocity mode amplifier such that 1 volt
- results in 250 mm/sec velocity, we have: 
+ results in 250 mm/sec velocity, 
 \begin_inset Formula \[
-[scaleunits]=250[mm/sec]/1[volts]=250mm/sec/volt\]
-
-\end_inset 
-
- and, as a result, 
-\begin_inset Formula \[
-amplifier[volts]=(output[mm/sec]-offset[mm/sec])/250[mm/sec/volt]\]
+amplifier[volts]=(output[\frac{mm}{sec}]-offset[\frac{mm}{sec}])/250\frac{mm}{sec\, volt}\]
 
 \end_inset 
 
@@ -1504,6 +1596,11 @@ Measured
 \layout Subsubsection
 
 Stepper-related items
+\begin_inset LatexCommand \label{sub:Stepper-related-items}
+
+\end_inset 
+
+
 \layout Standard
 
 The following items are used by 
@@ -1557,7 +1654,12 @@ STEPGEN_MAXACCEL\SpecialChar ~
  
 \layout Subsection
 
-[EMCIO] Section inside *.ini
+[EMCIO] Section 
+\begin_inset LatexCommand \label{sub:[EMCIO]-Section}
+
+\end_inset 
+
+
 \layout Description
 
 CYCLE_TIME\SpecialChar ~
