@@ -6,6 +6,10 @@
 " into your ~/.vimrc (but then they will affect all files you edit with vim)
 "
 
+augroup filetypedetect
+ au! BufRead,BufNewFile *.comp setfiletype c
+augroup END
+
 augroup emc2
  " Remove all prior emc2 autocommands
  au!
