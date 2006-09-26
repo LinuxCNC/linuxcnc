@@ -1,0 +1,13 @@
+component hypot "Three-input hypotenuse (euclidean distance) calculator";
+pin in float in0;
+pin in float in1;
+pin in float in2;
+pin out float out;
+function _;
+;;
+#include <rtapi_math.h>
+MODULE_LICENSE("GPL");
+FUNCTION(_) {
+    double a = in0, b = in1, c = in2;
+    out = sqrt(a*a + b*b + c*c);
+}

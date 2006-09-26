@@ -8,6 +8,7 @@ As long as the hysteresis is unchanged, the output is unchanged.""";
 param rw float hyst=0.0 "Hysteresis of the comparator";
 function _ fp "Update the comparator";
 ;;
+MODULE_LICENSE("GPL");
 FUNCTION(_) {
     float tmp = in1 - in0;
 

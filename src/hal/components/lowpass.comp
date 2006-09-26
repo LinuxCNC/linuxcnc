@@ -1,0 +1,10 @@
+component lowpass "Low-pass filter";
+pin in float in;
+pin in float gain;
+pin out float out;
+function _;
+;;
+MODULE_LICENSE("GPL");
+FUNCTION(_) {
+    out = (in - out) * gain;
+}

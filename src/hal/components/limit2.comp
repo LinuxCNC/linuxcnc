@@ -1,0 +1,23 @@
+component limit2 "Limit the output signal to fall between min and max and so that its max slew rate is less than maxv per second";
+pin in float in;
+pin out float out;
+pin in float min_;
+pin in float max_;
+pin in float maxv;
+param r float old_out;
+function _;
+;;
+MODULE_LICENSE("GPL");
+static inline double clamp(double v, double sub, double sup) {
+    if(v < sub) return sub;
+    if(v > sup) return sup;
+    return v;
+}
+FUNCTION(_) {
+    double tmp = in;
+    double maxdelta = maxv * fperiod;
+    tmp = clamp(tmp, min_, max_);
+    tmp = clamp(tmp, old_out - maxdelta, old_out + maxdelta);
+    old_out = out;
+    out = tmp;
+}

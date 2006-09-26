@@ -1,0 +1,14 @@
+component limit1 "Limit the output signal to fall between min and max";
+pin in float in;
+pin out float out;
+pin in float min_;
+pin in float max_;
+function _;
+;;
+MODULE_LICENSE("GPL");
+FUNCTION(_) {
+    double tmp = in;
+    if(tmp < min_) tmp = min_;
+    if(tmp > max_) tmp = max_;
+    out = tmp;
+}
