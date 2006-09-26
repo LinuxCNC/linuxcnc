@@ -730,6 +730,16 @@ proc toggleLimitOverride {} {
     }
 }
 
+# toggles the optional stop
+proc toggleOptionalStop {} {
+    if {[emc_optional_stop]} {
+        emc_optional_stop 0
+    } else {
+        emc_optional_stop 1
+    }
+}
+
+
 # use the top-level window as our top-level window, and name it
 wm title . "TkEMC"
 
@@ -1483,9 +1493,13 @@ set programpausebutton [button $programframe.pause -text [msgcat::mc "Pause"] -c
 set programresumebutton [button $programframe.resume -text [msgcat::mc "Resume"] -command {emc_resume} -takefocus 0]
 set programstepbutton [button $programframe.step -text [msgcat::mc "Step"] -command {emc_step} -takefocus 0]
 set programverifybutton [button $programframe.verify -text [msgcat::mc "Verify"] -command {emc_run -1} -takefocus 0]
+set opstopbutton [button $programframe.opstop -text [msgcat::mc "Optional Stop"] -command {toggleOptionalStop} -takefocus 0]
+
+set opstopbuttonbg [$opstopbutton cget -background]
+set opstopbuttonabg [$opstopbutton cget -activebackground]
 
 pack $programframe -side top -anchor w -fill both -expand true
-pack $programopenbutton $programrunbutton $programpausebutton $programresumebutton $programstepbutton $programverifybutton -side left -fill both -expand true
+pack $programopenbutton $programrunbutton $programpausebutton $programresumebutton $programstepbutton $programverifybutton $opstopbutton -side left -fill both -expand true
 
 # programfileframe is the frame for the program text widget showing the file
 set programfileframe [frame $top.programfileframe]
@@ -1991,6 +2005,7 @@ proc updateStatus {} {
     # end
     global radiorel radiocmd radioact radioabs
     global limoridebutton limoridebuttonbg limoridebuttonabg
+    global opstopbutton opstopbuttonbg opstopbuttonabg
     global realfeedoverride feedoverride syncingFeedOverride
     global realspindleoverride spindleoverride syncingSpindleOverride
     global mdientry
@@ -2300,6 +2315,15 @@ proc updateStatus {} {
     } else {
         $limoridebutton config -background $limoridebuttonbg
         $limoridebutton config -activebackground $limoridebuttonabg
+    }
+
+    # color the optional stop button green if active
+    if {[emc_optional_stop]} {
+        $opstopbutton config -background darkgreen
+        $opstopbutton config -activebackground darkgreen
+    } else {
+        $opstopbutton config -background $opstopbuttonbg
+        $opstopbutton config -activebackground $opstopbuttonabg
     }
 
     # set the feed override
