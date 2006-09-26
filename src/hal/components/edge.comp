@@ -21,7 +21,7 @@ pin out bit out "Goes high when the desired edge is seen on 'in'";
 pin out bit out_invert "Goes low when the desired edge is seen on 'in'";
 
 param rw bit in_edge=TRUE "Selects the desired edge: TRUE means falling, FALSE means rising";
-param rw float out_width_ns=0 "Time in nanoseconds of the output pulse";
+param rw s32 out_width_ns=0 "Time in nanoseconds of the output pulse";
 
 param r s32 time_left_ns "Time left in this output pulse";
 param r bit last_in "Previous input value";
