@@ -1,0 +1,84 @@
+//   This is a component for EMC2 HAL
+//   Copyright 2006 John Kasunich <jmkasunich@users.sourceforge.net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+component oneshot "one-shot pulse generator";
+
+pin in bit in "Trigger input";
+pin out bit out "Active high pulse";
+pin out bit out_not "Active low pulse";
+
+param rw bit retriggerable=TRUE "Allow additional edges to extend pulse";
+param rw bit rising=TRUE "Trigger on rising edge";
+param rw bit falling=FALSE "Trigger on falling edge";
+param rw float width=0 "Pulse width in seconds";
+
+param r float time_left "Time left in current output pulse";
+
+option data internal;
+option extra_setup yes;
+
+function _ "Produce output pulses from input edges";
+;;
+
+typedef struct {
+    double timer;
+    char old_in;
+} internal;
+
+MODULE_LICENSE("GPL");
+
+EXTRA_SETUP(){
+    data.timer = 0.0;
+    data.old_in = 0;
+    return 0;
+}
+
+FUNCTION(_){ 
+    int new, old, trigger;
+
+    new = in;
+    old = data.old_in;
+    trigger = 0;
+    /* detect edges */
+    if ( new && (!old) && rising ) trigger = 1;
+    if ( old && (!new) && falling ) trigger = 1;
+    data.old_in = new;
+    /* is a pulse already running? */
+    if ( data.timer > 0.0 ) {
+	if ( ! retriggerable ) {
+	    /* ignore edges during pulse */
+	    trigger = 0;
+	}
+	/* decrement timer */
+	data.timer -= period * 0.000000001;
+	if ( data.timer < 0.0 ) data.timer = 0.0;
+    }
+    if ( trigger ) {
+	/* (re)start pulse */
+	data.timer = width;
+    }
+    /* drive outputs */
+    time_left = data.timer;
+    if ( data.timer > 0.0 ) {
+	out = 1;
+	out_not = 0;
+    } else {
+	out = 0;
+	out_not = 1;
+    }
+}
+
