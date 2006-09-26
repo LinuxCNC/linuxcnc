@@ -51,11 +51,13 @@
     bias	Constant offset on output
     FF0		Zeroth order Feedforward gain
     FF1		First order Feedforward gain
+    FF2		Second order Feedforward gain
     deadband	Amount of error that will be ignored
     maxerror	Limit on error
     maxerrorI	Limit on error integrator
     maxerrorD	Limit on error differentiator
     maxcmdD	Limit on command differentiator
+    maxcmdDD	Limit on command 2nd derivative
     maxoutput	Limit on output value
 
     All of the limits (max____) are implemented such that if the
@@ -69,6 +71,7 @@
     errorI	Integral of error
     errorD	Derivative of error
     commandD	Derivative of the command
+    commandDD	2nd derivative of the command
 
     The PID loop calculations are as follows (see the code for
     all the nitty gritty details):
@@ -82,8 +85,11 @@
     limit errorD to +/- paxerrorD
     commandD = (command - previouscommand) / period
     limit commandD to +/- maxcmdD
+    commandDD = (commandD - previouscommandD) / period
+    limit commandDD to +/- maxcmdDD
     output = bias + error * Pgain + errorI * Igain +
-             errorD * Dgain + command * FF0 + commandD + FF1
+             errorD * Dgain + command * FF0 + commandD * FF1 +
+             commandDD * FF2
     limit output to +/- maxoutput
 
     This component exports one function called 'pid.x.do-pid-calcs'
@@ -161,18 +167,21 @@ typedef struct {
     hal_float_t maxerror_i;	/* param: limit for integrated error */
     hal_float_t maxerror_d;	/* param: limit for differentiated error */
     hal_float_t maxcmd_d;	/* param: limit for differentiated cmd */
+    hal_float_t maxcmd_dd;	/* param: limit for 2nd derivative of cmd */
     hal_float_t error_i;	/* opt. param: integrated error */
     float prev_error;		/* previous error for differentiator */
     hal_float_t error_d;	/* opt. param: differentiated error */
     float prev_cmd;		/* previous command for differentiator */
     float limit_state;		/* +1 or -1 if in limit, else 0.0 */
     hal_float_t cmd_d;		/* opt. param: differentiated command */
+    hal_float_t cmd_dd;		/* opt. param: 2nd derivative of command */
     hal_float_t bias;		/* param: steady state offset */
     hal_float_t pgain;		/* param: proportional gain */
     hal_float_t igain;		/* param: integral gain */
     hal_float_t dgain;		/* param: derivative gain */
     hal_float_t ff0gain;	/* param: feedforward proportional */
     hal_float_t ff1gain;	/* param: feedforward derivative */
+    hal_float_t ff2gain;	/* param: feedforward 2nd derivative */
     hal_float_t maxoutput;	/* param: limit for PID output */
     hal_float_t *output;	/* pin: the output value */
 } hal_pid_t;
@@ -247,7 +256,7 @@ void rtapi_app_exit(void)
 static void calc_pid(void *arg, long period)
 {
     hal_pid_t *pid;
-    float tmp1;
+    float tmp1, tmp2;
     int enable;
     float periodfp, periodrecip;
 
@@ -309,6 +318,8 @@ static void calc_pid(void *arg, long period)
 	}
     }
     /* calculate derivative of command */
+    /* save old value for 2nd derivative calc later */
+    tmp2 = pid->cmd_d;
     pid->cmd_d = (*(pid->command) - pid->prev_cmd) * periodrecip;
     pid->prev_cmd = *(pid->command);
     /* apply derivative limits */
@@ -319,13 +330,24 @@ static void calc_pid(void *arg, long period)
 	    pid->cmd_d = -pid->maxcmd_d;
 	}
     }
+    /* calculate 2nd derivative of command */
+    pid->cmd_dd = (pid->cmd_d - tmp2) * periodrecip;
+    /* apply 2nd derivative limits */
+    if (pid->maxcmd_dd != 0.0) {
+	if (pid->cmd_dd > pid->maxcmd_dd) {
+	    pid->cmd_dd = pid->maxcmd_dd;
+	} else if (pid->cmd_dd < -pid->maxcmd_dd) {
+	    pid->cmd_dd = -pid->maxcmd_dd;
+	}
+    }
     /* do output calcs only if enabled */
     if (enable != 0) {
 	/* calculate the output value */
 	tmp1 =
 	    pid->bias + pid->pgain * tmp1 + pid->igain * pid->error_i +
 	    pid->dgain * pid->error_d;
-	tmp1 += *(pid->command) * pid->ff0gain + pid->cmd_d * pid->ff1gain;
+	tmp1 += *(pid->command) * pid->ff0gain + pid->cmd_d * pid->ff1gain +
+	    pid->cmd_dd * pid->ff2gain;
 	/* apply output limits */
 	if (pid->maxoutput != 0.0) {
 	    if (tmp1 > pid->maxoutput) {
@@ -416,6 +438,11 @@ static int export_pid(int num, hal_pid_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxcmdDD", num);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->maxcmd_dd), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.bias", num);
     retval = hal_param_float_new(buf, HAL_RW, &(addr->bias), comp_id);
     if (retval != 0) {
@@ -446,6 +473,11 @@ static int export_pid(int num, hal_pid_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.FF2", num);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->ff2gain), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxoutput", num);
     retval = hal_param_float_new(buf, HAL_RW, &(addr->maxoutput), comp_id);
     if (retval != 0) {
@@ -465,6 +497,11 @@ static int export_pid(int num, hal_pid_t * addr)
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.commandD", num);
 	retval = hal_param_float_new(buf, HAL_RO, &(addr->cmd_d), comp_id);
+	if (retval != 0) {
+	    return retval;
+	}
+	rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.commandDD", num);
+	retval = hal_param_float_new(buf, HAL_RO, &(addr->cmd_dd), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
