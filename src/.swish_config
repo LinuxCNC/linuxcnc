@@ -7,4 +7,5 @@ FileRules filename contains .aux$
 FileRules pathname contains /objects/
 FileRules pathname contains /depends/
 FileRules pathname contains /CVS/
+FileRules pathname contains /tags$
 IndexFile .swishindex
