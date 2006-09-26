@@ -242,6 +242,15 @@
   emc_program_codes
   Returns the string for the currently active program codes
 
+  emc_override_limit none | 0 | 1
+  returns state of override, sets it or deactivates it (used to jog off hardware limit switches)
+  
+  emc_optional_stop  none | 0 | 1
+  returns state of optional setop, sets it or deactivates it (used to atop/continue on M1)
+
+  emc_program_codes
+  Returns the string for the currently active program codes
+
   emc_joint_type <joint>
   Returns "linear", "angular", or "custom" for the type of the specified joint
 
@@ -1446,6 +1455,22 @@ static int sendProgramResume()
 
     emc_task_plan_resume_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_task_plan_resume_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+static int sendSetOptionalStop(char state)
+{
+    EMC_TASK_PLAN_SET_OPTIONAL_STOP emc_task_plan_set_optional_stop_msg;
+
+    emc_task_plan_set_optional_stop_msg.state = state;
+    emc_task_plan_set_optional_stop_msg.serial_number = ++emcCommandSerialNumber;
+    emcCommandBuffer->write(emc_task_plan_set_optional_stop_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived(emcCommandSerialNumber);
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -3274,6 +3299,45 @@ static int emc_pause(ClientData clientdata,
     }
 
     return TCL_OK;
+}
+
+static int emc_optional_stop(ClientData clientdata,
+			      Tcl_Interp * interp, int objc,
+			      Tcl_Obj * CONST objv[])
+{
+    Tcl_Obj *obj;
+    int on;
+
+    if (objc == 1) {
+	// no arg-- return status
+	if (emcUpdateType == EMC_UPDATE_AUTO) {
+	    updateStatus();
+	}
+	// get the current state from the status
+	obj = Tcl_NewIntObj(emcStatus->task.optional_stop_state);
+	Tcl_SetObjResult(interp, obj);
+	return TCL_OK;
+    }
+
+    if (objc == 2) {
+	if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &on)) {
+	    if (0 != sendSetOptionalStop(on)) {
+		    Tcl_SetResult(interp,
+				  "emc_optional_stop: can't send command",
+				  TCL_VOLATILE);
+		    return TCL_OK;
+	    }
+	    return TCL_OK;
+	} else {
+	    Tcl_SetResult(interp, "emc_optional_stop: need 0 or 1",
+			  TCL_VOLATILE);
+	    return TCL_ERROR;
+	}
+    }
+
+    Tcl_SetResult(interp, "emc_optional_stop: need no args, 0 or 1",
+		  TCL_VOLATILE);
+    return TCL_ERROR;
 }
 
 static int emc_resume(ClientData clientdata,
@@ -5115,6 +5179,9 @@ int Tcl_AppInit(Tcl_Interp * interp)
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_override_limit", emc_override_limit,
+			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "emc_optional_stop", emc_optional_stop,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_joint_homed", emc_joint_homed,
