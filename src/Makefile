@@ -631,7 +631,10 @@ endif
 # shouldn't exist as a file
 .PHONY: tags
 tags:
-	ctags-exuberant -R . ../tcl ../scripts
+	ctags-exuberant \
+		--exclude=depends --exclude=objects --exclude=.mod.c \
+		'--langmap=make:+(Submakefile),make:+(Makefile.inc),c:+.comp' \
+		-R . ../tcl ../scripts
 .PHONY: swish
 swish:
 	swish-e -c .swish_config -v 0 -i $(BASEPWD) \
