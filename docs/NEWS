@@ -1,6 +1,9 @@
 # some of EMC2 History & News
 #############################
 
+2006.09.26 - added support to specify UNITS in literal in the ini. 
+             (e.g. [TRAJ] LINEAR_UNITS = mm )
+
 2006.09.09 - fixed bug #1384883, optional stop was not optional.
 
 2006.08.09 - AXIS is now a part of EMC2, not a separate source download.
