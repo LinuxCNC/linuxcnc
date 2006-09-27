@@ -161,6 +161,7 @@ extern "C" {
 	EMCMOT_SPINDLE_DECREASE,	/* spindle slower */
 	EMCMOT_SPINDLE_BRAKE_ENGAGE,	/* engage the spindle brake */
 	EMCMOT_SPINDLE_BRAKE_RELEASE,	/* release the spindle brake */
+	EMCMOT_SET_MOTOR_OFFSET,	/* set the offset between joint and motor */
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -188,6 +189,7 @@ extern "C" {
 	unsigned char head;	/* flag count for mutex detect */
 	cmd_code_t command;	/* command code (enum) */
 	int commandNum;		/* increment this for new command */
+	double motor_offset;    /* offset from joint to motor position */
 	double maxLimit;	/* pos value for position limit, output */
 	double minLimit;	/* neg value for position limit, output */
 	EmcPose pos;		/* line/circle endpt, or teleop vector */

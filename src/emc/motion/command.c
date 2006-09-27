@@ -553,6 +553,15 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
+	case EMCMOT_SET_MOTOR_OFFSET:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_MOTOR_OFFSET");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
+	    if(joint == 0) {
+		break;
+	    }
+	    joint->motor_offset = emcmotCommand->motor_offset;
+	    break;
+
 	case EMCMOT_SET_POSITION_LIMITS:
 	    /* sets soft limits for an axis */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_POSITION_LIMITS");

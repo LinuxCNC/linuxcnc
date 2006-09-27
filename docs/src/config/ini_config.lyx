@@ -747,6 +747,14 @@ MAX_ACCELERATION\SpecialChar ~
 \series default 
  The maximum acceleration for any axis or coordinated axis move, in user
  units per second per second.
+\layout Description
+
+POSITION_FILE\SpecialChar ~
+=\SpecialChar ~
+position.txt If set to a non-empty value, the joint positions
+ are stored between runs in this file.
+ If unset, joint positions are not stored and will begin at 0 each time
+ emc is started.
 \layout Subsection
 
 

@@ -401,6 +401,7 @@ extern int emcAxisSetInputScale(int axis, double scale, double offset);
 extern int emcAxisSetOutputScale(int axis, double scale, double offset);
 extern int emcAxisSetMinPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxPositionLimit(int axis, double limit);
+extern int emcAxisSetMotorOffset(int axis, double offset);
 extern int emcAxisSetMinOutputLimit(int axis, double limit);
 extern int emcAxisSetMaxOutputLimit(int axis, double limit);
 extern int emcAxisSetFerror(int axis, double ferror);

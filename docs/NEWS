@@ -1,6 +1,9 @@
 # some of EMC2 History & News
 #############################
 
+2006.09.27 - added support to optionally save joint positions between
+             runs ([TRAJ] POSITION_FILE = position.txt)
+
 2006.09.26 - added support to specify UNITS in literal in the ini. 
              (e.g. [TRAJ] LINEAR_UNITS = mm )
 

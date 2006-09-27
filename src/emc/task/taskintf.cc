@@ -273,6 +273,17 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcAxisSetMotorOffset(int axis, double offset) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+	return 0;
+    }
+    emcmotCommand.command = EMCMOT_SET_MOTOR_OFFSET;
+    emcmotCommand.axis = axis;
+    emcmotCommand.motor_offset = offset;
+    
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 /*! \todo Another #if 0 */
 #if 0
 
@@ -1298,11 +1309,50 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     return 0;
 }
 
+int emcPositionLoad() {
+    double positions[EMCMOT_MAX_AXIS];
+    Inifile ini;
+    ini.open(EMC_INIFILE);
+    const char *posfile = ini.find("POSITION_FILE", "TRAJ");
+    ini.close();
+    if(!posfile || !posfile[0]) return 0;
+    FILE *f = fopen(posfile, "r");
+    if(!f) return 0;
+    for(int i=0; i<EMCMOT_MAX_AXIS; i++) {
+	int r = fscanf(f, "%lf", &positions[i]);
+	if(r != 1) { fclose(f); return -1; }
+    }
+    fclose(f);
+    int result = 0;
+    for(int i=0; i<EMCMOT_MAX_AXIS; i++) {
+	if(emcAxisSetMotorOffset(i, -positions[i]) != 0) result = -1;;
+    }
+    return result;
+}
+
+
+int emcPositionSave() {
+    Inifile ini;
+    ini.open(EMC_INIFILE);
+    const char *posfile = ini.find("POSITION_FILE", "TRAJ");
+    ini.close();
+    if(!posfile || !posfile[0]) return 0;
+    FILE *f = fopen(posfile, "w");
+    if(!f) return -1;
+    for(int i=0; i<EMCMOT_MAX_AXIS; i++) {
+	int r = fprintf(f, "%.17f\n", emcmotStatus.joint_status[i].pos_fb);
+	if(r < 0) { fclose(f); return -1; }
+    }
+    fclose(f);
+    return 0;
+}
+
 // EMC_MOTION functions
 int emcMotionInit()
 {
     int r1;
     int r2;
+    int r3;
     int axis;
 
     r2 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
@@ -1314,16 +1364,18 @@ int emcMotionInit()
 	}
     }
 
-    if (r1 == 0 && r2 == 0) {
+    r3 = emcPositionLoad();
+
+    if (r1 == 0 && r2 == 0 && r3 == 0) {
 	emcmotion_initialized = 1;
     }
 
-    return (r1 == 0 && r2 == 0) ? 0 : -1;
+    return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
 }
 
 int emcMotionHalt()
 {
-    int r1, r2, r3;
+    int r1, r2, r3, r4;
     int t;
 
     r1 = -1;
@@ -1335,10 +1387,10 @@ int emcMotionHalt()
 
     r2 = emcTrajDisable();
     r3 = emcTrajHalt();
-
+    r4 = emcPositionSave();
     emcmotion_initialized = 0;
 
-    return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
+    return (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0) ? 0 : -1;
 }
 
 int emcMotionAbort()
