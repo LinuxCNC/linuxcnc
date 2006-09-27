@@ -797,6 +797,8 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
     }
     /* can't start periodic tasks if timer isn't running */
     if ((rtapi_data->timer_running == 0) || (rtapi_data->timer_period == 0)) {
+        rtapi_print_msg(RTAPI_MSG_ERR, 
+                "RTAPI: could not start task: timer isn't running\n");
 	return RTAPI_FAIL;
     }
     /* make period_nsec an integer multiple of timer_period */
@@ -856,6 +858,7 @@ int rtapi_task_resume(int task_id)
 int rtapi_task_pause(int task_id)
 {
     int retval;
+    int oldstate;
     task_data *task;
 
     /* validate task ID */
@@ -869,12 +872,14 @@ int rtapi_task_pause(int task_id)
 	return RTAPI_INVAL;
     }
     /* pause the task */
+    oldstate = task->state;
+    task->state = PAUSED;
     retval = rt_task_suspend(ostask_array[task_id]);
     if (retval != 0) {
+        task->state = oldstate;
 	return RTAPI_FAIL;
     }
     /* update task data */
-    task->state = PAUSED;
     return RTAPI_SUCCESS;
 }
 
