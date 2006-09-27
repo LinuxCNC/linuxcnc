@@ -3,6 +3,8 @@ FileRules filename contains .ko$
 FileRules filename contains .mod.c$
 FileRules filename contains .pdf$
 FileRules filename contains .eps$
+FileRules filename contains .png$
+FileRules filename contains .BIT$
 FileRules filename contains .tex$
 FileRules filename contains .aux$
 FileRules pathname contains /objects/
@@ -10,3 +12,4 @@ FileRules pathname contains /depends/
 FileRules pathname contains /CVS/
 FileRules pathname contains /tags$
 IndexFile .swishindex
+DefaultContents TXT
